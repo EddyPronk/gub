@@ -1,0 +1,3 @@
+
+foo:
+	python driver.py
