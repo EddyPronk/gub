@@ -25,9 +25,6 @@ class Odcc_tools (gub.Package):
 		gub.Package.__init__ (self, settings)
 		self.url = 'http://www.opendarwin.org/downloads/odcctools-20051031.tar.bz2'
 
-	def name (self):
-		return "odcctools"
-
 	def installdir (self):
 		return self.settings.tooldir
 	
@@ -60,7 +57,9 @@ class Gcc (gub.Package):
 --with-as=%(tooldir)s/bin/powerpc-apple-darwin-as  \
 --with-ld=%(tooldir)s/bin/powerpc-apple-darwin-ld  \
 --with-sysroot=%(systemdir)s --enable-static --enable-shared  \
---enable-languages=c ''' % self.settings.__dict__ # let's skip c++ for the moment.
+--enable-languages=c ''' % self.settings.__dict__
+
+		# let's skip c++ for the moment.
 		return cmd
 
 		
