@@ -6,15 +6,10 @@ class  Darwin_sdk (gub.Package):
 		return 'darwin-sdk.tar.gz'
 	def __init__ (self, settings):
 		gub.Package.__init__ (self, settings)
-
-	def name (self):
-		return 'darwin-sdk'
-
+		self.url = 'http://lilypond.org/~hanwen/darwin-sdk.tar.gz'
+		
 	def unpack_destination (self):
-		return self.settings.systemdir
-
-	def download (self):
-		pass
+ 		return self.settings.systemdir
 
 	def configure (self):
 		pass
