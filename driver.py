@@ -12,10 +12,11 @@ class Settings:
 
 	
 settings = Settings()
-settings.target_architecture = 'powerpc-apple-darwin' 
+settings.target_architecture = 'powerpc-apple-darwin7' 
+settings.target_gcc_flags = '' 
 settings.topdir = os.getcwd()
 settings.downloaddir = os.getcwd() + '/downloads/'
-
+settings.build_spec = 'i686-linux'
 settings.srcdir = os.path.join (settings.topdir, 'src')
 settings.specdir = settings.topdir + '/specs/'
 settings.targetdir = settings.topdir + '/target/%s/' % settings.target_architecture
