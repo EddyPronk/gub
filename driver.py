@@ -25,12 +25,13 @@ settings.builddir = settings.targetdir + '/build/'
 settings.installdir = settings.targetdir + '/install/'
 settings.statusdir = settings.targetdir + '/status/'
 settings.tooldir = settings.targetdir + '/tools/'
+settings.garbagedir = settings.targetdir + '/garbage/'
 
 os.environ["PATH"] = '%s/%s:%s' % (settings.tooldir, 'bin', os.environ["PATH"])
 
 
 def create_dirs (settings): 
-    for a in ['topdir', 'statusdir', 
+    for a in ['topdir', 'statusdir', 'garbagedir',
 	      'downloaddir', 'srcdir', 'specdir',
 	      'targetdir', 'systemdir']:
 	    try:

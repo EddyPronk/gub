@@ -1,0 +1,5 @@
+2005-11-22  Han-Wen Nienhuys  <hanwen@xs4all.nl>
+
+	* gub.py (Target_package.configure_command): trim
+	directories. Install headers in /garbage/
+

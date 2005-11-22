@@ -5,7 +5,8 @@ import gub
 class  Gettext (gub.Target_package):
 	def __init__ (self, settings):
 		gub.Package.__init__ (self, settings)
-		self.url = 'ftp://dl.xs4all.nl/pub/mirror/gnu/gettext/gettext-0.14.tar.gz'
+		self.url = 'ftp://dl.xs4all.nl/pub/mirror/gnu/gettext/gettext-0.10.40.tar.gz'
+		# ftp://dl.xs4all.nl/pub/mirror/gnu/gettext/gettext-0.14.tar.gz'
 
 	def configure_cache_overrides (self, str):
 		str = re.sub ('ac_cv_func_select=yes','ac_cv_func_select=no', str)

@@ -111,21 +111,26 @@ class Cross_package (Package):
 		cmd = Package.configure_command (self)
 		cmd += ' --target=%s --with-sysroot=%s ' % (self.settings.target_architecture, self.settings.systemdir)
 		return cmd
-		
-
 	
 class Target_package (Package):
 	def configure_command (self):
-		flags = '--config-cache --enable-shared --disable-static --build=%(build_spec)s --host=%(target_architecture)s --target=%(target_architecture)s --prefix=/usr --exec-prefix=/usr --sysconfdir=/etc --infodir=/usr/share/info --mandir=/usr/share/man --libdir=/usr/lib --includedir=/nonexistent/include --libexecdir=/usr/sbin'
+		# --config-cache
+		flags = ' --enable-shared --disable-static --build=%(build_spec)s --host=%(target_architecture)s --target=%(target_architecture)s --prefix=/usr --sysconfdir=/etc --includedir=%(garbagedir)s '
 		flags = flags % self.settings.__dict__
 
 		return '%s/configure %s' % (self.srcdir(), flags)
 
 	def configure_cache_overrides (self,str):
-		 return str
-	 
+		return str
+
+	def installdir (self):
+		return self.settings.installdir + "/" + self.name () + "-root/"
+
+	def install_command (self):
+		return 'make prefix=%s install' % self.installdir ()
+		
 	def configure (self):
-		self.system ("mkdir -p %s")
+		self.system ("mkdir -p %s" % self.builddir ())
 		cache_fn = self.builddir () +'/config.cache'
 		cache = open (cache_fn, 'w')
 		str = cross.cross_config_cache + cross.cygwin
@@ -139,12 +144,10 @@ class Target_package (Package):
 	def system (self, cmd):
 	
 		dict = {'CXX':'%(target_architecture)s-g++ %(target_gcc_flags)s',
-		 'CXX_FOR_TARGET':'%(target_architecture)s-g++ %(target_gcc_flags)s',
-		 'CC':'%(target_architecture)sgcc %(target_gcc_flags)s',
-		 'CC_FOR_TARGET': '%(target_architecture)sgcc %(target_gcc_flags)s',
+		 'CC':'%(target_architecture)s-gcc %(target_gcc_flags)s',
 		 'RANLIB': '%(target_architecture)s-ranlib',
-		 'RANLIB_FOR_TARGET': '%(target_architecture)s-ranlib',
 		 'DLLWRAP' : '%(target_architecture)s-dllwrap',
+		 'LD': '%(target_architecture)s-ld',
 		 'AR': '%(target_architecture)s-ar',
 		 'NM': '%(target_architecture)s-nm'}
 		
