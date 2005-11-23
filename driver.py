@@ -1,78 +1,82 @@
-import sys
-sys.path.insert (0, 'specs/')
-
-import re
+import __main__
 import os
-import gub
+import re
+import sys
 
+sys.path.insert (0, 'specs/')
+import gub
+import framework
 
 class Settings:
-	def __init__ (self):
-		pass
+	def __init__ (self, arch):
+		self.target_gcc_flags = '' 
+		self.topdir = os.getcwd ()
+		self.downloaddir = os.getcwd () + '/downloads'
+		self.build_spec = 'i686-linux'
+		self.srcdir = os.path.join (self.topdir, 'src')
+		self.specdir = self.topdir + '/specs'
 
-	
-settings = Settings()
-settings.target_architecture = 'powerpc-apple-darwin7' 
-settings.target_gcc_flags = '' 
-settings.topdir = os.getcwd()
-settings.downloaddir = os.getcwd() + '/downloads/'
-settings.build_spec = 'i686-linux'
-settings.srcdir = os.path.join (settings.topdir, 'src')
-settings.specdir = settings.topdir + '/specs/'
-settings.targetdir = settings.topdir + '/target/%s/' % settings.target_architecture
-settings.systemdir = settings.targetdir + '/system/'
-settings.builddir = settings.targetdir + '/build/'
-settings.installdir = settings.targetdir + '/install/'
-settings.statusdir = settings.targetdir + '/status/'
-settings.tooldir = settings.targetdir + '/tools/'
-settings.garbagedir = settings.targetdir + '/garbage/'
+		self.target_architecture = arch
+		self.targetdir = self.topdir + '/target/%s' % self.target_architecture
+		
+		self.builddir = self.targetdir + '/build'
+		self.garbagedir = self.targetdir + '/garbage'
+		self.installdir = self.targetdir + '/install'
+		self.statusdir = self.targetdir + '/status'
+		self.systemdir = self.targetdir + '/system'
+		self.tooldir = self.targetdir + '/tools'
 
-os.environ["PATH"] = '%s/%s:%s' % (settings.tooldir, 'bin', os.environ["PATH"])
-
-
-def create_dirs (settings): 
-    for a in ['topdir', 'statusdir', 'garbagedir',
-	      'downloaddir', 'srcdir', 'specdir',
-	      'targetdir', 'systemdir']:
-	    try:
-		    gub.system ('mkdir -p %s' % settings.__dict__[a], ignore_error = True)
-	    except OSError:
-		    pass
-
-
+	def create_dirs (self): 
+		for a in ['topdir', 'statusdir', 'garbagedir',
+                          'downloaddir', 'srcdir', 'specdir',
+                          'targetdir', 'systemdir']:
+			try:
+				gub.system ('mkdir -p %s' % self.__dict__[a],
+                                            ignore_error = True)
+			except OSError:
+				pass
 
 def process_package (package):
 	package.download ()
 
 	for stage in ['unpack', 'patch', 'configure', 'compile', 'install']:
-#		if not package.done (stage):
-#			(package.__class__.__dict__[stage]) (package)
-#			package.set_done (stage)
-
-		if not package.done (stage):
-			if stage == 'unpack': package.unpack()
-			elif stage == 'configure':  package.configure ()
-			elif stage == 'patch':  package.patch ()
-			elif stage == 'compile': package.compile ()
-			elif stage == 'install': package.install ()
-			
+        	if not package.done (stage):
+                	if stage == 'unpack':
+                        	package.unpack()
+			elif stage == 'configure':
+                        	package.configure ()
+			elif stage == 'patch':
+                        	package.patch ()
+			elif stage == 'compile':
+                        	package.compile ()
+			elif stage == 'install':
+                        	package.install ()
 			package.set_done (stage)
 
 def process_packages (ps):
 	for p in ps:
 		process_package (p)
-	
-	
-if not os.path.exists (settings.targetdir):
-	create_dirs (settings)
-
-import darwintools
-import framework
-
-process_packages (darwintools.get_packages (settings))
-process_packages (framework.get_packages (settings))
 		
+def main ():
+	mac = sys.argv[1] == 'mac'
+
+	if mac:
+		settings = Settings ('powerpc-apple-darwin7')
+	else:
+		settings = Settings ('i586-mingw32msvc')
+	
+	if not os.path.exists (settings.targetdir):
+		settings.create_dirs ()
+
+	os.environ["PATH"] = '%s/%s:%s' % (settings.tooldir, 'bin',
+                                           os.environ["PATH"])
+
+	if mac:
+		import darwintools
+		process_packages (darwintools.get_packages (settings))
+
+	process_packages (framework.get_packages (settings))
 
 
-
-
+if __name__ == '__main__':
+    	main ()

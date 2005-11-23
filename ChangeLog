@@ -1,3 +1,17 @@
+2005-11-23  Jan Nieuwenhuizen  <janneke@gnu.org>
+
+	* specs/framework.py (Gettext.__init__): Use recent version.
+	(Libtool.__init__): Add.  Must build first to make gettext
+	succees (for doze anyway).
+
+	* specs/gub.py (Package.autoupdate): New function.
+	
+	* specs/framework.py (Gettext.configure): Use it.
+
+	* specs/gub.py (Target_package.system): Add DLLTOOL.
+
+	* driver.py: Cater for more achitectures.  Fix indentation.
+
 2005-11-22  Han-Wen Nienhuys  <hanwen@xs4all.nl>
 
 	* gub.py (Target_package.configure_command): trim

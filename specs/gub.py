@@ -67,6 +67,23 @@ class Package:
 	def set_done (self, stage):
 		open ('%s/%s-%s' % (self.settings.statusdir, self.name(), stage), 'w').write ('')
 
+	def autoupdate (self):
+		if self.name != 'libtool':
+			if os.path.isdir (os.path.join (self.srcdir (), 'ltdl')):
+				self.system ("rm -rf %s/libltdl" % self.srcdir ())
+				self.system ("cd %s && libtoolize --force --copy --automake --ltdl" % self.srcdir ())
+			else:
+				self.system ("cd %s && libtoolize --force --copy --automake" % self.srcdir ())
+		if os.path.exists (os.path.join (self.srcdir (), 'bootstrap')):
+			self.system ('cd %s && bash %s' % (self.srcdir (), 'bootstrap'))
+		elif os.path.exists (os.path.join (self.srcdir (), 'autogen.sh')):
+			self.system ('cd %s && bash %s' % (self.srcdir (), 'autogen.sh'))
+		else:
+			self.system ('cd %s && aclocal' % self.srcdir ())
+			self.system ('cd %s && autoheader' % self.srcdir ())
+			self.system ('cd %s && autoconf' % self.srcdir ())
+			self.system ('cd %s && automake --add-missing' % self.srcdir ())
+
 	def configure_command (self):
 		return ("%s/configure --prefix=%s "
 			% (self.srcdir (), self.installdir ()))
@@ -124,7 +141,8 @@ class Target_package (Package):
 		return str
 
 	def installdir (self):
-		return self.settings.installdir + "/" + self.name () + "-root/"
+		# the usr/ works around a fascist check in libtool
+		return self.settings.installdir + "/" + self.name () + "-root/usr"
 
 	def install_command (self):
 		return 'make prefix=%s install' % self.installdir ()
@@ -142,14 +160,16 @@ class Target_package (Package):
 		Package.configure (self)
 
 	def system (self, cmd):
-	
-		dict = {'CXX':'%(target_architecture)s-g++ %(target_gcc_flags)s',
-		 'CC':'%(target_architecture)s-gcc %(target_gcc_flags)s',
-		 'RANLIB': '%(target_architecture)s-ranlib',
-		 'DLLWRAP' : '%(target_architecture)s-dllwrap',
-		 'LD': '%(target_architecture)s-ld',
-		 'AR': '%(target_architecture)s-ar',
-		 'NM': '%(target_architecture)s-nm'}
+		dict = {
+			'CXX':'%(target_architecture)s-g++ %(target_gcc_flags)s',
+			'CC':'%(target_architecture)s-gcc %(target_gcc_flags)s',
+			'RANLIB': '%(target_architecture)s-ranlib',
+			'DLLWRAP' : '%(target_architecture)s-dllwrap',
+			'DLLTOOL' : '%(target_architecture)s-dlltool',
+			'LD': '%(target_architecture)s-ld',
+			'AR': '%(target_architecture)s-ar',
+			'NM': '%(target_architecture)s-nm'
+			}
 		
 		for (k,v) in dict.items():
 			v = v % self.settings.__dict__
