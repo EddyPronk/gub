@@ -4,30 +4,36 @@ import re
 import subprocess
 import cross
 
-def system (cmd, ignore_error = False, env = {}):
-	call_env = os.environ.copy()
-	call_env.update (env)
-
-	for (k,v) in env.items():
-		sys.stderr.write ('%s=%s\n' % (k,v))
-
+def system_one (cmd, ignore_error, env):
 	sys.stderr.write ('invoking %s\n' % cmd)
 
-	proc = subprocess.Popen (cmd, shell=True, env = call_env)
+	proc = subprocess.Popen (cmd, shell=True, env=env)
 	stat = proc.wait ()
 	
 	if stat and not ignore_error:
-		sys.stderr.write ('fail\n')
-		sys.exit (1)
+		raise 'barf'
 
 	return 0 
+
+def system (cmd, ignore_error=False, env={}):
+	call_env = os.environ.copy ()
+	call_env.update (env)
+
+	for (k, v) in env.items ():
+		sys.stderr.write ('%s=%s\n' % (k, v))
+
+	for i in cmd.split ('\n'):
+		if i:
+			system_one (i, ignore_error, call_env)
+
+	return 0
 
 class Package:
 	def __init__ (self, settings):
 		self.settings = settings
 	
-	def system (self, cmd, env = {}):
-		system (cmd, ignore_error = False, env = env)
+	def system (self, cmd, env={}):
+		system (cmd, ignore_error=False, env=env)
 		
 	def download (self):
 		dir = self.settings.downloaddir
@@ -43,7 +49,7 @@ class Package:
 		return f
 
 	def name (self):
-		s = self.basename()
+		s = self.basename ()
 		s = re.sub ('-?[0-9][^-]+$', '', s)
 		return s
 	
@@ -68,21 +74,30 @@ class Package:
 		open ('%s/%s-%s' % (self.settings.statusdir, self.name(), stage), 'w').write ('')
 
 	def autoupdate (self):
-		if self.name != 'libtool':
-			if os.path.isdir (os.path.join (self.srcdir (), 'ltdl')):
-				self.system ("rm -rf %s/libltdl" % self.srcdir ())
-				self.system ("cd %s && libtoolize --force --copy --automake --ltdl" % self.srcdir ())
-			else:
-				self.system ("cd %s && libtoolize --force --copy --automake" % self.srcdir ())
-		if os.path.exists (os.path.join (self.srcdir (), 'bootstrap')):
-			self.system ('cd %s && bash %s' % (self.srcdir (), 'bootstrap'))
-		elif os.path.exists (os.path.join (self.srcdir (), 'autogen.sh')):
-			self.system ('cd %s && bash %s' % (self.srcdir (), 'autogen.sh'))
+		if os.path.isdir (os.path.join (self.srcdir (), 'ltdl')):
+			self.system ('''
+rm -rf %(srcdir)s/libltdl
+cd %(srcdir) && libtoolize --force --copy --automake --ltdl
+''')
 		else:
-			self.system ('cd %s && aclocal' % self.srcdir ())
-			self.system ('cd %s && autoheader' % self.srcdir ())
-			self.system ('cd %s && autoconf' % self.srcdir ())
-			self.system ('cd %s && automake --add-missing' % self.srcdir ())
+			self.system ('''
+cd %(srcdir)s && libtoolize --force --copy --automake
+''')
+		if os.path.exists (os.path.join (self.srcdir (), 'bootstrap')):
+			self.system ('''
+cd %(srcdir)s && ./bootstrap
+''')
+		elif os.path.exists (os.path.join (self.srcdir (), 'autogen.sh')):
+			self.system ('''
+cd %(srcdir) && bash autogen.sh
+''')
+		else:
+			self.system ('''
+cd %(srcdir)s && aclocal
+cd %(srcdir)s && autoheader
+cd %(srcdir)s && autoconf
+cd %(srcdir)s && automake --add-missing
+''')
 
 	def configure_command (self):
 		return ("%s/configure --prefix=%s "
@@ -168,14 +183,18 @@ class Target_package (Package):
 			'DLLTOOL' : '%(target_architecture)s-dlltool',
 			'LD': '%(target_architecture)s-ld',
 			'AR': '%(target_architecture)s-ar',
-			'NM': '%(target_architecture)s-nm'
+			'NM': '%(target_architecture)s-nm',
+			
+			'srcdir': self.srcdir (),
+			'builddir': self.builddir (),
+			
 			}
 		
-		for (k,v) in dict.items():
+		for (k, v) in dict.items ():
 			v = v % self.settings.__dict__
 			dict[k] = v
 			
-		return Package.system (self, cmd, env = dict)
+		return Package.system (self, cmd, env=dict)
 		
 
 		

@@ -54,8 +54,7 @@ def process_package (package):
 			package.set_done (stage)
 
 def process_packages (ps):
-	for p in ps:
-		process_package (p)
+	map (process_package, ps)
 		
 def main ():
 	mac = sys.argv[1] == 'mac'

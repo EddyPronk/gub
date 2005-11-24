@@ -8,7 +8,7 @@ class  Libtool (gub.Target_package):
 		self.url = 'ftp://dl.xs4all.nl/pub/mirror/gnu/libtool/libtool-1.5.20.tar.gz'
 		#self.url = 'ftp://dl.xs4all.nl/pub/mirror/gnu/libtool/libtool-1.5.10.tar.gz'
 
- 	def install_dir (self):
+ 	def installdir (self):
  		return self.settings.systemdir
 	
 class  Gettext (gub.Target_package):
