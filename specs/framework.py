@@ -2,20 +2,13 @@
 import re
 import gub
 
-class  Libtool (gub.Target_package):
-	def __init__ (self, settings):
-		gub.Package.__init__ (self, settings)
-		self.url = 'ftp://dl.xs4all.nl/pub/mirror/gnu/libtool/libtool-1.5.10.tar.gz'
-		self.url = 'ftp://dl.xs4all.nl/pub/mirror/gnu/libtool/libtool-1.5.20.tar.gz'
+class Libtool (gub.Target_package):
+	def __init__ (self, settings, version):
+		gub.Package.__init__ (self, settings, version)
 
- 	def installdir (self):
- 		return self.settings.systemdir
-	
-class  Gettext (gub.Target_package):
-	def __init__ (self, settings):
-		gub.Package.__init__ (self, settings)
-		self.url = 'ftp://dl.xs4all.nl/pub/mirror/gnu/gettext/gettext-0.10.40.tar.gz'
-		self.url = 'ftp://dl.xs4all.nl/pub/mirror/gnu/gettext/gettext-0.14.5.tar.gz'
+class Gettext (gub.Target_package):
+	def __init__ (self, settings, version):
+		gub.Package.__init__ (self, settings, version)
 
 	def configure_cache_overrides (self, str):
 		str = re.sub ('ac_cv_func_select=yes','ac_cv_func_select=no', str)
@@ -25,8 +18,23 @@ class  Gettext (gub.Target_package):
 		return gub.Target_package.configure_command (self) \
 		       + ' --disable-csharp'
 	
+class Libiconv (gub.Target_package):
+	def __init__ (self, settings, version):
+		gub.Package.__init__ (self, settings, version, gub.gnu_org_mirror)
+
+class Glib (gub.Target_package):
+	def __init__ (self, settings, version):
+		gub.Package.__init__ (self, settings, version, gub.gtk_mirror)
+
+	def configure_cache_overrides (self, str):
+		return str + '''
+glib_cv_stack_grows=${glib_cv_stack_grows=no}
+'''
+
 def get_packages (settings):
 	return [
-		Libtool (settings),
-		Gettext (settings),
+		Libtool (settings, '1.5.20'),
+		Gettext (settings, '0.14.5'),
+		Libiconv (settings, '1.9.2'),
+		Glib (settings, '2.8.4'),
 		]

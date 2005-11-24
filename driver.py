@@ -15,6 +15,7 @@ class Settings:
 		self.build_spec = 'i686-linux'
 		self.srcdir = os.path.join (self.topdir, 'src')
 		self.specdir = self.topdir + '/specs'
+		self.gtk_version = '2.8'
 
 		self.target_architecture = arch
 		self.targetdir = self.topdir + '/target/%s' % self.target_architecture

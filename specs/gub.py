@@ -28,9 +28,21 @@ def system (cmd, ignore_error=False, env={}):
 
 	return 0
 
+def gnu_mirror (dict):
+	return 'ftp://dl.xs4all.nl/pub/mirror/gnu/%(name)s/%(name)s-%(version)s.tar.gz' % dict
+
+def gnu_org_mirror (dict):
+	return 'ftp://ftp.gnu.org/pub/gnu/%(name)s/%(name)s-%(version)s.tar.gz' % dict
+
+def gtk_mirror (dict):
+	return 'ftp://ftp.gtk.org/pub/gtk/v%(gtk_version)s/%(name)s-%(version)s.tar.gz' % dict
+
 class Package:
-	def __init__ (self, settings):
+	def __init__ (self, settings, version, mirror=gnu_mirror):
 		self.settings = settings
+		gtk_version = settings.gtk_version
+		name = self.__class__.__name__.lower ()
+		self.url = mirror (locals ())
 	
 	def system (self, cmd, env={}):
 		dict = {
@@ -179,8 +191,8 @@ class Cross_package (Package):
 	
 class Target_package (Package):
 	def configure_command (self):
-		# --config-cache
 		return '''%(srcdir)s/configure \
+--config-cache \
 --enable-shared \
 --disable-static \
 --build=%(build_spec)s \
@@ -188,8 +200,12 @@ class Target_package (Package):
 --target=%(target_architecture)s \
 --prefix=/usr \
 --sysconfdir=/etc \
---includedir=%(garbagedir)s \
+--includedir=%(systemdir)s/include \
+--libdir=%(systemdir)s/lib \
 '''
+
+## wtf?
+##--includedir=%(garbagedir)s \
 
 	def configure_cache_overrides (self, str):
 		return str
@@ -219,10 +235,12 @@ class Target_package (Package):
 		dict = {
 			'AR': '%(target_architecture)s-ar',
 			'CC':'%(target_architecture)s-gcc %(target_gcc_flags)s',
+			'CPPFLAGS': '-I%(installdir)s/include',
 			'CXX':'%(target_architecture)s-g++ %(target_gcc_flags)s',
 			'DLLTOOL' : '%(target_architecture)s-dlltool',
 			'DLLWRAP' : '%(target_architecture)s-dllwrap',
 			'LD': '%(target_architecture)s-ld',
+			'LDFLAGS': '-L%(installdir)s/lib',
 			'NM': '%(target_architecture)s-nm',
 			'RANLIB': '%(target_architecture)s-ranlib',
 			}

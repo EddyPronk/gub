@@ -4,8 +4,8 @@ import gub
 class  Darwin_sdk (gub.Cross_package):
 	def file_name (self):
 		return 'darwin-sdk.tar.gz'
-	def __init__ (self, settings):
-		gub.Package.__init__ (self, settings)
+	def __init__ (self, settings, version):
+		gub.Package.__init__ (self, settings, version)
 		self.url = 'http://lilypond.org/~hanwen/darwin-sdk.tar.gz'
 		
 	def unpack_destination (self):
@@ -21,16 +21,16 @@ class  Darwin_sdk (gub.Cross_package):
 		pass
 	
 class Odcc_tools (gub.Cross_package):
-	def __init__ (self, settings):
-		gub.Cross_package.__init__ (self, settings)
+	def __init__ (self, settings, version):
+		gub.Cross_package.__init__ (self, settings, version)
 		self.url = 'http://www.opendarwin.org/downloads/odcctools-20051031.tar.bz2'
 	def installdir (self):
 		return self.settings.tooldir
 	
 
 class Gcc (gub.Cross_package):
-	def __init__ (self, settings):
-		gub.Cross_package.__init__ (self,settings)
+	def __init__ (self, settings, version):
+		gub.Cross_package.__init__ (self,settings, version)
 		self.url = 'ftp://dl.xs4all.nl/pub/mirror/gnu/gcc/gcc-4.0.2/gcc-4.0.2.tar.bz2'
 
 	def patch (self):
@@ -58,8 +58,8 @@ class Gcc (gub.Cross_package):
 
 
 def get_packages (settings):
-	return [Darwin_sdk (settings),
-		Odcc_tools (settings),
-		Gcc (settings)]
+	return [Darwin_sdk (settings, ''),
+		Odcc_tools (settings, ''),
+		Gcc (settings, '')]
 		
 	
