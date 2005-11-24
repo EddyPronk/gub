@@ -33,19 +33,47 @@ class Package:
 		self.settings = settings
 	
 	def system (self, cmd, env={}):
-		system (cmd, ignore_error=False, env=env)
+		dict = {
+			'build_spec': self.settings.build_spec,
+			'garbagedir': self.settings.garbagedir,
+			'systemdir': self.settings.systemdir,
+			'target_architecture': self.settings.target_architecture,
+			'target_gcc_flags': self.settings.target_gcc_flags,
+
+			'url': self.url,
+
+			'builddir': self.builddir (),
+			'compile_command': self.compile_command (),
+			'configure_command': self.configure_command (),
+			'install_command': self.install_command (),
+			'installdir': self.installdir (),
+			'srcdir': self.srcdir (),
+			'unpack_destination': self.unpack_destination (),
+			}
+		dict.update (env)
+
+		for (k, v) in dict.items ():
+			if type (v) == type (''):
+				v = v % dict
+				dict[k] = v
+			else:
+				del dict[k]
+
+		system (cmd % dict, ignore_error=False, env=dict)
 		
 	def download (self):
 		dir = self.settings.downloaddir
-		if not os.path.exists (dir + '/' + self.file_name ()): 
-			self.system ('cd %s ; wget %s ' % (dir, self.url))
+		if not os.path.exists (dir + '/' + self.file_name ()):
+			self.system ('''
+cd %(dir)s && wget %(url)s
+''', locals ())
 
 	def unpack_destination (self):
 		return self.settings.srcdir
 	
 	def basename (self):
 		f = self.file_name ()
-		f = re.sub ("\.tar.*", '', f)
+		f = re.sub ('\.tar.*', '', f)
 		return f
 
 	def name (self):
@@ -63,21 +91,22 @@ class Package:
 		return self.settings.installdir + '/' + self.name ()
 
 	def file_name (self):
-		file = re.sub (".*/([^/]+)", '\\1', self.url)
+		file = re.sub ('.*/([^/]+)', '\\1', self.url)
 		return file
 
-
 	def done (self, stage):
-		return os.path.exists ('%s/%s-%s' % (self.settings.statusdir, self.name (), stage))
+		return '%s/%s-%s' % (self.settings.statusdir, self.name (), stage)
+	def is_done (self, stage):
+		return os.path.exists (self.done (stage))
 
 	def set_done (self, stage):
-		open ('%s/%s-%s' % (self.settings.statusdir, self.name(), stage), 'w').write ('')
+		open (self.done (stage), 'w').write ('')
 
 	def autoupdate (self):
 		if os.path.isdir (os.path.join (self.srcdir (), 'ltdl')):
 			self.system ('''
 rm -rf %(srcdir)s/libltdl
-cd %(srcdir) && libtoolize --force --copy --automake --ltdl
+cd %(srcdir)s && libtoolize --force --copy --automake --ltdl
 ''')
 		else:
 			self.system ('''
@@ -100,25 +129,27 @@ cd %(srcdir)s && automake --add-missing
 ''')
 
 	def configure_command (self):
-		return ("%s/configure --prefix=%s "
-			% (self.srcdir (), self.installdir ()))
+		return '''%(srcdir)s/configure
+--prefix=%(installdir)s
+'''
 
 	def configure (self):
-		self.system ("mkdir -p %s;  cd %s && %s" % (self.builddir(),
-						       self.builddir(),
-						       self.configure_command ()))
+		self.system ('''
+mkdir -p %(builddir)s
+cd %(builddir)s && %(configure_command)s
+''')
 
 	def install_command (self):
 		return 'make install'
 	
 	def install (self):
-		self.system ("cd %s && %s" % (self.builddir (), self.install_command ())) 
+		self.system ('cd %(builddir)s && %(install_command)s')
 
 	def compile_command (self):
 		return 'make'
 
 	def compile (self):
-		self.system ("cd %s && %s" % (self.builddir(), self.compile_command ()))
+		self.system ('cd %(builddir)s && %(compile_command)s')
 
 	def patch (self):
 		pass
@@ -126,44 +157,54 @@ cd %(srcdir)s && automake --add-missing
 	def unpack (self):
 		file = self.settings.downloaddir + '/' + self.file_name ()
 
-		cmd = ""
-		if re.search (".tar$", file):
-			cmd = "-xf "
-		elif re.search (".tar.bz2", file):
-			cmd = "-jxf "
+		flags = ''
+		if re.search ('.tar$', file):
+			flags = '-xf '
+		elif re.search ('.tar.bz2', file):
+			flags = '-jxf '
 		elif re.search ('.tar.gz', file):
-			cmd = '-xzf '
+			flags = '-xzf '
 
-		cmd = "tar %s %s -C %s " % (cmd, file, self.unpack_destination ())
-		self.system (cmd) 
+		cmd = 'tar %(flags)s %(file)s -C %(unpack_destination)s'
+		self.system (cmd, locals ())
 
 
 class Cross_package (Package):
 	def configure_command (self):
-		cmd = Package.configure_command (self)
-		cmd += ' --target=%s --with-sysroot=%s ' % (self.settings.target_architecture, self.settings.systemdir)
+		return Package.configure_command (self) + ''' \
+--target=%(target_architecture)s \
+--with-sysroot=%(systemdir)s \
+'''
 		return cmd
 	
 class Target_package (Package):
 	def configure_command (self):
 		# --config-cache
-		flags = ' --enable-shared --disable-static --build=%(build_spec)s --host=%(target_architecture)s --target=%(target_architecture)s --prefix=/usr --sysconfdir=/etc --includedir=%(garbagedir)s '
-		flags = flags % self.settings.__dict__
+		return '''%(srcdir)s/configure \
+--enable-shared \
+--disable-static \
+--build=%(build_spec)s \
+--host=%(target_architecture)s \
+--target=%(target_architecture)s \
+--prefix=/usr \
+--sysconfdir=/etc \
+--includedir=%(garbagedir)s \
+'''
 
-		return '%s/configure %s' % (self.srcdir(), flags)
-
-	def configure_cache_overrides (self,str):
+	def configure_cache_overrides (self, str):
 		return str
 
 	def installdir (self):
 		# the usr/ works around a fascist check in libtool
-		return self.settings.installdir + "/" + self.name () + "-root/usr"
+		##return self.settings.installdir + "/" + self.name () + "-root/usr"
+		# no packages for now
+		return self.settings.systemdir + '/usr'
 
 	def install_command (self):
-		return 'make prefix=%s install' % self.installdir ()
+		return 'make prefix=%(installdir)s install'
 		
 	def configure (self):
-		self.system ("mkdir -p %s" % self.builddir ())
+		self.system ('mkdir -p %(builddir)s')
 		cache_fn = self.builddir () +'/config.cache'
 		cache = open (cache_fn, 'w')
 		str = cross.cross_config_cache + cross.cygwin
@@ -174,28 +215,18 @@ class Target_package (Package):
 		os.chmod (cache_fn, 0755)
 		Package.configure (self)
 
-	def system (self, cmd):
+	def system (self, cmd, env={}):
 		dict = {
-			'CXX':'%(target_architecture)s-g++ %(target_gcc_flags)s',
-			'CC':'%(target_architecture)s-gcc %(target_gcc_flags)s',
-			'RANLIB': '%(target_architecture)s-ranlib',
-			'DLLWRAP' : '%(target_architecture)s-dllwrap',
-			'DLLTOOL' : '%(target_architecture)s-dlltool',
-			'LD': '%(target_architecture)s-ld',
 			'AR': '%(target_architecture)s-ar',
+			'CC':'%(target_architecture)s-gcc %(target_gcc_flags)s',
+			'CXX':'%(target_architecture)s-g++ %(target_gcc_flags)s',
+			'DLLTOOL' : '%(target_architecture)s-dlltool',
+			'DLLWRAP' : '%(target_architecture)s-dllwrap',
+			'LD': '%(target_architecture)s-ld',
 			'NM': '%(target_architecture)s-nm',
-			
-			'srcdir': self.srcdir (),
-			'builddir': self.builddir (),
-			
+			'RANLIB': '%(target_architecture)s-ranlib',
 			}
-		
-		for (k, v) in dict.items ():
-			v = v % self.settings.__dict__
-			dict[k] = v
-			
+
+		dict.update (env)
+
 		return Package.system (self, cmd, env=dict)
-		
-
-		
-

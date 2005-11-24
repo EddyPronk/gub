@@ -5,8 +5,8 @@ import gub
 class  Libtool (gub.Target_package):
 	def __init__ (self, settings):
 		gub.Package.__init__ (self, settings)
+		self.url = 'ftp://dl.xs4all.nl/pub/mirror/gnu/libtool/libtool-1.5.10.tar.gz'
 		self.url = 'ftp://dl.xs4all.nl/pub/mirror/gnu/libtool/libtool-1.5.20.tar.gz'
-		#self.url = 'ftp://dl.xs4all.nl/pub/mirror/gnu/libtool/libtool-1.5.10.tar.gz'
 
  	def installdir (self):
  		return self.settings.systemdir
@@ -22,9 +22,8 @@ class  Gettext (gub.Target_package):
 		return str
 	
 	def configure_command (self):
-		cmd = gub.Target_package.configure_command (self)
-		cmd += ' --disable-csharp '
-		return cmd
+		return gub.Target_package.configure_command (self) \
+		       + ' --disable-csharp'
 	
 def get_packages (settings):
 	return [

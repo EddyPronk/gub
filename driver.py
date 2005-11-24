@@ -40,7 +40,7 @@ def process_package (package):
 	package.download ()
 
 	for stage in ['unpack', 'patch', 'configure', 'compile', 'install']:
-        	if not package.done (stage):
+        	if not package.is_done (stage):
                 	if stage == 'unpack':
                         	package.unpack()
 			elif stage == 'configure':
@@ -53,8 +53,9 @@ def process_package (package):
                         	package.install ()
 			package.set_done (stage)
 
-def process_packages (ps):
-	map (process_package, ps)
+def process_packages (packages):
+	for i in packages:
+		process_package (i)
 		
 def main ():
 	mac = sys.argv[1] == 'mac'
