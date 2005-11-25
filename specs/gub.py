@@ -202,7 +202,7 @@ cd %(builddir)s && %(configure_command)s
 			flags = '-xzf '
 
 		# clean up
-		self.system ("rm -rf  %(srcdir)s")
+		self.system ("rm -rf  %(srcdir)s %(builddir)s")
 		cmd = 'tar %(flags)s %(file)s -C %(unpack_destination)s'
 		self.system (cmd, locals ())
 
