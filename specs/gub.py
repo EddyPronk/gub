@@ -1,8 +1,10 @@
+import cross
+import cvs
+import download as dl
 import os
-import sys
 import re
 import subprocess
-import cross
+import sys
 
 def system_one (cmd, ignore_error, env):
 	sys.stderr.write ('invoking %s\n' % cmd)
@@ -32,15 +34,18 @@ class Package:
 	def __init__ (self, settings):
 		self.settings = settings
 		self.url = ''
+		self.download = self.wget
 		
 	def package_dict (self, env = {}):
 		dict = {
 			'build_spec': self.settings.build_spec,
 			'garbagedir': self.settings.garbagedir,
+			'gtk_version': self.settings.gtk_version,
 			'systemdir': self.settings.systemdir,
 			'target_architecture': self.settings.target_architecture,
 			'target_gcc_flags': self.settings.target_gcc_flags,
-			'name': self.name (),  
+			'name': self.name (),
+			'version': self.version,
 			'url': self.url,
 			'builddir': self.builddir (),
 			'compile_command': self.compile_command (),
@@ -65,14 +70,28 @@ class Package:
 	def system (self, cmd, env = {}):
 		dict = self.package_dict (env)
 		system (cmd % dict, ignore_error = False, env = dict)
-		
+
 	def download (self):
+		pass
+		      
+	def wget (self):
 		dir = self.settings.downloaddir
 		if not os.path.exists (dir + '/' + self.file_name ()):
 			self.system ('''
 cd %(dir)s && wget %(url)s
 ''', locals ())
 
+	def cvs (self):
+		dir = self.settings.downloaddir
+		if not os.path.exists (dir + '/' + self.file_name ()):
+			self.system ('''
+cvs -d %(url)s co %(name)s
+''', locals ())
+		else:
+			self.system ('''
+cd %(dir)s && cvs update -dCAP -r %(version)s
+''', locals ())
+ 
 	def unpack_destination (self):
 		return self.settings.srcdir
 	
@@ -176,6 +195,16 @@ cd %(builddir)s && %(configure_command)s
 		cmd = 'tar %(flags)s %(file)s -C %(unpack_destination)s'
 		self.system (cmd, locals ())
 
+	def set_download (self, mirror=dl.gnu, format='gz', download=wget):
+		d = self.package_dict ()
+		d.update (locals ())
+		self.url = mirror () % d
+		self.download = lambda : download (self)
+
+	def with (self, version='HEAD', mirror=dl.gnu, format='gz', download=wget):
+		self.version = version
+		self.set_download (mirror, format, download)
+		return self
 
 class Cross_package (Package):
 	def configure_command (self):

@@ -1,8 +1,12 @@
-import re
-import gub
+import cvs
 import download
+import gub
+import re
 
 class Libtool (gub.Target_package):
+	pass
+
+class LilyPond (gub.Target_package):
 	pass
 
 class Gettext (gub.Target_package):
@@ -23,26 +27,58 @@ class Glib (gub.Target_package):
 glib_cv_stack_grows=${glib_cv_stack_grows=no}
 '''
 
-def get_packages (settings, platform):
-	mingw = ( platform == 'mingw')
-	mac = (platform == 'mac')
+class Freetype (gub.Target_package):
+	def __init__ (self, settings):
+		gub.Package.__init__ (self, settings)
+		self.with (mirror=download.freetype)
 
-	packages = []
-	if mingw:
-		libtool = Libtool (settings)
-		download.set_gnu_download (libtool, '1.5.20', 'gz')
-		packages.append (libtool)
+	def configure (self):
+		self.system ('''
+		rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
+''')
+		gub.Package.configure (self)
+
+	def install (self):
+		self.system ('''
+cd %(srcdir)s && CC=cc ./configure --disable-static --enable-shared
+''')
+		gub.Package.install (self)
 		
-	gettext = Gettext (settings)
-	if platform == 'mingw':
-		download.set_gnu_download (gettext, '0.14.5', 'gz')
-	elif platform == 'mac':
-		download.set_gnu_download (gettext, '0.10.40', 'gz')
-	packages.append (gettext)
 
-	if platform == 'mingw':
-		libiconv = Libiconv (settings)
-		download.set_gnu_download (libiconv, '2.8.4', 'gz')
-		packages.append (libiconv)
+class Fontconfig (gub.Target_package):
 
-	return packages
+	def configure_command (self):
+		return gub.Target_package.configure_command (self) + '''
+--with-default-fonts=@WINDIR@\fonts\
+--with-add-fonts=@INSTDIR@\usr\share\gs\fonts
+'''
+
+	def configure (self):
+		os.environ['ft_config'] = '''/usr/bin/freetype-config \
+--prefix=%(systemdir)s \
+--exec-prefix=%(systemdir)s \
+'''
+
+		self.system ('''
+		rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
+''')
+		gub.Package.configure (self)
+
+def get_packages (settings, platform):
+	packages = {
+	'mac': (
+		Gettext (settings).with (version='0.10.40'),
+		Glib (settings).with (version='2.8.4', mirror=download.gtk),
+		Freetype (settings).with (version='2.1.9', mirror=download.freetype),
+	),
+	'mingw': (
+		Libtool (settings).with (version='1.5.20'),
+		Gettext (settings).with (version='0.14.5'),
+		Libiconv (settings).with (version='1.9.2'),
+		Glib (settings).with (version='2.8.4', mirror=download.gtk),
+		Freetype (settings).with (version='2.1.9'),
+		LilyPond (settings).with (mirror=cvs.gnu, download=gub.Package.cvs),
+	),
+	}
+
+	return packages[platform]

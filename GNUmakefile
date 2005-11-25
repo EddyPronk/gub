@@ -2,13 +2,13 @@
 default: all
 
 all:
-	python driver.py mac doos
+	python driver.py mac mingw
 
 mac:
 	python driver.py mac
 
-doos:
-	python driver.py doos
+mingw:
+	python driver.py mingw
 
 realclean:
 	rm -rf target/*/build target/*/status
