@@ -59,12 +59,19 @@ def process_packages (packages):
 		process_package (i)
 		
 def main ():
-	mac = sys.argv[1] == 'mac'
+	platform = sys.argv[1]
 
-	if mac:
+	if platform not in ['mac', 'mingw', 'mingw-fedora']:
+		print 'unknown platform', platform
+		print 'mac, mingw, mingw-fedora'
+		
+	if platform == 'mac':
 		settings = Settings ('powerpc-apple-darwin7')
-	else:
+	elif platform == 'mingw':
 		settings = Settings ('i586-mingw32msvc')
+	elif platform == 'mingw-fedora':
+		settings = Settings ('i386-mingw32')
+		platform = 'mingw'
 	
 	if not os.path.exists (settings.targetdir):
 		settings.create_dirs ()
@@ -72,7 +79,7 @@ def main ():
 	os.environ["PATH"] = '%s/%s:%s' % (settings.tooldir, 'bin',
                                            os.environ["PATH"])
 
-	if mac:
+	if platform == 'mac':
 		import darwintools
 		process_packages (darwintools.get_packages (settings))
 
