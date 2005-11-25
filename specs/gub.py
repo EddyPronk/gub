@@ -29,15 +29,12 @@ def system (cmd, ignore_error = False, verbose = False, env = {}):
 	if verbose:
 		for (k, v) in env.items ():
 			sys.stderr.write ('%s=%s\n' % (k, v))
-		
+
 	for i in cmd.split ('\n'):
 		if i:
 			system_one (i, ignore_error, call_env)
 
 	return 0
-
-def join_lines (str):
-	return re.sub ('\n', ' ', str)
 
 class Package:
 	def __init__ (self, settings):
@@ -78,8 +75,8 @@ class Package:
 
 	def system (self, cmd, env = {}):
 		dict = self.package_dict (env)
-		verbose = self.settings.verbose
-		system (cmd % dict, ignore_error = False, verbose = verbose, env = dict)
+		system (cmd % dict, ignore_error = False,
+			verbose = self.settings.verbose, env = dict)
 
 	def download (self):
 		pass
@@ -167,7 +164,7 @@ cd %(srcdir)s && automake --add-missing
 ''')
 
 	def configure_command (self):
-		return '''%(srcdir)s/configure --prefix=%(installdir)s'''
+		return '%(srcdir)s/configure --prefix=%(installdir)s'
 
 	def configure (self):
 		self.system ('''
@@ -223,10 +220,8 @@ class Cross_package (Package):
 
 	def configure_command (self):
 		cmd = Package.configure_command (self)
-		cmd += '''
---target=%(target_architecture)s 
---with-sysroot=%(systemdir)s 
-'''
+		cmd += ''' --target=%(target_architecture)s
+--with-sysroot=%(systemdir)s'''
 		return join_lines (cmd)
 	
 class Target_package (Package):
@@ -242,7 +237,7 @@ class Target_package (Package):
 --sysconfdir=/etc 
 --includedir=%(systemdir)s/usr/include 
 --libdir=%(systemdir)s/usr/lib 
-''')
+'''
 
 	def configure_cache_overrides (self, str):
 		return str
