@@ -201,6 +201,8 @@ cd %(builddir)s && %(configure_command)s
 		elif re.search ('.tar.gz', file):
 			flags = '-xzf '
 
+		# clean up
+		self.system ("rm -rf  %(srcdir)s")
 		cmd = 'tar %(flags)s %(file)s -C %(unpack_destination)s'
 		self.system (cmd, locals ())
 
