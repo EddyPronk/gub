@@ -28,32 +28,20 @@ def system (cmd, ignore_error=False, env={}):
 
 	return 0
 
-def gnu_mirror (dict):
-	return 'ftp://dl.xs4all.nl/pub/mirror/gnu/%(name)s/%(name)s-%(version)s.tar.gz' % dict
-
-def gnu_org_mirror (dict):
-	return 'ftp://ftp.gnu.org/pub/gnu/%(name)s/%(name)s-%(version)s.tar.gz' % dict
-
-def gtk_mirror (dict):
-	return 'ftp://ftp.gtk.org/pub/gtk/v%(gtk_version)s/%(name)s-%(version)s.tar.gz' % dict
-
 class Package:
-	def __init__ (self, settings, version, mirror=gnu_mirror):
+	def __init__ (self, settings):
 		self.settings = settings
-		gtk_version = settings.gtk_version
-		name = self.__class__.__name__.lower ()
-		self.url = mirror (locals ())
-	
-	def system (self, cmd, env={}):
+		self.url = ''
+		
+	def package_dict (self, env = {}):
 		dict = {
 			'build_spec': self.settings.build_spec,
 			'garbagedir': self.settings.garbagedir,
 			'systemdir': self.settings.systemdir,
 			'target_architecture': self.settings.target_architecture,
 			'target_gcc_flags': self.settings.target_gcc_flags,
-
+			'name': self.name (),  
 			'url': self.url,
-
 			'builddir': self.builddir (),
 			'compile_command': self.compile_command (),
 			'configure_command': self.configure_command (),
@@ -62,8 +50,8 @@ class Package:
 			'srcdir': self.srcdir (),
 			'unpack_destination': self.unpack_destination (),
 			}
+		
 		dict.update (env)
-
 		for (k, v) in dict.items ():
 			if type (v) == type (''):
 				v = v % dict
@@ -71,7 +59,12 @@ class Package:
 			else:
 				del dict[k]
 
-		system (cmd % dict, ignore_error=False, env=dict)
+		return dict 
+
+
+	def system (self, cmd, env = {}):
+		dict = self.package_dict (env)
+		system (cmd % dict, ignore_error = False, env = dict)
 		
 	def download (self):
 		dir = self.settings.downloaddir
@@ -103,9 +96,12 @@ cd %(dir)s && wget %(url)s
 		return self.settings.installdir + '/' + self.name ()
 
 	def file_name (self):
-		file = re.sub ('.*/([^/]+)', '\\1', self.url)
+		if self.url:
+			file = re.sub ('.*/([^/]+)', '\\1', self.url)
+		else:
+			file = self.__class__.__name__.lower ()
 		return file
-
+	
 	def done (self, stage):
 		return '%s/%s-%s' % (self.settings.statusdir, self.name (), stage)
 	def is_done (self, stage):

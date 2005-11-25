@@ -76,7 +76,7 @@ def main ():
 		import darwintools
 		process_packages (darwintools.get_packages (settings))
 
-	process_packages (framework.get_packages (settings))
+	process_packages (framework.get_packages (settings, platform))
 
 
 if __name__ == '__main__':
