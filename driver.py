@@ -45,6 +45,7 @@ def process_package (package):
 
 	for stage in ['unpack', 'patch', 'configure', 'compile', 'install']:
         	if not package.is_done (stage):
+			print 'doing stage', stage
                 	if stage == 'unpack':
                         	package.unpack()
 			elif stage == 'configure':
@@ -56,6 +57,7 @@ def process_package (package):
 			elif stage == 'install':
                         	package.install ()
 			package.set_done (stage)
+
 
 def process_packages (packages):
 	for i in packages:
