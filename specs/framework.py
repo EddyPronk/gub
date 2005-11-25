@@ -50,22 +50,21 @@ class Fontconfig (gub.Target_package):
 '''
 
 	def configure (self):
-		os.environ['ft_config'] = '''/usr/bin/freetype-config \
---prefix=%(systemdir)s \
---exec-prefix=%(systemdir)s \
-'''
-
 		self.system ('''
 		rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
-''')
+''',
+			     env = {'ft_config' : '''/usr/bin/freetype-config \
+--prefix=%(systemdir)s \
+--exec-prefix=%(systemdir)s \ 
+'''})
 		gub.Package.configure (self)
 
 def get_packages (settings, platform):
 	packages = {
 	'mac': (
 		Gettext (settings).with (version='0.10.40'),
-		Glib (settings).with (version='2.8.4', mirror=download.gtk),
 		Freetype (settings).with (version='2.1.9', mirror=download.freetype),
+		Glib (settings).with (version='2.8.4', mirror=download.gtk),
 	),
 	'mingw': (
 		Libtool (settings).with (version='1.5.20'),
