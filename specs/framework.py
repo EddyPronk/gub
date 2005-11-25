@@ -40,6 +40,11 @@ class Freetype (gub.Target_package):
 		rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
 ''')
 		gub.Package.configure (self)
+		self.system ('''
+sed -i~	-e "s@^LIBTOOL=.*@LIBTOOL=%(builddir)s/libtool --tag=CXX@" %(builddir)s/Makefile
+echo '# libtool will not build dll if -no-undefined flag is not present' >> %(builddir)s/Makefile
+echo 'LDFLAGS:=$(LDFLAGS) -no-undefined' >> %(builddir)s/Makefile
+''')
 
 	def install (self):
 		gub.Package.system (self, '''
@@ -77,7 +82,7 @@ class Fontconfig (gub.Target_package):
 		return cmd
 	
 	def configure (self):
-		Package.system (self, '''
+		gub.Package.system (self, '''
 		rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
 ''',
 			     env = {'ft_config' : '''/usr/bin/freetype-config \
@@ -138,15 +143,19 @@ def get_packages (settings, platform):
 		Gettext (settings).with (version='0.14.5'),
 		Libiconv (settings).with (version='1.9.2'),
 		Glib (settings).with (version='2.8.4', mirror=download.gtk),
-		Freetype (settings).with (version='2.1.7', mirror=download.freetype),
+		Zlib (settings).with (version='1.2.2-1', mirror=download.lp, format='bz2'),
+# vanilla 1.2.3 builds only static libraries
+#		Zlib (settings).with (version='1.2.3', mirror=download.zlib, format='bz2'),
+		Freetype (settings).with (version='2.1.7-1', mirror=download.lp, format='bz2'),
+#		Freetype (settings).with (version='2.1.7', mirror=download.freetype),
 # 2.1.9 builds only static libraries
 #		Freetype (settings).with (version='2.1.9', mirror=download.freetype),
 # vanilla expat does not link
 #		Expat (settings).with (version='1.95.8', mirror=download.sf),
 		Expat (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2'),
 #		Fontconfig (settings).with (version='2.3.92', mirror=download.fontconfig),
-		Zlib (settings).with (version='1.2.3', mirror=download.zlib, format='bz2'),
-		Fontconfig (settings).with (version='2.3.2', mirror=download.fontconfig),
+#		Fontconfig (settings).with (version='2.3.2', mirror=download.fontconfig),
+		Fontconfig (settings).with (version='2.3.2-1', mirror=download.lp, format='bz2'),
 		LilyPond (settings).with (mirror=cvs.gnu, download=gub.Package.cvs),
 	),
 	}

@@ -312,7 +312,9 @@ libexecdir=%(installdir)s/lib \
 			'DLLTOOL' : '%(target_architecture)s-dlltool',
 			'DLLWRAP' : '%(target_architecture)s-dllwrap',
 			'LD': '%(target_architecture)s-ld',
-			'LDFLAGS': '-L%(installdir)s/lib',
+#			'LDFLAGS': '-L%(installdir)s/lib',
+# FIXME: for zlib, try adding bin			
+			'LDFLAGS': '-L%(installdir)s/lib -L%(installdir)s/bin',
 			'NM': '%(target_architecture)s-nm',
 			'PKG_CONFIG_PATH': '%(systemdir)s/usr/lib/pkgconfig',
 			'PKG_CONFIG': '''/usr/bin/pkg-config \
