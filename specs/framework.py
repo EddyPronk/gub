@@ -7,7 +7,9 @@ class Libtool (gub.Target_package):
 	pass
 
 class LilyPond (gub.Target_package):
-	pass
+	def configure (self):
+		self.autoupdate ()
+		gub.Target_package.configure (self)
 
 class Gettext (gub.Target_package):
 	def configure_cache_overrides (self, str):

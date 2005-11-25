@@ -89,14 +89,14 @@ cd %(dir)s && wget %(url)s
 ''', locals ())
 
 	def cvs (self):
-		dir = self.settings.downloaddir
-		if not os.path.exists (dir + '/' + self.file_name ()):
+		dir = self.settings.srcdir
+		if not os.path.exists (dir):
 			self.system ('''
-cvs -d %(url)s co %(name)s
+cd %(dir)s && cvs -d %(url)s co -r %(version)s %(name)s
 ''', locals ())
 		else:
 			self.system ('''
-cd %(dir)s && cvs update -dCAP -r %(version)s
+cd %(dir)s/%(name)s && cvs update -dCAP -r %(version)s
 ''', locals ())
  
 	def unpack_destination (self):
@@ -153,7 +153,7 @@ cd %(srcdir)s && ./bootstrap
 ''')
 		elif os.path.exists (os.path.join (self.srcdir (), 'autogen.sh')):
 			self.system ('''
-cd %(srcdir) && bash autogen.sh
+cd %(srcdir)s && bash autogen.sh --noconfigure
 ''')
 		else:
 			self.system ('''
