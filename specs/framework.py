@@ -60,13 +60,13 @@ def read_pipe (cmd):
 class Fontconfig (gub.Target_package):
 	def configure_command (self):
 		cmd = gub.Target_package.configure_command (self)
-		## fixme.
+		# FIXME: system dir vs packaging install
 		''' \
 --with-default-fonts=@WINDIR@\\fonts \
 --with-add-fonts=@INSTDIR@\\usr\\share\\gs\\fonts \
 --with-freetype-config="/usr/bin/freetype-config \
---prefix=%(installdir)s/usr \
---exec-prefix=%(installdir)s/usr \
+--prefix=%(systemdir)s/usr \
+--exec-prefix=%(systemdir)s/usr \
 "
 '''
 

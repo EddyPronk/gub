@@ -2,8 +2,10 @@ def gtk ():
 	return 'ftp://ftp.gtk.org/pub/gtk/v%(gtk_version)s/%(name)s-%(version)s.tar.%(format)s'
 
 def gnu ():
+	# FIXME: find complete GNU mirror
 	# base = 'ftp://dl.xs4all.nl/pub/mirror/gnu'
-	base = 'ftp://sunsite.dk/pub/gnu'
+	# base = 'ftp://sunsite.dk/pub/gnu'
+	base = 'ftp://ftp.gnu.org/pub/gnu'
 	return base + '/%(name)s/%(name)s-%(version)s.tar.%(format)s'
 
 def freetype ():

@@ -251,11 +251,24 @@ class Target_package (Package):
 	def installdir (self):
 		# the usr/ works around a fascist check in libtool
 		##return self.settings.installdir + "/" + self.name () + "-root/usr"
+		# FIXME: system dir vs packaging install
 		# no packages for now
 		return self.settings.systemdir + '/usr'
 
 	def install_command (self):
-		return 'make prefix=%(installdir)s install'
+		return '''make install \
+prefix=%(installdir)s \
+exec_prefix=%(installdir)s \
+bindir=%(installdir)s/bin \
+infodir=%(installdir)s/share/info \
+mandir=%(installdir)s/share/man \
+libdir=%(installdir)s/lib \
+sysconfdir=%(installdir)s/etc \
+includedir=%(installdir)s/include \
+tooldir=%(installdir)s \
+gcc_tooldir=%(installdir)s \
+libexecdir=%(installdir)s/lib \
+'''
 		
 	def configure (self):
 		self.system ('mkdir -p %(builddir)s')
