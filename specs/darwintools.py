@@ -1,6 +1,7 @@
 import re
 import gub
 import download
+from gub import join_lines
 
 class  Darwin_sdk (gub.Cross_package):
 	def file_name (self):
@@ -38,14 +39,15 @@ class Gcc (gub.Cross_package):
 		
 	def configure_command (self):
 		cmd = gub.Cross_package.configure_command (self)
-		cmd += ''' --prefix=%(tooldir)s \
---program-prefix=%(target_architecture)s- \
---with-as=%(tooldir)s/bin/powerpc-apple-darwin7-as  \
---with-ld=%(tooldir)s/bin/powerpc-apple-darwin7-ld  \
- --enable-static --enable-shared  \
---enable-libstdcxx-debug \
+		cmd += ''' --prefix=%(tooldir)s 
+--program-prefix=%(target_architecture)s- 
+--with-as=%(tooldir)s/bin/powerpc-apple-darwin7-as  
+--with-ld=%(tooldir)s/bin/powerpc-apple-darwin7-ld  
+ --enable-static --enable-shared  
+--enable-libstdcxx-debug 
 --enable-languages=c,c++ ''' % self.settings.__dict__
-		return cmd
+		
+		return join_lines (cmd)
 
 
 def get_packages (settings):

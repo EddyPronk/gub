@@ -33,6 +33,9 @@ def system (cmd, ignore_error = False, verbose = False, env = {}):
 
 	return 0
 
+def join_lines (str):
+	return re.sub ('\n', ' ', str)
+
 class Package:
 	def __init__ (self, settings):
 		self.settings = settings
@@ -161,9 +164,7 @@ cd %(srcdir)s && automake --add-missing
 ''')
 
 	def configure_command (self):
-		return '''%(srcdir)s/configure
---prefix=%(installdir)s
-'''
+		return '''%(srcdir)s/configure --prefix=%(installdir)s'''
 
 	def configure (self):
 		self.system ('''
@@ -218,30 +219,27 @@ class Cross_package (Package):
 	"Package for cross compilers/linkers etc."
 
 	def configure_command (self):
-		cmd = Cross_package.configure_command (self)
-		cmd += ''' \
---target=%(target_architecture)s \
---with-sysroot=%(systemdir)s \
+		cmd = Package.configure_command (self)
+		cmd += '''
+--target=%(target_architecture)s 
+--with-sysroot=%(systemdir)s 
 '''
-		return cmd
+		return join_lines (cmd)
 	
 class Target_package (Package):
 	def configure_command (self):
-		return '''%(srcdir)s/configure \
---config-cache \
---enable-shared \
---disable-static \
---build=%(build_spec)s \
---host=%(target_architecture)s \
---target=%(target_architecture)s \
---prefix=/usr \
---sysconfdir=/etc \
---includedir=%(systemdir)s/usr/include \
---libdir=%(systemdir)s/usr/lib \
-'''
-
-## wtf?
-##--includedir=%(garbagedir)s \
+		return join_lines ('''%(srcdir)s/configure 
+--config-cache 
+--enable-shared 
+--disable-static 
+--build=%(build_spec)s 
+--host=%(target_architecture)s 
+--target=%(target_architecture)s 
+--prefix=/usr 
+--sysconfdir=/etc 
+--includedir=%(systemdir)s/usr/include 
+--libdir=%(systemdir)s/usr/lib 
+''')
 
 	def configure_cache_overrides (self, str):
 		return str
