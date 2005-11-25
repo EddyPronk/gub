@@ -33,7 +33,7 @@ glib_cv_stack_grows=${glib_cv_stack_grows=no}
 
 class Freetype (gub.Target_package):
 	def configure (self):
-		self.system ('''
+		gub.Package.system (self, '''
 		rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
 ''')
 		gub.Package.configure (self)
