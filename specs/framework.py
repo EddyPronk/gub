@@ -135,7 +135,10 @@ def get_packages (settings, platform):
 		Gettext (settings).with (version='0.14.5'),
 		Libiconv (settings).with (version='1.9.2'),
 		Glib (settings).with (version='2.8.4', mirror=download.gtk),
-		Freetype (settings).with (version='2.1.9', mirror=download.freetype),
+		Freetype (settings).with (version='2.1.7', mirror=download.freetype),
+# 2.1.9 builds only static libraries
+#		Freetype (settings).with (version='2.1.9', mirror=download.freetype),
+# vanilla expat does not link
 #		Expat (settings).with (version='1.95.8', mirror=download.sf),
 		Expat (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2'),
 #		Fontconfig (settings).with (version='2.3.92', mirror=download.fontconfig),
