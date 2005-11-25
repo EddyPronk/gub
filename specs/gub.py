@@ -13,7 +13,7 @@ def system_one (cmd, ignore_error, env):
 	stat = proc.wait ()
 	
 	if stat and not ignore_error:
-		raise 'barf'
+		raise 'Command barfed', cmd
 
 	return 0 
 
@@ -237,7 +237,7 @@ class Target_package (Package):
 --sysconfdir=/etc 
 --includedir=%(systemdir)s/usr/include 
 --libdir=%(systemdir)s/usr/lib 
-'''
+''')
 
 	def configure_cache_overrides (self, str):
 		return str
