@@ -211,8 +211,11 @@ cd %(builddir)s && %(configure_command)s
 		return self
 
 class Cross_package (Package):
+	"Package for cross compilers/linkers etc."
+
 	def configure_command (self):
-		return Package.configure_command (self) + ''' \
+		cmd = Cross_package.configure_command (self)
+		cmd += ''' \
 --target=%(target_architecture)s \
 --with-sysroot=%(systemdir)s \
 '''

@@ -25,7 +25,6 @@ class Odcctools (gub.Cross_package):
 	def installdir (self):
 		return self.settings.tooldir
 	
-
 class Gcc (gub.Cross_package):
 	def patch (self):
 		fn ='%s/gcc/config/darwin.h' % self.srcdir()
