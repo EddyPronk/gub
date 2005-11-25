@@ -18,6 +18,9 @@ class  Darwin_sdk (gub.Cross_package):
 	def install (self):
 		pass
 	
+	def test(self):
+		pass
+	
 class Odcctools (gub.Cross_package):
 	def installdir (self):
 		return self.settings.tooldir
