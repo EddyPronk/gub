@@ -104,6 +104,7 @@ cd %(dir)s && cvs update -dCAP -r %(version)s
 	
 	def basename (self):
 		f = self.file_name ()
+		f = re.sub ('-src\.tar.*', '', f)
 		f = re.sub ('\.tar.*', '', f)
 		return f
 
@@ -160,6 +161,9 @@ cd %(srcdir) && bash autogen.sh
 cd %(srcdir)s && aclocal
 cd %(srcdir)s && autoheader
 cd %(srcdir)s && autoconf
+''')
+			if os.path.exists (os.path.join (self.srcdir (), 'Makefile.am')):
+				self.system ('''
 cd %(srcdir)s && automake --add-missing
 ''')
 
@@ -277,6 +281,7 @@ class Target_package (Package):
 			'LDFLAGS': '-L%(installdir)s/lib',
 			'NM': '%(target_architecture)s-nm',
 			'RANLIB': '%(target_architecture)s-ranlib',
+			'SED': 'sed', # libtool (expat mingw) fixup
 			}
 
 		dict.update (env)

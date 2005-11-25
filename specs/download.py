@@ -17,3 +17,9 @@ def hw ():
 
 def opendarwin ():
 	return 'http://www.opendarwin.org/downloads/%(name)s-%(version)s.tar.%(format)s'
+
+def sf ():
+	return 'http://mesh.dl.sourceforge.net/sourceforge/%(name)s/%(name)s-%(version)s.tar.%(format)s'
+
+def lp ():
+	return 'http://lilypond.org/mingw/uploads/%(name)s/%(name)s-%(version)s-src.tar.%(format)s'
