@@ -39,15 +39,13 @@ class Freetype (gub.Target_package):
 		gub.Package.configure (self)
 
 	def install (self):
-		self.system ('''
+		gub.Package.system (self, '''
 cd %(srcdir)s && ./configure --disable-static --enable-shared
-''', { 'CC': 'cc'},
-			     )
+''')
 		gub.Package.install (self)
 		
 
 class Fontconfig (gub.Target_package):
-
 	def configure_command (self):
 		cmd = gub.Target_package.configure_command (self)
 
@@ -57,7 +55,7 @@ class Fontconfig (gub.Target_package):
 		return cmd
 	
 	def configure (self):
-		self.system ('''
+		Package.system (self, '''
 		rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
 ''',
 			     env = {'ft_config' : '''/usr/bin/freetype-config \
