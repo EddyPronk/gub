@@ -17,13 +17,16 @@ def system_one (cmd, ignore_error, env):
 
 	return 0 
 
-def system (cmd, ignore_error=False, env={}):
+def system (cmd, ignore_error = False, verbose = False, env = {}):
+	"Run multiple lines as multiple commands."
+	
 	call_env = os.environ.copy ()
 	call_env.update (env)
 
-	for (k, v) in env.items ():
-		sys.stderr.write ('%s=%s\n' % (k, v))
-
+	if verbose:
+		for (k, v) in env.items ():
+			sys.stderr.write ('%s=%s\n' % (k, v))
+		
 	for i in cmd.split ('\n'):
 		if i:
 			system_one (i, ignore_error, call_env)
@@ -69,7 +72,8 @@ class Package:
 
 	def system (self, cmd, env = {}):
 		dict = self.package_dict (env)
-		system (cmd % dict, ignore_error = False, env = dict)
+		verbose = self.settings.verbose
+		system (cmd % dict, ignore_error = False, verbose = verbose, env = dict)
 
 	def download (self):
 		pass
