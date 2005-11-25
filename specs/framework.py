@@ -57,6 +57,10 @@ class Fontconfig (gub.Target_package):
 		return gub.Target_package.configure_command (self) + ''' \
 --with-default-fonts=@WINDIR@\\fonts \
 --with-add-fonts=@INSTDIR@\\usr\\share\\gs\\fonts \
+--with-freetype-config="/usr/bin/freetype-config \
+--prefix=%(systemdir)s/usr \
+--exec-prefix=%(systemdir)s/usr \
+"
 '''
 
 	def configure (self):
@@ -64,8 +68,8 @@ class Fontconfig (gub.Target_package):
 		rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
 ''',
 			     env = {'ft_config' : '''/usr/bin/freetype-config \
---prefix=%(systemdir)s \
---exec-prefix=%(systemdir)s \ 
+--prefix=%(systemdir)s/usr \
+--exec-prefix=%(systemdir)s/usr \ 
 '''})
 		gub.Package.configure (self)
 
@@ -99,6 +103,14 @@ includedir=%(installdir)s/include \
 man1dir=%(installdir)s/share/man/man1 \
 '''
 
+class Zlib (gub.Target_package):
+	def configure (self):
+		self.system ('''
+sed -i~ 's/mgwz/libz/' %(srcdir)s/configure
+shtool mkshadow %(srcdir)s %(builddir)s
+cd %(builddir)s && target=mingw AR="%(AR)s r" %(srcdir)s/configure --shared
+''')
+
 def get_packages (settings, platform):
 	packages = {
 	'mac': (
@@ -115,6 +127,7 @@ def get_packages (settings, platform):
 #		Expat (settings).with (version='1.95.8', mirror=download.sf),
 		Expat (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2'),
 #		Fontconfig (settings).with (version='2.3.92', mirror=download.fontconfig),
+		Zlib (settings).with (version='1.2.3', mirror=download.zlib, format='bz2'),
 		Fontconfig (settings).with (version='2.3.2', mirror=download.fontconfig),
 		LilyPond (settings).with (mirror=cvs.gnu, download=gub.Package.cvs),
 	),

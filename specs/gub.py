@@ -280,6 +280,12 @@ class Target_package (Package):
 			'LD': '%(target_architecture)s-ld',
 			'LDFLAGS': '-L%(installdir)s/lib',
 			'NM': '%(target_architecture)s-nm',
+			'PKG_CONFIG_PATH': '%(systemdir)s/usr/lib/pkgconfig',
+			'PKG_CONFIG': '''/usr/bin/pkg-config \
+--define-variable prefix=%(systemdir)s/usr \
+--define-variable includedir=%(systemdir)s/usr/include \
+--define-variable libdir=%(systemdir)s/usr/lib \
+''',
 			'RANLIB': '%(target_architecture)s-ranlib',
 			'SED': 'sed', # libtool (expat mingw) fixup
 			}

@@ -23,3 +23,6 @@ def sf ():
 
 def lp ():
 	return 'http://lilypond.org/mingw/uploads/%(name)s/%(name)s-%(version)s-src.tar.%(format)s'
+
+def zlib ():
+	return 'http://www.zlib.net/%(name)s-%(version)s.tar.%(format)s'
