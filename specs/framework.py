@@ -42,12 +42,20 @@ cd %(srcdir)s && ./configure --disable-static --enable-shared
 		gub.Package.install (self)
 		
 
-class Fontconfig (gub.Target_package):
+def read_pipe (cmd):
+	pipe = os.popen (cmd, mode)
+	output = pipe.read ()
+	status = pipe.close ()
+	# successful pipe close returns 'None'
+	if status:
+		raise 'barf'
+	return output
 
+class Fontconfig (gub.Target_package):
 	def configure_command (self):
-		return gub.Target_package.configure_command (self) + '''
---with-default-fonts=@WINDIR@\fonts\
---with-add-fonts=@INSTDIR@\usr\share\gs\fonts
+		return gub.Target_package.configure_command (self) + ''' \
+--with-default-fonts=@WINDIR@\\fonts \
+--with-add-fonts=@INSTDIR@\\usr\\share\\gs\\fonts \
 '''
 
 	def configure (self):
@@ -59,6 +67,17 @@ class Fontconfig (gub.Target_package):
 --exec-prefix=%(systemdir)s \ 
 '''})
 		gub.Package.configure (self)
+
+		# help fontconfig cross compiling a bit, all CC/LD
+		# flags are wrong, set to the target's root
+		
+		cflags = '-I%(srcdir)s -I%(srcdir)s/src' \
+			 + read_pipe ('freetype-config --cflags')
+		libs = read_pipe ('freetype-config --libs')
+		for i in ('fc-case' 'fc-lang' 'fc-glyphname'):
+			self.system ('''
+cd %(builddir)s/%(i)s && make "CFLAGS=%(cflags)s" "LIBS=%(libs)s" CPPFLAGS= LDFLAGS= INCLUDES=
+''')
 
 def get_packages (settings, platform):
 	packages = {
@@ -73,6 +92,8 @@ def get_packages (settings, platform):
 		Libiconv (settings).with (version='1.9.2'),
 		Glib (settings).with (version='2.8.4', mirror=download.gtk),
 		Freetype (settings).with (version='2.1.9', mirror=download.freetype),
+#		Fontconfig (settings).with (version='2.3.92', mirror=download.fontconfig),
+		Fontconfig (settings).with (version='2.3.2', mirror=download.fontconfig),
 		LilyPond (settings).with (mirror=cvs.gnu, download=gub.Package.cvs),
 	),
 	}
