@@ -45,11 +45,13 @@ cd %(srcdir)s && ./configure --disable-static --enable-shared
 class Fontconfig (gub.Target_package):
 
 	def configure_command (self):
-		return gub.Target_package.configure_command (self) + '''
---with-default-fonts=@WINDIR@\fonts\
---with-add-fonts=@INSTDIR@\usr\share\gs\fonts
-'''
+		cmd = gub.Target_package.configure_command (self)
 
+		if self.settings.platform == 'mingw':
+			 cmd +=  '--with-default-fonts=@WINDIR@\\fonts\\ --with-add-fonts=@INSTDIR@\\usr\\share\\gs\\fonts'
+
+		return cmd
+	
 	def configure (self):
 		self.system ('''
 		rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
