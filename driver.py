@@ -25,9 +25,14 @@ class Settings:
 		
 		self.builddir = self.targetdir + '/build'
 		self.garbagedir = self.targetdir + '/garbage'
-		self.installdir = self.targetdir + '/install'
 		self.statusdir = self.targetdir + '/status'
+
+		## dir for platform library & headers.
 		self.systemdir = self.targetdir + '/system'
+
+		## dir for our own stuff, including library & headers. 
+		self.installdir = self.targetdir + '/install'
+
 		self.tooldir = self.targetdir + '/tools'
 
 	def create_dirs (self): 

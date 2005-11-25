@@ -237,8 +237,8 @@ class Target_package (Package):
 --target=%(target_architecture)s 
 --prefix=/usr 
 --sysconfdir=/etc 
---includedir=%(systemdir)s/usr/include 
---libdir=%(systemdir)s/usr/lib 
+--includedir=/usr/include 
+--libdir=/usr/lib 
 ''')
 
 	def configure_cache_overrides (self, str):

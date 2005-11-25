@@ -59,8 +59,8 @@ class Fontconfig (gub.Target_package):
 		rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
 ''',
 			     env = {'ft_config' : '''/usr/bin/freetype-config \
---prefix=%(systemdir)s \
---exec-prefix=%(systemdir)s \ 
+--prefix=%(installdir)s \
+--exec-prefix=%(installdir)s \ 
 '''})
 		gub.Package.configure (self)
 
