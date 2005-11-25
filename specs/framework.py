@@ -143,6 +143,7 @@ def get_packages (settings, platform):
 		Gettext (settings).with (version='0.14.5'),
 		Libiconv (settings).with (version='1.9.2'),
 		Glib (settings).with (version='2.8.4', mirror=download.gtk),
+#FIXME: for all lp.org packages, should try if vanilla+autoupdate works
 		Zlib (settings).with (version='1.2.2-1', mirror=download.lp, format='bz2'),
 # vanilla 1.2.3 builds only static libraries
 #		Zlib (settings).with (version='1.2.3', mirror=download.zlib, format='bz2'),
