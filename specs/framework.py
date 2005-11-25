@@ -36,8 +36,9 @@ class Freetype (gub.Target_package):
 
 	def install (self):
 		self.system ('''
-cd %(srcdir)s && CC=cc ./configure --disable-static --enable-shared
-''')
+cd %(srcdir)s && ./configure --disable-static --enable-shared
+''', { 'CC': 'cc'},
+			     )
 		gub.Package.install (self)
 		
 
