@@ -18,7 +18,7 @@ class  Darwin_sdk (gub.Cross_package):
 	def install (self):
 		pass
 	
-class Odcc_tools (gub.Cross_package):
+class Odcctools (gub.Cross_package):
 	def installdir (self):
 		return self.settings.tooldir
 	
@@ -45,21 +45,10 @@ class Gcc (gub.Cross_package):
 --enable-languages=c,c++ ''' % self.settings.__dict__
 		return cmd
 
-		
-
 
 def get_packages (settings):
-	sdk = Darwin_sdk (settings)
-	sdk.url = 'http://lilypond.org/~hanwen/darwin-sdk.tar.gz'
-	
-	odc = Odcc_tools (settings)
-	odc.url = 'http://www.opendarwin.org/downloads/odcctools-20051031.tar.bz2'
-	
-	gcc = Gcc (settings)
-
-	download.set_gnu_download (gcc, '4.0.2', 'bz2')
-	
-	return [sdk, odc, gcc]
-		
-		
-	
+	return (
+		Darwin_sdk (settings).with (version='', mirror=download.hw),
+		Odcctools (settings).with (version='20051031', mirror=download.opendarwin, format='bz2'),
+		Gcc (settings).with (version='4.0.2', format='bz2'),
+		)		

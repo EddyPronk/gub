@@ -119,6 +119,7 @@ cd %(dir)s && cvs update -dCAP -r %(version)s
 			file = re.sub ('.*/([^/]+)', '\\1', self.url)
 		else:
 			file = self.__class__.__name__.lower ()
+			file = re.sub ('_', '-', file)
 		return file
 	
 	def done (self, stage):
@@ -183,6 +184,9 @@ cd %(builddir)s && %(configure_command)s
 	
 	def unpack (self):
 		file = self.settings.downloaddir + '/' + self.file_name ()
+
+		if not os.path.exists (file):
+			return
 
 		flags = ''
 		if re.search ('.tar$', file):

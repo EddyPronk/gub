@@ -12,3 +12,8 @@ def freetype ():
 def fontconfig ():
 	return 'http://www.fontconfig.org/release/%(name)s-%(version)s.tar.%(format)s'
 
+def hw ():
+	return 'http://lilypond.org/~hanwen/%(name)s-%(version)s.tar.%(format)s'
+
+def opendarwin ():
+	return 'http://www.opendarwin.org/downloads/%(name)s-%(version)s.tar.%(format)s'
