@@ -15,8 +15,12 @@ class Gettext (gub.Target_package):
 		return str
 	
 	def configure_command (self):
-		return gub.Target_package.configure_command (self) \
+		cmd = gub.Target_package.configure_command (self) \
 		       + ' --disable-csharp'
+
+		if self.settings.platform == 'mac':
+			cmd = re.sub ('--config-cache ', '', cmd) 
+		return cmd
 	
 class Libiconv (gub.Target_package):
 	pass

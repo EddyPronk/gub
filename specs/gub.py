@@ -17,6 +17,9 @@ def system_one (cmd, ignore_error, env):
 
 	return 0 
 
+def join_lines (str):
+	return re.sub ('\n', ' ', str)
+
 def system (cmd, ignore_error = False, verbose = False, env = {}):
 	"Run multiple lines as multiple commands."
 	

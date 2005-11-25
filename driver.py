@@ -87,6 +87,7 @@ def main ():
 		platform = 'mingw'
 
 	settings.verbose = verbose
+	settings.platform = platform
 	
 	if not os.path.exists (settings.targetdir):
 		settings.create_dirs ()
