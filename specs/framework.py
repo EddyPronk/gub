@@ -28,10 +28,6 @@ glib_cv_stack_grows=${glib_cv_stack_grows=no}
 '''
 
 class Freetype (gub.Target_package):
-	def __init__ (self, settings):
-		gub.Package.__init__ (self, settings)
-		self.with (mirror=download.freetype)
-
 	def configure (self):
 		self.system ('''
 		rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
@@ -76,7 +72,7 @@ def get_packages (settings, platform):
 		Gettext (settings).with (version='0.14.5'),
 		Libiconv (settings).with (version='1.9.2'),
 		Glib (settings).with (version='2.8.4', mirror=download.gtk),
-		Freetype (settings).with (version='2.1.9'),
+		Freetype (settings).with (version='2.1.9', mirror=download.freetype),
 		LilyPond (settings).with (mirror=cvs.gnu, download=gub.Package.cvs),
 	),
 	}

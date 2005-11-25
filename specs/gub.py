@@ -225,8 +225,8 @@ class Target_package (Package):
 --target=%(target_architecture)s \
 --prefix=/usr \
 --sysconfdir=/etc \
---includedir=%(systemdir)s/include \
---libdir=%(systemdir)s/lib \
+--includedir=%(systemdir)s/usr/include \
+--libdir=%(systemdir)s/usr/lib \
 '''
 
 ## wtf?
