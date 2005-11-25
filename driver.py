@@ -2,10 +2,13 @@ import __main__
 import os
 import re
 import sys
+import getopt
 
 sys.path.insert (0, 'specs/')
+
 import gub
 import framework
+
 
 class Settings:
 	def __init__ (self, arch):
@@ -59,12 +62,22 @@ def process_packages (packages):
 		process_package (i)
 		
 def main ():
-	platform = sys.argv[1]
+	(options, files) = getopt.getopt (sys.argv[1:], 'V', ['verbose'])
+	verbose = 0 
+	for (o,a) in options:
+		if o == '--verbose' or o == '-V':
+			verbose = 1
 
+	try:
+		platform = files[0]
+	except IndexError:
+		platform = ''
+		
 	if platform not in ['mac', 'mingw', 'mingw-fedora']:
 		print 'unknown platform', platform
-		print 'mac, mingw, mingw-fedora'
-		
+		print 'Use mac, mingw, mingw-fedora'
+		sys.exit (1)
+
 	if platform == 'mac':
 		settings = Settings ('powerpc-apple-darwin7')
 	elif platform == 'mingw':
@@ -72,6 +85,8 @@ def main ():
 	elif platform == 'mingw-fedora':
 		settings = Settings ('i386-mingw32')
 		platform = 'mingw'
+
+	settings.verbose = verbose
 	
 	if not os.path.exists (settings.targetdir):
 		settings.create_dirs ()
@@ -84,6 +99,7 @@ def main ():
 		process_packages (darwintools.get_packages (settings))
 
 	process_packages (framework.get_packages (settings, platform))
+
 
 
 if __name__ == '__main__':
