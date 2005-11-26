@@ -40,11 +40,12 @@ class Freetype (gub.Target_package):
 		rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
 ''')
 		gub.Package.configure (self)
-		self.system ('''
-sed -i~	-e "s@^LIBTOOL=.*@LIBTOOL=%(builddir)s/libtool --tag=CXX@" %(builddir)s/Makefile
-echo '# libtool will not build dll if -no-undefined flag is not present' >> %(builddir)s/Makefile
-echo 'LDFLAGS:=$(LDFLAGS) -no-undefined' >> %(builddir)s/Makefile
-''')
+		str = open (self.builddir () + '/Makefile').read()
+		str = re.sub ('\nLIBTOOL=[^\n]', 'LIBTOOL=%(builddir)s/libtool --tag=CXX' % self.package_dict(),
+			      str)
+		str += '# libtool will not build dll if -no-undefined flag is not present\n' 
+		str += 'LDFLAGS:=$(LDFLAGS) -no-undefined\n'
+		open (self.builddir () + '/Makefile','w').write(str)
 
 	def install (self):
 		gub.Package.system (self, '''
