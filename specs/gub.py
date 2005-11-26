@@ -366,7 +366,7 @@ tar -C %(systemdir)s -zxf %(uploaddir)s/%(name)s.gub
 #			'LDFLAGS': '-L%(installdir)s/lib',
 # FIXME: for zlib, try adding bin
 			'LDFLAGS': '-L%(installdir)s/lib -L%(installdir)s/bin',
-			'MINGW_RUNTIME_DIR': os.environ['MINGW_RUNTIME_DIR'],
+			'MINGW_RUNTIME_DIR': self.settings.runtimedir,
 			'NM': '%(target_architecture)s-nm',
 			'PKG_CONFIG_PATH': '%(systemdir)s/usr/lib/pkgconfig',
 			'PKG_CONFIG': '''/usr/bin/pkg-config \

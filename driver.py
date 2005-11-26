@@ -22,7 +22,7 @@ class Settings:
 
 		self.target_architecture = arch
 		self.targetdir = self.topdir + '/target/%s' % self.target_architecture
-		
+		self.runtimedir = None
 		self.builddir = self.targetdir + '/build'
 		self.garbagedir = self.targetdir + '/garbage'
 		self.statusdir = self.targetdir + '/status'
@@ -102,10 +102,12 @@ def main ():
 		settings = Settings ('powerpc-apple-darwin7')
 	elif platform == 'mingw':
 		settings = Settings ('i586-mingw32msvc')
-		settings.target_gcc_flags = '-mwindows -mms-bitfields' 
+		settings.target_gcc_flags = '-mwindows -mms-bitfields'
+		settings.runtimedir = '/usr/i386-mingw32' 
 	elif platform == 'mingw-fedora':
 		settings = Settings ('i386-mingw32')
-		settings.target_gcc_flags = '-mwindows -mms-bitfields' 
+		settings.target_gcc_flags = '-mwindows -mms-bitfields'
+		settings.runtimedir = '/usr/local/i386-mingw32' 
 		platform = 'mingw'
 
 	gub.start_log ()
