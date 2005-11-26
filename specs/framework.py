@@ -58,11 +58,11 @@ class Freetype (gub.Target_package):
 ''')
 		gub.Package.configure (self)
 
-		## FIXME: use handy re.sub
+		## FIXME: use handy self.file-re.sub
 		str = open (self.builddir () + '/Makefile').read ()
-		str = re.sub ('\nLIBTOOL=[^\n]', 'LIBTOOL=%(builddir)s/libtool --tag=CXX' % self.package_dict (),
+		str = re.sub ('\nLIBTOOL=[^\n]', '\nLIBTOOL=%(builddir)s/libtool --tag=CXX\n' % self.package_dict (),
 			      str)
-		open (self.builddir () + '/Makefile','w').write (str)
+		open (self.builddir () + '/Makefile', 'w').write (str)
 
 		self.dump ('%(builddir)s/Makefile', '''
 # libtool will not build dll if -no-undefined flag is not present
