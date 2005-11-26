@@ -93,6 +93,7 @@ def main ():
 		settings = Settings ('i386-mingw32')
 		platform = 'mingw'
 
+	gub.start_log ()
 	settings.verbose = verbose
 	settings.platform = platform
 	

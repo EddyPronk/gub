@@ -52,6 +52,7 @@ def read_pipe (cmd):
 	pipe = os.popen (cmd, 'r')
 	output = pipe.read ()
 	status = pipe.close ()
+	
 	# successful pipe close returns 'None'
 	if status:
 		raise 'barf'
@@ -128,7 +129,9 @@ def get_packages (settings, platform):
 	'mac': (
 		Gettext (settings).with (version='0.10.40'),
 		Freetype (settings).with (version='2.1.9', mirror=download.freetype),
+		Expat (settings).with (version='1.95.8', mirror=download.sourceforge, format='gz'),
 		Glib (settings).with (version='2.8.4', mirror=download.gtk),
+		Fontconfig (settings).with (version='2.3.2', mirror=download.fontconfig),
 	),
 	'mingw': (
 		Libtool (settings).with (version='1.5.20'),
