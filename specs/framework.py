@@ -5,7 +5,7 @@ import os
 import re
 
 class Mingw (gub.Target_package):
-	def unpack (self):
+	def untar (self):
 		self.system ('mkdir -p %(srcdir)s/')
 		self.dump ('%(srcdir)s/configure', '''
 cat > Makefile <<EOF

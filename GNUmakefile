@@ -14,7 +14,7 @@ mingw:
 	python driver.py mingw
 
 realclean:
-	rm -rf target/*/build target/*/status
-
-distclean:
 	rm -rf src target
+
+distclean: realclean
+	echo NOT rm -rf downloads

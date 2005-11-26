@@ -26,6 +26,7 @@ class Settings:
 		self.builddir = self.targetdir + '/build'
 		self.garbagedir = self.targetdir + '/garbage'
 		self.statusdir = self.targetdir + '/status'
+		self.uploaddir = self.targetdir + '/uploads'
 
 		## dir for platform library & headers.
 		## FIXME: systemDIR/installDIR are unclear concepts
@@ -41,9 +42,11 @@ class Settings:
 		self.tooldir = self.targetdir + '/tools'
 
 	def create_dirs (self): 
-		for a in ['topdir', 'statusdir', 'garbagedir',
-                          'downloaddir', 'srcdir', 'specdir',
-                          'targetdir', 'systemdir']:
+		for a in ('downloaddir',
+			  'garbagedir',
+			  'specdir', 'srcdir', 'statusdir', 'systemdir',
+                          'targetdir', 'topdir',
+			  'uploaddir'):
 			try:
 				gub.system ('mkdir -p %s' % self.__dict__[a],
                                             ignore_error = True)
@@ -53,11 +56,12 @@ class Settings:
 def process_package (package):
 	package.download ()
 
-	for stage in ['unpack', 'patch', 'configure', 'compile', 'install']:
+	for stage in ('untar', 'patch', 'configure', 'compile', 'install',
+		      'package', 'sysinstall'):
         	if not package.is_done (stage):
 			print 'doing stage', stage
-                	if stage == 'unpack':
-                        	package.unpack()
+                	if stage == 'untar':
+                        	package.untar ()
 			elif stage == 'configure':
                         	package.configure ()
 			elif stage == 'patch':
@@ -66,6 +70,10 @@ def process_package (package):
                         	package.compile ()
 			elif stage == 'install':
                         	package.install ()
+			elif stage == 'package':
+                        	package.package ()
+			elif stage == 'sysinstall':
+                        	package.sysinstall ()
 			package.set_done (stage)
 
 

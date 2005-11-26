@@ -14,10 +14,11 @@ log_file = None
 
 def now ():
 	return time.asctime (time.localtime ())
+
 def start_log ():
 	global log_file
 	log_file = open ('build.log', 'w+')
-	log_file.write ('\n\n *** Starting build: %s\n' %  now())
+	log_file.write ('\n\n *** Starting build: %s\n' %  now ())
 	
 def log_command (str):
 	sys.stderr.write (str)
@@ -102,7 +103,8 @@ class Package:
 			'install_command': self.install_command (),
 			'installdir': self.installdir (),
 			'srcdir': self.srcdir (),
-			'unpack_destination': self.unpack_destination (),
+			'sourcesdir': self.settings.srcdir,
+			'uploaddir': self.settings.uploaddir,
 			}
 		
 		dict.update (env)
@@ -132,9 +134,6 @@ class Package:
 		system (cmd % dict, ignore_error=False,
 			verbose = self.settings.verbose, env=dict)
 
-#	def download (self):
-#		pass
-		      
 	def skip (self):
 		pass
 		      
@@ -156,9 +155,6 @@ cd %(dir)s && cvs -d %(url)s co -r %(version)s %(name)s
 cd %(dir)s/%(name)s && cvs update -dCAP -r %(version)s
 ''', locals ())
  
-	def unpack_destination (self):
-		return self.settings.srcdir
-	
 	def basename (self):
 		f = self.file_name ()
 		f = re.sub ('-src\.tar.*', '', f)
@@ -171,7 +167,7 @@ cd %(dir)s/%(name)s && cvs update -dCAP -r %(version)s
 		return s
 	
 	def srcdir (self):
-		return self.unpack_destination () + '/' + self.basename ()
+		return self.settings.srcdir + '/' + self.basename ()
 
 	def builddir (self):
 		return self.settings.builddir + '/' + self.basename ()
@@ -248,7 +244,13 @@ cd %(builddir)s && %(configure_command)s
 	def patch (self):
 		pass
 	
-	def unpack (self):
+	def package (self):
+		pass
+
+	def sysinstall (self):
+		pass
+
+	def untar (self):
 		file = self.settings.downloaddir + '/' + self.file_name ()
 
 		if not os.path.exists (file):
@@ -264,7 +266,7 @@ cd %(builddir)s && %(configure_command)s
 
 		# clean up
 		self.system ("rm -rf  %(srcdir)s %(builddir)s")
-		cmd = 'tar %(flags)s %(file)s -C %(unpack_destination)s'
+		cmd = 'tar %(flags)s %(file)s -C %(sourcesdir)s'
 		self.system (cmd, locals ())
 
 	def set_download (self, mirror=dl.gnu, format='gz', download=wget):
@@ -306,11 +308,12 @@ class Target_package (Package):
 		return str
 
 	def installdir (self):
-		# the usr/ works around a fascist check in libtool
-		##return self.settings.installdir + "/" + self.name () + "-root/usr"
+		# FIXME: the usr/ works around a fascist check in libtool
+		# better use %(installdir)s/USR throughout and remove here?
+		return self.settings.installdir + "/" + self.name () + "-root/usr"
 		# FIXME: system dir vs packaging install
 		# no packages for now
-		return self.settings.systemdir + '/usr'
+		# return self.settings.systemdir + '/usr'
 
 	def install_command (self):
 		return '''make install \
@@ -339,6 +342,17 @@ libexecdir=%(installdir)s/lib \
 
 		os.chmod (cache_fn, 0755)
 		Package.configure (self)
+
+	def package (self):
+		# naive tarball packages for now
+		self.system ('''
+tar -C %(installdir)s -zcf %(uploaddir)s/%(name)s.gub .
+''')
+
+	def sysinstall (self):
+		self.system ('''
+tar -C %(systemdir)s -zxf %(uploaddir)s/%(name)s.gub
+''')
 
 	def target_dict (self, env={}):
 		dict = {
