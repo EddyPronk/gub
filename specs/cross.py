@@ -1,7 +1,9 @@
 
 
 
-cross_config_cache = """ac_cv_c_bigendian=${ac_cv_c_bigendian=no}
+cross_config_cache ={
+	'all':
+  """ac_cv_c_bigendian=${ac_cv_c_bigendian=no}
 ac_cv_c_long_size_t=${ac_cv_c_long_size_t=no}
 ac_cv_c_long_time_t=${ac_cv_c_long_time_t=yes}
 ac_cv_sizeof___int64=${ac_cv_sizeof___int64=0}
@@ -54,15 +56,19 @@ ac_cv_lib_dld_shl_load=${ac_cv_lib_dld_shl_load=no}
 ac_cv_lib_dl_dlopen=${ac_cv_lib_dl_dlopen=no}
 ac_cv_c_stack_direction=${ac_cv_c_stack_direction=-1}
 """
-
-
-cygwin = """ac_cv_func_mkfifo=${ac_cv_func_mkfifo=yes}
+,
+	'mac' : '''
+glib_cv_uscore=${glib_cv_uscore=no}
+ac_cv_func_posix_getpwuid_r=${ac_cv_func_posix_getpwuid_r=yes}
+'''
+	,
+	'cygwin': """ac_cv_func_mkfifo=${ac_cv_func_mkfifo=yes}
 ac_cv_have_dev_ptmx=${ac_cv_have_dev_ptmx=}
 ac_cv_have_dev_ptc=${ac_cv_have_dev_ptc=}
 """
-
-mingw = """ac_cv_func_mkfifo=${ac_cv_func_mkfifo=no}
+	,
+	'mingw': """ac_cv_func_mkfifo=${ac_cv_func_mkfifo=no}
 ac_cv_have_dev_ptmx=${ac_cv_have_dev_ptmx=no}
 ac_cv_have_dev_ptc=${ac_cv_have_dev_ptc=no}
 """
-
+}
