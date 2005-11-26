@@ -26,6 +26,9 @@ class Settings:
 		self.builddir = self.targetdir + '/build'
 		self.garbagedir = self.targetdir + '/garbage'
 		self.statusdir = self.targetdir + '/status'
+
+		## uploaddir contains .gub tarballs.
+		## maybe rename to gubpackagedir ?
 		self.uploaddir = self.targetdir + '/uploads'
 
 		## dir for platform library & headers.
@@ -47,11 +50,11 @@ class Settings:
 			  'specdir', 'srcdir', 'statusdir', 'systemdir',
                           'targetdir', 'topdir',
 			  'uploaddir'):
-			try:
-				gub.system ('mkdir -p %s' % self.__dict__[a],
-                                            ignore_error = True)
-			except OSError:
-				pass
+			dir = self.__dict__[a],
+			if os.path.isdir (dir):
+				continue
+
+			gub.system ('mkdir -p %s' % dir)
 
 def process_package (package):
 	package.download ()
@@ -114,8 +117,7 @@ def main ():
 	settings.verbose = verbose
 	settings.platform = platform
 	
-	if not os.path.exists (settings.targetdir):
-		settings.create_dirs ()
+	settings.create_dirs ()
 
 	os.environ["PATH"] = '%s/%s:%s' % (settings.tooldir, 'bin',
                                            os.environ["PATH"])
