@@ -1,4 +1,7 @@
 
+MINGW_RUNTIME_DIR = /usr
+export MINGW_RUNTIME_DIR
+
 default: all
 
 all:

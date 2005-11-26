@@ -40,7 +40,7 @@ def system_one (cmd, ignore_error, env):
 def join_lines (str):
 	return re.sub ('\n', ' ', str)
 
-def system (cmd, ignore_error = False, verbose = False, env = {}):
+def system (cmd, ignore_error = False, verbose=False, env={}):
 	"Run multiple lines as multiple commands."
 	
 	call_env = os.environ.copy ()
@@ -56,13 +56,27 @@ def system (cmd, ignore_error = False, verbose = False, env = {}):
 
 	return 0
 
+def dump (name, str, mode='w'):
+	f = open (name, mode)
+	f.write (str)
+	f.close ()
+
+def read_pipe (cmd):
+	pipe = os.popen (cmd, 'r')
+	output = pipe.read ()
+	status = pipe.close ()
+	# successful pipe close returns 'None'
+	if status:
+		raise 'read_pipe failed'
+	return output
+
 class Package:
 	def __init__ (self, settings):
 		self.settings = settings
 		self.url = ''
 		self.download = self.wget
 		
-	def package_dict (self, env = {}):
+	def package_dict (self, env={}):
 		dict = {
 			'build_spec': self.settings.build_spec,
 			'garbagedir': self.settings.garbagedir,
@@ -92,13 +106,23 @@ class Package:
 
 		return dict 
 
-
-	def system (self, cmd, env = {}):
+	def dump (self, name, str, mode='w', env={}):
 		dict = self.package_dict (env)
-		system (cmd % dict, ignore_error = False,
-			verbose = self.settings.verbose, env = dict)
+		return dump (name % dict, str % dict, mode=mode)
 
-	def download (self):
+	def read_pipe (self, cmd, env={}):
+		dict = self.package_dict (env)
+		return read_pipe (cmd % dict)
+	
+	def system (self, cmd, env={}):
+		dict = self.package_dict (env)
+		system (cmd % dict, ignore_error=False,
+			verbose = self.settings.verbose, env=dict)
+
+#	def download (self):
+#		pass
+		      
+	def skip (self):
 		pass
 		      
 	def wget (self):
@@ -303,7 +327,7 @@ libexecdir=%(installdir)s/lib \
 		os.chmod (cache_fn, 0755)
 		Package.configure (self)
 
-	def system (self, cmd, env={}):
+	def target_dict (self, env={}):
 		dict = {
 			'AR': '%(target_architecture)s-ar',
 			'CC':'%(target_architecture)s-gcc %(target_gcc_flags)s',
@@ -312,7 +336,9 @@ libexecdir=%(installdir)s/lib \
 			'DLLTOOL' : '%(target_architecture)s-dlltool',
 			'DLLWRAP' : '%(target_architecture)s-dllwrap',
 			'LD': '%(target_architecture)s-ld',
-			'LDFLAGS': '-L%(installdir)s/lib',
+#			'LDFLAGS': '-L%(installdir)s/lib',
+# FIXME: for zlib, try adding bin			
+			'LDFLAGS': '-L%(installdir)s/lib -L%(installdir)s/bin',
 			'NM': '%(target_architecture)s-nm',
 			'PKG_CONFIG_PATH': '%(systemdir)s/usr/lib/pkgconfig',
 			'PKG_CONFIG': '''/usr/bin/pkg-config \
@@ -325,5 +351,17 @@ libexecdir=%(installdir)s/lib \
 			}
 
 		dict.update (env)
+		return dict
 
-		return Package.system (self, cmd, env=dict)
+	def dump (self, name, str, mode='w', env={}):
+		dict = self.target_dict (env)
+		return Package.dump (self, name, str, mode=mode)
+
+	def read_pipe (self, cmd, env={}):
+		dict = self.target_dict (env)
+		return Package.read_pipe (self, cmd, env=dict)
+	
+	def system (self, cmd, env={}):
+		dict = self.target_dict (env)
+		Package.system (self, cmd, env=dict)
+		

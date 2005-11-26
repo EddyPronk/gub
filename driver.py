@@ -28,9 +28,14 @@ class Settings:
 		self.statusdir = self.targetdir + '/status'
 
 		## dir for platform library & headers.
+		## FIXME: systemDIR/installDIR are unclear concepts
+		## I'd rather stick with mingw's
+		## TARGET-ROOT, TARGET-PREFIX, INSTALL-ROOT, INSTALL-PREFIX
 		self.systemdir = self.targetdir + '/system'
 
-		## dir for our own stuff, including library & headers. 
+		## dir for our own stuff, including library & headers.
+		## FIXME: currently merged with: systemdir/usr
+		## as we need one place for the target root
 		self.installdir = self.targetdir + '/install'
 
 		self.tooldir = self.targetdir + '/tools'
@@ -89,8 +94,10 @@ def main ():
 		settings = Settings ('powerpc-apple-darwin7')
 	elif platform == 'mingw':
 		settings = Settings ('i586-mingw32msvc')
+		settings.target_gcc_flags = '-mwindows -mms-bitfields' 
 	elif platform == 'mingw-fedora':
 		settings = Settings ('i386-mingw32')
+		settings.target_gcc_flags = '-mwindows -mms-bitfields' 
 		platform = 'mingw'
 
 	settings.verbose = verbose
