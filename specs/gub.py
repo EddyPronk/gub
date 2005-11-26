@@ -332,17 +332,19 @@ gcc_tooldir=%(installdir)s \
 libexecdir=%(installdir)s/lib \
 '''
 		
-	def configure (self):
+	def config_cache (self):
 		self.system ('mkdir -p %(builddir)s')
-		cache_fn = self.builddir () +'/config.cache'
+		cache_fn = self.builddir () + '/config.cache'
 		cache = open (cache_fn, 'w')
 		str = (cross.cross_config_cache['all']
 		       + cross.cross_config_cache[self.settings.platform])
 		str = self.configure_cache_overrides (str)
 		cache.write (str)
 		cache.close ()
-
 		os.chmod (cache_fn, 0755)
+		
+	def configure (self):
+		self.config_cache ()
 		Package.configure (self)
 
 	def package (self):
@@ -390,7 +392,7 @@ tar -C %(systemdir)s/usr -zxf %(uploaddir)s/%(name)s.gub
 
 	def file_sub (self, frm, to, name, env={}):
 		dict = self.target_dict (env)
-		return Package.file_sub (self, frm, to, name)
+		return Package.file_sub (self, frm, to, name, env=dict)
 
 	def read_pipe (self, cmd, env={}):
 		dict = self.target_dict (env)
