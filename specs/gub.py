@@ -5,15 +5,35 @@ import os
 import re
 import subprocess
 import sys
+import time
 
+
+
+log_file = None
+
+
+def now ():
+	return time.asctime (time.localtime ())
+def start_log ():
+	global log_file
+	log_file = open ('build.log', 'w+')
+	log_file.write ('\n\n *** Starting build: %s\n' %  now())
+	
+def log_command (str):
+	sys.stderr.write (str)
+	if log_file:
+		log_file.write (str)
+		log_file.flush ()
+	
 def system_one (cmd, ignore_error, env):
-	sys.stderr.write ('invoking %s\n' % cmd)
-
+	log_command ('invoking %s\n' % cmd)
+	
 	proc = subprocess.Popen (cmd, shell=True, env=env)
 	stat = proc.wait ()
 	
 	if stat and not ignore_error:
-		raise 'Command barfed', cmd
+		log_command ('Command barfed: %s' % cmd )
+		sys.exit (1)
 
 	return 0 
 
@@ -274,7 +294,8 @@ libexecdir=%(installdir)s/lib \
 		self.system ('mkdir -p %(builddir)s')
 		cache_fn = self.builddir () +'/config.cache'
 		cache = open (cache_fn, 'w')
-		str = cross.cross_config_cache + cross.cygwin
+		str = (cross.cross_config_cache['all']
+		       + cross.cross_config_cache[self.settings.platform])
 		str = self.configure_cache_overrides (str)
 		cache.write (str)
 		cache.close ()
