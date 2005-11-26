@@ -50,7 +50,7 @@ class Settings:
 			  'specdir', 'srcdir', 'statusdir', 'systemdir',
                           'targetdir', 'topdir',
 			  'uploaddir'):
-			dir = self.__dict__[a],
+			dir = self.__dict__[a]
 			if os.path.isdir (dir):
 				continue
 
