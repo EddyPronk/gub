@@ -30,4 +30,4 @@ def zlib ():
 	return 'http://www.zlib.net/%(name)s-%(version)s.tar.%(format)s'
 
 def sourceforge():
-	return 'http://belnet.dl.sourceforge.net/sourceforge/%(name)s/%(name)s-%(version)s.tar.%(format)s' 
+	return 'http://dl.sourceforge.net/%(name)s/%(name)s-%(version)s.tar.%(format)s' 

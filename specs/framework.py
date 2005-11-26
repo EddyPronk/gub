@@ -57,10 +57,13 @@ class Freetype (gub.Target_package):
 		rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
 ''')
 		gub.Package.configure (self)
-		## FIXME: use handy file re.sub
-		self.system ('''
-sed -i~	-e "s@^LIBTOOL=.*@LIBTOOL=%(builddir)s/libtool --tag=CXX@" %(builddir)s/Makefile
-''')
+
+		## FIXME: use handy re.sub
+		str = open (self.builddir () + '/Makefile').read ()
+		str = re.sub ('\nLIBTOOL=[^\n]', 'LIBTOOL=%(builddir)s/libtool --tag=CXX' % self.package_dict (),
+			      str)
+		open (self.builddir () + '/Makefile','w').write (str)
+
 		self.dump ('%(builddir)s/Makefile', '''
 # libtool will not build dll if -no-undefined flag is not present
 LDFLAGS:=$(LDFLAGS) -no-undefined
@@ -147,7 +150,9 @@ def get_packages (settings, platform):
 	'mac': (
 		Gettext (settings).with (version='0.10.40'),
 		Freetype (settings).with (version='2.1.9', mirror=download.freetype),
+		Expat (settings).with (version='1.95.8', mirror=download.sourceforge, format='gz'),
 		Glib (settings).with (version='2.8.4', mirror=download.gtk),
+		Fontconfig (settings).with (version='2.3.2', mirror=download.fontconfig),
 	),
 	'mingw': (
 		Mingw (settings).with (version='3.8', download=gub.Package.skip),
@@ -155,6 +160,7 @@ def get_packages (settings, platform):
 		Gettext (settings).with (version='0.14.5'),
 		Libiconv (settings).with (version='1.9.2'),
 		Glib (settings).with (version='2.8.4', mirror=download.gtk),
+#FIXME: for all lp.org packages, should try if vanilla+autoupdate works
 		Zlib (settings).with (version='1.2.2-1', mirror=download.lp, format='bz2'),
 # vanilla 1.2.3 builds only static libraries
 #		Zlib (settings).with (version='1.2.3', mirror=download.zlib, format='bz2'),

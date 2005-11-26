@@ -100,6 +100,7 @@ def main ():
 		settings.target_gcc_flags = '-mwindows -mms-bitfields' 
 		platform = 'mingw'
 
+	gub.start_log ()
 	settings.verbose = verbose
 	settings.platform = platform
 	
