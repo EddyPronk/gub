@@ -61,6 +61,15 @@ def dump (name, str, mode='w'):
 	f.write (str)
 	f.close ()
 
+def file_sub (frm, to, name):
+	s = open (name).read ()
+	t = re.sub (re.compile (frm, re.MULTILINE), to, s)
+	if s != t:
+		system ('mv %s %s~' % (name, name))
+		h = open (name, 'w')
+		h.write (t)
+		h.close ()
+
 def read_pipe (cmd):
 	pipe = os.popen (cmd, 'r')
 	output = pipe.read ()
@@ -109,6 +118,10 @@ class Package:
 	def dump (self, name, str, mode='w', env={}):
 		dict = self.package_dict (env)
 		return dump (name % dict, str % dict, mode=mode)
+
+	def file_sub (self, frm, to, name, env={}):
+		dict = self.package_dict (env)
+		return file_sub (frm % dict, to % dict, name % dict)
 
 	def read_pipe (self, cmd, env={}):
 		dict = self.package_dict (env)
@@ -357,6 +370,10 @@ libexecdir=%(installdir)s/lib \
 	def dump (self, name, str, mode='w', env={}):
 		dict = self.target_dict (env)
 		return Package.dump (self, name, str, mode=mode, env=dict)
+
+	def file_sub (self, frm, to, name, env={}):
+		dict = self.target_dict (env)
+		return Package.file_sub (self, frm, to, name)
 
 	def read_pipe (self, cmd, env={}):
 		dict = self.target_dict (env)
