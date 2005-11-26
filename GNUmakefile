@@ -11,7 +11,7 @@ mac:
 	python driver.py mac
 
 mingw:
-	python driver.py mingw
+	python driver.py -V mingw
 
 realclean:
 	rm -rf src target

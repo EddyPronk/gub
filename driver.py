@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import __main__
 import os
 import re

@@ -24,6 +24,9 @@ EOF
 class Libtool (gub.Target_package):
 	pass
 
+class Guile (gub.Target_package):
+	pass
+
 class LilyPond (gub.Target_package):
 	def configure (self):
 		self.autoupdate ()
@@ -53,6 +56,9 @@ glib_cv_stack_grows=${glib_cv_stack_grows=no}
 
 class Freetype (gub.Target_package):
 	def configure (self):
+#		self.autoupdate (autodir=os.path.join (self.srcdir (),
+#						       'builds/unix'))
+		
 		gub.Package.system (self, '''
 		rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
 ''')
@@ -91,6 +97,7 @@ class Fontconfig (gub.Target_package):
 		return cmd
 	
 	def configure (self):
+##		self.autoupdate ()
 		gub.Package.system (self, '''
 		rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
 ''',
@@ -115,9 +122,9 @@ cd %(builddir)s/%(i)s && make "CFLAGS=%(cflags)s" "LIBS=%(libs)s" CPPFLAGS= LDFL
 ''', locals ())
 
 class Expat (gub.Target_package):
-	def xxconfigure (self):
-		self.autoupdate ()
-		gub.Target_package.configure (self)
+#	def configure (self):
+#		self.autoupdate ()
+#		gub.Target_package.configure (self)
 
 	def compile_command (self):
 		return gub.Target_package.compile_command (self) + ''' \
@@ -141,6 +148,12 @@ shtool mkshadow %(srcdir)s %(builddir)s
 cd %(builddir)s && target=mingw AR="%(AR)s r" %(srcdir)s/configure --shared
 ''')
 
+# latest vanilla packages
+#Zlib (settings).with (version='1.2.3', mirror=download.zlib, format='bz2'),
+#Freetype (settings).with (version='2.1.9', mirror=download.freetype),
+#Expat (settings).with (version='1.95.8', mirror=download.sf),
+#Fontconfig (settings).with (version='2.3.92', mirror=download.fontconfig),
+
 def get_packages (settings, platform):
 	packages = {
 	'mac': (
@@ -153,23 +166,15 @@ def get_packages (settings, platform):
 	'mingw': (
 		Mingw (settings).with (version='3.8', download=gub.Package.skip),
 		Libtool (settings).with (version='1.5.20'),
+		Zlib (settings).with (version='1.2.2-1', mirror=download.lp, format='bz2'),
 		Gettext (settings).with (version='0.14.5'),
 		Libiconv (settings).with (version='1.9.2'),
-		Glib (settings).with (version='2.8.4', mirror=download.gtk),
-#FIXME: for all lp.org packages, should try if vanilla+autoupdate works
-		Zlib (settings).with (version='1.2.2-1', mirror=download.lp, format='bz2'),
-# vanilla 1.2.3 builds only static libraries
-#		Zlib (settings).with (version='1.2.3', mirror=download.zlib, format='bz2'),
 		Freetype (settings).with (version='2.1.7-1', mirror=download.lp, format='bz2'),
-#		Freetype (settings).with (version='2.1.7', mirror=download.freetype),
-# 2.1.9 builds only static libraries
-#		Freetype (settings).with (version='2.1.9', mirror=download.freetype),
-# vanilla expat does not link
-#		Expat (settings).with (version='1.95.8', mirror=download.sf),
 		Expat (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2'),
-#		Fontconfig (settings).with (version='2.3.92', mirror=download.fontconfig),
-#		Fontconfig (settings).with (version='2.3.2', mirror=download.fontconfig),
 		Fontconfig (settings).with (version='2.3.2-1', mirror=download.lp, format='bz2'),
+		Guile (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2'),
+		Glib (settings).with (version='2.8.4', mirror=download.gtk),
+#		Pango (settings).with (version='1.10.1', mirror=download.gtk),
 		LilyPond (settings).with (mirror=cvs.gnu, download=gub.Package.cvs),
 	),
 	}

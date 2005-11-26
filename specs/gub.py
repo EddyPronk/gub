@@ -146,7 +146,7 @@ cd %(dir)s && wget %(url)s
 
 	def cvs (self):
 		dir = self.settings.srcdir
-		if not os.path.exists (dir):
+		if not os.path.exists (os.path.join (dir, self.name ())):
 			self.system ('''
 cd %(dir)s && cvs -d %(url)s co -r %(version)s %(name)s
 ''', locals ())
@@ -191,34 +191,36 @@ cd %(dir)s/%(name)s && cvs update -dCAP -r %(version)s
 	def set_done (self, stage):
 		open (self.done (stage), 'w').write ('')
 
-	def autoupdate (self):
+	def autoupdate (self, autodir=0):
+		if not autodir:
+			autodir = self.srcdir ()
 		if os.path.isdir (os.path.join (self.srcdir (), 'ltdl')):
 			self.system ('''
-rm -rf %(srcdir)s/libltdl
-cd %(srcdir)s && libtoolize --force --copy --automake --ltdl
-''')
+rm -rf %(autodir)s/libltdl
+cd %(autodir)s && libtoolize --force --copy --automake --ltdl
+''', locals ())
 		else:
 			self.system ('''
-cd %(srcdir)s && libtoolize --force --copy --automake
-''')
-		if os.path.exists (os.path.join (self.srcdir (), 'bootstrap')):
+cd %(autodir)s && libtoolize --force --copy --automake
+''', locals ())
+		if os.path.exists (os.path.join (autodir, 'bootstrap')):
 			self.system ('''
-cd %(srcdir)s && ./bootstrap
-''')
-		elif os.path.exists (os.path.join (self.srcdir (), 'autogen.sh')):
+cd %(autodir)s && ./bootstrap
+''', locals ())
+		elif os.path.exists (os.path.join (autodir, 'autogen.sh')):
 			self.system ('''
-cd %(srcdir)s && bash autogen.sh --noconfigure
-''')
+cd %(autodir)s && bash autogen.sh --noconfigure
+''', locals ())
 		else:
 			self.system ('''
-cd %(srcdir)s && aclocal
-cd %(srcdir)s && autoheader
-cd %(srcdir)s && autoconf
-''')
+cd %(autodir)s && aclocal
+cd %(autodir)s && autoheader
+cd %(autodir)s && autoconf
+''', locals ())
 			if os.path.exists (os.path.join (self.srcdir (), 'Makefile.am')):
 				self.system ('''
 cd %(srcdir)s && automake --add-missing
-''')
+''', locals ())
 
 	def configure_command (self):
 		return '%(srcdir)s/configure --prefix=%(installdir)s'
@@ -351,21 +353,22 @@ tar -C %(installdir)s -zcf %(uploaddir)s/%(name)s.gub .
 
 	def sysinstall (self):
 		self.system ('''
-tar -C %(systemdir)s -zxf %(uploaddir)s/%(name)s.gub
+mkdir -p %(systemdir)s/usr
+tar -C %(systemdir)s/usr -zxf %(uploaddir)s/%(name)s.gub
 ''')
 
 	def target_dict (self, env={}):
 		dict = {
 			'AR': '%(target_architecture)s-ar',
 			'CC':'%(target_architecture)s-gcc %(target_gcc_flags)s',
-			'CPPFLAGS': '-I%(installdir)s/include',
+			'CPPFLAGS': '-I%(systemdir)s/usr/include',
 			'CXX':'%(target_architecture)s-g++ %(target_gcc_flags)s',
 			'DLLTOOL' : '%(target_architecture)s-dlltool',
 			'DLLWRAP' : '%(target_architecture)s-dllwrap',
 			'LD': '%(target_architecture)s-ld',
-#			'LDFLAGS': '-L%(installdir)s/lib',
+#			'LDFLAGS': '-L%(systemdir)s/usr/lib',
 # FIXME: for zlib, try adding bin
-			'LDFLAGS': '-L%(installdir)s/lib -L%(installdir)s/bin',
+			'LDFLAGS': '-L%(systemdir)s/usr/lib -L%(systemdir)s/usr/bin',
 			'MINGW_RUNTIME_DIR': self.settings.runtimedir,
 			'NM': '%(target_architecture)s-nm',
 			'PKG_CONFIG_PATH': '%(systemdir)s/usr/lib/pkgconfig',
