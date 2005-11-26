@@ -337,8 +337,9 @@ libexecdir=%(installdir)s/lib \
 			'DLLWRAP' : '%(target_architecture)s-dllwrap',
 			'LD': '%(target_architecture)s-ld',
 #			'LDFLAGS': '-L%(installdir)s/lib',
-# FIXME: for zlib, try adding bin			
+# FIXME: for zlib, try adding bin
 			'LDFLAGS': '-L%(installdir)s/lib -L%(installdir)s/bin',
+			'MINGW_RUNTIME_DIR': os.environ['MINGW_RUNTIME_DIR'],
 			'NM': '%(target_architecture)s-nm',
 			'PKG_CONFIG_PATH': '%(systemdir)s/usr/lib/pkgconfig',
 			'PKG_CONFIG': '''/usr/bin/pkg-config \
@@ -355,7 +356,7 @@ libexecdir=%(installdir)s/lib \
 
 	def dump (self, name, str, mode='w', env={}):
 		dict = self.target_dict (env)
-		return Package.dump (self, name, str, mode=mode)
+		return Package.dump (self, name, str, mode=mode, env=dict)
 
 	def read_pipe (self, cmd, env={}):
 		dict = self.target_dict (env)
