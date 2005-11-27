@@ -108,11 +108,11 @@ def main ():
 	elif platform == 'mingw':
 		settings = Settings ('i586-mingw32msvc')
 		settings.target_gcc_flags = '-mwindows -mms-bitfields'
-		settings.runtimedir = '/usr/i386-mingw32' 
+		settings.runtimedir = '/usr/i586-mingw32msvc'
 	elif platform == 'mingw-fedora':
 		settings = Settings ('i386-mingw32')
 		settings.target_gcc_flags = '-mwindows -mms-bitfields'
-		settings.runtimedir = '/usr/local/i386-mingw32' 
+		settings.runtimedir = '/usr/local/i386-mingw32'
 		platform = 'mingw'
 
 	gub.start_log ()

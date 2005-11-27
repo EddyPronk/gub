@@ -62,6 +62,9 @@ cp %(builddir)s/.libs/libgmp.dll.a %(installdir)s/lib/
 			       '%(installdir)s/lib/lib%(base)s.la',
 			       locals ())
 
+class Regex (gub.Target_package):
+	pass
+
 class Guile (gub.Target_package):
 	def xpatch (self):
 		if self.settings.platform == 'mingw':
@@ -72,10 +75,15 @@ cd %(srcdir)s && patch -p1 < $HOME/installers/windows/patch/guile-1.7.2-3.patch
 
 	def configure_command (self):
 		self.settings.target_gcc_flags = '-mms-bitfields'
-		cmd = 'PATH_SEPARATOR=";" ' \
+		self.settings.target_gxx_flags = '-mms-bitfields'
+		cmd = gub.join_lines ('''\
+PATH_SEPARATOR=";"
+AS=%(target_architecture)s-as
+''') \
 		      + gub.Target_package.configure_command (self) \
 		      + gub.join_lines (''' 
 --without-threads
+--with-gnu-ld
 --enable-deprecated
 --enable-discouraged
 --disable-error-on-warning
@@ -99,6 +107,8 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(systemdir)s/usr/lib"}
 		self.file_sub ('^\(allow_undefined_flag=.*\)unsupported',
 			       '\\1',
 			       '%(builddir)s/guile-readline/libtool')
+		self.system ('''cp $HOME/installers/windows/bin/%(target_architecture)s-libtool %(builddir)s/libtool''')
+		self.system ('''cp $HOME/installers/windows/bin/%(target_architecture)s-libtool %(builddir)s/guile-readline/libtool''')
 
 
 class LilyPond (gub.Target_package):
@@ -109,6 +119,16 @@ class LilyPond (gub.Target_package):
 class Gettext (gub.Target_package):
 	def configure_cache_overrides (self, str):
 		str = re.sub ('ac_cv_func_select=yes','ac_cv_func_select=no', str)
+		# this for mingw-3.7 only, but mingw-3.8 does not link
+		# guile.exe
+		str += '''
+# gettext does not include winsock2.h -- do not feel like patching right now
+# but in mingw only if winsock2.h
+ac_cv_func_select=${ac_cv_func_select=no}
+# only in additional library -- do not feel like patching right now
+gl_cv_func_mbrtowc=${gl_cv_func_mbrtowc=no}
+jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
+'''
 		return str
 	
 	def configure_command (self):
@@ -127,6 +147,9 @@ class Glib (gub.Target_package):
 		return str + '''
 glib_cv_stack_grows=${glib_cv_stack_grows=no}
 '''
+
+class Pango (gub.Target_package):
+	pass
 
 class Freetype (gub.Target_package):
 	def configure (self):
@@ -238,19 +261,23 @@ def get_packages (settings, platform):
 		Fontconfig (settings).with (version='2.3.2', mirror=download.fontconfig),
 	),
 	'mingw': (
-		Mingw (settings).with (version='3.8', download=gub.Package.skip),
+		# FIXME: mingw 3.7/3.8 is a system issue, how to enforce?
+		Mingw (settings).with (version='3.7', download=gub.Package.skip),
+#		Mingw (settings).with (version='3.8', download=gub.Package.skip),
 		Libtool (settings).with (version='1.5.20'),
 		Zlib (settings).with (version='1.2.2-1', mirror=download.lp, format='bz2'),
-		Gettext (settings).with (version='0.14.5'),
+# FIXME: gettext-0.14.5 does not link with mingw-3.7
+#		Gettext (settings).with (version='0.14.5'),
+		Gettext (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2'),
 		Libiconv (settings).with (version='1.9.2'),
 		Freetype (settings).with (version='2.1.7-1', mirror=download.lp, format='bz2'),
 		Expat (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2'),
 		Fontconfig (settings).with (version='2.3.2-1', mirror=download.lp, format='bz2'),
 		Gmp (settings).with (version='4.1.4'),
+		Regex (settings).with (version='2.3.90-1', mirror=download.lp, format='bz2'),
 		Guile (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2'),
-#		Guile (settings).with (version='1.7.2', mirror=download.gnu_alpha, format='bz2'),
 		Glib (settings).with (version='2.8.4', mirror=download.gtk),
-#		Pango (settings).with (version='1.10.1', mirror=download.gtk),
+		Pango (settings).with (version='1.10.1', mirror=download.gtk),
 		LilyPond (settings).with (mirror=cvs.gnu, download=gub.Package.cvs),
 	),
 	}
