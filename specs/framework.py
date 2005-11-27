@@ -90,7 +90,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(systemdir)s/usr/lib"}
 		return str
 
 	def configure (self):
-		gub.Package.configure (self)
+		gub.Target_package.configure (self)
 		if self.settings.platform.startswith ('mingw'):
 			self.file_sub ('^\(allow_undefined_flag=.*\)unsupported',
 			       '\\1',
@@ -180,7 +180,7 @@ class Freetype (gub.Target_package):
 		gub.Package.system (self, '''
 		rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
 ''')
-		gub.Package.configure (self)
+		gub.Target_package.configure (self)
 
 		self.file_sub ('^LIBTOOL=.*', 'LIBTOOL=%(builddir)s/libtool --tag=CXX', '%(builddir)s/Makefile')
 
@@ -223,7 +223,7 @@ class Fontconfig (gub.Target_package):
 --prefix=%(installdir)s \
 --exec-prefix=%(installdir)s \ 
 '''})
-		gub.Package.configure (self)
+		gub.Target_package.configure (self)
 		if self.settings.platform.startswith ('mingw'):
 			self.dump ('%(builddir)s/config.h', '''
 #define sleep(x) _sleep (x)
