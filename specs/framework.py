@@ -1,5 +1,6 @@
 import cvs
 import download
+import glob
 import gub
 import os
 import re
@@ -11,11 +12,40 @@ class Gs (gub.Target_package):
 	pass
 
 class Python (gub.Target_package):
+	def xxset_download (self, mirror=download.gnu, format='gz', download=gub.Target_package.wget):
+		gub.Target_package.set_download (self, mirror, format, download)
+		self.url = re.sub ('python-', 'Python-', self.url)
+		gub.Target_package.wget (self)
+		self.url = re.sub ('Python-', 'python-', self.url)
+		python = self.settings.downloaddir + '/' + self.file_name ()
+		Python = re.sub ('python-', 'Python-', python)
+		self.system ('ln -f %(Python)s %(python)s', locals ())
+
+	def xxuntar (self):
+		gub.Target_package.untar (self)
+		python = self.srcdir ()
+		Python = re.sub ('python-', 'Python-', python)
+		self.system ('mv %(Python)s %(python)s', locals ())
+
 	def xxpatch (self):
 		if self.settings.platform.startswith ('mingw'):
 			self.system ('''
 cd %(srcdir)s && patch -p1 < $HOME/installers/windows/patch/python-2.4.2-1.patch
 ''')
+
+	def xxconfigure (self):
+		self.autoupdate ()
+		gub.Target_package.configure (self)
+
+	def configure (self):
+		if self.settings.platform.startswith ('mingw'):
+			self.settings.target_gcc_flags = '-DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I%(systemdir)s/usr/include' % self.package_dict ()
+		gub.Target_package.configure (self)
+
+	def xxcompile (self):
+		if self.settings.platform.startswith ('mingw'):
+			self.settings.target_gcc_flags = '-DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I%(systemdir)s/usr/include' % self.package_dict ()
+		gub.Target_package.compile (self)
 
 class LilyPad (gub.Target_package):
 	pass
@@ -62,11 +92,18 @@ cd %(srcdir)s && patch -p1 < $HOME/installers/windows/patch/guile-1.7.2-3.patch
 	def configure_command (self):
 		cmd = ''
 		if self.settings.platform.startswith ('mingw'):
-			self.settings.target_gcc_flags = '-mms-bitfields'
-			self.settings.target_gxx_flags = '-mms-bitfields'
-			cmd = gub.join_lines ('''\
-PATH_SEPARATOR=";"
+			# watch out for whitespace
+			builddir = self.builddir ()
+			srcdir = self.srcdir ()
+			if 0: # using patch
+				cmd = gub.join_lines ('''\
 AS=%(target_architecture)s-as
+PATH_SEPARATOR=";"
+CC_FOR_BUILD="cc -I%(builddir)s
+-I%(srcdir)s
+-I%(builddir)s/libguile
+-I.
+-I%(srcdir)s/libguile"
 ''')
 		cmd += gub.Target_package.configure_command (self) \
 		      + gub.join_lines (''' 
@@ -90,6 +127,14 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(systemdir)s/usr/lib"}
 		return str
 
 	def configure (self):
+		if 0: # using patch
+			gub.Target_package.autoupdate (self)
+			self.file_sub ('''^#(LIBOBJS=".*fileblocks.*)''', '\\1',
+				       '%(srcdir)s/configure')
+			os.chmod ('%(srcdir)s/configure' % self.package_dict (), 0755)
+		if self.settings.platform.startswith ('mingw'):
+			self.settings.target_gcc_flags = '-mms-bitfields'
+			self.settings.target_gxx_flags = '-mms-bitfields'
 		gub.Target_package.configure (self)
 		if self.settings.platform.startswith ('mingw'):
 			self.file_sub ('^\(allow_undefined_flag=.*\)unsupported',
@@ -100,6 +145,12 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(systemdir)s/usr/lib"}
 			       '%(builddir)s/guile-readline/libtool')
 			self.system ('''cp $HOME/installers/windows/bin/%(target_architecture)s-libtool %(builddir)s/libtool''')
 			self.system ('''cp $HOME/installers/windows/bin/%(target_architecture)s-libtool %(builddir)s/guile-readline/libtool''')
+
+	def xxcompile (self):
+		if self.settings.platform.startswith ('mingw'):
+			self.settings.target_gcc_flags = '-mms-bitfields'
+			self.settings.target_gxx_flags = '-mms-bitfields'
+		gub.Target_package.compile (self)
 
 	def install (self):
 		gub.Target_package.install (self)
@@ -170,10 +221,21 @@ class Pango (gub.Target_package):
 --without-cairo
 ''')
 
-	def configure (self):
+	def xxconfigure (self):
+		self.system ('''cd %(srcdir)s && libtoolize --force --copy''')
+#woe!		
+#libtool: link: CURRENT `1001' is not a nonnegative integer
+#libtool: link: `1001:0:1001' is not valid version information
 		gub.Target_package.configure (self)
 		if self.settings.platform.startswith ('mingw'):
 			self.system ('''cp $HOME/installers/windows/bin/%(target_architecture)s-libtool %(builddir)s/libtool''')
+			for i in ['%(builddir)s/Makefile' \
+				  % self.package_dict ()] \
+			    + glob.glob ('%(builddir)s/*/Makefile' \
+					 % self.package_dict ()) \
+			    + glob.glob ('%(builddir)s/*/*/Makefile' \
+					 % self.package_dict ()):
+				self.file_sub ('^LIBTOOL *=.*', 'LIBTOOL=%(builddir)s/libtool --tag=CXX', i)
 
 class Freetype (gub.Target_package):
 	def configure (self):
@@ -275,6 +337,7 @@ cd %(builddir)s && target=mingw AR="%(AR)s r" %(srcdir)s/configure --shared
 #Expat (settings).with (version='1.95.8', mirror=download.sf),
 #Fontconfig (settings).with (version='2.3.92', mirror=download.fontconfig),
 #Gettext (settings).with (version='0.14.5'),
+#Guile (settings).with (version='1.7.2', mirror=download.alpha, format='gz'),
 
 def get_packages (settings, platform):
 	packages = {
@@ -294,11 +357,12 @@ def get_packages (settings, platform):
 		Expat (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2'),
 		Fontconfig (settings).with (version='2.3.2-1', mirror=download.lp, format='bz2'),
 		Gmp (settings).with (version='4.1.4'),
+		# FIXME: we're actually using 1.7.2-cvs+, 1.7.2 needs too much work
 		Guile (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2'),
 		Glib (settings).with (version='2.8.4', mirror=download.gtk),
 		Pango (settings).with (version='1.10.1', mirror=download.gtk),
+#		Python (settings).with (version='2.4.2', mirror=download.python, format='bz2'),
 		Python (settings).with (version='2.4.2-1', mirror=download.lp, format='bz2'),
-#		Python (settings).with (version='2.4.2', mirror=download.python),
 		Gs (settings).with (version='8.15-1', mirror=download.lp, format='bz2'),
 		LilyPond (settings).with (mirror=cvs.gnu, download=gub.Package.cvs),
 		LilyPad (settings).with (version='0.0.7-1', mirror=download.lp, format='bz2'),

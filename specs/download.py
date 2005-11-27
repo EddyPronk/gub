@@ -8,6 +8,10 @@ def gnu ():
 	base = 'ftp://ftp.gnu.org/pub/gnu'
 	return base + '/%(name)s/%(name)s-%(version)s.tar.%(format)s'
 
+def alpha ():
+	base = 'ftp://alpha.gnu.org/pub/gnu'
+	return base + '/%(name)s/%(name)s-%(version)s.tar.%(format)s'
+
 def freetype ():
 	return 'ftp://sunsite.cnlab-switch.ch/mirror/freetype/freetype2/%(name)s-%(version)s.tar.%(format)s'
 
@@ -29,5 +33,10 @@ def lp ():
 def zlib ():
 	return 'http://www.zlib.net/%(name)s-%(version)s.tar.%(format)s'
 
-def sourceforge():
+def sourceforge ():
 	return 'http://dl.sourceforge.net/%(name)s/%(name)s-%(version)s.tar.%(format)s' 
+
+
+def python ():
+	return 'http://python.org/ftp/python/%(version)s/%(name)s-%(version)s.tar.%(format)s' 
+

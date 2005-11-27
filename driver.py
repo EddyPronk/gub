@@ -66,10 +66,11 @@ def process_package (package):
 			print 'doing stage', stage
                 	if stage == 'untar':
                         	package.untar ()
+			elif stage == 'patch':
+                        	package.untar ()
+                        	package.patch ()
 			elif stage == 'configure':
                         	package.configure ()
-			elif stage == 'patch':
-                        	package.patch ()
 			elif stage == 'compile':
                         	package.compile ()
 			elif stage == 'install':
