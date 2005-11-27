@@ -1,33 +1,28 @@
 import cvs
 import download
-import glob
 import gub
 import os
 import re
 
-class Mingw (gub.Target_package):
-	def untar (self):
-		self.system ('mkdir -p %(srcdir)s/')
-		self.dump ('%(srcdir)s/configure', '''
-cat > Makefile <<EOF
-default:
-	@echo done
-all: default
-install:
-	mkdir -p %(installdir)s
-	tar -C %(MINGW_RUNTIME_DIR)s/%(target_architecture)s -cf- . | tar -C %(installdir)s -xvf-
-	mkdir -p %(installdir)s/bin
-	-cp /cygwin/usr/bin/cygcheck.exe %(installdir)s/bin
-EOF
-''')
-		self.system ('chmod +x %(srcdir)s/configure')
-
 class Libtool (gub.Target_package):
+	pass
+
+class Gs (gub.Target_package):
+	pass
+
+class Python (gub.Target_package):
+	def xxpatch (self):
+		if self.settings.platform.startswith ('mingw'):
+			self.system ('''
+cd %(srcdir)s && patch -p1 < $HOME/installers/windows/patch/python-2.4.2-1.patch
+''')
+
+class LilyPad (gub.Target_package):
 	pass
 
 class Gmp (gub.Target_package):
 	def xxconfigure (self):
-		self.system ('''cd %(srcdir)s && libtoolize --force''')
+		self.system ('''cd %(srcdir)s && libtoolize --force --copy''')
 		self.system ('''cd %(srcdir)s && ./missing --run aclocal''')
 		self.system ('''cd %(srcdir)s && ./missing --run autoconf''')
 		self.system ('''cd %(srcdir)s && ./missing --run automake''')
@@ -37,12 +32,11 @@ class Gmp (gub.Target_package):
 		self.file_sub ("-Wl,-e,'\$dll_entry'", '',
 			       '%(srcdir)s/configure')
 
-		self.system ('''chmod +x %(srcdir)s/configure''')
-
+		os.chmod ('%(srcdir)s/configure' % self.package_dict (), 0755)
 		gub.Target_package.configure (self)
 		
 	def xpatch (self):
-		if self.settings.platform == 'mingw':
+		if self.settings.platform.startswith ('mingw'):
 	                ## FIXME, seems we don't need this?
 			self.system ('''
 cd %(srcdir)s && patch -p1 < $HOME/installers/windows/patch/gmp-4.1.4-1.patch
@@ -56,31 +50,25 @@ mkdir -p %(installdir)s/bin
 mv %(installdir)s/lib/lib*.dll %(installdir)s/bin/
 cp %(builddir)s/.libs/libgmp.dll.a %(installdir)s/lib/
 ''')
-		base = 'gmp'
-		self.file_sub ('library_names=.*',
-			       "library_names='lib%(base)s.dll.a'",
-			       '%(installdir)s/lib/lib%(base)s.la',
-			       locals ())
-
-class Regex (gub.Target_package):
-	pass
 
 class Guile (gub.Target_package):
 	def xpatch (self):
-		if self.settings.platform == 'mingw':
+		if self.settings.platform.startswith ('mingw'):
 	                ## FIXME
 			self.system ('''
 cd %(srcdir)s && patch -p1 < $HOME/installers/windows/patch/guile-1.7.2-3.patch
 ''')
 
 	def configure_command (self):
-		self.settings.target_gcc_flags = '-mms-bitfields'
-		self.settings.target_gxx_flags = '-mms-bitfields'
-		cmd = gub.join_lines ('''\
+		cmd = ''
+		if self.settings.platform.startswith ('mingw'):
+			self.settings.target_gcc_flags = '-mms-bitfields'
+			self.settings.target_gxx_flags = '-mms-bitfields'
+			cmd = gub.join_lines ('''\
 PATH_SEPARATOR=";"
 AS=%(target_architecture)s-as
-''') \
-		      + gub.Target_package.configure_command (self) \
+''')
+		cmd += gub.Target_package.configure_command (self) \
 		      + gub.join_lines (''' 
 --without-threads
 --with-gnu-ld
@@ -92,24 +80,41 @@ AS=%(target_architecture)s-as
 ''')
 		return cmd
 
-	def configure (self):
-		gub.Target_package.config_cache (self)
-		self.dump ('%(builddir)s/config.cache', '''
+	def config_cache_overrides (self, str):
+		if self.settings.platform.startswith ('mingw'):
+			str += '''
 guile_cv_func_usleep_declared=${guile_cv_func_usleep_declared=yes}
 guile_cv_exeext=${guile_cv_exeext=}
 libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(systemdir)s/usr/lib"}
-''', mode='a')
-		gub.Package.configure (self)
+'''
+		return str
 
-		self.file_sub ('^\(allow_undefined_flag=.*\)unsupported',
+	def configure (self):
+		gub.Package.configure (self)
+		if self.settings.platform.startswith ('mingw'):
+			self.file_sub ('^\(allow_undefined_flag=.*\)unsupported',
 			       '\\1',
 			       '%(builddir)s/libtool')
-		self.file_sub ('^\(allow_undefined_flag=.*\)unsupported',
+			self.file_sub ('^\(allow_undefined_flag=.*\)unsupported',
 			       '\\1',
 			       '%(builddir)s/guile-readline/libtool')
-		self.system ('''cp $HOME/installers/windows/bin/%(target_architecture)s-libtool %(builddir)s/libtool''')
-		self.system ('''cp $HOME/installers/windows/bin/%(target_architecture)s-libtool %(builddir)s/guile-readline/libtool''')
+			self.system ('''cp $HOME/installers/windows/bin/%(target_architecture)s-libtool %(builddir)s/libtool''')
+			self.system ('''cp $HOME/installers/windows/bin/%(target_architecture)s-libtool %(builddir)s/guile-readline/libtool''')
 
+	def install (self):
+		gub.Target_package.install (self)
+		version = self.read_pipe ('''\
+GUILE_LOAD_PATH=%(installdir)s/share/guile/* %(installdir)s/bin/guile-config --version 2>&1\
+''').split ()[-1]
+		self.dump ('%(installdir)s/bin/%(target_architecture)s-guile-config', '''\
+#!/bin/sh
+[ "$1" == "--version" ] && echo "%(target_architecture)s-guile-config - Guile version $GUILE"
+[ "$1" == "compile" ] && echo "-I%(systemdir)s/usr/include"
+[ "$1" == "link" ] && echo "-L%(systemdir)s/usr/lib -lguile -lgmp"
+exit 0
+''')
+		os.chmod ('%(installdir)s/bin/%(target_architecture)s-guile-config', 0755)
+	
 
 class LilyPond (gub.Target_package):
 	def configure (self):
@@ -117,11 +122,13 @@ class LilyPond (gub.Target_package):
 		gub.Target_package.configure (self)
 
 class Gettext (gub.Target_package):
-	def configure_cache_overrides (self, str):
-		str = re.sub ('ac_cv_func_select=yes','ac_cv_func_select=no', str)
-		# this for mingw-3.7 only, but mingw-3.8 does not link
-		# guile.exe
-		str += '''
+	def config_cache_overrides (self, str):
+		if self.settings.platform == 'mingw':
+			str = re.sub ('ac_cv_func_select=yes','ac_cv_func_select=no', str)
+		if 0:
+			# this for mingw-3.7 only, but mingw-3.8 does not link
+			# guile.exe
+			str += '''
 # gettext does not include winsock2.h -- do not feel like patching right now
 # but in mingw only if winsock2.h
 ac_cv_func_select=${ac_cv_func_select=no}
@@ -130,7 +137,7 @@ gl_cv_func_mbrtowc=${gl_cv_func_mbrtowc=no}
 jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
 '''
 		return str
-	
+
 	def configure_command (self):
 		cmd = gub.Target_package.configure_command (self) \
 		       + ' --disable-csharp'
@@ -139,17 +146,31 @@ jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
 			cmd = re.sub ('--config-cache ', '', cmd) 
 		return cmd
 	
+	def configure (self):
+		self.system ('''cd %(srcdir)s && libtoolize --force --copy''')
+		gub.Target_package.configure (self)
+
 class Libiconv (gub.Target_package):
 	pass
 
 class Glib (gub.Target_package):
-	def configure_cache_overrides (self, str):
+	def config_cache_overrides (self, str):
 		return str + '''
 glib_cv_stack_grows=${glib_cv_stack_grows=no}
 '''
 
 class Pango (gub.Target_package):
-	pass
+	def configure_command (self):
+		return gub.Target_package.configure_command (self) \
+		       + gub.join_lines ('''
+--without-x
+--without-cairo
+''')
+
+	def configure (self):
+		gub.Target_package.configure (self)
+		if self.settings.platform.startswith ('mingw'):
+			self.system ('''cp $HOME/installers/windows/bin/%(target_architecture)s-libtool %(builddir)s/libtool''')
 
 class Freetype (gub.Target_package):
 	def configure (self):
@@ -185,7 +206,7 @@ class Fontconfig (gub.Target_package):
 --exec-prefix=%(systemdir)s/usr
 "''')
 
-		if self.settings.platform == 'mingw':
+		if self.settings.platform.startswith ('mingw'):
 			 cmd += gub.join_lines ('''
 --with-default-fonts=@WINDIR@\\fonts\\
 --with-add-fonts=@INSTDIR@\\usr\\share\\gs\\fonts
@@ -203,7 +224,7 @@ class Fontconfig (gub.Target_package):
 --exec-prefix=%(installdir)s \ 
 '''})
 		gub.Package.configure (self)
-		if self.settings.platform == 'mingw':
+		if self.settings.platform.startswith ('mingw'):
 			self.dump ('%(builddir)s/config.h', '''
 #define sleep(x) _sleep (x)
 ''', mode='a')
@@ -250,6 +271,7 @@ cd %(builddir)s && target=mingw AR="%(AR)s r" %(srcdir)s/configure --shared
 #Freetype (settings).with (version='2.1.9', mirror=download.freetype),
 #Expat (settings).with (version='1.95.8', mirror=download.sf),
 #Fontconfig (settings).with (version='2.3.92', mirror=download.fontconfig),
+#Gettext (settings).with (version='0.14.5'),
 
 def get_packages (settings, platform):
 	packages = {
@@ -261,24 +283,22 @@ def get_packages (settings, platform):
 		Fontconfig (settings).with (version='2.3.2', mirror=download.fontconfig),
 	),
 	'mingw': (
-		# FIXME: mingw 3.7/3.8 is a system issue, how to enforce?
-		Mingw (settings).with (version='3.7', download=gub.Package.skip),
-#		Mingw (settings).with (version='3.8', download=gub.Package.skip),
 		Libtool (settings).with (version='1.5.20'),
 		Zlib (settings).with (version='1.2.2-1', mirror=download.lp, format='bz2'),
-# FIXME: gettext-0.14.5 does not link with mingw-3.7
-#		Gettext (settings).with (version='0.14.5'),
 		Gettext (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2'),
 		Libiconv (settings).with (version='1.9.2'),
 		Freetype (settings).with (version='2.1.7-1', mirror=download.lp, format='bz2'),
 		Expat (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2'),
 		Fontconfig (settings).with (version='2.3.2-1', mirror=download.lp, format='bz2'),
 		Gmp (settings).with (version='4.1.4'),
-		Regex (settings).with (version='2.3.90-1', mirror=download.lp, format='bz2'),
 		Guile (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2'),
 		Glib (settings).with (version='2.8.4', mirror=download.gtk),
 		Pango (settings).with (version='1.10.1', mirror=download.gtk),
+		Python (settings).with (version='2.4.2-1', mirror=download.lp, format='bz2'),
+#		Python (settings).with (version='2.4.2', mirror=download.python),
+		Gs (settings).with (version='8.15-1', mirror=download.lp, format='bz2'),
 		LilyPond (settings).with (mirror=cvs.gnu, download=gub.Package.cvs),
+		LilyPad (settings).with (version='0.0.7-1', mirror=download.lp, format='bz2'),
 	),
 	}
 

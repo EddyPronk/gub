@@ -24,7 +24,6 @@ class Settings:
 
 		self.target_architecture = arch
 		self.targetdir = self.topdir + '/target/%s' % self.target_architecture
-		self.runtimedir = None
 		self.builddir = self.targetdir + '/build'
 		self.garbagedir = self.targetdir + '/garbage'
 		self.statusdir = self.targetdir + '/status'
@@ -89,7 +88,7 @@ def process_packages (packages):
 def main ():
 	(options, files) = getopt.getopt (sys.argv[1:], 'V', ['verbose'])
 	verbose = 0 
-	for (o,a) in options:
+	for (o, a) in options:
 		if o == '--verbose' or o == '-V':
 			verbose = 1
 
@@ -108,11 +107,9 @@ def main ():
 	elif platform == 'mingw':
 		settings = Settings ('i586-mingw32msvc')
 		settings.target_gcc_flags = '-mwindows -mms-bitfields'
-		settings.runtimedir = '/usr/i586-mingw32msvc'
 	elif platform == 'mingw-fedora':
 		settings = Settings ('i386-mingw32')
 		settings.target_gcc_flags = '-mwindows -mms-bitfields'
-		settings.runtimedir = '/usr/local/i386-mingw32'
 		platform = 'mingw'
 
 	gub.start_log ()
@@ -127,9 +124,11 @@ def main ():
 	if platform == 'mac':
 		import darwintools
 		process_packages (darwintools.get_packages (settings))
+	if platform.startswith ('mingw'):
+		import mingw
+		process_packages (mingw.get_packages (settings))
 
 	process_packages (framework.get_packages (settings, platform))
-
 
 
 if __name__ == '__main__':

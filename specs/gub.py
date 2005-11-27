@@ -1,6 +1,7 @@
 import cross
 import cvs
 import download as dl
+import glob
 import os
 import re
 import subprocess
@@ -236,6 +237,27 @@ cd %(builddir)s && %(configure_command)s
 	
 	def install (self):
 		self.system ('cd %(builddir)s && %(install_command)s')
+		if self.settings.platform.startswith ('mingw'):
+			self.libtool_la_fixups ()
+
+	def libtool_la_fixups (self):
+		dll_name = 'lib'
+		for i in glob.glob ('%(installdir)s/lib/*.la' \
+				    % self.package_dict ()):
+			base = os.path.basename (i)[3:-3]
+			self.file_sub (''' *-L *[^"' ][^"' ]*''', '', i)
+			self.file_sub ('''( |=|')(/[^ ]*usr/lib/lib)([^ ']*)\.(a|la|so)[^ ']*''', '\\1-l\\3', i)
+			# '"
+			self.file_sub ('library_names=.*',
+				       "library_names='lib%(base)s.dll.a'",
+				       i, locals ())
+			# we don't have sover
+#			self.file_sub ('^dlname=.*',
+#				       """dlname='../bin/%(dll_prefix)%(base)s-%(sover)s.dll'""",
+#				       i, locals ())
+			self.file_sub ('^old_library=.*',
+				       """old_library='lib%(base)s.a'""",
+				       i, locals ())
 
 	def compile_command (self):
 		return 'make'
@@ -306,7 +328,7 @@ class Target_package (Package):
 --libdir=/usr/lib 
 ''')
 
-	def configure_cache_overrides (self, str):
+	def config_cache_overrides (self, str):
 		return str
 
 	def installdir (self):
@@ -338,7 +360,7 @@ libexecdir=%(installdir)s/lib \
 		cache = open (cache_fn, 'w')
 		str = (cross.cross_config_cache['all']
 		       + cross.cross_config_cache[self.settings.platform])
-		str = self.configure_cache_overrides (str)
+		str = self.config_cache_overrides (str)
 		cache.write (str)
 		cache.close ()
 		os.chmod (cache_fn, 0755)
@@ -371,7 +393,6 @@ tar -C %(systemdir)s/usr -zxf %(uploaddir)s/%(name)s.gub
 #			'LDFLAGS': '-L%(systemdir)s/usr/lib',
 # FIXME: for zlib, try adding bin
 			'LDFLAGS': '-L%(systemdir)s/usr/lib -L%(systemdir)s/usr/bin',
-			'MINGW_RUNTIME_DIR': self.settings.runtimedir,
 			'NM': '%(target_architecture)s-nm',
 			'PKG_CONFIG_PATH': '%(systemdir)s/usr/lib/pkgconfig',
 			'PKG_CONFIG': '''/usr/bin/pkg-config \
