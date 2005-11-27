@@ -108,12 +108,15 @@ GUILE_LOAD_PATH=%(installdir)s/share/guile/* %(installdir)s/bin/guile-config --v
 ''').split ()[-1]
 		self.dump ('%(installdir)s/bin/%(target_architecture)s-guile-config', '''\
 #!/bin/sh
-[ "$1" == "--version" ] && echo "%(target_architecture)s-guile-config - Guile version $GUILE"
-[ "$1" == "compile" ] && echo "-I%(systemdir)s/usr/include"
-[ "$1" == "link" ] && echo "-L%(systemdir)s/usr/lib -lguile -lgmp"
+[ "$1" == "--version" ] && echo "%(target_architecture)s-guile-config - Guile version %(version)s"
+#[ "$1" == "compile" ] && echo "-I $%(systemdir)s/usr/include"
+#[ "$1" == "link" ] && echo "-L%(systemdir)s/usr/lib -lguile -lgmp"
+prefix=$(dirname $0)
+[ "$1" == "compile" ] && echo "-I$prefix/include"
+[ "$1" == "link" ] && echo "-L$prefix/lib -lguile -lgmp"
 exit 0
 ''')
-		os.chmod ('%(installdir)s/bin/%(target_architecture)s-guile-config', 0755)
+		os.chmod ('%(installdir)s/bin/%(target_architecture)s-guile-config' % self.package_dict (), 0755)
 	
 
 class LilyPond (gub.Target_package):
