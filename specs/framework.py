@@ -44,9 +44,6 @@ INCLUDEDIR=%(installdir)s/include
 MANDIR=%(installdir)s/share/man
 		       ''')
 
-class LilyPad (gub.Target_package):
-	pass
-
 class Gmp (gub.Target_package):
 	def xxconfigure (self):
 		self.system ('''cd %(srcdir)s && libtoolize --force --copy''')
@@ -131,7 +128,6 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(systemdir)s/usr/lib"}
 			os.chmod ('%(srcdir)s/configure' % self.package_dict (), 0755)
 		if self.settings.platform.startswith ('mingw'):
 			self.settings.target_gcc_flags = '-mms-bitfields'
-			self.settings.target_gxx_flags = '-mms-bitfields'
 		gub.Target_package.configure (self)
 		if self.settings.platform.startswith ('mingw'):
 			self.file_sub ('^\(allow_undefined_flag=.*\)unsupported',
@@ -146,7 +142,6 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(systemdir)s/usr/lib"}
 	def xxcompile (self):
 		if self.settings.platform.startswith ('mingw'):
 			self.settings.target_gcc_flags = '-mms-bitfields'
-			self.settings.target_gxx_flags = '-mms-bitfields'
 		gub.Target_package.compile (self)
 
 	def install (self):
@@ -159,7 +154,7 @@ GUILE_LOAD_PATH=%(installdir)s/share/guile/* %(installdir)s/bin/guile-config --v
 [ "$1" == "--version" ] && echo "%(target_architecture)s-guile-config - Guile version %(version)s"
 #[ "$1" == "compile" ] && echo "-I $%(systemdir)s/usr/include"
 #[ "$1" == "link" ] && echo "-L%(systemdir)s/usr/lib -lguile -lgmp"
-prefix=$(dirname $0)
+prefix=$(dirname $(dirname $0))
 [ "$1" == "compile" ] && echo "-I$prefix/include"
 [ "$1" == "link" ] && echo "-L$prefix/lib -lguile -lgmp"
 exit 0
@@ -173,48 +168,74 @@ class LilyPond (gub.Target_package):
 		gub.Target_package.configure (self)
 
 	def configure_command (self):
-		cmd = gub.Target_package.configure_command (self)
+		## FIXME: pickup $target-guile-config
+		cmd = 'PATH=%(systemdir)s/usr/bin:$PATH '
+
+		cmd += gub.Target_package.configure_command (self)
 		cmd += ' --disable-documentation'
 		if self.settings.platform.startswith ('mingw'):
 			cmd += gub.join_lines ('''
 --without-kpathsea
 --enable-relocation
---with-python-include=%(systemdir)s/include/python2.4
+--with-python-include=%(systemdir)s/usr/include/python2.4
 --disable-optimising
 ''')
 		return cmd
 
 	def configure (self):
+		# FIXME: should add to CPPFLAGS...
+		self.settings.target_gcc_flags += ' -I%(builddir)s' \
+						  % self.package_dict ()
+		gub.Package.system (self, '''
+mkdir -p %(builddir)s
+cp /usr/include/FlexLexer.h %(builddir)s
+''')
 		gub.Target_package.configure (self)
 		if self.settings.platform.startswith ('mingw'):
+			self.config_cache ()
 			self.settings.target_gcc_flags = '-mms-bitfields'
-			self.settings.target_gxx_flags = '-mms-bitfields'
+			# FIXME: should add to CPPFLAGS...
+			self.settings.target_gcc_flags += ' -I%(builddir)s' \
+							  % self.package_dict ()
 			cmd = self.configure_command () \
 			      + ' --enable-config=console'
 			self.system ('''cd %(builddir)s && %(cmd)s''',
 				     locals ())
-		gub.Package.system (self, '''
-cp /usr/include/FlexLexer.h .
-''')
 
 	def compile_command (self):
 		cmd = gub.Target_package.compile_command (self)
 		if self.settings.platform.startswith ('mingw'):
-			python_lib = "%(systemdir)s/libpython2.4.dll"
-			return cmd + 'LDFLAGS=%(python_lib)s' % locals ()
+			python_lib = "%(systemdir)s/usr/bin/libpython2.4.dll"
+			return cmd + gub.join_lines ('''
+LDFLAGS=%(python_lib)s
+HELP2MAN_GROFFS=
+'''% locals ())
 
 	def compile (self):
-		gub.Target_package.compile ()
+		gub.Target_package.compile (self)
 		if self.settings.platform.startswith ('mingw'):
 			gub.Package.system (self, '''
 mkdir -p %(builddir)s/mf/out-console
-cp -pv %(builddir)/mf/out/* mf/out-console
+cp -pv %(builddir)s/mf/out/* mf/out-console
 ''')
-			cmd = gub.Target_package.compile_command (self)
+			cmd = gub.Target_pacykage.compile_command (self)
 			cmd += ' conf=console'
 			self.system ('''cd %(builddir)s && %(cmd)s''',
 				     locals ())
 
+	def install_command (self):
+		return gub.Target_package.install_command (self) \
+		       + gub.join_lines ('''
+HELP2MAN_GROFFS=
+'''% locals ())
+	
+	def install (self):
+		gub.Target_package.install (self)
+		if self.settings.platform.startswith ('mingw'):
+			self.system ('''
+install -m755 %(builddir)/lily/out/lilypond %(installdir)/bin/lilypond-windows
+install -m755 %(builddir)/lily/out-console/lilypond %(installdir)/bin/lilypond
+''')
 
 class Gettext (gub.Target_package):
 	def config_cache_overrides (self, str):
@@ -402,7 +423,6 @@ def get_packages (settings, platform):
 		Pango (settings).with (version='1.10.1', mirror=download.gtk),
 		Python (settings).with (version='2.4.2', mirror=download.python, format='bz2'),
 		LilyPond (settings).with (mirror=cvs.gnu, download=gub.Package.cvs),
-		LilyPad (settings).with (version='0.0.7-1', mirror=download.lp, format='bz2'),
 	),
 	}
 

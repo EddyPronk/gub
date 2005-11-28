@@ -164,7 +164,8 @@ cd %(dir)s/%(name)s && cvs update -dCAP -r %(version)s
 
 	def name (self):
 		s = self.basename ()
-		s = re.sub ('-?[0-9][^-]+$', '', s)
+#		s = re.sub ('-?[0-9][^-]+$', '', s)
+		s = re.sub ('-[0-9][^-]+$', '', s)
 		return s
 	
 	def srcdir (self):
@@ -416,4 +417,3 @@ tar -C %(systemdir)s/usr -zxf %(uploaddir)s/%(name)s.gub
 	def system (self, cmd, env={}):
 		dict = self.target_dict (env)
 		Package.system (self, cmd, env=dict)
-		
