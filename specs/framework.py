@@ -8,11 +8,8 @@ import re
 class Libtool (gub.Target_package):
 	pass
 
-class Gs (gub.Target_package):
-	pass
-
 class Python (gub.Target_package):
-	def xxset_download (self, mirror=download.gnu, format='gz', download=gub.Target_package.wget):
+	def set_download (self, mirror=download.gnu, format='gz', download=gub.Target_package.wget):
 		gub.Target_package.set_download (self, mirror, format, download)
 		self.url = re.sub ('python-', 'Python-', self.url)
 		gub.Target_package.wget (self)
@@ -21,31 +18,31 @@ class Python (gub.Target_package):
 		Python = re.sub ('python-', 'Python-', python)
 		self.system ('ln -f %(Python)s %(python)s', locals ())
 
-	def xxuntar (self):
+	def untar (self):
 		gub.Target_package.untar (self)
 		python = self.srcdir ()
 		Python = re.sub ('python-', 'Python-', python)
 		self.system ('mv %(Python)s %(python)s', locals ())
 
-	def xxpatch (self):
+	def patch (self):
 		if self.settings.platform.startswith ('mingw'):
 			self.system ('''
 cd %(srcdir)s && patch -p1 < $HOME/installers/windows/patch/python-2.4.2-1.patch
 ''')
 
-	def xxconfigure (self):
-		self.autoupdate ()
-		gub.Target_package.configure (self)
-
 	def configure (self):
 		if self.settings.platform.startswith ('mingw'):
+			self.system ('''cd %(srcdir)s && autoconf''')
+			self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
 			self.settings.target_gcc_flags = '-DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I%(systemdir)s/usr/include' % self.package_dict ()
 		gub.Target_package.configure (self)
 
-	def xxcompile (self):
-		if self.settings.platform.startswith ('mingw'):
-			self.settings.target_gcc_flags = '-DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I%(systemdir)s/usr/include' % self.package_dict ()
-		gub.Target_package.compile (self)
+	def install_command (self):
+		return gub.Target_package.install_command (self) \
+		       + gub.join_lines ('''
+INCLUDEDIR=%(installdir)s/include
+MANDIR=%(installdir)s/share/man
+		       ''')
 
 class LilyPad (gub.Target_package):
 	pass
@@ -64,7 +61,7 @@ class Gmp (gub.Target_package):
 
 		os.chmod ('%(srcdir)s/configure' % self.package_dict (), 0755)
 		gub.Target_package.configure (self)
-		
+
 	def xpatch (self):
 		if self.settings.platform.startswith ('mingw'):
 	                ## FIXME, seems we don't need this?
@@ -106,7 +103,7 @@ CC_FOR_BUILD="cc -I%(builddir)s
 -I%(srcdir)s/libguile"
 ''')
 		cmd += gub.Target_package.configure_command (self) \
-		      + gub.join_lines (''' 
+		      + gub.join_lines ('''
 --without-threads
 --with-gnu-ld
 --enable-deprecated
@@ -168,12 +165,56 @@ prefix=$(dirname $0)
 exit 0
 ''')
 		os.chmod ('%(installdir)s/bin/%(target_architecture)s-guile-config' % self.package_dict (), 0755)
-	
+
 
 class LilyPond (gub.Target_package):
 	def configure (self):
 		self.autoupdate ()
 		gub.Target_package.configure (self)
+
+	def configure_command (self):
+		cmd = gub.Target_package.configure_command (self)
+		cmd += ' --disable-documentation'
+		if self.settings.platform.startswith ('mingw'):
+			cmd += gub.join_lines ('''
+--without-kpathsea
+--enable-relocation
+--with-python-include=%(systemdir)s/include/python2.4
+--disable-optimising
+''')
+		return cmd
+
+	def configure (self):
+		gub.Target_package.configure (self)
+		if self.settings.platform.startswith ('mingw'):
+			self.settings.target_gcc_flags = '-mms-bitfields'
+			self.settings.target_gxx_flags = '-mms-bitfields'
+			cmd = self.configure_command () \
+			      + ' --enable-config=console'
+			self.system ('''cd %(builddir)s && %(cmd)s''',
+				     locals ())
+		gub.Package.system (self, '''
+cp /usr/include/FlexLexer.h .
+''')
+
+	def compile_command (self):
+		cmd = gub.Target_package.compile_command (self)
+		if self.settings.platform.startswith ('mingw'):
+			python_lib = "%(systemdir)s/libpython2.4.dll"
+			return cmd + 'LDFLAGS=%(python_lib)s' % locals ()
+
+	def compile (self):
+		gub.Target_package.compile ()
+		if self.settings.platform.startswith ('mingw'):
+			gub.Package.system (self, '''
+mkdir -p %(builddir)s/mf/out-console
+cp -pv %(builddir)/mf/out/* mf/out-console
+''')
+			cmd = gub.Target_package.compile_command (self)
+			cmd += ' conf=console'
+			self.system ('''cd %(builddir)s && %(cmd)s''',
+				     locals ())
+
 
 class Gettext (gub.Target_package):
 	def config_cache_overrides (self, str):
@@ -197,9 +238,9 @@ jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
 		       + ' --disable-csharp'
 
 		if self.settings.platform == 'mac':
-			cmd = re.sub ('--config-cache ', '', cmd) 
+			cmd = re.sub ('--config-cache ', '', cmd)
 		return cmd
-	
+
 	def configure (self):
 		self.system ('''cd %(srcdir)s && libtoolize --force --copy''')
 		gub.Target_package.configure (self)
@@ -223,7 +264,7 @@ class Pango (gub.Target_package):
 
 	def xxconfigure (self):
 		self.system ('''cd %(srcdir)s && libtoolize --force --copy''')
-#woe!		
+#woe!
 #libtool: link: CURRENT `1001' is not a nonnegative integer
 #libtool: link: `1001:0:1001' is not valid version information
 		gub.Target_package.configure (self)
@@ -241,7 +282,7 @@ class Freetype (gub.Target_package):
 	def configure (self):
 #		self.autoupdate (autodir=os.path.join (self.srcdir (),
 #						       'builds/unix'))
-		
+
 		gub.Package.system (self, '''
 		rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
 ''')
@@ -259,13 +300,13 @@ LDFLAGS:=$(LDFLAGS) -no-undefined
 cd %(srcdir)s && ./configure --disable-static --enable-shared
 ''')
 		gub.Package.install (self)
-		
+
 
 class Fontconfig (gub.Target_package):
 	def configure_command (self):
 		# FIXME: system dir vs packaging install
 		cmd = gub.Target_package.configure_command (self) \
-		      + gub.join_lines (''' 
+		      + gub.join_lines ('''
 --with-freetype-config="/usr/bin/freetype-config
 --prefix=%(systemdir)s/usr
 --exec-prefix=%(systemdir)s/usr
@@ -278,7 +319,7 @@ class Fontconfig (gub.Target_package):
 ''')
 
 		return cmd
-	
+
 	def configure (self):
 ##		self.autoupdate ()
 		gub.Package.system (self, '''
@@ -286,7 +327,7 @@ class Fontconfig (gub.Target_package):
 ''',
 			     env = {'ft_config' : '''/usr/bin/freetype-config \
 --prefix=%(installdir)s \
---exec-prefix=%(installdir)s \ 
+--exec-prefix=%(installdir)s \
 '''})
 		gub.Target_package.configure (self)
 		if self.settings.platform.startswith ('mingw'):
@@ -295,7 +336,7 @@ class Fontconfig (gub.Target_package):
 ''', mode='a')
 		# help fontconfig cross compiling a bit, all CC/LD
 		# flags are wrong, set to the target's root
-		
+
 		cflags = '-I%(srcdir)s -I%(srcdir)s/src ' \
 			 + self.read_pipe ('freetype-config --cflags')[:-1]
 		libs = self.read_pipe ('freetype-config --libs')[:-1]
@@ -333,9 +374,7 @@ cd %(builddir)s && target=mingw AR="%(AR)s r" %(srcdir)s/configure --shared
 
 # latest vanilla packages
 #Zlib (settings).with (version='1.2.3', mirror=download.zlib, format='bz2'),
-#Freetype (settings).with (version='2.1.9', mirror=download.freetype),
 #Expat (settings).with (version='1.95.8', mirror=download.sf),
-#Fontconfig (settings).with (version='2.3.92', mirror=download.fontconfig),
 #Gettext (settings).with (version='0.14.5'),
 #Guile (settings).with (version='1.7.2', mirror=download.alpha, format='gz'),
 
@@ -353,17 +392,15 @@ def get_packages (settings, platform):
 		Zlib (settings).with (version='1.2.2-1', mirror=download.lp, format='bz2'),
 		Gettext (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2'),
 		Libiconv (settings).with (version='1.9.2'),
-		Freetype (settings).with (version='2.1.7-1', mirror=download.lp, format='bz2'),
+		Freetype (settings).with (version='2.1.7', mirror=download.freetype),
 		Expat (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2'),
-		Fontconfig (settings).with (version='2.3.2-1', mirror=download.lp, format='bz2'),
+		Fontconfig (settings).with (version='2.3.2', mirror=download.fontconfig),
 		Gmp (settings).with (version='4.1.4'),
 		# FIXME: we're actually using 1.7.2-cvs+, 1.7.2 needs too much work
 		Guile (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2'),
 		Glib (settings).with (version='2.8.4', mirror=download.gtk),
 		Pango (settings).with (version='1.10.1', mirror=download.gtk),
-#		Python (settings).with (version='2.4.2', mirror=download.python, format='bz2'),
-		Python (settings).with (version='2.4.2-1', mirror=download.lp, format='bz2'),
-		Gs (settings).with (version='8.15-1', mirror=download.lp, format='bz2'),
+		Python (settings).with (version='2.4.2', mirror=download.python, format='bz2'),
 		LilyPond (settings).with (mirror=cvs.gnu, download=gub.Package.cvs),
 		LilyPad (settings).with (version='0.0.7-1', mirror=download.lp, format='bz2'),
 	),

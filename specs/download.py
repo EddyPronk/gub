@@ -1,3 +1,14 @@
+
+def untar_flags (tarball):
+	flags = ''
+	if tarball.endswith ('.tar.gz') or tarball.endswith ('.tgz'):
+		flags = '-xzf'
+	elif tarball.endswith ('.tar.bz2'):
+		flags = '-jxf'
+	elif tarball.endswith ('.tar'):
+		flags = '-xf'
+	return flags
+
 def gtk ():
 	return 'ftp://ftp.gtk.org/pub/gtk/v%(gtk_version)s/%(name)s-%(version)s.tar.%(format)s'
 

@@ -275,22 +275,16 @@ cd %(builddir)s && %(configure_command)s
 		pass
 
 	def untar (self):
-		file = self.settings.downloaddir + '/' + self.file_name ()
+		tarball = self.settings.downloaddir + '/' + self.file_name ()
 
-		if not os.path.exists (file):
+		if not os.path.exists (tarball):
 			return
 
-		flags = ''
-		if re.search ('.tar$', file):
-			flags = '-xf '
-		elif re.search ('.tar.bz2', file):
-			flags = '-jxf '
-		elif re.search ('.tar.gz', file):
-			flags = '-xzf '
+		flags = dl.untar_flags (tarball)
 
 		# clean up
 		self.system ("rm -rf  %(srcdir)s %(builddir)s")
-		cmd = 'tar %(flags)s %(file)s -C %(sourcesdir)s'
+		cmd = 'tar %(flags)s %(tarball)s -C %(sourcesdir)s'
 		self.system (cmd, locals ())
 
 	def set_download (self, mirror=dl.gnu, format='gz', download=wget):
