@@ -1,10 +1,11 @@
 #!/usr/bin/python
 
 import __main__
+import getopt
 import os
 import re
+import string
 import sys
-import getopt
 
 sys.path.insert (0, 'specs/')
 
@@ -17,12 +18,13 @@ class Settings:
 		self.target_gcc_flags = '' 
 		self.topdir = os.getcwd ()
 		self.downloaddir = os.getcwd () + '/downloads'
-		self.build_spec = 'i686-linux'
+		self.build_architecture = gub.read_pipe ('gcc -dumpmachine')[:-1]
 		self.srcdir = os.path.join (self.topdir, 'src')
 		self.specdir = self.topdir + '/specs'
 		self.gtk_version = '2.8'
 
 		self.target_architecture = arch
+		self.tool_prefix = arch + '-'
 		self.targetdir = self.topdir + '/target/%s' % self.target_architecture
 		self.builddir = self.targetdir + '/build'
 		self.garbagedir = self.targetdir + '/garbage'
@@ -97,10 +99,11 @@ def main ():
 		platform = files[0]
 	except IndexError:
 		platform = ''
-		
-	if platform not in ['mac', 'mingw', 'mingw-fedora']:
-		print 'unknown platform', platform
-		print 'Use mac, mingw, mingw-fedora'
+
+	platforms = ('linux', 'mac', 'mingw', 'mingw-fedora')
+	if platform not in platforms:
+		print 'unsupported platform:', platform
+		print 'use:', string.join (platforms)
 		sys.exit (1)
 
 	if platform == 'mac':
@@ -113,8 +116,18 @@ def main ():
 		settings.target_gcc_flags = '-mwindows -mms-bitfields'
 		platform = 'mingw'
 	elif platform == 'linux':
-		settings = Settings ('ap')
+		settings = Settings ('linux')
 		platform = 'linux'
+		settings.target_architecture = settings.build_architecture
+		# Use apgcc to avoid using too new GLIBC symbols
+		# possibly -Wl,--as-needed has same effect.
+		settings.gcc = 'apgcc'
+		settings.gxx = 'apg++'
+		settings.ld = 'apgcc'
+		settings.tool_prefix = ''
+		os.environ['CC'] = settings.gcc
+		os.environ['CXX'] = settings.gxx
+		os.environ['LD'] = settings.ld
 
 	gub.start_log ()
 	settings.verbose = verbose

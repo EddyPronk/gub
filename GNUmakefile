@@ -2,7 +2,10 @@
 default: all
 
 all:
-	python driver.py mac mingw
+	python driver.py linux mac mingw
+
+linux:
+	python driver.py linux
 
 mac:
 	python driver.py mac

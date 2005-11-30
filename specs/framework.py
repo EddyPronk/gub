@@ -387,11 +387,14 @@ man1dir=%(installdir)s/share/man/man1 \
 
 class Zlib (gub.Target_package):
 	def configure (self):
+		zlib_is_broken = 'SHAREDTARGET=libz.so.1.2.2'
+		if self.settings.platform.startswith ('mingw'):
+			zlib_is_broken = 'target=mingw'
 		self.system ('''
 sed -i~ 's/mgwz/libz/' %(srcdir)s/configure
 shtool mkshadow %(srcdir)s %(builddir)s
-cd %(builddir)s && target=mingw AR="%(AR)s r" %(srcdir)s/configure --shared
-''')
+cd %(builddir)s && %(zlib_is_broken)s AR="%(AR)s r" %(srcdir)s/configure --shared
+''', locals ())
 
 # latest vanilla packages
 #Zlib (settings).with (version='1.2.3', mirror=download.zlib, format='bz2'),
@@ -426,4 +429,7 @@ def get_packages (settings, platform):
 	),
 	}
 
+	if platform == 'linux':
+		return packages['mingw']
+	
 	return packages[platform]

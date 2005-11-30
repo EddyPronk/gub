@@ -2,8 +2,7 @@
 
 
 cross_config_cache ={
-	'all':
-  """ac_cv_c_bigendian=${ac_cv_c_bigendian=no}
+	'all': '''
 ac_cv_c_long_size_t=${ac_cv_c_long_size_t=no}
 ac_cv_c_long_time_t=${ac_cv_c_long_time_t=yes}
 ac_cv_sizeof___int64=${ac_cv_sizeof___int64=0}
@@ -51,24 +50,29 @@ ac_cv_exeext=${ac_cv_exeext=}
 lt_cv_dlopen=${lt_cv_dlopen="dlopen"}
 lt_cv_dlopen_libs=${lt_cv_dlopen_libs="none required"}
 libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"/lib /usr/lib $cygwin_prefix/lib"'"}
-lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=8192}
 ac_cv_lib_dld_shl_load=${ac_cv_lib_dld_shl_load=no}
 ac_cv_lib_dl_dlopen=${ac_cv_lib_dl_dlopen=no}
 ac_cv_c_stack_direction=${ac_cv_c_stack_direction=-1}
-"""
-,
+''',
+	'linux' : '''
+lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=32768}
+''',
 	'mac' : '''
+ac_cv_c_bigendian=${ac_cv_c_bigendian=yes}
+lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=8192}
 glib_cv_uscore=${glib_cv_uscore=no}
 ac_cv_func_posix_getpwuid_r=${ac_cv_func_posix_getpwuid_r=yes}
-'''
-	,
-	'cygwin': """ac_cv_func_mkfifo=${ac_cv_func_mkfifo=yes}
+''',
+	'cygwin': '''
+lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=8192}
+ac_cv_func_mkfifo=${ac_cv_func_mkfifo=yes}
 ac_cv_have_dev_ptmx=${ac_cv_have_dev_ptmx=}
 ac_cv_have_dev_ptc=${ac_cv_have_dev_ptc=}
-"""
-	,
-	'mingw': """ac_cv_func_mkfifo=${ac_cv_func_mkfifo=no}
+''',
+	'mingw': '''
+lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=8192}
+ac_cv_func_mkfifo=${ac_cv_func_mkfifo=no}
 ac_cv_have_dev_ptmx=${ac_cv_have_dev_ptmx=no}
 ac_cv_have_dev_ptc=${ac_cv_have_dev_ptc=no}
-"""
+'''
 }

@@ -89,11 +89,12 @@ class Package:
 		
 	def package_dict (self, env={}):
 		dict = {
-			'build_spec': self.settings.build_spec,
+			'build_architecture': self.settings.build_architecture,
 			'garbagedir': self.settings.garbagedir,
 			'gtk_version': self.settings.gtk_version,
 			'systemdir': self.settings.systemdir,
 			'target_architecture': self.settings.target_architecture,
+			'tool_prefix': self.settings.tool_prefix,
 			'target_gcc_flags': self.settings.target_gcc_flags,
 			'name': self.name (),
 			'version': self.version,
@@ -310,17 +311,17 @@ class Cross_package (Package):
 	
 class Target_package (Package):
 	def configure_command (self):
-		return join_lines ('''%(srcdir)s/configure 
---config-cache 
---enable-shared 
---disable-static 
---build=%(build_spec)s 
---host=%(target_architecture)s 
---target=%(target_architecture)s 
---prefix=/usr 
---sysconfdir=/etc 
---includedir=/usr/include 
---libdir=/usr/lib 
+		return join_lines ('''%(srcdir)s/configure
+--config-cache
+--enable-shared
+--disable-static
+--build=%(build_architecture)s
+--host=%(target_architecture)s
+--target=%(target_architecture)s
+--prefix=/usr
+--sysconfdir=/etc
+--includedir=/usr/include
+--libdir=/usr/lib
 ''')
 
 	def config_cache_overrides (self, str):
@@ -335,19 +336,21 @@ class Target_package (Package):
 		# return self.settings.systemdir + '/usr'
 
 	def install_command (self):
-		return '''make install \
-prefix=%(installdir)s \
-exec_prefix=%(installdir)s \
-bindir=%(installdir)s/bin \
-infodir=%(installdir)s/share/info \
-mandir=%(installdir)s/share/man \
-libdir=%(installdir)s/lib \
-sysconfdir=%(installdir)s/etc \
-includedir=%(installdir)s/include \
-tooldir=%(installdir)s \
-gcc_tooldir=%(installdir)s \
-libexecdir=%(installdir)s/lib \
-'''
+		return join_lines ('''make install
+bindir=%(installdir)s/bin
+aclocaldir=%(installdir)s/share/aclocal
+datadir=%(installdir)s/share
+exec_prefix=%(installdir)s
+gcc_tooldir=%(installdir)s
+includedir=%(installdir)s/include
+infodir=%(installdir)s/share/info
+libdir=%(installdir)s/lib
+libexecdir=%(installdir)s/lib
+mandir=%(installdir)s/share/man
+prefpix=%(installdir)s
+sysconfdir=%(installdir)s/etc
+tooldir=%(installdir)s
+''')
 		
 	def config_cache (self):
 		self.system ('mkdir -p %(builddir)s')
@@ -378,26 +381,32 @@ tar -C %(systemdir)s/usr -zxf %(uploaddir)s/%(name)s.gub
 
 	def target_dict (self, env={}):
 		dict = {
-			'AR': '%(target_architecture)s-ar',
-			'CC':'%(target_architecture)s-gcc %(target_gcc_flags)s',
+			'AR': '%(tool_prefix)sar',
+			'CC': '%(tool_prefix)sgcc %(target_gcc_flags)s',
 			'CPPFLAGS': '-I%(systemdir)s/usr/include',
-			'CXX':'%(target_architecture)s-g++ %(target_gcc_flags)s',
-			'DLLTOOL' : '%(target_architecture)s-dlltool',
-			'DLLWRAP' : '%(target_architecture)s-dllwrap',
-			'LD': '%(target_architecture)s-ld',
+			'CXX':'%(tool_prefix)sg++ %(target_gcc_flags)s',
+			'DLLTOOL' : '%(tool_prefix)sdlltool',
+			'DLLWRAP' : '%(tool_prefix)sdllwrap',
+			'LD': '%(tool_prefix)sld',
 #			'LDFLAGS': '-L%(systemdir)s/usr/lib',
 # FIXME: for zlib, try adding bin
 			'LDFLAGS': '-L%(systemdir)s/usr/lib -L%(systemdir)s/usr/bin',
-			'NM': '%(target_architecture)s-nm',
+			'NM': '%(tool_prefix)snm',
 			'PKG_CONFIG_PATH': '%(systemdir)s/usr/lib/pkgconfig',
 			'PKG_CONFIG': '''/usr/bin/pkg-config \
 --define-variable prefix=%(systemdir)s/usr \
 --define-variable includedir=%(systemdir)s/usr/include \
 --define-variable libdir=%(systemdir)s/usr/lib \
 ''',
-			'RANLIB': '%(target_architecture)s-ranlib',
+			'RANLIB': '%(tool_prefix)sranlib',
 			'SED': 'sed', # libtool (expat mingw) fixup
 			}
+		if self.settings.__dict__.has_key ('gcc'):
+			dict['CC'] = self.settings.gcc
+		if self.settings.__dict__.has_key ('gxx'):
+			dict['CXX'] = self.settings.gxx
+		if self.settings.__dict__.has_key ('ld'):
+			dict['LD'] = self.settings.ld
 
 		dict.update (env)
 		return dict

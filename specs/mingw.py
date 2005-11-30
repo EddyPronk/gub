@@ -3,17 +3,12 @@ import gub
 import os
 import re
 
-
-class Binary_package (
-# FIXME: compile using mingw-runtime-src ?
-
-
 class Mingw_runtime (gub.Binary_package):
 	def set_download (self, mirror=download.gnu, format='gz', download=gub.Target_package.wget):
-		gub.Target_package.set_download (self, mirror, format, download)
+		gub.Package.set_download (self, mirror, format, download)
 		self.url = re.sub ('mingw-runtime/', 'mingw/', self.url)
 		self.url = re.sub ('w32api/', 'mingw/', self.url)
-		gub.Target_package.wget (self)
+		gub.Package.wget (self)
 		
 	def install (self):
 		gub.Binary_package.install (self)
