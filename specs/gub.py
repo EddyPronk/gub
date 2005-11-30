@@ -1,6 +1,6 @@
 import cross
 import cvs
-import download as dl
+import download
 import glob
 import os
 import re
@@ -281,20 +281,20 @@ cd %(builddir)s && %(configure_command)s
 		if not os.path.exists (tarball):
 			return
 
-		flags = dl.untar_flags (tarball)
+		flags = download.untar_flags (tarball)
 
 		# clean up
 		self.system ("rm -rf  %(srcdir)s %(builddir)s")
 		cmd = 'tar %(flags)s %(tarball)s -C %(sourcesdir)s'
 		self.system (cmd, locals ())
 
-	def set_download (self, mirror=dl.gnu, format='gz', download=wget):
+	def set_download (self, mirror=download.gnu, format='gz', download=wget):
 		d = self.package_dict ()
 		d.update (locals ())
 		self.url = mirror () % d
 		self.download = lambda : download (self)
 
-	def with (self, version='HEAD', mirror=dl.gnu, format='gz', download=wget):
+	def with (self, version='HEAD', mirror=download.gnu, format='gz', download=wget):
 		self.version = version
 		self.set_download (mirror, format, download)
 		return self
@@ -417,3 +417,30 @@ tar -C %(systemdir)s/usr -zxf %(uploaddir)s/%(name)s.gub
 	def system (self, cmd, env={}):
 		dict = self.target_dict (env)
 		Package.system (self, cmd, env=dict)
+
+
+class Binary_package (Package):
+	def untar (self):
+		self.system ("rm -rf  %(srcdir)s %(builddir)s")
+		self.system ('mkdir -p %(srcdir)s/root')
+		tarball = self.settings.downloaddir + '/' + self.file_name ()
+		if not os.path.exists (tarball):
+			return
+		flags = download.untar_flags (tarball)
+		cmd = 'tar %(flags)s %(tarball)s -C %(srcdir)s/root'
+		self.system (cmd, locals ())
+
+	def patch (self):
+		installroot = os.path.dirname (self.installdir ())
+		self.dump ('%(srcdir)s/configure', '''
+cat > Makefile <<EOF
+default:
+	@echo done
+all: default
+install:
+	mkdir -p %(installdir)s
+	tar -C %(srcdir)s/root -cf- . | tar -C %(installdir)s -xvf-
+EOF
+''')
+		os.chmod ('%(srcdir)s/configure' % self.package_dict (), 0755)
+						       

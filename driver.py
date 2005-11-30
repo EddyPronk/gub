@@ -112,6 +112,9 @@ def main ():
 		settings = Settings ('i386-mingw32')
 		settings.target_gcc_flags = '-mwindows -mms-bitfields'
 		platform = 'mingw'
+	elif platform == 'linux':
+		settings = Settings ('ap')
+		platform = 'linux'
 
 	gub.start_log ()
 	settings.verbose = verbose

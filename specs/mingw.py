@@ -3,35 +3,24 @@ import gub
 import os
 import re
 
+
+class Binary_package (
 # FIXME: compile using mingw-runtime-src ?
-class Mingw_runtime (gub.Target_package):
+
+
+class Mingw_runtime (gub.Binary_package):
 	def set_download (self, mirror=download.gnu, format='gz', download=gub.Target_package.wget):
 		gub.Target_package.set_download (self, mirror, format, download)
 		self.url = re.sub ('mingw-runtime/', 'mingw/', self.url)
 		self.url = re.sub ('w32api/', 'mingw/', self.url)
 		gub.Target_package.wget (self)
 		
-	def untar (self):
-		self.system ("rm -rf  %(srcdir)s %(builddir)s")
-		self.system ('mkdir -p %(srcdir)s/root')
-		file = self.settings.downloaddir + '/' + self.file_name ()
-		flags = '-zxf'
-		cmd = 'tar %(flags)s %(file)s -C %(srcdir)s/root'
-		self.system (cmd, locals ())
-
-		self.dump ('%(srcdir)s/configure', '''
-cat > Makefile <<EOF
-default:
-	@echo done
-all: default
-install:
-	mkdir -p %(installdir)s
-	tar -C %(srcdir)s/root -cf- . | tar -C %(installdir)s -xvf-
-	mkdir -p %(installdir)s/bin
-	-cp /cygwin/usr/bin/cygcheck.exe %(installdir)s/bin
-EOF
-''')
-		os.chmod ('%(srcdir)s/configure' % self.package_dict (), 0755)
+	def install (self):
+		gub.Binary_package.install (self)
+		self.system ('''
+mkdir -p %(installdir)s/bin
+cp -f /cygwin/usr/bin/cygcheck.exe %(installdir)s/bin
+''', locals ())
 
 class W32api (Mingw_runtime):
 	pass
@@ -39,18 +28,12 @@ class W32api (Mingw_runtime):
 class Regex (gub.Target_package):
 	pass
 
-class Gs (gub.Target_package):
+class Gs (gub.Binary_package):
 	def untar (self):
-		self.system ("rm -rf  %(srcdir)s %(builddir)s")
-		self.system ('mkdir -p %(srcdir)s/root')
-		tarball = self.settings.downloaddir + '/' + self.file_name ()
-		if not os.path.exists (tarball):
-			return
-		flags = download.untar_flags (tarball)
-		cmd = 'tar %(flags)s %(tarball)s -C %(srcdir)s/root'
-		self.system (cmd, locals ())
-		# FIXME: weird packaging
+		gub.Binary_package.untar (self)
 		self.system ('cd %(srcdir)s && mv root/gs-%(version)s/* .')
+
+	def patch (self):
 		installroot = os.path.dirname (self.installdir ())
 		gs_prefix = '/usr/share/gs'
 		self.dump ('%(srcdir)s/configure', '''
