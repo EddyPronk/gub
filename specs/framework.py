@@ -68,8 +68,9 @@ cd %(srcdir)s && patch -p1 < $HOME/installers/windows/patch/gmp-4.1.4-1.patch
 
 	def install (self):
 		gub.Target_package.install (self)
-		# minimal libtool fixups
-		self.system ('''
+		if self.settings.platform.startswith ('mingw'):
+			# minimal libtool fixups
+			self.system ('''
 mkdir -p %(installdir)s/bin
 mv %(installdir)s/lib/lib*.dll %(installdir)s/bin/
 cp %(builddir)s/.libs/libgmp.dll.a %(installdir)s/lib/
@@ -372,18 +373,22 @@ class Expat (gub.Target_package):
 #		gub.Target_package.configure (self)
 
 	def compile_command (self):
-		return gub.Target_package.compile_command (self) + ''' \
-CFLAGS="-O2 -DHAVE_EXPAT_CONFIG_H" \
-EXEEXT= \
-'''
+		return gub.Target_package.compile_command (self) \
+		       + gub.join_lines ('''
+CFLAGS="-O2 -DHAVE_EXPAT_CONFIG_H"
+EXEEXT=
+RUN_FC_CACHE_TEST=false
+''')
 	def install_command (self):
-		return gub.Target_package.install_command (self) + ''' \
-EXEEXT= \
-exec_prefix=%(installdir)s \
-libdir=%(installdir)s/lib \
-includedir=%(installdir)s/include \
-man1dir=%(installdir)s/share/man/man1 \
-'''
+		return gub.Target_package.install_command (self) \
+		       + gub.join_lines ('''
+EXEEXT=
+RUN_FC_CACHE_TEST=false
+exec_prefix=%(installdir)s
+libdir=%(installdir)s/lib
+includedir=%(installdir)s/include
+man1dir=%(installdir)s/share/man/man1
+''')
 
 class Zlib (gub.Target_package):
 	def configure (self):
@@ -430,6 +435,6 @@ def get_packages (settings, platform):
 	}
 
 	if platform == 'linux':
-		return packages['mingw']
+		return filter (lambda x: x.name () != 'libiconv', packages['mingw'])
 	
 	return packages[platform]
