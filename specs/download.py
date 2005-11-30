@@ -51,3 +51,5 @@ def sourceforge ():
 def python ():
 	return 'http://python.org/ftp/python/%(version)s/%(name)s-%(version)s.tar.%(format)s' 
 
+def cygwin ():
+	return 'ftp://ftp.sunsite.dk/pub/cygwin/release/%(name)s/%(name)s-%(version)s-1.tar.%(format)s'
