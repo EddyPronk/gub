@@ -119,8 +119,9 @@ def main ():
 		# FIXME: some libraries, gettext eg, do not build with
 		# gcc-4.0.
 		os.environ['APBUILD_CC'] = 'gcc-3.4'
-		# CXX1 for < 3.4 abi, CXX2 for >= 3.4 abi
-		os.environ['APBUILD_CXX2'] = 'g++-3.4'
+		# FIXME: CXX1 for < 3.4 abi, CXX2 for >= 3.4 abi
+		# but APBUILD_CXX2 apg++ --version yields 4.0.3 :-(
+		os.environ['APBUILD_CXX1'] = 'g++-3.4'
 		os.environ['LD'] = settings.ld
 
 	gub.start_log ()
