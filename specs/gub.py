@@ -34,7 +34,7 @@ def system_one (cmd, ignore_error, env):
 	stat = proc.wait ()
 	
 	if stat and not ignore_error:
-		log_command ('Command barfed: %s' % cmd )
+		log_command ('Command barfed: %s\n' % cmd )
 		sys.exit (1)
 
 	return 0 
@@ -446,17 +446,15 @@ class Binary_package (Package):
 		cmd = 'tar %(flags)s %(tarball)s -C %(srcdir)s/root'
 		self.system (cmd, locals ())
 
+	def configure (self):
+		pass
+	
 	def patch (self):
-		installroot = os.path.dirname (self.installdir ())
-		self.dump ('%(srcdir)s/configure', '''
-cat > Makefile <<EOF
-default:
-	@echo done
-all: default
-install:
-	mkdir -p %(installdir)s
-	tar -C %(srcdir)s/root -cf- . | tar -C %(installdir)s -xvf-
-EOF
-''')
-		os.chmod ('%(srcdir)s/configure' % self.package_dict (), 0755)
-						       
+		pass
+	
+	def compile (self):
+		pass
+
+	def install (self):
+		self.system ('mkdir -p %(installdir)s')
+		self.system ('tar -C %(srcdir)s/root -cf- . | tar -C %(installdir)s -xvf-')
