@@ -249,13 +249,17 @@ class Pango (gub.Target_package):
 
 class Pango__linux (Pango):
 	def untar (self):
-		gub.Target_package.untar (self)
+		Pango.untar (self)
 		# FIXME: --without-cairo switch is removed in 1.10.1,
 		# pango only compiles without cairo if cairo is not
 		# installed linkably on the build system.  UGH.
-		self.file_sub ('(have_cairo[_a-z]=)true',
+		self.file_sub ('(have_cairo[_a-z0-9]*)=true',
 			       '\\1=false',
-			       '%(srcdir)s/configure.in')
+			       '%(srcdir)s/configure')
+		self.file_sub ('(cairo[_a-z0-9]*)=yes',
+			       '\\1=no',
+			       '%(srcdir)s/configure')
+		os.chmod ('%(srcdir)s/configure' % self.package_dict (), 0755)
 
 class Freetype (gub.Target_package):
 	def configure (self):
