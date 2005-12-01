@@ -77,7 +77,7 @@ INSTALL_PROGRAM=%(srcdir)s/install-sh
 		       + self.makeflags ()
 
 	def install_command (self):
-		return gub.Target_package.install_command (self) \
+		return gub.Target_package.broken_install_command (self) \
 		       + self.makeflags ()
 
 def get_packages (settings):
