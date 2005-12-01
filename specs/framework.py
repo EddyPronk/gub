@@ -400,6 +400,9 @@ shtool mkshadow %(srcdir)s %(builddir)s
 cd %(builddir)s && %(zlib_is_broken)s AR="%(AR)s r" %(srcdir)s/configure --shared
 ''', locals ())
 
+	def install_command (self):
+		return gub.Target_package.broken_install_command (self)
+
 # latest vanilla packages
 #Zlib (settings).with (version='1.2.3', mirror=download.zlib, format='bz2'),
 #Expat (settings).with (version='1.95.8', mirror=download.sf),
