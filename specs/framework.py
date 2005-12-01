@@ -385,6 +385,7 @@ def get_packages (settings, platform):
 		Expat (settings).with (version='1.95.8', mirror=download.sourceforge, format='gz'),
 		Glib__darwin (settings).with (version='2.8.4', mirror=download.gtk),
 		Fontconfig__darwin (settings).with (version='2.3.2', mirror=download.fontconfig),
+		Pango (settings).with (version='1.10.1', mirror=download.gtk),
 	),
 	'mingw': (
 		Libtool (settings).with (version='1.5.20'),
