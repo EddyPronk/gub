@@ -333,6 +333,10 @@ class Fontconfig__mingw (Fontconfig):
 --with-add-fonts=@INSTDIR@\\usr\\share\\gs\\fonts
 ''')
 
+class Fontconfig__darwin (Fontconfig):
+	def configure (self):
+		Fontconfig.configure (self)
+		self.file_sub ('-Wl,[^ ]+ ', '', self.builddir() + '/src/Makefile')
 
 class Expat (gub.Target_package):
 	def makeflags (self):
