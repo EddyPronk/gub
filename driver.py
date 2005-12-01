@@ -29,28 +29,17 @@ class Settings:
 		self.builddir = self.targetdir + '/build'
 		self.garbagedir = self.targetdir + '/garbage'
 		self.statusdir = self.targetdir + '/status'
-
-		## uploaddir contains .gub tarballs.
-		## maybe rename to gubpackagedir ?
+		# FIXME: rename to gubpackagedir ?
 		self.uploaddir = self.targetdir + '/uploads'
-
-		## dir for platform library & headers.
-		## FIXME: systemDIR/installDIR are unclear concepts
-		## I'd rather stick with mingw's
-		## TARGET-ROOT, TARGET-PREFIX, INSTALL-ROOT, INSTALL-PREFIX
-		self.systemdir = self.targetdir + '/system'
-
-		## dir for our own stuff, including library & headers.
-		## FIXME: currently merged with: systemdir/usr
-		## as we need one place for the target root
+		# FIXME: rename to target_root?
+		self.system_root = self.targetdir + '/system'
 		self.installdir = self.targetdir + '/install'
-
 		self.tooldir = self.targetdir + '/tools'
 
 	def create_dirs (self): 
 		for a in ('downloaddir',
 			  'garbagedir',
-			  'specdir', 'srcdir', 'statusdir', 'systemdir',
+			  'specdir', 'srcdir', 'statusdir', 'system_root',
                           'targetdir', 'topdir',
 			  'uploaddir'):
 			dir = self.__dict__[a]
@@ -65,7 +54,7 @@ def process_package (package):
 	for stage in ('untar', 'patch', 'configure', 'compile', 'install',
 		      'package', 'sysinstall'):
         	if not package.is_done (stage):
-			print 'doing stage', stage
+			print 'gub:' + package.name () + ':' + stage
                 	if stage == 'untar':
                         	package.untar ()
 			elif stage == 'patch':

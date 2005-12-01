@@ -92,7 +92,7 @@ class Package:
 			'build_architecture': self.settings.build_architecture,
 			'garbagedir': self.settings.garbagedir,
 			'gtk_version': self.settings.gtk_version,
-			'systemdir': self.settings.systemdir,
+			'system_root': self.settings.system_root,
 			'target_architecture': self.settings.target_architecture,
 			'tool_prefix': self.settings.tool_prefix,
 			'target_gcc_flags': self.settings.target_gcc_flags,
@@ -103,7 +103,8 @@ class Package:
 			'compile_command': self.compile_command (),
 			'configure_command': self.configure_command (),
 			'install_command': self.install_command (),
-			'installdir': self.installdir (),
+			'install_root': self.install_root (),
+			'install_prefix': self.install_prefix (),
 			'srcdir': self.srcdir (),
 			'sourcesdir': self.settings.srcdir,
 			'uploaddir': self.settings.uploaddir,
@@ -175,8 +176,11 @@ cd %(dir)s/%(name)s && cvs update -dCAP -r %(version)s
 	def builddir (self):
 		return self.settings.builddir + '/' + self.basename ()
 
-	def installdir (self):
-		return self.settings.installdir + '/' + self.name ()
+	def install_root (self):
+		return self.settings.installdir + "/" + self.name () + '-root'
+
+	def install_prefix (self):
+		return self.install_root () + '/usr'
 
 	def file_name (self):
 		if self.url:
@@ -226,7 +230,7 @@ cd %(srcdir)s && automake --add-missing
 ''', locals ())
 
 	def configure_command (self):
-		return '%(srcdir)s/configure --prefix=%(installdir)s'
+		return '%(srcdir)s/configure --prefix=%(install_prefix)s'
 
 	def configure (self):
 		self.system ('''
@@ -244,7 +248,7 @@ cd %(builddir)s && %(configure_command)s
 
 	def libtool_la_fixups (self):
 		dll_name = 'lib'
-		for i in glob.glob ('%(installdir)s/lib/*.la' \
+		for i in glob.glob ('%(install_prefix)s/lib/*.la' \
 				    % self.package_dict ()):
 			base = os.path.basename (i)[3:-3]
 			self.file_sub (''' *-L *[^"' ][^"' ]*''', '', i)
@@ -308,7 +312,7 @@ class Cross_package (Package):
 	def configure_command (self):
 		cmd = Package.configure_command (self)
 		cmd += ''' --target=%(target_architecture)s
---with-sysroot=%(systemdir)s'''
+--with-sysroot=%(system_root)s/usr'''
 		return join_lines (cmd)
 	
 class Target_package (Package):
@@ -329,35 +333,29 @@ class Target_package (Package):
 	def config_cache_overrides (self, str):
 		return str
 
-	def installdir (self):
-		# FIXME: the usr/ works around a fascist check in libtool
-		# better use %(installdir)s/USR throughout and remove here?
-		return self.settings.installdir + "/" + self.name () + "-root/usr"
-		# FIXME: system dir vs packaging install
-		# no packages for now
-		# return self.settings.systemdir + '/usr'
-
 	def broken_install_command (self):
 		"For packages that don't honor DESTDIR."
-		
+
+		# FIXME: use sysconfdir=%(install_PREFIX)s/etc?  If
+		# so, must also ./configure that way
 		return join_lines ('''make install
-bindir=%(installdir)s/bin
-aclocaldir=%(installdir)s/share/aclocal
-datadir=%(installdir)s/share
-exec_prefix=%(installdir)s
-gcc_tooldir=%(installdir)s
-includedir=%(installdir)s/include
-infodir=%(installdir)s/share/info
-libdir=%(installdir)s/lib
-libexecdir=%(installdir)s/lib
-mandir=%(installdir)s/share/man
-prefpix=%(installdir)s
-sysconfdir=%(installdir)s/etc
-tooldir=%(installdir)s
+bindir=%(install_prefix)s/bin
+aclocaldir=%(install_prefix)s/share/aclocal
+datadir=%(install_prefix)s/share
+exec_prefix=%(install_prefix)s
+gcc_tooldir=%(install_prefix)s
+includedir=%(install_prefix)s/include
+infodir=%(install_prefix)s/share/info
+libdir=%(install_prefix)s/lib
+libexecdir=%(install_prefix)s/lib
+mandir=%(install_prefix)s/share/man
+prefpix=%(install_prefix)s
+sysconfdir=%(install_root)s/etc
+tooldir=%(install_prefix)s
 ''')
 
 	def install_command (self):
-		return join_lines ('''make DESTDIR=%(installdir)s install''')
+		return join_lines ('''make DESTDIR=%(install_root)s install''')
 
 	def config_cache (self):
 		self.system ('mkdir -p %(builddir)s')
@@ -377,33 +375,33 @@ tooldir=%(installdir)s
 	def package (self):
 		# naive tarball packages for now
 		self.system ('''
-tar -C %(installdir)s -zcf %(uploaddir)s/%(name)s.gub .
+tar -C %(install_prefix)s -zcf %(uploaddir)s/%(name)s.gub .
 ''')
 
 	def sysinstall (self):
 		self.system ('''
-mkdir -p %(systemdir)s/usr
-tar -C %(systemdir)s/usr -zxf %(uploaddir)s/%(name)s.gub
+mkdir -p %(system_root)s/usr
+tar -C %(system_root)s/usr -zxf %(uploaddir)s/%(name)s.gub
 ''')
 
 	def target_dict (self, env={}):
 		dict = {
 			'AR': '%(tool_prefix)sar',
 			'CC': '%(tool_prefix)sgcc %(target_gcc_flags)s',
-			'CPPFLAGS': '-I%(systemdir)s/usr/include',
+			'CPPFLAGS': '-I%(system_root)s/usr/include',
 			'CXX':'%(tool_prefix)sg++ %(target_gcc_flags)s',
 			'DLLTOOL' : '%(tool_prefix)sdlltool',
 			'DLLWRAP' : '%(tool_prefix)sdllwrap',
 			'LD': '%(tool_prefix)sld',
-#			'LDFLAGS': '-L%(systemdir)s/usr/lib',
+#			'LDFLAGS': '-L%(system_root)s/usr/lib',
 # FIXME: for zlib, try adding bin
-			'LDFLAGS': '-L%(systemdir)s/usr/lib -L%(systemdir)s/usr/bin',
+			'LDFLAGS': '-L%(system_root)s/usr/lib -L%(system_root)s/usr/bin',
 			'NM': '%(tool_prefix)snm',
-			'PKG_CONFIG_PATH': '%(systemdir)s/usr/lib/pkgconfig',
+			'PKG_CONFIG_PATH': '%(system_root)s/usr/lib/pkgconfig',
 			'PKG_CONFIG': '''/usr/bin/pkg-config \
---define-variable prefix=%(systemdir)s/usr \
---define-variable includedir=%(systemdir)s/usr/include \
---define-variable libdir=%(systemdir)s/usr/lib \
+--define-variable prefix=%(system_root)s/usr \
+--define-variable includedir=%(system_root)s/usr/include \
+--define-variable libdir=%(system_root)s/usr/lib \
 ''',
 			'RANLIB': '%(tool_prefix)sranlib',
 			'SED': 'sed', # libtool (expat mingw) fixup
@@ -438,6 +436,8 @@ tar -C %(systemdir)s/usr -zxf %(uploaddir)s/%(name)s.gub
 class Binary_package (Package):
 	def untar (self):
 		self.system ("rm -rf  %(srcdir)s %(builddir)s")
+		# FIXME: /root is typically holds ./bin, ./lib, include,
+		# so is typically not _ROOT, but _PREFIX
 		self.system ('mkdir -p %(srcdir)s/root')
 		tarball = self.settings.downloaddir + '/' + self.file_name ()
 		if not os.path.exists (tarball):
@@ -456,5 +456,8 @@ class Binary_package (Package):
 		pass
 
 	def install (self):
-		self.system ('mkdir -p %(installdir)s')
-		self.system ('tar -C %(srcdir)s/root -cf- . | tar -C %(installdir)s -xvf-')
+		# FIXME: .GUB packaging only in TARGET_PACKAGE, skipping
+		# installing in install_root, use expensive direct
+		# make install %(system_root)s/usr
+		self.system ('mkdir -p %(system_root)s/usr')
+		self.system ('tar -C %(srcdir)s/root -cf- . | tar -C %(system_root)s/usr -xvf-')

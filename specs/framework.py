@@ -23,14 +23,14 @@ cd %(srcdir)s && patch -p1 < $HOME/installers/windows/patch/python-2.4.2-1.patch
 		if self.settings.platform.startswith ('mingw'):
 			self.system ('''cd %(srcdir)s && autoconf''')
 			self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
-			self.settings.target_gcc_flags = '-DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I%(systemdir)s/usr/include' % self.package_dict ()
+			self.settings.target_gcc_flags = '-DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I%(system_root)s/usr/include' % self.package_dict ()
 		gub.Target_package.configure (self)
 
 	def install_command (self):
 		return gub.Target_package.install_command (self) \
 		       + gub.join_lines ('''
-INCLUDEDIR=%(installdir)s/include
-MANDIR=%(installdir)s/share/man
+INCLUDEDIR=%(install_prefix)s/include
+MANDIR=%(install_prefix)s/share/man
 ''')
 
 class Gmp (gub.Target_package):
@@ -60,9 +60,9 @@ cd %(srcdir)s && patch -p1 < $HOME/installers/windows/patch/gmp-4.1.4-1.patch
 		if self.settings.platform.startswith ('mingw'):
 			# minimal libtool fixups
 			self.system ('''
-mkdir -p %(installdir)s/bin
-mv %(installdir)s/lib/lib*.dll %(installdir)s/bin/
-cp %(builddir)s/.libs/libgmp.dll.a %(installdir)s/lib/
+mkdir -p %(install_prefix)s/bin
+mv %(install_prefix)s/lib/lib*.dll %(install_prefix)s/bin/
+cp %(builddir)s/.libs/libgmp.dll.a %(install_prefix)s/lib/
 ''')
 
 class Guile (gub.Target_package):
@@ -106,7 +106,7 @@ CC_FOR_BUILD="cc -I%(builddir)s
 			str += '''
 guile_cv_func_usleep_declared=${guile_cv_func_usleep_declared=yes}
 guile_cv_exeext=${guile_cv_exeext=}
-libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(systemdir)s/usr/lib"}
+libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib"}
 '''
 		return str
 
@@ -137,19 +137,19 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(systemdir)s/usr/lib"}
 	def install (self):
 		gub.Target_package.install (self)
 		version = self.read_pipe ('''\
-GUILE_LOAD_PATH=%(installdir)s/share/guile/* %(installdir)s/bin/guile-config --version 2>&1\
+GUILE_LOAD_PATH=%(install_prefix)s/share/guile/* %(install_prefix)s/bin/guile-config --version 2>&1\
 ''').split ()[-1]
-		self.dump ('%(installdir)s/bin/%(target_architecture)s-guile-config', '''\
+		self.dump ('%(install_prefix)s/bin/%(target_architecture)s-guile-config', '''\
 #!/bin/sh
 [ "$1" == "--version" ] && echo "%(target_architecture)s-guile-config - Guile version %(version)s"
-#[ "$1" == "compile" ] && echo "-I $%(systemdir)s/usr/include"
-#[ "$1" == "link" ] && echo "-L%(systemdir)s/usr/lib -lguile -lgmp"
+#[ "$1" == "compile" ] && echo "-I $%(system_root)s/usr/include"
+#[ "$1" == "link" ] && echo "-L%(system_root)s/usr/lib -lguile -lgmp"
 prefix=$(dirname $(dirname $0))
 [ "$1" == "compile" ] && echo "-I$prefix/include"
 [ "$1" == "link" ] && echo "-L$prefix/lib -lguile -lgmp"
 exit 0
 ''')
-		os.chmod ('%(installdir)s/bin/%(target_architecture)s-guile-config' % self.package_dict (), 0755)
+		os.chmod ('%(install_prefix)s/bin/%(target_architecture)s-guile-config' % self.package_dict (), 0755)
 
 
 class LilyPond (gub.Target_package):
@@ -159,7 +159,7 @@ class LilyPond (gub.Target_package):
 
 	def configure_command (self):
 		## FIXME: pickup $target-guile-config
-		cmd = 'PATH=%(systemdir)s/usr/bin:$PATH '
+		cmd = 'PATH=%(system_root)s/usr/bin:$PATH '
 
 		cmd += gub.Target_package.configure_command (self)
 		cmd += ' --disable-documentation'
@@ -167,7 +167,7 @@ class LilyPond (gub.Target_package):
 			cmd += gub.join_lines ('''
 --without-kpathsea
 --enable-relocation
---with-python-include=%(systemdir)s/usr/include/python2.4
+--with-python-include=%(system_root)s/usr/include/python2.4
 --disable-optimising
 ''')
 		return cmd
@@ -195,7 +195,7 @@ cp /usr/include/FlexLexer.h %(builddir)s
 	def compile_command (self):
 		cmd = gub.Target_package.compile_command (self)
 		if self.settings.platform.startswith ('mingw'):
-			python_lib = "%(systemdir)s/usr/bin/libpython2.4.dll"
+			python_lib = "%(system_root)s/usr/bin/libpython2.4.dll"
 			return cmd + gub.join_lines ('''
 LDFLAGS=%(python_lib)s
 HELP2MAN_GROFFS=
@@ -223,8 +223,8 @@ HELP2MAN_GROFFS=
 		gub.Target_package.install (self)
 		if self.settings.platform.startswith ('mingw'):
 			self.system ('''
-install -m755 %(builddir)/lily/out/lilypond %(installdir)/bin/lilypond-windows
-install -m755 %(builddir)/lily/out-console/lilypond %(installdir)/bin/lilypond
+install -m755 %(builddir)/lily/out/lilypond %(install_prefix)/bin/lilypond-windows
+install -m755 %(builddir)/lily/out-console/lilypond %(install_prefix)/bin/lilypond
 ''')
 
 class Gettext (gub.Target_package):
@@ -332,8 +332,8 @@ class Fontconfig (gub.Target_package):
 		cmd = gub.Target_package.configure_command (self) \
 		      + gub.join_lines ('''
 --with-freetype-config="/usr/bin/freetype-config
---prefix=%(systemdir)s/usr
---exec-prefix=%(systemdir)s/usr
+--prefix=%(system_root)s/usr
+--exec-prefix=%(system_root)s/usr
 "''')
 
 		if self.settings.platform.startswith ('mingw'):
@@ -350,8 +350,8 @@ class Fontconfig (gub.Target_package):
 		rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
 ''',
 			     env = {'ft_config' : '''/usr/bin/freetype-config \
---prefix=%(installdir)s \
---exec-prefix=%(installdir)s \
+--prefix=%(install_prefix)s \
+--exec-prefix=%(install_prefix)s \
 '''})
 		gub.Target_package.configure (self)
 		if self.settings.platform.startswith ('mingw'):
@@ -386,10 +386,10 @@ RUN_FC_CACHE_TEST=false
 		       + gub.join_lines ('''
 EXEEXT=
 RUN_FC_CACHE_TEST=false
-exec_prefix=%(installdir)s
-libdir=%(installdir)s/lib
-includedir=%(installdir)s/include
-man1dir=%(installdir)s/share/man/man1
+exec_prefix=%(install_prefix)s
+libdir=%(install_prefix)s/lib
+includedir=%(install_prefix)s/include
+man1dir=%(install_prefix)s/share/man/man1
 ''')
 
 class Zlib (gub.Target_package):

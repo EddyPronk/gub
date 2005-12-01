@@ -10,14 +10,14 @@ class Darwin_sdk (gub.Binary_package):
 		return 'darwin-sdk.tar.gz'
 
 	def patch (self):
-		pat = self.settings.systemdir + '/usr/lib/*.la'
+		pat = self.settings.system_root + '/usr/lib/*.la'
 		for a in glob.glob (pat):
-			self.file_sub (r' (/usr/lib/.*\.la)', '%(systemdir)s\1', a)
+			self.file_sub (r' (/usr/lib/.*\.la)', '%(system_root)s\1', a)
 
 		
 	
 class Odcctools (gub.Cross_package):
-	def installdir (self):
+	def install_prefix (self):
 		return self.settings.tooldir
 	
 class Gcc (gub.Cross_package):

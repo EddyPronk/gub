@@ -38,7 +38,6 @@ class Gs (gub.Binary_package):
 		self.system ('cd %(srcdir)s && mv root/gs-%(version)s/* .')
 
 	def patch (self):
-		installroot = os.path.dirname (self.installdir ())
 		gs_prefix = '/usr/share/gs'
 		self.dump ('%(srcdir)s/configure', '''
 cat > Makefile <<EOF
@@ -46,14 +45,14 @@ default:
 	@echo done
 all: default
 install:
-	mkdir -p %(installdir)s
-	tar -C %(srcdir)s -cf- bin | tar -C %(installdir)s -xvf-
-	mkdir -p %(installroot)s/%(gs_prefix)s
-	tar -C %(srcdir)s -cf- fonts lib Resource | tar -C %(installroot)s/%(gs_prefix)s -xvf-
-	fc-cache %(installroot)s/%(gs_prefix)s/fonts
-	mkdir -p %(installdir)s/share/doc/gs/html
-	tar -C %(srcdir)s/doc -cf- --exclude='[A-Z]*[A-Z]' . | tar -C %(installdir)s/share/doc/gs/html -xvf-
-	tar -C %(srcdir)s/doc -cf- --exclude='*.htm*' . | tar -C %(installdir)s/share/doc/gs/html -xvf-
+	mkdir -p %(install_prefix)s
+	tar -C %(srcdir)s -cf- bin | tar -C %(install_prefix)s -xvf-
+	mkdir -p %(install_root)s/%(gs_prefix)s
+	tar -C %(srcdir)s -cf- fonts lib Resource | tar -C %(install_root)s/%(gs_prefix)s -xvf-
+	fc-cache %(install_root)s/%(gs_prefix)s/fonts
+	mkdir -p %(install_prefix)s/share/doc/gs/html
+	tar -C %(srcdir)s/doc -cf- --exclude='[A-Z]*[A-Z]' . | tar -C %(install_prefix)s/share/doc/gs/html -xvf-
+	tar -C %(srcdir)s/doc -cf- --exclude='*.htm*' . | tar -C %(install_prefix)s/share/doc/gs/html -xvf-
 EOF
 ''', env=locals ())
 		os.chmod ('%(srcdir)s/configure' % self.package_dict (), 0755)
@@ -65,7 +64,7 @@ class LilyPad (gub.Target_package):
 		return gub.join_lines ('''
 ALL_OBJS='$(OBJS)'
 WRC=/usr/bin/wrc
-CPPFLAGS=-I%(systemdir)s/usr/include
+CPPFLAGS=-I%(system_root)s/usr/include
 RC='$(WRC) $(CPPFLAGS)'
 LIBWINE=
 LIBPORT=
