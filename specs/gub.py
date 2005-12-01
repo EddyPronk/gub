@@ -290,6 +290,8 @@ cd %(builddir)s && %(configure_command)s
 		self.system (cmd, locals ())
 
 	def set_download (self, mirror=download.gnu, format='gz', download=wget):
+		"Setup URLs and functions for downloading. This should not spawn any commands."
+		
 		d = self.package_dict ()
 		d.update (locals ())
 		self.url = mirror () % d
