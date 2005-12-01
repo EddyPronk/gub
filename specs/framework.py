@@ -9,21 +9,10 @@ class Libtool (gub.Target_package):
 	pass
 
 class Python (gub.Target_package):
-	def set_download (self, mirror=download.gnu, format='gz', download=gub.Target_package.wget):
-		gub.Target_package.set_download (self, mirror, format, download)
-		self.url = re.sub ('python-', 'Python-', self.url)
-		gub.Target_package.wget (self)
-		self.url = re.sub ('Python-', 'python-', self.url)
-		python = self.settings.downloaddir + '/' + self.file_name ()
-		Python = re.sub ('python-', 'Python-', python)
-		self.system ('ln -f %(Python)s %(python)s', locals ())
-
-	def untar (self):
-		gub.Target_package.untar (self)
-		python = self.srcdir ()
-		Python = re.sub ('python-', 'Python-', python)
-		self.system ('mv %(Python)s %(python)s', locals ())
-
+	def set_download (self, mirror, format='gz', downloader=None):
+		gub.Target_package.set_download (self, mirror, format, downloader)
+		self.url = re.sub ("python-", "Python-" , self.url)
+		
 	def patch (self):
 		if self.settings.platform.startswith ('mingw'):
 			self.system ('''
@@ -42,7 +31,7 @@ cd %(srcdir)s && patch -p1 < $HOME/installers/windows/patch/python-2.4.2-1.patch
 		       + gub.join_lines ('''
 INCLUDEDIR=%(installdir)s/include
 MANDIR=%(installdir)s/share/man
-		       ''')
+''')
 
 class Gmp (gub.Target_package):
 	def xxconfigure (self):
