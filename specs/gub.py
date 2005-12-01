@@ -243,8 +243,7 @@ cd %(builddir)s && %(configure_command)s
 	
 	def install (self):
 		self.system ('cd %(builddir)s && %(install_command)s')
-		if self.settings.platform.startswith ('mingw'):
-			self.libtool_la_fixups ()
+		self.libtool_la_fixups ()
 
 	def libtool_la_fixups (self):
 		dll_name = 'lib'
@@ -253,10 +252,7 @@ cd %(builddir)s && %(configure_command)s
 			base = os.path.basename (i)[3:-3]
 			self.file_sub (''' *-L *[^"' ][^"' ]*''', '', i)
 			self.file_sub ('''( |=|')(/[^ ]*usr/lib/lib)([^ ']*)\.(a|la|so)[^ ']*''', '\\1-l\\3', i)
-			# '"
-			self.file_sub ('library_names=.*',
-				       "library_names='lib%(base)s.dll.a'",
-				       i, locals ())
+			#  ' " ''' '
 			# we don't have sover
 #			self.file_sub ('^dlname=.*',
 #				       """dlname='../bin/%(dll_prefix)%(base)s-%(sover)s.dll'""",
@@ -264,6 +260,10 @@ cd %(builddir)s && %(configure_command)s
 			self.file_sub ('^old_library=.*',
 				       """old_library='lib%(base)s.a'""",
 				       i, locals ())
+                        if self.settings.platform.startswith ('mingw'):
+			         self.file_sub ('library_names=.*',
+						"library_names='lib%(base)s.dll.a'",
+						i, locals ())
 
 	def compile_command (self):
 		return 'make'

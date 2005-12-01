@@ -110,6 +110,14 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
 '''
 		return str
 
+	def compile_command (self):
+		str = gub.Target_package.compile_command (self)
+		if self.settings.platform.startswith ('linux'):
+			# FIXME: when not x-building, guile runs guile without
+			# setting the proper LD_LIBRARY_PATH.
+			str = 'export LD_LIBRARY_PATH=%(builddir)s/libguile/.libs:$LD_LIBRARY_PATH;' + str
+		return str
+
 	def configure (self):
 		if 0: # using patch
 			gub.Target_package.autoupdate (self)
@@ -128,11 +136,6 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
 			       '%(builddir)s/guile-readline/libtool')
 			self.system ('''cp $HOME/installers/windows/bin/%(target_architecture)s-libtool %(builddir)s/libtool''')
 			self.system ('''cp $HOME/installers/windows/bin/%(target_architecture)s-libtool %(builddir)s/guile-readline/libtool''')
-
-	def xxcompile (self):
-		if self.settings.platform.startswith ('mingw'):
-			self.settings.target_gcc_flags = '-mms-bitfields'
-		gub.Target_package.compile (self)
 
 	def install (self):
 		gub.Target_package.install (self)
