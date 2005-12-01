@@ -12,10 +12,7 @@ class Darwin_sdk (gub.Binary_package):
 	def patch (self):
 		pat = self.settings.systemdir + '/usr/lib/*.la'
 		for a in glob.glob (pat):
-			print 'fixing up', a
-			str = open (a).read ()
-			str = re.sub (r' (/usr/lib/.*\.la)', self.settings.systemdir + r'\1', str)
-			open (a, 'w').write (str)
+			self.file_sub (r' (/usr/lib/.*\.la)', '%(systemdir)s\1', a)
 
 		
 	
@@ -26,14 +23,9 @@ class Odcctools (gub.Cross_package):
 class Gcc (gub.Cross_package):
 	def patch (self):
 		fn ='%s/gcc/config/darwin.h' % self.srcdir ()
-		str = open (fn).read ()
+		self.file_sub ('/usr/bin/libtool', '%(tooldir)s/bin/powerpc-apple-darwin7-libtool',
+			       fn)
 
-		# backup file.
-		open (fn + "~", 'w').write (str)
-		
-		str = re.sub ('/usr/bin/libtool', '%s/bin/powerpc-apple-darwin7-libtool' % self.settings.tooldir, str)
-		open (fn, 'w').write (str)
-		
 	def configure_command (self):
 		cmd = gub.Cross_package.configure_command (self)
 		cmd += '''
