@@ -69,7 +69,6 @@ def process_package (package):
                 	if stage == 'untar':
                         	package.untar ()
 			elif stage == 'patch':
-                        	package.untar ()
                         	package.patch ()
 			elif stage == 'configure':
                         	package.configure ()
