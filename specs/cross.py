@@ -57,7 +57,7 @@ ac_cv_lib_dl_dlopen=${ac_cv_lib_dl_dlopen=yes}
 lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=32768}
 lt_cv_dlopen_libs=${lt_cv_dlopen_libs="-ldl"}
 ''',
-	'mac' : '''
+	'darwin' : '''
 ac_cv_c_bigendian=${ac_cv_c_bigendian=yes}
 lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=8192}
 glib_cv_uscore=${glib_cv_uscore=no}

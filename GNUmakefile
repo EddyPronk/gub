@@ -8,7 +8,7 @@ linux:
 	python driver.py linux
 
 mac:
-	python driver.py mac
+	python driver.py darwin
 
 mingw:
 	python driver.py -V mingw

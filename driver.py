@@ -88,13 +88,13 @@ def main ():
 	except IndexError:
 		platform = ''
 
-	platforms = ('linux', 'mac', 'mingw', 'mingw-fedora')
+	platforms = ('linux', 'darwin', 'mingw', 'mingw-fedora')
 	if platform not in platforms:
 		print 'unsupported platform:', platform
 		print 'use:', string.join (platforms)
 		sys.exit (1)
 
-	if platform == 'mac':
+	if platform == 'darwin':
 		settings = Settings ('powerpc-apple-darwin7')
 	elif platform == 'mingw':
 		settings = Settings ('i586-mingw32msvc')
@@ -133,7 +133,7 @@ def main ():
 	os.environ["PATH"] = '%s/%s:%s' % (settings.tooldir, 'bin',
                                            os.environ["PATH"])
 
-	if platform == 'mac':
+	if platform == 'darwin':
 		import darwintools
 		process_packages (darwintools.get_packages (settings))
 	if platform.startswith ('mingw'):

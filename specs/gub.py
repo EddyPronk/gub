@@ -184,6 +184,8 @@ cd %(dir)s/%(name)s && cvs update -dCAP -r %(version)s
 		return self.install_root () + '/usr'
 
 	def file_name (self):
+		## hmm. we could use Class._name as a data member.
+		## 
 		if self.url:
 			file = re.sub ('.*/([^/]+)', '\\1', self.url)
 		else:

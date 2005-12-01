@@ -217,7 +217,7 @@ class Gettext__mingw (Gettext):
 		return re.sub ('ac_cv_func_select=yes', 'ac_cv_func_select=no',
 			       str)
 
-class Gettext__mac (Gettext):
+class Gettext__darwin (Gettext):
 	def configure_command (self):
 		return re.sub ('--config-cache ', '',
 			       Gettext.configure_command (self))
@@ -231,7 +231,7 @@ class Glib (gub.Target_package):
 glib_cv_stack_grows=${glib_cv_stack_grows=no}
 '''
 
-class Glib__mac (Glib):
+class Glib__darwin (Glib):
 	def configure (self):
 		Glib.configure (self)
 		self.file_sub ('nmedit', '%(target_architecture)s-nmedit',
@@ -373,12 +373,12 @@ cd %(builddir)s && %(zlib_is_broken)s AR="%(AR)s r" %(srcdir)s/configure --share
 # but some classes have __mingw or __linux overrides.
 def get_packages (settings, platform):
 	packages = {
-	'mac': (
-		Gettext__mac (settings).with (version='0.10.40'),
+	'darwin': (
+		Gettext__darwin (settings).with (version='0.10.40'),
 		Freetype (settings).with (version='2.1.9', mirror=download.freetype),
 		Expat (settings).with (version='1.95.8', mirror=download.sourceforge, format='gz'),
-		Glib__mac (settings).with (version='2.8.4', mirror=download.gtk),
-		Fontconfig (settings).with (version='2.3.2', mirror=download.fontconfig),
+		Glib__darwin (settings).with (version='2.8.4', mirror=download.gtk),
+		Fontconfig__darwin (settings).with (version='2.3.2', mirror=download.fontconfig),
 	),
 	'mingw': (
 		Libtool (settings).with (version='1.5.20'),
