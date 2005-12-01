@@ -264,6 +264,19 @@ class Glib (gub.Target_package):
 		return str + '''
 glib_cv_stack_grows=${glib_cv_stack_grows=no}
 '''
+	
+
+class Darwin_glib (Glib):
+	def configure (self):
+		Glib.configure (self)
+		self.file_sub ('nmedit', self.settings.build_architecture + '-nmedit',
+			       self.builddir () + '/libtool')
+	def file_name (self):
+		if self.url:
+			return re.sub ('.*/([^/]+)', '\\1', self.url)
+		else:
+			return 'glib'
+
 
 class Pango (gub.Target_package):
 	def configure_command (self):
@@ -402,7 +415,7 @@ def get_packages (settings, platform):
 		Gettext (settings).with (version='0.10.40'),
 		Freetype (settings).with (version='2.1.9', mirror=download.freetype),
 		Expat (settings).with (version='1.95.8', mirror=download.sourceforge, format='gz'),
-		Glib (settings).with (version='2.8.4', mirror=download.gtk),
+		Darwin_glib (settings).with (version='2.8.4', mirror=download.gtk),
 		Fontconfig (settings).with (version='2.3.2', mirror=download.fontconfig),
 	),
 	'mingw': (
