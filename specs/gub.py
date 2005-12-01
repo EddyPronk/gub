@@ -290,7 +290,7 @@ cd %(builddir)s && %(configure_command)s
 		flags = download.untar_flags (tarball)
 
 		# clean up
-		self.system ("rm -rf  %(srcdir)s %(builddir)s")
+		self.system ("rm -rf %(srcdir)s %(builddir)s %(install_root)s")
 		cmd = 'tar %(flags)s %(tarball)s -C %(sourcesdir)s'
 		self.system (cmd, locals ())
 
@@ -436,7 +436,7 @@ tar -C %(system_root)s/usr -zxf %(uploaddir)s/%(name)s.gub
 
 class Binary_package (Package):
 	def untar (self):
-		self.system ("rm -rf  %(srcdir)s %(builddir)s")
+		self.system ("rm -rf %(srcdir)s %(builddir)s %(install_root)s")
 		# FIXME: /root is typically holds ./bin, ./lib, include,
 		# so is typically not _ROOT, but _PREFIX
 		self.system ('mkdir -p %(srcdir)s/root')
