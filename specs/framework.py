@@ -269,7 +269,7 @@ glib_cv_stack_grows=${glib_cv_stack_grows=no}
 class Darwin_glib (Glib):
 	def configure (self):
 		Glib.configure (self)
-		self.file_sub ('nmedit', self.settings.build_architecture + '-nmedit',
+		self.file_sub ('nmedit', '%(target_architecture)s-nmedit',
 			       self.builddir () + '/libtool')
 	def file_name (self):
 		if self.url:
