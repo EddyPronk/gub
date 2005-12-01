@@ -170,6 +170,8 @@ class LilyPond (gub.Target_package):
 --with-python-include=%(system_root)s/usr/include/python2.4
 --disable-optimising
 ''')
+		if self.settings.platform.startswith ('linux'):
+			cmd += ' --enable-static-gxx'
 		return cmd
 
 	def configure (self):
