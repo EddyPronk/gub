@@ -48,31 +48,36 @@ ac_cv_exeext=${ac_cv_exeext=}
 # it seems that libtool is broken wrt cross compilation:
 #    sys_lib_search_path_spec="/usr/lib /lib/w32api /lib /usr/local/lib"
 lt_cv_dlopen=${lt_cv_dlopen="dlopen"}
-lt_cv_dlopen_libs=${lt_cv_dlopen_libs="none required"}
 libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"/lib /usr/lib $cygwin_prefix/lib"'"}
 ac_cv_lib_dld_shl_load=${ac_cv_lib_dld_shl_load=no}
-ac_cv_lib_dl_dlopen=${ac_cv_lib_dl_dlopen=no}
 ac_cv_c_stack_direction=${ac_cv_c_stack_direction=-1}
 ''',
 	'linux' : '''
+ac_cv_lib_dl_dlopen=${ac_cv_lib_dl_dlopen=yes}
 lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=32768}
+lt_cv_dlopen_libs=${lt_cv_dlopen_libs="-ldl"}
 ''',
 	'mac' : '''
 ac_cv_c_bigendian=${ac_cv_c_bigendian=yes}
 lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=8192}
 glib_cv_uscore=${glib_cv_uscore=no}
 ac_cv_func_posix_getpwuid_r=${ac_cv_func_posix_getpwuid_r=yes}
+lt_cv_dlopen_libs=${lt_cv_dlopen_libs="none required"}
 ''',
 	'cygwin': '''
 lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=8192}
 ac_cv_func_mkfifo=${ac_cv_func_mkfifo=yes}
 ac_cv_have_dev_ptmx=${ac_cv_have_dev_ptmx=}
 ac_cv_have_dev_ptc=${ac_cv_have_dev_ptc=}
+ac_cv_lib_dl_dlopen=${ac_cv_lib_dl_dlopen=no}
+lt_cv_dlopen_libs=${lt_cv_dlopen_libs="none required"}
 ''',
 	'mingw': '''
 lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=8192}
 ac_cv_func_mkfifo=${ac_cv_func_mkfifo=no}
 ac_cv_have_dev_ptmx=${ac_cv_have_dev_ptmx=no}
 ac_cv_have_dev_ptc=${ac_cv_have_dev_ptc=no}
+ac_cv_lib_dl_dlopen=${ac_cv_lib_dl_dlopen=no}
+lt_cv_dlopen_libs=${lt_cv_dlopen_libs="none required"}
 '''
 }

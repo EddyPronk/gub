@@ -111,7 +111,7 @@ def main ():
 		# possibly -Wl,--as-needed has same effect.
 		settings.gcc = 'apgcc'
 		settings.gxx = 'apg++'
-		settings.ld = 'apgcc'
+		settings.ld = 'ld --as-needed'
 		settings.tool_prefix = ''
 		os.environ['CC'] = settings.gcc
 		os.environ['CXX'] = settings.gxx
