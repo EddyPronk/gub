@@ -320,9 +320,15 @@ LDFLAGS:=$(LDFLAGS) -no-undefined
 ''', mode='a')
 
 	def install (self):
-		gub.Package.system (self, '''
-cd %(srcdir)s && ./configure --disable-static --enable-shared
-''')
+		gub.Package.system (self, gub.join_lines ('''
+cd %(srcdir)s && ./configure
+--disable-static
+--enable-shared
+--prefix=/usr
+--sysconfdir=/etc
+--includedir=/usr/include
+--libdir=/usr/lib
+'''))
 		gub.Package.install (self)
 
 
