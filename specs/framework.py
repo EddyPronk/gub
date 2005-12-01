@@ -13,13 +13,6 @@ class Python (gub.Target_package):
 		gub.Target_package.set_download (self, mirror, format, downloader)
 		self.url = re.sub ("python-", "Python-" , self.url)
 
-	def install_command (self):
-		return gub.Target_package.install_command (self) \
-		       + gub.join_lines ('''
-INCLUDEDIR=%(install_prefix)s/include
-MANDIR=%(install_prefix)s/share/man
-''')
-
 class Python__mingw (Python):
 	def patch (self):
 		self.system ('''
