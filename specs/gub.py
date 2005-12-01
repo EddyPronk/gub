@@ -92,10 +92,12 @@ class Package:
 			'build_architecture': self.settings.build_architecture,
 			'garbagedir': self.settings.garbagedir,
 			'gtk_version': self.settings.gtk_version,
+			'platform': self.settings.platform,
 			'system_root': self.settings.system_root,
 			'target_architecture': self.settings.target_architecture,
 			'tool_prefix': self.settings.tool_prefix,
 			'target_gcc_flags': self.settings.target_gcc_flags,
+
 			'name': self.name (),
 			'version': self.version,
 			'url': self.url,
@@ -166,8 +168,7 @@ cd %(dir)s/%(name)s && cvs update -dCAP -r %(version)s
 
 	def name (self):
 		s = self.basename ()
-#		s = re.sub ('-?[0-9][^-]+$', '', s)
-		s = re.sub ('-[0-9][^-]+$', '', s)
+		s = re.sub ('-[0-9][^-]+(-[0-9]+)?$', '', s)
 		return s
 	
 	def srcdir (self):
@@ -376,13 +377,13 @@ tooldir=%(install_prefix)s
 	def package (self):
 		# naive tarball packages for now
 		self.system ('''
-tar -C %(install_prefix)s -zcf %(uploaddir)s/%(name)s.gub .
+tar -C %(install_prefix)s -zcf %(uploaddir)s/%(name)s-%(version)s.%(platform)s.gub .
 ''')
 
 	def sysinstall (self):
 		self.system ('''
 mkdir -p %(system_root)s/usr
-tar -C %(system_root)s/usr -zxf %(uploaddir)s/%(name)s.gub
+tar -C %(system_root)s/usr -zxf %(uploaddir)s/%(name)s-%(version)s.%(platform)s.gub
 ''')
 
 	def target_dict (self, env={}):
