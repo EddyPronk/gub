@@ -1,11 +1,23 @@
+import glob
 import re
 import gub
 import download
+
 from gub import join_lines
 
-class  Darwin_sdk (gub.Binary_package):
+class Darwin_sdk (gub.Binary_package):
 	def file_name (self):
 		return 'darwin-sdk.tar.gz'
+
+	def patch (self):
+		pat = self.settings.systemdir + '/usr/lib/*.la'
+		for a in glob.glob (pat):
+			print 'fixing up', a
+			str = open (a).read ()
+			str = re.sub (r' (/usr/lib/.*\.la)', self.settings.systemdir + r'\1', str)
+			open (a, 'w').write (str)
+
+		
 	
 class Odcctools (gub.Cross_package):
 	def installdir (self):
