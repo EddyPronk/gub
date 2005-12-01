@@ -325,6 +325,8 @@ class Fontconfig (gub.Target_package):
 cd %(builddir)s/%(i)s && make "CFLAGS=%(cflags)s" "LIBS=%(libs)s" CPPFLAGS= LDFLAGS= INCLUDES=
 ''', locals ())
 
+		self.file_sub ('DOCSRC *=.*', 'DOCSRC=', self.builddir () + '/Makefile')
+
 class Fontconfig__mingw (Fontconfig):
 	def configure_command (self):
 		return Fontconfig.configure_command (self) \
