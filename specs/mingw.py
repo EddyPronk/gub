@@ -8,14 +8,23 @@ class Mingw_runtime (gub.Binary_package):
 		gub.Package.set_download (self, mirror, format, download)
 		self.url = re.sub ('mingw-runtime/', 'mingw/', self.url)
 		self.url = re.sub ('w32api/', 'mingw/', self.url)
-		gub.Package.wget (self)
 		
-	def install (self):
-		gub.Binary_package.install (self)
-		self.system ('''
-mkdir -p %(installdir)s/bin
-cp -f /cygwin/usr/bin/cygcheck.exe %(installdir)s/bin
-''', locals ())
+class Cygwin (gub.Binary_package):
+	"Only need the cygcheck.exe binary."
+	
+	def untar (self):
+		gub.Binary_package.untar (self)
+
+		file = '%s/root/usr/bin/cygcheck.exe' % self.srcdir ()
+		cygcheck = open (file).read ()
+		self.system ('rm -rf %(srcdir)s/root')
+		self.system ('mkdir -p %(srcdir)s/root/usr/bin/')
+		open (file, 'w').write (cygcheck)
+
+	def basename (self):
+		f = gub.Binary_package.basename (self)
+		f = re.sub ('-1$', '', f) 
+		return f
 
 class W32api (Mingw_runtime):
 	pass
@@ -76,6 +85,7 @@ def get_packages (settings):
 	return (
 		Mingw_runtime (settings).with (version='3.9', mirror=download.sf),
 		W32api (settings).with (version='3.5', mirror=download.sf),
+		Cygwin (settings).with (version='1.5.18', mirror=download.cygwin, format='bz2'), 
 		Regex (settings).with (version='2.3.90-1', mirror=download.lp, format='bz2'),
 		Gs (settings).with (version='8.15-1', mirror=download.lp, format='bz2'),
 		LilyPad (settings).with (version='0.0.7-1', mirror=download.lp, format='bz2'),
