@@ -370,27 +370,18 @@ cd %(builddir)s/%(i)s && make "CFLAGS=%(cflags)s" "LIBS=%(libs)s" CPPFLAGS= LDFL
 ''', locals ())
 
 class Expat (gub.Target_package):
-#	def configure (self):
-#		self.autoupdate ()
-#		gub.Target_package.configure (self)
-
-	def compile_command (self):
-		return gub.Target_package.compile_command (self) \
-		       + gub.join_lines ('''
+	def makeflags (self):
+		return gub.join_lines ('''
 CFLAGS="-O2 -DHAVE_EXPAT_CONFIG_H"
 EXEEXT=
 RUN_FC_CACHE_TEST=false
 ''')
+	def compile_command (self):
+		return gub.Target_package.compile_command (self) \
+		       + self.makeflags ()
 	def install_command (self):
 		return gub.Target_package.install_command (self) \
-		       + gub.join_lines ('''
-EXEEXT=
-RUN_FC_CACHE_TEST=false
-exec_prefix=%(install_prefix)s
-libdir=%(install_prefix)s/lib
-includedir=%(install_prefix)s/include
-man1dir=%(install_prefix)s/share/man/man1
-''')
+		       + self.makeflags ()
 
 class Zlib (gub.Target_package):
 	def configure (self):
