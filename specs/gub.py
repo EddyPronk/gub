@@ -337,7 +337,9 @@ class Target_package (Package):
 		# no packages for now
 		# return self.settings.systemdir + '/usr'
 
-	def install_command (self):
+	def broken_install_command (self):
+		"For packages that don't honor DESTDIR."
+		
 		return join_lines ('''make install
 bindir=%(installdir)s/bin
 aclocaldir=%(installdir)s/share/aclocal
@@ -353,7 +355,10 @@ prefpix=%(installdir)s
 sysconfdir=%(installdir)s/etc
 tooldir=%(installdir)s
 ''')
-		
+
+	def install_command (self):
+		return join_lines ('''make DESTDIR=%(installdir)s install''')
+
 	def config_cache (self):
 		self.system ('mkdir -p %(builddir)s')
 		cache_fn = self.builddir () + '/config.cache'
