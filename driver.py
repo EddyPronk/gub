@@ -108,13 +108,19 @@ def main ():
 		platform = 'linux'
 		settings.target_architecture = settings.build_architecture
 		# Use apgcc to avoid using too new GLIBC symbols
-		# possibly -Wl,--as-needed has same effect.
+		# possibly gcc/g++ -Wl,--as-needed, ld --as-needed has
+		# same effect?
 		settings.gcc = 'apgcc'
 		settings.gxx = 'apg++'
 		settings.ld = 'ld --as-needed'
 		settings.tool_prefix = ''
 		os.environ['CC'] = settings.gcc
 		os.environ['CXX'] = settings.gxx
+		# FIXME: some libraries, gettext eg, do not build with
+		# gcc-4.0.
+		os.environ['APBUILD_CC'] = 'gcc-3.4'
+		# CXX1 for < 3.4 abi, CXX2 for >= 3.4 abi
+		os.environ['APBUILD_CXX2'] = 'g++-3.4'
 		os.environ['LD'] = settings.ld
 
 	gub.start_log ()
