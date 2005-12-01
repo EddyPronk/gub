@@ -197,6 +197,11 @@ class LilyPond__linux (LilyPond):
 	def configure_command (self):
 		return LilyPond.configure_command (self) \
 		       + ' --enable-static-gxx'
+	def compile_command (self):
+		# FIXME: when not x-building, help2man runs guile without
+		# setting the proper LD_LIBRARY_PATH.
+		return 'export LD_LIBRARY_PATH=%(system_root)s/usr/lib:$LD_LIBRARY_PATH;' \
+		       + LilyPond.compile_command (self)
 
 class Gettext (gub.Target_package):
 	def configure_command (self):
