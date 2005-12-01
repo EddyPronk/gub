@@ -18,3 +18,7 @@ realclean:
 
 distclean: realclean
 	echo NOT rm -rf downloads
+
+sources = GNUmakefile $(wildcard *.py specs/*.py)
+TAGS: $(sources)
+	etags $^
