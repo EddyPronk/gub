@@ -347,6 +347,28 @@ class Fontconfig__darwin (Fontconfig):
 		Fontconfig.configure (self)
 		self.file_sub ('-Wl,[^ ]+ ', '', self.builddir() + '/src/Makefile')
 
+class Fondu (gub.Target_package):
+	def install (self):
+		self.system ("cp %(srcdir)s/showfond %(srcdir)s/fondu %(install_prefix)s/bin/")
+
+	def set_download (self, mirror,
+			  format='tgz', downloader=None):
+		gub.Target_package.set_download (self, mirror, format, downloader)
+		self.url = re.sub ("fondu-", "fondu_src-" , self.url)
+		self.url = re.sub ("tar.gz", "tgz" , self.url)
+
+	def configure (self):
+		self.system ("mkdir -p %(builddir)s && cp %(srcdir)s/Makefile.Mac %(builddir)s")
+		gub.Target_package.configure (self)
+
+		self.file_sub ('CC = cc', 'CC = %(target_architecture)s-gcc\nVPATH=%(srcdir)s\n', self.builddir() + '/Makefile')
+		self.file_sub ('CORE = .*', '', self.builddir() + '/Makefile')
+		
+
+	def basename (self):
+		## ugr. 
+		return 'fondu' 
+
 class Expat (gub.Target_package):
 	def makeflags (self):
 		return gub.join_lines ('''
@@ -392,7 +414,8 @@ def get_packages (settings, platform):
 		Expat (settings).with (version='1.95.8', mirror=download.sourceforge, format='gz'),
 		Glib__darwin (settings).with (version='2.8.4', mirror=download.gtk),
 		Fontconfig__darwin (settings).with (version='2.3.2', mirror=download.fontconfig),
-		Pango (settings).with (version='1.10.1', mirror=download.gtk),
+		Pango__darwin (settings).with (version='1.10.1', mirror=download.gtk),
+#		Fondu (settings).with (version="051010", mirror=download.sourceforge_homepage, format='gz')
 	),
 	'mingw': (
 		Libtool (settings).with (version='1.5.20'),
