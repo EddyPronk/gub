@@ -11,8 +11,13 @@ class Libtool (gub.Target_package):
 class Python (gub.Target_package):
 	def set_download (self, mirror, format='gz', downloader=None):
 		gub.Target_package.set_download (self, mirror, format, downloader)
-		self.url = re.sub ("python-", "Python-" , self.url)
+		self.url = re.sub ('python-', 'Python-' , self.url)
 
+	def untar (self):
+		gub.Target_package.untar (self)
+		Srcdir = re.sub ('python', 'Python', self.srcdir ())
+		self.system ('mv %(Srcdir)s %(srcdir)s', locals ())
+		
 class Python__mingw (Python):
 	def patch (self):
 		self.system ('''

@@ -189,6 +189,7 @@ cd %(dir)s/%(name)s && cvs update -dCAP -r %(version)s
 		## 
 		if self.url:
 			file = re.sub ('.*/([^/]+)', '\\1', self.url)
+			file = file.lower ()
 		else:
 			file = self.__class__.__name__.lower ()
 			file = re.sub ('__.*', '', file)
