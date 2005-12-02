@@ -380,7 +380,7 @@ RUN_FC_CACHE_TEST=false
 		return gub.Target_package.compile_command (self) \
 		       + self.makeflags ()
 	def install_command (self):
-		return gub.Target_package.broken_install_command (self) \
+		return gub.Target_package.install_command (self) \
 		       + self.makeflags ()
 
 class Zlib (gub.Target_package):
