@@ -162,6 +162,7 @@ cd %(dir)s/%(name)s && cvs update -dCAP -r %(version)s
  
 	def basename (self):
 		f = self.file_name ()
+		f = re.sub ('.tgz', '', f)
 		f = re.sub ('-src\.tar.*', '', f)
 		f = re.sub ('\.tar.*', '', f)
 		return f
