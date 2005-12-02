@@ -96,6 +96,7 @@ def main ():
 
 	if platform == 'darwin':
 		settings = Settings ('powerpc-apple-darwin7')
+		settings.target_gcc_flags = '-D__ppc__'
 	elif platform == 'mingw':
 		settings = Settings ('i586-mingw32msvc')
 		settings.target_gcc_flags = '-mwindows -mms-bitfields'
