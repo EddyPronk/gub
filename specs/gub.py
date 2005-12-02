@@ -353,7 +353,7 @@ infodir=%(install_prefix)s/share/info
 libdir=%(install_prefix)s/lib
 libexecdir=%(install_prefix)s/lib
 mandir=%(install_prefix)s/share/man
-prefpix=%(install_prefix)s
+prefix=%(install_prefix)s
 sysconfdir=%(install_root)s/etc
 tooldir=%(install_prefix)s
 ''')
