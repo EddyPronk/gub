@@ -23,7 +23,8 @@ class Odcctools (gub.Cross_package):
 class Gcc (gub.Cross_package):
 	def patch (self):
 		fn ='%s/gcc/config/darwin.h' % self.srcdir ()
-		self.file_sub ('/usr/bin/libtool', '%(tooldir)s/bin/powerpc-apple-darwin7-libtool',
+		self.file_sub ('/usr/bin/libtool',
+			       '%(tooldir)s/bin/powerpc-apple-darwin7-libtool',
 			       fn)
 
 	def configure_command (self):

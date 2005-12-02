@@ -95,6 +95,7 @@ class Package:
 			'platform': self.settings.platform,
 			'system_root': self.settings.system_root,
 			'target_architecture': self.settings.target_architecture,
+			'tooldir': self.settings.tooldir,
 			'tool_prefix': self.settings.tool_prefix,
 			'target_gcc_flags': self.settings.target_gcc_flags,
 
