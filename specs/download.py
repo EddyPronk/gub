@@ -47,6 +47,8 @@ def zlib ():
 def sourceforge ():
 	return 'http://dl.sourceforge.net/%(name)s/%(name)s-%(version)s.tar.%(format)s' 
 
+def sourceforge_homepage ():
+	return 'http://%(name)s.sourceforge.net/%(name)s-%(version)s.tar.%(format)s'
 
 def python ():
 	return 'http://python.org/ftp/python/%(version)s/%(name)s-%(version)s.tar.%(format)s' 
