@@ -36,12 +36,22 @@ class Settings:
 		self.installdir = self.targetdir + '/install'
 		self.tooldir = self.targetdir + '/tools'
 
+		self.installer_root = self.targetdir + '/installer'
+		self.packagedir = self.targetdir + '/packages'
+
 	def create_dirs (self): 
-		for a in ('downloaddir',
-			  'garbagedir',
-			  'specdir', 'srcdir', 'statusdir', 'system_root',
-                          'targetdir', 'topdir',
-			  'uploaddir'):
+		for a in (
+			'downloaddir',
+			'garbagedir',
+			'packagedir',
+			'specdir',
+			'srcdir',
+			'statusdir',
+			'system_root',
+			'targetdir',
+			'topdir',
+			'uploaddir'
+			):
 			dir = self.__dict__[a]
 			if os.path.isdir (dir):
 				continue
@@ -72,28 +82,53 @@ def process_package (package):
 			package.set_done (stage)
 
 
-def process_packages (packages):
+def build_packages (settings, packages):
 	for i in packages:
 		process_package (i)
+
+def strip_installer_root (root):
+	"Remove unnecessary cruft."
+	
+	for i in (
+		'bin/*-config',
+		'bin/*gettext*',
+		'bin/[cd]jpeg',
+		'bin/msg*',
+		'bin/pango-querymodules',
+		'bin/xmlwf',
+		'doc'
+		'include',
+		'info',
+		'lib/pkgconfig',
+		'man',
+		'share/doc',
+		'share/gettext/intl',
+		'share/ghostscript/8.15/Resource/',
+		'share/ghostscript/8.15/doc/',
+		'share/ghostscript/8.15/examples',
+		'share/gs/8.15/Resource/',
+		'share/gs/8.15/doc/',
+		'share/gs/8.15/examples',
+		'share/gtk-doc',
+		'share/info',
+		'share/man',
+		'share/omf',
+		):
 		
-def main ():
-	(options, files) = getopt.getopt (sys.argv[1:], 'V', ['verbose'])
-	verbose = 0 
-	for (o, a) in options:
-		if o == '--verbose' or o == '-V':
-			verbose = 1
+		gub.system ('cd %(root)s && rm -rf %(i)s' % locals ())
+##	gub.system ('cd %(root)s && strip bin/*' % locals ())
+	gub.system ('cd %(root)s && rm lib/*.a' % locals ())
+##	gub.system ('cd %(root)s && cp etc/pango/pango.modules etc/pango/pango.modules.in ' % locals ())
 
-	try:
-		platform = files[0]
-	except IndexError:
-		platform = ''
+def make_installer (settings, packages):
+	gub.system ('rm -rf %(installer_root)s' % settings.__dict__)
+	root = settings.installer_root + '/usr'
+	for i in packages:
+		i.install_gub (settings.installer_root)
+	strip_installer_root (settings.installer_root)
+	framework.get_installer (settings, settings.platform).create ()
 
-	platforms = ('linux', 'darwin', 'mingw', 'mingw-fedora')
-	if platform not in platforms:
-		print 'unsupported platform:', platform
-		print 'use:', string.join (platforms)
-		sys.exit (1)
-
+def get_settings (platform):
 	if platform == 'darwin':
 		settings = Settings ('powerpc-apple-darwin7')
 		settings.target_gcc_flags = '-D__ppc__'
@@ -124,6 +159,35 @@ def main ():
 		# but APBUILD_CXX2 apg++ --version yields 4.0.3 :-(
 		os.environ['APBUILD_CXX1'] = 'g++-3.4'
 		os.environ['LD'] = settings.ld
+	return settings
+
+def do_options ():
+	(options, files) = getopt.getopt (sys.argv[1:], 'V', ['verbose'])
+	verbose = 0
+	for (o, a) in options:
+		if o == '--verbose' or o == '-V':
+			verbose = 1
+
+	return verbose, files
+
+def get_platform (files):
+	platform = ''
+	if files:
+		platform = files[0]
+
+	platforms = ('linux', 'darwin', 'mingw', 'mingw-fedora')
+	if platform not in platforms:
+		print 'unsupported platform:', platform
+		print 'use:', string.join (platforms)
+		sys.exit (1)
+
+	return platform
+
+
+def main ():
+	verbose, files = do_options ()
+	platform = get_platform (files)
+	settings = get_settings (platform)
 
 	gub.start_log ()
 	settings.verbose = verbose
@@ -134,15 +198,18 @@ def main ():
 	os.environ["PATH"] = '%s/%s:%s' % (settings.tooldir, 'bin',
                                            os.environ["PATH"])
 
+	packages = []
 	if platform == 'darwin':
 		import darwintools
-		process_packages (darwintools.get_packages (settings))
+		packages += darwintools.get_packages (settings)
 	if platform.startswith ('mingw'):
 		import mingw
-		process_packages (mingw.get_packages (settings))
+		packages += mingw.get_packages (settings)
 
-	process_packages (framework.get_packages (settings, platform))
+	packages += framework.get_packages (settings, platform)
 
+	build_packages (settings, packages)
+	make_installer (settings, packages)
 
 if __name__ == '__main__':
     	main ()

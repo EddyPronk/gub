@@ -457,3 +457,12 @@ def get_packages (settings, platform):
 	}
 
 	return packages[platform]
+
+def get_installer (settings, platform):
+	installers = {
+		'darwin' : gub.Bundle (settings),
+		'linux' : gub.Alien (settings),
+		'mingw' : gub.Nsis (settings),
+		}
+	return installers[platform]
+	

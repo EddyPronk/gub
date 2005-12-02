@@ -111,6 +111,10 @@ class Package:
 			'srcdir': self.srcdir (),
 			'sourcesdir': self.settings.srcdir,
 			'uploaddir': self.settings.uploaddir,
+
+			'installer_root': self.settings.installer_root,
+			'packagedir': self.settings.packagedir,
+
 			}
 		
 		dict.update (env)
@@ -385,11 +389,14 @@ tooldir=%(install_prefix)s
 tar -C %(install_prefix)s -zcf %(uploaddir)s/%(name)s-%(version)s.%(platform)s.gub .
 ''')
 
-	def sysinstall (self):
+	def install_gub (self, root):
 		self.system ('''
-mkdir -p %(system_root)s/usr
-tar -C %(system_root)s/usr -zxf %(uploaddir)s/%(name)s-%(version)s.%(platform)s.gub
-''')
+mkdir -p %(root)s
+tar -C %(root)s -zxf %(uploaddir)s/%(name)s-%(version)s.%(platform)s.gub
+''', locals ())
+
+	def sysinstall (self):
+		install_gub ('%(system_root)s/usr' % package_dict ())
 
 	def target_dict (self, env={}):
 		dict = {
@@ -468,3 +475,39 @@ class Binary_package (Package):
 		# make install %(system_root)s/usr
 		self.system ('mkdir -p %(system_root)s/usr')
 		self.system ('tar -C %(srcdir)s/root -cf- . | tar -C %(system_root)s/usr -xvf-')
+
+
+# FIXME: Want to share package_dict () and system () with Package,
+# add yet another base class?
+###class Installer (Package):
+class Installer (Cross_package):
+	pass
+
+        def version (self):
+		return '0.0.0'
+	
+        def name (self):
+		return 'lilypond'
+	
+
+class Bundle (Installer):
+	pass
+
+class Nsis (Installer):
+	pass
+
+class Alien (Installer):
+	def create (self):
+
+		## dit werkt nog niet, maar ik moet nu gaan.
+		## iets ontzetteds dufs met .settings/version
+		
+		## FIXME, huh?
+		installer_root = self.settings.installer_root
+		packagedir = self.settings.packagedir
+		NAME = 'lilypond'
+		VERSION = '0.0.0'
+		
+		self.system ('tar -C %(installer_root)s -zcf %(packagedir)s/%(NAME)s-%(VERSION)s.tgz .' % locals ())
+		self.system ('fakeroot alien --to-deb --to-rpm --to-tgz %(packagedir)s/%(NAME)s-%(VERSION)s.tgz' % locals ())
+		# TODO: autopackage
