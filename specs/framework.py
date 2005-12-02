@@ -259,6 +259,13 @@ class Pango__linux (Pango):
 			       '%(srcdir)s/configure')
 		os.chmod ('%(srcdir)s/configure' % self.package_dict (), 0755)
 
+class Pango__darwin (Pango):
+	def configure (self):
+		Pango.configure (self)
+		self.file_sub ('nmedit', '%(target_architecture)s-nmedit',
+			       self.builddir () + '/libtool')
+
+
 class Freetype (gub.Target_package):
 	def configure (self):
 #		self.autoupdate (autodir=os.path.join (self.srcdir (),
