@@ -1,0 +1,541 @@
+;;;; lilypond.nsi -- LilyPond installer script for Microsoft Windows
+;;;; (c) 2005 Jan Nieuwenhuizen <janneke@gnu.org>
+;;;; licence: GNU GPL
+
+;; For quick [wine] test runs
+;; !define TEST "1"
+
+;;; substitutions
+!define LILYPOND_VERSION "@LILYPOND_VERSION@"
+!define LILYPOND_BUILD "@LILYPOND_BUILD@"
+!define GUILE_VERSION "@GUILE_VERSION@"
+!define PYTHON_VERSION @PYTHON_VERSION@
+!define ENVIRON "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"
+
+!define UNINSTALL \
+	"Software\Microsoft\Windows\CurrentVersion\Uninstall\LilyPond"
+!define USER_SHELL_FOLDERS \
+	"Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders"
+
+Var "EDITOR"
+Var "UP_DESKTOP"
+
+!include "substitute.nsh"
+${StrLoc}
+${UnStrLoc}
+
+SetCompressor lzma
+
+Name "LilyPond"
+!ifdef UPGRADE
+Caption "LilyPond ${LILYPOND_VERSION} Upgrade for Microsoft Windows"
+;;OutFile "upgrade-${LILYPOND_VERSION}-${LILYPOND_BUILD}.exe"
+OutFile "upgrade.exe"
+BrandingText "LilyPond upgrader v1.0"
+!else
+;;OutFile "lilypond-${LILYPOND_VERSION}-${LILYPOND_BUILD}.exe"
+OutFile "setup.exe"
+Caption "LilyPond ${LILYPOND_VERSION} for Microsoft Windows"
+BrandingText "LilyPond installer v1.0"
+!endif
+
+InstallDir $PROGRAMFILES\LilyPond
+InstallDirRegKey HKLM "Software\LilyPond" "Install_Dir"
+
+CRCCheck on
+XPStyle on
+InstallColors /windows
+;; Friendly LilyPond green gradient
+BGGradient 000000 E8FFE8 FFFFFF
+
+;; Use Finish iso Close for the [close button text]
+;; Although nothing happens after Close, experienced Windows users feel
+;; much more with "Finish" than with Close.
+MiscButtonText Back Next Cancel Finish
+
+LicenseText "GNU General Public licence"
+;;LicenseData "COPYING.txt"
+
+!define PAGE_DIRECTORY_FUBAR
+!ifndef PAGE_DIRECTORY_FUBAR
+;; FIXME: the intstaller will crash on File /r commands if Page
+;; directory is not used.
+!ifndef UPGRADE
+Page directory
+!endif
+
+!else ;; PAGE_DIRECTORY_FUBAR
+
+;; The workaround is to alway use page Directory, and use callbacks
+;; to check that the used did not change anything.
+Page directory
+
+!ifdef UPGRADE
+Function .onVerifyInstDir
+	StrCmp $INSTDIR "" 0 guile
+ 	MessageBox MB_OK "Invalid installation directory: $INSTDIR."
+	Abort
+	Goto exit
+guile:
+	IfFileExists $INSTDIR\usr\bin\libguile-16.dll exit
+	MessageBox MB_OK "No previous version of LilyPond found in $INSTDIR$\r$\nPlease download a full setup."
+     	Abort
+exit:
+FunctionEnd
+!endif ;; UPGRADE
+
+!endif ;; PAGE_DIRECTORY_FUBAR
+
+
+Page components
+Page instfiles
+
+!ifndef UPGRADE
+UninstPage uninstConfirm
+UninstPage instfiles
+!endif
+
+Section "LilyPond (required)"
+	;; In silent mode (invoke as: setup.exe /S), generate an install log.
+	ifSilent 0 silent
+;;	Logset on
+silent:
+
+!ifdef UPGRADE
+	IfFileExists $INSTDIR\usr\bin\libguile-16.dll uninstall error
+
+error:
+	MessageBox MB_OK "No previous version of LilyPond found$\r$\nPlease download a full setup."
+	Abort "No previous version of LilyPond found$\r$\nPlease download a full setup."
+
+uninstall:
+	Delete $INSTDIR\usr\bin\lilypond.exe
+	Delete $INSTDIR\usr\bin\lilypond-windows.exe
+	Delete $INSTDIR\usr\bin\lilypond-windows-orig.exe
+	RMDir /r $INSTDIR\usr\share\lilypond
+	RMDir /r $INSTDIR\usr\share\doc\lilypond-*
+	Delete $INSTDIR\etc\setup\lilypond.lst.gz
+	Delete $INSTDIR\etc\setup\installed.db
+!endif
+
+	;; FIXME.  As long as we keep changing the icons, remove the
+	;; icon cache.
+;;	ReadRegStr $0 HKCU "${USER_SHELL_FOLDERS}" "Local AppData"
+;;	Delete $0/IconCache.db
+
+	SetOverwrite on
+	AllowSkipFiles on
+	SetOutPath $INSTDIR
+
+	File /r "@ROOT@/etc"
+!ifdef TEST
+	File /nonfatal /r "@ROOT@/usr/etc"
+!else
+	File /r "@ROOT@/usr"
+!endif
+	;;File /r "@ROOT@/var"
+
+	SetOutPath $INSTDIR\usr\bin
+	File "../bin/min-apt"
+	File "*.scm.in"
+	File "variables.sh.in"
+	SetOutPath $INSTDIR
+
+!ifndef UPGRADE
+	WriteUninstaller "uninstall.exe"
+	CreateDirectory "$INSTDIR\usr\bin"
+!endif
+
+	Call find_editor
+	;; Use tested lilypad for now
+	StrCpy $EDITOR "$INSTDIR\usr\bin\lilypad.exe"
+	Call find_desktop
+
+	Call registry_installer
+	Call registry_guile
+	Call registry_python
+	Call registry_lilypond
+
+	;; FIXME: these postinstall things should be part of their
+	;; respective packages once we have min-apt or Cygwin's
+	;; setup.exe in place.
+
+	Call postinstall_lilypond
+	Call postinstall_lilypad
+	Call postinstall_guile
+!ifndef UPGRADE
+	Call postinstall_gs
+	Call postinstall_fontconfig
+	Call postinstall_pango
+;;	Call ooes_test
+!endif
+SectionEnd
+
+;; Optional section (can be disabled by the user)
+Section "Start Menu Shortcuts"
+	;; First install for all users, if anything fails, install
+	;; for current user only.
+	ClearErrors
+
+	;; The OutPath specifies the CWD of the command.  For desktop
+	;; shortcuts, set to a string that expands to the desktop folder
+	;; of the user who runs LilyPond.
+	ReadRegStr $R0 HKCU "${USER_SHELL_FOLDERS}" "Desktop"
+	SetOutPath '"$R0"'
+	SetShellVarContext all
+
+        ;; Working directory: %USERPROFILE%\<locale's-desktop-folder-name>,
+	;; but that string is not expanded.
+
+	;; Let's see what happens when outputting to the shared desktop.
+	SetOutPath "$DESKTOP"
+	Call create_shortcuts
+
+	;; That also did not work, often the other users do no write access
+	;; there.
+
+	;; If no write access for all, delete common stuff and opt for
+	;; install for current user only.
+	IfErrors 0 exit
+	Delete "$DESKTOP\LilyPond.lnk"
+	Delete "$SMPROGRAMS\LilyPond\*.*"
+	RMDir "$SMPROGRAMS\LilyPond"
+
+	;; $DESKTOP should expand to the same location as the outpath above,
+	;; but nsis may handle anomalies better.
+current_user:
+	SetShellVarContext current
+	SetOutPath "$DESKTOP"
+	Call create_shortcuts
+exit:
+	SetShellVarContext current
+	SetOutPath $INSTDIR
+SectionEnd
+
+!ifndef UPGRADE
+Section "Uninstall"
+	ifSilent 0 silent
+;;	Logset on
+silent:
+	DeleteRegKey HKLM SOFTWARE\LilyPond
+	DeleteRegKey HKLM "${UNINSTALL}"
+
+	DeleteRegKey HKCR ".ly"
+	DeleteRegKey HKCR "ly_auto_file"
+	DeleteRegKey HKCR "LilyPond\shell\open\command" ""
+	DeleteRegKey HKCR "LilyPond\shell\generate\command" ""
+	DeleteRegKey HKCR "LilyPond\DefaultIcon" ""
+	DeleteRegKey HKCR "LilyPond" ""
+
+	DeleteRegKey HKCR "textedit" ""
+
+	DeleteRegKey HKCR ".scm"
+	DeleteRegKey HKCR "GUILE\shell\open\command" ""
+	DeleteRegKey HKCR "GUILE" ""
+
+    	ReadRegStr $R0 HKLM "${ENVIRON}" "PATH"
+ 	${UnStrLoc} $0 $R0 "$INSTDIR\usr\bin;" >
+path_loop:
+	StrCmp $0 "" path_done
+	StrLen $1 "$INSTDIR\usr\bin;"
+	IntOp $2 $0 + $1
+	StrCpy $3 $R0 $0 0
+	StrCpy $4 $R0 10000 $2
+	WriteRegStr HKLM "${ENVIRON}" "PATH" "$3$4"
+	ReadRegStr $R0 HKLM "${ENVIRON}" "PATH"
+	${UnStrLoc} $0 $R0 "$INSTDIR\usr\bin;" >
+	StrCmp $0 "" path_done path_loop
+
+path_done:
+#     	ReadRegStr $R0 HKLM "${ENVIRON}" "PYTHONPATH"
+#  	${UnStrLoc} $0 $R0 "$INSTDIR\usr\lib\python${PYTHON_VERSION};" >
+# pythonpath_loop:
+# 	StrCmp $0 "" pythonpath_done
+# 	StrLen $1 "$INSTDIR\usr\bin;"
+# 	IntOp $2 $0 + $1
+# 	StrCpy $3 $R0 $0 0
+# 	StrCpy $4 $R0 10000 $2
+# 	WriteRegStr HKLM "${ENVIRON}" "PYTHONPATH" "$3$4"
+# 	ReadRegStr $R0 HKLM "${ENVIRON}" "PYTHONPATH"
+# 	${UnStrLoc} $0 $R0 "$INSTDIR\usr\lib\python${PYTHON_VERSION};" >
+# 	StrCmp $0 "" pythonpath_done pythonpath_loop
+#
+#pythonpath_done:
+	;; Remove files and uninstaller
+	;; Try only to delete LilyPond (and not user) stuff
+	;; FIXME: include list of installed files
+	Delete $INSTDIR\uninstall.exe
+	Delete $INSTDIR\install.log
+
+	RMDir /r $INSTDIR\usr\lib\lilypond
+	RMDir /r $INSTDIR\usr\lib\pango
+	RMDir /r $INSTDIR\usr\lib\python${PYTHON_VERSION}
+	Delete $INSTDIR\usr\lib\*.*
+	RMDir $INSTDIR\usr\lib
+
+	RMDir /r $INSTDIR\usr\share\guile
+	RMDir /r $INSTDIR\usr\share\gs
+	RMDir /r $INSTDIR\usr\share\lilypond\${LILYPOND_VERSION}
+	RMDir $INSTDIR\usr\share\lilypond
+	RMDir /r $INSTDIR\usr\share
+	RMDir $INSTDIR\usr\share
+
+	Delete $INSTDIR\usr\bin\*.*
+	RMDir $INSTDIR\usr\bin
+
+	RMDir /r $INSTDIR\usr\etc\pango
+	RMDir /r $INSTDIR\usr\etc\fonts
+	RMDir $INSTDIR\usr\etc
+
+	RMDir $INSTDIR\usr
+	RMDir /r $INSTDIR\etc\setup
+	RMDir $INSTDIR\etc
+
+	;; Remove shortcuts, if any
+        SetShellVarContext all
+	Delete "$SMPROGRAMS\LilyPond\*.*"
+	Delete "$DESKTOP\LilyPond.lnk"
+	RMDir "$SMPROGRAMS\LilyPond"
+
+        SetShellVarContext current
+	Delete "$SMPROGRAMS\LilyPond\*.*"
+	Delete "$DESKTOP\LilyPond.lnk"
+	RMDir "$SMPROGRAMS\LilyPond"
+
+	;; Remove directories used
+	RMDir "$SMPROGRAMS\LilyPond"
+	RMDir "$INSTDIR"
+SectionEnd
+!endif
+
+Function create_shortcuts
+	;; Start menu
+	CreateDirectory "$SMPROGRAMS\LilyPond"
+	CreateShortCut "$SMPROGRAMS\LilyPond\LilyPond.lnk" \
+		"$INSTDIR\usr\bin\lilypond-windows.exe" "-dgui" \
+		"$INSTDIR\usr\bin\lilypond-windows.exe" 0 SW_SHOWMINIMIZED
+	CreateShortCut "$SMPROGRAMS\LilyPond\LilyPond Tutorial.lnk" \
+		"http://lilypond.org/tutorial" "" \
+		"firefox.exe" 0
+	CreateShortCut "$SMPROGRAMS\LilyPond\LilyPond Website.lnk" \
+		"http://lilypond.org/" "" \
+		"firefox.exe" 0
+	CreateShortCut "$SMPROGRAMS\LilyPond\Music in Mutopia.lnk" \
+		"http://www.mutopiaproject.org" "" \
+		"$INSTDIR\usr\bin\lilypond-windows.exe" 1
+	CreateShortCut "$SMPROGRAMS\LilyPond\Examples.lnk" \
+		"$INSTDIR\usr\share\doc\lilypond-${LILYPOND_VERSION}-${LILYPOND_BUILD}\input" "" \
+		"$INSTDIR\usr\bin\lilypond-windows.exe" 1
+	CreateShortCut "$SMPROGRAMS\LilyPond\Upgrade (if available).lnk" \
+		"http://lilypond.org/mingw/upgrade/upgrade-from-${LILYPOND_VERSION}-${LILYPOND_BUILD}.exe" "" \
+		"firefox.exe" 0
+	CreateShortCut "$SMPROGRAMS\LilyPond\Uninstall.lnk" \
+		"$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
+
+	;; Desktop
+	CreateShortCut "$DESKTOP\LilyPond.lnk" \
+		"$INSTDIR\usr\bin\lilypond-windows.exe" "-dgui" \
+		"$INSTDIR\usr\bin\lilypond-windows.exe" 0 SW_SHOWMINIMIZED
+FunctionEnd
+
+Function registry_installer
+	WriteRegStr HKLM "SOFTWARE\LilyPond" "Install_Dir" "$INSTDIR"
+	WriteRegStr HKLM "${UNINSTALL}" "DisplayName" "LilyPond"
+	WriteRegStr HKLM "${UNINSTALL}" "UninstallString" '"$INSTDIR\uninstall.exe"'
+	WriteRegDWORD HKLM "${UNINSTALL}" "NoModify" 1
+	WriteRegDWORD HKLM "${UNINSTALL}" "NoRepair" 1
+FunctionEnd
+
+Function registry_lilypond
+	ReadRegStr $R0 HKLM "${ENVIRON}" "PATH"
+	WriteRegStr HKLM "${ENVIRON}" "PATH" "$INSTDIR\usr\bin;$R0"
+
+	WriteRegStr HKCR ".ly" "" "LilyPond"
+	WriteRegStr HKCR ".ly" "LilyPond" "LilyPond"
+	WriteRegStr HKCR ".ly" "Content Type" "text/lilypond-source"
+
+;;ly_icon:
+	WriteRegStr HKCR "LilyPond" "DefaultIcon" ""
+	WriteRegStr HKCR "LilyPond\DefaultIcon" "" \
+		    "$INSTDIR\usr\bin\lilypond-windows.exe,1"
+
+;;ly_open:
+	ReadRegStr $R0 HKCR "LilyPond\shell\open\command" ""
+	;;StrCmp $R0 "" 0 ly_edit
+	WriteRegStr HKCR "LilyPond\shell" "" "open"
+	WriteRegExpandStr HKCR "LilyPond\shell\open\command" "" '"$EDITOR" "%1"'
+
+;;ly_edit:
+	ReadRegStr $R0 HKCR "LilyPond\shell\edit\command" ""
+	;;StrCmp $R0 "" 0 ly_generate
+	WriteRegStr HKCR "LilyPond\shell" "" "edit"
+	WriteRegStr HKCR "LilyPond\shell\edit" "" "&Edit source..."
+	WriteRegExpandStr HKCR "LilyPond\shell\edit\command" "" '"$EDITOR" "%1"'
+
+;;ly_generate:
+	ReadRegStr $R0 HKCR "LilyPond\shell\generate\command" ""
+	;;StrCmp $R0 "" 0 ly_auto_file
+	WriteRegStr HKCR "LilyPond\shell" "" "generate"
+	WriteRegStr HKCR "LilyPond\shell\generate" "" "&Generate PDF ..."
+	WriteRegExpandStr HKCR "LilyPond\shell\generate\command" "" \
+			  '"$INSTDIR\usr\bin\lilypond-windows.exe" -dgui "%1"'
+
+;; what's the difference between ly_auto_file and shell/open/command?
+;;ly_auto_file:
+	ReadRegStr $R0 HKCR "ly_auto_file\shell\open\command" ""
+	;;StrCmp $R0 "" 0 ly_generate
+	WriteRegStr HKCR "ly_auto_file\shell" "" "open"
+	WriteRegExpandStr HKCR "ly_auto_file\shell\open\command" "" '"$EDITOR" "%1"'
+
+;;textedit_open:
+	WriteRegStr HKCR "textedit" "URL protocol" ""
+	ReadRegStr $R0 HKCR "textedit\shell\open\command" ""
+	;;StrCmp $R0 "" 0 exit
+	WriteRegStr HKCR "textedit\shell" "" "open"
+	WriteRegExpandStr HKCR "textedit\shell\open\command" "" '"$INSTDIR\usr\bin\guile.exe" -e main -s "$INSTDIR\usr\bin\lilypond-invoke-editor.scm" "%1"'
+;;exit:
+FunctionEnd
+
+Function postinstall_fontconfig
+	StrCpy $0 "$INSTDIR\usr\etc\fonts\fonts.conf"
+	CopyFiles /silent "$0" "$0.in"
+	${SubstituteAtVariables} "$0.in" "$0"
+	StrCpy $0 "$INSTDIR\usr\bin\fc-cache.scm"
+	${SubstituteAtVariables} "$0.in" "$0"
+	Exec '"$INSTDIR\usr\bin\guile" -e main -s "$0" "$WINDIR\fonts" "$INSTDIR\usr\share\gs\fonts" "$INSTDIR\usr\share\lilypond\${LILYPOND_VERSION}\fonts\type1'
+FunctionEnd
+
+Function postinstall_lilypad
+	StrCpy $0 "$INSTDIR\usr\bin\lilypad"
+	CopyFiles /silent "$0.exe" "$0-unicode.exe"
+	ClearErrors
+	ReadRegStr $R0 HKLM \
+		"SOFTWARE\Microsoft\Windows NT\CurrentVersion" CurrentVersion
+	IfErrors dos exit
+dos:
+	CopyFiles /silent "$0-ascii.exe" "$0.exe"
+exit:	
+FunctionEnd
+
+Function postinstall_lilypond
+!ifdef UPGRADE
+	StrCpy $0 "lilypond-invoke-editor.bat"
+	Delete "$INSTDIR\usr\bin\$0"
+	StrCpy $0 "lilypond.bat"
+	Delete "$INSTDIR\usr\bin\$0"
+!endif
+	StrCpy $0 "$INSTDIR\usr\bin\variables.sh"
+	${SubstituteAtVariables} "$0.in" "$0"
+
+	# use console version for gui too
+	StrCpy $0 "$INSTDIR\usr\bin\lilypond"
+	ClearErrors
+	ReadRegStr $R0 HKLM \
+		"SOFTWARE\Microsoft\Windows NT\CurrentVersion" CurrentVersion
+	IfErrors dos exit
+dos:
+	CopyFiles /silent "$0-windows.exe" "$0-windows-orig.exe"
+	CopyFiles /silent "$0.exe" "$0-windows.exe"
+exit:	
+FunctionEnd
+
+Function postinstall_gs
+!ifdef UPGRADE
+	StrCpy $0 "gs.bat"
+	Delete "$INSTDIR\usr\bin\$0"
+!endif	
+	CopyFiles /silent "$INSTDIR\usr\bin\gswin32c.exe" "$INSTDIR\usr\bin\gs.exe"
+FunctionEnd
+
+Function postinstall_guile
+!ifdef UPGRADE
+	StrCpy $0 "guile.bat"
+	Delete "$INSTDIR\usr\bin\$0"
+!endif
+FunctionEnd
+
+Function registry_guile
+	ReadRegStr $R0 HKLM "${ENVIRON}" "PATHEXT"
+ 	${StrLoc} $0 $R0 ".SCM;" >
+	StrCmp $0 "" 0 scm_done
+	WriteRegStr HKLM "${ENVIRON}" "PATHEXT" ".SCM;$R0"
+
+scm_done:
+	WriteRegStr HKCR ".scm" "" "GUILE"
+	WriteRegStr HKCR ".scm" "GUILE" "GUILE"
+	WriteRegStr HKCR ".scm" "Content Type" "text/x-guile"
+
+	ReadRegStr $R0 HKCR "GUILE\shell\open\command" ""
+	;;StrCmp $R0 "" 0 exit
+	WriteRegStr HKCR "GUILE\shell" "" "open"
+	WriteRegExpandStr HKCR "GUILE\shell\open\command" "" '"$INSTDIR\usr\bin\guile.exe" -L $INSTDIR\usr\share\guile\${GUILE_VERSION} -e main -s "%1"'
+exit:
+FunctionEnd
+
+Function registry_python
+	ReadRegStr $R0 HKLM "${ENVIRON}" "PATHEXT"
+ 	${StrLoc} $0 $R0 ".PY;" >
+	StrCmp $0 "" 0 py_done
+	WriteRegStr HKLM "${ENVIRON}" "PATHEXT" ".PY;$R0"
+
+py_done:
+#	ReadRegStr $R0 HKLM "${ENVIRON}" "PYTHONPATH"
+#	WriteRegStr HKLM "${ENVIRON}" "PYTHONPATH" "$INSTDIR\usr\lib\python${PYTHON_VERSION};$R0"
+#
+	WriteRegStr HKCR ".py" "" "Python"
+	WriteRegStr HKCR ".py" "Python" "Python"
+	WriteRegStr HKCR ".py" "Content Type" "text/x-python"
+
+;;py_open:
+	ReadRegStr $R0 HKCR "Python\shell\open\command" ""
+	;;StrCmp $R0 "" 0 py_auto_file
+	WriteRegStr HKCR "Python\shell" "" "open"
+	# %1 is the PYTHON command, so must be quoted bo the space
+	WriteRegExpandStr HKCR "Python\shell\open\command" "" '"$INSTDIR\usr\bin\python.exe" "%1" %2 %3 %4 %5 %6 %7 %8 %9'
+
+;;py_auto_file:
+	ReadRegStr $R0 HKCR "py_auto_file\shell\open\command" ""
+	;;StrCmp $R0 "" 0 py_end
+	WriteRegStr HKCR "py_auto_file\shell" "" "open"
+	# %1 is the PYTHON command, so must be quoted bo the space
+	WriteRegExpandStr HKCR "py_auto_file\shell\open\command" "" '"$INSTDIR\usr\bin\python.exe" "%1" %2 %3 %4 %5 %6 %7 %8 %9'
+;;py_end:	
+FunctionEnd
+
+Function postinstall_pango
+	StrCpy $0 "$INSTDIR\usr\etc\pango\pangorc"
+	${SubstituteAtVariables} "$0.in" "$0.bs"
+	${SubstituteBackslashes} "$0.bs" "$0"
+	StrCpy $0 "$INSTDIR\usr\etc\pango\pango.modules"
+	${SubstituteAtVariables} "$0.in" "$0.bs"
+	${SubstituteBackslashes} "$0.bs" "$0"
+	Exec '"$INSTDIR\usr\bin\pango-querymodules.exe" > "$0.query"'
+	IfFileExists "$0.query" 0 exit
+	${SubstituteBackslashes} "$0.query" "$0"
+exit:
+FunctionEnd
+
+Function find_editor
+	StrCpy $R0 $WINDIR\emacs.exe
+	ifFileExists $R0 exit
+	StrCpy $R0 $WINDIR\jedit.bat
+	ifFileExists $R0 0 lilypad
+	StrCpy $R0 "$R0 %(file)s +line:%(line)s"
+lilypad:
+	StrCpy $R0 $INSTDIR\usr\bin\lilypad.exe
+	ifFileExists $R0 exit
+	StrCpy $R0 $WINDIR\wordpad.exe
+	ifFileExists $R0 exit
+	StrCpy $R0 $WINDIR\NOTEPAD.EXE
+exit:
+	StrCpy $EDITOR $R0
+FunctionEnd
+
+Function find_desktop
+	ReadRegStr $R0 HKCU "${USER_SHELL_FOLDERS}" "Desktop"
+	StrCpy $UP_DESKTOP "$R0"
+	StrCmp $UP_DESKTOP "" 0 exit
+	StrCpy $UP_DESKTOP "%USERPROFILE%\Desktop"
+exit:
+FunctionEnd
+

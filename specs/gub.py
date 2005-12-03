@@ -123,6 +123,9 @@ class Package:
 			'lilypond_version': self.settings.lilypond_version,
 			'package_arch': self.settings.package_arch,
 			'specdir': self.settings.specdir,
+			'targetdir': self.settings.targetdir,
+			'guile_version': '1.7',
+			'python_version': '2.4',
 			}
 
 		dict.update (env)
@@ -203,7 +206,9 @@ cd %(dir)s/%(name)s && cvs update -dCAP -r %(version)s
 		return self.install_root () + '/usr'
 
 	def gubinstall_root (self):
-		return '%(gubinstall_root)s/usr/lib/lilypond/%(lilypond_version)s/root'
+		if self.settings.platform.startswith ('linux'):
+			return '%(gubinstall_root)s/usr/lib/lilypond/%(lilypond_version)s/root'
+		return '%(gubinstall_root)s/usr'
 
 	def file_name (self):
 		## hmm. we could use Class._name as a data member.
@@ -299,10 +304,22 @@ cd %(builddir)s && %(configure_command)s
 		pass
 
 	def package (self):
-		pass
+		# naive tarball packages for now
+		self.system ('''
+tar -C %(install_prefix)s -zcf %(gub_uploads)s/%(name)s-%(version)s.%(platform)s.gub .
+''')
+
+	def _install_gub (self, root):
+		self.system ('''
+mkdir -p %(root)s
+tar -C %(root)s -zxf %(gub_uploads)s/%(name)s-%(version)s.%(platform)s.gub
+''', locals ())
+
+	def install_gub (self):
+		self._install_gub (self.gubinstall_root ())
 
 	def sysinstall (self):
-		pass
+		self._install_gub (self.settings.system_root + '/usr')
 
 	def untar (self):
 		tarball = self.settings.downloaddir + '/' + self.file_name ()
@@ -334,10 +351,20 @@ class Cross_package (Package):
 	"Package for cross compilers/linkers etc."
 
 	def configure_command (self):
-		cmd = Package.configure_command (self)
-		cmd += ''' --target=%(target_architecture)s
---with-sysroot=%(system_root)s/usr'''
-		return join_lines (cmd)
+		return Package.configure_command (self) \
+		       + join_lines ('''
+--target=%(target_architecture)s
+--with-sysroot=%(system_root)s/usr
+''')
+
+	def install_gub (self):
+		pass
+
+	def package (self):
+		pass
+
+	def sysinstall (self):
+		pass
 
 class Target_package (Package):
 	def configure_command (self):
@@ -485,15 +512,6 @@ class Binary_package (Package):
 	def compile (self):
 		pass
 
-	def install_gub ():
-		Target_package.install_gub (self)
-
-	def package (self):
-		Target_package.package (self)
-
-	def sysinstall ():
-		Target_package.sysinstall (self)
-
 	def install (self):
 		self.system ('mkdir -p %(install_root)s/usr')
 		self.system ('tar -C %(srcdir)s/root -cf- . | tar -C %(install_root)s/usr -xvf-')
@@ -515,7 +533,19 @@ class Bundle (Installer):
 
 class Nsis (Installer):
 	def create (self):
-		pass
+		# FIXME: build in separate nsis dir, copy or use symlink
+		installer = os.basename (self.settings.gubintall_root)
+		self.file_sub ([
+			('@GUILE_VERSION@', '%(guile_version)s'),
+			('@LILYPOND_BUILD@', '%(build)s'),
+			('@LILYPOND_VERSION@', '%(lilypond_version)s'),
+			('@PYTHON_VERSION@', '%(python_version)s'),
+			('@ROOT@', '%(installer)s'),
+			],
+			       '%(specdir)s/lilypond.nsis.in',
+			       to_name='%(targetdir)s/lilypond.nsis',
+			       env=locals ())
+		self.system ('cd %(targetdir)s && makensis lilypond.nsis')
 
 class Tgz (Installer):
 	def create (self):
@@ -540,6 +570,7 @@ class Autopackage (Installer):
 		self.file_sub ([('@VERSION@', '%(version)s')],
 			       '%(specdir)s/lilypond.apspec.in',
 			       to_name='%(build_autopackage)s/autopackage/default.apspec')
+		# FIXME: just use symlink?
 		self.system ('tar -C %(gubinstall_root)s -cf- . | tar -C %(build_autopackage)s -xvf-')
 		self.system ('cd %(build_autopackage)s && makeinstaller')
 		self.system ('mv %(build_autopackage)s/*.package %(installer_uploads)s')

@@ -149,7 +149,7 @@ class LilyPond__mingw (LilyPond):
 		       + gub.join_lines ('''
 --without-kpathsea
 --enable-relocation
---with-python-include=%(system_root)s/usr/include/python2.4
+--with-python-include=%(system_root)s/usr/include/python%(python_version)s
 --disable-optimising
 ''')
 	def configure (self):
@@ -172,7 +172,7 @@ cp /usr/include/FlexLexer.h %(builddir)s
 			     locals ())
 
 	def compile_command (self):
-		python_lib = "%(system_root)s/usr/bin/libpython2.4.dll"
+		python_lib = "%(system_root)s/usr/bin/libpython%(python_version)s.dll"
 		return LilyPond.compile_command (self) \
 		       + gub.join_lines ('''
 LDFLAGS=%(python_lib)s
@@ -229,7 +229,7 @@ GS_FONTPATH=%(framework_root)s/share/gs/fonts:$GS_FONTPATH \
 GS_LIB=%(framework_root)s/share/gs/lib:$GS_LIB \
 PANGO_RC_FILE=${PANGO_RC_FILE-%(framework_root)s/etc/pango/pangorc} \
 PYTHONPATH=%(framework_root)s/../python:$PYTHONPATH \
-PYTHONPATH=%(framework_root)s/lib/python2.4:$PYTHONPATH \
+PYTHONPATH=%(framework_root)s/lib/python%(python_version)s:$PYTHONPATH \
 %(gubinstall_root)s/usr/bin/lilypond-bin "$@"
 '''
 ,
@@ -369,7 +369,7 @@ cd %(builddir)s/%(i)s && make "CFLAGS=%(cflags)s" "LIBS=%(libs)s" CPPFLAGS= LDFL
 ''', locals ())
 
 		self.file_sub ([('DOCSRC *=.*', 'DOCSRC=')],
-			       '%(builddir/Makefile')
+			       '%(builddir)s/Makefile')
 
 class Fontconfig__mingw (Fontconfig):
 	def configure_command (self):
@@ -496,8 +496,8 @@ def get_installers (settings, platform):
 		'darwin' : (gub.Bundle (settings)),
 		'linux' : (
 		gub.Tgz (settings),
-#		gub.Deb (settings),
-#		gub.Rpm (settings),
+		gub.Deb (settings),
+		gub.Rpm (settings),
 		gub.Autopackage (settings),
 		),
 		'mingw' : (gub.Nsis (settings)),

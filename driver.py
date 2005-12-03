@@ -35,10 +35,12 @@ class Settings:
 		self.installdir = self.targetdir + '/install'
 		self.tooldir = self.targetdir + '/tools'
 
+		# INSTALLERS
 		self.gubinstall_root = self.targetdir + '/installer'
 		self.installer_uploads = self.targetdir + '/uploads'
 		self.lilypond_version = self.grok_VERSION (os.path.join (self.srcdir,
 								    'lilypond/VERSION'))
+		self.package_arch = re.sub ('-.*', '', self.build_architecture)
 		self.build = '1'
 
 	def grok_VERSION (self, VERSION):
@@ -135,6 +137,7 @@ def strip_gubinstall_root (root):
 ##	gub.system ('cd %(root)s && cp etc/pango/pango.modules etc/pango/pango.modules.in ' % locals ())
 
 def make_installers (settings, packages):
+	# FIXME: todo separate lilypond-framework, lilypond packages?
 	gub.system ('rm -rf %(gubinstall_root)s' % settings.__dict__)
 	for i in packages:
 		print >> sys.stderr, 'gub:' + i.name () + ':' + 'install_gub'
@@ -166,8 +169,6 @@ def get_settings (platform):
 		settings.gxx = 'apg++'
 		settings.ld = 'ld --as-needed'
 		settings.tool_prefix = ''
-		settings.package_arch = re.sub ('-.*', '',
-						settings.build_architecture)
 		settings.package_arch = 'i386'
 		os.environ['CC'] = settings.gcc
 		os.environ['CXX'] = settings.gxx

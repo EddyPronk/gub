@@ -1,7 +1,7 @@
 
 default: all
 
-all: linux mac mingw
+all: linux mingw mac
 
 linux:
 	python driver.py linux
