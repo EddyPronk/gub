@@ -39,7 +39,7 @@ class Gs (gub.Binary_package):
 
 	def patch (self):
 		gs_prefix = '/usr/share/gs'
-		self.dump ('%(srcdir)s/configure', '''
+		self.dump ('''
 cat > Makefile <<EOF
 default:
 	@echo done
@@ -54,7 +54,9 @@ install:
 	tar -C %(srcdir)s/doc -cf- --exclude='[A-Z]*[A-Z]' . | tar -C %(install_prefix)s/share/doc/gs/html -xvf-
 	tar -C %(srcdir)s/doc -cf- --exclude='*.htm*' . | tar -C %(install_prefix)s/share/doc/gs/html -xvf-
 EOF
-''', env=locals ())
+''',
+			   '%(srcdir)s/configure',
+			   env=locals ())
 		os.chmod ('%(srcdir)s/configure' % self.package_dict (), 0755)
 
 

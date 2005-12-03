@@ -12,7 +12,7 @@ class Darwin_sdk (gub.Binary_package):
 	def patch (self):
 		pat = self.settings.system_root + '/usr/lib/*.la'
 		for a in glob.glob (pat):
-			self.file_sub (r' (/usr/lib/.*\.la)', '%(system_root)s\1', a)
+			self.file_sub ([(r' (/usr/lib/.*\.la)', '%(system_root)s\1')], a)
 
 		
 	
@@ -22,10 +22,9 @@ class Odcctools (gub.Cross_package):
 	
 class Gcc (gub.Cross_package):
 	def patch (self):
-		fn ='%s/gcc/config/darwin.h' % self.srcdir ()
-		self.file_sub ('/usr/bin/libtool',
-			       '%(tooldir)s/bin/powerpc-apple-darwin7-libtool',
-			       fn)
+		self.file_sub ([('/usr/bin/libtool',
+			       '%(tooldir)s/bin/powerpc-apple-darwin7-libtool')],
+			       '%(srcdir)s/gcc/config/darwin.h')
 
 	def configure_command (self):
 		cmd = gub.Cross_package.configure_command (self)

@@ -60,7 +60,7 @@ class Guile (gub.Target_package):
 		version = self.read_pipe ('''\
 GUILE_LOAD_PATH=%(install_prefix)s/share/guile/* %(install_prefix)s/bin/guile-config --version 2>&1\
 ''').split ()[-1]
-		self.dump ('%(install_prefix)s/bin/%(target_architecture)s-guile-config', '''\
+		self.dump ('''\
 #!/bin/sh
 [ "$1" == "--version" ] && echo "%(target_architecture)s-guile-config - Guile version %(version)s"
 #[ "$1" == "compile" ] && echo "-I $%(system_root)s/usr/include"
@@ -69,7 +69,8 @@ prefix=$(dirname $(dirname $0))
 [ "$1" == "compile" ] && echo "-I$prefix/include"
 [ "$1" == "link" ] && echo "-L$prefix/lib -lguile -lgmp"
 exit 0
-''')
+''',
+			   '%(install_prefix)s/bin/%(target_architecture)s-guile-config')
 		os.chmod ('%(install_prefix)s/bin/%(target_architecture)s-guile-config' % self.package_dict (), 0755)
 
 class Guile__mingw (Guile):
@@ -104,16 +105,17 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
 	def configure (self):
 		if 0: # using patch
 			gub.Target_package.autoupdate (self)
-			self.file_sub ('''^#(LIBOBJS=".*fileblocks.*)''', '\\1',
+			self.file_sub ([('''^#(LIBOBJS=".*fileblocks.*)''',
+					 '\\1')],
 				       '%(srcdir)s/configure')
 			os.chmod ('%(srcdir)s/configure' % self.package_dict (), 0755)
 		self.settings.target_gcc_flags = '-mms-bitfields'
 		gub.Target_package.configure (self)
-		self.file_sub ('^\(allow_undefined_flag=.*\)unsupported',
-			       '\\1',
+		self.file_sub ([('^\(allow_undefined_flag=.*\)unsupported',
+			       '\\1')],
 			       '%(builddir)s/libtool')
-		self.file_sub ('^\(allow_undefined_flag=.*\)unsupported',
-			       '\\1',
+		self.file_sub ([('^\(allow_undefined_flag=.*\)unsupported',
+			       '\\1')],
 			       '%(builddir)s/guile-readline/libtool')
 		self.system ('''cp $HOME/installers/windows/bin/%(target_architecture)s-libtool %(builddir)s/libtool''')
 		self.system ('''cp $HOME/installers/windows/bin/%(target_architecture)s-libtool %(builddir)s/guile-readline/libtool''')
@@ -217,8 +219,7 @@ class LilyPond__linux (LilyPond):
 cd %(gubinstall_root)s/usr/bin && mv lilypond lilypond-bin
 ''')
 		framework_root = gub.Package.gubinstall_root (self)
-		self.dump ('%(gubinstall_root)s/usr/bin/lilypond',
-'''
+		self.dump ('''
 #! /bin/sh
 # Do not use Python, as python itself might need a relocation wrapper
 GUILE_LOAD_PATH=%(framework_root)s/share/guile/*:$GUILE_LOAD_PATH \
@@ -232,6 +233,7 @@ PYTHONPATH=%(framework_root)s/lib/python2.4:$PYTHONPATH \
 %(gubinstall_root)s/usr/bin/lilypond-bin "$@"
 '''
 ,
+		'%(gubinstall_root)s/usr/bin/lilypond',
 		env=locals ())
 		os.chmod ('%(gubinstall_root)s/usr/bin/lilypond' \
 			 % self.package_dict (), 0755)
@@ -267,8 +269,8 @@ glib_cv_stack_grows=${glib_cv_stack_grows=no}
 class Glib__darwin (Glib):
 	def configure (self):
 		Glib.configure (self)
-		self.file_sub ('nmedit', '%(target_architecture)s-nmedit',
-			       self.builddir () + '/libtool')
+		self.file_sub ([('nmedit', '%(target_architecture)s-nmedit')],
+			       '%(builddir)s/libtool')
 
 class Pango (gub.Target_package):
 	def configure_command (self):
@@ -284,19 +286,16 @@ class Pango__linux (Pango):
 		# FIXME: --without-cairo switch is removed in 1.10.1,
 		# pango only compiles without cairo if cairo is not
 		# installed linkably on the build system.  UGH.
-		self.file_sub ('(have_cairo[_a-z0-9]*)=true',
-			       '\\1=false',
-			       '%(srcdir)s/configure')
-		self.file_sub ('(cairo[_a-z0-9]*)=yes',
-			       '\\1=no',
+		self.file_sub ([('(have_cairo[_a-z0-9]*)=true', '\\1=false'),
+				('(cairo[_a-z0-9]*)=yes', '\\1=no')],
 			       '%(srcdir)s/configure')
 		os.chmod ('%(srcdir)s/configure' % self.package_dict (), 0755)
 
 class Pango__darwin (Pango):
 	def configure (self):
 		Pango.configure (self)
-		self.file_sub ('nmedit', '%(target_architecture)s-nmedit',
-			       self.builddir () + '/libtool')
+		self.file_sub ([('nmedit', '%(target_architecture)s-nmedit')],
+			       '%(builddir)s/libtool')
 
 
 class Freetype (gub.Target_package):
@@ -309,12 +308,14 @@ class Freetype (gub.Target_package):
 ''')
 		gub.Target_package.configure (self)
 
-		self.file_sub ('^LIBTOOL=.*', 'LIBTOOL=%(builddir)s/libtool --tag=CXX', '%(builddir)s/Makefile')
+		self.file_sub ([('^LIBTOOL=.*', 'LIBTOOL=%(builddir)s/libtool --tag=CXX')], '%(builddir)s/Makefile')
 
-		self.dump ('%(builddir)s/Makefile', '''
+		self.dump ('''
 # libtool will not build dll if -no-undefined flag is not present
 LDFLAGS:=$(LDFLAGS) -no-undefined
-''', mode='a')
+''',
+			   '%(builddir)s/Makefile',
+			   mode='a')
 
 	def install (self):
 		gub.Package.system (self, gub.join_lines ('''
@@ -351,9 +352,11 @@ class Fontconfig (gub.Target_package):
 		# FIXME: how to put in __mingw class without duplicating
 		# configure ()
 		if self.settings.platform.startswith ('mingw'):
-			self.dump ('%(builddir)s/config.h', '''
+			self.dump ('''
 #define sleep(x) _sleep (x)
-''', mode='a')
+''',
+				   '%(builddir)s/config.h',
+				   mode='a')
 		# help fontconfig cross compiling a bit, all CC/LD
 		# flags are wrong, set to the target's root
 
@@ -365,7 +368,8 @@ class Fontconfig (gub.Target_package):
 cd %(builddir)s/%(i)s && make "CFLAGS=%(cflags)s" "LIBS=%(libs)s" CPPFLAGS= LDFLAGS= INCLUDES=
 ''', locals ())
 
-		self.file_sub ('DOCSRC *=.*', 'DOCSRC=', self.builddir () + '/Makefile')
+		self.file_sub ([('DOCSRC *=.*', 'DOCSRC=')],
+			       '%(builddir/Makefile')
 
 class Fontconfig__mingw (Fontconfig):
 	def configure_command (self):
@@ -378,7 +382,8 @@ class Fontconfig__mingw (Fontconfig):
 class Fontconfig__darwin (Fontconfig):
 	def configure (self):
 		Fontconfig.configure (self)
-		self.file_sub ('-Wl,[^ ]+ ', '', self.builddir() + '/src/Makefile')
+		self.file_sub ([('-Wl,[^ ]+ ', '')],
+			       '%(builddir)s/src/Makefile')
 
 class Fondu (gub.Target_package):
 	def install (self):
@@ -394,9 +399,9 @@ class Fondu (gub.Target_package):
 		self.system ("mkdir -p %(builddir)s && cp %(srcdir)s/Makefile.Mac %(builddir)s")
 		gub.Target_package.configure (self)
 
-		self.file_sub ('CC = cc', 'CC = %(target_architecture)s-gcc\nVPATH=%(srcdir)s\n', self.builddir() + '/Makefile')
-		self.file_sub ('CORE = .*', '', self.builddir() + '/Makefile')
-		
+		self.file_sub ([('CC = cc', 'CC = %(target_architecture)s-gcc\nVPATH=%(srcdir)s\n'),
+				('CORE = .*', '')],
+			       '%(builddir)s/Makefile')
 
 	def basename (self):
 		## ugr. 
@@ -491,8 +496,8 @@ def get_installers (settings, platform):
 		'darwin' : (gub.Bundle (settings)),
 		'linux' : (
 		gub.Tgz (settings),
-		gub.Deb (settings),
-		gub.Rpm (settings),
+#		gub.Deb (settings),
+#		gub.Rpm (settings),
 		gub.Autopackage (settings),
 		),
 		'mingw' : (gub.Nsis (settings)),

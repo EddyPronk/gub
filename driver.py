@@ -29,15 +29,14 @@ class Settings:
 		self.builddir = self.targetdir + '/build'
 		self.garbagedir = self.targetdir + '/garbage'
 		self.statusdir = self.targetdir + '/status'
-		# FIXME: rename to gubpackagedir ?
-		self.uploaddir = self.targetdir + '/uploads'
+		self.gub_uploads = self.targetdir + '/uploads/gub'
 		# FIXME: rename to target_root?
 		self.system_root = self.targetdir + '/system'
 		self.installdir = self.targetdir + '/install'
 		self.tooldir = self.targetdir + '/tools'
 
 		self.gubinstall_root = self.targetdir + '/installer'
-		self.packagedir = self.targetdir + '/packages'
+		self.installer_uploads = self.targetdir + '/uploads'
 		self.lilypond_version = self.grok_VERSION (os.path.join (self.srcdir,
 								    'lilypond/VERSION'))
 		self.build = '1'
@@ -57,14 +56,14 @@ class Settings:
 		for a in (
 			'downloaddir',
 			'garbagedir',
-			'packagedir',
+			'gub_uploads',
+			'installer_uploads',
 			'specdir',
 			'srcdir',
 			'statusdir',
 			'system_root',
 			'targetdir',
 			'topdir',
-			'uploaddir'
 			):
 			dir = self.__dict__[a]
 			if os.path.isdir (dir):
@@ -169,6 +168,7 @@ def get_settings (platform):
 		settings.tool_prefix = ''
 		settings.package_arch = re.sub ('-.*', '',
 						settings.build_architecture)
+		settings.package_arch = 'i386'
 		os.environ['CC'] = settings.gcc
 		os.environ['CXX'] = settings.gxx
 		# FIXME: some libraries, gettext eg, do not build with

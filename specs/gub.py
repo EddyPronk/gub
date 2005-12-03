@@ -58,17 +58,21 @@ def system (cmd, ignore_error=False, verbose=False, env={}):
 
 	return 0
 
-def dump (name, str, mode='w'):
+def dump (str, name, mode='w'):
 	f = open (name, mode)
 	f.write (str)
 	f.close ()
 
-def file_sub (frm, to, name):
+def file_sub (re_pairs, name, to_name=None):
 	s = open (name).read ()
-	t = re.sub (re.compile (frm, re.MULTILINE), to, s)
-	if s != t:
-		system ('mv %s %s~' % (name, name))
-		h = open (name, 'w')
+	t = s
+	for frm, to in re_pairs:
+		t = re.sub (re.compile (frm, re.MULTILINE), to, t)
+	if s != t or (to_name and name != to_name):
+		if not to_name:
+			system ('mv %s %s~' % (name, name))
+			to_name = name
+		h = open (to_name, 'w')
 		h.write (t)
 		h.close ()
 
@@ -76,7 +80,7 @@ def read_pipe (cmd):
 	pipe = os.popen (cmd, 'r')
 	output = pipe.read ()
 	status = pipe.close ()
-	# successful pipe close returns 'None'
+	# successful pipe close returns None
 	if status:
 		raise 'read_pipe failed'
 	return output
@@ -110,13 +114,15 @@ class Package:
 			'install_prefix': self.install_prefix (),
 			'srcdir': self.srcdir (),
 			'sourcesdir': self.settings.srcdir,
-			'uploaddir': self.settings.uploaddir,
+			'gub_uploads': self.settings.gub_uploads,
 
-			# for class Installer only
+			# FIXME: for class Installer only
+			'build_autopackage': self.settings.builddir + '/autopackage',
 			'gubinstall_root': self.settings.gubinstall_root,
+			'installer_uploads': self.settings.installer_uploads,
 			'lilypond_version': self.settings.lilypond_version,
-			'packagedir': self.settings.packagedir,
 			'package_arch': self.settings.package_arch,
+			'specdir': self.settings.specdir,
 			}
 
 		dict.update (env)
@@ -129,13 +135,18 @@ class Package:
 
 		return dict
 
-	def dump (self, name, str, mode='w', env={}):
+	def dump (self, str, name, mode='w', env={}):
 		dict = self.package_dict (env)
-		return dump (name % dict, str % dict, mode=mode)
+		return dump (str % dict, name % dict, mode=mode)
 
-	def file_sub (self, frm, to, name, env={}):
+	def file_sub (self, re_pairs, name, to_name=None, env={}):
 		dict = self.package_dict (env)
-		return file_sub (frm % dict, to % dict, name % dict)
+		x = []
+		for frm, to in re_pairs:
+			x += [(frm % dict, to % dict)]
+		if to_name:
+			to_name = to_name % dict
+		return file_sub (x, name % dict, to_name)
 
 	def read_pipe (self, cmd, env={}):
 		dict = self.package_dict (env)
@@ -266,20 +277,17 @@ cd %(builddir)s && %(configure_command)s
 		for i in glob.glob ('%(install_prefix)s/lib/*.la' \
 				    % self.package_dict ()):
 			base = os.path.basename (i)[3:-3]
-			self.file_sub (''' *-L *[^"' ][^"' ]*''', '', i)
-			self.file_sub ('''( |=|')(/[^ ]*usr/lib/lib)([^ ']*)\.(a|la|so)[^ ']*''', '\\1-l\\3', i)
-			#  ' " ''' '
-			# we don't have sover
-#			self.file_sub ('^dlname=.*',
-#				       """dlname='../bin/%(dll_prefix)%(base)s-%(sover)s.dll'""",
-#				       i, locals ())
-			self.file_sub ('^old_library=.*',
-				       """old_library='lib%(base)s.a'""",
-				       i, locals ())
+			self.file_sub ([
+				(''' *-L *[^"' ][^"' ]*''', ''),
+				('''( |=|')(/[^ ]*usr/lib/lib)([^ ']*)\.(a|la|so)[^ ']*''', '\\1-l\\3'),
+				('^old_library=.*',
+				"""old_library='lib%(base)s.a'""")],
+				       i, env=locals ())
                         if self.settings.platform.startswith ('mingw'):
-			         self.file_sub ('library_names=.*',
-						"library_names='lib%(base)s.dll.a'",
-						i, locals ())
+			         self.file_sub ([('library_names=.*',
+						"library_names='lib%(base)s.dll.a'")],
+						i, env=locals ())
+			#  ' " ''' '
 
 	def compile_command (self):
 		return 'make'
@@ -391,13 +399,13 @@ tooldir=%(install_prefix)s
 	def package (self):
 		# naive tarball packages for now
 		self.system ('''
-tar -C %(install_prefix)s -zcf %(uploaddir)s/%(name)s-%(version)s.%(platform)s.gub .
+tar -C %(install_prefix)s -zcf %(gub_uploads)s/%(name)s-%(version)s.%(platform)s.gub .
 ''')
 
 	def _install_gub (self, root):
 		self.system ('''
 mkdir -p %(root)s
-tar -C %(root)s -zxf %(uploaddir)s/%(name)s-%(version)s.%(platform)s.gub
+tar -C %(root)s -zxf %(gub_uploads)s/%(name)s-%(version)s.%(platform)s.gub
 ''', locals ())
 
 	def install_gub (self):
@@ -438,13 +446,13 @@ tar -C %(root)s -zxf %(uploaddir)s/%(name)s-%(version)s.%(platform)s.gub
 		dict.update (env)
 		return dict
 
-	def dump (self, name, str, mode='w', env={}):
+	def dump (self, str, name, mode='w', env={}):
 		dict = self.target_dict (env)
-		return Package.dump (self, name, str, mode=mode, env=dict)
+		return Package.dump (self, str, name, mode=mode, env=dict)
 
-	def file_sub (self, frm, to, name, env={}):
+	def file_sub (self, re_pairs, name, to_name=None, env={}):
 		dict = self.target_dict (env)
-		return Package.file_sub (self, frm, to, name, env=dict)
+		return Package.file_sub (self, re_pairs, name, to_name=to_name, env=dict)
 
 	def read_pipe (self, cmd, env={}):
 		dict = self.target_dict (env)
@@ -512,20 +520,26 @@ class Nsis (Installer):
 class Tgz (Installer):
 	def create (self):
 		build = self.settings.build
-		self.system ('tar -C %(gubinstall_root)s -zcf %(packagedir)s/%(name)s-%(version)s-%(package_arch)s-%(build)s.tgz .', locals ())
+		self.system ('tar -C %(gubinstall_root)s -zcf %(installer_uploads)s/%(name)s-%(version)s-%(package_arch)s-%(build)s.tgz .', locals ())
 
 class Deb (Installer):
 	def create (self):
 		build = self.settings.build
-		self.system ('cd %(packagedir)s && fakeroot alien --keep-version --to-deb %(packagedir)s/%(name)s-%(version)s-%(package_arch)s-%(build)s.tgz', locals ())
+		self.system ('cd %(installer_uploads)s && fakeroot alien --keep-version --to-deb %(installer_uploads)s/%(name)s-%(version)s-%(package_arch)s-%(build)s.tgz', locals ())
 
 class Rpm (Installer):
 	def create (self):
 		build = self.settings.build
-		self.system ('cd %(packagedir)s && fakeroot alien --keep-version --to-rpm %(packagedir)s/%(name)s-%(version)s-%(package_arch)s-%(build)s.tgz', locals ())
+		self.system ('cd %(installer_uploads)s && fakeroot alien --keep-version --to-rpm %(installer_uploads)s/%(name)s-%(version)s-%(package_arch)s-%(build)s.tgz', locals ())
 
 
 class Autopackage (Installer):
 	def create (self):
-		pass
-
+		self.system ('rm -rf %(build_autopackage)s')
+		self.system ('mkdir -p %(build_autopackage)s/autopackage')
+		self.file_sub ([('@VERSION@', '%(version)s')],
+			       '%(specdir)s/lilypond.apspec.in',
+			       to_name='%(build_autopackage)s/autopackage/default.apspec')
+		self.system ('tar -C %(gubinstall_root)s -cf- . | tar -C %(build_autopackage)s -xvf-')
+		self.system ('cd %(build_autopackage)s && makeinstaller')
+		self.system ('mv %(build_autopackage)s/*.package %(installer_uploads)s')
