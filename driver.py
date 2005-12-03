@@ -36,8 +36,22 @@ class Settings:
 		self.installdir = self.targetdir + '/install'
 		self.tooldir = self.targetdir + '/tools'
 
-		self.installer_root = self.targetdir + '/installer'
+		self.gubinstall_root = self.targetdir + '/installer'
 		self.packagedir = self.targetdir + '/packages'
+		self.lilypond_version = self.grok_VERSION (os.path.join (self.srcdir,
+								    'lilypond/VERSION'))
+		self.build = '1'
+
+	def grok_VERSION (self, VERSION):
+		version = ''
+		for i in open (VERSION).readlines ():
+			m = re.search ('^(\w+)\s*=\s*(\w*\d+)', i)
+			if m:
+				s = m.group (2)
+				if version and s[0] != '.':
+					version += '.'
+				version += s
+		return version
 
 	def create_dirs (self): 
 		for a in (
@@ -64,7 +78,7 @@ def process_package (package):
 	for stage in ('untar', 'patch', 'configure', 'compile', 'install',
 		      'package', 'sysinstall'):
         	if not package.is_done (stage):
-			print 'gub:' + package.name () + ':' + stage
+			print >> sys.stderr, 'gub:' + package.name () + ':' + stage
                 	if stage == 'untar':
                         	package.untar ()
 			elif stage == 'patch':
@@ -86,7 +100,7 @@ def build_packages (settings, packages):
 	for i in packages:
 		process_package (i)
 
-def strip_installer_root (root):
+def strip_gubinstall_root (root):
 	"Remove unnecessary cruft."
 	
 	for i in (
@@ -115,18 +129,21 @@ def strip_installer_root (root):
 		'share/omf',
 		):
 		
-		gub.system ('cd %(root)s && rm -rf %(i)s' % locals ())
+		os.system ('cd %(root)s && rm -rf %(i)s' % locals ())
+	os.system ('cd %(root)s && rm -f lib/*.a' % locals ())
+## FIXME: c/p from buildmac.py
 ##	gub.system ('cd %(root)s && strip bin/*' % locals ())
-	gub.system ('cd %(root)s && rm lib/*.a' % locals ())
 ##	gub.system ('cd %(root)s && cp etc/pango/pango.modules etc/pango/pango.modules.in ' % locals ())
 
-def make_installer (settings, packages):
-	gub.system ('rm -rf %(installer_root)s' % settings.__dict__)
-	root = settings.installer_root + '/usr'
+def make_installers (settings, packages):
+	gub.system ('rm -rf %(gubinstall_root)s' % settings.__dict__)
 	for i in packages:
-		i.install_gub (settings.installer_root)
-	strip_installer_root (settings.installer_root)
-	framework.get_installer (settings, settings.platform).create ()
+		print >> sys.stderr, 'gub:' + i.name () + ':' + 'install_gub'
+		i.install_gub ()
+		strip_gubinstall_root (i.gubinstall_root () % i.package_dict ())
+	for i in framework.get_installers (settings, settings.platform):
+		print >> sys.stderr, 'gub:' + i.name () + ':' + 'create'
+		i.create ()
 
 def get_settings (platform):
 	if platform == 'darwin':
@@ -150,6 +167,8 @@ def get_settings (platform):
 		settings.gxx = 'apg++'
 		settings.ld = 'ld --as-needed'
 		settings.tool_prefix = ''
+		settings.package_arch = re.sub ('-.*', '',
+						settings.build_architecture)
 		os.environ['CC'] = settings.gcc
 		os.environ['CXX'] = settings.gxx
 		# FIXME: some libraries, gettext eg, do not build with
@@ -177,8 +196,8 @@ def get_platform (files):
 
 	platforms = ('linux', 'darwin', 'mingw', 'mingw-fedora')
 	if platform not in platforms:
-		print 'unsupported platform:', platform
-		print 'use:', string.join (platforms)
+		print >> sys.stderr, 'unsupported platform:', platform
+		print >> sys.stderr, 'use:', string.join (platforms)
 		sys.exit (1)
 
 	return platform
@@ -209,7 +228,7 @@ def main ():
 	packages += framework.get_packages (settings, platform)
 
 	build_packages (settings, packages)
-	make_installer (settings, packages)
+	make_installers (settings, packages)
 
 if __name__ == '__main__':
     	main ()

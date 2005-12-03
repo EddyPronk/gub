@@ -20,31 +20,31 @@ def start_log ():
 	global log_file
 	log_file = open ('build.log', 'w+')
 	log_file.write ('\n\n *** Starting build: %s\n' %  now ())
-	
+
 def log_command (str):
 	sys.stderr.write (str)
 	if log_file:
 		log_file.write (str)
 		log_file.flush ()
-	
+
 def system_one (cmd, ignore_error, env):
 	log_command ('invoking %s\n' % cmd)
-	
+
 	proc = subprocess.Popen (cmd, shell=True, env=env)
 	stat = proc.wait ()
-	
+
 	if stat and not ignore_error:
 		log_command ('Command barfed: %s\n' % cmd )
 		sys.exit (1)
 
-	return 0 
+	return 0
 
 def join_lines (str):
 	return re.sub ('\n', ' ', str)
 
-def system (cmd, ignore_error = False, verbose=False, env={}):
+def system (cmd, ignore_error=False, verbose=False, env={}):
 	"Run multiple lines as multiple commands."
-	
+
 	call_env = os.environ.copy ()
 	call_env.update (env)
 
@@ -86,7 +86,7 @@ class Package:
 		self.settings = settings
 		self.url = ''
 		self.download = self.wget
-		
+
 	def package_dict (self, env={}):
 		dict = {
 			'build_architecture': self.settings.build_architecture,
@@ -112,11 +112,13 @@ class Package:
 			'sourcesdir': self.settings.srcdir,
 			'uploaddir': self.settings.uploaddir,
 
-			'installer_root': self.settings.installer_root,
+			# for class Installer only
+			'gubinstall_root': self.settings.gubinstall_root,
+			'lilypond_version': self.settings.lilypond_version,
 			'packagedir': self.settings.packagedir,
-
+			'package_arch': self.settings.package_arch,
 			}
-		
+
 		dict.update (env)
 		for (k, v) in dict.items ():
 			if type (v) == type (''):
@@ -125,7 +127,7 @@ class Package:
 			else:
 				del dict[k]
 
-		return dict 
+		return dict
 
 	def dump (self, name, str, mode='w', env={}):
 		dict = self.package_dict (env)
@@ -138,15 +140,15 @@ class Package:
 	def read_pipe (self, cmd, env={}):
 		dict = self.package_dict (env)
 		return read_pipe (cmd % dict)
-	
+
 	def system (self, cmd, env={}):
 		dict = self.package_dict (env)
 		system (cmd % dict, ignore_error=False,
-			verbose = self.settings.verbose, env=dict)
+			verbose=self.settings.verbose, env=dict)
 
 	def skip (self):
 		pass
-		      
+
 	def wget (self):
 		dir = self.settings.downloaddir
 		if not os.path.exists (dir + '/' + self.file_name ()):
@@ -164,7 +166,7 @@ cd %(dir)s && cvs -d %(url)s co -r %(version)s %(name)s
 			self.system ('''
 cd %(dir)s/%(name)s && cvs update -dCAP -r %(version)s
 ''', locals ())
- 
+
 	def basename (self):
 		f = self.file_name ()
 		f = re.sub ('.tgz', '', f)
@@ -176,7 +178,7 @@ cd %(dir)s/%(name)s && cvs update -dCAP -r %(version)s
 		s = self.basename ()
 		s = re.sub ('-[0-9][^-]+(-[0-9]+)?$', '', s)
 		return s
-	
+
 	def srcdir (self):
 		return self.settings.srcdir + '/' + self.basename ()
 
@@ -189,9 +191,12 @@ cd %(dir)s/%(name)s && cvs update -dCAP -r %(version)s
 	def install_prefix (self):
 		return self.install_root () + '/usr'
 
+	def gubinstall_root (self):
+		return '%(gubinstall_root)s/usr/lib/lilypond/%(lilypond_version)s/root'
+
 	def file_name (self):
 		## hmm. we could use Class._name as a data member.
-		## 
+		##
 		if self.url:
 			file = re.sub ('.*/([^/]+)', '\\1', self.url)
 			file = file.lower ()
@@ -200,7 +205,7 @@ cd %(dir)s/%(name)s && cvs update -dCAP -r %(version)s
 			file = re.sub ('__.*', '', file)
 			file = re.sub ('_', '-', file)
 		return file
-	
+
 	def done (self, stage):
 		return '%s/%s-%s' % (self.settings.statusdir, self.name (), stage)
 	def is_done (self, stage):
@@ -251,7 +256,7 @@ cd %(builddir)s && %(configure_command)s
 
 	def install_command (self):
 		return 'make install'
-	
+
 	def install (self):
 		self.system ('cd %(builddir)s && %(install_command)s')
 		self.libtool_la_fixups ()
@@ -284,7 +289,7 @@ cd %(builddir)s && %(configure_command)s
 
 	def patch (self):
 		pass
-	
+
 	def package (self):
 		pass
 
@@ -306,7 +311,7 @@ cd %(builddir)s && %(configure_command)s
 
 	def set_download (self, mirror=download.gnu, format='gz', download=wget):
 		"Setup URLs and functions for downloading. This should not spawn any commands."
-		
+
 		d = self.package_dict ()
 		d.update (locals ())
 		self.url = mirror () % d
@@ -325,7 +330,7 @@ class Cross_package (Package):
 		cmd += ''' --target=%(target_architecture)s
 --with-sysroot=%(system_root)s/usr'''
 		return join_lines (cmd)
-	
+
 class Target_package (Package):
 	def configure_command (self):
 		return join_lines ('''%(srcdir)s/configure
@@ -378,7 +383,7 @@ tooldir=%(install_prefix)s
 		cache.write (str)
 		cache.close ()
 		os.chmod (cache_fn, 0755)
-		
+
 	def configure (self):
 		self.config_cache ()
 		Package.configure (self)
@@ -389,14 +394,17 @@ tooldir=%(install_prefix)s
 tar -C %(install_prefix)s -zcf %(uploaddir)s/%(name)s-%(version)s.%(platform)s.gub .
 ''')
 
-	def install_gub (self, root):
+	def _install_gub (self, root):
 		self.system ('''
 mkdir -p %(root)s
 tar -C %(root)s -zxf %(uploaddir)s/%(name)s-%(version)s.%(platform)s.gub
 ''', locals ())
 
+	def install_gub (self):
+		self._install_gub (self.gubinstall_root ())
+
 	def sysinstall (self):
-		install_gub ('%(system_root)s/usr' % package_dict ())
+		self._install_gub (self.settings.system_root + '/usr')
 
 	def target_dict (self, env={}):
 		dict = {
@@ -441,7 +449,7 @@ tar -C %(root)s -zxf %(uploaddir)s/%(name)s-%(version)s.%(platform)s.gub
 	def read_pipe (self, cmd, env={}):
 		dict = self.target_dict (env)
 		return Package.read_pipe (self, cmd, env=dict)
-	
+
 	def system (self, cmd, env={}):
 		dict = self.target_dict (env)
 		Package.system (self, cmd, env=dict)
@@ -462,52 +470,62 @@ class Binary_package (Package):
 
 	def configure (self):
 		pass
-	
+
 	def patch (self):
 		pass
-	
+
 	def compile (self):
 		pass
 
+	def install_gub ():
+		Target_package.install_gub (self)
+
+	def package (self):
+		Target_package.package (self)
+
+	def sysinstall ():
+		Target_package.sysinstall (self)
+
 	def install (self):
-		# FIXME: .GUB packaging only in TARGET_PACKAGE, skipping
-		# installing in install_root, use expensive direct
-		# make install %(system_root)s/usr
-		self.system ('mkdir -p %(system_root)s/usr')
-		self.system ('tar -C %(srcdir)s/root -cf- . | tar -C %(system_root)s/usr -xvf-')
+		self.system ('mkdir -p %(install_root)s/usr')
+		self.system ('tar -C %(srcdir)s/root -cf- . | tar -C %(install_root)s/usr -xvf-')
 
 
 # FIXME: Want to share package_dict () and system () with Package,
 # add yet another base class?
-###class Installer (Package):
-class Installer (Cross_package):
-	pass
+class Installer (Package):
+	def __init__ (self, settings):
+		Package.__init__ (self, settings)
+		self.version = settings.lilypond_version
 
-        def version (self):
-		return '0.0.0'
-	
         def name (self):
 		return 'lilypond'
-	
 
 class Bundle (Installer):
-	pass
+	def create (self):
+		pass
 
 class Nsis (Installer):
-	pass
-
-class Alien (Installer):
 	def create (self):
+		pass
 
-		## dit werkt nog niet, maar ik moet nu gaan.
-		## iets ontzetteds dufs met .settings/version
-		
-		## FIXME, huh?
-		installer_root = self.settings.installer_root
-		packagedir = self.settings.packagedir
-		NAME = 'lilypond'
-		VERSION = '0.0.0'
-		
-		self.system ('tar -C %(installer_root)s -zcf %(packagedir)s/%(NAME)s-%(VERSION)s.tgz .' % locals ())
-		self.system ('fakeroot alien --to-deb --to-rpm --to-tgz %(packagedir)s/%(NAME)s-%(VERSION)s.tgz' % locals ())
-		# TODO: autopackage
+class Tgz (Installer):
+	def create (self):
+		build = self.settings.build
+		self.system ('tar -C %(gubinstall_root)s -zcf %(packagedir)s/%(name)s-%(version)s-%(package_arch)s-%(build)s.tgz .', locals ())
+
+class Deb (Installer):
+	def create (self):
+		build = self.settings.build
+		self.system ('cd %(packagedir)s && fakeroot alien --keep-version --to-deb %(packagedir)s/%(name)s-%(version)s-%(package_arch)s-%(build)s.tgz', locals ())
+
+class Rpm (Installer):
+	def create (self):
+		build = self.settings.build
+		self.system ('cd %(packagedir)s && fakeroot alien --keep-version --to-rpm %(packagedir)s/%(name)s-%(version)s-%(package_arch)s-%(build)s.tgz', locals ())
+
+
+class Autopackage (Installer):
+	def create (self):
+		pass
+

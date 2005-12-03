@@ -138,6 +138,9 @@ class LilyPond (gub.Target_package):
 		cmd += ' --disable-documentation'
 		return cmd
 
+	def gubinstall_root (self):
+		return '%(gubinstall_root)s/usr'
+
 class LilyPond__mingw (LilyPond):
 	def configure_command (self):
 		return LilyPond.configure_command (self) \
@@ -208,6 +211,31 @@ class LilyPond__linux (LilyPond):
 		return 'export LD_LIBRARY_PATH=%(system_root)s/usr/lib:$LD_LIBRARY_PATH;' \
 		       + LilyPond.compile_command (self)
 
+	def install_gub (self):
+		gub.Target_package.install_gub (self)
+		self.system ('''
+cd %(gubinstall_root)s/usr/bin && mv lilypond lilypond-bin
+''')
+		framework_root = gub.Package.gubinstall_root (self)
+		self.dump ('%(gubinstall_root)s/usr/bin/lilypond',
+'''
+#! /bin/sh
+# Do not use Python, as python itself might need a relocation wrapper
+GUILE_LOAD_PATH=%(framework_root)s/share/guile/*:$GUILE_LOAD_PATH \
+GS_FONTPATH=%(framework_root)s/share/ghostscript/8.15/fonts:$GS_FONTPATH \
+GS_LIB=%(framework_root)s/share/ghostscript/8.15/lib:$GS_LIB \
+GS_FONTPATH=%(framework_root)s/share/gs/fonts:$GS_FONTPATH \
+GS_LIB=%(framework_root)s/share/gs/lib:$GS_LIB \
+PANGO_RC_FILE=${PANGO_RC_FILE-%(framework_root)s/etc/pango/pangorc} \
+PYTHONPATH=%(framework_root)s/../python:$PYTHONPATH \
+PYTHONPATH=%(framework_root)s/lib/python2.4:$PYTHONPATH \
+%(gubinstall_root)s/usr/bin/lilypond-bin "$@"
+'''
+,
+		env=locals ())
+		os.chmod ('%(gubinstall_root)s/usr/bin/lilypond' \
+			 % self.package_dict (), 0755)
+		
 class Gettext (gub.Target_package):
 	def configure_command (self):
 		return gub.Target_package.configure_command (self) \
@@ -458,11 +486,16 @@ def get_packages (settings, platform):
 
 	return packages[platform]
 
-def get_installer (settings, platform):
+def get_installers (settings, platform):
 	installers = {
-		'darwin' : gub.Bundle (settings),
-		'linux' : gub.Alien (settings),
-		'mingw' : gub.Nsis (settings),
+		'darwin' : (gub.Bundle (settings)),
+		'linux' : (
+		gub.Tgz (settings),
+		gub.Deb (settings),
+		gub.Rpm (settings),
+		gub.Autopackage (settings),
+		),
+		'mingw' : (gub.Nsis (settings)),
 		}
 	return installers[platform]
 	
