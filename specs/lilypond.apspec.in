@@ -1,0 +1,143 @@
+# -*-shell-script-*-
+
+[Meta]
+SoftwareVersion: @VERSION@
+RootName: @lilypond.org/lilypond:$SOFTWAREVERSION
+DisplayName: LilyPond
+DisplayName[nl]: LilyPond
+ShortName: lilypond
+Maintainer: LilyPond Development team - http://lilypond.org
+Packager: Jan Nieuwenhuizen <janneke@gnu.org>
+Summary: Create and print beautiful music notation 
+Summary[nl]: Maak en druk prachtige bladmuziek
+PackageVersion: 0
+InterfaceVersion: 0
+AutopackageTarget: 1.0
+
+[Description]
+LilyPond lets you create music notation.  It produces
+beautiful sheet music from a high-level description file.
+
+[BuildPrepare]
+export PREFIX=/usr
+tar -C $build_root/$PREFIX -cf- . | tar -C $build_root -xf-
+
+[BuildUnprepare]
+unprepareBuild
+
+[Imports]
+# Remove symlinks that confuse copyFiles
+rm share/lilypond/@VERSION@/tex/enc
+rm share/lilypond/@VERSION@/dvips/map
+
+echo '*' | import
+
+
+[Prepare]
+
+[Install]
+ export PREFIX=/usr
+installExe bin/*
+
+mkdirs "$PREFIX/share/info/lilypond/"
+copyFiles info/lilypond/* "$PREFIX/share/info/lilypond"
+#FIXME: installInfo is broken for /home/<user>/.local
+#installInfo info/lilypond/lilypond*
+
+mkdirs "$PREFIX/share/doc/lilypond"
+copyFiles share/doc/lilypond/* "$PREFIX/share/doc/lilypond"
+	
+mkdirs "$PREFIX/share/man/man1/"
+installMan 1 man/man1/*
+
+mkdirs "$PREFIX/share/locale/"
+installLocale share/locale
+
+# share/lilypond/x.y.z is a large folder.  Copying it will take a long time.
+# Copy the subfolders and notify the user with a progress bar.
+dirs=(fonts images ly ps python misc scm tex vim)
+i=1
+max=${#dirs[@]}
+
+mkdirs "$PREFIX/share/lilypond/@VERSION@/"
+for D in "${dirs[@]}"; do
+    progressBar $i $max "$(gettext autopackage 'Installing data files...')"
+    copyFiles --silent "share/lilypond/@VERSION@/$D"/* "$PREFIX/share/lilypond/@VERSION@/$D"
+    (( i++ ))
+done
+
+mkdirs "$PREFIX/share/lilypond/@VERSION@/dvips"
+(cd "$PREFIX/share/lilypond/@VERSION@/dvips"; ln -fs ../fonts/map .)
+mkdirs "$PREFIX/share/lilypond/@VERSION@/tex"
+(cd "$PREFIX/share/lilypond/@VERSION@/tex"; ln -fs ../fonts/enc .)
+
+# Desktop integration stuff
+mkdirs "$PREFIX/share/pixmaps/"
+copyFiles share/lilypond/@VERSION@/images/* "$PREFIX/share/pixmaps"
+installIcon share/lilypond/@VERSION@/images/lilypond.xpm
+installIcon share/lilypond/@VERSION@/images/ly.xpm
+
+# share/lilypond/x.y.z is a large folder.  Copying it will take a long time.
+# Copy the subfolders and notify the user with a progress bar.
+dirs=(fonts images ly ps python misc scm tex vim)
+i=1
+max=${#dirs[@]}
+
+mkdirs "$PREFIX/share/lilypond/@VERSION@/"
+for D in "${dirs[@]}"; do
+    progressBar $i $max "$(gettext autopackage 'Installing data files...')"
+    copyFiles --silent "share/lilypond/@VERSION@/$D"/* "$PREFIX/share/lilypond/@VERSION@/$D"
+    (( i++ ))
+done
+
+copyFiles "lib/lilypond/@VERSION@" "$PREFIX/lib/lilypond/@VERSION@"
+
+mkdirs "$PREFIX/share/applications/"
+safeSed share/lilypond/@VERSION@/misc/examples.desktop "s!/usr/share/doc!file://$PREFIX/share/doc!"
+
+# FIXME: How to create a nice LilyPond submenu?
+installDesktop "Applications/Music/Notation/LilyPond" share/lilypond/@VERSION@/misc/lilypond.desktop
+installDesktop "Applications/Music/Notation/LilyPond" share/lilypond/@VERSION@/misc/examples.desktop
+installDesktop "Applications/Music/Notation/LilyPond" share/lilypond/@VERSION@/misc/website.desktop
+installDesktop "Applications/Music/Notation/LilyPond" share/lilypond/@VERSION@/misc/tutorial.desktop
+installDesktop "Applications/Music/Notation/LilyPond" share/lilypond/@VERSION@/misc/mutopia.desktop
+
+# FIXME: Path= for cwd is broken in gnome 2.10.  Use a wrapper.
+safeSed share/lilypond/@VERSION@/misc/lilypond.desktop "s!Exec=.*lilypond!&-desktop!"
+cat > "$PREFIX/bin/lilypond-desktop" <<EOF
+#!/bin/sh
+cd $HOME/Desktop
+$PREFIX/bin/lilypond "\$@"
+EOF
+chmod +x "$PREFIX/bin/lilypond-desktop"
+	
+if [ "$(id -u)" == "0" ]; then
+    # FIXME: how to install on all users's Desktop?
+    :;
+else
+    if [ -d "$HOME/Desktop" ]; then
+	safeSed share/lilypond/@VERSION@/misc/lilypond.desktop "s!Exec=!Exec=$bin_dir/!"
+	safeSed share/lilypond/@VERSION@/misc/lilypond.desktop "s!Path=.*!Path=$HOME/Desktop/!"
+	cp share/lilypond/@VERSION@/misc/lilypond.desktop "$HOME/Desktop/LilyPond"
+	# FIXME: LilyPond submenu is broken, let's at least copy Examples link.
+	cp share/lilypond/@VERSION@/misc/examples.desktop "$HOME/Desktop/LilyPond Examples"
+    fi
+fi
+
+## FIXME: installing mime crashes nautilus
+## removing .ly, .ily from .local/share/mime/glob, .local/share/mime/magic
+## fixes that.
+## installMime share/lilypond/@VERSION@/misc/lilypond.xml
+installGnome2Mime share/lilypond/@VERSION@/misc/lilypond.keys
+
+safeSed share/lilypond/@VERSION@/misc/lilypond.applications "s@command=@command=$bin_dir/@"
+echo -e "\tstartup_notify=true" >> share/lilypond/@VERSION@/misc/lilypond.applications
+installGnome2AppEntry share/lilypond/@VERSION@/misc/lilypond.applications
+
+[Uninstall]
+uninstallFromLog
+rm -rf "$PREFIX/share/lilypond/@VERSION@/tex"
+rm -rf "$PREFIX/share/lilypond/@VERSION@/dvips"
+rm -f "$HOME/Desktop/LilyPond"
+rm -f "$HOME/Desktop/LilyPond Examples"
+rm -f "$PREFIX/bin/lilypond-desktop"
