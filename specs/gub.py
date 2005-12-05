@@ -120,7 +120,7 @@ class Package:
 			'build_autopackage': self.settings.builddir + '/autopackage',
 			'gubinstall_root': self.settings.gubinstall_root,
 			'installer_uploads': self.settings.installer_uploads,
-			'lilypond_version': self.settings.lilypond_version,
+			'bundle_version': self.settings.bundle_version,
 			'package_arch': self.settings.package_arch,
 			'specdir': self.settings.specdir,
 			'targetdir': self.settings.targetdir,
@@ -207,7 +207,7 @@ cd %(dir)s/%(name)s && cvs update -dCAP -r %(version)s
 
 	def gubinstall_root (self):
 		if self.settings.platform.startswith ('linux'):
-			return '%(gubinstall_root)s/usr/lib/lilypond/%(lilypond_version)s/root'
+			return '%(gubinstall_root)s/usr/lib/lilypond/%(bundle_version)s/root'
 		return '%(gubinstall_root)s/usr'
 
 	def file_name (self):
@@ -522,7 +522,7 @@ class Binary_package (Package):
 class Installer (Package):
 	def __init__ (self, settings):
 		Package.__init__ (self, settings)
-		self.version = settings.lilypond_version
+		self.version = settings.bundle_version
 
         def name (self):
 		return 'lilypond'
@@ -538,7 +538,7 @@ class Nsis (Installer):
 		self.file_sub ([
 			('@GUILE_VERSION@', '%(guile_version)s'),
 			('@LILYPOND_BUILD@', '%(build)s'),
-			('@LILYPOND_VERSION@', '%(lilypond_version)s'),
+			('@LILYPOND_VERSION@', '%(bundle_version)s'),
 			('@PYTHON_VERSION@', '%(python_version)s'),
 			('@ROOT@', '%(installer)s'),
 			],
