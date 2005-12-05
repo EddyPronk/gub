@@ -12,6 +12,16 @@ sys.path.insert (0, 'specs/')
 import gub
 import framework
 
+def grok_sh_variables (self, file):
+	dict = {}
+	for i in open (file).readlines ():
+		m = re.search ('^(\w+)\s*=\s*(\w*)', i)
+		if m:
+			k = m.group (1)
+			s = m.group (2)
+			dict[k] = s
+
+	return dict
 
 class Settings:
 	def __init__ (self, arch):
