@@ -186,7 +186,7 @@ def get_settings (platform):
 def do_options ():
 	p = optparse.OptionParser (usage = "driver.py [options] platform",
 				   description = "Grand Unified Builder. Specify --package-version to set build version")
-	p.add_option ('-V', '--verbose', action = 'store', 
+	p.add_option ('-V', '--verbose', action = 'store_true', 
 		      dest = "verbose")
 	p.add_option ('', '--package-version', action = 'store',
 		      dest = "version")
@@ -197,7 +197,7 @@ def do_options ():
 		      help = 'select platform',
 		      choices = ['linux', 'darwin', 'mingw', 'mingw-fedora'])
 
-	(opts,files)  = p.parse_args ()
+	(opts, commands)  = p.parse_args ()
 	if not opts.platform:
 		p.print_help()
 		sys.exit (2)
