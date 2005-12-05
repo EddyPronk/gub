@@ -4,13 +4,13 @@ default: all
 all: linux mingw mac
 
 linux:
-	python driver.py linux
+	python driver.py --platform linux
 
 mac:
-	python driver.py darwin
+	python driver.py --platform darwin
 
 mingw:
-	python driver.py -V mingw
+	python driver.py -V --platform mingw
 
 realclean:
 	rm -rf src target
