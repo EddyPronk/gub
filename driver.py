@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import optparse
 import __main__
 import getopt
 import os
@@ -48,21 +49,9 @@ class Settings:
 		# INSTALLERS
 		self.gubinstall_root = self.targetdir + '/installer'
 		self.installer_uploads = self.targetdir + '/uploads'
-		self.lilypond_version = self.grok_VERSION (os.path.join (self.srcdir,
-								    'lilypond/VERSION'))
+		self.bundle_version = None
 		self.package_arch = re.sub ('-.*', '', self.build_architecture)
 		self.build = '1'
-
-	def grok_VERSION (self, VERSION):
-		version = ''
-		for i in open (VERSION).readlines ():
-			m = re.search ('^(\w+)\s*=\s*(\w*\d+)', i)
-			if m:
-				s = m.group (2)
-				if version and s[0] != '.':
-					version += '.'
-				version += s
-		return version
 
 	def create_dirs (self): 
 		for a in (
@@ -167,7 +156,7 @@ def get_settings (platform):
 	elif platform == 'mingw-fedora':
 		settings = Settings ('i386-mingw32')
 		settings.target_gcc_flags = '-mwindows -mms-bitfields'
-		platform = 'mingw'
+		settings.platform = 'mingw'
 	elif platform == 'linux':
 		settings = Settings ('linux')
 		platform = 'linux'
@@ -189,39 +178,41 @@ def get_settings (platform):
 		# but APBUILD_CXX2 apg++ --version yields 4.0.3 :-(
 		os.environ['APBUILD_CXX1'] = 'g++-3.4'
 		os.environ['LD'] = settings.ld
+	else:
+		raise 'unknown platform', platform 
+		
 	return settings
 
 def do_options ():
-	(options, files) = getopt.getopt (sys.argv[1:], 'V', ['verbose'])
-	verbose = 0
-	for (o, a) in options:
-		if o == '--verbose' or o == '-V':
-			verbose = 1
+	p = optparse.OptionParser (usage = "driver.py [options] platform",
+				   description = "Grand Unified Builder. Specify --package-version to set build version")
+	p.add_option ('-V', '--verbose', action = 'store', 
+		      dest = "verbose")
+	p.add_option ('', '--package-version', action = 'store',
+		      dest = "version")
+	p.add_option ('-p', '--platform', action = 'store',
+		      dest = "platform",
+		      type = 'choice',
+		      default = None,
+		      help = 'select platform',
+		      choices = ['linux', 'darwin', 'mingw', 'mingw-fedora'])
 
-	return verbose, files
+	(opts,files)  = p.parse_args ()
+	if not opts.platform:
+		p.print_help()
+		sys.exit (2)
+	return opts
 
-def get_platform (files):
-	platform = ''
-	if files:
-		platform = files[0]
-
-	platforms = ('linux', 'darwin', 'mingw', 'mingw-fedora')
-	if platform not in platforms:
-		print >> sys.stderr, 'unsupported platform:', platform
-		print >> sys.stderr, 'use:', string.join (platforms)
-		sys.exit (1)
-
-	return platform
 
 
 def main ():
-	verbose, files = do_options ()
-	platform = get_platform (files)
-	settings = get_settings (platform)
+	options = do_options ()
+	settings = get_settings (options.platform)
 
 	gub.start_log ()
-	settings.verbose = verbose
-	settings.platform = platform
+	settings.verbose = options.verbose
+	settings.platform = options.platform
+	settings.bundle_version = None
 	
 	settings.create_dirs ()
 
@@ -229,14 +220,14 @@ def main ():
                                            os.environ["PATH"])
 
 	packages = []
-	if platform == 'darwin':
+	if options.platform == 'darwin':
 		import darwintools
 		packages += darwintools.get_packages (settings)
-	if platform.startswith ('mingw'):
+	if options.platform.startswith ('mingw'):
 		import mingw
 		packages += mingw.get_packages (settings)
 
-	packages += framework.get_packages (settings, platform)
+	packages += framework.get_packages (settings)
 
 	build_packages (settings, packages)
 	make_installers (settings, packages)
