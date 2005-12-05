@@ -418,7 +418,7 @@ RUN_FC_CACHE_TEST=false
 		return gub.Target_package.compile_command (self) \
 		       + self.makeflags ()
 	def install_command (self):
-		return gub.Target_package.install_command (self) \
+		return gub.Target_package.broken_install_command (self) \
 		       + self.makeflags ()
 
 class Zlib (gub.Target_package):
@@ -444,7 +444,7 @@ cd %(builddir)s && %(zlib_is_broken)s AR="%(AR)s r" %(srcdir)s/configure --share
 # FIXME: these lists should be merged, somehow,
 # linux and mingw use almost the same list (linux does not have libiconv),
 # but some classes have __mingw or __linux overrides.
-def get_packages (settings, platform):
+def get_packages (settings):
 	packages = {
 	'darwin': (
 		Gettext__darwin (settings).with (version='0.10.40'),
@@ -489,7 +489,7 @@ def get_packages (settings, platform):
 	),
 	}
 
-	return packages[platform]
+	return packages[settings.platform]
 
 def get_installers (settings, platform):
 	installers = {
