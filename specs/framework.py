@@ -447,7 +447,8 @@ cd %(builddir)s && %(zlib_is_broken)s AR="%(AR)s r" %(srcdir)s/configure --share
 def get_packages (settings):
 	packages = {
 	'darwin': (
-		Gettext__darwin (settings).with (version='0.10.40'),
+#		Gettext__darwin (settings).with (version='0.10.40'),
+		Gettext (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2'),		
 		Freetype (settings).with (version='2.1.9', mirror=download.freetype),
 		Expat (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2'),
 #		Expat (settings).with (version='1.95.8', mirror=download.sourceforge, format='gz'),
@@ -491,7 +492,7 @@ def get_packages (settings):
 
 	return packages[settings.platform]
 
-def get_installers (settings, platform):
+def get_installers (settings):
 	installers = {
 		'darwin' : (gub.Bundle (settings)),
 		'linux' : (
@@ -502,5 +503,5 @@ def get_installers (settings, platform):
 		),
 		'mingw' : (gub.Nsis (settings)),
 		}
-	return installers[platform]
+	return installers[settings.platform]
 	
