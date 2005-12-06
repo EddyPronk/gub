@@ -142,7 +142,7 @@ def make_installers (settings, packages):
 		print >> sys.stderr, 'gub:' + i.name () + ':' + 'install_gub'
 		i.install_gub ()
 		strip_gubinstall_root (i.gubinstall_root () % i.package_dict ())
-	for i in framework.get_installers (settings, settings.platform):
+	for i in framework.get_installers (settings):
 		print >> sys.stderr, 'gub:' + i.name () + ':' + 'create'
 		i.create ()
 
