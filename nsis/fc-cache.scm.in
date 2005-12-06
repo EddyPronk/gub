@@ -1,0 +1,25 @@
+#!/usr/bin/guile \
+-e main -s
+!#
+
+(use-modules
+ (srfi srfi-13))
+
+(define (re-sub re sub string)
+  (regexp-substitute/global #f re string 'pre sub 'post))
+
+(define (main args)
+  (let* ((files (map (lambda (x) (format #f "~S" x)) (cdr args)))
+	 (instdir "@SLASHED_INSTDIR@")
+	 (fonts.conf (string-append instdir "/usr/etc/fonts/fonts.conf"))
+	 (fc-cache.exe (string-append instdir "/usr/bin/fc-cache.exe"))
+	 (command (format #f "~S --verbose ~a"
+			  fc-cache.exe (string-join files)))
+	 (env "FONTCONFIG_FILE"))
+    (setenv env fonts.conf)
+    (display (getenv env))
+    (newline)
+    (display command)
+    (newline)
+    (force-output (current-output-port))
+    (system command)))

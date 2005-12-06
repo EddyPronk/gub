@@ -136,7 +136,7 @@ uninstall:
 	;;File /r "@ROOT@/var"
 
 	SetOutPath $INSTDIR\usr\bin
-	File "../bin/min-apt"
+;;	File "../bin/min-apt"
 	File "*.scm.in"
 	File "variables.sh.in"
 	SetOutPath $INSTDIR

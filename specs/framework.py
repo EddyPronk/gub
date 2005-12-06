@@ -183,9 +183,9 @@ HELP2MAN_GROFFS=
 		LilyPond.compile (self)
 		gub.Package.system (self, '''
 mkdir -p %(builddir)s/mf/out-console
-cp -pv %(builddir)s/mf/out/* mf/out-console
+cp -pv %(builddir)s/mf/out/* %(builddir)s/mf/out-console
 ''')
-		cmd = LilyPond.compile_command (self)
+		cmd = LilyPond__mingw.compile_command (self)
 		cmd += ' conf=console'
 		self.system ('''cd %(builddir)s && %(cmd)s''',
 			     locals ())
@@ -199,8 +199,8 @@ HELP2MAN_GROFFS=
 	def install (self):
 		LilyPond.install (self)
 		self.system ('''
-install -m755 %(builddir)/lily/out/lilypond %(install_prefix)/bin/lilypond-windows
-install -m755 %(builddir)/lily/out-console/lilypond %(install_prefix)/bin/lilypond
+install -m755 %(builddir)s/lily/out/lilypond %(install_prefix)s/bin/lilypond-windows
+install -m755 %(builddir)s/lily/out-console/lilypond %(install_prefix)s/bin/lilypond
 ''')
 
 class LilyPond__linux (LilyPond):
@@ -227,7 +227,7 @@ GS_FONTPATH=%(framework_root)s/share/ghostscript/8.15/fonts:$GS_FONTPATH \
 GS_LIB=%(framework_root)s/share/ghostscript/8.15/lib:$GS_LIB \
 GS_FONTPATH=%(framework_root)s/share/gs/fonts:$GS_FONTPATH \
 GS_LIB=%(framework_root)s/share/gs/lib:$GS_LIB \
-PANGO_RC_FILE=${PANGO_RC_FILE-%(framework_root)s/etc/pango/pangorc} \
+PANGO_RC_FILE=${PANGO_RC_FILE-%(framework_root)s/usr/etc/pango/pangorc} \
 PYTHONPATH=%(framework_root)s/../python:$PYTHONPATH \
 PYTHONPATH=%(framework_root)s/lib/python%(python_version)s:$PYTHONPATH \
 %(gubinstall_root)s/usr/bin/lilypond-bin "$@"
@@ -280,6 +280,26 @@ class Pango (gub.Target_package):
 --without-cairo
 ''')
 
+class Pango__mingw (Pango):
+	def install (self):
+		gub.Target_package.install (self)
+		self.system ('mkdir -p %(install_root)s/usr/etc/pango')
+		self.dump ('''
+[Pango]
+ModulesPath = "@INSTDIR@\usr\lib\pango\1.4.0\modules"
+ModuleFiles = "@INSTDIR@\usr\etc\pango\pango.modules"
+#[PangoX]
+#AliasFiles = "@INSTDIR@\usr\etc\pango\pango.modules\pangox.aliases"
+''',
+			   '%(install_root)s/usr/etc/pango/pangorc.in')
+
+		# pango.modules can be generated if we have the linux
+		# installer built
+
+# cd target/linux/installer/usr/lib/lilypond/noel/root
+# PANGO_RC_FILE=$(pwd)/etc/pango/pangorc bin/pango-querymodules > etc/pango/pango.modules
+		self.system ('cp %(nsisdir)s/pango.modules.in %(install_root)s/usr/etc/pango/pango.modules.in')
+
 class Pango__linux (Pango):
 	def untar (self):
 		Pango.untar (self)
@@ -323,7 +343,7 @@ cd %(srcdir)s && ./configure
 --disable-static
 --enable-shared
 --prefix=/usr
---sysconfdir=/etc
+--sysconfdir=/usr/etc
 --includedir=/usr/include
 --libdir=/usr/lib
 '''))
@@ -469,7 +489,7 @@ def get_packages (settings):
 		# FIXME: we're actually using 1.7.2-cvs+, 1.7.2 needs too much work
 		Guile__mingw (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2'),
 		Glib (settings).with (version='2.8.4', mirror=download.gtk),
-		Pango (settings).with (version='1.10.1', mirror=download.gtk),
+		Pango__mingw (settings).with (version='1.10.1', mirror=download.gtk),
 		Python__mingw (settings).with (version='2.4.2', mirror=download.python, format='bz2'),
 		LilyPond__mingw (settings).with (mirror=cvs.gnu, download=gub.Package.cvs),
 	),
@@ -494,14 +514,14 @@ def get_packages (settings):
 
 def get_installers (settings):
 	installers = {
-		'darwin' : (gub.Bundle (settings)),
-		'linux' : (
+		'darwin' : [gub.Bundle (settings)],
+		'linux' : [
 		gub.Tgz (settings),
 		gub.Deb (settings),
 		gub.Rpm (settings),
 		gub.Autopackage (settings),
-		),
-		'mingw' : (gub.Nsis (settings)),
+		],
+		'mingw' : [gub.Nsis (settings)],
 		}
 	return installers[settings.platform]
 	

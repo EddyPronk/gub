@@ -1,8 +1,7 @@
 #!/usr/bin/python
 
-import optparse
 import __main__
-import getopt
+import optparse
 import os
 import re
 import string
@@ -32,6 +31,7 @@ class Settings:
 		self.build_architecture = gub.read_pipe ('gcc -dumpmachine')[:-1]
 		self.srcdir = os.path.join (self.topdir, 'src')
 		self.specdir = self.topdir + '/specs'
+		self.nsisdir = self.topdir + '/nsis'
 		self.gtk_version = '2.8'
 
 		self.target_architecture = arch
@@ -108,11 +108,11 @@ def strip_gubinstall_root (root):
 		'bin/*gettext*',
 		'bin/[cd]jpeg',
 		'bin/msg*',
-		'bin/pango-querymodules',
 		'bin/xmlwf',
 		'doc'
 		'include',
 		'info',
+		'include',
 		'lib/pkgconfig',
 		'man',
 		'share/doc',
@@ -212,7 +212,10 @@ def main ():
 	gub.start_log ()
 	settings.verbose = options.verbose
 	settings.platform = options.platform
-	settings.bundle_version = None
+
+	#FIXME: used, but not not set anywhere; what's the idea?
+	#settings.bundle_version = None
+	settings.bundle_version = 'noel'
 	
 	settings.create_dirs ()
 

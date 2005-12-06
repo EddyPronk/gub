@@ -118,13 +118,14 @@ class Package:
 
 			# FIXME: for class Installer only
 			'build_autopackage': self.settings.builddir + '/autopackage',
-			'gubinstall_root': self.settings.gubinstall_root,
-			'installer_uploads': self.settings.installer_uploads,
 			'bundle_version': self.settings.bundle_version,
+			'gubinstall_root': self.settings.gubinstall_root,
+			'guile_version': '1.7',
+			'installer_uploads': self.settings.installer_uploads,
+			'nsisdir': self.settings.nsisdir,
 			'package_arch': self.settings.package_arch,
 			'specdir': self.settings.specdir,
 			'targetdir': self.settings.targetdir,
-			'guile_version': '1.7',
 			'python_version': '2.4',
 			}
 
@@ -376,7 +377,7 @@ class Target_package (Package):
 --host=%(target_architecture)s
 --target=%(target_architecture)s
 --prefix=/usr
---sysconfdir=/etc
+--sysconfdir=/usr/etc
 --includedir=/usr/include
 --libdir=/usr/lib
 ''')
@@ -401,7 +402,7 @@ libdir=%(install_prefix)s/lib
 libexecdir=%(install_prefix)s/lib
 mandir=%(install_prefix)s/share/man
 prefix=%(install_prefix)s
-sysconfdir=%(install_root)s/etc
+sysconfdir=%(install_prefix)s/etc
 tooldir=%(install_prefix)s
 ''')
 
@@ -534,7 +535,8 @@ class Bundle (Installer):
 class Nsis (Installer):
 	def create (self):
 		# FIXME: build in separate nsis dir, copy or use symlink
-		installer = os.basename (self.settings.gubintall_root)
+		installer = os.path.basename (self.settings.gubinstall_root)
+		build = self.settings.build
 		self.file_sub ([
 			('@GUILE_VERSION@', '%(guile_version)s'),
 			('@LILYPOND_BUILD@', '%(build)s'),
@@ -542,10 +544,16 @@ class Nsis (Installer):
 			('@PYTHON_VERSION@', '%(python_version)s'),
 			('@ROOT@', '%(installer)s'),
 			],
-			       '%(specdir)s/lilypond.nsis.in',
-			       to_name='%(targetdir)s/lilypond.nsis',
+			       '%(nsisdir)s/lilypond.nsi.in',
+#			       to_name='%(targetdir)s/lilypond.nsi',
+			       to_name='%(targetdir)s/lilypond.nsi',
 			       env=locals ())
-		self.system ('cd %(targetdir)s && makensis lilypond.nsis')
+		# FIXME: move nsis cruft to nsis dir
+		self.system ('cp %(nsisdir)s/*.nsh %(targetdir)s')
+		self.system ('cp %(nsisdir)s/*.scm.in %(targetdir)s')
+		self.system ('cp %(nsisdir)s/*.sh.in %(targetdir)s')
+		self.system ('cd %(targetdir)s && makensis lilypond.nsi')
+#		self.system ('cd %(targetdir)s && makensis -NOCD %(nsisdir)/lilypond.nsi')
 
 class Tgz (Installer):
 	def create (self):
