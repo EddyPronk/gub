@@ -554,6 +554,7 @@ class Nsis (Installer):
 		self.system ('cp %(nsisdir)s/*.sh.in %(targetdir)s')
 		self.system ('cd %(targetdir)s && makensis lilypond.nsi')
 #		self.system ('cd %(targetdir)s && makensis -NOCD %(nsisdir)/lilypond.nsi')
+		self.system ('mv %(targetdir)s/setup.exe %(installer_uploads)s/lilypond-%(version)s-%(build)s.exe', locals ())
 
 class Tgz (Installer):
 	def create (self):

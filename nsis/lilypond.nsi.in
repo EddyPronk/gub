@@ -8,6 +8,7 @@
 ;;; substitutions
 !define LILYPOND_VERSION "@LILYPOND_VERSION@"
 !define LILYPOND_BUILD "@LILYPOND_BUILD@"
+!define BUNDLE_VERSION "@BUNDLE_VERSION@"
 !define GUILE_VERSION "@GUILE_VERSION@"
 !define PYTHON_VERSION @PYTHON_VERSION@
 !define ENVIRON "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"
