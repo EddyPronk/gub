@@ -27,7 +27,7 @@ def log_command (str):
 		log_file.write (str)
 		log_file.flush ()
 
-def system_one (cmd, ignore_error, env):
+def system_one (cmd, env, ignore_error):
 	log_command ('invoking %s\n' % cmd)
 
 	proc = subprocess.Popen (cmd, shell=True, env=env)
@@ -42,7 +42,7 @@ def system_one (cmd, ignore_error, env):
 def join_lines (str):
 	return re.sub ('\n', ' ', str)
 
-def system (cmd, ignore_error=False, verbose=False, env={}):
+def system (cmd, env={}, ignore_error=False, verbose=False):
 	"Run multiple lines as multiple commands."
 
 	call_env = os.environ.copy ()
@@ -54,7 +54,7 @@ def system (cmd, ignore_error=False, verbose=False, env={}):
 
 	for i in cmd.split ('\n'):
 		if i:
-			system_one (i, ignore_error, call_env)
+			system_one (i, call_env, ignore_error)
 
 	return 0
 
@@ -70,7 +70,7 @@ def file_sub (re_pairs, name, to_name=None):
 		t = re.sub (re.compile (frm, re.MULTILINE), to, t)
 	if s != t or (to_name and name != to_name):
 		if not to_name:
-			system ('mv %s %s~' % (name, name))
+			system ('mv %(name)s %(name)s~' % locals ())
 			to_name = name
 		h = open (to_name, 'w')
 		h.write (t)
@@ -140,10 +140,10 @@ class Package:
 		dict = self.package_dict (env)
 		return read_pipe (cmd % dict)
 
-	def system (self, cmd, env={}):
+	def system (self, cmd, env={}, ignore_error=False):
 		dict = self.package_dict (env)
-		system (cmd % dict, ignore_error=False,
-			verbose=self.settings.verbose, env=dict)
+		system (cmd % dict, env=dict, ignore_error=ignore_error,
+			verbose=self.settings.verbose)
 
 	def skip (self):
 		pass
@@ -279,6 +279,10 @@ cd %(builddir)s && %(configure_command)s
 						i, env=locals ())
 			#  ' " ''' '
 
+	def strip (self):
+		self.system ('cd %(install_prefix)s/bin && %(STRIP)s *',
+			     locals (), ignore_error=True)
+
 	def compile_command (self):
 		return 'make'
 
@@ -315,7 +319,7 @@ tar -C %(root)s -zxf %(gub_uploads)s/%(name)s-%(version)s.%(platform)s.gub
 		flags = download.untar_flags (tarball)
 
 		# clean up
-		self.system ("rm -rf %(srcdir)s %(builddir)s %(install_root)s")
+		self.system ('rm -rf %(srcdir)s %(builddir)s %(install_root)s')
 		cmd = 'tar %(flags)s %(tarball)s -C %(sourcesdir)s'
 		self.system (cmd, locals ())
 
@@ -447,6 +451,7 @@ tar -C %(root)s -zxf %(gub_uploads)s/%(name)s-%(version)s.%(platform)s.gub
 ''',
 			'RANLIB': '%(tool_prefix)sranlib',
 			'SED': 'sed', # libtool (expat mingw) fixup
+			'STRIP': '%(tool_prefix)sstrip',
 			}
 		if self.settings.__dict__.has_key ('gcc'):
 			dict['CC'] = self.settings.gcc
@@ -470,10 +475,9 @@ tar -C %(root)s -zxf %(gub_uploads)s/%(name)s-%(version)s.%(platform)s.gub
 		dict = self.target_dict (env)
 		return Package.read_pipe (self, cmd, env=dict)
 
-	def system (self, cmd, env={}):
+	def system (self, cmd, env={}, ignore_error=False):
 		dict = self.target_dict (env)
-		Package.system (self, cmd, env=dict)
-
+		Package.system (self, cmd, env=dict, ignore_error=ignore_error)
 
 class Binary_package (Package):
 	def untar (self):
@@ -501,6 +505,8 @@ class Binary_package (Package):
 		self.system ('mkdir -p %(install_root)s/usr')
 		self.system ('tar -C %(srcdir)s/root -cf- . | tar -C %(install_root)s/usr -xvf-')
 
+	def strip (self):
+		pass
 
 # FIXME: Want to share package_dict () and system () with Package,
 # add yet another base class?

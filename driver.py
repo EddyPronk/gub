@@ -91,7 +91,7 @@ def process_package (package):
 	package.download ()
 
 	for stage in ('untar', 'patch', 'configure', 'compile', 'install',
-		      'package', 'sysinstall'):
+		      'strip', 'package', 'sysinstall'):
         	if not package.is_done (stage):
 			print >> sys.stderr, 'gub:' + package.name () + ':' + stage
                 	if stage == 'untar':
@@ -104,6 +104,8 @@ def process_package (package):
                         	package.compile ()
 			elif stage == 'install':
                         	package.install ()
+			elif stage == 'strip':
+                        	package.strip ()
 			elif stage == 'package':
                         	package.package ()
 			elif stage == 'sysinstall':
@@ -122,13 +124,26 @@ def strip_gubinstall_root (root):
 		'bin/*-config',
 		'bin/*gettext*',
 		'bin/[cd]jpeg',
+		'bin/envsubst*',
+		'bin/glib-genmarshal*',
+		'bin/gobject-query*',
+		'bin/gspawn-win32-helper*',
+		'bin/gspawn-win32-helper-console*',
 		'bin/msg*',
+		'bin/pango-querymodules*',
+		'bin/python*',
+		'bin/python2.4*',
 		'bin/xmlwf',
 		'doc'
 		'include',
-		'info',
 		'include',
+		'info',
+		'lib/gettext',
+		'lib/gettext/hostname*',
+		'lib/gettext/urlget*',
 		'lib/pkgconfig',
+		'lib/python2.4/distutils/command/wininst-6*',
+		'lib/python2.4/distutils/command/wininst-7.1*',
 		'man',
 		'share/doc',
 		'share/gettext/intl',

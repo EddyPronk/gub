@@ -30,6 +30,13 @@ cd %(srcdir)s && patch -p1 < $HOME/installers/windows/patch/python-2.4.2-1.patch
 		self.settings.target_gcc_flags = '-DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I%(system_root)s/usr/include' % self.package_dict ()
 		gub.Target_package.configure (self)
 
+	def install (self):
+		Python.install (self)
+		for i in glob.glob ('%(install_root)s/usr/lib/python%(python_version)s/lib-dynload/*.so*' \
+				    % self.package_dict ()):
+			dll = re.sub ('\.so*', '.dll', i)
+			self.system ('mv %(i)s %(dll)s', locals ())
+
 class Gmp (gub.Target_package):
 	pass
 
@@ -202,6 +209,13 @@ HELP2MAN_GROFFS=
 install -m755 %(builddir)s/lily/out/lilypond %(install_prefix)s/bin/lilypond-windows
 install -m755 %(builddir)s/lily/out-console/lilypond %(install_prefix)s/bin/lilypond
 ''')
+		for i in glob.glob ('%(install_root)s/usr/bin/*' \
+				    % self.package_dict ()):
+			s = self.read_pipe ('file %(i)s' % locals ())
+			if s.find ('guile') >= 0:
+				self.system ('mv %(i)s %(i)s.scm', locals ())
+			elif  s.find ('python') >= 0:
+				self.system ('mv %(i)s %(i)s.py', locals ())
 
 class LilyPond__linux (LilyPond):
 	def configure_command (self):
@@ -284,12 +298,11 @@ class Pango__mingw (Pango):
 	def install (self):
 		gub.Target_package.install (self)
 		self.system ('mkdir -p %(install_root)s/usr/etc/pango')
-		self.dump ('''
-[Pango]
-ModulesPath = "@INSTDIR@\usr\lib\pango\1.4.0\modules"
-ModuleFiles = "@INSTDIR@\usr\etc\pango\pango.modules"
+		self.dump ('''[Pango]
+ModulesPath = "@INSTDIR@\\usr\\lib\\pango\\1.4.0\\modules"
+ModuleFiles = "@INSTDIR@\\usr\\etc\\pango\\pango.modules"
 #[PangoX]
-#AliasFiles = "@INSTDIR@\usr\etc\pango\pango.modules\pangox.aliases"
+#AliasFiles = "@INSTDIR@\\usr\\etc\\pango\\pango.modules\\pangox.aliases"
 ''',
 			   '%(install_root)s/usr/etc/pango/pangorc.in')
 
