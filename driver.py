@@ -258,11 +258,7 @@ def main ():
 		
 	gub.start_log ()
 	settings.verbose = options.verbose
-
-	#FIXME: used, but not not set anywhere; what's the idea?
-	#settings.bundle_version = None
-	settings.bundle_version = 'noel'
-	
+	settings.bundle_version = options.package_version
 	settings.create_dirs ()
 
 	os.environ["PATH"] = '%s/%s:%s' % (settings.tooldir, 'bin',
