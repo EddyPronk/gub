@@ -275,7 +275,10 @@ cd %(builddir)s && %(configure_command)s
 		return 'make install'
 
 	def install (self):
-		self.system ('cd %(builddir)s && %(install_command)s')
+		self.system ('''
+rm -rf %(install_root)s
+cd %(builddir)s && %(install_command)s
+''')
 		self.libtool_la_fixups ()
 
 	def libtool_la_fixups (self):
