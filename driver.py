@@ -246,8 +246,7 @@ def main ():
 	settings = get_settings (options.platform)
 	for o in options.settings:
 		(key, val) = tuple (o.split ('='))
-		print key,val
-		options.__dict__[key] = val
+		settings.__dict__[key] = val
 		
 	gub.start_log ()
 	settings.verbose = options.verbose
