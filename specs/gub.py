@@ -92,20 +92,14 @@ class Package:
 		self.download = self.wget
 
 	def package_dict (self, env={}):
-		dict = {
-			'build_architecture': self.settings.build_architecture,
-			'garbagedir': self.settings.garbagedir,
-			'gtk_version': self.settings.gtk_version,
-			'platform': self.settings.platform,
-			'system_root': self.settings.system_root,
-			'target_architecture': self.settings.target_architecture,
-			'tooldir': self.settings.tooldir,
-			'tool_prefix': self.settings.tool_prefix,
-			'target_gcc_flags': self.settings.target_gcc_flags,
-
+		dict = self.settings.get_substitution_dict ()
+		for (k,v) in self.__dict__.items():
+			if type (v) <> type (''):
+				continue
+			dict[k] = v
+			
+		dict.update({
 			'name': self.name (),
-			'version': self.version,
-			'url': self.url,
 			'builddir': self.builddir (),
 			'compile_command': self.compile_command (),
 			'configure_command': self.configure_command (),
@@ -113,21 +107,11 @@ class Package:
 			'install_root': self.install_root (),
 			'install_prefix': self.install_prefix (),
 			'srcdir': self.srcdir (),
-			'sourcesdir': self.settings.srcdir,
-			'gub_uploads': self.settings.gub_uploads,
-
-			# FIXME: for class Installer only
-			'build_autopackage': self.settings.builddir + '/autopackage',
-			'bundle_version': self.settings.bundle_version,
-			'gubinstall_root': self.settings.gubinstall_root,
+			
+			# UGH.
 			'guile_version': '1.7',
-			'installer_uploads': self.settings.installer_uploads,
-			'nsisdir': self.settings.nsisdir,
-			'package_arch': self.settings.package_arch,
-			'specdir': self.settings.specdir,
-			'targetdir': self.settings.targetdir,
 			'python_version': '2.4',
-			}
+			})
 
 		dict.update (env)
 		for (k, v) in dict.items ():
