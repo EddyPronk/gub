@@ -181,11 +181,11 @@ def get_settings (platform):
 	if platform == 'darwin':
 		settings = Settings ('powerpc-apple-darwin7')
 		settings.target_gcc_flags = '-D__ppc__'
+		settings.platform = 'darwin'
 	elif platform == 'mingw':
 		settings = Settings ('i586-mingw32msvc')
-
-		## UGH.
-#		settings.target_gcc_flags = '-mwindows -mms-bitfields -I /usr/include/i386-mingw32/'
+		settings.target_gcc_flags = '-mwindows -mms-bitfields'
+		settings.platform = 'mingw'
 	elif platform == 'mingw-fedora':
 		settings = Settings ('i386-mingw32')
 		settings.target_gcc_flags = '-mwindows -mms-bitfields'
@@ -241,8 +241,6 @@ def do_options ():
 		sys.exit (2)
 	return opts
 
-
-
 def main ():
 	options = do_options ()
 	settings = get_settings (options.platform)
@@ -277,4 +275,4 @@ def main ():
 	make_installers (settings, packages)
 
 if __name__ == '__main__':
-    	main ()
+	main ()
