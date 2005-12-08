@@ -358,6 +358,9 @@ class Cross_package (Package):
 	def sysinstall (self):
 		pass
 
+	def strip (self):
+		pass
+
 class Target_package (Package):
 	def configure_command (self):
 		return join_lines ('''%(srcdir)s/configure
