@@ -53,6 +53,21 @@ class Settings:
 		self.package_arch = re.sub ('-.*', '', self.build_architecture)
 		self.build = '1'
 
+	def get_substitution_dict (self):
+		d = {}
+		for (k,v) in self.__dict__.items ():
+			if type (v) <> type (''):
+				continue
+
+			d[k] = v
+
+		d.update({
+			'sourcesdir': self.srcdir,
+			'build_autopackage': self.builddir + '/autopackage',
+			})
+		
+		return d
+			
 	def create_dirs (self): 
 		for a in (
 			'downloaddir',
