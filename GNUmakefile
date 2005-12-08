@@ -7,17 +7,19 @@ all: linux mingw mac
 # local.make should set the following variables:
 #
 #  LILYPOND_CVSDIR - a CVS HEAD working directory
+#  LILYPOND_MINGW_INSTALLER_DIR - previous incarnation of lilypond installer
 #
-
 
 include local.make
 
 
 include $(LILYPOND_CVSDIR)/VERSION
+
 LILYPOND_VERSION=$(MAJOR_VERSION).$(MINOR_VERSION).$(PATCH_LEVEL).$(if $(MY_PATCH_LEVEL),.$(MY_PATCH_LEVEL),)
 
 
-INVOKE_DRIVER=python driver.py --package-version $(LILYPOND_VERSION)
+INVOKE_DRIVER=python driver.py --package-version $(LILYPOND_VERSION) \
+   --setting=lilywinbuilddir=$(LILYPOND_MINGW_INSTALLER_DIR)
 
 linux:
 	$(INVOKE_DRIVER) --platform linux
@@ -27,6 +29,9 @@ mac:
 
 mingw:
 	$(INVOKE_DRIVER) --platform mingw
+
+mingw-fedora:
+	$(INVOKE_DRIVER) --platform mingw-fedora
 
 realclean:
 	rm -rf src target
