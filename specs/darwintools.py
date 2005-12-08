@@ -14,6 +14,13 @@ class Darwin_sdk (gub.Binary_package):
 		for a in glob.glob (pat):
 			self.file_sub ([(r' (/usr/lib/.*\.la)', '%(system_root)s\1')], a)
 
+	def install (self):
+
+		# don't add usr/ to root.
+		self.system ('mkdir -p %(install_root)s/')
+		self.system ('tar -C %(srcdir)s/root -cf- . | tar -C %(install_root)s/ -xvf-')
+
+		
 		
 	
 class Odcctools (gub.Cross_package):
