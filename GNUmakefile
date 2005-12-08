@@ -17,16 +17,16 @@ include $(LILYPOND_CVSDIR)/VERSION
 LILYPOND_VERSION=$(MAJOR_VERSION).$(MINOR_VERSION).$(PATCH_LEVEL).$(if $(MY_PATCH_LEVEL),.$(MY_PATCH_LEVEL),)
 
 
-INVOKE_DRIVER=python driver.py --version $(LILYPOND_VERSION)
+INVOKE_DRIVER=python driver.py --package-version $(LILYPOND_VERSION)
 
 linux:
-	python driver.py --platform linux
+	$(INVOKE_DRIVER) --platform linux
 
 mac:
-	python driver.py --platform darwin
+	$(INVOKE_DRIVER) --platform darwin
 
 mingw:
-	python driver.py -V --platform mingw
+	$(INVOKE_DRIVER) --platform mingw
 
 realclean:
 	rm -rf src target
