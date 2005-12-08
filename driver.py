@@ -208,10 +208,9 @@ def do_options ():
 def main ():
 	options = do_options ()
 	settings = get_settings (options.platform)
-
+	
 	gub.start_log ()
 	settings.verbose = options.verbose
-	settings.platform = options.platform
 
 	#FIXME: used, but not not set anywhere; what's the idea?
 	#settings.bundle_version = None
