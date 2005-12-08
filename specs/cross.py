@@ -63,6 +63,7 @@ lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=8192}
 glib_cv_uscore=${glib_cv_uscore=no}
 ac_cv_func_posix_getpwuid_r=${ac_cv_func_posix_getpwuid_r=yes}
 lt_cv_dlopen_libs=${lt_cv_dlopen_libs="none required"}
+ac_cv_type_socklen_t=${ac_cv_type_socklen_t=yes}
 ''',
 	'cygwin': '''
 lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=8192}
