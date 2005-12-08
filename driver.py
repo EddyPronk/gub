@@ -146,6 +146,7 @@ def strip_gubinstall_root (root):
 		
 		os.system ('cd %(root)s && rm -rf %(i)s' % locals ())
 	os.system ('cd %(root)s && rm -f lib/*.a' % locals ())
+
 ## FIXME: c/p from buildmac.py
 ##	gub.system ('cd %(root)s && strip bin/*' % locals ())
 ##	gub.system ('cd %(root)s && cp etc/pango/pango.modules etc/pango/pango.modules.in ' % locals ())
@@ -167,7 +168,9 @@ def get_settings (platform):
 		settings.target_gcc_flags = '-D__ppc__'
 	elif platform == 'mingw':
 		settings = Settings ('i586-mingw32msvc')
-		settings.target_gcc_flags = '-mwindows -mms-bitfields'
+
+		## UGH.
+#		settings.target_gcc_flags = '-mwindows -mms-bitfields -I /usr/include/i386-mingw32/'
 	elif platform == 'mingw-fedora':
 		settings = Settings ('i386-mingw32')
 		settings.target_gcc_flags = '-mwindows -mms-bitfields'
@@ -211,6 +214,11 @@ def do_options ():
 		      default = None,
 		      help = 'select platform',
 		      choices = ['linux', 'darwin', 'mingw', 'mingw-fedora'])
+	p.add_option ('-s', '--setting', action = 'append',
+		      dest = "settings",
+		      type = 'string',
+		      default = [],
+		      help = 'add a variable')
 
 	(opts, commands)  = p.parse_args ()
 	if not opts.platform:
@@ -223,7 +231,11 @@ def do_options ():
 def main ():
 	options = do_options ()
 	settings = get_settings (options.platform)
-	
+	for o in options.settings:
+		(key, val) = tuple (o.split ('='))
+		print key,val
+		options.__dict__[key] = val
+		
 	gub.start_log ()
 	settings.verbose = options.verbose
 
