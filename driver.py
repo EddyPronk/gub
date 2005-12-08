@@ -181,20 +181,25 @@ def make_installers (settings, packages):
 		i.create ()
 
 def get_settings (platform):
+	init  = {
+		'darwin': 'powerpc-apple-darwin7',
+		'mingw': 'i586-mingw32msvc',
+		'mingw-fedora': 'i386-mingw32',
+		'linux': 'linux'
+		}[platform]
+
+	settings = Settings (init)
+	if platform == 'mingw-fedora':
+		settings.platform = 'mingw'
+
+
+	settings.platform = platform
+	
 	if platform == 'darwin':
-		settings = Settings ('powerpc-apple-darwin7')
 		settings.target_gcc_flags = '-D__ppc__'
-		settings.platform = 'darwin'
 	elif platform == 'mingw':
-		settings = Settings ('i586-mingw32msvc')
 		settings.target_gcc_flags = '-mwindows -mms-bitfields'
-		settings.platform = 'mingw'
-	elif platform == 'mingw-fedora':
-		settings = Settings ('i386-mingw32')
-		settings.target_gcc_flags = '-mwindows -mms-bitfields'
-		settings.platform = 'mingw'
 	elif platform == 'linux':
-		settings = Settings ('linux')
 		platform = 'linux'
 		settings.target_architecture = settings.build_architecture
 		# Use apgcc to avoid using too new GLIBC symbols
@@ -225,7 +230,7 @@ def do_options ():
 	p.add_option ('-V', '--verbose', action = 'store_true', 
 		      dest = "verbose")
 	p.add_option ('', '--package-version', action = 'store',
-		      dest = "version")
+		      dest = "package_version")
 	p.add_option ('-p', '--platform', action = 'store',
 		      dest = "platform",
 		      type = 'choice',
