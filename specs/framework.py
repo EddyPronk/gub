@@ -490,8 +490,8 @@ def get_packages (settings):
 		Pango__darwin (settings).with (version='1.10.1', mirror=download.gtk),
 #		Fondu (settings).with (version="051010", mirror=download.sourceforge_homepage, format='gz')
 		Gmp (settings).with (version='4.1.4'),
-#		Guile (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2'),
-		Guile (settings).with (version='1.6.7', mirror=download.gnu, format='gz'),		
+		Guile (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2'),
+#		Guile (settings).with (version='1.6.7', mirror=download.gnu, format='gz'),		
 		
 	),
 	'mingw': (
