@@ -29,7 +29,6 @@ class Settings:
 		self.topdir = os.getcwd ()
 		self.downloaddir = os.getcwd () + '/downloads'
 		self.build_architecture = gub.read_pipe ('gcc -dumpmachine')[:-1]
-		self.srcdir = os.path.join (self.topdir, 'src')
 		self.specdir = self.topdir + '/specs'
 		self.nsisdir = self.topdir + '/nsis'
 		self.gtk_version = '2.8'
@@ -37,6 +36,10 @@ class Settings:
 		self.target_architecture = arch
 		self.tool_prefix = arch + '-'
 		self.targetdir = self.topdir + '/target/%s' % self.target_architecture
+
+		# patches are architecture dependent.
+		self.srcdir = os.path.join (self.targetdir, 'src')
+		
 		self.builddir = self.targetdir + '/build'
 		self.garbagedir = self.targetdir + '/garbage'
 		self.statusdir = self.targetdir + '/status'
