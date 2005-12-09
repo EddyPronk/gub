@@ -11,10 +11,11 @@ class Binutils (framework.Binutils):
 #class Gcc (cross.Gcc):
 class Gcc (framework.Gcc):
 	def patch (self):
-		# FIXME: should install mingw-runtime, w32-api also
-		# in tooldir, or copy here?
+		# FIXME: set system_root to %(tooldir)s/%(target_architecture)s,
+		# or copy mingw-runtime/win32api here?
 		self.system ('''
-tar -C %(system_root)s/usr -cf- include lib | tar -C %(tooldir)s -xf-
+mkdir -p %(target_architecture)s
+tar -C %(system_root)s/usr -cf- include lib | tar -C %(tooldir)s/%(target_architecture)s -xf-
 ''')
 
 class Mingw_runtime (gub.Binary_package):
