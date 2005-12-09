@@ -34,8 +34,7 @@ class Odcctools (gub.Cross_package):
 			       self.builddir () + '/Makefile')
 class Gcc (gub.Cross_package):
 	def patch (self):
-		self.file_sub ([('/usr/bin/libtool',
-			       '%(tooldir)s/bin/powerpc-apple-darwin7-libtool')],
+		self.file_sub ([('/usr/bin/libtool', '%(tooldir)s/bin/powerpc-apple-darwin7-libtool')],
 			       '%(srcdir)s/gcc/config/darwin.h')
 
 	def configure_command (self):
@@ -51,6 +50,23 @@ class Gcc (gub.Cross_package):
 --enable-languages=c,c++ ''' % self.settings.__dict__
 		
 		return join_lines (cmd)
+
+	def install (self):
+		gub.Cross_package.install (self)
+		self.system ('''
+(cd %(tooldir)s/lib && ln -s libgcc_s.1.dylib libgcc_s.dylib)
+''')
+
+	def package (self):
+		
+		self.system ('''
+tar -C %(tooldir)s -zcf %(gub_uploads)s/%(name)s-%(version)s.%(platform)s.gub lib/
+''')
+	def sysinstall (self):
+		self.system ('''
+mkdir -p %(system_root)s/usr/
+tar -C %(system_root)s/usr/ -zxf %(gub_uploads)s/%(name)s-%(version)s.%(platform)s.gub
+''')
 
 
 def get_packages (settings):
