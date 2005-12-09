@@ -346,7 +346,7 @@ class Cross_package (Package):
 		return Package.configure_command (self) \
 		       + join_lines ('''
 --target=%(target_architecture)s
---with-sysroot=%(system_root)s/usr
+--with-sysroot=%(system_root)s/
 ''')
 
 	def install_gub (self):
