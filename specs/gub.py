@@ -362,6 +362,10 @@ class Cross_package (Package):
         def gub_name (self):
 		return '%(name)s-%(version)s.%(build_architecture)s-%(target_architecture)s.gub'
 
+	def install_command (self):
+		# FIXME: to install this, must revert any prefix=tooldir stuff
+		return join_lines ('''make prefix=/usr DESTDIR=%(install_root)s install''')
+
 	def install_gub (self):
 		pass
 

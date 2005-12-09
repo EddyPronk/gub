@@ -17,6 +17,10 @@ class Gcc (gub.Cross_package):
 
 	def configure_command (self):
 		cmd = gub.Cross_package.configure_command (self)
+		# FIXME: using --prefix=%(tooldir)s makes this
+		# uninstallable as a normal system package in
+		# /usr/i686-mingw/
+		# Probably --prefix=/usr is fine too
 		cmd += '''
 --prefix=%(tooldir)s 
 --program-prefix=%(target_architecture)s-
@@ -32,7 +36,7 @@ class Gcc (gub.Cross_package):
 	def install (self):
 		gub.Cross_package.install (self)
 		self.system ('''
-(cd %(tooldir)s/lib && ln -s libgcc_s.1.so libgcc_s.so)
+cd %(tooldir)s/lib && ln -fs libgcc_s.1.so libgcc_s.so
 ''')
 
 class Libtool (gub.Target_package):
