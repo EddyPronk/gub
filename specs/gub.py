@@ -64,6 +64,10 @@ def dump (str, name, mode='w'):
 	f.close ()
 
 def file_sub (re_pairs, name, to_name=None):
+	log_command ('substituting: %s' %
+		     ''.join (map (lambda x: "'%s' -> '%s\n'" % x,
+				     re_pairs)))
+	
 	s = open (name).read ()
 	t = s
 	for frm, to in re_pairs:
@@ -77,6 +81,8 @@ def file_sub (re_pairs, name, to_name=None):
 		h.close ()
 
 def read_pipe (cmd):
+	log_command ('Reading pipe: %s\n' % cmd)
+	
 	pipe = os.popen (cmd, 'r')
 	output = pipe.read ()
 	status = pipe.close ()
