@@ -26,7 +26,12 @@ class Darwin_sdk (gub.Binary_package):
 class Odcctools (gub.Cross_package):
 	def install_prefix (self):
 		return self.settings.tooldir
-	
+	def configure (self):
+		gub.Cross_package.configure (self)
+
+		## remove LD64 support.
+		self.file_sub ([('ld64','')],
+			       self.builddir () + '/Makefile')
 class Gcc (gub.Cross_package):
 	def patch (self):
 		self.file_sub ([('/usr/bin/libtool',
@@ -51,6 +56,7 @@ class Gcc (gub.Cross_package):
 def get_packages (settings):
 	return (
 		Darwin_sdk (settings).with (version='', mirror=download.hw),
-		Odcctools (settings).with (version='20051031', mirror=download.opendarwin, format='bz2'),
+#		Odcctools (settings).with (version='20051031', mirror=download.opendarwin, format='bz2'),
+		Odcctools (settings).with (version='20051122', mirror=download.opendarwin, format='bz2'),		
 		Gcc (settings).with (version='4.0.2', format='bz2'),
 		)		
