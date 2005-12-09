@@ -1,7 +1,6 @@
+import gub
 
-
-
-cross_config_cache ={
+cross_config_cache = {
 	'all': '''
 ac_cv_c_long_size_t=${ac_cv_c_long_size_t=no}
 ac_cv_c_long_time_t=${ac_cv_c_long_time_t=yes}

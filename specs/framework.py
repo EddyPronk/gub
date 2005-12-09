@@ -5,6 +5,36 @@ import gub
 import os
 import re
 
+# FIXME: cannot put in cross.py, that's imported in gub before Cross_package
+# is defined
+class Binutils (gub.Cross_package):
+	pass
+
+class Gcc (gub.Cross_package):
+	def patch (self):
+		self.file_sub ([('/usr/bin/libtool', '%(tooldir)s/bin/%(target_architecture)s-libtool')],
+			       '%(srcdir)s/gcc/config/darwin.h')
+
+	def configure_command (self):
+		cmd = gub.Cross_package.configure_command (self)
+		cmd += '''
+--prefix=%(tooldir)s 
+--program-prefix=%(target_architecture)s-
+--with-as=%(tooldir)s/bin/%(target_architecture)s-as  
+--with-ld=%(tooldir)s/bin/%(target_architecture)s-ld  
+--enable-static
+--enable-shared  
+--enable-libstdcxx-debug 
+--enable-languages=c,c++ ''' % self.settings.__dict__
+		
+		return gub.join_lines (cmd)
+
+	def install (self):
+		gub.Cross_package.install (self)
+		self.system ('''
+(cd %(tooldir)s/lib && ln -s libgcc_s.1.so libgcc_s.so)
+''')
+
 class Libtool (gub.Target_package):
 	pass
 

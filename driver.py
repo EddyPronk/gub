@@ -82,6 +82,7 @@ class Settings:
 			'statusdir',
 			'system_root',
 			'targetdir',
+			'tooldir',
 			'topdir',
 			):
 			dir = self.__dict__[a]
@@ -183,8 +184,9 @@ def make_installers (settings, packages):
 def get_settings (platform):
 	init  = {
 		'darwin': 'powerpc-apple-darwin7',
-		'mingw': 'i586-mingw32msvc',
-		'mingw-fedora': 'i386-mingw32',
+		'mingw': 'i686-mingw32',
+		'xmingw': 'i586-mingw32msvc',
+		'xmingw-fedora': 'i386-mingw32',
 		'linux': 'linux'
 		}[platform]
 

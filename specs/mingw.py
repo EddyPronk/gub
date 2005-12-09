@@ -1,7 +1,21 @@
 import download
+import framework
 import gub
 import os
 import re
+
+##class Binutils (gub.Binutils):
+class Binutils (framework.Binutils):
+	pass
+
+#class Gcc (cross.Gcc):
+class Gcc (framework.Gcc):
+	def patch (self):
+		# FIXME: should install mingw-runtime, w32-api also
+		# in tooldir, or copy here?
+		self.system ('''
+tar -C %(system_root)s/usr -cf- include lib | tar -C %(tooldir)s -xf-
+''')
 
 class Mingw_runtime (gub.Binary_package):
 	def set_download (self, mirror=download.gnu, format='gz', download=gub.Target_package.wget):
@@ -77,6 +91,8 @@ def get_packages (settings):
 	return (
 		Mingw_runtime (settings).with (version='3.9', mirror=download.sf),
 		W32api (settings).with (version='3.5', mirror=download.sf),
+		Binutils (settings).with (version='2.16.1', format='bz2'),
+		Gcc (settings).with (version='4.0.2', format='bz2'),
 		Cygwin (settings).with (version='1.5.18', mirror=download.cygwin, format='bz2'), 
 		Regex (settings).with (version='2.3.90-1', mirror=download.lp, format='bz2'),
 		Gs (settings).with (version='8.15-1', mirror=download.lp, format='bz2'),

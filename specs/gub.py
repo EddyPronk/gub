@@ -109,6 +109,7 @@ class Package:
 			'builddir': self.builddir (),
 			'compile_command': self.compile_command (),
 			'configure_command': self.configure_command (),
+			'gub_name': self.gub_name (),
 			'install_command': self.install_command (),
 			'install_root': self.install_root (),
 			'install_prefix': self.install_prefix (),
@@ -301,16 +302,19 @@ cd %(builddir)s && %(install_command)s
 	def patch (self):
 		pass
 
+        def gub_name (self):
+		return '%(name)s-%(version)s.%(platform)s.gub'
+
 	def package (self):
 		# naive tarball packages for now
 		self.system ('''
-tar -C %(install_prefix)s -zcf %(gub_uploads)s/%(name)s-%(version)s.%(platform)s.gub .
+tar -C %(install_prefix)s -zcf %(gub_uploads)s/%(gub_name)s .
 ''')
 
 	def _install_gub (self, root):
 		self.system ('''
 mkdir -p %(root)s
-tar -C %(root)s -zxf %(gub_uploads)s/%(name)s-%(version)s.%(platform)s.gub
+tar -C %(root)s -zxf %(gub_uploads)s/%(gub_name)s
 ''', locals ())
 
 	def install_gub (self):
@@ -355,17 +359,19 @@ class Cross_package (Package):
 --with-sysroot=%(system_root)s/
 ''')
 
+        def gub_name (self):
+		return '%(name)s-%(version)s.%(build_architecture)s-%(target_architecture)s.gub'
+
 	def install_gub (self):
 		pass
 
-	def package (self):
-		pass
-
 	def sysinstall (self):
-		pass
+		self._install_gub (self.settings.tooldir)
 
 	def strip (self):
-		pass
+		STRIP = 'strip'
+		self.system ('cd %(install_prefix)s/bin && %(STRIP)s *',
+			     locals (), ignore_error=True)
 
 class Target_package (Package):
 	def configure_command (self):
