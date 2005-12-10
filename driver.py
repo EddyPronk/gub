@@ -199,14 +199,13 @@ def get_settings (platform):
 
 	settings = Settings (init)
 	if platform == 'mingw':
-		settings.platform = 'mingw'
 		settings.system_target_architecture = 'i586-mingw32msvc'
 		settings.system_toolprefix = settings.system_target_architecture + '-'
 	if platform == 'mingw-fedora':
-		settings.platform = 'mingw'
+		platform = 'mingw'
 		settings.system_target_architecture = 'i386-mingw32'
 		settings.system_toolprefix = settings.system_target_architecture + '-'
-
+		
 	settings.platform = platform
 	
 	if platform == 'darwin':
@@ -250,7 +249,7 @@ def do_options ():
 		      type = 'choice',
 		      default = None,
 		      help = 'select platform',
-		      choices = ['linux', 'darwin', 'mingw', 'mingw-fedora'])
+		      choices = ['linux', 'darwin', 'mingw', 'xmingw', 'xmingw-fedora'])
 	p.add_option ('-s', '--setting', action = 'append',
 		      dest = "settings",
 		      type = 'string',
