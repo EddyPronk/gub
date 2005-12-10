@@ -298,7 +298,28 @@ class Gettext (gub.Target_package):
 class Gettext__mingw (Gettext):
 	def config_cache_overrides (self, str):
 		return re.sub ('ac_cv_func_select=yes', 'ac_cv_func_select=no',
-			       str)
+			       str) \
+			       + '''
+# only in additional library -- do not feel like patching right now
+gl_cv_func_mbrtowc=${gl_cv_func_mbrtowc=no}
+jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
+'''
+
+	def target_dict (self, env={}):
+		# gettext does not compile with gcc-4.0.2
+		dict = {
+			'CC': '%(system_toolprefix)sgcc %(target_gcc_flags)s',
+			'CPPFLAGS': '-I%(system_root)s/usr/include',
+			'CXX':'%(system_toolprefix)sg++ %(target_gcc_flags)s',
+			'DLLTOOL' : '%(system_toolprefix)sdlltool',
+			'DLLWRAP' : '%(system_toolprefix)sdllwrap',
+			'LD': '%(system_toolprefix)sld',
+			'NM': '%(system_toolprefix)snm',
+			'RANLIB': '%(system_toolprefix)sranlib',
+			}
+		
+		dict.update (env)
+		return dict
 
 class Gettext__darwin (Gettext):
 	def configure_command (self):
@@ -531,7 +552,8 @@ def get_packages (settings):
 	'mingw': (
 		Libtool (settings).with (version='1.5.20'),
 		Zlib (settings).with (version='1.2.2-1', mirror=download.lp, format='bz2'),
-		Gettext__mingw (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2'),
+#		Gettext__mingw (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2'),
+		Gettext__mingw (settings).with (version='0.14.5-1', mirror=download.lp, format='bz2'),
 		Libiconv (settings).with (version='1.9.2'),
 		Freetype (settings).with (version='2.1.7', mirror=download.freetype),
 		Expat (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2'),

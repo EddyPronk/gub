@@ -34,8 +34,9 @@ def system_one (cmd, env, ignore_error):
 	stat = proc.wait ()
 
 	if stat and not ignore_error:
-		log_command ('Command barfed: %s\n' % cmd )
-		sys.exit (1)
+		m = 'Command barfed: %s\n' % cmd
+		log_command (m)
+		raise m
 
 	return 0
 

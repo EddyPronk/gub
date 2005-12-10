@@ -38,7 +38,13 @@ class Settings:
 		self.targetdir = self.topdir + '/target/%s' % self.target_architecture
 
 		# patches are architecture dependent.
-		self.srcdir = os.path.join (self.targetdir, 'src')
+		# WTF?  such a patch is broken, it will never be
+		# included upstream.  Fix it, or override srcdir for
+		# particular broken package+patch so that the hacking
+		# debt is visible.
+
+		# self.srcdir = os.path.join (self.targetdir, 'src')
+		self.srcdir = self.topdir + '/src'
 		
 		self.builddir = self.targetdir + '/build'
 		self.garbagedir = self.targetdir + '/garbage'
@@ -191,9 +197,13 @@ def get_settings (platform):
 		}[platform]
 
 	settings = Settings (init)
+	if platform == 'mingw':
+		settings.platform = 'mingw'
+		settings.system_platform = 'i586-mingw32msvc'
+		settings.system_toolprefix = 'i586-mingw32msvc-'
 	if platform == 'mingw-fedora':
 		settings.platform = 'mingw'
-
+		settings.system_toolprefix = 'i386-mingw32'
 
 	settings.platform = platform
 	
