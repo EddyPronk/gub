@@ -194,7 +194,6 @@ def get_settings (platform):
 	if platform == 'mingw-fedora':
 		settings.platform = 'mingw'
 
-
 	settings.platform = platform
 	
 	if platform == 'darwin':
@@ -238,7 +237,7 @@ def do_options ():
 		      type = 'choice',
 		      default = None,
 		      help = 'select platform',
-		      choices = ['linux', 'darwin', 'mingw', 'mingw-fedora'])
+		      choices = ['linux', 'darwin', 'mingw', 'xmingw', 'xmingw-fedora'])
 	p.add_option ('-s', '--setting', action = 'append',
 		      dest = "settings",
 		      type = 'string',
