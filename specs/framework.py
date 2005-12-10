@@ -305,7 +305,7 @@ gl_cv_func_mbrtowc=${gl_cv_func_mbrtowc=no}
 jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
 '''
 
-	def target_dict (self, env={}):
+	def xtarget_dict (self, env={}):
 		# gettext does not compile with gcc-4.0.2
 		dict = {
 			'CC': '%(system_toolprefix)sgcc %(target_gcc_flags)s',

@@ -38,12 +38,13 @@ class Settings:
 		self.targetdir = self.topdir + '/target/%s' % self.target_architecture
 
 		# patches are architecture dependent.
-		# WTF?  such a patch is broken, it will never be
-		# included upstream.  Fix it, or override srcdir for
-		# particular broken package+patch so that the hacking
-		# debt is visible.
-
 		# self.srcdir = os.path.join (self.targetdir, 'src')
+
+		# Hmm, isn't such a patch broken, it will never be
+		# included upstream?  Better to fix it, or override
+		# srcdir for particular broken package+patch so that
+		# the hacking debt is visible.
+
 		self.srcdir = self.topdir + '/src'
 		
 		self.builddir = self.targetdir + '/build'
