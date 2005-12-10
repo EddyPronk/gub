@@ -158,8 +158,8 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
 		self.file_sub ([('^\(allow_undefined_flag=.*\)unsupported',
 			       '\\1')],
 			       '%(builddir)s/guile-readline/libtool')
-		self.system ('''cp %(lilywinbuilddir)s/bin/%(target_architecture)s-libtool %(builddir)s/libtool''')
-		self.system ('''cp %(lilywinbuilddir)s/bin/%(target_architecture)s-libtool %(builddir)s/guile-readline/libtool''')
+		self.system ('''cp %(lilywinbuilddir)s/bin/%(system_target_prefix)slibtool %(builddir)s/libtool''')
+		self.system ('''cp %(lilywinbuilddir)s/bin/%(system_target_prefix)slibtool %(builddir)s/guile-readline/libtool''')
 
 class Guile__linux (Guile):
 	def compile_command (self):
@@ -291,11 +291,11 @@ class Gettext (gub.Target_package):
 		return gub.Target_package.configure_command (self) \
 		       + ' --disable-csharp'
 
-	def configure (self):
-		self.system ('''cd %(srcdir)s && libtoolize --force --copy''')
-		gub.Target_package.configure (self)
-
 class Gettext__mingw (Gettext):
+	def configure (self):
+		self.autoupdate ()
+		Gettext.configure (self)
+
 	def config_cache_overrides (self, str):
 		return re.sub ('ac_cv_func_select=yes', 'ac_cv_func_select=no',
 			       str) \
@@ -305,7 +305,7 @@ gl_cv_func_mbrtowc=${gl_cv_func_mbrtowc=no}
 jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
 '''
 
-	def xtarget_dict (self, env={}):
+	def target_dict (self, env={}):
 		# gettext does not compile with gcc-4.0.2
 		dict = {
 			'CC': '%(system_toolprefix)sgcc %(target_gcc_flags)s',
@@ -318,7 +318,7 @@ jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
 			'RANLIB': '%(system_toolprefix)sranlib',
 			}
 		
-		dict.update (env)
+		dict.update (Gettext.target_dict (self, env))
 		return dict
 
 class Gettext__darwin (Gettext):

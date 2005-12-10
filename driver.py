@@ -200,11 +200,12 @@ def get_settings (platform):
 	settings = Settings (init)
 	if platform == 'mingw':
 		settings.platform = 'mingw'
-		settings.system_platform = 'i586-mingw32msvc'
-		settings.system_toolprefix = 'i586-mingw32msvc-'
+		settings.system_target_architecture = 'i586-mingw32msvc'
+		settings.system_toolprefix = settings.system_target_architecture + '-'
 	if platform == 'mingw-fedora':
 		settings.platform = 'mingw'
-		settings.system_toolprefix = 'i386-mingw32'
+		settings.system_target_architecture = 'i386-mingw32'
+		settings.system_toolprefix = settings.system_target_architecture + '-'
 
 	settings.platform = platform
 	
