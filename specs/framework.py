@@ -305,7 +305,8 @@ class Gettext (gub.Target_package):
 		       + ' --disable-csharp'
 
 class Gettext__mingw (Gettext):
-	def __init__ (self, settings):
+	# using gcc-3.4.5
+	def xx__init__ (self, settings):
 		Gettext.__init__ (self, copy.deepcopy (settings))
 		# gettext-0.14.1-1 does not compile with gcc-4.0.2
 		self.settings.tool_prefix = self.settings.system_toolprefix

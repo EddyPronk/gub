@@ -19,6 +19,10 @@ def gnu ():
 	base = 'ftp://ftp.gnu.org/pub/gnu'
 	return base + '/%(name)s/%(name)s-%(version)s.tar.%(format)s'
 
+def gcc ():
+	base = 'ftp://ftp.gnu.org/pub/gnu'
+	return base + '/%(name)s/%(name)s-%(version)s/%(name)s-%(version)s.tar.%(format)s'
+
 def alpha ():
 	base = 'ftp://alpha.gnu.org/pub/gnu'
 	return base + '/%(name)s/%(name)s-%(version)s.tar.%(format)s'
