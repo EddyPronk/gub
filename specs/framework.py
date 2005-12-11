@@ -648,14 +648,14 @@ def get_packages (settings):
 
 def get_installers (settings):
 	installers = {
-		'darwin' : [gub.Bundle (settings)],
+		'darwin' : [installer.Bundle (settings)],
 		'linux' : [
-		gub.Tgz (settings),
-		gub.Deb (settings),
-		gub.Rpm (settings),
-		gub.Autopackage (settings),
+		installer.Tgz (settings),
+		installer.Deb (settings),
+		installer.Rpm (settings),
+		installer.Autopackage (settings),
 		],
-		'mingw' : [gub.Nsis (settings)],
+		'mingw' : [installer.Nsis (settings)],
 		}
 	
 	return installers[settings.platform]
