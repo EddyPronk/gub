@@ -305,6 +305,12 @@ PYTHONPATH=%(framework_root)s/lib/python%(python_version)s:$PYTHONPATH \
 		os.chmod ('%(gubinstall_root)s/usr/bin/lilypond' \
 			 % self.package_dict (), 0755)
 
+class LilyPond__darwin (LilyPond):
+	def configure_command (self):
+		cmd = LilyPond.configure_command (self)
+		cmd += ' --with-python-include=%(system_root)s/System/Library/Frameworks/Python.framework/Versions/%(python_version)s/include/usr/include/python%(python_version)s'
+		return cmd
+
 class Gettext (gub.Target_package):
 	def configure_command (self):
 		return gub.Target_package.configure_command (self) \
@@ -567,9 +573,11 @@ def get_packages (settings):
 		Pango__darwin (settings).with (version='1.10.1', mirror=download.gtk),
 #		Fondu (settings).with (version="051010", mirror=download.sourceforge_homepage, format='gz')
 		Gmp (settings).with (version='4.1.4'),
-		Guile (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2'),
-#		Guile (settings).with (version='1.6.7', mirror=download.gnu, format='gz'),
 
+		## 1.7.3  is actually CVS repackaged.
+#		Guile (settings).with (version='1.7.3', mirror=download.gnu, format='gz'),
+		Guile (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2'),
+		LilyPond__darwin (settings).with (mirror=cvs.gnu, download=gub.Package.cvs),
 	),
 	'mingw': (
 		Libtool (settings).with (version='1.5.20'),
