@@ -107,9 +107,9 @@ class Guile (gub.Target_package):
 		return '.'.join (self.version.split ('.')[0:])
 	
 	def configure_command (self):
-		return gub.Target_package.configure_command (self) \
-		      + gub.join_lines ('''
---without-threads
+		return (gub.Target_package.configure_command (self) 
+			+ gub.join_lines ('''
+			--without-threads
 --with-gnu-ld
 --enable-deprecated
 --enable-discouraged
@@ -324,7 +324,9 @@ PYTHONPATH=%(framework_root)s/lib/python%(python_version)s:$PYTHONPATH \
 class LilyPond__darwin (LilyPond):
 	def configure_command (self):
 		cmd = LilyPond.configure_command (self)
-		cmd += ' --with-python-include=%(system_root)s/System/Library/Frameworks/Python.framework/Versions/%(python_version)s/include/usr/include/python%(python_version)s'
+
+		framedir = '%(system_root)s/System/Library/Frameworks/Python.framework/Versions/%(python_version)s'
+		cmd += ' --with-python-include=' + framedir + '/include/python%(python_version)s'
 		return cmd
 
 class Gettext (gub.Target_package):
