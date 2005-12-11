@@ -204,6 +204,12 @@ class LilyPond__mingw (LilyPond):
 		self.settings.target_gcc_flags += ' -I%(builddir)s' \
 						  % locals ()
 
+        def patch (self):
+		# FIXME: for our gcc-3.4.5 cross compiler, THIS is a
+		# magic word.
+		self.file_sub ([('THIS', 'SELF')],
+			       '%(srcdir)s/lily/parser.yy')
+
         def configure_command (self):
 		return LilyPond.configure_command (self) \
 		       + gub.join_lines ('''
