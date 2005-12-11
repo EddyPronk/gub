@@ -115,19 +115,17 @@ class Package:
 			'install_root': self.install_root (),
 			'install_prefix': self.install_prefix (),
 			'srcdir': self.srcdir (),
-			
-			# UGH.
-			'guile_version': '1.7',
-			'python_version': '2.4',
 			})
 
 		dict.update (env)
 		for (k, v) in dict.items ():
+			del dict[k]
 			if type (v) == type (''):
-				v = v % dict
-				dict[k] = v
-			else:
-				del dict[k]
+				try:
+					v = v % dict
+					dict[k] = v
+				except KeyError:
+					pass
 
 		return dict
 
