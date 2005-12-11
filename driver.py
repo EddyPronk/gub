@@ -95,13 +95,15 @@ class Settings:
 
 def process_package (package):
 	stage = 'download'
-	print >> sys.stderr, 'gub:' + package.name () + ':' + stage
+	gub.log_command (' ** Package: %s\n' % package)
 	package.download ()
 
 	for stage in ('untar', 'patch', 'configure', 'compile', 'install',
 		      'strip', 'package', 'sysinstall'):
         	if not package.is_done (stage):
-			print >> sys.stderr, 'gub:' + package.name () + ':' + stage
+			gub.log_command (' * Stage: %s (%s)\n' % (stage, package))
+
+			## UGH. fixme, need parameterize.
                 	if stage == 'untar':
                         	package.untar ()
 			elif stage == 'patch':
