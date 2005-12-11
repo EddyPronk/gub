@@ -56,7 +56,9 @@ class Gcc (framework.Gcc):
 
 def get_packages (settings):
 	return (
-		Darwin_sdk (settings).with (version='', mirror=download.hw),
+		##  download.hw
+		Darwin_sdk (settings).with (version='', mirror=lambda: 'http://lilypond.org/~hanwen/darwin-sdk.tar.gz')
+		
 #		Odcctools (settings).with (version='20051031', mirror=download.opendarwin, format='bz2'),
 		Odcctools (settings).with (version='20051122', mirror=download.opendarwin, format='bz2'),		
 		Gcc (settings).with (version='4.0.2', format='bz2'),
