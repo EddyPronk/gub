@@ -34,7 +34,7 @@ tar -C %(install_root)s -zcf %(gub_uploads)s/%(gub_name)s .
 class Odcctools (gub.Cross_package):
 	def install_prefix (self):
 		return self.settings.tooldir
-
+	
 	def configure (self):
 		gub.Cross_package.configure (self)
 

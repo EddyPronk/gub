@@ -90,14 +90,15 @@ cd %(srcdir)s && patch -p1 < %(lilywinbuilddir)s/patch/python-2.4.2-1.patch
 
 class Gmp (gub.Target_package):
 	pass
+
 class Gmp__darwin (Gmp):
 	def patch (self):
 
 		## GCC 4.0.2 cross barfs on this,
 		## don't know why.
-		self.file_sub ([('__GMP_DECLSPEC_XX std::ostream& operator<< (std::ostream &, mp.*);',
+		self.file_sub ([('^__GMP_DECLSPEC_XX std::ostream& operator[<>]*$',
 				 '')],
-			       'gmp-h.in')
+			       self.srcdir () + '/gmp-h.in')
 		Gmp.patch (self)
 
 class Gmp__mingw (Gmp):
