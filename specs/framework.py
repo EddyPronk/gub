@@ -1,9 +1,12 @@
+import copy
 import cvs
 import download
 import glob
 import gub
 import os
 import re
+
+from driver import Settings
 
 # FIXME: cannot put in cross.py, that's imported in gub before Cross_package
 # is defined
@@ -53,15 +56,18 @@ class Python (gub.Target_package):
 		self.system ('mv %(Srcdir)s %(srcdir)s', locals ())
 		
 class Python__mingw (Python):
+	def __init__ (self, settings):
+		Python.__init__ (self, copy.deepcopy (settings))
+		self.settings.target_gcc_flags = '-DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I%(system_root)s/usr/include' % self.settings.__dict__
+
 	def patch (self):
 		self.system ('''
-cd %(srcdir)s && patch -p1 < $HOME/installers/windows/patch/python-2.4.2-1.patch
+cd %(srcdir)s && patch -p1 < %(lilywinbuilddir)s/patch/python-2.4.2-1.patch
 ''')
 
 	def configure (self):
 		self.system ('''cd %(srcdir)s && autoconf''')
 		self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
-		self.settings.target_gcc_flags = '-DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I%(system_root)s/usr/include' % self.package_dict ()
 		gub.Target_package.configure (self)
 
 	def install (self):
@@ -115,10 +121,14 @@ exit 0
 		os.chmod ('%(install_prefix)s/bin/%(target_architecture)s-guile-config' % self.package_dict (), 0755)
 
 class Guile__mingw (Guile):
+	def __init__ (self, settings):
+		Guile.__init__ (self, copy.deepcopy (settings))
+		self.settings.target_gcc_flags = '-mms-bitfields'
+
 	def xpatch (self):
 		## FIXME
 		self.system ('''
-cd %(srcdir)s && patch -p1 < $HOME/installers/windows/patch/guile-1.7.2-3.patch
+cd %(srcdir)s && patch -p1 < %(lilywinbuilddir)s/patch/guile-1.7.2-3.patch
 ''')
 
 	def configure_command (self):
@@ -150,7 +160,6 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
 					 '\\1')],
 				       '%(srcdir)s/configure')
 			os.chmod ('%(srcdir)s/configure' % self.package_dict (), 0755)
-		self.settings.target_gcc_flags = '-mms-bitfields'
 		gub.Target_package.configure (self)
 		self.file_sub ([('^\(allow_undefined_flag=.*\)unsupported',
 			       '\\1')],
@@ -158,8 +167,8 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
 		self.file_sub ([('^\(allow_undefined_flag=.*\)unsupported',
 			       '\\1')],
 			       '%(builddir)s/guile-readline/libtool')
-		self.system ('''cp %(lilywinbuilddir)s/bin/%(system_target_prefix)slibtool %(builddir)s/libtool''')
-		self.system ('''cp %(lilywinbuilddir)s/bin/%(system_target_prefix)slibtool %(builddir)s/guile-readline/libtool''')
+		self.system ('''cp %(lilywinbuilddir)s/bin/%(system_toolprefix)slibtool %(builddir)s/libtool''')
+		self.system ('''cp %(lilywinbuilddir)s/bin/%(system_toolprefix)slibtool %(builddir)s/guile-readline/libtool''')
 
 class Guile__linux (Guile):
 	def compile_command (self):
@@ -185,7 +194,14 @@ class LilyPond (gub.Target_package):
 		return '%(gubinstall_root)s/usr'
 
 class LilyPond__mingw (LilyPond):
-	def configure_command (self):
+	def __init__ (self, settings):
+		LilyPond.__init__ (self, copy.deepcopy (settings))
+		# FIXME: should add to CPPFLAGS...
+		self.settings.target_gcc_flags = '-mms-bitfields'
+		self.settings.target_gcc_flags += ' -I%(builddir)s' \
+						  % self.settings.__dict__
+
+        def configure_command (self):
 		return LilyPond.configure_command (self) \
 		       + gub.join_lines ('''
 --without-kpathsea
@@ -193,20 +209,14 @@ class LilyPond__mingw (LilyPond):
 --with-python-include=%(system_root)s/usr/include/python%(python_version)s
 --disable-optimising
 ''')
+
 	def configure (self):
-		# FIXME: should add to CPPFLAGS...
-		self.settings.target_gcc_flags += ' -I%(builddir)s' \
-						  % self.package_dict ()
 		gub.Package.system (self, '''
 mkdir -p %(builddir)s
 cp /usr/include/FlexLexer.h %(builddir)s
 ''')
 		gub.Target_package.configure (self)
 		self.config_cache ()
-		self.settings.target_gcc_flags = '-mms-bitfields'
-		# FIXME: should add to CPPFLAGS...
-		self.settings.target_gcc_flags += ' -I%(builddir)s' \
-						  % self.package_dict ()
 		cmd = self.configure_command () \
 		      + ' --enable-config=console'
 		self.system ('''cd %(builddir)s && %(cmd)s''',
@@ -292,9 +302,10 @@ class Gettext (gub.Target_package):
 		       + ' --disable-csharp'
 
 class Gettext__mingw (Gettext):
-	def configure (self):
-		self.autoupdate ()
-		Gettext.configure (self)
+	def __init__ (self, settings):
+		Gettext.__init__ (self, copy.deepcopy (settings))
+		# gettext-0.14.1-1 does not compile with gcc-4.0.2
+		self.settings.tool_prefix = self.settings.system_toolprefix
 
 	def config_cache_overrides (self, str):
 		return re.sub ('ac_cv_func_select=yes', 'ac_cv_func_select=no',
@@ -304,22 +315,6 @@ class Gettext__mingw (Gettext):
 gl_cv_func_mbrtowc=${gl_cv_func_mbrtowc=no}
 jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
 '''
-
-	def target_dict (self, env={}):
-		# gettext does not compile with gcc-4.0.2
-		dict = {
-			'CC': '%(system_toolprefix)sgcc %(target_gcc_flags)s',
-			'CPPFLAGS': '-I%(system_root)s/usr/include',
-			'CXX':'%(system_toolprefix)sg++ %(target_gcc_flags)s',
-			'DLLTOOL' : '%(system_toolprefix)sdlltool',
-			'DLLWRAP' : '%(system_toolprefix)sdllwrap',
-			'LD': '%(system_toolprefix)sld',
-			'NM': '%(system_toolprefix)snm',
-			'RANLIB': '%(system_toolprefix)sranlib',
-			}
-		
-		dict.update (Gettext.target_dict (self, env))
-		return dict
 
 class Gettext__darwin (Gettext):
 	def configure_command (self):
@@ -552,8 +547,8 @@ def get_packages (settings):
 	'mingw': (
 		Libtool (settings).with (version='1.5.20'),
 		Zlib (settings).with (version='1.2.2-1', mirror=download.lp, format='bz2'),
-#		Gettext__mingw (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2'),
-		Gettext__mingw (settings).with (version='0.14.5-1', mirror=download.lp, format='bz2'),
+		Gettext__mingw (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2'),
+#		Gettext__mingw (settings).with (version='0.14.5-1', mirror=download.lp, format='bz2'),
 		Libiconv (settings).with (version='1.9.2'),
 		Freetype (settings).with (version='2.1.7', mirror=download.freetype),
 		Expat (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2'),
