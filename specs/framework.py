@@ -329,6 +329,10 @@ class LilyPond__darwin (LilyPond):
 		cmd += ' --with-python-include=' + framedir + '/include/python%(python_version)s'
 		return cmd
 
+	def compile_command (self):
+		return LilyPond.compile_command (self) \
+		       + gub.join_lines (''' HELP2MAN_GROFFS=''')
+
 class Gettext (gub.Target_package):
 	def configure_command (self):
 		return gub.Target_package.configure_command (self) \
