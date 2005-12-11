@@ -18,7 +18,7 @@ def now ():
 
 def start_log ():
 	global log_file
-	log_file = open ('build.log', 'w+')
+	log_file = open ('build.log', 'a')
 	log_file.write ('\n\n *** Starting build: %s\n' %  now ())
 
 def log_command (str):
