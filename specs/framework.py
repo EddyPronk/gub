@@ -53,6 +53,14 @@ class Python (gub.Target_package):
 		gub.Target_package.set_download (self, mirror, format, downloader)
 		self.url = re.sub ('python-', 'Python-' , self.url)
 
+	def python_version (self):
+		return '.'.join (self.version.split ('.')[0:])
+
+	def package_dict (self, env = {}):
+		dict = gub.Target_package.package_dict (self, env)
+		dict['python_version'] = self.python_version ()
+		return dict
+	
 	def untar (self):
 		gub.Target_package.untar (self)
 		Srcdir = re.sub ('python', 'Python', self.srcdir ())
@@ -93,6 +101,11 @@ cp %(builddir)s/.libs/libgmp.dll.a %(install_prefix)s/lib/
 ''')
 
 class Guile (gub.Target_package):
+
+	## Ugh. C&P.
+	def guile_version (self):
+		return '.'.join (self.version.split ('.')[0:])
+	
 	def configure_command (self):
 		return gub.Target_package.configure_command (self) \
 		      + gub.join_lines ('''
@@ -103,7 +116,7 @@ class Guile (gub.Target_package):
 --disable-error-on-warning
 --enable-relocation
 --disable-rpath
-''')
+'''))
 
 	def install (self):
 		gub.Target_package.install (self)
@@ -619,7 +632,19 @@ def get_packages (settings):
 	),
 	}
 
-	return packages[settings.platform]
+
+	packs = packages[settings.platform]
+	
+	## FIXME: changes settings.
+	try:
+		settings.python_version = [p for p in packs if isinstance (p, Python)][0].python_version ()
+	except IndexError:
+		# UGH darwin has no python package.
+		settings.python_version = '2.3'
+	
+	settings.guile_version = [p for p in packs if isinstance (p, Guile)][0].guile_version ()
+
+	return packs
 
 def get_installers (settings):
 	installers = {
@@ -632,5 +657,6 @@ def get_installers (settings):
 		],
 		'mingw' : [gub.Nsis (settings)],
 		}
+	
 	return installers[settings.platform]
 
