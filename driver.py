@@ -99,6 +99,8 @@ class Settings:
 			gub.system ('mkdir -p %s' % dir)
 
 def process_package (package):
+	stage = 'download'
+	print >> sys.stderr, 'gub:' + package.name () + ':' + stage
 	package.download ()
 
 	for stage in ('untar', 'patch', 'configure', 'compile', 'install',

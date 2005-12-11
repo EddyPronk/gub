@@ -36,7 +36,12 @@ def opendarwin ():
 	return 'http://www.opendarwin.org/downloads/%(name)s-%(version)s.tar.%(format)s'
 
 def sf ():
-	return 'http://mesh.dl.sourceforge.net/sourceforge/%(name)s/%(name)s-%(version)s.tar.%(format)s'
+	# mesh is broken today
+	#return 'http://mesh.dl.sourceforge.net/sourceforge/%(name)s/%(name)s-%(version)s.tar.%(format)s'
+	return 'http://surfnet.dl.sourceforge.net/sourceforge/%(name)s/%(name)s-%(version)s.tar.%(format)s'
+
+def mingw ():
+        return 'http://surfnet.dl.sourceforge.net/sourceforge/mingw/%(name)s-%(version)s.tar.%(format)s'
 
 def lp ():
 	return 'http://lilypond.org/mingw/uploads/%(name)s/%(name)s-%(version)s-src.tar.%(format)s'
@@ -45,7 +50,7 @@ def zlib ():
 	return 'http://www.zlib.net/%(name)s-%(version)s.tar.%(format)s'
 
 def sourceforge ():
-	return 'http://dl.sourceforge.net/%(name)s/%(name)s-%(version)s.tar.%(format)s' 
+	return sf ()
 
 def sourceforge_homepage ():
 	return 'http://%(name)s.sourceforge.net/%(name)s-%(version)s.tar.%(format)s'

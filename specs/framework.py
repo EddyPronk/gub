@@ -25,15 +25,15 @@ class Gcc (gub.Cross_package):
 		# /usr/i686-mingw/
 		# Probably --prefix=/usr is fine too
 		cmd += '''
---prefix=%(tooldir)s 
+--prefix=%(tooldir)s
 --program-prefix=%(target_architecture)s-
---with-as=%(tooldir)s/bin/%(target_architecture)s-as  
---with-ld=%(tooldir)s/bin/%(target_architecture)s-ld  
+--with-as=%(tooldir)s/bin/%(target_architecture)s-as
+--with-ld=%(tooldir)s/bin/%(target_architecture)s-ld
 --enable-static
---enable-shared  
---enable-libstdcxx-debug 
+--enable-shared
+--enable-libstdcxx-debug
 --enable-languages=c,c++ ''' % self.settings.__dict__
-		
+
 		return gub.join_lines (cmd)
 
 	def install (self):
@@ -54,7 +54,7 @@ class Python (gub.Target_package):
 		gub.Target_package.untar (self)
 		Srcdir = re.sub ('python', 'Python', self.srcdir ())
 		self.system ('mv %(Srcdir)s %(srcdir)s', locals ())
-		
+
 class Python__mingw (Python):
 	def __init__ (self, settings):
 		Python.__init__ (self, copy.deepcopy (settings))
@@ -198,8 +198,11 @@ class LilyPond__mingw (LilyPond):
 		LilyPond.__init__ (self, copy.deepcopy (settings))
 		# FIXME: should add to CPPFLAGS...
 		self.settings.target_gcc_flags = '-mms-bitfields'
+
+		#UGH
+		builddir = self.builddir ()
 		self.settings.target_gcc_flags += ' -I%(builddir)s' \
-						  % self.settings.__dict__
+						  % locals ()
 
         def configure_command (self):
 		return LilyPond.configure_command (self) \
@@ -295,7 +298,7 @@ PYTHONPATH=%(framework_root)s/lib/python%(python_version)s:$PYTHONPATH \
 		env=locals ())
 		os.chmod ('%(gubinstall_root)s/usr/bin/lilypond' \
 			 % self.package_dict (), 0755)
-		
+
 class Gettext (gub.Target_package):
 	def configure_command (self):
 		return gub.Target_package.configure_command (self) \
@@ -307,6 +310,18 @@ class Gettext__mingw (Gettext):
 		# gettext-0.14.1-1 does not compile with gcc-4.0.2
 		self.settings.tool_prefix = self.settings.system_toolprefix
 
+	def mingw_org_untar (self):
+		Gettext.untar (self)
+		broken_untar_dir = re.sub ('-200.*', '',
+					   '%(srcdir)s' % self.package_dict ())
+
+		self.system ('''
+mv %(broken_untar_dir)s %(srcdir)s
+''', locals ())
+
+	def xxpatch (self):
+		Gettext.autoupdate (self)
+
 	def config_cache_overrides (self, str):
 		return re.sub ('ac_cv_func_select=yes', 'ac_cv_func_select=no',
 			       str) \
@@ -316,9 +331,14 @@ gl_cv_func_mbrtowc=${gl_cv_func_mbrtowc=no}
 jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
 '''
 
+	def xxconfigure_command (self):
+		return Gettext.configure_command (self) \
+		       + ' --disable-glocale'
+
+
 class Gettext__darwin (Gettext):
 	def configure_command (self):
-		return re.sub ('--config-cache ', '',
+		return re.sub (' --config-cache', '',
 			       Gettext.configure_command (self))
 
 class Libiconv (gub.Target_package):
@@ -487,8 +507,8 @@ class Fondu (gub.Target_package):
 			       '%(builddir)s/Makefile')
 
 	def basename (self):
-		## ugr. 
-		return 'fondu' 
+		## ugr.
+		return 'fondu'
 
 class Expat (gub.Target_package):
 	def makeflags (self):
@@ -541,14 +561,17 @@ def get_packages (settings):
 #		Fondu (settings).with (version="051010", mirror=download.sourceforge_homepage, format='gz')
 		Gmp (settings).with (version='4.1.4'),
 		Guile (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2'),
-#		Guile (settings).with (version='1.6.7', mirror=download.gnu, format='gz'),		
-		
+#		Guile (settings).with (version='1.6.7', mirror=download.gnu, format='gz'),
+
 	),
 	'mingw': (
 		Libtool (settings).with (version='1.5.20'),
 		Zlib (settings).with (version='1.2.2-1', mirror=download.lp, format='bz2'),
-		Gettext__mingw (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2'),
-#		Gettext__mingw (settings).with (version='0.14.5-1', mirror=download.lp, format='bz2'),
+#		Gettext__mingw (settings).with (version='0.11.5-2003.02.01-1-src', mirror=download.mingw, format='bz2'),
+#		Gettext__mingw (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2'),
+		Gettext__mingw (settings).with (version='0.14.5-1', mirror=download.lp, format='bz2'),
+#		Gettext__mingw (settings).with (version='0.14.5'),
+#		Gettext__mingw (settings).with (mirror=cvs.gnu, download=gub.Package.cvs),
 		Libiconv (settings).with (version='1.9.2'),
 		Freetype (settings).with (version='2.1.7', mirror=download.freetype),
 		Expat (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2'),
@@ -592,4 +615,4 @@ def get_installers (settings):
 		'mingw' : [gub.Nsis (settings)],
 		}
 	return installers[settings.platform]
-	
+

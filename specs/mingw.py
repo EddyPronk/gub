@@ -19,11 +19,8 @@ tar -C %(system_root)s/usr -cf- include lib | tar -C %(tooldir)s/%(target_archit
 ''')
 
 class Mingw_runtime (gub.Binary_package):
-	def set_download (self, mirror=download.gnu, format='gz', download=gub.Target_package.wget):
-		gub.Package.set_download (self, mirror, format, download)
-		self.url = re.sub ('mingw-runtime/', 'mingw/', self.url)
-		self.url = re.sub ('w32api/', 'mingw/', self.url)
-		
+	pass
+
 class Cygwin (gub.Binary_package):
 	"Only need the cygcheck.exe binary."
 	
@@ -41,7 +38,7 @@ class Cygwin (gub.Binary_package):
 		f = re.sub ('-1$', '', f) 
 		return f
 
-class W32api (Mingw_runtime):
+class W32api (gub.Binary_package):
 	pass
 
 class Regex (gub.Target_package):
@@ -90,8 +87,8 @@ INSTALL_PROGRAM=%(srcdir)s/install-sh
 
 def get_packages (settings):
 	return (
-		Mingw_runtime (settings).with (version='3.9', mirror=download.sf),
-		W32api (settings).with (version='3.5', mirror=download.sf),
+		Mingw_runtime (settings).with (version='3.9', mirror=download.mingw),
+		W32api (settings).with (version='3.5', mirror=download.mingw),
 		Binutils (settings).with (version='2.16.1', format='bz2'),
 		Gcc (settings).with (version='4.0.2', format='bz2'),
 		Cygwin (settings).with (version='1.5.18', mirror=download.cygwin, format='bz2'), 

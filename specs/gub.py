@@ -170,8 +170,10 @@ cd %(dir)s && wget %(url)s
 cd %(dir)s && cvs -d %(url)s co -r %(version)s %(name)s
 ''', locals ())
 		else:
+# Hmm, let's save local changes?			
+#cd %(dir)s/%(name)s && cvs update -dCAP -r %(version)s
 			self.system ('''
-cd %(dir)s/%(name)s && cvs update -dCAP -r %(version)s
+cd %(dir)s/%(name)s && cvs update -dAP -r %(version)s
 ''', locals ())
 
 	def basename (self):
@@ -301,7 +303,9 @@ cd %(builddir)s && %(install_command)s
 		self.system ('cd %(builddir)s && %(compile_command)s')
 
 	def patch (self):
-		pass
+		if not os.path.exists ('%(srcdir)s/configure' \
+				       % self.package_dict ()):
+			self.autoupdate ()
 
         def gub_name (self):
 		return '%(name)s-%(version)s.%(platform)s.gub'
