@@ -1,12 +1,15 @@
 import copy
-import cvs
-import download
 import glob
-import gub
 import os
 import re
 
+## gub specific.
 from driver import Settings
+import gub
+import download
+import installer
+import cvs
+
 
 # FIXME: cannot put in cross.py, that's imported in gub before Cross_package
 # is defined
