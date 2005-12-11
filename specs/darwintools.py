@@ -61,5 +61,5 @@ def get_packages (settings):
 		
 #		Odcctools (settings).with (version='20051031', mirror=download.opendarwin, format='bz2'),
 		Odcctools (settings).with (version='20051122', mirror=download.opendarwin, format='bz2'),		
-		Gcc (settings).with (version='4.0.2', format='bz2'),
+		Gcc (settings).with (version='4.0.2', mirror = download.gcc, format='bz2'),
 		)		
