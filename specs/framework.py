@@ -603,7 +603,7 @@ def get_packages (settings):
 		Fontconfig__darwin (settings).with (version='2.3.2', mirror=download.fontconfig),
 		Pango__darwin (settings).with (version='1.10.1', mirror=download.gtk),
 #		Fondu (settings).with (version="051010", mirror=download.sourceforge_homepage, format='gz')
-		Gmp (settings).with (version='4.1.4'),
+		Gmp__darwin (settings).with (version='4.1.4'),
 
 		## 1.7.3  is actually CVS repackaged.
 #		Guile (settings).with (version='1.7.3', mirror=download.gnu, format='gz'),
