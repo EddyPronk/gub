@@ -1,3 +1,3 @@
 
 def gnu ():
-	return ':ext:anoncvs@subversions.gnu.org:/cvsroot/%(name)s'
+	return ':pserver:anoncvs@cvs.sv.gnu.org:/cvsroot/%(name)s'
