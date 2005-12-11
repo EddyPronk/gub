@@ -37,13 +37,10 @@ class Settings:
 		self.tool_prefix = arch + '-'
 		self.targetdir = self.topdir + '/target/%s' % self.target_architecture
 
-		# patches are architecture dependent.
-		# self.srcdir = os.path.join (self.targetdir, 'src')
-
-		# Hmm, isn't such a patch broken, it will never be
-		# included upstream?  Better to fix it, or override
-		# srcdir for particular broken package+patch so that
-		# the hacking debt is visible.
+		## Patches are architecture dependent, 
+		## so to ensure reproducibility, we unpack for each
+		## architecture separately.
+		self.srcdir = os.path.join (self.targetdir, 'src')
 
 		self.srcdir = self.topdir + '/src'
 		
