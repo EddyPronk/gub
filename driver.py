@@ -41,8 +41,6 @@ class Settings:
 		## so to ensure reproducibility, we unpack for each
 		## architecture separately.
 		self.srcdir = os.path.join (self.targetdir, 'src')
-
-		self.srcdir = self.topdir + '/src'
 		
 		self.builddir = self.targetdir + '/build'
 		self.garbagedir = self.targetdir + '/garbage'
