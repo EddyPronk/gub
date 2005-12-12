@@ -19,7 +19,7 @@ def now ():
 def start_log ():
 	global log_file
 	log_file = open ('build.log', 'a')
-	log_file.write ('\n\n *** Starting build: %s\n' %  now ())
+	log_file.write ('\n\n * Starting build: %s\n' %  now ())
 
 def log_command (str):
 	sys.stderr.write (str)
@@ -383,6 +383,12 @@ class Cross_package (Package):
 		STRIP = 'strip'
 		self.system ('cd %(install_prefix)s/bin && %(STRIP)s *',
 			     locals (), ignore_error=True)
+
+	def package (self):
+		## naive tarball packages for now
+		self.system ('''
+tar -C %(install_root)s/usr/ -zcf %(gub_uploads)s/%(gub_name)s .
+''')
 
 class Target_package (Package):
 	def configure_command (self):
