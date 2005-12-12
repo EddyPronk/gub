@@ -94,10 +94,7 @@ class Settings:
 			gub.system ('mkdir -p %s' % dir)
 
 def process_package (package):
-	stage = 'download'
 	gub.log_command (' ** Package: %s\n' % package.name ())
-	package.download ()
-
 	for stage in ('untar', 'patch', 'configure', 'compile', 'install',
 		      'strip', 'package', 'sysinstall'):
         	if not package.is_done (stage):
@@ -124,6 +121,9 @@ def process_package (package):
 
 
 def build_packages (settings, packages):
+	for i packages:
+		i.download ()
+
 	for i in packages:
 		process_package (i)
 
