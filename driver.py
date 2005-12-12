@@ -121,8 +121,9 @@ def process_package (package):
 
 
 def build_packages (settings, packages):
-	for i in packages:
-		i.download ()
+	if not settings.offline:
+		for i in packages:
+			i.download ()
 
 	for i in packages:
 		process_package (i)
@@ -254,6 +255,10 @@ def do_options ():
 		      type = 'string',
 		      default = [],
 		      help = 'add a variable')
+	
+        p.add_option ('-o', '--offline', action = 'store_true',
+                      default = None,
+                      dest = 'offline')
 
 	(opts, commands)  = p.parse_args ()
 	if not opts.platform:
@@ -264,6 +269,8 @@ def do_options ():
 def main ():
 	options = do_options ()
 	settings = get_settings (options.platform)
+        settings.offline = options.offline
+
 	for o in options.settings:
 		(key, val) = tuple (o.split ('='))
 		settings.__dict__[key] = val
