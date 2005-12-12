@@ -96,7 +96,7 @@ class Gmp__darwin (Gmp):
 
 		## GCC 4.0.2 cross barfs on this,
 		## don't know why.
-		self.file_sub ([('^__GMP_DECLSPEC_XX std::ostream& operator[<>]*$',
+		self.file_sub ([('__GMP_DECLSPEC_XX std::[oi]stream& operator[<>][^;]+;$',
 				 '')],
 			       self.srcdir () + '/gmp-h.in')
 		Gmp.patch (self)
