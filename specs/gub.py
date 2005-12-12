@@ -99,10 +99,10 @@ def read_pipe (cmd):
 
 
 class Package:
-	system_cpm = 0 # cpm.Cpm (self.settings.system_root)
+	system_cpm = cpm.Cpm ('ugh')
 	def __init__ (self, settings):
-		if not self.system_cpm:
-			self.system_cpm = cpm.Cpm (settings.system_root)
+		if self.system_cpm.root == 'ugh':
+			self.system_cpm.__init__ (settings.system_root)
 			self.system_cpm.setup ()
 			self.system_cpm.installed ()
 		self.settings = settings

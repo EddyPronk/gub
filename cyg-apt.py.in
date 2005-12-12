@@ -222,8 +222,7 @@ def version_to_string (t):
 		if type (x) == int:
 			return "%d" % x
 		return x
-	return '%s-%s' % (string.join (map (try_itoa, t[:-1]), '.'),
-			  t[-1])
+	return '%s-%s' % (string.join (map (try_itoa, t[:-1]), '.'), t[-1])
 
 def string_to_version (s):
 	s = re.sub ('([^0-9][^0-9]*)', ' \\1 ', s)
@@ -235,9 +234,20 @@ def string_to_version (s):
 	return tuple (map (try_atoi, (string.split (s, ' '))))
 
 def split_ball (p):
+	if p.endswith ('.gub'):
+		# gub: optional -build version, optional platform, .gub
+		m = re.match ('^(.*)-([0-9].*-[0-9])(\.[a-z]*)(\.gub)$', p)
+		if not m:
+			m = re.match ('^(.*)-([0-9].*(-[0-9])?)(\.[a-z]*)(\.gub)$', p)
+		if not m:
+			# don't care for now
+			return (p[:2], (0, 0))
+		t = (m.group (1), string_to_version (m.group (2)))
+		return t
 	m = re.match ('^(.*)-([0-9].*-[0-9]+)(.tar.bz2)?$', p)
 	if not m:
-		print 'split_ball: ' + p
+		sys.stderr.write ('split_ball: ') + p
+		sys.stderr.write ('\n')
 		return (p[:2], (0, 0))
 	t = (m.group (1), string_to_version (m.group (2)))
 	return t
