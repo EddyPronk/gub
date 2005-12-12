@@ -1,3 +1,5 @@
+import os
+
 import gub
 
 # FIXME: Want to share package_dict () and system () with gub.Package,

@@ -48,10 +48,6 @@ cd %(tooldir)s/lib && ln -fs libgcc_s.1.so libgcc_s.so
 class Libtool (gub.Target_package):
 	pass
 
-class Libtool__mingw (Libtool):
-	def xstrip (self):
-		self.strip_bin ()
-
 class Python (gub.Target_package):
 	def set_download (self, mirror, format='gz', downloader=None):
 		gub.Target_package.set_download (self, mirror, format, downloader)
@@ -74,10 +70,6 @@ class Python__mingw (Python):
 	def __init__ (self, settings):
 		Python.__init__ (self, copy.deepcopy (settings))
 		self.settings.target_gcc_flags = '-DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I%(system_root)s/usr/include' % self.settings.__dict__
-
-	def python_version (self):
-		#URG
-		return '2.4'
 
 	def patch (self):
 		self.system ('''
@@ -124,9 +116,6 @@ mkdir -p %(install_prefix)s/bin
 mv %(install_prefix)s/lib/lib*.dll %(install_prefix)s/bin/
 cp %(builddir)s/.libs/libgmp.dll.a %(install_prefix)s/lib/
 ''')
-
-	def xstrip (self):
-		self.strip_bin ()
 
 class Guile (gub.Target_package):
 
@@ -264,6 +253,7 @@ class LilyPond__mingw (LilyPond):
 ''')
 
 	def configure (self):
+		self.autoupdate ()
 		gub.Package.system (self, '''
 mkdir -p %(builddir)s
 cp /usr/include/FlexLexer.h %(builddir)s
@@ -503,10 +493,6 @@ cd %(srcdir)s && ./configure
 '''))
 		gub.Package.install (self)
 
-class Freetype__mingw (Freetype):
-	def xstrip (self):
-		self.strip_bin ()
-
 class Fontconfig (gub.Target_package):
 	def configure_command (self):
 		# FIXME: system dir vs packaging install
@@ -598,10 +584,6 @@ RUN_FC_CACHE_TEST=false
 		return gub.Target_package.broken_install_command (self) \
 		       + self.makeflags ()
 
-class Expat__mingw (Expat):
-	def xstrip (self):
-		self.strip_bin ()
-
 class Zlib (gub.Target_package):
 	def configure (self):
 		zlib_is_broken = 'SHAREDTARGET=libz.so.1.2.2'
@@ -645,16 +627,12 @@ def get_packages (settings):
 		LilyPond__darwin (settings).with (mirror=cvs.gnu, download=gub.Package.cvs),
 	),
 	'mingw': (
-		Libtool__mingw (settings).with (version='1.5.20'),
+		Libtool (settings).with (version='1.5.20'),
 		Zlib (settings).with (version='1.2.2-1', mirror=download.lp, format='bz2'),
-#		Gettext__mingw (settings).with (version='0.11.5-2003.02.01-1-src', mirror=download.mingw, format='bz2'),
-#		Gettext__mingw (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2'),
 		Gettext__mingw (settings).with (version='0.14.5-1', mirror=download.lp, format='bz2'),
-#		Gettext__mingw (settings).with (version='0.14.5'),
-#		Gettext__mingw (settings).with (mirror=cvs.gnu, download=gub.Package.cvs),
 		Libiconv (settings).with (version='1.9.2'),
-		Freetype__mingw (settings).with (version='2.1.7', mirror=download.freetype),
-		Expat__mingw (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2'),
+		Freetype (settings).with (version='2.1.7', mirror=download.freetype),
+		Expat (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2'),
 		Fontconfig__mingw (settings).with (version='2.3.2', mirror=download.fontconfig),
 		Gmp__mingw (settings).with (version='4.1.4'),
 		# FIXME: we're actually using 1.7.2-cvs+, 1.7.2 needs too much work
