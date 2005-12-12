@@ -339,6 +339,11 @@ class LilyPond__darwin (LilyPond):
 		cmd += ' --with-python-include=' + framedir + '/include/python%(python_version)s'
 		return cmd
 
+	def configure (self):
+		LilyPond.configure (self)
+		self.file_sub ([('CONFIG_CXXFLAGS = ', 'CONFIG_CXXFLAGS = -DGUILE_ELLIPSIS=...')],
+			       self.builddir()+ '/config.make')
+
 	def compile_command (self):
 		return LilyPond.compile_command (self) \
 		       + gub.join_lines (''' HELP2MAN_GROFFS=''')
