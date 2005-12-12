@@ -75,6 +75,10 @@ class Python__mingw (Python):
 		Python.__init__ (self, copy.deepcopy (settings))
 		self.settings.target_gcc_flags = '-DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I%(system_root)s/usr/include' % self.settings.__dict__
 
+	def python_version (self):
+		#URG
+		return '2.4'
+
 	def patch (self):
 		self.system ('''
 cd %(srcdir)s && patch -p1 < %(lilywinbuilddir)s/patch/python-2.4.2-1.patch
