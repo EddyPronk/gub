@@ -42,6 +42,14 @@ class Odcctools (gub.Cross_package):
 		self.file_sub ([('ld64','')],
 			       self.builddir () + '/Makefile')
 
+	def package (self):
+		# naive tarball packages for now
+		self.system ('''
+tar -C %(install_root)s/usr/ -zcf %(gub_uploads)s/%(gub_name)s .
+''')
+
+
+
 #class Gcc (cross.Gcc):
 class Gcc (framework.Gcc):
 	def patch (self):
