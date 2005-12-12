@@ -64,6 +64,6 @@ class Autopackage (Installer):
 			       '%(specdir)s/lilypond.apspec.in',
 			       to_name='%(build_autopackage)s/autopackage/default.apspec')
 		# FIXME: just use symlink?
-		self.system ('tar -C %(gubinstall_root)s -cf- . | tar -C %(build_autopackage)s -xvf-')
+		self.system ('tar -C %(gubinstall_root)s/usr -cf- . | tar -C %(build_autopackage)s -xvf-')
 		self.system ('cd %(build_autopackage)s && makeinstaller')
 		self.system ('mv %(build_autopackage)s/*.package %(installer_uploads)s')

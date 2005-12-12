@@ -1,7 +1,9 @@
+import cpm
 import cross
 import cvs
 import download
 import glob
+
 import os
 import re
 import subprocess
@@ -97,7 +99,12 @@ def read_pipe (cmd):
 
 
 class Package:
+	system_cpm = 0 # cpm.Cpm (self.settings.system_root)
 	def __init__ (self, settings):
+		if not self.system_cpm:
+			self.system_cpm = cpm.Cpm (settings.system_root)
+			self.system_cpm.setup ()
+			self.system_cpm.installed ()
 		self.settings = settings
 		self.url = ''
 		self.download = self.wget
@@ -349,8 +356,13 @@ tar -C %(root)s -zxf %(gub_uploads)s/%(gub_name)s
 	def install_gub (self):
 		self._install_gub (self.gubinstall_root ())
 
+	def XXXsysinstall (self):
+		self._install_gub (self.settings.system_root)
+
 	def sysinstall (self):
-		self._install_gub (self.settings.system_root + '/usr')
+		self.system_cpm.install (self.name (),
+					 '%(gub_uploads)s/%(gub_name)s' \
+					 % self.package_dict ())
 
 	def untar (self):
 		tarball = self.settings.downloaddir + '/' + self.file_name ()
@@ -475,18 +487,6 @@ tooldir=%(install_prefix)s
 tar -C %(install_prefix)s -zcf %(gub_uploads)s/%(name)s-%(version)s.%(platform)s.gub .
 ''')
 
-	def _install_gub (self, root):
-		self.system ('''
-mkdir -p %(root)s
-tar -C %(root)s -zxf %(gub_uploads)s/%(name)s-%(version)s.%(platform)s.gub
-''', locals ())
-
-	def install_gub (self):
-		self._install_gub (self.gubinstall_root ())
-
-	def sysinstall (self):
-		self._install_gub (self.settings.system_root + '/usr')
-
 	def target_dict (self, env={}):
 		dict = {
 			'AR': '%(tool_prefix)sar',
@@ -538,9 +538,7 @@ tar -C %(root)s -zxf %(gub_uploads)s/%(name)s-%(version)s.%(platform)s.gub
 
 class Binary_package (Package):
 	def untar (self):
-		self.system ("rm -rf %(srcdir)s %(builddir)s %(install_root)s")
-		# FIXME: /root is typically holds ./bin, ./lib, include,
-		# so is typically not _ROOT, but _PREFIX
+		self.system ('rm -rf %(srcdir)s %(builddir)s %(install_root)s')
 		self.system ('mkdir -p %(srcdir)s/root')
 		tarball = self.settings.downloaddir + '/' + self.file_name ()
 		if not os.path.exists (tarball):
@@ -559,8 +557,8 @@ class Binary_package (Package):
 		pass
 
 	def install (self):
-		self.system ('mkdir -p %(install_root)s/usr')
-		self.system ('tar -C %(srcdir)s/root -cf- . | tar -C %(install_root)s/usr -xvf-')
+		self.system ('mkdir -p %(install_root)s')
+		self.system ('tar -C %(srcdir)s/root -cf- . | tar -C %(install_root)s -xvf-')
 
 	def strip (self):
 		pass

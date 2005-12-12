@@ -42,3 +42,7 @@ distclean: realclean
 sources = GNUmakefile $(wildcard *.py specs/*.py)
 TAGS: $(sources)
 	etags $^
+
+cyg-apt.py: cyg-apt.py.in
+	sed -e "/@CPM@/r specs/cpm.py" -e "s/@CPM@//" < $< > $@
+	chmod +x $@

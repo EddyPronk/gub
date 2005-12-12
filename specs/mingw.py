@@ -1,14 +1,13 @@
-import download
-import framework
-import gub
 import os
 import re
 
-##class Binutils (gub.Binutils):
+import download
+import framework
+import gub
+
 class Binutils (framework.Binutils):
 	pass
 
-#class Gcc (cross.Gcc):
 class Gcc (framework.Gcc):
 	def patch (self):
 		# FIXME: set system_root to %(tooldir)s/%(target_architecture)s,
@@ -39,7 +38,10 @@ class Cygwin (gub.Binary_package):
 		return f
 
 class W32api (gub.Binary_package):
-	pass
+	def untar (self):
+		gub.Binary_package.untar (self)
+		self.system ('mkdir -p %(srcdir)s/root/usr')
+		self.system ('cd %(srcdir)s && mv * usr')
 
 class Regex (gub.Target_package):
 	pass
