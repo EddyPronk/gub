@@ -222,7 +222,9 @@ cd %(dir)s/%(name)s && cvs update -dAP -r %(version)s
 		return file
 
 	def done (self, stage):
-		return '%s/%s-%s' % (self.settings.statusdir, self.name (), stage)
+		return ('%(statusdir)s/%(name)s-%(version)s-%(stage)s'
+			% self.package_dict (locals ()))
+	
 	def is_done (self, stage):
 		return os.path.exists (self.done (stage))
 
