@@ -48,6 +48,10 @@ cd %(tooldir)s/lib && ln -fs libgcc_s.1.so libgcc_s.so
 class Libtool (gub.Target_package):
 	pass
 
+class Libtool__mingw (Libtool):
+	def xstrip (self):
+		self.strip_bin ()
+
 class Python (gub.Target_package):
 	def set_download (self, mirror, format='gz', downloader=None):
 		gub.Target_package.set_download (self, mirror, format, downloader)
@@ -87,6 +91,13 @@ cd %(srcdir)s && patch -p1 < %(lilywinbuilddir)s/patch/python-2.4.2-1.patch
 				    % self.package_dict ()):
 			dll = re.sub ('\.so*', '.dll', i)
 			self.system ('mv %(i)s %(dll)s', locals ())
+		self.system ('''
+cp %(install_root)s/usr/lib/python%(python_version)s/lib-dynload/* %(install_root)s/usr/bin
+''')
+		self.system ('''
+chmod 755 %(install_root)s/usr/bin/*
+''')
+
 
 class Gmp (gub.Target_package):
 	pass
@@ -110,6 +121,9 @@ mv %(install_prefix)s/lib/lib*.dll %(install_prefix)s/bin/
 cp %(builddir)s/.libs/libgmp.dll.a %(install_prefix)s/lib/
 ''')
 
+	def xstrip (self):
+		self.strip_bin ()
+
 class Guile (gub.Target_package):
 
 	## Ugh. C&P.
@@ -119,7 +133,7 @@ class Guile (gub.Target_package):
 	def configure_command (self):
 		return (gub.Target_package.configure_command (self) 
 			+ gub.join_lines ('''
-			--without-threads
+--without-threads
 --with-gnu-ld
 --enable-deprecated
 --enable-discouraged
@@ -231,8 +245,8 @@ class LilyPond__mingw (LilyPond):
 						  % locals ()
 
         def patch (self):
-		# FIXME: for our gcc-3.4.5 cross compiler, THIS is a
-		# magic word.
+		# FIXME: for our gcc-3.4.5 cross compiler in the mingw
+		# environment, THIS is a magic word.
 		self.file_sub ([('THIS', 'SELF')],
 			       '%(srcdir)s/lily/parser.yy')
 
@@ -287,6 +301,8 @@ HELP2MAN_GROFFS=
 		self.system ('''
 install -m755 %(builddir)s/lily/out/lilypond %(install_prefix)s/bin/lilypond-windows
 install -m755 %(builddir)s/lily/out-console/lilypond %(install_prefix)s/bin/lilypond
+cp %(install_root)s/usr/lib/lilypond/*/python/* %(install_root)s/usr/bin
+cp %(install_root)s/usr/share/lilypond/*/python/* %(install_root)s/usr/bin
 ''')
 		for i in glob.glob ('%(install_root)s/usr/bin/*' \
 				    % self.package_dict ()):
@@ -341,8 +357,9 @@ class LilyPond__darwin (LilyPond):
 
 	def configure (self):
 		LilyPond.configure (self)
-		self.file_sub ([('CONFIG_CXXFLAGS = ', 'CONFIG_CXXFLAGS = -DGUILE_ELLIPSIS=...')],
-			       self.builddir()+ '/config.make')
+		self.file_sub ([('CONFIG_CXXFLAGS = ',
+				 'CONFIG_CXXFLAGS = -DGUILE_ELLIPSIS=...')],
+			       self.builddir ()+ '/config.make')
 
 	def compile_command (self):
 		return LilyPond.compile_command (self) \
@@ -482,6 +499,9 @@ cd %(srcdir)s && ./configure
 '''))
 		gub.Package.install (self)
 
+class Freetype__mingw (Freetype):
+	def xstrip (self):
+		self.strip_bin ()
 
 class Fontconfig (gub.Target_package):
 	def configure_command (self):
@@ -574,6 +594,10 @@ RUN_FC_CACHE_TEST=false
 		return gub.Target_package.broken_install_command (self) \
 		       + self.makeflags ()
 
+class Expat__mingw (Expat):
+	def xstrip (self):
+		self.strip_bin ()
+
 class Zlib (gub.Target_package):
 	def configure (self):
 		zlib_is_broken = 'SHAREDTARGET=libz.so.1.2.2'
@@ -617,7 +641,7 @@ def get_packages (settings):
 		LilyPond__darwin (settings).with (mirror=cvs.gnu, download=gub.Package.cvs),
 	),
 	'mingw': (
-		Libtool (settings).with (version='1.5.20'),
+		Libtool__mingw (settings).with (version='1.5.20'),
 		Zlib (settings).with (version='1.2.2-1', mirror=download.lp, format='bz2'),
 #		Gettext__mingw (settings).with (version='0.11.5-2003.02.01-1-src', mirror=download.mingw, format='bz2'),
 #		Gettext__mingw (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2'),
@@ -625,8 +649,8 @@ def get_packages (settings):
 #		Gettext__mingw (settings).with (version='0.14.5'),
 #		Gettext__mingw (settings).with (mirror=cvs.gnu, download=gub.Package.cvs),
 		Libiconv (settings).with (version='1.9.2'),
-		Freetype (settings).with (version='2.1.7', mirror=download.freetype),
-		Expat (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2'),
+		Freetype__mingw (settings).with (version='2.1.7', mirror=download.freetype),
+		Expat__mingw (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2'),
 		Fontconfig__mingw (settings).with (version='2.3.2', mirror=download.fontconfig),
 		Gmp__mingw (settings).with (version='4.1.4'),
 		# FIXME: we're actually using 1.7.2-cvs+, 1.7.2 needs too much work

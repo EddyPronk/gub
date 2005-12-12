@@ -294,9 +294,27 @@ cd %(builddir)s && %(install_command)s
 						i, env=locals ())
 			#  ' " ''' '
 
+	def strip_bin (self):
+		if self.settings.platform.startswith ('mingw'):
+			self.system ('''
+%(STRIP)s $(find %(install_root)s/usr/bin -type f -a -perm 755)
+''',
+				     ignore_error=True)
+		else:
+			self.system ('''
+%(STRIP)s $(find %(install_root)s -name '*.exe' -o -name '*.dll')
+''',
+				     ignore_error=True)
+
+	def strip_lib (self):
+		self.system ('''
+%(STRIP)s -g $(find %(install_root)s -name '*.[oa]')
+''',
+			     ignore_error=True)
+
 	def strip (self):
-		self.system ('cd %(install_prefix)s/bin && %(STRIP)s *',
-			     locals (), ignore_error=True)
+		self.strip_bin ()
+		self.strip_lib ()
 
 	def compile_command (self):
 		return 'make'

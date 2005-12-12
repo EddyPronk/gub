@@ -170,6 +170,38 @@ def strip_gubinstall_root (root):
 		):
 		
 		os.system ('cd %(root)s && rm -rf %(i)s' % locals ())
+
+	# prune harder
+	for i in (
+		'lib/python2.4/bsddb',
+		'lib/python2.4/compiler',
+		'lib/python2.4/curses',
+		'lib/python2.4/distutils',
+		'lib/python2.4/email',
+		'lib/python2.4/hotshot',
+		'lib/python2.4/idlelib',
+		'lib/python2.4/lib-old',
+		'lib/python2.4/lib-tk',
+		'lib/python2.4/logging',
+		'lib/python2.4/test',
+		'lib/python2.4/xml',
+		'share/lilypond/*/make',
+		'share/gettext',
+		'usr/share/aclocal',
+		'share/lilypond/*/python',
+		'share/lilypond/*/tex',
+		'share/lilypond/*/vim',
+		'share/lilypond/*/python',
+		'share/lilypond/*/fonts/source',
+		'share/lilypond/*/fonts/svg',
+		'share/lilypond/*/fonts/tfm',
+		'share/locale',
+		'share/omf',
+		'share/gs/fonts/[a-bd-z]*',
+		'share/gs/fonts/c[^0][^9][^5]*',
+		'share/gs/Resource',
+		):
+		os.system ('cd %(root)s && rm -rf %(i)s' % locals ())
 	os.system ('cd %(root)s && rm -f lib/*.a' % locals ())
 
 ## FIXME: c/p from buildmac.py
@@ -237,23 +269,23 @@ def get_settings (platform):
 	return settings
 
 def do_options ():
-	p = optparse.OptionParser (usage = "driver.py [options] platform",
-				   description = "Grand Unified Builder. Specify --package-version to set build version")
-	p.add_option ('-V', '--verbose', action = 'store_true', 
-		      dest = "verbose")
-	p.add_option ('', '--package-version', action = 'store',
-		      dest = "package_version")
-	p.add_option ('-p', '--platform', action = 'store',
-		      dest = "platform",
-		      type = 'choice',
-		      default = None,
-		      help = 'select platform',
-		      choices = ['linux', 'darwin', 'mingw', 'xmingw', 'xmingw-fedora'])
-	p.add_option ('-s', '--setting', action = 'append',
-		      dest = "settings",
-		      type = 'string',
-		      default = [],
-		      help = 'add a variable')
+	p = optparse.OptionParser (usage="driver.py [options] platform",
+				   description="Grand Unified Builder. Specify --package-version to set build version")
+	p.add_option ('-V', '--verbose', action='store_true', 
+		      dest="verbose")
+	p.add_option ('', '--package-version', action='store',
+		      dest="package_version")
+	p.add_option ('-p', '--platform', action='store',
+		      dest="platform",
+		      type='choice',
+		      default=None,
+		      help='select platform',
+		      choices=['linux', 'darwin', 'mingw', 'xmingw', 'xmingw-fedora'])
+	p.add_option ('-s', '--setting', action='append',
+		      dest="settings",
+		      type='string',
+		      default=[],
+		      help='add a variable')
 
 	(opts, commands)  = p.parse_args ()
 	if not opts.platform:
