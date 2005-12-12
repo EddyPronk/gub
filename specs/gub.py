@@ -126,8 +126,6 @@ class Package:
 			'install_root': self.install_root (),
 			'install_prefix': self.install_prefix (),
 			'srcdir': self.srcdir (),
-
-			'python_version': '2.4',
 			})
 
 		dict.update (env)

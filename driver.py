@@ -58,6 +58,9 @@ class Settings:
 		self.package_arch = re.sub ('-.*', '', self.build_architecture)
 		self.build = '1'
 
+
+		self.python_version = '2.4'
+
 	def get_substitution_dict (self):
 		d = {}
 		for (k,v) in self.__dict__.items ():
