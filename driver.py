@@ -121,8 +121,9 @@ def process_package (package):
 
 
 def build_packages (settings, packages):
-	for i in packages:
-		i.download ()
+	if not settings.offline:
+		for i in packages:
+			i.download ()
 
 	for i in packages:
 		process_package (i)
@@ -271,6 +272,9 @@ def get_settings (platform):
 def do_options ():
 	p = optparse.OptionParser (usage="driver.py [options] platform",
 				   description="Grand Unified Builder. Specify --package-version to set build version")
+        p.add_option ('-o', '--offline', action = 'store_true',
+                      default=None,
+                      dest='offline')
 	p.add_option ('-V', '--verbose', action='store_true', 
 		      dest="verbose")
 	p.add_option ('', '--package-version', action='store',
@@ -296,6 +300,8 @@ def do_options ():
 def main ():
 	options = do_options ()
 	settings = get_settings (options.platform)
+        settings.offline = options.offline
+
 	for o in options.settings:
 		(key, val) = tuple (o.split ('='))
 		settings.__dict__[key] = val
