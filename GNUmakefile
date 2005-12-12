@@ -19,7 +19,7 @@ LILYPOND_VERSION=$(MAJOR_VERSION).$(MINOR_VERSION).$(PATCH_LEVEL)$(if $(strip $(
 
 
 INVOKE_DRIVER=python driver.py --package-version $(LILYPOND_VERSION) \
-   --setting=lilywinbuilddir=$(LILYPOND_MINGW_INSTALLER_DIR)
+   --setting=lilywinbuilddir=$(LILYPOND_MINGW_INSTALLER_DIR)  $(LOCAL_DRIVER_OPTIONS)
 
 linux:
 	$(INVOKE_DRIVER) --platform linux
