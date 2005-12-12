@@ -121,7 +121,7 @@ def process_package (package):
 
 
 def build_packages (settings, packages):
-	for i packages:
+	for i in packages:
 		i.download ()
 
 	for i in packages:
