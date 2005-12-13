@@ -18,7 +18,11 @@ tar -C %(system_root)s/usr -cf- include lib | tar -C %(tooldir)s/%(target_archit
 ''')
 
 class Mingw_runtime (gub.Binary_package):
-	pass
+	def untar (self):
+		gub.Binary_package.untar (self)
+		self.system ('mkdir -p %(srcdir)s/root/usr')
+		self.system ('cd %(srcdir)s/root && mv * usr',
+			     ignore_error=True)
 
 class Cygwin (gub.Binary_package):
 	"Only need the cygcheck.exe binary."
@@ -41,7 +45,8 @@ class W32api (gub.Binary_package):
 	def untar (self):
 		gub.Binary_package.untar (self)
 		self.system ('mkdir -p %(srcdir)s/root/usr')
-		self.system ('cd %(srcdir)s && mv * usr')
+		self.system ('cd %(srcdir)s/root && mv * usr',
+			     ignore_error=True)
 
 class Regex (gub.Target_package):
 	pass

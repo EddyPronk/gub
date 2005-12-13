@@ -273,8 +273,8 @@ cd %(srcdir)s && automake --add-missing
 		return '%(srcdir)s/configure --prefix=%(install_prefix)s'
 
 	def configure (self):
-		if cpm.installed ().has_key (self.name ()):
-			cpm.uninstall (self.name ())
+		if self.system_cpm.installed ().has_key (self.name ()):
+			system_cpm.uninstall (self.name ())
 		self.system ('''
 mkdir -p %(builddir)s
 cd %(builddir)s && %(configure_command)s
@@ -346,7 +346,7 @@ cd %(builddir)s && %(install_command)s
 	def package (self):
 		# naive tarball packages for now
 		self.system ('''
-tar -C %(install_prefix)s -zcf %(gub_uploads)s/%(gub_name)s .
+tar -C %(install_root)s -zcf %(gub_uploads)s/%(gub_name)s .
 ''')
 
 	def _install_gub (self, root):
@@ -417,12 +417,6 @@ class Cross_package (Package):
 		self.system ('cd %(install_prefix)s/bin && %(STRIP)s *',
 			     locals (), ignore_error=True)
 
-	def package (self):
-		## naive tarball packages for now
-		self.system ('''
-tar -C %(install_root)s/usr/ -zcf %(gub_uploads)s/%(gub_name)s .
-''')
-
 class Target_package (Package):
 	def configure_command (self):
 		return join_lines ('''%(srcdir)s/configure
@@ -479,12 +473,6 @@ tooldir=%(install_prefix)s
 	def configure (self):
 		self.config_cache ()
 		Package.configure (self)
-
-	def package (self):
-		# naive tarball packages for now
-		self.system ('''
-tar -C %(install_prefix)s -zcf %(gub_uploads)s/%(name)s-%(version)s.%(platform)s.gub .
-''')
 
 	def target_dict (self, env={}):
 		dict = {
