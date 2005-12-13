@@ -101,10 +101,14 @@ class Gmp (gub.Target_package):
 class Gmp__darwin (Gmp):
 	def patch (self):
 
-		## GCC 4.0.2 cross barfs on this,
-		## don't know why.
-		self.file_sub ([('__GMP_DECLSPEC_XX std::[oi]stream& operator[<>][^;]+;$',
-				 '')],
+		## powerpc/darwin cross barfs on all C++ includes from
+		## a C linkage file.
+		## don't know why. Let's patch C++ completely from GMP.
+		
+		self.file_sub ([('__GMP_DECLSPEC_XX std::[oi]stream& operator[<>][^;]+;$', ''),
+				('#include <iosfwd>', ''),
+				('<cstddef>','<stddef.h>')
+				],
 			       self.srcdir () + '/gmp-h.in')
 		Gmp.patch (self)
 
@@ -398,7 +402,8 @@ jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
 
 
 class Gettext__darwin (Gettext):
-	def configure_command (self):
+	def xconfigure_command (self):
+		## not necessary for 0.14.1
 		return re.sub (' --config-cache', '',
 			       Gettext.configure_command (self))
 
