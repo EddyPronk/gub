@@ -18,9 +18,9 @@ log_file = None
 def now ():
 	return time.asctime (time.localtime ())
 
-def start_log ():
+def start_log (settings):
 	global log_file
-	log_file = open ('build.log', 'a')
+	log_file = open (settings.targetdir '/build.log', 'a')
 	log_file.write ('\n\n * Starting build: %s\n' %  now ())
 
 def log_command (str):
@@ -31,8 +31,8 @@ def log_command (str):
 
 def system_one (cmd, env, ignore_error):
 	log_command ('invoking %s\n' % cmd)
-
-	proc = subprocess.Popen (cmd, shell=True, env=env)
+	
+	proc = subprocess.Popen (cmd, shell=True, env=env, stderr=subprocess.STDOUT)
 	stat = proc.wait ()
 
 	if stat and not ignore_error:

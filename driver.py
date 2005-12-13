@@ -309,7 +309,7 @@ def main ():
 		(key, val) = tuple (o.split ('='))
 		settings.__dict__[key] = val
 		
-	gub.start_log ()
+	gub.start_log (settings)
 	settings.verbose = options.verbose
 	settings.bundle_version = options.package_version
 	settings.create_dirs ()
