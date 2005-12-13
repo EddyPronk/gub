@@ -20,7 +20,9 @@ def now ():
 
 def start_log (settings):
 	global log_file
-	log_file = open (settings.targetdir '/build.log', 'a')
+	if not os.path.isdir (settings.targetdir):
+		os.makedirs (settings.targetdir)
+	log_file = open (settings.targetdir + '/build.log', 'a')
 	log_file.write ('\n\n * Starting build: %s\n' %  now ())
 
 def log_command (str):
@@ -271,6 +273,8 @@ cd %(srcdir)s && automake --add-missing
 		return '%(srcdir)s/configure --prefix=%(install_prefix)s'
 
 	def configure (self):
+		if cpm.installed ().has_key (self.name ()):
+			cpm.uninstall (self.name ())
 		self.system ('''
 mkdir -p %(builddir)s
 cd %(builddir)s && %(configure_command)s
@@ -353,9 +357,6 @@ tar -C %(root)s -zxf %(gub_uploads)s/%(gub_name)s
 
 	def install_gub (self):
 		self._install_gub (self.gubinstall_root ())
-
-	def XXXsysinstall (self):
-		self._install_gub (self.settings.system_root)
 
 	def sysinstall (self):
 		self.system_cpm.install (self.name (),
