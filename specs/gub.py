@@ -176,7 +176,7 @@ cd %(dir)s && wget %(url)s
 		dir = self.settings.srcdir
 		if not os.path.exists (os.path.join (dir, self.name ())):
 			self.system ('''
-cd %(dir)s && cvs -d %(url)s co -r %(version)s %(name)s
+cd %(dir)s && cvs -d %(url)s -q co -r %(version)s %(name)s
 ''', locals ())
 		else:
 # Hmm, let's save local changes?			
