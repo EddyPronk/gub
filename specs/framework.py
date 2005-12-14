@@ -643,7 +643,7 @@ def get_packages (settings):
 		Freetype (settings).with (version='2.1.7', mirror=download.freetype),
 		Expat (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2'),
 		Fontconfig__mingw (settings).with (version='2.3.2', mirror=download.fontconfig),
-		Gmp__mingw (settings).with (version='4.1.4'),
+		Gmp__mingw (settings).with (version='4.1.4', depends=['mingw-runtime']),
 		# FIXME: we're actually using 1.7.2-cvs+, 1.7.2 needs too much work
 		Guile__mingw (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2'),
 		Glib (settings).with (version='2.8.4', mirror=download.gtk),

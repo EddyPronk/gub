@@ -344,7 +344,10 @@ tar -C %(root)s -zxf %(gub_uploads)s/%(gub_name)s
 	def sysinstall (self):
 		self.system_gpm.install (self.name (),
 					 '%(gub_uploads)s/%(gub_name)s' \
-					 % self.package_dict ())
+					 % self.package_dict (),
+					 depends=self.depends)
+		self.system_gpm.write_setup_ini ('%(uploads)s/setup.ini' \
+						% self.package_dict ())
 
 	def untar (self):
 		tarball = self.settings.downloaddir + '/' + self.file_name ()
@@ -369,9 +372,10 @@ tar %(flags)s %(tarball)s -C %(allsrcdir)s
 		self.url = mirror () % d
 		self.download = lambda : download (self)
 
-	def with (self, version='HEAD', mirror=download.gnu, format='gz', download=wget):
+	def with (self, version='HEAD', mirror=download.gnu, format='gz', download=wget, depends=[]):
 		self.ball_version = version
 		self.set_download (mirror, format, download)
+		self.depends = depends
 		return self
 
 class Cross_package (Package):
@@ -398,6 +402,12 @@ class Cross_package (Package):
 	def sysinstall (self):
 		self._install_gub (self.settings.tooldir)
 
+	def package (self):
+		# naive tarball packages for now
+		# cross packages must not have ./usr because of tooldir
+		self.system ('''
+tar -C %(install_root)s/usr -zcf %(gub_uploads)s/%(gub_name)s .
+''')
 
 class Target_package (Package):
 	def configure_command (self):

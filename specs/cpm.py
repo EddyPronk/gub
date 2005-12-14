@@ -3,6 +3,7 @@ import pickle
 import re
 import string
 import sys
+import time
 
 try:
 	fake_pipe = 0
@@ -87,6 +88,8 @@ class Cpm:
 		self.config = self.root + '/etc/setup'
 		self._installed_db = self.config + '/installed.db'
 		self._installed = None
+		self._depends = {}
+		self.installed ()
 		self.setup ()
 
 	def _write_installed (self):
@@ -141,7 +144,7 @@ class Cpm:
 			self._load_installed ()
 		return self._installed
 
-	def _install (self, name, ball):
+	def _install (self, name, ball, depends=[]):
 		root = self.root
 		z = self.compression
 		pipe = os.popen ('tar -C "%(root)s" -%(z)sxvf "%(ball)s"' \
@@ -151,16 +154,19 @@ class Cpm:
 			raise 'urg'
 		self._write_filelist (lst, name)
 		self._installed[name] = os.path.basename (ball)
+		self._depends[name] = depends
 		self._write_installed ()
 
-	def install (self, name, ball):
+	def install (self, name, ball, depends=[]):
+		##if self.installed ().has_key (name):
+		## Fixme: huh?
 		if self.installed ().has_key (name):
 			sys.stderr.write ('uninstalling: ' + name)
 			sys.stderr.write ('\n')
 			self.uninstall (name)
 		sys.stderr.write ('installing: ' + name)
 		sys.stderr.write ('\n')
-		self._install (name, ball)
+		self._install (name, ball, depends)
 		self.run_scripts ()
 
 	def uninstall (self, name):
@@ -208,5 +214,42 @@ class Gpm (Cpm):
 		else:
 			self._installed = pickle.load (open (self._installed_db))
 
-	def write_setup_ini (self):
-		pass
+	def read_setup_ini (self, setup_ini):
+		packages = {}
+		if os.path.exists (setup_ini):
+			chunks = string.split (open (setup_ini).read (),
+					       '\n\n@ ')
+			for i in chunks[1:]:
+				name = i[:i.find ('\n')]
+				packages[name] = i
+		return packages
+
+	def write_setup_ini (self, setup_ini):
+		now = `time.time ()`
+		now = now[:now.find ('.')]
+		s = '''setup-timestamp: %(now)s
+		''' % locals ()
+		packages = self.read_setup_ini (setup_ini)
+		for name in packages.keys ():
+			if name not in self.installed ().keys ():
+				s += '\n@ ' + packages[name]
+
+		for name in self.installed ().keys ():
+			Name = name[0].upper () + name[1:]
+			ball = self.installed ()[name]
+			version = version_to_string (split_ball (ball)[1])
+			uploads = 'uploads'
+			dir = 'gub'
+			depends = string.join (self._depends[name])
+			pipe = os.popen ('md5sum "%(uploads)s/%(dir)s/%(ball)s"' \
+					 % locals ())
+			md5 = string.split (pipe.read ())[0]
+			s += '''
+@ %(name)s
+sdesc: %(Name)s
+requires: %(depends)s
+version: %(version)s
+install: %(dir)s/%(ball)s %(md5)s
+source: TBD
+''' % locals ()
+		open (setup_ini, 'w').write (s)

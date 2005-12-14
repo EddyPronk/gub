@@ -46,7 +46,14 @@ class Settings:
 		self.builddir = self.targetdir + '/build'
 		self.garbagedir = self.targetdir + '/garbage'
 		self.statusdir = self.targetdir + '/status'
-		self.gub_uploads = self.targetdir + '/uploads/gub'
+
+		## Safe uploads, so that we can rm -rf target/*
+		## and still cheaply construct a (partly) system root
+		## from .gub packages.
+		## self.gub_uploads = self.targetdir + '/uploads/gub'
+		self.uploads = self.topdir + '/uploads'
+		self.gub_uploads = self.uploads + '/gub'
+
 		# FIXME: rename to target_root?
 		self.system_root = self.targetdir + '/system'
 		self.installdir = self.targetdir + '/install'
@@ -54,7 +61,8 @@ class Settings:
 
 		# INSTALLERS
 		self.installer_root = self.targetdir + '/installer'
-		self.installer_uploads = self.targetdir + '/uploads'
+		##self.installer_uploads = self.targetdir + '/uploads'
+		self.installer_uploads = self.uploads
 		self.bundle_version = None
 		self.bundle_build = None
 		self.package_arch = re.sub ('-.*', '', self.build_architecture)
@@ -125,8 +133,11 @@ def build_packages (settings, packages):
 		for i in packages:
 			i.download ()
 
+	d = []
 	for i in packages:
+		i.depends = d
 		process_package (i)
+		d = [i.name ()]
 		
 ## FIXME: c/p from buildmac.py
 ##	gub.system ('cd %(root)s && strip bin/*' % locals ())

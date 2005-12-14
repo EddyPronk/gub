@@ -13,7 +13,7 @@ class Gcc (framework.Gcc):
 		# FIXME: set system_root to %(tooldir)s/%(target_architecture)s,
 		# or copy mingw-runtime/win32api here?
 		self.system ('''
-mkdir -p %(target_architecture)s
+mkdir -p %(tooldir)s/%(target_architecture)s
 tar -C %(system_root)s/usr -cf- include lib | tar -C %(tooldir)s/%(target_architecture)s -xf-
 ''')
 
@@ -97,11 +97,11 @@ def get_packages (settings):
 		Mingw_runtime (settings).with (version='3.9', mirror=download.mingw),
 		W32api (settings).with (version='3.5', mirror=download.mingw),
 		Binutils (settings).with (version='2.16.1', format='bz2'),
+		Cygwin (settings).with (version='1.5.18-1', mirror=download.cygwin, format='bz2', depends=['mingw-runtime']), 
+		Gs (settings).with (version='8.15-1', mirror=download.lp, format='bz2', depends=['mingw-runtime']),
 #		Gcc (settings).with (version='4.0.2', mirror=download.gcc, format='bz2'),
 		Gcc (settings).with (version='3.4.5', mirror=download.gcc, format='bz2'),
-		Cygwin (settings).with (version='1.5.18-1', mirror=download.cygwin, format='bz2'), 
-		Regex (settings).with (version='2.3.90-1', mirror=download.lp, format='bz2'),
-		Gs (settings).with (version='8.15-1', mirror=download.lp, format='bz2'),
+		Regex (settings).with (version='2.3.90-1', mirror=download.lp, format='bz2', depends=['mingw-runtime']),
 		LilyPad (settings).with (version='0.0.7-1', mirror=download.lp, format='bz2'),
 		)
 

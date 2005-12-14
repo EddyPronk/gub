@@ -220,7 +220,13 @@ h.close ()
 #####
 @CPM@
 #####
-cpm = Cpm (ROOT)
+
+# FIXME: use pickle exception to determine cygwin/gub root
+try:
+	cpm = Gpm (ROOT)
+except:
+	cpm = Cpm (ROOT)
+
 
 def debug (s):
 	s
@@ -743,6 +749,11 @@ def find ():
 				hits.append ('%s: /%s' % (packagename, i))
 	print (string.join (hits, '\n'))
 
+
+def gen_ini ():
+	'''generate simple setup.ini from installed base'''
+	cpm.gen_setup_ini ()
+
 if command == 'setup':
 	setup ()
 	sys.exit (0)
@@ -760,7 +771,7 @@ for i in (cpm._installed_db, setup_ini):
 		sys.exit (2)
 	
 get_setup_ini ()
-#cpm.installed ()
+cpm.installed ()
 
 if command and command in __main__.__dict__:
 	__main__.__dict__[command] ()
