@@ -84,14 +84,14 @@ def file_sub (re_pairs, name, to_name=None):
 		h.write (t)
 		h.close ()
 
-def read_pipe (cmd):
+def read_pipe (cmd, ignore_error=False):
 	log_command ('Reading pipe: %s\n' % cmd)
 	
 	pipe = os.popen (cmd, 'r')
 	output = pipe.read ()
 	status = pipe.close ()
 	# successful pipe close returns None
-	if status:
+	if not ignore_error and status:
 		raise 'read_pipe failed'
 	return output
 
@@ -154,9 +154,9 @@ class Package:
 			to_name = to_name % dict
 		return file_sub (x, name % dict, to_name)
 
-	def read_pipe (self, cmd, env={}):
+	def read_pipe (self, cmd, env={}, ignore_error=False):
 		dict = self.package_dict (env)
-		return read_pipe (cmd % dict)
+		return read_pipe (cmd % dict, ignore_error=ignore_error)
 
 	def system (self, cmd, env={}, ignore_error=False):
 		dict = self.package_dict (env)
@@ -210,7 +210,7 @@ cd %(dir)s/%(name)s && cvs -q update  -dAP -r %(version)s
 	def install_prefix (self):
 		return self.install_root () + '/usr'
 
-	def gubinstall_root (self):
+	def xinstaller_root (self):
 		if self.settings.platform.startswith ('linux'):
 			return  '%(installer_root)s/usr/lib/lilypond/%(bundle_version)s/root'
 		return '%(installer_root)s/usr'
@@ -517,9 +517,9 @@ tooldir=%(install_prefix)s
 		dict = self.target_dict (env)
 		return Package.file_sub (self, re_pairs, name, to_name=to_name, env=dict)
 
-	def read_pipe (self, cmd, env={}):
+	def read_pipe (self, cmd, env={}, ignore_error=False):
 		dict = self.target_dict (env)
-		return Package.read_pipe (self, cmd, env=dict)
+		return Package.read_pipe (self, cmd, env=dict, ignore_error=ignore_error)
 
 	def system (self, cmd, env={}, ignore_error=False):
 		dict = self.target_dict (env)
@@ -549,5 +549,3 @@ class Binary_package (Package):
 		self.system ('mkdir -p %(install_root)s')
 		self.system ('tar -C %(srcdir)s/root -cf- . | tar -C %(install_root)s -xvf-')
 
-	def strip (self):
-		pass
