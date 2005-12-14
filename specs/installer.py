@@ -126,7 +126,7 @@ class Darwin_bundle (Installer):
 			if self.ignore_libs.has_key (libpath):
 				continue
 			
-			newpath = re.sub ('/usr/lib', '@executable_path/../lib/', libpath); 
+			newpath = re.sub ('/usr/lib/', '@executable_path/../lib/', libpath); 
 			changes += (' -change %s %s ' % (libpath, newpath))
 			
 		if changes:
@@ -143,13 +143,14 @@ class Darwin_bundle (Installer):
 		
 	def get_ignore_libs (self):
 		(root, dirs, files) = os.walk (self.settings.installdir + '/darwin-sdk-root/usr/lib').next ()
-		return dict ([(f, True) for  f in files])
-		
+		d =  dict ([(os.path.join ('/usr/lib', f), True) for  f in files])
+		return d
+	
 	def __init__ (self, settings):
 		Installer.__init__ (self, settings)
 		self.ignore_libs = self.get_ignore_libs ()
 		self.strip_command += ' -S '
-		
+
 	def create (self):
 		self.rewire_binary_dir (self.settings.installer_root + '/usr/lib')
 		self.rewire_binary_dir (self.settings.installer_root + '/usr/bin')
