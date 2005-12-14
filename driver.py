@@ -130,98 +130,27 @@ def build_packages (settings, packages):
 
 	for i in packages:
 		process_package (i)
-
-def strip_gubinstall_root (root):
-	"Remove unnecessary cruft."
-	
-	for i in (
-		'bin/*-config',
-		'bin/*gettext*',
-		'bin/[cd]jpeg',
-		'bin/envsubst*',
-		'bin/glib-genmarshal*',
-		'bin/gobject-query*',
-		'bin/gspawn-win32-helper*',
-		'bin/gspawn-win32-helper-console*',
-		'bin/msg*',
-		'bin/pango-querymodules*',
-		'bin/python*',
-		'bin/python2.4*',
-		'bin/xmlwf',
-		'doc'
-		'include',
-		'include',
-		'info',
-		'lib/gettext',
-		'lib/gettext/hostname*',
-		'lib/gettext/urlget*',
-		'lib/pkgconfig',
-		'lib/python2.4/distutils/command/wininst-6*',
-		'lib/python2.4/distutils/command/wininst-7.1*',
-		'man',
-		'share/doc',
-		'share/gettext/intl',
-		'share/ghostscript/8.15/Resource/',
-		'share/ghostscript/8.15/doc/',
-		'share/ghostscript/8.15/examples',
-		'share/gs/8.15/Resource/',
-		'share/gs/8.15/doc/',
-		'share/gs/8.15/examples',
-		'share/gtk-doc',
-		'share/info',
-		'share/man',
-		'share/omf',
-		):
 		
-		os.system ('cd %(root)s && rm -rf %(i)s' % locals ())
-
-	# prune harder
-	for i in (
-		'lib/python2.4/bsddb',
-		'lib/python2.4/compiler',
-		'lib/python2.4/curses',
-		'lib/python2.4/distutils',
-		'lib/python2.4/email',
-		'lib/python2.4/hotshot',
-		'lib/python2.4/idlelib',
-		'lib/python2.4/lib-old',
-		'lib/python2.4/lib-tk',
-		'lib/python2.4/logging',
-		'lib/python2.4/test',
-		'lib/python2.4/xml',
-		'share/lilypond/*/make',
-		'share/gettext',
-		'usr/share/aclocal',
-		'share/lilypond/*/python',
-		'share/lilypond/*/tex',
-		'share/lilypond/*/vim',
-		'share/lilypond/*/python',
-		'share/lilypond/*/fonts/source',
-		'share/lilypond/*/fonts/svg',
-		'share/lilypond/*/fonts/tfm',
-		'share/locale',
-		'share/omf',
-		'share/gs/fonts/[a-bd-z]*',
-		'share/gs/fonts/c[^0][^9][^5]*',
-		'share/gs/Resource',
-		):
-		os.system ('cd %(root)s && rm -rf %(i)s' % locals ())
-	os.system ('cd %(root)s && rm -f lib/*.a' % locals ())
-
 ## FIXME: c/p from buildmac.py
 ##	gub.system ('cd %(root)s && strip bin/*' % locals ())
 ##	gub.system ('cd %(root)s && cp etc/pango/pango.modules etc/pango/pango.modules.in ' % locals ())
 
 def make_installers (settings, packages):
 	# FIXME: todo separate lilypond-framework, lilypond packages?
-	gub.system ('rm -rf %(gubinstall_root)s' % settings.__dict__)
-	for i in packages:
-		print >> sys.stderr, 'gub:' + i.name () + ':' + 'install_gub'
-		i.install_gub ()
-		strip_gubinstall_root (i.gubinstall_root () % i.package_dict ())
-	for i in framework.get_installers (settings):
-		print >> sys.stderr, 'gub:' + i.name () + ':' + 'create'
-		i.create ()
+	packages = [p for p in packages if not isinstance (p, gub.Cross_package)]
+
+
+	# set to false for debugging
+	install_gubs = True
+	if install_gubs:
+		gub.system ('rm -rf %(installer_root)s' % settings.__dict__)
+		for p in packages:
+			gub.log_command (' *** Stage: %s (%s)\n' % ('install_gub', p.name()))
+			p.install_gub ()
+
+	for p in framework.get_installers (settings):
+		gub.log_command (' *** Stage: %s (%s)\n' % ('create', p.name()))
+		p.create ()
 
 def get_settings (platform):
 	init  = {
