@@ -348,6 +348,9 @@ tar -C %(root)s -zxf %(gub_uploads)s/%(gub_name)s
 					 depends=self.depends)
 		self.system_gpm.write_setup_ini ('%(uploads)s/setup.ini' \
 						% self.package_dict ())
+		self.system ('''
+cp -pv %(uploads)s/setup.ini %(system_root)s/etc/setup/
+''')
 
 	def untar (self):
 		tarball = self.settings.downloaddir + '/' + self.file_name ()

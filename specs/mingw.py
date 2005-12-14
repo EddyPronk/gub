@@ -54,7 +54,7 @@ class Regex (gub.Target_package):
 class Gs (gub.Binary_package):
 	def untar (self):
 		gub.Binary_package.untar (self)
-		self.system ('cd %(srcdir)s && mv root/gs-%(version)s/* .')
+		self.system ('cd %(srcdir)s && mv root/gs-%(version)s-%(build)s/* .')
 
 	def install (self):
 		gs_prefix = '/usr/share/gs'
@@ -102,6 +102,6 @@ def get_packages (settings):
 #		Gcc (settings).with (version='4.0.2', mirror=download.gcc, format='bz2'),
 		Gcc (settings).with (version='3.4.5', mirror=download.gcc, format='bz2'),
 		Regex (settings).with (version='2.3.90-1', mirror=download.lp, format='bz2', depends=['mingw-runtime']),
-		LilyPad (settings).with (version='0.0.7-1', mirror=download.lp, format='bz2'),
+		LilyPad (settings).with (version='0.0.7-1', mirror=download.lp, format='bz2', depends=['w32-api']),
 		)
 

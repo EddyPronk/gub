@@ -202,7 +202,6 @@ class Gpm (Cpm):
 	compression = 'z'
 	def __init__ (self, root):
 		Cpm.__init__ (self, root)
-		self._installed_db = self.config + '/installed.pickle'
 
 	def _write_installed (self):
 		file = open (self._installed_db, 'w')
@@ -246,10 +245,13 @@ class Gpm (Cpm):
 			md5 = string.split (pipe.read ())[0]
 			s += '''
 @ %(name)s
-sdesc: %(Name)s
+sdesc: "%(Name)s"
+ldesc: "%(Name)s - no description available"
 requires: %(depends)s
 version: %(version)s
 install: %(dir)s/%(ball)s %(md5)s
 source: TBD
 ''' % locals ()
-		open (setup_ini, 'w').write (s)
+		f = open (setup_ini, 'w')
+		f.write (s)
+		f.close ()
