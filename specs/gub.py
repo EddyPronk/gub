@@ -20,9 +20,7 @@ def now ():
 
 def start_log (settings):
 	global log_file
-	if not os.path.isdir (settings.targetdir):
-		os.makedirs (settings.targetdir)
-	log_file = open (settings.targetdir + '/build.log', 'a')
+	log_file = open ('build-%s.log' % settings.target_architecture, 'a')
 	log_file.write ('\n\n * Starting build: %s\n' %  now ())
 
 def log_command (str):
@@ -34,7 +32,8 @@ def log_command (str):
 def system_one (cmd, env, ignore_error):
 	log_command ('invoking %s\n' % cmd)
 	
-	proc = subprocess.Popen (cmd, shell=True, env=env, stderr=subprocess.STDOUT)
+	proc = subprocess.Popen (cmd, shell=True, env=env,
+				 stderr=subprocess.STDOUT)
 	stat = proc.wait ()
 
 	if stat and not ignore_error:
