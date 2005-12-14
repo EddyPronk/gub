@@ -23,6 +23,7 @@ def grok_sh_variables (self, file):
 
 	return dict
 
+
 class Settings:
 	def __init__ (self, arch):
 		self.target_gcc_flags = '' 
@@ -70,7 +71,6 @@ class Settings:
 			d[k] = v
 
 		d.update({
-			'sourcesdir': self.srcdir,
 			'build_autopackage': self.builddir + '/autopackage',
 			})
 		

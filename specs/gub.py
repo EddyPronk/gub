@@ -375,7 +375,7 @@ tar -C %(root)s -zxf %(gub_uploads)s/%(gub_name)s
 
 		# clean up
 		self.system ('rm -rf %(srcdir)s %(builddir)s %(install_root)s')
-		cmd = 'tar %(flags)s %(tarball)s -C %(sourcesdir)s'
+		cmd = 'tar %(flags)s %(tarball)s -C %(srcdir)s'
 		self.system (cmd, locals ())
 
 	def set_download (self, mirror=download.gnu, format='gz', download=wget):
