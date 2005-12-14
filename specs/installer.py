@@ -111,7 +111,27 @@ class Installer (gub.Package):
 
 		
 	def create (self):
-		pass
+		self.strip ()
+		
+class Darwin_bundle (Installer):
+	def rewire_mach_o_object (self, name):
+		lib_str = self.read_pipe ("%(target_architecture)s-otool -L %(name)s", locals(), ignore_error=True)
+
+		changes = ''
+		for l in lib_str.split ('\n'):
+			m = re.search ("\s+(/usr/lib/.*) \(.*\)", l)
+			if not m:
+				continue
+			libpath = m.group (1)
+			if self.ignore_libs.has_key (libpath):
+				continue
+			
+			newpath = re.sub ('/usr/lib', '@executable_path/../lib/', libpath); 
+			changes += (' -change %s %s ' % (libpath, newpath))
+			
+		if changes:
+			self.system ("%(target_architecture)s-install_name_tool %(changes)s %(name)s ",
+				     locals(), ignore_error=True)
 
 class Nsis (Installer):
 	def __init__ (self, settings):
@@ -143,7 +163,14 @@ class Nsis (Installer):
 #		self.system ('cd %(targetdir)s && makensis -NOCD %(nsisdir)/lilypond.nsi')
 		self.system ('mv %(targetdir)s/setup.exe %(installer_uploads)s/lilypond-%(version)s-%(build)s.exe', locals ())
 
-class Tgz (Installer):
+class Linux_installer (Installer):
+	def __init__ (self, settings):
+		Installer.__init__ (self, settings)
+		self.strip_command += ' -g '
+		
+
+
+class Tgz (Linux_installer):
 	def create (self):
 		build = self.settings.build
 		self.system ('tar -C %(installer_root)s -zcf %(installer_uploads)s/%(name)s-%(version)s-%(package_arch)s-%(build)s.tgz .', locals ())
@@ -153,13 +180,13 @@ class Deb (Linux_installer):
 		build = self.settings.build
 		self.system ('cd %(installer_uploads)s && fakeroot alien --keep-version --to-deb %(installer_uploads)s/%(name)s-%(version)s-%(package_arch)s-%(build)s.tgz', locals ())
 
-class Rpm (Installer):
+class Rpm (Linux_installer):
 	def create (self):
 		build = self.settings.build
 		self.system ('cd %(installer_uploads)s && fakeroot alien --keep-version --to-rpm %(installer_uploads)s/%(name)s-%(version)s-%(package_arch)s-%(build)s.tgz', locals ())
 
 
-class Autopackage (Installer):
+class Autopackage (Linux_installer):
 	def create (self):
 		self.system ('rm -rf %(build_autopackage)s')
 		self.system ('mkdir -p %(build_autopackage)s/autopackage')
@@ -167,7 +194,7 @@ class Autopackage (Installer):
 			       '%(specdir)s/lilypond.apspec.in',
 			       to_name='%(build_autopackage)s/autopackage/default.apspec')
 		# FIXME: just use symlink?
-		self.system ('tar -C %(gubinstall_root)s/usr -cf- . | tar -C %(build_autopackage)s -xvf-')
+		self.system ('tar -C %(installer_root)s/usr -cf- . | tar -C %(build_autopackage)s -xvf-')
 		self.system ('cd %(build_autopackage)s && makeinstaller')
 		self.system ('mv %(build_autopackage)s/*.package %(installer_uploads)s')
 
