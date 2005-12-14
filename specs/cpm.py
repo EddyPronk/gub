@@ -1,6 +1,7 @@
 import os
 import string
 import sys
+import pickle
 
 cygwin_p = 0
 try:
@@ -42,7 +43,6 @@ def run_all (dir):
 			try_run_script ('%s/%s' % (dir, i))
 
 class Cpm:
-	installed_db_magic = 'INSTALLED.DB 2\n'
 	def __init__ (self, root):
 		self.root = root
 		self.config = self.root + '/etc/setup'
@@ -53,21 +53,18 @@ class Cpm:
 
 	def _write_installed (self):
 		file = open (self._installed_db, 'w')
-		file.write (self.installed_db_magic)
-		file.writelines (map (lambda x: '%s %s 0\n' \
-				      % (x, self._installed[x]),
-				      self._installed.keys ()))
-		if file.close ():
-			raise 'urg'
+		pickle.dump (self._installed, file)
+	def load_installed (self):
+		if not os.path.isfile (self._installed_db):
+			self._installed = {}
+		else:
+			pickle.load (open (self._installed_db))
+
 
 	def setup (self):
 		if not os.path.isdir (self.config):
 			sys.stderr.write ('creating %s\n' % self.config)
 			os.makedirs (self.config)
-		if not os.path.isfile (self._installed_db):
-			sys.stderr.write ('creating %s\n' % self._installed_db)
-			self._installed = {}
-			self._write_installed ()
 
 	def filelist (self, name):
 		pipe = os.popen ('gzip -dc "%s/%s.lst.gz"' % (self.config,
@@ -90,14 +87,11 @@ class Cpm:
 			raise 'urg'
 		if fake_pipe:
 			system ('gzip -f "%s"' % lst_name)
-
+		
 	def installed (self):
-		if not self._installed:
-			self._installed = {}
-			for i in open (self._installed_db).readlines ()[1:]:
-				name, ball, status = string.split (i)
-				##self._installed[int (status)][name] = ball
-				self._installed[name] = ball
+		if self._installed == None:
+			self.load_installed ()
+
 		return self._installed
 
 	def _install (self, name, ball):
