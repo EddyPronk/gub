@@ -58,7 +58,7 @@ class Cpm:
 		if not os.path.isfile (self._installed_db):
 			self._installed = {}
 		else:
-			pickle.load (open (self._installed_db))
+			self._installed = pickle.load (open (self._installed_db))
 
 
 	def setup (self):
