@@ -308,28 +308,6 @@ cd %(builddir)s && %(install_command)s
 
 
 	## Platform check sucks. Let's move this into the installer  classes.
-				
-	def strip_bin (self):
-		if self.settings.platform.startswith ('mingw'):
-			self.system ('''
-%(STRIP)s $(find %(install_root)s/usr/bin -type f -a -perm 755)
-''',
-				     ignore_error=True)
-		else:
-			self.system ('''
-%(STRIP)s $(find %(install_root)s -name '*.exe' -o -name '*.dll')
-''',
-				     ignore_error=True)
-
-	def strip_lib (self):
-		self.system ('''
-%(STRIP)s -g $(find %(install_root)s -name '*.[oa]')
-''',
-			     ignore_error=True)
-
-	def strip (self):
-		self.strip_bin ()
-		self.strip_lib ()
 
 	def compile_command (self):
 		return 'make'
@@ -414,10 +392,6 @@ class Cross_package (Package):
 	def sysinstall (self):
 		self._install_gub (self.settings.tooldir)
 
-	def strip (self):
-		STRIP = 'strip'
-		self.system ('cd %(install_prefix)s/bin && %(STRIP)s *',
-			     locals (), ignore_error=True)
 
 class Target_package (Package):
 	def configure_command (self):
@@ -497,7 +471,6 @@ tooldir=%(install_prefix)s
 ''',
 			'RANLIB': '%(tool_prefix)sranlib',
 			'SED': 'sed', # libtool (expat mingw) fixup
-			'STRIP': '%(tool_prefix)sstrip',
 			}
 		if self.settings.__dict__.has_key ('gcc'):
 			dict['CC'] = self.settings.gcc
