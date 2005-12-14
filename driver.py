@@ -99,7 +99,7 @@ class Settings:
 def process_package (package):
 	gub.log_command (' ** Package: %s\n' % package.name ())
 	for stage in ('untar', 'patch', 'configure', 'compile', 'install',
-		      'strip', 'package', 'sysinstall'):
+		      'package', 'sysinstall'):
         	if not package.is_done (stage):
 			gub.log_command (' *** Stage: %s (%s)\n' % (stage, package.name ()))
 
@@ -114,8 +114,6 @@ def process_package (package):
                         	package.compile ()
 			elif stage == 'install':
                         	package.install ()
-			elif stage == 'strip':
-                        	package.strip ()
 			elif stage == 'package':
                         	package.package ()
 			elif stage == 'sysinstall':
