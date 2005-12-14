@@ -117,8 +117,6 @@ class Package:
 				continue
 			dict[k] = v
 
-		print 'version:' + self.version ()
-		print 'build:' + self.build ()
 		dict.update({
 			'build': self.build (),
 			'builddir': self.builddir (),
@@ -331,7 +329,7 @@ cd %(builddir)s && %(install_command)s
 	def package (self):
 		# naive tarball packages for now
 		self.system ('''
-tar -C %(install_prefix)s -zcf %(gub_uploads)s/%(gub_name)s .
+tar -C %(install_root)s -zcf %(gub_uploads)s/%(gub_name)s .
 ''')
 
 	def _install_gub (self, root):
@@ -341,7 +339,7 @@ tar -C %(root)s -zxf %(gub_uploads)s/%(gub_name)s
 ''', locals ())
 
 	def install_gub (self):
-		self._install_gub (self.settings.installer_root + '/usr')
+		self._install_gub (self.settings.installer_root)
 
 	def sysinstall (self):
 		self.system_gpm.install (self.name (),

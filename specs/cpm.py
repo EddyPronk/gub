@@ -207,3 +207,6 @@ class Gpm (Cpm):
 			self._installed = {}
 		else:
 			self._installed = pickle.load (open (self._installed_db))
+
+	def write_setup_ini (self):
+		pass
