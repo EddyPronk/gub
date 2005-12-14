@@ -41,7 +41,7 @@ class Settings:
 		## Patches are architecture dependent, 
 		## so to ensure reproducibility, we unpack for each
 		## architecture separately.
-		self.srcdir = os.path.join (self.targetdir, 'src')
+		self.allsrcdir = os.path.join (self.targetdir, 'src')
 		
 		self.builddir = self.targetdir + '/build'
 		self.garbagedir = self.targetdir + '/garbage'
@@ -83,7 +83,7 @@ class Settings:
 			'gub_uploads',
 			'installer_uploads',
 			'specdir',
-			'srcdir',
+			'allsrcdir',
 			'statusdir',
 			'system_root',
 			'targetdir',

@@ -174,7 +174,7 @@ cd %(dir)s && wget %(url)s
 ''', locals ())
 
 	def cvs (self):
-		dir = self.settings.srcdir
+		dir = self.settings.allsrcdir
 		if not os.path.exists (os.path.join (dir, self.name ())):
 			self.system ('''
 cd %(dir)s && cvs -d %(url)s -q co -r %(version)s %(name)s
@@ -199,7 +199,7 @@ cd %(dir)s/%(name)s && cvs -q update  -dAP -r %(version)s
 		return s
 
 	def srcdir (self):
-		return self.settings.srcdir + '/' + self.basename ()
+		return self.settings.allsrcdir + '/' + self.basename ()
 
 	def builddir (self):
 		return self.settings.builddir + '/' + self.basename ()
@@ -347,13 +347,13 @@ tar -C %(root)s -zxf %(gub_uploads)s/%(gub_name)s
 		tarball = self.settings.downloaddir + '/' + self.file_name ()
 
 		if not os.path.exists (tarball):
-			return
+			raise "tarball doesn't exist" 
 
 		flags = download.untar_flags (tarball)
 
 		# clean up
 		self.system ('rm -rf %(srcdir)s %(builddir)s %(install_root)s')
-		cmd = 'tar %(flags)s %(tarball)s -C %(srcdir)s'
+		cmd = 'tar %(flags)s %(tarball)s -C %(allsrcdir)s'
 		self.system (cmd, locals ())
 
 	def set_download (self, mirror=download.gnu, format='gz', download=wget):
