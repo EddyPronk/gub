@@ -100,12 +100,12 @@ def read_pipe (cmd, ignore_error=False):
 
 
 class Package:
-	system_cpm = cpm.Cpm ('ugh')
+	system_gpm = cpm.Gpm ('ugh')
 	def __init__ (self, settings):
-		if self.system_cpm.root == 'ugh':
-			self.system_cpm.__init__ (settings.system_root)
-			self.system_cpm.setup ()
-			self.system_cpm.installed ()
+		if self.system_gpm.root == 'ugh':
+			self.system_gpm.__init__ (settings.system_root)
+			self.system_gpm.setup ()
+			self.system_gpm.installed ()
 		self.settings = settings
 		self.url = ''
 		self.download = self.wget
@@ -272,8 +272,8 @@ cd %(srcdir)s && automake --add-missing
 		return '%(srcdir)s/configure --prefix=%(install_prefix)s'
 
 	def configure (self):
-		if self.system_cpm.installed ().has_key (self.name ()):
-			self.system_cpm.uninstall (self.name ())
+		if self.system_gpm.installed ().has_key (self.name ()):
+			self.system_gpm.uninstall (self.name ())
 		self.system ('''
 mkdir -p %(builddir)s
 cd %(builddir)s && %(configure_command)s
@@ -339,7 +339,7 @@ tar -C %(root)s -zxf %(gub_uploads)s/%(gub_name)s
 		self._install_gub (self.settings.installer_root + '/usr')
 
 	def sysinstall (self):
-		self.system_cpm.install (self.name (),
+		self.system_gpm.install (self.name (),
 					 '%(gub_uploads)s/%(gub_name)s' \
 					 % self.package_dict ())
 

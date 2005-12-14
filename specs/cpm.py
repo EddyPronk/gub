@@ -3,7 +3,6 @@ import string
 import sys
 import pickle
 
-cygwin_p = 0
 try:
 	fake_pipe = 0
 	date = os.popen ('date').read ()
@@ -43,6 +42,11 @@ def run_all (dir):
 			try_run_script ('%s/%s' % (dir, i))
 
 class Cpm:
+	'''Cygwin package manager.
+
+	Works on native Cygwin and cross Cygwin trees.
+	'''
+	compression = 'j'
 	def __init__ (self, root):
 		self.root = root
 		self.config = self.root + '/etc/setup'
@@ -53,13 +57,20 @@ class Cpm:
 
 	def _write_installed (self):
 		file = open (self._installed_db, 'w')
-		pickle.dump (self._installed, file)
-	def load_installed (self):
-		if not os.path.isfile (self._installed_db):
-			self._installed = {}
-		else:
-			self._installed = pickle.load (open (self._installed_db))
+		file.write (self.installed_db_magic)
+		file.writelines (map (lambda x: '%s %s 0\n' \
+				      % (x, self._installed[x]),
+				      self._installed.keys ()))
+		if file.close ():
+			raise 'urg'
 
+	def _load_installed (self):
+		self._installed = {}
+		if os.path.isfile (self._installed_db):
+			for i in open (self._installed_db).readlines ()[1:]:
+				name, ball, status = string.split (i)
+				##self._installed[int (status)][name] = ball
+				self._installed[name] = ball
 
 	def setup (self):
 		if not os.path.isdir (self.config):
@@ -90,16 +101,12 @@ class Cpm:
 		
 	def installed (self):
 		if self._installed == None:
-			self.load_installed ()
-
+			self._load_installed ()
 		return self._installed
 
 	def _install (self, name, ball):
 		root = self.root
-		## FIXME
-		z = 'z'
-		if cygwin_p:
-			z = 'j'
+		z = self.compression
 		pipe = os.popen ('tar -C "%(root)s" -%(z)sxvf "%(ball)s"' \
 				 % locals (), 'r')
 		lst = map (string.strip, pipe.readlines ())
@@ -142,7 +149,24 @@ class Cpm:
 		del (self._installed[name])
 		self._write_installed ()
 
-
 	def run_scripts (self):
 		run_all (self.root + '/etc/postinstall')
 
+class Gpm (Cpm):
+	'''Gub package manager.
+
+	Reusing Cygwin package management.'''
+	compression = 'z'
+	def __init__ (self, root):
+		Cpm.__init__ (self, root)
+		self._installed_db = self.config + '/installed.pickle'
+
+	def _write_installed (self):
+		file = open (self._installed_db, 'w')
+		pickle.dump (self._installed, file)
+
+	def _load_installed (self):
+		if not os.path.isfile (self._installed_db):
+			self._installed = {}
+		else:
+			self._installed = pickle.load (open (self._installed_db))
