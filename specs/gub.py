@@ -273,7 +273,7 @@ cd %(srcdir)s && automake --add-missing
 
 	def configure (self):
 		if self.system_cpm.installed ().has_key (self.name ()):
-			system_cpm.uninstall (self.name ())
+			self.system_cpm.uninstall (self.name ())
 		self.system ('''
 mkdir -p %(builddir)s
 cd %(builddir)s && %(configure_command)s
@@ -306,6 +306,9 @@ cd %(builddir)s && %(install_command)s
 						i, env=locals ())
 			#  ' " ''' '
 
+
+	## Platform check sucks. Let's move this into the installer  classes.
+				
 	def strip_bin (self):
 		if self.settings.platform.startswith ('mingw'):
 			self.system ('''
