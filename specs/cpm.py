@@ -1,7 +1,8 @@
 import os
+import pickle
+import re
 import string
 import sys
-import pickle
 
 try:
 	fake_pipe = 0
@@ -40,6 +41,39 @@ def run_all (dir):
 		lst = filter (lambda x: x[-3:] == '.sh', os.listdir (dir))
 		for i in lst:
 			try_run_script ('%s/%s' % (dir, i))
+
+def version_to_string (t):
+	def try_itoa (x):
+		if type (x) == int:
+			return "%d" % x
+		return x
+	return '%s-%s' % (string.join (map (try_itoa, t[:-1]), '.'), t[-1])
+
+def string_to_version (s):
+	s = re.sub ('([^0-9][^0-9]*)', ' \\1 ', s)
+	s = re.sub ('[ _.-][ _.-]*', ' ', s)
+	def try_atoi (x):
+		if re.match ('^[0-9]*$', x):
+			return string.atoi (x)
+		return x
+	return tuple (map (try_atoi, (string.split (s, ' '))))
+
+def split_version (s):
+	m = re.match ('^(([0-9].*)-([0-9]+))$', s)
+	if m:
+		return m.group (2), m.group (3)
+	return s, '0'
+
+def split_ball (s):
+	m = re.match ('^(.*?)-([0-9].*(-[0-9]+)?)(\.tar\.bz2|\.[a-z]*\.gub)$', s)
+	if not m:
+		sys.stderr.write ('split_ball: ') + s
+		sys.stderr.write ('\n')
+		return (s[:2], (0, 0))
+	return (m.group (1), string_to_version (string.join (split_version (m.group (2)), '-')))
+
+def join_ball (t):
+	return t[0] + '-' + version_to_string (t[1])
 
 class Cpm:
 	'''Cygwin package manager.

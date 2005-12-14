@@ -38,7 +38,7 @@ class Cygwin (gub.Binary_package):
 
 	def basename (self):
 		f = gub.Binary_package.basename (self)
-		f = re.sub ('-1$', '', f) 
+		f = re.sub ('-1$', '', f)
 		return f
 
 class W32api (gub.Binary_package):
@@ -99,7 +99,7 @@ def get_packages (settings):
 		Binutils (settings).with (version='2.16.1', format='bz2'),
 #		Gcc (settings).with (version='4.0.2', mirror=download.gcc, format='bz2'),
 		Gcc (settings).with (version='3.4.5', mirror=download.gcc, format='bz2'),
-		Cygwin (settings).with (version='1.5.18', mirror=download.cygwin, format='bz2'), 
+		Cygwin (settings).with (version='1.5.18-1', mirror=download.cygwin, format='bz2'), 
 		Regex (settings).with (version='2.3.90-1', mirror=download.lp, format='bz2'),
 		Gs (settings).with (version='8.15-1', mirror=download.lp, format='bz2'),
 		LilyPad (settings).with (version='0.0.7-1', mirror=download.lp, format='bz2'),

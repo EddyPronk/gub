@@ -14,7 +14,6 @@ import time
 
 log_file = None
 
-
 def now ():
 	return time.asctime (time.localtime ())
 
@@ -47,7 +46,8 @@ def join_lines (str):
 	return re.sub ('\n', ' ', str)
 
 def system (cmd, env={}, ignore_error=False, verbose=False):
-	"Run multiple lines as multiple commands."
+	"""Run multiple lines as multiple commands.
+	"""
 
 	call_env = os.environ.copy ()
 	call_env.update (env)
@@ -112,21 +112,25 @@ class Package:
 
 	def package_dict (self, env={}):
 		dict = self.settings.get_substitution_dict ()
-		for (k,v) in self.__dict__.items():
+		for (k, v) in self.__dict__.items():
 			if type (v) <> type (''):
 				continue
 			dict[k] = v
-			
+
+		print 'version:' + self.version ()
+		print 'build:' + self.build ()
 		dict.update({
-			'name': self.name (),
+			'build': self.build (),
 			'builddir': self.builddir (),
 			'compile_command': self.compile_command (),
 			'configure_command': self.configure_command (),
 			'gub_name': self.gub_name (),
 			'install_command': self.install_command (),
-			'install_root': self.install_root (),
 			'install_prefix': self.install_prefix (),
+			'install_root': self.install_root (),
+			'name': self.name (),
 			'srcdir': self.srcdir (),
+			'version': self.version (),
 			})
 
 		dict.update (env)
@@ -186,6 +190,18 @@ cd %(dir)s && cvs -d %(url)s -q co -r %(version)s %(name)s
 cd %(dir)s/%(name)s && cvs -q update  -dAP -r %(version)s
 ''', locals ())
 
+	def file_name (self):
+		## hmm. we could use Class._name as a data member.
+		##
+		if self.url:
+			file = re.sub ('.*/([^/]+)', '\\1', self.url)
+			file = file.lower ()
+		else:
+			file = self.__class__.__name__.lower ()
+			file = re.sub ('__.*', '', file)
+			file = re.sub ('_', '-', file)
+		return file
+
 	def basename (self):
 		f = self.file_name ()
 		f = re.sub ('.tgz', '', f)
@@ -197,6 +213,12 @@ cd %(dir)s/%(name)s && cvs -q update  -dAP -r %(version)s
 		s = self.basename ()
 		s = re.sub ('-[0-9][^-]+(-[0-9]+)?$', '', s)
 		return s
+
+	def version (self):
+		return cpm.split_version (self.ball_version)[0]
+
+	def build (self):
+		return cpm.split_version (self.ball_version)[-1]
 
 	def srcdir (self):
 		return self.settings.allsrcdir + '/' + self.basename ()
@@ -210,25 +232,8 @@ cd %(dir)s/%(name)s && cvs -q update  -dAP -r %(version)s
 	def install_prefix (self):
 		return self.install_root () + '/usr'
 
-	def xinstaller_root (self):
-		if self.settings.platform.startswith ('linux'):
-			return  '%(installer_root)s/usr/lib/lilypond/%(bundle_version)s/root'
-		return '%(installer_root)s/usr'
-
-	def file_name (self):
-		## hmm. we could use Class._name as a data member.
-		##
-		if self.url:
-			file = re.sub ('.*/([^/]+)', '\\1', self.url)
-			file = file.lower ()
-		else:
-			file = self.__class__.__name__.lower ()
-			file = re.sub ('__.*', '', file)
-			file = re.sub ('_', '-', file)
-		return file
-
 	def done (self, stage):
-		return ('%(statusdir)s/%(name)s-%(version)s-%(stage)s'
+		return ('%(statusdir)s/%(name)s-%(version)s-%(build)s-%(stage)s'
 			% self.package_dict (locals ()))
 	
 	def is_done (self, stage):
@@ -321,7 +326,7 @@ cd %(builddir)s && %(install_command)s
 			self.autoupdate ()
 
         def gub_name (self):
-		return '%(name)s-%(version)s.%(platform)s.gub'
+		return '%(name)s-%(version)s-%(build)s.%(platform)s.gub'
 
 	def package (self):
 		# naive tarball packages for now
@@ -345,19 +350,21 @@ tar -C %(root)s -zxf %(gub_uploads)s/%(gub_name)s
 
 	def untar (self):
 		tarball = self.settings.downloaddir + '/' + self.file_name ()
-
 		if not os.path.exists (tarball):
-			raise "tarball doesn't exist" 
-
+			raise 'no such file: ' + tarball
 		flags = download.untar_flags (tarball)
-
 		# clean up
-		self.system ('rm -rf %(srcdir)s %(builddir)s %(install_root)s')
-		cmd = 'tar %(flags)s %(tarball)s -C %(allsrcdir)s'
-		self.system (cmd, locals ())
+		self.system ('''
+rm -rf %(srcdir)s %(builddir)s %(install_root)s
+tar %(flags)s %(tarball)s -C %(allsrcdir)s
+''',
+			     locals ())
 
 	def set_download (self, mirror=download.gnu, format='gz', download=wget):
-		"Setup URLs and functions for downloading. This should not spawn any commands."
+		"""Setup URLs and functions for downloading.
+
+		This should not spawn any commands.
+		"""
 
 		d = self.package_dict ()
 		d.update (locals ())
@@ -365,12 +372,13 @@ tar -C %(root)s -zxf %(gub_uploads)s/%(gub_name)s
 		self.download = lambda : download (self)
 
 	def with (self, version='HEAD', mirror=download.gnu, format='gz', download=wget):
-		self.version = version
+		self.ball_version = version
 		self.set_download (mirror, format, download)
 		return self
 
 class Cross_package (Package):
-	"Package for cross compilers/linkers etc."
+	"""Package for cross compilers/linkers etc.
+	"""
 
 	def configure_command (self):
 		return Package.configure_command (self) \
@@ -380,7 +388,7 @@ class Cross_package (Package):
 ''')
 
         def gub_name (self):
-		return '%(name)s-%(version)s.%(build_architecture)s-%(target_architecture)s.gub'
+		return '%(name)s-%(version)s-%(build)s.%(build_architecture)s-%(target_architecture)s.gub'
 
 	def install_command (self):
 		# FIXME: to install this, must revert any prefix=tooldir stuff
@@ -412,7 +420,8 @@ class Target_package (Package):
 		return str
 
 	def broken_install_command (self):
-		"For packages that don't honor DESTDIR."
+		"""For packages that do not honor DESTDIR.
+		"""
 
 		# FIXME: use sysconfdir=%(install_PREFIX)s/etc?  If
 		# so, must also ./configure that way
@@ -504,7 +513,7 @@ class Binary_package (Package):
 		self.system ('mkdir -p %(srcdir)s/root')
 		tarball = self.settings.downloaddir + '/' + self.file_name ()
 		if not os.path.exists (tarball):
-			return
+			raise 'no such file: ' + tarball
 		flags = download.untar_flags (tarball)
 		cmd = 'tar %(flags)s %(tarball)s -C %(srcdir)s/root'
 		self.system (cmd, locals ())

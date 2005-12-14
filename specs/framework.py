@@ -54,7 +54,7 @@ class Python (gub.Target_package):
 		self.url = re.sub ('python-', 'Python-' , self.url)
 
 	def python_version (self):
-		return '.'.join (self.version.split ('.')[0:])
+		return '.'.join (self.ball_version.split ('.')[0:])
 
 	def package_dict (self, env = {}):
 		dict = gub.Target_package.package_dict (self, env)
@@ -125,7 +125,7 @@ class Guile (gub.Target_package):
 
 	## Ugh. C&P.
 	def guile_version (self):
-		return '.'.join (self.version.split ('.')[0:])
+		return '.'.join (self.ball_version.split ('.')[0:])
 	
 	def configure_command (self):
 		return (gub.Target_package.configure_command (self) 

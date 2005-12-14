@@ -56,9 +56,8 @@ class Settings:
 		self.installer_root = self.targetdir + '/installer'
 		self.installer_uploads = self.targetdir + '/uploads'
 		self.bundle_version = None
+		self.bundle_build = None
 		self.package_arch = re.sub ('-.*', '', self.build_architecture)
-		self.build = '1'
-
 
 		self.python_version = '2.4'
 
@@ -201,7 +200,7 @@ def get_settings (platform):
 
 def do_options ():
 	p = optparse.OptionParser (usage="driver.py [options] platform",
-				   description="Grand Unified Builder. Specify --package-version to set build version")
+				   description="Grand Unified Builder.  Specify --package-version to set build version")
         p.add_option ('-o', '--offline', action = 'store_true',
                       default=None,
                       dest='offline')
@@ -209,6 +208,8 @@ def do_options ():
 		      dest="verbose")
 	p.add_option ('', '--package-version', action='store',
 		      dest="package_version")
+	p.add_option ('', '--package-build', action='store',
+		      dest="package_build")
 	p.add_option ('-p', '--platform', action='store',
 		      dest="platform",
 		      type='choice',
@@ -239,6 +240,7 @@ def main ():
 	gub.start_log (settings)
 	settings.verbose = options.verbose
 	settings.bundle_version = options.package_version
+	settings.bundle_build = options.package_build
 	settings.create_dirs ()
 
 	os.environ["PATH"] = '%s/%s:%s' % (settings.tooldir, 'bin',

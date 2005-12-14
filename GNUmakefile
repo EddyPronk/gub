@@ -18,8 +18,11 @@ include $(LILYPOND_CVSDIR)/VERSION
 LILYPOND_VERSION=$(MAJOR_VERSION).$(MINOR_VERSION).$(PATCH_LEVEL)$(if $(strip $(MY_PATCH_LEVEL)),.$(MY_PATCH_LEVEL),)
 
 
-INVOKE_DRIVER=python driver.py --package-version $(LILYPOND_VERSION) \
-   --setting=lilywinbuilddir=$(LILYPOND_MINGW_INSTALLER_DIR)  $(LOCAL_DRIVER_OPTIONS)
+INVOKE_DRIVER=python driver.py \
+--package-version=$(LILYPOND_VERSION) \
+--package-build=1 \
+--setting=lilywinbuilddir=$(LILYPOND_MINGW_INSTALLER_DIR) \
+$(LOCAL_DRIVER_OPTIONS)
 
 linux:
 	$(INVOKE_DRIVER) --platform linux
@@ -52,3 +55,9 @@ test-cygwin: cyg-apt.py
 	rm -rf cygwin
 	./cyg-apt.py setup
 	./cyg-apt.py -x install cygwin
+	./cyg-apt.py list
+
+test-gub: cyg-apt.py
+	rm -f ~/.cyg-apt .cyg-apt
+	./cyg-apt.py --root=target/i686-mingw/system setup
+	./cyg-apt.py list

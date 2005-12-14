@@ -11,7 +11,6 @@ import gub
 class Installer (gub.Package):
 	def __init__ (self, settings):
 		gub.Package.__init__ (self, settings)
-		self.version = settings.bundle_version
 		self.strip_command = self.settings.target_architecture + "-strip"
 		
         def name (self):
@@ -169,10 +168,9 @@ class Nsis (Installer):
 		
 		# FIXME: build in separate nsis dir, copy or use symlink
 		installer = os.path.basename (self.settings.installer_root)
-		build = self.settings.build
 		self.file_sub ([
 			('@GUILE_VERSION@', '%(guile_version)s'),
-			('@LILYPOND_BUILD@', '%(build)s'),
+			('@LILYPOND_BUILD@', '%bundle_builds'),
 			('@LILYPOND_VERSION@', '%(bundle_version)s'),
 			('@PYTHON_VERSION@', '%(python_version)s'),
 			('@ROOT@', '%(installer)s'),
@@ -187,7 +185,7 @@ class Nsis (Installer):
 		self.system ('cp %(nsisdir)s/*.sh.in %(targetdir)s')
 		self.system ('cd %(targetdir)s && makensis lilypond.nsi')
 #		self.system ('cd %(targetdir)s && makensis -NOCD %(nsisdir)/lilypond.nsi')
-		self.system ('mv %(targetdir)s/setup.exe %(installer_uploads)s/lilypond-%(version)s-%(build)s.exe', locals ())
+		self.system ('mv %(targetdir)s/setup.exe %(installer_uploads)s/lilypond-%(bundle_version)s-%(build)s.exe', locals ())
 
 class Linux_installer (Installer):
 	def __init__ (self, settings):
@@ -199,24 +197,24 @@ class Linux_installer (Installer):
 class Tgz (Linux_installer):
 	def create (self):
 		build = self.settings.build
-		self.system ('tar -C %(installer_root)s -zcf %(installer_uploads)s/%(name)s-%(version)s-%(package_arch)s-%(build)s.tgz .', locals ())
+		self.system ('tar -C %(installer_root)s -zcf %(installer_uploads)s/%(name)s-%(bundle_version)s-%(package_arch)s-%(build)s.tgz .', locals ())
 
 class Deb (Linux_installer):
 	def create (self):
 		build = self.settings.build
-		self.system ('cd %(installer_uploads)s && fakeroot alien --keep-version --to-deb %(installer_uploads)s/%(name)s-%(version)s-%(package_arch)s-%(build)s.tgz', locals ())
+		self.system ('cd %(installer_uploads)s && fakeroot alien --keep-version --to-deb %(installer_uploads)s/%(name)s-%(bundle_version)s-%(package_arch)s-%(build)s.tgz', locals ())
 
 class Rpm (Linux_installer):
 	def create (self):
 		build = self.settings.build
-		self.system ('cd %(installer_uploads)s && fakeroot alien --keep-version --to-rpm %(installer_uploads)s/%(name)s-%(version)s-%(package_arch)s-%(build)s.tgz', locals ())
+		self.system ('cd %(installer_uploads)s && fakeroot alien --keep-version --to-rpm %(installer_uploads)s/%(name)s-%(bundle_version)s-%(package_arch)s-%(build)s.tgz', locals ())
 
 
 class Autopackage (Linux_installer):
 	def create (self):
 		self.system ('rm -rf %(build_autopackage)s')
 		self.system ('mkdir -p %(build_autopackage)s/autopackage')
-		self.file_sub ([('@VERSION@', '%(version)s')],
+		self.file_sub ([('@VERSION@', '%(bundle_version)s')],
 			       '%(specdir)s/lilypond.apspec.in',
 			       to_name='%(build_autopackage)s/autopackage/default.apspec')
 		# FIXME: just use symlink?
