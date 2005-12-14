@@ -133,6 +133,28 @@ class Darwin_bundle (Installer):
 			self.system ("%(target_architecture)s-install_name_tool %(changes)s %(name)s ",
 				     locals(), ignore_error=True)
 
+	def rewire_binary_dir (self, dir):
+		(root, dirs, files) = os.walk (dir).next ()
+		files = [os.path.join (root, f) for f in files]
+		for f in files:
+			if os.path.isfile (f):
+				self.rewire_mach_o_object(f)
+		
+		
+	def get_ignore_libs (self):
+		(root, dirs, files) = os.walk (self.settings.installdir + '/darwin-sdk-root/usr/lib').next ()
+		return dict ([(f, True) for  f in files])
+		
+	def __init__ (self, settings):
+		Installer.__init__ (self, settings)
+		self.ignore_libs = self.get_ignore_libs ()
+		self.strip_command += ' -S '
+		
+	def create (self):
+		self.rewire_binary_dir (self.settings.installer_root + '/usr/lib')
+		self.rewire_binary_dir (self.settings.installer_root + '/usr/bin')
+		Installer.create (self)
+		
 class Nsis (Installer):
 	def __init__ (self, settings):
 		Installer.__init__ (self, settings)
