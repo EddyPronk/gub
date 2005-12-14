@@ -4,7 +4,7 @@ import glob
 import gub
 import re
 
-class Darwin_sdk (gub.Binary_package):
+class Darwin_sdk (gub.Binary_package, gub.Cross_package):
 	def file_name (self):
 		return 'darwin-sdk.tar.gz'
 
@@ -12,7 +12,9 @@ class Darwin_sdk (gub.Binary_package):
 		pat = self.settings.system_root + '/usr/lib/*.la'
 		for a in glob.glob (pat):
 			self.file_sub ([(r' (/usr/lib/.*\.la)', r'%(system_root)s\1')], a)
-
+	def install_prefix (self):
+		return self.install_root ()
+		
 class Odcctools (gub.Cross_package):
 	def install_prefix (self):
 		return self.settings.tooldir
