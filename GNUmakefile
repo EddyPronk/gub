@@ -43,6 +43,12 @@ sources = GNUmakefile $(wildcard *.py specs/*.py)
 TAGS: $(sources)
 	etags $^
 
-cyg-apt.py: cyg-apt.py.in
+cyg-apt.py: cyg-apt.py.in specs/cpm.py
 	sed -e "/@CPM@/r specs/cpm.py" -e "s/@CPM@//" < $< > $@
 	chmod +x $@
+
+test-cygwin: cyg-apt.py
+	rm -f ~/.cyg-apt .cyg-apt
+	rm -rf cygwin
+	./cyg-apt.py setup
+	./cyg-apt.py -x install cygwin

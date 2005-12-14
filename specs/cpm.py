@@ -46,6 +46,7 @@ class Cpm:
 
 	Works on native Cygwin and cross Cygwin trees.
 	'''
+	installed_db_magic = 'INSTALLED.DB 2\n'
 	compression = 'j'
 	def __init__ (self, root):
 		self.root = root
@@ -53,7 +54,6 @@ class Cpm:
 		self._installed_db = self.config + '/installed.db'
 		self._installed = None
 		self.setup ()
-		self.installed ()
 
 	def _write_installed (self):
 		file = open (self._installed_db, 'w')
@@ -76,6 +76,9 @@ class Cpm:
 		if not os.path.isdir (self.config):
 			sys.stderr.write ('creating %s\n' % self.config)
 			os.makedirs (self.config)
+			self._load_installed ()
+		if not os.path.exists (self._installed_db):
+			self._write_installed ()
 
 	def filelist (self, name):
 		pipe = os.popen ('gzip -dc "%s/%s.lst.gz"' % (self.config,
