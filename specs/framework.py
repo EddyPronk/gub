@@ -227,9 +227,6 @@ class LilyPond (gub.Target_package):
 		cmd += ' --disable-documentation'
 		return cmd
 
-	def gubinstall_root (self):
-		return '%(gubinstall_root)s/usr'
-
 class LilyPond__mingw (LilyPond):
 	def __init__ (self, settings):
 		LilyPond.__init__ (self, copy.deepcopy (settings))
@@ -323,9 +320,9 @@ class LilyPond__linux (LilyPond):
 	def install_gub (self):
 		gub.Target_package.install_gub (self)
 		self.system ('''
-cd %(gubinstall_root)s/usr/bin && mv lilypond lilypond-bin
+cd %(installer_root)s/usr/bin && mv lilypond lilypond-bin
 ''')
-		framework_root = gub.Package.gubinstall_root (self)
+		framework_root = gub.Package.installer_root (self)
 		self.dump ('''
 #! /bin/sh
 # Do not use Python, as python itself might need a relocation wrapper
@@ -337,15 +334,18 @@ GS_LIB=%(framework_root)s/share/gs/lib:$GS_LIB \
 PANGO_RC_FILE=${PANGO_RC_FILE-%(framework_root)s/usr/etc/pango/pangorc} \
 PYTHONPATH=%(framework_root)s/../python:$PYTHONPATH \
 PYTHONPATH=%(framework_root)s/lib/python%(python_version)s:$PYTHONPATH \
-%(gubinstall_root)s/usr/bin/lilypond-bin "$@"
+%(installer_root)s/usr/bin/lilypond-bin "$@"
 '''
 ,
-		'%(gubinstall_root)s/usr/bin/lilypond',
+		'%(installer_root)s/usr/bin/lilypond',
 		env=locals ())
-		os.chmod ('%(gubinstall_root)s/usr/bin/lilypond' \
+		os.chmod ('%(installer_root)s/usr/bin/lilypond' \
 			 % self.package_dict (), 0755)
 
 class LilyPond__darwin (LilyPond):
+	def __init__ (self, settings):
+		LilyPond.__init__ (self, settings)
+		## debug aid.
 	def configure_command (self):
 		cmd = LilyPond.configure_command (self)
 
@@ -684,7 +684,7 @@ def get_packages (settings):
 
 def get_installers (settings):
 	installers = {
-		'darwin' : [installer.Bundle (settings)],
+		'darwin' : [installer.Darwin_bundle (settings)],
 		'linux' : [
 		installer.Tgz (settings),
 		installer.Deb (settings),

@@ -212,8 +212,8 @@ cd %(dir)s/%(name)s && cvs -q update  -dAP -r %(version)s
 
 	def gubinstall_root (self):
 		if self.settings.platform.startswith ('linux'):
-			return '%(gubinstall_root)s/usr/lib/lilypond/%(bundle_version)s/root'
-		return '%(gubinstall_root)s/usr'
+			return  '%(installer_root)s/usr/lib/lilypond/%(bundle_version)s/root'
+		return '%(installer_root)s/usr'
 
 	def file_name (self):
 		## hmm. we could use Class._name as a data member.
@@ -348,7 +348,7 @@ cd %(builddir)s && %(install_command)s
 	def package (self):
 		# naive tarball packages for now
 		self.system ('''
-tar -C %(install_root)s -zcf %(gub_uploads)s/%(gub_name)s .
+tar -C %(install_prefix)s -zcf %(gub_uploads)s/%(gub_name)s .
 ''')
 
 	def _install_gub (self, root):
@@ -358,7 +358,7 @@ tar -C %(root)s -zxf %(gub_uploads)s/%(gub_name)s
 ''', locals ())
 
 	def install_gub (self):
-		self._install_gub (self.gubinstall_root ())
+		self._install_gub (self.settings.installer_root + '/usr')
 
 	def sysinstall (self):
 		self.system_cpm.install (self.name (),

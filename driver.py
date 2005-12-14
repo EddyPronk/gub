@@ -53,7 +53,7 @@ class Settings:
 		self.tooldir = self.targetdir + '/tools'
 
 		# INSTALLERS
-		self.gubinstall_root = self.targetdir + '/installer'
+		self.installer_root = self.targetdir + '/installer'
 		self.installer_uploads = self.targetdir + '/uploads'
 		self.bundle_version = None
 		self.package_arch = re.sub ('-.*', '', self.build_architecture)
