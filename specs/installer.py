@@ -22,6 +22,9 @@ class Installer (gub.Package):
 		"Remove unnecessary cruft."
 	
 		for i in (
+			'bin/autopoint',
+			'bin/glib-mkenums',
+			'bin/guile-*',
 			'bin/*-config',
 			'bin/*gettext*',
 			'bin/[cd]jpeg',
