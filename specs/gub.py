@@ -183,7 +183,7 @@ cd %(dir)s && cvs -d %(url)s -q co -r %(version)s %(name)s
 # Hmm, let's save local changes?			
 #cd %(dir)s/%(name)s && cvs update -dCAP -r %(version)s
 			self.system ('''
-cd %(dir)s/%(name)s && cvs update -dAP -r %(version)s
+cd %(dir)s/%(name)s && cvs -q update  -dAP -r %(version)s
 ''', locals ())
 
 	def basename (self):
