@@ -240,7 +240,9 @@ class Gpm (Cpm):
 			version = version_to_string (split_ball (ball)[1])
 			uploads = 'uploads'
 			dir = 'gub'
-			depends = string.join (self._depends[name])
+			depends = ''
+			if self._depends.has_key (name):
+				depends = string.join (self._depends[name])
 			pipe = os.popen ('md5sum "%(uploads)s/%(dir)s/%(ball)s"' \
 					 % locals ())
 			size = os.stat (os.path.join (uploads, dir, ball))[stat.ST_SIZE]
