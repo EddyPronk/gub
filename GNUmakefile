@@ -59,5 +59,5 @@ test-cygwin: cyg-apt.py
 
 test-gub: cyg-apt.py
 	rm -f ~/.cyg-apt .cyg-apt
-	./cyg-apt.py --root=target/i686-mingw32/system --mirror=uploads setup
+	./cyg-apt.py --root=target/i686-mingw32/system --mirror=file://uploads setup
 	./cyg-apt.py list
