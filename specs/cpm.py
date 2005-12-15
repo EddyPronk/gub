@@ -45,20 +45,21 @@ def run_all (dir):
 			try_run_script ('%s/%s' % (dir, i))
 
 def version_to_string (t):
-	def try_itoa (x):
+	def itoa (x):
 		if type (x) == int:
 			return "%d" % x
 		return x
-	return '%s-%s' % (string.join (map (try_itoa, t[:-1]), '.'), t[-1])
+	return '%s-%s' % (string.join (map (itoa, t[:-1]), '.'), t[-1])
 
 def string_to_version (s):
 	s = re.sub ('([^0-9][^0-9]*)', ' \\1 ', s)
 	s = re.sub ('[ _.-][ _.-]*', ' ', s)
-	def try_atoi (x):
-		if re.match ('^[0-9]*$', x):
+	s = s.strip ()
+	def atoi (x):
+		if re.match ('^[0-9]+$', x):
 			return string.atoi (x)
 		return x
-	return tuple (map (try_atoi, (string.split (s, ' '))))
+	return tuple (map (atoi, (string.split (s, ' '))))
 
 def split_version (s):
 	m = re.match ('^(([0-9].*)-([0-9]+))$', s)

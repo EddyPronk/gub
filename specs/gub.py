@@ -6,6 +6,7 @@ import glob
 
 import os
 import re
+import string
 import subprocess
 import sys
 import time
@@ -212,6 +213,9 @@ cd %(dir)s/%(name)s && cvs -q update  -dAP -r %(version)s
 		s = self.basename ()
 		s = re.sub ('-[0-9][^-]+(-[0-9]+)?$', '', s)
 		return s
+
+	def full_version (self):
+		return string.join ([self.version (), self.build ()], '-')
 
 	def version (self):
 		return cpm.split_version (self.ball_version)[0]

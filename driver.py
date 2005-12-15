@@ -137,7 +137,7 @@ def build_packages (settings, packages):
 		"""
 		return p.system_gpm.is_installed (p.name()) \
 			   and p.system_gpm.version (p.name ()) \
-			   == cpm.string_to_version (p.ball_version)
+			   == cpm.string_to_version (p.full_version ())
 
 	if not settings.offline:
 		for i in packages:
