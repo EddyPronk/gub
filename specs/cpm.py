@@ -1,6 +1,7 @@
 import os
 import pickle
 import re
+import stat
 import string
 import sys
 import time
@@ -227,7 +228,7 @@ class Gpm (Cpm):
 		now = `time.time ()`
 		now = now[:now.find ('.')]
 		s = '''setup-timestamp: %(now)s
-		''' % locals ()
+''' % locals ()
 		packages = self.read_setup_ini (setup_ini)
 		for name in packages.keys ():
 			if name not in self.installed ().keys ():
@@ -242,6 +243,7 @@ class Gpm (Cpm):
 			depends = string.join (self._depends[name])
 			pipe = os.popen ('md5sum "%(uploads)s/%(dir)s/%(ball)s"' \
 					 % locals ())
+			size = os.stat (os.path.join (uploads, dir, ball))[stat.ST_SIZE]
 			md5 = string.split (pipe.read ())[0]
 			s += '''
 @ %(name)s
@@ -249,7 +251,7 @@ sdesc: "%(Name)s"
 ldesc: "%(Name)s - no description available"
 requires: %(depends)s
 version: %(version)s
-install: %(dir)s/%(ball)s %(md5)s
+install: %(dir)s/%(ball)s %(size)d %(md5)s
 source: TBD
 ''' % locals ()
 		f = open (setup_ini, 'w')
