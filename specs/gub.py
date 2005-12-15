@@ -343,6 +343,7 @@ mkdir -p %(root)s
 tar -C %(root)s -zxf %(gub_uploads)s/%(gub_name)s
 ''', locals ())
 
+        # FIXME: install in installer_root using Gpm instance
 	def install_gub (self):
 		self._install_gub (self.settings.installer_root)
 

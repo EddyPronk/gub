@@ -12,10 +12,16 @@ class Installer (gub.Package):
 	def __init__ (self, settings):
 		gub.Package.__init__ (self, settings)
 		self.strip_command = self.settings.target_architecture + "-strip"
+		self.ball_version = self.version
 		
         def name (self):
 		return 'lilypond'
 
+	def build (self):
+		return self.settings.bundle_build
+
+	def version (self):
+		return self.settings.bundle_version
 
 	def strip_unnecessary_files (self):
 		"Remove unnecessary cruft."
@@ -116,6 +122,11 @@ class Installer (gub.Package):
 		self.strip ()
 		
 class Darwin_bundle (Installer):
+	def __init__ (self, settings):
+		Installer.__init__ (self, settings)
+		self.ignore_libs = self.get_ignore_libs ()
+		self.strip_command += ' -S '
+
 	def rewire_mach_o_object (self, name):
 		lib_str = self.read_pipe ("%(target_architecture)s-otool -L %(name)s", locals(), ignore_error=True)
 
@@ -148,11 +159,6 @@ class Darwin_bundle (Installer):
 		d =  dict ([(os.path.join ('/usr/lib', f), True) for  f in files])
 		return d
 	
-	def __init__ (self, settings):
-		Installer.__init__ (self, settings)
-		self.ignore_libs = self.get_ignore_libs ()
-		self.strip_command += ' -S '
-
 	def create (self):
 		self.rewire_binary_dir (self.settings.installer_root + '/usr/lib')
 		self.rewire_binary_dir (self.settings.installer_root + '/usr/bin')
@@ -170,7 +176,7 @@ class Nsis (Installer):
 		installer = os.path.basename (self.settings.installer_root)
 		self.file_sub ([
 			('@GUILE_VERSION@', '%(guile_version)s'),
-			('@LILYPOND_BUILD@', '%bundle_builds'),
+			('@LILYPOND_BUILD@', '%(bundle_build)s'),
 			('@LILYPOND_VERSION@', '%(bundle_version)s'),
 			('@PYTHON_VERSION@', '%(python_version)s'),
 			('@ROOT@', '%(installer)s'),

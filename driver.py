@@ -160,6 +160,7 @@ def build_packages (settings, packages):
 ##	gub.system ('cd %(root)s && cp etc/pango/pango.modules etc/pango/pango.modules.in ' % locals ())
 
 def make_installers (settings, packages):
+	print 'make_installers'
 	# FIXME: todo separate lilypond-framework, lilypond packages?
 	packages = [p for p in packages if not isinstance (p, gub.Cross_package)]
 
@@ -173,6 +174,7 @@ def make_installers (settings, packages):
 			p.install_gub ()
 
 	for p in framework.get_installers (settings):
+		print 'installer: ' + `p`
 		gub.log_command (' *** Stage: %s (%s)\n' % ('create', p.name()))
 		p.create ()
 

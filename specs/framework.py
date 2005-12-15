@@ -685,7 +685,8 @@ def get_packages (settings):
 
 def get_installers (settings):
 	installers = {
-		'darwin' : [installer.Darwin_bundle (settings)],
+		## this breaks `make mingw' in clean tree
+		## 'darwin' : [installer.Darwin_bundle (settings)],
 		'linux' : [
 		installer.Tgz (settings),
 		installer.Deb (settings),
