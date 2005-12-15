@@ -135,7 +135,8 @@ def build_packages (settings, packages):
 
 	d = []
 	for i in packages:
-		i.depends = d
+		if not i.__dict__.has_key ('depends'):
+			i.depends = d
 		process_package (i)
 		d = [i.name ()]
 		
