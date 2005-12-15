@@ -245,6 +245,9 @@ class Gpm (Cpm):
 					 % locals ())
 			size = os.stat (os.path.join (uploads, dir, ball))[stat.ST_SIZE]
 			md5 = string.split (pipe.read ())[0]
+			# FIXME: TODO build-requires from old mingw-installer
+			# fine-grained libFOOx.y, FOO-devel, FOO-doc package
+			# splitting from old mingw-installer?
 			s += '''
 @ %(name)s
 sdesc: "%(Name)s"
