@@ -54,7 +54,7 @@ class Python (gub.Target_package):
 		self.url = re.sub ('python-', 'Python-' , self.url)
 
 	def python_version (self):
-		return '.'.join (self.ball_version.split ('.')[0:])
+		return '.'.join (self.ball_version.split ('.')[0:2])
 
 	def package_dict (self, env = {}):
 		dict = gub.Target_package.package_dict (self, env)
