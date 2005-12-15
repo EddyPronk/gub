@@ -187,6 +187,7 @@ cd %(dir)s && cvs -d %(url)s -q co -r %(version)s %(name)s
 			self.system ('''
 cd %(dir)s/%(name)s && cvs -q update  -dAP -r %(version)s
 ''', locals ())
+		self.untar = self.skip
 
 	def file_name (self):
 		## hmm. we could use Class._name as a data member.
