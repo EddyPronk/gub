@@ -153,14 +153,16 @@ Options:
     -m,--mirror=URL        use mirror [%(mirror)s]
     -n,--netrel=DIR        set netrel dir [%(NETREL)s]
     -r,--root=DIR          set %(target)s root [%(ROOT)s]
+    -s,--name              print package name only
     -t,--dist=NAME         set dist name (curr, test, prev) [%(distname)s]
     -x,--no-deps           ignore dependencies
 ''' % d)
 			  
 (options, files) = getopt.getopt (sys.argv[1:],
-				  'c:dhi:m:r:t:x',
+				  'c:dhi:m:r:st:x',
 				  ('cache=', 'download', 'help', 'mirror=',
-				   'root=', 'ini=', 'dist=', 'no-deps'))
+				   'root=', 'ini=', 'dist=', 'name',
+				   'no-deps'))
 
 command = 'help'
 if len (files) > 0:
@@ -170,7 +172,7 @@ packagename = 0
 if len (files) > 1:
 	packagename = files[1]
 
-
+name_p = 0
 nodeps_p = 0
 download_p = 0
 for i in options:
@@ -199,6 +201,8 @@ for i in options:
 		downloads = cache + '/' + urllib.quote (mirror, '').lower ()
 	elif o == '--dist' or o == '-t':
 		distname = a
+	elif o == '--name' or o == '-s':
+		name_p = 1
 	elif o == '--no-deps' or o == '-x':
 		nodeps_p = 1
 
@@ -406,7 +410,7 @@ def list ():
 	'''installed packages'''
 	global packagename
 	for packagename in psort (cpm.installed ().keys ()):
-		ins = get_installed_version ()
+		ins = cpm.version (packagename)
 		new = 0
 		if dists[distname].has_key (packagename) \
 		   and dists[distname][packagename].has_key (INSTALL):
@@ -443,13 +447,6 @@ def get_version ():
 		package['ver'] = split_ball (ball)[1]
 	return package['ver']
 	
-def get_installed_version ():
-	#FIXME: gub has no versions yet hack
-	try:
-		return split_ball (cpm.installed ()[packagename])[1]
-	except:
-		return ''
-
 def version ():
 	'''print installed version'''
 	global distname, packagename
@@ -458,7 +455,7 @@ def version ():
 			distname = 'installed'
 			no_package ()
 			sys.exit (1)
-		print version_to_string (get_installed_version ())
+		print version_to_string (cpm.version (packagename))
 	else:
 		for packagename in psort (cpm.installed ().keys ()):
 			if not cpm.installed ().has_key (packagename):
@@ -466,14 +463,14 @@ def version ():
 				no_package ()
 				sys.exit (1)
 			print '%-20s%-12s' % (packagename,
-					 version_to_string (get_installed_version ()))
+					 version_to_string (cpm.version (packagename)))
 	
 def get_new ():
 	global packagename
 	lst = []
 	for packagename in cpm.installed ().keys ():
 		new = get_version ()
-		ins = get_installed_version ()
+		ins = cpm.version (packagename)
 		if new > ins:
 			debug (" %s > %s" % (new, ins))
 			lst.append (packagename)
@@ -533,10 +530,17 @@ def search ():
 	for packagename in psort (packages):
 		s = packagename
 		d = get_field ('sdesc') 
-		if d:
+		if d and not name_p:
 			s += ' - %s' % d[1:-1]
 		print s
 
+def available ():
+	'''print all installable package names'''
+	global name_p
+	name_p = 1
+	packagename = ''
+	search ()
+	
 def show ():
 	'''print information for package'''
 	s = packagename
@@ -556,7 +560,7 @@ def get_missing ():
 	if lst and packagename not in lst:
 		sys.stderr.write ('warning: missing packages: %s\n' % string.join (lst))
 	elif cpm.installed ().has_key (packagename):
-		ins = get_installed_version ()
+		ins = cpm.version (packagename)
 		new = get_version ()
 		if ins >= new:
 			sys.stderr.write ('%s is already the newest version\n' % packagename)
@@ -578,7 +582,7 @@ def remove ():
 			continue
 		sys.stderr.write ('removing %s %s\n' \
 				  % (packagename,
-				     version_to_string (get_installed_version ())))
+				     version_to_string (cpm.version (packagename))))
 		cpm.uninstall (packagename)
 	
 def install ():
@@ -602,7 +606,7 @@ def install ():
 		if cpm.installed ().has_key (packagename):
 			sys.stderr.write ('preparing to replace %s %s\n' \
 					  % (packagename,
-					     version_to_string (get_installed_version ())))
+					     version_to_string (cpm.version (packagename))))
 			cpm.uninstall (packagename)
 		sys.stderr.write ('installing %s %s\n' \
 				  % (packagename,

@@ -9,6 +9,7 @@ import sys
 
 sys.path.insert (0, 'specs/')
 
+import cpm
 import gub
 import framework
 
@@ -129,17 +130,30 @@ def process_package (package):
 
 
 def build_packages (settings, packages):
+	def skip (p):
+		# FIXME: next step might be to download/install using
+		# system_gpm unless --rebuild is set, or somesuch.
+		"""Return true if package P is installed by system_gpm.
+		"""
+		return p.system_gpm.is_installed (p.name()) \
+			   and p.system_gpm.version (p.name ()) \
+			   == cpm.string_to_version (p.ball_version)
+
 	if not settings.offline:
 		for i in packages:
-			i.download ()
+			# skip download for installed package
+			if not skip (i):
+				i.download ()
 
 	d = []
 	for i in packages:
-		if not i.__dict__.has_key ('depends'):
-			i.depends = d
-		process_package (i)
+		# skip stages for installed package
+		if not skip (i):
+			if not i.__dict__.has_key ('depends'):
+				i.depends = d
+			process_package (i)
 		d = [i.name ()]
-		
+
 ## FIXME: c/p from buildmac.py
 ##	gub.system ('cd %(root)s && strip bin/*' % locals ())
 ##	gub.system ('cd %(root)s && cp etc/pango/pango.modules etc/pango/pango.modules.in ' % locals ())

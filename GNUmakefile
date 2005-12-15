@@ -61,3 +61,7 @@ test-gub: cyg-apt.py
 	rm -f ~/.cyg-apt .cyg-apt
 	./cyg-apt.py --root=target/i686-mingw32/system --mirror=file://uploads setup --ini=file://uploads/setup.ini
 	./cyg-apt.py list
+
+gpm-install: test-gub
+	./cyg-apt.py install $$(./cyg-apt.py available)
+	

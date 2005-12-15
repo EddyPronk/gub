@@ -145,6 +145,14 @@ class Cpm:
 			self._load_installed ()
 		return self._installed
 
+	def is_installed (self, name):
+		return name in self._installed.keys ()
+
+	def version (self, name):
+		if name in self._installed.keys ():
+			return split_ball (self.installed ()[name])[1]
+		return 0, 0
+
 	def _install (self, name, ball, depends=[]):
 		root = self.root
 		z = self.compression
