@@ -29,7 +29,8 @@ class Settings:
 	def __init__ (self, arch):
 		self.target_gcc_flags = '' 
 		self.topdir = os.getcwd ()
-		self.downloaddir = os.getcwd () + '/downloads'
+		self.downloaddir = self.topdir + '/downloads'
+		self.patchdir = self.topdir + '/patches'
 		self.build_architecture = gub.read_pipe ('gcc -dumpmachine')[:-1]
 		self.specdir = self.topdir + '/specs'
 		self.nsisdir = self.topdir + '/nsis'
