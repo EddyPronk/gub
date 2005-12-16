@@ -7,7 +7,6 @@ all: linux mingw mac
 # local.make should set the following variables:
 #
 #  LILYPOND_CVSDIR - a CVS HEAD working directory
-#  LILYPOND_MINGW_INSTALLER_DIR - previous incarnation of lilypond installer
 #
 
 include local.make
@@ -21,7 +20,6 @@ LILYPOND_VERSION=$(MAJOR_VERSION).$(MINOR_VERSION).$(PATCH_LEVEL)$(if $(strip $(
 INVOKE_DRIVER=python driver.py \
 --package-version=$(LILYPOND_VERSION) \
 --package-build=1 \
---setting=lilywinbuilddir=$(LILYPOND_MINGW_INSTALLER_DIR) \
 $(LOCAL_DRIVER_OPTIONS)
 
 linux:
@@ -64,4 +62,3 @@ test-gub: cyg-apt.py
 
 gpm-install: test-gub
 	./cyg-apt.py install $$(./cyg-apt.py available)
-	
