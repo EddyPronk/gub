@@ -204,8 +204,9 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
 		self.file_sub ([('^\(allow_undefined_flag=.*\)unsupported',
 			       '\\1')],
 			       '%(builddir)s/guile-readline/libtool')
-		self.system ('''cp %(lilywinbuilddir)s/bin/%(system_toolprefix)slibtool %(builddir)s/libtool''')
-		self.system ('''cp %(lilywinbuilddir)s/bin/%(system_toolprefix)slibtool %(builddir)s/guile-readline/libtool''')
+		
+		self.system ('''cp %(installdir)s/libtool-root/usr/bin/libtool %(builddir)s/libtool''')
+		self.system ('''cp %(installdir)s/libtool-root/usr/bin/libtool %(builddir)s/guile-readline/libtool''')
 
 class Guile__linux (Guile):
 	def compile_command (self):
