@@ -73,7 +73,7 @@ class Python__mingw (Python):
 
 	def patch (self):
 		self.system ('''
-cd %(srcdir)s && patch -p1 < %(lilywinbuilddir)s/patch/python-2.4.2-1.patch
+cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-1.patch
 ''')
 
 	def configure (self):
