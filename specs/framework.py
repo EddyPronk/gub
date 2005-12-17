@@ -94,7 +94,6 @@ cp %(install_root)s/usr/lib/python%(python_version)s/lib-dynload/* %(install_roo
 chmod 755 %(install_root)s/usr/bin/*
 ''')
 
-
 class Gmp (gub.Target_package):
 	def patch (self):
 		self.system ('''
@@ -225,15 +224,22 @@ class LilyPond (gub.Target_package):
 
 	def configure_command (self):
 		## FIXME: pickup $target-guile-config
-		cmd = 'PATH=%(system_root)s/usr/bin:$PATH '
+		return ('PATH=%(system_root)s/usr/bin:$PATH '
+			+ gub.Target_package.configure_command (self)
+			+ ' --disable-documentation')
 
-		cmd += gub.Target_package.configure_command (self)
-		cmd += ' --disable-documentation'
-		return cmd
-	def clean (self):
-		# don't throw CVS directory.
-		pass 
-	
+        def name_version (self):
+		# whugh
+		if os.path.exists (self.srcdir ()):
+			d = gub.grok_sh_variables (self.srcdir () + '/VERSION')
+			return 'lilypond-%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
+		return gub.Target_package.name_version (self)
+
+        def gub_name (self):
+		nv = self.name_version ()
+		b = self.build ()
+		return '%(nv)s-%(b)s.%(platform)s.gub'
+
 class LilyPond__mingw (LilyPond):
 	def __init__ (self, settings):
 		LilyPond.__init__ (self, copy.deepcopy (settings))
@@ -380,24 +386,6 @@ class Gettext (gub.Target_package):
 		       + ' --disable-csharp'
 
 class Gettext__mingw (Gettext):
-	# using gcc-3.4.5
-	def xx__init__ (self, settings):
-		Gettext.__init__ (self, copy.deepcopy (settings))
-		# gettext-0.14.1-1 does not compile with gcc-4.0.2
-		self.settings.tool_prefix = self.settings.system_toolprefix
-
-	def mingw_org_untar (self):
-		Gettext.untar (self)
-		broken_untar_dir = re.sub ('-200.*', '',
-					   '%(srcdir)s' % self.package_dict ())
-
-		self.system ('''
-mv %(broken_untar_dir)s %(srcdir)s
-''', locals ())
-
-	def xxpatch (self):
-		Gettext.autoupdate (self)
-
 	def config_cache_overrides (self, str):
 		return re.sub ('ac_cv_func_select=yes', 'ac_cv_func_select=no',
 			       str) \
@@ -704,4 +692,3 @@ def get_installers (settings):
 	}
 	
 	return installers[settings.platform]
-

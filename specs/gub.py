@@ -4,6 +4,7 @@ import cvs
 import download
 import glob
 
+import pickle
 import os
 import re
 import string
@@ -14,6 +15,16 @@ import time
 
 
 log_file = None
+
+def grok_sh_variables (file):
+	dict = {}
+	for i in open (file).readlines ():
+		m = re.search ('^(\w+)\s*=\s*(\w*)', i)
+		if m:
+			k = m.group (1)
+			s = m.group (2)
+			dict[k] = s
+	return dict
 
 def now ():
 	return time.asctime (time.localtime ())
@@ -110,6 +121,7 @@ class Package:
 		self.settings = settings
 		self.url = ''
 		self.download = self.wget
+		self.build_db = self.settings.topdir + '/.build_db.pickle'
 
 	def package_dict (self, env={}):
 		dict = self.settings.get_substitution_dict ()
@@ -220,7 +232,19 @@ cd %(dir)s/%(name)s && cvs -q update  -dAP -r %(version)s
 	def version (self):
 		return cpm.split_version (self.ball_version)[0]
 
+	def name_version (self):
+		return '%s-%s' % (self.name (), self.version ())
+
+	def get_builds (self):
+		if os.path.exists (self.build_db):
+			return pickle.load (open (self.build_db))
+		return {}
+
 	def build (self):
+		k = self.name_version ()
+		builds = self.get_builds ()
+		if builds.has_key (k):
+			return builds[k]
 		return cpm.split_version (self.ball_version)[-1]
 
 	def srcdir (self):
@@ -238,7 +262,7 @@ cd %(dir)s/%(name)s && cvs -q update  -dAP -r %(version)s
 	def done (self, stage):
 		return ('%(statusdir)s/%(name)s-%(version)s-%(build)s-%(stage)s'
 			% self.package_dict (locals ()))
-	
+
 	def is_done (self, stage):
 		return os.path.exists (self.done (stage))
 
@@ -357,6 +381,21 @@ tar -C %(root)s -zxf %(gub_uploads)s/%(gub_name)s
 		self.system ('''
 cp -pv %(uploads)s/setup.ini %(system_root)s/etc/setup/
 ''')
+		# FIXME: should do this right after successful package ()
+		# but then sysinstall uses bumped version number
+		builds = self.get_builds ()
+
+		## Hmm, when/how to bump build number?  Manually?
+		## Cygwin just uses the -BUILD from the srcdir name,
+		## bumping is done my mv'ing the srcdir to -BUILD+1
+
+		## Bumping here does not work, it will trigger a
+		## rebuild each time, because we save a higher build
+		## version than we have installed and in status/* files.
+		##builds[self.name_version ()] = '%d' % (int (self.build ()) + 1)
+
+		builds[self.name_version ()] = '%d' % (int (self.build ()) + 0)
+		pickle.dump (builds, open (self.build_db, 'w'))
 
 	def clean (self):
 		self.system ('''echo rm -rf %(srcdir)s %(builddir)s %(install_root)s
@@ -383,6 +422,9 @@ tar %(flags)s %(tarball)s -C %(allsrcdir)s
 		d.update (locals ())
 		self.url = mirror () % d
 		self.download = lambda : download (self)
+		if self.download == self.cvs:
+			# preserve CVS checkouts
+			self.clean = self.skip
 
 	def with (self, version='HEAD', mirror=download.gnu, format='gz', download=wget, depends=[]):
 		self.ball_version = version

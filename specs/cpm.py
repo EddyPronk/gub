@@ -241,7 +241,7 @@ class Gpm (Cpm):
 		packages = self.read_setup_ini (setup_ini)
 		for name in packages.keys ():
 			if name not in self.installed ().keys ():
-				s += '\n@ ' + packages[name]
+				s += '\n\n@ ' + packages[name]
 
 		for name in self.installed ().keys ():
 			Name = name[0].upper () + name[1:]

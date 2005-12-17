@@ -54,7 +54,7 @@ class Regex (gub.Target_package):
 class Gs (gub.Binary_package):
 	def untar (self):
 		gub.Binary_package.untar (self)
-		self.system ('cd %(srcdir)s && mv root/gs-%(version)s-%(build)s/* .')
+		self.system ('cd %(srcdir)s && mv root/gs-%(ball_version)s/* .')
 
 	def install (self):
 		gs_prefix = '/usr/share/gs'

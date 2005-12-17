@@ -13,18 +13,6 @@ import cpm
 import gub
 import framework
 
-def grok_sh_variables (self, file):
-	dict = {}
-	for i in open (file).readlines ():
-		m = re.search ('^(\w+)\s*=\s*(\w*)', i)
-		if m:
-			k = m.group (1)
-			s = m.group (2)
-			dict[k] = s
-
-	return dict
-
-
 class Settings:
 	def __init__ (self, arch):
 		self.target_gcc_flags = '' 
@@ -179,20 +167,10 @@ def get_settings (platform):
 	init  = {
 		'darwin': 'powerpc-apple-darwin7',
 		'mingw': 'i686-mingw32',
-		'xmingw': 'i586-mingw32msvc',
-		'xmingw-fedora': 'i386-mingw32',
 		'linux': 'linux'
 		}[platform]
 
 	settings = Settings (init)
-	if platform == 'mingw':
-		settings.system_target_architecture = 'i586-mingw32msvc'
-		settings.system_toolprefix = settings.system_target_architecture + '-'
-	if platform == 'mingw-fedora':
-		platform = 'mingw'
-		settings.system_target_architecture = 'i386-mingw32'
-		settings.system_toolprefix = settings.system_target_architecture + '-'
-		
 	settings.platform = platform
 	
 	if platform == 'darwin':

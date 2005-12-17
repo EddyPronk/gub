@@ -61,4 +61,10 @@ test-gub: cyg-apt.py
 	./cyg-apt.py list
 
 gpm-install: test-gub
+	mkdir -p target/i686-mingw32/status
+	mkdir -p target/i686-mingw32/tools
+	tar -C target/i686-mingw32/tools -xzf uploads/gub/binutils-2.16.1-0.i486-linux-gnu-i686-mingw32.gub
+	touch target/i686-mingw32/status/binutils-2.16.1-0-{untar,patch,configure,compile,install,package,sysinstall}
+	tar -C target/i686-mingw32/tools -xzf uploads/gub/gcc-3.4.5-0.i486-linux-gnu-i686-mingw32.gub
+	touch target/i686-mingw32/status/gcc-3.4.5-0-{untar,patch,configure,compile,install,package,sysinstall}
 	./cyg-apt.py install $$(./cyg-apt.py available)
