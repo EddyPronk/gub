@@ -96,7 +96,10 @@ chmod 755 %(install_root)s/usr/bin/*
 
 
 class Gmp (gub.Target_package):
-	pass
+	def patch (self):
+		self.system ('''
+cd %(srcdir)s && patch -p1 < %(patchdir)s/gmp-4.1.4-1.patch
+''')
 
 class Gmp__darwin (Gmp):
 	def patch (self):

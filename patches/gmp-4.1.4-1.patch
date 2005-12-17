@@ -1,0 +1,12 @@
+--- orig/mpn/x86/pentium/popcount.asm	2002-04-23 00:09:00 +0200
++++ mpn/mpn/x86/pentium/popcount.asm	2005-05-03 20:19:09 +0200
+@@ -122,4 +122,9 @@
+ 
+ 	ret
+ 
++ifdef(`DLL_EXPORT',`
++	.section .drectve
++	.ascii " -export:__gmpn_popcount"
++')
++
+ EPILOGUE()
