@@ -227,7 +227,10 @@ class LilyPond (gub.Target_package):
 		cmd += gub.Target_package.configure_command (self)
 		cmd += ' --disable-documentation'
 		return cmd
-
+	def clean (self):
+		# don't throw CVS directory.
+		pass 
+	
 class LilyPond__mingw (LilyPond):
 	def __init__ (self, settings):
 		LilyPond.__init__ (self, copy.deepcopy (settings))
@@ -686,7 +689,7 @@ def get_packages (settings):
 def get_installers (settings):
 	installers = {
 		## this breaks `make mingw' in clean tree
-		## 'darwin' : [installer.Darwin_bundle (settings)],
+		'darwin' : [installer.Darwin_bundle (settings)],
 		'linux' : [
 		installer.Tgz (settings),
 		installer.Deb (settings),
@@ -696,5 +699,5 @@ def get_installers (settings):
 		'mingw' : [installer.Nsis (settings)],
 		}
 	
-	return installers[settings.platform]
+`	return installers[settings.platform]
 

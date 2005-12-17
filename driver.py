@@ -108,7 +108,7 @@ class Settings:
 def process_package (package):
 	gub.log_command (' ** Package: %s\n' % package.name ())
 	for stage in ('untar', 'patch', 'configure', 'compile', 'install',
-		      'package', 'sysinstall'):
+		      'package', 'sysinstall', 'clean'):
         	if not package.is_done (stage):
 			gub.log_command (' *** Stage: %s (%s)\n' % (stage, package.name ()))
 
@@ -127,6 +127,9 @@ def process_package (package):
                         	package.package ()
 			elif stage == 'sysinstall':
                         	package.sysinstall ()
+			elif stage == 'clean':
+				package.clean ()
+
 			package.set_done (stage)
 
 
@@ -140,11 +143,10 @@ def build_packages (settings, packages):
 			   and p.system_gpm.version (p.name ()) \
 			   == cpm.string_to_version (p.full_version ())
 
-	if not settings.offline:
-		for i in packages:
-			# skip download for installed package
-			if not skip (i):
-				i.download ()
+	for i in packages:
+		# skip download for installed package
+		if not (skip (i) or settings.offline):
+			i.download ()
 
 	d = []
 	for i in packages:
@@ -155,15 +157,10 @@ def build_packages (settings, packages):
 			process_package (i)
 		d = [i.name ()]
 
-## FIXME: c/p from buildmac.py
-##	gub.system ('cd %(root)s && strip bin/*' % locals ())
-##	gub.system ('cd %(root)s && cp etc/pango/pango.modules etc/pango/pango.modules.in ' % locals ())
-
 def make_installers (settings, packages):
 	print 'make_installers'
 	# FIXME: todo separate lilypond-framework, lilypond packages?
 	packages = [p for p in packages if not isinstance (p, gub.Cross_package)]
-
 
 	# set to false for debugging
 	install_gubs = True

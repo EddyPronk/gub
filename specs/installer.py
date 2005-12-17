@@ -5,12 +5,10 @@ import gub
 
 # FIXME: Want to share package_dict () and system () with gub.Package,
 # add yet another base class?
-
-
-
 class Installer (gub.Package):
 	def __init__ (self, settings):
 		gub.Package.__init__ (self, settings)
+		self.with (version="0.0")
 		self.strip_command = self.settings.target_architecture + "-strip"
 		self.ball_version = self.version
 		
