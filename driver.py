@@ -122,14 +122,30 @@ def process_package (package):
 
 
 def build_packages (settings, packages):
+	def is_installed (p):
+		"""Return true if package P is installed by system_gpm."""
+		return (p.system_gpm.is_installed (p.name())
+			and p.system_gpm.version (p.name ())
+			== cpm.string_to_version (p.full_version ()))
+
 	def skip (p):
-		# FIXME: next step might be to download/install using
-		# system_gpm unless --rebuild is set, or somesuch.
-		"""Return true if package P is installed by system_gpm.
-		"""
-		return p.system_gpm.is_installed (p.name()) \
-			   and p.system_gpm.version (p.name ()) \
-			   == cpm.string_to_version (p.full_version ())
+		"""Return true if package P must not be built."""
+		# If you want to force rebuilding a package, uninstall
+		# it (remove the system root) and (re)move the .gub
+		# package
+
+		if (not is_installed (p)
+		    and p.system_gpm.dists ()['curr'].has_key (p.name ())
+		    and p.system_gpm.dists ()['curr'][p.name ()] .has_key ('install')):
+			ball, size, md5 = string.split (p.system_gpm.dists ()['curr'][p.name ()]['install'])
+			try:
+				p.system_gpm.install (p.name (),
+						      os.path.join (p.settings.uploads,
+								    ball),
+						      p.depends)
+			except:
+				pass
+		return is_installed (p)
 
 	for i in packages:
 		# skip download for installed package

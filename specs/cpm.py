@@ -23,6 +23,9 @@ except:
 	pass
 
 
+def debug (s):
+	s
+
 # cygwin stuff
 
 def run_script (self, file_name):
@@ -89,8 +92,10 @@ class Cpm:
 		self.root = root
 		self.config = self.root + '/etc/setup'
 		self._installed_db = self.config + '/installed.db'
+		self._setup_ini = self.config + '/setup.ini'
 		self._installed = None
 		self._depends = {}
+		self._dists = None
 		self.installed ()
 		self.setup ()
 
@@ -111,7 +116,9 @@ class Cpm:
 				##self._installed[int (status)][name] = ball
 				self._installed[name] = ball
 
-	def setup (self):
+	def setup (self, setup_ini=None):
+		if setup_ini:
+			self._setup_ini = setup_ini
 		if not os.path.isdir (self.config):
 			sys.stderr.write ('creating %s\n' % self.config)
 			os.makedirs (self.config)
@@ -205,6 +212,49 @@ class Cpm:
 	def run_scripts (self):
 		run_all (self.root + '/etc/postinstall')
 
+	def dists (self):
+		if not self._dists:
+			self._read_setup_ini (self._setup_ini)
+		return self._dists
+
+	def _read_setup_ini (self, setup_ini):
+		self._dists = {'test': {}, 'curr': {}, 'prev' : {}}
+		chunks = string.split (open (setup_ini).read (), '\n\n@ ')
+		for i in chunks[1:]:
+			lines = string.split (i, '\n')
+			name = string.strip (lines[0])
+			debug ('package: ' + name)
+			packages = self._dists['curr']
+			records = {'sdesc': name}
+			j = 1
+			while j < len (lines) and string.strip (lines[j]):
+				debug ('raw: ' + lines[j])
+				if lines[j][0] == '#':
+					j = j + 1
+					continue
+				elif lines[j][0] == '[':
+					debug ('dist: ' + lines[j][1:5])
+					packages[name] = records.copy ()
+					packages = self._dists[lines[j][1:5]]
+					j = j + 1
+					continue
+
+				try:
+					key, value = map (string.strip,
+						  string.split (lines[j], ': ', 1))
+				except:
+					print lines[j]
+					raise 'URG'
+				if value.startswith ('"') and value.find ('"', 1) == -1:
+					while 1:
+						j = j + 1
+						value += '\n' + lines[j]
+						if lines[j].find ('"') != -1:
+							break
+				records[key] = value
+				j = j + 1
+			packages[name] = records
+
 class Gpm (Cpm):
 	'''Gub package manager.
 
@@ -223,7 +273,7 @@ class Gpm (Cpm):
 		else:
 			self._installed = pickle.load (open (self._installed_db))
 
-	def read_setup_ini (self, setup_ini):
+	def xxxsimple_read_setup_ini (self, setup_ini):
 		packages = {}
 		if os.path.exists (setup_ini):
 			chunks = string.split (open (setup_ini).read (),
@@ -238,7 +288,7 @@ class Gpm (Cpm):
 		now = now[:now.find ('.')]
 		s = '''setup-timestamp: %(now)s
 ''' % locals ()
-		packages = self.read_setup_ini (setup_ini)
+		packages = self._read_setup_ini (setup_ini)
 		for name in packages.keys ():
 			if name not in self.installed ().keys ():
 				s += '\n\n@ ' + packages[name]

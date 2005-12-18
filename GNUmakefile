@@ -61,7 +61,7 @@ test-gub: cyg-apt.py
 	./cyg-apt.py list
 
 gpm-install: test-gub
-	-./cyg-apt.py install $$(./cyg-apt.py available)
+	-./cyg-apt.py install $$(./cyg-apt.py search .)
 	mkdir -p target/i686-mingw32/status
 	mkdir -p target/i686-mingw32/tools
 	touch target/i686-mingw32/status/binutils-2.16.1-0-{untar,patch,configure,compile,install,package,clean}

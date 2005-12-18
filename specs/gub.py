@@ -116,7 +116,8 @@ class Package:
 	def __init__ (self, settings):
 		if self.system_gpm.root == 'ugh':
 			self.system_gpm.__init__ (settings.system_root)
-			self.system_gpm.setup ()
+			self.system_gpm.setup (setup_ini=settings.uploads
+					       + '/setup.ini')
 			self.system_gpm.installed ()
 		self.settings = settings
 		self.url = ''
@@ -384,17 +385,7 @@ cp -pv %(uploads)s/setup.ini %(system_root)s/etc/setup/
 		# FIXME: should do this right after successful package ()
 		# but then sysinstall uses bumped version number
 		builds = self.get_builds ()
-
-		## Hmm, when/how to bump build number?  Manually?
-		## Cygwin just uses the -BUILD from the srcdir name,
-		## bumping is done my mv'ing the srcdir to -BUILD+1
-
-		## Bumping here does not work, it will trigger a
-		## rebuild each time, because we save a higher build
-		## version than we have installed and in status/* files.
-		##builds[self.name_version ()] = '%d' % (int (self.build ()) + 1)
-
-		builds[self.name_version ()] = '%d' % (int (self.build ()) + 0)
+		builds[self.name_version ()] = '%d' % (int (self.build ()) + 1)
 		pickle.dump (builds, open (self.build_db, 'w'))
 
 	def clean (self):
