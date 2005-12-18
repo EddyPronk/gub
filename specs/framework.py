@@ -637,7 +637,7 @@ def get_packages (settings):
 		Fontconfig__darwin (settings).with (version='2.3.2', mirror=download.fontconfig,
 						    depends=['expat', 'freetype']),
 		Pango__darwin (settings).with (version='1.10.1', mirror=download.gtk,
-					       depends = ['glib']
+					       depends = ['glib', 'fontconfig', 'freetype']
 					       ),
 		Gmp__darwin (settings).with (version='4.1.4',depends=['darwin-sdk']),
 
@@ -657,7 +657,8 @@ def get_packages (settings):
 		Libiconv (settings).with (version='1.9.2', depends=['gettext']),
 		Freetype (settings).with (version='2.1.7', mirror=download.freetype, depends=['libtool', 'zlib']),
 		Expat (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2'),
-		Fontconfig__mingw (settings).with (version='2.3.2', mirror=download.fontconfig, depends=['expat', 'freetype', 'libtool']),
+		Fontconfig__mingw (settings).with (version='2.3.2', mirror=download.fontconfig,
+						   depends=['expat', 'freetype', 'libtool']),
 		Gmp__mingw (settings).with (version='4.1.4', depends=['mingw-runtime']),
 		# FIXME: we're actually using 1.7.2-cvs+, 1.7.2 needs too much work
 		Guile__mingw (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2', depends=['gettext', 'gmp', 'libtool', 'regex']),
