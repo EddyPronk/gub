@@ -19,20 +19,30 @@ LILYPOND_VERSION=$(MAJOR_VERSION).$(MINOR_VERSION).$(PATCH_LEVEL)$(if $(strip $(
 
 INVOKE_DRIVER=python driver.py \
 --package-version=$(LILYPOND_VERSION) \
---package-build=1 \
+--package-build=1 --platform $(1)\
 $(LOCAL_DRIVER_OPTIONS)
 
+BUILD_ALL=$(call INVOKE_DRIVER, $(1)) build-tool all  && $(call INVOKE_DRIVER, $(1)) manage-tool all \
+  && $(call INVOKE_DRIVER, $(1)) build-target all  && $(call INVOKE_DRIVER, $(1)) manage-target all \
+  && $(call INVOKE_DRIVER, $(1)) build-installer
+
+
+download:
+	$(INVOKE_DRIVER) --platform linux download
+	$(INVOKE_DRIVER) --platform darwin download
+	$(INVOKE_DRIVER) --platform mingw download
+
+
 linux:
-	$(INVOKE_DRIVER) --platform linux
+	$(call BUILD_ALL, linux) 
 
 mac:
-	$(INVOKE_DRIVER) --platform darwin
+	$(call BUILD_ALL, darwin) 
 
 mingw:
-	$(INVOKE_DRIVER) --platform mingw
+	$(call BUILD_ALL, mingw) 
 
-mingw-fedora:
-	$(INVOKE_DRIVER) --platform mingw-fedora
+
 
 realclean:
 	rm -rf src target
