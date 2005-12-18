@@ -10,10 +10,10 @@ import sys
 sys.path.insert (0, 'specs/')
 
 import xpm
-import cpm
 import gub
 import framework
 import buildnumber
+
 
 
 class Settings:
@@ -218,7 +218,7 @@ def run_package_manager (m, commands):
 		for p in args:
 			if not m.is_name_installed (p):
 				m.install_named (p)
-	elif c in ( 'uninstall', 'remove'):
+	elif c in ('uninstall', 'remove'):
 		for p in args:
 			if not m.is_name_installed (p):
 				raise '%s not installed' % p
@@ -227,10 +227,10 @@ def run_package_manager (m, commands):
 			m.uninstall_named (p)
 
 	elif c == 'query':
-		print m.installed_packages ()
+		print '\n'.join ([p.name() for p in  m.installed_packages ()])
 		
 	elif c == 'query-known':
-		print m.known_packages.keys ()
+		print '\n'.join (m.known_packages.keys ())
 		
 	elif c == 'list-files':
 		for p in args:
