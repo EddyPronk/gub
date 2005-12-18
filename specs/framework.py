@@ -11,6 +11,11 @@ import installer
 import cvs
 
 
+def file_is_newer (f1, f2):
+	return (not os.path.exists (f2)
+		or os.stat (f1).st_mtime >  os.stat (f2).st_mtime)
+
+
 class Darwin_sdk (gub.Sdk_package):
 	def patch (self):
 		pat = self.srcdir() + '/usr/lib/*.la'
@@ -227,7 +232,15 @@ class Guile__linux (Guile):
 class LilyPond (gub.Target_package):
 	def configure (self):
 		self.autoupdate ()
-		gub.Target_package.configure (self)
+
+		if (file_is_newer (self.srcdir () + '/config.make.in',
+				   self.builddir () + '/config.make') 
+		    or file_is_newer (self.srcdir () + '/config.hh.in',
+				      self.builddir () + '/config.make')):
+		    or file_is_newer (self.srcdir () + '/configure',
+				      self.builddir () + '/config.make')):
+			    
+			    gub.Target_package.configure (self)
 
 	def configure_command (self):
 		## FIXME: pickup $target-guile-config
@@ -247,6 +260,20 @@ class LilyPond (gub.Target_package):
 		b = self.build ()
 		p = self.settings.platform
 		return '%(nv)s-%(b)s.%(p)s.gub' % locals ()
+
+	def autoupdate (self, autodir=0):
+		autodir = self.srcdir ()
+
+		if (file_is_newer (autodir + '/configure.in',
+				   self.builddir () + '/config.make') 
+		    or file_is_newer (autodir + '/stepmake/aclocal.m4',
+				      self.builddir () + '/config.make')):
+
+
+			self.system ('''
+			cd %(autodir)s && bash autogen.sh --noconfigure
+			''', locals ())
+
 
 class LilyPond__mingw (LilyPond):
 	def __init__ (self, settings):
