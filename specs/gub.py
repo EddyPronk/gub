@@ -578,3 +578,14 @@ class Binary_package (Package):
 		self.system ('mkdir -p %(install_root)s')
 		self.system ('tar -C %(srcdir)s/root -cf- . | tar -C %(install_root)s -xvf-')
 
+
+class Sdk_package (Package):
+	def compile (self):
+		pass
+	def configure (self):
+		pass
+	def install (self):
+		pass
+	def package (self):
+		self.system ('tar -C %(srcdir)s/ -czf %(gub_uploads)s/%(gub_name)s .')
+	
