@@ -1,32 +1,36 @@
+import string
 import os
-import pickle
+import pickle 
+import gdbm
+import gub
 
-BUILD_PICKLE = '/build-number.pickle'
-def get_build_db (build_db_name):
-	if not os.path.exists (build_db_name):
-		pickle.dump({},open (build_db_name,'w'))
+class Build_number_db:
+	def __init__ (self, dir):
+		self.db = gdbm.open (dir + '/buildnumber.gdbm', 'cs')
+
+	def key (self, package):
+		return package.expand_string ('%(name)s-%(version)s-%(target_architecture)s')
+
+	def set_build_number (self, package):
+		package._build = self.get_build_number (package)
 		
-	db = pickle.load (open (build_db_name)) 
-	return db
+	def get_build_number (self, package):
+		k = self.key (package)
+		if not self.db.has_key (k):
+			return 1
 
-def get_build_number (pkg):
-	db = get_build_db(pkg.settings.topdir + BUILD_PICKLE)
+		bn = self.db[k]
+
+		gubname ='%(gub_uploads)s/%(name)s-%(version)s-%(bn)s.%(platform)s.gub'
+		gubname = package.expand_string (gubname, locals ())
 	
-	if not db.has_key (pkg.name ()):
-		return 1
+		if os.path.exists (gubname):
+			return string.atoi (bn)
+		else:
+			return string.atoi (bn) + 1
 
-	bn = db[pkg.name ()]
-	
-	gubname ='%(gub_uploads)s/%(name)s-%(version)s-%(bn)s.%(target_architecture)s.gub'
-	gubname = pkg.expand_string (gubname, locals ())
-	
-	if os.path.exists (gubname):
-		return bn
-	else:
-		return bn + 1
-
-def write_build_number (pkg):
-	db = get_build_db(pkg.settings.topdir + BUILD_PICKLE)
-	db[pkg.name ()] = pkg.build ()
-	pickle.dump (db, open (build_db_name, 'w'))
-
+	def write_build_number (self, pkg):
+		b = pkg.build ()
+		gub.log_command ("Writing build number: %s" % b)
+		self.db[self.key (pkg)] = b
+		

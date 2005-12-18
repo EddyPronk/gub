@@ -117,8 +117,8 @@ class Package:
 		self.settings = settings
 		self.url = ''
 		self.download = self.wget
-		self._build = buildnumber.get_build_number (self)
-		
+		self._build = 0
+
 	def package_dict (self, env={}):
 		dict = self.settings.get_substitution_dict ()
 		for (k, v) in self.__dict__.items():
@@ -365,8 +365,6 @@ tar -C %(install_root)s -zcf %(gub_uploads)s/%(gub_name)s .
 ''')
 
 	def clean (self):
-		buildnumber.write_build_number (self)
-		
 		stamp = self.stamp_file ()
 		self.system ('''echo rm -rf %(srcdir)s %(builddir)s %(install_root)s %(stamp)s
 ''', locals ())
@@ -415,7 +413,8 @@ class Cross_package (Package):
 --with-sysroot=%(system_root)s/
 ''')
 
-        def gub_name (self):
+        def xgub_name (self):
+			## makes build number handling more complicated.
 		return '%(name)s-%(version)s-%(build)s.%(build_architecture)s-%(target_architecture)s.gub'
 
 	def install_command (self):

@@ -133,7 +133,8 @@ def build_package (settings, manager, package):
 				settings.build_number_db.write_build_number (package)
 				package.clean ()
 
-			package.set_done (stage, stages.index (stage))
+			if stage <> 'clean':
+				package.set_done (stage, stages.index (stage))
 
 
 def get_settings (platform):
@@ -336,8 +337,12 @@ def main ():
 	map (target_manager.register_package, target_packages) 
 	map (tool_manager.register_package, tool_packages) 
 
+	settings.build_number_db = buildnumber.Build_number_db (settings.topdir)
 	tool_manager.resolve_dependencies ()
 	target_manager.resolve_dependencies ()
+
+	for p in tool_packages + target_packages:
+		settings.build_number_db.set_build_number (p)
 	
 	c = commands.pop (0)
 
