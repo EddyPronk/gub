@@ -116,7 +116,7 @@ class Cpm:
 
 	def filelist (self, name):
 		list_file = "%s/%s.lst.gz" % (self.config, name)
-		return [l[:-1] for l in gzip.open(list_file).readlines ()]
+		return [l[:-1] for l in gzip.open (list_file).readlines ()]
 
 	def _write_filelist (self, lst, name):
 		lst_name = '%s/%s.lst' % (self.config, name)
@@ -144,8 +144,10 @@ class Cpm:
 		pipe = os.popen ('tar -C "%(root)s" -%(z)sxvf "%(ball)s"' \
 				 % locals (), 'r')
 		lst = map (string.strip, pipe.readlines ())
-		if pipe.close ():
-			raise 'urg'
+		status = pipe.close ()
+		if status:
+			raise '_install(): pipe close %d' % status
+		
 		self._write_filelist (lst, name)
 		self._installed[name] = os.path.basename (ball)
 		self._depends[name] = depends
