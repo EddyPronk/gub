@@ -122,7 +122,7 @@ class Installer (gub.Package):
 class Darwin_bundle (Installer):
 	def __init__ (self, settings):
 		Installer.__init__ (self, settings)
-		self.ignore_libs = self.get_ignore_libs ()
+		self.ignore_libs = None
 		self.strip_command += ' -S '
 
 	def rewire_mach_o_object (self, name):
@@ -158,6 +158,7 @@ class Darwin_bundle (Installer):
 		return d
 	
 	def create (self):
+		self.ignore_libs = self.get_ignore_libs ()
 		self.rewire_binary_dir (self.settings.installer_root + '/usr/lib')
 		self.rewire_binary_dir (self.settings.installer_root + '/usr/bin')
 		Installer.create (self)

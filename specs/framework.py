@@ -680,32 +680,7 @@ def get_packages (settings):
 
 def get_installers (settings):
 	installers = {
-		# Comment out to build the windows installer,
-		# see below.
 		'darwin' : [installer.Darwin_bundle (settings)],
-
-		# rm -rf target/*
-		# make mingw ... BOOM (just before installer is to be made)
-
-#  *** Stage: install_gub (lilypond)
-# invoking mkdir -p /home/janneke/bzr/gub/target/i686-mingw32/installer
-# invoking tar -C /home/janneke/bzr/gub/target/i686-mingw32/installer -zxf /home/janneke/bzr/gub/uploads/gub/lilypond-2.7.24-0.mingw.gub
-# Traceback (most recent call last):
-#   File "driver.py", line 267, in ?
-#     main ()
-#   File "driver.py", line 264, in main
-#     make_installers (settings, packages)
-#   File "driver.py", line 161, in make_installers
-#     for p in framework.get_installers (settings):
-#   File "specs/framework.py", line 682, in get_installers
-#     installers = {
-#   File "specs/installer.py", line 125, in __init__
-#     self.ignore_libs = self.get_ignore_libs ()
-#   File "specs/installer.py", line 156, in get_ignore_libs
-#     (root, dirs, files) = os.walk (self.settings.installdir + '/darwin-sdk-root/usr/lib').next ()
-# StopIteration
-# make: *** [mingw] Fout 1
-
 		'linux' : [
 		installer.Tgz (settings),
 		installer.Deb (settings),
