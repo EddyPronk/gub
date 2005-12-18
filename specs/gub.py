@@ -32,6 +32,12 @@ def grok_sh_variables (file):
 def now ():
 	return time.asctime (time.localtime ())
 
+def split_version (s):
+	m = re.match ('^(([0-9].*)-([0-9]+))$', s)
+	if m:
+		return m.group (2), m.group (3)
+	return s, '0'
+
 def start_log (settings):
 	global log_file
 	log_file = open ('build-%s.log' % settings.target_architecture, 'a')
@@ -232,7 +238,7 @@ cd %(dir)s/%(name)s && cvs -q update  -dAP -r %(version)s
 		return string.join ([self.version (), self.build ()], '-')
 
 	def version (self):
-		return cpm.split_version (self.ball_version)[0]
+		return split_version (self.ball_version)[0]
 
 	def name_version (self):
 		return '%s-%s' % (self.name (), self.version ())
