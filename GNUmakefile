@@ -37,6 +37,8 @@ linux:
 	$(call BUILD_ALL, linux) 
 
 mac:
+	$(call INVOKE_DRIVER, darwin) build-target darwin-sdk
+	$(call INVOKE_DRIVER, darwin) manage-target install darwin-sdk
 	$(call BUILD_ALL, darwin) 
 
 mingw:
