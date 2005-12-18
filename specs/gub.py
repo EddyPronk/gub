@@ -83,9 +83,10 @@ def dump (str, name, mode='w'):
 	f.close ()
 
 def file_sub (re_pairs, name, to_name=None):
-	log_command ('substituting: %s' %
-		     ''.join (map (lambda x: "'%s' -> '%s'\n" % x,
-				     re_pairs)))
+	
+	log_command ('substituting in %s\n' % name)
+	log_command (''.join (map (lambda x: "'%s' -> '%s'\n" % x,
+				   re_pairs)))
 	
 	s = open (name).read ()
 	t = s
