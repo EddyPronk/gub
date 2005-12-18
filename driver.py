@@ -265,7 +265,7 @@ def build_installers (settings, install_pkg_manager):
 		install_pkg_manager.install_package (p)
 		
 	for p in framework.get_installers (settings):
-		print 'installer: ' + `p`
+		print 'installer: ' + p.name()
 		gub.log_command (' *** Stage: %s (%s)\n' % ('create', p.name()))
 		p.create ()
 		
@@ -344,11 +344,12 @@ def main ():
 	elif c == 'manage-target':
 		run_package_manager (target_manager, commands)
 	elif c == 'build-installer':
+		gub.system ('rm -rf %s' %  settings.installer_root)
 		install_manager = xpm.Package_manager (settings.installer_root)
 		for p in target_manager.known_packages.values ():
 			if not isinstance (p, gub.Sdk_package):
 				install_manager.register_package (p)
-				
+
 		build_installers (settings, install_manager)
 		
 	elif c == 'help':

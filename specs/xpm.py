@@ -112,7 +112,7 @@ class Package_manager:
 
 	def install_dependencies (self, package):
 		for d in package.depends:
-			if not self.is_installed (d):
+			if not self.is_installed (d) and self.known_packages.has_key (d):
 				self.install_package (d)
 
 	def install_package (self, package):
