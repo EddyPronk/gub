@@ -154,9 +154,9 @@ class Darwin_bundle (Installer):
 		
 	def get_ignore_libs (self):
 		list_file = self.settings.system_root + '/etc/setup/darwin-sdk.lst.gz'
-		for l in gzip.GzipFile(list_file).readlines ():
+		for l in gzip.open(list_file).readlines ():
 			if re.match (r'^\./usr/lib/', l):
-				d[l[:-1]] = True
+				d[l[1:-1]] = True
 		return d
 	
 	def create (self):
