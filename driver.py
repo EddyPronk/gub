@@ -13,6 +13,8 @@ import xpm
 import cpm
 import gub
 import framework
+import buildnumber
+
 
 class Settings:
 	def __init__ (self, arch):
@@ -35,7 +37,6 @@ class Settings:
 		self.allsrcdir = os.path.join (self.targetdir, 'src')
 		
 		self.builddir = self.targetdir + '/build'
-		self.garbagedir = self.targetdir + '/garbage'
 		self.statusdir = self.targetdir + '/status'
 
 		## Safe uploads, so that we can rm -rf target/*
@@ -78,7 +79,6 @@ class Settings:
 	def create_dirs (self): 
 		for a in (
 			'downloaddir',
-			'garbagedir',
 			'gub_uploads',
 			'installer_uploads',
 			'specdir',
@@ -130,6 +130,7 @@ def build_package (settings, manager, package):
 			elif stage == 'package':
                         	package.package ()
 			elif stage == 'clean':
+				settings.build_number_db.write_build_number (package)
 				package.clean ()
 
 			package.set_done (stage, stages.index (stage))
