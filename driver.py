@@ -46,6 +46,7 @@ class Settings:
 
 		# FIXME: rename to target_root?
 		self.system_root = self.targetdir + '/system'
+		self.manager_dir = self.system_root + '/etc/setup'
 		self.installdir = self.targetdir + '/install'
 		self.tooldir = self.targetdir + '/tools'
 
@@ -123,9 +124,9 @@ def process_package (package):
 
 def build_packages (settings, packages):
 	def is_installed (p):
-		"""Return true if package P is installed by system_gpm."""
-		return (p.system_gpm.is_installed (p.name())
-			and p.system_gpm.version (p.name ())
+		"""Return true if package P is installed by settings.manager."""
+		return (settings.manager.is_installed (p.name())
+			and settings.manager.version (p.name ())
 			== cpm.string_to_version (p.full_version ()))
 
 	def skip (p):
@@ -135,11 +136,11 @@ def build_packages (settings, packages):
 		# package
 
 		if (not is_installed (p)
-		    and p.system_gpm.dists ()['curr'].has_key (p.name ())
-		    and p.system_gpm.dists ()['curr'][p.name ()] .has_key ('install')):
-			ball, size, md5 = string.split (p.system_gpm.dists ()['curr'][p.name ()]['install'])
+		    and settings.manager.dists ()['curr'].has_key (p.name ())
+		    and settings.manager.dists ()['curr'][p.name ()] .has_key ('install')):
+			ball, size, md5 = string.split (settings.manager.dists ()['curr'][p.name ()]['install'])
 			try:
-				p.system_gpm.install (p.name (),
+				settings.manager.install (p.name (),
 						      os.path.join (p.settings.uploads,
 								    ball),
 						      p.depends)
@@ -185,8 +186,9 @@ def get_settings (platform):
 		'mingw': 'i686-mingw32',
 		'linux': 'linux'
 		}[platform]
-
+	
 	settings = Settings (init)
+	settings.manager = None
 	settings.platform = platform
 	
 	if platform == 'darwin':
@@ -215,7 +217,8 @@ def get_settings (platform):
 		os.environ['LD'] = settings.ld
 	else:
 		raise 'unknown platform', platform 
-		
+
+
 	return settings
 
 def do_options ():
@@ -262,6 +265,8 @@ def main ():
 	settings.bundle_version = options.package_version
 	settings.bundle_build = options.package_build
 	settings.create_dirs ()
+	settings.manager = cpm.Gpm (settings.system_root)
+		
 
 	os.environ["PATH"] = '%s/%s:%s' % (settings.tooldir, 'bin',
                                            os.environ["PATH"])
