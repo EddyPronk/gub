@@ -1,0 +1,139 @@
+--- pango-1.10.1/pango/pango-utils.c~	2005-07-28 00:14:46.000000000 +0200
++++ pango-1.10.1/pango/pango-utils.c	2005-11-08 18:03:52.000000000 +0100
+@@ -23,6 +23,7 @@
+ #include <math.h>
+ #include <string.h>
+ #include <stdlib.h>
++#include <ctype.h>
+ 
+ #include "config.h"
+ 
+@@ -85,6 +86,89 @@
+   return g_strndup (str, len);
+ }
+ 
++
++/** 
++  g_string_substitute_environment()
++  @orig: a string
++
++  Replaces environment variables of the form ${FOO} or $FOO.
++
++  Return value: A newly-allocated string, that must be freed with
++  g_string_free()
++ */
++GString *
++g_string_substitute_environment (GString *orig)
++{
++  GString * out = g_string_new ("");
++  char *ptr = NULL;
++  
++  ptr = orig->str;
++  while (ptr  < orig->str + orig->len)
++    {
++      char *dollar = strchr (ptr, '$');
++      
++      if (dollar != NULL)
++	{
++	  char *start_var = dollar + 1;
++	  char *end_var = start_var;
++	  char *start_next = end_var;
++	  
++	  g_string_append_len (out, ptr, dollar - ptr);
++	  ptr = dollar;
++
++	  if (*start_var == '{')
++	    {
++	      start_var ++;
++	      
++	      end_var = strchr (start_var, '}');
++	      
++	      if (end_var == NULL)
++		{
++		  end_var = orig->str + orig->len;
++		  start_next = end_var;
++		}
++	      else
++		{
++		  start_next = end_var + 1; 
++		}
++	    }
++	  else 
++	    {
++	      /*
++		Hmm. what to do for $1 , $~ etc.?
++	       */
++	      do
++		{
++		  end_var ++;
++		}
++	      while (isalnum (*end_var) || *end_var == '_');
++	      start_next = end_var;
++	    }
++
++	  if (start_var < end_var)
++	    {
++	      GString *var_name = g_string_new_len (start_var, end_var - start_var);
++	      const char *value = g_getenv (var_name->str);
++	      if (value != NULL)
++		g_string_append (out, value);
++	      g_string_free (var_name, TRUE);
++
++
++	      ptr = start_next;
++	    }
++	}
++      else
++	break;
++
++    }
++
++  g_string_append (out, ptr);
++
++  return out;
++}
++
++
++
+ /**
+  * pango_split_file_list:
+  * @str: a G_SEARCHPATH_SEPARATOR separated list of filenames
+@@ -139,6 +223,16 @@
+ 	  file = g_strdup (g_get_home_dir());
+ 	}
+ #endif
++
++      {
++	GString *file_as_gs = g_string_new (file);
++	GString *substituted = g_string_substitute_environment (file_as_gs);
++	g_free (file);
++	file = substituted->str;
++	g_string_free (substituted, FALSE);
++	g_string_free (file_as_gs, TRUE);
++      }
++      
+       g_free (files[i]);
+       files[i] = file;
+ 	
+@@ -321,6 +415,7 @@
+   return TRUE;
+ }
+ 
++
+ /**
+  * pango_scan_string:
+  * @pos: in/out string position
+@@ -404,6 +499,13 @@
+ 	}
+     }
+ 
++
++  {
++    GString *subbed = g_string_substitute_environment (out);
++    g_string_assign (out, subbed->str);
++    g_string_free (subbed, TRUE);
++  }
++  
+   *pos = p;
+ 
+   return TRUE;
