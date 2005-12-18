@@ -611,6 +611,82 @@ cd %(builddir)s && %(zlib_is_broken)s AR="%(AR)s r" %(srcdir)s/configure --share
 
 	def install_command (self):
 		return gub.Target_package.broken_install_command (self)
+class Mingw_runtime (gub.Binary_package):
+	def untar (self):
+		gub.Binary_package.untar (self)
+		self.system ('mkdir -p %(srcdir)s/root/usr')
+		self.system ('cd %(srcdir)s/root && mv * usr',
+			     ignore_error=True)
+
+
+class Cygwin (gub.Binary_package):
+	"Only need the cygcheck.exe binary."
+	
+	def untar (self):
+		gub.Binary_package.untar (self)
+
+		file = '%s/root/usr/bin/cygcheck.exe' % self.srcdir ()
+		cygcheck = open (file).read ()
+		self.system ('rm -rf %(srcdir)s/root')
+		self.system ('mkdir -p %(srcdir)s/root/usr/bin/')
+		open (file, 'w').write (cygcheck)
+
+	def basename (self):
+		f = gub.Binary_package.basename (self)
+		f = re.sub ('-1$', '', f)
+		return f
+
+class W32api (gub.Binary_package):
+	def untar (self):
+		gub.Binary_package.untar (self)
+		self.system ('mkdir -p %(srcdir)s/root/usr')
+		self.system ('cd %(srcdir)s/root && mv * usr',
+			     ignore_error=True)
+
+class Regex (gub.Target_package):
+	pass
+
+class Gs (gub.Binary_package):
+	def untar (self):
+		gub.Binary_package.untar (self)
+		self.system ('cd %(srcdir)s && mv root/gs-%(ball_version)s/* .')
+
+	def install (self):
+		gs_prefix = '/usr/share/gs'
+		self.system ('''
+mkdir -p %(install_root)s/usr
+tar -C %(srcdir)s -cf- bin | tar -C %(install_root)s/usr -xvf-
+mkdir -p %(install_root)s/%(gs_prefix)s
+tar -C %(srcdir)s -cf- fonts lib Resource | tar -C %(install_root)s/%(gs_prefix)s -xvf-
+fc-cache %(install_root)s/%(gs_prefix)s/fonts
+mkdir -p %(install_root)s/usr/share/doc/gs/html
+tar -C %(srcdir)s/doc -cf- --exclude='[A-Z]*[A-Z]' . | tar -C %(install_root)s/usr/share/doc/gs/html -xvf-
+tar -C %(srcdir)s/doc -cf- --exclude='*.htm*' . | tar -C %(install_root)s/usr/share/doc/gs/html -xvf-
+''',
+			     env=locals ())
+
+class LilyPad (gub.Target_package):
+	def makeflags (self):
+		# FIXME: better fix Makefile
+		return gub.join_lines ('''
+ALL_OBJS='$(OBJS)'
+WRC=/usr/bin/wrc
+CPPFLAGS=-I%(system_root)s/usr/include
+RC='$(WRC) $(CPPFLAGS)'
+LIBWINE=
+LIBPORT=
+MKINSTALLDIRS=%(srcdir)s/mkinstalldirs
+INSTALL_PROGRAM=%(srcdir)s/install-sh
+''')
+		
+	def compile_command (self):
+		return gub.Target_package.compile_command (self) \
+		       + self.makeflags ()
+
+	def install_command (self):
+		return gub.Target_package.broken_install_command (self) \
+		       + self.makeflags ()
+
 
 # latest vanilla packages
 #Zlib (settings).with (version='1.2.3', mirror=download.zlib, format='bz2'),
@@ -652,20 +728,38 @@ def get_packages (settings):
 						  ),
 	),
 	'mingw': (
-		Libtool (settings).with (version='1.5.20', depends=['mingw-runtime']),
-		Zlib (settings).with (version='1.2.2-1', mirror=download.lp, format='bz2', depends=['mingw-runtime']),
-		Gettext__mingw (settings).with (version='0.14.5-1', mirror=download.lp, format='bz2', depends=['mingw-runtime']),
+		Mingw_runtime (settings).with (version='3.9', mirror=download.mingw),
+		Libtool (settings).with (version='1.5.20',
+					 depends=['mingw-runtime']
+					 ),
+		Zlib (settings).with (version='1.2.2-1', mirror=download.lp, format='bz2',
+				      depends=['mingw-runtime']
+				      ),
+		Gettext__mingw (settings).with (version='0.14.5-1', mirror=download.lp, format='bz2',
+						depends=['mingw-runtime']
+						),
 		Libiconv (settings).with (version='1.9.2', depends=['gettext']),
 		Freetype (settings).with (version='2.1.7', mirror=download.freetype, depends=['libtool', 'zlib']),
 		Expat (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2'),
 		Fontconfig__mingw (settings).with (version='2.3.2', mirror=download.fontconfig,
 						   depends=['expat', 'freetype', 'libtool']),
-		Gmp__mingw (settings).with (version='4.1.4', depends=['mingw-runtime']),
+		Gmp__mingw (settings).with (version='4.1.4',
+					    depends=['mingw-runtime']
+					    ),
 		# FIXME: we're actually using 1.7.2-cvs+, 1.7.2 needs too much work
-		Guile__mingw (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2', depends=['gettext', 'gmp', 'libtool', 'regex']),
+		Guile__mingw (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2', depends=['gettext',
+													    'gmp',
+													    'libtool']),
 		Glib (settings).with (version='2.8.4', mirror=download.gtk, depends=['gettext', 'libiconv']),
 		Pango__mingw (settings).with (version='1.10.1', mirror=download.gtk, depends=['freetype', 'fontconfig', 'glib', 'libiconv']),
-		Python__mingw (settings).with (version='2.4.2', mirror=download.python, format='bz2', depends=['mingw-runtime']),
+		Python__mingw (settings).with (version='2.4.2', mirror=download.python, format='bz2',
+					       depends=['mingw-runtime']
+					       ),
+		Cygwin (settings).with (version='1.5.18-1', mirror=download.cygwin, format='bz2', depends=['mingw-runtime']), 
+		Gs (settings).with (version='8.15-1', mirror=download.lp, format='bz2', depends=['mingw-runtime']),
+		W32api (settings).with (version='3.5', mirror=download.mingw),
+		Regex (settings).with (version='2.3.90-1', mirror=download.lp, format='bz2', depends=['mingw-runtime']),
+		LilyPad (settings).with (version='0.0.7-1', mirror=download.lp, format='bz2', depends=['w32api']),
 		LilyPond__mingw (settings).with (mirror=cvs.gnu, download=gub.Package.cvs, depends=['gettext', 'guile', 'pango', 'python']),
 	),
 	'linux': (
