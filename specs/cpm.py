@@ -91,7 +91,7 @@ class Cpm:
 		file.writelines (map (lambda x: '%s %s 0\n' \
 				      % (x, self._installed[x]),
 				      self._installed.keys ()))
-		status = file.close ():
+		status = file.close ()
 
 		if status:
 			raise 'file.close(): %d' % status
@@ -119,7 +119,7 @@ class Cpm:
 		return [l[:-1] for l in gzip.open (list_file).readlines ()]
 
 	def _write_filelist (self, lst, name):
-		lst_name = '%s/%s.lst' % (self.config, name)
+		lst_name = '%s/%s.lst.gz' % (self.config, name)
 		f = gzip.open (lst_name, 'w')
 		for i in lst:
 			f.write ('%s\n' % i)
@@ -222,7 +222,7 @@ class Cpm:
 					key, value = map (string.strip,
 						  string.split (lines[j], ': ', 1))
 				except:
-					print lines[j]
+					print lines[j], setup_ini, self
 					raise 'URG'
 				if value.startswith ('"') and value.find ('"', 1) == -1:
 					while 1:
@@ -244,6 +244,8 @@ class Gpm (Cpm):
 
 	def _write_installed (self):
 		file = open (self._installed_db, 'w')
+
+		# todo, use eval , `obj` ? 
 		pickle.dump (self._installed, file)
 
 	def _load_installed (self):
