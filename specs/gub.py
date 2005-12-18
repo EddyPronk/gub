@@ -374,7 +374,11 @@ tar -C %(install_root)s -zcf %(gub_uploads)s/%(gub_name)s .
 		stamp = self.stamp_file ()
 		self.system ('''rm -rf %(srcdir)s %(builddir)s %(install_root)s %(stamp)s
 ''', locals ())
+						 
 	def untar (self):
+		if self.download == self.cvs:
+			return
+		
 		tarball = self.settings.downloaddir + '/' + self.file_name ()
 		if not os.path.exists (tarball):
 			raise 'no such file: ' + tarball

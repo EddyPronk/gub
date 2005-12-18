@@ -14,6 +14,11 @@ def tar_compression_flag (ball):
 		compression_flag = 'z'
 	return compression_flag
 	
+
+# TODO:
+#
+# use (G)DBM or similar to maintain package database.
+# 
 class Package_manager:
 	def __init__ (self, root):
 		self.root = root

@@ -388,7 +388,8 @@ class LilyPond__darwin (LilyPond):
 	def install_command (self):
 		return LilyPond.install_command (self) \
 		       + gub.join_lines (''' HELP2MAN_GROFFS=''')
-
+	def untar (self):
+		pass
 class Gettext (gub.Target_package):
 	def configure_command (self):
 		return gub.Target_package.configure_command (self) \
