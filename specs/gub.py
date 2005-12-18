@@ -308,8 +308,6 @@ cd %(srcdir)s && automake --add-missing
 		return '%(srcdir)s/configure --prefix=%(install_prefix)s'
 
 	def configure (self):
-		if self.settings.manager.installed ().has_key (self.name ()):
-			self.settings.manager.uninstall (self.name ())
 		self.system ('''
 mkdir -p %(builddir)s
 cd %(builddir)s && %(configure_command)s
@@ -365,17 +363,7 @@ cd %(builddir)s && %(install_command)s
 tar -C %(install_root)s -zcf %(gub_uploads)s/%(gub_name)s .
 ''')
 
-	def _install_gub (self, root):
-		self.system ('''
-mkdir -p %(root)s
-tar -C %(root)s -zxf %(gub_uploads)s/%(gub_name)s
-''', locals ())
-
-        # FIXME: install in installer_root using Gpm instance
-	def install_gub (self):
-		self._install_gub (self.settings.installer_root)
-
-	def sysinstall (self):
+	def xsysinstall (self):
 		self.settings.manager.install (self.name (),
 					 '%(gub_uploads)s/%(gub_name)s' \
 					 % self.package_dict (),
@@ -444,12 +432,6 @@ class Cross_package (Package):
 	def install_command (self):
 		# FIXME: to install this, must revert any prefix=tooldir stuff
 		return join_lines ('''make prefix=/usr DESTDIR=%(install_root)s install''')
-
-	def install_gub (self):
-		pass
-
-	def sysinstall (self):
-		self._install_gub (self.settings.tooldir)
 
 	def package (self):
 		# naive tarball packages for now
