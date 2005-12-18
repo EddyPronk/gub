@@ -1,6 +1,5 @@
 import os
 import re
-
 import gub
 
 # FIXME: Want to share package_dict () and system () with gub.Package,
@@ -153,10 +152,12 @@ class Darwin_bundle (Installer):
 		
 		
 	def get_ignore_libs (self):
-		list_file = self.settings.system_root + '/etc/setup/darwin-sdk.lst.gz'
-		for l in gzip.open(list_file).readlines ():
+		str = self.read_pipe ('tar tfz %(gub_uploads)s/darwin-sdk-0.0-1.darwin.gub')
+		d = {}
+		for l in str.split ('\n'):
+			l = l.strip ()
 			if re.match (r'^\./usr/lib/', l):
-				d[l[1:-1]] = True
+				d[l[1:]] = True
 		return d
 	
 	def create (self):
@@ -215,7 +216,6 @@ class Rpm (Linux_installer):
 	def create (self):
 		build = self.settings.build
 		self.system ('cd %(installer_uploads)s && fakeroot alien --keep-version --to-rpm %(installer_uploads)s/%(name)s-%(bundle_version)s-%(package_arch)s-%(build)s.tgz', locals ())
-
 
 class Autopackage (Linux_installer):
 	def create (self):
