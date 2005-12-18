@@ -11,6 +11,13 @@ import installer
 import cvs
 
 
+class Darwin_sdk (gub.Sdk_package):
+	def patch (self):
+		pat = self.srcdir() + '/usr/lib/*.la'
+		for a in glob.glob (pat):
+			self.file_sub ([(r' (/usr/lib/.*\.la)', r'%(system_root)s\1')], a)
+
+
 # FIXME: cannot put in cross.py, that's imported in gub before Cross_package
 # is defined
 class Binutils (gub.Cross_package):
@@ -675,6 +682,7 @@ def get_packages (settings):
 		settings.python_version = '2.3'
 	
 	settings.guile_version = [p for p in packs if isinstance (p, Guile)][0].guile_version ()
+
 
 	return packs
 
