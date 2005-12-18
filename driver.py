@@ -180,7 +180,13 @@ def get_settings (platform):
 	return settings
 
 def get_cli_parser ():
-	p = optparse.OptionParser (usage="driver.py [options] platform",
+	p = optparse.OptionParser (usage="""driver.py [OPTION]... COMMAND [PACKAGE]...
+
+Commands: download, untar, configure, compile ...
+
+Example:
+    ./driver.py -p mingw download mingw-runtime lilypond
+""",
 				   description="Grand Unified Builder.  Specify --package-version to set build version")
         p.add_option ('-o', '--offline', action = 'store_true',
                       default=None,

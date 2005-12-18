@@ -214,8 +214,8 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
 			       '\\1')],
 			       '%(builddir)s/guile-readline/libtool')
 		
-		self.system ('''cp %(installdir)s/libtool-root/usr/bin/libtool %(builddir)s/libtool''')
-		self.system ('''cp %(installdir)s/libtool-root/usr/bin/libtool %(builddir)s/guile-readline/libtool''')
+		self.system ('''cp %(system_root)s/usr/bin/libtool %(builddir)s/libtool''')
+		self.system ('''cp %(system_root)s/usr/bin/libtool %(builddir)s/guile-readline/libtool''')
 
 class Guile__linux (Guile):
 	def compile_command (self):
