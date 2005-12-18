@@ -259,15 +259,19 @@ cd %(dir)s/%(name)s && cvs -q update  -dAP -r %(version)s
 	def install_prefix (self):
 		return self.install_root () + '/usr'
 
-	def done (self, stage):
-		return ('%(statusdir)s/%(name)s-%(version)s-%(build)s-%(stage)s'
-			% self.package_dict (locals ()))
+	def stamp_file (self):
+		return self.expand_string ('%(statusdir)s/%(name)s-%(version)s-%(build)s')
 
-	def is_done (self, stage):
-		return os.path.exists (self.done (stage))
+	def is_done (self, stage, stage_number):
+		f = self.stamp_file()
+		if not os.path.exists (f):
+			return False
 
-	def set_done (self, stage):
-		open (self.done (stage), 'w').write ('')
+		first_line =  open (f).readline ()
+		return string.atoi (first_line) >= stage_number
+
+	def set_done (self, stage, stage_number):
+		f = open (self.stamp_file(),'w').write ('%d\n%s' %  (stage_number, stage))
 
 	def autoupdate (self, autodir=0):
 		if not autodir:
@@ -388,8 +392,9 @@ cp -pv %(uploads)s/setup.ini %(system_root)s/etc/setup/
 		pickle.dump (builds, open (self.build_db, 'w'))
 
 	def clean (self):
-		self.system ('''echo rm -rf %(srcdir)s %(builddir)s %(install_root)s
-''')
+		stamp = self.stamp_file ()
+		self.system ('''echo rm -rf %(srcdir)s %(builddir)s %(install_root)s %(stamp)s
+''', locals ())
 	def untar (self):
 		tarball = self.settings.downloaddir + '/' + self.file_name ()
 		if not os.path.exists (tarball):
