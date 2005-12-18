@@ -153,8 +153,10 @@ class Darwin_bundle (Installer):
 		
 		
 	def get_ignore_libs (self):
-		(root, dirs, files) = os.walk (self.settings.installdir + '/darwin-sdk-root/usr/lib').next ()
-		d =  dict ([(os.path.join ('/usr/lib', f), True) for  f in files])
+		list_file = self.settings.system_root + '/etc/setup/darwin-sdk.lst.gz'
+		for l in gzip.GzipFile(list_file).readlines ():
+			if re.match (r'^\./usr/lib/', l):
+				d[l[:-1]] = True
 		return d
 	
 	def create (self):
