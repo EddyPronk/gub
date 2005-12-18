@@ -349,9 +349,9 @@ def main ():
 	if c == 'download':
 		download_sources (tool_manager)
 		download_sources (target_manager)
-	if c == 'build-tool':
+	elif c == 'build-tool':
 		run_builder (settings, tool_manager, commands)
-	if c == 'build-target':
+	elif c == 'build-target':
 		run_builder (settings, target_manager, commands)
 	elif c == 'manage-tool':
 		run_package_manager (tool_manager, commands)
