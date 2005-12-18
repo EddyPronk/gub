@@ -168,6 +168,9 @@ class Package:
 		dict = self.package_dict (env)
 		return read_pipe (cmd % dict, ignore_error=ignore_error)
 
+	def expand_string (self, s, env={}):
+		return s % self.package_dict (env)
+		
 	def system (self, cmd, env={}, ignore_error=False):
 		dict = self.package_dict (env)
 		system (cmd % dict, env=dict, ignore_error=ignore_error,
