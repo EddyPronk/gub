@@ -259,18 +259,10 @@ help - this info
 		raise 'unknown xpm command %s ' % c
 
 
-def build_installers (settings, packages):
-	# FIXME: todo separate lilypond-framework, lilypond packages?
-	packages = [p for p in packages if not isinstance (p, gub.Cross_package)]
-
-	# set to false for debugging
-	install_gubs = True
-	if install_gubs:
-		gub.system ('rm -rf %(installer_root)s' % settings.__dict__)
-		for p in packages:
-			gub.log_command (' *** Stage: %s (%s)\n' % ('install_gub', p.name()))
-			p.install_gub ()
-
+def build_installers (settings, install_pkg_manager):
+	for p in install_pkg_manager.known_packages.values ():
+		install_pkg_manager.install_package (p)
+		
 	for p in framework.get_installers (settings):
 		print 'installer: ' + `p`
 		gub.log_command (' *** Stage: %s (%s)\n' % ('create', p.name()))
@@ -351,7 +343,13 @@ def main ():
 	elif c == 'manage-target':
 		run_package_manager (target_manager, commands)
 	elif c == 'build-installer':
-		build_installers (settings, target_manager.known_packages ().values())
+		install_manager = xpm.Package_manager (settings.installer_root)
+		for p in target_manager.known_packages.values ():
+			if not isinstance (p, gub.Sdk_package):
+				install_manager.register_package (p)
+				
+		build_installers (settings, install_manager)
+		
 	elif c == 'help':
 		print 'driver commands:  help download {manage,build}-{tool,target} build-installer '
 		sys.exit (0)
