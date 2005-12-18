@@ -42,6 +42,8 @@ mac:
 	$(call BUILD_ALL, darwin) 
 
 mingw:
+	$(call INVOKE_DRIVER, mingw) build-target mingw-runtime w32api 
+	$(call INVOKE_DRIVER, mingw) manage-target install mingw-runtime w32api
 	$(call BUILD_ALL, mingw) 
 
 

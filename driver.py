@@ -301,7 +301,6 @@ def main ():
 	if not options.platform:
 		cli_parser.print_help()
 		sys.exit (2)
-
 	
 	settings = get_settings (options.platform)
         settings.offline = options.offline
@@ -315,14 +314,13 @@ def main ():
 	settings.bundle_version = options.package_version
 	settings.bundle_build = options.package_build
 	settings.create_dirs ()
-
 	
 	target_manager = xpm.Package_manager (settings.system_root)
 	tool_manager = xpm.Package_manager (settings.tooldir)
 
 	os.environ["PATH"] = '%s/%s:%s' % (settings.tooldir, 'bin',
                                            os.environ["PATH"])
-
+	
 	if options.platform == 'darwin':
 		import darwintools
 		map (tool_manager.register_package, darwintools.get_packages (settings))
