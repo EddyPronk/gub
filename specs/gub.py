@@ -117,7 +117,7 @@ class Package:
 		self.settings = settings
 		self.url = ''
 		self.download = self.wget
-		self._build = get_build_number (self)
+		self._build = buildnumber.get_build_number (self)
 		
 	def package_dict (self, env={}):
 		dict = self.settings.get_substitution_dict ()
@@ -177,7 +177,7 @@ class Package:
 		system (cmd % dict, env=dict, ignore_error=ignore_error,
 			verbose=self.settings.verbose)
 
-	def build ():
+	def build (self):
 		return '%d' % self._build
 
 	def skip (self):
@@ -381,6 +381,8 @@ cp -pv %(uploads)s/setup.ini %(system_root)s/etc/setup/
 		pickle.dump (builds, open (self.build_db, 'w'))
 
 	def clean (self):
+		buildnumber.write_build_number (self)
+		
 		stamp = self.stamp_file ()
 		self.system ('''echo rm -rf %(srcdir)s %(builddir)s %(install_root)s %(stamp)s
 ''', locals ())
@@ -395,6 +397,8 @@ rm -rf %(srcdir)s %(builddir)s %(install_root)s
 tar %(flags)s %(tarball)s -C %(allsrcdir)s
 ''',
 			     locals ())
+
+						 
 
 	def set_download (self, mirror=download.gnu, format='gz', download=wget):
 		"""Setup URLs and functions for downloading.

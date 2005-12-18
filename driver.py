@@ -108,7 +108,7 @@ def build_package (settings, manager, package):
 		manager.uninstall_package (package)
 		
 
-	gub.log_command (' ** Package: %s\n' % package.name ())
+	gub.log_command (package.expand_string (' ** Package: %(name)s (%(version)s, %(build)s)\n'))
 
 	stages = ['untar', 'patch', 'configure', 'compile', 'install',
 		  'package', 'sysinstall', 'clean']
