@@ -28,9 +28,9 @@ BUILD_ALL=$(call INVOKE_DRIVER, $(1)) build-tool all  && $(call INVOKE_DRIVER, $
 
 
 download:
-	$(INVOKE_DRIVER) --platform linux download
-	$(INVOKE_DRIVER) --platform darwin download
-	$(INVOKE_DRIVER) --platform mingw download
+	$(call INVOKE_DRIVER, linux) download
+	$(call INVOKE_DRIVER, darwin) download
+	$(call INVOKE_DRIVER, mingw) download
 
 
 linux:
