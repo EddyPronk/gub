@@ -125,6 +125,9 @@ class Package:
 		self.download = self.wget
 		self._build = 0
 
+		# set to true for CVS releases 
+		self.track_development = False
+
 	def package_dict (self, env={}):
 		dict = self.settings.get_substitution_dict ()
 		for (k, v) in self.__dict__.items():
@@ -372,17 +375,21 @@ tar -C %(install_root)s -zcf %(gub_uploads)s/%(gub_name)s .
 
 	def clean (self):
 		stamp = self.stamp_file ()
-		self.system ('''rm -rf %(srcdir)s %(builddir)s %(install_root)s %(stamp)s
-''', locals ())
-						 
+		self.system ('rm -rf  %(stamp)s %(install_root)s', locals ())
+		if self.track_development:
+			return
+
+		self.system ('''rm -rf %(srcdir)s %(builddir)s''', locals ())
+
 	def untar (self):
-		if self.download == self.cvs:
+		if self.track_development:
 			return
 		
 		tarball = self.settings.downloaddir + '/' + self.file_name ()
 		if not os.path.exists (tarball):
 			raise 'no such file: ' + tarball
 		flags = download.untar_flags (tarball)
+		
 		# clean up
 		self.system ('''
 rm -rf %(srcdir)s %(builddir)s %(install_root)s
@@ -402,14 +409,15 @@ tar %(flags)s %(tarball)s -C %(allsrcdir)s
 		d.update (locals ())
 		self.url = mirror () % d
 		self.download = lambda : download (self)
-		if self.download == self.cvs:
-			# preserve CVS checkouts
-			self.clean = self.skip
-
-	def with (self, version='HEAD', mirror=download.gnu, format='gz', download=wget, depends=[]):
+		
+	def with (self, version='HEAD', mirror=download.gnu,
+		  format='gz', download=wget, depends=[],
+		  track_development=False
+		  ):
 		self.ball_version = version
 		self.set_download (mirror, format, download)
 		self.depends = depends
+		self.track_development = track_development
 		return self
 
 class Cross_package (Package):

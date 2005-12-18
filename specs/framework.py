@@ -328,6 +328,9 @@ cp %(install_root)s/usr/share/lilypond/*/python/* %(install_root)s/usr/bin
 			elif  s.find ('python') >= 0:
 				self.system ('mv %(i)s %(i)s.py', locals ())
 
+
+
+		
 class LilyPond__linux (LilyPond):
 	def configure_command (self):
 		return LilyPond.configure_command (self) \
@@ -337,6 +340,7 @@ class LilyPond__linux (LilyPond):
 		# setting the proper LD_LIBRARY_PATH.
 		return 'export LD_LIBRARY_PATH=%(system_root)s/usr/lib:$LD_LIBRARY_PATH;' \
 		       + LilyPond.compile_command (self)
+
 
 	
 	def xinstall_gub (self):
@@ -724,7 +728,8 @@ def get_packages (settings):
 				       depends=['gmp','darwin-sdk']
 				       ),
 		LilyPond__darwin (settings).with (mirror=cvs.gnu, download=gub.Package.cvs,
-						  depends = ['pango', 'guile']
+						  track_development=True,
+						  depends=['pango', 'guile']
 						  ),
 	),
 	'mingw': (
@@ -760,7 +765,9 @@ def get_packages (settings):
 		W32api (settings).with (version='3.5', mirror=download.mingw),
 		Regex (settings).with (version='2.3.90-1', mirror=download.lp, format='bz2', depends=['mingw-runtime']),
 		LilyPad (settings).with (version='0.0.7-1', mirror=download.lp, format='bz2', depends=['w32api']),
-		LilyPond__mingw (settings).with (mirror=cvs.gnu, download=gub.Package.cvs, depends=['gettext', 'guile', 'pango', 'python']),
+		LilyPond__mingw (settings).with (mirror=cvs.gnu, download=gub.Package.cvs,
+						 depends=['gettext', 'guile', 'pango', 'python'],
+						 track_development=True),
 	),
 	'linux': (
 		Libtool (settings).with (version='1.5.20'),
@@ -775,7 +782,8 @@ def get_packages (settings):
 		Glib (settings).with (version='2.8.4', mirror=download.gtk),
 		Pango__linux (settings).with (version='1.10.1', mirror=download.gtk),
 		Python (settings).with (version='2.4.2', mirror=download.python, format='bz2'),
-		LilyPond__linux (settings).with (mirror=cvs.gnu, download=gub.Package.cvs),
+		LilyPond__linux (settings).with (mirror=cvs.gnu, download=gub.Package.cvs,
+						 track_development=True),
 	),
 	}
 
