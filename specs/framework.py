@@ -338,7 +338,8 @@ class LilyPond__linux (LilyPond):
 		return 'export LD_LIBRARY_PATH=%(system_root)s/usr/lib:$LD_LIBRARY_PATH;' \
 		       + LilyPond.compile_command (self)
 
-	def install_gub (self):
+	
+	def xinstall_gub (self):
 		gub.Target_package.install_gub (self)
 		self.system ('''
 cd %(installer_root)s/usr/bin && mv lilypond lilypond-bin
@@ -622,21 +623,32 @@ cd %(builddir)s && %(zlib_is_broken)s AR="%(AR)s r" %(srcdir)s/configure --share
 def get_packages (settings):
 	packages = {
 	'darwin': (
-#		Gettext__darwin (settings).with (version='0.10.40'),
-		Gettext (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2'),
-		Freetype (settings).with (version='2.1.9', mirror=download.freetype),
-		Expat (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2'),
-#		Expat (settings).with (version='1.95.8', mirror=download.sourceforge, format='gz'),
-		Glib__darwin (settings).with (version='2.8.4', mirror=download.gtk),
-		Fontconfig__darwin (settings).with (version='2.3.2', mirror=download.fontconfig),
-		Pango__darwin (settings).with (version='1.10.1', mirror=download.gtk),
-#		Fondu (settings).with (version="051010", mirror=download.sourceforge_homepage, format='gz')
-		Gmp__darwin (settings).with (version='4.1.4'),
+		Darwin_sdk (settings).with (version='0.0', mirror=download.hw,
+					    format='gz'),
+		Gettext (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2',
+					 depends=['darwin-sdk']
+					 ),
+		Freetype (settings).with (version='2.1.9', mirror=download.freetype,
+					  depends=['darwin-sdk']),
+		Expat (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2',
+				       depends=['darwin-sdk']),
+		Glib__darwin (settings).with (version='2.8.4', mirror=download.gtk,
+					      depends=['darwin-sdk', 'gettext']),
+		Fontconfig__darwin (settings).with (version='2.3.2', mirror=download.fontconfig,
+						    depends=['expat', 'freetype']),
+		Pango__darwin (settings).with (version='1.10.1', mirror=download.gtk,
+					       depends = ['glib']
+					       ),
+		Gmp__darwin (settings).with (version='4.1.4',depends=['darwin-sdk']),
 
 		## 1.7.3  is actually CVS repackaged.
 #		Guile (settings).with (version='1.7.3', mirror=download.gnu, format='gz'),
-		Guile (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2'),
-		LilyPond__darwin (settings).with (mirror=cvs.gnu, download=gub.Package.cvs),
+		Guile (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2',
+				       depends=['gmp','darwin-sdk']
+				       ),
+		LilyPond__darwin (settings).with (mirror=cvs.gnu, download=gub.Package.cvs,
+						  depends = ['pango', 'guile']
+						  ),
 	),
 	'mingw': (
 		Libtool (settings).with (version='1.5.20', depends=['mingw-runtime']),
