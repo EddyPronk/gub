@@ -1,9 +1,13 @@
+# own
 import cpm
 import cross
 import cvs
 import download
 import glob
+import buildnumber
 
+
+# sys
 import pickle
 import os
 import re
@@ -11,7 +15,6 @@ import string
 import subprocess
 import sys
 import time
-
 
 
 log_file = None
@@ -107,17 +110,14 @@ def read_pipe (cmd, ignore_error=False):
 		raise 'read_pipe failed'
 	return output
 
-
-
-
-
+	
 class Package:
 	def __init__ (self, settings):
 		self.settings = settings
 		self.url = ''
 		self.download = self.wget
-		self.build_db = self.settings.topdir + '/.build_db.pickle'
-
+		self._build = get_build_number (self)
+		
 	def package_dict (self, env={}):
 		dict = self.settings.get_substitution_dict ()
 		for (k, v) in self.__dict__.items():
@@ -172,6 +172,9 @@ class Package:
 		dict = self.package_dict (env)
 		system (cmd % dict, env=dict, ignore_error=ignore_error,
 			verbose=self.settings.verbose)
+
+	def build ():
+		return '%d' % self._build
 
 	def skip (self):
 		pass
@@ -230,17 +233,16 @@ cd %(dir)s/%(name)s && cvs -q update  -dAP -r %(version)s
 	def name_version (self):
 		return '%s-%s' % (self.name (), self.version ())
 
-	def get_builds (self):
-		if os.path.exists (self.build_db):
-			return pickle.load (open (self.build_db))
-		return {}
-
-	def build (self):
-		k = self.name_version ()
-		builds = self.get_builds ()
-		if builds.has_key (k):
-			return builds[k]
-		return cpm.split_version (self.ball_version)[-1]
+	def get_builds  (self):
+		return builds
+	
+	def set_current_build (self):
+		bs = self.get_builds ()
+		bs.sort()
+		if bs:
+			self._build = bs[-1] + 1
+		else:
+			self._build = 1
 
 	def srcdir (self):
 		return self.settings.allsrcdir + '/' + self.basename ()
