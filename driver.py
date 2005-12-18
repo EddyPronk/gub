@@ -9,6 +9,7 @@ import sys
 
 sys.path.insert (0, 'specs/')
 
+import xpm
 import cpm
 import gub
 import framework
@@ -94,11 +95,25 @@ class Settings:
 
 			gub.system ('mkdir -p %s' % dir)
 
-def process_package (package):
+def build_package (settings, manager, package):
+	for d in package.depends:
+		if not manager.is_installed (d):
+			build_package (settings, manager, d)
+			manager.install_package (d)
+
+	if manager.is_installable (package):
+		return
+	
+	if manager.is_installed (package):
+		manager.uninstall_package (package)
+		
+
 	gub.log_command (' ** Package: %s\n' % package.name ())
-	for stage in ('untar', 'patch', 'configure', 'compile', 'install',
-		      'package', 'sysinstall', 'clean'):
-        	if not package.is_done (stage):
+
+	stages = ['untar', 'patch', 'configure', 'compile', 'install',
+		  'package', 'sysinstall', 'clean']
+	for stage in stages:
+        	if not package.is_done (stage, stages.index (stage)):
 			gub.log_command (' *** Stage: %s (%s)\n' % (stage, package.name ()))
 
 			## UGH. fixme, need parameterize.
@@ -114,71 +129,11 @@ def process_package (package):
                         	package.install ()
 			elif stage == 'package':
                         	package.package ()
-			elif stage == 'sysinstall':
-                        	package.sysinstall ()
 			elif stage == 'clean':
 				package.clean ()
 
-			package.set_done (stage)
+			package.set_done (stage, stages.index (stage))
 
-
-def build_packages (settings, packages):
-	def is_installed (p):
-		"""Return true if package P is installed by settings.manager."""
-		return (settings.manager.is_installed (p.name())
-			and settings.manager.version (p.name ())
-			== cpm.string_to_version (p.full_version ()))
-
-	def skip (p):
-		"""Return true if package P must not be built."""
-		# If you want to force rebuilding a package, uninstall
-		# it (remove the system root) and (re)move the .gub
-		# package
-
-		if (not is_installed (p)
-		    and settings.manager.dists ()['curr'].has_key (p.name ())
-		    and settings.manager.dists ()['curr'][p.name ()] .has_key ('install')):
-			ball, size, md5 = string.split (settings.manager.dists ()['curr'][p.name ()]['install'])
-			try:
-				settings.manager.install (p.name (),
-						      os.path.join (p.settings.uploads,
-								    ball),
-						      p.depends)
-			except:
-				pass
-		return is_installed (p)
-
-	for i in packages:
-		# skip download for installed package
-		if not (skip (i) or settings.offline):
-			i.download ()
-
-	d = []
-	for i in packages:
-		# skip stages for installed package
-		if not skip (i):
-			if not i.__dict__.has_key ('depends'):
-				i.depends = d
-			process_package (i)
-		d = [i.name ()]
-
-def make_installers (settings, packages):
-	print 'make_installers'
-	# FIXME: todo separate lilypond-framework, lilypond packages?
-	packages = [p for p in packages if not isinstance (p, gub.Cross_package)]
-
-	# set to false for debugging
-	install_gubs = True
-	if install_gubs:
-		gub.system ('rm -rf %(installer_root)s' % settings.__dict__)
-		for p in packages:
-			gub.log_command (' *** Stage: %s (%s)\n' % ('install_gub', p.name()))
-			p.install_gub ()
-
-	for p in framework.get_installers (settings):
-		print 'installer: ' + `p`
-		gub.log_command (' *** Stage: %s (%s)\n' % ('create', p.name()))
-		p.create ()
 
 def get_settings (platform):
 	init  = {
@@ -221,7 +176,7 @@ def get_settings (platform):
 
 	return settings
 
-def do_options ():
+def get_cli_parser ():
 	p = optparse.OptionParser (usage="driver.py [options] platform",
 				   description="Grand Unified Builder.  Specify --package-version to set build version")
         p.add_option ('-o', '--offline', action = 'store_true',
@@ -245,14 +200,107 @@ def do_options ():
 		      default=[],
 		      help='add a variable')
 
-	(opts, commands)  = p.parse_args ()
-	if not opts.platform:
-		p.print_help()
-		sys.exit (2)
-	return opts
+	return p
+
+def run_package_manager (m, commands):
+	c = commands.pop (0)
+	args = commands
+	if args and args[0]== 'all':
+		args = m.known_packages.keys()
+		
+	if c == 'install':
+		for p in args:
+			if m.is_name_installed (p):
+				print '%s already installed' % p
+
+		for p in args:
+			if not m.is_name_installed (p):
+				m.install_named (p)
+	elif c in ( 'uninstall', 'remove'):
+		for p in args:
+			if not m.is_name_installed (p):
+				raise '%s not installed' % p
+			
+		for p in args:
+			m.uninstall_named (p)
+
+	elif c == 'query':
+		print m.installed_packages ()
+		
+	elif c == 'query-known':
+		print m.known_packages.keys ()
+		
+	elif c == 'list-files':
+		for p in args:
+			if not m.is_name_installed (p):
+				print '%s not installed' % p
+			else:
+				print m.file_list_of_name(p)
+	elif c == 'help':
+		print '''
+
+
+install <pkgs> - install listed pkgs including deps.
+uninstall <pkgs> - install listed pkgs including deps.
+list-files <pkgs> - install listed pkgs including deps.
+query - list installed packages
+query-known - list known packages
+help - this info
+
+
+<pkgs> may be all "all" for all known packages.
+
+'''
+		sys.exit (0)
+		
+	else:
+		raise 'unknown xpm command %s ' % c
+
+
+def build_installers (settings, packages):
+	# FIXME: todo separate lilypond-framework, lilypond packages?
+	packages = [p for p in packages if not isinstance (p, gub.Cross_package)]
+
+	# set to false for debugging
+	install_gubs = True
+	if install_gubs:
+		gub.system ('rm -rf %(installer_root)s' % settings.__dict__)
+		for p in packages:
+			gub.log_command (' *** Stage: %s (%s)\n' % ('install_gub', p.name()))
+			p.install_gub ()
+
+	for p in framework.get_installers (settings):
+		print 'installer: ' + `p`
+		gub.log_command (' *** Stage: %s (%s)\n' % ('create', p.name()))
+		p.create ()
+		
+
+def run_builder (settings, pkg_manager, args):
+	ps = pkg_manager.known_packages.values ()
+
+	pkgs = [] 
+	if args and args[0] == 'all':
+		pkgs = pkg_manager.known_packages.values()
+	else:
+		pkgs = [pkg_manager.known_packages[name] for name in args]
+
+	for p in pkgs:
+		build_package (settings, pkg_manager, p)
+
+
+def download_sources (manager):
+	for p in manager.known_packages.values(): 
+		p.download ()
 
 def main ():
-	options = do_options ()
+	cli_parser = get_cli_parser ()
+	(options, commands)  = cli_parser.parse_args ()
+
+	if not options.platform:
+		cli_parser.print_help()
+		sys.exit (2)
+
+	
 	settings = get_settings (options.platform)
         settings.offline = options.offline
 
@@ -265,24 +313,51 @@ def main ():
 	settings.bundle_version = options.package_version
 	settings.bundle_build = options.package_build
 	settings.create_dirs ()
-	settings.manager = cpm.Gpm (settings.system_root)
-		
+
+	
+	target_manager = xpm.Package_manager (settings.system_root)
+	tool_manager = xpm.Package_manager (settings.tooldir)
 
 	os.environ["PATH"] = '%s/%s:%s' % (settings.tooldir, 'bin',
                                            os.environ["PATH"])
 
-	packages = []
+	target_packages = []
+	tool_packages = []
 	if options.platform == 'darwin':
 		import darwintools
-		packages += darwintools.get_packages (settings)
+		tool_packages = darwintools.get_packages (settings)
 	if options.platform.startswith ('mingw'):
 		import mingw
-		packages += mingw.get_packages (settings)
+		tool_packages = mingw.get_packages (settings)
 
-	packages += framework.get_packages (settings)
+	target_packages = framework.get_packages (settings)
 
-	build_packages (settings, packages)
-	make_installers (settings, packages)
+	map (target_manager.register_package, target_packages) 
+	map (tool_manager.register_package, tool_packages) 
 
+	tool_manager.resolve_dependencies ()
+	target_manager.resolve_dependencies ()
+	
+	c = commands.pop (0)
+
+	if c == 'download':
+		download_sources (tool_manager)
+		download_sources (target_manager)
+	if c == 'build-tool':
+		run_builder (settings, tool_manager, commands)
+	if c == 'build-target':
+		run_builder (settings, target_manager, commands)
+	elif c == 'manage-tool':
+		run_package_manager (tool_manager, commands)
+	elif c == 'manage-target':
+		run_package_manager (target_manager, commands)
+	elif c == 'build-installer':
+		build_installers (settings, target_manager.known_packages ().values())
+	elif c == 'help':
+		print 'driver commands:  help download {manage,build}-{tool,target} build-installer '
+		sys.exit (0)
+	else:
+		raise 'unknown driver command %s. Try "driver.py help" ' % c
+			
 if __name__ == '__main__':
 	main ()
