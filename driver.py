@@ -130,7 +130,8 @@ def build_package (settings, manager, package):
 			elif stage == 'package':
                         	package.package ()
 			elif stage == 'clean':
-				settings.build_number_db.write_build_number (package)
+## advancing the build number should be done during upload.
+## consequence: the build number should be kept in a repository on lilypond.org
 				package.clean ()
 
 			if stage <> 'clean':

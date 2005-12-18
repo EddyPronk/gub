@@ -4,7 +4,7 @@ import pickle
 import os
 import gub
 
-# X  package manager (x for want of better name)
+# X package manager (x for want of better name)
 
 def tar_compression_flag (ball):
 	compression_flag = ''
@@ -15,6 +15,7 @@ def tar_compression_flag (ball):
 	return compression_flag
 	
 
+#
 # TODO:
 #
 # use (G)DBM or similar to maintain package database.
@@ -121,7 +122,6 @@ class Package_manager:
 	def resolve_dependencies (self):
 		for p in self.known_packages.values ():
 			p.depends = [self.known_packages[d] for d in p.depends]
-		
 
 	# short cuts: 
 	def file_list_of_name (self, name):
