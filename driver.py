@@ -323,25 +323,20 @@ def main ():
 	os.environ["PATH"] = '%s/%s:%s' % (settings.tooldir, 'bin',
                                            os.environ["PATH"])
 
-	target_packages = []
-	tool_packages = []
 	if options.platform == 'darwin':
 		import darwintools
-		tool_packages = darwintools.get_packages (settings)
+		map (tool_manager.register_package, darwintools.get_packages (settings))
 	if options.platform.startswith ('mingw'):
 		import mingw
-		tool_packages = mingw.get_packages (settings)
+		map (tool_manager.register_package,  mingw.get_packages (settings))
 
-	target_packages = framework.get_packages (settings)
-
-	map (target_manager.register_package, target_packages) 
-	map (tool_manager.register_package, tool_packages) 
+	map (target_manager.register_package, framework.get_packages (settings))
 
 	settings.build_number_db = buildnumber.Build_number_db (settings.topdir)
 	tool_manager.resolve_dependencies ()
 	target_manager.resolve_dependencies ()
 
-	for p in tool_packages + target_packages:
+	for p in tool_manager.known_packages.values() + target_manager.known_packages.values():
 		settings.build_number_db.set_build_number (p)
 	
 	c = commands.pop (0)
