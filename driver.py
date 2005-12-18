@@ -59,7 +59,7 @@ class Settings:
 		self.bundle_version = None
 		self.bundle_build = None
 		self.package_arch = re.sub ('-.*', '', self.build_architecture)
-
+		self.keep_build = False
 		self.python_version = '2.4'
 
 	def get_substitution_dict (self):
@@ -132,7 +132,9 @@ def build_package (settings, manager, package):
 			elif stage == 'clean':
 ## advancing the build number should be done during upload.
 ## consequence: the build number should be kept in a repository on lilypond.org
-				package.clean ()
+
+				if not settings.keep_build:
+					package.clean ()
 
 			if stage <> 'clean':
 				package.set_done (stage, stages.index (stage))
@@ -213,7 +215,10 @@ build-installer  - build installer for platform
 		      type='string',
 		      default=[],
 		      help='add a variable')
-
+	p.add_option ('-k', '--keep', action='store_true',
+		      dest="keep_build",
+		      default=None,
+		      help='leave build and src dir for inspection')
 	return p
 
 def run_package_manager (m, commands):
@@ -312,9 +317,11 @@ def main ():
 	for o in options.settings:
 		(key, val) = tuple (o.split ('='))
 		settings.__dict__[key] = val
-		
+
+	
 	gub.start_log (settings)
 	settings.verbose = options.verbose
+	settings.keep_build = options.keep_build
 	settings.bundle_version = options.package_version
 	settings.bundle_build = options.package_build
 	settings.create_dirs ()
@@ -335,11 +342,11 @@ def main ():
 	map (target_manager.register_package, framework.get_packages (settings))
 
 	settings.build_number_db = buildnumber.Build_number_db (settings.topdir)
-	tool_manager.resolve_dependencies ()
-	target_manager.resolve_dependencies ()
-
-	for p in tool_manager.known_packages.values() + target_manager.known_packages.values():
-		settings.build_number_db.set_build_number (p)
+	
+	for m in tool_manager, target_manager:
+		m.resolve_dependencies ()
+		for p in m.known_packages.values():
+			settings.build_number_db.set_build_number (p)
 	
 	c = commands.pop (0)
 
