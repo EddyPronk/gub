@@ -6,7 +6,7 @@ import gub
 
 class Build_number_db:
 	def __init__ (self, dir, mode='r'):
-		self.db = gdbm.open (dir + '/buildnumber.gdbm', 'r')
+		self.db = gdbm.open (dir + '/buildnumber.gdbm', mode)
 
 	def key (self, package):
 		return package.expand_string ('%(name)s-%(version)s-%(target_architecture)s')
