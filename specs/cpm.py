@@ -7,21 +7,6 @@ import sys
 import time
 import gzip
 
-try:
-	fake_pipe = 0
-	date = os.popen ('date').read ()
-except:
-	# Work around Cygwin-Python pipe brokenness
-	##import tempfile
-	def fake_pipe (command, mode = 'r'):
-		if mode == 'w':
-			raise 'ugh'
-		##h, name = tempfile.mkstemp ('pipe', basename, '/tmp')x
-		name = ('/tmp/%s.%d' % ('cyg-apt', os.getpid ()))
-		system (command + ' > ' + name)
-		return open (name)
-	os.popen = fake_pipe
-	pass
 
 
 def debug (s):
