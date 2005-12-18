@@ -22,8 +22,8 @@ INVOKE_DRIVER=python driver.py \
 --package-build=1 --platform $(1)\
 $(LOCAL_DRIVER_OPTIONS)
 
-BUILD_ALL=$(call INVOKE_DRIVER, $(1)) build-tool all  && $(call INVOKE_DRIVER, $(1)) manage-tool all \
-  && $(call INVOKE_DRIVER, $(1)) build-target all  && $(call INVOKE_DRIVER, $(1)) manage-target all \
+BUILD_ALL=$(call INVOKE_DRIVER, $(1)) build-tool all  && $(call INVOKE_DRIVER, $(1)) manage-tool install all \
+  && $(call INVOKE_DRIVER, $(1)) build-target all  && $(call INVOKE_DRIVER, $(1)) manage-target install all \
   && $(call INVOKE_DRIVER, $(1)) build-installer
 
 
