@@ -364,22 +364,6 @@ cd %(builddir)s && %(install_command)s
 tar -C %(install_root)s -zcf %(gub_uploads)s/%(gub_name)s .
 ''')
 
-	def xsysinstall (self):
-		self.settings.manager.install (self.name (),
-					 '%(gub_uploads)s/%(gub_name)s' \
-					 % self.package_dict (),
-					 depends=self.depends)
-		self.settings.manager.write_setup_ini ('%(uploads)s/setup.ini' \
-						% self.package_dict ())
-		self.system ('''
-cp -pv %(uploads)s/setup.ini %(system_root)s/etc/setup/
-''')
-		# FIXME: should do this right after successful package ()
-		# but then sysinstall uses bumped version number
-		builds = self.get_builds ()
-		builds[self.name_version ()] = '%d' % (int (self.build ()) + 1)
-		pickle.dump (builds, open (self.build_db, 'w'))
-
 	def clean (self):
 		buildnumber.write_build_number (self)
 		
