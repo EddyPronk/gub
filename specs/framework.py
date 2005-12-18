@@ -443,6 +443,9 @@ class Pango (gub.Target_package):
 --without-cairo
 ''')
 
+	def patch (self):
+		self.system ('cd %(srcdir)s && patch --force -p1  < %(patchdir)s/pango-env-sub')
+		
 class Pango__mingw (Pango):
 	def install (self):
 		gub.Target_package.install (self)
