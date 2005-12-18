@@ -5,6 +5,7 @@ import stat
 import string
 import sys
 import time
+import gzip
 
 try:
 	fake_pipe = 0
@@ -105,8 +106,10 @@ class Cpm:
 		file.writelines (map (lambda x: '%s %s 0\n' \
 				      % (x, self._installed[x]),
 				      self._installed.keys ()))
-		if file.close ():
-			raise 'urg'
+		status = file.close ():
+
+		if status:
+			raise 'file.close(): %d' % status
 
 	def _load_installed (self):
 		self._installed = {}
@@ -127,26 +130,15 @@ class Cpm:
 			self._write_installed ()
 
 	def filelist (self, name):
-		pipe = os.popen ('gzip -dc "%s/%s.lst.gz"' % (self.config,
-							      name), 'r')
-		lst = map (string.strip, pipe.readlines ())
-		if pipe.close ():
-			raise 'urg'
-		return lst
+		list_file = "%s/%s.lst.gz" % (self.config, name)
+		return [l[:-1] for l in gzip.open(list_file).readlines ()]
 
 	def _write_filelist (self, lst, name):
 		lst_name = '%s/%s.lst' % (self.config, name)
-		if not fake_pipe:
-			pipe = os.popen ('gzip -c > "%s.gz"' % lst_name, 'w')
-		else:
-			pipe = open (lst_name, 'w')
+		f = gzip.open (lst_name, 'w')
 		for i in lst:
-			pipe.write (i)
-			pipe.write ('\n')
-		if pipe.close ():
-			raise 'urg'
-		if fake_pipe:
-			system ('gzip -f "%s"' % lst_name)
+			f.write ('%s\n' % i)
+
 		
 	def installed (self):
 		if self._installed == None:
