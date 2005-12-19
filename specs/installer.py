@@ -165,6 +165,9 @@ class Darwin_bundle (Installer):
 		self.rewire_binary_dir (self.settings.installer_root + '/usr/lib')
 		self.rewire_binary_dir (self.settings.installer_root + '/usr/bin')
 		Installer.create (self)
+	def strip (self):
+		self.strip_unnecessary_files ()
+		# no binary strip: makes debugging difficult.
 		
 class Nsis (Installer):
 	def __init__ (self, settings):
