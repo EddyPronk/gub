@@ -56,7 +56,7 @@ def build_package (settings, manager, package):
 				if not settings.keep_build:
 					package.clean ()
 
-			if stage <> 'clean':
+			if stage != 'clean':
 				package.set_done (stage, stages.index (stage))
 
 
@@ -145,36 +145,36 @@ def run_package_manager (m, commands):
 	c = commands.pop (0)
 	args = commands
 	if args and args[0]== 'all':
-		args = m.known_packages.keys()
+		args = m._packages.keys()
 		
 	if c == 'install':
 		for p in args:
-			if m.is_name_installed (p):
+			if m.name_is_installed (p):
 				print '%s already installed' % p
 
 		for p in args:
-			if not m.is_name_installed (p):
+			if not m.name_is_installed (p):
 				m.install_named (p)
 	elif c in ('uninstall', 'remove'):
 		for p in args:
-			if not m.is_name_installed (p):
+			if not m.name_is_installed (p):
 				raise '%s not installed' % p
 			
 		for p in args:
-			m.uninstall_named (p)
+			m.name_uninstall (p)
 
 	elif c == 'query':
 		print '\n'.join ([p.name() for p in  m.installed_packages ()])
 		
 	elif c == 'query-known':
-		print '\n'.join (m.known_packages.keys ())
+		print '\n'.join (m._packages.keys ())
 		
 	elif c == 'list-files':
 		for p in args:
-			if not m.is_name_installed (p):
+			if not m.name_is_installed (p):
 				print '%s not installed' % p
 			else:
-				print m.file_list_of_name(p)
+				print m.name_files (p)
 	elif c == 'help':
 		print '''
 
@@ -197,7 +197,7 @@ help - this info
 
 
 def build_installers (settings, install_pkg_manager):
-	for p in install_pkg_manager.known_packages.values ():
+	for p in install_pkg_manager._packages.values ():
 		install_pkg_manager.install_package (p)
 		
 	for p in framework.get_installers (settings):
@@ -207,20 +207,20 @@ def build_installers (settings, install_pkg_manager):
 		
 
 def run_builder (settings, pkg_manager, args):
-	ps = pkg_manager.known_packages.values ()
+	ps = pkg_manager._packages.values ()
 
 	pkgs = [] 
 	if args and args[0] == 'all':
-		pkgs = pkg_manager.known_packages.values()
+		pkgs = pkg_manager._packages.values()
 	else:
-		pkgs = [pkg_manager.known_packages[name] for name in args]
+		pkgs = [pkg_manager._packages[name] for name in args]
 
 	for p in pkgs:
 		build_package (settings, pkg_manager, p)
 
 
 def download_sources (manager):
-	for p in manager.known_packages.values(): 
+	for p in manager._packages.values(): 
 		p.download ()
 
 def main ():
@@ -265,7 +265,7 @@ def main ():
 	
 	for m in tool_manager, target_manager:
 		m.resolve_dependencies ()
-		for p in m.known_packages.values():
+		for p in m._packages.values():
 			settings.build_number_db.set_build_number (p)
 	
 	c = commands.pop (0)
@@ -284,7 +284,7 @@ def main ():
 	elif c == 'build-installer':
 		gub.system ('rm -rf %s' %  settings.installer_root)
 		install_manager = xpm.Package_manager (settings.installer_root)
-		for p in target_manager.known_packages.values ():
+		for p in target_manager._packages.values ():
 			if not isinstance (p, gub.Sdk_package):
 				install_manager.register_package (p)
 

@@ -52,8 +52,8 @@ class Settings:
 
 	def get_substitution_dict (self):
 		d = {}
-		for (k,v) in self.__dict__.items ():
-			if type (v) <> type (''):
+		for (k, v) in self.__dict__.items ():
+			if type (v) != type (''):
 				continue
 
 			d[k] = v

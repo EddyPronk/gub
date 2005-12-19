@@ -62,7 +62,7 @@ def find ():
 	hits = []
 	for packagename in psort (map (gub.Package.name,
 				       pm.installed_packages ())):
-		for i in pm.file_list_of_name (packagename):
+		for i in pm.name_files (packagename):
 			if re.search (regexp, '/%s' % i):
 				hits.append ('%s: /%s' % (packagename, i))
 	print (string.join (hits, '\n'))
@@ -108,7 +108,7 @@ def do_options ():
 		command = arguments.pop (0)
 
 	if arguments and arguments[0] == 'all':
-		arguments = m.known_packages.keys()
+		arguments = m._packages.keys()
 		
 	if len (arguments) > 0:
 	       	packagename = arguments[0]
@@ -142,21 +142,24 @@ pm = None
 def install ():
 	'''download and install packages with dependencies'''
 	for p in arguments:
-		if pm.is_name_installed (p):
+		if pm.name_is_installed (p):
 			print '%s already installed' % p
 
 	for p in arguments:
-		if not pm.is_name_installed (p):
-			pm.install_named (p)
+		if not pm.name_is_installed (p):
+			if nodeps_p:
+				pm.install_single_package (pm._packages[p])
+			else:
+				pm.install_package (pm._packages[p])
 
 def remove ():
 	'''uninstall packages'''
 	for p in arguments:
-		if not pm.is_name_installed (p):
+		if not pm.name_is_installed (p):
 			raise '%s not installed' % p
 
 	for p in arguments:
-		pm.uninstall_named (p)
+		pm.name_uninstall (p)
 
 def list ():
 	'''installed packages'''
@@ -164,15 +167,15 @@ def list ():
 			      psort (pm.installed_packages ())))
 
 def available ():
-	print '\n'.join (pm.known_packages.keys ())
+	print '\n'.join (pm._packages.keys ())
 
 def files ():
 	'''list installed files'''
 	for p in arguments:
-		if not pm.is_name_installed (p):
+		if not pm.name_is_installed (p):
 			print '%s not installed' % p
 		else:
-			print '\n'.join (pm.file_list_of_name(p))
+			print '\n'.join (pm.name_files (p))
 
 def main ():
 	global pm
@@ -188,6 +191,8 @@ def main ():
 	map (target_manager.register_package, framework.get_packages (settings))
 
 	pm = target_manager
+	# ugh
+	pm.resolve_dependencies ()
 
 	if command:
 		if command in __main__.__dict__:

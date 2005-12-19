@@ -132,7 +132,7 @@ class Package:
 	def package_dict (self, env={}):
 		dict = self.settings.get_substitution_dict ()
 		for (k, v) in self.__dict__.items():
-			if type (v) <> type (''):
+			if type (v) != type (''):
 				continue
 			dict[k] = v
 
