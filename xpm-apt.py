@@ -194,6 +194,7 @@ def main ():
 			__main__.__dict__[command] ()
 		else:
 			sys.stderr.write ('no such command: ' + command)
+			sys.stderr.write ('\n')
 			sys.exit (2)
 
 if __name__ == '__main__':
