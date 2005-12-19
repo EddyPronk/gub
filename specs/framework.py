@@ -248,7 +248,7 @@ class LilyPond (gub.Target_package):
 		if (file_is_newer (self.srcdir () + '/config.make.in',
 				   self.builddir () + '/config.make') 
 		    or file_is_newer (self.srcdir () + '/config.hh.in',
-				      self.builddir () + '/config.make')):
+				      self.builddir () + '/config.make')
 		    or file_is_newer (self.srcdir () + '/configure',
 				      self.builddir () + '/config.make')):
 			    
@@ -411,11 +411,15 @@ class LilyPond__darwin (LilyPond):
 	def __init__ (self, settings):
 		LilyPond.__init__ (self, settings)
 		## debug aid.
+
 	def configure_command (self):
 		cmd = LilyPond.configure_command (self)
 
 		framedir = '%(system_root)s/System/Library/Frameworks/Python.framework/Versions/%(python_version)s'
 		cmd += ' --with-python-include=' + framedir + '/include/python%(python_version)s'
+
+		## debugging binaries are huge.
+		cmd += ' --disable-debugging '
 		return cmd
 
 	def configure (self):
