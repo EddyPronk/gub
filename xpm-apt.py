@@ -41,8 +41,10 @@ Commands:
 Options:
     -h,--help              show brief usage
     -m,--mirror=URL        use mirror [%(mirror)s]
-    -r,--root=DIR          set %(PLATFORM)s root [%(ROOT)s]
+    -n,--name              print package name only
     -p,--platform=NAME     set platform [%(platform)s]
+    -r,--root=DIR          set %(PLATFORM)s root [%(ROOT)s]
+    -t,--tools             manage tools
     -x,--no-deps           ignore dependencies
 ''' % d)
 
@@ -96,11 +98,12 @@ def write_xpm_rc ():
 	h.close ()
 
 def do_options ():
-	global command, mirror, ROOT, PLATFORM, platform, packagename, nodeps_p
-	global arguments, platform
+	global command, mirror, ROOT, PLATFORM, platform, packagename
+	global arguments, platform, name_p, nodeps_p, tool_p
 	(options, arguments) = getopt.getopt (sys.argv[1:],
-					  'hm:p:r:x',
-					  ('help', 'mirror=', 'root=', 'no-deps'))
+					  'hm:np:r:tx',
+					  ('help', 'mirror=', 'name',
+					   'no-deps', 'root=', 'tool'))
 
 	command = 'help'
 	packagename = 0
@@ -113,6 +116,8 @@ def do_options ():
 	if len (arguments) > 0:
 	       	packagename = arguments[0]
 
+	tool_p = 0
+	name_p = 0
 	nodeps_p = 0
 	for i in options:
 		o = i[0]
@@ -126,6 +131,8 @@ def do_options ():
 			mirror = a
 		elif o == '--root' or o == '-r':
 			ROOT = a
+		elif o == '--tool' or o == '-t':
+			tool_p = 1
 		elif o == '--platform' or o == '-p':
 			platform = a
 			PLATFORM = {
@@ -134,6 +141,8 @@ def do_options ():
 				'linux': 'linux',
 				}[a]
 			ROOT = 'target/%(PLATFORM)/system' % locals ()
+		elif o == '--name' or o == '-n':
+			name_p = 1
 		elif o == '--no-deps' or o == '-x':
 			nodeps_p = 1
 
@@ -163,8 +172,14 @@ def remove ():
 
 def list ():
 	'''installed packages'''
-	print '\n'.join (map (gub.Package.name,
-			      psort (pm.installed_packages ())))
+	if name_p:
+		print '\n'.join (psort (map (gub.Package.name,
+					     pm.installed_packages ())))
+	else:
+		print '\n'.join (psort (map (lambda x: '%-20s%s' % (x.name (),
+							     x.full_version ()),
+					     pm.installed_packages ())))
+
 
 def available ():
 	print '\n'.join (pm._packages.keys ())
@@ -186,11 +201,22 @@ def main ():
 	settings.platform = platform
 
 	target_manager = xpm.Package_manager (settings.system_root)
-	##tool_manager = xpm.Package_manager (settings.tooldir)
+	tool_manager = xpm.Package_manager (settings.tooldir)
 
-	map (target_manager.register_package, framework.get_packages (settings))
-
-	pm = target_manager
+	if tool_p:
+		if platform == 'darwin':
+			import darwintools
+			map (tool_manager.register_package,
+			     darwintools.get_packages (settings))
+		if platform.startswith ('mingw'):
+			import mingw
+			map (tool_manager.register_package,
+			     mingw.get_packages (settings))
+		pm = tool_manager
+	else:
+		map (target_manager.register_package,
+		     framework.get_packages (settings))
+		pm = target_manager
 	# ugh
 	pm.resolve_dependencies ()
 
