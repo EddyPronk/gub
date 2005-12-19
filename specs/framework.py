@@ -4,7 +4,7 @@ import os
 import re
 
 ## gub specific.
-from driver import Settings
+from settings import Settings
 import gub
 import download
 import installer

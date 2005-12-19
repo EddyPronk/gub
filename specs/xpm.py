@@ -48,8 +48,8 @@ class Package_manager:
 
 	def get_tarball_file_list (self, ball):
 		flag = tar_compression_flag (ball)
-		str = gub.read_pipe ('tar tf%(flag)s "%(ball)s"' 
-				  % locals (), 'r')
+		str = gub.read_pipe ('tar -tf%(flag)s "%(ball)s"' 
+				     % locals (), silent=True)
 		
 		lst = str.split ('\n')
 		return lst
@@ -112,8 +112,9 @@ class Package_manager:
 
 	def install_dependencies (self, package):
 		for d in package.depends:
-			if not self.is_installed (d) and self.known_packages.has_key (d):
-				self.install_package (d)
+			if (not self.is_name_installed (d)
+			    and self.known_packages.has_key (d)):
+				self.install_named (d)
 
 	def install_package (self, package):
 		self.install_dependencies (package)

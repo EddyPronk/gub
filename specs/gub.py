@@ -106,8 +106,9 @@ def file_sub (re_pairs, name, to_name=None):
 		h.write (t)
 		h.close ()
 
-def read_pipe (cmd, ignore_error=False):
-	log_command ('Reading pipe: %s\n' % cmd)
+def read_pipe (cmd, ignore_error=False, silent=False):
+	if not silent:
+		log_command ('Reading pipe: %s\n' % cmd)
 	
 	pipe = os.popen (cmd, 'r')
 	output = pipe.read ()
