@@ -331,7 +331,6 @@ cp /usr/include/FlexLexer.h %(builddir)s
 		return LilyPond.compile_command (self) \
 		       + gub.join_lines ('''
 LDFLAGS=%(python_lib)s
-HELP2MAN_GROFFS=
 '''% locals ())
 
 	def compile (self):
@@ -344,12 +343,6 @@ cp -pv %(builddir)s/mf/out/* %(builddir)s/mf/out-console
 		cmd += ' conf=console'
 		self.system ('''cd %(builddir)s && %(cmd)s''',
 			     locals ())
-
-	def install_command (self):
-		return LilyPond.install_command (self) \
-		       + gub.join_lines ('''
-HELP2MAN_GROFFS=
-'''% locals ())
 
 	def install (self):
 		LilyPond.install (self)
@@ -418,8 +411,8 @@ class LilyPond__darwin (LilyPond):
 		framedir = '%(system_root)s/System/Library/Frameworks/Python.framework/Versions/%(python_version)s'
 		cmd += ' --with-python-include=' + framedir + '/include/python%(python_version)s'
 
-		## debugging binaries are huge.
-		cmd += ' --disable-debugging '
+		## binaries are huge.
+		cmd += ' --disable-optimising '
 		return cmd
 
 	def configure (self):
@@ -429,20 +422,15 @@ class LilyPond__darwin (LilyPond):
 		if re.search ("GUILE_ELLIPSIS", open (make).read ()):
 			return
 		self.file_sub ([('CONFIG_CXXFLAGS = ',
-				 'CONFIG_CXXFLAGS = -DGUILE_ELLIPSIS=...'),
+				 'CONFIG_CXXFLAGS = -DGUILE_ELLIPSIS=... '),
+				(' -O2 ', '')				
 #				(' -g ', '')
 				],
 			       self.builddir ()+ '/config.make')
-
-	def compile_command (self):
-		return LilyPond.compile_command (self) \
-		       + gub.join_lines (''' HELP2MAN_GROFFS=''')
-
-	def install_command (self):
-		return LilyPond.install_command (self) \
-		       + gub.join_lines (''' HELP2MAN_GROFFS=''')
+		
 	def untar (self):
 		pass
+	
 class Gettext (gub.Target_package):
 	def configure_command (self):
 		return gub.Target_package.configure_command (self) \
