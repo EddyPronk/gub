@@ -49,7 +49,7 @@ Options:
 arguments = 0
 def help ():
 	'''help COMMAND'''
-	if len (arguments) < 2:
+	if len (arguments) < 1:
 		usage ()
 		sys.exit ()
 
