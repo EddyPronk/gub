@@ -229,6 +229,18 @@ class Guile__linux (Guile):
 		return 'export LD_LIBRARY_PATH=%(builddir)s/libguile/.libs:$LD_LIBRARY_PATH;' \
 		       + Guile.compile_command (self)
 
+class Guile__darwin (Guile):
+	def install (self):
+		Guile.install (self)
+		pat = self.expand_string ('%(install_root)s/usr/lib/libguile-srfi*.dylib')
+		for f in glob.glob (pat):
+			directory = os.path.split (f)[0]
+			src = os.path.basename (f)
+			dst = os.path.splitext (os.path.basename (f))[0] + '.so'
+			
+			self.system ('cd %(directory)s && ln -s %(src)s %(dst)s', locals())
+
+
 class LilyPond (gub.Target_package):
 	def configure (self):
 		self.autoupdate ()
@@ -408,8 +420,14 @@ class LilyPond__darwin (LilyPond):
 
 	def configure (self):
 		LilyPond.configure (self)
+
+		make = self.builddir ()+ '/config.make'
+		if re.search ("GUILE_ELLIPSIS", open (make).read ()):
+			return
 		self.file_sub ([('CONFIG_CXXFLAGS = ',
-				 'CONFIG_CXXFLAGS = -DGUILE_ELLIPSIS=...')],
+				 'CONFIG_CXXFLAGS = -DGUILE_ELLIPSIS=...'),
+#				(' -g ', '')
+				],
 			       self.builddir ()+ '/config.make')
 
 	def compile_command (self):
@@ -770,7 +788,7 @@ def get_packages (settings):
 
 		## 1.7.3  is actually CVS repackaged.
 #		Guile (settings).with (version='1.7.3', mirror=download.gnu, format='gz'),
-		Guile (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2',
+		Guile__darwin (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2',
 				       depends=['gmp','darwin-sdk']
 				       ),
 		LilyPond__darwin (settings).with (mirror=cvs.gnu, download=gub.Package.cvs,
