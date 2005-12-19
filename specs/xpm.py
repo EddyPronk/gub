@@ -123,7 +123,7 @@ class Package_manager:
 
 	def resolve_dependencies (self):
 		for p in self._packages.values ():
-			p.dependencies = [self._packages[d] for d in p.depends]
+			p.dependencies = [self._packages[d] for d in p.dependencies]
 
 	# NAME_ shortcuts
 	def name_files (self, name):

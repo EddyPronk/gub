@@ -16,7 +16,7 @@ import settings as settings_mod
 import xpm
 
 def build_package (settings, manager, package):
-	for d in package.depends:
+	for d in package.dependencies:
 		if not manager.is_installed (d):
 			build_package (settings, manager, d)
 			manager.install_package (d)
