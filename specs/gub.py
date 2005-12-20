@@ -274,14 +274,13 @@ cd %(dir)s/%(name)s && cvs -q update  -dAP -r %(version)s
 		return self.expand_string ('%(statusdir)s/%(name)s-%(version)s-%(build)s')
 
 	def is_done (self, stage, stage_number):
-		f = self.stamp_file()
-		if not os.path.exists (f):
-			return False
-
-		return pickle.load (open (f)) >= stage_number
+		f = self.stamp_file ()
+		if os.path.exists (f):
+			return pickle.load (open (f)) >= stage_number
+		return False
 
 	def set_done (self, stage, stage_number):
-		pickle.dump (stage_number, open (self.stamp_file(),'w'))
+		pickle.dump (stage_number, open (self.stamp_file (),'w'))
 
 	def autoupdate (self, autodir=0):
 		if not autodir:
