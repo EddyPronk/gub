@@ -578,13 +578,22 @@ class Binary_package (Package):
 		self.system ('tar -C %(srcdir)s/root -cf- . | tar -C %(install_root)s -xvf-')
 
 
-class Sdk_package (Package):
+class Null_package (Package):
+	"""Placeholder for downloads """
 	def compile (self):
 		pass
 	def configure (self):
 		pass
 	def install (self):
 		pass
+	def untar (self):
+		pass
+	def patch (self):
+		pass
+	def package (self):
+		self.system ("tar -czf %(gub_uploads)s/%(gub_name)s --files-from=/dev/null")
+		
+class Sdk_package (Null_package):
 	def package (self):
 		self.system ('tar -C %(srcdir)s/ -czf %(gub_uploads)s/%(gub_name)s .')
 	
