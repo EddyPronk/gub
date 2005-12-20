@@ -854,9 +854,7 @@ def get_packages (settings):
 					    depends=['mingw-runtime']
 					    ),
 		# FIXME: we're actually using 1.7.2-cvs+, 1.7.2 needs too much work
-		Guile__mingw (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2', depends=['gettext',
-													    'gmp',
-													    'libtool']),
+		Guile__mingw (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2', depends=['gettext', 'gmp', 'libtool', 'regex']),
 		Glib (settings).with (version='2.8.4', mirror=download.gtk, depends=['gettext', 'libiconv']),
 		Pango__mingw (settings).with (version='1.10.1', mirror=download.gtk, depends=['freetype', 'fontconfig', 'glib', 'libiconv']),
 		Python__mingw (settings).with (version='2.4.2', mirror=download.python, format='bz2',
