@@ -154,7 +154,8 @@ def run_package_manager (m, commands):
 
 		for p in args:
 			if not m.name_is_installed (p):
-				m.install_named (p)
+				m.name_install (p)
+				
 	elif c in ('uninstall', 'remove'):
 		for p in args:
 			if not m.name_is_installed (p):
