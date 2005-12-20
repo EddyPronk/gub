@@ -759,8 +759,6 @@ class Ghostscript (gub.Target_package):
 	def untar (self):
 		gub.Target_package.untar (self)
 		self.system ("cd %(targetdir)s/build && ln -s %(srcdir)s . ")
-		self.system ("cd %(srcdir)s && tar xfz %(downloaddir)s/jpegsrc.v6b.tar.gz && mv jpeg-6b jpeg")
-		self.system ("cd %(srcdir)s && tar xfz %(downloaddir)s/libpng-1.2.8.tar.gz && mv libpng-1.2.8 libpng")
 		
 	def name (self):
 		return 'ghostscript'
@@ -784,7 +782,7 @@ class Libjpeg (gub.Target_package):
 			self.builddir () + '/Makefile')
 
 	def install_command (self):
-		return ("mkdir -p %(install_root)s/usr/include && make DESTDIR=%(install_root)s install-headers install-lib ")
+		return ("mkdir -p  %(install_root)s/usr/include  %(install_root)s/usr/lib && make DESTDIR=%(install_root)s install-headers install-lib ")
 	
 class Libpng (gub.Target_package):
 	def name (self):
