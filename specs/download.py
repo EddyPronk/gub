@@ -44,6 +44,9 @@ def sf ():
 	#return 'http://mesh.dl.sourceforge.net/sourceforge/%(name)s/%(name)s-%(ball_version)s.tar.%(format)s'
 	return 'http://surfnet.dl.sourceforge.net/sourceforge/%(name)s/%(name)s-%(ball_version)s.tar.%(format)s'
 
+def libpng():
+	return 'http://surfnet.dl.sourceforge.net/sourceforge/%(name)s/%(name)s-%(ball_version)s-config.tar.%(format)s'
+
 def mingw ():
         return 'http://surfnet.dl.sourceforge.net/sourceforge/mingw/%(name)s-%(ball_version)s.tar.%(format)s'
 
@@ -64,3 +67,8 @@ def python ():
 
 def cygwin ():
 	return 'ftp://ftp.sunsite.dk/pub/cygwin/release/%(name)s/%(name)s-%(ball_version)s.tar.%(format)s'
+
+def cups ():
+	return 'http://ftp.easysw.com/pub/%(name)s/%(version)s/espgs-%(version)s-source.tar.%(format)s'
+def jpeg ():
+	return 'ftp://ftp.uu.net/graphics/jpeg/jpegsrc.v6b.tar.gz'
