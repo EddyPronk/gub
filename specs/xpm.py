@@ -122,9 +122,13 @@ class Package_manager:
 		self.install_single_package (package)
 
 	def resolve_dependencies (self):
-		for p in self._packages.values ():
-			p.dependencies = [self._packages[d] for d in p.dependencies]
-
+		try:
+			for p in self._packages.values ():
+				p.dependencies = [self._packages[d] for d in p.dependencies]
+		except KeyError, k:
+			print 'unknown package %s I know about: ' % k, self._packages
+			raise 'barf'
+		
 	# NAME_ shortcuts
 	def name_files (self, name):
 		return self.installed_files (self._packages[name])
