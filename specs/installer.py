@@ -101,7 +101,7 @@ class Installer (gub.Package):
 			 'share/gs/fonts/c[^0][^9][^5]*',
 			 'share/gs/Resource',
 			 ):
-			self.system ('cd %(installer_root)s && rm -rf %(i)s' , locals ())
+			self.system ('cd %(installer_root)s && rm -rf %(i)s usr/%(i)s' , locals ())
 
 	def strip_binary_file (self, file):
 		self.system ('%(strip_command)s %(file)s', locals (), ignore_error = True)
