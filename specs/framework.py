@@ -244,16 +244,21 @@ class Guile__darwin (Guile):
 class LilyPond (gub.Target_package):
 	def configure (self):
 		self.autoupdate ()
+		gub.Target_package.configure (self)
 
+
+	def compile (self):
 		if (file_is_newer (self.srcdir () + '/config.make.in',
 				   self.builddir () + '/config.make') 
+		    or file_is_newer (self.srcdir () + '/GNUmakefile.in',
+				      self.builddir () + '/GNUmakefile') 
 		    or file_is_newer (self.srcdir () + '/config.hh.in',
 				      self.builddir () + '/config.make')
 		    or file_is_newer (self.srcdir () + '/configure',
 				      self.builddir () + '/config.make')):
-			    
-			    gub.Target_package.configure (self)
+			self.configure ()
 
+		gub.Target_package.compile (self)
 	def configure_command (self):
 		## FIXME: pickup $target-guile-config
 		return ('PATH=%(system_root)s/usr/bin:$PATH '
@@ -748,6 +753,43 @@ INSTALL_PROGRAM=%(srcdir)s/install-sh
 		       + self.makeflags ()
 
 
+class Ghostscript (gub.Target_package):
+	def srcdir (self):
+		return re.sub ('-source', '', gub.Target_package.srcdir(self))
+	def untar (self):
+		gub.Target_package.untar (self)
+		self.system ("cd %(targetdir)s/build && ln -s %(srcdir)s . ")
+		self.system ("cd %(srcdir)s && tar xfz %(downloaddir)s/jpegsrc.v6b.tar.gz && mv jpeg-6b jpeg")
+		self.system ("cd %(srcdir)s && tar xfz %(downloaddir)s/libpng-1.2.8.tar.gz && mv libpng-1.2.8 libpng")
+		
+	def name (self):
+		return 'ghostscript'
+	
+class Libjpeg (gub.Target_package):
+	def name(self):
+		return 'libjpeg'
+	def srcdir (self):
+		return re.sub (r'src\.v', '-', gub.Target_package.srcdir(self))
+	def configure_command (self):
+		return re.sub ('--config-cache', '',
+			       gub.Target_package.configure_command (self))
+	def configure (self):
+		gub.Target_package.configure (self)
+
+		arch = 'powerpc-apple' ## fixme. 
+		self.system ('''cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh %(arch)s''' , locals ())
+
+		self.file_sub (
+			[(r'(INSTALL_.*) (\$[^ ]+)$', r'\1 $(DESTDIR)\2')],
+			self.builddir () + '/Makefile')
+		
+class Libpng (gub.Target_package):
+	def name (self):
+		return 'libpng'
+	def patch (self):
+		self.file_sub ([('(@INSTALL.*)@PKGCONFIGDIR@', r'\1${DESTDIR}@PKGCONFIGDIR@')],
+			       self.srcdir () + '/Makefile.in')
+
 # latest vanilla packages
 #Zlib (settings).with (version='1.2.3', mirror=download.zlib, format='bz2'),
 #Expat (settings).with (version='1.95.8', mirror=download.sf),
@@ -783,6 +825,10 @@ def get_packages (settings):
 		Guile__darwin (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2',
 				       depends=['gmp','darwin-sdk']
 				       ),
+		Libjpeg (settings).with (version='v6b', mirror=download.jpeg),
+		Libpng (settings).with (version='1.2.8', mirror=download.libpng),
+#		Ghostscript (settings).with (version="8.15.1", mirror=download.cups, format='bz2',
+#					     depends=['libjpeg', 'libpng']),
 		LilyPond__darwin (settings).with (mirror=cvs.gnu, download=gub.Package.cvs,
 						  track_development=True,
 						  depends=['pango', 'guile']
