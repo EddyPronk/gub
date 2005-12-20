@@ -363,7 +363,10 @@ HELP2MAN_GROFFS=
 	def install (self):
 		LilyPond.install (self)
 		self.system ('''
+
+rm -f %(install_prefix)s/bin/lilypond-windows
 install -m755 %(builddir)s/lily/out/lilypond %(install_prefix)s/bin/lilypond-windows.exe
+rm -f %(install_prefix)s/bin/lilypond
 install -m755 %(builddir)s/lily/out-console/lilypond %(install_prefix)s/bin/lilypond.exe
 cp %(install_root)s/usr/lib/lilypond/*/python/* %(install_root)s/usr/bin
 cp %(install_root)s/usr/share/lilypond/*/python/* %(install_root)s/usr/bin

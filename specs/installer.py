@@ -10,6 +10,7 @@ class Installer (gub.Package):
 		self.with (version="0.0")
 		self.strip_command = self.settings.target_architecture + "-strip"
 		self.ball_version = self.version
+		self.no_binary_strip = []
 		
         def name (self):
 		return 'lilypond'
@@ -109,7 +110,8 @@ class Installer (gub.Package):
 	def strip_binary_dir (self, dir):
 		(root, dirs, files) = os.walk(dir).next ()
 		for f in files:
-			self.strip_binary_file (root + '/' + f)
+			if os.path.basename (f) not in self.no_binary_strip:
+				self.strip_binary_file (root + '/' + f)
 			
 	def strip (self):
 		self.strip_unnecessary_files ()
