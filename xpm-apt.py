@@ -84,7 +84,7 @@ def read_xpm_rc ():
 				__main__.__dict__[k] = eval (v)
 
 def write_xpm_rc ():
-	"Write defaults in xpm-apt.rc. "
+	"Write defaults in .xpm-apt.rc. "
 	h = open (rc_file, 'w')
 	print 'writing', rc_file
 	for i in rc_options:
@@ -103,7 +103,7 @@ config = ROOT + '/etc/xpm'
 mirror = 'file://uploads/gub'
 
 rc_options = ['platform', 'PLATFORM', 'ROOT', 'mirror', 'distname']
-rc_file = 'xpm-apt.rc'
+rc_file = '.xpm-apt.rc'
 
 read_xpm_rc ()
 
