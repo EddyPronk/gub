@@ -46,6 +46,9 @@ Options:
     -r,--root=DIR          set %(PLATFORM)s root [%(ROOT)s]
     -t,--tools             manage tools
     -x,--no-deps           ignore dependencies
+
+Defaults are taken from ./%(rc_file)s
+    
 ''' % d)
 
 arguments = 0
@@ -70,32 +73,39 @@ def find ():
 	print (string.join (hits, '\n'))
 
 
+
+def read_xpm_rc ():
+	if os.path.exists (rc_file):
+		print 'reading', rc_file
+		h = open (rc_file)
+		for i in h.readlines ():
+			k, v = i.split ('=', 2)
+			if k in rc_options:
+				__main__.__dict__[k] = eval (v)
+
+def write_xpm_rc ():
+	"Write defaults in xpm-apt.rc. "
+	h = open (rc_file, 'w')
+	print 'writing', rc_file
+	for i in rc_options:
+		h.write ('%s="%s"\n' % (i, __main__.__dict__[i]))
+	h.close ()
+
+
 CWD = os.getcwd ()
 basename = os.path.basename (sys.argv[0])
 xpm_rc = CWD + '/.' + basename
 platform = 'mingw'
 PLATFORM = 'i686-mingw32'
 ROOT = 'target/%(PLATFORM)s/system' % locals ()
-
+distname = 'unused'
 config = ROOT + '/etc/xpm'
 mirror = 'file://uploads/gub'
 
-rc_options = ['PLATFORM', 'ROOT', 'mirror', 'distname']
-def read_xpm_rc ():
-	h = 0
-	if os.path.exists (cwd_cyg_apt_rc):
-		h = open (cwd_cyg_apt_rc)
-		for i in h.readlines ():
-			k, v = i.split ('=', 2)
-			if k in rc_options:
-				__main__.__dict__[k] = eval (v)
-		h.close ()
+rc_options = ['platform', 'PLATFORM', 'ROOT', 'mirror', 'distname']
+rc_file = 'xpm-apt.rc'
 
-def write_xpm_rc ():
-	h = open (cyg_apt_rc, 'w')
-	for i in rc_options:
-		h.write ('%s="%s"\n' % (i, __main__.__dict__[i]))
-	h.close ()
+read_xpm_rc ()
 
 def do_options ():
 	global command, mirror, ROOT, PLATFORM, platform, packagename
@@ -140,7 +150,7 @@ def do_options ():
 				'mingw': 'i686-mingw32',
 				'linux': 'linux',
 				}[a]
-			ROOT = 'target/%(PLATFORM)/system' % locals ()
+			ROOT = 'target/%(PLATFORM)s/system' % globals ()
 		elif o == '--name' or o == '-n':
 			name_p = 1
 		elif o == '--no-deps' or o == '-x':
@@ -197,12 +207,13 @@ def main ():
 	do_options ()
 
 	settings = settings_mod.Settings (PLATFORM)
-	settings.manager = None
 	settings.platform = platform
 
 	target_manager = xpm.Package_manager (settings.system_root)
 	tool_manager = xpm.Package_manager (settings.tooldir)
 
+
+	## ugh : code dup. 
 	if tool_p:
 		if platform == 'darwin':
 			import darwintools
@@ -214,9 +225,10 @@ def main ():
 			     mingw.get_packages (settings))
 		pm = tool_manager
 	else:
-		map (target_manager.register_package,
-		     framework.get_packages (settings))
 		pm = target_manager
+		
+	map (pm.register_package,
+	     framework.get_packages (settings))
 	# ugh
 	pm.resolve_dependencies ()
 
