@@ -222,6 +222,11 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
 		self.system ('''cp %(system_root)s/usr/bin/libtool %(builddir)s/libtool''')
 		self.system ('''cp %(system_root)s/usr/bin/libtool %(builddir)s/guile-readline/libtool''')
 
+	def install (self):
+		Guile.install (self)
+		# dlopen-able .la files go in BIN dir, BIN OR LIB package
+		self.system ('''mv %(install_root)s/usr/lib/lib*[0-9].la %(install_root)s/usr/bin''')
+
 class Guile__linux (Guile):
 	def compile_command (self):
 		# FIXME: when not x-building, guile runs guile without
@@ -239,7 +244,6 @@ class Guile__darwin (Guile):
 			dst = os.path.splitext (os.path.basename (f))[0] + '.so'
 			
 			self.system ('cd %(directory)s && ln -s %(src)s %(dst)s', locals())
-
 
 class LilyPond (gub.Target_package):
 	def configure (self):
