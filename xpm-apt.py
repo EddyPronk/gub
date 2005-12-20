@@ -207,7 +207,7 @@ def main ():
 	do_options ()
 
 	if not platform:
-		print 'need platform setting.'
+		print 'need platform setting. Use -p option'
 		sys.exit (1)
 		
 	settings = settings_mod.Settings (PLATFORM)
