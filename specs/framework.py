@@ -758,7 +758,7 @@ class Ghostscript (gub.Target_package):
 		return re.sub ('-source', '', gub.Target_package.srcdir(self))
 	def untar (self):
 		gub.Target_package.untar (self)
-		self.system ("cd %(targetdir)s/build && ln -s %(srcdir)s . ")
+		self.system ("cd %(targetdir)s/build && rm -f espgs-%(version)s-source && ln -s %(srcdir)s espgs-%(version)s-source ")
 		
 	def name (self):
 		return 'ghostscript'
@@ -828,8 +828,7 @@ def get_packages (settings):
 				       ),
 		Libjpeg (settings).with (version='v6b', mirror=download.jpeg),
 		Libpng (settings).with (version='1.2.8', mirror=download.libpng),
-#		Ghostscript (settings).with (version="8.15.1", mirror=download.cups, format='bz2',
-#					     depends=['libjpeg', 'libpng']),
+		Ghostscript (settings).with (version="8.15.1", mirror=download.cups, format='bz2', depends=['libjpeg', 'libpng']),
 		LilyPond__darwin (settings).with (mirror=cvs.gnu, download=gub.Package.cvs,
 						  track_development=True,
 						  depends=['pango', 'guile']
