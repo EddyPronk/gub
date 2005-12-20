@@ -95,9 +95,9 @@ def write_xpm_rc ():
 CWD = os.getcwd ()
 basename = os.path.basename (sys.argv[0])
 xpm_rc = CWD + '/.' + basename
-platform = 'mingw'
-PLATFORM = 'i686-mingw32'
-ROOT = 'target/%(PLATFORM)s/system' % locals ()
+platform = ''
+PLATFORM = ''
+ROOT = ''
 distname = 'unused'
 config = ROOT + '/etc/xpm'
 mirror = 'file://uploads/gub'
