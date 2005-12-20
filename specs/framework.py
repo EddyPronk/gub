@@ -780,9 +780,12 @@ class Libjpeg (gub.Target_package):
 		self.system ('''cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh %(arch)s''' , locals ())
 
 		self.file_sub (
-			[(r'(INSTALL_.*) (\$[^ ]+)$', r'\1 $(DESTDIR)\2')],
+			[(r'(\(INSTALL_[A-Z]+\).*) (\$[^ ]+)$', r'\1 $(DESTDIR)\2')],
 			self.builddir () + '/Makefile')
-		
+
+	def install_command (self):
+		return ("mkdir -p %(install_root)s/usr/include && make DESTDIR=%(install_root)s install-headers install-lib ")
+	
 class Libpng (gub.Target_package):
 	def name (self):
 		return 'libpng'
