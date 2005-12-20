@@ -167,6 +167,7 @@ class Darwin_bundle (Installer):
 		self.rewire_binary_dir (self.settings.installer_root + '/usr/lib')
 		self.rewire_binary_dir (self.settings.installer_root + '/usr/bin')
 		Installer.create (self)
+
 	def strip (self):
 		self.strip_unnecessary_files ()
 		# no binary strip: makes debugging difficult.
@@ -204,8 +205,6 @@ class Linux_installer (Installer):
 	def __init__ (self, settings):
 		Installer.__init__ (self, settings)
 		self.strip_command += ' -g '
-		
-
 
 class Tgz (Linux_installer):
 	def create (self):
