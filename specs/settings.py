@@ -36,7 +36,6 @@ class Settings:
 
 		# FIXME: rename to target_root?
 		self.system_root = self.targetdir + '/system'
-		self.manager_dir = self.system_root + '/etc/setup'
 		self.installdir = self.targetdir + '/install'
 		self.tooldir = self.targetdir + '/tools'
 

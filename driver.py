@@ -68,7 +68,6 @@ def get_settings (platform):
 		}[platform]
 	
 	settings = settings_mod.Settings (init)
-	settings.manager = None
 	settings.platform = platform
 	
 	if platform == 'darwin':
