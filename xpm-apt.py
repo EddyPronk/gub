@@ -206,6 +206,10 @@ def main ():
 	global pm
 	do_options ()
 
+	if not platform:
+		print 'need platform setting.'
+		sys.exit (1)
+		
 	settings = settings_mod.Settings (PLATFORM)
 	settings.platform = platform
 
