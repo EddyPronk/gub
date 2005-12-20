@@ -278,11 +278,10 @@ cd %(dir)s/%(name)s && cvs -q update  -dAP -r %(version)s
 		if not os.path.exists (f):
 			return False
 
-		first_line =  open (f).readline ()
-		return string.atoi (first_line) >= stage_number
+		return pickle.load (open (f)) >= stage_number
 
 	def set_done (self, stage, stage_number):
-		f = open (self.stamp_file(),'w').write ('%d\n%s' %  (stage_number, stage))
+		pickle.dump (stage_number, open (self.stamp_file(),'w'))
 
 	def autoupdate (self, autodir=0):
 		if not autodir:
