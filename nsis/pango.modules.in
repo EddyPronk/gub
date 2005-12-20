@@ -1,23 +1,23 @@
 # Pango Modules file
 # Automatically generated file, do not edit
 #
-# ModulesPath = @SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules
+# ModulesPath = "@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules"
 #
-@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-arabic-fc.so ArabicScriptEngineFc PangoEngineShape PangoRenderFc arabic:*
-@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-basic-fc.so BasicScriptEngineFc PangoEngineShape PangoRenderFc armenian:* bopomofo:* cherokee:* coptic:* cyrillic:* deseret:* ethiopic:* georgian:* gothic:* greek:* han:* hiragana:* katakana:* latin:* ogham:* old-italic:* runic:* canadian-aboriginal:* yi:* braille:* cypriot:* limbu:* osmanya:* shavian:* linear-b:* ugaritic:* common:
-@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-hangul-fc.so HangulScriptEngineFc PangoEngineShape PangoRenderFc hangul:*
-@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-hebrew-fc.so HebrewScriptEngineFc PangoEngineShape PangoRenderFc hebrew:*
-@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-indic-fc.so devaScriptEngineFc PangoEngineShape PangoRenderFc devanagari:*
-@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-indic-fc.so bengScriptEngineFc PangoEngineShape PangoRenderFc bengali:*
-@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-indic-fc.so guruScriptEngineFc PangoEngineShape PangoRenderFc gurmukhi:*
-@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-indic-fc.so gujrScriptEngineFc PangoEngineShape PangoRenderFc gujarati:*
-@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-indic-fc.so oryaScriptEngineFc PangoEngineShape PangoRenderFc oriya:*
-@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-indic-fc.so tamlScriptEngineFc PangoEngineShape PangoRenderFc tamil:*
-@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-indic-fc.so teluScriptEngineFc PangoEngineShape PangoRenderFc telugu:*
-@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-indic-fc.so kndaScriptEngineFc PangoEngineShape PangoRenderFc kannada:*
-@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-indic-fc.so mlymScriptEngineFc PangoEngineShape PangoRenderFc malayalam:*
-@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-indic-fc.so sinhScriptEngineFc PangoEngineShape PangoRenderFc sinhala:*
-@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-khmer-fc.so KhmerScriptEngineFc PangoEngineShape PangoRenderFc khmer:*
-@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-syriac-fc.so SyriacScriptEngineFc PangoEngineShape PangoRenderFc syriac:*
-@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-thai-fc.so ThaiScriptEngineFc PangoEngineShape PangoRenderFc thai:* lao:*
-@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-tibetan-fc.so TibetanScriptEngineFc PangoEngineShape PangoRenderFc tibetan:*
+"@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-arabic-fc.so" ArabicScriptEngineFc PangoEngineShape PangoRenderFc arabic:*
+"@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-basic-fc.so" BasicScriptEngineFc PangoEngineShape PangoRenderFc armenian:* bopomofo:* cherokee:* coptic:* cyrillic:* deseret:* ethiopic:* georgian:* gothic:* greek:* han:* hiragana:* katakana:* latin:* ogham:* old-italic:* runic:* canadian-aboriginal:* yi:* braille:* cypriot:* limbu:* osmanya:* shavian:* linear-b:* ugaritic:* common:
+"@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-hangul-fc.so" HangulScriptEngineFc PangoEngineShape PangoRenderFc hangul:*
+"@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-hebrew-fc.so" HebrewScriptEngineFc PangoEngineShape PangoRenderFc hebrew:*
+"@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-indic-fc.so" devaScriptEngineFc PangoEngineShape PangoRenderFc devanagari:*
+"@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-indic-fc.so" bengScriptEngineFc PangoEngineShape PangoRenderFc bengali:*
+"@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-indic-fc.so" guruScriptEngineFc PangoEngineShape PangoRenderFc gurmukhi:*
+"@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-indic-fc.so" gujrScriptEngineFc PangoEngineShape PangoRenderFc gujarati:*
+"@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-indic-fc.so" oryaScriptEngineFc PangoEngineShape PangoRenderFc oriya:*
+"@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-indic-fc.so" tamlScriptEngineFc PangoEngineShape PangoRenderFc tamil:*
+"@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-indic-fc.so" teluScriptEngineFc PangoEngineShape PangoRenderFc telugu:*
+"@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-indic-fc.so" kndaScriptEngineFc PangoEngineShape PangoRenderFc kannada:*
+"@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-indic-fc.so" mlymScriptEngineFc PangoEngineShape PangoRenderFc malayalam:*
+"@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-indic-fc.so" sinhScriptEngineFc PangoEngineShape PangoRenderFc sinhala:*
+"@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-khmer-fc.so" KhmerScriptEngineFc PangoEngineShape PangoRenderFc khmer:*
+"@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-syriac-fc.so" SyriacScriptEngineFc PangoEngineShape PangoRenderFc syriac:*
+"@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-thai-fc.so" ThaiScriptEngineFc PangoEngineShape PangoRenderFc thai:* lao:*
+"@SLASHED_INSTDIR@/usr/lib/pango/1.4.0/modules/pango-tibetan-fc.so" TibetanScriptEngineFc PangoEngineShape PangoRenderFc tibetan:*
