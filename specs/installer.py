@@ -47,6 +47,8 @@ class Installer (gub.Package):
 			'lib/gettext',
 			'lib/gettext/hostname*',
 			'lib/gettext/urlget*',
+			'lib/glib-2.0/include/glibconfig.h',
+			'lib/glib-2.0',
 			'lib/pkgconfig',
 			'lib/*~',
 			'lib/*.la',

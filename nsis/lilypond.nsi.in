@@ -290,6 +290,7 @@ path_done:
 
 	RMDir $INSTDIR\usr
 	RMDir /r $INSTDIR\etc\setup
+	RMDir /r $INSTDIR\etc\xpm
 	RMDir $INSTDIR\etc
 
 	;; Remove shortcuts, if any
