@@ -107,10 +107,7 @@ chmod 755 %(install_root)s/usr/bin/*
 ''')
 
 class Gmp (gub.Target_package):
-	def patch (self):
-		self.system ('''
-cd %(srcdir)s && patch -p1 < %(patchdir)s/gmp-4.1.4-1.patch
-''')
+	pass
 
 class Gmp__darwin (Gmp):
 	def patch (self):
@@ -127,13 +124,16 @@ class Gmp__darwin (Gmp):
 		Gmp.patch (self)
 
 class Gmp__mingw (Gmp):
-	def install (self):
-		gub.Target_package.install (self)
+	def patch (self):
 		self.system ('''
-mkdir -p %(install_prefix)s/bin
-mv %(install_prefix)s/lib/lib*.dll %(install_prefix)s/bin/
-cp %(builddir)s/.libs/libgmp.dll.a %(install_prefix)s/lib/
+cd %(srcdir)s && patch -p1 < %(patchdir)s/gmp-4.1.4-1.patch
 ''')
+
+	def configure (self):
+		Gmp.configure (self)
+		self.system ('''cp %(system_root)s/usr/bin/libtool %(builddir)s/libtool''')
+		self.file_sub ([('#! /bin/sh', '#! /bin/sh\ntagname=CXX')],
+			       '%(builddir)s/libtool')
 
 class Guile (gub.Target_package):
 
