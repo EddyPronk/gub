@@ -682,6 +682,7 @@ cd %(builddir)s && %(zlib_is_broken)s AR="%(AR)s r" %(srcdir)s/configure --share
 
 	def install_command (self):
 		return gub.Target_package.broken_install_command (self)
+	
 class Mingw_runtime (gub.Binary_package):
 	def untar (self):
 		gub.Binary_package.untar (self)
@@ -768,10 +769,16 @@ class Ghostscript (gub.Target_package):
 		
 	def name (self):
 		return 'ghostscript'
+	
 	def compile (self):
-		cmd = 'cd %(builddir)s && make CC=gcc CFLAGS= CPPFLAGS= GCFLAGS= obj/genconf obj/echogs obj/genarch '
-		self.system (cmd, {'CC': 'gcc'}) 
+		cmd = 'cd %(builddir)s && (mkdir obj || true) && make CC=gcc CFLAGS= CPPFLAGS= GCFLAGS= obj/genconf obj/echogs obj/genarch obj/arch.h'
+		self.system (cmd)
+		self.file_sub ([('#define ARCH_CAN_SHIFT_FULL_LONG 0', '#define ARCH_CAN_SHIFT_FULL_LONG 1'),
+				('#define ARCH_CACHE1_SIZE 1048576', '#define ARCH_CACHE1_SIZE 2097152'),
+				('#define ARCH_IS_BIG_ENDIAN 0', '#define ARCH_IS_BIG_ENDIAN 1')],
+			       self.builddir () + '/obj/arch.h') 
 		gub.Target_package.compile (self)
+
 	def configure_command (self):
 		cmd = gub.Target_package.configure_command (self)
 		cmd += ' --with-drivers=FILES --without-x --disable-cups '
