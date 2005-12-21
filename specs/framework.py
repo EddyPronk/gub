@@ -772,7 +772,11 @@ class Ghostscript (gub.Target_package):
 		cmd = 'cd %(builddir)s && make CC=gcc CFLAGS= CPPFLAGS= GCFLAGS= obj/genconf obj/echogs obj/genarch '
 		self.system (cmd, {'CC': 'gcc'}) 
 		gub.Target_package.compile (self)
-
+	def configure_command (self):
+		cmd = gub.Target_package.configure_command (self)
+		cmd += ' --with-drivers=FILES --without-x --disable-cups '
+		return cmd
+		
 class Libjpeg (gub.Target_package):
 	def name(self):
 		return 'libjpeg'
