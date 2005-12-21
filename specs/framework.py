@@ -773,7 +773,11 @@ class Ghostscript (gub.Target_package):
 		
 	def name (self):
 		return 'ghostscript'
-	
+	def compile (self):
+		cmd = 'cd %(builddir)s && make CC=gcc CFLAGS= CPPFLAGS= GCFLAGS= obj/genconf obj/echogs obj/genarch '
+		self.system (cmd, {'CC': 'gcc'}) 
+		gub.Target_package.compile (self)
+
 class Libjpeg (gub.Target_package):
 	def name(self):
 		return 'libjpeg'
