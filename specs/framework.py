@@ -829,7 +829,8 @@ def get_packages (settings):
 		Gettext (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2',
 					 depends=['darwin-sdk']
 					 ),
-		Freetype (settings).with (version='2.1.9', mirror=download.freetype,
+		Freetype (settings).with (version='2.1.10', mirror=download.nongnu_savannah,
+					  format='bz2',
 					  depends=['darwin-sdk']),
 		Expat (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2',
 				       depends=['darwin-sdk']),

@@ -27,6 +27,9 @@ def alpha ():
 	base = 'ftp://alpha.gnu.org/pub/gnu'
 	return base + '/%(name)s/%(name)s-%(ball_version)s.tar.%(format)s'
 
+def nongnu_savannah ():
+	return 'http://download.savannah.nongnu.org/releases/%(name)s/%(name)s-%(ball_version)s.tar.%(format)s'
+
 def freetype ():
 	return 'ftp://sunsite.cnlab-switch.ch/mirror/freetype/freetype2/%(name)s-%(ball_version)s.tar.%(format)s'
 
