@@ -544,6 +544,8 @@ class Pango__darwin (Pango):
 ModuleFiles = "$PANGO_PREFIX/etc/pango/pango.modules"
 ModulesPath = "$PANGO_PREFIX/lib/pango/1.4.0/modules"
 ''')
+		shutil.copy2 (self.settings.patchdir + '/pango.modules' ,
+			      etc)
 		
 class Freetype (gub.Target_package):
 	def configure (self):
