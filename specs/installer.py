@@ -41,8 +41,7 @@ class Installer (gub.Package):
 			'bin/python*',
 			'bin/python2.4*',
 			'bin/xmlwf',
-			'doc'
-			'include',
+			'doc',
 			'include',
 			'info',
 			'lib/gettext',
@@ -178,6 +177,7 @@ class Nsis (Installer):
 	def __init__ (self, settings):
 		Installer.__init__ (self, settings)
 		self.strip_command += ' -g '
+		self.no_binary_strip = ['gsdll32.dll', 'gsdll32.lib']
 		
 	def create (self):
 		Installer.create (self)

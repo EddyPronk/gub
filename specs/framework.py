@@ -340,7 +340,6 @@ cp /usr/include/FlexLexer.h %(builddir)s
 		return LilyPond.compile_command (self) \
 		       + gub.join_lines ('''
 LDFLAGS=%(python_lib)s
-HELP2MAN_GROFFS=
 '''% locals ())
 
 	def compile (self):
@@ -353,12 +352,6 @@ cp -pv %(builddir)s/mf/out/* %(builddir)s/mf/out-console
 		cmd += ' conf=console'
 		self.system ('''cd %(builddir)s && %(cmd)s''',
 			     locals ())
-
-	def install_command (self):
-		return LilyPond.install_command (self) \
-		       + gub.join_lines ('''
-HELP2MAN_GROFFS=
-'''% locals ())
 
 	def install (self):
 		LilyPond.install (self)

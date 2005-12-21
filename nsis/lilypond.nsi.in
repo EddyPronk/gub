@@ -287,8 +287,9 @@ path_done:
 	RMDir /r $INSTDIR\usr\etc\pango
 	RMDir /r $INSTDIR\usr\etc\fonts
 	RMDir $INSTDIR\usr\etc
-
+	Delete $INSTDIR\usr\*.*
 	RMDir $INSTDIR\usr
+
 	RMDir /r $INSTDIR\etc\setup
 	RMDir /r $INSTDIR\etc\xpm
 	RMDir $INSTDIR\etc
