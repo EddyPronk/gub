@@ -783,6 +783,11 @@ class Ghostscript (gub.Target_package):
 		cmd = gub.Target_package.configure_command (self)
 		cmd += ' --with-drivers=FILES --without-x --disable-cups '
 		return cmd
+
+	def configure (self):
+		gub.Target_package.configure (self)
+		self.file_sub ([('-Dmalloc=rpl_malloc', '')],
+			       self.builddir () + '/Makefile')
 		
 class Libjpeg (gub.Target_package):
 	def name(self):
