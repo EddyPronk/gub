@@ -769,14 +769,19 @@ class Ghostscript (gub.Target_package):
 		
 	def name (self):
 		return 'ghostscript'
-	
+	def patch (self):
+		self.file_sub ([(r'mkdir -p \$\(bindir\)', 'mkdir -p $(DESTDIR)$(bindir)'),
+				(r'mkdir -p \$\(datadir\)', 'mkdir -p $(DESTDIR)$(datadir)'),
+				(r'mkdir -p \$\(scriptdir\)', 'mkdir -p $(DESTDIR)$(scriptdir)'),
+				(r'\$\(INSTALL_PROGRAM\) \$\(GS_XE\) \$\(bindir\)/\$\(GS\)',
+				 r'$(INSTALL_PROGRAM) $(GS_XE) $(DESTDIR)$(bindir)/$(GS)'),
+				],
+			       self.srcdir () + '/src/unixinst.mak')
+
 	def compile (self):
 		cmd = 'cd %(builddir)s && (mkdir obj || true) && make CC=gcc CFLAGS= CPPFLAGS= GCFLAGS= obj/genconf obj/echogs obj/genarch obj/arch.h'
 		self.system (cmd)
-		self.file_sub ([('#define ARCH_CAN_SHIFT_FULL_LONG 0', '#define ARCH_CAN_SHIFT_FULL_LONG 1'),
-				('#define ARCH_CACHE1_SIZE 1048576', '#define ARCH_CACHE1_SIZE 2097152'),
-				('#define ARCH_IS_BIG_ENDIAN 0', '#define ARCH_IS_BIG_ENDIAN 1')],
-			       self.builddir () + '/obj/arch.h') 
+		self.fixup_arch ()
 		gub.Target_package.compile (self)
 
 	def configure_command (self):
@@ -788,6 +793,13 @@ class Ghostscript (gub.Target_package):
 		gub.Target_package.configure (self)
 		self.file_sub ([('-Dmalloc=rpl_malloc', '')],
 			       self.builddir () + '/Makefile')
+
+class Ghostscript__darwin (Ghostscript): 
+	def fixup_arch (self):
+		self.file_sub ([('#define ARCH_CAN_SHIFT_FULL_LONG 0', '#define ARCH_CAN_SHIFT_FULL_LONG 1'),
+				('#define ARCH_CACHE1_SIZE 1048576', '#define ARCH_CACHE1_SIZE 2097152'),
+				('#define ARCH_IS_BIG_ENDIAN 0', '#define ARCH_IS_BIG_ENDIAN 1')],
+			       self.builddir () + '/obj/arch.h') 
 		
 class Libjpeg (gub.Target_package):
 	def name(self):
@@ -855,7 +867,7 @@ def get_packages (settings):
 				       ),
 		Libjpeg (settings).with (version='v6b', mirror=download.jpeg),
 		Libpng (settings).with (version='1.2.8', mirror=download.libpng),
-		Ghostscript (settings).with (version="8.15.1", mirror=download.cups, format='bz2', depends=['libjpeg', 'libpng']),
+		Ghostscript__darwin (settings).with (version="8.15.1", mirror=download.cups, format='bz2', depends=['libjpeg', 'libpng']),
 		LilyPond__darwin (settings).with (mirror=cvs.gnu, download=gub.Package.cvs,
 						  track_development=True,
 						  depends=['pango', 'guile']
