@@ -107,9 +107,7 @@ Commands:
 
 download         - download packages
 build-tool       - build cross compiler/linker
-manage-tool      - package manager for cross compilers/linkers
 build-target     - build target packages
-manage-target    - package manager for target dir
 build-installer  - build installer for platform
     
 """,
@@ -139,62 +137,6 @@ build-installer  - build installer for platform
 		      default=None,
 		      help='leave build and src dir for inspection')
 	return p
-
-def run_package_manager (m, commands):
-	c = commands.pop (0)
-	args = commands
-	if args and args[0]== 'all':
-		args = m._packages.keys()
-		
-	if c == 'install':
-		for p in args:
-			if m.name_is_installed (p):
-				print '%s already installed' % p
-
-		for p in args:
-			if not m.name_is_installed (p):
-				m.name_install (p)
-				
-	elif c in ('uninstall', 'remove'):
-		for p in args:
-			if not m.name_is_installed (p):
-				raise '%s not installed' % p
-			
-		for p in args:
-			m.name_uninstall (p)
-
-	elif c == 'query':
-		print '\n'.join ([p.name() for p in  m.installed_packages ()])
-		
-	elif c == 'query-known':
-		print '\n'.join (m._packages.keys ())
-		
-	elif c == 'list-files':
-		for p in args:
-			if not m.name_is_installed (p):
-				print '%s not installed' % p
-			else:
-				print m.name_files (p)
-	elif c == 'help':
-		print '''
-
-
-install <pkgs> - install listed pkgs including deps.
-uninstall <pkgs> - install listed pkgs including deps.
-list-files <pkgs> - install listed pkgs including deps.
-query - list installed packages
-query-known - list known packages
-help - this info
-
-
-<pkgs> may be all "all" for all known packages.
-
-'''
-		sys.exit (0)
-		
-	else:
-		raise 'unknown xpm command %s ' % c
-
 
 def build_installers (settings, install_pkg_manager):
 	for p in install_pkg_manager._packages.values ():
@@ -277,10 +219,6 @@ def main ():
 		run_builder (settings, tool_manager, commands)
 	elif c == 'build-target':
 		run_builder (settings, target_manager, commands)
-	elif c == 'manage-tool':
-		run_package_manager (tool_manager, commands)
-	elif c == 'manage-target':
-		run_package_manager (target_manager, commands)
 	elif c == 'build-installer':
 		gub.system ('rm -rf %s' %  settings.installer_root)
 		install_manager = xpm.Package_manager (settings.installer_root)
