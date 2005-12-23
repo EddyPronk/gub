@@ -21,9 +21,11 @@ INVOKE_DRIVER=python driver.py \
 --package-version=$(LILYPOND_VERSION) \
 --package-build=1 --platform $(1)\
 $(LOCAL_DRIVER_OPTIONS)
+INVOKE_XPM=python xpm-apt.py --platform $(1) 
 
-BUILD_ALL=$(call INVOKE_DRIVER, $(1)) build-tool all  && $(call INVOKE_DRIVER, $(1)) manage-tool install all \
-  && $(call INVOKE_DRIVER, $(1)) build-target all  && $(call INVOKE_DRIVER, $(1)) manage-target install all \
+
+BUILD_ALL=$(call INVOKE_DRIVER, $(1)) build all  && $(call INVOKE_XPM, $(1)) -t install all \
+  && $(call INVOKE_DRIVER, $(1)) build all  && $(call INVOKE_XPM, $(1))  install all \
   && $(call INVOKE_DRIVER, $(1)) build-installer
 
 
@@ -32,18 +34,17 @@ download:
 	$(call INVOKE_DRIVER, darwin) download
 	$(call INVOKE_DRIVER, mingw) download
 
-
 linux:
 	$(call BUILD_ALL, linux) 
 
 mac:
-	$(call INVOKE_DRIVER, darwin) build-target darwin-sdk
-	$(call INVOKE_DRIVER, darwin) manage-target install darwin-sdk
+	$(call INVOKE_DRIVER, darwin) build darwin-sdk
+	$(call INVOKE_XPM, darwin) install darwin-sdk
 	$(call BUILD_ALL, darwin) 
 
 mingw:
-	$(call INVOKE_DRIVER, mingw) build-target mingw-runtime w32api 
-	$(call INVOKE_DRIVER, mingw) manage-target install mingw-runtime w32api
+	$(call INVOKE_DRIVER, mingw) build mingw-runtime w32api 
+	$(call INVOKE_XPM, mingw) install mingw-runtime w32api
 	$(call BUILD_ALL, mingw) 
 
 
