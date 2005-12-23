@@ -40,7 +40,7 @@ linux:
 
 mac:
 	$(call INVOKE_DRIVER, darwin) build darwin-sdk
-	$(call INVOKE_XPM, darwin) -t install darwin-sdk
+	$(call INVOKE_XPM, darwin) install darwin-sdk
 	$(call BUILD_ALL, darwin)
 
 mingw:
