@@ -415,7 +415,7 @@ tar %(flags)s %(tarball)s -C %(allsrcdir)s
 		  ):
 		self.ball_version = version
 		self.set_download (mirror, format, download)
-		self.dependencies = depends
+		self.depends = depends
 		self.track_development = track_development
 		return self
 

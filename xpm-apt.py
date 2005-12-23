@@ -7,7 +7,6 @@
 '''
 
 import __main__
-import getopt
 import os
 import re
 import string
@@ -20,23 +19,180 @@ import gub
 import settings as settings_mod
 import xpm
 
-def psort (lst):
-	plist.sort (lst)
+def sort (lst):
+	list.sort (lst)
 	return lst
-#urg
-plist = list
 
-def usage ():
+class Options:
+	def __init__ (self):
+		self.platform = ''
+		self.PLATFORM = ''
+		self.ROOT = ''
+		self.distname = 'unused'
+		self.config = self.ROOT + '/etc/xpm'
+		self.mirror = 'file://uploads/gub'
+		self.rc_options = ['platform', 'PLATFORM', 'ROOT', 'mirror',
+				   'distname']
+		self.rc_file = '.xpm-apt.rc'
+		self.name_p = 0
+		self.nodeps_p = 0
+		self.tool_p = 0
+		self.command = 'help'
+		self.packagename = 0
+
+		self.read_xpm_rc ()
+		self.get_options ()
+		self.write_xpm_rc ()
+
+	def get_options (self):
+		import getopt
+		(options, arguments) = getopt.getopt (sys.argv[1:],
+							   'hm:np:r:tx',
+							   (
+			'help',
+			'mirror=',
+			'name',
+			'platform=',
+			'no-deps',
+			'root=',
+			'tool'
+			))
+
+		if len (arguments) > 0:
+			self.command = arguments.pop (0)
+		self.arguments = arguments
+
+		if len (arguments) > 0:
+			self.packagename = self.arguments[0]
+		
+		for i in options:
+			o = i[0]
+			a = i[1]
+
+			if 0:
+				pass
+			elif o == '--help' or o == '-h':
+				self.command = 'help'
+			elif o == '--mirror' or o == '-m':
+				self.mirror = a
+			elif o == '--root' or o == '-r':
+				self.ROOT = a
+			elif o == '--tool' or o == '-t':
+				self.tool_p = 1
+			elif o == '--platform' or o == '-p':
+				self.platform = a
+				self.PLATFORM = {
+					'darwin': 'powerpc-apple-darwin7',
+					'mingw': 'i686-mingw32',
+					'linux': 'linux',
+					}[a]
+				self.ROOT = ('target/%(PLATFORM)s/system'
+					     % globals ())
+				self.TOOLROOT = ('target/%(PLATFORM)s/tool'
+						 % globals ())
+			elif o == '--name' or o == '-n':
+				self.name_p = 1
+			elif o == '--no-deps' or o == '-x':
+				self.nodeps_p = 1
+
+
+	def read_xpm_rc (self):
+		if os.path.exists (self.rc_file):
+			print 'reading', self.rc_file
+			h = open (self.rc_file)
+			for i in h.readlines ():
+				k, v = i.split ('=', 2)
+				if k in self.rc_options:
+					self.__dict__[k] = eval (v)
+
+	def write_xpm_rc (self):
+		"Write defaults in .xpm-apt.rc. "
+		h = open (self.rc_file, 'w')
+		print 'writing', self.rc_file
+		for i in self.rc_options:
+			h.write ('%s="%s"\n' % (i, self.__dict__[i]))
+		h.close ()
+
+class Command:
+	def __init__ (self, pm, options):
+		self.pm = pm
+		self.options = options
+
+	def available (self):
+		print '\n'.join (self.pm._packages.keys ())
+
+	def files (self):
+		'''list installed files'''
+		for p in self.options.arguments:
+			if not self.pm.name_is_installed (p):
+				print '%s not installed' % p
+			else:
+				print '\n'.join (self.pm.name_files (p))
+
+	def find (self):
+		'''package containing file'''
+		regexp = re.sub ('^%s/' % self.options.ROOT, '/',
+				 self.options.packagename)
+		hits = []
+		for self.options.packagename in sort (map (gub.Package.name,
+							    self.pm.installed_packages ())):
+			for i in self.pm.name_files (self.options.packagename):
+				if re.search (regexp, '/%s' % i):
+					hits.append ('%s: /%s' % (self.options.packagename, i))
+		print (string.join (hits, '\n'))
+
+	def help (self):
+		'''help COMMAND'''
+		if len (self.options.arguments) < 1:
+			usage (self.options)
+			sys.exit ()
+
+		print  Command.__dict__[self.options.packagename].__doc__
+
+	def install (self):
+		'''download and install packages with dependencies'''
+		for p in self.options.arguments:
+			if self.pm.name_is_installed (p):
+				print '%s already installed' % p
+
+		for p in self.options.arguments:
+			if not self.pm.name_is_installed (p):
+				if self.options.nodeps_p:
+					self.pm.install_single_package (self.pm._packages[p])
+				else:
+					self.pm.install_package (self.pm._packages[p])
+
+	def list (self):
+		'''installed packages'''
+		if self.options.name_p:
+			print '\n'.join (sort (map (gub.Package.name,
+						     self.pm.installed_packages ())))
+		else:
+			print '\n'.join (sort (map (lambda x: '%-20s%s' % (x.name (),
+								     x.full_version ()),
+						     self.pm.installed_packages ())))
+
+	def remove (self):
+		'''uninstall packages'''
+		for p in self.options.arguments:
+			if not self.pm.name_is_installed (p):
+				raise '%s not installed' % p
+
+		for p in self.options.arguments:
+			self.pm.name_uninstall (p)
+
+def usage (options):
 	sys.stdout.write ('''%s [OPTION]... COMMAND [PACKAGE]...
 
 Commands:
-''' % basename)
-	d = __main__.__dict__
+''' % os.path.basename (sys.argv[0]))
+	d = Command.__dict__
 	commands = filter (lambda x:
 			   type (d[x]) == type (usage) and d[x].__doc__, d)
 	sys.stdout.writelines (map (lambda x:
 				    "    %s - %s\n" % (x, d[x].__doc__),
-			       psort (commands)))
+			       sort (commands)))
+	d = options.__dict__
 	sys.stdout.write (r'''
 Options:
     -h,--help              show brief usage
@@ -51,189 +207,39 @@ Defaults are taken from ./%(rc_file)s
     
 ''' % d)
 
-arguments = 0
-def help ():
-	'''help COMMAND'''
-	if len (arguments) < 1:
-		usage ()
-		sys.exit ()
-
-	print  __main__.__dict__[packagename].__doc__
-
-def find ():
-	'''package containing file'''
-	global packagename
-	regexp = re.sub ('^%s/' % ROOT, '/', packagename)
-	hits = []
-	for packagename in psort (map (gub.Package.name,
-				       pm.installed_packages ())):
-		for i in pm.name_files (packagename):
-			if re.search (regexp, '/%s' % i):
-				hits.append ('%s: /%s' % (packagename, i))
-	print (string.join (hits, '\n'))
-
-
-
-def read_xpm_rc ():
-	if os.path.exists (rc_file):
-		print 'reading', rc_file
-		h = open (rc_file)
-		for i in h.readlines ():
-			k, v = i.split ('=', 2)
-			if k in rc_options:
-				__main__.__dict__[k] = eval (v)
-
-def write_xpm_rc ():
-	"Write defaults in .xpm-apt.rc. "
-	h = open (rc_file, 'w')
-	print 'writing', rc_file
-	for i in rc_options:
-		h.write ('%s="%s"\n' % (i, __main__.__dict__[i]))
-	h.close ()
-
-
-CWD = os.getcwd ()
-basename = os.path.basename (sys.argv[0])
-xpm_rc = CWD + '/.' + basename
-platform = ''
-PLATFORM = ''
-ROOT = ''
-distname = 'unused'
-config = ROOT + '/etc/xpm'
-mirror = 'file://uploads/gub'
-
-rc_options = ['platform', 'PLATFORM', 'ROOT', 'mirror', 'distname']
-rc_file = '.xpm-apt.rc'
-
-read_xpm_rc ()
-
-def do_options ():
- 	global command, mirror, ROOT, TOOLROOT, PLATFORM, platform, packagename
-	global arguments, platform, name_p, nodeps_p, tool_p
-	(options, arguments) = getopt.getopt (sys.argv[1:],
-					  'hm:np:r:tx',
-					  ('help', 'mirror=', 'name',
-					   'platform=', 'no-deps', 'root=',
-					   'tool'))
-
-	command = 'help'
-	packagename = 0
-	if len (arguments) > 0:
-		command = arguments.pop (0)
-
-	if arguments and arguments[0] == 'all':
-		arguments = m._packages.keys()
-		
-	if len (arguments) > 0:
-	       	packagename = arguments[0]
-
-	tool_p = 0
-	name_p = 0
-	nodeps_p = 0
-	for i in options:
-		o = i[0]
-		a = i[1]
-
-		if 0:
-			pass
-		elif o == '--help' or o == '-h':
-			command = 'help'
-		elif o == '--mirror' or o == '-m':
-			mirror = a
-		elif o == '--root' or o == '-r':
-			ROOT = a
-		elif o == '--tool' or o == '-t':
-			tool_p = 1
-		elif o == '--platform' or o == '-p':
-			platform = a
-			PLATFORM = {
-				'darwin': 'powerpc-apple-darwin7',
-				'mingw': 'i686-mingw32',
-				'linux': 'linux',
-				}[a]
-			ROOT = 'target/%(PLATFORM)s/system' % globals ()
-			TOOLROOT = 'target/%(PLATFORM)s/tool' % globals ()
-		elif o == '--name' or o == '-n':
-			name_p = 1
-		elif o == '--no-deps' or o == '-x':
-			nodeps_p = 1
-
-	return settings, arguments
-
-pm = None
-
-def install ():
-	'''download and install packages with dependencies'''
-	for p in arguments:
-		if pm.name_is_installed (p):
-			print '%s already installed' % p
-
-	for p in arguments:
-		if not pm.name_is_installed (p):
-			if nodeps_p:
-				pm.install_single_package (pm._packages[p])
-			else:
-				pm.install_package (pm._packages[p])
-
-def remove ():
-	'''uninstall packages'''
-	for p in arguments:
-		if not pm.name_is_installed (p):
-			raise '%s not installed' % p
-
-	for p in arguments:
-		pm.name_uninstall (p)
-
-def list ():
-	'''installed packages'''
-	if name_p:
-		print '\n'.join (psort (map (gub.Package.name,
-					     pm.installed_packages ())))
-	else:
-		print '\n'.join (psort (map (lambda x: '%-20s%s' % (x.name (),
-							     x.full_version ()),
-					     pm.installed_packages ())))
-
-
-def available ():
-	print '\n'.join (pm._packages.keys ())
-
-def files ():
-	'''list installed files'''
-	for p in arguments:
-		if not pm.name_is_installed (p):
-			print '%s not installed' % p
-		else:
-			print '\n'.join (pm.name_files (p))
-
 def main ():
-	global pm
-
-	settings, arguments = do_options ()
-	if not platform:
+	options = Options ()
+	if not options.platform:
 		print 'need platform setting. Use -p option'
 		sys.exit (1)
 		
-	settings = settings_mod.Settings (PLATFORM)
-	settings.platform = platform
+	settings = settings_mod.Settings (options.PLATFORM)
+	settings.platform = options.platform
+
+	if 1:
+		#URG
+		import buildnumber
+		settings.build_number_db = buildnumber.Build_number_db (settings.topdir)
+
 	tool_manager, target_manager = xpm.get_managers (settings)
 
 	pm = xpm.determine_manager (settings,
 				    [tool_manager, target_manager],
-				    arguments)
-	pm.resolve_dependencies ()
+				    options.arguments)
 
-	if arguments and arguments[0] == 'all':
-		arguments = pm._packages.keys ()
+	# broken?
+	#tool_manager.resolve_dependencies ()
+	target_manager.resolve_dependencies ()
+
+	if options.arguments and options.arguments[0] == 'all':
+		options.arguments = target_manager._packages.keys ()
 		
-	if len (arguments) > 0:
-	       	packagename = arguments[0]
-
-	if command:
-		if command in __main__.__dict__:
-			__main__.__dict__[command] ()
+	if options.command:
+		commands = Command (pm, options)
+		if options.command in Command.__dict__:
+			Command.__dict__[options.command] (commands)
 		else:
-			sys.stderr.write ('no such command: ' + command)
+			sys.stderr.write ('no such command: ' + options.command)
 			sys.stderr.write ('\n')
 			sys.exit (2)
 

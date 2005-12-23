@@ -126,7 +126,7 @@ class Package_manager:
 	def resolve_dependencies (self):
 		try:
 			for p in self._packages.values ():
-				p.dependencies = [self._packages[d] for d in p.dependencies]
+				p.dependencies = [self._packages[p.name ()] for d in p.depends]
 		except KeyError, k:
 			print 'unknown package %s I know about: ' % k, self._packages
 			raise 'barf'
@@ -169,11 +169,8 @@ def intersect (l1, l2):
 	return [l for l in l1 if l in l2]
 
 def determine_manager (settings, managers, args):
-	if args and args[0] == 'all':
-		return managers[-1]
-
 	for p in managers:
 		if intersect (args, p._packages.keys ()):
 			return p
 
-	return None
+	return managers[-1]
