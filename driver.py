@@ -33,7 +33,7 @@ def build_package (settings, manager, package):
 	gub.log_command (package.expand_string (' ** Package: %(name)s (%(version)s, %(build)s)\n'))
 
 	stages = ['untar', 'patch', 'configure', 'compile', 'install',
-		  'package', 'sysinstall', 'clean']
+		  'package', 'clean']
 	available = dict (inspect.getmembers (package, lambda m: type (m)==types.MethodType))
 	forced_idx = 100
 	if settings.options.stage:
