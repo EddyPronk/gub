@@ -143,7 +143,12 @@ class Package_manager:
 	def name_uninstall (self, name):
 		self.uninstall_package (self._packages[name])
 	def name_is_installed (self, name):
-		return self.is_installed (self._packages[name])
+		try:
+			return self.is_installed (self._packages[name])
+		except KeyError, k:
+			print 'known packages', self._packages
+			raise "Unknown package", k
+		
 
 
 
