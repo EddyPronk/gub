@@ -101,6 +101,7 @@ def add_options (settings, options):
 	settings.options = options
 	settings.bundle_version = options.package_version
 	settings.bundle_build = options.package_build
+	settings.use_tools = options.use_tools
 	settings.create_dirs ()
 	
 
