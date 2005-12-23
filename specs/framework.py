@@ -762,12 +762,14 @@ INSTALL_PROGRAM=%(srcdir)s/install-sh
 class Ghostscript (gub.Target_package):
 	def srcdir (self):
 		return re.sub ('-source', '', gub.Target_package.srcdir(self))
+	
 	def untar (self):
 		gub.Target_package.untar (self)
 		self.system ("cd %(targetdir)s/build && rm -f espgs-%(version)s-source && ln -s %(srcdir)s espgs-%(version)s-source ")
 		
 	def name (self):
 		return 'ghostscript'
+	
 	def patch (self):
 		self.file_sub ([(r'mkdir -p \$\(bindir\)', 'mkdir -p $(DESTDIR)$(bindir)'),
 				(r'mkdir -p \$\(datadir\)', 'mkdir -p $(DESTDIR)$(datadir)'),
@@ -791,7 +793,7 @@ class Ghostscript (gub.Target_package):
 
 	def configure_command (self):
 		cmd = gub.Target_package.configure_command (self)
-		cmd += ' --with-drivers=FILES --without-x --disable-cups '
+		cmd += ' --with-drivers=PDF,PNG,PS --without-x --disable-cups --without-ijs --without-omni'
 		return cmd
 
 	def configure (self):
