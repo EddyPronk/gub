@@ -818,7 +818,8 @@ class Ghostscript__mingw (Ghostscript):
 	def patch (self):
 		Ghostscript.patch (self)
 		self.system ("cd %(srcdir)s/ && patch -p0 < %(patchdir)s/espgs-8.15-mingw-bluntaxe")
-
+		self.file_sub ([('^81501', '815')],
+			       self.srcdir()+ '/lib/gs_init.ps')
 	
 class Libjpeg (gub.Target_package):
 	def name(self):
