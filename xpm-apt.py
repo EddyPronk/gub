@@ -42,7 +42,6 @@ class Options:
 
 		self.read_xpm_rc ()
 		self.get_options ()
-		self.write_xpm_rc ()
 
 	def get_options (self):
 		import getopt
