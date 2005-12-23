@@ -759,7 +759,6 @@ INSTALL_PROGRAM=%(srcdir)s/install-sh
 		return gub.Target_package.broken_install_command (self) \
 		       + self.makeflags ()
 
-
 class Ghostscript (gub.Target_package):
 	def srcdir (self):
 		return re.sub ('-source', '', gub.Target_package.srcdir(self))
@@ -884,6 +883,11 @@ def get_packages (settings):
 	),
 	'mingw': (
 		Mingw_runtime (settings).with (version='3.9', mirror=download.mingw),
+		Cygwin (settings).with (version='1.5.18-1', mirror=download.cygwin, format='bz2', depends=['mingw-runtime']), 
+#		Gs (settings).with (version='8.15-1', mirror=download.lp, format='bz2', depends=['mingw-runtime']),
+		W32api (settings).with (version='3.5', mirror=download.mingw),
+		Regex (settings).with (version='2.3.90-1', mirror=download.lp, format='bz2', depends=['mingw-runtime']),
+		LilyPad (settings).with (version='0.0.7-1', mirror=download.lp, format='bz2', depends=['w32api']),
 		Libtool (settings).with (version='1.5.20',
 					 depends=['mingw-runtime']
 					 ),
@@ -908,11 +912,11 @@ def get_packages (settings):
 		Python__mingw (settings).with (version='2.4.2', mirror=download.python, format='bz2',
 					       depends=['mingw-runtime']
 					       ),
-		Cygwin (settings).with (version='1.5.18-1', mirror=download.cygwin, format='bz2', depends=['mingw-runtime']), 
-		Gs (settings).with (version='8.15-1', mirror=download.lp, format='bz2', depends=['mingw-runtime']),
-		W32api (settings).with (version='3.5', mirror=download.mingw),
-		Regex (settings).with (version='2.3.90-1', mirror=download.lp, format='bz2', depends=['mingw-runtime']),
-		LilyPad (settings).with (version='0.0.7-1', mirror=download.lp, format='bz2', depends=['w32api']),
+
+#		Libjpeg (settings).with (version='v6b', mirror=download.jpeg),
+#		Libpng (settings).with (version='1.2.8', mirror=download.libpng),
+#		Ghostscript__mingw (settings).with (version="8.15.1", mirror=download.cups, format='bz2', depends=['libjpeg', 'libpng']),
+
 		LilyPond__mingw (settings).with (mirror=cvs.gnu, download=gub.Package.cvs,
 						 depends=['gettext', 'guile', 'pango', 'python'],
 						 track_development=True),

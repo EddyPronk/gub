@@ -60,6 +60,7 @@ def get_settings (platform):
 	
 	settings = settings_mod.Settings (init)
 	settings.platform = platform
+	settings.build_number_db = buildnumber.Build_number_db (settings.topdir)
 	
 	if platform == 'darwin':
 		settings.target_gcc_flags = '-D__ppc__'
@@ -88,8 +89,18 @@ def get_settings (platform):
 	else:
 		raise 'unknown platform', platform 
 
-
 	return settings
+
+def add_options (settings, options):
+	for o in options.settings:
+		(key, val) = tuple (o.split ('='))
+		settings.__dict__[key] = val
+
+	settings.options = options
+	settings.bundle_version = options.package_version
+	settings.bundle_build = options.package_build
+	settings.create_dirs ()
+	
 
 def get_cli_parser ():
 	p = optparse.OptionParser (usage="""driver.py [OPTION]... COMMAND [PACKAGE]...
@@ -97,8 +108,7 @@ def get_cli_parser ():
 Commands:
 
 download         - download packages
-build-tool       - build cross compiler/linker
-build-target     - build target packages
+build            - build target packages
 build-installer  - build installer for platform
     
 """,
@@ -129,7 +139,14 @@ build-installer  - build installer for platform
 		      help='Force rebuild of stage') 
 	return p
 
-def build_installers (settings, install_pkg_manager):
+def build_installers (settings, target_manager):
+	gub.system ('rm -rf %s' %  settings.installer_root)
+	install_manager = xpm.Package_manager (settings.installer_root)
+
+	for p in target_manager._packages.values ():
+		if not isinstance (p, gub.Sdk_package):
+			install_manager.register_package (p)
+
 	for p in install_pkg_manager._packages.values ():
 		install_pkg_manager.install_package (p)
 		
@@ -138,9 +155,9 @@ def build_installers (settings, install_pkg_manager):
 		gub.log_command (' *** Stage: %s (%s)\n' % ('create', p.name()))
 		p.create ()
 		
-
 def run_builder (settings, pkg_manager, args):
-	ps = pkg_manager._packages.values ()
+	os.environ["PATH"] = '%s/%s:%s' % (settings.tooldir, 'bin',
+                                           os.environ["PATH"])
 
 	pkgs = [] 
 	if args and args[0] == 'all':
@@ -151,19 +168,6 @@ def run_builder (settings, pkg_manager, args):
 	for p in pkgs:
 		build_package (settings, pkg_manager, p)
 
-def intersect (l1, l2):
-	return [l for l in l1 if l in l2]
-
-def determine_manager (settings, pkg_managers, args):
-	if args and args[0] == 'all':
-		return pkg_managers[-1]
-
-	for p in pkg_managers:
-		if intersect (args, p._packages.keys()):
-			return p
-		
-	return None
-
 def download_sources (manager):
 	for p in manager._packages.values(): 
 		p.download ()
@@ -173,67 +177,30 @@ def main ():
 	(options, commands)  = cli_parser.parse_args ()
 
 	if not options.platform:
-		cli_parser.print_help()
+		raise 'error: no platform specified'
+		cli_parser.print_help ()
 		sys.exit (2)
 	
 	settings = get_settings (options.platform)
-
-	for o in options.settings:
-		(key, val) = tuple (o.split ('='))
-		settings.__dict__[key] = val
-
-	
+	add_options (settings, options)
 	gub.start_log (settings)
-	settings.options = options
-	
-	settings.bundle_version = options.package_version
-	settings.bundle_build = options.package_build
-	settings.create_dirs ()
-	
-	target_manager = xpm.Package_manager (settings.system_root)
-	tool_manager = xpm.Package_manager (settings.tooldir)
+	tool_manager, target_manager = xpm.get_managers (settings)
 
-	os.environ["PATH"] = '%s/%s:%s' % (settings.tooldir, 'bin',
-                                           os.environ["PATH"])
-	
-	if options.platform == 'darwin':
-		import darwintools
-		map (tool_manager.register_package, darwintools.get_packages (settings))
-	if options.platform.startswith ('mingw'):
-		import mingw
-		map (tool_manager.register_package,  mingw.get_packages (settings))
-
-	map (target_manager.register_package, framework.get_packages (settings))
-
-	settings.build_number_db = buildnumber.Build_number_db (settings.topdir)
-	
-	for m in tool_manager, target_manager:
-		m.resolve_dependencies ()
-		for p in m._packages.values():
-			settings.build_number_db.set_build_number (p)
-	
 	c = commands.pop (0)
-
 	if c == 'download':
 		download_sources (tool_manager)
 		download_sources (target_manager)
 	elif c == 'build':
-		pm = determine_manager (settings, [tool_manager, target_manager], commands)
+		pm = xpm.determine_manager (settings,
+					    [tool_manager, target_manager],
+					    commands)
 		run_builder (settings, pm, commands)
 	elif c == 'build-installer':
-		gub.system ('rm -rf %s' %  settings.installer_root)
-		install_manager = xpm.Package_manager (settings.installer_root)
-		for p in target_manager._packages.values ():
-			if not isinstance (p, gub.Sdk_package):
-				install_manager.register_package (p)
-
-		build_installers (settings, install_manager)
-		
-	elif c == 'help':
-		print 'driver commands:  help download {manage,build}-{tool,target} build-installer '
-		sys.exit (0)
+		build_installers (settings, target_manager)
 	else:
-		raise 'unknown driver command %s. Try "driver.py help" ' % c
+		raise 'unknown driver command %s.' % c
+		cli_parser.print_help ()
+		sys.exit (2)
 			
 if __name__ == '__main__':
 	main ()
