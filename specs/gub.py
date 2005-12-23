@@ -185,7 +185,7 @@ class Package:
 	def system (self, cmd, env={}, ignore_error=False):
 		dict = self.package_dict (env)
 		system (cmd % dict, env=dict, ignore_error=ignore_error,
-			verbose=self.settings.verbose)
+			verbose=self.settings.verbose ())
 
 	def build (self):
 		return '%d' % self._build

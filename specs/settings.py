@@ -49,6 +49,9 @@ class Settings:
 		self.keep_build = False
 		self.python_version = '2.4'
 
+	def verbose (self):
+		return self.options.verbose
+	
 	def get_substitution_dict (self):
 		d = {}
 		for (k, v) in self.__dict__.items ():
