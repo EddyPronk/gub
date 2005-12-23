@@ -72,7 +72,7 @@ class Python (gub.Target_package):
 		dict = gub.Target_package.package_dict (self, env)
 		dict['python_version'] = self.python_version ()
 		return dict
-	
+
 	def untar (self):
 		gub.Target_package.untar (self)
 		Srcdir = re.sub ('python', 'Python', self.srcdir ())
@@ -115,7 +115,7 @@ class Gmp__darwin (Gmp):
 		## powerpc/darwin cross barfs on all C++ includes from
 		## a C linkage file.
 		## don't know why. Let's patch C++ completely from GMP.
-		
+
 		self.file_sub ([('__GMP_DECLSPEC_XX std::[oi]stream& operator[<>][^;]+;$', ''),
 				('#include <iosfwd>', ''),
 				('<cstddef>','<stddef.h>')
@@ -140,9 +140,9 @@ class Guile (gub.Target_package):
 	## Ugh. C&P.
 	def guile_version (self):
 		return '.'.join (self.ball_version.split ('.')[0:])
-	
+
 	def configure_command (self):
-		return (gub.Target_package.configure_command (self) 
+		return (gub.Target_package.configure_command (self)
 			+ gub.join_lines ('''
 --without-threads
 --with-gnu-ld
@@ -218,7 +218,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
 		self.file_sub ([('^\(allow_undefined_flag=.*\)unsupported',
 			       '\\1')],
 			       '%(builddir)s/guile-readline/libtool')
-		
+
 		self.system ('''cp %(system_root)s/usr/bin/libtool %(builddir)s/libtool''')
 		self.system ('''cp %(system_root)s/usr/bin/libtool %(builddir)s/guile-readline/libtool''')
 
@@ -242,7 +242,7 @@ class Guile__darwin (Guile):
 			directory = os.path.split (f)[0]
 			src = os.path.basename (f)
 			dst = os.path.splitext (os.path.basename (f))[0] + '.so'
-			
+
 			self.system ('cd %(directory)s && ln -s %(src)s %(dst)s', locals())
 
 class LilyPond (gub.Target_package):
@@ -253,9 +253,9 @@ class LilyPond (gub.Target_package):
 
 	def compile (self):
 		if (file_is_newer (self.srcdir () + '/config.make.in',
-				   self.builddir () + '/config.make') 
+				   self.builddir () + '/config.make')
 		    or file_is_newer (self.srcdir () + '/GNUmakefile.in',
-				      self.builddir () + '/GNUmakefile') 
+				      self.builddir () + '/GNUmakefile')
 		    or file_is_newer (self.srcdir () + '/config.hh.in',
 				      self.builddir () + '/config.make')
 		    or file_is_newer (self.srcdir () + '/configure',
@@ -286,7 +286,7 @@ class LilyPond (gub.Target_package):
 		autodir = self.srcdir ()
 
 		if (file_is_newer (autodir + '/configure.in',
-				   self.builddir () + '/config.make') 
+				   self.builddir () + '/config.make')
 		    or file_is_newer (autodir + '/stepmake/aclocal.m4',
 				      self.builddir () + '/config.make')):
 
@@ -384,7 +384,7 @@ class LilyPond__linux (LilyPond):
 		       + LilyPond.compile_command (self)
 
 
-	
+
 	def xinstall_gub (self):
 		gub.Target_package.install_gub (self)
 		self.system ('''
@@ -433,14 +433,14 @@ class LilyPond__darwin (LilyPond):
 			return
 		self.file_sub ([('CONFIG_CXXFLAGS = ',
 				 'CONFIG_CXXFLAGS = -DGUILE_ELLIPSIS=... '),
-				(' -O2 ', '')				
+				(' -O2 ', '')
 #				(' -g ', '')
 				],
 			       self.builddir ()+ '/config.make')
-		
+
 	def untar (self):
 		pass
-	
+
 class Gettext (gub.Target_package):
 	def configure_command (self):
 		return gub.Target_package.configure_command (self) \
@@ -493,7 +493,7 @@ class Pango (gub.Target_package):
 	def patch (self):
 		self.system ('cd %(srcdir)s && patch --force -p1  < %(patchdir)s/pango-env-sub')
 
-		
+
 class Pango__mingw (Pango):
 	def install (self):
 		gub.Target_package.install (self)
@@ -512,7 +512,7 @@ ModuleFiles = "@INSTDIR@\\usr\\etc\\pango\\pango.modules"
 # cd target/linux/installer/usr/lib/lilypond/noel/root
 # PANGO_RC_FILE=$(pwd)/etc/pango/pangorc bin/pango-querymodules > etc/pango/pango.modules
 		self.system ('cp %(nsisdir)s/pango.modules.in %(install_root)s/usr/etc/pango/pango.modules.in')
-		
+
 
 class Pango__linux (Pango):
 	def untar (self):
@@ -547,7 +547,7 @@ ModulesPath = "$PANGO_PREFIX/lib/pango/1.4.0/modules"
 ''')
 		shutil.copy2 (self.settings.patchdir + '/pango.modules' ,
 			      etc)
-		
+
 class Freetype (gub.Target_package):
 	def configure (self):
 #		self.autoupdate (autodir=os.path.join (self.srcdir (),
@@ -683,7 +683,7 @@ cd %(builddir)s && %(zlib_is_broken)s AR="%(AR)s r" %(srcdir)s/configure --share
 
 	def install_command (self):
 		return gub.Target_package.broken_install_command (self)
-	
+
 class Mingw_runtime (gub.Binary_package):
 	def untar (self):
 		gub.Binary_package.untar (self)
@@ -694,7 +694,7 @@ class Mingw_runtime (gub.Binary_package):
 
 class Cygwin (gub.Binary_package):
 	"Only need the cygcheck.exe binary."
-	
+
 	def untar (self):
 		gub.Binary_package.untar (self)
 
@@ -751,7 +751,7 @@ LIBPORT=
 MKINSTALLDIRS=%(srcdir)s/mkinstalldirs
 INSTALL_PROGRAM=%(srcdir)s/install-sh
 ''')
-		
+
 	def compile_command (self):
 		return gub.Target_package.compile_command (self) \
 		       + self.makeflags ()
@@ -763,14 +763,14 @@ INSTALL_PROGRAM=%(srcdir)s/install-sh
 class Ghostscript (gub.Target_package):
 	def srcdir (self):
 		return re.sub ('-source', '', gub.Target_package.srcdir(self))
-	
+
 	def untar (self):
 		gub.Target_package.untar (self)
 		self.system ("cd %(targetdir)s/build && rm -f espgs-%(version)s-source && ln -s %(srcdir)s espgs-%(version)s-source ")
-		
+
 	def name (self):
 		return 'ghostscript'
-	
+
 	def patch (self):
 		self.file_sub ([(r'mkdir -p \$\(bindir\)', 'mkdir -p $(DESTDIR)$(bindir)'),
 				(r'mkdir -p \$\(datadir\)', 'mkdir -p $(DESTDIR)$(datadir)'),
@@ -785,7 +785,7 @@ class Ghostscript (gub.Target_package):
 	def fixup_arch (self):
 		# guh, this only works if build host is i386 too.
 		pass
-	
+
 	def compile (self):
 		cmd = 'cd %(builddir)s && (mkdir obj || true) && make CC=gcc CFLAGS= CPPFLAGS= GCFLAGS= obj/genconf obj/echogs obj/genarch obj/arch.h'
 		self.system (cmd)
@@ -807,12 +807,12 @@ class Ghostscript (gub.Target_package):
 			+ ' install_prefix=%(install_root)s'
 			+ ' mandir=%(install_root)s/usr/man/ ')
 
-class Ghostscript__darwin (Ghostscript): 
+class Ghostscript__darwin (Ghostscript):
 	def fixup_arch (self):
 		self.file_sub ([('#define ARCH_CAN_SHIFT_FULL_LONG 0', '#define ARCH_CAN_SHIFT_FULL_LONG 1'),
 				('#define ARCH_CACHE1_SIZE 1048576', '#define ARCH_CACHE1_SIZE 2097152'),
 				('#define ARCH_IS_BIG_ENDIAN 0', '#define ARCH_IS_BIG_ENDIAN 1')],
-			       self.builddir () + '/obj/arch.h') 
+			       self.builddir () + '/obj/arch.h')
 
 class Ghostscript__mingw (Ghostscript):
 	def patch (self):
@@ -822,13 +822,13 @@ class Ghostscript__mingw (Ghostscript):
 	def compile (self):
 		Ghostscript.compile (self)
 		self.file_sub ([('^81501', '815')],
-			       self.builddir()+ '/lib/gs_init.ps')
-		
-	
+			       self.builddir ()+ '/lib/gs_init.ps')
+
+
 class Libjpeg (gub.Target_package):
 	def name(self):
 		return 'libjpeg'
-	
+
 	def srcdir (self):
 		return re.sub (r'src\.v', '-', gub.Target_package.srcdir(self))
 	def configure_command (self):
@@ -837,7 +837,7 @@ class Libjpeg (gub.Target_package):
 	def configure (self):
 		gub.Target_package.configure (self)
 
-		arch = 'powerpc-apple' ## fixme. 
+		arch = 'powerpc-apple' ## fixme.
 		self.system ('''cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh %(arch)s''' , locals ())
 
 		self.file_sub (
@@ -846,7 +846,7 @@ class Libjpeg (gub.Target_package):
 
 	def install_command (self):
 		return ("mkdir -p  %(install_root)s/usr/include  %(install_root)s/usr/lib && make DESTDIR=%(install_root)s install-headers install-lib ")
-	
+
 class Libpng (gub.Target_package):
 	def name (self):
 		return 'libpng'
@@ -900,7 +900,7 @@ def get_packages (settings):
 	),
 	'mingw': [
 		Mingw_runtime (settings).with (version='3.9', mirror=download.mingw),
-		Cygwin (settings).with (version='1.5.18-1', mirror=download.cygwin, format='bz2', depends=['mingw-runtime']), 
+		Cygwin (settings).with (version='1.5.18-1', mirror=download.cygwin, format='bz2', depends=['mingw-runtime']),
 		W32api (settings).with (version='3.5', mirror=download.mingw),
 		Regex (settings).with (version='2.3.90-1', mirror=download.lp, format='bz2', depends=['mingw-runtime']),
 		LilyPad (settings).with (version='0.0.7-1', mirror=download.lp, format='bz2', depends=['w32api']),
@@ -929,7 +929,7 @@ def get_packages (settings):
 					       depends=['mingw-runtime']
 					       ),
 
-		Cygwin (settings).with (version='1.5.18-1', mirror=download.cygwin, format='bz2', depends=['mingw-runtime']), 
+		Cygwin (settings).with (version='1.5.18-1', mirror=download.cygwin, format='bz2', depends=['mingw-runtime']),
 		Libjpeg (settings).with (version='v6b', mirror=download.jpeg),
 		Libpng (settings).with (version='1.2.8', mirror=download.libpng),
 		Ghostscript__mingw (settings).with (version="8.15.1", mirror=download.cups, format='bz2',
@@ -961,14 +961,14 @@ def get_packages (settings):
 
 
 	packs = packages[settings.platform]
-	
+
 	## FIXME: changes settings.
 	try:
 		settings.python_version = [p for p in packs if isinstance (p, Python)][0].python_version ()
 	except IndexError:
 		# UGH darwin has no python package.
 		settings.python_version = '2.3'
-	
+
 	settings.guile_version = [p for p in packs if isinstance (p, Guile)][0].guile_version ()
 
 
@@ -986,5 +986,5 @@ def get_installers (settings):
 		],
 		'mingw' : [installer.Nsis (settings)],
 	}
-	
+
 	return installers[settings.platform]

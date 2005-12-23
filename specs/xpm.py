@@ -126,9 +126,9 @@ class Package_manager:
 	def resolve_dependencies (self):
 		try:
 			for p in self._packages.values ():
-				p.dependencies = [self._packages[d] for d in p.depends]
+				p.dependencies = [self._packages[d] for d in p.name_dependencies]
 				if p in p.dependencies:
-					print 'circular dependency', p, p.depends, p.dependencies, self._packages
+					print 'circular dependency', p, p.name_dependencies, p.dependencies, self._packages
 					raise 'BARF'
 				
 		except KeyError, k:
