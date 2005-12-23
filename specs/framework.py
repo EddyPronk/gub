@@ -780,6 +780,10 @@ class Ghostscript (gub.Target_package):
 				],
 			       self.srcdir () + '/src/unixinst.mak')
 
+	def fixup_arch (self):
+		# guh, this only works if build host is i386 too.
+		pass
+	
 	def compile (self):
 		cmd = 'cd %(builddir)s && (mkdir obj || true) && make CC=gcc CFLAGS= CPPFLAGS= GCFLAGS= obj/genconf obj/echogs obj/genarch obj/arch.h'
 		self.system (cmd)
