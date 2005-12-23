@@ -6,6 +6,8 @@ import os
 import re
 import string
 import sys
+import inspect
+import types
 
 sys.path.insert (0, 'specs/')
 
@@ -32,29 +34,21 @@ def build_package (settings, manager, package):
 
 	stages = ['untar', 'patch', 'configure', 'compile', 'install',
 		  'package', 'sysinstall', 'clean']
+	available = dict (inspect.getmembers (package, lambda m: type (m)==types.MethodType))
+	forced_idx = 100
+	if settings.options.stage:
+		(available[settings.options.stage]) ()
+		return
+	
 	for stage in stages:
-        	if not package.is_done (stage, stages.index (stage)):
+		idx = stages.index (stage)
+        	if not package.is_done (stage, idx):
 			gub.log_command (' *** Stage: %s (%s)\n' % (stage, package.name ()))
 
-			## UGH. fixme, need parameterize.
-                	if stage == 'untar':
-                        	package.untar ()
-			elif stage == 'patch':
-                        	package.patch ()
-			elif stage == 'configure':
-                        	package.configure ()
-			elif stage == 'compile':
-                        	package.compile ()
-			elif stage == 'install':
-                        	package.install ()
-			elif stage == 'package':
-                        	package.package ()
-			elif stage == 'clean':
-## advancing the build number should be done during upload.
-## consequence: the build number should be kept in a repository on lilypond.org
+			if stage == 'clean' and  settings.options.keep_build:
+				continue
 
-				if not settings.keep_build:
-					package.clean ()
+			(available[stage]) ()
 
 			if stage != 'clean':
 				package.set_done (stage, stages.index (stage))
