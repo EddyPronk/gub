@@ -792,7 +792,7 @@ class Ghostscript (gub.Target_package):
 
 	def configure_command (self):
 		cmd = gub.Target_package.configure_command (self)
-		cmd += ' --with-drivers=FILES --without-x --disable-cups '
+		cmd += ' --with-drivers=FILES --without-x --disable-cups --without-ijs '
 		return cmd
 
 	def configure (self):
