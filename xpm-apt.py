@@ -205,7 +205,6 @@ def files ():
 def main ():
 	global pm
 	do_options ()
-	write_xpm_rc ()
 
 	if not platform:
 		print 'need platform setting. Use -p option'
