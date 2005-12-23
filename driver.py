@@ -139,6 +139,9 @@ build-installer  - build installer for platform
 	p.add_option ('', '--stage', action='store',
 		      dest='stage', default=None,
 		      help='Force rebuild of stage') 
+	p.add_option ('-t', '--tools', action='store_true',
+		      dest='use_tools', default=None,
+		      help='use tool package manager') 
 	return p
 
 def build_installers (settings, target_manager):

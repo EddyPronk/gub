@@ -49,6 +49,8 @@ class Settings:
 		self.keep_build = False
 		self.python_version = '2.4'
 
+		self.use_tools = False
+		
 	def verbose (self):
 		return self.options.verbose
 	

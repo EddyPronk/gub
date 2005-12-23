@@ -182,4 +182,7 @@ def determine_manager (settings, managers, args):
 		if intersect (args, p._packages.keys ()):
 			return p
 
-	return managers[-1]
+	if settings.use_tools:
+		return managers[0]
+	else:
+		return managers[-1]

@@ -16,7 +16,6 @@ include $(LILYPOND_CVSDIR)/VERSION
 
 LILYPOND_VERSION=$(MAJOR_VERSION).$(MINOR_VERSION).$(PATCH_LEVEL)$(if $(strip $(MY_PATCH_LEVEL)),.$(MY_PATCH_LEVEL),)
 
-
 INVOKE_DRIVER=python driver.py \
 --platform $(1) \
 --package-version=$(LILYPOND_VERSION) \
@@ -24,7 +23,7 @@ INVOKE_DRIVER=python driver.py \
 $(LOCAL_DRIVER_OPTIONS)
 INVOKE_XPM=python xpm-apt.py --platform $(1) 
 
-BUILD_ALL=$(call INVOKE_DRIVER, $(1)) build all \
+BUILD_ALL=$(call INVOKE_DRIVER, $(1)) -t build all \
   && $(call INVOKE_XPM, $(1)) -t install all \
   && $(call INVOKE_DRIVER, $(1)) build all \
   && $(call INVOKE_XPM, $(1)) install all \
