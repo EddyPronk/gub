@@ -925,7 +925,10 @@ def get_packages (settings):
 					       ),
 
 		Cygwin (settings).with (version='1.5.18-1', mirror=download.cygwin, format='bz2', depends=['mingw-runtime']), 
-		Gs (settings).with (version='8.15-1', mirror=download.lp, format='bz2', depends=['mingw-runtime']),
+		Libjpeg (settings).with (version='v6b', mirror=download.jpeg),
+		Libpng (settings).with (version='1.2.8', mirror=download.libpng),
+		Ghostscript__mingw (settings).with (version="8.15.1", mirror=download.cups, format='bz2',
+						    depends=['libjpeg', 'libpng']),
 		W32api (settings).with (version='3.5', mirror=download.mingw),
 		Regex (settings).with (version='2.3.90-1', mirror=download.lp, format='bz2', depends=['mingw-runtime']),
 		LilyPad (settings).with (version='0.0.7-1', mirror=download.lp, format='bz2', depends=['w32api']),
@@ -967,10 +970,6 @@ def get_packages (settings):
 	# experiment:
 	if settings.__dict__.has_key('xgs') and settings.platform == 'mingw':
 		packs.extend([
-			Libjpeg (settings).with (version='v6b', mirror=download.jpeg),
-			Libpng (settings).with (version='1.2.8', mirror=download.libpng),
-			Ghostscript__mingw (settings).with (version="8.15.1", mirror=download.cups, format='bz2',
-						     depends=['libjpeg', 'libpng']),
 			])
 
 		packs = [p for p in packs if p.name() <> 'gs']
