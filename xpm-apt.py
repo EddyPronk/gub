@@ -224,9 +224,12 @@ def main ():
 
 	tool_manager, target_manager = xpm.get_managers (settings)
 
-	pm = xpm.determine_manager (settings,
-				    [tool_manager, target_manager],
-				    options.arguments)
+	if options.tool_p:
+		pm = tool_manager
+	else:
+		pm = xpm.determine_manager (settings,
+					    [tool_manager, target_manager],
+					    options.arguments)
 
 	# broken?
 	#tool_manager.resolve_dependencies ()

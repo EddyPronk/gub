@@ -40,16 +40,14 @@ linux:
 
 mac:
 	$(call INVOKE_DRIVER, darwin) build darwin-sdk
-# hmm, isn't install default build action?
 	$(call INVOKE_XPM, darwin) -t install darwin-sdk
 	$(call BUILD_ALL, darwin)
 
 mingw:
 	$(call INVOKE_DRIVER, mingw) build mingw-runtime w32api
-# hmm, isn't install default build action?
-# how does that work with build dependencies, then?
-#	$(call INVOKE_XPM, mingw) install mingw-runtime w32api
+	$(call INVOKE_XPM, mingw) install mingw-runtime w32api
 	$(call INVOKE_DRIVER, mingw) build binutils gcc
+	$(call INVOKE_XPM, mingw) install binutils gcc
 	$(call BUILD_ALL, mingw) 
 
 realclean:
