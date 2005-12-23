@@ -956,7 +956,7 @@ def get_packages (settings):
 
 
 	# experiment:
-	if settings.xgs and settings.platform == 'mingw':
+	if settings.__dict__.has_key('xgs') and settings.platform == 'mingw':
 		packs.extend([
 			Libjpeg (settings).with (version='v6b', mirror=download.jpeg),
 			Libpng (settings).with (version='1.2.8', mirror=download.libpng),
