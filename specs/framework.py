@@ -796,6 +796,9 @@ class Ghostscript (gub.Target_package):
 		self.file_sub ([('-Dmalloc=rpl_malloc', '')],
 			       self.builddir () + '/Makefile')
 
+	def install_command (self):
+		return gub.Target_package.install_command (self) + ' install_prefix=%(install_root)s'
+
 class Ghostscript__darwin (Ghostscript): 
 	def fixup_arch (self):
 		self.file_sub ([('#define ARCH_CAN_SHIFT_FULL_LONG 0', '#define ARCH_CAN_SHIFT_FULL_LONG 1'),
