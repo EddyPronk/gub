@@ -228,12 +228,11 @@ def main ():
 				    [tool_manager, target_manager],
 				    options.arguments)
 
-	# broken?
-	#tool_manager.resolve_dependencies ()
+	tool_manager.resolve_dependencies ()
 	target_manager.resolve_dependencies ()
 
 	if options.arguments and options.arguments[0] == 'all':
-		options.arguments = target_manager._packages.keys ()
+		options.arguments = pm._packages.keys ()
 		
 	if options.command:
 		commands = Command (pm, options)
