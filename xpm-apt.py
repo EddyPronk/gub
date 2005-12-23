@@ -228,8 +228,7 @@ def main ():
 				    [tool_manager, target_manager],
 				    options.arguments)
 
-	tool_manager.resolve_dependencies ()
-	target_manager.resolve_dependencies ()
+	pm.resolve_dependencies ()
 
 	if options.arguments and options.arguments[0] == 'all':
 		options.arguments = pm._packages.keys ()

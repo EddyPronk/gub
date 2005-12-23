@@ -153,12 +153,13 @@ def build_installers (settings, target_manager):
 		if not isinstance (p, gub.Sdk_package):
 			install_manager.register_package (p)
 
-	for p in install_pkg_manager._packages.values ():
-		install_pkg_manager.install_package (p)
+	for p in install_manager._packages.values ():
+		install_manager.install_package  (p)
 		
 	for p in framework.get_installers (settings):
 		print 'installer: ' + p.name()
-		gub.log_command (' *** Stage: %s (%s)\n' % ('create', p.name()))
+		gub.log_command (' *** Stage: %s (%s)\n'
+				 % ('create', p.name ()))
 		p.create ()
 		
 def run_builder (settings, pkg_manager, args):
