@@ -112,7 +112,7 @@ def do_options ():
 	global arguments, platform, name_p, nodeps_p, tool_p
 	(options, arguments) = getopt.getopt (sys.argv[1:],
 					  'hm:np:r:tx',
-					  ('help', 'mirror=', 'name',
+					  ('help', 'mirror=', 'name', 'platform=',
 					   'no-deps', 'root=', 'tool'))
 
 	command = 'help'
