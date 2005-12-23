@@ -18,16 +18,17 @@ LILYPOND_VERSION=$(MAJOR_VERSION).$(MINOR_VERSION).$(PATCH_LEVEL)$(if $(strip $(
 
 
 INVOKE_DRIVER=python driver.py \
+--platform $(1) \
 --package-version=$(LILYPOND_VERSION) \
---package-build=1 --platform $(1)\
+--package-build=1 \
 $(LOCAL_DRIVER_OPTIONS)
 INVOKE_XPM=python xpm-apt.py --platform $(1) 
 
-
-BUILD_ALL=$(call INVOKE_DRIVER, $(1)) build all  && $(call INVOKE_XPM, $(1)) -t install all \
-  && $(call INVOKE_DRIVER, $(1)) build all  && $(call INVOKE_XPM, $(1))  install all \
+BUILD_ALL=$(call INVOKE_DRIVER, $(1)) build all \
+  && $(call INVOKE_XPM, $(1)) -t install all \
+  && $(call INVOKE_DRIVER, $(1)) build all \
+  && $(call INVOKE_XPM, $(1)) install all \
   && $(call INVOKE_DRIVER, $(1)) build-installer
-
 
 download:
 	$(call INVOKE_DRIVER, linux) download
@@ -35,19 +36,21 @@ download:
 	$(call INVOKE_DRIVER, mingw) download
 
 linux:
-	$(call BUILD_ALL, linux) 
+	$(call BUILD_ALL, linux)
 
 mac:
 	$(call INVOKE_DRIVER, darwin) build darwin-sdk
-	$(call INVOKE_XPM, darwin) install darwin-sdk
-	$(call BUILD_ALL, darwin) 
+# hmm, isn't install default build action?
+	$(call INVOKE_XPM, darwin) -t install darwin-sdk
+	$(call BUILD_ALL, darwin)
 
 mingw:
-	$(call INVOKE_DRIVER, mingw) build mingw-runtime w32api 
-	$(call INVOKE_XPM, mingw) install mingw-runtime w32api
+	$(call INVOKE_DRIVER, mingw) build mingw-runtime w32api
+# hmm, isn't install default build action?
+# how does that work with build dependencies, then?
+#	$(call INVOKE_XPM, mingw) install mingw-runtime w32api
+	$(call INVOKE_DRIVER, mingw) build binutils gcc
 	$(call BUILD_ALL, mingw) 
-
-
 
 realclean:
 	rm -rf src target

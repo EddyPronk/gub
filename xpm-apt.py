@@ -108,12 +108,13 @@ rc_file = '.xpm-apt.rc'
 read_xpm_rc ()
 
 def do_options ():
-	global command, mirror, ROOT, PLATFORM, platform, packagename
+ 	global command, mirror, ROOT, TOOLROOT, PLATFORM, platform, packagename
 	global arguments, platform, name_p, nodeps_p, tool_p
 	(options, arguments) = getopt.getopt (sys.argv[1:],
 					  'hm:np:r:tx',
-					  ('help', 'mirror=', 'name', 'platform=',
-					   'no-deps', 'root=', 'tool'))
+					  ('help', 'mirror=', 'name',
+					   'platform=', 'no-deps', 'root=',
+					   'tool'))
 
 	command = 'help'
 	packagename = 0
@@ -151,10 +152,13 @@ def do_options ():
 				'linux': 'linux',
 				}[a]
 			ROOT = 'target/%(PLATFORM)s/system' % globals ()
+			TOOLROOT = 'target/%(PLATFORM)s/tool' % globals ()
 		elif o == '--name' or o == '-n':
 			name_p = 1
 		elif o == '--no-deps' or o == '-x':
 			nodeps_p = 1
+
+	return settings, arguments
 
 pm = None
 
@@ -204,37 +208,26 @@ def files ():
 
 def main ():
 	global pm
-	do_options ()
 
+	settings, arguments = do_options ()
 	if not platform:
 		print 'need platform setting. Use -p option'
 		sys.exit (1)
 		
 	settings = settings_mod.Settings (PLATFORM)
 	settings.platform = platform
+	tool_manager, target_manager = xpm.get_managers (settings)
 
-	target_manager = xpm.Package_manager (settings.system_root)
-	tool_manager = xpm.Package_manager (settings.tooldir)
-
-
-	## ugh : code dup. 
-	if tool_p:
-		if platform == 'darwin':
-			import darwintools
-			map (tool_manager.register_package,
-			     darwintools.get_packages (settings))
-		if platform.startswith ('mingw'):
-			import mingw
-			map (tool_manager.register_package,
-			     mingw.get_packages (settings))
-		pm = tool_manager
-	else:
-		pm = target_manager
-		
-	map (pm.register_package,
-	     framework.get_packages (settings))
-	# ugh
+	pm = xpm.determine_manager (settings,
+				    [tool_manager, target_manager],
+				    arguments)
 	pm.resolve_dependencies ()
+
+	if arguments and arguments[0] == 'all':
+		arguments = pm._packages.keys ()
+		
+	if len (arguments) > 0:
+	       	packagename = arguments[0]
 
 	if command:
 		if command in __main__.__dict__:

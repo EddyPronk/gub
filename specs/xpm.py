@@ -2,6 +2,9 @@ import re
 import gzip
 import pickle
 import os
+
+import buildnumber
+import framework
 import gub
 
 # X package manager (x for want of better name)
@@ -13,7 +16,6 @@ def tar_compression_flag (ball):
 	if ball.endswith ('gz'):
 		compression_flag = 'z'
 	return compression_flag
-
 
 #
 # TODO:
@@ -139,3 +141,39 @@ class Package_manager:
 	def name_is_installed (self, name):
 		return self.is_installed (self._packages[name])
 
+
+
+def get_managers (settings):
+	tool_manager = Package_manager (settings.tooldir)
+	target_manager = Package_manager (settings.system_root)
+
+	if settings.platform == 'darwin':
+		import darwintools
+		map (tool_manager.register_package,
+		     darwintools.get_packages (settings))
+	if settings.platform.startswith ('mingw'):
+		import mingw
+		map (tool_manager.register_package,
+		     mingw.get_packages (settings))
+
+	map (target_manager.register_package, framework.get_packages (settings))
+
+	for m in tool_manager, target_manager:
+		m.resolve_dependencies ()
+		for p in m._packages.values():
+			settings.build_number_db.set_build_number (p)
+
+	return tool_manager, target_manager
+
+def intersect (l1, l2):
+	return [l for l in l1 if l in l2]
+
+def determine_manager (settings, managers, args):
+	if args and args[0] == 'all':
+		return managers[-1]
+
+	for p in managers:
+		if intersect (args, p._packages.keys ()):
+			return p
+
+	return None
