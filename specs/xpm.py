@@ -127,8 +127,12 @@ class Package_manager:
 		try:
 			for p in self._packages.values ():
 				p.dependencies = [self._packages[d] for d in p.depends]
+				if p in p.dependencies:
+					print 'circular dependency', p, p.depends, p.dependencies, self._packages
+					raise 'BARF'
+				
 		except KeyError, k:
-			print 'unknown package %s I know about: ' % k, self._packages
+			print 'Unknown package %s. I know about: ' % k, self._packages
 			raise 'barf'
 		
 	# NAME_ shortcuts
