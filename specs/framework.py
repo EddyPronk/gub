@@ -794,7 +794,7 @@ class Ghostscript (gub.Target_package):
 
 	def configure_command (self):
 		cmd = gub.Target_package.configure_command (self)
-		cmd += ' --with-drivers=PDF,PNG,PS --without-x --disable-cups --without-ijs --without-omni'
+		cmd += ' --with-drivers=FILES --without-x --disable-cups --without-ijs --without-omni'
 		return cmd
 
 	def configure (self):
@@ -803,7 +803,9 @@ class Ghostscript (gub.Target_package):
 			       self.builddir () + '/Makefile')
 
 	def install_command (self):
-		return gub.Target_package.install_command (self) + ' install_prefix=%(install_root)s'
+		return (gub.Target_package.install_command (self)
+			+ ' install_prefix=%(install_root)s'
+			+ ' mandir=%(install_root)s/usr/man/ ')
 
 class Ghostscript__darwin (Ghostscript): 
 	def fixup_arch (self):
@@ -811,7 +813,13 @@ class Ghostscript__darwin (Ghostscript):
 				('#define ARCH_CACHE1_SIZE 1048576', '#define ARCH_CACHE1_SIZE 2097152'),
 				('#define ARCH_IS_BIG_ENDIAN 0', '#define ARCH_IS_BIG_ENDIAN 1')],
 			       self.builddir () + '/obj/arch.h') 
-		
+
+class Ghostscript__mingw (Ghostscript):
+	def patch (self):
+		Ghostscript.patch (self)
+		self.system ("cd %(srcdir)s/ && patch -p0 < %(patchdir)s/espgs-8.15-mingw-bluntaxe")
+
+	
 class Libjpeg (gub.Target_package):
 	def name(self):
 		return 'libjpeg'
@@ -960,7 +968,7 @@ def get_packages (settings):
 		packs.extend([
 			Libjpeg (settings).with (version='v6b', mirror=download.jpeg),
 			Libpng (settings).with (version='1.2.8', mirror=download.libpng),
-			Ghostscript (settings).with (version="8.15.1", mirror=download.cups, format='bz2',
+			Ghostscript__mingw (settings).with (version="8.15.1", mirror=download.cups, format='bz2',
 						     depends=['libjpeg', 'libpng']),
 			])
 
