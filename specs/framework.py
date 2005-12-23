@@ -80,8 +80,8 @@ class Python (gub.Target_package):
 
 class Python__mingw (Python):
 	def __init__ (self, settings):
-		Python.__init__ (self, copy.deepcopy (settings))
-		self.settings.target_gcc_flags = '-DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I%(system_root)s/usr/include' % self.settings.__dict__
+		Python.__init__ (self, settings)
+		self.target_gcc_flags = '-DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I%(system_root)s/usr/include' % self.settings.__dict__
 
 	def patch (self):
 		self.system ('''
@@ -173,8 +173,8 @@ exit 0
 
 class Guile__mingw (Guile):
 	def __init__ (self, settings):
-		Guile.__init__ (self, copy.deepcopy (settings))
-		self.settings.target_gcc_flags = '-mms-bitfields'
+		Guile.__init__ (self, settings)
+		self.target_gcc_flags = '-mms-bitfields'
 
 	def xpatch (self):
 		## FIXME
@@ -298,14 +298,15 @@ class LilyPond (gub.Target_package):
 
 class LilyPond__mingw (LilyPond):
 	def __init__ (self, settings):
-		LilyPond.__init__ (self, copy.deepcopy (settings))
+		LilyPond.__init__ (self, settings)
+
 		# FIXME: should add to CPPFLAGS...
-		self.settings.target_gcc_flags = '-mms-bitfields'
+		self.target_gcc_flags = '-mms-bitfields'
 
 		#UGH
 		builddir = self.builddir ()
-		self.settings.target_gcc_flags += ' -I%(builddir)s' \
-						  % locals ()
+		self.target_gcc_flags += ' -I%(builddir)s' \
+					 % locals ()
 
         def patch (self):
 		# FIXME: for our gcc-3.4.5 cross compiler in the mingw
@@ -955,7 +956,7 @@ def get_packages (settings):
 
 
 	# experiment:
-	if 0 and settings.platform == 'mingw':
+	if settings.xgs and settings.platform == 'mingw':
 		packs.extend([
 			Libjpeg (settings).with (version='v6b', mirror=download.jpeg),
 			Libpng (settings).with (version='1.2.8', mirror=download.libpng),
