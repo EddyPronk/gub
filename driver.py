@@ -18,12 +18,10 @@ import settings as settings_mod
 import xpm
 
 def build_package (settings, manager, package):
-	print 'depends: ' + `package.depends`
-	print 'dependencies: ' + `package.dependencies`
 	for d in package.dependencies:
 		if not manager.is_installed (d):
-			print ('building dependency: ' + `d`
-			       + ' for package :' + `package`)
+			gub.log_command ('building dependency: ' + d.name ()
+					 + ' for package :' + package.name ())
 			build_package (settings, manager, d)
 			manager.install_package (d)
 
