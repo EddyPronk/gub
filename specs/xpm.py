@@ -126,7 +126,7 @@ class Package_manager:
 	def resolve_dependencies (self):
 		try:
 			for p in self._packages.values ():
-				p.dependencies = [self._packages[p.name ()] for d in p.depends]
+				p.dependencies = [self._packages[d] for d in p.depends]
 		except KeyError, k:
 			print 'unknown package %s I know about: ' % k, self._packages
 			raise 'barf'

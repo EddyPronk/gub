@@ -60,6 +60,7 @@ class Options:
 
 		if len (arguments) > 0:
 			self.command = arguments.pop (0)
+		# Hmm, keep arguments as separate list?
 		self.arguments = arguments
 
 		if len (arguments) > 0:
