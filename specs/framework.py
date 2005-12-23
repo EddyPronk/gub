@@ -824,6 +824,7 @@ class Ghostscript__mingw (Ghostscript):
 class Libjpeg (gub.Target_package):
 	def name(self):
 		return 'libjpeg'
+	
 	def srcdir (self):
 		return re.sub (r'src\.v', '-', gub.Target_package.srcdir(self))
 	def configure_command (self):
@@ -967,13 +968,7 @@ def get_packages (settings):
 	settings.guile_version = [p for p in packs if isinstance (p, Guile)][0].guile_version ()
 
 
-	# experiment:
-	if settings.__dict__.has_key('xgs') and settings.platform == 'mingw':
-		packs.extend([
-			])
 
-		packs = [p for p in packs if p.name() <> 'gs']
-		
 	return packs
 
 def get_installers (settings):
