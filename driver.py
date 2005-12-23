@@ -154,6 +154,18 @@ def run_builder (settings, pkg_manager, args):
 	for p in pkgs:
 		build_package (settings, pkg_manager, p)
 
+def intersect (l1, l2):
+	return [l for l in l1 if l in l2]
+
+def determine_manager (settings, pkg_managers, args):
+	if args and args[0] == 'all':
+		return pkg_managers[-1]
+
+	for p in pkg_managers:
+		if intersect (args, p._packages.keys()):
+			return p
+		
+	return None
 
 def download_sources (manager):
 	for p in manager._packages.values(): 
@@ -209,10 +221,9 @@ def main ():
 	if c == 'download':
 		download_sources (tool_manager)
 		download_sources (target_manager)
-	elif c == 'build-tool':
-		run_builder (settings, tool_manager, commands)
-	elif c == 'build-target':
-		run_builder (settings, target_manager, commands)
+	elif c == 'build':
+		pm = determine_manager (settings, [tool_manager, target_manager], commands)
+		run_builder (settings, pm, commands)
 	elif c == 'build-installer':
 		gub.system ('rm -rf %s' %  settings.installer_root)
 		install_manager = xpm.Package_manager (settings.installer_root)
