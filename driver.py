@@ -23,7 +23,6 @@ def build_package (settings, manager, package):
 			build_package (settings, manager, d)
 			manager.install_package (d)
 
-
 	gub.log_command (package.expand_string (' ** Package: %(name)s (%(version)s, %(build)s)\n'))
 
 	stages = ['untar', 'patch', 'configure', 'compile', 'install',
@@ -35,6 +34,9 @@ def build_package (settings, manager, package):
 		(available[settings.options.stage]) ()
 		return
 
+	if manager.is_installable (package):
+		return
+	
 	for stage in stages:
 		idx = stages.index (stage)
         	if not package.is_done (stage, idx):
