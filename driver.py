@@ -106,9 +106,6 @@ build-installer  - build installer for platform
     
 """,
 				   description="Grand Unified Builder.  Specify --package-version to set build version")
-        p.add_option ('-o', '--offline', action = 'store_true',
-                      default=None,
-                      dest='offline')
 	p.add_option ('-V', '--verbose', action='store_true', 
 		      dest="verbose")
 	p.add_option ('', '--package-version', action='store',
@@ -130,6 +127,9 @@ build-installer  - build installer for platform
 		      dest="keep_build",
 		      default=None,
 		      help='leave build and src dir for inspection')
+	p.add_option ('', '--stage', action='store',
+		      dest='stage', default=None,
+		      help='Force rebuild of stage') 
 	return p
 
 def build_installers (settings, install_pkg_manager):
@@ -180,7 +180,6 @@ def main ():
 		sys.exit (2)
 	
 	settings = get_settings (options.platform)
-        settings.offline = options.offline
 
 	for o in options.settings:
 		(key, val) = tuple (o.split ('='))
@@ -188,8 +187,8 @@ def main ():
 
 	
 	gub.start_log (settings)
-	settings.verbose = options.verbose
-	settings.keep_build = options.keep_build
+	settings.options = options
+	
 	settings.bundle_version = options.package_version
 	settings.bundle_build = options.package_build
 	settings.create_dirs ()
