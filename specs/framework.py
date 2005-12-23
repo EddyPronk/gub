@@ -775,6 +775,8 @@ class Ghostscript (gub.Target_package):
 				(r'mkdir -p \$\(scriptdir\)', 'mkdir -p $(DESTDIR)$(scriptdir)'),
 				(r'\$\(INSTALL_PROGRAM\) \$\(GS_XE\) \$\(bindir\)/\$\(GS\)',
 				 r'$(INSTALL_PROGRAM) $(GS_XE) $(DESTDIR)$(bindir)/$(GS)'),
+				(r'(\$\(INSTALL_PROGRAM\).*) \$\(scriptdir\)',
+				 r'\1  $(DESTDIR)$(scriptdir)'),
 				],
 			       self.srcdir () + '/src/unixinst.mak')
 
