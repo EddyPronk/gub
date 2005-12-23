@@ -87,9 +87,9 @@ class Options:
 					'linux': 'linux',
 					}[a]
 				self.ROOT = ('target/%(PLATFORM)s/system'
-					     % globals ())
+					     % self.__dict__)
 				self.TOOLROOT = ('target/%(PLATFORM)s/tool'
-						 % globals ())
+						 % self.__dict__)
 			elif o == '--name' or o == '-n':
 				self.name_p = 1
 			elif o == '--no-deps' or o == '-x':
