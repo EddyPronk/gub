@@ -881,10 +881,9 @@ def get_packages (settings):
 						  depends=['pango', 'guile']
 						  ),
 	),
-	'mingw': (
+	'mingw': [
 		Mingw_runtime (settings).with (version='3.9', mirror=download.mingw),
 		Cygwin (settings).with (version='1.5.18-1', mirror=download.cygwin, format='bz2', depends=['mingw-runtime']), 
-#		Gs (settings).with (version='8.15-1', mirror=download.lp, format='bz2', depends=['mingw-runtime']),
 		W32api (settings).with (version='3.5', mirror=download.mingw),
 		Regex (settings).with (version='2.3.90-1', mirror=download.lp, format='bz2', depends=['mingw-runtime']),
 		LilyPad (settings).with (version='0.0.7-1', mirror=download.lp, format='bz2', depends=['w32api']),
@@ -913,14 +912,15 @@ def get_packages (settings):
 					       depends=['mingw-runtime']
 					       ),
 
-#		Libjpeg (settings).with (version='v6b', mirror=download.jpeg),
-#		Libpng (settings).with (version='1.2.8', mirror=download.libpng),
-#		Ghostscript__mingw (settings).with (version="8.15.1", mirror=download.cups, format='bz2', depends=['libjpeg', 'libpng']),
-
+		Cygwin (settings).with (version='1.5.18-1', mirror=download.cygwin, format='bz2', depends=['mingw-runtime']), 
+		Gs (settings).with (version='8.15-1', mirror=download.lp, format='bz2', depends=['mingw-runtime']),
+		W32api (settings).with (version='3.5', mirror=download.mingw),
+		Regex (settings).with (version='2.3.90-1', mirror=download.lp, format='bz2', depends=['mingw-runtime']),
+		LilyPad (settings).with (version='0.0.7-1', mirror=download.lp, format='bz2', depends=['w32api']),
 		LilyPond__mingw (settings).with (mirror=cvs.gnu, download=gub.Package.cvs,
 						 depends=['gettext', 'guile', 'pango', 'python'],
 						 track_development=True),
-	),
+	],
 	'linux': (
 		Libtool (settings).with (version='1.5.20'),
 		Zlib (settings).with (version='1.2.2-1', mirror=download.lp, format='bz2'),
@@ -952,6 +952,17 @@ def get_packages (settings):
 	settings.guile_version = [p for p in packs if isinstance (p, Guile)][0].guile_version ()
 
 
+	# experiment:
+	if 0 and settings.platform == 'mingw':
+		packs.extend([
+			Libjpeg (settings).with (version='v6b', mirror=download.jpeg),
+			Libpng (settings).with (version='1.2.8', mirror=download.libpng),
+			Ghostscript (settings).with (version="8.15.1", mirror=download.cups, format='bz2',
+						     depends=['libjpeg', 'libpng']),
+			])
+
+		packs = [p for p in packs if p.name() <> 'gs']
+		
 	return packs
 
 def get_installers (settings):
