@@ -23,12 +23,6 @@ def build_package (settings, manager, package):
 			build_package (settings, manager, d)
 			manager.install_package (d)
 
-	if manager.is_installable (package):
-		return
-	
-	if manager.is_installed (package):
-		manager.uninstall_package (package)
-		
 
 	gub.log_command (package.expand_string (' ** Package: %(name)s (%(version)s, %(build)s)\n'))
 
@@ -36,10 +30,11 @@ def build_package (settings, manager, package):
 		  'package', 'clean']
 	available = dict (inspect.getmembers (package, lambda m: type (m)==types.MethodType))
 	forced_idx = 100
+
 	if settings.options.stage:
 		(available[settings.options.stage]) ()
 		return
-	
+
 	for stage in stages:
 		idx = stages.index (stage)
         	if not package.is_done (stage, idx):
