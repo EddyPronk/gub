@@ -818,8 +818,9 @@ class Ghostscript__mingw (Ghostscript):
 	def patch (self):
 		Ghostscript.patch (self)
 		self.system ("cd %(srcdir)s/ && patch -p0 < %(patchdir)s/espgs-8.15-mingw-bluntaxe")
+		self.system ("cd %(srcdir)s/ && patch -p1 < %(patchdir)s/ghostscript-8.15-cygwin.patch")
 
-	def compile (self):
+	def xxcompile (self):
 		Ghostscript.compile (self)
 		self.file_sub ([('^81501', '815')],
 			       self.builddir ()+ '/lib/gs_init.ps')
@@ -933,7 +934,7 @@ def get_packages (settings):
 		Libjpeg (settings).with (version='v6b', mirror=download.jpeg),
 		Libpng (settings).with (version='1.2.8', mirror=download.libpng),
 		Ghostscript__mingw (settings).with (version="8.15.1", mirror=download.cups, format='bz2',
-						    depends=['libjpeg', 'libpng','zlib']),
+						    depends=['libiconv', 'libjpeg', 'libpng','zlib']),
 		W32api (settings).with (version='3.5', mirror=download.mingw),
 		Regex (settings).with (version='2.3.90-1', mirror=download.lp, format='bz2', depends=['mingw-runtime']),
 		LilyPad (settings).with (version='0.0.7-1', mirror=download.lp, format='bz2', depends=['w32api']),

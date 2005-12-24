@@ -1,0 +1,117 @@
+diff -purN -x CYGWIN-PATCHES -x'*~' -x 'cyg*' -xjpeg -x'*.orig' ../../ghostscript-8.15/src/gp_unifn.c ./src/gp_unifn.c
+--- ../../ghostscript-8.15/src/gp_unifn.c	2004-01-06 00:32:04.000000000 +0100
++++ ./src/gp_unifn.c	2004-12-07 07:38:59.000000000 +0100
+@@ -29,8 +29,8 @@ const char gp_file_name_list_separator =
+ const char gp_fmode_binary_suffix[] = "";
+ 
+ /* Define the file modes for binary reading or writing. */
+-const char gp_fmode_rb[] = "r";
+-const char gp_fmode_wb[] = "w";
++const char gp_fmode_rb[] = "rb";
++const char gp_fmode_wb[] = "wb";
+ 
+ /* -------------- Helpers for gp_file_name_combine_generic ------------- */
+ 
+diff -purN -x CYGWIN-PATCHES -x'*~' -x 'cyg*' -xjpeg -x'*.orig' ../../ghostscript-8.15/src/unix-gcc.mak ./src/unix-gcc.mak
+--- ../../ghostscript-8.15/src/unix-gcc.mak	2003-12-24 04:31:30.000000000 +0100
++++ ./src/unix-gcc.mak	2004-12-23 04:55:54.000000000 +0100
+@@ -54,18 +54,18 @@ INSTALL = $(GLSRCDIR)/instcopy -c
+ INSTALL_PROGRAM = $(INSTALL) -m 755
+ INSTALL_DATA = $(INSTALL) -m 644
+ 
+-prefix = /usr/local
++prefix = /usr
+ exec_prefix = $(prefix)
+ bindir = $(exec_prefix)/bin
+ scriptdir = $(bindir)
+ libdir = $(exec_prefix)/lib
+-mandir = $(prefix)/man
++mandir = $(prefix)/share/man
+ man1ext = 1
+ datadir = $(prefix)/share
+ gsdir = $(datadir)/ghostscript
+ gsdatadir = $(gsdir)/$(GS_DOT_VERSION)
+ 
+-docdir=$(gsdatadir)/doc
++docdir=$(datadir)/doc/ghostscript-$(GS_DOT_VERSION)
+ exdir=$(gsdatadir)/examples
+ GS_DOCDIR=$(docdir)
+ 
+@@ -158,7 +158,7 @@ PVERSION=10205
+ # what its name is.
+ # See gs.mak and Make.htm for more information.
+ 
+-SHARE_LIBPNG=0
++SHARE_LIBPNG=1
+ LIBPNG_NAME=png
+ 
+ # Define the directory where the zlib sources are stored.
+@@ -170,7 +170,7 @@ ZSRCDIR=zlib
+ # what its name is (usually libz, but sometimes libgz).
+ # See gs.mak and Make.htm for more information.
+ 
+-SHARE_ZLIB=0
++SHARE_ZLIB=1
+ #ZLIB_NAME=gz
+ ZLIB_NAME=z
+ 
+@@ -221,7 +221,7 @@ GCFLAGS=-Wall -Wstrict-prototypes -Wmiss
+ CFLAGS_STANDARD=-O2
+ CFLAGS_DEBUG=-g -O0
+ CFLAGS_PROFILE=-pg -O2
+-CFLAGS_SO=-fPIC
++#CFLAGS_SO=-fPIC
+ 
+ # Define the other compilation flags.  Add at most one of the following:
+ #	-DBSD4_2 for 4.2bsd systems.
+@@ -245,7 +245,7 @@ CFLAGS=$(CFLAGS_STANDARD) $(GCFLAGS) $(X
+ #	-R /usr/local/xxx/lib:/usr/local/lib
+ # giving the full path names of the shared library directories.
+ # XLDFLAGS can be set from the command line.
+-XLDFLAGS=
++XLDFLAGS=-DUSE_DL_IMPORT
+ 
+ LDFLAGS=$(XLDFLAGS)
+ 
+@@ -278,7 +278,7 @@ STDLIBS=-lm
+ # Note that x_.h expects to find the header files in $(XINCLUDE)/X11,
+ # not in $(XINCLUDE).
+ 
+-XINCLUDE=-I/usr/X11R6/include
++#XINCLUDE=-I/usr/X11R6/include
+ 
+ # Define the directory/ies and library names for the X11 library files.
+ # XLIBDIRS is for ld and should include -L; XLIBDIR is for LD_RUN_PATH
+@@ -293,9 +293,11 @@ XINCLUDE=-I/usr/X11R6/include
+ #XLIBS=Xt SM ICE Xext X11
+ 
+ #XLIBDIRS=-L/usr/local/X/lib
+-XLIBDIRS=-L/usr/X11R6/lib
++#XLIBDIRS=-L/usr/X11R6/lib
++XLIBDIRS=
+ XLIBDIR=
+-XLIBS=Xt Xext X11
++#XLIBS=Xt Xext X11
++XLIBS=
+ 
+ # Define whether this platform has floating point hardware:
+ #	FPU_TYPE=2 means floating point is faster than fixed point.
+@@ -332,7 +334,7 @@ FEATURE_DEVS_ALL=$(PSD)psl3.dev $(PSD)pd
+ # Choose whether to compile the .ps initialization files into the executable.
+ # See gs.mak for details.
+ 
+-COMPILE_INITS=0
++COMPILE_INITS=1
+ 
+ # Choose whether to store band lists on files or in memory.
+ # The choices are 'file' or 'memory'.
+@@ -367,7 +369,8 @@ EXTEND_NAMES=0
+ # Choose the device(s) to include.  See devs.mak for details,
+ # devs.mak and contrib.mak for the list of available devices.
+ 
+-DEVICE_DEVS=$(DISPLAY_DEV) $(DD)x11.dev $(DD)x11alpha.dev $(DD)x11cmyk.dev $(DD)x11gray2.dev $(DD)x11gray4.dev $(DD)x11mono.dev
++#DEVICE_DEVS=$(DISPLAY_DEV) $(DD)x11.dev $(DD)x11alpha.dev $(DD)x11cmyk.dev $(DD)x11gray2.dev $(DD)x11gray4.dev $(DD)x11mono.dev
++DEVICE_DEVS=
+ 
+ #DEVICE_DEVS1=
+ #DEVICE_DEVS2=
