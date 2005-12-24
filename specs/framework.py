@@ -120,7 +120,7 @@ class Gmp__darwin (Gmp):
 				('#include <iosfwd>', ''),
 				('<cstddef>','<stddef.h>')
 				],
-			       self.srcdir () + '/gmp-h.in')
+			       '%(srcdir)s/gmp-h.in')
 		Gmp.patch (self)
 
 class Gmp__mingw (Gmp):
@@ -436,7 +436,7 @@ class LilyPond__darwin (LilyPond):
 				(' -O2 ', '')
 #				(' -g ', '')
 				],
-			       self.builddir ()+ '/config.make')
+			       '%(builddir)s/config.make')
 
 	def untar (self):
 		pass
@@ -780,7 +780,7 @@ class Ghostscript (gub.Target_package):
 				(r'(\$\(INSTALL_PROGRAM\).*) \$\(scriptdir\)',
 				 r'\1  $(DESTDIR)$(scriptdir)'),
 				],
-			       self.srcdir () + '/src/unixinst.mak')
+			       '%(srcdir)s/src/unixinst.mak')
 
 	def fixup_arch (self):
 		# guh, this only works if build host is i386 too.
@@ -800,7 +800,7 @@ class Ghostscript (gub.Target_package):
 	def configure (self):
 		gub.Target_package.configure (self)
 		self.file_sub ([('-Dmalloc=rpl_malloc', '')],
-			       self.builddir () + '/Makefile')
+			       '%(builddir)s/Makefile')
 
 	def install_command (self):
 		return (gub.Target_package.install_command (self)
@@ -812,18 +812,164 @@ class Ghostscript__darwin (Ghostscript):
 		self.file_sub ([('#define ARCH_CAN_SHIFT_FULL_LONG 0', '#define ARCH_CAN_SHIFT_FULL_LONG 1'),
 				('#define ARCH_CACHE1_SIZE 1048576', '#define ARCH_CACHE1_SIZE 2097152'),
 				('#define ARCH_IS_BIG_ENDIAN 0', '#define ARCH_IS_BIG_ENDIAN 1')],
-			       self.builddir () + '/obj/arch.h')
+			       '%(builddir)s/obj/arch.h')
 
 class Ghostscript__mingw (Ghostscript):
+	def __init__ (self, settings):
+		Ghostscript.__init__ (self, settings)
+		# FIXME: should add to CPPFLAGS...
+		self.target_gcc_flags = '-mms-bitfields -D_Windows -D__WINDOWS__'
+
 	def patch (self):
 		Ghostscript.patch (self)
 		self.system ("cd %(srcdir)s/ && patch -p0 < %(patchdir)s/espgs-8.15-mingw-bluntaxe")
 		self.system ("cd %(srcdir)s/ && patch -p1 < %(patchdir)s/ghostscript-8.15-cygwin.patch")
 
+	def configure (self):
+		Ghostscript.configure (self)
+		self.file_sub ([('^(EXTRALIBS *=.*)', '\\1 -lwinspool -lcomdlg32 -lz')],
+			       '%(builddir)s/Makefile')
+
+		self.file_sub ([('^unix__=.*', gub.join_lines ('''unix__=
+$(GLOBJ)gp_mswin.$(OBJ)
+$(GLOBJ)gp_wgetv.$(OBJ)
+$(GLOBJ)gp_stdia.$(OBJ)
+$(GLOBJ)gsdll.$(OBJ)
+$(GLOBJ)gp_ntfs.$(OBJ)
+$(GLOBJ)gp_win32.$(OBJ)
+'''))],
+			       '%(srcdir)s/src/unix-aux.mak')
+		self.file_sub ([('^(LIB0s=.*)', gub.join_lines ('''\\1
+$(GLOBJ)gp_mswin.$(OBJ)
+$(GLOBJ)gp_wgetv.$(OBJ)
+$(GLOBJ)gp_stdia.$(OBJ)
+$(GLOBJ)gsdll.$(OBJ)
+$(GLOBJ)gp_ntfs.$(OBJ)
+$(GLOBJ)gp_win32.$(OBJ)
+'''))],
+			       '%(srcdir)s/src/lib.mak')
+
+		# Hmm, what about CPPFLAGS+=-D_Windows?
+		if 0:
+			self.file_sub ([('^#ifdef _Windows', '#if defined(_Windows_) || defined(__MINGW32__)')],
+			'%(srcdir)s/src/gsdll.c')
+
+			self.file_sub ([('(^#if defined\(_WINDOWS_\) \|\| defined\(__WINDOWS__\))[^\n]*', '\\1 || defined(__MINGW32__)')],
+			'%(srcdir)s/src/iapi.h')
+
+		self.dump ('''
+# part of winlib.mak
+# cannot be include'd in full because it redefines all
+# kinds of vars
+GLCCWIN=$(CC) $(CFLAGS) -I$(GLOBJDIR)
+
+
+# -------------------------------- Library -------------------------------- #
+
+# The Windows Win32 platform
+
+mswin32__=$(GLOBJ)gp_mswin.$(OBJ) $(GLOBJ)gp_wgetv.$(OBJ) $(GLOBJ)gp_stdia.$(OBJ)
+mswin32_inc=$(GLD)nosync.dev $(GLD)winplat.dev
+
+$(GLGEN)mswin32_.dev:  $(mswin32__) $(ECHOGS_XE) $(mswin32_inc)
+	$(SETMOD) $(GLGEN)mswin32_ $(mswin32__)
+	$(ADDMOD) $(GLGEN)mswin32_ -include $(mswin32_inc)
+
+$(GLOBJ)gp_mswin.$(OBJ): $(GLSRC)gp_mswin.c $(AK) $(gp_mswin_h) \\
+ $(ctype__h) $(dos__h) $(malloc__h) $(memory__h) $(pipe__h) \\
+ $(stdio__h) $(string__h) $(windows__h) \\
+ $(gx_h) $(gp_h) $(gpcheck_h) $(gpmisc_h) $(gserrors_h) $(gsexit_h)
+	$(GLCCWIN) $(GLO_)gp_mswin.$(OBJ) $(C_) $(GLSRC)gp_mswin.c
+
+$(GLOBJ)gp_wgetv.$(OBJ): $(GLSRC)gp_wgetv.c $(AK) $(gscdefs_h)
+	$(GLCCWIN) $(GLO_)gp_wgetv.$(OBJ) $(C_) $(GLSRC)gp_wgetv.c
+
+$(GLOBJ)gp_stdia.$(OBJ): $(GLSRC)gp_stdia.c $(AK)\\
+  $(stdio__h) $(time__h) $(unistd__h) $(gx_h) $(gp_h)
+	$(GLCCWIN) $(GLO_)gp_stdia.$(OBJ) $(C_) $(GLSRC)gp_stdia.c
+
+# Define MS-Windows handles (file system) as a separable feature.
+
+mshandle_=$(GLOBJ)gp_mshdl.$(OBJ)
+$(GLD)mshandle.dev: $(ECHOGS_XE) $(mshandle_)
+	$(SETMOD) $(GLD)mshandle $(mshandle_)
+	$(ADDMOD) $(GLD)mshandle -iodev handle
+
+$(GLOBJ)gp_mshdl.$(OBJ): $(GLSRC)gp_mshdl.c $(AK)\\
+ $(ctype__h) $(errno__h) $(stdio__h) $(string__h)\\
+ $(gserror_h) $(gsmemory_h) $(gstypes_h) $(gxiodev_h)
+	$(GLCC) $(GLO_)gp_mshdl.$(OBJ) $(C_) $(GLSRC)gp_mshdl.c
+
+# Define MS-Windows printer (file system) as a separable feature.
+
+msprinter_=$(GLOBJ)gp_msprn.$(OBJ)
+$(GLD)msprinter.dev: $(ECHOGS_XE) $(msprinter_)
+	$(SETMOD) $(GLD)msprinter $(msprinter_)
+	$(ADDMOD) $(GLD)msprinter -iodev printer
+
+$(GLOBJ)gp_msprn.$(OBJ): $(GLSRC)gp_msprn.c $(AK)\\
+ $(ctype__h) $(errno__h) $(stdio__h) $(string__h)\\
+ $(gserror_h) $(gsmemory_h) $(gstypes_h) $(gxiodev_h)
+	$(GLCCWIN) $(GLO_)gp_msprn.$(OBJ) $(C_) $(GLSRC)gp_msprn.c
+
+# Define MS-Windows polling as a separable feature
+# because it is not needed by the gslib.
+mspoll_=$(GLOBJ)gp_mspol.$(OBJ)
+$(GLD)mspoll.dev: $(ECHOGS_XE) $(mspoll_)
+	$(SETMOD) $(GLD)mspoll $(mspoll_)
+
+$(GLOBJ)gp_mspol.$(OBJ): $(GLSRC)gp_mspol.c $(AK)\\
+ $(gx_h) $(gp_h) $(gpcheck_h) $(iapi_h) $(iref_h) $(iminst_h) $(imain_h)
+	$(GLCCWIN) $(GLO_)gp_mspol.$(OBJ) $(C_) $(GLSRC)gp_mspol.c
+
+# end of winlib.mak
+''',
+			   '%(builddir)s/Makefile',
+			   mode='a')
+
+		self.dump ('''
+#winint.mak
+PSCCWIN=$(CC) $(CFLAGS) -I$(GLOBJDIR)
+$(PSOBJ)gsdll.$(OBJ): $(PSSRC)gsdll.c $(AK) $(iapi_h) $(ghost_h)
+	$(PSCCWIN) $(COMPILE_FOR_DLL) $(PSO_)gsdll.$(OBJ) $(C_) $(PSSRC)gsdll.c
+
+$(GLOBJ)gp_msdll.$(OBJ): $(GLSRC)gp_msdll.c $(AK) $(iapi_h)
+	$(PSCCWIN) $(COMPILE_FOR_DLL) $(GLO_)gp_msdll.$(OBJ) $(C_) $(GLSRC)gp_msdll.c
+''',
+			   '%(builddir)s/Makefile',
+			   mode='a')
+
+		self.dump ('''
+include $(GLSRCDIR)/winplat.mak
+include $(GLSRCDIR)/pcwin.mak
+''',
+			   '%(builddir)s/Makefile',
+			   mode='a')
+
+
 	def xxcompile (self):
 		Ghostscript.compile (self)
 		self.file_sub ([('^81501', '815')],
-			       self.builddir ()+ '/lib/gs_init.ps')
+			       '%(builddir)s/lib/gs_init.ps')
+
+	def xxxcompile (self):
+		try:
+			Ghostscript.compile (self)
+		except:
+			pass
+		# Ugh, these objects fail to get enter into the ld.tr magic list
+		self.dump ('''./obj/gsdll.o \\
+./obj/gp_ntfs.o \\
+./obj/gp_win32.o \\
+''',
+			   '%(builddir)s/obj/ld.tr-add')
+		self.system ('''
+mv %(builddir)s/obj/ld.tr %(builddir)s/obj/ld.tr- || :
+cat %(builddir)s/obj/ld.tr-add %(builddir)s/obj/ld.tr- > %(builddir)s/obj/ld.tr--
+sort -ur < %(builddir)s/obj/ld.tr-- > %(builddir)s/obj/ld.tr
+''')
+		Ghostscript.compile (self)
+
 
 
 class Libjpeg (gub.Target_package):
@@ -843,7 +989,7 @@ class Libjpeg (gub.Target_package):
 
 		self.file_sub (
 			[(r'(\(INSTALL_[A-Z]+\).*) (\$[^ ]+)$', r'\1 $(DESTDIR)\2')],
-			self.builddir () + '/Makefile')
+			'%(builddir)s/Makefile')
 
 	def install_command (self):
 		return ("mkdir -p  %(install_root)s/usr/include  %(install_root)s/usr/lib && make DESTDIR=%(install_root)s install-headers install-lib ")
@@ -853,7 +999,7 @@ class Libpng (gub.Target_package):
 		return 'libpng'
 	def patch (self):
 		self.file_sub ([('(@INSTALL.*)@PKGCONFIGDIR@', r'\1${DESTDIR}@PKGCONFIGDIR@')],
-			       self.srcdir () + '/Makefile.in')
+			       '%(srcdir)s/Makefile.in')
 
 # latest vanilla packages
 #Zlib (settings).with (version='1.2.3', mirror=download.zlib, format='bz2'),
