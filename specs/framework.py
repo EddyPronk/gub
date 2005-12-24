@@ -762,11 +762,10 @@ INSTALL_PROGRAM=%(srcdir)s/install-sh
 
 class Ghostscript (gub.Target_package):
 	def srcdir (self):
-		return re.sub ('-source', '', gub.Target_package.srcdir(self))
+		return re.sub ('-source', '', gub.Target_package.srcdir (self))
 
-	def untar (self):
-		gub.Target_package.untar (self)
-		self.system ("cd %(targetdir)s/build && rm -f espgs-%(version)s-source && ln -s %(srcdir)s espgs-%(version)s-source ")
+	def builddir (self):
+		return re.sub ('-source', '', gub.Target_package.builddir (self))
 
 	def name (self):
 		return 'ghostscript'
@@ -793,13 +792,26 @@ class Ghostscript (gub.Target_package):
 		gub.Target_package.compile (self)
 
 	def configure_command (self):
-		cmd = gub.Target_package.configure_command (self)
-		cmd += ' --with-drivers=FILES --without-x --disable-cups --without-ijs --without-omni'
-		return cmd
+		return (gub.Target_package.configure_command (self)
+			+ gub.join_lines ('''
+--with-drivers=FILES
+--without-x
+--disable-cups
+--without-ijs
+--without-omni
+'''))
 
 	def configure (self):
 		gub.Target_package.configure (self)
-		self.file_sub ([('-Dmalloc=rpl_malloc', '')],
+		self.file_sub ([
+			('-Dmalloc=rpl_malloc', ''),
+			('GLSRCDIR=./src', 'GLSRCDIR=%(srcdir)s/src'),
+			('PSSRCDIR=./src', 'PSSRCDIR=%(srcdir)s/src'),
+			('PSLIBDIR=./lib', 'PSLIBDIR=%(srcdir)s/lib'),
+			('ICCSRCDIR=icclib', 'ICCSRCDIR=%(srcdir)s/icclib'),
+			# ESP-specific
+			('ADDONSDIR=./addons', 'ADDONSDIR=%(srcdir)s/addons'),
+			],
 			       '%(builddir)s/Makefile')
 
 	def install_command (self):
