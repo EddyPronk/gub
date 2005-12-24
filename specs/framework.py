@@ -790,6 +790,10 @@ class Ghostscript (gub.Target_package):
 		self.system (cmd)
 		self.fixup_arch ()
 		gub.Target_package.compile (self)
+		# URG
+		self.system ('''
+cp -pv %(builddir)s/lib/gs_init.ps %(srcdir)s/lib/gs_init.ps
+''')
 
 	def configure_command (self):
 		return (gub.Target_package.configure_command (self)
