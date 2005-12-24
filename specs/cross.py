@@ -1,12 +1,5 @@
 import gub
 
-
--ac_cv_func_malloc_0_nonnull=${ac_cv_func_malloc_0_nonnull=no}
-
--ac_cv_func_memcmp_working=${ac_cv_func_memcmp_working=no}
-
--ac_cv_func_stat_empty_string_bug=${ac_cv_func_stat_empty_string_bug=yes}
-
 cross_config_cache = {
 	'all': '''
 
