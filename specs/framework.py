@@ -849,14 +849,6 @@ $(GLOBJ)gp_win32.$(OBJ)
 '''))],
 			       '%(srcdir)s/src/lib.mak')
 
-		# Hmm, what about CPPFLAGS+=-D_Windows?
-		if 0:
-			self.file_sub ([('^#ifdef _Windows', '#if defined(_Windows_) || defined(__MINGW32__)')],
-			'%(srcdir)s/src/gsdll.c')
-
-			self.file_sub ([('(^#if defined\(_WINDOWS_\) \|\| defined\(__WINDOWS__\))[^\n]*', '\\1 || defined(__MINGW32__)')],
-			'%(srcdir)s/src/iapi.h')
-
 		self.dump ('''
 # part of winlib.mak
 # cannot be include'd in full because it redefines all
@@ -945,32 +937,6 @@ include $(GLSRCDIR)/pcwin.mak
 ''',
 			   '%(builddir)s/Makefile',
 			   mode='a')
-
-
-	def xxcompile (self):
-		Ghostscript.compile (self)
-		self.file_sub ([('^81501', '815')],
-			       '%(builddir)s/lib/gs_init.ps')
-
-	def xxxcompile (self):
-		try:
-			Ghostscript.compile (self)
-		except:
-			pass
-		# Ugh, these objects fail to get enter into the ld.tr magic list
-		self.dump ('''./obj/gsdll.o \\
-./obj/gp_ntfs.o \\
-./obj/gp_win32.o \\
-''',
-			   '%(builddir)s/obj/ld.tr-add')
-		self.system ('''
-mv %(builddir)s/obj/ld.tr %(builddir)s/obj/ld.tr- || :
-cat %(builddir)s/obj/ld.tr-add %(builddir)s/obj/ld.tr- > %(builddir)s/obj/ld.tr--
-sort -ur < %(builddir)s/obj/ld.tr-- > %(builddir)s/obj/ld.tr
-''')
-		Ghostscript.compile (self)
-
-
 
 class Libjpeg (gub.Target_package):
 	def name(self):
