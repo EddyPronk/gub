@@ -809,8 +809,13 @@ class Ghostscript (gub.Target_package):
 			('PSSRCDIR=./src', 'PSSRCDIR=%(srcdir)s/src'),
 			('PSLIBDIR=./lib', 'PSLIBDIR=%(srcdir)s/lib'),
 			('ICCSRCDIR=icclib', 'ICCSRCDIR=%(srcdir)s/icclib'),
-			# ESP-specific
+			# ESP-specific: addonsdir, omit zillion of
+			# warnings (any important ones may be noticed
+			# easier).
 			('ADDONSDIR=./addons', 'ADDONSDIR=%(srcdir)s/addons'),
+			(' -Wmissing-prototypes ', ' '),
+			(' -Wstrict-prototypes ', ' '),
+			(' -Wmissing-declarations ', ' '),
 			],
 			       '%(builddir)s/Makefile')
 
