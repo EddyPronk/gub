@@ -1,0 +1,208 @@
+diff -purN ../ghostscript-8.15/src/gsdll.mak ./src/gsdll.mak
+--- ../ghostscript-8.15/src/gsdll.mak	1970-01-01 01:00:00.000000000 +0100
++++ ./src/gsdll.mak	2005-12-25 08:12:54.000000000 +0100
+@@ -0,0 +1,28 @@
++#    Copyright (C) 1997-2004 Aladdin Enterprises.  All rights reserved.
++# 
++# This software is provided AS-IS with no warranty, either express or
++# implied.
++# 
++# This software is distributed under license and may not be copied,
++# modified or distributed except as expressly authorized under the terms
++# of the license contained in the file LICENSE in this distribution.
++# 
++# For more information about licensing, please refer to
++# http://www.ghostscript.com/licensing/. For information on
++# commercial licensing, go to http://www.artifex.com/licensing/ or
++# contact Artifex Software, Inc., 101 Lucas Valley Road #110,
++# San Rafael, CA  94903, U.S.A., +1(415)492-9861.
++
++# This makefile must be acceptable to Microsoft Visual C++, Watcom C++,
++# and Borland C++.  For this reason, the only conditional directives
++# allowed are !if[n]def, !else, and !endif.
++
++# Compile gsdll.c, the main program of the DLL.
++
++$(PSOBJ)gsdll.$(OBJ): $(PSSRC)gsdll.c $(AK) $(iapi_h) $(ghost_h)
++	$(PSCCWIN) $(COMPILE_FOR_DLL) $(PSO_)gsdll.$(OBJ) $(C_) $(PSSRC)gsdll.c
++
++$(GLOBJ)gp_msdll.$(OBJ): $(GLSRC)gp_msdll.c $(AK) $(iapi_h)
++	$(PSCCWIN) $(COMPILE_FOR_DLL) $(GLO_)gp_msdll.$(OBJ) $(C_) $(GLSRC)gp_msdll.c
++
++# end of gsdll.mak
+diff -purN ../ghostscript-8.15/src/unix-aux.mak ./src/unix-aux.mak
+--- ../ghostscript-8.15/src/unix-aux.mak	2005-01-19 05:08:41.000000000 +0100
++++ ./src/unix-aux.mak	2005-12-24 17:24:37.000000000 +0100
+@@ -30,7 +30,7 @@ UNIX_AUX_MAK=$(GLSRC)unix-aux.mak
+ 
+ # Unix platforms other than System V, and also System V Release 4
+ # (SVR4) platforms.
+-unix__=$(GLOBJ)gp_getnv.$(OBJ) $(GLOBJ)gp_unix.$(OBJ) $(GLOBJ)gp_unifs.$(OBJ) $(GLOBJ)gp_unifn.$(OBJ) $(GLOBJ)gp_stdia.$(OBJ)
++unix__= $(GLOBJ)gp_mswin.$(OBJ) $(GLOBJ)gp_wgetv.$(OBJ) $(GLOBJ)gp_stdia.$(OBJ) $(GLOBJ)gsdll.$(OBJ) $(GLOBJ)gp_ntfs.$(OBJ) $(GLOBJ)gp_win32.$(OBJ) 
+ $(GLGEN)unix_.dev: $(unix__) $(GLD)nosync.dev
+ 	$(SETMOD) $(GLGEN)unix_ $(unix__) -include $(GLD)nosync
+ 
+diff -purN ../ghostscript-8.15/src/win32.mak ./src/win32.mak
+--- ../ghostscript-8.15/src/win32.mak	1970-01-01 01:00:00.000000000 +0100
++++ ./src/win32.mak	2005-12-25 08:05:40.000000000 +0100
+@@ -0,0 +1,80 @@
++#    Copyright (C) 1991-1999, 2000 Aladdin Enterprises.  All rights reserved.
++# 
++# This software is provided AS-IS with no warranty, either express or
++# implied.
++# 
++# This software is distributed under license and may not be copied,
++# modified or distributed except as expressly authorized under the terms
++# of the license contained in the file LICENSE in this distribution.
++# 
++# For more information about licensing, please refer to
++# http://www.ghostscript.com/licensing/. For information on
++# commercial licensing, go to http://www.artifex.com/licensing/ or
++# contact Artifex Software, Inc., 101 Lucas Valley Road #110,
++# San Rafael, CA  94903, U.S.A., +1(415)492-9861.
++
++# This makefile must be acceptable to Microsoft Visual C++, Watcom C++,
++# and Borland C++.  For this reason, the only conditional directives
++# allowed are !if[n]def, !else, and !endif.
++
++# Note that built-in third-party libraries aren't available.
++
++# -------------------------------- Library -------------------------------- #
++
++# The Windows Win32 platform
++
++mswin32__=$(GLOBJ)gp_mswin.$(OBJ) $(GLOBJ)gp_wgetv.$(OBJ) $(GLOBJ)gp_stdia.$(OBJ)
++mswin32_inc=$(GLD)nosync.dev $(GLD)winplat.dev
++
++$(GLGEN)mswin32_.dev:  $(mswin32__) $(ECHOGS_XE) $(mswin32_inc)
++	$(SETMOD) $(GLGEN)mswin32_ $(mswin32__)
++	$(ADDMOD) $(GLGEN)mswin32_ -include $(mswin32_inc)
++
++$(GLOBJ)gp_mswin.$(OBJ): $(GLSRC)gp_mswin.c $(AK) $(gp_mswin_h) \
++ $(ctype__h) $(dos__h) $(malloc__h) $(memory__h) $(pipe__h) \
++ $(stdio__h) $(string__h) $(windows__h) \
++ $(gx_h) $(gp_h) $(gpcheck_h) $(gpmisc_h) $(gserrors_h) $(gsexit_h)
++	$(GLCCWIN) $(GLO_)gp_mswin.$(OBJ) $(C_) $(GLSRC)gp_mswin.c
++
++$(GLOBJ)gp_wgetv.$(OBJ): $(GLSRC)gp_wgetv.c $(AK) $(gscdefs_h)
++	$(GLCCWIN) $(GLO_)gp_wgetv.$(OBJ) $(C_) $(GLSRC)gp_wgetv.c
++
++$(GLOBJ)gp_stdia.$(OBJ): $(GLSRC)gp_stdia.c $(AK)\
++  $(stdio__h) $(time__h) $(unistd__h) $(gx_h) $(gp_h)
++	$(GLCCWIN) $(GLO_)gp_stdia.$(OBJ) $(C_) $(GLSRC)gp_stdia.c
++
++# Define MS-Windows handles (file system) as a separable feature.
++
++mshandle_=$(GLOBJ)gp_mshdl.$(OBJ)
++$(GLD)mshandle.dev: $(ECHOGS_XE) $(mshandle_)
++	$(SETMOD) $(GLD)mshandle $(mshandle_)
++	$(ADDMOD) $(GLD)mshandle -iodev handle
++
++$(GLOBJ)gp_mshdl.$(OBJ): $(GLSRC)gp_mshdl.c $(AK)\
++ $(ctype__h) $(errno__h) $(stdio__h) $(string__h)\
++ $(gserror_h) $(gsmemory_h) $(gstypes_h) $(gxiodev_h)
++	$(GLCC) $(GLO_)gp_mshdl.$(OBJ) $(C_) $(GLSRC)gp_mshdl.c
++
++# Define MS-Windows printer (file system) as a separable feature.
++
++msprinter_=$(GLOBJ)gp_msprn.$(OBJ)
++$(GLD)msprinter.dev: $(ECHOGS_XE) $(msprinter_)
++	$(SETMOD) $(GLD)msprinter $(msprinter_)
++	$(ADDMOD) $(GLD)msprinter -iodev printer
++
++$(GLOBJ)gp_msprn.$(OBJ): $(GLSRC)gp_msprn.c $(AK)\
++ $(ctype__h) $(errno__h) $(stdio__h) $(string__h)\
++ $(gserror_h) $(gsmemory_h) $(gstypes_h) $(gxiodev_h)
++	$(GLCCWIN) $(GLO_)gp_msprn.$(OBJ) $(C_) $(GLSRC)gp_msprn.c
++
++# Define MS-Windows polling as a separable feature
++# because it is not needed by the gslib.
++mspoll_=$(GLOBJ)gp_mspol.$(OBJ)
++$(GLD)mspoll.dev: $(ECHOGS_XE) $(mspoll_)
++	$(SETMOD) $(GLD)mspoll $(mspoll_)
++
++$(GLOBJ)gp_mspol.$(OBJ): $(GLSRC)gp_mspol.c $(AK)\
++ $(gx_h) $(gp_h) $(gpcheck_h) $(iapi_h) $(iref_h) $(iminst_h) $(imain_h)
++	$(GLCCWIN) $(GLO_)gp_mspol.$(OBJ) $(C_) $(GLSRC)gp_mspol.c
++
++# end of winlib.mak
+diff -purN ../ghostscript-8.15/src/winint.mak ./src/winint.mak
+--- ../ghostscript-8.15/src/winint.mak	2005-01-19 05:08:41.000000000 +0100
++++ ./src/winint.mak	2005-12-25 08:12:37.000000000 +0100
+@@ -124,6 +124,7 @@ $(PSOBJ)dwnodll.obj: $(PSSRC)dwnodll.c $
+  $(dwdll_h) $(iapi_h)
+ 	$(PSCCWIN) $(COMPILE_FOR_EXE) $(PSO_)dwnodll.obj $(C_) $(PSSRC)dwnodll.c
+ 
++!include $(PSSRCDIR)\gsdll.mak
+ # Compile gsdll.c, the main program of the DLL.
+ 
+ $(PSOBJ)gsdll.obj: $(PSSRC)gsdll.c $(AK) $(iapi_h) $(ghost_h)
+diff -purN ../ghostscript-8.15/src/winlib.mak ./src/winlib.mak
+--- ../ghostscript-8.15/src/winlib.mak	2005-01-19 05:08:41.000000000 +0100
++++ ./src/winlib.mak	2005-12-25 08:07:51.000000000 +0100
+@@ -136,63 +136,7 @@ $(gconfigv_h): $(TOP_MAKEFILES) $(ECHOGS
+ 	$(ECHOGS_XE) -a $(gconfigv_h) -x 23 define USE_FPU -x 2028 -q $(FPU_TYPE)-0 -x 29
+ 	$(ECHOGS_XE) -a $(gconfigv_h) -x 23 define EXTEND_NAMES 0$(EXTEND_NAMES)
+ 	$(ECHOGS_XE) -a $(gconfigv_h) -x 23 define SYSTEM_CONSTANTS_ARE_WRITABLE 0$(SYSTEM_CONSTANTS_ARE_WRITABLE)
+-
+-# -------------------------------- Library -------------------------------- #
+-
+-# The Windows Win32 platform
+-
+-mswin32__=$(GLOBJ)gp_mswin.$(OBJ) $(GLOBJ)gp_wgetv.$(OBJ) $(GLOBJ)gp_stdia.$(OBJ)
+-mswin32_inc=$(GLD)nosync.dev $(GLD)winplat.dev
+-
+-$(GLGEN)mswin32_.dev:  $(mswin32__) $(ECHOGS_XE) $(mswin32_inc)
+-	$(SETMOD) $(GLGEN)mswin32_ $(mswin32__)
+-	$(ADDMOD) $(GLGEN)mswin32_ -include $(mswin32_inc)
+-
+-$(GLOBJ)gp_mswin.$(OBJ): $(GLSRC)gp_mswin.c $(AK) $(gp_mswin_h) \
+- $(ctype__h) $(dos__h) $(malloc__h) $(memory__h) $(pipe__h) \
+- $(stdio__h) $(string__h) $(windows__h) \
+- $(gx_h) $(gp_h) $(gpcheck_h) $(gpmisc_h) $(gserrors_h) $(gsexit_h)
+-	$(GLCCWIN) $(GLO_)gp_mswin.$(OBJ) $(C_) $(GLSRC)gp_mswin.c
+-
+-$(GLOBJ)gp_wgetv.$(OBJ): $(GLSRC)gp_wgetv.c $(AK) $(gscdefs_h)
+-	$(GLCCWIN) $(GLO_)gp_wgetv.$(OBJ) $(C_) $(GLSRC)gp_wgetv.c
+-
+-$(GLOBJ)gp_stdia.$(OBJ): $(GLSRC)gp_stdia.c $(AK)\
+-  $(stdio__h) $(time__h) $(unistd__h) $(gx_h) $(gp_h)
+-	$(GLCCWIN) $(GLO_)gp_stdia.$(OBJ) $(C_) $(GLSRC)gp_stdia.c
+-
+-# Define MS-Windows handles (file system) as a separable feature.
+-
+-mshandle_=$(GLOBJ)gp_mshdl.$(OBJ)
+-$(GLD)mshandle.dev: $(ECHOGS_XE) $(mshandle_)
+-	$(SETMOD) $(GLD)mshandle $(mshandle_)
+-	$(ADDMOD) $(GLD)mshandle -iodev handle
+-
+-$(GLOBJ)gp_mshdl.$(OBJ): $(GLSRC)gp_mshdl.c $(AK)\
+- $(ctype__h) $(errno__h) $(stdio__h) $(string__h)\
+- $(gserror_h) $(gsmemory_h) $(gstypes_h) $(gxiodev_h)
+-	$(GLCC) $(GLO_)gp_mshdl.$(OBJ) $(C_) $(GLSRC)gp_mshdl.c
+-
+-# Define MS-Windows printer (file system) as a separable feature.
+-
+-msprinter_=$(GLOBJ)gp_msprn.$(OBJ)
+-$(GLD)msprinter.dev: $(ECHOGS_XE) $(msprinter_)
+-	$(SETMOD) $(GLD)msprinter $(msprinter_)
+-	$(ADDMOD) $(GLD)msprinter -iodev printer
+-
+-$(GLOBJ)gp_msprn.$(OBJ): $(GLSRC)gp_msprn.c $(AK)\
+- $(ctype__h) $(errno__h) $(stdio__h) $(string__h)\
+- $(gserror_h) $(gsmemory_h) $(gstypes_h) $(gxiodev_h)
+-	$(GLCCWIN) $(GLO_)gp_msprn.$(OBJ) $(C_) $(GLSRC)gp_msprn.c
+-
+-# Define MS-Windows polling as a separable feature
+-# because it is not needed by the gslib.
+-mspoll_=$(GLOBJ)gp_mspol.$(OBJ)
+-$(GLD)mspoll.dev: $(ECHOGS_XE) $(mspoll_)
+-	$(SETMOD) $(GLD)mspoll $(mspoll_)
+-
+-$(GLOBJ)gp_mspol.$(OBJ): $(GLSRC)gp_mspol.c $(AK)\
+- $(gx_h) $(gp_h) $(gpcheck_h) $(iapi_h) $(iref_h) $(iminst_h) $(imain_h)
+-	$(GLCCWIN) $(GLO_)gp_mspol.$(OBJ) $(C_) $(GLSRC)gp_mspol.c
++	
++!include $(PSSRCDIR)\win32.mak
+ 
+ # end of winlib.mak

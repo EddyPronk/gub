@@ -845,6 +845,7 @@ class Ghostscript__mingw (Ghostscript):
 		Ghostscript.patch (self)
 		self.system ("cd %(srcdir)s/ && patch -p0 < %(patchdir)s/espgs-8.15-mingw-bluntaxe")
 		self.system ("cd %(srcdir)s/ && patch -p1 < %(patchdir)s/ghostscript-8.15-cygwin.patch")
+		self.system ("cd %(srcdir)s/ && patch -p1 < %(patchdir)s/ghostscript-8.15-make.patch")
 
 	def configure (self):
 		Ghostscript.configure (self)
@@ -871,88 +872,10 @@ $(GLOBJ)gp_win32.$(OBJ)
 			       '%(srcdir)s/src/lib.mak')
 
 		self.dump ('''
-# part of winlib.mak
-# cannot be include'd in full because it redefines all
-# kinds of vars
 GLCCWIN=$(CC) $(CFLAGS) -I$(GLOBJDIR)
-
-
-# -------------------------------- Library -------------------------------- #
-
-# The Windows Win32 platform
-
-mswin32__=$(GLOBJ)gp_mswin.$(OBJ) $(GLOBJ)gp_wgetv.$(OBJ) $(GLOBJ)gp_stdia.$(OBJ)
-mswin32_inc=$(GLD)nosync.dev $(GLD)winplat.dev
-
-$(GLGEN)mswin32_.dev:  $(mswin32__) $(ECHOGS_XE) $(mswin32_inc)
-	$(SETMOD) $(GLGEN)mswin32_ $(mswin32__)
-	$(ADDMOD) $(GLGEN)mswin32_ -include $(mswin32_inc)
-
-$(GLOBJ)gp_mswin.$(OBJ): $(GLSRC)gp_mswin.c $(AK) $(gp_mswin_h) \\
- $(ctype__h) $(dos__h) $(malloc__h) $(memory__h) $(pipe__h) \\
- $(stdio__h) $(string__h) $(windows__h) \\
- $(gx_h) $(gp_h) $(gpcheck_h) $(gpmisc_h) $(gserrors_h) $(gsexit_h)
-	$(GLCCWIN) $(GLO_)gp_mswin.$(OBJ) $(C_) $(GLSRC)gp_mswin.c
-
-$(GLOBJ)gp_wgetv.$(OBJ): $(GLSRC)gp_wgetv.c $(AK) $(gscdefs_h)
-	$(GLCCWIN) $(GLO_)gp_wgetv.$(OBJ) $(C_) $(GLSRC)gp_wgetv.c
-
-$(GLOBJ)gp_stdia.$(OBJ): $(GLSRC)gp_stdia.c $(AK)\\
-  $(stdio__h) $(time__h) $(unistd__h) $(gx_h) $(gp_h)
-	$(GLCCWIN) $(GLO_)gp_stdia.$(OBJ) $(C_) $(GLSRC)gp_stdia.c
-
-# Define MS-Windows handles (file system) as a separable feature.
-
-mshandle_=$(GLOBJ)gp_mshdl.$(OBJ)
-$(GLD)mshandle.dev: $(ECHOGS_XE) $(mshandle_)
-	$(SETMOD) $(GLD)mshandle $(mshandle_)
-	$(ADDMOD) $(GLD)mshandle -iodev handle
-
-$(GLOBJ)gp_mshdl.$(OBJ): $(GLSRC)gp_mshdl.c $(AK)\\
- $(ctype__h) $(errno__h) $(stdio__h) $(string__h)\\
- $(gserror_h) $(gsmemory_h) $(gstypes_h) $(gxiodev_h)
-	$(GLCC) $(GLO_)gp_mshdl.$(OBJ) $(C_) $(GLSRC)gp_mshdl.c
-
-# Define MS-Windows printer (file system) as a separable feature.
-
-msprinter_=$(GLOBJ)gp_msprn.$(OBJ)
-$(GLD)msprinter.dev: $(ECHOGS_XE) $(msprinter_)
-	$(SETMOD) $(GLD)msprinter $(msprinter_)
-	$(ADDMOD) $(GLD)msprinter -iodev printer
-
-$(GLOBJ)gp_msprn.$(OBJ): $(GLSRC)gp_msprn.c $(AK)\\
- $(ctype__h) $(errno__h) $(stdio__h) $(string__h)\\
- $(gserror_h) $(gsmemory_h) $(gstypes_h) $(gxiodev_h)
-	$(GLCCWIN) $(GLO_)gp_msprn.$(OBJ) $(C_) $(GLSRC)gp_msprn.c
-
-# Define MS-Windows polling as a separable feature
-# because it is not needed by the gslib.
-mspoll_=$(GLOBJ)gp_mspol.$(OBJ)
-$(GLD)mspoll.dev: $(ECHOGS_XE) $(mspoll_)
-	$(SETMOD) $(GLD)mspoll $(mspoll_)
-
-$(GLOBJ)gp_mspol.$(OBJ): $(GLSRC)gp_mspol.c $(AK)\\
- $(gx_h) $(gp_h) $(gpcheck_h) $(iapi_h) $(iref_h) $(iminst_h) $(imain_h)
-	$(GLCCWIN) $(GLO_)gp_mspol.$(OBJ) $(C_) $(GLSRC)gp_mspol.c
-
-# end of winlib.mak
-''',
-			   '%(builddir)s/Makefile',
-			   mode='a')
-
-		self.dump ('''
-#winint.mak
 PSCCWIN=$(CC) $(CFLAGS) -I$(GLOBJDIR)
-$(PSOBJ)gsdll.$(OBJ): $(PSSRC)gsdll.c $(AK) $(iapi_h) $(ghost_h)
-	$(PSCCWIN) $(COMPILE_FOR_DLL) $(PSO_)gsdll.$(OBJ) $(C_) $(PSSRC)gsdll.c
-
-$(GLOBJ)gp_msdll.$(OBJ): $(GLSRC)gp_msdll.c $(AK) $(iapi_h)
-	$(PSCCWIN) $(COMPILE_FOR_DLL) $(GLO_)gp_msdll.$(OBJ) $(C_) $(GLSRC)gp_msdll.c
-''',
-			   '%(builddir)s/Makefile',
-			   mode='a')
-
-		self.dump ('''
+include $(GLSRCDIR)/win32.mak
+include $(GLSRCDIR)/gsdll.mak
 include $(GLSRCDIR)/winplat.mak
 include $(GLSRCDIR)/pcwin.mak
 ''',
