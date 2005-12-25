@@ -51,7 +51,6 @@ class Installer (gub.Package):
 			'lib/glib-2.0',
 			'lib/pkgconfig',
 			'lib/*~',
-			'lib/*.la',
 			'lib/*.a',
 			'lib/python2.4/distutils/command/wininst-6*',
 			'lib/python2.4/distutils/command/wininst-7.1*',
