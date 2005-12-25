@@ -87,6 +87,8 @@ class Rewirer (gub.Null_package):
 			self.ignore_libs = self.get_ignore_libs ()
 		
 		self.rewire_binary_dir (root + '/usr/lib')
+		# Ugh.
+		self.rewire_binary_dir (root + '/usr/lib/pango/1.4.0/modules/')
 		self.rewire_binary_dir (root + '/usr/bin')
 
 class Package_rewirer:
