@@ -29,7 +29,8 @@ def build_package (settings, manager, package):
 
 	stages = ['untar', 'patch', 'configure', 'compile', 'install',
 		  'package', 'clean']
-	available = dict (inspect.getmembers (package, lambda m: type (m)==types.MethodType))
+	available = dict (inspect.getmembers (package, callable))
+
 	forced_idx = 100
 
 	if settings.options.stage:
@@ -69,6 +70,9 @@ def get_settings (platform):
 	elif platform == 'mingw':
 		settings.target_gcc_flags = '-mwindows -mms-bitfields'
 	elif platform == 'linux':
+
+		## UGH. should work on macos too?
+		
 		platform = 'linux'
 		settings.target_architecture = settings.build_architecture
 		# Use apgcc to avoid using too new GLIBC symbols
@@ -166,6 +170,7 @@ def run_builder (settings, pkg_manager, args):
 	os.environ["PATH"] = '%s/%s:%s' % (settings.tooldir, 'bin',
                                            os.environ["PATH"])
 
+	
 	pkgs = [] 
 	if args and args[0] == 'all':
 		pkgs = pkg_manager._packages.values()

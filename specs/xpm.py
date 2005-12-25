@@ -158,6 +158,7 @@ def get_managers (settings):
 
 	if settings.platform == 'darwin':
 		import darwintools
+		
 		map (tool_manager.register_package,
 		     darwintools.get_packages (settings))
 	if settings.platform.startswith ('mingw'):

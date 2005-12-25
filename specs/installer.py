@@ -124,7 +124,6 @@ class Installer (gub.Package):
 class Darwin_bundle (Installer):
 	def __init__ (self, settings):
 		Installer.__init__ (self, settings)
-		self.ignore_libs = None
 		self.strip_command += ' -S '
 
 	def rewire_mach_o_object (self, name):
