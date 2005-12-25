@@ -2,6 +2,7 @@ import copy
 import glob
 import os
 import re
+import shutil
 
 ## gub specific.
 from settings import Settings
@@ -1029,8 +1030,12 @@ def get_packages (settings):
 	settings.guile_version = [p for p in packs if isinstance (p, Guile)][0].guile_version ()
 
 
-
+	if settings.platform == 'darwin':
+		import darwintools
+		darwintools.add_rewire_path (settings, packs)
 	return packs
+
+
 
 def get_installers (settings):
 	installers = {
