@@ -36,6 +36,7 @@ class Gcc (framework.Gcc):
 (cd %(tooldir)s/lib && ln -s libgcc_s.1.dylib libgcc_s.dylib)
 ''')
 
+
 class Rewirer (gub.Null_package):
 	def __init__ (self, settings):
 		gub.Null_package.__init__ (self,settings)
@@ -63,12 +64,14 @@ class Rewirer (gub.Null_package):
 				     locals(), ignore_error=True)
 
 	def rewire_binary_dir (self, dir):
+		if not os.path.isdir (dir):
+			return
 		(root, dirs, files) = os.walk (dir).next ()
 		files = [os.path.join (root, f) for f in files]
+		
 		for f in files:
 			if os.path.isfile (f):
 				self.rewire_mach_o_object(f)
-		
 		
 	def get_ignore_libs (self):
 		str = self.read_pipe ('tar tfz %(gub_uploads)s/darwin-sdk-0.0-1.darwin.gub')
@@ -82,7 +85,7 @@ class Rewirer (gub.Null_package):
 	def rewire_root (self, root):
 		if self.ignore_libs == None:
 			self.ignore_libs = self.get_ignore_libs ()
-			
+		
 		self.rewire_binary_dir (root + '/usr/lib')
 		self.rewire_binary_dir (root + '/usr/bin')
 
