@@ -3,6 +3,7 @@ import framework
 import glob
 import gub
 import re
+import os
 
 class Odcctools (gub.Cross_package):
 	def install_prefix (self):
@@ -35,11 +36,82 @@ class Gcc (framework.Gcc):
 (cd %(tooldir)s/lib && ln -s libgcc_s.1.dylib libgcc_s.dylib)
 ''')
 
+class Rewirer (gub.Null_package):
+	def __init__ (self, settings):
+		gub.Null_package.__init__ (self,settings)
+		self.ignore_libs = None
+		self.ball_version = '0.0'
+		self.url = None
+
+	def rewire_mach_o_object (self, name):
+		lib_str = self.read_pipe ("%(target_architecture)s-otool -L %(name)s", locals(), ignore_error=True)
+
+		changes = ''
+		for l in lib_str.split ('\n'):
+			m = re.search ("\s+(/usr/lib/.*) \(.*\)", l)
+			if not m:
+				continue
+			libpath = m.group (1)
+			if self.ignore_libs.has_key (libpath):
+				continue
+			
+			newpath = re.sub ('/usr/lib/', '@executable_path/../lib/', libpath); 
+			changes += (' -change %s %s ' % (libpath, newpath))
+			
+		if changes:
+			self.system ("%(target_architecture)s-install_name_tool %(changes)s %(name)s ",
+				     locals(), ignore_error=True)
+
+	def rewire_binary_dir (self, dir):
+		(root, dirs, files) = os.walk (dir).next ()
+		files = [os.path.join (root, f) for f in files]
+		for f in files:
+			if os.path.isfile (f):
+				self.rewire_mach_o_object(f)
+		
+		
+	def get_ignore_libs (self):
+		str = self.read_pipe ('tar tfz %(gub_uploads)s/darwin-sdk-0.0-1.darwin.gub')
+		d = {}
+		for l in str.split ('\n'):
+			l = l.strip ()
+			if re.match (r'^\./usr/lib/', l):
+				d[l[1:]] = True
+		return d
+
+	def rewire_root (self, root):
+		if self.ignore_libs == None:
+			self.ignore_libs = self.get_ignore_libs ()
+			
+		self.rewire_binary_dir (root + '/usr/lib')
+		self.rewire_binary_dir (root + '/usr/bin')
+
+class Package_rewirer:
+	def __init__ (self, rewirer, package):
+		self.rewirer = rewirer
+		self.package = package
+		self.install_routine = package.install
+		
+	def install (self):
+		self.install_routine ()
+		self.rewirer.rewire_root (self.package.install_root ())
+		
+
+def add_rewire_path (settings, packages):
+	rewirer = Rewirer (settings)
+	for p in packages:
+		wr = Package_rewirer (rewirer, p)
+		p.install = wr.install
+
+		
 def get_packages (settings):
-	return (
+	packages = [
 #		Odcctools (settings).with (version='20051031', mirror=download.opendarwin, format='bz2'),
 		Odcctools (settings).with (version='20051122', mirror=download.opendarwin, format='bz2'),		
 #		Gcc (settings).with (version='4.0.2', mirror = download.gcc, format='bz2'),
 		Gcc (settings).with (version='3.4.5', mirror = download.gcc, format='bz2',
 				     depends=['odcctools']),
-		)		
+		]
+
+
+	return packages
