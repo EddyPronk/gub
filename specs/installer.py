@@ -126,48 +126,6 @@ class Darwin_bundle (Installer):
 		Installer.__init__ (self, settings)
 		self.strip_command += ' -S '
 
-	def rewire_mach_o_object (self, name):
-		lib_str = self.read_pipe ("%(target_architecture)s-otool -L %(name)s", locals(), ignore_error=True)
-
-		changes = ''
-		for l in lib_str.split ('\n'):
-			m = re.search ("\s+(/usr/lib/.*) \(.*\)", l)
-			if not m:
-				continue
-			libpath = m.group (1)
-			if self.ignore_libs.has_key (libpath):
-				continue
-			
-			newpath = re.sub ('/usr/lib/', '@executable_path/../lib/', libpath); 
-			changes += (' -change %s %s ' % (libpath, newpath))
-			
-		if changes:
-			self.system ("%(target_architecture)s-install_name_tool %(changes)s %(name)s ",
-				     locals(), ignore_error=True)
-
-	def rewire_binary_dir (self, dir):
-		(root, dirs, files) = os.walk (dir).next ()
-		files = [os.path.join (root, f) for f in files]
-		for f in files:
-			if os.path.isfile (f):
-				self.rewire_mach_o_object(f)
-		
-		
-	def get_ignore_libs (self):
-		str = self.read_pipe ('tar tfz %(gub_uploads)s/darwin-sdk-0.0-1.darwin.gub')
-		d = {}
-		for l in str.split ('\n'):
-			l = l.strip ()
-			if re.match (r'^\./usr/lib/', l):
-				d[l[1:]] = True
-		return d
-	
-	def create (self):
-		self.ignore_libs = self.get_ignore_libs ()
-		self.rewire_binary_dir (self.settings.installer_root + '/usr/lib')
-		self.rewire_binary_dir (self.settings.installer_root + '/usr/bin')
-		Installer.create (self)
-
 	def strip (self):
 		self.strip_unnecessary_files ()
 		# no binary strip: makes debugging difficult.
