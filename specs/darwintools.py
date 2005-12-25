@@ -103,6 +103,9 @@ class Package_rewirer:
 def add_rewire_path (settings, packages):
 	rewirer = Rewirer (settings)
 	for p in packages:
+		if p.name () == 'darwin-sdk':
+			continue
+		
 		wr = Package_rewirer (rewirer, p)
 		p.install = wr.install
 
