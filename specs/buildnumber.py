@@ -9,7 +9,8 @@ import gub
 
 class Build_number_db:
 	def __init__ (self, dir, mode='r'):
-		self.db = gdbm.open (dir + '/buildnumber.gdbm', mode)
+		self.db = None
+		# gdbm.open (dir + '/buildnumber.gdbm', mode)
 
 	def key (self, package):
 		return package.expand_string ('%(name)s-%(version)s-%(target_architecture)s')
@@ -18,6 +19,8 @@ class Build_number_db:
 		package._build = self.get_build_number (package)
 		
 	def get_build_number (self, package):
+		return 1
+	
 		k = self.key (package)
 		if not self.db.has_key (k):
 			return 1
