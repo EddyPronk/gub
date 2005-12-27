@@ -35,7 +35,6 @@ download:
 	$(call INVOKE_DRIVER, mingw) download
 
 linux:
-	-$(call INVOKE_XPM, linux) install all
 	$(call BUILD_ALL, linux)
 
 mac:
