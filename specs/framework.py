@@ -977,7 +977,7 @@ def get_packages (settings):
 		Libtool (settings).with (version='1.5.20'),
 		Zlib (settings).with (version='1.2.2-1', mirror=download.lp, format='bz2'),
 		Gettext (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2'),
-		Freetype (settings).with (version='2.1.7', mirror=download.freetype, depends=['libtool', 'zlib']),
+		Freetype (settings).with (version='2.1.10', mirror=download.nongnu, depends=['libtool', 'zlib']),
 		Expat (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2'),
 		Fontconfig (settings).with (version='2.3.2', mirror=download.fontconfig, depends=['expat', 'freetype', 'libtool']),
 		Gmp (settings).with (version='4.1.4', depends=['libtool']),
