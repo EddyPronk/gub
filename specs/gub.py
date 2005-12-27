@@ -79,7 +79,7 @@ cd %(dir)s && cvs -d %(url)s -q co -r %(version)s %(name)s
 # Hmm, let's save local changes?			
 #cd %(dir)s/%(name)s && cvs update -dCAP -r %(version)s
 			self.system ('''
-cd %(dir)s/%(name)s && cvs -q update  -dAP -r %(version)s
+cd %(dir)s/%(name)s && cvs -q update -dAP -r %(version)s
 ''', locals ())
 		self.untar = self.skip
 
@@ -213,13 +213,15 @@ mkdir -p %(builddir)s
 cd %(builddir)s && %(configure_command)s
 ''')
 
-
 	def install (self):
 		self.system ('''
 rm -rf %(install_root)s
 cd %(builddir)s && %(install_command)s
 ''')
 		self.libtool_la_fixups ()
+
+	def postinstall (self):
+		pass
 
 	def libtool_la_fixups (self):
 		dll_name = 'lib'

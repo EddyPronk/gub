@@ -157,8 +157,9 @@ build-installer  - build installer for platform
 	return p
 
 def build_installers (settings, target_manager):
-	gub.system ('rm -rf %s' %  settings.installer_root)
-	install_manager = xpm.Package_manager (settings.installer_root)
+	os.system ('rm -rf %s' %  settings.installer_root)
+	install_manager = xpm.Package_manager (settings.installer_root,
+					       settings.os_interface)
 
 	for p in target_manager._packages.values ():
 		if not isinstance (p, gub.Sdk_package):
