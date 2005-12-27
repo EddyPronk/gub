@@ -25,6 +25,7 @@ class Installer (gub.Package):
 	def strip_unnecessary_files (self):
 		"Remove unnecessary cruft."
 	
+		framework_root = 'usr/lib/lilypond/%(bundle_version)s/lib'
 		for i in (
 			'bin/autopoint',
 			'bin/glib-mkenums',
@@ -69,7 +70,7 @@ class Installer (gub.Package):
 			'share/man',
 			'share/omf',
 		):
-			self.system ('cd %(installer_root)s && rm -rf %(i)s usr/%(i)s', locals ())
+			self.system ('cd %(installer_root)s && rm -rf %(i)s usr/%(i)s %(framework_root)s/usr/%(i)s', locals ())
 
 		# prune harder
 		for i in (
@@ -101,22 +102,21 @@ class Installer (gub.Package):
 			 'share/gs/fonts/c[^0][^9][^5]*',
 			 'share/gs/Resource',
 			 ):
-			self.system ('cd %(installer_root)s && rm -rf %(i)s usr/%(i)s' , locals ())
+			self.system ('cd %(installer_root)s && rm -rf %(i)s usr/%(i)s %(framework_root)s/usr/%(i)s' , locals ())
 
 	def strip_binary_file (self, file):
 		self.system ('%(strip_command)s %(file)s', locals (), ignore_error = True)
 
 	def strip_binary_dir (self, dir):
-		(root, dirs, files) = os.walk(dir).next ()
+		(root, dirs, files) = os.walk (dir % self.get_substitution_dict ()).next ()
 		for f in files:
 			if os.path.basename (f) not in self.no_binary_strip:
 				self.strip_binary_file (root + '/' + f)
 			
 	def strip (self):
 		self.strip_unnecessary_files ()
-		self.strip_binary_dir (self.settings.installer_root + '/usr/lib')
-		self.strip_binary_dir (self.settings.installer_root + '/usr/bin')
-
+		self.strip_binary_dir ('%(installer_root)s/usr/lib')
+		self.strip_binary_dir ('%(installer_root)s/usr/bin')
 		
 	def create (self):
 		self.strip ()
@@ -168,10 +168,17 @@ class Nsis (Installer):
 class Linux_installer (Installer):
 	def __init__ (self, settings):
 		Installer.__init__ (self, settings)
-		self.strip_command += ' -g '
+		# lose the i486-foo-bar-baz-
+		self.strip_command = 'strip -g'
+
+	def strip (self):
+		Installer.strip (self)
+		self.strip_binary_dir ('%(installer_root)s/usr/lib/lilypond/%(bundle_version)s/lib/usr/bin')
+		self.strip_binary_dir ('%(installer_root)s/usr/lib/lilypond/%(bundle_version)s/lib/usr/lib')
 
 class Tgz (Linux_installer):
 	def create (self):
+		Linux_installer.create (self)
 		build = self.settings.bundle_build
 		self.system ('tar -C %(installer_root)s -zcf %(installer_uploads)s/%(name)s-%(bundle_version)s-%(package_arch)s-%(build)s.tgz .', locals ())
 
@@ -196,8 +203,6 @@ class Autopackage (Linux_installer):
 		self.system ('tar -C %(installer_root)s/usr -cf- . | tar -C %(build_autopackage)s -xvf-')
 		self.system ('cd %(build_autopackage)s && makeinstaller')
 		self.system ('mv %(build_autopackage)s/*.package %(installer_uploads)s')
-
-
 
 
 def get_installers (settings):
