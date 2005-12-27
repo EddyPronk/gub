@@ -176,7 +176,7 @@ class Linux_installer (Installer):
 		self.strip_command = 'strip -g'
 
 	def strip_prefixes (self):
-		return (Installer.strip_prefixes
+		return (Installer.strip_prefixes (self)
 			+ [self.expand ('%(framework_dir)s/usr/')])
 			
 	def strip (self):
