@@ -436,7 +436,7 @@ class Binary_package (Package):
 	def untar (self):
 		self.system ('rm -rf %(srcdir)s %(builddir)s %(install_root)s')
 		self.system ('mkdir -p %(srcdir)s/root')
-		tarball = self.settings.downloaddir + '/' + self.file_name ()
+		tarball = self.expand ('%(downloaddir)s/%(file_name)s')
 		if not os.path.exists (tarball):
 			raise 'no such file: ' + tarball
 		flags = download.untar_flags (tarball)
