@@ -144,7 +144,7 @@ class Os_commands:
 			t = re.sub (re.compile (frm, re.MULTILINE), to, t)
 		if s != t or (to_name and name != to_name):
 			if not to_name:
-				system ('mv %(name)s %(name)s~' % locals ())
+				self.system ('mv %(name)s %(name)s~' % locals ())
 				to_name = name
 			h = open (to_name, 'w')
 			h.write (t)
