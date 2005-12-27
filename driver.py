@@ -161,17 +161,32 @@ def build_installers (settings, target_manager):
 	install_manager = xpm.Package_manager (settings.installer_root,
 					       settings.os_interface)
 
+	settings.framework_root = ('%(installer_root)s/usr/lib/lilypond/%(bundle_version)s/lib'
+				   % settings.__dict__)
+	framework_manager = xpm.Package_manager (settings.framework_root,
+						 settings.os_interface)
+
+	# why p instead of i?
 	for p in target_manager._packages.values ():
-		if not isinstance (p, gub.Sdk_package):
+		if isinstance (p, gub.Sdk_package):
+			continue
+		if (p.name () != 'lilypond'
+		    # Fixme, use settings.framework_packages or so?
+		    and settings.platform.startswith ('linux')):
+			framework_manager.register_package (p)
+		else:
 			install_manager.register_package (p)
 
 	for p in install_manager._packages.values ():
 		install_manager.install_package  (p)
-		
-	for p in framework.get_installers (settings):
+
+	for p in framework_manager._packages.values ():
+		framework_manager.install_package  (p)
+
+	for i in framework.get_installers (settings):
 		settings.os_interface.log_command (' *** Stage: %s (%s)\n'
-						   % ('create', p.name ()))
-		p.create ()
+						   % ('create', i.name ()))
+		i.create ()
 		
 def run_builder (settings, pkg_manager, args):
 	os.environ["PATH"] = '%s/%s:%s' % (settings.tooldir, 'bin',
