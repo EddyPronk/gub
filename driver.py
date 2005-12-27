@@ -29,7 +29,7 @@ def build_package (settings, manager, package):
 			manager.install_package (d)
 
 	stages = ['untar', 'patch', 'configure', 'compile', 'install',
-		  'postinstall', 'package', 'clean']
+		  'package', 'clean']
 	
 	available = dict (inspect.getmembers (package, callable))
 
