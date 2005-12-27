@@ -6,7 +6,6 @@ def subst_method (func):
 	func.substitute_me = True
 	return func
 
-
 def is_subst_method_in_class (method_name, klass):
 	bs = [k for k in klass.__bases__ if is_subst_method_in_class (method_name, k)]
 	if bs:
@@ -33,7 +32,8 @@ class Context:
 		d = {}
 		if self._parent:
 			d = self._parent.get_substitution_dict ()
-		
+			d = d.copy ()
+			
 		ms = inspect.getmembers(self)
 		vars = (dict([(k,v) for (k, v) in ms if type(v) == type('')]))
 		member_substs = dict([(k, v()) for (k,v) in ms if callable(v)
