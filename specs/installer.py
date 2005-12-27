@@ -28,7 +28,7 @@ class Installer (context.Os_context_wrapper):
 
 		delete_me = ''
 		for p in self.strip_prefixes ():
-			delete_me += p + '%(i)s'
+			delete_me += p + '%(i)s '
 
 		for i in (
 			'bin/autopoint',
@@ -73,40 +73,38 @@ class Installer (context.Os_context_wrapper):
 			'share/info',
 			'share/man',
 			'share/omf',
-		):
-			self.system ('cd %(installer_root)s && rm -rf ' + delete_me)
 
-		# prune harder
-		for i in (
-			 'lib/python%(python_version)s/bsddb',
-			 'lib/python%(python_version)s/compiler',
-			 'lib/python%(python_version)s/curses',
-			 'lib/python%(python_version)s/distutils',
-			 'lib/python%(python_version)s/email',
-			 'lib/python%(python_version)s/hotshot',
-			 'lib/python%(python_version)s/idlelib',
-			 'lib/python%(python_version)s/lib-old',
-			 'lib/python%(python_version)s/lib-tk',
-			 'lib/python%(python_version)s/logging',
-			 'lib/python%(python_version)s/test',
-			 'lib/python%(python_version)s/xml',
-			 'share/lilypond/*/make',
-			 'share/gettext',
-			 'usr/share/aclocal',
-			 'share/lilypond/*/python',
-			 'share/lilypond/*/tex',
-			 'share/lilypond/*/vim',
-			 'share/lilypond/*/python',
-			 'share/lilypond/*/fonts/source',
-			 'share/lilypond/*/fonts/svg',
-			 'share/lilypond/*/fonts/tfm',
-			 'share/locale',
-			 'share/omf',
-			 'share/gs/fonts/[a-bd-z]*',
-			 'share/gs/fonts/c[^0][^9][^5]*',
-			 'share/gs/Resource',
-			 ):
-			self.system ('cd %(installer_root)s && rm -rf ' + delete_me)
+			# prune harder
+			'lib/python%(python_version)s/bsddb',
+			'lib/python%(python_version)s/compiler',
+			'lib/python%(python_version)s/curses',
+			'lib/python%(python_version)s/distutils',
+			'lib/python%(python_version)s/email',
+			'lib/python%(python_version)s/hotshot',
+			'lib/python%(python_version)s/idlelib',
+			'lib/python%(python_version)s/lib-old',
+			'lib/python%(python_version)s/lib-tk',
+			'lib/python%(python_version)s/logging',
+			'lib/python%(python_version)s/test',
+			'lib/python%(python_version)s/xml',
+			'share/lilypond/*/make',
+			'share/gettext',
+			'usr/share/aclocal',
+			'share/lilypond/*/python',
+			'share/lilypond/*/tex',
+			'share/lilypond/*/vim',
+			'share/lilypond/*/python',
+			'share/lilypond/*/fonts/source',
+			'share/lilypond/*/fonts/svg',
+			'share/lilypond/*/fonts/tfm',
+			'share/locale',
+			'share/omf',
+			'share/gs/fonts/[a-bd-z]*',
+			'share/gs/fonts/c[^0][^9][^5]*',
+			'share/gs/Resource',			
+			):
+
+			self.system ('cd %(installer_root)s && rm -rf ' + delete_me, {'i': i })
 
 	def strip_binary_file (self, file):
 		self.system ('%(strip_command)s %(file)s', locals (), ignore_error = True)
@@ -133,7 +131,7 @@ class Darwin_bundle (Installer):
 	def create (self):
 		Installer.create (self)
 		rw = darwintools.Rewirer (self.settings)
-		rw.rewire_root (self, self.settings.installer_root)
+		rw.rewire_root (self.settings.installer_root)
 		
 	def strip (self):
 		self.strip_unnecessary_files ()
