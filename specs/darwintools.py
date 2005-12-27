@@ -65,7 +65,7 @@ class Rewirer (context.Os_context_wrapper):
 				continue
 			
 			newpath = re.sub ('/usr/lib/', '@executable_path/../lib/', libpath); 
-			newpath = re.sub (tooldir_lib, '@executable_path/../', libpath); 
+			newpath = re.sub (tooldir_lib, '@executable_path/../', newpath); 
 			changes += (' -change %s %s ' % (libpath, newpath))
 			
 		if changes:
