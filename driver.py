@@ -18,19 +18,19 @@ import settings as settings_mod
 import xpm
 
 def build_package (settings, manager, package):
-	print `package`
-	gub.log_command (package.expand (' ** Package: %(name)s (%(version)s, %(build)s)\n'))
+	settings.os_interface.log_command (package.expand (' ** Package: %(name)s (%(version)s, %(build)s)\n'))
 
 	for d in package.dependencies:
 		if not manager.is_installed (d):
-			gub.log_command ('building dependency: ' + d.name ()
-					 + ' for package: ' + package.name ()
-					 + '\n')
+			settings.os_interface.log_command ('building dependency: ' + d.name ()
+							   + ' for package: ' + package.name ()
+							   + '\n')
 			build_package (settings, manager, d)
 			manager.install_package (d)
 
 	stages = ['untar', 'patch', 'configure', 'compile', 'install',
-		  'package', 'clean']
+		  'postinstall', 'package', 'clean']
+	
 	available = dict (inspect.getmembers (package, callable))
 
 	forced_idx = 100
@@ -45,7 +45,9 @@ def build_package (settings, manager, package):
 	for stage in stages:
 		idx = stages.index (stage)
         	if not package.is_done (stage, idx):
-			gub.log_command (' *** Stage: %s (%s)\n' % (stage, package.name ()))
+
+			# ugh.
+			package.os_interface.log_command (' *** Stage: %s (%s)\n' % (stage, package.name ()))
 
 			if stage == 'clean' and  settings.options.keep_build:
 				continue
@@ -163,9 +165,8 @@ def build_installers (settings, target_manager):
 		install_manager.install_package  (p)
 		
 	for p in framework.get_installers (settings):
-		print 'installer: ' + p.name()
-		gub.log_command (' *** Stage: %s (%s)\n'
-				 % ('create', p.name ()))
+		settings.os_interface.log_command (' *** Stage: %s (%s)\n'
+						   % ('create', p.name ()))
 		p.create ()
 		
 def run_builder (settings, pkg_manager, args):
@@ -184,7 +185,7 @@ def run_builder (settings, pkg_manager, args):
 
 def download_sources (manager):
 	for p in manager._packages.values():
-		gub.log_command ("Considering %s\n" % p.name())
+		settings.os_interface.log_command ("Considering %s\n" % p.name())
 		p.do_download ()
 
 def main ():
@@ -198,7 +199,6 @@ def main ():
 	
 	settings = get_settings (options.platform)
 	add_options (settings, options)
-	gub.start_log (settings)
 	tool_manager, target_manager = xpm.get_managers (settings)
 
 	c = commands.pop (0)
