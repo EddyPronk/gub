@@ -143,16 +143,14 @@ class Package(Context):
 			     self.expand (name, env), mode=mode)
 
 	def file_sub (self, re_pairs, name, to_name=None, env={}):
-		d = self.get_substitution_dict (env)
-		x = [(self.expand (frm),
-		      self.expand (to))
+		x = [(self.expand (frm, env),
+		      self.expand (to, env))
 		     for (frm, to) in re_pairs]
 
 		if to_name:
-			to_name = self.expand (to_name)
+			to_name = self.expand (to_name, env)
 			
-		return file_sub (x,
-				 self.expand (name), to_name)
+		return file_sub (x, self.expand (name, env), to_name)
 
 	def read_pipe (self, cmd, env={}, ignore_error=False):
 		dict = self.get_substitution_dict (env)
