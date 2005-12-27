@@ -126,10 +126,11 @@ def get_cli_parser ():
 
 Commands:
 
-download         - download packages
-build            - build target packages
-build-installer  - build installer for platform
-    
+download          - download packages
+build             - build target packages
+build-installer   - build installer root
+package-installer - build installer binary
+
 """,
 				   description="Grand Unified Builder.  Specify --package-version to set build version")
 	p.add_option ('-V', '--verbose', action='store_true', 
@@ -173,7 +174,6 @@ def build_installers (settings, target_manager):
 		framework_manager = xpm.Package_manager (settings.framework_root,
 							 settings.os_interface)
 
-	# why p instead of i?
 	for p in target_manager._packages.values ():
 		if isinstance (p, gub.Sdk_package):
 			continue
@@ -189,6 +189,7 @@ def build_installers (settings, target_manager):
 		for p in framework_manager._packages.values ():
 			framework_manager.install_package  (p)
 
+def package_installers (settings):
 	import installer
 	for p in installer.get_installers (settings):
 		settings.os_interface.log_command (' *** Stage: %s (%s)\n'
@@ -238,6 +239,8 @@ def main ():
 		run_builder (settings, pm, commands)
 	elif c == 'build-installer':
 		build_installers (settings, target_manager)
+	elif c == 'package-installer':
+		package_installers (settings)
 	else:
 		raise 'unknown driver command %s.' % c
 		cli_parser.print_help ()

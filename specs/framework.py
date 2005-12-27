@@ -318,8 +318,6 @@ class LilyPond__mingw (LilyPond):
         def configure_command (self):
 		return LilyPond.configure_command (self) \
 		       + gub.join_lines ('''
---without-kpathsea
---enable-relocation
 --with-python-include=%(system_root)s/usr/include/python%(python_version)s
 --disable-optimising
 ''')

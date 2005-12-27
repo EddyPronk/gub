@@ -27,7 +27,8 @@ BUILD_ALL=$(call INVOKE_DRIVER, $(1)) -t build all \
   && $(call INVOKE_XPM, $(1)) -t install all \
   && $(call INVOKE_DRIVER, $(1)) build all \
   && $(call INVOKE_XPM, $(1)) install all \
-  && $(call INVOKE_DRIVER, $(1)) build-installer
+  && $(call INVOKE_DRIVER, $(1)) build-installer \
+  && $(call INVOKE_DRIVER, $(1)) package-installer \
 
 download:
 	$(call INVOKE_DRIVER, linux) download
