@@ -1,6 +1,5 @@
 import re
 import gzip
-import pickle
 import os
 
 import buildnumber
@@ -48,7 +47,7 @@ class Package_manager:
 
 		return [self._packages[p] for p in lists]
 
-	def get_tarball_file_list (self, ball):
+	def tarball_files (self, ball):
 		flag = tar_compression_flag (ball)
 		str = gub.read_pipe ('tar -tf%(flag)s "%(ball)s"'
 				     % locals (), silent=True)
@@ -57,11 +56,7 @@ class Package_manager:
 		return lst
 
 	def installed_files (self, package):
-		listfile = self.file_list_name (package)
-
-		f = gzip.open (listfile, 'r')
-		lst = pickle.load (f)
-		return lst
+		return self._read_list_file (package)
 
 	def uninstall_package (self, package):
 		for (nm, p) in self._packages.items():
@@ -101,17 +96,30 @@ class Package_manager:
 
 	def install_single_package (self, package):
 		ball = package.expand ('%(gub_uploads)s/%(gub_name)s')
-		gub.log_command ('installing package from %s\n' % ball)
+		name = package.name ()
+		gub.log_command ('installing package %(name)s from %(ball)s\n'
+				 % locals ())
 
 		flag = tar_compression_flag (ball)
 		root = self.root
 
 		gub.system ('tar -C %(root)s -xf%(flag)s %(ball)s' % locals ())
 
-		lst = self.get_tarball_file_list (ball)
-		listfile = self.file_list_name (package)
-		f = gzip.open (listfile, 'w')
-		pickle.dump (lst, f)
+		print 'package: %s' + `package`
+		print 'ball: %s' + `ball`
+		lst = self.tarball_files (ball)
+		print 'list: ' + `lst[:10]`
+		self._write_file_list (package, lst)
+
+	def _read_file_list (self, package):
+		return map (string.strip,
+			    gzip.open (self.file_list_name (package)).readlines ())
+
+	def _write_file_list (self, package, lst):
+		f = gzip.open (self.file_list_name (package), 'w')
+		for i in lst:
+			f.write ('%s\n' % i)
+		f.close ()
 
 	def install_dependencies (self, package):
 		for d in package.dependencies:

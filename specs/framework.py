@@ -862,11 +862,12 @@ include $(GLSRCDIR)/pcwin.mak
 			   mode='a')
 
 class Libjpeg (gub.Target_package):
-	def name(self):
+	def name (self):
 		return 'libjpeg'
 
 	def srcdir (self):
 		return re.sub (r'src\.v', '-', gub.Target_package.srcdir(self))
+
 	def configure_command (self):
 		return re.sub ('--config-cache', '',
 			       gub.Target_package.configure_command (self))
@@ -881,7 +882,18 @@ class Libjpeg (gub.Target_package):
 			'%(builddir)s/Makefile')
 
 	def install_command (self):
-		return ("mkdir -p  %(install_root)s/usr/include  %(install_root)s/usr/lib && make DESTDIR=%(install_root)s install-headers install-lib ")
+		return gub.join_lines ('''
+mkdir -p %(install_root)s/usr/include %(install_root)s/usr/lib
+&& make DESTDIR=%(install_root)s install-headers install-lib
+''')
+
+class Libjpeg__linux (Libjpeg):
+	def compile (self):
+		Libjpeg.compile (self)
+		self.file_sub ([('^#define (HAVE_STDLIB_H) *', '''#ifdef \\1
+#define \\1
+#endif''')],
+			       '%(builddir)s/jconfig.h')
 
 class Libpng (gub.Target_package):
 	def name (self):
@@ -970,7 +982,7 @@ def get_packages (settings):
 		Glib (settings).with (version='2.8.4', mirror=download.gtk),
 		Pango__linux (settings).with (version='1.10.1', mirror=download.gtk, depends=['freetype', 'fontconfig', 'glib']),
 		Python (settings).with (version='2.4.2', mirror=download.python, format='bz2'),
-		Libjpeg (settings).with (version='v6b', mirror=download.jpeg),
+		Libjpeg__linux (settings).with (version='v6b', mirror=download.jpeg),
 		Libpng (settings).with (version='1.2.8', mirror=download.libpng, depends=['zlib']),
 		Ghostscript (settings).with (version="8.15.1", mirror=download.cups, format='bz2', depends=['libjpeg', 'libpng', 'zlib']),
 		LilyPond__linux (settings).with (mirror=cvs.gnu, depends=['gettext', 'guile', 'pango', 'python'], track_development=True),

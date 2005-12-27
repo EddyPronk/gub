@@ -18,14 +18,16 @@ import settings as settings_mod
 import xpm
 
 def build_package (settings, manager, package):
+	print `package`
+	gub.log_command (package.expand (' ** Package: %(name)s (%(version)s, %(build)s)\n'))
+
 	for d in package.dependencies:
 		if not manager.is_installed (d):
 			gub.log_command ('building dependency: ' + d.name ()
-					 + ' for package :' + package.name ())
+					 + ' for package: ' + package.name ()
+					 + '\n')
 			build_package (settings, manager, d)
 			manager.install_package (d)
-
-	gub.log_command (package.expand (' ** Package: %(name)s (%(version)s, %(build)s)\n'))
 
 	stages = ['untar', 'patch', 'configure', 'compile', 'install',
 		  'package', 'clean']

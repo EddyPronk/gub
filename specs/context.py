@@ -19,9 +19,9 @@ def is_subst_method_in_class (method_name, klass):
 
 	return False
 
-def typecheck_substitution_dict(d):
-	for (k,v) in d.items():
-		if type (v) <> type(''):
+def typecheck_substitution_dict (d):
+	for (k, v) in d.items ():
+		if type (v) != type(''):
 			raise 'type', (k, v)
 
 class Context:
@@ -45,7 +45,7 @@ class Context:
 #		typecheck_substitution_dict(d)
 
 		for (k,v) in d.items ():
-			if type(v) <> type(''):
+			if type(v) != type(''):
 				del d[k]
 				continue
 			try:
@@ -54,18 +54,17 @@ class Context:
 			except ValueError:
 				pass
 			d[k] = v
-			
-		
+
 		return d
 
 	def get_substitution_dict (self, env={}):
 		if  self._substitution_dict == None:
-			self._substitution_dict  = self.get_constant_substitution_dict ()
+			self._substitution_dict = self.get_constant_substitution_dict ()
 
 		d = self._substitution_dict
 		if env:
-			d = d.copy()
-			d.update ([(k,v % d) for (k,v) in env.items() if type(v)==type('')])
+			d = d.copy ()
+			d.update ([(k, v % d) for (k, v) in env.items () if type(v) == type('')])
 			
 		return d
 	
