@@ -22,10 +22,16 @@ class Installer (gub.Package):
 	def version (self):
 		return self.settings.bundle_version
 
+	def strip_prefixes (self):
+		return ['', 'usr/']
+		
 	def strip_unnecessary_files (self):
 		"Remove unnecessary cruft."
-	
-		framework_dir = self.settings.framework_dir
+
+		delete_me = ''
+		for p in self.strip_prefixes ():
+			delete_me += p + '%(i)s'
+
 		for i in (
 			'bin/autopoint',
 			'bin/glib-mkenums',
@@ -41,7 +47,7 @@ class Installer (gub.Package):
 			'bin/msg*',
 			'bin/pango-querymodules*',
 			'bin/python*',
-			'bin/python2.4*',
+			'bin/python%(python_version)s*',
 			'bin/xmlwf',
 			'doc',
 			'include',
@@ -70,22 +76,22 @@ class Installer (gub.Package):
 			'share/man',
 			'share/omf',
 		):
-			self.system ('cd %(installer_root)s && rm -rf %(i)s usr/%(i)s %(framework_dir)s/usr/%(i)s', locals ())
+			self.system ('cd %(installer_root)s && rm -rf ' + delete_me)
 
 		# prune harder
 		for i in (
-			 'lib/python2.4/bsddb',
-			 'lib/python2.4/compiler',
-			 'lib/python2.4/curses',
-			 'lib/python2.4/distutils',
-			 'lib/python2.4/email',
-			 'lib/python2.4/hotshot',
-			 'lib/python2.4/idlelib',
-			 'lib/python2.4/lib-old',
-			 'lib/python2.4/lib-tk',
-			 'lib/python2.4/logging',
-			 'lib/python2.4/test',
-			 'lib/python2.4/xml',
+			 'lib/python%(python_version)s/bsddb',
+			 'lib/python%(python_version)s/compiler',
+			 'lib/python%(python_version)s/curses',
+			 'lib/python%(python_version)s/distutils',
+			 'lib/python%(python_version)s/email',
+			 'lib/python%(python_version)s/hotshot',
+			 'lib/python%(python_version)s/idlelib',
+			 'lib/python%(python_version)s/lib-old',
+			 'lib/python%(python_version)s/lib-tk',
+			 'lib/python%(python_version)s/logging',
+			 'lib/python%(python_version)s/test',
+			 'lib/python%(python_version)s/xml',
 			 'share/lilypond/*/make',
 			 'share/gettext',
 			 'usr/share/aclocal',
@@ -102,7 +108,7 @@ class Installer (gub.Package):
 			 'share/gs/fonts/c[^0][^9][^5]*',
 			 'share/gs/Resource',
 			 ):
-			self.system ('cd %(installer_root)s && rm -rf %(i)s usr/%(i)s %(framework_dir)s/usr/%(i)s' , locals ())
+			self.system ('cd %(installer_root)s && rm -rf ' + delete_me)
 
 	def strip_binary_file (self, file):
 		self.system ('%(strip_command)s %(file)s', locals (), ignore_error = True)
@@ -171,6 +177,10 @@ class Linux_installer (Installer):
 		# lose the i486-foo-bar-baz-
 		self.strip_command = 'strip -g'
 
+
+	def strip_prefixes (self):
+		return Installer.strip_prefixes + self.expand ('%(framework_dir)s/usr/')
+			
 	def strip (self):
 		Installer.strip (self)
 		self.strip_binary_dir ('%(installer_root)s/usr/lib/lilypond/%(bundle_version)s/lib/usr/bin')
