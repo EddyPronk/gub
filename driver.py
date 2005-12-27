@@ -166,24 +166,28 @@ def build_installers (settings, target_manager):
 	install_manager = xpm.Package_manager (settings.installer_root,
 					       settings.os_interface)
 
-	framework_manager = xpm.Package_manager (settings.framework_root,
-						 settings.os_interface)
+	is_linux = settings.platform.endswith ('linux')
+	framework_manager = None
+
+	if framework_manager:
+		framework_manager = xpm.Package_manager (settings.framework_root,
+							 settings.os_interface)
 
 	# why p instead of i?
 	for p in target_manager._packages.values ():
 		if isinstance (p, gub.Sdk_package):
 			continue
 		if (p.name () != 'lilypond'
-		    # Fixme, use settings.framework_packages or so?
-		    and settings.platform.startswith ('linux')):
+		    and framework_manager):
 			framework_manager.register_package (p)
 		else:
 			install_manager.register_package (p)
 
 	for p in install_manager._packages.values ():
 		install_manager.install_package  (p)
-	for p in framework_manager._packages.values ():
-		framework_manager.install_package  (p)
+	if framework_manager:
+		for p in framework_manager._packages.values ():
+			framework_manager.install_package  (p)
 
 	import installer
 	for p in installer.get_installers (settings):
