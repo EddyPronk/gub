@@ -44,7 +44,7 @@ class Rewirer (context.Os_context_wrapper):
 		self.ignore_libs = None
 		
 	def rewire_mach_o_object (self, name):
-		lib_str = self.read_pipe ("%(target_architecture)s-otool -L %(name)s", locals(), ignore_error=True)
+		lib_str = self.read_pipe ("%(tooldir)s/bin/%(target_architecture)s-otool -L %(name)s", locals(), ignore_error=True)
 
 		changes = ''
 		for l in lib_str.split ('\n'):
@@ -59,7 +59,8 @@ class Rewirer (context.Os_context_wrapper):
 			changes += (' -change %s %s ' % (libpath, newpath))
 			
 		if changes:
-			self.system ("%(target_architecture)s-install_name_tool %(changes)s %(name)s ",
+			
+			self.system ("%(tooldir)s/bin/%(target_architecture)s-install_name_tool %(changes)s %(name)s ",
 				     locals(), ignore_error=True)
 
 	def rewire_binary_dir (self, dir):
