@@ -25,7 +25,7 @@ class Installer (gub.Package):
 	def strip_unnecessary_files (self):
 		"Remove unnecessary cruft."
 	
-		framework_root = 'usr/lib/lilypond/%(bundle_version)s/lib'
+		framework_dir = self.settings.framework_dir
 		for i in (
 			'bin/autopoint',
 			'bin/glib-mkenums',
@@ -70,7 +70,7 @@ class Installer (gub.Package):
 			'share/man',
 			'share/omf',
 		):
-			self.system ('cd %(installer_root)s && rm -rf %(i)s usr/%(i)s %(framework_root)s/usr/%(i)s', locals ())
+			self.system ('cd %(installer_root)s && rm -rf %(i)s usr/%(i)s %(framework_dir)s/usr/%(i)s', locals ())
 
 		# prune harder
 		for i in (
@@ -102,7 +102,7 @@ class Installer (gub.Package):
 			 'share/gs/fonts/c[^0][^9][^5]*',
 			 'share/gs/Resource',
 			 ):
-			self.system ('cd %(installer_root)s && rm -rf %(i)s usr/%(i)s %(framework_root)s/usr/%(i)s' , locals ())
+			self.system ('cd %(installer_root)s && rm -rf %(i)s usr/%(i)s %(framework_dir)s/usr/%(i)s' , locals ())
 
 	def strip_binary_file (self, file):
 		self.system ('%(strip_command)s %(file)s', locals (), ignore_error = True)

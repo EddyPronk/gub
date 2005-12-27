@@ -115,6 +115,11 @@ def add_options (settings, options):
 	settings.use_tools = options.use_tools
 	settings.create_dirs ()
 	
+	if options.platform == 'linux':
+		settings.framework_dir = ('usr/lib/lilypond/%(bundle_version)s/lib'
+					   % settings.__dict__)
+		settings.framework_root = ('%(installer_root)s/%(framework_dir)s'
+					   % settings.__dict__)
 
 def get_cli_parser ():
 	p = optparse.OptionParser (usage="""driver.py [OPTION]... COMMAND [PACKAGE]...
@@ -161,8 +166,6 @@ def build_installers (settings, target_manager):
 	install_manager = xpm.Package_manager (settings.installer_root,
 					       settings.os_interface)
 
-	settings.framework_root = ('%(installer_root)s/usr/lib/lilypond/%(bundle_version)s/lib'
-				   % settings.__dict__)
 	framework_manager = xpm.Package_manager (settings.framework_root,
 						 settings.os_interface)
 

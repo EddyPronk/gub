@@ -383,31 +383,28 @@ class LilyPond__linux (LilyPond):
 		return 'export LD_LIBRARY_PATH=%(system_root)s/usr/lib:$LD_LIBRARY_PATH;' \
 		       + LilyPond.compile_command (self)
 
-
-
-	def xinstall_gub (self):
-		gub.Target_package.install_gub (self)
+	def install (self):
+		LilyPond.install (self)
 		self.system ('''
-cd %(installer_root)s/usr/bin && mv lilypond lilypond-bin
+cd %(install_root)s/usr/bin && mv lilypond lilypond-bin
 ''')
-		framework_root = gub.Package.installer_root (self)
 		self.dump ('''
 #! /bin/sh
 # Do not use Python, as python itself might need a relocation wrapper
-GUILE_LOAD_PATH=%(framework_root)s/share/guile/*:$GUILE_LOAD_PATH \
-GS_FONTPATH=%(framework_root)s/share/ghostscript/8.15/fonts:$GS_FONTPATH \
-GS_LIB=%(framework_root)s/share/ghostscript/8.15/lib:$GS_LIB \
-GS_FONTPATH=%(framework_root)s/share/gs/fonts:$GS_FONTPATH \
-GS_LIB=%(framework_root)s/share/gs/lib:$GS_LIB \
-PANGO_RC_FILE=${PANGO_RC_FILE-%(framework_root)s/usr/etc/pango/pangorc} \
-PYTHONPATH=%(framework_root)s/../python:$PYTHONPATH \
-PYTHONPATH=%(framework_root)s/lib/python%(python_version)s:$PYTHONPATH \
-%(installer_root)s/usr/bin/lilypond-bin "$@"
+GUILE_LOAD_PATH=/%(framework_dir)s/usr/share/guile/*:$GUILE_LOAD_PATH \\
+GS_FONTPATH=/%(framework_dir)s/usr/share/ghostscript/8.15/fonts:$GS_FONTPATH \\
+GS_LIB=/%(framework_dir)s/usr/share/ghostscript/8.15/lib:$GS_LIB \\
+GS_FONTPATH=/%(framework_dir)s/usr/share/gs/8.15/fonts:$GS_FONTPATH \\
+GS_LIB=/%(framework_dir)s/usr/share/gs/8.15/lib:$GS_LIB \\
+PANGO_RC_FILE=${PANGO_RC_FILE-%(framework_dir)s/usr/etc/pango/pangorc} \\
+PYTHONPATH=/%(framework_dir)s/usr/../python:$PYTHONPATH \\
+PYTHONPATH=/%(framework_dir)s/usr/lib/python%(python_version)s:$PYTHONPATH \\
+/usr/bin/lilypond-bin "$@"
 '''
 ,
-		'%(installer_root)s/usr/bin/lilypond',
+		'%(install_root)s/usr/bin/lilypond',
 		env=locals ())
-		os.chmod ('%(installer_root)s/usr/bin/lilypond' \
+		os.chmod ('%(install_root)s/usr/bin/lilypond' \
 			 % self.get_substitution_dict (), 0755)
 
 class LilyPond__darwin (LilyPond):
