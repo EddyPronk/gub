@@ -578,6 +578,8 @@ class Null_package (Package):
 		self.system ("tar -czf %(gub_uploads)s/%(gub_name)s --files-from=/dev/null")
 		
 class Sdk_package (Null_package):
+	def untar (self):
+		Package.untar (self)
 	def package (self):
 		self.system ('tar -C %(srcdir)s/ -czf %(gub_uploads)s/%(gub_name)s .')
 	
