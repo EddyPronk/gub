@@ -391,11 +391,12 @@ cd %(install_root)s/usr/bin && mv lilypond lilypond-bin
 		self.dump ('''
 #! /bin/sh
 # Do not use Python, as python itself might need a relocation wrapper
-GUILE_LOAD_PATH=/%(framework_dir)s/usr/share/guile/*:$GUILE_LOAD_PATH \\
+GUILE_LOAD_PATH=/%(framework_dir)s/usr/share/guile/1.7:$GUILE_LOAD_PATH \\
 GS_FONTPATH=/%(framework_dir)s/usr/share/ghostscript/8.15/fonts:$GS_FONTPATH \\
 GS_LIB=/%(framework_dir)s/usr/share/ghostscript/8.15/lib:$GS_LIB \\
 GS_FONTPATH=/%(framework_dir)s/usr/share/gs/8.15/fonts:$GS_FONTPATH \\
 GS_LIB=/%(framework_dir)s/usr/share/gs/8.15/lib:$GS_LIB \\
+LD_LIBRARY_PATH=/%(framework_dir)s/usr/lib:$LD_LIBRARY_PATH \\
 PANGO_RC_FILE=${PANGO_RC_FILE-%(framework_dir)s/usr/etc/pango/pangorc} \\
 PYTHONPATH=/%(framework_dir)s/usr/../python:$PYTHONPATH \\
 PYTHONPATH=/%(framework_dir)s/usr/lib/python%(python_version)s:$PYTHONPATH \\
