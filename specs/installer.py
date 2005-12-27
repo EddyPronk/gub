@@ -1,16 +1,14 @@
 import os
 import re
 import darwintools
-import gub
+import context
 
-# FIXME: Want to share get_substitution_dict () and system () with gub.Package,
-# add yet another base class?
-class Installer (gub.Package):
+class Installer (context.Os_context_wrapper):
 	def __init__ (self, settings):
-		gub.Package.__init__ (self, settings)
-		self.with (version="0.0")
+		context.Os_context_wrapper.__init__ (self, settings)
+		
+		self.settings = settings
 		self.strip_command = self.settings.target_architecture + "-strip"
-		self.ball_version = self.version
 		self.no_binary_strip = []
 		
         def name (self):
