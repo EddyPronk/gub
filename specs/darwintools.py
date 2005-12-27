@@ -112,7 +112,6 @@ def add_rewire_path (settings, packages):
 		
 def get_packages (settings):
 	packages = [
-#		Odcctools (settings).with (version='20051031', mirror=download.opendarwin, format='bz2'),
 		Odcctools (settings).with (version='20051122', mirror=download.opendarwin, format='bz2'),		
 #		Gcc (settings).with (version='4.0.2', mirror = download.gcc, format='bz2'),
 		Gcc (settings).with (version='3.4.5', mirror = download.gcc, format='bz2',

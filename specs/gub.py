@@ -291,11 +291,11 @@ tar %(flags)s %(tarball)s -C %(allsrcdir)s
 		ball_version = version
 		self.name_dependencies = depends
 		self.track_development = track_development
-		name = self.name ()
-		d = self.settings.get_substitution_dict()
-		d.update(locals())
-		
-		self.url = mirror % d
+		self.url = mirror
+
+		## don't do substitution. We want to postpone
+		## generating the dict until we're sure it doesn't change. 
+
 		return self
 
 class Cross_package (Package):
@@ -369,7 +369,7 @@ tooldir=%(install_prefix)s
 
 	def config_cache (self):
 		self.system ('mkdir -p %(builddir)s')
-		cache_fn = self.builddir () + '/config.cache'
+		cache_fn = self.expand ('%(builddir)s/config.cache')
 		cache = open (cache_fn, 'w')
 		str = (cross.cross_config_cache['all']
 		       + cross.cross_config_cache[self.settings.platform])
