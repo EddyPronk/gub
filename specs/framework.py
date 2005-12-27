@@ -8,7 +8,6 @@ import shutil
 from settings import Settings
 import gub
 import download
-import installer
 import cvs
 
 
@@ -1004,24 +1003,6 @@ def get_packages (settings):
 
 	settings.guile_version = [p for p in packs if isinstance (p, Guile)][0].guile_version ()
 
-
-	if settings.platform == 'darwin':
-		import darwintools
-		darwintools.add_rewire_path (settings, packs)
 	return packs
 
 
-
-def get_installers (settings):
-	installers = {
-		'darwin' : [installer.Darwin_bundle (settings)],
-		'linux' : [
-		installer.Tgz (settings),
-		installer.Deb (settings),
-		installer.Rpm (settings),
-		installer.Autopackage (settings),
-		],
-		'mingw' : [installer.Nsis (settings)],
-	}
-
-	return installers[settings.platform]

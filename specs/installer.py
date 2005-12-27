@@ -1,6 +1,6 @@
 import os
 import re
-
+import darwintools
 import gub
 
 # FIXME: Want to share get_substitution_dict () and system () with gub.Package,
@@ -126,6 +126,11 @@ class Darwin_bundle (Installer):
 		Installer.__init__ (self, settings)
 		self.strip_command += ' -S '
 
+	def create (self):
+		Installer.create (self)
+		rw = darwintools.Rewirer (self.settings)
+		rw.rewire_root (self, self.settings.installer_root)
+		
 	def strip (self):
 		self.strip_unnecessary_files ()
 		# no binary strip: makes debugging difficult.
@@ -193,3 +198,18 @@ class Autopackage (Linux_installer):
 		self.system ('mv %(build_autopackage)s/*.package %(installer_uploads)s')
 
 
+
+
+def get_installers (settings):
+	installers = {
+		'darwin' : [Darwin_bundle (settings)],
+		'linux' : [
+		Tgz (settings),
+		Deb (settings),
+		Rpm (settings),
+		Autopackage (settings),
+		],
+		'mingw' : [Nsis (settings)],
+	}
+
+	return installers[settings.platform]

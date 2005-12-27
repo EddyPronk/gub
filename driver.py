@@ -167,8 +167,9 @@ def build_installers (settings, target_manager):
 
 	for p in install_manager._packages.values ():
 		install_manager.install_package  (p)
-		
-	for p in framework.get_installers (settings):
+
+	import installer
+	for p in installer.get_installers (settings):
 		settings.os_interface.log_command (' *** Stage: %s (%s)\n'
 						   % ('create', p.name ()))
 		p.create ()
