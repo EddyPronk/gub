@@ -28,7 +28,7 @@ class Package_manager:
 		self._packages = {}
 		self.config = self.root + '/etc/xpm/'
 		if not os.path.isdir (self.config):
-			gub.system ('mkdir -p %s' % self.config)
+			os_interface.system ('mkdir -p %s' % self.config)
 
 	def is_installable (self, package):
 		ball = package.expand ('%(gub_uploads)s/%(gub_name)s')
