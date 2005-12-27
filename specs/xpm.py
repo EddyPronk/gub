@@ -31,7 +31,7 @@ class Package_manager:
 			gub.system ('mkdir -p %s' % self.config)
 
 	def is_installable (self, package):
-		ball = package.expand_string ('%(gub_uploads)s/%(gub_name)s')
+		ball = package.expand ('%(gub_uploads)s/%(gub_name)s')
 		return os.path.exists (ball)
 
 	def register_package (self, pkg):
@@ -100,7 +100,7 @@ class Package_manager:
 		return os.path.exists (self.file_list_name (package))
 
 	def install_single_package (self, package):
-		ball = package.expand_string ('%(gub_uploads)s/%(gub_name)s')
+		ball = package.expand ('%(gub_uploads)s/%(gub_name)s')
 		gub.log_command ('installing package from %s\n' % ball)
 
 		flag = tar_compression_flag (ball)

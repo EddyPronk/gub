@@ -1,10 +1,13 @@
 import os
 import re
-
 import gub
 
-class Settings:
+from context import *
+
+class Settings (Context):
 	def __init__ (self, arch):
+		Context.__init__(self)
+		
 		self.target_gcc_flags = '' 
 		self.topdir = os.getcwd ()
 		self.downloaddir = self.topdir + '/downloads'
@@ -50,25 +53,12 @@ class Settings:
 		self.python_version = '2.4'
 
 		self.use_tools = False
+		self.build_autopackage = self.builddir + '/autopackage'
 		
 	def verbose (self):
 		return self.options.verbose
 	
-	def get_substitution_dict (self):
-		d = {}
-		for (k, v) in self.__dict__.items ():
-			if type (v) != type (''):
-				continue
-
-			d[k] = v
-
-		d.update({
-			'build_autopackage': self.builddir + '/autopackage',
-			})
-		
-		return d
-			
-	def create_dirs (self): 
+ 	def create_dirs (self): 
 		for a in (
 			'downloaddir',
 			'gub_uploads',

@@ -13,7 +13,7 @@ class Build_number_db:
 		# gdbm.open (dir + '/buildnumber.gdbm', mode)
 
 	def key (self, package):
-		return package.expand_string ('%(name)s-%(version)s-%(target_architecture)s')
+		return package.expand ('%(name)s-%(version)s-%(target_architecture)s')
 
 	def set_build_number (self, package):
 		package._build = self.get_build_number (package)
@@ -28,7 +28,7 @@ class Build_number_db:
 		bn = self.db[k]
 
 		gubname ='%(gub_uploads)s/%(name)s-%(version)s-%(bn)s.%(platform)s.gub'
-		gubname = package.expand_string (gubname, locals ())
+		gubname = package.expand (gubname, locals ())
 	
 		if os.path.exists (gubname):
 			return string.atoi (bn)

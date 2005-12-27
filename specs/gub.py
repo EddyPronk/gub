@@ -16,6 +16,7 @@ import subprocess
 import sys
 import time
 
+from context import *
 
 log_file = None
 
@@ -51,11 +52,12 @@ def log_command (str):
 
 def system_one (cmd, env, ignore_error):
 	log_command ('invoking %s\n' % cmd)
-	
+
 	proc = subprocess.Popen (cmd, shell=True, env=env,
 				 stderr=subprocess.STDOUT)
-	stat = proc.wait ()
 
+	stat = proc.wait()
+	
 	if stat and not ignore_error:
 		m = 'Command barfed: %s\n' % cmd
 		log_command (m)
@@ -119,89 +121,65 @@ def read_pipe (cmd, ignore_error=False, silent=False):
 	return output
 
 	
-class Package:
+class Package(Context):
 	def __init__ (self, settings):
+		Context.__init__(self, settings)
+		
 		self.settings = settings
 		self.url = ''
-		self.download = self.wget
+		self._downloader = self.wget
 		self._build = 0
 
 		# set to true for CVS releases 
 		self.track_development = False
 
-	def package_dict (self, env={}):
-		dict = self.settings.get_substitution_dict ()
-		for (k, v) in self.__dict__.items():
-			if type (v) != type (''):
-				continue
-			dict[k] = v
 
-		dict.update({
-			'build': self.build (),
-			'builddir': self.builddir (),
-			'compile_command': self.compile_command (),
-			'configure_command': self.configure_command (),
-			'gub_name': self.gub_name (),
-			'install_command': self.install_command (),
-			'install_prefix': self.install_prefix (),
-			'install_root': self.install_root (),
-			'name': self.name (),
-			'srcdir': self.srcdir (),
-			'version': self.version (),
-			})
-
-		dict.update (env)
-		for (k, v) in dict.items ():
-			del dict[k]
-			if type (v) == type (''):
-				try:
-					v = v % dict
-					dict[k] = v
-				except KeyError:
-					pass
-
-		return dict
-
+	# fixme: rename download.py to mirrors.py
+	def do_download (self):
+		self._downloader()
+		
 	def dump (self, str, name, mode='w', env={}):
-		dict = self.package_dict (env)
-		return dump (str % dict, name % dict, mode=mode)
+		return dump (self.expand (str, env),
+			     self.expand (name, env), mode=mode)
 
 	def file_sub (self, re_pairs, name, to_name=None, env={}):
-		dict = self.package_dict (env)
-		x = []
-		for frm, to in re_pairs:
-			x += [(frm % dict, to % dict)]
+		d = self.get_substitution_dict (env)
+		x = [(self.expand (frm),
+		      self.expand (to))
+		     for (frm, to) in re_pairs]
+
 		if to_name:
-			to_name = to_name % dict
-		return file_sub (x, name % dict, to_name)
+			to_name = self.expand (to_name)
+			
+		return file_sub (x,
+				 self.expand (name), to_name)
 
 	def read_pipe (self, cmd, env={}, ignore_error=False):
-		dict = self.package_dict (env)
+		dict = self.get_substitution_dict (env)
 		return read_pipe (cmd % dict, ignore_error=ignore_error)
 
-	def expand_string (self, s, env={}):
-		return s % self.package_dict (env)
-		
 	def system (self, cmd, env={}, ignore_error=False):
-		dict = self.package_dict (env)
-		system (cmd % dict, env=dict, ignore_error=ignore_error,
+		dict = self.get_substitution_dict (env)
+		cmd = self.expand (cmd, env)
+		system (cmd, env=dict, ignore_error=ignore_error,
 			verbose=self.settings.verbose ())
-
-	def build (self):
-		return '%d' % self._build
 
 	def skip (self):
 		pass
 
 	def wget (self):
 		dir = self.settings.downloaddir
-		if not os.path.exists (dir + '/' + self.file_name ()):
+		url = self.expand (self.url)
+		name = self.expand (dir + '/' + self.file_name ())
+		if not os.path.exists (name):
+			print 'vadsavds'
 			self.system ('''
 cd %(dir)s && wget %(url)s
 ''', locals ())
 
 	def cvs (self):
 		dir = self.settings.allsrcdir
+		url = self.expand (self.url)
 		if not os.path.exists (os.path.join (dir, self.name ())):
 			self.system ('''
 cd %(dir)s && cvs -d %(url)s -q co -r %(version)s %(name)s
@@ -214,38 +192,75 @@ cd %(dir)s/%(name)s && cvs -q update  -dAP -r %(version)s
 ''', locals ())
 		self.untar = self.skip
 
-	def file_name (self):
-		## hmm. we could use Class._name as a data member.
-		##
-		if self.url:
-			file = re.sub ('.*/([^/]+)', '\\1', self.url)
-			file = file.lower ()
-		else:
-			file = self.__class__.__name__.lower ()
-			file = re.sub ('__.*', '', file)
-			file = re.sub ('_', '-', file)
+	@subst_method
+	def build (self):
+		return '%d' % self._build
+
+	@subst_method
+	def name (self):
+		file = self.__class__.__name__.lower ()
+		file = re.sub ('__.*', '', file)
+		file = re.sub ('_', '-', file)
 		return file
 
+
+	@subst_method
+	def file_name(self):
+		file = re.sub ('.*/([^/]+)', '\\1', self.url)
+		file = file.lower ()
+		return file
+
+	@subst_method
 	def basename (self):
-		f = self.file_name ()
-		f = re.sub ('.tgz', '', f)
-		f = re.sub ('-src\.tar.*', '', f)
-		f = re.sub ('\.tar.*', '', f)
-		return f
-
-	def name (self):
-		s = self.basename ()
-		s = re.sub ('-[0-9][^-]+(-[0-9]+)?$', '', s)
-		return s
-
+                f = self.file_name ()
+                f = re.sub ('.tgz', '', f)
+                f = re.sub ('-src\.tar.*', '', f)
+                f = re.sub ('\.tar.*', '', f)
+                return f
+	
+	@subst_method
 	def full_version (self):
 		return string.join ([self.version (), self.build ()], '-')
 
+	@subst_method
 	def version (self):
 		return split_version (self.ball_version)[0]
 
+	@subst_method
 	def name_version (self):
 		return '%s-%s' % (self.name (), self.version ())
+
+	@subst_method
+	def srcdir (self):
+		return self.settings.allsrcdir + '/' + self.basename ()
+
+	@subst_method
+	def builddir (self):
+		return self.settings.builddir + '/' + self.basename ()
+
+	@subst_method
+	def install_root (self):
+		return self.settings.installdir + "/" + self.name () + '-root'
+
+	@subst_method
+	def install_prefix (self):
+		return self.install_root () + '/usr'
+
+	@subst_method
+        def install_command (self):
+                return 'make install'
+
+	@subst_method
+	def configure_command (self):
+		return '%(srcdir)s/configure --prefix=%(install_prefix)s'
+
+	@subst_method
+	def compile_command (self):
+		return 'make'
+
+	@subst_method
+        def gub_name (self):
+		return '%(name)s-%(version)s-%(build)s.%(platform)s.gub'
 
 	def get_builds  (self):
 		return builds
@@ -258,20 +273,8 @@ cd %(dir)s/%(name)s && cvs -q update  -dAP -r %(version)s
 		else:
 			self._build = 1
 
-	def srcdir (self):
-		return self.settings.allsrcdir + '/' + self.basename ()
-
-	def builddir (self):
-		return self.settings.builddir + '/' + self.basename ()
-
-	def install_root (self):
-		return self.settings.installdir + "/" + self.name () + '-root'
-
-	def install_prefix (self):
-		return self.install_root () + '/usr'
-
 	def stamp_file (self):
-		return self.expand_string ('%(statusdir)s/%(name)s-%(version)s-%(build)s')
+		return self.expand ('%(statusdir)s/%(name)s-%(version)s-%(build)s')
 
 	def is_done (self, stage, stage_number):
 		f = self.stamp_file ()
@@ -313,17 +316,12 @@ cd %(autodir)s && autoconf
 cd %(srcdir)s && automake --add-missing
 ''', locals ())
 
-	def configure_command (self):
-		return '%(srcdir)s/configure --prefix=%(install_prefix)s'
-
 	def configure (self):
 		self.system ('''
 mkdir -p %(builddir)s
 cd %(builddir)s && %(configure_command)s
 ''')
 
-	def install_command (self):
-		return 'make install'
 
 	def install (self):
 		self.system ('''
@@ -335,7 +333,7 @@ cd %(builddir)s && %(install_command)s
 	def libtool_la_fixups (self):
 		dll_name = 'lib'
 		for i in glob.glob ('%(install_prefix)s/lib/*.la' \
-				    % self.package_dict ()):
+				    % self.get_substitution_dict ()):
 			base = os.path.basename (i)[3:-3]
 			self.file_sub ([
 				(''' *-L *[^"' ][^"' ]*''', ''),
@@ -352,19 +350,14 @@ cd %(builddir)s && %(install_command)s
 
 	## Platform check sucks. Let's move this into the installer  classes.
 
-	def compile_command (self):
-		return 'make'
 
 	def compile (self):
 		self.system ('cd %(builddir)s && %(compile_command)s')
 
 	def patch (self):
 		if not os.path.exists ('%(srcdir)s/configure' \
-				       % self.package_dict ()):
+				       % self.get_substitution_dict ()):
 			self.autoupdate ()
-
-        def gub_name (self):
-		return '%(name)s-%(version)s-%(build)s.%(platform)s.gub'
 
 	def package (self):
 		# naive tarball packages for now
@@ -384,7 +377,7 @@ tar -C %(install_root)s -zcf %(gub_uploads)s/%(gub_name)s .
 		if self.track_development:
 			return
 		
-		tarball = self.settings.downloaddir + '/' + self.file_name ()
+		tarball = self.expand("%(downloaddir)s/%(file_name)s")
 		if not os.path.exists (tarball):
 			raise 'no such file: ' + tarball
 		flags = download.untar_flags (tarball)
@@ -396,27 +389,20 @@ tar %(flags)s %(tarball)s -C %(allsrcdir)s
 ''',
 			     locals ())
 
-						 
-
-	def set_download (self, mirror=download.gnu, format='gz', download=wget):
-		"""Setup URLs and functions for downloading.
-
-		This should not spawn any commands.
-		"""
-
-		d = self.package_dict ()
-		d.update (locals ())
-		self.url = mirror () % d
-		self.download = lambda : download (self)
-		
 	def with (self, version='HEAD', mirror=download.gnu,
 		  format='gz', download=wget, depends=[],
 		  track_development=False
 		  ):
+		self.format = format
 		self.ball_version = version
-		self.set_download (mirror, format, download)
+		ball_version = version
 		self.name_dependencies = depends
 		self.track_development = track_development
+		name = self.name ()
+		d = self.settings.get_substitution_dict()
+		d.update(locals())
+		
+		self.url = mirror % d
 		return self
 
 class Cross_package (Package):

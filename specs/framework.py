@@ -238,7 +238,7 @@ class Guile__linux (Guile):
 class Guile__darwin (Guile):
 	def install (self):
 		Guile.install (self)
-		pat = self.expand_string ('%(install_root)s/usr/lib/libguile-srfi*.dylib')
+		pat = self.expand ('%(install_root)s/usr/lib/libguile-srfi*.dylib')
 		for f in glob.glob (pat):
 			directory = os.path.split (f)[0]
 			src = os.path.basename (f)
@@ -635,28 +635,6 @@ class Fontconfig__darwin (Fontconfig):
 		self.file_sub ([('-Wl,[^ ]+ ', '')],
 			       '%(builddir)s/src/Makefile')
 
-class Fondu (gub.Target_package):
-	def install (self):
-		self.system ("cp %(srcdir)s/showfond %(srcdir)s/fondu %(install_prefix)s/bin/")
-
-	def set_download (self, mirror,
-			  format='tgz', downloader=None):
-		gub.Target_package.set_download (self, mirror, format, downloader)
-		self.url = re.sub ("fondu-", "fondu_src-" , self.url)
-		self.url = re.sub ("tar.gz", "tgz" , self.url)
-
-	def configure (self):
-		self.system ("mkdir -p %(builddir)s && cp %(srcdir)s/Makefile.Mac %(builddir)s")
-		gub.Target_package.configure (self)
-
-		self.file_sub ([('CC = cc', 'CC = %(target_architecture)s-gcc\nVPATH=%(srcdir)s\n'),
-				('CORE = .*', '')],
-			       '%(builddir)s/Makefile')
-
-	def basename (self):
-		## ugr.
-		return 'fondu'
-
 class Expat (gub.Target_package):
 	def makeflags (self):
 		return gub.join_lines ('''
@@ -951,8 +929,7 @@ def get_packages (settings):
 		Libjpeg (settings).with (version='v6b', mirror=download.jpeg),
 		Libpng (settings).with (version='1.2.8', mirror=download.libpng),
 		Ghostscript__darwin (settings).with (version="8.15.1", mirror=download.cups, format='bz2', depends=['libjpeg', 'libpng']),
-		LilyPond__darwin (settings).with (mirror=cvs.gnu, download=gub.Package.cvs,
-						  track_development=True,
+		LilyPond__darwin (settings).with (mirror=cvs.gnu, track_development=True,
 						  depends=['pango', 'guile']
 						  ),
 	),
@@ -995,7 +972,7 @@ def get_packages (settings):
 		W32api (settings).with (version='3.5', mirror=download.mingw),
 		Regex (settings).with (version='2.3.90-1', mirror=download.lp, format='bz2', depends=['mingw-runtime']),
 		LilyPad (settings).with (version='0.0.7-1', mirror=download.lp, format='bz2', depends=['w32api']),
-		LilyPond__mingw (settings).with (mirror=cvs.gnu, download=gub.Package.cvs,
+		LilyPond__mingw (settings).with (mirror=cvs.gnu,
 						 depends=['gettext', 'guile', 'pango', 'python'],
 						 track_development=True),
 	],
@@ -1012,14 +989,17 @@ def get_packages (settings):
 		Glib (settings).with (version='2.8.4', mirror=download.gtk),
 		Pango__linux (settings).with (version='1.10.1', mirror=download.gtk),
 		Python (settings).with (version='2.4.2', mirror=download.python, format='bz2'),
-		LilyPond__linux (settings).with (mirror=cvs.gnu, download=gub.Package.cvs,
+		LilyPond__linux (settings).with (mirror=cvs.gnu,
 						 track_development=True),
 	),
 	}
 
 
 	packs = packages[settings.platform]
-
+	for p in packs:
+		if p.name() == 'lilypond':
+			p._downloader = p.cvs
+	
 	## FIXME: changes settings.
 	try:
 		settings.python_version = [p for p in packs if isinstance (p, Python)][0].python_version ()

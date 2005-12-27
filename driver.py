@@ -25,7 +25,7 @@ def build_package (settings, manager, package):
 			build_package (settings, manager, d)
 			manager.install_package (d)
 
-	gub.log_command (package.expand_string (' ** Package: %(name)s (%(version)s, %(build)s)\n'))
+	gub.log_command (package.expand (' ** Package: %(name)s (%(version)s, %(build)s)\n'))
 
 	stages = ['untar', 'patch', 'configure', 'compile', 'install',
 		  'package', 'clean']
@@ -181,8 +181,9 @@ def run_builder (settings, pkg_manager, args):
 		build_package (settings, pkg_manager, p)
 
 def download_sources (manager):
-	for p in manager._packages.values(): 
-		p.download ()
+	for p in manager._packages.values():
+		gub.log_command ("Considering %s\n" % p.name())
+		p.do_download ()
 
 def main ():
 	cli_parser = get_cli_parser ()
