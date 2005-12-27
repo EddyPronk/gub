@@ -79,5 +79,5 @@ class Settings (Context):
 			if os.path.isdir (dir):
 				continue
 
-			gub.system ('mkdir -p %s' % dir)
+			self.os_interface.system ('mkdir -p %s' % dir)
 
