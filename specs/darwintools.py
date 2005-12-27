@@ -4,6 +4,7 @@ import glob
 import gub
 import re
 import os
+import context
 
 class Odcctools (gub.Cross_package):
 	def install_prefix (self):
@@ -37,13 +38,11 @@ class Gcc (framework.Gcc):
 ''')
 
 
-class Rewirer (gub.Null_package):
+class Rewirer (context.Os_context_wrapper):
 	def __init__ (self, settings):
-		gub.Null_package.__init__ (self,settings)
+		context.Os_context_wrapper.__init__ (self,settings)
 		self.ignore_libs = None
-		self.ball_version = '0.0'
-		self.url = None
-
+		
 	def rewire_mach_o_object (self, name):
 		lib_str = self.read_pipe ("%(target_architecture)s-otool -L %(name)s", locals(), ignore_error=True)
 
@@ -95,10 +94,8 @@ class Package_rewirer:
 	def __init__ (self, rewirer, package):
 		self.rewirer = rewirer
 		self.package = package
-		self.install_routine = package.install
 		
-	def install (self):
-		self.install_routine ()
+	def rewire (self):
 		self.rewirer.rewire_root (self.package.install_root ())
 		
 
@@ -109,7 +106,7 @@ def add_rewire_path (settings, packages):
 			continue
 		
 		wr = Package_rewirer (rewirer, p)
-		p.install = wr.install
+		p.postinstall = wr.rewire
 
 		
 def get_packages (settings):
