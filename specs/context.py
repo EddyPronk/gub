@@ -39,9 +39,9 @@ class Context:
 			d = self._parent.get_substitution_dict ()
 			d = d.copy ()
 			
-		ms = inspect.getmembers(self)
-		vars = (dict([(k,v) for (k, v) in ms if type(v) == type('')]))
-		member_substs = dict([(k, v()) for (k,v) in ms if callable(v)
+		ms = inspect.getmembers (self)
+		vars = (dict([(k, v) for (k, v) in ms if type(v) == type('')]))
+		member_substs = dict([(k, v ()) for (k, v) in ms if callable (v)
 				      and is_subst_method_in_class (k, self.__class__)])
 		
 		d.update (vars)
@@ -49,7 +49,7 @@ class Context:
 
 #		typecheck_substitution_dict(d)
 
-		for (k,v) in d.items ():
+		for (k, v) in d.items ():
 			if type(v) != type(''):
 				del d[k]
 				continue

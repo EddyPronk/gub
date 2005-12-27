@@ -37,8 +37,7 @@ def split_version (s):
 def join_lines (str):
 	return re.sub ('\n', ' ', str)
 
-
-class Package(Os_context_wrapper):
+class Package (Os_context_wrapper):
 	def __init__ (self, settings):
 		Os_context_wrapper.__init__(self, settings)
 		

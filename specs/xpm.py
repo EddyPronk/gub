@@ -1,6 +1,7 @@
-import re
 import gzip
 import os
+import re
+import string
 
 import buildnumber
 import framework
@@ -57,7 +58,7 @@ class Package_manager:
 		return lst
 
 	def installed_files (self, package):
-		return self._read_list_file (package)
+		return self._read_file_list (package)
 
 	def uninstall_package (self, package):
 		for (nm, p) in self._packages.items():
@@ -96,8 +97,8 @@ class Package_manager:
 		return os.path.exists (self.file_list_name (package))
 
 	def install_single_package (self, package):
-		ball = package.expand ('%(gub_uploads)s/%(gub_name)s')
 		name = package.name ()
+		ball = package.expand ('%(gub_uploads)s/%(gub_name)s')
 
 		self.os_interface.log_command ('installing package %(name)s from %(ball)s\n'
 					       % locals ())
