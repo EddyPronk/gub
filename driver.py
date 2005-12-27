@@ -188,8 +188,8 @@ def build_installers (settings, target_manager):
 	import installer
 	for p in installer.get_installers (settings):
 		settings.os_interface.log_command (' *** Stage: %s (%s)\n'
-						   % ('create', i.name ()))
-		i.create ()
+						   % ('create', p.name ()))
+		p.create ()
 		
 def run_builder (settings, pkg_manager, args):
 	os.environ["PATH"] = '%s/%s:%s' % (settings.tooldir, 'bin',

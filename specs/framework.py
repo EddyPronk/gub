@@ -18,7 +18,8 @@ def file_is_newer (f1, f2):
 
 class Darwin_sdk (gub.Sdk_package):
 	def patch (self):
-		pat = self.srcdir() + '/usr/lib/*.la'
+		pat = self.expand ('%(srcdir)s/usr/lib/*.la')
+		
 		for a in glob.glob (pat):
 			self.file_sub ([(r' (/usr/lib/.*\.la)', r'%(system_root)s\1')], a)
 
@@ -252,14 +253,15 @@ class LilyPond (gub.Target_package):
 
 
 	def compile (self):
-		if (file_is_newer (self.srcdir () + '/config.make.in',
-				   self.builddir () + '/config.make')
-		    or file_is_newer (self.srcdir () + '/GNUmakefile.in',
-				      self.builddir () + '/GNUmakefile')
-		    or file_is_newer (self.srcdir () + '/config.hh.in',
-				      self.builddir () + '/config.make')
-		    or file_is_newer (self.srcdir () + '/configure',
-				      self.builddir () + '/config.make')):
+		d = self.get_substitution_dict ()
+		if (file_is_newer ('%(srcdir)s/config.make.in' % d,
+				   '%(builddir)s/config.make' % d)
+		    or file_is_newer ('%(srcdir)s/GNUmakefile.in' % d ,
+				      '%(builddir)s/GNUmakefile' % d)
+		    or file_is_newer ('%(srcdir)s/config.hh.in' % d,
+				      '%(builddir)s/config.make' % d)
+		    or file_is_newer ('%(srcdir)s/configure' % d,
+				      '%(builddir)s/config.make' % d)):
 			self.configure ()
 
 		gub.Target_package.compile (self)
@@ -272,7 +274,7 @@ class LilyPond (gub.Target_package):
         def name_version (self):
 		# whugh
 		if os.path.exists (self.srcdir ()):
-			d = gub.grok_sh_variables (self.srcdir () + '/VERSION')
+			d = gub.grok_sh_variables (self.expand ('%(srcdir)s/VERSION'))
 			return 'lilypond-%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
 		return gub.Target_package.name_version (self)
 
@@ -285,12 +287,10 @@ class LilyPond (gub.Target_package):
 	def autoupdate (self, autodir=0):
 		autodir = self.srcdir ()
 
-		if (file_is_newer (autodir + '/configure.in',
-				   self.builddir () + '/config.make')
-		    or file_is_newer (autodir + '/stepmake/aclocal.m4',
-				      self.builddir () + '/config.make')):
-
-
+		if (file_is_newer (self.expand ('%(autodir)s/configure.in', locals ()),
+				   self.expand ('%(builddir)s/config.make',locals ()))
+		    or file_is_newer (self.expand ('%(autodir)s/stepmake/aclocal.m4', locals ()),
+				      self.expand ('%(builddir)s/config.make', locals ()))):
 			self.system ('''
 			cd %(autodir)s && bash autogen.sh --noconfigure
 			''', locals ())
@@ -415,8 +415,10 @@ class LilyPond__darwin (LilyPond):
 	def configure_command (self):
 		cmd = LilyPond.configure_command (self)
 
-		framedir = '%(system_root)s/System/Library/Frameworks/Python.framework/Versions/%(python_version)s'
-		cmd += ' --with-python-include=' + framedir + '/include/python%(python_version)s'
+		pydir = ('%(system_root)s/System/Library/Frameworks/Python.framework/Versions/%(python_version)s'
+			 + '/include/python%(python_version)s')
+		
+		cmd += ' --with-python-include=' + pydir
 
 		## binaries are huge.
 		cmd += ' --disable-optimising '
@@ -425,7 +427,8 @@ class LilyPond__darwin (LilyPond):
 	def configure (self):
 		LilyPond.configure (self)
 
-		make = self.builddir ()+ '/config.make'
+		make = self.expand ('%(builddir)s/config.make')
+		
 		if re.search ("GUILE_ELLIPSIS", open (make).read ()):
 			return
 		self.file_sub ([('CONFIG_CXXFLAGS = ',
@@ -532,7 +535,7 @@ class Pango__darwin (Pango):
 	def install (self):
 		gub.Target_package.install (self)
 
-		etc = self.install_root () + '/usr/etc/pango'
+		etc = self.expand ('%(install_root)s/usr/etc/pango')
 		for a in glob.glob (etc + '/*'):
 			self.file_sub ([('/usr/', '$PANGO_PREFIX/')],
 				       a)
@@ -542,7 +545,7 @@ class Pango__darwin (Pango):
 ModuleFiles = "$PANGO_PREFIX/etc/pango/pango.modules"
 ModulesPath = "$PANGO_PREFIX/lib/pango/1.4.0/modules"
 ''')
-		shutil.copy2 (self.settings.patchdir + '/pango.modules' ,
+		shutil.copy2 (self.expand ('%(patchdir)s/pango.modules'),
 			      etc)
 
 class Freetype (gub.Target_package):
