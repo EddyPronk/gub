@@ -172,17 +172,17 @@ class Linux_installer (Installer):
 
 class Tgz (Linux_installer):
 	def create (self):
-		build = self.settings.build
+		build = self.settings.bundle_build
 		self.system ('tar -C %(installer_root)s -zcf %(installer_uploads)s/%(name)s-%(bundle_version)s-%(package_arch)s-%(build)s.tgz .', locals ())
 
 class Deb (Linux_installer):
 	def create (self):
-		build = self.settings.build
+		build = self.settings.bundle_build
 		self.system ('cd %(installer_uploads)s && fakeroot alien --keep-version --to-deb %(installer_uploads)s/%(name)s-%(bundle_version)s-%(package_arch)s-%(build)s.tgz', locals ())
 
 class Rpm (Linux_installer):
 	def create (self):
-		build = self.settings.build
+		build = self.settings.bundle_build
 		self.system ('cd %(installer_uploads)s && fakeroot alien --keep-version --to-rpm %(installer_uploads)s/%(name)s-%(bundle_version)s-%(package_arch)s-%(build)s.tgz', locals ())
 
 class Autopackage (Linux_installer):

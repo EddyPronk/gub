@@ -109,7 +109,6 @@ class Package_manager:
 		self.os_interface.system ('tar -C %(root)s -xf%(flag)s %(ball)s' % locals ())
 
 		lst = self.tarball_files (ball)
-		print 'list: ' + `lst[:10]`
 		self._write_file_list (package, lst)
 
 	def _read_file_list (self, package):
