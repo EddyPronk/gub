@@ -10,13 +10,15 @@ class Installer (context.Os_context_wrapper):
 		self.settings = settings
 		self.strip_command = self.settings.target_architecture + "-strip"
 		self.no_binary_strip = []
-		
+
+	@subst_method
         def name (self):
 		return 'lilypond'
 
 	def build (self):
 		return self.settings.bundle_build
 
+	@subst_method
 	def version (self):
 		return self.settings.bundle_version
 
