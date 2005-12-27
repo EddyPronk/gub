@@ -98,7 +98,7 @@ class Os_commands:
 
 		if stat and not ignore_error:
 			m = 'Command barfed: %s\n' % cmd
-			log_command (m)
+			self.log_command (m)
 			raise m
 
 		return 0
