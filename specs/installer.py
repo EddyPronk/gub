@@ -175,9 +175,9 @@ class Linux_installer (Installer):
 		# lose the i486-foo-bar-baz-
 		self.strip_command = 'strip -g'
 
-
 	def strip_prefixes (self):
-		return Installer.strip_prefixes + self.expand ('%(framework_dir)s/usr/')
+		return (Installer.strip_prefixes
+			+ [self.expand ('%(framework_dir)s/usr/')])
 			
 	def strip (self):
 		Installer.strip (self)
