@@ -43,6 +43,9 @@ def build_package (settings, manager, package):
 		return
 	
 	for stage in stages:
+		if not available.has_key (stage):
+			continue
+		
 		idx = stages.index (stage)
         	if not package.is_done (stage, idx):
 
