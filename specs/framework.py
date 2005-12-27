@@ -269,6 +269,7 @@ class LilyPond (gub.Target_package):
 		## FIXME: pickup $target-guile-config
 		return ('PATH=%(system_root)s/usr/bin:$PATH '
 			+ gub.Target_package.configure_command (self)
+			+ ' --enable-relocation '
 			+ ' --disable-documentation')
 
         def name_version (self):
