@@ -97,6 +97,8 @@ class Package_manager:
 	def install_single_package (self, package):
 		ball = package.expand ('%(gub_uploads)s/%(gub_name)s')
 		name = package.name ()
+		print 'package: %s' + `package`
+		print 'ball: %s' + `ball`
 		gub.log_command ('installing package %(name)s from %(ball)s\n'
 				 % locals ())
 
@@ -105,8 +107,6 @@ class Package_manager:
 
 		gub.system ('tar -C %(root)s -xf%(flag)s %(ball)s' % locals ())
 
-		print 'package: %s' + `package`
-		print 'ball: %s' + `ball`
 		lst = self.tarball_files (ball)
 		print 'list: ' + `lst[:10]`
 		self._write_file_list (package, lst)
