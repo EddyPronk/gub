@@ -3,6 +3,7 @@ import os
 import time
 import sys
 import subprocess
+import re
 
 def subst_method (func):
 	"""Decorator to match Context.get_substitution_dict()"""

@@ -12,7 +12,9 @@ class Settings (Context):
 		self.topdir = os.getcwd ()
 		self.downloaddir = self.topdir + '/downloads'
 		self.patchdir = self.topdir + '/patches'
-		self.build_architecture = gub.read_pipe ('gcc -dumpmachine',
+		self.os_interface = Os_commands ('build-%s.log'  % arch)
+		
+		self.build_architecture = self.os_interface.read_pipe ('gcc -dumpmachine',
 							 silent=True)[:-1]
 		self.specdir = self.topdir + '/specs'
 		self.nsisdir = self.topdir + '/nsis'
@@ -54,6 +56,8 @@ class Settings (Context):
 
 		self.use_tools = False
 		self.build_autopackage = self.builddir + '/autopackage'
+
+		
 		
 	def verbose (self):
 		return self.options.verbose

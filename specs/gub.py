@@ -18,8 +18,6 @@ import time
 
 from context import *
 
-log_file = None
-
 def grok_sh_variables (file):
 	dict = {}
 	for i in open (file).readlines ():
@@ -30,100 +28,19 @@ def grok_sh_variables (file):
 			dict[k] = s
 	return dict
 
-def now ():
-	return time.asctime (time.localtime ())
-
 def split_version (s):
 	m = re.match ('^(([0-9].*)-([0-9]+))$', s)
 	if m:
 		return m.group (2), m.group (3)
 	return s, '0'
 
-def start_log (settings):
-	global log_file
-	log_file = open ('build-%s.log' % settings.target_architecture, 'a')
-	log_file.write ('\n\n * Starting build: %s\n' %  now ())
-
-def log_command (str):
-	sys.stderr.write (str)
-	if log_file:
-		log_file.write (str)
-		log_file.flush ()
-
-def system_one (cmd, env, ignore_error):
-	log_command ('invoking %s\n' % cmd)
-
-	proc = subprocess.Popen (cmd, shell=True, env=env,
-				 stderr=subprocess.STDOUT)
-
-	stat = proc.wait()
-	
-	if stat and not ignore_error:
-		m = 'Command barfed: %s\n' % cmd
-		log_command (m)
-		raise m
-
-	return 0
-
 def join_lines (str):
 	return re.sub ('\n', ' ', str)
 
-def system (cmd, env={}, ignore_error=False, verbose=False):
-	"""Run multiple lines as multiple commands.
-	"""
 
-	call_env = os.environ.copy ()
-	call_env.update (env)
-
-	if verbose:
-		for (k, v) in env.items ():
-			sys.stderr.write ('%s=%s\n' % (k, v))
-
-	for i in cmd.split ('\n'):
-		if i:
-			system_one (i, call_env, ignore_error)
-
-	return 0
-
-def dump (str, name, mode='w'):
-	f = open (name, mode)
-	f.write (str)
-	f.close ()
-
-def file_sub (re_pairs, name, to_name=None):
-	
-	log_command ('substituting in %s\n' % name)
-	log_command (''.join (map (lambda x: "'%s' -> '%s'\n" % x,
-				   re_pairs)))
-	
-	s = open (name).read ()
-	t = s
-	for frm, to in re_pairs:
-		t = re.sub (re.compile (frm, re.MULTILINE), to, t)
-	if s != t or (to_name and name != to_name):
-		if not to_name:
-			system ('mv %(name)s %(name)s~' % locals ())
-			to_name = name
-		h = open (to_name, 'w')
-		h.write (t)
-		h.close ()
-
-def read_pipe (cmd, ignore_error=False, silent=False):
-	if not silent:
-		log_command ('Reading pipe: %s\n' % cmd)
-	
-	pipe = os.popen (cmd, 'r')
-	output = pipe.read ()
-	status = pipe.close ()
-	# successful pipe close returns None
-	if not ignore_error and status:
-		raise 'read_pipe failed'
-	return output
-
-	
-class Package(Context):
+class Package(Os_context_wrapper):
 	def __init__ (self, settings):
-		Context.__init__(self, settings)
+		Os_context_wrapper.__init__(self, settings)
 		
 		self.settings = settings
 		self.url = ''
@@ -138,29 +55,6 @@ class Package(Context):
 	def do_download (self):
 		self._downloader()
 		
-	def dump (self, str, name, mode='w', env={}):
-		return dump (self.expand (str, env),
-			     self.expand (name, env), mode=mode)
-
-	def file_sub (self, re_pairs, name, to_name=None, env={}):
-		x = [(self.expand (frm, env),
-		      self.expand (to, env))
-		     for (frm, to) in re_pairs]
-
-		if to_name:
-			to_name = self.expand (to_name, env)
-			
-		return file_sub (x, self.expand (name, env), to_name)
-
-	def read_pipe (self, cmd, env={}, ignore_error=False):
-		dict = self.get_substitution_dict (env)
-		return read_pipe (cmd % dict, ignore_error=ignore_error)
-
-	def system (self, cmd, env={}, ignore_error=False):
-		dict = self.get_substitution_dict (env)
-		cmd = self.expand (cmd, env)
-		system (cmd, env=dict, ignore_error=ignore_error,
-			verbose=self.settings.verbose ())
 
 	def skip (self):
 		pass
