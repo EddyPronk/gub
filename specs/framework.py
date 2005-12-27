@@ -69,8 +69,8 @@ class Python (gub.Target_package):
 	def python_version (self):
 		return '.'.join (self.ball_version.split ('.')[0:2])
 
-	def package_dict (self, env = {}):
-		dict = gub.Target_package.package_dict (self, env)
+	def get_substitution_dict (self, env = {}):
+		dict = gub.Target_package.get_substitution_dict (self, env)
 		dict['python_version'] = self.python_version ()
 		return dict
 
@@ -97,7 +97,7 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-1.patch
 	def install (self):
 		Python.install (self)
 		for i in glob.glob ('%(install_root)s/usr/lib/python%(python_version)s/lib-dynload/*.so*' \
-				    % self.package_dict ()):
+				    % self.get_substitution_dict ()):
 			dll = re.sub ('\.so*', '.dll', i)
 			self.system ('mv %(i)s %(dll)s', locals ())
 		self.system ('''
@@ -170,7 +170,7 @@ prefix=$(dirname $(dirname $0))
 exit 0
 ''',
 			   '%(install_prefix)s/bin/%(target_architecture)s-guile-config')
-		os.chmod ('%(install_prefix)s/bin/%(target_architecture)s-guile-config' % self.package_dict (), 0755)
+		os.chmod ('%(install_prefix)s/bin/%(target_architecture)s-guile-config' % self.get_substitution_dict (), 0755)
 
 class Guile__mingw (Guile):
 	def __init__ (self, settings):
@@ -211,7 +211,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
 			self.file_sub ([('''^#(LIBOBJS=".*fileblocks.*)''',
 					 '\\1')],
 				       '%(srcdir)s/configure')
-			os.chmod ('%(srcdir)s/configure' % self.package_dict (), 0755)
+			os.chmod ('%(srcdir)s/configure' % self.get_substitution_dict (), 0755)
 		gub.Target_package.configure (self)
 		self.file_sub ([('^\(allow_undefined_flag=.*\)unsupported',
 			       '\\1')],
@@ -367,7 +367,7 @@ cp %(install_root)s/usr/lib/lilypond/*/python/* %(install_root)s/usr/bin
 cp %(install_root)s/usr/share/lilypond/*/python/* %(install_root)s/usr/bin
 ''')
 		for i in glob.glob ('%(install_root)s/usr/bin/*' \
-				    % self.package_dict ()):
+				    % self.get_substitution_dict ()):
 			s = self.read_pipe ('file %(i)s' % locals ())
 			if s.find ('guile') >= 0:
 				self.system ('mv %(i)s %(i)s.scm', locals ())
@@ -409,7 +409,7 @@ PYTHONPATH=%(framework_root)s/lib/python%(python_version)s:$PYTHONPATH \
 		'%(installer_root)s/usr/bin/lilypond',
 		env=locals ())
 		os.chmod ('%(installer_root)s/usr/bin/lilypond' \
-			 % self.package_dict (), 0755)
+			 % self.get_substitution_dict (), 0755)
 
 class LilyPond__darwin (LilyPond):
 	def __init__ (self, settings):
@@ -524,7 +524,7 @@ class Pango__linux (Pango):
 		self.file_sub ([('(have_cairo[_a-z0-9]*)=true', '\\1=false'),
 				('(cairo[_a-z0-9]*)=yes', '\\1=no')],
 			       '%(srcdir)s/configure')
-		os.chmod ('%(srcdir)s/configure' % self.package_dict (), 0755)
+		os.chmod ('%(srcdir)s/configure' % self.get_substitution_dict (), 0755)
 
 class Pango__darwin (Pango):
 	def configure (self):

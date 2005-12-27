@@ -2,7 +2,7 @@ import os
 import re
 import gub
 
-# FIXME: Want to share package_dict () and system () with gub.Package,
+# FIXME: Want to share get_substitution_dict () and system () with gub.Package,
 # add yet another base class?
 class Installer (gub.Package):
 	def __init__ (self, settings):
