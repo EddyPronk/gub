@@ -188,7 +188,7 @@ def run_builder (settings, pkg_manager, args):
 
 def download_sources (manager):
 	for p in manager._packages.values():
-		settings.os_interface.log_command ("Considering %s\n" % p.name())
+		p.settings.os_interface.log_command ("Considering %s\n" % p.name())
 		p.do_download ()
 
 def main ():
