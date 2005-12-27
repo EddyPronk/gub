@@ -629,6 +629,11 @@ class Fontconfig__mingw (Fontconfig):
 ''')
 
 class Fontconfig__darwin (Fontconfig):
+	def configure_command (self):
+		cmd = Fontconfig.configure_command (self)
+		cmd += ' --with-add-fonts=/Library/Fonts,/System/Library/Fonts '
+		return cmd
+	
 	def configure (self):
 		Fontconfig.configure (self)
 		self.file_sub ([('-Wl,[^ ]+ ', '')],
