@@ -525,7 +525,9 @@ tooldir=%(install_prefix)s
 
 	def file_sub (self, re_pairs, name, to_name=None, env={}):
 		dict = self.target_dict (env)
-		return Package.file_sub (self, re_pairs, name, to_name=to_name, env=dict)
+
+		s = Package.file_sub (self, re_pairs, name, to_name=to_name, env=dict)
+		return s
 
 	def read_pipe (self, cmd, env={}, ignore_error=False):
 		dict = self.target_dict (env)
