@@ -220,9 +220,6 @@ cd %(builddir)s && %(install_command)s
 ''')
 		self.libtool_la_fixups ()
 
-	def postinstall (self):
-		pass
-
 	def libtool_la_fixups (self):
 		dll_name = 'lib'
 		for i in glob.glob ('%(install_prefix)s/lib/*.la' \
