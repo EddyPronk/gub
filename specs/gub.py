@@ -144,15 +144,14 @@ class Package(Context):
 
 	def file_sub (self, re_pairs, name, to_name=None, env={}):
 		d = self.get_substitution_dict (env)
-		x = [(self.expand (frm),
-		      self.expand (to))
+		x = [(frm % d, to % d)
 		     for (frm, to) in re_pairs]
 
 		if to_name:
-			to_name = self.expand (to_name)
+			to_name = to_name % d
 			
 		return file_sub (x,
-				 self.expand (name), to_name)
+				 name % d, to_name)
 
 	def read_pipe (self, cmd, env={}, ignore_error=False):
 		dict = self.get_substitution_dict (env)
@@ -527,7 +526,9 @@ tooldir=%(install_prefix)s
 
 	def file_sub (self, re_pairs, name, to_name=None, env={}):
 		dict = self.target_dict (env)
-		return Package.file_sub (self, re_pairs, name, to_name=to_name, env=dict)
+
+		s = Package.file_sub (self, re_pairs, name, to_name=to_name, env=dict)
+		return s
 
 	def read_pipe (self, cmd, env={}, ignore_error=False):
 		dict = self.target_dict (env)
