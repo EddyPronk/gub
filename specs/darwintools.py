@@ -33,7 +33,7 @@ class Gcc (framework.Gcc):
 	def install (self):
 		gub.Cross_package.install (self)
 		self.system ('''
-(cd %(tooldir)s/lib && ln -s libgcc_s.1.dylib libgcc_s.dylib)
+(cd %(tooldir)s/lib && rm -f libgcc_s.dylib && ln -s libgcc_s.1.dylib libgcc_s.dylib)
 ''')
 
 
