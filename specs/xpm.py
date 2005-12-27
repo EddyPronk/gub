@@ -22,7 +22,8 @@ def tar_compression_flag (ball):
 # use (G)DBM or similar to maintain package database.
 #
 class Package_manager:
-	def __init__ (self, root):
+	def __init__ (self, root, os_interface):
+		self.os_interface = os_interface
 		self.root = root
 		self._packages = {}
 		self.config = self.root + '/etc/xpm/'
@@ -49,8 +50,8 @@ class Package_manager:
 
 	def tarball_files (self, ball):
 		flag = tar_compression_flag (ball)
-		str = gub.read_pipe ('tar -tf%(flag)s "%(ball)s"'
-				     % locals (), silent=True)
+		str = self.os_interface.read_pipe ('tar -tf%(flag)s "%(ball)s"'
+						   % locals (), silent=True)
 
 		lst = str.split ('\n')
 		return lst
@@ -68,7 +69,7 @@ class Package_manager:
 		self.uninstall_single_package (package)
 
 	def uninstall_single_package (self, package):
-		gub.log_command ('uninstalling package %s\n' % `package`)
+		self.os_interface.log_command ('uninstalling package %s\n' % `package`)
 
 		listfile = self.file_list_name (package)
 		lst = self.installed_files (package)
@@ -98,13 +99,13 @@ class Package_manager:
 		ball = package.expand ('%(gub_uploads)s/%(gub_name)s')
 		name = package.name ()
 
-		gub.log_command ('installing package %(name)s from %(ball)s\n'
-				 % locals ())
+		self.os_interface.log_command ('installing package %(name)s from %(ball)s\n'
+					       % locals ())
 
 		flag = tar_compression_flag (ball)
 		root = self.root
 
-		gub.system ('tar -C %(root)s -xf%(flag)s %(ball)s' % locals ())
+		self.os_interface.system ('tar -C %(root)s -xf%(flag)s %(ball)s' % locals ())
 
 		lst = self.tarball_files (ball)
 		print 'list: ' + `lst[:10]`
@@ -160,8 +161,8 @@ class Package_manager:
 
 
 def get_managers (settings):
-	tool_manager = Package_manager (settings.tooldir)
-	target_manager = Package_manager (settings.system_root)
+	tool_manager = Package_manager (settings.tooldir, settings.os_interface)
+	target_manager = Package_manager (settings.system_root, settings.os_interface)
 
 	if settings.platform == 'darwin':
 		import darwintools
