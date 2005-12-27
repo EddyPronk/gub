@@ -166,14 +166,11 @@ def build_installers (settings, target_manager):
 	install_manager = xpm.Package_manager (settings.installer_root,
 					       settings.os_interface)
 
-	is_linux = settings.platform.endswith ('linux')
 	framework_manager = None
-
-	if framework_manager:
+	if settings.platform.endswith ('linux'):
 		framework_manager = xpm.Package_manager (settings.framework_root,
 							 settings.os_interface)
 
-	# why p instead of i?
 	for p in target_manager._packages.values ():
 		if isinstance (p, gub.Sdk_package):
 			continue
