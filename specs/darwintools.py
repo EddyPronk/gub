@@ -46,9 +46,18 @@ class Rewirer (context.Os_context_wrapper):
 	def rewire_mach_o_object (self, name):
 		lib_str = self.read_pipe ("%(tooldir)s/bin/%(target_architecture)s-otool -L %(name)s", locals(), ignore_error=True)
 
+
+		##
+		## this is gory: for some reason, we get the
+		## libgcc paths along.
+		## we need to relocate those, to make enough room
+		## for the new paths.
+		## 
+		tooldir_lib = self.expand ('%(tooldir)s/')
+		
 		changes = ''
 		for l in lib_str.split ('\n'):
-			m = re.search ("\s+(/usr/lib/.*) \(.*\)", l)
+			m = re.search ("\s+(/usr/lib/.*|%s.*) \(.*\)" % tooldir_lib, l)
 			if not m:
 				continue
 			libpath = m.group (1)
@@ -56,12 +65,13 @@ class Rewirer (context.Os_context_wrapper):
 				continue
 			
 			newpath = re.sub ('/usr/lib/', '@executable_path/../lib/', libpath); 
+			newpath = re.sub (tooldir_lib, '@executable_path/../', libpath); 
 			changes += (' -change %s %s ' % (libpath, newpath))
 			
 		if changes:
 			
 			self.system ("%(tooldir)s/bin/%(target_architecture)s-install_name_tool %(changes)s %(name)s ",
-				     locals(), ignore_error=True)
+				     locals())
 
 	def rewire_binary_dir (self, dir):
 		if not os.path.isdir (dir):
