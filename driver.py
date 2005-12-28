@@ -85,9 +85,11 @@ def get_settings (platform):
 		# Use apgcc to avoid using too new GLIBC symbols
 		# possibly gcc/g++ -Wl,--as-needed, ld --as-needed has
 		# same effect?
+
 		settings.gcc = 'apgcc'
 		settings.gxx = 'apg++'
 		settings.ld = 'ld --as-needed'
+
 		settings.tool_prefix = ''
 		settings.package_arch = 'i386'
 		os.environ['CC'] = settings.gcc
@@ -169,6 +171,8 @@ def build_installers (settings, target_manager):
 
 	framework_manager = None
 	if settings.platform.endswith ('linux'):
+		# Hmm, better to configure --prefix=framework_root --xxxfix=fr?
+		# and install everything in / ?
 		framework_manager = xpm.Package_manager (settings.framework_root,
 							 settings.os_interface)
 

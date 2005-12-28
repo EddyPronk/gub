@@ -48,7 +48,7 @@ ac_exeext=${ac_exeext=}
 # to LIBS
 # it seems that libtool is broken wrt cross compilation:
 #    sys_lib_search_path_spec="/usr/lib /lib/w32api /lib /usr/local/lib"
-libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"/lib /usr/lib $cygwin_prefix/lib"'"}
+libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(framework_root)s/usr/lib /lib /usr/lib"'"}
 
 lt_cv_dlopen=${lt_cv_dlopen="dlopen"}
 ''',
@@ -57,6 +57,7 @@ ac_cv_lib_dl_dlopen=${ac_cv_lib_dl_dlopen=yes}
 
 lt_cv_dlopen_libs=${lt_cv_dlopen_libs="-ldl"}
 lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=32768}
+##libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(framework_root)s/usr/lib /lib /usr/lib"'"}
 ''',
 	'darwin' : '''
 ac_cv_c_bigendian=${ac_cv_c_bigendian=yes}

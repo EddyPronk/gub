@@ -588,17 +588,17 @@ class Fontconfig (gub.Target_package):
 		      + gub.join_lines ('''
 --with-freetype-config="/usr/bin/freetype-config
 --prefix=%(system_root)s/usr
---exec-prefix=%(system_root)s/usr
 "''')
+#--urg-broken-if-set-exec-prefix=%(system_root)s/usr
 
 	def configure (self):
 		gub.Package.system (self, '''
 		rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
 ''',
-			     env = {'ft_config' : '''/usr/bin/freetype-config \
---prefix=%(install_prefix)s \
---exec-prefix=%(install_prefix)s \
+			     env={'ft_config' : '''/usr/bin/freetype-config \
+--prefix=%(system_root)s/usr \
 '''})
+#--urg-broken-if-set-exec-prefix=%(system_root)s/usr \
 		gub.Target_package.configure (self)
 		# FIXME: how to put in __mingw class without duplicating
 		# configure ()
@@ -640,6 +640,17 @@ class Fontconfig__darwin (Fontconfig):
 		Fontconfig.configure (self)
 		self.file_sub ([('-Wl,[^ ]+ ', '')],
 			       '%(builddir)s/src/Makefile')
+
+class Fontconfig__linux (Fontconfig):
+	def configure (self):
+		Fontconfig.configure (self)
+		self.file_sub ([
+			('^sys_lib_search_path_spec="/lib/* ',
+			 'sys_lib_search_path_spec="%(system_root)s/usr/lib /lib '),
+			('^sys_lib_dl_search_path_spec="/lib/* ',
+			 'sys_lib_dl_search_path_spec="%(system_root)s/usr/lib /lib ')
+			],
+			       '%(builddir)s/libtool')
 
 class Expat (gub.Target_package):
 	def makeflags (self):
@@ -981,7 +992,7 @@ def get_packages (settings):
 		Gettext (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2'),
 		Freetype (settings).with (version='2.1.10', mirror=download.nongnu, depends=['libtool', 'zlib']),
 		Expat (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2'),
-		Fontconfig (settings).with (version='2.3.2', mirror=download.fontconfig, depends=['expat', 'freetype', 'libtool']),
+		Fontconfig__linux (settings).with (version='2.3.2', mirror=download.fontconfig, depends=['expat', 'freetype', 'libtool']),
 		Gmp (settings).with (version='4.1.4', depends=['libtool']),
 		# FIXME: we're actually using 1.7.2-cvs+, 1.7.2 needs too much work
 		Guile__linux (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2', depends=['gettext', 'gmp', 'libtool']),

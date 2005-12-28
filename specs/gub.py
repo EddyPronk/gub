@@ -228,13 +228,27 @@ cd %(builddir)s && %(install_command)s
 				(''' *-L *[^"' ][^"' ]*''', ''),
 				('''( |=|')(/[^ ]*usr/lib/lib)([^ ']*)\.(a|la|so)[^ ']*''', '\\1-l\\3'),
 				('^old_library=.*',
-				"""old_library='lib%(base)s.a'""")],
-				       i, env=locals ())
+				"""old_library='lib%(base)s.a'"""),
+				],
+				i, env=locals ())
                         if self.settings.platform.startswith ('mingw'):
 			         self.file_sub ([('library_names=.*',
 						"library_names='lib%(base)s.dll.a'")],
 						i, env=locals ())
 			#  ' " ''' '
+
+			# FIXME: avoid using libs from /usr/lib when
+			# building linux package.
+
+			# * Only do this after installing in system root?
+			# * configure using --libdir=%(system_root)s/usr/lib ?
+
+                        if self.settings.platform.startswith ('linux'):
+				self.file_sub ([
+				('^libdir=.*',
+				"""libdir='%(system_root)s/usr/lib'"""),
+				],
+					       i, env=locals ())
 
 
 	## Platform check sucks. Let's move this into the installer  classes.
@@ -370,6 +384,7 @@ tooldir=%(install_prefix)s
 		str = (cross.cross_config_cache['all']
 		       + cross.cross_config_cache[self.settings.platform])
 		str = self.config_cache_overrides (str)
+		str = self.expand (str)
 		cache.write (str)
 		cache.close ()
 		os.chmod (cache_fn, 0755)
@@ -382,14 +397,23 @@ tooldir=%(install_prefix)s
 		dict = {
 			'AR': '%(tool_prefix)sar',
 			'CC': '%(tool_prefix)sgcc %(target_gcc_flags)s',
-			'CPPFLAGS': '-I%(system_root)s/usr/include',
+#			'CPPFLAGS': '-I%(system_root)s/usr/include',
+			'C_INCLUDE_PATH':' %(system_root)s/usr/include',
 			'CXX':'%(tool_prefix)sg++ %(target_gcc_flags)s',
-			'DLLTOOL' : '%(tool_prefix)sdlltool',
-			'DLLWRAP' : '%(tool_prefix)sdllwrap',
+			'DLLTOOL': '%(tool_prefix)sdlltool',
+			'DLLWRAP': '%(tool_prefix)sdllwrap',
+			'FREETYPE_CONFIG': '''/usr/bin/freetype-config \
+--prefix=%(system_root)s/usr \
+''',
+#--urg-broken-if-set-exec-prefix=%(system_root)s/usr \
 			'LD': '%(tool_prefix)sld',
 #			'LDFLAGS': '-L%(system_root)s/usr/lib',
 # FIXME: for zlib, try adding bin
-			'LDFLAGS': '-L%(system_root)s/usr/lib -L%(system_root)s/usr/bin',
+#			'LDFLAGS': '-L%(system_root)s/usr/lib -L%(system_root)s/usr/bin',
+# for libtool with linux to use the correct library search order,
+# LIBRARY_PATH must be used rather than LDFLAGS.
+# try without also setting LDFLAGS first.
+			'LIBRARY_PATH': '%(system_root)s/usr/lib:%(system_root)s/usr/bin',
 			'NM': '%(tool_prefix)snm',
 			'PKG_CONFIG_PATH': '%(system_root)s/usr/lib/pkgconfig',
 			'PKG_CONFIG': '''/usr/bin/pkg-config \
