@@ -505,8 +505,21 @@ class Pango (gub.Target_package):
 ''')
 
 	def patch (self):
-		self.system ('cd %(srcdir)s && patch --force -p1  < %(patchdir)s/pango-env-sub')
+		self.system ('cd %(srcdir)s && patch --force -p1 < %(patchdir)s/pango-env-sub')
 
+	def fix_modules (self):
+		etc = self.expand ('%(install_root)s/usr/etc/pango')
+		for a in glob.glob (etc + '/*'):
+			self.file_sub ([('/usr/', '$PANGO_PREFIX/')],
+				       a)
+
+		open (etc + '/pangorc', 'w').write (
+		'''[Pango]
+ModuleFiles = "$PANGO_PREFIX/etc/pango/pango.modules"
+ModulesPath = "$PANGO_PREFIX/lib/pango/1.4.0/modules"
+''')
+		shutil.copy2 (self.expand ('%(patchdir)s/pango.modules'),
+			      etc)
 
 class Pango__mingw (Pango):
 	def install (self):
@@ -527,7 +540,6 @@ ModuleFiles = "@INSTDIR@\\usr\\etc\\pango\\pango.modules"
 # PANGO_RC_FILE=$(pwd)/etc/pango/pangorc bin/pango-querymodules > etc/pango/pango.modules
 		self.system ('cp %(nsisdir)s/pango.modules.in %(install_root)s/usr/etc/pango/pango.modules.in')
 
-
 class Pango__linux (Pango):
 	def untar (self):
 		Pango.untar (self)
@@ -540,7 +552,8 @@ class Pango__linux (Pango):
 		os.chmod ('%(srcdir)s/configure' % self.get_substitution_dict (), 0755)
 
 	def install (self):
-		Pango__darwin.install (self)
+		Pango.install (self)
+		self.fix_modules ()
 
 class Pango__darwin (Pango):
 	def configure (self):
@@ -549,20 +562,8 @@ class Pango__darwin (Pango):
 			       '%(builddir)s/libtool')
 
 	def install (self):
-		gub.Target_package.install (self)
-
-		etc = self.expand ('%(install_root)s/usr/etc/pango')
-		for a in glob.glob (etc + '/*'):
-			self.file_sub ([('/usr/', '$PANGO_PREFIX/')],
-				       a)
-
-		open (etc + '/pangorc', 'w').write (
-		'''[Pango]
-ModuleFiles = "$PANGO_PREFIX/etc/pango/pango.modules"
-ModulesPath = "$PANGO_PREFIX/lib/pango/1.4.0/modules"
-''')
-		shutil.copy2 (self.expand ('%(patchdir)s/pango.modules'),
-			      etc)
+		Pango.install (self)
+		self.fix_modules ()
 
 class Freetype (gub.Target_package):
 	def configure (self):
