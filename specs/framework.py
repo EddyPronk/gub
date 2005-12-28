@@ -263,8 +263,8 @@ class LilyPond (gub.Target_package):
 		    or file_is_newer ('%(srcdir)s/configure' % d,
 				      '%(builddir)s/config.make' % d)):
 			self.configure ()
-
 		gub.Target_package.compile (self)
+
 	def configure_command (self):
 		## FIXME: pickup $target-guile-config
 		return ('PATH=%(system_root)s/usr/bin:$PATH '
@@ -376,8 +376,11 @@ cp %(install_root)s/usr/share/lilypond/*/python/* %(install_root)s/usr/bin
 
 class LilyPond__linux (LilyPond):
 	def configure_command (self):
-		return LilyPond.configure_command (self) \
-		       + ' --enable-static-gxx'
+		return LilyPond.configure_command (self) + gub.join_lines ('''
+--enable-static-gxx
+--disable-optimising
+''')
+
 	def compile_command (self):
 		# FIXME: when not x-building, help2man runs guile without
 		# setting the proper LD_LIBRARY_PATH.
@@ -389,19 +392,28 @@ class LilyPond__linux (LilyPond):
 		self.system ('''
 cd %(install_root)s/usr/bin && mv lilypond lilypond-bin
 ''')
-		self.dump ('''
-#! /bin/sh
-# Do not use Python, as python itself might need a relocation wrapper
-GUILE_LOAD_PATH=/%(framework_dir)s/usr/share/guile/1.7:$GUILE_LOAD_PATH \\
-GS_FONTPATH=/%(framework_dir)s/usr/share/ghostscript/8.15/fonts:$GS_FONTPATH \\
-GS_LIB=/%(framework_dir)s/usr/share/ghostscript/8.15/lib:$GS_LIB \\
-GS_FONTPATH=/%(framework_dir)s/usr/share/gs/8.15/fonts:$GS_FONTPATH \\
-GS_LIB=/%(framework_dir)s/usr/share/gs/8.15/lib:$GS_LIB \\
-LD_LIBRARY_PATH=/%(framework_dir)s/usr/lib:$LD_LIBRARY_PATH \\
-PANGO_RC_FILE=${PANGO_RC_FILE-%(framework_dir)s/usr/etc/pango/pangorc} \\
-PYTHONPATH=/%(framework_dir)s/usr/../python:$PYTHONPATH \\
-PYTHONPATH=/%(framework_dir)s/usr/lib/python%(python_version)s:$PYTHONPATH \\
-/usr/bin/lilypond-bin "$@"
+		self.dump ('''#! /bin/sh
+# Not using Python, as python itself might need a relocation wrapper
+FRAMEWORK_DIR="${FRAMEWORK_DIR-/%(framework_dir)s}"
+if [ ! -d "$FRAMEWORK_DIR" ]; then
+    bindir=$(dirname $0)
+    prefix=$(dirname $bindir)
+    if [ $bindir == "." ]; then
+        prefix=..
+    fi
+    FRAMEWORK_DIR="$prefix/../%(framework_dir)s"
+fi
+FONTCONFIG_FILE=$FRAMEWORK_DIR/usr/etc/fonts/fonts.conf \\
+GUILE_LOAD_PATH=$FRAMEWORK_DIR/usr/share/guile/1.7:$GUILE_LOAD_PATH \\
+GS_FONTPATH=$FRAMEWORK_DIR/usr/share/ghostscript/8.15/fonts:$GS_FONTPATH \\
+GS_LIB=$FRAMEWORK_DIR/usr/share/ghostscript/8.15/lib:$GS_LIB \\
+GS_FONTPATH=$FRAMEWORK_DIR/usr/share/gs/8.15/fonts:$GS_FONTPATH \\
+GS_LIB=$FRAMEWORK_DIR/usr/share/gs/8.15/lib:$GS_LIB \\
+LD_LIBRARY_PATH=$FRAMEWORK_DIR/usr/lib:$LD_LIBRARY_PATH \\
+PANGO_RC_FILE=${PANGO_RC_FILE-$FRAMEWORK_DIR/usr/etc/pango/pangorc} \\
+PYTHONPATH=$FRAMEWORK_DIR/usr/../python:$PYTHONPATH \\
+PYTHONPATH=$FRAMEWORK_DIR/usr/lib/python%(python_version)s:$PYTHONPATH \\
+$prefix/bin/lilypond-bin "$@"
 '''
 ,
 		'%(install_root)s/usr/bin/lilypond',
@@ -527,12 +539,14 @@ class Pango__linux (Pango):
 			       '%(srcdir)s/configure')
 		os.chmod ('%(srcdir)s/configure' % self.get_substitution_dict (), 0755)
 
+	def install (self):
+		Pango__darwin.install (self)
+
 class Pango__darwin (Pango):
 	def configure (self):
 		Pango.configure (self)
 		self.file_sub ([('nmedit', '%(target_architecture)s-nmedit')],
 			       '%(builddir)s/libtool')
-
 
 	def install (self):
 		gub.Target_package.install (self)
