@@ -240,9 +240,14 @@ cd %(builddir)s && %(install_command)s
 			# FIXME: avoid using libs from /usr/lib when
 			# building linux package.
 
-			# * Only do this after installing in system root?
-			# * configure using --libdir=%(system_root)s/usr/lib ?
+			# Actually, this check should be something like
+			# if build_arch == target_arch:
+			# rather than if linux:
 
+			# Move this to xpm.py, and only do this after
+			# installing?  But how does xpm know whether
+			# we do a native install, as system install
+			# or an installer install.
                         if self.settings.platform.startswith ('linux'):
 				self.file_sub ([
 				('^libdir=.*',

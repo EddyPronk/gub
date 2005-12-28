@@ -389,6 +389,8 @@ class LilyPond__linux (LilyPond):
 
 	def install (self):
 		LilyPond.install (self)
+		# wrap lilypond binary for libraries in framework dir
+		# handle framework dir in relocate.cc?
 		self.system ('''
 cd %(install_root)s/usr/bin && mv lilypond lilypond-bin
 ''')
@@ -410,8 +412,11 @@ GS_LIB=$FRAMEWORK_DIR/usr/share/ghostscript/8.15/lib:$GS_LIB \\
 GS_FONTPATH=$FRAMEWORK_DIR/usr/share/gs/8.15/fonts:$GS_FONTPATH \\
 GS_LIB=$FRAMEWORK_DIR/usr/share/gs/8.15/lib:$GS_LIB \\
 LD_LIBRARY_PATH=$FRAMEWORK_DIR/usr/lib:$LD_LIBRARY_PATH \\
+PANGO_PREFIX=${PANGO_PREFIX-$FRAMEWORK_DIR/usr} \\
 PANGO_RC_FILE=${PANGO_RC_FILE-$FRAMEWORK_DIR/usr/etc/pango/pangorc} \\
-PYTHONPATH=$FRAMEWORK_DIR/usr/../python:$PYTHONPATH \\
+PANGO_SO_EXTENSION=.so \\
+PATH=$FRAMEWORK_DIR/usr/bin:$PATH \\
+PYTHONPATH=$FRAMEWORK_DIR/../python:$PYTHONPATH \\
 PYTHONPATH=$FRAMEWORK_DIR/usr/lib/python%(python_version)s:$PYTHONPATH \\
 $prefix/bin/lilypond-bin "$@"
 '''
