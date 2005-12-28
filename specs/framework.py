@@ -681,7 +681,7 @@ class Cygwin (gub.Binary_package):
 	def untar (self):
 		gub.Binary_package.untar (self)
 
-		file = '%s/root/usr/bin/cygcheck.exe' % self.srcdir ()
+		file = self.expand ('%(srcdir)s/root/usr/bin/cygcheck.exe')
 		cygcheck = open (file).read ()
 		self.system ('rm -rf %(srcdir)s/root')
 		self.system ('mkdir -p %(srcdir)s/root/usr/bin/')
