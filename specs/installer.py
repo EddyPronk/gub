@@ -11,14 +11,14 @@ class Installer (context.Os_context_wrapper):
 		self.strip_command = self.settings.target_architecture + "-strip"
 		self.no_binary_strip = []
 
-	@subst_method
+	@context.subst_method
         def name (self):
 		return 'lilypond'
 
 	def build (self):
 		return self.settings.bundle_build
 
-	@subst_method
+	@context.subst_method
 	def version (self):
 		return self.settings.bundle_version
 
@@ -129,11 +129,19 @@ class Darwin_bundle (Installer):
 	def __init__ (self, settings):
 		Installer.__init__ (self, settings)
 		self.strip_command += ' -S '
-
+		self.darwin_bundle_dir = '%(targetdir)s/LilyPond.app'
+		
 	def create (self):
 		Installer.create (self)
 		rw = darwintools.Rewirer (self.settings)
-		rw.rewire_root (self.settings.installer_root)
+#		rw.rewire_root (self.settings.installer_root)
+
+		self.system ('''
+rm -rf %(darwin_bundle_dir)s
+tar -C %(targetdir)s -zxf %(downloaddir)s/OSX-LilyPad-0.0.tar.gz
+cp -R --link %(installer_root)s/usr/* %(darwin_bundle_dir)s/Contents/Resources/
+''')
+
 		
 	def strip (self):
 		self.strip_unnecessary_files ()

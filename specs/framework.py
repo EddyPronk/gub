@@ -328,6 +328,7 @@ class LilyPond__mingw (LilyPond):
 mkdir -p %(builddir)s
 cp /usr/include/FlexLexer.h %(system_root)s/usr/include
 cp /usr/include/FlexLexer.h %(builddir)s/lily/out/
+cp /usr/include/FlexLexer.h %(builddir)s/lily/out-console/
 ''')
 		gub.Target_package.configure (self)
 		self.config_cache ()
