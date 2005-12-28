@@ -1,7 +1,9 @@
 import os
 import re
+#
 import darwintools
 import context
+from context import subst_method
 
 class Installer (context.Os_context_wrapper):
 	def __init__ (self, settings):
