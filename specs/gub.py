@@ -63,7 +63,6 @@ class Package (Os_context_wrapper):
 		url = self.expand (self.url)
 		name = self.expand (dir + '/' + self.file_name ())
 		if not os.path.exists (name):
-			print 'vadsavds'
 			self.system ('''
 cd %(dir)s && wget %(url)s
 ''', locals ())
@@ -437,8 +436,8 @@ class Binary_package (Package):
 		if not os.path.exists (tarball):
 			raise 'no such file: ' + tarball
 		flags = download.untar_flags (tarball)
-		cmd = 'tar %(flags)s %(tarball)s -C %(srcdir)s/root'
-		self.system (cmd, locals ())
+		
+		self.system ('tar %(flags)s %(tarball)s -C %(srcdir)s/root', locals ())
 
 	def configure (self):
 		pass
