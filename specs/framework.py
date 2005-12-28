@@ -398,11 +398,20 @@ cd %(install_root)s/usr/bin && mv lilypond lilypond-bin
 # Not using Python, as python itself might need a relocation wrapper
 FRAMEWORK_DIR="${FRAMEWORK_DIR-/%(framework_dir)s}"
 if [ ! -d "$FRAMEWORK_DIR" ]; then
-    bindir=$(dirname $0)
-    prefix=$(dirname $bindir)
-    if [ $bindir == "." ]; then
-        prefix=..
+    if expr "$0" : '/' > /dev/null 2>&1; then
+        bindir=$(cd $(dirname $0); pwd)
+    elif [ "$(basename $0)" != "$0" ]; then
+        bindir=$PWD/$(dirname $0)
+    else
+        (IFS=:; for d in $PATH; do
+	    if [ -x $d/lilypond-bin ]; then
+	        bindir=$d
+	        break
+	    fi
+	done)
+	bindir=/usr/bin
     fi
+    prefix=$(dirname $bindir)
     FRAMEWORK_DIR="$prefix/../%(framework_dir)s"
 fi
 FONTCONFIG_FILE=$FRAMEWORK_DIR/usr/etc/fonts/fonts.conf \\
