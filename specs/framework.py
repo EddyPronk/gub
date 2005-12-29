@@ -137,10 +137,9 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/gmp-4.1.4-1.patch
 			       '%(builddir)s/libtool')
 
 class Guile (gub.Target_package):
-
-	## Ugh. C&P.
+	# FIXME: C&P.
 	def guile_version (self):
-		return '.'.join (self.ball_version.split ('.')[0:])
+		return '.'.join (self.ball_version.split ('.')[0:2])
 
 	def configure_command (self):
 		return (gub.Target_package.configure_command (self)
@@ -389,11 +388,27 @@ class LilyPond__linux (LilyPond):
 
 	def install (self):
 		LilyPond.install (self)
-		# wrap lilypond binary for libraries in framework dir
+		for i in (
+			'abc2ly',
+			'convert-ly',
+			'etf2ly',
+			'lilypond',
+			'lilypond-book',
+			'lilypond-invoke-editor',
+			'midi2ly',
+			'mup2ly',
+			'musicxml2ly'
+			):
+			self.wrap_framework_program (i)
+
+	def wrap_framework_program (self, name):
 		# handle framework dir in relocate.cc?
+		wrapper = name
+		program = '.%(name)s-wrapped' % locals ()
 		self.system ('''
-cd %(install_root)s/usr/bin && mv lilypond lilypond-bin
-''')
+cd %(install_root)s/usr/bin && mv %(wrapper)s %(program)s
+''',
+			     locals ())
 		self.dump ('''#! /bin/sh
 # Not using Python, as python itself might need a relocation wrapper
 FRAMEWORK_DIR="${FRAMEWORK_DIR-/%(framework_dir)s}"
@@ -404,7 +419,7 @@ if [ ! -d "$FRAMEWORK_DIR" ]; then
         bindir=$PWD/$(dirname $0)
     else
         (IFS=:; for d in $PATH; do
-	    if [ -x $d/lilypond-bin ]; then
+	    if [ -x $d/%(program)s ]; then
 	        bindir=$d
 	        break
 	    fi
@@ -412,28 +427,27 @@ if [ ! -d "$FRAMEWORK_DIR" ]; then
 	bindir=/usr/bin
     fi
     prefix=$(dirname $bindir)
-    FRAMEWORK_DIR="$prefix/../%(framework_dir)s"
+    FRAMEWORK_DIR="$prefix/%(framework_dir)s"
 fi
 FONTCONFIG_FILE=$FRAMEWORK_DIR/usr/etc/fonts/fonts.conf \\
-GUILE_LOAD_PATH=$FRAMEWORK_DIR/usr/share/guile/1.7:$GUILE_LOAD_PATH \\
-GS_FONTPATH=$FRAMEWORK_DIR/usr/share/ghostscript/8.15/fonts:$GS_FONTPATH \\
-GS_LIB=$FRAMEWORK_DIR/usr/share/ghostscript/8.15/lib:$GS_LIB \\
-GS_FONTPATH=$FRAMEWORK_DIR/usr/share/gs/8.15/fonts:$GS_FONTPATH \\
-GS_LIB=$FRAMEWORK_DIR/usr/share/gs/8.15/lib:$GS_LIB \\
+GUILE_LOAD_PATH=$FRAMEWORK_DIR/usr/share/guile/%(guile_version)s:$GUILE_LOAD_PATH \\
+GS_FONTPATH=$FRAMEWORK_DIR/usr/share/ghostscript/%(ghostscript_version)s/fonts:$GS_FONTPATH \\
+GS_LIB=$FRAMEWORK_DIR/usr/share/ghostscript/%(ghostscript_version)s/lib:$GS_LIB \\
 LD_LIBRARY_PATH=$FRAMEWORK_DIR/usr/lib:$LD_LIBRARY_PATH \\
+LILYPONDPREFIX=$prefix/share/lilypond/%(version)s/ \\
 PANGO_PREFIX=${PANGO_PREFIX-$FRAMEWORK_DIR/usr} \\
 PANGO_RC_FILE=${PANGO_RC_FILE-$FRAMEWORK_DIR/usr/etc/pango/pangorc} \\
 PANGO_SO_EXTENSION=.so \\
 PATH=$FRAMEWORK_DIR/usr/bin:$PATH \\
 PYTHONPATH=$FRAMEWORK_DIR/../python:$PYTHONPATH \\
 PYTHONPATH=$FRAMEWORK_DIR/usr/lib/python%(python_version)s:$PYTHONPATH \\
-$prefix/bin/lilypond-bin "$@"
+$prefix/bin/%(program)s "$@"
 '''
 ,
-		'%(install_root)s/usr/bin/lilypond',
+		'%(install_root)s/usr/bin/%(name)s',
 		env=locals ())
-		os.chmod ('%(install_root)s/usr/bin/lilypond' \
-			 % self.get_substitution_dict (), 0755)
+		os.chmod (self.expand ('%(install_root)s/usr/bin/%(name)s',
+				       locals ()), 0755)
 
 class LilyPond__darwin (LilyPond):
 	def __init__ (self, settings):
@@ -795,6 +809,10 @@ class Ghostscript (gub.Target_package):
 	def name (self):
 		return 'ghostscript'
 
+	# FIXME: C&P.
+	def ghostscript_version (self):
+		return '.'.join (self.ball_version.split ('.')[0:2])
+
 	def patch (self):
 		self.file_sub ([(r'mkdir -p \$\(bindir\)', 'mkdir -p $(DESTDIR)$(bindir)'),
 				(r'mkdir -p \$\(datadir\)', 'mkdir -p $(DESTDIR)$(datadir)'),
@@ -1049,6 +1067,7 @@ def get_packages (settings):
 		settings.python_version = '2.3'
 
 	settings.guile_version = [p for p in packs if isinstance (p, Guile)][0].guile_version ()
+	settings.ghostscript_version = [p for p in packs if isinstance (p, Ghostscript)][0].ghostscript_version ()
 
 	return packs
 

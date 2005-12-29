@@ -26,9 +26,13 @@ tar -cf- --exclude autopackage . | tar -C $build_root -xvf-
 unprepareBuild
 
 [Imports]
+
 # Remove symlinks that confuse copyFiles
-rm share/lilypond/@VERSION@/tex/enc
+rm share/lilypond/@VERSION@/dvips/ps
 rm share/lilypond/@VERSION@/dvips/map
+
+rm bin/.fonts.cache-1
+
 
 echo '*' | import
 
@@ -37,40 +41,26 @@ echo '*' | import
 echo Prepare
 
 [Install]
- export PREFIX=/usr
+ #[ "$PREFIX" == "/usr" ] && export PREFIX=/opt/autopackage
+mkdirs "$PREFIX/bin"
+# Not using installExe, it generates a useless wrapper.
+# installExe bin/*
+copyFiles bin/.* "$PREFIX/bin"
+chmod +x "$PREFIX/bin"
 installExe bin/*
 
-mkdirs "$PREFIX/share/info/lilypond/"
-copyFiles info/lilypond/* "$PREFIX/share/info/lilypond"
-	
-mkdirs "$PREFIX/share/man/man1/"
-installMan 1 man/man1/*
-
-mkdirs "$PREFIX/share/locale/"
-installLocale share/locale
-
-# share/lilypond/x.y.z is a large folder.  Copying it will take a long time.
-# Copy the subfolders and notify the user with a progress bar.
-dirs=(fonts images ly ps python misc scm tex vim)
-i=1
-max=${#dirs[@]}
-
 mkdirs "$PREFIX/share/lilypond/@VERSION@/"
-for D in "${dirs[@]}"; do
-    progressBar $i $max "$(gettext autopackage 'Installing data files...')"
-    copyFiles --silent "share/lilypond/@VERSION@/$D"/* "$PREFIX/share/lilypond/@VERSION@/$D"
-    (( i++ ))
-done
+copyFiles "share/lilypond/@VERSION@/"/* "$PREFIX/share/lilypond/@VERSION@/"
 
-mkdirs "$PREFIX/share/lilypond/@VERSION@/dvips"
+mkdirs "$PREFIX/lib/lilypond/@VERSION@/dvips"
 (cd "$PREFIX/share/lilypond/@VERSION@/dvips"; ln -fs ../fonts/map .)
-mkdirs "$PREFIX/share/lilypond/@VERSION@/tex"
-(cd "$PREFIX/share/lilypond/@VERSION@/tex"; ln -fs ../fonts/enc .)
+(cd "$PREFIX/share/lilypond/@VERSION@/dvips"; ln -fs ../ps .)
 
-# FIXME: use progress indication
-copyFiles "lib/lilypond/@VERSION@" "$PREFIX/lib/lilypond/@VERSION@"
+mkdirs "$PREFIX/lib/lilypond/@VERSION@"
+copyFiles "lib/lilypond/@VERSION@"/* "$PREFIX/lib/lilypond/@VERSION@/"
+
+mkdirs "$PREFIX/lib/lilypond/framework/"
+copyFiles "lib/lilypond/framework"/* "$PREFIX/lib/lilypond/framework/"
 
 [Uninstall]
 uninstallFromLog
-rm -rf "$PREFIX/share/lilypond/@VERSION@/tex"
-rm -rf "$PREFIX/share/lilypond/@VERSION@/dvips"

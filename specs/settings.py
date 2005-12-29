@@ -53,7 +53,10 @@ class Settings (Context):
 		self.bundle_build = None
 		self.package_arch = re.sub ('-.*', '', self.build_architecture)
 		self.keep_build = False
-		self.python_version = '2.4'
+
+		#self.ghostscript_version = '8.15'
+		#self.guile_version = '1.7'
+		#self.python_version = '2.4'
 
 		self.use_tools = False
 		self.build_autopackage = self.builddir + '/autopackage'

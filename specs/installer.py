@@ -67,12 +67,12 @@ class Installer (context.Os_context_wrapper):
 			'man',
 			'share/doc',
 			'share/gettext/intl',
-			'share/ghostscript/8.15/Resource/',
-			'share/ghostscript/8.15/doc/',
-			'share/ghostscript/8.15/examples',
-			'share/gs/8.15/Resource/',
-			'share/gs/8.15/doc/',
-			'share/gs/8.15/examples',
+			'share/ghostscript/%(ghostscript_version)s/Resource/',
+			'share/ghostscript/%(ghostscript_version)s/doc/',
+			'share/ghostscript/%(ghostscript_version)s/examples',
+			'share/gs/%(ghostscript_version)s/Resource/',
+			'share/gs/%(ghostscript_version)s/doc/',
+			'share/gs/%(ghostscript_version)s/examples',
 			'share/gtk-doc',
 			'share/info',
 			'share/man',
@@ -161,6 +161,7 @@ class Nsis (Installer):
 		# FIXME: build in separate nsis dir, copy or use symlink
 		installer = os.path.basename (self.settings.installer_root)
 		self.file_sub ([
+			('@GHOSTSCRIPT_VERSION@', '%(ghostscript_version)s'),
 			('@GUILE_VERSION@', '%(guile_version)s'),
 			('@LILYPOND_BUILD@', '%(bundle_build)s'),
 			('@LILYPOND_VERSION@', '%(bundle_version)s'),
@@ -187,12 +188,12 @@ class Linux_installer (Installer):
 
 	def strip_prefixes (self):
 		return (Installer.strip_prefixes (self)
-			+ [self.expand ('%(framework_dir)s/usr/')])
+			+ [self.expand ('usr/%(framework_dir)s/usr/')])
 			
 	def strip (self):
 		Installer.strip (self)
-		self.strip_binary_dir ('%(installer_root)s/usr/lib/lilypond/%(bundle_version)s/lib/usr/bin')
-		self.strip_binary_dir ('%(installer_root)s/usr/lib/lilypond/%(bundle_version)s/lib/usr/lib')
+		self.strip_binary_dir ('%(installer_root)s/usr/%(framework_dir)s/usr/bin')
+		self.strip_binary_dir ('%(installer_root)s/usr/%(framework_dir)s/usr/lib')
 
 class Tgz (Linux_installer):
 	def create (self):
@@ -227,10 +228,11 @@ def get_installers (settings):
 	installers = {
 		'darwin' : [Darwin_bundle (settings)],
 		'linux' : [
-		Tgz (settings),
+		Tgz (settings),  # not alphabetically, used by others
+
+		Autopackage (settings),
 		Deb (settings),
 		Rpm (settings),
-		Autopackage (settings),
 		],
 		'mingw' : [Nsis (settings)],
 	}

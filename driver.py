@@ -118,9 +118,14 @@ def add_options (settings, options):
 	settings.create_dirs ()
 	
 	if options.platform == 'linux':
-		settings.framework_dir = ('usr/lib/lilypond/%(bundle_version)s/lib'
+		settings.framework_version = '0.0.0'
+		# FIXME: must not use lilypond version (ie bundle version)
+		# in framework dir.  Framework should be more or less
+		# constant/stable.
+		#settings.framework_dir = ('lib/lilypond/%(bundle_version)s/lib'
+		settings.framework_dir = ('lib/lilypond/framework/%(framework_version)s'
 					   % settings.__dict__)
-		settings.framework_root = ('%(installer_root)s/%(framework_dir)s'
+		settings.framework_root = ('%(installer_root)s/usr/%(framework_dir)s'
 					   % settings.__dict__)
 
 def get_cli_parser ():
