@@ -161,25 +161,33 @@ class Package_manager:
 
 
 def get_managers (settings):
-	tool_manager = Package_manager (settings.tooldir, settings.os_interface)
-	target_manager = Package_manager (settings.system_root, settings.os_interface)
+	tool_manager = Package_manager (settings.tooldir,
+					settings.os_interface)
+	target_manager = Package_manager (settings.system_root,
+					  settings.os_interface)
 
+	tool_module = None
 	if settings.platform == 'darwin':
 		import darwintools
-		
-		map (tool_manager.register_package,
-		     darwintools.get_packages (settings))
-	if settings.platform.startswith ('mingw'):
+		tool_module = darwintools
+	elif settings.platform.startswith ('mingw'):
 		import mingw
-		map (tool_manager.register_package,
-		     mingw.get_packages (settings))
-
+		tool_module = mingw
+	elif settings.platform.startswith ("linux"):
+		import linux
+		tool_module = linux
+		
+	map (tool_manager.register_package,
+	     tool_module.get_packages (settings))
+	
 	map (target_manager.register_package, framework.get_packages (settings))
-
+	
 	for m in tool_manager, target_manager:
 		m.resolve_dependencies ()
 		for p in m._packages.values():
 			settings.build_number_db.set_build_number (p)
+
+	tool_module.change_target_packages (target_manager._packages.values())
 
 	return tool_manager, target_manager
 
