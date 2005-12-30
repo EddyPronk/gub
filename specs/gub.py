@@ -325,7 +325,7 @@ class Cross_package (Package):
 ''')
 
         def xgub_name (self):
-			## makes build number handling more complicated.
+		## makes build number handling more complicated.
 		return '%(name)s-%(version)s-%(build)s.%(build_architecture)s-%(target_architecture)s.gub'
 
 	def install_command (self):
@@ -398,6 +398,8 @@ tooldir=%(install_prefix)s
 		self.config_cache ()
 		Package.configure (self)
 
+	## FIXME: this should move elsewhere , as it's not
+	## package specific 
 	def target_dict (self, env={}):
 		dict = {
 			'AR': '%(tool_prefix)sar',
@@ -429,17 +431,7 @@ tooldir=%(install_prefix)s
 			'RANLIB': '%(tool_prefix)sranlib',
 			'SED': 'sed', # libtool (expat mingw) fixup
 			}
-		if self.settings.__dict__.has_key ('gcc'):
-			dict['CC'] = self.settings.gcc
-		if self.settings.__dict__.has_key ('gxx'):
-			dict['CXX'] = self.settings.gxx
-		if self.settings.__dict__.has_key ('ld'):
-			dict['LD'] = self.settings.ld
-		if self.settings.platform.startswith ('linux'):
-			# Moved to lilypond/configure.in
-#			# FIXME: what happens when LD="ld $(LDFLAGS)"?
-			#dict['LDFLAGS'] = """-Wl,--rpath,'${ORIGIN}/../%(framework_dir)s/usr/lib'"""
-			dict['LDFLAGS'] = '-Wl,--as-needed'
+
 		dict.update (env)
 		return dict
 
