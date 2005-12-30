@@ -77,30 +77,7 @@ def get_settings (platform):
 	elif platform == 'mingw':
 		settings.target_gcc_flags = '-mwindows -mms-bitfields'
 	elif platform == 'linux':
-
-		## UGH. should work on macos too?
-		
-		platform = 'linux'
 		settings.target_architecture = settings.build_architecture
-		# Use apgcc to avoid using too new GLIBC symbols
-		# possibly gcc/g++ -Wl,--as-needed, ld --as-needed has
-		# same effect?
-
-		settings.gcc = 'apgcc'
-		settings.gxx = 'apg++'
-		settings.ld = 'ld --as-needed'
-
-		settings.tool_prefix = ''
-		settings.package_arch = 'i386'
-		os.environ['CC'] = settings.gcc
-		os.environ['CXX'] = settings.gxx
-		# FIXME: some libraries, gettext eg, do not build with
-		# gcc-4.0.
-		os.environ['APBUILD_CC'] = 'gcc-3.4'
-		# FIXME: CXX1 for < 3.4 abi, CXX2 for >= 3.4 abi
-		# but APBUILD_CXX2 apg++ --version yields 4.0.3 :-(
-		os.environ['APBUILD_CXX1'] = 'g++-3.4'
-		os.environ['LD'] = settings.ld
 	else:
 		raise 'unknown platform', platform 
 
@@ -118,6 +95,8 @@ def add_options (settings, options):
 	settings.create_dirs ()
 	
 	if options.platform == 'linux':
+		settings.tool_prefix = ''
+		settings.package_arch = 'i386'
 		settings.framework_version = '0.0.0'
 		# FIXME: must not use lilypond version (ie bundle version)
 		# in framework dir.  Framework should be more or less
