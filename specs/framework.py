@@ -484,7 +484,7 @@ LILYPONDPREFIX=$prefix/share/lilypond/%(bundle_version)s/ \\
 PATH=$FRAMEWORK_DIR/usr/bin:$PATH \\
 PYTHONPATH=$FRAMEWORK_DIR/../python:$PYTHONPATH \\
 PYTHONPATH=$FRAMEWORK_DIR/usr/lib/python%(python_version)s:$PYTHONPATH \\
-%(interpreter)s %(program)s "$@"
+%(interpreter)s $bindir/%(program)s "$@"
 '''
 ,
 		'%(install_root)s/usr/bin/%(name)s',
