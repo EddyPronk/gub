@@ -54,6 +54,7 @@ lt_cv_dlopen=${lt_cv_dlopen="dlopen"}
 ''',
 	'freebsd' : '''
 ac_cv_lib_dl_dlopen=${ac_cv_lib_dl_dlopen=no}
+
 lt_cv_dlopen_libs=${lt_cv_dlopen_libs="-lc"}
 lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=32768}
 ##libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(framework_root)s/usr/lib /lib /usr/lib"'"}
