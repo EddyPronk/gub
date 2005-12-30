@@ -727,6 +727,13 @@ class Fontconfig__darwin (Fontconfig):
 		self.file_sub ([('-Wl,[^ ]+ ', '')],
 			       '%(builddir)s/src/Makefile')
 
+	def install (self):
+		Fontconfig.install (self)
+
+		conf_file = open (self.expand ('%(install_root)s/usr/etc/fonts/local.conf'), 'w')
+		conf_file.write ('<cache>~/.lilypond-font.cache-1</cache>')
+
+		
 class Fontconfig__linux (Fontconfig):
 	def configure (self):
 		Fontconfig.configure (self)
