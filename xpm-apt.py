@@ -220,6 +220,7 @@ def main ():
 		#URG
 		import buildnumber
 		settings.build_number_db = buildnumber.Build_number_db (settings.topdir)
+		settings.framework_dir = 'FUBAR'
 
 	tool_manager, target_manager = xpm.get_managers (settings)
 

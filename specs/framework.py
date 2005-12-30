@@ -378,6 +378,7 @@ class LilyPond__linux (LilyPond):
 		return LilyPond.configure_command (self) + gub.join_lines ('''
 --enable-static-gxx
 --disable-optimising
+--with-framework-dir=../%(framework_dir)s/usr
 ''')
 
 	def compile_command (self):
@@ -388,21 +389,22 @@ class LilyPond__linux (LilyPond):
 
 	def install (self):
 		LilyPond.install (self)
+		# handle framework dir in relocate.cc?
+		# self.wrap_framework_program ('lilypond')
 		for i in (
 			'abc2ly',
 			'convert-ly',
 			'etf2ly',
-			'lilypond',
 			'lilypond-book',
 			'lilypond-invoke-editor',
 			'midi2ly',
 			'mup2ly',
 			'musicxml2ly'
 			):
-			self.wrap_framework_program (i)
+			self.wrap_interpreter (i, 'python')
+		self.wrap_interpreter (i, 'guile')
 
 	def wrap_framework_program (self, name):
-		# handle framework dir in relocate.cc?
 		wrapper = name
 		program = '.%(name)s-wrapped' % locals ()
 		self.system ('''
@@ -410,7 +412,7 @@ cd %(install_root)s/usr/bin && mv %(wrapper)s %(program)s
 ''',
 			     locals ())
 		self.dump ('''#! /bin/sh
-# Not using Python, as python itself might need a relocation wrapper
+# Not using Python/Guile, as those also need a relocation wrapper
 FRAMEWORK_DIR="${FRAMEWORK_DIR-/%(framework_dir)s}"
 if [ ! -d "$FRAMEWORK_DIR" ]; then
     if expr "$0" : '/' > /dev/null 2>&1; then
@@ -433,7 +435,8 @@ FONTCONFIG_FILE=$FRAMEWORK_DIR/usr/etc/fonts/fonts.conf \\
 GUILE_LOAD_PATH=$FRAMEWORK_DIR/usr/share/guile/%(guile_version)s:$GUILE_LOAD_PATH \\
 GS_FONTPATH=$FRAMEWORK_DIR/usr/share/ghostscript/%(ghostscript_version)s/fonts:$GS_FONTPATH \\
 GS_LIB=$FRAMEWORK_DIR/usr/share/ghostscript/%(ghostscript_version)s/lib:$GS_LIB \\
-LD_LIBRARY_PATH=$FRAMEWORK_DIR/usr/lib:$LD_LIBRARY_PATH \\
+USING_RPATH_LD_LIBRARY_PATH=$FRAMEWORK_DIR/usr/lib:$LD_LIBRARY_PATH \\
+LD_LIBRARY_PATH= \\
 LILYPONDPREFIX=$prefix/share/lilypond/%(version)s/ \\
 PANGO_PREFIX=${PANGO_PREFIX-$FRAMEWORK_DIR/usr} \\
 PANGO_RC_FILE=${PANGO_RC_FILE-$FRAMEWORK_DIR/usr/etc/pango/pangorc} \\
@@ -442,6 +445,46 @@ PATH=$FRAMEWORK_DIR/usr/bin:$PATH \\
 PYTHONPATH=$FRAMEWORK_DIR/../python:$PYTHONPATH \\
 PYTHONPATH=$FRAMEWORK_DIR/usr/lib/python%(python_version)s:$PYTHONPATH \\
 $prefix/bin/%(program)s "$@"
+'''
+,
+		'%(install_root)s/usr/bin/%(name)s',
+		env=locals ())
+		os.chmod (self.expand ('%(install_root)s/usr/bin/%(name)s',
+				       locals ()), 0755)
+
+	def wrap_interpreter (self, name, interpreter):
+		wrapper = name
+		program = '.%(name)s-wrapped' % locals ()
+		self.system ('''
+cd %(install_root)s/usr/bin && mv %(wrapper)s %(program)s
+''',
+			     locals ())
+		self.dump ('''#! /bin/sh
+FRAMEWORK_DIR="${FRAMEWORK_DIR-/%(framework_dir)s}"
+if [ ! -d "$FRAMEWORK_DIR" ]; then
+    if expr "$0" : '/' > /dev/null 2>&1; then
+        bindir=$(cd $(dirname $0); pwd)
+    elif [ "$(basename $0)" != "$0" ]; then
+        bindir=$PWD/$(dirname $0)
+    else
+        (IFS=:; for d in $PATH; do
+	    if [ -x $d/%(program)s ]; then
+	        bindir=$d
+	        break
+	    fi
+	done)
+	bindir=/usr/bin
+    fi
+    prefix=$(dirname $bindir)
+    FRAMEWORK_DIR="$prefix/%(framework_dir)s"
+fi
+GUILE_LOAD_PATH=$FRAMEWORK_DIR/usr/share/guile/%(guile_version)s:$GUILE_LOAD_PATH \\
+LD_LIBRARY_PATH=$FRAMEWORK_DIR/usr/lib:$LD_LIBRARY_PATH \\
+LILYPONDPREFIX=$prefix/share/lilypond/%(bundle_version)s/ \\
+PATH=$FRAMEWORK_DIR/usr/bin:$PATH \\
+PYTHONPATH=$FRAMEWORK_DIR/../python:$PYTHONPATH \\
+PYTHONPATH=$FRAMEWORK_DIR/usr/lib/python%(python_version)s:$PYTHONPATH \\
+%(interpreter)s %(program)s "$@"
 '''
 ,
 		'%(install_root)s/usr/bin/%(name)s',

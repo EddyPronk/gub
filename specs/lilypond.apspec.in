@@ -31,7 +31,7 @@ unprepareBuild
 rm share/lilypond/@VERSION@/dvips/ps
 rm share/lilypond/@VERSION@/dvips/map
 
-rm bin/.fonts.cache-1
+rm bin/fonts.cache-1
 
 
 echo '*' | import

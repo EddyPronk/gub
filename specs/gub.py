@@ -435,7 +435,11 @@ tooldir=%(install_prefix)s
 			dict['CXX'] = self.settings.gxx
 		if self.settings.__dict__.has_key ('ld'):
 			dict['LD'] = self.settings.ld
-
+		if self.settings.platform.startswith ('linux'):
+			# Moved to lilypond/configure.in
+#			# FIXME: what happens when LD="ld $(LDFLAGS)"?
+			#dict['LDFLAGS'] = """-Wl,--rpath,'${ORIGIN}/../%(framework_dir)s/usr/lib'"""
+			dict['LDFLAGS'] = '-Wl,--as-needed'
 		dict.update (env)
 		return dict
 

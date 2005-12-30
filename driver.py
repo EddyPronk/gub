@@ -127,6 +127,8 @@ def add_options (settings, options):
 					   % settings.__dict__)
 		settings.framework_root = ('%(installer_root)s/usr/%(framework_dir)s'
 					   % settings.__dict__)
+		# This works, but better avoid depending on autopackage.
+		# os.environ['APBUILD_PROJECTNAME'] = 'lilypond/framework/0.0.0/usr/lib'
 
 def get_cli_parser ():
 	p = optparse.OptionParser (usage="""driver.py [OPTION]... COMMAND [PACKAGE]...
