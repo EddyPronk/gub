@@ -36,7 +36,6 @@ class Settings (Context):
 		## Safe uploads, so that we can rm -rf target/*
 		## and still cheaply construct a (partly) system root
 		## from .gub packages.
-		## self.gub_uploads = self.targetdir + '/uploads/gub'
 		self.uploads = self.topdir + '/uploads'
 		self.gub_uploads = self.uploads + '/gub'
 
@@ -53,15 +52,8 @@ class Settings (Context):
 		self.bundle_build = None
 		self.package_arch = re.sub ('-.*', '', self.build_architecture)
 		self.keep_build = False
-
-		#self.ghostscript_version = '8.15'
-		#self.guile_version = '1.7'
-		#self.python_version = '2.4'
-
 		self.use_tools = False
 		self.build_autopackage = self.builddir + '/autopackage'
-
-		
 		
 	def verbose (self):
 		return self.options.verbose
