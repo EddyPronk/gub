@@ -136,7 +136,7 @@ class Darwin_bundle (Installer):
 	def create (self):
 		Installer.create (self)
 		rw = darwintools.Rewirer (self.settings)
-#		rw.rewire_root (self.settings.installer_root)
+		rw.rewire_root (self.settings.installer_root)
 
 		self.system ('''
 rm -rf %(darwin_bundle_dir)s
