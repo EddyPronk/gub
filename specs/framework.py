@@ -780,7 +780,6 @@ class Mingw_runtime (gub.Binary_package):
 		self.system ('cd %(srcdir)s/root && mv * usr',
 			     ignore_error=True)
 
-
 class Cygwin (gub.Binary_package):
 	"Only need the cygcheck.exe binary."
 
@@ -1016,6 +1015,16 @@ class Libpng (gub.Target_package):
 		self.file_sub ([('(@INSTALL.*)@PKGCONFIGDIR@', r'\1${DESTDIR}@PKGCONFIGDIR@')],
 			       '%(srcdir)s/Makefile.in')
 
+class Freebsd_runtime (gub.Binary_package):
+	pass
+
+	def xuntar (self):
+		gub.Binary_package.untar (self)
+		self.system ('mkdir -p %(srcdir)s/root/usr')
+		self.system ('cd %(srcdir)s/root && mv * usr',
+			     ignore_error=True)
+
+
 # latest vanilla packages
 #Zlib (settings).with (version='1.2.3', mirror=download.zlib, format='bz2'),
 #Expat (settings).with (version='1.95.8', mirror=download.sf),
@@ -1064,24 +1073,24 @@ def get_packages (settings):
 		Cygwin (settings).with (version='1.5.18-1', mirror=download.cygwin, format='bz2', depends=['mingw-runtime']),
 		W32api (settings).with (version='3.5', mirror=download.mingw),
 		Regex (settings).with (version='2.3.90-1', mirror=download.lp, format='bz2', depends=['mingw-runtime']),
-		LilyPad (settings).with (version='0.0.7-1', mirror=download.lp, format='bz2', depends=['w32api']),
+		LilyPad (settings).with (version='0.0.7-1', mirror=download.lp, format='bz2', depends=['mingw-runtime', 'w32api']),
 		Libtool (settings).with (version='1.5.20', depends=['mingw-runtime']),
 		Zlib (settings).with (version='1.2.2-1', mirror=download.lp, format='bz2', depends=['mingw-runtime']),
 		Gettext__mingw (settings).with (version='0.14.5-1', mirror=download.lp, format='bz2', depends=['mingw-runtime']),
-		Libiconv (settings).with (version='1.9.2', depends=['gettext']),
-		Freetype (settings).with (version='2.1.7', mirror=download.freetype, depends=['libtool', 'zlib']),
+		Libiconv (settings).with (version='1.9.2', depends=['mingw-runtime', 'gettext']),
+		Freetype (settings).with (version='2.1.7', mirror=download.freetype, depends=['mingw-runtime', 'libtool', 'zlib']),
 		Expat (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2'),
-		Fontconfig__mingw (settings).with (version='2.3.2', mirror=download.fontconfig, depends=['expat', 'freetype', 'libtool']),
+		Fontconfig__mingw (settings).with (version='2.3.2', mirror=download.fontconfig, depends=['mingw-runtime', 'expat', 'freetype', 'libtool']),
 		Gmp__mingw (settings).with (version='4.1.4', depends=['mingw-runtime', 'libtool']),
 		# FIXME: we're actually using 1.7.2-cvs+, 1.7.2 needs too much work
-		Guile__mingw (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2', depends=['gettext', 'gmp', 'libtool', 'regex']),
-		Glib (settings).with (version='2.8.4', mirror=download.gtk, depends=['gettext', 'libiconv']),
-		Pango__mingw (settings).with (version='1.10.1', mirror=download.gtk, depends=['freetype', 'fontconfig', 'glib', 'libiconv']),
+		Guile__mingw (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2', depends=['mingw-runtime', 'gettext', 'gmp', 'libtool', 'regex']),
+		Glib (settings).with (version='2.8.4', mirror=download.gtk, depends=['mingw-runtime', 'gettext', 'libiconv']),
+		Pango__mingw (settings).with (version='1.10.1', mirror=download.gtk, depends=['mingw-runtime', 'freetype', 'fontconfig', 'glib', 'libiconv']),
 		Python__mingw (settings).with (version='2.4.2', mirror=download.python, format='bz2', depends=['mingw-runtime']),
-		Libjpeg (settings).with (version='v6b', mirror=download.jpeg),
-		Libpng (settings).with (version='1.2.8', mirror=download.libpng, depends=['zlib']),
-		Ghostscript__mingw (settings).with (version="8.15.1", mirror=download.cups, format='bz2', depends=['libiconv', 'libjpeg', 'libpng','zlib']),
-		LilyPond__mingw (settings).with (mirror=cvs.gnu, depends=['gettext', 'guile', 'pango', 'python'], track_development=True),
+		Libjpeg (settings).with (version='v6b', mirror=download.jpeg, depends=['mingw-runtime']),
+		Libpng (settings).with (version='1.2.8', mirror=download.libpng, depends=['mingw-runtime', 'zlib']),
+		Ghostscript__mingw (settings).with (version="8.15.1", mirror=download.cups, format='bz2', depends=['mingw-runtime', 'libiconv', 'libjpeg', 'libpng','zlib']),
+		LilyPond__mingw (settings).with (mirror=cvs.gnu, depends=['mingw-runtime', 'gettext', 'guile', 'pango', 'python'], track_development=True),
 	],
 	'linux': (
 		Libtool (settings).with (version='1.5.20'),
@@ -1100,6 +1109,26 @@ def get_packages (settings):
 		Libpng (settings).with (version='1.2.8', mirror=download.libpng, depends=['zlib']),
 		Ghostscript (settings).with (version="8.15.1", mirror=download.cups, format='bz2', depends=['libjpeg', 'libpng', 'zlib']),
 		LilyPond__linux (settings).with (mirror=cvs.gnu, depends=['gettext', 'guile', 'pango', 'python'], track_development=True),
+	),
+	# FIXME: c&p from linux, + Freebsd_runtime package and deps.
+	'freebsd': (
+		Freebsd_runtime (settings).with (version='4.10', mirror=download.jantien),
+		Libtool (settings).with (version='1.5.20', depends=['freebsd-runtime']),
+		Zlib (settings).with (version='1.2.2-1', mirror=download.lp, format='bz2', depends=['freebsd-runtime']),
+		Gettext (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2', depends=['freebsd-runtime']),
+		Freetype (settings).with (version='2.1.10', mirror=download.nongnu, depends=['freebsd-runtime', 'libtool', 'zlib']),
+		Expat (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2', depends=['freebsd-runtime']),
+		Fontconfig__linux (settings).with (version='2.3.2', mirror=download.fontconfig, depends=['freebsd-runtime', 'expat', 'freetype', 'libtool']),
+		Gmp (settings).with (version='4.1.4', depends=['freebsd-runtime', 'libtool']),
+		# FIXME: we're actually using 1.7.2-cvs+, 1.7.2 needs too much work
+		Guile__linux (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2', depends=['freebsd-runtime', 'gettext', 'gmp', 'libtool']),
+		Glib (settings).with (version='2.8.4', mirror=download.gtk, depends=['freebsd-runtime']),
+		Pango__linux (settings).with (version='1.10.1', mirror=download.gtk, depends=['freebsd-runtime', 'freetype', 'fontconfig', 'glib']),
+		Python (settings).with (version='2.4.2', mirror=download.python, format='bz2', depends=['freebsd-runtime']),
+		Libjpeg__linux (settings).with (version='v6b', mirror=download.jpeg, depends=['freebsd-runtime']),
+		Libpng (settings).with (version='1.2.8', mirror=download.libpng, depends=['freebsd-runtime', 'zlib']),
+		Ghostscript (settings).with (version="8.15.1", mirror=download.cups, format='bz2', depends=['freebsd-runtime', 'libjpeg', 'libpng', 'zlib']),
+		LilyPond__linux (settings).with (mirror=cvs.gnu, depends=['freebsd-runtime', 'gettext', 'guile', 'pango', 'python'], track_development=True),
 	),
 	}
 

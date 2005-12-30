@@ -6,14 +6,22 @@ import gub
 from context import *
 
 class Settings (Context):
-	def __init__ (self, arch):
-		Context.__init__(self)
-		
+	def __init__ (self, platform):
+		Context.__init__ (self)
+		self.platform = platform
+		self.target_architecture = {
+			'darwin': 'powerpc-apple-darwin7',
+			'mingw': 'i686-mingw32',
+			'freebsd': 'i686-freebsd4',
+			'linux': 'i686-linux',
+			}[self.platform]
+
 		self.target_gcc_flags = '' 
 		self.topdir = os.getcwd ()
 		self.downloaddir = self.topdir + '/downloads'
 		self.patchdir = self.topdir + '/patches'
-		self.os_interface = Os_commands ('build-%s.log'  % arch)
+		self.os_interface = Os_commands ('build-%s.log'
+						 % self.target_architecture)
 		
 		self.build_architecture = self.os_interface.read_pipe ('gcc -dumpmachine',
 							 silent=True)[:-1]
@@ -21,9 +29,9 @@ class Settings (Context):
 		self.nsisdir = self.topdir + '/nsis'
 		self.gtk_version = '2.8'
 
-		self.target_architecture = arch
-		self.tool_prefix = arch + '-'
-		self.targetdir = self.topdir + '/target/%s' % self.target_architecture
+		self.tool_prefix = self.target_architecture + '-'
+		self.targetdir = (self.topdir + '/target/%s'
+				  % self.target_architecture)
 
 		## Patches are architecture dependent, 
 		## so to ensure reproducibility, we unpack for each
@@ -37,7 +45,8 @@ class Settings (Context):
 		## and still cheaply construct a (partly) system root
 		## from .gub packages.
 		self.uploads = self.topdir + '/uploads'
-		self.gub_uploads = self.uploads + '/gub'
+		#self.gub_uploads = self.uploads + '/gub'
+		self.gub_uploads = self.uploads + '/' + self.platform
 
 		# FIXME: rename to target_root?
 		self.system_root = self.targetdir + '/system'

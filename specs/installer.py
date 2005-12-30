@@ -59,6 +59,8 @@ class Installer (context.Os_context_wrapper):
 			'lib/gettext/urlget*',
 			'lib/glib-2.0/include/glibconfig.h',
 			'lib/glib-2.0',
+			'lib/libc.*',
+			'lib/libm.*',
 			'lib/pkgconfig',
 			'lib/*~',
 			'lib/*.a',
@@ -227,6 +229,9 @@ class Autopackage (Linux_installer):
 def get_installers (settings):
 	installers = {
 		'darwin' : [Darwin_bundle (settings)],
+		'freebsd' : [
+		Tgz (settings),
+		]
 		'linux' : [
 		Tgz (settings),  # not alphabetically, used by others
 

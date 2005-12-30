@@ -10,8 +10,9 @@ class Binutils (framework.Binutils):
 
 class Gcc (framework.Gcc):
 	def patch (self):
-		# FIXME: set system_root to %(tooldir)s/%(target_architecture)s,
-		# or copy mingw-runtime/win32api here?
+		# FIXME: dependencies are broken here?  MUST
+		# install runtime binaries (mingw-runtime, w32api)
+		# manually before we get here.
 		self.system ('''
 mkdir -p %(tooldir)s/%(target_architecture)s
 tar -C %(system_root)s/usr -cf- include lib | tar -C %(tooldir)s/%(target_architecture)s -xf-

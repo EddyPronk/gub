@@ -31,6 +31,8 @@ fontconfig = 'http://www.fontconfig.org/release/%(name)s-%(ball_version)s.tar.%(
 
 hw = 'http://lilypond.org/~hanwen/%(name)s-%(ball_version)s.tar.%(format)s'
 
+jantien = 'http://www.xs4all.nl/~jantien/%(name)s-%(ball_version)s.tar.%(format)s'
+
 opendarwin = 'http://www.opendarwin.org/downloads/%(name)s-%(ball_version)s.tar.%(format)s'
 # mesh is broken today
 #'http://mesh.dl.sourceforge.net/sourceforge/%(name)s/%(name)s-%(ball_version)s.tar.%(format)s'

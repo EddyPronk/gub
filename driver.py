@@ -62,14 +62,7 @@ def build_package (settings, manager, package):
 
 
 def get_settings (platform):
-	init  = {
-		'darwin': 'powerpc-apple-darwin7',
-		'mingw': 'i686-mingw32',
-		'linux': 'linux'
-		}[platform]
-	
-	settings = settings_mod.Settings (init)
-	settings.platform = platform
+	settings = settings_mod.Settings (platform)
 	settings.build_number_db = buildnumber.Build_number_db (settings.topdir)
 	
 	if platform == 'darwin':
@@ -77,7 +70,10 @@ def get_settings (platform):
 	elif platform == 'mingw':
 		settings.target_gcc_flags = '-mwindows -mms-bitfields'
 	elif platform == 'linux':
+		## FIXME: assuming linux is native...
 		settings.target_architecture = settings.build_architecture
+	elif platform == 'freebsd':
+		pass
 	else:
 		raise 'unknown platform', platform 
 
@@ -94,9 +90,28 @@ def add_options (settings, options):
 	settings.use_tools = options.use_tools
 	settings.create_dirs ()
 	
-	if options.platform == 'linux':
+	if settings.platform == 'linux':
 		settings.tool_prefix = ''
+
+	if settings.platform == 'linux' or settings.platform == 'freebsd':
+
+		# Use apgcc to avoid using too new GLIBC symbols
+		# possibly gcc/g++ -Wl,--as-needed, ld --as-needed has
+		# same effect?
+
+		# FIXME: this does not work while building the compiler
+		if not options.use_tools:
+			settings.gcc = 'apgcc'
+			settings.gxx = 'apg++'
+			settings.ld = settings.tool_prefix + 'ld --as-needed'
+			os.environ['CC'] = settings.gcc
+			os.environ['CXX'] = settings.gxx
+			os.environ['LD'] = settings.ld
+			os.environ['APBUILD_CC'] = settings.tool_prefix + 'gcc'
+			os.environ['APBUILD_CXX1'] = settings.tool_prefix + 'g++'
+		# FIXME: this for deb/rpm/slackware package archs
 		settings.package_arch = 'i386'
+
 		settings.framework_version = '0.0.0'
 		# FIXME: must not use lilypond version (ie bundle version)
 		# in framework dir.  Framework should be more or less
@@ -132,7 +147,7 @@ package-installer - build installer binary
 		      type='choice',
 		      default=None,
 		      help='select platform',
-		      choices=['linux', 'darwin', 'mingw', 'xmingw', 'xmingw-fedora'])
+		      choices=['darwin', 'freebsd', 'linux', 'mingw'])
 	p.add_option ('-s', '--setting', action='append',
 		      dest="settings",
 		      type='string',
@@ -156,7 +171,8 @@ def build_installers (settings, target_manager):
 					       settings.os_interface)
 
 	framework_manager = None
-	if settings.platform.endswith ('linux'):
+	if (settings.platform.startswith ('linux')
+	    or settings.platform.startswith ('freebsd')):
 		# Hmm, better to configure --prefix=framework_root --xxxfix=fr?
 		# and install everything in / ?
 		framework_manager = xpm.Package_manager (settings.framework_root,

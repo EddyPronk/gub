@@ -31,12 +31,24 @@ BUILD_ALL=$(call INVOKE_DRIVER, $(1)) -t build all \
   && $(call INVOKE_DRIVER, $(1)) package-installer \
 
 download:
-	$(call INVOKE_DRIVER, linux) download
 	$(call INVOKE_DRIVER, darwin) download
+	$(call INVOKE_DRIVER, freebsd) download
+	$(call INVOKE_DRIVER, linux) download
 	$(call INVOKE_DRIVER, mingw) download
 
 linux:
-	$(call BUILD_ALL, linux)
+	[ -d target/i686-$@/src/lilypond ] || $(call INVOKE_DRIVER, $@) download
+	$(call BUILD_ALL, $@)
+
+freebsd:
+	#[ -d target/i686-$@4/src/lilypond ] || $(call INVOKE_DRIVER, $@) download
+	[ -d target/i686-freebsd4/src/lilypond ] || $(call INVOKE_DRIVER, $@) download
+	# FIXME: urg, why not using dependencies anymore?
+	$(call INVOKE_DRIVER, $@) build $@-runtime
+	$(call INVOKE_XPM, $@) install $@-runtime
+	$(call INVOKE_DRIVER, $@) -t build binutils gcc
+	$(call INVOKE_XPM, $@) install binutils gcc
+	$(call BUILD_ALL, $@)
 
 mac:
 	$(call INVOKE_DRIVER, darwin) build darwin-sdk
@@ -44,11 +56,13 @@ mac:
 	$(call BUILD_ALL, darwin)
 
 mingw:
-	$(call INVOKE_DRIVER, mingw) build mingw-runtime w32api
-	$(call INVOKE_XPM, mingw) install mingw-runtime w32api
-	$(call INVOKE_DRIVER, mingw) build binutils gcc
-	$(call INVOKE_XPM, mingw) install binutils gcc
-	$(call BUILD_ALL, mingw) 
+	[ -d target/i686-$@/src/lilypond ] || $(call INVOKE_DRIVER, $@) download
+	# FIXME: urg, why not using dependencies anymore?
+	$(call INVOKE_DRIVER, $@) build $@-runtime w32api
+	$(call INVOKE_XPM, $@) install $@-runtime w32api
+	$(call INVOKE_DRIVER, $@) build binutils gcc
+	$(call INVOKE_XPM, $@) install binutils gcc
+	$(call BUILD_ALL, $@) 
 
 realclean:
 	rm -rf src target

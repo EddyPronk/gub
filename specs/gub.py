@@ -318,11 +318,14 @@ class Cross_package (Package):
 	"""
 
 	def configure_command (self):
-		return Package.configure_command (self) \
-		       + join_lines ('''
+		# Add --program-prefix, otherwise we get
+		# i686-freebsd-FOO iso i686-freebsd4-FOO.
+		return (Package.configure_command (self)
+			+ join_lines ('''
+--program-prefix=%(tool_prefix)s
 --target=%(target_architecture)s
 --with-sysroot=%(system_root)s/
-''')
+'''))
 
         def xgub_name (self):
 		## makes build number handling more complicated.
@@ -431,7 +434,6 @@ tooldir=%(install_prefix)s
 			'RANLIB': '%(tool_prefix)sranlib',
 			'SED': 'sed', # libtool (expat mingw) fixup
 			}
-
 		dict.update (env)
 		return dict
 

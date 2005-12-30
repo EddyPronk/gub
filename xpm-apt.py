@@ -81,15 +81,7 @@ class Options:
 				self.tool_p = 1
 			elif o == '--platform' or o == '-p':
 				self.platform = a
-				self.PLATFORM = {
-					'darwin': 'powerpc-apple-darwin7',
-					'mingw': 'i686-mingw32',
-					'linux': 'linux',
-					}[a]
-				self.ROOT = ('target/%(PLATFORM)s/system'
-					     % self.__dict__)
-				self.TOOLROOT = ('target/%(PLATFORM)s/tool'
-						 % self.__dict__)
+				self.ROOT = ''
 			elif o == '--name' or o == '-n':
 				self.name_p = 1
 			elif o == '--no-deps' or o == '-x':
@@ -213,8 +205,10 @@ def main ():
 		print 'need platform setting. Use -p option'
 		sys.exit (1)
 		
-	settings = settings_mod.Settings (options.PLATFORM)
-	settings.platform = options.platform
+	settings = settings_mod.Settings (options.platform)
+	if not options.ROOT:
+		options.ROOT = ('target/%(target_architecture)s/system'
+				% settings.__dict__)
 
 	if 1:
 		#URG

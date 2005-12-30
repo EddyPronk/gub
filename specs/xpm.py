@@ -170,16 +170,17 @@ def get_managers (settings):
 	if settings.platform == 'darwin':
 		import darwintools
 		tool_module = darwintools
-	elif settings.platform.startswith ('mingw'):
-		import mingw
-		tool_module = mingw
+	if settings.platform.startswith ('freebsd'):
+		import freebsd
+		tool_module = freebsd
 	elif settings.platform.startswith ("linux"):
 		import linux
 		tool_module = linux
+	elif settings.platform.startswith ('mingw'):
+		import mingw
+		tool_module = mingw
 		
-	map (tool_manager.register_package,
-	     tool_module.get_packages (settings))
-	
+	map (tool_manager.register_package, tool_module.get_packages (settings))
 	map (target_manager.register_package, framework.get_packages (settings))
 	
 	for m in tool_manager, target_manager:
@@ -187,7 +188,7 @@ def get_managers (settings):
 		for p in m._packages.values():
 			settings.build_number_db.set_build_number (p)
 
-	tool_module.change_target_packages (target_manager._packages.values())
+	tool_module.change_target_packages (target_manager._packages.values ())
 
 	return tool_manager, target_manager
 
