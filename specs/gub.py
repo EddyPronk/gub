@@ -500,4 +500,18 @@ class Sdk_package (Null_package):
 		Package.untar (self)
 	def package (self):
 		self.system ('tar -C %(srcdir)s/ -czf %(gub_uploads)s/%(gub_name)s .')
-	
+
+class Change_target_dict:
+	def __init__ (self, package, override):
+		self._target_dict_method = package.target_dict
+		self._add_dict = override
+		
+	def target_dict (self, env={}):
+		d = self._target_dict_method ()
+		d.update (self._add_dict)
+		return d
+
+def change_target_dict (package, addict):
+	"""Override the target_dict() method of PACKAGE."""
+
+	package.target_dict = Change_target_dict(package, addict).target_dict
