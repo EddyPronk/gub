@@ -10,7 +10,7 @@ class Installer (context.Os_context_wrapper):
 		context.Os_context_wrapper.__init__ (self, settings)
 		
 		self.settings = settings
-		self.strip_command = self.settings.target_architecture + "-strip"
+		self.strip_command = '%(tooldir)s/bin/%(target_architecture)s-strip' 
 		self.no_binary_strip = []
 
 	@context.subst_method
@@ -106,6 +106,7 @@ class Installer (context.Os_context_wrapper):
 			'share/lilypond/*/fonts/tfm',
 			'share/lilypond/*/fonts/type1/feta[0-9]*pfa',
 			'share/lilypond/*/fonts/type1/feta-braces-[a-z]*pfa',
+			'share/lilypond/*/fonts/type1/parmesan*pfa',
 			'share/locale',
 			'share/omf',
 			'share/gs/fonts/[a-bd-z]*',
@@ -114,6 +115,8 @@ class Installer (context.Os_context_wrapper):
 			):
 
 			self.system ('cd %(installer_root)s && rm -rf ' + delete_me, {'i': i })
+		self.system ('cd %(installer_root)s/usr/share/lilypond/*/fonts/type1 && rm fonts.cache-1 &&  fc-cache')
+		self.system ('cd %(installer_root)s/usr/share/lilypond/*/fonts/otf &&  rm fonts.cache-1 && fc-cache')
 
 	def strip_binary_file (self, file):
 		self.system ('%(strip_command)s %(file)s', locals (), ignore_error = True)
