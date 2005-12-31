@@ -231,7 +231,7 @@ def get_installers (settings):
 		'darwin' : [Darwin_bundle (settings)],
 		'freebsd' : [
 		Tgz (settings),
-		]
+		],
 		'linux' : [
 		Tgz (settings),  # not alphabetically, used by others
 
