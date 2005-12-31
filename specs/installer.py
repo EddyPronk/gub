@@ -143,7 +143,7 @@ class Darwin_bundle (Installer):
 		self.system ('''
 rm -rf %(darwin_bundle_dir)s
 tar -C %(targetdir)s -zxf %(downloaddir)s/OSX-LilyPad-0.0.tar.gz
-cp -R --link %(installer_root)s/usr/* %(darwin_bundle_dir)s/Contents/Resources/
+cp -pR --link %(installer_root)s/usr/* %(darwin_bundle_dir)s/Contents/Resources/
 ''')
 
 		
