@@ -2,6 +2,7 @@ import re
 import os
 import framework
 import download
+import gub
 
 class Gcc (framework.Gcc):
 	def configure_command (self):
@@ -21,7 +22,7 @@ def get_packages (settings):
 
 def change_target_packages (packages):
 	for p in packages:
-		change_target_dict (p,
+		gub.change_target_dict (p,
 				    {'CC': 'apgcc',
 				     'CXX': 'apg++',
 				     "LD": 'ld --as-needed',
