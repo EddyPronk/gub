@@ -64,10 +64,11 @@ class Installer (context.Os_context_wrapper):
 			'lib/pkgconfig',
 			'lib/*~',
 			'lib/*.a',
-			'lib/python2.4/distutils/command/wininst-6*',
-			'lib/python2.4/distutils/command/wininst-7.1*',
+			'lib/python%(python_version)s/distutils/command/wininst-6*',
+			'lib/python%(python_version)s/distutils/command/wininst-7.1*',
 			'man',
 			'share/doc',
+			'share/guile/%(guile_version)s/ice-9/debugger/',
 			'share/gettext/intl',
 			'share/ghostscript/%(ghostscript_version)s/Resource/',
 			'share/ghostscript/%(ghostscript_version)s/doc/',
@@ -103,6 +104,8 @@ class Installer (context.Os_context_wrapper):
 			'share/lilypond/*/fonts/source',
 			'share/lilypond/*/fonts/svg',
 			'share/lilypond/*/fonts/tfm',
+			'share/lilypond/*/fonts/type1/feta[0-9]*pfa',
+			'share/lilypond/*/fonts/type1/feta-braces-[a-z]*pfa',
 			'share/locale',
 			'share/omf',
 			'share/gs/fonts/[a-bd-z]*',
@@ -144,7 +147,7 @@ class Darwin_bundle (Installer):
 rm -rf %(darwin_bundle_dir)s
 tar -C %(targetdir)s -zxf %(downloaddir)s/OSX-LilyPad-0.0.tar.gz
 cp -pR --link %(installer_root)s/usr/* %(darwin_bundle_dir)s/Contents/Resources/
-cd %(darwin_bundle_dir)s/../ && zip -R %(uploads)s/lilypond-%(bundle_version)s-%(bundle_build)s.zip LilyPond.app
+cd %(darwin_bundle_dir)s/../ && zip -yr %(uploads)s/lilypond-%(bundle_version)s-%(bundle_build)s.zip LilyPond.app
 ''')
 		
 	
