@@ -115,8 +115,8 @@ class Installer (context.Os_context_wrapper):
 			):
 
 			self.system ('cd %(installer_root)s && rm -rf ' + delete_me, {'i': i })
-		self.system ('cd %(installer_root)s/usr/share/lilypond/*/fonts/type1 && rm fonts.cache-1 &&  fc-cache')
-		self.system ('cd %(installer_root)s/usr/share/lilypond/*/fonts/otf &&  rm fonts.cache-1 && fc-cache')
+		self.system ('rm -f %(installer_root)s/usr/share/lilypond/*/fonts/*/fonts.cache-1')
+		self.system ('fc-cache %(installer_root)s/usr/share/lilypond/*/fonts/*/')
 
 	def strip_binary_file (self, file):
 		self.system ('%(strip_command)s %(file)s', locals (), ignore_error = True)
@@ -146,12 +146,15 @@ class Darwin_bundle (Installer):
 		rw = darwintools.Rewirer (self.settings)
 		rw.rewire_root (self.settings.installer_root)
 
+
+		bundle_zip = self.expand ('%(uploads)s/lilypond-%(bundle_version)s-%(bundle_build)s.zip')
 		self.system ('''
+rm -f %(bundle_zip)s 
 rm -rf %(darwin_bundle_dir)s
 tar -C %(targetdir)s -zxf %(downloaddir)s/OSX-LilyPad-0.0.tar.gz
 cp -pR --link %(installer_root)s/usr/* %(darwin_bundle_dir)s/Contents/Resources/
-cd %(darwin_bundle_dir)s/../ && zip -yr %(uploads)s/lilypond-%(bundle_version)s-%(bundle_build)s.zip LilyPond.app
-''')
+cd %(darwin_bundle_dir)s/../ && zip -yr %(bundle_zip)s LilyPond.app
+''', locals ())
 		
 	
 	def xstrip (self):
