@@ -207,6 +207,20 @@ cd %(autodir)s && autoconf
 cd %(srcdir)s && automake --add-missing
 ''', locals ())
 
+	def config_cache_overrides (self, str):
+		return str
+
+	def config_cache_settings (self):
+		return self.config_cache_overrides (self, '')
+
+	def config_cache (self):
+		str = self.config_cache_settings ()
+		if str:
+			self.system ('mkdir -p %(builddir)s')
+			cache_file = '%(builddir)s/config.cache'
+			self.dump (self.config_cache_settings (), cache_file)
+			os.chmod (self.expand (cache_file), 0755)
+
 	def configure (self):
 		self.system ('''
 mkdir -p %(builddir)s
@@ -319,11 +333,8 @@ class Cross_package (Package):
 	"""
 
 	def configure_command (self):
-		# Add --program-prefix, otherwise we get
-		# i686-freebsd-FOO iso i686-freebsd4-FOO.
 		return (Package.configure_command (self)
 			+ join_lines ('''
---program-prefix=%(tool_prefix)s
 --target=%(target_architecture)s
 --with-sysroot=%(system_root)s/
 '''))
@@ -358,9 +369,6 @@ class Target_package (Package):
 --libdir=/usr/lib
 ''')
 
-	def config_cache_overrides (self, str):
-		return str
-
 	def broken_install_command (self):
 		"""For packages that do not honor DESTDIR.
 		"""
@@ -386,17 +394,10 @@ tooldir=%(install_prefix)s
 	def install_command (self):
 		return join_lines ('''make DESTDIR=%(install_root)s install''')
 
-	def config_cache (self):
-		self.system ('mkdir -p %(builddir)s')
-		cache_fn = self.expand ('%(builddir)s/config.cache')
-		cache = open (cache_fn, 'w')
-		str = (cross.cross_config_cache['all']
-		       + cross.cross_config_cache[self.settings.platform])
-		str = self.config_cache_overrides (str)
-		str = self.expand (str)
-		cache.write (str)
-		cache.close ()
-		os.chmod (cache_fn, 0755)
+	def config_cache_settings (self):
+		return self.config_cache_overrides (
+			cross.cross_config_cache['all']
+			+ cross.cross_config_cache[self.settings.platform])
 
 	def configure (self):
 		self.config_cache ()
