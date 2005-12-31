@@ -505,5 +505,7 @@ class Change_target_dict:
 
 def change_target_dict (package, addict):
 	"""Override the target_dict() method of PACKAGE."""
-
-	package.target_dict = Change_target_dict(package, addict).target_dict
+	try:
+		package.target_dict = Change_target_dict(package, addict).target_dict
+	except AttributeError:
+		pass
