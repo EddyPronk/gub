@@ -278,6 +278,13 @@ class LilyPond (gub.Target_package):
 			return 'lilypond-%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
 		return gub.Target_package.name_version (self)
 
+	def install (self):
+		gub.Target_package.install (self)
+		d = gub.grok_sh_variables (self.expand ('%(srcdir)s/VERSION'))
+		v = '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
+		self.system ("cd %(install_root)s/usr/share/lilypond && rm -f current && ln -sf %(v)s %(current)s",
+			     locals ())
+
         def gub_name (self):
 		nv = self.name_version ()
 		b = self.build ()
