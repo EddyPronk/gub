@@ -416,13 +416,6 @@ tooldir=%(install_prefix)s
 ''',
 #--urg-broken-if-set-exec-prefix=%(system_root)s/usr \
 			'LD': '%(tool_prefix)sld',
-#			'LDFLAGS': '-L%(system_root)s/usr/lib',
-# FIXME: for zlib, try adding bin
-#			'LDFLAGS': '-L%(system_root)s/usr/lib -L%(system_root)s/usr/bin',
-# for libtool with linux to use the correct library search order,
-# LIBRARY_PATH must be used rather than LDFLAGS.
-# try without also setting LDFLAGS first.
-			'LIBRARY_PATH': '%(system_root)s/usr/lib:%(system_root)s/usr/bin',
 			'NM': '%(tool_prefix)snm',
 			'PKG_CONFIG_PATH': '%(system_root)s/usr/lib/pkgconfig',
 			'PKG_CONFIG': '''/usr/bin/pkg-config \
