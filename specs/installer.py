@@ -17,9 +17,6 @@ class Installer (context.Os_context_wrapper):
         def name (self):
 		return 'lilypond'
 
-	def build (self):
-		return self.settings.bundle_build
-
 	@context.subst_method
 	def version (self):
 		return self.settings.bundle_version
@@ -191,7 +188,7 @@ class Nsis (Installer):
 		self.system ('cp %(nsisdir)s/*.sh.in %(targetdir)s')
 		self.system ('cd %(targetdir)s && makensis lilypond.nsi')
 #		self.system ('cd %(targetdir)s && makensis -NOCD %(nsisdir)/lilypond.nsi')
-		self.system ('mv %(targetdir)s/setup.exe %(installer_uploads)s/lilypond-%(bundle_version)s-%(build)s.exe', locals ())
+		self.system ('mv %(targetdir)s/setup.exe %(installer_uploads)s/lilypond-%(bundle_version)s-%(bundle_build)s.exe', locals ())
 
 class Linux_installer (Installer):
 	def __init__ (self, settings):
@@ -211,18 +208,15 @@ class Linux_installer (Installer):
 class Tgz (Linux_installer):
 	def create (self):
 		Linux_installer.create (self)
-		build = self.settings.bundle_build
-		self.system ('tar -C %(installer_root)s -zcf %(installer_uploads)s/%(name)s-%(bundle_version)s-%(package_arch)s-%(build)s.tgz .', locals ())
+		self.system ('tar -C %(installer_root)s -zcf %(installer_uploads)s/%(name)s-%(bundle_version)s-%(package_arch)s-%(bundle_build)s.tgz .', locals ())
 
 class Deb (Linux_installer):
 	def create (self):
-		build = self.settings.bundle_build
-		self.system ('cd %(installer_uploads)s && fakeroot alien --keep-version --to-deb %(installer_uploads)s/%(name)s-%(bundle_version)s-%(package_arch)s-%(build)s.tgz', locals ())
+		self.system ('cd %(installer_uploads)s && fakeroot alien --keep-version --to-deb %(installer_uploads)s/%(name)s-%(bundle_version)s-%(package_arch)s-%(bundle_build)s.tgz', locals ())
 
 class Rpm (Linux_installer):
 	def create (self):
-		build = self.settings.bundle_build
-		self.system ('cd %(installer_uploads)s && fakeroot alien --keep-version --to-rpm %(installer_uploads)s/%(name)s-%(bundle_version)s-%(package_arch)s-%(build)s.tgz', locals ())
+		self.system ('cd %(installer_uploads)s && fakeroot alien --keep-version --to-rpm %(installer_uploads)s/%(name)s-%(bundle_version)s-%(package_arch)s-%(bundle_build)s.tgz', locals ())
 
 class Autopackage (Linux_installer):
 	def create (self):
