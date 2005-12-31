@@ -323,10 +323,13 @@ class LilyPond__mingw (LilyPond):
 
 	def configure (self):
 		self.autoupdate ()
+
+		# URG.
 		gub.Package.system (self, '''
 mkdir -p %(builddir)s
 cp /usr/include/FlexLexer.h %(system_root)s/usr/include
 cp /usr/include/FlexLexer.h %(builddir)s/lily/out/
+cp /usr/include/FlexLexer.h %(builddir)s/../
 cp /usr/include/FlexLexer.h %(builddir)s/lily/out-console/
 ''')
 		gub.Target_package.configure (self)
