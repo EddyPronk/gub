@@ -410,8 +410,7 @@ tooldir=%(install_prefix)s
 #			'CPPFLAGS': '-I%(system_root)s/usr/include',
 			'C_INCLUDE_PATH':' %(system_root)s/usr/include',
 			'CXX':'%(tool_prefix)sg++ %(target_gcc_flags)s',
-			'DLLTOOL': '%(tool_prefix)sdlltool',
-			'DLLWRAP': '%(tool_prefix)sdllwrap',
+
 			'FREETYPE_CONFIG': '''/usr/bin/freetype-config \
 --prefix=%(system_root)s/usr \
 ''',
