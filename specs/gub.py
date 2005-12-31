@@ -499,7 +499,7 @@ class Change_target_dict:
 		self._add_dict = override
 		
 	def target_dict (self, env={}):
-		d = self._target_dict_method ()
+		d = self._target_dict_method (env)
 		d.update (self._add_dict)
 		return d
 

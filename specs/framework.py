@@ -270,7 +270,7 @@ class LilyPond (gub.Target_package):
 			+ gub.Target_package.configure_command (self)
 			+ ' --enable-relocation '
 			+ ' --disable-documentation')
-
+		
         def name_version (self):
 		# whugh
 		if os.path.exists (self.srcdir ()):
