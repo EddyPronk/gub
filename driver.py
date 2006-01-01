@@ -94,20 +94,6 @@ def add_options (settings, options):
 
 	if settings.platform == 'linux' or settings.platform == 'freebsd':
 
-		# Use apgcc to avoid using too new GLIBC symbols
-		# possibly gcc/g++ -Wl,--as-needed, ld --as-needed has
-		# same effect?
-
-		# FIXME: this does not work while building the compiler
-		if not options.use_tools:
-			settings.gcc = 'apgcc'
-			settings.gxx = 'apg++'
-			settings.ld = settings.tool_prefix + 'ld --as-needed'
-			os.environ['CC'] = settings.gcc
-			os.environ['CXX'] = settings.gxx
-			os.environ['LD'] = settings.ld
-			os.environ['APBUILD_CC'] = settings.tool_prefix + 'gcc'
-			os.environ['APBUILD_CXX1'] = settings.tool_prefix + 'g++'
 		# FIXME: this for deb/rpm/slackware package archs
 		settings.package_arch = 'i386'
 
