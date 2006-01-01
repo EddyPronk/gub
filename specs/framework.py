@@ -19,7 +19,7 @@ def file_is_newer (f1, f2):
 class Darwin_sdk (gub.Sdk_package):
 	def patch (self):
 		pat = self.expand ('%(srcdir)s/usr/lib/*.la')
-		
+
 		for a in glob.glob (pat):
 			self.file_sub ([(r' (/usr/lib/.*\.la)', r'%(system_root)s\1')], a)
 
@@ -270,7 +270,7 @@ class LilyPond (gub.Target_package):
 			+ gub.Target_package.configure_command (self)
 			+ ' --enable-relocation '
 			+ ' --disable-documentation')
-		
+
         def name_version (self):
 		# whugh
 		if os.path.exists (self.srcdir ()):
@@ -381,6 +381,12 @@ cp %(install_root)s/usr/share/lilypond/*/python/* %(install_root)s/usr/bin
 				self.system ('mv %(i)s %(i)s.scm', locals ())
 			elif  s.find ('python') >= 0:
 				self.system ('mv %(i)s %(i)s.py', locals ())
+
+		for i in self.read_pipe ('''
+find %(install_root)s -name "*.ly"
+''').split ():
+			s = open (i).read ()
+			open (i, 'w').write (re.sub ('\r*\n', '\r\n', s))
 
 class LilyPond__linux (LilyPond):
 	def configure_command (self):
@@ -510,7 +516,7 @@ class LilyPond__darwin (LilyPond):
 
 		pydir = ('%(system_root)s/System/Library/Frameworks/Python.framework/Versions/%(python_version)s'
 			 + '/include/python%(python_version)s')
-		
+
 		cmd += ' --with-python-include=' + pydir
 
 		## binaries are huge.
@@ -521,7 +527,7 @@ class LilyPond__darwin (LilyPond):
 		LilyPond.configure (self)
 
 		make = self.expand ('%(builddir)s/config.make')
-		
+
 		if re.search ("GUILE_ELLIPSIS", open (make).read ()):
 			return
 		self.file_sub ([('CONFIG_CXXFLAGS = ',
@@ -536,8 +542,57 @@ class LilyPond__darwin (LilyPond):
 
 class Gettext (gub.Target_package):
 	def configure_command (self):
-		return gub.Target_package.configure_command (self) \
-		       + ' --disable-csharp'
+		return (gub.Target_package.configure_command (self)
+		       + ' --disable-csharp')
+
+class Gettext__freebsd (Gettext):
+	def patch (self):
+		self.system ('''
+cd %(srcdir)s && patch -p0 < %(patchdir)s/gettext-0.14.1-getopt.patch
+''')
+
+	def configure_command (self):
+		return (Gettext.configure_command (self)
+			+ gub.join_lines ('''
+--disable-rpath
+'''))
+
+	def xconfigure (self):
+		Gettext.configure (self)
+		self.system ('''
+cp %(system_root)s/usr/bin/libtool %(builddir)s/gettext-tools/libtool
+''')
+
+		if 0:
+			self.file_sub ([
+			('^sys_lib_search_path_spec="/lib/* ',
+			 'sys_lib_search_path_spec="%(system_root)s/usr/lib %(install_root)s/usr/lib '),
+			('^sys_lib_dlsearch_path_spec="/lib/* ',
+			 'sys_lib_dlsearch_path_spec="%(system_root)s/usr/lib %(install_root)s/usr/lib ')
+			],
+			       '%(builddir)s/gettext-tools/libtool')
+
+	def compile (self):
+		Gettext.compile (self)
+		for i in self.read_pipe ('''
+find %(builddir)s -name "*.la"
+''').split ():
+			# FIXME: libtool decides to relink, but includes
+			# -rpath /usr/lib, which makes linking to
+			# hardcoded ../intl/libintl.la fail.
+			self.file_sub ([
+				(' -rpath /usr/lib', ''),
+				],
+				       i)
+
+		# FIXME: another libtool relink workaround.
+		# Maybe try relibtoolizing/autoreconfing?
+		for i in self.read_pipe ('''
+find target/i686-freebsd4/build/ -wholename '*/.libs/*.so*.0'
+''').split ():
+			self.system ('''
+cp -pv %(i)s %(i)sT
+''', locals ())
 
 class Gettext__mingw (Gettext):
 	def config_cache_overrides (self, str):
@@ -552,7 +607,6 @@ jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
 	def xxconfigure_command (self):
 		return Gettext.configure_command (self) \
 		       + ' --disable-glocale'
-
 
 class Gettext__darwin (Gettext):
 	def xconfigure_command (self):
@@ -731,7 +785,7 @@ class Fontconfig__darwin (Fontconfig):
 		cmd = Fontconfig.configure_command (self)
 		cmd += ' --with-add-fonts=/Library/Fonts,/System/Library/Fonts '
 		return cmd
-	
+
 	def configure (self):
 		Fontconfig.configure (self)
 		self.file_sub ([('-Wl,[^ ]+ ', '')],
@@ -743,15 +797,17 @@ class Fontconfig__darwin (Fontconfig):
 		conf_file = open (self.expand ('%(install_root)s/usr/etc/fonts/local.conf'), 'w')
 		conf_file.write ('<cache>~/.lilypond-font.cache-1</cache>')
 
-		
+
 class Fontconfig__linux (Fontconfig):
 	def configure (self):
 		Fontconfig.configure (self)
 		self.file_sub ([
 			('^sys_lib_search_path_spec="/lib/* ',
 			 'sys_lib_search_path_spec="%(system_root)s/usr/lib /lib '),
-			('^sys_lib_dl_search_path_spec="/lib/* ',
-			 'sys_lib_dl_search_path_spec="%(system_root)s/usr/lib /lib ')
+			# FIXME: typo: dl_search (only dlsearch exists).
+			# comment-out for now
+			#('^sys_lib_dl_search_path_spec="/lib/* ',
+			# 'sys_lib_dl_search_path_spec="%(system_root)s/usr/lib /lib ')
 			],
 			       '%(builddir)s/libtool')
 
@@ -1041,7 +1097,7 @@ install: all
 	install -m 644 getopt.h $(DESTDIR)/$(includedir)/
 ''',
 			   '%(srcdir)s/Makefile', mode='a')
-			   
+
 	def configure (self):
 		self.system ('''
 shtool mkshadow %(srcdir)s %(builddir)s
@@ -1104,7 +1160,7 @@ def get_packages (settings):
 		Zlib (settings).with (version='1.2.2-1', mirror=download.lp, format='bz2',
 				      depends=['mingw-runtime']),
 		Gettext__mingw (settings).with (version='0.14.5-1', mirror=download.lp, format='bz2',
-						depends=['mingw-runtime']),
+						depends=['mingw-runtime', 'libtool']),
 		Libiconv (settings).with (version='1.9.2',
 					  depends=['mingw-runtime', 'gettext']),
 		Freetype (settings).with (version='2.1.7', mirror=download.freetype,
@@ -1137,7 +1193,8 @@ def get_packages (settings):
 	'linux': [
 		Libtool (settings).with (version='1.5.20'),
 		Zlib (settings).with (version='1.2.2-1', mirror=download.lp, format='bz2'),
-		Gettext (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2'),
+		Gettext (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2',
+					 depends=['libtool']),
 		Freetype (settings).with (version='2.1.10', mirror=download.nongnu,
 					  depends=['libtool', 'zlib']),
 		Expat (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2'),
@@ -1168,6 +1225,8 @@ def get_packages (settings):
 					  depends=['freebsd-runtime', 'gettext']),
 		Libgnugetopt (settings).with (version='1.3', format='bz2', mirror=download.freebsd_ports,
 					      depends=['freebsd-runtime']),
+		Gettext__freebsd (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2',
+						depends=['freebsd-runtime', 'libtool']),
 	],
 	}
 
@@ -1178,20 +1237,22 @@ def get_packages (settings):
 		linux_packs = packages['linux']
 		for i in linux_packs:
 			#URG
-#			if not i.name_dependencies:
-#				i.name_dependencies = list ([])
+			if i.name () in ('gettext'):
+				continue
                         if not i.name () in ('binutils', 'gcc'):
 				i.name_dependencies += ['freebsd-runtime']
 			if i.name () in ('ghostscript', 'glib', 'pango'):
 				i.name_dependencies += ['libiconv']
-			if i.name () in ('gettext'):
-				i.name_dependencies += ['libgnugetopt']
-		packs += linux_packs
+			# libgnugetopt is not autodetected;
+			# gettext has build bug
+			#if i.name () in ('gettext'):
+			#	i.name_dependencies += ['libgnugetopt']
+			packs += [i]
 
 	for p in packs:
 		if p.name () == 'lilypond':
 			p._downloader = p.cvs
-	
+
 	## FIXME: changes settings.
 	try:
 		settings.python_version = [p for p in packs

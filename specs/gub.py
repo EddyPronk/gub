@@ -348,7 +348,7 @@ class Cross_package (Package):
 
 	def install_command (self):
 		# FIXME: to install this, must revert any prefix=tooldir stuff
-		return join_lines ('''make prefix=/usr DESTDIR=%(install_root)s install''')
+		return 'make prefix=/usr DESTDIR=%(install_root)s install'
 
 	def package (self):
 		# naive tarball packages for now
