@@ -282,7 +282,7 @@ class LilyPond (gub.Target_package):
 		gub.Target_package.install (self)
 		d = gub.grok_sh_variables (self.expand ('%(srcdir)s/VERSION'))
 		v = '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
-		self.system ("cd %(install_root)s/usr/share/lilypond && rm -f current && ln -sf %(v)s %(current)s",
+		self.system ("cd %(install_root)s/usr/share/lilypond && rm -f current && ln -sf %(v)s current",
 			     locals ())
 
         def gub_name (self):
@@ -678,6 +678,8 @@ cd %(srcdir)s && ./configure
 class Fontconfig (gub.Target_package):
 	def configure_command (self):
 		# FIXME: system dir vs packaging install
+
+		## UGH  - this breaks  on Darwin!
 		return gub.Target_package.configure_command (self) \
 		      + gub.join_lines ('''
 --with-freetype-config="/usr/bin/freetype-config
