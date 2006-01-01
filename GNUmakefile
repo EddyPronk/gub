@@ -41,10 +41,9 @@ linux:
 	[ -d target/i686-$@/src/lilypond ] || $(call INVOKE_DRIVER, $@) download
 	$(call BUILD_ALL, $@)
 
+## FIXME: urg, why not using dependencies anymore?
 freebsd:
-	#[ -d target/i686-$@4/src/lilypond ] || $(call INVOKE_DRIVER, $@) download
 	[ -d target/i686-freebsd4/src/lilypond ] || $(call INVOKE_DRIVER, $@) download
-	# FIXME: urg, why not using dependencies anymore?
 	$(call INVOKE_DRIVER, $@) build $@-runtime
 	$(call INVOKE_XPM, $@) install $@-runtime
 	$(call INVOKE_DRIVER, $@) -t build binutils gcc
@@ -58,7 +57,6 @@ mac:
 
 mingw:
 	[ -d target/i686-$@/src/lilypond ] || $(call INVOKE_DRIVER, $@) download
-	# FIXME: urg, why not using dependencies anymore?
 	$(call INVOKE_DRIVER, $@) build $@-runtime w32api
 	$(call INVOKE_XPM, $@) install $@-runtime w32api
 	$(call INVOKE_DRIVER, $@) -t build gcc
