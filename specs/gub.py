@@ -318,8 +318,7 @@ tar %(flags)s %(tarball)s -C %(allsrcdir)s
 			     locals ())
 
 	def with (self, version='HEAD', mirror=download.gnu,
-		  format='gz', download=wget, depends=[],
-		  # FIXME: why not simply triggered by download==CVS/!=wget?
+		  format='gz', depends=[],
 		  track_development=False
 		  ):
 		self.format = format
