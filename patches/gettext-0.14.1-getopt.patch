@@ -1,0 +1,37 @@
+diff -purN -x'*~' /home/janneke/tmp/gettext-0.14.1-1/gettext-tools/src/Makefile.am ./gettext-tools/src/Makefile.am
+--- /home/janneke/tmp/gettext-0.14.1-1/gettext-tools/src/Makefile.am	2005-05-09 09:41:12.000000000 +0200
++++ ./gettext-tools/src/Makefile.am	2006-01-01 11:05:09.000000000 +0100
+@@ -170,6 +170,8 @@ libgettextpo_la_DEPENDENCIES = libgettex
+ # Link dependencies.
+ #   minimize changes: keep the explicit dependence on getopt.lo etc.
+ #   for gettext and ngettext; don't use convenience lib libgetopt.la
++hostname_LDADD = ../lib/libgetopt.la
++urlget_LDADD = ../lib/libgetopt.la
+ msgcmp_LDADD = ../lib/libgetopt.la libgettextsrc.la
+ msgfmt_LDADD = ../lib/libgetopt.la libgettextsrc.la
+ msgmerge_LDADD = ../lib/libgetopt.la libgettextsrc.la
+diff -purN -x'*~' /home/janneke/tmp/gettext-0.14.1-1/gettext-tools/src/Makefile.in ./gettext-tools/src/Makefile.in
+--- /home/janneke/tmp/gettext-0.14.1-1/gettext-tools/src/Makefile.in	2005-05-09 09:41:12.000000000 +0200
++++ ./gettext-tools/src/Makefile.in	2006-01-01 11:04:33.000000000 +0100
+@@ -130,8 +130,8 @@ binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
+ PROGRAMS = $(bin_PROGRAMS) $(noinst_PROGRAMS)
+ am_hostname_OBJECTS = hostname-hostname.$(OBJEXT)
+ hostname_OBJECTS = $(am_hostname_OBJECTS)
+-hostname_LDADD = $(LDADD)
+-hostname_DEPENDENCIES = ../lib/libgettextlib.la
++hostname_LDADD = $(LDADD) ../lib/libgetopt.la 
++hostname_DEPENDENCIES = ../lib/libgetopt.la ../lib/libgettextlib.la
+ am_msgattrib_OBJECTS = msgattrib-msgattrib.$(OBJEXT)
+ msgattrib_OBJECTS = $(am_msgattrib_OBJECTS)
+ msgattrib_DEPENDENCIES = ../lib/libgetopt.la libgettextsrc.la
+@@ -186,8 +186,8 @@ msguniq_OBJECTS = $(am_msguniq_OBJECTS)
+ msguniq_DEPENDENCIES = ../lib/libgetopt.la libgettextsrc.la
+ am_urlget_OBJECTS = urlget-urlget.$(OBJEXT)
+ urlget_OBJECTS = $(am_urlget_OBJECTS)
+-urlget_LDADD = $(LDADD)
+-urlget_DEPENDENCIES = ../lib/libgettextlib.la
++urlget_LDADD = $(LDADD) ../lib/libgetopt.la
++urlget_DEPENDENCIES = ../lib/libgetopt.la ../lib/libgettextlib.la
+ am_xgettext_OBJECTS = xgettext-xgettext.$(OBJEXT) \
+ 	xgettext-x-c.$(OBJEXT) xgettext-x-po.$(OBJEXT) \
+ 	xgettext-x-sh.$(OBJEXT) xgettext-x-python.$(OBJEXT) \
