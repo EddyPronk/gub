@@ -60,3 +60,4 @@ jpeg = 'ftp://ftp.uu.net/graphics/jpeg/jpegsrc.v6b.tar.gz'
 
 freebsd_ports = 'ftp://ftp.uk.freebsd.org/pub/FreeBSD/ports/local-distfiles/lioux/%(name)s-%(version)s.tar.%(format)s'
 
+freedesktop = 'http://%(name)s.freedesktop.org/releases/%(name)s-%(version)s.tar.%(format)s'
