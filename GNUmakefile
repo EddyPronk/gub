@@ -35,7 +35,7 @@ download:
 	$(call INVOKE_DRIVER, freebsd) download
 	$(call INVOKE_DRIVER, linux) download
 	$(call INVOKE_DRIVER, mingw) download
-	rm uploads/*/lilypond-HEAD*gub
+	rm -f uploads/*/lilypond-HEAD*gub
 
 linux:
 	[ -d target/i686-$@/src/lilypond ] || $(call INVOKE_DRIVER, $@) download
