@@ -108,7 +108,11 @@ chmod 755 %(install_root)s/usr/bin/*
 ''')
 
 class Gmp (gub.Target_package):
-	pass
+	def configure (self):
+		gub.Target_package.configure (self)
+		self.update_libtool ()
+		self.file_sub ([('#! /bin/sh', '#! /bin/sh\ntagname=CXX')],
+			       '%(builddir)s/libtool')
 
 class Gmp__darwin (Gmp):
 	def patch (self):
@@ -129,12 +133,6 @@ class Gmp__mingw (Gmp):
 		self.system ('''
 cd %(srcdir)s && patch -p1 < %(patchdir)s/gmp-4.1.4-1.patch
 ''')
-
-	def configure (self):
-		Gmp.configure (self)
-		self.update_libtool ()
-		self.file_sub ([('#! /bin/sh', '#! /bin/sh\ntagname=CXX')],
-			       '%(builddir)s/libtool')
 
 class Guile (gub.Target_package):
 	# FIXME: C&P.
@@ -190,7 +188,11 @@ cd %(srcdir)s && patch -p1 < %(lilywinbuilddir)s/patch/guile-1.7.2-3.patch
 		       + gub.join_lines ('''\
 AS=%(target_architecture)s-as
 PATH_SEPARATOR=";"
-CC_FOR_BUILD="cc -I%(builddir)s
+CC_FOR_BUILD="
+C_INCLUDE_PATH=
+CPPFLAGS=
+cc
+-I%(builddir)s
 -I%(srcdir)s
 -I%(builddir)s/libguile
 -I.
@@ -232,6 +234,28 @@ class Guile__linux (Guile):
 		# setting the proper LD_LIBRARY_PATH.
 		return 'export LD_LIBRARY_PATH=%(builddir)s/libguile/.libs:$LD_LIBRARY_PATH;' \
 		       + Guile.compile_command (self)
+
+class Guile__freebsd (Guile):
+	def configure_command (self):
+		# watch out for whitespace
+		builddir = self.builddir ()
+		srcdir = self.srcdir ()
+# ugh, C&P from Guile__mingw
+##PATH_SEPARATOR=";"
+		return Guile.configure_command (self) \
+		       + gub.join_lines ('''\
+AS=%(target_architecture)s-as
+CC_FOR_BUILD="
+C_INCLUDE_PATH=
+CPPFLAGS=
+cc
+-I%(builddir)s
+-I%(srcdir)s
+-I%(builddir)s/libguile
+-I.
+-I%(srcdir)s/libguile"
+''')
+
 
 class Guile__darwin (Guile):
 	def install (self):
@@ -544,6 +568,10 @@ class Gettext (gub.Target_package):
 		return (gub.Target_package.configure_command (self)
 		       + ' --disable-csharp')
 
+	def configure (self):
+		gub.Target_package.configure (self)
+		self.update_libtool ()
+
 class Gettext__freebsd (Gettext):
 	def patch (self):
 		self.system ('''
@@ -555,19 +583,6 @@ cd %(srcdir)s && patch -p0 < %(patchdir)s/gettext-0.14.1-getopt.patch
 			+ gub.join_lines ('''
 --disable-rpath
 '''))
-
-	def configure (self):
-		Gettext.configure (self)
-		self.update_libtool ()
-
-		if 0:
-			self.file_sub ([
-			('^sys_lib_search_path_spec="/lib/* ',
-			 'sys_lib_search_path_spec="%(system_root)s/usr/lib %(install_root)s/usr/lib '),
-			('^sys_lib_dlsearch_path_spec="/lib/* ',
-			 'sys_lib_dlsearch_path_spec="%(system_root)s/usr/lib %(install_root)s/usr/lib ')
-			],
-			       '%(builddir)s/gettext-tools/libtool')
 
 	def compile (self):
 		# ugh, for subsequent builds
@@ -605,10 +620,6 @@ gl_cv_func_mbrtowc=${gl_cv_func_mbrtowc=no}
 jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
 '''
 
-	def xxconfigure_command (self):
-		return Gettext.configure_command (self) \
-		       + ' --disable-glocale'
-
 class Gettext__darwin (Gettext):
 	def xconfigure_command (self):
 		## not necessary for 0.14.1
@@ -616,11 +627,8 @@ class Gettext__darwin (Gettext):
 			       Gettext.configure_command (self))
 
 class Libiconv (gub.Target_package):
-	pass
-
-class Libiconv__freebsd (Libiconv):
 	def configure (self):
-		Libiconv.configure (self)
+		gub.Target_package.configure (self)
 		self.update_libtool ()
 
 class Glib (gub.Target_package):
@@ -725,7 +733,7 @@ LDFLAGS:=$(LDFLAGS) -no-undefined
 
 	def install (self):
 		gub.Package.system (self, gub.join_lines ('''
-cd %(srcdir)s && ./configure
+cd %(srcdir)s && CC=gcc ./configure
 --disable-static
 --enable-shared
 --prefix=/usr
@@ -1228,12 +1236,14 @@ def get_packages (settings):
 	# FIXME: c&p from linux, + Freebsd_runtime package and deps.
 	'freebsd': [
 		Freebsd_runtime (settings).with (version='4.10', mirror=download.jantien),
-		Libiconv__freebsd (settings).with (version='1.9.2',
+		Libiconv (settings).with (version='1.9.2',
 					  depends=['freebsd-runtime', 'gettext', 'libtool']),
 		Libgnugetopt (settings).with (version='1.3', format='bz2', mirror=download.freebsd_ports,
 					      depends=['freebsd-runtime']),
 		Gettext__freebsd (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2',
-						depends=['freebsd-runtime', 'libtool']),
+						  depends=['freebsd-runtime', 'libtool']),
+		Guile__freebsd (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2',
+						depends=['freebsd-runtime', 'gettext', 'gmp', 'libtool']),
 	],
 	}
 
@@ -1244,7 +1254,7 @@ def get_packages (settings):
 		linux_packs = packages['linux']
 		for i in linux_packs:
 			#URG
-			if i.name () in ('gettext'):
+			if i.name () in ('gettext', 'guile'):
 				continue
                         if not i.name () in ('binutils', 'gcc'):
 				i.name_dependencies += ['freebsd-runtime']

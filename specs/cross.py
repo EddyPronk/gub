@@ -53,6 +53,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/l
 lt_cv_dlopen=${lt_cv_dlopen="dlopen"}
 ''',
 	'freebsd' : '''
+ac_cv_func_posix_getpwuid_r=${ac_cv_func_posix_getpwuid_r=no}
 ac_cv_lib_dl_dlopen=${ac_cv_lib_dl_dlopen=no}
 
 glib_cv_uscore=${glib_cv_uscore=no}

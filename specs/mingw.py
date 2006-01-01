@@ -30,8 +30,12 @@ def get_packages (settings):
 
 	
 def change_target_packages (packages):
+	pass
+
+if 0:   # broken
 	for p in packages:
 		gub.change_target_dict (p,
-					{'DLLTOOL': '%(tool_prefix)sdlltool',
-					 'DLLWRAP': '%(tool_prefix)sdllwrap',
-					 })
+					{
+			'DLLTOOL': '%(tool_prefix)sdlltool',
+			'DLLWRAP': '%(tool_prefix)sdllwrap',
+			})

@@ -418,7 +418,6 @@ tooldir=%(install_prefix)s
 #			'CPPFLAGS': '-I%(system_root)s/usr/include',
 			'C_INCLUDE_PATH': '%(system_root)s/usr/include',
 			'CXX':'%(tool_prefix)sg++ %(target_gcc_flags)s',
-
 			'FREETYPE_CONFIG': '''%(system_root)s/usr/bin/freetype-config \
 --prefix=%(system_root)s/usr \
 ''',
@@ -514,6 +513,6 @@ class Change_target_dict:
 def change_target_dict (package, addict):
 	"""Override the target_dict() method of PACKAGE."""
 	try:
-		package.target_dict = Change_target_dict(package, addict).target_dict
+		package.target_dict = Change_target_dict (package, addict).target_dict
 	except AttributeError:
 		pass
