@@ -314,12 +314,14 @@ tar %(flags)s %(tarball)s -C %(allsrcdir)s
 
 	def with (self, version='HEAD', mirror=download.gnu,
 		  format='gz', download=wget, depends=[],
+		  # FIXME: why not simply triggered by download==CVS/!=wget?
 		  track_development=False
 		  ):
 		self.format = format
 		self.ball_version = version
 		ball_version = version
-		self.name_dependencies = depends
+		# Use copy of default empty depends, to be able to change it.
+		self.name_dependencies = list (depends)
 		self.track_development = track_development
 		self.url = mirror
 

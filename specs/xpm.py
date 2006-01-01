@@ -140,9 +140,12 @@ class Package_manager:
 					raise 'BARF'
 				
 		except KeyError, k:
-			print 'Unknown package %s. I know about: ' % k, self._packages
+			print 'xpm: resolving dependencies for: %s' % p
+			print 'xpm: unknown package: %s' % k
+			print 'xpm: available packages: %s' % self._packages
+			print 'xpm: deps: %s' % p.name_dependencies
 			raise 'barf'
-		
+
 	# NAME_ shortcuts
 	def name_files (self, name):
 		return self.installed_files (self._packages[name])
@@ -185,7 +188,7 @@ def get_managers (settings):
 	
 	for m in tool_manager, target_manager:
 		m.resolve_dependencies ()
-		for p in m._packages.values():
+		for p in m._packages.values ():
 			settings.build_number_db.set_build_number (p)
 
 	tool_module.change_target_packages (target_manager._packages.values ())

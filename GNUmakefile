@@ -48,7 +48,7 @@ freebsd:
 	$(call INVOKE_DRIVER, $@) build $@-runtime
 	$(call INVOKE_XPM, $@) install $@-runtime
 	$(call INVOKE_DRIVER, $@) -t build binutils gcc
-	$(call INVOKE_XPM, $@) install binutils gcc
+	$(call INVOKE_XPM, $@) -t install binutils gcc
 	$(call BUILD_ALL, $@)
 
 mac:
@@ -61,8 +61,8 @@ mingw:
 	# FIXME: urg, why not using dependencies anymore?
 	$(call INVOKE_DRIVER, $@) build $@-runtime w32api
 	$(call INVOKE_XPM, $@) install $@-runtime w32api
-	$(call INVOKE_DRIVER, $@) build binutils gcc
-	$(call INVOKE_XPM, $@) install binutils gcc
+	$(call INVOKE_DRIVER, $@) -t build gcc
+	$(call INVOKE_XPM, $@) -t install binutils gcc
 	$(call BUILD_ALL, $@) 
 
 realclean:

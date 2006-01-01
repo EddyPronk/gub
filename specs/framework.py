@@ -1028,13 +1028,6 @@ class Libpng (gub.Target_package):
 class Freebsd_runtime (gub.Binary_package):
 	pass
 
-	def xuntar (self):
-		gub.Binary_package.untar (self)
-		self.system ('mkdir -p %(srcdir)s/root/usr')
-		self.system ('cd %(srcdir)s/root && mv * usr',
-			     ignore_error=True)
-
-
 # latest vanilla packages
 #Zlib (settings).with (version='1.2.3', mirror=download.zlib, format='bz2'),
 #Expat (settings).with (version='1.95.8', mirror=download.sf),
@@ -1122,7 +1115,7 @@ def get_packages (settings):
 						 depends=['mingw-runtime', 'gettext',
 							  'guile', 'pango', 'python'], track_development=True),
 	],
-	'linux': (
+	'linux': [
 		Libtool (settings).with (version='1.5.20'),
 		Zlib (settings).with (version='1.2.2-1', mirror=download.lp, format='bz2'),
 		Gettext (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2'),
@@ -1148,61 +1141,45 @@ def get_packages (settings):
 		LilyPond__linux (settings).with (mirror=cvs.gnu,
 						 depends=['gettext', 'guile', 'pango', 'python'],
 						 track_development=True),
-	),
+	],
 	# FIXME: c&p from linux, + Freebsd_runtime package and deps.
-	'freebsd': (
+	'freebsd': [
 		Freebsd_runtime (settings).with (version='4.10', mirror=download.jantien),
-		Libtool (settings).with (version='1.5.20',
-					 depends=['freebsd-runtime']),
-		Zlib (settings).with (version='1.2.2-1', mirror=download.lp, format='bz2',
-				      depends=['freebsd-runtime']),
-		Gettext (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2',
-					 depends=['freebsd-runtime']),
-		Freetype (settings).with (version='2.1.10', mirror=download.nongnu,
-					  depends=['freebsd-runtime', 'libtool', 'zlib']),
-		Expat (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2',
-				       depends=['freebsd-runtime']),
-		Fontconfig__linux (settings).with (version='2.3.2', mirror=download.fontconfig,
-						   depends=['freebsd-runtime', 'expat', 'freetype', 'libtool']),
-		Gmp (settings).with (version='4.1.4',
-				     depends=['freebsd-runtime', 'libtool']),
-		# FIXME: we're actually using 1.7.2-cvs+, 1.7.2 needs too much work
-		Guile__linux (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2',
-					      depends=['freebsd-runtime', 'gettext', 'gmp', 'libtool']),
-		Glib (settings).with (version='2.8.4', mirror=download.gtk,
-				      depends=['freebsd-runtime']),
-		Pango__linux (settings).with (version='1.10.1', mirror=download.gtk,
-					      depends=['freebsd-runtime', 'freetype', 'fontconfig', 'glib']),
-		Python (settings).with (version='2.4.2', mirror=download.python, format='bz2',
-					depends=['freebsd-runtime']),
-		Libjpeg__linux (settings).with (version='v6b', mirror=download.jpeg,
-						depends=['freebsd-runtime']),
-		Libpng (settings).with (version='1.2.8', mirror=download.libpng,
-					depends=['freebsd-runtime', 'zlib']),
-		Ghostscript (settings).with (version="8.15.1", mirror=download.cups, format='bz2',
-					     depends=['freebsd-runtime', 'libjpeg', 'libpng', 'zlib']),
-		LilyPond__linux (settings).with (mirror=cvs.gnu,
-						 depends=['freebsd-runtime', 'gettext', 'guile',
-							  'pango', 'python'], track_development=True),
-		),
+		Libiconv (settings).with (version='1.9.2',
+					  depends=['freebsd-runtime', 'gettext']),
+		],
 	}
 
-
 	packs = packages[settings.platform]
+
+	# FreeBSD almost uses linux packages...
+	if settings.platform.startswith ('freebsd'):
+		linux_packs = packages['linux']
+		for i in linux_packs:
+			#URG
+#			if not i.name_dependencies:
+#				i.name_dependencies = list ([])
+                        if not i.name () in ('binutils', 'gcc'):
+				i.name_dependencies += ['freebsd-runtime']
+			if i.name () in ('ghostscript', 'glib', 'pango'):
+				i.name_dependencies += ['libiconv']
+		packs += linux_packs
+
 	for p in packs:
-		if p.name() == 'lilypond':
+		if p.name () == 'lilypond':
 			p._downloader = p.cvs
 	
 	## FIXME: changes settings.
 	try:
-		settings.python_version = [p for p in packs if isinstance (p, Python)][0].python_version ()
+		settings.python_version = [p for p in packs
+					   if isinstance (p, Python)][0].python_version ()
 	except IndexError:
 		# UGH darwin has no python package.
 		settings.python_version = '2.3'
 
-	settings.guile_version = [p for p in packs if isinstance (p, Guile)][0].guile_version ()
-	settings.ghostscript_version = [p for p in packs if isinstance (p, Ghostscript)][0].ghostscript_version ()
+	settings.guile_version = [p for p in packs
+				  if isinstance (p, Guile)][0].guile_version ()
+	settings.ghostscript_version = [p for p in packs
+					if isinstance (p, Ghostscript)][0].ghostscript_version ()
 
 	return packs
-
-
