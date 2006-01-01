@@ -15,9 +15,12 @@ class Gcc (framework.Gcc):
 def get_packages (settings):
 	packages = [Gcc (settings).with (version='3.4.5', mirror = download.gcc, format='bz2',
 					 depends=["binutils"]),
+		    framework.Pkg_config (settings).with (version="0.20",
+							  mirror=download.freedesktop),
 		    framework.Binutils (settings).with (version='2.16.1', format='bz2')]
 	
 	return packages
+
 
 
 def change_target_packages (packages):
