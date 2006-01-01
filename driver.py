@@ -70,8 +70,7 @@ def get_settings (platform):
 	elif platform == 'mingw':
 		settings.target_gcc_flags = '-mwindows -mms-bitfields'
 	elif platform == 'linux':
-		## FIXME: assuming linux is native...
-		settings.target_architecture = settings.build_architecture
+		pass
 	elif platform == 'freebsd':
 		pass
 	else:
