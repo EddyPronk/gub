@@ -263,7 +263,8 @@ cd %(builddir)s && %(install_command)s
 			# installing?  But how does xpm know whether
 			# we do a native install, as system install
 			# or an installer install.
-                        if self.settings.platform.startswith ('linux'):
+                        if (self.settings.platform.startswith ('linux')
+			    or self.settings.platform.startswith ('freebsd')):
 				self.file_sub ([
 				('^libdir=.*',
 				"""libdir='%(system_root)s/usr/lib'"""),
