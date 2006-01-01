@@ -75,12 +75,22 @@ class Package_manager:
 		listfile = self.file_list_name (package)
 		lst = self.installed_files (package)
 		dirs = []
-		for l in lst:
-			f = os.path.join (self.root, l)
-			if os.path.isdir (f):
+		for i in lst:
+			f = os.path.join (self.root, i)
+			# FIXME: todo force: force uninstall even if files
+			# missing
+			if not os.path.exists (f) or force:
+				print 'xpm: uninstall: %s' % package
+				print 'xpm: no such file: %s' % f
+			        raise 'barf'
+
+			elif os.path.isdir (f):
 				dirs.append (f)
 			else:
-				os.unlink (f)
+				files.append (f)
+
+		for f in files:
+			os.unlink (f)
 
 		for d in reversed (dirs):
 			try:
@@ -138,7 +148,7 @@ class Package_manager:
 				if p in p.dependencies:
 					print 'circular dependency', p, p.name_dependencies, p.dependencies, self._packages
 					raise 'BARF'
-				
+
 		except KeyError, k:
 			print 'xpm: resolving dependencies for: %s' % p
 			print 'xpm: unknown package: %s' % k
@@ -159,7 +169,7 @@ class Package_manager:
 		except KeyError, k:
 			print 'known packages', self._packages
 			raise "Unknown package", k
-		
+
 
 
 
@@ -182,10 +192,10 @@ def get_managers (settings):
 	elif settings.platform.startswith ('mingw'):
 		import mingw
 		tool_module = mingw
-		
+
 	map (tool_manager.register_package, tool_module.get_packages (settings))
 	map (target_manager.register_package, framework.get_packages (settings))
-	
+
 	for m in tool_manager, target_manager:
 		m.resolve_dependencies ()
 		for p in m._packages.values ():

@@ -132,7 +132,7 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/gmp-4.1.4-1.patch
 
 	def configure (self):
 		Gmp.configure (self)
-		self.system ('''cp %(system_root)s/usr/bin/libtool %(builddir)s/libtool''')
+		self.update_libtool ()
 		self.file_sub ([('#! /bin/sh', '#! /bin/sh\ntagname=CXX')],
 			       '%(builddir)s/libtool')
 
@@ -219,8 +219,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
 			       '\\1')],
 			       '%(builddir)s/guile-readline/libtool')
 
-		self.system ('''cp %(system_root)s/usr/bin/libtool %(builddir)s/libtool''')
-		self.system ('''cp %(system_root)s/usr/bin/libtool %(builddir)s/guile-readline/libtool''')
+		self.update_libtool ()
 
 	def install (self):
 		Guile.install (self)
@@ -557,11 +556,9 @@ cd %(srcdir)s && patch -p0 < %(patchdir)s/gettext-0.14.1-getopt.patch
 --disable-rpath
 '''))
 
-	def xconfigure (self):
+	def configure (self):
 		Gettext.configure (self)
-		self.system ('''
-cp %(system_root)s/usr/bin/libtool %(builddir)s/gettext-tools/libtool
-''')
+		self.update_libtool ()
 
 		if 0:
 			self.file_sub ([
@@ -573,6 +570,10 @@ cp %(system_root)s/usr/bin/libtool %(builddir)s/gettext-tools/libtool
 			       '%(builddir)s/gettext-tools/libtool')
 
 	def compile (self):
+		# ugh, for subsequent builds
+		self.system ('''
+rm -f $(find %(builddir)s -name 'lib*.la')
+''')
 		Gettext.compile (self)
 		for i in self.read_pipe ('''
 find %(builddir)s -name "*.la"
@@ -588,7 +589,7 @@ find %(builddir)s -name "*.la"
 		# FIXME: another libtool relink workaround.
 		# Maybe try relibtoolizing/autoreconfing?
 		for i in self.read_pipe ('''
-find target/i686-freebsd4/build/ -wholename '*/.libs/*.so*.0'
+find target/i686-freebsd4/build/ -wholename '*/.libs/lib*.so.*[0-9]' -o -wholename '*/.libs/lib*[0-9].so'
 ''').split ():
 			self.system ('''
 cp -pv %(i)s %(i)sT
@@ -616,6 +617,11 @@ class Gettext__darwin (Gettext):
 
 class Libiconv (gub.Target_package):
 	pass
+
+class Libiconv__freebsd (Libiconv):
+	def configure (self):
+		Libiconv.configure (self)
+		self.update_libtool ()
 
 class Glib (gub.Target_package):
 	def config_cache_overrides (self, str):
@@ -1205,9 +1211,10 @@ def get_packages (settings):
 		# FIXME: we're actually using 1.7.2-cvs+, 1.7.2 needs too much work
 		Guile__linux (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2',
 					      depends=['gettext', 'gmp', 'libtool']),
-		Glib (settings).with (version='2.8.4', mirror=download.gtk),
+		Glib (settings).with (version='2.8.4', mirror=download.gtk,
+				      depends=['libtool']),
 		Pango__linux (settings).with (version='1.10.1', mirror=download.gtk,
-					      depends=['freetype', 'fontconfig', 'glib']),
+					      depends=['freetype', 'fontconfig', 'glib', 'libtool']),
 		Python (settings).with (version='2.4.2', mirror=download.python, format='bz2'),
 		Libjpeg__linux (settings).with (version='v6b', mirror=download.jpeg),
 		Libpng (settings).with (version='1.2.8', mirror=download.libpng,
@@ -1221,8 +1228,8 @@ def get_packages (settings):
 	# FIXME: c&p from linux, + Freebsd_runtime package and deps.
 	'freebsd': [
 		Freebsd_runtime (settings).with (version='4.10', mirror=download.jantien),
-		Libiconv (settings).with (version='1.9.2',
-					  depends=['freebsd-runtime', 'gettext']),
+		Libiconv__freebsd (settings).with (version='1.9.2',
+					  depends=['freebsd-runtime', 'gettext', 'libtool']),
 		Libgnugetopt (settings).with (version='1.3', format='bz2', mirror=download.freebsd_ports,
 					      depends=['freebsd-runtime']),
 		Gettext__freebsd (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2',
