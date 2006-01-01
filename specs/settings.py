@@ -65,7 +65,10 @@ class Settings (Context):
 		self.build_autopackage = self.builddir + '/autopackage'
 		
 	def verbose (self):
-		return self.options.verbose
+		try:
+			return self.options.verbose
+		except AttributeError:
+			return False
 	
  	def create_dirs (self): 
 		for a in (
