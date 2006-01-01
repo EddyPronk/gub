@@ -242,7 +242,7 @@ path_loop:
 	IntOp $2 $0 + $1
 	StrCpy $3 $R0 $0 0
 	StrCpy $4 $R0 10000 $2
-	WriteRegStr HKLM "${ENVIRON}" "PATH" "$3$4"
+	WriteRegExpandStr HKLM "${ENVIRON}" "PATH" "$3$4"
 	ReadRegStr $R0 HKLM "${ENVIRON}" "PATH"
 	${UnStrLoc} $0 $R0 "$INSTDIR\usr\bin;" >
 	StrCmp $0 "" path_done path_loop
@@ -256,7 +256,7 @@ path_done:
 # 	IntOp $2 $0 + $1
 # 	StrCpy $3 $R0 $0 0
 # 	StrCpy $4 $R0 10000 $2
-# 	WriteRegStr HKLM "${ENVIRON}" "PYTHONPATH" "$3$4"
+# 	WriteRegExpandStr HKLM "${ENVIRON}" "PYTHONPATH" "$3$4"
 # 	ReadRegStr $R0 HKLM "${ENVIRON}" "PYTHONPATH"
 # 	${UnStrLoc} $0 $R0 "$INSTDIR\usr\lib\python${PYTHON_VERSION};" >
 # 	StrCmp $0 "" pythonpath_done pythonpath_loop
@@ -351,7 +351,7 @@ FunctionEnd
 
 Function registry_lilypond
 	ReadRegStr $R0 HKLM "${ENVIRON}" "PATH"
-	WriteRegStr HKLM "${ENVIRON}" "PATH" "$INSTDIR\usr\bin;$R0"
+	WriteRegExpandStr HKLM "${ENVIRON}" "PATH" "$INSTDIR\usr\bin;$R0"
 
 	WriteRegStr HKCR ".ly" "" "LilyPond"
 	WriteRegStr HKCR ".ly" "LilyPond" "LilyPond"
@@ -483,7 +483,7 @@ Function registry_python
 
 py_done:
 #	ReadRegStr $R0 HKLM "${ENVIRON}" "PYTHONPATH"
-#	WriteRegStr HKLM "${ENVIRON}" "PYTHONPATH" "$INSTDIR\usr\lib\python${PYTHON_VERSION};$R0"
+#	WriteRegExpandStr HKLM "${ENVIRON}" "PYTHONPATH" "$INSTDIR\usr\lib\python${PYTHON_VERSION};$R0"
 #
 	WriteRegStr HKCR ".py" "" "Python"
 	WriteRegStr HKCR ".py" "Python" "Python"
