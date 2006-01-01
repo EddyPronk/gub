@@ -411,7 +411,7 @@ tooldir=%(install_prefix)s
 			'C_INCLUDE_PATH':' %(system_root)s/usr/include',
 			'CXX':'%(tool_prefix)sg++ %(target_gcc_flags)s',
 
-			'FREETYPE_CONFIG': '''/usr/bin/freetype-config \
+			'FREETYPE_CONFIG': '''%(system_root)s/usr/bin/freetype-config \
 --prefix=%(system_root)s/usr \
 ''',
 #--urg-broken-if-set-exec-prefix=%(system_root)s/usr \
