@@ -118,8 +118,10 @@ class Os_commands:
 		call_env.update (env)
 
 		if verbose:
-			for (k, v) in env.items ():
-				sys.stderr.write ('%s=%s\n' % (k, v))
+			keys =env.keys()
+			keys.sort()
+			for k in keys:
+				sys.stderr.write ('%s=%s\n' % (k, env[k]))
 
 		for i in cmd.split ('\n'):
 			if i:
