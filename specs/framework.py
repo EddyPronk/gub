@@ -58,6 +58,16 @@ class Gcc (gub.Cross_package):
 cd %(tooldir)s/lib && ln -fs libgcc_s.1.so libgcc_s.so
 ''')
 
+
+class Fondu (gub.Target_package):
+	pass
+class Fondu__darwin (Fondu):
+	def patch(self):
+		Fondu.patch (self)
+		self.file_sub ([('/System/Library/',
+				 '%(system_root)s/System/Library/')],
+			       '%(srcdir)s/Makefile.in')
+		
 class Libtool (gub.Target_package):
 	pass
 
@@ -1129,7 +1139,7 @@ shtool mkshadow %(srcdir)s %(builddir)s
 def get_packages (settings):
 	packages = {
 	'darwin': (
-		Darwin_sdk (settings).with (version='0.0', mirror=download.hw,
+		Darwin_sdk (settings).with (version='0.1', mirror=download.hw,
 					    format='gz'),
 		Gettext (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2',
 					 depends=['darwin-sdk']
@@ -1147,7 +1157,8 @@ def get_packages (settings):
 					       depends = ['glib', 'fontconfig', 'freetype']
 					       ),
 		Gmp__darwin (settings).with (version='4.1.4',depends=['darwin-sdk']),
-
+		Fondu__darwin (settings).with (version="051010", mirror=download.hw),
+				       
 		## 1.7.3  is actually CVS repackaged.
 #		Guile (settings).with (version='1.7.3', mirror=download.gnu, format='gz'),
 		Guile__darwin (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2',
@@ -1158,7 +1169,7 @@ def get_packages (settings):
 		Ghostscript__darwin (settings).with (version="8.15.1", mirror=download.cups,
 						     format='bz2', depends=['libjpeg', 'libpng']),
 		LilyPond__darwin (settings).with (mirror=cvs.gnu, track_development=True,
-						  depends=['pango', 'guile']
+						  depends=['pango', 'guile', 'gettext', 'fondu']
 						  ),
 	),
 	'mingw': [

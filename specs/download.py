@@ -51,6 +51,8 @@ sourceforge = sf
 
 sourceforge_homepage = 'http://%(name)s.sourceforge.net/%(name)s-%(ball_version)s.tar.%(format)s'
 
+fondu = 'http://%(name)s.sourceforge.net/%(name)s_src-%(ball_version)s.tgz'
+
 python = 'http://python.org/ftp/python/%(ball_version)s/Python-%(ball_version)s.tar.%(format)s' 
 
 cygwin = 'ftp://ftp.sunsite.dk/pub/cygwin/release/%(name)s/%(name)s-%(ball_version)s.tar.%(format)s'
