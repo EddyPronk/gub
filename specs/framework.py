@@ -1028,6 +1028,25 @@ class Libpng (gub.Target_package):
 class Freebsd_runtime (gub.Binary_package):
 	pass
 
+class Libgnugetopt (gub.Target_package):
+	def patch (self):
+		self.dump ('''
+prefix = /usr
+libdir = $(prefix)/lib
+includedir = $(prefix)/include
+install: all
+	install -d $(DESTDIR)/$(libdir)/
+	install -m 644 libgnugetopt.so.1 $(DESTDIR)/$(libdir)/
+	install -d $(DESTDIR)/$(includedir)/
+	install -m 644 getopt.h $(DESTDIR)/$(includedir)/
+''',
+			   '%(srcdir)s/Makefile', mode='a')
+			   
+	def configure (self):
+		self.system ('''
+shtool mkshadow %(srcdir)s %(builddir)s
+''')
+
 # latest vanilla packages
 #Zlib (settings).with (version='1.2.3', mirror=download.zlib, format='bz2'),
 #Expat (settings).with (version='1.95.8', mirror=download.sf),
@@ -1147,7 +1166,9 @@ def get_packages (settings):
 		Freebsd_runtime (settings).with (version='4.10', mirror=download.jantien),
 		Libiconv (settings).with (version='1.9.2',
 					  depends=['freebsd-runtime', 'gettext']),
-		],
+		Libgnugetopt (settings).with (version='1.3', format='bz2', mirror=download.freebsd_ports,
+					      depends=['freebsd-runtime']),
+	],
 	}
 
 	packs = packages[settings.platform]
@@ -1163,6 +1184,8 @@ def get_packages (settings):
 				i.name_dependencies += ['freebsd-runtime']
 			if i.name () in ('ghostscript', 'glib', 'pango'):
 				i.name_dependencies += ['libiconv']
+			if i.name () in ('gettext'):
+				i.name_dependencies += ['libgnugetopt']
 		packs += linux_packs
 
 	for p in packs:

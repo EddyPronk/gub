@@ -57,3 +57,6 @@ cygwin = 'ftp://ftp.sunsite.dk/pub/cygwin/release/%(name)s/%(name)s-%(ball_versi
 
 cups = 'http://ftp.easysw.com/pub/%(name)s/%(version)s/espgs-%(version)s-source.tar.%(format)s'
 jpeg = 'ftp://ftp.uu.net/graphics/jpeg/jpegsrc.v6b.tar.gz'
+
+freebsd_ports = 'ftp://ftp.uk.freebsd.org/pub/FreeBSD/ports/local-distfiles/lioux/%(name)s-%(version)s.tar.%(format)s'
+

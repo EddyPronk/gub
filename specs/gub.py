@@ -277,6 +277,7 @@ cd %(builddir)s && %(install_command)s
 	def compile (self):
 		self.system ('cd %(builddir)s && %(compile_command)s')
 
+	# FIXME: should not misuse patch for auto stuff
 	def patch (self):
 		if not os.path.exists ('%(srcdir)s/configure' \
 				       % self.get_substitution_dict ()):
