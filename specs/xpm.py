@@ -75,10 +75,12 @@ class Package_manager:
 		listfile = self.file_list_name (package)
 		lst = self.installed_files (package)
 		dirs = []
+		files = []
 		for i in lst:
 			f = os.path.join (self.root, i)
 			# FIXME: todo force: force uninstall even if files
 			# missing
+			force = False
 			if not os.path.exists (f) or force:
 				print 'xpm: uninstall: %s' % package
 				print 'xpm: no such file: %s' % f
