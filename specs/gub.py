@@ -417,7 +417,7 @@ tooldir=%(install_prefix)s
 			'AR': '%(tool_prefix)sar',
 			'CC': '%(tool_prefix)sgcc %(target_gcc_flags)s',
 #			'CPPFLAGS': '-I%(system_root)s/usr/include',
-			'C_INCLUDE_PATH':' %(system_root)s/usr/include',
+			'C_INCLUDE_PATH': '%(system_root)s/usr/include',
 			'CXX':'%(tool_prefix)sg++ %(target_gcc_flags)s',
 
 			'FREETYPE_CONFIG': '''%(system_root)s/usr/bin/freetype-config \
