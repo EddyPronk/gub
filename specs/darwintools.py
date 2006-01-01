@@ -133,3 +133,31 @@ def get_packages (settings):
 
 def change_target_packages (packages):
 	pass
+
+
+def get_darwin_sdk ():
+	host  = 'maagd'
+	version = '0.1'
+
+	l = locals()
+
+	dest =	'darwin-sdk-%(version)s' % l
+	os.system ('rm -rf %s' % dest)
+	os.mkdir (dest)
+	dirs = ["/usr/lib","/usr/include","/System/Library/Frameworks/Python.framework",
+		"/System/Library/Frameworks/CoreServices.framework"]
+	for d in dirs:
+		os.makedirs (dest + d)
+		cmd =  ('rsync -a -v %s:%s/ %s%s' %
+			(host, d, dest, d))
+		print cmd
+		s = os.system (cmd)
+		if s :
+			raise 'bar'
+
+	os.system ('chmod -R +w %s '  % dest)
+	os.system ('tar cfz %s.tar.gz %s '  % (dest, dest))
+	
+
+if __name__== '__main__':
+	get_darwin_sdk ()
