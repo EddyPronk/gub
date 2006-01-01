@@ -40,7 +40,8 @@ def join_lines (str):
 class Package (Os_context_wrapper):
 	def __init__ (self, settings):
 		Os_context_wrapper.__init__(self, settings)
-		
+
+		self.verbose = settings.verbose()
 		self.settings = settings
 		self.url = ''
 		self._downloader = self.wget
