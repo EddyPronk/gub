@@ -29,6 +29,9 @@ class Darwin_sdk (gub.Sdk_package):
 class Binutils (gub.Cross_package):
 	pass
 
+class Pkg_config (gub.Cross_package):
+	pass
+
 class Gcc (gub.Cross_package):
 	def patch (self):
 		self.file_sub ([('/usr/bin/libtool', '%(tooldir)s/bin/%(target_architecture)s-libtool')],
