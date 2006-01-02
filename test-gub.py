@@ -16,7 +16,9 @@ def tag_name ():
 
 def system (cmd):
 	print cmd
-	return os.system (cmd)
+	stat = os.system (cmd)
+	if stat:
+		raise 'Command failed', stat
 
 def fail_message (options, log, diff) :
 	msg = email.MIMEMultipart.MIMEMultipart()
