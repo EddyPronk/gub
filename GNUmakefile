@@ -77,22 +77,3 @@ TAGS: $(sources)
 cyg-apt.py: cyg-apt.py.in specs/cpm.py
 	sed -e "/@CPM@/r specs/cpm.py" -e "s/@CPM@//" < $< > $@
 	chmod +x $@
-
-test-cygwin: cyg-apt.py
-	rm -f ~/.cyg-apt .cyg-apt
-	rm -rf cygwin
-	./cyg-apt.py setup
-	./cyg-apt.py -x install cygwin
-	./cyg-apt.py list
-
-test-gub: cyg-apt.py
-	rm -f ~/.cyg-apt .cyg-apt
-	./cyg-apt.py --root=target/i686-mingw32/system --mirror=file://uploads setup --ini=file://uploads/setup.ini
-	./cyg-apt.py list
-
-gpm-install: test-gub
-	-./cyg-apt.py install $$(./cyg-apt.py search .)
-	mkdir -p target/i686-mingw32/status
-	mkdir -p target/i686-mingw32/tools
-	touch target/i686-mingw32/status/binutils-2.16.1-0-{untar,patch,configure,compile,install,package,clean}
-	touch target/i686-mingw32/status/gcc-3.4.5-0-{untar,patch,configure,compile,install,package,clean}
