@@ -1,12 +1,20 @@
 import smtplib
 import os
 import time
+import email.MIMEText
+import email.Header
+import email.Message
+import email.MIMEMultipart
 
-server = "smtp.xs4all.nl"
+#server = "smtp.xs4all.nl"
+server = "localhost"
 sender = "hanwen@xs4all.nl"
 addresses = [
-	'janneke@gnu.org',
-	'hanwen@xs4all.nl']
+#	'janneke@gnu.org',
+# 	'hanwen@xs4all.nl',
+	
+	'hanwen@localhost',
+	]
 
 def tag_name ():
 	(year, month, day, hours,
@@ -19,9 +27,23 @@ def system (cmd):
 	print cmd
 	return os.system (cmd)
 
-stat = os.system ("make distclean")
-#stat = os.system ("nice make all 2>&1 | tee test-gub.log")
+COMMASPACE = ', '
+def fail_message (log, diff) :
+	msg = email.MIMEMultipart.MIMEMultipart()
+	msg['Subject'] = email.Header.Header( 'GUB Autobuild: FAIL')
 
+	msg.preamble = ("Oops, our GUB build failed")
+	msg.attach (email.MIMEText.MIMEText (log))
+	msg.attach (email.MIMEText.MIMEText (diff))
+	msg.epilogue = ("Oops, our GUB build failed")
+	
+	msg['From'] = sender
+	msg['To'] = COMMASPACE.join (addresses)
+
+
+	return msg.as_string ()
+	
+stat = system ("make distclean")
 stat = os.system ("nice make all >& test-gub.log")
 if stat:
 	f = open ('test-gub.log')
@@ -30,15 +52,17 @@ if stat:
 	f.seek (- min (length, 10240), 1)
 	body = f.read ()
 
+	diff = os.popen ('darcs diff -u --from-tag success-').read ()
+
+	msg = fail_message (body, diff)
+	
 	connection = smtplib.SMTP (server)
-	subject = 'GUB Autobuild: FAIL'
-	body = 'Subject: %s\n\n' % subject +  body
-	connection.sendmail (sender, addresses, body)
+	connection.sendmail (sender, addresses, msg)
 
 	## TODO: include diff from last known working
 else:
-	#	system ('darcs tag %s' % tag_name ()) 
-	pass
-	## TODO: push the tag
+	name = tag_name()
+	system ('darcs tag %s' % name)
+	system ('darcs push -t %s ' % name)
 	
 	
