@@ -433,12 +433,6 @@ class LilyPond__linux (LilyPond):
 --with-framework-dir=../%(framework_dir)s/usr
 ''')
 
-	def compile_command (self):
-		# FIXME: when not x-building, help2man runs guile without
-		# setting the proper LD_LIBRARY_PATH.
-		return 'export LD_LIBRARY_PATH=%(system_root)s/usr/lib:$LD_LIBRARY_PATH;' \
-		       + LilyPond.compile_command (self)
-
 	def install (self):
 		LilyPond.install (self)
 		# handle framework dir in relocate.cc?
