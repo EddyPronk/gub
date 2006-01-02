@@ -34,8 +34,10 @@ def fail_message (log, diff) :
 
 	msg.preamble = ("Oops, our GUB build failed")
 	msg.attach (email.MIMEText.MIMEText (log))
-	msg.attach (email.MIMEText.MIMEText (diff))
-	msg.epilogue = ("Oops, our GUB build failed")
+
+	if diff: 
+		msg.attach (email.MIMEText.MIMEText (diff))
+	msg.epilogue = ''
 	
 	msg['From'] = sender
 	msg['To'] = COMMASPACE.join (addresses)
