@@ -1094,14 +1094,17 @@ class Libjpeg (targetpackage.Target_package):
 		return re.sub (r'src\.v', '-', targetpackage.Target_package.srcdir(self))
 
 	def configure_command (self):
-		return re.sub ('--config-cache', '',
+		return re.sub ('--config-cache', '--cache-file=config.cache',
 			       targetpackage.Target_package.configure_command (self))
 
 	def configure (self):
 		# FIXME: use Libjpeg.configure ?
-		self.system ('''
+		# urg try
+		if self.settings.platform.startswith ('freebsd'):
+			self.system ('''
 mkdir -p %(builddir)s
 cp -pv %(allsrcdir)s/gcc-3.4.5/ltconfig %(srcdir)s || true
+cp -pv %(allsrcdir)s/gcc-3.4.5/ltcf-c.sh %(srcdir)s || true
 cp %(system_root)s/usr/share/libtool/ltmain.sh %(builddir)s		
 ''')
 		targetpackage.Target_package.configure (self)
@@ -1110,10 +1113,15 @@ cp %(system_root)s/usr/share/libtool/ltmain.sh %(builddir)s
 		#FIXME:
 		if self.settings.platform == 'darwin':
 			arch = 'powerpc-apple'
-		self.system ('''cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh %(arch)s''' , locals ())
+		self.system ('''
+cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh %(arch)s'''
+			     , locals ())
 
 		self.file_sub (
-			[(r'(\(INSTALL_[A-Z]+\).*) (\$[^ ]+)$', r'\1 $(DESTDIR)\2')],
+			[
+			(r'(\(INSTALL_[A-Z]+\).*) (\$[^ ]+)$',
+			 r'\1 $(DESTDIR)\2'),
+			 ],
 			'%(builddir)s/Makefile')
 
 	def install_command (self):
@@ -1121,6 +1129,15 @@ cp %(system_root)s/usr/share/libtool/ltmain.sh %(builddir)s
 mkdir -p %(install_root)s/usr/include %(install_root)s/usr/lib
 && make DESTDIR=%(install_root)s install-headers install-lib
 ''')
+
+class Libjpeg__mingw (Libjpeg):
+	def configure (self):
+		Libjpeg.configure (self)
+		# libtool will not build dll if -no-undefined flag is
+		# not present
+		self.file_sub ([('-version-info',
+				 '-no-undefined -version-info')],
+			   '%(builddir)s/Makefile')
 
 class Libjpeg__linux (Libjpeg):
 	def compile (self):
@@ -1135,13 +1152,27 @@ class Libpng (targetpackage.Target_package):
 		return 'libpng'
 
 	def patch (self):
-		self.file_sub ([('(@INSTALL.*)@PKGCONFIGDIR@', r'\1${DESTDIR}@PKGCONFIGDIR@')],
+		self.file_sub ([('(@INSTALL.*)@PKGCONFIGDIR@',
+				 r'\1${DESTDIR}@PKGCONFIGDIR@')],
 			       '%(srcdir)s/Makefile.in')
+		self.file_sub ([('(@INSTALL.*)@PKGCONFIGDIR@',
+				 r'\1${DESTDIR}@PKGCONFIGDIR@')],
+			       '%(srcdir)s/Makefile.am')
 
 	def configure (self):
 		targetpackage.Target_package.configure (self)
 		# # FIXME: libtool too old for cross compile
 		self.update_libtool ()
+
+class Libpng__mingw (Libpng):
+	def configure (self):
+		# libtool will not build dll if -no-undefined flag is
+		# not present
+		self.file_sub ([('-version-info',
+				 '-no-undefined -version-info')],
+			   '%(srcdir)s/Makefile.am')
+		self.autoupdate ()
+		Libpng.configure (self)
 
 class Freebsd_runtime (gub.Binary_package):
 	pass
@@ -1242,15 +1273,15 @@ def get_packages (settings):
 					      depends=['mingw-runtime', 'freetype', 'fontconfig', 'glib', 'libiconv']),
 		Python__mingw (settings).with (version='2.4.2', mirror=download.python, format='bz2',
 					       depends=['mingw-runtime']),
-		Libjpeg (settings).with (version='v6b', mirror=download.jpeg,
-					 depends=['mingw-runtime']),
-		Libpng (settings).with (version='1.2.8', mirror=download.libpng,
-					depends=['mingw-runtime', 'zlib']),
+		Libjpeg__mingw (settings).with (version='v6b', mirror=download.jpeg,
+						depends=['mingw-runtime']),
+		Libpng__mingw (settings).with (version='1.2.8', mirror=download.libpng,
+					       depends=['mingw-runtime', 'zlib']),
 		Ghostscript__mingw (settings).with (version="8.15.1", mirror=download.cups, format='bz2',
 						    depends=['mingw-runtime', 'libiconv', 'libjpeg',
 							     'libpng','zlib']),
 		LilyPond__mingw (settings).with (mirror=cvs.gnu,
-						 depends=['mingw-runtime', 'gettext', 'guile', 'pango', 'python'], track_development=True),
+						 depends=['mingw-runtime', 'fontconfig', 'gettext', 'guile', 'pango', 'python'], track_development=True),
 	],
 	'linux': [
 		Libtool (settings).with (version='1.5.20'),
@@ -1278,7 +1309,7 @@ def get_packages (settings):
 		Ghostscript (settings).with (version="8.15.1", mirror=download.cups, format='bz2',
 					     depends=['libjpeg', 'libpng', 'zlib']),
 		LilyPond__linux (settings).with (mirror=cvs.gnu,
-						 depends=['gettext', 'guile', 'pango', 'python'],
+						 depends=['fontconfig', 'gettext', 'guile', 'pango', 'python'],
 						 track_development=True),
 	],
 	# FIXME: c&p from linux, + Freebsd_runtime package and deps.

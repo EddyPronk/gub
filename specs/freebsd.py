@@ -1,32 +1,33 @@
 import os
 import re
 
+import cross
 import download
 import framework
 import gub
-import mingw
+import misc
 
-class Binutils (mingw.Binutils):
+class Binutils (cross.Binutils):
 	def configure_command (self):
 		# Add --program-prefix, otherwise we get
 		# i686-freebsd-FOO iso i686-freebsd4-FOO.
-		return (mingw.Binutils.configure_command (self)
+		return (cross.Binutils.configure_command (self)
 			+ misc.join_lines ('''
 --program-prefix=%(tool_prefix)s
 '''))
 
-class Gcc (mingw.Gcc):
+class Gcc (cross.Gcc):
 	def configure_command (self):
 		# Add --program-prefix, otherwise we get
 		# i686-freebsd-FOO iso i686-freebsd4-FOO.
-		return (mingw.Gcc.configure_command (self)
+		return (cross.Gcc.configure_command (self)
 			+ misc.join_lines ('''
 --program-prefix=%(tool_prefix)s
 '''))
 
 def get_packages (settings):
 	return (
-		framework.Pkg_config (settings).with (version="0.20",
+		cross.Pkg_config (settings).with (version="0.20",
 						      mirror=download.freedesktop),
 		Binutils (settings).with (version='2.16.1', format='bz2'),
 #		Gcc (settings).with (version='4.0.2', mirror=download.gcc, format='bz2'),
