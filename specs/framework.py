@@ -228,11 +228,15 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
 			os.chmod ('%(srcdir)s/configure' % self.get_substitution_dict (), 0755)
 		Guile.configure (self)
 
-		self.file_sub ([('^\(allow_undefined_flag=.*\)unsupported',
-			       '\\1')],
+		self.file_sub ([
+			('^\(allow_undefined_flag=.*\)unsupported', '\\1'),
+			('-mwindows', ''),
+			],
 			       '%(builddir)s/libtool')
-		self.file_sub ([('^\(allow_undefined_flag=.*\)unsupported',
-			       '\\1')],
+		self.file_sub ([
+			('^\(allow_undefined_flag=.*\)unsupported', '\\1'),
+			('-mwindows', ''),
+			],
 			       '%(builddir)s/guile-readline/libtool')
 
 	def install (self):

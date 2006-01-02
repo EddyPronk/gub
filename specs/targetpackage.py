@@ -84,7 +84,7 @@ tooldir=%(install_prefix)s
 ## ugh, creeping -L/usr/lib problem
 ## trying revert to LDFLAGS...
 ##			'LIBRARY_PATH': '%(system_root)s/usr/lib:%(system_root)s/usr/bin',
-			'LDFLAGS': '%(system_root)s/usr/lib:%(system_root)s/usr/bin',
+			'LDFLAGS': '-L%(system_root)s/usr/lib -L%(system_root)s/usr/bin',
 			'LD': '%(tool_prefix)sld',
 			'NM': '%(tool_prefix)snm',
 			'PKG_CONFIG_PATH': '%(system_root)s/usr/lib/pkgconfig',
