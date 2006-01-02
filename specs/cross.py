@@ -37,10 +37,6 @@ class Binutils (Cross_package):
 	pass
 
 class Gcc (Cross_package):
-	def patch (self):
-		self.file_sub ([('/usr/bin/libtool', '%(tooldir)s/bin/%(target_architecture)s-libtool')],
-			       '%(srcdir)s/gcc/config/darwin.h')
-
 	def zip_libgcc (self):
 		dylib_exts = ['dylib', 'so', 'dll']
 		file_lists = [glob.glob (self.expand ("%(install_root)s/usr/%(target_architecture)s/lib/*"
