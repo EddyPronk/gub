@@ -37,13 +37,13 @@ download:
 	$(call INVOKE_DRIVER, mingw) download
 	rm -f uploads/*/lilypond-HEAD*gub
 
+all: linux freebsd mac mingw
+
 linux:
-	[ -d target/i686-$@/src/lilypond ] || $(call INVOKE_DRIVER, $@) download
 	$(call BUILD_ALL, $@)
 
 ## FIXME: urg, why not using dependencies anymore?
 freebsd:
-	[ -d target/i686-freebsd4/src/lilypond ] || $(call INVOKE_DRIVER, $@) download
 	$(call INVOKE_DRIVER, $@) build $@-runtime
 	$(call INVOKE_XPM, $@) install $@-runtime
 	$(call INVOKE_DRIVER, $@) -t build binutils gcc
@@ -63,11 +63,8 @@ mingw:
 	$(call INVOKE_XPM, $@) -t install binutils gcc
 	$(call BUILD_ALL, $@) 
 
-realclean:
-	rm -rf src target
-
-distclean: realclean
-	echo NOT rm -rf downloads
+distclean:
+	rm -rf target uploads
 
 sources = GNUmakefile $(wildcard *.py specs/*.py)
 
