@@ -75,4 +75,4 @@ cyg-apt.py: cyg-apt.py.in specs/cpm.py
 	chmod +x $@
 
 test:
-	python test-gub.py
+	python test-gub.py --to hanwen@xs4all.nl --to janneke@gnu.org --smtp smtp.xs4all.nl
