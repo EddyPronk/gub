@@ -36,7 +36,6 @@ class Gcc (cross.Gcc):
 (cd %(tooldir)s/lib && rm -f libgcc_s.dylib && ln -s libgcc_s.1.dylib libgcc_s.dylib)
 ''')
 
-
 class Rewirer (context.Os_context_wrapper):
 	def __init__ (self, settings):
 		context.Os_context_wrapper.__init__ (self,settings)

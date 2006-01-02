@@ -1229,7 +1229,10 @@ def get_packages (settings):
 					       depends = ['glib', 'fontconfig', 'freetype']
 					       ),
 		Gmp__darwin (settings).with (version='4.1.4',depends=['darwin-sdk']),
-		Libgcc (settings).with (mirror=''),
+		Libgcc (settings).with (mirror='',
+
+					## UGH: need to sync with GCC version.
+					version='4.0.2'),
 		Fondu__darwin (settings).with (version="051010", mirror=download.hw),
 		## 1.7.3  is actually CVS repackaged.
 #		Guile (settings).with (version='1.7.3', mirror=download.gnu, format='gz'),
@@ -1333,6 +1336,8 @@ def get_packages (settings):
 
 	packs = packages[settings.platform]
 
+
+	## UGH UGH  platform dependent.
 	# FreeBSD almost uses linux packages...
 	if settings.platform.startswith ('freebsd'):
 		linux_packs = packages['linux']
@@ -1350,6 +1355,9 @@ def get_packages (settings):
 			#	i.name_dependencies += ['libgnugetopt']
 			packs += [i]
 
+
+
+	
 	for p in packs:
 		if p.name () == 'lilypond':
 			p._downloader = p.cvs
@@ -1359,9 +1367,10 @@ def get_packages (settings):
 		settings.python_version = [p for p in packs
 					   if isinstance (p, Python)][0].python_version ()
 	except IndexError:
+		
 		# UGH darwin has no python package.
 		settings.python_version = '2.3'
-
+		
 	settings.guile_version = [p for p in packs
 				  if isinstance (p, Guile)][0].guile_version ()
 	settings.ghostscript_version = [p for p in packs

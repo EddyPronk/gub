@@ -322,6 +322,7 @@ class Binary_package (Package):
 
 class Null_package (Package):
 	"""Placeholder for downloads """
+	
 	def compile (self):
 		pass
 	def configure (self):

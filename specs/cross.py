@@ -1,5 +1,6 @@
 import gub
 import misc
+import glob
 
 class Cross_package (gub.Package):
 	"""Package for cross compilers/linkers etc.
@@ -44,15 +45,15 @@ class Gcc (Cross_package):
 			      for d in dylib_exts]
 		
 		files = ' '.join (misc.list_append (file_lists))
-
-		self.system ('''mkdir %(builddir)s/usr/lib && cp -a %(files)s %(builddir)s/usr/lib/ ''')
-		self.system ('''tar -zcf %(gub_uploads)/libgcc-%(version)s-1.gub  -C %(builddir)s usr/''')
-		self.system ('''rm -f %s ''' % ' '.join (files))
+		
+		self.system ('''mkdir -p %(builddir)s/usr/lib && cp -a %(files)s %(builddir)s/usr/lib/ ''', locals())
+		self.system ('''tar -zcf %(gub_uploads)s/libgcc-%(version)s-1.%(platform)s.gub  -C %(builddir)s usr/''')
+		self.system ('''rm -f %s ''' % files)
 
 
 	def package (self):
 		self.zip_libgcc ()
-		Cross_package.package ()
+		Cross_package.package (self)
 		
 	def configure_command (self):
 		cmd = Cross_package.configure_command (self)
