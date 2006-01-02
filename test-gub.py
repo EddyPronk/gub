@@ -1,4 +1,4 @@
-import smtplib.py
+import smtplib
 import os
 import time
 
