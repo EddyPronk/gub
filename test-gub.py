@@ -12,7 +12,7 @@ def tag_name ():
 	 minutes, seconds, weekday,
 	 day_of_year, dst) = time.localtime()
 	
-	return "success-%(year)d-%(month)d-%(day)d" % locals()
+	return "success-%(year)d-%(month)d-%(day)d-%(hours)dh%(minutes)dm" % locals()
 
 def system (cmd):
 	print cmd
