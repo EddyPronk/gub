@@ -334,7 +334,9 @@ class Null_package (Package):
 	def patch (self):
 		pass
 	def package (self):
-		self.system ("tar -czf %(gub_uploads)s/%(gub_name)s --files-from=/dev/null")
+		pass
+
+#	self.system ("tar -czf %(gub_uploads)s/%(gub_name)s --files-from=/dev/null")
 		
 class Sdk_package (Null_package):
 	def untar (self):
