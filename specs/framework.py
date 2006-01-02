@@ -1112,10 +1112,19 @@ class Libjpeg (gub.Target_package):
 	def configure_command (self):
 		return re.sub ('--config-cache', '',
 			       gub.Target_package.configure_command (self))
+
 	def configure (self):
+		# FIXME: use Libjpeg.configure ?
+		self.system ('''
+mkdir -p %(builddir)s
+cp %(system_root)s/usr/share/libtool/ltmain.sh %(builddir)s		
+''')
 		gub.Target_package.configure (self)
 
-		arch = 'powerpc-apple' ## fixme.
+		arch = self.settings.target_architecture
+		#FIXME:
+		if self.settings.platform == 'darwin':
+			arch = 'powerpc-apple'
 		self.system ('''cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh %(arch)s''' , locals ())
 
 		self.file_sub (
@@ -1139,9 +1148,15 @@ class Libjpeg__linux (Libjpeg):
 class Libpng (gub.Target_package):
 	def name (self):
 		return 'libpng'
+
 	def patch (self):
 		self.file_sub ([('(@INSTALL.*)@PKGCONFIGDIR@', r'\1${DESTDIR}@PKGCONFIGDIR@')],
 			       '%(srcdir)s/Makefile.in')
+
+	def configure (self):
+		gub.Target_package.configure (self)
+		# libtool too old for cross compile
+		self.update_libtool ()
 
 class Freebsd_runtime (gub.Binary_package):
 	pass

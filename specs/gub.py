@@ -256,27 +256,22 @@ cd %(builddir)s && %(install_command)s
 			#  ' " ''' '
 
 			# FIXME: avoid using libs from /usr/lib when
-			# building linux package.
-
-			# Actually, this check should be something like
-			# if build_arch == target_arch:
-			# rather than if linux:
+			# building linux, freebsd, mingw package.
 
 			# Move this to xpm.py, and only do this after
 			# installing?  But how does xpm know whether
 			# we do a native install, as system install
 			# or an installer install.
+
+			#FIXME: not darwin, or all?
                         if (self.settings.platform.startswith ('linux')
-			    or self.settings.platform.startswith ('freebsd')):
+			    or self.settings.platform.startswith ('freebsd')
+			    or self.settings.platform.startswith ('mingw')):
 				self.file_sub ([
 				('^libdir=.*',
 				"""libdir='%(system_root)s/usr/lib'"""),
 				],
 					       i, env=locals ())
-
-
-	## Platform check sucks. Let's move this into the installer  classes.
-
 
 	def compile (self):
 		self.system ('cd %(builddir)s && %(compile_command)s')
