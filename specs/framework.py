@@ -163,6 +163,11 @@ class Gmp__mingw (Gmp):
 cd %(srcdir)s && patch -p1 < %(patchdir)s/gmp-4.1.4-1.patch
 ''')
 
+	def configure (self):
+		gub.Target_package.configure (self)
+		self.file_sub ([('#! /bin/sh', '#! /bin/sh\ntagname=CXX')],
+			       '%(builddir)s/libtool')
+
 class Guile (gub.Target_package):
 	# FIXME: C&P.
 	def guile_version (self):
@@ -216,7 +221,6 @@ cd %(srcdir)s && patch -p1 < %(lilywinbuilddir)s/patch/guile-1.7.2-3.patch
 		srcdir = self.srcdir ()
 		return Guile.configure_command (self) \
 		       + gub.join_lines ('''\
-AS=%(target_architecture)s-as
 PATH_SEPARATOR=";"
 CC_FOR_BUILD="
 C_INCLUDE_PATH=
@@ -274,7 +278,6 @@ class Guile__freebsd (Guile):
 ##PATH_SEPARATOR=";"
 		return Guile.configure_command (self) \
 		       + gub.join_lines ('''\
-AS=%(target_architecture)s-as
 CC_FOR_BUILD="
 C_INCLUDE_PATH=
 CPPFLAGS=

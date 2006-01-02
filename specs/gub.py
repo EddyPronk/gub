@@ -414,7 +414,9 @@ tooldir=%(install_prefix)s
 	def target_dict (self, env={}):
 		dict = {
 			'AR': '%(tool_prefix)sar',
+			'AS': '%(tool_prefix)sas',
 			'CC': '%(tool_prefix)sgcc %(target_gcc_flags)s',
+			'CC_FOR_BUILD': 'C_INCLUDE_PATH= CPPFLAGS= cc',
 #			'CPPFLAGS': '-I%(system_root)s/usr/include',
 			'C_INCLUDE_PATH': '%(system_root)s/usr/include',
 			'CXX':'%(tool_prefix)sg++ %(target_gcc_flags)s',
