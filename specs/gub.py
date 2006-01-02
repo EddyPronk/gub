@@ -419,6 +419,7 @@ tooldir=%(install_prefix)s
 --prefix=%(system_root)s/usr \
 ''',
 #--urg-broken-if-set-exec-prefix=%(system_root)s/usr \
+			'LIBRARY_PATH': '%(system_root)s/usr/lib:%(system_root)s/usr/bin',
 			'LD': '%(tool_prefix)sld',
 			'NM': '%(tool_prefix)snm',
 			'PKG_CONFIG_PATH': '%(system_root)s/usr/lib/pkgconfig',
