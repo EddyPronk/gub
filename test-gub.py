@@ -6,6 +6,23 @@ import email.Header
 import email.Message
 import email.MIMEMultipart
 import optparse
+import md5sum
+import dbhash
+
+
+release_hash = md5.new ().update (open ('_darcs/inventory'))
+release_hash = md5.hex_digest() 
+
+## TODO: should incorporate checksum of lilypond checkout too.
+def try_checked_before (hash):
+	if not os.path.isdir ('test'):
+		os.makedirs ('test')
+		
+	db = dbhash.open ('test/gub-done.db', 'c')
+	was_checked = db.has_key (hash)
+	db[hash] = '1'
+	db.close ()
+	return was_checked
 
 def tag_name ():
 	(year, month, day, hours,
@@ -63,6 +80,9 @@ def opt_parser ():
 
 (options, args) = opt_parser().parse_args ()
 
+if try_checked_before ():
+	print 'release has already been checked: ', release_hash 
+	sys.exit (0)
 
 stat = system ("make distclean")
 stat = os.system ("nice make all >& test-gub.log")
