@@ -139,7 +139,11 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-1.patch
 class Gmp (gub.Target_package):
 	def configure (self):
 		gub.Target_package.configure (self)
+		# libtool too old for cross compile
 		self.update_libtool ()
+		# automake's Makefile.in's too old for new libtool,
+		# but autoupdating breaks even more.  This nice
+		# hack seems to work.
 		self.file_sub ([('#! /bin/sh', '#! /bin/sh\ntagname=CXX')],
 			       '%(builddir)s/libtool')
 
@@ -255,6 +259,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
 			       '\\1')],
 			       '%(builddir)s/guile-readline/libtool')
 
+		# libtool too old for cross compile
 		self.update_libtool ()
 
 	def install (self):
@@ -603,6 +608,7 @@ class Gettext (gub.Target_package):
 
 	def configure (self):
 		gub.Target_package.configure (self)
+		# libtool too old for cross compile
 		self.update_libtool ()
 
 class Gettext__freebsd (Gettext):
@@ -662,6 +668,7 @@ class Gettext__darwin (Gettext):
 class Libiconv (gub.Target_package):
 	def configure (self):
 		gub.Target_package.configure (self)
+		# libtool too old for cross compile
 		self.update_libtool ()
 
 class Glib (gub.Target_package):
@@ -859,6 +866,11 @@ class Fontconfig__linux (Fontconfig):
 			       '%(builddir)s/libtool')
 
 class Expat (gub.Target_package):
+	def configure (self):
+		gub.Target_package.configure (self)
+		# libtool too old for cross compile
+		self.update_libtool ()
+
 	def makeflags (self):
 		return gub.join_lines ('''
 CFLAGS="-O2 -DHAVE_EXPAT_CONFIG_H"
@@ -868,6 +880,7 @@ RUN_FC_CACHE_TEST=false
 	def compile_command (self):
 		return gub.Target_package.compile_command (self) \
 		       + self.makeflags ()
+
 	def install_command (self):
 		return gub.Target_package.broken_install_command (self) \
 		       + self.makeflags ()
