@@ -30,10 +30,11 @@ class Gcc (cross.Gcc):
 		self.file_sub ([('/usr/bin/libtool', '%(tooldir)s/bin/%(target_architecture)s-libtool')],
 			       '%(srcdir)s/gcc/config/darwin.h')
 
-	def install (self):
-		cross.Cross_package.install (self)
-		self.system ('''
-(cd %(tooldir)s/lib && rm -f libgcc_s.dylib && ln -s libgcc_s.1.dylib libgcc_s.dylib)
+	def xzip_libgcc (self):
+		for f in glob.glob (self.expand ("%(install_root)s/usr/%(target_architecture)s/lib/*dylib")):
+			self.system ('''
+cd %(install_root)s/usr/%(target_architecture)s/lib/
+rm -f libgcc_s.dylib && ln -s libgcc_s.1.dylib libgcc_s.dylib)
 ''')
 
 class Rewirer (context.Os_context_wrapper):
