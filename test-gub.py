@@ -39,26 +39,23 @@ def system (cmd):
 	if stat:
 		raise 'Command failed', stat
 
-def fail_message (options, log, diff) :
-	msg = email.MIMEMultipart.MIMEMultipart()
+def result_message (options, subject, parts) :
+	if not parts:
+		parts.append ('(empty)')
 	
-	msg['Subject'] = email.Header.Header( 'GUB Autobuild: FAIL')
+	parts = [email.MIMEText.MIMEText (p) for p in parts if p]
 
-	msg.preamble = ("\nOops, our GUB build failed\n\n\n")
-	msg.attach (email.MIMEText.MIMEText (log))
+	msg = parts[0]
+	if len (parts) > 1:
+		msg = email.MIMEMultipart.MIMEMultipart()
+		for p in parts:
+			msg.attach (p)
+	
+	msg['Subject'] = email.Header.Header('GUB Autobuild: %s' % subject)
 
-	if diff: 
-		msg.attach (email.MIMEText.MIMEText (diff))
 	msg.epilogue = ''
-	
+
 	return msg
-
-def success_message (options, tag):
-	msg = email.MIMEMultipart.MIMEMultipart()
-
-	msg['Subject'] = email.Header.Header( 'GUB Autobuild: FAIL')
-	msg.attach (email.MIMEText.MIMEText ("""\n\nTagging with %s""" % tag))
-	return msg.as_string ()
 
 def opt_parser ():
 	p = optparse.OptionParser()
@@ -82,7 +79,7 @@ def opt_parser ():
 
 (options, args) = opt_parser().parse_args ()
 
-if try_checked_before ():
+if try_checked_before (release_hash):
 	print 'release has already been checked: ', release_hash 
 	sys.exit (0)
 
@@ -98,14 +95,15 @@ if stat:
 
 	diff = os.popen ('darcs diff -u --from-tag success-').read ()
 
-	msg = fail_message (options, body, diff)
+	msg = result_message (options, 'FAIL', [body, diff])
 else:
 	name = tag_name()
 	system ('darcs tag %s' % name)
 	system ('darcs push -t %s ' % name)
 
-	msg = success_message (options, name)
-	
+	msg = result_message (options, 'SUCCESS',
+			       ["Tagging with %s\n\n" % name])
+
 
 COMMASPACE = ', '
 msg['From'] = options.sender
