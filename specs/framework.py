@@ -23,6 +23,8 @@ class Darwin_sdk (gub.Sdk_package):
 		for a in glob.glob (pat):
 			self.file_sub ([(r' (/usr/lib/.*\.la)', r'%(system_root)s\1')], a)
 
+class Pkg_config (gub.Cross_package):
+	pass
 
 # FIXME: cannot put in cross.py, that's imported in gub before Cross_package
 # is defined
@@ -1265,8 +1267,7 @@ def get_packages (settings):
 						    depends=['mingw-runtime', 'libiconv', 'libjpeg',
 							     'libpng','zlib']),
 		LilyPond__mingw (settings).with (mirror=cvs.gnu,
-						 depends=['mingw-runtime', 'gettext',
-							  'guile', 'pango', 'python'], track_development=True),
+						 depends=['mingw-runtime', 'gettext', 'guile', 'pango', 'python'], track_development=True),
 	],
 	'linux': [
 		Libtool (settings).with (version='1.5.20'),

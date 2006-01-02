@@ -422,6 +422,7 @@ tooldir=%(install_prefix)s
 			'LD': '%(tool_prefix)sld',
 			'NM': '%(tool_prefix)snm',
 			'PKG_CONFIG_PATH': '%(system_root)s/usr/lib/pkgconfig',
+
 			'PKG_CONFIG': '''%(tooldir)s/bin/pkg-config \
 --define-variable prefix=%(system_root)s/usr \
 --define-variable includedir=%(system_root)s/usr/include \
