@@ -24,6 +24,8 @@ def try_checked_before (hash):
 	return was_checked
 
 def read_last_patch ():
+	"""Return a dict with info about the last patch"""
+	
 	last_change = os.popen ('darcs changes --xml --last=1').read ()
 	dom = xml.dom.minidom.parseString(last_change)
 	patch_node = dom.childNodes[0].childNodes[1]
@@ -40,6 +42,8 @@ def system (cmd):
 		raise 'Command failed', stat
 
 def result_message (options, subject, parts) :
+	"""Concatenate PARTS to a Message object."""
+	
 	if not parts:
 		parts.append ('(empty)')
 	

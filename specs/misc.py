@@ -20,3 +20,5 @@ def split_version (s):
 		return m.group (2), m.group (3)
 	return s, '0'
 
+def list_append (lists):
+	reduce (lambda x,y: x+y, lists, [])

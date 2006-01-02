@@ -25,7 +25,6 @@ tar -C %(install_root)s/usr/ -zcf %(gub_uploads)s/%(gub_name)s .
 
 
 
-#class Gcc (cross.Gcc):
 class Gcc (cross.Gcc):
 	def patch (self):
 		self.file_sub ([('/usr/bin/libtool', '%(tooldir)s/bin/%(target_architecture)s-libtool')],
