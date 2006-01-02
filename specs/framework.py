@@ -24,8 +24,13 @@ class Darwin_sdk (gub.Sdk_package):
 		for a in glob.glob (pat):
 			self.file_sub ([(r' (/usr/lib/.*\.la)', r'%(system_root)s\1')], a)
 
+class Libgcc (gub.Null_package):
+	def name (self):
+		return 'libgcc'
+
 class Fondu (targetpackage.Target_package):
 	pass
+
 class Fondu__darwin (Fondu):
 	def patch(self):
 		Fondu.patch (self)
@@ -196,7 +201,7 @@ cd %(srcdir)s && patch -p1 < %(lilywinbuilddir)s/patch/guile-1.7.2-3.patch
 		builddir = self.builddir ()
 		srcdir = self.srcdir ()
 		return (Guile.configure_command (self)
-		       + misc.join_lines ('''\
+		       + misc.join_lines ('''
 PATH_SEPARATOR=";"
 LDFLAGS=-L%(system_root)s/usr/lib
 CC_FOR_BUILD="
@@ -1224,13 +1229,13 @@ def get_packages (settings):
 					       depends = ['glib', 'fontconfig', 'freetype']
 					       ),
 		Gmp__darwin (settings).with (version='4.1.4',depends=['darwin-sdk']),
+		Libgcc (settings).with (mirror=''),
 		Fondu__darwin (settings).with (version="051010", mirror=download.hw),
-				       
 		## 1.7.3  is actually CVS repackaged.
 #		Guile (settings).with (version='1.7.3', mirror=download.gnu, format='gz'),
 		Guile__darwin (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2',
-				       depends=['gmp','darwin-sdk']
-				       ),
+					       depends=['gmp','darwin-sdk', 'libgcc']
+					       ),
 		Libjpeg (settings).with (version='v6b', mirror=download.jpeg),
 		Libpng (settings).with (version='1.2.8', mirror=download.libpng),
 		Ghostscript__darwin (settings).with (version="8.15.1", mirror=download.cups,
