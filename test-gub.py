@@ -8,11 +8,7 @@ import optparse
 import md5
 import dbhash
 import sys
-
-
-release_hash = md5.new ()
-release_hash.update (open ('_darcs/inventory').read())
-release_hash = release_hash.hexdigest() 
+import xml.dom.minidom
 
 ## TODO: should incorporate checksum of lilypond checkout too.
 def try_checked_before (hash):
@@ -25,12 +21,15 @@ def try_checked_before (hash):
 	db.close ()
 	return was_checked
 
-def tag_name ():
-	(year, month, day, hours,
-	 minutes, seconds, weekday,
-	 day_of_year, dst) = time.localtime()
-	
-	return "success-%(year)d-%(month)d-%(day)d-%(hours)dh%(minutes)dm" % locals()
+def read_last_patch ():
+	last_change = os.popen ('darcs changes --xml --last=1').read ()
+	dom = xml.dom.minidom.parseString(last_change)
+	patch_node = dom.childNodes[0].childNodes[1]
+	name_node = patch_node.childNodes[1]
+
+	d = dict (patch_node.attributes.items())
+	d['name'] = patch_node.childNodes[1].childNodes[0].data
+	return d
 
 def system (cmd):
 	print cmd
@@ -76,16 +75,44 @@ def opt_parser ():
 
 	return p
 
+################################################################
+# main
+
+
+msg = None
+last_patch = read_last_patch()
+
+release_hash = md5.new ()
+release_hash.update (open ('_darcs/inventory').read())
+release_hash = release_hash.hexdigest() 
+
+
 (options, args) = opt_parser().parse_args ()
 
 if try_checked_before (release_hash):
 	print 'release has already been checked: ', release_hash 
 	sys.exit (0)
 
+last_patch['release_hash'] = release_hash
+release_id = '''
+Last patch of this release:
+
+%(local_date)s - %(author)s
+
+	* %(name)s\n\n
+
+MD5 of inventory: %(release_hash)s
+
+''' % last_patch
+
+
+
+
 stat = system ("make distclean")
 stat = os.system ("nice make all >& test-gub.log")
-msg = None
-if stat:
+
+
+if stat: 
 	f = open ('test-gub.log')
 	f.seek (0, 2)
 	length = f.tell()
@@ -94,15 +121,16 @@ if stat:
 
 	diff = os.popen ('darcs diff -u --from-tag success-').read ()
 
-	msg = result_message (options, 'FAIL', ['md5 of inventory: %s\n\n' %  release_hash, body, diff])
+	msg = result_message (options, 'FAIL', [release_id,
+						body, diff])
 else:
-	name = tag_name()
-	system ('darcs tag %s' % name)
-	system ('darcs push -t %s ' % name)
+	tag = 'success-%(date)s' % last_patch
+	system ('darcs tag %s' % tag)
+	system ('darcs push -a -t %s ' % tag)
 
 	msg = result_message (options, 'SUCCESS',
-			      ['md5 of inventory: %s\n\n' %  release_hash,
-			       "Tagging with %s\n\n" % name])
+			      [release_id,
+			       "Tagging with %s\n\n" % tag])
 
 
 COMMASPACE = ', '
