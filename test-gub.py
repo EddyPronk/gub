@@ -6,12 +6,14 @@ import email.Header
 import email.Message
 import email.MIMEMultipart
 import optparse
-import md5sum
+import md5
 import dbhash
+import sys
 
 
-release_hash = md5.new ().update (open ('_darcs/inventory'))
-release_hash = md5.hex_digest() 
+release_hash = md5.new ()
+release_hash.update (open ('_darcs/inventory').read())
+release_hash = release_hash.hexdigest() 
 
 ## TODO: should incorporate checksum of lilypond checkout too.
 def try_checked_before (hash):
