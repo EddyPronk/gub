@@ -1004,8 +1004,10 @@ class Ghostscript (gub.Target_package):
 		pass
 
 	def compile (self):
-		cmd = 'cd %(builddir)s && (mkdir obj || true) && make CC=gcc CFLAGS= CPPFLAGS= GCFLAGS= obj/genconf obj/echogs obj/genarch obj/arch.h'
-		self.system (cmd)
+		self.system ('''
+cd %(builddir)s && (mkdir obj || true)
+cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS= obj/genconf obj/echogs obj/genarch obj/arch.h
+''')
 		self.fixup_arch ()
 		gub.Target_package.compile (self)
 		# URG
