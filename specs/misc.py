@@ -2,7 +2,7 @@
 import re
 
 def join_lines (str):
-	return str.replace ('\n','')
+	return str.replace ('\n', ' ')
 
 def grok_sh_variables (file):
 	dict = {}

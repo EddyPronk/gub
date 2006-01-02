@@ -59,12 +59,12 @@ tooldir=%(install_prefix)s
 
 	def config_cache_settings (self):
 		return self.config_cache_overrides (
-			cross.cross_config_cache['all']
-			+ cross.cross_config_cache[self.settings.platform])
+			cross_config_cache['all']
+			+ cross_config_cache[self.settings.platform])
 
 	def configure (self):
 		self.config_cache ()
-		Package.configure (self)
+		gub.Package.configure (self)
 
 	## FIXME: this should move elsewhere , as it's not
 	## package specific 
@@ -99,12 +99,12 @@ tooldir=%(install_prefix)s
 
 	def dump (self, str, name, mode='w', env={}):
 		dict = self.target_dict (env)
-		return Package.dump (self, str, name, mode=mode, env=dict)
+		return gub.Package.dump (self, str, name, mode=mode, env=dict)
 
 	def file_sub (self, re_pairs, name, to_name=None, env={}):
 		dict = self.target_dict (env)
 
-		s = Package.file_sub (self, re_pairs, name, to_name=to_name, env=dict)
+		s = gub.Package.file_sub (self, re_pairs, name, to_name=to_name, env=dict)
 		return s
 
 	def read_pipe (self, cmd, env={}, ignore_error=False):
