@@ -2,7 +2,6 @@ import smtplib
 import os
 import time
 import email.MIMEText
-import email.Header
 import email.Message
 import email.MIMEMultipart
 import optparse
@@ -51,7 +50,7 @@ def result_message (options, subject, parts) :
 		for p in parts:
 			msg.attach (p)
 	
-	msg['Subject'] = email.Header.Header('GUB Autobuild: %s' % subject)
+	msg['Subject'] = 'GUB Autobuild: %s' % subject
 
 	msg.epilogue = ''
 
@@ -95,14 +94,15 @@ if stat:
 
 	diff = os.popen ('darcs diff -u --from-tag success-').read ()
 
-	msg = result_message (options, 'FAIL', [body, diff])
+	msg = result_message (options, 'FAIL', ['md5 of inventory: %s\n\n' %  release_hash, body, diff])
 else:
 	name = tag_name()
 	system ('darcs tag %s' % name)
 	system ('darcs push -t %s ' % name)
 
 	msg = result_message (options, 'SUCCESS',
-			       ["Tagging with %s\n\n" % name])
+			      ['md5 of inventory: %s\n\n' %  release_hash,
+			       "Tagging with %s\n\n" % name])
 
 
 COMMASPACE = ', '
