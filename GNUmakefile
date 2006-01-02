@@ -56,7 +56,6 @@ mac:
 	$(call BUILD_ALL, darwin)
 
 mingw:
-	[ -d target/i686-$@/src/lilypond ] || $(call INVOKE_DRIVER, $@) download
 	$(call INVOKE_DRIVER, $@) build $@-runtime w32api
 	$(call INVOKE_XPM, $@) install $@-runtime w32api
 	$(call INVOKE_DRIVER, $@) -t build gcc
@@ -74,3 +73,6 @@ TAGS: $(sources)
 cyg-apt.py: cyg-apt.py.in specs/cpm.py
 	sed -e "/@CPM@/r specs/cpm.py" -e "s/@CPM@//" < $< > $@
 	chmod +x $@
+
+test:
+	python test-gub.py
