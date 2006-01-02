@@ -169,11 +169,17 @@ class Gmp__mingw (Gmp):
 cd %(srcdir)s && patch -p1 < %(patchdir)s/gmp-4.1.4-1.patch
 ''')
 
-	def configure (self):
+	def xconfigure (self):
 		gub.Target_package.configure (self)
 		self.file_sub ([('#! /bin/sh', '#! /bin/sh\ntagname=CXX')],
 			       '%(builddir)s/libtool')
 
+	def install (self):
+		Gmp.install (self)
+		self.system ('''
+mv %(install_root)s/usr/lib/*dll %(install_root)s/usr/bin || true
+''')
+		
 class Guile (gub.Target_package):
 	# FIXME: C&P.
 	def guile_version (self):
@@ -190,6 +196,10 @@ class Guile (gub.Target_package):
 --enable-relocation
 --disable-rpath
 '''))
+
+	def configure (self):
+		gub.Target_package.configure (self)
+		self.update_libtool ()
 
 	def install (self):
 		gub.Target_package.install (self)
@@ -253,16 +263,14 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
 					 '\\1')],
 				       '%(srcdir)s/configure')
 			os.chmod ('%(srcdir)s/configure' % self.get_substitution_dict (), 0755)
-		gub.Target_package.configure (self)
+		Guile.configure (self)
+
 		self.file_sub ([('^\(allow_undefined_flag=.*\)unsupported',
 			       '\\1')],
 			       '%(builddir)s/libtool')
 		self.file_sub ([('^\(allow_undefined_flag=.*\)unsupported',
 			       '\\1')],
 			       '%(builddir)s/guile-readline/libtool')
-
-		# # FIXME: libtool too old for cross compile
-		self.update_libtool ()
 
 	def install (self):
 		Guile.install (self)
@@ -309,10 +317,32 @@ class Guile__darwin (Guile):
 			self.system ('cd %(directory)s && ln -s %(src)s %(dst)s', locals())
 
 class LilyPond (gub.Target_package):
+	def configure_command (self):
+		## FIXME: pickup $target-guile-config
+		return ('PATH=%(system_root)s/usr/bin:$PATH '
+			+ gub.Target_package.configure_command (self)
+			+ gub.join_lines ('''
+--enable-relocation
+--disable-documentation
+--with-python-include=%(system_root)s/usr/include/python%(python_version)s
+'''))
+
 	def configure (self):
 		self.autoupdate ()
-		gub.Target_package.configure (self)
 
+		# URG.
+		gub.Package.system (self, '''
+mkdir -p %(builddir)s
+cp /usr/include/FlexLexer.h %(builddir)s/
+## URGURG
+mkdir -p %(builddir)s/lily/out
+mkdir -p %(builddir)s/lily/out-console
+cp /usr/include/FlexLexer.h %(system_root)s/usr/include
+cp /usr/include/FlexLexer.h %(builddir)s/lily/out/
+cp /usr/include/FlexLexer.h %(builddir)s/../
+cp /usr/include/FlexLexer.h %(builddir)s/lily/out-console/
+''')
+		gub.Target_package.configure (self)
 
 	def compile (self):
 		d = self.get_substitution_dict ()
@@ -326,13 +356,6 @@ class LilyPond (gub.Target_package):
 				      '%(builddir)s/config.make' % d)):
 			self.configure ()
 		gub.Target_package.compile (self)
-
-	def configure_command (self):
-		## FIXME: pickup $target-guile-config
-		return ('PATH=%(system_root)s/usr/bin:$PATH '
-			+ gub.Target_package.configure_command (self)
-			+ ' --enable-relocation '
-			+ ' --disable-documentation')
 
         def name_version (self):
 		# whugh
@@ -384,24 +407,8 @@ class LilyPond__mingw (LilyPond):
 		self.file_sub ([('THIS', 'SELF')],
 			       '%(srcdir)s/lily/parser.yy')
 
-        def configure_command (self):
-		return LilyPond.configure_command (self) \
-		       + gub.join_lines ('''
---with-python-include=%(system_root)s/usr/include/python%(python_version)s
-''')
-
 	def configure (self):
-		self.autoupdate ()
-
-		# URG.
-		gub.Package.system (self, '''
-mkdir -p %(builddir)s
-cp /usr/include/FlexLexer.h %(system_root)s/usr/include
-cp /usr/include/FlexLexer.h %(builddir)s/lily/out/
-cp /usr/include/FlexLexer.h %(builddir)s/../
-cp /usr/include/FlexLexer.h %(builddir)s/lily/out-console/
-''')
-		gub.Target_package.configure (self)
+		LilyPond.configure (self)
 		self.config_cache ()
 		cmd = self.configure_command () \
 		      + ' --enable-config=console'
@@ -1126,6 +1133,7 @@ class Libjpeg (gub.Target_package):
 		# FIXME: use Libjpeg.configure ?
 		self.system ('''
 mkdir -p %(builddir)s
+cp -pv %(allsrcdir)s/gcc-3.4.5/ltconfig %(srcdir)s || true
 cp %(system_root)s/usr/share/libtool/ltmain.sh %(builddir)s		
 ''')
 		gub.Target_package.configure (self)
