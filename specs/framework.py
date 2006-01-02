@@ -235,19 +235,22 @@ cd %(srcdir)s && patch -p1 < %(lilywinbuilddir)s/patch/guile-1.7.2-3.patch
 		# watch out for whitespace
 		builddir = self.builddir ()
 		srcdir = self.srcdir ()
-		return Guile.configure_command (self) \
+		return (Guile.configure_command (self)
 		       + gub.join_lines ('''\
 PATH_SEPARATOR=";"
+LDFLAGS=-L%(system_root)s/usr/lib
 CC_FOR_BUILD="
 C_INCLUDE_PATH=
 CPPFLAGS=
+LIBRARY_PATH=
+LDFLAGS=
 cc
 -I%(builddir)s
 -I%(srcdir)s
 -I%(builddir)s/libguile
 -I.
 -I%(srcdir)s/libguile"
-''')
+'''))
 
 	def config_cache_overrides (self, str):
 		return str + '''
@@ -291,18 +294,19 @@ class Guile__freebsd (Guile):
 		srcdir = self.srcdir ()
 # FIXME: ugh, C&P from Guile__mingw, put in cross-Guile?
 ##PATH_SEPARATOR=";"
-		return Guile.configure_command (self) \
+		return (Guile.configure_command (self)
 		       + gub.join_lines ('''\
 CC_FOR_BUILD="
 C_INCLUDE_PATH=
 CPPFLAGS=
+LIBRARY_PATH=
 cc
 -I%(builddir)s
 -I%(srcdir)s
 -I%(builddir)s/libguile
 -I.
 -I%(srcdir)s/libguile"
-''')
+'''))
 
 
 class Guile__darwin (Guile):
@@ -685,6 +689,10 @@ class Glib (gub.Target_package):
 		return str + '''
 glib_cv_stack_grows=${glib_cv_stack_grows=no}
 '''
+	def configure (self):
+		gub.Target_package.configure (self)
+		# # FIXME: libtool too old for cross compile
+		self.update_libtool ()
 
 class Glib__darwin (Glib):
 	def configure (self):
@@ -1022,7 +1030,7 @@ class Ghostscript (gub.Target_package):
 	def compile (self):
 		self.system ('''
 cd %(builddir)s && (mkdir obj || true)
-cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS= obj/genconf obj/echogs obj/genarch obj/arch.h
+cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS= LIBRARY_PATH= obj/genconf obj/echogs obj/genarch obj/arch.h
 ''')
 		self.fixup_arch ()
 		gub.Target_package.compile (self)
