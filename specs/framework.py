@@ -141,7 +141,7 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-1.patch
 class Gmp (gub.Target_package):
 	def configure (self):
 		gub.Target_package.configure (self)
-		# libtool too old for cross compile
+		# # FIXME: libtool too old for cross compile
 		self.update_libtool ()
 		# automake's Makefile.in's too old for new libtool,
 		# but autoupdating breaks even more.  This nice
@@ -261,7 +261,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
 			       '\\1')],
 			       '%(builddir)s/guile-readline/libtool')
 
-		# libtool too old for cross compile
+		# # FIXME: libtool too old for cross compile
 		self.update_libtool ()
 
 	def install (self):
@@ -610,7 +610,7 @@ class Gettext (gub.Target_package):
 
 	def configure (self):
 		gub.Target_package.configure (self)
-		# libtool too old for cross compile
+		# # FIXME: libtool too old for cross compile
 		self.update_libtool ()
 
 class Gettext__freebsd (Gettext):
@@ -670,7 +670,7 @@ class Gettext__darwin (Gettext):
 class Libiconv (gub.Target_package):
 	def configure (self):
 		gub.Target_package.configure (self)
-		# libtool too old for cross compile
+		# # FIXME: libtool too old for cross compile
 		self.update_libtool ()
 
 class Glib (gub.Target_package):
@@ -764,6 +764,9 @@ class Freetype (gub.Target_package):
 ''')
 		gub.Target_package.configure (self)
 
+		# # FIXME: libtool too old for cross compile
+		self.update_libtool ()
+
 		self.file_sub ([('^LIBTOOL=.*', 'LIBTOOL=%(builddir)s/libtool --tag=CXX')], '%(builddir)s/Makefile')
 
 		self.dump ('''
@@ -806,6 +809,10 @@ class Fontconfig (gub.Target_package):
 '''})
 #--urg-broken-if-set-exec-prefix=%(system_root)s/usr \
 		gub.Target_package.configure (self)
+
+		# # FIXME: libtool too old for cross compile
+		self.update_libtool ()
+
 		# FIXME: how to put in __mingw class without duplicating
 		# configure ()
 		if self.settings.platform.startswith ('mingw'):
@@ -870,7 +877,7 @@ class Fontconfig__linux (Fontconfig):
 class Expat (gub.Target_package):
 	def configure (self):
 		gub.Target_package.configure (self)
-		# libtool too old for cross compile
+		# # FIXME: libtool too old for cross compile
 		self.update_libtool ()
 
 	def makeflags (self):
@@ -1157,7 +1164,7 @@ class Libpng (gub.Target_package):
 
 	def configure (self):
 		gub.Target_package.configure (self)
-		# libtool too old for cross compile
+		# # FIXME: libtool too old for cross compile
 		self.update_libtool ()
 
 class Freebsd_runtime (gub.Binary_package):
