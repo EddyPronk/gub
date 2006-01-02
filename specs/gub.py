@@ -1,10 +1,9 @@
 # own
-import cpm
-import cross
 import cvs
 import download
 import glob
 import buildnumber
+import misc
 
 
 # sys
@@ -17,25 +16,6 @@ import sys
 import time
 
 from context import *
-
-def grok_sh_variables (file):
-	dict = {}
-	for i in open (file).readlines ():
-		m = re.search ('^(\w+)\s*=\s*(\w*)', i)
-		if m:
-			k = m.group (1)
-			s = m.group (2)
-			dict[k] = s
-	return dict
-
-def split_version (s):
-	m = re.match ('^(([0-9].*)-([0-9]+))$', s)
-	if m:
-		return m.group (2), m.group (3)
-	return s, '0'
-
-def join_lines (str):
-	return re.sub ('\n', ' ', str)
 
 class Package (Os_context_wrapper):
 	def __init__ (self, settings):
@@ -115,7 +95,7 @@ cd %(dir)s/%(name)s && cvs -q update -dAP -r %(version)s
 
 	@subst_method
 	def version (self):
-		return split_version (self.ball_version)[0]
+		return misc.split_version (self.ball_version)[0]
 
 	@subst_method
 	def name_version (self):
@@ -207,19 +187,6 @@ cd %(autodir)s && autoconf
 cd %(srcdir)s && automake --add-missing
 ''', locals ())
 
-	def config_cache_overrides (self, str):
-		return str
-
-	def config_cache_settings (self):
-		return self.config_cache_overrides (self, '')
-
-	def config_cache (self):
-		str = self.config_cache_settings ()
-		if str:
-			self.system ('mkdir -p %(builddir)s')
-			cache_file = '%(builddir)s/config.cache'
-			self.dump (self.config_cache_settings (), cache_file)
-			os.chmod (self.expand (cache_file), 0755)
 
 	def configure (self):
 		self.system ('''
@@ -328,131 +295,6 @@ tar %(flags)s %(tarball)s -C %(allsrcdir)s
 		## generating the dict until we're sure it doesn't change. 
 
 		return self
-
-class Cross_package (Package):
-	"""Package for cross compilers/linkers etc.
-	"""
-
-	def configure_command (self):
-		return (Package.configure_command (self)
-			+ join_lines ('''
---target=%(target_architecture)s
---with-sysroot=%(system_root)s/
-'''))
-
-        def xgub_name (self):
-		## makes build number handling more complicated.
-		return '%(name)s-%(version)s-%(build)s.%(build_architecture)s-%(target_architecture)s.gub'
-
-	def install_command (self):
-		# FIXME: to install this, must revert any prefix=tooldir stuff
-		return 'make prefix=/usr DESTDIR=%(install_root)s install'
-
-	def package (self):
-		# naive tarball packages for now
-		# cross packages must not have ./usr because of tooldir
-		self.system ('''
-tar -C %(install_root)s/usr -zcf %(gub_uploads)s/%(gub_name)s .
-''')
-
-class Target_package (Package):
-	def configure_command (self):
-		return join_lines ('''%(srcdir)s/configure
---config-cache
---enable-shared
---disable-static
---build=%(build_architecture)s
---host=%(target_architecture)s
---target=%(target_architecture)s
---prefix=/usr
---sysconfdir=/usr/etc
---includedir=/usr/include
---libdir=/usr/lib
-''')
-
-	def broken_install_command (self):
-		"""For packages that do not honor DESTDIR.
-		"""
-
-		# FIXME: use sysconfdir=%(install_PREFIX)s/etc?  If
-		# so, must also ./configure that way
-		return join_lines ('''make install
-bindir=%(install_prefix)s/bin
-aclocaldir=%(install_prefix)s/share/aclocal
-datadir=%(install_prefix)s/share
-exec_prefix=%(install_prefix)s
-gcc_tooldir=%(install_prefix)s
-includedir=%(install_prefix)s/include
-infodir=%(install_prefix)s/share/info
-libdir=%(install_prefix)s/lib
-libexecdir=%(install_prefix)s/lib
-mandir=%(install_prefix)s/share/man
-prefix=%(install_prefix)s
-sysconfdir=%(install_prefix)s/etc
-tooldir=%(install_prefix)s
-''')
-
-	def install_command (self):
-		return join_lines ('''make DESTDIR=%(install_root)s install''')
-
-	def config_cache_settings (self):
-		return self.config_cache_overrides (
-			cross.cross_config_cache['all']
-			+ cross.cross_config_cache[self.settings.platform])
-
-	def configure (self):
-		self.config_cache ()
-		Package.configure (self)
-
-	## FIXME: this should move elsewhere , as it's not
-	## package specific 
-	def target_dict (self, env={}):
-		dict = {
-			'AR': '%(tool_prefix)sar',
-			'AS': '%(tool_prefix)sas',
-			'CC': '%(tool_prefix)sgcc %(target_gcc_flags)s',
-			'CC_FOR_BUILD': 'C_INCLUDE_PATH= CPPFLAGS= LIBRARY_PATH= cc',
-#			'CPPFLAGS': '-I%(system_root)s/usr/include',
-			'C_INCLUDE_PATH': '%(system_root)s/usr/include',
-			'CXX':'%(tool_prefix)sg++ %(target_gcc_flags)s',
-			'FREETYPE_CONFIG': '''%(system_root)s/usr/bin/freetype-config \
---prefix=%(system_root)s/usr \
-''',
-#--urg-broken-if-set-exec-prefix=%(system_root)s/usr \
-			'LIBRARY_PATH': '%(system_root)s/usr/lib:%(system_root)s/usr/bin',
-			'LD': '%(tool_prefix)sld',
-			'NM': '%(tool_prefix)snm',
-			'PKG_CONFIG_PATH': '%(system_root)s/usr/lib/pkgconfig',
-
-			'PKG_CONFIG': '''%(tooldir)s/bin/pkg-config \
---define-variable prefix=%(system_root)s/usr \
---define-variable includedir=%(system_root)s/usr/include \
---define-variable libdir=%(system_root)s/usr/lib \
-''',
-			'RANLIB': '%(tool_prefix)sranlib',
-			'SED': 'sed', # libtool (expat mingw) fixup
-			}
-		dict.update (env)
-		return dict
-
-	def dump (self, str, name, mode='w', env={}):
-		dict = self.target_dict (env)
-		return Package.dump (self, str, name, mode=mode, env=dict)
-
-	def file_sub (self, re_pairs, name, to_name=None, env={}):
-		dict = self.target_dict (env)
-
-		s = Package.file_sub (self, re_pairs, name, to_name=to_name, env=dict)
-		return s
-
-	def read_pipe (self, cmd, env={}, ignore_error=False):
-		dict = self.target_dict (env)
-		return Package.read_pipe (self, cmd, env=dict, ignore_error=ignore_error)
-
-	def system (self, cmd, env={}, ignore_error=False):
-		dict = self.target_dict (env)
-		Package.system (self, cmd, env=dict, ignore_error=ignore_error)
-
 class Binary_package (Package):
 	def untar (self):
 		self.system ('rm -rf %(srcdir)s %(builddir)s %(install_root)s')

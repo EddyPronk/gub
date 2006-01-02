@@ -4,9 +4,9 @@ import framework
 import download
 import gub
 
-class Gcc (framework.Gcc):
+class Gcc (cross.Gcc):
 	def configure_command (self):
-		cmd = framework.Gcc.configure_command (self)
+		cmd = cross.Gcc.configure_command (self)
 		cmd = re.sub ('--with-sysroot=[^ ]+',
 			       '--with-sysroot=/', cmd)
 
@@ -15,9 +15,9 @@ class Gcc (framework.Gcc):
 def get_packages (settings):
 	packages = [Gcc (settings).with (version='3.4.5', mirror = download.gcc, format='bz2',
 					 depends=["binutils"]),
-		    framework.Pkg_config (settings).with (version="0.20",
+		    cross.Pkg_config (settings).with (version="0.20",
 							  mirror=download.freedesktop),
-		    framework.Binutils (settings).with (version='2.16.1', format='bz2')]
+		    cross.Binutils (settings).with (version='2.16.1', format='bz2')]
 	
 	return packages
 

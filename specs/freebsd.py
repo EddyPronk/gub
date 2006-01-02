@@ -11,7 +11,7 @@ class Binutils (mingw.Binutils):
 		# Add --program-prefix, otherwise we get
 		# i686-freebsd-FOO iso i686-freebsd4-FOO.
 		return (mingw.Binutils.configure_command (self)
-			+ gub.join_lines ('''
+			+ misc.join_lines ('''
 --program-prefix=%(tool_prefix)s
 '''))
 
@@ -20,7 +20,7 @@ class Gcc (mingw.Gcc):
 		# Add --program-prefix, otherwise we get
 		# i686-freebsd-FOO iso i686-freebsd4-FOO.
 		return (mingw.Gcc.configure_command (self)
-			+ gub.join_lines ('''
+			+ misc.join_lines ('''
 --program-prefix=%(tool_prefix)s
 '''))
 

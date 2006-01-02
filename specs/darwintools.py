@@ -4,14 +4,14 @@ import os
 import context
 import download
 import framework
-import gub
+import cross
 
-class Odcctools (gub.Cross_package):
+class Odcctools (cross.Cross_package):
 	def install_prefix (self):
 		return self.settings.tooldir
 	
 	def configure (self):
-		gub.Cross_package.configure (self)
+		cross.Cross_package.configure (self)
 
 		## remove LD64 support.
 		self.file_sub ([('ld64','')],
@@ -26,13 +26,13 @@ tar -C %(install_root)s/usr/ -zcf %(gub_uploads)s/%(gub_name)s .
 
 
 #class Gcc (cross.Gcc):
-class Gcc (framework.Gcc):
+class Gcc (cross.Gcc):
 	def patch (self):
 		self.file_sub ([('/usr/bin/libtool', '%(tooldir)s/bin/%(target_architecture)s-libtool')],
 			       '%(srcdir)s/gcc/config/darwin.h')
 
 	def install (self):
-		gub.Cross_package.install (self)
+		cross.Cross_package.install (self)
 		self.system ('''
 (cd %(tooldir)s/lib && rm -f libgcc_s.dylib && ln -s libgcc_s.1.dylib libgcc_s.dylib)
 ''')
@@ -123,10 +123,11 @@ def add_rewire_path (settings, packages):
 def get_packages (settings):
 	packages = [
 		Odcctools (settings).with (version='20051122', mirror=download.opendarwin, format='bz2'),		
-#		Gcc (settings).with (version='4.0.2', mirror = download.gcc, format='bz2'),
-		framework.Pkg_config (settings).with (version="0.20",
+		cross.Pkg_config (settings).with (version="0.20",
 						      mirror=download.freedesktop),
-		Gcc (settings).with (version='3.4.5', mirror = download.gcc,
+		Gcc (settings).with (mirror = download.gcc,
+##				     version='3.4.5',
+				     version='4.0.2', 
 				     format='bz2',
 				     depends=['odcctools']),
 		]

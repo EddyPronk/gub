@@ -1,0 +1,22 @@
+# misc utils
+import re
+
+def join_lines (str):
+	return str.replace ('\n','')
+
+def grok_sh_variables (file):
+	dict = {}
+	for i in open (file).readlines ():
+		m = re.search ('^(\w+)\s*=\s*(\w*)', i)
+		if m:
+			k = m.group (1)
+			s = m.group (2)
+			dict[k] = s
+	return dict
+
+def split_version (s):
+	m = re.match ('^(([0-9].*)-([0-9]+))$', s)
+	if m:
+		return m.group (2), m.group (3)
+	return s, '0'
+

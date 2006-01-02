@@ -3,13 +3,14 @@ import glob
 import os
 import re
 import shutil
+import misc
 
 ## gub specific.
 from settings import Settings
 import gub
 import download
 import cvs
-
+import targetpackage
 
 def file_is_newer (f1, f2):
 	return (not os.path.exists (f2)
@@ -23,48 +24,7 @@ class Darwin_sdk (gub.Sdk_package):
 		for a in glob.glob (pat):
 			self.file_sub ([(r' (/usr/lib/.*\.la)', r'%(system_root)s\1')], a)
 
-class Pkg_config (gub.Cross_package):
-	pass
-
-# FIXME: cannot put in cross.py, that's imported in gub before Cross_package
-# is defined
-class Binutils (gub.Cross_package):
-	pass
-
-class Pkg_config (gub.Cross_package):
-	pass
-
-class Gcc (gub.Cross_package):
-	def patch (self):
-		self.file_sub ([('/usr/bin/libtool', '%(tooldir)s/bin/%(target_architecture)s-libtool')],
-			       '%(srcdir)s/gcc/config/darwin.h')
-
-	def configure_command (self):
-		cmd = gub.Cross_package.configure_command (self)
-		# FIXME: using --prefix=%(tooldir)s makes this
-		# uninstallable as a normal system package in
-		# /usr/i686-mingw/
-		# Probably --prefix=/usr is fine too
-		cmd += '''
---prefix=%(tooldir)s
---program-prefix=%(target_architecture)s-
---with-as=%(tooldir)s/bin/%(target_architecture)s-as
---with-ld=%(tooldir)s/bin/%(target_architecture)s-ld
---enable-static
---enable-shared
---enable-libstdcxx-debug
---enable-languages=c,c++ ''' % self.settings.__dict__
-
-		return gub.join_lines (cmd)
-
-	def install (self):
-		gub.Cross_package.install (self)
-		self.system ('''
-cd %(tooldir)s/lib && ln -fs libgcc_s.1.so libgcc_s.so
-''')
-
-
-class Fondu (gub.Target_package):
+class Fondu (targetpackage.Target_package):
 	pass
 class Fondu__darwin (Fondu):
 	def patch(self):
@@ -73,24 +33,24 @@ class Fondu__darwin (Fondu):
 				 '%(system_root)s/System/Library/')],
 			       '%(srcdir)s/Makefile.in')
 		
-class Libtool (gub.Target_package):
+class Libtool (targetpackage.Target_package):
 	pass
 
-class Python (gub.Target_package):
+class Python (targetpackage.Target_package):
 	def set_download (self, mirror, format='gz', downloader=None):
-		gub.Target_package.set_download (self, mirror, format, downloader)
+		targetpackage.Target_package.set_download (self, mirror, format, downloader)
 		self.url = re.sub ('python-', 'Python-' , self.url)
 
 	def python_version (self):
 		return '.'.join (self.ball_version.split ('.')[0:2])
 
 	def get_substitution_dict (self, env = {}):
-		dict = gub.Target_package.get_substitution_dict (self, env)
+		dict = targetpackage.Target_package.get_substitution_dict (self, env)
 		dict['python_version'] = self.python_version ()
 		return dict
 
 	def untar (self):
-		gub.Target_package.untar (self)
+		targetpackage.Target_package.untar (self)
 		Srcdir = re.sub ('python', 'Python', self.srcdir ())
 		self.system ('mv %(Srcdir)s %(srcdir)s', locals ())
 
@@ -109,7 +69,7 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-1.patch
 	def configure (self):
 		self.system ('''cd %(srcdir)s && autoconf''')
 		self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
-		gub.Target_package.configure (self)
+		targetpackage.Target_package.configure (self)
 
 	def install (self):
 		Python.install (self)
@@ -135,12 +95,12 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-1.patch
 	def configure (self):
 		self.system ('''cd %(srcdir)s && autoconf''')
 		self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
-		gub.Target_package.configure (self)
+		targetpackage.Target_package.configure (self)
 
 
-class Gmp (gub.Target_package):
+class Gmp (targetpackage.Target_package):
 	def configure (self):
-		gub.Target_package.configure (self)
+		targetpackage.Target_package.configure (self)
 		# # FIXME: libtool too old for cross compile
 		self.update_libtool ()
 		# automake's Makefile.in's too old for new libtool,
@@ -170,7 +130,7 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/gmp-4.1.4-1.patch
 ''')
 
 	def xconfigure (self):
-		gub.Target_package.configure (self)
+		targetpackage.Target_package.configure (self)
 		self.file_sub ([('#! /bin/sh', '#! /bin/sh\ntagname=CXX')],
 			       '%(builddir)s/libtool')
 
@@ -180,14 +140,14 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/gmp-4.1.4-1.patch
 mv %(install_root)s/usr/lib/*dll %(install_root)s/usr/bin || true
 ''')
 		
-class Guile (gub.Target_package):
+class Guile (targetpackage.Target_package):
 	# FIXME: C&P.
 	def guile_version (self):
 		return '.'.join (self.ball_version.split ('.')[0:2])
 
 	def configure_command (self):
-		return (gub.Target_package.configure_command (self)
-			+ gub.join_lines ('''
+		return (targetpackage.Target_package.configure_command (self)
+			+ misc.join_lines ('''
 --without-threads
 --with-gnu-ld
 --enable-deprecated
@@ -198,11 +158,11 @@ class Guile (gub.Target_package):
 '''))
 
 	def configure (self):
-		gub.Target_package.configure (self)
+		targetpackage.Target_package.configure (self)
 		self.update_libtool ()
 
 	def install (self):
-		gub.Target_package.install (self)
+		targetpackage.Target_package.install (self)
 		version = self.read_pipe ('''\
 GUILE_LOAD_PATH=%(install_prefix)s/share/guile/* %(install_prefix)s/bin/guile-config --version 2>&1\
 ''').split ()[-1]
@@ -236,7 +196,7 @@ cd %(srcdir)s && patch -p1 < %(lilywinbuilddir)s/patch/guile-1.7.2-3.patch
 		builddir = self.builddir ()
 		srcdir = self.srcdir ()
 		return (Guile.configure_command (self)
-		       + gub.join_lines ('''\
+		       + misc.join_lines ('''\
 PATH_SEPARATOR=";"
 LDFLAGS=-L%(system_root)s/usr/lib
 CC_FOR_BUILD="
@@ -261,7 +221,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
 
 	def configure (self):
 		if 0: # using patch
-			gub.Target_package.autoupdate (self)
+			targetpackage.Target_package.autoupdate (self)
 			self.file_sub ([('''^#(LIBOBJS=".*fileblocks.*)''',
 					 '\\1')],
 				       '%(srcdir)s/configure')
@@ -295,7 +255,7 @@ class Guile__freebsd (Guile):
 # FIXME: ugh, C&P from Guile__mingw, put in cross-Guile?
 ##PATH_SEPARATOR=";"
 		return (Guile.configure_command (self)
-		       + gub.join_lines ('''\
+		       + misc.join_lines ('''\
 CC_FOR_BUILD="
 C_INCLUDE_PATH=
 CPPFLAGS=
@@ -320,12 +280,12 @@ class Guile__darwin (Guile):
 
 			self.system ('cd %(directory)s && ln -s %(src)s %(dst)s', locals())
 
-class LilyPond (gub.Target_package):
+class LilyPond (targetpackage.Target_package):
 	def configure_command (self):
 		## FIXME: pickup $target-guile-config
 		return ('PATH=%(system_root)s/usr/bin:$PATH '
-			+ gub.Target_package.configure_command (self)
-			+ gub.join_lines ('''
+			+ targetpackage.Target_package.configure_command (self)
+			+ misc.join_lines ('''
 --enable-relocation
 --disable-documentation
 --with-python-include=%(system_root)s/usr/include/python%(python_version)s
@@ -346,7 +306,7 @@ cp /usr/include/FlexLexer.h %(builddir)s/lily/out/
 cp /usr/include/FlexLexer.h %(builddir)s/../
 cp /usr/include/FlexLexer.h %(builddir)s/lily/out-console/
 ''')
-		gub.Target_package.configure (self)
+		targetpackage.Target_package.configure (self)
 
 	def compile (self):
 		d = self.get_substitution_dict ()
@@ -359,17 +319,17 @@ cp /usr/include/FlexLexer.h %(builddir)s/lily/out-console/
 		    or file_is_newer ('%(srcdir)s/configure' % d,
 				      '%(builddir)s/config.make' % d)):
 			self.configure ()
-		gub.Target_package.compile (self)
+		targetpackage.Target_package.compile (self)
 
         def name_version (self):
 		# whugh
 		if os.path.exists (self.srcdir ()):
 			d = gub.grok_sh_variables (self.expand ('%(srcdir)s/VERSION'))
 			return 'lilypond-%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
-		return gub.Target_package.name_version (self)
+		return targetpackage.Target_package.name_version (self)
 
 	def install (self):
-		gub.Target_package.install (self)
+		targetpackage.Target_package.install (self)
 		d = gub.grok_sh_variables (self.expand ('%(srcdir)s/VERSION'))
 		v = '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
 		self.system ("cd %(install_root)s/usr/share/lilypond && rm -f current && ln -sf %(v)s current",
@@ -422,7 +382,7 @@ class LilyPond__mingw (LilyPond):
 	def compile_command (self):
 		python_lib = "%(system_root)s/usr/bin/libpython%(python_version)s.dll"
 		return LilyPond.compile_command (self) \
-		       + gub.join_lines ('''
+		       + misc.join_lines ('''
 LDFLAGS=%(python_lib)s
 '''% locals ())
 
@@ -464,7 +424,7 @@ find %(install_root)s -name "*.ly"
 
 class LilyPond__linux (LilyPond):
 	def configure_command (self):
-		return LilyPond.configure_command (self) + gub.join_lines ('''
+		return LilyPond.configure_command (self) + misc.join_lines ('''
 --enable-static-gxx
 --with-framework-dir=../%(framework_dir)s/usr
 ''')
@@ -614,13 +574,13 @@ class LilyPond__darwin (LilyPond):
 	def untar (self):
 		pass
 
-class Gettext (gub.Target_package):
+class Gettext (targetpackage.Target_package):
 	def configure_command (self):
-		return (gub.Target_package.configure_command (self)
+		return (targetpackage.Target_package.configure_command (self)
 		       + ' --disable-csharp')
 
 	def configure (self):
-		gub.Target_package.configure (self)
+		targetpackage.Target_package.configure (self)
 		# # FIXME: libtool too old for cross compile
 		self.update_libtool ()
 
@@ -632,7 +592,7 @@ cd %(srcdir)s && patch -p0 < %(patchdir)s/gettext-0.14.1-getopt.patch
 
 	def configure_command (self):
 		return (Gettext.configure_command (self)
-			+ gub.join_lines ('''
+			+ misc.join_lines ('''
 --disable-rpath
 '''))
 
@@ -678,19 +638,19 @@ class Gettext__darwin (Gettext):
 		return re.sub (' --config-cache', '',
 			       Gettext.configure_command (self))
 
-class Libiconv (gub.Target_package):
+class Libiconv (targetpackage.Target_package):
 	def configure (self):
-		gub.Target_package.configure (self)
+		targetpackage.Target_package.configure (self)
 		# # FIXME: libtool too old for cross compile
 		self.update_libtool ()
 
-class Glib (gub.Target_package):
+class Glib (targetpackage.Target_package):
 	def config_cache_overrides (self, str):
 		return str + '''
 glib_cv_stack_grows=${glib_cv_stack_grows=no}
 '''
 	def configure (self):
-		gub.Target_package.configure (self)
+		targetpackage.Target_package.configure (self)
 		# # FIXME: libtool too old for cross compile
 		self.update_libtool ()
 
@@ -700,10 +660,10 @@ class Glib__darwin (Glib):
 		self.file_sub ([('nmedit', '%(target_architecture)s-nmedit')],
 			       '%(builddir)s/libtool')
 
-class Pango (gub.Target_package):
+class Pango (targetpackage.Target_package):
 	def configure_command (self):
-		return gub.Target_package.configure_command (self) \
-		       + gub.join_lines ('''
+		return targetpackage.Target_package.configure_command (self) \
+		       + misc.join_lines ('''
 --without-x
 --without-cairo
 ''')
@@ -727,7 +687,7 @@ ModulesPath = "$PANGO_PREFIX/lib/pango/1.4.0/modules"
 
 class Pango__mingw (Pango):
 	def install (self):
-		gub.Target_package.install (self)
+		targetpackage.Target_package.install (self)
 		self.system ('mkdir -p %(install_root)s/usr/etc/pango')
 		self.dump ('''[Pango]
 ModulesPath = "@INSTDIR@\\usr\\lib\\pango\\1.4.0\\modules"
@@ -769,7 +729,7 @@ class Pango__darwin (Pango):
 		Pango.install (self)
 		self.fix_modules ()
 
-class Freetype (gub.Target_package):
+class Freetype (targetpackage.Target_package):
 	def configure (self):
 #		self.autoupdate (autodir=os.path.join (self.srcdir (),
 #						       'builds/unix'))
@@ -777,7 +737,7 @@ class Freetype (gub.Target_package):
 		gub.Package.system (self, '''
 		rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
 ''')
-		gub.Target_package.configure (self)
+		targetpackage.Target_package.configure (self)
 
 		# # FIXME: libtool too old for cross compile
 		self.update_libtool ()
@@ -792,7 +752,7 @@ LDFLAGS:=$(LDFLAGS) -no-undefined
 			   mode='a')
 
 	def install (self):
-		gub.Package.system (self, gub.join_lines ('''
+		gub.Package.system (self, misc.join_lines ('''
 cd %(srcdir)s && CC=gcc ./configure
 --disable-static
 --enable-shared
@@ -803,13 +763,13 @@ cd %(srcdir)s && CC=gcc ./configure
 '''))
 		gub.Package.install (self)
 
-class Fontconfig (gub.Target_package):
+class Fontconfig (targetpackage.Target_package):
 	def configure_command (self):
 		# FIXME: system dir vs packaging install
 
 		## UGH  - this breaks  on Darwin!
-		return gub.Target_package.configure_command (self) \
-		      + gub.join_lines ('''
+		return targetpackage.Target_package.configure_command (self) \
+		      + misc.join_lines ('''
 --with-freetype-config="/usr/bin/freetype-config
 --prefix=%(system_root)s/usr
 "''')
@@ -823,7 +783,7 @@ class Fontconfig (gub.Target_package):
 --prefix=%(system_root)s/usr \
 '''})
 #--urg-broken-if-set-exec-prefix=%(system_root)s/usr \
-		gub.Target_package.configure (self)
+		targetpackage.Target_package.configure (self)
 
 		# # FIXME: libtool too old for cross compile
 		self.update_libtool ()
@@ -853,7 +813,7 @@ cd %(builddir)s/%(i)s && make "CFLAGS=%(cflags)s" "LIBS=%(libs)s" CPPFLAGS= LDFL
 class Fontconfig__mingw (Fontconfig):
 	def configure_command (self):
 		return Fontconfig.configure_command (self) \
-		       + gub.join_lines ('''
+		       + misc.join_lines ('''
 --with-default-fonts=@WINDIR@\\fonts\\
 --with-add-fonts=@INSTDIR@\\usr\\share\\gs\\fonts
 ''')
@@ -889,27 +849,27 @@ class Fontconfig__linux (Fontconfig):
 			],
 			       '%(builddir)s/libtool')
 
-class Expat (gub.Target_package):
+class Expat (targetpackage.Target_package):
 	def configure (self):
-		gub.Target_package.configure (self)
+		targetpackage.Target_package.configure (self)
 		# # FIXME: libtool too old for cross compile
 		self.update_libtool ()
 
 	def makeflags (self):
-		return gub.join_lines ('''
+		return misc.join_lines ('''
 CFLAGS="-O2 -DHAVE_EXPAT_CONFIG_H"
 EXEEXT=
 RUN_FC_CACHE_TEST=false
 ''')
 	def compile_command (self):
-		return gub.Target_package.compile_command (self) \
+		return targetpackage.Target_package.compile_command (self) \
 		       + self.makeflags ()
 
 	def install_command (self):
-		return gub.Target_package.broken_install_command (self) \
+		return targetpackage.Target_package.broken_install_command (self) \
 		       + self.makeflags ()
 
-class Zlib (gub.Target_package):
+class Zlib (targetpackage.Target_package):
 	def configure (self):
 		zlib_is_broken = 'SHAREDTARGET=libz.so.1.2.2'
 		if self.settings.platform.startswith ('mingw'):
@@ -921,7 +881,7 @@ cd %(builddir)s && %(zlib_is_broken)s AR="%(AR)s r" %(srcdir)s/configure --share
 ''', locals ())
 
 	def install_command (self):
-		return gub.Target_package.broken_install_command (self)
+		return targetpackage.Target_package.broken_install_command (self)
 
 class Mingw_runtime (gub.Binary_package):
 	def untar (self):
@@ -954,7 +914,7 @@ class W32api (gub.Binary_package):
 		self.system ('cd %(srcdir)s/root && mv * usr',
 			     ignore_error=True)
 
-class Regex (gub.Target_package):
+class Regex (targetpackage.Target_package):
 	pass
 
 class Gs (gub.Binary_package):
@@ -976,10 +936,10 @@ tar -C %(srcdir)s/doc -cf- --exclude='*.htm*' . | tar -C %(install_root)s/usr/sh
 ''',
 			     env=locals ())
 
-class LilyPad (gub.Target_package):
+class LilyPad (targetpackage.Target_package):
 	def makeflags (self):
 		# FIXME: better fix Makefile
-		return gub.join_lines ('''
+		return misc.join_lines ('''
 ALL_OBJS='$(OBJS)'
 WRC=/usr/bin/wrc
 CPPFLAGS=-I%(system_root)s/usr/include
@@ -991,19 +951,19 @@ INSTALL_PROGRAM=%(srcdir)s/install-sh
 ''')
 
 	def compile_command (self):
-		return gub.Target_package.compile_command (self) \
+		return targetpackage.Target_package.compile_command (self) \
 		       + self.makeflags ()
 
 	def install_command (self):
-		return gub.Target_package.broken_install_command (self) \
+		return targetpackage.Target_package.broken_install_command (self) \
 		       + self.makeflags ()
 
-class Ghostscript (gub.Target_package):
+class Ghostscript (targetpackage.Target_package):
 	def srcdir (self):
-		return re.sub ('-source', '', gub.Target_package.srcdir (self))
+		return re.sub ('-source', '', targetpackage.Target_package.srcdir (self))
 
 	def builddir (self):
-		return re.sub ('-source', '', gub.Target_package.builddir (self))
+		return re.sub ('-source', '', targetpackage.Target_package.builddir (self))
 
 	def name (self):
 		return 'ghostscript'
@@ -1033,15 +993,15 @@ cd %(builddir)s && (mkdir obj || true)
 cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS= LIBRARY_PATH= obj/genconf obj/echogs obj/genarch obj/arch.h
 ''')
 		self.fixup_arch ()
-		gub.Target_package.compile (self)
+		targetpackage.Target_package.compile (self)
 		# URG
 		self.system ('''
 cp -pv %(builddir)s/lib/gs_init.ps %(srcdir)s/lib/gs_init.ps
 ''')
 
 	def configure_command (self):
-		return (gub.Target_package.configure_command (self)
-			+ gub.join_lines ('''
+		return (targetpackage.Target_package.configure_command (self)
+			+ misc.join_lines ('''
 --with-drivers=FILES
 --without-x
 --disable-cups
@@ -1050,7 +1010,7 @@ cp -pv %(builddir)s/lib/gs_init.ps %(srcdir)s/lib/gs_init.ps
 '''))
 
 	def configure (self):
-		gub.Target_package.configure (self)
+		targetpackage.Target_package.configure (self)
 		self.file_sub ([
 			('-Dmalloc=rpl_malloc', ''),
 			('GLSRCDIR=./src', 'GLSRCDIR=%(srcdir)s/src'),
@@ -1068,7 +1028,7 @@ cp -pv %(builddir)s/lib/gs_init.ps %(srcdir)s/lib/gs_init.ps
 			       '%(builddir)s/Makefile')
 
 	def install_command (self):
-		return (gub.Target_package.install_command (self)
+		return (targetpackage.Target_package.install_command (self)
 			+ ' install_prefix=%(install_root)s'
 			+ ' mandir=%(install_root)s/usr/man/ ')
 
@@ -1096,7 +1056,7 @@ class Ghostscript__mingw (Ghostscript):
 		self.file_sub ([('^(EXTRALIBS *=.*)', '\\1 -lwinspool -lcomdlg32 -lz')],
 			       '%(builddir)s/Makefile')
 
-		self.file_sub ([('^unix__=.*', gub.join_lines ('''unix__=
+		self.file_sub ([('^unix__=.*', misc.join_lines ('''unix__=
 $(GLOBJ)gp_mswin.$(OBJ)
 $(GLOBJ)gp_wgetv.$(OBJ)
 $(GLOBJ)gp_stdia.$(OBJ)
@@ -1105,7 +1065,7 @@ $(GLOBJ)gp_ntfs.$(OBJ)
 $(GLOBJ)gp_win32.$(OBJ)
 '''))],
 			       '%(srcdir)s/src/unix-aux.mak')
-		self.file_sub ([('^(LIB0s=.*)', gub.join_lines ('''\\1
+		self.file_sub ([('^(LIB0s=.*)', misc.join_lines ('''\\1
 $(GLOBJ)gp_mswin.$(OBJ)
 $(GLOBJ)gp_wgetv.$(OBJ)
 $(GLOBJ)gp_stdia.$(OBJ)
@@ -1126,16 +1086,16 @@ include $(GLSRCDIR)/pcwin.mak
 			   '%(builddir)s/Makefile',
 			   mode='a')
 
-class Libjpeg (gub.Target_package):
+class Libjpeg (targetpackage.Target_package):
 	def name (self):
 		return 'libjpeg'
 
 	def srcdir (self):
-		return re.sub (r'src\.v', '-', gub.Target_package.srcdir(self))
+		return re.sub (r'src\.v', '-', targetpackage.Target_package.srcdir(self))
 
 	def configure_command (self):
 		return re.sub ('--config-cache', '',
-			       gub.Target_package.configure_command (self))
+			       targetpackage.Target_package.configure_command (self))
 
 	def configure (self):
 		# FIXME: use Libjpeg.configure ?
@@ -1144,7 +1104,7 @@ mkdir -p %(builddir)s
 cp -pv %(allsrcdir)s/gcc-3.4.5/ltconfig %(srcdir)s || true
 cp %(system_root)s/usr/share/libtool/ltmain.sh %(builddir)s		
 ''')
-		gub.Target_package.configure (self)
+		targetpackage.Target_package.configure (self)
 
 		arch = self.settings.target_architecture
 		#FIXME:
@@ -1157,7 +1117,7 @@ cp %(system_root)s/usr/share/libtool/ltmain.sh %(builddir)s
 			'%(builddir)s/Makefile')
 
 	def install_command (self):
-		return gub.join_lines ('''
+		return misc.join_lines ('''
 mkdir -p %(install_root)s/usr/include %(install_root)s/usr/lib
 && make DESTDIR=%(install_root)s install-headers install-lib
 ''')
@@ -1170,7 +1130,7 @@ class Libjpeg__linux (Libjpeg):
 #endif''')],
 			       '%(builddir)s/jconfig.h')
 
-class Libpng (gub.Target_package):
+class Libpng (targetpackage.Target_package):
 	def name (self):
 		return 'libpng'
 
@@ -1179,14 +1139,14 @@ class Libpng (gub.Target_package):
 			       '%(srcdir)s/Makefile.in')
 
 	def configure (self):
-		gub.Target_package.configure (self)
+		targetpackage.Target_package.configure (self)
 		# # FIXME: libtool too old for cross compile
 		self.update_libtool ()
 
 class Freebsd_runtime (gub.Binary_package):
 	pass
 
-class Libgnugetopt (gub.Target_package):
+class Libgnugetopt (targetpackage.Target_package):
 	def patch (self):
 		self.dump ('''
 prefix = /usr
