@@ -97,11 +97,13 @@ class Python__mingw (Python):
 		Python.__init__ (self, settings)
 		self.target_gcc_flags = '-DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I%(system_root)s/usr/include' % self.settings.__dict__
 
+	# FIXME: ugh cross compile + mingw patch; move to cross-Python?
 	def patch (self):
 		self.system ('''
 cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-1.patch
 ''')
 
+	# FIXME: ugh cross compile + mingw patch; move to cross-Python?
 	def configure (self):
 		self.system ('''cd %(srcdir)s && autoconf''')
 		self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
@@ -119,6 +121,20 @@ cp %(install_root)s/usr/lib/python%(python_version)s/lib-dynload/* %(install_roo
 		self.system ('''
 chmod 755 %(install_root)s/usr/bin/*
 ''')
+
+class Python__freebsd (Python):
+	# FIXME: ugh cross compile + mingw patch; move to cross-Python?
+	def patch (self):
+		self.system ('''
+cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-1.patch
+''')
+
+	# FIXME: ugh cross compile + mingw patch; move to cross-Python?
+	def configure (self):
+		self.system ('''cd %(srcdir)s && autoconf''')
+		self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
+		gub.Target_package.configure (self)
+
 
 class Gmp (gub.Target_package):
 	def configure (self):
@@ -193,6 +209,7 @@ class Guile__mingw (Guile):
 cd %(srcdir)s && patch -p1 < %(lilywinbuilddir)s/patch/guile-1.7.2-3.patch
 ''')
 
+# FIXME: ugh, C&P to Guile__freebsd, put in cross-Guile?
 	def configure_command (self):
 		# watch out for whitespace
 		builddir = self.builddir ()
@@ -253,7 +270,7 @@ class Guile__freebsd (Guile):
 		# watch out for whitespace
 		builddir = self.builddir ()
 		srcdir = self.srcdir ()
-# ugh, C&P from Guile__mingw
+# FIXME: ugh, C&P from Guile__mingw, put in cross-Guile?
 ##PATH_SEPARATOR=";"
 		return Guile.configure_command (self) \
 		       + gub.join_lines ('''\
@@ -1258,6 +1275,8 @@ def get_packages (settings):
 						  depends=['freebsd-runtime', 'libtool']),
 		Guile__freebsd (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2',
 						depends=['freebsd-runtime', 'gettext', 'gmp', 'libtool']),
+		Python__freebsd (settings).with (version='2.4.2', mirror=download.python, format='bz2',
+					       depends=['freebsd-runtime']),
 	],
 	}
 
@@ -1268,7 +1287,7 @@ def get_packages (settings):
 		linux_packs = packages['linux']
 		for i in linux_packs:
 			#URG
-			if i.name () in ('gettext', 'guile'):
+			if i.name () in ('gettext', 'guile', 'python'):
 				continue
                         if not i.name () in ('binutils', 'gcc'):
 				i.name_dependencies += ['freebsd-runtime']
