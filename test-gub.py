@@ -5,16 +5,7 @@ import email.MIMEText
 import email.Header
 import email.Message
 import email.MIMEMultipart
-
-#server = "smtp.xs4all.nl"
-server = "localhost"
-sender = "hanwen@xs4all.nl"
-addresses = [
-#	'janneke@gnu.org',
-# 	'hanwen@xs4all.nl',
-	
-	'hanwen@localhost',
-	]
+import optparse
 
 def tag_name ():
 	(year, month, day, hours,
@@ -28,23 +19,44 @@ def system (cmd):
 	return os.system (cmd)
 
 COMMASPACE = ', '
-def fail_message (log, diff) :
+def fail_message (options, log, diff) :
 	msg = email.MIMEMultipart.MIMEMultipart()
 	msg['Subject'] = email.Header.Header( 'GUB Autobuild: FAIL')
 
-	msg.preamble = ("Oops, our GUB build failed")
+	msg.preamble = ("\nOops, our GUB build failed\n\n\n")
 	msg.attach (email.MIMEText.MIMEText (log))
 
 	if diff: 
 		msg.attach (email.MIMEText.MIMEText (diff))
 	msg.epilogue = ''
 	
-	msg['From'] = sender
-	msg['To'] = COMMASPACE.join (addresses)
-
-
-	return msg.as_string ()
+	msg['From'] = options.sender
+	msg['To'] = COMMASPACE.join (options.address)
 	
+	return msg.as_string ()
+
+def opt_parser ():
+	p = optparse.OptionParser()
+	p.add_option ('-t', '--to',
+		      action ='append',
+		      dest = 'address',
+		      default = [],
+		      help = 'where to send error report')
+	p.add_option ('-f', '--from',
+		      action ='store',
+		      dest = 'sender',
+		      default = os.environ['EMAIL'],
+		      help = 'whom to list as sender')
+	p.add_option ('-s', '--smtp',
+		      action ='store',
+		      dest = 'smtp',
+		      default = 'localhost',
+		      help = 'SMTP server to use.')
+
+	return p
+(options, args) = opt_parser().parse_args ()
+
+
 stat = system ("make distclean")
 stat = os.system ("nice make all >& test-gub.log")
 if stat:
@@ -56,10 +68,10 @@ if stat:
 
 	diff = os.popen ('darcs diff -u --from-tag success-').read ()
 
-	msg = fail_message (body, diff)
+	msg = fail_message (options, body, diff)
 	
-	connection = smtplib.SMTP (server)
-	connection.sendmail (sender, addresses, msg)
+	connection = smtplib.SMTP (options.smtp)
+	connection.sendmail (options.sender, options.address, msg)
 
 	## TODO: include diff from last known working
 else:
