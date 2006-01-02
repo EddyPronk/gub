@@ -18,11 +18,6 @@ def system (cmd):
 	print cmd
 	return os.system (cmd)
 
-def mail_to (addresses,
-	     body,
-	     subject =''):
-	
-
 stat = os.system ("make distclean")
 stat = os.system ("make all 2>&1 | tee test-gub.log")
 if stat:
@@ -39,5 +34,6 @@ if stat:
 else:
 	system ('darcs tag %s' % tag_name ()) 
 
-	## TODO: push the tag 
+	## TODO: push the tag
+	
 	
