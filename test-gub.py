@@ -18,9 +18,9 @@ def system (cmd):
 	print cmd
 	return os.system (cmd)
 
-COMMASPACE = ', '
 def fail_message (options, log, diff) :
 	msg = email.MIMEMultipart.MIMEMultipart()
+	
 	msg['Subject'] = email.Header.Header( 'GUB Autobuild: FAIL')
 
 	msg.preamble = ("\nOops, our GUB build failed\n\n\n")
@@ -30,9 +30,13 @@ def fail_message (options, log, diff) :
 		msg.attach (email.MIMEText.MIMEText (diff))
 	msg.epilogue = ''
 	
-	msg['From'] = options.sender
-	msg['To'] = COMMASPACE.join (options.address)
-	
+	return msg
+
+def success_message (options, tag):
+	msg = email.MIMEMultipart.MIMEMultipart()
+
+	msg['Subject'] = email.Header.Header( 'GUB Autobuild: FAIL')
+	msg.attach (email.MIMEText.MIMEText ("""\n\nTagging with %s""" % tag))
 	return msg.as_string ()
 
 def opt_parser ():
@@ -54,11 +58,13 @@ def opt_parser ():
 		      help = 'SMTP server to use.')
 
 	return p
+
 (options, args) = opt_parser().parse_args ()
 
 
 stat = system ("make distclean")
 stat = os.system ("nice make all >& test-gub.log")
+msg = None
 if stat:
 	f = open ('test-gub.log')
 	f.seek (0, 2)
@@ -69,14 +75,18 @@ if stat:
 	diff = os.popen ('darcs diff -u --from-tag success-').read ()
 
 	msg = fail_message (options, body, diff)
-	
-	connection = smtplib.SMTP (options.smtp)
-	connection.sendmail (options.sender, options.address, msg)
-
-	## TODO: include diff from last known working
 else:
 	name = tag_name()
 	system ('darcs tag %s' % name)
 	system ('darcs push -t %s ' % name)
+
+	msg = success_message (options, name)
+	
+
+COMMASPACE = ', '
+msg['From'] = options.sender
+msg['To'] = COMMASPACE.join (options.address)
+connection = smtplib.SMTP (options.smtp)
+connection.sendmail (options.sender, options.address, msg.as_string ())
 	
 	
