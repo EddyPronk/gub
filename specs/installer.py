@@ -48,6 +48,7 @@ class Installer (context.Os_context_wrapper):
 			'bin/python*',
 			'bin/python%(python_version)s*',
 			'bin/xmlwf',
+			'cross',
 			'doc',
 			'include',
 			'info',
