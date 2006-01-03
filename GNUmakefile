@@ -1,4 +1,7 @@
 
+.PHONY: all default distclean download test TAGS
+.PHONY: darwin freebsd linux mac mingw
+
 default: all
 
 all: linux mingw mac
@@ -42,12 +45,13 @@ all: linux freebsd mac mingw
 linux:
 	$(call BUILD_ALL, $@)
 
-## FIXME: urg, why not using dependencies anymore?
 freebsd:
 	$(call BUILD_ALL, $@)
 
-mac:
-	$(call BUILD_ALL, darwin)
+darwin:
+	$(call BUILD_ALL, $@)
+
+mac: darwin
 
 mingw:
 	$(call BUILD_ALL, $@) 
