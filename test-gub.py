@@ -96,9 +96,23 @@ def read_tail (file, amount=10240):
 
 
 
-def test_target (options, target, last_patch):
+def test_target (options, target):
 	canonicalize = re.sub('[ \t\n]', '_', target)
 	canonicalize = re.sub ('[^a-zA-Z]', '_', canonicalize)
+
+	release_hash = md5.new ()
+	release_hash.update (open ('_darcs/inventory').read())
+	release_hash = release_hash.hexdigest() + '-' + canonicalize
+
+	if try_checked_before (release_hash):
+		print 'release has already been checked: ', release_hash 
+		sys.exit (0)
+
+
+	last_patch = read_last_patch()
+	last_patch['release_hash'] = release_hash
+
+
 	logfile = 'test-%(canonicalize)s.log' %  locals()
 	stat = os.system ("nice %(target)s >& %(logfile)s" %  locals())
 	base_tag = 'success-%(canonicalize)s-' % locals ()
@@ -140,21 +154,9 @@ MD5 of inventory: %(release_hash)s
 
 	
 def main ():
-	release_hash = md5.new ()
-	release_hash.update (open ('_darcs/inventory').read())
-	release_hash = release_hash.hexdigest() 
-
-	if try_checked_before (release_hash):
-		print 'release has already been checked: ', release_hash 
-		sys.exit (0)
-
-
-	last_patch = read_last_patch()
-	last_patch['release_hash'] = release_hash
-
 	(options, args) = opt_parser().parse_args ()
 
 	for a in args:
-		test_target (options, a, last_patch)
+		test_target (options, a)
 
 main()
