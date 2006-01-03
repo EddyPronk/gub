@@ -10,7 +10,7 @@ class Installer (context.Os_context_wrapper):
 		context.Os_context_wrapper.__init__ (self, settings)
 		
 		self.settings = settings
-		self.strip_command = '%(tooldir)s/bin/%(target_architecture)s-strip' 
+		self.strip_command = '%(crossprefix)s/bin/%(target_architecture)s-strip' 
 		self.no_binary_strip = []
 
 	@context.subst_method

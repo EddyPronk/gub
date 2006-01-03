@@ -50,8 +50,9 @@ class Settings (Context):
 
 		# FIXME: rename to target_root?
 		self.system_root = self.targetdir + '/system'
+		self.crossprefix = self.system_root + '/usr/cross'
 		self.installdir = self.targetdir + '/install'
-		self.tooldir = self.targetdir + '/tools'
+		self.tooldir = self.topdir + '/tools'
 
 		# INSTALLERS
 		self.installer_root = self.targetdir + '/installer'
@@ -79,6 +80,7 @@ class Settings (Context):
 			'allsrcdir',
 			'statusdir',
 			'system_root',
+			'crossprefix',
 			'targetdir',
 			'tooldir',
 			'topdir',

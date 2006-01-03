@@ -24,6 +24,7 @@ class Darwin_sdk (gub.Sdk_package):
 		for a in glob.glob (pat):
 			self.file_sub ([(r' (/usr/lib/.*\.la)', r'%(system_root)s\1')], a)
 
+
 class Fondu (targetpackage.Target_package):
 	pass
 
@@ -197,7 +198,7 @@ cd %(srcdir)s && patch -p1 < %(lilywinbuilddir)s/patch/guile-1.7.2-3.patch
 		builddir = self.builddir ()
 		srcdir = self.srcdir ()
 		return (Guile.configure_command (self)
-		       + misc.join_lines ('''\
+		       + misc.join_lines ('''
 PATH_SEPARATOR=";"
 LDFLAGS=-L%(system_root)s/usr/lib
 CC_FOR_BUILD="
@@ -1222,12 +1223,11 @@ def get_packages (settings):
 					       ),
 		Gmp__darwin (settings).with (version='4.1.4',depends=['darwin-sdk']),
 		Fondu__darwin (settings).with (version="051010", mirror=download.hw),
-				       
 		## 1.7.3  is actually CVS repackaged.
 #		Guile (settings).with (version='1.7.3', mirror=download.gnu, format='gz'),
 		Guile__darwin (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2',
-				       depends=['gmp','darwin-sdk']
-				       ),
+					       depends=['gmp','darwin-sdk']
+					       ),
 		Libjpeg (settings).with (version='v6b', mirror=download.jpeg),
 		Libpng (settings).with (version='1.2.8', mirror=download.libpng),
 		Ghostscript__darwin (settings).with (version="8.15.1", mirror=download.cups,
@@ -1325,6 +1325,8 @@ def get_packages (settings):
 
 	packs = packages[settings.platform]
 
+
+	## UGH UGH  platform dependent.
 	# FreeBSD almost uses linux packages...
 	if settings.platform.startswith ('freebsd'):
 		linux_packs = packages['linux']
@@ -1342,6 +1344,9 @@ def get_packages (settings):
 			#	i.name_dependencies += ['libgnugetopt']
 			packs += [i]
 
+
+
+	
 	for p in packs:
 		if p.name () == 'lilypond':
 			p._downloader = p.cvs
@@ -1351,9 +1356,10 @@ def get_packages (settings):
 		settings.python_version = [p for p in packs
 					   if isinstance (p, Python)][0].python_version ()
 	except IndexError:
+		
 		# UGH darwin has no python package.
 		settings.python_version = '2.3'
-
+		
 	settings.guile_version = [p for p in packs
 				  if isinstance (p, Guile)][0].guile_version ()
 	settings.ghostscript_version = [p for p in packs

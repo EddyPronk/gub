@@ -27,8 +27,6 @@ class Gcc (cross.Gcc):
 
 def get_packages (settings):
 	return (
-		cross.Pkg_config (settings).with (version="0.20",
-						      mirror=download.freedesktop),
 		Binutils (settings).with (version='2.16.1', format='bz2'),
 #		Gcc (settings).with (version='4.0.2', mirror=download.gcc, format='bz2'),
 		Gcc (settings).with (version='3.4.5', mirror=download.gcc, format='bz2', depends=['binutils']
@@ -36,4 +34,5 @@ def get_packages (settings):
 		)
 
 def change_target_packages (packages):
-	pass
+	cross.change_target_packages (packages)
+	

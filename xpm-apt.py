@@ -99,6 +99,7 @@ class Options:
 
 	def write_xpm_rc (self):
 		"Write defaults in .xpm-apt.rc. "
+		
 		h = open (self.rc_file, 'w')
 		print 'writing', self.rc_file
 		for i in self.rc_options:
@@ -110,6 +111,10 @@ class Command:
 		self.pm = pm
 		self.options = options
 
+	def write_rc (self):
+		'''write .xpm-apt.rc'''
+		self.options.write_xpm_rc ()
+		
 	def available (self):
 		print '\n'.join (self.pm._packages.keys ())
 

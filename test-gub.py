@@ -1,4 +1,5 @@
 #!/usr/bin/python
+import re
 
 import smtplib
 import os
@@ -81,26 +82,27 @@ def opt_parser ():
 
 	return p
 
+def read_tail (file, amount=10240):
+	f = open (file)
+	f.seek (0, 2)
+	length = f.tell()
+	f.seek (- min (length, amount), 1)
+	return f.read ()
+
 ################################################################
 # main
 
 
-msg = None
-last_patch = read_last_patch()
-
-release_hash = md5.new ()
-release_hash.update (open ('_darcs/inventory').read())
-release_hash = release_hash.hexdigest() 
 
 
-(options, args) = opt_parser().parse_args ()
 
-if try_checked_before (release_hash):
-	print 'release has already been checked: ', release_hash 
-	sys.exit (0)
-
-last_patch['release_hash'] = release_hash
-release_id = '''
+def test_target (options, target, last_patch):
+	canonicalize = re.sub('[ \t\n]', '_', target)
+	canonicalize = re.sub ('[^a-zA-Z]', '_', canonicalize)
+	logfile = 'test-%(canonicalize)s.log' %  locals()
+	stat = os.system ("nice %(target)s >& %(logfile)s" %  locals())
+	base_tag = 'success-%(canonicalize)s-' % locals ()
+	release_id = '''
 Last patch of this release:
 
 %(local_date)s - %(author)s
@@ -110,39 +112,48 @@ Last patch of this release:
 MD5 of inventory: %(release_hash)s
 
 ''' % last_patch
-
-
-
-
-stat = system ("make distclean")
-stat = os.system ("nice make all >& test-gub.log")
-
-
-if stat: 
-	f = open ('test-gub.log')
-	f.seek (0, 2)
-	length = f.tell()
-	f.seek (- min (length, 10240), 1)
-	body = f.read ()
-
-	diff = os.popen ('darcs diff -u --from-tag success-').read ()
-
-	msg = result_message (options, 'FAIL', [release_id,
-						body, diff])
-else:
-	tag = 'success-%(date)s' % last_patch
-	system ('darcs tag %s' % tag)
-	system ('darcs push -a -t %s ' % tag)
-
-	msg = result_message (options, 'SUCCESS',
-			      [release_id,
-			       "Tagging with %s\n\n" % tag])
-
-
-COMMASPACE = ', '
-msg['From'] = options.sender
-msg['To'] = COMMASPACE.join (options.address)
-connection = smtplib.SMTP (options.smtp)
-connection.sendmail (options.sender, options.address, msg.as_string ())
 	
+	msg = None
+	if stat: 
+		body = read_tail (logfile)
+		diff = os.popen ('darcs diff -u --from-tag %s' % base_tag).read ()
+		
+		msg = result_message (options, 'FAIL', [release_id,
+							body, diff])
+	else:
+		tag = base_tag + last_patch['date']
+		system ('darcs tag %s' % tag)
+		system ('darcs push -a -t %s ' % tag)
+		
+		msg = result_message (options, 'SUCCESS',
+				      [release_id,
+				       "Tagging with %s\n\n" % tag])
+
+
+	COMMASPACE = ', '
+	msg['From'] = options.sender
+	msg['To'] = COMMASPACE.join (options.address)
+	connection = smtplib.SMTP (options.smtp)
+	connection.sendmail (options.sender, options.address, msg.as_string ())
+
+
 	
+def main ():
+	release_hash = md5.new ()
+	release_hash.update (open ('_darcs/inventory').read())
+	release_hash = release_hash.hexdigest() 
+
+	if try_checked_before (release_hash):
+		print 'release has already been checked: ', release_hash 
+		sys.exit (0)
+
+
+	last_patch = read_last_patch()
+	last_patch['release_hash'] = release_hash
+
+	(options, args) = opt_parser().parse_args ()
+
+	for a in args:
+		test_target (options, a, last_patch)
+
+main()

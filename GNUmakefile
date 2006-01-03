@@ -44,22 +44,12 @@ linux:
 
 ## FIXME: urg, why not using dependencies anymore?
 freebsd:
-	$(call INVOKE_DRIVER, $@) build $@-runtime
-	$(call INVOKE_XPM, $@) install $@-runtime
-	$(call INVOKE_DRIVER, $@) -t build binutils gcc
-	$(call INVOKE_XPM, $@) -t install binutils gcc
 	$(call BUILD_ALL, $@)
 
 mac:
-	$(call INVOKE_DRIVER, darwin) build darwin-sdk
-	$(call INVOKE_XPM, darwin) install darwin-sdk
 	$(call BUILD_ALL, darwin)
 
 mingw:
-	$(call INVOKE_DRIVER, $@) build $@-runtime w32api
-	$(call INVOKE_XPM, $@) install $@-runtime w32api
-	$(call INVOKE_DRIVER, $@) -t build gcc
-	$(call INVOKE_XPM, $@) -t install binutils gcc
 	$(call BUILD_ALL, $@) 
 
 distclean:
@@ -74,5 +64,10 @@ cyg-apt.py: cyg-apt.py.in specs/cpm.py
 	sed -e "/@CPM@/r specs/cpm.py" -e "s/@CPM@//" < $< > $@
 	chmod +x $@
 
+RUN_TEST=python test-gub.py --to hanwen@xs4all.nl --to janneke@gnu.org --smtp smtp.xs4all.nl "make $(1)" 
 test:
-	python test-gub.py --to hanwen@xs4all.nl --to janneke@gnu.org --smtp smtp.xs4all.nl
+	$(MAKE) distclean
+	$(call RUN_TEST,mac)
+	$(call RUN_TEST,mingw)
+	$(call RUN_TEST,freebsd)
+	$(call RUN_TEST,linux)

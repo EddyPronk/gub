@@ -26,7 +26,9 @@ class Package (Os_context_wrapper):
 		self.url = ''
 		self._downloader = self.wget
 		self._build = 0
-
+		self.dependencies = []
+		self.build_dependencies = []
+		
 		# set to true for CVS releases 
 		self.track_development = False
 
@@ -118,8 +120,8 @@ cd %(dir)s/%(name)s && cvs -q update -dAP -r %(version)s
 		return self.install_root () + '/usr'
 
 	@subst_method
-        def install_command (self):
-                return 'make install'
+	def install_command (self):
+		return '''make DESTDIR=%(install_root)s install'''
 
 	@subst_method
 	def configure_command (self):
@@ -322,6 +324,7 @@ class Binary_package (Package):
 
 class Null_package (Package):
 	"""Placeholder for downloads """
+	
 	def compile (self):
 		pass
 	def configure (self):
@@ -333,7 +336,9 @@ class Null_package (Package):
 	def patch (self):
 		pass
 	def package (self):
-		self.system ("tar -czf %(gub_uploads)s/%(gub_name)s --files-from=/dev/null")
+		pass
+
+#	self.system ("tar -czf %(gub_uploads)s/%(gub_name)s --files-from=/dev/null")
 		
 class Sdk_package (Null_package):
 	def untar (self):

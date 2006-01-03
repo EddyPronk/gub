@@ -20,7 +20,8 @@ import xpm
 def build_package (settings, manager, package):
 	settings.os_interface.log_command (package.expand (' ** Package: %(name)s (%(version)s, %(build)s)\n'))
 
-	for d in package.dependencies:
+	deps = package.build_dependencies + package.dependencies
+	for d in deps:
 		if not manager.is_installed (d):
 			settings.os_interface.log_command ('building dependency: ' + d.name ()
 							   + ' for package: ' + package.name ()
@@ -186,10 +187,9 @@ def package_installers (settings):
 		p.create ()
 		
 def run_builder (settings, pkg_manager, args):
-	os.environ["PATH"] = '%s/%s:%s' % (settings.tooldir, 'bin',
-                                           os.environ["PATH"])
-
-	
+	PATH = os.environ["PATH"]
+	os.environ["PATH"] = settings.expand ('%(tooldir)s/bin:%(system_root)s/usr/cross/bin:%(PATH)s',
+					      locals())
 	pkgs = [] 
 	if args and args[0] == 'all':
 		pkgs = pkg_manager._packages.values()

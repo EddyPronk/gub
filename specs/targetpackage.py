@@ -39,8 +39,6 @@ sysconfdir=%(install_prefix)s/etc
 tooldir=%(install_prefix)s
 ''')
 
-	def install_command (self):
-		return misc.join_lines ('''make DESTDIR=%(install_root)s install''')
 
 	## UGH. only for cross!
 	def config_cache_overrides (self, str):
