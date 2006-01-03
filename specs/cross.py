@@ -31,9 +31,13 @@ class Gcc (Cross_package):
 		# uninstallable as a normal system package in
 		# /usr/i686-mingw/
 		# Probably --prefix=/usr is fine too
-		languages = ['c',
-#			     'c++'
-			     ]
+		
+		
+		languages = ['c', 'c++']
+
+		if self.settings.__dict__.has_key ("no-c++"):
+			del languages[1]
+
 		language_opt = (' --enable-languages=%s ' % ','.join (languages))
 		cxx_opt = '--enable-libstdcxx-debug '
 
