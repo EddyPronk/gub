@@ -112,20 +112,21 @@ Last patch of this release:
 MD5 of inventory: %(release_hash)s
 
 ''' % last_patch
-	
+
+	release_id += '\n\nTesting command: %s\n\n' %  target
 	msg = None
 	if stat: 
 		body = read_tail (logfile)
 		diff = os.popen ('darcs diff -u --from-tag %s' % base_tag).read ()
 		
-		msg = result_message (options, 'FAIL', [release_id,
+		msg = result_message (options, '%s FAIL' % target , [release_id,
 							body, diff])
 	else:
 		tag = base_tag + last_patch['date']
 		system ('darcs tag %s' % tag)
 		system ('darcs push -a -t %s ' % tag)
 		
-		msg = result_message (options, 'SUCCESS',
+		msg = result_message (options, '%s SUCCESS' % target,
 				      [release_id,
 				       "Tagging with %s\n\n" % tag])
 
