@@ -632,6 +632,8 @@ gl_cv_func_mbrtowc=${gl_cv_func_mbrtowc=no}
 jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
 '''
 
+##
+## todo program_name=0 patch.
 class Gettext__darwin (Gettext):
 	def xconfigure_command (self):
 		## not necessary for 0.14.1

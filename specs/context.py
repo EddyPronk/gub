@@ -123,6 +123,7 @@ class Os_commands:
 			for k in keys:
 				sys.stderr.write ('%s=%s\n' % (k, env[k]))
 
+			sys.stderr.write ('export %s\n' % ' '.join (keys))
 		for i in cmd.split ('\n'):
 			if i:
 				self.system_one (i, call_env, ignore_error)
