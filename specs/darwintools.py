@@ -19,7 +19,7 @@ class Odcctools (cross.Cross_package):
 
 class Gcc (cross.Gcc):
 	def patch (self):
-		self.file_sub ([('/usr/bin/libtool', '%(tooldir)s/bin/%(target_architecture)s-libtool')],
+		self.file_sub ([('/usr/bin/libtool', '%(crossprefix)s/bin/%(target_architecture)s-libtool')],
 			       '%(srcdir)s/gcc/config/darwin.h')
 
 
