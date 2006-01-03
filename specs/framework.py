@@ -883,7 +883,8 @@ cd %(builddir)s && %(zlib_is_broken)s AR="%(AR)s r" %(srcdir)s/configure --share
 	def install_command (self):
 		return targetpackage.Target_package.broken_install_command (self)
 
-class Mingw_runtime (gub.Binary_package):
+# UGH: MI
+class Mingw_runtime (gub.Binary_package, gub.Sdk_package):
 	def untar (self):
 		gub.Binary_package.untar (self)
 		self.system ('mkdir -p %(srcdir)s/root/usr')
@@ -907,7 +908,8 @@ class Cygwin (gub.Binary_package):
 		f = re.sub ('-1$', '', f)
 		return f
 
-class W32api (gub.Binary_package):
+# UGH: MI
+class W32api (gub.Binary_package, gub.Sdk_package):
 	def untar (self):
 		gub.Binary_package.untar (self)
 		self.system ('mkdir -p %(srcdir)s/root/usr')
