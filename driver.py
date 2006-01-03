@@ -54,14 +54,13 @@ def build_package (settings, manager, package):
 			package.os_interface.log_command (' *** Stage: %s (%s)\n' % (stage, package.name ()))
 
 			if stage == 'clean' and  settings.options.keep_build:
+				os.unlink (package.stamp_file ())
 				continue
 
 			(available[stage]) ()
 
 			if stage != 'clean':
 				package.set_done (stage, stages.index (stage))
-			else:
-				os.unlink (package.stamp_file ())
 
 def get_settings (platform):
 	settings = settings_mod.Settings (platform)
