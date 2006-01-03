@@ -99,7 +99,6 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-1.patch
 		self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
 		targetpackage.Target_package.configure (self)
 
-
 class Gmp (targetpackage.Target_package):
 	def configure (self):
 		targetpackage.Target_package.configure (self)
@@ -1090,7 +1089,9 @@ include $(GLSRCDIR)/pcwin.mak
 			   '%(builddir)s/Makefile',
 			   mode='a')
 
+
 class Libjpeg (targetpackage.Target_package):
+
 	def name (self):
 		return 'libjpeg'
 
@@ -1102,9 +1103,13 @@ class Libjpeg (targetpackage.Target_package):
 			       targetpackage.Target_package.configure_command (self))
 
 	def configure (self):
+		guess = self.locate_files ('config.guess')[0]
+		sub = self.locate_files ('config.sub')[0]
 		self.system ('''
-cp -pv /usr/share/misc/config.* %(srcdir)s
-''')
+cp -pv %(guess)s %(srcdir)s
+cp -pv %(sub)s %(srcdir)s
+''', locals ())
+		
 		targetpackage.Target_package.configure (self)
 
 		arch = self.settings.target_architecture
