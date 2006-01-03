@@ -26,7 +26,9 @@ class Package (Os_context_wrapper):
 		self.url = ''
 		self._downloader = self.wget
 		self._build = 0
-
+		self.dependencies = []
+		self.build_dependencies = []
+		
 		# set to true for CVS releases 
 		self.track_development = False
 
