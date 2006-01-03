@@ -30,6 +30,8 @@ def get_packages (settings):
 
 	
 def change_target_packages (packages):
+	cross.change_target_packages (packages)
+	
 	for p in packages:
 		gub.change_target_dict (p,
 					{

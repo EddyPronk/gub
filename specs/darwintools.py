@@ -134,9 +134,8 @@ def get_packages (settings):
 	return packages
 
 def change_target_packages (packages):
-	pass
-
-
+	cross.change_target_packages (packages)
+	
 def get_darwin_sdk ():
 	host  = 'maagd'
 	version = '0.1'
@@ -163,3 +162,4 @@ def get_darwin_sdk ():
 
 if __name__== '__main__':
 	get_darwin_sdk ()
+

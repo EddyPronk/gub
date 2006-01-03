@@ -36,4 +36,5 @@ def get_packages (settings):
 		)
 
 def change_target_packages (packages):
-	pass
+	cross.change_target_packages (packages)
+	
