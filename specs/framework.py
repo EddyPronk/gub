@@ -24,9 +24,6 @@ class Darwin_sdk (gub.Sdk_package):
 		for a in glob.glob (pat):
 			self.file_sub ([(r' (/usr/lib/.*\.la)', r'%(system_root)s\1')], a)
 
-class Libgcc (gub.Null_package):
-	def name (self):
-		return 'libgcc'
 
 class Fondu (targetpackage.Target_package):
 	pass
@@ -1101,14 +1098,16 @@ class Libjpeg (targetpackage.Target_package):
 			       targetpackage.Target_package.configure_command (self))
 
 	def configure (self):
-		# FIXME: use Libjpeg.configure ?
-		# urg try
 		if self.settings.platform.startswith ('freebsd'):
-			self.system ('''
+			if 0:
+				self.system ('''
 mkdir -p %(builddir)s
 cp -pv %(allsrcdir)s/gcc-3.4.5/ltconfig %(srcdir)s || true
 cp -pv %(allsrcdir)s/gcc-3.4.5/ltcf-c.sh %(srcdir)s || true
 cp %(system_root)s/usr/share/libtool/ltmain.sh %(builddir)s		
+''')
+		self.system ('''
+cp -pv /usr/share/misc/config.* %(srcdir)s
 ''')
 		targetpackage.Target_package.configure (self)
 
@@ -1229,10 +1228,6 @@ def get_packages (settings):
 					       depends = ['glib', 'fontconfig', 'freetype']
 					       ),
 		Gmp__darwin (settings).with (version='4.1.4',depends=['darwin-sdk']),
-		Libgcc (settings).with (mirror='',
-
-					## UGH: need to sync with GCC version.
-					version='4.0.2'),
 		Fondu__darwin (settings).with (version="051010", mirror=download.hw),
 		## 1.7.3  is actually CVS repackaged.
 #		Guile (settings).with (version='1.7.3', mirror=download.gnu, format='gz'),
