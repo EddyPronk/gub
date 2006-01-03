@@ -133,20 +133,26 @@ class Package_manager:
 			f.write ('%s\n' % i)
 		f.close ()
 
+	
 	def install_dependencies (self, package):
 		for d in package.dependencies:
-			if (not self.is_installed (d)
-			    and self._packages.has_key (d.name ())):
-				self.install_package (d)
+			self.install_package (d)
+
+	def install_build_dependencies (self, package):
+		for d in package.build_dependencies:
+			self.install_package (d)
 
 	def install_package (self, package):
+		if self.is_installed (package):
+			return
+		
 		self.install_dependencies (package)
 		self.install_single_package (package)
 
 	def resolve_dependencies (self):
 		try:
 			for p in self._packages.values ():
-				p.dependencies = [self._packages[d] for d in p.name_dependencies]
+				p.dependencies += [self._packages[d] for d in p.name_dependencies]
 				if p in p.dependencies:
 					print 'circular dependency', p, p.name_dependencies, p.dependencies, self._packages
 					raise 'BARF'
@@ -173,8 +179,6 @@ class Package_manager:
 			raise "Unknown package", k
 
 
-
-
 def get_managers (settings):
 	tool_manager = Package_manager (settings.tooldir,
 					settings.os_interface)
@@ -182,20 +186,23 @@ def get_managers (settings):
 					  settings.os_interface)
 
 	tool_module = None
+	cross_module = None
 	if settings.platform == 'darwin':
 		import darwintools
-		tool_module = darwintools
+		cross_module = darwintools
 	if settings.platform.startswith ('freebsd'):
 		import freebsd
-		tool_module = freebsd
+		cross_module = freebsd
 	elif settings.platform.startswith ("linux"):
 		import linux
-		tool_module = linux
+		cross_module = linux
 	elif settings.platform.startswith ('mingw'):
 		import mingw
-		tool_module = mingw
+		cross_module = mingw
 
-	map (tool_manager.register_package, tool_module.get_packages (settings))
+	
+#	map (tool_manager.register_package, tool_module.get_packages (settings))
+	map (target_manager.register_package, cross_module.get_packages (settings))
 	map (target_manager.register_package, framework.get_packages (settings))
 
 	for m in tool_manager, target_manager:
@@ -203,7 +210,7 @@ def get_managers (settings):
 		for p in m._packages.values ():
 			settings.build_number_db.set_build_number (p)
 
-	tool_module.change_target_packages (target_manager._packages.values ())
+	cross_module.change_target_packages (target_manager._packages.values ())
 
 	return tool_manager, target_manager
 
