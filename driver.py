@@ -189,8 +189,7 @@ def package_installers (settings):
 		
 def run_builder (settings, pkg_manager, args):
 	PATH = os.environ["PATH"]
-	os.environ["PATH"] = settings.expand ('%(tooldir)s/bin:%(system_root)s/usr/cross/bin:%(PATH)s',
-					      locals())
+	os.environ["PATH"] = settings.expand ('%(tooldir)s/bin:%(PATH)s', locals())
 	pkgs = [] 
 	if args and args[0] == 'all':
 		pkgs = pkg_manager._packages.values()
