@@ -17,25 +17,11 @@ class Odcctools (cross.Cross_package):
 		self.file_sub ([('ld64','')],
 			       self.builddir () + '/Makefile')
 
-	def package (self):
-		# naive tarball packages for now
-		self.system ('''
-tar -C %(install_root)s/usr/ -zcf %(gub_uploads)s/%(gub_name)s .
-''')
-
-
-
 class Gcc (cross.Gcc):
 	def patch (self):
 		self.file_sub ([('/usr/bin/libtool', '%(tooldir)s/bin/%(target_architecture)s-libtool')],
 			       '%(srcdir)s/gcc/config/darwin.h')
 
-	def xzip_libgcc (self):
-		for f in glob.glob (self.expand ("%(install_root)s/usr/%(target_architecture)s/lib/*dylib")):
-			self.system ('''
-cd %(install_root)s/usr/%(target_architecture)s/lib/
-rm -f libgcc_s.dylib && ln -s libgcc_s.1.dylib libgcc_s.dylib)
-''')
 
 class Rewirer (context.Os_context_wrapper):
 	def __init__ (self, settings):

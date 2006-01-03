@@ -120,8 +120,8 @@ cd %(dir)s/%(name)s && cvs -q update -dAP -r %(version)s
 		return self.install_root () + '/usr'
 
 	@subst_method
-        def install_command (self):
-                return 'make install'
+	def install_command (self):
+		return '''make DESTDIR=%(install_root)s install'''
 
 	@subst_method
 	def configure_command (self):
