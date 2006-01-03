@@ -60,7 +60,8 @@ def build_package (settings, manager, package):
 
 			if stage != 'clean':
 				package.set_done (stage, stages.index (stage))
-
+			else:
+				os.unlink (package.stamp_file ())
 
 def get_settings (platform):
 	settings = settings_mod.Settings (platform)
