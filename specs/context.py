@@ -194,6 +194,11 @@ class Os_context_wrapper (Context):
 	def dump (self, str, name, mode='w', env={}):
 		return self.os_interface.dump (self.expand (str, env),
 			     self.expand (name, env), mode=mode)
+	
+	def locate_files (self, name):
+		return [l
+			for l in self.read_pipe ('locate %s' % name).split ('\n')
+			if re.match ("^/usr", l)]
 
 if __name__=='__main__':
 	class TestBase(Context):
