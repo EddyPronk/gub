@@ -330,13 +330,13 @@ cp /usr/include/FlexLexer.h %(builddir)s/lily/out-console/
         def name_version (self):
 		# whugh
 		if os.path.exists (self.srcdir ()):
-			d = gub.grok_sh_variables (self.expand ('%(srcdir)s/VERSION'))
+			d = misc.grok_sh_variables (self.expand ('%(srcdir)s/VERSION'))
 			return 'lilypond-%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
 		return targetpackage.Target_package.name_version (self)
 
 	def install (self):
 		targetpackage.Target_package.install (self)
-		d = gub.grok_sh_variables (self.expand ('%(srcdir)s/VERSION'))
+		d = misc.grok_sh_variables (self.expand ('%(srcdir)s/VERSION'))
 		v = '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
 		self.system ("cd %(install_root)s/usr/share/lilypond && rm -f current && ln -sf %(v)s current",
 			     locals ())
