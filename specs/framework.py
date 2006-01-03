@@ -26,6 +26,7 @@ class Darwin_sdk (gub.Sdk_package):
 
 class Fondu (targetpackage.Target_package):
 	pass
+
 class Fondu__darwin (Fondu):
 	def patch(self):
 		Fondu.patch (self)
@@ -1096,14 +1097,16 @@ class Libjpeg (targetpackage.Target_package):
 			       targetpackage.Target_package.configure_command (self))
 
 	def configure (self):
-		# FIXME: use Libjpeg.configure ?
-		# urg try
 		if self.settings.platform.startswith ('freebsd'):
-			self.system ('''
+			if 0:
+				self.system ('''
 mkdir -p %(builddir)s
 cp -pv %(allsrcdir)s/gcc-3.4.5/ltconfig %(srcdir)s || true
 cp -pv %(allsrcdir)s/gcc-3.4.5/ltcf-c.sh %(srcdir)s || true
 cp %(system_root)s/usr/share/libtool/ltmain.sh %(builddir)s		
+''')
+		self.system ('''
+cp -pv /usr/share/misc/config.* %(srcdir)s
 ''')
 		targetpackage.Target_package.configure (self)
 
