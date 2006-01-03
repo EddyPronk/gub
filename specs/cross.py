@@ -21,9 +21,6 @@ class Cross_package (gub.Package):
 
 		
 
-class Pkg_config (Cross_package):
-	pass
-
 class Binutils (Cross_package):
 	pass
 
