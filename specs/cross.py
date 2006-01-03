@@ -11,13 +11,13 @@ class Cross_package (gub.Package):
 			+ misc.join_lines ('''
 --program-prefix=%(target_architecture)s-
 --prefix=%(crossprefix)s/
---with-slibdir=%(system_root)s/usr/lib/
+--with-slibdir=/usr/lib/
 --target=%(target_architecture)s
 --with-sysroot=%(system_root)s/
 '''))
 
 	def install_command (self):
-		return '''make DESTDIR=%(install_root)s prefix=/usr install'''
+		return '''make DESTDIR=%(install_root)s prefix=/usr/cross/ install'''
 
 		
 
