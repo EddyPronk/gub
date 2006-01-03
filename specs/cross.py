@@ -60,3 +60,10 @@ cd %(system_root)s/usr/lib && ln -fs libgcc_s.1.so libgcc_s.so
 
 
 
+def change_target_packages (packages):
+	sdk_packs = [p for p in packages if isinstance (p, Cross_package)]
+	other_packs = [p for p in packages if not isinstance (p, Cross_package)]
+	for p in other_packs:
+		p.build_dependencies += sdk_packs
+	
+
