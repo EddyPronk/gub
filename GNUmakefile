@@ -73,6 +73,7 @@ cyg-apt.py: cyg-apt.py.in specs/cpm.py
 RUN_TEST=python test-gub.py --to hanwen@xs4all.nl --to janneke@gnu.org --smtp smtp.xs4all.nl "make $(1)" 
 test:
 	$(MAKE) distclean
+	$(MAKE) download
 	$(call RUN_TEST,mac)
 	$(call RUN_TEST,mingw)
 	$(call RUN_TEST,freebsd)
