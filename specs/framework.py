@@ -1097,14 +1097,6 @@ class Libjpeg (targetpackage.Target_package):
 			       targetpackage.Target_package.configure_command (self))
 
 	def configure (self):
-		if self.settings.platform.startswith ('freebsd'):
-			if 0:
-				self.system ('''
-mkdir -p %(builddir)s
-cp -pv %(allsrcdir)s/gcc-3.4.5/ltconfig %(srcdir)s || true
-cp -pv %(allsrcdir)s/gcc-3.4.5/ltcf-c.sh %(srcdir)s || true
-cp %(system_root)s/usr/share/libtool/ltmain.sh %(builddir)s		
-''')
 		self.system ('''
 cp -pv /usr/share/misc/config.* %(srcdir)s
 ''')
@@ -1117,6 +1109,8 @@ cp -pv /usr/share/misc/config.* %(srcdir)s
 		self.system ('''
 cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh %(arch)s'''
 			     , locals ())
+
+		self.update_libtool ()
 
 		self.file_sub (
 			[
