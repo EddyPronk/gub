@@ -7,9 +7,6 @@ import framework
 import cross
 
 class Odcctools (cross.Cross_package):
-	def install_prefix (self):
-		return self.settings.tooldir
-	
 	def configure (self):
 		cross.Cross_package.configure (self)
 
@@ -29,7 +26,7 @@ class Rewirer (context.Os_context_wrapper):
 		self.ignore_libs = None
 
 	def get_libaries (self, name):
-		lib_str = self.read_pipe ("%(tooldir)s/bin/%(target_architecture)s-otool -L %(name)s", locals(), ignore_error=True)
+		lib_str = self.read_pipe ("%(crossprefix)s/bin/%(target_architecture)s-otool -L %(name)s", locals(), ignore_error=True)
 
 		libs = []
 		for l in lib_str.split ('\n'):
@@ -49,13 +46,11 @@ class Rewirer (context.Os_context_wrapper):
 
 		if changes:
 			
-			self.system ("%(tooldir)s/bin/%(target_architecture)s-install_name_tool %(changes)s %(name)s ",
+			self.system ("%(crossprefix)s/bin/%(target_architecture)s-install_name_tool %(changes)s %(name)s ",
 				     locals())
 
 	def rewire_mach_o_object_executable_path (self, name):
-		orig_libs = [self.expand ('%(tooldir)s/lib'),
-			     self.expand ('%(tooldir)s/%(target_architecture)s/lib'),
-			     '/usr/lib']
+		orig_libs = ['/usr/lib']
 
 		libs = self.get_libaries()
 		subs = []
@@ -118,8 +113,6 @@ def add_rewire_path (settings, packages):
 def get_packages (settings):
 	packages = [
 		Odcctools (settings).with (version='20051122', mirror=download.opendarwin, format='bz2'),		
-		cross.Pkg_config (settings).with (version="0.20",
-						      mirror=download.freedesktop),
 		Gcc (settings).with (mirror = download.gcc,
 ##				     version='3.4.5',
 				     version='4.0.2', 
