@@ -74,5 +74,10 @@ cyg-apt.py: cyg-apt.py.in specs/cpm.py
 	sed -e "/@CPM@/r specs/cpm.py" -e "s/@CPM@//" < $< > $@
 	chmod +x $@
 
+RUN_TEST=python test-gub.py --to hanwen@xs4all.nl --to janneke@gnu.org --smtp smtp.xs4all.nl "make $(1)" 
 test:
-	python test-gub.py --to hanwen@xs4all.nl --to janneke@gnu.org --smtp smtp.xs4all.nl
+	$(MAKE) distclean
+	$(call RUN_TEST,mac)
+	$(call RUN_TEST,mingw)
+	$(call RUN_TEST,freebsd)
+	$(call RUN_TEST,linux)

@@ -1,4 +1,5 @@
 #!/usr/bin/python
+import re
 
 import smtplib
 import os
@@ -82,7 +83,7 @@ def opt_parser ():
 	return p
 
 def read_tail (file, amount=10240):
-	f = open (logfile)
+	f = open (file)
 	f.seek (0, 2)
 	length = f.tell()
 	f.seek (- min (length, amount), 1)
@@ -95,7 +96,7 @@ def read_tail (file, amount=10240):
 
 
 
-def test_target (target, last_patch):
+def test_target (options, target, last_patch):
 	canonicalize = re.sub('[ \t\n]', '_', target)
 	canonicalize = re.sub ('[^a-zA-Z]', '_', canonicalize)
 	logfile = 'test-%(canonicalize)s.log' %  locals()
@@ -153,4 +154,6 @@ def main ():
 	(options, args) = opt_parser().parse_args ()
 
 	for a in args:
-		test_target (a, last_patch)
+		test_target (options, a, last_patch)
+
+main()
