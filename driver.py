@@ -188,6 +188,8 @@ def package_installers (settings):
 		
 def run_builder (settings, pkg_manager, args):
 	PATH = os.environ["PATH"]
+
+	## crossprefix is also necessary for building cross packages, such as GCC 
 	os.environ["PATH"] = settings.expand ('%(tooldir)s/bin:%(crossprefix)s/bin:%(PATH)s', locals())
 	pkgs = [] 
 	if args and args[0] == 'all':
