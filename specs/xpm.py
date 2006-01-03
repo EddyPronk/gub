@@ -185,7 +185,7 @@ def get_managers (settings):
 	target_manager = Package_manager (settings.system_root,
 					  settings.os_interface)
 
-	tool_module = None
+	import tools as tool_module
 	cross_module = None
 	if settings.platform == 'darwin':
 		import darwintools
@@ -201,7 +201,7 @@ def get_managers (settings):
 		cross_module = mingw
 
 	
-#	map (tool_manager.register_package, tool_module.get_packages (settings))
+	map (tool_manager.register_package, tool_module.get_packages (settings))
 	map (target_manager.register_package, cross_module.get_packages (settings))
 	map (target_manager.register_package, framework.get_packages (settings))
 
