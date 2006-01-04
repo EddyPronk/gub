@@ -1178,6 +1178,10 @@ class Libpng (targetpackage.Target_package):
 		# # FIXME: libtool too old for cross compile
 		self.update_libtool ()
 
+	def compile_command (self):
+
+		## need to call twice, first one triggers spurious Automake stuff.		
+		return 'cd %(builddir)s && (make  || make)'
 class Libpng__mingw (Libpng):
 	def configure (self):
 		# libtool will not build dll if -no-undefined flag is
