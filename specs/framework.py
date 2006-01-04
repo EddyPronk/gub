@@ -792,7 +792,7 @@ class Fontconfig (targetpackage.Target_package):
 		## UGH  - this breaks  on Darwin!
 		return targetpackage.Target_package.configure_command (self) \
 		      + misc.join_lines ('''
---with-freetype-config="/usr/bin/freetype-config
+--with-freetype-config="%(system_root)s/usr/bin/freetype-config
 --prefix=%(system_root)s/usr
 "''')
 #--urg-broken-if-set-exec-prefix=%(system_root)s/usr
