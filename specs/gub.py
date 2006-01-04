@@ -51,17 +51,19 @@ cd %(dir)s && wget %(url)s
 ''', locals ())
 
 	def cvs (self):
-		dir = self.settings.allsrcdir
 		url = self.expand (self.url)
-		if not os.path.exists (os.path.join (dir, self.name ())):
+		if not os.path.exists (self.expand (self.srcdir ())):
+			## too complicated
+			##dir = re.sub (self.settings.allsrcdir + '/', '', self.expand (self.srcdir ()))
+			dir = '%(name)s-%(version)s'
 			self.system ('''
-cd %(dir)s && cvs -d %(url)s -q co -r %(version)s %(name)s
+cd %(allsrcdir)s && cvs -d %(url)s -q co -d %(dir)s -r %(version)s %(name)s
 ''', locals ())
 		else:
 # Hmm, let's save local changes?			
-#cd %(dir)s/%(name)s && cvs update -dCAP -r %(version)s
+#cd %(srcdir)s && cvs update -dCAP -r %(version)s
 			self.system ('''
-cd %(dir)s/%(name)s && cvs -q update -dAP -r %(version)s
+cd %(srcdir)s && cvs -q update -dAP -r %(version)s
 ''', locals ())
 		self.untar = self.skip
 

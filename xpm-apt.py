@@ -26,13 +26,14 @@ def sort (lst):
 class Options:
 	def __init__ (self):
 		self.platform = ''
+		self.BRANCH = 'HEAD'
 		self.PLATFORM = ''
 		self.ROOT = ''
 		self.distname = 'unused'
 		self.config = self.ROOT + '/etc/xpm'
 		self.mirror = 'file://uploads/gub'
-		self.rc_options = ['platform', 'PLATFORM', 'ROOT', 'mirror',
-				   'build-platform', 'distname']
+		self.rc_options = ['BRANCH', 'platform', 'PLATFORM', 'ROOT',
+				   'mirror', 'build-platform', 'distname']
 		self.rc_file = '.xpm-apt.rc'
 		self.name_p = 0
 		self.nodeps_p = 0
@@ -46,8 +47,9 @@ class Options:
 	def get_options (self):
 		import getopt
 		(options, arguments) = getopt.getopt (sys.argv[1:],
-							   'hm:np:r:tb:x',
+							   'B:hm:np:r:tb:x',
 							   (
+			'branch=',
 			'help',
 			'mirror=',
 			'name',
@@ -72,6 +74,8 @@ class Options:
 
 			if 0:
 				pass
+			elif o == '--branch' or o == '-B':
+				self.BRANCH = a
 			elif o == '--help' or o == '-h':
 				self.command = 'help'
 			elif o == '--mirror' or o == '-m':
@@ -89,7 +93,15 @@ class Options:
 				self.name_p = 1
 			elif o == '--no-deps' or o == '-x':
 				self.nodeps_p = 1
-
+			else:
+				sys.stderr.write ('no such option: ' + o)
+				sys.stderr.write ('\n\n')
+				usage (self)
+				sys.exit (2)
+			# parse all options to get better help
+			if self.command == 'help':
+				usage (self)
+				sys.exit (0)
 
 	def read_xpm_rc (self):
 		if os.path.exists (self.rc_file):
@@ -195,6 +207,7 @@ Commands:
 	d = options.__dict__
 	sys.stdout.write (r'''
 Options:
+    -B,--lilypond-branch   select lilypond branch [%(BRANCH)s]
     -h,--help              show brief usage
     -m,--mirror=URL        use mirror [%(mirror)s]
     -n,--name              print package name only
@@ -210,10 +223,15 @@ Defaults are taken from ./%(rc_file)s
 def main ():
 	options = Options ()
 	if not options.platform:
-		print 'need platform setting. Use -p option'
-		sys.exit (1)
+		sys.stderr.write ('need platform setting, use -p option')
+		sys.stderr.write ('\n\n')
+		usage (options)
+		sys.exit (2)
 		
-	settings = settings_mod.Settings (options.platform, options.build_platform)
+	settings = settings_mod.Settings (options.platform,
+					  options.build_platform)
+	settings.lilypond_branch = options.BRANCH
+
 	if not options.ROOT:
 		options.ROOT = ('target/%(target_architecture)s/system'
 				% settings.__dict__)

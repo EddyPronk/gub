@@ -89,6 +89,7 @@ def add_options (settings, options):
 		settings.__dict__[key] = val
 
 	settings.options = options
+	settings.lilypond_branch = options.lilypond_branch
 	settings.bundle_version = options.installer_version
 	settings.bundle_build = options.installer_build
 	settings.use_tools = options.use_tools
@@ -115,7 +116,24 @@ def add_options (settings, options):
 		# os.environ['APBUILD_PROJECTNAME'] = 'lilypond/framework/0.0.0/usr/lib'
 
 def get_cli_parser ():
-	p = optparse.OptionParser (usage="""driver.py [OPTION]... COMMAND [PACKAGE]...
+	p = optparse.OptionParser ()
+	p.add_option ('-B', '--branch', action='store',
+		      dest="lilypond_branch",
+		      type='choice',
+		      default='HEAD',
+		      help='select lilypond branch [HEAD]',
+		      choices=['lilypond_2_6', 'HEAD'])
+	p.add_option ('-b', '--build-platform', action='store',
+		      dest="build_platform",
+		      type='choice',
+		      default='linux',
+		      help='select build platform [linux]',
+		      choices=['darwin', 'linux'])
+
+# WTF, how to get help option to show in right order?
+#	p.add_option ('-h', '--help',
+#		      help='print this help')
+	p.usage="""driver.py [OPTION]... COMMAND [PACKAGE]...
 
 Commands:
 
@@ -124,41 +142,36 @@ build             - build target packages
 build-installer   - build installer root
 package-installer - build installer binary
 
-""",
-				   description="Grand Unified Builder.  Specify --package-version to set build version")
-	p.add_option ('-V', '--verbose', action='store_true', 
-		      dest="verbose")
+"""
+	p.description="Grand Unified Builder.  Specify --package-version to set build version"
+
 	p.add_option ('', '--installer-version', action='store',
 		      dest="installer_version")
 	p.add_option ('', '--installer-build', action='store',
 		      dest="installer_build")
+	p.add_option ('-k', '--keep', action='store_true',
+		      dest="keep_build",
+		      default=None,
+		      help='leave build and src dir for inspection')
 	p.add_option ('-p', '--target-platform', action='store',
 		      dest="platform",
 		      type='choice',
 		      default=None,
 		      help='select target platform',
 		      choices=['darwin', 'freebsd', 'linux', 'mingw'])
-	p.add_option ('-b', '--build-platform', action='store',
-		      dest="build_platform",
-		      type='choice',
-		      default='linux',
-		      help='select build platform',
-		      choices=['darwin', 'linux'])
 	p.add_option ('-s', '--setting', action='append',
 		      dest="settings",
 		      type='string',
 		      default=[],
 		      help='add a variable')
-	p.add_option ('-k', '--keep', action='store_true',
-		      dest="keep_build",
-		      default=None,
-		      help='leave build and src dir for inspection')
 	p.add_option ('', '--stage', action='store',
 		      dest='stage', default=None,
 		      help='Force rebuild of stage') 
 	p.add_option ('-t', '--tools', action='store_true',
 		      dest='use_tools', default=None,
 		      help='use tool package manager') 
+	p.add_option ('-V', '--verbose', action='store_true', 
+		      dest="verbose")
 	return p
 
 def build_installers (settings, target_manager):

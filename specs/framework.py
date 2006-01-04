@@ -307,6 +307,14 @@ cp /usr/include/FlexLexer.h %(builddir)s/lily/out-console/
 ''')
 		targetpackage.Target_package.configure (self)
 
+	# FIXME: shared for all CVS packages
+	def srcdir (self):
+		return '%(allsrcdir)s/%(name)s-%(version)s'
+
+#	# FIXME: shared for all CVS packages
+	def builddir (self):
+		return '%(targetdir)s/build/%(name)s-%(version)s'
+
 	def compile (self):
 		d = self.get_substitution_dict ()
 		if (file_is_newer ('%(srcdir)s/config.make.in' % d,
@@ -320,6 +328,14 @@ cp /usr/include/FlexLexer.h %(builddir)s/lily/out-console/
 			self.configure ()
 		targetpackage.Target_package.compile (self)
 
+	def compile_command (self):
+		s = targetpackage.Target_package.compile_command (self)
+		if self.settings.lilypond_branch == 'lilypond_2_6':
+			# ugh, lilypond-2.6 has broken srcdir build system
+			# and gub is leaking all kind of vars.
+			s = 'unset builddir srcdir topdir;' + s
+		return s
+		
         def name_version (self):
 		# whugh
 		if os.path.exists (self.srcdir ()):
@@ -1061,6 +1077,22 @@ include $(GLSRCDIR)/pcwin.mak
 			   '%(builddir)s/Makefile',
 			   mode='a')
 
+	def install (self):
+		Ghostscript.install (self)
+		if self.settings.lilypond_branch != 'lilypond_2_6':
+			return
+		gs_prefix = '/usr/share/ghostscript/%(ghostscript_version)s'
+		fonts = ['c059013l', 'c059016l', 'c059033l', 'c059036l']
+		for i in self.read_pipe ('locate %s.pfb' % fonts[0]).split ('\n'):
+			dir = os.path.dirname (i)
+			if os.path.exists (dir + '/' + fonts[0] + '.afm'):
+				break
+		fonts_string = ','.join (fonts)
+		self.system ('''
+mkdir -p %(install_root)s/%(gs_prefix)s/fonts
+cp %(dir)s/{%(fonts_string)s}{.afm,.pfb} %(install_root)s/%(gs_prefix)s/fonts
+fc-cache %(install_root)s/%(gs_prefix)s/fonts
+''', locals ())
 
 class Libjpeg (targetpackage.Target_package):
 
@@ -1213,7 +1245,7 @@ def get_packages (settings):
 		Libpng (settings).with (version='1.2.8', mirror=download.libpng),
 		Ghostscript__darwin (settings).with (version="8.15.1", mirror=download.cups,
 						     format='bz2', depends=['libjpeg', 'libpng']),
-		LilyPond__darwin (settings).with (mirror=cvs.gnu, track_development=True,
+		LilyPond__darwin (settings).with (version=settings.lilypond_branch, mirror=cvs.gnu, track_development=True,
 						  depends=['pango', 'guile', 'gettext', 'fondu']
 						  ),
 	),
@@ -1252,7 +1284,7 @@ def get_packages (settings):
 		Ghostscript__mingw (settings).with (version="8.15.1", mirror=download.cups, format='bz2',
 						    depends=['mingw-runtime', 'libiconv', 'libjpeg',
 							     'libpng','zlib']),
-		LilyPond__mingw (settings).with (mirror=cvs.gnu,
+		LilyPond__mingw (settings).with (version=settings.lilypond_branch, mirror=cvs.gnu,
 						 depends=['mingw-runtime', 'fontconfig', 'gettext', 'guile', 'pango', 'python'], track_development=True),
 	],
 	'linux': [
@@ -1280,7 +1312,7 @@ def get_packages (settings):
 					depends=['zlib']),
 		Ghostscript (settings).with (version="8.15.1", mirror=download.cups, format='bz2',
 					     depends=['libjpeg', 'libpng', 'zlib']),
-		LilyPond__linux (settings).with (mirror=cvs.gnu,
+		LilyPond__linux (settings).with (version=settings.lilypond_branch, mirror=cvs.gnu,
 						 depends=['fontconfig', 'gettext', 'guile', 'pango', 'python'],
 						 track_development=True),
 	],
