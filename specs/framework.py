@@ -746,6 +746,8 @@ class Freetype (targetpackage.Target_package):
 
 		self.file_sub ([('^LIBTOOL=.*', 'LIBTOOL=%(builddir)s/libtool --tag=CXX')], '%(builddir)s/Makefile')
 
+
+		## FIXME: DLL is windows specific?
 		self.dump ('''
 # libtool will not build dll if -no-undefined flag is not present
 LDFLAGS:=$(LDFLAGS) -no-undefined
