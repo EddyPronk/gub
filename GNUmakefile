@@ -10,6 +10,7 @@ all: linux mingw mac
 # local.make should set the following variables:
 #
 #  LILYPOND_CVSDIR - a CVS HEAD working directory
+#  LILYPOND_BRANCH - the tag for this branch, or HEAD 
 #  BUILD_PLATFORM - the platform used for building.
 #
 
@@ -19,8 +20,8 @@ include $(LILYPOND_CVSDIR)/VERSION
 
 ##LILYPOND_BRANCH=$(strip $(patsubst $(shell cd $(LILYPOND_CVSDIR) && expr "$$(cvs status ChangeLog)" : '.*Sticky Tag: *\([^ ]*\)'),(none),HEAD))
 
-LILYPOND_BRANCH=$(shell cat $(LILYPOND_CVSDIR)/CVS/Tag 2> /dev/null \
- | sed s/^T// || echo HEAD)
+#LILYPOND_BRANCH=$(shell cat $(LILYPOND_CVSDIR)/CVS/Tag 2> /dev/null \
+# | sed s/^T// || echo HEAD)
 
 LILYPOND_VERSION=$(MAJOR_VERSION).$(MINOR_VERSION).$(PATCH_LEVEL)$(if $(strip $(MY_PATCH_LEVEL)),.$(MY_PATCH_LEVEL),)
 
