@@ -146,8 +146,6 @@ class Package_manager:
 			self.install_package (d)
 
 	def install_package (self, package):
-		if self.is_installed (package):
-			return
 
 		## packages may actually come from different managers.
 		## we only handle registered packages.
@@ -155,6 +153,10 @@ class Package_manager:
 			return
 		
 		self.install_dependencies (package)
+
+		## need to check deps, but do anything if package is already there.
+		if self.is_installed (package):
+			return
 		self.install_single_package (package)
 
 	def resolve_dependencies (self):
