@@ -56,7 +56,7 @@ class Gcc (Cross_package):
 	def install (self):
 		Cross_package.install (self)
 		self.system ('''
-cd %(install_root)s/usr/lib && ln -fs libgcc_s.1.so libgcc_s.so
+cd %(install_root)s/usr/lib && ln -fs libgcc_s.so.1 libgcc_s.so
 ''')
 
 
