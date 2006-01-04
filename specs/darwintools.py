@@ -39,7 +39,7 @@ class Rewirer (context.Os_context_wrapper):
 
 		libs = []
 		for l in lib_str.split ('\n'):
-			m = re.search (r"\s+(.*) \(.*\)" % o, l)
+			m = re.search (r"\s+(.*) \(.*\)", l)
 			if not m:
 				continue
 			if self.ignore_libs.has_key (m.group (1)):
@@ -50,24 +50,22 @@ class Rewirer (context.Os_context_wrapper):
 		return libs
 
 	def rewire_mach_o_object (self, name, substitutions):
-		for (o,d) in substitutions:
-			changes += (' -change %s %s ' % (o, d))		
-
-		if changes:
-			
-			self.system ("%(crossprefix)s/bin/%(target_architecture)s-install_name_tool %(changes)s %(name)s ",
-				     locals())
+		if not substitutions:
+			return
+		changes = ' '.join (['-change %s %s' % (o, d)for (o,d) in substitutions])
+		self.system ("%(crossprefix)s/bin/%(target_architecture)s-install_name_tool %(changes)s %(name)s ",
+			     locals())
 
 	def rewire_mach_o_object_executable_path (self, name):
 		orig_libs = ['/usr/lib']
 
-		libs = self.get_libaries()
+		libs = self.get_libaries (name)
 		subs = []
 		for l in libs:
 			for o in orig_libs:
 				if not re.search (o, l):
 					continue
-				newpath = re.sub (orig, '@executable_path/../lib/', l); 
+				newpath = re.sub (o, '@executable_path/../lib/', l); 
 				subs.append ((l, newpath))
 
 		self.rewire_mach_o_object (name, subs)
@@ -80,7 +78,7 @@ class Rewirer (context.Os_context_wrapper):
 		
 		for f in files:
 			if os.path.isfile (f):
-				self.rewire_mach_o_object(f)
+				self.rewire_mach_o_object_executable_path(f)
 		
 	def get_ignore_libs (self):
 		str = self.read_pipe ('tar tfz %(gub_uploads)s/darwin-sdk-0.1-1.darwin.gub')
