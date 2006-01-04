@@ -570,6 +570,16 @@ class LilyPond__darwin (LilyPond):
 				],
 			       '%(builddir)s/config.make')
 
+		h = open (self.expand ('%(builddir)s/config.hh'), 'a')
+		h.write ('''
+
+#ifdef HAVE_FLEXLEXER_YY_CURRENT_BUFFER
+#undef HAVE_FLEXLEXER_YY_CURRENT_BUFFER
+#endif
+#define HAVE_FLEXLEXER_YY_CURRENT_BUFFER 1
+
+''')
+
 	def untar (self):
 		pass
 
@@ -631,8 +641,6 @@ gl_cv_func_mbrtowc=${gl_cv_func_mbrtowc=no}
 jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
 '''
 
-##
-## todo program_name=0 patch.
 class Gettext__darwin (Gettext):
 	def xconfigure_command (self):
 		## not necessary for 0.14.1
