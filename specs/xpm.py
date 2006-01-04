@@ -61,6 +61,9 @@ class Package_manager:
 		return self._read_file_list (package)
 
 	def uninstall_package (self, package):
+		if package not in self._packages.values ():
+			return
+		
 		for (nm, p) in self._packages.items():
 			if (package.name () in p.dependencies
 			    and self.is_installed (p)):
@@ -144,6 +147,11 @@ class Package_manager:
 
 	def install_package (self, package):
 		if self.is_installed (package):
+			return
+
+		## packages may actually come from different managers.
+		## we only handle registered packages.
+		if package not in self._packages.values ():
 			return
 		
 		self.install_dependencies (package)
