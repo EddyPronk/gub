@@ -1155,9 +1155,6 @@ class Libpng__mingw (Libpng):
 		self.autoupdate ()
 		Libpng.configure (self)
 
-class Freebsd_runtime (gub.Binary_package):
-	pass
-
 class Libgnugetopt (targetpackage.Target_package):
 	def patch (self):
 		self.dump ('''
@@ -1220,10 +1217,6 @@ def get_packages (settings):
 						  ),
 	),
 	'mingw': [
-		Mingw_runtime (settings).with (version='3.9', mirror=download.mingw),
-		Cygwin (settings).with (version='1.5.18-1', mirror=download.cygwin, format='bz2',
-					depends=['mingw-runtime']),
-		W32api (settings).with (version='3.5', mirror=download.mingw),
 		Regex (settings).with (version='2.3.90-1', mirror=download.lp, format='bz2',
 				       depends=['mingw-runtime']),
 		LilyPad (settings).with (version='0.0.7-1', mirror=download.lp, format='bz2',
@@ -1290,19 +1283,17 @@ def get_packages (settings):
 						 depends=['fontconfig', 'gettext', 'guile', 'pango', 'python'],
 						 track_development=True),
 	],
-	# FIXME: c&p from linux, + Freebsd_runtime package and deps.
 	'freebsd': [
-		Freebsd_runtime (settings).with (version='4.10', mirror=download.jantien),
 		Libiconv (settings).with (version='1.9.2',
-					  depends=['freebsd-runtime', 'gettext', 'libtool']),
+					  depends=['gettext', 'libtool']),
 		Libgnugetopt (settings).with (version='1.3', format='bz2', mirror=download.freebsd_ports,
-					      depends=['freebsd-runtime']),
+					      depends=[]),
 		Gettext__freebsd (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2',
-						  depends=['freebsd-runtime', 'libtool']),
+						  depends=['libtool']),
 		Guile__freebsd (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2',
-						depends=['freebsd-runtime', 'gettext', 'gmp', 'libtool']),
+						depends=['gettext', 'gmp', 'libtool']),
 		Python__freebsd (settings).with (version='2.4.2', mirror=download.python, format='bz2',
-					       depends=['freebsd-runtime']),
+					       depends=[]),
 	],
 	}
 
