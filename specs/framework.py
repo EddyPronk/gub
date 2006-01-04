@@ -888,39 +888,6 @@ cd %(builddir)s && %(zlib_is_broken)s AR="%(AR)s r" %(srcdir)s/configure --share
 	def install_command (self):
 		return targetpackage.Target_package.broken_install_command (self)
 
-# UGH: MI
-class Mingw_runtime (gub.Binary_package, gub.Sdk_package):
-	def untar (self):
-		gub.Binary_package.untar (self)
-		self.system ('mkdir -p %(srcdir)s/root/usr')
-		self.system ('cd %(srcdir)s/root && mv * usr',
-			     ignore_error=True)
-
-class Cygwin (gub.Binary_package):
-	"Only need the cygcheck.exe binary."
-
-	def untar (self):
-		gub.Binary_package.untar (self)
-
-		file = self.expand ('%(srcdir)s/root/usr/bin/cygcheck.exe')
-		cygcheck = open (file).read ()
-		self.system ('rm -rf %(srcdir)s/root')
-		self.system ('mkdir -p %(srcdir)s/root/usr/bin/')
-		open (file, 'w').write (cygcheck)
-
-	def basename (self):
-		f = gub.Binary_package.basename (self)
-		f = re.sub ('-1$', '', f)
-		return f
-
-# UGH: MI
-class W32api (gub.Binary_package, gub.Sdk_package):
-	def untar (self):
-		gub.Binary_package.untar (self)
-		self.system ('mkdir -p %(srcdir)s/root/usr')
-		self.system ('cd %(srcdir)s/root && mv * usr',
-			     ignore_error=True)
-
 class Regex (targetpackage.Target_package):
 	pass
 
