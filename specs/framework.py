@@ -157,8 +157,9 @@ class Guile (targetpackage.Target_package):
 
 	def install (self):
 		targetpackage.Target_package.install (self)
+		## can't assume that /usr/bin/guile is the right one.
 		version = self.read_pipe ('''\
-GUILE_LOAD_PATH=%(install_prefix)s/share/guile/* %(install_prefix)s/bin/guile-config --version 2>&1\
+GUILE_LOAD_PATH=%(install_prefix)s/share/guile/* guile -e main -s  %(install_prefix)s/bin/guile-config --version 2>&1\
 ''').split ()[-1]
 		self.dump ('''\
 #!/bin/sh

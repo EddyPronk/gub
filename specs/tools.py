@@ -34,7 +34,7 @@ def get_packages (settings):
 					    mirror=download.freedesktop),
 		Guile (settings).with (version='1.6.7',
 				       mirror=download.gnu, format='gz',
- 				       depends=[]
+ 
 				       ),
 		]}
 
