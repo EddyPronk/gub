@@ -559,7 +559,7 @@ class LilyPond__darwin (LilyPond):
 		self.file_sub ([('CONFIG_CXXFLAGS = ',
 				 'CONFIG_CXXFLAGS = -DGUILE_ELLIPSIS=... '),
 #				(' -O2 ', '')
-				(' -g ', '')
+				(' -g ', ' ')
 				],
 			       '%(builddir)s/config.make')
 
