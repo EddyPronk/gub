@@ -17,13 +17,6 @@ def file_is_newer (f1, f2):
 		or os.stat (f1).st_mtime >  os.stat (f2).st_mtime)
 
 
-class Darwin_sdk (gub.Sdk_package):
-	def patch (self):
-		pat = self.expand ('%(srcdir)s/usr/lib/*.la')
-
-		for a in glob.glob (pat):
-			self.file_sub ([(r' (/usr/lib/.*\.la)', r'%(system_root)s\1')], a)
-
 
 class Fondu (targetpackage.Target_package):
 	pass
@@ -1221,8 +1214,6 @@ shtool mkshadow %(srcdir)s %(builddir)s
 def get_packages (settings):
 	packages = {
 	'darwin': (
-		Darwin_sdk (settings).with (version='0.1', mirror=download.hw,
-					    format='gz'),
 		Gettext (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2',
 					 depends=['darwin-sdk']
 					 ),
