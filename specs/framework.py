@@ -345,7 +345,7 @@ cp /usr/include/FlexLexer.h %(builddir)s/lily/out-console/
 		if (file_is_newer (self.expand ('%(autodir)s/configure.in', locals ()),
 				   self.expand ('%(builddir)s/config.make',locals ()))
 		    or file_is_newer (self.expand ('%(autodir)s/stepmake/aclocal.m4', locals ()),
-				      self.expand ('%(builddir)s/config.make', locals ()))):
+				      self.expand ('%(autodir)s/configure', locals ()))):
 			self.system ('''
 			cd %(autodir)s && bash autogen.sh --noconfigure
 			''', locals ())
