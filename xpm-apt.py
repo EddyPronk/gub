@@ -39,7 +39,7 @@ class Options:
 		self.tool_p = 0
 		self.command = 'help'
 		self.packagename = 0
-
+		self.build_platform = 'linux'
 		self.read_xpm_rc ()
 		self.get_options ()
 

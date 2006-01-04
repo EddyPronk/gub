@@ -26,7 +26,7 @@ INVOKE_DRIVER=python driver.py \
 --installer-version=$(LILYPOND_VERSION) \
 --installer-build=1 \
 $(LOCAL_DRIVER_OPTIONS)
-INVOKE_XPM=python xpm-apt.py --platform $(1) 
+INVOKE_XPM=python xpm-apt.py --build-platform=$(BUILD_PLATFORM) --platform $(1) 
 
 BUILD_ALL=$(call INVOKE_DRIVER, $(1)) -t build all \
   && $(call INVOKE_XPM, $(1)) -t install all \
