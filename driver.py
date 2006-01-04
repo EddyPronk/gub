@@ -18,15 +18,18 @@ import settings as settings_mod
 import xpm
 
 def build_package (settings, manager, package):
+	if manager.is_installed (package):
+		return
+	
 	settings.os_interface.log_command (package.expand (' ** Package: %(name)s (%(version)s, %(build)s)\n'))
 
 	deps = package.build_dependencies + package.dependencies
 	for d in deps:
+		settings.os_interface.log_command ('building dependency: ' + d.name ()
+						   + ' for package: ' + package.name ()
+						   + '\n')
+		build_package (settings, manager, d)
 		if not manager.is_installed (d):
-			settings.os_interface.log_command ('building dependency: ' + d.name ()
-							   + ' for package: ' + package.name ()
-							   + '\n')
-			build_package (settings, manager, d)
 			manager.install_package (d)
 
 	stages = ['untar', 'patch', 'configure', 'compile', 'install',
