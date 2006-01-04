@@ -559,6 +559,7 @@ class LilyPond__darwin (LilyPond):
 		self.file_sub ([('CONFIG_CXXFLAGS = ',
 				 'CONFIG_CXXFLAGS = -DGUILE_ELLIPSIS=... '),
 #				(' -O2 ', '')
+## ugh. this will break if other progs use -g too
 				(' -g ', ' ')
 				],
 			       '%(builddir)s/config.make')
@@ -1104,27 +1105,24 @@ class Libjpeg (targetpackage.Target_package):
 	def configure_command (self):
 		return re.sub ('--config-cache', '--cache-file=config.cache',
 			       targetpackage.Target_package.configure_command (self))
+	
+
+	def update_libtool (self):
+		self.system ('''
+cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh %(target_architecture)s'''
+			     , locals ())
+		
+		targetpackage.Target_package.update_libtool (self)
 
 	def configure (self):
-		guess = self.locate_files ('config.guess')[0]
-		sub = self.locate_files ('config.sub')[0]
-		self.system ('''
-cp -pv %(guess)s %(srcdir)s
-cp -pv %(sub)s %(srcdir)s
-''', locals ())
-		
+		guess = self.expand ('%(system_root)s/usr/share/libtool/config.guess')
+		sub = self.expand ('%(system_root)s/usr/share/libtool/config.sub')
+		for file in sub,guess:
+			if os.path.exists (file):
+				self.system ('cp -pv %(file)s %(srcdir)s',  locals ())
+
 		targetpackage.Target_package.configure (self)
-
-		arch = self.settings.target_architecture
-		#FIXME:
-		if self.settings.platform == 'darwin':
-			arch = 'powerpc-apple'
-		self.system ('''
-cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh %(arch)s'''
-			     , locals ())
-
 		self.update_libtool ()
-
 		self.file_sub (
 			[
 			(r'(\(INSTALL_[A-Z]+\).*) (\$[^ ]+)$',
@@ -1137,6 +1135,14 @@ cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh 
 mkdir -p %(install_root)s/usr/include %(install_root)s/usr/lib
 && make DESTDIR=%(install_root)s install-headers install-lib
 ''')
+
+class Libjpeg__darwin (Libjpeg):
+	def update_libtool (self):
+		arch = 'powerpc-apple'
+		self.system ('''
+cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh %(arch)s
+''', locals ())
+		targetpackage.Target_package.update_libtool (self)
 
 class Libjpeg__mingw (Libjpeg):
 	def configure (self):
@@ -1238,7 +1244,7 @@ def get_packages (settings):
 		Guile__darwin (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2',
 					       depends=['gmp','darwin-sdk']
 					       ),
-		Libjpeg (settings).with (version='v6b', mirror=download.jpeg),
+		Libjpeg__darwin (settings).with (version='v6b', mirror=download.jpeg),
 		Libpng (settings).with (version='1.2.8', mirror=download.libpng),
 		Ghostscript__darwin (settings).with (version="8.15.1", mirror=download.cups,
 						     format='bz2', depends=['libjpeg', 'libpng']),
