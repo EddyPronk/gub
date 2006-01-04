@@ -280,7 +280,8 @@ rm -rf %(srcdir)s %(builddir)s %(install_root)s
 tar %(flags)s %(tarball)s -C %(allsrcdir)s
 ''',
 			     locals ())
-
+		self.system ('cd %(srcdir)s && chmod +w -R .')
+						 
 	def with (self, version='HEAD', mirror=download.gnu,
 		  format='gz', depends=[],
 		  track_development=False
