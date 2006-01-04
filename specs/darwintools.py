@@ -134,6 +134,14 @@ def get_packages (settings):
 
 def change_target_packages (packages):
 	cross.change_target_packages (packages)
+	for p in packages:
+		gub.change_target_dict (p, {
+
+			## We get a lot of /usr/lib/ -> @executable_path/../lib/
+			## we need enough space in the header to do these relocs.
+			'LDFLAGS': '-Wl,-headerpad_max_install_names '
+			})
+
 	
 def get_darwin_sdk ():
 	host  = 'maagd'
