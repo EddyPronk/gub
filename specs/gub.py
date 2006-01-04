@@ -197,6 +197,8 @@ cd %(builddir)s && %(configure_command)s
 ''')
 
 	def update_libtool (self):
+		## UHG: broken, doesn't  barf if cp fails.
+		## UGH: depends on libtool.
 		self.system ('''find %(builddir)s -name libtool -exec cp -pv %(system_root)s/usr/bin/libtool \{\} \;''')
 
 	def install (self):

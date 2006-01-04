@@ -87,7 +87,7 @@ tooldir=%(install_prefix)s
 			'NM': '%(tool_prefix)snm',
 			'PKG_CONFIG_PATH': '%(system_root)s/usr/lib/pkgconfig',
 			'PATH': '%(crossprefix)s/bin:%(tooldir)s/bin:' + os.environ['PATH'],
-			'PKG_CONFIG': '''%(tooldir)s/bin/pkg-config \
+			'PKG_CONFIG': '''pkg-config \
 --define-variable prefix=%(system_root)s/usr \
 --define-variable includedir=%(system_root)s/usr/include \
 --define-variable libdir=%(system_root)s/usr/lib \
