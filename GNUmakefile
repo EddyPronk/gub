@@ -10,6 +10,7 @@ all: linux mingw mac
 # local.make should set the following variables:
 #
 #  LILYPOND_CVSDIR - a CVS HEAD working directory
+#  BUILD_PLATFORM - the platform used for building.
 #
 
 include local.make
@@ -20,9 +21,10 @@ include $(LILYPOND_CVSDIR)/VERSION
 LILYPOND_VERSION=$(MAJOR_VERSION).$(MINOR_VERSION).$(PATCH_LEVEL)$(if $(strip $(MY_PATCH_LEVEL)),.$(MY_PATCH_LEVEL),)
 
 INVOKE_DRIVER=python driver.py \
---platform $(1) \
---package-version=$(LILYPOND_VERSION) \
---package-build=1 \
+--target-platform $(1) \
+--build-platform=$(BUILD_PLATFORM) \
+--installer-version=$(LILYPOND_VERSION) \
+--installer-build=1 \
 $(LOCAL_DRIVER_OPTIONS)
 INVOKE_XPM=python xpm-apt.py --platform $(1) 
 

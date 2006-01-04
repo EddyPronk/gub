@@ -65,8 +65,8 @@ def build_package (settings, manager, package):
 			if stage != 'clean':
 				package.set_done (stage, stages.index (stage))
 
-def get_settings (platform):
-	settings = settings_mod.Settings (platform)
+def get_settings (platform, build_platform):
+	settings = settings_mod.Settings (platform, build_platform)
 	settings.build_number_db = buildnumber.Build_number_db (settings.topdir)
 	
 	if platform == 'darwin':
@@ -85,11 +85,12 @@ def get_settings (platform):
 def add_options (settings, options):
 	for o in options.settings:
 		(key, val) = tuple (o.split ('='))
+		key = re.sub ('[^a-z0-9_A-Z]','_', key)
 		settings.__dict__[key] = val
 
 	settings.options = options
-	settings.bundle_version = options.package_version
-	settings.bundle_build = options.package_build
+	settings.bundle_version = options.installer_version
+	settings.bundle_build = options.installer_build
 	settings.use_tools = options.use_tools
 	settings.create_dirs ()
 	
@@ -127,16 +128,22 @@ package-installer - build installer binary
 				   description="Grand Unified Builder.  Specify --package-version to set build version")
 	p.add_option ('-V', '--verbose', action='store_true', 
 		      dest="verbose")
-	p.add_option ('', '--package-version', action='store',
-		      dest="package_version")
-	p.add_option ('', '--package-build', action='store',
-		      dest="package_build")
-	p.add_option ('-p', '--platform', action='store',
+	p.add_option ('', '--installer-version', action='store',
+		      dest="installer_version")
+	p.add_option ('', '--installer-build', action='store',
+		      dest="installer_build")
+	p.add_option ('-p', '--target-platform', action='store',
 		      dest="platform",
 		      type='choice',
 		      default=None,
-		      help='select platform',
+		      help='select target platform',
 		      choices=['darwin', 'freebsd', 'linux', 'mingw'])
+	p.add_option ('-b', '--build-platform', action='store',
+		      dest="build_platform",
+		      type='choice',
+		      default='linux',
+		      help='select build platform',
+		      choices=['darwin', 'linux'])
 	p.add_option ('-s', '--setting', action='append',
 		      dest="settings",
 		      type='string',
@@ -217,7 +224,7 @@ def main ():
 		cli_parser.print_help ()
 		sys.exit (2)
 	
-	settings = get_settings (options.platform)
+	settings = get_settings (options.platform, options.build_platform)
 	add_options (settings, options)
 	tool_manager, target_manager = xpm.get_managers (settings)
 

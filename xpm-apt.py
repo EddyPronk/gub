@@ -32,7 +32,7 @@ class Options:
 		self.config = self.ROOT + '/etc/xpm'
 		self.mirror = 'file://uploads/gub'
 		self.rc_options = ['platform', 'PLATFORM', 'ROOT', 'mirror',
-				   'distname']
+				   'build-platform', 'distname']
 		self.rc_file = '.xpm-apt.rc'
 		self.name_p = 0
 		self.nodeps_p = 0
@@ -46,12 +46,13 @@ class Options:
 	def get_options (self):
 		import getopt
 		(options, arguments) = getopt.getopt (sys.argv[1:],
-							   'hm:np:r:tx',
+							   'hm:np:r:tb:x',
 							   (
 			'help',
 			'mirror=',
 			'name',
 			'platform=',
+			'build-platform=',
 			'no-deps',
 			'root=',
 			'tool'
@@ -82,6 +83,8 @@ class Options:
 			elif o == '--platform' or o == '-p':
 				self.platform = a
 				self.ROOT = ''
+			elif o == '--build-platform' or o == '-b':
+				self.build_platform = a
 			elif o == '--name' or o == '-n':
 				self.name_p = 1
 			elif o == '--no-deps' or o == '-x':
@@ -210,7 +213,7 @@ def main ():
 		print 'need platform setting. Use -p option'
 		sys.exit (1)
 		
-	settings = settings_mod.Settings (options.platform)
+	settings = settings_mod.Settings (options.platform, options.build_platform)
 	if not options.ROOT:
 		options.ROOT = ('target/%(target_architecture)s/system'
 				% settings.__dict__)
@@ -220,6 +223,7 @@ def main ():
 		import buildnumber
 		settings.build_number_db = buildnumber.Build_number_db (settings.topdir)
 		settings.framework_dir = 'FUBAR'
+
 
 	tool_manager, target_manager = xpm.get_managers (settings)
 

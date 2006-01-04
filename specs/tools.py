@@ -20,9 +20,25 @@ tar -C %(install_root)s/usr -zcf %(gub_uploads)s/%(gub_name)s .
 class Pkg_config (Tool_package):
 	pass
 
+class Guile (Tool_package):
+	pass
+
+class Gmp (Tool_package):
+	pass
+
 def get_packages (settings):
-	return (
+	packages_dict = {
+		'linux': [],
+		'darwin': [
 		Pkg_config (settings).with (version="0.20",
-						  mirror=download.freedesktop),
-	
-		)
+					    mirror=download.freedesktop),
+		Guile (settings).with (version='1.6.7',
+				       mirror=download.gnu, format='gz',
+ 				       depends=[]
+				       ),
+		]}
+
+
+	return packages_dict[settings.build_platform]
+
+

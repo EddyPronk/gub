@@ -6,7 +6,7 @@ import gub
 from context import *
 
 class Settings (Context):
-	def __init__ (self, platform):
+	def __init__ (self, platform, build_platform):
 		Context.__init__ (self)
 		self.platform = platform
 		self.target_architecture = {
@@ -22,7 +22,7 @@ class Settings (Context):
 		self.patchdir = self.topdir + '/patches'
 		self.os_interface = Os_commands ('build-%s.log'
 						 % self.target_architecture)
-		
+		self.build_platform = build_platform
 		self.build_architecture = self.os_interface.read_pipe ('gcc -dumpmachine',
 							 silent=True)[:-1]
 		self.specdir = self.topdir + '/specs'
