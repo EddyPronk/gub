@@ -1,3 +1,4 @@
+import re
 import gub
 import download
 import misc
@@ -26,6 +27,14 @@ class Guile (Tool_package):
 class Gmp (Tool_package):
 	pass
 
+class Flex (Tool_package):
+	def srcdir (self):
+		return '%(allsrcdir)s/flex-2.5.4'
+
+	def install_command (self):
+		return self.broken_install_command ()
+		
+
 def get_packages (settings):
 	packages_dict = {
 		'linux': [],
@@ -36,6 +45,8 @@ def get_packages (settings):
 				       mirror=download.gnu, format='gz',
  
 				       ),
+		Flex (settings).with (version="2.5.4a",
+				      mirror=download.nongnu, format='gz')
 		]}
 
 
