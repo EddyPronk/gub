@@ -41,11 +41,12 @@ class Flex (Tool_package):
 
 class Nsis (Tool_package):
 	def compile (self): 
-		env = os.environ.copy()
-		env['PATH'] = '%(topdir)s/i686-mingw32/system/usr/cross/bin:' + env['PATH']
-		self.system ('cd %(builddir)s/ && make -C Source POSSIBLE_CROSS_PREFIXES=i686-mingw32- ')
+		env = {}
+		env['PATH'] = '%(topdir)s/i686-mingw32/system/usr/cross/bin:' + os.environ['PATH']
+		self.system ('cd %(builddir)s/ && make -C Source POSSIBLE_CROSS_PREFIXES=i686-mingw32- ', env)
 			     
 	def patch (self):
+		self.system ("mkdir -p %(builddir)s", ignore_error=True) 
 		self.system ('rm -rf %(builddir)s && ln -s %(srcdir)s %(builddir)s')
 		
 	def srcdir (self):
