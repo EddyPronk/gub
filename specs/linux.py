@@ -23,8 +23,14 @@ class Libc6_dev (gub.Binary_package, gub.Sdk_package):
 		gub.Binary_package.untar (self)
 		# Ugh, rewire absolute names and symlinks.
 		# Better to create relative ones?
-		self.file_sub ([(' /', ' %(system_root)s/')],
-			       '%(srcdir)s/root/usr/lib/libc.so')
+
+		# FIXME: this rewiring breaks ld badly, it says
+		#     i686-linux-ld: cannot find /home/janneke/bzr/gub/target/i686-linux/system/lib/libc.so.6 inside /home/janneke/bzr/gub/target/i686-linux/system/
+		# although that file exists.  Possibly rewiring is not necessary,
+		# but we can only check on non-linux platform.
+		# self.file_sub ([(' /', ' %(system_root)s/')],
+		#	       '%(srcdir)s/root/usr/lib/libc.so')
+
 		for i in glob.glob (self.expand ('%(srcdir)s/root/usr/lib/lib*.so')):
 			if os.path.islink (i):
 				s = os.readlink (i)
