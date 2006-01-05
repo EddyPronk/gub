@@ -293,22 +293,30 @@ tar -C %(install_root)s -zcf %(gub_uploads)s/%(gub_name)s .
 
 		self.system ('''rm -rf %(srcdir)s %(builddir)s''', locals ())
 
-	def untar (self):
-		if self.track_development:
-			return
-		
+	def _untar (self, dir):
 		tarball = self.expand("%(downloaddir)s/%(file_name)s")
 		if not os.path.exists (tarball):
 			raise 'no such file: ' + tarball
-		flags = download.untar_flags (tarball)
-		
-		# clean up
 		self.system ('''
 rm -rf %(srcdir)s %(builddir)s %(install_root)s
-tar %(flags)s %(tarball)s -C %(allsrcdir)s
-''',
-			     locals ())
+''')
 
+		if self.format == 'deb':
+			self.system ('''
+ar p %(tarball)s data.tar.gz | tar -C %(dir)s -zxf-
+''',
+				     locals ())
+		else:
+			flags = download.untar_flags (tarball)
+			self.system ('''
+tar -C %(dir)s %(flags)s %(tarball)s
+''',
+				     locals ())
+
+	def untar (self):
+		if self.track_development:
+			return
+		self._untar ('%(allsrcdir)s')
 
 ## FIXME what was this for? --hwn
 ##		self.system ('cd %(srcdir)s && chmod -R +w .')
@@ -329,16 +337,11 @@ tar %(flags)s %(tarball)s -C %(allsrcdir)s
 		## generating the dict until we're sure it doesn't change. 
 
 		return self
+
 class Binary_package (Package):
 	def untar (self):
-		self.system ('rm -rf %(srcdir)s %(builddir)s %(install_root)s')
 		self.system ('mkdir -p %(srcdir)s/root')
-		tarball = self.expand ('%(downloaddir)s/%(file_name)s')
-		if not os.path.exists (tarball):
-			raise 'no such file: ' + tarball
-		flags = download.untar_flags (tarball)
-		
-		self.system ('tar %(flags)s %(tarball)s -C %(srcdir)s/root', locals ())
+		self._untar ('%(srcdir)s/root')
 
 	def configure (self):
 		pass
@@ -376,6 +379,7 @@ class Null_package (Package):
 class Sdk_package (Null_package):
 	def untar (self):
 		Package.untar (self)
+
 	def package (self):
 		self.system ('tar -C %(srcdir)s/ -czf %(gub_uploads)s/%(gub_name)s .')
 
