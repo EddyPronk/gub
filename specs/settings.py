@@ -38,7 +38,7 @@ class Settings (Context):
 		## architecture separately.
 		self.allsrcdir = os.path.join (self.targetdir, 'src')
 		
-		self.builddir = self.targetdir + '/build'
+		self.allbuilddir = self.targetdir + '/build'
 		self.statusdir = self.targetdir + '/status'
 
 		## Safe uploads, so that we can rm -rf target/*
@@ -63,7 +63,7 @@ class Settings (Context):
 		self.package_arch = re.sub ('-.*', '', self.build_architecture)
 		self.keep_build = False
 		self.use_tools = False
-		self.build_autopackage = self.builddir + '/autopackage'
+		self.build_autopackage = self.allbuilddir + '/autopackage'
 		
 	def verbose (self):
 		try:

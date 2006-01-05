@@ -111,7 +111,7 @@ cd %(srcdir)s && cvs -q update -dAP -r %(version)s
 
 	@subst_method
 	def builddir (self):
-		return self.settings.builddir + '/' + self.basename ()
+		return self.settings.allbuilddir + '/' + self.basename ()
 
 	@subst_method
 	def install_root (self):
