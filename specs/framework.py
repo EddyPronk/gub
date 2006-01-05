@@ -293,6 +293,9 @@ class LilyPond (targetpackage.Target_package):
 	def configure (self):
 		self.autoupdate ()
 
+		flex_loc = self.read_pipe ('which flex')
+		flex_include_path = os.path.split (flex_loc)[0] + "/../include"
+
 		# URG.
 		gub.Package.system (self, '''
 mkdir -p %(builddir)s
@@ -300,11 +303,11 @@ cp /usr/include/FlexLexer.h %(builddir)s/
 ## URGURG
 mkdir -p %(builddir)s/lily/out
 mkdir -p %(builddir)s/lily/out-console
-cp /usr/include/FlexLexer.h %(system_root)s/usr/include
-cp /usr/include/FlexLexer.h %(builddir)s/lily/out/
-cp /usr/include/FlexLexer.h %(builddir)s/../
-cp /usr/include/FlexLexer.h %(builddir)s/lily/out-console/
-''')
+cp %(flex_include_path)s/FlexLexer.h %(system_root)s/usr/include
+cp %(flex_include_path)s/FlexLexer.h %(builddir)s/lily/out/
+cp %(flex_include_path)s/FlexLexer.h %(builddir)s/../
+cp %(flex_include_path)s/FlexLexer.h %(builddir)s/lily/out-console/
+''', locals ())
 		targetpackage.Target_package.configure (self)
 
 	# FIXME: shared for all CVS packages
@@ -1296,7 +1299,7 @@ def get_packages (settings):
 		Zlib (settings).with (version='1.2.2-1', mirror=download.lp, format='bz2'),
 		Gettext (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2',
 					 depends=['libtool']),
-		Freetype (settings).with (version='2.1.10', mirror=download.nongnu,
+		Freetype (settings).with (version='2.1.10', mirror=download.nongnu_savannah,
 					  depends=['libtool', 'zlib']),
 		Expat (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2'),
 		Fontconfig__linux (settings).with (version='2.3.2', mirror=download.fontconfig,
