@@ -69,7 +69,7 @@ mingw:
 	$(call BUILD_ALL,$@) 
 
 distclean:
-	rm -rf target uploads
+	rm -rf target $(foreach p, $(PLATFORMS), uploads/$(p)/*)
 
 sources = GNUmakefile $(wildcard *.py specs/*.py)
 
