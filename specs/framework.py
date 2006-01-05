@@ -1350,6 +1350,7 @@ def get_packages (settings):
 		Python__freebsd (settings).with (version='2.4.2', mirror=download.python, format='bz2',
 					       depends=[]),
 	],
+	'local': [],
 	}
 
 	packs = packages[settings.platform]
@@ -1385,10 +1386,16 @@ def get_packages (settings):
 		
 		# UGH darwin has no python package.
 		settings.python_version = '2.3'
-		
-	settings.guile_version = [p for p in packs
-				  if isinstance (p, Guile)][0].guile_version ()
-	settings.ghostscript_version = [p for p in packs
-					if isinstance (p, Ghostscript)][0].ghostscript_version ()
 
+	try:
+		settings.guile_version = [p for p in packs
+			if isinstance (p, Guile)][0].guile_version ()
+	except IndexError:
+		pass
+	
+	try:
+		settings.ghostscript_version = [p for p in packs
+			if isinstance (p, Ghostscript)][0].ghostscript_version ()
+	except IndexError:
+		pass
 	return packs
