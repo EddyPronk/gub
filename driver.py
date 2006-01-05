@@ -117,18 +117,6 @@ def add_options (settings, options):
 
 def get_cli_parser ():
 	p = optparse.OptionParser ()
-	p.add_option ('-B', '--branch', action='store',
-		      dest="lilypond_branch",
-		      type='choice',
-		      default='HEAD',
-		      help='select lilypond branch [HEAD]',
-		      choices=['lilypond_2_6', 'HEAD'])
-	p.add_option ('-b', '--build-platform', action='store',
-		      dest="build_platform",
-		      type='choice',
-		      default='linux',
-		      help='select build platform [linux]',
-		      choices=['darwin', 'linux'])
 
 # WTF, how to get help option to show in right order?
 #	p.add_option ('-h', '--help',
@@ -145,9 +133,23 @@ package-installer - build installer binary
 """
 	p.description="Grand Unified Builder.  Specify --package-version to set build version"
 
+	p.add_option ('-B', '--branch', action='store',
+		      dest="lilypond_branch",
+		      type='choice',
+		      default='HEAD',
+		      help='select lilypond branch [HEAD]',
+		      choices=['lilypond_2_6', 'HEAD'])
+	p.add_option ('-b', '--build-platform', action='store',
+		      dest="build_platform",
+		      type='choice',
+		      default='linux',
+		      help='select build platform [linux]',
+		      choices=['darwin', 'linux'])
 	p.add_option ('', '--installer-version', action='store',
+		      default="0.0.0",
 		      dest="installer_version")
 	p.add_option ('', '--installer-build', action='store',
+		      default="0",
 		      dest="installer_build")
 	p.add_option ('-k', '--keep', action='store_true',
 		      dest="keep_build",
