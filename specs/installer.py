@@ -164,9 +164,6 @@ class Nsis (Installer):
 		self.strip_command += ' -g '
 		self.no_binary_strip = ['gsdll32.dll', 'gsdll32.lib']
 
-	def strip (self):
-		pass
-
 	def create (self):
 		Installer.create (self)
 		
