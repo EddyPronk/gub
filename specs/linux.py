@@ -26,14 +26,12 @@ class Libc6_dev (gub.Binary_package, gub.Sdk_package):
 		self.file_sub ([(' /', ' %(system_root)s')],
 			       '%(srcdir)s/root/usr/lib/libc.so')
 		for i in glob.glob (self.expand ('%(srcdir)s/root/usr/lib/lib*.so')):
-			print 'glob: ' + i
 			if os.path.islink (i):
-				print 'link: ' + i
 				s = os.readlink (i)
 				if s.startswith ('/'):
-					print 'relinking to: ' + self.system_root + s
 					os.remove (i)
-					os.symlink (i, self.system_root + s)
+					os.symlink (self.settings.system_root
+						    + s, i)
 
 def get_packages (settings):
 	packages = [
