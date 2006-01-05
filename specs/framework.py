@@ -1195,6 +1195,9 @@ class Libpng__mingw (Libpng):
 		self.autoupdate ()
 		Libpng.configure (self)
 
+class OSX_Lilypad (gub.Null_package):
+	pass
+
 class Libgnugetopt (targetpackage.Target_package):
 	def patch (self):
 		self.dump ('''
@@ -1255,6 +1258,7 @@ def get_packages (settings):
 		LilyPond__darwin (settings).with (version=settings.lilypond_branch, mirror=cvs.gnu, track_development=True,
 						  depends=['pango', 'guile', 'gettext', 'fondu']
 						  ),
+		OSX_Lilypad (settings).with (version="0.0", mirror=download.hw, depends=['lilypond']),
 	),
 	'mingw': [
 		Regex (settings).with (version='2.3.90-1', mirror=download.lp, format='bz2',
