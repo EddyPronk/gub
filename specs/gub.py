@@ -80,7 +80,7 @@ cd %(srcdir)s && cvs -q update -dAP -r %(version)s
 
 
 	@subst_method
-	def file_name(self):
+	def file_name (self):
 		file = re.sub ('.*/([^/]+)', '\\1', self.url)
 		file = file.lower ()
 		return file

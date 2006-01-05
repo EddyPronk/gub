@@ -38,6 +38,10 @@ class Libc6_dev (gub.Binary_package, gub.Sdk_package):
 					os.remove (i)
 					os.symlink (self.settings.system_root
 						    + s, i)
+		for i in ('pthread.h', 'bits/sigthread.h'):
+			self.file_sub ([('__thread', '___thread')],
+				       '%(srcdir)s/root/usr/include/%(i)s',
+				       env=locals ())
 
 class Linux_kernel_headers (gub.Binary_package, gub.Sdk_package):
 	pass
