@@ -45,8 +45,6 @@ class Installer (context.Os_context_wrapper):
 			'bin/gspawn-win32-helper-console*',
 			'bin/msg*',
 			'bin/pango-querymodules*',
-			'bin/python*',
-			'bin/python%(python_version)s*',
 			'bin/xmlwf',
 			'cross',
 			'doc',
