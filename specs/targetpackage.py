@@ -17,28 +17,6 @@ class Target_package (gub.Package):
 --libdir=/usr/lib
 ''')
 
-	def broken_install_command (self):
-		"""For packages that do not honor DESTDIR.
-		"""
-
-		# FIXME: use sysconfdir=%(install_PREFIX)s/etc?  If
-		# so, must also ./configure that way
-		return misc.join_lines ('''make install
-bindir=%(install_prefix)s/bin
-aclocaldir=%(install_prefix)s/share/aclocal
-datadir=%(install_prefix)s/share
-exec_prefix=%(install_prefix)s
-gcc_tooldir=%(install_prefix)s
-includedir=%(install_prefix)s/include
-infodir=%(install_prefix)s/share/info
-libdir=%(install_prefix)s/lib
-libexecdir=%(install_prefix)s/lib
-mandir=%(install_prefix)s/share/man
-prefix=%(install_prefix)s
-sysconfdir=%(install_prefix)s/etc
-tooldir=%(install_prefix)s
-''')
-
 
 	## UGH. only for cross!
 	def config_cache_overrides (self, str):
