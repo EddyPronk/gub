@@ -141,12 +141,6 @@ package-installer - build installer binary
 		      default='HEAD',
 		      help='select lilypond branch [HEAD]',
 		      choices=['lilypond_2_6', 'HEAD'])
-	p.add_option ('-b', '--build-platform', action='store',
-		      dest="build_platform",
-		      type='choice',
-		      default='linux',
-		      help='select build platform [linux]',
-		      choices=['darwin', 'linux'])
 	p.add_option ('', '--installer-version', action='store',
 		      default="0.0.0",
 		      dest="installer_version")
