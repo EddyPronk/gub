@@ -113,7 +113,7 @@ def test_target (options, target):
 	last_patch['release_hash'] = release_hash
 
 
-	logfile = 'test-%(canonicalize)s.log' %  locals()
+	logfile = 'test/test-%(canonicalize)s.log' %  locals()
 	stat = os.system ("nice %(target)s >& %(logfile)s" %  locals())
 	base_tag = 'success-%(canonicalize)s-' % locals ()
 	release_id = '''
