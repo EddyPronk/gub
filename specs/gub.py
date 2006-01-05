@@ -296,9 +296,6 @@ tar -C %(install_root)s -zcf %(gub_uploads)s/%(gub_name)s .
 		self.system ('''rm -rf %(srcdir)s %(builddir)s''', locals ())
 
 	def _untar (self, dir):
-		print 'untarring in: ' + dir
-		print 'untarring in: ' + self.expand (dir)
-		print 'srcdir: ' + self.srcdir ()
 		tarball = self.expand("%(downloaddir)s/%(file_name)s")
 		if not os.path.exists (tarball):
 			raise 'no such file: ' + tarball
