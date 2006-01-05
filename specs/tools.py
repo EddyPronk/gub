@@ -16,7 +16,7 @@ class Tool_package (gub.Package):
 
 	def package (self):
 		self.system ('''
-tar -C %(install_root)s/usr -zcf %(gub_uploads)s/%(gub_name)s .
+tar -C %(install_root)s/ -zcf %(gub_uploads)s/%(gub_name)s .
 ''')
 
 class Pkg_config (Tool_package):
