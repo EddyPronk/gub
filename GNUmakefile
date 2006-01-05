@@ -41,7 +41,7 @@ INVOKE_XPM=python xpm-apt.py \
 --build-platform=$(BUILD_PLATFORM) \
 --branch=$(LILYPOND_BRANCH)
 
-BUILD_ALL=&& $(call INVOKE_DRIVER,$(1)) build all \
+BUILD_ALL=$(call INVOKE_DRIVER,$(1)) build all \
   && $(call INVOKE_XPM,$(1)) install all \
   && $(call INVOKE_DRIVER,$(1)) build-installer \
   && $(call INVOKE_DRIVER,$(1)) package-installer \
