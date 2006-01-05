@@ -91,6 +91,8 @@ cd %(srcdir)s && cvs -q update -dAP -r %(version)s
                 f = re.sub ('.tgz', '', f)
                 f = re.sub ('-src\.tar.*', '', f)
                 f = re.sub ('\.tar.*', '', f)
+                f = re.sub ('_%\(package_arch\)s.*', '', f)
+                f = re.sub ('_%\(version\)s', '-%(version)s', f)
                 return f
 	
 	@subst_method
@@ -294,15 +296,15 @@ tar -C %(install_root)s -zcf %(gub_uploads)s/%(gub_name)s .
 		self.system ('''rm -rf %(srcdir)s %(builddir)s''', locals ())
 
 	def _untar (self, dir):
+		print 'untarring in: ' + dir
+		print 'untarring in: ' + self.expand (dir)
+		print 'srcdir: ' + self.srcdir ()
 		tarball = self.expand("%(downloaddir)s/%(file_name)s")
 		if not os.path.exists (tarball):
 			raise 'no such file: ' + tarball
-		self.system ('''
-rm -rf %(srcdir)s %(builddir)s %(install_root)s
-''')
-
 		if self.format == 'deb':
 			self.system ('''
+mkdir -p %(srcdir)s
 ar p %(tarball)s data.tar.gz | tar -C %(dir)s -zxf-
 ''',
 				     locals ())
@@ -316,6 +318,9 @@ tar -C %(dir)s %(flags)s %(tarball)s
 	def untar (self):
 		if self.track_development:
 			return
+		self.system ('''
+rm -rf %(srcdir)s %(builddir)s %(install_root)s
+''')
 		self._untar ('%(allsrcdir)s')
 
 ## FIXME what was this for? --hwn
@@ -340,6 +345,9 @@ tar -C %(dir)s %(flags)s %(tarball)s
 
 class Binary_package (Package):
 	def untar (self):
+		self.system ('''
+rm -rf %(srcdir)s %(builddir)s %(install_root)s
+''')
 		self.system ('mkdir -p %(srcdir)s/root')
 		self._untar ('%(srcdir)s/root')
 
