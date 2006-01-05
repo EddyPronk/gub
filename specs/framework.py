@@ -54,11 +54,21 @@ class Python__mingw (Python):
 		Python.__init__ (self, settings)
 		self.target_gcc_flags = '-DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I%(system_root)s/usr/include' % self.settings.__dict__
 
-	# FIXME: ugh cross compile + mingw patch; move to cross-Python?
+	# FIXME: first is cross compile + mingw patch, backported to
+	# 2.4.2 and combined in one patch; move to cross-Python?
 	def patch (self):
 		self.system ('''
 cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-1.patch
+cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-winsock2.patch
 ''')
+
+	def config_cache_overrides (self, str):
+		# Ok, I give up.  The python build system wins.  Once
+		# someone manages to get -lwsock32 on the
+		# sharedmodules link command line, *after*
+		# timesmodule.o, this can go away.
+		return re.sub ('ac_cv_func_select=yes', 'ac_cv_func_select=no',
+			       str)
 
 	# FIXME: ugh cross compile + mingw patch; move to cross-Python?
 	def configure (self):
@@ -647,13 +657,13 @@ cp -pv %(i)s %(i)sT
 
 class Gettext__mingw (Gettext):
 	def config_cache_overrides (self, str):
-		return re.sub ('ac_cv_func_select=yes', 'ac_cv_func_select=no',
-			       str) \
-			       + '''
+		return (re.sub ('ac_cv_func_select=yes', 'ac_cv_func_select=no',
+			       str)
+			+ '''
 # only in additional library -- do not feel like patching right now
 gl_cv_func_mbrtowc=${gl_cv_func_mbrtowc=no}
 jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
-'''
+''')
 
 class Gettext__darwin (Gettext):
 	def xconfigure_command (self):

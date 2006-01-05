@@ -17,14 +17,12 @@ all: linux mingw mac
 include local.make
 
 include $(LILYPOND_CVSDIR)/VERSION
+INSTALLER_BUILD=1
 
 
 ##LILYPOND_BRANCH=$(strip $(patsubst $(shell cd $(LILYPOND_CVSDIR) && expr "$$(cvs status ChangeLog)" : '.*Sticky Tag: *\([^ ]*\)'),(none),HEAD))
 
 LILYPOND_BRANCH=$(shell (cat $(LILYPOND_CVSDIR)/CVS/Tag 2> /dev/null || echo HEAD) | sed s/^T//)
-
-foe:
-	echo '.$(LILYPOND_BRANCH).'
 
 PLATFORMS=darwin mingw linux freebsd
 
@@ -35,7 +33,7 @@ INVOKE_DRIVER=python driver.py \
 --branch=$(LILYPOND_BRANCH) \
 --build-platform=$(BUILD_PLATFORM) \
 --installer-version=$(LILYPOND_VERSION) \
---installer-build=1 \
+--installer-build=$(INSTALLER_BUILD) \
 $(LOCAL_DRIVER_OPTIONS)
 
 INVOKE_XPM=python xpm-apt.py \
