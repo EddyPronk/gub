@@ -31,14 +31,12 @@ LILYPOND_VERSION=$(MAJOR_VERSION).$(MINOR_VERSION).$(PATCH_LEVEL)$(if $(strip $(
 INVOKE_DRIVER=python driver.py \
 --target-platform=$(1) \
 --branch=$(LILYPOND_BRANCH) \
---build-platform=$(BUILD_PLATFORM) \
 --installer-version=$(LILYPOND_VERSION) \
 --installer-build=$(INSTALLER_BUILD) \
 $(LOCAL_DRIVER_OPTIONS)
 
 INVOKE_XPM=python xpm-apt.py \
 --platform=$(1) 
---build-platform=$(BUILD_PLATFORM) \
 --branch=$(LILYPOND_BRANCH)
 
 BUILD_ALL=$(call INVOKE_DRIVER,$(1)) build all \
