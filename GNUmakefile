@@ -81,8 +81,8 @@ cyg-apt.py: cyg-apt.py.in specs/cpm.py
 	chmod +x $@
 
 
-## TODO: should put build platform in targetname too.
-RUN_TEST=python test-gub.py --to hanwen@xs4all.nl --to janneke@gnu.org --smtp smtp.xs4all.nl "make $(1)" 
+## TODO: should LilyPond revision in targetname too.
+RUN_TEST=python test-gub.py --to hanwen@xs4all.nl --to janneke@gnu.org --smtp smtp.xs4all.nl "make $(1) from=$(BUILD_PLATFORM)" 
 test:
 	$(MAKE) distclean
 	$(MAKE) download
