@@ -225,7 +225,8 @@ def run_builder (settings, pkg_manager, args):
 		pkgs = [pkg_manager._packages[name] for name in args]
 
 	for p in pkgs:
-		pkg_manager.uninstall_package (p)
+		if pkg_manager.is_installed (p):
+			pkg_manager.uninstall_package (p)
 		
 	for p in pkgs:
 		build_package (settings, pkg_manager, p)
