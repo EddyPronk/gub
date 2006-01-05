@@ -18,7 +18,10 @@ include local.make
 
 include $(LILYPOND_CVSDIR)/VERSION
 
+
 ##LILYPOND_BRANCH=$(strip $(patsubst $(shell cd $(LILYPOND_CVSDIR) && expr "$$(cvs status ChangeLog)" : '.*Sticky Tag: *\([^ ]*\)'),(none),HEAD))
+
+## doesn't actually work for HEAD.
 
 #LILYPOND_BRANCH=$(shell cat $(LILYPOND_CVSDIR)/CVS/Tag 2> /dev/null \
 # | sed s/^T// || echo HEAD)
