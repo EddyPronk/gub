@@ -367,10 +367,11 @@ class Null_package (Package):
 		pass
 	def patch (self):
 		pass
-	def package (self):
-		pass
 
-#	self.system ("tar -czf %(gub_uploads)s/%(gub_name)s --files-from=/dev/null")
+	## need to create a .gub, otherwise driver.py is confused: a
+	## package should be installable after building.
+	def package (self):
+		self.system ("tar -czf %(gub_uploads)s/%(gub_name)s --files-from=/dev/null")
 		
 class Sdk_package (Null_package):
 	def untar (self):
