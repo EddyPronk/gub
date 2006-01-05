@@ -18,12 +18,14 @@ class Gcc (cross.Gcc):
 class Libc6 (gub.Binary_package, gub.Sdk_package):
 	pass
 
+# ftp://ftp.debian.org/debian/pool/main/l/linux-kernel-headers/linux-kernel-headers_2.6.13%2B0rc3-2_i386.deb
+
 class Libc6_dev (gub.Binary_package, gub.Sdk_package):
 	def untar (self):
 		gub.Binary_package.untar (self)
 		# Ugh, rewire absolute names and symlinks.
 		# Better to create relative ones?
-		self.file_sub ([(' /', ' %(system_root)s')],
+		self.file_sub ([(' /', ' /%(system_root)s')],
 			       '%(srcdir)s/root/usr/lib/libc.so')
 		for i in glob.glob (self.expand ('%(srcdir)s/root/usr/lib/lib*.so')):
 			if os.path.islink (i):
