@@ -22,10 +22,10 @@ alphabase = 'ftp://alpha.gnu.org/pub/gnu'
 alpha = alphabase + '/%(name)s/%(name)s-%(ball_version)s.tar.%(format)s'
 
 nongnu_savannah = 'http://download.savannah.nongnu.org/releases/%(name)s/%(name)s-%(ball_version)s.tar.%(format)s'
+nongnu          = 'ftp://ftp.gnu.org/pub/gnu/non-gnu/%(name)s/%(name)s-%(ball_version)s.tar.%(format)s'
 
 freetype = 'ftp://sunsite.cnlab-switch.ch/mirror/freetype/freetype2/%(name)s-%(ball_version)s.tar.%(format)s'
 
-nongnu = 'http://download.savannah.nongnu.org/releases/%(name)s/%(name)s-%(ball_version)s.tar.%(format)s'
 
 fontconfig = 'http://www.fontconfig.org/release/%(name)s-%(ball_version)s.tar.%(format)s'
 
