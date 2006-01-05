@@ -58,12 +58,12 @@ class Nsis (Tool_package):
 	
 	def install (self):
 		self.system('''
-cd %(builddir)s && ./install.sh %(tooldir)s %(install_root)s 
+cd %(builddir)s && ./install.sh %(system_root)s/usr/ %(install_root)s 
 ''')
 # cd %(install_root)s/usr/ && mkdir bin && cd bin && ln -s ../share/NSIS/makensis .
 
 	def package (self):
-		self.system ('tar -C %(install_root)s/%(tooldir)s/ -zcf %(gub_uploads)s/%(gub_name)s .')
+		self.system ('tar -C %(install_root)s/%(system_root)s/ -zcf %(gub_uploads)s/%(gub_name)s .')
 
 class Scons (Tool_package):
 	def compile (self):
