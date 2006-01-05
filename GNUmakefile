@@ -26,6 +26,8 @@ include $(LILYPOND_CVSDIR)/VERSION
 #LILYPOND_BRANCH=$(shell cat $(LILYPOND_CVSDIR)/CVS/Tag 2> /dev/null \
 # | sed s/^T// || echo HEAD)
 
+PLATFORMS=darwin mingw linux freebsd
+
 LILYPOND_VERSION=$(MAJOR_VERSION).$(MINOR_VERSION).$(PATCH_LEVEL)$(if $(strip $(MY_PATCH_LEVEL)),.$(MY_PATCH_LEVEL),)
 
 INVOKE_DRIVER=python driver.py \
@@ -35,6 +37,7 @@ INVOKE_DRIVER=python driver.py \
 --installer-version=$(LILYPOND_VERSION) \
 --installer-build=1 \
 $(LOCAL_DRIVER_OPTIONS)
+
 INVOKE_XPM=python xpm-apt.py \
 --platform=$(1) 
 --build-platform=$(BUILD_PLATFORM) \
@@ -47,12 +50,11 @@ BUILD_ALL=$(call INVOKE_DRIVER,$(1)) -t build all \
   && $(call INVOKE_DRIVER,$(1)) build-installer \
   && $(call INVOKE_DRIVER,$(1)) package-installer \
 
+
 download:
-	$(call INVOKE_DRIVER,darwin) download
-	$(call INVOKE_DRIVER,freebsd) download
-	$(call INVOKE_DRIVER,linux) download
-	$(call INVOKE_DRIVER,mingw) download
+	$(foreach p, $(PLATFORMS), $(call INVOKE_DRIVER,$(p)) download && ) true
 	rm -f uploads/*/lilypond-$(LILYPOND_BRANCH)*gub
+	$(foreach p, $(PLATFORMS), $(call INVOKE_XPM,$(p)) remove lilypond ; ) true
 
 all: linux freebsd mac mingw
 
@@ -88,7 +90,4 @@ RUN_TEST=python test-gub.py --to hanwen@xs4all.nl --to janneke@gnu.org --smtp sm
 test:
 	$(MAKE) distclean
 	$(MAKE) download
-	$(call RUN_TEST,mac)
-	$(call RUN_TEST,mingw)
-	$(call RUN_TEST,freebsd)
-	$(call RUN_TEST,linux)
+	$(foreach p, $(PLATFORMS), $(call RUN_TEST,$(p)) && ) true
