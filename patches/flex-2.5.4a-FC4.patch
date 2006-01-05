@@ -1,0 +1,327 @@
+--- flex-2.5.4/skel.c.skel	Wed Aug 25 14:02:51 1999
++++ flex-2.5.4/skel.c	Wed Aug 25 14:03:16 1999
+@@ -454,7 +454,7 @@
+   "YY_DECL",
+   "	{",
+   "	register yy_state_type yy_current_state;",
+-  "	register char *yy_cp, *yy_bp;",
++  "	register char *yy_cp = NULL, *yy_bp = NULL;",
+   "	register int yy_act;",
+   "",
+   "%% user's declarations go here",
+--- flex-2.5.4/initscan.c.broken	Sat Sep 30 16:50:31 2000
++++ flex-2.5.4/initscan.c	Sat Sep 30 16:51:34 2000
+@@ -10,7 +10,7 @@
+ #define YY_FLEX_MINOR_VERSION 5
+ 
+ #include <stdio.h>
+-
++#include <unistd.h>
+ 
+ /* cfront 1.2 defines "c_plusplus" instead of "__cplusplus" */
+ #ifdef c_plusplus
+@@ -23,7 +23,6 @@
+ #ifdef __cplusplus
+ 
+ #include <stdlib.h>
+-#include <unistd.h>
+ 
+ /* Use prototypes in function declarations. */
+ #define YY_USE_PROTOS
+@@ -3310,12 +3309,6 @@
+ 	yy_flex_free( (void *) b );
+ 	}
+ 
+-
+-#ifndef YY_ALWAYS_INTERACTIVE
+-#ifndef YY_NEVER_INTERACTIVE
+-extern int isatty YY_PROTO(( int ));
+-#endif
+-#endif
+ 
+ #ifdef YY_USE_PROTOS
+ void yy_init_buffer( YY_BUFFER_STATE b, FILE *file )
+--- flex-2.5.4/flex.skl.broken	Sat Sep 30 16:51:05 2000
++++ flex-2.5.4/flex.skl	Sat Sep 30 16:52:24 2000
+@@ -10,6 +10,7 @@
+ 
+ %-
+ #include <stdio.h>
++#include <unistd.h>
+ %*
+ 
+ 
+@@ -27,7 +28,6 @@
+ %+
+ class istream;
+ %*
+-#include <unistd.h>
+ 
+ /* Use prototypes in function declarations. */
+ #define YY_USE_PROTOS
+@@ -1177,11 +1177,6 @@
+ 
+ 
+ %-
+-#ifndef YY_ALWAYS_INTERACTIVE
+-#ifndef YY_NEVER_INTERACTIVE
+-extern int isatty YY_PROTO(( int ));
+-#endif
+-#endif
+ 
+ #ifdef YY_USE_PROTOS
+ void yy_init_buffer( YY_BUFFER_STATE b, FILE *file )
+@@ -1192,7 +1187,6 @@
+ #endif
+ 
+ %+
+-extern "C" int isatty YY_PROTO(( int ));
+ void yyFlexLexer::yy_init_buffer( YY_BUFFER_STATE b, istream* file )
+ %*
+ 
+--- flex-2.5.4/skel.c.broken	Sat Sep 30 16:52:34 2000
++++ flex-2.5.4/skel.c	Sat Sep 30 16:53:15 2000
+@@ -15,6 +15,7 @@
+   "",
+   "%-",
+   "#include <stdio.h>",
++  "#include <unistd.h>",
+   "%*",
+   "",
+   "",
+@@ -32,7 +33,6 @@
+   "%+",
+   "class istream;",
+   "%*",
+-  "#include <unistd.h>",
+   "",
+   "/* Use prototypes in function declarations. */",
+   "#define YY_USE_PROTOS",
+@@ -1182,11 +1182,6 @@
+   "",
+   "",
+   "%-",
+-  "#ifndef YY_ALWAYS_INTERACTIVE",
+-  "#ifndef YY_NEVER_INTERACTIVE",
+-  "extern int isatty YY_PROTO(( int ));",
+-  "#endif",
+-  "#endif",
+   "",
+   "#ifdef YY_USE_PROTOS",
+   "void yy_init_buffer( YY_BUFFER_STATE b, FILE *file )",
+@@ -1197,7 +1192,6 @@
+   "#endif",
+   "",
+   "%+",
+-  "extern \"C\" int isatty YY_PROTO(( int ));",
+   "void yyFlexLexer::yy_init_buffer( YY_BUFFER_STATE b, istream* file )",
+   "%*",
+   "",
+--- flex-2.5.4/skel.c.orig	Tue Nov  6 17:29:12 2001
++++ flex-2.5.4/skel.c	Tue Nov  6 17:28:49 2001
+@@ -31,7 +31,7 @@
+   "",
+   "#include <stdlib.h>",
+   "%+",
+-  "class istream;",
++  "#include <iostream.h>",
+   "%*",
+   "",
+   "/* Use prototypes in function declarations. */",
+--- flex-2.5.4/skel.c.gcc31	Wed Feb 20 12:15:18 2002
++++ flex-2.5.4/skel.c	Wed Feb 20 12:15:18 2002
+@@ -31,7 +31,8 @@
+   "",
+   "#include <stdlib.h>",
+   "%+",
+-  "#include <iostream.h>",
++  "#include <iostream>",
++  "using namespace std;",
+   "%*",
+   "",
+   "/* Use prototypes in function declarations. */",
+--- flex-2.5.4/FlexLexer.h.gcc31	Sun Jul 27 04:41:38 1997
++++ flex-2.5.4/FlexLexer.h	Fri Mar  1 20:38:04 2002
+@@ -44,7 +44,7 @@
+ #ifndef __FLEX_LEXER_H
+ // Never included before - need to define base class.
+ #define __FLEX_LEXER_H
+-#include <iostream.h>
++#include <iostream>
+ 
+ extern "C++" {
+ 
+@@ -61,14 +61,14 @@
+ 	virtual void
+ 		yy_switch_to_buffer( struct yy_buffer_state* new_buffer ) = 0;
+ 	virtual struct yy_buffer_state*
+-		yy_create_buffer( istream* s, int size ) = 0;
++		yy_create_buffer( std::istream* s, int size ) = 0;
+ 	virtual void yy_delete_buffer( struct yy_buffer_state* b ) = 0;
+-	virtual void yyrestart( istream* s ) = 0;
++	virtual void yyrestart( std::istream* s ) = 0;
+ 
+ 	virtual int yylex() = 0;
+ 
+ 	// Call yylex with new input/output sources.
+-	int yylex( istream* new_in, ostream* new_out = 0 )
++	int yylex( std::istream* new_in, std::ostream* new_out = 0 )
+ 		{
+ 		switch_streams( new_in, new_out );
+ 		return yylex();
+@@ -76,8 +76,8 @@
+ 
+ 	// Switch to new input/output streams.  A nil stream pointer
+ 	// indicates "keep the current one".
+-	virtual void switch_streams( istream* new_in = 0,
+-					ostream* new_out = 0 ) = 0;
++	virtual void switch_streams( std::istream* new_in = 0,
++				     std::ostream* new_out = 0 ) = 0;
+ 
+ 	int lineno() const		{ return yylineno; }
+ 
+@@ -104,17 +104,17 @@
+ public:
+ 	// arg_yyin and arg_yyout default to the cin and cout, but we
+ 	// only make that assignment when initializing in yylex().
+-	yyFlexLexer( istream* arg_yyin = 0, ostream* arg_yyout = 0 );
++	yyFlexLexer( std::istream* arg_yyin = 0, std::ostream* arg_yyout = 0 );
+ 
+ 	virtual ~yyFlexLexer();
+ 
+ 	void yy_switch_to_buffer( struct yy_buffer_state* new_buffer );
+-	struct yy_buffer_state* yy_create_buffer( istream* s, int size );
++	struct yy_buffer_state* yy_create_buffer( std::istream* s, int size );
+ 	void yy_delete_buffer( struct yy_buffer_state* b );
+-	void yyrestart( istream* s );
++	void yyrestart( std::istream* s );
+ 
+ 	virtual int yylex();
+-	virtual void switch_streams( istream* new_in, ostream* new_out );
++	virtual void switch_streams( std::istream* new_in, std::ostream* new_out );
+ 
+ protected:
+ 	virtual int LexerInput( char* buf, int max_size );
+@@ -125,7 +125,7 @@
+ 	int yyinput();
+ 
+ 	void yy_load_buffer_state();
+-	void yy_init_buffer( struct yy_buffer_state* b, istream* s );
++	void yy_init_buffer( struct yy_buffer_state* b, std::istream* s );
+ 	void yy_flush_buffer( struct yy_buffer_state* b );
+ 
+ 	int yy_start_stack_ptr;
+@@ -140,8 +140,8 @@
+ 	yy_state_type yy_try_NUL_trans( yy_state_type current_state );
+ 	int yy_get_next_buffer();
+ 
+-	istream* yyin;	// input source for default LexerInput
+-	ostream* yyout;	// output sink for default LexerOutput
++	std::istream* yyin;	// input source for default LexerInput
++	std::ostream* yyout;	// output sink for default LexerOutput
+ 
+ 	struct yy_buffer_state* yy_current_buffer;
+ 
+diff -r -c4 flex-2.5.4/flex.skl flex-2.5.4P/flex.skl
+*** flex-2.5.4/flex.skl	Wed Sep 11 01:58:54 1996
+--- flex-2.5.4P/flex.skl	Thu Oct 24 19:25:30 2002
+***************
+*** 969,976 ****
+--- 969,977 ----
+  %*
+  
+  
+  %-
++ #ifndef YY_NO_INPUT
+  #ifdef __cplusplus
+  static int yyinput()
+  #else
+  static int input()
+***************
+*** 1044,1052 ****
+  %% update BOL and yylineno
+  
+  	return c;
+  	}
+! 
+  
+  %-
+  #ifdef YY_USE_PROTOS
+  void yyrestart( FILE *input_file )
+--- 1045,1055 ----
+  %% update BOL and yylineno
+  
+  	return c;
+  	}
+! %-
+! #endif /* YY_NO_INPUT */
+! %*
+  
+  %-
+  #ifdef YY_USE_PROTOS
+  void yyrestart( FILE *input_file )
+diff -r -c4 flex-2.5.4/initscan.c flex-2.5.4P/initscan.c
+*** flex-2.5.4/initscan.c	Sun Jul 27 04:32:18 1997
+--- flex-2.5.4P/initscan.c	Tue Oct 15 11:51:22 2002
+***************
+*** 3127,3134 ****
+--- 3127,3135 ----
+  	}
+  #endif	/* ifndef YY_NO_UNPUT */
+  
+  
++ #ifndef YY_NO_INPUT
+  #ifdef __cplusplus
+  static int yyinput()
+  #else
+  static int input()
+***************
+*** 3199,3206 ****
+--- 3200,3208 ----
+  	yy_current_buffer->yy_at_bol = (c == '\n');
+  
+  	return c;
+  	}
++ #endif	/* ifndef YY_NO_INPUT */
+  
+  
+  #ifdef YY_USE_PROTOS
+  void yyrestart( FILE *input_file )
+diff -r -c4 flex-2.5.4/skel.c flex-2.5.4P/skel.c
+*** flex-2.5.4/skel.c	Wed Sep 11 02:00:38 1996
+--- flex-2.5.4P/skel.c	Thu Oct 24 19:25:32 2002
+***************
+*** 974,981 ****
+--- 974,982 ----
+    "%*",
+    "",
+    "",
+    "%-",
++   "#ifndef YY_NO_INPUT",
+    "#ifdef __cplusplus",
+    "static int yyinput()",
+    "#else",
+    "static int input()",
+***************
+*** 1049,1057 ****
+    "%% update BOL and yylineno",
+    "",
+    "	return c;",
+    "	}",
+!   "",
+    "",
+    "%-",
+    "#ifdef YY_USE_PROTOS",
+    "void yyrestart( FILE *input_file )",
+--- 1050,1060 ----
+    "%% update BOL and yylineno",
+    "",
+    "	return c;",
+    "	}",
+!   "%-",
+!   "#endif /* YY_NO_INPUT */",
+!   "%*",
+    "",
+    "%-",
+    "#ifdef YY_USE_PROTOS",
+    "void yyrestart( FILE *input_file )",
