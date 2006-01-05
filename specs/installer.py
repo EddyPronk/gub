@@ -12,7 +12,8 @@ class Installer (context.Os_context_wrapper):
 		self.settings = settings
 		self.strip_command = '%(crossprefix)s/bin/%(target_architecture)s-strip' 
 		self.no_binary_strip = []
-		self.no_binary_strip_extensions = ['.la', '.py', '.def',]
+		self.no_binary_strip_extensions = ['.la', '.py', '.def',
+						   '.scm', '.pyc']
 
 	@context.subst_method
         def name (self):
