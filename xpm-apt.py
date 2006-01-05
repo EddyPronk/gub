@@ -33,14 +33,13 @@ class Options:
 		self.config = self.ROOT + '/etc/xpm'
 		self.mirror = 'file://uploads/gub'
 		self.rc_options = ['BRANCH', 'platform', 'PLATFORM', 'ROOT',
-				   'mirror', 'build-platform', 'distname']
+				   'mirror', 'distname']
 		self.rc_file = '.xpm-apt.rc'
 		self.name_p = 0
 		self.nodeps_p = 0
 		self.tool_p = 0
 		self.command = 'help'
 		self.packagename = 0
-		self.build_platform = 'linux'
 		self.read_xpm_rc ()
 		self.get_options ()
 
@@ -54,7 +53,6 @@ class Options:
 			'mirror=',
 			'name',
 			'platform=',
-			'build-platform=',
 			'no-deps',
 			'root=',
 			'tool'
@@ -87,8 +85,6 @@ class Options:
 			elif o == '--platform' or o == '-p':
 				self.platform = a
 				self.ROOT = ''
-			elif o == '--build-platform' or o == '-b':
-				self.build_platform = a
 			elif o == '--name' or o == '-n':
 				self.name_p = 1
 			elif o == '--no-deps' or o == '-x':
@@ -228,8 +224,7 @@ def main ():
 		usage (options)
 		sys.exit (2)
 		
-	settings = settings_mod.Settings (options.platform,
-					  options.build_platform)
+	settings = settings_mod.Settings (options.platform)
 	settings.lilypond_branch = options.BRANCH
 
 	if not options.ROOT:
