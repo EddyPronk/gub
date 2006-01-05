@@ -156,9 +156,6 @@ cd %(darwin_bundle_dir)s/../ && zip -yr %(bundle_zip)s LilyPond.app
 ''', locals ())
 		
 	
-	def xstrip (self):
-		self.strip_unnecessary_files ()
-		# no binary strip: makes debugging difficult.
 		
 		
 class Nsis (Installer):
