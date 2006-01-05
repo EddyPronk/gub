@@ -57,6 +57,8 @@ python = 'http://python.org/ftp/python/%(ball_version)s/Python-%(ball_version)s.
 
 cygwin = 'ftp://ftp.sunsite.dk/pub/cygwin/release/%(name)s/%(name)s-%(ball_version)s.tar.%(format)s'
 
+# FIXME:  %(version)s should probably be %(ball_version)s for download,
+# to include possible '-xyz' version part.
 cups = 'http://ftp.easysw.com/pub/%(name)s/%(version)s/espgs-%(version)s-source.tar.%(format)s'
 jpeg = 'ftp://ftp.uu.net/graphics/jpeg/jpegsrc.v6b.tar.gz'
 
@@ -64,4 +66,6 @@ freebsd_ports = 'ftp://ftp.uk.freebsd.org/pub/FreeBSD/ports/local-distfiles/liou
 
 freedesktop = 'http://%(name)s.freedesktop.org/releases/%(name)s-%(version)s.tar.%(format)s'
 
-glibc_deb = 'http://ftp.debian.org/debian/pool/main/g/glibc/%(name)s_%(version)s_%(package_arch)s.%(format)s'
+glibc_deb = 'http://ftp.debian.org/debian/pool/main/g/glibc/%(name)s_%(ball_version)s_%(package_arch)s.%(format)s'
+
+lkh_deb = 'http://ftp.debian.org/debian/pool/main/l/linux-kernel-headers/%(name)s_%(ball_version)s_%(package_arch)s.%(format)s'
