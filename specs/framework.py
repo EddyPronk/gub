@@ -977,6 +977,7 @@ class Ghostscript (targetpackage.Target_package):
 		return '.'.join (self.ball_version.split ('.')[0:2])
 
 	def patch (self):
+		self.system ("cd %(srcdir)s && patch -p2 < %(patchdir)s/gs-ttf.patch")
 		self.file_sub ([(r'mkdir -p \$\(bindir\)', 'mkdir -p $(DESTDIR)$(bindir)'),
 				(r'mkdir -p \$\(datadir\)', 'mkdir -p $(DESTDIR)$(datadir)'),
 				(r'mkdir -p \$\(scriptdir\)', 'mkdir -p $(DESTDIR)$(scriptdir)'),
