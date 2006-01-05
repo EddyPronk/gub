@@ -34,7 +34,9 @@ class Flex (Tool_package):
 	def install_command (self):
 		return self.broken_install_command ()
 		
-
+	def patch (self):
+		self.system ("cd %(srcdir)s && patch -p1 < %(patchdir)s/flex-2.5.4a-FC4.patch")
+		
 def get_packages (settings):
 	packages_dict = {
 		'linux': [],
