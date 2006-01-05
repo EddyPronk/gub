@@ -14,10 +14,10 @@ class Gcc (cross.Gcc):
 
 		return cmd
 
-class Libc6 (gub.Binary_package):
+class Libc6 (gub.Binary_package, gub.Sdk_package):
 	pass
 
-class Libc6_dev (gub.Binary_package):
+class Libc6_dev (gub.Binary_package, gub.Sdk_package):
 	pass
 
 #[   ] libc6-pic_2.2.5-11.8_i386.deb               12-Jan-2005 08:32   822k
@@ -29,7 +29,7 @@ def get_packages (settings):
 		Libc6 (settings).with (version='2.2.5-11.8', mirror=download.glibc_deb, format='deb'),
 		Libc6_dev (settings).with (version='2.2.5-11.8', mirror=download.glibc_deb, format='deb'),
 		cross.Binutils (settings).with (version='2.16.1', format='bz2'),
-		cross.Gcc (settings).with (version='3.4.5', mirror=download.gcc, format='bz2',				     depends=['binutils', 'libc6', 'libc6-dev']),
+		cross.Gcc (settings).with (version='3.4.5', mirror=download.gcc, format='bz2',				     depends=['binutils']),
 		]
 	return packages
 
