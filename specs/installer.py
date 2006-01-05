@@ -12,6 +12,7 @@ class Installer (context.Os_context_wrapper):
 		self.settings = settings
 		self.strip_command = '%(crossprefix)s/bin/%(target_architecture)s-strip' 
 		self.no_binary_strip = []
+		self.no_binary_strip_extensions = ['.la', '.py', '.def',]
 
 	@context.subst_method
         def name (self):
@@ -120,7 +121,8 @@ class Installer (context.Os_context_wrapper):
 	def strip_binary_dir (self, dir):
 		(root, dirs, files) = os.walk (dir % self.get_substitution_dict ()).next ()
 		for f in files:
-			if os.path.basename (f) not in self.no_binary_strip:
+			if (os.path.basename (f) not in self.no_binary_strip
+			    and os.path.splitext (f)[1] not in self.no_binary_strip_extensions):
 				self.strip_binary_file (root + '/' + f)
 			
 	def strip (self):
