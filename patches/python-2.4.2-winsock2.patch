@@ -1,0 +1,48 @@
+diff -purN -x'*~' -x'*regen*' -xconfigure -xautom4te.cache ../python-2.4.2-unpatst/configure.in ./configure.in
+--- ../python-2.4.2-unpatst/configure.in	2006-01-05 12:43:47.000000000 +0100
++++ ./configure.in	2006-01-05 15:15:37.000000000 +0100
+@@ -1586,6 +1586,16 @@ esac
+ # BeOS' sockets are stashed in libnet.
+ AC_CHECK_LIB(nsl, t_open, [LIBS="-lnsl $LIBS"]) # SVR4
+ AC_CHECK_LIB(socket, socket, [LIBS="-lsocket $LIBS"], [], $LIBS) # SVR4 sockets
++AC_CHECK_HEADER(winsock2.h)
++AC_CHECK_LIB(wsock32, select, [LIBS="-lwsock32 $LIBS"], [], $LIBS) # Mingw32 select
++save_LIBS="$LIBS"
++LIBS="-lwsock32 $LIBS"
++AC_MSG_CHECKING([for include <winsock2.h> select in libwinsock32])
++AC_TRY_LINK([#include <winsock2.h>],
++            [select (1,2,3,4,5);],
++ 	    [AC_MSG_RESULT(yes)],
++	    [AC_MSG_RESULT(no)]
++	    [LIBS="$save_LIBS"])
+ 
+ case "$ac_sys_system" in
+ BeOS*)
+diff -purN -x'*~' -x'*regen*' -xconfigure -xautom4te.cache ../python-2.4.2-unpatst/Modules/datetimemodule.c ./Modules/datetimemodule.c
+--- ../python-2.4.2-unpatst/Modules/datetimemodule.c	2004-12-19 21:16:57.000000000 +0100
++++ ./Modules/datetimemodule.c	2006-01-05 14:24:23.000000000 +0100
+@@ -8,6 +8,10 @@
+ 
+ #include <time.h>
+ 
++#ifdef MS_WINDOWS
++#include <winsock2.h>
++#endif
++
+ #include "timefuncs.h"
+ 
+ /* Differentiate between building the core module and building extension
+diff -purN -x'*~' -x'*regen*' -xconfigure -xautom4te.cache ../python-2.4.2-unpatst/Modules/timemodule.c ./Modules/timemodule.c
+--- ../python-2.4.2-unpatst/Modules/timemodule.c	2006-01-05 12:43:47.000000000 +0100
++++ ./Modules/timemodule.c	2006-01-05 14:24:23.000000000 +0100
+@@ -28,6 +28,10 @@ extern int ftime(struct timeb *);
+ #include <windows.h>
+ #include "pythread.h"
+ 
++#ifdef MS_WINDOWS
++#include <winsock2.h>
++#endif
++
+ /* helper to allow us to interrupt sleep() on Windows*/
+ static HANDLE hInterruptEvent = NULL;
+ static BOOL WINAPI PyCtrlHandler(DWORD dwCtrlType)
