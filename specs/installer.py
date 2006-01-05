@@ -163,7 +163,10 @@ class Nsis (Installer):
 		Installer.__init__ (self, settings)
 		self.strip_command += ' -g '
 		self.no_binary_strip = ['gsdll32.dll', 'gsdll32.lib']
-		
+
+	def strip (self):
+		pass
+
 	def create (self):
 		Installer.create (self)
 		
@@ -182,11 +185,14 @@ class Nsis (Installer):
 			       to_name='%(targetdir)s/lilypond.nsi',
 			       env=locals ())
 		# FIXME: move nsis cruft to nsis dir
+		env = {}
+		env["PATH"] = self.expand ('%(tooldir)s/usr/share/NSIS/:' + os.environ["PATH"])
+		
 		self.system ('cp %(nsisdir)s/*.nsh %(targetdir)s')
 		self.system ('cp %(nsisdir)s/*.scm.in %(targetdir)s')
 		self.system ('cp %(nsisdir)s/*.sh.in %(targetdir)s')
-		self.system ('cd %(targetdir)s && makensis lilypond.nsi')
-#		self.system ('cd %(targetdir)s && makensis -NOCD %(nsisdir)/lilypond.nsi')
+		self.system ('cd %(targetdir)s && makensis lilypond.nsi', env)
+#		self.system ('cd %(targetdir)s && makensis -NOCD %(nsisdir)/lilypond.nsi', env)
 		self.system ('mv %(targetdir)s/setup.exe %(installer_uploads)s/lilypond-%(bundle_version)s-%(bundle_build)s.exe', locals ())
 
 class Linux_installer (Installer):
