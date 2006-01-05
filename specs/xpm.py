@@ -187,13 +187,10 @@ class Package_manager:
 			raise "Unknown package", k
 
 
-def get_managers (settings):
-	tool_manager = Package_manager (settings.tooldir,
-					settings.os_interface)
+def get_manager (settings):
 	target_manager = Package_manager (settings.system_root,
 					  settings.os_interface)
 
-	import tools as tool_module
 	cross_module = None
 	if settings.platform == 'darwin':
 		import darwintools
@@ -207,20 +204,22 @@ def get_managers (settings):
 	elif settings.platform.startswith ('mingw'):
 		import mingw
 		cross_module = mingw
-
+	elif settings.platform.startswith ('local'):
+		import tools
+		cross_module = tools
 	
-	map (tool_manager.register_package, tool_module.get_packages (settings))
+	
 	map (target_manager.register_package, cross_module.get_packages (settings))
 	map (target_manager.register_package, framework.get_packages (settings))
 
-	for m in tool_manager, target_manager:
+	for m in (target_manager,):
 		m.resolve_dependencies ()
 		for p in m._packages.values ():
 			settings.build_number_db.set_build_number (p)
 
 	cross_module.change_target_packages (target_manager._packages.values ())
 
-	return tool_manager, target_manager
+	return target_manager
 
 def intersect (l1, l2):
 	return [l for l in l1 if l in l2]
