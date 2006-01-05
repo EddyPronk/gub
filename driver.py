@@ -65,8 +65,8 @@ def build_package (settings, manager, package):
 			if stage != 'clean':
 				package.set_done (stage, stages.index (stage))
 
-def get_settings (platform, build_platform):
-	settings = settings_mod.Settings (platform, build_platform)
+def get_settings (platform):
+	settings = settings_mod.Settings (platform)
 	settings.build_number_db = buildnumber.Build_number_db (settings.topdir)
 	
 	if platform == 'darwin':
@@ -76,6 +76,8 @@ def get_settings (platform, build_platform):
 	elif platform == 'linux':
 		pass
 	elif platform == 'freebsd':
+		pass
+	elif platform == 'local':
 		pass
 	else:
 		raise 'unknown platform', platform 
@@ -160,7 +162,7 @@ package-installer - build installer binary
 		      type='choice',
 		      default=None,
 		      help='select target platform',
-		      choices=['darwin', 'freebsd', 'linux', 'mingw'])
+		      choices=['local', 'darwin', 'freebsd', 'linux', 'mingw'])
 	p.add_option ('-s', '--setting', action='append',
 		      dest="settings",
 		      type='string',
@@ -239,9 +241,9 @@ def main ():
 		cli_parser.print_help ()
 		sys.exit (2)
 	
-	settings = get_settings (options.platform, options.build_platform)
+	settings = get_settings (options.platform)
 	add_options (settings, options)
-	tool_manager, target_manager = xpm.get_managers (settings)
+	target_manager = xpm.get_manager (settings)
 
 
 	## crossprefix is also necessary for building cross packages, such as GCC 
@@ -252,13 +254,9 @@ def main ():
 
 	c = commands.pop (0)
 	if c == 'download':
-		download_sources (tool_manager)
 		download_sources (target_manager)
 	elif c == 'build':
-		pm = xpm.determine_manager (settings,
-					    [tool_manager, target_manager],
-					    commands)
-		run_builder (settings, pm, commands)
+		run_builder (settings, target_manager, commands)
 	elif c == 'build-installer':
 		build_installers (settings, target_manager)
 	elif c == 'package-installer':
