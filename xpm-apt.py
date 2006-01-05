@@ -37,7 +37,6 @@ class Options:
 		self.rc_file = '.xpm-apt.rc'
 		self.name_p = 0
 		self.nodeps_p = 0
-		self.tool_p = 0
 		self.command = 'help'
 		self.packagename = 0
 		self.read_xpm_rc ()
@@ -55,7 +54,6 @@ class Options:
 			'platform=',
 			'no-deps',
 			'root=',
-			'tool'
 			))
 
 		if len (arguments) > 0:
@@ -80,8 +78,6 @@ class Options:
 				self.mirror = a
 			elif o == '--root' or o == '-r':
 				self.ROOT = a
-			elif o == '--tool' or o == '-t':
-				self.tool_p = 1
 			elif o == '--platform' or o == '-p':
 				self.platform = a
 				self.ROOT = ''
@@ -209,7 +205,6 @@ Options:
     -n,--name              print package name only
     -p,--platform=NAME     set platform [%(platform)s]
     -r,--root=DIR          set %(PLATFORM)s root [%(ROOT)s]
-    -t,--tools             manage tools
     -x,--no-deps           ignore dependencies
 
 Defaults are taken from ./%(rc_file)s
@@ -238,12 +233,8 @@ def main ():
 		settings.framework_dir = 'FUBAR'
 
 
-	tool_manager, target_manager = xpm.get_managers (settings)
-
-	settings.use_tools = options.tool_p
-	pm = xpm.determine_manager (settings,
-				    [tool_manager, target_manager],
-				    options.arguments)
+	target_manager = xpm.get_manager (settings)
+	pm = target_manager
 
 	pm.resolve_dependencies ()
 
