@@ -1374,7 +1374,10 @@ def get_packages (settings):
 			packs += [i]
 
 
-
+	if settings.platform.startswith ('linux'):
+		for i in packs:
+			if i.name () not in ('binutils', 'libc6', 'libc6-dev'):
+				i.name_dependencies += ['libc6', 'libc6-dev']
 	
 	for p in packs:
 		if p.name () == 'lilypond':
