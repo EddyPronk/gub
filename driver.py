@@ -213,7 +213,7 @@ def run_builder (settings, pkg_manager, args):
 	PATH = os.environ["PATH"]
 
 	## crossprefix is also necessary for building cross packages, such as GCC 
-	os.environ["PATH"] = settings.expand ('%(tooldir)s/bin:%(crossprefix)s/bin:%(PATH)s', locals())
+	os.environ["PATH"] = settings.expand ('%(crossprefix)s/bin:%(PATH)s', locals())
 	pkgs = [] 
 	if args and args[0] == 'all':
 		pkgs = pkg_manager._packages.values()
@@ -240,6 +240,13 @@ def main ():
 	settings = get_settings (options.platform, options.build_platform)
 	add_options (settings, options)
 	tool_manager, target_manager = xpm.get_managers (settings)
+
+
+	## crossprefix is also necessary for building cross packages, such as GCC 
+
+	PATH = os.environ["PATH"]
+	os.environ["PATH"] = settings.expand ('%(tooldir)s/bin:%(PATH)s', locals())
+
 
 	c = commands.pop (0)
 	if c == 'download':
