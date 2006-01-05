@@ -1,3 +1,4 @@
+import glob
 import os
 import re
 
@@ -18,11 +19,21 @@ class Libc6 (gub.Binary_package, gub.Sdk_package):
 	pass
 
 class Libc6_dev (gub.Binary_package, gub.Sdk_package):
-	pass
-
-#[   ] libc6-pic_2.2.5-11.8_i386.deb               12-Jan-2005 08:32   822k
-#[   ] libc6-dev_2.2.5-11.8_i386.deb               12-Jan-2005 08:32   2.3M
-#[   ] libc6_2.2.5-11.8_i386.deb                   12-Jan-2005 08:32   3.2M
+	def untar (self):
+		gub.Binary_package.untar (self)
+		# Ugh, rewire absolute names and symlinks.
+		# Better to create relative ones?
+		self.file_sub ([(' /', ' %(system_root)s')],
+			       '%(srcdir)s/root/usr/lib/libc.so')
+		for i in glob.glob (self.expand ('%(srcdir)s/root/usr/lib/lib*.so')):
+			print 'glob: ' + i
+			if os.path.islink (i):
+				print 'link: ' + i
+				s = os.readlink (i)
+				if s.startswith ('/'):
+					print 'relinking to: ' + self.system_root + s
+					os.remove (i)
+					os.symlink (i, self.system_root + s)
 
 def get_packages (settings):
 	packages = [
