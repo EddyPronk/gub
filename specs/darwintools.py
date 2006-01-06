@@ -20,7 +20,6 @@ class Darwin_sdk (gub.Sdk_package):
 		pat = self.expand ('%(srcdir)s/usr/lib/*.la')
 		self.system ('rm %(srcdir)s/usr/lib/charset.alias')
 		self.system ('rm %(srcdir)s/usr/lib/libgcc*')
-		self.system ('rm %(srcdir)s/usr/lib/*libguile*')
 		self.system ('rm -rf %(srcdir)s/usr/include/gcc')
 		self.system ('rm -rf %(srcdir)s/usr/lib/gcc')
 		
