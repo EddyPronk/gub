@@ -72,6 +72,6 @@ def change_target_packages (packages):
 				     'LDFLAGS': '-Wl,--as-needed',
 #				     'APBUILD_CC': 'gcc-3.4',
 #				     'APBUILD_CXX1': 'g++-3.4',
-				     'APBUILD_CC': '%(target_architecture)s-gcc',
-				     'APBUILD_CXX1': '%(target_architecture)s-g++',
+#				     'APBUILD_CC': '%(target_architecture)s-gcc',
+#				     'APBUILD_CXX1': '%(target_architecture)s-g++',
 				     })

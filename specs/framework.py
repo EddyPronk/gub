@@ -685,7 +685,8 @@ glib_cv_stack_grows=${glib_cv_stack_grows=no}
 		self.update_libtool ()
 	def install (self):
 		targetpackage.Target_package.install (self)
-		self.system ('rm %(install_root)s/usr/lib/charset.alias')
+		self.system ('rm %(install_root)s/usr/lib/charset.alias',
+			     ignore_error=True)
 		
 class Glib__darwin (Glib):
 	def configure (self):
