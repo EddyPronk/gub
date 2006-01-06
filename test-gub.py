@@ -59,7 +59,7 @@ def result_message (options, subject, parts) :
 		for p in parts:
 			msg.attach (p)
 	
-	msg['Subject'] = 'GUB Autobuild: %s' % subject
+	msg['Subject'] = 'GUB Autobuild result'
 
 	msg.epilogue = ''
 
@@ -131,7 +131,9 @@ def test_target (options, target):
 
 
 	logfile = 'test/test-%(canonicalize)s.log' %  locals()
-	stat = os.system ("nice %(target)s >& %(logfile)s" %  locals())
+	cmd = "nice %(target)s >& %(logfile)s" %  locals()
+	print 'starting : ', cmd
+	stat = os.system (cmd)
 	base_tag = 'success-%(canonicalize)s-' % locals ()
 	release_id = '''
 Last patch of this release:
@@ -140,7 +142,7 @@ Last patch of this release:
 
 	* %(name)s\n\n
 
-MD5 of inventory: %(release_hash)s
+MD5 of complete patch set: %(release_hash)s
 
 ''' % last_patch
 
@@ -150,17 +152,22 @@ MD5 of inventory: %(release_hash)s
 		body = read_tail (logfile)
 		diff = os.popen ('darcs diff -u --from-tag %s' % base_tag).read ()
 		
-		msg = result_message (options, '%s FAIL' % target , [release_id,
-							body, diff])
+		msg = result_message (options, '', [
+			'%s FAIL' % target,
+			'\n'.join (body.split ('\n')[:10]),
+			release_id,
+			diff,
+			body
+			])
 	else:
 		tag = base_tag + last_patch['date']
 		system ('darcs tag %s' % tag)
 		system ('darcs push -a -t %s ' % tag)
 		
-		msg = result_message (options, '%s SUCCESS' % target,
-				      [release_id,
+		msg = result_message (options, '', 
+				      ['%s SUCCESS' % target,
+				       release_id,
 				       "Tagging with %s\n\n" % tag])
-
 
 	COMMASPACE = ', '
 	msg['From'] = options.sender
