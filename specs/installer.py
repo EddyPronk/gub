@@ -238,10 +238,9 @@ def get_installers (settings):
 		],
 		'linux' : [
 		Tgz (settings),  # not alphabetically, used by others
-
-		Autopackage (settings),
 		Deb (settings),
 		Rpm (settings),
+		Autopackage (settings),
 		],
 		'mingw' : [Nsis (settings)],
 	}
