@@ -604,9 +604,6 @@ class LilyPond__darwin (LilyPond):
 
 ''')
 
-	def untar (self):
-		pass
-
 class Gettext (targetpackage.Target_package):
 	def configure_command (self):
 		return (targetpackage.Target_package.configure_command (self)
