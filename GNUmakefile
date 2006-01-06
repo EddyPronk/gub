@@ -65,8 +65,8 @@ mac: darwin
 mingw:
 	$(call BUILD_ALL,$@) 
 
-distclean:
-	rm -rf target $(foreach p, $(PLATFORMS), uploads/$(p)/*)
+realclean:
+	rm -rf $(foreach p, $(PLATFORMS), uploads/$(p)/*  target/*$(p)* )
 
 sources = GNUmakefile $(wildcard *.py specs/*.py)
 
@@ -81,6 +81,6 @@ cyg-apt.py: cyg-apt.py.in specs/cpm.py
 ## TODO: should LilyPond revision in targetname too.
 RUN_TEST=python test-gub.py --to hanwen@xs4all.nl --to janneke@gnu.org --smtp smtp.xs4all.nl "make $(1) from=$(BUILD_PLATFORM)" 
 test:
-	$(MAKE) distclean
+	$(MAKE) realclean
 	$(MAKE) download
 	$(foreach p, $(PLATFORMS), $(call RUN_TEST,$(p)) && ) true
