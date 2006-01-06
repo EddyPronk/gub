@@ -77,7 +77,19 @@ class Scons (Tool_package):
 		return 'python %(srcdir)s/setup.py install --prefix=%(tooldir)s --root=%(install_root)s'
 	def package (self):
 		self.system ('tar -C %(install_root)s/%(tooldir)s/ -zcf %(gub_uploads)s/%(gub_name)s .')
-	
+
+class Alien (Tool_package):
+	def srcdir (self):
+		return '%(allsrcdir)s/alien'
+	def patch (self):
+		self.system ("mkdir -p %(builddir)s", ignore_error=True) 
+		self.system ('rm -rf %(builddir)s && ln -s %(srcdir)s %(builddir)s')
+	def configure (self):
+		Tool_package.configure (self)
+		self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/alien.patch')
+	def configure_command (self):
+		return 'perl Makefile.PL'
+
 def get_packages (settings):
 	return [
 		Nsis (settings).with (version='2.06',
@@ -94,9 +106,14 @@ def get_packages (settings):
 				       mirror=download.gnu, format='gz',
 				       ),
 		Flex (settings).with (version="2.5.4a",
-				      mirror=download.nongnu, format='gz')
+				      mirror=download.nongnu, format='gz'),
+		Alien (settings).with (version="8.60",
+				       mirror="http://www.kitenet.net/programs/alien/alien_8.60.tar.gz",
+				       format="gz")
+		
 		]
 
 
 def change_target_packages (bla):
 	pass
+
