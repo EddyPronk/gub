@@ -14,11 +14,14 @@ import sys
 import xml.dom.minidom
 
 ## TODO: should incorporate checksum of lilypond checkout too.
-def try_checked_before (hash):
+def try_checked_before (hash, canonicalized_target):
 	if not os.path.isdir ('test'):
 		os.makedirs ('test')
-		
-	db = dbhash.open ('test/gub-done.db', 'c')
+
+	db_file = 'test/gub-done-%s.db' % canonicalized_target
+	print 'using database ', db_file
+	
+	db = dbhash.open (db_file, 'c')
 	was_checked = db.has_key (hash)
 	db[hash] = '1'
 	db.close ()
@@ -91,19 +94,37 @@ def read_tail (file, amount=10240):
 
 ################################################################
 # main
+def xml_patch_name (patch):
+	name_elts =  patch.getElementsByTagName ('name')
+	try:
+		return name_elts[0].childNodes[0].data
+	except IndexError:
+		return ''
+	
+def get_release_hash (name):
+	xml_string = os.popen ('darcs changes --xml').read()
+	dom = xml.dom.minidom.parseString(xml_string)
+	patches = dom.documentElement.getElementsByTagName('patch')
+	patches = [p for p in patches if not re.match ('^TAG', xml_patch_name (p))]
+
+	release_hash = md5.new ()
+	for p in patches:
+		release_hash.update (p.toxml ())
+		
+	release_hash = release_hash.hexdigest()
+	print 'release hash is ', release_hash
+	
+	return release_hash
 
 def test_target (options, target):
 	canonicalize = re.sub('[ \t\n]', '_', target)
 	canonicalize = re.sub ('[^a-zA-Z]', '_', canonicalize)
 
-	release_hash = md5.new ()
-	release_hash.update (open ('_darcs/inventory').read())
-	release_hash = release_hash.hexdigest() + '-' + canonicalize
+	release_hash = get_release_hash (canonicalize)
 
-	if try_checked_before (release_hash):
+	if try_checked_before (release_hash, canonicalize):
 		print 'release has already been checked: ', release_hash 
 		sys.exit (0)
-
 
 	last_patch = read_last_patch()
 	last_patch['release_hash'] = release_hash
