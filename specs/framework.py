@@ -683,13 +683,15 @@ glib_cv_stack_grows=${glib_cv_stack_grows=no}
 		targetpackage.Target_package.configure (self)
 		# # FIXME: libtool too old for cross compile
 		self.update_libtool ()
-
+	def install (self):
+		targetpackage.Target_package.install (self)
+		self.system ('rm %(install_root)s/usr/lib/charset.alias')
+		
 class Glib__darwin (Glib):
 	def configure (self):
 		Glib.configure (self)
 		self.file_sub ([('nmedit', '%(target_architecture)s-nmedit')],
 			       '%(builddir)s/libtool')
-
 class Pango (targetpackage.Target_package):
 	def configure_command (self):
 		return targetpackage.Target_package.configure_command (self) \
