@@ -2,10 +2,10 @@ import gzip
 import os
 import re
 import string
-
 import buildnumber
 import framework
 import gub
+import dbhash
 
 # X package manager (x for want of better name)
 
@@ -28,8 +28,12 @@ class Package_manager:
 		self.root = root
 		self._packages = {}
 		self.config = self.root + '/etc/xpm/'
+		
 		if not os.path.isdir (self.config):
 			os_interface.system ('mkdir -p %s' % self.config)
+
+		self._file_package_db = dbhash.open (self.config + '/files.db', 'c')
+		self._package_file_db = dbhash.open (self.config + '/packages.db', 'c')
 
 	def is_installable (self, package):
 		ball = package.expand ('%(gub_uploads)s/%(gub_name)s')
@@ -39,15 +43,8 @@ class Package_manager:
 		self._packages[pkg.name()] = pkg
 
 	def installed_packages (self):
-		(root, dirs, files) = os.walk (self.config).next ()
-
-		lists = []
-		for f in files:
-			m = re.match ('(.*).lst.gz', f)
-			if m:
-				lists.append (m.group (1))
-
-		return [self._packages[p] for p in lists]
+		names = self._package_file_db.keys ()
+		return [self._packages[p] for p in names]
 
 	def tarball_files (self, ball):
 		flag = tar_compression_flag (ball)
@@ -58,7 +55,7 @@ class Package_manager:
 		return lst
 
 	def installed_files (self, package):
-		return self._read_file_list (package)
+		return self._package_file_db[package.name()].split ('\n')
 
 	def uninstall_package (self, package):
 		if package not in self._packages.values ():
@@ -77,6 +74,8 @@ class Package_manager:
 
 		listfile = self.file_list_name (package)
 		lst = self.installed_files (package)
+		name = package.name()
+		
 		dirs = []
 		files = []
 		for i in lst:
@@ -105,15 +104,23 @@ class Package_manager:
 				print 'warning: %s not empty' % d
 
 		os.unlink (listfile)
+		for f in lst :
+			self._file_package_db[f]  
+		del self._package_file_db[name]
+		
 
 	def file_list_name (self, package):
 		return '%s/%s.lst.gz' % (self.config, package.name ())
 
 	def is_installed (self, package):
-		return os.path.exists (self.file_list_name (package))
+		return self._package_file_db.has_key (package.name())
 
 	def install_single_package (self, package):
 		name = package.name ()
+		if self._package_file_db.has_key (name):
+			print 'already have package ', name
+			raise 'abort'
+
 		ball = package.expand ('%(gub_uploads)s/%(gub_name)s')
 
 		self.os_interface.log_command ('installing package %(name)s from %(ball)s\n'
@@ -121,10 +128,20 @@ class Package_manager:
 
 		flag = tar_compression_flag (ball)
 		root = self.root
+		lst = self.tarball_files (ball)
+
+		for f in lst:
+			if self._file_package_db.has_key (f) and not os.path.isdir (self.root + '/'+  f):
+				print 'already have file', f
+				raise 'abort'
 
 		self.os_interface.system ('tar -C %(root)s -xf%(flag)s %(ball)s' % locals ())
 
-		lst = self.tarball_files (ball)
+
+		self._package_file_db[name] = '\n'.join (lst)
+		for f in lst:
+			self._file_package_db[f] = name
+		
 		self._write_file_list (package, lst)
 
 	def _read_file_list (self, package):
