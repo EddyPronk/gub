@@ -22,7 +22,9 @@ class Cross_package (gub.Package):
 		
 
 class Binutils (Cross_package):
-	pass
+	def install (self):
+		Cross_package.install (self)
+		self.system ('rm %(install_root)s/usr/cross/lib/libiberty.a')
 
 class Gcc (Cross_package):
 	def configure_command (self):
