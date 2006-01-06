@@ -90,6 +90,11 @@ class Alien (Tool_package):
 	def configure_command (self):
 		return 'perl Makefile.PL'
 
+class Fakeroot (Tool_package):
+	def srcdir (self):
+		return re.sub ('_','-', Tool_package.srcdir(self))
+
+
 def get_packages (settings):
 	return [
 		Nsis (settings).with (version='2.06',
@@ -109,8 +114,12 @@ def get_packages (settings):
 				      mirror=download.nongnu, format='gz'),
 		Alien (settings).with (version="8.60",
 				       mirror="http://www.kitenet.net/programs/alien/alien_8.60.tar.gz",
-				       format="gz")
-		
+				       format="gz"),
+
+		Fakeroot(settings).with (version="1.2.10",
+					 mirror="http://ftp.debian.org/debian/pool/main/f/fakeroot/fakeroot_1.2.10.tar.gz",
+					 format="gz")
+					 
 		]
 
 
