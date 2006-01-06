@@ -64,8 +64,8 @@ def change_target_packages (packages):
 	
 	for p in packages:
 		gub.change_target_dict (p,
-				    {'CC': 'apgcc',
-				     'CXX': 'apg++',
+				    {#'CC': 'apgcc',
+				     #'CXX': 'apg++',
 				     'LD': 'ld --as-needed',
 				     'LDFLAGS': '-Wl,--as-needed',
 #				     'APBUILD_CC': 'gcc-3.4',
