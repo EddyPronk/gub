@@ -1352,6 +1352,11 @@ def get_packages (settings):
 					       depends=[]),
 	],
 	'local': [],
+	'debian': [
+		LilyPond__linux (settings).with (version=settings.lilypond_branch, mirror=cvs.gnu,
+						 depends=['libfontconfig1-dev', 'libgettextpo-dev', 'guile16-dev', 'libpango1.0-dev', 'python-dev'],
+						 track_development=True),
+		]
 	}
 
 	packs = packages[settings.platform]

@@ -1,11 +1,12 @@
+import dbhash
 import gzip
 import os
 import re
 import string
+#
 import buildnumber
 import framework
 import gub
-import dbhash
 
 # X package manager (x for want of better name)
 
@@ -40,7 +41,9 @@ class Package_manager:
 		return os.path.exists (ball)
 
 	def register_package (self, pkg):
-		self._packages[pkg.name()] = pkg
+		print 'zelf: ' + `self`
+		print 'pkg: ' + `pkg`
+		self._packages[pkg.name ()] = pkg
 
 	def installed_packages (self):
 		names = self._package_file_db.keys ()
@@ -50,7 +53,6 @@ class Package_manager:
 		flag = tar_compression_flag (ball)
 		str = self.os_interface.read_pipe ('tar -tf%(flag)s "%(ball)s"'
 						   % locals (), silent=True)
-
 		lst = str.split ('\n')
 		return lst
 
@@ -101,7 +103,7 @@ class Package_manager:
 				print 'warning: %s not empty' % d
 
 		for f in lst:
-			if not f or  f[-1] == '/':
+			if not f or f[-1] == '/':
 				continue
 			
 			try:
@@ -111,7 +113,6 @@ class Package_manager:
 		del self._package_file_db[name]
 		os.unlink (listfile)
 		
-
 	def file_list_name (self, package):
 		return '%s/%s.lst.gz' % (self.config, package.name ())
 
@@ -145,12 +146,11 @@ class Package_manager:
 
 		self.os_interface.system ('tar -C %(root)s -xf%(flag)s %(ball)s' % locals ())
 
-
 		self._package_file_db[name] = '\n'.join (lst)
 		for f in lst:
 			
 			# ignore directories.
-			if f and  f[-1] <> '/':
+			if f and  f[-1] != '/':
 				self._file_package_db[f] = name
 			
 		self._write_file_list (package, lst)
@@ -165,7 +165,6 @@ class Package_manager:
 			f.write ('%s\n' % i)
 		f.close ()
 
-	
 	def install_dependencies (self, package):
 		for d in package.dependencies:
 			self.install_package (d)
@@ -217,6 +216,51 @@ class Package_manager:
 			print 'known packages', self._packages
 			raise "Unknown package", k
 
+#Class factory in the [new] module (python)
+#>>> from new import classobj
+#>>> Foo2 = classobj('Foo2',(Foo,),{'bar':lambda self:'bar'})
+#>>> Foo2().bar()
+#'bar'
+#>>> Foo2().say_foo()
+#foo
+
+class Debian_package_manager (Package_manager):
+	def __init__ (self, root, os_interface):
+		Package_manager.__init__ (self, root, os_interface)
+		self.pool = 'http://ftp.de.debian.org/debian'
+
+	def register_packages (self, package_file):
+		for description in '\n\n'.split (open (package_file).read ()):
+			self.register_package (self.debian_package (description))
+			
+	def get_packages (self, package_file):
+		return map (self.debian_package,
+			    open (package_file).read ().split ('\n\n')[10:20])
+
+	def debian_package (self, description):
+		from new import classobj
+		s = description[:description.find ('\nDescription')]
+		d = dict (map (lambda line: line.split (': ', 1),
+			       s.split ('\n')))
+		package = classobj (d['Package'], (gub.Binary_package,), {})
+		t = {
+			'Package' : 'name',
+			'Version' : 'ball_version',
+			'Depends' : 'name_dependencies',
+			'Filename' : 'url',
+			}
+		if d.has_key ('Depends'):
+			package.name_dependencies = re.sub ('-', '_',
+							    re.sub ('\([^\)]*\)',
+							    '',
+							    d['Depends'])).split (', ')
+		package.ball_version = d['Version']
+		package.url = (self.pool
+			       + '/%(Filename)s_%(Version)s_%(Architecture)s.deb'
+			       % d)
+		print `package`
+		print `package.__dict__`
+		return package
 
 def get_manager (settings):
 	target_manager = Package_manager (settings.system_root,
@@ -238,8 +282,10 @@ def get_manager (settings):
 	elif settings.platform.startswith ('local'):
 		import tools
 		cross_module = tools
-	
-	
+	elif settings.platform.startswith ('debian'):
+		import debian_unstable
+		cross_module = debian_unstable
+
 	map (target_manager.register_package, cross_module.get_packages (settings))
 	map (target_manager.register_package, framework.get_packages (settings))
 

@@ -77,6 +77,8 @@ def get_settings (platform):
 		pass
 	elif platform == 'freebsd':
 		pass
+	elif platform == 'debian':
+		pass
 	elif platform == 'local':
 		pass
 	else:
@@ -156,7 +158,7 @@ package-installer - build installer binary
 		      type='choice',
 		      default=None,
 		      help='select target platform',
-		      choices=['local', 'darwin', 'freebsd', 'linux', 'mingw'])
+		      choices=['local', 'darwin', 'debian', 'freebsd', 'linux', 'mingw'])
 	p.add_option ('-s', '--setting', action='append',
 		      dest="settings",
 		      type='string',
