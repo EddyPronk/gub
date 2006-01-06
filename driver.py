@@ -249,6 +249,8 @@ def main ():
 	PATH = os.environ["PATH"]
 	os.environ["PATH"] = settings.expand ('%(tooldir)s/bin:%(PATH)s', locals())
 
+	## ugr: Alien is broken.
+	os.environ['PERLLIB'] = settings.expand ('%(tooldir)s/lib/perl5/site_perl/5.8.6/')
 
 	c = commands.pop (0)
 	if c == 'download':
