@@ -235,7 +235,8 @@ def main ():
 	target_manager = xpm.get_manager (settings)
 	pm = target_manager
 
-	pm.resolve_dependencies ()
+	#pm.resolve_dependencies ()
+	pm.resolve_dependencies (framework.get_packages (settings))
 
 	if options.arguments and options.arguments[0] == 'all':
 		options.arguments = pm._packages.keys ()
