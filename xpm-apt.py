@@ -158,7 +158,7 @@ class Command:
 		for p in self.options.arguments:
 			if self.pm.name_is_installed (p):
 				print '%s already installed' % p
-
+				
 		for p in self.options.arguments:
 			if not self.pm.name_is_installed (p):
 				if self.options.nodeps_p:
@@ -180,10 +180,9 @@ class Command:
 		'''uninstall packages'''
 		for p in self.options.arguments:
 			if not self.pm.name_is_installed (p):
-				raise '%s not installed' % p
-
-		for p in self.options.arguments:
-			self.pm.name_uninstall (p)
+				print '%s not installed' % p
+			else:
+				self.pm.name_uninstall (p)
 
 def usage (options):
 	sys.stdout.write ('''%s [OPTION]... COMMAND [PACKAGE]...
