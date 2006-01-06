@@ -85,7 +85,10 @@ class Package_manager:
 			if not os.path.exists (f) and not os.path.islink (f):
 				print 'xpm: uninstall: %s' % package
 				print 'xpm: no such file: %s' % f
-			        raise 'barf'
+			        print 
+			        print "BARF"  ## don't crash. Dealing with this is now.
+			        print
+			        print
 
 			elif os.path.isdir (f):
 				dirs.append (f)
