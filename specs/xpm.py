@@ -127,10 +127,15 @@ class Package_manager:
 		root = self.root
 		lst = self.tarball_files (ball)
 
+
+		conflicts = False
 		for f in lst:
 			if self._file_package_db.has_key (f) and not os.path.isdir (self.root + '/'+  f):
 				print 'already have file %s: %s' % (f, self._file_package_db[f])
-				raise 'abort'
+				conflicts = True
+
+		if conflicts:
+			raise 'abort'
 
 		self.os_interface.system ('tar -C %(root)s -xf%(flag)s %(ball)s' % locals ())
 
