@@ -170,7 +170,7 @@ class Command:
 		'''installed packages'''
 		if self.options.name_p:
 			print '\n'.join (sort (map (gub.Package.name,
-						     self.pm.installed_packages ())))
+						    self.pm.installed_packages ())))
 		else:
 			print '\n'.join (sort (map (lambda x: '%-20s%s' % (x.name (),
 								     x.full_version ()),

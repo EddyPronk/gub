@@ -92,10 +92,6 @@ def read_tail (file, amount=10240):
 ################################################################
 # main
 
-
-
-
-
 def test_target (options, target):
 	canonicalize = re.sub('[ \t\n]', '_', target)
 	canonicalize = re.sub ('[^a-zA-Z]', '_', canonicalize)
