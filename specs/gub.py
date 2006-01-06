@@ -52,20 +52,18 @@ cd %(dir)s && wget %(url)s
 
 	def cvs (self):
 		url = self.expand (self.url)
-		if not os.path.exists (self.expand (self.srcdir ())):
-			## too complicated
-			##dir = re.sub (self.settings.allsrcdir + '/', '', self.expand (self.srcdir ()))
-			dir = '%(name)s-%(version)s'
+		dir = self.expand ('%(name)s-%(version)s')
+		cvs_dest = self.expand ('%(downloaddir)s/%(dir)s' , locals())
+		if not os.path.exists (cvs_dest):
 			self.system ('''
-cd %(allsrcdir)s && cvs -d %(url)s -q co -d %(dir)s -r %(version)s %(name)s
+cd %(downloaddir)s && cvs -d %(url)s -q co -d %(dir)s -r %(version)s %(name)s
 ''', locals ())
 		else:
 # Hmm, let's save local changes?			
 #cd %(srcdir)s && cvs update -dCAP -r %(version)s
 			self.system ('''
-cd %(srcdir)s && cvs -q update -dAP -r %(version)s
+cd %(downloaddir)s/%(dir)s && cvs -q update -dAP -r %(version)s
 ''', locals ())
-		self.untar = self.skip
 
 	@subst_method
 	def build (self):
@@ -315,7 +313,9 @@ tar -C %(dir)s %(flags)s %(tarball)s
 
 	def untar (self):
 		if self.track_development:
-			return
+			## cp options are not standardized.
+			self.system ("rsync -a %(downloaddir)s/%(name)s-%(version)s/ %(srcdir)s")
+			
 		self.system ('''
 rm -rf %(srcdir)s %(builddir)s %(install_root)s
 ''')
