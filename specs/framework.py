@@ -112,7 +112,7 @@ class Gmp (targetpackage.Target_package):
 		# hack seems to work.
 		self.file_sub ([('#! /bin/sh', '#! /bin/sh\ntagname=CXX')],
 			       '%(builddir)s/libtool')
-
+		
 class Gmp__darwin (Gmp):
 	def patch (self):
 

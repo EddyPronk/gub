@@ -11,7 +11,6 @@ all: linux mingw mac
 #
 #  LILYPOND_CVSDIR - a CVS HEAD working directory
 #  LILYPOND_BRANCH - the tag for this branch, or HEAD 
-#  BUILD_PLATFORM - the platform used for building.
 #
 
 include local.make
