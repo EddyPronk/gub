@@ -46,7 +46,8 @@ BUILD_ALL=$(call INVOKE_DRIVER,$(1)) build all \
 
 download:
 	$(foreach p, $(PLATFORMS), $(call INVOKE_DRIVER,$(p)) download && ) true
-	$(foreach p, $(PLATFORMS), mv uploads/$(p)/lilypond-$(LILYPOND_BRANCH).$(p).gub uploads/$(p)/lilypond-$(LILYPOND_BRANCH)-OLD.$(p).gub )
+	$(call INVOKE_DRIVER,local) download
+	$(foreach p, $(PLATFORMS), (mv uploads/$(p)/lilypond-$(LILYPOND_BRANCH).$(p).gub uploads/$(p)/lilypond-$(LILYPOND_BRANCH)-OLD.$(p).gub || true) &&) true
 	$(foreach p, $(PLATFORMS), $(call INVOKE_XPM,$(p)) remove lilypond ; ) true
 
 all: linux freebsd mac mingw
