@@ -233,6 +233,7 @@ tooldir=%(install_prefix)s
 		self.system ('''
 rm -rf %(install_root)s
 cd %(builddir)s && %(install_command)s
+(rm %(install_root)s/usr/info/dir %(install_root)s/usr/cross/info/dir  || true) 
 ''')
 		self.libtool_la_fixups ()
 
