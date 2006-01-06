@@ -20,6 +20,9 @@ class Darwin_sdk (gub.Sdk_package):
 		pat = self.expand ('%(srcdir)s/usr/lib/*.la')
 		self.system ('rm %(srcdir)s/usr/lib/charset.alias')
 		self.system ('rm %(srcdir)s/usr/lib/libgcc*')
+		self.system ('rm %(srcdir)s/usr/lib/*libguile*')
+		self.system ('rm -rf %(srcdir)s/usr/include/gcc')
+		self.system ('rm -rf %(srcdir)s/usr/lib/gcc')
 		
 		for a in glob.glob (pat):
 			self.file_sub ([(r' (/usr/lib/.*\.la)', r'%(system_root)s\1')], a)
@@ -83,7 +86,7 @@ class Rewirer (context.Os_context_wrapper):
 				self.rewire_mach_o_object_executable_path(f)
 		
 	def get_ignore_libs (self):
-		str = self.read_pipe ('tar tfz %(gub_uploads)s/darwin-sdk-0.1-1.darwin.gub')
+		str = self.read_pipe ('tar tfz %(gub_uploads)s/darwin-sdk-0.2-1.darwin.gub')
 		d = {}
 		for l in str.split ('\n'):
 			l = l.strip ()
@@ -122,7 +125,7 @@ def add_rewire_path (settings, packages):
 def get_packages (settings):
 	packages = [
 		Odcctools (settings).with (version='20051122', mirror=download.opendarwin, format='bz2'),		
-		Darwin_sdk (settings).with (version='0.1', mirror=download.hw,
+		Darwin_sdk (settings).with (version='0.2', mirror=download.hw,
 					    format='gz'),
 		Gcc (settings).with (mirror = download.gcc,
 
@@ -147,7 +150,7 @@ def change_target_packages (packages):
 	
 def get_darwin_sdk ():
 	host  = 'maagd'
-	version = '0.1'
+	version = '0.2'
 
 	l = locals()
 
