@@ -100,10 +100,16 @@ class Package_manager:
 			except OSError:
 				print 'warning: %s not empty' % d
 
-		os.unlink (listfile)
 		for f in lst:
-			del self._file_package_db[f]  
+			if not f or  f[-1] == '/':
+				continue
+			
+			try:
+				del self._file_package_db[f]
+			except:
+				print 'db delete failing for ', f
 		del self._package_file_db[name]
+		os.unlink (listfile)
 		
 
 	def file_list_name (self, package):
@@ -142,8 +148,11 @@ class Package_manager:
 
 		self._package_file_db[name] = '\n'.join (lst)
 		for f in lst:
-			self._file_package_db[f] = name
-		
+			
+			# ignore directories.
+			if f and  f[-1] <> '/':
+				self._file_package_db[f] = name
+			
 		self._write_file_list (package, lst)
 
 	def _read_file_list (self, package):
