@@ -41,8 +41,6 @@ class Package_manager:
 		return os.path.exists (ball)
 
 	def register_package (self, pkg):
-		print 'zelf: ' + `self`
-		print 'pkg: ' + `pkg`
 		self._packages[pkg.name ()] = pkg
 
 	def installed_packages (self):
@@ -187,9 +185,11 @@ class Package_manager:
 			return
 		self.install_single_package (package)
 
-	def resolve_dependencies (self):
+	def resolve_dependencies (self, packages=None):
+		if not packages:
+			packages = self._packages.values ()
 		try:
-			for p in self._packages.values ():
+			for p in packages:
 				p.dependencies += [self._packages[d] for d in p.name_dependencies]
 				if p in p.dependencies:
 					print 'circular dependency', p, p.name_dependencies, p.dependencies, self._packages
@@ -225,9 +225,11 @@ class Package_manager:
 #foo
 
 class Debian_package_manager (Package_manager):
-	def __init__ (self, root, os_interface):
-		Package_manager.__init__ (self, root, os_interface)
+	def __init__ (self, settings):
+		Package_manager.__init__ (self, settings.system_root,
+					  settings.os_interface)
 		self.pool = 'http://ftp.de.debian.org/debian'
+		self.settings = settings
 
 	def register_packages (self, package_file):
 		for description in '\n\n'.split (open (package_file).read ()):
@@ -235,14 +237,15 @@ class Debian_package_manager (Package_manager):
 			
 	def get_packages (self, package_file):
 		return map (self.debian_package,
-			    open (package_file).read ().split ('\n\n')[10:20])
+			    open (package_file).read ().split ('\n\n')[:-1])
 
 	def debian_package (self, description):
 		from new import classobj
 		s = description[:description.find ('\nDescription')]
 		d = dict (map (lambda line: line.split (': ', 1),
 			       s.split ('\n')))
-		package = classobj (d['Package'], (gub.Binary_package,), {})
+		Package = classobj (d['Package'], (gub.Binary_package,), {})
+		package = Package (self.settings)
 		t = {
 			'Package' : 'name',
 			'Version' : 'ball_version',
@@ -250,16 +253,18 @@ class Debian_package_manager (Package_manager):
 			'Filename' : 'url',
 			}
 		if d.has_key ('Depends'):
-			package.name_dependencies = re.sub ('-', '_',
+			# not changing package name - _ helps in
+			# resolving dependencies
+			package.name_dependencies = re.sub ('-', '-',
 							    re.sub ('\([^\)]*\)',
 							    '',
 							    d['Depends'])).split (', ')
 		package.ball_version = d['Version']
-		package.url = (self.pool
+		package.xxurl = (self.pool
 			       + '/%(Filename)s_%(Version)s_%(Architecture)s.deb'
 			       % d)
-		print `package`
-		print `package.__dict__`
+		package.url = self.pool + '/' + d['Filename']
+		package.format = 'deb'
 		return package
 
 def get_manager (settings):
@@ -287,10 +292,19 @@ def get_manager (settings):
 		cross_module = debian_unstable
 
 	map (target_manager.register_package, cross_module.get_packages (settings))
-	map (target_manager.register_package, framework.get_packages (settings))
+	# FIXME: only resolve necessary dependencies.
+	# actually, we should only ever look at:
+	#   - lilypond
+	#   - ghostscript
+	#   - lilypad
+	#   - python
+	# all other libraries should be examined automatically as a dependency
+	# map (target_manager.register_package, framework.get_packages (settings))
+	fp = framework.get_packages (settings)
+	map (target_manager.register_package, fp)
 
 	for m in (target_manager,):
-		m.resolve_dependencies ()
+		m.resolve_dependencies (fp)
 		for p in m._packages.values ():
 			settings.build_number_db.set_build_number (p)
 

@@ -102,7 +102,9 @@ def add_options (settings, options):
 	if settings.platform == 'linux':
 		settings.tool_prefix = ''
 
-	if settings.platform == 'linux' or settings.platform == 'freebsd':
+	if (settings.platform == 'linux'
+	    or settings.platform == 'freebsd'
+	    or settings.platform == 'debian'):
 
 		# FIXME: this for deb/rpm/slackware package archs
 		settings.package_arch = 'i386'
@@ -228,8 +230,8 @@ def run_builder (settings, pkg_manager, args):
 		build_package (settings, pkg_manager, p)
 
 def download_sources (manager):
-	for p in manager._packages.values():
-		p.os_interface.log_command ("Considering %s\n" % p.name())
+	for p in manager._packages.values ():
+		p.os_interface.log_command ("Considering %s\n" % p.name ())
 		p.do_download ()
 
 def main ():
@@ -256,7 +258,12 @@ def main ():
 
 	c = commands.pop (0)
 	if c == 'download':
-		download_sources (target_manager)
+		if settings.platform == 'debian':
+			# lilypond should pull in other dependencies
+			for i in target_manager._packages['lilypond'].dependencies:
+				i.do_download ()
+		else:
+			download_sources (target_manager)
 	elif c == 'build':
 		run_builder (settings, target_manager, commands)
 	elif c == 'build-installer':

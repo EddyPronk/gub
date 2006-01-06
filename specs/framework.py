@@ -1228,6 +1228,13 @@ install: all
 shtool mkshadow %(srcdir)s %(builddir)s
 ''')
 
+class LilyPond__debian (LilyPond__linux):
+	#URG
+	def config_cache_settings (self):
+		return self.config_cache_overrides (
+			targetpackage.cross_config_cache['all']
+			+ targetpackage.cross_config_cache['linux'])
+
 # latest vanilla packages
 #Zlib (settings).with (version='1.2.3', mirror=download.zlib, format='bz2'),
 #Expat (settings).with (version='1.95.8', mirror=download.sf),
@@ -1353,8 +1360,8 @@ def get_packages (settings):
 	],
 	'local': [],
 	'debian': [
-		LilyPond__linux (settings).with (version=settings.lilypond_branch, mirror=cvs.gnu,
-						 depends=['libfontconfig1-dev', 'libgettextpo-dev', 'guile16-dev', 'libpango1.0-dev', 'python-dev'],
+		LilyPond__debian (settings).with (version=settings.lilypond_branch, mirror=cvs.gnu,
+						 depends=['libfontconfig1-dev', 'gettext', 'guile-1.6-dev', 'libpango1.0-dev', 'python-dev'],
 						 track_development=True),
 		]
 	}
