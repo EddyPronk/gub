@@ -169,7 +169,7 @@ class Os_context_wrapper (Context):
 	def __init__ (self, settings):
 		Context.__init__ (self, settings)
 		self.os_interface = settings.os_interface
-		self.verbose = settings.verbose
+		self.verbose = settings.verbose ()
 		
 	def file_sub (self, re_pairs, name, to_name=None, env={}):
 		x = [(self.expand (frm, env),
