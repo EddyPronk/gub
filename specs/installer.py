@@ -34,6 +34,7 @@ class Installer (context.Os_context_wrapper):
 			delete_me += p + '%(i)s '
 
 		for i in (
+			'etc/xpm',
 			'bin/autopoint',
 			'bin/glib-mkenums',
 			'bin/guile-*',
