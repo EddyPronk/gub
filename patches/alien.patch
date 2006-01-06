@@ -1,0 +1,19 @@
+--- Makefile~	2006-01-06 22:13:16.000000000 +0100
++++ Makefile	2006-01-06 22:13:32.000000000 +0100
+@@ -818,11 +818,11 @@
+ 	perl -i -pe "s/\@version\@/$(VER)/g" <alien.spec.in >alien.spec
+ 
+ extra_install:
+-	install -d $(PREFIX)/share/alien/patches \
+-		   $(VARPREFIX)/var/lib/alien
+-	cp -f patches/*.diff $(PREFIX)/share/alien/patches/
+-	-rm -f $(PREFIX)/share/alien/patches/*.gz
+-	gzip -qf9 $(PREFIX)/share/alien/patches/*
++	install -d $(DESTDIR)$(PREFIX)/share/alien/patches \
++		   $(DESTDIR)$(VARPREFIX)/var/lib/alien
++	cp -f patches/*.diff $(DESTDIR)$(PREFIX)/share/alien/patches/
++	-rm -f $(DESTDIR)$(PREFIX)/share/alien/patches/*.gz
++	gzip -qf9 $(DESTDIR)$(PREFIX)/share/alien/patches/*
+ 
+ alien:
+ 	perl -pe ' \
