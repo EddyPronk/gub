@@ -43,6 +43,8 @@ class Libc6_dev (gub.Binary_package, gub.Sdk_package):
 				       '%(srcdir)s/root/usr/include/%(i)s',
 				       env=locals ())
 
+		self.system ('rm -rf  %(srcdir)s/root/usr/include/asm/  %(srcdir)s/root/usr/include/linux ')
+			
 class Linux_kernel_headers (gub.Binary_package, gub.Sdk_package):
 	pass
 
