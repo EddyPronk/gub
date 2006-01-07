@@ -127,8 +127,6 @@ def get_packages (settings):
 		Darwin_sdk (settings).with (version='0.2', mirror=download.hw,
 					    format='gz'),
 		Gcc (settings).with (mirror = download.gcc,
-
-##				     version='3.4.5',
 				     version='4.0.2', 
 				     format='bz2',
 				     depends=['odcctools']),
