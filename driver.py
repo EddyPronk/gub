@@ -17,20 +17,27 @@ import gub
 import settings as settings_mod
 import xpm
 
+# FIXME: member of manager, package?
 def build_package (settings, manager, package):
 	if manager.is_installed (package):
 		return
+
+	# FIXME: work around debian's circular dependencies
+	if package.__dict__.has_key ('_building'):
+		return
+	package._building = None
 	
 	settings.os_interface.log_command (package.expand (' ** Package: %(name)s (%(version)s, %(build)s)\n'))
 
-	deps = manager.dependencies (package)
-	for d in deps:
+	for d in manager.dependencies (package):
 		settings.os_interface.log_command ('building dependency: ' + d.name ()
 						   + ' for package: ' + package.name ()
 						   + '\n')
 		build_package (settings, manager, d)
-		if not manager.is_installed (d):
+		if (manager.is_installable (package) and
+		    not manager.is_installed (d)):
 			manager.install_package (d)
+	del (package.__dict__['_building'])
 
 	stages = ['untar', 'patch', 'configure', 'compile', 'install',
 		  'package', 'clean']
@@ -259,9 +266,7 @@ def main ():
 	c = commands.pop (0)
 	if c == 'download':
 		if settings.platform == 'debian':
-			# lilypond should pull in other dependencies
-			for i in target_manager.dependencies (target_manager._packages['lilypond']):
-				i.do_download ()
+			target_manager.name_download ('lilypond')
 		else:
 			download_sources (target_manager)
 	elif c == 'build':

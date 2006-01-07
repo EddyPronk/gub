@@ -178,23 +178,26 @@ class Package_manager:
 		if package not in self._packages.values ():
 			return
 		
+		# FIXME: work around debian's circular dependencies
+		if package.__dict__.has_key ('_installing'):
+			return
+		package._installing = None
+
 		self.install_dependencies (package)
 
 		## need to check deps, but do anything if package is already there.
-		if self.is_installed (package):
-			return
-		self.install_single_package (package)
+		if not self.is_installed (package):
+			self.install_single_package (package)
+		del (package.__dict__['_installing'])
 
 	def dependencies (self, package):
 		# FIXME: check twice
 		if package._dependencies == None:
 			self._resolve_dependencies (package)
-		print 'dependencies for: ' + package.name () + ':' + `package._dependencies`
 		return package._dependencies + package.build_dependencies
 
 	def _resolve_dependencies (self, package):
 		package._dependencies = []
-		print 'name_dependencies for: ' + package.name () + ':' + `package.name_dependencies`
 		try:
 			for d in package.name_dependencies:
 				dependency = self._packages[d]
@@ -202,7 +205,7 @@ class Package_manager:
 				if dependency._dependencies == None:
 					self._resolve_dependencies (dependency)
 			if package in package._dependencies:
-				print 'circular dependency', package, package.name_dependencies, package._dependencies, self._packages
+				print 'simple circular dependency', package, package.name_dependencies, package._dependencies, self._packages
 				raise 'BARF'
 
 		except KeyError, k:
@@ -211,6 +214,16 @@ class Package_manager:
 			print 'xpm: available packages: %s' % self._packages
 			print 'xpm: deps: %s' % package.name_dependencies
 			raise 'barf'
+
+	def download_package (self, package):
+		# FIXME: work around debian's circular dependencies
+		if package.__dict__.has_key ('_downloading'):
+			return
+		package._downloading = None
+		package.do_download ()
+		for i in self.dependencies (package):
+			self.download_package (i)
+		del (package.__dict__['_downloading'])
 
 	# NAME_ shortcuts
 	def name_files (self, name):
@@ -225,14 +238,9 @@ class Package_manager:
 		except KeyError, k:
 			print 'known packages', self._packages
 			raise "Unknown package", k
-
-#Class factory in the [new] module (python)
-#>>> from new import classobj
-#>>> Foo2 = classobj('Foo2',(Foo,),{'bar':lambda self:'bar'})
-#>>> Foo2().bar()
-#'bar'
-#>>> Foo2().say_foo()
-#foo
+	def name_download (self, name):
+		self.download_package (self._packages[name])
+		
 
 class Debian_package_manager (Package_manager):
 	def __init__ (self, settings):
@@ -241,10 +249,6 @@ class Debian_package_manager (Package_manager):
 		self.pool = 'http://ftp.de.debian.org/debian'
 		self.settings = settings
 
-	def register_packages (self, package_file):
-		for description in '\n\n'.split (open (package_file).read ()):
-			self.register_package (self.debian_package (description))
-			
 	def get_packages (self, package_file):
 		return map (self.debian_package,
 			    open (package_file).read ().split ('\n\n')[:-1])
@@ -256,30 +260,20 @@ class Debian_package_manager (Package_manager):
 			       map (string.strip, s.split ('\n'))))
 		Package = classobj (d['Package'], (gub.Binary_package,), {})
 		package = Package (self.settings)
-		t = {
-			'Package' : 'name',
-			'Version' : 'ball_version',
-			'Depends' : 'name_dependencies',
-			'Filename' : 'url',
-			}
-
 		package.name_dependencies = []
 		if d.has_key ('Depends'):
-			# not changing package name - _ helps in
-			# resolving dependencies
-			package.name_dependencies = map (string.strip,
-							 re.sub ('-', '-',
-							re.sub ('\([^\)]*\)',
-								'',
-							d['Depends'])).split (', '))
+			deps = map (string.strip,
+				    re.sub ('\([^\)]*\)', '',
+					    d['Depends']).split (', '))
 			# FIXME: BARF, ignore choices
-			package.name_dependencies = filter (lambda x: x.find ('|') == -1,
-							    package.name_dependencies)
-					
+			deps = filter (lambda x: x.find ('|') == -1, deps)
+			# FIXME: how to handle Provides: ?
+			# FIXME: BARF, fixup libc Provides
+			deps = map (lambda x: re.sub ('libc($|-)', 'libc6\\1',
+						      x), deps)
+			package.name_dependencies = deps
+ 
 		package.ball_version = d['Version']
-		package.xxurl = (self.pool
-			       + '/%(Filename)s_%(Version)s_%(Architecture)s.deb'
-			       % d)
 		package.url = self.pool + '/' + d['Filename']
 		package.format = 'deb'
 		return package
@@ -309,21 +303,9 @@ def get_manager (settings):
 		cross_module = debian_unstable
 
 	map (target_manager.register_package, cross_module.get_packages (settings))
-	# FIXME: only resolve necessary dependencies.
-	# actually, we should only ever look at:
-	#   - lilypond
-	#   - ghostscript
-	#   - lilypad
-	#   - python
-	# all other libraries should be examined automatically as a dependency
-	# map (target_manager.register_package, framework.get_packages (settings))
-	fp = framework.get_packages (settings)
-	map (target_manager.register_package, fp)
-
-	for m in (target_manager,):
-		#m.resolve_dependencies (fp)
-		for p in m._packages.values ():
-			settings.build_number_db.set_build_number (p)
+	map (target_manager.register_package, framework.get_packages (settings))
+	for p in target_manager._packages.values ():
+		settings.build_number_db.set_build_number (p)
 
 	cross_module.change_target_packages (target_manager._packages.values ())
 

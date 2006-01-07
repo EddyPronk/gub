@@ -21,7 +21,7 @@ class Package (Os_context_wrapper):
 	def __init__ (self, settings):
 		Os_context_wrapper.__init__(self, settings)
 
-		self.verbose = settings.verbose()
+		self.verbose = settings.verbose ()
 		self.settings = settings
 		self.url = ''
 		self._downloader = self.wget
@@ -51,7 +51,7 @@ cd %(dir)s && wget %(url)s
 	def cvs (self):
 		url = self.expand (self.url)
 		dir = self.expand ('%(name)s-%(version)s')
-		cvs_dest = self.expand ('%(downloaddir)s/%(dir)s' , locals())
+		cvs_dest = self.expand ('%(downloaddir)s/%(dir)s' , locals ())
 		if not os.path.exists (cvs_dest):
 			self.system ('''
 cd %(downloaddir)s && cvs -d %(url)s -q co -d %(dir)s -r %(version)s %(name)s
