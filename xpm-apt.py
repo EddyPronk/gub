@@ -176,13 +176,20 @@ class Command:
 								     x.full_version ()),
 						     self.pm.installed_packages ())))
 
+	def remove_package (self, p, packs):
+		if not self.pm.is_installed (p):
+			print '%s not installed' % p.name()
+		else:
+			self.pm.uninstall_package (p)
+		
 	def remove (self):
 		'''uninstall packages'''
-		for p in self.options.arguments:
-			if not self.pm.name_is_installed (p):
-				print '%s not installed' % p
-			else:
-				self.pm.name_uninstall (p)
+
+		packages = [self.pm._packages[a] for a in self.options.arguments]
+		packages = self.pm.topological_sort (packages)
+		packages.reverse()
+		for p in packages:
+			self.remove_package (p, packages) 
 
 def usage (options):
 	sys.stdout.write ('''%s [OPTION]... COMMAND [PACKAGE]...
