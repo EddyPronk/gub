@@ -154,7 +154,7 @@ MD5 of complete patch set: %(release_hash)s
 		
 		msg = result_message (options, '', [
 			'%s FAIL' % target,
-			'\n'.join (body.split ('\n')[-10:]),
+			'\n'.join (body.split ('\n')[-30:]),
 			release_id,
 			diff,
 			body

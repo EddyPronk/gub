@@ -22,6 +22,9 @@ class Darwin_sdk (gub.Sdk_package):
 		self.system ('rm %(srcdir)s/usr/lib/libgcc*')
 		self.system ('rm -rf %(srcdir)s/usr/include/gcc')
 		self.system ('rm -rf %(srcdir)s/usr/lib/gcc')
+
+		## limits.h symlinks into GCC.
+		self.system ('rm -rf %(srcdir)s/usr/include/machine/limits.h')
 		
 		for a in glob.glob (pat):
 			self.file_sub ([(r' (/usr/lib/.*\.la)', r'%(system_root)s\1')], a)
