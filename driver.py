@@ -25,6 +25,7 @@ def build_package (settings, manager, package):
 	# FIXME: work around debian's circular dependencies
 	if package.__dict__.has_key ('_building'):
 		return
+
 	package._building = None
 	
 	settings.os_interface.log_command (package.expand (' ** Package: %(name)s (%(version)s, %(build)s)\n'))
@@ -35,9 +36,13 @@ def build_package (settings, manager, package):
 						   + ' for package: ' + package.name ()
 						   + '\n')
 		build_package (settings, manager, d)
-		if (manager.is_installable (package) and
-		    not manager.is_installed (d)):
+		if not manager.is_installable (d):
+			print 'package is not installable!', d
+			raise 'abort' 
+
+		if  (not manager.is_installed (d)):
 			manager.install_package (d)
+
 	del (package.__dict__['_building'])
 
 	stages = ['untar', 'patch', 'configure', 'compile', 'install',
