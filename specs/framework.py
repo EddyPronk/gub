@@ -171,6 +171,8 @@ class Guile (targetpackage.Target_package):
 		version = self.read_pipe ('''\
 GUILE_LOAD_PATH=%(install_prefix)s/share/guile/* guile -e main -s  %(install_prefix)s/bin/guile-config --version 2>&1\
 ''').split ()[-1]
+		self.system ('mkdir %(install_prefix)s/cross/bin/')
+
 		self.dump ('''\
 #!/bin/sh
 [ "$1" == "--version" ] && echo "%(target_architecture)s-guile-config - Guile version %(version)s"
@@ -181,8 +183,8 @@ prefix=$(dirname $(dirname $0))
 [ "$1" == "link" ] && echo "-L$prefix/lib -lguile -lgmp"
 exit 0
 ''',
-			   '%(install_prefix)s/bin/%(target_architecture)s-guile-config')
-		os.chmod ('%(install_prefix)s/bin/%(target_architecture)s-guile-config' % self.get_substitution_dict (), 0755)
+			   '%(install_prefix)s/cross/bin/%(target_architecture)s-guile-config')
+		os.chmod ('%(install_prefix)s/cross/bin/%(target_architecture)s-guile-config' % self.get_substitution_dict (), 0755)
 
 class Guile__mingw (Guile):
 	def __init__ (self, settings):

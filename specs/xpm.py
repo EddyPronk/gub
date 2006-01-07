@@ -35,7 +35,7 @@ class Package_manager:
 
 		self._file_package_db = dbhash.open (self.config + '/files.db', 'c')
 		self._package_file_db = dbhash.open (self.config + '/packages.db', 'c')
-
+	
 	def is_installable (self, package):
 		ball = package.expand ('%(gub_uploads)s/%(gub_name)s')
 		return os.path.exists (ball)
@@ -195,6 +195,23 @@ class Package_manager:
 		if package._dependencies == None:
 			self._resolve_dependencies (package)
 		return package._dependencies + package.build_dependencies
+
+	def topological_sort (manager, nodes):
+		deps = dict ([(n, [d for d in manager.dependencies (n) if d in nodes])
+			      for n in nodes])
+
+		done = {}
+
+		sorted = []
+		while deps:
+			rm = [n for (n,ds) in  deps.items () if ds == [] ]
+			sorted += rm
+
+			deps = dict ([(n,ds) for (n,ds) in deps.items () if ds <> [] ])
+			for ds in deps.values():
+				ds[:] = [d for d in ds if d not in rm]
+
+		return sorted
 
 	def _resolve_dependencies (self, package):
 		package._dependencies = []
