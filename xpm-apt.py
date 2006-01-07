@@ -236,7 +236,7 @@ def main ():
 	pm = target_manager
 
 	#pm.resolve_dependencies ()
-	pm.resolve_dependencies (framework.get_packages (settings))
+	#pm.resolve_dependencies (framework.get_packages (settings))
 
 	if options.arguments and options.arguments[0] == 'all':
 		options.arguments = pm._packages.keys ()

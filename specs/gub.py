@@ -26,17 +26,15 @@ class Package (Os_context_wrapper):
 		self.url = ''
 		self._downloader = self.wget
 		self._build = 0
-		self.dependencies = []
+		self._dependencies = None
 		self.build_dependencies = []
 		
 		# set to true for CVS releases 
 		self.track_development = False
 
-
 	# fixme: rename download.py to mirrors.py
 	def do_download (self):
-		self._downloader()
-		
+		self._downloader ()
 
 	def skip (self):
 		pass

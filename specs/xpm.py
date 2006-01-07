@@ -61,8 +61,8 @@ class Package_manager:
 		if package not in self._packages.values ():
 			return
 		
-		for (nm, p) in self._packages.items():
-			if (package.name () in p.dependencies
+		for (nm, p) in self._packages.items ():
+			if (package in self.dependencies (p)
 			    and self.is_installed (p)):
 				raise ('Package %s depends on %s'
 				       % (`p`, `package`))
@@ -164,7 +164,7 @@ class Package_manager:
 		f.close ()
 
 	def install_dependencies (self, package):
-		for d in package.dependencies:
+		for d in self.dependencies (package):
 			self.install_package (d)
 
 	def install_build_dependencies (self, package):
@@ -185,21 +185,31 @@ class Package_manager:
 			return
 		self.install_single_package (package)
 
-	def resolve_dependencies (self, packages=None):
-		if not packages:
-			packages = self._packages.values ()
+	def dependencies (self, package):
+		# FIXME: check twice
+		if package._dependencies == None:
+			self._resolve_dependencies (package)
+		print 'dependencies for: ' + package.name () + ':' + `package._dependencies`
+		return package._dependencies + package.build_dependencies
+
+	def _resolve_dependencies (self, package):
+		package._dependencies = []
+		print 'name_dependencies for: ' + package.name () + ':' + `package.name_dependencies`
 		try:
-			for p in packages:
-				p.dependencies += [self._packages[d] for d in p.name_dependencies]
-				if p in p.dependencies:
-					print 'circular dependency', p, p.name_dependencies, p.dependencies, self._packages
-					raise 'BARF'
+			for d in package.name_dependencies:
+				dependency = self._packages[d]
+				package._dependencies += [dependency]
+				if dependency._dependencies == None:
+					self._resolve_dependencies (dependency)
+			if package in package._dependencies:
+				print 'circular dependency', package, package.name_dependencies, package._dependencies, self._packages
+				raise 'BARF'
 
 		except KeyError, k:
-			print 'xpm: resolving dependencies for: %s' % p
+			print 'xpm: resolving dependencies for: %s' % package
 			print 'xpm: unknown package: %s' % k
 			print 'xpm: available packages: %s' % self._packages
-			print 'xpm: deps: %s' % p.name_dependencies
+			print 'xpm: deps: %s' % package.name_dependencies
 			raise 'barf'
 
 	# NAME_ shortcuts
@@ -243,7 +253,7 @@ class Debian_package_manager (Package_manager):
 		from new import classobj
 		s = description[:description.find ('\nDescription')]
 		d = dict (map (lambda line: line.split (': ', 1),
-			       s.split ('\n')))
+			       map (string.strip, s.split ('\n'))))
 		Package = classobj (d['Package'], (gub.Binary_package,), {})
 		package = Package (self.settings)
 		t = {
@@ -252,13 +262,20 @@ class Debian_package_manager (Package_manager):
 			'Depends' : 'name_dependencies',
 			'Filename' : 'url',
 			}
+
+		package.name_dependencies = []
 		if d.has_key ('Depends'):
 			# not changing package name - _ helps in
 			# resolving dependencies
-			package.name_dependencies = re.sub ('-', '-',
-							    re.sub ('\([^\)]*\)',
-							    '',
-							    d['Depends'])).split (', ')
+			package.name_dependencies = map (string.strip,
+							 re.sub ('-', '-',
+							re.sub ('\([^\)]*\)',
+								'',
+							d['Depends'])).split (', '))
+			# FIXME: BARF, ignore choices
+			package.name_dependencies = filter (lambda x: x.find ('|') == -1,
+							    package.name_dependencies)
+					
 		package.ball_version = d['Version']
 		package.xxurl = (self.pool
 			       + '/%(Filename)s_%(Version)s_%(Architecture)s.deb'
@@ -304,7 +321,7 @@ def get_manager (settings):
 	map (target_manager.register_package, fp)
 
 	for m in (target_manager,):
-		m.resolve_dependencies (fp)
+		#m.resolve_dependencies (fp)
 		for p in m._packages.values ():
 			settings.build_number_db.set_build_number (p)
 

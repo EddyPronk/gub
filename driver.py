@@ -23,7 +23,7 @@ def build_package (settings, manager, package):
 	
 	settings.os_interface.log_command (package.expand (' ** Package: %(name)s (%(version)s, %(build)s)\n'))
 
-	deps = package.build_dependencies + package.dependencies
+	deps = manager.dependencies (package)
 	for d in deps:
 		settings.os_interface.log_command ('building dependency: ' + d.name ()
 						   + ' for package: ' + package.name ()
@@ -260,7 +260,7 @@ def main ():
 	if c == 'download':
 		if settings.platform == 'debian':
 			# lilypond should pull in other dependencies
-			for i in target_manager._packages['lilypond'].dependencies:
+			for i in target_manager.dependencies (target_manager._packages['lilypond']):
 				i.do_download ()
 		else:
 			download_sources (target_manager)
