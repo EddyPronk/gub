@@ -49,7 +49,7 @@ download:
 	$(call INVOKE_DRIVER,local) download
 	$(foreach p, $(PLATFORMS), (mv uploads/$(p)/lilypond-$(LILYPOND_BRANCH).$(p).gub uploads/$(p)/lilypond-$(LILYPOND_BRANCH)-OLD.$(p).gub || true) &&) true
 	$(foreach p, $(PLATFORMS), $(call INVOKE_XPM,$(p)) remove lilypond ; ) true
-	$(foreach p, $(PLATFORMS), rm -f target/$(p)/status/lilypond* && ) true
+	rm -f target/*/status/lilypond*
 
 all: linux freebsd mac mingw
 
