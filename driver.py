@@ -29,7 +29,8 @@ def build_package (settings, manager, package):
 	
 	settings.os_interface.log_command (package.expand (' ** Package: %(name)s (%(version)s, %(build)s)\n'))
 
-	for d in manager.dependencies (package):
+	deps = manager.dependencies (package)
+	for d in deps:
 		settings.os_interface.log_command ('building dependency: ' + d.name ()
 						   + ' for package: ' + package.name ()
 						   + '\n')
