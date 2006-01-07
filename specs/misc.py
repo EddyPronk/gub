@@ -22,3 +22,15 @@ def split_version (s):
 
 def list_append (lists):
 	return reduce (lambda x,y: x+y, lists, [])
+
+def uniq (list):
+	u = []
+	done = {}
+	for e in list:
+		if done.has_key (e):
+			continue
+
+		done[e] = 1
+		u.append (e)
+
+	return u
