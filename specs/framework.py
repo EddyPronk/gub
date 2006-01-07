@@ -171,7 +171,7 @@ class Guile (targetpackage.Target_package):
 		version = self.read_pipe ('''\
 GUILE_LOAD_PATH=%(install_prefix)s/share/guile/* guile -e main -s  %(install_prefix)s/bin/guile-config --version 2>&1\
 ''').split ()[-1]
-		self.system ('mkdir %(install_prefix)s/cross/bin/')
+		self.system ('mkdir -p %(install_prefix)s/cross/bin/')
 
 		self.dump ('''\
 #!/bin/sh
@@ -294,8 +294,7 @@ class Guile__darwin (Guile):
 class LilyPond (targetpackage.Target_package):
 	def configure_command (self):
 		## FIXME: pickup $target-guile-config
-		return ('PATH=%(system_root)s/usr/bin:$PATH '
-			+ targetpackage.Target_package.configure_command (self)
+		return (targetpackage.Target_package.configure_command (self)
 			+ misc.join_lines ('''
 --enable-relocation
 --disable-documentation
