@@ -20,8 +20,11 @@ class Darwin_sdk (gub.Sdk_package):
 		pat = self.expand ('%(srcdir)s/usr/lib/*.la')
 		self.system ('rm %(srcdir)s/usr/lib/charset.alias')
 		self.system ('rm %(srcdir)s/usr/lib/libgcc*')
-		self.system ('rm -rf %(srcdir)s/usr/include/gcc')
 		self.system ('rm -rf %(srcdir)s/usr/lib/gcc')
+		
+		## ugh, need to have gcc/3.3/machine/limits.h
+		### self.system ('rm -rf %(srcdir)s/usr/include/gcc')
+		
 
 		## limits.h symlinks into GCC.
 		self.system ('rm -rf %(srcdir)s/usr/include/machine/limits.h')
