@@ -235,6 +235,9 @@ def run_builder (settings, pkg_manager, args):
 	else:
 		pkgs = [pkg_manager._packages[name] for name in args]
 
+	pkgs = pkg_manager.topological_sort (pkgs)
+	pkgs.reverse()
+
 	for p in pkgs:
 		if pkg_manager.is_installed (p):
 			pkg_manager.uninstall_package (p)
