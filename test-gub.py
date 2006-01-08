@@ -18,8 +18,8 @@ def try_checked_before (hash, canonicalized_target):
 	if not os.path.isdir ('test'):
 		os.makedirs ('test')
 
-	db_file = 'test/gub-done-%s.db' % canonicalized_target
-	print 'using database ', db_file
+	db_file = 'log/gub-done-%s.db' % canonicalized_target
+	print 'Using database ', db_file
 	
 	db = dbhash.open (db_file, 'c')
 	was_checked = db.has_key (hash)
@@ -128,7 +128,7 @@ def test_target (options, target, last_patch):
 		sys.exit (0)
 
 
-	logfile = 'test/test-%(canonicalize)s.log' %  locals()
+	logfile = 'log/test-%(canonicalize)s.log' %  locals()
 	cmd = "nice %(target)s >& %(logfile)s" %  locals()
 	print 'starting : ', cmd
 	stat = os.system (cmd)

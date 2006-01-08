@@ -20,9 +20,10 @@ class Settings (Context):
 
 		self.target_gcc_flags = '' 
 		self.topdir = os.getcwd ()
+		self.logdir = self.topdir + '/log'
 		self.downloaddir = self.topdir + '/downloads'
 		self.patchdir = self.topdir + '/patches'
-		self.os_interface = Os_commands ('build-%s.log'
+		self.os_interface = Os_commands ('log/build-%s.log'
 						 % self.target_architecture)
 		self.build_architecture = self.os_interface.read_pipe ('gcc -dumpmachine',
 							 silent=True)[:-1]
@@ -75,6 +76,7 @@ class Settings (Context):
  	def create_dirs (self): 
 		for a in (
 			'downloaddir',
+			'logdir',
 			'gub_uploads',
 			'installer_uploads',
 			'specdir',
