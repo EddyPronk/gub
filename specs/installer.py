@@ -186,12 +186,14 @@ class Nsis (Installer):
 		self.system ('cd %(targetdir)s && makensis lilypond.nsi')
 		self.system ('mv %(targetdir)s/setup.exe %(installer_uploads)s/lilypond-%(bundle_version)s-%(bundle_build)s.exe', locals ())
 
+
+
+
+
 class Linux_installer (Installer):
 	def __init__ (self, settings):
 		Installer.__init__ (self, settings)
-		# lose the i486-foo-bar-baz-
-		self.strip_command = 'strip -g'
-		self.bundle_tarball = '%(installer_uploads)s/%(name)s-%(bundle_version)s-%(package_arch)s-%(bundle_build)s.tar.gz'
+		self.bundle_tarball = '%(installer_uploads)s/%(name)s-%(bundle_version)s-%(bundle_build)s-%(package_arch)s.tar.bz2'
 		
 	def strip_prefixes (self):
 		return (Installer.strip_prefixes (self)
