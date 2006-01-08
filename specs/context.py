@@ -131,6 +131,8 @@ class Os_commands:
 		return 0
 
 	def dump (self, str, name, mode='w'):
+		self.log_command ("Writing %s\n" % name)
+		
 		f = open (name, mode)
 		f.write (str)
 		f.close ()
