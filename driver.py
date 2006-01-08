@@ -109,7 +109,6 @@ def add_options (settings, options):
 	settings.lilypond_branch = options.lilypond_branch
 	settings.bundle_version = options.installer_version
 	settings.bundle_build = options.installer_build
-	settings.use_tools = options.use_tools
 	settings.create_dirs ()
 	
 	if settings.platform == 'linux':
@@ -137,9 +136,6 @@ def add_options (settings, options):
 def get_cli_parser ():
 	p = optparse.OptionParser ()
 
-# WTF, how to get help option to show in right order?
-#	p.add_option ('-h', '--help',
-#		      help='print this help')
 	p.usage="""driver.py [OPTION]... COMMAND [PACKAGE]...
 
 Commands:
@@ -182,9 +178,6 @@ package-installer - build installer binary
 	p.add_option ('', '--stage', action='store',
 		      dest='stage', default=None,
 		      help='Force rebuild of stage') 
-	p.add_option ('-t', '--tools', action='store_true',
-		      dest='use_tools', default=None,
-		      help='use tool package manager') 
 	p.add_option ('-V', '--verbose', action='store_true', 
 		      dest="verbose")
 	return p
