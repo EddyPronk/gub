@@ -204,13 +204,13 @@ class Linux_installer (Installer):
 		self.strip_binary_dir ('%(installer_root)s/usr/%(framework_dir)s/usr/bin')
 		self.strip_binary_dir ('%(installer_root)s/usr/%(framework_dir)s/usr/lib')
 
-class Tgz (Linux_installer):
+class Tarball (Linux_installer):
 	def create (self):
 		Linux_installer.create (self)
-		self.system ('tar -C %(installer_root)s -zcf %(bundle_tarball)s .', locals ())
+		self.system ('tar -C %(installer_root)s -zjf %(bundle_tarball)s .', locals ())
 
 
-def create_shar (orig_file,  head, target_shar):
+def create_shar (orig_file, hello, head, target_shar):
 	length = os.stat (orig_file)[6]
 
 	script = open (head).read ()
@@ -226,21 +226,25 @@ def create_shar (orig_file,  head, target_shar):
 	stat = os.system (cmd)
 	if stat:
 		raise 'create_shar() failed'
+	os.chmod (target_shar, 0755)
 
 class Shar (Linux_installer):
 	def create (self):
 		target_shar = self.expand ('%(installer_uploads)s/%(name)s-%(bundle_version)s-%(bundle_build)s.%(package_arch)s.shar')
 
 		head = self.expand ('%(patchdir)s/sharhead.sh')
-		create_shar (self.bundle_tarball, target_shar)
+		tarball = self.expand (self.bundle_tarball)
+
+		hello = self.expand ("version %(bundle_version)s release %(bundle_build)s")
+		create_shar (tarball, hello, head, target_shar)
 			     
 class Deb (Linux_installer):
 	def create (self):
-		self.system ('cd %(installer_uploads)s && fakeroot alien --keep-version --to-deb %(installer_uploads)s/%(name)s-%(bundle_version)s-%(package_arch)s-%(bundle_build)s.tgz', locals ())
+		self.system ('cd %(installer_uploads)s && fakeroot alien --keep-version --to-deb %(bundle_tarball)s', locals ())
 
 class Rpm (Linux_installer):
 	def create (self):
-		self.system ('cd %(installer_uploads)s && fakeroot alien --keep-version --to-rpm %(installer_uploads)s/%(name)s-%(bundle_version)s-%(package_arch)s-%(bundle_build)s.tgz', locals ())
+		self.system ('cd %(installer_uploads)s && fakeroot alien --keep-version --to-rpm %(bundle_tarball)s', locals ())
 
 class Autopackage (Linux_installer):
 	def create (self):
@@ -259,13 +263,13 @@ def get_installers (settings):
 	installers = {
 		'darwin' : [Darwin_bundle (settings)],
 		'freebsd' : [
-		Tgz (settings),
+		Tarball (settings),
 		Shar (settings),
 		],
 		'linux' : [
 		
 		## not alphabetically, used by others		
-		Tgz (settings),
+		Tarball (settings),
 		Shar (settings),
 #		Deb (settings),
 #		Rpm (settings),
