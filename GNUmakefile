@@ -53,13 +53,16 @@ download:
 
 all: linux freebsd mac mingw
 
-linux:
+darwin:
+	$(call BUILD_ALL,$@)
+
+debian:
 	$(call BUILD_ALL,$@)
 
 freebsd:
 	$(call BUILD_ALL,$@)
 
-darwin:
+linux:
 	$(call BUILD_ALL,$@)
 
 mac: darwin

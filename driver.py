@@ -17,67 +17,6 @@ import gub
 import settings as settings_mod
 import xpm
 
-# FIXME: member of manager, package?
-def build_package (settings, manager, package):
-	if manager.is_installed (package):
-		return
-
-	# FIXME: work around debian's circular dependencies
-	if package.__dict__.has_key ('_building'):
-		return
-
-	package._building = None
-	
-	settings.os_interface.log_command (package.expand (' ** Package: %(name)s (%(version)s, %(build)s)\n'))
-
-	deps = manager.dependencies (package)
-	for d in deps:
-		settings.os_interface.log_command ('building dependency: ' + d.name ()
-						   + ' for package: ' + package.name ()
-						   + '\n')
-		build_package (settings, manager, d)
-		if not manager.is_installable (d):
-			print 'package is not installable!', d
-			raise 'abort' 
-
-		if  (not manager.is_installed (d)):
-			manager.install_package (d)
-
-	del (package.__dict__['_building'])
-
-	stages = ['untar', 'patch', 'configure', 'compile', 'install',
-		  'package', 'clean']
-	
-	available = dict (inspect.getmembers (package, callable))
-
-	forced_idx = 100
-
-	if settings.options.stage:
-		(available[settings.options.stage]) ()
-		return
-
-	if manager.is_installable (package):
-		return
-	
-	for stage in stages:
-		if not available.has_key (stage):
-			continue
-		
-		idx = stages.index (stage)
-        	if not package.is_done (stage, idx):
-
-			# ugh.
-			package.os_interface.log_command (' *** Stage: %s (%s)\n' % (stage, package.name ()))
-
-			if stage == 'clean' and  settings.options.keep_build:
-				os.unlink (package.stamp_file ())
-				continue
-
-			(available[stage]) ()
-
-			if stage != 'clean':
-				package.set_done (stage, stages.index (stage))
-
 def get_settings (platform):
 	settings = settings_mod.Settings (platform)
 	settings.build_number_db = buildnumber.Build_number_db (settings.topdir)
@@ -112,6 +51,9 @@ def add_options (settings, options):
 	settings.create_dirs ()
 	
 	if settings.platform == 'linux':
+		settings.tool_prefix = ''
+
+	if settings.platform == 'debian':
 		settings.tool_prefix = ''
 
 	if (settings.platform == 'linux'
@@ -221,16 +163,18 @@ def run_builder (settings, pkg_manager, args):
 	PATH = os.environ["PATH"]
 	
 	## crossprefix is also necessary for building cross packages, such as GCC 
-	os.environ["PATH"] = settings.expand ('%(crossprefix)s/bin:%(PATH)s', locals())
+	os.environ["PATH"] = settings.expand ('%(crossprefix)s/bin:%(PATH)s',
+					      locals ())
 	pkgs = [] 
+	# FIXME: all->'lilypond'->pull in all?
 	if args and args[0] == 'all':
-		pkgs = pkg_manager._packages.values()
+		pkgs = pkg_manager._packages.values ()
 	else:
 		pkgs = [pkg_manager._packages[name] for name in args]
 
 	if not settings.options.stage:
 		pkgs = pkg_manager.topological_sort (pkgs)
-		pkgs.reverse()
+		pkgs.reverse ()
 
 		for p in pkgs:
 			if (pkg_manager.is_installed (p) and
@@ -238,12 +182,12 @@ def run_builder (settings, pkg_manager, args):
 				pkg_manager.uninstall_package (p)
 
 	for p in pkgs:
-		build_package (settings, pkg_manager, p)
+		pkg_manager.build_package (p)
 
 def download_sources (manager):
 	for p in manager._packages.values ():
 		p.os_interface.log_command ("Considering %s\n" % p.name ())
-		p.do_download ()
+		p._download ()
 
 def main ():
 	cli_parser = get_cli_parser ()
@@ -258,8 +202,8 @@ def main ():
 	add_options (settings, options)
 	target_manager = xpm.get_manager (settings)
 
-
-	## crossprefix is also necessary for building cross packages, such as GCC 
+	## crossprefix is also necessary for building cross packages,
+	## such as GCC
 
 	PATH = os.environ["PATH"]
 	os.environ["PATH"] = settings.expand ('%(tooldir)s/bin:%(PATH)s', locals())
@@ -269,12 +213,19 @@ def main ():
 
 	c = commands.pop (0)
 	if c == 'download':
+		# FIXME: too many registered packages, 'lilypond' pulls
+		# only what we need.
 		if settings.platform == 'debian':
 			target_manager.name_download ('lilypond')
 		else:
 			download_sources (target_manager)
 	elif c == 'build':
-		run_builder (settings, target_manager, commands)
+		# FIXME: too many registered packages, 'lilypond' pulls
+		# only what we need.
+		if settings.platform == 'debian':
+			target_manager.name_build ('lilypond')
+		else:
+			run_builder (settings, target_manager, commands)
 	elif c == 'build-installer':
 		build_installers (settings, target_manager)
 	elif c == 'package-installer':

@@ -28,13 +28,39 @@ class Package (Os_context_wrapper):
 		self._build = 0
 		self._dependencies = None
 		self.build_dependencies = []
-		
+
 		# set to true for CVS releases 
 		self.track_development = False
 
-	# fixme: rename download.py to mirrors.py
-	def do_download (self):
+	def _download (self):
 		self._downloader ()
+
+	def _builder (self):
+		available = dict (inspect.getmembers (self, callable))
+		if self.settings.options.stage:
+			(available[settings.options.stage]) ()
+			return
+
+		stages = ['untar', 'patch',
+			  'configure', 'compile', 'install',
+			  'package', 'clean']
+		for stage in stages:
+			if (not available.has_key (stage)
+			    or self.is_done (stage, stages.index (stage))):
+				continue
+
+			self.os_interface.log_command (' *** Stage: %s (%s)\n'
+						       % (stage, self.name ()))
+
+			if (stage == 'clean'
+			    and self.settings.options.keep_build):
+				os.unlink (self.stamp_file ())
+				continue
+
+			(available[stage]) ()
+
+			if stage != 'clean':
+				self.set_done (stage, stages.index (stage))
 
 	def skip (self):
 		pass

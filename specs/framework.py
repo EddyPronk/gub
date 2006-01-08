@@ -1380,10 +1380,6 @@ def get_packages (settings):
 				i.name_dependencies += ['freebsd-runtime']
 			if i.name () in ('ghostscript', 'glib', 'pango'):
 				i.name_dependencies += ['libiconv']
-			# libgnugetopt is not autodetected;
-			# gettext has build bug
-			#if i.name () in ('gettext'):
-			#	i.name_dependencies += ['libgnugetopt']
 			packs += [i]
 
 	for p in packs:

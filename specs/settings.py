@@ -14,7 +14,7 @@ class Settings (Context):
 			'mingw': 'i686-mingw32',
 			'freebsd': 'i686-freebsd4',
 			'linux': 'i686-linux',
-			'debian': 'debian-unstable-i686-linux',
+			'debian': 'i686-linux',
 			'local': 'local',
 			}[self.platform]
 

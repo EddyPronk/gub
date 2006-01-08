@@ -185,9 +185,10 @@ class Command:
 	def remove (self):
 		'''uninstall packages'''
 
-		packages = [self.pm._packages[a] for a in self.options.arguments]
+		packages = [self.pm._packages[a]
+			    for a in self.options.arguments]
 		packages = self.pm.topological_sort (packages)
-		packages.reverse()
+		packages.reverse ()
 		for p in packages:
 			self.remove_package (p, packages) 
 
@@ -241,9 +242,6 @@ def main ():
 
 	target_manager = xpm.get_manager (settings)
 	pm = target_manager
-
-	#pm.resolve_dependencies ()
-	#pm.resolve_dependencies (framework.get_packages (settings))
 
 	if options.arguments and options.arguments[0] == 'all':
 		options.arguments = pm._packages.keys ()
