@@ -207,7 +207,7 @@ class Linux_installer (Installer):
 class Tarball (Linux_installer):
 	def create (self):
 		Linux_installer.create (self)
-		self.system ('tar -C %(installer_root)s -zjf %(bundle_tarball)s .', locals ())
+		self.system ('tar -C %(installer_root)s -jcf %(bundle_tarball)s .', locals ())
 
 
 def create_shar (orig_file, hello, head, target_shar):
