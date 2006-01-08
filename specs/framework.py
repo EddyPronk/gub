@@ -1391,19 +1391,20 @@ def get_packages (settings):
 		settings.python_version = [p for p in packs
 					   if isinstance (p, Python)][0].python_version ()
 	except IndexError:
-		
-		# UGH darwin has no python package.
-		settings.python_version = '2.3'
-
+		if settings.platform == 'darwin':
+			settings.python_version = '2.3'
+		elif settings.platform == 'debian':
+			settings.python_version = '2.3'
 	try:
 		settings.guile_version = [p for p in packs
 			if isinstance (p, Guile)][0].guile_version ()
 	except IndexError:
-		pass
-	
+		if settings.platform == 'debian':
+			settings.guile_version = '1.6'
 	try:
 		settings.ghostscript_version = [p for p in packs
 			if isinstance (p, Ghostscript)][0].ghostscript_version ()
 	except IndexError:
-		pass
+		if settings.platform == 'debian':
+			settings.ghostscript_version = '8.15'
 	return packs
