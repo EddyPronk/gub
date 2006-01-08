@@ -38,15 +38,15 @@ INVOKE_XPM=python xpm-apt.py \
 --platform=$(1) 
 --branch=$(LILYPOND_BRANCH)
 
-BUILD_ALL=$(call INVOKE_DRIVER,$(1)) build all \
-  && $(call INVOKE_XPM,$(1)) install all \
+BUILD=$(call INVOKE_DRIVER,$(1)) build $(2) \
+  && $(call INVOKE_XPM,$(1)) install $(2) \
   && $(call INVOKE_DRIVER,$(1)) build-installer \
   && $(call INVOKE_DRIVER,$(1)) package-installer \
 
 
 download:
 	$(foreach p, $(PLATFORMS), $(call INVOKE_DRIVER,$(p)) download && ) true
-	$(call INVOKE_DRIVER,local) download
+	$(call INVOKE_DRIVER,local) download lilypond lilypad osx-lilypad
 	$(foreach p, $(PLATFORMS), (mv uploads/$(p)/lilypond-$(LILYPOND_BRANCH).$(p).gub uploads/$(p)/lilypond-$(LILYPOND_BRANCH)-OLD.$(p).gub || true) &&) true
 	$(foreach p, $(PLATFORMS), $(call INVOKE_XPM,$(p)) remove lilypond ; ) true
 	rm -f target/*/status/lilypond*
@@ -54,21 +54,21 @@ download:
 all: linux freebsd mac mingw
 
 darwin:
-	$(call BUILD_ALL,$@)
+	$(call BUILD,$@,ghostscript lilypond osx-lilypad)
 
 debian:
-	$(call BUILD_ALL,$@)
+	$(call BUILD,$@,lilypond)
 
 freebsd:
-	$(call BUILD_ALL,$@)
+	$(call BUILD,$@,lilypond)
 
 linux:
-	$(call BUILD_ALL,$@)
+	$(call BUILD,$@,lilypond)
 
 mac: darwin
 
 mingw:
-	$(call BUILD_ALL,$@) 
+	$(call BUILD,$@,lilypad lilypond)
 
 realclean:
 	rm -rf $(foreach p, $(PLATFORMS), uploads/$(p)/*  target/*$(p)* )
