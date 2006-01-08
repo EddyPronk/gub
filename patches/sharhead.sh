@@ -51,7 +51,6 @@ if interactive=yes; then
 You're about to install lilypond in ${prefix}lilypond/ 
 A script in ${prefix}bin/ will be created as a shortcut. 
 
-You can change this 
 Press ^C to abort, or Enter to proceed 
 EOF
   read junk
