@@ -45,7 +45,7 @@ def system (cmd):
 	if stat:
 		raise 'Command failed', stat
 
-def result_message (options, subject, parts) :
+def result_message (options,parts) :
 	"""Concatenate PARTS to a Message object."""
 	
 	if not parts:
@@ -59,8 +59,7 @@ def result_message (options, subject, parts) :
 		for p in parts:
 			msg.attach (p)
 	
-	msg['Subject'] = 'GUB Autobuild result'
-
+	msg['Subject'] = "GUB Autobuild result"
 	msg.epilogue = ''
 
 	return msg
@@ -101,7 +100,7 @@ def xml_patch_name (patch):
 	except IndexError:
 		return ''
 	
-def get_release_hash (name):
+def get_release_hash ():
 	xml_string = os.popen ('darcs changes --xml').read()
 	dom = xml.dom.minidom.parseString(xml_string)
 	patches = dom.documentElement.getElementsByTagName('patch')
@@ -116,18 +115,17 @@ def get_release_hash (name):
 	
 	return release_hash
 
-def test_target (options, target):
+def canonicalize_target (target):
 	canonicalize = re.sub('[ \t\n]', '_', target)
 	canonicalize = re.sub ('[^a-zA-Z]', '_', canonicalize)
+	return canonicalize
 
-	release_hash = get_release_hash (canonicalize)
-
+def test_target (options, target, last_patch):
+	canonicalize = canonicalize_target (target)
+	release_hash = last_patch['release_hash']
 	if try_checked_before (release_hash, canonicalize):
 		print 'release has already been checked: ', release_hash 
 		sys.exit (0)
-
-	last_patch = read_last_patch()
-	last_patch['release_hash'] = release_hash
 
 
 	logfile = 'test/test-%(canonicalize)s.log' %  locals()
@@ -135,6 +133,32 @@ def test_target (options, target):
 	print 'starting : ', cmd
 	stat = os.system (cmd)
 	base_tag = 'success-%(canonicalize)s-' % locals ()
+
+	result = 'unknown'
+	attachments = []
+	
+	if stat: 
+		body = read_tail (logfile, 10240)
+		diff = os.popen ('darcs diff -u --from-tag %s' % base_tag).read ()
+		
+		result = 'FAIL'
+		attachments = ['error for %s\n\n%s' % (target, '\n'.join (body.split ('\n')[-40:])),
+			       diff]
+	else:
+		tag = base_tag + last_patch['date']
+		system ('darcs tag %s' % tag)
+		system ('darcs push -a -t %s ' % tag)
+		result = "SUCCESS, tagging with %s\n\n" % tag
+		
+
+	return (result, attachments)
+	
+def main ():
+	(options, args) = opt_parser().parse_args ()
+
+	last_patch = read_last_patch()
+	release_hash = get_release_hash ()
+	last_patch['release_hash'] = release_hash
 	release_id = '''
 Last patch of this release:
 
@@ -146,41 +170,24 @@ MD5 of complete patch set: %(release_hash)s
 
 ''' % last_patch
 
-	release_id += '\n\nTesting command: %s\n\n' %  target
-	msg = None
-	if stat: 
-		body = read_tail (logfile)
-		diff = os.popen ('darcs diff -u --from-tag %s' % base_tag).read ()
+	results = {}
+	for a in args:
+		result_tup = test_target (options, a, last_patch)
+		results[a] = result_tup
 		
-		msg = result_message (options, '', [
-			'%s FAIL' % target,
-			'\n'.join (body.split ('\n')[-30:]),
-			release_id,
-			diff,
-			body
-			])
-	else:
-		tag = base_tag + last_patch['date']
-		system ('darcs tag %s' % tag)
-		system ('darcs push -a -t %s ' % tag)
-		
-		msg = result_message (options, '', 
-				      ['%s SUCCESS' % target,
-				       release_id,
-				       "Tagging with %s\n\n" % tag])
+
+	main = '\n\n'.join (['%s: %s' % (target, res) for  (target, (res, atts)) in results.items()])
+
+	msg_body = [main, release_id]
+	for (t, (r, atts)) in results.items():
+		msg_body += atts
+	
+	msg = result_message (options, msg_body)
 
 	COMMASPACE = ', '
 	msg['From'] = options.sender
 	msg['To'] = COMMASPACE.join (options.address)
 	connection = smtplib.SMTP (options.smtp)
 	connection.sendmail (options.sender, options.address, msg.as_string ())
-
-
-	
-def main ():
-	(options, args) = opt_parser().parse_args ()
-
-	for a in args:
-		test_target (options, a)
 
 main()
