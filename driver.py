@@ -226,7 +226,7 @@ def package_installers (settings):
 		
 def run_builder (settings, pkg_manager, args):
 	PATH = os.environ["PATH"]
-
+	
 	## crossprefix is also necessary for building cross packages, such as GCC 
 	os.environ["PATH"] = settings.expand ('%(crossprefix)s/bin:%(PATH)s', locals())
 	pkgs = [] 
@@ -235,13 +235,15 @@ def run_builder (settings, pkg_manager, args):
 	else:
 		pkgs = [pkg_manager._packages[name] for name in args]
 
-	pkgs = pkg_manager.topological_sort (pkgs)
-	pkgs.reverse()
+	if not settings.options.stage:
+		pkgs = pkg_manager.topological_sort (pkgs)
+		pkgs.reverse()
 
-	for p in pkgs:
-		if pkg_manager.is_installed (p):
-			pkg_manager.uninstall_package (p)
-		
+		for p in pkgs:
+			if (pkg_manager.is_installed (p) and
+			    not pkg_manager.is_installable (p)):
+				pkg_manager.uninstall_package (p)
+
 	for p in pkgs:
 		build_package (settings, pkg_manager, p)
 
