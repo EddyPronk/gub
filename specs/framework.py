@@ -44,11 +44,6 @@ class Python (targetpackage.Target_package):
 		dict['python_version'] = self.python_version ()
 		return dict
 
-	def untar (self):
-		targetpackage.Target_package.untar (self)
-		Srcdir = re.sub ('python', 'Python', self.srcdir ())
-		self.system ('mv %(Srcdir)s %(srcdir)s', locals ())
-
 class Python__mingw (Python):
 	def __init__ (self, settings):
 		Python.__init__ (self, settings)

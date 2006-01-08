@@ -78,7 +78,6 @@ cd %(downloaddir)s/%(dir)s && cvs -q update -dAP -r %(version)s
 	@subst_method
 	def file_name (self):
 		file = re.sub ('.*/([^/]+)', '\\1', self.url)
-		file = file.lower ()
 		return file
 
 	@subst_method
@@ -319,8 +318,8 @@ rm -rf %(srcdir)s %(builddir)s %(install_root)s
 		else:
 			self._untar ('%(allsrcdir)s')
 
-## FIXME what was this for? --hwn
-##		self.system ('cd %(srcdir)s && chmod -R +w .')
+		## FIXME what was this for? --hwn
+		self.system ('cd %(srcdir)s && chmod -R +w .')
 						 
 	def with (self, version='HEAD', mirror=download.gnu,
 		  format='gz', depends=[],
