@@ -23,8 +23,10 @@ def tar_compression_flag (ball):
 
 #
 # TODO:
+
 #
-# use (G)DBM or similar to maintain package database.
+# separate into interface and
+# implementation (loose all the _methods() )
 #
 class Package_manager:
 	def __init__ (self, root, os_interface):
@@ -113,7 +115,10 @@ class Package_manager:
 			print 'xpm: unknown package: %s' % k
 			print 'xpm: available packages: %s' % self._packages
 			print 'xpm: deps: %s' % package.name_dependencies
-			raise 'barf'
+
+
+			# don't barf.
+			# This fucks up with SDK packages, and separate target/framework managers.
 
 	def _download_package (self, package):
 		self.os_interface.log_command ('downloading package: %s\n'
