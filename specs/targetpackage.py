@@ -140,8 +140,8 @@ glib_cv_uscore=${glib_cv_uscore=no}
 
 lt_cv_dlopen_libs=${lt_cv_dlopen_libs="-lc"}
 lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=32768}
-##libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(framework_root)s/usr/lib /lib /usr/lib"'"}
-libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(framework_root)s/usr/lib /lib /usr/lib"'"}
+##libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/lib "'"}
+libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/lib "'"}
 ''',
 	'linux' : '''
 ac_cv_func_posix_getpwuid_r=${ac_cv_func_posix_getpwuid_r=yes}
@@ -151,8 +151,8 @@ glib_cv_uscore=${glib_cv_uscore=no}
 
 lt_cv_dlopen_libs=${lt_cv_dlopen_libs="-ldl"}
 lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=32768}
-##libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(framework_root)s/usr/lib /lib /usr/lib"'"}
-libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(framework_root)s/usr/lib /lib /usr/lib"'"}
+##libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/usr/lib"'"}
+libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/lib"'"}
 ''',
 	'darwin' : '''
 ac_cv_c_bigendian=${ac_cv_c_bigendian=yes}
