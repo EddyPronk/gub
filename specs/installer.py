@@ -106,7 +106,8 @@ class Installer (context.Os_context_wrapper):
 			'share/lilypond/*/fonts/type1/parmesan*pfa',
 			'share/locale',
 			'share/omf',
-			'share/gs/fonts/*',
+			'share/gs/fonts/[a-bd-z]*',
+			'share/gs/fonts/c[^0][^9][^5]*',
 			'share/gs/Resource',			
 			):
 
