@@ -674,7 +674,10 @@ class Libiconv (targetpackage.Target_package):
 		targetpackage.Target_package.configure (self)
 		# # FIXME: libtool too old for cross compile
 		self.update_libtool ()
-
+	def install (self):
+		targetpackage.Target_package.install (self)
+		self.system ('rm %(install_root)s/usr/lib/charset.alias')
+		
 class Glib (targetpackage.Target_package):
 	def config_cache_overrides (self, str):
 		return str + '''
