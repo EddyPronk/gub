@@ -34,13 +34,19 @@ EOF
   --batch)
     interactive=no 
     ;;
+
+  *)
+    echo Unknown option: $1
+    exit 2
+    ;;
   esac
   shift 
 done
 
 
 cat<<EOF
-LilyPond shar installer for %(hello)s.
+
+LilyPond installer for %(hello)s.
 Use --help for help
 
 EOF
