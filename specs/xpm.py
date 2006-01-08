@@ -231,11 +231,14 @@ class Package_manager:
 
 		except KeyError, k:
 			print 'xpm: resolving dependencies for: %s' % package
-			print 'xpm: unknown package: %s' % k
+			print 'xpm: ignoring unknown package: %s' % k
 			print 'xpm: available packages: %s' % self._packages
 			print 'xpm: deps: %s' % package.name_dependencies
-			raise 'barf'
 
+			## can't barf, since we the install_manager
+			## doesn't have the SDK packages, but everyone has
+			## a build dependency on them anyway.
+			
 	def download_package (self, package):
 		# FIXME: work around debian's circular dependencies
 		if package.__dict__.has_key ('_downloading'):
