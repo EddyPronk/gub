@@ -1,10 +1,17 @@
+import os
+#
 import cross
 import xpm
 
 def get_packages (settings):
 	p = xpm.Debian_package_manager (settings)
-	# ugh
-	file = '/var/lib/apt/lists/ftp.de.debian.org_debian_dists_unstable_main_binary-i386_Packages'
+        url = 'ftp://ftp.de.debian.org/debian/dists/unstable/main/binary-i386/Packages.gz'
+	# FIXME: download/offline
+	downloaddir = settings.downloaddir
+	file = settings.downloaddir + '/Packages'
+	if not os.path.exists (file):
+		os.system ('wget -P %(downloaddir)s %(url)s' % locals ())
+		os.system ('gunzip  %(file).gz' % locals ())
 	return p.get_packages (file)
 
 def change_target_packages (packages):

@@ -33,12 +33,13 @@ class Package_manager:
 		self._packages = {}
 		self.config = self.root + '/etc/xpm/'
 
-		print 'CONFIG: ' + self.config
 		if not os.path.isdir (self.config):
 			os_interface.system ('mkdir -p %s' % self.config)
 
-		self._file_package_db = dbmodule.open (self.config + '/files.db', 'c')
-		self._package_file_db = dbmodule.open (self.config + '/packages.db', 'c')
+		self._file_package_db = dbmodule.open (self.config
+						       + '/files.db', 'c')
+		self._package_file_db = dbmodule.open (self.config
+						       + '/packages.db', 'c')
 
 	def is_installable (self, package):
 		ball = package.expand ('%(gub_uploads)s/%(gub_name)s')
