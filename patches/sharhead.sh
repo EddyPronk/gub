@@ -39,6 +39,12 @@ EOF
 done
 
 
+cat<<EOF
+LilyPond shar installer for %(hello)s.
+Use --help for help
+
+EOF
+
 if interactive=yes; then
   cat <<EOF
 
