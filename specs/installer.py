@@ -191,7 +191,8 @@ class Linux_installer (Installer):
 		Installer.__init__ (self, settings)
 		# lose the i486-foo-bar-baz-
 		self.strip_command = 'strip -g'
-
+		self.bundle_tarball = '%(installer_uploads)s/%(name)s-%(bundle_version)s-%(package_arch)s-%(bundle_build)s.tar.gz'
+		
 	def strip_prefixes (self):
 		return (Installer.strip_prefixes (self)
 			+ [self.expand ('usr/%(framework_dir)s/usr/')])
@@ -204,8 +205,33 @@ class Linux_installer (Installer):
 class Tgz (Linux_installer):
 	def create (self):
 		Linux_installer.create (self)
-		self.system ('tar -C %(installer_root)s -zcf %(installer_uploads)s/%(name)s-%(bundle_version)s-%(package_arch)s-%(bundle_build)s.tgz .', locals ())
+		self.system ('tar -C %(installer_root)s -zcf %(bundle_tarball)s .', locals ())
 
+
+def create_shar (orig_file,  head, target_shar):
+	length = os.stat (orig_file)[6]
+
+	script = open (head).read ()
+
+	header_length = 0
+	header_length = len (script % locals()) + 1
+
+	f = open (target_shar, 'w')
+	f.write (script % locals())
+	f.close ()
+	cmd = 'cat %(orig_file)s >> %(target_shar)s' % locals()
+	print 'invoking ', cmd
+	stat = os.system (cmd)
+	if stat:
+		raise 'create_shar() failed'
+
+class Shar (Linux_installer):
+	def create (self):
+		target_shar = self.expand ('%(installer_uploads)s/%(name)s-%(bundle_version)s-%(bundle_build)s.%(package_arch)s.shar')
+
+		head = self.expand ('%(patchdir)s/sharhead.sh')
+		create_shar (self.bundle_tarball, target_shar)
+			     
 class Deb (Linux_installer):
 	def create (self):
 		self.system ('cd %(installer_uploads)s && fakeroot alien --keep-version --to-deb %(installer_uploads)s/%(name)s-%(bundle_version)s-%(package_arch)s-%(bundle_build)s.tgz', locals ())
@@ -232,12 +258,15 @@ def get_installers (settings):
 		'darwin' : [Darwin_bundle (settings)],
 		'freebsd' : [
 		Tgz (settings),
+		Shar (settings),
 		],
 		'linux' : [
-		Tgz (settings),  # not alphabetically, used by others
-		Deb (settings),
-		Rpm (settings),
-		Autopackage (settings),
+		
+		## not alphabetically, used by others		
+		Tgz (settings),
+		Shar (settings),
+#		Deb (settings),
+#		Rpm (settings),
 		],
 		'mingw' : [Nsis (settings)],
 	}
