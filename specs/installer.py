@@ -96,7 +96,6 @@ class Installer (context.Os_context_wrapper):
 			'share/lilypond/*/make',
 			'share/gettext',
 			'usr/share/aclocal',
-			'share/lilypond/*/python',
 			'share/lilypond/*/tex',
 			'share/lilypond/*/vim',
 			'share/lilypond/*/python',
