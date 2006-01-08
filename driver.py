@@ -124,7 +124,7 @@ package-installer - build installer binary
 		      dest="verbose")
 	return p
 
-def build_installers (settings, target_manager):
+def build_installers (settings, target_manager, args):
 	os.system ('rm -rf %s' %  settings.installer_root)
 	install_manager = xpm.Package_manager (settings.installer_root,
 					       settings.os_interface)
@@ -137,7 +137,8 @@ def build_installers (settings, target_manager):
 		framework_manager = xpm.Package_manager (settings.framework_root,
 							 settings.os_interface)
 
-	for p in target_manager._packages.values ():
+	pkgs = map (lambda x: target_manager._packages[x], args)
+	for p in pkgs:
 		if isinstance (p, gub.Sdk_package):
 			continue
 		if (p.name () != 'lilypond'
@@ -211,7 +212,7 @@ def main ():
 	elif c == 'build':
 		run_builder (settings, target_manager, commands)
 	elif c == 'build-installer':
-		build_installers (settings, target_manager)
+		build_installers (settings, target_manager, commands)
 	elif c == 'package-installer':
 		package_installers (settings)
 	else:
