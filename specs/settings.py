@@ -32,8 +32,7 @@ class Settings (Context):
 		self.gtk_version = '2.8'
 
 		self.tool_prefix = self.target_architecture + '-'
-		self.targetdir = (self.topdir + '/target/%s'
-				  % self.target_architecture)
+		self.targetdir = self.topdir + '/target/' + self.platform
 
 		## Patches are architecture dependent, 
 		## so to ensure reproducibility, we unpack for each
