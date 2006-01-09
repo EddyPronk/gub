@@ -1273,7 +1273,7 @@ def get_packages (settings):
 		Ghostscript__darwin (settings).with (version="8.15.1", mirror=download.cups,
 						     format='bz2', depends=['libjpeg', 'libpng']),
 		LilyPond__darwin (settings).with (version=settings.lilypond_branch, mirror=cvs.gnu, track_development=True,
-						  depends=['pango', 'guile', 'gettext', 'fondu']
+						  depends=['pango', 'guile', 'gettext', 'ghostscript', 'fondu']
 						  ),
 		OSX_Lilypad (settings).with (version="0.0", mirror=download.hw, depends=['lilypond']),
 	),
