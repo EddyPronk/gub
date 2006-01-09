@@ -22,10 +22,8 @@ EOF
     exit 0
     ;;
   --prefix)
-    if test "$prefix" = "" ; then
-      shift
-      prefix=$1/
-    fi
+    shift
+    prefix=$1/
     if test "$prefix" = "" ; then
       echo 'Option --prefix requires argument.'
       exit 1
