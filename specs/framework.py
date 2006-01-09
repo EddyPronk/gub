@@ -324,19 +324,22 @@ class LilyPond (targetpackage.Target_package):
 		self.autoupdate ()
 
 		flex_loc = self.read_pipe ('which flex')
-		flex_include_path = os.path.split (flex_loc)[0] + "/../include"
+		flex_include_dir = os.path.split (flex_loc)[0] + "/../include"
 
 		# URG.
 		gub.Package.system (self, '''
 mkdir -p %(builddir)s
-## URGURG
+cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/
+#
+# FIXME: The previous windows installer worked without the additionals
+# below.  figure out if, where and why this is needed.
+#
 mkdir -p %(builddir)s/lily/out
 mkdir -p %(builddir)s/lily/out-console
-cp %(flex_include_path)s/FlexLexer.h %(system_root)s/usr/include
-cp %(flex_include_path)s/FlexLexer.h %(builddir)s/lily/out/
-cp %(flex_include_path)s/FlexLexer.h %(builddir)s/
-cp %(flex_include_path)s/FlexLexer.h %(builddir)s/../
-cp %(flex_include_path)s/FlexLexer.h %(builddir)s/lily/out-console/
+cp %(flex_include_dir)s/FlexLexer.h %(system_root)s/usr/include
+cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/lily/out/
+cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/../
+cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/lily/out-console/
 ''', locals ())
 		targetpackage.Target_package.configure (self)
 
@@ -352,7 +355,7 @@ cp %(flex_include_path)s/FlexLexer.h %(builddir)s/lily/out-console/
 		d = self.get_substitution_dict ()
 		if (file_is_newer ('%(srcdir)s/config.make.in' % d,
 				   '%(builddir)s/config.make' % d)
-		    or file_is_newer ('%(srcdir)s/GNUmakefile.in' % d ,
+		    or file_is_newer ('%(srcdir)s/GNUmakefile.in' % d,
 				      '%(builddir)s/GNUmakefile' % d)
 		    or file_is_newer ('%(srcdir)s/config.hh.in' % d,
 				      '%(builddir)s/config.make' % d)
@@ -639,47 +642,11 @@ class Gettext (targetpackage.Target_package):
 		# # FIXME: libtool too old for cross compile
 		self.update_libtool ()
 
-	def install (self):
-		self.pre_install_libtool_fuckup ()
-		targetpackage.Target_package.pre_install_libtool_fuckup (self)
-
 class Gettext__freebsd (Gettext):
 	def patch (self):
 		self.system ('''
 cd %(srcdir)s && patch -p0 < %(patchdir)s/gettext-0.14.1-getopt.patch
 ''')
-
-	def configure_command (self):
-		return (Gettext.configure_command (self)
-			+ misc.join_lines ('''
---disable-rpath
-'''))
-
-	def compile (self):
-		# ugh, for subsequent builds
-		self.system ('''
-rm -f $(find %(builddir)s -name 'lib*.la')
-''')
-		Gettext.compile (self)
-		for i in self.read_pipe ('''
-find %(builddir)s -name "*.la"
-''').split ():
-			# FIXME: libtool decides to relink, but includes
-			# -rpath /usr/lib, which makes linking to
-			# hardcoded ../intl/libintl.la fail.
-			self.file_sub ([
-				(' -rpath /usr/lib', ''),
-				],
-				       i)
-
-		# FIXME: another libtool relink workaround.
-		# Maybe try relibtoolizing/autoreconfing?
-		for i in self.read_pipe ('''
-find target/i686-freebsd4/build/ -wholename '*/.libs/lib*.so.*[0-9]' -o -wholename '*/.libs/lib*[0-9].so'
-''').split ():
-			self.system ('''
-cp -pv %(i)s %(i)sT
-''', locals ())
 
 class Gettext__mingw (Gettext):
 	def config_cache_overrides (self, str):
@@ -696,6 +663,10 @@ class Gettext__darwin (Gettext):
 		## not necessary for 0.14.1
 		return re.sub (' --config-cache', '',
 			       Gettext.configure_command (self))
+
+	def install (self):
+		self.pre_install_libtool_fuckup ()
+		Gettext.pre_install_libtool_fuckup (self)
 
 class Libiconv (targetpackage.Target_package):
 	def configure (self):
@@ -1396,8 +1367,7 @@ def get_packages (settings):
 					  depends=['gettext', 'libtool']),
 		Libgnugetopt (settings).with (version='1.3', format='bz2', mirror=download.freebsd_ports,
 					      depends=[]),
-##		Gettext__freebsd (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2',
-		Gettext (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2',
+		Gettext__freebsd (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2',
 						  depends=['libtool']),
 		Guile__freebsd (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2',
 						depends=['gettext', 'gmp', 'libtool']),
