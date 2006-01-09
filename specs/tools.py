@@ -118,7 +118,8 @@ def get_packages (settings):
 
 		Fakeroot(settings).with (version="1.2.10",
 					 mirror="http://ftp.debian.org/debian/pool/main/f/fakeroot/fakeroot_1.2.10.tar.gz",
-					 format="gz")
+					 format="gz"),
+	
 					 
 		]
 
