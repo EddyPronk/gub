@@ -247,7 +247,9 @@ class Package_manager:
 		self.with_dependencies (package, after=self._install_package)
 
 	def uninstall_package (self, package):
-	       self.with_dependencies (package, after=self._uninstall_package)
+## FIXME: what did we do before / what was I thinking?
+##	       self.with_dependencies (package, after=self._uninstall_package)
+		self._uninstall_package (package)
 
 	def topological_sort (manager, nodes):
 		deps = dict ([(n, [d for d in manager.dependencies (n)
