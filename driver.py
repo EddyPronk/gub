@@ -104,7 +104,9 @@ def build_installers (settings, target_manager, args):
 	install_manager = xpm.Package_manager (settings.installer_root,
 					       settings.os_interface)
 
-	
+	if not args:
+		args = ['lilypond']
+
 	pkgs = map (lambda x: target_manager._packages[x], args)
 	for p in pkgs:
 		if isinstance (p, gub.Sdk_package):

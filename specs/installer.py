@@ -113,6 +113,9 @@ class Installer (context.Os_context_wrapper):
 			):
 
 			self.system ('cd %(installer_root)s && rm -rf ' + delete_me, {'i': i })
+		self.system ('ls -l %(installer_root)s/usr/share/lilypond/ || true')
+		self.system ('ls -l %(installer_root)s/usr/share/lilypond/*/fonts || true')
+		foobar
 		self.system ('rm -f %(installer_root)s/usr/share/lilypond/*/fonts/*/fonts.cache-1')
 		self.system ('fc-cache %(installer_root)s/usr/share/lilypond/*/fonts/*/')
 
@@ -196,12 +199,12 @@ class Linux_installer (Installer):
 	def __init__ (self, settings):
 		Installer.__init__ (self, settings)
 		self.bundle_tarball = '%(installer_uploads)s/%(name)s-%(bundle_version)s-%(bundle_build)s-%(package_arch)s.tar.bz2'
-		
+
 	def strip_prefixes (self):
 		return (Installer.strip_prefixes (self)
 			#+ [self.expand ('usr/%(framework_dir)s/usr/')]
 			)
-			
+
 	def strip (self):
 		Installer.strip (self)
 #		self.strip_binary_dir ('%(installer_root)s/usr/%(framework_dir)s/usr/bin')
@@ -218,7 +221,6 @@ class Tarball (Linux_installer):
 def create_shar (orig_file, hello, head, target_shar):
 	length = os.stat (orig_file)[6]
 
-
 	tarflag = ''
 	if orig_file.endswith ('gz'):
 		tarflag = 'j'
@@ -227,14 +229,14 @@ def create_shar (orig_file, hello, head, target_shar):
 	script = open (head).read ()
 
 	header_length = 0
-	header_length = len (script % locals()) + 1
+	header_length = len (script % locals ()) + 1
 
 	f = open (target_shar, 'w')
 	f.write (script % locals())
 	f.close ()
 
 		
-	cmd = 'cat %(orig_file)s >> %(target_shar)s' % locals()
+	cmd = 'cat %(orig_file)s >> %(target_shar)s' % locals ()
 	print 'invoking ', cmd
 	stat = os.system (cmd)
 	if stat:
