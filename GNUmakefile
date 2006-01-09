@@ -92,7 +92,9 @@ test:
 	$(MAKE) realclean
 	$(RUN_TEST) $(foreach p, $(PLATFORMS), "make $(p) from=$(BUILD_PLATFORM)")
 
-#FIXME: remove zlib.h, zconf.h or remove Zlib from freebsd packages?
+#FIXME: how to get libc+kernel headers package contents on freebsd?
+# * remove zlib.h, zconf.h or include libz and remove Zlib from src packages?
+# * remove gmp.h, or include libgmp and remove Gmp from src packages?
 # bumb version number by hand, sync with freebsd.py
 freebsd-runtime:
-	ssh xs4all.nl tar -C / --exclude=zlib.h --exclude=zconf.h -czf public_html/freebsd-runtime-4.10-1.tar.gz /usr/lib/{lib{c,c_r,m}{.a,.so{,.*}},crt{i,n,1}.o} /usr/include
+	ssh xs4all.nl tar -C / --exclude=zlib.h --exclude=zconf.h --exclude=gmp.h -czf public_html/freebsd-runtime-4.10-2.tar.gz /usr/lib/{lib{c,c_r,m}{.a,.so{,.*}},crt{i,n,1}.o} /usr/include
