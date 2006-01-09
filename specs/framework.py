@@ -184,7 +184,6 @@ class Guile (targetpackage.Target_package):
 
 	def install (self):
 
-		self.pre_install_libtool_fuckup ()
 		targetpackage.Target_package.install (self)
 		## can't assume that /usr/bin/guile is the right one.
 		version = self.read_pipe ('''\
@@ -301,6 +300,7 @@ cc
 
 class Guile__darwin (Guile):
 	def install (self):
+		self.pre_install_libtool_fuckup ()
 		Guile.install (self)
 		pat = self.expand ('%(install_root)s/usr/lib/libguile-srfi*.dylib')
 		for f in glob.glob (pat):
@@ -687,16 +687,20 @@ glib_cv_stack_grows=${glib_cv_stack_grows=no}
 		# # FIXME: libtool too old for cross compile
 		self.update_libtool ()
 	def install (self):
-		self.pre_install_libtool_fuckup()
 		targetpackage.Target_package.install (self)
 		self.system ('rm %(install_root)s/usr/lib/charset.alias',
 			     ignore_error=True)
 		
+
 class Glib__darwin (Glib):
 	def configure (self):
 		Glib.configure (self)
 		self.file_sub ([('nmedit', '%(target_architecture)s-nmedit')],
 			       '%(builddir)s/libtool')
+	def install (self):
+		self.pre_install_libtool_fuckup()
+		Glib.install (self)
+		
 class Pango (targetpackage.Target_package):
 	def configure_command (self):
 		return targetpackage.Target_package.configure_command (self) \
@@ -708,10 +712,6 @@ class Pango (targetpackage.Target_package):
 	def configure (self):
 		targetpackage.Target_package.configure (self)		
 		self.update_libtool ()
-	def install (self):
-		self.pre_install_libtool_fuckup ()
-		targetpackage.Target_package.install (self)		
-
 	def patch (self):
 		targetpackage.Target_package.patch (self)
 		self.system ('cd %(srcdir)s && patch --force -p1 < %(patchdir)s/pango-env-sub')
@@ -771,7 +771,8 @@ class Pango__darwin (Pango):
 			       '%(builddir)s/libtool')
 
 	def install (self):
-		Pango.install (self)
+		self.pre_install_libtool_fuckup ()
+		targetpackage.Target_package.install (self)		
 		self.fix_modules ()
 
 class Freetype (targetpackage.Target_package):
