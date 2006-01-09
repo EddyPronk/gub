@@ -258,7 +258,7 @@ tooldir=%(install_prefix)s
 				self.file_sub ([(r'if test "\$inst_prefix_dir" = "\$destdir"; then',
 						 'if false && test "$inst_prefix_dir" = "$destdir"; then')],
 					       lt, must_succeed=True)
-
+				self.system ('chmod 755  %(lt)s', locals())
 		else:
 			sys.stderr.write ("Cannot update libtool without libtools in system_root/usr/bin/.")
 
