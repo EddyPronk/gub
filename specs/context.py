@@ -137,7 +137,7 @@ class Os_commands:
 		f.write (str)
 		f.close ()
 
-	def file_sub (self, re_pairs, name, to_name=None):
+	def file_sub (self, re_pairs, name, to_name=None, env={}, must_succeed=False):
 
 		self.log_command ('substituting in %s\n' % name)
 		self.log_command (''.join (map (lambda x: "'%s' -> '%s'\n" % x,
@@ -146,7 +146,11 @@ class Os_commands:
 		s = open (name).read ()
 		t = s
 		for frm, to in re_pairs:
-			t = re.sub (re.compile (frm, re.MULTILINE), to, t)
+			new_text = re.sub (re.compile (frm, re.MULTILINE), to, t)
+			if (t == new_text and must_succeed):
+				raise 'nothing changed!'
+			t = new_text
+			
 		if s != t or (to_name and name != to_name):
 			if not to_name:
 				self.system ('mv %(name)s %(name)s~' % locals ())
@@ -173,7 +177,7 @@ class Os_context_wrapper (Context):
 		self.os_interface = settings.os_interface
 		self.verbose = settings.verbose ()
 		
-	def file_sub (self, re_pairs, name, to_name=None, env={}):
+	def file_sub (self, re_pairs, name, to_name=None, env={}, must_succeed=False):
 		x = [(self.expand (frm, env),
 		      self.expand (to, env))
 		     for (frm, to) in re_pairs]
@@ -181,7 +185,7 @@ class Os_context_wrapper (Context):
 		if to_name:
 			to_name = self.expand (to_name, env)
 			
-		return self.os_interface.file_sub (x, self.expand (name, env), to_name)
+		return self.os_interface.file_sub (x, self.expand (name, env), to_name, must_succeed)
 
 	def read_pipe (self, cmd, env={}, ignore_error=False):
 		dict = self.get_substitution_dict (env)

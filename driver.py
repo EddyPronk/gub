@@ -20,7 +20,7 @@ import xpm
 def get_settings (platform):
 	settings = settings_mod.Settings (platform)
 	settings.build_number_db = buildnumber.Build_number_db (settings.topdir)
-	
+
 	if platform == 'darwin':
 		settings.target_gcc_flags = '-D__ppc__'
 	elif platform == 'mingw':
@@ -34,7 +34,7 @@ def get_settings (platform):
 	elif platform == 'local':
 		pass
 	else:
-		raise 'unknown platform', platform 
+		raise 'unknown platform', platform
 
 	return settings
 
@@ -49,31 +49,6 @@ def add_options (settings, options):
 	settings.bundle_version = options.installer_version
 	settings.bundle_build = options.installer_build
 	settings.create_dirs ()
-	
-	if settings.platform == 'linux':
-		settings.tool_prefix = ''
-
-	if settings.platform == 'debian':
-		settings.tool_prefix = ''
-
-	if (settings.platform == 'linux'
-	    or settings.platform == 'freebsd'
-	    or settings.platform == 'debian'):
-
-		# FIXME: this for deb/rpm/slackware package archs
-		settings.package_arch = 'i386'
-
-		settings.framework_version = '0.0.0'
-		# FIXME: must not use lilypond version (ie bundle version)
-		# in framework dir.  Framework should be more or less
-		# constant/stable.
-		#settings.framework_dir = ('lib/lilypond/%(bundle_version)s/lib'
-		settings.framework_dir = ('lib/lilypond/framework/%(framework_version)s'
-					   % settings.__dict__)
-		settings.framework_root = ('%(installer_root)s/usr/%(framework_dir)s'
-					   % settings.__dict__)
-		# This works, but better avoid depending on autopackage.
-		# os.environ['APBUILD_PROJECTNAME'] = 'lilypond/framework/0.0.0/usr/lib'
 
 def get_cli_parser ():
 	p = optparse.OptionParser ()
@@ -119,38 +94,26 @@ package-installer - build installer binary
 		      help='add a variable')
 	p.add_option ('', '--stage', action='store',
 		      dest='stage', default=None,
-		      help='Force rebuild of stage') 
-	p.add_option ('-V', '--verbose', action='store_true', 
+		      help='Force rebuild of stage')
+	p.add_option ('-V', '--verbose', action='store_true',
 		      dest="verbose")
 	return p
 
-def build_installers (settings, target_manager):
+def build_installers (settings, target_manager, args):
 	os.system ('rm -rf %s' %  settings.installer_root)
 	install_manager = xpm.Package_manager (settings.installer_root,
 					       settings.os_interface)
 
-	framework_manager = None
-	if (settings.platform.startswith ('linux')
-	    or settings.platform.startswith ('freebsd')):
-		# Hmm, better to configure --prefix=framework_root --xxxfix=fr?
-		# and install everything in / ?
-		framework_manager = xpm.Package_manager (settings.framework_root,
-							 settings.os_interface)
-
-	for p in target_manager._packages.values ():
+	
+	pkgs = map (lambda x: target_manager._packages[x], args)
+	for p in pkgs:
 		if isinstance (p, gub.Sdk_package):
 			continue
-		if (p.name () != 'lilypond'
-		    and framework_manager):
-			framework_manager.register_package (p)
-		else:
-			install_manager.register_package (p)
+
+		install_manager.register_package (p)
 
 	for p in install_manager._packages.values ():
 		install_manager.install_package  (p)
-	if framework_manager:
-		for p in framework_manager._packages.values ():
-			framework_manager.install_package  (p)
 
 def package_installers (settings):
 	import installer
@@ -158,36 +121,30 @@ def package_installers (settings):
 		settings.os_interface.log_command (' *** Stage: %s (%s)\n'
 						   % ('create', p.name ()))
 		p.create ()
-		
-def run_builder (settings, pkg_manager, args):
+
+def run_builder (settings, manager, args):
 	PATH = os.environ["PATH"]
-	
-	## crossprefix is also necessary for building cross packages, such as GCC 
+
+	## crossprefix is also necessary for building cross packages, such as GCC
 	os.environ["PATH"] = settings.expand ('%(crossprefix)s/bin:%(PATH)s',
 					      locals ())
-	pkgs = [] 
-	# FIXME: all->'lilypond'->pull in all?
-	if args and args[0] == 'all':
-		pkgs = pkg_manager._packages.values ()
-	else:
-		pkgs = [pkg_manager._packages[name] for name in args]
+	pkgs = map (lambda x: manager._packages[x], args)
 
 	if not settings.options.stage:
-		pkgs = pkg_manager.topological_sort (pkgs)
+		pkgs = manager.topological_sort (pkgs)
 		pkgs.reverse ()
 
 		for p in pkgs:
-			if (pkg_manager.is_installed (p) and
-			    not pkg_manager.is_installable (p)):
-				pkg_manager.uninstall_package (p)
+			if (manager.is_installed (p) and
+			    not manager.is_installable (p)):
+				manager.uninstall_package (p)
 
 	for p in pkgs:
-		pkg_manager.build_package (p)
+		manager.build_package (p)
 
-def download_sources (manager):
-	for p in manager._packages.values ():
-		p.os_interface.log_command ("Considering %s\n" % p.name ())
-		p._download ()
+def download_sources (manager, args):
+	for n in args:
+		manager.name_download (n)
 
 def main ():
 	cli_parser = get_cli_parser ()
@@ -197,7 +154,7 @@ def main ():
 		raise 'error: no platform specified'
 		cli_parser.print_help ()
 		sys.exit (2)
-	
+
 	settings = get_settings (options.platform)
 	add_options (settings, options)
 	target_manager = xpm.get_manager (settings)
@@ -213,27 +170,17 @@ def main ():
 
 	c = commands.pop (0)
 	if c == 'download':
-		# FIXME: too many registered packages, 'lilypond' pulls
-		# only what we need.
-		if settings.platform == 'debian':
-			target_manager.name_download ('lilypond')
-		else:
-			download_sources (target_manager)
+		download_sources (target_manager, commands)
 	elif c == 'build':
-		# FIXME: too many registered packages, 'lilypond' pulls
-		# only what we need.
-		if settings.platform == 'debian':
-			target_manager.name_build ('lilypond')
-		else:
-			run_builder (settings, target_manager, commands)
+		run_builder (settings, target_manager, commands)
 	elif c == 'build-installer':
-		build_installers (settings, target_manager)
+		build_installers (settings, target_manager, commands)
 	elif c == 'package-installer':
 		package_installers (settings)
 	else:
 		raise 'unknown driver command %s.' % c
 		cli_parser.print_help ()
 		sys.exit (2)
-			
+
 if __name__ == '__main__':
 	main ()

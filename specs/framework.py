@@ -36,6 +36,11 @@ class Python (targetpackage.Target_package):
 		targetpackage.Target_package.set_download (self, mirror, format, downloader)
 		self.url = re.sub ('python-', 'Python-' , self.url)
 
+	def patch (self):
+		targetpackage.Target_package.patch (self)
+		self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-1.patch')
+		self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-configure.in-posix.patch')
+
 	def python_version (self):
 		return '.'.join (self.ball_version.split ('.')[0:2])
 
@@ -44,6 +49,29 @@ class Python (targetpackage.Target_package):
 		dict['python_version'] = self.python_version ()
 		return dict
 
+	# FIXME: ugh cross compile + mingw patch; move to cross-Python?
+	def configure (self):
+		self.system ('''cd %(srcdir)s && autoconf''')
+		self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
+		targetpackage.Target_package.configure (self)
+
+#	def configure_command (self):
+#		return "MACHDEP=linux2 " + targetpackage.Target_package.configure_command (self)
+
+	def compile_command (self):
+		##
+		## UGH.: darwin Python vs python (case insensive FS)
+		c = targetpackage.Target_package.compile_command (self)
+		c += ' BUILDPYTHON=python-bin '
+		return c
+
+	def install_command (self):
+		##
+		## UGH.: darwin Python vs python (case insensive FS)
+		c = targetpackage.Target_package.install_command (self)
+		c += ' BUILDPYTHON=python-bin '
+		return c
+	
 class Python__mingw (Python):
 	def __init__ (self, settings):
 		Python.__init__ (self, settings)
@@ -52,8 +80,8 @@ class Python__mingw (Python):
 	# FIXME: first is cross compile + mingw patch, backported to
 	# 2.4.2 and combined in one patch; move to cross-Python?
 	def patch (self):
+		Python.patch (self)
 		self.system ('''
-cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-1.patch
 cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-winsock2.patch
 ''')
 
@@ -64,12 +92,6 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-winsock2.patch
 		# timesmodule.o, this can go away.
 		return re.sub ('ac_cv_func_select=yes', 'ac_cv_func_select=no',
 			       str)
-
-	# FIXME: ugh cross compile + mingw patch; move to cross-Python?
-	def configure (self):
-		self.system ('''cd %(srcdir)s && autoconf''')
-		self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
-		targetpackage.Target_package.configure (self)
 
 	def install (self):
 		Python.install (self)
@@ -161,6 +183,8 @@ class Guile (targetpackage.Target_package):
 		self.update_libtool ()
 
 	def install (self):
+
+		self.pre_install_libtool_fuckup ()
 		targetpackage.Target_package.install (self)
 		## can't assume that /usr/bin/guile is the right one.
 		version = self.read_pipe ('''\
@@ -305,12 +329,12 @@ class LilyPond (targetpackage.Target_package):
 		# URG.
 		gub.Package.system (self, '''
 mkdir -p %(builddir)s
-cp /usr/include/FlexLexer.h %(builddir)s/
 ## URGURG
 mkdir -p %(builddir)s/lily/out
 mkdir -p %(builddir)s/lily/out-console
 cp %(flex_include_path)s/FlexLexer.h %(system_root)s/usr/include
 cp %(flex_include_path)s/FlexLexer.h %(builddir)s/lily/out/
+cp %(flex_include_path)s/FlexLexer.h %(builddir)s/
 cp %(flex_include_path)s/FlexLexer.h %(builddir)s/../
 cp %(flex_include_path)s/FlexLexer.h %(builddir)s/lily/out-console/
 ''', locals ())
@@ -450,8 +474,8 @@ class LilyPond__linux (LilyPond):
 	def configure_command (self):
 		return LilyPond.configure_command (self) + misc.join_lines ('''
 --enable-static-gxx
---with-framework-dir=../%(framework_dir)s/usr
 ''')
+#--with-framework-dir=../%(framework_dir)s/usr
 
 	def install (self):
 		LilyPond.install (self)
@@ -606,13 +630,18 @@ class LilyPond__darwin (LilyPond):
 
 class Gettext (targetpackage.Target_package):
 	def configure_command (self):
+
 		return (targetpackage.Target_package.configure_command (self)
-		       + ' --disable-csharp')
+			+ ' --disable-csharp')
 
 	def configure (self):
 		targetpackage.Target_package.configure (self)
 		# # FIXME: libtool too old for cross compile
 		self.update_libtool ()
+
+	def install (self):
+		self.pre_install_libtool_fuckup ()
+		targetpackage.Target_package.pre_install_libtool_fuckup (self)
 
 class Gettext__freebsd (Gettext):
 	def patch (self):
@@ -687,6 +716,7 @@ glib_cv_stack_grows=${glib_cv_stack_grows=no}
 		# # FIXME: libtool too old for cross compile
 		self.update_libtool ()
 	def install (self):
+		self.pre_install_libtool_fuckup()
 		targetpackage.Target_package.install (self)
 		self.system ('rm %(install_root)s/usr/lib/charset.alias',
 			     ignore_error=True)
@@ -704,7 +734,15 @@ class Pango (targetpackage.Target_package):
 --without-cairo
 ''')
 
+	def configure (self):
+		targetpackage.Target_package.configure (self)		
+		self.update_libtool ()
+	def install (self):
+		self.pre_install_libtool_fuckup ()
+		targetpackage.Target_package.install (self)		
+
 	def patch (self):
+		targetpackage.Target_package.patch (self)
 		self.system ('cd %(srcdir)s && patch --force -p1 < %(patchdir)s/pango-env-sub')
 
 	def fix_modules (self):
@@ -790,7 +828,8 @@ LDFLAGS:=$(LDFLAGS) -no-undefined
 			   mode='a')
 
 	def install (self):
-		gub.Package.system (self, misc.join_lines ('''
+		if 0:
+			gub.Package.system (self, misc.join_lines ('''
 cd %(srcdir)s && CC=gcc ./configure
 --disable-static
 --enable-shared
@@ -908,13 +947,15 @@ RUN_FC_CACHE_TEST=false
 		       + self.makeflags ()
 
 class Zlib (targetpackage.Target_package):
+	def patch (self):
+		self.system ('ln -s %(srcdir)s   %(builddir)s')
+		
 	def configure (self):
 		zlib_is_broken = 'SHAREDTARGET=libz.so.1.2.2'
 		if self.settings.platform.startswith ('mingw'):
 			zlib_is_broken = 'target=mingw'
 		self.system ('''
 sed -i~ 's/mgwz/libz/' %(srcdir)s/configure
-shtool mkshadow %(srcdir)s %(builddir)s
 cd %(builddir)s && %(zlib_is_broken)s AR="%(AR)s r" %(srcdir)s/configure --shared
 ''', locals ())
 
@@ -1277,7 +1318,7 @@ def get_packages (settings):
 		Ghostscript__darwin (settings).with (version="8.15.1", mirror=download.cups,
 						     format='bz2', depends=['libjpeg', 'libpng']),
 		LilyPond__darwin (settings).with (version=settings.lilypond_branch, mirror=cvs.gnu, track_development=True,
-						  depends=['pango', 'guile', 'gettext', 'fondu']
+						  depends=['pango', 'guile', 'gettext', 'ghostscript', 'fondu']
 						  ),
 		OSX_Lilypad (settings).with (version="0.0", mirror=download.hw, depends=['lilypond']),
 	),
@@ -1327,7 +1368,8 @@ def get_packages (settings):
 					 depends=['libtool']),
 		Freetype (settings).with (version='2.1.10', mirror=download.nongnu_savannah,
 					  depends=['libtool', 'zlib']),
-		Expat (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2'),
+		Expat (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2',
+				       depends=['libtool']),
 		Fontconfig__linux (settings).with (version='2.3.2', mirror=download.fontconfig,
 						   depends=['expat', 'freetype', 'libtool']),
 		Gmp (settings).with (version='4.1.4',
@@ -1354,7 +1396,8 @@ def get_packages (settings):
 					  depends=['gettext', 'libtool']),
 		Libgnugetopt (settings).with (version='1.3', format='bz2', mirror=download.freebsd_ports,
 					      depends=[]),
-		Gettext__freebsd (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2',
+##		Gettext__freebsd (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2',
+		Gettext (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2',
 						  depends=['libtool']),
 		Guile__freebsd (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2',
 						depends=['gettext', 'gmp', 'libtool']),
@@ -1395,19 +1438,20 @@ def get_packages (settings):
 		settings.python_version = [p for p in packs
 					   if isinstance (p, Python)][0].python_version ()
 	except IndexError:
-		
-		# UGH darwin has no python package.
-		settings.python_version = '2.3'
-
+		if settings.platform == 'darwin':
+			settings.python_version = '2.3'
+		elif settings.platform == 'debian':
+			settings.python_version = '2.3'
 	try:
 		settings.guile_version = [p for p in packs
 			if isinstance (p, Guile)][0].guile_version ()
 	except IndexError:
-		pass
-	
+		if settings.platform == 'debian':
+			settings.guile_version = '1.6'
 	try:
 		settings.ghostscript_version = [p for p in packs
 			if isinstance (p, Ghostscript)][0].ghostscript_version ()
 	except IndexError:
-		pass
+		if settings.platform == 'debian':
+			settings.ghostscript_version = '8.15'
 	return packs

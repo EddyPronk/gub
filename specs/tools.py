@@ -96,7 +96,7 @@ class Fakeroot (Tool_package):
 
 
 def get_packages (settings):
-	return [
+	ps = [
 		Nsis (settings).with (version='2.06',
 				      mirror="http://ftp.debian.org/debian/pool/main/n/nsis/nsis_%(version)s.orig.tar.%(format)s",
 				      
@@ -118,10 +118,10 @@ def get_packages (settings):
 
 		Fakeroot(settings).with (version="1.2.10",
 					 mirror="http://ftp.debian.org/debian/pool/main/f/fakeroot/fakeroot_1.2.10.tar.gz",
-					 format="gz")
-					 
+					 format="gz"),
 		]
 
+	return ps
 
 def change_target_packages (bla):
 	pass
