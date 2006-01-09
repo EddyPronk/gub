@@ -214,6 +214,12 @@ class Tarball (Linux_installer):
 def create_shar (orig_file, hello, head, target_shar):
 	length = os.stat (orig_file)[6]
 
+
+	tarflag = ''
+	if orig_file.endswith ('gz'):
+		tarflag = 'j'
+	elif orig_file.endswith ('bz2'):
+		tarflag = 'z'
 	script = open (head).read ()
 
 	header_length = 0
@@ -222,6 +228,8 @@ def create_shar (orig_file, hello, head, target_shar):
 	f = open (target_shar, 'w')
 	f.write (script % locals())
 	f.close ()
+
+		
 	cmd = 'cat %(orig_file)s >> %(target_shar)s' % locals()
 	print 'invoking ', cmd
 	stat = os.system (cmd)
@@ -231,7 +239,7 @@ def create_shar (orig_file, hello, head, target_shar):
 
 class Shar (Linux_installer):
 	def create (self):
-		target_shar = self.expand ('%(installer_uploads)s/%(name)s-%(bundle_version)s-%(bundle_build)s.%(package_arch)s.shar')
+		target_shar = self.expand ('%(installer_uploads)s/%(name)s-%(bundle_version)s-%(bundle_build)s.%(package_arch)s.sh')
 
 		head = self.expand ('%(patchdir)s/sharhead.sh')
 		tarball = self.expand (self.bundle_tarball)
