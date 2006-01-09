@@ -1,0 +1,15 @@
+--- configure.in~	Mon Jan  9 15:35:53 2006
++++ configure.in	Mon Jan  9 16:05:22 2006
+@@ -3246,8 +3246,11 @@
+ echo "creating Setup"
+ if test ! -f Modules/Setup
+ then
+-	sed -e "s/@POSIX@/$POSIX/" $srcdir/Modules/Setup.dist > Modules/Setup
++	cp $srcdir/Modules/Setup.dist Modules/Setup
+ fi
++mv Modules/Setup Modules/Setup~
++sed -e "s/@POSIX@/$POSIX/g" < Modules/Setup~ > Modules/Setup
++
+ 
+ echo "creating Setup.local"
+ if test ! -f Modules/Setup.local
