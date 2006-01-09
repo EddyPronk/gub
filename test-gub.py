@@ -45,7 +45,7 @@ def system (cmd):
 	if stat:
 		raise 'Command failed', stat
 
-def result_message (options,parts) :
+def result_message (options, parts, subject='') :
 	"""Concatenate PARTS to a Message object."""
 	
 	if not parts:
@@ -59,7 +59,7 @@ def result_message (options,parts) :
 		for p in parts:
 			msg.attach (p)
 	
-	msg['Subject'] = "GUB Autobuild result"
+	msg['Subject'] = subject
 	msg.epilogue = ''
 
 	return msg
@@ -153,6 +153,14 @@ def test_target (options, target, last_patch):
 
 	return (result, attachments)
 	
+def send_message (options, msg):
+	COMMASPACE = ', '
+	msg['From'] = options.sender
+	msg['To'] = COMMASPACE.join (options.address)
+	connection = smtplib.SMTP (options.smtp)
+	connection.sendmail (options.sender, options.address, msg.as_string ())
+
+	
 def main ():
 	(options, args) = opt_parser().parse_args ()
 
@@ -175,19 +183,14 @@ MD5 of complete patch set: %(release_hash)s
 		result_tup = test_target (options, a, last_patch)
 		results[a] = result_tup
 		
+		(r, atts) = result_tup
+		msg = result_message (options, atts, subject="GUB Autobuild: %s %s", r, a)
+		send_message (options, msg)		
 
-	main = '\n\n'.join (['%s: %s' % (target, res) for  (target, (res, atts)) in results.items()])
+	main = '\n\n'.join (['%s: %s' % (target, res) for (target, (res, atts)) in results.items()])
 
 	msg_body = [main, release_id]
-	for (t, (r, atts)) in results.items():
-		msg_body += atts
+	msg = result_message (options, msg_body, subject="GUB Autobuild: summary")
 	
-	msg = result_message (options, msg_body)
-
-	COMMASPACE = ', '
-	msg['From'] = options.sender
-	msg['To'] = COMMASPACE.join (options.address)
-	connection = smtplib.SMTP (options.smtp)
-	connection.sendmail (options.sender, options.address, msg.as_string ())
-
+	send_message (options, msg)
 main()
