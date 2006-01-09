@@ -799,7 +799,7 @@ LDFLAGS:=$(LDFLAGS) -no-undefined
 			   mode='a')
 
 	def install (self):
-		if 0:
+		if self.settings.platform != 'darwin':
 			gub.Package.system (self, misc.join_lines ('''
 cd %(srcdir)s && CC=gcc ./configure
 --disable-static
