@@ -471,6 +471,8 @@ class LilyPond__linux (LilyPond):
 		self.wrap_interpreter (i, 'guile')
 
 	def wrap_framework_program (self, name):
+		return
+	
 		wrapper = name
 		program = '.%(name)s-wrapped' % locals ()
 		self.system ('''
@@ -519,6 +521,8 @@ $prefix/bin/%(program)s "$@"
 				       locals ()), 0755)
 
 	def wrap_interpreter (self, name, interpreter):
+		return
+	
 		wrapper = name
 		program = '.%(name)s-wrapped' % locals ()
 		self.system ('''
