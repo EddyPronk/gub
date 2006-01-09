@@ -28,15 +28,15 @@ PLATFORMS=darwin mingw linux freebsd
 LILYPOND_VERSION=$(MAJOR_VERSION).$(MINOR_VERSION).$(PATCH_LEVEL)$(if $(strip $(MY_PATCH_LEVEL)),.$(MY_PATCH_LEVEL),)
 
 INVOKE_DRIVER=python driver.py \
---target-platform=$(1) \
---branch=$(LILYPOND_BRANCH) \
---installer-version=$(LILYPOND_VERSION) \
---installer-build=$(INSTALLER_BUILD) \
+--target-platform $(1) \
+--branch $(LILYPOND_BRANCH) \
+--installer-version $(LILYPOND_VERSION) \
+--installer-build $(INSTALLER_BUILD) \
 $(LOCAL_DRIVER_OPTIONS)
 
 INVOKE_XPM=python xpm-apt.py \
---platform=$(1) 
---branch=$(LILYPOND_BRANCH)
+--platform $(1) 
+--branch $(LILYPOND_BRANCH)
 
 BUILD=$(call INVOKE_DRIVER,$(1)) build $(2) \
   && $(call INVOKE_XPM,$(1)) install $(2) \
