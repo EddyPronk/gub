@@ -199,12 +199,15 @@ class Linux_installer (Installer):
 		
 	def strip_prefixes (self):
 		return (Installer.strip_prefixes (self)
-			+ [self.expand ('usr/%(framework_dir)s/usr/')])
+			#+ [self.expand ('usr/%(framework_dir)s/usr/')]
+			)
 			
 	def strip (self):
 		Installer.strip (self)
-		self.strip_binary_dir ('%(installer_root)s/usr/%(framework_dir)s/usr/bin')
-		self.strip_binary_dir ('%(installer_root)s/usr/%(framework_dir)s/usr/lib')
+#		self.strip_binary_dir ('%(installer_root)s/usr/%(framework_dir)s/usr/bin')
+#		self.strip_binary_dir ('%(installer_root)s/usr/%(framework_dir)s/usr/lib')
+		self.strip_binary_dir ('%(installer_root)s/usr/bin')
+		self.strip_binary_dir ('%(installer_root)s/usr/lib')
 
 class Tarball (Linux_installer):
 	def create (self):
@@ -215,6 +218,12 @@ class Tarball (Linux_installer):
 def create_shar (orig_file, hello, head, target_shar):
 	length = os.stat (orig_file)[6]
 
+
+	tarflag = ''
+	if orig_file.endswith ('gz'):
+		tarflag = 'j'
+	elif orig_file.endswith ('bz2'):
+		tarflag = 'z'
 	script = open (head).read ()
 
 	header_length = 0
@@ -223,6 +232,8 @@ def create_shar (orig_file, hello, head, target_shar):
 	f = open (target_shar, 'w')
 	f.write (script % locals())
 	f.close ()
+
+		
 	cmd = 'cat %(orig_file)s >> %(target_shar)s' % locals()
 	print 'invoking ', cmd
 	stat = os.system (cmd)

@@ -183,6 +183,8 @@ class Guile (targetpackage.Target_package):
 		self.update_libtool ()
 
 	def install (self):
+
+		self.pre_install_libtool_fuckup ()
 		targetpackage.Target_package.install (self)
 		## can't assume that /usr/bin/guile is the right one.
 		version = self.read_pipe ('''\
@@ -327,12 +329,12 @@ class LilyPond (targetpackage.Target_package):
 		# URG.
 		gub.Package.system (self, '''
 mkdir -p %(builddir)s
-cp /usr/include/FlexLexer.h %(builddir)s/
 ## URGURG
 mkdir -p %(builddir)s/lily/out
 mkdir -p %(builddir)s/lily/out-console
 cp %(flex_include_path)s/FlexLexer.h %(system_root)s/usr/include
 cp %(flex_include_path)s/FlexLexer.h %(builddir)s/lily/out/
+cp %(flex_include_path)s/FlexLexer.h %(builddir)s/
 cp %(flex_include_path)s/FlexLexer.h %(builddir)s/../
 cp %(flex_include_path)s/FlexLexer.h %(builddir)s/lily/out-console/
 ''', locals ())
@@ -633,15 +635,9 @@ class Gettext (targetpackage.Target_package):
 		# # FIXME: libtool too old for cross compile
 		self.update_libtool ()
 
-
-		## UGR. /usr/lib/libgcc.a for darwin->linux is not linkable,
-		## but libtool tries to anyway.
-		for d in ['autoconf-lib-link/',
-			  'gettext-runtime/libasprintf/',
-			  'gettext-runtime/',
-			  'gettext-tools/']:
-			f = self.expand ("%(builddir)s/" + d)
-			self.file_sub ("%(tool_prefix)sgcc", "%(tool_prefix)sgcc -shared-libgcc", f)
+	def install (self):
+		self.pre_install_libtool_fuckup ()
+		targetpackage.Target_package.pre_install_libtool_fuckup (self)
 
 class Gettext__freebsd (Gettext):
 	def patch (self):
@@ -716,6 +712,7 @@ glib_cv_stack_grows=${glib_cv_stack_grows=no}
 		# # FIXME: libtool too old for cross compile
 		self.update_libtool ()
 	def install (self):
+		self.pre_install_libtool_fuckup()
 		targetpackage.Target_package.install (self)
 		self.system ('rm %(install_root)s/usr/lib/charset.alias',
 			     ignore_error=True)
@@ -733,7 +730,15 @@ class Pango (targetpackage.Target_package):
 --without-cairo
 ''')
 
+	def configure (self):
+		targetpackage.Target_package.configure (self)		
+		self.update_libtool ()
+	def install (self):
+		self.pre_install_libtool_fuckup ()
+		targetpackage.Target_package.install (self)		
+
 	def patch (self):
+		targetpackage.Target_package.patch (self)
 		self.system ('cd %(srcdir)s && patch --force -p1 < %(patchdir)s/pango-env-sub')
 
 	def fix_modules (self):
@@ -819,7 +824,8 @@ LDFLAGS:=$(LDFLAGS) -no-undefined
 			   mode='a')
 
 	def install (self):
-		gub.Package.system (self, misc.join_lines ('''
+		if 0:
+			gub.Package.system (self, misc.join_lines ('''
 cd %(srcdir)s && CC=gcc ./configure
 --disable-static
 --enable-shared

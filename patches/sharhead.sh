@@ -22,10 +22,8 @@ EOF
     exit 0
     ;;
   --prefix)
-    if test "$prefix" = "" ; then
-      shift
-      prefix=$1/
-    fi
+    shift
+    prefix=$1/
     if test "$prefix" = "" ; then
       echo 'Option --prefix requires argument.'
       exit 1
@@ -84,7 +82,7 @@ EOF
 chmod +x $wrapscript
 
 echo Untarring $me
-tail -c+%(header_length)012d $0 | tar -C $lilydir -xzf -
+tail -c+%(header_length)012d $0 | tar -C $lilydir -x%(tarflag)sf -
 
 ## need this because binary data starts after this.
 exit 0
