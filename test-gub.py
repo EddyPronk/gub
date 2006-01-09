@@ -184,7 +184,7 @@ MD5 of complete patch set: %(release_hash)s
 		results[a] = result_tup
 		
 		(r, atts) = result_tup
-		msg = result_message (options, atts, subject="GUB Autobuild: %s %s", r, a)
+		msg = result_message (options, atts, subject="GUB Autobuild: %s %s" % (r, a))
 		send_message (options, msg)		
 
 	main = '\n\n'.join (['%s: %s' % (target, res) for (target, (res, atts)) in results.items()])
