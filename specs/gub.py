@@ -246,11 +246,23 @@ tooldir=%(install_prefix)s
 	def update_libtool (self):
 		new_lt = self.expand ('%(system_root)s/usr/bin/libtool')
 
+
+
 		if os.path.exists (new_lt):
-			self.system ('''find %(builddir)s -name libtool -exec cp -pv %(new_lt)s \{\} \;''', locals ())
+			for lt in self.read_pipe ('find %(builddir)s -name libtool').split():
+				lt = lt.strip()
+				if not lt:
+					continue
+
+				self.system ('cp %(new_lt)s %(lt)s', locals ())
+				self.file_sub ([(r'if test "\$inst_prefix_dir" = "\$destdir"; then',
+						 'if false && test "$inst_prefix_dir" = "$destdir"; then')],
+					       lt, must_succeed=True)
+
 		else:
 			sys.stderr.write ("Cannot update libtool without libtools in system_root/usr/bin/.")
 	def install (self):
+
 		self.system ('''
 rm -rf %(install_root)s
 cd %(builddir)s && %(install_command)s
