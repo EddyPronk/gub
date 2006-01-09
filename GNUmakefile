@@ -88,3 +88,8 @@ RUN_TEST=python test-gub.py --to hanwen@xs4all.nl --to janneke@gnu.org --smtp sm
 test:
 	$(MAKE) realclean
 	$(RUN_TEST) $(foreach p, $(PLATFORMS), "make $(p) from=$(BUILD_PLATFORM)")
+
+#FIXME: remove zlib.h, zconf.h or remove Zlib from freebsd packages?
+# bumb version number by hand, sync with freebsd.py
+freebsd-runtime:
+	ssh xs4all.nl tar -C / --exclude=zlib.h --exclude=zconf.h -czf public_html/freebsd-runtime-4.10-1.tar.gz /usr/lib/{lib{c,c_r,m}{.a,.so{,.*}},crt{i,n,1}.o} /usr/include
