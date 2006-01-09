@@ -254,7 +254,7 @@ tooldir=%(install_prefix)s
 		self.system ('''
 rm -rf %(install_root)s
 cd %(builddir)s && %(install_command)s
-(rm %(install_root)s/usr/info/dir %(install_root)s/usr/cross/info/dir  || true) 
+rm -f %(install_root)s/usr/info/dir %(install_root)s/usr/cross/info/dir 
 ''')
 		self.libtool_la_fixups ()
 
@@ -414,17 +414,18 @@ class Sdk_package (Null_package):
 
 class Change_target_dict:
 	def __init__ (self, package, override):
-		self._target_dict_method = package.target_dict
+		self._target_dict_method = package.get_substitution_dict
 		self._add_dict = override
 		
 	def target_dict (self, env={}):
+		env = env.copy()
+		env.update (self._add_dict)
 		d = self._target_dict_method (env)
-		d.update (self._add_dict)
 		return d
 
 def change_target_dict (package, addict):
-	"""Override the target_dict() method of PACKAGE."""
+	"""Override the get_substitution_dict() method of PACKAGE."""
 	try:
-		package.target_dict = Change_target_dict (package, addict).target_dict
+		package.get_substitution_dict = Change_target_dict (package, addict).target_dict
 	except AttributeError:
 		pass
