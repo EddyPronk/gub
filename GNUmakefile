@@ -35,8 +35,8 @@ INVOKE_DRIVER=python driver.py \
 $(LOCAL_DRIVER_OPTIONS)
 
 INVOKE_XPM=python xpm-apt.py \
---platform $(1) 
---branch $(LILYPOND_BRANCH)
+--platform $(1) \
+--branch $(LILYPOND_BRANCH) 
 
 BUILD=$(call INVOKE_DRIVER,$(1)) build $(2) \
   && $(call INVOKE_XPM,$(1)) install $(2) \
