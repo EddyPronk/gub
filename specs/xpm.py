@@ -1,4 +1,4 @@
-#import dbhash as dbmodule
+## dbhash doesn't provide locking.
 import gdbm as dbmodule
 
 import dbhash
