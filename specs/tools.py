@@ -25,9 +25,6 @@ class Pkg_config (Tool_package):
 class Guile (Tool_package):
 	pass
 
-class Gmp (Tool_package):
-	pass
-
 class Flex (Tool_package):
 	def srcdir (self):
 		return '%(allsrcdir)s/flex-2.5.4'
