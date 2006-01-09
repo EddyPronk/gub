@@ -610,6 +610,16 @@ class Gettext (targetpackage.Target_package):
 		# # FIXME: libtool too old for cross compile
 		self.update_libtool ()
 
+
+		## UGR. /usr/lib/libgcc.a for darwin->linux is not linkable,
+		## but libtool tries to anyway.
+		for d in ['autoconf-lib-link/',
+			  'gettext-runtime/libasprintf/',
+			  'gettext-runtime/',
+			  'gettext-tools/']:
+			f = self.expand ("%(builddir)s/" + d)
+			self.file_sub ("%(tool_prefix)sgcc", "%(tool_prefix)sgcc -shared-libgcc", f)
+
 class Gettext__freebsd (Gettext):
 	def patch (self):
 		self.system ('''
