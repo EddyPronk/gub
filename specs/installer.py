@@ -113,9 +113,6 @@ class Installer (context.Os_context_wrapper):
 			):
 
 			self.system ('cd %(installer_root)s && rm -rf ' + delete_me, {'i': i })
-		self.system ('ls -l %(installer_root)s/usr/share/lilypond/ || true')
-		self.system ('ls -l %(installer_root)s/usr/share/lilypond/*/fonts || true')
-		foobar
 		self.system ('rm -f %(installer_root)s/usr/share/lilypond/*/fonts/*/fonts.cache-1')
 		self.system ('fc-cache %(installer_root)s/usr/share/lilypond/*/fonts/*/')
 
