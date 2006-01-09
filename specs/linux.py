@@ -6,6 +6,7 @@ import cross
 import download
 import framework
 import gub
+import targetpackage
 
 class Gcc (cross.Gcc):
 	def configure_command (self):
@@ -66,13 +67,8 @@ def change_target_packages (packages):
 	cross.change_target_packages (packages)
 	
 	for p in packages:
-		gub.change_target_dict (p,
-				    {'CC': '%(target_architecture)s-gcc',
-				     'CXX': '%(target_architecture)s-g++',
-				     'LD': '%(target_architecture)s-ld --as-needed',
-				     'LDFLAGS': '-Wl,--as-needed',
-#				     'APBUILD_CC': 'gcc-3.4',
-#				     'APBUILD_CXX1': 'g++-3.4',
-#				     'APBUILD_CC': '%(target_architecture)s-gcc',
-#				     'APBUILD_CXX1': '%(target_architecture)s-g++',
-				     })
+		if isinstance (p, targetpackage.Target_package):
+			gub.change_target_dict (p,
+						{'LD': '%(target_architecture)s-ld --as-needed',
+						 'LDFLAGS': '-Wl,--as-needed',
+						 })
