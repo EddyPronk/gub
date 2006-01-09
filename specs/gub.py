@@ -263,7 +263,10 @@ tooldir=%(install_prefix)s
 			sys.stderr.write ("Cannot update libtool without libtools in system_root/usr/bin/.")
 
 	def pre_install_libtool_fuckup (self):
-		
+
+		if self.settings.platform != 'darwin':
+			return
+
 		## Workaround for libtool bug.
 		## libtool inserts -L/usr/lib into command line, but this is
 		## on the target system. It will try link in libraries from 
