@@ -82,7 +82,7 @@ EOF
 chmod +x $wrapscript
 
 echo Untarring $me
-tail -c+%(header_length)012d $0 | tar -C $lilydir -xzf -
+tail -c+%(header_length)012d $0 | tar -C $lilydir -x%(tarflag)sf -
 
 ## need this because binary data starts after this.
 exit 0
