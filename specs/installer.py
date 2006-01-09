@@ -54,7 +54,7 @@ class Installer (context.Os_context_wrapper):
 			'include',
 			'info',
 			'lib/gettext',
-			'lib/gettext/hostname*',
+ 			'lib/gettext/hostname*',
 			'lib/gettext/urlget*',
 			'lib/glib-2.0/include/glibconfig.h',
 			'lib/glib-2.0',
@@ -106,8 +106,6 @@ class Installer (context.Os_context_wrapper):
 			'share/lilypond/*/fonts/type1/parmesan*pfa',
 			'share/locale',
 			'share/omf',
-
-
 			## 2.6 installer: leave c059*
 			'share/gs/fonts/[a-bd-z]*',
 			'share/gs/fonts/c[^0][^5][^9]*',
@@ -234,7 +232,7 @@ def create_shar (orig_file, hello, head, target_shar):
 
 class Shar (Linux_installer):
 	def create (self):
-		target_shar = self.expand ('%(installer_uploads)s/%(name)s-%(bundle_version)s-%(bundle_build)s.%(package_arch)s.shar')
+		target_shar = self.expand ('%(installer_uploads)s/%(name)s-%(bundle_version)s-%(bundle_build)s.%(platform)s.sh')
 
 		head = self.expand ('%(patchdir)s/sharhead.sh')
 		tarball = self.expand (self.bundle_tarball)
