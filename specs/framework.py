@@ -666,7 +666,7 @@ class Gettext__darwin (Gettext):
 
 	def install (self):
 		self.pre_install_libtool_fuckup ()
-		Gettext.pre_install_libtool_fuckup (self)
+		Gettext.install (self)
 
 class Libiconv (targetpackage.Target_package):
 	def configure (self):
