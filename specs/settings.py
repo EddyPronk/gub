@@ -61,7 +61,9 @@ class Settings (Context):
 		self.installer_uploads = self.uploads
 		self.bundle_version = None
 		self.bundle_build = None
-		self.package_arch = re.sub ('-.*', '', self.build_architecture)
+		self.package_arch = re.sub ('-.*', '', self.target_architecture)
+		self.package_arch = re.sub ('i[0-9]86', 'i386', self.package_arch)
+		
 		self.keep_build = False
 		self.use_tools = False
 		self.build_autopackage = self.allbuilddir + '/autopackage'

@@ -44,7 +44,7 @@ class Target_package (gub.Package):
 
 	## FIXME: this should move elsewhere , as it's not
 	## package specific 
-	def target_dict (self, env={}):
+	def get_substitution_dict (self, env={}):
 		dict = {
 			'AR': '%(tool_prefix)sar',
 			'AS': '%(tool_prefix)sas',
@@ -74,26 +74,10 @@ class Target_package (gub.Package):
 			'RANLIB': '%(tool_prefix)sranlib',
 			'SED': 'sed', # libtool (expat mingw) fixup
 			}
+		
 		dict.update (env)
-		return dict
-
-	def dump (self, str, name, mode='w', env={}):
-		dict = self.target_dict (env)
-		return gub.Package.dump (self, str, name, mode=mode, env=dict)
-
-	def file_sub (self, re_pairs, name, to_name=None, env={}):
-		dict = self.target_dict (env)
-
-		s = gub.Package.file_sub (self, re_pairs, name, to_name=to_name, env=dict)
-		return s
-
-	def read_pipe (self, cmd, env={}, ignore_error=False):
-		dict = self.target_dict (env)
-		return gub.Package.read_pipe (self, cmd, env=dict, ignore_error=ignore_error)
-
-	def system (self, cmd, env={}, ignore_error=False):
-		dict = self.target_dict (env)
-		gub.Package.system (self, cmd, env=dict, ignore_error=ignore_error)
+		d =  gub.Package.get_substitution_dict (self, dict).copy()
+		return d
 
 
 cross_config_cache = {
@@ -156,8 +140,8 @@ glib_cv_uscore=${glib_cv_uscore=no}
 
 lt_cv_dlopen_libs=${lt_cv_dlopen_libs="-lc"}
 lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=32768}
-##libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(framework_root)s/usr/lib /lib /usr/lib"'"}
-libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(framework_root)s/usr/lib /lib /usr/lib"'"}
+##libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/lib "'"}
+libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/lib "'"}
 ''',
 	'linux' : '''
 ac_cv_func_posix_getpwuid_r=${ac_cv_func_posix_getpwuid_r=yes}
@@ -167,8 +151,8 @@ glib_cv_uscore=${glib_cv_uscore=no}
 
 lt_cv_dlopen_libs=${lt_cv_dlopen_libs="-ldl"}
 lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=32768}
-##libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(framework_root)s/usr/lib /lib /usr/lib"'"}
-libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(framework_root)s/usr/lib /lib /usr/lib"'"}
+##libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/usr/lib"'"}
+libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/lib"'"}
 ''',
 	'darwin' : '''
 ac_cv_c_bigendian=${ac_cv_c_bigendian=yes}

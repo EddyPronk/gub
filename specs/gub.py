@@ -246,15 +246,50 @@ tooldir=%(install_prefix)s
 	def update_libtool (self):
 		new_lt = self.expand ('%(system_root)s/usr/bin/libtool')
 
+
+
 		if os.path.exists (new_lt):
-			self.system ('''find %(builddir)s -name libtool -exec cp -pv %(new_lt)s \{\} \;''', locals ())
+			for lt in self.read_pipe ('find %(builddir)s -name libtool').split():
+				lt = lt.strip()
+				if not lt:
+					continue
+
+				self.system ('cp %(new_lt)s %(lt)s', locals ())
+				self.file_sub ([(r'if test "\$inst_prefix_dir" = "\$destdir"; then',
+						 'if false && test "$inst_prefix_dir" = "$destdir"; then')],
+					       lt, must_succeed=True)
+
 		else:
 			sys.stderr.write ("Cannot update libtool without libtools in system_root/usr/bin/.")
+
+	def pre_install_libtool_fuckup (self):
+		
+		## Workaround for libtool bug.
+		## libtool inserts -L/usr/lib into command line, but this is
+		## on the target system. It will try link in libraries from 
+		## /usr/lib/ on the build system.
+		## 
+		for lt in self.read_pipe ("find %(builddir)s -name '*.la'").split ('\n'):
+			lt = lt.strip()
+			if not lt:
+				continue
+
+			dir = os.path.split (lt)[0]
+			suffix = "/.libs"
+			if re.search("\\.libs$", dir):
+				suffix = ''
+			self.file_sub ([
+				("libdir='/usr/lib'", "libdir='%(dir)s%(suffix)s'"),
+				#(' -rpath /usr/lib', '')
+				],
+				       lt, env=locals())
+		
 	def install (self):
+
 		self.system ('''
 rm -rf %(install_root)s
 cd %(builddir)s && %(install_command)s
-(rm %(install_root)s/usr/info/dir %(install_root)s/usr/cross/info/dir  || true) 
+rm -f %(install_root)s/usr/info/dir %(install_root)s/usr/cross/info/dir 
 ''')
 		self.libtool_la_fixups ()
 
@@ -414,17 +449,18 @@ class Sdk_package (Null_package):
 
 class Change_target_dict:
 	def __init__ (self, package, override):
-		self._target_dict_method = package.target_dict
+		self._target_dict_method = package.get_substitution_dict
 		self._add_dict = override
 		
 	def target_dict (self, env={}):
+		env = env.copy()
+		env.update (self._add_dict)
 		d = self._target_dict_method (env)
-		d.update (self._add_dict)
 		return d
 
 def change_target_dict (package, addict):
-	"""Override the target_dict() method of PACKAGE."""
+	"""Override the get_substitution_dict() method of PACKAGE."""
 	try:
-		package.target_dict = Change_target_dict (package, addict).target_dict
+		package.get_substitution_dict = Change_target_dict (package, addict).target_dict
 	except AttributeError:
 		pass
