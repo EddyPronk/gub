@@ -36,6 +36,11 @@ class Python (targetpackage.Target_package):
 		targetpackage.Target_package.set_download (self, mirror, format, downloader)
 		self.url = re.sub ('python-', 'Python-' , self.url)
 
+	def patch (self):
+		targetpackage.Target_package.patch (self)
+		self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-1.patch')
+		self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-configure.in-posix.patch')
+
 	def python_version (self):
 		return '.'.join (self.ball_version.split ('.')[0:2])
 
@@ -44,6 +49,29 @@ class Python (targetpackage.Target_package):
 		dict['python_version'] = self.python_version ()
 		return dict
 
+	# FIXME: ugh cross compile + mingw patch; move to cross-Python?
+	def configure (self):
+		self.system ('''cd %(srcdir)s && autoconf''')
+		self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
+		targetpackage.Target_package.configure (self)
+
+#	def configure_command (self):
+#		return "MACHDEP=linux2 " + targetpackage.Target_package.configure_command (self)
+
+	def compile_command (self):
+		##
+		## UGH.: darwin Python vs python (case insensive FS)
+		c = targetpackage.Target_package.compile_command (self)
+		c += ' BUILDPYTHON=python-bin '
+		return c
+
+	def install_command (self):
+		##
+		## UGH.: darwin Python vs python (case insensive FS)
+		c = targetpackage.Target_package.install_command (self)
+		c += ' BUILDPYTHON=python-bin '
+		return c
+	
 class Python__mingw (Python):
 	def __init__ (self, settings):
 		Python.__init__ (self, settings)
@@ -52,8 +80,8 @@ class Python__mingw (Python):
 	# FIXME: first is cross compile + mingw patch, backported to
 	# 2.4.2 and combined in one patch; move to cross-Python?
 	def patch (self):
+		Python.patch (self)
 		self.system ('''
-cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-1.patch
 cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-winsock2.patch
 ''')
 
@@ -64,12 +92,6 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-winsock2.patch
 		# timesmodule.o, this can go away.
 		return re.sub ('ac_cv_func_select=yes', 'ac_cv_func_select=no',
 			       str)
-
-	# FIXME: ugh cross compile + mingw patch; move to cross-Python?
-	def configure (self):
-		self.system ('''cd %(srcdir)s && autoconf''')
-		self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
-		targetpackage.Target_package.configure (self)
 
 	def install (self):
 		Python.install (self)
