@@ -199,12 +199,15 @@ class Linux_installer (Installer):
 		
 	def strip_prefixes (self):
 		return (Installer.strip_prefixes (self)
-			+ [self.expand ('usr/%(framework_dir)s/usr/')])
+			#+ [self.expand ('usr/%(framework_dir)s/usr/')]
+			)
 			
 	def strip (self):
 		Installer.strip (self)
-		self.strip_binary_dir ('%(installer_root)s/usr/%(framework_dir)s/usr/bin')
-		self.strip_binary_dir ('%(installer_root)s/usr/%(framework_dir)s/usr/lib')
+#		self.strip_binary_dir ('%(installer_root)s/usr/%(framework_dir)s/usr/bin')
+#		self.strip_binary_dir ('%(installer_root)s/usr/%(framework_dir)s/usr/lib')
+		self.strip_binary_dir ('%(installer_root)s/usr/bin')
+		self.strip_binary_dir ('%(installer_root)s/usr/lib')
 
 class Tarball (Linux_installer):
 	def create (self):
