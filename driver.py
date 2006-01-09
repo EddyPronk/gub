@@ -50,30 +50,6 @@ def add_options (settings, options):
 	settings.bundle_build = options.installer_build
 	settings.create_dirs ()
 
-	if settings.platform == 'linux':
-		settings.tool_prefix = ''
-
-	if settings.platform == 'debian':
-		settings.tool_prefix = ''
-
-	if (settings.platform == 'linux'
-	    or settings.platform == 'freebsd'
-	    or settings.platform == 'debian'):
-
-		# FIXME: this for deb/rpm/slackware package archs
-		settings.package_arch = 'i386'
-
-		settings.framework_version = '0.0.0'
-		# FIXME: must not use lilypond version (ie bundle version)
-		# in framework dir.  Framework should be more or less
-		# constant/stable.
-		#settings.framework_dir = ('lib/lilypond/%(bundle_version)s/lib'
-		settings.framework_dir = ('lib/lilypond/framework/%(framework_version)s'
-					   % settings.__dict__)
-		settings.framework_root = ('%(installer_root)s/usr/%(framework_dir)s'
-					   % settings.__dict__)
-		# This works, but better avoid depending on autopackage.
-		# os.environ['APBUILD_PROJECTNAME'] = 'lilypond/framework/0.0.0/usr/lib'
 
 def get_cli_parser ():
 	p = optparse.OptionParser ()
@@ -129,29 +105,16 @@ def build_installers (settings, target_manager, args):
 	install_manager = xpm.Package_manager (settings.installer_root,
 					       settings.os_interface)
 
-	framework_manager = None
-	if (settings.platform.startswith ('linux')
-	    or settings.platform.startswith ('freebsd')):
-		# Hmm, better to configure --prefix=framework_root --xxxfix=fr?
-		# and install everything in / ?
-		framework_manager = xpm.Package_manager (settings.framework_root,
-							 settings.os_interface)
-
+	
 	pkgs = map (lambda x: target_manager._packages[x], args)
 	for p in pkgs:
 		if isinstance (p, gub.Sdk_package):
 			continue
-		if (p.name () != 'lilypond'
-		    and framework_manager):
-			framework_manager.register_package (p)
-		else:
-			install_manager.register_package (p)
+
+		install_manager.register_package (p)
 
 	for p in install_manager._packages.values ():
 		install_manager.install_package  (p)
-	if framework_manager:
-		for p in framework_manager._packages.values ():
-			framework_manager.install_package  (p)
 
 def package_installers (settings):
 	import installer

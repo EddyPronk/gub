@@ -472,8 +472,8 @@ class LilyPond__linux (LilyPond):
 	def configure_command (self):
 		return LilyPond.configure_command (self) + misc.join_lines ('''
 --enable-static-gxx
---with-framework-dir=../%(framework_dir)s/usr
 ''')
+#--with-framework-dir=../%(framework_dir)s/usr
 
 	def install (self):
 		LilyPond.install (self)
@@ -624,8 +624,9 @@ class LilyPond__darwin (LilyPond):
 
 class Gettext (targetpackage.Target_package):
 	def configure_command (self):
+
 		return (targetpackage.Target_package.configure_command (self)
-		       + ' --disable-csharp')
+			+ ' --disable-csharp')
 
 	def configure (self):
 		targetpackage.Target_package.configure (self)
