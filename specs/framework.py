@@ -904,13 +904,15 @@ RUN_FC_CACHE_TEST=false
 		       + self.makeflags ()
 
 class Zlib (targetpackage.Target_package):
+	def patch (self):
+		self.system ('ln -s %(srcdir)s   %(builddir)s')
+		
 	def configure (self):
 		zlib_is_broken = 'SHAREDTARGET=libz.so.1.2.2'
 		if self.settings.platform.startswith ('mingw'):
 			zlib_is_broken = 'target=mingw'
 		self.system ('''
 sed -i~ 's/mgwz/libz/' %(srcdir)s/configure
-shtool mkshadow %(srcdir)s %(builddir)s
 cd %(builddir)s && %(zlib_is_broken)s AR="%(AR)s r" %(srcdir)s/configure --shared
 ''', locals ())
 
