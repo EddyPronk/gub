@@ -54,7 +54,7 @@ class Package (Os_context_wrapper):
 
 			if (stage == 'clean'
 			    and self.settings.options.keep_build):
-				os.unlink (self.stamp_file ())
+				os.unlink (self.get_stamp_file ())
 				continue
 
 			(available[stage]) ()
@@ -160,6 +160,10 @@ cd %(downloaddir)s/%(dir)s && cvs -q update -dAP -r %(version)s
         def gub_name (self):
 		return '%(name)s-%(version)s-%(build)s.%(platform)s.gub'
 
+	@subst_method
+	def stamp_file (self):
+		return '%(statusdir)s/%(name)s-%(version)s-%(build)s'
+
 	def get_builds  (self):
 		return builds
 	
@@ -171,17 +175,18 @@ cd %(downloaddir)s/%(dir)s && cvs -q update -dAP -r %(version)s
 		else:
 			self._build = 1
 
-	def stamp_file (self):
-		return self.expand ('%(statusdir)s/%(name)s-%(version)s-%(build)s')
+	def get_stamp_file (self):
+		stamp = self.expand ('%(stamp_file)s')
+		return stamp
 
 	def is_done (self, stage, stage_number):
-		f = self.stamp_file ()
+		f = self.get_stamp_file ()
 		if os.path.exists (f):
 			return pickle.load (open (f)) >= stage_number
 		return False
 
 	def set_done (self, stage, stage_number):
-		pickle.dump (stage_number, open (self.stamp_file (),'w'))
+		pickle.dump (stage_number, open (self.get_stamp_file (),'w'))
 
 	def autoupdate (self, autodir=0):
 		if not autodir:
@@ -322,8 +327,7 @@ tar -C %(install_root)s -zcf %(gub_uploads)s/%(gub_name)s .
 ''')
 
 	def clean (self):
-		stamp = self.stamp_file ()
-		self.system ('rm -rf  %(stamp)s %(install_root)s', locals ())
+		self.system ('rm -rf  %(stamp_file)s %(install_root)s', locals ())
 		if self.track_development:
 			return
 
