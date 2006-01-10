@@ -33,27 +33,31 @@ def tar_compression_flag (ball):
 #
 class Package_manager:
 	def __init__ (self, root, os_interface):
-		self.os_interface = os_interface
 		self.root = root
-		self._packages = {}
 		self.config = self.root + '/etc/xpm/'
-
+		self.os_interface = os_interface
+		self._packages = {}
+			
 		if not os.path.isdir (self.config):
 			os_interface.system ('mkdir -p %s' % self.config)
 
-		self._file_package_db = dbmodule.open (self.config
-						       + '/files.db', 'c')
-		self._package_file_db = dbmodule.open (self.config
-						       + '/packages.db', 'c')
 
+		
 		lock_file = self.config + 'lock'
 		self._lock_file = open (lock_file, 'w')
 
 		try:
 			fcntl.flock (self._lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
 		except IOError:			
-			sys.stderr.write ("Can't acquire lock for %s\n" % lock_file)
-			sys.exit (1) 
+			sys.stderr.write ("Can't acquire Package_manager lock %s\n\nAbort\n" % lock_file)
+			sys.exit (1)
+
+
+		self._file_package_db = dbmodule.open (self.config
+						       + '/files.db', 'c')
+		self._package_file_db = dbmodule.open (self.config
+						       + '/packages.db', 'c')
+
 
 		
 		
