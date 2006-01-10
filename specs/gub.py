@@ -284,7 +284,8 @@ tooldir=%(install_prefix)s
 				       lt, env=locals())
 		
 	def install (self):
-
+		if self.settings.build_platform == 'darwin':
+			self.pre_install_libtool_fuckup (self)
 		self.system ('''
 rm -rf %(install_root)s
 cd %(builddir)s && %(install_command)s

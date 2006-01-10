@@ -300,7 +300,6 @@ cc
 
 class Guile__darwin (Guile):
 	def install (self):
-		self.pre_install_libtool_fuckup ()
 		Guile.install (self)
 		pat = self.expand ('%(install_root)s/usr/lib/libguile-srfi*.dylib')
 		for f in glob.glob (pat):
@@ -664,10 +663,6 @@ class Gettext__darwin (Gettext):
 		return re.sub (' --config-cache', '',
 			       Gettext.configure_command (self))
 
-	def install (self):
-		self.pre_install_libtool_fuckup ()
-		Gettext.install (self)
-
 class Libiconv (targetpackage.Target_package):
 	def configure (self):
 		targetpackage.Target_package.configure (self)
@@ -697,10 +692,6 @@ class Glib__darwin (Glib):
 		Glib.configure (self)
 		self.file_sub ([('nmedit', '%(target_architecture)s-nmedit')],
 			       '%(builddir)s/libtool')
-	def install (self):
-		self.pre_install_libtool_fuckup()
-		Glib.install (self)
-		
 class Pango (targetpackage.Target_package):
 	def configure_command (self):
 		return targetpackage.Target_package.configure_command (self) \
@@ -771,7 +762,6 @@ class Pango__darwin (Pango):
 			       '%(builddir)s/libtool')
 
 	def install (self):
-		self.pre_install_libtool_fuckup ()
 		targetpackage.Target_package.install (self)		
 		self.fix_modules ()
 
