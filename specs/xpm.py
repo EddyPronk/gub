@@ -328,9 +328,6 @@ class Debian_package_manager (Package_manager):
 		return package
 
 def get_manager (settings):
-	target_manager = Package_manager (settings.system_root,
-					  settings.os_interface)
-
 	cross_module = None
 	if settings.platform == 'darwin':
 		import darwintools
@@ -351,7 +348,11 @@ def get_manager (settings):
 		import debian_unstable
 		cross_module = debian_unstable
 
-	map (target_manager.register_package, cross_module.get_packages (settings))
+	cross_packages = cross_module.get_packages (settings)
+	
+	target_manager = Package_manager (settings.system_root,
+					  settings.os_interface)
+	map (target_manager.register_package, cross_packages)
 	map (target_manager.register_package, framework.get_packages (settings))
 	for p in target_manager._packages.values ():
 		settings.build_number_db.set_build_number (p)
