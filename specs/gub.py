@@ -295,44 +295,34 @@ rm -rf %(install_root)s
 cd %(builddir)s && %(install_command)s
 rm -f %(install_root)s/usr/info/dir %(install_root)s/usr/cross/info/dir 
 ''')
-		self.libtool_la_fixups ()
+		self.libtool_installed_la_fixups ()
 
-	def libtool_la_fixups (self):
-		dll_name = 'lib'
-		for i in glob.glob ('%(install_prefix)s/lib/*.la' \
-				    % self.get_substitution_dict ()):
-			base = os.path.basename (i)[3:-3]
-			self.file_sub ([
-				(''' *-L *[^"' ][^"' ]*''', ''),
-				('''( |=|')(/[^ ]*usr/lib/lib)([^ ']*)\.(a|la|so)[^ ']*''', '\\1-l\\3'),
-				('^old_library=.*',
-				"""old_library='lib%(base)s.a'"""),
-				],
-				i, env=locals ())
+	def libtool_installed_la_fixups (self):
+		for la in self.read_pipe ("cd %(install_root)s && find -name '*.la'").split ():
+			la = la.strip ()
+			(dir, base) = os.path.split (la)
+			base = base[3:-3]
+			dir = re.sub (r"^\./", "/", dir)
+			full_la = self.expand ("%(install_root)s/%(la)s", locals())
+			
+			self.file_sub ([(''' *-L *[^\"\' ][^\"\' ]*''', ''),
+					('''( |=|\')(/[^ ]*usr/lib/lib)([^ \']*)\.(a|la|so)[^ \']*''',
+					 '\\1-l\\3 '),
+					('^old_library=.*',
+					 """old_library='lib%(base)s.a'"""),
+					],
+				       full_la, env=locals())
                         if self.settings.platform.startswith ('mingw'):
 			         self.file_sub ([('library_names=.*',
 						"library_names='lib%(base)s.dll.a'")],
-						i, env=locals ())
-			#  ' " ''' '
+						full_la, env=locals())
 
-			# FIXME: avoid using libs from /usr/lib when
-			# building linux, freebsd, mingw package.
-
-			# Move this to xpm.py, and only do this after
-			# installing?  But how does xpm know whether
-			# we do a native install, as system install
-			# or an installer install.
-
-			#FIXME: not darwin, or all?
-                        if (self.settings.platform.startswith ('linux')
-			    or self.settings.platform.startswith ('freebsd')
-			    or self.settings.platform.startswith ('mingw')):
-				self.file_sub ([
-				('^libdir=.*',
-				"""libdir='%(system_root)s/usr/lib'"""),
-				],
-					       i, env=locals ())
-
+			# avoid using libs from build platform, by adding %(system_root)s
+			self.file_sub ([('^libdir=.*',
+					 """libdir='%(system_root)s/%(dir)s'"""),
+					],
+				       full_la, env=locals())
+			
 	def compile (self):
 		self.system ('cd %(builddir)s && %(compile_command)s')
 
