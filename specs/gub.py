@@ -44,14 +44,36 @@ class Package (Os_context_wrapper):
 		stages = ['untar', 'patch',
 			  'configure', 'compile', 'install',
 			  'package', 'clean']
-		for stage in stages:
-			if (not available.has_key (stage)
-			    or self.is_done (stage, stages.index (stage))):
-				continue
 
+		tainted = False
+		for stage in stages:
+			if (not available.has_key (stage)):
+				continue
+			
+			if self.is_done (stage, stages.index (stage)):
+				tainted = True
+				continue
+			
 			self.os_interface.log_command (' *** Stage: %s (%s)\n'
 						       % (stage, self.name ()))
 
+			if stage == 'package' and tainted and not self.settings.options.force_package:
+				msg = self.expand ('''Compile was continued from previous run.
+Will not package.
+Use
+
+  rm %(stamp_file)s
+
+to force rebuild, or
+
+  --force-package
+
+to skip this check.
+''')
+				self.os_interface.log_command (msg)
+				raise 'abort'
+			
+					
 			if (stage == 'clean'
 			    and self.settings.options.keep_build):
 				os.unlink (self.get_stamp_file ())

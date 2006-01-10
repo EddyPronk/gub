@@ -97,6 +97,10 @@ package-installer - build installer binary
 		      help='Force rebuild of stage')
 	p.add_option ('-V', '--verbose', action='store_true',
 		      dest="verbose")
+	p.add_option ('', '--force-package', action='store_true',
+		      default=False,
+		      dest="force_package",
+		      help="allow packaging of tainted compiles" )
 	return p
 
 def build_installers (settings, target_manager, args):
