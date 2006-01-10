@@ -19,15 +19,11 @@ class Target_package (gub.Package):
 ''')
 
 	def install (self):
-		self.pre_install_libtool_fuckup ()
+		self.pre_install_libtool_fixup ()
 		gub.Package.install (self)
-		self.post_install_libtool_fuckup ()
+#		self.post_install_libtool_fixup ()
 
-	def post_install_libtool_fuckup (self):
-		for la in self.read_pipe ("cd %(install_root)s && find -name '*.la'").split ():
-			la = la.strip ()
-			dir = os.path.split (la)[0]
-			dir = re.sub (r"^\./", "/", dir)
+	def post_install_libtool_fixup (self):
 			
 			def sub_deplibs (m):
 				libs_str = m.group (1)
@@ -45,7 +41,7 @@ class Target_package (gub.Package):
 					],
 				       "%(install_root)s/%(la)s", env=locals ())
 			
-	def pre_install_libtool_fuckup (self):
+	def pre_install_libtool_fixup (self):
 		## Workaround for libtool bug.
 		## libtool inserts -L/usr/lib into command line, but this is
 		## on the target system. It will try link in libraries from 
