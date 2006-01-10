@@ -183,7 +183,6 @@ class Guile (targetpackage.Target_package):
 		self.update_libtool ()
 
 	def install (self):
-
 		targetpackage.Target_package.install (self)
 		## can't assume that /usr/bin/guile is the right one.
 		version = self.read_pipe ('''\
@@ -640,6 +639,8 @@ class Gettext (targetpackage.Target_package):
 		targetpackage.Target_package.configure (self)
 		# # FIXME: libtool too old for cross compile
 		self.update_libtool ()
+
+
 
 class Gettext__freebsd (Gettext):
 	def patch (self):
@@ -1341,7 +1342,8 @@ def get_packages (settings):
 		Ghostscript (settings).with (version="8.15.1", mirror=download.cups, format='bz2',
 					     depends=['libjpeg', 'libpng', 'zlib']),
 		LilyPond__linux (settings).with (version=settings.lilypond_branch, mirror=cvs.gnu,
-						 depends=['fontconfig', 'gettext', 'guile', 'pango', 'python'],
+						 depends=['fontconfig', 'gettext', 'guile',
+							  'ghostscript', 'pango', 'python'],
 						 track_development=True),
 	],
 	'freebsd': [
