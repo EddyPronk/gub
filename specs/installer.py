@@ -220,9 +220,10 @@ def create_shar (orig_file, hello, head, target_shar):
 
 	tarflag = ''
 	if orig_file.endswith ('gz'):
-		tarflag = 'j'
-	elif orig_file.endswith ('bz2'):
 		tarflag = 'z'
+	elif orig_file.endswith ('bz2'):
+		tarflag = 'j'
+		
 	script = open (head).read ()
 
 	header_length = 0
