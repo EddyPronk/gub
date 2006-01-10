@@ -799,10 +799,12 @@ LDFLAGS:=$(LDFLAGS) -no-undefined
 			   '%(builddir)s/Makefile',
 			   mode='a')
 
+
+class Freetype__mingw (Freetype):
 	def install (self):
-		if self.settings.platform != 'darwin':
-			gub.Package.system (self, misc.join_lines ('''
-cd %(srcdir)s && CC=gcc ./configure
+		## needed for install of ftconfig.h (?) 
+		gub.Package.system (self, misc.join_lines ('''
+cd %(srcdir)s && CC=gcc LDFLAGS= ./configure
 --disable-static
 --enable-shared
 --prefix=/usr
@@ -810,7 +812,7 @@ cd %(srcdir)s && CC=gcc ./configure
 --includedir=/usr/include
 --libdir=/usr/lib
 '''))
-		gub.Package.install (self)
+		Freetype.install (self)
 
 class Fontconfig (targetpackage.Target_package):
 	def configure_command (self):
