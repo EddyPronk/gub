@@ -37,7 +37,8 @@ class Package_manager:
 		self.config = self.root + '/etc/xpm/'
 		self.os_interface = os_interface
 		self._packages = {}
-			
+		self.include_build_deps = True
+
 		if not os.path.isdir (self.config):
 			os_interface.system ('mkdir -p %s' % self.config)
 
@@ -235,6 +236,8 @@ class Package_manager:
 		package.__dict__[busy] = None
 		if before:
 			before (package)
+
+
 		for d in self.dependencies (package):
 			if package.verbose:
 				self.os_interface.log_command (busy + ': '
@@ -246,6 +249,7 @@ class Package_manager:
 			self.with_dependencies (d, before, after)
 		if after:
 			after (package)
+			
 		# FIXME: work around debian's circular dependencies
 		del (package.__dict__[busy])
 
@@ -256,7 +260,12 @@ class Package_manager:
 		if package._dependencies == None:
 			self.with_dependencies (package,
 						before=self._dependencies_package)
-		return package._dependencies + package.build_dependencies
+		deps =  package._dependencies
+
+		if self.include_build_deps:
+			deps += package.build_dependencies
+
+		return deps
 
 	def download_package (self, package):
 		self.with_dependencies (package, before=self._download_package)
