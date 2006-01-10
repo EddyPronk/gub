@@ -11,7 +11,7 @@ def get_packages (settings):
 	file = settings.downloaddir + '/Packages'
 	if not os.path.exists (file):
 		os.system ('wget -P %(downloaddir)s %(url)s' % locals ())
-		os.system ('gunzip  %(file).gz' % locals ())
+		os.system ('gunzip  %(file)s.gz' % locals ())
 	return p.get_packages (file)
 
 def change_target_packages (packages):
