@@ -60,14 +60,14 @@ class Python (targetpackage.Target_package):
 
 	def compile_command (self):
 		##
-		## UGH.: darwin Python vs python (case insensive FS)
+		## UGH.: darwin Python vs python (case insensitive FS)
 		c = targetpackage.Target_package.compile_command (self)
 		c += ' BUILDPYTHON=python-bin '
 		return c
 
 	def install_command (self):
 		##
-		## UGH.: darwin Python vs python (case insensive FS)
+		## UGH.: darwin Python vs python (case insensitive FS)
 		c = targetpackage.Target_package.install_command (self)
 		c += ' BUILDPYTHON=python-bin '
 		return c
@@ -1319,7 +1319,7 @@ def get_packages (settings):
 		Zlib (settings).with (version='1.2.2-1', mirror=download.lp, format='bz2'),
 		Gettext (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2',
 					 depends=['libtool']),
-		Freetype (settings).with (version='2.1.10', mirror=download.nongnu_savannah,
+		Freetype__mingw (settings).with (version='2.1.10', mirror=download.nongnu_savannah,
 					  depends=['libtool', 'zlib']),
 		Expat (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2',
 				       depends=['libtool']),
