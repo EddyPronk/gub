@@ -262,30 +262,7 @@ tooldir=%(install_prefix)s
 		else:
 			sys.stderr.write ("Cannot update libtool without libtools in system_root/usr/bin/.")
 
-	def pre_install_libtool_fuckup (self):
-		## Workaround for libtool bug.
-		## libtool inserts -L/usr/lib into command line, but this is
-		## on the target system. It will try link in libraries from 
-		## /usr/lib/ on the build system.
-		## 
-		for lt in self.read_pipe ("find %(builddir)s -name '*.la'").split ('\n'):
-			lt = lt.strip()
-			if not lt:
-				continue
-
-			dir = os.path.split (lt)[0]
-			suffix = "/.libs"
-			if re.search("\\.libs$", dir):
-				suffix = ''
-			self.file_sub ([
-				("libdir='/usr/lib'", "libdir='%(dir)s%(suffix)s'"),
-				#(' -rpath /usr/lib', '')
-				],
-				       lt, env=locals())
-		
 	def install (self):
-		if self.settings.build_platform == 'darwin':
-			self.pre_install_libtool_fuckup (self)
 		self.system ('''
 rm -rf %(install_root)s
 cd %(builddir)s && %(install_command)s

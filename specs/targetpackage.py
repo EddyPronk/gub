@@ -1,6 +1,7 @@
 import os
 import gub
 import misc
+import re
 
 class Target_package (gub.Package):
 	def configure_command (self):
@@ -17,7 +18,55 @@ class Target_package (gub.Package):
 --libdir=/usr/lib
 ''')
 
+	def install (self):
+		self.pre_install_libtool_fuckup ()
+		gub.Package.install (self)
+		self.post_install_libtool_fuckup ()
 
+	def post_install_libtool_fuckup (self):
+		for la in self.read_pipe ("cd %(install_root)s && find -name '*.la'").split ():
+			la = la.strip ()
+			dir = os.path.split (la)[0]
+			dir = re.sub (r"^\./", "/", dir)
+			
+			def sub_deplibs (m):
+				libs_str = m.group (1)
+				libs = libs_str.split (" ")
+
+				new_str = ''
+				for l in libs:
+					new_str += re.sub (r'.*/lib(.*)\.la', r' -l\1', l)
+
+				return "dependency_libs='%s'" % new_str
+				
+			self.file_sub ([("libdir='[^']+'",
+					 "libdir='%(dir)s'"),
+					(r"dependency_libs='([^']+)'", sub_deplibs)
+					],
+				       "%(install_root)s/%(la)s", env=locals ())
+			
+	def pre_install_libtool_fuckup (self):
+		## Workaround for libtool bug.
+		## libtool inserts -L/usr/lib into command line, but this is
+		## on the target system. It will try link in libraries from 
+		## /usr/lib/ on the build system. This seems to be problematic for libltdl.a and libgcc.a on MacOS.
+		## 
+		for lt in self.read_pipe ("find %(builddir)s -name '*.la'").split ('\n'):
+			lt = lt.strip()
+			if not lt:
+				continue
+
+			dir = os.path.split (lt)[0]
+			suffix = "/.libs"
+			if re.search("\\.libs$", dir):
+				suffix = ''
+			self.file_sub ([
+				("libdir='/usr/lib'", "libdir='%(dir)s%(suffix)s'"),
+				#(' -rpath /usr/lib', '')
+				],
+				       lt, env=locals())
+		
+		
 	## UGH. only for cross!
 	def config_cache_overrides (self, str):
 		return str
