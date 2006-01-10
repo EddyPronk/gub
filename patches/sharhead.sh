@@ -85,11 +85,12 @@ done
 
 
 echo Creating script $wrapscript
-
+expandargs='"$@"'
 rm -f $wrapscript >& /dev/null
 cat<<EOF > $wrapscript
 #!/bin/sh
-$prefix/lilypond/usr/bin/lilypond $@
+export LD_LIBRARY_PATH=$prefix/lilypond/usr/lib
+$prefix/lilypond/usr/bin/lilypond $expandargs
 EOF
 chmod +x $wrapscript
 
