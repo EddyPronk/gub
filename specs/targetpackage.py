@@ -37,7 +37,7 @@ class Target_package (gub.Package):
 				for l in libs:
 					new_str += re.sub (r'.*/lib(.*)\.la', r' -l\1 ', l)
 
-				return "dependency_libs='%s'" % new_str
+				return "dependency_libs=' %s '" % new_str
 				
 			self.file_sub ([("libdir='[^']+'",
 					 "libdir='%(dir)s'"),
