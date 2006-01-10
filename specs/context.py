@@ -178,14 +178,19 @@ class Os_context_wrapper (Context):
 		self.verbose = settings.verbose ()
 		
 	def file_sub (self, re_pairs, name, to_name=None, env={}, must_succeed=False):
-		x = [(self.expand (frm, env),
-		      self.expand (to, env))
-		     for (frm, to) in re_pairs]
+
+		substs = []
+		for (frm, to) in re_pairs:
+			frm = self.expand (frm, env)
+			if type (to) ==type(''):
+				to = self.expand (to, env)
+
+			substs.append ((frm, to))
 
 		if to_name:
 			to_name = self.expand (to_name, env)
 			
-		return self.os_interface.file_sub (x, self.expand (name, env), to_name, must_succeed)
+		return self.os_interface.file_sub (substs, self.expand (name, env), to_name, must_succeed)
 
 	def read_pipe (self, cmd, env={}, ignore_error=False):
 		dict = self.get_substitution_dict (env)
