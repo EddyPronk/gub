@@ -1308,7 +1308,7 @@ def get_packages (settings):
 						depends=['mingw-runtime', 'libtool']),
 		Libiconv (settings).with (version='1.9.2',
 					  depends=['mingw-runtime', 'gettext']),
-		Freetype (settings).with (version='2.1.7', mirror=download.freetype,
+		Freetype (settings).with (version='2.1.10', mirror=download.freetype,
 					  depends=['mingw-runtime', 'libtool', 'zlib']),
 		Expat (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2'),
 		Fontconfig__mingw (settings).with (version='2.3.2', mirror=download.fontconfig,
