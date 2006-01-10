@@ -61,7 +61,7 @@ if test "$extract" = "yes"; then
   exit 0
 fi
 
-if interactive=yes; then
+if test "$interactive" = "yes" ; then
   cat <<EOF
 
 You're about to install lilypond in ${prefix}lilypond/ 
