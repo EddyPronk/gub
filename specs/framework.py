@@ -987,8 +987,30 @@ class Ghostscript (targetpackage.Target_package):
 			       '%(srcdir)s/src/unixinst.mak')
 
 	def fixup_arch (self):
-		# guh, this only works if build host is i386 too.
-		pass
+		substs = []
+		arch = self.settings.target_architecture
+
+		cache_size = 1024*1024
+		big_endian = 0
+		can_shift = 1
+		
+		if arch.find ('powerpc') >= 0:
+			big_endian = 1
+			can_shift = 1
+			cache_size = 2097152
+		elif re.search ('i[0-9]86', arch):
+			big_endian = 0
+			can_shift = 0
+			cache_size = 1048576
+			
+		substs = [('#define ARCH_CAN_SHIFT_FULL_LONG .',
+			   '#define ARCH_CAN_SHIFT_FULL_LONG %d' % can_shift),
+			  ('#define ARCH_CACHE1_SIZE [0-9]+',
+			   '#define ARCH_CACHE1_SIZE %d' % cache_size),
+			  ('#define ARCH_IS_BIG_ENDIAN [0-9]',
+			   '#define ARCH_IS_BIG_ENDIAN %d' % big_endian)]
+		
+		self.file_sub (substs, '%(builddir)s/obj/arch.h')
 
 	def compile (self):
 		self.system ('''
@@ -1034,13 +1056,6 @@ cp -pv %(builddir)s/lib/gs_init.ps %(srcdir)s/lib/gs_init.ps
 		return (targetpackage.Target_package.install_command (self)
 			+ ' install_prefix=%(install_root)s'
 			+ ' mandir=%(install_root)s/usr/man/ ')
-
-class Ghostscript__darwin (Ghostscript):
-	def fixup_arch (self):
-		self.file_sub ([('#define ARCH_CAN_SHIFT_FULL_LONG 0', '#define ARCH_CAN_SHIFT_FULL_LONG 1'),
-				('#define ARCH_CACHE1_SIZE 1048576', '#define ARCH_CACHE1_SIZE 2097152'),
-				('#define ARCH_IS_BIG_ENDIAN 0', '#define ARCH_IS_BIG_ENDIAN 1')],
-			       '%(builddir)s/obj/arch.h')
 
 class Ghostscript__mingw (Ghostscript):
 	def __init__ (self, settings):
@@ -1269,7 +1284,7 @@ def get_packages (settings):
 					       ),
 		Libjpeg__darwin (settings).with (version='v6b', mirror=download.jpeg),
 		Libpng (settings).with (version='1.2.8', mirror=download.libpng),
-		Ghostscript__darwin (settings).with (version="8.15.1", mirror=download.cups,
+		Ghostscript (settings).with (version="8.15.1", mirror=download.cups,
 						     format='bz2', depends=['libjpeg', 'libpng']),
 		LilyPond__darwin (settings).with (version=settings.lilypond_branch, mirror=cvs.gnu, track_development=True,
 						  depends=['pango', 'guile', 'gettext', 'ghostscript', 'fondu']
