@@ -129,7 +129,7 @@ def test_target (options, target, last_patch):
 
 
 	logfile = 'log/test-%(canonicalize)s.log' %  locals()
-	cmd = "nice %(target)s >& %(logfile)s" %  locals()
+	cmd = "nice time %(target)s >& %(logfile)s" %  locals()
 	print 'starting : ', cmd
 	stat = os.system (cmd)
 	base_tag = 'success-%(canonicalize)s-' % locals ()
@@ -142,7 +142,7 @@ def test_target (options, target, last_patch):
 		diff = os.popen ('darcs diff -u --from-tag %s' % base_tag).read ()
 		
 		result = 'FAIL'
-		attachments = ['error for %s\n\n%s' % (target, '\n'.join (body.split ('\n')[-40:])),
+		attachments = ['error for %s\n\n%s' % (target, '\n'.join (body.split ('\n')[-45:])),
 			       diff]
 	else:
 		tag = base_tag + last_patch['date']
