@@ -783,18 +783,6 @@ class Freetype (targetpackage.Target_package):
 
 
 class Freetype__mingw (Freetype):
-	def install (self):
-		## needed for install of ftconfig.h (?) 
-		gub.Package.system (self, misc.join_lines ('''
-cd %(srcdir)s && CC=gcc LDFLAGS= ./configure
---disable-static
---enable-shared
---prefix=/usr
---sysconfdir=/usr/etc
---includedir=/usr/include
---libdir=/usr/lib
-'''))
-		Freetype.install (self)
 	def configure (self):
 		Freetype.configure(self)
 		self.dump ('''
@@ -1299,7 +1287,7 @@ def get_packages (settings):
 						depends=['mingw-runtime', 'libtool']),
 		Libiconv (settings).with (version='1.9.2',
 					  depends=['mingw-runtime', 'gettext']),
-		Freetype (settings).with (version='2.1.10', mirror=download.freetype,
+		Freetype__mingw (settings).with (version='2.1.10', mirror=download.freetype,
 					  depends=['mingw-runtime', 'libtool', 'zlib']),
 		Expat (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2'),
 		Fontconfig__mingw (settings).with (version='2.3.2', mirror=download.fontconfig,
