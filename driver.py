@@ -108,17 +108,21 @@ def build_installers (settings, target_manager, args):
 	install_manager = xpm.Package_manager (settings.installer_root,
 					       settings.os_interface)
 
-	install_manager.include_build_deps = False 
+	install_manager.include_build_deps = False
 	if not args:
-		args = target_manager._packages.keys ()
-		args.append ('lilypond')
-		
+		if settings.platform == 'debian':
+			args = ['lilypond']
+		else:
+			# FIXME: this does not work for debian, and it
+			# is a bit silly too.  'lilypond' should pull
+			# in everything it needs, by dependencies
+			args = target_manager._packages.keys ()
+			args.append ('lilypond')
+
 	pkgs = map (lambda x: target_manager._packages[x], args)
 	for p in pkgs:
-		if isinstance (p, gub.Sdk_package):
-			continue
-
-		install_manager.register_package (p)
+		if not isinstance (p, gub.Sdk_package):
+			install_manager.register_package (p)
 
 	for p in install_manager._packages.values ():
 		install_manager.install_package  (p)

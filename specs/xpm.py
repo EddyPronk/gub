@@ -66,9 +66,6 @@ class Package_manager:
 		ball = package.expand ('%(gub_uploads)s/%(gub_name)s')
 		return os.path.exists (ball)
 
-	def register_package (self, pkg):
-		self._packages[pkg.name ()] = pkg
-
 	def installed_packages (self):
 		names = self._package_file_db.keys ()
 		return [self._packages[p] for p in names]
@@ -108,7 +105,7 @@ class Package_manager:
 			package._builder ()
 		if (self.is_installable (package)
 		    and not self.is_installed (package)):
-			self.install_package (package)
+			self._install_package (package)
 
 	def _dependencies_package (self, package):
 		if package._dependencies  <> None:
@@ -117,8 +114,6 @@ class Package_manager:
 		if package.verbose:
 			self.os_interface.log_command ('resolving dependencies: %s\n'
 						       % `package`)
-		if `package`.find ('libgdome2-ocaml') != -1:
-			raise "BARF"
 		package._dependencies = []
 		try:
 			package._dependencies = map (lambda x:
@@ -190,6 +185,12 @@ class Package_manager:
 				self._file_package_db[f] = name
 			
 		self._write_file_list (package, lst)
+
+	def _register_package (self, package):
+		if package.verbose:
+			self.os_interface.log_command ('registering package: %s\n'
+						       % `package`)
+		self._packages[package.name ()] = package
 
 	def _uninstall_package (self, package):
 		self.os_interface.log_command ('uninstalling package: %s\n'
@@ -280,6 +281,9 @@ class Package_manager:
 ## FIXME: what did we do before / what was I thinking?
 ##	       self.with_dependencies (package, after=self._uninstall_package)
 		self._uninstall_package (package)
+
+	def register_package (self, package):
+		self.with_dependencies (package, after=self._register_package)
 
 	def topological_sort (manager, nodes):
 		deps = dict ([(n, [d for d in manager.dependencies (n)
@@ -382,8 +386,11 @@ def get_manager (settings):
 	
 	target_manager = Package_manager (settings.system_root,
 					  settings.os_interface)
-	map (target_manager.register_package, cross_packages)
-	map (target_manager.register_package, framework.get_packages (settings))
+
+	map (target_manager._register_package, cross_packages)
+	map (target_manager._register_package,
+	     framework.get_packages (settings))
+
 	for p in target_manager._packages.values ():
 		settings.build_number_db.set_build_number (p)
 

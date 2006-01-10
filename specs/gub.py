@@ -92,7 +92,7 @@ to skip this check.
 		url = self.expand (self.url)
 		name = self.expand (dir + '/' + self.file_name ())
 		if not os.path.exists (name):
-			self.system ('''
+ 			self.system ('''
 cd %(dir)s && wget %(url)s
 ''', locals ())
 
