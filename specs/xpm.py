@@ -111,6 +111,9 @@ class Package_manager:
 			self.install_package (package)
 
 	def _dependencies_package (self, package):
+		if package._dependencies  <> None:
+			return
+		
 		if package.verbose:
 			self.os_interface.log_command ('resolving dependencies: %s\n'
 						       % `package`)
@@ -128,6 +131,11 @@ class Package_manager:
 				       package._dependencies,
 				       self._packages)
 				raise 'BARF'
+
+			## should use name_dependencies ?
+			if self.include_build_deps:
+				package._dependencies += package.build_dependencies
+
 
 		except KeyError, k:
 			print 'xpm: resolving dependencies for: %s' % package
@@ -225,6 +233,7 @@ class Package_manager:
 		os.unlink (listfile)
 
 	def with_dependencies (self, package, before=None, after=None):
+
 		# FIXME: circular depends hack for debian
 		busy = ''
 		if before:
@@ -236,7 +245,6 @@ class Package_manager:
 		package.__dict__[busy] = None
 		if before:
 			before (package)
-
 
 		for d in self.dependencies (package):
 			if package.verbose:
@@ -260,12 +268,7 @@ class Package_manager:
 		if package._dependencies == None:
 			self.with_dependencies (package,
 						before=self._dependencies_package)
-		deps =  package._dependencies
-
-		if self.include_build_deps:
-			deps += package.build_dependencies
-
-		return deps
+		return package._dependencies
 
 	def download_package (self, package):
 		self.with_dependencies (package, before=self._download_package)
