@@ -202,13 +202,6 @@ class Linux_installer (Installer):
 			#+ [self.expand ('usr/%(framework_dir)s/usr/')]
 			)
 
-	def strip (self):
-		Installer.strip (self)
-#		self.strip_binary_dir ('%(installer_root)s/usr/%(framework_dir)s/usr/bin')
-#		self.strip_binary_dir ('%(installer_root)s/usr/%(framework_dir)s/usr/lib')
-		self.strip_binary_dir ('%(installer_root)s/usr/bin')
-		self.strip_binary_dir ('%(installer_root)s/usr/lib')
-
 class Tarball (Linux_installer):
 	def create (self):
 		Linux_installer.create (self)
@@ -223,7 +216,9 @@ def create_shar (orig_file, hello, head, target_shar):
 		tarflag = 'z'
 	elif orig_file.endswith ('bz2'):
 		tarflag = 'j'
-		
+
+
+	base_orig_file = os.path.split (orig_file)[1]
 	script = open (head).read ()
 
 	header_length = 0
