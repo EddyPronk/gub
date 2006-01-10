@@ -306,7 +306,7 @@ rm -f %(install_root)s/usr/info/dir %(install_root)s/usr/cross/info/dir
 			full_la = self.expand ("%(install_root)s/%(la)s", locals())
 			
 			self.file_sub ([(''' *-L *[^\"\' ][^\"\' ]*''', ''),
-					('''( |=|\')(/[^ ]*usr/lib/lib)([^ \']*)\.(a|la|so)[^ \']*''',
+					('''( |=|\')(/[^ ]*usr/lib|%(targetdir)s.*)/lib([^ \'/]*)\.(a|la|so)[^ \']*''',
 					 '\\1-l\\3 '),
 					('^old_library=.*',
 					 """old_library='lib%(base)s.a'"""),
