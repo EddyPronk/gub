@@ -35,7 +35,7 @@ class Target_package (gub.Package):
 
 				new_str = ''
 				for l in libs:
-					new_str += re.sub (r'.*/lib(.*)\.la', r' -l\1', l)
+					new_str += re.sub (r'.*/lib(.*)\.la', r' -l\1 ', l)
 
 				return "dependency_libs='%s'" % new_str
 				
