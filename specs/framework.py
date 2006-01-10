@@ -682,6 +682,7 @@ glib_cv_stack_grows=${glib_cv_stack_grows=no}
 		targetpackage.Target_package.configure (self)
 		# # FIXME: libtool too old for cross compile
 		self.update_libtool ()
+		
 	def install (self):
 		targetpackage.Target_package.install (self)
 		self.system ('rm %(install_root)s/usr/lib/charset.alias',
