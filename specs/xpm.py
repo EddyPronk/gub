@@ -1,5 +1,6 @@
-## dbhash doesn't provide locking.
+
 import gdbm as dbmodule
+#import dbhash as dbmodule
 
 import dbhash
 import gzip
@@ -10,6 +11,8 @@ import string
 import buildnumber
 import framework
 import gub
+import fcntl
+import sys
 
 # X package manager (x for want of better name)
 
@@ -43,6 +46,17 @@ class Package_manager:
 		self._package_file_db = dbmodule.open (self.config
 						       + '/packages.db', 'c')
 
+		lock_file = self.config + 'lock'
+		self._lock_file = open (lock_file, 'w')
+
+		try:
+			fcntl.flock (self._lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+		except IOError:			
+			sys.stderr.write ("Can't acquire lock for %s\n" % lock_file)
+			sys.exit (1) 
+
+		
+		
 	def is_installable (self, package):
 		ball = package.expand ('%(gub_uploads)s/%(gub_name)s')
 		return os.path.exists (ball)
