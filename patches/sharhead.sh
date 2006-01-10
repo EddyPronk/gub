@@ -3,6 +3,8 @@
 me=$0
 prefix=$HOME/
 interactive=yes
+extract=no
+
 if test `whoami` = "root"; then
   prefix=/usr/local/
 fi
@@ -17,9 +19,13 @@ $me - install LilyPond tarball
 Options 
   --prefix PREFIX     install into PREFIX/lilypond/ (default: $prefix)
   --batch             no interaction
+  --tarball           extract tar file for archive
   --help              this help 
 EOF
     exit 0
+    ;;
+  --tarball)
+    extract=yes    
     ;;
   --prefix)
     shift
@@ -48,6 +54,12 @@ LilyPond installer for %(hello)s.
 Use --help for help
 
 EOF
+
+if test "$extract" = "yes"; then
+  echo "extracting %(base_orig_file)s"
+  tail -c+%(header_length)012d $0 > %(base_orig_file)s
+  exit 0
+fi
 
 if interactive=yes; then
   cat <<EOF
