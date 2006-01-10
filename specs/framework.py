@@ -791,14 +791,6 @@ class Freetype (targetpackage.Target_package):
 		self.file_sub ([('^LIBTOOL=.*', 'LIBTOOL=%(builddir)s/libtool --tag=CXX')], '%(builddir)s/Makefile')
 
 
-		## FIXME: DLL is windows specific?
-		self.dump ('''
-# libtool will not build dll if -no-undefined flag is not present
-LDFLAGS:=$(LDFLAGS) -no-undefined
-''',
-			   '%(builddir)s/Makefile',
-			   mode='a')
-
 
 class Freetype__mingw (Freetype):
 	def install (self):
@@ -813,6 +805,15 @@ cd %(srcdir)s && CC=gcc LDFLAGS= ./configure
 --libdir=/usr/lib
 '''))
 		Freetype.install (self)
+	def configure (self):
+		Freetype.configure(self)
+		self.dump ('''
+# libtool will not build dll if -no-undefined flag is not present
+LDFLAGS:=$(LDFLAGS) -no-undefined
+''',
+			   '%(builddir)s/Makefile',
+			   mode='a')
+
 
 class Fontconfig (targetpackage.Target_package):
 	def configure_command (self):
