@@ -145,19 +145,20 @@ def test_target (options, target, last_patch):
 	result = 'unknown'
 	attachments = []
 	
+	body = read_tail (logfile, 10240).split ('\n')
 	if stat: 
-		body = read_tail (logfile, 10240)
 		diff = os.popen ('darcs diff -u --from-tag %s' % base_tag).read ()
 		
 		result = 'FAIL'
-		attachments = ['error for %s\n\n%s' % (target, '\n'.join (body.split ('\n')[-50:])),
+		attachments = ['error for %s\n\n%s' % (target, '\n'.join (body[-0:])),
 			       diff]
 	else:
 		tag = base_tag + last_patch['date']
 		system ('darcs tag %s' % tag)
 		system ('darcs push -a -t %s ' % tag)
 		result = "SUCCESS, tagging with %s\n\n" % tag
-		
+		attachments = [body[-10:]]
+
 	set_checked_before (release_hash, canonicalize)
 	return (result, attachments)
 	
