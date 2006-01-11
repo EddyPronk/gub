@@ -97,6 +97,12 @@ chmod +x "$wrapscript"
 echo Untarring "$me"
 tail -c+%(header_length)012d "$0" | tar -C "$lilydir" -x%(tarflag)sf -
 
+cat <<EOF
+To uninstall lilypond, do
+
+    rm -r "$wrapscript" "${prefix}lilypond"
+EOF
+
 ## need this because binary data starts after this.
 exit 0
 ## END of script
