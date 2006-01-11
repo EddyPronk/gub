@@ -657,6 +657,11 @@ class Gettext__mingw (Gettext):
 gl_cv_func_mbrtowc=${gl_cv_func_mbrtowc=no}
 jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
 ''')
+	def install (self):
+
+		## compile of gettext triggers configure in between.  (hgwurgh.)
+		self.update_libtool()
+		Gettext.install (self)
 
 class Gettext__darwin (Gettext):
 	def xconfigure_command (self):
