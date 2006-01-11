@@ -1,7 +1,7 @@
 #!/bin/sh
 
-me=$0
-prefix=$HOME/
+me="$0"
+prefix="$HOME/"
 interactive=yes
 extract=no
 
@@ -12,7 +12,7 @@ fi
 
 while test "$1" != ""; 
 do
-  case $1 in
+  case "$1" in
   --help)
       cat <<EOF
 $me - install LilyPond tarball
@@ -29,7 +29,7 @@ EOF
     ;;
   --prefix)
     shift
-    prefix=$1/
+    prefix="$1/"
     if test "$prefix" = "" ; then
       echo 'Option --prefix requires argument.'
       exit 1
@@ -73,29 +73,29 @@ EOF
 fi
 
 
-lilydir=${prefix}lilypond/ 
-wrapscript=${prefix}bin/lilypond
+lilydir="${prefix}lilypond/ "
+wrapscript="${prefix}bin/lilypond"
 
-for d in $lilydir ${prefix}/bin ; do
-  if test ! -d  $d; then
-    echo Making $d 
-    mkdir -p $d
+for d in "$lilydir" "${prefix}/bin"; do
+  if test ! -d  "$d"; then
+    echo Making "$d" 
+    mkdir -p "$d"
   fi
 done
 
 
 echo Creating script $wrapscript
 expandargs='"$@"'
-rm -f $wrapscript >& /dev/null
-cat<<EOF > $wrapscript
+rm -f "$wrapscript" > /dev/null 2>&1
+cat<<EOF > "$wrapscript"
 #!/bin/sh
-export LD_LIBRARY_PATH=$prefix/lilypond/usr/lib
-$prefix/lilypond/usr/bin/lilypond $expandargs
+export LD_LIBRARY_PATH="${prefix}lilypond/usr/lib"
+"$prefix/lilypond/usr/bin/lilypond" $expandargs
 EOF
-chmod +x $wrapscript
+chmod +x "$wrapscript"
 
-echo Untarring $me
-tail -c+%(header_length)012d $0 | tar -C $lilydir -x%(tarflag)sf -
+echo Untarring "$me"
+tail -c+%(header_length)012d "$0" | tar -C "$lilydir" -x%(tarflag)sf -
 
 ## need this because binary data starts after this.
 exit 0
