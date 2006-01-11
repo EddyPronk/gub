@@ -146,7 +146,7 @@ class Darwin_bundle (Installer):
 		rw.rewire_root (self.settings.installer_root)
 
 
-		bundle_zip = self.expand ('%(uploads)s/lilypond-%(bundle_version)s-%(bundle_build)s.zip')
+		bundle_zip = self.expand ('%(uploads)s/lilypond-%(bundle_version)s-%(bundle_build)s.%(platform)s.zip')
 		self.system ('''
 rm -f %(bundle_zip)s 
 rm -rf %(darwin_bundle_dir)s
