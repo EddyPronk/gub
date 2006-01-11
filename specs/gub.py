@@ -38,7 +38,7 @@ class Package (Os_context_wrapper):
 	def _builder (self):
 		available = dict (inspect.getmembers (self, callable))
 		if self.settings.options.stage:
-			(available[settings.options.stage]) ()
+			(available[self.settings.options.stage]) ()
 			return
 
 		stages = ['untar', 'patch',
