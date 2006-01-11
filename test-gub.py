@@ -157,7 +157,7 @@ def test_target (options, target, last_patch):
 		system ('darcs tag %s' % tag)
 		system ('darcs push -a -t %s ' % tag)
 		result = "SUCCESS, tagging with %s\n\n" % tag
-		attachments = [body[-10:]]
+		attachments = ['\n'.join (body[-10:])]
 
 	set_checked_before (release_hash, canonicalize)
 	return (result, attachments)
