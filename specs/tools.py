@@ -44,7 +44,7 @@ class Nsis (Tool_package):
 			     
 	def patch (self):
 		self.system ("mkdir -p %(builddir)s", ignore_error=True) 
-		self.system ('rm -rf %(builddir)s && ln -s %(srcdir)s %(builddir)s')
+		self.shadow_tree ('%(srcdir)s','%(builddir)s')
 		
 	def srcdir (self):
 		d = Tool_package.srcdir (self).replace ('_','-')
@@ -79,8 +79,8 @@ class Alien (Tool_package):
 	def srcdir (self):
 		return '%(allsrcdir)s/alien'
 	def patch (self):
-		self.system ("mkdir -p %(builddir)s", ignore_error=True) 
-		self.system ('rm -rf %(builddir)s && ln -s %(srcdir)s %(builddir)s')
+		self.shadow_tree ('%(srcdir)s', '%(builddir)s')
+
 	def configure (self):
 		Tool_package.configure (self)
 		self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/alien.patch')

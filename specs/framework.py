@@ -908,8 +908,8 @@ RUN_FC_CACHE_TEST=false
 
 class Zlib (targetpackage.Target_package):
 	def patch (self):
+		self.shadow_tree ('%(srcdir)s', '%(builddir)s')
 		targetpackage.Target_package.patch (self)
-		self.system ('ln -s %(srcdir)s   %(builddir)s')
 		self.file_sub ([("='/bin/true'", "='true'")],
 			       '%(srcdir)s/configure')
 	def configure (self):
@@ -1245,9 +1245,7 @@ install: all
 			   '%(srcdir)s/Makefile', mode='a')
 
 	def configure (self):
-		self.system ('''
-shtool mkshadow %(srcdir)s %(builddir)s
-''')
+		self.shadow_tree ('%(srcdir)s', '%(builddir)s')
 
 class LilyPond__debian (LilyPond__linux):
 	#URG
