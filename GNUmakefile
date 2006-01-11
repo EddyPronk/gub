@@ -6,12 +6,17 @@ default: all
 
 all: linux mingw mac
 
+TEST_PLATFORMS=$(PLATFORMS)
+
 
 # local.make should set the following variables:
 #
 #  LILYPOND_CVSDIR - a CVS HEAD working directory
 #  LILYPOND_BRANCH - the tag for this branch, or HEAD 
+#  BUILD_PLATFORM  - the platform used for building.
 #
+
+
 
 include local.make
 
@@ -24,7 +29,6 @@ INSTALLER_BUILD=1
 LILYPOND_BRANCH=$(shell (cat $(LILYPOND_CVSDIR)/CVS/Tag 2> /dev/null || echo HEAD) | sed s/^T//)
 
 PLATFORMS=darwin mingw linux freebsd
-
 LILYPOND_VERSION=$(MAJOR_VERSION).$(MINOR_VERSION).$(PATCH_LEVEL)$(if $(strip $(MY_PATCH_LEVEL)),.$(MY_PATCH_LEVEL),)
 
 INVOKE_DRIVER=python driver.py \
@@ -89,7 +93,7 @@ cyg-apt.py: cyg-apt.py.in specs/cpm.py
 RUN_TEST=python test-gub.py --to hanwen@xs4all.nl --to janneke@gnu.org --smtp smtp.xs4all.nl 
 test:
 	$(MAKE) realclean
-	$(RUN_TEST) $(foreach p, $(PLATFORMS), "make $(p) from=$(BUILD_PLATFORM)")
+	$(RUN_TEST) $(foreach p, $(TEST_PLATFORMS), "make $(p) from=$(BUILD_PLATFORM)")
 
 #FIXME: how to get libc+kernel headers package contents on freebsd?
 # * remove zlib.h, zconf.h or include libz and remove Zlib from src packages?
