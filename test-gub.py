@@ -142,7 +142,7 @@ def test_target (options, target, last_patch):
 		diff = os.popen ('darcs diff -u --from-tag %s' % base_tag).read ()
 		
 		result = 'FAIL'
-		attachments = ['error for %s\n\n%s' % (target, '\n'.join (body.split ('\n')[-45:])),
+		attachments = ['error for %s\n\n%s' % (target, '\n'.join (body.split ('\n')[-50:])),
 			       diff]
 	else:
 		tag = base_tag + last_patch['date']
