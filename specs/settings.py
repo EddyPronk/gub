@@ -5,18 +5,25 @@ import gub
 
 from context import *
 
+platforms = {
+	'cygwin': 'i686-cygwin',
+	'darwin': 'powerpc-apple-darwin7',
+	'debian': 'i686-linux',
+	'freebsd': 'i686-freebsd4',
+	'linux': 'i686-linux',
+	'local': 'local',
+	'mingw': 'i686-mingw32',
+}
+
+distros = ('cygwin', 'debian')
+			
 class Settings (Context):
 	def __init__ (self, platform):
 		Context.__init__ (self)
 		self.platform = platform
-		self.target_architecture = {
-			'darwin': 'powerpc-apple-darwin7',
-			'mingw': 'i686-mingw32',
-			'freebsd': 'i686-freebsd4',
-			'linux': 'i686-linux',
-			'debian': 'i686-linux',
-			'local': 'local',
-			}[self.platform]
+		self.target_architecture = platforms[self.platform]
+
+		self.is_distro = platform in distros
 
 		self.target_gcc_flags = '' 
 		self.topdir = os.getcwd ()

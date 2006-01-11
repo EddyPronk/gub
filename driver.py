@@ -21,20 +21,13 @@ def get_settings (platform):
 	settings = settings_mod.Settings (platform)
 	settings.build_number_db = buildnumber.Build_number_db (settings.topdir)
 
+	if platform not in settings_mod.platforms.keys ():
+		raise 'unknown platform', platform
+		
 	if platform == 'darwin':
 		settings.target_gcc_flags = '-D__ppc__'
 	elif platform == 'mingw':
 		settings.target_gcc_flags = '-mwindows -mms-bitfields'
-	elif platform == 'linux':
-		pass
-	elif platform == 'freebsd':
-		pass
-	elif platform == 'debian':
-		pass
-	elif platform == 'local':
-		pass
-	else:
-		raise 'unknown platform', platform
 
 	return settings
 
@@ -86,7 +79,7 @@ package-installer - build installer binary
 		      type='choice',
 		      default=None,
 		      help='select target platform',
-		      choices=['local', 'darwin', 'debian', 'freebsd', 'linux', 'mingw'])
+		      choices=settings_mod.platforms.keys ())
 	p.add_option ('-s', '--setting', action='append',
 		      dest="settings",
 		      type='string',
@@ -110,12 +103,13 @@ def build_installers (settings, target_manager, args):
 
 	install_manager.include_build_deps = False
 	if not args:
-		if settings.platform == 'debian':
+		if settings.is_distro:
 			args = ['lilypond']
 		else:
-			# FIXME: this does not work for debian, and it
-			# is a bit silly too.  'lilypond' should pull
-			# in everything it needs, by dependencies
+			# FIXME: this does not work for cygwin,
+			# debian, and it is a bit silly too.
+			# 'lilypond' should pull in everything it
+			# needs, by dependencies
 			args = target_manager._packages.keys ()
 			args.append ('lilypond')
 

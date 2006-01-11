@@ -1,6 +1,6 @@
 
 .PHONY: all default distclean download test TAGS
-.PHONY: darwin freebsd linux mac mingw
+.PHONY: cygwin darwin debian freebsd linux mac mingw
 
 default: all
 
@@ -56,6 +56,9 @@ download:
 	rm -f target/*/status/lilypond*
 
 all: linux freebsd mac mingw
+
+cygwin:
+	$(call BUILD,$@,lilypond)
 
 darwin:
 	$(call BUILD,$@,ghostscript lilypond osx-lilypad)

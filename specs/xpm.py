@@ -108,13 +108,14 @@ class Package_manager:
 			self._install_package (package)
 
 	def _dependencies_package (self, package):
-		if package._dependencies  <> None:
+		if package._dependencies != None:
 			return
-		
+
 		if package.verbose:
 			self.os_interface.log_command ('resolving dependencies: %s\n'
 						       % `package`)
 		package._dependencies = []
+		package._build_dependencies = []
 		try:
 			package._dependencies = map (lambda x:
 						     self._packages[x],
@@ -127,9 +128,21 @@ class Package_manager:
 				       self._packages)
 				raise 'BARF'
 
+			package._build_dependencies = map (lambda x:
+							   self._packages[x],
+							   package.name_build_dependencies)
+
+			if package in package._build_dependencies:
+				print ('simple circular build dependency',
+				       package,
+				       package.name_build_dependencies,
+				       package._build_dependencies,
+				       self._packages)
+				raise 'BARF'
+
 			## should use name_dependencies ?
-			if self.include_build_deps:
-				package._dependencies += package.build_dependencies
+			#if self.include_build_deps:
+			#	package._dependencies += package._build_dependencies
 
 
 		except KeyError, k:
@@ -138,9 +151,9 @@ class Package_manager:
 			print 'xpm: available packages: %s' % self._packages
 			print 'xpm: deps: %s' % package.name_dependencies
 
-
-			# don't barf.
-			# This fucks up with SDK packages, and separate target/framework managers.
+			# don't barf.  This fucks up with SDK
+			# packages, and separate target/framework
+			# managers.
 
 	def _download_package (self, package):
 		self.os_interface.log_command ('downloading package: %s\n'
@@ -168,11 +181,12 @@ class Package_manager:
 
 		conflicts = False
 		for f in lst:
-			if self._file_package_db.has_key (f) and not os.path.isdir (self.root + '/'+  f):
+			if (self._file_package_db.has_key (f)
+			    and not os.path.isdir (self.root + '/'+  f)):
 				print 'already have file %s: %s' % (f, self._file_package_db[f])
 				conflicts = True
 
-		if conflicts:
+		if conflicts and not package.settings.is_distro:
 			raise 'abort'
 
 		self.os_interface.system ('tar -C %(root)s -xf%(flag)s %(ball)s' % locals ())
@@ -203,8 +217,9 @@ class Package_manager:
 		files = []
 		for i in lst:
 			f = os.path.join (self.root, i)
-			force = False
-			if not os.path.exists (f) and not os.path.islink (f):
+			if (not os.path.exists (f)
+			    and not os.path.islink (f)
+			    and not package.settings.is_distro):
 				print 'xpm: uninstall: %s' % package
 				print 'xpm: no such file: %s' % f
 				# should've dealt with this in install stage.
@@ -269,7 +284,10 @@ class Package_manager:
 		if package._dependencies == None:
 			self.with_dependencies (package,
 						before=self._dependencies_package)
-		return package._dependencies
+		deps = package._dependencies
+		if self.include_build_deps:
+			deps += package._build_dependencies
+		return deps
 
 	def download_package (self, package):
 		self.with_dependencies (package, before=self._download_package)
@@ -322,11 +340,95 @@ class Package_manager:
 			print 'known packages', self._packages
 			raise "Unknown package", k
 
+class Cygwin_package_manager (Package_manager):
+	def __init__ (self, settings):
+		Package_manager.__init__ (self, settings.system_root,
+					  settings.os_interface)
+		self.mirror = 'http://gnu.kookel.org/ftp/cygwin'
+		self.settings = settings
+		self.dist = 'curr'
+
+	def get_packages (self, package_file):
+		def get_package (name, dict):
+			from new import classobj
+			Package = classobj (name, (gub.Binary_package,), {})
+			package = Package (self.settings)
+			package.name_dependencies = []
+			package.name_build_dependencies = []
+			if dict.has_key ('requires'):
+				deps = map (string.strip,
+					    re.sub ('\([^\)]*\)', '',
+						    dict['requires']).split ())
+				blacklist = (
+					'_update-info-dir',
+					'bintutils',
+					'gcc', 'gcc-core', 'gcc-g++',
+					'gcc-mingw', 'gcc-mingw-core', 'gcc-mingw-g++',
+					'libXft', 'libXft1', 'libXft2',
+					'libbz2_1',
+					'libguile16',
+					'X-startup-scripts',
+					'xorg-x11-bin-lndir',
+					)
+				deps = filter (lambda x: x not in blacklist, deps)
+				package.name_dependencies = deps
+			package.ball_version = dict['version']
+			package.url = (self.mirror + '/'
+				       + dict['install'].split ()[0])
+			package.format = 'bz2'
+			return package
+
+		self._dists = {'test': [], 'curr': [], 'prev' : []}
+		chunks = string.split (open (package_file).read (), '\n\n@ ')
+		for i in chunks[1:]:
+			lines = string.split (i, '\n')
+			name = string.strip (lines[0])
+			blacklist = ('binutils', 'gcc')
+			if name in blacklist:
+				continue
+			packages = self._dists['curr']
+			records = {
+				'sdesc': name,
+				'version': '0-0',
+				'install': 'urg 0 0',
+				}
+			j = 1
+			while j < len (lines) and string.strip (lines[j]):
+				if lines[j][0] == '#':
+					j = j + 1
+					continue
+				elif lines[j][0] == '[':
+					packages.append (get_package (name,
+								      records.copy ()))
+					packages = self._dists[lines[j][1:5]]
+					j = j + 1
+					continue
+
+				try:
+					key, value = map (string.strip,
+							  lines[j].split (': ',
+									  1))
+				except:
+					print lines[j], package_file, self
+					raise 'URG'
+				if (value.startswith ('"')
+				    and value.find ('"', 1) == -1):
+					while 1:
+						j = j + 1
+						value += '\n' + lines[j]
+						if lines[j].find ('"') != -1:
+							break
+				records[key] = value
+				j = j + 1
+			packages.append (get_package (name, records))
+		return self._dists[self.dist]
+		#return self._dists['curr'] + self._dists['test']
+
 class Debian_package_manager (Package_manager):
 	def __init__ (self, settings):
 		Package_manager.__init__ (self, settings.system_root,
 					  settings.os_interface)
-		self.pool = 'http://ftp.de.debian.org/debian'
+		self.mirror = 'http://ftp.de.debian.org/debian'
 		self.settings = settings
 
 	def get_packages (self, package_file):
@@ -356,31 +458,35 @@ class Debian_package_manager (Package_manager):
 			deps = filter (lambda x: x not in blacklist, deps)
 			package.name_dependencies = deps
  
+		package.name_build_dependencies = []
 		package.ball_version = d['Version']
-		package.url = self.pool + '/' + d['Filename']
+		package.url = self.mirror + '/' + d['Filename']
 		package.format = 'deb'
 		return package
 
 def get_manager (settings):
 	cross_module = None
-	if settings.platform == 'darwin':
+	if settings.platform == 'cygwin':
+		import cygwin
+		cross_module = cygwin
+	elif settings.platform == 'darwin':
 		import darwintools
 		cross_module = darwintools
-	if settings.platform.startswith ('freebsd'):
+	elif settings.platform.startswith ('debian'):
+		import debian_unstable
+		cross_module = debian_unstable
+	elif settings.platform.startswith ('freebsd'):
 		import freebsd
 		cross_module = freebsd
 	elif settings.platform.startswith ("linux"):
 		import linux
 		cross_module = linux
-	elif settings.platform.startswith ('mingw'):
-		import mingw
-		cross_module = mingw
 	elif settings.platform.startswith ('local'):
 		import tools
 		cross_module = tools
-	elif settings.platform.startswith ('debian'):
-		import debian_unstable
-		cross_module = debian_unstable
+	elif settings.platform.startswith ('mingw'):
+		import mingw
+		cross_module = mingw
 
 	cross_packages = cross_module.get_packages (settings)
 	

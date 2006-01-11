@@ -25,9 +25,9 @@ class Target_package (gub.Package):
 	def pre_install_libtool_fixup (self):
 		## Workaround for libtool bug.
 		## libtool inserts -L/usr/lib into command line, but this is
-		## on the target system. It will try link in libraries from 
+		## on the target system. It will try link in libraries from
 		## /usr/lib/ on the build system. This seems to be problematic for libltdl.a and libgcc.a on MacOS.
-		## 
+		##
 		for lt in self.read_pipe ("find %(builddir)s -name '*.la'").split ('\n'):
 			lt = lt.strip()
 			if not lt:
@@ -41,10 +41,9 @@ class Target_package (gub.Package):
 				("libdir='/usr/lib'", "libdir='%(dir)s%(suffix)s'"),
 				#(' -rpath /usr/lib', '')
 				],
-				       lt, env=locals())
-		
-		
-	## UGH. only for cross!
+				       lt, env=locals ())
+
+ 	## UGH. only for cross!
 	def config_cache_overrides (self, str):
 		return str
 
@@ -69,7 +68,7 @@ class Target_package (gub.Package):
 		gub.Package.configure (self)
 
 	## FIXME: this should move elsewhere , as it's not
-	## package specific 
+	## package specific
 	def get_substitution_dict (self, env={}):
 		dict = {
 			'AR': '%(tool_prefix)sar',
@@ -100,7 +99,7 @@ class Target_package (gub.Package):
 			'RANLIB': '%(tool_prefix)sranlib',
 			'SED': 'sed', # libtool (expat mingw) fixup
 			}
-		
+
 		dict.update (env)
 		d =  gub.Package.get_substitution_dict (self, dict).copy()
 		return d
@@ -212,3 +211,5 @@ lt_cv_dlopen_libs=${lt_cv_dlopen_libs="none required"}
 lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=8192}
 '''
 }
+
+cross_config_cache['debian'] = cross_config_cache['linux']

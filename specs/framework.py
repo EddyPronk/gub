@@ -471,6 +471,9 @@ find %(install_root)s -name "*.ly"
 			s = open (i).read ()
 			open (i, 'w').write (re.sub ('\r*\n', '\r\n', s))
 
+class LilyPond__cygwin (LilyPond__mingw):
+	pass
+
 class LilyPond__linux (LilyPond):
 	def configure_command (self):
 		return LilyPond.configure_command (self) + misc.join_lines ('''
@@ -1247,13 +1250,6 @@ install: all
 	def configure (self):
 		self.shadow_tree ('%(srcdir)s', '%(builddir)s')
 
-class LilyPond__debian (LilyPond__linux):
-	#URG
-	def config_cache_settings (self):
-		return self.config_cache_overrides (
-			targetpackage.cross_config_cache['all']
-			+ targetpackage.cross_config_cache['linux'])
-
 # latest vanilla packages
 #Zlib (settings).with (version='1.2.3', mirror=download.zlib, format='bz2'),
 #Expat (settings).with (version='1.95.8', mirror=download.sf),
@@ -1381,9 +1377,15 @@ def get_packages (settings):
 	],
 	'local': [],
 	'debian': [
-		LilyPond__debian (settings).with (version=settings.lilypond_branch, mirror=cvs.gnu,
-						 depends=['libfontconfig1-dev', 'gettext', 'guile-1.6-dev', 'libpango1.0-dev', 'python-dev'],
+		LilyPond__linux (settings).with (version=settings.lilypond_branch, mirror=cvs.gnu,
+						 builddeps=['libfontconfig1-dev', 'guile-1.6-dev', 'libpango1.0-dev', 'python-dev'],
 						 track_development=True),
+		],
+	'cygwin': [
+		LilyPond__cygwin (settings).with (version=settings.lilypond_branch, mirror=cvs.gnu,
+						  depends=['python'],
+						  builddeps=['gcc', 'gettext-devel', 'guile-devel', 'pango-devel'],
+						  track_development=True),
 		]
 	}
 
@@ -1413,7 +1415,9 @@ def get_packages (settings):
 		settings.python_version = [p for p in packs
 					   if isinstance (p, Python)][0].python_version ()
 	except IndexError:
-		if settings.platform == 'darwin':
+		if settings.platform == 'cygwin':
+			settings.python_version = '2.4'
+		elif settings.platform == 'darwin':
 			settings.python_version = '2.3'
 		elif settings.platform == 'debian':
 			settings.python_version = '2.3'
@@ -1427,6 +1431,8 @@ def get_packages (settings):
 		settings.ghostscript_version = [p for p in packs
 			if isinstance (p, Ghostscript)][0].ghostscript_version ()
 	except IndexError:
-		if settings.platform == 'debian':
+		if settings.platform == 'cygwin':
+			settings.ghostscript_version = '8.15'
+		elif settings.platform == 'debian':
 			settings.ghostscript_version = '8.15'
 	return packs

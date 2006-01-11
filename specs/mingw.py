@@ -8,9 +8,6 @@ import cross
 
 class Gcc (cross.Gcc):
 	def patch (self):
-		# FIXME: dependencies are broken here?  MUST
-		# install runtime binaries (mingw-runtime, w32api)
-		# manually before we get here.
 		self.system ('''
 mkdir -p %(crossprefix)s/%(target_architecture)s
 tar -C %(system_root)s/usr -cf- include lib | tar -C %(crossprefix)s/%(target_architecture)s -xf-

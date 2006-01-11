@@ -5,7 +5,7 @@ import xpm
 
 def get_packages (settings):
 	p = xpm.Debian_package_manager (settings)
-        url = 'ftp://ftp.de.debian.org/debian/dists/unstable/main/binary-i386/Packages.gz'
+        url = p.mirror + '/dists/unstable/main/binary-i386/Packages.gz'
 	# FIXME: download/offline
 	downloaddir = settings.downloaddir
 	file = settings.downloaddir + '/Packages'

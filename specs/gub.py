@@ -27,7 +27,7 @@ class Package (Os_context_wrapper):
 		self._downloader = self.wget
 		self._build = 0
 		self._dependencies = None
-		self.build_dependencies = []
+		self._build_dependencies = None
 
 		# set to true for CVS releases 
 		self.track_development = False
@@ -376,7 +376,7 @@ rm -rf %(srcdir)s %(builddir)s %(install_root)s
 		self.system ('cd %(srcdir)s && chmod -R +w .')
 						 
 	def with (self, version='HEAD', mirror=download.gnu,
-		  format='gz', depends=[],
+		  format='gz', depends=[], builddeps=[],
 		  track_development=False
 		  ):
 		self.format = format
@@ -384,6 +384,7 @@ rm -rf %(srcdir)s %(builddir)s %(install_root)s
 		ball_version = version
 		# Use copy of default empty depends, to be able to change it.
 		self.name_dependencies = list (depends)
+		self.name_build_dependencies = list (builddeps)
 		self.track_development = track_development
 		self.url = mirror
 

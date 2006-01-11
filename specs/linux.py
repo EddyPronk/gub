@@ -8,14 +8,6 @@ import framework
 import gub
 import targetpackage
 
-class Gcc (cross.Gcc):
-	def configure_command (self):
-		cmd = cross.Gcc.configure_command (self)
-		cmd = re.sub ('--with-sysroot=[^ ]+',
-			       '--with-sysroot=/', cmd)
-
-		return cmd
-
 class Libc6 (gub.Binary_package, gub.Sdk_package):
 	pass
 
