@@ -92,7 +92,7 @@ cyg-apt.py: cyg-apt.py.in specs/cpm.py
 ## TODO: should LilyPond revision in targetname too.
 RUN_TEST=python test-gub.py --to hanwen@xs4all.nl --to janneke@gnu.org --smtp smtp.xs4all.nl 
 test:
-	$(MAKE) realclean
+	rm -rf $(foreach p,$(TEST_PLATFORMS), uploads/$(p)/*  target/*$(p)* )
 	$(RUN_TEST) $(foreach p, $(TEST_PLATFORMS), "make $(p) from=$(BUILD_PLATFORM)")
 
 #FIXME: how to get libc+kernel headers package contents on freebsd?
