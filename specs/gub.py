@@ -363,13 +363,13 @@ tar -C %(dir)s %(flags)s %(tarball)s
 				     locals ())
 
 	def untar (self):
-		self.system ('''
-rm -rf %(srcdir)s %(builddir)s %(install_root)s
-''')
 		if self.track_development:
 			## cp options are not standardized.
 			self.system ("rsync -a %(downloaddir)s/%(name)s-%(version)s/ %(srcdir)s")
 		else:
+			self.system ('''
+rm -rf %(srcdir)s %(builddir)s %(install_root)s
+''')
 			self._untar ('%(allsrcdir)s')
 
 		## FIXME what was this for? --hwn
