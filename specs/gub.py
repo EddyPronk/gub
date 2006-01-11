@@ -365,7 +365,7 @@ tar -C %(dir)s %(flags)s %(tarball)s
 	def untar (self):
 		if self.track_development:
 			## cp options are not standardized.
-			self.system ("rsync -a %(downloaddir)s/%(name)s-%(version)s/ %(srcdir)s")
+			self.system ("rsync -v -a %(downloaddir)s/%(name)s-%(version)s/ %(srcdir)s")
 		else:
 			self.system ('''
 rm -rf %(srcdir)s %(builddir)s %(install_root)s
