@@ -176,6 +176,21 @@ class Os_commands:
 			raise 'read_pipe failed'
 		return output
 
+
+	def shadow_tree (self, src, target):
+		target = os.path.abspath (target)
+		src = os.path.abspath (src)
+
+		self.log_command ("Shadowing %s to %s\n" % (src, target))
+		os.makedirs (target)
+		(root, dirs, files) = os.walk(src).next()
+		for f in files:
+			os.symlink (os.path.join (root, f),
+				    os.path.join (target, f))
+		for d in dirs:
+			self.shadow_tree (os.path.join (root, d),
+					  os.path.join (target, d))
+
 class Os_context_wrapper (Context):
 	def __init__ (self, settings):
 		Context.__init__ (self, settings)
@@ -207,6 +222,11 @@ class Os_context_wrapper (Context):
 		self.os_interface.system (cmd, env=dict, ignore_error=ignore_error,
 					  verbose=self.verbose)
 
+	def shadow_tree (self, src, dest):
+		src = self.expand (src)
+		dest = self.expand (dest)
+		self.os_interface.shadow_tree (src, dest)
+		
 	def dump (self, str, name, mode='w', env={}):
 		return self.os_interface.dump (self.expand (str, env),
 			     self.expand (name, env), mode=mode)
