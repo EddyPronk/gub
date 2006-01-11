@@ -908,8 +908,10 @@ RUN_FC_CACHE_TEST=false
 
 class Zlib (targetpackage.Target_package):
 	def patch (self):
+		targetpackage.Target_package.patch (self)
 		self.system ('ln -s %(srcdir)s   %(builddir)s')
-		
+		self.file_sub ([("='/bin/true'", "='true'")],
+			       '%(srcdir)s/configure')
 	def configure (self):
 		zlib_is_broken = 'SHAREDTARGET=libz.so.1.2.2'
 		if self.settings.platform.startswith ('mingw'):
