@@ -4,6 +4,7 @@ import time
 import sys
 import subprocess
 import re
+import stat
 
 def subst_method (func):
 	"""Decorator to match Context.get_substitution_dict()"""
@@ -152,13 +153,17 @@ class Os_commands:
 			t = new_text
 			
 		if s != t or (to_name and name != to_name):
+			stat_info = os.stat(name)
+			mode = stat.S_IMODE(stat_info[stat.ST_MODE])
+
 			if not to_name:
 				self.system ('mv %(name)s %(name)s~' % locals ())
 				to_name = name
 			h = open (to_name, 'w')
 			h.write (t)
 			h.close ()
-
+			os.chmod (to_name, mode)
+			
 	def read_pipe (self, cmd, ignore_error=False, silent=False):
 		if not silent:
 			self.log_command ('Reading pipe: %s\n' % cmd)
