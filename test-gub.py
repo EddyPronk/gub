@@ -14,19 +14,27 @@ import sys
 import xml.dom.minidom
 
 ## TODO: should incorporate checksum of lilypond checkout too.
+
+db_file_template = 'log/gub-done-%(canonicalized_target)s.db'
+
 def try_checked_before (hash, canonicalized_target):
 	if not os.path.isdir ('test'):
 		os.makedirs ('test')
 
-	db_file = 'log/gub-done-%s.db' % canonicalized_target
+	db_file = db_file_template % locals()
 	print 'Using database ', db_file
-	
 	db = dbhash.open (db_file, 'c')
-	was_checked = db.has_key (hash)
-	db[hash] = '1'
-	db.close ()
-	return was_checked
+	return db.has_key (hash)
 
+def set_checked_before (hash, canonicalized_target):
+	db_file = db_file_template % locals()
+	print 'Writing check to', db_file
+	db = dbhash.open (db_file, 'c')
+	db[hash] = '1'
+
+
+	
+	
 def read_last_patch ():
 	"""Return a dict with info about the last patch"""
 	
@@ -125,8 +133,8 @@ def test_target (options, target, last_patch):
 	release_hash = last_patch['release_hash']
 	if try_checked_before (release_hash, canonicalize):
 		print 'release has already been checked: ', release_hash 
-		sys.exit (0)
-
+		return
+		
 
 	logfile = 'log/test-%(canonicalize)s.log' %  locals()
 	cmd = "nice time %(target)s >& %(logfile)s" %  locals()
@@ -150,7 +158,7 @@ def test_target (options, target, last_patch):
 		system ('darcs push -a -t %s ' % tag)
 		result = "SUCCESS, tagging with %s\n\n" % tag
 		
-
+	set_checked_before (release_hash, canonicalize)
 	return (result, attachments)
 	
 def send_message (options, msg):
