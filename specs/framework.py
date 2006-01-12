@@ -1306,7 +1306,8 @@ def get_packages (settings):
 						    depends=['mingw-runtime', 'libiconv', 'libjpeg',
 							     'libpng','zlib']),
 		LilyPond__mingw (settings).with (version=settings.lilypond_branch, mirror=cvs.gnu,
-						 depends=['mingw-runtime', 'fontconfig', 'gettext', 'guile', 'pango', 'python'],
+						 depends=['mingw-runtime', 'fontconfig', 'gettext',
+							  'guile', 'pango', 'python', 'ghostscript'],
 						 track_development=True),
 	],
 	'linux': [
