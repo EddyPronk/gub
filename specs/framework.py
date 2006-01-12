@@ -328,15 +328,6 @@ class LilyPond (targetpackage.Target_package):
 
 	def configure (self):
 		self.autoupdate ()
-
-		flex_loc = self.read_pipe ('which flex')
-		flex_include_dir = os.path.split (flex_loc)[0] + "/../include"
-
-		# URG.
-		gub.Package.system (self, '''
-mkdir -p %(builddir)s
-cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/
-''', locals ())
 		targetpackage.Target_package.configure (self)
 
 	# FIXME: shared for all CVS packages
