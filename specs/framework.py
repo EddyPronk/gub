@@ -16,8 +16,6 @@ def file_is_newer (f1, f2):
 	return (not os.path.exists (f2)
 		or os.stat (f1).st_mtime >  os.stat (f2).st_mtime)
 
-
-
 class Fondu (targetpackage.Target_package):
 	pass
 
@@ -675,6 +673,9 @@ glib_cv_stack_grows=${glib_cv_stack_grows=no}
 		
 
 class Glib__darwin (Glib):
+	def patch (self):
+		targetpackage.Target_package.patch(self)
+		self.system ("cd %(srcdir)s && patch -p0 < %(patchdir)s/glib-gslice.patch")
 	def configure (self):
 		Glib.configure (self)
 		self.file_sub ([('nmedit', '%(target_architecture)s-nmedit')],
@@ -693,6 +694,10 @@ class Pango (targetpackage.Target_package):
 	def patch (self):
 		targetpackage.Target_package.patch (self)
 		self.system ('cd %(srcdir)s && patch --force -p1 < %(patchdir)s/pango-env-sub')
+
+		## ugh, already fixed in Pango CVS.
+		f = open (self.expand ('%(srcdir)s/pango/pango.def'), 'a')
+		f.write ('	pango_matrix_get_font_scale_factor\n')
 
 	def fix_modules (self):
 		etc = self.expand ('%(install_root)s/usr/etc/pango')
@@ -1247,11 +1252,11 @@ def get_packages (settings):
 					  depends=['darwin-sdk']),
 		Expat (settings).with (version='1.95.8-1', mirror=download.lp, format='bz2',
 				       depends=['darwin-sdk']),
-		Glib__darwin (settings).with (version='2.8.4', mirror=download.gtk,
-					      depends=['darwin-sdk', 'gettext']),
 		Fontconfig__darwin (settings).with (version='2.3.2', mirror=download.fontconfig,
 						    depends=['expat', 'freetype']),
-		Pango__darwin (settings).with (version='1.10.1', mirror=download.gtk,
+		Glib__darwin (settings).with (version='2.9.1', mirror=download.gnome_213, format='bz2',
+					      depends=['darwin-sdk', 'gettext']),
+		Pango__darwin (settings).with (version='1.11.1', mirror=download.gnome_213, format='bz2',
 					       depends = ['glib', 'fontconfig', 'freetype']
 					       ),
 		Gmp__darwin (settings).with (version='4.1.4',depends=['darwin-sdk']),
@@ -1292,9 +1297,9 @@ def get_packages (settings):
 		# FIXME: we're actually using 1.7.2-cvs+, 1.7.2 needs too much work
 		Guile__mingw (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2',
 					      depends=['mingw-runtime', 'gettext', 'gmp', 'libtool', 'regex']),
-		Glib (settings).with (version='2.8.4', mirror=download.gtk,
+		Glib (settings).with (version='2.9.1', mirror=download.gnome_213, format='bz2',
 				      depends=['mingw-runtime', 'gettext', 'libiconv']),
-		Pango__mingw (settings).with (version='1.10.1', mirror=download.gtk,
+		Pango__mingw (settings).with (version='1.11.1', mirror=download.gnome_213, format='bz2',
 					      depends=['mingw-runtime', 'freetype', 'fontconfig', 'glib', 'libiconv']),
 		Python__mingw (settings).with (version='2.4.2', mirror=download.python, format='bz2',
 					       depends=['mingw-runtime']),
@@ -1326,9 +1331,9 @@ def get_packages (settings):
 		# FIXME: we're actually using 1.7.2-cvs+, 1.7.2 needs too much work
 		Guile__linux (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2',
 					      depends=['gettext', 'gmp', 'libtool']),
-		Glib (settings).with (version='2.8.4', mirror=download.gtk,
+		Glib (settings).with (version='2.9.1', mirror=download.gnome_213, format='bz2',
 				      depends=['libtool']),
-		Pango__linux (settings).with (version='1.10.1', mirror=download.gtk,
+		Pango__linux (settings).with (version='1.11.1', mirror=download.gnome_213, format='bz2',
 					      depends=['freetype', 'fontconfig', 'glib', 'libtool']),
 		Python (settings).with (version='2.4.2', mirror=download.python, format='bz2'),
 		Libjpeg__linux (settings).with (version='v6b', mirror=download.jpeg),
