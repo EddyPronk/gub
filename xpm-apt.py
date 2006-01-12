@@ -173,7 +173,7 @@ class Command:
 						    self.pm.installed_packages ())))
 		else:
 			print '\n'.join (sort (map (lambda x: '%-20s%s' % (x.name (),
-								     x.full_version ()),
+									   self.pm.package_version (x)),
 						     self.pm.installed_packages ())))
 
 	def remove_package (self, p, packs):
