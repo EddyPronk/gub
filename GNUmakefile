@@ -61,7 +61,7 @@ cygwin:
 	$(call BUILD,$@,lilypond)
 
 darwin:
-	$(call BUILD,$@,ghostscript lilypond osx-lilypad)
+	$(call BUILD,$@,lilypond)
 
 debian:
 	$(call BUILD,$@,lilypond)
