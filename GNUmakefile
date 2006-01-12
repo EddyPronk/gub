@@ -21,7 +21,7 @@ TEST_PLATFORMS=$(PLATFORMS)
 include local.make
 
 include $(LILYPOND_CVSDIR)/VERSION
-INSTALLER_BUILD=1
+
 
 
 ##LILYPOND_BRANCH=$(strip $(patsubst $(shell cd $(LILYPOND_CVSDIR) && expr "$$(cvs status ChangeLog)" : '.*Sticky Tag: *\([^ ]*\)'),(none),HEAD))
@@ -30,7 +30,7 @@ LILYPOND_BRANCH=$(shell (cat $(LILYPOND_CVSDIR)/CVS/Tag 2> /dev/null || echo HEA
 
 PLATFORMS=darwin mingw linux freebsd
 LILYPOND_VERSION=$(MAJOR_VERSION).$(MINOR_VERSION).$(PATCH_LEVEL)$(if $(strip $(MY_PATCH_LEVEL)),.$(MY_PATCH_LEVEL),)
-
+INSTALLER_BUILD:=$(shell python lilypondorg.py $(LILYPOND_VERSION))
 INVOKE_DRIVER=python driver.py \
 --target-platform $(1) \
 --branch $(LILYPOND_BRANCH) \
