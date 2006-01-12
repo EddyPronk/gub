@@ -328,6 +328,8 @@ class LilyPond (targetpackage.Target_package):
 
 	def configure (self):
 		self.autoupdate ()
+
+	def do_configure (self):
 		targetpackage.Target_package.configure (self)
 
 	# FIXME: shared for all CVS packages
@@ -389,7 +391,7 @@ class LilyPond (targetpackage.Target_package):
 			self.system ('''
 			cd %(autodir)s && bash autogen.sh --noconfigure
 			''', locals ())
-
+			self.do_configure ()
 
 class LilyPond__mingw (LilyPond):
 	def __init__ (self, settings):
@@ -405,8 +407,8 @@ class LilyPond__mingw (LilyPond):
 		self.file_sub ([('THIS', 'SELF')],
 			       '%(srcdir)s/lily/parser.yy')
 
-	def configure (self):
-		LilyPond.configure (self)
+	def do_configure (self):
+		LilyPond.do_configure (self)
 		self.config_cache ()
 		cmd = self.configure_command () \
 		      + ' --enable-config=console'
@@ -591,8 +593,8 @@ class LilyPond__darwin (LilyPond):
 		
 		return cmd
 
-	def configure (self):
-		LilyPond.configure (self)
+	def do_configure (self):
+		LilyPond.do_configure (self)
 
 		make = self.expand ('%(builddir)s/config.make')
 
