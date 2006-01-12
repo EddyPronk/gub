@@ -80,21 +80,8 @@ class Package_manager:
 	def installed_files (self, package):
 		return self._package_file_db[package.name ()].split ('\n')
 
-	def file_list_name (self, package):
-		return '%s/%s.lst.gz' % (self.config, package.name ())
-
 	def is_installed (self, package):
 		return self._package_file_db.has_key (package.name())
-
-	def _read_file_list (self, package):
-		return map (string.strip,
-			    gzip.open (self.file_list_name (package)).readlines ())
-
-	def _write_file_list (self, package, lst):
-		f = gzip.open (self.file_list_name (package), 'w')
-		for i in lst:
-			f.write ('%s\n' % i)
-		f.close ()
 
 	def _build_package (self, package):
 		if self.is_installed (package):
@@ -198,8 +185,6 @@ class Package_manager:
 			if f and  f[-1] != '/':
 				self._file_package_db[f] = name
 			
-		self._write_file_list (package, lst)
-
 	def _register_package (self, package):
 		if package.verbose:
 			self.os_interface.log_command ('registering package: %s\n'
@@ -209,7 +194,6 @@ class Package_manager:
 	def _uninstall_package (self, package):
 		self.os_interface.log_command ('uninstalling package: %s\n'
 					       % `package`)
-		listfile = self.file_list_name (package)
 		lst = self.installed_files (package)
 		name = package.name()
 		
@@ -315,7 +299,7 @@ class Package_manager:
 				      if ds != []])
 			for ds in deps.values ():
 				ds[:] = [d for d in ds if d not in rm]
-
+				
 		return sorted
 
 	# NAME_ shortcuts
