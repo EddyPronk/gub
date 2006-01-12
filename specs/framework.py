@@ -309,6 +309,15 @@ class Guile__darwin (Guile):
 			self.system ('cd %(directory)s && ln -s %(src)s %(dst)s', locals())
 
 class LilyPond (targetpackage.Target_package):
+	def __init__ (self, settings):
+		targetpackage.Target_package.__init__ (self, settings)
+
+		# FIXME: should add to C_INCLUDE_PATH
+		builddir = self.builddir ()
+		if not self.__dict__.has_key ('target_gcc_flags'):
+			self.target_gcc_flags = ''
+		self.target_gcc_flags += ' -I%(builddir)s' % locals ()
+
 	def configure_command (self):
 		## FIXME: pickup $target-guile-config
 		return (targetpackage.Target_package.configure_command (self)
@@ -328,16 +337,6 @@ class LilyPond (targetpackage.Target_package):
 		gub.Package.system (self, '''
 mkdir -p %(builddir)s
 cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/
-#
-# FIXME: The previous windows installer worked without the additionals
-# below.  figure out if, where and why this is needed.
-#
-mkdir -p %(builddir)s/lily/out
-mkdir -p %(builddir)s/lily/out-console
-cp %(flex_include_dir)s/FlexLexer.h %(system_root)s/usr/include
-cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/lily/out/
-cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/../
-cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/lily/out-console/
 ''', locals ())
 		targetpackage.Target_package.configure (self)
 
@@ -409,10 +408,6 @@ class LilyPond__mingw (LilyPond):
 		# FIXME: should add to CPPFLAGS...
 		self.target_gcc_flags = '-mms-bitfields'
 
-		#UGH
-		builddir = self.builddir ()
-		self.target_gcc_flags += ' -I%(builddir)s' \
-					 % locals ()
 
         def patch (self):
 		# FIXME: for our gcc-3.4.5 cross compiler in the mingw
@@ -605,10 +600,6 @@ class LilyPond__darwin (LilyPond):
 
 		## binaries are huge.
 #		cmd += ' --disable-optimising '
-
-		## no messing around with libstdc++  
-		cmd += ' --enable-static-gxx '
-
 		return cmd
 
 	def configure (self):
@@ -626,14 +617,17 @@ class LilyPond__darwin (LilyPond):
 				],
 			       '%(builddir)s/config.make')
 
+# FIXME: colour me clueless
 		h = open (self.expand ('%(builddir)s/config.hh'), 'a')
 		h.write ('''
+#if I_AM_BLONDE_AND_ALWAYS_WONDERED_WHAT_CONFIGURE_TESTS_ARE_GOOD_FOR
 
 #ifdef HAVE_FLEXLEXER_YY_CURRENT_BUFFER
 #undef HAVE_FLEXLEXER_YY_CURRENT_BUFFER
 #endif
 #define HAVE_FLEXLEXER_YY_CURRENT_BUFFER 1
 
+#endif /*  I_AM_BLONDE_AND_ALWAYS_WONDERED_WHAT_CONFIGURE_TESTS_ARE_GOOD_FOR */
 ''')
 
 class Gettext (targetpackage.Target_package):
