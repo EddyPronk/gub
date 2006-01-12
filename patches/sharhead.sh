@@ -73,7 +73,7 @@ EOF
 fi
 
 
-lilydir="${prefix}lilypond/ "
+lilydir="${prefix}lilypond/"
 wrapscript="${prefix}bin/lilypond"
 
 for d in "$lilydir" "${prefix}/bin"; do
@@ -101,6 +101,8 @@ cat <<EOF
 To uninstall lilypond, do
 
     rm -r "$wrapscript" "${prefix}lilypond"
+
+
 EOF
 
 ## need this because binary data starts after this.
