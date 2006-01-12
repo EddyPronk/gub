@@ -42,7 +42,13 @@ class Gcc (cross.Gcc):
 		self.file_sub ([('/usr/bin/libtool', '%(crossprefix)s/bin/%(target_architecture)s-libtool')],
 			       '%(srcdir)s/gcc/config/darwin.h')
 
-
+	def install (self):
+		cross.Gcc.install (self)
+		for l in  self.read_pipe ("find %(install_root)s/usr/lib/ -name '*.dylib'").split():
+			id = self.read_pipe ('%(tool_prefix)sotool -L %(l)s', locals ()).split()[1]
+			id = os.path.split (id)[1]
+			self.system ('%(tool_prefix)sinstall_name_tool -id /usr/lib/%(id)s %(l)s', locals ())
+		
 class Rewirer (context.Os_context_wrapper):
 	def __init__ (self, settings):
 		context.Os_context_wrapper.__init__ (self,settings)
@@ -81,6 +87,13 @@ class Rewirer (context.Os_context_wrapper):
 		libs = self.get_libaries (name)
 		subs = []
 		for l in libs:
+
+			## ignore self.
+			print os.path.split (l)[1], os.path.split (name)[1]
+			
+			if os.path.split (l)[1] == os.path.split (name)[1]:
+				continue
+			
 			for o in orig_libs:
 				if re.search (o, l):
 					newpath = re.sub (o, '@executable_path/../lib/', l); 
