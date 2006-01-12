@@ -605,6 +605,10 @@ class LilyPond__darwin (LilyPond):
 
 		## binaries are huge.
 #		cmd += ' --disable-optimising '
+
+		## no messing around with libstdc++  
+		cmd += ' --enable-static-gxx '
+
 		return cmd
 
 	def configure (self):
