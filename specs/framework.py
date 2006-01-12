@@ -587,9 +587,8 @@ class LilyPond__darwin (LilyPond):
 			 + '/include/python%(python_version)s')
 
 		cmd += ' --with-python-include=' + pydir
-
-		## binaries are huge.
-#		cmd += ' --disable-optimising '
+		cmd += ' --enable-static-gxx '
+		
 		return cmd
 
 	def configure (self):
