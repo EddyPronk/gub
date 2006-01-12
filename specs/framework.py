@@ -607,18 +607,6 @@ class LilyPond__darwin (LilyPond):
 				],
 			       '%(builddir)s/config.make')
 
-# FIXME: colour me clueless
-		h = open (self.expand ('%(builddir)s/config.hh'), 'a')
-		h.write ('''
-#if I_AM_BLONDE_AND_ALWAYS_WONDERED_WHAT_CONFIGURE_TESTS_ARE_GOOD_FOR
-
-#ifdef HAVE_FLEXLEXER_YY_CURRENT_BUFFER
-#undef HAVE_FLEXLEXER_YY_CURRENT_BUFFER
-#endif
-#define HAVE_FLEXLEXER_YY_CURRENT_BUFFER 1
-
-#endif /*  I_AM_BLONDE_AND_ALWAYS_WONDERED_WHAT_CONFIGURE_TESTS_ARE_GOOD_FOR */
-''')
 
 class Gettext (targetpackage.Target_package):
 	def configure_command (self):
