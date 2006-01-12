@@ -217,8 +217,9 @@ class Package_manager:
 		files = []
 		for i in lst:
 			f = os.path.join (self.root, i)
-			if (not os.path.exists (f)
-			    and not os.path.islink (f)
+			if os.path.islink (f):
+				files.append (f)
+			elif (not os.path.exists (f)
 			    and not package.settings.is_distro):
 				print 'xpm: uninstall: %s' % package
 				print 'xpm: no such file: %s' % f
