@@ -1,6 +1,7 @@
 import gub
 import misc
 import glob
+import os
 
 class Cross_package (gub.Package):
 	"""Package for cross compilers/linkers etc.
@@ -54,9 +55,21 @@ class Gcc (Cross_package):
 			cmd +=  ' ' + cxx_opt
 
 		return misc.join_lines (cmd)
+	def configure(self):
+		Cross_package.configure (self)
 
 	def install (self):
 		Cross_package.install (self)
+		## FIXME: .so senseless for darwin.
+		old_libs = self.expand ('%(install_root)s/usr/cross/%(target_architecture)s')
+		for f in self.read_pipe ('cd %(old_libs)s/ && find -type f ', locals ()).split():
+			(dir, file) = os.path.split (f)
+			target = self.expand ('%(install_prefix)s/%(dir)s', locals())
+			if not os.path.isdir (target):
+				os.makedirs (target)
+
+			self.system ('mv %(old_libs)s/%(dir)s/%(file)s %(install_prefix)s/lib', locals())
+
 		self.system ('''
 cd %(install_root)s/usr/lib && ln -fs libgcc_s.so.1 libgcc_s.so
 ''')
