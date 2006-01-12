@@ -58,8 +58,8 @@ class Package_manager:
 						       + '/files.db', 'c')
 		self._package_file_db = dbmodule.open (self.config
 						       + '/packages.db', 'c')
-
-
+		self._package_version_db = dbmodule.open (self.config
+						       + '/versions.db', 'c')
 		
 		
 	def is_installable (self, package):
@@ -179,6 +179,7 @@ class Package_manager:
 		self.os_interface.system ('tar -C %(root)s -xf%(flag)s %(ball)s' % locals ())
 
 		self._package_file_db[name] = '\n'.join (lst)
+		self._package_version_db[name] = package.full_version ()
 		for f in lst:
 			
 			# ignore directories.
@@ -231,7 +232,7 @@ class Package_manager:
 			except:
 				print 'db delete failing for ', f
 		del self._package_file_db[name]
-		os.unlink (listfile)
+		del self._package_version_db[name]
 
 	def with_dependencies (self, package, before=None, after=None):
 
@@ -302,6 +303,10 @@ class Package_manager:
 				
 		return sorted
 
+
+	def package_version (self, pkg):
+		return self._package_version_db[pkg.name()]
+	
 	# NAME_ shortcuts
 	def name_build (self, name):
 		self.build_package (self._packages[name])
