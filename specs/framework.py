@@ -326,6 +326,12 @@ class LilyPond (targetpackage.Target_package):
 
 	def configure (self):
 		self.autoupdate ()
+		flex = self.read_pipe ('type flex')
+		flex_include_dir = os.path.split (flex)[0] + "/../include"
+		gub.Package.system (self, '''
+mkdir -p %(builddir)s
+cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/
+''', locals ())
 
 	def do_configure (self):
 		targetpackage.Target_package.configure (self)
@@ -392,13 +398,6 @@ class LilyPond (targetpackage.Target_package):
 			self.do_configure ()
 
 class LilyPond__mingw (LilyPond):
-	def __init__ (self, settings):
-		LilyPond.__init__ (self, settings)
-
-		# FIXME: should add to CPPFLAGS...
-		self.target_gcc_flags = '-mms-bitfields'
-
-
         def patch (self):
 		# FIXME: for our gcc-3.4.5 cross compiler in the mingw
 		# environment, THIS is a magic word.
@@ -407,11 +406,15 @@ class LilyPond__mingw (LilyPond):
 
 	def do_configure (self):
 		LilyPond.do_configure (self)
+		# Configure (compile) without -mwindows for console
+		self.target_gcc_flags = '-mms-bitfields'
 		self.config_cache ()
 		cmd = self.configure_command () \
 		      + ' --enable-config=console'
 		self.system ('''cd %(builddir)s && %(cmd)s''',
 			     locals ())
+		# Do not override flags while running make lateron
+		self.target_gcc_flags = ''
 
 	def compile_command (self):
 		python_lib = "%(system_root)s/usr/bin/libpython%(python_version)s.dll"
