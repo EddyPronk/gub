@@ -20,7 +20,8 @@ class Darwin_sdk (gub.Sdk_package):
 		self.system ('''
 rm %(srcdir)s/usr/lib/charset.alias
 rm %(srcdir)s/usr/lib/libgcc*
-rm %(srcdir)s/usr/lib/libstdc++*
+rm %(srcdir)s/usr/lib/libstdc\+\+*
+rm %(srcdir)s/usr/lib/libsupc\+\+*
 rm -rf %(srcdir)s/usr/lib/gcc
 rm -f $(find %(srcdir)s -name FlexLexer.h)
 ''')
