@@ -1,0 +1,46 @@
+
+* Pango/Glib uit Gnome 2.13 ,
+  http://ftp.gnome.org/pub/GNOME/platform/2.13/2.13.4/sources/- ${ORIGIN} linking
+
+- wrapperless install ?
+
+- standaard naam voor platformen: os-cpu ?
+
+- branchen van repository: stable (voor bouwen release), devel (voor
+  hekwerk)
+
+- alle binaries hernoemen naar
+  lilypond-{VERSIE}-{BUILD}.{PLATFORM}.{FORMAAT}
+
+- xpm.install(package, targetdir)
+
+
+lagere prioriteit
+
+- debian dependencies opschonen.
+- mftrace/potrace/fontforge in tools hangen?
+
+- src packages.
+
+- dump get_packages ()
+
+- Split framework.py per package.
+
+- use checksumming to tag .gub files.
+
+- trip test.
+
+- packaging examples 
+
+web:
+
+- download/binaries/{PLATFORM-NAAM} hernoemen.
+
+- download pagina genereren door lilypond.org/download/binaries/ uit
+  te lezen en te analyseren.
+
+- "download now" button, die met javascript de goede binary selecteert
+
+- download.PLATFORM.html pagina's voor google analytics en link naar
+  download.sf.net ?
+
