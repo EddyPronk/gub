@@ -76,8 +76,8 @@ class Target_package (gub.Package):
 			'CC': '%(tool_prefix)sgcc %(target_gcc_flags)s',
 			'CC_FOR_BUILD': 'C_INCLUDE_PATH= CPPFLAGS= LIBRARY_PATH= cc',
 #			'CPPFLAGS': '-I%(system_root)s/usr/include',
-			'C_INCLUDE_PATH': '%(system_root)s/usr/include',
-			'CPLUS_INCLUDE_PATH': '%(system_root)s/usr/include',
+			'C_INCLUDE_PATH': '%(system_root)s/usr/include:%(targetdir)s/local/system/usr/include',
+			'CPLUS_INCLUDE_PATH': '%(system_root)s/usr/include:%(targetdir)s/local/system/usr/include',
 			'CXX':'%(tool_prefix)sg++ %(target_gcc_flags)s',
 			'FREETYPE_CONFIG': '''%(system_root)s/usr/bin/freetype-config \
 --prefix=%(system_root)s/usr \
