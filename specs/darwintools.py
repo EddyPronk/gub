@@ -17,7 +17,6 @@ class Odcctools (cross.Cross_package):
 
 class Darwin_sdk (gub.Sdk_package):
 	def patch (self):
-		pat = self.expand ('%(srcdir)s/usr/lib/*.la')
 		self.system ('''
 rm %(srcdir)s/usr/lib/charset.alias
 rm %(srcdir)s/usr/lib/libgcc*
@@ -30,6 +29,8 @@ rm -f $(find %(srcdir)s -name FlexLexer.h)
 		##self.system ('rm -rf %(srcdir)s/usr/include/machine/limits.h')
 
 		## limits.h symlinks into GCC.
+		
+		pat = self.expand ('%(srcdir)s/usr/lib/*.la')
 		for a in glob.glob (pat):
 			self.file_sub ([(r' (/usr/lib/.*\.la)', r'%(system_root)s\1')], a)
 
