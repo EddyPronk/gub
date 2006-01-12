@@ -71,10 +71,12 @@ class Rewirer (context.Os_context_wrapper):
 		subs = []
 		for l in libs:
 			for o in orig_libs:
-				if not re.search (o, l):
-					continue
-				newpath = re.sub (o, '@executable_path/../lib/', l); 
-				subs.append ((l, newpath))
+				if re.search (o, l):
+					newpath = re.sub (o, '@executable_path/../lib/', l); 
+					subs.append ((l, newpath))
+				elif l.find (self.expand ('%(targetdir)s')) >= 0:
+					print 'found targetdir in linkage', l
+					raise 'abort'
 
 		self.rewire_mach_o_object (name, subs)
 
