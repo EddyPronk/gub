@@ -22,6 +22,7 @@ class Mingw_runtime (gub.Binary_package, gub.Sdk_package):
 		self.system ('cd %(srcdir)s/root && mv * usr',
 			     ignore_error=True)
 
+# ugh. should rename cygcheck.
 class Cygwin (gub.Binary_package):
 	"Only need the cygcheck.exe binary."
 

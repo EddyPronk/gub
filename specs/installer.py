@@ -186,7 +186,9 @@ class Nsis (Installer):
 		self.system ('cp %(nsisdir)s/*.scm.in %(targetdir)s')
 		self.system ('cp %(nsisdir)s/*.sh.in %(targetdir)s')
 		self.system ('cd %(targetdir)s && makensis lilypond.nsi')
-		self.system ('mv %(targetdir)s/setup.exe %(installer_uploads)s/lilypond-%(bundle_version)s-%(bundle_build)s.exe', locals ())
+
+		final = 'lilypond-%(bundle_version)s-%(bundle_build)s.%(platform)s.exe'
+		self.system ('mv %(targetdir)s/setup.exe %(installer_uploads)s/%(final)s', locals ())
 
 
 
