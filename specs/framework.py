@@ -314,9 +314,8 @@ class LilyPond (targetpackage.Target_package):
 
 		# FIXME: should add to C_INCLUDE_PATH
 		builddir = self.builddir ()
-		if not self.__dict__.has_key ('target_gcc_flags'):
-			self.target_gcc_flags = ''
-		self.target_gcc_flags += ' -I%(builddir)s' % locals ()
+		self.target_gcc_flags = (settings.target_gcc_flags
+					 + ' -I%(builddir)s' % locals ())
 
 	def configure_command (self):
 		## FIXME: pickup $target-guile-config
