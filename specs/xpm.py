@@ -282,13 +282,8 @@ class Package_manager:
 		self.with_dependencies (package, after=self._build_package)
 
 	def dependencies (self, package):
-		if package._dependencies == None:
-			self.with_dependencies (package,
-						before=self._dependencies_package)
-		deps = package._dependencies
-		if self.include_build_deps:
-			deps += package._build_dependencies
-		return deps
+		self._dependencies_package (package) 
+		return package._dependencies + package._build_dependencies
 
 	def download_package (self, package):
 		self.with_dependencies (package, before=self._download_package)
