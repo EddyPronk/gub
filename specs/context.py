@@ -83,7 +83,7 @@ def now ():
 
 
 class Os_commands:
-	"""Encapsulate OS/file system commands for proper logging. """
+	"""Encapsulate OS/File system commands for proper logging. """
 	
 	def __init__ (self, logfile):
 		self.log_file = open (logfile, 'a')
