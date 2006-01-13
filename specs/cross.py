@@ -60,16 +60,18 @@ class Gcc (Cross_package):
 
 	def install (self):
 		Cross_package.install (self)
-		## FIXME: .so senseless for darwin.
 		old_libs = self.expand ('%(install_root)s/usr/cross/%(target_architecture)s')
-		for f in self.read_pipe ('cd %(old_libs)s/ && find -type f ', locals ()).split():
-			(dir, file) = os.path.split (f)
-			target = self.expand ('%(install_prefix)s/%(dir)s', locals())
-			if not os.path.isdir (target):
-				os.makedirs (target)
 
-			self.system ('mv %(old_libs)s/%(dir)s/%(file)s %(install_prefix)s/lib', locals())
+		if os.path.isdir (old_libs):
+			for f in self.read_pipe ('cd %(old_libs)s/ && find -type f ', locals ()).split():
+				(dir, file) = os.path.split (f)
+				target = self.expand ('%(install_prefix)s/%(dir)s', locals())
+				if not os.path.isdir (target):
+					os.makedirs (target)
 
+				self.system ('mv %(old_libs)s/%(dir)s/%(file)s %(install_prefix)s/lib', locals())
+
+		## FIXME: .so senseless for darwin.
 		self.system ('''
 cd %(install_root)s/usr/lib && ln -fs libgcc_s.so.1 libgcc_s.so
 ''')
