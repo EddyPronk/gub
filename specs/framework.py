@@ -326,6 +326,9 @@ class LilyPond (targetpackage.Target_package):
 
 	def configure (self):
 		self.autoupdate ()
+	
+
+	def do_configure (self):
 		if not os.path.exists (self.expand ('%(builddir)s/FlexLexer.h')):
 			flex = self.read_pipe ('which flex')
 			flex_include_dir = os.path.split (flex)[0] + "/../include"
@@ -333,8 +336,6 @@ class LilyPond (targetpackage.Target_package):
 mkdir -p %(builddir)s
 cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/
 ''', locals ())
-
-	def do_configure (self):
 		targetpackage.Target_package.configure (self)
 
 	# FIXME: shared for all CVS packages
@@ -694,7 +695,8 @@ class Glib__freebsd (Glib):
 		self.file_sub ([('<malloc.h>', '<stdlib.h>'),
 				
 				##ugh.
-				('#define _XOPEN_SOURCE', '#define _XOPEN_SOURCE\n#define _SC_PAGESIZE		47\n')
+				('#ifdef G_OS_WIN32',
+				 '#ifdef G_OS_WIN32\n#define _SC_PAGESIZE		47\n')
 				],
 			       '%(srcdir)s/glib/gslice.c')
 
@@ -1289,9 +1291,9 @@ def get_packages (settings):
 		Ghostscript (settings).with (version="8.15.1", mirror=download.cups,
 						     format='bz2', depends=['libjpeg', 'libpng']),
 		LilyPond__darwin (settings).with (version=settings.lilypond_branch, mirror=cvs.gnu, track_development=True,
-						  depends=['pango', 'guile', 'gettext', 'ghostscript', 'fondu']
+						  depends=['pango', 'guile', 'gettext', 'ghostscript', 'fondu', 'osx-lilypad']
 						  ),
-		OSX_Lilypad (settings).with (version="0.0", mirror=download.hw, depends=['lilypond']),
+		OSX_Lilypad (settings).with (version="0.0", mirror=download.hw, depends=[]),
 	),
 	'mingw': [
 		Regex (settings).with (version='2.3.90-1', mirror=download.lp, format='bz2',
