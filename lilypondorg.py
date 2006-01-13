@@ -40,6 +40,19 @@ def get_max_builds (platform):
 
 	return builds
 	
+def max_version_build (platform):
+	vbs = get_versions (platform)
+	vs = [v for (v,b) in vbs]
+	vs.sort()
+	max_version = vs[-1]
+
+	max_b = 0
+	for (v,b) in get_versions (platform):
+		if v == max_version:
+			max_b = max (b, max_b)
+
+	return (max_version, max_b)
+
 def uploaded_build_number (version):
 	platform_versions = {}
 	build = 0
@@ -50,13 +63,20 @@ def uploaded_build_number (version):
 
 	return build
 
+
+
 if __name__ == '__main__':
-	if len (sys.argv) <= 1:
-		print 'use: lilypondorg.py X.Y.Z'
+	if len (sys.argv) <= 2:
+		print 'use: lilypondorg.py maxbuild X.Y.Z'
 		sys.exit (1)
-		
-	version = tuple (map (string.atoi, sys.argv[1].split ('.')))
-	print uploaded_build_number (version) + 1
+
+	if sys.argv[1] == 'nextbuild':
+		version = tuple (map (string.atoi, sys.argv[2].split ('.')))
+		print uploaded_build_number (version) + 1
+
+	else:
+		pass
+	#print max_version_build ('darwin-ppc')
 	
 	
 	     
