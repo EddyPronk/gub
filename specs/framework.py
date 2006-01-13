@@ -326,9 +326,10 @@ class LilyPond (targetpackage.Target_package):
 
 	def configure (self):
 		self.autoupdate ()
-		flex = self.read_pipe ('which flex')
-		flex_include_dir = os.path.split (flex)[0] + "/../include"
-		gub.Package.system (self, '''
+		if not os.path.exists (self.expand ('%(builddir)s/FlexLexer.h')):
+			flex = self.read_pipe ('which flex')
+			flex_include_dir = os.path.split (flex)[0] + "/../include"
+			gub.Package.system (self, '''
 mkdir -p %(builddir)s
 cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/
 ''', locals ())
