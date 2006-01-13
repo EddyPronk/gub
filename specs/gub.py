@@ -32,7 +32,8 @@ class Package (Os_context_wrapper):
 		# set to true for CVS releases 
 		self.track_development = False
 
-	def download (self):
+	# urg: naming conflicts with module.
+	def do_download (self):
 		self._downloader ()
 
 	def builder (self):

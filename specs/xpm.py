@@ -93,7 +93,7 @@ class Package_manager:
 		return package.is_downloaded ()
 	
 	def download_package (self, package):
-		package.download ()
+		package.do_download ()
 
 	def install_package (self, package):
 		if self.is_installed (package):
