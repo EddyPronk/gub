@@ -82,6 +82,9 @@ def uploaded_build_number (version):
 
 def upload_binaries (version):
 	build = uploaded_build_number (version) + 1
+
+	src_dests= []
+	barf = 0
 	for platform in platforms:
 		plat = alias[platform]
 		format = formats[platform]
@@ -89,10 +92,20 @@ def upload_binaries (version):
 		version_str = '.'.join (['%d' % v for v in version])
 		
 		host_dir  = '/var/www/lilypond/download/binaries'
-		cmd = 'scp uploads/lilypond-%(version_str)s-%(build)d.%(plat)s.%(format)s %(host)s:%(host_dir)s/%(platform)s'
+		
+		bin = 'uploads/lilypond-%(version_str)s-%(build)d.%(plat)s.%(format)s' % locals()
+		
+		if not os.path.exists (bin):
+			print 'binary does not exist', bin
+			barf = 1
+			
+		src_dests.append((bin, '%(host)s:%(host_dir)s/%(platform)s' % locals()))
 
-		cmd = cmd % locals()
-		system (cmd)
+	if barf:
+		raise 'barf'
+		
+	for tup in src_dests:
+		system ('scp %s %s' % tup)
 		
 
 
