@@ -14,15 +14,9 @@ import gub
 import fcntl
 import sys
 
-# X package manager (x for want of better name)
+from misc import *
 
-def tar_compression_flag (ball):
-	compression_flag = ''
-	if ball.endswith ('bz2'):
-		compression_flag = 'j'
-	if ball.endswith ('gz'):
-		compression_flag = 'z'
-	return compression_flag
+# X package manager (x for want of better name)
 
 #
 # TODO:
@@ -61,7 +55,7 @@ class Package_manager:
 		self._package_version_db = dbmodule.open (self.config
 						       + '/versions.db', 'c')
 		
-		
+
 	def is_installable (self, package):
 		ball = package.expand ('%(gub_uploads)s/%(gub_name)s')
 		return os.path.exists (ball)
@@ -83,7 +77,7 @@ class Package_manager:
 	def is_installed (self, package):
 		return self._package_file_db.has_key (package.name())
 
-	def _build_package (self, package):
+	def build_package (self, package):
 		if self.is_installed (package):
 			return
 		if not self.is_installable (package):
@@ -94,62 +88,14 @@ class Package_manager:
 		    and not self.is_installed (package)):
 			self._install_package (package)
 
-	def _dependencies_package (self, package):
-		if package._dependencies != None:
-			return
 
-		if package.verbose:
-			self.os_interface.log_command ('resolving dependencies: %s\n'
-						       % `package`)
-		package._dependencies = []
-		package._build_dependencies = []
-		try:
-			package._dependencies = map (lambda x:
-						     self._packages[x],
-						     package.name_dependencies)
-			if package in package._dependencies:
-				print ('simple circular dependency',
-				       package,
-				       package.name_dependencies,
-				       package._dependencies,
-				       self._packages)
-				raise 'BARF'
-
-			package._build_dependencies = map (lambda x:
-							   self._packages[x],
-							   package.name_build_dependencies)
-
-			if package in package._build_dependencies:
-				print ('simple circular build dependency',
-				       package,
-				       package.name_build_dependencies,
-				       package._build_dependencies,
-				       self._packages)
-				raise 'BARF'
-
-			## should use name_dependencies ?
-			#if self.include_build_deps:
-			#	package._dependencies += package._build_dependencies
-
-
-		except KeyError, k:
-			print 'xpm: resolving dependencies for: %s' % package
-			print 'xpm: unknown package: %s' % k
-			print 'xpm: available packages: %s' % self._packages
-			print 'xpm: deps: %s' % package.name_dependencies
-
-			# don't barf.  This fucks up with SDK
-			# packages, and separate target/framework
-			# managers.
 	def is_downloaded (self, package):
 		return package.is_downloaded ()
 	
-	def _download_package (self, package):
-		self.os_interface.log_command ('downloading package: %s\n'
-					       % `package`)
-		package._download ()
+	def download_package (self, package):
+		package.download ()
 
-	def _install_package (self, package):
+	def install_package (self, package):
 		if self.is_installed (package):
 			return
 		self.os_interface.log_command ('installing package: %s\n'
@@ -191,13 +137,13 @@ class Package_manager:
 	def is_registered (self, package):
 		return self._packages.has_key (package.name())
 	
-	def _register_package (self, package):
+	def register_package (self, package):
 		if package.verbose:
 			self.os_interface.log_command ('registering package: %s\n'
 						       % `package`)
 		self._packages[package.name ()] = package
 
-	def _uninstall_package (self, package):
+	def uninstall_package (self, package):
 		self.os_interface.log_command ('uninstalling package: %s\n'
 					       % `package`)
 		lst = self.installed_files (package)
@@ -238,7 +184,78 @@ class Package_manager:
 				print 'db delete failing for ', f
 		del self._package_file_db[name]
 		del self._package_version_db[name]
+	
+	# NAME_ shortcuts
+	def name_build (self, name):
+		self.build_package (self._packages[name])
+	def name_download (self, name):
+		self.download_package (self._packages[name])
+	def name_files (self, name):
+		return self.installed_files (self._packages[name])
+	def name_install (self, name):
+		self.install_package (self._packages[name])
+	def name_uninstall (self, name):
+		self.uninstall_package (self._packages[name])
+	def name_is_installed (self, name):
+		try:
+			return self.is_installed (self._packages[name])
+		except KeyError, k:
+			print 'known packages', self._packages
+			raise "Unknown package", k
 
+class Dependency_manager (Package_manager):
+	def determine_dependencies (self, package):
+		if package.verbose:
+			self.os_interface.log_command ('resolving dependencies: %s\n'
+						       % `package`)
+		package._dependencies = []
+		package._build_dependencies = []
+		try:
+			package._dependencies = map (lambda x:
+						     self._packages[x],
+						     package.name_dependencies)
+			if package in package._dependencies:
+				print ('simple circular dependency',
+				       package,
+				       package.name_dependencies,
+				       package._dependencies,
+				       self._packages)
+				raise 'BARF'
+
+			package._build_dependencies = map (lambda x:
+							   self._packages[x],
+							   package.name_build_dependencies)
+
+			if package in package._build_dependencies:
+				print ('simple circular build dependency',
+				       package,
+				       package.name_build_dependencies,
+				       package._build_dependencies,
+				       self._packages)
+				raise 'BARF'
+			
+			## should use name_dependencies ?
+			#if self.include_build_deps:
+			#	package._dependencies += package._build_dependencies
+
+
+		except KeyError, k:
+			print 'xpm: resolving dependencies for: %s' % package
+			print 'xpm: unknown package: %s' % k
+			print 'xpm: available packages: %s' % self._packages
+			print 'xpm: deps: %s' % package.name_dependencies
+
+			# don't barf.  This fucks up with SDK
+			# packages, and separate target/framework
+			# managers.
+
+
+	def dependencies (self, package):
+		if package._dependencies == None:
+			self.determine_dependencies (package)
+
+		return package._dependencies + package._build_dependencies
+	
 	def with_dependencies (self, package, action=None, recurse_stop_predicate=None):
 		todo = []
 		add_packages = [package]
@@ -259,62 +276,21 @@ class Package_manager:
 			add_packages = new_add
 			
 		sorted = self.topological_sort (todo)
-		print 'packages sorted by dep', sorted
 		for p in sorted:
 			action (p)
 
-	def xwith_dependencies (self, package, before=None, after=None):
-
-		# FIXME: circular depends hack for debian
-		busy = ''
-		if before:
-			busy += before.__name__
-		if after:
-			busy += after.__name__
-		if package.__dict__.has_key (busy):
-			return
-		package.__dict__[busy] = None
-		if before:
-			before (package)
-
-		for d in self.dependencies (package):
-			if package.verbose:
-				self.os_interface.log_command (busy + ': '
-							       + 'dependency: '
-							       + d.name ()
-							       + ' for package: '
-							       + package.name ()
-							       + '\n')
-			self.with_dependencies (d, before, after)
-		if after:
-			after (package)
-			
-		# FIXME: work around debian's circular dependencies
-		del (package.__dict__[busy])
-
-
-	def dependencies (self, package):
-		self._dependencies_package (package) 
-		return package._dependencies + package._build_dependencies
 
 	def build_package (self, package):
-		self.with_dependencies (package, action=self._build_package,
+		self.with_dependencies (package, action=bind_method (Package_manager.build_package, self),
 					recurse_stop_predicate=self.is_installed)
 
 	def download_package (self, package):
-		self.with_dependencies (package, action=self._download_package,
+		self.with_dependencies (package, action=bind_method (Package_manager.download_package, self),
 					recurse_stop_predicate=None)
 
 	def install_package (self, package):
-		self.with_dependencies (package, action=self._install_package,
+		self.with_dependencies (package, action=bind_method (Package_manager.install_package, self),
 					recurse_stop_predicate=self.is_installed)
-
-	def uninstall_package (self, package):
-		self._uninstall_package (package)
-
-	def register_package (self, package):
-		self.with_dependencies (package, action=self._register_package,
-					recurse_stop_predicate=self.is_registered)
 
 	def topological_sort (manager, nodes):
 		deps = dict ([(n, [d for d in manager.dependencies (n)
@@ -342,26 +318,9 @@ class Package_manager:
 
 	def package_version (self, pkg):
 		return self._package_version_db[pkg.name()]
-	
-	# NAME_ shortcuts
-	def name_build (self, name):
-		self.build_package (self._packages[name])
-	def name_download (self, name):
-		self.download_package (self._packages[name])
-	def name_files (self, name):
-		return self.installed_files (self._packages[name])
-	def name_install (self, name):
-		self.install_package (self._packages[name])
-	def name_uninstall (self, name):
-		self.uninstall_package (self._packages[name])
-	def name_is_installed (self, name):
-		try:
-			return self.is_installed (self._packages[name])
-		except KeyError, k:
-			print 'known packages', self._packages
-			raise "Unknown package", k
 
-class Cygwin_package_manager (Package_manager):
+
+class Cygwin_package_manager (Dependency_manager):
 	def __init__ (self, settings):
 		Package_manager.__init__ (self, settings.system_root,
 					  settings.os_interface)
@@ -445,7 +404,7 @@ class Cygwin_package_manager (Package_manager):
 		return self._dists[self.dist]
 		#return self._dists['curr'] + self._dists['test']
 
-class Debian_package_manager (Package_manager):
+class Debian_package_manager (Dependency_manager):
 	def __init__ (self, settings):
 		Package_manager.__init__ (self, settings.system_root,
 					  settings.os_interface)
@@ -512,12 +471,13 @@ def get_manager (settings):
 
 	cross_packages = cross_module.get_packages (settings)
 	
-	target_manager = Package_manager (settings.system_root,
-					  settings.os_interface)
+	target_manager = Dependency_manager (settings.system_root,
+					     settings.os_interface)
 
-	map (target_manager._register_package, cross_packages)
-	map (target_manager._register_package,
-	     framework.get_packages (settings))
+	map (target_manager.register_package, cross_packages)
+
+	target_pkgs = framework.get_packages (settings)
+	map (target_manager.register_package, target_pkgs)
 
 	for p in target_manager._packages.values ():
 		settings.build_number_db.set_build_number (p)
@@ -526,15 +486,3 @@ def get_manager (settings):
 
 	return target_manager
 
-def intersect (l1, l2):
-	return [l for l in l1 if l in l2]
-
-def determine_manager (settings, managers, args):
-	for p in managers:
-		if intersect (args, p._packages.keys ()):
-			return p
-
-	if settings.use_tools:
-		return managers[0]
-	else:
-		return managers[-1]
