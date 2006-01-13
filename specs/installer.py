@@ -197,7 +197,7 @@ class Nsis (Installer):
 class Linux_installer (Installer):
 	def __init__ (self, settings):
 		Installer.__init__ (self, settings)
-		self.bundle_tarball = '%(installer_uploads)s/%(name)s-%(bundle_version)s-%(bundle_build)s-%(package_arch)s.tar.bz2'
+		self.bundle_tarball = '%(installer_uploads)s/%(name)s-%(bundle_version)s-%(bundle_build)s.%(platform)s.tar.bz2'
 
 	def strip_prefixes (self):
 		return (Installer.strip_prefixes (self)
