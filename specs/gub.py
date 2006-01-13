@@ -32,10 +32,10 @@ class Package (Os_context_wrapper):
 		# set to true for CVS releases 
 		self.track_development = False
 
-	def _download (self):
+	def download (self):
 		self._downloader ()
 
-	def _builder (self):
+	def builder (self):
 		available = dict (inspect.getmembers (self, callable))
 		if self.settings.options.stage:
 			(available[self.settings.options.stage]) ()

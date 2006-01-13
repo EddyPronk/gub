@@ -83,10 +83,10 @@ class Package_manager:
 		if not self.is_installable (package):
 			self.os_interface.log_command ('building package: %s\n'
 						       % `package`)
-			package._builder ()
+			package.builder ()
 		if (self.is_installable (package)
 		    and not self.is_installed (package)):
-			self._install_package (package)
+			self.install_package (package)
 
 
 	def is_downloaded (self, package):

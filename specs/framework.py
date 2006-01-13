@@ -1398,7 +1398,6 @@ def get_packages (settings):
 
 	packs = packages[settings.platform]
 
-
 	## UGH UGH  platform dependent.
 	# FreeBSD almost uses linux packages...
 	if settings.platform.startswith ('freebsd'):
