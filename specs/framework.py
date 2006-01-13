@@ -696,7 +696,9 @@ class Glib__freebsd (Glib):
 				
 				##ugh.
 				('#ifdef G_OS_WIN32',
-				 '#ifdef G_OS_WIN32\n#define _SC_PAGESIZE		47\n')
+				 '#define _SC_PAGESIZE		47\n'
+				 + '#ifdef G_OS_WIN32\n'
+				 )
 				],
 			       '%(srcdir)s/glib/gslice.c')
 
