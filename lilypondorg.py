@@ -1,8 +1,8 @@
 #!/usr/bin/python
 
+## interaction with lp.org down/upload area.
 
-## Check lilypond.org to see which buildnumbers have been uploaded.
-
+import os
 import urllib
 import re
 import string
@@ -13,6 +13,23 @@ platforms = ['linux-x86',
 	     'freebsd-x86',
 	     'mingw']
 
+alias = {
+	'linux-x86': 'linux',
+	'darwin-ppc': 'darwin',
+	'freebsd-x86': 'freebsd',
+	'mingw':'mingw'}
+formats = {
+	'linux-x86': 'sh',
+	'darwin-ppc': 'zip',
+	'freebsd-x86': 'sh',
+	'mingw':'exe'
+	}
+
+def system (c):
+	print c
+	if os.system (c):
+		raise 'barf'
+	
 def get_versions (platform):
 	index = urllib.urlopen ('http://lilypond.org/download/binaries/%(platform)s/'
 				% locals ()).read()
@@ -63,17 +80,39 @@ def uploaded_build_number (version):
 
 	return build
 
+def upload_binaries (version):
+	build = uploaded_build_number (version) + 1
+	for platform in platforms:
+		plat = alias[platform]
+		format = formats[platform]
+		host = 'lilypond.org'
+		version_str = '.'.join (['%d' % v for v in version])
+		
+		host_dir  = '/var/www/lilypond/download/binaries'
+		cmd = 'scp uploads/lilypond-%(version_str)s-%(build)d.%(plat)s.%(format)s %(host)s:%(host_dir)s/%(platform)s'
+
+		cmd = cmd % locals()
+		system (cmd)
+		
 
 
 if __name__ == '__main__':
 	if len (sys.argv) <= 2:
-		print 'use: lilypondorg.py maxbuild X.Y.Z'
+		print '''use: lilypondorg.py
+
+		nextbuild X.Y.Z
+		upload x.y.z b
+
+		'''
+		
 		sys.exit (1)
 
 	if sys.argv[1] == 'nextbuild':
 		version = tuple (map (string.atoi, sys.argv[2].split ('.')))
 		print uploaded_build_number (version) + 1
-
+	elif sys.argv[1] == 'upload':
+		version = tuple (map (string.atoi, sys.argv[2].split ('.')))
+		upload_binaries (version)
 	else:
 		pass
 	#print max_version_build ('darwin-ppc')
