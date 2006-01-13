@@ -115,7 +115,7 @@ class Rewirer (context.Os_context_wrapper):
 
 	def get_ignore_libs (self):
 		str = self.read_pipe ('''
-tar tfz %(gub_uploads)s/darwin-sdk-0.2-1.darwin.gub
+tar tfz %(gub_uploads)s/darwin-sdk-%(darwin_sdk_version)s-1.darwin.gub
 ''')
 		d = {}
 		for l in str.split ('\n'):
@@ -153,9 +153,12 @@ def add_rewire_path (settings, packages):
 
 
 def get_packages (settings):
+
+	## Ugh, can we write settings?  
+	settings.darwin_sdk_version = '0.3'
 	packages = [
 		Odcctools (settings).with (version='20051122', mirror=download.opendarwin, format='bz2'),
-		Darwin_sdk (settings).with (version='0.3', mirror=download.hw,
+		Darwin_sdk (settings).with (version=settings.darwin_sdk_version, mirror=download.hw,
 					    format='gz'),
 		Gcc (settings).with (mirror = download.gcc,
 				     version='4.0.2',
