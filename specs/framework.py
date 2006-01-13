@@ -675,11 +675,24 @@ glib_cv_stack_grows=${glib_cv_stack_grows=no}
 class Glib__darwin (Glib):
 	def patch (self):
 		targetpackage.Target_package.patch(self)
-		self.system ("cd %(srcdir)s && patch -p0 < %(patchdir)s/glib-gslice.patch")
+		self.file_sub ([('<malloc.h>', '<sys/malloc.h>')],
+			       '%(srcdir)s/glib/gslice.c')
+		
 	def configure (self):
 		Glib.configure (self)
 		self.file_sub ([('nmedit', '%(target_architecture)s-nmedit')],
 			       '%(builddir)s/libtool')
+
+class Glib__freebsd (Glib):
+	def patch (self):
+		Glib.patch(self)
+		self.file_sub ([('<malloc.h>', '<stdlib.h>'),
+				
+				##ugh.
+				('#define _XOPEN_SOURCE', '#define _XOPEN_SOURCE\n#define _SC_PAGESIZE		47\n')
+				],
+			       '%(srcdir)s/glib/gslice.c')
+
 class Pango (targetpackage.Target_package):
 	def configure_command (self):
 		return targetpackage.Target_package.configure_command (self) \
@@ -1351,6 +1364,8 @@ def get_packages (settings):
 					  depends=['gettext', 'libtool']),
 		Libgnugetopt (settings).with (version='1.3', format='bz2', mirror=download.freebsd_ports,
 					      depends=[]),
+		Glib__freebsd (settings).with (version='2.9.1', mirror=download.gnome_213, format='bz2',
+				      depends=['libtool']),
 		Gettext__freebsd (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2',
 						  depends=['libtool', 'libgnugetopt']),
 		Guile__freebsd (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2',
@@ -1379,10 +1394,13 @@ def get_packages (settings):
 	# FreeBSD almost uses linux packages...
 	if settings.platform.startswith ('freebsd'):
 		linux_packs = packages['linux']
+
+		have_already = [p.name() for p in packs]
 		for i in linux_packs:
 			#URG
-			if i.name () in ('gettext', 'guile', 'python'):
+			if i.name () in have_already:
 				continue
+			
                         if not i.name () in ('binutils', 'gcc'):
 				i.name_dependencies += ['freebsd-runtime']
 			if i.name () in ('ghostscript', 'glib', 'pango'):
