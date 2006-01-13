@@ -3,7 +3,9 @@ import re
 #
 import darwintools
 import context
+
 from context import subst_method
+from misc import *
 
 class Installer (context.Os_context_wrapper):
 	def __init__ (self, settings):
@@ -213,12 +215,7 @@ class Tarball (Linux_installer):
 def create_shar (orig_file, hello, head, target_shar):
 	length = os.stat (orig_file)[6]
 
-	tarflag = ''
-	if orig_file.endswith ('gz'):
-		tarflag = 'z'
-	elif orig_file.endswith ('bz2'):
-		tarflag = 'j'
-
+	tarflag = tar_compression_flag (orig_file)
 
 	base_orig_file = os.path.split (orig_file)[1]
 	script = open (head).read ()
