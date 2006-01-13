@@ -141,7 +141,9 @@ class Package_manager:
 			# don't barf.  This fucks up with SDK
 			# packages, and separate target/framework
 			# managers.
-
+	def is_downloaded (self, package):
+		return package.is_downloaded ()
+	
 	def _download_package (self, package):
 		self.os_interface.log_command ('downloading package: %s\n'
 					       % `package`)
@@ -186,6 +188,9 @@ class Package_manager:
 			if f and  f[-1] != '/':
 				self._file_package_db[f] = name
 			
+	def is_registered (self, package):
+		return self._packages.has_key (package.name())
+	
 	def _register_package (self, package):
 		if package.verbose:
 			self.os_interface.log_command ('registering package: %s\n'
@@ -234,7 +239,31 @@ class Package_manager:
 		del self._package_file_db[name]
 		del self._package_version_db[name]
 
-	def with_dependencies (self, package, before=None, after=None):
+	def with_dependencies (self, package, action=None, recurse_stop_predicate=None):
+		todo = []
+		add_packages = [package]
+		done = {package : 1}
+		while add_packages:
+			new_add = []
+			for p in add_packages:
+				for d in self.dependencies (p):
+					if done.has_key (d):
+						continue
+					done[d] = True
+					if recurse_stop_predicate and recurse_stop_predicate  (d):
+						continue
+
+					new_add.append (d)
+
+			todo += add_packages
+			add_packages = new_add
+			
+		sorted = self.topological_sort (todo)
+		print 'packages sorted by dep', sorted
+		for p in sorted:
+			action (p)
+
+	def xwith_dependencies (self, package, before=None, after=None):
 
 		# FIXME: circular depends hack for debian
 		busy = ''
@@ -263,26 +292,29 @@ class Package_manager:
 		# FIXME: work around debian's circular dependencies
 		del (package.__dict__[busy])
 
-	def build_package (self, package):
-		self.with_dependencies (package, after=self._build_package)
 
 	def dependencies (self, package):
 		self._dependencies_package (package) 
 		return package._dependencies + package._build_dependencies
 
+	def build_package (self, package):
+		self.with_dependencies (package, action=self._build_package,
+					recurse_stop_predicate=self.is_installed)
+
 	def download_package (self, package):
-		self.with_dependencies (package, before=self._download_package)
+		self.with_dependencies (package, action=self._download_package,
+					recurse_stop_predicate=None)
 
 	def install_package (self, package):
-		self.with_dependencies (package, after=self._install_package)
+		self.with_dependencies (package, action=self._install_package,
+					recurse_stop_predicate=self.is_installed)
 
 	def uninstall_package (self, package):
-## FIXME: what did we do before / what was I thinking?
-##	       self.with_dependencies (package, after=self._uninstall_package)
 		self._uninstall_package (package)
 
 	def register_package (self, package):
-		self.with_dependencies (package, after=self._register_package)
+		self.with_dependencies (package, action=self._register_package,
+					recurse_stop_predicate=self.is_registered)
 
 	def topological_sort (manager, nodes):
 		deps = dict ([(n, [d for d in manager.dependencies (n)
@@ -293,11 +325,15 @@ class Package_manager:
 
 		sorted = []
 		while deps:
-			rm = [n for (n, ds) in deps.items () if ds == []]
+			min_dep_count = min ([len(ds) for (n,ds) in deps.items ()]) 
+			rm = [n for (n, ds) in deps.items () if len (ds) == min_dep_count]
+
+			if rm == []:
+				raise 'barf'
 			sorted += rm
 
 			deps = dict ([(n, ds) for (n, ds) in deps.items ()
-				      if ds != []])
+				      if len (ds) > min_dep_count])
 			for ds in deps.values ():
 				ds[:] = [d for d in ds if d not in rm]
 				
@@ -447,6 +483,7 @@ class Debian_package_manager (Package_manager):
 		package.ball_version = d['Version']
 		package.url = self.mirror + '/' + d['Filename']
 		package.format = 'deb'
+		
 		return package
 
 def get_manager (settings):
