@@ -36,7 +36,6 @@ rm -f $(find %(srcdir)s -name FlexLexer.h)
 		for a in glob.glob (pat):
 			self.file_sub ([(r' (/usr/lib/.*\.la)', r'%(system_root)s\1')], a)
 
-
 class Gcc (cross.Gcc):
 	def patch (self):
 		self.file_sub ([('/usr/bin/libtool', '%(crossprefix)s/bin/%(target_architecture)s-libtool')],
@@ -156,7 +155,7 @@ def add_rewire_path (settings, packages):
 def get_packages (settings):
 	packages = [
 		Odcctools (settings).with (version='20051122', mirror=download.opendarwin, format='bz2'),
-		Darwin_sdk (settings).with (version='0.2', mirror=download.hw,
+		Darwin_sdk (settings).with (version='0.3', mirror=download.hw,
 					    format='gz'),
 		Gcc (settings).with (mirror = download.gcc,
 				     version='4.0.2',
@@ -176,19 +175,24 @@ def change_target_packages (packages):
 			'LDFLAGS': '-Wl,-headerpad_max_install_names '
 			})
 
-
+def system (c):
+	s = os.system (c)
+	if s:
+		raise 'barf'
+	
 def get_darwin_sdk ():
 	host  = 'maagd'
-	version = '0.2'
+	version = '0.3'
 
 	l = locals()
 
 	dest =	'darwin-sdk-%(version)s' % l
-	os.system ('rm -rf %s' % dest)
-	os.mkdir (dest)
+#	system ('rm -rf %s' % dest)
+#	os.mkdir (dest)
 	dirs = ["/usr/lib","/usr/include","/System/Library/Frameworks/Python.framework",
 		"/System/Library/Frameworks/CoreServices.framework"]
 	for d in dirs:
+		continue
 		os.makedirs (dest + d)
 		cmd =  ('rsync -a -v %s:%s/ %s%s' %
 			(host, d, dest, d))
@@ -197,8 +201,10 @@ def get_darwin_sdk ():
 		if s :
 			raise 'bar'
 
-	os.system ('chmod -R +w %s '  % dest)
-	os.system ('tar cfz %s.tar.gz %s '  % (dest, dest))
+	for a in glob.glob ('%(dest)s/usr/lib/*.dylib' % locals()):
+		os.system ("target/darwin/system/usr/cross/bin/powerpc-apple-darwin7-strip -u -r -S -c " + a)
+ 	system ('chmod -R +w %s '  % dest)
+	system ('tar cfz %s.tar.gz %s '  % (dest, dest))
 
 
 if __name__== '__main__':
