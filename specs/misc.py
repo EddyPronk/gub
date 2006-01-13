@@ -36,3 +36,18 @@ def uniq (list):
 	return u
 
 
+
+def intersect (l1, l2):
+	return [l for l in l1 if l in l2]
+
+def bind_method (func, self):
+	return lambda *args: func (self, *args)
+
+
+def tar_compression_flag (ball):
+	compression_flag = ''
+	if ball.endswith ('bz2'):
+		compression_flag = 'j'
+	if ball.endswith ('gz'):
+		compression_flag = 'z'
+	return compression_flag
