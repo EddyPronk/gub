@@ -86,14 +86,15 @@ to skip this check.
 
 	def skip (self):
 		pass
-
+	
+	def is_downloaded (self):
+		name = self.expand ('%(downloaddir)s/%(file_name)s')
+		return os.path.exists (name)
+			
 	def wget (self):
-		dir = self.settings.downloaddir
-		url = self.expand (self.url)
-		name = self.expand (dir + '/' + self.file_name ())
-		if not os.path.exists (name):
+		if not self.is_downloaded ():
  			self.system ('''
-cd %(dir)s && wget %(url)s
+cd %(downloaddir)s && wget %(url)s
 ''', locals ())
 
 	def cvs (self):
