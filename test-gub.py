@@ -133,7 +133,7 @@ def test_target (options, target, last_patch):
 	release_hash = last_patch['release_hash']
 	if try_checked_before (release_hash, canonicalize):
 		print 'release has already been checked: ', release_hash 
-		return
+		return None
 		
 
 	logfile = 'log/test-%(canonicalize)s.log' %  locals()
@@ -190,6 +190,9 @@ MD5 of complete patch set: %(release_hash)s
 	results = {}
 	for a in args:
 		result_tup = test_target (options, a, last_patch)
+		if not result_tup:
+			continue
+
 		results[a] = result_tup
 		
 		(r, atts) = result_tup
