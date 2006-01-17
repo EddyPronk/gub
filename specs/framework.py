@@ -17,8 +17,14 @@ def file_is_newer (f1, f2):
 		or os.stat (f1).st_mtime >  os.stat (f2).st_mtime)
 
 class Fondu (targetpackage.Target_package):
-	pass
-
+	def srcdir (self):
+		return '%(allsrcdir)s/' + ('fondu-%s' % self.version())
+	
+	def patch (self):
+		targetpackage.Target_package.patch (self)
+		self.file_sub ([('wilprefix', 'prefix')],
+			       '%(srcdir)s/Makefile.in')
+		
 class Fondu__darwin (Fondu):
 	def patch(self):
 		Fondu.patch (self)
@@ -1282,7 +1288,8 @@ def get_packages (settings):
 					       depends = ['glib', 'fontconfig', 'freetype']
 					       ),
 		Gmp__darwin (settings).with (version='4.1.4',depends=['darwin-sdk']),
-		Fondu__darwin (settings).with (version="051010", mirror=download.hw),
+		Fondu__darwin (settings).with (version="060102",
+					       mirror='http://fondu.sourceforge.net/fondu_src-060102.tgz'),
 		## 1.7.3  is actually CVS repackaged.
 #		Guile (settings).with (version='1.7.3', mirror=download.gnu, format='gz'),
 		Guile__darwin (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2',
