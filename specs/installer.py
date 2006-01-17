@@ -94,7 +94,8 @@ class Installer (context.Os_context_wrapper):
 			'lib/python%(python_version)s/lib-tk',
 			'lib/python%(python_version)s/logging',
 			'lib/python%(python_version)s/test',
-			'lib/python%(python_version)s/xml',
+# xml2ly needs xml.dom
+#			'lib/python%(python_version)s/xml',
 			'share/lilypond/*/make',
 			'share/gettext',
 			'usr/share/aclocal',
