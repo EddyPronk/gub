@@ -7,14 +7,29 @@ import sys
 import time
 import gzip
 
-
-
 def debug (s):
 	s
 
-# cygwin stuff
 
-def run_script (self, file_name):
+# Cygwin stuff
+
+try:
+	fake_pipe = 0
+	date = os.popen ('date').read ()
+except:
+	# Work around Cygwin-Python pipe brokenness
+	##import tempfile
+	def fake_pipe (command, mode = 'r'):
+		if mode == 'w':
+			raise 'ugh'
+		##h, name = tempfile.mkstemp ('pipe', basename, '/tmp')x
+		name = ('/tmp/%s.%d' % ('cyg-apt', os.getpid ()))
+		system (command + ' > ' + name)
+		return open (name)
+	os.popen = fake_pipe
+	pass
+
+def run_script (file_name):
 	 sys.stderr.write ('running: %(file_name)s\n' % vars ())
 	 system ('sh "%(file_name)s" && mv "%(file_name)s" "%(file_name)s.done"' % vars ())
 
@@ -139,6 +154,11 @@ class Cpm:
 		return 0, 0
 
 	def _install (self, name, ball, depends=[]):
+		if cygwin_p and name in ('cygwin', 'python'):
+			sys.stderr.write ('error: cannot install on Cygwin: '
+					  + name)
+			sys.stderr.write ('\n')
+			raise 'urg'
 		root = self.root
 		z = self.compression
 		pipe = os.popen ('tar -C "%(root)s" -%(z)sxvf "%(ball)s"' \
@@ -166,6 +186,11 @@ class Cpm:
 		self.run_scripts ()
 
 	def uninstall (self, name):
+		if cygwin_p and name in ('cygwin', 'python'):
+			sys.stderr.write ('error: cannot uninstall on Cygwin: '
+					  + name)
+			sys.stderr.write ('\n')
+			raise 'urg'
 		# FIXME: cygwin stuff
 		try_run_script (self.root + '/etc/preremove/%s.sh' % name)
 		postremove = self.root + '/etc/postremove/%s.sh' % name

@@ -3,7 +3,7 @@
 '''
   cyg-apt - Keep Cygwin or Mingw root up to date
   
-  (c) 2002--2005  Jan Nieuwenhuizen <janneke@gnu.org>
+  (c) 2002--2006  Jan Nieuwenhuizen <janneke@gnu.org>
   
   License: GNU GPL
 '''
@@ -13,7 +13,7 @@ cyg-apt is intended to keep a Cygwin cross compilation tree up to date,
 but can also be used to download packages for off line use.
 
 For example: download LilyPond, with all dependencies
-   
+
    wget -P/tmp/lily http://cygwin.com/setup.exe
    wget -P/tmp/lily http://lilypond.org/cygwin/cyg-apt
    chmod +x /tmp/lily/cyg-apt  # :-)
@@ -41,11 +41,9 @@ import string
 import sys
 
 def system (cmd):
-	sys.stderr.write ("Invoking: %s\n" % cmd)
 	status = os.system (cmd)
-
 	if status:
-		sys.stderr.write ("Command failed\n")
+		sys.stderr.write ('error: command failed: ' + cmd)
 		sys.exit (1)
 	return status
 
@@ -106,7 +104,8 @@ INSTALL = 'install'
 
 distname = 'curr'
 local_mirror = 'file://' + NETREL + '/uploads/..'
-official_mirror = 'http://mirrors.rcn.net/pub/sourceware/cygwin'
+##official_mirror = 'http://mirrors.rcn.net/pub/sourceware/cygwin'
+official_mirror = 'http://gnu.kookel.org/ftp/cygwin'
 if target == 'mingw':
 	official_mirror = 'http://lilypond.org/mingw'
 mirror = local_mirror
@@ -297,7 +296,7 @@ def do_download ():
 		signal = 0x0f & status
 		## exit_status = status >> 8
 		if status:
-			raise 'urg'
+			sys.exit (1)
 
 def download ():
 	'''download package'''
@@ -457,7 +456,7 @@ def md5 ():
 	actual_md5 = get_md5 ()
 	print '%s  %s' % (actual_md5, ball)
 	if actual_md5 != md5:
-		raise 'URG'
+		raise 'urg'
 	
 def search ():
 	'''search package list'''
@@ -638,10 +637,10 @@ def do_unpack ():
 	pipe = os.popen ('tar -C "%s" -xjvf "%s"' % (SRC, ball), 'r')
 	lst = map (string.strip, pipe.readlines ())
 	if pipe.close ():
-		raise 'urg1'
+		raise 'urg'
 	print ('%s/%s' % (SRC, packagename))
 	if not os.path.exists ('%s/%s' % (SRC, packagename)):
-		raise 'urg2'
+		raise 'urg'
 	
 def do_build ():
 	src = '%s/%s' % (SRC, packagename)

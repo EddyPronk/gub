@@ -57,7 +57,7 @@ class Options:
 			))
 
 		if len (arguments) > 0:
-			self.command = arguments.pop (0)
+			self.command = re.sub ('-', '_', arguments.pop (0))
 		# Hmm, keep arguments as separate list?
 		self.arguments = arguments
 
@@ -201,7 +201,8 @@ Commands:
 	commands = filter (lambda x:
 			   type (d[x]) == type (usage) and d[x].__doc__, d)
 	sys.stdout.writelines (map (lambda x:
-				    "    %s - %s\n" % (x, d[x].__doc__),
+				    "    %s - %s\n"
+				    % (re.sub ('_', '-', x), d[x].__doc__),
 			       sort (commands)))
 	d = options.__dict__
 	sys.stdout.write (r'''
@@ -214,9 +215,11 @@ Options:
     -r,--root=DIR          set %(PLATFORM)s root [%(ROOT)s]
     -x,--no-deps           ignore dependencies
 
-Defaults are taken from ./%(rc_file)s
-    
 ''' % d)
+	if os.path.exists (d['rc_file']):
+		sys.stdout.write (r'''
+Defaults are taken from ./%(rc_file)s
+''' %d)
 
 def main ():
 	options = Options ()
@@ -245,7 +248,7 @@ def main ():
 
 	if options.arguments and options.arguments[0] == 'all':
 		options.arguments = pm._packages.keys ()
-		
+
 	if options.command:
 		commands = Command (pm, options)
 		if options.command in Command.__dict__:
