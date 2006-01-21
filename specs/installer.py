@@ -155,8 +155,14 @@ rm -f %(bundle_zip)s
 rm -rf %(darwin_bundle_dir)s
 tar -C %(targetdir)s -zxf %(downloaddir)s/osx-lilypad-0.0.tar.gz
 cp -pR --link %(installer_root)s/usr/* %(darwin_bundle_dir)s/Contents/Resources/
-cd %(darwin_bundle_dir)s/../ && zip -yr %(bundle_zip)s LilyPond.app
 ''', locals ())
+		self.file_sub (
+			[('2.7.26-1',
+			  '%(bundle_version)s-%(bundle_build)s')],
+			'%(darwin_bundle_dir)s/Contents/Info.plist',
+			env=locals ())
+		self.system ('cd %(darwin_bundle_dir)s/../ && zip -yr %(bundle_zip)s LilyPond.app',
+			     locals ())
 		
 	
 		
