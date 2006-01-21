@@ -114,7 +114,7 @@ if __name__ == '__main__':
 		print '''use: lilypondorg.py
 
 		nextbuild X.Y.Z
-		upload x.y.z b
+		upload x.y.z 
 
 		'''
 		
