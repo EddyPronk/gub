@@ -100,7 +100,6 @@ class Installer (context.Os_context_wrapper):
 			'share/gettext',
 			'usr/share/aclocal',
 			'share/lilypond/*/tex',
-			'share/lilypond/*/vim',
 			'share/lilypond/*/fonts/source',
 			'share/lilypond/*/fonts/svg',
 			'share/lilypond/*/fonts/tfm',
