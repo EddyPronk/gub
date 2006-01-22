@@ -162,8 +162,9 @@ cp -pR --link %(installer_root)s/usr/* %(darwin_bundle_dir)s/Contents/Resources/
 			env=locals ())
 		self.system ('cd %(darwin_bundle_dir)s/../ && zip -yr %(bundle_zip)s LilyPond.app',
 			     locals ())
+
 		
-	
+		self.log_command ("Created %(bundle_zip)s\n", locals()) 
 		
 		
 class Nsis (Installer):
