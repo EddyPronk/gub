@@ -11,7 +11,6 @@ import types
 
 sys.path.insert (0, 'specs/')
 
-import buildnumber
 import framework
 import gub
 import settings as settings_mod
@@ -19,7 +18,6 @@ import xpm
 
 def get_settings (platform):
 	settings = settings_mod.Settings (platform)
-	settings.build_number_db = buildnumber.Build_number_db (settings.topdir)
 
 	if platform not in settings_mod.platforms.keys ():
 		raise 'unknown platform', platform

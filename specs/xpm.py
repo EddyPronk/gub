@@ -8,7 +8,6 @@ import os
 import re
 import string
 #
-import buildnumber
 import framework
 import gub
 import fcntl
@@ -478,9 +477,6 @@ def get_manager (settings):
 
 	target_pkgs = framework.get_packages (settings)
 	map (target_manager.register_package, target_pkgs)
-
-	for p in target_manager._packages.values ():
-		settings.build_number_db.set_build_number (p)
 
 	cross_module.change_target_packages (target_manager._packages.values ())
 

@@ -236,12 +236,6 @@ def main ():
 		options.ROOT = ('target/%(target_architecture)s/system'
 				% settings.__dict__)
 
-	if 1:
-		#URG
-		import buildnumber
-		settings.build_number_db = buildnumber.Build_number_db (settings.topdir)
-		settings.framework_dir = 'FUBAR'
-
 
 	target_manager = xpm.get_manager (settings)
 	pm = target_manager

@@ -2,7 +2,6 @@
 import cvs
 import download
 import glob
-import buildnumber
 import misc
 
 
