@@ -43,8 +43,9 @@ class Nsis (Tool_package):
 		self.system ('cd %(builddir)s/ && make -C Source POSSIBLE_CROSS_PREFIXES=i686-mingw32- ', env)
 			     
 	def patch (self):
-		self.system ("mkdir -p %(builddir)s", ignore_error=True) 
-		self.shadow_tree ('%(srcdir)s','%(builddir)s')
+		## Can't use symlinks for files, since we get broken  symlinks in .gub
+		self.system ('mkdir -p %(allbuilddir)s', ignore_error=True)
+		self.system ('ln -s %(srcdir)s %(builddir)s') 
 		
 	def srcdir (self):
 		d = Tool_package.srcdir (self).replace ('_','-')
@@ -54,6 +55,8 @@ class Nsis (Tool_package):
 		pass
 	
 	def install (self):
+		## this is oddball, the installation ends up in system/usr/usr/
+		## but it works ...
 		self.system('''
 cd %(builddir)s && ./install.sh %(system_root)s/usr/ %(install_root)s 
 ''')
