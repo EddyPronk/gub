@@ -187,6 +187,10 @@ cd %(downloaddir)s/%(dir)s && cvs -q update -dAP -r %(version)s
 	def stamp_file (self):
 		return '%(statusdir)s/%(name)s-%(version)s-%(build)s'
 
+	@subst_method
+	def rsync_command (self):
+		return "rsync -v -a %(downloaddir)s/%(name)s-%(version)s/ %(srcdir)s"
+
 	def get_builds  (self):
 		return builds
 	
@@ -366,7 +370,7 @@ tar -C %(dir)s %(flags)s %(tarball)s
 	def untar (self):
 		if self.track_development:
 			## cp options are not standardized.
-			self.system ("rsync -v -a %(downloaddir)s/%(name)s-%(version)s/ %(srcdir)s")
+			self.system (self.rsync_command ())
 		else:
 			self.system ('''
 rm -rf %(srcdir)s %(builddir)s %(install_root)s
