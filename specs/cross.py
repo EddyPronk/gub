@@ -63,7 +63,7 @@ class Gcc (Cross_package):
 		old_libs = self.expand ('%(install_root)s/usr/cross/%(target_architecture)s')
 
 		if os.path.isdir (old_libs):
-			for f in self.read_pipe ('cd %(old_libs)s/ && find -type f ', locals ()).split():
+			for f in self.read_pipe ('cd %(old_libs)s/ && find -type f -or -type l', locals ()).split():
 				(dir, file) = os.path.split (f)
 				target = self.expand ('%(install_prefix)s/%(dir)s', locals())
 				if not os.path.isdir (target):
