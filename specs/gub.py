@@ -24,7 +24,7 @@ class Package (Os_context_wrapper):
 		self.settings = settings
 		self.url = ''
 		self._downloader = self.wget
-		self._build = 0
+		self._build = 1
 		self._dependencies = None
 		self._build_dependencies = None
 
