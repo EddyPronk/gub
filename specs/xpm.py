@@ -7,6 +7,7 @@ import gzip
 import os
 import re
 import string
+
 #
 import framework
 import gub
@@ -17,13 +18,6 @@ from misc import *
 
 # X package manager (x for want of better name)
 
-#
-# TODO:
-
-#
-# separate into interface and
-# implementation (loose all the _methods() )
-#
 class Package_manager:
 	def __init__ (self, root, os_interface):
 		self.root = root
@@ -203,6 +197,9 @@ class Package_manager:
 			raise "Unknown package", k
 
 class Dependency_manager (Package_manager):
+	
+	"Manage packages that have dependencies and build_dependencies."
+
 	def determine_dependencies (self, package):
 		if package.verbose:
 			self.os_interface.log_command ('resolving dependencies: %s\n'
