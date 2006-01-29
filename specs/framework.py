@@ -690,7 +690,7 @@ glib_cv_stack_grows=${glib_cv_stack_grows=no}
 		
 
 class Glib__darwin (Glib):
-	def patch (self):
+	def xpatch (self):
 		targetpackage.Target_package.patch(self)
 		self.file_sub ([('<malloc.h>', '<sys/malloc.h>')],
 			       '%(srcdir)s/glib/gslice.c')
@@ -701,7 +701,7 @@ class Glib__darwin (Glib):
 			       '%(builddir)s/libtool')
 
 class Glib__freebsd (Glib):
-	def patch (self):
+	def xpatch (self):
 		Glib.patch(self)
 		self.file_sub ([('<malloc.h>', '<stdlib.h>'),
 				
@@ -1287,9 +1287,9 @@ def get_packages (settings):
 				       depends=['darwin-sdk']),
 		Fontconfig__darwin (settings).with (version='2.3.2', mirror=download.fontconfig,
 						    depends=['expat', 'freetype']),
-		Glib__darwin (settings).with (version='2.9.1', mirror=download.gnome_213, format='bz2',
+		Glib__darwin (settings).with (version='2.9.3', mirror=download.gnome_213, format='bz2',
 					      depends=['darwin-sdk', 'gettext']),
-		Pango__darwin (settings).with (version='1.11.1', mirror=download.gnome_213, format='bz2',
+		Pango__darwin (settings).with (version='1.11.2', mirror=download.gnome_213, format='bz2',
 					       depends = ['glib', 'fontconfig', 'freetype']
 					       ),
 		Gmp__darwin (settings).with (version='4.1.4',depends=['darwin-sdk']),
@@ -1331,9 +1331,9 @@ def get_packages (settings):
 		# FIXME: we're actually using 1.7.2-cvs+, 1.7.2 needs too much work
 		Guile__mingw (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2',
 					      depends=['mingw-runtime', 'gettext', 'gmp', 'libtool', 'regex']),
-		Glib (settings).with (version='2.9.1', mirror=download.gnome_213, format='bz2',
+		Glib (settings).with (version='2.9.3', mirror=download.gnome_213, format='bz2',
 				      depends=['mingw-runtime', 'gettext', 'libiconv']),
-		Pango__mingw (settings).with (version='1.11.1', mirror=download.gnome_213, format='bz2',
+		Pango__mingw (settings).with (version='1.11.2', mirror=download.gnome_213, format='bz2',
 					      depends=['mingw-runtime', 'freetype', 'fontconfig', 'glib', 'libiconv']),
 		Python__mingw (settings).with (version='2.4.2', mirror=download.python, format='bz2',
 					       depends=['mingw-runtime']),
@@ -1365,9 +1365,9 @@ def get_packages (settings):
 		# FIXME: we're actually using 1.7.2-cvs+, 1.7.2 needs too much work
 		Guile__linux (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2',
 					      depends=['gettext', 'gmp', 'libtool']),
-		Glib (settings).with (version='2.9.1', mirror=download.gnome_213, format='bz2',
+		Glib (settings).with (version='2.9.3', mirror=download.gnome_213, format='bz2',
 				      depends=['libtool']),
-		Pango__linux (settings).with (version='1.11.1', mirror=download.gnome_213, format='bz2',
+		Pango__linux (settings).with (version='1.11.2', mirror=download.gnome_213, format='bz2',
 					      depends=['freetype', 'fontconfig', 'glib', 'libtool']),
 		Python (settings).with (version='2.4.2', mirror=download.python, format='bz2'),
 		Libjpeg__linux (settings).with (version='v6b', mirror=download.jpeg),
@@ -1385,7 +1385,7 @@ def get_packages (settings):
 					  depends=['gettext', 'libtool']),
 		Libgnugetopt (settings).with (version='1.3', format='bz2', mirror=download.freebsd_ports,
 					      depends=[]),
-		Glib__freebsd (settings).with (version='2.9.1', mirror=download.gnome_213, format='bz2',
+		Glib__freebsd (settings).with (version='2.9.3', mirror=download.gnome_213, format='bz2',
 				      depends=['libtool', 'libiconv']),
 		Gettext__freebsd (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2',
 						  depends=['libtool', 'libgnugetopt']),
