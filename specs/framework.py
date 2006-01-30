@@ -690,28 +690,12 @@ glib_cv_stack_grows=${glib_cv_stack_grows=no}
 		
 
 class Glib__darwin (Glib):
-	def xpatch (self):
-		targetpackage.Target_package.patch(self)
-		self.file_sub ([('<malloc.h>', '<sys/malloc.h>')],
-			       '%(srcdir)s/glib/gslice.c')
-		
 	def configure (self):
 		Glib.configure (self)
 		self.file_sub ([('nmedit', '%(target_architecture)s-nmedit')],
 			       '%(builddir)s/libtool')
 
-class Glib__freebsd (Glib):
-	def xpatch (self):
-		Glib.patch(self)
-		self.file_sub ([('<malloc.h>', '<stdlib.h>'),
-				
-				##ugh.
-				('#ifdef G_OS_WIN32',
-				 '#define _SC_PAGESIZE		47\n'
-				 + '#ifdef G_OS_WIN32\n'
-				 )
-				],
-			       '%(srcdir)s/glib/gslice.c')
+
 
 class Pango (targetpackage.Target_package):
 	def configure_command (self):
@@ -1385,7 +1369,7 @@ def get_packages (settings):
 					  depends=['gettext', 'libtool']),
 		Libgnugetopt (settings).with (version='1.3', format='bz2', mirror=download.freebsd_ports,
 					      depends=[]),
-		Glib__freebsd (settings).with (version='2.9.3', mirror=download.gnome_213, format='bz2',
+		Glib (settings).with (version='2.9.3', mirror=download.gnome_213, format='bz2',
 				      depends=['libtool', 'libiconv']),
 		Gettext__freebsd (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2',
 						  depends=['libtool', 'libgnugetopt']),
