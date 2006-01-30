@@ -159,7 +159,8 @@ cp -pR --link %(installer_root)s/usr/* %(darwin_bundle_dir)s/Contents/Resources/
 			[('2.7.26-1',
 			  '%(bundle_version)s-%(bundle_build)s')],
 			'%(darwin_bundle_dir)s/Contents/Info.plist',
-			env=locals ())
+			env=locals (),
+			must_succeed=True)
 		self.system ('cd %(darwin_bundle_dir)s/../ && zip -yr %(bundle_zip)s LilyPond.app',
 			     locals ())
 
