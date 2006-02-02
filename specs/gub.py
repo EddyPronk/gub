@@ -440,10 +440,19 @@ class Change_target_dict:
 		env.update (self._add_dict)
 		d = self._target_dict_method (env)
 		return d
-
-def change_target_dict (package, addict):
+	
+	def append_dict (self, env= {}):
+		d = self._target_dict_method ()
+		for (k,v) in self._add_dict.items ():
+			d[k] += v
+			
+		d.update (env)
+		d = recurse_substitutions (d)
+		return d 
+	
+def change_target_dict (package, add_dict):
 	"""Override the get_substitution_dict() method of PACKAGE."""
 	try:
-		package.get_substitution_dict = Change_target_dict (package, addict).target_dict
+		package.get_substitution_dict = Change_target_dict (package, add_dict).target_dict
 	except AttributeError:
 		pass
