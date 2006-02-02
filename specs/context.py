@@ -29,6 +29,21 @@ def typecheck_substitution_dict (d):
 		if type (v) != type(''):
 			raise 'type', (k, v)
 
+def recurse_substitutions (d):
+	for (k, v) in d.items ():
+		if type(v) != type(''):
+			del d[k]
+			continue
+
+		try:
+			while v.index ('%(') >= 0:
+				v = v % d
+		except ValueError:
+			pass
+		d[k] = v
+
+	return d
+
 class Context:
 	def __init__ (self, parent = None):
 		self._substitution_dict = None
@@ -49,17 +64,8 @@ class Context:
 		d.update (member_substs)
 
 #		typecheck_substitution_dict(d)
+		d =  recurse_substitutions (d)
 
-		for (k, v) in d.items ():
-			if type(v) != type(''):
-				del d[k]
-				continue
-			try:
-				while v.index ('%(') >= 0:
-					v = v % d
-			except ValueError:
-				pass
-			d[k] = v
 
 		return d
 
