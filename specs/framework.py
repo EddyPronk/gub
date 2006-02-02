@@ -395,9 +395,8 @@ cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/
 
         def gub_name (self):
 		nv = self.name_version ()
-		b = self.build ()
 		p = self.settings.platform
-		return '%(nv)s-%(b)s.%(p)s.gub' % locals ()
+		return '%(nv)s.%(p)s.gub' % locals ()
 
 	def autoupdate (self, autodir=0):
 		autodir = self.srcdir ()

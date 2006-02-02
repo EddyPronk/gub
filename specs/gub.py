@@ -24,7 +24,6 @@ class Package (Os_context_wrapper):
 		self.settings = settings
 		self.url = ''
 		self._downloader = self.wget
-		self._build = 1
 		self._dependencies = None
 		self._build_dependencies = None
 
@@ -113,10 +112,6 @@ cd %(downloaddir)s/%(dir)s && cvs -q update -dAP -r %(version)s
 ''', locals ())
 
 	@subst_method
-	def build (self):
-		return '%d' % self._build
-
-	@subst_method
 	def name (self):
 		file = self.__class__.__name__.lower ()
 		file = re.sub ('__.*', '', file)
@@ -141,7 +136,7 @@ cd %(downloaddir)s/%(dir)s && cvs -q update -dAP -r %(version)s
 	
 	@subst_method
 	def full_version (self):
-		return string.join ([self.version (), self.build ()], '-')
+		return self.version ()
 
 	@subst_method
 	def version (self):
@@ -181,26 +176,15 @@ cd %(downloaddir)s/%(dir)s && cvs -q update -dAP -r %(version)s
 
 	@subst_method
         def gub_name (self):
-		return '%(name)s-%(version)s-%(build)s.%(platform)s.gub'
+		return '%(name)s-%(version)s.%(platform)s.gub'
 
 	@subst_method
 	def stamp_file (self):
-		return '%(statusdir)s/%(name)s-%(version)s-%(build)s'
+		return '%(statusdir)s/%(name)s-%(version)s'
 
 	@subst_method
 	def rsync_command (self):
 		return "rsync -v -a %(downloaddir)s/%(name)s-%(version)s/ %(srcdir)s"
-
-	def get_builds  (self):
-		return builds
-	
-	def set_current_build (self):
-		bs = self.get_builds ()
-		bs.sort()
-		if bs:
-			self._build = bs[-1] + 1
-		else:
-			self._build = 1
 
 	def get_stamp_file (self):
 		stamp = self.expand ('%(stamp_file)s')
