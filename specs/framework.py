@@ -1058,6 +1058,9 @@ cp -pv %(builddir)s/lib/gs_init.ps %(srcdir)s/lib/gs_init.ps
 			(' -Wmissing-prototypes ', ' '),
 			(' -Wstrict-prototypes ', ' '),
 			(' -Wmissing-declarations ', ' '),
+
+			## ugh:  GS compile adds another layer of shell expansion. Yuck.
+			(r'\$\${ORIGIN}', '\\$${ORIGIN}'),
 			],
 			       '%(builddir)s/Makefile')
 
