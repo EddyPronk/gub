@@ -6,6 +6,7 @@ import download
 import framework
 import gub
 import misc
+import targetpackage
 
 class Binutils (cross.Binutils):
 	def configure_command (self):
@@ -36,6 +37,7 @@ def get_packages (settings):
 		Gcc (settings).with (version='3.4.5', mirror=download.gcc, format='bz2', depends=['binutils']),
 		)
 
+
 def change_target_packages (packages):
 	cross.change_target_packages (packages)
-	
+	cross.set_framework_ldpath ([p for p in packages if isinstance (p, targetpackage.Target_package)])

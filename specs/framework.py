@@ -1414,7 +1414,6 @@ def get_packages (settings):
 		if p.name () == 'lilypond':
 			p._downloader = p.cvs
 
-
 	try:
 		settings.python_version = [p for p in packs
 					   if isinstance (p, Python)][0].python_version ()

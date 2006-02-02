@@ -90,3 +90,8 @@ def change_target_packages (packages):
 	for p in other_packs + cross_packs:
 		p.name_build_dependencies += map (lambda x: x.name (),
 						  sdk_packs)
+
+def set_framework_ldpath (packages):
+	for c in packages:
+		change = gub.Change_target_dict (c, {'LDFLAGS': " -Wl,--rpath,'${ORIGIN}/../lib/'"})
+		c.get_substitution_dict = change.append_dict
