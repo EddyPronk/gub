@@ -323,7 +323,7 @@ class LilyPond (targetpackage.Target_package):
 
 	def rsync_command (self):
 		c = targetpackage.Target_package.rsync_command (self)
-		c = c.replace ('rsync', 'rsync --delete --exclude aclocal.m4 --exclude configure')
+		c = c.replace ('rsync', 'rsync --delete --exclude configure')
 		return c
 
 	def configure_command (self):
