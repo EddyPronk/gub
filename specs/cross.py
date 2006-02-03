@@ -93,5 +93,5 @@ def change_target_packages (packages):
 
 def set_framework_ldpath (packages):
 	for c in packages:
-		change = gub.Change_target_dict (c, {'LDFLAGS': r" -Wl,--rpath,'$${ORIGIN}/../lib/'"})
+		change = gub.Change_target_dict (c, {'LDFLAGS': r" -Wl,--rpath,'$${ORIGIN}/../lib/' "})
 		c.get_substitution_dict = change.append_dict

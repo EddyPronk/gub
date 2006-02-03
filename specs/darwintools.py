@@ -115,7 +115,7 @@ class Rewirer (context.Os_context_wrapper):
 
 	def get_ignore_libs (self):
 		str = self.read_pipe ('''
-tar tfz %(gub_uploads)s/darwin-sdk-%(darwin_sdk_version)s-1.darwin.gub
+tar tfz %(gub_uploads)s/darwin-sdk-%(darwin_sdk_version)s.darwin.gub
 ''')
 		d = {}
 		for l in str.split ('\n'):
