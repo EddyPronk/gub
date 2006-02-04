@@ -94,7 +94,7 @@ package-installer - build installer binary
 		      help="allow packaging of tainted compiles" )
 	return p
 
-def build_installers (settings, target_manager, args):
+def build_installer (settings, target_manager, args):
 	os.system ('rm -rf %s' %  settings.installer_root)
 	install_manager = xpm.Package_manager (settings.installer_root,
 					       settings.os_interface)
@@ -178,7 +178,7 @@ def main ():
 	elif c == 'build':
 		run_builder (settings, target_manager, commands)
 	elif c == 'build-installer':
-		build_installers (settings, target_manager, commands)
+		build_installer (settings, target_manager, commands)
 	elif c == 'package-installer':
 		package_installers (settings)
 	else:
