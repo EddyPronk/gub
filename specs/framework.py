@@ -44,6 +44,7 @@ class Python (targetpackage.Target_package):
 		targetpackage.Target_package.patch (self)
 		self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-1.patch')
 		self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-configure.in-posix.patch')
+		self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-configure.in-sysname.patch')
 
 	def python_version (self):
 		return '.'.join (self.ball_version.split ('.')[0:2])
@@ -53,14 +54,10 @@ class Python (targetpackage.Target_package):
 		dict['python_version'] = self.python_version ()
 		return dict
 
-	# FIXME: ugh cross compile + mingw patch; move to cross-Python?
 	def configure (self):
 		self.system ('''cd %(srcdir)s && autoconf''')
 		self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
 		targetpackage.Target_package.configure (self)
-
-#	def configure_command (self):
-#		return "MACHDEP=linux2 " + targetpackage.Target_package.configure_command (self)
 
 	def compile_command (self):
 		##
@@ -89,6 +86,7 @@ class Python__mingw (Python):
 cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-winsock2.patch
 ''')
 
+
 	def config_cache_overrides (self, str):
 		# Ok, I give up.  The python build system wins.  Once
 		# someone manages to get -lwsock32 on the
@@ -109,19 +107,6 @@ cp %(install_root)s/usr/lib/python%(python_version)s/lib-dynload/* %(install_roo
 		self.system ('''
 chmod 755 %(install_root)s/usr/bin/*
 ''')
-
-class Python__freebsd (Python):
-	# FIXME: ugh cross compile + mingw patch; move to cross-Python?
-	def patch (self):
-		self.system ('''
-cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-1.patch
-''')
-
-	# FIXME: ugh cross compile + mingw patch; move to cross-Python?
-	def configure (self):
-		self.system ('''cd %(srcdir)s && autoconf''')
-		self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
-		targetpackage.Target_package.configure (self)
 
 class Gmp (targetpackage.Target_package):
 	def configure (self):
@@ -1377,7 +1362,7 @@ def get_packages (settings):
 						  depends=['libtool', 'libgnugetopt']),
 		Guile__freebsd (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2',
 						depends=['gettext', 'gmp', 'libtool',]),
-		Python__freebsd (settings).with (version='2.4.2', mirror=download.python, format='bz2',
+		Python (settings).with (version='2.4.2', mirror=download.python, format='bz2',
 					       depends=[]),
 	],
 	'local': [],
