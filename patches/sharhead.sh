@@ -74,7 +74,6 @@ fi
 
 
 lilydir="${prefix}lilypond/"
-wrapscript="${prefix}bin/lilypond"
 
 for d in "$lilydir" "${prefix}/bin"; do
   if test ! -d  "$d"; then
@@ -83,17 +82,64 @@ for d in "$lilydir" "${prefix}/bin"; do
   fi
 done
 
+################
+## Wrappers
 
-echo Creating script $wrapscript
+binwrapscript="${prefix}bin/lilypond"
+wrapscript="${prefix}bin/lilypond-wrapper"
+
+echo Creating script $binwrapscript
 expandargs='"$@"'
+dollar='$'
+backquote='`'
+
+
 rm -f "$wrapscript" > /dev/null 2>&1
 cat<<EOF > "$wrapscript"
 #!/bin/sh
-export LD_LIBRARY_PATH="${prefix}lilypond/usr/lib"
-"$prefix/lilypond/usr/bin/lilypond" $expandargs
+me=${backquote}basename ${dollar}0${backquote}
+exec "$prefix/lilypond/usr/bin/${dollar}me" $expandargs
 EOF
 chmod +x "$wrapscript"
 
+for interp in python guile ; do
+  echo "Creating script $wrapscript.$interp"
+
+  if test "$interp" = "guile"; then
+    callmain="-e main"
+  else
+    callmain=""
+  fi
+  
+  rm -f "$wrapscript.$interp" > /dev/null 2>&1
+  cat<<EOF > "$wrapscript.$interp"
+#!/bin/sh
+export PYTHONPATH="${prefix}lilypond/usr/share/lilypond/current/python/:${dollar}PYTHONPATH"
+me=${backquote}basename ${dollar}0${backquote}
+exec "$prefix/lilypond/usr/bin/$interp" ${callmain} "${prefix}/lilypond/usr/bin/${dollar}me" $expandargs
+EOF
+  chmod +x "$wrapscript.$interp"
+done
+
+################
+## symlinks to wrappers
+
+(cd ${prefix}/bin/ ;
+ for a in abc2ly musicxml2ly convert-ly midi2ly etf2ly lilypond-book mup2ly ; do
+   rm -f $a;
+   ln -s $wrapscript.python $a;
+ done
+ for a in lilypond-invoke-editor ; do
+   rm -f $a;
+   ln -s $wrapscript.guile $a;
+ done
+ )
+
+## UGH
+##
+## need to do
+##
+##  lilypond-invoke-editor
 echo Untarring "$me"
 tail -c+%(header_length)012d "$0" | tar -C "$lilydir" -x%(tarflag)sf -
 
