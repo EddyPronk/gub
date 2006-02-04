@@ -78,6 +78,9 @@ mac: darwin
 mingw:
 	$(call BUILD,$@,lilypad lilypond)
 
+clean:
+	rm -rf $(foreach p, $(PLATFORMS), target/*$(p)* )
+
 realclean:
 	rm -rf $(foreach p, $(PLATFORMS), uploads/$(p)/*  target/*$(p)* )
 
