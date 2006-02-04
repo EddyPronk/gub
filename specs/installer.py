@@ -210,9 +210,7 @@ class Linux_installer (Installer):
 		self.bundle_tarball = '%(installer_uploads)s/%(name)s-%(bundle_version)s-%(bundle_build)s.%(platform)s.tar.bz2'
 
 	def strip_prefixes (self):
-		return (Installer.strip_prefixes (self)
-			#+ [self.expand ('usr/%(framework_dir)s/usr/')]
-			)
+		return Installer.strip_prefixes (self)
 
 class Tarball (Linux_installer):
 	def create (self):
