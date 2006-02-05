@@ -62,7 +62,11 @@ class Gcc (Cross_package):
 	def move_target_libs (self, libdir):
 		if not os.path.isdir (libdir):
 			return
-		for f in self.read_pipe ("cd %(libdir)s/ && find  -name 'lib*.la*'  -or -name '*.so*'", locals ()).split():
+
+		library_suffixes =['.la', '.so', '.dylib']
+		find_pred = ' -or '.join([" -name 'lib*%s*' " % s for s in library_suffixes])
+		
+		for f in self.read_pipe ("cd %(libdir)s/ && find %(find_pred)s", locals ()).split():
 			(dir, file) = os.path.split (f)
 			target = self.expand ('%(install_prefix)s/%(dir)s', locals())
 			if not os.path.isdir (target):
