@@ -64,7 +64,7 @@ class Gcc (Cross_package):
 			return
 
 		library_suffixes =['.la', '.so', '.dylib']
-		find_pred = ' -or '.join([" -name 'lib*%s*' " % s for s in library_suffixes])
+		find_pred = ' -or '.join([(" -name 'lib*%s*' " % s) for s in library_suffixes])
 		
 		for f in self.read_pipe ("cd %(libdir)s/ && find %(find_pred)s", locals ()).split():
 			(dir, file) = os.path.split (f)

@@ -18,7 +18,7 @@ import xpm
 
 def get_settings (platform):
 	settings = settings_mod.Settings (platform)
-
+	
 	if platform not in settings_mod.platforms.keys ():
 		raise 'unknown platform', platform
 		
@@ -39,7 +39,6 @@ def add_options (settings, options):
 	settings.lilypond_branch = options.lilypond_branch
 	settings.bundle_version = options.installer_version
 	settings.bundle_build = options.installer_build
-	settings.create_dirs ()
 
 def get_cli_parser ():
 	p = optparse.OptionParser ()

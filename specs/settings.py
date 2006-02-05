@@ -30,10 +30,6 @@ class Settings (Context):
 		self.logdir = self.topdir + '/log'
 		self.downloaddir = self.topdir + '/downloads'
 		self.patchdir = self.topdir + '/patches'
-		self.os_interface = Os_commands ('log/build-%s.log'
-						 % self.target_architecture)
-		self.build_architecture = self.os_interface.read_pipe ('gcc -dumpmachine',
-							 silent=True)[:-1]
 		self.specdir = self.topdir + '/specs'
 		self.nsisdir = self.topdir + '/nsis'
 		self.gtk_version = '2.8'
@@ -74,6 +70,16 @@ class Settings (Context):
 		self.keep_build = False
 		self.use_tools = False
 		self.build_autopackage = self.allbuilddir + '/autopackage'
+
+		self.create_dirs ()
+		if not os.path.isdir ('log'):
+			os.mkdir ('log')
+			
+		self.os_interface = Os_commands ('log/build-%s.log'
+						 % self.target_architecture)
+		self.build_architecture = self.os_interface.read_pipe ('gcc -dumpmachine',
+							 silent=True)[:-1]
+
 		
 	def verbose (self):
 		try:
