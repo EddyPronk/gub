@@ -71,12 +71,12 @@ class Settings (Context):
 		self.use_tools = False
 		self.build_autopackage = self.allbuilddir + '/autopackage'
 
-		self.create_dirs ()
 		if not os.path.isdir ('log'):
 			os.mkdir ('log')
 			
 		self.os_interface = Os_commands ('log/build-%s.log'
 						 % self.target_architecture)
+		self.create_dirs ()
 		self.build_architecture = self.os_interface.read_pipe ('gcc -dumpmachine',
 							 silent=True)[:-1]
 
