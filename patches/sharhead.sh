@@ -94,13 +94,13 @@ dollar='$'
 backquote='`'
 
 
-rm -f "$wrapscript" > /dev/null 2>&1
-cat<<EOF > "$wrapscript"
+rm -f "$binwrapscript" > /dev/null 2>&1
+cat<<EOF > "$binwrapscript"
 #!/bin/sh
 me=${backquote}basename ${dollar}0${backquote}
 exec "$prefix/lilypond/usr/bin/${dollar}me" $expandargs
 EOF
-chmod +x "$wrapscript"
+chmod +x "$binwrapscript"
 
 for interp in python guile ; do
   echo "Creating script $wrapscript.$interp"
