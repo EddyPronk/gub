@@ -1249,7 +1249,7 @@ def get_packages (settings):
 	packages = {
 	'darwin': (
 		Gettext (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2',
-					 depends=['darwin-sdk']
+					 depends=['darwin-sdk', 'libtool']
 					 ),
 		Freetype (settings).with (version='2.1.10', mirror=download.nongnu_savannah,
 					  format='bz2',
@@ -1279,6 +1279,7 @@ def get_packages (settings):
 						  depends=['pango', 'guile', 'gettext', 'ghostscript', 'fondu', 'osx-lilypad']
 						  ),
 		OSX_Lilypad (settings).with (version="0.0", mirror=download.hw, depends=[]),
+		Libtool (settings).with (version='1.5.20', depends=['darwin-sdk']),
 	),
 	'mingw': [
 		Regex (settings).with (version='2.3.90-1', mirror=download.lp, format='bz2',

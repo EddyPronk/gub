@@ -22,6 +22,8 @@ rm %(srcdir)s/usr/lib/charset.alias
 rm %(srcdir)s/usr/lib/libgcc*
 rm %(srcdir)s/usr/lib/libstdc\+\+*
 rm %(srcdir)s/usr/lib/libsupc\+\+*
+rm %(srcdir)s/usr/lib/libltdl*
+rm %(srcdir)s/usr/include/ltdl.h
 rm -rf %(srcdir)s/usr/lib/gcc
 rm -f $(find %(srcdir)s -name FlexLexer.h)
 ''')
