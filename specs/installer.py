@@ -274,6 +274,10 @@ class Autopackage (Linux_installer):
 
 def get_installers (settings):
 	installers = {
+		'arm' : [
+		Tarball (settings),
+		Shar (settings),
+		],
 		'darwin' : [Darwin_bundle (settings)],
 		'freebsd' : [
 		Tarball (settings),
