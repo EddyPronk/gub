@@ -1384,8 +1384,8 @@ def get_packages (settings):
 
 	packs = packages[settings.platform]
 	deps = {
-		'arm': ['libc6','libc6-dev', 'linux-kernel-headers']
-		'freebsd': ['freebsd-runtime']
+		'arm': ['libc6','libc6-dev', 'linux-kernel-headers'],
+		'freebsd': ['freebsd-runtime'],
 		}
 	
 	## UGH UGH  platform dependent.
