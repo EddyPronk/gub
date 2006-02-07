@@ -6,6 +6,7 @@ import gub
 from context import *
 
 platforms = {
+	'arm': 'arm-linux',
 	'cygwin': 'i686-cygwin',
 	'darwin': 'powerpc-apple-darwin7',
 	'debian': 'i686-linux',

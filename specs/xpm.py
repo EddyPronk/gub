@@ -443,7 +443,12 @@ class Debian_package_manager (Dependency_manager):
 
 def get_manager (settings):
 	cross_module = None
-	if settings.platform == 'cygwin':
+	if 0:
+		pass
+	elif settings.platform == 'arm':
+		import arm
+		cross_module = arm
+	elif settings.platform == 'cygwin':
 		import cygwin
 		cross_module = cygwin
 	elif settings.platform == 'darwin':

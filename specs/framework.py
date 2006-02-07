@@ -1377,14 +1377,21 @@ def get_packages (settings):
 						  depends=['python'],
 						  builddeps=['gcc', 'gettext-devel', 'guile-devel', 'pango-devel'],
 						  track_development=True),
-		]
+		],
+	'arm': [
+		],
 	}
 
 	packs = packages[settings.platform]
-
+	deps = {
+		'arm': ['libc6','libc6-dev', 'linux-kernel-headers']
+		'freebsd': ['freebsd-runtime']
+		}
+	
 	## UGH UGH  platform dependent.
 	# FreeBSD almost uses linux packages...
-	if settings.platform.startswith ('freebsd'):
+	if (settings.platform.startswith ('freebsd')
+	    or settings.platform.startswith('arm')):
 		linux_packs = packages['linux']
 
 		have_already = [p.name() for p in packs]
@@ -1394,8 +1401,9 @@ def get_packages (settings):
 				continue
 			
                         if not i.name () in ('binutils', 'gcc'):
-				i.name_dependencies += ['freebsd-runtime']
-			if i.name () in ('ghostscript', 'glib', 'pango'):
+				i.name_dependencies += deps[settings.platform]
+			if (settings.platform.startswith('freebsd')
+			    and i.name () in ('ghostscript', 'glib', 'pango')):
 				i.name_dependencies += ['libiconv']
 			packs += [i]
 
@@ -1407,7 +1415,11 @@ def get_packages (settings):
 		settings.python_version = [p for p in packs
 					   if isinstance (p, Python)][0].python_version ()
 	except IndexError:
-		if settings.platform == 'cygwin':
+		if 0:
+			pass
+		elif settings.platform == 'arm':
+			settings.python_version = '2.4'
+		elif settings.platform == 'cygwin':
 			settings.python_version = '2.4'
 		elif settings.platform == 'darwin':
 			settings.python_version = '2.3'

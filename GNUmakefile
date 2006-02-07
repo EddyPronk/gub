@@ -60,6 +60,9 @@ download:
 
 all: linux freebsd mac mingw
 
+arm:
+	$(call BUILD,$@,lilypond)
+
 cygwin:
 	$(call BUILD,$@,lilypond)
 
