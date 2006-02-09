@@ -57,6 +57,7 @@ download:
 	$(foreach p, $(PLATFORMS), (mv uploads/$(p)/lilypond-$(LILYPOND_BRANCH).$(p).gub uploads/$(p)/lilypond-$(LILYPOND_BRANCH)-OLD.$(p).gub || true) &&) true
 	$(foreach p, $(PLATFORMS), $(call INVOKE_XPM,$(p)) remove lilypond ; ) true
 	rm -f target/*/status/lilypond*
+	rm -f log/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).$(p).*.test.pdf
 
 all: linux freebsd mac mingw
 
