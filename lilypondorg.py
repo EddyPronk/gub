@@ -11,18 +11,26 @@ import sys
 platforms = ['linux-x86',
 	     'darwin-ppc',
 	     'freebsd-x86',
+	     'linux-arm',
 	     'mingw']
 
-alias = {
-	'linux-x86': 'linux',
-	'darwin-ppc': 'darwin',
-	'freebsd-x86': 'freebsd',
-	'mingw':'mingw'}
+def get_alias (p):
+	try:
+		return {
+			'linux-x86': 'linux',
+			'darwin-ppc': 'darwin',
+			'linux-arm': 'arm',
+			'freebsd-x86': 'freebsd',
+			}[p]
+	except KeyError:
+		return p
+
 formats = {
 	'linux-x86': 'sh',
 	'darwin-ppc': 'zip',
 	'freebsd-x86': 'sh',
-	'mingw':'exe'
+	'mingw':'exe',
+	'linux-arm': 'sh',
 	}
 
 def system (c):
@@ -101,7 +109,7 @@ def upload_binaries (version):
 	src_dests= []
 	barf = 0
 	for platform in platforms:
-		plat = alias[platform]
+		plat = get_alias (platform)
 		format = formats[platform]
 		host = 'lilypond.org'
 		version_str = '.'.join (['%d' % v for v in version])
