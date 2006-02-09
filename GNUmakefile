@@ -105,6 +105,10 @@ test:
 	rm -rf $(foreach p,$(TEST_PLATFORMS), uploads/$(p)/*  target/*$(p)* )
 	$(RUN_TEST) $(foreach p, $(TEST_PLATFORMS), "make $(p) from=$(BUILD_PLATFORM)")
 
+release-test:
+	$(foreach p,$(PLATFORMS), test-gub-build.py uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).$(p)*{sh,zip,exe} && ) true
+
+
 #FIXME: how to get libc+kernel headers package contents on freebsd?
 # * remove zlib.h, zconf.h or include libz and remove Zlib from src packages?
 # * remove gmp.h, or include libgmp and remove Gmp from src packages?
