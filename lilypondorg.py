@@ -121,7 +121,9 @@ def upload_binaries (version):
 		if not os.path.exists (bin):
 			print 'binary does not exist', bin
 			barf = 1
-			
+		elif not os.path.exists ('log/%s.test' % os.path.split (bin)[0]):
+			print 'test result does not exist' 
+		
 		src_dests.append((bin, '%(host)s:%(host_dir)s/%(platform)s' % locals()))
 
 	if barf:
