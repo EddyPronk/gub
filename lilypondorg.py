@@ -115,15 +115,16 @@ def upload_binaries (version):
 		version_str = '.'.join (['%d' % v for v in version])
 		
 		host_dir  = '/var/www/lilypond/download/binaries'
-		
-		bin = 'uploads/lilypond-%(version_str)s-%(build)d.%(plat)s.%(format)s' % locals()
+		base = 'lilypond-%(version_str)s-%(build)d.%(plat)s.%(format)s' % locals()
+		bin = 'uploads/%(base)s' % locals()
 		
 		if not os.path.exists (bin):
 			print 'binary does not exist', bin
 			barf = 1
-		elif not os.path.exists ('log/%s.test' % os.path.split (bin)[0]):
-			print 'test result does not exist' 
-		
+		elif not os.path.exists ('log/%s.test.pdf' % base):
+			print 'test result does not exist for %s' % base
+			barf = 1
+			
 		src_dests.append((bin, '%(host)s:%(host_dir)s/%(platform)s' % locals()))
 
 	if barf:
