@@ -75,8 +75,14 @@ fi
 
 
 lilydir="${prefix}lilypond/"
+bindir="${prefix}bin/"
+binwrapscript="${bindir}lilypond"
+wrapscript="${bindir}lilypond-wrapper"
+expandargs='"$@"'
+dollar='$'
+backquote='`'
 
-for d in "$lilydir" "${prefix}/bin"; do
+for d in "${lilydir}" "${bindir}"; do
   if test ! -d  "$d"; then
     echo Making "$d" 
     mkdir -p "$d"
@@ -86,13 +92,8 @@ done
 ################
 ## Wrappers
 
-binwrapscript="${prefix}bin/lilypond"
-wrapscript="${prefix}bin/lilypond-wrapper"
 
 echo Creating script $binwrapscript
-expandargs='"$@"'
-dollar='$'
-backquote='`'
 
 
 ## LD_LIBRARY_PATH is necessary for ao. FreeBSD.
@@ -100,7 +101,7 @@ rm -f "$binwrapscript" > /dev/null 2>&1
 cat<<EOF > "$binwrapscript"
 #!/bin/sh
 me=${backquote}basename ${dollar}0${backquote}
-export LD_LIBRARY_PATH="$prefix/usr/lib/"
+export LD_LIBRARY_PATH="${lilydir}usr/lib/"
 exec "$prefix/lilypond/usr/bin/${dollar}me" $expandargs
 EOF
 chmod +x "$binwrapscript"
@@ -119,7 +120,7 @@ for interp in python guile ; do
 #!/bin/sh
 export PYTHONPATH="${prefix}lilypond/usr/share/lilypond/current/python/:${dollar}PYTHONPATH"
 me=${backquote}basename ${dollar}0${backquote}
-exec "$prefix/lilypond/usr/bin/$interp" ${callmain} "${prefix}/lilypond/usr/bin/${dollar}me" $expandargs
+exec "${lilydir}usr/bin/$interp" ${callmain} "${lilydir}usr/bin/${dollar}me" $expandargs
 EOF
   chmod +x "$wrapscript.$interp"
 done
