@@ -29,11 +29,12 @@ EOF
     ;;
   --prefix)
     shift
-    prefix="$1/"
+    prefix="$1"
     if test "$prefix" = "" ; then
       echo 'Option --prefix requires argument.'
       exit 1
     fi
+    prefix=`cd $1 ; pwd`"/"
     ;;
   --batch)
     interactive=no 
@@ -94,10 +95,12 @@ dollar='$'
 backquote='`'
 
 
+## LD_LIBRARY_PATH is necessary for ao. FreeBSD.
 rm -f "$binwrapscript" > /dev/null 2>&1
 cat<<EOF > "$binwrapscript"
 #!/bin/sh
 me=${backquote}basename ${dollar}0${backquote}
+export LD_LIBRARY_PATH="$prefix/usr/lib/"
 exec "$prefix/lilypond/usr/bin/${dollar}me" $expandargs
 EOF
 chmod +x "$binwrapscript"
