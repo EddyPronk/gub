@@ -184,7 +184,7 @@ cd %(downloaddir)s/%(dir)s && cvs -q update -dAP -r %(version)s
 
 	@subst_method
 	def rsync_command (self):
-		return "rsync -v -a %(downloaddir)s/%(name)s-%(version)s/ %(srcdir)s"
+		return "rsync --exclude CVS -v -a %(downloaddir)s/%(name)s-%(version)s/ %(srcdir)s"
 
 	def get_stamp_file (self):
 		stamp = self.expand ('%(stamp_file)s')
