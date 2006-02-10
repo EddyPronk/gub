@@ -969,16 +969,17 @@ class Ghostscript (targetpackage.Target_package):
 		return '.'.join (self.ball_version.split ('.')[0:2])
 
 	def patch (self):
-		self.system ("cd %(srcdir)s && patch -p2 < %(patchdir)s/gs-ttf.patch")
-		self.file_sub ([(r'mkdir -p \$\(bindir\)', 'mkdir -p $(DESTDIR)$(bindir)'),
-				(r'mkdir -p \$\(datadir\)', 'mkdir -p $(DESTDIR)$(datadir)'),
-				(r'mkdir -p \$\(scriptdir\)', 'mkdir -p $(DESTDIR)$(scriptdir)'),
-				(r'\$\(INSTALL_PROGRAM\) \$\(GS_XE\) \$\(bindir\)/\$\(GS\)',
-				 r'$(INSTALL_PROGRAM) $(GS_XE) $(DESTDIR)$(bindir)/$(GS)'),
-				(r'(\$\(INSTALL_PROGRAM\).*) \$\(scriptdir\)',
-				 r'\1  $(DESTDIR)$(scriptdir)'),
+		self.file_sub ([(r'\$\(bindir\)', '$(DESTDIR)$(bindir)'),
+				
+				(r'\$\(datadir\)', '$(DESTDIR)$(datadir)'),
+				(r'\$\(gsdir\)', '$(DESTDIR)$(gsdir)'),
+				(r'\$\(gsdatadir\)', '$(DESTDIR)$(gsdatadir)'),
+				(r'\$\(scriptdir\)', '$(DESTDIR)$(scriptdir)'),
+				(r'\$\(docdir\)', '$(DESTDIR)$(docdir)'),
+				(r'\$\(exdir\)', '$(DESTDIR)$(exdir)'),
 				],
 			       '%(srcdir)s/src/unixinst.mak')
+		self.system ("cd %(srcdir)s && patch -p2 < %(patchdir)s/gs-ttf.patch")
 
 	def fixup_arch (self):
 		substs = []
@@ -1014,9 +1015,7 @@ cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS
 		self.fixup_arch ()
 		targetpackage.Target_package.compile (self)
 		# URG
-		self.system ('''
-cp -pv %(builddir)s/lib/gs_init.ps %(srcdir)s/lib/gs_init.ps
-''')
+#		self.system ('''cp -pv %(builddir)s/lib/gs_init.ps %(srcdir)s/lib/gs_init.ps''')
 
 	def configure_command (self):
 		return (targetpackage.Target_package.configure_command (self)
@@ -1273,8 +1272,9 @@ def get_packages (settings):
 					       ),
 		Libjpeg__darwin (settings).with (version='v6b', mirror=download.jpeg),
 		Libpng (settings).with (version='1.2.8', mirror=download.libpng),
-		Ghostscript (settings).with (version="8.15.1", mirror=download.cups,
-						     format='bz2', depends=['libjpeg', 'libpng']),
+		Ghostscript (settings).with (version="8.50",
+					     mirror='http://ghostscript.com/~giles/ghostscript-8.50-gpl.tar.bz2',
+					     format='bz2', depends=['libjpeg', 'libpng']),
 		LilyPond__darwin (settings).with (version=settings.lilypond_branch, mirror=cvs.gnu, track_development=True,
 						  depends=['pango', 'guile', 'gettext', 'ghostscript', 'fondu', 'osx-lilypad']
 						  ),
@@ -1313,7 +1313,8 @@ def get_packages (settings):
 						depends=['mingw-runtime']),
 		Libpng__mingw (settings).with (version='1.2.8', mirror=download.libpng,
 					       depends=['mingw-runtime', 'zlib']),
-		Ghostscript__mingw (settings).with (version="8.15.1", mirror=download.cups, format='bz2',
+		Ghostscript__mingw (settings).with (version="8.50",
+						    mirror='http://ghostscript.com/~giles/ghostscript-8.50-gpl.tar.bz2',
 						    depends=['mingw-runtime', 'libiconv', 'libjpeg',
 							     'libpng','zlib']),
 		LilyPond__mingw (settings).with (version=settings.lilypond_branch, mirror=cvs.gnu,
@@ -1345,7 +1346,8 @@ def get_packages (settings):
 		Libjpeg__linux (settings).with (version='v6b', mirror=download.jpeg),
 		Libpng (settings).with (version='1.2.8', mirror=download.libpng,
 					depends=['zlib']),
-		Ghostscript (settings).with (version="8.15.1", mirror=download.cups, format='bz2',
+		Ghostscript (settings).with (version="8.50",
+					     mirror='http://ghostscript.com/~giles/ghostscript-8.50-gpl.tar.bz2',
 					     depends=['libjpeg', 'libpng', 'zlib']),
 		LilyPond__linux (settings).with (version=settings.lilypond_branch, mirror=cvs.gnu,
 						 depends=['fontconfig', 'gettext', 'guile',
