@@ -322,6 +322,7 @@ class LilyPond (targetpackage.Target_package):
 			+ misc.join_lines ('''
 --enable-relocation
 --disable-documentation
+--enable-static-gxx
 --with-python-include=%(system_root)s/usr/include/python%(python_version)s
 '''))
 
