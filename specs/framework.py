@@ -368,6 +368,7 @@ cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/
 			# ugh, lilypond-2.6 has broken srcdir build system
 			# and gub is leaking all kind of vars.
 			s = 'unset builddir srcdir topdir;' + s
+
 		return s
 		
         def name_version (self):
@@ -466,122 +467,8 @@ find %(install_root)s -name "*.ly"
 class LilyPond__cygwin (LilyPond__mingw):
 	pass
 
-class LilyPond__linux (LilyPond):
-	def configure_command (self):
-		return LilyPond.configure_command (self) + misc.join_lines ('''
---enable-static-gxx
-''')
-#--with-framework-dir=../%(framework_dir)s/usr
 
-	def install (self):
-		LilyPond.install (self)
-		# handle framework dir in relocate.cc?
-		# self.wrap_framework_program ('lilypond')
-		for i in (
-			'abc2ly',
-			'convert-ly',
-			'etf2ly',
-			'lilypond-book',
-			'lilypond-invoke-editor',
-			'midi2ly',
-			'mup2ly',
-			'musicxml2ly'
-			):
-			self.wrap_interpreter (i, 'python')
-		self.wrap_interpreter (i, 'guile')
-
-	def wrap_framework_program (self, name):
-		return
-	
-		wrapper = name
-		program = '.%(name)s-wrapped' % locals ()
-		self.system ('''
-cd %(install_root)s/usr/bin && mv %(wrapper)s %(program)s
-''',
-			     locals ())
-		self.dump ('''#! /bin/sh
-# Not using Python/Guile, as those also need a relocation wrapper
-FRAMEWORK_DIR="${FRAMEWORK_DIR-/%(framework_dir)s}"
-if [ ! -d "$FRAMEWORK_DIR" ]; then
-    if expr "$0" : '/' > /dev/null 2>&1; then
-        bindir=$(cd $(dirname $0); pwd)
-    elif [ "$(basename $0)" != "$0" ]; then
-        bindir=$PWD/$(dirname $0)
-    else
-        (IFS=:; for d in $PATH; do
-	    if [ -x $d/%(program)s ]; then
-	        bindir=$d
-	        break
-	    fi
-	done)
-	bindir=/usr/bin
-    fi
-    prefix=$(dirname $bindir)
-    FRAMEWORK_DIR="$prefix/%(framework_dir)s"
-fi
-FONTCONFIG_FILE=$FRAMEWORK_DIR/usr/etc/fonts/fonts.conf \\
-GUILE_LOAD_PATH=$FRAMEWORK_DIR/usr/share/guile/%(guile_version)s:$GUILE_LOAD_PATH \\
-GS_FONTPATH=$FRAMEWORK_DIR/usr/share/ghostscript/%(ghostscript_version)s/fonts:$GS_FONTPATH \\
-GS_LIB=$FRAMEWORK_DIR/usr/share/ghostscript/%(ghostscript_version)s/lib:$GS_LIB \\
-USING_RPATH_LD_LIBRARY_PATH=$FRAMEWORK_DIR/usr/lib:$LD_LIBRARY_PATH \\
-LD_LIBRARY_PATH= \\
-LILYPONDPREFIX=$prefix/share/lilypond/%(version)s/ \\
-PANGO_PREFIX=${PANGO_PREFIX-$FRAMEWORK_DIR/usr} \\
-PANGO_RC_FILE=${PANGO_RC_FILE-$FRAMEWORK_DIR/usr/etc/pango/pangorc} \\
-PANGO_SO_EXTENSION=.so \\
-PATH=$FRAMEWORK_DIR/usr/bin:$PATH \\
-PYTHONPATH=$FRAMEWORK_DIR/../python:$PYTHONPATH \\
-PYTHONPATH=$FRAMEWORK_DIR/usr/lib/python%(python_version)s:$PYTHONPATH \\
-$prefix/bin/%(program)s "$@"
-'''
-,
-		'%(install_root)s/usr/bin/%(name)s',
-		env=locals ())
-		os.chmod (self.expand ('%(install_root)s/usr/bin/%(name)s',
-				       locals ()), 0755)
-
-	def wrap_interpreter (self, name, interpreter):
-		return
-	
-		wrapper = name
-		program = '.%(name)s-wrapped' % locals ()
-		self.system ('''
-cd %(install_root)s/usr/bin && mv %(wrapper)s %(program)s
-''',
-			     locals ())
-		self.dump ('''#! /bin/sh
-FRAMEWORK_DIR="${FRAMEWORK_DIR-/%(framework_dir)s}"
-if [ ! -d "$FRAMEWORK_DIR" ]; then
-    if expr "$0" : '/' > /dev/null 2>&1; then
-        bindir=$(cd $(dirname $0); pwd)
-    elif [ "$(basename $0)" != "$0" ]; then
-        bindir=$PWD/$(dirname $0)
-    else
-        (IFS=:; for d in $PATH; do
-	    if [ -x $d/%(program)s ]; then
-	        bindir=$d
-	        break
-	    fi
-	done)
-	bindir=/usr/bin
-    fi
-    prefix=$(dirname $bindir)
-    FRAMEWORK_DIR="$prefix/%(framework_dir)s"
-fi
-GUILE_LOAD_PATH=$FRAMEWORK_DIR/usr/share/guile/%(guile_version)s:$GUILE_LOAD_PATH \\
-LD_LIBRARY_PATH=$FRAMEWORK_DIR/usr/lib:$LD_LIBRARY_PATH \\
-LILYPONDPREFIX=$prefix/share/lilypond/%(bundle_version)s/ \\
-PATH=$FRAMEWORK_DIR/usr/bin:$PATH \\
-PYTHONPATH=$FRAMEWORK_DIR/../python:$PYTHONPATH \\
-PYTHONPATH=$FRAMEWORK_DIR/usr/lib/python%(python_version)s:$PYTHONPATH \\
-%(interpreter)s $bindir/%(program)s "$@"
-'''
-,
-		'%(install_root)s/usr/bin/%(name)s',
-		env=locals ())
-		os.chmod (self.expand ('%(install_root)s/usr/bin/%(name)s',
-				       locals ()), 0755)
-
+		
 class LilyPond__darwin (LilyPond):
 	def __init__ (self, settings):
 		LilyPond.__init__ (self, settings)
@@ -1360,7 +1247,7 @@ def get_packages (settings):
 		Ghostscript (settings).with (version="8.50",
 					     mirror='ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs850/ghostscript-8.50-gpl.tar.bz2',
 					     depends=['libjpeg', 'libpng', 'zlib']),
-		LilyPond__linux (settings).with (version=settings.lilypond_branch, mirror=cvs.gnu,
+		LilyPond (settings).with (version=settings.lilypond_branch, mirror=cvs.gnu,
 						 depends=['fontconfig', 'gettext', 'guile',
 							  'ghostscript', 'pango', 'python'],
 						 track_development=True),
@@ -1381,7 +1268,7 @@ def get_packages (settings):
 	],
 	'local': [],
 	'debian': [
-		LilyPond__linux (settings).with (version=settings.lilypond_branch, mirror=cvs.gnu,
+		LilyPond (settings).with (version=settings.lilypond_branch, mirror=cvs.gnu,
 						 builddeps=['libfontconfig1-dev', 'guile-1.6-dev', 'libpango1.0-dev', 'python-dev'],
 						 track_development=True),
 		],
