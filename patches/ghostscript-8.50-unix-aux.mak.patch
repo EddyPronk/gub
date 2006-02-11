@@ -1,0 +1,11 @@
+--- ./src/unix-aux.mak~	2006-02-11 14:13:24.000000000 +0100
++++ ./src/unix-aux.mak	2006-02-11 14:20:34.000000000 +0100
+@@ -30,7 +30,7 @@
+ 
+ # Unix platforms other than System V, and also System V Release 4
+ # (SVR4) platforms.
+-unix__=$(GLOBJ)gp_getnv.$(OBJ) $(GLOBJ)gp_unix.$(OBJ) $(GLOBJ)gp_unifs.$(OBJ) $(GLOBJ)gp_unifn.$(OBJ) $(GLOBJ)gp_stdia.$(OBJ) $(GLOBJ)gp_unix_cache.$(OBJ)
++unix__= $(GLOBJ)gp_mswin.$(OBJ) $(GLOBJ)gp_wgetv.$(OBJ) $(GLOBJ)gp_stdia.$(OBJ) $(GLOBJ)gsdll.$(OBJ) $(GLOBJ)gp_ntfs.$(OBJ) $(GLOBJ)gp_win32.$(OBJ) 
+ $(GLGEN)unix_.dev: $(unix__) $(GLD)nosync.dev
+ 	$(SETMOD) $(GLGEN)unix_ $(unix__) -include $(GLD)nosync
+ 

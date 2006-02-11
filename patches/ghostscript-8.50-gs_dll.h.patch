@@ -1,0 +1,13 @@
+--- ./src/gs_dll_call.h~	2004-08-04 21:36:13.000000000 +0200
++++ ./src/gs_dll_call.h	2006-02-11 14:37:07.000000000 +0100
+@@ -17,8 +17,10 @@
+ 
+ 
+ #ifdef __WINDOWS__
++#ifndef _Windows
+ # define _Windows
+ #endif
++#endif
+ 
+ #ifdef _Windows
+ # ifndef GSDLLEXPORT
