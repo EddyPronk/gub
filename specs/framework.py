@@ -139,10 +139,10 @@ class Gmp__mingw (Gmp):
 cd %(srcdir)s && patch -p1 < %(patchdir)s/gmp-4.1.4-1.patch
 ''')
 
-	def xconfigure (self):
-		targetpackage.Target_package.configure (self)
-		self.file_sub ([('#! /bin/sh', '#! /bin/sh\ntagname=CXX')],
-			       '%(builddir)s/libtool')
+	def configure (self):
+		Gmp.configure (self)
+		# Configure (compile) without -mwindows for console
+		self.target_gcc_flags = '-mms-bitfields'
 
 	def install (self):
 		Gmp.install (self)
@@ -195,6 +195,7 @@ exit 0
 class Guile__mingw (Guile):
 	def __init__ (self, settings):
 		Guile.__init__ (self, settings)
+		# Configure (compile) without -mwindows for console
 		self.target_gcc_flags = '-mms-bitfields'
 
 	def xpatch (self):
@@ -1056,6 +1057,7 @@ cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS
 class Ghostscript__mingw (Ghostscript):
 	def __init__ (self, settings):
 		Ghostscript.__init__ (self, settings)
+		# Configure (compile) without -mwindows for console
 		# FIXME: should add to CPPFLAGS...
 		self.target_gcc_flags = '-mms-bitfields -D_Windows -D__WINDOWS__'
 
