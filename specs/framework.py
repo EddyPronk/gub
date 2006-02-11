@@ -134,6 +134,12 @@ class Gmp__darwin (Gmp):
 		Gmp.patch (self)
 
 class Gmp__mingw (Gmp):
+	def __init__ (self,settings):
+		Gmp.__init__ (self, settings)
+		
+		# Configure (compile) without -mwindows for console
+		self.target_gcc_flags = '-mms-bitfields'
+		
 	def patch (self):
 		self.system ('''
 cd %(srcdir)s && patch -p1 < %(patchdir)s/gmp-4.1.4-1.patch
@@ -141,8 +147,6 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/gmp-4.1.4-1.patch
 
 	def configure (self):
 		Gmp.configure (self)
-		# Configure (compile) without -mwindows for console
-		self.target_gcc_flags = '-mms-bitfields'
 
 	def install (self):
 		Gmp.install (self)
@@ -1448,3 +1452,4 @@ def get_packages (settings):
 		elif settings.platform == 'debian':
 			settings.ghostscript_version = '8.15'
 	return packs
+
