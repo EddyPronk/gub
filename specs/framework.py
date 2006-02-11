@@ -340,6 +340,9 @@ cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/
 ''', locals ())
 		targetpackage.Target_package.configure (self)
 
+		self.file_sub ([('DEFINES = ', r'DEFINES = -DGHOSTSCRIPT_VERSION=\"%(ghostscript_version)s\" ')],
+			       '%(builddir)s/config.make')
+		
 	# FIXME: shared for all CVS packages
 	def srcdir (self):
 		return '%(allsrcdir)s/%(name)s-%(version)s'
