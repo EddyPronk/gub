@@ -980,7 +980,7 @@ class Ghostscript (targetpackage.Target_package):
 				(r'\$\(exdir\)', '$(DESTDIR)$(exdir)'),
 				],
 			       '%(srcdir)s/src/unixinst.mak')
-		self.system ("cd %(srcdir)s && patch -p2 < %(patchdir)s/gs-ttf.patch")
+#		self.system ("cd %(srcdir)s && patch -p2 < %(patchdir)s/gs-ttf.patch")
 
 	def fixup_arch (self):
 		substs = []
@@ -1008,6 +1008,9 @@ class Ghostscript (targetpackage.Target_package):
 		
 		self.file_sub (substs, '%(builddir)s/obj/arch.h')
 
+	def compile_command (self):
+		return targetpackage.Target_package.compile_command (self) + " INCLUDE=%(system_root)s/usr/include/"
+		
 	def compile (self):
 		self.system ('''
 cd %(builddir)s && (mkdir obj || true)
@@ -1059,13 +1062,15 @@ class Ghostscript__mingw (Ghostscript):
 		Ghostscript.__init__ (self, settings)
 		# Configure (compile) without -mwindows for console
 		# FIXME: should add to CPPFLAGS...
-		self.target_gcc_flags = '-mms-bitfields -D_Windows -D__WINDOWS__'
+		self.target_gcc_flags = '-mms-bitfields -D__WINDOWS__'
 
 	def patch (self):
 		Ghostscript.patch (self)
-		self.system ("cd %(srcdir)s/ && patch -p0 < %(patchdir)s/espgs-8.15-mingw-bluntaxe")
-		self.system ("cd %(srcdir)s/ && patch -p1 < %(patchdir)s/ghostscript-8.15-cygwin.patch")
-		self.system ("cd %(srcdir)s/ && patch -p1 < %(patchdir)s/ghostscript-8.15-make.patch")
+#		self.system ("cd %(srcdir)s/ && patch -p0 < %(patchdir)s/espgs-8.15-mingw-bluntaxe")
+		self.system ("cd %(srcdir)s/ && patch --force -p1 < %(patchdir)s/ghostscript-8.15-cygwin.patch")
+		self.system ("cd %(srcdir)s/ && patch --force -p1 < %(patchdir)s/ghostscript-8.50-make.patch")
+		self.system ("cd %(srcdir)s/ && patch --force -p1 < %(patchdir)s/ghostscript-8.50-unix-aux.mak.patch")
+		self.system ("cd %(srcdir)s/ && patch --force -p1 < %(patchdir)s/ghostscript-8.50-gs_dll.h.patch")
 
 	def configure (self):
 		Ghostscript.configure (self)
@@ -1120,7 +1125,6 @@ fc-cache %(install_root)s/%(gs_prefix)s/fonts
 ''', locals ())
 
 class Libjpeg (targetpackage.Target_package):
-
 	def name (self):
 		return 'libjpeg'
 
@@ -1275,7 +1279,7 @@ def get_packages (settings):
 		Libjpeg__darwin (settings).with (version='v6b', mirror=download.jpeg),
 		Libpng (settings).with (version='1.2.8', mirror=download.libpng),
 		Ghostscript (settings).with (version="8.50",
-					     mirror='http://ghostscript.com/~giles/ghostscript-8.50-gpl.tar.bz2',
+					     mirror='ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs850/ghostscript-8.50-gpl.tar.bz2',
 					     format='bz2', depends=['libjpeg', 'libpng']),
 		LilyPond__darwin (settings).with (version=settings.lilypond_branch, mirror=cvs.gnu, track_development=True,
 						  depends=['pango', 'guile', 'gettext', 'ghostscript', 'fondu', 'osx-lilypad']
@@ -1316,7 +1320,7 @@ def get_packages (settings):
 		Libpng__mingw (settings).with (version='1.2.8', mirror=download.libpng,
 					       depends=['mingw-runtime', 'zlib']),
 		Ghostscript__mingw (settings).with (version="8.50",
-						    mirror='http://ghostscript.com/~giles/ghostscript-8.50-gpl.tar.bz2',
+						    mirror='ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs850/ghostscript-8.50-gpl.tar.bz2',
 						    depends=['mingw-runtime', 'libiconv', 'libjpeg',
 							     'libpng','zlib']),
 		LilyPond__mingw (settings).with (version=settings.lilypond_branch, mirror=cvs.gnu,
@@ -1349,7 +1353,7 @@ def get_packages (settings):
 		Libpng (settings).with (version='1.2.8', mirror=download.libpng,
 					depends=['zlib']),
 		Ghostscript (settings).with (version="8.50",
-					     mirror='http://ghostscript.com/~giles/ghostscript-8.50-gpl.tar.bz2',
+					     mirror='ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs850/ghostscript-8.50-gpl.tar.bz2',
 					     depends=['libjpeg', 'libpng', 'zlib']),
 		LilyPond__linux (settings).with (version=settings.lilypond_branch, mirror=cvs.gnu,
 						 depends=['fontconfig', 'gettext', 'guile',
