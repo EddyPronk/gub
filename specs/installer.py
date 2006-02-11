@@ -101,7 +101,8 @@ class Installer (context.Os_context_wrapper):
 			'usr/share/aclocal',
 			'share/lilypond/*/tex',
 			'share/lilypond/*/fonts/source',
-			'share/lilypond/*/fonts/svg',
+# Keep svg fonts.  They are needed for usable/sharable svg output.
+#			'share/lilypond/*/fonts/svg',
 			'share/lilypond/*/fonts/tfm',
 			'share/lilypond/*/fonts/type1/feta[0-9]*pfa',
 			'share/lilypond/*/fonts/type1/feta-braces-[a-z]*pfa',
