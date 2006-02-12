@@ -957,7 +957,7 @@ class Ghostscript__mingw (Ghostscript):
 		Ghostscript.__init__ (self, settings)
 		# Configure (compile) without -mwindows for console
 		# FIXME: should add to CPPFLAGS...
-		self.target_gcc_flags = '-mms-bitfields -D__WINDOWS__'
+		self.target_gcc_flags = '-mms-bitfields -D_Windows -D__WINDOWS__'
 
 	def patch (self):
 		Ghostscript.patch (self)
