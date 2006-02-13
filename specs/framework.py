@@ -1282,7 +1282,7 @@ def get_packages (settings):
 				      depends=['libtool', 'libiconv']),
 		Gettext__freebsd (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2',
 						  depends=['libtool', 'libgnugetopt']),
-		Guile__freebsd (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2',
+		Guile__freebsd (settings).with (version='1.7.91', mirror=download.lp, format='bz2',
 						depends=['gettext', 'gmp', 'libtool',]),
 		Python (settings).with (version='2.4.2', mirror=download.python, format='bz2',
 					       depends=[]),
