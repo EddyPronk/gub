@@ -213,11 +213,6 @@ class Guile__mingw (Guile):
 		# Configure (compile) without -mwindows for console
 		self.target_gcc_flags = '-mms-bitfields'
 
-	def xpatch (self):
-		## FIXME
-		self.system ('''
-cd %(srcdir)s && patch -p1 < %(lilywinbuilddir)s/patch/guile-1.7.2-3.patch
-''')
 
 # FIXME: ugh, C&P to Guile__freebsd, put in cross-Guile?
 	def configure_command (self):
@@ -251,10 +246,13 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
 	def configure (self):
 		if 0: # using patch
 			targetpackage.Target_package.autoupdate (self)
+
+		if 1:
 			self.file_sub ([('''^#(LIBOBJS=".*fileblocks.*)''',
 					 '\\1')],
 				       '%(srcdir)s/configure')
-			os.chmod ('%(srcdir)s/configure' % self.get_substitution_dict (), 0755)
+
+			
 		Guile.configure (self)
 
 		self.file_sub ([
@@ -1172,7 +1170,7 @@ def get_packages (settings):
 				       depends=['darwin-sdk']),
 		Fontconfig__darwin (settings).with (version='2.3.2', mirror=download.fontconfig,
 						    depends=['expat', 'freetype']),
-		Glib__darwin (settings).with (version='2.9.3', mirror=download.gnome_213, format='bz2',
+		Glib__darwin (settings).with (version='2.9.5', mirror=download.gnome_213, format='bz2',
 					      depends=['darwin-sdk', 'gettext']),
 		Pango__darwin (settings).with (version='1.11.2', mirror=download.gnome_213, format='bz2',
 					       depends = ['glib', 'fontconfig', 'freetype']
@@ -1182,9 +1180,12 @@ def get_packages (settings):
 					       mirror='http://fondu.sourceforge.net/fondu_src-060102.tgz'),
 		## 1.7.3  is actually CVS repackaged.
 #		Guile (settings).with (version='1.7.3', mirror=download.gnu, format='gz'),
-		Guile__darwin (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2',
-					       depends=['gmp','darwin-sdk']
-					       ),
+		Guile__darwin (settings).with (version='1.7.91',
+					       mirror=download.alpha, format='gz',
+
+		#version='1.7.2-3', mirror=download.lp,format='bz2',
+					       
+					       depends=['gmp','darwin-sdk']),
 		Libjpeg__darwin (settings).with (version='v6b', mirror=download.jpeg),
 		Libpng (settings).with (version='1.2.8', mirror=download.libpng),
 		Ghostscript (settings).with (version="8.50",
@@ -1216,9 +1217,10 @@ def get_packages (settings):
 		Gmp__mingw (settings).with (version='4.1.4',
 					    depends=['mingw-runtime', 'libtool']),
 		# FIXME: we're actually using 1.7.2-cvs+, 1.7.2 needs too much work
-		Guile__mingw (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2',
+		Guile__mingw (settings).with (version='1.7.91', mirror=download.alpha, format='gz',
+		#version='1.7.2-3', mirror=download.lp, format='bz2',
 					      depends=['mingw-runtime', 'gettext', 'gmp', 'libtool', 'regex']),
-		Glib (settings).with (version='2.9.3', mirror=download.gnome_213, format='bz2',
+		Glib (settings).with (version='2.9.5', mirror=download.gnome_213, format='bz2',
 				      depends=['mingw-runtime', 'gettext', 'libiconv']),
 		Pango__mingw (settings).with (version='1.11.2', mirror=download.gnome_213, format='bz2',
 					      depends=['mingw-runtime', 'freetype', 'fontconfig', 'glib', 'libiconv']),
@@ -1251,9 +1253,11 @@ def get_packages (settings):
 		Gmp (settings).with (version='4.1.4',
 				     depends=['libtool']),
 		# FIXME: we're actually using 1.7.2-cvs+, 1.7.2 needs too much work
-		Guile__linux (settings).with (version='1.7.2-3', mirror=download.lp, format='bz2',
+		Guile__linux (settings).with (version='1.7.91',
+					       mirror=download.alpha, format='gz',
+					      #version='1.7.2-3', mirror=download.lp, format='bz2',
 					      depends=['gettext', 'gmp', 'libtool']),
-		Glib (settings).with (version='2.9.3', mirror=download.gnome_213, format='bz2',
+		Glib (settings).with (version='2.9.5', mirror=download.gnome_213, format='bz2',
 				      depends=['libtool']),
 		Pango__linux (settings).with (version='1.11.2', mirror=download.gnome_213, format='bz2',
 					      depends=['freetype', 'fontconfig', 'glib', 'libtool']),

@@ -10,7 +10,7 @@ def untar_flags (tarball):
 	return flags
 
 gtk = 'ftp://ftp.gtk.org/pub/gtk/v%(gtk_version)s/%(name)s-%(ball_version)s.tar.%(format)s'
-gnome_213='http://ftp.gnome.org/pub/GNOME/platform/2.13/2.13.5/sources/%(name)s-%(ball_version)s.tar.%(format)s'
+gnome_213='http://ftp.gnome.org/pub/GNOME/platform/2.13/2.13.90/sources/%(name)s-%(ball_version)s.tar.%(format)s'
 
 gnubase = 'ftp://ftp.gnu.org/pub/gnu'
 	# FIXME: find complete GNU mirror
