@@ -109,6 +109,17 @@ chmod 755 %(install_root)s/usr/bin/*
 ''')
 
 class Gmp (targetpackage.Target_package):
+	def __init__ (self, s):
+		targetpackage.Target_package.__init__ (self, s)
+
+		# ugh.
+	def configure_command (self):
+		cmd= targetpackage.Target_package.configure_command (self)
+			 
+		if re.match ('i[0-9]86', self.settings.target_architecture):
+			cmd = "CFLAGS=' -g -O2 -fomit-frame-pointer -march=i386 ' " + cmd
+		return cmd
+
 	def configure (self):
 		targetpackage.Target_package.configure (self)
 		# # FIXME: libtool too old for cross compile
