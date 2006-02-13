@@ -414,15 +414,18 @@ class LilyPond__mingw (LilyPond):
 
 	def do_configure (self):
 		LilyPond.do_configure (self)
-		# Configure (compile) without -mwindows for console
-		self.target_gcc_flags = '-mms-bitfields'
+##		# Configure (compile) without -mwindows for console
+##		self.target_gcc_flags = '-mms-bitfields'
 		self.config_cache ()
-		cmd = self.configure_command () \
-		      + ' --enable-config=console'
+		cmd = (self.configure_command ()
+		       + ' --enable-config=console')
 		self.system ('''cd %(builddir)s && %(cmd)s''',
 			     locals ())
-		# Do not override flags while running make lateron
-		self.target_gcc_flags = ''
+		## conf=console: no -mwindows
+		self.file_sub ([(' -mwindows', ' ')],
+			       '%(builddir)s/config-console.make')
+##		# Do not override flags while running make lateron
+##		self.target_gcc_flags = ''
 
 	def compile_command (self):
 		python_lib = "%(system_root)s/usr/bin/libpython%(python_version)s.dll"
