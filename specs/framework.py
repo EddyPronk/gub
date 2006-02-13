@@ -1278,7 +1278,7 @@ def get_packages (settings):
 					  depends=['gettext', 'libtool']),
 		Libgnugetopt (settings).with (version='1.3', format='bz2', mirror=download.freebsd_ports,
 					      depends=[]),
-		Glib (settings).with (version='2.9.3', mirror=download.gnome_213, format='bz2',
+		Glib (settings).with (version='2.9.5', mirror=download.gnome_213, format='bz2',
 				      depends=['libtool', 'libiconv']),
 		Gettext__freebsd (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2',
 						  depends=['libtool', 'libgnugetopt']),
