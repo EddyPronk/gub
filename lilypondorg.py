@@ -11,7 +11,7 @@ import sys
 platforms = ['linux-x86',
 	     'darwin-ppc',
 	     'freebsd-x86',
-	     'linux-arm',
+#	     'linux-arm',
 	     'mingw']
 
 def get_alias (p):
