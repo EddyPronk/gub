@@ -438,6 +438,7 @@ class LilyPond__mingw (LilyPond):
 ##		# Do not override flags while running make lateron
 ##		self.target_gcc_flags = ''
 
+
 	def compile_command (self):
 		python_lib = "%(system_root)s/usr/bin/libpython%(python_version)s.dll"
 		return LilyPond.compile_command (self) \
@@ -747,8 +748,7 @@ class Fontconfig__mingw (Fontconfig):
 	def configure_command (self):
 		return Fontconfig.configure_command (self) \
 		       + misc.join_lines ('''
---with-default-fonts=@WINDIR@\\fonts\\
---with-add-fonts=@INSTDIR@\\usr\\share\\gs\\fonts
+--with-default-fonts=@WINDIR@/fonts/
 ''')
 
 class Fontconfig__darwin (Fontconfig):
