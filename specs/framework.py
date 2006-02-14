@@ -431,7 +431,9 @@ class LilyPond__mingw (LilyPond):
 		self.system ('''cd %(builddir)s && %(cmd)s''',
 			     locals ())
 		## conf=console: no -mwindows
-		self.file_sub ([(' -mwindows', ' ')],
+		self.file_sub ([(' -mwindows', ' '),
+				('DEFINES = ', r'DEFINES = -DGHOSTSCRIPT_VERSION=\"%(ghostscript_version)s\" '),
+				],
 			       '%(builddir)s/config-console.make')
 ##		# Do not override flags while running make lateron
 ##		self.target_gcc_flags = ''
