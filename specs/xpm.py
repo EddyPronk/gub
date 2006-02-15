@@ -289,9 +289,9 @@ class Dependency_manager (Package_manager):
 					recurse_stop_predicate=self.is_installed)
 
 	def topological_sort (manager, nodes):
-		deps = dict ([(n, [d for d in manager.dependencies (n)
+		deps = dict ((n, [d for d in manager.dependencies (n)
 				   if d in nodes])
-			      for n in nodes])
+			      for n in nodes)
 
 		done = {}
 
@@ -304,8 +304,8 @@ class Dependency_manager (Package_manager):
 				raise 'barf'
 			sorted += rm
 
-			deps = dict ([(n, ds) for (n, ds) in deps.items ()
-				      if len (ds) > min_dep_count])
+			deps = dict ((n, ds) for (n, ds) in deps.items ()
+				      if len (ds) > min_dep_count)
 			for ds in deps.values ():
 				ds[:] = [d for d in ds if d not in rm]
 				

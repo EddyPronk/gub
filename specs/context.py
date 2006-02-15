@@ -56,9 +56,9 @@ class Context:
 			d = d.copy ()
 			
 		ms = inspect.getmembers (self)
-		vars = (dict([(k, v) for (k, v) in ms if type(v) == type('')]))
-		member_substs = dict([(k, v ()) for (k, v) in ms if callable (v)
-				      and is_subst_method_in_class (k, self.__class__)])
+		vars = dict((k, v) for (k, v) in ms if type(v) == type(''))
+		member_substs = dict((k, v ()) for (k, v) in ms if callable (v)
+				      and is_subst_method_in_class (k, self.__class__))
 		
 		d.update (vars)
 		d.update (member_substs)
@@ -76,7 +76,7 @@ class Context:
 		d = self._substitution_dict
 		if env:
 			d = d.copy ()
-			d.update ([(k, v % d) for (k, v) in env.items () if type(v) == type('')])
+			d.update ((k, v % d) for (k, v) in env.items () if type(v) == type(''))
 			
 		return d
 	
