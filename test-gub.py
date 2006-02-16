@@ -84,6 +84,12 @@ def opt_parser ():
 		      dest = 'sender',
 		      default = os.environ['EMAIL'],
 		      help = 'whom to list as sender')
+	p.add_option ('', '--tag-repo',
+		      action ='store',
+		      dest = 'tag_repo',
+		      default = 'abc.webdev.nl:/home/hanwen/repo/gub-tags/',
+		      help = 'where to push success tags.')
+
 	p.add_option ('-s', '--smtp',
 		      action ='store',
 		      dest = 'smtp',
@@ -155,7 +161,7 @@ def test_target (options, target, last_patch):
 	else:
 		tag = base_tag + last_patch['date']
 		system ('darcs tag %s' % tag)
-		system ('darcs push -a -t %s ' % tag)
+		system ('darcs push -a -t %s %s ' % (tag, options.tag_repo))
 		result = "SUCCESS, tagging with %s\n\n" % tag
 		attachments = ['\n'.join (body[-10:])]
 
