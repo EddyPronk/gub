@@ -72,3 +72,5 @@ glibc_deb = 'http://ftp.debian.org/debian/pool/main/g/glibc/%(name)s_%(ball_vers
 lkh_deb = 'http://ftp.debian.org/debian/pool/main/l/linux-kernel-headers/%(name)s_%(ball_version)s_%(package_arch)s.%(format)s'
 
 gcc_41 = 'ftp://ftp.fu-berlin.de/unix/languages/gcc/snapshots/%(ball_version)s/gcc-%(ball_version)s.tar.bz2'
+
+boost = 'http://surfnet.dl.sourceforge.net/sourceforge/boost/boost_1_33_1.tar.%(format)s'

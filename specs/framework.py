@@ -16,6 +16,66 @@ def file_is_newer (f1, f2):
 	return (not os.path.exists (f2)
 		or os.stat (f1).st_mtime >  os.stat (f2).st_mtime)
 
+class Boost (targetpackage.Target_package):
+	def __init__ (self,settings):
+		targetpackage.Target_package.__init__ (self, settings)
+		# Configure generates invalid Makefile if CC has arguments
+		self.target_gcc_flags = ''
+		
+	def patch (self):
+		self.system ('''
+cd %(srcdir)s/tools/build/v1 cp -pv gcc-tools.jam %(tool_prefix)sgcc.jam
+''')
+		self.file_sub ([
+			('-fPIC', ''),
+			(' rt ', ' '),
+			('-pthread', '-mthreads'),
+			('"\$\(DLL_LINK_FLAGS\)"',
+			 '\1 "-Wl,--export-all-symbols"'),
+		## Hmm, uninformed advice?
+			## ('flags gcc \.OBJCOPY', '; #'),
+		        ('"\$\(\.OBJCOPY[[]1[]]\)"', '# \1'),
+			],
+			       '%(srcdir)s/tools/build/v1/gcc-tools.jam')
+			       
+		# Boost does not support --srcdir builds
+		self.shadow_tree ('%(srcdir)s', '%(builddir)s')
+
+	def get_substitution_dict (self, env = {}):
+		dict = targetpackage.Target_package.get_substitution_dict (self, env)
+		# When using GCC, boost ignores standard CC,CXX
+		# settings, but looks at GCC,GXX.
+		dict['GCC'] = dict['CC']
+		dict['GXX'] = dict['CXX']
+		dict['BJAM_CONFIG'] = '--no-objcopy'
+		###dict['GCC_NO_EXPORT_ALL'] = '1'
+		return dict
+
+	def configure_command (self):
+		# Boost configure barfs on standard options
+###--with-toolset=%(tool_prefix)sgcc
+		return misc.join_lines ('''C_INCLUDE_PATH= LIBRARY_PATH= %(srcdir)s/configure
+--prefix=/usr
+--includedir=/usr/include
+--libdir=/usr/lib
+--with-libraries=test
+''')
+
+	def install_command (self):
+		return misc.join_lines ('''make install
+EPREFIX=%(install_prefix)s
+PREFIX=%(install_prefix)s
+LIBDIR=%(install_prefix)s/lib
+INCLUDEDIR=%(install_prefix)s/include
+''')
+
+	def install (self):
+		Boost.install (self)
+		self.system ('''
+cd %(install_prefix)s/usr/include && mv boost-1_33_1/boost .
+cd %(install_prefix)s/usr/include && rm -rf boost-1_33_1
+''')
+
 class Fondu (targetpackage.Target_package):
 	def srcdir (self):
 		return '%(allsrcdir)s/' + ('fondu-%s' % self.version())
@@ -36,10 +96,6 @@ class Libtool (targetpackage.Target_package):
 	pass
 
 class Python (targetpackage.Target_package):
-	def set_download (self, mirror, format='gz', downloader=None):
-		targetpackage.Target_package.set_download (self, mirror, format, downloader)
-		self.url = re.sub ('python-', 'Python-' , self.url)
-
 	def patch (self):
 		targetpackage.Target_package.patch (self)
 		self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-1.patch')
@@ -112,9 +168,9 @@ class Gmp (targetpackage.Target_package):
 	def __init__ (self, s):
 		targetpackage.Target_package.__init__ (self, s)
 
-		# ugh.
+	# ugh.
 	def configure_command (self):
-		cmd= targetpackage.Target_package.configure_command (self)
+		cmd = targetpackage.Target_package.configure_command (self)
 			 
 		if re.match ('i[0-9]86', self.settings.target_architecture):
 			cmd = "CFLAGS=' -g -O2 -fomit-frame-pointer -march=i386 ' " + cmd
@@ -802,8 +858,8 @@ RUN_FC_CACHE_TEST=false
 		       + self.makeflags ()
 
 	def install_command (self):
-		return targetpackage.Target_package.broken_install_command (self) \
-		       + self.makeflags ()
+		return (targetpackage.Target_package.broken_install_command (self)
+		       + self.makeflags ())
 
 class Zlib (targetpackage.Target_package):
 	def patch (self):
@@ -860,12 +916,12 @@ INSTALL_PROGRAM=%(srcdir)s/install-sh
 ''')
 
 	def compile_command (self):
-		return targetpackage.Target_package.compile_command (self) \
-		       + self.makeflags ()
+		return (targetpackage.Target_package.compile_command (self)
+		       + self.makeflags ())
 
 	def install_command (self):
-		return targetpackage.Target_package.broken_install_command (self) \
-		       + self.makeflags ()
+		return (targetpackage.Target_package.broken_install_command (self)
+		       + self.makeflags ())
 
 class Ghostscript (targetpackage.Target_package):
 	def srcdir (self):
@@ -1203,6 +1259,9 @@ def get_packages (settings):
 		Libtool (settings).with (version='1.5.20', depends=['darwin-sdk']),
 	),
 	'mingw': [
+# Shared libraries do not build with Boost's home-grown build system
+# [that hides compile and link commands].
+#		Boost (settings).with (version='1.33.1', mirror=download.boost, format='bz2'),
 		Regex (settings).with (version='2.3.90-1', mirror=download.lp, format='bz2',
 				       depends=['mingw-runtime']),
 		LilyPad (settings).with (version='0.0.7-1', mirror=download.lp, format='bz2',
@@ -1240,7 +1299,7 @@ def get_packages (settings):
 						    depends=['mingw-runtime', 'libiconv', 'libjpeg',
 							     'libpng','zlib']),
 		LilyPond__mingw (settings).with (version=settings.lilypond_branch, mirror=cvs.gnu,
-						 depends=['mingw-runtime', 'fontconfig', 'gettext',
+						 depends=['boost', 'mingw-runtime', 'fontconfig', 'gettext',
 							  'guile', 'pango', 'python', 'ghostscript', 'cygwin'],
 						 track_development=True),
 	],

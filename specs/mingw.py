@@ -48,7 +48,6 @@ class W32api (gub.Binary_package, gub.Sdk_package):
 		self.system ('cd %(srcdir)s/root && mv * usr',
 			     ignore_error=True)
 
-
 def get_packages (settings):
 	return (
 		cross.Binutils (settings).with (version='2.16.1', format='bz2'),
