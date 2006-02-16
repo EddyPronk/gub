@@ -1299,7 +1299,7 @@ def get_packages (settings):
 						    depends=['mingw-runtime', 'libiconv', 'libjpeg',
 							     'libpng','zlib']),
 		LilyPond__mingw (settings).with (version=settings.lilypond_branch, mirror=cvs.gnu,
-						 depends=['boost', 'mingw-runtime', 'fontconfig', 'gettext',
+						 depends=['mingw-runtime', 'fontconfig', 'gettext',
 							  'guile', 'pango', 'python', 'ghostscript', 'cygwin'],
 						 track_development=True),
 	],
