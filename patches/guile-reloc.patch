@@ -1,0 +1,174 @@
+
+toplevel ChangeLog
+
+2005-06-08  Jan Nieuwenhuizen  <janneke@gnu.org>
+
+	* configure.in: Add --enable-relocation option.  Default off.
+
+libguile/ ChangeLog
+
+2005-06-09  Jan Nieuwenhuizen  <janneke@gnu.org>
+
+	Experimental relocation patch.
+
+	* load.c (scm_init_argv0_relocation)[ARGV0_RELOCATION]: New
+	function.
+	
+	(scm_init_load_path)[ARGV0_RELOCATION]: Use it.
+
+	* load.c (scm_c_argv0_relocation)[ARGV0_RELOCATION]:
+	
+	* guile.c (main)[ARGV0_RELOCATION]: Use it to append from
+	executable location derived scm library directory.
+	[__MINGW32__|__CYGWIN__]: Append directory of executable to PATH.
+
+
+
+
+Index: configure.in
+===================================================================
+RCS file: /cvsroot/guile/guile/guile-core/configure.in,v
+retrieving revision 1.268
+diff -p -u -r1.268 configure.in
+--- configure.in	9 Jul 2005 15:14:18 -0000	1.268
++++ configure.in	29 Aug 2005 21:03:31 -0000
+@@ -1030,6 +1030,18 @@ esac
+ AC_MSG_CHECKING(what kind of threads to support)
+ AC_MSG_RESULT($with_threads)
+ 
++## Dynamic relocation, based on argv[0].
++reloc_p=no
++AC_ARG_ENABLE(relocation,
++    [  --enable-relocation     compile with dynamic relocation.  Default: off],
++    [reloc_p=$enableval])
++
++if test "$reloc_p" = "yes"; then
++   AC_DEFINE([ARGV0_RELOCATION], [1], [Dynamic relocation])
++   AC_DEFINE_UNQUOTED([PATH_SEPARATOR], "$PATH_SEPARATOR", [Path separator])
++   AC_DEFINE_UNQUOTED([GUILE_EFFECTIVE_VERSION], "$GUILE_EFFECTIVE_VERSION", [GUILE_EFFECTIVE_VERSION])
++fi # $reloc_b
++
+ ## Cross building	
+ if test "$cross_compiling" = "yes"; then
+   AC_MSG_CHECKING(cc for build)
+Index: libguile/guile.c
+===================================================================
+RCS file: /cvsroot/guile/guile/guile-core/libguile/guile.c,v
+retrieving revision 1.19
+diff -p -u -r1.19 guile.c
+--- libguile/guile.c	23 May 2005 19:57:20 -0000	1.19
++++ libguile/guile.c	29 Aug 2005 21:03:33 -0000
+@@ -71,6 +71,11 @@ main (int argc, char **argv)
+   extern const lt_dlsymlist lt_preloaded_symbols[];
+   lt_dlpreload_default (lt_preloaded_symbols);
+ #endif
++
++#if ARGV0_RELOCATION
++  scm_c_argv0_relocation (argv[0]);
++#endif /* ARGV0_RELOCATION */
++
+   scm_boot_guile (argc, argv, inner_main, 0);
+   return 0; /* never reached */
+ }
+Index: libguile/load.c
+===================================================================
+RCS file: /cvsroot/guile/guile/guile-core/libguile/load.c,v
+retrieving revision 1.86
+diff -p -u -r1.86 load.c
+--- libguile/load.c	23 May 2005 19:57:20 -0000	1.86
++++ libguile/load.c	29 Aug 2005 21:03:33 -0000
+@@ -180,6 +180,59 @@ SCM_DEFINE (scm_parse_path, "parse-path"
+ }
+ #undef FUNC_NAME
+ 
++#if ARGV0_RELOCATION
++#include "filesys.h"
++#if defined (__CYGWIN__) || defined (__MINGW32__)
++#include "posix.h"
++#endif
++
++char const *global_argv0 = 0;
++
++void
++scm_c_argv0_relocation (char const *argv0)
++{
++  global_argv0 = argv0;
++}
++
++SCM
++scm_init_argv0_relocation (char const* argv0)
++{
++  SCM bindir = scm_dirname (scm_from_locale_string (argv0));
++  SCM prefix = scm_dirname (bindir);
++  SCM datadir = scm_string_append (scm_list_2 (prefix,
++					     scm_from_locale_string ("/share/guile/" GUILE_EFFECTIVE_VERSION)));
++  SCM libdir = scm_string_append (scm_list_2 (prefix,
++					     scm_from_locale_string ("/lib")));
++
++#if 0 /* def SYSV */
++  {
++    SCM path;
++    char *env = getenv ("LD_LIBRARY_PATH");
++    if (env)
++      path = scm_string_append (scm_list_3 (scm_from_locale_string (env),
++					    scm_from_locale_string (PATH_SEPARATOR),
++					    datadir));
++    else
++      path = libdir;
++    scm_putenv (scm_string_append (scm_list_2 (scm_from_locale_string ("LD_LIBRARY_PATH="), path)));
++  }
++#elif defined (__CYGWIN__) || defined (__MINGW32__)
++  {
++    SCM path;
++    char *env = getenv ("PATH");
++    if (env)
++      path = scm_string_append (scm_list_3 (scm_from_locale_string (env),
++					    scm_from_locale_string (PATH_SEPARATOR),
++					    bindir));
++    else
++      path = bindir;
++    scm_putenv (scm_string_append (scm_list_2 (scm_from_locale_string ("PATH="), path)));
++  }
++#endif /* __CYGWIN__ || __MINGW32__ */
++    
++  return scm_list_1 (datadir);
++}
++#endif /* ARGV0_RELOCATION */
+ 
+ /* Initialize the global variable %load-path, given the value of the
+    SCM_SITE_DIR and SCM_LIBRARY_DIR preprocessor symbols and the
+@@ -200,6 +253,11 @@ scm_init_load_path ()
+   if (env)
+     path = scm_parse_path (scm_from_locale_string (env), path);
+ 
++#if ARGV0_RELOCATION
++  if (global_argv0)
++    path = scm_append (scm_list_2 (path, scm_init_argv0_relocation (global_argv0)));
++#endif /* __CYGWIN__ || __MINGW32__ */
++  
+   *scm_loc_load_path = path;
+ }
+ 
+Index: libguile/load.h
+===================================================================
+RCS file: /cvsroot/guile/guile/guile-core/libguile/load.h,v
+retrieving revision 1.22
+diff -p -u -r1.22 load.h
+--- libguile/load.h	23 May 2005 19:57:20 -0000	1.22
++++ libguile/load.h	29 Aug 2005 21:03:33 -0000
+@@ -26,6 +26,10 @@
+ 
+ 
+ SCM_API SCM scm_parse_path (SCM path, SCM tail);
++#if ARGV0_RELOCATION
++SCM_API void scm_c_argv0_relocation (char const *argv0);
++SCM_API SCM scm_init_argv0_relocation (char const* argv0);
++#endif
+ SCM_API void scm_init_load_path (void);
+ SCM_API SCM scm_primitive_load (SCM filename);
+ SCM_API SCM scm_c_primitive_load (const char *filename);
+
+-- 
+Jan Nieuwenhuizen <janneke@gnu.org> | GNU LilyPond - The music typesetter
+http://www.xs4all.nl/~jantien       | http://www.lilypond.org
+

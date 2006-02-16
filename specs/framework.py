@@ -170,6 +170,9 @@ class Guile (targetpackage.Target_package):
 	def guile_version (self):
 		return '.'.join (self.ball_version.split ('.')[0:2])
 
+	def patch (self):
+		self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/guile-reloc.patch')
+
 	def configure_command (self):
 		return (targetpackage.Target_package.configure_command (self)
 			+ misc.join_lines ('''
