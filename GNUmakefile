@@ -126,7 +126,7 @@ distccd:
 	rm -rf $(DISTCC_DIRS)
 	$(if $(wildcard log/distccd.pid),kill `cat log/distccd.pid`, true)
 	mkdir -p $(DISTCC_DIRS)
-	ln -s $(foreach p,$(PLATFORMS),$(CWD)/target/$(p)/system/usr/cross/bin/*) target/distccd/bin
+	ln -s $(foreach p,$(PLATFORMS),$(wildcard $(CWD)/target/$(p)/system/usr/cross/bin/*)) target/distccd/bin
 	$(foreach binary,$(foreach p,$(PLATFORMS), $(wildcard target/$(p)/system/usr/cross/bin/*)), \
 		ln -s $(CWD)/specs/distcc.py target/distcc/bin/$(notdir $(binary)) && ) true
 
