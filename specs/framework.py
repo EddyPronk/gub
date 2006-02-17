@@ -27,28 +27,20 @@ class Boost (targetpackage.Target_package):
 cd %(srcdir)s/tools/build/v1 cp -pv gcc-tools.jam %(tool_prefix)sgcc.jam
 ''')
 		self.file_sub ([
-			('-fPIC', ''),
-			(' rt ', ' '),
-			('-pthread', '-mthreads'),
-			('"\$\(DLL_LINK_FLAGS\)"',
-			 '\1 "-Wl,--export-all-symbols"'),
-		## Hmm, uninformed advice?
-			## ('flags gcc \.OBJCOPY', '; #'),
-		        ('"\$\(\.OBJCOPY[[]1[]]\)"', '# \1'),
+			(' ar ', ' %(tool_prefix)sar'),
+			(' objcopy ', ' %(tool_prefix)sobjcopy'),
 			],
 			       '%(srcdir)s/tools/build/v1/gcc-tools.jam')
 			       
 		# Boost does not support --srcdir builds
 		self.shadow_tree ('%(srcdir)s', '%(builddir)s')
 
-	def get_substitution_dict (self, env = {}):
+	def get_substitution_dict (self, env={}):
 		dict = targetpackage.Target_package.get_substitution_dict (self, env)
 		# When using GCC, boost ignores standard CC,CXX
 		# settings, but looks at GCC,GXX.
 		dict['GCC'] = dict['CC']
 		dict['GXX'] = dict['CXX']
-		dict['BJAM_CONFIG'] = '--no-objcopy'
-		###dict['GCC_NO_EXPORT_ALL'] = '1'
 		return dict
 
 	def configure_command (self):
@@ -70,11 +62,27 @@ INCLUDEDIR=%(install_prefix)s/include
 ''')
 
 	def install (self):
-		Boost.install (self)
+		targetpackage.Target_package.install (self)
 		self.system ('''
-cd %(install_prefix)s/usr/include && mv boost-1_33_1/boost .
-cd %(install_prefix)s/usr/include && rm -rf boost-1_33_1
+cd %(install_prefix)s/include && mv boost-1_33_1/boost .
+cd %(install_prefix)s/include && rm -rf boost-1_33_1
 ''')
+
+class Boost__mingw (Boost):
+	def patch (self):
+		Boost.patch (self)
+		self.file_sub ([
+			('-fPIC', ''),
+			(' rt ', ' '),
+			('-pthread', '-mthreads'),
+			('"\$\(DLL_LINK_FLAGS\)"',
+			 '\1 "-Wl,--export-all-symbols"'),
+			],
+			       '%(srcdir)s/tools/build/v1/gcc-tools.jam')
+
+	# HUH?
+	def get_substitution_dict (self, env={}):
+		return Boost.get_substitution_dict (self, env)
 
 class Fondu (targetpackage.Target_package):
 	def srcdir (self):
@@ -105,7 +113,7 @@ class Python (targetpackage.Target_package):
 	def python_version (self):
 		return '.'.join (self.ball_version.split ('.')[0:2])
 
-	def get_substitution_dict (self, env = {}):
+	def get_substitution_dict (self, env={}):
 		dict = targetpackage.Target_package.get_substitution_dict (self, env)
 		dict['python_version'] = self.python_version ()
 		return dict
@@ -1261,7 +1269,7 @@ def get_packages (settings):
 	'mingw': [
 # Shared libraries do not build with Boost's home-grown build system
 # [that hides compile and link commands].
-#		Boost (settings).with (version='1.33.1', mirror=download.boost, format='bz2'),
+		Boost__mingw (settings).with (version='1.33.1', mirror=download.boost, format='bz2'),
 		Regex (settings).with (version='2.3.90-1', mirror=download.lp, format='bz2',
 				       depends=['mingw-runtime']),
 		LilyPad (settings).with (version='0.0.7-1', mirror=download.lp, format='bz2',

@@ -194,6 +194,7 @@ class Nsis (Installer):
 			       env=locals ())
 		
 		self.system ('cp %(nsisdir)s/*.nsh %(targetdir)s')
+		self.system ('cp %(nsisdir)s/*.bat.in %(targetdir)s')
 		self.system ('cp %(nsisdir)s/*.scm.in %(targetdir)s')
 		self.system ('cp %(nsisdir)s/*.sh.in %(targetdir)s')
 		self.system ('cd %(targetdir)s && makensis lilypond.nsi')

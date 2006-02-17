@@ -341,14 +341,13 @@ Function create_shortcuts
 	ClearErrors
 	ReadRegStr $R0 HKLM \
 		"SOFTWARE\Microsoft\Windows NT\CurrentVersion" CurrentVersion
-	IfErrors dos nt
+	IfErrors dos windows
 dos:
-	CreateShortCut "$DESKTOP\LilyPond.lnk" \
+	CreateShortCut "$DESKTOP\LilyPond.lnk" "" \
 		"$INSTDIR\usr\bin\lilypond-windows.bat" \
 		"$INSTDIR\usr\bin\lilypond-windows.exe" 0 SW_SHOWMINIMIZED
 	Goto exit
-
-nt:
+windows:
 	CreateShortCut "$DESKTOP\LilyPond.lnk" \
 		"$INSTDIR\usr\bin\lilypond-windows.exe" "-dgui" \
 		"$INSTDIR\usr\bin\lilypond-windows.exe" 0 SW_SHOWMINIMIZED
