@@ -8,6 +8,7 @@ import string
 import sys
 import inspect
 import types
+import distcc
 
 sys.path.insert (0, 'specs/')
 
@@ -15,6 +16,7 @@ import framework
 import gub
 import settings as settings_mod
 import xpm
+import subprocess
 
 def get_settings (platform):
 	settings = settings_mod.Settings (platform)
@@ -39,7 +41,8 @@ def add_options (settings, options):
 	settings.lilypond_branch = options.lilypond_branch
 	settings.bundle_version = options.installer_version
 	settings.bundle_build = options.installer_build
-
+	settings.distcc_hosts = ' '.join (distcc.live_hosts (options.distcc_hosts))
+	
 def get_cli_parser ():
 	p = optparse.OptionParser ()
 
@@ -85,6 +88,10 @@ package-installer - build installer binary
 	p.add_option ('', '--stage', action='store',
 		      dest='stage', default=None,
 		      help='Force rebuild of stage')
+	p.add_option ('', '--distcc-host', action='append',
+		      dest='distcc_hosts', default=[],
+		      help='Add another distcc')
+	
 	p.add_option ('-V', '--verbose', action='store_true',
 		      dest="verbose")
 	p.add_option ('', '--force-package', action='store_true',
