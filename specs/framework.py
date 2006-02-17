@@ -500,10 +500,11 @@ class LilyPond__mingw (LilyPond):
 		## conf=console: no -mwindows
 		self.file_sub ([(' -mwindows', ' '),
 				('DEFINES = ', r'DEFINES = -DGHOSTSCRIPT_VERSION=\"%(ghostscript_version)s\" '),
+				(' -g ', ' '),
 				],
 			       '%(builddir)s/config-console.make')
-##		# Do not override flags while running make lateron
-##		self.target_gcc_flags = ''
+		self.file_sub ([(' -g ', ' ')],
+				'%(builddir)s/config.make')
 
 
 	def compile_command (self):
