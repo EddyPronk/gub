@@ -8,10 +8,10 @@ import string
 import sys
 import inspect
 import types
-import distcc
 
 sys.path.insert (0, 'specs/')
 
+import distcc
 import framework
 import gub
 import settings as settings_mod
