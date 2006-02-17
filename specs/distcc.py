@@ -3,6 +3,7 @@ import sys
 import os
 import re
 import telnetlib
+import socket
 
 port = 3633
 
@@ -28,7 +29,7 @@ def main ():
 	path_comps = [c for c in os.environ['PATH'].split (':') if not re.search ('distcc', c)]
 	os.environ['PATH'] = ':'.join (path_comps)
 	argv = ['distcc', exe_name] + sys.argv[1:]
-	sys.stderr.write ('execing: %s' % ' '.join (argv))
+##	sys.stderr.write ('execing: %s' % ' '.join (argv))
 	os.execvp ('distcc', argv)
 
 if __name__ == '__main__':

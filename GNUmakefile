@@ -133,5 +133,5 @@ distccd:
 
 	DISTCCD_PATH=$(CWD)/target/distccd/bin distccd --daemon $(addprefix --allow ,$(GUB_DISTCC_ALLOW_HOSTS)) \
 		--daemon --port 3633 --pid-file $(CWD)/log/distccd.pid \
-		--log-file $(CWD)/log/distccd.log  --log-level debug 
+		--log-file $(CWD)/log/distccd.log  --log-level info
 
