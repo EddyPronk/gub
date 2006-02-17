@@ -1,6 +1,6 @@
 #!/usr/bin/python
-import re
 
+import re
 import smtplib
 import os
 import time

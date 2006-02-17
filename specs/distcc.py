@@ -24,7 +24,6 @@ def live_hosts (hosts):
 
 
 def main ():
-	print 'hoi'
 	exe_name = os.path.split (sys.argv[0])[1]
 	path_comps = [c for c in os.environ['PATH'].split (':') if not re.search ('distcc', c)]
 	os.environ['PATH'] = ':'.join (path_comps)
