@@ -12,7 +12,8 @@ class Gcc (cross.Gcc):
 mkdir -p %(crossprefix)s/%(target_architecture)s
 tar -C %(system_root)s/usr -cf- include lib | tar -C %(crossprefix)s/%(target_architecture)s -xf-
 ''')
-
+		self.file_sub ([('/mingw/include','/usr/include')],
+			       '%(srcdir)s/gcc/config/i386/t-mingw32')
 
 # UGH: MI
 class Mingw_runtime (gub.Binary_package, gub.Sdk_package):
@@ -40,6 +41,7 @@ class Cygwin (gub.Binary_package):
 		f = re.sub ('-1$', '', f)
 		return f
 
+
 # UGH: MI
 class W32api (gub.Binary_package, gub.Sdk_package):
 	def untar (self):
@@ -51,10 +53,9 @@ class W32api (gub.Binary_package, gub.Sdk_package):
 def get_packages (settings):
 	return (
 		cross.Binutils (settings).with (version='2.16.1', format='bz2'),
-#		Gcc (settings).with (version='4.0.2', mirror=download.gcc, format='bz2'),
-		Gcc (settings).with (version='3.4.5', mirror=download.gcc, format='bz2',
-				     depends=['binutils']
-				     ),
+		Gcc (settings).with (version='4.2.20060211',
+				     mirror='ftp://ftp.nluug.nl/mirror/languages/gcc/snapshots/4.2-20060211/gcc-4.2-20060211.tar.bz2',
+				     depends=['binutils']),		
 		Mingw_runtime (settings).with (version='3.9', mirror=download.mingw),
 		Cygwin (settings).with (version='1.5.18-1', mirror=download.cygwin, format='bz2',
 					depends=['mingw-runtime']),

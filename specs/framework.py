@@ -615,6 +615,9 @@ class Gettext__mingw (Gettext):
 gl_cv_func_mbrtowc=${gl_cv_func_mbrtowc=no}
 jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
 ''')
+	def patch (self):
+		self.system ("cd %(srcdir)s && patch -p0 < %(patchdir)s/gettext-xgettext-dll-autoimport.patch")
+		
 	def install (self):
 
 		## compile of gettext triggers configure in between.  (hgwurgh.)
