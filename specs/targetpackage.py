@@ -63,6 +63,19 @@ class Target_package (gub.Package):
 			cross_config_cache['all']
 			+ cross_config_cache[self.settings.platform])
 
+	def compile_command (self):
+		c = gub.Package.compile_command (self)
+		if self.settings.distcc_hosts and re.search (r'\bmake\b', c) :
+			jobs = '-j%d ' % (1+len (self.settings.distcc_hosts.split (' ')))
+			c = re.sub (r'\bmake\b', 'make ' + jobs, c)
+
+			## do this a little complicated: we don't want a trace of
+			## distcc during configure.
+			c = 'DISTCC_HOSTS="%s" %s' % (self.settings.distcc_hosts , c)
+			c = 'PATH="%(distcc_bindir)s:$PATH" ' + c
+			
+		return c
+			
 	def configure (self):
 		self.config_cache ()
 		gub.Package.configure (self)
