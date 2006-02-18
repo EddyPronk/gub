@@ -89,9 +89,11 @@ class Target_package (gub.Package):
 			'CC': '%(tool_prefix)sgcc %(target_gcc_flags)s',
 			'CC_FOR_BUILD': 'C_INCLUDE_PATH= CPPFLAGS= LIBRARY_PATH= cc',
 			'CCLD_FOR_BUILD': 'C_INCLUDE_PATH= CPPFLAGS= LIBRARY_PATH= cc',
-#			'CPPFLAGS': '-I%(system_root)s/usr/include',
-			'C_INCLUDE_PATH': '%(system_root)s/usr/include:%(tooldir)s/include',
-			'CPLUS_INCLUDE_PATH': '%(system_root)s/usr/include:%(tooldir)s/include',
+
+			## %(system_root)s/usr/include is already done by
+			## GCC --with-sysroot config.
+			'C_INCLUDE_PATH': '%(tooldir)s/include',
+			'CPLUS_INCLUDE_PATH': '%(tooldir)s/include',
 			'CXX':'%(tool_prefix)sg++ %(target_gcc_flags)s',
 			'FREETYPE_CONFIG': '''%(system_root)s/usr/bin/freetype-config \
 --prefix=%(system_root)s/usr \
