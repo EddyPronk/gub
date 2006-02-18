@@ -1273,7 +1273,7 @@ def get_packages (settings):
 	'mingw': [
 # Shared libraries do not build with Boost's home-grown build system
 # [that hides compile and link commands].
-		Boost__mingw (settings).with (version='1.33.1', mirror=download.boost, format='bz2'),
+#		Boost__mingw (settings).with (version='1.33.1', mirror=download.boost, format='bz2'),
 		Regex (settings).with (version='2.3.90-1', mirror=download.lp, format='bz2',
 				       depends=['mingw-runtime']),
 		LilyPad (settings).with (version='0.0.7-1', mirror=download.lp, format='bz2',
