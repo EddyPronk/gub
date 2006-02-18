@@ -33,7 +33,7 @@ endif
 PLATFORMS=darwin mingw linux freebsd
 LILYPOND_VERSION=$(MAJOR_VERSION).$(MINOR_VERSION).$(PATCH_LEVEL)$(if $(strip $(MY_PATCH_LEVEL)),.$(MY_PATCH_LEVEL),)
 INSTALLER_BUILD:=$(shell python lilypondorg.py nextbuild $(LILYPOND_VERSION))
-INVOKE_DRIVER=python driver.py \
+INVOKE_DRIVER=python gub-builder.py \
 --target-platform $(1) \
 --branch $(LILYPOND_BRANCH) \
 $(foreach h,$(GUB_DISTCC_HOSTS), --distcc-host $(h))\
@@ -41,7 +41,7 @@ $(foreach h,$(GUB_DISTCC_HOSTS), --distcc-host $(h))\
 --installer-build $(INSTALLER_BUILD) \
 $(LOCAL_DRIVER_OPTIONS)
 
-INVOKE_XPM=python xpm-apt.py \
+INVOKE_GUP=python gup-manager.py.py \
 --platform $(1) \
 --branch $(LILYPOND_BRANCH) 
 
@@ -57,7 +57,7 @@ download:
 	$(call INVOKE_DRIVER,darwin) download osx-lilypad
 	$(call INVOKE_DRIVER,local) download flex nsis fakeroot pkg-config guile
 	$(foreach p, $(PLATFORMS), (mv uploads/$(p)/lilypond-$(LILYPOND_BRANCH).$(p).gub uploads/$(p)/lilypond-$(LILYPOND_BRANCH)-OLD.$(p).gub || true) &&) true
-	$(foreach p, $(PLATFORMS), $(call INVOKE_XPM,$(p)) remove lilypond ; ) true
+	$(foreach p, $(PLATFORMS), $(call INVOKE_GUP,$(p)) remove lilypond ; ) true
 	rm -f target/*/status/lilypond*
 	rm -f log/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).*.test.pdf
 
@@ -122,7 +122,7 @@ freebsd-runtime:
 
 DISTCC_DIRS=target/distcc/bin/  target/distccd/bin/
 distccd:
-	$(foreach p, $(PLATFORMS),$(call INVOKE_XPM, $(p)) install gcc && ) true
+	$(foreach p, $(PLATFORMS),$(call INVOKE_GUP, $(p)) install gcc && ) true
 	chmod +x specs/distcc.py
 	rm -rf $(DISTCC_DIRS)
 	$(if $(wildcard log/distccd.pid),kill `cat log/distccd.pid`, true)
