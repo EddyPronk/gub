@@ -88,6 +88,21 @@ and an installer in
 
   uploads/lilypond-VERSION-RELEASE.PLATFORM.FORMAT
 
+DISTCC SUPPORT
+**************
+
+Run
+
+  make distccd
+
+on a compile server, and
+
+  make <targets> GUB_DISTCC_HOSTS='<server hostnames>'
+
+
+
+ 
+
 
 USAGE
 *****
