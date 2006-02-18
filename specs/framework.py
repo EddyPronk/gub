@@ -347,8 +347,8 @@ class Guile__linux (Guile):
 	def compile_command (self):
 		# FIXME: when not x-building, guile runs guile without
 		# setting the proper LD_LIBRARY_PATH.
-		return 'export LD_LIBRARY_PATH=%(builddir)s/libguile/.libs:$LD_LIBRARY_PATH;' \
-		       + Guile.compile_command (self)
+		return ('export LD_LIBRARY_PATH=%(builddir)s/libguile/.libs:$LD_LIBRARY_PATH;'
+			+ Guile.compile_command (self))
 
 class Guile__freebsd (Guile):
 	def configure_command (self):
@@ -1238,6 +1238,8 @@ install: all
 def get_packages (settings):
 	packages = {
 	'darwin': (
+
+		## FIXME: go to 0.14.5 
 		Gettext (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2',
 					 depends=['darwin-sdk', 'libtool']
 					 ),
@@ -1256,13 +1258,8 @@ def get_packages (settings):
 		Gmp__darwin (settings).with (version='4.1.4',depends=['darwin-sdk']),
 		Fondu__darwin (settings).with (version="060102",
 					       mirror='http://fondu.sourceforge.net/fondu_src-060102.tgz'),
-		## 1.7.3  is actually CVS repackaged.
-#		Guile (settings).with (version='1.7.3', mirror=download.gnu, format='gz'),
 		Guile__darwin (settings).with (version='1.7.91',
 					       mirror=download.alpha, format='gz',
-
-		#version='1.7.2-3', mirror=download.lp,format='bz2',
-					       
 					       depends=['gmp','darwin-sdk']),
 		Libjpeg__darwin (settings).with (version='v6b', mirror=download.jpeg),
 		Libpng (settings).with (version='1.2.8', mirror=download.libpng),
