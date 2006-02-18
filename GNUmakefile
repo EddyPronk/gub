@@ -41,7 +41,7 @@ $(foreach h,$(GUB_DISTCC_HOSTS), --distcc-host $(h))\
 --installer-build $(INSTALLER_BUILD) \
 $(LOCAL_DRIVER_OPTIONS)
 
-INVOKE_GUP=python gup-manager.py.py \
+INVOKE_GUP=python gup-manager.py \
 --platform $(1) \
 --branch $(LILYPOND_BRANCH) 
 
