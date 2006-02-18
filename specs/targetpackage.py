@@ -88,6 +88,7 @@ class Target_package (gub.Package):
 			'AS': '%(tool_prefix)sas',
 			'CC': '%(tool_prefix)sgcc %(target_gcc_flags)s',
 			'CC_FOR_BUILD': 'C_INCLUDE_PATH= CPPFLAGS= LIBRARY_PATH= cc',
+			'CCLD_FOR_BUILD': 'C_INCLUDE_PATH= CPPFLAGS= LIBRARY_PATH= cc',
 #			'CPPFLAGS': '-I%(system_root)s/usr/include',
 			'C_INCLUDE_PATH': '%(system_root)s/usr/include:%(tooldir)s/include',
 			'CPLUS_INCLUDE_PATH': '%(system_root)s/usr/include:%(tooldir)s/include',
