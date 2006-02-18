@@ -248,7 +248,12 @@ class Guile (targetpackage.Target_package):
 --enable-relocation
 --disable-rpath
 '''))
+	def compile (self):
 
+		## Ugh : broken dependencies barf with make -jX 
+		self.system ('cd %(builddir)s/libguile && make scmconfig.h ')
+		targetpackage.Target_package.compile (self)
+		
 	def configure (self):
 		targetpackage.Target_package.configure (self)
 		self.update_libtool ()
