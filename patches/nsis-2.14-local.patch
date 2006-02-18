@@ -1,0 +1,15 @@
+diff bla bla
+--- Source/build.cpp~	2006-02-18 18:12:00.000000000 +0100
++++ Source/build.cpp	2006-02-18 18:19:33.000000000 +0100
+@@ -23,6 +23,11 @@
+ 
+ #include <cassert> // for assert
+ 
++/* ugh. */
++#ifdef local
++#undef local
++#endif
++
+ #define RET_UNLESS_OK( function_rc ) do { \
+   int rc = (function_rc); \
+   if ( rc != PS_OK) \

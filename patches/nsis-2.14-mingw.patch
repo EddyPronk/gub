@@ -1,0 +1,50 @@
+diff bla bla
+--- SCons/Tools/crossmingw.py~	2005-10-05 15:42:04.000000000 +0200
++++ SCons/Tools/crossmingw.py	2006-02-18 15:36:47.000000000 +0100
+@@ -45,6 +45,7 @@
+ # This is what we search for to find mingw:
+ prefixes = SCons.Util.Split("""
+     mingw32-
++    i686-mingw32-
+     i386-mingw32msvc-
+     i486-mingw32msvc-
+     i586-mingw32msvc-
+
+diff bla bla
+--- Contrib/StartMenu/StartMenu.c~	2005-03-17 22:26:58.000000000 +0100
++++ Contrib/StartMenu/StartMenu.c	2006-02-18 15:46:23.000000000 +0100
+@@ -24,8 +24,8 @@
+ void *lpWndProcOld;
+ 
+ BOOL CALLBACK dlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+-BOOL CALLBACK ParentWndProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
++static BOOL CALLBACK ParentWndProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+ void AddFolderFromReg(int nFolder);
+ 
+ void __declspec(dllexport) Init(HWND hwndParent, int string_size, char *variables, stack_t **stacktop)
+
+diff bla bla
+--- Source/7zip/LZMADecode.c~	2004-05-01 14:57:57.000000000 +0200
++++ Source/7zip/LZMADecode.c	2006-02-18 16:05:19.000000000 +0100
+@@ -145,7 +145,7 @@
+ #define last2 _s.last2
+ #define last3 _s.last3
+ 
+-#define p ((CProb *) _s.dynamicData)
++#define p (*(CProb **) &_s.dynamicData)
+ #define dynamicDataSize _s.dynamicDataSize
+ 
+ #define state _s.state
+
+diff bla bla
+--- Source/7zip/LZMADecode.c~	2004-05-01 14:57:57.000000000 +0200
++++ Source/7zip/LZMADecode.c	2006-02-18 16:05:19.000000000 +0100
+@@ -184,7 +184,7 @@
+ #define result _s.temp2
+ #define numLevels _s.temp3
+ #define posSlot _s.temp2
+-#define newDictionarySize ((UInt32) _s.temp3)
++#define newDictionarySize (*(UInt32*) &_s.temp3)
+ 
+ #define matchByte _s.matchByte
+ #define mi _s.mi
