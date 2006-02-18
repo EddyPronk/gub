@@ -43,7 +43,7 @@ class Nsis (Tool_package):
 		self.system ('cd %(builddir)s/ && make -C Source POSSIBLE_CROSS_PREFIXES=i686-mingw32- ', env)
 			     
 	def patch (self):
-		## Can't use symlinks for files, since we get broken  symlinks in .gub
+		## Can't use symlinks for files, since we get broken symlinks in .gub
 		self.system ('mkdir -p %(allbuilddir)s', ignore_error=True)
 		self.system ('ln -s %(srcdir)s %(builddir)s') 
 		
@@ -64,6 +64,46 @@ cd %(builddir)s && ./install.sh %(system_root)s/usr/ %(install_root)s
 
 	def package (self):
 		self.system ('tar -C %(install_root)s/%(system_root)s/ -zcf %(gub_uploads)s/%(gub_name)s .')
+
+class Nsis__scons (Tool_package):
+	def patch (self):
+		for f in ['SCons/Tools/crossmingw.py',
+			  'Contrib/StartMenu/StartMenu.c',
+			  'Source/7zip/LZMADecode.c',
+			  'Source/7zip/LZMADecode.c']:
+			self.file_sub (
+				[('\r','')],
+				'%(srcdir)s/' + f)
+		self.system ("cd %(srcdir)s && patch -p0 < %(patchdir)s/nsis-2.14-mingw.patch")
+		self.system ('mkdir -p %(allbuilddir)s', ignore_error=True)
+		self.system ('ln -s %(srcdir)s %(builddir)s') 
+		
+	def configure (self):
+		pass
+	
+	def compile_command (self):
+		return (' scons PREFIX=%(system_root)s/ PREFIX_DEST=%(install_root)s '
+			#+ 'CPPPATH=/usr/include/wine/msvcrt/',
+			' SKIPPLUGINS=System')
+	
+	def compile (self): 
+		env = {'PATH': '%(topdir)s/target/mingw/system/usr/cross/bin:' + os.environ['PATH']}
+		self.system ('cd %(builddir)s/ && %(compile_command)s',
+			     env)
+
+	def install (self):
+		env = {'PATH': '%(topdir)s/target/mingw/system/usr/cross/bin:' + os.environ['PATH']}
+		self.system ('cd %(builddir)s/ && %(compile_command)s install ', env)
+
+	def package (self):
+		self.system ('tar -C %(install_root)s/%(system_root)s/ -zcf %(gub_uploads)s/%(gub_name)s .')
+
+		
+	def srcdir (self):
+		d = Tool_package.srcdir (self).replace ('_','-')
+		return d
+		     
+
 
 class Scons (Tool_package):
 	def compile (self):
@@ -97,8 +137,8 @@ class Fakeroot (Tool_package):
 
 def get_packages (settings):
 	ps = [
-		Nsis (settings).with (version='2.06',
-				      mirror="http://ftp.debian.org/debian/pool/main/n/nsis/nsis_%(version)s.orig.tar.%(format)s",
+		Nsis__scons (settings).with (version='2.14',
+				      mirror="http://ftp.debian.org/debian/pool/main/n/nsis/nsis_%(version)s.orig.tar.%(format)s",				      
 				      
 				      format="gz"),
 
