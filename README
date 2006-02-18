@@ -1,0 +1,119 @@
+
+
+WHAT IS GUB
+***********
+
+Grand Unified Builder (GUB) is the mini packaging system that we
+developed for building LilyPond binaries. It cross-compiles several
+packages and assembles them into a single package. At the moment it
+supports the following target platforms
+
+
+darwin
+   darwin 7 (MacOS 10.3) for PowerPC
+
+mingw
+   mingw executable for  windows32
+
+linux
+   shar archive for Linux/x86
+
+freebsd
+   shar archive for FreeBSD/x86
+
+arm
+   shar archive for Linux/ARM (largely untested)
+
+debian
+   .deb package for Debian (Linux/x86) (largely untested)
+
+cygwin
+   .tar.gz package for Cygwin/Windows32 (largely untested)
+
+
+ACQUIRING
+*********
+
+The Darcs (www.darcs.net) repository is at 
+
+  http://lilypond.org/~hanwen/gub/
+
+You can get the GUB builder by doing
+
+  darcs get http://lilypond.org/~hanwen/gub/
+
+
+INSTALLING
+**********
+
+edit local.make to set some variables. Here is what my local.make
+contains:
+
+  LILYPOND_CVSDIR=downloads/lilypond-HEAD/
+  LILYPOND_BRANCH=HEAD
+  BUILD_PLATFORM=linux
+  GUB_DISTCC_ALLOW_HOSTS= 192.168.123.191 192.168.123.162 127.0.0.1 192.168.123.107
+
+
+
+
+COMPILING
+*********
+Do
+
+  python driver.py -p local build nsis flex
+
+This will lilypond compatible versions of NSIS and Flex.
+
+  make mingw
+
+this should leave packages in
+
+  uploads/mingw/
+
+and an installer in
+
+  uploads/lilypond-VERSION-RELEASE.mingw.exe
+
+Similarly,
+
+
+  make PLATFORM
+
+should leave tarballs in
+
+  uploads/PLATFORM
+
+and an installer in 
+
+  uploads/lilypond-VERSION-RELEASE.PLATFORM.FORMAT
+
+
+USAGE
+*****
+
+run the following without arguments for instructions.
+
+  gup-manager.py - package manager 
+  gub-builder.py - build packages
+  lilypondorg.py - inspect lilypond.org download area
+  test-gub.py    - build tester; integrates with Darcs 
+
+
+CAVEATS
+*******
+
+GUB requires python 2.4
+
+Note that this procedure has only been tested under Linux and MacOS X.
+
+
+
+It still requires native installations of:
+
+  mftrace
+  fontforge
+  potrace
+  wine-devel
+
+
