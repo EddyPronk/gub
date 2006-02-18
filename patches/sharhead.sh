@@ -34,7 +34,7 @@ EOF
       echo 'Option --prefix requires argument.'
       exit 1
     fi
-    if not test -d  "$prefix"; then
+    if test ! -d  "$prefix"; then
       mkdir -p "$prefix"
     fi
     prefix=`cd $1 ; pwd`"/"
