@@ -29,6 +29,9 @@ class Mftrace (Tool_package):
 class Potrace (Tool_package):
 	pass
 
+class Distcc (Tool_package):
+	pass
+
 class Fontforge (Tool_package):
 	def srcdir (self):
 		return re.sub ('_full', '', Tool_package.srcdir(self))
@@ -170,6 +173,9 @@ def get_packages (settings):
 				       mirror=download.sf),
 		Mftrace (settings).with (version='1.1.18',
 					 mirror="http://www.xs4all.nl/~hanwen/mftrace/mftrace-1.1.18.tar.gz"),
+		Distcc (settings).with (version='2.18.3',
+					mirror="http://distcc.samba.org/ftp/distcc/distcc-%(version)s.tar.bz2"),
+		
 
 		Potrace (settings).with (mirror="http://potrace.sourceforge.net/download/potrace-%(version)s.tar.gz",
 					 version="1.7"),
