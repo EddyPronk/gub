@@ -1238,6 +1238,9 @@ install: all
 # FIXME: these lists should be merged, somehow,
 # linux and mingw use almost the same list (linux does not have libiconv),
 # but some classes have __mingw or __linux overrides.
+
+
+## TODO: move depends to __init__
 def get_packages (settings):
 	packages = {
 	'darwin': (
@@ -1306,7 +1309,7 @@ def get_packages (settings):
 		Pango__mingw (settings).with (version='1.11.2', mirror=download.gnome_213, format='bz2',
 					      depends=['mingw-runtime', 'freetype', 'fontconfig', 'glib', 'libiconv']),
 		Python__mingw (settings).with (version='2.4.2', mirror=download.python, format='bz2',
-					       depends=['mingw-runtime']),
+					       depends=['mingw-runtime', 'expat', 'zlib']),
 		Libjpeg__mingw (settings).with (version='v6b', mirror=download.jpeg,
 						depends=['mingw-runtime']),
 		Libpng__mingw (settings).with (version='1.2.8', mirror=download.libpng,
@@ -1342,7 +1345,9 @@ def get_packages (settings):
 				      depends=['libtool']),
 		Pango__linux (settings).with (version='1.11.2', mirror=download.gnome_213, format='bz2',
 					      depends=['freetype', 'fontconfig', 'glib', 'libtool']),
-		Python (settings).with (version='2.4.2', mirror=download.python, format='bz2'),
+		Python (settings).with (version='2.4.2', mirror=download.python, format='bz2',
+					depends=['expat', 'zlib']
+					),
 		Libjpeg__linux (settings).with (version='v6b', mirror=download.jpeg),
 		Libpng (settings).with (version='1.2.8', mirror=download.libpng,
 					depends=['zlib']),
@@ -1366,7 +1371,7 @@ def get_packages (settings):
 		Guile__freebsd (settings).with (version='1.7.91', mirror=download.gnu, format='gz',
 						depends=['gettext', 'gmp', 'libtool',]),
 		Python (settings).with (version='2.4.2', mirror=download.python, format='bz2',
-					       depends=[]),
+					       depends=['expat', 'zlib']),
 	],
 	'local': [],
 	'debian': [
