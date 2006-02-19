@@ -351,6 +351,9 @@ class Guile__linux (Guile):
 			+ Guile.compile_command (self))
 
 class Guile__freebsd (Guile):
+	def config_cache_settings (self):
+		return Guile.config_cache_settings (self) + '\nac_cv_type_socklen_t=yes'
+
 	def configure_command (self):
 		# watch out for whitespace
 		builddir = self.builddir ()
