@@ -26,6 +26,20 @@ class Pkg_config (Tool_package):
 class Mftrace (Tool_package):
 	pass
 
+class Potrace (Tool_package):
+	pass
+
+class Fontforge (Tool_package):
+	def srcdir (self):
+		return re.sub ('_full', '', Tool_package.srcdir(self))
+
+	def xpatch (self):
+		Tool_package.patch (self)
+		self.shadow_tree ('%(srcdir)s', '%(builddir)s')
+
+	def install_command (self):
+		return self.broken_install_command ()
+		
 class Guile (Tool_package):
 	pass
 
@@ -157,6 +171,10 @@ def get_packages (settings):
 		Mftrace (settings).with (version='1.1.18',
 					 mirror="http://www.xs4all.nl/~hanwen/mftrace/mftrace-1.1.18.tar.gz"),
 
+		Potrace (settings).with (mirror="http://potrace.sourceforge.net/download/potrace-%(version)s.tar.gz",
+					 version="1.7"),
+		Fontforge (settings).with (mirror="http://fontforge.sourceforge.net/fontforge_full-%(version)s.tar.bz2",
+					 version="20060125"),
 		
 		Pkg_config (settings).with (version="0.20",
 					    mirror=download.freedesktop),
