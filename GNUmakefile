@@ -121,7 +121,7 @@ freebsd-runtime:
 
 DISTCC_DIRS=target/distcc/bin/  target/distccd/bin/
 distccd:
-	$(foreach p, $(PLATFORMS),$(call INVOKE_GUP, $(p)) install gcc && ) true
+	$(foreach p, $(PLATFORMS),$(call INVOKE_DRIVER, $(p)) build gcc && ) true
 	chmod +x specs/distcc.py
 	rm -rf $(DISTCC_DIRS)
 	-$(if $(wildcard log/distccd.pid),kill `cat log/distccd.pid`, true)
