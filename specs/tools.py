@@ -29,6 +29,9 @@ class Mftrace (Tool_package):
 class Potrace (Tool_package):
 	pass
 
+class Icoutils (Tool_package):
+	pass
+
 class Distcc (Tool_package):
 	pass
 
@@ -175,8 +178,8 @@ def get_packages (settings):
 					 mirror="http://www.xs4all.nl/~hanwen/mftrace/mftrace-1.1.18.tar.gz"),
 		Distcc (settings).with (version='2.18.3',
 					mirror="http://distcc.samba.org/ftp/distcc/distcc-%(version)s.tar.bz2"),
-		
-
+		Icoutils (settings).with (version='0.26.0',
+					  mirror='http://savannah.nongnu.org/download/icoutils/icoutils-%(version)s.tar.gz'),
 		Potrace (settings).with (mirror="http://potrace.sourceforge.net/download/potrace-%(version)s.tar.gz",
 					 version="1.7"),
 		Fontforge (settings).with (mirror="http://fontforge.sourceforge.net/fontforge_full-%(version)s.tar.bz2",
