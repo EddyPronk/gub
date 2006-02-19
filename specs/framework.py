@@ -1196,9 +1196,10 @@ class Libpng (targetpackage.Target_package):
 		self.update_libtool ()
 
 	def compile_command (self):
-
+		c = targetpackage.Target_package.compile_command (self)
 		## need to call twice, first one triggers spurious Automake stuff.		
-		return 'cd %(builddir)s && (make  || make)'
+		return '(%s) || (%s)' % (c,c)
+	
 class Libpng__mingw (Libpng):
 	def configure (self):
 		# libtool will not build dll if -no-undefined flag is
