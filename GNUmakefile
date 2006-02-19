@@ -1,10 +1,9 @@
 
 .PHONY: all default distclean download test TAGS
-.PHONY: cygwin darwin debian freebsd linux mac mingw
+.PHONY: cygwin darwin debian freebsd linux darwin mingw
 
 default: all
 
-all: linux mingw mac
 
 TEST_PLATFORMS=$(PLATFORMS)
 
@@ -61,7 +60,7 @@ download:
 	rm -f target/*/status/lilypond*
 	rm -f log/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).*.test.pdf
 
-all: linux freebsd mac mingw
+all: linux freebsd darwin mingw
 
 arm:
 	$(call BUILD,$@,lilypond)
