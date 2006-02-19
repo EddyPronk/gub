@@ -22,6 +22,10 @@ tar -C %(install_root)s/ -zcf %(gub_uploads)s/%(gub_name)s .
 class Pkg_config (Tool_package):
 	pass
 
+
+class Mftrace (Tool_package):
+	pass
+
 class Guile (Tool_package):
 	pass
 
@@ -150,6 +154,10 @@ def get_packages (settings):
 		Scons (settings).with (version='0.96.91',
 				       format = 'gz',
 				       mirror=download.sf),
+		Mftrace (settings).with (version='1.1.18',
+					 mirror="http://www.xs4all.nl/~hanwen/mftrace/mftrace-1.1.18.tar.gz"),
+
+		
 		Pkg_config (settings).with (version="0.20",
 					    mirror=download.freedesktop),
 		Guile (settings).with (version='1.6.7',
