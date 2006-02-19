@@ -12,8 +12,10 @@ class Gcc (cross.Gcc):
 mkdir -p %(crossprefix)s/%(target_architecture)s
 tar -C %(system_root)s/usr -cf- include lib | tar -C %(crossprefix)s/%(target_architecture)s -xf-
 ''')
-		self.file_sub ([('/mingw/include','/usr/include')],
-			       '%(srcdir)s/gcc/config/i386/t-mingw32')
+
+		for f in ['%(srcdir)s/gcc/config/i386/mingw32.h',
+			  '%(srcdir)s/gcc/config/i386/t-mingw32']:
+			self.file_sub ([('/mingw/include','/usr/include')], f)
 
 # UGH: MI
 class Mingw_runtime (gub.Binary_package, gub.Sdk_package):
