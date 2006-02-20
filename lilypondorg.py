@@ -10,6 +10,7 @@ import sys
 
 platforms = ['linux-x86',
 	     'darwin-ppc',
+	     'documentation',
 	     'freebsd-x86',
 #	     'linux-arm',
 	     'mingw']
@@ -31,6 +32,7 @@ formats = {
 	'freebsd-x86': 'sh',
 	'mingw':'exe',
 	'linux-arm': 'sh',
+	'documentation': 'tar.bz2',
 	}
 
 def system (c):
@@ -110,6 +112,7 @@ def upload_binaries (version):
 	barf = 0
 	for platform in platforms:
 		plat = get_alias (platform)
+		
 		format = formats[platform]
 		host = 'lilypond.org'
 		version_str = '.'.join (['%d' % v for v in version])
@@ -121,7 +124,8 @@ def upload_binaries (version):
 		if not os.path.exists (bin):
 			print 'binary does not exist', bin
 			barf = 1
-		elif not os.path.exists ('log/%s.test.pdf' % base):
+		elif (platform <> 'documentation'
+		      and  not os.path.exists ('log/%s.test.pdf' % base)):
 			print 'test result does not exist for %s' % base
 			barf = 1
 			
