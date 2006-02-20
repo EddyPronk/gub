@@ -209,16 +209,13 @@ class Nsis (Installer):
 class Linux_installer (Installer):
 	def __init__ (self, settings):
 		Installer.__init__ (self, settings)
-		self.bundle_tarball = '%(installer_uploads)s/%(name)s-%(bundle_version)s-%(bundle_build)s.%(platform)s.tar.bz2'
+		self.bundle_tarball = '%(targetdir)s/%(name)s-%(bundle_version)s-%(bundle_build)s.%(platform)s.tar.bz2'
 
 	def strip_prefixes (self):
 		return Installer.strip_prefixes (self)
 
-class Tarball (Linux_installer):
-	def create (self):
-		Linux_installer.create (self)
+	def create_tarball (self):
 		self.system ('tar -C %(installer_root)s -jcf %(bundle_tarball)s .', locals ())
-
 
 def create_shar (orig_file, hello, head, target_shar):
 	length = os.stat (orig_file)[6]
@@ -245,6 +242,8 @@ def create_shar (orig_file, hello, head, target_shar):
 
 class Shar (Linux_installer):
 	def create (self):
+		self.create_tarball ()
+		
 		target_shar = self.expand ('%(installer_uploads)s/%(name)s-%(bundle_version)s-%(bundle_build)s.%(platform)s.sh')
 
 		head = self.expand ('%(patchdir)s/sharhead.sh')
@@ -277,21 +276,16 @@ class Autopackage (Linux_installer):
 def get_installers (settings):
 	installers = {
 		'arm' : [
-		Tarball (settings),
 		Shar (settings),
 		],
 		'darwin' : [Darwin_bundle (settings)],
 		'freebsd' : [
-		Tarball (settings),
 		Shar (settings),
 		],
 		'linux' : [
 		
 		## not alphabetically, used by others		
-		Tarball (settings),
 		Shar (settings),
-#		Deb (settings),
-#		Rpm (settings),
 		],
 		'mingw' : [Nsis (settings)],
 	}
