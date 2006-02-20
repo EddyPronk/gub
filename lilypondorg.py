@@ -77,6 +77,23 @@ def get_max_builds (platform):
 
 	return builds
 	
+def max_branch_version_build (branch, platform):
+	vbs = get_versions (platform)
+
+	vs = [v for (v,b) in vbs if v[0:2] == branch]
+	vs.sort()
+	try:
+		max_version = vs[-1]
+	except IndexError:
+		max_version = (0,0,0)
+		
+	max_b = 0
+	for (v,b) in get_versions (platform):
+		if v == max_version:
+			max_b = max (b, max_b)
+
+	return (max_version, max_b)
+
 def max_version_build (platform):
 	vbs = get_versions (platform)
 	vs = [v for (v,b) in vbs]
@@ -157,7 +174,9 @@ if __name__ == '__main__':
 		version = tuple (map (string.atoi, sys.argv[2].split ('.')))
 		upload_binaries (version)
 	else:
+		print max_version_build ('documentation')
 		print max_src_version ((2,7))
+		print max_branch_version_build ((2, 6), 'linux-x86')
 	#print max_version_build ('darwin-ppc')
 	
 	
