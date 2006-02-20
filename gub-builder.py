@@ -17,6 +17,7 @@ import gub
 import settings as settings_mod
 import xpm
 import subprocess
+import installer
 
 def get_settings (platform):
 	settings = settings_mod.Settings (platform)
@@ -53,6 +54,7 @@ Commands:
 download          - download packages
 build             - build target packages
 build-installer   - build installer root
+strip-installer   - strip installer root
 package-installer - build installer binary
 
 """
@@ -125,8 +127,13 @@ def build_installer (settings, target_manager, args):
 	for p in install_manager._packages.values ():
 		install_manager.install_package  (p)
 
-def package_installers (settings):
-	import installer
+def strip_installer (settings):
+	for p in installer.get_installers (settings):
+		settings.os_interface.log_command (' ** Stage: %s (%s)\n'
+						   % ('strip', p.name ()))
+		p.strip ()
+
+def package_installer (settings):
 	for p in installer.get_installers (settings):
 		settings.os_interface.log_command (' *** Stage: %s (%s)\n'
 						   % ('create', p.name ()))
@@ -185,8 +192,10 @@ def main ():
 		run_builder (settings, target_manager, commands)
 	elif c == 'build-installer':
 		build_installer (settings, target_manager, commands)
+	elif c == 'strip-installer':
+		strip_installer (settings)
 	elif c == 'package-installer':
-		package_installers (settings)
+		package_installer (settings)
 	else:
 		raise 'unknown driver command %s.' % c
 		cli_parser.print_help ()

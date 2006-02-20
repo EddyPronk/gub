@@ -46,6 +46,7 @@ INVOKE_GUP=python gup-manager.py \
 
 BUILD=$(call INVOKE_DRIVER,$(1)) build $(2) \
   && $(call INVOKE_DRIVER,$(1)) build-installer \
+  && $(call INVOKE_DRIVER,$(1)) strip-installer \
   && $(call INVOKE_DRIVER,$(1)) package-installer \
 
 CWD:=$(shell pwd)

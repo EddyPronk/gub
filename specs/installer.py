@@ -135,7 +135,7 @@ class Installer (context.Os_context_wrapper):
 		self.strip_binary_dir ('%(installer_root)s/usr/bin')
 		
 	def create (self):
-		self.strip ()
+		pass
 		
 class Darwin_bundle (Installer):
 	def __init__ (self, settings):
