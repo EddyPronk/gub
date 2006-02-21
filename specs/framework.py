@@ -472,6 +472,10 @@ cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/
 		self.system ("cd %(install_root)s/usr/share/lilypond && rm -f current && ln -sf %(v)s current",
 			     locals ())
 
+		self.system ("cd %(install_root)s/usr/lib/lilypond && rm -f current && ln -sf %(v)s current",
+			     locals ())
+
+
         def gub_name (self):
 		nv = self.name_version ()
 		p = self.settings.platform
@@ -1265,8 +1269,8 @@ def get_packages (settings):
 		Gmp__darwin (settings).with (version='4.1.4',depends=['darwin-sdk']),
 		Fondu__darwin (settings).with (version="060102",
 					       mirror='http://fondu.sourceforge.net/fondu_src-060102.tgz'),
-		Guile__darwin (settings).with (version='1.7.91',
-					       mirror=download.alpha, format='gz',
+		Guile__darwin (settings).with (version='1.8.0',
+					       mirror=download.gnu, format='gz',
 					       depends=['gmp','darwin-sdk']),
 		Libjpeg__darwin (settings).with (version='v6b', mirror=download.jpeg),
 		Libpng (settings).with (version='1.2.8', mirror=download.libpng),
@@ -1302,7 +1306,7 @@ def get_packages (settings):
 		Gmp__mingw (settings).with (version='4.1.4',
 					    depends=['mingw-runtime', 'libtool']),
 		# FIXME: we're actually using 1.7.2-cvs+, 1.7.2 needs too much work
-		Guile__mingw (settings).with (version='1.7.91', mirror=download.alpha, format='gz',
+		Guile__mingw (settings).with (version='1.8.0', mirror=download.gnu, format='gz',
 		#version='1.7.2-3', mirror=download.lp, format='bz2',
 					      depends=['mingw-runtime', 'gettext', 'gmp', 'libtool', 'regex']),
 		Glib (settings).with (version='2.9.5', mirror=download.gnome_213, format='bz2',
@@ -1338,8 +1342,8 @@ def get_packages (settings):
 		Gmp (settings).with (version='4.1.4',
 				     depends=['libtool']),
 		# FIXME: we're actually using 1.7.2-cvs+, 1.7.2 needs too much work
-		Guile__linux (settings).with (version='1.7.91',
-					       mirror=download.alpha, format='gz',
+		Guile__linux (settings).with (version='1.8.0',
+					       mirror=download.gnu, format='gz',
 					      #version='1.7.2-3', mirror=download.lp, format='bz2',
 					      depends=['gettext', 'gmp', 'libtool']),
 		Glib (settings).with (version='2.9.5', mirror=download.gnome_213, format='bz2',
@@ -1369,7 +1373,7 @@ def get_packages (settings):
 				      depends=['libtool', 'libiconv']),
 		Gettext__freebsd (settings).with (version='0.14.1-1', mirror=download.lp, format='bz2',
 						  depends=['libtool', 'libgnugetopt']),
-		Guile__freebsd (settings).with (version='1.7.91', mirror=download.gnu, format='gz',
+		Guile__freebsd (settings).with (version='1.8.0', mirror=download.gnu, format='gz',
 						depends=['gettext', 'gmp', 'libtool',]),
 		Python (settings).with (version='2.4.2', mirror=download.python, format='bz2',
 					       depends=['expat', 'zlib']),
