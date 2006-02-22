@@ -121,7 +121,7 @@ for interp in python guile ; do
   rm -f "$wrapscript.$interp" > /dev/null 2>&1
   cat<<EOF > "$wrapscript.$interp"
 #!/bin/sh
-export PYTHONPATH="${prefix}lilypond/usr/share/lilypond/current/python/:${dollar}PYTHONPATH"
+export PYTHONPATH="${prefix}lilypond/usr/lib/lilypond/current/python/:${prefix}lilypond/usr/share/lilypond/current/python/:${dollar}PYTHONPATH"
 me=${backquote}basename ${dollar}0${backquote}
 exec "${lilydir}usr/bin/$interp" ${callmain} "${lilydir}usr/bin/${dollar}me" $expandargs
 EOF
