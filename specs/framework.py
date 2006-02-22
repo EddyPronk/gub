@@ -291,9 +291,13 @@ class Guile__mingw (Guile):
 		# watch out for whitespace
 		builddir = self.builddir ()
 		srcdir = self.srcdir ()
+
+
+# don't set PATH_SEPARATOR; it will fuckup tool searching for the
+# build platform. 
+
 		return (Guile.configure_command (self)
 		       + misc.join_lines ('''
-PATH_SEPARATOR=";"
 LDFLAGS=-L%(system_root)s/usr/lib
 CC_FOR_BUILD="
 C_INCLUDE_PATH=
@@ -327,6 +331,14 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
 			
 		Guile.configure (self)
 
+
+
+		## probably not necessary, but just be sure.
+		for l in locate_files (self, '%(builddir)s', "Makefile"):
+			self.file_sub ([
+				('PATH_SEPARATOR = .', 'PATH_SEPARATOR = ;'),
+				], l)
+		
 		self.file_sub ([
 			('^\(allow_undefined_flag=.*\)unsupported', '\\1'),
 			('-mwindows', ''),
@@ -358,8 +370,6 @@ class Guile__freebsd (Guile):
 		# watch out for whitespace
 		builddir = self.builddir ()
 		srcdir = self.srcdir ()
-# FIXME: ugh, C&P from Guile__mingw, put in cross-Guile?
-##PATH_SEPARATOR=";"
 		return (Guile.configure_command (self)
 		       + misc.join_lines ('''\
 CC_FOR_BUILD="
