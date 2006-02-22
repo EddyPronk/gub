@@ -138,5 +138,5 @@ distccd:
 		--log-file $(CWD)/log/distccd.log  --log-level info
 
 doc:
-	make -C target/$(BUILD_PLATFORM)/build/lilypond-$(LILYPOND_BRANCH) LILYPOND_EXTERNAL_BINARY=$(CWD)/target/$(BUILD_PLATFORM)/system/usr/bin/lilypond web
+	make -C target/$(BUILD_PLATFORM)/build/lilypond-$(LILYPOND_BRANCH) LILYPOND_EXTERNAL_BINARY=$(CWD)/target/$(BUILD_PLATFORM)/system/usr/bin/lilypond DOCUMENTATION=yes web 
 	tar -C target/$(BUILD_PLATFORM)/build/lilypond-$(LILYPOND_BRANCH)/out-www/web-root/ -cjf $(CWD)/uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).documentation.tar.bz2 .
