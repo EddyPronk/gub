@@ -242,7 +242,7 @@ class Os_context_wrapper (Context):
 	
 	def locate_files (self, directory, pattern):
 		command = "cd %(directory)s && find -name '%(pattern)s'" % locals()
-		return self.read_pipe (command).split ('\n')
+		return [f for f in  self.read_pipe (command).split ('\n') if f.strip()]
 
 if __name__=='__main__':
 	class TestBase(Context):
