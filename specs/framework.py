@@ -982,7 +982,7 @@ class Ghostscript (targetpackage.Target_package):
 				(r'\$\(exdir\)', '$(DESTDIR)$(exdir)'),
 				],
 			       '%(srcdir)s/src/unixinst.mak')
-#		self.system ("cd %(srcdir)s && patch -p2 < %(patchdir)s/gs-ttf.patch")
+		self.system ("cd %(srcdir)s && patch -p2 < %(patchdir)s/ghostscript-8.50-ttf.patch")
 
 	def fixup_arch (self):
 		substs = []
