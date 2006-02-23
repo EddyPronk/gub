@@ -236,7 +236,7 @@ class Guile (targetpackage.Target_package):
 
 	def patch (self):
 		self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/guile-reloc.patch')
-
+		self.autoupdate()
 	def configure_command (self):
 		return (targetpackage.Target_package.configure_command (self)
 			+ misc.join_lines ('''
