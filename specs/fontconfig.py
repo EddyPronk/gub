@@ -6,7 +6,7 @@ class Fontconfig (targetpackage.Target_package):
 	def __init__ (self, settings):
 		targetpackage.Target_package.__init__ (self, settings)
 		self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
-			   depends=['fontconfig', 'gettext', 'guile',
+			   depends=['gettext', 'guile',
 				    'ghostscript', 'pango', 'python'],
 			   track_development=True)
 
