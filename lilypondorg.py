@@ -178,6 +178,3 @@ if __name__ == '__main__':
 		print max_src_version ((2,7))
 		print max_branch_version_build ((2, 6), 'linux-x86')
 	#print max_version_build ('darwin-ppc')
-	
-	
-	     

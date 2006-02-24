@@ -33,7 +33,8 @@ class Icoutils (Tool_package):
 	pass
 
 class Distcc (Tool_package):
-	pass
+	def patch (self):
+		self.system ("cd %(srcdir)s && patch -p1 < %(patchdir)s/distcc-substitute.patch")
 
 class Fontforge (Tool_package):
 	def srcdir (self):

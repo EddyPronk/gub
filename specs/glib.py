@@ -31,4 +31,9 @@ class Glib__freebsd (Glib):
 	def __init__ (self, settings):
 		Glib.__init__ (self, settings)
 		self.with (version='2.9.5', mirror=download.gnome_213, format='bz2',
-			   depends=['gettext', 'libiconv'])
+			   depends=['gettext', 'libiconv', 'libtool'])
+
+# FIXME: handling libtool+libiconv dependencies smarter (adding for
+# mingw/freebsd or removing for darwin) would allow dropping quite some
+# __platform overrides.
+GLib__mingw = Glib__freebsd

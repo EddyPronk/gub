@@ -1,6 +1,8 @@
 import re
+import os
 
 import download
+import misc
 import targetpackage
 
 class Libjpeg (targetpackage.Target_package):

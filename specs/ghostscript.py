@@ -1,4 +1,8 @@
+import os
+import re
+
 import download
+import misc
 import targetpackage
 
 class Ghostscript (targetpackage.Target_package):

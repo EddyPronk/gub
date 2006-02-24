@@ -42,6 +42,11 @@ ModulesPath = "$PANGO_PREFIX/lib/pango/1.4.0/modules"
 			      etc)
 
 class Pango__mingw (Pango):
+	def __init__ (self, settings):
+		Pango.__init__ (self, settings)
+		self.with (version='1.11.2', mirror=download.gnome_213, format='bz2',
+			   depends=['freetype', 'fontconfig', 'glib', 'libiconv', 'libtool'])
+
 	def install (self):
 		targetpackage.Target_package.install (self)
 		self.system ('mkdir -p %(install_root)s/usr/etc/pango')
@@ -89,4 +94,4 @@ class Pango__freebsd (Pango):
 	def __init__ (self, settings):
 		Pango.__init__ (self, settings)
 		self.with (version='1.11.2', mirror=download.gnome_213, format='bz2',
-			   depends=['freetype', 'fontconfig', 'glib', 'libiconv'])
+			   depends=['freetype', 'fontconfig', 'glib', 'libiconv', 'libtool'])

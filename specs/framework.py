@@ -13,24 +13,17 @@ from python import *
 from ghostscript import *
 from guile import *
 
-def package_fixups (settings, packs):
-	deps = {
-		'arm': ['libc6','libc6-dev', 'linux-kernel-headers'],
-		'cygwin' : [],
-		'debian' : [],
-		'darwin' : ['darwin-sdk'],
-		'linux' : [],
-		'mingw': ['mingw-runtime'],
-		'freebsd': ['freebsd-runtime'],
-		}
+import gub
+import cross
 
-	for i in packs:
-		if not i.name () in ('binutils', 'gcc'):
-			i.name_dependencies += deps[settings.platform]
-
+def package_fixups (settings, packs, extra_build_deps):
 	for p in packs:
 		if p.name () == 'lilypond':
 			p._downloader = p.cvs
+		if (not isinstance (p, gub.Sdk_package)
+		    and not isinstance (p, cross.Cross_package)):
+			p.name_build_dependencies += filter (lambda x: x != p.name (),
+							     extra_build_deps)
 
 def version_fixups (settings, packs):
 	try:

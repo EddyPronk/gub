@@ -7,4 +7,4 @@ import targetpackage
 class Libtool (targetpackage.Target_package):
 	def __init__ (self, settings):
 		targetpackage.Target_package.__init__ (self, settings)
-		self.with (version='1.5.22')
+		self.with (version='1.5.20')

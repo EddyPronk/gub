@@ -1,5 +1,6 @@
 import download
 import targetpackage
+import misc
 
 class LilyPad (targetpackage.Target_package):
 	def __init__ (self, settings):

@@ -1,4 +1,5 @@
 import download
+import misc
 import targetpackage
 
 class Expat (targetpackage.Target_package):
@@ -18,10 +19,10 @@ EXEEXT=
 RUN_FC_CACHE_TEST=false
 ''')
 	def compile_command (self):
-		return targetpackage.Target_package.compile_command (self) \
-		       + self.makeflags ()
+		return (targetpackage.Target_package.compile_command (self)
+			+ self.makeflags ())
 
 	def install_command (self):
 		return (targetpackage.Target_package.broken_install_command (self)
-		       + self.makeflags ())
+			+ self.makeflags ())
 
