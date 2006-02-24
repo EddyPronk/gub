@@ -1,0 +1,179 @@
+Only in distcc-2.18.3.subs: config.log
+Only in distcc-2.18.3.subs: config.status
+Only in distcc-2.18.3.subs: distcc
+Only in distcc-2.18.3.subs: distccd
+Only in distcc-2.18.3.subs: distccmon-text
+Only in distcc-2.18.3.subs/lzo: minilzo.o
+Only in distcc-2.18.3.subs/lzo: .stamp-conf
+Only in distcc-2.18.3.subs: Makefile
+diff -ur distcc-2.18.3/man/distcc.1 distcc-2.18.3.subs/man/distcc.1
+--- distcc-2.18.3/man/distcc.1	2004-10-24 07:05:23.000000000 +0200
++++ distcc-2.18.3.subs/man/distcc.1	2006-02-20 13:50:35.000000000 +0100
+@@ -420,6 +420,19 @@
+ error stream or in the log file.  This can be helpful in debugging
+ problems.  Bug reports should include verbose output.
+ .TP
++.B "DISTCC_SUBSTITUTE_compilername"
++Before shipping a job to a remote client, distcc will substitute
++the value of this variable for
++.B compiler;
++compilername should uppercase, with non-alphanumeric characters
++replaced by Xs.  For example, a call of g++ can be changed to by
++i686-linux-g++-3.4 remotely by setting
++.PP
++.nf
++  DISTCC_SUBSTITUTE_GXX="i686-linux-g++-3.4" 
++.fi
++.PP
++.TP
+ .B "DISTCC_LOG"
+ Log file to receive messages from distcc itself, rather
+ than stderr.
+@@ -469,10 +482,11 @@
+ mixed-architecture machines, although some changes to the
+ compilation commands may be required.
+ .PP
+-The compilation command passed to distcc must be one that
+-will execute properly on every volunteer machine to produce
+-an object file of the appropriate type.  If the machines
+-have different processors, then simply using 
++The compilation command passed to distcc or set in
++DISTCC_SUBSTITUTE_compilername must be one that will execute properly
++on every volunteer machine to produce an object file of the
++appropriate type.  If the machines have different processors, then
++simply using
+ .B distcc cc
+ will probably not work, because that will normally invoke the
+ volunteer's native compiler.
+Only in distcc-2.18.3.subs/man: distcc.1~
+Only in distcc-2.18.3.subs/popt: .stamp-conf
+Only in distcc-2.18.3.subs/src: access.o
+Only in distcc-2.18.3.subs/src: arg.o
+Only in distcc-2.18.3.subs/src: argutil.o
+Only in distcc-2.18.3.subs/src: backoff.o
+Only in distcc-2.18.3.subs/src: bulk.o
+Only in distcc-2.18.3.subs/src: cleanup.o
+Only in distcc-2.18.3.subs/src: climasq.o
+Only in distcc-2.18.3.subs/src: clinet.o
+Only in distcc-2.18.3.subs/src: clirpc.o
+Only in distcc-2.18.3.subs/src: compile.o
+Only in distcc-2.18.3.subs/src: compress.o
+Only in distcc-2.18.3.subs/src: config.h
+Only in distcc-2.18.3.subs/src: cpp.o
+Only in distcc-2.18.3.subs/src: daemon.o
+diff -ur distcc-2.18.3/src/distcc.c distcc-2.18.3.subs/src/distcc.c
+--- distcc-2.18.3/src/distcc.c	2004-10-02 02:47:07.000000000 +0200
++++ distcc-2.18.3.subs/src/distcc.c	2006-02-20 13:11:49.000000000 +0100
+@@ -136,7 +136,6 @@
+ }
+ 
+ 
+-
+ /**
+  * distcc client entry point.
+  *
+Only in distcc-2.18.3.subs/src: distcc.c~
+Only in distcc-2.18.3.subs/src: distcc.o
+Only in distcc-2.18.3.subs/src: dopt.o
+Only in distcc-2.18.3.subs/src: dparent.o
+Only in distcc-2.18.3.subs/src: dsignal.o
+Only in distcc-2.18.3.subs/src: exec.o
+Only in distcc-2.18.3.subs/src: filename.o
+Only in distcc-2.18.3.subs/src: help.o
+Only in distcc-2.18.3.subs/src: hostfile.o
+Only in distcc-2.18.3.subs/src: hosts.o
+Only in distcc-2.18.3.subs/src: implicit.o
+Only in distcc-2.18.3.subs/src: io.o
+Only in distcc-2.18.3.subs/src: loadfile.o
+Only in distcc-2.18.3.subs/src: lock.o
+Only in distcc-2.18.3.subs/src: mon.o
+Only in distcc-2.18.3.subs/src: mon-text.o
+Only in distcc-2.18.3.subs/src: ncpus.o
+Only in distcc-2.18.3.subs/src: netutil.o
+Only in distcc-2.18.3.subs/src: prefork.o
+Only in distcc-2.18.3.subs/src: pump.o
+diff -ur distcc-2.18.3/src/remote.c distcc-2.18.3.subs/src/remote.c
+--- distcc-2.18.3/src/remote.c	2004-10-24 07:05:49.000000000 +0200
++++ distcc-2.18.3.subs/src/remote.c	2006-02-20 13:44:02.000000000 +0100
+@@ -33,6 +33,7 @@
+ #include <string.h>
+ #include <fcntl.h>
+ #include <errno.h>
++#include <ctype.h>
+ 
+ #include <sys/types.h>
+ #include <sys/time.h>
+@@ -115,6 +116,44 @@
+     return 0;
+ }
+ 
++static int isidchar (int c)
++{
++    return isalnum (c) || c == '_' || c == '-';
++}
++
++/*
++ * On a remote host of different architecture, we might want to
++ * execute TARGET-gcc iso. gcc.
++ * this is controlled with DISTCC_SUBSTITUTE_<upcase compiler name>
++ */
++static char *
++dcc_substitute_compiler_name (char *name)
++{
++    const char *generic = "DISTCC_SUBSTITUTE_" ;
++    size_t n = strlen (generic);
++    char *key = malloc (strlen (name) + n + 1);
++    char *p = key;
++    char *q = name;
++    
++    if (!key) {
++        rs_log_crit("allocation failed!");
++        return NULL;
++    }
++    
++    strncpy (key, generic, n);
++    for (p = key + n, q = name; *q; q++, p++) {
++        *p = toupper (*q);
++        if (!isidchar(*p))
++            *p = 'X';
++    }
++    *p = 0;
++
++    if (getenv (key)) 
++        return strdup (getenv (key));
++    
++    return name;
++}
++
+ 
+ /* Send a request across to the already-open server.
+  *
+@@ -187,6 +226,8 @@
+     if (gettimeofday(&before, NULL))
+         rs_log_warning("gettimeofday failed");
+ 
++    argv[0] = dcc_substitute_compiler_name (argv[0]);
++    
+     dcc_note_execution(host, argv);
+     dcc_note_state(DCC_PHASE_CONNECT, input_fname, host->hostname);
+ 
+Only in distcc-2.18.3.subs/src: remote.c~
+Only in distcc-2.18.3.subs/src: remote.o
+Only in distcc-2.18.3.subs/src: rpc.o
+Only in distcc-2.18.3.subs/src: safeguard.o
+Only in distcc-2.18.3.subs/src: sendfile.o
+Only in distcc-2.18.3.subs/src: serve.o
+Only in distcc-2.18.3.subs/src: setuid.o
+Only in distcc-2.18.3.subs/src: snprintf.o
+Only in distcc-2.18.3.subs/src: srvnet.o
+Only in distcc-2.18.3.subs/src: srvrpc.o
+Only in distcc-2.18.3.subs/src: ssh.o
+Only in distcc-2.18.3.subs/src: state.o
+Only in distcc-2.18.3.subs/src: strip.o
+Only in distcc-2.18.3.subs/src: tempfile.o
+Only in distcc-2.18.3.subs/src: timefile.o
+Only in distcc-2.18.3.subs/src: timeval.o
+Only in distcc-2.18.3.subs/src: traceenv.o
+Only in distcc-2.18.3.subs/src: trace.o
+Only in distcc-2.18.3.subs/src: util.o
+Only in distcc-2.18.3.subs/src: where.o
