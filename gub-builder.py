@@ -11,13 +11,14 @@ import types
 
 sys.path.insert (0, 'specs/')
 
+import cross
 import distcc
 import framework
 import gub
-import settings as settings_mod
-import xpm
-import subprocess
 import installer
+import settings as settings_mod
+import subprocess
+import xpm
 
 def get_settings (platform):
 	settings = settings_mod.Settings (platform)
@@ -145,6 +146,20 @@ def run_builder (settings, manager, args):
 	## crossprefix is also necessary for building cross packages, such as GCC
 	os.environ["PATH"] = settings.expand ('%(crossprefix)s/bin:%(PATH)s',
 					      locals ())
+
+	sdk_pkgs = [p for p in manager._packages.values ()
+		    if isinstance (p, gub.Sdk_package)]
+	cross_pkgs = [p for p in manager._packages.values ()
+		    if isinstance (p, cross.Cross_package)]
+
+	extra_build_deps = [p.name () for p in sdk_pkgs + cross_pkgs]
+	for a in args:
+		manager.name_register_package (settings, a)
+
+	framework.package_fixups (settings, manager._packages.values (),
+				  extra_build_deps)
+	framework.version_fixups (settings, manager._packages.values ())
+
 	pkgs = map (lambda x: manager._packages[x], args)
 
 	if not settings.options.stage:
@@ -159,7 +174,10 @@ def run_builder (settings, manager, args):
 	for p in pkgs:
 		manager.build_package (p)
 
-def download_sources (manager, args):
+def download_sources (settings, manager, args):
+	for a in args:
+		manager.name_register_package (settings, a)
+
 	for n in args:
 		manager.name_download (n)
 
@@ -187,7 +205,7 @@ def main ():
 
 	c = commands.pop (0)
 	if c == 'download':
-		download_sources (target_manager, commands)
+		download_sources (settings, target_manager, commands)
 	elif c == 'build':
 		run_builder (settings, target_manager, commands)
 	elif c == 'build-installer':

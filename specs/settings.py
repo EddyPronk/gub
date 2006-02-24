@@ -53,6 +53,7 @@ class Settings (Context):
 		#self.gub_uploads = self.uploads + '/gub'
 		self.gub_uploads = self.uploads + '/' + self.platform
 
+		self.distcc_hosts = ''
 		# FIXME: rename to target_root?
 		self.system_root = self.targetdir + '/system'
 		self.crossprefix = self.system_root + '/usr/cross'
