@@ -7,13 +7,11 @@ import gzip
 import os
 import re
 import string
-
-#
-import framework
-import gub
 import fcntl
 import sys
 
+#
+import gub
 from misc import *
 
 # X package manager (x for want of better name)
@@ -29,14 +27,13 @@ class Package_manager:
 		if not os.path.isdir (self.config):
 			os_interface.system ('mkdir -p %s' % self.config)
 
-
-		
 		lock_file = self.config + 'lock'
 		self._lock_file = open (lock_file, 'w')
 
 		try:
-			fcntl.flock (self._lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
-		except IOError:			
+			fcntl.flock (self._lock_file.fileno(),
+				     fcntl.LOCK_EX | fcntl.LOCK_NB)
+		except IOError:
 			sys.stderr.write ("Can't acquire Package_manager lock %s\n\nAbort\n" % lock_file)
 			sys.exit (1)
 
@@ -47,7 +44,6 @@ class Package_manager:
 						       + '/packages.db', 'c')
 		self._package_version_db = dbmodule.open (self.config
 						       + '/versions.db', 'c')
-		
 
 	def is_installable (self, package):
 		ball = package.expand ('%(gub_uploads)s/%(gub_name)s')
@@ -84,7 +80,7 @@ class Package_manager:
 
 	def is_downloaded (self, package):
 		return package.is_downloaded ()
-	
+
 	def download_package (self, package):
 		package.do_download ()
 
@@ -122,14 +118,14 @@ class Package_manager:
 		self._package_file_db[name] = '\n'.join (lst)
 		self._package_version_db[name] = package.full_version ()
 		for f in lst:
-			
+
 			# ignore directories.
 			if f and  f[-1] != '/':
 				self._file_package_db[f] = name
-			
+
 	def is_registered (self, package):
 		return self._packages.has_key (package.name())
-	
+
 	def register_package (self, package):
 		if package.verbose:
 			self.os_interface.log_command ('registering package: %s\n'
@@ -141,7 +137,7 @@ class Package_manager:
 					       % `package`)
 		lst = self.installed_files (package)
 		name = package.name()
-		
+
 		dirs = []
 		files = []
 		for i in lst:
@@ -153,7 +149,7 @@ class Package_manager:
 				print 'xpm: uninstall: %s' % package
 				print 'xpm: no such file: %s' % f
 				# should've dealt with this in install stage.
-			        print "\n\nBARF\n\n" 
+			        print "\n\nBARF\n\n"
 			elif os.path.isdir (f):
 				dirs.append (f)
 			else:
@@ -177,7 +173,59 @@ class Package_manager:
 				print 'db delete failing for ', f
 		del self._package_file_db[name]
 		del self._package_version_db[name]
-	
+
+	def _load_spec (self, settings, url):
+		name = os.path.basename (url)
+		version = None
+		try:
+			import misc
+			ball = name
+			name, v, format = misc.split_ball (ball)
+			##version = misc.version_to_string (v)
+			if v == (0, 0):
+				name = url
+			else:
+				version = '.'.join (v[:-1])
+		except:
+			pass
+		file_name = settings.specdir + '/' + name + '.py'
+		class_name = name[0].upper () + name[1:]
+		Package = None
+		if os.path.exists (file_name):
+			import imp
+			desc = ('.py', 'U', 1)
+			file = open (file_name)
+			module = imp.load_module (name, file, file_name, desc)
+			class_name__platform = (class_name
+						+ '__' + settings.platform)
+			d = module.__dict__
+			if d.has_key (class_name__platform):
+				Package = d[class_name__platform]
+			else:
+				Package = d[class_name]
+		else:
+			# Without explicit spec will only work if URL
+			# includes version and format, eg,
+			# url=libtool-1.5.22.tar.gz
+			from new import classobj
+			import targetpackage
+			Package = classobj (name,
+					    (targetpackage.Target_package,),
+					    {})
+		package = Package (settings)
+		if version:
+			package.with (mirror=url, format=format,
+				      version=version)
+		return package
+
+	def name_register_package (self, settings, name):
+		if not self._packages.has_key (name):
+			self._packages[name] = self._load_spec (settings,
+								   name)
+			for i in self._packages[name].name_dependencies:
+				self.name_register_package (settings, i)
+
+
 	# NAME_ shortcuts
 	def name_build (self, name):
 		self.build_package (self._packages[name])
@@ -197,7 +245,7 @@ class Package_manager:
 			raise "Unknown package", k
 
 class Dependency_manager (Package_manager):
-	
+
 	"Manage packages that have dependencies and build_dependencies."
 
 	def determine_dependencies (self, package):
@@ -206,6 +254,9 @@ class Dependency_manager (Package_manager):
 						       % `package`)
 		package._dependencies = []
 		package._build_dependencies = []
+		for n in (package.name_dependencies
+			  + package.name_build_dependencies):
+			self.name_register_package (package.settings, n)
 		try:
 			package._dependencies = map (lambda x:
 						     self._packages[x],
@@ -229,7 +280,7 @@ class Dependency_manager (Package_manager):
 				       package._build_dependencies,
 				       self._packages)
 				raise 'BARF'
-			
+
 			## should use name_dependencies ?
 			#if self.include_build_deps:
 			#	package._dependencies += package._build_dependencies
@@ -251,7 +302,7 @@ class Dependency_manager (Package_manager):
 			self.determine_dependencies (package)
 
 		return package._dependencies + package._build_dependencies
-	
+
 	def with_dependencies (self, package, action=None, recurse_stop_predicate=None):
 		todo = []
 		add_packages = [package]
@@ -270,7 +321,7 @@ class Dependency_manager (Package_manager):
 
 			todo += add_packages
 			add_packages = new_add
-			
+
 		sorted = self.topological_sort (todo)
 		for p in sorted:
 			action (p)
@@ -297,7 +348,7 @@ class Dependency_manager (Package_manager):
 
 		sorted = []
 		while deps:
-			min_dep_count = min ([len(ds) for (n,ds) in deps.items ()]) 
+			min_dep_count = min ([len(ds) for (n,ds) in deps.items ()])
 			rm = [n for (n, ds) in deps.items () if len (ds) == min_dep_count]
 
 			if rm == []:
@@ -308,7 +359,7 @@ class Dependency_manager (Package_manager):
 				      if len (ds) > min_dep_count)
 			for ds in deps.values ():
 				ds[:] = [d for d in ds if d not in rm]
-				
+
 		return sorted
 
 
@@ -433,12 +484,12 @@ class Debian_package_manager (Dependency_manager):
 			blacklist = ('perl', 'perl-modules', 'perl-base')
 			deps = filter (lambda x: x not in blacklist, deps)
 			package.name_dependencies = deps
- 
+
 		package.name_build_dependencies = []
 		package.ball_version = d['Version']
 		package.url = self.mirror + '/' + d['Filename']
 		package.format = 'deb'
-		
+
 		return package
 
 def get_manager (settings):
@@ -471,14 +522,11 @@ def get_manager (settings):
 		cross_module = mingw
 
 	cross_packages = cross_module.get_packages (settings)
-	
+
 	target_manager = Dependency_manager (settings.system_root,
 					     settings.os_interface)
 
 	map (target_manager.register_package, cross_packages)
-
-	target_pkgs = framework.get_packages (settings)
-	map (target_manager.register_package, target_pkgs)
 
 	cross_module.change_target_packages (target_manager._packages.values ())
 

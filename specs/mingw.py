@@ -2,7 +2,6 @@ import os
 import re
 
 import download
-import framework
 import gub
 import cross
 
