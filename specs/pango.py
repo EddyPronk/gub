@@ -1,6 +1,7 @@
 import shutil
 
 import download
+import misc
 import targetpackage
 
 class Pango (targetpackage.Target_package):
