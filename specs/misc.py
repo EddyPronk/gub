@@ -1,4 +1,5 @@
 # misc utils
+import os
 import re
 import string
 import sys
