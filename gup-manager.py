@@ -14,7 +14,6 @@ import sys
 
 sys.path.insert (0, 'specs/')
 
-import framework
 import gub
 import settings as settings_mod
 import xpm
