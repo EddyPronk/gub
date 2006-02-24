@@ -4,7 +4,6 @@ import re
 
 import cross
 import download
-import framework
 import gub
 import targetpackage
 
