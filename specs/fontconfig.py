@@ -1,4 +1,3 @@
-import cvs
 import download
 import misc
 import targetpackage
@@ -6,10 +5,8 @@ import targetpackage
 class Fontconfig (targetpackage.Target_package):
 	def __init__ (self, settings):
 		targetpackage.Target_package.__init__ (self, settings)
-		self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
-			   depends=['gettext', 'guile',
-				    'ghostscript', 'pango', 'python'],
-			   track_development=True)
+		self.with (version='2.3.2', mirror=download.fontconfig,
+			   depends=['expat', 'freetype', 'libtool']),
 
 	def configure_command (self):
 		# FIXME: system dir vs packaging install
