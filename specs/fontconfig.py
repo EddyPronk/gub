@@ -1,5 +1,6 @@
 import cvs
 import download
+import misc
 import targetpackage
 
 class Fontconfig (targetpackage.Target_package):
