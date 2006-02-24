@@ -14,24 +14,6 @@ from ghostscript import *
 from guile import *
 
 def package_fixups (settings, packs):
-	deps = {
-		'arm': ['libc6','libc6-dev', 'linux-kernel-headers'],
-		'cygwin' : [],
-		'debian' : [],
-		'darwin' : ['darwin-sdk'],
-		'linux' : [],
-		'mingw': ['mingw-runtime'],
-		'freebsd': ['freebsd-runtime'],
-		}
-
-	ex =  ['binutils', 'gcc']
-	for i in deps.keys ():
-		ex += deps[i]
-
-	for i in packs:
-		if not i.name () in ex:
-			i.name_dependencies += deps[settings.platform]
-
 	for p in packs:
 		if p.name () == 'lilypond':
 			p._downloader = p.cvs

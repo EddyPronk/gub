@@ -11,13 +11,14 @@ import types
 
 sys.path.insert (0, 'specs/')
 
+import cross
 import distcc
 import framework
 import gub
-import settings as settings_mod
-import xpm
-import subprocess
 import installer
+import settings as settings_mod
+import subprocess
+import xpm
 
 def get_settings (platform):
 	settings = settings_mod.Settings (platform)
@@ -146,13 +147,24 @@ def run_builder (settings, manager, args):
 	os.environ["PATH"] = settings.expand ('%(crossprefix)s/bin:%(PATH)s',
 					      locals ())
 
+	sdk_pkgs = [p for p in manager._packages
+		    if isinstance (p, gub.Sdk_package)]
+	cross_pkgs = [p for p in manager._packages
+		    if isinstance (p, cross.Cross_package)]
+
+	#print 'sdk:' + `sdk_pkgs`
+	#print 'cross:' + `cross_pkgs`
+	#FIXME: breaks debian/cygwin
+	sdk = manager._packages
+
 	for a in args:
 		manager.name_register_package (settings, a)
 
 	framework.version_fixups (settings, manager._packages.values ())
 	framework.package_fixups (settings, manager._packages.values ())
 
-	pkgs = map (lambda x: manager._packages[x], args)
+	pkgs = (map (lambda x: manager._packages[x], args)
+		+ sdk_pkgs + cross_pkgs)
 	if not settings.options.stage:
 		pkgs = manager.topological_sort (pkgs)
 		pkgs.reverse ()
