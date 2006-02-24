@@ -109,20 +109,9 @@ def build_installer (settings, target_manager, args):
 					       settings.os_interface)
 
 	install_manager.include_build_deps = False
-	if not args:
-		if settings.is_distro:
-			args = ['lilypond']
-		else:
-			# FIXME: this does not work for cygwin,
-			# debian, and it is a bit silly too.
-			# 'lilypond' should pull in everything it
-			# needs, by dependencies
-			args = target_manager._packages.keys ()
-			args.append ('lilypond')
-
-	pkgs = map (lambda x: target_manager._packages[x], args)
-	for p in pkgs:
-		if not isinstance (p, gub.Sdk_package):
+	for p in target_manager._packages.values ():
+		if (not isinstance (p, gub.Sdk_package)
+		    and not isinstance (p, cross.Cross_package)):
 			install_manager.register_package (p)
 
 	for p in install_manager._packages.values ():
@@ -153,12 +142,8 @@ def run_builder (settings, manager, args):
 		    if isinstance (p, cross.Cross_package)]
 
 	extra_build_deps = [p.name () for p in sdk_pkgs + cross_pkgs]
-	for a in args:
-		manager.name_register_package (settings, a)
-
 	framework.package_fixups (settings, manager._packages.values (),
 				  extra_build_deps)
-	framework.version_fixups (settings, manager._packages.values ())
 
 	pkgs = map (lambda x: manager._packages[x], args)
 
@@ -175,9 +160,6 @@ def run_builder (settings, manager, args):
 		manager.build_package (p)
 
 def download_sources (settings, manager, args):
-	for a in args:
-		manager.name_register_package (settings, a)
-
 	for n in args:
 		manager.name_download (n)
 
@@ -204,6 +186,13 @@ def main ():
 	os.environ['PERLLIB'] = settings.expand ('%(tooldir)s/lib/perl5/site_perl/5.8.6/')
 
 	c = commands.pop (0)
+
+	if not commands:
+		commands = ['lilypond']
+	for a in commands:
+		target_manager.name_register_package (settings, a)
+	framework.version_fixups (settings, target_manager._packages.values ())
+
 	if c == 'download':
 		download_sources (settings, target_manager, commands)
 	elif c == 'build':

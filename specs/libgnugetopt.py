@@ -1,3 +1,4 @@
+import download
 import targetpackage
 
 class Libgnugetopt (targetpackage.Target_package):

@@ -1,4 +1,5 @@
 import download
+import gub
 import targetpackage
 
 class OSX_Lilypad (gub.Null_package):
