@@ -13,10 +13,17 @@ from python import *
 from ghostscript import *
 from guile import *
 
-def package_fixups (settings, packs):
+import gub
+import cross
+
+def package_fixups (settings, packs, extra_build_deps):
 	for p in packs:
 		if p.name () == 'lilypond':
 			p._downloader = p.cvs
+		if (not isinstance (p, gub.Sdk_package)
+		    and not isinstance (p, cross.Cross_package)):
+			p.name_build_dependencies += filter (lambda x: x != p.name (),
+							     extra_build_deps)
 
 def version_fixups (settings, packs):
 	try:

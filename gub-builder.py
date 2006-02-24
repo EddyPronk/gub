@@ -147,24 +147,21 @@ def run_builder (settings, manager, args):
 	os.environ["PATH"] = settings.expand ('%(crossprefix)s/bin:%(PATH)s',
 					      locals ())
 
-	sdk_pkgs = [p for p in manager._packages
+	sdk_pkgs = [p for p in manager._packages.values ()
 		    if isinstance (p, gub.Sdk_package)]
-	cross_pkgs = [p for p in manager._packages
+	cross_pkgs = [p for p in manager._packages.values ()
 		    if isinstance (p, cross.Cross_package)]
 
-	#print 'sdk:' + `sdk_pkgs`
-	#print 'cross:' + `cross_pkgs`
-	#FIXME: breaks debian/cygwin
-	sdk = manager._packages
-
+	extra_build_deps = [p.name () for p in sdk_pkgs + cross_pkgs]
 	for a in args:
 		manager.name_register_package (settings, a)
 
+	framework.package_fixups (settings, manager._packages.values (),
+				  extra_build_deps)
 	framework.version_fixups (settings, manager._packages.values ())
-	framework.package_fixups (settings, manager._packages.values ())
 
-	pkgs = (map (lambda x: manager._packages[x], args)
-		+ sdk_pkgs + cross_pkgs)
+	pkgs = map (lambda x: manager._packages[x], args)
+
 	if not settings.options.stage:
 		pkgs = manager.topological_sort (pkgs)
 		pkgs.reverse ()

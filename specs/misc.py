@@ -42,8 +42,9 @@ def string_to_version (s):
 def split_ball (s):
 	m = re.match ('^(.*?)-([0-9].*(-[0-9]+)?)(\.[a-z]*)?(\.tar\.(bz2|gz)|\.gub)$', s)
 	if not m:
-		sys.stderr.write ('split_ball: ' + s)
-		sys.stderr.write ('\n')
+		## FIXME, not an error if not a ball...
+		##sys.stderr.write ('split_ball: ' + s)
+		##sys.stderr.write ('\n')
 		return (s[:2], (0, 0), 'gz')
 	return (m.group (1), string_to_version (string.join (split_version (m.group (2)), '-')), m.group (6))
 
