@@ -189,11 +189,12 @@ class Package_manager:
 		except:
 			pass
 		file_name = settings.specdir + '/' + name + '.py'
-		class_name = name[0].upper () + name[1:]
+		class_name = (name[0].upper () + name[1:]).replace ('-', '_')
 		Package = None
 		if os.path.exists (file_name):
 			import imp
 			desc = ('.py', 'U', 1)
+			print 'reading spec', file_name
 			file = open (file_name)
 			module = imp.load_module (name, file, file_name, desc)
 			class_name__platform = (class_name
