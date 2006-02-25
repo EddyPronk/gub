@@ -1,0 +1,30 @@
+Modified: trunk/gs/src/gdevpdtt.c
+===================================================================
+--- trunk/gs/src/gdevpdtt.c	2006-02-05 14:25:24 UTC (rev 6560)
++++ trunk/gs/src/gdevpdtt.c	2006-02-06 11:04:12 UTC (rev 6561)
+@@ -1287,6 +1287,7 @@
+     gs_char ch;
+     gs_const_string gname;
+     gs_glyph *gid = (gs_glyph *)pstr->data; /* pdf_text_process allocs enough space. */
++    bool unknown = false;
+ 
+     /* Translate glyph name indices into gscencs.c indices. */
+     for (i = 0; i < pstr->size; i++) {
+@@ -1295,10 +1296,14 @@
+ 	if (code < 0)
+ 	    return code;
+ 	gid[i] = gs_c_name_glyph(gname.data, gname.size);
+-	if (gid[i] == GS_NO_GLYPH)
+-	    return_error(gs_error_rangecheck);
++	if (gid[i] == GS_NO_GLYPH) {
++	    /* Use global glyph name. */
++	    gid[i] = gdata[i];
++	    unknown = true;
++	}
+     }
+-
++    if (unknown)
++	return 0; /* Using global glyph names. */
+     /* Find an acceptable encodng. */
+     for (ei = 0; gs_c_known_encodings[ei]; ei++) {
+ 	cgp->num_unused_chars = 0;
