@@ -185,7 +185,7 @@ fc-cache %(install_root)s/%(gs_prefix)s/fonts
 ''', locals ())
 
 
-class Ghostscript__freebsd (targetpackage.Target_package):
+class Ghostscript__freebsd (Ghostscript):
 	def __init__ (self, settings):
 		Ghostscript.__init__ (self, settings)
 		self.with (version="8.50",
