@@ -243,11 +243,6 @@ class LilyPond__darwin (LilyPond):
 				],
 			       '%(builddir)s/config.make')
 
-		LilyPond (settings).with (version=settings.lilypond_branch, mirror=cvs.gnu,
-						 builddeps=['libfontconfig1-dev', 'guile-1.6-dev', 'libpango1.0-dev', 'python-dev'],
-						 track_development=True),
-
-
 #Hmm
 Lilypond = LilyPond
 Lilypond__cygwin = LilyPond__cygwin
