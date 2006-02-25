@@ -19,6 +19,7 @@ class LilyPond (targetpackage.Target_package):
 		builddir = self.builddir ()
 		self.target_gcc_flags = (settings.target_gcc_flags
 					 + ' -I%(builddir)s' % locals ())
+		self._downloader = self.cvs
 
 	def rsync_command (self):
 		c = targetpackage.Target_package.rsync_command (self)
