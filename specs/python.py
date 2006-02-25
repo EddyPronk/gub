@@ -78,3 +78,9 @@ cp %(install_root)s/usr/lib/python%(python_version)s/lib-dynload/* %(install_roo
 chmod 755 %(install_root)s/usr/bin/*
 ''')
 
+# FIXME: handling libtool, libiconv, zlib dependencies smarter (adding
+# for mingw/freebsd or removing for darwin) would allow dropping quite
+# some __platform subclasses.
+class Python__darwin (Python):
+	def __init__ (self, settings):
+		Python.__init__ (self, settings)
