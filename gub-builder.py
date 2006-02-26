@@ -174,7 +174,11 @@ def main ():
 
 	settings = get_settings (options.platform)
 	add_options (settings, options)
-	target_manager = xpm.get_manager (settings)
+
+	c = commands.pop (0)
+	if not commands:
+		commands = ['lilypond']
+	target_manager = xpm.get_manager (settings, commands)
 
 	## crossprefix is also necessary for building cross packages,
 	## such as GCC
@@ -184,14 +188,6 @@ def main ():
 
 	## ugr: Alien is broken.
 	os.environ['PERLLIB'] = settings.expand ('%(tooldir)s/lib/perl5/site_perl/5.8.6/')
-
-	c = commands.pop (0)
-
-	if not commands:
-		commands = ['lilypond']
-	for a in commands:
-		target_manager.name_register_package (settings, a)
-	framework.version_fixups (settings, target_manager._packages.values ())
 
 	if c == 'download':
 		download_sources (settings, target_manager, commands)

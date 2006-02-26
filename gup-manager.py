@@ -235,15 +235,14 @@ def main ():
 		options.ROOT = ('target/%(target_architecture)s/system'
 				% settings.__dict__)
 
+	target_manager = xpm.get_manager (settings, ['all'])
 
-	target_manager = xpm.get_manager (settings)
-	pm = target_manager
-
-	if options.arguments and options.arguments[0] == 'all':
-		options.arguments = pm._packages.keys ()
+	if options.command in ('install'):
+		for a in options.arguments:
+			target_manager.name_register_package (settings, a)
 
 	if options.command:
-		commands = Command (pm, options)
+		commands = Command (target_manager, options)
 		if options.command in Command.__dict__:
 			Command.__dict__[options.command] (commands)
 		else:

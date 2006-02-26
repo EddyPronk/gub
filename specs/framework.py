@@ -56,7 +56,10 @@ def version_fixups (settings, packs):
 			settings.ghostscript_version = '8.15'
 
 	# FIXME
-	settings._substitution_dict['ghostscript_version'] = settings.ghostscript_version
-	settings._substitution_dict['guile_version'] = settings.guile_version
-	settings._substitution_dict['python_version'] = settings.python_version
+	if settings.__dict__.has_key ('ghostscript_version'):
+		settings._substitution_dict['ghostscript_version'] = settings.ghostscript_version
+	if settings.__dict__.has_key ('guile_version'):
+		settings._substitution_dict['guile_version'] = settings.guile_version
+	if settings.__dict__.has_key ('python_version'):
+		settings._substitution_dict['python_version'] = settings.python_version
 	

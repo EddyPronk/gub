@@ -11,10 +11,9 @@ import fcntl
 import sys
 
 #
+import framework
 import gub
-from misc import *
-
-# X package manager (x for want of better name)
+from misc import *  # URG, fixme
 
 class Package_manager:
 	def __init__ (self, root, os_interface):
@@ -175,17 +174,31 @@ class Package_manager:
 		del self._package_version_db[name]
 
 	def _load_spec (self, settings, url):
+		'''Return Target_package instance to build package from URL.
+
+		URL can be partly specified (eg: only a name, `lilypond'),
+		defaults are taken from the spec file.
+		'''
+		# '
 		name = os.path.basename (url)
-		version = None
+		init_vars = {'format':None, 'version':None, 'url': None,}
 		try:
 			import misc
 			ball = name
 			name, v, format = misc.split_ball (ball)
 			##version = misc.version_to_string (v)
-			if v == (0, 0):
+			version, build = v
+			if not version:
 				name = url
-			else:
-				version = '.'.join (v[:-1])
+			elif (url.startswith ('/')
+				 or url.startswith ('file://')
+				 or url.startswith ('ftp://')
+				 or url.startswith ('http://')):
+				init_vars['url'] = url
+			if version:
+				init_vars['version'] = '.'.join (version)
+			if format:
+				init_vars['format'] = '.'.join (version)
 		except:
 			pass
 		file_name = settings.specdir + '/' + name + '.py'
@@ -202,21 +215,28 @@ class Package_manager:
 			d = module.__dict__
 			if d.has_key (class_name__platform):
 				Package = d[class_name__platform]
-			else:
+			elif d.has_key (class_name):
 				Package = d[class_name]
-		else:
+			for i in init_vars.keys ():
+				if d.has_key (i):
+					init_vars[i] = d[i]
+		if not Package:
 			# Without explicit spec will only work if URL
 			# includes version and format, eg,
-			# url=libtool-1.5.22.tar.gz
+			# URL=libtool-1.5.22.tar.gz
 			from new import classobj
 			import targetpackage
 			Package = classobj (name,
 					    (targetpackage.Target_package,),
 					    {})
 		package = Package (settings)
-		if version:
-			package.with (mirror=url, format=format,
-				      version=version)
+		if init_vars['version']:
+			package.with (version=init_vars['version'])
+#		package.with (format=init_vars['format'],
+#			      mirror=init_vars['url'],
+#			      version=init_vars['version'],
+#			      depends=init_vars['depends'],
+#			      builddeps=init_vars['builddeps'])
 		return package
 
 	def name_register_package (self, settings, name):
@@ -493,7 +513,7 @@ class Debian_package_manager (Dependency_manager):
 
 		return package
 
-def get_manager (settings):
+def get_manager (settings, names):
 	cross_module = None
 	if 0:
 		pass
@@ -529,7 +549,11 @@ def get_manager (settings):
 
 	map (target_manager.register_package, cross_packages)
 
+	if not names or (names and names[0] == 'all'):
+		names = target_manager._package_file_db.keys ()
+	for a in names:
+		target_manager.name_register_package (settings, a)
+	framework.version_fixups (settings, target_manager._packages.values ())
 	cross_module.change_target_packages (target_manager._packages.values ())
-
 	return target_manager
 
