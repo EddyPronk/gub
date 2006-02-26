@@ -38,6 +38,7 @@ class Ghostscript (targetpackage.Target_package):
 				],
 			       '%(srcdir)s/src/unixinst.mak')
 		self.system ("cd %(srcdir)s && patch -p2 < %(patchdir)s/ghostscript-8.50-ttf.patch")
+		self.system ("cd %(srcdir)s && patch -p2 < %(patchdir)s/ghostscript-8.50-encoding.patch")
 
 	def fixup_arch (self):
 		substs = []
