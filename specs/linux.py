@@ -64,5 +64,9 @@ def change_target_packages (packages):
 
 			gub.append_target_dict (p,
 						{ 'LDFLAGS': ' -Wl,--as-needed ' })
+		remove = ('libiconv')
+		if p.name_dependencies:
+			p.name_dependencies = filter (lambda x: x not in remove,
+						      p.name_dependencies)
 
 	cross.set_framework_ldpath ([p for p in packages if isinstance (p, targetpackage.Target_package)])

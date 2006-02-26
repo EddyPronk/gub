@@ -31,13 +31,3 @@ LDFLAGS:=$(LDFLAGS) -no-undefined
 ''',
 			   '%(builddir)s/Makefile',
 			   mode='a')
-
-# FIXME: handling libtool, libiconv, zlib dependencies smarter (adding
-# for mingw/freebsd or removing for darwin) would allow dropping quite
-# some __platform subclasses.
-class Freetype__darwin (Freetype):
-	def __init__ (self, settings):
-		Freetype.__init__ (self, settings)
-		self.with (version='2.1.10', mirror=download.freetype,
-			   depends=['libtool'])
-

@@ -9,8 +9,10 @@ import targetpackage
 class Pango (targetpackage.Target_package):
 	def __init__ (self, settings):
 		targetpackage.Target_package.__init__ (self, settings)
-		self.with (version='1.11.2', mirror=download.gnome_213, format='bz2',
-			   depends=['freetype', 'fontconfig', 'glib', 'libtool'])
+		self.with (version='1.11.2',
+			   mirror=download.gnome_213,
+			   format='bz2',
+			   depends=['freetype', 'fontconfig', 'glib', 'libiconv', 'libtool'])
 
 	def configure_command (self):
 		return targetpackage.Target_package.configure_command (self) \
@@ -45,11 +47,6 @@ ModulesPath = "$PANGO_PREFIX/lib/pango/1.4.0/modules"
 			      etc)
 
 class Pango__mingw (Pango):
-	def __init__ (self, settings):
-		Pango.__init__ (self, settings)
-		self.with (version='1.11.2', mirror=download.gnome_213, format='bz2',
-			   depends=['freetype', 'fontconfig', 'glib', 'libiconv', 'libtool'])
-
 	def install (self):
 		targetpackage.Target_package.install (self)
 		self.system ('mkdir -p %(install_root)s/usr/etc/pango')
@@ -92,9 +89,3 @@ class Pango__darwin (Pango):
 	def install (self):
 		targetpackage.Target_package.install (self)		
 		self.fix_modules ()
-
-class Pango__freebsd (Pango):
-	def __init__ (self, settings):
-		Pango.__init__ (self, settings)
-		self.with (version='1.11.2', mirror=download.gnome_213, format='bz2',
-			   depends=['freetype', 'fontconfig', 'glib', 'libiconv', 'libtool'])

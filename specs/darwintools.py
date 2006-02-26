@@ -179,6 +179,11 @@ def change_target_packages (packages):
 			## we need enough space in the header to do these relocs.
 			'LDFLAGS': '-Wl,-headerpad_max_install_names '
 			})
+		
+		remove = ('libiconv', 'zlib')
+		if p.name_dependencies:
+			p.name_dependencies = filter (lambda x: x not in remove,
+						      p.name_dependencies)
 
 def system (c):
 	s = os.system (c)

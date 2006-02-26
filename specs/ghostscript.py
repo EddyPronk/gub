@@ -8,9 +8,10 @@ import targetpackage
 class Ghostscript (targetpackage.Target_package):
 	def __init__ (self, settings):
 		targetpackage.Target_package.__init__ (self, settings)
-		self.with (version="8.50",
+		self.with (version='8.50',
 			   mirror='ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs850/ghostscript-8.50-gpl.tar.bz2',
-			   format='bz2', depends=['libjpeg', 'libpng'])
+			   format='bz2',
+			   depends=['libiconv', 'libjpeg', 'libpng'])
 
 	def srcdir (self):
 		return re.sub ('-source', '', targetpackage.Target_package.srcdir (self))
@@ -116,10 +117,6 @@ cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS
 class Ghostscript__mingw (Ghostscript):
 	def __init__ (self, settings):
 		Ghostscript.__init__ (self, settings)
-		self.with (version="8.50",
-			   mirror='ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs850/ghostscript-8.50-gpl.tar.bz2',
-			   format='bz2', depends=['libiconv', 'libjpeg', 'libpng'])
-
 		# Configure (compile) without -mwindows for console
 		# FIXME: should add to CPPFLAGS...
 		self.target_gcc_flags = '-mms-bitfields -D_Windows -D__WINDOWS__'
@@ -183,11 +180,3 @@ mkdir -p %(install_root)s/%(gs_prefix)s/fonts
 cp %(dir)s/{%(fonts_string)s}{.afm,.pfb} %(install_root)s/%(gs_prefix)s/fonts
 fc-cache %(install_root)s/%(gs_prefix)s/fonts
 ''', locals ())
-
-
-class Ghostscript__freebsd (Ghostscript):
-	def __init__ (self, settings):
-		Ghostscript.__init__ (self, settings)
-		self.with (version="8.50",
-			   mirror='ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs850/ghostscript-8.50-gpl.tar.bz2',
-			   format='bz2', depends=['libiconv', 'libjpeg', 'libpng'])

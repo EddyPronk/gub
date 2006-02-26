@@ -37,11 +37,3 @@ class Libpng__mingw (Libpng):
 			   '%(srcdir)s/Makefile.am')
 		self.autoupdate ()
 		Libpng.configure (self)
-
-# FIXME: handling libtool, libiconv, zlib dependencies smarter (adding
-# for mingw/freebsd or removing for darwin) would allow dropping quite
-# some __platform subclasses.
-class Libpng__darwin (Libpng):
-	def __init__ (self, settings):
-		Libpng.__init__ (self, settings)
-		self.with (version='1.2.8', mirror=download.libpng, depends=[])

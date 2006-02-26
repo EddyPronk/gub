@@ -7,7 +7,9 @@ import targetpackage
 class Python (targetpackage.Target_package):
 	def __init__ (self, settings):
 		targetpackage.Target_package.__init__ (self, settings)
-		self.with (version='2.4.2', mirror=download.python, format='bz2',
+		self.with (version='2.4.2',
+			   mirror=download.python,
+			   format='bz2',
 			   depends=['expat', 'zlib'])
 
 	def patch (self):
@@ -77,10 +79,3 @@ cp %(install_root)s/usr/lib/python%(python_version)s/lib-dynload/* %(install_roo
 		self.system ('''
 chmod 755 %(install_root)s/usr/bin/*
 ''')
-
-# FIXME: handling libtool, libiconv, zlib dependencies smarter (adding
-# for mingw/freebsd or removing for darwin) would allow dropping quite
-# some __platform subclasses.
-class Python__darwin (Python):
-	def __init__ (self, settings):
-		Python.__init__ (self, settings)

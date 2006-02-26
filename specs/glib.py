@@ -4,8 +4,10 @@ import targetpackage
 class Glib (targetpackage.Target_package):
 	def __init__ (self, settings):
 		targetpackage.Target_package.__init__ (self, settings)
-		self.with (version='2.9.5', mirror=download.gnome_213, format='bz2',
-			   depends=['gettext'])
+		self.with (version='2.9.5',
+			   mirror=download.gnome_213,
+			   format='bz2',
+			   depends=['gettext', 'libiconv', 'libtool'])
 
 	def config_cache_overrides (self, str):
 		return str + '''
@@ -26,14 +28,3 @@ class Glib__darwin (Glib):
 		Glib.configure (self)
 		self.file_sub ([('nmedit', '%(target_architecture)s-nmedit')],
 			       '%(builddir)s/libtool')
-
-class Glib__freebsd (Glib):
-	def __init__ (self, settings):
-		Glib.__init__ (self, settings)
-		self.with (version='2.9.5', mirror=download.gnome_213, format='bz2',
-			   depends=['gettext', 'libiconv', 'libtool'])
-
-# FIXME: handling libtool, libiconv, zlib dependencies smarter (adding
-# for mingw/freebsd or removing for darwin) would allow dropping quite
-# some __platform subclasses.
-GLib__mingw = Glib__freebsd
