@@ -40,4 +40,5 @@ def get_packages (settings):
 
 def change_target_packages (packages):
 	cross.change_target_packages (packages)
-	cross.set_framework_ldpath ([p for p in packages if isinstance (p, targetpackage.Target_package)])
+	cross.set_framework_ldpath ([p for p in packages.values ()
+				     if isinstance (p, targetpackage.Target_package)])

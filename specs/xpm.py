@@ -240,11 +240,9 @@ class Package_manager:
 
 	def name_register_package (self, settings, name):
 		if not self._packages.has_key (name):
-			self._packages[name] = self._load_spec (settings,
-								   name)
+			self._packages[name] = self._load_spec (settings, name)
 			for i in self._packages[name].name_dependencies:
 				self.name_register_package (settings, i)
-
 
 	# NAME_ shortcuts
 	def name_build (self, name):
@@ -551,6 +549,5 @@ def get_manager (settings, names):
 	for a in names:
 		target_manager.name_register_package (settings, a)
 	framework.version_fixups (settings, target_manager._packages.values ())
-	cross_module.change_target_packages (target_manager._packages.values ())
+	cross_module.change_target_packages (target_manager._packages)
 	return target_manager
-

@@ -172,7 +172,7 @@ def get_packages (settings):
 
 def change_target_packages (packages):
 	cross.change_target_packages (packages)
-	for p in packages:
+	for p in packages.values ():
 		gub.change_target_dict (p, {
 
 			## We get a lot of /usr/lib/ -> @executable_path/../lib/
@@ -181,6 +181,8 @@ def change_target_packages (packages):
 			})
 		
 		remove = ('libiconv', 'zlib')
+		if p.name () in remove:
+			del packages[p.name ()]
 		if p.name_dependencies:
 			p.name_dependencies = filter (lambda x: x not in remove,
 						      p.name_dependencies)

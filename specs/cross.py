@@ -87,13 +87,13 @@ cd %(install_root)s/usr/lib && ln -fs libgcc_s.so.1 libgcc_s.so
 
 
 def change_target_packages (packages):
-	cross_packs = [p for p in packages if isinstance (p, Cross_package)]
-	sdk_packs = [p for p in packages if isinstance (p, gub.Sdk_package)]
-	other_packs = [p for p in packages if (not isinstance (p, Cross_package)
-					       and not isinstance (p, gub.Sdk_package)
-					       and not isinstance (p, gub.Binary_package))]
+	packs = packages.values ()
+	cross_packs = [p for p in packs if isinstance (p, Cross_package)]
+	sdk_packs = [p for p in packs if isinstance (p, gub.Sdk_package)]
+	other_packs = [p for p in packs if (not isinstance (p, Cross_package)
+					    and not isinstance (p, gub.Sdk_package)
+					    and not isinstance (p, gub.Binary_package))]
 	for p in other_packs:
-		print 'op: ' + `p`
 		p.name_build_dependencies += map (lambda x: x.name (),
 						  cross_packs)
 
@@ -101,7 +101,7 @@ def change_target_packages (packages):
 		p.name_build_dependencies += map (lambda x: x.name (),
 						  sdk_packs)
 
-def set_framework_ldpath (packages):
-	for c in packages:
+def set_framework_ldpath (packs):
+	for c in packs:
 		change = gub.Change_target_dict (c, {'LDFLAGS': r" -Wl,--rpath,'$${ORIGIN}/../lib/' "})
 		c.get_substitution_dict = change.append_dict
