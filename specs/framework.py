@@ -21,7 +21,8 @@ def package_fixups (settings, packs, extra_build_deps):
 		if p.name () == 'lilypond':
 			p._downloader = p.cvs
 		if (not isinstance (p, gub.Sdk_package)
-		    and not isinstance (p, cross.Cross_package)):
+		    and not isinstance (p, cross.Cross_package)
+		    and not isinstance (p, gub.Binary_package)):
 			p.name_build_dependencies += filter (lambda x: x != p.name (),
 							     extra_build_deps)
 

@@ -90,8 +90,10 @@ def change_target_packages (packages):
 	cross_packs = [p for p in packages if isinstance (p, Cross_package)]
 	sdk_packs = [p for p in packages if isinstance (p, gub.Sdk_package)]
 	other_packs = [p for p in packages if (not isinstance (p, Cross_package)
-					       and not isinstance (p, gub.Sdk_package))]
+					       and not isinstance (p, gub.Sdk_package)
+					       and not isinstance (p, gub.Binary_package))]
 	for p in other_packs:
+		print 'op: ' + `p`
 		p.name_build_dependencies += map (lambda x: x.name (),
 						  cross_packs)
 

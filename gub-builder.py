@@ -139,7 +139,7 @@ def run_builder (settings, manager, args):
 	sdk_pkgs = [p for p in manager._packages.values ()
 		    if isinstance (p, gub.Sdk_package)]
 	cross_pkgs = [p for p in manager._packages.values ()
-		    if isinstance (p, cross.Cross_package)]
+		      if isinstance (p, cross.Cross_package)]
 
 	extra_build_deps = [p.name () for p in sdk_pkgs + cross_pkgs]
 	framework.package_fixups (settings, manager._packages.values (),

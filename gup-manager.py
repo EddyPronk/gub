@@ -44,7 +44,7 @@ class Options:
 	def get_options (self):
 		import getopt
 		(options, arguments) = getopt.getopt (sys.argv[1:],
-							   'B:hm:np:r:tb:x',
+							   'B:hm:np:r:xv',
 							   (
 			'branch=',
 			'help',
@@ -53,6 +53,7 @@ class Options:
 			'platform=',
 			'no-deps',
 			'root=',
+			'verbose',
 			))
 
 		if len (arguments) > 0:
@@ -84,6 +85,8 @@ class Options:
 				self.name_p = 1
 			elif o == '--no-deps' or o == '-x':
 				self.nodeps_p = 1
+			elif o == '--verbose' or o == '-v':
+				self.verbose = 1
 			else:
 				sys.stderr.write ('no such option: ' + o)
 				sys.stderr.write ('\n\n')
@@ -229,6 +232,7 @@ def main ():
 		sys.exit (2)
 		
 	settings = settings_mod.Settings (options.platform)
+	settings.options = options
 	settings.lilypond_branch = options.BRANCH
 
 	if not options.ROOT:
