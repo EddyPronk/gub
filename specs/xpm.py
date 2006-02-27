@@ -74,8 +74,7 @@ class Package_manager:
 			package.builder ()
 		if (self.is_installable (package)
 		    and not self.is_installed (package)):
-			self.install_package (package)
-
+			Package_manager.install_package (self, package)
 
 	def is_downloaded (self, package):
 		return package.is_downloaded ()
@@ -339,14 +338,12 @@ class Dependency_manager (Package_manager):
 						continue
 
 					new_add.append (d)
-
 			todo += add_packages
 			add_packages = new_add
 
 		sorted = self.topological_sort (todo)
 		for p in sorted:
 			action (p)
-
 
 	def build_package (self, package):
 		self.with_dependencies (package, action=bind_method (Package_manager.build_package, self),
