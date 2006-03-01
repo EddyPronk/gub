@@ -26,7 +26,7 @@ def get_settings (platform):
 	if platform not in settings_mod.platforms.keys ():
 		raise 'unknown platform', platform
 		
-	if platform == 'darwin':
+	if platform == 'darwin-ppc':
 		settings.target_gcc_flags = '-D__ppc__'
 	elif platform == 'mingw':
 		settings.target_gcc_flags = '-mwindows -mms-bitfields'

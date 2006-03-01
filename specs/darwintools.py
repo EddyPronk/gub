@@ -15,10 +15,9 @@ class Odcctools (cross.Cross_package):
 		self.file_sub ([('ld64','')],
 			       self.builddir () + '/Makefile')
 
-class Darwin_sdk (gub.Sdk_package):
+class Darwin7_sdk (gub.Sdk_package):
 	def patch (self):
 		self.system ('''
-rm %(srcdir)s/usr/lib/charset.alias
 rm %(srcdir)s/usr/lib/libgcc*
 rm %(srcdir)s/usr/lib/libstdc\+\+*
 rm %(srcdir)s/usr/lib/libsupc\+\+*
@@ -38,11 +37,19 @@ rm -f $(find %(srcdir)s -name FlexLexer.h)
 		for a in glob.glob (pat):
 			self.file_sub ([(r' (/usr/lib/.*\.la)', r'%(system_root)s\1')], a)
 
+class Darwin8_sdk (Darwin7_sdk):
+	pass
+
 class Gcc (cross.Gcc):
 	def patch (self):
 		self.file_sub ([('/usr/bin/libtool', '%(crossprefix)s/bin/%(target_architecture)s-libtool')],
 			       '%(srcdir)s/gcc/config/darwin.h')
 
+	def configure_command (self):
+		c = cross.Gcc.configure_command (self)
+		c = re.sub ('enable-shared', 'disable-shared', c)
+		return c
+			
 	def install (self):
 		cross.Gcc.install (self)
 		for l in  self.read_pipe ("find %(install_root)s/usr/lib/ -name '*.dylib'").split():
@@ -157,16 +164,25 @@ def add_rewire_path (settings, packages):
 def get_packages (settings):
 
 	## Ugh, can we write settings?  
-	settings.darwin_sdk_version = '0.3'
-	packages = [
-		Odcctools (settings).with (version='20051122', mirror=download.opendarwin, format='bz2'),
-		Darwin_sdk (settings).with (version=settings.darwin_sdk_version, mirror=download.hw,
-					    format='gz'),
-		Gcc (settings).with (mirror = download.gcc,
-				     version='4.0.2',
-				     format='bz2',
-				     depends=['odcctools']),
-		]
+	packages = []
+	
+	
+	if settings.platform == 'darwin-ppc':
+		settings.darwin_sdk_version = '0.4'
+		packages.append (Darwin7_sdk (settings).with (version=settings.darwin_sdk_version,
+							      mirror=download.hw,
+							      format='gz'))
+	elif settings.platform == 'darwin-x86':
+		settings.darwin_sdk_version = '0.4'
+		packages.append (Darwin8_sdk (settings).with (version=settings.darwin_sdk_version,
+							      mirror=download.hw,
+							      format='gz'))
+	packages += [Odcctools (settings).with (version='20051122', mirror=download.opendarwin, format='bz2'),
+		     Gcc (settings).with (version='4.1.0',
+					  mirror='ftp://ftp.nluug.nl/mirror/languages/gcc/snapshots/4.1-20060217/gcc-4.1.0.tar.bz2',
+					  format='bz2',
+					  depends=['odcctools']),
+		     ]
 
 	return packages
 
@@ -191,7 +207,7 @@ def system (c):
 	s = os.system (c)
 	if s:
 		raise 'barf'
-	
+
 def get_darwin_sdk ():
 	host  = 'maagd'
 	version = '0.3'

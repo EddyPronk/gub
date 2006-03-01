@@ -206,8 +206,18 @@ lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=32768}
 ##libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/usr/lib"'"}
 libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/lib"'"}
 ''',
-	'darwin' : '''
+	'darwin-ppc' : '''
 ac_cv_c_bigendian=${ac_cv_c_bigendian=yes}
+ac_cv_func_posix_getpwuid_r=${ac_cv_func_posix_getpwuid_r=yes}
+ac_cv_type_socklen_t=${ac_cv_type_socklen_t=yes}
+
+glib_cv_uscore=${glib_cv_uscore=no}
+
+lt_cv_dlopen_libs=${lt_cv_dlopen_libs="none required"}
+lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=8192}
+''',
+	'darwin-x86' : '''
+ac_cv_c_bigendian=${ac_cv_c_bigendian=no}
 ac_cv_func_posix_getpwuid_r=${ac_cv_func_posix_getpwuid_r=yes}
 ac_cv_type_socklen_t=${ac_cv_type_socklen_t=yes}
 

@@ -275,18 +275,11 @@ class Autopackage (Linux_installer):
 
 def get_installers (settings):
 	installers = {
-		'arm' : [
-		Shar (settings),
-		],
-		'darwin' : [Darwin_bundle (settings)],
-		'freebsd' : [
-		Shar (settings),
-		],
-		'linux' : [
-		
-		## not alphabetically, used by others		
-		Shar (settings),
-		],
+		'arm' : [Shar (settings)],
+		'darwin-ppc' : [Darwin_bundle (settings)],
+		'darwin-x86' : [Darwin_bundle (settings)],
+		'freebsd' : [Shar (settings)],
+		'linux' : [Shar (settings)],
 		'mingw' : [Nsis (settings)],
 	}
 

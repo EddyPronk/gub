@@ -518,7 +518,7 @@ def get_manager (settings, names):
 	elif settings.platform == 'cygwin':
 		import cygwin
 		cross_module = cygwin
-	elif settings.platform == 'darwin':
+	elif settings.platform.startswith ('darwin'):
 		import darwintools
 		cross_module = darwintools
 	elif settings.platform.startswith ('debian'):

@@ -8,7 +8,8 @@ from context import *
 platforms = {
 	'arm': 'arm-linux',
 	'cygwin': 'i686-cygwin',
-	'darwin': 'powerpc-apple-darwin7',
+	'darwin-ppc': 'powerpc-apple-darwin7',
+	'darwin-x86': 'i686-apple-darwin8',
 	'debian': 'i686-linux',
 	'freebsd': 'i686-freebsd4',
 	'linux': 'i686-linux',

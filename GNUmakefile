@@ -1,6 +1,6 @@
 
 .PHONY: all default distclean download test TAGS
-.PHONY: cygwin darwin debian freebsd linux darwin mingw
+.PHONY: cygwin darwin-ppc darwin-x86 debian freebsd linux mingw
 
 default: all
 
@@ -29,7 +29,8 @@ ifeq ($(LILYPOND_BRANCH),)
 LILYPOND_BRANCH=$(shell (cat $(LILYPOND_CVSDIR)/CVS/Tag 2> /dev/null || echo HEAD) | sed s/^T//)
 endif
 
-PLATFORMS=darwin mingw linux freebsd
+# skip darwin-x86 ; still broken.
+PLATFORMS=darwin-ppc mingw linux freebsd
 LILYPOND_VERSION=$(MAJOR_VERSION).$(MINOR_VERSION).$(PATCH_LEVEL)$(if $(strip $(MY_PATCH_LEVEL)),.$(MY_PATCH_LEVEL),)
 INSTALLER_BUILD:=$(shell python lilypondorg.py nextbuild $(LILYPOND_VERSION))
 INVOKE_DRIVER=python gub-builder.py \
@@ -54,14 +55,14 @@ CWD:=$(shell pwd)
 download:
 	$(foreach p, $(PLATFORMS), $(call INVOKE_DRIVER,$(p)) download lilypond && ) true
 	$(call INVOKE_DRIVER,mingw) download lilypad
-	$(call INVOKE_DRIVER,darwin) download osx-lilypad
+	$(call INVOKE_DRIVER,darwin-ppc) download osx-lilypad
 	$(call INVOKE_DRIVER,local) download flex nsis fakeroot pkg-config guile
 	$(foreach p, $(PLATFORMS), (mv uploads/$(p)/lilypond-$(LILYPOND_BRANCH).$(p).gub uploads/$(p)/lilypond-$(LILYPOND_BRANCH)-OLD.$(p).gub || true) &&) true
 	$(foreach p, $(PLATFORMS), $(call INVOKE_GUP,$(p)) remove lilypond ; ) true
 	rm -f target/*/status/lilypond*
 	rm -f log/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).*.test.pdf
 
-all: linux darwin doc freebsd mingw 
+all: linux darwin-ppc doc freebsd mingw 
 
 arm:
 	$(call BUILD,$@,lilypond)
@@ -69,7 +70,10 @@ arm:
 cygwin:
 	$(call BUILD,$@,lilypond)
 
-darwin:
+darwin-ppc:
+	$(call BUILD,$@,lilypond)
+
+darwin-x86:
 	$(call BUILD,$@,lilypond)
 
 debian:
@@ -80,8 +84,6 @@ freebsd:
 
 linux:
 	$(call BUILD,$@,lilypond)
-
-mac: darwin
 
 mingw:
 	$(call BUILD,$@,lilypad lilypond)
