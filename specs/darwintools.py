@@ -160,7 +160,7 @@ def add_rewire_path (settings, packages):
 		p.postinstall = wr.rewire
 
 
-def get_packages (settings):
+def get_packages (settings, names):
 
 	## Ugh, can we write settings?  
 	packages = []

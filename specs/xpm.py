@@ -537,7 +537,7 @@ def get_manager (settings, names):
 		import mingw
 		cross_module = mingw
 
-	cross_packages = cross_module.get_packages (settings)
+	cross_packages = cross_module.get_packages (settings, names)
 
 	target_manager = Dependency_manager (settings.system_root,
 					     settings.os_interface)

@@ -29,7 +29,7 @@ class Gcc (cross.Gcc):
 class Freebsd_runtime (gub.Binary_package, gub.Sdk_package):
 	pass
 
-def get_packages (settings):
+def get_packages (settings, names):
 	return (
 		Freebsd_runtime (settings).with (version='4.10-2', mirror=download.jantien),
 		Binutils (settings).with (version='2.16.1', format='bz2'),

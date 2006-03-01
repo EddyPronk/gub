@@ -165,7 +165,7 @@ class Fakeroot (Tool_package):
 		return re.sub ('_','-', Tool_package.srcdir(self))
 
 
-def get_packages (settings):
+def get_packages (settings, names):
 	ps = [
 		Nsis__scons (settings).with (version='2.14',
 				      mirror="http://ftp.debian.org/debian/pool/main/n/nsis/nsis_%(version)s.orig.tar.%(format)s",				      

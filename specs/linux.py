@@ -40,7 +40,7 @@ class Libc6_dev (gub.Binary_package, gub.Sdk_package):
 class Linux_kernel_headers (gub.Binary_package, gub.Sdk_package):
 	pass
 
-def get_packages (settings):
+def get_packages (settings, names):
 	packages = [
 		Libc6 (settings).with (version='2.2.5-11.8', mirror=download.glibc_deb, format='deb'),
 		Libc6_dev (settings).with (version='2.2.5-11.8', mirror=download.glibc_deb, format='deb'),

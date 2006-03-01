@@ -180,3 +180,8 @@ class Guile__darwin (Guile):
 			dst = os.path.splitext (os.path.basename (f))[0] + '.so'
 
 			self.system ('cd %(directory)s && ln -s %(src)s %(dst)s', locals())
+
+#must build libtool from source
+# probably need to share mingw tweaks
+class Guile__cygwin (Guile):
+	pass
