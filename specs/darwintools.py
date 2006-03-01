@@ -15,7 +15,20 @@ class Odcctools (cross.Cross_package):
 		self.file_sub ([('ld64','')],
 			       self.builddir () + '/Makefile')
 
-class Darwin7_sdk (gub.Sdk_package):
+class Darwin_sdk (gub.Sdk_package):
+	def __init__ (self, s):
+		gub.Sdk_package.__init__ (self, s)
+
+		os_version = 7
+		if s.platform == 'darwin-x86':
+			os_version = 8
+			
+		name = 'darwin%d-sdk' % os_version
+		ball_version = '0.4'
+		format = 'gz'
+		self.with (version='0.4',
+			   mirror=download.hw % locals(), format='gz')
+
 	def patch (self):
 		self.system ('''
 rm %(srcdir)s/usr/lib/libgcc*
@@ -36,8 +49,6 @@ rm -f $(find %(srcdir)s -name FlexLexer.h)
 		for a in glob.glob (pat):
 			self.file_sub ([(r' (/usr/lib/.*\.la)', r'%(system_root)s\1')], a)
 
-class Darwin8_sdk (Darwin7_sdk):
-	pass
 
 class Gcc (cross.Gcc):
 	def patch (self):
@@ -176,16 +187,9 @@ def get_packages (settings, names):
 	packages = []
 	
 	
-	if settings.platform == 'darwin-ppc':
-		settings.darwin_sdk_version = '0.4'
-		packages.append (Darwin7_sdk (settings).with (version=settings.darwin_sdk_version,
-							      mirror=download.hw,
-							      format='gz'))
-	elif settings.platform == 'darwin-x86':
-		settings.darwin_sdk_version = '0.4'
-		packages.append (Darwin8_sdk (settings).with (version=settings.darwin_sdk_version,
-							      mirror=download.hw,
-							      format='gz'))
+
+	packages.append (Darwin_sdk (settings))
+		
 	packages += [Odcctools (settings).with (version='20051122', mirror=download.opendarwin, format='bz2'),
 		     Gcc (settings).with (version='4.1.0',
 					  mirror=download.gcc_41,
