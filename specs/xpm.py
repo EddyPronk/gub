@@ -9,6 +9,7 @@ import re
 import string
 import fcntl
 import sys
+import imp
 
 #
 import framework
@@ -204,18 +205,20 @@ class Package_manager:
 		class_name = (name[0].upper () + name[1:]).replace ('-', '_')
 		Package = None
 		if os.path.exists (file_name):
-			import imp
-			desc = ('.py', 'U', 1)
 			print 'reading spec', file_name
+
+			desc = ('.py', 'U', 1)
 			file = open (file_name)
 			module = imp.load_module (name, file, file_name, desc)
-			class_name__platform = (class_name
-						+ '__' + settings.platform)
+			full = class_name + '__' + settings.platform.replace ('-', '__')
+
 			d = module.__dict__
-			if d.has_key (class_name__platform):
-				Package = d[class_name__platform]
-			elif d.has_key (class_name):
-				Package = d[class_name]
+			while full:
+				if d.has_key (full):
+					Package = d[full]
+					break
+				full = full[:max (full.rfind ('__'), 0)]
+				
 			for i in init_vars.keys ():
 				if d.has_key (i):
 					init_vars[i] = d[i]
