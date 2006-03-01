@@ -270,6 +270,8 @@ class Dependency_manager (Package_manager):
 		if package.verbose:
 			self.os_interface.log_command ('resolving dependencies: %s\n'
 						       % `package`)
+			print 'depends: ' + `package.name_dependencies`
+			print 'builddeps: ' + `package.name_build_dependencies`
 		package._dependencies = []
 		package._build_dependencies = []
 		for n in (package.name_dependencies
@@ -415,6 +417,7 @@ class Cygwin_package_manager (Dependency_manager):
 					)
 				deps = filter (lambda x: x not in blacklist, deps)
 				package.name_dependencies = deps
+				package.name_build_dependencies = deps
 			package.ball_version = dict['version']
 			package.url = (self.mirror + '/'
 				       + dict['install'].split ()[0])

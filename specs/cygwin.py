@@ -22,11 +22,18 @@ def get_packages (settings, names):
 	file = settings.downloaddir + '/setup.ini'
 	if not os.path.exists (file):
 		os.system ('wget -P %(downloaddir)s %(url)s' % locals ())
+	# FIXME: must add deps to buildeps, otherwise packages do not
+	# get built in correct dependency order (topological sort?)
 	cross_packs = [
-		cross.Binutils (settings).with (version='2.16.1', format='bz2'),
-		mingw.Gcc (settings).with (version='4.0.2', format='bz2',
-	#	mingw.Gcc (settings).with (version='4.1-20060217', mirror=download.gcc_41, format='bz2',
-					   depends=['binutils', 'cygwin']),
+		cross.Binutils (settings).with (version='2.16.1', format='bz2',
+					   depends=['cygwin'],
+					   builddeps=['cygwin']
+						),
+		#mingw.Gcc (settings).with (version='4.0.2', format='bz2',
+		Gcc (settings).with (version='4.1-20060217', mirror=download.gcc_41, format='bz2',
+					   depends=['binutils', 'cygwin', 'w32api'],
+					   builddeps=['binutils', 'cygwin', 'w32api']
+					   ),
 		]
 	return cross_packs + filter (lambda x: x.name () not in names,
 				     p.get_packages (file))
