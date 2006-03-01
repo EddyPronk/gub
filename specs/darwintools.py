@@ -64,7 +64,7 @@ class Gcc (cross.Gcc):
 	def configure (self):
 		cross.Gcc.configure (self)
 		self.file_sub ([("nm", "%(tool_prefix)snm ")],
-			       "%(srcdir)s/libstdc++-v3/scripts/make_exports.py")
+			       "%(srcdir)s/libstdc++-v3/scripts/make_exports.pl")
 		
 
 	def rewire_gcc_libs (self):
