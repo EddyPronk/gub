@@ -402,7 +402,7 @@ rm -rf %(srcdir)s %(builddir)s %(install_root)s
 	def install (self):
 		self.system ('mkdir -p %(install_root)s')
 		self.system ('tar -C %(srcdir)s/root -cf- . | tar -C %(install_root)s -xvf-')
-
+		self.libtool_installed_la_fixups ()
 
 class Null_package (Package):
 	"""Placeholder for downloads """
