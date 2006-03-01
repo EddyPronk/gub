@@ -409,6 +409,7 @@ class Cygwin_package_manager (Dependency_manager):
 					'bintutils',
 					'gcc', 'gcc-core', 'gcc-g++',
 					'gcc-mingw', 'gcc-mingw-core', 'gcc-mingw-g++',
+					'libtool', 'libtool1.5', 'libltdl3'
 					'libXft', 'libXft1', 'libXft2',
 					'libbz2_1',
 					'libguile16',
@@ -429,7 +430,7 @@ class Cygwin_package_manager (Dependency_manager):
 		for i in chunks[1:]:
 			lines = string.split (i, '\n')
 			name = string.strip (lines[0])
-			blacklist = ('binutils', 'gcc')
+			blacklist = ('binutils', 'gcc', 'libtool', 'litool1.5' , 'libtool-devel', 'libltdl3')
 			if name in blacklist:
 				continue
 			packages = self._dists['curr']
