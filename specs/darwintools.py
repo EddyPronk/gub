@@ -48,13 +48,23 @@ class Gcc (cross.Gcc):
 		c = cross.Gcc.configure_command (self)
 #		c = re.sub ('enable-shared', 'disable-shared', c)
 		return c
-			
-	def install (self):
-		cross.Gcc.install (self)
+	
+
+	def configure (self):
+		cross.Gcc.configure (self)
+		self.file_sub ([("nm", "%(tool_prefix)snm ")],
+			       "%(srcdir)s/libstdc++-v3/scripts/make_exports.py")
+		
+
+	def rewire_gcc_libs (self):
 		for l in  self.read_pipe ("find %(install_root)s/usr/lib/ -name '*.dylib'").split():
 			id = self.read_pipe ('%(tool_prefix)sotool -L %(l)s', locals ()).split()[1]
 			id = os.path.split (id)[1]
 			self.system ('%(tool_prefix)sinstall_name_tool -id /usr/lib/%(id)s %(l)s', locals ())
+		
+	def install (self):
+		cross.Gcc.install (self)
+		# self.rewire_gcc_libs ()
 		
 class Rewirer (context.Os_context_wrapper):
 	def __init__ (self, settings):
@@ -177,10 +187,8 @@ def get_packages (settings, names):
 							      mirror=download.hw,
 							      format='gz'))
 	packages += [Odcctools (settings).with (version='20051122', mirror=download.opendarwin, format='bz2'),
-		     Gcc (settings).with (version='4.0.2', download.gcc,
-#					version='4.1.0',
-#					  mirror='ftp://ftp.nluug.nl/mirror/languages/gcc/snapshots/4.1-20060217/gcc-4.1.0.tar.bz2',
-		
+		     Gcc (settings).with (version='4.1.0',
+					  mirror=download.gcc_41,
 					  format='bz2',
 					  depends=['odcctools']),
 		     ]

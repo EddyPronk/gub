@@ -19,7 +19,7 @@ def get_packages (settings, names):
 		#Arm_runtime (settings).with (version='4.10-2', mirror=download.jantien),
 		cross.Binutils (settings).with (version='2.16.1', format='bz2'),
 #		cross.Gcc (settings).with (version='4.0.2', mirror=download.gcc, format='bz2', depends=['binutils']),
-		cross.Gcc (settings).with (version='4.1-20060203', mirror=download.gcc_41, format='bz2', depends=['binutils']),
+		cross.Gcc (settings).with (version='4.1.0', mirror=download.gcc_41, format='bz2', depends=['binutils']),
 		)
 
 

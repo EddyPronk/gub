@@ -29,12 +29,12 @@ def get_packages (settings, names):
 					   depends=['cygwin'],
 					   builddeps=['cygwin']
 						),
-		#mingw.Gcc (settings).with (version='4.0.2', format='bz2',
-		Gcc (settings).with (version='4.1-20060217', mirror=download.gcc_41, format='bz2',
+		Gcc (settings).with (version='4.1.0', mirror=download.gcc_41, format='bz2',
 					   depends=['binutils', 'cygwin', 'w32api'],
 					   builddeps=['binutils', 'cygwin', 'w32api']
 					   ),
 		]
+	
 	return cross_packs + filter (lambda x: x.name () not in names,
 				     p.get_packages (file))
 

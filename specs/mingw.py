@@ -62,7 +62,7 @@ def get_packages (settings, names):
 	return (
 		cross.Binutils (settings).with (version='2.16.1', format='bz2'),
 		Gcc (settings).with (version='4.1.0',
-				     mirror='ftp://ftp.nluug.nl/mirror/languages/gcc/releases/gcc-4.1.0/gcc-4.1.0.tar.bz2',
+				     mirror=download.gcc_41
 				     depends=['binutils']),
 # snapshots/4.1-20060217/		
 		Mingw_runtime (settings).with (version='3.9', mirror=download.mingw),

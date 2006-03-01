@@ -33,8 +33,9 @@ def get_packages (settings, names):
 	return (
 		Freebsd_runtime (settings).with (version='4.10-2', mirror=download.jantien),
 		Binutils (settings).with (version='2.16.1', format='bz2'),
-		Gcc (settings).with (version='4.0.2', mirror=download.gcc, format='bz2', depends=['binutils']),
-#		Gcc (settings).with (version='3.4.5', mirror=download.gcc, format='bz2', depends=['binutils']),
+#		Gcc (settings).with (version='4.0.2', mirror=download.gcc, format='bz2', depends=['binutils']),
+		Gcc (settings).with (version='4.1.0', mirror=download.gcc_41,
+				     format='bz2', depends=['binutils']),
 		)
 
 
