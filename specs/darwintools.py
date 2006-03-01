@@ -20,7 +20,6 @@ class Darwin7_sdk (gub.Sdk_package):
 		self.system ('''
 rm %(srcdir)s/usr/lib/libgcc*
 rm %(srcdir)s/usr/lib/libstdc\+\+*
-rm %(srcdir)s/usr/lib/libsupc\+\+*
 rm %(srcdir)s/usr/lib/libltdl*
 rm %(srcdir)s/usr/include/ltdl.h
 rm -rf %(srcdir)s/usr/lib/gcc
@@ -47,7 +46,7 @@ class Gcc (cross.Gcc):
 
 	def configure_command (self):
 		c = cross.Gcc.configure_command (self)
-		c = re.sub ('enable-shared', 'disable-shared', c)
+#		c = re.sub ('enable-shared', 'disable-shared', c)
 		return c
 			
 	def install (self):
@@ -209,28 +208,29 @@ def system (c):
 		raise 'barf'
 
 def get_darwin_sdk ():
+	def system (s):
+		print s
+		if os.system (s):
+			raise 'barf'
+		
 	host  = 'maagd'
-	version = '0.3'
+	version = '0.4'
+	darwin_version  = 7
 
-	l = locals()
+	dest =	'darwin%(darwin_version)d-sdk-%(version)s' % locals()
+	
+	system ('rm -rf %s' % dest)
+	os.mkdir (dest)
+	
+	src = '/Developer/SDKs/'
 
-	dest =	'darwin-sdk-%(version)s' % l
-#	system ('rm -rf %s' % dest)
-#	os.mkdir (dest)
-	dirs = ["/usr/lib","/usr/include","/System/Library/Frameworks/Python.framework",
-		"/System/Library/Frameworks/CoreServices.framework"]
-	for d in dirs:
-		continue
-		os.makedirs (dest + d)
-		cmd =  ('rsync -a -v %s:%s/ %s%s' %
-			(host, d, dest, d))
-		print cmd
-		s = os.system (cmd)
-		if s :
-			raise 'bar'
-
-	for a in glob.glob ('%(dest)s/usr/lib/*.dylib' % locals()):
-		os.system ("target/darwin/system/usr/cross/bin/powerpc-apple-darwin7-strip -u -r -S -c " + a)
+	if darwin_version == 7:
+		src += 'MacOSX10.3.9.sdk'
+	else:
+		src += 'MacOSX10.4u.sdk'
+	
+	cmd =  ('rsync -a -v %s:%s/ %s/ ' % (host, src, dest))
+	system (cmd)
  	system ('chmod -R +w %s '  % dest)
 	system ('tar cfz %s.tar.gz %s '  % (dest, dest))
 
