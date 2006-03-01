@@ -177,8 +177,10 @@ def get_packages (settings):
 							      mirror=download.hw,
 							      format='gz'))
 	packages += [Odcctools (settings).with (version='20051122', mirror=download.opendarwin, format='bz2'),
-		     Gcc (settings).with (version='4.1.0',
-					  mirror='ftp://ftp.nluug.nl/mirror/languages/gcc/snapshots/4.1-20060217/gcc-4.1.0.tar.bz2',
+		     Gcc (settings).with (version='4.0.2', download.gcc,
+#					version='4.1.0',
+#					  mirror='ftp://ftp.nluug.nl/mirror/languages/gcc/snapshots/4.1-20060217/gcc-4.1.0.tar.bz2',
+		
 					  format='bz2',
 					  depends=['odcctools']),
 		     ]
