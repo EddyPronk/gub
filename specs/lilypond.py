@@ -123,8 +123,8 @@ class LilyPond__cygwin (LilyPond):
 	def __init__ (self, settings):
 		LilyPond.__init__ (self, settings)
 		self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
-			   depends=['python', 'guile', 'fontconfig', 'freetype2', 'pango'],
-			   builddeps=['gettext-devel', 'guile', 'libfreetype2-devel', 'pango-devel'],
+			   depends=['fontconfig', 'freetype2', 'guile', 'pango', 'python'],
+			   builddeps=['gettext-devel', 'glib-devel', 'guile', 'libfreetype2-devel', 'pango-devel', 'python'],
 			   track_development=True)
 
         def patch (self):
