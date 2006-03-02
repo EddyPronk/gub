@@ -414,18 +414,24 @@ class Cygwin_package_manager (Dependency_manager):
 				deps = map (string.strip,
 					    re.sub ('\([^\)]*\)', '',
 						    dict['requires']).split ())
-				blacklist = (
-					'_update-info-dir',
-					'bintutils',
+				cross = [
+					'base-passwd', 'bintutils', 
 					'gcc', 'gcc-core', 'gcc-g++',
 					'gcc-mingw', 'gcc-mingw-core', 'gcc-mingw-g++',
+					]
+				cycle = ['base-passwd']
+				source [
 					'libtool', 'libtool1.5', 'libltdl3'
+					'libguile16'
+					 ]
+				unneeded = [
+					'_update-info-dir',
 					'libXft', 'libXft1', 'libXft2',
 					'libbz2_1',
-					'libguile16',
 					'X-startup-scripts',
 					'xorg-x11-bin-lndir',
-					)
+					]
+				blacklist = cross + cycle + source + unneeded
 				deps = filter (lambda x: x not in blacklist, deps)
 				package.name_dependencies = deps
 				package.name_build_dependencies = deps
