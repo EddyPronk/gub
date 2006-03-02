@@ -275,6 +275,8 @@ class Autopackage (Linux_installer):
 class Cygwin_dist (Installer):
 	def create (self):
 		pass
+	def name (self):
+		return 'foe'
 
 def get_installers (settings):
 	installers = {
