@@ -341,7 +341,7 @@ tar -C %(install_root)s -zcf %(gub_uploads)s/%(gub_name)s .
 
 	def dump_header_file (self):
 		hdr = self.expand ('%(gub_uploads)s/%(hdr_name)s')
-		self.log_command ("Writing %s" % hdr) 
+		self.log_command ("Writing %s\n" % hdr) 
 		pickle.dump (self.get_substitution_dict (), open (hdr, 'w'))
 
 	def clean (self):
