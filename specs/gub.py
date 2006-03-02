@@ -4,7 +4,6 @@ import download
 import glob
 import misc
 
-
 # sys
 import pickle
 import os
@@ -139,6 +138,14 @@ cd %(downloaddir)s/%(dir)s && cvs -q update -dAP -r %(version)s
 		return self.version ()
 
 	@subst_method
+	def build_dependencies_string (self):
+		return ';'.join (self.name_build_dependencies)
+
+	@subst_method
+	def build_dependencies_string (self):
+		return ';'.join (self.name_dependencies)
+
+	@subst_method
 	def version (self):
 		return misc.split_version (self.ball_version)[0]
 
@@ -177,6 +184,10 @@ cd %(downloaddir)s/%(dir)s && cvs -q update -dAP -r %(version)s
 	@subst_method
         def gub_name (self):
 		return '%(name)s-%(version)s.%(platform)s.gub'
+
+	@subst_method
+        def hdr_name (self):
+		return '%(name)s-%(version)s.%(platform)s.hdr'
 
 	@subst_method
 	def stamp_file (self):
@@ -326,6 +337,12 @@ rm -f %(install_root)s/usr/info/dir %(install_root)s/usr/cross/info/dir
 		self.system ('''
 tar -C %(install_root)s -zcf %(gub_uploads)s/%(gub_name)s .
 ''')
+		self.dump_header_file()
+
+	def dump_header_file (self):
+		hdr = self.expand ('%(gub_uploads)s/%(hdr_name)s')
+		self.log_command ("Writing %s" % hdr) 
+		pickle.dump (self.get_substitution_dict (), open (hdr, 'w'))
 
 	def clean (self):
 		self.system ('rm -rf  %(stamp_file)s %(install_root)s', locals ())
