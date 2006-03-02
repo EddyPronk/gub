@@ -14,14 +14,14 @@ class Gcc (mingw.Gcc):
 --with-newlib
 --enable-threads
 '''))
-	
+
 
 # FIXME: setting binutil's tooldir or gcc's gcc_tooldir may fix
 # -luser32 (ie -L .../w32api/) problem without having to set LDFLAGS.
 class Binutils (cross.Binutils):
 	def makeflags (self):
 		return misc.join_lines ('''
-tooldir="%(cross_prefix)s"
+tooldir="%(crossprefix)s"
 ''')
 	def compile_command (self):
 		return (cross.Binutils.compile_command (self)
@@ -40,7 +40,7 @@ def get_packages (settings, names):
 #binutils-20050610-1-src.tar.bz2
 	cross_packs = [
 #		cross.Binutils (settings).with (version='2.16.1', format='bz2',
-# fixes auto-import		
+# fixes auto-import
 #		cross.Binutils (settings).with (version='20050610-1', format='bz2', mirror=download.cygwin,
 		Binutils (settings).with (version='20050610-1', format='bz2', mirror=download.cygwin,
 					   depends=['cygwin', 'w32api'],
@@ -51,7 +51,7 @@ def get_packages (settings, names):
 					   builddeps=['binutils', 'cygwin', 'w32api']
 					   ),
 		]
-	
+
 	return cross_packs + filter (lambda x: x.name () not in names,
 				     p.get_packages (file))
 

@@ -11,7 +11,7 @@ class Guile (targetpackage.Target_package):
 		targetpackage.Target_package.__init__ (self, settings)
 		self.with (version='1.8.0',
 			   mirror=download.gnu, format='gz',
-			   
+
 			   depends=['gettext', 'gmp', 'libtool'])
 
 	# FIXME: C&P.
@@ -35,10 +35,10 @@ class Guile (targetpackage.Target_package):
 '''))
 	def compile (self):
 
-		## Ugh : broken dependencies barf with make -jX 
+		## Ugh : broken dependencies barf with make -jX
 		self.system ('cd %(builddir)s/libguile && make scmconfig.h ')
 		targetpackage.Target_package.compile (self)
-		
+
 	def configure (self):
 		targetpackage.Target_package.configure (self)
 		self.update_libtool ()
@@ -79,7 +79,7 @@ class Guile__mingw (Guile):
 
 
 # don't set PATH_SEPARATOR; it will fuckup tool searching for the
-# build platform. 
+# build platform.
 
 		return (Guile.configure_command (self)
 		       + misc.join_lines ('''
@@ -113,7 +113,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
 					 '\\1')],
 				       '%(srcdir)s/configure')
 
-			
+
 		Guile.configure (self)
 
 
@@ -123,7 +123,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
 			self.file_sub ([
 				('PATH_SEPARATOR = .', 'PATH_SEPARATOR = ;'),
 				], '%(builddir)s/' + l)
-		
+
 		self.file_sub ([
 			#('^(allow_undefined_flag=.*)unsupported', '\\1'),
 			('-mwindows', ''),
@@ -194,7 +194,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
 			self.file_sub ([('''^#(LIBOBJS=".*fileblocks.*)''',
 					 '\\1')],
 				       '%(srcdir)s/configure')
-			
+
 		Guile.configure (self)
 
 		## probably not necessary, but just be sure.
@@ -202,7 +202,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
 			self.file_sub ([
 				('PATH_SEPARATOR = .', 'PATH_SEPARATOR = ;'),
 				], '%(builddir)s/' + i)
-		
+
 		self.file_sub ([
 			('^(allow_undefined_flag=.*)unsupported', '\\1'),
 			],

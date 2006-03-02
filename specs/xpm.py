@@ -421,8 +421,9 @@ class Cygwin_package_manager (Dependency_manager):
 					]
 				cycle = ['base-passwd']
 				source = [
+					'guile', 'guile-devel',
 					'libtool', 'libtool1.5', 'libltdl3',
-					'libguile16',
+					'libguile12', 'libguile16',
 					 ]
 				unneeded = [
 					'_update-info-dir',
