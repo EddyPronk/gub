@@ -125,12 +125,12 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
 				], '%(builddir)s/' + l)
 		
 		self.file_sub ([
-			('^\(allow_undefined_flag=.*\)unsupported', '\\1'),
+			#('^(allow_undefined_flag=.*)unsupported', '\\1'),
 			('-mwindows', ''),
 			],
 			       '%(builddir)s/libtool')
 		self.file_sub ([
-			('^\(allow_undefined_flag=.*\)unsupported', '\\1'),
+			#('^(allow_undefined_flag=.*)unsupported', '\\1'),
 			('-mwindows', ''),
 			],
 			       '%(builddir)s/guile-readline/libtool')
