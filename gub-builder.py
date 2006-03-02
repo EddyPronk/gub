@@ -109,10 +109,13 @@ def build_installer (settings, target_manager, args):
 					       settings.os_interface)
 
 	install_manager.include_build_deps = False
-	for p in target_manager._packages.values ():
-		if (not isinstance (p, gub.Sdk_package)
-		    and not isinstance (p, cross.Cross_package)):
-			install_manager.register_package (p)
+	# FIXME: silly distinction, but mustn't install all known pacages
+	# of distro.
+	if not settings.is_distro:
+		for p in target_manager._packages.values ():
+			if (not isinstance (p, gub.Sdk_package)
+			    and not isinstance (p, cross.Cross_package)):
+				install_manager.register_package (p)
 
 	for p in install_manager._packages.values ():
 		install_manager.install_package  (p)
