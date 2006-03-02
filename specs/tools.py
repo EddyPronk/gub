@@ -18,7 +18,16 @@ class Tool_package (gub.Package):
 		self.system ('''
 tar -C %(install_root)s/ -zcf %(gub_uploads)s/%(gub_name)s .
 ''')
-
+	def get_substitution_dict (self, env={}):
+		dict = {
+			'C_INCLUDE_PATH': '%(tooldir)s/include',
+			'LIBRARY_PATH': '%(tooldir)s/lib',
+			'CPLUS_INCLUDE_PATH': '%(tooldir)s/include',
+		}
+		dict.update (env)
+		d =  gub.Package.get_substitution_dict (self, dict).copy()
+		return d
+	
 class Pkg_config (Tool_package):
 	pass
 
