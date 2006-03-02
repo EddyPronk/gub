@@ -211,6 +211,9 @@ find %(install_root)s -name "*.ly"
 			s = open (i).read ()
 			open (i, 'w').write (re.sub ('\r*\n', '\r\n', s))
 
+		self.file_sub ([(r'gs-font-load\s+#f', 'gs-font-load #t')],
+		'%(install_root)s/usr/share/lilypond/current/scm/lily.scm')
+
 class LilyPond__debian (LilyPond):
 	def __init__ (self, settings):
 		LilyPond.__init__ (self, settings)
