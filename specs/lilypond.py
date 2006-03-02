@@ -119,12 +119,12 @@ cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/
 			''', locals ())
 			self.do_configure ()
 
-class LilyPond__mingw (LilyPond):
+class LilyPond__cygwin (LilyPond):
 	def __init__ (self, settings):
 		LilyPond.__init__ (self, settings)
 		self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
-			   depends=['fontconfig', 'gettext',
-				    'guile', 'pango', 'python', 'ghostscript', 'cygwin', 'lilypad'],
+			   depends=['python', 'guile', 'fontconfig', 'freetype2', 'pango'],
+			   builddeps=['gettext-devel', 'guile', 'libfreetype2-devel', 'pango-devel'],
 			   track_development=True)
 
         def patch (self):
@@ -133,8 +133,25 @@ class LilyPond__mingw (LilyPond):
 		self.file_sub ([('THIS', 'SELF')],
 			       '%(srcdir)s/lily/parser.yy')
 
+	def compile_command (self):
+		python_lib = "%(system_root)s/usr/bin/libpython%(python_version)s.dll"
+		LDFLAGS = '-L%(system_root)s/usr/lib -L%(system_root)s/usr/bin -L%(system_root)s/usr/lib/w32api'
+
+		return (LilyPond.compile_command (self)
+		       + misc.join_lines ('''
+LDFLAGS="%(LDFLAGS)s %(python_lib)s"
+'''% locals ()))
+
+class LilyPond__mingw (LilyPond__cygwin):
+	def __init__ (self, settings):
+		LilyPond__cygwin.__init__ (self, settings)
+		self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
+			   depends=['fontconfig', 'gettext',
+				    'guile', 'pango', 'python', 'ghostscript', 'cygwin', 'lilypad'],
+			   track_development=True)
+
 	def do_configure (self):
-		LilyPond.do_configure (self)
+		LilyPond__cygwin.do_configure (self)
 ##		# Configure (compile) without -mwindows for console
 ##		self.target_gcc_flags = '-mms-bitfields'
 		self.config_cache ()
@@ -151,14 +168,6 @@ class LilyPond__mingw (LilyPond):
 		self.file_sub ([(' -g ', ' ')],
 				'%(builddir)s/config.make')
 
-
-	def compile_command (self):
-		python_lib = "%(system_root)s/usr/bin/libpython%(python_version)s.dll"
-		return (LilyPond.compile_command (self)
-		       + misc.join_lines ('''
-LDFLAGS=%(python_lib)s
-'''% locals ()))
-
 	def compile (self):
 		LilyPond.compile (self)
 		gub.Package.system (self, '''
@@ -171,7 +180,7 @@ cp -pv %(builddir)s/mf/out/* %(builddir)s/mf/out-console
 			     locals ())
 
 	def install (self):
-		LilyPond.install (self)
+		LilyPond__cygwin.install (self)
 		self.system ('''
 
 rm -f %(install_prefix)s/bin/lilypond-windows
@@ -195,15 +204,7 @@ find %(install_root)s -name "*.ly"
 			s = open (i).read ()
 			open (i, 'w').write (re.sub ('\r*\n', '\r\n', s))
 
-class LilyPond__cygwin (LilyPond__mingw):
-	def __init__ (self, settings):
-		LilyPond.__init__ (self, settings)
-		self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
-			   depends=['python'],
-			   builddeps=['gcc', 'gettext-devel', 'guile-devel', 'pango-devel'],
-			   track_development=True)
-
-class LilyPond__debian (LilyPond__mingw):
+class LilyPond__debian (LilyPond):
 	def __init__ (self, settings):
 		LilyPond.__init__ (self, settings)
 		self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
