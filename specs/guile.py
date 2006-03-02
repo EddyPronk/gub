@@ -181,7 +181,34 @@ class Guile__darwin (Guile):
 
 			self.system ('cd %(directory)s && ln -s %(src)s %(dst)s', locals())
 
-#must build libtool from source
-# probably need to share mingw tweaks
 class Guile__cygwin (Guile):
-	pass
+	def config_cache_overrides (self, str):
+		return str + '''
+guile_cv_func_usleep_declared=${guile_cv_func_usleep_declared=yes}
+guile_cv_exeext=${guile_cv_exeext=}
+libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib"}
+'''
+
+	def configure (self):
+		if 1:
+			self.file_sub ([('''^#(LIBOBJS=".*fileblocks.*)''',
+					 '\\1')],
+				       '%(srcdir)s/configure')
+			
+		Guile.configure (self)
+
+		## probably not necessary, but just be sure.
+		for i in self.locate_files ('%(builddir)s', "Makefile"):
+			self.file_sub ([
+				('PATH_SEPARATOR = .', 'PATH_SEPARATOR = ;'),
+				], '%(builddir)s/' + i)
+		
+		self.file_sub ([
+			('^(allow_undefined_flag=.*)unsupported', '\\1'),
+			],
+			       '%(builddir)s/libtool')
+		self.file_sub ([
+			('^(allow_undefined_flag=.*)unsupported', '\\1'),
+			],
+			       '%(builddir)s/guile-readline/libtool')
+
