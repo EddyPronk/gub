@@ -31,8 +31,13 @@ tar -C %(install_root)s/ -zcf %(gub_uploads)s/%(gub_name)s .
 class Pkg_config (Tool_package):
 	pass
 
+class Make (Tool_package):
+	pass
 
 class Mftrace (Tool_package):
+	pass
+
+class Gmp (Tool_package):
 	pass
 
 class Potrace (Tool_package):
@@ -57,7 +62,11 @@ class Fontforge (Tool_package):
 		return self.broken_install_command ()
 		
 class Guile (Tool_package):
-	pass
+	def install (self):
+		Tool_package.install (self)
+
+		## don't want local GUILE headers to interfere with compile.
+		self.system ("rm -rf %(install_root)s/usr/include/ %(install_root)s/usr/bin/guile-config ")
 
 class Flex (Tool_package):
 	def srcdir (self):
@@ -197,9 +206,13 @@ def get_packages (settings, names):
 		
 		Pkg_config (settings).with (version="0.20",
 					    mirror=download.freedesktop),
-		Guile (settings).with (version='1.6.7',
+		Guile (settings).with (version='1.8.0',
 				       mirror=download.gnu, format='gz',
+				       depends=['gmp'],
 				       ),
+		Make (settings).with (version='3.80',
+				      mirror=download.gnu, format='gz',
+				      ),
 		Flex (settings).with (version="2.5.4a",
 				      mirror=download.nongnu, format='gz'),
 		Alien (settings).with (version="8.60",
@@ -209,6 +222,8 @@ def get_packages (settings, names):
 		Fakeroot(settings).with (version="1.2.10",
 					 mirror="http://ftp.debian.org/debian/pool/main/f/fakeroot/fakeroot_1.2.10.tar.gz",
 					 format="gz"),
+		Gmp (settings).with (version="4.1.4",
+				     mirror=download.gnu, format='gz'),
 		]
 
 	return ps
