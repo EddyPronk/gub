@@ -144,7 +144,7 @@ def run_builder (settings, manager, args):
 	extra_build_deps = [p.name () for p in sdk_pkgs + cross_pkgs]
 	framework.package_fixups (settings, manager._packages.values (),
 				  extra_build_deps)
-
+				 
 	pkgs = map (lambda x: manager._packages[x], args)
 
 	if not settings.options.stage:

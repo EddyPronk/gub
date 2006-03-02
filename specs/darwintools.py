@@ -78,7 +78,7 @@ class Gcc (cross.Gcc):
 		
 	def install (self):
 		cross.Gcc.install (self)
-		# self.rewire_gcc_libs ()
+		self.rewire_gcc_libs ()
 		
 class Rewirer (context.Os_context_wrapper):
 	def __init__ (self, settings):
