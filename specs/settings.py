@@ -59,7 +59,7 @@ class Settings (Context):
 		self.system_root = self.targetdir + '/system'
 		self.crossprefix = self.system_root + '/usr/cross'
 		self.installdir = self.targetdir + '/install'
-		self.tooldir = self.topdir + '/target/local/system/usr/'
+		self.buildtools = self.topdir + '/target/local/system/usr/'
 		self.distcc_bindir = self.topdir + '/target/distcc/bin/'
 		
 		# INSTALLERS
@@ -103,7 +103,7 @@ class Settings (Context):
 			'system_root',
 			'crossprefix',
 			'targetdir',
-			'tooldir',
+			'buildtools',
 			'topdir',
 			):
 			dir = self.__dict__[a]
