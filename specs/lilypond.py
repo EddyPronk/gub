@@ -95,10 +95,10 @@ cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/
 		targetpackage.Target_package.install (self)
 		d = misc.grok_sh_variables (self.expand ('%(srcdir)s/VERSION'))
 		v = '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
-		self.system ("cd %(install_root)s/usr/share/lilypond && rm -f current && ln -sf %(v)s current",
+		self.system ("cd %(install_root)s/usr/share/lilypond && mv %(v)s current",
 			     locals ())
 
-		self.system ("cd %(install_root)s/usr/lib/lilypond && rm -f current && ln -sf %(v)s current",
+		self.system ("cd %(install_root)s/usr/lib/lilypond && mv %(v)s current",
 			     locals ())
 
 
