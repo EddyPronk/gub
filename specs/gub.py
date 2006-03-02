@@ -28,7 +28,7 @@ class Package (Os_context_wrapper):
 
 		# set to true for CVS releases 
 		self.track_development = False
-		self.split_pacakges = []
+		self.split_packages = []
 		self.sover = '1'
 
 	# urg: naming conflicts with module.
