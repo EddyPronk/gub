@@ -66,7 +66,7 @@ def get_packages (settings, names):
 				     depends=['binutils']),
 # snapshots/4.1-20060217/		
 		Mingw_runtime (settings).with (version='3.9', mirror=download.mingw),
-		Cygwin (settings).with (version='1.5.18-1', mirror=download.cygwin, format='bz2',
+		Cygwin (settings).with (version='1.5.18-1', mirror=download.cygwin_bin, format='bz2',
 					depends=['mingw-runtime']),
 		W32api (settings).with (version='3.5', mirror=download.mingw),
 		)
