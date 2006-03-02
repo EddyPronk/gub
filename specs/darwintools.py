@@ -71,7 +71,13 @@ class Gcc (cross.Gcc):
 		
 
 	def rewire_gcc_libs (self):
+
+		skip_libs = ['libgcc_s']
 		for l in  self.read_pipe ("find %(install_root)s/usr/lib/ -name '*.dylib'").split():
+			found_skips = [s for s in  skip_libs if l.find (s) >= 0]
+			if found_skips:
+				continue
+			
 			id = self.read_pipe ('%(tool_prefix)sotool -L %(l)s', locals ()).split()[1]
 			id = os.path.split (id)[1]
 			self.system ('%(tool_prefix)sinstall_name_tool -id /usr/lib/%(id)s %(l)s', locals ())
