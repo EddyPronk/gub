@@ -182,6 +182,13 @@ class Guile__darwin (Guile):
 			self.system ('cd %(directory)s && ln -s %(src)s %(dst)s', locals())
 
 class Guile__cygwin (Guile):
+	def __init__ (self, settings):
+		Guile.__init__ (self, settings)
+		# FIXME: wip.  splitting works, gub/gup + dependencies
+		# can't handle split packages yet.
+		#self.sover = '17'
+		#self.split_packages = ['devel', 'doc', 'lib']
+
 	def config_cache_overrides (self, str):
 		return str + '''
 guile_cv_func_usleep_declared=${guile_cv_func_usleep_declared=yes}

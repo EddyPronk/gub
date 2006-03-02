@@ -28,6 +28,8 @@ class Package (Os_context_wrapper):
 
 		# set to true for CVS releases 
 		self.track_development = False
+		self.split_pacakges = []
+		self.sover = '1'
 
 	# urg: naming conflicts with module.
 	def do_download (self):
@@ -40,7 +42,7 @@ class Package (Os_context_wrapper):
 			return
 
 		stages = ['untar', 'patch',
-			  'configure', 'compile', 'install',
+			  'configure', 'compile', 'install', 'split',
 			  'package', 'clean']
 
 		tainted = False
@@ -285,7 +287,7 @@ tooldir=%(install_prefix)s
 				self.file_sub ([(r'if test "\$inst_prefix_dir" = "\$destdir"; then',
 						 'if false && test "$inst_prefix_dir" = "$destdir"; then')],
 					       lt, must_succeed=True)
-				self.system ('chmod 755  %(lt)s', locals())
+				self.system ('chmod 755  %(lt)s', locals ())
 		else:
 			sys.stderr.write ("Cannot update libtool without libtools in system_root/usr/bin/.")
 
@@ -311,7 +313,7 @@ rm -f %(install_root)s/usr/info/dir %(install_root)s/usr/cross/info/dir
 					('^old_library=.*',
 					 """old_library='lib%(base)s.a'"""),
 					],
-				       full_la, env=locals())
+				       full_la, env=locals ())
                         if self.settings.platform.startswith ('mingw'):
 			         self.file_sub ([('library_names=.*',
 						"library_names='lib%(base)s.dll.a'")],
@@ -321,8 +323,81 @@ rm -f %(install_root)s/usr/info/dir %(install_root)s/usr/cross/info/dir
 			self.file_sub ([('^libdir=.*',
 					 """libdir='%(system_root)s/%(dir)s'"""),
 					],
-				       full_la, env=locals())
+				       full_la, env=locals ())
 			
+	def split_devel (self):
+		split_root = '%(install_root)s-devel'
+		split_prefix = '%(install_root)s-devel/usr'
+# Only static .a libs in devel, load time .la files go in LIB (or mingw
+# BIN) package.
+		self.system ('''
+rm -rf %(split_root)s
+mkdir -p %(split_prefix)s/bin
+mv %(install_prefix)s/bin/*-config %(split_prefix)s/bin || true
+tar -C %(install_root)s -cf - usr/include | tar -C %(split_root)s -xf -
+rm -rf %(install_root)s/usr/include
+mkdir -p %(split_prefix)s/lib
+mv %(install_root)s/usr/lib/*.a %(split_prefix)s/lib || true
+mv %(install_root)s/usr/lib/pkgconfig %(split_prefix)s/lib || true
+mkdir -p %(split_prefix)s/share
+tar -C %(install_root)s -cf - %(split_prefix)s/share/aclocal | tar -C %(split_root)s -xf -
+rm -rf %(install_root)s/usr/share/aclocal
+tar -C %(install_root)s -cf - %(split_prefix)s/share/libtool | tar -C %(split_root)s -xf -
+rm -rf %(install_root)s/usr/share/libtool
+rmdir %(install_root)s/usr/lib || true
+rmdir %(install_root)s/usr/share || true
+rmdir %(split_root)s/usr/lib || true
+rmdir %(split_root)s/usr/share || true
+''',
+			     locals ())
+
+	def split_doc (self):
+		split_root = '%(install_root)s-doc'
+		split_prefix = '%(install_root)s-doc/usr'
+		self.system ('''
+rm -rf %(split_root)s
+mkdir -p %(split_prefix)s/share
+tar -C %(install_prefix)s -cf - info | tar -C %(split_prefix)s/share -xf -
+tar -C %(install_prefix)s -cf - share/info | tar -C %(split_prefix)s -xf -
+rm -rf %(install_root)%/usr/info %(install_root)%/usr/share/info
+mkdir -p %(split_prefix)s/share
+tar -C %(install_prefix)s -cf - man | tar -C %(split_prefix)s/share -xf -
+tar -C %(install_prefix)s -cf - share/man | tar -C %(split_prefix)s -xf -
+rm -rf %(install_root)s/usr/man %(install_root)s/usr/share/man
+rmdir %(split_root)s/usr/share/info || true
+rmdir %(split_root)s/usr/share/man || true
+rmdir %(split_root)s/usr/share || true
+''',
+			     locals ())
+
+	def split_lib (self):
+		split_root = '%(install_root)s-lib'
+		split_prefix = '%(install_root)s-lib/usr'
+# better move dlls to bin, see gmp
+		self.system ('''
+rm -rf %(split_root)s
+mkdir -p %(split_prefix)s/bin
+mv %(install_root)s/usr/bin/*.dll %(split_prefix)s/bin || true
+mkdir -p %(split_prefix)s/lib
+mv %(install_root)s/usr/lib/*.dll %(split_prefix)s/lib || true
+mkdir -p %(split_prefix)s/lib
+mv %(install_root)s/usr/lib/lib*.la %(split_prefix)s/lib || true
+mkdir -p %(split_prefix)s/share
+mv %(install_root)s/usr/share/$base %(split_prefix)s/share || true
+rmdir %(install_root)s/usr/bin || true
+rmdir %(install_root)s/usr/lib || true
+rmdir %(install_root)s/usr/share || true
+rmdir %(split_root)s/usr/bin || true
+rmdir %(split_root)s/usr/lib || true
+rmdir %(split_root)s/usr/share || true
+''',
+			     locals ())
+
+	def split (self):
+		available = dict (inspect.getmembers (self, callable))
+		for i in self.split_packages:
+			available['split_' + i] ()
+
 	def compile (self):
 		self.system ('cd %(builddir)s && %(compile_command)s')
 
@@ -332,12 +407,36 @@ rm -f %(install_root)s/usr/info/dir %(install_root)s/usr/cross/info/dir
 				       % self.get_substitution_dict ()):
 			self.autoupdate ()
 
+	@subst_method
+        def gub_name_devel (self):
+		return '%(name)s-devel-%(version)s.%(platform)s.gub'
+
+	@subst_method
+        def gub_name_doc (self):
+		return '%(name)s-doc-%(version)s.%(platform)s.gub'
+
+	@subst_method
+        def gub_name_lib (self):
+		if self.name ().startswith ('lib'):
+			sover = self.sover
+			return '%(name)s%(sover)s-%(version)s.%(platform)s.gub'
+		return 'lib%(name)s%(sover)s-%(version)s.%(platform)s.gub'
+
 	def package (self):
 		# naive tarball packages for now
 		self.system ('''
+rm -f $(find %(install_root)s -name '*~')
 tar -C %(install_root)s -zcf %(gub_uploads)s/%(gub_name)s .
 ''')
-		self.dump_header_file()
+		self.dump_header_file ()
+		# WIP
+		available = dict (inspect.getmembers (self, callable))
+		for i in self.split_packages:
+			split_gub_name = available['gub_name_' + i] ()
+			self.system ('''
+tar -C %(install_root)s-%(i)s -zcf %(gub_uploads)s/%(split_gub_name)s .
+''',
+				     locals ())
 
 	def dump_header_file (self):
 		hdr = self.expand ('%(gub_uploads)s/%(hdr_name)s')

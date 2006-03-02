@@ -17,7 +17,7 @@ def is_subst_method_in_class (method_name, klass):
 	if bs:
 		return True
 	
-	if (klass.__dict__.has_key(method_name)
+	if (klass.__dict__.has_key (method_name)
 	    and callable (klass.__dict__[method_name])
 	    and klass.__dict__[method_name].__dict__.has_key ('substitute_me')):
 		return True
