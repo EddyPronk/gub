@@ -16,18 +16,19 @@ class Odcctools (cross.Cross_package):
 			       self.builddir () + '/Makefile')
 
 class Darwin_sdk (gub.Sdk_package):
-	def __init__ (self, s):
-		gub.Sdk_package.__init__ (self, s)
-
+	def __init__ (self, settings):
+        	gub.Sdk_package.__init__ (self, settings)
+		
 		os_version = 7
-		if s.platform == 'darwin-x86':
+		if settings.platform == 'darwin-x86':
 			os_version = 8
 			
 		name = 'darwin%d-sdk' % os_version
-		ball_version = '0.4'
+		ball_version = settings.darwin_sdk_version
 		format = 'gz'
-		self.with (version='0.4',
-			   mirror=download.hw % locals(), format='gz')
+		mirror = download.hw % locals()
+		self.with (version=settings.darwin_sdk_version,
+			   mirror=mirror, format='gz')
 
 	def patch (self):
 		self.system ('''
@@ -35,6 +36,9 @@ rm %(srcdir)s/usr/lib/libgcc*
 rm %(srcdir)s/usr/lib/libstdc\+\+*
 rm %(srcdir)s/usr/lib/libltdl*
 rm %(srcdir)s/usr/include/ltdl.h
+rm %(srcdir)s/usr/lib/gcc/powerpc-apple-darwin8
+rm %(srcdir)s/usr/lib/gcc/powerpc-apple-darwin*/*/*dylib
+rm %(srcdir)s/usr/lib/gcc/darwin*/*/*dylib
 rm -rf %(srcdir)s/usr/lib/gcc
 rm -f $(find %(srcdir)s -name FlexLexer.h)
 ''')
@@ -144,7 +148,7 @@ class Rewirer (context.Os_context_wrapper):
 
 	def get_ignore_libs (self):
 		str = self.read_pipe ('''
-tar tfz %(gub_uploads)s/darwin-sdk-%(darwin_sdk_version)s.darwin.gub
+tar tfz %(gub_uploads)s/darwin-sdk-%(darwin_sdk_version)s.%(platform)s.gub
 ''')
 		d = {}
 		for l in str.split ('\n'):
@@ -183,7 +187,9 @@ def add_rewire_path (settings, packages):
 
 def get_packages (settings, names):
 
-	## Ugh, can we write settings?  
+	## Ugh, can we write settings?
+	settings.darwin_sdk_version = '0.4'
+	
 	packages = []
 	
 	
@@ -249,6 +255,6 @@ def get_darwin_sdk ():
 	system ('tar cfz %s.tar.gz %s '  % (dest, dest))
 
 
-if __name__== '__main__':
+if __name__== '__main__' and len (sys.argv) > 1:
 	get_darwin_sdk ()
 
