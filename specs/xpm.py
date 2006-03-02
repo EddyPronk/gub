@@ -421,8 +421,8 @@ class Cygwin_package_manager (Dependency_manager):
 					]
 				cycle = ['base-passwd']
 				source = [
-					'guile', 'guile-devel',
-					'libtool', 'libtool1.5', 'libltdl3',
+					'guile-devel',
+					'libtool1.5', 'libltdl3',
 					'libguile12', 'libguile16',
 					 ]
 				unneeded = [
@@ -447,7 +447,7 @@ class Cygwin_package_manager (Dependency_manager):
 		for i in chunks[1:]:
 			lines = string.split (i, '\n')
 			name = string.strip (lines[0])
-			blacklist = ('binutils', 'gcc', 'libtool', 'litool1.5' , 'libtool-devel', 'libltdl3')
+			blacklist = ('binutils', 'gcc', 'guile', 'guile-devel', 'libguile12', 'libguile16', 'libtool', 'litool1.5' , 'libtool-devel', 'libltdl3')
 			if name in blacklist:
 				continue
 			packages = self._dists['curr']
