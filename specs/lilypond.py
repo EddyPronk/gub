@@ -142,6 +142,13 @@ class LilyPond__cygwin (LilyPond):
 LDFLAGS="%(LDFLAGS)s %(python_lib)s"
 '''% locals ()))
 
+class LilyPond__freebsd (LilyPond):
+	def __init__ (self, settings):
+		LilyPond.__init__ (self, settings)
+
+		# libgcc.so
+		self.name_dependencies.append ('gcc')
+		
 class LilyPond__mingw (LilyPond__cygwin):
 	def __init__ (self, settings):
 		LilyPond__cygwin.__init__ (self, settings)
@@ -204,6 +211,9 @@ find %(install_root)s -name "*.ly"
 			s = open (i).read ()
 			open (i, 'w').write (re.sub ('\r*\n', '\r\n', s))
 
+		self.file_sub ([(r'gs-font-load\s+#f', 'gs-font-load #t')],
+		'%(install_root)s/usr/share/lilypond/current/scm/lily.scm')
+
 class LilyPond__debian (LilyPond):
 	def __init__ (self, settings):
 		LilyPond.__init__ (self, settings)
@@ -250,3 +260,4 @@ Lilypond__cygwin = LilyPond__cygwin
 Lilypond__darwin = LilyPond__darwin
 Lilypond__debian = LilyPond__debian
 Lilypond__mingw = LilyPond__mingw
+Lilypond__freebsd = LilyPond__freebsd

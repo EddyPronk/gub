@@ -236,6 +236,7 @@ ac_cv_lib_dl_dlopen=${ac_cv_lib_dl_dlopen=no}
 
 lt_cv_dlopen_libs=${lt_cv_dlopen_libs="none required"}
 lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=8192}
+libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/usr/lib/w32api %(system_root)s/lib"'"}
 ''',
 	'mingw': '''
 ac_cv_func_malloc_0_nonnull=${ac_cv_func_malloc_0_nonnull=yes}
@@ -248,6 +249,7 @@ ac_cv_lib_dl_dlopen=${ac_cv_lib_dl_dlopen=no}
 
 lt_cv_dlopen_libs=${lt_cv_dlopen_libs="none required"}
 lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=8192}
+libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/usr/lib/w32api %(system_root)s/lib"'"}
 '''
 }
 
