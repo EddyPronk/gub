@@ -341,10 +341,9 @@ class Dependency_manager (Package_manager):
 						continue
 
 					new_add.append (d)
-					
 			todo += add_packages
 			add_packages = new_add
-			
+
 		sorted = self.topological_sort (todo)
 		for p in sorted:
 			action (p)
@@ -362,7 +361,6 @@ class Dependency_manager (Package_manager):
 					recurse_stop_predicate=self.is_installed)
 
 	def topological_sort (manager, nodes):
-		
 		deps = dict ((n, [d for d in manager.dependencies (n)
 				   if d in nodes])
 			      for n in nodes)
@@ -376,11 +374,6 @@ class Dependency_manager (Package_manager):
 
 			if rm == []:
 				raise 'barf'
-			if min_dep_count > 0:
-				print 'topological_sort: min_dep_count > 0, cyclic dependency?'
-				for r in rm:
-					print 'package:', r, ' depends: ' deps[r]
-
 			sorted += rm
 
 			deps = dict ((n, ds) for (n, ds) in deps.items ()
@@ -420,7 +413,7 @@ class Cygwin_package_manager (Dependency_manager):
 					'gcc-mingw', 'gcc-mingw-core', 'gcc-mingw-g++',
 					]
 				cycle = ['base-passwd']
-				source [
+				source = [
 					'libtool', 'libtool1.5', 'libltdl3'
 					'libguile16'
 					 ]
