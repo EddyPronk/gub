@@ -57,3 +57,12 @@ def get_packages (settings, names):
 
 def change_target_packages (packages):
 	cross.change_target_packages (packages)
+
+	# FIXME: this does not work
+	for p in packages:
+		gub.change_target_dict (p,
+					{
+			'DLLTOOL': '%(tool_prefix)sdlltool',
+			'DLLWRAP': '%(tool_prefix)sdllwrap',
+			'LDFLAGS': '-L%(system_root)s/usr/lib -L%(system_root)s/usr/bin -L%(system_root)s/usr/lib/w32api',
+			})
