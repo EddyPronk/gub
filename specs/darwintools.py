@@ -38,7 +38,6 @@ rm %(srcdir)s/usr/lib/libltdl*
 rm %(srcdir)s/usr/include/ltdl.h
 rm %(srcdir)s/usr/lib/gcc/powerpc-apple-darwin8
 rm %(srcdir)s/usr/lib/gcc/powerpc-apple-darwin*/*/*dylib
-rm %(srcdir)s/usr/lib/gcc/darwin*/*/*dylib
 rm -rf %(srcdir)s/usr/lib/gcc
 rm -f $(find %(srcdir)s -name FlexLexer.h)
 ''')
