@@ -19,7 +19,6 @@ def get_alias (p):
 	try:
 		return {
 			'linux-x86': 'linux',
-			'darwin-ppc': 'darwin',
 			'linux-arm': 'arm',
 			'freebsd-x86': 'freebsd',
 			}[p]
@@ -148,11 +147,15 @@ def upload_binaries (version):
 			
 		src_dests.append((bin, '%(host)s:%(host_dir)s/%(platform)s' % locals()))
 
+
+	cmds = ['scp %s %s' % tup for tup in src_dests]
+
+	print '\n'.join (cmds);
 	if barf:
 		raise 'barf'
 		
-	for tup in src_dests:
-		system ('scp %s %s' % tup)
+	for cmd in cmds:
+		system (cmd)
 
 
 if __name__ == '__main__':
