@@ -272,16 +272,53 @@ class Autopackage (Linux_installer):
 		self.system ('cd %(build_autopackage)s && makeinstaller')
 		self.system ('mv %(build_autopackage)s/*.package %(installer_uploads)s')
 
-class Cygwin_dist (Installer):
+class Cygwin_package (Installer):
+	def __init__ (self, settings, target_manager, name):
+		Installer.__init__ (self, settings)
+		self._name = name
+		self.target_manager = target_manager
 	def create (self):
-		pass
-	def name (self):
-		return 'foe'
+		# FIND gub package object for NAME
+		p = self.target_manager._packages[self._name]
+		# CREATE balls *-build.tar.bz2, NAME-build-scr.tar.bz2
+		# CREATE setup.hint files
+		self.cygwin_ball (p, '')
+		for i in p.split_packages:
+			self.cygwin_ball (p, i)
 
-def get_installers (settings):
+	def cygwin_ball (self, package, split):
+		cygwin_uploads = '%(gub_uploads)s/release'
+		package_name = self._name
+		if not split:
+			gub_name = package.gub_name ()
+		else:
+			cygwin_uploads += '/' + self.name ()
+			import inspect
+			available = dict (inspect.getmembers (package, callable))
+			gub_name = available['gub_name_' + split] ()
+
+		base_name = re.sub ('-%\(version\)s.*', '', gub_name)
+		ball_name = re.sub ('\.%\(platform\)s.*',
+				    '-%(bundle_build)s.tar.bz2',
+				    gub_name)
+		hint = base_name + '.hint'
+		dir = '%(installer_root)s-' + base_name
+		package.system ('''
+rm -rf %(dir)s
+mkdir -p %(dir)s
+tar -C %(dir)s -zxf %(gub_uploads)s/%(gub_name)s
+mkdir -p %(cygwin_uploads)s/%(base_name)s
+tar -C %(dir)s --owner=0 --group=0 -jcf %(cygwin_uploads)s/%(base_name)s/%(ball_name)s .
+cp -pv %(installer_root)s-%(package_name)s/etc/hints/%(hint)s %(cygwin_uploads)s/%(base_name)s/setup.hint
+''',
+				locals ())
+
+	def name (self):
+		return self._name
+
+def get_installers (settings, target_manager, args):
 	installers = {
 		'arm' : [Shar (settings)],
-		'cygwin' : [Cygwin_dist],
 		'darwin-ppc' : [Darwin_bundle (settings)],
 		'darwin-x86' : [Darwin_bundle (settings)],
 		'freebsd' : [Shar (settings)],
@@ -289,4 +326,7 @@ def get_installers (settings):
 		'mingw' : [Nsis (settings)],
 	}
 
+	if settings.platform == 'cygwin':
+		return map (lambda x:
+			    Cygwin_package (settings, target_manager, x), args)
 	return installers[settings.platform]

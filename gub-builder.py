@@ -124,14 +124,14 @@ def build_installer (settings, target_manager, args):
 	for p in install_manager._packages.values ():
 		install_manager.install_package  (p)
 
-def strip_installer (settings):
-	for p in installer.get_installers (settings):
+def strip_installer (settings, args):
+	for p in installer.get_installers (settings, args):
 		settings.os_interface.log_command (' ** Stage: %s (%s)\n'
 						   % ('strip', p.name ()))
 		p.strip ()
 
-def package_installer (settings):
-	for p in installer.get_installers (settings):
+def package_installer (settings, target_manager, args):
+	for p in installer.get_installers (settings, target_manager, args):
 		settings.os_interface.log_command (' *** Stage: %s (%s)\n'
 						   % ('create', p.name ()))
 		p.create ()
@@ -185,6 +185,7 @@ def main ():
 	c = commands.pop (0)
 	if not commands:
 		commands = ['lilypond']
+
 	target_manager = xpm.get_manager (settings, commands)
 
 	## crossprefix is also necessary for building cross packages,
@@ -203,9 +204,9 @@ def main ():
 	elif c == 'build-installer':
 		build_installer (settings, target_manager, commands)
 	elif c == 'strip-installer':
-		strip_installer (settings)
+		strip_installer (settings, commands)
 	elif c == 'package-installer':
-		package_installer (settings)
+		package_installer (settings, target_manager, commands)
 	else:
 		raise 'unknown driver command %s.' % c
 		cli_parser.print_help ()
