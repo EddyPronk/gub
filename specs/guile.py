@@ -189,8 +189,8 @@ class Guile__cygwin (Guile):
 		# every split package FOO, eg: libguile17.py.
 
 		# Disable for now.
-		# self.sover = '17'
-		# self.split_packages = ['devel', 'doc', 'lib']
+		#self.sover = '17'
+		#self.split_packages = ['devel', 'doc', 'lib']
 
 	def config_cache_overrides (self, str):
 		return str + '''
@@ -228,7 +228,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
 
 	def dump_readme_and_hints (self):
 		# FIXME: get depends from actual split_packages
-#cp -pv %(srcdir)s/cygwin/*hint %(install_root)s/etc/hints
+		changelog = open (self.settings.specdir + '/guile.changelog').read ()
 		self.system ('''
 mkdir -p %(install_root)s/usr/share/doc/Cygwin
 mkdir -p %(install_root)s/etc/hints
@@ -239,34 +239,41 @@ Guile
 ------------------------------------------
 The GNU extension language and Scheme interpreter.
 
-Runtime requirements
-  crypt
-  cygwin
-  gmp
-  libguile17
-  libintl
-  libltdl3
+Runtime requirements (these or newer):
+  crypt-1.1-1
+  cygwin-1.5.18
+  gmp-4.1.4
+  libguile17-1.8.0-0
+  libintl-0.10.38
+  libltdl3-1.5.20
 
-Build requirements (newer is OK)
+Build requirements (these or newer):
   autoconf-2.53a-1
   autoconf-devel-2.53a-1
   automake-1.6.1-3
   automake-devel-1.6.1-3
   binutils-20050610-1
-  cygwin-1.18
-  gcc-3.4
+  cygwin-1.5.18
+  gcc-3.4.4-1
   gmp-4.1.4
   libtool-devel-1.5.20-1
 
-Canonical homepage
+Canonical homepage:
   http://www.gnu.org/software/guile
 
-Canonical download
+Canonical download:
   ftp://alpha.gnu.org/pub/gnu/guile  # development releases
   ftp://ftp.gnu.org/pub/gnu/guile    # stable releases
 
+License:
+  LGPL
+
+Language:
+  C, Scheme
+
 ------------------------------------
-BUILD INSTRUCTIONS
+
+Build Instructions:
 
   # Download GUB
 
@@ -281,23 +288,30 @@ BUILD INSTRUCTIONS
 
    ./gub-builder.py -p cygwin package-installer guile
 
-This will create
+This will create:
    uploads/cygwin/release/guile-%(version)s-%(bundle_build)s-src.tar.bz2
    uploads/cygwin/release/guile-%(version)s-%(bundle_build)s.tar.bz2
    uploads/cygwin/release/guile-doc/guile-doc-%(version)s-%(bundle_build)s.tar.bz2
    uploads/cygwin/release/guile-devel/guile-devel-%(version)s-%(bundle_build)s.tar.bz2
    uploads/cygwin/release/libguile%(sover)s/libguile%(sover)s-%(version)s-%(bundle_build)s.tar.bz2
 
+To find out the files included in the binary distribution, you can use
+"cygcheck -l bash", or browse the listing for the appropriate version
+at <http://cygwin.com/packages/>.
+
 ------------------
-PORT NOTES
+
+Port notes:
+
+%(changelog)s
 
   These packages were built on GNU/Linux using GUB.
 
 Cygwin port maintained by: Jan Nieuwenhuizen  <janneke@gnu.org>
-Bug reports to cygwin@cygwin.com.
+Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>
 ''',
 # "
-			   '%(install_root)s/usr/share/doc/Cygwin/README-%(name)s-%(version)s-%(bundle_build)s',
+			   '%(install_root)s/usr/share/doc/Cygwin/%(name)s-%(version)s-%(bundle_build)s.README',
 			   env=locals ())
 
 		name = 'guile'

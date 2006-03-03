@@ -26,7 +26,7 @@ class Package (Os_context_wrapper):
 		self._dependencies = None
 		self._build_dependencies = None
 
-		# set to true for CVS releases 
+		# set to true for CVS releases
 		self.track_development = False
 		self.split_packages = []
 		self.sover = '1'
@@ -49,11 +49,11 @@ class Package (Os_context_wrapper):
 		for stage in stages:
 			if (not available.has_key (stage)):
 				continue
-			
+
 			if self.is_done (stage, stages.index (stage)):
 				tainted = True
 				continue
-			
+
 			self.os_interface.log_command (' *** Stage: %s (%s)\n'
 						       % (stage, self.name ()))
 
@@ -72,8 +72,8 @@ to skip this check.
 ''')
 				self.os_interface.log_command (msg)
 				raise 'abort'
-			
-					
+
+
 			if (stage == 'clean'
 			    and self.settings.options.keep_build):
 				os.unlink (self.get_stamp_file ())
@@ -86,11 +86,11 @@ to skip this check.
 
 	def skip (self):
 		pass
-	
+
 	def is_downloaded (self):
 		name = self.expand ('%(downloaddir)s/%(file_name)s')
 		return os.path.exists (name)
-			
+
 	def wget (self):
 		if not self.is_downloaded ():
  			self.system ('''
@@ -106,7 +106,7 @@ cd %(downloaddir)s && wget %(url)s
 cd %(downloaddir)s && cvs -d %(url)s -q co -d %(dir)s -r %(version)s %(name)s
 ''', locals ())
 		else:
-# Hmm, let's save local changes?			
+# Hmm, let's save local changes?
 #cd %(srcdir)s && cvs update -dCAP -r %(version)s
 			self.system ('''
 cd %(downloaddir)s/%(dir)s && cvs -q update -dAP -r %(version)s
@@ -134,7 +134,7 @@ cd %(downloaddir)s/%(dir)s && cvs -q update -dAP -r %(version)s
                 f = re.sub ('_%\(package_arch\)s.*', '', f)
                 f = re.sub ('_%\(version\)s', '-%(version)s', f)
                 return f
-	
+
 	@subst_method
 	def full_version (self):
 		return self.version ()
@@ -306,7 +306,7 @@ rm -f %(install_root)s/usr/share/info/dir %(install_root)s/usr/cross/info/dir
 			base = base[3:-3]
 			dir = re.sub (r"^\./", "/", dir)
 			full_la = self.expand ("%(install_root)s/%(la)s", locals())
-			
+
 			self.file_sub ([(''' *-L *[^\"\' ][^\"\' ]*''', ''),
 					('''( |=|\')(/[^ ]*usr/lib|%(targetdir)s.*)/lib([^ \'/]*)\.(a|la|so)[^ \']*''',
 					 '\\1-l\\3 '),
@@ -324,7 +324,7 @@ rm -f %(install_root)s/usr/share/info/dir %(install_root)s/usr/cross/info/dir
 					 """libdir='%(system_root)s/%(dir)s'"""),
 					],
 				       full_la, env=locals ())
-			
+
 	def split_devel (self):
 		split_root = '%(install_root)s-devel'
 		split_prefix = '%(install_root)s-devel/usr'
@@ -441,7 +441,7 @@ tar -C %(install_root)s-%(i)s -zcf %(gub_uploads)s/%(split_gub_name)s .
 
 	def dump_header_file (self):
 		hdr = self.expand ('%(gub_uploads)s/%(hdr_name)s')
-		self.log_command ("Writing %s\n" % hdr) 
+		self.log_command ("Writing %s\n" % hdr)
 		pickle.dump (self.get_substitution_dict (), open (hdr, 'w'))
 
 	def clean (self):
@@ -480,7 +480,7 @@ rm -rf %(srcdir)s %(builddir)s %(install_root)s
 
 		## FIXME what was this for? --hwn
 		self.system ('cd %(srcdir)s && chmod -R +w .')
-						 
+
 	def with (self, version='HEAD', mirror=download.gnu,
 		  format='gz', depends=[], builddeps=[],
 		  track_development=False
@@ -495,7 +495,7 @@ rm -rf %(srcdir)s %(builddir)s %(install_root)s
 		self.url = mirror
 
 		## don't do substitution. We want to postpone
-		## generating the dict until we're sure it doesn't change. 
+		## generating the dict until we're sure it doesn't change.
 
 		return self
 
@@ -523,7 +523,7 @@ rm -rf %(srcdir)s %(builddir)s %(install_root)s
 
 class Null_package (Package):
 	"""Placeholder for downloads """
-	
+
 	def compile (self):
 		pass
 	def configure (self):
@@ -539,7 +539,7 @@ class Null_package (Package):
 	## package should be installable after building.
 	def package (self):
 		self.system ('tar -czf %(gub_uploads)s/%(gub_name)s --files-from=/dev/null')
-		
+
 class Sdk_package (Null_package):
 	def untar (self):
 		Package.untar (self)
@@ -551,13 +551,13 @@ class Change_target_dict:
 	def __init__ (self, package, override):
 		self._target_dict_method = package.get_substitution_dict
 		self._add_dict = override
-		
+
 	def target_dict (self, env={}):
 		env = env.copy()
 		env.update (self._add_dict)
 		d = self._target_dict_method (env)
 		return d
-	
+
 	def append_dict (self, env= {}):
 		d = self._target_dict_method ()
 		for (k,v) in self._add_dict.items ():
@@ -565,8 +565,8 @@ class Change_target_dict:
 
 		d.update (env)
 		d = recurse_substitutions (d)
-		return d 
-	
+		return d
+
 def change_target_dict (package, add_dict):
 	"""Override the get_substitution_dict() method of PACKAGE."""
 	try:

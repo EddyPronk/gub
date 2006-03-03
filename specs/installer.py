@@ -307,6 +307,7 @@ class Cygwin_package (Installer):
 rm -rf %(dir)s
 mkdir -p %(dir)s
 tar -C %(dir)s -zxf %(gub_uploads)s/%(gub_name)s
+rm -rf %(dir)s/usr/cross
 mkdir -p %(cygwin_uploads)s/%(base_name)s
 tar -C %(dir)s --owner=0 --group=0 -jcf %(cygwin_uploads)s/%(base_name)s/%(ball_name)s .
 cp -pv %(installer_root)s-%(package_name)s/etc/hints/%(hint)s %(cygwin_uploads)s/%(base_name)s/setup.hint
