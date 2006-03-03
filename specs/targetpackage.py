@@ -15,6 +15,8 @@ class Target_package (gub.Package):
 --prefix=/usr
 --sysconfdir=/usr/etc
 --includedir=/usr/include
+--infodir=/usr/share/info
+--mandir=/usr/share/man
 --libdir=/usr/lib
 ''')
 

@@ -295,7 +295,7 @@ tooldir=%(install_prefix)s
 		self.system ('''
 rm -rf %(install_root)s
 cd %(builddir)s && %(install_command)s
-rm -f %(install_root)s/usr/info/dir %(install_root)s/usr/cross/info/dir 
+rm -f %(install_root)s/usr/share/info/dir %(install_root)s/usr/cross/info/dir
 ''')
 		self.libtool_installed_la_fixups ()
 
@@ -357,15 +357,16 @@ rmdir %(split_root)s/usr/share || true
 		self.system ('''
 rm -rf %(split_root)s
 mkdir -p %(split_prefix)s/share
-tar -C %(install_prefix)s -cf - info | tar -C %(split_prefix)s/share -xf -
 tar -C %(install_prefix)s -cf - share/info | tar -C %(split_prefix)s -xf -
-rm -rf %(install_root)%/usr/info %(install_root)%/usr/share/info
-mkdir -p %(split_prefix)s/share
-tar -C %(install_prefix)s -cf - man | tar -C %(split_prefix)s/share -xf -
+rm -rf %(install_root)s/usr/share/info
 tar -C %(install_prefix)s -cf - share/man | tar -C %(split_prefix)s -xf -
-rm -rf %(install_root)s/usr/man %(install_root)s/usr/share/man
+rm -rf %(install_root)s/usr/share/man
+tar -C %(install_prefix)s -cf - doc/%(name)s | tar -C %(split_prefix)s/share -xf -
+tar -C %(install_prefix)s -cf - share/doc/%(name)s | tar -C %(split_prefix)s -xf -
+rm -rf %(install_root)s/usr/doc/%(name)s %(install_root)s/usr/share/doc/%(name)s
 rmdir %(split_root)s/usr/share/info || true
 rmdir %(split_root)s/usr/share/man || true
+rmdir %(split_root)s/usr/share/doc/%(name)s || true
 rmdir %(split_root)s/usr/share || true
 ''',
 			     locals ())
@@ -383,7 +384,7 @@ mv %(install_root)s/usr/lib/*.dll %(split_prefix)s/lib || true
 mkdir -p %(split_prefix)s/lib
 mv %(install_root)s/usr/lib/lib*.la %(split_prefix)s/lib || true
 mkdir -p %(split_prefix)s/share
-mv %(install_root)s/usr/share/$base %(split_prefix)s/share || true
+mv %(install_root)s/usr/share/%(name)s %(split_prefix)s/share || true
 rmdir %(install_root)s/usr/bin || true
 rmdir %(install_root)s/usr/lib || true
 rmdir %(install_root)s/usr/share || true
