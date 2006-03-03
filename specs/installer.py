@@ -272,10 +272,14 @@ class Autopackage (Linux_installer):
 		self.system ('cd %(build_autopackage)s && makeinstaller')
 		self.system ('mv %(build_autopackage)s/*.package %(installer_uploads)s')
 
+class Cygwin_dist (Installer):
+	def create (self):
+		pass
 
 def get_installers (settings):
 	installers = {
 		'arm' : [Shar (settings)],
+		'cygwin' : [Cygwin_dist],
 		'darwin-ppc' : [Darwin_bundle (settings)],
 		'darwin-x86' : [Darwin_bundle (settings)],
 		'freebsd' : [Shar (settings)],

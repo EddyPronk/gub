@@ -66,7 +66,8 @@ class Gcc (cross.Gcc):
 
 	def configure (self):
 		cross.Gcc.configure (self)
-		self.file_sub ([("nm", "%(tool_prefix)snm ")],
+		self.file_sub ([("nm", "%(tool_prefix)snm "),
+				('--strip-underscores', '--strip-underscore')],
 			       "%(srcdir)s/libstdc++-v3/scripts/make_exports.pl")
 		
 

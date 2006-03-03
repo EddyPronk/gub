@@ -7,25 +7,33 @@ import misc
 import mingw
 import xpm
 
+# FIXME: setting binutil's tooldir and/or gcc's gcc_tooldir may fix
+# -luser32 (ie -L .../w32api/) problem without having to set LDFLAGS.
+class Binutils (cross.Binutils):
+	def makeflags (self):
+		return misc.join_lines ('''
+tooldir="%(crossprefix)s/%(target_architecture)s"
+''')
+	def compile_command (self):
+		return (cross.Binutils.compile_command (self)
+			+ self.makeflags ())
+
 class Gcc (mingw.Gcc):
+	def makeflags (self):
+		return misc.join_lines ('''
+tooldir="%(crossprefix)s/%(target_architecture)s"
+gcc_tooldir="%(crossprefix)s/%(target_architecture)s"
+''')
+	def compile_command (self):
+		return (mingw.Gcc.compile_command (self)
+			+ self.makeflags ())
+
 	def configure_command (self):
 		return (mingw.Gcc.configure_command (self)
 			+ misc.join_lines ('''
 --with-newlib
 --enable-threads
 '''))
-
-
-# FIXME: setting binutil's tooldir or gcc's gcc_tooldir may fix
-# -luser32 (ie -L .../w32api/) problem without having to set LDFLAGS.
-class Binutils (cross.Binutils):
-	def makeflags (self):
-		return misc.join_lines ('''
-tooldir="%(crossprefix)s"
-''')
-	def compile_command (self):
-		return (cross.Binutils.compile_command (self)
-			+ self.makeflags ())
 
 def get_packages (settings, names):
 	p = xpm.Cygwin_package_manager (settings)
@@ -36,12 +44,8 @@ def get_packages (settings, names):
 	if not os.path.exists (file):
 		os.system ('wget -P %(downloaddir)s %(url)s' % locals ())
 	# FIXME: must add deps to buildeps, otherwise packages do not
-	# get built in correct dependency order (topological sort?)
-#binutils-20050610-1-src.tar.bz2
+	# get built in correct dependency order?
 	cross_packs = [
-#		cross.Binutils (settings).with (version='2.16.1', format='bz2',
-# fixes auto-import
-#		cross.Binutils (settings).with (version='20050610-1', format='bz2', mirror=download.cygwin,
 		Binutils (settings).with (version='20050610-1', format='bz2', mirror=download.cygwin,
 					   depends=['cygwin', 'w32api'],
 					   builddeps=['cygwin', 'w32api']

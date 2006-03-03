@@ -8,7 +8,7 @@ class Tool_package (gub.Package):
 	def configure_command (self):
 		return (gub.Package.configure_command (self)
 			+ misc.join_lines ('''
---prefix=%(tooldir)s/
+--prefix=%(buildtools)s/
 '''))
 
 	def install_command (self):
@@ -162,9 +162,9 @@ class Scons (Tool_package):
 	def configure (self):
 		pass
 	def install_command (self):
-		return 'python %(srcdir)s/setup.py install --prefix=%(tooldir)s --root=%(install_root)s'
+		return 'python %(srcdir)s/setup.py install --prefix=%(buildtools)s --root=%(install_root)s'
 	def package (self):
-		self.system ('tar -C %(install_root)s/%(tooldir)s/ -zcf %(gub_uploads)s/%(gub_name)s .')
+		self.system ('tar -C %(install_root)s/%(buildtools)s/ -zcf %(gub_uploads)s/%(gub_name)s .')
 
 class Alien (Tool_package):
 	def srcdir (self):

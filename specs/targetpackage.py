@@ -92,8 +92,8 @@ class Target_package (gub.Package):
 
 			## %(system_root)s/usr/include is already done by
 			## GCC --with-sysroot config.
-			'C_INCLUDE_PATH': '%(tooldir)s/include',
-			'CPLUS_INCLUDE_PATH': '%(tooldir)s/include',
+			'C_INCLUDE_PATH': '%(buildtools)s/include',
+			'CPLUS_INCLUDE_PATH': '%(buildtools)s/include',
 			'CXX':'%(tool_prefix)sg++ %(target_gcc_flags)s',
 			'FREETYPE_CONFIG': '''%(system_root)s/usr/bin/freetype-config \
 --prefix=%(system_root)s/usr \
@@ -108,7 +108,7 @@ class Target_package (gub.Package):
 			'LD': '%(tool_prefix)sld',
 			'NM': '%(tool_prefix)snm',
 			'PKG_CONFIG_PATH': '%(system_root)s/usr/lib/pkgconfig',
-			'PATH': '%(crossprefix)s/bin:%(tooldir)s/bin:' + os.environ['PATH'],
+			'PATH': '%(crossprefix)s/bin:%(buildtools)s/bin:' + os.environ['PATH'],
 			'PKG_CONFIG': '''pkg-config \
 --define-variable prefix=%(system_root)s/usr \
 --define-variable includedir=%(system_root)s/usr/include \
