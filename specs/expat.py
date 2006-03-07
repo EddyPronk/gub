@@ -25,4 +25,3 @@ RUN_FC_CACHE_TEST=false
 	def install_command (self):
 		return (targetpackage.Target_package.broken_install_command (self)
 			+ self.makeflags ())
-
