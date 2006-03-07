@@ -122,6 +122,7 @@ for interp in python guile ; do
   cat<<EOF > "$wrapscript.$interp"
 #!/bin/sh
 export PYTHONPATH="${prefix}lilypond/usr/lib/lilypond/current/python/:${prefix}lilypond/usr/share/lilypond/current/python/:${dollar}PYTHONPATH"
+export LD_LIBRARY_PATH="${lilydir}usr/lib/:${dollar}LD_LIBRARY_PATH"
 me=${backquote}basename ${dollar}0${backquote}
 exec "${lilydir}usr/bin/$interp" ${callmain} "${lilydir}usr/bin/${dollar}me" $expandargs
 EOF
@@ -153,7 +154,7 @@ tail -c+%(header_length)012d "$0" | tar -C "$lilydir" -x%(tarflag)sf -
 cat <<EOF
 To uninstall lilypond, do
 
-    rm -r "$wrapscript" "${prefix}lilypond"
+    rm -r "$wrapscript" "$wrapscript.python" "$wrapscript.guile" "${prefix}lilypond"
 
 
 EOF
