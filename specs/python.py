@@ -73,6 +73,8 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-winsock2.patch
 				    % self.get_substitution_dict ()):
 			dll = re.sub ('\.so*', '.dll', i)
 			self.system ('mv %(i)s %(dll)s', locals ())
+
+		## UGH. 
 		self.system ('''
 cp %(install_root)s/usr/lib/python%(python_version)s/lib-dynload/* %(install_root)s/usr/bin
 ''')
