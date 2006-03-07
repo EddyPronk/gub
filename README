@@ -55,15 +55,33 @@ contains:
   GUB_DISTCC_ALLOW_HOSTS= 192.168.123.191 192.168.123.162 127.0.0.1 192.168.123.107
 
 
+REQUIREMENTS
+************
+
+For Mingw:
+
+ - wine-devel
+ - wine
+
+
 
 
 COMPILING
 *********
 Do
 
-  python driver.py -p local build nsis flex
 
-This will lilypond compatible versions of NSIS and Flex.
+Bootstrap as follows:
+
+  python gub-builder.py -p linux download lilypond
+
+  python gub-builder.py -p local build flex mftrace potrace fontforge guile pkg-config
+  make distccd
+  python gub-builder.py -p local build nsis icoutils
+
+This creates all packages needed for building the releases.
+
+Then do:
 
   make mingw
 
