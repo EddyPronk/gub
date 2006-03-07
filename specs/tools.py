@@ -27,24 +27,19 @@ tar -C %(install_root)s/ -zcf %(gub_uploads)s/%(gub_name)s .
 		dict.update (env)
 		d =  gub.Package.get_substitution_dict (self, dict).copy()
 		return d
-	
-class Pkg_config (Tool_package):
-	pass
 
-class Make (Tool_package):
-	pass
 
-class Mftrace (Tool_package):
-	pass
+class Alien (Tool_package):
+	def srcdir (self):
+		return '%(allsrcdir)s/alien'
+	def patch (self):
+		self.shadow_tree ('%(srcdir)s', '%(builddir)s')
 
-class Gmp (Tool_package):
-	pass
-
-class Potrace (Tool_package):
-	pass
-
-class Icoutils (Tool_package):
-	pass
+	def configure (self):
+		Tool_package.configure (self)
+		self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/alien.patch')
+	def configure_command (self):
+		return 'perl Makefile.PL'
 
 class Distcc (Tool_package):
 	def patch (self):
@@ -60,13 +55,7 @@ class Fontforge (Tool_package):
 
 	def install_command (self):
 		return self.broken_install_command ()
-		
-class Guile (Tool_package):
-	def install (self):
-		Tool_package.install (self)
 
-		## don't want local GUILE headers to interfere with compile.
-		self.system ("rm -rf %(install_root)s/usr/include/ %(install_root)s/usr/bin/guile-config ")
 
 class Flex (Tool_package):
 	def srcdir (self):
@@ -78,6 +67,31 @@ class Flex (Tool_package):
 	def patch (self):
 		self.system ("cd %(srcdir)s && patch -p1 < %(patchdir)s/flex-2.5.4a-FC4.patch")
 
+class Gmp (Tool_package):
+	pass
+
+class Guile (Tool_package):
+	def configure (self):
+		Tool_package.configure (self)
+		self.update_libtool ()
+		
+	def install (self):
+		Tool_package.install (self)
+
+		## don't want local GUILE headers to interfere with compile.
+		self.system ("rm -rf %(install_root)s/usr/include/ %(install_root)s/usr/bin/guile-config ")
+
+class Icoutils (Tool_package):
+	pass
+
+class Libtool (Tool_package):
+	pass
+
+class Make (Tool_package):
+	pass
+
+class Mftrace (Tool_package):
+	pass
 
 ## 2.06 and earlier.
 class Nsis (Tool_package):
@@ -166,17 +180,11 @@ class Scons (Tool_package):
 	def package (self):
 		self.system ('tar -C %(install_root)s/%(buildtools)s/ -zcf %(gub_uploads)s/%(gub_name)s .')
 
-class Alien (Tool_package):
-	def srcdir (self):
-		return '%(allsrcdir)s/alien'
-	def patch (self):
-		self.shadow_tree ('%(srcdir)s', '%(builddir)s')
+class Pkg_config (Tool_package):
+	pass
 
-	def configure (self):
-		Tool_package.configure (self)
-		self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/alien.patch')
-	def configure_command (self):
-		return 'perl Makefile.PL'
+class Potrace (Tool_package):
+	pass
 
 class Fakeroot (Tool_package):
 	def srcdir (self):
@@ -224,6 +232,7 @@ def get_packages (settings, names):
 					 format="gz"),
 		Gmp (settings).with (version="4.1.4",
 				     mirror=download.gnu, format='gz'),
+		Libtool (settings).with (version='1.5.20', mirror=download.gnu),
 		]
 
 	return ps
