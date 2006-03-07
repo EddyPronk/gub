@@ -317,7 +317,7 @@ cp -pv %(installer_root)s-%(package_name)s/etc/hints/%(hint)s %(cygwin_uploads)s
 	def name (self):
 		return self._name
 
-def get_installers (settings, target_manager, args):
+def get_installers (settings, target_manager, args=[]):
 	installers = {
 		'arm' : [Shar (settings)],
 		'darwin-ppc' : [Darwin_bundle (settings)],
