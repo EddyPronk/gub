@@ -12,9 +12,11 @@ class Gmp (targetpackage.Target_package):
 	# ugh.
 	def configure_command (self):
 		cmd = targetpackage.Target_package.configure_command (self)
-			 
+
+		flags = ' -g -O2 -fomit-frame-pointer -march=i386 '
 		if re.match ('i[0-9]86', self.settings.target_architecture):
-			cmd = "CFLAGS=' -g -O2 -fomit-frame-pointer -march=i386 ' " + cmd
+			cmd = "CFLAGS=' %(flags)s ' CXXFLAGS=' %(flags)s ' FFLAGS=' %(flags)s ' %(cmd)s " % locals ()
+			
 		return cmd
 
 	def configure (self):
