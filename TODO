@@ -1,14 +1,7 @@
 
-- wrapperless install ?
-
-- xpm.install(package, targetdir)
-
-
 lagere prioriteit
 
 - src packages.
-
-- dump get_packages ()
 
 - use checksumming to tag .gub files.
 
