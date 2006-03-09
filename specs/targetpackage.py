@@ -94,9 +94,11 @@ class Target_package (gub.Package):
 			'CCLD_FOR_BUILD': 'C_INCLUDE_PATH= CPPFLAGS= LIBRARY_PATH= cc',
 
 			## %(system_root)s/usr/include is already done by
-			## GCC --with-sysroot config.
-			'C_INCLUDE_PATH': '%(buildtools)s/include',
-			'CPLUS_INCLUDE_PATH': '%(buildtools)s/include',
+			## GCC --with-sysroot config, but we  have to be sure
+			## that system_root include is before tool include.
+			## (eg. local GUILE requires local GMP headers).
+			'C_INCLUDE_PATH': '%(system_root)s/usr/include:%(buildtools)s/include',
+			'CPLUS_INCLUDE_PATH': '%(system_root)s/usr/include:%(buildtools)s/include',
 			'CXX':'%(tool_prefix)sg++ %(target_gcc_flags)s',
 			'FREETYPE_CONFIG': '''%(system_root)s/usr/bin/freetype-config \
 --prefix=%(system_root)s/usr \
