@@ -1,0 +1,27 @@
+--- Python-2.4.2/configure.in~	Thu Mar  9 14:54:10 2006
++++ Python-2.4.2/configure.in	Thu Mar  9 14:58:10 2006
+@@ -110,18 +110,18 @@
+ if test -z "$MACHDEP"; then
+     if test "$cross_compiling" = "no"; then
+ 	ac_sys_system=`uname -s`
+-    else
+-	m=`$CC -dumpmachine`
+- 	changequote(<<, >>)#dnl
+-	ac_sys_system=`expr "$m" : "[^-]*-\([^-]*\)"`
+- 	changequote([, ])#dnl
+-    fi
+ 	if test "$ac_sys_system" = "AIX" -o "$ac_sys_system" = "Monterey64" \
+ 	-o "$ac_sys_system" = "UnixWare" -o "$ac_sys_system" = "OpenUNIX"; then
+ 		ac_sys_release=`uname -v`
+ 	else
+ 		ac_sys_release=`uname -r`
+ 	fi
++    else
++	m=`$CC -dumpmachine`
++ 	changequote(<<, >>)#dnl
++	ac_sys_system=`expr "$m" : "[^-]*-\([^-]*\)"`
++ 	changequote([, ])#dnl
++    fi
+ 	ac_md_system=`echo $ac_sys_system |
+ 			   tr -d '[/ ]' | tr '[[A-Z]]' '[[a-z]]'`
+ 	ac_md_release=`echo $ac_sys_release |
