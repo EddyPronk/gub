@@ -65,6 +65,7 @@ if test "$extract" = "yes"; then
   exit 0
 fi
 
+
 if test "$interactive" = "yes" ; then
   cat <<EOF
 
@@ -84,6 +85,13 @@ wrapscript="${bindir}lilypond-wrapper"
 expandargs='"$@"'
 dollar='$'
 backquote='`'
+
+if test -d  "$lilydir"; then
+  echo "Director $lilydir already exists. "
+  echo "Remove old lilypond installations before installing this one."
+  
+  exit 1
+fi
 
 for d in "${lilydir}" "${bindir}"; do
   if test ! -d  "$d"; then
