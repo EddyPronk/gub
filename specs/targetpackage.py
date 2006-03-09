@@ -68,7 +68,7 @@ class Target_package (gub.Package):
 	def compile_command (self):
 		c = gub.Package.compile_command (self)
 		if (self.settings.distcc_hosts
-		    and re.search (r'\bmake\b', c))
+		    and re.search (r'\bmake\b', c)):
 			jobs = '-j%d ' % (2*len (self.settings.distcc_hosts.split (' ')))
 			c = re.sub (r'\bmake\b', 'make ' + jobs, c)
 
