@@ -148,7 +148,12 @@ class Rewirer (context.Os_context_wrapper):
 		(root, dirs, files) = os.walk (dir).next ()
 		files = [os.path.join (root, f) for f in files]
 
+		skip_libs = ['libgcc_s']
 		for f in files:
+			found_skips = [s for s in  skip_libs if f.find (s) >= 0]
+			if found_skips:
+				continue
+
 			if os.path.isfile (f):
 				self.rewire_mach_o_object_executable_path(f)
 
