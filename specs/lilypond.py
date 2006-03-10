@@ -159,41 +159,28 @@ class LilyPond__mingw (LilyPond__cygwin):
 
 	def do_configure (self):
 		LilyPond__cygwin.do_configure (self)
-##		# Configure (compile) without -mwindows for console
-##		self.target_gcc_flags = '-mms-bitfields'
+
+		## huh, why ? --hwn
 		self.config_cache ()
-		cmd = (self.configure_command ()
-		       + ' --enable-config=console')
-		self.system ('''cd %(builddir)s && %(cmd)s''',
-			     locals ())
-		## conf=console: no -mwindows
+
+		## for console: no -mwindows
 		self.file_sub ([(' -mwindows', ' '),
-				('DEFINES = ', r'DEFINES = -DGHOSTSCRIPT_VERSION=\"%(ghostscript_version)s\" '),
 				(' -g ', ' '),
 				],
-			       '%(builddir)s/config-console.make')
-		self.file_sub ([(' -g ', ' ')],
-				'%(builddir)s/config.make')
-
+			       '%(builddir)s/config.make')
+		
 	def compile (self):
 		LilyPond.compile (self)
-		gub.Package.system (self, '''
-mkdir -p %(builddir)s/mf/out-console
-cp -pv %(builddir)s/mf/out/* %(builddir)s/mf/out-console
-''')
-		cmd = LilyPond__mingw.compile_command (self)
-		cmd += ' conf=console'
-		self.system ('''cd %(builddir)s && %(cmd)s''',
-			     locals ())
+		self.system ('cd %(builddir)s/lily && mv out/lilypond out/lilypond-console')
+		self.system ('cd %(builddir)s/lily && make MODULE_LDFLAGS="-mwindows"')
 
 	def install (self):
 		LilyPond__cygwin.install (self)
 		self.system ('''
-
 rm -f %(install_prefix)s/bin/lilypond-windows
 install -m755 %(builddir)s/lily/out/lilypond %(install_prefix)s/bin/lilypond-windows.exe
 rm -f %(install_prefix)s/bin/lilypond
-install -m755 %(builddir)s/lily/out-console/lilypond %(install_prefix)s/bin/lilypond.exe
+install -m755 %(builddir)s/lily/out/lilypond-console %(install_prefix)s/bin/lilypond.exe
 cp %(install_root)s/usr/lib/lilypond/*/python/* %(install_root)s/usr/bin
 cp %(install_root)s/usr/share/lilypond/*/python/* %(install_root)s/usr/bin
 ''')
