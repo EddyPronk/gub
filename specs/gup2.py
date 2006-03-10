@@ -149,7 +149,14 @@ class Package_manager (File_manager):
 			self.register_package_dict (pickle.loads (v))
 
 	def register_package_dict (self, d):
-		self._packages[d['name']] = d
+		nm = d['name']
+		if (self._packages.has_key (nm)
+		    and self._packages[nm]['checksum'] <> d['checksum']):
+			self.os_interface.log_command (' ******** CHECKSUM of package %s has changed!\n\n')
+			self.os_interface.log_command (' Ignoring new settings, consider rebuilding package.')
+			return
+
+		self._packages[nm] = d
 		
 	def register_package_header (self, package_hdr):
 		str = open (package_hdr).read ()
