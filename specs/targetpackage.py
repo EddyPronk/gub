@@ -301,11 +301,15 @@ def load_target_package (settings, url):
 		pass
 	file_name = settings.specdir + '/' + name + '.py'
 	class_name = (name[0].upper () + name[1:]).replace ('-', '_')
-	Package = None
+	klass = None
+	checksum = '0000'
+	
 	if os.path.exists (file_name):
 		print 'reading spec', file_name
 
 		desc = ('.py', 'U', 1)
+		checksum = md5.md5 (open (file_name).read ()).hexdigest ()
+		
 		file = open (file_name)
 		module = imp.load_module (name, file, file_name, desc)
 		full = class_name + '__' + settings.platform.replace ('-', '__')
@@ -313,21 +317,25 @@ def load_target_package (settings, url):
 		d = module.__dict__
 		while full:
 			if d.has_key (full):
-				Package = d[full]
+				klass = d[full]
 				break
 			full = full[:max (full.rfind ('__'), 0)]
 
 		for i in init_vars.keys ():
 			if d.has_key (i):
 				init_vars[i] = d[i]
-	if not Package:
+		
+				
+	if not klass:
 		# Without explicit spec will only work if URL
 		# includes version and format, eg,
 		# URL=libtool-1.5.22.tar.gz
-		Package = classobj (name,
+		klass = classobj (name,
 				    (Target_package,),
 				    {})
-	package = Package (settings)
+	package = klass (settings)
+	package.spec_checksum = checksum
+	
 	if init_vars['version']:
 		package.with (version=init_vars['version'])
 #		package.with (format=init_vars['format'],
