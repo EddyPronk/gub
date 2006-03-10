@@ -93,13 +93,19 @@ class Target_package (gub.Package):
 			'CC_FOR_BUILD': 'C_INCLUDE_PATH= CPPFLAGS= LIBRARY_PATH= cc',
 			'CCLD_FOR_BUILD': 'C_INCLUDE_PATH= CPPFLAGS= LIBRARY_PATH= cc',
 
+
 			## %(system_root)s/usr/include is already done by
 			## GCC --with-sysroot config, but we  have to be sure
-			## that system_root include is before tool include.
-			## (eg. local GUILE requires local GMP headers).
-			'C_INCLUDE_PATH': '%(system_root)s/usr/include:%(buildtools)s/include',
-			'CPLUS_INCLUDE_PATH': '%(system_root)s/usr/include:%(buildtools)s/include',
+			##
+			## no %(buildtools)s/usr/include, as this will interfere
+			## with target headers.
+			## The flex header has to be copied into the target compile manually.
+			##
+			'C_INCLUDE_PATH': '',
+			'CPLUS_INCLUDE_PATH': '',
 			'CXX':'%(tool_prefix)sg++ %(target_gcc_flags)s',
+
+			## UGH -- should be done elsewhere.
 			'FREETYPE_CONFIG': '''%(system_root)s/usr/bin/freetype-config \
 --prefix=%(system_root)s/usr \
 ''',
