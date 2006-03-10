@@ -2,6 +2,9 @@ import os
 import gub
 import misc
 import re
+import imp
+from new import classobj
+
 
 class Target_package (gub.Package):
 	def configure_command (self):
@@ -267,3 +270,69 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/l
 }
 
 cross_config_cache['debian'] = cross_config_cache['linux']
+
+
+def load_target_package (settings, url):
+	'''Return Target_package instance to build package from URL.
+
+	URL can be partly specified (eg: only a name, `lilypond'),
+	defaults are taken from the spec file.
+	'''
+	# '
+	name = os.path.basename (url)
+	init_vars = {'format':None, 'version':None, 'url': None,}
+	try:
+		ball = name
+		name, v, format = misc.split_ball (ball)
+		##version = misc.version_to_string (v)
+		version, build = v
+		if not version:
+			name = url
+		elif (url.startswith ('/')
+			 or url.startswith ('file://')
+			 or url.startswith ('ftp://')
+			 or url.startswith ('http://')):
+			init_vars['url'] = url
+		if version:
+			init_vars['version'] = '.'.join (version)
+		if format:
+			init_vars['format'] = '.'.join (version)
+	except:
+		pass
+	file_name = settings.specdir + '/' + name + '.py'
+	class_name = (name[0].upper () + name[1:]).replace ('-', '_')
+	Package = None
+	if os.path.exists (file_name):
+		print 'reading spec', file_name
+
+		desc = ('.py', 'U', 1)
+		file = open (file_name)
+		module = imp.load_module (name, file, file_name, desc)
+		full = class_name + '__' + settings.platform.replace ('-', '__')
+
+		d = module.__dict__
+		while full:
+			if d.has_key (full):
+				Package = d[full]
+				break
+			full = full[:max (full.rfind ('__'), 0)]
+
+		for i in init_vars.keys ():
+			if d.has_key (i):
+				init_vars[i] = d[i]
+	if not Package:
+		# Without explicit spec will only work if URL
+		# includes version and format, eg,
+		# URL=libtool-1.5.22.tar.gz
+		Package = classobj (name,
+				    (Target_package,),
+				    {})
+	package = Package (settings)
+	if init_vars['version']:
+		package.with (version=init_vars['version'])
+#		package.with (format=init_vars['format'],
+#			      mirror=init_vars['url'],
+#			      version=init_vars['version'],
+#			      depends=init_vars['depends'],
+#			      builddeps=init_vars['builddeps'])
+	return package
