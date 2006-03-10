@@ -40,14 +40,25 @@ class Libc6_dev (gub.Binary_package, gub.Sdk_package):
 class Linux_kernel_headers (gub.Binary_package, gub.Sdk_package):
 	pass
 
+# use gcc 4.0 because
+"""configure:2076: i686-linux-g++    -L/var/tmp/test-gub/target/linux/system/usr/lib -L/var/tmp/test-gub/target/linux/system/usr/bin -L/var/tmp/test-gub/target/linux/system/usr/lib/w32api -Wl,--as-needed  -Wl,--rpath,'$${ORIGIN}/../lib/'  conftest.cc  >&5
+/var/tmp/test-gub/target/linux/system/usr/lib/libstdc++.so: undefined reference to `___tls_get_addr'"""
+
+
 def get_packages (settings, names):
 	packages = [
 		Libc6 (settings).with (version='2.2.5-11.8', mirror=download.glibc_deb, format='deb'),
 		Libc6_dev (settings).with (version='2.2.5-11.8', mirror=download.glibc_deb, format='deb'),
 		Linux_kernel_headers (settings).with (version='2.6.13+0rc3-2', mirror=download.lkh_deb, format='deb'),
 		cross.Binutils (settings).with (version='2.16.1', format='bz2'),
-		cross.Gcc (settings).with (version='4.1.0',
-					   mirror=download.gcc_41, format='bz2',
+		cross.Gcc (settings).with (version='4.0.2',
+					   mirror=download.gcc, format='bz2',
+					   
+
+
+
+#		cross.Gcc (settings).with (version='4.1.0',
+#					   mirror=download.gcc_41, format='bz2', )
 					   depends=['binutils']),
 		]
 	return packages
