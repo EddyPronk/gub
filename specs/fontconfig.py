@@ -93,3 +93,6 @@ class Fontconfig__linux (Fontconfig):
 			],
 			       '%(builddir)s/libtool')
 
+
+class Fontconfig__freebsd (Fontconfig__linux):
+	pass
