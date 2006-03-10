@@ -216,7 +216,7 @@ def get_packages (settings, names):
 					    mirror=download.freedesktop),
 		Guile (settings).with (version='1.8.0',
 				       mirror=download.gnu, format='gz',
-				       depends=['gmp'],
+				       depends=['gmp', 'libtool',],
 				       ),
 		Make (settings).with (version='3.80',
 				      mirror=download.gnu, format='gz',
