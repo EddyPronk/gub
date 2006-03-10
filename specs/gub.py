@@ -189,7 +189,7 @@ cd %(downloaddir)s/%(dir)s && cvs -q update -dAP -r %(version)s
 
 	@subst_method
         def hdr_name (self):
-		return '%(name)s-%(version)s.%(platform)s.hdr'
+		return '%(name)s.%(platform)s.hdr'
 
 	@subst_method
 	def stamp_file (self):
