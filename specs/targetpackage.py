@@ -96,7 +96,9 @@ class Target_package (gub.Package):
 
 			## %(system_root)s/usr/include is already done by
 			## GCC --with-sysroot config, but we  have to be sure
-			##
+			## note that overrides some headers in sysroot/usr/include,
+			## which is why setting C_INCLUDE_PATH breaks on FreeBSD. 
+			## 
 			## no %(buildtools)s/usr/include, as this will interfere
 			## with target headers.
 			## The flex header has to be copied into the target compile manually.
