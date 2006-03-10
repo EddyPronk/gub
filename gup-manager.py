@@ -16,7 +16,7 @@ sys.path.insert (0, 'specs/')
 
 import gub
 import settings as settings_mod
-import xpm
+import gup2
 
 def sort (lst):
 	list.sort (lst)
@@ -130,21 +130,21 @@ class Command:
 	def files (self):
 		'''list installed files'''
 		for p in self.options.arguments:
-			if not self.pm.name_is_installed (p):
+			if not self.pm.is_installed (p):
 				print '%s not installed' % p
 			else:
-				print '\n'.join (self.pm.name_files (p))
+				print '\n'.join (self.pm.installed_files (p))
 
 	def find (self):
 		'''package containing file'''
 		regexp = re.sub ('^%s/' % self.options.ROOT, '/',
 				 self.options.packagename)
+		regexp = re.compile (regexp)
 		hits = []
-		for self.options.packagename in sort (map (gub.Package.name,
-							    self.pm.installed_packages ())):
-			for i in self.pm.name_files (self.options.packagename):
-				if re.search (regexp, '/%s' % i):
-					hits.append ('%s: /%s' % (self.options.packagename, i))
+		for p in sort (self.pm.installed_packages ()):
+			hits += ['%s: /%s' % (p, i)
+				 for i in self.pm.installed_files (p)
+				 if regexp.search ('/%s' % i)]
 		print (string.join (hits, '\n'))
 
 	def help (self):
@@ -157,39 +157,37 @@ class Command:
 
 	def install (self):
 		'''download and install packages with dependencies'''
+		packs=[]
 		for p in self.options.arguments:
-			if self.pm.name_is_installed (p):
+			if self.pm.is_installed (p):
 				print '%s already installed' % p
-				
-		for p in self.options.arguments:
-			if not self.pm.name_is_installed (p):
-				if self.options.nodeps_p:
-					self.pm.install_single_package (self.pm._packages[p])
-				else:
-					self.pm.install_package (self.pm._packages[p])
+			else:
+				packs.append (p)
+
+		packs = gup2.topologically_sorted (packs, {}, self.pm.dependencies)
+		for p in packs:
+			self.pm.install_package (p)
 
 	def list (self):
 		'''installed packages'''
 		if self.options.name_p:
-			print '\n'.join (sort (map (gub.Package.name,
-						    self.pm.installed_packages ())))
+			print '\n'.join (sort (self.pm.installed_packages ()))
 		else:
-			print '\n'.join (sort (map (lambda x: '%-20s%s' % (x.name (),
-									   self.pm.package_version (x)),
-						     self.pm.installed_packages ())))
+			print '\n'.join (sort (['%(name)-20s%(version)s' % d for d in self.pm.installed_package_dicts()]))
 
 	def remove_package (self, p, packs):
 		if not self.pm.is_installed (p):
-			print '%s not installed' % p.name()
+			print '%s not installed' % p
 		else:
 			self.pm.uninstall_package (p)
 		
 	def remove (self):
 		'''uninstall packages'''
 
-		packages = [self.pm._packages[a]
-			    for a in self.options.arguments]
-		packages = self.pm.topological_sort (packages)
+		packages = gup2.topologically_sorted (self.options.arguments, {},
+						      self.pm.dependencies,
+						      recurse_stop_predicate
+						      =lambda p: p not in self.options.arguments)
 		packages.reverse ()
 		for p in packages:
 			self.remove_package (p, packages) 
@@ -236,15 +234,13 @@ def main ():
 	settings.lilypond_branch = options.BRANCH
 
 	if not options.ROOT:
-		options.ROOT = ('target/%(target_architecture)s/system'
+		options.ROOT = ('target/%(platform)s/system'
 				% settings.__dict__)
 
-	target_manager = xpm.get_manager (settings, ['all'])
-
-	if options.command in ('install'):
-		for a in options.arguments:
-			target_manager.name_register_package (settings, a)
-
+	target_manager = gup2.Dependency_manager (options.ROOT, settings.os_interface)
+	if options.command == 'install':
+		target_manager.read_package_headers (settings.expand ('%(gub_uploads)s/'))
+	
 	if options.command:
 		commands = Command (target_manager, options)
 		if options.command in Command.__dict__:
