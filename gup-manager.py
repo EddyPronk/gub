@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 '''
-  xpm - Keep GUB root up to date
+  gup-manager - Keep GUB root up to date
   
   License: GNU GPL
 '''
@@ -33,12 +33,12 @@ class Options:
 		self.mirror = 'file://uploads/gub'
 		self.rc_options = ['BRANCH', 'platform', 'PLATFORM', 'ROOT',
 				   'mirror', 'distname']
-		self.rc_file = '.xpm-apt.rc'
+		self.rc_file = '.gup-manager.rc'
 		self.name_p = 0
 		self.nodeps_p = 0
 		self.command = 'help'
 		self.packagename = 0
-		self.read_xpm_rc ()
+		self.read_gup_rc ()
 		self.get_options ()
 
 	def get_options (self):
@@ -97,7 +97,7 @@ class Options:
 				usage (self)
 				sys.exit (0)
 
-	def read_xpm_rc (self):
+	def read_gup_rc (self):
 		if os.path.exists (self.rc_file):
 			print 'reading', self.rc_file
 			h = open (self.rc_file)
@@ -106,8 +106,8 @@ class Options:
 				if k in self.rc_options:
 					self.__dict__[k] = eval (v)
 
-	def write_xpm_rc (self):
-		"Write defaults in .xpm-apt.rc. "
+	def write_gup_rc (self):
+		"Write defaults. "
 		
 		h = open (self.rc_file, 'w')
 		print 'writing', self.rc_file
@@ -121,8 +121,8 @@ class Command:
 		self.options = options
 
 	def write_rc (self):
-		'''write .xpm-apt.rc'''
-		self.options.write_xpm_rc ()
+		'''write .gup-apt.rc'''
+		self.options.write_gup_rc ()
 		
 	def available (self):
 		print '\n'.join (self.pm._packages.keys ())
