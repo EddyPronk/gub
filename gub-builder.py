@@ -11,6 +11,7 @@ import types
 
 sys.path.insert (0, 'specs/')
 
+import gup2
 import cross
 import distcc
 import framework
@@ -18,7 +19,6 @@ import gub
 import installer
 import settings as settings_mod
 import subprocess
-import xpm
 
 def get_settings (platform):
 	settings = settings_mod.Settings (platform)
@@ -105,8 +105,8 @@ package-installer - build installer binary
 
 def build_installer (settings, target_manager, args):
 	os.system ('rm -rf %s' %  settings.installer_root)
-	install_manager = xpm.Package_manager (settings.installer_root,
-					       settings.os_interface)
+	install_manager = gup2.Dependency_manager (settings.installer_root,
+						   settings.os_interface)
 
 	install_manager.include_build_deps = False
 
@@ -135,40 +135,52 @@ def package_installer (settings, target_manager, args):
 		settings.os_interface.log_command (' *** Stage: %s (%s)\n'
 						   % ('create', p.name ()))
 		p.create ()
+def installer_command (c, settings, args):
+	if c == 'strip-installer':
+		strip_installer (settings, args)
+	elif c == 'package-installer':
+		package_installer (settings, args)
+	elif c == 'build-installer':
+		build_installer (settings, commands)
 
-def run_builder (settings, manager, args):
+def run_builder (settings, manager, names, package_object_dict):
 	PATH = os.environ["PATH"]
 
 	## crossprefix is also necessary for building cross packages, such as GCC
 	os.environ["PATH"] = settings.expand ('%(crossprefix)s/bin:%(PATH)s',
 					      locals ())
 
-	sdk_pkgs = [p for p in manager._packages.values ()
+
+	## UGH -> double work, see cross.change_target_packages() ?
+	sdk_pkgs = [p for p in package_object_dict.values ()
 		    if isinstance (p, gub.Sdk_package)]
-	cross_pkgs = [p for p in manager._packages.values ()
+	cross_pkgs = [p for p in package_object_dict.values ()
 		      if isinstance (p, cross.Cross_package)]
 
 	extra_build_deps = [p.name () for p in sdk_pkgs + cross_pkgs]
-	framework.package_fixups (settings, manager._packages.values (),
+	framework.package_fixups (settings, package_object_dict.values (),
 				  extra_build_deps)
-				 
-	pkgs = map (lambda x: manager._packages[x], args)
 
 	if not settings.options.stage:
-		pkgs = manager.topological_sort (pkgs)
-		pkgs.reverse ()
-
-		for p in pkgs:
+		reved = names[:]
+		reved.reverse()
+		for p in reved:
 			if (manager.is_installed (p) and
 			    not manager.is_installable (p)):
 				manager.uninstall_package (p)
 
-	for p in pkgs:
-		manager.build_package (p)
-
-def download_sources (settings, manager, args):
-	for n in args:
-		manager.name_download (n)
+	for p in names:
+		if manager.is_installed (p):
+			continue
+		if not manager.is_installable (p):
+			settings.os_interface.log_command ('building package: %s\n'
+							   % p)
+			
+			package_object_dict[p].builder ()
+			
+		if (manager.is_installable (p)
+		    and not manager.is_installed (p)):
+			manager.install_package (p)
 
 def main ():
 	cli_parser = get_cli_parser ()
@@ -186,7 +198,6 @@ def main ():
 	if not commands:
 		commands = ['lilypond']
 
-	target_manager = xpm.get_manager (settings, commands)
 
 	## crossprefix is also necessary for building cross packages,
 	## such as GCC
@@ -197,16 +208,23 @@ def main ():
 	## ugr: Alien is broken.
 	os.environ['PERLLIB'] = settings.expand ('%(buildtools)s/lib/perl5/site_perl/5.8.6/')
 
+
+	if c in ('build-installer', 'strip-installer', 'package-installer'):
+		installer_command (settings, c, commands)
+		return
+
+	(package_names, package_object_dict) = gup2.get_packages (settings, commands)
 	if c == 'download':
-		download_sources (settings, target_manager, commands)
-	elif c == 'build':
-		run_builder (settings, target_manager, commands)
-	elif c == 'build-installer':
-		build_installer (settings, target_manager, commands)
-	elif c == 'strip-installer':
-		strip_installer (settings, commands)
-	elif c == 'package-installer':
-		package_installer (settings, target_manager, commands)
+		for p in package_object_dict.values ():
+			p.download()
+
+		return
+
+	if c == 'build':
+		pm = gup2.get_target_manager (settings)
+		gup2.add_packages_to_manager (pm, settings,
+					      package_object_dict)
+		run_builder (settings, pm, package_names, package_object_dict)
 	else:
 		raise 'unknown driver command %s.' % c
 		cli_parser.print_help ()
