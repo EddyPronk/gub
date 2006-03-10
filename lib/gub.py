@@ -300,8 +300,9 @@ tooldir=%(install_prefix)s
 				self.kill_libtool_installation_test (lt)
 				self.system ('chmod 755  %(lt)s', locals ())
 		else:
-			sys.stderr.write ("Cannot update libtool without libtools in system_root/usr/bin/.")
-
+			self.log_command ("Cannot update libtool without libtools in %(system_root)s/usr/bin/.")
+			raise 'barf'
+		
 	def install (self):
 		self.system ('''
 rm -rf %(install_root)s
