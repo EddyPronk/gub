@@ -2,6 +2,7 @@ import gub
 import misc
 import glob
 import os
+import imp
 
 class Cross_package (gub.Package):
 	"""Package for cross compilers/linkers etc.
@@ -86,8 +87,8 @@ cd %(install_root)s/usr/lib && ln -fs libgcc_s.so.1 libgcc_s.so
 
 
 
-def change_target_packages (packages):
-	packs = packages.values ()
+def change_target_packages (package_object_dict):
+	packs = package_object_dict.values ()
 	cross_packs = [p for p in packs if isinstance (p, Cross_package)]
 	sdk_packs = [p for p in packs if isinstance (p, gub.Sdk_package)]
 	other_packs = [p for p in packs if (not isinstance (p, Cross_package)
@@ -105,3 +106,20 @@ def set_framework_ldpath (packs):
 	for c in packs:
 		change = gub.Change_target_dict (c, {'LDFLAGS': r" -Wl,--rpath,'$${ORIGIN}/../lib/' "})
 		c.get_substitution_dict = change.append_dict
+
+
+def get_cross_module (platform):
+	base = platform
+	try:
+		base = 	{'debian':'debian_unstable',
+			 'darwin-ppc':'darwintools',
+			 'darwin-x86':'darwintools',
+			 'local':'tools'}[platform]
+	except KeyError:
+		pass
+	
+	desc = ('.py', 'U', 1)
+	file_name = 'specs/%s.py' % base
+	file = open (file_name)
+	module = imp.load_module (base, file, file_name, desc)
+	return module
