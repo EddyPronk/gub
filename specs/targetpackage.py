@@ -273,12 +273,13 @@ cross_config_cache['debian'] = cross_config_cache['linux']
 
 
 def load_target_package (settings, url):
-	'''Return Target_package instance to build package from URL.
+	"""
+	Return Target_package instance to build package from URL.
 
 	URL can be partly specified (eg: only a name, `lilypond'),
 	defaults are taken from the spec file.
-	'''
-	# '
+	"""
+
 	name = os.path.basename (url)
 	init_vars = {'format':None, 'version':None, 'url': None,}
 	try:
@@ -331,8 +332,8 @@ def load_target_package (settings, url):
 		# includes version and format, eg,
 		# URL=libtool-1.5.22.tar.gz
 		klass = classobj (name,
-				    (Target_package,),
-				    {})
+				  (Target_package,),
+				  {})
 	package = klass (settings)
 	package.spec_checksum = checksum
 	

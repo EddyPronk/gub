@@ -5,7 +5,7 @@ import download
 import gub
 import misc
 import mingw
-import xpm
+import gup2
 
 # FIXME: setting binutil's tooldir and/or gcc's gcc_tooldir may fix
 # -luser32 (ie -L .../w32api/) problem without having to set LDFLAGS.
@@ -36,7 +36,7 @@ gcc_tooldir="%(crossprefix)s/%(target_architecture)s"
 '''))
 
 def get_packages (settings, names):
-	p = xpm.Cygwin_package_manager (settings)
+	p = gup2.Dependency_manager (settings)
         url = p.mirror + '/setup.ini'
 	# FIXME: download/offline
 	downloaddir = settings.downloaddir

@@ -1,14 +1,14 @@
 import os
 #
 import cross
-import xpm
+import gup2
 
 from new import classobj
 
 mirror = 'http://ftp.de.debian.org/debian'
 
 def get_packages (settings, names):
-	p = xpm.Debian_package_manager (settings)
+	p = xpm.Dependency_manager (settings)
         url = mirror + '/dists/unstable/main/binary-i386/Packages.gz'
 	
 	# FIXME: download/offline
