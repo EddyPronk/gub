@@ -1,5 +1,6 @@
 import os
 import re
+import oslog
 
 import gub
 
@@ -78,8 +79,8 @@ class Settings (Context):
 		if not os.path.isdir ('log'):
 			os.mkdir ('log')
 			
-		self.os_interface = Os_commands ('log/build-%s.log'
-						 % self.target_architecture)
+		self.os_interface = oslog.Os_commands ('log/build-%s.log'
+						       % self.target_architecture)
 		self.create_dirs ()
 		self.build_architecture = self.os_interface.read_pipe ('gcc -dumpmachine',
 							 silent=True)[:-1]
