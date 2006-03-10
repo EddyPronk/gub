@@ -80,6 +80,10 @@ class Pango__linux (Pango):
 		Pango.install (self)
 		self.fix_modules ()
 
+## placeholder, don't want plain Pango for freebsd. 
+class Pango__freebsd (Pango__linux):
+	pass
+
 class Pango__darwin (Pango):
 	def configure (self):
 		Pango.configure (self)
