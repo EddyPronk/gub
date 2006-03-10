@@ -144,7 +144,7 @@ cd %(downloaddir)s/%(dir)s && cvs -q update -dAP -r %(version)s
 		return ';'.join (self.name_build_dependencies)
 
 	@subst_method
-	def build_dependencies_string (self):
+	def dependencies_string (self):
 		return ';'.join (self.name_dependencies)
 
 	@subst_method
