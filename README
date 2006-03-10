@@ -49,7 +49,7 @@ INSTALLING
 edit local.make to set some variables. Here is what my local.make
 contains:
 
-  LILYPOND_CVSDIR=downloads/lilypond-HEAD/
+  LILYPOND_CVSDIR=downloads/lilypond-$(LILYPOND_BRANCH)/
   LILYPOND_BRANCH=HEAD
   BUILD_PLATFORM=linux
   GUB_DISTCC_ALLOW_HOSTS= 192.168.123.191 192.168.123.162 127.0.0.1 192.168.123.107
