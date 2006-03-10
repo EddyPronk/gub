@@ -27,7 +27,8 @@ class Gcc (cross.Gcc):
 '''))
 
 class Freebsd_runtime (gub.Binary_package, gub.Sdk_package):
-	pass
+	def patch (self):
+		self.system ('rm -rf %(srcdir)s/root/usr/include/g++')
 
 def get_packages (settings, names):
 	return (
