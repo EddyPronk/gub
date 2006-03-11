@@ -25,7 +25,10 @@ class Package (Os_context_wrapper):
 		self._downloader = self.wget
 		self._dependencies = None
 		self._build_dependencies = None
-
+		
+		self.checksum = '0000' 
+		self.cross_checksum = '0000'
+		
 		# set to true for CVS releases
 		self.track_development = False
 		self.split_packages = []
