@@ -284,7 +284,8 @@ def get_packages (settings, todo):
 		return [pack_dict[n] for n in obj.name_dependencies + obj.name_build_dependencies]
 	package_objs = topologically_sorted (pack_dict.values (), {},
 					     get_dep_packages)
-		
+
+	framework.version_fixups (settings, package_objs)
 	return ([o.name() for o in package_objs], pack_dict)
 
 def get_target_manager (settings):
@@ -296,8 +297,6 @@ def add_packages_to_manager (target_manager, settings, package_object_dict):
 	
 	for p in package_object_dict.values ():
 		target_manager.register_package_dict (p.get_substitution_dict ())
-
-	framework.version_fixups (settings, package_object_dict.values ())
 
 	## Ugh, this sucks: we now have to have all packages
 	## registered at the same time.
