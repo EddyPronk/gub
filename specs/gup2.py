@@ -303,30 +303,3 @@ def add_packages_to_manager (target_manager, settings, package_object_dict):
 	return target_manager
 
 
-
-if __name__ == '__main__':
-	import oslog
-	import glob
-	
-	def build_package (self, package):
-		self.with_dependencies (package, action=bind_method (Package_manager.build_package, self),
-					recurse_stop_predicate=self.is_installed)
-
-	def download_package (self, package):
-		self.with_dependencies (package, action=bind_method (Package_manager.download_package, self),
-					recurse_stop_predicate=None)
-
-	def install_package (self, package):
-		self.with_dependencies (package, action=bind_method (Package_manager.install_package, self),
-					recurse_stop_predicate=self.is_installed)
-
-	iface = oslog.Os_commands ('gup2.log')
-	pm = Dependency_manager ("test/", iface)
-	pm.read_package_headers ('uploads/freebsd')
-	def install_action (pkg, pm=pm):
-		pm.install_package (pkg)
-
-	pm.with_dependencies ('gettext', action=install_action,  recurse_stop_predicate=pm.is_installed)
-	
-	for p in  pm.installed_package_dicts():
-		print p['url']
