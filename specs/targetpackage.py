@@ -336,6 +336,7 @@ def load_target_package (settings, url):
 				  {})
 	package = klass (settings)
 	package.spec_checksum = checksum
+	package.cross_checksum = cross.get_cross_checksum (self.settings.platform)
 	
 	if init_vars['version']:
 		package.with (version=init_vars['version'])
