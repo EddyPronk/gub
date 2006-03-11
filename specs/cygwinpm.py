@@ -1,4 +1,9 @@
 import gup2
+from new import classobj
+import gub
+import re
+
+mirror = 'http://gnu.kookel.org/ftp/cygwin'
 
 def get_cygwin_package (settings, name, dict):
 	Package = classobj (name, (gub.Binary_package,), {})
@@ -6,9 +11,9 @@ def get_cygwin_package (settings, name, dict):
 	package.name_dependencies = []
 	package.name_build_dependencies = []
 	if dict.has_key ('requires'):
-		deps = map (string.strip,
+		deps = [x.strip () for x in 
 			    re.sub ('\([^\)]*\)', '',
-				    dict['requires']).split ())
+				    dict['requires']).split ()]
 		cross = [
 			'base-passwd', 'bintutils', 
 			'gcc', 'gcc-core', 'gcc-g++',
@@ -32,20 +37,19 @@ def get_cygwin_package (settings, name, dict):
 		package.name_dependencies = deps
 		package.name_build_dependencies = deps
 	package.ball_version = dict['version']
-	package.url = (self.mirror + '/'
+	package.url = (mirror + '/'
 		       + dict['install'].split ()[0])
 	package.format = 'bz2'
 	return package
 
-def get_cygwin_packages (package_file):
+def get_cygwin_packages (settings, package_file):
 	dist = 'curr'
-	mirror = 'http://gnu.kookel.org/ftp/cygwin'
 	
 	dists = {'test': [], 'curr': [], 'prev' : []}
-	chunks = string.split (open (package_file).read (), '\n\n@ ')
+	chunks = open (package_file).read ().split ('\n\n@ ')
 	for i in chunks[1:]:
-		lines = string.split (i, '\n')
-		name = string.strip (lines[0])
+		lines = i.split ('\n')
+		name = lines[0].strip ()
 		blacklist = ('binutils', 'gcc', 'guile', 'guile-devel', 'libguile12', 'libguile16', 'libtool', 'litool1.5' , 'libtool-devel', 'libltdl3')
 		if name in blacklist:
 			continue
@@ -56,21 +60,19 @@ def get_cygwin_packages (package_file):
 			'install': 'urg 0 0',
 			}
 		j = 1
-		while j < len (lines) and string.strip (lines[j]):
+		while j < len (lines) and lines[j].strip ():
 			if lines[j][0] == '#':
 				j = j + 1
 				continue
 			elif lines[j][0] == '[':
-				packages.append (get_cygwin_package (name, records.copy ()))
+				packages.append (get_cygwin_package (settings, name, records.copy ()))
 				packages = dists[lines[j][1:5]]
 				j = j + 1
 				continue
 
 			try:
-				key, value = map (string.strip,
-						  lines[j].split (': ',
-								  1))
-			except:
+				key, value = [x.strip () for x in lines[j].split (': ', 1)]
+			except KeyError: ### UGH -> what kind of exceptino? 
 				print lines[j], package_file
 				raise 'URG'
 			if (value.startswith ('"')
@@ -82,7 +84,7 @@ def get_cygwin_packages (package_file):
 						break
 			records[key] = value
 			j = j + 1
-		packages.append (get_package (name, records))
+		packages.append (get_cygwin_package (settings, name, records))
 
 	return dists[dist]
 

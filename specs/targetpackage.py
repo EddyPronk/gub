@@ -3,6 +3,9 @@ import gub
 import misc
 import re
 import imp
+import md5
+import cross
+
 from new import classobj
 
 
@@ -336,7 +339,7 @@ def load_target_package (settings, url):
 				  {})
 	package = klass (settings)
 	package.spec_checksum = checksum
-	package.cross_checksum = cross.get_cross_checksum (self.settings.platform)
+	package.cross_checksum = cross.get_cross_checksum (settings.platform)
 	
 	if init_vars['version']:
 		package.with (version=init_vars['version'])

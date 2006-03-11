@@ -59,7 +59,7 @@ def get_packages (settings, names):
 		]
 
 	return cross_packs + filter (lambda x: x.name () not in names,
-				     cygwinpm.get_packages (file))
+				     cygwinpm.get_cygwin_packages (settings, file))
 
 def change_target_packages (packages):
 	cross.change_target_packages (packages)
