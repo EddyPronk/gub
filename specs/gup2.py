@@ -235,8 +235,6 @@ class Dependency_manager (Package_manager):
 def topologically_sorted_one (todo, done, dependency_getter,
 			      recurse_stop_predicate=None):
 
-	assert is_string (todo)
-	
 	sorted = []
 	if done.has_key (todo):
 		return sorted
@@ -258,7 +256,8 @@ def topologically_sorted (todo, done, dependency_getter,
 			  recurse_stop_predicate=None):
 	s = []
 	for t in todo:
-		s += topologically_sorted_one (t, done, dependency_getter, recurse_stop_predicate)
+		s += topologically_sorted_one (t, done, dependency_getter,
+					       recurse_stop_predicate)
 
 	return s
 
@@ -266,6 +265,7 @@ def get_packages (settings, todo):
 	cross_module = cross.get_cross_module (settings.platform)
 	cross_packages = cross_module.get_packages (settings, todo)
 
+	print cross_packages
 	pack_dict = dict ((p.name(),p) for p in cross_packages)
 	package_names = pack_dict.keys ()
 	
@@ -280,8 +280,12 @@ def get_packages (settings, todo):
 
 		
 	package_names += topologically_sorted (todo, {}, get_deps)
-
-	return (package_names, pack_dict)
+	def get_dep_packages (obj):
+		return [pack_dict[n] for n in obj.name_dependencies + obj.name_build_dependencies]
+	package_objs = topologically_sorted (pack_dict.values (), {},
+					     get_dep_packages)
+		
+	return ([o.name() for o in package_objs], pack_dict)
 
 def get_target_manager (settings):
 	target_manager = Dependency_manager (settings.system_root,
