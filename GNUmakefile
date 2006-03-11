@@ -137,6 +137,15 @@ distccd:
 		--daemon --port 3633 --pid-file $(CWD)/log/distccd.pid \
 		--log-file $(CWD)/log/distccd.log  --log-level info
 
+
+NATIVE_TARGET_DIR=$(CWD)/target/$(BUILD_PLATFORM)/
+
+# gs 8.50 ?
+#	PATH=$(NATIVE_TARGET_DIR)/system/usr/bin/:$(PATH) \
+#		GS_LIB=$(NATIVE_TARGET_DIR)/system/usr/share/ghostscript/8.50/lib/ \
+
 doc:
-	make -C target/$(BUILD_PLATFORM)/build/lilypond-$(LILYPOND_BRANCH) LILYPOND_EXTERNAL_BINARY=$(CWD)/target/$(BUILD_PLATFORM)/system/usr/bin/lilypond DOCUMENTATION=yes web 
+		make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_BRANCH) \
+		LILYPOND_EXTERNAL_BINARY=$(NATIVE_TARGET_DIR)/system/usr/bin/lilypond \
+		DOCUMENTATION=yes web 
 	tar -C target/$(BUILD_PLATFORM)/build/lilypond-$(LILYPOND_BRANCH)/out-www/web-root/ -cjf $(CWD)/uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).documentation.tar.bz2 .
