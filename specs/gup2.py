@@ -150,12 +150,11 @@ class Package_manager (File_manager):
 
 	def register_package_dict (self, d):
 		nm = d['name']
-		if (self._packages.has_key (nm)
-		    and (self._packages[nm]['checksum'] <> d['checksum']
-			 or self._packages[nm]['cross_checksum'] <> d['cross_checksum'])):
-		    
-			self.os_interface.log_command ('******** checksum of package %s has changed!\n\n')
-			self.os_interface.log_command ('******** Ignoring new settings, consider rebuilding package.')
+		if (self._packages.has_key (nm)):
+			if self._packages[nm]['checksum'] <> d['checksum']:
+				self.os_interface.log_command ('******** checksum of %s changed!\n\n' % nm)
+			if self._packages[nm]['cross_checksum'] <> d['cross_checksum']:
+				self.os_interface.log_command ('******** checksum of cross changed for %s\n' % nm)
 			return
 
 		self._packages[nm] = d
@@ -301,6 +300,7 @@ def add_packages_to_manager (target_manager, settings, package_object_dict):
 	
 	cross_module = cross.get_cross_module (settings.platform)
 	cross_module.change_target_packages (package_object_dict)
+	
 	return target_manager
 
 
