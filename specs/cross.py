@@ -89,6 +89,16 @@ cd %(install_root)s/usr/lib && ln -fs libgcc_s.so.1 libgcc_s.so
 
 
 def change_target_packages (package_object_dict):
+	pass
+
+
+def get_cross_packages (settings):
+	mod = get_cross_module (settings.platform)
+	print mod
+
+	## ugh, how to handle cygwin names.
+	package_object_dict = dict ((p.name(), p) for p in mod.get_packages (settings, []))
+	
 	packs = package_object_dict.values ()
 	cross_packs = [p for p in packs if isinstance (p, Cross_package)]
 	sdk_packs = [p for p in packs if isinstance (p, gub.Sdk_package)]
@@ -102,6 +112,8 @@ def change_target_packages (package_object_dict):
 	for p in other_packs + cross_packs:
 		p.name_build_dependencies += map (lambda x: x.name (),
 						  sdk_packs)
+
+	return packs
 
 def set_framework_ldpath (packs):
 	for c in packs:

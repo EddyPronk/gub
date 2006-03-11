@@ -262,10 +262,8 @@ def topologically_sorted (todo, done, dependency_getter,
 	return s
 
 def get_packages (settings, todo):
-	cross_module = cross.get_cross_module (settings.platform)
-	cross_packages = cross_module.get_packages (settings, todo)
+	cross_packages = cross.get_cross_packages (settings)
 
-	print cross_packages
 	pack_dict = dict ((p.name(),p) for p in cross_packages)
 	package_names = pack_dict.keys ()
 	
