@@ -3,6 +3,7 @@ import misc
 import glob
 import os
 import imp
+import md5
 
 class Cross_package (gub.Package):
 	"""Package for cross compilers/linkers etc.
@@ -108,6 +109,8 @@ def set_framework_ldpath (packs):
 		c.get_substitution_dict = change.append_dict
 
 
+
+cross_module_checksums = {}
 def get_cross_module (platform):
 	base = platform
 	try:
@@ -122,4 +125,15 @@ def get_cross_module (platform):
 	file_name = 'specs/%s.py' % base
 	file = open (file_name)
 	module = imp.load_module (base, file, file_name, desc)
+
+	cross_module_checksums[platform] = md5.md5 (open (file_name).read ()).hexdigest ()
+	
 	return module
+
+def get_cross_checksum (platform):
+	try:
+		return cross_module_checksums[platform]
+	except KeyError:
+		print 'No cross module found'
+		return '0000'
+
