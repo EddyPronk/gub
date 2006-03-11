@@ -6,6 +6,7 @@ import gub
 import misc
 import mingw
 import gup2
+import cygwinpm
 
 # FIXME: setting binutil's tooldir and/or gcc's gcc_tooldir may fix
 # -luser32 (ie -L .../w32api/) problem without having to set LDFLAGS.
@@ -58,7 +59,7 @@ def get_packages (settings, names):
 		]
 
 	return cross_packs + filter (lambda x: x.name () not in names,
-				     p.get_packages (file))
+				     cygwinpm.get_packages (file))
 
 def change_target_packages (packages):
 	cross.change_target_packages (packages)

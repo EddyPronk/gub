@@ -37,7 +37,7 @@ def get_cygwin_package (settings, name, dict):
 	package.format = 'bz2'
 	return package
 
-def get_cygwin_packages (self, package_file):
+def get_cygwin_packages (package_file):
 	dist = 'curr'
 	mirror = 'http://gnu.kookel.org/ftp/cygwin'
 	
@@ -71,7 +71,7 @@ def get_cygwin_packages (self, package_file):
 						  lines[j].split (': ',
 								  1))
 			except:
-				print lines[j], package_file, self
+				print lines[j], package_file
 				raise 'URG'
 			if (value.startswith ('"')
 			    and value.find ('"', 1) == -1):
