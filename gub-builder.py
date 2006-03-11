@@ -216,7 +216,7 @@ def main ():
 	(package_names, package_object_dict) = gup2.get_packages (settings, commands)
 	if c == 'download':
 		for p in package_object_dict.values ():
-			p.download()
+			p.do_download()
 
 		return
 
