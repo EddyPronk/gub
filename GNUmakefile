@@ -62,7 +62,7 @@ download:
 	rm -f target/*/status/lilypond*
 	rm -f log/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).*.test.pdf
 
-all: linux darwin-ppc doc freebsd mingw 
+all: linux darwin-ppc doc freebsd mingw doc
 
 arm:
 	$(call BUILD,$@,lilypond)
