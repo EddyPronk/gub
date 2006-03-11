@@ -8,7 +8,7 @@ from new import classobj
 mirror = 'http://ftp.de.debian.org/debian'
 
 def get_packages (settings, names):
-	p = xpm.Dependency_manager (settings)
+	p = gup2.Dependency_manager (settings.system_root, settings.os_interface)
         url = mirror + '/dists/unstable/main/binary-i386/Packages.gz'
 	
 	# FIXME: download/offline

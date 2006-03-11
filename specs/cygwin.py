@@ -35,9 +35,10 @@ gcc_tooldir="%(crossprefix)s/%(target_architecture)s"
 --enable-threads
 '''))
 
+mirror = 'http://gnu.kookel.org/ftp/cygwin'
 def get_packages (settings, names):
-	p = gup2.Dependency_manager (settings)
-        url = p.mirror + '/setup.ini'
+	p = gup2.Dependency_manager (settings.system_root, settings.os_interface)
+        url = mirror + '/setup.ini'
 	# FIXME: download/offline
 	downloaddir = settings.downloaddir
 	file = settings.downloaddir + '/setup.ini'
