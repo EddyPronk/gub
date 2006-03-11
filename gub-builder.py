@@ -224,6 +224,7 @@ def main ():
 		pm = gup2.get_target_manager (settings)
 		gup2.add_packages_to_manager (pm, settings,
 					      package_object_dict)
+		package_names = [p for p in package_names if package_object_dict.has_key (p)]
 		run_builder (settings, pm, package_names, package_object_dict)
 	else:
 		raise 'unknown driver command %s.' % c
