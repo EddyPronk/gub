@@ -103,26 +103,25 @@ package-installer - build installer binary
 		      help="allow packaging of tainted compiles" )
 	return p
 
-def build_installer (settings, target_manager, args):
+def build_installer (settings, args):
 	os.system ('rm -rf %s' %  settings.installer_root)
 	install_manager = gup2.Dependency_manager (settings.installer_root,
 						   settings.os_interface)
 
 	install_manager.include_build_deps = False
+	install_manager.read_package_headers (settings.gub_uploads)
+	install_manager.read_package_headers (settings.gub_cross_uploads)
 
-	# FIXME: silly distinction, but mustn't install all known pacages
-	# of distro.
-	if not settings.is_distro:
-		for p in target_manager._packages.values ():
-			if (not isinstance (p, gub.Sdk_package)
-			    and (not isinstance (p, cross.Cross_package)
+	def get_dep (x):
+		return install_manager.dependencies (x)
+	
+	package_names = gup2.topologically_sorted (args, {},
+						   get_dep,
+						   None)
+	
+	for a in package_names:
+		install_manager.install_package (a)
 
-				 ## UGH.  need libgcc_s.so
-				 or p.name() == 'gcc')):
-				install_manager.register_package (p)
-
-	for p in install_manager._packages.values ():
-		install_manager.install_package  (p)
 
 def strip_installer (settings, args):
 	for p in installer.get_installers (settings, args):
@@ -141,8 +140,10 @@ def installer_command (c, settings, args):
 	elif c == 'package-installer':
 		package_installer (settings, args)
 	elif c == 'build-installer':
-		build_installer (settings, commands)
-
+		build_installer (settings, args)
+	else:
+		raise 'unknown installer command', c
+	
 def run_builder (settings, manager, names, package_object_dict):
 	PATH = os.environ["PATH"]
 
@@ -210,7 +211,7 @@ def main ():
 
 
 	if c in ('build-installer', 'strip-installer', 'package-installer'):
-		installer_command (settings, c, commands)
+		installer_command (c, settings, commands)
 		return
 
 	(package_names, package_object_dict) = gup2.get_packages (settings, commands)
