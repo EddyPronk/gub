@@ -8,13 +8,17 @@ class LilyPad (targetpackage.Target_package):
 		self.with (version='0.0.7-1', mirror=download.lp, format='bz2',
 			   depends=['mingw-runtime', 'w32api'])
 
+	def patch (self):
+		## windres doesn't handle --nostdinc
+		self.file_sub ([('--nostdinc',' ')],
+			       "%(srcdir)s/Make.rules.in")
 	def makeflags (self):
 		# FIXME: better fix Makefile
 		return misc.join_lines ('''
 ALL_OBJS='$(OBJS)'
 WRC=/usr/bin/wrc
 CPPFLAGS=-I%(system_root)s/usr/include
-RC='$(WRC) $(CPPFLAGS)'
+RC='%(target_architecture)s-windres $(CPPFLAGS)'
 LIBWINE=
 LIBPORT=
 MKINSTALLDIRS=%(srcdir)s/mkinstalldirs
