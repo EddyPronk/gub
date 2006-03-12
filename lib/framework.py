@@ -8,7 +8,6 @@
 # linux and mingw use almost the same list (linux does not have libiconv),
 # but some classes have __mingw or __linux overrides.
 
-
 import gub
 import cross
 
