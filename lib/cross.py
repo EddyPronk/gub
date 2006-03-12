@@ -134,7 +134,7 @@ def get_cross_module (platform):
 		pass
 	
 	desc = ('.py', 'U', 1)
-	file_name = 'specs/%s.py' % base
+	file_name = 'lib/%s.py' % base
 	file = open (file_name)
 	module = imp.load_module (base, file, file_name, desc)
 

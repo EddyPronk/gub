@@ -31,8 +31,8 @@ cd %(builddir)s && ./install.sh %(system_root)s/usr/ %(install_root)s
 		self.system ('tar -C %(install_root)s/%(system_root)s/ -zcf %(gub_uploads)s/%(gub_name)s .')
 
 class Nsis (Tool_package):
-	def __init__ (self):
-		Tool_package.__init__(self)
+	def __init__ (self, settings):
+		Tool_package.__init__(self, settings)
 		self.with (version='2.14',
 			   mirror="http://ftp.debian.org/debian/pool/main/n/nsis/nsis_%(version)s.orig.tar.%(format)s",				      
 				      
