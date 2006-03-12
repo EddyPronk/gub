@@ -181,7 +181,6 @@ class Package_manager (File_manager):
 		
 	def is_installable (self, name):
 		ball = '%(gub_ball)s' % self._packages[name]
-		print ball ,'  ex', self
 		return os.path.exists (ball)
 
 	def install_package (self, name):

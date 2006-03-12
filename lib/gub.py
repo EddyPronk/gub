@@ -198,6 +198,10 @@ cd %(downloaddir)s/%(dir)s && cvs -q update -dAP -r %(version)s
 		return '%(name)s.%(platform)s.hdr'
 
 	@subst_method
+        def hdr_file (self):
+		return '%(gub_uploads)s/%(hdr_name)s.hdr'
+
+	@subst_method
 	def stamp_file (self):
 		return '%(statusdir)s/%(name)s-%(version)s'
 
