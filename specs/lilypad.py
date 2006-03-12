@@ -10,7 +10,8 @@ class LilyPad (targetpackage.Target_package):
 
 	def patch (self):
 		## windres doesn't handle --nostdinc
-		self.file_sub ([('--nostdinc',' ')],
+		self.file_sub ([('--nostdinc',' '),
+				(r'rc\.res:', r'rc.res.o:')],
 			       "%(srcdir)s/Make.rules.in")
 	def makeflags (self):
 		# FIXME: better fix Makefile
