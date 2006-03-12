@@ -16,9 +16,9 @@ class LilyPad (targetpackage.Target_package):
 		# FIXME: better fix Makefile
 		return misc.join_lines ('''
 ALL_OBJS='$(OBJS)'
-WRC=/usr/bin/wrc
+WRC=%(crossprefix)s/bin/%(target_architecture)s-windres
 CPPFLAGS=-I%(system_root)s/usr/include
-RC='%(target_architecture)s-windres $(CPPFLAGS)'
+RC='$(WRC) $(CPPFLAGS)'
 LIBWINE=
 LIBPORT=
 MKINSTALLDIRS=%(srcdir)s/mkinstalldirs
