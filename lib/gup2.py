@@ -220,7 +220,7 @@ class Dependency_manager (Package_manager):
 		
 	
 	def dict_dependencies (self, dict):
-		deps = [] # #dict['dependencies_string'].split (';')
+		deps = dict['dependencies_string'].split (';')
 		if self.include_build_deps:
 			deps += dict['build_dependencies_string'].split (';')
 
@@ -233,7 +233,6 @@ class Dependency_manager (Package_manager):
 
 def topologically_sorted_one (todo, done, dependency_getter,
 			      recurse_stop_predicate=None):
-
 	sorted = []
 	if done.has_key (todo):
 		return sorted
