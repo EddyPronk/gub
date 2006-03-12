@@ -73,8 +73,6 @@ def change_target_packages (packages):
 		if p.name_dependencies:
 			p.name_dependencies = filter (lambda x: x not in remove,
 						      p.name_dependencies)
-			print p, p.name_dependencies
-
 	cross.change_target_packages (packages)
 	for p in packages.values ():
 		if isinstance (p, targetpackage.Target_package):
