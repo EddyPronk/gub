@@ -1,4 +1,5 @@
 from toolpackage import Tool_package
+import os
 
 ## 2.06 and earlier.
 class Nsis__old (Tool_package):
