@@ -5,14 +5,18 @@ import re
 import download
 import misc
 import targetpackage
+from toolpackage import Tool_package
+
 
 class Guile (targetpackage.Target_package):
-	def __init__ (self, settings):
-		targetpackage.Target_package.__init__ (self, settings)
+	def set_mirror(self):
 		self.with (version='1.8.0',
 			   mirror=download.gnu, format='gz',
-
 			   depends=['gettext', 'gmp', 'libtool'])
+		
+	def __init__ (self, settings):
+		targetpackage.Target_package.__init__ (self, settings)
+		self.set_mirror ()
 
 	# FIXME: C&P.
 	def guile_version (self):
@@ -396,3 +400,19 @@ the GNU Ubiquitous Intelligent Language for Extension."
 # "
 			   '%(install_root)s/etc/hints/%(name)s.hint',
 			   env=locals ())
+
+class Guile__local (Tool_package, Guile):
+	def configure (self):
+		Tool_package.configure (self)
+		self.update_libtool ()
+	def install (self):
+		Tool_package.install (self)
+
+		## don't want local GUILE headers to interfere with compile.
+		self.system ("rm -rf %(install_root)s/usr/include/ %(install_root)s/usr/bin/guile-config ")
+
+	def __init__ (self, settings):
+		Tool_package.__init__ (self, settings)
+		self.set_mirror()
+		self.name_build_dependencies = ['gmp', 'libtool']
+		self.name_dependencies = ['gmp']

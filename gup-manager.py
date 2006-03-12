@@ -12,7 +12,7 @@ import re
 import string
 import sys
 
-sys.path.insert (0, 'specs/')
+sys.path.insert (0, 'lib/')
 
 import gub
 import settings as settings_mod

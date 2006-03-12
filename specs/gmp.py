@@ -2,6 +2,7 @@ import re
 
 import download
 import targetpackage
+from toolpackage import Tool_package
 
 class Gmp (targetpackage.Target_package):
 	def __init__ (self, s):
@@ -63,3 +64,11 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/gmp-4.1.4-1.patch
 		self.system ('''
 mv %(install_root)s/usr/lib/*dll %(install_root)s/usr/bin || true
 ''')
+
+class Gmp__local (Tool_package):
+	def __init__ (self, s):
+		Tool_package.__init__ (self, s)
+		self.with (version='4.1.4',
+			   depends=['libtool'])
+
+

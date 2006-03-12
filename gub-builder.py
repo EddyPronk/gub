@@ -9,7 +9,7 @@ import sys
 import inspect
 import types
 
-sys.path.insert (0, 'specs/')
+sys.path.insert (0, 'lib/')
 
 import gup2
 import cross

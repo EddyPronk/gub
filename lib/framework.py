@@ -9,10 +9,6 @@
 # but some classes have __mingw or __linux overrides.
 
 
-import python
-import ghostscript
-import guile
-
 import gub
 import cross
 
@@ -29,7 +25,7 @@ def package_fixups (settings, packs, extra_build_deps):
 def version_fixups (settings, packs):
 	try:
 		settings.python_version = [p for p in packs
-					   if isinstance (p, python.Python)][0].python_version ()
+					   if p.name() == 'python'][0].python_version ()
 	except IndexError:
 		if 0:
 			pass
@@ -45,13 +41,13 @@ def version_fixups (settings, packs):
 			settings.python_version = '2.3'
 	try:
 		settings.guile_version = [p for p in packs
-			if isinstance (p, guile.Guile)][0].guile_version ()
+			if p.name()=='guile'][0].guile_version ()
 	except IndexError:
 		if settings.platform == 'debian':
 			settings.guile_version = '1.8'
 	try:
 		settings.ghostscript_version = [p for p in packs
-						if isinstance (p, ghostscript.Ghostscript)][0].ghostscript_version ()
+						if p.name() == 'ghostscript'][0].ghostscript_version ()
 	except IndexError:
 		if settings.platform == 'cygwin':
 			settings.ghostscript_version = '8.15'

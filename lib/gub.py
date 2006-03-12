@@ -34,6 +34,9 @@ class Package (Os_context_wrapper):
 		self.split_packages = []
 		self.sover = '1'
 
+		self.name_dependencies = []
+		self.name_build_dependencies = []
+
 	# urg: naming conflicts with module.
 	def do_download (self):
 		self._downloader ()
