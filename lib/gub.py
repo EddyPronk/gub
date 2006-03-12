@@ -199,7 +199,7 @@ cd %(downloaddir)s/%(dir)s && cvs -q update -dAP -r %(version)s
 
 	@subst_method
         def hdr_file (self):
-		return '%(gub_uploads)s/%(hdr_name)s.hdr'
+		return '%(gub_uploads)s/%(hdr_name)s'
 
 	@subst_method
 	def stamp_file (self):
