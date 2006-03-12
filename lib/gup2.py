@@ -180,7 +180,9 @@ class Package_manager (File_manager):
 			self.register_package_header (f)
 		
 	def is_installable (self, name):
-		ball = '%(gub_ball)s' % self._packages[name]
+		d = self._packages[name]
+
+		ball = '%(gub_ball)s' % d
 		return os.path.exists (ball)
 
 	def install_package (self, name):
@@ -272,16 +274,24 @@ def get_packages (settings, todo):
 			pack = targetpackage.load_target_package (settings, name)
 			pack_dict[name] = pack
 
-		return pack.name_dependencies + pack.name_build_dependencies
+		retval = pack.name_dependencies + pack.name_build_dependencies
+		return retval
 
 		
 	package_names += topologically_sorted (todo, {}, get_deps)
 	def get_dep_packages (obj):
 		return [pack_dict[n] for n in obj.name_dependencies + obj.name_build_dependencies]
+	
+	package_objs = topologically_sorted (pack_dict.values (), {},
+					     get_dep_packages)
+	cross.set_cross_dependencies (pack_dict)
+
+	## sort for cross deps too.
 	package_objs = topologically_sorted (pack_dict.values (), {},
 					     get_dep_packages)
 
 	framework.version_fixups (settings, package_objs)
+	
 	return ([o.name() for o in package_objs], pack_dict)
 
 def get_target_manager (settings):
