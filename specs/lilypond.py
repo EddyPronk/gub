@@ -154,7 +154,7 @@ class LilyPond__mingw (LilyPond__cygwin):
 		LilyPond__cygwin.__init__ (self, settings)
 		self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
 			   depends=['fontconfig', 'gettext',
-				    'guile', 'pango', 'python', 'ghostscript', 'cygwin', 'lilypad'],
+				    'guile', 'pango', 'python', 'ghostscript', 'lilypad'],
 			   track_development=True)
 
 	def do_configure (self):
