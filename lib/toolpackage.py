@@ -18,6 +18,7 @@ class Tool_package (gub.Package):
 		self.system ('''
 tar -C %(install_root)s/ -zcf %(gub_uploads)s/%(gub_name)s .
 ''')
+		self.dump_header_file ()
 	def get_substitution_dict (self, env={}):
 		dict = {
 			'C_INCLUDE_PATH': '%(buildtools)s/include',
