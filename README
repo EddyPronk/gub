@@ -43,17 +43,6 @@ You can get the GUB builder by doing
   darcs get http://lilypond.org/~hanwen/gub/
 
 
-INSTALLING
-**********
-
-edit local.make to set some variables. Here is what my local.make
-contains:
-
-  LILYPOND_CVSDIR=downloads/lilypond-$(LILYPOND_BRANCH)/
-  LILYPOND_BRANCH=HEAD
-  BUILD_PLATFORM=linux
-  GUB_DISTCC_ALLOW_HOSTS= 192.168.123.191 192.168.123.162 127.0.0.1 192.168.123.107
-
 
 REQUIREMENTS
 ************
@@ -68,10 +57,17 @@ For Mingw:
 
 COMPILING
 *********
-Do
 
+1. Edit local.make to set some variables. Here is what my local.make
+contains:
 
-Bootstrap as follows:
+  LILYPOND_CVSDIR=downloads/lilypond-$(LILYPOND_BRANCH)/
+  LILYPOND_BRANCH=HEAD
+  BUILD_PLATFORM=linux
+  GUB_DISTCC_ALLOW_HOSTS= 192.168.123.191 192.168.123.162 127.0.0.1 192.168.123.107
+
+  
+2. Bootstrap as follows:
 
   python gub-builder.py -p linux download lilypond
   python gub-builder.py -p local download flex mftrace potrace fontforge \
@@ -82,9 +78,9 @@ Bootstrap as follows:
 
 This creates all packages needed for building the releases.
 
-Then do:
+3. Then do:
 
-  make mingw
+  make all
 
 this should leave packages in
 
