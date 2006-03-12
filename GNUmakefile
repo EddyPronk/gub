@@ -56,7 +56,8 @@ download:
 	$(foreach p, $(PLATFORMS), $(call INVOKE_DRIVER,$(p)) download lilypond && ) true
 	$(call INVOKE_DRIVER,mingw) download lilypad
 	$(call INVOKE_DRIVER,darwin-ppc) download osx-lilypad
-	$(call INVOKE_DRIVER,local) download flex nsis fakeroot pkg-config guile
+	$(call INVOKE_DRIVER,local) download flex mftrace potrace fontforge \
+		guile pkg-config nsis icoutils
 	$(foreach p, $(PLATFORMS), (mv uploads/$(p)/lilypond-$(LILYPOND_BRANCH).$(p).gub uploads/$(p)/lilypond-$(LILYPOND_BRANCH)-OLD.$(p).gub || true) &&) true
 	$(foreach p, $(PLATFORMS), $(call INVOKE_GUP,$(p)) remove lilypond ; ) true
 	rm -f target/*/status/lilypond*
@@ -125,13 +126,13 @@ freebsd-runtime:
 DISTCC_DIRS=target/distcc/bin/  target/distccd/bin/
 distccd:
 	$(foreach p, $(PLATFORMS),$(call INVOKE_DRIVER, $(p)) build gcc && ) true
-	chmod +x specs/distcc.py
+	chmod +x lib/distcc.py
 	rm -rf $(DISTCC_DIRS)
 	-$(if $(wildcard log/distccd.pid),kill `cat log/distccd.pid`, true)
 	mkdir -p $(DISTCC_DIRS)
 	ln -s $(foreach p,$(PLATFORMS),$(wildcard $(CWD)/target/$(p)/system/usr/cross/bin/*)) target/distccd/bin
 	$(foreach binary,$(foreach p,$(PLATFORMS), $(wildcard target/$(p)/system/usr/cross/bin/*)), \
-		ln -s $(CWD)/specs/distcc.py target/distcc/bin/$(notdir $(binary)) && ) true
+		ln -s $(CWD)/lib/distcc.py target/distcc/bin/$(notdir $(binary)) && ) true
 
 	DISTCCD_PATH=$(CWD)/target/distccd/bin distccd --daemon $(addprefix --allow ,$(GUB_DISTCC_ALLOW_HOSTS)) \
 		--daemon --port 3633 --pid-file $(CWD)/log/distccd.pid \
@@ -144,8 +145,12 @@ NATIVE_TARGET_DIR=$(CWD)/target/$(BUILD_PLATFORM)/
 #	PATH=$(NATIVE_TARGET_DIR)/system/usr/bin/:$(PATH) \
 #		GS_LIB=$(NATIVE_TARGET_DIR)/system/usr/share/ghostscript/8.50/lib/ \
 
+doc-clean:
+	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_BRANCH) \
+			DOCUMENTATION=yes web-clean
+
 doc:
-		make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_BRANCH) \
+	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_BRANCH) \
 		LILYPOND_EXTERNAL_BINARY=$(NATIVE_TARGET_DIR)/system/usr/bin/lilypond \
 		DOCUMENTATION=yes web 
 	tar -C target/$(BUILD_PLATFORM)/build/lilypond-$(LILYPOND_BRANCH)/out-www/web-root/ -cjf $(CWD)/uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).documentation.tar.bz2 .
