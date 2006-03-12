@@ -291,15 +291,15 @@ def get_target_manager (settings):
 
 def add_packages_to_manager (target_manager, settings, package_object_dict):
 	
-	for p in package_object_dict.values ():
-		target_manager.register_package_dict (p.get_substitution_dict ())
-
 	## Ugh, this sucks: we now have to have all packages
 	## registered at the same time.
 	
 	cross_module = cross.get_cross_module (settings.platform)
 	cross_module.change_target_packages (package_object_dict)
-	
+
+	for p in package_object_dict.values ():
+		target_manager.register_package_dict (p.get_substitution_dict ())
+
 	return target_manager
 
 
