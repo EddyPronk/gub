@@ -31,10 +31,13 @@ class Mingw_runtime (gub.Binary_package, gub.Sdk_package):
 		self.system ('cd %(srcdir)s/root && mv * usr',
 			     ignore_error=True)
 
-# ugh. should rename cygcheck.
-class Cygwin (gub.Binary_package):
+class Cygcheck (gub.Binary_package):
 	"Only need the cygcheck.exe binary."
-
+	def __init__ (self, settings):
+		gub.Binary_package.__init__ (self, settings)
+		self.with (version='1.5.18-1', mirror=download.cygwin_bin, format='bz2',
+					depends=['mingw-runtime'])
+		
 	def untar (self):
 		gub.Binary_package.untar (self)
 
@@ -64,8 +67,6 @@ def get_packages (settings, names):
 				     mirror=download.gcc_41,
 				     depends=['binutils', 'mingw-runtime', 'w32api']),
 		Mingw_runtime (settings).with (version='3.9', mirror=download.mingw),
-		Cygwin (settings).with (version='1.5.18-1', mirror=download.cygwin_bin, format='bz2',
-					depends=['mingw-runtime']),
 		W32api (settings).with (version='3.5', mirror=download.mingw),
 		]
 
