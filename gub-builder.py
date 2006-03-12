@@ -122,18 +122,18 @@ def build_installer (settings, args):
 	for a in package_names:
 		install_manager.install_package (a)
 
-
 def strip_installer (settings, args):
 	for p in installer.get_installers (settings, args):
 		settings.os_interface.log_command (' ** Stage: %s (%s)\n'
 						   % ('strip', p.name ()))
 		p.strip ()
 
-def package_installer (settings, target_manager, args):
-	for p in installer.get_installers (settings, target_manager, args):
+def package_installer (settings, args):
+	for p in installer.get_installers (settings, args):
 		settings.os_interface.log_command (' *** Stage: %s (%s)\n'
 						   % ('create', p.name ()))
 		p.create ()
+		
 def installer_command (c, settings, args):
 	if c == 'strip-installer':
 		strip_installer (settings, args)
