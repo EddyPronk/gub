@@ -130,6 +130,7 @@ for interp in python guile ; do
   cat<<EOF > "$wrapscript.$interp"
 #!/bin/sh
 export PYTHONPATH="${prefix}lilypond/usr/lib/lilypond/current/python/:${prefix}lilypond/usr/share/lilypond/current/python/:${dollar}PYTHONPATH"
+export GUILE_LOAD_PATH="${prefix}lilypond/usr/share/lilypond/current/"
 export LD_LIBRARY_PATH="${lilydir}usr/lib/:${dollar}LD_LIBRARY_PATH"
 me=${backquote}basename ${dollar}0${backquote}
 exec "${lilydir}usr/bin/$interp" ${callmain} "${lilydir}usr/bin/${dollar}me" $expandargs
