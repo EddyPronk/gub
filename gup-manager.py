@@ -240,6 +240,7 @@ def main ():
 	target_manager = gup2.Dependency_manager (options.ROOT, settings.os_interface)
 	if options.command == 'install':
 		target_manager.read_package_headers (settings.expand ('%(gub_uploads)s/'))
+		target_manager.read_package_headers (settings.expand ('%(gub_cross_uploads)s/'))
 	
 	if options.command:
 		commands = Command (target_manager, options)

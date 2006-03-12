@@ -180,7 +180,8 @@ class Package_manager (File_manager):
 			self.register_package_header (f)
 		
 	def is_installable (self, name):
-		ball = '%(gub_uploads)s/%(gub_name)s' % self._packages[name]
+		ball = '%(gub_ball)s' % self._packages[name]
+		print ball ,'  ex', self
 		return os.path.exists (ball)
 
 	def install_package (self, name):
@@ -192,7 +193,7 @@ class Package_manager (File_manager):
 			print 'already have package ', name
 			raise 'abort'
 		d = self._packages[name]
-		ball = '%(gub_uploads)s/%(gub_name)s' % d
+		ball = '%(gub_ball)s' % d
 		self.install_tarball (ball, name)
 		self._package_dict_db[name] = pickle.dumps (d)
 

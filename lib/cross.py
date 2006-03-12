@@ -21,8 +21,13 @@ class Cross_package (gub.Package):
 
 	def install_command (self):
 		return '''make DESTDIR=%(install_root)s prefix=/usr/cross/ install'''
+	
+	def gub_ball (self):
+		c =  '%(gub_cross_uploads)s/%(gub_name)s'
+		return c
 
-		
+        def hdr_file (self):
+		return '%(gub_cross_uploads)s/%(hdr_file)s.hdr'
 
 class Binutils (Cross_package):
 	def install (self):
@@ -94,7 +99,6 @@ def change_target_packages (package_object_dict):
 
 def get_cross_packages (settings):
 	mod = get_cross_module (settings.platform)
-	print mod
 
 	## ugh, how to handle cygwin names.
 	package_object_dict = dict ((p.name(), p) for p in mod.get_packages (settings, []))

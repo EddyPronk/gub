@@ -54,6 +54,7 @@ class Settings (Context):
 		self.uploads = self.topdir + '/uploads'
 		#self.gub_uploads = self.uploads + '/gub'
 		self.gub_uploads = self.uploads + '/' + self.platform
+		self.gub_cross_uploads = '%s/%s-cross' % (self.uploads, self.platform)
 
 		self.distcc_hosts = ''
 		# FIXME: rename to target_root?
@@ -97,6 +98,7 @@ class Settings (Context):
 			'downloaddir',
 			'logdir',
 			'gub_uploads',
+			'gub_cross_uploads',
 			'installer_uploads',
 			'specdir',
 			'allsrcdir',

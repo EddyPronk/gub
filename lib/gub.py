@@ -430,11 +430,15 @@ rmdir %(split_root)s/usr/share || true
 			return '%(name)s%(sover)s-%(version)s.%(platform)s.gub'
 		return 'lib%(name)s%(sover)s-%(version)s.%(platform)s.gub'
 
+	@subst_method
+	def gub_ball (self):
+		return '%(gub_uploads)s/%(gub_name)s'
+
 	def package (self):
 		# naive tarball packages for now
 		self.system ('''
 rm -f $(find %(install_root)s -name '*~')
-tar -C %(install_root)s -zcf %(gub_uploads)s/%(gub_name)s .
+tar -C %(install_root)s -zcf %(gub_ball)s .
 ''')
 		self.dump_header_file ()
 		# WIP
@@ -447,7 +451,7 @@ tar -C %(install_root)s-%(i)s -zcf %(gub_uploads)s/%(split_gub_name)s .
 				     locals ())
 
 	def dump_header_file (self):
-		hdr = self.expand ('%(gub_uploads)s/%(hdr_name)s')
+		hdr = self.expand ('%(hdr_file)s')
 		self.log_command ("Writing %s\n" % hdr)
 		pickle.dump (self.get_substitution_dict (), open (hdr, 'w'))
 
