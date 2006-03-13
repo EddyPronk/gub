@@ -16,7 +16,6 @@ class Scons (Tool_package):
 
 	def package (self):
 		self.system ('tar -C %(install_root)s/%(buildtools)s/../ -zcf %(gub_uploads)s/%(gub_name)s .')
-		self.dump_header_file()
 	
 	def __init__ (self, settings):
 		Tool_package.__init__ (self, settings)
