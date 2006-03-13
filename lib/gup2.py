@@ -48,7 +48,13 @@ class File_manager:
 						       + '/files.db', 'c')
 		self._package_file_db = dbmodule.open (self.config
 						       + '/packages.db', 'c')
-
+		
+	def __repr__ (self):
+		name = self.__class__.__name__
+		root = self.root
+		build = self.include_build_deps
+		distro =  self.is_distro
+		return '%(name)s: %(root)s, distro: %(distro)d build: %(build)d'  % locals()
 	def tarball_files (self, ball):
 		flag = tar_compression_flag (ball)
 		str = self.os_interface.read_pipe ('tar -tf%(flag)s "%(ball)s"'
