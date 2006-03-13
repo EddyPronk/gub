@@ -49,7 +49,7 @@ class Package (Os_context_wrapper):
 
 		stages = ['untar', 'patch',
 			  'configure', 'compile', 'install', 'split',
-			  'package', 'clean']
+			  'package', 'dump_header_file', 'clean']
 
 		tainted = False
 		for stage in stages:
@@ -444,7 +444,6 @@ rmdir %(split_root)s/usr/share || true
 rm -f $(find %(install_root)s -name '*~')
 tar -C %(install_root)s -zcf %(gub_ball)s .
 ''')
-		self.dump_header_file ()
 		# WIP
 		available = dict (inspect.getmembers (self, callable))
 		for i in self.split_packages:
