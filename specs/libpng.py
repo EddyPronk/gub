@@ -37,3 +37,11 @@ class Libpng__mingw (Libpng):
 			   '%(srcdir)s/Makefile.am')
 		self.autoupdate ()
 		Libpng.configure (self)
+
+from toolpackage import Tool_package
+
+class Libpng__local (Tool_package):
+	def __init__ (self, settings):
+		Tool_package.__init__ (self, settings)
+		self.with (version='1.2.8', mirror=download.libpng)
+
