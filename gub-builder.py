@@ -123,13 +123,17 @@ def build_installer (settings, args):
 		install_manager.install_package (a)
 
 def strip_installer (settings, args):
-	for p in installer.get_installers (settings, args):
+	install_manager = gup2.Dependency_manager (settings.installer_root,
+						   settings.os_interface)
+	for p in installer.get_installers (settings, install_manager, args):
 		settings.os_interface.log_command (' ** Stage: %s (%s)\n'
 						   % ('strip', p.name ()))
 		p.strip ()
 
 def package_installer (settings, args):
-	for p in installer.get_installers (settings, args):
+	install_manager = gup2.Dependency_manager (settings.installer_root,
+						   settings.os_interface)
+	for p in installer.get_installers (settings, install_manager, args):
 		settings.os_interface.log_command (' *** Stage: %s (%s)\n'
 						   % ('create', p.name ()))
 		p.create ()

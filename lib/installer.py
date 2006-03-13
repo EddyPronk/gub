@@ -10,9 +10,10 @@ from context import subst_method
 from misc import *
 
 class Installer (context.Os_context_wrapper):
-	def __init__ (self, settings):
+	def __init__ (self, settings, file_manager):
 		context.Os_context_wrapper.__init__ (self, settings)
-		
+
+		self.file_manager = file_manager
 		self.settings = settings
 		self.strip_command = '%(crossprefix)s/bin/%(target_architecture)s-strip' 
 		self.no_binary_strip = []
@@ -136,16 +137,17 @@ class Installer (context.Os_context_wrapper):
 		pass
 		
 class Darwin_bundle (Installer):
-	def __init__ (self, settings):
-		Installer.__init__ (self, settings)
+	def __init__ (self, settings, file_manager):
+		Installer.__init__ (self, settings, file_manager)
 		self.strip_command += ' -S '
 		self.darwin_bundle_dir = '%(targetdir)s/LilyPond.app'
 		
 	def create (self):
 		Installer.create (self)
 		rw = darwintools.Rewirer (self.settings)
+		
+		rw.set_ignore_libs (self.file_manager)
 		rw.rewire_root (self.settings.installer_root)
-
 
 		bundle_zip = self.expand ('%(uploads)s/lilypond-%(bundle_version)s-%(bundle_build)s.%(platform)s.zip')
 		self.system ('''
@@ -171,8 +173,8 @@ cp -pR --link %(installer_root)s/usr/* %(darwin_bundle_dir)s/Contents/Resources/
 		
 		
 class Nsis (Installer):
-	def __init__ (self, settings):
-		Installer.__init__ (self, settings)
+	def __init__ (self, settings, file_manager):
+		Installer.__init__ (self, settings, file_manager)
 		self.strip_command += ' -g '
 		self.no_binary_strip = ['gsdll32.dll', 'gsdll32.lib']
 
@@ -208,8 +210,8 @@ class Nsis (Installer):
 
 
 class Linux_installer (Installer):
-	def __init__ (self, settings):
-		Installer.__init__ (self, settings)
+	def __init__ (self, settings, file_manager):
+		Installer.__init__ (self, settings, file_manager)
 		self.bundle_tarball = '%(targetdir)s/%(name)s-%(bundle_version)s-%(bundle_build)s.%(platform)s.tar.bz2'
 
 	def strip_prefixes (self):
@@ -275,7 +277,7 @@ class Autopackage (Linux_installer):
 
 class Cygwin_package (Installer):
 	def __init__ (self, settings, target_manager, name):
-		Installer.__init__ (self, settings)
+		Installer.__init__ (self, settings, target_manager)
 		self._name = name
 		self.target_manager = target_manager
 	def create (self):
@@ -318,17 +320,19 @@ cp -pv %(installer_root)s-%(package_name)s/etc/hints/%(hint)s %(cygwin_uploads)s
 	def name (self):
 		return self._name
 
-def get_installers (settings, target_manager, args=[]):
+def get_installers (settings, install_manager, args=[]):
+
+	## UGH : creating 6 instances of installer ?!
 	installers = {
-		'arm' : [Shar (settings)],
-		'darwin-ppc' : [Darwin_bundle (settings)],
-		'darwin-x86' : [Darwin_bundle (settings)],
-		'freebsd' : [Shar (settings)],
-		'linux' : [Shar (settings)],
-		'mingw' : [Nsis (settings)],
+		'arm' : [Shar (settings, install_manager)],
+		'darwin-ppc' : [Darwin_bundle (settings, install_manager)],
+		'darwin-x86' : [Darwin_bundle (settings, install_manager)],
+		'freebsd' : [Shar (settings, install_manager)],
+		'linux' : [Shar (settings, install_manager)],
+		'mingw' : [Nsis (settings, install_manager)],
 	}
 
 	if settings.platform == 'cygwin':
 		return map (lambda x:
-			    Cygwin_package (settings, target_manager, x), args)
+			    Cygwin_package (settings, install_manager, x), args)
 	return installers[settings.platform]
