@@ -157,20 +157,18 @@ class Rewirer (context.Os_context_wrapper):
 			if os.path.isfile (f):
 				self.rewire_mach_o_object_executable_path(f)
 
-	def get_ignore_libs (self):
-		str = self.read_pipe ('''
-tar tfz %(gub_cross_uploads)s/darwin-sdk-%(darwin_sdk_version)s.%(platform)s.gub
-''')
-		d = {}
-		for l in str.split ('\n'):
-			l = l.strip ()
-			if re.match (r'^\./usr/lib/', l):
-				d[l[1:]] = True
-		return d
+	def set_ignore_libs (self, file_manager):
+		files = file_manager.installed_files ('darwin-sdk')
+
+		d = dict ((k.strip()[1:], True)
+			  for k in files
+			  if re.match (r'^\./usr/lib/', k))
+
+		self.ignore_libs = d  
 
 	def rewire_root (self, root):
 		if self.ignore_libs == None:
-			self.ignore_libs = self.get_ignore_libs ()
+			raise 'error: should init with file_manager.'
 
 		self.rewire_binary_dir (root + '/usr/lib')
 		# Ugh.
@@ -184,17 +182,6 @@ class Package_rewirer:
 
 	def rewire (self):
 		self.rewirer.rewire_root (self.package.install_root ())
-
-
-def add_rewire_path (settings, packages):
-	rewirer = Rewirer (settings)
-	for p in packages:
-		if p.name () == 'darwin-sdk':
-			continue
-
-		wr = Package_rewirer (rewirer, p)
-		p.postinstall = wr.rewire
-
 
 def get_packages (settings, names):
 
