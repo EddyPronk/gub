@@ -30,7 +30,7 @@ class File_manager:
 		self.include_build_deps = True
 		self.verbose = True
 		self.is_distro = False
-		
+
 		if not os.path.isdir (self.config):
 			os_interface.system ('mkdir -p %s' % self.config)
 
@@ -94,7 +94,7 @@ class File_manager:
 			# ignore directories.
 			if f and  f[-1] != '/':
 				self._file_package_db[f] = name
-				
+
 	def uninstall_package (self, name):
 		self.os_interface.log_command ('uninstalling package: %s\n' % name)
 
@@ -138,11 +138,11 @@ class File_manager:
 	def installed_package_dicts (self):
 		names = self._package_file_db.keys ()
 		return [self._packages[p] for p in names]
-	
+
 	def installed_packages (self):
 		names = self._package_file_db.keys ()
 		return names
-	
+
 class Package_manager (File_manager):
 	def __init__ (self, root, os_interface):
 		File_manager.__init__ (self, root, os_interface)
@@ -164,7 +164,7 @@ class Package_manager (File_manager):
 			return
 
 		self._packages[nm] = d
-		
+
 	def register_package_header (self, package_hdr):
 		str = open (package_hdr).read ()
 
@@ -172,19 +172,19 @@ class Package_manager (File_manager):
 		if self._package_dict_db.has_key (d['name']):
 			if  str <> self._package_dict_db[d['name']]:
 				self.os_interface.log_command ("package header changed for %(name)s" % d)
-			
+
 			return
-		
+
 		if self.verbose:
 			self.os_interface.log_command ('registering package: %s\n'
 						       % `package_hdr`)
-		
+
 		self.register_package_dict (d)
 
 	def read_package_headers (self, dir):
 		for f in glob.glob ('%s/*hdr' % dir):
 			self.register_package_header (f)
-		
+
 	def is_installable (self, name):
 		d = self._packages[name]
 
@@ -226,8 +226,8 @@ class Dependency_manager (Package_manager):
 		except KeyError:
 			print 'unknown package', name
 			return []
-		
-	
+
+
 	def dict_dependencies (self, dict):
 		deps = dict['dependencies_string'].split (';')
 		if self.include_build_deps:
@@ -245,14 +245,14 @@ def topologically_sorted_one (todo, done, dependency_getter,
 	sorted = []
 	if done.has_key (todo):
 		return sorted
-	
+
 	done[todo] = 1
 
 	deps = dependency_getter (todo)
 	for d in deps:
 		if recurse_stop_predicate and recurse_stop_predicate (d):
 			continue
-		
+
 		sorted += topologically_sorted_one (d, done, dependency_getter,
 						    recurse_stop_predicate=recurse_stop_predicate)
 
@@ -271,24 +271,30 @@ def topologically_sorted (todo, done, dependency_getter,
 def get_packages (settings, todo):
 	cross_packages = cross.get_cross_packages (settings)
 
-	pack_dict = dict ((p.name(),p) for p in cross_packages)
+	pack_dict = dict ((p.name (), p) for p in cross_packages)
 	package_names = pack_dict.keys ()
-	
+
 	def get_deps (name):
 		try:
 			pack = pack_dict[name]
 		except KeyError:
-			pack = targetpackage.load_target_package (settings, name)
+			pack = targetpackage.load_target_package (settings,
+								  name)
 			pack_dict[name] = pack
 
 		retval = pack.name_dependencies + pack.name_build_dependencies
 		return retval
 
-		
 	package_names += topologically_sorted (todo, {}, get_deps)
+
 	def get_dep_packages (obj):
-		return [pack_dict[n] for n in obj.name_dependencies + obj.name_build_dependencies]
-	
+		print 'get_dep_packages: ' + `obj.name ()`
+		#print 'kies: ' + `pack_dict.keys ()`
+		print 'name_deps: ' + `obj.name_dependencies`
+		#print 'build_deps: ' + `obj.name_build_dependencies`
+		return ([pack_dict[n] for n in obj.name_dependencies
+			 + obj.name_build_dependencies])
+
 	package_objs = topologically_sorted (pack_dict.values (), {},
 					     get_dep_packages)
 	cross.set_cross_dependencies (pack_dict)
@@ -298,8 +304,8 @@ def get_packages (settings, todo):
 					     get_dep_packages)
 
 	framework.version_fixups (settings, package_objs)
-	
-	return ([o.name() for o in package_objs], pack_dict)
+
+	return ([o.name () for o in package_objs], pack_dict)
 
 def get_target_manager (settings):
 	target_manager = Dependency_manager (settings.system_root,
@@ -307,10 +313,10 @@ def get_target_manager (settings):
 	return target_manager
 
 def add_packages_to_manager (target_manager, settings, package_object_dict):
-	
+
 	## Ugh, this sucks: we now have to have all packages
 	## registered at the same time.
-	
+
 	cross_module = cross.get_cross_module (settings.platform)
 	cross_module.change_target_packages (package_object_dict)
 
@@ -318,5 +324,3 @@ def add_packages_to_manager (target_manager, settings, package_object_dict):
 		target_manager.register_package_dict (p.get_substitution_dict ())
 
 	return target_manager
-
-

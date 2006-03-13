@@ -37,7 +37,8 @@ gcc_tooldir="%(crossprefix)s/%(target_architecture)s"
 
 mirror = 'http://gnu.kookel.org/ftp/cygwin'
 def get_packages (settings, names):
-	p = gup2.Dependency_manager (settings.system_root, settings.os_interface)
+	p = gup2.Dependency_manager (settings.system_root,
+				     settings.os_interface)
         url = mirror + '/setup.ini'
 	# FIXME: download/offline
 	downloaddir = settings.downloaddir
@@ -84,11 +85,14 @@ def get_cygwin_package (settings, name, dict):
 	Package = classobj (name, (gub.Binary_package,), {})
 	package = Package (settings)
 	if dict.has_key ('requires'):
-		deps = [x.strip () for x in 
-			    re.sub ('\([^\)]*\)', '',
-				    dict['requires']).split ()]
+		import string
+		deps = re.sub ('\([^\)]*\)', '', dict['requires']).split ()
+		deps = map (string.strip, deps)
+		deps = map (string.lower, deps)
+		deps = map (lambda x: re.sub ('_', '-', x), deps)
+		##print 'gcp: ' + `deps`
 		cross = [
-			'base-passwd', 'bintutils', 
+			'base-passwd', 'bintutils',
 			'gcc', 'gcc-core', 'gcc-g++',
 			'gcc-mingw', 'gcc-mingw-core', 'gcc-mingw-g++',
 			]
@@ -98,6 +102,8 @@ def get_cygwin_package (settings, name, dict):
 			'libtool1.5', 'libltdl3',
 			'libguile12', 'libguile16',
 			 ]
+		urg_source_deps_are_broken = ['guile', 'libtool']
+		source += urg_source_deps_are_broken
 		unneeded = [
 			'_update-info-dir',
 			'libXft', 'libXft1', 'libXft2',
@@ -110,6 +116,16 @@ def get_cygwin_package (settings, name, dict):
 		package.name_dependencies = deps
 		package.name_build_dependencies = deps
 	package.ball_version = dict['version']
+	def urg_version ():
+		return package.ball_version
+	# URG
+	if name == 'ghostscript':
+		package.ghostscript_version = urg_version
+	elif name == 'guile':
+		package.guile_version = urg_version
+	elif name == 'python':
+		package.python_version = urg_version
+		
 	package.url = (mirror + '/'
 		       + dict['install'].split ()[0])
 	package.format = 'bz2'
@@ -117,13 +133,14 @@ def get_cygwin_package (settings, name, dict):
 
 def get_cygwin_packages (settings, package_file):
 	dist = 'curr'
-	
+
 	dists = {'test': [], 'curr': [], 'prev' : []}
 	chunks = open (package_file).read ().split ('\n\n@ ')
 	for i in chunks[1:]:
 		lines = i.split ('\n')
 		name = lines[0].strip ()
-		blacklist = ('binutils', 'gcc', 'guile', 'guile-devel', 'libguile12', 'libguile16', 'libtool', 'litool1.5' , 'libtool-devel', 'libltdl3')
+		name = name.lower ()
+		blacklist = ('binutils', 'gcc', 'guile', 'guile-devel', 'libguile12', 'libguile16', 'libtool', 'libtool1.5', 'libtool-devel', 'libltdl3')
 		if name in blacklist:
 			continue
 		packages = dists['curr']
@@ -145,7 +162,7 @@ def get_cygwin_packages (settings, package_file):
 
 			try:
 				key, value = [x.strip () for x in lines[j].split (': ', 1)]
-			except KeyError: ### UGH -> what kind of exceptino? 
+			except KeyError: ### UGH -> what kind of exceptino?
 				print lines[j], package_file
 				raise 'URG'
 			if (value.startswith ('"')
