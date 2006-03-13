@@ -183,7 +183,8 @@ class Package_manager (File_manager):
 		d = self._packages[name]
 
 		ball = '%(gub_ball)s' % d
-		return os.path.exists (ball)
+		hdr = '%(hdr_file)s' % d
+		return os.path.exists (ball) and os.path.exists (ball)
 
 	def install_package (self, name):
 		if self.is_installed (name):
