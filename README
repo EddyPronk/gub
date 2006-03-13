@@ -4,10 +4,9 @@ WHAT IS GUB
 ***********
 
 Grand Unified Builder (GUB) is the mini packaging system that we
-developed for building LilyPond binaries. It cross-compiles several
-packages and assembles them into a single package. At the moment it
+developed for building LilyPond binaries.  It cross-compiles several
+packages and assembles them into a single package.  At the moment it
 supports the following target platforms
-
 
 darwin
    darwin 7 (MacOS 10.3) for PowerPC
@@ -28,7 +27,7 @@ debian
    .deb package for Debian (Linux/x86) (largely untested)
 
 cygwin
-   .tar.gz package for Cygwin/Windows32 (largely untested)
+   .tar.bz2 packages for Cygwin/Windows32 (largely untested)
 
 
 ACQUIRING
@@ -47,38 +46,54 @@ You can get the GUB builder by doing
 REQUIREMENTS
 ************
 
-For Mingw:
+Additionally for Mingw:
 
- - wine-devel
- - wine
+RedHat:
 
+    wine-devel wine
 
+Debian/Ubuntu:
+
+    libwine-dev wine-utils
 
 
 COMPILING
 *********
 
-1. Edit local.make to set some variables. Here is what my local.make
-contains:
+1. Edit local.make to set some variables.  Here is what my local.make
+   contains
 
   LILYPOND_CVSDIR=downloads/lilypond-$(LILYPOND_BRANCH)/
   LILYPOND_BRANCH=HEAD
   BUILD_PLATFORM=linux
   GUB_DISTCC_ALLOW_HOSTS= 192.168.123.191 192.168.123.162 127.0.0.1 192.168.123.107
 
-  
-2. Bootstrap as follows:
+2. Download sources
 
   python gub-builder.py -p linux download lilypond
-  python gub-builder.py -p local download flex mftrace potrace fontforge \
-		guile pkg-config nsis icoutils
-  python gub-builder.py -p local build flex mftrace potrace fontforge guile pkg-config
-  make distccd
-  python gub-builder.py -p local build nsis icoutils
 
-This creates all packages needed for building the releases.
 
-3. Then do:
+3. Prepare build environment
+
+  3a. For Debian/Ubuntu
+
+    apt-get install \
+            bison distcc flex fontforge g++ gcc guile-devel icoutils mftrace \
+            nsis pkg-config potrace texinfo
+
+  3b. For RedHat, bootstrap as follows
+
+    python gub-builder.py -p local download flex mftrace potrace fontforge \
+	   guile pkg-config nsis icoutils
+    python gub-builder.py -p local build flex mftrace potrace fontforge \
+           guile pkg-config
+    make distccd
+    python gub-builder.py -p local build nsis icoutils
+
+  This creates all additional development packages needed for building
+  the releases on RedHat.
+
+4. Build all installers
 
   make all
 
@@ -91,7 +106,6 @@ and an installer in
   uploads/lilypond-VERSION-RELEASE.mingw.exe
 
 Similarly,
-
 
   make PLATFORM
 
