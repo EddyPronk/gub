@@ -20,7 +20,7 @@ tar -C %(system_root)s/usr -cf- include lib | tar -C %(crossprefix)s/%(target_ar
 		cross.Gcc.install (self)
 		self.system ('''
 mkdir -p %(install_root)s/%(crossprefix)s/%(target_architecture)s
-tar -C %(crossprefix)s/%(target_architecture)s -cf- include lib | tar -C %(install_root)s/%(crossprefix)s/%(target_architecture)s -xf-
+tar -C %(system_root)s/usr -cf- include lib | tar -C %(install_root)s/%(crossprefix)s/%(target_architecture)s -xf-
 ''')
 
 # UGH: MI
