@@ -27,7 +27,6 @@ class File_manager:
 		self.root = root
 		self.config = self.root + '/etc/xpm/'
 		self.os_interface = os_interface
-		self.include_build_deps = True
 		self.verbose = True
 		self.is_distro = False
 
@@ -52,9 +51,9 @@ class File_manager:
 	def __repr__ (self):
 		name = self.__class__.__name__
 		root = self.root
-		build = self.include_build_deps
 		distro =  self.is_distro
 		return '%(name)s: %(root)s, distro: %(distro)d build: %(build)d'  % locals()
+
 	def tarball_files (self, ball):
 		flag = tar_compression_flag (ball)
 		str = self.os_interface.read_pipe ('tar -tf%(flag)s "%(ball)s"'
@@ -219,6 +218,10 @@ class Dependency_manager (Package_manager):
 
 	"Manage packages that have dependencies and build_dependencies."
 
+	def __init__ (self, root, os_interface):
+		Package_manager.__init__ (self, root, os_interface)
+		self.include_build_deps = True
+
 	def dependencies (self, name):
 		assert is_string (name)
 		try:
@@ -227,7 +230,6 @@ class Dependency_manager (Package_manager):
 			print 'unknown package', name
 			return []
 
-
 	def dict_dependencies (self, dict):
 		deps = dict['dependencies_string'].split (';')
 		if self.include_build_deps:
@@ -235,7 +237,6 @@ class Dependency_manager (Package_manager):
 
 		deps = [d for d in deps if d]
 		return deps
-
 
 ################
 # UGh moveme

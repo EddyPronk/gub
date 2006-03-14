@@ -44,5 +44,6 @@ class Libpng__local (Tool_package, Libpng):
 	def __init__ (self, settings):
 		Tool_package.__init__ (self, settings)
 		self.with (version='1.2.8', mirror=download.libpng)
+
 	def patch (self):
 		Libpng.patch (self)
