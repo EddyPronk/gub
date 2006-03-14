@@ -154,3 +154,13 @@ doc:
 		LILYPOND_EXTERNAL_BINARY=$(NATIVE_TARGET_DIR)/system/usr/bin/lilypond \
 		DOCUMENTATION=yes web 
 	tar -C target/$(BUILD_PLATFORM)/build/lilypond-$(LILYPOND_BRANCH)/out-www/web-root/ -cjf $(CWD)/uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).documentation.tar.bz2 .
+
+
+bootstrap:
+	python gub-builder.py -p local download flex mftrace potrace fontforge \
+	   guile pkg-config nsis icoutils
+	python gub-builder.py -p local build flex mftrace potrace fontforge \
+	   guile pkg-config
+	make distccd
+	python gub-builder.py -p local build nsis icoutils
+

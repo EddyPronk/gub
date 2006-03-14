@@ -68,32 +68,11 @@ COMPILING
   BUILD_PLATFORM=linux
   GUB_DISTCC_ALLOW_HOSTS= 192.168.123.191 192.168.123.162 127.0.0.1 192.168.123.107
 
-2. Download sources
+2. Prepare build environment
 
-  python gub-builder.py -p linux download lilypond
+  make bootstrap
 
-
-3. Prepare build environment
-
-  3a. For Debian/Ubuntu
-
-    apt-get install \
-            bison distcc flex fontforge g++ gcc guile-devel icoutils mftrace \
-            nsis pkg-config potrace texinfo
-
-  3b. For RedHat, bootstrap as follows
-
-    python gub-builder.py -p local download flex mftrace potrace fontforge \
-	   guile pkg-config nsis icoutils
-    python gub-builder.py -p local build flex mftrace potrace fontforge \
-           guile pkg-config
-    make distccd
-    python gub-builder.py -p local build nsis icoutils
-
-  This creates all additional development packages needed for building
-  the releases on RedHat.
-
-4. Build all installers
+3. Build all installers
 
   make all
 
