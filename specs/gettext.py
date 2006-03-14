@@ -5,7 +5,7 @@ class Gettext (targetpackage.Target_package):
 	def __init__ (self, settings):
 		targetpackage.Target_package.__init__ (self, settings)
 		self.with (version='0.14.1-1', mirror=download.lp, format='bz2',
-			   depends=['libtool']),
+			   depends=['libtool'])
 
 	def configure_command (self):
 
@@ -63,4 +63,3 @@ class Gettext__darwin (Gettext):
 		## not necessary for 0.14.1
 		return re.sub (' --config-cache', '',
 			       Gettext.configure_command (self))
-

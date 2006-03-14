@@ -188,6 +188,15 @@ class Guile__darwin (Guile):
 class Guile__cygwin (Guile):
 	def __init__ (self, settings):
 		Guile.__init__ (self, settings)
+
+		# Cygwin's libintl.la uses libiconv.la from libiconv
+		# (which uses libiconv2, but libintl depends on that).
+		# So, Cygwin's guile build depends on libiconv.
+		self.with (version='1.8.0',
+			   mirror=download.gnu, format='gz',
+			   depends=['gettext', 'gmp', 'libtool'],
+			   builddeps=['libiconv'])
+
 		# FIXME: WIP.  splitting works, xpm can't handle split
 		# packages yet, xpm will try to load FOO.py for
 		# every split package FOO, eg: libguile17.py.
