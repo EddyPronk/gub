@@ -222,23 +222,30 @@ def main ():
 
 	(package_names, package_object_dict) = gup2.get_packages (settings,
 								  commands)
-	if c == 'download':
+	if c == 'download' or c == 'build':
 		def get_all_deps (name):
 			package = package_object_dict[name]
 			return (package.name_dependencies
 				+ package.name_build_dependencies)
 		deps = gup2.topologically_sorted (commands, {}, get_all_deps,
 						  None)
-		print 'deps: ' + `deps`
+		if options.verbose:
+			print 'deps:' + `deps`
+	if c == 'download':
 		for i in deps:
 			package_object_dict[i].do_download ()
 
 	elif c == 'build':
 		pm = gup2.get_target_manager (settings)
+		# FIXME: what happens here, {cross, cross_module}.packages
+		# are already added?
 		gup2.add_packages_to_manager (pm, settings, package_object_dict)
 		names = filter (package_object_dict.has_key, package_names)
-		print 'names:' + `names`
-		run_builder (settings, pm, names, package_object_dict)
+		# FIXME: Too many packages
+		# print 'names:' + `names`
+		# run_builder (settings, pm, names, package_object_dict)
+
+		run_builder (settings, pm, deps, package_object_dict)
 	else:
 		raise 'unknown driver command %s.' % c
 		cli_parser.print_help ()

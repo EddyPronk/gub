@@ -102,14 +102,24 @@ def get_cygwin_package (settings, name, dict):
 			'libtool1.5', 'libltdl3',
 			'libguile12', 'libguile16',
 			 ]
-		urg_source_deps_are_broken = ['guile', 'libtool']
+		#urg_source_deps_are_broken = ['guile', 'libtool']
 		#source += urg_source_deps_are_broken
+		# FIXME: These packages are not needed for [cross] building,
+		# but most should stay as distro's final install dependency.
 		unneeded = [
+			'bash',
+			'coreutils',
+			'ghostscript-base', 'ghostscript-x11',
 			'-update-info-dir',
-			'libXft', 'libXft1', 'libXft2',
+			'libxft', 'libxft1', 'libxft2',
 			'libbz2-1',
-			'X-startup-scripts',
+			'tcltk',
+			'x-startup-scripts',
+			'xaw3d',
 			'xorg-x11-bin-lndir',
+			'xorg-x11-etc',
+			'xorg-x11-fnts',
+			'xorg-x11-libs-data',
 			]
 		blacklist = cross + cycle + source + unneeded
 		deps = filter (lambda x: x not in blacklist, deps)
@@ -140,7 +150,7 @@ def get_cygwin_packages (settings, package_file):
 		lines = i.split ('\n')
 		name = lines[0].strip ()
 		name = name.lower ()
-		blacklist = ('binutils', 'gcc', 'guile', 'guile-devel', 'libguile12', 'libguile16', 'libtool', 'libtool1.5', 'libtool-devel', 'libltdl3')
+		blacklist = ('binutils', 'gcc', 'guile', 'guile-devel', 'libguile12', 'libguile16', 'libtool', 'libtool1.5', 'libtool-devel', 'libltdl3', 'lilypond')
 		if name in blacklist:
 			continue
 		packages = dists['curr']
