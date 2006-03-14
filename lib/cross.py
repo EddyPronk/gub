@@ -143,9 +143,9 @@ def get_cross_module (platform):
 	
 	return module
 
-def get_cross_packages (settings):
+def get_cross_packages (settings, names):
 	mod = get_cross_module (settings.platform)
-	return mod.get_packages (settings, [])
+	return mod.get_packages (settings, names)
 
 def get_cross_checksum (platform):
 	try:

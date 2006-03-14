@@ -38,7 +38,7 @@ class File_manager:
 		self._lock_file = open (lock_file, 'w')
 
 		try:
-			fcntl.flock (self._lock_file.fileno(),
+			fcntl.flock (self._lock_file.fileno (),
 				     fcntl.LOCK_EX | fcntl.LOCK_NB)
 		except IOError:
 			sys.stderr.write ("Can't acquire Package_manager lock %s\n\nAbort\n" % lock_file)
@@ -157,9 +157,9 @@ class Package_manager (File_manager):
 	def register_package_dict (self, d):
 		nm = d['name']
 		if (self._packages.has_key (nm)):
-			if self._packages[nm]['checksum'] <> d['checksum']:
+			if self._packages[nm]['checksum'] != d['checksum']:
 				self.os_interface.log_command ('******** checksum of %s changed!\n\n' % nm)
-			if self._packages[nm]['cross_checksum'] <> d['cross_checksum']:
+			if self._packages[nm]['cross_checksum'] != d['cross_checksum']:
 				self.os_interface.log_command ('******** checksum of cross changed for %s\n' % nm)
 			return
 
@@ -170,7 +170,7 @@ class Package_manager (File_manager):
 
 		d = pickle.loads (str)
 		if self._package_dict_db.has_key (d['name']):
-			if  str <> self._package_dict_db[d['name']]:
+			if str != self._package_dict_db[d['name']]:
 				self.os_interface.log_command ("package header changed for %(name)s" % d)
 
 			return
@@ -213,7 +213,7 @@ class Package_manager (File_manager):
 		return self._packages.has_key (package)
 
 def is_string (x):
-	return type(x) == type ('')
+	return type (x) == type ('')
 
 class Dependency_manager (Package_manager):
 
@@ -269,8 +269,7 @@ def topologically_sorted (todo, done, dependency_getter,
 	return s
 
 def get_packages (settings, todo):
-	cross_packages = cross.get_cross_packages (settings)
-
+	cross_packages = cross.get_cross_packages (settings, todo)
 	pack_dict = dict ((p.name (), p) for p in cross_packages)
 	package_names = pack_dict.keys ()
 
@@ -288,10 +287,6 @@ def get_packages (settings, todo):
 	package_names += topologically_sorted (todo, {}, get_deps)
 
 	def get_dep_packages (obj):
-		print 'get_dep_packages: ' + `obj.name ()`
-		#print 'kies: ' + `pack_dict.keys ()`
-		print 'name_deps: ' + `obj.name_dependencies`
-		#print 'build_deps: ' + `obj.name_build_dependencies`
 		return ([pack_dict[n] for n in obj.name_dependencies
 			 + obj.name_build_dependencies])
 

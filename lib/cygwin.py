@@ -103,11 +103,11 @@ def get_cygwin_package (settings, name, dict):
 			'libguile12', 'libguile16',
 			 ]
 		urg_source_deps_are_broken = ['guile', 'libtool']
-		source += urg_source_deps_are_broken
+		#source += urg_source_deps_are_broken
 		unneeded = [
-			'_update-info-dir',
+			'-update-info-dir',
 			'libXft', 'libXft1', 'libXft2',
-			'libbz2_1',
+			'libbz2-1',
 			'X-startup-scripts',
 			'xorg-x11-bin-lndir',
 			]

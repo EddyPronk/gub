@@ -59,32 +59,32 @@ strip-installer   - strip installer root
 package-installer - build installer binary
 
 """
-	p.description="Grand Unified Builder.  Specify --package-version to set build version"
+	p.description='Grand Unified Builder.  Specify --package-version to set build version'
 
 	p.add_option ('-B', '--branch', action='store',
-		      dest="lilypond_branch",
+		      dest='lilypond_branch',
 		      type='choice',
 		      default='HEAD',
 		      help='select lilypond branch [HEAD]',
 		      choices=['lilypond_2_6', 'HEAD'])
 	p.add_option ('', '--installer-version', action='store',
-		      default="0.0.0",
-		      dest="installer_version")
+		      default='0.0.0',
+		      dest='installer_version')
 	p.add_option ('', '--installer-build', action='store',
-		      default="0",
-		      dest="installer_build")
+		      default='0',
+		      dest='installer_build')
 	p.add_option ('-k', '--keep', action='store_true',
-		      dest="keep_build",
+		      dest='keep_build',
 		      default=None,
 		      help='leave build and src dir for inspection')
 	p.add_option ('-p', '--target-platform', action='store',
-		      dest="platform",
+		      dest='platform',
 		      type='choice',
 		      default=None,
 		      help='select target platform',
 		      choices=settings_mod.platforms.keys ())
 	p.add_option ('-s', '--setting', action='append',
-		      dest="settings",
+		      dest='settings',
 		      type='string',
 		      default=[],
 		      help='add a variable')
@@ -96,11 +96,11 @@ package-installer - build installer binary
 		      help='Add another distcc')
 	
 	p.add_option ('-V', '--verbose', action='store_true',
-		      dest="verbose")
+		      dest='verbose')
 	p.add_option ('', '--force-package', action='store_true',
 		      default=False,
-		      dest="force_package",
-		      help="allow packaging of tainted compiles" )
+		      dest='force_package',
+		      help='allow packaging of tainted compiles' )
 	return p
 
 def build_installer (settings, args):
@@ -149,14 +149,14 @@ def installer_command (c, settings, args):
 		raise 'unknown installer command', c
 	
 def run_builder (settings, manager, names, package_object_dict):
-	PATH = os.environ["PATH"]
+	PATH = os.environ['PATH']
 
 	## crossprefix is also necessary for building cross packages, such as GCC
-	os.environ["PATH"] = settings.expand ('%(crossprefix)s/bin:%(PATH)s',
+	os.environ['PATH'] = settings.expand ('%(crossprefix)s/bin:%(PATH)s',
 					      locals ())
 
 
-	## UGH -> double work, see cross.change_target_packages() ?
+	## UGH -> double work, see cross.change_target_packages () ?
 	sdk_pkgs = [p for p in package_object_dict.values ()
 		    if isinstance (p, gub.Sdk_package)]
 	cross_pkgs = [p for p in package_object_dict.values ()
@@ -168,7 +168,7 @@ def run_builder (settings, manager, names, package_object_dict):
 
 	if not settings.options.stage:
 		reved = names[:]
-		reved.reverse()
+		reved.reverse ()
 		for p in reved:
 			if (manager.is_installed (p) and
 			    not manager.is_installable (p)):
@@ -208,8 +208,9 @@ def main ():
 	## crossprefix is also necessary for building cross packages,
 	## such as GCC
 
-	PATH = os.environ["PATH"]
-	os.environ["PATH"] = settings.expand ('%(buildtools)s/bin:%(PATH)s', locals())
+	PATH = os.environ['PATH']
+	os.environ['PATH'] = settings.expand ('%(buildtools)s/bin:%(PATH)s',
+					      locals ())
 
 	## ugr: Alien is broken.
 	os.environ['PERLLIB'] = settings.expand ('%(buildtools)s/lib/perl5/site_perl/5.8.6/')
@@ -219,19 +220,25 @@ def main ():
 		installer_command (c, settings, commands)
 		return
 
-	(package_names, package_object_dict) = gup2.get_packages (settings, commands)
+	(package_names, package_object_dict) = gup2.get_packages (settings,
+								  commands)
 	if c == 'download':
-		for p in package_object_dict.values ():
-			p.do_download()
+		def get_all_deps (name):
+			package = package_object_dict[name]
+			return (package.name_dependencies
+				+ package.name_build_dependencies)
+		deps = gup2.topologically_sorted (commands, {}, get_all_deps,
+						  None)
+		print 'deps: ' + `deps`
+		for i in deps:
+			package_object_dict[i].do_download ()
 
-		return
-
-	if c == 'build':
+	elif c == 'build':
 		pm = gup2.get_target_manager (settings)
-		gup2.add_packages_to_manager (pm, settings,
-					      package_object_dict)
-		package_names = [p for p in package_names if package_object_dict.has_key (p)]
-		run_builder (settings, pm, package_names, package_object_dict)
+		gup2.add_packages_to_manager (pm, settings, package_object_dict)
+		names = filter (package_object_dict.has_key, package_names)
+		print 'names:' + `names`
+		run_builder (settings, pm, names, package_object_dict)
 	else:
 		raise 'unknown driver command %s.' % c
 		cli_parser.print_help ()
