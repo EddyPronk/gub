@@ -282,6 +282,7 @@ class Cygwin_package (Installer):
 		self.target_manager = target_manager
 	def create (self):
 		# FIND gub package object for NAME
+		print 'packs: ' + `self.target_manager._packages`
 		p = self.target_manager._packages[self._name]
 		# CREATE balls *-build.tar.bz2, NAME-build-scr.tar.bz2
 		# CREATE setup.hint files

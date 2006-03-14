@@ -291,8 +291,8 @@ tooldir=%(install_prefix)s
 		new_lt = self.expand ('%(system_root)s/usr/bin/libtool')
 
 		if os.path.exists (new_lt):
-			for lt in self.read_pipe ('find %(builddir)s -name libtool').split():
-				lt = lt.strip()
+			for lt in self.read_pipe ('find %(builddir)s -name libtool').split ():
+				lt = lt.strip ()
 				if not lt:
 					continue
 
@@ -300,7 +300,7 @@ tooldir=%(install_prefix)s
 				self.kill_libtool_installation_test (lt)
 				self.system ('chmod 755  %(lt)s', locals ())
 		else:
-			sys.stderr.write ("Cannot update libtool without libtools in system_root/usr/bin/.")
+			sys.stderr.write ('Cannot update libtool without libtools in system_root/usr/bin/.')
 
 	def install (self):
 		self.system ('''
