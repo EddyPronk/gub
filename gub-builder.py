@@ -231,6 +231,8 @@ def main ():
 						  None)
 		if options.verbose:
 			print 'deps:' + `deps`
+
+
 	if c == 'download':
 		for i in deps:
 			package_object_dict[i].do_download ()
@@ -240,10 +242,8 @@ def main ():
 		# FIXME: what happens here, {cross, cross_module}.packages
 		# are already added?
 		gup2.add_packages_to_manager (pm, settings, package_object_dict)
-		names = filter (package_object_dict.has_key, package_names)
-		# FIXME: Too many packages
-		# print 'names:' + `names`
-		# run_builder (settings, pm, names, package_object_dict)
+		deps = filter (package_object_dict.has_key, package_names)
+		deps = filter (pm.is_registered, deps)
 
 		run_builder (settings, pm, deps, package_object_dict)
 	else:
