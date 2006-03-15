@@ -17,6 +17,7 @@ sys.path.insert (0, 'lib/')
 import gub
 import settings as settings_mod
 import gup2
+import oslog
 
 def sort (lst):
 	list.sort (lst)
@@ -223,24 +224,22 @@ Defaults are taken from ./%(rc_file)s
 
 def main ():
 	options = Options ()
-	if not options.platform:
-		sys.stderr.write ('need platform setting, use -p option')
-		sys.stderr.write ('\n\n')
-		usage (options)
-		sys.exit (2)
-		
-	settings = settings_mod.Settings (options.platform)
-	settings.options = options
-	settings.lilypond_branch = options.BRANCH
 
 	if not options.ROOT:
+		if not options.platform:
+			sys.stderr.write ('need platform or root setting, use -p option')
+			sys.stderr.write ('\n\n')
+			usage (options)
+			sys.exit (2)
 		options.ROOT = ('target/%(platform)s/system'
 				% settings.__dict__)
-
-	target_manager = gup2.Dependency_manager (options.ROOT, settings.os_interface)
+		
+	target_manager = gup2.Dependency_manager (options.ROOT, oslog.Os_commands ("/dev/null"))
+	
 	if options.command == 'install':
-		target_manager.read_package_headers (settings.expand ('%(gub_uploads)s/'))
-		target_manager.read_package_headers (settings.expand ('%(gub_cross_uploads)s/'))
+		platform = options.platform
+		target_manager.read_package_headers ('uploads/%(platform)s/' % locals ())
+		target_manager.read_package_headers ('uploads/%(platform)s-cross/' % locals())
 	
 	if options.command:
 		commands = Command (target_manager, options)
