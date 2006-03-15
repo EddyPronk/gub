@@ -152,7 +152,12 @@ def get_cygwin_packages (settings, package_file):
 		lines = i.split ('\n')
 		name = lines[0].strip ()
 		name = name.lower ()
-		blacklist = ('binutils', 'gcc', 'guile', 'guile-devel', 'libguile12', 'libguile16', 'libtool', 'libtool1.5', 'libtool-devel', 'libltdl3', 'lilypond')
+		
+		blacklist = ('binutils', 'gcc', 'guile',
+			     'guile-devel', 'libguile12', 'libguile16',
+			     'libtool',
+			     'libtool1.5', 'libtool-devel', 'libltdl3', 'lilypond')
+		
 		if name in blacklist:
 			continue
 		packages = dists['curr']
@@ -187,6 +192,10 @@ def get_cygwin_packages (settings, package_file):
 			records[key] = value
 			j = j + 1
 		packages.append (get_cygwin_package (settings, name, records))
+
+	# debug
+	names = [p.name() for p in dists[dist]]
+	names.sort()
 
 	return dists[dist]
 
