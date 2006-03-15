@@ -438,6 +438,10 @@ rmdir %(split_root)s/usr/share || true
 	def gub_ball (self):
 		return '%(gub_uploads)s/%(gub_name)s'
 
+	@subst_method
+	def is_sdk_package (self):
+		return 'false'
+	
 	def package (self):
 		# naive tarball packages for now
 		self.system ('''
@@ -557,6 +561,10 @@ class Null_package (Package):
 class Sdk_package (Null_package):
 	def untar (self):
 		Package.untar (self)
+
+	## UGH: should store superclass names of each package.
+	def is_sdk_package (self):
+		return 'true'
 
 	def package (self):
 		self.system ('tar -C %(srcdir)s/ -czf %(gub_uploads)s/%(gub_name)s .')
