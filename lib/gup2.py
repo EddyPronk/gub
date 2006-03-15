@@ -23,15 +23,21 @@ from misc import *  # URG, fixme
 
 
 class File_manager:
-	def __init__ (self, root, os_interface):
+	def __init__ (self, root, os_interface, dbdir=None):
 		self.root = root
-		self.config = self.root + '/etc/xpm/'
+		if dbdir:
+			self.config = dbdir
+		else:
+			self.config = self.root + '/etc/xpm/'
+			
 		self.os_interface = os_interface
 		self.verbose = True
 		self.is_distro = False
 
 		if not os.path.isdir (self.config):
 			os_interface.system ('mkdir -p %s' % self.config)
+		if not os.path.isdir (self.root):
+			os_interface.system ('mkdir -p %s' % self.root)
 
 		lock_file = self.config + 'lock'
 		self._lock_file = open (lock_file, 'w')
@@ -143,8 +149,8 @@ class File_manager:
 		return names
 
 class Package_manager (File_manager):
-	def __init__ (self, root, os_interface):
-		File_manager.__init__ (self, root, os_interface)
+	def __init__ (self, root, os_interface, dbdir=None):
+		File_manager.__init__ (self, root, os_interface, dbdir)
 
 		self._package_dict_db = dbmodule.open (self.config
 						       + '/dicts.db', 'c')
@@ -211,6 +217,9 @@ class Package_manager (File_manager):
 	def is_registered (self, package):
 		return self._packages.has_key (package)
 
+	def package_dict (self, package_name):
+		return self._packages[package_name]
+	
 def is_string (x):
 	return type (x) == type ('')
 
@@ -218,8 +227,8 @@ class Dependency_manager (Package_manager):
 
 	"Manage packages that have dependencies and build_dependencies."
 
-	def __init__ (self, root, os_interface):
-		Package_manager.__init__ (self, root, os_interface)
+	def __init__ (self, root, os_interface, dbdir=None):
+		Package_manager.__init__ (self, root, os_interface, dbdir)
 		self.include_build_deps = True
 
 	def dependencies (self, name):
