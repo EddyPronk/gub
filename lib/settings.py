@@ -66,6 +66,7 @@ class Settings (Context):
 		
 		# INSTALLERS
 		self.installer_root = self.targetdir + '/installer'
+		self.installer_db = self.targetdir + '/installerdb'
 		##self.installer_uploads = self.targetdir + '/uploads'
 		self.installer_uploads = self.uploads
 		self.bundle_version = None

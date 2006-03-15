@@ -104,10 +104,12 @@ package-installer - build installer binary
 	return p
 
 def build_installer (settings, args):
-	os.system ('rm -rf %s' %  settings.installer_root)
+	settings.os_interface.system (settings.expand ('rm -rf %(installer_root)s'))
+	settings.os_interface.system (settings.expand ('rm -rf %(installer_db)s'))
+	
 	install_manager = gup2.Dependency_manager (settings.installer_root,
-						   settings.os_interface)
-
+						   settings.os_interface,
+						   dbdir=settings.installer_db)
 	install_manager.include_build_deps = False
 	install_manager.read_package_headers (settings.gub_uploads)
 	install_manager.read_package_headers (settings.gub_cross_uploads)
@@ -118,33 +120,44 @@ def build_installer (settings, args):
 	package_names = gup2.topologically_sorted (args, {},
 						   get_dep,
 						   None)
-	
+
+	def is_sdk (x):
+		try:
+			return install_manager.package_dict (p)['is_sdk_package'] == 'true'
+		except KeyError:
+			# ugh.
+			return (x in ['darwin-sdk', 'w32api', 'freebsd-runtime',
+				      'mingw-runtime', 'libc6', 'libc6-dev', 'linux-kernel-headers',
+				      ])
+		
+	package_names = [p for p in package_names
+			 if not is_sdk (p)]
+
 	for a in package_names:
 		install_manager.install_package (a)
 
-def strip_installer (settings, args):
-	install_manager = gup2.Dependency_manager (settings.installer_root,
-						   settings.os_interface)
-	for p in installer.get_installers (settings, install_manager, args):
+def strip_installer (settings, installers):
+	for p in installers:
 		settings.os_interface.log_command (' ** Stage: %s (%s)\n'
 						   % ('strip', p.name ()))
 		p.strip ()
 
-def package_installer (settings, args):
-	install_manager = gup2.Dependency_manager (settings.installer_root,
-						   settings.os_interface)
-	for p in installer.get_installers (settings, install_manager, args):
+def package_installer (settings, installers):
+	for p in installers:
 		settings.os_interface.log_command (' *** Stage: %s (%s)\n'
 						   % ('create', p.name ()))
 		p.create ()
 		
 def installer_command (c, settings, args):
-	if c == 'strip-installer':
-		strip_installer (settings, args)
-	elif c == 'package-installer':
-		package_installer (settings, args)
-	elif c == 'build-installer':
+	if c == 'build-installer':
 		build_installer (settings, args)
+		return
+	
+	installers = installer.get_installers (settings, args)
+	if c == 'strip-installer':
+		strip_installer (settings, installers)
+	elif c == 'package-installer':
+		package_installer (settings, installers)
 	else:
 		raise 'unknown installer command', c
 	
@@ -216,7 +229,7 @@ def main ():
 	os.environ['PERLLIB'] = settings.expand ('%(buildtools)s/lib/perl5/site_perl/5.8.6/')
 
 
-	if c in ('build-installer', 'strip-installer', 'package-installer'):
+	if c in ('clean-installer', 'build-installer', 'strip-installer', 'package-installer'):
 		installer_command (c, settings, commands)
 		return
 
