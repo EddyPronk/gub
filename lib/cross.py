@@ -20,6 +20,9 @@ class Cross_package (gub.Package):
 --with-sysroot=%(system_root)s/
 '''))
 
+	def compile_command (self):
+		return self.native_compile_command ()
+		
 	def install_command (self):
 		return '''make DESTDIR=%(install_root)s prefix=/usr/cross/ install'''
 	

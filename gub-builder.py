@@ -44,11 +44,11 @@ def add_options (settings, options):
 	settings.bundle_version = options.installer_version
 	settings.bundle_build = options.installer_build
 
-	hosts = []
-	for  h in options.distcc_hosts:
-		hosts += h.split (',')
-
-	settings.distcc_hosts = ' '.join (distcc.live_hosts (hosts))
+	def hosts (xs):
+		return reduce (lambda x,y: x+y,
+			       [ h.split (',') for h in xs], [])
+	settings.cross_distcc_hosts = ' '.join (distcc.live_hosts (hosts (options.cross_distcc_hosts)))
+	settings.native_distcc_hosts = ' '.join (distcc.live_hosts (hosts (options.native_distcc_hosts), port=3632))
 	
 def get_cli_parser ():
 	p = optparse.OptionParser ()
@@ -96,9 +96,14 @@ package-installer - build installer binary
 	p.add_option ('', '--stage', action='store',
 		      dest='stage', default=None,
 		      help='Force rebuild of stage')
-	p.add_option ('', '--distcc-host', action='append',
-		      dest='distcc_hosts', default=[],
-		      help='Add another distcc')
+	
+	p.add_option ('', '--cross-distcc-host', action='append',
+		      dest='cross_distcc_hosts', default=[],
+		      help='Add another cross compiling distcc host')
+
+	p.add_option ('', '--native-distcc-host', action='append',
+		      dest='native_distcc_hosts', default=[],
+		      help='Add another native distcc host')
 	
 	p.add_option ('-V', '--verbose', action='store_true',
 		      dest='verbose')

@@ -190,6 +190,20 @@ cd %(downloaddir)s/%(dir)s && cvs -q update -dAP -r %(version)s
 		return 'make'
 
 	@subst_method
+	def native_compile_command (self):
+		c = 'make'
+		if (self.settings.native_distcc_hosts):
+			jobs = '-j%d ' % (2*len (self.settings.native_distcc_hosts.split (' ')))
+
+			## do this a little complicated: we don't want a trace of
+			## distcc during configure.
+			c = 'DISTCC_HOSTS="%s" %s' % (self.settings.native_distcc_hosts , c)
+			c = 'PATH="%(native_distcc_bindir)s:$PATH" ' + c
+			
+		return c
+
+
+	@subst_method
         def gub_name (self):
 		return '%(name)s-%(version)s.%(platform)s.gub'
 

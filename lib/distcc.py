@@ -5,9 +5,7 @@ import re
 import telnetlib
 import socket
 
-port = 3633
-
-def live_hosts (hosts):
+def live_hosts (hosts, port = 3633):
 	live = []
 	for h in hosts:
 		try:
@@ -19,7 +17,7 @@ def live_hosts (hosts):
 		live.append ('%s:%d' % (h,port))
 
 	if live:
-		'DISTCC live hosts: ', live
+		print 'DISTCC live hosts: ', live
 	return live
 
 
