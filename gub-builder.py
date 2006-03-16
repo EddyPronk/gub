@@ -225,10 +225,6 @@ def main ():
 	os.environ['PATH'] = settings.expand ('%(buildtools)s/bin:%(PATH)s',
 					      locals ())
 
-	## ugr: Alien is broken.
-	os.environ['PERLLIB'] = settings.expand ('%(buildtools)s/lib/perl5/site_perl/5.8.6/')
-
-
 	if c in ('clean-installer', 'build-installer', 'strip-installer', 'package-installer'):
 		installer_command (c, settings, commands)
 		return
@@ -244,7 +240,6 @@ def main ():
 						  None)
 		if options.verbose:
 			print 'deps:' + `deps`
-
 
 	if c == 'download':
 		for i in deps:
