@@ -112,8 +112,8 @@ class File_manager:
 			if os.path.islink (f):
 				files.append (f)
 			elif (not os.path.exists (f)
-			    and not self.is_distro):
-				print 'xpm: uninstall: %s' % package
+			      and not self.is_distro):
+				print 'xpm: uninstall: %s' % name
 				print 'xpm: no such file: %s' % f
 				# should've dealt with this in install stage.
 			        print "\n\nBARF\n\n"
@@ -176,7 +176,7 @@ class Package_manager (File_manager):
 		d = pickle.loads (str)
 		if self._package_dict_db.has_key (d['name']):
 			if str != self._package_dict_db[d['name']]:
-				self.os_interface.log_command ("package header changed for %(name)s" % d)
+				self.os_interface.log_command ("package header changed for %(name)s\n" % d)
 
 			return
 
