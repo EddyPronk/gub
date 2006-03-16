@@ -76,9 +76,7 @@ cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS
 ''')
 		self.fixup_arch ()
 		targetpackage.Target_package.compile (self)
-		# URG
-#		self.system ('''cp -pv %(builddir)s/lib/gs_init.ps %(srcdir)s/lib/gs_init.ps''')
-
+		
 	def configure_command (self):
 		return (targetpackage.Target_package.configure_command (self)
 			+ misc.join_lines ('''

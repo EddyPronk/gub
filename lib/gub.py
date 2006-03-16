@@ -49,7 +49,7 @@ class Package (Os_context_wrapper):
 
 		stages = ['untar', 'patch',
 			  'configure', 'compile', 'install', 'split',
-			  'package', 'clean']
+			  'package', 'dump_header_file', 'clean']
 
 		tainted = False
 		for stage in stages:
@@ -190,6 +190,20 @@ cd %(downloaddir)s/%(dir)s && cvs -q update -dAP -r %(version)s
 		return 'make'
 
 	@subst_method
+	def native_compile_command (self):
+		c = 'make'
+		if (self.settings.native_distcc_hosts):
+			jobs = '-j%d ' % (2*len (self.settings.native_distcc_hosts.split (' ')))
+
+			## do this a little complicated: we don't want a trace of
+			## distcc during configure.
+			c = 'DISTCC_HOSTS="%s" %s %s' % (self.settings.native_distcc_hosts, c, jobs)
+			c = 'PATH="%(native_distcc_bindir)s:$PATH" ' + c
+			
+		return c
+
+
+	@subst_method
         def gub_name (self):
 		return '%(name)s-%(version)s.%(platform)s.gub'
 
@@ -199,7 +213,7 @@ cd %(downloaddir)s/%(dir)s && cvs -q update -dAP -r %(version)s
 
 	@subst_method
         def hdr_file (self):
-		return '%(gub_uploads)s/%(hdr_name)s.hdr'
+		return '%(gub_uploads)s/%(hdr_name)s'
 
 	@subst_method
 	def stamp_file (self):
@@ -291,8 +305,8 @@ tooldir=%(install_prefix)s
 		new_lt = self.expand ('%(system_root)s/usr/bin/libtool')
 
 		if os.path.exists (new_lt):
-			for lt in self.read_pipe ('find %(builddir)s -name libtool').split():
-				lt = lt.strip()
+			for lt in self.read_pipe ('find %(builddir)s -name libtool').split ():
+				lt = lt.strip ()
 				if not lt:
 					continue
 
@@ -300,7 +314,8 @@ tooldir=%(install_prefix)s
 				self.kill_libtool_installation_test (lt)
 				self.system ('chmod 755  %(lt)s', locals ())
 		else:
-			sys.stderr.write ("Cannot update libtool without libtools in system_root/usr/bin/.")
+			self.log_command ("Cannot update libtool without libtools in %(system_root)s/usr/bin/.")
+			raise 'barf'
 
 	def install (self):
 		self.system ('''
@@ -438,13 +453,16 @@ rmdir %(split_root)s/usr/share || true
 	def gub_ball (self):
 		return '%(gub_uploads)s/%(gub_name)s'
 
+	@subst_method
+	def is_sdk_package (self):
+		return 'false'
+	
 	def package (self):
 		# naive tarball packages for now
 		self.system ('''
 rm -f $(find %(install_root)s -name '*~')
 tar -C %(install_root)s -zcf %(gub_ball)s .
 ''')
-		self.dump_header_file ()
 		# WIP
 		available = dict (inspect.getmembers (self, callable))
 		for i in self.split_packages:
@@ -558,6 +576,10 @@ class Null_package (Package):
 class Sdk_package (Null_package):
 	def untar (self):
 		Package.untar (self)
+
+	## UGH: should store superclass names of each package.
+	def is_sdk_package (self):
+		return 'true'
 
 	def package (self):
 		self.system ('tar -C %(srcdir)s/ -czf %(gub_uploads)s/%(gub_name)s .')

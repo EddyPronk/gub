@@ -36,14 +36,8 @@ gcc_tooldir="%(crossprefix)s/%(target_architecture)s"
 '''))
 
 mirror = 'http://gnu.kookel.org/ftp/cygwin'
-def get_packages (settings, names):
-	p = gup2.Dependency_manager (settings.system_root, settings.os_interface)
-        url = mirror + '/setup.ini'
-	# FIXME: download/offline
-	downloaddir = settings.downloaddir
-	file = settings.downloaddir + '/setup.ini'
-	if not os.path.exists (file):
-		os.system ('wget -P %(downloaddir)s %(url)s' % locals ())
+def get_cross_packages (settings):
+
 	# FIXME: must add deps to buildeps, otherwise packages do not
 	# get built in correct dependency order?
 	cross_packs = [
@@ -57,8 +51,7 @@ def get_packages (settings, names):
 					   ),
 		]
 
-	return cross_packs + filter (lambda x: x.name () not in names,
-				     get_cygwin_packages (settings, file))
+	return cross_packs
 
 def change_target_packages (packages):
 	cross.change_target_packages (packages)
@@ -84,11 +77,11 @@ def get_cygwin_package (settings, name, dict):
 	Package = classobj (name, (gub.Binary_package,), {})
 	package = Package (settings)
 	if dict.has_key ('requires'):
-		deps = [x.strip () for x in 
-			    re.sub ('\([^\)]*\)', '',
-				    dict['requires']).split ()]
+		deps = re.sub ('\([^\)]*\)', '', dict['requires']).split ()
+		deps = [x.strip ().lower ().replace ('_', '-') for x in deps]
+		##print 'gcp: ' + `deps`
 		cross = [
-			'base-passwd', 'bintutils', 
+			'base-passwd', 'bintutils',
 			'gcc', 'gcc-core', 'gcc-g++',
 			'gcc-mingw', 'gcc-mingw-core', 'gcc-mingw-g++',
 			]
@@ -98,32 +91,63 @@ def get_cygwin_package (settings, name, dict):
 			'libtool1.5', 'libltdl3',
 			'libguile12', 'libguile16',
 			 ]
+		#urg_source_deps_are_broken = ['guile', 'libtool']
+		#source += urg_source_deps_are_broken
+		# FIXME: These packages are not needed for [cross] building,
+		# but most should stay as distro's final install dependency.
 		unneeded = [
-			'_update-info-dir',
-			'libXft', 'libXft1', 'libXft2',
-			'libbz2_1',
-			'X-startup-scripts',
+			'bash',
+			'coreutils',
+			'ghostscript-base', 'ghostscript-x11',
+			'-update-info-dir',
+			'libxft', 'libxft1', 'libxft2',
+			'libbz2-1',
+			'tcltk',
+			'x-startup-scripts',
+			'xaw3d',
 			'xorg-x11-bin-lndir',
+			'xorg-x11-etc',
+			'xorg-x11-fnts',
+			'xorg-x11-libs-data',
 			]
 		blacklist = cross + cycle + source + unneeded
 		deps = filter (lambda x: x not in blacklist, deps)
 		package.name_dependencies = deps
 		package.name_build_dependencies = deps
 	package.ball_version = dict['version']
+	def urg_version ():
+		return re.sub ('-.*', '', package.ball_version)
+	def urg_major_version ():
+		return re.sub ('([0-9]*.[0-9]*).*', '\\1', package.ball_version)
+	# URG
+	if name == 'ghostscript':
+		package.ghostscript_version = urg_version
+	elif name == 'guile':
+		package.guile_version = urg_version
+	elif name == 'python':
+		package.python_version = urg_major_version
+		
 	package.url = (mirror + '/'
 		       + dict['install'].split ()[0])
 	package.format = 'bz2'
 	return package
 
+## UGH.   should split into parsing  package_file and generating gub specs.
 def get_cygwin_packages (settings, package_file):
 	dist = 'curr'
-	
+
 	dists = {'test': [], 'curr': [], 'prev' : []}
 	chunks = open (package_file).read ().split ('\n\n@ ')
 	for i in chunks[1:]:
 		lines = i.split ('\n')
 		name = lines[0].strip ()
-		blacklist = ('binutils', 'gcc', 'guile', 'guile-devel', 'libguile12', 'libguile16', 'libtool', 'litool1.5' , 'libtool-devel', 'libltdl3')
+		name = name.lower ()
+		
+		blacklist = ('binutils', 'gcc', 'guile',
+			     'guile-devel', 'libguile12', 'libguile16',
+			     'libtool',
+			     'libtool1.5', 'libtool-devel', 'libltdl3', 'lilypond')
+		
 		if name in blacklist:
 			continue
 		packages = dists['curr']
@@ -145,7 +169,7 @@ def get_cygwin_packages (settings, package_file):
 
 			try:
 				key, value = [x.strip () for x in lines[j].split (': ', 1)]
-			except KeyError: ### UGH -> what kind of exceptino? 
+			except KeyError: ### UGH -> what kind of exceptino?
 				print lines[j], package_file
 				raise 'URG'
 			if (value.startswith ('"')
@@ -159,6 +183,39 @@ def get_cygwin_packages (settings, package_file):
 			j = j + 1
 		packages.append (get_cygwin_package (settings, name, records))
 
+	# debug
+	names = [p.name() for p in dists[dist]]
+	names.sort()
+
 	return dists[dist]
 
 
+
+class Cygwin_dependency_finder:
+	def __init__ (self, settings):
+		self.settings = settings
+		self.packages = {}
+		
+	def download (self):
+		url = mirror + '/setup.ini'
+		# FIXME: download/offline
+		downloaddir = self.settings.downloaddir
+		file = self.settings.downloaddir + '/setup.ini'
+		if not os.path.exists (file):
+			os.system ('wget -P %(downloaddir)s %(url)s' % locals ())
+
+		pack_list  = get_cygwin_packages (self.settings, file)
+		for p in pack_list:
+			self.packages[p.name()] = p
+
+	def get_dependencies (self, name):
+		return self.packages[name]
+		
+cygwin_dep_finder = None
+
+def init_cygwin_package_finder (settings):
+	global cygwin_dep_finder
+	cygwin_dep_finder  = Cygwin_dependency_finder (settings)
+	cygwin_dep_finder.download ()
+def cygwin_name_to_dependency_names (name):
+	return cygwin_dep_finder.get_dependencies (name)

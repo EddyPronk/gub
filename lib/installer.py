@@ -5,6 +5,7 @@ import time
 
 import darwintools
 import context
+import gup2
 
 from context import subst_method
 from misc import *
@@ -12,7 +13,7 @@ from misc import *
 class Installer (context.Os_context_wrapper):
 	def __init__ (self, settings):
 		context.Os_context_wrapper.__init__ (self, settings)
-		
+
 		self.settings = settings
 		self.strip_command = '%(crossprefix)s/bin/%(target_architecture)s-strip' 
 		self.no_binary_strip = []
@@ -38,7 +39,6 @@ class Installer (context.Os_context_wrapper):
 			delete_me += p + '%(i)s '
 
 		for i in (
-			'etc/xpm',
 			'bin/autopoint',
 			'bin/glib-mkenums',
 			'bin/guile-*',
@@ -144,8 +144,10 @@ class Darwin_bundle (Installer):
 	def create (self):
 		Installer.create (self)
 		rw = darwintools.Rewirer (self.settings)
+		
+		rw.set_ignore_libs (gup2.Dependency_manager (self.settings.system_root,
+							     self.settings.os_interface))
 		rw.rewire_root (self.settings.installer_root)
-
 
 		bundle_zip = self.expand ('%(uploads)s/lilypond-%(bundle_version)s-%(bundle_build)s.%(platform)s.zip')
 		self.system ('''
@@ -165,10 +167,8 @@ cp -pR --link %(installer_root)s/usr/* %(darwin_bundle_dir)s/Contents/Resources/
 			must_succeed=True)
 		self.system ('cd %(darwin_bundle_dir)s/../ && zip -yr %(bundle_zip)s LilyPond.app',
 			     locals ())
-
 		
 		self.log_command ("Created %(bundle_zip)s\n", locals()) 
-		
 		
 class Nsis (Installer):
 	def __init__ (self, settings):
@@ -181,12 +181,17 @@ class Nsis (Installer):
 		
 		# FIXME: build in separate nsis dir, copy or use symlink
 		installer = os.path.basename (self.settings.installer_root)
+
+		package_manager = gup2.Dependency_manager (self.settings.system_root,
+							   self.settings.os_interface)
+		
 		self.file_sub ([
-			('@GHOSTSCRIPT_VERSION@', '%(ghostscript_version)s'),
-			('@GUILE_VERSION@', '%(guile_version)s'),
+			('@GHOSTSCRIPT_VERSION@', package_manager.package_dict ('ghostscript')['version']),
+			
+			('@GUILE_VERSION@', package_manager.package_dict ('ghostscript')['version']),
 			('@LILYPOND_BUILD@', '%(bundle_build)s'),
 			('@LILYPOND_VERSION@', '%(bundle_version)s'),
-			('@PYTHON_VERSION@', '%(python_version)s'),
+			('@PYTHON_VERSION@', package_manager.package_dict ('python')['version']),
 			('@ROOT@', '%(installer)s'),
 			],
 			       '%(nsisdir)s/lilypond.nsi.in',
@@ -275,11 +280,12 @@ class Autopackage (Linux_installer):
 
 class Cygwin_package (Installer):
 	def __init__ (self, settings, target_manager, name):
-		Installer.__init__ (self, settings)
+		Installer.__init__ (self, settings, target_manager)
 		self._name = name
 		self.target_manager = target_manager
 	def create (self):
 		# FIND gub package object for NAME
+		print 'packs: ' + `self.target_manager._packages`
 		p = self.target_manager._packages[self._name]
 		# CREATE balls *-build.tar.bz2, NAME-build-scr.tar.bz2
 		# CREATE setup.hint files
@@ -318,7 +324,9 @@ cp -pv %(installer_root)s-%(package_name)s/etc/hints/%(hint)s %(cygwin_uploads)s
 	def name (self):
 		return self._name
 
-def get_installers (settings, target_manager, args=[]):
+def get_installers (settings, install_manager, args=[]):
+
+	## UGH : creating 6 instances of installer ?!
 	installers = {
 		'arm' : [Shar (settings)],
 		'darwin-ppc' : [Darwin_bundle (settings)],
@@ -330,5 +338,7 @@ def get_installers (settings, target_manager, args=[]):
 
 	if settings.platform == 'cygwin':
 		return map (lambda x:
-			    Cygwin_package (settings, target_manager, x), args)
+
+			    ## need install manager?
+			    Cygwin_package (settings, x), args)
 	return installers[settings.platform]

@@ -45,7 +45,7 @@ class Linux_kernel_headers (gub.Binary_package, gub.Sdk_package):
 /var/tmp/test-gub/target/linux/system/usr/lib/libstdc++.so: undefined reference to `___tls_get_addr'"""
 
 
-def get_packages (settings, names):
+def get_cross_packages (settings):
 	packages = [
 		Libc6 (settings).with (version='2.2.5-11.8', mirror=download.glibc_deb, format='deb'),
 		Libc6_dev (settings).with (version='2.2.5-11.8', mirror=download.glibc_deb, format='deb'),

@@ -7,6 +7,7 @@ import cross
 import download
 import gub
 
+darwin_sdk_version = '0.4'
 class Odcctools (cross.Cross_package):
 	def configure (self):
 		cross.Cross_package.configure (self)
@@ -24,10 +25,10 @@ class Darwin_sdk (gub.Sdk_package):
 			os_version = 8
 			
 		name = 'darwin%d-sdk' % os_version
-		ball_version = settings.darwin_sdk_version
+		ball_version = darwin_sdk_version
 		format = 'gz'
 		mirror = download.hw % locals()
-		self.with (version=settings.darwin_sdk_version,
+		self.with (version=darwin_sdk_version,
 			   mirror=mirror, format='gz')
 
 	def patch (self):
@@ -157,20 +158,18 @@ class Rewirer (context.Os_context_wrapper):
 			if os.path.isfile (f):
 				self.rewire_mach_o_object_executable_path(f)
 
-	def get_ignore_libs (self):
-		str = self.read_pipe ('''
-tar tfz %(gub_cross_uploads)s/darwin-sdk-%(darwin_sdk_version)s.%(platform)s.gub
-''')
-		d = {}
-		for l in str.split ('\n'):
-			l = l.strip ()
-			if re.match (r'^\./usr/lib/', l):
-				d[l[1:]] = True
-		return d
+	def set_ignore_libs (self, file_manager):
+		files = file_manager.installed_files ('darwin-sdk')
+
+		d = dict ((k.strip()[1:], True)
+			  for k in files
+			  if re.match (r'^\./usr/lib/', k))
+
+		self.ignore_libs = d  
 
 	def rewire_root (self, root):
 		if self.ignore_libs == None:
-			self.ignore_libs = self.get_ignore_libs ()
+			raise 'error: should init with file_manager.'
 
 		self.rewire_binary_dir (root + '/usr/lib')
 		# Ugh.
@@ -185,26 +184,8 @@ class Package_rewirer:
 	def rewire (self):
 		self.rewirer.rewire_root (self.package.install_root ())
 
-
-def add_rewire_path (settings, packages):
-	rewirer = Rewirer (settings)
-	for p in packages:
-		if p.name () == 'darwin-sdk':
-			continue
-
-		wr = Package_rewirer (rewirer, p)
-		p.postinstall = wr.rewire
-
-
-def get_packages (settings, names):
-
-	## Ugh, can we write settings?
-	settings.darwin_sdk_version = '0.4'
-	
+def get_cross_packages (settings):
 	packages = []
-	
-	
-
 	packages.append (Darwin_sdk (settings))
 		
 	packages += [Odcctools (settings).with (version='20051122', mirror=download.opendarwin, format='bz2'),

@@ -62,10 +62,12 @@ class Settings (Context):
 		self.crossprefix = self.system_root + '/usr/cross'
 		self.installdir = self.targetdir + '/install'
 		self.buildtools = self.topdir + '/target/local/system/usr/'
-		self.distcc_bindir = self.topdir + '/target/distcc/bin/'
+		self.cross_distcc_bindir = self.topdir + '/target/cross-distcc/bin/'
+		self.native_distcc_bindir = self.topdir + '/target/native-distcc/bin/'
 		
 		# INSTALLERS
 		self.installer_root = self.targetdir + '/installer'
+		self.installer_db = self.targetdir + '/installerdb'
 		##self.installer_uploads = self.targetdir + '/uploads'
 		self.installer_uploads = self.uploads
 		self.bundle_version = None

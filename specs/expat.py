@@ -5,7 +5,8 @@ import targetpackage
 class Expat (targetpackage.Target_package):
 	def __init__ (self, settings):
 		targetpackage.Target_package.__init__ (self, settings)
-		self.with (version='1.95.8-1', mirror=download.lp, format='bz2')
+		self.with (version='1.95.8-1', mirror=download.lp, format='bz2',
+			   depends=['libtool'])
 
 	def configure (self):
 		targetpackage.Target_package.configure (self)

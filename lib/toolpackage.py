@@ -14,10 +14,14 @@ class Tool_package (gub.Package):
 	def install_command (self):
 		return '''make DESTDIR=%(install_root)s prefix=/usr install'''
 
+	def compile_command (self):
+		return self.native_compile_command ()
+
 	def package (self):
 		self.system ('''
 tar -C %(install_root)s/ -zcf %(gub_uploads)s/%(gub_name)s .
 ''')
+
 	def get_substitution_dict (self, env={}):
 		dict = {
 			'C_INCLUDE_PATH': '%(buildtools)s/include',

@@ -7,7 +7,8 @@ from new import classobj
 
 mirror = 'http://ftp.de.debian.org/debian'
 
-def get_packages (settings, names):
+## FIXME FIXME 
+def get_cross_packages (settings):
 	p = gup2.Dependency_manager (settings.system_root, settings.os_interface)
         url = mirror + '/dists/unstable/main/binary-i386/Packages.gz'
 	
@@ -17,6 +18,8 @@ def get_packages (settings, names):
 	if not os.path.exists (file):
 		os.system ('wget -P %(downloaddir)s %(url)s' % locals ())
 		os.system ('gunzip  %(file)s.gz' % locals ())
+
+		## FIXME. names
 	return filter (lambda x: x.name () not in names, p.get_packages (file))
 
 def change_target_packages (packages):

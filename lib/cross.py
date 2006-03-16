@@ -5,6 +5,7 @@ import os
 import imp
 import md5
 
+from context import subst_method 
 class Cross_package (gub.Package):
 	"""Package for cross compilers/linkers etc.
 	"""
@@ -19,6 +20,9 @@ class Cross_package (gub.Package):
 --with-sysroot=%(system_root)s/
 '''))
 
+	def compile_command (self):
+		return self.native_compile_command ()
+		
 	def install_command (self):
 		return '''make DESTDIR=%(install_root)s prefix=/usr/cross/ install'''
 	
@@ -27,7 +31,7 @@ class Cross_package (gub.Package):
 		return c
 
         def hdr_file (self):
-		return '%(gub_cross_uploads)s/%(hdr_name)s.hdr'
+		return '%(gub_cross_uploads)s/%(hdr_name)s'
 
 class Binutils (Cross_package):
 	def install (self):
@@ -97,18 +101,14 @@ def change_target_packages (package_object_dict):
 	pass
 
 
-def get_cross_packages (settings):
-	mod = get_cross_module (settings.platform)
-
-	## ugh, how to handle cygwin names.
-	package_object_dict = dict ((p.name(), p) for p in mod.get_packages (settings, []))
-	
+def set_cross_dependencies (package_object_dict):
 	packs = package_object_dict.values ()
 	cross_packs = [p for p in packs if isinstance (p, Cross_package)]
 	sdk_packs = [p for p in packs if isinstance (p, gub.Sdk_package)]
 	other_packs = [p for p in packs if (not isinstance (p, Cross_package)
 					    and not isinstance (p, gub.Sdk_package)
 					    and not isinstance (p, gub.Binary_package))]
+	
 	for p in other_packs:
 		p.name_build_dependencies += map (lambda x: x.name (),
 						  cross_packs)
@@ -145,6 +145,10 @@ def get_cross_module (platform):
 	cross_module_checksums[platform] = md5.md5 (open (file_name).read ()).hexdigest ()
 	
 	return module
+
+def get_cross_packages (settings):
+	mod = get_cross_module (settings.platform)
+	return mod.get_cross_packages (settings)
 
 def get_cross_checksum (platform):
 	try:
