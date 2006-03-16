@@ -20,6 +20,9 @@ class Cross_package (gub.Package):
 --with-sysroot=%(system_root)s/
 '''))
 
+	def compile_command (self):
+		return self.native_compile_command ()
+		
 	def install_command (self):
 		return '''make DESTDIR=%(install_root)s prefix=/usr/cross/ install'''
 	
@@ -28,7 +31,7 @@ class Cross_package (gub.Package):
 		return c
 
         def hdr_file (self):
-		return '%(gub_cross_uploads)s/%(hdr_name)s.hdr'
+		return '%(gub_cross_uploads)s/%(hdr_name)s'
 
 class Binutils (Cross_package):
 	def install (self):

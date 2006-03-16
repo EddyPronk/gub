@@ -14,7 +14,8 @@ TEST_PLATFORMS=$(PLATFORMS)
 #  LILYPOND_BRANCH - the tag for this branch, or HEAD 
 #  BUILD_PLATFORM  - the platform used for building.
 #  GUB_DISTCC_ALLOW_HOSTS - which distcc daemons may connect.
-#  GUB_DISTCC_HOSTS - which distcc daemons may connect.
+#  GUB_CROSS_DISTCC_HOSTS - hosts with matching cross compilers
+#  GUB_NATIVE_DISTCC_HOSTS - hosts with matching native compilers
 
 
 include local.make
@@ -36,7 +37,8 @@ INSTALLER_BUILD:=$(shell python lilypondorg.py nextbuild $(LILYPOND_VERSION))
 INVOKE_DRIVER=python gub-builder.py \
 --target-platform $(1) \
 --branch $(LILYPOND_BRANCH) \
-$(foreach h,$(GUB_DISTCC_HOSTS), --distcc-host $(h))\
+$(foreach h,$(GUB_NATIVE_DISTCC_HOSTS), --native-distcc-host $(h))\
+$(foreach h,$(GUB_CROSS_DISTCC_HOSTS), --cross-distcc-host $(h))\
 --installer-version $(LILYPOND_VERSION) \
 --installer-build $(INSTALLER_BUILD) \
 $(LOCAL_DRIVER_OPTIONS)
@@ -93,7 +95,7 @@ clean:
 	rm -rf $(foreach p, $(PLATFORMS), target/*$(p)* )
 
 realclean:
-	rm -rf $(foreach p, $(PLATFORMS), uploads/$(p)/*  target/*$(p)* )
+	rm -rf $(foreach p, $(PLATFORMS), uploads/$(p)/* uploads/$(p)-cross/* target/*$(p)* )
 
 sources = GNUmakefile $(wildcard *.py specs/*.py)
 
@@ -108,7 +110,7 @@ cyg-apt.py: cyg-apt.py.in specs/cpm.py
 ## TODO: should LilyPond revision in targetname too.
 RUN_TEST=python test-gub.py --to hanwen@xs4all.nl --to janneke@gnu.org --smtp smtp.xs4all.nl 
 test:
-	rm -rf $(foreach p,$(TEST_PLATFORMS), uploads/$(p)/*  target/*$(p)* )
+	make realclean PLATFORMS="$(TEST_PLATFORMS)"
 	$(RUN_TEST) $(foreach p, $(TEST_PLATFORMS), "make $(p) from=$(BUILD_PLATFORM)")
 
 release-test:
@@ -123,20 +125,35 @@ freebsd-runtime:
 	ssh xs4all.nl tar -C / --exclude=zlib.h --exclude=zconf.h --exclude=gmp.h -czf public_html/freebsd-runtime-4.10-2.tar.gz /usr/lib/{lib{c,c_r,m}{.a,.so{,.*}},crt{i,n,1}.o} /usr/include
 
 
-DISTCC_DIRS=target/distcc/bin/  target/distccd/bin/
-distccd:
-	$(foreach p, $(PLATFORMS),$(call INVOKE_DRIVER, $(p)) build gcc && ) true
-	chmod +x lib/distcc.py
-	rm -rf $(DISTCC_DIRS)
-	-$(if $(wildcard log/distccd.pid),kill `cat log/distccd.pid`, true)
-	mkdir -p $(DISTCC_DIRS)
-	ln -s $(foreach p,$(PLATFORMS),$(wildcard $(CWD)/target/$(p)/system/usr/cross/bin/*)) target/distccd/bin
-	$(foreach binary,$(foreach p,$(PLATFORMS), $(wildcard target/$(p)/system/usr/cross/bin/*)), \
-		ln -s $(CWD)/lib/distcc.py target/distcc/bin/$(notdir $(binary)) && ) true
+DISTCC_DIRS=target/cross-distcc/bin/  target/cross-distccd/bin/ target/native-distcc/bin/ 
 
-	DISTCCD_PATH=$(CWD)/target/distccd/bin distccd --daemon $(addprefix --allow ,$(GUB_DISTCC_ALLOW_HOSTS)) \
-		--daemon --port 3633 --pid-file $(CWD)/log/distccd.pid \
-		--log-file $(CWD)/log/distccd.log  --log-level info
+distccd: clean-distccd cross-distccd native-distccd local-distcc
+
+clean-distccd:
+	rm -rf $(DISTCC_DIRS)
+	mkdir -p $(DISTCC_DIRS)
+
+local-distcc:
+	chmod +x lib/distcc.py
+	$(foreach binary,$(foreach p,$(PLATFORMS), $(wildcard target/$(p)/system/usr/cross/bin/*)), \
+		ln -s $(CWD)/lib/distcc.py target/cross-distcc/bin/$(notdir $(binary)) && ) true
+	$(foreach binary, gcc g++, \
+		ln -s $(CWD)/lib/distcc.py target/native-distcc/bin/$(notdir $(binary)) && ) true
+
+cross-distccd:
+	$(foreach p, $(PLATFORMS),$(call INVOKE_DRIVER, $(p)) build gcc && ) true
+	-$(if $(wildcard log/$@.pid),kill `cat log/$@.pid`, true)
+	ln -s $(foreach p,$(PLATFORMS),$(wildcard $(CWD)/target/$(p)/system/usr/cross/bin/*)) target/cross-distccd/bin
+
+	DISTCCD_PATH=$(CWD)/target/cross-distccd/bin distccd --daemon $(addprefix --allow ,$(GUB_DISTCC_ALLOW_HOSTS)) \
+		--port 3633 --pid-file $(CWD)/log/$@.pid \
+		--log-file $(CWD)/log/cross-distccd.log  --log-level info
+
+native-distccd:
+	-$(if $(wildcard log/$@.pid),kill `cat log/$@.pid`, true)
+	distccd --daemon $(addprefix --allow ,$(GUB_DISTCC_ALLOW_HOSTS)) \
+		--port 3634 --pid-file $(CWD)/log/$@.pid \
+		--log-file $(CWD)/log/$@.log  --log-level info
 
 
 NATIVE_TARGET_DIR=$(CWD)/target/$(BUILD_PLATFORM)/
@@ -150,9 +167,10 @@ doc-clean:
 			DOCUMENTATION=yes web-clean
 
 doc:
-	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_BRANCH) \
-		LILYPOND_EXTERNAL_BINARY=$(NATIVE_TARGET_DIR)/system/usr/bin/lilypond \
-		DOCUMENTATION=yes web 
+	unset LILYPONDPREFIX \
+	  && make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_BRANCH)  \
+	  LILYPOND_EXTERNAL_BINARY=$(NATIVE_TARGET_DIR)/system/usr/bin/lilypond \
+	  DOCUMENTATION=yes web 
 	tar -C target/$(BUILD_PLATFORM)/build/lilypond-$(LILYPOND_BRANCH)/out-www/web-root/ -cjf $(CWD)/uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).documentation.tar.bz2 .
 
 

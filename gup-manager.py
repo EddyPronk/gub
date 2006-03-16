@@ -231,8 +231,8 @@ def main ():
 			sys.stderr.write ('\n\n')
 			usage (options)
 			sys.exit (2)
-		options.ROOT = ('target/%(platform)s/system'
-				% settings.__dict__)
+		options.ROOT = ('target/%s/system'
+				% options.platform)
 		
 	target_manager = gup2.Dependency_manager (options.ROOT, oslog.Os_commands ("/dev/null"))
 	

@@ -1,4 +1,4 @@
-def get_packages (settings, names):
+def get_cross_packages (settings):
 	return []
 
 def change_target_packages (bla):

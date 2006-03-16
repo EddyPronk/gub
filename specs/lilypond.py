@@ -165,6 +165,8 @@ class LilyPond__mingw (LilyPond__cygwin):
 
 		## for console: no -mwindows
 		self.file_sub ([(' -mwindows', ' '),
+
+				## gdb doesn't work on windows anyway.
 				(' -g ', ' '),
 				],
 			       '%(builddir)s/config.make')
@@ -235,9 +237,9 @@ class LilyPond__darwin (LilyPond):
 			return
 		self.file_sub ([('CONFIG_CXXFLAGS = ',
 				 'CONFIG_CXXFLAGS = -DGUILE_ELLIPSIS=... '),
+
+## optionally: switch off for debugging.
 #				(' -O2 ', '')
-## ugh. this will break if other progs use -g too
-				(' -g ', ' ')
 				],
 			       '%(builddir)s/config.make')
 

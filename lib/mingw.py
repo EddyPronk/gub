@@ -7,21 +7,11 @@ import cross
 
 class Gcc (cross.Gcc):
 	def patch (self):
-		self.system ('''
-mkdir -p %(crossprefix)s/%(target_architecture)s
-tar -C %(system_root)s/usr -cf- include lib | tar -C %(crossprefix)s/%(target_architecture)s -xf-
-''')
-
 		for f in ['%(srcdir)s/gcc/config/i386/mingw32.h',
 			  '%(srcdir)s/gcc/config/i386/t-mingw32']:
-			self.file_sub ([('/mingw/include','/usr/include')], f)
-
-	def install (self):
-		cross.Gcc.install (self)
-		self.system ('''
-mkdir -p %(install_root)s/%(crossprefix)s/%(target_architecture)s
-tar -C %(system_root)s/usr -cf- include lib | tar -C %(install_root)s/%(crossprefix)s/%(target_architecture)s -xf-
-''')
+			self.file_sub ([('/mingw/include','/usr/include'),
+					('/mingw/lib','/usr/lib'),
+					], f)
 
 # UGH: MI
 class Mingw_runtime (gub.Binary_package, gub.Sdk_package):
