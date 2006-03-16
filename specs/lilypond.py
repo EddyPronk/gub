@@ -239,7 +239,7 @@ class LilyPond__darwin (LilyPond):
 				 'CONFIG_CXXFLAGS = -DGUILE_ELLIPSIS=... '),
 
 ## optionally: switch off for debugging.
-				(' -O2 ', '')
+#				(' -O2 ', '')
 				],
 			       '%(builddir)s/config.make')
 
