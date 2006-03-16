@@ -43,7 +43,12 @@ def add_options (settings, options):
 	settings.lilypond_branch = options.lilypond_branch
 	settings.bundle_version = options.installer_version
 	settings.bundle_build = options.installer_build
-	settings.distcc_hosts = ' '.join (distcc.live_hosts (options.distcc_hosts))
+
+	hosts = []
+	for  h in options.distcc_hosts:
+		hosts += h.split (',')
+
+	settings.distcc_hosts = ' '.join (distcc.live_hosts (hosts))
 	
 def get_cli_parser ():
 	p = optparse.OptionParser ()
