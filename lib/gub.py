@@ -197,7 +197,7 @@ cd %(downloaddir)s/%(dir)s && cvs -q update -dAP -r %(version)s
 
 			## do this a little complicated: we don't want a trace of
 			## distcc during configure.
-			c = 'DISTCC_HOSTS="%s" %s' % (self.settings.native_distcc_hosts , c)
+			c = 'DISTCC_HOSTS="%s" %s %s' % (self.settings.native_distcc_hosts, c, jobs)
 			c = 'PATH="%(native_distcc_bindir)s:$PATH" ' + c
 			
 		return c
