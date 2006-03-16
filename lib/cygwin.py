@@ -36,15 +36,8 @@ gcc_tooldir="%(crossprefix)s/%(target_architecture)s"
 '''))
 
 mirror = 'http://gnu.kookel.org/ftp/cygwin'
-def get_packages (settings, names):
-	p = gup2.Dependency_manager (settings.system_root,
-				     settings.os_interface)
-        url = mirror + '/setup.ini'
-	# FIXME: download/offline
-	downloaddir = settings.downloaddir
-	file = settings.downloaddir + '/setup.ini'
-	if not os.path.exists (file):
-		os.system ('wget -P %(downloaddir)s %(url)s' % locals ())
+def get_cross_packages (settings):
+
 	# FIXME: must add deps to buildeps, otherwise packages do not
 	# get built in correct dependency order?
 	cross_packs = [
@@ -58,8 +51,7 @@ def get_packages (settings, names):
 					   ),
 		]
 
-	return cross_packs + filter (lambda x: x.name () not in names,
-				     get_cygwin_packages (settings, file))
+	return cross_packs
 
 def change_target_packages (packages):
 	cross.change_target_packages (packages)
@@ -78,6 +70,7 @@ import gup2
 from new import classobj
 import gub
 import re
+import string
 
 mirror = 'http://gnu.kookel.org/ftp/cygwin'
 
@@ -85,11 +78,8 @@ def get_cygwin_package (settings, name, dict):
 	Package = classobj (name, (gub.Binary_package,), {})
 	package = Package (settings)
 	if dict.has_key ('requires'):
-		import string
 		deps = re.sub ('\([^\)]*\)', '', dict['requires']).split ()
-		deps = map (string.strip, deps)
-		deps = map (string.lower, deps)
-		deps = map (lambda x: re.sub ('_', '-', x), deps)
+		deps = [x.strip ().lower ().replace ('_', '-') for x in deps]
 		##print 'gcp: ' + `deps`
 		cross = [
 			'base-passwd', 'bintutils',
@@ -121,7 +111,7 @@ def get_cygwin_package (settings, name, dict):
 			'xorg-x11-fnts',
 			'xorg-x11-libs-data',
 			]
-		blacklist = cross + cycle + source + unneeded
+		blacklist = cross  ##  + cycle + source + unneeded
 		deps = filter (lambda x: x not in blacklist, deps)
 		package.name_dependencies = deps
 		package.name_build_dependencies = deps
@@ -143,6 +133,7 @@ def get_cygwin_package (settings, name, dict):
 	package.format = 'bz2'
 	return package
 
+## UGH.   should split into parsing  package_file and generating gub specs.
 def get_cygwin_packages (settings, package_file):
 	dist = 'curr'
 
@@ -200,3 +191,32 @@ def get_cygwin_packages (settings, package_file):
 	return dists[dist]
 
 
+
+class Cygwin_dependency_finder:
+	def __init__ (self, settings):
+		self.settings = settings
+		self.packages = {}
+		
+	def download (self):
+		url = mirror + '/setup.ini'
+		# FIXME: download/offline
+		downloaddir = self.settings.downloaddir
+		file = self.settings.downloaddir + '/setup.ini'
+		if not os.path.exists (file):
+			os.system ('wget -P %(downloaddir)s %(url)s' % locals ())
+
+		pack_list  = get_cygwin_packages (self.settings, file)
+		for p in pack_list:
+			self.packages[p.name()] = p
+
+	def get_dependencies (self, name):
+		return self.packages[name]
+		
+cygwin_dep_finder = None
+
+def init_cygwin_package_finder (settings):
+	global cygwin_dep_finder
+	cygwin_dep_finder  = Cygwin_dependency_finder (settings)
+	cygwin_dep_finder.download ()
+def cygwin_name_to_dependency_names (name):
+	return cygwin_dep_finder.get_dependencies (name)
