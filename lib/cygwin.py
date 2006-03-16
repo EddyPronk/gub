@@ -70,7 +70,6 @@ import gup2
 from new import classobj
 import gub
 import re
-import string
 
 mirror = 'http://gnu.kookel.org/ftp/cygwin'
 
