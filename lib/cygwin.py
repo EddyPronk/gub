@@ -110,7 +110,7 @@ def get_cygwin_package (settings, name, dict):
 			'xorg-x11-fnts',
 			'xorg-x11-libs-data',
 			]
-		blacklist = cross  ##  + cycle + source + unneeded
+		blacklist = cross + cycle + source + unneeded
 		deps = filter (lambda x: x not in blacklist, deps)
 		package.name_dependencies = deps
 		package.name_build_dependencies = deps

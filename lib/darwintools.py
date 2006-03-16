@@ -25,7 +25,7 @@ class Darwin_sdk (gub.Sdk_package):
 			os_version = 8
 			
 		name = 'darwin%d-sdk' % os_version
-		ball_version = settings.darwin_sdk_version
+		ball_version = darwin_sdk_version
 		format = 'gz'
 		mirror = download.hw % locals()
 		self.with (version=darwin_sdk_version,
