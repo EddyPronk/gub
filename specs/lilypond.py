@@ -235,9 +235,9 @@ class LilyPond__darwin (LilyPond):
 			return
 		self.file_sub ([('CONFIG_CXXFLAGS = ',
 				 'CONFIG_CXXFLAGS = -DGUILE_ELLIPSIS=... '),
-#				(' -O2 ', '')
-## ugh. this will break if other progs use -g too
-#				(' -g ', ' ')
+
+## optionally: switch off for debugging.
+				(' -O2 ', '')
 				],
 			       '%(builddir)s/config.make')
 
