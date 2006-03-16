@@ -165,6 +165,8 @@ class LilyPond__mingw (LilyPond__cygwin):
 
 		## for console: no -mwindows
 		self.file_sub ([(' -mwindows', ' '),
+
+				## gdb doesn't work on windows anyway.
 				(' -g ', ' '),
 				],
 			       '%(builddir)s/config.make')
