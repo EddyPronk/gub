@@ -237,7 +237,7 @@ class LilyPond__darwin (LilyPond):
 				 'CONFIG_CXXFLAGS = -DGUILE_ELLIPSIS=... '),
 #				(' -O2 ', '')
 ## ugh. this will break if other progs use -g too
-				(' -g ', ' ')
+#				(' -g ', ' ')
 				],
 			       '%(builddir)s/config.make')
 
