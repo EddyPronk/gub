@@ -167,9 +167,10 @@ doc-clean:
 			DOCUMENTATION=yes web-clean
 
 doc:
-	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_BRANCH) \
-		LILYPOND_EXTERNAL_BINARY=$(NATIVE_TARGET_DIR)/system/usr/bin/lilypond \
-		DOCUMENTATION=yes web 
+	unset LILYPONDPREFIX \
+	  && make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_BRANCH)  \
+	  LILYPOND_EXTERNAL_BINARY=$(NATIVE_TARGET_DIR)/system/usr/bin/lilypond \
+	  DOCUMENTATION=yes web 
 	tar -C target/$(BUILD_PLATFORM)/build/lilypond-$(LILYPOND_BRANCH)/out-www/web-root/ -cjf $(CWD)/uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).documentation.tar.bz2 .
 
 
