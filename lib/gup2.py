@@ -18,7 +18,7 @@ import framework
 import gub
 import targetpackage
 from misc import *  # URG, fixme
-
+import cygwin
 
 
 
@@ -263,6 +263,8 @@ def topologically_sorted_one (todo, done, dependency_getter,
 		if recurse_stop_predicate and recurse_stop_predicate (d):
 			continue
 
+		assert type(d) == type (todo)
+		
 		sorted += topologically_sorted_one (d, done, dependency_getter,
 						    recurse_stop_predicate=recurse_stop_predicate)
 
@@ -278,39 +280,68 @@ def topologically_sorted (todo, done, dependency_getter,
 
 	return s
 
-def get_packages (settings, todo):
-	cross_packages = cross.get_cross_packages (settings, todo)
-	pack_dict = dict ((p.name (), p) for p in cross_packages)
-	package_names = pack_dict.keys ()
 
-	def get_deps (name):
+################################################################
+# UGH
+# this is too hairy. --hwn
+def get_packages (settings, todo):
+	cross_packages = cross.get_cross_packages (settings)
+	pack_dict = dict ((p.name (), p) for p in cross_packages)
+
+
+	def name_to_dependencies_via_gub (name):
 		try:
 			pack = pack_dict[name]
 		except KeyError:
-			pack = targetpackage.load_target_package (settings,
-								  name)
+			pack = targetpackage.load_target_package (settings, name)
 			pack_dict[name] = pack
 
 		retval = pack.name_dependencies + pack.name_build_dependencies
 		return retval
 
-	package_names += topologically_sorted (todo, {}, get_deps)
+	def name_to_dependencies_via_cygwin (name):
+		try:
+			pack = pack_dict [name]
+		except KeyError:
+			try:
+				pack = cygwin.cygwin_name_to_dependency_names (name)
+			except KeyError:
+				pack = targetpackage.load_target_package (settings, name)
 
-	def get_dep_packages (obj):
-		return ([pack_dict[n] for n in obj.name_dependencies
-			 + obj.name_build_dependencies])
+		pack_dict[name] = pack
 
-	package_objs = topologically_sorted (pack_dict.values (), {},
-					     get_dep_packages)
+		return pack.name_dependencies + pack.name_build_dependencies
+
+	todo += pack_dict.keys ()
+
+	name_to_deps = name_to_dependencies_via_gub
+	if settings.platform == 'cygwin':
+		cygwin.init_cygwin_package_finder (settings)
+		name_to_deps = name_to_dependencies_via_cygwin
+		
+	package_names = topologically_sorted (todo, {}, name_to_deps)
+	pack_dict = dict ((n,pack_dict[n]) for n in package_names)
+
 	cross.set_cross_dependencies (pack_dict)
 
 	## sort for cross deps too.
+
+	def obj_to_dependency_objects (obj):
+		return [pack_dict[n] for n in obj.name_dependencies
+			+ obj.name_build_dependencies]
+	
 	package_objs = topologically_sorted (pack_dict.values (), {},
-					     get_dep_packages)
+					     obj_to_dependency_objects)
 
 	framework.version_fixups (settings, package_objs)
 
 	return ([o.name () for o in package_objs], pack_dict)
+
+
+
+
+
+
 
 def get_target_manager (settings):
 	target_manager = Dependency_manager (settings.system_root,
