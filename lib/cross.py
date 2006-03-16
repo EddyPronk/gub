@@ -31,7 +31,7 @@ class Cross_package (gub.Package):
 		return c
 
         def hdr_file (self):
-		return '%(gub_cross_uploads)s/%(hdr_name)s.hdr'
+		return '%(gub_cross_uploads)s/%(hdr_name)s'
 
 class Binutils (Cross_package):
 	def install (self):
