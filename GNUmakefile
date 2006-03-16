@@ -37,7 +37,8 @@ INSTALLER_BUILD:=$(shell python lilypondorg.py nextbuild $(LILYPOND_VERSION))
 INVOKE_DRIVER=python gub-builder.py \
 --target-platform $(1) \
 --branch $(LILYPOND_BRANCH) \
-$(foreach h,$(GUB_DISTCC_HOSTS), --distcc-host $(h))\
+$(foreach h,$(GUB_NATIVE_DISTCC_HOSTS), --native-distcc-host $(h))\
+$(foreach h,$(GUB_CROSS_DISTCC_HOSTS), --cross-distcc-host $(h))\
 --installer-version $(LILYPOND_VERSION) \
 --installer-build $(INSTALLER_BUILD) \
 $(LOCAL_DRIVER_OPTIONS)
@@ -142,9 +143,9 @@ local-distcc:
 cross-distccd:
 	$(foreach p, $(PLATFORMS),$(call INVOKE_DRIVER, $(p)) build gcc && ) true
 	-$(if $(wildcard log/$@.pid),kill `cat log/$@.pid`, true)
-	ln -s $(foreach p,$(PLATFORMS),$(wildcard $(CWD)/target/$(p)/system/usr/cross/bin/*)) target/distccd/bin
+	ln -s $(foreach p,$(PLATFORMS),$(wildcard $(CWD)/target/$(p)/system/usr/cross/bin/*)) target/cross-distccd/bin
 
-	DISTCCD_PATH=$(CWD)/target/distccd/bin distccd --daemon $(addprefix --allow ,$(GUB_DISTCC_ALLOW_HOSTS)) \
+	DISTCCD_PATH=$(CWD)/target/cross-distccd/bin distccd --daemon $(addprefix --allow ,$(GUB_DISTCC_ALLOW_HOSTS)) \
 		--port 3633 --pid-file $(CWD)/log/$@.pid \
 		--log-file $(CWD)/log/cross-distccd.log  --log-level info
 
