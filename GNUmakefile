@@ -125,7 +125,7 @@ freebsd-runtime:
 	ssh xs4all.nl tar -C / --exclude=zlib.h --exclude=zconf.h --exclude=gmp.h -czf public_html/freebsd-runtime-4.10-2.tar.gz /usr/lib/{lib{c,c_r,m}{.a,.so{,.*}},crt{i,n,1}.o} /usr/include
 
 
-DISTCC_DIRS=target/cross-distcc/bin/  target/distccd/bin/ target/native-distcc/bin/ 
+DISTCC_DIRS=target/cross-distcc/bin/  target/cross-distccd/bin/ target/native-distcc/bin/ 
 
 distccd: clean-distccd cross-distccd native-distccd local-distcc
 
