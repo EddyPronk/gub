@@ -11,7 +11,7 @@ import targetpackage
 class Arm_runtime (gub.Binary_package, gub.Sdk_package):
 	pass
 
-def get_packages (settings, names):
+def get_cross_packages (settings):
 	return (
 		linux.Libc6 (settings).with (version='2.2.5-11.8', mirror=download.glibc_deb, format='deb'),
 		linux.Libc6_dev (settings).with (version='2.2.5-11.8', mirror=download.glibc_deb, format='deb'),

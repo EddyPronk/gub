@@ -61,7 +61,7 @@ class W32api (gub.Binary_package, gub.Sdk_package):
 		self.system ('cd %(srcdir)s/root && mv * usr',
 			     ignore_error=True)
 
-def get_packages (settings, names):
+def get_cross_packages (settings, names):
 	return [cross.Binutils (settings).with (version='2.16.1', format='bz2'),
 		Gcc (settings).with (version='4.1.0',
 				     mirror=download.gcc_41,

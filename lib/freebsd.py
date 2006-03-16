@@ -30,7 +30,7 @@ class Freebsd_runtime (gub.Binary_package, gub.Sdk_package):
 	def patch (self):
 		self.system ('rm -rf %(srcdir)s/root/usr/include/g++')
 
-def get_packages (settings, names):
+def get_cross_packages (settings):
 	return (
 		Freebsd_runtime (settings).with (version='4.10-2', mirror=download.jantien),
 		Binutils (settings).with (version='2.16.1', format='bz2'),

@@ -7,6 +7,7 @@ import cross
 import download
 import gub
 
+darwin_sdk_version = '0.4'
 class Odcctools (cross.Cross_package):
 	def configure (self):
 		cross.Cross_package.configure (self)
@@ -27,7 +28,7 @@ class Darwin_sdk (gub.Sdk_package):
 		ball_version = settings.darwin_sdk_version
 		format = 'gz'
 		mirror = download.hw % locals()
-		self.with (version=settings.darwin_sdk_version,
+		self.with (version=darwin_sdk_version,
 			   mirror=mirror, format='gz')
 
 	def patch (self):
@@ -183,15 +184,8 @@ class Package_rewirer:
 	def rewire (self):
 		self.rewirer.rewire_root (self.package.install_root ())
 
-def get_packages (settings, names):
-
-	## Ugh, can we write settings?
-	settings.darwin_sdk_version = '0.4'
-	
+def get_cross_packages (settings):
 	packages = []
-	
-	
-
 	packages.append (Darwin_sdk (settings))
 		
 	packages += [Odcctools (settings).with (version='20051122', mirror=download.opendarwin, format='bz2'),
