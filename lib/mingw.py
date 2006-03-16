@@ -13,13 +13,6 @@ class Gcc (cross.Gcc):
 					('/mingw/lib','/usr/lib'),
 					], f)
 
-	def xinstall (self):
-		cross.Gcc.install (self)
-		self.system ('''
-mkdir -p %(install_root)s/%(crossprefix)s/%(target_architecture)s
-tar -C %(system_root)s/usr -cf- include lib | tar -C %(install_root)s/%(crossprefix)s/%(target_architecture)s -xf-
-''')
-
 # UGH: MI
 class Mingw_runtime (gub.Binary_package, gub.Sdk_package):
 	def untar (self):
