@@ -21,7 +21,7 @@ tar -C %(system_root)s/usr -cf- include lib | tar -C %(crossprefix)s/%(target_ar
 		crossdir = re.sub (self.settings.system_root, '',
 				   self.settings.crossprefix)
 		self.system ('''
-mkdir -p %(install_root)s/%(crossprefix)s/%(target_architecture)s
+mkdir -p %(install_root)s/%(crossdir)s/%(target_architecture)s
 tar -C %(system_root)s/usr -cf- include lib | tar -C %(install_root)s/%(crossdir)s/%(target_architecture)s -xf-
 ''', locals ())
 
