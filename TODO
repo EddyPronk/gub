@@ -3,11 +3,13 @@ lagere prioriteit
 
 - src packages.
 
-- use checksumming to tag .gub files.
-
 - trip test.
 
-- move patches upstream, eg. libpng
+- move patches upstream, eg.
+
+  * libpng
+  * python x-compile.
+  * cygwin GCC
 
 web:
 
