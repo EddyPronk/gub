@@ -95,7 +95,7 @@ clean:
 	rm -rf $(foreach p, $(PLATFORMS), target/*$(p)* )
 
 realclean:
-	rm -rf $(foreach p, $(PLATFORMS), uploads/$(p)/*  target/*$(p)* )
+	rm -rf $(foreach p, $(PLATFORMS), uploads/$(p)/* uploads/$(p)-cross/* target/*$(p)* )
 
 sources = GNUmakefile $(wildcard *.py specs/*.py)
 
@@ -110,7 +110,7 @@ cyg-apt.py: cyg-apt.py.in specs/cpm.py
 ## TODO: should LilyPond revision in targetname too.
 RUN_TEST=python test-gub.py --to hanwen@xs4all.nl --to janneke@gnu.org --smtp smtp.xs4all.nl 
 test:
-	rm -rf $(foreach p,$(TEST_PLATFORMS), uploads/$(p)/*  target/*$(p)* )
+	make realclean PLATFORMS="$(TEST_PLATFORMS)"
 	$(RUN_TEST) $(foreach p, $(TEST_PLATFORMS), "make $(p) from=$(BUILD_PLATFORM)")
 
 release-test:
