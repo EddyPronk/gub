@@ -60,9 +60,10 @@ class Python__mingw (Python):
 		self.system ('''
 cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-winsock2.patch
 ''')
+		self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-2.4.2-setup.py-selectmodule.patch')
 
 		## to make subprocess.py work.
-		self.file_sub ([("import select", ""),
+		self.file_sub ([
 				("import fcntl", ""),
 
 				], "%(srcdir)s/Lib/subprocess.py")
