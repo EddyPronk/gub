@@ -11,7 +11,6 @@ TEST_PLATFORMS=$(PLATFORMS)
 # skip darwin-x86 ; still broken.
 PLATFORMS=darwin-ppc mingw linux freebsd cygwin 
 LILYPOND_VERSION=$(MAJOR_VERSION).$(MINOR_VERSION).$(PATCH_LEVEL)$(if $(strip $(MY_PATCH_LEVEL)),.$(MY_PATCH_LEVEL),)
-INSTALLER_BUILD:=$(shell python lilypondorg.py nextbuild $(LILYPOND_VERSION))
 INVOKE_DRIVER=python gub-builder.py \
 --target-platform $(1) \
 --branch $(LILYPOND_BRANCH) \
@@ -32,8 +31,15 @@ BUILD=$(call INVOKE_DRIVER,$(1)) build $(2) \
 
 CWD:=$(shell pwd)
 
+DISTCC_DIRS=target/cross-distcc/bin/  target/cross-distccd/bin/ target/native-distcc/bin/ 
 
 
+sources = GNUmakefile $(wildcard *.py specs/*.py lib/*.py)
+
+NATIVE_TARGET_DIR=$(CWD)/target/$(BUILD_PLATFORM)/
+
+## TODO: should LilyPond revision in targetname too.
+RUN_TEST=python test-gub.py --to hanwen@xs4all.nl --to janneke@gnu.org --smtp smtp.xs4all.nl 
 
 # local.make should set the following variables:
 #
@@ -50,6 +56,7 @@ include $(LILYPOND_CVSDIR)/VERSION
 ifeq ($(LILYPOND_BRANCH),)
 LILYPOND_BRANCH=$(shell (cat $(LILYPOND_CVSDIR)/CVS/Tag 2> /dev/null || echo HEAD) | sed s/^T//)
 endif
+INSTALLER_BUILD:=$(shell python lilypondorg.py nextbuild $(LILYPOND_VERSION))
 
 
 download:
@@ -95,8 +102,6 @@ clean:
 realclean:
 	rm -rf $(foreach p, $(PLATFORMS), uploads/$(p)/* uploads/$(p)-cross/* target/*$(p)* )
 
-sources = GNUmakefile $(wildcard *.py specs/*.py)
-
 TAGS: $(sources)
 	etags $^
 
@@ -105,8 +110,6 @@ cyg-apt.py: cyg-apt.py.in specs/cpm.py
 	chmod +x $@
 
 
-## TODO: should LilyPond revision in targetname too.
-RUN_TEST=python test-gub.py --to hanwen@xs4all.nl --to janneke@gnu.org --smtp smtp.xs4all.nl 
 test:
 	make realclean PLATFORMS="$(TEST_PLATFORMS)"
 	$(RUN_TEST) $(foreach p, $(TEST_PLATFORMS), "make $(p) from=$(BUILD_PLATFORM)")
@@ -122,8 +125,6 @@ release-test:
 freebsd-runtime:
 	ssh xs4all.nl tar -C / --exclude=zlib.h --exclude=zconf.h --exclude=gmp.h -czf public_html/freebsd-runtime-4.10-2.tar.gz /usr/lib/{lib{c,c_r,m}{.a,.so{,.*}},crt{i,n,1}.o} /usr/include
 
-
-DISTCC_DIRS=target/cross-distcc/bin/  target/cross-distccd/bin/ target/native-distcc/bin/ 
 
 distccd: clean-distccd cross-distccd native-distccd local-distcc
 
@@ -154,7 +155,6 @@ native-distccd:
 		--log-file $(CWD)/log/$@.log  --log-level info
 
 
-NATIVE_TARGET_DIR=$(CWD)/target/$(BUILD_PLATFORM)/
 
 # gs 8.50 ?
 #	PATH=$(NATIVE_TARGET_DIR)/system/usr/bin/:$(PATH) \
