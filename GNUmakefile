@@ -8,28 +8,6 @@ default: all
 TEST_PLATFORMS=$(PLATFORMS)
 
 
-# local.make should set the following variables:
-#
-#  LILYPOND_CVSDIR - a CVS HEAD working directory
-#  LILYPOND_BRANCH - the tag for this branch, or HEAD 
-#  BUILD_PLATFORM  - the platform used for building.
-#  GUB_DISTCC_ALLOW_HOSTS - which distcc daemons may connect.
-#  GUB_CROSS_DISTCC_HOSTS - hosts with matching cross compilers
-#  GUB_NATIVE_DISTCC_HOSTS - hosts with matching native compilers
-
-
-include local.make
-
-include $(LILYPOND_CVSDIR)/VERSION
-
-
-
-##LILYPOND_BRANCH=$(strip $(patsubst $(shell cd $(LILYPOND_CVSDIR) && expr "$$(cvs status ChangeLog)" : '.*Sticky Tag: *\([^ ]*\)'),(none),HEAD))
-
-ifeq ($(LILYPOND_BRANCH),)
-LILYPOND_BRANCH=$(shell (cat $(LILYPOND_CVSDIR)/CVS/Tag 2> /dev/null || echo HEAD) | sed s/^T//)
-endif
-
 # skip darwin-x86 ; still broken.
 PLATFORMS=darwin-ppc mingw linux freebsd cygwin 
 LILYPOND_VERSION=$(MAJOR_VERSION).$(MINOR_VERSION).$(PATCH_LEVEL)$(if $(strip $(MY_PATCH_LEVEL)),.$(MY_PATCH_LEVEL),)
@@ -53,6 +31,26 @@ BUILD=$(call INVOKE_DRIVER,$(1)) build $(2) \
   && $(call INVOKE_DRIVER,$(1)) package-installer \
 
 CWD:=$(shell pwd)
+
+
+
+
+# local.make should set the following variables:
+#
+#  LILYPOND_CVSDIR - a CVS HEAD working directory
+#  LILYPOND_BRANCH - the tag for this branch, or HEAD 
+#  BUILD_PLATFORM  - the platform used for building.
+#  GUB_DISTCC_ALLOW_HOSTS - which distcc daemons may connect.
+#  GUB_CROSS_DISTCC_HOSTS - hosts with matching cross compilers
+#  GUB_NATIVE_DISTCC_HOSTS - hosts with matching native compilers
+# 
+include local.make
+include $(LILYPOND_CVSDIR)/VERSION
+
+ifeq ($(LILYPOND_BRANCH),)
+LILYPOND_BRANCH=$(shell (cat $(LILYPOND_CVSDIR)/CVS/Tag 2> /dev/null || echo HEAD) | sed s/^T//)
+endif
+
 
 download:
 	$(foreach p, $(PLATFORMS), $(call INVOKE_DRIVER,$(p)) download lilypond && ) true
