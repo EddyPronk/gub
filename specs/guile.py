@@ -235,9 +235,16 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
 			],
 			       '%(builddir)s/guile-readline/libtool')
 
+	def copy_readmes (self):
+		self.system ('''
+mkdir -p %(install_root)s/usr/share/doc/%(name)s
+cp -pv %(srcdir)s/[A-Z]* %(install_root)s/usr/share/doc/%(name)s
+''')
+
 	def install (self):
 		Guile.install (self)
 		self.dump_readme_and_hints ()
+		self.copy_readmes ()
 
 	def dump_readme_and_hints (self):
 		# FIXME: get depends from actual split_packages
@@ -332,7 +339,7 @@ Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>
 		requires = ' '.join (depends)
 		self.dump ('''\
 curr: %(version)s-%(bundle_build)s
-prev: 1.6.7-3
+prev: 1.6.7-4
 sdesc: "The GNU extension language and Scheme interpreter (executable)"
 category: interpreters
 # Strictly, guile does not depend on readline and curses, but if you
@@ -356,7 +363,7 @@ process inside Emacs."
 		requires = ' '.join (depends)
 		self.dump ('''\
 curr: %(version)s-%(bundle_build)s
-prev: 1.6.7-3
+prev: 1.6.7-4
 sdesc: "Development headers and static libraries for Guile."
 category: devel libs
 requires: %(requires)s
@@ -376,7 +383,7 @@ the GNU Ubiquitous Intelligent Language for Extension."
 		requires = ' '.join (depends)
 		self.dump ('''\
 curr: %(version)s-%(bundle_build)s
-prev: 1.6.7-3
+prev: 1.6.7-4
 sdesc: "The GNU extension language and Scheme interpreter (documentation)"
 category: doc
 requires: %(requires)s
@@ -396,7 +403,7 @@ guile-tut')."
 		requires = ' '.join (depends)
 		self.dump ('''\
 curr: %(version)s-%(bundle_build)s
-#prev: 1.6.7-3
+#prev: 1.6.7-4
 sdesc: "The GNU extension language and Scheme interpreter (runtime libraries)"
 category: libs
 requires: %(requires)s
