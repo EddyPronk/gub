@@ -1,0 +1,11 @@
+--- setup.py~	2006-03-17 12:04:03.000000000 +0100
++++ setup.py	2006-03-17 12:10:55.000000000 +0100
+@@ -382,7 +382,9 @@
+             # grp(3)
+             exts.append( Extension('grp', ['grpmodule.c']) )
+         # select(2); not on ancient System V
+-        exts.append( Extension('select', ['selectmodule.c']) )
++        ext = Extension('select', ['selectmodule.c'])
++        ext.libraries += ['wsock32']
++        exts.append( ext)
+ 
