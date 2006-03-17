@@ -9,7 +9,7 @@ packages and assembles them into a single package.  At the moment it
 supports the following target platforms
 
 darwin
-   zip file for darwin 7 (MacOS 10.3)/PowerPC
+   zip file for Darwin 7 (MacOS 10.3)/PowerPC
 
 mingw
    mingw executable for Windows32
@@ -45,8 +45,13 @@ You can get the GUB builder by doing
 INSTALLING
 **********
 
-edit local.make to set some variables. Here is what my local.make
-contains:
+0. You need about
+
+  - 4 GB of free space
+
+  - A standard unix development environment with GCC and G++
+
+  - Python 2.4
 
 1. Edit local.make to set some variables.  Here is what my local.make
    contains
@@ -60,27 +65,16 @@ contains:
 
   make bootstrap
 
-3. Build all installers
+3. Build the installers
 
-  make all
+	make all
 
 this should leave packages in
 
-  uploads/mingw/
+  uploads/PLATFORM/
+  uploads/PLATFORM-cross/
 
 and an installer in
-
-  uploads/lilypond-VERSION-RELEASE.mingw.exe
-
-Similarly,
-
-  make PLATFORM
-
-should leave tarballs in
-
-  uploads/PLATFORM
-
-and an installer in 
 
   uploads/lilypond-VERSION-RELEASE.PLATFORM.FORMAT
 
@@ -111,13 +105,4 @@ run the following without arguments for instructions.
   gub-builder.py - build packages
   lilypondorg.py - inspect lilypond.org download area
   test-gub.py    - build tester; integrates with Darcs 
-
-
-CAVEATS
-*******
-
-GUB requires python 2.4
-
-Note that this procedure has only been tested under Linux and MacOS X.
-
 
