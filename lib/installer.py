@@ -154,7 +154,9 @@ class Darwin_bundle (Installer):
 rm -f %(bundle_zip)s 
 rm -rf %(darwin_bundle_dir)s
 tar -C %(targetdir)s -zxf %(downloaddir)s/osx-lilypad-0.0.tar.gz
+cp %(darwin_bundle_dir)s/Contents/Resources/subprocess.py %(installer_root)s/usr/share/lilypond/current/python/
 cp -pR --link %(installer_root)s/usr/* %(darwin_bundle_dir)s/Contents/Resources/
+
 ''', locals ())
 		self.file_sub (
 			[('2.7.26-1',
