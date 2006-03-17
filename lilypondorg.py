@@ -68,7 +68,7 @@ def get_versions (platform):
 def get_src_versions (maj_min_version):
 	(maj_version, min_version) = maj_min_version
 	url = base_url
-	return get_url_versions ('http://%(url)s/v%(maj_version)d.%(min_version)d/' %  locals())
+	return get_url_versions ('%(url)s/v%(maj_version)d.%(min_version)d/' %  locals())
 
 def get_max_builds (platform):
 	vs = get_versions (platform)
