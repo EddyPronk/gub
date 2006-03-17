@@ -147,6 +147,7 @@ class Darwin_bundle (Installer):
 		
 		rw.set_ignore_libs (gup2.Dependency_manager (self.settings.system_root,
 							     self.settings.os_interface))
+		
 		rw.rewire_root (self.settings.installer_root)
 
 		bundle_zip = self.expand ('%(uploads)s/lilypond-%(bundle_version)s-%(bundle_build)s.%(platform)s.zip')
@@ -326,7 +327,7 @@ cp -pv %(installer_root)s-%(package_name)s/etc/hints/%(hint)s %(cygwin_uploads)s
 	def name (self):
 		return self._name
 
-def get_installers (settings, install_manager, args=[]):
+def get_installers (settings, args=[]):
 
 	## UGH : creating 6 instances of installer ?!
 	installers = {
