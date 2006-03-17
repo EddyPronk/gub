@@ -8,8 +8,10 @@ import targetpackage
 class Ghostscript (targetpackage.Target_package):
 	def __init__ (self, settings):
 		targetpackage.Target_package.__init__ (self, settings)
+		xsf = re.sub ('%\(version\)s', '%(version)s-gpl', download.sf)
 		self.with (version='8.50',
-			   mirror='ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs850/ghostscript-8.50-gpl.tar.bz2',
+			   #mirror='ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs850/ghostscript-8.50-gpl.tar.bz2',
+			   mirror=xsf,
 			   format='bz2',
 			   depends=['libiconv', 'libjpeg', 'libpng'])
 
