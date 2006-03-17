@@ -1,6 +1,7 @@
-guile (1.8.0-0) unstable; urgency=low
+guile (1.8.0-1) unstable; urgency=low
 
   * GUB build.
+  * Drop obsolete and unsupported manpage.
   * New upstream release.
 
  -- Jan Nieuwenhuizen <janneke@gnu.org>  Fri,  3 Mar 2006 15:00:59 +0100
