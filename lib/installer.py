@@ -144,9 +144,10 @@ class Darwin_bundle (Installer):
 	def create (self):
 		Installer.create (self)
 		rw = darwintools.Rewirer (self.settings)
-		
-		rw.set_ignore_libs (gup2.Dependency_manager (self.settings.system_root,
-							     self.settings.os_interface))
+		pm = gup2.Dependency_manager (self.settings.system_root,
+					      self.settings.os_interface)
+		rw.set_ignore_libs (pm)
+		osx_lilypad_version = pm.package_dict ('osx-lilypad')['version']
 		
 		rw.rewire_root (self.settings.installer_root)
 
@@ -154,7 +155,7 @@ class Darwin_bundle (Installer):
 		self.system ('''
 rm -f %(bundle_zip)s 
 rm -rf %(darwin_bundle_dir)s
-tar -C %(targetdir)s -zxf %(downloaddir)s/osx-lilypad-0.0.tar.gz
+tar -C %(targetdir)s -zxf %(downloaddir)s/osx-lilypad-%(osx_lilypad_version)s.tar.gz
 cp %(darwin_bundle_dir)s/Contents/Resources/subprocess.py %(installer_root)s/usr/share/lilypond/current/python/
 cp -pR --link %(installer_root)s/usr/* %(darwin_bundle_dir)s/Contents/Resources/
 
