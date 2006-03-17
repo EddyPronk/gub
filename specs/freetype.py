@@ -5,7 +5,7 @@ import targetpackage
 class Freetype (targetpackage.Target_package):
 	def __init__ (self, settings):
 		targetpackage.Target_package.__init__ (self, settings)
-		self.with (version='2.1.10', mirror=download.freetype,
+		self.with (version='2.1.10', mirror=download.nongnu_savannah,
 			   depends=['libtool', 'zlib'])
 
 	def configure (self):
