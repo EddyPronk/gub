@@ -1,6 +1,7 @@
 import glob
 import os
 import re
+import shutil
 
 import download
 import misc
@@ -238,8 +239,11 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
 	def copy_readmes (self):
 		self.system ('''
 mkdir -p %(install_root)s/usr/share/doc/%(name)s
-cp -pv %(srcdir)s/[A-Z]* %(install_root)s/usr/share/doc/%(name)s
 ''')
+		for i in glob.glob ('%(srcdir)s/[A-Z]*'
+				    % self.get_substitution_dict ()):
+			if not i.startswith ('Makefile'):
+				shutil.copy2 (i, '%(install_root)s/usr/share/doc/%(name)s' % self.get_substitution_dict ())
 
 	def install (self):
 		Guile.install (self)
