@@ -6,7 +6,7 @@
              (ccshared,opt,base) = sysconfig.get_config_vars('CCSHARED','OPT','BASECFLAGS')
 +
 +            ##
-+            ## Has anyone with python development ever heard of cross-compiling?! Bunch of morons!
++            ## Has anyone with python development ever heard of cross-compiling?! 
 +            import re
 +            for forbidden in ['-Wno-long-double', '-no-cpp-precomp', '-mno-fused-madd']:
 +                base = re.sub (forbidden, ' ', base)
