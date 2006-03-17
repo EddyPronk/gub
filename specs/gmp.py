@@ -5,19 +5,18 @@ import targetpackage
 from toolpackage import Tool_package
 
 class Gmp (targetpackage.Target_package):
-	def __init__ (self, s):
-		targetpackage.Target_package.__init__ (self, s)
+	def __init__ (self, settings):
+		targetpackage.Target_package.__init__ (self, settings)
 		self.with (version='4.1.4',
 			   depends=['libtool'])
+		
+		self.target_architecture = re.sub ('i[0-9]86-', 'i386-', settings.target_architecture)
 
 	# ugh.
 	def configure_command (self):
 		cmd = targetpackage.Target_package.configure_command (self)
 
 		flags = ' -g -O2 -fomit-frame-pointer -march=i386 '
-		if re.match ('i[0-9]86', self.settings.target_architecture):
-			cmd = "CFLAGS=' %(flags)s ' CXXFLAGS=' %(flags)s ' FFLAGS=' %(flags)s ' %(cmd)s " % locals ()
-			
 		return cmd
 
 	def configure (self):
