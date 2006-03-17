@@ -2,10 +2,10 @@ import os
 import re
 import time
 
-
-import darwintools
 import context
+import darwintools
 import gup2
+import targetpackage
 
 from context import subst_method
 from misc import *
@@ -281,14 +281,12 @@ class Autopackage (Linux_installer):
 		self.system ('mv %(build_autopackage)s/*.package %(installer_uploads)s')
 
 class Cygwin_package (Installer):
-	def __init__ (self, settings, target_manager, name):
-		Installer.__init__ (self, settings, target_manager)
+	def __init__ (self, settings, name):
+		Installer.__init__ (self, settings)
 		self._name = name
-		self.target_manager = target_manager
 	def create (self):
 		# FIND gub package object for NAME
-		print 'packs: ' + `self.target_manager._packages`
-		p = self.target_manager._packages[self._name]
+		p = targetpackage.load_target_package (self.settings, self._name)
 		# CREATE balls *-build.tar.bz2, NAME-build-scr.tar.bz2
 		# CREATE setup.hint files
 		self.cygwin_ball (p, '')
@@ -340,7 +338,5 @@ def get_installers (settings, args=[]):
 
 	if settings.platform == 'cygwin':
 		return map (lambda x:
-
-			    ## need install manager?
 			    Cygwin_package (settings, x), args)
 	return installers[settings.platform]
