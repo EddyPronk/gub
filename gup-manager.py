@@ -14,7 +14,6 @@ import sys
 
 sys.path.insert (0, 'lib/')
 
-import gub
 import settings as settings_mod
 import gup2
 import oslog

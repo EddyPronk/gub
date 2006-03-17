@@ -15,7 +15,6 @@ import glob
 #
 import cross
 import framework
-import gub
 import targetpackage
 from misc import *  # URG, fixme
 import cygwin
