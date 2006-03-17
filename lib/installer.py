@@ -327,6 +327,7 @@ cp -pv %(installer_root)s-%(package_name)s/etc/hints/%(hint)s %(cygwin_uploads)s
 	def strip (self):
 		self.strip_binary_dir ('%(installer_root)s/usr/lib')
 		self.strip_binary_dir ('%(installer_root)s/usr/bin')
+		self.system ('gzip %(installer_root)s/usr/share/info/*')
 
 def get_installers (settings, args=[]):
 
