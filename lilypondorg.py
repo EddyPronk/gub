@@ -16,8 +16,8 @@ platforms = ['linux-x86',
 #	     'linux-arm',
 	     'mingw']
 
-base_url = None
-host_spec = None
+base_url = 'http://lilypond.org/download'
+host_spec = 'hanwen@lilypond.org:/var/www/lilypond/download/binaries'
 
 def get_alias (p):
 	try:
@@ -176,12 +176,12 @@ nextbuild x.y.z   - get next build number
 
 	p.add_option ('', '--url', action='store',
 		      dest='url',
-		      default='http://lilypond.org/download',
+		      default=base_url,
 		      help='select base url')
 	
 	p.add_option ('', '--upload-host', action='store',
 		      dest='upload_host',
-		      default='hanwen@lilypond.org:/var/www/lilypond/download/binaries',
+		      default=host_spec,
 		      help='select upload directory')
 	
 	return p
