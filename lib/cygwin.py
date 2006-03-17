@@ -18,6 +18,15 @@ tooldir="%(crossprefix)s/%(target_architecture)s"
 		return (cross.Binutils.compile_command (self)
 			+ self.makeflags ())
 
+class W32api_in_usr_lib (gub.Binary_package):
+	def download (self):
+		pass
+	def untar (self):
+		self.system ('mkdir -p %(srcdir)s/root/usr/lib')
+		self.system ('''
+tar -C %(system_root)s/usr/lib/w32api -cf- . | tar -C %(srcdir)s/root/usr/lib -xf-
+''')
+
 class Gcc (mingw.Gcc):
 	def makeflags (self):
 		return misc.join_lines ('''
@@ -45,9 +54,12 @@ def get_cross_packages (settings):
 					   depends=['cygwin', 'w32api'],
 					   builddeps=['cygwin', 'w32api']
 						),
+		W32api_in_usr_lib (settings).with (version='1.0',
+						   depends=['w32api'],
+						   builddeps=['w32api']),
 		Gcc (settings).with (version='4.1.0', mirror=download.gcc_41, format='bz2',
-					   depends=['binutils', 'cygwin', 'w32api'],
-					   builddeps=['binutils', 'cygwin', 'w32api']
+					   depends=['binutils', 'cygwin', 'w32api-in-usr-lib'],
+					   builddeps=['binutils', 'cygwin', 'w32api-in-usr-lib']
 					   ),
 		]
 
