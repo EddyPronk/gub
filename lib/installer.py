@@ -324,6 +324,10 @@ cp -pv %(installer_root)s-%(package_name)s/etc/hints/%(hint)s %(cygwin_uploads)s
 	def name (self):
 		return self._name
 
+	def strip (self):
+		self.strip_binary_dir ('%(installer_root)s/usr/lib')
+		self.strip_binary_dir ('%(installer_root)s/usr/bin')
+
 def get_installers (settings, args=[]):
 
 	## UGH : creating 6 instances of installer ?!
