@@ -9,10 +9,10 @@ packages and assembles them into a single package.  At the moment it
 supports the following target platforms
 
 darwin
-   darwin 7 (MacOS 10.3) for PowerPC
+   zip file for darwin 7 (MacOS 10.3)/PowerPC
 
 mingw
-   mingw executable for  windows32
+   mingw executable for Windows32
 
 linux
    shar archive for Linux/x86
@@ -41,19 +41,6 @@ You can get the GUB builder by doing
 
   darcs get http://lilypond.org/~hanwen/gub/
 
-
-REQUIREMENTS
-************
-
-Additionally for Mingw:
-
-RedHat:
-
-    wine-devel wine
-
-Debian/Ubuntu:
-
-    libwine-dev wine-utils
 
 INSTALLING
 **********
@@ -96,6 +83,8 @@ should leave tarballs in
 and an installer in 
 
   uploads/lilypond-VERSION-RELEASE.PLATFORM.FORMAT
+
+
 
 DISTCC SUPPORT
 **************
