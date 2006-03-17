@@ -106,9 +106,9 @@ Run
 
 on a compile server, and
 
-  make <targets> GUB_DISTCC_HOSTS='<server hostnames>'
+  make <targets> GUB_NATIVE_DISTCC_HOSTS='<server hostnames>' GUB_CROSS_DISTCC_HOSTS='<server hostnames>'
 
-
+GUB_NATIVE_DISTCC_HOSTS should only be used for machines that run the same platform.
 
  
 
@@ -130,14 +130,5 @@ CAVEATS
 GUB requires python 2.4
 
 Note that this procedure has only been tested under Linux and MacOS X.
-
-
-
-It still requires native installations of:
-
-  mftrace
-  fontforge
-  potrace
-  wine-devel
 
 
