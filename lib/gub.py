@@ -49,7 +49,7 @@ class Package (Os_context_wrapper):
 
 		stages = ['untar', 'patch',
 			  'configure', 'compile', 'install', 'split',
-			  'package', 'dump_header_file', 'clean']
+			  'src_package', 'package', 'dump_header_file', 'clean']
 
 		tainted = False
 		for stage in stages:
@@ -213,6 +213,10 @@ cd %(downloaddir)s/%(dir)s && cvs -q update -dAP -r %(version)s
 	@subst_method
         def gub_name (self):
 		return '%(name)s-%(version)s.%(platform)s.gub'
+
+	@subst_method
+        def gub_name_src (self):
+		return '%(name)s-%(version)s-src.%(platform)s.gub'
 
 	@subst_method
         def hdr_name (self):
@@ -483,6 +487,12 @@ tar -C %(install_root)s -zcf %(gub_ball)s .
 tar -C %(install_root)s-%(i)s -zcf %(gub_uploads)s/%(split_gub_name)s .
 ''',
 				     locals ())
+
+	def src_package (self):
+		self.system ('''
+rm -f $(find %(srcdir)s -name '*~' -o -name '*.orig')
+tar -C %(allsrcdir)s -zcf %(gub_uploads)s/%(gub_name_src)s %(basename)s
+''')
 
 	def dump_header_file (self):
 		hdr = self.expand ('%(hdr_file)s')
