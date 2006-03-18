@@ -489,10 +489,16 @@ tar -C %(install_root)s-%(i)s -zcf %(gub_uploads)s/%(split_gub_name)s .
 				     locals ())
 
 	def src_package (self):
+		# URG: basename may not be source dir name, eg,
+		# package libjpeg uses jpeg-6b.  Better fix at untar
+		# stage?
+		dir_name = re.sub (self.expand ('%(allsrcdir)s/'), '',
+				   self.expand ('%(srcdir)s'))
 		self.system ('''
 rm -f $(find %(srcdir)s -name '*~' -o -name '*.orig')
-tar -C %(allsrcdir)s -zcf %(gub_uploads)s/%(gub_name_src)s %(basename)s
-''')
+tar -C %(allsrcdir)s -zcf %(gub_uploads)s/%(gub_name_src)s %(dir_name)s
+''',
+			     locals ())
 
 	def dump_header_file (self):
 		hdr = self.expand ('%(hdr_file)s')
