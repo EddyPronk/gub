@@ -121,12 +121,16 @@ class Installer (context.Os_context_wrapper):
 		self.system ('%(strip_command)s %(file)s', locals (), ignore_error = True)
 
 	def strip_binary_dir (self, dir):
+		if not os.path.isdir (dir % self.get_substitution_dict ()):
+			raise ('warning: no such dir: '
+			       + dir % self.get_substitution_dict ())
 		(root, dirs, files) = os.walk (dir % self.get_substitution_dict ()).next ()
 		for f in files:
 			if (os.path.basename (f) not in self.no_binary_strip
-			    and os.path.splitext (f)[1] not in self.no_binary_strip_extensions):
+			    and (os.path.splitext (f)[1]
+				 not in self.no_binary_strip_extensions)):
 				self.strip_binary_file (root + '/' + f)
-			
+
 	def strip (self):
 		self.strip_unnecessary_files ()
 		self.strip_binary_dir ('%(installer_root)s/usr/lib')
@@ -283,12 +287,15 @@ class Autopackage (Linux_installer):
 class Cygwin_package (Installer):
 	def __init__ (self, settings, name):
 		Installer.__init__ (self, settings)
+		self.strip_command += ' -g '
 		self._name = name
+
+	# FIXME: 'build-installer' is NOT create.  package-installer is create.
+	# for Cygwin, build-installer is FOO (installs all dependencies),
+	# and strip-installer comes too early.
 	def create (self):
-		# FIND gub package object for NAME
-		p = targetpackage.load_target_package (self.settings, self._name)
-		# CREATE balls *-build.tar.bz2, NAME-build-scr.tar.bz2
-		# CREATE setup.hint files
+		p = targetpackage.load_target_package (self.settings,
+						       self._name)
 		self.cygwin_ball (p, '')
 		for i in p.split_packages:
 			self.cygwin_ball (p, i)
@@ -315,6 +322,17 @@ class Cygwin_package (Installer):
 rm -rf %(dir)s
 mkdir -p %(dir)s
 tar -C %(dir)s -zxf %(gub_uploads)s/%(gub_name)s
+''',
+				locals ())
+		# FIXME: unconditional strip
+		for i in ('bin', 'lib'):
+			d = package.expand ('%(dir)s/usr/' + i, locals ())
+			if os.path.isdir (d):
+				self.strip_binary_dir (d)
+		infodir = package.expand ('%(dir)s/usr/share/info', locals ())
+		if os.path.isdir (infodir):
+			package.system ('gzip %(infodir)s/*', locals ())
+		package.system ('''
 rm -rf %(dir)s/usr/cross
 mkdir -p %(cygwin_uploads)s/%(base_name)s
 tar -C %(dir)s --owner=0 --group=0 -jcf %(cygwin_uploads)s/%(base_name)s/%(ball_name)s .
@@ -330,7 +348,7 @@ cp -pv %(installer_root)s-%(package_name)s/etc/hints/%(hint)s %(cygwin_uploads)s
 		dir_name = re.sub ('\.%\(platform\)s.*', '', gub_name)
 		cyg_name = dir_name + '-%(bundle_build)s'
 		ball_name = cyg_name + '-src.tar.bz2'
-		dir = '%(installer_root)s-' + base_name
+		dir = '%(installer_root)s-src'
 		package.system ('''
 rm -rf %(dir)s
 mkdir -p %(dir)s
@@ -345,6 +363,7 @@ tar -C %(dir)s --owner=0 --group=0 -jcf %(cygwin_uploads)s/%(base_name)s/%(ball_
 		return self._name
 
 	def strip (self):
+		return
 		self.strip_binary_dir ('%(installer_root)s/usr/lib')
 		self.strip_binary_dir ('%(installer_root)s/usr/bin')
 		self.system ('gzip %(installer_root)s/usr/share/info/*')
