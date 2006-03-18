@@ -105,7 +105,7 @@ realclean:
 TAGS: $(sources)
 	etags $^
 
-cyg-apt.py: cyg-apt.py.in specs/cpm.py
+cyg-apt.py: cyg-apt.py.in lib/cpm.py
 	sed -e "/@CPM@/r specs/cpm.py" -e "s/@CPM@//" < $< > $@
 	chmod +x $@
 
