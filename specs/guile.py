@@ -25,7 +25,7 @@ class Guile (targetpackage.Target_package):
 
 	def patch (self):
 		self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/guile-reloc.patch')
-		self.autoupdate()
+		self.autoupdate ()
 
 	def configure_command (self):
 		return (targetpackage.Target_package.configure_command (self)
@@ -250,6 +250,7 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
 		self.dump_readme_and_hints ()
 		self.copy_readmes ()
 
+	# FIXME: ints and readmes from file, rather than inline python data.
 	def dump_readme_and_hints (self):
 		# FIXME: get depends from actual split_packages
 		changelog = open (self.settings.specdir + '/guile.changelog').read ()
@@ -433,6 +434,6 @@ class Guile__local (Tool_package, Guile):
 
 	def __init__ (self, settings):
 		Tool_package.__init__ (self, settings)
-		self.set_mirror()
+		self.set_mirror ()
 		self.name_build_dependencies = ['gmp', 'libtool']
 		self.name_dependencies = ['gmp']
