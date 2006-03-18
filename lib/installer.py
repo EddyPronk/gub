@@ -292,7 +292,7 @@ class Cygwin_package (Installer):
 		self.cygwin_ball (p, '')
 		for i in p.split_packages:
 			self.cygwin_ball (p, i)
-		##self.cygwin_src_ball (p)
+		self.cygwin_src_ball (p)
 
 	def cygwin_ball (self, package, split):
 		cygwin_uploads = '%(gub_uploads)s/release'
@@ -322,20 +322,22 @@ cp -pv %(installer_root)s-%(package_name)s/etc/hints/%(hint)s %(cygwin_uploads)s
 ''',
 				locals ())
 
-	# FIXME: should not depend on --keep, derive from real src pkgs
 	def cygwin_src_ball (self, package):
 		cygwin_uploads = '%(gub_uploads)s/release'
 		package_name = self._name
 		gub_name = package.gub_name ()
 		base_name = re.sub ('-%\(version\)s.*', '', gub_name)
-		## urg, srcdirs do not have build nr here,
-		## should then copy the lot, or make real src packages first?
-		dir_name = re.sub ('\.%\(platform\)s.*',
-				   '-%(bundle_build)s', gub_name)
-		ball_name = dir_name + '-src.tar.bz2'
+		dir_name = re.sub ('\.%\(platform\)s.*', '', gub_name)
+		cyg_name = dir_name + '-%(bundle_build)s'
+		ball_name = cyg_name + '-src.tar.bz2'
+		dir = '%(installer_root)s-' + base_name
 		package.system ('''
+rm -rf %(dir)s
+mkdir -p %(dir)s
+tar -C %(dir)s -zxf %(gub_uploads)s/%(gub_name_src)s
+mv %(dir)s/%(dir_name)s %(dir)s/%(cyg_name)s
 mkdir -p %(cygwin_uploads)s/%(base_name)s
-tar -C %(srcdir)s --owner=0 --group=0 -jcf %(cygwin_uploads)s/%(base_name)s/%(ball_name)s %(dir_name)s
+tar -C %(dir)s --owner=0 --group=0 -jcf %(cygwin_uploads)s/%(base_name)s/%(ball_name)s %(cyg_name)s
 ''',
 				locals ())
 
