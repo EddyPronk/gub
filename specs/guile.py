@@ -245,10 +245,21 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
 			if not i.startswith ('Makefile'):
 				shutil.copy2 (i, '%(install_root)s/usr/share/doc/%(name)s' % self.get_substitution_dict ())
 
+	def patch (self):
+		pass
+
 	def install (self):
 		Guile.install (self)
 		self.dump_readme_and_hints ()
 		self.copy_readmes ()
+		# Hmm, is this really necessary?
+		cygwin_patches = '%(srcdir)s/CYGWIN-PATCHES'
+		self.system ('''
+mkdir -p %(cygwin_patches)s
+cp -pv %(install_root)s/etc/hints/* %(cygwin_patches)s
+cp -pv %(install_root)s/usr/share/doc/Cygwin/* %(cygwin_patches)s
+''',
+			     locals ())
 
 	# FIXME: ints and readmes from file, rather than inline python data.
 	def dump_readme_and_hints (self):
