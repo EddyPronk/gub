@@ -89,9 +89,11 @@ Run
 
 on a compile server, and
 
-  make <targets> GUB_NATIVE_DISTCC_HOSTS='<server hostnames>' GUB_CROSS_DISTCC_HOSTS='<server hostnames>'
+  make <targets> GUB_NATIVE_DISTCC_HOSTS='<hostnames>' \
+  	GUB_CROSS_DISTCC_HOSTS='<hostnames>'
 
-GUB_NATIVE_DISTCC_HOSTS should only be used for machines that run the same platform.
+GUB_NATIVE_DISTCC_HOSTS should only be used for machines that run the
+same platform.
 
  
 
