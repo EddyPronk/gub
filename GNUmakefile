@@ -164,6 +164,12 @@ doc-clean:
 	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_BRANCH) \
 			DOCUMENTATION=yes web-clean
 
+doc-update:
+	python gub-builder.py -p $(BUILD_PLATFORM) download lilypond
+	python gup-manager.py  -p $(BUILD_PLATFORM) remove lilypond
+	python gub-builder.py -p $(BUILD_PLATFORM) --stage untar build lilypond
+	rm -f target/$(BUILD_PLATFORM)/status/lilypond*
+
 doc:
 	unset LILYPONDPREFIX \
 	  && make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_BRANCH)  \

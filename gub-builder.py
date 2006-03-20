@@ -202,7 +202,7 @@ def run_builder (settings, manager, names, package_object_dict):
 		if manager.is_installed (p):
 			continue
 		
-		if not manager.is_installable (p):
+		if settings.options.stage or not manager.is_installable (p):
 			settings.os_interface.log_command ('building package: %s\n'
 							   % p)
 			
