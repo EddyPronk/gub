@@ -65,8 +65,8 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-winsock2.patch
 		## to make subprocess.py work.
 		self.file_sub ([
 				("import fcntl", ""),
-
-				], "%(srcdir)s/Lib/subprocess.py")
+				], "%(srcdir)s/Lib/subprocess.py",
+			       must_succeed=True)
 		
 	def config_cache_overrides (self, str):
 		# Ok, I give up.  The python build system wins.  Once
