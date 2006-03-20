@@ -31,15 +31,14 @@ cd %(builddir)s && ./install.sh %(system_root)s/usr/ %(install_root)s
 	def package (self):
 		self.system ('tar -C %(install_root)s/%(system_root)s/ -zcf %(gub_uploads)s/%(gub_name)s .')
 
+
 class Nsis (Tool_package):
 	def __init__ (self, settings):
 		Tool_package.__init__(self, settings)
-
 		self.with (version='2.15',
-			   
-			   ## TODO: nsis should come from sourceforge.
-			   mirror="http://ftp.debian.org/debian/pool/main/n/nsis/nsis_%(version)s.orig.tar.%(format)s",				      
-			   format="gz", depends=["scons"])
+			   mirror="http://surfnet.dl.sourceforge.net/sourceforge/%(name)s/%(name)s-%(version)s-src.tar.%(format)s",
+				      
+			   format="bz2", depends=["scons"])
 
 	def patch (self):
 		for f in ['SCons/Tools/crossmingw.py',
