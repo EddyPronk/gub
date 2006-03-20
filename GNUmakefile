@@ -179,4 +179,4 @@ bootstrap:
 	   guile pkg-config
 	make distccd
 	python gub-builder.py -p local build nsis icoutils
-
+	$(MAKE) download
