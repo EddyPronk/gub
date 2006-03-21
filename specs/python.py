@@ -3,6 +3,7 @@ import re
 
 import download
 import targetpackage
+import gub
 
 class Python (targetpackage.Target_package):
 	def __init__ (self, settings):
@@ -47,8 +48,24 @@ class Python (targetpackage.Target_package):
 		c = targetpackage.Target_package.install_command (self)
 		c += ' BUILDPYTHON=python-bin '
 		return c
+
+class Python__mingw (gub.Binary_package):
+	def __init__ (self, settings):
+		gub.Binary_package.__init__ (self, settings)
+		self.with (mirror="http://lilypond.org/~hanwen/python-2.4.2-windows.tar.gz",
+			   version='2.4.2')
+
+
+	### UGH.
+	def python_version (self):
+		return '2.4'
 	
-class Python__mingw (Python):
+	def install (self):
+		gub.Binary_package.install (self)
+		self.system ("cd %(install_root)s/ && mkdir -p usr/bin/ && mv Python24/* usr/bin/ ")
+
+		
+class Python__mingw_cross (Python):
 	def __init__ (self, settings):
 		Python.__init__ (self, settings)
 		self.target_gcc_flags = '-DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I%(system_root)s/usr/include' % self.settings.__dict__

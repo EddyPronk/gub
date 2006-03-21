@@ -8,7 +8,7 @@
 +            ##
 +            ## Has anyone with python development ever heard of cross-compiling?! 
 +            import re
-+            for forbidden in ['-Wno-long-double', '-no-cpp-precomp', '-mno-fused-madd']:
++            for forbidden in ['-Wno-long-double', '-no-cpp-precomp', '-mno-fused-madd', '-mtune=generic']:
 +                base = re.sub (forbidden, ' ', base)
 +
              args['compiler_so'] = compiler + ' ' + opt + ' ' + ccshared + ' ' + base
