@@ -19,8 +19,8 @@ class Python (targetpackage.Target_package):
 		self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-configure.in-posix.patch')
 		self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-configure.in-sysname.patch')
 		self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-configure.in-sysrelease.patch')
+		self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-2.4.2-setup.py-import.patch')
 
-		self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-2.4.2-setup.py-no-native.patch')
 		
 	def python_version (self):
 		return '.'.join (self.ball_version.split ('.')[0:2])
@@ -49,7 +49,7 @@ class Python (targetpackage.Target_package):
 		c += ' BUILDPYTHON=python-bin '
 		return c
 
-class Python__mingw (gub.Binary_package):
+class Python__mingw_binary (gub.Binary_package):
 	def __init__ (self, settings):
 		gub.Binary_package.__init__ (self, settings)
 		self.with (mirror="http://lilypond.org/~hanwen/python-2.4.2-windows.tar.gz",
@@ -62,7 +62,10 @@ class Python__mingw (gub.Binary_package):
 	
 	def install (self):
 		gub.Binary_package.install (self)
+		
+		self.system ("cd %(install_root)s/ && mkdir usr && mv Python24/include  usr/ ")
 		self.system ("cd %(install_root)s/ && mkdir -p usr/bin/ && mv Python24/* usr/bin/ ")
+		self.system ("rmdir %(install_root)s/Python24/")
 
 		
 class Python__mingw_cross (Python):
@@ -107,3 +110,6 @@ cp %(install_root)s/usr/lib/python%(python_version)s/lib-dynload/* %(install_roo
 		self.system ('''
 chmod 755 %(install_root)s/usr/bin/*
 ''')
+
+class Python__mingw (Python__mingw_cross):
+	pass
