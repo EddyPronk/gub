@@ -115,7 +115,11 @@ def max_version_build (platform):
 def max_src_version (maj_min):
 	vs = get_src_versions (maj_min)
 	vs.sort()
-	return vs[-1][0]
+	try:
+		return vs[-1][0]
+	except:
+		## don't crash.
+		return maj_min + (-1,)
 
 def uploaded_build_number (version):
 	platform_versions = {}
@@ -205,7 +209,7 @@ def main ():
 		upload_binaries (version)
 	else:
 		print max_version_build ('documentation')
-		print max_src_version ((2,7))
+		print max_src_version ((2,9))
 		print max_branch_version_build ((2, 6), 'linux-x86')
 
 if __name__ == '__main__':

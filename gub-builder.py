@@ -72,7 +72,7 @@ package-installer - build installer binary
 		      type='choice',
 		      default='HEAD',
 		      help='select lilypond branch [HEAD]',
-		      choices=['lilypond_2_6', 'HEAD'])
+		      choices=['lilypond_2_6', 'lilypond_2_8', 'HEAD'])
 	p.add_option ('', '--installer-version', action='store',
 		      default='0.0.0',
 		      dest='installer_version')
