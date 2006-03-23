@@ -60,6 +60,7 @@ cd %(builddir)s/%(i)s && make "CFLAGS=%(cflags)s" "LIBS=%(libs)s" CPPFLAGS= LDFL
 		targetpackage.Target_package.patch (self)
 		self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/fontconfig-2.3.2-mingw-fccache.patch')
 		
+
 class Fontconfig__mingw (Fontconfig):
 	def configure_command (self):
 		return Fontconfig.configure_command (self) \
