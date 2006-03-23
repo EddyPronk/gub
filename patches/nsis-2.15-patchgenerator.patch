@@ -1,0 +1,13 @@
+--- Contrib/VPatch/Source/GenPat/PatchGenerator.h~	2005-09-17 11:25:44.000000000 +0200
++++ Contrib/VPatch/Source/GenPat/PatchGenerator.h	2006-03-23 12:09:34.000000000 +0100
+@@ -52,8 +52,8 @@
+     TFileOffset targetCDataBaseOffset;
+     TFileOffset targetCDataSize;
+ 
+-    SameBlock* PatchGenerator::findBlock(ChunkedFile* sourceTree,
+-                                         TFileOffset targetFileStartOffset);
++    SameBlock* findBlock(ChunkedFile* sourceTree,
++			 TFileOffset targetFileStartOffset);
+ //    SameBlock* findBlock(ChunkedFile* sourceTree, unsigned char* targetData, TFileOffset targetStartOffset);
+     void improveSameBlockMatch(SameBlock& match, TFileOffset currentBest = 0);
+   public:
