@@ -180,7 +180,7 @@ doc:
 
 bootstrap:
 	python gub-builder.py -p local download flex mftrace potrace fontforge \
-	   guile pkg-config nsis icoutils
+	   guile pkg-config nsis icoutils fontconfig
 	python gub-builder.py -p local build flex mftrace potrace fontforge \
 	   guile pkg-config
 	make distccd
