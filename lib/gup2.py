@@ -177,7 +177,9 @@ class Package_manager (File_manager):
 
 
 		## FIXME: take out has_key
-		if (d.has_key ("cvs_branch") and branch <> d['cvs_branch']):
+		if (d.has_key ("cvs_branch")
+		    and d['cvs_branch']
+		    and branch <> d['cvs_branch']):
 			print 'ignoring header for wrong branch', package_hdr
 			return
 		
