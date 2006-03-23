@@ -122,8 +122,8 @@ def build_installer (settings, args):
 						   settings.os_interface,
 						   dbdir=settings.installer_db)
 	install_manager.include_build_deps = False
-	install_manager.read_package_headers (settings.gub_uploads)
-	install_manager.read_package_headers (settings.gub_cross_uploads)
+	install_manager.read_package_headers (settings.gub_uploads, settings.lilypond_branch)
+	install_manager.read_package_headers (settings.gub_cross_uploads, settings.lilypond_branch)
 
 	def get_dep (x):
 		return install_manager.dependencies (x)

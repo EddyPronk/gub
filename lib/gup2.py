@@ -170,10 +170,18 @@ class Package_manager (File_manager):
 
 		self._packages[nm] = d
 
-	def register_package_header (self, package_hdr):
+	def register_package_header (self, package_hdr, branch):
 		str = open (package_hdr).read ()
 
 		d = pickle.loads (str)
+
+
+		## FIXME: take out has_key
+		if (d.has_key ("cvs_branch") and branch <> d['cvs_branch']):
+			print 'ignoring header for wrong branch', package_hdr
+			return
+		
+		
 		if self._package_dict_db.has_key (d['name']):
 			if str != self._package_dict_db[d['name']]:
 				self.os_interface.log_command ("package header changed for %(name)s\n" % d)
@@ -186,9 +194,9 @@ class Package_manager (File_manager):
 
 		self.register_package_dict (d)
 
-	def read_package_headers (self, dir):
+	def read_package_headers (self, dir, branch):
 		for f in glob.glob ('%s/*hdr' % dir):
-			self.register_package_header (f)
+			self.register_package_header (f, branch)
 
 	def is_installable (self, name):
 		d = self._packages[name]
