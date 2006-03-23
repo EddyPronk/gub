@@ -8,6 +8,16 @@
 (define (re-sub re sub string)
   (regexp-substitute/global #f re string 'pre sub 'post))
 
+(define (change-mode-bit file bits value)
+  (let*
+      ((mode (stat:mode (stat file)))
+       (new-mode (if value
+		     (logior mode bits)
+		     (logand mode (lognot bits)))))
+
+
+    (chmod file new-mode)))
+
 (define (main args)
   (let* ((files (map (lambda (x) (format #f "~S" x)) (cdr args)))
 	 (instdir "@SLASHED_INSTDIR@")
@@ -16,6 +26,11 @@
 	 (command (format #f "~S --verbose ~a"
 			  fc-cache.exe (string-join files)))
 	 (env "FONTCONFIG_FILE"))
+
+    (for-each (lambda (f)
+		(change-mode-bit f #o200 #t))
+	      files)
+    
     (setenv env fonts.conf)
     (display (getenv env))
     (newline)
@@ -23,3 +38,4 @@
     (newline)
     (force-output (current-output-port))
     (system command)))
+
