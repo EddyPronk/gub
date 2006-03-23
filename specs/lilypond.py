@@ -101,6 +101,11 @@ cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/
 		self.system ("cd %(install_root)s/usr/lib/lilypond && mv %(v)s current",
 			     locals ())
 
+		self.system ('mkdir -p %(install_root)s/usr/etc/fonts/')
+		fc_conf_file = open (self.expand ('%(install_root)s/usr/etc/fonts/local.conf'), 'w')
+		fc_conf_file.write ('<cache>~/.lilypond-%(v)s-font.cache-1</cache>' % locals ())
+
+
 
         def gub_name (self):
 		nv = self.name_version ()
