@@ -161,7 +161,7 @@ cp -pR --link %(installer_root)s/usr/* %(darwin_bundle_dir)s/Contents/Resources/
 
 ''', locals ())
 		self.file_sub (
-			[('2.7.27-1',
+			[('2.[0-9].[0-9]+-[0-9]',
 			  '%(bundle_version)s-%(bundle_build)s'),
 			 ('Build from .*',
 			  'Build from %s' % time.asctime()),
