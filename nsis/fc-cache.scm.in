@@ -19,12 +19,13 @@
     (chmod file new-mode)))
 
 (define (main args)
-  (let* ((files (map (lambda (x) (format #f "~S" x)) (cdr args)))
+  (let* ((files (cdr args))
+	 (quoted-files (map (lambda (x) (format #f "~S" x)) files))
 	 (instdir "@SLASHED_INSTDIR@")
 	 (fonts.conf (string-append instdir "/usr/etc/fonts/fonts.conf"))
 	 (fc-cache.exe (string-append instdir "/usr/bin/fc-cache.exe"))
 	 (command (format #f "~S --verbose ~a"
-			  fc-cache.exe (string-join files)))
+			  fc-cache.exe (string-join quoted-files)))
 	 (env "FONTCONFIG_FILE"))
 
     (for-each (lambda (f)
