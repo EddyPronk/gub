@@ -35,13 +35,16 @@ cd %(builddir)s && ./install.sh %(system_root)s/usr/ %(install_root)s
 class Nsis (Tool_package):
 	def __init__ (self, settings):
 		Tool_package.__init__(self, settings)
-		self.with (version='2.15',
-			   mirror="http://surfnet.dl.sourceforge.net/sourceforge/%(name)s/%(name)s-%(version)s-src.tar.%(format)s",
-				      
-			   format="bz2", depends=["scons"])
+		self.with (
+			version='2.15',
+			#version='2.14',
+			mirror="http://surfnet.dl.sourceforge.net/sourceforge/%(name)s/%(name)s-%(version)s-src.tar.%(format)s",
+			
+			format="bz2",
+			depends=["scons"])
 
 	def patch (self):
-		if 0:
+		if 1:  #2.14 patches
 			for f in ['SCons/Tools/crossmingw.py',
 				  'Contrib/StartMenu/StartMenu.c',
 				  'Source/7zip/LZMADecode.c',
@@ -52,9 +55,10 @@ class Nsis (Tool_package):
 					'%(srcdir)s/' + f)
 			self.system ("cd %(srcdir)s && patch -p0 < %(patchdir)s/nsis-2.14-mingw.patch")
 			self.system ("cd %(srcdir)s && patch -p0 < %(patchdir)s/nsis-2.14-local.patch")
-			
-		self.system ("cd %(srcdir)s && patch -p0 < %(patchdir)s/nsis-2.15-patchgenerator.patch")
-		self.system ("cd %(srcdir)s && patch -p0 < %(patchdir)s/nsis-2.15-expand.patch")
+
+		if 1: #2.15 patches
+			self.system ("cd %(srcdir)s && patch -p0 < %(patchdir)s/nsis-2.15-patchgenerator.patch")
+			self.system ("cd %(srcdir)s && patch -p0 < %(patchdir)s/nsis-2.15-expand.patch")
 		self.system ('mkdir -p %(allbuilddir)s', ignore_error=True)
 		self.system ('ln -s %(srcdir)s %(builddir)s') 
 		
