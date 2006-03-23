@@ -2,6 +2,7 @@ import download
 import gub
 import misc
 import targetpackage
+import toolpackage
 
 class Fontconfig (targetpackage.Target_package):
 	def __init__ (self, settings):
@@ -96,3 +97,11 @@ class Fontconfig__linux (Fontconfig):
 
 class Fontconfig__freebsd (Fontconfig__linux):
 	pass
+
+
+class Fontconfig__local (toolpackage.Tool_package):
+	def __init__ (self, settings):
+		toolpackage.Tool_package.__init__ (self, settings)
+		self.with (version='2.3.2', mirror=download.fontconfig,
+			   depends=[])
+		
