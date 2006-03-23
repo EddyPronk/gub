@@ -41,16 +41,20 @@ class Nsis (Tool_package):
 			   format="bz2", depends=["scons"])
 
 	def patch (self):
-		for f in ['SCons/Tools/crossmingw.py',
-			  'Contrib/StartMenu/StartMenu.c',
-			  'Source/7zip/LZMADecode.c',
-			  'Source/build.cpp',
-			  ]:
-			self.file_sub (
-				[('\r','')],
-				'%(srcdir)s/' + f)
-		self.system ("cd %(srcdir)s && patch -p0 < %(patchdir)s/nsis-2.14-mingw.patch")
-		self.system ("cd %(srcdir)s && patch -p0 < %(patchdir)s/nsis-2.14-local.patch")
+		if 0:
+			for f in ['SCons/Tools/crossmingw.py',
+				  'Contrib/StartMenu/StartMenu.c',
+				  'Source/7zip/LZMADecode.c',
+				  'Source/build.cpp',
+				  ]:
+				self.file_sub (
+					[('\r','')],
+					'%(srcdir)s/' + f)
+			self.system ("cd %(srcdir)s && patch -p0 < %(patchdir)s/nsis-2.14-mingw.patch")
+			self.system ("cd %(srcdir)s && patch -p0 < %(patchdir)s/nsis-2.14-local.patch")
+			
+		self.system ("cd %(srcdir)s && patch -p0 < %(patchdir)s/nsis-2.15-patchgenerator.patch")
+		self.system ("cd %(srcdir)s && patch -p0 < %(patchdir)s/nsis-2.15-expand.patch")
 		self.system ('mkdir -p %(allbuilddir)s', ignore_error=True)
 		self.system ('ln -s %(srcdir)s %(builddir)s') 
 		
@@ -62,6 +66,7 @@ class Nsis (Tool_package):
 		## no trailing / in paths!
 		return (' scons PREFIX=%(system_root)s/usr PREFIX_DEST=%(install_root)s '
 			' DEBUG=yes '
+			' NSIS_CONFIG_LOG=yes '
 			' SKIPPLUGINS=System')
 	
 	def compile (self): 
@@ -78,7 +83,7 @@ class Nsis (Tool_package):
 
 		
 	def srcdir (self):
-		d = Tool_package.srcdir (self).replace ('_','-')
+		d = Tool_package.srcdir (self).replace ('_','-') + '-src'
 		return d
 		     
 
