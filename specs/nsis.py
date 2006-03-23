@@ -66,7 +66,9 @@ class Nsis (Tool_package):
 		## no trailing / in paths!
 		return (' scons PREFIX=%(system_root)s/usr PREFIX_DEST=%(install_root)s '
 			' DEBUG=yes '
-			' NSIS_CONFIG_LOG=yes '
+
+			## /s switch doesn't work anymore?!
+			# ' NSIS_CONFIG_LOG=yes '
 			' SKIPPLUGINS=System')
 	
 	def compile (self): 
