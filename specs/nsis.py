@@ -44,7 +44,7 @@ class Nsis (Tool_package):
 			depends=["scons"])
 
 	def patch (self):
-		if 1:  #2.14 patches
+		if 0:  #2.14 patches
 			for f in ['SCons/Tools/crossmingw.py',
 				  'Contrib/StartMenu/StartMenu.c',
 				  'Source/7zip/LZMADecode.c',

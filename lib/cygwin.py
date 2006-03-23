@@ -19,7 +19,7 @@ tooldir="%(crossprefix)s/%(target_architecture)s"
 			+ self.makeflags ())
 
 class W32api_in_usr_lib (gub.Binary_package):
-	def download (self):
+	def do_download (self):
 		pass
 	def untar (self):
 		self.system ('mkdir -p %(srcdir)s/root/usr/lib')
