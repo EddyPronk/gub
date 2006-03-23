@@ -142,6 +142,13 @@ cd %(downloaddir)s/%(dir)s && cvs -q update -dAP -r %(version)s
                 return f
 
 	@subst_method
+	def cvs_branch (self):
+		if self.track_development:
+			return '%(version)s'
+		else:
+			return ''
+
+	@subst_method
 	def full_version (self):
 		return self.version ()
 
@@ -209,7 +216,12 @@ cd %(downloaddir)s/%(dir)s && cvs -q update -dAP -r %(version)s
 
 	@subst_method
         def hdr_name (self):
-		return '%(name)s.%(platform)s.hdr'
+		s = '%(name)s'
+		if self.track_development:
+			s += '-%(version)s'
+		
+		return s + '.%(platform)s.hdr'
+	
 
 	@subst_method
         def hdr_file (self):
