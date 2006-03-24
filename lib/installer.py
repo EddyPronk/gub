@@ -4,6 +4,7 @@ import time
 
 import context
 import darwintools
+import framework
 import gup2
 import targetpackage
 
@@ -296,6 +297,7 @@ class Cygwin_package (Installer):
 	def create (self):
 		p = targetpackage.load_target_package (self.settings,
 						       self._name)
+		framework.version_fixups (p.settings, [p])
 		self.cygwin_ball (p, '')
 		for i in p.split_packages:
 			self.cygwin_ball (p, i)

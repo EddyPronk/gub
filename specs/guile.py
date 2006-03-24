@@ -202,7 +202,8 @@ class Guile__cygwin (Guile):
 		# packages yet, xpm will try to load FOO.py for
 		# every split package FOO, eg: libguile17.py.
 
-		# Disable for now.
+		# FIXME: Must disable when building guile for lilypond,
+		# must enable for building guile (installer) for cygwin.
 		#self.sover = '17'
 		#self.split_packages = ['devel', 'doc', 'lib']
 
