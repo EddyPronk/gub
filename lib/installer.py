@@ -318,6 +318,12 @@ class Cygwin_package (Installer):
 		ball_name = re.sub ('\.%\(platform\)s.*',
 				    '-%(bundle_build)s.tar.bz2',
 				    gub_name)
+		# URG urg urgurg
+		if gub_name.startswith ('lilypond-HEAD'):
+			base_name = re.sub ('-HEAD.*', '', gub_name)
+			ball_name = re.sub ('-HEAD.*',
+					    '-%(bundle_version)s-%(bundle_build)s.tar.bz2',
+				    gub_name)
 		hint = base_name + '.hint'
 		dir = '%(installer_root)s-' + base_name
 		package.system ('''
@@ -347,8 +353,16 @@ cp -pv %(installer_root)s-%(package_name)s/etc/hints/%(hint)s %(cygwin_uploads)s
 		package_name = self._name
 		gub_name = package.gub_name ()
 		base_name = re.sub ('-%\(version\)s.*', '', gub_name)
+		base_name = re.sub ('-HEAD.*', '', gub_name)
 		dir_name = re.sub ('\.%\(platform\)s.*', '', gub_name)
 		cyg_name = dir_name + '-%(bundle_build)s'
+		# URG urg urgurg
+		if gub_name.startswith ('lilypond-HEAD'):
+			base_name = re.sub ('-HEAD.*', '', gub_name)
+			dir_name = re.sub ('.cygwin.gub', '', gub_name)
+			cyg_name = re.sub ('-HEAD.*',
+					   '-%(bundle_version)s-%(bundle_build)s',
+					   gub_name)
 		ball_name = cyg_name + '-src.tar.bz2'
 		dir = '%(installer_root)s-src'
 		package.system ('''
