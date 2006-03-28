@@ -171,7 +171,15 @@ def installer_command (c, settings, args):
 		package_installer (settings, installers)
 	else:
 		raise 'unknown installer command', c
-	
+
+def checksums_valid (manager, name, package_object_dict):
+	return (package_object_dict[name].spec_checksum == manager.package_dict (name)['spec_checksum']
+		and
+		True)
+
+		## let's be lenient for cross packages.
+##		package_object_dict[name].cross_checksum == manager.package_dict(name)['cross_checksum'])
+
 def run_builder (settings, manager, names, package_object_dict):
 	PATH = os.environ['PATH']
 
@@ -194,15 +202,19 @@ def run_builder (settings, manager, names, package_object_dict):
 		reved = names[:]
 		reved.reverse ()
 		for p in reved:
-			if (manager.is_installed (p) and
-			    not manager.is_installable (p)):
+			if ((manager.is_installed (p) and
+			     not manager.is_installable (p))
+			    or not checksums_valid (manager, p, package_object_dict)):
 				manager.uninstall_package (p)
 
 	for p in names:
+		
 		if manager.is_installed (p):
 			continue
 		
-		if settings.options.stage or not manager.is_installable (p):
+		if (settings.options.stage
+		    or not manager.is_installable (p)
+		    or not checksums_valid (manager, p, package_object_dict))5:
 			settings.os_interface.log_command ('building package: %s\n'
 							   % p)
 			
@@ -242,6 +254,7 @@ def main ():
 
 	(package_names, package_object_dict) = gup2.get_packages (settings,
 								  commands)
+
 	if c == 'download' or c == 'build':
 		def get_all_deps (name):
 			package = package_object_dict[name]
@@ -258,6 +271,7 @@ def main ():
 
 	elif c == 'build':
 		pm = gup2.get_target_manager (settings)
+
 		# FIXME: what happens here, {cross, cross_module}.packages
 		# are already added?
 		gup2.add_packages_to_manager (pm, settings, package_object_dict)

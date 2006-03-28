@@ -159,9 +159,10 @@ class Package_manager (File_manager):
 			self.register_package_dict (pickle.loads (v))
 
 	def register_package_dict (self, d):
+		
 		nm = d['name']
 		if (self._packages.has_key (nm)):
-			if self._packages[nm]['checksum'] != d['checksum']:
+			if self._packages[nm]['spec_checksum'] != d['spec_checksum']:
 				self.os_interface.log_command ('******** checksum of %s changed!\n\n' % nm)
 			if self._packages[nm]['cross_checksum'] != d['cross_checksum']:
 				self.os_interface.log_command ('******** checksum of cross changed for %s\n' % nm)

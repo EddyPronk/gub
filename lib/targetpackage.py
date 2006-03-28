@@ -313,7 +313,7 @@ def load_target_package (settings, url):
 
 		desc = ('.py', 'U', 1)
 		checksum = md5.md5 (open (file_name).read ()).hexdigest ()
-		
+
 		file = open (file_name)
 		module = imp.load_module (name, file, file_name, desc)
 		full = class_name + '__' + settings.platform.replace ('-', '__')
