@@ -174,12 +174,20 @@ def installer_command (c, settings, args):
 		raise 'unknown installer command', c
 
 def checksums_valid (manager, name, package_object_dict):
-	return (package_object_dict[name].spec_checksum == manager.package_dict (name)['spec_checksum']
-		and
-		True)
+	spec = package_object_dict[name] 
+	v = spec.spec_checksum == manager.package_dict (name)['spec_checksum']
 
-		## let's be lenient for cross packages.
-##		package_object_dict[name].cross_checksum == manager.package_dict(name)['cross_checksum'])
+	hdr = spec.expand ('%(hdr_file)s')
+	if os.path.exists (hdr):
+		hdr_sum = pickle.load (open (hdr))['spec_checksum']
+#		print hdr_sum, spec.spec_checksum
+		v = v and  hdr_sum == spec.spec_checksum
+			
+	## let's be lenient for cross packages.
+	## spec.cross_checksum == manager.package_dict(name)['cross_checksum'])
+
+	return v
+
 
 def run_builder (settings, manager, names, package_object_dict):
 	PATH = os.environ['PATH']
@@ -200,16 +208,16 @@ def run_builder (settings, manager, names, package_object_dict):
 				  extra_build_deps)
 
 	if not settings.options.stage:
+		
 		reved = names[:]
 		reved.reverse ()
 		for p in reved:
-			if ((manager.is_installed (p) and
-			     not manager.is_installable (p))
-			    or not checksums_valid (manager, p, package_object_dict)):
+			if (manager.is_installed (p) and
+			    (not manager.is_installable (p)
+			     or not checksums_valid (manager, p, package_object_dict))):
 				manager.uninstall_package (p)
-
+				
 	for p in names:
-		
 		if manager.is_installed (p):
 			continue
 		
@@ -223,6 +231,11 @@ def run_builder (settings, manager, names, package_object_dict):
 			
 		if (manager.is_installable (p)
 		    and not manager.is_installed (p)):
+			spec_obj = package_object_dict[p]
+			d = spec_obj.get_substitution_dict ()
+
+			manager.unregister_package_dict (p)
+			manager.register_package_dict (d)
 			manager.install_package (p)
 
 def main ():
