@@ -8,6 +8,9 @@ class Fontforge (Tool_package):
 	def install_command (self):
 		return self.broken_install_command ()
 
+	def configure_command (self):
+		return Tool_package.configure_command (self) + " --without-freetype-src "
+
 	def __init__ (self, settings):
 		Tool_package.__init__ (self, settings)
 		self.with (mirror="http://fontforge.sourceforge.net/fontforge_full-%(version)s.tar.bz2",
