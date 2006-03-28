@@ -9,8 +9,9 @@ class Gmp (targetpackage.Target_package):
 		targetpackage.Target_package.__init__ (self, settings)
 		self.with (version='4.1.4',
 			   depends=['libtool'])
-		
-		self.target_architecture = re.sub ('i[0-9]86-', 'i386-', settings.target_architecture)
+
+		if not self.settings.platform.startswith ('darwin'):
+			self.target_architecture = re.sub ('i[0-9]86-', 'i386-', settings.target_architecture)
 
 	# ugh.
 	def configure_command (self):
