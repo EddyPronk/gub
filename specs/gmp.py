@@ -58,6 +58,12 @@ class Gmp__darwin__x86 (Gmp__darwin):
 		c = re.sub ('host=[^ ]+', 'host=none-apple-darwin8', c)
 		c = re.sub ('--target=[^ ]+', ' ', c)
 		return c
+
+	def install (self):
+		Gmp__darwin.install (self)
+		self.file_sub ([('using std::FILE;','')],
+			       '%(install_root)s/usr/include/gmp.h')
+
 	
 class Gmp__mingw (Gmp):
 	def __init__ (self,settings):
