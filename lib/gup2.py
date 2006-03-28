@@ -196,6 +196,9 @@ class Package_manager (File_manager):
 
 		self.register_package_dict (d)
 
+	def unregister_package_dict (self, name):
+		del self._packages[name]
+		
 	def read_package_headers (self, dir, branch):
 		for f in glob.glob ('%s/*hdr' % dir):
 			self.register_package_header (f, branch)
