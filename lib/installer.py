@@ -260,7 +260,7 @@ class Shar (Linux_installer):
 		
 		target_shar = self.expand ('%(installer_uploads)s/%(name)s-%(bundle_version)s-%(bundle_build)s.%(platform)s.sh')
 
-		head = self.expand ('%(patchdir)s/sharhead.sh')
+		head = self.expand ('%(sourcefiledir)s/sharhead.sh')
 		tarball = self.expand (self.bundle_tarball)
 
 		hello = self.expand ("version %(bundle_version)s release %(bundle_build)s")
