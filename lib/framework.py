@@ -32,10 +32,8 @@ def version_fixups (settings, packs):
 			settings.python_version = '2.4'
 		elif settings.platform == 'cygwin':
 			settings.python_version = '2.4'
-		elif settings.platform == 'darwin-ppc':
+		elif settings.platform.startswith ('darwin'):
 			settings.python_version = '2.3'
-		elif settings.platform == 'darwin-x86':
-			settings.python_version = '2.4' ## don't know.
 		elif settings.platform == 'debian':
 			settings.python_version = '2.3'
 	try:
