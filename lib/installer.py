@@ -80,6 +80,7 @@ class Installer (context.Os_context_wrapper):
 			'share/info',
 			'share/man',
 			'share/omf',
+			'share/libtool/',
 
 			# prune harder
 			'lib/python*/bsddb',
