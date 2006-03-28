@@ -186,6 +186,15 @@ class Guile__darwin (Guile):
 
 			self.system ('cd %(directory)s && ln -s %(src)s %(dst)s', locals())
 
+	
+ 
+class Guile__darwin__x86 (Guile__darwin):
+	def configure (self):
+		Guile__darwin.configure (self)
+		self.file_sub ([('guile-readline', '')],
+			       '%(builddir)s/Makefile')
+		
+		
 class Guile__cygwin (Guile):
 	def __init__ (self, settings):
 		Guile.__init__ (self, settings)

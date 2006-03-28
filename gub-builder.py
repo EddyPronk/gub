@@ -19,6 +19,7 @@ import gub
 import installer
 import settings as settings_mod
 import subprocess
+import pickle
 
 def get_settings (platform):
 	settings = settings_mod.Settings (platform)
