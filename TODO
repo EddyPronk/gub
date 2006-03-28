@@ -11,6 +11,13 @@ lagere prioriteit
   * python x-compile.
   * cygwin GCC
 
+
+- update packages:
+  * pango 1.12
+  * gmp 4.2
+  * glib 2.10
+  * 
+
 web:
 
 - "download now" button, die met javascript de goede binary selecteert
