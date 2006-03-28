@@ -91,7 +91,17 @@ class Gcc (cross.Gcc):
 class Gcc__darwin (Gcc):
 	def configure (self):
 		cross.Gcc.configure (self)
+	def install (self):
+
+		sysroot = self.expand ('%(targetdir)s')
+		sysroot = sysroot[1:]
 		
+
+		## UGH.! 
+		self.system ('''
+cd %(system_root)s && mkdir -p %(sysroot)s 
+ln -s ../../../../../../ %(sysroot)s/system
+''')
 
 		
 class Rewirer (context.Os_context_wrapper):

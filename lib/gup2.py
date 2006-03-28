@@ -164,6 +164,8 @@ class Package_manager (File_manager):
 		if (self._packages.has_key (nm)):
 			if self._packages[nm]['spec_checksum'] != d['spec_checksum']:
 				self.os_interface.log_command ('******** checksum of %s changed!\n\n' % nm)
+
+			## UGH ; need to look at installed hdr.
 			if self._packages[nm]['cross_checksum'] != d['cross_checksum']:
 				self.os_interface.log_command ('******** checksum of cross changed for %s\n' % nm)
 			return
