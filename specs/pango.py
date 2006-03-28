@@ -26,7 +26,7 @@ class Pango (targetpackage.Target_package):
 		self.update_libtool ()
 	def patch (self):
 		targetpackage.Target_package.patch (self)
-		self.system ('cd %(srcdir)s && patch --force -p1 < %(patchdir)s/pango-env-sub')
+		self.system ('cd %(srcdir)s && patch --force -p1 < %(patchdir)s/pango-substitute-env.patch')
 
 		## ugh, already fixed in Pango CVS.
 		f = open (self.expand ('%(srcdir)s/pango/pango.def'), 'a')
@@ -43,7 +43,7 @@ class Pango (targetpackage.Target_package):
 ModuleFiles = "$PANGO_PREFIX/etc/pango/pango.modules"
 ModulesPath = "$PANGO_PREFIX/lib/pango/1.4.0/modules"
 ''')
-		shutil.copy2 (self.expand ('%(patchdir)s/pango.modules'),
+		shutil.copy2 (self.expand ('%(sourcefiledir)s/pango.modules'),
 			      etc)
 
 class Pango__mingw (Pango):

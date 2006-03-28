@@ -33,6 +33,7 @@ class Settings (Context):
 		self.logdir = self.topdir + '/log'
 		self.downloaddir = self.topdir + '/downloads'
 		self.patchdir = self.topdir + '/patches'
+		self.sourcefiledir = self.topdir + '/sourcefiles'
 		self.specdir = self.topdir + '/specs'
 		self.nsisdir = self.topdir + '/nsis'
 		self.gtk_version = '2.8'
