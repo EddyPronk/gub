@@ -9,8 +9,8 @@ import targetpackage
 class Pango (targetpackage.Target_package):
 	def __init__ (self, settings):
 		targetpackage.Target_package.__init__ (self, settings)
-		self.with (version='1.11.2',
-			   mirror=download.gnome_213,
+		self.with (version='1.12.0',
+			   mirror=download.gnome_214,
 			   format='bz2',
 			   depends=['freetype', 'fontconfig', 'glib', 'libiconv', 'libtool'])
 
