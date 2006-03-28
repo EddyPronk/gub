@@ -43,6 +43,21 @@ class Gmp__darwin (Gmp):
 			       '%(srcdir)s/gmp-h.in')
 		Gmp.patch (self)
 
+class Gmp__darwin__x86 (Gmp__darwin):
+	def __init__ (self, s):
+		Gmp__darwin.__init__ (self, s)
+		self.with (version='4.2',
+			   depends=['libtool'])
+
+	def configure_command (self):
+
+		## bypass oddball assembler errors. 
+		c = Gmp__darwin.configure_command (self)
+		c += ' --disable-cxx '
+		c = re.sub ('host=[^ ]+', 'host=none-apple-darwin8', c)
+		c = re.sub ('--target=[^ ]+', ' ', c)
+		return c
+	
 class Gmp__mingw (Gmp):
 	def __init__ (self,settings):
 		Gmp.__init__ (self, settings)
