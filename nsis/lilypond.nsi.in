@@ -417,9 +417,6 @@ Function postinstall_fontconfig
 	StrCpy $0 "$INSTDIR\usr\etc\fonts\fonts.conf"
 	CopyFiles /silent "$0" "$0.in"
 	${SubstituteAtVariables} "$0.in" "$0"
-	StrCpy $0 "$INSTDIR\usr\bin\fc-cache.scm"
-	${SubstituteAtVariables} "$0.in" "$0"
-	Exec '"$INSTDIR\usr\bin\guile" -e main -s "$0" "$WINDIR\fonts" "$INSTDIR\usr\share\gs\fonts" "$INSTDIR\usr\share\lilypond\${LILYPOND_VERSION}\fonts\type1'
 FunctionEnd
 
 Function postinstall_lilypad
