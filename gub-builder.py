@@ -214,7 +214,7 @@ def run_builder (settings, manager, names, package_object_dict):
 		
 		if (settings.options.stage
 		    or not manager.is_installable (p)
-		    or not checksums_valid (manager, p, package_object_dict))5:
+		    or not checksums_valid (manager, p, package_object_dict)):
 			settings.os_interface.log_command ('building package: %s\n'
 							   % p)
 			

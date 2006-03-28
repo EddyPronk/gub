@@ -7,6 +7,7 @@ import cross
 import download
 import gub
 
+
 darwin_sdk_version = '0.4'
 class Odcctools (cross.Cross_package):
 	def configure (self):
@@ -37,8 +38,7 @@ rm %(srcdir)s/usr/lib/libgcc*
 rm %(srcdir)s/usr/lib/libstdc\+\+*
 rm %(srcdir)s/usr/lib/libltdl*
 rm %(srcdir)s/usr/include/ltdl.h
-rm %(srcdir)s/usr/lib/gcc/powerpc-apple-darwin8
-rm %(srcdir)s/usr/lib/gcc/powerpc-apple-darwin*/*/*dylib
+rm %(srcdir)s/usr/lib/gcc/*-apple-darwin*/*/*dylib
 rm -rf %(srcdir)s/usr/lib/gcc
 rm -f $(find %(srcdir)s -name FlexLexer.h)
 ''')
@@ -68,9 +68,9 @@ class Gcc (cross.Gcc):
 	def configure (self):
 		cross.Gcc.configure (self)
 		self.file_sub ([("nm", "%(tool_prefix)snm "),
-				('--strip-underscores', '--strip-underscore')],
-			       "%(srcdir)s/libstdc++-v3/scripts/make_exports.pl")
-		
+					('--strip-underscores', '--strip-underscore')],
+				       "%(srcdir)s/libstdc++-v3/scripts/make_exports.pl")
+
 
 	def rewire_gcc_libs (self):
 
@@ -87,6 +87,12 @@ class Gcc (cross.Gcc):
 	def install (self):
 		cross.Gcc.install (self)
 		self.rewire_gcc_libs ()
+
+class Gcc__darwin (Gcc):
+	def configure (self):
+		cross.Gcc.configure (self)
+		
+
 		
 class Rewirer (context.Os_context_wrapper):
 	def __init__ (self, settings):
@@ -188,12 +194,23 @@ def get_cross_packages (settings):
 	packages = []
 	packages.append (Darwin_sdk (settings))
 		
-	packages += [Odcctools (settings).with (version='20051122', mirror=download.opendarwin, format='bz2'),
-		     Gcc (settings).with (version='4.1.0',
-					  mirror=download.gcc_41,
-					  format='bz2',
-					  depends=['odcctools']),
-		     ]
+	packages += [Odcctools (settings).with (version='20051122', mirror=download.opendarwin, format='bz2')]
+
+	if settings.target_architecture.startswith ("powerpc"):
+		packages.append (Gcc (settings).with (version='4.1.0',
+						      mirror=download.gcc_41,
+						      format='bz2',
+						      depends=['odcctools']))
+	elif 0:
+		packages.append (Gcc (settings).with (version='4.2.20060325',
+						      mirror=download.gcc_snap,
+						      format='bz2',
+						      depends=['odcctools']))
+	else:
+		packages.append (Gcc__darwin (settings).with (version='5250',
+						      mirror='http://www.opensource.apple.com/darwinsource/tarballs/other/gcc-5250.tar.gz',
+						      depends=['odcctools']))
+		
 
 	return packages
 
@@ -204,7 +221,10 @@ def change_target_packages (packages):
 
 			## We get a lot of /usr/lib/ -> @executable_path/../lib/
 			## we need enough space in the header to do these relocs.
-			'LDFLAGS': '-Wl,-headerpad_max_install_names '
+			'LDFLAGS': '-Wl,-headerpad_max_install_names ',
+
+			## UGH: gettext fix for ptrdiff_t
+			'CPPFLAGS' : '-DSTDC_HEADERS',
 			})
 		
 		remove = ('libiconv', 'zlib')
@@ -227,7 +247,7 @@ def get_darwin_sdk ():
 		
 	host  = 'maagd'
 	version = '0.4'
-	darwin_version  = 7
+	darwin_version  = 8
 
 	dest =	'darwin%(darwin_version)d-sdk-%(version)s' % locals()
 	
@@ -246,7 +266,8 @@ def get_darwin_sdk ():
  	system ('chmod -R +w %s '  % dest)
 	system ('tar cfz %s.tar.gz %s '  % (dest, dest))
 
-
-if __name__== '__main__' and len (sys.argv) > 1:
-	get_darwin_sdk ()
+if __name__== '__main__':
+	import sys
+	if len (sys.argv) > 1:
+		get_darwin_sdk ()
 
