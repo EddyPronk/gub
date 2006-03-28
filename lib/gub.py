@@ -219,6 +219,10 @@ cd %(downloaddir)s/%(dir)s && cvs -q update -dAP -r %(version)s
 		return '%(name)s-%(version)s-src.%(platform)s.gub'
 
 	@subst_method
+	def gub_src_uploads (self):
+		return '%(gub_uploads)s'
+
+	@subst_method
         def hdr_name (self):
 		s = '%(name)s'
 		if self.track_development:
@@ -496,7 +500,7 @@ tar -C %(install_root)s-%(i)s -zcf %(gub_uploads)s/%(split_gub_name)s .
 				   self.expand ('%(srcdir)s'))
 		self.system ('''
 rm -f $(find %(srcdir)s -name '*~' -o -name '*.orig')
-tar -C %(allsrcdir)s -zcf %(gub_uploads)s/%(gub_name_src)s %(dir_name)s
+tar -C %(allsrcdir)s -zcf %(gub_src_uploads)s/%(gub_name_src)s %(dir_name)s
 ''',
 			     locals ())
 

@@ -26,6 +26,10 @@ class Cross_package (gub.Package):
 	def install_command (self):
 		return '''make DESTDIR=%(install_root)s prefix=/usr/cross/ install'''
 	
+
+	def gub_src_uploads (self):
+		return '%(gub_cross_uploads)s'
+
 	def gub_ball (self):
 		c =  '%(gub_cross_uploads)s/%(gub_name)s'
 		return c
