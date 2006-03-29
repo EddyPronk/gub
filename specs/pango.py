@@ -41,8 +41,8 @@ class Pango (targetpackage.Target_package):
 
 		open (etc + '/pangorc', 'w').write (
 		'''[Pango]
-ModuleFiles = "$PANGO_PREFIX/etc/pango/pango.modules"
-ModulesPath = "$PANGO_PREFIX/lib/pango/1.5.0/modules"
+ModuleFiles = $PANGO_PREFIX/etc/pango/pango.modules
+ModulesPath = $PANGO_PREFIX/lib/pango/1.5.0/modules
 ''')
 		shutil.copy2 (self.expand ('%(sourcefiledir)s/pango.modules'),
 			      etc)
