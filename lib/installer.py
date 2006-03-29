@@ -157,7 +157,7 @@ class Darwin_bundle (Installer):
 		
 		rw.rewire_root (self.settings.installer_root)
 
-		bundle_zip = self.expand ('%(uploads)s/lilypond-%(bundle_version)s-%(bundle_build)s.%(platform)s.zip')
+		bundle_zip = self.expand ('%(uploads)s/lilypond-%(bundle_version)s-%(bundle_build)s.%(platform)s.tar.bz2')
 		self.system ('''
 rm -f %(bundle_zip)s 
 rm -rf %(darwin_bundle_dir)s
@@ -176,7 +176,7 @@ cp -pR --link %(installer_root)s/usr/* %(darwin_bundle_dir)s/Contents/Resources/
 			env=locals (),
 			must_succeed=True)
 		
-		self.system ('cd %(darwin_bundle_dir)s/../ && zip -yr %(bundle_zip)s LilyPond.app',
+		self.system ('cd %(darwin_bundle_dir)s/../ && tar cjf %(bundle_zip)s LilyPond.app',
 			     locals ())
 		
 		self.log_command ("Created %(bundle_zip)s\n", locals()) 
