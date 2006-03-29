@@ -65,8 +65,6 @@ download:
 	$(call INVOKE_DRIVER,darwin-ppc) download osx-lilypad
 	$(call INVOKE_DRIVER,local) download flex mftrace potrace fontforge \
 		guile pkg-config nsis icoutils
-	$(foreach p, $(PLATFORMS), (mv uploads/$(p)/lilypond-$(LILYPOND_BRANCH).$(p).gub uploads/$(p)/lilypond-$(LILYPOND_BRANCH)-OLD.$(p).gub || true) &&) true
-	$(foreach p, $(PLATFORMS), $(call INVOKE_GUP,$(p)) remove lilypond ; ) true
 	rm -f target/*/status/lilypond*
 	rm -f log/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).*.test.pdf
 

@@ -12,6 +12,7 @@ import string
 import subprocess
 import sys
 import time
+import md5
 
 from context import *
 
@@ -36,6 +37,8 @@ class Package (Os_context_wrapper):
 
 		self.name_dependencies = []
 		self.name_build_dependencies = []
+
+
 
 	# urg: naming conflicts with module.
 	def do_download (self):
@@ -115,9 +118,24 @@ cd %(downloaddir)s && cvs -d %(url)s -q co -d %(dir)s -r %(version)s %(name)s
 # Hmm, let's save local changes?
 #cd %(srcdir)s && cvs update -dCAP -r %(version)s
 			self.system ('''
-cd %(downloaddir)s/%(dir)s && cvs -q update -dAP -r %(version)s
+cd %(cvs_dest)s && cvs -q update -dAP -r %(version)s
 ''', locals ())
 
+
+		## checksumming is necessary, otherwise
+		## we can have out-of-date files installed.
+		cvs_dirs =  []
+		for (base, dirs, files) in os.walk (cvs_dest):
+			cvs_dirs += [os.path.join (base, d) for d in dirs
+				     if d == 'CVS']
+
+		checksum = md5.md5()
+		for d in cvs_dirs:
+			checksum.update (open (os.path.join (d, 'Entries')).read ())
+
+		print checksum.hexdigest ()
+		return checksum.hexdigest ()
+		
 	@subst_method
 	def name (self):
 		file = self.__class__.__name__.lower ()
@@ -130,6 +148,17 @@ cd %(downloaddir)s/%(dir)s && cvs -q update -dAP -r %(version)s
 	def file_name (self):
 		file = re.sub ('.*/([^/]+)', '\\1', self.url)
 		return file
+
+	@subst_method
+	def source_checksum (self):
+		if not self.track_development:
+			return '0000'
+
+		dir = '%s/%s-%s/' % (self.settings.downloaddir, self.name(),
+				     self.version ())
+
+		file = '%s/.cvs-checksum' % dir
+		return open (file).read ()
 
 	@subst_method
 	def basename (self):

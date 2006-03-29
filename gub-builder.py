@@ -173,16 +173,32 @@ def installer_command (c, settings, args):
 	else:
 		raise 'unknown installer command', c
 
-def checksums_valid (manager, name, package_object_dict):
-	spec = package_object_dict[name] 
-	v = spec.spec_checksum == manager.package_dict (name)['spec_checksum']
+def checksums_valid (manager, name, spec_object_dict):
+	spec = spec_object_dict[name]
+	package_dict =  manager.package_dict (name)
+	v = spec.spec_checksum == package_dict['spec_checksum']
+	try:
+		v = (v
+		     and spec.source_checksum () == package_dict['source_checksum'])
+		## JUNKME
+	except KeyError:
+		pass
+	
 
 	hdr = spec.expand ('%(hdr_file)s')
 	v = v and os.path.exists (hdr)
 	if v:
-		hdr_sum = pickle.load (open (hdr))['spec_checksum']
-		v = v and  hdr_sum == spec.spec_checksum
+		hdr_dict = pickle.load (open (hdr)) 
+		hdr_sum = hdr_dict['spec_checksum']
+		v = v and hdr_sum == spec.spec_checksum
+		try:
+			v = v and spec.source_checksum () == hdr_dict['source_checksum']
+
+			## FIXME
+		except KeyError:
+			pass
 			
+	
 	## let's be lenient for cross packages.
 	## spec.cross_checksum == manager.package_dict(name)['cross_checksum'])
 
