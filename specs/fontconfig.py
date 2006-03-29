@@ -102,5 +102,5 @@ class Fontconfig__local (toolpackage.Tool_package):
 	def __init__ (self, settings):
 		toolpackage.Tool_package.__init__ (self, settings)
 		self.with (version='2.3.2', mirror=download.fontconfig,
-			   depends=[])
+			   depends=['expat', 'freetype'])
 		
