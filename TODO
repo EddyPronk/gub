@@ -13,9 +13,7 @@ lagere prioriteit
 
 
 - update packages:
-  * pango 1.12
   * gmp 4.2
-  * glib 2.10
   * fontconfig 2.4
 
 - darwin-x86
