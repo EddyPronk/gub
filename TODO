@@ -16,7 +16,12 @@ lagere prioriteit
   * pango 1.12
   * gmp 4.2
   * glib 2.10
-  * 
+  * fontconfig 2.4
+
+- darwin-x86
+
+  ignoring nonexistent directory "/home/lilydev/vc/gub/target/darwin-x86/system//home/lilydev/vc/gub/target/darwin-x86/system/usr/ cross//lib/gcc/i686-apple-darwin8/4.0.1/../../../../i686-apple-darwin8/include"
+
 
 web:
 
