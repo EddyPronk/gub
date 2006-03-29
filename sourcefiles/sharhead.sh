@@ -81,6 +81,8 @@ fi
 lilydir="${prefix}lilypond/"
 bindir="${prefix}bin/"
 binwrapscript="${bindir}lilypond"
+uninstall_script=${bindir}/uninstall-lilypond
+
 wrapscript="${bindir}lilypond-wrapper"
 expandargs='"$@"'
 dollar='$'
@@ -141,7 +143,7 @@ done
 ################
 ## symlinks to wrappers
 
-(cd ${prefix}/bin/ ;
+(cd ${bindir} ;
  for a in abc2ly musicxml2ly convert-ly midi2ly etf2ly lilypond-book mup2ly ; do
    rm -f $a;
    ln -s $wrapscript.python $a;
@@ -152,6 +154,48 @@ done
  done
  )
 
+
+################
+## uninstall script
+
+echo Creating script $uninstall_script
+cat <<EOF > $uninstall_script
+#!/bin/sh
+
+quiet=no
+while test "${dollar}1" != ""; 
+do
+  case "${dollar}1" in
+  --help)
+    cat <<BLA
+options
+  --help    this screen
+  --quiet   do not ask for confirmation
+BLA
+   exit 0
+   ;;
+  --quiet)
+    quiet=yes
+    ;;
+  esac
+  shift
+done
+if test "${dollar}quiet" = "no" ; then
+  echo "About to remove a lilypond installation from ${prefix}lilypond"
+  echo "Press ^C to abort"
+  read junk
+fi
+
+for binary in abc2ly musicxml2ly convert-ly midi2ly etf2ly lilypond-book mup2ly lilypond-invoke-editor lilypond  ; do
+  rm ${bindir}/${dollar}binary
+done
+rm $wrapscript.guile  $wrapscript.python
+rm -rf ${prefix}lilypond
+rm $uninstall_script
+EOF
+chmod +x $uninstall_script
+
+
 ## UGH
 ##
 ## need to do
@@ -161,10 +205,9 @@ echo Untarring "$me"
 tail -c+%(header_length)012d "$0" | tar -C "$lilydir" -x%(tarflag)sf -
 
 cat <<EOF
-To uninstall lilypond, do
+To uninstall lilypond, run 
 
-    rm -r "$wrapscript" "$wrapscript.python" "$wrapscript.guile" "${prefix}lilypond"
-
+    ${prefix}/bin/uninstall-lilypond
 
 EOF
 
