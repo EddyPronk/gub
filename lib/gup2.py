@@ -27,7 +27,7 @@ class File_manager:
 		if dbdir:
 			self.config = dbdir
 		else:
-			self.config = self.root + '/etc/xpm/'
+			self.config = self.root + '/etc/gup/'
 			
 		self.os_interface = os_interface
 		self.verbose = True
