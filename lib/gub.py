@@ -158,8 +158,11 @@ cd %(cvs_dest)s && cvs -q update -dAP -r %(version)s
 				     self.version ())
 
 		file = '%s/.cvs-checksum' % dir
-		return open (file).read ()
-
+		if os.path.exists (file):
+			return open (file).read ()
+	
+		return '0000'
+	
 	@subst_method
 	def basename (self):
                 f = self.file_name ()
