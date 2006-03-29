@@ -34,6 +34,7 @@ class Pango (targetpackage.Target_package):
 
 	def fix_modules (self):
 		etc = self.expand ('%(install_root)s/usr/etc/pango')
+		self.system ('mkdir -p %(etc)s' , locals ())
 		for a in glob.glob (etc + '/*'):
 			self.file_sub ([('/usr/', '$PANGO_PREFIX/')],
 				       a)
@@ -41,7 +42,7 @@ class Pango (targetpackage.Target_package):
 		open (etc + '/pangorc', 'w').write (
 		'''[Pango]
 ModuleFiles = "$PANGO_PREFIX/etc/pango/pango.modules"
-ModulesPath = "$PANGO_PREFIX/lib/pango/1.4.0/modules"
+ModulesPath = "$PANGO_PREFIX/lib/pango/1.5.0/modules"
 ''')
 		shutil.copy2 (self.expand ('%(sourcefiledir)s/pango.modules'),
 			      etc)
@@ -51,7 +52,7 @@ class Pango__mingw (Pango):
 		targetpackage.Target_package.install (self)
 		self.system ('mkdir -p %(install_root)s/usr/etc/pango')
 		self.dump ('''[Pango]
-ModulesPath = "@INSTDIR@\\usr\\lib\\pango\\1.4.0\\modules"
+ModulesPath = "@INSTDIR@\\usr\\lib\\pango\\1.5.0\\modules"
 ModuleFiles = "@INSTDIR@\\usr\\etc\\pango\\pango.modules"
 #[PangoX]
 #AliasFiles = "@INSTDIR@\\usr\\etc\\pango\\pango.modules\\pangox.aliases"
