@@ -9,7 +9,7 @@ TEST_PLATFORMS=$(PLATFORMS)
 
 
 # skip darwin-x86 ; still broken.
-PLATFORMS=darwin-ppc mingw linux freebsd cygwin 
+PLATFORMS=darwin-ppc darwin-x86 mingw linux freebsd cygwin 
 LILYPOND_VERSION=$(MAJOR_VERSION).$(MINOR_VERSION).$(PATCH_LEVEL)$(if $(strip $(MY_PATCH_LEVEL)),.$(MY_PATCH_LEVEL),)
 INVOKE_DRIVER=python gub-builder.py \
 --target-platform $(1) \
