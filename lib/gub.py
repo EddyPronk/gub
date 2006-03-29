@@ -120,8 +120,12 @@ cd %(downloaddir)s && cvs -d %(url)s -q co -d %(dir)s -r %(version)s %(name)s
 			self.system ('''
 cd %(cvs_dest)s && cvs -q update -dAP -r %(version)s
 ''', locals ())
+			
 
+		self.touch_cvs_checksum (cvs_dest)
 
+	def touch_cvs_checksum (self, cvs_dest):
+		
 		## checksumming is necessary, otherwise
 		## we can have out-of-date files installed.
 		cvs_dirs =  []
@@ -132,9 +136,8 @@ cd %(cvs_dest)s && cvs -q update -dAP -r %(version)s
 		checksum = md5.md5()
 		for d in cvs_dirs:
 			checksum.update (open (os.path.join (d, 'Entries')).read ())
+		open (self.cvs_checksum_file (),'w').write (checksum.hexdigest ())
 
-		print checksum.hexdigest ()
-		return checksum.hexdigest ()
 		
 	@subst_method
 	def name (self):
@@ -149,15 +152,19 @@ cd %(cvs_dest)s && cvs -q update -dAP -r %(version)s
 		file = re.sub ('.*/([^/]+)', '\\1', self.url)
 		return file
 
-	@subst_method
-	def source_checksum (self):
-		if not self.track_development:
-			return '0000'
-
+	def cvs_checksum_file (self):
 		dir = '%s/%s-%s/' % (self.settings.downloaddir, self.name(),
 				     self.version ())
 
 		file = '%s/.cvs-checksum' % dir
+		return file
+
+	@subst_method
+	def source_checksum (self):
+		if not self.track_development:
+			return '0000'
+		
+		file = self.cvs_checksum_file ()
 		if os.path.exists (file):
 			return open (file).read ()
 	
