@@ -7,9 +7,10 @@ default: all
 
 TEST_PLATFORMS=$(PLATFORMS)
 
+PLATFORMS=darwin-ppc darwin-x86 mingw linux freebsd cygwin
 
-# skip darwin-x86 ; still broken.
-PLATFORMS=darwin-ppc darwin-x86 mingw linux freebsd cygwin 
+OTHER_PLATFORMS=$(filter-out $(BUILD_PLATFORM), $(PLATFORMS))
+
 LILYPOND_VERSION=$(MAJOR_VERSION).$(MINOR_VERSION).$(PATCH_LEVEL)$(if $(strip $(MY_PATCH_LEVEL)),.$(MY_PATCH_LEVEL),)
 INVOKE_DRIVER=python gub-builder.py \
 --target-platform $(1) \
@@ -63,12 +64,10 @@ download:
 	$(foreach p, $(PLATFORMS), $(call INVOKE_DRIVER,$(p)) download lilypond && ) true
 	$(call INVOKE_DRIVER,mingw) download lilypad
 	$(call INVOKE_DRIVER,darwin-ppc) download osx-lilypad
-	$(call INVOKE_DRIVER,local) download flex mftrace potrace fontforge \
-		guile pkg-config nsis icoutils
 	rm -f target/*/status/lilypond*
 	rm -f log/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).*.test.pdf
 
-all: linux darwin-ppc doc freebsd mingw doc
+all: $(BUILD_PLATFORM) doc $(OTHER_PLATFORMS) 
 
 arm:
 	$(call BUILD,$@,lilypond)
