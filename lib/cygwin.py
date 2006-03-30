@@ -43,6 +43,11 @@ gcc_tooldir="%(crossprefix)s/%(target_architecture)s"
 --with-newlib
 --enable-threads
 '''))
+	
+	def configure (self):
+		mingw.Gcc.configure (self)
+		self.file_sub ([(' -Werror ',' ')],
+			       '%(srcdir)s/bfd/Makefile')
 
 mirror = 'http://gnu.kookel.org/ftp/cygwin'
 def get_cross_packages (settings):
