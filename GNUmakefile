@@ -57,8 +57,12 @@ include $(LILYPOND_CVSDIR)/VERSION
 ifeq ($(LILYPOND_BRANCH),)
 LILYPOND_BRANCH=$(shell (cat $(LILYPOND_CVSDIR)/CVS/Tag 2> /dev/null || echo HEAD) | sed s/^T//)
 endif
-INSTALLER_BUILD:=$(shell python lilypondorg.py nextbuild $(LILYPOND_VERSION))
 
+ifeq ($(OFFLINE),)
+INSTALLER_BUILD:=$(shell python lilypondorg.py nextbuild $(LILYPOND_VERSION))
+else
+INSTALLER_BUILD:=0
+endif
 
 download:
 	$(foreach p, $(PLATFORMS), $(call INVOKE_DRIVER,$(p)) download lilypond && ) true
