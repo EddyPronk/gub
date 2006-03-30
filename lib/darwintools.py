@@ -164,7 +164,9 @@ class Rewirer (context.Os_context_wrapper):
 
 	def rewire_binary_dir (self, dir):
 		if not os.path.isdir (dir):
-			return
+			print dir
+			raise 'Not a directory'
+
 		(root, dirs, files) = os.walk (dir).next ()
 		files = [os.path.join (root, f) for f in files]
 
@@ -191,8 +193,10 @@ class Rewirer (context.Os_context_wrapper):
 			raise 'error: should init with file_manager.'
 
 		self.rewire_binary_dir (root + '/usr/lib')
+
 		# Ugh.
-		self.rewire_binary_dir (root + '/usr/lib/pango/1.4.0/modules/')
+		## FIXME
+		self.rewire_binary_dir (root + '/usr/lib/pango/1.5.0/modules/')
 		self.rewire_binary_dir (root + '/usr/bin')
 
 class Package_rewirer:
