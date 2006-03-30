@@ -193,10 +193,9 @@ class Rewirer (context.Os_context_wrapper):
 			raise 'error: should init with file_manager.'
 
 		self.rewire_binary_dir (root + '/usr/lib')
+		for d in glob.glob (root + '/usr/lib/pango/*/modules/'):
+			self.rewire_binary_dir (d)
 
-		# Ugh.
-		## FIXME
-		self.rewire_binary_dir (root + '/usr/lib/pango/1.5.0/modules/')
 		self.rewire_binary_dir (root + '/usr/bin')
 
 class Package_rewirer:
