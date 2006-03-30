@@ -46,6 +46,7 @@ def system (c):
 		raise 'barf'
 
 def get_url_versions (url):
+	print url
 	index = urllib.urlopen (url).read()
 
 	versions = []
@@ -58,7 +59,8 @@ def get_url_versions (url):
 		versions.append ((version, build))
 		return ''
 
-	re.sub (r'lilypond-([0-9.]+)-?([0-9]+)?\.[a-z-]+\.[a-z-]+', note_version, index)
+	re.sub (r'lilypond-([0-9.]+)-?([0-9]+)?\.[0-9a-z-]+\.[0-9a-z-]+', note_version, index)
+	
 	return versions
 	
 
