@@ -46,7 +46,6 @@ def system (c):
 		raise 'barf'
 
 def get_url_versions (url):
-	print url
 	index = urllib.urlopen (url).read()
 
 	versions = []
