@@ -8,7 +8,8 @@ import targetpackage
 class Ghostscript (targetpackage.Target_package):
 	def __init__ (self, settings):
 		targetpackage.Target_package.__init__ (self, settings)
-		xsf = re.sub ('%\(version\)s', '%(version)s-gpl', download.sf)
+		xsf = re.sub ('version\)s', 'version)s-gpl', download.sf)
+		assert xsf <> download.sf
 		self.with (version='8.50',
 			   #mirror='ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs850/ghostscript-8.50-gpl.tar.bz2',
 			   mirror=xsf,
@@ -67,7 +68,7 @@ class Ghostscript (targetpackage.Target_package):
 			   '#define ARCH_IS_BIG_ENDIAN %d' % big_endian)]
 		
 		self.file_sub (substs, '%(builddir)s/obj/arch.h')
-
+ 
 	def compile_command (self):
 		return targetpackage.Target_package.compile_command (self) + " INCLUDE=%(system_root)s/usr/include/"
 		
