@@ -131,6 +131,8 @@ clean-distccd:
 
 local-distcc:
 	chmod +x lib/distcc.py
+	rm -rf target/native-distcc/bin/ target/cross-distcc/bin/
+	mkdir -p target/cross-distccd/bin/ target/native-distccd/bin/
 	$(foreach binary,$(foreach p,$(PLATFORMS), $(wildcard target/$(p)/system/usr/cross/bin/*)), \
 		ln -s $(CWD)/lib/distcc.py target/cross-distcc/bin/$(notdir $(binary)) && ) true
 	$(foreach binary, gcc g++, \
@@ -139,6 +141,8 @@ local-distcc:
 cross-distccd:
 	$(foreach p, $(PLATFORMS),$(call INVOKE_DRIVER, $(p)) build gcc && ) true
 	-$(if $(wildcard log/$@.pid),kill `cat log/$@.pid`, true)
+	rm -rf target/cross-distccd/bin/
+	mkdir -p target/cross-distccd/bin/
 	ln -s $(foreach p,$(PLATFORMS),$(wildcard $(CWD)/target/$(p)/system/usr/cross/bin/*)) target/cross-distccd/bin
 
 	DISTCCD_PATH=$(CWD)/target/cross-distccd/bin distccd --daemon $(addprefix --allow ,$(GUB_DISTCC_ALLOW_HOSTS)) \
