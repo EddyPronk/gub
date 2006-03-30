@@ -28,10 +28,6 @@ class Pango (targetpackage.Target_package):
 		targetpackage.Target_package.patch (self)
 		self.system ('cd %(srcdir)s && patch --force -p1 < %(patchdir)s/pango-substitute-env.patch')
 
-		## ugh, already fixed in Pango CVS.
-		f = open (self.expand ('%(srcdir)s/pango/pango.def'), 'a')
-		f.write ('	pango_matrix_get_font_scale_factor\n')
-
 	def fix_modules (self):
 		etc = self.expand ('%(install_root)s/usr/etc/pango')
 		self.system ('mkdir -p %(etc)s' , locals ())
@@ -47,24 +43,10 @@ ModulesPath = $PANGO_PREFIX/lib/pango/1.5.0/modules
 		shutil.copy2 (self.expand ('%(sourcefiledir)s/pango.modules'),
 			      etc)
 
-class Pango__mingw (Pango):
+
 	def install (self):
-		targetpackage.Target_package.install (self)
-		self.system ('mkdir -p %(install_root)s/usr/etc/pango')
-		self.dump ('''[Pango]
-ModulesPath = "@INSTDIR@\\usr\\lib\\pango\\1.5.0\\modules"
-ModuleFiles = "@INSTDIR@\\usr\\etc\\pango\\pango.modules"
-#[PangoX]
-#AliasFiles = "@INSTDIR@\\usr\\etc\\pango\\pango.modules\\pangox.aliases"
-''',
-			   '%(install_root)s/usr/etc/pango/pangorc.in')
-
-		# pango.modules can be generated if we have the linux
-		# installer built
-
-# cd target/linux/installer/usr/lib/lilypond/noel/root
-# PANGO_RC_FILE=$(pwd)/etc/pango/pangorc bin/pango-querymodules > etc/pango/pango.modules
-		self.system ('cp %(nsisdir)s/pango.modules.in %(install_root)s/usr/etc/pango/pango.modules.in')
+		targetpackage.Target_package.install (self)		
+		self.fix_modules ()
 
 class Pango__linux (Pango):
 	def untar (self):
@@ -77,10 +59,6 @@ class Pango__linux (Pango):
 			       '%(srcdir)s/configure')
 		os.chmod ('%(srcdir)s/configure' % self.get_substitution_dict (), 0755)
 
-	def install (self):
-		Pango.install (self)
-		self.fix_modules ()
-
 ## placeholder, don't want plain Pango for freebsd. 
 class Pango__freebsd (Pango__linux):
 	pass
@@ -90,7 +68,3 @@ class Pango__darwin (Pango):
 		Pango.configure (self)
 		self.file_sub ([('nmedit', '%(target_architecture)s-nmedit')],
 			       '%(builddir)s/libtool')
-
-	def install (self):
-		targetpackage.Target_package.install (self)		
-		self.fix_modules ()
