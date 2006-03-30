@@ -17,6 +17,13 @@ tooldir="%(crossprefix)s/%(target_architecture)s"
 	def compile_command (self):
 		return (cross.Binutils.compile_command (self)
 			+ self.makeflags ())
+	def configure_command (self):
+		return ( cross.Binutils.configure_command (self)
+			 + ' --disable-werror ')
+	def configure (self):
+		cross.Binutils.configure (self)
+		self.file_sub ([(' -Werror ',' ')],
+			       '%(builddir)s/bfd/Makefile')
 
 class W32api_in_usr_lib (gub.Binary_package):
 	def do_download (self):
@@ -44,10 +51,6 @@ gcc_tooldir="%(crossprefix)s/%(target_architecture)s"
 --enable-threads
 '''))
 	
-	def configure (self):
-		mingw.Gcc.configure (self)
-		self.file_sub ([(' -Werror ',' ')],
-			       '%(srcdir)s/bfd/Makefile')
 
 mirror = 'http://gnu.kookel.org/ftp/cygwin'
 def get_cross_packages (settings):
