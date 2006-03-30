@@ -25,7 +25,9 @@ Var "UP_DESKTOP"
 ${StrLoc}
 ${UnStrLoc}
 
-SetCompressor lzma
+;;SetCompressor lzma  ; very slow
+SetCompressor bzip2  ;;
+;; SetCompressor bz2  ;;
 
 Name "LilyPond"
 !ifdef UPGRADE
@@ -168,7 +170,6 @@ uninstall:
 !ifndef UPGRADE
 	Call postinstall_gs
 	Call postinstall_fontconfig
-	Call postinstall_pango
 ;;	Call ooes_test
 !endif
 SectionEnd
@@ -518,18 +519,6 @@ py_done:
 ;;py_end:	
 FunctionEnd
 
-Function postinstall_pango
-	StrCpy $0 "$INSTDIR\usr\etc\pango\pangorc"
-	${SubstituteAtVariables} "$0.in" "$0.bs"
-	${SubstituteBackslashes} "$0.bs" "$0"
-	StrCpy $0 "$INSTDIR\usr\etc\pango\pango.modules"
-	${SubstituteAtVariables} "$0.in" "$0.bs"
-	${SubstituteBackslashes} "$0.bs" "$0"
-	Exec '"$INSTDIR\usr\bin\pango-querymodules.exe" > "$0.query"'
-	IfFileExists "$0.query" 0 exit
-	${SubstituteBackslashes} "$0.query" "$0"
-exit:
-FunctionEnd
 
 Function find_editor
 	StrCpy $R0 $WINDIR\emacs.exe
