@@ -11,6 +11,7 @@ import optparse
 
 platforms = ['linux-x86',
 	     'darwin-ppc',
+	     'darwin-x86',
 	     'documentation',
 	     'freebsd-x86',
 #	     'linux-arm',
@@ -31,7 +32,8 @@ def get_alias (p):
 
 formats = {
 	'linux-x86': 'sh',
-	'darwin-ppc': 'zip',
+	'darwin-ppc': 'tar.bz2',
+	'darwin-x86': 'tar.bz2',
 	'freebsd-x86': 'sh',
 	'mingw':'exe',
 	'linux-arm': 'sh',

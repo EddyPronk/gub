@@ -7,7 +7,6 @@ import cross
 import download
 import gub
 
-
 darwin_sdk_version = '0.4'
 class Odcctools (cross.Cross_package):
 	def configure (self):
@@ -91,17 +90,21 @@ class Gcc (cross.Gcc):
 class Gcc__darwin (Gcc):
 	def configure (self):
 		cross.Gcc.configure (self)
-	def install (self):
 
+	def install (self):
+		## UGH ?
+		## Gcc.install (self)
+
+		cross.Gcc.install (self)
+		self.rewire_gcc_libs ()
 		sysroot = self.expand ('%(targetdir)s')
 		sysroot = sysroot[1:]
 		
 
 		## UGH.! 
 		self.system ('''
-cd %(system_root)s && mkdir -p %(sysroot)s 
-ln -s ../../../../../../ %(sysroot)s/system
-''')
+cd %(system_root)s && mkdir -p %(sysroot)s  && ln -s ../../../../../../ %(sysroot)s/system
+''', locals ())
 
 		
 class Rewirer (context.Os_context_wrapper):
