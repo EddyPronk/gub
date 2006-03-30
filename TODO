@@ -16,11 +16,15 @@ lagere prioriteit
   * gmp 4.2
   * fontconfig 2.4
 
-- darwin-x86
+Bugfixes:
 
-  ignoring nonexistent directory "/home/lilydev/vc/gub/target/darwin-x86/system//home/lilydev/vc/gub/target/darwin-x86/system/usr/ cross//lib/gcc/i686-apple-darwin8/4.0.1/../../../../i686-apple-darwin8/include"
+  * hardwired paths for lib/pango/1.5
 
-- darwin-ppc: local fontforge compile libgdraw paths. 
+  * darwin-x86
+
+     ignoring nonexistent directory "/home/lilydev/vc/gub/target/darwin-x86/system//home/lilydev/vc/gub/target/darwin-x86/system/usr/ cross//lib/gcc/i686-apple-darwin8/4.0.1/../../../../i686-apple-darwin8/include"
+
+  * darwin-ppc: local fontforge compile libgdraw paths. 
 
 Web:
 
