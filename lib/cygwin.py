@@ -20,10 +20,7 @@ tooldir="%(crossprefix)s/%(target_architecture)s"
 	def configure_command (self):
 		return ( cross.Binutils.configure_command (self)
 			 + ' --disable-werror ')
-	def configure (self):
-		cross.Binutils.configure (self)
-		self.file_sub ([(' -Werror ',' ')],
-			       '%(builddir)s/bfd/Makefile')
+	
 
 class W32api_in_usr_lib (gub.Binary_package):
 	def do_download (self):
