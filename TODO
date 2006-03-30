@@ -20,11 +20,12 @@ lagere prioriteit
 
   ignoring nonexistent directory "/home/lilydev/vc/gub/target/darwin-x86/system//home/lilydev/vc/gub/target/darwin-x86/system/usr/ cross//lib/gcc/i686-apple-darwin8/4.0.1/../../../../i686-apple-darwin8/include"
 
+- darwin-ppc: local fontforge compile libgdraw paths. 
 
-web:
+Web:
 
 - "download now" button, die met javascript de goede binary selecteert
 
 - download.PLATFORM.html pagina's voor google analytics en link naar
-  download.sf.net ?
+download.sf.net ?
 
