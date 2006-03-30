@@ -113,6 +113,15 @@ package-installer - build installer binary
 		      default=False,
 		      dest='force_package',
 		      help='allow packaging of tainted compiles' )
+
+	p.add_option ('', '--lax-checksums',
+		      action='store_true',
+		      default=False,
+		      dest='lax_checksums',
+		      help="don't rebuild packages with differing checksums")
+	
+	
+	
 	return p
 
 def build_installer (settings, args):
@@ -228,18 +237,22 @@ def run_builder (settings, manager, names, package_object_dict):
 		reved = names[:]
 		reved.reverse ()
 		for p in reved:
+			checksum_ok = (settings.options.lax_checksums
+				       or checksums_valid (manager, p, package_object_dict))
 			if (manager.is_installed (p) and
 			    (not manager.is_installable (p)
-			     or not checksums_valid (manager, p, package_object_dict))):
+			     or not checksum_ok)):
 				manager.uninstall_package (p)
 
 	for p in names:
 		if manager.is_installed (p):
 			continue
 		
+		checksum_ok = (settings.options.lax_checksums
+			       or checksums_valid (manager, p, package_object_dict))
 		if (settings.options.stage
 		    or not manager.is_installable (p)
-		    or not checksums_valid (manager, p, package_object_dict)):
+		    or not checksum_ok):
 			settings.os_interface.log_command ('building package: %s\n'
 							   % p)
 			
