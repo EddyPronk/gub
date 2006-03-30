@@ -59,9 +59,23 @@ class Pango__linux (Pango):
 			       '%(srcdir)s/configure')
 		os.chmod ('%(srcdir)s/configure' % self.get_substitution_dict (), 0755)
 
-## placeholder, don't want plain Pango for freebsd. 
+## placeholder, don't want plain Pango for freebsd.
+## Pango 1.12 broken FreeBSD? It tries to load NCSB for Chinese glyphs.
+
 class Pango__freebsd (Pango__linux):
-	pass
+	def __init__ (self, settings):
+		Pango__linux.__init__ (self, settings)
+		self.with (version='1.11.2',
+			   mirror=download.gnome_213,
+			   format='bz2',
+			   depends=['freetype', 'fontconfig', 'glib', 'libiconv', 'libtool'])
+
+	def install (self):
+		Pango__linux.install (self)
+		for f in ['%(install_root)s/usr/etc/pango/pangorc',
+			  '%(install_root)s/usr/etc/pango/pango.modules']:
+			self.file_sub ([('pango/1.5.0/', 'pango/1.4.0/')], f)
+
 
 class Pango__darwin (Pango):
 	def configure (self):

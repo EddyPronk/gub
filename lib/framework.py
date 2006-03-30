@@ -21,6 +21,9 @@ def package_fixups (settings, packs, extra_build_deps):
 			p.name_build_dependencies += filter (lambda x: x != p.name (),
 							     extra_build_deps)
 
+
+## this really really sucks.
+##
 def version_fixups (settings, packs):
 	try:
 		settings.python_version = [p for p in packs
