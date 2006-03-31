@@ -85,7 +85,7 @@ fi
 lilydir="${prefix}lilypond/"
 bindir="${prefix}bin/"
 binwrapscript="${bindir}lilypond"
-uninstall_script=${bindir}/uninstall-lilypond
+uninstall_script=${bindir}uninstall-lilypond
 
 wrapscript="${bindir}lilypond-wrapper"
 expandargs='"$@"'
@@ -95,9 +95,8 @@ backquote='`'
 if test -d  "$lilydir"; then
   echo "Directory $lilydir already exists. "
   echo "Remove old lilypond installations before installing this one."
-  installed_uninstall=`which --skip-alias uninstall-lilypond 2>/dev/null`
-  if test "$installed_uninstall" != ""; then
-    echo "Run $installed_uninstall to uninstall previous version"   
+  if test -x "$uninstall_script"; then 
+    echo "Run $uninstall_script to uninstall previous version"   
   fi
   exit 1
 fi
