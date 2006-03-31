@@ -27,9 +27,13 @@ EOF
   --tarball)
     extract=yes    
     ;;
-  --prefix)
-    shift
-    prefix="$1"
+  --prefix*)
+    prefix=`echo "$1" | sed 's/--prefix=//g'`  
+    if test "$prefix" = "" ; then
+      shift
+      prefix="$1"
+    fi
+
     if test "$prefix" = "" ; then
       echo 'Option --prefix requires argument.'
       exit 1
@@ -37,7 +41,7 @@ EOF
     if test ! -d  "$prefix"; then
       mkdir -p "$prefix"
     fi
-    prefix=`cd $1 ; pwd`"/"
+    prefix=`cd $prefix ; pwd`"/"
     ;;
   --batch)
     interactive=no 
@@ -89,9 +93,12 @@ dollar='$'
 backquote='`'
 
 if test -d  "$lilydir"; then
-  echo "Director $lilydir already exists. "
+  echo "Directory $lilydir already exists. "
   echo "Remove old lilypond installations before installing this one."
-  
+  installed_uninstall=`which --skip-alias uninstall-lilypond 2>/dev/null`
+  if test "$installed_uninstall" != ""; then
+    echo "Run $installed_uninstall to uninstall previous version"   
+  fi
   exit 1
 fi
 
