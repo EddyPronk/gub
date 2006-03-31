@@ -44,7 +44,8 @@ def add_options (settings, options):
 	settings.lilypond_branch = options.lilypond_branch
 	settings.bundle_version = options.installer_version
 	settings.bundle_build = options.installer_build
-
+	settings.build_source = options.build_source
+	
 	def hosts (xs):
 		return reduce (lambda x,y: x+y,
 			       [ h.split (',') for h in xs], [])
@@ -113,6 +114,11 @@ package-installer - build installer binary
 		      default=False,
 		      dest='force_package',
 		      help='allow packaging of tainted compiles' )
+
+	p.add_option ('', '--build-source', action='store_true',
+		      default=False,
+		      dest='build_source',
+		      help='build source packages')
 
 	p.add_option ('', '--lax-checksums',
 		      action='store_true',

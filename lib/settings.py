@@ -25,7 +25,7 @@ class Settings (Context):
 		Context.__init__ (self)
 		self.platform = platform
 		self.target_architecture = platforms[self.platform]
-
+		self.build_source = False
 		self.is_distro = platform in distros
 
 		self.target_gcc_flags = '' 

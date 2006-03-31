@@ -54,6 +54,9 @@ class Package (Os_context_wrapper):
 			  'configure', 'compile', 'install', 'split',
 			  'src_package', 'package', 'dump_header_file', 'clean']
 
+		if not self.settings.build_source:
+			stages.remove ('src_package')
+
 		tainted = False
 		for stage in stages:
 			if (not available.has_key (stage)):
