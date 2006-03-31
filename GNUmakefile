@@ -170,9 +170,9 @@ doc-clean:
 			DOCUMENTATION=yes web-clean
 
 doc-update:
-	python gub-builder.py -p $(BUILD_PLATFORM) download lilypond
-	python gup-manager.py  -p $(BUILD_PLATFORM) remove lilypond
-	python gub-builder.py -p $(BUILD_PLATFORM) --stage untar build lilypond
+	python gub-builder.py --branch $(LILYPOND_BRANCH) -p $(BUILD_PLATFORM) download lilypond
+	python gup-manager.py --branch $(LILYPOND_BRANCH) -p $(BUILD_PLATFORM) remove lilypond
+	python gub-builder.py --branch $(LILYPOND_BRANCH) -p $(BUILD_PLATFORM) --stage untar build lilypond
 	rm -f target/$(BUILD_PLATFORM)/status/lilypond*
 
 doc:
