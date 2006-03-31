@@ -114,8 +114,6 @@ class File_manager:
 			      and not self.is_distro):
 				print 'xpm: uninstall: %s' % name
 				print 'xpm: no such file: %s' % f
-				# should've dealt with this in install stage.
-			        print "\n\nBARF\n\n"
 			elif os.path.isdir (f):
 				dirs.append (f)
 			else:
