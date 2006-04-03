@@ -72,7 +72,7 @@ class Nsis (Tool_package):
 			' DEBUG=yes '
 
 			## /s switch doesn't work anymore?!
-			# ' NSIS_CONFIG_LOG=yes '
+			' NSIS_CONFIG_LOG=yes '
 			' SKIPPLUGINS=System')
 	
 	def compile (self): 
