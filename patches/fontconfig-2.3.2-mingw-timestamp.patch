@@ -1,0 +1,16 @@
+--- fontconfig-2.3.2.cachefix/src/fccache.c~	2006-04-03 20:33:33.000000000 +0200
++++ fontconfig-2.3.2.cachefix/src/fccache.c	2006-04-03 20:35:14.000000000 +0200
+@@ -1019,11 +1019,13 @@
+ 	if (debug)
+ 	  printf ("Cannot stat cache file %s\n", sane_cache_file);
+       }
++#if 0
+     else if (dir_stat.st_mtime > file_stat.st_mtime)
+       {
+ 	if (debug)
+ 	  printf ("Cache file %s is older than dir (dir %ld, file %ld)", sane_cache_file, dir_stat.st_mtime, file_stat.st_mtime);
+       }
++#endif
+     else
+       {
+ 	result = FcTrue;

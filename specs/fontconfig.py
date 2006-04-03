@@ -68,6 +68,10 @@ class Fontconfig__mingw (Fontconfig):
 --with-default-fonts=@WINDIR@/fonts/
 ''')
 
+	def patch (self):
+		Fontconfig.patch (self)
+		self.system ("cd %(srcdir)s && patch -p1 < %(patchdir)s/fontconfig-2.3.2-mingw-timestamp.patch")
+
 class Fontconfig__darwin (Fontconfig):
 	def configure_command (self):
 		cmd = Fontconfig.configure_command (self)
