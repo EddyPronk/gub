@@ -187,7 +187,7 @@ class Guile__darwin (Guile):
 			self.system ('cd %(directory)s && ln -s %(src)s %(dst)s', locals())
 
 	
- 
+   
 class Guile__darwin__x86 (Guile__darwin):
 	def configure (self):
 		Guile__darwin.configure (self)

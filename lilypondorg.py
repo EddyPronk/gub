@@ -136,6 +136,7 @@ def uploaded_build_number (version):
 
 def upload_binaries (version):
 	build = uploaded_build_number (version) + 1
+	version_str = '.'.join (['%d' % v for v in version])
 
 	src_dests= []
 	barf = 0
@@ -143,7 +144,6 @@ def upload_binaries (version):
 		plat = get_alias (platform)
 		
 		format = formats[platform]
-		version_str = '.'.join (['%d' % v for v in version])
 		
 		base = 'lilypond-%(version_str)s-%(build)d.%(plat)s.%(format)s' % locals()
 		bin = 'uploads/%(base)s' % locals()
@@ -165,9 +165,23 @@ def upload_binaries (version):
 	print '\n'.join (cmds);
 	if barf:
 		raise 'barf'
-		
+
+
+	branch = 'HEAD'
+	if (version[1] % 2) == 0:
+		branch = 'lilypond_%d_%d' % (version[0], version[1])
+
+	entries = open ('downloads/lilypond-%s/CVS/Entries' % branch).read ()
+	changelog_match = re.search ('/ChangeLog/([0-9.]+)/', entries)
+	changelog_rev = changelog_match.group (1)
+	
+	tag_cmd = 'darcs tag "release %(version_str)s-%(build)d of ChangeLog rev %(changelog_rev)s' % locals()
+
+	cmds.append (tag_cmd)
 	for cmd in cmds:
 		system (cmd)
+
+
 def get_cli_parser ():
 	p = optparse.OptionParser ()
 
