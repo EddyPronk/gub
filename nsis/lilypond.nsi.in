@@ -140,7 +140,7 @@ uninstall:
 
 	SetOutPath $INSTDIR\usr\bin
 ;;	File "../bin/min-apt"
-	File "*.scm.in"
+;;	File "*.scm.in"
 	File "*.bat.in"
 	File "variables.sh.in"
 	SetOutPath $INSTDIR
@@ -453,6 +453,8 @@ dos:
 	CopyFiles /silent "$0.exe" "$0-windows.exe"
 	StrCpy $0 "$INSTDIR\usr\bin\lilypond-windows.bat"
 	${SubstituteAtVariables} "$0.in" "$0"
+
+;;        Exec '"$INSTDIR\usr\bin\guile" -e main -s "$INSTDIR\usr\bin\touch.scm" "$INSTDIR\usr\share\lilypond\current\fonts\type1\fonts.cache-1" "$INSTDIR\usr\share\lilypond\current\fonts\otf\fonts.cache-1"'
 exit:	
 FunctionEnd
 

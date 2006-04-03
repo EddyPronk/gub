@@ -212,6 +212,7 @@ class Nsis (Installer):
 		
 		self.system ('cp %(nsisdir)s/*.nsh %(targetdir)s')
 		self.system ('cp %(nsisdir)s/*.bat.in %(targetdir)s')
+		self.system ('cp %(nsisdir)s/*.scm %(installer_root)s/usr/bin/')
 		self.system ('cp %(nsisdir)s/*.sh.in %(targetdir)s')
 		self.system ('cd %(targetdir)s && makensis lilypond.nsi')
 
