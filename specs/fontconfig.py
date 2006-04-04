@@ -62,8 +62,6 @@ cd %(builddir)s/%(i)s && make "CFLAGS=%(cflags)s" "LIBS=%(libs)s" CPPFLAGS= LDFL
 		
 
 class Fontconfig__mingw (Fontconfig):
-
-	
 	## no need to add c:\windows\fonts. FontConfig does this
 	## automatically
 
