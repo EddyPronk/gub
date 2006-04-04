@@ -7,6 +7,8 @@ default: all
 
 TEST_PLATFORMS=$(PLATFORMS)
 
+## must always have one host.
+GUB_DISTCC_ALLOW_HOSTS=127.0.0.1
 PLATFORMS=darwin-ppc darwin-x86 mingw linux freebsd cygwin
 
 OTHER_PLATFORMS=$(filter-out $(BUILD_PLATFORM), $(PLATFORMS))
