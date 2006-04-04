@@ -25,9 +25,8 @@ Var "UP_DESKTOP"
 ${StrLoc}
 ${UnStrLoc}
 
-;;SetCompressor lzma  ; very slow
-SetCompressor bzip2  ;;
-;; SetCompressor bz2  ;;
+SetCompressor lzma  ; very slow
+;; SetCompressor bzip2  ;;
 
 Name "LilyPond"
 !ifdef UPGRADE
