@@ -1,18 +1,12 @@
-diff -ur fontconfig-2.3.2/ChangeLog fontconfig-2.3.2.cachefix/ChangeLog
---- fontconfig-2.3.2/ChangeLog	2005-04-27 21:00:13.000000000 +0200
-+++ fontconfig-2.3.2.cachefix/ChangeLog	2006-03-23 18:25:02.000000000 +0100
-@@ -1,3 +1,10 @@
-+2006-03-23  Han-Wen Nienhuys  <hanwen@lilypond.org>
-+
-+	* src/fccache.c (NormalizeFileName): new function. Clear
-+	superflous slashes. 
-+	(FcDirCacheValid): rewrite. Use NormalizeFileName.
-+	This fixes FontConfig caching on mingw target.
-+	
- 2005-04-27  Keith Packard  <keithp@keithp.com>
- 
- 	* README:
-Only in fontconfig-2.3.2.cachefix/: ChangeLog~
+ChangeLog
+
+2006-03-23  Han-Wen Nienhuys  <hanwen@lilypond.org>
+
+	* src/fccache.c (NormalizeFileName): new function. Clear
+	superflous slashes. 
+	(FcDirCacheValid): rewrite. Use NormalizeFileName.
+	This fixes FontConfig caching on mingw target.
+	
 diff -ur fontconfig-2.3.2/src/fccache.c fontconfig-2.3.2.cachefix/src/fccache.c
 --- fontconfig-2.3.2/src/fccache.c	2005-01-04 22:53:36.000000000 +0100
 +++ fontconfig-2.3.2.cachefix/src/fccache.c	2006-03-23 18:28:34.000000000 +0100
