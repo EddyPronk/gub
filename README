@@ -70,7 +70,7 @@ INSTALLING
 
 3. Build the installers
 
-  make all
+  make PLATFORM
 
 this should leave packages in
 
