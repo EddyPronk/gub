@@ -81,6 +81,10 @@ and an installer in
 
   uploads/lilypond-VERSION-RELEASE.PLATFORM.FORMAT
 
+On linux you can directly run the lilypond version which is installed in
+
+  target/linux/system/usr/bin/lilypond
+
 
 
 DISTCC SUPPORT
