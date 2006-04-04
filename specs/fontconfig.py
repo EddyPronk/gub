@@ -62,12 +62,16 @@ cd %(builddir)s/%(i)s && make "CFLAGS=%(cflags)s" "LIBS=%(libs)s" CPPFLAGS= LDFL
 		
 
 class Fontconfig__mingw (Fontconfig):
-	def configure_command (self):
-		return (Fontconfig.configure_command (self))
+
 	
-			## kludge to get font-caching to work.
-			# + misc.join_lines ('''--with-default-fonts=@WINDIR@/fonts/''')
-			
+	## no need to add c:\windows\fonts. FontConfig does this
+	## automatically
+
+	def x__init__ (self, settings):
+		Fontconfig.__init__ (self, settings)
+		self.with (version='2.3.94', mirror=download.fontconfig,
+			   depends=['expat', 'freetype', 'libtool'])
+
 	def patch (self):
 		Fontconfig.patch (self)
 		self.system ("cd %(srcdir)s && patch -p1 < %(patchdir)s/fontconfig-2.3.2-mingw-timestamp.patch")
