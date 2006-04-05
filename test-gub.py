@@ -79,10 +79,16 @@ def opt_parser ():
 		      dest = 'address',
 		      default = [],
 		      help = 'where to send error report')
+
+	try:
+		address = os.environ['EMAIL'],
+	except KeyError:
+		address = '%s@localhost' % os.getlogin()
+
 	p.add_option ('-f', '--from',
 		      action ='store',
 		      dest = 'sender',
-		      default = os.environ['EMAIL'],
+		      default = address,
 		      help = 'whom to list as sender')
 	p.add_option ('', '--tag-repo',
 		      action ='store',
