@@ -28,7 +28,8 @@ EOF
     extract=yes    
     ;;
   --prefix*)
-    prefix=`echo "$1" | sed 's/--prefix=//g'`  
+    
+    prefix=`echo "$1" | sed 's/.*=//g' | sed 's/--prefix//g'`
     if test "$prefix" = "" ; then
       shift
       prefix="$1"

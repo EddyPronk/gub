@@ -1,24 +1,27 @@
 
 lagere prioriteit
 
-- upload src packages.
-
 - trip test.
+
+- integrate test scripts in distribution.
 
 - move patches upstream, eg.
 
   * libpng
+
   * python x-compile.
+
   * cygwin GCC
 
-
 - update packages:
+
   * gmp 4.2
-  * fontconfig 2.4
 
-Bugfixes:
+- Bugfixes:
 
-  * hardwired paths for lib/pango/1.5
+  * fontconfig 2.4; Blocker: mingw mmap() compat. support.
+
+  * hardwired paths for lib/pango/1.5 vs. 1.4
 
   * darwin-x86
 
@@ -28,8 +31,4 @@ Bugfixes:
 
 Web:
 
-- "download now" button, die met javascript de goede binary selecteert
-
-- download.PLATFORM.html pagina's voor google analytics en link naar
-download.sf.net ?
 
