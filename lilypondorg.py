@@ -172,10 +172,11 @@ def upload_binaries (version):
 		branch = 'lilypond_%d_%d' % (version[0], version[1])
 
 	entries = open ('downloads/lilypond-%s/CVS/Entries' % branch).read ()
-	changelog_match = re.search ('/ChangeLog/([0-9.]+)/', entries)
+	changelog_match = re.search ('/ChangeLog/([0-9.]+)/([^/]+)', entries)
 	changelog_rev = changelog_match.group (1)
+	changelog_date = changelog_match.group (2)
 	
-	tag_cmd = 'darcs tag "release %(version_str)s-%(build)d of ChangeLog rev %(changelog_rev)s"' % locals()
+	tag_cmd = 'darcs tag "release %(version_str)s-%(build)d of ChangeLog rev %(changelog_rev)s %(changelog_date)"' % locals()
 
 	cmds.append (tag_cmd)
 	for cmd in cmds:
