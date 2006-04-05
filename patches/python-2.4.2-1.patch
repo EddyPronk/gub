@@ -238,7 +238,7 @@ diff -purNX mingw/.cvsignore ../Python-2.4.2/configure.in ./configure.in
 +    LDFLAGS_FOR_BUILD=${LDFLAGS_FOR_BUILD-}
 +    LIBS_FOR_BUILD=${LIBS_FOR_BUILD-}
 +    O_FOR_BUILD=x
-+    RUNSHARED="CROSS_TARGET=$ac_sys_system SRCDIR=$srcdir SO=.dll"
++    RUNSHARED="CROSS_TARGET=$ac_sys_system SRCDIR=$srcdir SO=${SO}"
 +else
 +    CROSS_COMMENT=
 +    EXEEXT_FOR_BUILD=$BUILDEXEEXT
