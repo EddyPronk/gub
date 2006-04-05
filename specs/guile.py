@@ -213,8 +213,8 @@ class Guile__cygwin (Guile):
 
 		# FIXME: Must disable when building guile for lilypond,
 		# must enable for building guile (installer) for cygwin.
-		#self.sover = '17'
-		#self.split_packages = ['devel', 'doc', 'lib']
+		self.sover = '17'
+		self.split_packages = ['devel', 'doc', 'lib']
 
 	def config_cache_overrides (self, str):
 		return str + '''
@@ -274,174 +274,33 @@ cp -pv %(install_root)s/usr/share/doc/Cygwin/* %(cygwin_patches)s
 	# FIXME: ints and readmes from file, rather than inline python data.
 	def dump_readme_and_hints (self):
 		# FIXME: get depends from actual split_packages
-		changelog = open (self.settings.specdir + '/guile.changelog').read ()
+		changelog = open (self.settings.sourcefiledir + '/guile.changelog').read ()
 		self.system ('''
 mkdir -p %(install_root)s/usr/share/doc/Cygwin
 mkdir -p %(install_root)s/etc/hints
 ''')
+		readme = open (self.settings.sourcefiledir + '/guile.README').read ()
 
-		self.dump ('''\
-Guile
-------------------------------------------
-The GNU extension language and Scheme interpreter.
-
-Runtime requirements (these or newer):
-  crypt-1.1-1
-  cygwin-1.5.18
-  gmp-4.1.4
-  libguile17-1.8.0-0
-  libintl-0.10.38
-  libltdl3-1.5.20
-
-Build requirements (these or newer):
-  autoconf-2.53a-1
-  autoconf-devel-2.53a-1
-  automake-1.6.1-3
-  automake-devel-1.6.1-3
-  binutils-20050610-1
-  cygwin-1.5.18
-  gcc-3.4.4-1
-  gmp-4.1.4
-  libtool-devel-1.5.20-1
-
-Canonical homepage:
-  http://www.gnu.org/software/guile
-
-Canonical download:
-  ftp://alpha.gnu.org/pub/gnu/guile  # development releases
-  ftp://ftp.gnu.org/pub/gnu/guile    # stable releases
-
-License:
-  LGPL
-
-Language:
-  C, Scheme
-
-------------------------------------
-
-Build Instructions:
-
-  # Download GUB
-
-    darcs get http://lilypond.org/people/hanwen/gub
-    cd gub
-
-  # Build guile for cygwin
-
-    ./gub-builder.py -p cygwin build guile
-
-  # Package guile for cygwin
-
-   ./gub-builder.py -p cygwin package-installer guile
-
-This will create:
-   uploads/cygwin/release/guile-%(version)s-%(bundle_build)s-src.tar.bz2
-   uploads/cygwin/release/guile-%(version)s-%(bundle_build)s.tar.bz2
-   uploads/cygwin/release/guile-doc/guile-doc-%(version)s-%(bundle_build)s.tar.bz2
-   uploads/cygwin/release/guile-devel/guile-devel-%(version)s-%(bundle_build)s.tar.bz2
-   uploads/cygwin/release/libguile%(sover)s/libguile%(sover)s-%(version)s-%(bundle_build)s.tar.bz2
-
-To find out the files included in the binary distribution, you can use
-"cygcheck -l bash", or browse the listing for the appropriate version
-at <http://cygwin.com/packages/>.
-
-------------------
-
-Port notes:
-
-%(changelog)s
-
-  These packages were built on GNU/Linux using GUB.
-
-Cygwin port maintained by: Jan Nieuwenhuizen  <janneke@gnu.org>
-Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>
-''',
-# "
+		self.dump (readme,
 			   '%(install_root)s/usr/share/doc/Cygwin/%(name)s-%(version)s-%(bundle_build)s.README',
 			   env=locals ())
 
-		name = 'guile'
-		depends = ['cygwin', 'libguile12', 'libguile17', 'libncurses8', 'libreadline6']
-		requires = ' '.join (depends)
-		self.dump ('''\
-curr: %(version)s-%(bundle_build)s
-prev: 1.6.7-4
-sdesc: "The GNU extension language and Scheme interpreter (executable)"
-category: interpreters
-# Strictly, guile does not depend on readline and curses, but if you
-# want the guile executable, you probably want readline editing.  -- jcn
-requires: %(requires)s
-ldesc: "The GNU extension language and Scheme interpreter (executable)
-Guile, the GNU Ubiquitous Intelligent Language for Extension, is a scheme
-implementation designed for real world programming, supporting a
-rich Unix interface, a module system, and undergoing rapid development.
 
-`guile' is a scheme interpreter that can execute scheme scripts (with a
-#! line at the top of the file), or run as an inferior scheme
-process inside Emacs."
-''',
-# "`
-			   '%(install_root)s/etc/hints/%(name)s.hint',
-			   env=locals ())
-
-		name = 'guile-devel'
-		depends = ['bash', 'cygwin', 'guile', 'libguile12', 'libguile17']
-		requires = ' '.join (depends)
-		self.dump ('''\
-curr: %(version)s-%(bundle_build)s
-prev: 1.6.7-4
-sdesc: "Development headers and static libraries for Guile."
-category: devel libs
-requires: %(requires)s
-external-source: guile
-ldesc: "Development headers and static libraries for Guile.
-`libguile.h' etc. C headers, aclocal macros, the `guile-snarf' and
-`guile-config' utilities, and static `libguile.a' libraries for Guile,
-the GNU Ubiquitous Intelligent Language for Extension."
-
-''',
-# "`
-			   '%(install_root)s/etc/hints/%(name)s.hint',
-			   env=locals ())
-
-		name = 'guile-doc'
-		depends = ['texinfo']
-		requires = ' '.join (depends)
-		self.dump ('''\
-curr: %(version)s-%(bundle_build)s
-prev: 1.6.7-4
-sdesc: "The GNU extension language and Scheme interpreter (documentation)"
-category: doc
-requires: %(requires)s
-external-source: guile
-ldesc: "The GNU extension language and Scheme interpreter (documentation)
-This package contains the documentation for guile, including both
-a reference manual (via `info guile'), and a tutorial (via `info
-guile-tut')."
-
-''',
-# "`
-			   '%(install_root)s/etc/hints/%(name)s.hint',
-			   env=locals ())
-
-		name = 'libguile17'
-		depends = ['cygwin', 'crypt', 'gmp', 'libintl3', 'libltdl3']
-		requires = ' '.join (depends)
-		self.dump ('''\
-curr: %(version)s-%(bundle_build)s
-#prev: 1.6.7-4
-sdesc: "The GNU extension language and Scheme interpreter (runtime libraries)"
-category: libs
-requires: %(requires)s
-external-source: guile
-ldesc: "The GNU extension language and Scheme interpreter (runtime libraries)
-Guile shared object libraries and the ice-9 scheme module.  Guile is
-the GNU Ubiquitous Intelligent Language for Extension."
-
-''',
-# "
-			   '%(install_root)s/etc/hints/%(name)s.hint',
-			   env=locals ())
+		fixdepends = {
+			'guile': ['cygwin', 'libguile17', 'libncurses8', 'libreadline6'],
+			'guile-devel': ['bash', 'cygwin', 'guile', 'libguile17'],
+			'guile-doc':  ['texinfo'],
+			'libguile17': ['cygwin', 'crypt', 'gmp', 'libintl3', 'libltdl3'],
+			}
+		##for name in [self.name ()] + self.split_packages:
+		## FIXME split-names
+		for name in ['guile', 'guile-devel', 'guile-doc', 'libguile' + self.sover]:
+			depends = fixdepends[name]
+			requires = ' '.join (depends)
+			hint = open (self.settings.sourcefiledir + '/' + name + '.hint').read ()
+			self.dump (hint,
+				   '%(install_root)s/etc/hints/%(name)s.hint',
+				   env=locals ())
 
 class Guile__local (Tool_package, Guile):
 	def configure (self):

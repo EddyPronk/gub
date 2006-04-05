@@ -1,0 +1,9 @@
+curr: %(version)s-%(bundle_build)s
+prev: 2.6.3-1
+sdesc: "A program for printing sheet music"
+category: Publishing
+requires: %(requires)s libguile12
+#suggests: emacs gsview libkpathsea4 lilypond-doc tetex-bin tetex-tiny rxvt xorg-x11-base
+ldesc: "A program for printing sheet music.
+LilyPond lets you create music notation.  It produces
+beautiful sheet music from a high-level description file."

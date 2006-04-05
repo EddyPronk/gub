@@ -1,0 +1,9 @@
+curr: %(version)s-%(bundle_build)s
+#prev: 1.6.7-4
+sdesc: "The GNU extension language and Scheme interpreter (runtime libraries)"
+category: libs
+requires: %(requires)s
+external-source: guile
+ldesc: "The GNU extension language and Scheme interpreter (runtime libraries)
+Guile shared object libraries and the ice-9 scheme module.  Guile is
+the GNU Ubiquitous Intelligent Language for Extension."

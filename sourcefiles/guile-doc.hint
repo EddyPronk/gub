@@ -1,0 +1,10 @@
+curr: %(version)s-%(bundle_build)s
+prev: 1.6.7-4
+sdesc: "The GNU extension language and Scheme interpreter (documentation)"
+category: doc
+requires: %(requires)s
+external-source: guile
+ldesc: "The GNU extension language and Scheme interpreter (documentation)
+This package contains the documentation for guile, including both
+a reference manual (via `info guile'), and a tutorial (via `info
+guile-tut')."

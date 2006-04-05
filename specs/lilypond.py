@@ -175,130 +175,28 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
 
 	def dump_readme_and_hints (self):
 		# FIXME: get depends from actual split_packages
-		#changelog = open (self.settings.specdir + '/guile.changelog').read ()
-		changelog = 'ChangeLog'
+		changelog = open (self.settings.sourcefiledir + '/lilypond.changelog').read ()
 		self.system ('''
 mkdir -p %(install_root)s/usr/share/doc/Cygwin
 mkdir -p %(install_root)s/etc/hints
 ''')
 
-		self.dump ('''\
-LilyPond
-------------------------------------------
-LilyPond - The GNU music typesetter.
-
-For more information, tutorial, documentation, packaging instructions, visit:
-  http://lilypond.org
-
-Runtime requirements:
-  bash
-  cygwin-1.5.11 or newer
-  ghostscript
-  glib2-runtime
-  libfontconfig1
-  libfreetype2
-  libguile12-1.6.5-1 or newer
-  libiconv2
-  libintl3
-  pango-runtime
-  python
-
-Build requirements:
-  binutils-20040725-2 or newer
-  bison-1.35 or newer
-  coreutils
-  cygwin-1.5.11 or newer
-  findutils
-  flex-2.5.4 or newer
-  gcc-2.95.3-5 or newer
-  glib2-devel
-  guile-devel-1.6.5-1 or newer
-  libfontconfig-devel
-  libfreetype2-devel
-  libguile12-1.6.5-1 or newer
-  libkpathsea4-3.0.0-3 or newer
-  pango-devel
-  python
-  sed
-  tetex-devel-3.0.0-3 or newer
-  texinfo-4.8 or newer
-
-Website/documentation build requirements (lilypond-doc package):
-  tetex-bin
-  tetex-tiny or tetex-base
-  ghostscript or ghostscript-x11
-
-  mftrace, http://www.cs.uu.nl/people/hanwen/mftrace
-  potrace, http://potrace.sourceforge.net
-  netpbm, http://netpbm.sourceforge.net
-  t1utils, http://www.lcdf.org/~eddietwo/type/
-
-Recommended website/documentation build requirements:
-  fontforge, http://fontforge.sourceforge.net
-
-Canonical homepage:
-  http:/lilypond.org
-
-Canonical download:
-  http://lilypond.org/download
-  
-------------------------------------
-
-Build Instructions:
-
-  # Download GUB
-
-    darcs get http://lilypond.org/people/hanwen/gub
-    cd gub
-
-  # Build lilypond for cygwin
-
-    ./gub-builder.py -p cygwin build lilypond
-
-  # Package lilypond for cygwin
-
-   ./gub-builder.py -p cygwin package-installer lilypond
-
-This will create:
-   uploads/cygwin/release/lilypond-%(version)s-%(bundle_build)s-src.tar.bz2
-
-To find out the files included in the binary distribution, you can use
-"cygcheck -l bash", or browse the listing for the appropriate version
-at <http://cygwin.com/packages/>.
-
-------------------
-
-Port notes:
-
-%(changelog)s
-
-  These packages were built on GNU/Linux using GUB.
-
-Cygwin port maintained by: Jan Nieuwenhuizen  <janneke@gnu.org>
-Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>
-''',
-# "
+		readme = open (self.settings.sourcefiledir + '/guile.README').read ()
+		self.dump (readme,
 			   '%(install_root)s/usr/share/doc/Cygwin/%(name)s-%(version)s-%(bundle_build)s.README',
 			   env=locals ())
 
-		name = 'lilypond'
-		depends = ['bash', 'coreutils', 'cygwin', 'findutils', 'ghostscript', 'glib2-runtime', 'libfontconfig1', 'libfreetype26', 'libguile12', 'libguile17', 'libiconv2', 'libintl3', 'pango-runtime', 'python', '_update-info-dir']
-		requires = ' '.join (depends)
-		self.dump ('''\
-curr: %(version)s-%(bundle_build)s
-prev: 2.6.3-1
-sdesc: "A program for printing sheet music"
-category: Publishing
-requires: %(requires)s
-#suggests: emacs gsview libkpathsea4 lilypond-doc tetex-bin tetex-tiny rxvt xorg-x11-base
-ldesc: "A program for printing sheet music.
-LilyPond lets you create music notation.  It produces
-beautiful sheet music from a high-level description file."
-''',
-# "`
-			   '%(install_root)s/etc/hints/%(name)s.hint',
-			   env=locals ())
+		fixdepends = {
+			'lilypond' : ['bash', 'coreutils', 'cygwin', 'findutils', 'ghostscript', 'glib2-runtime', 'libfontconfig1', 'libfreetype26', 'libguile17', 'libiconv2', 'libintl3', 'pango-runtime', 'python', '_update-info-dir'],
+			}
 
+		for name in ['lilypond']:
+			depends = fixdepends[name]
+			requires = ' '.join (depends)
+			hint = open (self.settings.sourcefiledir + '/' + name + '.hint').read ()
+			self.dump (hint,
+				   '%(install_root)s/etc/hints/%(name)s.hint',
+				   env=locals ())
 
 class LilyPond__freebsd (LilyPond):
 	def __init__ (self, settings):

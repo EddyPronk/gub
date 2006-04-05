@@ -1,0 +1,15 @@
+curr: %(version)s-%(bundle_build)s
+prev: 1.6.7-4
+sdesc: "The GNU extension language and Scheme interpreter (executable)"
+category: interpreters
+# Strictly, guile does not depend on readline and curses, but if you
+# want the guile executable, you probably want readline editing.  -- jcn
+requires: %(requires)s libguile12
+ldesc: "The GNU extension language and Scheme interpreter (executable)
+Guile, the GNU Ubiquitous Intelligent Language for Extension, is a scheme
+implementation designed for real world programming, supporting a
+rich Unix interface, a module system, and undergoing rapid development.
+
+`guile' is a scheme interpreter that can execute scheme scripts (with a
+#! line at the top of the file), or run as an inferior scheme
+process inside Emacs."
