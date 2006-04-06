@@ -132,7 +132,7 @@ freebsd-runtime:
 	ssh xs4all.nl tar -C / --exclude=zlib.h --exclude=zconf.h --exclude=gmp.h -czf public_html/freebsd-runtime-4.10-2.tar.gz /usr/lib/{lib{c,c_r,m}{.a,.so{,.*}},crt{i,n,1}.o} /usr/include
 
 
-distccd: clean-distccd cross-distccd native-distccd local-distcc
+distccd: clean-distccd cross-distccd-compilers cross-distccd native-distccd local-distcc
 
 clean-distccd:
 	rm -rf $(DISTCC_DIRS)
@@ -147,8 +147,9 @@ local-distcc:
 	$(foreach binary, gcc g++, \
 		ln -s $(CWD)/lib/distcc.py target/native-distcc/bin/$(notdir $(binary)) && ) true
 
-cross-distccd:
+cross-distccd-compilers:
 	$(foreach p, $(PLATFORMS),$(call INVOKE_DRIVER, $(p)) build gcc && ) true
+cross-distccd:
 	-$(if $(wildcard log/$@.pid),kill `cat log/$@.pid`, true)
 	rm -rf target/cross-distccd/bin/
 	mkdir -p target/cross-distccd/bin/
