@@ -1,7 +1,6 @@
 import os
 import re
 import time
-
 import context
 import darwintools
 import framework
@@ -212,7 +211,6 @@ class Nsis (Installer):
 		
 		self.system ('cp %(nsisdir)s/*.nsh %(targetdir)s')
 		self.system ('cp %(nsisdir)s/*.bat.in %(targetdir)s')
-		self.system ('cp %(nsisdir)s/*.scm %(installer_root)s/usr/bin/')
 		self.system ('cp %(nsisdir)s/*.sh.in %(targetdir)s')
 		self.system ('cd %(targetdir)s && makensis lilypond.nsi')
 
@@ -401,4 +399,5 @@ def get_installers (settings, args=[]):
 	if settings.platform == 'cygwin':
 		return map (lambda x:
 			    Cygwin_package (settings, x), args)
+	
 	return installers[settings.platform]
