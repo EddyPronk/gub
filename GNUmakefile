@@ -141,7 +141,7 @@ clean-distccd:
 local-distcc:
 	chmod +x lib/distcc.py
 	rm -rf target/native-distcc/bin/ target/cross-distcc/bin/
-	mkdir -p target/cross-distccd/bin/ target/native-distccd/bin/
+	mkdir -p target/cross-distcc/bin/ target/native-distcc/bin/
 	$(foreach binary,$(foreach p,$(PLATFORMS), $(wildcard target/$(p)/system/usr/cross/bin/*)), \
 		ln -s $(CWD)/lib/distcc.py target/cross-distcc/bin/$(notdir $(binary)) && ) true
 	$(foreach binary, gcc g++, \
