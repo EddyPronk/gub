@@ -299,9 +299,7 @@ mkdir -p %(install_root)s/etc/hints
 		for name in ['guile', 'guile-devel', 'guile-doc', 'libguile' + self.sover]:
 			depends = fixdepends[name]
 			requires = ' '.join (depends)
-			
 			hint = self.expand (open (self.settings.sourcefiledir + '/' + name + '.hint').read (), locals ())
-			
 			self.dump (hint,
 				   '%(install_root)s/etc/hints/%(name)s.hint',
 			   
