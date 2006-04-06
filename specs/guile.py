@@ -214,7 +214,7 @@ class Guile__cygwin (Guile):
 		# FIXME: Must disable when building guile for lilypond,
 		# must enable for building guile (installer) for cygwin.
 		self.sover = '17'
-		self.split_packages = ['devel', 'doc', 'lib']
+		##self.split_packages = ['devel', 'doc', 'lib']
 
 	def config_cache_overrides (self, str):
 		return str + '''
