@@ -162,13 +162,14 @@ def test_target (options, target, last_patch):
 		diff = os.popen ('darcs diff -u --from-tag %s' % base_tag).read ()
 		
 		result = 'FAIL'
-		attachments = ['error for %s\n\n%s' % (target, '\n'.join (body[-0:])),
+		attachments = ['error for %s\n\n%s' % (target,
+						       '\n'.join (body[-0:])),
 			       diff]
 	else:
 		tag = base_tag + last_patch['date']
 		system ('darcs tag %s' % tag)
 		system ('darcs push -a -t %s %s ' % (tag, options.tag_repo))
-		result = "SUCCESS, tagging with %s\n\n" % tag
+		result = "SUCCESS, tagging with %s" % tag
 		attachments = ['\n'.join (body[-10:])]
 
 	set_checked_before (release_hash, canonicalize)
@@ -185,10 +186,11 @@ def send_message (options, msg):
 def main ():
 	(options, args) = opt_parser().parse_args ()
 
-	last_patch = read_last_patch()
+	last_patch = read_last_patch ()
 	release_hash = get_release_hash ()
 	last_patch['release_hash'] = release_hash
 	release_id = '''
+
 Last patch of this release:
 
 %(local_date)s - %(author)s
@@ -208,14 +210,17 @@ MD5 of complete patch set: %(release_hash)s
 		results[a] = result_tup
 		
 		(r, atts) = result_tup
-		msg = result_message (options, atts, subject="GUB Autobuild: %s %s" % (r, a))
+		msg = result_message (options, atts,
+				      subject="GUB Autobuild: %s %s" % (r, a))
 		send_message (options, msg)		
 
 		
-	main = '\n\n'.join (['%s: %s' % (target, res) for (target, (res, atts)) in results.items()])
+	main = '\n'.join (['%s: %s' % (target, res)
+			   for (target, (res, atts)) in results.items ()])
 
 	msg_body = [main, release_id]
-	msg = result_message (options, msg_body, subject="GUB Autobuild: summary")
+	msg = result_message (options, msg_body,
+			      subject="GUB Autobuild: summary")
 	
 	if results:
 		send_message (options, msg)
