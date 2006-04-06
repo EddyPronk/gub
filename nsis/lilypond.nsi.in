@@ -103,6 +103,13 @@ Section "LilyPond (required)"
 ;;	Logset on
 silent:
 
+	IfFileExists $INSTDIR\usr\bin\gs.exe no_overwrite_error fresh_install
+no_overwrite_error:
+	MessageBox MB_OK "Previous version of LilyPond found$\r$\nUninstall the old version first."
+	Abort "Previous version of LilyPond found$\r$\nUninstall the old version first."
+
+fresh_install:
+
 !ifdef UPGRADE
 	IfFileExists $INSTDIR\usr\bin\libguile-16.dll uninstall error
 
