@@ -300,14 +300,12 @@ mkdir -p %(install_root)s/etc/hints
 			depends = fixdepends[name]
 			requires = ' '.join (depends)
 			
-			hint = open (self.settings.sourcefiledir + '/' + name + '.hint').read ()
+			hint = self.expand (open (self.settings.sourcefiledir + '/' + name + '.hint').read (), locals ())
 			
-			d = dict((k,v) for (k,v) in locals().items() if type(v) == type(''))
-			del d['hint']
 			self.dump (hint,
 				   '%(install_root)s/etc/hints/%(name)s.hint',
 			   
-				   env=d)
+				   env=locals ())
 
 class Guile__local (Tool_package, Guile):
 	def configure (self):
