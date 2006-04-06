@@ -7,7 +7,7 @@ from toolpackage import Tool_package
 class Gmp (targetpackage.Target_package):
 	def __init__ (self, settings):
 		targetpackage.Target_package.__init__ (self, settings)
-		self.with (version='4.1.4',
+		self.with (version='4.2',
 			   depends=['libtool'])
 
 		if not self.settings.platform.startswith ('darwin'):
@@ -45,11 +45,6 @@ class Gmp__darwin (Gmp):
 		Gmp.patch (self)
 
 class Gmp__darwin__x86 (Gmp__darwin):
-	def __init__ (self, s):
-		Gmp__darwin.__init__ (self, s)
-		self.with (version='4.2',
-			   depends=['libtool'])
-
 	def configure_command (self):
 
 		## bypass oddball assembler errors. 

@@ -13,7 +13,7 @@ lagere prioriteit
 
 - update packages:
 
-  * gmp 4.2
+  *
 
 - Bugfixes:
 
@@ -26,6 +26,4 @@ lagere prioriteit
      ignoring nonexistent directory "/home/lilydev/vc/gub/target/darwin-x86/system//home/lilydev/vc/gub/target/darwin-x86/system/usr/ cross//lib/gcc/i686-apple-darwin8/4.0.1/../../../../i686-apple-darwin8/include"
 
   * darwin-ppc: local fontforge compile libgdraw paths. 
-
-
 
