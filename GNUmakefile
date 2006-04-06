@@ -73,7 +73,10 @@ download:
 	rm -f target/*/status/lilypond*
 	rm -f log/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).*.test.pdf
 
-all: $(BUILD_PLATFORM) doc $(OTHER_PLATFORMS) 
+all: $(BUILD_PLATFORM) doc $(OTHER_PLATFORMS) gub_builder.py
+
+gub_builder.py:
+	ln -s gub-builder.py $@
 
 arm:
 	$(call BUILD,$@,lilypond)

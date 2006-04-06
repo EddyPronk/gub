@@ -56,7 +56,7 @@ def add_options (settings, options):
 def get_cli_parser ():
 	p = optparse.OptionParser ()
 
-	p.usage="""driver.py [OPTION]... COMMAND [PACKAGE]...
+	p.usage='''gub-builder.py [OPTION]... COMMAND [PACKAGE]...
 
 Commands:
 
@@ -66,7 +66,7 @@ build-installer   - build installer root
 strip-installer   - strip installer root
 package-installer - build installer binary
 
-"""
+'''
 	p.description='Grand Unified Builder.  Specify --package-version to set build version'
 
 	p.add_option ('-B', '--branch', action='store',

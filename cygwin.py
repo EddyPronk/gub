@@ -5,5 +5,5 @@
 import gub_builder
 import sys
 
-sys.argv = ['bar', '--target-platform=mingw', '--keep', 'build', 'lilypond']
+sys.argv = ['bar', '--target-platform=cygwin', '--keep', 'build', 'lilypond']
 gub_builder.main ()
