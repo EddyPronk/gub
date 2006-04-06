@@ -252,7 +252,9 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
 ''')
 		for i in glob.glob ('%(srcdir)s/[A-Z]*'
 				    % self.get_substitution_dict ()):
-			if not i.startswith ('Makefile'):
+			if (os.path.isfile (i)
+			    and not i.startswith ('Makefile')
+			    and not i.startswith ('GNUmakefile')):
 				shutil.copy2 (i, '%(install_root)s/usr/share/doc/%(name)s' % self.get_substitution_dict ())
 
 	def patch (self):
