@@ -81,7 +81,7 @@ def opt_parser ():
 		      help = 'where to send error report')
 
 	try:
-		address = os.environ['EMAIL'],
+		address = os.environ['EMAIL']
 	except KeyError:
 		address = '%s@localhost' % os.getlogin()
 
