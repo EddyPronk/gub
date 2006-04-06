@@ -297,25 +297,15 @@ mkdir -p %(install_root)s/etc/hints
 		for name in ['guile', 'guile-devel', 'guile-doc', 'libguile' + self.sover]:
 			depends = fixdepends[name]
 			requires = ' '.join (depends)
-			hint = open (self.settings.sourcefiledir + '/' + name + '.hint').read ()
-			print 'requires: ' + requires
-			print 'locals: ' + `locals ()`
-
-			# Whugh, let's try manual replacement
-			hint = hint % { 'requires' : requires,
-					'version' : self.version (),
-					'bundle_build': self.settings.bundle_build,
-					}
-			assert (locals ().has_key ('requires'))
-
-			# HUH?, the assert succeeds, but the expand fails?
-			hint = self.expand (hint, env=locals ())
 			
-			# WTF? KeyError: 'requires', although locals
-			# () is supplied.  Let't try harder above.
+			hint = open (self.settings.sourcefiledir + '/' + name + '.hint').read ()
+			
+			d = dict((k,v) for (k,v) in locals().items() if type(v) == type(''))
+			del d['hint']
 			self.dump (hint,
 				   '%(install_root)s/etc/hints/%(name)s.hint',
-				   env=locals ())
+			   
+				   env=d)
 
 class Guile__local (Tool_package, Guile):
 	def configure (self):
