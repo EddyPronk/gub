@@ -181,7 +181,7 @@ doc-update:
 	python gub-builder.py --branch $(LILYPOND_BRANCH) -p $(BUILD_PLATFORM) --stage untar build lilypond
 	rm -f target/$(BUILD_PLATFORM)/status/lilypond*
 
-doc:
+doc: linux
 	unset LILYPONDPREFIX \
 	  && make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_BRANCH)  \
 	  LILYPOND_EXTERNAL_BINARY=$(NATIVE_TARGET_DIR)/system/usr/bin/lilypond \
