@@ -194,7 +194,7 @@ mkdir -p %(install_root)s/etc/hints
 		for name in ['lilypond']:
 			depends = fixdepends[name]
 			requires = ' '.join (depends)
-			hint = open (self.settings.sourcefiledir + '/' + name + '.hint').read ()
+			hint = self.expand (open (self.settings.sourcefiledir + '/' + name + '.hint').read (), locals ())
 			self.dump (hint,
 				   '%(install_root)s/etc/hints/%(name)s.hint',
 				   env=locals ())
