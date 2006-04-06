@@ -162,10 +162,6 @@ def upload_binaries (version):
 
 	cmds = ['scp %s %s' % tup for tup in src_dests]
 
-	print '\n'.join (cmds);
-	if barf:
-		raise 'barf'
-
 
 	branch = 'HEAD'
 	if (version[1] % 2) == 0:
@@ -179,6 +175,12 @@ def upload_binaries (version):
 	tag_cmd = 'darcs tag "release %(version_str)s-%(build)d of ChangeLog rev %(changelog_rev)s %(changelog_date)"' % locals()
 
 	cmds.append (tag_cmd)
+
+	
+	print '\n'.join (cmds);
+	if barf:
+		raise 'barf'
+
 	for cmd in cmds:
 		system (cmd)
 
