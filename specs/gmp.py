@@ -13,12 +13,11 @@ class Gmp (targetpackage.Target_package):
 		if not self.settings.platform.startswith ('darwin'):
 			self.target_architecture = re.sub ('i[0-9]86-', 'i386-', settings.target_architecture)
 
-	# ugh.
 	def configure_command (self):
-		cmd = targetpackage.Target_package.configure_command (self)
+		c = targetpackage.Target_package.configure_command (self)
 
-		flags = ' -g -O2 -fomit-frame-pointer -march=i386 '
-		return cmd
+		c += ' --disable-cxx '
+		return c
 
 	def configure (self):
 		targetpackage.Target_package.configure (self)
@@ -44,20 +43,19 @@ class Gmp__darwin (Gmp):
 			       '%(srcdir)s/gmp-h.in')
 		Gmp.patch (self)
 
+	def install (self):
+		Gmp.install (self)
+		self.file_sub ([('using std::FILE;','')],
+			       '%(install_root)s/usr/include/gmp.h')
+
 class Gmp__darwin__x86 (Gmp__darwin):
 	def configure_command (self):
 
 		## bypass oddball assembler errors. 
 		c = Gmp__darwin.configure_command (self)
-		c += ' --disable-cxx '
 		c = re.sub ('host=[^ ]+', 'host=none-apple-darwin8', c)
 		c = re.sub ('--target=[^ ]+', ' ', c)
 		return c
-
-	def install (self):
-		Gmp__darwin.install (self)
-		self.file_sub ([('using std::FILE;','')],
-			       '%(install_root)s/usr/include/gmp.h')
 
 	
 class Gmp__mingw (Gmp):
