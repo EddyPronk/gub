@@ -203,6 +203,18 @@ mkdir -p %(install_root)s/etc/hints
 				   '%(install_root)s/etc/hints/%(name)s.hint',
 				   env=locals ())
 
+	def split_doc (self):
+		docball = self.expand ('%(uploads)s/%(bundle_version)s-%(bundle_build).documentation.tar.bz2')
+		if not os.path.exists (docball):
+			self.system ('''
+make doc
+''')
+			self.system ('''
+tar -C %(install_root)s/usr/share/doc/lilypond -jxf %(docball)s
+''',
+				     locals ())
+		LilyPond.split_doc (self)
+
 class LilyPond__freebsd (LilyPond):
 	def __init__ (self, settings):
 		LilyPond.__init__ (self, settings)
