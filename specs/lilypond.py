@@ -151,6 +151,10 @@ LDFLAGS="%(LDFLAGS)s %(python_lib)s"
 	#URG guile.py c&p
 	def install (self):
 		LilyPond.install (self)
+		self.system ('''
+mkdir -p %(install_root)s/usr/share/doc/lilypond
+cp -prv %(srcdir)s/input %(install_root)s/usr/share/doc/lilypond
+''')
 		self.dump_readme_and_hints ()
 		self.copy_readmes ()
 		# Hmm, is this really necessary?
