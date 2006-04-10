@@ -39,7 +39,7 @@ class LilyPond (targetpackage.Target_package):
 
 	def configure (self):
 		self.autoupdate ()
-	
+
 
 	def do_configure (self):
 		if not os.path.exists (self.expand ('%(builddir)s/FlexLexer.h')):
@@ -53,7 +53,7 @@ cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/
 
 		self.file_sub ([('DEFINES = ', r'DEFINES = -DGHOSTSCRIPT_VERSION=\"%(ghostscript_version)s\" ')],
 			       '%(builddir)s/config.make')
-		
+
 	# FIXME: shared for all CVS packages
 	def srcdir (self):
 		return '%(allsrcdir)s/%(name)s-%(version)s'
@@ -73,7 +73,7 @@ cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/
 		    or misc.file_is_newer ('%(srcdir)s/configure' % d,
 				      '%(builddir)s/config.make' % d)):
 			self.do_configure ()
-			
+
 		targetpackage.Target_package.compile (self)
 
 	def compile_command (self):
@@ -84,7 +84,7 @@ cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/
 			s = 'unset builddir srcdir topdir;' + s
 
 		return s
-		
+
         def name_version (self):
 		# whugh
 		if os.path.exists (self.srcdir ()):
@@ -209,7 +209,7 @@ class LilyPond__freebsd (LilyPond):
 
 		# libgcc.so
 		self.name_dependencies.append ('gcc')
-		
+
 class LilyPond__mingw (LilyPond__cygwin):
 	def __init__ (self, settings):
 		LilyPond__cygwin.__init__ (self, settings)
@@ -231,7 +231,7 @@ class LilyPond__mingw (LilyPond__cygwin):
 				(' -g ', ' '),
 				],
 			       '%(builddir)s/config.make')
-		
+
 	def compile (self):
 		LilyPond.compile (self)
 		self.system ('cd %(builddir)s/lily && mv out/lilypond out/lilypond-console')
@@ -286,7 +286,7 @@ class LilyPond__darwin (LilyPond):
 
 		cmd += ' --with-python-include=' + pydir
 		cmd += ' --enable-static-gxx '
-		
+
 		return cmd
 
 	def do_configure (self):
