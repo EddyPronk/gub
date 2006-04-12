@@ -96,6 +96,7 @@ cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/
 		targetpackage.Target_package.install (self)
 		d = misc.grok_sh_variables (self.expand ('%(srcdir)s/VERSION'))
 		v = '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
+		# WTF, current?
 		self.system ("cd %(install_root)s/usr/share/lilypond && mv %(v)s current",
 			     locals ())
 
@@ -132,6 +133,7 @@ class LilyPond__cygwin (LilyPond):
 			   depends=['fontconfig', 'freetype2', 'gettext', 'glib2', 'guile', 'libiconv', 'pango', 'python'],
 			   builddeps=['gettext-devel', 'glib2-devel', 'guile', 'libfontconfig-devel', 'libfreetype2-devel', 'libiconv', 'pango-devel', 'python'],
 			   track_development=True)
+		self.split_packages = ['doc']
 
         def patch (self):
 		# FIXME: for our gcc-3.4.5 cross compiler in the mingw
@@ -186,16 +188,17 @@ mkdir -p %(install_root)s/usr/share/doc/Cygwin
 mkdir -p %(install_root)s/etc/hints
 ''')
 
-		readme = open (self.settings.sourcefiledir + '/guile.README').read ()
+		readme = open (self.settings.sourcefiledir + '/lilypond.README').read ()
 		self.dump (readme,
-			   '%(install_root)s/usr/share/doc/Cygwin/%(name)s-%(version)s-%(bundle_build)s.README',
+			   '%(install_root)s/usr/share/doc/Cygwin/%(name)s-%(bundle_version)s-%(bundle_build)s.README',
 			   env=locals ())
 
 		fixdepends = {
 			'lilypond' : ['bash', 'coreutils', 'cygwin', 'findutils', 'ghostscript', 'glib2-runtime', 'libfontconfig1', 'libfreetype26', 'libguile17', 'libiconv2', 'libintl3', 'pango-runtime', 'python', '_update-info-dir'],
+			'lilypond-doc' : []
 			}
 
-		for name in ['lilypond']:
+		for name in ['lilypond', 'lilypond-doc']:
 			depends = fixdepends[name]
 			requires = ' '.join (depends)
 			hint = self.expand (open (self.settings.sourcefiledir + '/' + name + '.hint').read (), locals ())
@@ -204,7 +207,7 @@ mkdir -p %(install_root)s/etc/hints
 				   env=locals ())
 
 	def split_doc (self):
-		docball = self.expand ('%(uploads)s/%(bundle_version)s-%(bundle_build).documentation.tar.bz2')
+		docball = self.expand ('%(uploads)s/lilypond-%(bundle_version)s-%(bundle_build)s.documentation.tar.bz2')
 		if not os.path.exists (docball):
 			self.system ('''
 make doc
@@ -250,7 +253,7 @@ class LilyPond__mingw (LilyPond__cygwin):
 		self.system ('cd %(builddir)s/lily && make MODULE_LDFLAGS="-mwindows"')
 
 	def install (self):
-		LilyPond__cygwin.install (self)
+		targetpackage.Target_package.install (self)
 		self.system ('''
 rm -f %(install_prefix)s/bin/lilypond-windows
 install -m755 %(builddir)s/lily/out/lilypond %(install_prefix)s/bin/lilypond-windows.exe
@@ -282,6 +285,8 @@ class LilyPond__debian (LilyPond):
 		self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
 			   builddeps=['libfontconfig1-dev', 'guile-1.6-dev', 'libpango1.0-dev', 'python-dev'],
 			   track_development=True)
+	def install (self):
+		targetpackage.Target_package.install (self)
 
 class LilyPond__darwin (LilyPond):
 	def __init__ (self, settings):

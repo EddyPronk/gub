@@ -1,5 +1,5 @@
 curr: %(version)s-%(bundle_build)s
-prev: 2.6.3-1
+prev: 2.6.4-1
 sdesc: "A program for printing sheet music"
 category: Publishing
 requires: %(requires)s libguile12
