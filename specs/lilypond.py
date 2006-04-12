@@ -152,7 +152,7 @@ LDFLAGS="%(LDFLAGS)s %(python_lib)s"
 
 	#URG guile.py c&p
 	def install (self):
-		LilyPond.install (self)
+		targetpackage.Target_package.install (self)
 		self.system ('''
 mkdir -p %(install_root)s/usr/share/doc/lilypond
 cp -prv %(srcdir)s/input %(install_root)s/usr/share/doc/lilypond
@@ -253,7 +253,7 @@ class LilyPond__mingw (LilyPond__cygwin):
 		self.system ('cd %(builddir)s/lily && make MODULE_LDFLAGS="-mwindows"')
 
 	def install (self):
-		targetpackage.Target_package.install (self)
+		LilyPond.install (self)
 		self.system ('''
 rm -f %(install_prefix)s/bin/lilypond-windows
 install -m755 %(builddir)s/lily/out/lilypond %(install_prefix)s/bin/lilypond-windows.exe
