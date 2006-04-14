@@ -209,9 +209,8 @@ mkdir -p %(install_root)s/etc/hints
 	def split_doc (self):
 		docball = self.expand ('%(uploads)s/lilypond-%(bundle_version)s-%(bundle_build)s.documentation.tar.bz2')
 		if not os.path.exists (docball):
-			self.system ('''
-make doc
-''')
+			# Must not have cygwin CC, CXX settings.
+			os.system ('''make doc''')
 			self.system ('''
 tar -C %(install_root)s/usr/share/doc/lilypond -jxf %(docball)s
 ''',

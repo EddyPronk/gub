@@ -85,6 +85,7 @@ cygwin:
 	# note: MUST use LOCAL_DRIVER_OPTIONS=--build-source
 	rm -rf uploads/cygwin/*guile*
 	python gup-manager.py -p cygwin remove guile
+	$(MAKE) doc
 	$(call BUILD,$@,guile lilypond)
 	rm -rf uploads/cygwin/*guile*
 	python gup-manager.py -p cygwin remove guile
