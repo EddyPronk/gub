@@ -215,7 +215,7 @@ class Guile__cygwin (Guile):
 		# must enable for building guile (installer) for cygwin,
 		# so cannot simply use cmdline --split switch.
 		self.sover = '17'
-		#self.split_packages= ['devel', 'doc', 'lib']
+		#self.split_packages = ['devel', 'doc', 'lib']
 
 	def config_cache_overrides (self, str):
 		return str + '''

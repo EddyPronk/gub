@@ -89,10 +89,10 @@ cygwin:
 	$(call BUILD,$@,guile lilypond)
 	rm -rf uploads/cygwin/*guile*
 	python gup-manager.py -p cygwin remove guile
-	sed -i 's/#self.split_packages /self.split_packages/' specs/guile.py
+	sed -i 's/#self.split_packages =/self.split_packages =/' specs/guile.py
 	$(call INVOKE_DRIVER,$@) build guile
 	$(call INVOKE_DRIVER,$@) package-installer guile
-	sed -i 's/self.split_packages /#self.split_packages/' specs/guile.py
+	sed -i 's/self.split_packages =/#self.split_packages =/' specs/guile.py
 
 darwin-ppc:
 	$(call BUILD,$@,lilypond)
