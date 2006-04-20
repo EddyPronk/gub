@@ -320,12 +320,20 @@ class Cygwin_package (Installer):
 				    gub_name)
 		# URG urg urgurg
 		b = self.settings.lilypond_branch
-		if (gub_name.startswith ('lilypond-' + b)
-		    or gub_name.startswith ('lilypond-doc-' + b)):
-			base_name = re.sub ('-' + b +'.*', '', gub_name)
+		print 'XXX'
+		print 'GUB_NAME: ' + gub_name
+		print 'B: ' + b
+		# FIXME, package lilypond has gub_name='lilypond-<BRANCH>
+		# but lilypond-doc has gub_name='%(name)s-doc-<BRANCH>'
+		g = package.expand (gub_name)
+		if (g.startswith ('lilypond-' + b)
+		    or g.startswith ('lilypond-doc-' + b)):
+			print 'STARTSWITH'
+			base_name = re.sub ('-' + b +'.*', '', g)
 			ball_name = re.sub ('-' + b + '.*',
 					    '-%(bundle_version)s-%(bundle_build)s.tar.bz2',
-				    gub_name)
+				    g)
+		print 'BALL_NAME: ' + ball_name
 		hint = base_name + '.hint'
 		dir = '%(installer_root)s-' + base_name
 		package.system ('''

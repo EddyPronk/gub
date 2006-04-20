@@ -211,7 +211,7 @@ mkdir -p %(install_root)s/etc/hints
 		if not os.path.exists (docball):
 			# Must not have cygwin CC, CXX settings.
 			os.system ('''make doc''')
-			self.system ('''
+		self.system ('''
 mkdir -p %(install_root)s/usr/share/doc/lilypond
 tar -C %(install_root)s/usr/share/doc/lilypond -jxf %(docball)s
 ''',
