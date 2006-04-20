@@ -212,6 +212,7 @@ mkdir -p %(install_root)s/etc/hints
 			# Must not have cygwin CC, CXX settings.
 			os.system ('''make doc''')
 			self.system ('''
+mkdir -p %(install_root)s/usr/share/doc/lilypond
 tar -C %(install_root)s/usr/share/doc/lilypond -jxf %(docball)s
 ''',
 				     locals ())
@@ -231,6 +232,7 @@ class LilyPond__mingw (LilyPond__cygwin):
 			   depends=['fontconfig', 'gettext',
 				    'guile', 'pango', 'python', 'ghostscript', 'lilypad'],
 			   track_development=True)
+		self.split_packages = []
 
 	def do_configure (self):
 		LilyPond__cygwin.do_configure (self)
