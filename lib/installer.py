@@ -320,7 +320,8 @@ class Cygwin_package (Installer):
 				    gub_name)
 		# URG urg urgurg
 		b = self.settings.lilypond_branch
-		if gub_name.startswith ('lilypond-' + b):
+		if (gub_name.startswith ('lilypond-' + b)
+		    or gub_name.startswith ('lilypond-doc-' + b)):
 			base_name = re.sub ('-' + b +'.*', '', gub_name)
 			ball_name = re.sub ('-' + b + '.*',
 					    '-%(bundle_version)s-%(bundle_build)s.tar.bz2',
