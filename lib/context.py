@@ -63,7 +63,6 @@ class Context:
 		d.update (vars)
 		d.update (member_substs)
 
-#		typecheck_substitution_dict(d)
 		d = recurse_substitutions (d)
 		return d
 
@@ -89,7 +88,6 @@ class Os_context_wrapper (Context):
 		self.verbose = settings.verbose ()
 		
 	def file_sub (self, re_pairs, name, to_name=None, env={}, must_succeed=False):
-
 		substs = []
 		for (frm, to) in re_pairs:
 			frm = self.expand (frm, env)

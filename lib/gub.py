@@ -121,7 +121,7 @@ cd %(downloaddir)s && cvs -d %(url)s -q co -d %(dir)s -r %(version)s %(name)s
 # Hmm, let's save local changes?
 #cd %(srcdir)s && cvs update -dCAP -r %(version)s
 			self.system ('''
-cd %(cvs_dest)s && cvs -q update -dAP -r %(version)s
+cd %(cvs_dest)s && cvs -q update -dAPr %(version)s
 ''', locals ())
 			
 

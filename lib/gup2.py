@@ -2,7 +2,6 @@ import gdbm as dbmodule
 #import dbhash as dbmodule
 
 import pickle
-import dbhash
 import gzip
 import os
 import re
