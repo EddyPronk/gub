@@ -105,7 +105,16 @@ cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/
 
 		self.system ('mkdir -p %(install_root)s/usr/etc/fonts/')
 		fc_conf_file = open (self.expand ('%(install_root)s/usr/etc/fonts/local.conf'), 'w')
-		fc_conf_file.write ('<cache>~/.lilypond-%(v)s-font.cache-1</cache>' % locals ())
+		fc_conf_file.write ('''
+ <selectfont>
+  <rejectfont>
+   <pattern>
+     <patelt name="scalable"><bool>false</bool></patelt>
+   </pattern>
+  </rejectfont>
+ </selectfont>
+
+<cache>~/.lilypond-%(v)s-font.cache-1</cache>''' % locals ())
 
 
 
