@@ -21,6 +21,10 @@ import cygwin
 
 
 class File_manager:
+
+	"""File_manager handles a tree, and keeps track of files,
+	associating files with a package name"""
+	
 	def __init__ (self, root, os_interface, dbdir=None):
 		self.root = root
 		if dbdir:
@@ -145,6 +149,21 @@ class File_manager:
 		return names
 
 class Package_manager (File_manager):
+
+
+	"""Package_manager is a File_manager, which also associates a
+	key/value dict with each package.
+
+	Such dicts come either from either 
+
+	1. A build spec (ie. a python object)
+
+	2. A pickled dict on disk, a package header
+
+	3. 
+	"""
+
+	
 	def __init__ (self, root, os_interface, dbdir=None):
 		File_manager.__init__ (self, root, os_interface, dbdir)
 
@@ -181,7 +200,6 @@ class Package_manager (File_manager):
 		    and branch <> d['cvs_branch']):
 			print 'ignoring header for wrong branch', package_hdr
 			return
-		
 		
 		if self._package_dict_db.has_key (d['name']):
 			if str != self._package_dict_db[d['name']]:
@@ -237,7 +255,8 @@ def is_string (x):
 
 class Dependency_manager (Package_manager):
 
-	"Manage packages that have dependencies and build_dependencies."
+	"""Manage packages that have dependencies and
+	build_dependencies in their package dicts"""
 
 	def __init__ (self, root, os_interface, dbdir=None):
 		Package_manager.__init__ (self, root, os_interface, dbdir)
@@ -300,7 +319,6 @@ def get_packages (settings, todo):
 	cross_packages = cross.get_cross_packages (settings)
 	pack_dict = dict ((p.name (), p) for p in cross_packages)
 
-
 	def name_to_dependencies_via_gub (name):
 		try:
 			pack = pack_dict[name]
@@ -337,7 +355,6 @@ def get_packages (settings, todo):
 	cross.set_cross_dependencies (pack_dict)
 
 	## sort for cross deps too.
-
 	def obj_to_dependency_objects (obj):
 		return [pack_dict[n] for n in obj.name_dependencies
 			+ obj.name_build_dependencies]
@@ -348,12 +365,6 @@ def get_packages (settings, todo):
 	framework.version_fixups (settings, package_objs)
 
 	return ([o.name () for o in package_objs], pack_dict)
-
-
-
-
-
-
 
 def get_target_manager (settings):
 	target_manager = Dependency_manager (settings.system_root,
