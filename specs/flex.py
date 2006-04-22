@@ -10,8 +10,6 @@ class Flex (Tool_package):
 		
 	def patch (self):
 		self.system ("cd %(srcdir)s && patch -p1 < %(patchdir)s/flex-2.5.4a-FC4.patch")
-		
-	
 
 	def __init__ (self, settings):
 		Tool_package.__init__ (self, settings)

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 import sys
 import os
 import re
@@ -27,7 +28,6 @@ def main ():
 	path_comps = [c for c in os.environ['PATH'].split (':') if not re.search ('distcc', c)]
 	os.environ['PATH'] = ':'.join (path_comps)
 	argv = ['distcc', exe_name] + sys.argv[1:]
-##	sys.stderr.write ('execing: %s' % ' '.join (argv))
 	os.execvp ('distcc', argv)
 
 if __name__ == '__main__':

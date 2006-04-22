@@ -100,6 +100,7 @@ class Os_context_wrapper (Context):
 			to_name = self.expand (to_name, env)
 			
 		return self.os_interface.file_sub (substs, self.expand (name, env), to_name, must_succeed)
+	
 	def log_command (self, str, env={}):
 		str = self.expand (str, env)
 		self.os_interface.log_command (str)
