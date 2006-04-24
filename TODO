@@ -3,6 +3,8 @@ lagere prioriteit
 
 - create installer_root by copying system_root ?
 
+- first bootstrap: create lilypond download, or fix versioning?
+
 - move patches upstream, eg.
 
   * libpng
@@ -10,6 +12,8 @@ lagere prioriteit
   * python x-compile.
 
   * cygwin GCC
+
+- GUILE bouwen zonder locale devel packages.
 
 - update packages:
 
