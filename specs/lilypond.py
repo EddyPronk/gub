@@ -30,9 +30,12 @@ class LilyPond (targetpackage.Target_package):
     def configure_command (self):
         ## FIXME: pickup $target-guile-config
         return (targetpackage.Target_package.configure_command (self)
+
+                ## UGH: fixme: hardcoded font path.
             + misc.join_lines ('''
 --enable-relocation
 --disable-documentation
+--enable-ncsb-path=/usr/share/fonts/default/Type1/
 --enable-static-gxx
 --with-python-include=%(system_root)s/usr/include/python%(python_version)s
 '''))
