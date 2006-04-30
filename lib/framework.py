@@ -12,55 +12,55 @@ import gub
 import cross
 
 def package_fixups (settings, packs, extra_build_deps):
-	for p in packs:
-		if p.name () == 'lilypond':
-			p._downloader = p.cvs
-		if (not isinstance (p, gub.Sdk_package)
-		    and not isinstance (p, cross.Cross_package)
-		    and not isinstance (p, gub.Binary_package)):
-			p.name_build_dependencies += filter (lambda x: x != p.name (),
-							     extra_build_deps)
+    for p in packs:
+        if p.name () == 'lilypond':
+            p._downloader = p.cvs
+        if (not isinstance (p, gub.Sdk_package)
+          and not isinstance (p, cross.Cross_package)
+          and not isinstance (p, gub.Binary_package)):
+            p.name_build_dependencies += filter (lambda x: x != p.name (),
+                              extra_build_deps)
 
 
 ## this really really sucks.
 ##
 def version_fixups (settings, packs):
-	try:
-		settings.python_version = [p for p in packs
-					   if p.name() == 'python'][0].python_version ()
-	except IndexError:
-		if 0:
-			pass
-		elif settings.platform == 'arm':
-			settings.python_version = '2.4'
-		elif settings.platform == 'cygwin':
-			settings.python_version = '2.4'
-		elif settings.platform.startswith ('darwin'):
-			settings.python_version = '2.3'
-		elif settings.platform == 'debian':
-			settings.python_version = '2.3'
-	try:
-		settings.guile_version = [p for p in packs
-			if p.name()=='guile'][0].guile_version ()
-	except IndexError:
-		if settings.platform == 'debian':
-			settings.guile_version = '1.8'
-	try:
-		settings.ghostscript_version = [p for p in packs
-						if p.name() == 'ghostscript'][0].ghostscript_version ()
-	except IndexError:
-		if settings.platform == 'cygwin':
-			settings.ghostscript_version = '8.15'
-		elif settings.platform == 'debian':
-			settings.ghostscript_version = '8.15'
+    try:
+        settings.python_version = [p for p in packs
+                     if p.name() == 'python'][0].python_version ()
+    except IndexError:
+        if 0:
+            pass
+        elif settings.platform == 'arm':
+            settings.python_version = '2.4'
+        elif settings.platform == 'cygwin':
+            settings.python_version = '2.4'
+        elif settings.platform.startswith ('darwin'):
+            settings.python_version = '2.3'
+        elif settings.platform == 'debian':
+            settings.python_version = '2.3'
+    try:
+        settings.guile_version = [p for p in packs
+            if p.name()=='guile'][0].guile_version ()
+    except IndexError:
+        if settings.platform == 'debian':
+            settings.guile_version = '1.8'
+    try:
+        settings.ghostscript_version = [p for p in packs
+                        if p.name() == 'ghostscript'][0].ghostscript_version ()
+    except IndexError:
+        if settings.platform == 'cygwin':
+            settings.ghostscript_version = '8.15'
+        elif settings.platform == 'debian':
+            settings.ghostscript_version = '8.15'
 
-	# FIXME
-	if not settings._substitution_dict:
-		return
-	if settings.__dict__.has_key ('ghostscript_version'):
-		settings._substitution_dict['ghostscript_version'] = settings.ghostscript_version
-	if settings.__dict__.has_key ('guile_version'):
-		settings._substitution_dict['guile_version'] = settings.guile_version
-	if settings.__dict__.has_key ('python_version'):
-		settings._substitution_dict['python_version'] = settings.python_version
+    # FIXME
+    if not settings._substitution_dict:
+        return
+    if settings.__dict__.has_key ('ghostscript_version'):
+        settings._substitution_dict['ghostscript_version'] = settings.ghostscript_version
+    if settings.__dict__.has_key ('guile_version'):
+        settings._substitution_dict['guile_version'] = settings.guile_version
+    if settings.__dict__.has_key ('python_version'):
+        settings._substitution_dict['python_version'] = settings.python_version
 

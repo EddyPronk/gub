@@ -6,13 +6,13 @@ from toolpackage import Tool_package
 #    ./gub-builder.py -p mingw build http://ftp.gnu.org/pub/gnu/libtool/libtool-1.5.20.tar.gz
 
 class Libtool (targetpackage.Target_package):
-	def __init__ (self, settings):
-		targetpackage.Target_package.__init__ (self, settings)
-		self.with (version='1.5.20')
+    def __init__ (self, settings):
+        targetpackage.Target_package.__init__ (self, settings)
+        self.with (version='1.5.20')
 
 class Libtool__local (Tool_package):
-	def __init__ (self, settings):
-		##ug.h
-		Tool_package.__init__ (self, settings)
-		self.with (version='1.5.20')
+    def __init__ (self, settings):
+        ##ug.h
+        Tool_package.__init__ (self, settings)
+        self.with (version='1.5.20')
 
