@@ -1,9 +1,10 @@
 import glob
 import re
-
 import download
 import targetpackage
 import gub
+
+from context import *
 
 class Python (targetpackage.Target_package):
     def __init__ (self, settings):
@@ -44,20 +45,23 @@ class Python (targetpackage.Target_package):
 
     def install (self):
         targetpackage.Target_package.install (self)
-        self.dump ('.'.join (self.ball_version.split ('.')[0:2]),
+        self.dump (self.python_version (),
                    '%(install_root)s/usr/etc/python-version')
+
+    ### UGH.
+    @subst_method
+    def python_version (self):
+        return '.'.join (self.ball_version.split ('.')[0:2])
        
 class Python__mingw_binary (gub.Binary_package):
     def __init__ (self, settings):
         gub.Binary_package.__init__ (self, settings)
         self.with (mirror="http://lilypond.org/~hanwen/python-2.4.2-windows.tar.gz",
-             version='2.4.2')
+                   version='2.4.2')
 
-
-    ### UGH.
     def python_version (self):
         return '2.4'
-    
+
     def install (self):
         gub.Binary_package.install (self)
         
