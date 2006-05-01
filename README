@@ -48,7 +48,7 @@ You can get the GUB builder by doing
 INSTALLING
 **********
 
-0. You need 
+* You need 
 
   - about 7 GB of free space
 
@@ -56,7 +56,7 @@ INSTALLING
 
   - Python 2.4
 
-1. Edit local.make to set some variables.  Here is what my local.make
+* Edit local.make to set some variables.  Here is what my local.make
    contains
 
   LILYPOND_CVSDIR=downloads/lilypond-$(LILYPOND_BRANCH)/
@@ -64,11 +64,21 @@ INSTALLING
   BUILD_PLATFORM=linux
   GUB_DISTCC_ALLOW_HOSTS='192.168.123.191 192.168.123.162 127.0.0.1 192.168.123.107'
 
-2. Prepare build environment
+* Download lilypond repository:
+
+  make bootstrap-download
+
+  You only have to do this once.
+
+* Prepare build environment
 
   make bootstrap
 
-3. Build the installers
+* sync the download dir
+
+  make download
+
+* Build the installers
 
   make PLATFORM
 

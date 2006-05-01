@@ -53,9 +53,19 @@ RUN_TEST=python test-gub.py --to hanwen@xs4all.nl --to janneke-list@xs4all.nl --
 #  GUB_DISTCC_ALLOW_HOSTS - which distcc daemons may connect.
 #  GUB_CROSS_DISTCC_HOSTS - hosts with matching cross compilers
 #  GUB_NATIVE_DISTCC_HOSTS - hosts with matching native compilers
-# 
+#
+ifneq ($(wildcard local.make),)
 include local.make
 include $(LILYPOND_CVSDIR)/VERSION
+endif
+
+ifeq ($(wildcard $(LILYPOND_CVSDIR)),)
+
+## need to download CVS before we can actually start doing anything.
+bootstrap-download:
+	python gub-builder.py -p linux download
+else
+bootstrap-download:
 
 ifeq ($(LILYPOND_BRANCH),)
 LILYPOND_BRANCH=$(shell (cat $(LILYPOND_CVSDIR)/CVS/Tag 2> /dev/null || echo HEAD) | sed s/^T//)
@@ -67,7 +77,11 @@ else
 INSTALLER_BUILD:=0
 endif
 
-download:
+
+endif
+
+
+download: bootstrap-download
 	$(foreach p, $(PLATFORMS), $(call INVOKE_DRIVER,$(p)) download lilypond && ) true
 	$(call INVOKE_DRIVER,mingw) download lilypad
 	$(call INVOKE_DRIVER,darwin-ppc) download osx-lilypad
