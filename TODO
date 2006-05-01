@@ -23,7 +23,7 @@ lagere prioriteit
 
   * fontconfig 2.4; Blocker: mingw mmap() compat. support.
 
-  * hardwired paths for lib/pango/1.5 vs. 1.4
+  * gcc 4.2 snapshot for darwin-x86
 
   * darwin-x86
 
