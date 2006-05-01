@@ -34,11 +34,20 @@ class Pango (targetpackage.Target_package):
             self.file_sub ([('/usr/', '$PANGO_PREFIX/')],
                    a)
 
+        pango_module_version = None
+        for dirs in glob.glob (self.expand ("%(install_prefix)/lib/pango")):
+            m = re.search ("([0-9.]+)")
+            if not m:
+                continue
+            
+            pango_module_version = m.group (1)
+
         open (etc + '/pangorc', 'w').write (
         '''[Pango]
 ModuleFiles = $PANGO_PREFIX/etc/pango/pango.modules
-ModulesPath = $PANGO_PREFIX/lib/pango/1.5.0/modules
-''')
+ModulesPath = $PANGO_PREFIX/lib/pango/%(pango_module_version)s/modules
+''' % locals ())
+        
         shutil.copy2 (self.expand ('%(sourcefiledir)s/pango.modules'),
                etc)
 
