@@ -67,16 +67,22 @@ bootstrap-download:
 else
 bootstrap-download:
 
-ifeq ($(LILYPOND_BRANCH),)
-LILYPOND_BRANCH=$(shell (cat $(LILYPOND_CVSDIR)/CVS/Tag 2> /dev/null || echo HEAD) | sed s/^T//)
-endif
-
-ifeq ($(OFFLINE),)
-INSTALLER_BUILD:=$(shell python lilypondorg.py nextbuild $(LILYPOND_VERSION))
+ifeq ($(wildcard $(LILYPOND_CVSDIR)),)
+bootstrap-download:
+	python gub-builder.py -p linux download
 else
-INSTALLER_BUILD:=0
+bootstrap-download:
 endif
 
+  ifeq ($(LILYPOND_BRANCH),)
+LILYPOND_BRANCH=$(shell (cat $(LILYPOND_CVSDIR)/CVS/Tag 2> /dev/null || echo HEAD) | sed s/^T//)
+  endif
+
+  ifeq ($(OFFLINE),)
+INSTALLER_BUILD:=$(shell python lilypondorg.py nextbuild $(LILYPOND_VERSION))
+  else
+INSTALLER_BUILD:=0
+  endif
 
 endif
 
