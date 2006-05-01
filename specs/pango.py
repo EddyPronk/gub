@@ -59,8 +59,9 @@ ModulesPath = $PANGO_PREFIX/lib/pango/%(pango_module_version)s/modules
     def install (self):
         targetpackage.Target_package.install (self)                
         self.dump ("""
-setfile PANGORC=$INSTALLER_PREFIX/etc/pango/pangorc
+setfile PANGO_RC_FILE=$INSTALLER_PREFIX/etc/pango/pangorc
 setdir PANGO_PREFIX=$INSTALLER_PREFIX/
+set PANGO_SO_EXTENSION
 """, '%(install_root)s/usr/etc/relocate/pango.reloc', env=locals())
 
         self.fix_modules ()
