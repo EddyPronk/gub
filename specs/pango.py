@@ -4,6 +4,7 @@ import shutil
 import download
 import misc
 import targetpackage
+import re
 
 class Pango (targetpackage.Target_package):
     def __init__ (self, settings):
@@ -35,13 +36,16 @@ class Pango (targetpackage.Target_package):
                    a)
 
         pango_module_version = None
-        for dirs in glob.glob (self.expand ("%(install_prefix)/lib/pango")):
-            m = re.search ("([0-9.]+)")
+        for dir in glob.glob (self.expand ("%(install_prefix)s/lib/pango/*")):
+            m = re.search ("([0-9.]+)", dir)
             if not m:
                 continue
             
             pango_module_version = m.group (1)
 
+        if not pango_module_version:
+            raise 'No version found'
+        
         open (etc + '/pangorc', 'w').write (
         '''[Pango]
 ModuleFiles = $PANGO_PREFIX/etc/pango/pango.modules
@@ -68,8 +72,8 @@ class Pango__linux (Pango):
         # pango only compiles without cairo if cairo is not
         # installed linkably on the build system.  UGH.
         self.file_sub ([('(have_cairo[_a-z0-9]*)=true', '\\1=false'),
-                ('(cairo[_a-z0-9]*)=yes', '\\1=no')],
-               '%(srcdir)s/configure')
+                        ('(cairo[_a-z0-9]*)=yes', '\\1=no')],
+                       '%(srcdir)s/configure')
         os.chmod ('%(srcdir)s/configure' % self.get_substitution_dict (), 0755)
 
 ## placeholder, don't want plain Pango for freebsd.
@@ -86,12 +90,12 @@ class Pango__freebsd (Pango__linux):
     def install (self):
         Pango__linux.install (self)
         for f in ['%(install_root)s/usr/etc/pango/pangorc',
-             '%(install_root)s/usr/etc/pango/pango.modules']:
+                  '%(install_root)s/usr/etc/pango/pango.modules']:
             self.file_sub ([('pango/1.5.0/', 'pango/1.4.0/')], f)
-
+            
 
 class Pango__darwin (Pango):
     def configure (self):
         Pango.configure (self)
         self.file_sub ([('nmedit', '%(target_architecture)s-nmedit')],
-               '%(builddir)s/libtool')
+                       '%(builddir)s/libtool')
