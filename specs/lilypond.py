@@ -27,6 +27,10 @@ class LilyPond (targetpackage.Target_package):
         c = c.replace ('rsync', 'rsync --delete --exclude configure')
         return c
 
+    @subst_method
+    def python_version  (self):
+        return open (self.expand ('%(system_root)s/usr/etc/python-version')).read ()
+
     def configure_command (self):
         ## FIXME: pickup $target-guile-config
         return (targetpackage.Target_package.configure_command (self)
