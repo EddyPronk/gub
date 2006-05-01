@@ -17,7 +17,7 @@ lagere prioriteit
 
 - update packages:
 
-  *
+- Python: should compile .pyc with matching local python version.
 
 - Bugfixes:
 
