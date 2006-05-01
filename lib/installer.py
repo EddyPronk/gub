@@ -95,7 +95,7 @@ class Installer (context.Os_context_wrapper):
             'lib/python*/logging',
             'lib/python*/test',
 # xml2ly needs xml.dom
-#                        'lib/python%(python_version)s/xml',
+#                        'lib/python*/xml',
             'share/lilypond/*/make',
             'share/gettext',
             'usr/share/aclocal',
@@ -297,7 +297,6 @@ class Cygwin_package (Installer):
     def create (self):
         p = targetpackage.load_target_package (self.settings,
                            self._name)
-        framework.version_fixups (p.settings, [p])
         self.cygwin_ball (p, '')
         for i in p.split_packages:
             self.cygwin_ball (p, i)

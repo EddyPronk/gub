@@ -132,17 +132,6 @@ def get_cygwin_package (settings, name, dict):
         package.name_dependencies = deps
         package.name_build_dependencies = deps
     package.ball_version = dict['version']
-    def urg_version ():
-        return re.sub ('-.*', '', package.ball_version)
-    def urg_major_version ():
-        return re.sub ('([0-9]*.[0-9]*).*', '\\1', package.ball_version)
-    # URG
-    if name == 'ghostscript':
-        package.ghostscript_version = urg_version
-    elif name == 'guile':
-        package.guile_version = urg_version
-    elif name == 'python':
-        package.python_version = urg_major_version
         
     package.url = (mirror + '/'
            + dict['install'].split ()[0])

@@ -362,8 +362,6 @@ def get_packages (settings, todo):
     package_objs = topologically_sorted (pack_dict.values (), {},
                       obj_to_dependency_objects)
 
-    framework.version_fixups (settings, package_objs)
-
     return ([o.name () for o in package_objs], pack_dict)
 
 def get_target_manager (settings):
