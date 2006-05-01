@@ -22,13 +22,6 @@ class Python (targetpackage.Target_package):
         self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-2.4.2-setup.py-import.patch')
 
         
-    def python_version (self):
-        return '.'.join (self.ball_version.split ('.')[0:2])
-
-    def get_substitution_dict (self, env={}):
-        dict = targetpackage.Target_package.get_substitution_dict (self, env)
-        dict['python_version'] = self.python_version ()
-        return dict
 
     def configure (self):
         self.system ('''cd %(srcdir)s && autoconf''')
@@ -48,7 +41,11 @@ class Python (targetpackage.Target_package):
         c = targetpackage.Target_package.install_command (self)
         c += ' BUILDPYTHON=python-bin '
         return c
-
+   def install (self):
+       targetpackage.Target_package.install (self)
+       self.dump ('.'.join (self.ball_version.split ('.')[0:2]),
+                  '%(install_root)s/usr/etc/python-version'))
+       
 class Python__mingw_binary (gub.Binary_package):
     def __init__ (self, settings):
         gub.Binary_package.__init__ (self, settings)
