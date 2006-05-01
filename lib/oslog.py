@@ -9,13 +9,26 @@ def now ():
     return time.asctime (time.localtime ())
 
 class Os_commands:
-    """Encapsulate OS/File system commands for proper logging. """
+    """
+
+Encapsulate OS/File system commands for proper logging.
+
+"""
     
     def __init__ (self, logfile):
         self.log_file = open (logfile, 'a')
         self.log_file.write ('\n\n * Starting build: %s\n' %  now ())
 
+
+    ## TODO:
+    ## capture complete output of CMD, by polling output, and copying to tty.
     def system_one (self, cmd, env, ignore_error):
+        """
+
+        Run CMD with environment vars ENV.
+        
+        """
+
         self.log_command ('invoking %s\n' % cmd)
 
         proc = subprocess.Popen (cmd, shell=True, env=env,
@@ -31,6 +44,12 @@ class Os_commands:
         return 0
 
     def log_command (self, str):
+        """
+
+Write STR in the build log.
+
+"""
+        
         sys.stderr.write (str)
         if self.log_file:
             self.log_file.write (str)
@@ -38,8 +57,12 @@ class Os_commands:
         
 
     def system (self, cmd, env={}, ignore_error=False, verbose=False):
-        """Run multiple lines as multiple commands.
         """
+
+Run os commands, and run multiple lines as multiple
+commands.
+
+"""
 
         call_env = os.environ.copy ()
         call_env.update (env)
@@ -58,13 +81,27 @@ class Os_commands:
         return 0
 
     def dump (self, str, name, mode='w'):
+        dir = os.split (name)[0]
+        if not os.path.exists (dir):
+            self.system ('mkdir -p %s' % dir)
+        
         self.log_command ("Writing %s\n" % name)
         
         f = open (name, mode)
         f.write (str)
         f.close ()
 
-    def file_sub (self, re_pairs, name, to_name=None, env={}, must_succeed=False):
+
+    def file_sub (self, re_pairs, name, to_name=None,
+                  must_succeed=False):
+
+
+        """
+
+Substitute RE_PAIRS in file NAME. if TO_NAME is specified, the output
+is sent to there.
+
+"""
 
         self.log_command ('substituting in %s\n' % name)
         self.log_command (''.join (map (lambda x: "'%s' -> '%s'\n" % x,
@@ -97,6 +134,7 @@ class Os_commands:
         pipe = os.popen (cmd, 'r')
         output = pipe.read ()
         status = pipe.close ()
+        
         # successful pipe close returns None
         if not ignore_error and status:
             raise 'read_pipe failed'
@@ -104,6 +142,9 @@ class Os_commands:
 
 
     def shadow_tree (self, src, target):
+        """Symlink files from SRC in TARGET recursively"""
+
+        
         target = os.path.abspath (target)
         src = os.path.abspath (src)
 
