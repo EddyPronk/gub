@@ -19,7 +19,13 @@ lagere prioriteit
 
 - Python: should compile .pyc with matching local python version.
 
+- Group spec/patch/source files by package
+
+- strip lily specific stuff from installer.py 
+
 - Bugfixes:
+
+  * nsis 2.16
 
   * fontconfig 2.4; Blocker: mingw mmap() compat. support.
 
