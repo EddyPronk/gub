@@ -42,7 +42,8 @@ class Pango (targetpackage.Target_package):
                 continue
             
             pango_module_version = m.group (1)
-
+            break
+        
         if not pango_module_version:
             raise 'No version found'
         
@@ -61,7 +62,6 @@ ModulesPath = $PANGO_PREFIX/lib/pango/%(pango_module_version)s/modules
         self.dump ("""
 setfile PANGO_RC_FILE=$INSTALLER_PREFIX/etc/pango/pangorc
 setdir PANGO_PREFIX=$INSTALLER_PREFIX/
-set PANGO_SO_EXTENSION
 """, '%(install_root)s/usr/etc/relocate/pango.reloc', env=locals())
 
         self.fix_modules ()

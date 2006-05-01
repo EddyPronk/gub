@@ -56,23 +56,20 @@ RUN_TEST=python test-gub.py --to hanwen@xs4all.nl --to janneke-list@xs4all.nl --
 #
 ifneq ($(wildcard local.make),)
 include local.make
-include $(LILYPOND_CVSDIR)/VERSION
 endif
 
+
 ifeq ($(wildcard $(LILYPOND_CVSDIR)),)
+bootstrap: bootstrap-download
+
 
 ## need to download CVS before we can actually start doing anything.
 bootstrap-download:
 	python gub-builder.py -p linux download
-else
-bootstrap-download:
 
-ifeq ($(wildcard $(LILYPOND_CVSDIR)),)
-bootstrap-download:
-	python gub-builder.py -p linux download
 else
+  include $(LILYPOND_CVSDIR)/VERSION
 bootstrap-download:
-endif
 
   ifeq ($(LILYPOND_BRANCH),)
 LILYPOND_BRANCH=$(shell (cat $(LILYPOND_CVSDIR)/CVS/Tag 2> /dev/null || echo HEAD) | sed s/^T//)
@@ -87,7 +84,7 @@ INSTALLER_BUILD:=0
 endif
 
 
-download: bootstrap-download
+download: 
 	$(foreach p, $(PLATFORMS), $(call INVOKE_DRIVER,$(p)) download lilypond && ) true
 	$(call INVOKE_DRIVER,mingw) download lilypad
 	$(call INVOKE_DRIVER,darwin-ppc) download osx-lilypad
