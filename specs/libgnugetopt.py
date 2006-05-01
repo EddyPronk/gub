@@ -13,10 +13,10 @@ prefix = /usr
 libdir = $(prefix)/lib
 includedir = $(prefix)/include
 install: all
-    install -d $(DESTDIR)/$(libdir)/
-    install -m 644 libgnugetopt.so.1 $(DESTDIR)/$(libdir)/
-    install -d $(DESTDIR)/$(includedir)/
-    install -m 644 getopt.h $(DESTDIR)/$(includedir)/
+\tinstall -d $(DESTDIR)/$(libdir)/
+\tinstall -m 644 libgnugetopt.so.1 $(DESTDIR)/$(libdir)/
+\tinstall -d $(DESTDIR)/$(includedir)/
+\tinstall -m 644 getopt.h $(DESTDIR)/$(includedir)/
 ''',
              '%(srcdir)s/Makefile', mode='a')
 
