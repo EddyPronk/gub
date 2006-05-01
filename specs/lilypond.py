@@ -2,11 +2,13 @@ import glob
 import os
 import re
 import shutil
-
 import cvs
 import gub
 import misc
 import targetpackage
+
+
+from context import *
 
 class LilyPond (targetpackage.Target_package):
     def __init__ (self, settings):
@@ -29,7 +31,12 @@ class LilyPond (targetpackage.Target_package):
 
     @subst_method
     def python_version  (self):
-        return open (self.expand ('%(system_root)s/usr/etc/python-version')).read ()
+        try:
+            ## can't do self.expand(): infinite loop. 
+            return open (self.settings.expand ('%(system_root)s/usr/etc/python-version')).read ()
+        except IOError:
+            ## ugh
+            return 'unknown' 
 
     def configure_command (self):
         ## FIXME: pickup $target-guile-config
@@ -57,9 +64,6 @@ mkdir -p %(builddir)s
 cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/
 ''', locals ())
         targetpackage.Target_package.configure (self)
-
-        self.file_sub ([('DEFINES = ', r'DEFINES = -DGHOSTSCRIPT_VERSION=\"%(ghostscript_version)s\" ')],
-               '%(builddir)s/config.make')
 
     # FIXME: shared for all CVS packages
     def srcdir (self):
@@ -134,9 +138,9 @@ cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/
         autodir = self.srcdir ()
 
         if (misc.file_is_newer (self.expand ('%(autodir)s/configure.in', locals ()),
-                 self.expand ('%(builddir)s/config.make',locals ()))
-          or misc.file_is_newer (self.expand ('%(autodir)s/stepmake/aclocal.m4', locals ()),
-                   self.expand ('%(autodir)s/configure', locals ()))):
+                                self.expand ('%(builddir)s/config.make',locals ()))
+            or misc.file_is_newer (self.expand ('%(autodir)s/stepmake/aclocal.m4', locals ()),
+                                   self.expand ('%(autodir)s/configure', locals ()))):
             self.system ('''
             cd %(autodir)s && bash autogen.sh --noconfigure
             ''', locals ())
@@ -146,9 +150,12 @@ class LilyPond__cygwin (LilyPond):
     def __init__ (self, settings):
         LilyPond.__init__ (self, settings)
         self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
-             depends=['fontconfig', 'freetype2', 'gettext', 'glib2', 'guile', 'libiconv', 'pango', 'python'],
-             builddeps=['gettext-devel', 'glib2-devel', 'guile', 'libfontconfig-devel', 'libfreetype2-devel', 'libiconv', 'pango-devel', 'python'],
-             track_development=True)
+                   depends=['fontconfig', 'freetype2', 'gettext', 'glib2', 'guile',
+                            'libiconv', 'pango', 'python'],
+                   builddeps=['gettext-devel', 'glib2-devel', 'guile',
+                              'libfontconfig-devel', 'libfreetype2-devel', 'libiconv',
+                              'pango-devel', 'python'],
+                   track_development=True)
         self.split_packages = ['doc']
 
     def patch (self):
@@ -305,13 +312,20 @@ class LilyPond__debian (LilyPond):
     def install (self):
         targetpackage.Target_package.install (self)
 
+
+##
 class LilyPond__darwin (LilyPond):
     def __init__ (self, settings):
         LilyPond.__init__ (self, settings)
-        self.with (version=settings.lilypond_branch, mirror=cvs.gnu, track_development=True,
-             depends=['pango', 'guile', 'gettext', 'ghostscript', 'fondu', 'osx-lilypad']
-             ),
-
+        self.with (version=settings.lilypond_branch,
+                   mirror=cvs.gnu,
+                   track_development=True,
+                   depends=['pango', 'guile', 'gettext', 'ghostscript',
+                            'fondu', 'osx-lilypad'])
+        
+    def python_version  (self):
+        return '2.3' # ugh.
+    
     def configure_command (self):
         cmd = LilyPond.configure_command (self)
 

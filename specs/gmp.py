@@ -83,6 +83,6 @@ class Gmp__local (Tool_package):
     def __init__ (self, s):
         Tool_package.__init__ (self, s)
         self.with (version='4.1.4',
-             depends=['libtool'])
+                   depends=['libtool'])
 
 

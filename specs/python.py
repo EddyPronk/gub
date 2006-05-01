@@ -41,10 +41,11 @@ class Python (targetpackage.Target_package):
         c = targetpackage.Target_package.install_command (self)
         c += ' BUILDPYTHON=python-bin '
         return c
-   def install (self):
-       targetpackage.Target_package.install (self)
-       self.dump ('.'.join (self.ball_version.split ('.')[0:2]),
-                  '%(install_root)s/usr/etc/python-version'))
+
+    def install (self):
+        targetpackage.Target_package.install (self)
+        self.dump ('.'.join (self.ball_version.split ('.')[0:2]),
+                   '%(install_root)s/usr/etc/python-version')
        
 class Python__mingw_binary (gub.Binary_package):
     def __init__ (self, settings):
