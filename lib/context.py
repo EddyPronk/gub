@@ -128,6 +128,10 @@ class Os_context_wrapper (Context):
         command = "cd %(directory)s && find -name '%(pattern)s'" % locals()
         return [f for f in  self.read_pipe (command).split ('\n') if f.strip()]
 
+
+#
+# Tests.
+#
 if __name__=='__main__':
     class TestBase(Context):
         @subst_method

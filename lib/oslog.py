@@ -81,7 +81,7 @@ commands.
         return 0
 
     def dump (self, str, name, mode='w'):
-        dir = os.split (name)[0]
+        dir = os.path.split (name)[0]
         if not os.path.exists (dir):
             self.system ('mkdir -p %s' % dir)
         

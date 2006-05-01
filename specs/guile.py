@@ -49,8 +49,6 @@ class Guile (targetpackage.Target_package):
         self.update_libtool ()
 
     def install (self):
-        self.system ('mkdir -p %(install_root)s/usr/etc/relocate/')
-
         majmin_version = '.'.join (self.expand ('%(version)s').split ('.')[0:2])
         
         self.dump ("prependdir GUILE_LOAD_PATH=$INSTALLER_ROOT/usr/share/guile/%(majmin_version)s\n",

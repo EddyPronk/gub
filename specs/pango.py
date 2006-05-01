@@ -1,7 +1,6 @@
 import glob
 import os
 import shutil
-
 import download
 import misc
 import targetpackage
@@ -45,7 +44,6 @@ ModulesPath = $PANGO_PREFIX/lib/pango/1.5.0/modules
 
 
     def install (self):
-        self.system ('mkdir -p %(install_root)s/usr/etc/relocate/')
         self.dump ("""
 setfile PANGORC=$INSTALLER_ROOT/usr/etc/pango/pangorc
 setdir PANGO_PREFIX=$INSTALLER_ROOT/

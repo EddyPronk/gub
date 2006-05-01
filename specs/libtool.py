@@ -21,7 +21,7 @@ class Libtool__local (Tool_package):
 class Libtool__darwin (Libtool):
     def install (self):
         Libtool.install (self)
-        self.dump ("prependdir DYLD_LIBRARY_PATH=$INSTALLER_ROOT/usr/lib"
+
+        ## necessary for programs that load dynamic modules.
+        self.dump ("prependdir DYLD_LIBRARY_PATH=$INSTALLER_ROOT/usr/lib",
                    '%(install_root)s/usr/etc/relocate/libtool.reloc')
-        targetpackage.Target_package.__init__ (self, settings)
-        self.with (version='1.5.20')
