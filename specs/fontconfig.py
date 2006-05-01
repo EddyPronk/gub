@@ -62,8 +62,8 @@ cd %(builddir)s/%(i)s && make "CFLAGS=%(cflags)s" "LIBS=%(libs)s" CPPFLAGS= LDFL
         
     def install (self):
         targetpackage.Target_package.install (self)
-        self.dump ('''set FONTCONFIG_FILE=$INSTALLER_ROOT/usr/etc/fonts/fonts.conf
-set FONTCONFIG_PATH=$INSTALLER_ROOT/usr/etc/fonts
+        self.dump ('''set FONTCONFIG_FILE=$INSTALLER_PREFIX/etc/fonts/fonts.conf
+set FONTCONFIG_PATH=$INSTALLER_PREFIX/etc/fonts
 ''', 
              '%(install_root)s/usr/etc/relocate/fontconfig.reloc')
         

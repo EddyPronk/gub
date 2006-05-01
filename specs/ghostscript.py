@@ -123,10 +123,10 @@ cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS
         self.system ('mkdir -p %(install_root)s/usr/etc/relocate/')
         self.dump ('''
 
-prependdir GS_FONTPATH=$INSTALLER_ROOT/usr/share/ghostscript/%(version)s/fonts
-prependdir GS_FONTPATH=$INSTALLER_ROOT/usr/share/gs/fonts
-prependdir GS_LIB=$INSTALLER_ROOT/usr/share/ghostscript/%(version)s/Resource
-prependdir GS_LIB=$INSTALLER_ROOT/usr/share/ghostscript/%(version)s/lib
+prependdir GS_FONTPATH=$INSTALLER_PREFIX/share/ghostscript/%(version)s/fonts
+prependdir GS_FONTPATH=$INSTALLER_PREFIX/share/gs/fonts
+prependdir GS_LIB=$INSTALLER_PREFIX/share/ghostscript/%(version)s/Resource
+prependdir GS_LIB=$INSTALLER_PREFIX/share/ghostscript/%(version)s/lib
 
 ''', '%(install_root)s/usr/etc/relocate/gs.reloc')
 

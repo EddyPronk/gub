@@ -23,5 +23,5 @@ class Libtool__darwin (Libtool):
         Libtool.install (self)
 
         ## necessary for programs that load dynamic modules.
-        self.dump ("prependdir DYLD_LIBRARY_PATH=$INSTALLER_ROOT/usr/lib",
+        self.dump ("prependdir DYLD_LIBRARY_PATH=$INSTALLER_PREFIX/lib",
                    '%(install_root)s/usr/etc/relocate/libtool.reloc')
