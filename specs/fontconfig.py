@@ -61,12 +61,11 @@ cd %(builddir)s/%(i)s && make "CFLAGS=%(cflags)s" "LIBS=%(libs)s" CPPFLAGS= LDFL
         self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/fontconfig-2.3.2-mingw-fccache.patch')
         
     def install (self):
-        self.system ('''mkdir -p %(install_root)s/usr/etc/relocate/''')
+        targetpackage.Target_package.install (self)
         self.dump ('''set FONTCONFIG_FILE=$INSTALLER_ROOT/usr/etc/fonts/fonts.conf
 set FONTCONFIG_PATH=$INSTALLER_ROOT/usr/etc/fonts
 ''', 
              '%(install_root)s/usr/etc/relocate/fontconfig.reloc')
-        targetpackage.Target_package.install (self)
         
         
 class Fontconfig__mingw (Fontconfig):

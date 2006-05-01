@@ -85,12 +85,13 @@ commands.
         if not os.path.exists (dir):
             self.system ('mkdir -p %s' % dir)
         
-        self.log_command ("Writing %s\n" % name)
+        self.log_command ("Writing %s (%s)\n" % (name, mode))
         
         f = open (name, mode)
         f.write (str)
         f.close ()
 
+        
 
     def file_sub (self, re_pairs, name, to_name=None,
                   must_succeed=False):

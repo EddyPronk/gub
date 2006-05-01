@@ -49,20 +49,19 @@ class Guile (targetpackage.Target_package):
         self.update_libtool ()
 
     def install (self):
+        targetpackage.Target_package.install (self)
+        
+        
         majmin_version = '.'.join (self.expand ('%(version)s').split ('.')[0:2])
         
         self.dump ("prependdir GUILE_LOAD_PATH=$INSTALLER_ROOT/usr/share/guile/%(majmin_version)s\n",
              '%(install_root)s/usr/etc/relocate/guile.reloc',
              env=locals())
         
-        targetpackage.Target_package.install (self)
-        
         ## can't assume that /usr/bin/guile is the right one.
         version = self.read_pipe ('''\
 GUILE_LOAD_PATH=%(install_prefix)s/share/guile/* guile -e main -s  %(install_prefix)s/bin/guile-config --version 2>&1\
 ''').split ()[-1]
-        self.system ('mkdir -p %(install_prefix)s/cross/bin/')
-
         self.dump ('''\
 #!/bin/sh
 [ "$1" == "--version" ] && echo "%(target_architecture)s-guile-config - Guile version %(version)s"

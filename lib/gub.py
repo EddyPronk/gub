@@ -624,6 +624,10 @@ rm -rf %(srcdir)s %(builddir)s %(install_root)s
         pass
 
     def install (self):
+        
+        """Install package into %(install_root). Any overrides should
+        follow this command, since it will erase the old install_root first."""
+        
         self.system ('mkdir -p %(install_root)s')
         self.system ('tar -C %(srcdir)s/root -cf- . | tar -C %(install_root)s -xf-')
         self.libtool_installed_la_fixups ()
