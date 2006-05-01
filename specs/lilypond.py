@@ -38,7 +38,7 @@ class LilyPond (targetpackage.Target_package):
         return (targetpackage.Target_package.configure_command (self)
 
                 ## UGH: fixme: hardcoded font path.
-            + misc.join_lines ('''
+                + misc.join_lines ('''
 --enable-relocation
 --disable-documentation
 --enable-ncsb-path=/usr/share/fonts/default/Type1/
@@ -59,7 +59,6 @@ cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/
             
         self.config_cache ()
         python_version = self.python_version ()
-        
         self.system ('''
 mkdir -p %(builddir)s 
 cd %(builddir)s && %(configure_command)s --with-python-include=%(system_root)s/usr/include/python%(python_version)s''', locals ())
@@ -328,11 +327,15 @@ class LilyPond__darwin (LilyPond):
                    depends=['pango', 'guile', 'gettext', 'ghostscript',
                             'fondu', 'osx-lilypad'])
         
+    def python_version  (self):
+        return '2.3'
+        
     def configure_command (self):
         cmd = LilyPond.configure_command (self)
-
-        python_version = '2.3'
-        pydir = '%(system_root)s/System/Library/Frameworks/Python.framework/Versions/2.3/include/python2.3'
+        
+        pydir = ('%(system_root)s/System/Library/Frameworks/Python.framework/Versions/'
+                 + '%s/include/python%s' % (self.python_version (),
+                                            self.python_version ()))
 
         cmd += ' --with-python-include=' + pydir
         cmd += ' --enable-static-gxx '
@@ -347,7 +350,7 @@ class LilyPond__darwin (LilyPond):
         if re.search ("GUILE_ELLIPSIS", open (make).read ()):
             return
         self.file_sub ([('CONFIG_CXXFLAGS = ',
-                'CONFIG_CXXFLAGS = -DGUILE_ELLIPSIS=... '),
+                         'CONFIG_CXXFLAGS = -DGUILE_ELLIPSIS=... '),
 
 ## optionally: switch off for debugging.
 #                                (' -O2 ', '')
