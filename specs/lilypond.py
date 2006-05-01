@@ -29,14 +29,9 @@ class LilyPond (targetpackage.Target_package):
         c = c.replace ('rsync', 'rsync --delete --exclude configure')
         return c
 
-    @subst_method
     def python_version  (self):
-        try:
-            ## can't do self.expand(): infinite loop. 
-            return open (self.settings.expand ('%(system_root)s/usr/etc/python-version')).read ()
-        except IOError:
-            ## ugh
-            return 'unknown' 
+        ## ugh : todo: need a python-config --cflags command.
+        return open (self.settings.expand ('%(system_root)s/usr/etc/python-version')).read ()
 
     def configure_command (self):
         ## FIXME: pickup $target-guile-config
@@ -48,12 +43,10 @@ class LilyPond (targetpackage.Target_package):
 --disable-documentation
 --enable-ncsb-path=/usr/share/fonts/default/Type1/
 --enable-static-gxx
---with-python-include=%(system_root)s/usr/include/python%(python_version)s
 '''))
 
     def configure (self):
         self.autoupdate ()
-
 
     def do_configure (self):
         if not os.path.exists (self.expand ('%(builddir)s/FlexLexer.h')):
@@ -63,7 +56,13 @@ class LilyPond (targetpackage.Target_package):
 mkdir -p %(builddir)s
 cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/
 ''', locals ())
-        targetpackage.Target_package.configure (self)
+            
+        self.config_cache ()
+        python_version = self.python_version ()
+        
+        self.system ('''
+mkdir -p %(builddir)s 
+cd %(builddir)s && %(configure_command)s --with-python-include=%(system_root)s/usr/include/python%(python_version)s''', locals ())
 
     # FIXME: shared for all CVS packages
     def srcdir (self):
@@ -168,9 +167,12 @@ class LilyPond__cygwin (LilyPond):
                '%(srcdir)s/lily/parser.yy')
 
     def compile_command (self):
-        python_lib = "%(system_root)s/usr/bin/libpython%(python_version)s.dll"
+
+        ## UGH - * sucks.
+        python_lib = "%(system_root)s/usr/bin/libpython*.dll"
         LDFLAGS = '-L%(system_root)s/usr/lib -L%(system_root)s/usr/bin -L%(system_root)s/usr/lib/w32api'
 
+        ## UGH. 
         return (LilyPond.compile_command (self)
            + misc.join_lines ('''
 LDFLAGS="%(LDFLAGS)s %(python_lib)s"
@@ -326,14 +328,11 @@ class LilyPond__darwin (LilyPond):
                    depends=['pango', 'guile', 'gettext', 'ghostscript',
                             'fondu', 'osx-lilypad'])
         
-    def python_version  (self):
-        return '2.3' # ugh.
-    
     def configure_command (self):
         cmd = LilyPond.configure_command (self)
 
-        pydir = ('%(system_root)s/System/Library/Frameworks/Python.framework/Versions/%(python_version)s'
-            + '/include/python%(python_version)s')
+        python_version = '2.3'
+        pydir = '%(system_root)s/System/Library/Frameworks/Python.framework/Versions/2.3/include/python2.3'
 
         cmd += ' --with-python-include=' + pydir
         cmd += ' --enable-static-gxx '
