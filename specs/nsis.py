@@ -58,6 +58,8 @@ class Nsis (Tool_package):
 		if 0: #2.15 patches
 			self.system ("cd %(srcdir)s && patch -p0 < %(patchdir)s/nsis-2.15-patchgenerator.patch")
 			self.system ("cd %(srcdir)s && patch -p0 < %(patchdir)s/nsis-2.15-expand.patch")
+		if 1: # 2.16
+			self.system ("cd %(srcdir)s && patch -p1 < %(patchdir)s/nsis-2.16-macos.patch")
 		self.system ('mkdir -p %(allbuilddir)s', ignore_error=True)
 		self.system ('ln -s %(srcdir)s %(builddir)s') 
 		
