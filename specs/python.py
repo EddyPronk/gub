@@ -15,7 +15,7 @@ class Python (targetpackage.Target_package):
                    depends=['expat', 'zlib'])
 
         ## don't import settings from build system. 
-        self.BASECFLAGS = ''
+	self.BASECFLAGS=''
              
     def patch (self):
         targetpackage.Target_package.patch (self)
