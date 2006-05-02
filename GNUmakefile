@@ -99,18 +99,13 @@ gub_builder.py:
 arm:
 	$(call BUILD,$@,lilypond)
 
-cygwin:
-	# note: MUST use LOCAL_DRIVER_OPTIONS=--build-source
+## note: MUST use LOCAL_DRIVER_OPTIONS=--build-source
+cygwin: doc
 	rm -rf uploads/cygwin/*guile*
-	python gup-manager.py -p cygwin remove guile
-	$(MAKE) doc
-	$(call BUILD,$@,guile lilypond)
+	$(call INVOKE_DRIVER,$@) --build-source build guile lilypond
 	rm -rf uploads/cygwin/*guile*
-	python gup-manager.py -p cygwin remove guile
-	sed -i 's/#self.split_packages =/self.split_packages =/' specs/guile.py
-	$(call INVOKE_DRIVER,$@) build guile
-	$(call INVOKE_DRIVER,$@) package-installer guile
-	sed -i 's/self.split_packages =/#self.split_packages =/' specs/guile.py
+	$(call INVOKE_DRIVER,$@) --build-source --split-packages build guile
+	$(call INVOKE_DRIVER,$@) --build-source --split-packages package-installer guile
 
 darwin-ppc:
 	$(call BUILD,$@,lilypond)
