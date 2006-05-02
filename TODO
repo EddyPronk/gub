@@ -3,8 +3,6 @@ lagere prioriteit
 
 - create installer_root by copying system_root ?
 
-- first bootstrap: create lilypond download, or fix versioning?
-
 - move patches upstream, eg.
 
   * libpng
@@ -25,8 +23,6 @@ lagere prioriteit
 
 - Bugfixes:
 
-  * nsis 2.16
-
   * fontconfig 2.4; Blocker: mingw mmap() compat. support.
 
   * gcc 4.2 snapshot for darwin-x86
@@ -34,8 +30,5 @@ lagere prioriteit
   * darwin-x86
 
      ignoring nonexistent directory "/home/lilydev/vc/gub/target/darwin-x86/system//home/lilydev/vc/gub/target/darwin-x86/system/usr/ cross//lib/gcc/i686-apple-darwin8/4.0.1/../../../../i686-apple-darwin8/include"
-
-  * darwin-ppc: local fontforge compile libgdraw paths. 
-
 
 - junk Makefile, create python based driver.
