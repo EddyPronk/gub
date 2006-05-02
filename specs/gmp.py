@@ -84,8 +84,9 @@ mv %(install_root)s/usr/lib/*dll %(install_root)s/usr/bin || true
 class Gmp__local (Tool_package):
     def __init__ (self, s):
         Tool_package.__init__ (self, s)
-        self.with (version='4.2.1-rc',
-                   mirror="ftp://ftp.swox.com/pub/gmp/src/gmp-4.2.1-rc.tar.bz2",
+        self.with (version='4.1.4',
+#                   mirror="ftp://ftp.swox.com/pub/gmp/src/gmp-%(version)s-rc.tar.bz2",
+                   mirror="ftp://ftp.gnu.org/gnu/gmp/gmp-%(version)s.tar.bz2",
                    depends=[])
 
 
