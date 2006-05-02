@@ -150,14 +150,6 @@ release-test:
 	$(foreach p,$(PLATFORMS), test-gub-build.py uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).$(p)*[^2] && ) true
 
 
-#FIXME: how to get libc+kernel headers package contents on freebsd?
-# * remove zlib.h, zconf.h or include libz and remove Zlib from src packages?
-# * remove gmp.h, or include libgmp and remove Gmp from src packages?
-# bumb version number by hand, sync with freebsd.py
-freebsd-runtime:
-	ssh xs4all.nl tar -C / --exclude=zlib.h --exclude=zconf.h --exclude=gmp.h -czf public_html/freebsd-runtime-4.10-2.tar.gz /usr/lib/{lib{c,c_r,m}{.a,.so{,.*}},crt{i,n,1}.o} /usr/include
-
-
 distccd: clean-distccd cross-distccd-compilers cross-distccd native-distccd local-distcc
 
 clean-distccd:
