@@ -307,7 +307,7 @@ def main ():
         return
 
     (package_names, package_object_dict) = gup2.get_packages (settings,
-                                 commands)
+                                                              commands)
 
     if c == 'download' or c == 'build':
         def get_all_deps (name):

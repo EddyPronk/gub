@@ -297,7 +297,7 @@ def topologically_sorted_one (todo, done, dependency_getter,
         assert type(d) == type (todo)
         
         sorted += topologically_sorted_one (d, done, dependency_getter,
-                          recurse_stop_predicate=recurse_stop_predicate)
+                                            recurse_stop_predicate=recurse_stop_predicate)
 
     sorted.append (todo)
     return sorted

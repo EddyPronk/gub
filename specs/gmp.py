@@ -7,8 +7,10 @@ from toolpackage import Tool_package
 class Gmp (targetpackage.Target_package):
     def __init__ (self, settings):
         targetpackage.Target_package.__init__ (self, settings)
-        self.with (version='4.2',
-             depends=['libtool'])
+        self.with (version='4.2.1-rc',
+                   mirror="ftp://ftp.swox.com/pub/gmp/src/gmp-4.2.1-rc.tar.bz2",
+                   format="bz2",
+                   depends=['libtool'])
 
         if not self.settings.platform.startswith ('darwin'):
             self.target_architecture = re.sub ('i[0-9]86-', 'i386-', settings.target_architecture)
@@ -82,7 +84,8 @@ mv %(install_root)s/usr/lib/*dll %(install_root)s/usr/bin || true
 class Gmp__local (Tool_package):
     def __init__ (self, s):
         Tool_package.__init__ (self, s)
-        self.with (version='4.2',
-                   depends=['libtool'])
+        self.with (version='4.2.1-rc',
+                   mirror="ftp://ftp.swox.com/pub/gmp/src/gmp-4.2.1-rc.tar.bz2",
+                   depends=[])
 
 
