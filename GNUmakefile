@@ -137,10 +137,6 @@ realclean:
 TAGS: $(sources)
 	etags $^
 
-cyg-apt.py: cyg-apt.py.in lib/cpm.py
-	sed -e "/@CPM@/r specs/cpm.py" -e "s/@CPM@//" < $< > $@
-	chmod +x $@
-
 
 test:
 	make realclean PLATFORMS="$(TEST_PLATFORMS)"
