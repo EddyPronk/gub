@@ -36,8 +36,7 @@ class Nsis (Tool_package):
 	def __init__ (self, settings):
 		Tool_package.__init__(self, settings)
 		self.with (
-			version='2.15',
-			#version='2.14',
+			version='2.16',
 			mirror="http://surfnet.dl.sourceforge.net/sourceforge/%(name)s/%(name)s-%(version)s-src.tar.%(format)s",
 			
 			format="bz2",
@@ -56,7 +55,7 @@ class Nsis (Tool_package):
 			self.system ("cd %(srcdir)s && patch -p0 < %(patchdir)s/nsis-2.14-mingw.patch")
 			self.system ("cd %(srcdir)s && patch -p0 < %(patchdir)s/nsis-2.14-local.patch")
 
-		if 1: #2.15 patches
+		if 0: #2.15 patches
 			self.system ("cd %(srcdir)s && patch -p0 < %(patchdir)s/nsis-2.15-patchgenerator.patch")
 			self.system ("cd %(srcdir)s && patch -p0 < %(patchdir)s/nsis-2.15-expand.patch")
 		self.system ('mkdir -p %(allbuilddir)s', ignore_error=True)
