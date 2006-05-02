@@ -17,13 +17,19 @@ lagere prioriteit
 
 - update packages:
 
-  *
+- Python: should compile .pyc with matching local python version.
+
+- Group spec/patch/source files by package
+
+- strip lily specific stuff from installer.py 
 
 - Bugfixes:
 
+  * nsis 2.16
+
   * fontconfig 2.4; Blocker: mingw mmap() compat. support.
 
-  * hardwired paths for lib/pango/1.5 vs. 1.4
+  * gcc 4.2 snapshot for darwin-x86
 
   * darwin-x86
 
@@ -31,3 +37,5 @@ lagere prioriteit
 
   * darwin-ppc: local fontforge compile libgdraw paths. 
 
+
+- junk Makefile, create python based driver.
