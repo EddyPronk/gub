@@ -159,6 +159,9 @@ class LilyPond__cygwin (LilyPond):
                    track_development=True)
         self.split_packages = ['doc']
 
+    def python_version  (self):
+        return '2.4'
+    
     def patch (self):
         # FIXME: for our gcc-3.4.5 cross compiler in the mingw
         # environment, THIS is a magic word.
