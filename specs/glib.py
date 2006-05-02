@@ -4,7 +4,7 @@ import targetpackage
 class Glib (targetpackage.Target_package):
 	def __init__ (self, settings):
 		targetpackage.Target_package.__init__ (self, settings)
-		self.with (version='2.10.0',
+		self.with (version='2.10.1',
 			   mirror='ftp://ftp.gnome.org/Public/GNOME/sources/glib/2.10/%(name)s-%(ball_version)s.tar.%(format)s',
 			   format='bz2',
 			   depends=['gettext', 'libiconv', 'libtool'])
