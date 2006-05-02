@@ -172,7 +172,7 @@ def upload_binaries (version):
     changelog_rev = changelog_match.group (1)
     changelog_date = changelog_match.group (2)
     
-    tag_cmd = 'darcs tag "release %(version_str)s-%(build)d of ChangeLog rev %(changelog_rev)s %(changelog_date)"' % locals()
+    tag_cmd = 'darcs tag "release %(version_str)s-%(build)d of ChangeLog rev %(changelog_rev)s %(changelog_date)s"' % locals()
 
     cmds.append (tag_cmd)
 
