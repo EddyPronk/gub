@@ -1,6 +1,6 @@
 
 .PHONY: all default distclean download test TAGS
-.PHONY: cygwin darwin-ppc darwin-x86 debian freebsd linux mingw
+.PHONY: cygwin darwin-ppc darwin-x86 debian freebsd linux mingw bootstrap-download bootstrap
 
 default: all
 
@@ -10,7 +10,7 @@ TEST_PLATFORMS=$(PLATFORMS)
 
 ## must always have one host.
 GUB_DISTCC_ALLOW_HOSTS=127.0.0.1
-PLATFORMS=darwin-ppc darwin-x86 mingw linux freebsd #cygwin
+PLATFORMS=darwin-ppc darwin-x86 mingw linux freebsd cygwin
 
 LILYPOND_CVSDIR=downloads/lilypond-$(BRANCH)/
 LILYPOND_BRANCH=$(BRANCH)
@@ -56,31 +56,39 @@ RUN_TEST=python test-gub.py --to hanwen@xs4all.nl --to janneke-list@xs4all.nl --
 #  GUB_NATIVE_DISTCC_HOSTS - hosts with matching native compilers
 #
 ifneq ($(wildcard local.make),)
-include local.make
+  include local.make
 endif
 
 
 ifeq ($(wildcard $(LILYPOND_CVSDIR)),)
-bootstrap: bootstrap-download
 
+  ################
+  # first installation, no LilyPond CVS yet.
 
-## need to download CVS before we can actually start doing anything.
-bootstrap-download:
-	python gub-builder.py -p linux download
+  LILYPOND_VERSION=0.0.0
+
+  bootstrap: bootstrap-download
+
+  ## need to download CVS before we can actually start doing anything.
+  bootstrap-download:
+	  python gub-builder.py -p linux download
 
 else
+
+  ################
+  # ensuing runs, we have CVS.
+
   include $(LILYPOND_CVSDIR)/VERSION
 
-LILYPOND_VERSION=$(MAJOR_VERSION).$(MINOR_VERSION).$(PATCH_LEVEL)$(if $(strip $(MY_PATCH_LEVEL)),.$(MY_PATCH_LEVEL),)
-bootstrap-download:
+  LILYPOND_VERSION=$(MAJOR_VERSION).$(MINOR_VERSION).$(PATCH_LEVEL)$(if $(strip $(MY_PATCH_LEVEL)),.$(MY_PATCH_LEVEL),)
 
-LILYPOND_VERSION=0.0.0
+  bootstrap-download:
+
   ifeq ($(OFFLINE),)
-INSTALLER_BUILD:=$(shell python lilypondorg.py nextbuild $(LILYPOND_VERSION))
+    INSTALLER_BUILD:=$(shell python lilypondorg.py nextbuild $(LILYPOND_VERSION))
   else
-INSTALLER_BUILD:=0
+    INSTALLER_BUILD:=0
   endif
-
 endif
 
 
@@ -142,7 +150,7 @@ test:
 	$(RUN_TEST) $(foreach p, $(TEST_PLATFORMS), "make $(p) from=$(BUILD_PLATFORM)")
 
 release-test:
-	$(foreach p,$(PLATFORMS), test-gub-build.py uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).$(p)*[^2] && ) true
+	$(foreach p,$(PLATFORMS), python test-lily/test-gub-build.py uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).$(p) && ) true
 
 
 distccd: clean-distccd cross-distccd-compilers cross-distccd native-distccd local-distcc
@@ -162,6 +170,7 @@ local-distcc:
 
 cross-distccd-compilers:
 	$(foreach p, $(PLATFORMS),$(call INVOKE_DRIVER, $(p)) build gcc && ) true
+
 cross-distccd:
 	-$(if $(wildcard log/$@.pid),kill `cat log/$@.pid`, true)
 	rm -rf target/cross-distccd/bin/
@@ -195,7 +204,7 @@ NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_BRANCH)
 NATIVE_SYSTEM=$(NATIVE_TARGET_DIR)/system
 doc: $(BUILD_PLATFORM)
 	unset LILYPONDPREFIX \
-	  && make -C $(NATIVE_LILY_BUILD)
+	  && make -C $(NATIVE_LILY_BUILD) \
 	  LILYPOND_EXTERNAL_BINARY=$(NATIVE_SYSTEM)/usr/bin/lilypond \
 	  DOCUMENTATION=yes web 
 	tar -C $(NATIVE_LILY_BUILD)/out-www/web-root/ \
