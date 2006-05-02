@@ -13,6 +13,8 @@ class Python (targetpackage.Target_package):
 			   format='bz2',
 			   depends=['expat', 'zlib'])
 
+		## don't import settings from build system. 
+		self.BASECFLAGS=''
 	def patch (self):
 		targetpackage.Target_package.patch (self)
 		self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-1.patch')

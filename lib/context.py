@@ -112,7 +112,8 @@ class Os_context_wrapper (Context):
 	def system (self, cmd, env={}, ignore_error=False):
 		dict = self.get_substitution_dict (env)
 		cmd = self.expand (cmd, env)
-		self.os_interface.system (cmd, env=dict, ignore_error=ignore_error,
+		self.os_interface.system (cmd, env=dict,
+					  ignore_error=ignore_error,
 					  verbose=self.verbose)
 
 	def shadow_tree (self, src, dest):
