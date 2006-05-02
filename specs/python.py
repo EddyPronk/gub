@@ -10,12 +10,12 @@ class Python (targetpackage.Target_package):
     def __init__ (self, settings):
         targetpackage.Target_package.__init__ (self, settings)
         self.with (version='2.4.2',
-             mirror=download.python,
-             format='bz2',
-             depends=['expat', 'zlib'])
+                   mirror=download.python,
+                   format='bz2',
+                   depends=['expat', 'zlib'])
 
-	     ## don't import settings from build system. 
-	     self.BASECFLAGS=''
+        ## don't import settings from build system. 
+        self.BASECFLAGS = ''
              
     def patch (self):
         targetpackage.Target_package.patch (self)
