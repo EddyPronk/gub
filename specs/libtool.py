@@ -10,13 +10,6 @@ class Libtool (targetpackage.Target_package):
         targetpackage.Target_package.__init__ (self, settings)
         self.with (version='1.5.20')
 
-class Libtool__local (Tool_package):
-    def __init__ (self, settings):
-        ##ug.h
-        Tool_package.__init__ (self, settings)
-        self.with (version='1.5.20')
-
-
 
 class Libtool__darwin (Libtool):
     def install (self):
@@ -25,3 +18,17 @@ class Libtool__darwin (Libtool):
         ## necessary for programs that load dynamic modules.
         self.dump ("prependdir DYLD_LIBRARY_PATH=$INSTALLER_PREFIX/lib",
                    '%(install_root)s/usr/etc/relocate/libtool.reloc')
+
+
+class Libtool__local (Tool_package):
+    """
+
+Libtool as a local package is rather painful, as Darwin has its own
+libtool which is unrelated to GNU libtool, but necessary for linking
+dylibs.
+    
+    """
+    
+    def __init__ (self, settings):
+        Tool_package.__init__ (self, settings)
+        self.with (version='1.5.20')

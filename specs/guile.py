@@ -327,5 +327,5 @@ class Guile__local (Tool_package, Guile):
     def __init__ (self, settings):
         Tool_package.__init__ (self, settings)
         self.set_mirror ()
-        self.name_build_dependencies = ['gmp', 'libtool']
+        self.name_build_dependencies = ['gmp']
         self.name_dependencies = ['gmp']
