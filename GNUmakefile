@@ -10,11 +10,14 @@ TEST_PLATFORMS=$(PLATFORMS)
 
 ## must always have one host.
 GUB_DISTCC_ALLOW_HOSTS=127.0.0.1
-PLATFORMS=darwin-ppc darwin-x86 mingw linux freebsd cygwin
+PLATFORMS=darwin-ppc darwin-x86 mingw linux freebsd #cygwin
+
+LILYPOND_CVSDIR=downloads/lilypond-$(BRANCH)/
+LILYPOND_BRANCH=$(BRANCH)
+BRANCH=HEAD
 
 OTHER_PLATFORMS=$(filter-out $(BUILD_PLATFORM), $(PLATFORMS))
 
-LILYPOND_VERSION=$(MAJOR_VERSION).$(MINOR_VERSION).$(PATCH_LEVEL)$(if $(strip $(MY_PATCH_LEVEL)),.$(MY_PATCH_LEVEL),)
 INVOKE_DRIVER=python gub-builder.py \
 --target-platform $(1) \
 --branch $(LILYPOND_BRANCH) \
@@ -47,8 +50,6 @@ RUN_TEST=python test-gub.py --to hanwen@xs4all.nl --to janneke-list@xs4all.nl --
 
 # local.make should set the following variables:
 #
-#  LILYPOND_CVSDIR - a CVS HEAD working directory
-#  LILYPOND_BRANCH - the tag for this branch, or HEAD 
 #  BUILD_PLATFORM  - the platform used for building.
 #  GUB_DISTCC_ALLOW_HOSTS - which distcc daemons may connect.
 #  GUB_CROSS_DISTCC_HOSTS - hosts with matching cross compilers
@@ -69,12 +70,11 @@ bootstrap-download:
 
 else
   include $(LILYPOND_CVSDIR)/VERSION
+
+LILYPOND_VERSION=$(MAJOR_VERSION).$(MINOR_VERSION).$(PATCH_LEVEL)$(if $(strip $(MY_PATCH_LEVEL)),.$(MY_PATCH_LEVEL),)
 bootstrap-download:
 
-  ifeq ($(LILYPOND_BRANCH),)
-LILYPOND_BRANCH=$(shell (cat $(LILYPOND_CVSDIR)/CVS/Tag 2> /dev/null || echo HEAD) | sed s/^T//)
-  endif
-
+LILYPOND_VERSION=0.0.0
   ifeq ($(OFFLINE),)
 INSTALLER_BUILD:=$(shell python lilypondorg.py nextbuild $(LILYPOND_VERSION))
   else
@@ -137,7 +137,6 @@ realclean:
 TAGS: $(sources)
 	etags $^
 
-
 test:
 	make realclean PLATFORMS="$(TEST_PLATFORMS)"
 	$(RUN_TEST) $(foreach p, $(TEST_PLATFORMS), "make $(p) from=$(BUILD_PLATFORM)")
@@ -179,29 +178,28 @@ native-distccd:
 		--port 3634 --pid-file $(CWD)/log/$@.pid \
 		--log-file $(CWD)/log/$@.log  --log-level info
 
-
-
-# gs 8.50 ?
-#	PATH=$(NATIVE_TARGET_DIR)/system/usr/bin/:$(PATH) \
-#		GS_LIB=$(NATIVE_TARGET_DIR)/system/usr/share/ghostscript/8.50/lib/ \
-
 doc-clean:
 	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_BRANCH) \
-			DOCUMENTATION=yes web-clean
+		DOCUMENTATION=yes web-clean
 
 doc-update:
-	python gub-builder.py --branch $(LILYPOND_BRANCH) -p $(BUILD_PLATFORM) download lilypond
-	python gup-manager.py --branch $(LILYPOND_BRANCH) -p $(BUILD_PLATFORM) remove lilypond
-	python gub-builder.py --branch $(LILYPOND_BRANCH) -p $(BUILD_PLATFORM) --stage untar build lilypond
+	python gub-builder.py --branch $(LILYPOND_BRANCH) \
+		-p $(BUILD_PLATFORM) download lilypond
+	python gup-manager.py --branch $(LILYPOND_BRANCH) \
+		-p $(BUILD_PLATFORM) remove lilypond
+	python gub-builder.py --branch $(LILYPOND_BRANCH) \
+		-p $(BUILD_PLATFORM) --stage untar build lilypond
 	rm -f target/$(BUILD_PLATFORM)/status/lilypond*
 
-doc: linux
+NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_BRANCH)
+NATIVE_SYSTEM=$(NATIVE_TARGET_DIR)/system
+doc: $(BUILD_PLATFORM)
 	unset LILYPONDPREFIX \
-	  && make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_BRANCH)  \
-	  LILYPOND_EXTERNAL_BINARY=$(NATIVE_TARGET_DIR)/system/usr/bin/lilypond \
+	  && make -C $(NATIVE_LILY_BUILD)
+	  LILYPOND_EXTERNAL_BINARY=$(NATIVE_SYSTEM)/usr/bin/lilypond \
 	  DOCUMENTATION=yes web 
-	tar -C target/$(BUILD_PLATFORM)/build/lilypond-$(LILYPOND_BRANCH)/out-www/web-root/ -cjf $(CWD)/uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).documentation.tar.bz2 .
-
+	tar -C $(NATIVE_LILY_BUILD)/out-www/web-root/ \
+		-cjf $(CWD)/uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).documentation.tar.bz2 .
 
 bootstrap:
 	python gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local download flex mftrace potrace fontforge \
