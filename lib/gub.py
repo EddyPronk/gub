@@ -23,6 +23,7 @@ class Package (Os_context_wrapper):
         self.verbose = settings.verbose ()
         self.settings = settings
         self.url = ''
+        self.has_source = True
         self._downloader = self.wget
         self._dependencies = None
         self._build_dependencies = None
@@ -100,6 +101,9 @@ to skip this check.
         pass
 
     def is_downloaded (self):
+        if not self.has_source:
+            return True
+        
         name = self.expand ('%(downloaddir)s/%(file_name)s')
         return os.path.exists (name)
 
