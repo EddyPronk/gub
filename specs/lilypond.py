@@ -29,10 +29,6 @@ class LilyPond (targetpackage.Target_package):
         c = c.replace ('rsync', 'rsync --delete --exclude configure')
         return c
 
-    def python_version  (self):
-        ## ugh : todo: need a python-config --cflags command.
-        return open (self.settings.expand ('%(system_root)s/usr/etc/python-version')).read ()
-
     def configure_command (self):
         
         
@@ -60,10 +56,9 @@ cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/
 ''', locals ())
             
         self.config_cache ()
-        python_version = self.python_version ()
         self.system ('''
 mkdir -p %(builddir)s 
-cd %(builddir)s && %(configure_command)s --with-python-include=%(system_root)s/usr/include/python%(python_version)s''', locals ())
+cd %(builddir)s && %(configure_command)s''')
 
     # FIXME: shared for all CVS packages
     def srcdir (self):
@@ -161,9 +156,6 @@ class LilyPond__cygwin (LilyPond):
                    track_development=True)
         self.split_packages = ['doc']
 
-    def python_version  (self):
-        return '2.4'
-    
     def patch (self):
         # FIXME: for our gcc-3.4.5 cross compiler in the mingw
         # environment, THIS is a magic word.
@@ -330,19 +322,11 @@ class LilyPond__darwin (LilyPond):
                    mirror=cvs.gnu,
                    track_development=True,
                    depends=['pango', 'guile', 'gettext', 'ghostscript',
+                            'python', 
                             'fondu', 'osx-lilypad'])
-        
-    def python_version  (self):
-        return '2.3'
         
     def configure_command (self):
         cmd = LilyPond.configure_command (self)
-        
-        pydir = ('%(system_root)s/System/Library/Frameworks/Python.framework/Versions/'
-                 + '%s/include/python%s' % (self.python_version (),
-                                            self.python_version ()))
-
-        cmd += ' --with-python-include=' + pydir
         cmd += ' --enable-static-gxx '
 
         return cmd
