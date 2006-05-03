@@ -82,6 +82,12 @@ def opt_parser ():
     except KeyError:
         address = '%s@localhost' % os.getlogin()
 
+    p.add_option ('', '--check-file',
+                  dest='check_files',
+                  action="append",
+                  metavar="FILE",
+                  default=[],
+                  help="Include FILE in the version checksumming too")
     p.add_option ('-f', '--from',
            action ='store',
            dest = 'sender',
@@ -117,7 +123,7 @@ def xml_patch_name (patch):
     except IndexError:
         return ''
     
-def get_release_hash ():
+def get_release_hash (extra_files):
     xml_string = os.popen ('darcs changes --xml').read()
     dom = xml.dom.minidom.parseString(xml_string)
     patches = dom.documentElement.getElementsByTagName('patch')
@@ -126,7 +132,10 @@ def get_release_hash ():
     release_hash = md5.new ()
     for p in patches:
         release_hash.update (p.toxml ())
-        
+
+    for f in extra_files:
+        release_hash.update (open (f).read ())
+
     release_hash = release_hash.hexdigest()
     print 'release hash is ', release_hash
     
@@ -186,7 +195,7 @@ def main ():
     (options, args) = opt_parser().parse_args ()
 
     last_patch = read_last_patch ()
-    release_hash = get_release_hash ()
+    release_hash = get_release_hash (options.check_files)
     last_patch['release_hash'] = release_hash
     release_id = '''
 
