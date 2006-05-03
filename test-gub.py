@@ -70,13 +70,13 @@ def result_message (options, parts, subject='') :
     return msg
 
 def opt_parser ():
-    p = optparse.OptionParser()
+    p = optparse.OptionParser(usage="test-gub.py [options] command command ... ")
     p.add_option ('-t', '--to',
            action ='append',
            dest = 'address',
            default = [],
            help = 'where to send error report')
-
+    
     try:
         address = os.environ['EMAIL']
     except KeyError:
@@ -90,7 +90,7 @@ def opt_parser ():
     p.add_option ('', '--tag-repo',
            action ='store',
            dest = 'tag_repo',
-           default = 'abc.webdev.nl:/home/hanwen/repo/gub-tags/',
+           default = '',
            help = 'where to push success tags.')
 
     p.add_option ('-s', '--smtp',
@@ -165,8 +165,10 @@ def test_target (options, target, last_patch):
     else:
         tag = base_tag + last_patch['date']
         system ('darcs tag %s' % tag)
-        system ('darcs push -a -t %s %s ' % (tag, options.tag_repo))
-        result = "SUCCESS, tagging with %s" % tag
+        if options.tag_repo:
+            system ('darcs push -a -t %s %s ' % (tag, options.tag_repo))
+            result = "SUCCESS, tagging with %s" % tag
+
         attachments = ['\n'.join (body[-10:])]
 
     set_checked_before (release_hash, canonicalize)
