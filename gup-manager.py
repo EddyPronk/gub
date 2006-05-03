@@ -207,7 +207,7 @@ Commands:
     d = options.__dict__
     sys.stdout.write (r'''
 Options:
-  -B,--lilypond-branch   select lilypond branch [%(BRANCH)s]
+  -B,--branch   select lilypond branch [%(BRANCH)s]
   -h,--help              show brief usage
   -m,--mirror=URL        use mirror [%(mirror)s]
   -n,--name              print package name only
@@ -237,8 +237,8 @@ def main ():
     
     if options.command == 'install':
         platform = options.platform
-        target_manager.read_package_headers ('uploads/%(platform)s/' % locals ())
-        target_manager.read_package_headers ('uploads/%(platform)s-cross/' % locals())
+        target_manager.read_package_headers ('uploads/%(platform)s/' % locals (), options.BRANCH)
+        target_manager.read_package_headers ('uploads/%(platform)s-cross/' % locals(), options.BRANCH)
     
     if options.command:
         commands = Command (target_manager, options)
