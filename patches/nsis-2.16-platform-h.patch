@@ -1,0 +1,10 @@
+--- Source/Platform.h~	Sat Mar 11 19:12:30 2006
++++ Source/Platform.h	Wed May  3 18:28:35 2006
+@@ -668,6 +668,7 @@
+   WORD e_res2[10];
+   LONG e_lfanew;
+ } IMAGE_DOS_HEADER,*PIMAGE_DOS_HEADER;
++#  pragma pack()
+ #  pragma pack(4)
+ typedef struct _IMAGE_FILE_HEADER {
+   WORD Machine;
