@@ -59,7 +59,7 @@ class Python (targetpackage.Target_package):
     @subst_method
     def python_version (self):
         return '.'.join (self.ball_version.split ('.')[0:2])
-       
+
 class Python__mingw_binary (gub.Binary_package):
     def __init__ (self, settings):
         gub.Binary_package.__init__ (self, settings)
@@ -122,3 +122,27 @@ chmod 755 %(install_root)s/usr/bin/*
 
 class Python__mingw (Python__mingw_cross):
     pass
+
+class Python__darwin (gub.Null_package):
+    def __init__ (self, settings):
+        gub.Null_package.__init__ (self, settings)
+        self.version = (lambda: '2.3')
+        self.has_source = False
+    def srcdir (self):
+        return '%(allsrcdir)s/python-darwin'
+    def package (self):
+        gub.Package.package (self)
+        
+    def install (self):
+        self.system ('mkdir -p %(install_root)s/usr/cross/bin/')
+        self.dump ('''#!/bin/sh
+if test "$1" == "--cflags"; then
+  echo "-I%(system_root)s/System/Library/Frameworks/Python.framework/Versions/%(version)s/include/python%(version)s"
+fi
+if test "$1" == "--ldflags"; then
+  echo ""
+fi
+''', '%(install_root)s/usr/cross/bin/python-config')
+        self.system ('chmod +x %(install_root)s/usr/cross/bin/python-config')
+        
+
