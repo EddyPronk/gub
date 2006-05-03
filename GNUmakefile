@@ -201,11 +201,12 @@ doc-update:
 	rm -f target/$(BUILD_PLATFORM)/status/lilypond*
 
 NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_BRANCH)
-NATIVE_SYSTEM=$(NATIVE_TARGET_DIR)/system
+NATIVE_ROOT=$(NATIVE_TARGET_DIR)/installer/
+
 doc: $(BUILD_PLATFORM)
 	unset LILYPONDPREFIX \
 	  && make -C $(NATIVE_LILY_BUILD) \
-	  LILYPOND_EXTERNAL_BINARY=$(NATIVE_SYSTEM)/usr/bin/lilypond \
+	  LILYPOND_EXTERNAL_BINARY=$(NATIVE_ROOT)/usr/bin/lilypond \
 	  DOCUMENTATION=yes web 
 	tar -C $(NATIVE_LILY_BUILD)/out-www/web-root/ \
 		-cjf $(CWD)/uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).documentation.tar.bz2 .
