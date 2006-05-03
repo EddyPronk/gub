@@ -46,10 +46,16 @@ class Python (targetpackage.Target_package):
 
     def install (self):
         targetpackage.Target_package.install (self)
-        self.dump (self.python_version (),
-                   '%(install_root)s/usr/etc/python-version')
-
-    ### UGH.
+        cfg = open (self.expand ('%(sourcefiledir)s/python-config.py.in')).read ()
+        cfg = re.sub ('@PYTHON_VERSION@', self.expand ('%(version)s'), cfg)
+        cfg = re.sub ('@PREFIX@', self.expand ('%(system_root)s/usr/'), cfg)
+        cfg = re.sub ('@PYTHON_FOR_BUILD@', sys.executable, cfg)
+        self.dump (cfg, '%(install_root)s/usr/cross/bin/python-config',
+                   expand_string=False)
+        self.system ('chmod +x %(install_root)s/usr/cross/bin/python-config')
+        
+        
+    ### Ugh.
     @subst_method
     def python_version (self):
         return '.'.join (self.ball_version.split ('.')[0:2])
