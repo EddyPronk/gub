@@ -120,9 +120,14 @@ class Os_context_wrapper (Context):
         dest = self.expand (dest)
         self.os_interface.shadow_tree (src, dest)
         
-    def dump (self, str, name, mode='w', env={}):
-        return self.os_interface.dump (self.expand (str, env),
-              self.expand (name, env), mode=mode)
+    def dump (self, str, name, mode='w', env={},
+              expand_string=True, expand_name=True):
+        if expand_name:
+            name = self.expand (name, env)
+        if expand_string:
+            str = self.expand (str, env)
+            
+        return self.os_interface.dump (str, name, mode=mode)
     
     def locate_files (self, directory, pattern):
         command = "cd %(directory)s && find -name '%(pattern)s'" % locals()
