@@ -42,21 +42,7 @@ class Nsis (Tool_package):
                    depends=["scons"])
 
     def patch (self):
-        if 0:  #2.14 patches
-            for f in ['SCons/Tools/crossmingw.py',
-                 'Contrib/StartMenu/StartMenu.c',
-                 'Source/7zip/LZMADecode.c',
-                 'Source/build.cpp',
-                 ]:
-                self.file_sub (
-                    [('\r','')],
-                    '%(srcdir)s/' + f)
-            self.system ("cd %(srcdir)s && patch -p0 < %(patchdir)s/nsis-2.14-mingw.patch")
-            self.system ("cd %(srcdir)s && patch -p0 < %(patchdir)s/nsis-2.14-local.patch")
-
-        if 0: #2.15 patches
-            self.system ("cd %(srcdir)s && patch -p0 < %(patchdir)s/nsis-2.15-patchgenerator.patch")
-            self.system ("cd %(srcdir)s && patch -p0 < %(patchdir)s/nsis-2.15-expand.patch")
+  
         if 1: # 2.16
             self.system ("cd %(srcdir)s && patch -p1 < %(patchdir)s/nsis-2.16-macos.patch")
             self.system ("cd %(srcdir)s && patch -p0 < %(patchdir)s/nsis-2.16-platform-h.patch")
