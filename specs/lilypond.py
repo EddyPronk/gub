@@ -34,6 +34,8 @@ class LilyPond (targetpackage.Target_package):
         return open (self.settings.expand ('%(system_root)s/usr/etc/python-version')).read ()
 
     def configure_command (self):
+        
+        
         ## FIXME: pickup $target-guile-config
         return (targetpackage.Target_package.configure_command (self)
 
@@ -41,9 +43,9 @@ class LilyPond (targetpackage.Target_package):
                 + misc.join_lines ('''
 --enable-relocation
 --disable-documentation
---enable-ncsb-path=/usr/share/fonts/default/Type1/
 --enable-static-gxx
 '''))
+#--enable-ncsb-path=%s  % fc_path
 
     def configure (self):
         self.autoupdate ()
