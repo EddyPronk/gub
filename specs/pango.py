@@ -100,3 +100,9 @@ class Pango__darwin (Pango):
         Pango.configure (self)
         self.file_sub ([('nmedit', '%(target_architecture)s-nmedit')],
                        '%(builddir)s/libtool')
+
+    def install (self):
+        Pango.install (self)                
+        self.dump ("""
+set PANGO_SO_EXTENSION=.so
+""", '%(install_root)s/usr/etc/relocate/pango.reloc', env=locals(), mode="a")

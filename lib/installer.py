@@ -151,7 +151,7 @@ class Darwin_bundle (Installer):
         Installer.create (self)
         rw = darwintools.Rewirer (self.settings)
         pm = gup2.Dependency_manager (self.settings.system_root,
-                       self.settings.os_interface)
+	                              self.settings.os_interface)
         rw.set_ignore_libs (pm)
         osx_lilypad_version = pm.package_dict ('osx-lilypad')['version']
         
@@ -177,7 +177,7 @@ cp -pR --link %(installer_root)s/usr/* %(darwin_bundle_dir)s/Contents/Resources/
             must_succeed=True)
         
         self.system ('cd %(darwin_bundle_dir)s/../ && tar cjf %(bundle_zip)s LilyPond.app',
-              locals ())
+                     locals ())
         
         self.log_command ("Created %(bundle_zip)s\n", locals()) 
         
