@@ -13,6 +13,7 @@ class Fontforge (Tool_package):
     def patch (self):
         Tool_package.patch (self)
         self.system ("cd %(srcdir)s && patch -p0 < %(patchdir)s/fontforge-20060501-srcdir.patch")
+        self.system ("cd %(srcdir)s && patch -p1 < %(patchdir)s/fontforge-20060501-execprefix.patch")
 		
     def __init__ (self, settings):
         Tool_package.__init__ (self, settings)
