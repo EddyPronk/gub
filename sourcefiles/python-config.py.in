@@ -1,0 +1,63 @@
+#!@PYTHON_FOR_BUILD@
+import optparse
+import sys
+
+sys.version = '@PYTHON_VERSION@'
+
+p = optparse.OptionParser()
+p.description="Python compile time configuration"
+
+p.add_option ('', '--ldflags',
+              default='',
+              dest="ldflags",
+              action="store_true",
+              help="show ldflags")
+
+p.add_option ('', '--cflags',
+              default=None,
+              action="store_true",
+              dest="cflags",
+              help="show cflags")
+
+p.add_option ('', '--verbose',
+              action="store_true",
+              default=False,
+              dest="verbose",
+              help="be verbose")
+
+p.add_option ('', '--prefix',
+              default=None,
+              dest="prefix",
+              help="set prefix")
+
+(options, args) = p.parse_args ()
+
+from distutils import sysconfig
+
+sysconfig.PREFIX = '@PREFIX@'
+sysconfig.EXEC_PREFIX = '@PREFIX@'
+
+if options.prefix:
+    sysconfig.EXEC_PREFIX = options.prefix
+    sysconfig.PREFIX = options.prefix
+
+if options.cflags:
+    print '-I%s' % sysconfig.get_python_inc ()
+
+if options.ldflags:
+    extra = ""
+    if 0:
+        mf = sysconfig.get_makefile_filename()
+        d = sysconfig.parse_makefile (mf)
+        if verbose:
+            sys.stderr.write (mf + '\n')
+
+
+        ## ugh, $${ORIGIN} fucks up.
+        extra  = d['LDFLAGS']
+        
+    print '-L%s -L%s %s' % (sysconfig.get_python_lib (),
+                            sysconfig.PREFIX + '/lib/',
+                            extra)
+
+## -*-Python-*-
