@@ -1,0 +1,28 @@
+--- fontforge-20060501/gdraw/Makefile.in~	Fri Sep 30 15:06:22 2005
++++ fontforge-20060501/gdraw/Makefile.in	Wed May  3 10:15:24 2006
+@@ -2,6 +2,7 @@
+ top_srcdir = @top_srcdir@
+ top_builddir = ..
+ VPATH = @srcdir@
++exec_prefix = @exec_prefix@
+ prefix = @prefix@
+ bindir = @bindir@
+ libdir = @libdir@
+@@ -33,6 +34,7 @@
+ 
+ Incs = -I$(top_srcdir)/inc -I/usr/pkg/include -I/usr/pkg/include/giflib
+ CFLAGS = @CFLAGS@ @CPPFLAGS@ $(Incs) @WFLAGS@ $(X_CFLAGS) -DNOTHREADS @DEFS@ -DLIBDIR='"$(libdir)"'
++
+ 
+ ../libgdraw.la: $(libgdraw_OBJECTS)
+ 	$(LIBTOOL) --mode=link $(CC) $(CFLAGS) @LDFLAGS@ -o ../libgdraw.la $(libgdraw_OBJECTS) \
+--- fontforge-20060501/Unicode/Makefile.in~	Fri Sep 30 15:10:58 2005
++++ fontforge-20060501/Unicode/Makefile.in	Wed May  3 10:15:24 2006
+@@ -2,6 +2,7 @@
+ top_builddir = ..
+ libdir = @libdir@
+ VPATH = @srcdir@
++exec_prefix = @exec_prefix@
+ prefix = @prefix@
+ bindir = @bindir@
+ 
