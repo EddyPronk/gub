@@ -18,7 +18,7 @@ BRANCH=HEAD
 
 OTHER_PLATFORMS=$(filter-out $(BUILD_PLATFORM), $(PLATFORMS))
 
-INVOKE_DRIVER=python gub-builder.py \
+INVOKE_DRIVER=$(PYTHON) gub-builder.py \
 --target-platform $(1) \
 --branch $(LILYPOND_BRANCH) \
 $(foreach h,$(GUB_NATIVE_DISTCC_HOSTS), --native-distcc-host $(h))\
@@ -27,7 +27,7 @@ $(foreach h,$(GUB_CROSS_DISTCC_HOSTS), --cross-distcc-host $(h))\
 --installer-build $(INSTALLER_BUILD) \
 $(LOCAL_DRIVER_OPTIONS)
 
-INVOKE_GUP=python gup-manager.py \
+INVOKE_GUP=$(PYTHON) gup-manager.py \
 --platform $(1) \
 --branch $(LILYPOND_BRANCH) 
 
@@ -40,13 +40,13 @@ CWD:=$(shell pwd)
 
 DISTCC_DIRS=target/cross-distcc/bin/  target/cross-distccd/bin/ target/native-distcc/bin/ 
 
-
+PYTHON=python
 sources = GNUmakefile $(wildcard *.py specs/*.py lib/*.py)
 
 NATIVE_TARGET_DIR=$(CWD)/target/$(BUILD_PLATFORM)/
 
 ## TODO: should LilyPond revision in targetname too.
-RUN_TEST=python test-gub.py --to hanwen@xs4all.nl --to janneke-list@xs4all.nl --smtp smtp.xs4all.nl 
+RUN_TEST=$(PYTHON) test-gub.py --to hanwen@xs4all.nl --to janneke-list@xs4all.nl --smtp smtp.xs4all.nl 
 
 # local.make should set the following variables:
 #
@@ -71,7 +71,7 @@ ifeq ($(wildcard $(LILYPOND_CVSDIR)),)
 
   ## need to download CVS before we can actually start doing anything.
   bootstrap-download:
-	  python gub-builder.py -p linux download
+	  $(PYTHON) gub-builder.py -p linux download
 
 else
 
@@ -85,7 +85,7 @@ else
   bootstrap-download:
 
   ifeq ($(OFFLINE),)
-    INSTALLER_BUILD:=$(shell python lilypondorg.py nextbuild $(LILYPOND_VERSION))
+    INSTALLER_BUILD:=$(shell $(PYTHON) lilypondorg.py nextbuild $(LILYPOND_VERSION))
   else
     INSTALLER_BUILD:=0
   endif
@@ -110,7 +110,7 @@ arm:
 cygwin: doc
 	rm -rf uploads/cygwin/*guile*
 	$(call INVOKE_DRIVER,$@) --build-source build guile
-	python gup-manager.py -p cygwin remove guile
+	$(PYTHON) gup-manager.py -p cygwin remove guile
 	$(call INVOKE_DRIVER,$@) --build-source --split-packages build guile
 	$(call INVOKE_DRIVER,$@) --build-source --split-packages package-installer guile
 	$(call INVOKE_DRIVER,$@) --build-source build lilypond
@@ -150,7 +150,7 @@ test:
 	$(RUN_TEST) $(foreach p, $(TEST_PLATFORMS), "make $(p) from=$(BUILD_PLATFORM)")
 
 release-test:
-	$(foreach p,$(PLATFORMS), python test-lily/test-gub-build.py uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).$(p) && ) true
+	$(foreach p,$(PLATFORMS), $(PYTHON) test-lily/test-gub-build.py uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).$(p) && ) true
 
 
 distccd: clean-distccd cross-distccd-compilers cross-distccd native-distccd local-distcc
@@ -192,11 +192,11 @@ doc-clean:
 		DOCUMENTATION=yes web-clean
 
 doc-update:
-	python gub-builder.py --branch $(LILYPOND_BRANCH) \
+	$(PYTHON) gub-builder.py --branch $(LILYPOND_BRANCH) \
 		-p $(BUILD_PLATFORM) download lilypond
-	python gup-manager.py --branch $(LILYPOND_BRANCH) \
+	$(PYTHON) gup-manager.py --branch $(LILYPOND_BRANCH) \
 		-p $(BUILD_PLATFORM) remove lilypond
-	python gub-builder.py --branch $(LILYPOND_BRANCH) \
+	$(PYTHON) gub-builder.py --branch $(LILYPOND_BRANCH) \
 		-p $(BUILD_PLATFORM) --stage untar build lilypond
 	rm -f target/$(BUILD_PLATFORM)/status/lilypond*
 
@@ -215,10 +215,10 @@ doc-build:
 		-cjf $(CWD)/uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).documentation.tar.bz2 .
 
 bootstrap:
-	python gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local download flex mftrace potrace fontforge \
+	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local download flex mftrace potrace fontforge \
 	   guile pkg-config nsis icoutils fontconfig expat
-	python gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local build flex mftrace potrace fontforge \
+	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local build flex mftrace potrace fontforge \
 	   guile pkg-config fontconfig expat icoutils
 	make distccd
-	python gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local build nsis 
+	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local build nsis 
 	$(MAKE) download
