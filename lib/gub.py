@@ -117,6 +117,7 @@ to skip this check.
             output = open (self.expand ('%(downloaddir)s/') + filename, 'w')
             
             url_stream = urllib.urlopen (url)
+            print 'downloading', url
             while True:
                 contents = url_stream.read (bufsize)
                 output.write (contents)
