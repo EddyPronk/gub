@@ -14,9 +14,9 @@ class LilyPond (targetpackage.Target_package):
     def __init__ (self, settings):
         targetpackage.Target_package.__init__ (self, settings)
         self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
-             depends=['fontconfig', 'gettext',
-                  'guile', 'pango', 'python', 'ghostscript'],
-             track_development=True)
+                   depends=['fontconfig', 'gettext', 'urw-fonts',
+                            'guile', 'pango', 'python', 'ghostscript'],
+                   track_development=True)
 
         # FIXME: should add to C_INCLUDE_PATH
         builddir = self.builddir ()
@@ -34,14 +34,12 @@ class LilyPond (targetpackage.Target_package):
         
         ## FIXME: pickup $target-guile-config
         return (targetpackage.Target_package.configure_command (self)
-
-                ## UGH: fixme: hardcoded font path.
                 + misc.join_lines ('''
 --enable-relocation
 --disable-documentation
 --enable-static-gxx
+--with-ncsb-dir=%(system_root)s/usr/share/fonts/default/Type1
 '''))
-#--enable-ncsb-path=%s  % fc_path
 
     def configure (self):
         self.autoupdate ()

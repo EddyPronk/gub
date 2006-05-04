@@ -10,7 +10,8 @@ class Tool_package (gub.Package):
             + misc.join_lines ('''
 --prefix=%(buildtools)s/
 '''))
-    
+
+    ## ugh: this will trigger libtool relinks. 
     def install_command (self):
         return '''make DESTDIR=%(install_root)s prefix=/usr install'''
 
