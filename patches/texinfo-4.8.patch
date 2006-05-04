@@ -1,0 +1,452 @@
+diff -urN texinfo-4.8.orig/makeinfo/cmds.c texinfo-4.8/makeinfo/cmds.c
+--- texinfo-4.8.orig/makeinfo/cmds.c	2004-12-14 01:15:36.000000000 +0100
++++ texinfo-4.8/makeinfo/cmds.c	2006-05-04 14:08:25.000000000 +0200
+@@ -624,6 +624,7 @@
+           /* Use insert for HTML, and XML when indentation is enabled.
+              For Docbook, use add_char.  */
+           if (xml && xml_indentation_increment > 0
++	      && output_paragraph_offset > 0
+               && output_paragraph[output_paragraph_offset-1] != '\n')
+             insert ('\n');
+ 
+@@ -1834,7 +1835,8 @@
+         {
+           /* Erase literal character that's there, except `>', which is
+              part of the XML tag.  */
+-          if (output_paragraph[output_paragraph_offset-1] != '>')
++          if (output_paragraph_offset > 0
++	      && output_paragraph[output_paragraph_offset-1] != '>')
+             output_paragraph_offset--;
+ 
+           switch (input_text[input_text_offset-3])
+@@ -1861,7 +1863,7 @@
+ void
+ cm_punct (int arg)
+ {
+-  if (xml && !docbook)
++  if (xml && !docbook && input_text_offset > 0)
+     {
+       switch (input_text[input_text_offset-1])
+         {
+diff -urN texinfo-4.8.orig/makeinfo/defun.c texinfo-4.8/makeinfo/defun.c
+--- texinfo-4.8.orig/makeinfo/defun.c	2004-04-11 19:56:46.000000000 +0200
++++ texinfo-4.8/makeinfo/defun.c	2006-05-04 14:08:25.000000000 +0200
+@@ -368,7 +368,7 @@
+       line_continuation:
+         i = strlen (line) - 1;
+ 
+-        if (line[i] == '@' && line[i-1] != '@')
++        if (i > 0 && line[i] == '@' && line[i-1] != '@')
+           {
+             get_rest_of_line (0, &next_line);
+             new_line = (char *) xmalloc (i + strlen (next_line) + 2);
+@@ -690,6 +690,7 @@
+ {
+   int type;
+   char *base_command = xstrdup (command);  /* command with any `x' removed */
++  /* FIXME: is strlen(command) allways > 0? */
+   int x_p = (command[strlen (command) - 1] == 'x');
+ 
+   if (x_p)
+diff -urN texinfo-4.8.orig/makeinfo/html.c texinfo-4.8/makeinfo/html.c
+--- texinfo-4.8.orig/makeinfo/html.c	2004-12-06 02:13:06.000000000 +0100
++++ texinfo-4.8/makeinfo/html.c	2006-05-04 14:08:25.000000000 +0200
+@@ -167,6 +167,8 @@
+       lastchar = c;
+     }
+ 
++  fclose(f);
++
+   /* Reached the end of the file.  We should not be still in a comment.  */
+   if (state == comment_state)
+     warning (_("%s:%d: --css-file ended in comment"), filename, lineno);
+@@ -437,7 +439,9 @@
+   int check_position = output_paragraph_offset;
+   int taglen = strlen (tag);
+   int rollback_happened = 0;
+-  char *contents = "";
++  char *contents = "";			/* FIXME (ptr to constant, later
++  					   assigned to malloc'd address).
++					 */
+   char *contents_canon_white = "";
+ 
+   /* If output_paragraph is empty, we cannot rollback :-\  */
+@@ -445,7 +449,7 @@
+     return 0;
+ 
+   /* Find the end of the previous tag.  */
+-  while (output_paragraph[check_position-1] != '>' && check_position > 0)
++  while (check_position > 0 && output_paragraph[check_position-1] != '>')
+     check_position--;
+ 
+   /* Save stuff between tag's end to output_paragraph's end.  */
+@@ -462,7 +466,7 @@
+     }
+ 
+   /* Find the start of the previous tag.  */
+-  while (output_paragraph[check_position-1] != '<' && check_position > 0)
++  while (check_position > 0 && output_paragraph[check_position-1] != '<')
+     check_position--;
+ 
+   /* Check to see if this is the tag.  */
+diff -urN texinfo-4.8.orig/makeinfo/insertion.c texinfo-4.8/makeinfo/insertion.c
+--- texinfo-4.8.orig/makeinfo/insertion.c	2004-11-11 19:34:28.000000000 +0100
++++ texinfo-4.8/makeinfo/insertion.c	2006-05-04 14:08:25.000000000 +0200
+@@ -1082,7 +1082,9 @@
+           xml_keep_space--;
+         }
+ 
+-      if ((xml || html) && output_paragraph[output_paragraph_offset-1] == '\n')
++      if ((xml || html)
++	  && output_paragraph_offset > 0
++	  && output_paragraph[output_paragraph_offset-1] == '\n')
+         output_paragraph_offset--;
+       break;
+ 
+@@ -1361,7 +1363,8 @@
+     {
+       /* Rollback previous newlines.  These occur between
+          </para> and <example>.  */
+-      if (output_paragraph[output_paragraph_offset-1] == '\n')
++      if (output_paragraph_offset > 0
++	  && output_paragraph[output_paragraph_offset-1] == '\n')
+         output_paragraph_offset--;
+ 
+       xml_insert_element (EXAMPLE, START);
+@@ -1384,7 +1387,8 @@
+   if (xml)
+     {
+       /* See cm_example comments about newlines.  */
+-      if (output_paragraph[output_paragraph_offset-1] == '\n')
++      if (output_paragraph_offset > 0
++	  && output_paragraph[output_paragraph_offset-1] == '\n')
+         output_paragraph_offset--;
+       xml_insert_element (SMALLEXAMPLE, START);
+       if (docbook)
+@@ -1403,7 +1407,8 @@
+   if (xml)
+     {
+       /* See cm_example comments about newlines.  */
+-      if (output_paragraph[output_paragraph_offset-1] == '\n')
++      if (output_paragraph_offset > 0
++	  && output_paragraph[output_paragraph_offset-1] == '\n')
+         output_paragraph_offset--;
+       xml_insert_element (LISP, START);
+       if (docbook)
+@@ -1422,7 +1427,8 @@
+   if (xml)
+     {
+       /* See cm_example comments about newlines.  */
+-      if (output_paragraph[output_paragraph_offset-1] == '\n')
++      if (output_paragraph_offset > 0
++	  && output_paragraph[output_paragraph_offset-1] == '\n')
+         output_paragraph_offset--;
+       xml_insert_element (SMALLLISP, START);
+       if (docbook)
+@@ -1483,7 +1489,8 @@
+       else
+         {
+           /* See cm_example comments about newlines.  */
+-          if (output_paragraph[output_paragraph_offset-1] == '\n')
++          if (output_paragraph_offset > 0
++	      && output_paragraph[output_paragraph_offset-1] == '\n')
+             output_paragraph_offset--;
+           xml_insert_element (FORMAT, START);
+           if (docbook)
+@@ -1499,7 +1506,8 @@
+   if (xml)
+     {
+       /* See cm_example comments about newlines.  */
+-      if (output_paragraph[output_paragraph_offset-1] == '\n')
++      if (output_paragraph_offset > 0
++	  && output_paragraph[output_paragraph_offset-1] == '\n')
+         output_paragraph_offset--;
+       xml_insert_element (SMALLFORMAT, START);
+       if (docbook)
+@@ -1515,7 +1523,8 @@
+   if (xml)
+     {
+       /* See cm_example comments about newlines.  */
+-      if (output_paragraph[output_paragraph_offset-1] == '\n')
++      if (output_paragraph_offset > 0
++	  && output_paragraph[output_paragraph_offset-1] == '\n')
+         output_paragraph_offset--;
+       xml_insert_element (DISPLAY, START);
+       if (docbook)
+@@ -1531,7 +1540,8 @@
+   if (xml)
+     {
+       /* See cm_example comments about newlines.  */
+-      if (output_paragraph[output_paragraph_offset-1] == '\n')
++      if (output_paragraph_offset > 0
++	  && output_paragraph[output_paragraph_offset-1] == '\n')
+         output_paragraph_offset--;
+       xml_insert_element (SMALLDISPLAY, START);
+       if (docbook)
+diff -urN texinfo-4.8.orig/makeinfo/lang.c texinfo-4.8/makeinfo/lang.c
+--- texinfo-4.8.orig/makeinfo/lang.c	2004-11-23 00:57:33.000000000 +0100
++++ texinfo-4.8/makeinfo/lang.c	2006-05-04 14:08:25.000000000 +0200
+@@ -27,6 +27,8 @@
+ #include "makeinfo.h"
+ #include "xml.h"
+ 
++#include <assert.h>
++
+ /* Current document encoding.  */
+ encoding_code_type document_encoding_code = no_encoding;
+ 
+@@ -801,6 +803,7 @@
+         {
+           int rc;
+           char *buffer = xmalloc (1 + strlen (html_solo) + 1);
++	  assert (end > 0);
+           buffer[0] = output_paragraph[end - 1];
+           buffer[1] = 0;
+           strcat (buffer, html_solo);
+diff -urN texinfo-4.8.orig/makeinfo/macro.c texinfo-4.8/makeinfo/macro.c
+--- texinfo-4.8.orig/makeinfo/macro.c	2004-04-11 19:56:47.000000000 +0200
++++ texinfo-4.8/makeinfo/macro.c	2006-05-04 14:08:25.000000000 +0200
+@@ -264,7 +264,8 @@
+               char **arglist;
+ 
+               get_rest_of_line (0, &word);
+-              if (input_text[input_text_offset - 1] == '\n')
++              if (input_text_offset > 0
++		  && input_text[input_text_offset - 1] == '\n')
+                 {
+                   input_text_offset--;
+                   line_number--;
+diff -urN texinfo-4.8.orig/makeinfo/makeinfo.c texinfo-4.8/makeinfo/makeinfo.c
+--- texinfo-4.8.orig/makeinfo/makeinfo.c	2004-12-19 18:15:42.000000000 +0100
++++ texinfo-4.8/makeinfo/makeinfo.c	2006-05-04 14:08:25.000000000 +0200
+@@ -2202,6 +2202,7 @@
+              menu swallows its newline, so check here instead.  */
+           if (!only_macro_expansion && in_menu
+               && input_text_offset + 1 < input_text_length
++	      && input_text_offset > 0
+               && input_text[input_text_offset-1] == '\n')
+             handle_menu_entry ();
+           else
+diff -urN texinfo-4.8.orig/makeinfo/multi.c texinfo-4.8/makeinfo/multi.c
+--- texinfo-4.8.orig/makeinfo/multi.c	2004-04-11 19:56:47.000000000 +0200
++++ texinfo-4.8/makeinfo/multi.c	2006-05-04 14:08:25.000000000 +0200
+@@ -54,7 +54,7 @@
+ 
+ /* contents of an output environment */
+ /* some more vars may end up being needed here later @@ */
+-struct env
++static struct env
+ {
+   unsigned char *output_paragraph;
+   int output_paragraph_offset;
+@@ -348,7 +348,8 @@
+   if (xml)
+     {
+       xml_no_para = 1;
+-      if (output_paragraph[output_paragraph_offset-1] == '\n')
++      if (output_paragraph_offset > 0
++	  && output_paragraph[output_paragraph_offset-1] == '\n')
+         output_paragraph_offset--;
+     }
+ 
+@@ -430,12 +431,15 @@
+ 
+   /* remove trailing whitespace from each column */
+   for (i = 1; i <= last_column; i++) {
+-    if (envs[i].output_paragraph_offset)
+-      while (cr_or_whitespace (CHAR_AT (envs[i].output_paragraph_offset - 1)))
+-        envs[i].output_paragraph_offset--;
++    int column_offset = envs[i].output_paragraph_offset;
++
++    while (column_offset > 0 && cr_or_whitespace (CHAR_AT (column_offset - 1)))
++      column_offset--;
+ 
+     if (i == current_env_no)
+-      output_paragraph_offset = envs[i].output_paragraph_offset;
++      output_paragraph_offset = column_offset;
++
++    envs[i].output_paragraph_offset = column_offset;
+   }
+ 
+   /* read the current line from each column, outputting them all
+diff -urN texinfo-4.8.orig/makeinfo/node.c texinfo-4.8/makeinfo/node.c
+--- texinfo-4.8.orig/makeinfo/node.c	2004-12-21 00:56:07.000000000 +0100
++++ texinfo-4.8/makeinfo/node.c	2006-05-04 14:08:25.000000000 +0200
+@@ -403,7 +403,7 @@
+       if (c == '\t' ||
+           c == '\n' ||
+           c == ','  ||
+-          ((paren_seen && nodename[i - 1] == ')') &&
++          ((paren_seen && i && nodename[i - 1] == ')') &&
+            (c == ' ' || c == '.')) ||
+           (c == '.' &&
+            ((!nodename[i + 1] ||
+diff -urN texinfo-4.8.orig/makeinfo/tests/cond texinfo-4.8/makeinfo/tests/cond
+--- texinfo-4.8.orig/makeinfo/tests/cond	2004-04-11 19:56:47.000000000 +0200
++++ texinfo-4.8/makeinfo/tests/cond	2006-05-04 14:08:25.000000000 +0200
+@@ -8,19 +8,19 @@
+ ../makeinfo -o cond.out $srcdir/cond.txi || exit 1
+ egrep 'This is (ifnothtml|ifinfo|ifnottex) text' cond.out >/dev/null \
+   || exit 2
+-test `fgrep ' text.' cond.out | wc -l` -eq 3 || exit 3
++test `fgrep -c ' text.' cond.out` -eq 3 || exit 3
+ 
+ # Default HTML output.
+ ../makeinfo --no-split --html -o cond.out $srcdir/cond.txi || exit 1
+ egrep 'This is (html|ifhtml|ifnotinfo|ifnottex) text' cond.out >/dev/null \
+  || exit 2
+-test `fgrep ' text.' cond.out | wc -l` -eq 4 || exit 3
++test `fgrep -c ' text.' cond.out` -eq 4 || exit 3
+ 
+ # --ifhtml off, --ifinfo off, --iftex off.
+ ../makeinfo --no-ifhtml --no-ifinfo --no-iftex -o cond.out $srcdir/cond.txi || exit 1
+ egrep 'This is ifnot(html|info|tex) text' cond.out >/dev/null \
+  || exit 2
+-test `fgrep ' text.' cond.out | wc -l` -eq 3 || exit 3
++test `fgrep -c ' text.' cond.out` -eq 3 || exit 3
+ 
+ # Do we really need to test all the other permutations?
+ 
+@@ -28,6 +28,6 @@
+ ../makeinfo --ifhtml --ifinfo --iftex -o cond.out $srcdir/cond.txi || exit 1
+ egrep 'This is (html|ifhtml|ifinfo|tex|iftex) text' cond.out >/dev/null \
+  || exit 2
+-test `fgrep ' text.' cond.out | wc -l` -eq 5 || exit 3
++test `fgrep -c ' text.' cond.out` -eq 5 || exit 3
+ 
+ rm -f cond.out cond.info
+diff -urN texinfo-4.8.orig/makeinfo/tests/html-extrali texinfo-4.8/makeinfo/tests/html-extrali
+--- texinfo-4.8.orig/makeinfo/tests/html-extrali	2002-08-26 01:38:39.000000000 +0200
++++ texinfo-4.8/makeinfo/tests/html-extrali	2006-05-04 14:08:25.000000000 +0200
+@@ -4,8 +4,7 @@
+ : ${srcdir=.}
+ 
+ li_count=`../makeinfo --no-split --html -o - $srcdir/html-extrali.txi 2>/dev/null \
+-| grep '<li>' \
+-| wc -l`
++| grep -c '<li>'`
+ 
+ if test "$li_count" -ne 1; then
+   echo "$li_count <li>s instead of one." >&2
+diff -urN texinfo-4.8.orig/makeinfo/tests/include-value texinfo-4.8/makeinfo/tests/include-value
+--- texinfo-4.8.orig/makeinfo/tests/include-value	2004-04-11 19:56:47.000000000 +0200
++++ texinfo-4.8/makeinfo/tests/include-value	2006-05-04 14:08:25.000000000 +0200
+@@ -11,10 +11,10 @@
+ if test $exit_status = 0; then
+   # should have three instances of _included_,
+   # and three of {included}.
+-  count=`grep _included_ include-value.info | wc -l`
++  count=`grep -c _included_ include-value.info`
+   test $count = 3 || exit_status=`expr $exit_status + 1`
+ 
+-  count=`grep '{included}' include-value.info | wc -l`
++  count=`grep -c '{included}' include-value.info`
+   test $count = 3 || exit_status=`expr $exit_status + 1`
+ fi
+ 
+diff -urN texinfo-4.8.orig/makeinfo/xml.c texinfo-4.8/makeinfo/xml.c
+--- texinfo-4.8.orig/makeinfo/xml.c	2004-12-19 18:02:23.000000000 +0100
++++ texinfo-4.8/makeinfo/xml.c	2006-05-04 14:08:25.000000000 +0200
+@@ -30,6 +30,8 @@
+ 
+ #include "xml.h"
+ 
++#include <assert.h>
++
+ /* Options */
+ int xml_index_divisions = 1;
+ 
+@@ -657,6 +659,7 @@
+ static int
+ xml_current_element (void)
+ {
++  assert (element_stack_index > 0);
+   return element_stack[element_stack_index-1];
+ }
+ 
+@@ -698,7 +701,8 @@
+   if (xml_indentation_increment > 0)
+     {
+       int i;
+-      if (output_paragraph[output_paragraph_offset-1] != '\n')
++      int offset = output_paragraph[offset];
++      if (offset > 0 && output_paragraph[offset-1] != '\n')
+         insert ('\n');
+       for (i = 0; i < element_stack_index * xml_indentation_increment; i++)
+         insert (' ');
+@@ -712,7 +716,8 @@
+       || !xml_element_list[xml_current_element()].contains_para)
+     return;
+ 
+-  while (output_paragraph[output_paragraph_offset-1] == '\n')
++  while (output_paragraph_offset > 0
++	 && output_paragraph[output_paragraph_offset-1] == '\n')
+     output_paragraph_offset--;
+   xml_indent ();
+ 
+@@ -730,7 +735,8 @@
+   if (!xml_in_para || xml_in_footnote)
+     return;
+ 
+-  while (cr_or_whitespace(output_paragraph[output_paragraph_offset-1]))
++  while (output_paragraph_offset > 0
++	 && cr_or_whitespace(output_paragraph[output_paragraph_offset-1]))
+     output_paragraph_offset--;
+ 
+   insert_string ("</para>");
+@@ -905,13 +911,15 @@
+   /* Eat one newline before </example> and the like.  */
+   if (!docbook && arg == END
+       && (xml_element_list[elt].keep_space || elt == GROUP)
++      && output_paragraph_offset > 0
+       && output_paragraph[output_paragraph_offset-1] == '\n')
+     output_paragraph_offset--;
+ 
+   /* And eat whitespace before </entry> in @multitables.  */
+   if (arg == END && elt == ENTRY)
+-      while (cr_or_whitespace(output_paragraph[output_paragraph_offset-1]))
+-    output_paragraph_offset--;
++      while (output_paragraph_offset > 0 &&
++	     cr_or_whitespace(output_paragraph[output_paragraph_offset-1]))
++        output_paragraph_offset--;
+ 
+   /* Indent elements that can contain <para>.  */
+   if (arg == END && !xml_in_para && !xml_keep_space
+diff -urN texinfo-4.8.orig/util/texi2dvi texinfo-4.8/util/texi2dvi
+--- texinfo-4.8.orig/util/texi2dvi	2004-12-31 19:03:05.000000000 +0100
++++ texinfo-4.8/util/texi2dvi	2006-05-04 14:08:25.000000000 +0200
+@@ -30,6 +30,7 @@
+ rcs_revision='$Revision: 1.34 $'
+ rcs_version=`set - $rcs_revision; echo $2`
+ program=`echo $0 | sed -e 's!.*/!!'`
++bindir=`dirname $0`
+ version="texi2dvi (GNU Texinfo 4.8) $rcs_version
+ 
+ Copyright (C) 2004 Free Software Foundation, Inc.
+@@ -510,7 +511,7 @@
+       # Assume a Texinfo file.  Texinfo files need makeinfo, texindex and tex.
+       language=texinfo
+       bibtex=
+-      texindex=${TEXINDEX:-texindex}
++      texindex=${TEXINDEX:-${bindir}/texindex}
+       textra_cmd='/^@setfilename/a'
+       if test $oformat = dvi; then
+         # MetaPost also uses the TEX environment variable.  If the user
+@@ -526,7 +527,7 @@
+       # Unless required by the user, makeinfo expansion is wanted only
+       # if texinfo.tex is too old.
+       if test "$expand" = t; then
+-        makeinfo=${MAKEINFO:-makeinfo}
++        makeinfo=${MAKEINFO:-${bindir}/makeinfo}
+       else
+         # Check if texinfo.tex performs macro expansion by looking for
+         # its version.  The version is a date of the form YEAR-MO-DA.
+@@ -551,7 +552,7 @@
+         if test "$txiprereq" -le "$txiversion" >/dev/null 2>&1; then
+           makeinfo=
+         else
+-          makeinfo=${MAKEINFO:-makeinfo}
++          makeinfo=${MAKEINFO:-${bindir}/makeinfo}
+         fi
+         # As long as we had to run TeX, offer the user this convenience:
+         test "$txiformat" = Texinfo && escape=@
