@@ -13,6 +13,7 @@ import subprocess
 import sys
 import time
 import md5
+import urllib
 
 from context import *
 
@@ -108,11 +109,24 @@ to skip this check.
         return os.path.exists (name)
 
     def wget (self):
+        bufsize = 1024 * 50
         if not self.is_downloaded ():
-            self.system ('''
-cd %(downloaddir)s && wget %(url)s
-''', locals ())
-
+            url  = self.expand (self.url)
+            filename = os.path.split (urllib.splithost (url)[1])[1]
+           
+            output = open (self.expand ('%(downloaddir)s/') + filename, 'w')
+            
+            url_stream = urllib.urlopen (url)
+            while True:
+                contents = url_stream.read (bufsize)
+                output.write (contents)
+                sys.stderr.write ('.')
+                sys.stderr.flush ()
+                
+                if not contents:
+                    break
+            sys.stderr.write ('\n')
+                
     def cvs (self):
         url = self.expand (self.url)
         dir = self.expand ('%(name)s-%(version)s')
