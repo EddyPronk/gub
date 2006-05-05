@@ -78,10 +78,11 @@ class Gcc (Cross_package):
         if not os.path.isdir (libdir):
             return
 
-        library_suffixes =['.la', '.so', '.dylib']
-        find_pred = ' -or '.join([(" -name 'lib*%s*' " % s) for s in library_suffixes])
-        
-        for f in self.read_pipe ("cd %(libdir)s/ && find %(find_pred)s", locals ()).split():
+        files = []
+        for suf in library_suffixes =['.la', '.so', '.dylib']:
+            files += self.locate_files ('%(libdir)s', 'lib*' + suf)
+            
+        for f in files:
             (dir, file) = os.path.split (f)
             target = self.expand ('%(install_prefix)s/%(dir)s', locals())
             if not os.path.isdir (target):

@@ -36,7 +36,7 @@ class Target_package (gub.Package):
         ## on the target system. It will try link in libraries from
         ## /usr/lib/ on the build system. This seems to be problematic for libltdl.a and libgcc.a on MacOS.
         ##
-        for lt in self.read_pipe ("find %(builddir)s -name '*.la'").split ('\n'):
+        for lt in self.locate_files ("%(builddir)s", '*.la'):
             lt = lt.strip()
             if not lt:
                 continue

@@ -386,11 +386,7 @@ tooldir=%(install_prefix)s
         new_lt = self.expand ('%(system_root)s/usr/bin/libtool')
 
         if os.path.exists (new_lt):
-            for lt in self.read_pipe ('find %(builddir)s -name libtool').split ():
-                lt = lt.strip ()
-                if not lt:
-                    continue
-
+            for lt in misc.find (self.expand ('%(builddir)s'), '^libtool$'):
                 self.system ('cp %(new_lt)s %(lt)s', locals ())
                 self.kill_libtool_installation_test (lt)
                 self.system ('chmod 755  %(lt)s', locals ())
@@ -407,8 +403,7 @@ rm -f %(install_root)s/usr/share/info/dir %(install_root)s/usr/cross/info/dir %(
         self.libtool_installed_la_fixups ()
 
     def libtool_installed_la_fixups (self):
-        for la in self.read_pipe ("cd %(install_root)s && find -name '*.la'").split ():
-            la = la.strip ()
+        for la in misc.find (self.expand ('%(install_root)s'), '\.la$'):
             (dir, base) = os.path.split (la)
             base = base[3:-3]
             dir = re.sub (r"^\./", "/", dir)
@@ -539,11 +534,12 @@ rmdir %(split_root)s/usr/share || true
         return 'false'
     
     def package (self):
+
         # naive tarball packages for now
         self.system ('''
-rm -f $(find %(install_root)s -name '*~')
-tar -C %(install_root)s -zcf %(gub_ball)s .
+tar -C %(install_root)s --exclude="*~" -zcf %(gub_ball)s .
 ''')
+        
         # WIP
         available = dict (inspect.getmembers (self, callable))
         for i in self.split_packages:
@@ -560,10 +556,9 @@ tar -C %(install_root)s-%(i)s -zcf %(gub_uploads)s/%(split_gub_name)s .
         dir_name = re.sub (self.expand ('%(allsrcdir)s/'), '',
                  self.expand ('%(srcdir)s'))
         self.system ('''
-rm -f $(find %(srcdir)s -name '*~' -o -name '*.orig')
-tar -C %(allsrcdir)s -zcf %(gub_src_uploads)s/%(gub_name_src)s %(dir_name)s
+tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"  -zcf %(gub_src_uploads)s/%(gub_name_src)s %(dir_name)s
 ''',
-              locals ())
+                     locals ())
 
     def dump_header_file (self):
         hdr = self.expand ('%(hdr_file)s')

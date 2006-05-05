@@ -239,6 +239,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
 
         Guile.configure (self)
 
+        ## ugh code dup. 
         ## probably not necessary, but just be sure.
         for i in self.locate_files ('%(builddir)s', "Makefile"):
             self.file_sub ([

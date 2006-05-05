@@ -73,7 +73,7 @@ class Gcc (cross.Gcc):
     def rewire_gcc_libs (self):
 
         skip_libs = ['libgcc_s']
-        for l in  self.read_pipe ("find %(install_root)s/usr/lib/ -name '*.dylib'").split():
+        for l in self.locate_files ("%(install_root)s/usr/lib/", '*.dylib'):
             found_skips = [s for s in  skip_libs if l.find (s) >= 0]
             if found_skips:
                 continue
