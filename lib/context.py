@@ -133,16 +133,20 @@ class Os_context_wrapper (Context):
     def locate_files (self, directory, pattern):
         """
         Find file using glob PATTERNs. DIRECTORY is expanded.
+
+        Results include DIRECTORY in the filenames.
         """
 
-        ## find() is actually not portable across unices;
+        ## find() is actually not portable across unices,
+        ## so we bake our own.
+        
         directory = self.expand (directory)
         directory = re.sub ( "/*$", '/', directory)
         
         results = []
         for (root, dirs, files) in os.walk (directory):
-            relative_root = root.replace (directory, '')
-            results += [os.path.join (relative_root, f)
+#            relative_root = root.replace (directory, '')
+            results += [os.path.join (root, f)
                         for f in (fnmatch.filter (dirs, pattern) + 
                                   fnmatch.filter (files, pattern))]
 

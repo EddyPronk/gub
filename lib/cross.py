@@ -79,7 +79,7 @@ class Gcc (Cross_package):
             return
 
         files = []
-        for suf in library_suffixes =['.la', '.so', '.dylib']:
+        for suf in ['.la', '.so', '.dylib']:
             files += self.locate_files ('%(libdir)s', 'lib*' + suf)
             
         for f in files:

@@ -293,7 +293,7 @@ cp %(install_root)s/usr/share/lilypond/*/python/* %(install_root)s/usr/bin
             elif  s.find ('python') >= 0:
                 self.system ('mv %(i)s %(i)s.py', locals ())
 
-        for i in self.locate_files ('%(install_root)s',  "*.ly")
+        for i in self.locate_files ('%(install_root)s', "*.ly"):
             s = open (i).read ()
             open (i, 'w').write (re.sub ('\r*\n', '\r\n', s))
 
