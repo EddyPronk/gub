@@ -3,6 +3,7 @@ import os
 import re
 import string
 import sys
+import urllib
 
 def join_lines (str):
     return str.replace ('\n', ' ')
@@ -105,3 +106,21 @@ def find (dir, pattern):
         results += files
         
     return results
+
+def download_url (url, dest_dir):
+    bufsize = 1024 * 50
+    filename = os.path.split (urllib.splithost (url)[1])[1]
+    
+    output = open (dest_dir + '/' + filename, 'w')
+    url_stream = urllib.urlopen (url)
+    print 'downloading', url
+    while True:
+        contents = url_stream.read (bufsize)
+        output.write (contents)
+        sys.stderr.write ('.')
+        sys.stderr.flush ()
+        
+        if not contents:
+            break
+    sys.stderr.write ('\n')
+        

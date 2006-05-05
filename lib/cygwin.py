@@ -208,7 +208,7 @@ class Cygwin_dependency_finder:
         downloaddir = self.settings.downloaddir
         file = self.settings.downloaddir + '/setup.ini'
         if not os.path.exists (file):
-            os.system ('wget -P %(downloaddir)s %(url)s' % locals ())
+            misc.download_url (url, self.settings.downloaddir)
 
         pack_list  = get_cygwin_packages (self.settings, file)
         for p in pack_list:

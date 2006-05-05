@@ -16,7 +16,7 @@ def get_cross_packages (settings):
     downloaddir = settings.downloaddir
     file = settings.downloaddir + '/Packages'
     if not os.path.exists (file):
-        os.system ('wget -P %(downloaddir)s %(url)s' % locals ())
+        misc.download_url (url, self.expand ('%(downloaddir)s'))
         os.system ('gunzip  %(file)s.gz' % locals ())
 
         ## FIXME. names

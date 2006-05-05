@@ -13,7 +13,6 @@ import subprocess
 import sys
 import time
 import md5
-import urllib
 
 from context import *
 
@@ -108,26 +107,11 @@ to skip this check.
         name = self.expand ('%(downloaddir)s/%(file_name)s')
         return os.path.exists (name)
 
+    
     def wget (self):
-        bufsize = 1024 * 50
         if not self.is_downloaded ():
-            url  = self.expand (self.url)
-            filename = os.path.split (urllib.splithost (url)[1])[1]
-           
-            output = open (self.expand ('%(downloaddir)s/') + filename, 'w')
+            misc.download_url (self.expand (self.url), self.expand ('%(downloaddir)s'))
             
-            url_stream = urllib.urlopen (url)
-            print 'downloading', url
-            while True:
-                contents = url_stream.read (bufsize)
-                output.write (contents)
-                sys.stderr.write ('.')
-                sys.stderr.flush ()
-                
-                if not contents:
-                    break
-            sys.stderr.write ('\n')
-                
     def cvs (self):
         url = self.expand (self.url)
         dir = self.expand ('%(name)s-%(version)s')
@@ -142,8 +126,6 @@ cd %(downloaddir)s && cvs -d %(url)s -q co -d %(dir)s -r %(version)s %(name)s
             self.system ('''
 cd %(cvs_dest)s && cvs -q update -dAPr %(version)s
 ''', locals ())
-            
-
         self.touch_cvs_checksum (cvs_dest)
 
     def touch_cvs_checksum (self, cvs_dest):
