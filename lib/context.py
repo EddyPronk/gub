@@ -5,6 +5,7 @@ import sys
 import subprocess
 import re
 import stat
+import fnmatch
 
 def subst_method (func):
     """Decorator to match Context.get_substitution_dict()"""
@@ -130,9 +131,22 @@ class Os_context_wrapper (Context):
         return self.os_interface.dump (str, name, mode=mode)
     
     def locate_files (self, directory, pattern):
-        command = "cd %(directory)s && find -name '%(pattern)s'" % locals()
-        return [f for f in  self.read_pipe (command).split ('\n') if f.strip()]
+        """
+        Find file using glob PATTERNs. DIRECTORY is expanded.
+        """
 
+        ## find() is actually not portable across unices;
+        directory = self.expand (directory)
+        directory = re.sub ( "/*$", '/', directory)
+        
+        results = []
+        for (root, dirs, files) in os.walk (directory):
+            relative_root = root.replace (directory, '')
+            results += [os.path.join (relative_root, f)
+                        for f in (fnmatch.filter (dirs, pattern) + 
+                                  fnmatch.filter (files, pattern))]
+
+        return results
 
 #
 # Tests.
@@ -150,7 +164,13 @@ if __name__=='__main__':
         
         def bladir(self):
             return 'derivedbladir'
-
+    class S: 
+        pass
+    
     p = TestClass ()
-
+    import settings
+    s = settings.Settings ('arm')
+    c = Os_context_wrapper (s)
+    
     print p.expand ('%(name)s %(bladir)s')
+    print c.locate_files ('_darcs', '*.gz')
