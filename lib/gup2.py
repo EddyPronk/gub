@@ -93,7 +93,7 @@ class File_manager:
         if conflicts and not self.is_distro:
             raise 'abort'
 
-        self.os_interface.system ('tar -C %(root)s -xf%(flag)s %(ball)s' % locals ())
+        self.os_interface.system ('tar -C %(root)s -x%(flag)sf %(ball)s' % locals ())
 
         self._package_file_db[name] = '\n'.join (lst)
         for f in lst:
