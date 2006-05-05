@@ -15,7 +15,7 @@ import sys
 sys.path.insert (0, 'lib/')
 
 import settings as settings_mod
-import gup2
+import gup
 import oslog
 
 def sort (lst):
@@ -164,7 +164,7 @@ class Command:
             else:
                 packs.append (p)
 
-        packs = gup2.topologically_sorted (packs, {}, self.pm.dependencies)
+        packs = gup.topologically_sorted (packs, {}, self.pm.dependencies)
         for p in packs:
             self.pm.install_package (p)
 
@@ -184,7 +184,7 @@ class Command:
     def remove (self):
         '''uninstall packages'''
 
-        packages = gup2.topologically_sorted (self.options.arguments, {},
+        packages = gup.topologically_sorted (self.options.arguments, {},
                            self.pm.dependencies,
                            recurse_stop_predicate
                            =lambda p: p not in self.options.arguments)
@@ -233,7 +233,7 @@ def main ():
         options.ROOT = ('target/%s/system'
                 % options.platform)
         
-    target_manager = gup2.Dependency_manager (options.ROOT, oslog.Os_commands ("/dev/null"))
+    target_manager = gup.Dependency_manager (options.ROOT, oslog.Os_commands ("/dev/null"))
     
     if options.command == 'install':
         platform = options.platform

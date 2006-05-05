@@ -5,7 +5,7 @@ import download
 import gub
 import misc
 import mingw
-import gup2
+import gup
 
 # FIXME: setting binutil's tooldir and/or gcc's gcc_tooldir may fix
 # -luser32 (ie -L .../w32api/) problem without having to set LDFLAGS.
@@ -83,7 +83,7 @@ def change_target_packages (packages):
             })
 
 
-import gup2
+import gup
 from new import classobj
 import gub
 import re

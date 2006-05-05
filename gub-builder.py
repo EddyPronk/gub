@@ -11,7 +11,7 @@ import types
 
 sys.path.insert (0, 'lib/')
 
-import gup2
+import gup
 import cross
 import distcc
 import framework
@@ -139,7 +139,7 @@ def build_installer (settings, args):
     settings.os_interface.system (settings.expand ('rm -rf %(installer_root)s'))
     settings.os_interface.system (settings.expand ('rm -rf %(installer_db)s'))
     
-    install_manager = gup2.Dependency_manager (settings.installer_root,
+    install_manager = gup.Dependency_manager (settings.installer_root,
                          settings.os_interface,
                          dbdir=settings.installer_db)
     install_manager.include_build_deps = False
@@ -149,7 +149,7 @@ def build_installer (settings, args):
     def get_dep (x):
         return install_manager.dependencies (x)
     
-    package_names = gup2.topologically_sorted (args, {},
+    package_names = gup.topologically_sorted (args, {},
                          get_dep,
                          None)
 
@@ -306,7 +306,7 @@ def main ():
         installer_command (c, settings, commands)
         return
 
-    (package_names, package_object_dict) = gup2.get_packages (settings,
+    (package_names, package_object_dict) = gup.get_packages (settings,
                                                               commands)
 
     if c == 'download' or c == 'build':
@@ -314,7 +314,7 @@ def main ():
             package = package_object_dict[name]
             return (package.name_dependencies
                 + package.name_build_dependencies)
-        deps = gup2.topologically_sorted (commands, {}, get_all_deps,
+        deps = gup.topologically_sorted (commands, {}, get_all_deps,
                          None)
         if options.verbose:
             print 'deps:' + `deps`
@@ -324,11 +324,11 @@ def main ():
             package_object_dict[i].do_download ()
 
     elif c == 'build':
-        pm = gup2.get_target_manager (settings)
+        pm = gup.get_target_manager (settings)
 
         # FIXME: what happens here, {cross, cross_module}.packages
         # are already added?
-        gup2.add_packages_to_manager (pm, settings, package_object_dict)
+        gup.add_packages_to_manager (pm, settings, package_object_dict)
         deps = filter (package_object_dict.has_key, package_names)
         deps = filter (pm.is_registered, deps)
 

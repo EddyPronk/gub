@@ -5,7 +5,7 @@ import time
 import context
 import darwintools
 import framework
-import gup2
+import gup
 import targetpackage
 
 from context import subst_method
@@ -150,7 +150,7 @@ class Darwin_bundle (Installer):
     def create (self):
         Installer.create (self)
         rw = darwintools.Rewirer (self.settings)
-        pm = gup2.Dependency_manager (self.settings.system_root,
+        pm = gup.Dependency_manager (self.settings.system_root,
 	                              self.settings.os_interface)
         rw.set_ignore_libs (pm)
         osx_lilypad_version = pm.package_dict ('osx-lilypad')['version']
@@ -193,22 +193,21 @@ class Nsis (Installer):
         # FIXME: build in separate nsis dir, copy or use symlink
         installer = os.path.basename (self.settings.installer_root)
 
-        package_manager = gup2.Dependency_manager (self.settings.system_root,
-                             self.settings.os_interface)
+        package_manager = gup.Dependency_manager (self.settings.system_root,
+                                                  self.settings.os_interface)
         
-        self.file_sub ([
-            ('@GHOSTSCRIPT_VERSION@', package_manager.package_dict ('ghostscript')['version']),
-            
-            ('@GUILE_VERSION@', package_manager.package_dict ('ghostscript')['version']),
-            ('@LILYPOND_BUILD@', '%(bundle_build)s'),
-            ('@LILYPOND_VERSION@', '%(bundle_version)s'),
-            ('@PYTHON_VERSION@', package_manager.package_dict ('python')['version']),
-            ('@ROOT@', '%(installer)s'),
-            ],
-               '%(nsisdir)s/lilypond.nsi.in',
-#                               to_name='%(targetdir)s/lilypond.nsi',
-               to_name='%(targetdir)s/lilypond.nsi',
-               env=locals ())
+        self.file_sub ([('@GHOSTSCRIPT_VERSION@', package_manager.package_dict ('ghostscript')['version']),
+                        
+                        ('@GUILE_VERSION@', package_manager.package_dict ('ghostscript')['version']),
+                        ('@LILYPOND_BUILD@', '%(bundle_build)s'),
+                        ('@LILYPOND_VERSION@', '%(bundle_version)s'),
+                        ('@PYTHON_VERSION@', package_manager.package_dict ('python')['version']),
+                        ('@ROOT@', '%(installer)s'),
+                        ],
+                       '%(nsisdir)s/lilypond.nsi.in',
+                       #                               to_name='%(targetdir)s/lilypond.nsi',
+                       to_name='%(targetdir)s/lilypond.nsi',
+                       env=locals ())
         
         self.system ('cp %(nsisdir)s/*.nsh %(targetdir)s')
         self.system ('cp %(nsisdir)s/*.bat.in %(targetdir)s')
