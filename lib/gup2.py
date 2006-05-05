@@ -65,7 +65,7 @@ class File_manager:
     def tarball_files (self, ball):
         flag = tar_compression_flag (ball)
         str = self.os_interface.read_pipe ('tar -tf%(flag)s "%(ball)s"'
-                         % locals (), silent=True)
+                                           % locals ())
         lst = str.split ('\n')
         return lst
 
@@ -77,7 +77,7 @@ class File_manager:
 
     def install_tarball (self, ball, name):
         self.os_interface.log_command ('installing package %(name)s from %(ball)s\n'
-                       % locals ())
+                                       % locals ())
 
         flag = tar_compression_flag (ball)
         root = self.root
@@ -86,7 +86,7 @@ class File_manager:
         conflicts = False
         for f in lst:
             if (self._file_package_db.has_key (f)
-              and not os.path.isdir (self.root + '/'+  f)):
+                and not os.path.isdir (self.root + '/'+  f)):
                 print 'already have file %s: %s' % (f, self._file_package_db[f])
                 conflicts = True
 
