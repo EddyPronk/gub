@@ -64,7 +64,7 @@ class File_manager:
 
     def tarball_files (self, ball):
         flag = tar_compression_flag (ball)
-        str = self.os_interface.read_pipe ('tar -tf%(flag)s "%(ball)s"'
+        str = self.os_interface.read_pipe ('tar -t%(flag)sf "%(ball)s"'
                                            % locals ())
         lst = str.split ('\n')
         return lst
