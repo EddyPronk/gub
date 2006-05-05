@@ -80,14 +80,14 @@ class Gcc (Cross_package):
 
         files = []
         for suf in ['.la', '.so', '.dylib']:
-            files += self.locate_files ('%(libdir)s', 'lib*' + suf)
+            files += self.locate_files (libdir, 'lib*' + suf)
             
         for f in files:
             (dir, file) = os.path.split (f)
             target = self.expand ('%(install_prefix)s/%(dir)s', locals())
             if not os.path.isdir (target):
                 os.makedirs (target)
-            self.system ('mv %(libdir)s/%(dir)s/%(file)s %(install_prefix)s/lib', locals())
+            self.system ('mv %(f)s %(install_prefix)s/lib', locals())
 
     def install (self):
         Cross_package.install (self)
