@@ -39,7 +39,6 @@ rm %(srcdir)s/usr/lib/libltdl*
 rm %(srcdir)s/usr/include/ltdl.h
 rm -f %(srcdir)s/usr/lib/gcc/*-apple-darwin*/*/*dylib
 rm -rf %(srcdir)s/usr/lib/gcc
-rm -f $(find %(srcdir)s -name FlexLexer.h)
 ''')
 
         ## ugh, need to have gcc/3.3/machine/limits.h
