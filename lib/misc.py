@@ -86,3 +86,20 @@ def file_is_newer (f1, f2):
     return (not os.path.exists (f2)
         or os.stat (f1).st_mtime > os.stat (f2).st_mtime)
 
+def find (dir, pattern):
+    """
+    Find files under DIR match the regex pattern.
+    """
+    
+    if type('') == type(pattern):
+        pattern = re.compile (pattern)
+
+    dir = re.sub ( "/*$", '/', dir)
+    results = []
+    for (root, dirs, files) in os.walk (dir):
+        root = root.replace (dir, '')
+        files = [os.path.join (root, f) for f in files if pattern.search (f)]
+        
+        results += files
+        
+    return results
