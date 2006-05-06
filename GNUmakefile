@@ -218,7 +218,7 @@ bootstrap:
 	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local download flex mftrace potrace fontforge \
 	   guile pkg-config nsis icoutils fontconfig expat gettext
 	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local build flex mftrace potrace fontforge \
-	   guile pkg-config fontconfig expat icoutils
+	   guile pkg-config fontconfig expat icoutils glib
 	make distccd
 	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local build nsis 
 	$(MAKE) download
