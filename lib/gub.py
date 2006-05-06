@@ -321,9 +321,9 @@ cd %(autodir)s && bash autogen.sh --noconfigure
 ''', locals ())
         else:
             self.system ('''
-cd %(autodir)s && aclocal
-cd %(autodir)s && autoheader
-cd %(autodir)s && autoconf
+cd %(autodir)s && aclocal -I %(system_root)s/usr/share/aclocal
+cd %(autodir)s && autoheader -I %(system_root)s/usr/share/aclocal
+cd %(autodir)s && autoconf -I %(system_root)s/usr/share/aclocal
 ''', locals ())
             if os.path.exists (os.path.join (self.srcdir (), 'Makefile.am')):
                 self.system ('''
