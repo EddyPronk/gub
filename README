@@ -53,11 +53,12 @@ INSTALLING
   - about 7 GB of free space
 
   - A standard unix development environment with GCC and G++
+  GNU Make
 
   - Python 2.4
 
-  - GNU Make
-  
+  - A working TeX installation
+
 * Edit local.make to set some variables.  Here is what my local.make
    contains
 
@@ -66,11 +67,6 @@ INSTALLING
   BUILD_PLATFORM=linux
   GUB_DISTCC_ALLOW_HOSTS='192.168.123.191 192.168.123.162 127.0.0.1 192.168.123.107'
 
-* Download lilypond repository:
-
-  make bootstrap-download
-
-  You only have to do this once.
 
 * Prepare build environment
 
