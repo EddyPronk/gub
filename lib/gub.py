@@ -327,7 +327,7 @@ cd %(autodir)s && autoconf -I %(system_root)s/usr/share/aclocal
 ''', locals ())
             if os.path.exists (self.expand ('%(srcdir)s/Makefile.am')):
                 self.system ('''
-cd %(srcdir)s && automake --add-missing
+cd %(srcdir)s && automake --add-missing --foreign
 ''', locals ())
 
 

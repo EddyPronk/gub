@@ -257,6 +257,7 @@ class LilyPond__mingw (LilyPond__cygwin):
         self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
                    depends=['fontconfig', 'gettext', 
                             'guile', 'pango', 'python', 'ghostscript', 'lilypad'],
+                   builddeps=['urw-fonts'],
                    track_development=True)
 
         self.split_packages = []

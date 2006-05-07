@@ -131,10 +131,9 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
 
         ## probably not necessary, but just be sure.
         for l in self.locate_files ('%(builddir)s', "Makefile"):
-            self.file_sub ([
-                ('PATH_SEPARATOR = .', 'PATH_SEPARATOR = ;'),
-                ], '%(builddir)s/' + l)
-
+            self.file_sub ([('PATH_SEPARATOR = .', 'PATH_SEPARATOR = ;'),
+                            ], l)
+            
         self.file_sub ([
             #('^(allow_undefined_flag=.*)unsupported', '\\1'),
             ('-mwindows', ''),
@@ -156,7 +155,7 @@ class Guile__linux (Guile):
         # FIXME: when not x-building, guile runs guile without
         # setting the proper LD_LIBRARY_PATH.
         return ('export LD_LIBRARY_PATH=%(builddir)s/libguile/.libs:$LD_LIBRARY_PATH;'
-            + Guile.compile_command (self))
+                + Guile.compile_command (self))
 
 class Guile__freebsd (Guile):
     def config_cache_settings (self):
@@ -198,7 +197,7 @@ class Guile__darwin__x86 (Guile__darwin):
     def configure (self):
         Guile__darwin.configure (self)
         self.file_sub ([('guile-readline', '')],
-               '%(builddir)s/Makefile')
+                       '%(builddir)s/Makefile')
         
         
 class Guile__cygwin (Guile):
@@ -209,9 +208,9 @@ class Guile__cygwin (Guile):
         # (which uses libiconv2, but libintl depends on that).
         # So, Cygwin's guile build depends on libiconv.
         self.with (version='1.8.0',
-             mirror=download.gnu, format='gz',
-             depends=['gettext', 'gmp', 'libtool'],
-             builddeps=['libiconv'])
+                   mirror=download.gnu, format='gz',
+                   depends=['gettext', 'gmp', 'libtool'],
+                   builddeps=['libiconv'])
 
         # FIXME: WIP.  splitting works, xpm can't handle split
         # packages yet, xpm will try to load FOO.py for
