@@ -14,7 +14,8 @@ class LilyPond (targetpackage.Target_package):
     def __init__ (self, settings):
         targetpackage.Target_package.__init__ (self, settings)
         self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
-                   depends=['fontconfig', 'gettext', 'urw-fonts',
+                   builddeps=['urw-fonts'],
+                   depends=['fontconfig', 'gettext', 
                             'guile', 'pango', 'python', 'ghostscript'],
                    track_development=True)
 
@@ -212,11 +213,14 @@ mkdir -p %(install_root)s/etc/hints
 
         readme = open (self.settings.sourcefiledir + '/lilypond.README').read ()
         self.dump (readme,
-             '%(install_root)s/usr/share/doc/Cygwin/%(name)s-%(bundle_version)s-%(bundle_build)s.README',
-             env=locals ())
+                   '%(install_root)s/usr/share/doc/Cygwin/%(name)s-%(bundle_version)s-%(bundle_build)s.README',
+                   env=locals ())
 
         fixdepends = {
-            'lilypond' : ['bash', 'coreutils', 'cygwin', 'findutils', 'ghostscript', 'glib2-runtime', 'libfontconfig1', 'libfreetype26', 'libguile17', 'libiconv2', 'libintl3', 'pango-runtime', 'python', '_update-info-dir'],
+            'lilypond' : ['bash', 'coreutils', 'cygwin', 'findutils',
+                          'ghostscript', 'glib2-runtime', 'libfontconfig1',
+                          'libfreetype26', 'libguile17', 'libiconv2', 'libintl3',
+                          'pango-runtime', 'python', '_update-info-dir'],
             'lilypond-doc' : []
             }
 
@@ -251,9 +255,10 @@ class LilyPond__mingw (LilyPond__cygwin):
     def __init__ (self, settings):
         LilyPond__cygwin.__init__ (self, settings)
         self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
-             depends=['fontconfig', 'gettext',
-                  'guile', 'pango', 'python', 'ghostscript', 'lilypad'],
-             track_development=True)
+                   depends=['fontconfig', 'gettext', 
+                            'guile', 'pango', 'python', 'ghostscript', 'lilypad'],
+                   track_development=True)
+
         self.split_packages = []
 
     def do_configure (self):
@@ -318,7 +323,7 @@ class LilyPond__darwin (LilyPond):
                    mirror=cvs.gnu,
                    track_development=True,
                    depends=['pango', 'guile', 'gettext', 'ghostscript',
-                            'python', 
+                            'python', 'urw-fonts',
                             'fondu', 'osx-lilypad'])
         
     def configure_command (self):

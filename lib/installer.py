@@ -78,6 +78,7 @@ class Installer (context.Os_context_wrapper):
             'share/gs/*/{Resource,doc,examples}/',
             'share/gtk-doc',
             'share/info',
+            'share/fonts/',
             'share/man',
             'share/omf',
             'share/libtool/',
