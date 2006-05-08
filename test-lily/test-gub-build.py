@@ -11,6 +11,15 @@ def system (c, ignore_error=False):
 	if s and not ignore_error:
 		raise 'barf'
 
+
+test_settings = {
+	'linux': ('lilytest', 'muurbloem', 'test-gub', None),
+	'freebsd': ('hanwen', 'xs4all.nl', 'test-gub', None),
+	'darwin-ppc': ('lilytest', 'maagd', 'test-gub', None),
+	'mingw': ('hanwen', 'wklep', 'test-gub', None),
+}
+	
+
 def test_build (bin):
 	if bin.find (':') < 0:
 		bin = os.path.abspath (bin)
@@ -43,35 +52,31 @@ def test_build (bin):
 		pass
 
 	print 'testing platform %s' % platform
+	try:
+		(uid, host, dir, test_file) = test_settings[platform]
+		if test_file == None:
+			test_file = 'test-lily/typography-demo.ly' 
+			
+		base_test_file = os.path.split (test_file)[1]
+		base_test_file_stem = os.path.splitext (base_test_file)[0]
+		logdir = "log/"
 
-	test_file = 'downloads/lilypond-HEAD/input/typography-demo.ly'
-	test_result =  '%s.test.pdf' % base
-
-	if platform == 'linux':
-		system ('cp %s /tmp/ ' % test_file)
-		system ('sudo su - test -c "sh -x test-linux-gub.sh %s"' % bin)
-		system ('cp ~test/test-gub/typography-demo.pdf %s' % test_result)
-	elif platform == 'darwin-x86':
-		system ('touch %s ' % test_result)
-	elif platform == 'darwin-ppc':
-		system ('scp %s maagd:test/' % bin)
-		system ('slogin maagd sh -x test-macosx-gub.sh %s' % base)
-		system ('scp %s maagd:test/' % test_file)
-		system ('scp maagd:test/typography-demo.pdf %s' % test_result)
-		system ('slogin maagd rm test/%s' % base)
-	elif platform == 'mingw':
-		system ('scp %s wklep:test/ ' % bin)
-		system ('slogin wklep sh -x test-mingw-gub.sh %s ' % base)
-		system ('scp wklep:test/typography-demo.pdf %s' % test_result)
-	elif platform == 'freebsd':
-		host = 'xs4all'
-		system ('slogin %s test-gub/bin/uninstall-lilypond --quiet ' % host, ignore_error=True)
-		system ('scp %s %s %s:test-gub/' % (bin, test_file, host))
-		system ('slogin %s test-freebsd-gub.sh %s' % (host, base))
-		system ('scp %s:test-gub/typography-demo.pdf %s' % (host,test_result))
-
-	system ('mv %s log/' %  test_result)
-	system ('xpdf log/%s &' % test_result)
+		system ('ssh %(uid)s@%(host)s mkdir  %(dir)s' % locals (), ignore_error=True)
+		
+		system ('scp %(test_file)s test-lily/test-%(platform)s-gub.sh '
+			' %(bin)s '
+			' %(uid)s@%(host)s:%(dir)s/'
+			% locals())
+		system ('ssh %(uid)s@%(host)s sh %(dir)s/test-%(platform)s-gub.sh %(dir)s %(base)s %(base_test_file)s'
+			% locals())
+		system ('scp %(uid)s@%(host)s:%(dir)s/%(base_test_file_stem)s.pdf %(logdir)s/%(base)s.test.pdf'
+			% locals ())
+		system ('xpdf %(logdir)s/%(base)s.test.pdf'
+			% locals ())
+		
+	except KeyError:
+		system ('touch %(logdir)s/%(base)s.test.pdf' % locals ())
+	
 
 pids = []
 for a in sys.argv[1:]:

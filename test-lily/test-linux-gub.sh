@@ -1,9 +1,32 @@
 #!/bin/sh
+
+directory="$HOME/$1"
+shift
+filename="$1"
+shift
+testfile="$1" 
+
 set -x
-mkdir -p $HOME/test-gub/ \
- && cd $HOME/test-gub \
- && rm -rf bin/ lilypond \
- && ash $1 --batch --prefix `pwd` \
- && bin/lilypond /tmp/typography-demo.ly
+if test ! -d $directory; then
+  mkdir -p $directory
+  if test "$?" != "0"; then
+    exit 1;
+  fi  
+fi
+cd $directory
+
+if test -x bin/uninstall-lilypond; then
+  bin/uninstall-lilypond --quiet
+  if test "$?" != "0"; then
+    exit 1;
+  fi  
+fi
+
+sh $filename --batch --prefix `pwd`
+if test "$?" != "0"; then
+    exit 1;
+fi  
+
+bin/lilypond $testfile
 
 
