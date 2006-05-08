@@ -46,7 +46,7 @@ sources = GNUmakefile $(wildcard *.py specs/*.py lib/*.py)
 NATIVE_TARGET_DIR=$(CWD)/target/$(BUILD_PLATFORM)/
 
 ## TODO: should LilyPond revision in targetname too.
-RUN_TEST=$(PYTHON) test-gub.py --to hanwen@xs4all.nl --to janneke-list@xs4all.nl --smtp smtp.xs4all.nl 
+RUN_TEST=$(PYTHON) test-gub.py --tag-repo abc.webdev.nl:repo/gub-tags --to hanwen@xs4all.nl --to janneke-list@xs4all.nl --smtp smtp.xs4all.nl 
 
 # local.make should set the following variables:
 #
