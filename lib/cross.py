@@ -79,7 +79,9 @@ class Gcc (Cross_package):
             return
 
         files = []
-        for suf in ['.la', '.so', '.dylib']:
+
+        ## .so* because version numbers trail .so extension. 
+        for suf in ['.la', '.so*', '.dylib']:
             files += self.locate_files (libdir, 'lib*' + suf)
             
         for f in files:

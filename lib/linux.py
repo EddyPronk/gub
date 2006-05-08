@@ -32,9 +32,9 @@ class Libc6_dev (gub.Binary_package, gub.Sdk_package):
                           + s, i)
         for i in ('pthread.h', 'bits/sigthread.h'):
             self.file_sub ([('__thread', '___thread')],
-                   '%(srcdir)s/root/usr/include/%(i)s',
-                   env=locals ())
-
+                           '%(srcdir)s/root/usr/include/%(i)s',
+                           env=locals ())
+            
         self.system ('rm -rf  %(srcdir)s/root/usr/include/asm/  %(srcdir)s/root/usr/include/linux ')
             
 class Linux_kernel_headers (gub.Binary_package, gub.Sdk_package):
@@ -52,14 +52,11 @@ def get_cross_packages (settings):
         Linux_kernel_headers (settings).with (version='2.6.13+0rc3-2.1', mirror=download.lkh_deb, format='deb'),
         cross.Binutils (settings).with (version='2.16.1', format='bz2'),
         cross.Gcc (settings).with (version='4.0.2',
-                     mirror=download.gcc, format='bz2',
-                     
-
-
+                                   mirror=download.gcc, format='bz2',
 
 #                cross.Gcc (settings).with (version='4.1.0',
 #                                           mirror=download.gcc_41, format='bz2', )
-                     depends=['binutils']),
+                                   depends=['binutils']),
         ]
     return packages
 
