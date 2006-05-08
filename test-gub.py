@@ -170,14 +170,15 @@ def test_target (options, target, last_patch):
         result = 'FAIL'
         attachments = ['error for %s\n\n%s' % (target,
                            '\n'.join (body[-0:])),
-               diff]
+                       diff]
     else:
         tag = base_tag + last_patch['date']
         system ('darcs tag %s' % tag)
+        result = "SUCCESS"
         if options.tag_repo:
             system ('darcs push -a -t %s %s ' % (tag, options.tag_repo))
-            result = "SUCCESS, tagging with %s" % tag
-
+            result += ', tagging with %s' % tag
+            
         attachments = ['\n'.join (body[-10:])]
 
     set_checked_before (release_hash, canonicalize)
