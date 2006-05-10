@@ -16,7 +16,7 @@ test_settings = {
 	'linux': ('lilytest', 'muurbloem', 'test-gub', None),
 	'freebsd': ('hanwen', 'xs4all.nl', 'test-gub', None),
 	'darwin-ppc': ('lilytest', 'maagd', 'test-gub', None),
-	'mingw': ('hanwen', 'wklep', 'test-gub', None),
+	'mingw': ('hanwen', 'wklep', 'test-gub', 'test-lily/typography-demo-no-cjk.ly'),
 }
 	
 

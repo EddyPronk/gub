@@ -1,8 +1,16 @@
 #!/bin/sh
 
+directory="$HOME/$1"
+shift
+filename="$1"
+shift
+testfile="$1" 
+
+
 set -x
 
-cd test
+cd $directory
+
 UNINS="/cygdrive/c/Program Files/LilyPond/uninstall.exe"
 
 if test -x "$UNINS"; then
@@ -11,15 +19,15 @@ if test -x "$UNINS"; then
 fi
 
 
-chmod +x $1
-$1 /S
+chmod +x $filename
+$filename /S
 
-/cygdrive/c/Program\ Files/LilyPond/usr/bin/lilypond.exe --verbose typography-demo.ly
+/cygdrive/c/Program\ Files/LilyPond/usr/bin/lilypond.exe --verbose $testfile
 
 status="$?"
 
 
-cachefile=`/cygdrive/c/Program\ Files/LilyPond/usr/etc/fonts/local.conf|sed 's!<cache>!!g' | sed 's!</cache>!!g'`
+cachefile=`echo "/cygdrive/c/Program\ Files/LilyPond/usr/etc/fonts/local.conf"|sed 's!<cache>!!g' | sed 's!</cache>!!g'`
 
 if test ! -s $cachefile ; then
 	status="1"
