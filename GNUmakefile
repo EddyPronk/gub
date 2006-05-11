@@ -44,6 +44,7 @@ PYTHON=python
 sources = GNUmakefile $(wildcard *.py specs/*.py lib/*.py)
 
 NATIVE_TARGET_DIR=$(CWD)/target/$(BUILD_PLATFORM)/
+BUILDNUMBER_FILE = buildnumber-$(LILYPOND_BRANCH).make
 
 ## TODO: should LilyPond revision in targetname too.
 RUN_TEST=$(PYTHON) test-gub.py --tag-repo abc.webdev.nl:repo/gub-tags --to hanwen@xs4all.nl --to janneke-list@xs4all.nl --smtp smtp.xs4all.nl 
@@ -70,7 +71,7 @@ ifeq ($(wildcard $(LILYPOND_CVSDIR)),)
   bootstrap: bootstrap-download
 
   ## need to download CVS before we can actually start doing anything.
-  bootstrap-download:
+  bootstrap-download: update-buildnumber
 	  $(PYTHON) gub-builder.py -p linux download
 
 else
@@ -82,17 +83,17 @@ else
 
   LILYPOND_VERSION=$(MAJOR_VERSION).$(MINOR_VERSION).$(PATCH_LEVEL)$(if $(strip $(MY_PATCH_LEVEL)),.$(MY_PATCH_LEVEL),)
 
-  bootstrap-download:
+  bootstrap-download: 
 
-  ifeq ($(OFFLINE),)
-    INSTALLER_BUILD:=$(shell $(PYTHON) lilypondorg.py nextbuild $(LILYPOND_VERSION))
-  else
-    INSTALLER_BUILD:=0
-  endif
+  include $(BUILDNUMBER_FILE)
+
 endif
 
+update-buildnumber:
+	echo -n "INSTALLER_BUILD=" > $(BUILDNUMBER_FILE)
+	$(PYTHON) lilypondorg.py nextbuild $(LILYPOND_VERSION) >> $(BUILDNUMBER_FILE)
 
-download: 
+download:  update-buildnumber
 	$(foreach p, $(PLATFORMS), $(call INVOKE_DRIVER,$(p)) download lilypond && ) true
 	$(call INVOKE_DRIVER,mingw) download lilypad
 	$(call INVOKE_DRIVER,darwin-ppc) download osx-lilypad
