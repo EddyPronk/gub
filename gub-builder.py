@@ -70,66 +70,66 @@ package-installer - build installer binary
     p.description='Grand Unified Builder.  Specify --package-version to set build version'
 
     p.add_option ('-B', '--branch', action='store',
-           dest='lilypond_branch',
-           type='choice',
-           default='HEAD',
-           help='select lilypond branch [HEAD]',
-           choices=['lilypond_2_6', 'lilypond_2_8', 'HEAD'])
+                  dest='lilypond_branch',
+                  type='choice',
+                  default='HEAD',
+                  help='select lilypond branch [HEAD]',
+                  choices=['lilypond_2_6', 'lilypond_2_8', 'HEAD'])
     p.add_option ('', '--installer-version', action='store',
-           default='0.0.0',
-           dest='installer_version')
+                  default='0.0.0',
+                  dest='installer_version')
     p.add_option ('', '--installer-build', action='store',
-           default='0',
-           dest='installer_build')
+                  default='0',
+                  dest='installer_build')
     p.add_option ('-k', '--keep', action='store_true',
-           dest='keep_build',
-           default=None,
-           help='leave build and src dir for inspection')
+                  dest='keep_build',
+                  default=None,
+                  help='leave build and src dir for inspection')
     p.add_option ('-p', '--target-platform', action='store',
-           dest='platform',
-           type='choice',
-           default=None,
-           help='select target platform',
-           choices=settings_mod.platforms.keys ())
+                  dest='platform',
+                  type='choice',
+                  default=None,
+                  help='select target platform',
+                  choices=settings_mod.platforms.keys ())
     p.add_option ('-s', '--setting', action='append',
-           dest='settings',
-           type='string',
-           default=[],
-           help='add a variable')
+                  dest='settings',
+                  type='string',
+                  default=[],
+                  help='add a variable')
     p.add_option ('', '--stage', action='store',
-           dest='stage', default=None,
-           help='Force rebuild of stage')
+                  dest='stage', default=None,
+                  help='Force rebuild of stage')
     
     p.add_option ('', '--cross-distcc-host', action='append',
-           dest='cross_distcc_hosts', default=[],
-           help='Add another cross compiling distcc host')
-
+                  dest='cross_distcc_hosts', default=[],
+                  help='Add another cross compiling distcc host')
+    
     p.add_option ('', '--native-distcc-host', action='append',
-           dest='native_distcc_hosts', default=[],
-           help='Add another native distcc host')
+                  dest='native_distcc_hosts', default=[],
+                  help='Add another native distcc host')
     
     p.add_option ('-V', '--verbose', action='store_true',
-           dest='verbose')
+                  dest='verbose')
     p.add_option ('', '--force-package', action='store_true',
-           default=False,
-           dest='force_package',
-           help='allow packaging of tainted compiles' )
-
+                  default=False,
+                  dest='force_package',
+                  help='allow packaging of tainted compiles' )
+    
     p.add_option ('', '--build-source', action='store_true',
-           default=False,
-           dest='build_source',
-           help='build source packages')
-
+                  default=False,
+                  dest='build_source',
+                  help='build source packages')
+    
     p.add_option ('', '--split-packages', action="store_true",
                   default=False,
                   dest='split_packages',
                   help='split Cygwin packages')
     
     p.add_option ('', '--lax-checksums',
-           action='store_true',
-           default=False,
-           dest='lax_checksums',
-           help="don't rebuild packages with differing checksums")
+                  action='store_true',
+                  default=False,
+                  dest='lax_checksums',
+                  help="don't rebuild packages with differing checksums")
     
     
     
@@ -140,8 +140,8 @@ def build_installer (settings, args):
     settings.os_interface.system (settings.expand ('rm -rf %(installer_db)s'))
     
     install_manager = gup.Dependency_manager (settings.installer_root,
-                         settings.os_interface,
-                         dbdir=settings.installer_db)
+                                              settings.os_interface,
+                                              dbdir=settings.installer_db)
     install_manager.include_build_deps = False
     install_manager.read_package_headers (settings.gub_uploads, settings.lilypond_branch)
     install_manager.read_package_headers (settings.gub_cross_uploads, settings.lilypond_branch)
@@ -150,21 +150,21 @@ def build_installer (settings, args):
         return install_manager.dependencies (x)
     
     package_names = gup.topologically_sorted (args, {},
-                         get_dep,
-                         None)
+                                              get_dep,
+                                              None)
 
+    package_names += [p.name() for p in cross.get_cross_packages (settings)]
     def is_sdk (x):
         try:
             return install_manager.package_dict (p)['is_sdk_package'] == 'true'
         except KeyError:
             # ugh.
             return (x in ['darwin-sdk', 'w32api', 'freebsd-runtime',
-                   'mingw-runtime', 'libc6', 'libc6-dev', 'linux-kernel-headers',
-                   ])
+                          'mingw-runtime', 'libc6', 'libc6-dev', 'linux-kernel-headers',
+                          ])
         
     package_names = [p for p in package_names
-            if not is_sdk (p)]
-
+                     if not is_sdk (p)]
     for a in package_names:
         install_manager.install_package (a)
 
