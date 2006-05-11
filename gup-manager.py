@@ -32,11 +32,12 @@ class Options:
         self.config = self.ROOT + '/etc/xpm'
         self.mirror = 'file://uploads/gub'
         self.rc_options = ['BRANCH', 'platform', 'PLATFORM', 'ROOT',
-                 'mirror', 'distname']
+                           'mirror', 'distname']
         self.rc_file = '.gup-manager.rc'
         self.name_p = 0
         self.nodeps_p = 0
         self.command = 'help'
+        self.dbdir = None
         self.packagename = 0
         self.read_gup_rc ()
         self.get_options ()
@@ -52,6 +53,7 @@ class Options:
             'name',
             'platform=',
             'no-deps',
+            "dbdir=",
             'root=',
             'verbose',
             ))
@@ -78,6 +80,8 @@ class Options:
                 self.mirror = a
             elif o == '--root' or o == '-r':
                 self.ROOT = a
+            elif o == '--dbdir':
+                self.dbdir = a
             elif o == '--platform' or o == '-p':
                 self.platform = a
                 self.ROOT = ''
@@ -233,7 +237,7 @@ def main ():
         options.ROOT = ('target/%s/system'
                 % options.platform)
         
-    target_manager = gup.Dependency_manager (options.ROOT, oslog.Os_commands ("/dev/null"))
+    target_manager = gup.Dependency_manager (options.ROOT, oslog.Os_commands ("/dev/null"), dbdir=options.dbdir)
     
     if options.command == 'install':
         platform = options.platform
