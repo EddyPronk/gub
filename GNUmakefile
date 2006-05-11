@@ -1,6 +1,7 @@
 
 .PHONY: all default distclean download test TAGS
 .PHONY: cygwin darwin-ppc darwin-x86 debian freebsd linux mingw bootstrap-download bootstrap
+.PHONY: update-buildnumber
 
 default: all
 
@@ -92,6 +93,8 @@ endif
 update-buildnumber:
 	echo -n "INSTALLER_BUILD=" > $(BUILDNUMBER_FILE)
 	$(PYTHON) lilypondorg.py nextbuild $(LILYPOND_VERSION) >> $(BUILDNUMBER_FILE)
+
+$(BUILDNUMBER_FILE): update-buildnumber
 
 download:  update-buildnumber
 	$(foreach p, $(PLATFORMS), $(call INVOKE_DRIVER,$(p)) download lilypond && ) true
