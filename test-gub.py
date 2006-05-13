@@ -89,21 +89,21 @@ def opt_parser ():
                   default=[],
                   help="Include FILE in the version checksumming too")
     p.add_option ('-f', '--from',
-           action ='store',
-           dest = 'sender',
-           default = address,
-           help = 'whom to list as sender')
+                  action='store',
+                  dest='sender',
+                  default=address,
+                  help='whom to list as sender')
     p.add_option ('', '--tag-repo',
-           action ='store',
-           dest = 'tag_repo',
-           default = '',
-           help = 'where to push success tags.')
+                  action='store',
+                  dest='tag_repo',
+                  default='',
+                  help='where to push success tags.')
 
     p.add_option ('-s', '--smtp',
-           action ='store',
-           dest = 'smtp',
-           default = 'localhost',
-           help = 'SMTP server to use.')
+                  action='store',
+                  dest='smtp',
+                  default='localhost',
+                  help='SMTP server to use.')
 
     return p
 

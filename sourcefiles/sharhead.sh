@@ -189,7 +189,7 @@ BLA
 done
 if test "${dollar}quiet" = "no" ; then
   echo "About to remove a lilypond installation from ${prefix}lilypond"
-  echo "Press ^C to abort"
+  echo "Press ^C to abort, Enter to proceed"
   read junk
 fi
 
