@@ -91,8 +91,9 @@ else
 endif
 
 update-buildnumber:
-	echo -n "INSTALLER_BUILD=" > $(BUILDNUMBER_FILE)
-	$(PYTHON) lilypondorg.py nextbuild $(LILYPOND_VERSION) >> $(BUILDNUMBER_FILE)
+	echo -n "INSTALLER_BUILD=" > buildnumber.tmp 
+	$(PYTHON) lilypondorg.py nextbuild $(LILYPOND_VERSION) >> buildnumber.tmp
+	mv buildnumber.tmp $(BUILDNUMBER_FILE)
 
 $(BUILDNUMBER_FILE): update-buildnumber
 
