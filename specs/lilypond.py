@@ -286,7 +286,7 @@ cp %(install_root)s/usr/share/lilypond/*/python/* %(install_root)s/usr/bin
             s = self.read_pipe ('file %(i)s' % locals ())
             if s.find ('guile') >= 0:
                 self.system ('mv %(i)s %(i)s.scm', locals ())
-            elif s.find ('python') >= 0 and not i.endswidth ('.py'):
+            elif s.find ('python') >= 0 and not i.endswith ('.py'):
                 self.system ('mv %(i)s %(i)s.py', locals ())
 
         for i in self.locate_files ('%(install_root)s', "*.ly"):
