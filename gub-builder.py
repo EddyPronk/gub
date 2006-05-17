@@ -48,7 +48,7 @@ def add_options (settings, options):
     
     def hosts (xs):
         return reduce (lambda x,y: x+y,
-               [ h.split (',') for h in xs], [])
+                       [ h.split (',') for h in xs], [])
     settings.cross_distcc_hosts = ' '.join (distcc.live_hosts (hosts (options.cross_distcc_hosts)))
     
     settings.native_distcc_hosts = ' '.join (distcc.live_hosts (hosts (options.native_distcc_hosts), port=3634))

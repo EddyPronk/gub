@@ -349,7 +349,7 @@ def test_target (repo, options, target, last_patch):
                            '\n'.join (body[-0:])),
                        diff]
     else:
-        tag = base_tag + canonicalize (last_patch['date'])
+        tag = base_tag + canonicalize_target (last_patch['date'])
         repo.tag (tag)
         result = "SUCCESS"
         if options.tag_repo:
