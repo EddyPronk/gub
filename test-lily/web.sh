@@ -1,8 +1,11 @@
 #!/bin/sh
 
+
 BUILD_PLATFORM="$1"
 BRANCH="$2"
 SMTPSERVER="$3"
+
+set -x
 
 make download \
 && python test-gub.py --to hanwen@xs4all.nl --to janneke@gnu.org \
