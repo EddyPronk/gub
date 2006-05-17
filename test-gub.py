@@ -15,40 +15,222 @@ import xml.dom.minidom
 
 ## TODO: should incorporate checksum of lilypond checkout too.
 
-db_file_template = 'log/gub-done-%(canonicalized_target)s.db'
+################################################################
+# utils.
 
-def try_checked_before (hash, canonicalized_target):
-    if not os.path.isdir ('test'):
-        os.makedirs ('test')
-
-    db_file = db_file_template % locals()
-    print 'Using database ', db_file
-    db = dbhash.open (db_file, 'c')
-    return db.has_key (hash)
-
-def set_checked_before (hash, canonicalized_target):
-    db_file = db_file_template % locals()
-    print 'Writing check to', db_file
-    db = dbhash.open (db_file, 'c')
-    db[hash] = '1'
+class Barf:
+    def __init__ (self, msg):
+        self.msg = msg
+    def __str__ (self):
+        return self.msg
     
-def read_last_patch ():
-    """Return a dict with info about the last patch"""
-    
-    last_change = os.popen ('darcs changes --xml --last=1').read ()
-    dom = xml.dom.minidom.parseString(last_change)
-    patch_node = dom.childNodes[0].childNodes[1]
-    name_node = patch_node.childNodes[1]
-
-    d = dict (patch_node.attributes.items())
-    d['name'] = patch_node.childNodes[1].childNodes[0].data
-    return d
-
 def system (cmd):
     print cmd
     stat = os.system (cmd)
     if stat:
-        raise 'Command failed', stat
+        raise Barf('Command failed ' + `stat`)
+
+
+def read_pipe (cmd):
+    print 'pipe:', cmd
+    return os.popen (cmd).read ()
+
+def read_tail (file, amount=10240):
+    f = open (file)
+    f.seek (0, 2)
+    length = f.tell()
+    f.seek (- min (length, amount), 1)
+    return f.read ()
+
+def canonicalize_target (target):
+    canonicalize = re.sub('[ \t\n]', '_', target)
+    canonicalize = re.sub ('[^a-zA-Z]', '_', canonicalize)
+    return canonicalize
+
+################################################################
+#
+db_file_template = 'test-done-%(canonicalized_target)s.db'
+
+class Repository:
+    def __init__ (self, dir, repo_admin_dir):
+        self.repodir = dir
+        self.repo_admin_dir = repo_admin_dir
+        self.test_dir = os.path.join (self.repo_admin_dir, 'test-results')
+        if not os.path.isdir (self.test_dir):
+            os.makedirs (self.test_dir)
+    def get_db (self, name):
+        db_file = os.path.join (self.test_dir, name)
+        print 'Using database ', db_file
+        db = dbhash.open (db_file, 'c')
+        return db
+        
+    def try_checked_before (self, hash, canonicalized_target):
+        db = self.get_db (db_file_template % locals())
+        return db.has_key (hash)
+
+    def set_checked_before (self, hash, canonicalized_target):
+        db = self.get_db (db_file_template % locals())
+        db[hash] = '1'
+
+    def tag (self, name):
+        pass
+    
+    def read_last_patch (self):
+        """Return a dict with info about the last patch"""
+        
+        pass
+    
+def read_changelog (file):
+    contents = open (file).read ()
+    regex = re.compile ('\n([0-9])')
+    entries = regex.split (contents)
+    return entries
+
+    
+class DarcsRepository (Repository):
+    def __init__ (self, dir):
+        Repository.__init__ (self, dir, dir + '/_darcs/')
+        self.tag_repository = None
+
+    def base_command (self, subcmd):
+        repo_opt = ""
+        if self.repodir <> '.':
+            repo_opt = "cd %s && " % self.repodir
+            
+        return '%sdarcs %s ' % (repo_opt, subcmd)
+    
+    def tag (self, name):
+        system (self.base_command ('tag')  + ' --patch-name %s ' % name)
+
+    def push (self, name, dest):
+        system (self.base_command ('push') + ' -a -t %s %s ' % (name, dest))
+        
+    def get_diff_from_tag (self, base_tag):
+        return os.popen (self.base_command (' diff ') + ' -u --from-tag %s' % base_tag).read ()
+    
+    def read_last_patch (self):
+
+        last_change = read_pipe (self.base_command ('changes') + ' --xml --last=1')
+        dom = xml.dom.minidom.parseString(last_change)
+        patch_node = dom.childNodes[0].childNodes[1]
+        name_node = patch_node.childNodes[1]
+
+        d = dict (patch_node.attributes.items())
+        d['name'] = patch_node.childNodes[1].childNodes[0].data
+
+        d['patch_contents'] = (
+            '''%(local_date)s - %(author)s
+        
+    * %(name)s''' % d)
+    
+
+        return d
+
+    def xml_patch_name (self, patch):
+        name_elts =  patch.getElementsByTagName ('name')
+        try:
+            return name_elts[0].childNodes[0].data
+        except IndexError:
+            return ''
+
+    def get_release_hash (self):
+        xml_string = read_pipe (self.base_command ('changes') + ' --xml ')
+        dom = xml.dom.minidom.parseString(xml_string)
+        patches = dom.documentElement.getElementsByTagName('patch')
+        patches = [p for p in patches if not re.match ('^TAG', self.xml_patch_name (p))]
+
+        release_hash = md5.new ()
+        for p in patches:
+            release_hash.update (p.toxml ())
+
+        return release_hash.hexdigest ()
+
+class CVSRepository (Repository):
+    cvs_entries_line = re.compile ("^/([^/]*)/([^/]*)/([^/]*)/([^/]*)/")
+    tag_dateformat = '%Y/%m/%d %H:%M:%S'
+
+    def __init__ (self, dir):
+        Repository.__init__ (self, dir, dir + '/CVS/')
+        self.tag_db = self.get_db ('tags.db')
+        self.time_stamp = -1
+        self.version_checksum = '0000'
+        self.read_cvs_entries ()
+        
+    def read_cvs_entries (self):
+        print 'reading entries from', self.repodir
+        checksum = md5.md5()
+
+        latest_stamp = 0
+        for d in self.cvs_dirs ():
+            for e in self.cvs_entries (d):
+                (name, version, date, dontknow) = e
+                checksum.update (name + ':' + version)
+                
+                stamp = time.mktime (time.strptime (date))
+                latest_stamp = max (stamp, latest_stamp)
+
+        self.version_checksum = checksum.hexdigest ()
+        self.time_stamp = latest_stamp
+
+    def get_release_hash (self):
+        return self.version_checksum
+    
+    def tag (self, name):
+        if self.tag_db.has_key (name):
+            raise Barf ("DB already has key " + name)
+        print 'tagging db with %s' % name
+        
+        tup = time.gmtime (self.time_stamp)
+        val = time.strftime (self.tag_dateformat, tup)
+        self.tag_db[name] = val
+        
+    def get_diff_from_tag (self, name):
+        try:
+            date = self.tag_db [name]
+            return read_pipe ('cd %s && cvs diff -D "%s" ' % (self.repodir, date))
+        except KeyError:
+            return 'No previous success result to diff with'
+    
+    def read_last_patch (self):
+        d = {}
+        d['date'] = time.strftime (self.tag_dateformat, time.gmtime (self.time_stamp))
+        d['release_hash'] = self.version_checksum
+        
+        for (name, version, date, dontknow) in self.cvs_entries (self.repodir + '/CVS'):
+            if name == 'ChangeLog':
+                d['name']  = version
+                break
+
+        d['patch_contents'] = read_changelog (self.repodir + '/ChangeLog')[0]
+        return d
+        
+    def cvs_dirs (self):
+        retval =  []
+        for (base, dirs, files) in os.walk (self.repodir):
+            retval += [os.path.join (base, d) for d in dirs
+                       if d == 'CVS']
+            
+        return retval
+
+    def cvs_entries (self, dir):
+        entries_str =  open (os.path.join (dir, 'Entries')).read ()
+
+        entries = []
+        for e in entries_str.split ('\n'):
+            m = self.cvs_entries_line.match (e)
+            if m:
+                entries.append (tuple (m.groups ()))
+        return entries
+        
+
+def get_repository_proxy (dir):
+    if os.path.isdir (dir + '/CVS'):
+        r = CVSRepository (dir)
+        return r
+    elif os.path.isdir (dir + '/_darcs'):
+        return DarcsRepository (dir)
+    else:
+        raise Barf('repo format unknown: ' + dir)
 
 def result_message (options, parts, subject='') :
     """Concatenate PARTS to a Message object."""
@@ -70,34 +252,43 @@ def result_message (options, parts, subject='') :
     return msg
 
 def opt_parser ():
-    p = optparse.OptionParser(usage="test-gub.py [options] command command ... ")
-    p.add_option ('-t', '--to',
-           action ='append',
-           dest = 'address',
-           default = [],
-           help = 'where to send error report')
-    
     try:
         address = os.environ['EMAIL']
     except KeyError:
         address = '%s@localhost' % os.getlogin()
 
-    p.add_option ('', '--check-file',
-                  dest='check_files',
-                  action="append",
-                  metavar="FILE",
+
+    
+    p = optparse.OptionParser(usage="test-gub.py [options] command command ... ")
+    p.add_option ('-t', '--to',
+                  action='append',
+                  dest='address',
                   default=[],
-                  help="Include FILE in the version checksumming too")
+                  help='where to send error report')
+    
     p.add_option ('-f', '--from',
                   action='store',
                   dest='sender',
                   default=address,
                   help='whom to list as sender')
+    
+    p.add_option ('', '--repository',
+                  action="store",
+                  dest="repository",
+                  default=".",
+                  help="repository directory")
+    
     p.add_option ('', '--tag-repo',
                   action='store',
                   dest='tag_repo',
                   default='',
                   help='where to push success tags.')
+
+    p.add_option ('', '--quiet',
+                  action='store_true',
+                  dest='be_quiet',
+                  default=False,
+                  help='only send mail when there was an error.')
 
     p.add_option ('-s', '--smtp',
                   action='store',
@@ -107,55 +298,18 @@ def opt_parser ():
 
     return p
 
-def read_tail (file, amount=10240):
-    f = open (file)
-    f.seek (0, 2)
-    length = f.tell()
-    f.seek (- min (length, amount), 1)
-    return f.read ()
-
-################################################################
-# main
-def xml_patch_name (patch):
-    name_elts =  patch.getElementsByTagName ('name')
-    try:
-        return name_elts[0].childNodes[0].data
-    except IndexError:
-        return ''
-    
-def get_release_hash (extra_files):
-    xml_string = os.popen ('darcs changes --xml').read()
-    dom = xml.dom.minidom.parseString(xml_string)
-    patches = dom.documentElement.getElementsByTagName('patch')
-    patches = [p for p in patches if not re.match ('^TAG', xml_patch_name (p))]
-
-    release_hash = md5.new ()
-    for p in patches:
-        release_hash.update (p.toxml ())
-
-    for f in extra_files:
-        release_hash.update (open (f).read ())
-
-    release_hash = release_hash.hexdigest()
-    print 'release hash is ', release_hash
-    
-    return release_hash
-
-def canonicalize_target (target):
-    canonicalize = re.sub('[ \t\n]', '_', target)
-    canonicalize = re.sub ('[^a-zA-Z]', '_', canonicalize)
-    return canonicalize
-
-def test_target (options, target, last_patch):
+def test_target (repo, options, target, last_patch):
     canonicalize = canonicalize_target (target)
     release_hash = last_patch['release_hash']
-    if try_checked_before (release_hash, canonicalize):
+    if repo.try_checked_before (release_hash, canonicalize):
         print 'release has already been checked: ', release_hash 
         return None
-        
 
-    logfile = 'log/test-%(canonicalize)s.log' %  locals()
+    logfile = 'test-%(canonicalize)s.log' %  locals()
+    logfile = os.path.join (repo.test_dir, logfile)
+    
     cmd = "nice time %(target)s >& %(logfile)s" %  locals()
+
     print 'starting : ', cmd
     stat = os.system (cmd)
     base_tag = 'success-%(canonicalize)s-' % locals ()
@@ -164,64 +318,74 @@ def test_target (options, target, last_patch):
     attachments = []
     
     body = read_tail (logfile, 10240).split ('\n')
-    if stat: 
-        diff = os.popen ('darcs diff -u --from-tag %s' % base_tag).read ()
-        
+    if stat:
+        diff = repo.get_diff_from_tag (base_tag)
+
         result = 'FAIL'
         attachments = ['error for %s\n\n%s' % (target,
                            '\n'.join (body[-0:])),
                        diff]
     else:
         tag = base_tag + last_patch['date']
-        system ('darcs tag %s' % tag)
+        repo.tag (tag)
         result = "SUCCESS"
         if options.tag_repo:
-            system ('darcs push -a -t %s %s ' % (tag, options.tag_repo))
-            result += ', tagging with %s' % tag
+            repo.push (tag, options.tag_repo)
+            
+        result += ', tagging with %s' % tag
             
         attachments = ['\n'.join (body[-10:])]
 
-    set_checked_before (release_hash, canonicalize)
+    repo.set_checked_before (release_hash, canonicalize)
     return (result, attachments)
     
 def send_message (options, msg):
+    print 'sending message.'
+    
     COMMASPACE = ', '
     msg['From'] = options.sender
     msg['To'] = COMMASPACE.join (options.address)
     connection = smtplib.SMTP (options.smtp)
     connection.sendmail (options.sender, options.address, msg.as_string ())
 
-    
 def main ():
     (options, args) = opt_parser().parse_args ()
 
-    last_patch = read_last_patch ()
-    release_hash = get_release_hash (options.check_files)
+    repository = get_repository_proxy (options.repository)
+    
+    last_patch = repository.read_last_patch ()
+    
+    release_hash = repository.get_release_hash ()
     last_patch['release_hash'] = release_hash
     release_id = '''
 
 Last patch of this release:
 
-%(local_date)s - %(author)s
-
-    * %(name)s\n\n
+%(patch_contents)s\n
 
 MD5 of complete patch set: %(release_hash)s
 
 ''' % last_patch
 
     results = {}
+    failures = 0
     for a in args:
-        result_tup = test_target (options, a, last_patch)
+        result_tup = test_target (repository, options, a, last_patch)
         if not result_tup:
             continue
 
         results[a] = result_tup
         
         (r, atts) = result_tup
-        msg = result_message (options, atts,
-                   subject="GUB Autobuild: %s %s" % (r, a))
-        send_message (options, msg)                
+        success = r.startswith ('SUCCESS')
+        if not success:
+            failures += 1
+
+        if not (options.be_quiet and success):
+            msg = result_message (options, atts,
+                                  subject="Autotester: %s %s" % (r, a))
+            send_message (options, msg)
+        
 
         
     main = '\n'.join (['%s: %s' % (target, res)
@@ -229,9 +393,18 @@ MD5 of complete patch set: %(release_hash)s
 
     msg_body = [main, release_id]
     msg = result_message (options, msg_body,
-               subject="GUB Autobuild: summary")
-    
-    if results:
+                          subject="Autotester: summary")
+
+    if (results
+        and (failures > 0 or not options.be_quiet)):
         send_message (options, msg)
-        
+
+def test ():
+    (options, args) = opt_parser().parse_args ()
+
+    repository = get_repository_proxy (options.repository)
+    print repository.read_last_patch ()
+    print repository.get_diff_from_tag ('testje')
+
+    
 main()
