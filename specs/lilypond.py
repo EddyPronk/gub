@@ -291,12 +291,11 @@ install -m755 %(builddir)s/lily/out/lilypond-console %(install_prefix)s/bin/lily
 cp %(install_root)s/usr/lib/lilypond/*/python/* %(install_root)s/usr/bin
 cp %(install_root)s/usr/share/lilypond/*/python/* %(install_root)s/usr/bin
 ''')
-        for i in glob.glob (('%(install_root)s/usr/bin/*'
-                  % self.get_substitution_dict ())):
+        for i in glob.glob (self.expand ('%(install_root)s/usr/bin/*'))
             s = self.read_pipe ('file %(i)s' % locals ())
             if s.find ('guile') >= 0:
                 self.system ('mv %(i)s %(i)s.scm', locals ())
-            elif  s.find ('python') >= 0:
+            elif s.find ('python') >= 0 and not i.endswidth ('.py'):
                 self.system ('mv %(i)s %(i)s.py', locals ())
 
         for i in self.locate_files ('%(install_root)s', "*.ly"):
