@@ -43,7 +43,7 @@ def read_tail (file, amount=10240):
 
 def canonicalize_target (target):
     canonicalize = re.sub('[ \t\n]', '_', target)
-    canonicalize = re.sub ('[^a-zA-Z]', '_', canonicalize)
+    canonicalize = re.sub ('[^a-zA-Z0-9]', '_', canonicalize)
     return canonicalize
 
 ################################################################
