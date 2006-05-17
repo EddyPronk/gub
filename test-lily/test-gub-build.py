@@ -52,6 +52,7 @@ def test_build (bin):
         pass
 
     print 'testing platform %s' % platform
+    logdir = "log/"
     try:
         (uid, host, dir, test_file) = test_settings[platform]
         if test_file == None:
@@ -59,20 +60,19 @@ def test_build (bin):
             
         base_test_file = os.path.split (test_file)[1]
         base_test_file_stem = os.path.splitext (base_test_file)[0]
-        logdir = "log/"
 
         system ('ssh %(uid)s@%(host)s mkdir  %(dir)s' % locals (), ignore_error=True)
         
         system ('scp %(test_file)s test-lily/test-%(platform)s-gub.sh '
-            ' %(bin)s '
-            ' %(uid)s@%(host)s:%(dir)s/'
-            % locals())
+                ' %(bin)s '
+                ' %(uid)s@%(host)s:%(dir)s/'
+                % locals())
         system ('ssh %(uid)s@%(host)s sh %(dir)s/test-%(platform)s-gub.sh %(dir)s %(base)s %(base_test_file)s'
-            % locals())
+                % locals())
         system ('scp %(uid)s@%(host)s:%(dir)s/%(base_test_file_stem)s.pdf %(logdir)s/%(base)s.test.pdf'
-            % locals ())
+                % locals ())
         system ('xpdf %(logdir)s/%(base)s.test.pdf'
-            % locals ())
+                % locals ())
         
     except KeyError:
         system ('touch %(logdir)s/%(base)s.test.pdf' % locals ())

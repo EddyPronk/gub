@@ -10,9 +10,10 @@ class Pango (targetpackage.Target_package):
     def __init__ (self, settings):
         targetpackage.Target_package.__init__ (self, settings)
         self.with (version='1.12.1',
-             mirror=download.gnome_214,
-             format='bz2',
-             depends=['freetype', 'fontconfig', 'glib', 'libiconv', 'libtool'])
+                   mirror=download.gnome_214,
+                   format='bz2',
+                   depends=['freetype', 'fontconfig', 'glib',
+                            'libiconv', 'libtool'])
 
     def configure_command (self):
         return targetpackage.Target_package.configure_command (self) \
