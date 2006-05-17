@@ -282,7 +282,7 @@ install -m755 %(builddir)s/lily/out/lilypond-console %(install_prefix)s/bin/lily
 cp %(install_root)s/usr/lib/lilypond/*/python/* %(install_root)s/usr/bin
 cp %(install_root)s/usr/share/lilypond/*/python/* %(install_root)s/usr/bin
 ''')
-        for i in glob.glob (self.expand ('%(install_root)s/usr/bin/*'))
+        for i in glob.glob (self.expand ('%(install_root)s/usr/bin/*')):
             s = self.read_pipe ('file %(i)s' % locals ())
             if s.find ('guile') >= 0:
                 self.system ('mv %(i)s %(i)s.scm', locals ())
@@ -300,8 +300,9 @@ class LilyPond__debian (LilyPond):
     def __init__ (self, settings):
         LilyPond.__init__ (self, settings)
         self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
-             builddeps=['libfontconfig1-dev', 'guile-1.6-dev', 'libpango1.0-dev', 'python-dev'],
-             track_development=True)
+                   builddeps=['libfontconfig1-dev', 'guile-1.6-dev',
+                              'libpango1.0-dev', 'python-dev'],
+                   track_development=True)
     def install (self):
         targetpackage.Target_package.install (self)
 
