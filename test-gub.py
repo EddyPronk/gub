@@ -306,6 +306,13 @@ def opt_parser ():
                   default=False,
                   help='only send mail when there was an error.')
 
+
+    p.add_option ('', '--posthook',
+                  action='append',
+                  dest='posthooks',
+                  default=[],
+                  help='commands to execute after successful tests.')
+
     p.add_option ('-s', '--smtp',
                   action='store',
                   dest='smtp',
@@ -412,6 +419,10 @@ MD5 of complete patch set: %(release_hash)s
     if (results
         and (failures > 0 or not options.be_quiet)):
         send_message (options, msg)
+
+    if failures == 0 and results:
+        for p in options.posthooks:
+            system (p)
 
 def test ():
     (options, args) = opt_parser().parse_args ()
