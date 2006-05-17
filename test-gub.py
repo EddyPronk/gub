@@ -10,7 +10,6 @@ import email.MIMEMultipart
 import optparse
 import md5
 import dbhash
-import sys
 import xml.dom.minidom
 
 ## TODO: should incorporate checksum of lilypond checkout too.
@@ -78,7 +77,17 @@ class Repository:
     def read_last_patch (self):
         """Return a dict with info about the last patch"""
         
-        pass
+        assert 0
+        
+        return {}
+
+
+    def get_diff_from_tag (self, name):
+        """Return diff wrt to last tag that starts with NAME  """
+
+        assert 0
+        
+        return ''
     
 def read_changelog (file):
     contents = open (file).read ()
@@ -116,7 +125,7 @@ class DarcsRepository (Repository):
         name_node = patch_node.childNodes[1]
 
         d = dict (patch_node.attributes.items())
-        d['name'] = patch_node.childNodes[1].childNodes[0].data
+        d['name'] = name_node.childNodes[0].data
 
         d['patch_contents'] = (
             '''%(local_date)s - %(author)s
@@ -184,12 +193,20 @@ class CVSRepository (Repository):
         val = time.strftime (self.tag_dateformat, tup)
         self.tag_db[name] = val
         
+    def get_diff_from_exact_tag (self, name):
+        date = self.tag_db [name]
+        return read_pipe ('cd %s && cvs diff -D "%s" ' % (self.repodir, date))
+
     def get_diff_from_tag (self, name):
-        try:
-            date = self.tag_db [name]
-            return read_pipe ('cd %s && cvs diff -D "%s" ' % (self.repodir, date))
-        except KeyError:
+        keys = [k for k in self.tag_db.keys ()
+                if k.startswith (name)]
+        
+        keys.sort ()
+        if keys:
+            return self.get_diff_from_exact_tag (keys[-1])
+        else:
             return 'No previous success result to diff with'
+        
     
     def read_last_patch (self):
         d = {}
@@ -225,14 +242,13 @@ class CVSRepository (Repository):
 
 def get_repository_proxy (dir):
     if os.path.isdir (dir + '/CVS'):
-        r = CVSRepository (dir)
-        return r
+        return CVSRepository (dir)
     elif os.path.isdir (dir + '/_darcs'):
         return DarcsRepository (dir)
     else:
         raise Barf('repo format unknown: ' + dir)
 
-def result_message (options, parts, subject='') :
+def result_message (parts, subject='') :
     """Concatenate PARTS to a Message object."""
     
     if not parts:
@@ -326,7 +342,7 @@ def test_target (repo, options, target, last_patch):
                            '\n'.join (body[-0:])),
                        diff]
     else:
-        tag = base_tag + last_patch['date']
+        tag = base_tag + canonicalize (last_patch['date'])
         repo.tag (tag)
         result = "SUCCESS"
         if options.tag_repo:
@@ -382,8 +398,7 @@ MD5 of complete patch set: %(release_hash)s
             failures += 1
 
         if not (options.be_quiet and success):
-            msg = result_message (options, atts,
-                                  subject="Autotester: %s %s" % (r, a))
+            msg = result_message (atts, subject="Autotester: %s %s" % (r, a))
             send_message (options, msg)
         
 
@@ -392,8 +407,7 @@ MD5 of complete patch set: %(release_hash)s
              for (target, (res, atts)) in results.items ()])
 
     msg_body = [main, release_id]
-    msg = result_message (options, msg_body,
-                          subject="Autotester: summary")
+    msg = result_message (msg_body, subject="Autotester: summary")
 
     if (results
         and (failures > 0 or not options.be_quiet)):
@@ -404,7 +418,11 @@ def test ():
 
     repository = get_repository_proxy (options.repository)
     print repository.read_last_patch ()
-    print repository.get_diff_from_tag ('testje')
+#    repository.tag ('testje')
+#    repository.tag ('testje21')
+#    repository.tag ('testje22')
+    repository.get_diff_from_tag ('testje2')
 
-    
-main()
+if __name__ == '__main__':    
+#    test()
+    main()
