@@ -160,7 +160,7 @@ class LilyPond__cygwin (LilyPond):
 
         ## UGH. 
         return (LilyPond.compile_command (self)
-           + misc.join_lines ('''
+                + misc.join_lines ('''
 LDFLAGS="%(LDFLAGS)s %(python_lib)s"
 '''% locals ()))
 
@@ -316,7 +316,9 @@ class LilyPond__darwin (LilyPond):
                    depends=['pango', 'guile', 'gettext', 'ghostscript',
                             'python', 'urw-fonts',
                             'fondu', 'osx-lilypad'])
-        
+
+    def compile_command (self):
+        return LilyPond.compile_command (self) + " TARGET_PYTHON=/usr/bin/python "
     def configure_command (self):
         cmd = LilyPond.configure_command (self)
         cmd += ' --enable-static-gxx '
