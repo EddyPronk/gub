@@ -81,15 +81,6 @@ cd %(builddir)s && %(configure_command)s''')
 
         targetpackage.Target_package.compile (self)
 
-    def compile_command (self):
-        s = targetpackage.Target_package.compile_command (self)
-        if self.settings.lilypond_branch == 'lilypond_2_6':
-            # ugh, lilypond-2.6 has broken srcdir build system
-            # and gub is leaking all kind of vars.
-            s = 'unset builddir srcdir topdir;' + s
-
-        return s
-
     def name_version (self):
         # whugh
         if os.path.exists (self.srcdir ()):
