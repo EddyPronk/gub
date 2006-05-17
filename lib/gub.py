@@ -135,8 +135,8 @@ cd %(cvs_dest)s && cvs -q update -dAPr %(version)s
         cvs_dirs =  []
         for (base, dirs, files) in os.walk (cvs_dest):
             cvs_dirs += [os.path.join (base, d) for d in dirs
-                  if d == 'CVS']
-
+                         if d == 'CVS']
+            
         checksum = md5.md5()
         for d in cvs_dirs:
             checksum.update (open (os.path.join (d, 'Entries')).read ())
