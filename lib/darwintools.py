@@ -55,7 +55,7 @@ rm -rf %(srcdir)s/usr/lib/gcc
 class Gcc (cross.Gcc):
     def patch (self):
         self.file_sub ([('/usr/bin/libtool', '%(crossprefix)s/bin/%(target_architecture)s-libtool')],
-               '%(srcdir)s/gcc/config/darwin.h')
+                       '%(srcdir)s/gcc/config/darwin.h')
 
     def configure_command (self):
         c = cross.Gcc.configure_command (self)
@@ -65,9 +65,8 @@ class Gcc (cross.Gcc):
 
     def configure (self):
         cross.Gcc.configure (self)
-        self.file_sub ([("nm", "%(tool_prefix)snm "),
-                    ('--strip-underscores', '--strip-underscore')],
-                   "%(srcdir)s/libstdc++-v3/scripts/make_exports.pl")
+        self.file_sub ([('--strip-underscores', '--strip-underscore')],
+                       "%(srcdir)s/libstdc++-v3/scripts/make_exports.pl")
 
 
     def rewire_gcc_libs (self):
@@ -96,15 +95,6 @@ class Gcc__darwin (Gcc):
 
         cross.Gcc.install (self)
         self.rewire_gcc_libs ()
-        sysroot = self.expand ('%(targetdir)s')
-        sysroot = sysroot[1:]
-        
-
-        ## UGH.! 
-        self.system ('''
-cd %(system_root)s && mkdir -p %(sysroot)s  && ln -s ../../../../../../ %(sysroot)s/system
-''', locals ())
-
         
 class Rewirer (context.Os_context_wrapper):
     def __init__ (self, settings):
@@ -209,22 +199,25 @@ def get_cross_packages (settings):
     packages = []
     packages.append (Darwin_sdk (settings))
         
-    packages += [Odcctools (settings).with (version='20051122', mirror=download.opendarwin, format='bz2')]
+    packages += [Odcctools (settings).with (version='20060413',
+                                            mirror=download.opendarwin,
+                                            format='bz2')]
 
     if settings.target_architecture.startswith ("powerpc"):
         packages.append (Gcc (settings).with (version='4.1.0',
-                           mirror=download.gcc_41,
-                           format='bz2',
-                           depends=['odcctools']))
-    elif 0:
-        packages.append (Gcc (settings).with (version='4.2.20060325',
-                           mirror=download.gcc_snap,
-                           format='bz2',
-                           depends=['odcctools']))
+                                              mirror=download.gcc_41,
+                                              format='bz2',
+                                              depends=['odcctools']))
+    elif 1:
+        packages.append (Gcc (settings).with (version='4.2-20060513',
+                                              mirror=download.gcc_snap,
+                                              format='bz2',
+                                              depends=['odcctools']))
     else:
-        packages.append (Gcc__darwin (settings).with (version='5250',
-                           mirror='http://www.opensource.apple.com/darwinsource/tarballs/other/gcc-5250.tar.gz',
-                           depends=['odcctools']))
+        packages.append (Gcc__darwin (settings)
+                         .with (version='5250',
+                                mirror='http://www.opensource.apple.com/darwinsource/tarballs/other/gcc-5250.tar.gz',
+                                depends=['odcctools']))
         
 
     return packages
