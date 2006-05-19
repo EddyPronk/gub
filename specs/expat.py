@@ -6,8 +6,12 @@ import toolpackage
 class Expat (targetpackage.Target_package):
     def __init__ (self, settings):
         targetpackage.Target_package.__init__ (self, settings)
-        self.with (version='1.95.8-1', mirror=download.lp, format='bz2',
-             depends=['libtool'])
+        self.with (version='1.95.8', mirror=download.sf, format='gz',
+                   depends=['libtool'])
+
+    def patch (self):
+        targetpackage.Target_package.patch (self)
+        self.system ("cd %(srcdir)s && patch -p1 < %(patchdir)s/expat-1.95.8-mingw.patch")
 
     def configure (self):
         targetpackage.Target_package.configure (self)
@@ -31,5 +35,5 @@ RUN_FC_CACHE_TEST=false
 class Expat__local (toolpackage.Tool_package):
     def __init__ (self,settings):
         toolpackage.Tool_package.__init__ (self, settings)
-        self.with (version='1.95.8-1', mirror=download.lp, format='bz2',
-             depends=['libtool'])
+        self.with (version='1.95.8', mirror=download.sf, format='gz',
+                   depends=['libtool'])
