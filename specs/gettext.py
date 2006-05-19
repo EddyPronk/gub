@@ -22,7 +22,7 @@ class Gettext__freebsd (Gettext):
     def __init__ (self, settings):
         Gettext.__init__ (self, settings)
         self.with (version='0.14.1', mirror=download.gnu, format='gz',
-             depends=['libtool', 'libgnugetopt'])
+                   depends=['libtool', 'libgnugetopt'])
 
     def patch (self):
         self.system ('''
@@ -33,7 +33,7 @@ class Gettext__mingw (Gettext):
     def __init__ (self, settings):
         Gettext.__init__ (self, settings)
         self.with (version='0.14.5', mirror=download.gnu, format='gz',
-             depends=['libtool'])
+                   depends=['libtool'])
 
     def config_cache_overrides (self, str):
         return (re.sub ('ac_cv_func_select=yes', 'ac_cv_func_select=no',
@@ -55,16 +55,10 @@ jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
         Gettext.install (self)
 
 class Gettext__darwin (Gettext):
-    def __init__ (self, settings):
-        Gettext.__init__ (self, settings)
-        self.with (version='0.14.1', mirror=download.gnu, format='gz',
-                   depends=['libtool']
-                   )
-
     def xconfigure_command (self):
         ## not necessary for 0.14.1
         return re.sub (' --config-cache', '',
-               Gettext.configure_command (self))
+                       Gettext.configure_command (self))
 
 
 class Gettext__local (toolpackage.Tool_package):
