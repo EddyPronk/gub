@@ -337,9 +337,6 @@ Function create_shortcuts
 	CreateShortCut "$SMPROGRAMS\LilyPond\Examples.lnk" \
 		"$INSTDIR\usr\share\doc\lilypond-${LILYPOND_VERSION}-${LILYPOND_BUILD}\input" "" \
 		"$INSTDIR\usr\bin\lilypond-windows.exe" 1
-	CreateShortCut "$SMPROGRAMS\LilyPond\Upgrade (if available).lnk" \
-		"http://lilypond.org/mingw/upgrade/upgrade-from-${LILYPOND_VERSION}-${LILYPOND_BUILD}.exe" "" \
-		"firefox.exe" 0
 	CreateShortCut "$SMPROGRAMS\LilyPond\Uninstall.lnk" \
 		"$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
 
