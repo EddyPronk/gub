@@ -1,0 +1,1798 @@
+diff -urN zlib-1.2.2/configure zlib-1.2.2-1/configure
+--- zlib-1.2.2/configure	2004-09-07 07:50:06.000000000 +0200
++++ zlib-1.2.2-1/configure	2005-10-19 22:56:16.000000000 +0200
+@@ -18,8 +18,9 @@
+ # If you have problems, try without defining CC and CFLAGS before reporting
+ # an error.
+ 
+-LIBS=libz.a
+-LDFLAGS="-L. ${LIBS}"
++STATICLIB=libz.a
++old_ldflags="$LDFLAGS"
++LDFLAGS="-L. ${STATICLIB}"
+ VER=`sed -n -e '/VERSION "/s/.*"\(.*\)".*/\1/p' < zlib.h`
+ VER2=`sed -n -e '/VERSION "/s/.*"\([0-9]*\\.[0-9]*\)\\..*/\1/p' < zlib.h`
+ VER1=`sed -n -e '/VERSION "/s/.*"\([0-9]*\)\\..*/\1/p' < zlib.h`
+@@ -28,6 +29,7 @@
+ prefix=${prefix-/usr/local}
+ exec_prefix=${exec_prefix-'${prefix}'}
+ libdir=${libdir-'${exec_prefix}/lib'}
++bindir=${bindir-'${exec_prefix}/bin'}
+ includedir=${includedir-'${prefix}/include'}
+ mandir=${mandir-'${prefix}/share/man'}
+ shared_ext='.so'
+@@ -71,13 +73,32 @@
+   *gcc*) gcc=1;;
+ esac
+ 
++BUILDPLATFORM=`(uname -s || echo unknown) 2>/dev/null`;
++TARGETPLATFORM=${target-${BUILDPLATFORM}}
++
+ if test "$gcc" -eq 1 && ($cc -c $cflags $test.c) 2>/dev/null; then
+   CC="$cc"
+   SFLAGS=${CFLAGS-"-fPIC -O3"}
+   CFLAGS="$cflags"
+-  case `(uname -s || echo unknown) 2>/dev/null` in
++  case ${TARGETPLATFORM} in
+   Linux | linux | GNU | GNU/*) LDSHARED=${LDSHARED-"$cc -shared -Wl,-soname,libz.so.1"};;
+-  CYGWIN* | Cygwin* | cygwin* | OS/2* )
++  OS/2* )
++             EXE='.exe';;
++  *CYGWIN* | *Cygwin* | *cygwin* )
++             SFLAGS=${CFLAGS}
++             LDFLAGS="-L. -lz ${old_ldflags}"
++             shared_ext='.dll'
++             SHAREDLIB='cygz.dll'
++             IMPORTLIB='libz.dll.a'
++             LDSHARED=${LDSHARED-"${CC} -shared -Wl,-export-all -Wl,--out-implib=${IMPORTLIB}"}
++             EXE='.exe';;
++  *MINGW* | *Mingw* | *mingw* ) 
++             SFLAGS=${CFLAGS}
++             LDFLAGS="-L. -lz ${old_ldflags}"
++             shared_ext='.dll'
++             SHAREDLIB='libz.dll'
++             IMPORTLIB='libz.dll.a'
++             LDSHARED=${LDSHARED-"${CC} -shared -Wl,-export-all -Wl,--out-implib=${IMPORTLIB}"}
+              EXE='.exe';;
+   QNX*)  # This is for QNX6. I suppose that the QNX rule below is for QNX2,QNX4
+          # (alain.bonnefoy@icbt.com)
+@@ -147,6 +168,20 @@
+              LDSHARED=${LDSHARED-"cc -shared"};;
+   esac
+ fi
++case ${TARGETPLATFORM} in
++  *CYGWIN* | *Cygwin* | *cygwin* )
++    # On cygwin, we always build both shared and static libs
++    LIBS="${SHAREDLIB} ${STATICLIB}"
++    SHAREDLIBPOST='/bin/true'
++    SHAREDTARGET=${SHAREDLIB}
++    ;;
++  *MINGW* | *Mingw* | *mingw* ) 
++    # On Mingw-cygwin-special, we always build both shared and static libs
++    LIBS="${SHAREDLIB} ${STATICLIB}"
++    SHAREDLIBPOST='/bin/true'
++    SHAREDTARGET=${SHAREDLIB}
++    ;;
++  *)
+ 
+ SHAREDLIB=${SHAREDLIB-"libz$shared_ext"}
+ SHAREDLIBV=${SHAREDLIBV-"libz$shared_ext.$VER"}
+@@ -170,10 +205,14 @@
+ fi
+ if test $shared -eq 0; then
+   LDSHARED="$CC"
+-  echo Building static library $LIBS version $VER with $CC.
++  LIBS="$STATICLIB"
++  LDFLAGS="-L. ${STATICLIB}"
++  echo Building static library $STATICLIB version $VER with $CC.
+ else
+   LDFLAGS="-L. ${SHAREDLIBV}"
+ fi
++  ;;
++esac
+ 
+ cat > $test.c <<EOF
+ #include <unistd.h>
+@@ -428,15 +467,20 @@
+ /^CPP *=/s#=.*#=$CPP#
+ /^LDSHARED *=/s#=.*#=$LDSHARED#
+ /^LIBS *=/s#=.*#=$LIBS#
++/^STATICLIB *=/s#=.*#=$STATICLIB#
+ /^SHAREDLIB *=/s#=.*#=$SHAREDLIB#
+ /^SHAREDLIBV *=/s#=.*#=$SHAREDLIBV#
+ /^SHAREDLIBM *=/s#=.*#=$SHAREDLIBM#
++/^IMPORTLIB *=/s#=.*#=$IMPORTLIB#
++/^SHAREDLIBPOST *=/s#=.*#=$SHAREDLIBPOST#
++/^SHAREDTARGET *=/s#=.*#=$SHAREDTARGET#
+ /^AR *=/s#=.*#=$AR#
+ /^RANLIB *=/s#=.*#=$RANLIB#
+ /^EXE *=/s#=.*#=$EXE#
+ /^prefix *=/s#=.*#=$prefix#
+ /^exec_prefix *=/s#=.*#=$exec_prefix#
+ /^libdir *=/s#=.*#=$libdir#
++/^bindir *=/s#=.*#=$bindir#
+ /^includedir *=/s#=.*#=$includedir#
+ /^mandir *=/s#=.*#=$mandir#
+ /^LDFLAGS *=/s#=.*#=$LDFLAGS#
+diff -urN zlib-1.2.2/CYGWIN-PATCHES/shtool zlib-1.2.2-1/CYGWIN-PATCHES/shtool
+--- zlib-1.2.2/CYGWIN-PATCHES/shtool	1970-01-01 01:00:00.000000000 +0100
++++ zlib-1.2.2-1/CYGWIN-PATCHES/shtool	2005-05-09 09:55:25.000000000 +0200
+@@ -0,0 +1,426 @@
++#!/bin/sh
++##
++##  GNU shtool -- The GNU Portable Shell Tool
++##  Copyright (c) 1994-2001 Ralf S. Engelschall <rse@engelschall.com>
++##
++##  See http://www.gnu.org/software/shtool/ for more information.
++##  See ftp://ftp.gnu.org/gnu/shtool/ for latest version.
++##
++##  Version:  1.5.4 (14-Jun-2001)
++##  Contents: 1/17 available modules
++##
++
++##
++##  This program is free software; you can redistribute it and/or modify
++##  it under the terms of the GNU General Public License as published by
++##  the Free Software Foundation; either version 2 of the License, or
++##  (at your option) any later version.
++##
++##  This program is distributed in the hope that it will be useful,
++##  but WITHOUT ANY WARRANTY; without even the implied warranty of
++##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
++##  General Public License for more details.
++##
++##  You should have received a copy of the GNU General Public License
++##  along with this program; if not, write to the Free Software
++##  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
++##  USA, or contact Ralf S. Engelschall <rse@engelschall.com>.
++##
++##  NOTICE: Given that you include this file verbatim into your own
++##  source tree, you are justified in saying that it remains separate
++##  from your package, and that this way you are simply just using GNU
++##  shtool. So, in this situation, there is no requirement that your
++##  package itself is licensed under the GNU General Public License in
++##  order to take advantage of GNU shtool.
++##
++
++##
++##  Usage: shtool [<options>] [<cmd-name> [<cmd-options>] [<cmd-args>]]
++##
++##  Available commands:
++##    mkshadow   Make a shadow tree through symbolic links
++##
++##  Not available commands (because module was not built-in):
++##    echo       Print string with optional construct expansion
++##    mdate      Pretty-print modification time of a file or dir
++##    table      Pretty-print a field-separated list as a table
++##    prop       Display progress with a running propeller
++##    move       Move files with simultaneous substitution
++##    install    Install a program, script or datafile
++##    mkdir      Make one or more directories
++##    mkln       Make link with calculation of relative paths
++##    fixperm    Fix file permissions inside a source tree
++##    tarball    Roll distribution tarballs
++##    guessos    Simple operating system guesser
++##    arx        Extended archive command
++##    slo        Separate linker options by library class
++##    scpp       Sharing C Pre-Processor
++##    version    Maintain a version information file
++##    path       Deal with program paths
++##
++
++if [ $# -eq 0 ]; then
++    echo "$0:Error: invalid command line" 1>&2
++    echo "$0:Hint:  run \`$0 -h' for usage" 1>&2
++    exit 1
++fi
++if [ ".$1" = ".-h" -o ".$1" = ".--help" ]; then
++    echo "This is GNU shtool, version 1.5.4 (14-Jun-2001)"
++    echo "Copyright (c) 1994-2001 Ralf S. Engelschall <rse@engelschall.com>"
++    echo "Report bugs to <bug-shtool@gnu.org>"
++    echo ''
++    echo "Usage: shtool [<options>] [<cmd-name> [<cmd-options>] [<cmd-args>]]"
++    echo ''
++    echo 'Available global <options>:'
++    echo '  -v, --version   display shtool version information'
++    echo '  -h, --help      display shtool usage help page (this one)'
++    echo '  -d, --debug     display shell trace information'
++    echo '  -r, --recreate  recreate this shtool script via shtoolize'
++    echo ''
++    echo 'Available <cmd-name> [<cmd-options>] [<cmd-args>]:'
++    echo '  mkshadow [-v] [-t] [-a] <src-dir> <dst-dir>'
++    echo ''
++    echo 'Not available <cmd-name> (because module was not built-in):'
++    echo '  echo     [-n] [-e] [<str> ...]'
++    echo '  mdate    [-n] [-z] [-s] [-d] [-f<str>] [-o<spec>] <path>'
++    echo '  table    [-F<sep>] [-w<width>] [-c<cols>] [-s<strip>] <str><sep><str>...'
++    echo '  prop     [-p<str>]'
++    echo '  move     [-v] [-t] [-e] [-p] <src-file> <dst-file>'
++    echo '  install  [-v] [-t] [-c] [-C] [-s] [-m<mode>] [-o<owner>] [-g<group>]'
++    echo '           [-e<sed-cmd>] <file> [<file> ...] <path>'
++    echo '  mkdir    [-t] [-f] [-p] [-m<mode>] <dir> [<dir> ...]'
++    echo '  mkln     [-t] [-f] [-s] <src-path> [<src-path> ...] <dst-path>'
++    echo '  fixperm  [-v] [-t] <path> [<path> ...]'
++    echo '  tarball  [-t] [-v] [-o<tarball>] [-c<prog>] [-d<dir>] [-u<user>]'
++    echo '           [-g<group>] [-e<pattern>] <path> [<path> ...]'
++    echo '  guessos  '
++    echo '  arx      [-t] [-C<cmd>] <op> <archive> [<file> ...]'
++    echo '  slo      [-p<str>] -- -L<dir> -l<lib> [-L<dir> -l<lib> ...]'
++    echo '  scpp     [-v] [-p] [-f<filter>] [-o<ofile>] [-t<tfile>] [-M<mark>]'
++    echo '           [-D<dname>] [-C<cname>] <file> [<file> ...]'
++    echo '  version  [-l<lang>] [-n<name>] [-p<prefix>] [-s<version>] [-e]'
++    echo '           [-i<knob>] [-d<type>] <file>'
++    echo '  path     [-s] [-r] [-d] [-b] [-m] [-p<path>] <str> [<str> ...]'
++    echo ''
++    exit 0
++fi
++if [ ".$1" = ".-v" -o ".$1" = ."--version" ]; then
++    echo "GNU shtool 1.5.4 (14-Jun-2001)"
++    exit 0
++fi
++if [ ".$1" = ".-r" -o ".$1" = ."--recreate" ]; then
++    shtoolize -oshtool mkshadow
++    exit 0
++fi
++if [ ".$1" = ".-d" -o ".$1" = ."--debug" ]; then
++    shift
++    set -x
++fi
++name=`echo "$0" | sed -e 's;.*/\([^/]*\)$;\1;' -e 's;-sh$;;' -e 's;\.sh$;;'`
++case "$name" in
++    mkshadow )
++        #   implicit tool command selection
++        tool="$name"
++        ;;
++    * )
++        #   explicit tool command selection
++        tool="$1"
++        shift
++        ;;
++esac
++arg_spec=""
++opt_spec=""
++gen_tmpfile=no
++
++##
++##  DISPATCH INTO SCRIPT PROLOG
++##
++
++case $tool in
++    mkshadow )
++        str_tool="mkshadow"
++        str_usage="[-v] [-t] [-a] <src-dir> <dst-dir>"
++        arg_spec="2="
++        opt_spec="v.t.a."
++        opt_v=no
++        opt_t=no
++        opt_a=no
++        ;;
++    -* )
++        echo "$0:Error: unknown option \`$tool'" 2>&1
++        echo "$0:Hint:  run \`$0 -h' for usage" 2>&1
++        exit 1
++        ;;
++    * )
++        echo "$0:Error: unknown command \`$tool'" 2>&1
++        echo "$0:Hint:  run \`$0 -h' for usage" 2>&1
++        exit 1
++        ;;
++esac
++
++##
++##  COMMON UTILITY CODE
++##
++
++#   determine name of tool
++if [ ".$tool" != . ]; then
++    #   used inside shtool script
++    toolcmd="$0 $tool"
++    toolcmdhelp="shtool $tool"
++    msgprefix="shtool:$tool"
++else
++    #   used as standalone script
++    toolcmd="$0"
++    toolcmdhelp="sh $0"
++    msgprefix="$str_tool"
++fi
++
++#   parse argument specification string
++eval `echo $arg_spec |\
++      sed -e 's/^\([0-9]*\)\([+=]\)/arg_NUMS=\1; arg_MODE=\2/'`
++
++#   parse option specification string
++eval `echo h.$opt_spec |\
++      sed -e 's/\([a-zA-Z0-9]\)\([.:+]\)/opt_MODE_\1=\2;/g'`
++
++#   interate over argument line
++opt_PREV=''
++while [ $# -gt 0 ]; do
++    #   special option stops processing
++    if [ ".$1" = ".--" ]; then
++        shift
++        break
++    fi
++
++    #   determine option and argument
++    opt_ARG_OK=no
++    if [ ".$opt_PREV" != . ]; then
++        #   merge previous seen option with argument
++        opt_OPT="$opt_PREV"
++        opt_ARG="$1"
++        opt_ARG_OK=yes
++        opt_PREV=''
++    else
++        #   split argument into option and argument
++        case "$1" in
++            -[a-zA-Z0-9]*)
++                eval `echo "x$1" |\
++                      sed -e 's/^x-\([a-zA-Z0-9]\)/opt_OPT="\1";/' \
++                          -e 's/";\(.*\)$/"; opt_ARG="\1"/'`
++                ;;
++            -[a-zA-Z0-9])
++                opt_OPT=`echo "x$1" | cut -c3-`
++                opt_ARG=''
++                ;;
++            *)
++                break
++                ;;
++        esac
++    fi
++
++    #   eat up option
++    shift
++
++    #   determine whether option needs an argument
++    eval "opt_MODE=\$opt_MODE_${opt_OPT}"
++    if [ ".$opt_ARG" = . -a ".$opt_ARG_OK" != .yes ]; then
++        if [ ".$opt_MODE" = ".:" -o ".$opt_MODE" = ".+" ]; then
++            opt_PREV="$opt_OPT"
++            continue
++        fi
++    fi
++
++    #   process option
++    case $opt_MODE in
++        '.' )
++            #   boolean option
++            eval "opt_${opt_OPT}=yes"
++            ;;
++        ':' )
++            #   option with argument (multiple occurances override)
++            eval "opt_${opt_OPT}=\"\$opt_ARG\""
++            ;;
++        '+' )
++            #   option with argument (multiple occurances append)
++            eval "opt_${opt_OPT}=\"\$opt_${opt_OPT} \$opt_ARG\""
++            ;;
++        * )
++            echo "$msgprefix:Error: unknown option: \`-$opt_OPT'" 1>&2
++            echo "$msgprefix:Hint:  run \`$toolcmdhelp -h' or \`man shtool' for details" 1>&2
++            exit 1
++            ;;
++    esac
++done
++if [ ".$opt_PREV" != . ]; then
++    echo "$msgprefix:Error: missing argument to option \`-$opt_PREV'" 1>&2
++    echo "$msgprefix:Hint:  run \`$toolcmdhelp -h' or \`man shtool' for details" 1>&2
++    exit 1
++fi
++
++#   process help option
++if [ ".$opt_h" = .yes ]; then
++    echo "Usage: $toolcmdhelp $str_usage"
++    exit 0
++fi
++
++#   complain about incorrect number of arguments
++case $arg_MODE in
++    '=' )
++        if [ $# -ne $arg_NUMS ]; then
++            echo "$msgprefix:Error: invalid number of arguments (exactly $arg_NUMS expected)" 1>&2
++            echo "$msgprefix:Hint:  run \`$toolcmd -h' or \`man shtool' for details" 1>&2
++            exit 1
++        fi
++        ;;
++    '+' )
++        if [ $# -lt $arg_NUMS ]; then
++            echo "$msgprefix:Error: invalid number of arguments (at least $arg_NUMS expected)" 1>&2
++            echo "$msgprefix:Hint:  run \`$toolcmd -h' or \`man shtool' for details" 1>&2
++            exit 1
++        fi
++        ;;
++esac
++
++#   establish a temporary file on request
++if [ ".$gen_tmpfile" = .yes ]; then
++    if [ ".$TMPDIR" != . ]; then
++        tmpdir="$TMPDIR"
++    elif [ ".$TEMPDIR" != . ]; then
++        tmpdir="$TEMPDIR"
++    else
++        tmpdir="/tmp"
++    fi
++    tmpfile="$tmpdir/.shtool.$$"
++    rm -f $tmpfile >/dev/null 2>&1
++    touch $tmpfile
++    chmod 600 $tmpfile
++fi
++
++##
++##  DISPATCH INTO SCRIPT BODY
++##
++
++case $tool in
++
++mkshadow )
++    ##
++    ##  mkshadow -- Make a shadow tree through symbolic links
++    ##  Copyright (c) 1998-2001 Ralf S. Engelschall <rse@engelschall.com>
++    ##  Originally written for Apache
++    ##
++    
++    #   source and destination directory
++    src=`echo "$1" | sed -e 's:/$::' -e 's:^\./\(.\):\1:'`
++    dst=`echo "$2" | sed -e 's:/$::' -e 's:^\./\(.\):\1:'`
++    
++    #   check whether source exists
++    if [ ! -d $src ]; then
++        echo "$msgprefix:Error: source directory not found: \`$src'" 1>&2
++        exit 1
++    fi
++    
++    #   determine if one of the paths is an absolute path,
++    #   because then we have to use an absolute symlink
++    oneisabs=0
++    case $src in
++        /* ) oneisabs=1 ;;
++    esac
++    case $dst in
++        /* ) oneisabs=1 ;;
++    esac
++    
++    #   determine reverse directory for destination directory
++    dstrevdir=''
++    if [ $oneisabs = 0 ]; then
++        #   derive reverse path from forward path
++        pwd=`pwd`
++        OIFS="$IFS"; IFS='/'
++        for pe in $dst; do
++            if [ "x$pe" = "x.." ]; then
++                OIFS2="$IFS"; IFS="$DIFS"
++                eval `echo "$pwd" |\
++                      sed -e 's:\([^/]*\)$:; dir="\1":' \
++                          -e 's:^\(.*\)/[^/]*;:pwd="\1";:'\
++                          -e 's:^;:pwd="";:'`
++                dstrevdir="$dir/$dstrevdir"
++                IFS="$OIFS2"
++            else
++                dstrevdir="../$dstrevdir"
++            fi
++        done
++        IFS="$OIFS"
++    else
++        src="`cd $src; pwd`";
++    fi
++    
++    #   create directory tree at destination
++    if [ ! -d $dst ]; then
++        if [ ".$opt_t" = .yes ]; then
++            echo "mkdir $dst" 1>&2
++        fi
++        mkdir $dst
++    fi
++    if [ ".$opt_a" = .yes ]; then
++        DIRS=`cd $src; find . -type d -print |\
++              sed -e '/^\.$/d' -e 's:^\./::'`
++    else
++        DIRS=`cd $src; find . -type d -print |\
++              sed -e '/\/CVS/d' -e '/^\.$/d' -e 's:^\./::'`
++    fi
++    for dir in $DIRS; do
++        if [ ".$opt_t" = .yes ]; then
++            echo "mkdir $dst/$dir" 1>&2
++        fi
++        mkdir $dst/$dir
++    done
++    
++    #   fill directory tree with symlinks to files
++    if [ ".$opt_a" = .yes ]; then
++        FILES="`cd $src; find . -depth -print |\
++                sed -e 's/^\.\///'`"
++    else
++        FILES="`cd $src; find . -depth -print |\
++                sed -e '/\.o$/d' -e '/\.a$/d' -e '/\.so$/d' \
++                    -e '/\.cvsignore$/d' -e '/\/CVS/d' \
++                    -e '/\/\.#/d' -e '/\.orig$/d' \
++                    -e 's/^\.\///'`"
++    fi
++    for file in $FILES; do
++         #  don't use `-type f' above for find because of symlinks
++         if [ -d "$src/$file" ]; then
++             continue
++         fi
++         basename=`echo $file | sed -e 's:^.*/::'`
++         dir=`echo $file | sed -e 's:[^/]*$::' -e 's:/$::' -e 's:$:/:' -e 's:^/$::'`
++         from=`echo "$src/$file" | sed -e 's/^\.\///'`
++         to="$dst/$dir$basename"
++         if [ $oneisabs = 0 ]; then
++             if [ ".$dir" != . ]; then
++                 subdir=`echo $dir | sed -e 's:/$::'`
++                 #   derive reverse path from forward path
++                 revdir=''
++                 OIFS="$IFS"; IFS='/'
++                 for pe in $subdir; do
++                     revdir="../$revdir"
++                 done
++                 IFS="$OIFS"
++                 #   finalize from
++                 from="$revdir$from"
++             fi
++             from="$dstrevdir$from"
++         fi
++         if [ ".$opt_v" = .yes ]; then
++             echo "    $to" 1>&2
++         fi
++         if [ ".$opt_t" = .yes ]; then
++             echo "ln -s $from $to" 1>&2
++         fi
++         ln -s $from $to
++    done
++    ;;
++
++esac
++
++exit 0
++
++##EOF##
+diff -urN zlib-1.2.2/CYGWIN-PATCHES/zlib.hint zlib-1.2.2-1/CYGWIN-PATCHES/zlib.hint
+--- zlib-1.2.2/CYGWIN-PATCHES/zlib.hint	1970-01-01 01:00:00.000000000 +0100
++++ zlib-1.2.2-1/CYGWIN-PATCHES/zlib.hint	2005-05-09 09:55:25.000000000 +0200
+@@ -0,0 +1,9 @@
++category Base Libs
++requires cygwin
++sdesc "The zlib compression and decompression library"
++ldesc "The zlib compression library provides in-memory compression and
++decompression functions, including integrity checks of the uncompressed
++data.  This version of the library supports only one compression method
++(deflation), but other algorithms may be added later, which will have
++the same stream interface.  The zlib library is used by many different
++system programs."
+diff -urN zlib-1.2.2/CYGWIN-PATCHES/zlib.README zlib-1.2.2-1/CYGWIN-PATCHES/zlib.README
+--- zlib-1.2.2/CYGWIN-PATCHES/zlib.README	1970-01-01 01:00:00.000000000 +0100
++++ zlib-1.2.2-1/CYGWIN-PATCHES/zlib.README	2005-05-09 09:55:25.000000000 +0200
+@@ -0,0 +1,122 @@
++zlib
++------------------------------------------
++The zlib compression library provides in-memory 
++compression and decompression functions, including 
++integrity checks of the uncompressed data.
++
++Runtime requirements:
++  cygwin-1.5.11 or newer
++
++Build requirements:
++  cygwin-1.5.11 or newer
++  gcc-3.3.3-3 or newer
++  binutils-20040725-2 or newer
++
++Canonical homepage:
++  http://www.zlib.net/
++
++Canonical download:
++  http://www.zlib.net/zlib-1.2.2.tar.gz
++  
++------------------------------------
++
++Build instructions:
++  unpack zlib-1.2.2-X-src.tar.bz2
++    if you use setup to install this src package, it will be
++	 unpacked under /usr/src automatically
++  cd /usr/src
++  ./zlib-1.2.2-X.sh all
++
++This will create:
++  /usr/src/zlib-1.2.2-X.tar.bz2
++  /usr/src/zlib-1.2.2-X-src.tar.bz2
++
++-------------------------------------------
++
++To link this library with your projects:
++  #1) include zlib.h and zconf.h
++  #2) to link with the static library, use '-static' on the link line 
++  #3) to link with the dll, no unusual link-time flags are needed.
++In either case, there are NO special compile time flags needed
++
++See the makefile and inspect how minigzip.exe, example.exe (dll) and 
++minigzip-stat.exe, example-stat.exe (static) are compiled and linked.
++
++-------------------------------------------
++Files included in the binary distro
++
++  /usr/bin/cygz.dll
++  /usr/lib/libz.a
++  /usr/lib/libz.dll.a
++  /usr/include/zlib.h
++  /usr/include/zconf.h
++  /usr/share/man/man3/zlib.3
++  /usr/share/doc/Cygwin/zlib-1.2.2.README (this file)
++  /usr/share/doc/zlib-1.2.2/README (the normal zlib README)
++  /usr/share/doc/zlib-1.2.1/FAQ    (the normal zlib FAQ)
++
++------------------
++
++Port Notes:
++1.2.2-1: Routine upgrade
++  * includes security fix below
++
++1.2.1-2: Security fix
++  http://lwn.net/Articles/99288/
++
++1.2.1-1: Bump to official release
++
++1.2.0.7-2: Incorporate comments from Cosmin Truta
++
++1.2.0.7-1: update to 1.2.0.7 beta release.  Compiled against 
++           cygwin-1.5.5
++
++1.2.0.3-1: update to 1.2.0.3 beta release.  Compiled against 
++           cygwin-1.5.1
++
++1.2.0.1-1: update to 1.2.0.1 beta release.  Compiled against
++           cygwin-1.5.0
++
++1.1.4-1: update to 1.1.4 release.  1.1.4 fixes a double-free
++  error that could cause heap corruption.
++
++1.1.3-7: no more need for -DZLIB_STATIC/-DALL_STATIC; now use
++  auto-import functionality.
++
++1.1.3-6: Added -DALL_STATIC synonym for -DZLIB_STATIC
++
++As of 1.1.3-5, the dll is named "cygz.dll" NOT "libz.dll".  This 
++  helps to avoid dll naming conflicts between cygwin dll's and 
++  dlls from other platforms (native, pw, etc).  If you have an
++  executable that depends on "libz.dll" you may either recompile 
++  your app so that it links with libz.dll.a/cygz.dll, or install
++  *just* the dll from zlib-1.1.3-4.tar.gz into your /usr/bin 
++  directory.
++
++The dll is NOT versioned. (i.e. "cygz.dll" NOT "cygz1.dll") because
++  the libz package and interface is quite stable, and its interface
++  is not anticipated to change in the foreseeable future.
++
++OS_TYPE is unix (0x03) not Win9x/NT (0x0b)
++
++All #ifdef (WIN32) statements are guarded with '&& !(__CYGWIN__)' or 
++  expanded with '|| (__CYGWIN__)' as appropriate. So, the cygwin 
++  version should work whether 'WIN32' is defined or not (e.g.
++  whether '-mwin32' is used or not)
++
++Binary package does NOT include the 586 or 686 optimized assembler
++  code. See Makefile.in for instructions on how to enable 
++  assembler optimizations.
++
++Most of the patches in zlib-1.1.3-X.patch have been submitted to 
++  zlib. Since Jean-loup Gailly seems to be MIA, the other maintainer
++  of zlib, Greg Roelofs, has placed a cygwin patch in the 'contrib'
++  directory of the ftp site: 
++    ftp://ftp.info-zip.org/pub/infozip/zlib/contrib
++  The patch in that contrib directory contains most of the important
++  parts of this patch. However, until an official zlib-1.1.4 is
++  released with those changes included, cygwin-zlib will be 
++  distributed with a patch against a 'clean' zlib-1.1.3 and thus 
++  will duplicate the changes in the patches Greg has accepted.
++
++Cygwin port maintained by: Charles Wilson cwilson@ece.gatech.edu
+diff -urN zlib-1.2.2/Makefile zlib-1.2.2-1/Makefile
+--- zlib-1.2.2/Makefile	2004-09-15 16:27:20.000000000 +0200
++++ zlib-1.2.2-1/Makefile	2005-10-19 22:56:26.000000000 +0200
+@@ -16,34 +16,39 @@
+ # To install in $HOME instead of /usr/local, use:
+ #    make install prefix=$HOME
+ 
+-CC=cc
++CC=i586-mingw32msvc-gcc -mwindows -mms-bitfields
+ 
+-CFLAGS=-O
++CFLAGS=-O3
+ #CFLAGS=-O -DMAX_WBITS=14 -DMAX_MEM_LEVEL=7
+ #CFLAGS=-g -DDEBUG
+ #CFLAGS=-O3 -Wall -Wwrite-strings -Wpointer-arith -Wconversion \
+ #           -Wstrict-prototypes -Wmissing-prototypes
+ 
+-LDFLAGS=libz.a
+-LDSHARED=$(CC)
+-CPP=$(CC) -E
+-
+-LIBS=libz.a
+-SHAREDLIB=libz.so
+-SHAREDLIBV=libz.so.1.2.2
+-SHAREDLIBM=libz.so.1
++LDFLAGS=-L. -lz -L/var/fred/cvs/savannah/lilypond/installers/windows/mingw/root//usr/lib
++LDSHARED=i586-mingw32msvc-gcc -mwindows -mms-bitfields -shared -Wl,-export-all -Wl,--out-implib=libz.dll.a
++CPP=i586-mingw32msvc-gcc -mwindows -mms-bitfields -E
++
++STATICLIB=libz.a
++SHAREDLIB=libz.dll
++SHAREDLIBV=
++SHAREDLIBM=
++IMPORTLIB=libz.dll.a
++SHAREDLIBPOST=/bin/true
++SHAREDTARGET=libz.dll
++LIBS=libz.dll libz.a
+ 
+-AR=ar rc
+-RANLIB=ranlib
++AR=i586-mingw32msvc-ar r
++RANLIB=i586-mingw32msvc-ranlib
+ TAR=tar
+ SHELL=/bin/sh
+-EXE=
++EXE=.exe
+ 
+-prefix = /usr/local
+-exec_prefix = ${prefix}
+-libdir = ${exec_prefix}/lib
+-includedir = ${prefix}/include
+-mandir = ${prefix}/share/man
++prefix =/usr/local
++exec_prefix =${prefix}
++libdir =${exec_prefix}/lib
++bindir =${exec_prefix}/bin
++includedir =${prefix}/include
++mandir =${prefix}/share/man
+ man3dir = ${mandir}/man3
+ 
+ OBJS = adler32.o compress.o crc32.o gzio.o uncompr.o deflate.o trees.o \
+@@ -67,7 +72,7 @@
+ 	  echo '		*** zlib test FAILED ***'; \
+ 	fi
+ 
+-libz.a: $(OBJS) $(OBJA)
++$(STATICLIB): $(OBJS) $(OBJA)
+ 	$(AR) $@ $(OBJS) $(OBJA)
+ 	-@ ($(RANLIB) $@ || true) >/dev/null 2>&1
+ 
+@@ -77,11 +82,9 @@
+ 	mv _match.o match.o
+ 	rm -f _match.s
+ 
+-$(SHAREDLIBV): $(OBJS)
++$(SHAREDTARGET): $(OBJS)
+ 	$(LDSHARED) -o $@ $(OBJS)
+-	rm -f $(SHAREDLIB) $(SHAREDLIBM)
+-	ln -s $@ $(SHAREDLIB)
+-	ln -s $@ $(SHAREDLIBM)
++	$(SHAREDLIBPOST)
+ 
+ example$(EXE): example.o $(LIBS)
+ 	$(CC) $(CFLAGS) -o $@ example.o $(LDFLAGS)
+@@ -90,37 +93,58 @@
+ 	$(CC) $(CFLAGS) -o $@ minigzip.o $(LDFLAGS)
+ 
+ install: $(LIBS)
+-	-@if [ ! -d $(exec_prefix) ]; then mkdir -p $(exec_prefix); fi
+-	-@if [ ! -d $(includedir)  ]; then mkdir -p $(includedir); fi
+-	-@if [ ! -d $(libdir)      ]; then mkdir -p $(libdir); fi
+-	-@if [ ! -d $(man3dir)     ]; then mkdir -p $(man3dir); fi
+-	cp zlib.h zconf.h $(includedir)
+-	chmod 644 $(includedir)/zlib.h $(includedir)/zconf.h
+-	cp $(LIBS) $(libdir)
+-	cd $(libdir); chmod 755 $(LIBS)
+-	-@(cd $(libdir); $(RANLIB) libz.a || true) >/dev/null 2>&1
+-	cd $(libdir); if test -f $(SHAREDLIBV); then \
+-	  rm -f $(SHAREDLIB) $(SHAREDLIBM); \
+-	  ln -s $(SHAREDLIBV) $(SHAREDLIB); \
+-	  ln -s $(SHAREDLIBV) $(SHAREDLIBM); \
+-	  (ldconfig || true)  >/dev/null 2>&1; \
+-	fi
+-	cp zlib.3 $(man3dir)
+-	chmod 644 $(man3dir)/zlib.3
++	-@if [ ! -d $(DESTDIR)$(exec_prefix) ]; then mkdir -p $(DESTDIR)$(exec_prefix); fi
++	-@if [ ! -d $(DESTDIR)$(includedir)  ]; then mkdir -p $(DESTDIR)$(includedir); fi
++	-@if [ ! -d $(DESTDIR)$(libdir)      ]; then mkdir -p $(DESTDIR)$(libdir); fi
++	-@if [ ! -d $(DESTDIR)$(bindir)      ]; then mkdir -p $(DESTDIR)$(bindir); fi
++	-@if [ ! -d $(DESTDIR)$(man3dir)     ]; then mkdir -p $(DESTDIR)$(man3dir); fi
++	cp zlib.h zconf.h $(DESTDIR)$(includedir)
++	chmod 644 $(DESTDIR)$(includedir)/zlib.h $(DESTDIR)$(includedir)/zconf.h
++	cp zlib.3 $(DESTDIR)$(man3dir)
++	chmod 644 $(DESTDIR)$(man3dir)/zlib.3
++# Install static lib (and import lib, if set) into libdir
+ # The ranlib in install is needed on NeXTSTEP which checks file times
++	-cp $(STATICLIB) $(IMPORTLIB) $(DESTDIR)$(libdir)
++	-@(cd $(DESTDIR)$(libdir); \
++	$(RANLIB) libz.a || true; \
++	chmod 755 $(STATICLIB) $(IMPORTLIB)) >/dev/null 2>&1
++# Install shared lib -- if IMPORTLIB is set, then sharedlib goes into bindir
+ # ldconfig is for Linux
++	if test -z "$(IMPORTLIB)" ; then \
++	  if test -n "$(SHAREDTARGET)" ; then \
++	    if test -f "$(SHAREDTARGET)" ; then \
++	      cp $(SHAREDTARGET) $(DESTDIR)$(libdir); \
++	    fi; \
++	  fi; \
++	  cd $(DESTDIR)$(libdir); \
++	  if test -n "$(SHAREDLIBV)" ; then \
++	    if test -f "$(SHAREDLIBV)" ; then \
++	      rm -f $(SHAREDLIB) $(SHAREDLIBM); \
++	      ln -s $(SHAREDLIBV) $(SHAREDLIB); \
++	      ln -s $(SHAREDLIBV) $(SHAREDLIBM); \
++	      (ldconfig || true) >/dev/null 2>&1; \
++	    fi; \
++	  fi; \
++	else \
++	  cp $(SHAREDTARGET) $(DESTDIR)$(bindir); \
++	  (cd $(DESTDIR)$(bindir); chmod 755 $(SHAREDTARGET)); \
++	fi
+ 
+ uninstall:
+-	cd $(includedir); \
+-	cd $(libdir); rm -f libz.a; \
+-	if test -f $(SHAREDLIBV); then \
+-	  rm -f $(SHAREDLIBV) $(SHAREDLIB) $(SHAREDLIBM); \
++	cd $(DESTDIR)$(includedir); \
++	cd $(DESTDIR)$(libdir); rm -f $(STATICLIB) $(IMPORTLIB); \
++	if test -f "$(SHAREDLIBV)"; then \
++	  if test -f "$(SHAREDLIBV)"; then \
++	    rm -f $(SHAREDLIBV) $(SHAREDLIB) $(SHAREDLIBM); \
++	  fi \
+ 	fi
+-	cd $(man3dir); rm -f zlib.3
++	cd $(DESTDIR)$(man3dir); rm -f zlib.3
++	cd $(DESTDIR)$(bindir); (rm -f $(SHAREDLIB) || true) > /dev/null 2>&1
+ 
+ mostlyclean: clean
+ clean:
+ 	rm -f *.o *~ example$(EXE) minigzip$(EXE) \
++	   $(STATICLIB) $(IMPORTLIB) $(SHAREDLIBV) $(SHAREDLIBV) $(SHAREDLIBM) \
+ 	   libz.* foo.gz so_locations \
+ 	   _match.s maketree contrib/infback9/*.o
+ 
+diff -urN zlib-1.2.2/Makefile.in zlib-1.2.2-1/Makefile.in
+--- zlib-1.2.2/Makefile.in	2004-09-15 16:27:20.000000000 +0200
++++ zlib-1.2.2-1/Makefile.in	2006-05-19 13:43:26.000000000 +0200
+@@ -28,10 +28,14 @@
+ LDSHARED=$(CC)
+ CPP=$(CC) -E
+ 
+-LIBS=libz.a
++STATICLIB=libz.a
+ SHAREDLIB=libz.so
+ SHAREDLIBV=libz.so.1.2.2
+ SHAREDLIBM=libz.so.1
++IMPORTLIB=
++SHAREDLIBPOST='(rm -f $(SHAREDLIB) $(SHAREDLIBM); ln -s $@ $(SHAREDLIB) ; ln -s $@ $(SHAREDLIBM) )'
++SHAREDTARGET=$(SHAREDLIBV)
++LIBS=$(STATICLIB)
+ 
+ AR=ar rc
+ RANLIB=ranlib
+@@ -42,6 +46,7 @@
+ prefix = /usr/local
+ exec_prefix = ${prefix}
+ libdir = ${exec_prefix}/lib
++bindir = ${exec_prefix}/bin
+ includedir = ${prefix}/include
+ mandir = ${prefix}/share/man
+ man3dir = ${mandir}/man3
+@@ -67,8 +72,8 @@
+ 	  echo '		*** zlib test FAILED ***'; \
+ 	fi
+ 
+-libz.a: $(OBJS) $(OBJA)
+-	$(AR) $@ $(OBJS) $(OBJA)
++$(STATICLIB): $(OBJS) $(OBJA)
++	$(AR) $(ARFLAGS) $@ $(OBJS) $(OBJA)
+ 	-@ ($(RANLIB) $@ || true) >/dev/null 2>&1
+ 
+ match.o: match.S
+@@ -77,11 +82,9 @@
+ 	mv _match.o match.o
+ 	rm -f _match.s
+ 
+-$(SHAREDLIBV): $(OBJS)
++$(SHAREDTARGET): $(OBJS)
+ 	$(LDSHARED) -o $@ $(OBJS)
+-	rm -f $(SHAREDLIB) $(SHAREDLIBM)
+-	ln -s $@ $(SHAREDLIB)
+-	ln -s $@ $(SHAREDLIBM)
++	$(SHAREDLIBPOST)
+ 
+ example$(EXE): example.o $(LIBS)
+ 	$(CC) $(CFLAGS) -o $@ example.o $(LDFLAGS)
+@@ -90,37 +93,58 @@
+ 	$(CC) $(CFLAGS) -o $@ minigzip.o $(LDFLAGS)
+ 
+ install: $(LIBS)
+-	-@if [ ! -d $(exec_prefix) ]; then mkdir -p $(exec_prefix); fi
+-	-@if [ ! -d $(includedir)  ]; then mkdir -p $(includedir); fi
+-	-@if [ ! -d $(libdir)      ]; then mkdir -p $(libdir); fi
+-	-@if [ ! -d $(man3dir)     ]; then mkdir -p $(man3dir); fi
+-	cp zlib.h zconf.h $(includedir)
+-	chmod 644 $(includedir)/zlib.h $(includedir)/zconf.h
+-	cp $(LIBS) $(libdir)
+-	cd $(libdir); chmod 755 $(LIBS)
+-	-@(cd $(libdir); $(RANLIB) libz.a || true) >/dev/null 2>&1
+-	cd $(libdir); if test -f $(SHAREDLIBV); then \
+-	  rm -f $(SHAREDLIB) $(SHAREDLIBM); \
+-	  ln -s $(SHAREDLIBV) $(SHAREDLIB); \
+-	  ln -s $(SHAREDLIBV) $(SHAREDLIBM); \
+-	  (ldconfig || true)  >/dev/null 2>&1; \
+-	fi
+-	cp zlib.3 $(man3dir)
+-	chmod 644 $(man3dir)/zlib.3
++	-@if [ ! -d $(DESTDIR)$(exec_prefix) ]; then mkdir -p $(DESTDIR)$(exec_prefix); fi
++	-@if [ ! -d $(DESTDIR)$(includedir)  ]; then mkdir -p $(DESTDIR)$(includedir); fi
++	-@if [ ! -d $(DESTDIR)$(libdir)      ]; then mkdir -p $(DESTDIR)$(libdir); fi
++	-@if [ ! -d $(DESTDIR)$(bindir)      ]; then mkdir -p $(DESTDIR)$(bindir); fi
++	-@if [ ! -d $(DESTDIR)$(man3dir)     ]; then mkdir -p $(DESTDIR)$(man3dir); fi
++	cp zlib.h zconf.h $(DESTDIR)$(includedir)
++	chmod 644 $(DESTDIR)$(includedir)/zlib.h $(DESTDIR)$(includedir)/zconf.h
++	cp zlib.3 $(DESTDIR)$(man3dir)
++	chmod 644 $(DESTDIR)$(man3dir)/zlib.3
++# Install static lib (and import lib, if set) into libdir
+ # The ranlib in install is needed on NeXTSTEP which checks file times
++	-cp $(STATICLIB) $(IMPORTLIB) $(DESTDIR)$(libdir)
++	-@(cd $(DESTDIR)$(libdir); \
++	$(RANLIB) libz.a || true; \
++	chmod 755 $(STATICLIB) $(IMPORTLIB)) >/dev/null 2>&1
++# Install shared lib -- if IMPORTLIB is set, then sharedlib goes into bindir
+ # ldconfig is for Linux
++	if test -z "$(IMPORTLIB)" ; then \
++	  if test -n "$(SHAREDTARGET)" ; then \
++	    if test -f "$(SHAREDTARGET)" ; then \
++	      cp $(SHAREDTARGET) $(DESTDIR)$(libdir); \
++	    fi; \
++	  fi; \
++	  cd $(DESTDIR)$(libdir); \
++	  if test -n "$(SHAREDLIBV)" ; then \
++	    if test -f "$(SHAREDLIBV)" ; then \
++	      rm -f $(SHAREDLIB) $(SHAREDLIBM); \
++	      ln -s $(SHAREDLIBV) $(SHAREDLIB); \
++	      ln -s $(SHAREDLIBV) $(SHAREDLIBM); \
++	      (ldconfig || true) >/dev/null 2>&1; \
++	    fi; \
++	  fi; \
++	else \
++	  cp $(SHAREDTARGET) $(DESTDIR)$(bindir); \
++	  (cd $(DESTDIR)$(bindir); chmod 755 $(SHAREDTARGET)); \
++	fi
+ 
+ uninstall:
+-	cd $(includedir); \
+-	cd $(libdir); rm -f libz.a; \
+-	if test -f $(SHAREDLIBV); then \
+-	  rm -f $(SHAREDLIBV) $(SHAREDLIB) $(SHAREDLIBM); \
++	cd $(DESTDIR)$(includedir); \
++	cd $(DESTDIR)$(libdir); rm -f $(STATICLIB) $(IMPORTLIB); \
++	if test -f "$(SHAREDLIBV)"; then \
++	  if test -f "$(SHAREDLIBV)"; then \
++	    rm -f $(SHAREDLIBV) $(SHAREDLIB) $(SHAREDLIBM); \
++	  fi \
+ 	fi
+-	cd $(man3dir); rm -f zlib.3
++	cd $(DESTDIR)$(man3dir); rm -f zlib.3
++	cd $(DESTDIR)$(bindir); (rm -f $(SHAREDLIB) || true) > /dev/null 2>&1
+ 
+ mostlyclean: clean
+ clean:
+ 	rm -f *.o *~ example$(EXE) minigzip$(EXE) \
++	   $(STATICLIB) $(IMPORTLIB) $(SHAREDLIBV) $(SHAREDLIBV) $(SHAREDLIBM) \
+ 	   libz.* foo.gz so_locations \
+ 	   _match.s maketree contrib/infback9/*.o
+ 
+diff -urN zlib-1.2.2/Makefile.in~ zlib-1.2.2-1/Makefile.in~
+--- zlib-1.2.2/Makefile.in~	1970-01-01 01:00:00.000000000 +0100
++++ zlib-1.2.2-1/Makefile.in~	2005-05-09 09:55:25.000000000 +0200
+@@ -0,0 +1,178 @@
++# Makefile for zlib
++# Copyright (C) 1995-2003 Jean-loup Gailly.
++# For conditions of distribution and use, see copyright notice in zlib.h
++
++# To compile and test, type:
++#    ./configure; make test
++# The call of configure is optional if you don't have special requirements
++# If you wish to build zlib as a shared library, use: ./configure -s
++
++# To use the asm code, type:
++#    cp contrib/asm?86/match.S ./match.S
++#    make LOC=-DASMV OBJA=match.o
++
++# To install /usr/local/lib/libz.* and /usr/local/include/zlib.h, type:
++#    make install
++# To install in $HOME instead of /usr/local, use:
++#    make install prefix=$HOME
++
++CC=cc
++
++CFLAGS=-O
++#CFLAGS=-O -DMAX_WBITS=14 -DMAX_MEM_LEVEL=7
++#CFLAGS=-g -DDEBUG
++#CFLAGS=-O3 -Wall -Wwrite-strings -Wpointer-arith -Wconversion \
++#           -Wstrict-prototypes -Wmissing-prototypes
++
++LDFLAGS=libz.a
++LDSHARED=$(CC)
++CPP=$(CC) -E
++
++STATICLIB=libz.a
++SHAREDLIB=libz.so
++SHAREDLIBV=libz.so.1.2.2
++SHAREDLIBM=libz.so.1
++IMPORTLIB=
++SHAREDLIBPOST='(rm -f $(SHAREDLIB) $(SHAREDLIBM); ln -s $@ $(SHAREDLIB) ; ln -s $@ $(SHAREDLIBM) )'
++SHAREDTARGET=$(SHAREDLIBV)
++LIBS=$(STATICLIB)
++
++AR=ar rc
++RANLIB=ranlib
++TAR=tar
++SHELL=/bin/sh
++EXE=
++
++prefix = /usr/local
++exec_prefix = ${prefix}
++libdir = ${exec_prefix}/lib
++bindir = ${exec_prefix}/bin
++includedir = ${prefix}/include
++mandir = ${prefix}/share/man
++man3dir = ${mandir}/man3
++
++OBJS = adler32.o compress.o crc32.o gzio.o uncompr.o deflate.o trees.o \
++       zutil.o inflate.o infback.o inftrees.o inffast.o
++
++OBJA =
++# to use the asm code: make OBJA=match.o
++
++TEST_OBJS = example.o minigzip.o
++
++all: example$(EXE) minigzip$(EXE)
++
++check: test
++test: all
++	@LD_LIBRARY_PATH=.:$(LD_LIBRARY_PATH) ; export LD_LIBRARY_PATH; \
++	echo hello world | ./minigzip | ./minigzip -d || \
++	  echo '		*** minigzip test FAILED ***' ; \
++	if ./example; then \
++	  echo '		*** zlib test OK ***'; \
++	else \
++	  echo '		*** zlib test FAILED ***'; \
++	fi
++
++$(STATICLIB): $(OBJS) $(OBJA)
++	$(AR) $@ $(OBJS) $(OBJA)
++	-@ ($(RANLIB) $@ || true) >/dev/null 2>&1
++
++match.o: match.S
++	$(CPP) match.S > _match.s
++	$(CC) -c _match.s
++	mv _match.o match.o
++	rm -f _match.s
++
++$(SHAREDTARGET): $(OBJS)
++	$(LDSHARED) -o $@ $(OBJS)
++	$(SHAREDLIBPOST)
++
++example$(EXE): example.o $(LIBS)
++	$(CC) $(CFLAGS) -o $@ example.o $(LDFLAGS)
++
++minigzip$(EXE): minigzip.o $(LIBS)
++	$(CC) $(CFLAGS) -o $@ minigzip.o $(LDFLAGS)
++
++install: $(LIBS)
++	-@if [ ! -d $(DESTDIR)$(exec_prefix) ]; then mkdir -p $(DESTDIR)$(exec_prefix); fi
++	-@if [ ! -d $(DESTDIR)$(includedir)  ]; then mkdir -p $(DESTDIR)$(includedir); fi
++	-@if [ ! -d $(DESTDIR)$(libdir)      ]; then mkdir -p $(DESTDIR)$(libdir); fi
++	-@if [ ! -d $(DESTDIR)$(bindir)      ]; then mkdir -p $(DESTDIR)$(bindir); fi
++	-@if [ ! -d $(DESTDIR)$(man3dir)     ]; then mkdir -p $(DESTDIR)$(man3dir); fi
++	cp zlib.h zconf.h $(DESTDIR)$(includedir)
++	chmod 644 $(DESTDIR)$(includedir)/zlib.h $(DESTDIR)$(includedir)/zconf.h
++	cp zlib.3 $(DESTDIR)$(man3dir)
++	chmod 644 $(DESTDIR)$(man3dir)/zlib.3
++# Install static lib (and import lib, if set) into libdir
++# The ranlib in install is needed on NeXTSTEP which checks file times
++	-cp $(STATICLIB) $(IMPORTLIB) $(DESTDIR)$(libdir)
++	-@(cd $(DESTDIR)$(libdir); \
++	$(RANLIB) libz.a || true; \
++	chmod 755 $(STATICLIB) $(IMPORTLIB)) >/dev/null 2>&1
++# Install shared lib -- if IMPORTLIB is set, then sharedlib goes into bindir
++# ldconfig is for Linux
++	if test -z "$(IMPORTLIB)" ; then \
++	  if test -n "$(SHAREDTARGET)" ; then \
++	    if test -f "$(SHAREDTARGET)" ; then \
++	      cp $(SHAREDTARGET) $(DESTDIR)$(libdir); \
++	    fi; \
++	  fi; \
++	  cd $(DESTDIR)$(libdir); \
++	  if test -n "$(SHAREDLIBV)" ; then \
++	    if test -f "$(SHAREDLIBV)" ; then \
++	      rm -f $(SHAREDLIB) $(SHAREDLIBM); \
++	      ln -s $(SHAREDLIBV) $(SHAREDLIB); \
++	      ln -s $(SHAREDLIBV) $(SHAREDLIBM); \
++	      (ldconfig || true) >/dev/null 2>&1; \
++	    fi; \
++	  fi; \
++	else \
++	  cp $(SHAREDTARGET) $(DESTDIR)$(bindir); \
++	  (cd $(DESTDIR)$(bindir); chmod 755 $(SHAREDTARGET)); \
++	fi
++
++uninstall:
++	cd $(DESTDIR)$(includedir); \
++	cd $(DESTDIR)$(libdir); rm -f $(STATICLIB) $(IMPORTLIB); \
++	if test -f "$(SHAREDLIBV)"; then \
++	  if test -f "$(SHAREDLIBV)"; then \
++	    rm -f $(SHAREDLIBV) $(SHAREDLIB) $(SHAREDLIBM); \
++	  fi \
++	fi
++	cd $(DESTDIR)$(man3dir); rm -f zlib.3
++	cd $(DESTDIR)$(bindir); (rm -f $(SHAREDLIB) || true) > /dev/null 2>&1
++
++mostlyclean: clean
++clean:
++	rm -f *.o *~ example$(EXE) minigzip$(EXE) \
++	   $(STATICLIB) $(IMPORTLIB) $(SHAREDLIBV) $(SHAREDLIBV) $(SHAREDLIBM) \
++	   libz.* foo.gz so_locations \
++	   _match.s maketree contrib/infback9/*.o
++
++maintainer-clean: distclean
++distclean: clean
++	cp -p Makefile.in Makefile
++	cp -p zconf.in.h zconf.h
++	rm -f .DS_Store
++
++tags:
++	etags *.[ch]
++
++depend:
++	makedepend -- $(CFLAGS) -- *.[ch]
++
++# DO NOT DELETE THIS LINE -- make depend depends on it.
++
++adler32.o: zlib.h zconf.h
++compress.o: zlib.h zconf.h
++crc32.o: crc32.h zlib.h zconf.h
++deflate.o: deflate.h zutil.h zlib.h zconf.h
++example.o: zlib.h zconf.h
++gzio.o: zutil.h zlib.h zconf.h
++inffast.o: zutil.h zlib.h zconf.h inftrees.h inflate.h inffast.h
++inflate.o: zutil.h zlib.h zconf.h inftrees.h inflate.h inffast.h
++infback.o: zutil.h zlib.h zconf.h inftrees.h inflate.h inffast.h
++inftrees.o: zutil.h zlib.h zconf.h inftrees.h
++minigzip.o: zlib.h zconf.h
++trees.o: deflate.h zutil.h zlib.h zconf.h trees.h
++uncompr.o: zlib.h zconf.h
++zutil.o: zutil.h zlib.h zconf.h
+diff -urN zlib-1.2.2/mingw/mknetrel zlib-1.2.2-1/mingw/mknetrel
+--- zlib-1.2.2/mingw/mknetrel	1970-01-01 01:00:00.000000000 +0100
++++ zlib-1.2.2-1/mingw/mknetrel	2005-07-25 22:15:33.000000000 +0200
+@@ -0,0 +1,16 @@
++# -*- shell-script -*-
++
++sover=1
++sub_packages="devel lib"
++
++# copy and include extra mknetrel stuff
++. $src/$cygwin/mknetrel.extras || . $mknetrel/extras
++
++preconfig () {
++    extras_preconfig
++    sed -i~ -e 's/mgwz/libz/' $src/configure
++    CONFIGOPTS=--shared
++    export target=mingw
++    build_ar="$build_ar r"
++    shtool mkshadow $src $build
++}
+diff -urN zlib-1.2.2/mingw/mknetrel.auto zlib-1.2.2-1/mingw/mknetrel.auto
+--- zlib-1.2.2/mingw/mknetrel.auto	1970-01-01 01:00:00.000000000 +0100
++++ zlib-1.2.2-1/mingw/mknetrel.auto	2005-05-16 17:31:50.000000000 +0200
+@@ -0,0 +1,29 @@
++# -*- shell-script -*-
++
++#
++# mknetrel.split -- autotools
++#
++
++autoupdate () {
++    if [ "$base" != "libtool" ]; then
++	if [ -d libltdl ]; then
++	    rm -rf libltdl
++	    libtoolize --force --copy --automake --ltdl
++	else
++	    libtoolize --force --copy --automake
++	fi
++    fi
++
++    chmod +x ./bootstrap ./autogen.sh || :
++    if [ -x ./bootstrap ]; then
++	./bootstrap --noconfigure
++    elif [ -x ./autogen.sh ]; then
++	./autogen.sh --noconfigure
++    else
++	aclocal
++	autoheader
++	autoconf
++	automake --add-missing
++    fi
++    sed -i~ -e 's/ x$PKG_CONFIG / "$x$PKG_CONFIG" /' $src/configure
++}
+diff -urN zlib-1.2.2/mingw/mknetrel.cross zlib-1.2.2-1/mingw/mknetrel.cross
+--- zlib-1.2.2/mingw/mknetrel.cross	1970-01-01 01:00:00.000000000 +0100
++++ zlib-1.2.2-1/mingw/mknetrel.cross	2005-10-09 15:22:58.000000000 +0200
+@@ -0,0 +1,102 @@
++# -*- shell-script -*-
++
++#
++# mknetrel.cross -- set cross.cache for configure
++#
++
++# for cross-compiling
++if ! iscygwin; then
++    uploads=$here/uploads/$base && mkdir -p $uploads/
++    tarstem=$uploads/$package
++fi
++
++crosscache () {
++	cat <<EOF > config.cache
++ac_cv_c_bigendian=\${ac_cv_c_bigendian=no}
++ac_cv_c_long_size_t=\${ac_cv_c_long_size_t=no}
++ac_cv_c_long_time_t=\${ac_cv_c_long_time_t=yes}
++ac_cv_sizeof___int64=\${ac_cv_sizeof___int64=0}
++ac_cv_sizeof_char=\${ac_cv_sizeof_char=1}
++ac_cv_sizeof_char_p=\${ac_cv_sizeof_char_p=4}
++ac_cv_sizeof_double=\${ac_cv_sizeof_double=8}
++ac_cv_sizeof_float=\${ac_cv_sizeof_float=4}
++ac_cv_sizeof_int=\${ac_cv_sizeof_int=4}
++ac_cv_sizeof_intmax_t=\${ac_cv_sizeof_intmax_t=8}
++ac_cv_sizeof_intptr_t=\${ac_cv_sizeof_intptr_t=4}
++ac_cv_sizeof_long=\${ac_cv_sizeof_long=4}
++ac_cv_sizeof_long_double=\${ac_cv_sizeof_long_double=12}
++ac_cv_sizeof_long_long=\${ac_cv_sizeof_long_long=8}
++ac_cv_sizeof_ptrdiff_t=\${ac_cv_sizeof_ptrdiff_t=4}
++ac_cv_sizeof_short=\${ac_cv_sizeof_short=2}
++ac_cv_sizeof_size_t=\${ac_cv_sizeof_size_t=4}
++ac_cv_sizeof_uintptr_t=\${ac_cv_sizeof_uintptr_t=4}
++ac_cv_sizeof_unsigned___int64=\${ac_cv_sizeof_unsigned___int64=0}
++ac_cv_sizeof_unsigned_char=\${ac_cv_sizeof_unsigned_char=1}
++ac_cv_sizeof_unsigned_int=\${ac_cv_sizeof_unsigned_int=4}
++ac_cv_sizeof_unsigned_long=\${ac_cv_sizeof_unsigned_long=4}
++ac_cv_sizeof_unsigned_long_long=\${ac_cv_sizeof_unsigned_long_long=8}
++ac_cv_sizeof_unsigned_short=\${ac_cv_sizeof_unsigned_short=2}
++ac_cv_sizeof_void_p=\${ac_cv_sizeof_void_p=4}
++ac_16bit_type=\${ac_16bit_type=short}
++ac_32bit_type=\${ac_32bit_type=int}
++ac_64bit_type=\${ac_64bit_type=none}
++ac_cv_sys_restartable_syscalls=\${ac_cv_sys_restartable_syscalls=yes}
++ac_cv_sprintf_count=\${ac_cv_sprintf_count=yes}
++ac_cv_spinlocks=\${ac_cv_spinlocks=no}
++ac_cv_func_getpgrp_void=\${ac_cv_func_getpgrp_void=yes}
++ac_cv_func_setvbuf_reversed=\${ac_cv_func_setvbuf_reversed=no}
++ac_cv_func_mkfifo=yes
++# but in mingw only if winsock2.h
++ac_cv_func_select=\${ac_cv_func_select=yes}
++ac_cv_search_dlopen=\${ac_cv_search_dlopen="none required"}
++ac_exeext=\${ac_exeext=}
++ac_cv_exeext=\${ac_cv_exeext=}
++
++# libtool searches not only in the cross libpath
++#     /cygwin/usr/lib:/cygwin/usr/lib/w32api:/usr/i686-cygwin/lib
++# but also in /usr/lib.  there it finds libdl.a and adds -ldl
++# to LIBS
++# it seems that libtool is broken wrt cross compilation:
++#    sys_lib_search_path_spec="/usr/lib /lib/w32api /lib /usr/local/lib"
++lt_cv_dlopen=\${lt_cv_dlopen="dlopen"}
++lt_cv_dlopen_libs=\${lt_cv_dlopen_libs="none required"}
++## trying to get .la's in /usr/lib, will this work? -- jcn
++libltdl_cv_sys_search_path=\${libltdl_cv_sys_search_path="'"/lib /usr/lib $cygwin_prefix/lib"'"}
++lt_cv_sys_max_cmd_len=\${lt_cv_sys_max_cmd_len=8192}
++##ac_cv_header_strings_h=\${ac_cv_header_strings_h=yes}
++ac_cv_lib_dld_shl_load=\${ac_cv_lib_dld_shl_load=no}
++ac_cv_lib_dl_dlopen=\${ac_cv_lib_dl_dlopen=no}
++ac_cv_c_stack_direction=\${ac_cv_c_stack_direction=-1}
++EOF
++}
++
++needdevoflags () {
++    return 1
++}
++
++extras_preconfig () {
++    cd $src || exit 1
++    patchsrc
++    if [ ! -x ./configure ]; then
++	autoupdate
++    fi
++    for i in $(find $src -name configure | xargs grep -l PKG_CONFIG); do
++	sed -i~ -e 's/ x$PKG_CONFIG / "$x$PKG_CONFIG" /' $i
++    done
++    cd $build || exit 1
++    CONFIGOPTS="--config-cache --enable-shared --disable-static $CONFIGOPTS"
++    ##[ "$cygwin" == "mingw" ] && CONFIGOPTS="'LDFLAGS=-mwindows -mms-bitfields' $CONFIGOPTS"
++    iscygwin || crosscache
++}
++
++preconfig () {
++    extras_preconfig
++}
++
++extras_postconfig () {
++    fix_libtool_script
++}
++
++postconfig () {
++    extras_postconfig
++}
+diff -urN zlib-1.2.2/mingw/mknetrel.doc zlib-1.2.2-1/mingw/mknetrel.doc
+--- zlib-1.2.2/mingw/mknetrel.doc	1970-01-01 01:00:00.000000000 +0100
++++ zlib-1.2.2-1/mingw/mknetrel.doc	2005-10-10 22:16:09.000000000 +0200
+@@ -0,0 +1,40 @@
++# -*- shell-script -*-
++
++#
++# mknetrel.doc -- fixup doc
++#
++
++docprefix=$prefix/share
++docdir=$docprefix/doc
++
++cygdocdir=$docdir/$Cygwin
++infodir=$docprefix/info
++mandir=$docprefix/man
++v=$(expr "$ver" : "\(.*\)-[0-9]*")
++#docdirname=$base-$v
++docdirname=$base
++packagedocdir=$docdir/$docdirname
++
++fixdoc () {
++    #
++    cd $inst || exit 1
++    mkdir -p $inst/$docprefix
++    for i in info man doc; do
++	#if [ -d $inst/$docprefix/$i ]; then
++	if [ -d $inst/$prefix/$i ]; then
++	    cd $inst/$prefix
++	    tar -cf - $i | tar -C $inst/$docprefix -xf -
++	    rm -rf $inst/$prefix/$i
++	fi
++    done
++    if [ -f $inst/$docprefix/$base ]; then
++	mkdir -p $packagedocdir
++	tar -C $inst/$docprefix/$base -cf - . | tar -C $inst/$packagedocdir -xf -
++    fi
++    for i in $inst/$docprefix/info/*.info \
++	$inst/$docprefix/info/*.info-[0-9] \
++	$inst/$docprefix/info/*.info-[0-9][0-9]; do
++	gzip $i
++    done
++    true
++}
+diff -urN zlib-1.2.2/mingw/mknetrel.extras zlib-1.2.2-1/mingw/mknetrel.extras
+--- zlib-1.2.2/mingw/mknetrel.extras	1970-01-01 01:00:00.000000000 +0100
++++ zlib-1.2.2-1/mingw/mknetrel.extras	2005-05-26 12:07:02.000000000 +0200
+@@ -0,0 +1,12 @@
++# -*- shell-script -*-
++
++# copy and include extra mknetrel stuff
++extras=${extras-"auto cross doc libtool patch split"}
++[ ! -d $src/$cygwin ] && mkdir -p $src/$cygwin
++i=extras
++cp -pv $mknetrel/$i $src/$cygwin/mknetrel.$i
++for i in $extras; do
++    [ -r $mknetrel/$i ] && cp -pv $mknetrel/$i $src/$cygwin/mknetrel.$i
++    . $src/$cygwin/mknetrel.$i
++done
++cp -pv $extra/$base $src/$cygwin/mknetrel
+diff -urN zlib-1.2.2/mingw/mknetrel.libtool zlib-1.2.2-1/mingw/mknetrel.libtool
+--- zlib-1.2.2/mingw/mknetrel.libtool	1970-01-01 01:00:00.000000000 +0100
++++ zlib-1.2.2-1/mingw/mknetrel.libtool	2005-09-27 10:25:19.000000000 +0200
+@@ -0,0 +1,65 @@
++# -*- shell-script -*-
++# mknetrel.libtool -- libtool fixups
++
++fix_libtool_dltool () {
++    sed -i~ \
++	-e "s/^DLLTOOL=.*/DLLTOOL='$target-dlltool'/" \
++        -e "s/^DLLTOOL=/HOST_CC=gcc\nDLLTOOL=/" \
++        -e "s/^HOST_CC=/SED=sed\nHOST_CC=/" \
++        -e "s/^allow_undefined_flag=.*/allow_undefined_flag=/" \
++	$1
++##	-e "s@^sys_lib_dlsearch_path_spec=.*@sys_lib_dlsearch_path_spec='$cygwin_prefix/lib'@"
++}
++
++fix_libtool_dlopen_undefined () {
++    for i in $(find $build -name libtool); do
++	sed -i~ -e 's/\(allow_undefined_flag=.*\)unsupported/\1/' $i
++    done
++}
++    
++fix_libtool_script () {
++    [ $base != "libtool" ] || return 0
++    for i in $mknetrel_root/bin/$target-libtool \
++	$cygwin_prefix/bin/$target-libtool; do
++	[ -x "$i" ] && fixtool=$i
++    done
++    for i in $(find $build -name libtool); do
++	[ -n "$fixtool" ] || exit 1
++	cp --backup $fixtool $i
++    done
++}
++
++fix_libtool_la () {
++    # fix libtool's .la dependency_libs output for dlopen
++    for i in $inst/lib $inst/$prefix/lib; do
++	if [ -d "$i" ]; then
++	    cd $i || exit 1
++	    for j in $(ls -1 *.la); do
++		sed -i~ \
++		    -e 's/ *-L *[^"'"'"' ][^"'"'"' ]*//g'\
++		    -e "s@\( \|=\|'\)\(/[^ ]*usr/lib/lib\)\([^ ']*\)\.\(a\|la\|so\)[^ ']*@\1-l\3@g"\
++		    $j
++##		    -e "s@\( \|=\|'\)\(cyg\)\([^ ']*\)\(\.dll.a\|.a\)[^ ']*@\1lib\3\4@g"\
++##		    -e "s@\( \|=\|'\)\(/usr/lib/lib\)\([^ ']*\)\.\(a\|la\|so\)[^ ']*@\1-l\3@g"\
++##		    -e "s@\( \|=\|'\)\(/usr/lib/lib\)\([^.]*\)\.\(a\|la\|so\)[^ ']*@\1-l\3@g"\
++##		    -e "s@\( \|=\|'\)\(/usr/lib/lib\)\([^.]*\)[^ ']*@\1-l\3@g"\
++##		    -e "s@\( \|=\|'\)\(/usr/lib/\)\(lib\)@\1\3@g"\
++##		    -e "s@\( \|=\)\(/usr/lib/lib\)@\1$cygwin_root\2@g"\
++##		    -e "s@\( \|=\)\(/usr/lib/lib\)@\1$cygwin_root\2@g"\
++##		    -e "s@\( \|=\)\(/usr/lib/lib\)\([^ ]*\)[.]\(a\|dll\|la\|so[^ ]*\)@-l\2@g"\
++	    done
++	fi
++    done
++
++    # fix some libtool's .dll name
++    mv $inst/$prefix/lib/$dll_prefix$base-$sover $inst/$prefix/bin/$dll_prefix$base-$sover.dll
++
++    # more libtool fixups.  I love libtool.
++    sed -i~ \
++	-e "s@^dlname=.*@dlname='../bin/$dll_prefix$base-$sover.dll'@" \
++	-e "s@^library_names=.*@library_names='lib$base.dll.a'@" \
++	-e "s@^old_library=.*@old_library='lib$base.a'@" \
++	$inst/$prefix/lib/lib$base.la
++##	-e "s@^library_names=.*@library_names='$dll_prefix$base.dll.a'@" \
++##	-e "s@^old_library=.*@old_library='$dll_prefix$base.a'@" \
++}
+diff -urN zlib-1.2.2/mingw/mknetrel.patch zlib-1.2.2-1/mingw/mknetrel.patch
+--- zlib-1.2.2/mingw/mknetrel.patch	1970-01-01 01:00:00.000000000 +0100
++++ zlib-1.2.2-1/mingw/mknetrel.patch	2005-05-16 18:12:56.000000000 +0200
+@@ -0,0 +1,50 @@
++# -*- shell-script -*-
++
++#
++# mknetrel.patch -- patch sources
++#
++
++dopatch () {
++    cd $src
++    patch -Np1 < $patch/$package.patch
++    cp -p $patch/$package.patch $src/$cygwin/
++}
++
++dodiff () {
++    [ -r $cygwin/.cvsignore ] || cat > $cygwin/.cvsignore <<EOF
++#*
++*.orig
++*.rej
++*~
++.#*
++.bash_mknetrel
++*.patch
++CYGWIN-PATCHES
++MINGW-PATCHES
++Makefile
++GNUmakefile
++Makefile.in
++aclocal.m4
++autom4te.cache
++config.guess
++config.sub
++configure
++libltdl
++ltmain.sh
++CVS
++*[0-9].patch
++EOF
++    diff -purNX$cygwin/.cvsignore $netrel_root/src/$upstream . > $patch/$package.patch-
++    if [ -s $patch/$package.patch- ]; then
++	cp --backup -pv $patch/$package.patch- $patch/$package.patch
++	cp --backup -pv $patch/$package.patch- $src/$cygwin/$package.patch
++    fi
++    rm $patch/$package.patch-
++}
++    
++patchsrc () {
++    [ -r $patch/$package.patch -a ! -r $src/$cygwin/$package.patch ] && dopatch
++    cd $src
++    upstream=$(expr "$package" : '\(.*-[-.0-9]*.*\)-[0-9]*')
++    [ -r $netrel_root/src/$upstream -a -r $patch/$package.patch -a $src/$cygwin/mknetrel -nt $patch/$package.patch ] && dodiff
++}
+diff -urN zlib-1.2.2/mingw/mknetrel.split zlib-1.2.2-1/mingw/mknetrel.split
+--- zlib-1.2.2/mingw/mknetrel.split	1970-01-01 01:00:00.000000000 +0100
++++ zlib-1.2.2-1/mingw/mknetrel.split	2005-10-07 15:27:23.000000000 +0200
+@@ -0,0 +1,275 @@
++# -*- shell-script -*-
++# mknetrel.split -- split subpackages
++
++extras_preinstall () {
++    :;
++}
++
++extras_presplit () {
++    :;
++}
++
++presplit () {
++    :;
++}
++
++devel_name () {
++    if ! libdev 2> /dev/null ; then
++	echo $base-devel
++    else
++	if expr "$base" : "\(lib\)" > /dev/null 2>&1; then
++	    echo $base-dev
++	else
++	    echo lib$base-dev
++	fi
++    fi
++}
++
++doc_name () {
++    echo $base-doc
++}
++
++lib_name () {
++    if expr "$base" : "\(lib\)" > /dev/null 2>&1; then
++	echo $base$sover
++    else
++	echo lib$base$sover
++    fi
++}
++
++extras_lib_split () {
++    mkdir -p ./$prefix/bin || exit 1
++    mv $inst/$prefix/bin/*.dll ./$prefix/bin
++    # better move dlls to bin, see gmp
++    mkdir -p ./$prefix/lib || exit 1
++    mv $inst/$prefix/lib/*.dll ./$prefix/lib
++    mkdir -p ./$prefix/lib || exit 1
++    mv $inst/$prefix/lib/lib*.la ./$prefix/lib
++    mkdir -p ./$prefix/share || exit 1
++    mv $inst/$prefix/share/$base ./$prefix/share
++    rmdir $inst/$prefix/bin || true
++    rmdir $inst/$prefix/lib || true
++    rmdir $inst/$prefix/share || true
++    true
++}
++   
++extras_devel_split () {
++    mkdir -p ./$prefix/bin || exit 1
++    mv $inst/bin/*-config ./$prefix/bin
++    tar -C $inst -cf - ./$prefix/include | tar -xf -
++    rm -rf $inst/$prefix/include
++    # Only static .a libs in devel, load time .la files go in LIB or
++    # BIN package.
++    mkdir -p ./$prefix/lib || exit 1
++    mv $inst/$prefix/lib/*.a ./$prefix/lib
++    mv $inst/$prefix/lib/pkgconfig ./$prefix/lib
++    mkdir -p ./$prefix/share || exit 1
++    tar -C $inst -cf - ./$prefix/share/aclocal | tar -xf -
++    rm -rf $inst/$prefix/share/aclocal
++    tar -C $inst -cf - ./$prefix/share/libtool | tar -xf -
++    rm -rf $inst/$prefix/share/libtool
++    rmdir $inst/$prefix/lib || true
++    rmdir $inst/$prefix/share || true
++    true
++}
++
++extras_doc_split () {
++    mkdir -p ./$docprefix || exit 1
++    mkdir -p ./$infodir || exit 1
++    tar -C $inst -cf - ./$infodir | tar -xf -
++    rm -rf $inst/$infodir
++    if [ "$cygwin" == "mingw" ]; then
++	mkdir -p ./$mandir || exit 1
++	tar -C $inst -cf - ./$mandir | tar -xf -
++	rm -rf $inst/$mandir
++    fi
++    true
++}
++
++extras_prebuild () {
++    for i in $sub_packages; do
++	rm -rf $inst-$i
++	mkdir -p $inst-$i || exit 1
++    done
++}
++
++extras_postinstall () {
++    fixdoc
++    fix_libtool_la
++    
++    mkdir -p $inst-doc/$docprefix
++    cd $build || exit 1
++
++    cd $src || exit 1
++    install -d -m755 $inst/$packagedocdir
++
++    readmes="$(find . -maxdepth 1 -type f -a -name '[A-Z]*' | egrep -v 'Makefile|GNUmakefile')"
++    install -m644 $readmes $inst/$packagedocdir
++    install -m644 $cygwin/changelog $inst/$packagedocdir/changelog.$Cygwin
++
++    ## Cygwin readmes
++    cd $src || exit 1
++    install -d -m755 $inst/$cygdocdir
++
++    cd $src || exit 1
++    install -m644 $cygwin/README $inst/$packagedocdir/README.$Cygwin
++    install -m644 $cygwin/README $inst/$cygdocdir/$package.README
++    cd $build || exit 1
++    install -m644 $cygwin/out/README $inst/$packagedocdir/README.$Cygwin
++    install -m644 $cygwin/out/README $inst/$cygdocdir/$package.README
++}
++
++auto_requires () {
++    dlls=
++    requires=
++    dlls=$(find . -name '*dll' -o -name '*.exe' \
++	| xargs $cygcheck 2>&1 | grep '^  [^ ]' \
++	| tr -d '[ \r]' | sed 's@.*\\@@g' | sort -u)
++    for x in $(ls -1 bin/* sbin/*); do
++	case $x in
++	    *.exeXXX|*.dllXXX)
++		dlls="$($cygcheck $x 2>&1 | grep '^  [^ ]' | tr -d '[ \r]' | sed 's@.*bin\\@@g') $dlls"
++		;;
++	esac
++	case "$(file -b $x)" in
++	    "*Bourne shell script*")
++		requires="bash\n$requires"
++		;;
++	    "*guile*script*")
++		requires="guile\n$requires"
++		;;
++	    "*perl*script*")
++		requires="perl\n$requires"
++		;;
++	    "*python*script*")
++		requires="python\n$requires"
++		;;
++	esac
++    done
++    for x in $dlls; do
++	requires="$(cyg-apt find $x | sed 's/:.*//')\n$requires"
++    done
++    requires=$(echo -e "$requires" | sort -u)
++    echo $requires
++}
++
++hint () {
++    if [ -r $shint ]; then
++	cp $shint $hint
++    else
++	cat > $hint <<EOF
++sdesc: "$name"
++ldesc: "$name - no description (missing $package/$cygwin/$(basename $shint) file)"
++EOF
++    fi
++    grep ^requires: $hint || echo "requires: $depends" >> $hint
++    if [ "$cygwin" == "cygwin" ]; then
++	if grep ^build-requires: $hint; then
++	    mv $hint $hint~
++	    grep -v build-requires $hint~ > $hint
++	fi
++	if iscygwin; then
++	    cygcheck=cygcheck.exe
++	else
++	    cygcheck="wine $cygwin_prefix/bin/cygcheck.exe"
++	fi
++	echo "#auto-requires: $(cd usr; auto_requires)" >> $hint
++    else
++	grep ^build-requires: $hint || echo "build-requires: $build_depends" >> $hint
++    fi
++}
++
++domkdist () {
++    #
++    # Fix up installation slightly
++    #
++    cd $inst || exit 1
++    chmod -R u+w,og-w,a+rX .
++    cd usr 2>/dev/null && dousrstuff
++
++    # Split off any sub-packages.  The actual splitting is handled by
++    # a package's specific code in extra/.
++
++    # To package `foo' in foo, foo-doc and foo-devel, set
++    # sub_packages='doc devel'.
++
++    # Then provide functions doc_name and devel_name, that return the
++    # full name of the sub-package.  Also provide functions doc_split
++    # and devel_split, that mv part of foo's installation in $inst to
++    # the sub-packages' installation roots $inst-doc and $inst-devel.
++
++    cd $inst || exit 1
++    presplit
++
++    for i in $sub_packages; do
++	subname=$(${i}_name)
++  	cd $inst-$i || exit 1
++	${i}_split || exit 1
++    done
++    
++    cd $inst || exit 1
++    prepackage
++
++    cd $inst || exit 1
++    hard2soft
++
++    #
++    # Make tar balls
++    #
++
++    # The base package
++    echo creating $tarstem.tar.bz2
++    cd $inst || exit 1
++
++    name=$base
++    shint=$src/$cygwin/$name.hint
++    hint=$uploads/setup.hint
++    hint
++    find * -print | egrep -v '\.cvsignore|\.bak$|\.orig$|\.o$|\.rej$|~$|^.#|CVS|/tags$' | sort | tar -T - --no-recursion --owner=0 --group=0 -cjf $tarstem.tar.bz2
++
++    # Any sub-packages
++    for i in $sub_packages; do
++	subname=$(${i}_name)
++	subload=$uploads/$subname
++	subtarstem=$subload/$subname-$ver
++	shint=$src/$cygwin/$subname.hint
++	hint=$subload/setup.hint
++	depends=$(eval echo '$'${i}_depends)
++	mkdir -p $subload || exit 1
++	echo creating $subtarstem.tar.bz2
++	name=$subname
++  	cd $inst-$i
++	hint
++	grep ^external-source: $hint || echo "external-source: $base" >> $hint
++	hard2soft
++	find * -print | egrep -v '\.cvsignore|\.bak$|\.orig$|\.o$|\.rej$|~$|^.#|CVS|/tags$' | sort | tar -T - --no-recursion --owner=0 --group=0 -cjf $subtarstem.tar.bz2
++    done
++
++    # The source package
++    cd $src/.. || exit 1
++    echo creating "$tarstem"-src.tar.bz2
++    ##find $package_src/* -print -follow | egrep -v '\.cvsignore|\.bak$|\.orig$|\.o$|~$|^.#|CVS|%redact|/tags$' | egrep -v "$src_exclude" | sort | tar -T - --no-recursion --owner=0 --group=0 -cjf "$tarstem"-src.tar.bz2
++    find $package_src/* -print | egrep -v '\.cvsignore|\.bak$|\.orig$|\.o$|\.rej$|~$|^.#|CVS|%redact|/tags$|/TAGS$|autom4te.cache$' | egrep -v "$src_exclude" | sort | tar -T - --no-recursion --owner=0 --group=0 -cjf "$tarstem"-src.tar.bz2
++    ##cd $package_src && tar -cj --exclude='\.cvsignore' --exclude='\.bak$' --exclude='\.orig$' --exclude='\.o$' --exclude='~$' --exclude='^.#' --exclude='CVS' --exclude='%redact' --exclude='/tags$' --exclude='/TAGS$' --exclude='autom4te.cache' --owner=0 --group=0 -f "$tarstem"-src.tar.bz2 .
++    postpackage
++}
++
++devel_split () {
++    extras_devel_split
++}
++
++doc_split () {
++    extras_doc_split
++}
++
++lib_split () {
++    extras_lib_split
++}
++
++prebuild () {
++    extras_prebuild
++}
++
++postinstall () {
++    extras_postinstall
++}
+diff -urN zlib-1.2.2/zconf.h zlib-1.2.2-1/zconf.h
+--- zlib-1.2.2/zconf.h	2004-05-30 22:38:00.000000000 +0200
++++ zlib-1.2.2-1/zconf.h	2005-10-19 22:56:25.000000000 +0200
+@@ -278,7 +278,7 @@
+    typedef Byte       *voidp;
+ #endif
+ 
+-#if 0           /* HAVE_UNISTD_H -- this line is updated by ./configure */
++#if 1           /* HAVE_UNISTD_H -- this line is updated by ./configure */
+ #  include <sys/types.h> /* for off_t */
+ #  include <unistd.h>    /* for SEEK_* and off_t */
+ #  ifdef VMS
