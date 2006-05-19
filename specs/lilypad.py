@@ -5,8 +5,8 @@ import misc
 class LilyPad (targetpackage.Target_package):
     def __init__ (self, settings):
         targetpackage.Target_package.__init__ (self, settings)
-        self.with (version='0.0.7-1', mirror=download.lp, format='bz2',
-             depends=['mingw-runtime', 'w32api'])
+        self.with (version='0.0.7-1', mirror=download.hw, format='bz2',
+                   depends=['mingw-runtime', 'w32api'])
 
     def patch (self):
         ## windres doesn't handle --nostdinc
