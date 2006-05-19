@@ -9,11 +9,6 @@ class Zlib (targetpackage.Target_package):
         
     def patch (self):
         targetpackage.Target_package.patch (self)
-        self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/zlib-1.2.2-windows.patch')
-        self.file_sub ([("='/bin/true'", "='true'"),
-                        ('mgwz','libz'),
-                        ],
-                       '%(srcdir)s/configure')
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
 
     def compile_command (self):
@@ -33,3 +28,13 @@ class Zlib (targetpackage.Target_package):
         return targetpackage.Target_package.broken_install_command (self)
 
 
+
+class Zlib__mingw (Zlib):
+    def patch (self):
+        Zlib.patch (self)
+        self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/zlib-1.2.2-windows.patch')
+        self.file_sub ([("='/bin/true'", "='true'"),
+                        ('mgwz','libz'),
+                        ],
+                       '%(srcdir)s/configure')
+          
