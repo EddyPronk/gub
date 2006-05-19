@@ -5,7 +5,11 @@ import misc
 class LilyPad (targetpackage.Target_package):
     def __init__ (self, settings):
         targetpackage.Target_package.__init__ (self, settings)
-        self.with (version='0.0.7-1', mirror=download.hw, format='bz2',
+        self.with (version='0.0.7-1',
+                   mirror='http://lilypond.org/~hanwen/lilypad-0.0.7-1-src.tar.bz2',
+                   format='bz2',
+
+                   ## ugh, necessary?  
                    depends=['mingw-runtime', 'w32api'])
 
     def patch (self):

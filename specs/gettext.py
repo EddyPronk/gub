@@ -14,7 +14,8 @@ class Gettext (targetpackage.Target_package):
 
     def configure (self):
         targetpackage.Target_package.configure (self)
-        # # FIXME: libtool too old for cross compile
+        
+        ## FIXME: libtool too old for cross compile
         self.update_libtool ()
         
 
