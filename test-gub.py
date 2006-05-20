@@ -202,7 +202,10 @@ class CVSRepository (Repository):
         
     def get_diff_from_exact_tag (self, name):
         date = self.tag_db [name]
-        return read_pipe ('cd %s && cvs diff -D "%s" ' % (self.repodir, date))
+        date = date.replace ('/', '')
+        
+        cmd = 'cd %s && cvs diff -uD "%s" ' % (self.repodir, date)
+        return 'diff from %s\n%s:\n' % (name, cmd) + read_pipe (cmd)
 
     def get_diff_from_tag (self, name):
         keys = [k for k in self.tag_db.keys ()
@@ -359,7 +362,7 @@ def test_target (repo, options, target, last_patch):
 
         result = 'FAIL'
         attachments = ['error for %s\n\n%s' % (target,
-                           '\n'.join (body[-0:])),
+                                               '\n'.join (body[-0:])),
                        diff]
     else:
         tag = base_tag + canonicalize_target (last_patch['date'])
