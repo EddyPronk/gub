@@ -18,7 +18,6 @@ lagere prioriteit
 - Python: should compile .pyc with matching local python version.
 => add to local packages.
 
-
 - Group spec/patch/source files by package
 
 - strip lily specific stuff from installer.py 
@@ -26,11 +25,5 @@ lagere prioriteit
 - Bugfixes:
 
   * fontconfig 2.4; Blocker: mingw mmap() compat. support.
-
-  * gcc 4.2 snapshot for darwin-x86
-
-  * darwin-x86
-
-     ignoring nonexistent directory "/home/lilydev/vc/gub/target/darwin-x86/system//home/lilydev/vc/gub/target/darwin-x86/system/usr/ cross//lib/gcc/i686-apple-darwin8/4.0.1/../../../../i686-apple-darwin8/include"
 
 - junk Makefile, create python based driver.
