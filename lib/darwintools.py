@@ -57,6 +57,13 @@ class Gcc (cross.Gcc):
         self.file_sub ([('/usr/bin/libtool', '%(crossprefix)s/bin/%(target_architecture)s-libtool')],
                        '%(srcdir)s/gcc/config/darwin.h')
 
+        self.file_sub ([('--strip-underscores', '--strip-underscore')],
+                       "%(srcdir)s/libstdc++-v3/scripts/make_exports.pl")
+
+        if int (self.expand('%(version)s')[2]) < 2:
+            self.file_sub ([("nm", "%(tool_prefix)snm ")],
+                           "%(srcdir)s/libstdc++-v3/scripts/make_exports.pl")
+
     def configure_command (self):
         c = cross.Gcc.configure_command (self)
 #                c = re.sub ('enable-shared', 'disable-shared', c)
@@ -65,12 +72,8 @@ class Gcc (cross.Gcc):
 
     def configure (self):
         cross.Gcc.configure (self)
-        self.file_sub ([('--strip-underscores', '--strip-underscore')],
-                       "%(srcdir)s/libstdc++-v3/scripts/make_exports.pl")
-
 
     def rewire_gcc_libs (self):
-
         skip_libs = ['libgcc_s']
         for l in self.locate_files ("%(install_root)s/usr/lib/", '*.dylib'):
             found_skips = [s for s in  skip_libs if l.find (s) >= 0]
