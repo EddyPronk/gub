@@ -90,14 +90,15 @@ else
 
 endif
 
-update-buildnumber:
-	echo -n "INSTALLER_BUILD=" > buildnumber.tmp 
-	$(PYTHON) lilypondorg.py nextbuild $(LILYPOND_VERSION) >> buildnumber.tmp
-	mv buildnumber.tmp $(BUILDNUMBER_FILE)
+UPDATE-BUILDNUMBER=(echo -n "INSTALLER_BUILD=" && \
+		$(PYTHON) lilypondorg.py nextbuild $(LILYPOND_VERSION) ) > buildnumber.tmp && \
+		mv buildnumber.tmp $(BUILDNUMBER_FILE)
 
-$(BUILDNUMBER_FILE): update-buildnumber
+$(BUILDNUMBER_FILE):
+	$(UPDATE-BUILDNUMBER)
 
-download:  update-buildnumber
+download:
+	$(UPDATE-BUILDNUMBER)
 	$(foreach p, $(PLATFORMS), $(call INVOKE_DRIVER,$(p)) download lilypond && ) true
 	$(call INVOKE_DRIVER,mingw) download lilypad
 	$(call INVOKE_DRIVER,darwin-ppc) download osx-lilypad
