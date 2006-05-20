@@ -32,7 +32,13 @@ def system (cmd):
 
 def read_pipe (cmd):
     print 'pipe:', cmd
-    return os.popen (cmd).read ()
+    pipe = os.popen (cmd)
+
+    val = pipe.read ()
+    if pipe.close ():
+        raise Barf ("Pipe failed: %s", cmd)
+    
+    return val
 
 def read_tail (file, amount=10240):
     f = open (file)
@@ -87,7 +93,7 @@ class Repository:
 
         assert 0
         
-        return ''
+        return 'baseclass method called'
     
 def read_changelog (file):
     contents = open (file).read ()
@@ -187,6 +193,7 @@ class CVSRepository (Repository):
     def tag (self, name):
         if self.tag_db.has_key (name):
             raise Barf ("DB already has key " + name)
+
         print 'tagging db with %s' % name
         
         tup = time.gmtime (self.time_stamp)
