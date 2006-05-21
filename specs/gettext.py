@@ -26,7 +26,9 @@ class Gettext__freebsd (Gettext):
                    depends=['libtool', 'libgnugetopt'])
 
     def patch (self):
+        Gettext.patch (self)
         self.system ('''
+cd %(srcdir)s && patch -p1 < %(patchdir)s/gettext-0.14.1-mingw.patch
 cd %(srcdir)s && patch -p0 < %(patchdir)s/gettext-0.14.1-getopt.patch
 ''')
 
