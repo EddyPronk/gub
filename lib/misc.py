@@ -112,7 +112,9 @@ def download_url (url, dest_dir):
     filename = os.path.split (urllib.splithost (url)[1])[1]
     
     output = open (dest_dir + '/' + filename, 'w')
-    url_stream = urllib.urlopen (url)
+
+    opener = urllib.URLopener ()
+    url_stream = opener.open (url)
     print 'downloading', url
     while True:
         contents = url_stream.read (bufsize)
