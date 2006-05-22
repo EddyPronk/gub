@@ -30,12 +30,12 @@ def system (cmd):
         raise Barf('Command failed ' + `stat`)
 
 
-def read_pipe (cmd):
+def read_pipe (cmd, ignore_error=False):
     print 'pipe:', cmd
     pipe = os.popen (cmd)
 
     val = pipe.read ()
-    if pipe.close ():
+    if pipe.close () and not ignore_error:
         raise Barf ("Pipe failed: %s" % cmd)
     
     return val
@@ -205,7 +205,7 @@ class CVSRepository (Repository):
         date = date.replace ('/', '')
         
         cmd = 'cd %s && cvs diff -uD "%s" ' % (self.repodir, date)
-        return 'diff from %s\n%s:\n' % (name, cmd) + read_pipe (cmd)
+        return 'diff from %s\n%s:\n' % (name, cmd) + read_pipe (cmd, ignore_error=True)
 
     def get_diff_from_tag (self, name):
         keys = [k for k in self.tag_db.keys ()
