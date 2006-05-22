@@ -36,7 +36,7 @@ def read_pipe (cmd):
 
     val = pipe.read ()
     if pipe.close ():
-        raise Barf ("Pipe failed: %s", cmd)
+        raise Barf ("Pipe failed: %s" % cmd)
     
     return val
 
