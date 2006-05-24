@@ -71,8 +71,9 @@ class Settings (Context):
         self.installer_db = self.targetdir + '/installerdb'
         ##self.installer_uploads = self.targetdir + '/uploads'
         self.installer_uploads = self.uploads
-        self.bundle_version = None
-        self.bundle_build = None
+        self.installer_version = None
+        self.installer_build = None
+        
         self.package_arch = re.sub ('-.*', '', self.target_architecture)
         self.package_arch = re.sub ('i[0-9]86', 'i386', self.package_arch)
         

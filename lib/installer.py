@@ -27,7 +27,7 @@ class Installer (context.Os_context_wrapper):
 
     @context.subst_method
     def version (self):
-        return self.settings.bundle_version
+        return self.settings.installer_version
 
     def strip_prefixes (self):
         return ['', 'usr/']
@@ -158,7 +158,7 @@ class Darwin_bundle (Installer):
         
         rw.rewire_root (self.settings.installer_root)
 
-        bundle_zip = self.expand ('%(uploads)s/lilypond-%(bundle_version)s-%(bundle_build)s.%(platform)s.tar.bz2')
+        bundle_zip = self.expand ('%(uploads)s/lilypond-%(installer_version)s-%(installer_build)s.%(platform)s.tar.bz2')
         self.system ('''
 rm -f %(bundle_zip)s 
 rm -rf %(darwin_bundle_dir)s
@@ -169,7 +169,7 @@ cp -pR --link %(installer_root)s/usr/* %(darwin_bundle_dir)s/Contents/Resources/
 ''', locals ())
         self.file_sub (
             [('2.[0-9].[0-9]+-[0-9]',
-             '%(bundle_version)s-%(bundle_build)s'),
+             '%(installer_version)s-%(installer_build)s'),
             ('Build from .*',
              'Build from %s' % time.asctime()),
             ],
@@ -200,8 +200,8 @@ class Nsis (Installer):
         self.file_sub ([('@GHOSTSCRIPT_VERSION@', package_manager.package_dict ('ghostscript')['version']),
                         
                         ('@GUILE_VERSION@', package_manager.package_dict ('ghostscript')['version']),
-                        ('@LILYPOND_BUILD@', '%(bundle_build)s'),
-                        ('@LILYPOND_VERSION@', '%(bundle_version)s'),
+                        ('@LILYPOND_BUILD@', '%(installer_build)s'),
+                        ('@LILYPOND_VERSION@', '%(installer_version)s'),
                         ('@PYTHON_VERSION@', package_manager.package_dict ('python')['version']),
                         ('@ROOT@', '%(installer)s'),
                         ],
@@ -215,14 +215,14 @@ class Nsis (Installer):
         self.system ('cp %(nsisdir)s/*.sh.in %(targetdir)s')
         self.system ('cd %(targetdir)s && makensis lilypond.nsi')
 
-        final = 'lilypond-%(bundle_version)s-%(bundle_build)s.%(platform)s.exe'
+        final = 'lilypond-%(installer_version)s-%(installer_build)s.%(platform)s.exe'
         self.system ('mv %(targetdir)s/setup.exe %(installer_uploads)s/%(final)s', locals ())
 
 
 class Linux_installer (Installer):
     def __init__ (self, settings):
         Installer.__init__ (self, settings)
-        self.bundle_tarball = '%(targetdir)s/%(name)s-%(bundle_version)s-%(bundle_build)s.%(platform)s.tar.bz2'
+        self.bundle_tarball = '%(targetdir)s/%(name)s-%(installer_version)s-%(installer_build)s.%(platform)s.tar.bz2'
 
     def strip_prefixes (self):
         return Installer.strip_prefixes (self)
@@ -257,12 +257,12 @@ class Shar (Linux_installer):
     def create (self):
         self.create_tarball ()
         
-        target_shar = self.expand ('%(installer_uploads)s/%(name)s-%(bundle_version)s-%(bundle_build)s.%(platform)s.sh')
+        target_shar = self.expand ('%(installer_uploads)s/%(name)s-%(installer_version)s-%(installer_build)s.%(platform)s.sh')
 
         head = self.expand ('%(sourcefiledir)s/sharhead.sh')
         tarball = self.expand (self.bundle_tarball)
 
-        hello = self.expand ("version %(bundle_version)s release %(bundle_build)s")
+        hello = self.expand ("version %(installer_version)s release %(installer_build)s")
         create_shar (tarball, hello, head, target_shar)
               
 class Deb (Linux_installer):
@@ -277,7 +277,7 @@ class Autopackage (Linux_installer):
     def create (self):
         self.system ('rm -rf %(build_autopackage)s')
         self.system ('mkdir -p %(build_autopackage)s/autopackage')
-        self.file_sub ([('@VERSION@', '%(bundle_version)s')],
+        self.file_sub ([('@VERSION@', '%(installer_version)s')],
                '%(specdir)s/lilypond.apspec.in',
                to_name='%(build_autopackage)s/autopackage/default.apspec')
         # FIXME: just use symlink?
@@ -315,7 +315,7 @@ class Cygwin_package (Installer):
 
         base_name = re.sub ('-%\(version\)s.*', '', gub_name)
         ball_name = re.sub ('\.%\(platform\)s.*',
-                  '-%(bundle_build)s.tar.bz2',
+                  '-%(installer_build)s.tar.bz2',
                   gub_name)
         # URG urg urgurg
         b = self.settings.lilypond_branch
@@ -326,7 +326,7 @@ class Cygwin_package (Installer):
           or g.startswith ('lilypond-doc-' + b)):
             base_name = re.sub ('-' + b +'.*', '', g)
             ball_name = re.sub ('-' + b + '.*',
-                      '-%(bundle_version)s-%(bundle_build)s.tar.bz2',
+                      '-%(installer_version)s-%(installer_build)s.tar.bz2',
                   g)
         hint = base_name + '.hint'
         dir = '%(installer_root)s-' + base_name
@@ -358,14 +358,14 @@ cp -pv %(installer_root)s-%(package_name)s/etc/hints/%(hint)s %(cygwin_uploads)s
         gub_name = package.gub_name ()
         base_name = re.sub ('-%\(version\)s.*', '', gub_name)
         dir_name = re.sub ('\.%\(platform\)s.*', '', gub_name)
-        cyg_name = dir_name + '-%(bundle_build)s'
+        cyg_name = dir_name + '-%(installer_build)s'
         # URG urg urgurg
         b = self.settings.lilypond_branch
         if gub_name.startswith ('lilypond-' + b):
             base_name = re.sub ('-' + b + '.*', '', gub_name)
             dir_name = re.sub ('.cygwin.gub', '', gub_name)
             cyg_name = re.sub ('-' + b + '.*',
-                     '-%(bundle_version)s-%(bundle_build)s',
+                     '-%(installer_version)s-%(installer_build)s',
                      gub_name)
         ball_name = cyg_name + '-src.tar.bz2'
         dir = '%(installer_root)s-src'
