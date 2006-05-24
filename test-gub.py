@@ -84,12 +84,6 @@ def opt_parser ():
                   default='',
                   help='where to push success tags.')
 
-    p.add_option ('', '--summary',
-                  action='store_true',
-                  dest='summary',
-                  default=False,
-                  help='produce a summary mail too.')
-
     p.add_option ('', '--quiet',
                   action='store_true',
                   dest='be_quiet',
@@ -209,8 +203,9 @@ MD5 of complete patch set: %(release_hash)s
     msg = result_message (msg_body, subject="Autotester: summary")
 
     if (results
-        and options.summary
+        and len (args) > 1
         and (failures > 0 or not options.be_quiet)):
+        
         send_message (options, msg)
 
     if failures == 0 and results:
