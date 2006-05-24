@@ -11,23 +11,23 @@ import optparse
 import md5
 import dbhash
 import xml.dom.minidom
+from exception import BaseException
 
 ## TODO: should incorporate checksum of lilypond checkout too.
 
 ################################################################
 # utils.
 
-class Barf:
-    def __init__ (self, msg):
-        self.msg = msg
-    def __str__ (self):
-        return self.msg
+class SystemFailed (BaseException):
+    pass
+class KeyCollision (BaseException):
+    pass
     
 def system (cmd):
     print cmd
     stat = os.system (cmd)
     if stat:
-        raise Barf('Command failed ' + `stat`)
+        raise SystemFailed('Command failed ' + `stat`)
 
 
 def read_pipe (cmd, ignore_error=False):
@@ -36,7 +36,7 @@ def read_pipe (cmd, ignore_error=False):
 
     val = pipe.read ()
     if pipe.close () and not ignore_error:
-        raise Barf ("Pipe failed: %s" % cmd)
+        raise SystemFailed ("Pipe failed: %s" % cmd)
     
     return val
 
@@ -54,7 +54,6 @@ def canonicalize_target (target):
 
 ################################################################
 #
-db_file_template = 'test-done-%(canonicalized_target)s.db'
 
 class Repository:
     def __init__ (self, dir, repo_admin_dir):
@@ -63,18 +62,19 @@ class Repository:
         self.test_dir = os.path.join (self.repo_admin_dir, 'test-results')
         if not os.path.isdir (self.test_dir):
             os.makedirs (self.test_dir)
+
     def get_db (self, name):
         db_file = os.path.join (self.test_dir, name)
         print 'Using database ', db_file
         db = dbhash.open (db_file, 'c')
         return db
         
-    def try_checked_before (self, hash, canonicalized_target):
-        db = self.get_db (db_file_template % locals())
+    def try_checked_before (self, hash, name):
+        db = self.get_db (name)
         return db.has_key (hash)
 
-    def set_checked_before (self, hash, canonicalized_target):
-        db = self.get_db (db_file_template % locals())
+    def set_checked_before (self, hash, name):
+        db = self.get_db (name)
         db[hash] = '1'
 
     def tag (self, name):
@@ -192,7 +192,7 @@ class CVSRepository (Repository):
     
     def tag (self, name):
         if self.tag_db.has_key (name):
-            raise Barf ("DB already has key " + name)
+            raise KeyCollision ("DB already has key " + name)
 
         print 'tagging db with %s' % name
         
@@ -256,7 +256,7 @@ def get_repository_proxy (dir):
     elif os.path.isdir (dir + '/_darcs'):
         return DarcsRepository (dir)
     else:
-        raise Barf('repo format unknown: ' + dir)
+        raise BaseException('repo format unknown: ' + dir)
 
 def result_message (parts, subject='') :
     """Concatenate PARTS to a Message object."""
@@ -340,7 +340,9 @@ def opt_parser ():
 def test_target (repo, options, target, last_patch):
     canonicalize = canonicalize_target (target)
     release_hash = last_patch['release_hash']
-    if repo.try_checked_before (release_hash, canonicalize):
+
+    db_file_name = 'test-done-%s.db' % canonicalize
+    if repo.try_checked_before (release_hash, db_file_name):
         print 'release has already been checked: ', release_hash 
         return None
 
@@ -375,7 +377,7 @@ def test_target (repo, options, target, last_patch):
             
         attachments = ['\n'.join (body[-10:])]
 
-    repo.set_checked_before (release_hash, canonicalize)
+    repo.set_checked_before (release_hash, db_file_name)
     return (result, attachments)
     
 def send_message (options, msg):
