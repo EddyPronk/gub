@@ -60,13 +60,20 @@ class Repository:
         self.repodir = dir
         self.repo_admin_dir = repo_admin_dir
         self.test_dir = os.path.join (self.repo_admin_dir, 'test-results')
+        self._databases = {}
+        
         if not os.path.isdir (self.test_dir):
             os.makedirs (self.test_dir)
 
     def get_db (self, name):
-        db_file = os.path.join (self.test_dir, name)
-        print 'Using database ', db_file
-        db = dbhash.open (db_file, 'c')
+        try:
+            return self._databases[name]
+        except KeyError:
+            db_file = os.path.join (self.test_dir, name)
+            print 'Using database ', db_file
+            db = dbhash.open (db_file, 'c')
+            self._databases[name] = db
+            
         return db
         
     def try_checked_before (self, hash, name):
