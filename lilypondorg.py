@@ -46,19 +46,23 @@ def system (c):
         raise 'barf'
 
 def get_url_versions (url):
-    index = urllib.urlopen (url).read()
+    opener = urllib.URLopener ()
+    index = opener.open (url).read()
 
     versions = []
     def note_version (m):
         version = tuple (map (string.atoi,  m.group (1).split('.')))
         build = 0
+        build_url = url + m.group (0)
+        
+        # disregard buildnumber for src tarball. 
         if m.group(2):
             build = string.atoi (m.group (2))
+        versions.append ((version, build, build_url))
         
-        versions.append ((version, build))
         return ''
 
-    re.sub (r'lilypond-([0-9.]+)-?([0-9]+)?\.[0-9a-z-]+\.[0-9a-z-]+', note_version, index)
+    re.sub (r'lilypond-([0-9.]+)-?([0-9]+)?\.[0-9a-z-]+\.[.0-9a-z-]+', note_version, index)
     
     return versions
     
@@ -66,7 +70,7 @@ def get_url_versions (url):
 def get_versions (platform):
     url = base_url
     return get_url_versions ('%(url)s/binaries/%(platform)s/'
-             % locals ())
+                             % locals ())
 
 def get_src_versions (maj_min_version):
     (maj_version, min_version) = maj_min_version
@@ -77,18 +81,18 @@ def get_max_builds (platform):
     vs = get_versions (platform)
 
     builds = {}
-    for (version, build) in vs:
+    for (version, build, url) in vs:
         if builds.has_key (version):
-            build = max (build, builds[version])
+            build = max (build, builds[version][0])
 
-        builds[version] = build
+        builds[version] = (build, url)
 
     return builds
     
-def max_branch_version_build (branch, platform):
+def max_branch_version_build_url (branch, platform):
     vbs = get_versions (platform)
 
-    vs = [v for (v,b) in vbs if v[0:2] == branch]
+    vs = [v for (v,b,u) in vbs if v[0:2] == branch]
     vs.sort()
     try:
         max_version = vs[-1]
@@ -96,30 +100,32 @@ def max_branch_version_build (branch, platform):
         max_version = (0,0,0)
         
     max_b = 0
-    for (v,b) in get_versions (platform):
+    max_url = ''
+    for (v, b, url) in get_versions (platform):
         if v == max_version:
             max_b = max (b, max_b)
+            max_url = url
 
-    return (max_version, max_b)
+    return (max_version, max_b, max_url)
 
 def max_version_build (platform):
     vbs = get_versions (platform)
-    vs = [v for (v,b) in vbs]
+    vs = [v for (v,b,u) in vbs]
     vs.sort()
     max_version = vs[-1]
 
     max_b = 0
-    for (v,b) in get_versions (platform):
+    for (v,b,u) in get_versions (platform):
         if v == max_version:
             max_b = max (b, max_b)
 
     return (max_version, max_b)
 
-def max_src_version (maj_min):
+def max_src_version_url (maj_min):
     vs = get_src_versions (maj_min)
     vs.sort()
     try:
-        return vs[-1][0]
+        return (vs[-1][0], vs[-1][2])
     except:
         ## don't crash.
         return maj_min + (-1,)
@@ -130,7 +136,7 @@ def uploaded_build_number (version):
     for p in platforms:
         vs = get_max_builds (p)
         if vs.has_key (version):
-            build = max (build, vs[version])
+            build = max (build, vs[version][0])
 
     return build
 
@@ -231,9 +237,11 @@ def main ():
         version = tuple (map (string.atoi, commands[0].split ('.')))
         upload_binaries (version)
     else:
+        print max_src_version_url ((2,9))
+        raise 'sthin'
         print max_version_build ('documentation')
-        print max_src_version ((2,9))
-        print max_branch_version_build ((2, 6), 'linux-x86')
+        print max_branch_version_build_url ((2, 6), 'linux-x86')
+        print max_branch_version_build_url ((2, 9), 'linux-x86')
 
 if __name__ == '__main__':
     main()
