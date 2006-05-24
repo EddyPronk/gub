@@ -21,38 +21,7 @@ import settings as settings_mod
 import subprocess
 import pickle
 
-def get_settings (platform):
-    settings = settings_mod.Settings (platform)
-    
-    if platform not in settings_mod.platforms.keys ():
-        raise 'unknown platform', platform
-        
-    if platform == 'darwin-ppc':
-        settings.target_gcc_flags = '-D__ppc__'
-    elif platform == 'mingw':
-        settings.target_gcc_flags = '-mwindows -mms-bitfields'
 
-    return settings
-
-def add_options (settings, options):
-    for o in options.settings:
-        (key, val) = tuple (o.split ('='))
-        key = re.sub ('[^a-z0-9_A-Z]','_', key)
-        settings.__dict__[key] = val
-
-    settings.options = options
-    settings.lilypond_branch = options.lilypond_branch
-    settings.bundle_version = options.installer_version
-    settings.bundle_build = options.installer_build
-    settings.build_source = options.build_source
-    
-    def hosts (xs):
-        return reduce (lambda x,y: x+y,
-                       [ h.split (',') for h in xs], [])
-    settings.cross_distcc_hosts = ' '.join (distcc.live_hosts (hosts (options.cross_distcc_hosts)))
-    
-    settings.native_distcc_hosts = ' '.join (distcc.live_hosts (hosts (options.native_distcc_hosts), port=3634))
-    
 def get_cli_parser ():
     p = optparse.OptionParser ()
 
@@ -76,14 +45,6 @@ package-installer - build installer binary
                   help='select lilypond branch [HEAD]',
                   choices=['lilypond_2_6', 'lilypond_2_8', 'HEAD'])
     
-    p.add_option ('', '--installer-version', action='store',
-                  default='0.0.0',
-                  dest='installer_version')
-    
-    p.add_option ('', '--installer-build', action='store',
-                  default='0',
-                  dest='installer_build')
-    
     p.add_option ('-k', '--keep', action='store_true',
                   dest='keep_build',
                   default=None,
@@ -95,12 +56,6 @@ package-installer - build installer binary
                   default=None,
                   help='select target platform',
                   choices=settings_mod.platforms.keys ())
-
-    p.add_option ('-s', '--setting', action='append',
-                  dest='settings',
-                  type='string',
-                  default=[],
-                  help='add a variable')
 
     p.add_option ('', '--stage', action='store',
                   dest='stage', default=None,
@@ -146,64 +101,6 @@ package-installer - build installer binary
                   )
     
     return p
-
-def build_installer (settings, args):
-    settings.os_interface.system (settings.expand ('rm -rf %(installer_root)s'))
-    settings.os_interface.system (settings.expand ('rm -rf %(installer_db)s'))
-    
-    install_manager = gup.DependencyManager (settings.installer_root,
-                                             settings.os_interface,
-                                             dbdir=settings.installer_db)
-    install_manager.include_build_deps = False
-    install_manager.read_package_headers (settings.gub_uploads, settings.lilypond_branch)
-    install_manager.read_package_headers (settings.gub_cross_uploads, settings.lilypond_branch)
-
-    def get_dep (x):
-        return install_manager.dependencies (x)
-    
-    package_names = gup.topologically_sorted (args, {},
-                                              get_dep,
-                                              None)
-
-    package_names += [p.name() for p in cross.get_cross_packages (settings)]
-    def is_sdk (x):
-        try:
-            return install_manager.package_dict (p)['is_sdk_package'] == 'true'
-        except KeyError:
-            # ugh.
-            return (x in ['darwin-sdk', 'w32api', 'freebsd-runtime',
-                          'mingw-runtime', 'libc6', 'libc6-dev', 'linux-kernel-headers',
-                          ])
-        
-    package_names = [p for p in package_names
-                     if not is_sdk (p)]
-    for a in package_names:
-        install_manager.install_package (a)
-
-def strip_installer (settings, installers):
-    for p in installers:
-        settings.os_interface.log_command (' ** Stage: %s (%s)\n'
-                         % ('strip', p.name ()))
-        p.strip ()
-
-def package_installer (settings, installers):
-    for p in installers:
-        settings.os_interface.log_command (' *** Stage: %s (%s)\n'
-                         % ('create', p.name ()))
-        p.create ()
-        
-def installer_command (c, settings, args):
-    if c == 'build-installer':
-        build_installer (settings, args)
-        return
-    
-    installers = installer.get_installers (settings, args)
-    if c == 'strip-installer':
-        strip_installer (settings, installers)
-    elif c == 'package-installer':
-        package_installer (settings, installers)
-    else:
-        raise 'unknown installer command', c
 
 def checksums_valid (manager, name, spec_object_dict):
     spec = spec_object_dict[name]
@@ -299,8 +196,9 @@ def main ():
         cli_parser.print_help ()
         sys.exit (2)
 
-    settings = get_settings (options.platform)
-    add_options (settings, options)
+    settings = settings_mod.get_settings (options.platform)
+    settings.add_options (options)
+    settings.set_distcc_hosts (options)
 
     c = commands.pop (0)
     if not commands:
@@ -314,12 +212,8 @@ def main ():
     os.environ['PATH'] = settings.expand ('%(buildtools)s/bin:%(PATH)s',
                        locals ())
 
-    if c in ('clean-installer', 'build-installer', 'strip-installer', 'package-installer'):
-        installer_command (c, settings, commands)
-        return
-
     (package_names, package_object_dict) = gup.get_packages (settings,
-                                                              commands)
+                                                             commands)
 
     if c == 'download' or c == 'build':
         def get_all_deps (name):
@@ -342,7 +236,7 @@ def main ():
             print 'another build in progress. Skipping.'
             if options.skip_if_locked:
                 sys.exit (0)
-            raise
+            raise 
             
 
         # FIXME: what happens here, {cross, cross_module}.packages

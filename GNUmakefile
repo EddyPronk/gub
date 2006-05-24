@@ -19,23 +19,25 @@ BRANCH=HEAD
 
 OTHER_PLATFORMS=$(filter-out $(BUILD_PLATFORM), $(PLATFORMS))
 
-INVOKE_DRIVER=$(PYTHON) gub-builder.py \
+INVOKE_GUB_BUILDER=$(PYTHON) gub-builder.py \
 --target-platform $(1) \
 --branch $(LILYPOND_BRANCH) \
 $(foreach h,$(GUB_NATIVE_DISTCC_HOSTS), --native-distcc-host $(h))\
 $(foreach h,$(GUB_CROSS_DISTCC_HOSTS), --cross-distcc-host $(h))\
---installer-version $(LILYPOND_VERSION) \
---installer-build $(INSTALLER_BUILD) \
-$(LOCAL_DRIVER_OPTIONS)
+$(LOCAL_GUB_OPTIONS)
 
 INVOKE_GUP=$(PYTHON) gup-manager.py \
 --platform $(1) \
 --branch $(LILYPOND_BRANCH) 
 
-BUILD=$(call INVOKE_DRIVER,$(1)) build $(2) \
-  && $(call INVOKE_DRIVER,$(1)) build-installer \
-  && $(call INVOKE_DRIVER,$(1)) strip-installer \
-  && $(call INVOKE_DRIVER,$(1)) package-installer \
+INVOKE_INSTALLER_BUILDER=$(PYTHON) installer-builder.py \
+  --target-platform $(1) \
+  --branch $(LILYPOND_BRANCH) \
+
+BUILD=$(call INVOKE_GUB_BUILDER,$(1)) build $(2) \
+  && $(call INVOKE_INSTALLER_BUILDER,$(1)) build \
+  && $(call INVOKE_INSTALLER_BUILDER,$(1)) strip \
+  && $(call INVOKE_INSTALLER_BUILDER,$(1)) package \
 
 CWD:=$(shell pwd)
 
@@ -99,9 +101,9 @@ $(BUILDNUMBER_FILE):
 
 download:
 	$(UPDATE-BUILDNUMBER)
-	$(foreach p, $(PLATFORMS), $(call INVOKE_DRIVER,$(p)) download lilypond && ) true
-	$(call INVOKE_DRIVER,mingw) download lilypad
-	$(call INVOKE_DRIVER,darwin-ppc) download osx-lilypad
+	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB_BUILDER,$(p)) download lilypond && ) true
+	$(call INVOKE_GUB_BUILDER,mingw) download lilypad
+	$(call INVOKE_GUB_BUILDER,darwin-ppc) download osx-lilypad
 	rm -f target/*/status/lilypond*
 	rm -f log/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).*.test.pdf
 
@@ -115,14 +117,14 @@ arm:
 
 cygwin: doc
 	rm -rf uploads/cygwin/*guile*
-	$(call INVOKE_DRIVER,$@) --build-source build guile
+	$(call INVOKE_GUB_BUILDER,$@) --build-source build guile
 	$(PYTHON) gup-manager.py -p cygwin remove guile
-	$(call INVOKE_DRIVER,$@) --build-source --split-packages build guile
-	$(call INVOKE_DRIVER,$@) --build-source --split-packages package-installer guile
-	$(call INVOKE_DRIVER,$@) --build-source build lilypond
-	$(call INVOKE_DRIVER,$@) --build-source build-installer lilypond
-	$(call INVOKE_DRIVER,$@) --build-source strip-installer lilypond
-	$(call INVOKE_DRIVER,$@) --build-source package-installer lilypond
+	$(call INVOKE_GUB_BUILDER,$@) --build-source --split-packages build guile
+	$(call INVOKE_INSTALLER_BUILDER,$@) --build-source --split-packages package guile
+	$(call INVOKE_GUB_BUILDER,$@) --build-source build lilypond
+	$(call INVOKE_INSTALLER_BUILDER,$@) --build-source build lilypond
+	$(call INVOKE_INSTALLER_BUILDER,$@) --build-source strip lilypond
+	$(call INVOKE_INSTALLER_BUILDER,$@) --build-source package lilypond
 
 darwin-ppc:
 	$(call BUILD,$@,lilypond)
@@ -175,7 +177,7 @@ local-distcc:
 		ln -s $(CWD)/lib/distcc.py target/native-distcc/bin/$(notdir $(binary)) && ) true
 
 cross-distccd-compilers:
-	$(foreach p, $(PLATFORMS),$(call INVOKE_DRIVER, $(p)) build gcc && ) true
+	$(foreach p, $(PLATFORMS),$(call INVOKE_GUB_BUILDER, $(p)) build gcc && ) true
 
 cross-distccd:
 	-$(if $(wildcard log/$@.pid),kill `cat log/$@.pid`, true)
