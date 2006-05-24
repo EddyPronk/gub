@@ -53,7 +53,8 @@ def get_url_versions (url):
     def note_version (m):
         version = tuple (map (string.atoi,  m.group (1).split('.')))
         build = 0
-        build_url = url + m.group (0)
+        build_url = url + re.sub ("HREF=", '', m.group (0))
+        build_url = build_url.replace ('"', "")
         
         # disregard buildnumber for src tarball. 
         if m.group(2):
@@ -62,7 +63,7 @@ def get_url_versions (url):
         
         return ''
 
-    re.sub (r'lilypond-([0-9.]+)-?([0-9]+)?\.[0-9a-z-]+\.[.0-9a-z-]+', note_version, index)
+    re.sub (r'HREF="lilypond-([0-9.]+)-?([0-9]+)?\.[0-9a-z-]+\.[.0-9a-z-]+"', note_version, index)
     
     return versions
     
@@ -237,6 +238,7 @@ def main ():
         version = tuple (map (string.atoi, commands[0].split ('.')))
         upload_binaries (version)
     else:
+        base_url = "http://download.linuxaudio.org/lilypond"
         print max_src_version_url ((2,9))
         raise 'sthin'
         print max_version_build ('documentation')
