@@ -75,27 +75,33 @@ package-installer - build installer binary
                   default='HEAD',
                   help='select lilypond branch [HEAD]',
                   choices=['lilypond_2_6', 'lilypond_2_8', 'HEAD'])
+    
     p.add_option ('', '--installer-version', action='store',
                   default='0.0.0',
                   dest='installer_version')
+    
     p.add_option ('', '--installer-build', action='store',
                   default='0',
                   dest='installer_build')
+    
     p.add_option ('-k', '--keep', action='store_true',
                   dest='keep_build',
                   default=None,
                   help='leave build and src dir for inspection')
+
     p.add_option ('-p', '--target-platform', action='store',
                   dest='platform',
                   type='choice',
                   default=None,
                   help='select target platform',
                   choices=settings_mod.platforms.keys ())
+
     p.add_option ('-s', '--setting', action='append',
                   dest='settings',
                   type='string',
                   default=[],
                   help='add a variable')
+
     p.add_option ('', '--stage', action='store',
                   dest='stage', default=None,
                   help='Force rebuild of stage')
@@ -110,6 +116,7 @@ package-installer - build installer binary
     
     p.add_option ('-V', '--verbose', action='store_true',
                   dest='verbose')
+
     p.add_option ('', '--force-package', action='store_true',
                   default=False,
                   dest='force_package',
@@ -131,7 +138,12 @@ package-installer - build installer binary
                   dest='lax_checksums',
                   help="don't rebuild packages with differing checksums")
     
-    
+    p.add_option ('', '--skip-if-locked',
+                  default=False,
+                  dest="skip_if_locked",
+                  action="store_true",
+                  help="Return successfully if another build is already running"
+                  )
     
     return p
 
@@ -324,7 +336,14 @@ def main ():
             package_object_dict[i].do_download ()
 
     elif c == 'build':
-        pm = gup.get_target_manager (settings)
+        try:
+            pm = gup.get_target_manager (settings)
+        except gup.LockError:
+            print 'another build in progress. Skipping.'
+            if options.skip_if_locked:
+                sys.exit (0)
+            raise
+            
 
         # FIXME: what happens here, {cross, cross_module}.packages
         # are already added?
