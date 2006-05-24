@@ -25,6 +25,9 @@ cmd +=  ''' && python test-gub.py --smtp %(SMTPSERVER)s
 
 
 for p in plats:
+    if os.path.exists ('target/%s/system/etc/gup/lock' % p):
+        continue
+    
     cmd += ' "python gub-builder.py --branch %(BRANCH)s -p %(p)s build lilypond"' % locals()
 
 cmd = cmd.replace ('\n',' ') 
