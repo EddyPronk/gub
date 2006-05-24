@@ -97,22 +97,15 @@ package-installer - build installer binary
                   default=False,
                   dest="skip_if_locked",
                   action="store_true",
-                  help="Return successfully if another build is already running"
-                  )
+                  help="Return successfully if another build is already running")
     
     return p
 
 def checksums_valid (manager, name, spec_object_dict):
     spec = spec_object_dict[name]
     package_dict =  manager.package_dict (name)
-    v = spec.spec_checksum == package_dict['spec_checksum']
-    try:
-        v = (v
-          and spec.source_checksum () == package_dict['source_checksum'])
-        ## JUNKME
-    except KeyError:
-        pass
-    
+    v = (spec.spec_checksum == package_dict['spec_checksum']
+         and spec.source_checksum () == package_dict['source_checksum'])
 
     hdr = spec.expand ('%(hdr_file)s')
     v = v and os.path.exists (hdr)
@@ -247,7 +240,7 @@ def main ():
 
         run_builder (settings, pm, deps, package_object_dict)
     else:
-        raise 'unknown driver command %s.' % c
+        raise 'unknown gub-builder command %s.' % c
         cli_parser.print_help ()
         sys.exit (2)
 
