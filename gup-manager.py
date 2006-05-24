@@ -237,7 +237,7 @@ def main ():
         options.ROOT = ('target/%s/system'
                 % options.platform)
         
-    target_manager = gup.Dependency_manager (options.ROOT, oslog.Os_commands ("/dev/null"), dbdir=options.dbdir)
+    target_manager = gup.DependencyManager (options.ROOT, oslog.Os_commands ("/dev/null"), dbdir=options.dbdir)
     
     if options.command == 'install':
         platform = options.platform

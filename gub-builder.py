@@ -139,9 +139,9 @@ def build_installer (settings, args):
     settings.os_interface.system (settings.expand ('rm -rf %(installer_root)s'))
     settings.os_interface.system (settings.expand ('rm -rf %(installer_db)s'))
     
-    install_manager = gup.Dependency_manager (settings.installer_root,
-                                              settings.os_interface,
-                                              dbdir=settings.installer_db)
+    install_manager = gup.DependencyManager (settings.installer_root,
+                                             settings.os_interface,
+                                             dbdir=settings.installer_db)
     install_manager.include_build_deps = False
     install_manager.read_package_headers (settings.gub_uploads, settings.lilypond_branch)
     install_manager.read_package_headers (settings.gub_cross_uploads, settings.lilypond_branch)

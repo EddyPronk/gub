@@ -20,9 +20,9 @@ import cygwin
 
 
 
-class File_manager:
+class FileManager:
 
-    """File_manager handles a tree, and keeps track of files,
+    """FileManager handles a tree, and keeps track of files,
     associating files with a package name"""
     
     def __init__ (self, root, os_interface, dbdir=None):
@@ -46,10 +46,9 @@ class File_manager:
 
         try:
             fcntl.flock (self._lock_file.fileno (),
-                  fcntl.LOCK_EX | fcntl.LOCK_NB)
+                         fcntl.LOCK_EX | fcntl.LOCK_NB)
         except IOError:
-            sys.stderr.write ("Can't acquire Package_manager lock %s\n\nAbort\n" % self.lock_file_name)
-            sys.exit (1)
+            raise LockError ("Can't acquire PackageManager lock %s\n\nAbort\n" % self.lock_file_name)
 
         self._file_package_db = dbmodule.open (self.config
                            + '/files.db', 'c')
@@ -151,10 +150,10 @@ class File_manager:
         names = self._package_file_db.keys ()
         return names
 
-class Package_manager (File_manager):
+class PackageManager (FileManager):
 
 
-    """Package_manager is a File_manager, which also associates a
+    """PackageManager is a FileManager, which also associates a
     key/value dict with each package.
 
     Such dicts come either from either 
@@ -168,7 +167,7 @@ class Package_manager (File_manager):
 
     
     def __init__ (self, root, os_interface, dbdir=None):
-        File_manager.__init__ (self, root, os_interface, dbdir)
+        FileManager.__init__ (self, root, os_interface, dbdir)
 
         self._package_dict_db = dbmodule.open (self.config
                            + '/dicts.db', 'c')
@@ -244,7 +243,7 @@ class Package_manager (File_manager):
         self._package_dict_db[name] = pickle.dumps (d)
 
     def uninstall_package (self, name):
-        File_manager.uninstall_package (self, name)
+        FileManager.uninstall_package (self, name)
         del self._package_dict_db[name]
 
     def is_registered (self, package):
@@ -256,13 +255,13 @@ class Package_manager (File_manager):
 def is_string (x):
     return type (x) == type ('')
 
-class Dependency_manager (Package_manager):
+class DependencyManager (PackageManager):
 
     """Manage packages that have dependencies and
     build_dependencies in their package dicts"""
 
     def __init__ (self, root, os_interface, dbdir=None):
-        Package_manager.__init__ (self, root, os_interface, dbdir)
+        PackageManager.__init__ (self, root, os_interface, dbdir)
         self.include_build_deps = True
 
     def dependencies (self, name):
@@ -368,7 +367,7 @@ def get_packages (settings, todo):
     return ([o.name () for o in package_objs], pack_dict)
 
 def get_target_manager (settings):
-    target_manager = Dependency_manager (settings.system_root,
+    target_manager = DependencyManager (settings.system_root,
                       settings.os_interface)
     return target_manager
 

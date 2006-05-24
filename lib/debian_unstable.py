@@ -9,7 +9,7 @@ mirror = 'http://ftp.de.debian.org/debian'
 
 ## FIXME FIXME 
 def get_cross_packages (settings):
-    p = gup.Dependency_manager (settings.system_root, settings.os_interface)
+    p = gup.DependencyManager (settings.system_root, settings.os_interface)
     url = mirror + '/dists/unstable/main/binary-i386/Packages.gz'
     
     # FIXME: download/offline
