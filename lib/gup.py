@@ -17,8 +17,13 @@ import framework
 import targetpackage
 from misc import *  # URG, fixme
 import cygwin
+from exception import BaseException
 
+class GupException (BaseException):
+    pass
 
+class LockError (GupException):
+    pass
 
 class FileManager:
 
