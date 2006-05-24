@@ -15,6 +15,9 @@ def system (c):
 
 cmd = "make BRANCH=%(BRANCH)s download" % locals () 
 
+system (cmd)
+cmd = "true"
+
 plats = ['freebsd', 'mingw', 'darwin-x86', 'linux', 'darwin-ppc']
 plats = [p for p in plats if p <> 'darwin-ppc']
 
@@ -25,10 +28,7 @@ cmd +=  ''' && python test-gub.py --smtp %(SMTPSERVER)s
 
 
 for p in plats:
-    if os.path.exists ('target/%s/system/etc/gup/lock' % p):
-        continue
-    
-    cmd += ' "python gub-builder.py --branch %(BRANCH)s -p %(p)s build lilypond"' % locals()
+    cmd += ' "python gub-builder.py --skip-if-locked --branch %(BRANCH)s -p %(p)s build lilypond"' % locals()
 
 cmd = cmd.replace ('\n',' ') 
 system (cmd)
