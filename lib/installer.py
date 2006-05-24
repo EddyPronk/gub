@@ -151,7 +151,7 @@ class Darwin_bundle (Installer):
     def create (self):
         Installer.create (self)
         rw = darwintools.Rewirer (self.settings)
-        pm = gup.Dependency_manager (self.settings.system_root,
+        pm = gup.DependencyManager (self.settings.system_root,
 	                              self.settings.os_interface)
         rw.set_ignore_libs (pm)
         osx_lilypad_version = pm.package_dict ('osx-lilypad')['version']
@@ -194,7 +194,7 @@ class Nsis (Installer):
         # FIXME: build in separate nsis dir, copy or use symlink
         installer = os.path.basename (self.settings.installer_root)
 
-        package_manager = gup.Dependency_manager (self.settings.system_root,
+        package_manager = gup.DependencyManager (self.settings.system_root,
                                                   self.settings.os_interface)
         
         self.file_sub ([('@GHOSTSCRIPT_VERSION@', package_manager.package_dict ('ghostscript')['version']),
