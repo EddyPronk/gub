@@ -1,5 +1,4 @@
 
-from exception import BaseException
 import dbhash
 import xml.dom.minidom
 import md5
@@ -7,9 +6,7 @@ import re
 import os
 import time
 
-from exception import BaseException
-
-class SystemFailed (BaseException):
+class SystemFailed (Exception):
     pass
     
 def system (cmd):
@@ -29,7 +26,7 @@ def read_pipe (cmd, ignore_error=False):
     
     return val
 
-class KeyCollision (BaseException):
+class KeyCollision (Exception):
     pass
 
 class Repository:
@@ -240,4 +237,4 @@ def get_repository_proxy (dir):
     elif os.path.isdir (dir + '/_darcs'):
         return DarcsRepository (dir)
     else:
-        raise BaseException('repo format unknown: ' + dir)
+        raise Exception('repo format unknown: ' + dir)

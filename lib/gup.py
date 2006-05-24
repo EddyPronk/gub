@@ -17,9 +17,8 @@ import framework
 import targetpackage
 from misc import *  # URG, fixme
 import cygwin
-from exception import BaseException
 
-class GupException (BaseException):
+class GupException (Exception):
     pass
 
 class LockError (GupException):
@@ -46,22 +45,30 @@ class FileManager:
         if not os.path.isdir (self.root):
             os_interface.system ('mkdir -p %s' % self.root)
 
-        self.lock_file_name = self.config + 'lock'
-        self._lock_file = open (self.lock_file_name, 'w')
+        lock_file_name = self.config + 'lock'
+        self._lock_file = open (lock_file_name, 'w')
+
+        ## should only del if locking was successful
+        self.lock_file_name = None
 
         try:
             fcntl.flock (self._lock_file.fileno (),
                          fcntl.LOCK_EX | fcntl.LOCK_NB)
+            self.lock_file_name = lock_file_name
         except IOError:
-            raise LockError ("Can't acquire PackageManager lock %s\n\nAbort\n" % self.lock_file_name)
+            e = LockError("Can't acquire PackageManager lock %s\n\nAbort\n" % self.lock_file_name)
+            raise e
 
         self._file_package_db = dbmodule.open (self.config
                            + '/files.db', 'c')
         self._package_file_db = dbmodule.open (self.config
                            + '/packages.db', 'c')
     def __del__ (self):
-        self._lock_file.close ()
-        os.unlink (self.lock_file_name)
+
+        if self._lock_file:
+            self._lock_file.close ()
+        if self.lock_file_name:
+            os.unlink (self.lock_file_name)
         
     def __repr__ (self):
         name = self.__class__.__name__
