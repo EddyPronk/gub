@@ -120,6 +120,8 @@ run the following without arguments for instructions.
 
   gup-manager.py - package manager 
   gub-builder.py - build packages
+  installer-builder.py
+                 - build (platform dependent) installers
   lilypondorg.py - inspect lilypond.org download area
-  test-gub.py    - build tester; integrates with Darcs 
+  test-gub.py    - build tester; integrates with Darcs/CVS 
 
