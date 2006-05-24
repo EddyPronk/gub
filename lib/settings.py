@@ -119,3 +119,38 @@ class Settings (Context):
 
             self.os_interface.system ('mkdir -p %s' % dir)
 
+
+    def add_options (settings, options):
+        settings.options = options
+
+        for a in ['lilypond_branch', 'installer_version',
+                  'installer_build', 'build_source']:
+            try:
+                settings.__dict__[a] = options.__dict__[a]
+            except KeyError:
+                pass
+
+    def set_distcc_hosts (self, options):
+        def hosts (xs):
+            return reduce (lambda x,y: x+y,
+                           [ h.split (',') for h in xs], [])
+        
+        self.cross_distcc_hosts = ' '.join (distcc.live_hosts (hosts (options.cross_distcc_hosts)))
+
+        self.native_distcc_hosts = ' '.join (distcc.live_hosts (hosts (options.native_distcc_hosts), port=3634))
+
+
+def get_settings (platform):
+    settings = Settings (platform)
+    
+    if platform not in platforms.keys ():
+        raise 'unknown platform', platform
+        
+    if platform == 'darwin-ppc':
+        settings.target_gcc_flags = '-D__ppc__'
+    elif platform == 'mingw':
+        settings.target_gcc_flags = '-mwindows -mms-bitfields'
+
+    return settings
+
+
