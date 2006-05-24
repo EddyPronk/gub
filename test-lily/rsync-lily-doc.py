@@ -71,7 +71,7 @@ dir = 'v%s.%s' % (MAJOR_VERSION, MINOR_VERSION)
 system ('rm -rf %s' % dir)
 system ('mkdir  -p %s' % dir)
 os.chdir (unpack_dir + '/' + dir)
-system ('cp -pPR %s/* . ' % webroot) # --link
+system ('rsync -a %s/ . ' % webroot) # --link
 system ('chmod -R g+w . ' )
 system ('chgrp -R lilypond . ' )
 system ('chmod 2755 `find -type d ` . ')

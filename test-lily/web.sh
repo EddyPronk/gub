@@ -17,6 +17,6 @@ make BRANCH=$BRANCH download \
    --from builddaemon@lilypond.org --repository downloads/lilypond-$BRANCH/  \
     --posthook "find target/$BUILD_PLATFORM/build/lilypond-$BRANCH/ -name 'lily-[0-9]*' -mtime +1   -exec rm '{}' ';' -print" \
     --smtp $SMTPSERVER --quiet "make BRANCH=$BRANCH doc-build" \
-
+&& rm -f target/$BUILD_PLATFORM/build/lilypond-$BRANCH/Documentation/user/out-www/{lilypond,lilypond-internals,music-glossary}.* 
 
  
