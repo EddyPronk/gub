@@ -16,11 +16,10 @@ tooldir="%(crossprefix)s/%(target_architecture)s"
 ''')
     def compile_command (self):
         return (cross.Binutils.compile_command (self)
-            + self.makeflags ())
+                + self.makeflags ())
     def configure_command (self):
         return ( cross.Binutils.configure_command (self)
-            + ' --disable-werror ')
-    
+                 + ' --disable-werror ')
 
 class W32api_in_usr_lib (gub.Binary_package):
     def do_download (self):

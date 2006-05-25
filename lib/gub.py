@@ -52,8 +52,8 @@ class Package (Os_context_wrapper):
             return
 
         stages = ['untar', 'patch',
-             'configure', 'compile', 'install', 'split',
-             'src_package', 'package', 'dump_header_file', 'clean']
+                  'configure', 'compile', 'install', 'split',
+                  'src_package', 'package', 'dump_header_file', 'clean']
 
         if not self.settings.build_source:
             stages.remove ('src_package')
@@ -400,14 +400,14 @@ rm -f %(install_root)s/usr/share/info/dir %(install_root)s/usr/cross/info/dir %(
                    full_la, env=locals ())
             if self.settings.platform.startswith ('mingw'):
                 self.file_sub ([('library_names=.*',
-                        "library_names='lib%(base)s.dll.a'")],
-                        full_la, env=locals())
+                                 "library_names='lib%(base)s.dll.a'")],
+                               full_la, env=locals())
 
             # avoid using libs from build platform, by adding %(system_root)s
             self.file_sub ([('^libdir=.*',
-                    """libdir='%(system_root)s/%(dir)s'"""),
-                    ],
-                   full_la, env=locals ())
+                             """libdir='%(system_root)s/%(dir)s'"""),
+                            ],
+                           full_la, env=locals ())
 
     def split_devel (self):
         split_root = '%(install_root)s-devel'
@@ -433,7 +433,7 @@ rmdir %(install_root)s/usr/share || true
 rmdir %(split_root)s/usr/lib || true
 rmdir %(split_root)s/usr/share || true
 ''',
-              locals ())
+                     locals ())
 
     def split_doc (self):
         split_root = '%(install_root)s-doc'
@@ -453,7 +453,7 @@ rmdir %(split_root)s/usr/share/man || true
 rmdir %(split_root)s/usr/share/doc/%(name)s || true
 rmdir %(split_root)s/usr/share || true
 ''',
-              locals ())
+                     locals ())
 
     def split_lib (self):
         split_root = '%(install_root)s-lib'
