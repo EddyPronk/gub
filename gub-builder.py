@@ -79,11 +79,6 @@ build             - build target packages
                   dest='build_source',
                   help='build source packages')
     
-    p.add_option ('', '--split-packages', action="store_true",
-                  default=False,
-                  dest='split_packages',
-                  help='split Cygwin packages')
-    
     p.add_option ('', '--lax-checksums',
                   action='store_true',
                   default=False,
