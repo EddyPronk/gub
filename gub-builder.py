@@ -13,7 +13,6 @@ sys.path.insert (0, 'lib/')
 
 import gup
 import cross
-import distcc
 import framework
 import gub
 import installer
