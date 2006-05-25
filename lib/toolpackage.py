@@ -18,11 +18,14 @@ class Tool_package (gub.BuildSpecification):
     def compile_command (self):
         return self.native_compile_command ()
 
-    def package (self):
-        self.system ('''
-tar -C %(install_root)s/ -zcf %(gub_uploads)s/%(gub_name)s .
-''')
-
+    def get_packages (self):
+        return [self.get_tool_package()]
+    def get_tool_package (self):
+        p = gub.PackageSpecification (self.os_interface)
+        p.set_dict (self.get_substitution_dict(), '')
+        p._file_specs = ['/']
+        return p
+    
     def get_substitution_dict (self, env={}):
         dict = {
             'C_INCLUDE_PATH': '%(buildtools)s/include',
