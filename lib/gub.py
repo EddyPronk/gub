@@ -18,8 +18,8 @@ from context import *
 
 
 
-class Package:
-    "A proxy for packaging together part of a BuildSpecification install_root."
+class PackageSpecification:
+    "How to package part of an install_root."
     
     def __init__ (self, os_interface):
         self._dict = {}
@@ -32,9 +32,9 @@ class Package:
             sub_name = '-' + sub_name
 
         self._dict = dict.copy ()
-        self._dict['split_name'] = ('%(name)-' % dict) + sub_name
-        self._dict['split_ball'] = '%(gub_uploads)s/%(split_name)s-%(version)s.%(platform)s.gup' % dict
-        self._dict['split_hdr'] = '%(gub_uploads)s/%(split_name)s.%(platform)s.hdr' % dict
+        self._dict['split_name'] = ('%(name)s' % dict) + sub_name
+        self._dict['split_ball'] = '%(gub_uploads)s/%(split_name)s-%(version)s.%(platform)s.gup' % self._dict
+        self._dict['split_hdr'] = '%(gub_uploads)s/%(split_name)s.%(platform)s.hdr' % self._dict
         self._dict['dependencies_string'] = ';'.join (self._dependencies)
         
     def expand (self, s):
@@ -42,10 +42,15 @@ class Package:
     
     def dump_header_file (self):
         hdr = self.expand ('%(split_hdr)s' )
-        pickle.dump (self._dict, open (hdr, 'w'))
+        self._os_interface.dump (pickle.dumps (self._dict), hdr)
         
+    def clean (self):
+        for f in self._file_specs:
+            base = self.expand ('rm -rf %(install_root)s/')
+            self._os_interface.system (base + f)
+            
     def create_tarball (self):
-        cmd = self.expand ('tar -C %(install_root)s --remove-files --exclude="*~" -zcf %(split_ball_name)s-%(version)s.%(platform)s.gup ')
+        cmd = self.expand ('tar -C %(install_root)s  --exclude="*~" -zcf %(split_ball)s-%(version)s.%(platform)s.gup ')
         cmd += ' '.join ('./%s' % f for f in self._file_specs)
         
         self._os_interface.system (cmd)
@@ -74,8 +79,6 @@ class BuildSpecification (Os_context_wrapper):
         self.name_dependencies = []
         self.name_build_dependencies = []
 
-
-
     # urg: naming conflicts with module.
     def do_download (self):
         self._downloader ()
@@ -87,7 +90,7 @@ class BuildSpecification (Os_context_wrapper):
             return
 
         stages = ['untar', 'patch',
-                  'configure', 'compile', 'install', 'split',
+                  'configure', 'compile', 'install', 
                   'src_package', 'package', 'clean']
 
         if not self.settings.build_source:
@@ -444,80 +447,6 @@ rm -f %(install_root)s/usr/share/info/dir %(install_root)s/usr/cross/info/dir %(
                             ],
                            full_la, env=locals ())
 
-    def split_devel (self):
-        split_root = '%(install_root)s-devel'
-        split_prefix = '%(install_root)s-devel/usr'
-# Only static .a libs in devel, load time .la files go in LIB (or mingw
-# BIN) package.
-        self.system ('''
-rm -rf %(split_root)s
-mkdir -p %(split_prefix)s/bin
-mv %(install_prefix)s/bin/*-config %(split_prefix)s/bin || true
-tar -C %(install_root)s -cf - usr/include | tar -C %(split_root)s -xf -
-rm -rf %(install_root)s/usr/include
-mkdir -p %(split_prefix)s/lib
-mv %(install_root)s/usr/lib/*.a %(split_prefix)s/lib || true
-mv %(install_root)s/usr/lib/pkgconfig %(split_prefix)s/lib || true
-mkdir -p %(split_prefix)s/share
-tar -C %(install_root)s -cf - %(split_prefix)s/share/aclocal | tar -C %(split_root)s -xf -
-rm -rf %(install_root)s/usr/share/aclocal
-tar -C %(install_root)s -cf - %(split_prefix)s/share/libtool | tar -C %(split_root)s -xf -
-rm -rf %(install_root)s/usr/share/libtool
-rmdir %(install_root)s/usr/lib || true
-rmdir %(install_root)s/usr/share || true
-rmdir %(split_root)s/usr/lib || true
-rmdir %(split_root)s/usr/share || true
-''',
-                     locals ())
-
-    def split_doc (self):
-        split_root = '%(install_root)s-doc'
-        split_prefix = '%(install_root)s-doc/usr'
-        self.system ('''
-rm -rf %(split_root)s
-mkdir -p %(split_prefix)s/share
-tar -C %(install_prefix)s -cf - share/info | tar -C %(split_prefix)s -xf -
-rm -rf %(install_root)s/usr/share/info
-tar -C %(install_prefix)s -cf - share/man | tar -C %(split_prefix)s -xf -
-rm -rf %(install_root)s/usr/share/man
-tar -C %(install_prefix)s -cf - doc/%(name)s | tar -C %(split_prefix)s/share -xf -
-tar -C %(install_prefix)s -cf - share/doc/%(name)s | tar -C %(split_prefix)s -xf -
-rm -rf %(install_root)s/usr/doc/%(name)s %(install_root)s/usr/share/doc/%(name)s
-rmdir %(split_root)s/usr/share/info || true
-rmdir %(split_root)s/usr/share/man || true
-rmdir %(split_root)s/usr/share/doc/%(name)s || true
-rmdir %(split_root)s/usr/share || true
-''',
-                     locals ())
-
-    def split_lib (self):
-        split_root = '%(install_root)s-lib'
-        split_prefix = '%(install_root)s-lib/usr'
-# better move dlls to bin, see gmp
-        self.system ('''
-rm -rf %(split_root)s
-mkdir -p %(split_prefix)s/bin
-mv %(install_root)s/usr/bin/*.dll %(split_prefix)s/bin || true
-mkdir -p %(split_prefix)s/lib
-mv %(install_root)s/usr/lib/*.dll %(split_prefix)s/lib || true
-mkdir -p %(split_prefix)s/lib
-mv %(install_root)s/usr/lib/lib*.la %(split_prefix)s/lib || true
-mkdir -p %(split_prefix)s/share
-mv %(install_root)s/usr/share/%(name)s %(split_prefix)s/share || true
-rmdir %(install_root)s/usr/bin || true
-rmdir %(install_root)s/usr/lib || true
-rmdir %(install_root)s/usr/share || true
-rmdir %(split_root)s/usr/bin || true
-rmdir %(split_root)s/usr/lib || true
-rmdir %(split_root)s/usr/share || true
-''',
-              locals ())
-
-    def split (self):
-        available = dict (inspect.getmembers (self, callable))
-        for i in self.split_packages:
-            available['split_' + i] ()
-
     def compile (self):
         self.system ('cd %(builddir)s && %(compile_command)s')
 
@@ -555,7 +484,7 @@ rmdir %(split_root)s/usr/share || true
         for p in ps:
             p.create_tarball ()
             p.dump_header_file ()
-
+            p.clean ()
     def get_packages (self):
         return [self.get_devel_package(),
                 self.get_doc_package(),
@@ -563,7 +492,7 @@ rmdir %(split_root)s/usr/share || true
                 ]
 
     def get_devel_package (self):
-        p = Package (self.os_interface)
+        p = PackageSpecification (self.os_interface)
         
         p._dependencies = [self.expand ("%(name)s")]
         p.set_dict (self.get_substitution_dict(), 'devel')
@@ -572,7 +501,7 @@ rmdir %(split_root)s/usr/share || true
         return p
         
     def get_doc_package (self):
-        p = Package (self.os_interface)
+        p = PackageSpecification (self.os_interface)
         p.set_dict (self.get_substitution_dict(), 'doc')
         p._dependencies = [self.expand ("%(name)s")]
         p._file_specs = ['/usr/share/doc',
@@ -582,7 +511,7 @@ rmdir %(split_root)s/usr/share || true
         return p
 
     def get_base_package (self):
-        p = Package (self.os_interface)
+        p = PackageSpecification (self.os_interface)
         p.set_dict (self.get_substitution_dict(), '')
         p._file_specs = ['/']
         return p
