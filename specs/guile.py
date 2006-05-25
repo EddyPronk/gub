@@ -12,8 +12,8 @@ from toolpackage import Tool_package
 class Guile (targetpackage.Target_package):
     def set_mirror(self):
         self.with (version='1.8.0',
-             mirror=download.gnu, format='gz',
-             depends=['gettext', 'gmp', 'libtool'])
+                   mirror=download.gnu, format='gz',
+                   depends=['gettext', 'gmp', 'libtool'])
         
     def __init__ (self, settings):
         targetpackage.Target_package.__init__ (self, settings)

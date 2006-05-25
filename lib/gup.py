@@ -206,12 +206,8 @@ class PackageManager (FileManager):
         str = open (package_hdr).read ()
 
         d = pickle.loads (str)
-
-
-        ## FIXME: take out has_key
-        if (d.has_key ("cvs_branch")
-          and d['cvs_branch']
-          and branch <> d['cvs_branch']):
+        if (d['cvs_branch']
+            and branch <> d['cvs_branch']):
             print 'ignoring header for wrong branch', package_hdr
             return
         
@@ -223,7 +219,7 @@ class PackageManager (FileManager):
 
         if self.verbose:
             self.os_interface.log_command ('registering package: %s\n'
-                           % `package_hdr`)
+                                           % `package_hdr`)
 
         self.register_package_dict (d)
 
@@ -296,7 +292,7 @@ class DependencyManager (PackageManager):
 # UGh moveme
 
 def topologically_sorted_one (todo, done, dependency_getter,
-               recurse_stop_predicate=None):
+                              recurse_stop_predicate=None):
     sorted = []
     if done.has_key (todo):
         return sorted

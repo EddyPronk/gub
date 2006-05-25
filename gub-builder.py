@@ -31,9 +31,6 @@ Commands:
 
 download          - download packages
 build             - build target packages
-build-installer   - build installer root
-strip-installer   - strip installer root
-package-installer - build installer binary
 
 '''
     p.description='Grand Unified Builder.  Specify --package-version to set build version'
@@ -132,18 +129,18 @@ def run_builder (settings, manager, names, package_object_dict):
 
     ## crossprefix is also necessary for building cross packages, such as GCC
     os.environ['PATH'] = settings.expand ('%(crossprefix)s/bin:%(PATH)s',
-                       locals ())
+                                          locals ())
 
 
     ## UGH -> double work, see cross.change_target_packages () ?
     sdk_pkgs = [p for p in package_object_dict.values ()
-          if isinstance (p, gub.Sdk_package)]
+                if isinstance (p, gub.Sdk_package)]
     cross_pkgs = [p for p in package_object_dict.values ()
-           if isinstance (p, cross.Cross_package)]
+                  if isinstance (p, cross.Cross_package)]
 
     extra_build_deps = [p.name () for p in sdk_pkgs + cross_pkgs]
     framework.package_fixups (settings, package_object_dict.values (),
-                 extra_build_deps)
+                              extra_build_deps)
 
     if not settings.options.stage:
         
@@ -162,20 +159,20 @@ def run_builder (settings, manager, names, package_object_dict):
             continue
         
         checksum_ok = (settings.options.lax_checksums
-               or checksums_valid (manager, p, package_object_dict))
+                       or checksums_valid (manager, p, package_object_dict))
         if (settings.options.stage
-          or not manager.is_installable (p)
-          or not checksum_ok):
+            or not manager.is_installable (p)
+            or not checksum_ok):
             settings.os_interface.log_command ('building package: %s\n'
-                             % p)
+                                               % p)
             
             package_object_dict[p].builder ()
 
         if (manager.is_installable (p)
-          and not manager.is_installed (p)):
+            and not manager.is_installed (p)):
             spec_obj = package_object_dict[p]
             d = spec_obj.get_substitution_dict ()
-
+            
             manager.unregister_package_dict (p)
             manager.register_package_dict (d)
             manager.install_package (p)

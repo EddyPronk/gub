@@ -38,11 +38,11 @@ gcc_tooldir="%(crossprefix)s/%(target_architecture)s"
 ''')
     def compile_command (self):
         return (mingw.Gcc.compile_command (self)
-            + self.makeflags ())
+                + self.makeflags ())
 
     def configure_command (self):
         return (mingw.Gcc.configure_command (self)
-            + misc.join_lines ('''
+                + misc.join_lines ('''
 --with-newlib
 --enable-threads
 '''))
@@ -55,15 +55,15 @@ def get_cross_packages (settings):
     # get built in correct dependency order?
     cross_packs = [
         Binutils (settings).with (version='20050610-1', format='bz2', mirror=download.cygwin,
-                     depends=['cygwin', 'w32api'],
-                     builddeps=['cygwin', 'w32api']
+                                  depends=['cygwin', 'w32api'],
+                                  builddeps=['cygwin', 'w32api']
                         ),
         W32api_in_usr_lib (settings).with (version='1.0',
-                         depends=['w32api'],
-                         builddeps=['w32api']),
+                                           depends=['w32api'],
+                                           builddeps=['w32api']),
         Gcc (settings).with (version='4.1.0', mirror=download.gcc_41, format='bz2',
-                     depends=['binutils', 'cygwin', 'w32api-in-usr-lib'],
-                     builddeps=['binutils', 'cygwin', 'w32api-in-usr-lib']
+                             depends=['binutils', 'cygwin', 'w32api-in-usr-lib'],
+                             builddeps=['binutils', 'cygwin', 'w32api-in-usr-lib']
                      ),
         ]
 
@@ -149,9 +149,9 @@ def get_cygwin_packages (settings, package_file):
         name = name.lower ()
         
         blacklist = ('binutils', 'gcc', 'guile',
-              'guile-devel', 'libguile12', 'libguile16',
-              'libtool',
-              'libtool1.5', 'libtool-devel', 'libltdl3', 'lilypond')
+                     'guile-devel', 'libguile12', 'libguile16',
+                     'libtool',
+                     'libtool1.5', 'libtool-devel', 'libltdl3', 'lilypond')
         
         if name in blacklist:
             continue
