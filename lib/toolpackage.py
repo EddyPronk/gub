@@ -4,9 +4,9 @@ import download
 import misc
 import os
 
-class Tool_package (gub.Package):
+class Tool_package (gub.BuildSpecification):
     def configure_command (self):
-        return (gub.Package.configure_command (self)
+        return (gub.BuildSpecification.configure_command (self)
             + misc.join_lines ('''
 --prefix=%(buildtools)s/
 '''))
@@ -30,5 +30,5 @@ tar -C %(install_root)s/ -zcf %(gub_uploads)s/%(gub_name)s .
             'CPLUS_INCLUDE_PATH': '%(buildtools)s/include',
         }
         dict.update (env)
-        d =  gub.Package.get_substitution_dict (self, dict).copy()
+        d =  gub.BuildSpecification.get_substitution_dict (self, dict).copy()
         return d

@@ -90,8 +90,8 @@ import re
 mirror = 'http://gnu.kookel.org/ftp/cygwin'
 
 def get_cygwin_package (settings, name, dict):
-    Package = classobj (name, (gub.Binary_package,), {})
-    package = Package (settings)
+    package_class = classobj (name, (gub.Binary_package,), {})
+    package = package_class (settings)
     if dict.has_key ('requires'):
         deps = re.sub ('\([^\)]*\)', '', dict['requires']).split ()
         deps = [x.strip ().lower ().replace ('_', '-') for x in deps]

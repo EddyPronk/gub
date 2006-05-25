@@ -16,7 +16,42 @@ import md5
 
 from context import *
 
-class Package (Os_context_wrapper):
+
+
+class Package:
+    "A proxy for packaging together part of a BuildSpecification install_root."
+    
+    def __init__ (self, os_interface):
+        self._dict = {}
+        self._os_interface = os_interface
+        self._file_specs = []
+        self._dependencies = []
+        
+    def set_dict (self, dict, sub_name):
+        if sub_name:
+            sub_name = '-' + sub_name
+
+        self._dict = dict.copy ()
+        self._dict['split_name'] = ('%(name)-' % dict) + sub_name
+        self._dict['split_ball'] = '%(gub_uploads)s/%(split_name)s-%(version)s.%(platform)s.gup' % dict
+        self._dict['split_hdr'] = '%(gub_uploads)s/%(split_name)s.%(platform)s.hdr' % dict
+        self._dict['dependencies_string'] = ';'.join (self._dependencies)
+        
+    def expand (self, s):
+        return s % self._dict
+    
+    def dump_header_file (self):
+        hdr = self.expand ('%(split_hdr)s' )
+        pickle.dump (self._dict, open (hdr, 'w'))
+        
+    def create_tarball (self):
+        cmd = self.expand ('tar -C %(install_root)s --remove-files --exclude="*~" -zcf %(split_ball_name)s-%(version)s.%(platform)s.gup ')
+        cmd += ' '.join ('./%s' % f for f in self._file_specs)
+        
+        self._os_interface.system (cmd)
+        
+        
+class BuildSpecification (Os_context_wrapper):
     def __init__ (self, settings):
         Os_context_wrapper.__init__(self, settings)
 
@@ -53,7 +88,7 @@ class Package (Os_context_wrapper):
 
         stages = ['untar', 'patch',
                   'configure', 'compile', 'install', 'split',
-                  'src_package', 'package', 'dump_header_file', 'clean']
+                  'src_package', 'package', 'clean']
 
         if not self.settings.build_source:
             stages.remove ('src_package')
@@ -516,21 +551,42 @@ rmdir %(split_root)s/usr/share || true
         return 'false'
     
     def package (self):
+        ps = self.get_packages ()
+        for p in ps:
+            p.create_tarball ()
+            p.dump_header_file ()
 
-        # naive tarball packages for now
-        self.system ('''
-tar -C %(install_root)s --exclude="*~" -zcf %(gub_ball)s .
-''')
+    def get_packages (self):
+        return [self.get_devel_package(),
+                self.get_doc_package(),
+                self.get_base_package(),
+                ]
+
+    def get_devel_package (self):
+        p = Package (self.os_interface)
         
-        # WIP
-        available = dict (inspect.getmembers (self, callable))
-        for i in self.split_packages:
-            split_gub_name = available['gub_name_' + i] ()
-            self.system ('''
-tar -C %(install_root)s-%(i)s -zcf %(gub_uploads)s/%(split_gub_name)s .
-''',
-                  locals ())
+        p._dependencies = [self.expand ("%(name)s")]
+        p.set_dict (self.get_substitution_dict(), 'devel')
+        
+        p._file_specs = ['/usr/include']
+        return p
+        
+    def get_doc_package (self):
+        p = Package (self.os_interface)
+        p.set_dict (self.get_substitution_dict(), 'doc')
+        p._dependencies = [self.expand ("%(name)s")]
+        p._file_specs = ['/usr/share/doc',
+                         '/usr/share/info',
+                         '/usr/share/man',
+                         ]
+        return p
 
+    def get_base_package (self):
+        p = Package (self.os_interface)
+        p.set_dict (self.get_substitution_dict(), '')
+        p._file_specs = ['/']
+        return p
+    
     def src_package (self):
         # URG: basename may not be source dir name, eg,
         # package libjpeg uses jpeg-6b.  Better fix at untar
@@ -541,11 +597,6 @@ tar -C %(install_root)s-%(i)s -zcf %(gub_uploads)s/%(split_gub_name)s .
 tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"  -zcf %(gub_src_uploads)s/%(gub_name_src)s %(dir_name)s
 ''',
                      locals ())
-
-    def dump_header_file (self):
-        hdr = self.expand ('%(hdr_file)s')
-        self.log_command ("Writing %s\n" % hdr)
-        pickle.dump (self.get_substitution_dict (), open (hdr, 'w'))
 
     def clean (self):
         self.system ('rm -rf  %(stamp_file)s %(install_root)s', locals ())
@@ -581,7 +632,6 @@ rm -rf %(srcdir)s %(builddir)s %(install_root)s
 ''')
             self._untar ('%(allsrcdir)s')
 
-        ## FIXME what was this for? --hwn
         self.system ('cd %(srcdir)s && chmod -R +w .')
 
     def with (self, version='HEAD', mirror=download.gnu,
@@ -591,6 +641,7 @@ rm -rf %(srcdir)s %(builddir)s %(install_root)s
         self.format = format
         self.ball_version = version
         ball_version = version
+        
         # Use copy of default empty depends, to be able to change it.
         self.name_dependencies = list (depends)
         self.name_build_dependencies = list (builddeps)
@@ -602,7 +653,7 @@ rm -rf %(srcdir)s %(builddir)s %(install_root)s
 
         return self
 
-class Binary_package (Package):
+class Binary_package (BuildSpecification):
     def untar (self):
         self.system ('''
 rm -rf %(srcdir)s %(builddir)s %(install_root)s
@@ -628,7 +679,7 @@ rm -rf %(srcdir)s %(builddir)s %(install_root)s
         self.system ('tar -C %(srcdir)s/root -cf- . | tar -C %(install_root)s -xf-')
         self.libtool_installed_la_fixups ()
 
-class Null_package (Package):
+class Null_package (BuildSpecification):
     """Placeholder for downloads """
 
     def compile (self):
@@ -652,7 +703,7 @@ class Null_package (Package):
 
 class Sdk_package (Null_package):
     def untar (self):
-        Package.untar (self)
+        BuildSpecification.untar (self)
 
     ## UGH: should store superclass names of each package.
     def is_sdk_package (self):
