@@ -67,9 +67,8 @@ class TargetBuildSpec (gub.BuildSpec):
             os.chmod (self.expand (cache_file), 0755)
 
     def config_cache_settings (self):
-        return self.config_cache_overrides (
-            cross_config_cache['all']
-            + cross_config_cache[self.settings.platform])
+        return self.config_cache_overrides (cross_config_cache['all']
+                                            + cross_config_cache[self.settings.platform])
 
     def compile_command (self):
         c = gub.BuildSpec.compile_command (self)
@@ -143,6 +142,7 @@ class TargetBuildSpec (gub.BuildSpec):
 
 
 cross_config_cache = {
+    'local': '',
     'all': '''
 
 ac_16bit_type=${ac_16bit_type=short}

@@ -51,7 +51,7 @@ class Libpng__local (ToolBuildSpec, Libpng):
         self.with (version='1.2.8', mirror=download.libpng)
 
     def get_build_dependencies (self):
-        return ['zlib-devel', 'libtool']
+        return ['libtool']
 
     def patch (self):
         Libpng.patch (self)
