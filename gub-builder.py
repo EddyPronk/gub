@@ -14,7 +14,6 @@ sys.path.insert (0, 'lib/')
 from misc import *
 import gup
 import cross
-import distcc
 import framework
 import gub
 import installer

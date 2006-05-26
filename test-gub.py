@@ -210,7 +210,7 @@ MD5 of complete patch set: %(release_hash)s
 
     if failures == 0 and results:
         for p in options.posthooks:
-            system (p)
+            os.system (p)
 
 def test ():
     (options, args) = opt_parser().parse_args ()
