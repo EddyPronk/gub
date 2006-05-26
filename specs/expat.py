@@ -9,6 +9,9 @@ class Expat (targetpackage.Target_package):
         self.with (version='1.95.8', mirror=download.sf, format='gz',
                    builddeps=['libtool'])
 
+    def get_build_dependencies (self):
+        return ['libtool']
+
     def patch (self):
         targetpackage.Target_package.patch (self)
         self.system ("cd %(srcdir)s && patch -p1 < %(patchdir)s/expat-1.95.8-mingw.patch")

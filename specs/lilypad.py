@@ -7,10 +7,7 @@ class LilyPad (targetpackage.Target_package):
         targetpackage.Target_package.__init__ (self, settings)
         self.with (version='0.0.7-1',
                    mirror='http://lilypond.org/~hanwen/lilypad-0.0.7-1-src.tar.bz2',
-                   format='bz2',
-
-                   ## ugh, necessary?  
-                   builddeps=['mingw-runtime', 'w32api'])
+                   format='bz2')
 
     def patch (self):
         ## windres doesn't handle --nostdinc

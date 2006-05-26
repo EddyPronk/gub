@@ -39,6 +39,9 @@ class Binutils (Cross_package):
         self.system ('rm %(install_root)s/usr/cross/lib/libiberty.a')
 
 class Gcc (Cross_package):
+    def get_build_dependencies (self):
+        return ['binutils']
+    
     def configure_command (self):
         cmd = Cross_package.configure_command (self)
         # FIXME: using --prefix=%(tooldir)s makes this
@@ -113,12 +116,13 @@ def set_cross_dependencies (package_object_dict):
                       and not isinstance (p, gub.Binary_package))]
     
     for p in other_packs:
-        p.name_build_dependencies += map (lambda x: x.name (),
-                         cross_packs)
+        x = p.get_build_dependencies
+        p.get_build_dependencies = (lambda: [c.name() for c in cross_packs] + x())
 
     for p in other_packs + cross_packs:
-        p.name_build_dependencies += map (lambda x: x.name (),
-                         sdk_packs)
+        old_callback = p.get_build_dependencies
+        y = (lambda: [s.name() for s in sdk_packs] + old_callback())
+        p.get_build_dependencies = y
 
     return packs
 

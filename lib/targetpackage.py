@@ -346,6 +346,5 @@ def load_target_package (settings, url):
 #                package.with (format=init_vars['format'],
 #                              mirror=init_vars['url'],
 #                              version=init_vars['version'],
-#                              builddeps=init_vars['builddeps'])
 
     return package

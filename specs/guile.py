@@ -11,9 +11,13 @@ from toolpackage import Tool_package
 
 class Guile (targetpackage.Target_package):
     def set_mirror(self):
-        self.with (version='1.8.0',
-                   mirror=download.gnu, format='gz',
-                   builddeps=['gettext', 'gmp', 'libtool'])
+        self.with (version='1.8.0', format='gz')
+
+    def get_dependency_dict (self):
+        return {'': ['gmp']}
+
+    def get_build_dependencies (self):
+        return ['gmp-devel', 'libtool']
         
     def __init__ (self, settings):
         targetpackage.Target_package.__init__ (self, settings)
@@ -75,6 +79,8 @@ exit 0
              '%(install_prefix)s/cross/bin/%(target_architecture)s-guile-config')
         os.chmod ('%(install_prefix)s/cross/bin/%(target_architecture)s-guile-config' % self.get_substitution_dict (), 0755)
 
+
+    
 class Guile__mingw (Guile):
     def __init__ (self, settings):
         Guile.__init__ (self, settings)
@@ -208,8 +214,7 @@ class Guile__cygwin (Guile):
         # (which uses libiconv2, but libintl depends on that).
         # So, Cygwin's guile build depends on libiconv.
         self.with (version='1.8.0',
-                   mirror=download.gnu, format='gz',
-                   builddeps=['gettext', 'gmp', 'libtool','libiconv'])
+                   mirror=download.gnu, format='gz')
 
         # FIXME: WIP.  splitting works, xpm can't handle split
         # packages yet, xpm will try to load FOO.py for
@@ -221,6 +226,9 @@ class Guile__cygwin (Guile):
         self.sover = '17'
         if self.settings.options.split_packages:
             self.split_packages = ['devel', 'doc', 'lib']
+
+    def get_build_dependencies (self):
+        return Guile.get_build_dependencies (self) + ['libiconv']
 
     def config_cache_overrides (self, str):
         return str + '''

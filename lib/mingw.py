@@ -25,8 +25,7 @@ class Cygcheck (gub.Binary_package):
     "Only need the cygcheck.exe binary."
     def __init__ (self, settings):
         gub.Binary_package.__init__ (self, settings)
-        self.with (version='1.5.18-1', mirror=download.cygwin_bin, format='bz2',
-                   builddeps=['mingw-runtime'])
+        self.with (version='1.5.18-1', mirror=download.cygwin_bin, format='bz2')
         
     def untar (self):
         gub.Binary_package.untar (self)
@@ -54,8 +53,7 @@ class W32api (gub.Binary_package, gub.Sdk_package):
 def get_cross_packages (settings):
     return [cross.Binutils (settings).with (version='2.16.1', format='bz2'),
             Gcc (settings).with (version='4.1.0',
-                                 mirror=download.gcc_41,
-                                 builddeps=['binutils', 'mingw-runtime', 'w32api']),
+                                 mirror=download.gcc_41),
             Mingw_runtime (settings).with (version='3.9', mirror=download.mingw),
             W32api (settings).with (version='3.5', mirror=download.mingw),
             ]

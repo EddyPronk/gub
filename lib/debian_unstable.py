@@ -52,7 +52,8 @@ def get_debian_package (settings, description):
         deps = filter (lambda x: x not in blacklist, deps)
         package.name_dependencies = deps
 
-    package.name_build_dependencies = []
+    ## FIXME.    
+    # package.name_build_dependencies = []
     package.ball_version = d['Version']
     package.url = mirror + '/' + d['Filename']
     package.format = 'deb'

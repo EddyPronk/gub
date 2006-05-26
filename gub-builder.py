@@ -219,9 +219,14 @@ def main ():
     if c == 'download' or c == 'build':
         def get_all_deps (name):
             package = spec_object_dict[name]
-            return (package.name_build_dependencies)
+            deps = package.get_build_dependencies ()
+
+            ## ugh.
+            deps = [gub.get_base_package_name (d) for d in deps]
+            return deps
+
         deps = gup.topologically_sorted (commands, {}, get_all_deps,
-                         None)
+                                         None)
         if options.verbose:
             print 'deps:' + `deps`
 
@@ -238,10 +243,11 @@ def main ():
                 sys.exit (0)
             raise 
             
-
+        
         # FIXME: what happens here, {cross, cross_module}.packages
         # are already added?
         gup.add_packages_to_manager (pm, settings, spec_object_dict)
+
         deps = filter (spec_object_dict.has_key, package_names)
 #        deps = filter (pm.is_registered, deps)
 

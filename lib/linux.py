@@ -55,22 +55,13 @@ def get_cross_packages (settings):
 
 #                cross.Gcc (settings).with (version='4.1.0',
 #                                           mirror=download.gcc_41, format='bz2', )
-                                   builddeps=['binutils']),
+                                   ),
         ]
     return packages
 
 
 
 def change_target_packages (packages):
-    for p in packages.values ():
-
-        ## UGH!
-        remove = ('libiconv')
-        if p.name () in remove:
-            del packages[p.name ()]
-
-        p.remove_dependencies (remove)
-
     cross.change_target_packages (packages)
     for p in packages.values ():
         if isinstance (p, targetpackage.Target_package):

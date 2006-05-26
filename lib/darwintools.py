@@ -88,6 +88,9 @@ class Gcc (cross.Gcc):
         cross.Gcc.install (self)
         self.rewire_gcc_libs ()
 
+    def get_build_dependencies (self):
+        return ['odcctools']
+    
 class Gcc__darwin (Gcc):
     def configure (self):
         cross.Gcc.configure (self)
@@ -209,19 +212,11 @@ def get_cross_packages (settings):
     if settings.target_architecture.startswith ("powerpc"):
         packages.append (Gcc (settings).with (version='4.1.0',
                                               mirror=download.gcc_41,
-                                              format='bz2',
-                                              builddeps=['odcctools']))
-    elif 1:
+                                              format='bz2'))
+    else:
         packages.append (Gcc (settings).with (version='4.2-20060513',
                                               mirror=download.gcc_snap,
-                                              format='bz2',
-                                              builddeps=['odcctools']))
-    else:
-        packages.append (Gcc__darwin (settings)
-                         .with (version='5250',
-                                mirror='http://www.opensource.apple.com/darwinsource/tarballs/other/gcc-5250.tar.gz',
-                                builddeps=['odcctools']))
-        
+                                              format='bz2'))
 
     return packages
 

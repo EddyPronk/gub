@@ -12,12 +12,17 @@ import gub
 import cross
 
 def package_fixups (settings, packs, extra_build_deps):
+
+    ## already  done in Cross.py , set_cross_dependencies () ? 
+    return
+
     for p in packs:
         if p.name () == 'lilypond':
             p._downloader = p.cvs
         if (not isinstance (p, gub.Sdk_package)
-          and not isinstance (p, cross.Cross_package)
-          and not isinstance (p, gub.Binary_package)):
-            p.name_build_dependencies += filter (lambda x: x != p.name (),
-                              extra_build_deps)
+            and not isinstance (p, cross.Cross_package)
+            and not isinstance (p, gub.Binary_package)):
+            pass
+        ##p.name_build_dependencies += filter (lambda x: x != p.name (),
+        ## extra_build_deps)
 

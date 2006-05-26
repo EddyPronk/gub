@@ -4,8 +4,13 @@ import targetpackage
 class Libpng (targetpackage.Target_package):
     def __init__ (self, settings):
         targetpackage.Target_package.__init__ (self, settings)
-        self.with (version='1.2.8', mirror=download.libpng,
-             builddeps=['zlib'])
+        self.with (version='1.2.8', mirror=download.libpng)
+
+    def get_dependency_dict (self):
+        return {'':['zlib']}
+    
+    def get_build_dependencies (self):
+        return ['zlib-devel']
 
     def name (self):
         return 'libpng'

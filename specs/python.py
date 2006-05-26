@@ -11,12 +11,16 @@ class Python (targetpackage.Target_package):
         targetpackage.Target_package.__init__ (self, settings)
         self.with (version='2.4.2',
                    mirror=download.python,
-                   format='bz2',
-                   builddeps=['expat', 'zlib'])
+                   format='bz2')
+        
+        
 
         ## don't import settings from build system. 
 	self.BASECFLAGS=''
-             
+
+    def get_build_dependencies (self):
+        return ['expat-devel', 'zlib-devel']
+    
     def patch (self):
         targetpackage.Target_package.patch (self)
         self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-1.patch')

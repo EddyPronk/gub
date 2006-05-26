@@ -10,6 +10,12 @@ class Fontconfig (targetpackage.Target_package):
         self.with (version='2.3.2', mirror=download.fontconfig,
                    builddeps=['expat', 'freetype', 'libtool']),
 
+    def get_build_dependencies (self):
+        return ['libtool', 'expat-devel', 'freetype-devel']
+
+    def get_dependency_dict ():
+        return {'': ['expat', 'freetype', 'libtool']}
+
     def configure_command (self):
         # FIXME: system dir vs packaging install
 
@@ -115,5 +121,5 @@ class Fontconfig__local (toolpackage.Tool_package):
     def __init__ (self, settings):
         toolpackage.Tool_package.__init__ (self, settings)
         self.with (version='2.3.2', mirror=download.fontconfig,
-             builddeps=['expat', 'freetype'])
+                   builddeps=['expat', 'freetype'])
         

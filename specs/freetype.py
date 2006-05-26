@@ -6,9 +6,13 @@ import toolpackage
 class Freetype (targetpackage.Target_package):
     def __init__ (self, settings):
         targetpackage.Target_package.__init__ (self, settings)
-        self.with (version='2.1.10', mirror=download.nongnu_savannah,
-             builddeps=['libtool', 'zlib'])
+        self.with (version='2.1.10', mirror=download.nongnu_savannah)
 
+    def get_build_dependencies (self):
+        return ['libtool', 'zlib-devel']
+    def get_dependency_dict ():
+        return {'': 'zlib'}
+        
     def configure (self):
 #                self.autoupdate (autodir=os.path.join (self.srcdir (),
 #                                                       'builds/unix'))
@@ -37,5 +41,5 @@ class Freetype__local (toolpackage.Tool_package):
     def __init__ (self, settings):
         toolpackage.Tool_package.__init__ (self, settings)
         self.with (version='2.1.10', mirror=download.nongnu_savannah,
-             builddeps=['libtool'])
+                   )
         

@@ -85,8 +85,6 @@ class BuildSpecification (Os_context_wrapper):
         self.split_packages = []
         self.sover = '1'
 
-        self.name_build_dependencies = []
-
     # urg: naming conflicts with module.
     def do_download (self):
         self._downloader ()
@@ -247,7 +245,8 @@ cd %(cvs_dest)s && cvs -q update -dAPr %(version)s
 
     @subst_method
     def build_dependencies_string (self):
-        return ';'.join (self.name_build_dependencies)
+        deps = self.get_build_dependencies ()
+        return ';'.join (deps)
 
     @subst_method
     def version (self):
@@ -470,6 +469,9 @@ rm -f %(install_root)s/usr/share/info/dir %(install_root)s/usr/cross/info/dir %(
             p.create_tarball ()
             p.dump_header_file ()
             p.clean ()
+            
+    def get_build_dependencies (self):
+        return []
 
     def get_subpackage_definitions (self):
         return [('devel', ['/usr/include']),
@@ -507,10 +509,6 @@ rm -f %(install_root)s/usr/share/info/dir %(install_root)s/usr/cross/info/dir %(
 
         return ps
     
-    def remove_dependencies (self, remove):
-        self.name_build_dependencies = filter (lambda x: x not in remove,
-                                               self.name_build_dependencies)
-            
     def src_package (self):
         # URG: basename may not be source dir name, eg,
         # package libjpeg uses jpeg-6b.  Better fix at untar
@@ -559,7 +557,7 @@ rm -rf %(srcdir)s %(builddir)s %(install_root)s
         self.system ('cd %(srcdir)s && chmod -R +w .')
 
     def with (self, version='HEAD', mirror=download.gnu,
-              format='gz', builddeps=[],
+              format='gz', 
               track_development=False
               ):
         
@@ -567,8 +565,6 @@ rm -rf %(srcdir)s %(builddir)s %(install_root)s
         self.ball_version = version
         ball_version = version
         
-        # Use copy of default empty depends, to be able to change it.
-        self.name_build_dependencies = list (builddeps)
         self.track_development = track_development
         self.url = mirror
 
@@ -669,3 +665,8 @@ def append_target_dict (package, add_dict):
         package.get_substitution_dict = Change_target_dict (package, add_dict).append_dict
     except AttributeError:
         pass
+
+def get_base_package_name (name):
+    name = re.sub ('-devel$', '', name)
+    name = re.sub ('-doc$', '', name)
+    return name

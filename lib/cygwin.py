@@ -54,14 +54,9 @@ def get_cross_packages (settings):
     # FIXME: must add deps to buildeps, otherwise packages do not
     # get built in correct dependency order?
     cross_packs = [
-        Binutils (settings).with (version='20050610-1', format='bz2', mirror=download.cygwin,
-                                  builddeps=['cygwin', 'w32api']
-                        ),
-        W32api_in_usr_lib (settings).with (version='1.0',
-                                           builddeps=['w32api']),
-        Gcc (settings).with (version='4.1.0', mirror=download.gcc_41, format='bz2',
-                             builddeps=['binutils', 'cygwin', 'w32api-in-usr-lib']
-                     ),
+        Binutils (settings).with (version='20050610-1', format='bz2', mirror=download.cygwin),
+        W32api_in_usr_lib (settings).with (version='1.0'),
+        Gcc (settings).with (version='4.1.0', mirror=download.gcc_41, format='bz2'),
         ]
 
     return cross_packs
@@ -126,7 +121,9 @@ def get_cygwin_package (settings, name, dict):
         blacklist = cross + cycle + source + unneeded
         deps = filter (lambda x: x not in blacklist, deps)
         package.name_dependencies = deps
-        package.name_build_dependencies = deps
+
+        # FIXME.
+        ## package.name_build_dependencies = deps
     package.ball_version = dict['version']
         
     package.url = (mirror + '/'

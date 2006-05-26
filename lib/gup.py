@@ -323,6 +323,8 @@ def topologically_sorted (todo, done, dependency_getter,
     return s
 
 
+    
+
 ################################################################
 # UGH
 # this is too hairy. --hwn
@@ -333,15 +335,17 @@ def get_source_packages (settings, todo):
     pack_dict = dict ((p.name (), p) for p in cross_packages)
 
     def name_to_dependencies_via_gub (name):
+        import gub ## ugh
         try:
             pack = pack_dict[name]
         except KeyError:
             pack = targetpackage.load_target_package (settings, name)
             pack_dict[name] = pack
 
-        retval = pack.name_build_dependencies
+        retval = map (gub.get_base_package_name, pack.get_build_dependencies ())
         for subdeps in pack.get_dependency_dict ().values ():
-            retval += subdeps
+            print subdeps
+            retval += map (gub.get_base_package_name,  subdeps)
             
         return retval
 
@@ -356,7 +360,7 @@ def get_source_packages (settings, todo):
 
         pack_dict[name] = pack
 
-        return pack.name_build_dependencies
+        return [] ## FIXME.
 
     todo += pack_dict.keys ()
 
@@ -372,7 +376,7 @@ def get_source_packages (settings, todo):
 
     ## sort for cross deps too.
     def obj_to_dependency_objects (obj):
-        return [pack_dict[n] for n in obj.name_build_dependencies]
+        return [pack_dict[n] for n in obj.get_build_dependencies ()]
     
     package_objs = topologically_sorted (pack_dict.values (), {},
                       obj_to_dependency_objects)
@@ -385,10 +389,10 @@ def get_target_manager (settings):
     return target_manager
 
 def add_packages_to_manager (target_manager, settings, package_object_dict):
-
+    
     ## Ugh, this sucks: we now have to have all packages
     ## registered at the same time.
-
+    
     cross_module = cross.get_cross_module (settings.platform)
     cross_module.change_target_packages (package_object_dict)
 
@@ -397,3 +401,4 @@ def add_packages_to_manager (target_manager, settings, package_object_dict):
             target_manager.register_package_dict (package.dict ())
 
     return target_manager
+

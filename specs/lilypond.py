@@ -15,11 +15,14 @@ class LilyPond (targetpackage.Target_package):
         return {'': ['fontconfig', 'gettext', 
                      'guile', 'pango', 'python',
                      'ghostscript']}
+    
+    def get_build_dependencies (self):
+        return ['guile-devel', 'python-devel', 'fontconfig-devel',
+                'gettext-devel',  'pango-devel', 'freetype-devel', 'urw-fonts']
 
     def __init__ (self, settings):
         targetpackage.Target_package.__init__ (self, settings)
         self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
-                   builddeps=['urw-fonts'],
                    track_development=True)
 
         # FIXME: should add to C_INCLUDE_PATH
@@ -141,9 +144,6 @@ class LilyPond__cygwin (LilyPond):
     def __init__ (self, settings):
         LilyPond.__init__ (self, settings)
         self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
-                   builddeps=['gettext-devel', 'glib2-devel', 'guile',
-                              'libfontconfig-devel', 'libfreetype2-devel', 'libiconv',
-                              'pango-devel', 'python'],
                    track_development=True)
 
     def get_dependency_dict (self):
@@ -305,8 +305,6 @@ class LilyPond__debian (LilyPond):
     def __init__ (self, settings):
         LilyPond.__init__ (self, settings)
         self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
-                   builddeps=['libfontconfig1-dev', 'guile-1.6-dev',
-                              'libpango1.0-dev', 'python-dev'],
                    track_development=True)
     def install (self):
         targetpackage.Target_package.install (self)
