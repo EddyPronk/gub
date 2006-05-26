@@ -247,7 +247,7 @@ class PackageManager (FileManager):
             print 'already have package ', name
             raise 'abort'
         d = self._packages[name]
-        ball = '%(gub_ball)s' % d
+        ball = '%(split_ball)s' % d
         self.install_tarball (ball, name)
         self._package_dict_db[name] = pickle.dumps (d)
 
@@ -390,6 +390,6 @@ def add_packages_to_manager (target_manager, settings, package_object_dict):
 
     for spec in package_object_dict.values ():
         for package in spec.get_packages ():
-            target_manager.register_package_dict (package.get_substitution_dict ())
+            target_manager.register_package_dict (package.dict ())
 
     return target_manager

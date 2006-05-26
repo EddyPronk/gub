@@ -8,7 +8,7 @@ class Fontconfig (targetpackage.Target_package):
     def __init__ (self, settings):
         targetpackage.Target_package.__init__ (self, settings)
         self.with (version='2.3.2', mirror=download.fontconfig,
-             depends=['expat', 'freetype', 'libtool']),
+                   depends=['expat', 'freetype', 'libtool']),
 
     def configure_command (self):
         # FIXME: system dir vs packaging install

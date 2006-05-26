@@ -28,10 +28,12 @@ class PackageSpecification:
         self._dependencies = []
         
     def set_dict (self, dict, sub_name):
+        self._dict = dict.copy ()
+        self._dict['sub_name'] = sub_name
+        
         if sub_name:
             sub_name = '-' + sub_name
 
-        self._dict = dict.copy ()
         self._dict['split_name'] = ('%(name)s' % dict) + sub_name
         self._dict['split_ball'] = '%(gub_uploads)s/%(split_name)s-%(version)s.%(platform)s.gup' % self._dict
         self._dict['split_hdr'] = '%(gub_uploads)s/%(split_name)s.%(platform)s.hdr' % self._dict
@@ -41,7 +43,7 @@ class PackageSpecification:
             self._dict['dependencies_string'] = ';' + deps
         else:
             self._dict['dependencies_string'] = deps
-        
+
     def expand (self, s):
         return s % self._dict
     
@@ -93,6 +95,10 @@ class BuildSpecification (Os_context_wrapper):
     def do_download (self):
         self._downloader ()
 
+    def get_dependency_dict (self):
+        """subpackage -> list of dependency dict."""
+        
+        return {}
     def builder (self):
         available = dict (inspect.getmembers (self, callable))
         if self.settings.options.stage:
@@ -456,7 +462,7 @@ rm -f %(install_root)s/usr/share/info/dir %(install_root)s/usr/cross/info/dir %(
     def compile (self):
         self.system ('cd %(builddir)s && %(compile_command)s')
 
-    # FIXME: should not misuse patch for auto stuff
+    # FIXME: should not misusde patch for auto stuff
     def patch (self):
         if not os.path.exists ('%(srcdir)s/configure' \
                    % self.get_substitution_dict ()):
@@ -474,11 +480,20 @@ rm -f %(install_root)s/usr/share/info/dir %(install_root)s/usr/cross/info/dir %(
             p.clean ()
             
     def get_packages (self):
-        return [self.get_devel_package(),
-                self.get_doc_package(),
-                self.get_base_package(),
-                ]
+        ps = [self.get_devel_package(),
+              self.get_doc_package(),
+              self.get_base_package(),
+              ]
 
+        d = self.get_dependency_dict ()
+        for p in ps: 
+            name = p.expand ('%(sub_name)s')
+            if not d.has_key (name):
+                continue
+            p._dict['dependencies_string'] += ';'.join (d[name])
+        
+        return ps
+    
     def get_devel_package (self):
         p = PackageSpecification (self.os_interface)
         
@@ -555,6 +570,11 @@ rm -rf %(srcdir)s %(builddir)s %(install_root)s
          format='gz', depends=[], builddeps=[],
          track_development=False
          ):
+
+        if depends:
+            print self, depends
+            raise 'deprecated'
+        
         self.format = format
         self.ball_version = version
         ball_version = version

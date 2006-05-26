@@ -7,7 +7,7 @@ class Expat (targetpackage.Target_package):
     def __init__ (self, settings):
         targetpackage.Target_package.__init__ (self, settings)
         self.with (version='1.95.8', mirror=download.sf, format='gz',
-                   depends=['libtool'])
+                   builddepends=['libtool'])
 
     def patch (self):
         targetpackage.Target_package.patch (self)
@@ -36,4 +36,4 @@ class Expat__local (toolpackage.Tool_package):
     def __init__ (self,settings):
         toolpackage.Tool_package.__init__ (self, settings)
         self.with (version='1.95.8', mirror=download.sf, format='gz',
-                   depends=['libtool'])
+                   builddepends=['libtool'])

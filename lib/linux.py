@@ -56,7 +56,7 @@ def get_cross_packages (settings):
 
 #                cross.Gcc (settings).with (version='4.1.0',
 #                                           mirror=download.gcc_41, format='bz2', )
-                                   depends=['binutils']),
+                                   builddeps=['binutils']),
         ]
     return packages
 

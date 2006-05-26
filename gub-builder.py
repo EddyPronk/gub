@@ -182,8 +182,6 @@ def run_builder (settings, manager, names, spec_object_dict):
 
         for p in spec.get_packages():
             name = p.name()
-            print name
-            print manager.is_installable (name)
             
             if (manager.is_installable (name)
                 and not manager.is_installed (name)):
