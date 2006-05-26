@@ -34,15 +34,18 @@ class PackageSpecification:
         if sub_name:
             sub_name = '-' + sub_name
 
-        self._dict['split_name'] = ('%(name)s' % dict) + sub_name
+        s = ('%(name)s' % dict) + sub_name
+
+        branch = self.expand ('%(vc_branch)s')
+
+        if branch:
+            self._dict['vc_branch_suffix'] = '-' + branch
+        else:
+            self._dict['vc_branch_suffix'] = ''
+            
+        self._dict['split_name'] = s
         self._dict['split_ball'] = '%(gub_uploads)s/%(split_name)s-%(version)s.%(platform)s.gup' % self._dict
-        self._dict['split_hdr'] = '%(gub_uploads)s/%(split_name)s.%(platform)s.hdr' % self._dict
-
-## TODO
-#        if self.track_development:
-#            s += '-%(version)s'
-        
-
+        self._dict['split_hdr'] = '%(gub_uploads)s/%(split_name)s%(vc_branch)s.%(platform)s.hdr' % self._dict
 
         deps =  ';'.join (self._dependencies)
         self._dict['dependencies_string'] = deps
@@ -241,7 +244,7 @@ cd %(cvs_dest)s && cvs -q update -dAPr %(version)s
         return f
 
     @subst_method
-    def cvs_branch (self):
+    def branch (self):
         if self.track_development:
             return '%(version)s'
         else:
