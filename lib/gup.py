@@ -318,7 +318,7 @@ def topologically_sorted (todo, done, dependency_getter,
     s = []
     for t in todo:
         s += topologically_sorted_one (t, done, dependency_getter,
-                       recurse_stop_predicate)
+                                       recurse_stop_predicate)
 
     return s
 
@@ -326,7 +326,9 @@ def topologically_sorted (todo, done, dependency_getter,
 ################################################################
 # UGH
 # this is too hairy. --hwn
-def get_packages (settings, todo):
+def get_source_packages (settings, todo):
+    """TODO is a list of (source) buildspecs """
+
     cross_packages = cross.get_cross_packages (settings)
     pack_dict = dict ((p.name (), p) for p in cross_packages)
 
@@ -337,7 +339,10 @@ def get_packages (settings, todo):
             pack = targetpackage.load_target_package (settings, name)
             pack_dict[name] = pack
 
-        retval = pack.name_dependencies + pack.name_build_dependencies
+        retval = pack.name_build_dependencies
+        for subdeps in pack.get_dependency_dict ().values ():
+            retval += subdeps
+            
         return retval
 
     def name_to_dependencies_via_cygwin (name):
@@ -351,7 +356,7 @@ def get_packages (settings, todo):
 
         pack_dict[name] = pack
 
-        return pack.name_dependencies + pack.name_build_dependencies
+        return pack.name_build_dependencies
 
     todo += pack_dict.keys ()
 
@@ -367,8 +372,7 @@ def get_packages (settings, todo):
 
     ## sort for cross deps too.
     def obj_to_dependency_objects (obj):
-        return [pack_dict[n] for n in obj.name_dependencies
-            + obj.name_build_dependencies]
+        return [pack_dict[n] for n in obj.name_build_dependencies]
     
     package_objs = topologically_sorted (pack_dict.values (), {},
                       obj_to_dependency_objects)

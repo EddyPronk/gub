@@ -10,7 +10,7 @@ class Gmp (targetpackage.Target_package):
         self.with (version='4.2.1-rc',
                    mirror="ftp://ftp.swox.com/pub/gmp/src/gmp-4.2.1-rc.tar.bz2",
                    format="bz2",
-                   depends=['libtool'])
+                   builddeps=['libtool'])
 
         if not self.settings.platform.startswith ('darwin'):
             self.target_architecture = re.sub ('i[0-9]86-', 'i386-', settings.target_architecture)
@@ -87,6 +87,6 @@ class Gmp__local (Tool_package):
         self.with (version='4.1.4',
 #                   mirror="ftp://ftp.swox.com/pub/gmp/src/gmp-%(version)s-rc.tar.bz2",
                    mirror="ftp://ftp.gnu.org/gnu/gmp/gmp-%(version)s.tar.bz2",
-                   depends=[])
+                   builddeps=[])
 
 

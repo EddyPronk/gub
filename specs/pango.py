@@ -12,7 +12,7 @@ class Pango (targetpackage.Target_package):
         self.with (version='1.12.1',
                    mirror=download.gnome_214,
                    format='bz2',
-                   depends=['freetype', 'fontconfig', 'glib',
+                   builddeps=['freetype', 'fontconfig', 'glib',
                             'libiconv', 'libtool'])
 
     def configure_command (self):
@@ -87,7 +87,7 @@ class Pango__freebsd (Pango__linux):
         self.with (version='1.11.2',
              mirror=download.gnome_213,
              format='bz2',
-             depends=['freetype', 'fontconfig', 'glib', 'libiconv', 'libtool'])
+             builddeps=['freetype', 'fontconfig', 'glib', 'libiconv', 'libtool'])
 
     def install (self):
         Pango__linux.install (self)

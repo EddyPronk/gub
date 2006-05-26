@@ -55,14 +55,11 @@ def get_cross_packages (settings):
     # get built in correct dependency order?
     cross_packs = [
         Binutils (settings).with (version='20050610-1', format='bz2', mirror=download.cygwin,
-                                  depends=['cygwin', 'w32api'],
                                   builddeps=['cygwin', 'w32api']
                         ),
         W32api_in_usr_lib (settings).with (version='1.0',
-                                           depends=['w32api'],
                                            builddeps=['w32api']),
         Gcc (settings).with (version='4.1.0', mirror=download.gcc_41, format='bz2',
-                             depends=['binutils', 'cygwin', 'w32api-in-usr-lib'],
                              builddeps=['binutils', 'cygwin', 'w32api-in-usr-lib']
                      ),
         ]

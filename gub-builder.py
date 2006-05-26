@@ -158,7 +158,6 @@ def run_builder (settings, manager, names, spec_object_dict):
                     manager.uninstall_package (p.name ())
 
     for spec_name in names:
-        
         spec = spec_object_dict[spec_name]
         all_installed = True
         for p in spec.get_packages():
@@ -175,9 +174,8 @@ def run_builder (settings, manager, names, spec_object_dict):
         if (settings.options.stage
             or not is_installable
             or not checksum_ok):
-            settings.os_interface.log_command ('building package: %s\n'
-                                               % p)
-            
+            settings.os_interface.log_command ('building package: %s\n' % spec_name)
+
             spec.builder ()
 
         for p in spec.get_packages():
@@ -215,14 +213,13 @@ def main ():
     os.environ['PATH'] = settings.expand ('%(buildtools)s/bin:%(PATH)s',
                        locals ())
 
-    (package_names, spec_object_dict) = gup.get_packages (settings,
-                                                             commands)
+    (package_names, spec_object_dict) = gup.get_source_packages (settings,
+                                                                 commands)
 
     if c == 'download' or c == 'build':
         def get_all_deps (name):
             package = spec_object_dict[name]
-            return (package.name_dependencies
-                + package.name_build_dependencies)
+            return (package.name_build_dependencies)
         deps = gup.topologically_sorted (commands, {}, get_all_deps,
                          None)
         if options.verbose:
@@ -246,7 +243,7 @@ def main ():
         # are already added?
         gup.add_packages_to_manager (pm, settings, spec_object_dict)
         deps = filter (spec_object_dict.has_key, package_names)
-        deps = filter (pm.is_registered, deps)
+#        deps = filter (pm.is_registered, deps)
 
         run_builder (settings, pm, deps, spec_object_dict)
     else:

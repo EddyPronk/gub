@@ -39,7 +39,7 @@ class Nsis (Tool_package):
                    mirror="http://surfnet.dl.sourceforge.net/sourceforge/%(name)s/%(name)s-%(version)s-src.tar.%(format)s",
                    
                    format="bz2",
-                   depends=["scons"])
+                   builddeps=["scons"])
 
     def patch (self):
   

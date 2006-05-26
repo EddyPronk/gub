@@ -8,7 +8,7 @@ class Fontconfig (targetpackage.Target_package):
     def __init__ (self, settings):
         targetpackage.Target_package.__init__ (self, settings)
         self.with (version='2.3.2', mirror=download.fontconfig,
-                   depends=['expat', 'freetype', 'libtool']),
+                   builddeps=['expat', 'freetype', 'libtool']),
 
     def configure_command (self):
         # FIXME: system dir vs packaging install
@@ -75,7 +75,7 @@ class Fontconfig__mingw (Fontconfig):
     def x__init__ (self, settings):
         Fontconfig.__init__ (self, settings)
         self.with (version='2.3.94', mirror=download.fontconfig,
-             depends=['expat', 'freetype', 'libtool'])
+             builddeps=['expat', 'freetype', 'libtool'])
 
     def patch (self):
         Fontconfig.patch (self)
@@ -115,5 +115,5 @@ class Fontconfig__local (toolpackage.Tool_package):
     def __init__ (self, settings):
         toolpackage.Tool_package.__init__ (self, settings)
         self.with (version='2.3.2', mirror=download.fontconfig,
-             depends=['expat', 'freetype'])
+             builddeps=['expat', 'freetype'])
         

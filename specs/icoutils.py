@@ -5,4 +5,4 @@ class Icoutils (Tool_package):
         Tool_package.__init__ (self, settings)
         self.with (version='0.26.0',
              mirror='http://savannah.nongnu.org/download/icoutils/icoutils-%(version)s.tar.gz',
-             depends=['libpng']),
+             builddeps=['libpng']),

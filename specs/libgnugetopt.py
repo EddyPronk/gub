@@ -5,7 +5,7 @@ class Libgnugetopt (targetpackage.Target_package):
     def __init__ (self, settings):
         targetpackage.Target_package.__init__ (self, settings)
         self.with (version='1.3', format='bz2', mirror=download.freebsd_ports,
-             depends=[])
+             builddeps=[])
 
     def patch (self):
         self.dump ('''

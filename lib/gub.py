@@ -39,10 +39,7 @@ class PackageSpecification:
         self._dict['split_hdr'] = '%(gub_uploads)s/%(split_name)s.%(platform)s.hdr' % self._dict
 
         deps =  ';'.join (self._dependencies)
-        if self._dict.has_key ('dependencies_string'):
-            self._dict['dependencies_string'] = ';' + deps
-        else:
-            self._dict['dependencies_string'] = deps
+        self._dict['dependencies_string'] = deps
 
     def expand (self, s):
         return s % self._dict
@@ -88,7 +85,6 @@ class BuildSpecification (Os_context_wrapper):
         self.split_packages = []
         self.sover = '1'
 
-        self.name_dependencies = []
         self.name_build_dependencies = []
 
     # urg: naming conflicts with module.
@@ -212,7 +208,7 @@ cd %(cvs_dest)s && cvs -q update -dAPr %(version)s
 
     def cvs_checksum_file (self):
         dir = '%s/%s-%s/' % (self.settings.downloaddir, self.name(),
-                  self.version ())
+                             self.version ())
 
         file = '%s/.cvs-checksum' % dir
         return file
@@ -252,10 +248,6 @@ cd %(cvs_dest)s && cvs -q update -dAPr %(version)s
     @subst_method
     def build_dependencies_string (self):
         return ';'.join (self.name_build_dependencies)
-
-    @subst_method
-    def dependencies_string (self):
-        return ';'.join (self.name_dependencies)
 
     @subst_method
     def version (self):
@@ -478,47 +470,47 @@ rm -f %(install_root)s/usr/share/info/dir %(install_root)s/usr/cross/info/dir %(
             p.create_tarball ()
             p.dump_header_file ()
             p.clean ()
-            
-    def get_packages (self):
-        ps = [self.get_devel_package(),
-              self.get_doc_package(),
-              self.get_base_package(),
-              ]
 
+    def get_subpackage_definitions (self):
+        return [('devel', ['/usr/include']),
+                ('doc', ['/usr/share/doc',
+                         '/usr/share/info',
+                         '/usr/share/man',
+                         ]),
+                ('', '/')]
+    
+    def get_packages (self):
+        defs = self.get_subpackage_definitions ()
+
+        ps = []  
+        for (sub, filespecs) in defs:
+            p = PackageSpecification (self.os_interface)
+
+            if sub:
+                p._dependencies = [self.expand ("%(name)s")]
+                
+            p._file_specs = filespecs
+            p.set_dict (self.get_substitution_dict(), sub)
+            ps.append (p)
+            
         d = self.get_dependency_dict ()
         for p in ps: 
             name = p.expand ('%(sub_name)s')
             if not d.has_key (name):
                 continue
-            p._dict['dependencies_string'] += ';'.join (d[name])
-        
+
+            deps = ';'.join (d[name])
+            if p._dict['dependencies_string']:
+                deps = ';' + deps
+                
+            p._dict['dependencies_string'] += deps
+
         return ps
     
-    def get_devel_package (self):
-        p = PackageSpecification (self.os_interface)
-        
-        p._dependencies = [self.expand ("%(name)s")]
-        p.set_dict (self.get_substitution_dict(), 'devel')
-        
-        p._file_specs = ['/usr/include']
-        return p
-        
-    def get_doc_package (self):
-        p = PackageSpecification (self.os_interface)
-        p.set_dict (self.get_substitution_dict(), 'doc')
-        p._dependencies = [self.expand ("%(name)s")]
-        p._file_specs = ['/usr/share/doc',
-                         '/usr/share/info',
-                         '/usr/share/man',
-                         ]
-        return p
-
-    def get_base_package (self):
-        p = PackageSpecification (self.os_interface)
-        p.set_dict (self.get_substitution_dict(), '')
-        p._file_specs = ['/']
-        return p
-    
+    def remove_dependencies (self, remove):
+        self.name_build_dependencies = filter (lambda x: x not in remove,
+                                               self.name_build_dependencies)
+            
     def src_package (self):
         # URG: basename may not be source dir name, eg,
         # package libjpeg uses jpeg-6b.  Better fix at untar
@@ -567,20 +559,15 @@ rm -rf %(srcdir)s %(builddir)s %(install_root)s
         self.system ('cd %(srcdir)s && chmod -R +w .')
 
     def with (self, version='HEAD', mirror=download.gnu,
-         format='gz', depends=[], builddeps=[],
-         track_development=False
-         ):
-
-        if depends:
-            print self, depends
-            raise 'deprecated'
+              format='gz', builddeps=[],
+              track_development=False
+              ):
         
         self.format = format
         self.ball_version = version
         ball_version = version
         
         # Use copy of default empty depends, to be able to change it.
-        self.name_dependencies = list (depends)
         self.name_build_dependencies = list (builddeps)
         self.track_development = track_development
         self.url = mirror

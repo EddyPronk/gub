@@ -7,7 +7,7 @@ class Expat (targetpackage.Target_package):
     def __init__ (self, settings):
         targetpackage.Target_package.__init__ (self, settings)
         self.with (version='1.95.8', mirror=download.sf, format='gz',
-                   builddepends=['libtool'])
+                   builddeps=['libtool'])
 
     def patch (self):
         targetpackage.Target_package.patch (self)

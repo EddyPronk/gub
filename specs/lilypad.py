@@ -10,7 +10,7 @@ class LilyPad (targetpackage.Target_package):
                    format='bz2',
 
                    ## ugh, necessary?  
-                   depends=['mingw-runtime', 'w32api'])
+                   builddeps=['mingw-runtime', 'w32api'])
 
     def patch (self):
         ## windres doesn't handle --nostdinc

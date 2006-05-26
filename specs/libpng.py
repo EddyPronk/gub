@@ -5,7 +5,7 @@ class Libpng (targetpackage.Target_package):
     def __init__ (self, settings):
         targetpackage.Target_package.__init__ (self, settings)
         self.with (version='1.2.8', mirror=download.libpng,
-             depends=['zlib'])
+             builddeps=['zlib'])
 
     def name (self):
         return 'libpng'

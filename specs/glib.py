@@ -8,7 +8,7 @@ class Glib (targetpackage.Target_package):
         self.with (version='2.10.1',
 		   mirror='ftp://ftp.gnome.org/Public/GNOME/sources/glib/2.10/%(name)s-%(ball_version)s.tar.%(format)s',
 		   format='bz2',
-		   depends=['gettext', 'libiconv', 'libtool'])
+		   builddeps=['gettext', 'libiconv', 'libtool'])
 	
     def config_cache_overrides (self, str):
         return str + '''
@@ -37,7 +37,7 @@ class Glib__local (toolpackage.Tool_package):
        self.with (version='2.10.1',
                    mirror='ftp://ftp.gnome.org/Public/GNOME/sources/glib/2.10/%(name)s-%(ball_version)s.tar.%(format)s',
                    format='bz2',
-                   depends=['gettext', 'libtool'])
+                   builddeps=['gettext', 'libtool'])
    def install (self):
             toolpackage.Tool_package.install(self)
             self.system ('rm %(install_root)s/usr/lib/charset.alias',

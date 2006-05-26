@@ -14,7 +14,7 @@ class Ghostscript (targetpackage.Target_package):
              #mirror='ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs850/ghostscript-8.50-gpl.tar.bz2',
              mirror=xsf,
              format='bz2',
-             depends=['libiconv', 'libjpeg', 'libpng'])
+             builddeps=['libiconv', 'libjpeg', 'libpng'])
 
     def srcdir (self):
         return re.sub ('-source', '', targetpackage.Target_package.srcdir (self))

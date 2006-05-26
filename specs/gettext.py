@@ -6,7 +6,7 @@ class Gettext (targetpackage.Target_package):
     def __init__ (self, settings):
         targetpackage.Target_package.__init__ (self, settings)
         self.with (version='0.14.1', mirror=download.gnu, format='gz',
-                   depends=['libtool'])
+                   builddeps=['libtool'])
 
     def configure_command (self):
         return (targetpackage.Target_package.configure_command (self)
@@ -23,7 +23,7 @@ class Gettext__freebsd (Gettext):
     def __init__ (self, settings):
         Gettext.__init__ (self, settings)
         self.with (version='0.14.1', mirror=download.gnu, format='gz',
-                   depends=['libtool', 'libgnugetopt'])
+                   builddeps=['libtool', 'libgnugetopt'])
 
     def patch (self):
         Gettext.patch (self)
@@ -36,7 +36,7 @@ class Gettext__mingw (Gettext):
     def __init__ (self, settings):
         Gettext.__init__ (self, settings)
         self.with (version='0.14.5', mirror=download.gnu, format='gz',
-                   depends=['libtool'])
+                   builddeps=['libtool'])
 
     def config_cache_overrides (self, str):
         return (re.sub ('ac_cv_func_select=yes', 'ac_cv_func_select=no',
@@ -68,4 +68,4 @@ class Gettext__local (toolpackage.Tool_package):
     def __init__ (self, settings):
         toolpackage.Tool_package.__init__(self,settings)
         self.with (version='0.14.1', mirror=download.gnu, format='gz',
-                   depends=['libtool'])
+                   builddeps=['libtool'])

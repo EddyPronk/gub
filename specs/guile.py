@@ -13,7 +13,7 @@ class Guile (targetpackage.Target_package):
     def set_mirror(self):
         self.with (version='1.8.0',
                    mirror=download.gnu, format='gz',
-                   depends=['gettext', 'gmp', 'libtool'])
+                   builddeps=['gettext', 'gmp', 'libtool'])
         
     def __init__ (self, settings):
         targetpackage.Target_package.__init__ (self, settings)
@@ -209,8 +209,7 @@ class Guile__cygwin (Guile):
         # So, Cygwin's guile build depends on libiconv.
         self.with (version='1.8.0',
                    mirror=download.gnu, format='gz',
-                   depends=['gettext', 'gmp', 'libtool'],
-                   builddeps=['libiconv'])
+                   builddeps=['gettext', 'gmp', 'libtool','libiconv'])
 
         # FIXME: WIP.  splitting works, xpm can't handle split
         # packages yet, xpm will try to load FOO.py for

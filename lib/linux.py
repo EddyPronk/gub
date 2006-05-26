@@ -44,7 +44,6 @@ class Linux_kernel_headers (gub.Binary_package, gub.Sdk_package):
 """configure:2076: i686-linux-g++    -L/var/tmp/test-gub/target/linux/system/usr/lib -L/var/tmp/test-gub/target/linux/system/usr/bin -L/var/tmp/test-gub/target/linux/system/usr/lib/w32api -Wl,--as-needed  -Wl,--rpath,'$${ORIGIN}/../lib/'  conftest.cc  >&5
 /var/tmp/test-gub/target/linux/system/usr/lib/libstdc++.so: undefined reference to `___tls_get_addr'"""
 
-
 def get_cross_packages (settings):
     packages = [
         Libc6 (settings).with (version='2.2.5-11.8', mirror=download.glibc_deb, format='deb'),
@@ -64,12 +63,14 @@ def get_cross_packages (settings):
 
 def change_target_packages (packages):
     for p in packages.values ():
+
+        ## UGH!
         remove = ('libiconv')
         if p.name () in remove:
             del packages[p.name ()]
-        if p.name_dependencies:
-            p.name_dependencies = filter (lambda x: x not in remove,
-                           p.name_dependencies)
+
+        p.remove_dependencies (remove)
+
     cross.change_target_packages (packages)
     for p in packages.values ():
         if isinstance (p, targetpackage.Target_package):
@@ -80,4 +81,5 @@ def change_target_packages (packages):
             gub.append_target_dict (p,
                         { 'LDFLAGS': ' -Wl,--as-needed ' })
 
-    cross.set_framework_ldpath ([p for p in packages.values () if isinstance (p, targetpackage.Target_package)])
+    cross.set_framework_ldpath ([p for p in packages.values ()
+                                 if isinstance (p, targetpackage.Target_package)])

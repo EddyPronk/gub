@@ -12,7 +12,7 @@ class Python (targetpackage.Target_package):
         self.with (version='2.4.2',
                    mirror=download.python,
                    format='bz2',
-                   depends=['expat', 'zlib'])
+                   builddeps=['expat', 'zlib'])
 
         ## don't import settings from build system. 
 	self.BASECFLAGS=''

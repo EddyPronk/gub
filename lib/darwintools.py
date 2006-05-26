@@ -210,17 +210,17 @@ def get_cross_packages (settings):
         packages.append (Gcc (settings).with (version='4.1.0',
                                               mirror=download.gcc_41,
                                               format='bz2',
-                                              depends=['odcctools']))
+                                              builddeps=['odcctools']))
     elif 1:
         packages.append (Gcc (settings).with (version='4.2-20060513',
                                               mirror=download.gcc_snap,
                                               format='bz2',
-                                              depends=['odcctools']))
+                                              builddeps=['odcctools']))
     else:
         packages.append (Gcc__darwin (settings)
                          .with (version='5250',
                                 mirror='http://www.opensource.apple.com/darwinsource/tarballs/other/gcc-5250.tar.gz',
-                                depends=['odcctools']))
+                                builddeps=['odcctools']))
         
 
     return packages
