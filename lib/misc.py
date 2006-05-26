@@ -126,3 +126,18 @@ def download_url (url, dest_dir):
             break
     sys.stderr.write ('\n')
         
+def forall (generator):
+    v = True
+    try:
+        while v:
+            v = v and generator.next()
+    except StopIteration:
+        pass
+
+    return v
+            
+def testme ():
+    print forall(x for x in [1,1])
+    
+if __name__=='__main__':
+    testme ()
