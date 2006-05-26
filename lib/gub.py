@@ -61,7 +61,8 @@ class PackageSpecification:
             
     def create_tarball (self):
         cmd = self.expand ('tar -C %(install_root)s --ignore-failed --exclude="*~" -zcf %(split_ball)s ')
-        cmd += ' '.join ('./%s' % f for f in self._file_specs)
+        cmd += (' '.join ('./%s' % f for f in self._file_specs)).replace ('//','/')
+
         
         self._os_interface.system (cmd)
 
@@ -468,18 +469,28 @@ rm -f %(install_root)s/usr/share/info/dir %(install_root)s/usr/cross/info/dir %(
         return []
 
     def get_subpackage_definitions (self):
-        return [('devel', ['/usr/include']),
+        return [('devel', ['/usr/include',
+                           '/usr/cross/include',
+                           ]),
                 ('doc', ['/usr/share/doc',
                          '/usr/share/info',
                          '/usr/share/man',
+                         '/usr/cross/info',
+                         '/usr/cross/man',
                          ]),
                 ('', '/')]
+
+    def get_subpackage_names (self):
+        return ['devel','doc','']
     
     def get_packages (self):
         defs = self.get_subpackage_definitions ()
 
-        ps = []  
-        for (sub, filespecs) in defs:
+        ps = []
+        
+        for sub in self.get_subpackage_names ():
+            filespecs = defs[sub]
+            
             p = PackageSpecification (self.os_interface)
 
             if sub:
@@ -620,6 +631,9 @@ class Sdk_package (Null_package):
     def untar (self):
         BuildSpecification.untar (self)
 
+    def get_subpackage_names (self):
+        return ['']
+    
     ## UGH: should store superclass names of each package.
     def is_sdk_package (self):
         return 'true'

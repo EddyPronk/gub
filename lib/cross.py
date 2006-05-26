@@ -30,11 +30,14 @@ class Cross_package (gub.BuildSpecification):
     def gub_src_uploads (self):
         return '%(gub_cross_uploads)s'
 
+    def get_subpackage_names (self):
+        return ['', 'doc']
+    
 class Binutils (Cross_package):
     def install (self):
         Cross_package.install (self)
         self.system ('rm %(install_root)s/usr/cross/lib/libiberty.a')
-
+    
 class Gcc (Cross_package):
     def get_build_dependencies (self):
         return ['binutils']
@@ -148,7 +151,7 @@ cross_module_checksums = {}
 def get_cross_module (platform):
     base = platform
     try:
-        base =         {'debian':'debian_unstable',
+        base = {'debian':'debian_unstable',
             'darwin-ppc':'darwintools',
             'darwin-x86':'darwintools',
             'local':'tools'}[platform]
