@@ -211,10 +211,11 @@ class PackageManager (FileManager):
             and branch <> d['cvs_branch']):
             print 'ignoring header for wrong branch', package_hdr
             return
-        
-        if self._package_dict_db.has_key (d['split_name']):
-            if str != self._package_dict_db[d['split_name']]:
-                self.os_interface.log_command ("package header changed for %(name)s\n" % d)
+
+        name = d['split_name']
+        if self._package_dict_db.has_key (name):
+            if str != self._package_dict_db[name]:
+                self.os_interface.log_command ("package header changed for %s\n" % name)
 
             return
 
@@ -233,8 +234,7 @@ class PackageManager (FileManager):
 
     def is_installable (self, name):
         d = self._packages[name]
-
-        ball = '%(gub_ball)s' % d
+        ball = '%(split_ball)s' % d
         hdr = '%(hdr_file)s' % d
         return os.path.exists (ball) and os.path.exists (ball)
 

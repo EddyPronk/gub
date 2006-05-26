@@ -177,7 +177,7 @@ class Command:
         if self.options.name_p:
             print '\n'.join (sort (self.pm.installed_packages ()))
         else:
-            print '\n'.join (sort (['%(name)-20s%(version)s' % d for d in self.pm.installed_package_dicts()]))
+            print '\n'.join (sort (['%(split_name)s-20s%(version)s' % d for d in self.pm.installed_package_dicts()]))
 
     def remove_package (self, p, packs):
         if not self.pm.is_installed (p):

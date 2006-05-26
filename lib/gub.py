@@ -35,7 +35,12 @@ class PackageSpecification:
         self._dict['split_name'] = ('%(name)s' % dict) + sub_name
         self._dict['split_ball'] = '%(gub_uploads)s/%(split_name)s-%(version)s.%(platform)s.gup' % self._dict
         self._dict['split_hdr'] = '%(gub_uploads)s/%(split_name)s.%(platform)s.hdr' % self._dict
-        self._dict['dependencies_string'] = ';'.join (self._dependencies)
+
+        deps =  ';'.join (self._dependencies)
+        if self._dict.has_key ('dependencies_string'):
+            self._dict['dependencies_string'] = ';' + deps
+        else:
+            self._dict['dependencies_string'] = deps
         
     def expand (self, s):
         return s % self._dict
@@ -50,14 +55,17 @@ class PackageSpecification:
             self._os_interface.system (base + f)
             
     def create_tarball (self):
-        cmd = self.expand ('tar -C %(install_root)s  --exclude="*~" -zcf %(split_ball)s-%(version)s.%(platform)s.gup ')
+        cmd = self.expand ('tar -C %(install_root)s --ignore-failed --exclude="*~" -zcf %(split_ball)s ')
         cmd += ' '.join ('./%s' % f for f in self._file_specs)
         
         self._os_interface.system (cmd)
 
     def dict (self):
         return self._dict
-        
+
+    def name (self):
+        return "%(split_name)s" % self._dict
+    
 class BuildSpecification (Os_context_wrapper):
     def __init__ (self, settings):
         Os_context_wrapper.__init__(self, settings)
@@ -294,10 +302,6 @@ cd %(cvs_dest)s && cvs -q update -dAPr %(version)s
 
 
     @subst_method
-    def gub_name (self):
-        return '%(name)s-%(version)s.%(platform)s.gub'
-
-    @subst_method
     def gub_name_src (self):
         return '%(name)s-%(version)s-src.%(platform)s.gub'
 
@@ -459,25 +463,6 @@ rm -f %(install_root)s/usr/share/info/dir %(install_root)s/usr/cross/info/dir %(
             self.autoupdate ()
 
     @subst_method
-    def gub_name_devel (self):
-        return '%(name)s-devel-%(version)s.%(platform)s.gub'
-
-    @subst_method
-    def gub_name_doc (self):
-        return '%(name)s-doc-%(version)s.%(platform)s.gub'
-
-    @subst_method
-    def gub_name_lib (self):
-        if self.name ().startswith ('lib'):
-            sover = self.sover
-            return '%(name)s%(sover)s-%(version)s.%(platform)s.gub'
-        return 'lib%(name)s%(sover)s-%(version)s.%(platform)s.gub'
-
-    @subst_method
-    def gub_ball (self):
-        return '%(gub_uploads)s/%(gub_name)s'
-
-    @subst_method
     def is_sdk_package (self):
         return 'false'
     
@@ -487,6 +472,7 @@ rm -f %(install_root)s/usr/share/info/dir %(install_root)s/usr/cross/info/dir %(
             p.create_tarball ()
             p.dump_header_file ()
             p.clean ()
+            
     def get_packages (self):
         return [self.get_devel_package(),
                 self.get_doc_package(),

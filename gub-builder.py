@@ -11,6 +11,7 @@ import types
 
 sys.path.insert (0, 'lib/')
 
+from misc import *
 import gup
 import cross
 import distcc
@@ -93,20 +94,25 @@ build             - build target packages
     
     return p
 
-def checksums_valid (manager, name, spec_object_dict):
-    spec = spec_object_dict[name]
-    package_dict =  manager.package_dict (name)
-    v = (spec.spec_checksum == package_dict['spec_checksum']
-         and spec.source_checksum () == package_dict['source_checksum'])
+def checksums_valid (manager, specname, spec_object_dict):
+    spec = spec_object_dict[specname]
 
-    hdr = spec.expand ('%(hdr_file)s')
-    v = v and os.path.exists (hdr)
-    if v:
-        hdr_dict = pickle.load (open (hdr)) 
-        hdr_sum = hdr_dict['spec_checksum']
-        v = v and hdr_sum == spec.spec_checksum
+    valid = True
+    for p in spec.get_packages ():
+        name = p.name()
+        package_dict =  manager.package_dict (name)
+        valid = (spec.spec_checksum == package_dict['spec_checksum']
+                 and spec.source_checksum () == package_dict['source_checksum'])
+        
+        hdr = spec.expand ('%(hdr_file)s')
+        valid = valid and os.path.exists (hdr)
+        if valid:
+            hdr_dict = pickle.load (open (hdr)) 
+            hdr_sum = hdr_dict['spec_checksum']
+            valid = valid and hdr_sum == spec.spec_checksum
+
         try:
-            v = v and spec.source_checksum () == hdr_dict['source_checksum']
+            valid = valid and spec.source_checksum () == hdr_dict['source_checksum']
 
             ## FIXME
         except KeyError:
@@ -116,61 +122,75 @@ def checksums_valid (manager, name, spec_object_dict):
     ## let's be lenient for cross packages.
     ## spec.cross_checksum == manager.package_dict(name)['cross_checksum'])
 
-    return v
+    return valid
 
 
-def run_builder (settings, manager, names, package_object_dict):
+def run_builder (settings, manager, names, spec_object_dict):
     PATH = os.environ['PATH']
 
     ## crossprefix is also necessary for building cross packages, such as GCC
     os.environ['PATH'] = settings.expand ('%(crossprefix)s/bin:%(PATH)s',
                                           locals ())
 
-
     ## UGH -> double work, see cross.change_target_packages () ?
-    sdk_pkgs = [p for p in package_object_dict.values ()
+    sdk_pkgs = [p for p in spec_object_dict.values ()
                 if isinstance (p, gub.Sdk_package)]
-    cross_pkgs = [p for p in package_object_dict.values ()
+    cross_pkgs = [p for p in spec_object_dict.values ()
                   if isinstance (p, cross.Cross_package)]
 
     extra_build_deps = [p.name () for p in sdk_pkgs + cross_pkgs]
-    framework.package_fixups (settings, package_object_dict.values (),
+    framework.package_fixups (settings, spec_object_dict.values (),
                               extra_build_deps)
 
     if not settings.options.stage:
         
         reved = names[:]
         reved.reverse ()
-        for p in reved:
+        for spec_name in reved:
+            spec = spec_object_dict[spec_name]
+            
             checksum_ok = (settings.options.lax_checksums
-                           or checksums_valid (manager, p, package_object_dict))
-            if (manager.is_installed (p) and
-                (not manager.is_installable (p)
-                 or not checksum_ok)):
-                manager.uninstall_package (p)
+                           or checksums_valid (manager, spec_name, spec_object_dict))
+            for p in spec.get_packages ():
+                if (manager.is_installed (p.name ()) and
+                    (not manager.is_installable (p.name ())
+                     or not checksum_ok)):
+                    manager.uninstall_package (p.name ())
 
-    for p in names:
-        if manager.is_installed (p):
+    for spec_name in names:
+        
+        spec = spec_object_dict[spec_name]
+        all_installed = True
+        for p in spec.get_packages():
+            all_installed = all_installed and manager.is_installed (p.name())
+         
+        if all_installed:
             continue
         
         checksum_ok = (settings.options.lax_checksums
-                       or checksums_valid (manager, p, package_object_dict))
+                       or checksums_valid (manager, spec_name, spec_object_dict))
+
+        is_installable = forall(manager.is_installable (p.name ()) for p in spec.get_packages())
+        
         if (settings.options.stage
-            or not manager.is_installable (p)
+            or not is_installable
             or not checksum_ok):
             settings.os_interface.log_command ('building package: %s\n'
                                                % p)
             
-            package_object_dict[p].builder ()
+            spec.builder ()
 
-        if (manager.is_installable (p)
-            and not manager.is_installed (p)):
-            spec_obj = package_object_dict[p]
-            d = spec_obj.get_substitution_dict ()
+        for p in spec.get_packages():
+            name = p.name()
+            print name
+            print manager.is_installable (name)
             
-            manager.unregister_package_dict (p)
-            manager.register_package_dict (d)
-            manager.install_package (p)
+            if (manager.is_installable (name)
+                and not manager.is_installed (name)):
+                
+                manager.unregister_package_dict (p.name ())
+                manager.register_package_dict (p.dict ())
+                manager.install_package (p.name ())
 
 def main ():
     cli_parser = get_cli_parser ()
@@ -197,12 +217,12 @@ def main ():
     os.environ['PATH'] = settings.expand ('%(buildtools)s/bin:%(PATH)s',
                        locals ())
 
-    (package_names, package_object_dict) = gup.get_packages (settings,
+    (package_names, spec_object_dict) = gup.get_packages (settings,
                                                              commands)
 
     if c == 'download' or c == 'build':
         def get_all_deps (name):
-            package = package_object_dict[name]
+            package = spec_object_dict[name]
             return (package.name_dependencies
                 + package.name_build_dependencies)
         deps = gup.topologically_sorted (commands, {}, get_all_deps,
@@ -212,7 +232,7 @@ def main ():
 
     if c == 'download':
         for i in deps:
-            package_object_dict[i].do_download ()
+            spec_object_dict[i].do_download ()
 
     elif c == 'build':
         try:
@@ -226,11 +246,11 @@ def main ():
 
         # FIXME: what happens here, {cross, cross_module}.packages
         # are already added?
-        gup.add_packages_to_manager (pm, settings, package_object_dict)
-        deps = filter (package_object_dict.has_key, package_names)
+        gup.add_packages_to_manager (pm, settings, spec_object_dict)
+        deps = filter (spec_object_dict.has_key, package_names)
         deps = filter (pm.is_registered, deps)
 
-        run_builder (settings, pm, deps, package_object_dict)
+        run_builder (settings, pm, deps, spec_object_dict)
     else:
         raise 'unknown gub-builder command %s.' % c
         cli_parser.print_help ()

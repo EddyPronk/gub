@@ -30,10 +30,6 @@ class Cross_package (gub.BuildSpecification):
     def gub_src_uploads (self):
         return '%(gub_cross_uploads)s'
 
-    def gub_ball (self):
-        c =  '%(gub_cross_uploads)s/%(gub_name)s'
-        return c
-
     def hdr_file (self):
         return '%(gub_cross_uploads)s/%(hdr_name)s'
 
