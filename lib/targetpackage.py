@@ -9,7 +9,7 @@ import cross
 from new import classobj
 
 
-class TargetBuildSpec (gub.BuildSpecification):
+class TargetBuildSpec (gub.BuildSpec):
     def configure_command (self):
         return misc.join_lines ('''%(srcdir)s/configure
 --config-cache
@@ -28,7 +28,7 @@ class TargetBuildSpec (gub.BuildSpecification):
 
     def install (self):
         self.pre_install_libtool_fixup ()
-        gub.BuildSpecification.install (self)
+        gub.BuildSpec.install (self)
 
     def pre_install_libtool_fixup (self):
         ## Workaround for libtool bug.
@@ -72,7 +72,7 @@ class TargetBuildSpec (gub.BuildSpecification):
             + cross_config_cache[self.settings.platform])
 
     def compile_command (self):
-        c = gub.BuildSpecification.compile_command (self)
+        c = gub.BuildSpec.compile_command (self)
         if (self.settings.cross_distcc_hosts
           and re.search (r'\bmake\b', c)):
             jobs = '-j%d ' % (2*len (self.settings.cross_distcc_hosts.split (' ')))
@@ -87,7 +87,7 @@ class TargetBuildSpec (gub.BuildSpecification):
             
     def configure (self):
         self.config_cache ()
-        gub.BuildSpecification.configure (self)
+        gub.BuildSpec.configure (self)
 
     ## FIXME: this should move elsewhere , as it's not
     ## package specific
@@ -138,7 +138,7 @@ class TargetBuildSpec (gub.BuildSpecification):
             }
 
         dict.update (env)
-        d =  gub.BuildSpecification.get_substitution_dict (self, dict).copy()
+        d =  gub.BuildSpec.get_substitution_dict (self, dict).copy()
         return d
 
 

@@ -34,7 +34,9 @@ RUN_FC_CACHE_TEST=false
         return (targetpackage.TargetBuildSpec.install_command (self)
             + self.makeflags ())
 
-class Expat__local (toolpackage.ToolBuildSpecification):
+class Expat__local (toolpackage.ToolBuildSpec):
     def __init__ (self,settings):
-        toolpackage.ToolBuildSpecification.__init__ (self, settings)
+        toolpackage.ToolBuildSpec.__init__ (self, settings)
         self.with (version='1.95.8', mirror=download.sf, format='gz')
+    def get_build_dependencies (self):
+        return ['libtool']            

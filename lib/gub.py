@@ -18,7 +18,7 @@ from context import *
 
 
 
-class PackageSpecification:
+class PackageSpec:
     "How to package part of an install_root."
     
     def __init__ (self, os_interface):
@@ -75,7 +75,7 @@ class PackageSpecification:
     def name (self):
         return "%(split_name)s" % self._dict
     
-class BuildSpecification (Os_context_wrapper):
+class BuildSpec (Os_context_wrapper):
     def __init__ (self, settings):
         Os_context_wrapper.__init__(self, settings)
 
@@ -494,8 +494,7 @@ rm -f %(install_root)s/usr/share/info/dir %(install_root)s/usr/cross/info/dir %(
         for sub in self.get_subpackage_names ():
             filespecs = defs[sub]
             
-            p = PackageSpecification (self.os_interface)
-
+            p = PackageSpec (self.os_interface)
             if sub:
                 p._dependencies = [self.expand ("%(name)s")]
                 
@@ -582,7 +581,7 @@ rm -rf %(srcdir)s %(builddir)s %(install_root)s
 
         return self
 
-class Binary_package (BuildSpecification):
+class BinarySpec (BuildSpec):
     def untar (self):
         self.system ('''
 rm -rf %(srcdir)s %(builddir)s %(install_root)s
@@ -608,7 +607,7 @@ rm -rf %(srcdir)s %(builddir)s %(install_root)s
         self.system ('tar -C %(srcdir)s/root -cf- . | tar -C %(install_root)s -xf-')
         self.libtool_installed_la_fixups ()
 
-class Null_package (BuildSpecification):
+class NullBuildSpec (BuildSpec):
     """Placeholder for downloads """
 
     def compile (self):
@@ -630,9 +629,9 @@ class Null_package (BuildSpecification):
     def src_package (self):
         pass
 
-class Sdk_package (Null_package):
+class SdkBuildSpec (NullBuildSpec):
     def untar (self):
-        BuildSpecification.untar (self)
+        BuildSpec.untar (self)
 
     def get_subpackage_names (self):
         return ['']

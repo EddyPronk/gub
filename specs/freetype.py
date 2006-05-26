@@ -38,9 +38,10 @@ LDFLAGS:=$(LDFLAGS) -no-undefined
              '%(builddir)s/Makefile',
              mode='a')
 
-class Freetype__local (toolpackage.ToolBuildSpecification):
+class Freetype__local (toolpackage.ToolBuildSpec):
     def __init__ (self, settings):
-        toolpackage.ToolBuildSpecification.__init__ (self, settings)
-        self.with (version='2.1.10', mirror=download.nongnu_savannah,
-                   )
-        
+        toolpackage.ToolBuildSpec.__init__ (self, settings)
+        self.with (version='2.1.10', mirror=download.nongnu_savannah)
+
+    def get_build_dependencies (self):
+        return ['libtool']            

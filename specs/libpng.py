@@ -43,12 +43,15 @@ class Libpng__mingw (Libpng):
         self.autoupdate ()
         Libpng.configure (self)
 
-from toolpackage import ToolBuildSpecification
+from toolpackage import ToolBuildSpec
 
-class Libpng__local (ToolBuildSpecification, Libpng):
+class Libpng__local (ToolBuildSpec, Libpng):
     def __init__ (self, settings):
-        ToolBuildSpecification.__init__ (self, settings)
+        ToolBuildSpec.__init__ (self, settings)
         self.with (version='1.2.8', mirror=download.libpng)
+
+    def get_build_dependencies (self):
+        return ['zlib-devel', 'libtool']
 
     def patch (self):
         Libpng.patch (self)

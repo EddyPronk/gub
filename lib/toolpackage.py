@@ -4,9 +4,9 @@ import download
 import misc
 import os
 
-class ToolBuildSpecification  (gub.BuildSpecification):
+class ToolBuildSpec  (gub.BuildSpec):
     def configure_command (self):
-        return (gub.BuildSpecification.configure_command (self)
+        return (gub.BuildSpec.configure_command (self)
             + misc.join_lines ('''
 --prefix=%(buildtools)s/
 '''))
@@ -20,7 +20,11 @@ class ToolBuildSpecification  (gub.BuildSpecification):
 
     def get_subpackage_names (self):
         return ['']
-    
+
+    def configure (self):
+        gub.BuildSpec.configure (self)
+        self.update_libtool ()
+
     def get_substitution_dict (self, env={}):
         dict = {
             'C_INCLUDE_PATH': '%(buildtools)s/include',
@@ -28,5 +32,5 @@ class ToolBuildSpecification  (gub.BuildSpecification):
             'CPLUS_INCLUDE_PATH': '%(buildtools)s/include',
         }
         dict.update (env)
-        d =  gub.BuildSpecification.get_substitution_dict (self, dict).copy()
+        d = gub.BuildSpec.get_substitution_dict (self, dict).copy()
         return d

@@ -6,12 +6,12 @@ import imp
 import md5
 
 from context import subst_method 
-class Cross_package (gub.BuildSpecification):
+class CrossToolSpec (gub.BuildSpec):
     """Package for cross compilers/linkers etc.
     """
 
     def configure_command (self):
-        return (gub.BuildSpecification.configure_command (self)
+        return (gub.BuildSpec.configure_command (self)
             + misc.join_lines ('''
 --program-prefix=%(target_architecture)s-
 --prefix=%(crossprefix)s/
@@ -33,17 +33,17 @@ class Cross_package (gub.BuildSpecification):
     def get_subpackage_names (self):
         return ['', 'doc']
     
-class Binutils (Cross_package):
+class Binutils (CrossToolSpec):
     def install (self):
-        Cross_package.install (self)
+        CrossToolSpec.install (self)
         self.system ('rm %(install_root)s/usr/cross/lib/libiberty.a')
     
-class Gcc (Cross_package):
+class Gcc (CrossToolSpec):
     def get_build_dependencies (self):
         return ['binutils']
     
     def configure_command (self):
-        cmd = Cross_package.configure_command (self)
+        cmd = CrossToolSpec.configure_command (self)
         # FIXME: using --prefix=%(tooldir)s makes this
         # uninstallable as a normal system package in
         # /usr/i686-mingw/
@@ -70,7 +70,7 @@ class Gcc (Cross_package):
 
         return misc.join_lines (cmd)
     def configure(self):
-        Cross_package.configure (self)
+        CrossToolSpec.configure (self)
 
 
     def move_target_libs (self, libdir):
@@ -91,7 +91,7 @@ class Gcc (Cross_package):
             self.system ('mv %(f)s %(install_prefix)s/lib', locals())
 
     def install (self):
-        Cross_package.install (self)
+        CrossToolSpec.install (self)
         old_libs = self.expand ('%(install_root)s/usr/cross/%(target_architecture)s')
 
         self.move_target_libs (old_libs)
@@ -119,11 +119,11 @@ class MethodOverrider:
 
 def set_cross_dependencies (package_object_dict):
     packs = package_object_dict.values ()
-    cross_packs = [p for p in packs if isinstance (p, Cross_package)]
-    sdk_packs = [p for p in packs if isinstance (p, gub.Sdk_package)]
-    other_packs = [p for p in packs if (not isinstance (p, Cross_package)
-                                        and not isinstance (p, gub.Sdk_package)
-                                        and not isinstance (p, gub.Binary_package))]
+    cross_packs = [p for p in packs if isinstance (p, CrossToolSpec)]
+    sdk_packs = [p for p in packs if isinstance (p, gub.SdkBuildSpec)]
+    other_packs = [p for p in packs if (not isinstance (p, CrossToolSpec)
+                                        and not isinstance (p, gub.SdkBuildSpec)
+                                        and not isinstance (p, gub.BinarySpec))]
     
     sdk_names = [s.name() for s in sdk_packs]
     cross_names = [s.name() for s in cross_packs]

@@ -126,9 +126,9 @@ def run_builder (settings, manager, names, spec_object_dict):
 
     ## UGH -> double work, see cross.change_target_packages () ?
     sdk_pkgs = [p for p in spec_object_dict.values ()
-                if isinstance (p, gub.Sdk_package)]
+                if isinstance (p, gub.SdkBuildSpec)]
     cross_pkgs = [p for p in spec_object_dict.values ()
-                  if isinstance (p, cross.Cross_package)]
+                  if isinstance (p, cross.CrossToolSpec)]
 
     extra_build_deps = [p.name () for p in sdk_pkgs + cross_pkgs]
     framework.package_fixups (settings, spec_object_dict.values (),

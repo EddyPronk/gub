@@ -6,7 +6,7 @@ import shutil
 import download
 import misc
 import targetpackage
-from toolpackage import ToolBuildSpecification
+from toolpackage import ToolBuildSpec
 
 
 class Guile (targetpackage.TargetBuildSpec):
@@ -320,19 +320,20 @@ mkdir -p %(install_root)s/etc/hints
              
                  env=locals ())
 
-class Guile__local (ToolBuildSpecification, Guile):
+class Guile__local (ToolBuildSpec, Guile):
     def configure (self):
-        ToolBuildSpecification.configure (self)
+        ToolBuildSpec.configure (self)
         self.update_libtool ()
         
     def install (self):
-        ToolBuildSpecification.install (self)
+        ToolBuildSpec.install (self)
 
         ## don't want local GUILE headers to interfere with compile.
         self.system ("rm -rf %(install_root)s/usr/include/ %(install_root)s/usr/bin/guile-config ")
 
     def __init__ (self, settings):
-        ToolBuildSpecification.__init__ (self, settings)
+        ToolBuildSpec.__init__ (self, settings)
         self.set_mirror ()
-        self.name_build_dependencies = ['gmp', 'libtool']
-        self.name_dependencies = ['gmp']
+
+    def get_build_dependencies (self):
+        return ['gmp-devel', 'libtool']

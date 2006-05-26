@@ -34,7 +34,7 @@ def get_debian_package (settings, description):
     s = description[:description.find ('\nDescription')]
     d = dict (map (lambda line: line.split (': ', 1),
            map (string.strip, s.split ('\n'))))
-    package_class = classobj (d['Package'], (gub.Binary_package,), {})
+    package_class = classobj (d['Package'], (gub.BinarySpec,), {})
     package = package_class (settings)
     package.name_dependencies = []
     if d.has_key ('Depends'):

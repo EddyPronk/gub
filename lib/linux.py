@@ -7,12 +7,12 @@ import download
 import gub
 import targetpackage
 
-class Libc6 (gub.Binary_package, gub.Sdk_package):
+class Libc6 (gub.BinarySpec, gub.SdkBuildSpec):
     pass
 
-class Libc6_dev (gub.Binary_package, gub.Sdk_package):
+class Libc6_dev (gub.BinarySpec, gub.SdkBuildSpec):
     def untar (self):
-        gub.Binary_package.untar (self)
+        gub.BinarySpec.untar (self)
         # Ugh, rewire absolute names and symlinks.
         # Better to create relative ones?
 
@@ -37,7 +37,7 @@ class Libc6_dev (gub.Binary_package, gub.Sdk_package):
             
         self.system ('rm -rf  %(srcdir)s/root/usr/include/asm/  %(srcdir)s/root/usr/include/linux ')
             
-class Linux_kernel_headers (gub.Binary_package, gub.Sdk_package):
+class Linux_kernel_headers (gub.BinarySpec, gub.SdkBuildSpec):
     pass
 
 # use gcc 4.0 because

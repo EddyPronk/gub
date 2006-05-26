@@ -47,17 +47,17 @@ class Glib__freebsd (Glib):
     def get_build_dependencies (self):
         return Glib.get_build_dependencies (self) + ['libiconv-devel']
     
-class Glib__local (toolpackage.ToolBuildSpecification):
-   def __init__ (self, settings):
-       toolpackage.ToolBuildSpecification.__init__ (self, settings)
-       self.with (version='2.10.1',
-                  mirror='ftp://ftp.gnome.org/Public/GNOME/sources/glib/2.10/%(name)s-%(ball_version)s.tar.%(format)s',
-                  format='bz2')
+class Glib__local (toolpackage.ToolBuildSpec):
+    def __init__ (self, settings):
+        toolpackage.ToolBuildSpec.__init__ (self, settings)
+        self.with (version='2.10.1',
+                   mirror='ftp://ftp.gnome.org/Public/GNOME/sources/glib/2.10/%(name)s-%(ball_version)s.tar.%(format)s',
+                   format='bz2')
 
-   def install (self):
-            toolpackage.ToolBuildSpecification.install(self)
-            self.system ('rm %(install_root)s/usr/lib/charset.alias',
-              ignore_error=True)
+    def install (self):
+        toolpackage.ToolBuildSpec.install(self)
+        self.system ('rm %(install_root)s/usr/lib/charset.alias',
+                         ignore_error=True)
 
-
-
+    def get_build_dependencies (self):
+        return ['gettext-devel', 'libtool']            

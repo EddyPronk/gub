@@ -26,7 +26,7 @@ class Gcc (cross.Gcc):
 --program-prefix=%(tool_prefix)s
 '''))
 
-class Freebsd_runtime (gub.Binary_package, gub.Sdk_package):
+class Freebsd_runtime (gub.BinarySpec, gub.SdkBuildSpec):
     def patch (self):
         self.system ('rm -rf %(srcdir)s/root/usr/include/g++')
 

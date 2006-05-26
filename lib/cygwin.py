@@ -21,7 +21,7 @@ tooldir="%(crossprefix)s/%(target_architecture)s"
         return ( cross.Binutils.configure_command (self)
                  + ' --disable-werror ')
 
-class W32api_in_usr_lib (gub.Binary_package):
+class W32api_in_usr_lib (gub.BinarySpec):
     def do_download (self):
         pass
     def untar (self):
@@ -82,7 +82,7 @@ import re
 mirror = 'http://gnu.kookel.org/ftp/cygwin'
 
 def get_cygwin_package (settings, name, dict):
-    package_class = classobj (name, (gub.Binary_package,), {})
+    package_class = classobj (name, (gub.BinarySpec,), {})
     package = package_class (settings)
     if dict.has_key ('requires'):
         deps = re.sub ('\([^\)]*\)', '', dict['requires']).split ()

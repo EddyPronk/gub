@@ -14,21 +14,21 @@ class Gcc (cross.Gcc):
                     ], f)
 
 # UGH: MI
-class Mingw_runtime (gub.Binary_package, gub.Sdk_package):
+class Mingw_runtime (gub.BinarySpec, gub.SdkBuildSpec):
     def untar (self):
-        gub.Binary_package.untar (self)
+        gub.BinarySpec.untar (self)
         self.system ('mkdir -p %(srcdir)s/root/usr')
         self.system ('cd %(srcdir)s/root && mv * usr',
               ignore_error=True)
 
-class Cygcheck (gub.Binary_package):
+class Cygcheck (gub.BinarySpec):
     "Only need the cygcheck.exe binary."
     def __init__ (self, settings):
-        gub.Binary_package.__init__ (self, settings)
+        gub.BinarySpec.__init__ (self, settings)
         self.with (version='1.5.18-1', mirror=download.cygwin_bin, format='bz2')
         
     def untar (self):
-        gub.Binary_package.untar (self)
+        gub.BinarySpec.untar (self)
 
         file = self.expand ('%(srcdir)s/root/usr/bin/cygcheck.exe')
         cygcheck = open (file).read ()
@@ -37,15 +37,15 @@ class Cygcheck (gub.Binary_package):
         open (file, 'w').write (cygcheck)
 
     def basename (self):
-        f = gub.Binary_package.basename (self)
+        f = gub.BinarySpec.basename (self)
         f = re.sub ('-1$', '', f)
         return f
 
 
 # UGH: MI
-class W32api (gub.Binary_package, gub.Sdk_package):
+class W32api (gub.BinarySpec, gub.SdkBuildSpec):
     def untar (self):
-        gub.Binary_package.untar (self)
+        gub.BinarySpec.untar (self)
         self.system ('mkdir -p %(srcdir)s/root/usr')
         self.system ('cd %(srcdir)s/root && mv * usr',
               ignore_error=True)

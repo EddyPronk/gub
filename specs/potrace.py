@@ -1,7 +1,7 @@
-from toolpackage import ToolBuildSpecification
+from toolpackage import ToolBuildSpec
 
-class Potrace (ToolBuildSpecification):
+class Potrace (ToolBuildSpec):
     def __init__ (self, settings):
-        ToolBuildSpecification.__init__ (self, settings)
+        ToolBuildSpec.__init__ (self, settings)
         self.with (mirror="http://potrace.sourceforge.net/download/potrace-%(version)s.tar.gz",
              version="1.7"),

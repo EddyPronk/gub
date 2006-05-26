@@ -334,7 +334,7 @@ def topologically_sorted (todo, done, dependency_getter,
 def get_source_packages (settings, todo):
     """TODO is a list of (source) buildspecs.
 
-Generate a list of BuildSpecification needed to build TODO, in
+Generate a list of BuildSpec needed to build TODO, in
 topological order
     
 """

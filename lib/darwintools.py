@@ -8,17 +8,17 @@ import download
 import gub
 
 darwin_sdk_version = '0.4'
-class Odcctools (cross.Cross_package):
+class Odcctools (cross.CrossToolSpec):
     def configure (self):
-        cross.Cross_package.configure (self)
+        cross.CrossToolSpec.configure (self)
 
         ## remove LD64 support.
         self.file_sub ([('ld64','')],
                self.builddir () + '/Makefile')
 
-class Darwin_sdk (gub.Sdk_package):
+class Darwin_sdk (gub.SdkBuildSpec):
     def __init__ (self, settings):
-        gub.Sdk_package.__init__ (self, settings)
+        gub.SdkBuildSpec.__init__ (self, settings)
         
         os_version = 7
         if settings.platform == 'darwin-x86':
