@@ -235,7 +235,7 @@ class PackageManager (FileManager):
     def is_installable (self, name):
         d = self._packages[name]
         ball = '%(split_ball)s' % d
-        hdr = '%(hdr_file)s' % d
+        hdr = '%(split_hdr)s' % d
         return os.path.exists (ball) and os.path.exists (ball)
 
     def install_package (self, name):

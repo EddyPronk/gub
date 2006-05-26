@@ -78,9 +78,11 @@ def tar_compression_flag (ball):
     compression_flag = ''
     if ball.endswith ('gub'):
         compression_flag = 'z'
-    if ball.endswith ('bz2'):
+    elif ball.endswith ('gup'):
+        compression_flag = 'z'
+    elif ball.endswith ('bz2'):
         compression_flag = 'j'
-    if ball.endswith ('gz'):
+    elif ball.endswith ('gz'):
         compression_flag = 'z'
     return compression_flag
 

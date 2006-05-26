@@ -11,7 +11,7 @@ class Tool_package (gub.BuildSpecification):
 --prefix=%(buildtools)s/
 '''))
 
-    ## ugh: this will trigger libtool relinks. 
+    ## ugh: prefix= will trigger libtool relinks. 
     def install_command (self):
         return '''make DESTDIR=%(install_root)s prefix=/usr install'''
 

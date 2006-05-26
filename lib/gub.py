@@ -38,6 +38,12 @@ class PackageSpecification:
         self._dict['split_ball'] = '%(gub_uploads)s/%(split_name)s-%(version)s.%(platform)s.gup' % self._dict
         self._dict['split_hdr'] = '%(gub_uploads)s/%(split_name)s.%(platform)s.hdr' % self._dict
 
+## TODO
+#        if self.track_development:
+#            s += '-%(version)s'
+        
+
+
         deps =  ';'.join (self._dependencies)
         self._dict['dependencies_string'] = deps
 
@@ -305,19 +311,6 @@ cd %(cvs_dest)s && cvs -q update -dAPr %(version)s
     @subst_method
     def gub_src_uploads (self):
         return '%(gub_uploads)s'
-
-    @subst_method
-    def hdr_name (self):
-        s = '%(name)s'
-        if self.track_development:
-            s += '-%(version)s'
-        
-        return s + '.%(platform)s.hdr'
-    
-
-    @subst_method
-    def hdr_file (self):
-        return '%(gub_uploads)s/%(hdr_name)s'
 
     @subst_method
     def stamp_file (self):

@@ -30,9 +30,6 @@ class Cross_package (gub.BuildSpecification):
     def gub_src_uploads (self):
         return '%(gub_cross_uploads)s'
 
-    def hdr_file (self):
-        return '%(gub_cross_uploads)s/%(hdr_name)s'
-
 class Binutils (Cross_package):
     def install (self):
         Cross_package.install (self)

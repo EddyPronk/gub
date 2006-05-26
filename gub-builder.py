@@ -98,27 +98,20 @@ def checksums_valid (manager, specname, spec_object_dict):
     spec = spec_object_dict[specname]
 
     valid = True
-    for p in spec.get_packages ():
-        name = p.name()
-        package_dict =  manager.package_dict (name)
+    for package in spec.get_packages ():
+        name = package.name()
+        package_dict = manager.package_dict (name)
         valid = (spec.spec_checksum == package_dict['spec_checksum']
                  and spec.source_checksum () == package_dict['source_checksum'])
         
-        hdr = spec.expand ('%(hdr_file)s')
+        hdr = package.expand ('%(split_hdr)s')
         valid = valid and os.path.exists (hdr)
         if valid:
             hdr_dict = pickle.load (open (hdr)) 
             hdr_sum = hdr_dict['spec_checksum']
             valid = valid and hdr_sum == spec.spec_checksum
-
-        try:
             valid = valid and spec.source_checksum () == hdr_dict['source_checksum']
 
-            ## FIXME
-        except KeyError:
-            pass
-            
-    
     ## let's be lenient for cross packages.
     ## spec.cross_checksum == manager.package_dict(name)['cross_checksum'])
 
@@ -155,6 +148,7 @@ def run_builder (settings, manager, names, spec_object_dict):
                 if (manager.is_installed (p.name ()) and
                     (not manager.is_installable (p.name ())
                      or not checksum_ok)):
+
                     manager.uninstall_package (p.name ())
 
     for spec_name in names:
