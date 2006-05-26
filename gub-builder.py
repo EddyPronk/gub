@@ -143,10 +143,10 @@ def run_builder (settings, manager, names, package_object_dict):
         reved.reverse ()
         for p in reved:
             checksum_ok = (settings.options.lax_checksums
-                   or checksums_valid (manager, p, package_object_dict))
+                           or checksums_valid (manager, p, package_object_dict))
             if (manager.is_installed (p) and
-              (not manager.is_installable (p)
-              or not checksum_ok)):
+                (not manager.is_installable (p)
+                 or not checksum_ok)):
                 manager.uninstall_package (p)
 
     for p in names:

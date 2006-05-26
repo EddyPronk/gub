@@ -54,7 +54,9 @@ class PackageSpecification:
         cmd += ' '.join ('./%s' % f for f in self._file_specs)
         
         self._os_interface.system (cmd)
-        
+
+    def dict (self):
+        return self._dict
         
 class BuildSpecification (Os_context_wrapper):
     def __init__ (self, settings):

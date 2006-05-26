@@ -189,8 +189,9 @@ class PackageManager (FileManager):
             self.register_package_dict (pickle.loads (v))
 
     def register_package_dict (self, d):
-        
         nm = d['name']
+        if d.has_key ('split_name'):
+            nm = d['split_name']
         if (self._packages.has_key (nm)):
             if self._packages[nm]['spec_checksum'] != d['spec_checksum']:
                 self.os_interface.log_command ('******** checksum of %s changed!\n\n' % nm)
@@ -211,8 +212,8 @@ class PackageManager (FileManager):
             print 'ignoring header for wrong branch', package_hdr
             return
         
-        if self._package_dict_db.has_key (d['name']):
-            if str != self._package_dict_db[d['name']]:
+        if self._package_dict_db.has_key (d['split_name']):
+            if str != self._package_dict_db[d['split_name']]:
                 self.os_interface.log_command ("package header changed for %(name)s\n" % d)
 
             return
@@ -387,7 +388,8 @@ def add_packages_to_manager (target_manager, settings, package_object_dict):
     cross_module = cross.get_cross_module (settings.platform)
     cross_module.change_target_packages (package_object_dict)
 
-    for p in package_object_dict.values ():
-        target_manager.register_package_dict (p.get_substitution_dict ())
+    for spec in package_object_dict.values ():
+        for package in spec.get_packages ():
+            target_manager.register_package_dict (package.get_substitution_dict ())
 
     return target_manager

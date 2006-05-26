@@ -6,12 +6,12 @@ import imp
 import md5
 
 from context import subst_method 
-class Cross_package (gub.Package):
+class Cross_package (gub.BuildSpecification):
     """Package for cross compilers/linkers etc.
     """
 
     def configure_command (self):
-        return (gub.Package.configure_command (self)
+        return (gub.BuildSpecification.configure_command (self)
             + misc.join_lines ('''
 --program-prefix=%(target_architecture)s-
 --prefix=%(crossprefix)s/
