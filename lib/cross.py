@@ -106,23 +106,34 @@ cd %(install_root)s/usr/lib && ln -fs libgcc_s.so.1 libgcc_s.so
 def change_target_packages (package_object_dict):
     pass
 
+class MethodOverrider:
+    """UGH, python closures don't work reliably?"""
+    
+    def __init__ (self, old_func, new_func, extra_args):
+        self.new_func = new_func
+        self.old_func = old_func
+        self.args = extra_args
+    def method (self):
+        all_args = (self.old_func (),) + self.args  
+        return apply (self.new_func, all_args)
 
 def set_cross_dependencies (package_object_dict):
     packs = package_object_dict.values ()
     cross_packs = [p for p in packs if isinstance (p, Cross_package)]
     sdk_packs = [p for p in packs if isinstance (p, gub.Sdk_package)]
     other_packs = [p for p in packs if (not isinstance (p, Cross_package)
-                      and not isinstance (p, gub.Sdk_package)
-                      and not isinstance (p, gub.Binary_package))]
+                                        and not isinstance (p, gub.Sdk_package)
+                                        and not isinstancee (p, gub.Binary_package))]
     
     for p in other_packs:
         x = p.get_build_dependencies
         p.get_build_dependencies = (lambda: [c.name() for c in cross_packs] + x())
 
+    sdk_names = [s.name() for s in sdk_packs]
     for p in other_packs + cross_packs:
         old_callback = p.get_build_dependencies
-        y = (lambda: [s.name() for s in sdk_packs] + old_callback())
-        p.get_build_dependencies = y
+        p.get_build_dependencies = MethodOverrider (old_callback,
+                                                    lambda x,y: x+y, (sdk_names,)).method
 
     return packs
 
@@ -130,7 +141,7 @@ def set_framework_ldpath (packs):
     for c in packs:
         change = gub.Change_target_dict (c, {'LDFLAGS': r" -Wl,--rpath,'$${ORIGIN}/../lib/' "})
         c.get_substitution_dict = change.append_dict
-
+        
 
 
 cross_module_checksums = {}
