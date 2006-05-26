@@ -32,11 +32,16 @@ RUN_FC_CACHE_TEST=false
 
     def install_command (self):
         return (targetpackage.TargetBuildSpec.install_command (self)
-            + self.makeflags ())
+                + self.makeflags ())
 
 class Expat__local (toolpackage.ToolBuildSpec):
     def __init__ (self,settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
         self.with (version='1.95.8', mirror=download.sf, format='gz')
+
+    def patch (self):
+        toolpackage.ToolBuildSpec.patch (self)
+        self.system ("cd %(srcdir)s && patch -p1 < %(patchdir)s/expat-1.95.8-mingw.patch")
+
     def get_build_dependencies (self):
         return ['libtool']            
