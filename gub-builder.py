@@ -234,14 +234,10 @@ def main ():
             if options.skip_if_locked:
                 sys.exit (0)
             raise 
-            
-        
-        # FIXME: what happens here, {cross, cross_module}.packages
-        # are already added?
+
         gup.add_packages_to_manager (pm, settings, spec_object_dict)
 
         deps = filter (spec_object_dict.has_key, package_names)
-        print deps
 #        deps = filter (pm.is_registered, deps)
 
         run_builder (settings, pm, deps, spec_object_dict)

@@ -14,11 +14,11 @@ class Pango (targetpackage.Target_package):
                    format='bz2')
     def get_build_dependencies (self):
         return ['freetype-devel', 'fontconfig-devel', 'glib-devel',
-                'libiconv-devel', 'libtool-devel']
+                'libtool-devel']
 
     def get_dependency_dict (self):
         return {'': ['freetype', 'fontconfig', 'glib',
-                     'libiconv', 'libtool']}
+                     'libtool']}
 
     def configure_command (self):
         return targetpackage.Target_package.configure_command (self) \

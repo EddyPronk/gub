@@ -19,24 +19,20 @@ class Fontconfig (targetpackage.Target_package):
         # FIXME: system dir vs packaging install
 
         ## UGH  - this breaks  on Darwin!
-        return targetpackage.Target_package.configure_command (self) \
-           + misc.join_lines ('''
+        return (targetpackage.Target_package.configure_command (self) 
+                + misc.join_lines ('''
 --with-freetype-config="%(system_root)s/usr/bin/freetype-config
 --prefix=%(system_root)s/usr
-"''')
-#--urg-broken-if-set-exec-prefix=%(system_root)s/usr
+"'''))
 
     def configure (self):
-        self.system (self, '''
-        rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
-''',
-                     env={'ft_config' : '''/usr/bin/freetype-config \
---prefix=%(system_root)s/usr \
-'''})
-#--urg-broken-if-set-exec-prefix=%(system_root)s/usr \
+        self.system ('''
+rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
+''')
+
         targetpackage.Target_package.configure (self)
 
-        # # FIXME: libtool too old for cross compile
+        ## FIXME: libtool too old for cross compile
         self.update_libtool ()
 
         # FIXME: how to put in __mingw class without duplicating
