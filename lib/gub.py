@@ -484,7 +484,7 @@ rm -f %(install_root)s/usr/share/info/dir %(install_root)s/usr/cross/info/dir %(
         return ['devel','doc','']
     
     def get_packages (self):
-        defs = self.get_subpackage_definitions ()
+        defs = dict (self.get_subpackage_definitions ())
 
         ps = []
         
