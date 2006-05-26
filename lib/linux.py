@@ -63,7 +63,7 @@ def get_cross_packages (settings):
 def change_target_packages (packages):
     cross.change_target_packages (packages)
     for p in packages.values ():
-        if isinstance (p, targetpackage.Target_package):
+        if isinstance (p, targetpackage.TargetBuildSpec):
             gub.change_target_dict (p,
                         {'LD': '%(target_architecture)s-ld --as-needed ',
                         })
@@ -72,4 +72,4 @@ def change_target_packages (packages):
                         { 'LDFLAGS': ' -Wl,--as-needed ' })
 
     cross.set_framework_ldpath ([p for p in packages.values ()
-                                 if isinstance (p, targetpackage.Target_package)])
+                                 if isinstance (p, targetpackage.TargetBuildSpec)])

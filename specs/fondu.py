@@ -1,9 +1,9 @@
 import download
 import targetpackage
 
-class Fondu (targetpackage.Target_package):
+class Fondu (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
-        targetpackage.Target_package.__init__ (self, settings)
+        targetpackage.TargetBuildSpec.__init__ (self, settings)
         self.with (version="060102",
              mirror='http://fondu.sourceforge.net/fondu_src-060102.tgz')
 
@@ -11,7 +11,7 @@ class Fondu (targetpackage.Target_package):
         return '%(allsrcdir)s/' + ('fondu-%s' % self.version())
     
     def patch (self):
-        targetpackage.Target_package.patch (self)
+        targetpackage.TargetBuildSpec.patch (self)
         self.file_sub ([('wilprefix', 'prefix')],
                '%(srcdir)s/Makefile.in')
         

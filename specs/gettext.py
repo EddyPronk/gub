@@ -2,20 +2,20 @@ import download
 import targetpackage
 import toolpackage
 
-class Gettext (targetpackage.Target_package):
+class Gettext (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
-        targetpackage.Target_package.__init__ (self, settings)
+        targetpackage.TargetBuildSpec.__init__ (self, settings)
         self.with (version='0.14.1', mirror=download.gnu, format='gz')
 
     def get_build_dependencies (self):
         return ['libtool']
 
     def configure_command (self):
-        return (targetpackage.Target_package.configure_command (self)
+        return (targetpackage.TargetBuildSpec.configure_command (self)
                 + ' --disable-csharp')
 
     def configure (self):
-        targetpackage.Target_package.configure (self)
+        targetpackage.TargetBuildSpec.configure (self)
         
         ## FIXME: libtool too old for cross compile
         self.update_libtool ()
@@ -52,7 +52,7 @@ gl_cv_func_mbrtowc=${gl_cv_func_mbrtowc=no}
 jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
 ''')
     def patch (self):
-        targetpackage.Target_package.patch (self)
+        targetpackage.TargetBuildSpec.patch (self)
         self.system ("cd %(srcdir)s && patch -p1 < %(patchdir)s/gettext-0.14.5-mingw.patch")
         self.system ("cd %(srcdir)s && patch -p0 < %(patchdir)s/gettext-xgettext-dll-autoimport.patch")
         

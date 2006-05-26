@@ -9,7 +9,7 @@ import cross
 from new import classobj
 
 
-class Target_package (gub.BuildSpecification):
+class TargetBuildSpec (gub.BuildSpecification):
     def configure_command (self):
         return misc.join_lines ('''%(srcdir)s/configure
 --config-cache
@@ -277,7 +277,7 @@ cross_config_cache['debian'] = cross_config_cache['linux']
 
 def load_target_package (settings, url):
     """
-    Return Target_package instance to build package from URL.
+    Return TargetBuildSpec instance to build package from URL.
 
     URL can be partly specified (eg: only a name, `lilypond'),
     defaults are taken from the spec file.
@@ -337,7 +337,7 @@ def load_target_package (settings, url):
         # includes version and format, eg,
         # URL=libtool-1.5.22.tar.gz
         klass = classobj (name,
-                 (Target_package,),
+                 (TargetBuildSpec,),
                  {})
     package = klass (settings)
     package.spec_checksum = checksum

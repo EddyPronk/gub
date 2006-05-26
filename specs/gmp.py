@@ -4,9 +4,9 @@ import download
 import targetpackage
 from toolpackage import ToolBuildSpecification
 
-class Gmp (targetpackage.Target_package):
+class Gmp (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
-        targetpackage.Target_package.__init__ (self, settings)
+        targetpackage.TargetBuildSpec.__init__ (self, settings)
         self.with (version='4.2.1-rc',
                    mirror="ftp://ftp.swox.com/pub/gmp/src/gmp-4.2.1-rc.tar.bz2",
                    format="bz2")
@@ -18,13 +18,13 @@ class Gmp (targetpackage.Target_package):
         return ['libtool']
 
     def configure_command (self):
-        c = targetpackage.Target_package.configure_command (self)
+        c = targetpackage.TargetBuildSpec.configure_command (self)
 
         c += ' --disable-cxx '
         return c
 
     def configure (self):
-        targetpackage.Target_package.configure (self)
+        targetpackage.TargetBuildSpec.configure (self)
         # # FIXME: libtool too old for cross compile
         self.update_libtool ()
         # automake's Makefile.in's too old for new libtool,

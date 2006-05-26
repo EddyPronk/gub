@@ -2,9 +2,9 @@ import download
 import toolpackage
 import targetpackage
 
-class Glib (targetpackage.Target_package):
+class Glib (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
-        targetpackage.Target_package.__init__ (self, settings)
+        targetpackage.TargetBuildSpec.__init__ (self, settings)
         self.with (version='2.10.1',
 		   mirror='ftp://ftp.gnome.org/Public/GNOME/sources/glib/2.10/%(name)s-%(ball_version)s.tar.%(format)s',
 		   format='bz2')
@@ -13,7 +13,7 @@ class Glib (targetpackage.Target_package):
         return ['gettext-devel', 'libtool']
 
     def get_dependency_dict (self):
-        d = targetpackage.Target_package.get_dependency_dict (self)
+        d = targetpackage.TargetBuildSpec.get_dependency_dict (self)
         d[''].append ('gettext')
         return d
     
@@ -22,13 +22,13 @@ class Glib (targetpackage.Target_package):
 glib_cv_stack_grows=${glib_cv_stack_grows=no}
 '''
     def configure (self):
-        targetpackage.Target_package.configure (self)
+        targetpackage.TargetBuildSpec.configure (self)
 
         ## FIXME: libtool too old for cross compile
         self.update_libtool ()
         
     def install (self):
-        targetpackage.Target_package.install (self)
+        targetpackage.TargetBuildSpec.install (self)
         self.system ('rm %(install_root)s/usr/lib/charset.alias',
               ignore_error=True)
         

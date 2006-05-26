@@ -10,7 +10,7 @@ import targetpackage
 
 from context import *
 
-class LilyPond (targetpackage.Target_package):
+class LilyPond (targetpackage.TargetBuildSpec):
     def get_dependency_dict (self):
         return {'': ['fontconfig', 'gettext', 
                      'guile', 'pango', 'python',
@@ -21,7 +21,7 @@ class LilyPond (targetpackage.Target_package):
                 'gettext-devel',  'pango-devel', 'freetype-devel', 'urw-fonts']
 
     def __init__ (self, settings):
-        targetpackage.Target_package.__init__ (self, settings)
+        targetpackage.TargetBuildSpec.__init__ (self, settings)
         self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
                    track_development=True)
 
@@ -32,7 +32,7 @@ class LilyPond (targetpackage.Target_package):
         self._downloader = self.cvs
 
     def rsync_command (self):
-        c = targetpackage.Target_package.rsync_command (self)
+        c = targetpackage.TargetBuildSpec.rsync_command (self)
         c = c.replace ('rsync', 'rsync --delete --exclude configure')
         return c
 
@@ -40,7 +40,7 @@ class LilyPond (targetpackage.Target_package):
         
         
         ## FIXME: pickup $target-guile-config
-        return (targetpackage.Target_package.configure_command (self)
+        return (targetpackage.TargetBuildSpec.configure_command (self)
                 + misc.join_lines ('''
 --enable-relocation
 --disable-documentation
@@ -85,17 +85,17 @@ cd %(builddir)s && %(configure_command)s''')
                    '%(builddir)s/config.make' % d)):
             self.do_configure ()
 
-        targetpackage.Target_package.compile (self)
+        targetpackage.TargetBuildSpec.compile (self)
 
     def name_version (self):
         # whugh
         if os.path.exists (self.srcdir ()):
             d = misc.grok_sh_variables (self.expand ('%(srcdir)s/VERSION'))
             return 'lilypond-%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
-        return targetpackage.Target_package.name_version (self)
+        return targetpackage.TargetBuildSpec.name_version (self)
 
     def install (self):
-        targetpackage.Target_package.install (self)
+        targetpackage.TargetBuildSpec.install (self)
         d = misc.grok_sh_variables (self.expand ('%(srcdir)s/VERSION'))
         v = '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
         # WTF, current?
@@ -170,7 +170,7 @@ LDFLAGS="%(LDFLAGS)s %(python_lib)s"
 
     #URG guile.py c&p
     def install (self):
-        targetpackage.Target_package.install (self)
+        targetpackage.TargetBuildSpec.install (self)
         self.system ('''
 mkdir -p %(install_root)s/usr/share/doc/lilypond
 cp -prv %(srcdir)s/input %(install_root)s/usr/share/doc/lilypond
@@ -306,7 +306,7 @@ class LilyPond__debian (LilyPond):
         self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
                    track_development=True)
     def install (self):
-        targetpackage.Target_package.install (self)
+        targetpackage.TargetBuildSpec.install (self)
 
 
 ##

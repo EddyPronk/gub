@@ -4,9 +4,9 @@ import misc
 import targetpackage
 import toolpackage
 
-class Fontconfig (targetpackage.Target_package):
+class Fontconfig (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
-        targetpackage.Target_package.__init__ (self, settings)
+        targetpackage.TargetBuildSpec.__init__ (self, settings)
         self.with (version='2.3.2', mirror=download.fontconfig)
 
     def get_build_dependencies (self):
@@ -19,7 +19,7 @@ class Fontconfig (targetpackage.Target_package):
         # FIXME: system dir vs packaging install
 
         ## UGH  - this breaks  on Darwin!
-        return (targetpackage.Target_package.configure_command (self) 
+        return (targetpackage.TargetBuildSpec.configure_command (self) 
                 + misc.join_lines ('''
 --with-freetype-config="%(system_root)s/usr/bin/freetype-config
 --prefix=%(system_root)s/usr
@@ -30,7 +30,7 @@ class Fontconfig (targetpackage.Target_package):
 rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
 ''')
 
-        targetpackage.Target_package.configure (self)
+        targetpackage.TargetBuildSpec.configure (self)
 
         ## FIXME: libtool too old for cross compile
         self.update_libtool ()
@@ -58,11 +58,11 @@ cd %(builddir)s/%(i)s && make "CFLAGS=%(cflags)s" "LIBS=%(libs)s" CPPFLAGS= LDFL
                '%(builddir)s/Makefile')
 
     def patch (self):
-        targetpackage.Target_package.patch (self)
+        targetpackage.TargetBuildSpec.patch (self)
         self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/fontconfig-2.3.2-mingw-fccache.patch')
         
     def install (self):
-        targetpackage.Target_package.install (self)
+        targetpackage.TargetBuildSpec.install (self)
         self.dump ('''set FONTCONFIG_FILE=$INSTALLER_PREFIX/etc/fonts/fonts.conf
 set FONTCONFIG_PATH=$INSTALLER_PREFIX/etc/fonts
 ''', 

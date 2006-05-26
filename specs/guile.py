@@ -9,7 +9,7 @@ import targetpackage
 from toolpackage import ToolBuildSpecification
 
 
-class Guile (targetpackage.Target_package):
+class Guile (targetpackage.TargetBuildSpec):
     def set_mirror(self):
         self.with (version='1.8.0', format='gz')
 
@@ -20,7 +20,7 @@ class Guile (targetpackage.Target_package):
         return ['gmp-devel', 'libtool']
         
     def __init__ (self, settings):
-        targetpackage.Target_package.__init__ (self, settings)
+        targetpackage.TargetBuildSpec.__init__ (self, settings)
         self.set_mirror ()
 
     # FIXME: C&P.
@@ -32,7 +32,7 @@ class Guile (targetpackage.Target_package):
         self.autoupdate ()
 
     def configure_command (self):
-        return (targetpackage.Target_package.configure_command (self)
+        return (targetpackage.TargetBuildSpec.configure_command (self)
             + misc.join_lines ('''
 --without-threads
 --with-gnu-ld
@@ -46,14 +46,14 @@ class Guile (targetpackage.Target_package):
 
         ## Ugh : broken dependencies barf with make -jX
         self.system ('cd %(builddir)s/libguile && make scmconfig.h ')
-        targetpackage.Target_package.compile (self)
+        targetpackage.TargetBuildSpec.compile (self)
 
     def configure (self):
-        targetpackage.Target_package.configure (self)
+        targetpackage.TargetBuildSpec.configure (self)
         self.update_libtool ()
 
     def install (self):
-        targetpackage.Target_package.install (self)
+        targetpackage.TargetBuildSpec.install (self)
         
         
         majmin_version = '.'.join (self.expand ('%(version)s').split ('.')[0:2])
@@ -123,7 +123,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
 
     def configure (self):
         if 0: # using patch
-            targetpackage.Target_package.autoupdate (self)
+            targetpackage.TargetBuildSpec.autoupdate (self)
 
         if 1:
             self.file_sub ([('''^#(LIBOBJS=".*fileblocks.*)''',

@@ -5,9 +5,9 @@ from toolpackage import ToolBuildSpecification
 # This works without libtool.py:
 #    ./gub-builder.py -p mingw build http://ftp.gnu.org/pub/gnu/libtool/libtool-1.5.20.tar.gz
 
-class Libtool (targetpackage.Target_package):
+class Libtool (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
-        targetpackage.Target_package.__init__ (self, settings)
+        targetpackage.TargetBuildSpec.__init__ (self, settings)
         self.with (version='1.5.20')
 
 

@@ -1,21 +1,21 @@
 import download
 import targetpackage
 
-class Zlib (targetpackage.Target_package):
+class Zlib (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
-        targetpackage.Target_package.__init__ (self, settings)
+        targetpackage.TargetBuildSpec.__init__ (self, settings)
 	self.with (version='1.2.2',
                    mirror='http://heanet.dl.sourceforge.net/sourceforge/libpng/zlib-1.2.2.tar.gz')
         
     def patch (self):
-        targetpackage.Target_package.patch (self)
+        targetpackage.TargetBuildSpec.patch (self)
 
         ## need ARFLAGS patch.
         self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/zlib-1.2.2-windows.patch')
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
 
     def compile_command (self):
-        return targetpackage.Target_package.compile_command (self) + ' ARFLAGS=r '
+        return targetpackage.TargetBuildSpec.compile_command (self) + ' ARFLAGS=r '
     
     def configure_command (self):
         zlib_is_broken = 'SHAREDTARGET=libz.so.1.2.2'
@@ -28,7 +28,7 @@ class Zlib (targetpackage.Target_package):
         return zlib_is_broken + ' %(srcdir)s/configure --shared '
 
     def install_command (self):
-        return targetpackage.Target_package.broken_install_command (self)
+        return targetpackage.TargetBuildSpec.broken_install_command (self)
 
 
 

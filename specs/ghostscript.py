@@ -5,9 +5,9 @@ import download
 import misc
 import targetpackage
 
-class Ghostscript (targetpackage.Target_package):
+class Ghostscript (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
-        targetpackage.Target_package.__init__ (self, settings)
+        targetpackage.TargetBuildSpec.__init__ (self, settings)
         xsf = re.sub ('version\)s', 'version)s-gpl', download.sf)
         assert xsf <> download.sf
         self.with (version='8.50',
@@ -22,10 +22,10 @@ class Ghostscript (targetpackage.Target_package):
         return {'': ['libjpeg', 'libpng']}
 
     def srcdir (self):
-        return re.sub ('-source', '', targetpackage.Target_package.srcdir (self))
+        return re.sub ('-source', '', targetpackage.TargetBuildSpec.srcdir (self))
 
     def builddir (self):
-        return re.sub ('-source', '', targetpackage.Target_package.builddir (self))
+        return re.sub ('-source', '', targetpackage.TargetBuildSpec.builddir (self))
 
     def name (self):
         return 'ghostscript'
@@ -75,7 +75,7 @@ class Ghostscript (targetpackage.Target_package):
         self.file_sub (substs, '%(builddir)s/obj/arch.h')
 
     def compile_command (self):
-        return targetpackage.Target_package.compile_command (self) + " INCLUDE=%(system_root)s/usr/include/"
+        return targetpackage.TargetBuildSpec.compile_command (self) + " INCLUDE=%(system_root)s/usr/include/"
         
     def compile (self):
         self.system ('''
@@ -83,10 +83,10 @@ cd %(builddir)s && (mkdir obj || true)
 cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS= LIBRARY_PATH= obj/genconf obj/echogs obj/genarch obj/arch.h
 ''')
         self.fixup_arch ()
-        targetpackage.Target_package.compile (self)
+        targetpackage.TargetBuildSpec.compile (self)
         
     def configure_command (self):
-        return (targetpackage.Target_package.configure_command (self)
+        return (targetpackage.TargetBuildSpec.configure_command (self)
             + misc.join_lines ('''
 --with-drivers=FILES
 --without-x
@@ -96,7 +96,7 @@ cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS
 '''))
 
     def configure (self):
-        targetpackage.Target_package.configure (self)
+        targetpackage.TargetBuildSpec.configure (self)
         self.file_sub ([
             ('-Dmalloc=rpl_malloc', ''),
             ('GLSRCDIR=./src', 'GLSRCDIR=%(srcdir)s/src'),
@@ -119,12 +119,12 @@ cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS
     def install_command (self):
 
 
-        return (targetpackage.Target_package.install_command (self)
+        return (targetpackage.TargetBuildSpec.install_command (self)
             + ' install_prefix=%(install_root)s'
             + ' mandir=%(install_root)s/usr/man/ ')
 
     def install (self):
-        targetpackage.Target_package.install (self)
+        targetpackage.TargetBuildSpec.install (self)
         self.system ('mkdir -p %(install_root)s/usr/etc/relocate/')
         self.dump ('''
 

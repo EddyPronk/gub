@@ -3,9 +3,9 @@ import gub
 import targetpackage
 import toolpackage
 
-class Freetype (targetpackage.Target_package):
+class Freetype (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
-        targetpackage.Target_package.__init__ (self, settings)
+        targetpackage.TargetBuildSpec.__init__ (self, settings)
         self.with (version='2.1.10', mirror=download.nongnu_savannah)
 
     def get_build_dependencies (self):
@@ -21,7 +21,7 @@ class Freetype (targetpackage.Target_package):
         self.system ('''
         rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
 ''')
-        targetpackage.Target_package.configure (self)
+        targetpackage.TargetBuildSpec.configure (self)
 
         # # FIXME: libtool too old for cross compile
         self.update_libtool ()
