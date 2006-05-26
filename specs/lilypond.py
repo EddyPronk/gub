@@ -55,7 +55,7 @@ class LilyPond (targetpackage.Target_package):
         if not os.path.exists (self.expand ('%(builddir)s/FlexLexer.h')):
             flex = self.read_pipe ('which flex')
             flex_include_dir = os.path.split (flex)[0] + "/../include"
-            gub.Package.system (self, '''
+            self.system ('''
 mkdir -p %(builddir)s
 cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/
 ''', locals ())
@@ -250,7 +250,6 @@ class LilyPond__mingw (LilyPond__cygwin):
     def __init__ (self, settings):
         LilyPond__cygwin.__init__ (self, settings)
         self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
-                   builddeps=['urw-fonts'],
                    track_development=True)
 
         self.split_packages = []

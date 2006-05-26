@@ -18,6 +18,8 @@ import targetpackage
 from misc import *  # URG, fixme
 import cygwin
 
+import gub ## ugh
+
 class GupException (Exception):
     pass
 
@@ -328,59 +330,50 @@ def topologically_sorted (todo, done, dependency_getter,
 ################################################################
 # UGH
 # this is too hairy. --hwn
-def get_source_packages (settings, todo):
-    """TODO is a list of (source) buildspecs """
 
+def get_source_packages (settings, todo):
+    """TODO is a list of (source) buildspecs.
+
+Generate a list of BuildSpecification needed to build TODO, in
+topological order
+    
+"""
+    
     cross_packages = cross.get_cross_packages (settings)
-    pack_dict = dict ((p.name (), p) for p in cross_packages)
+    spec_dict = dict ((p.name (), p) for p in cross_packages)
+
+
+    todo += spec_dict.keys ()
 
     def name_to_dependencies_via_gub (name):
-        import gub ## ugh
-        try:
-            pack = pack_dict[name]
-        except KeyError:
-            pack = targetpackage.load_target_package (settings, name)
-            pack_dict[name] = pack
-
-        retval = map (gub.get_base_package_name, pack.get_build_dependencies ())
-        for subdeps in pack.get_dependency_dict ().values ():
-            retval += map (gub.get_base_package_name,  subdeps)
-            
-        return retval
-
-    def name_to_dependencies_via_cygwin (name):
-        try:
-            pack = pack_dict [name]
-        except KeyError:
-            try:
-                pack = cygwin.cygwin_name_to_dependency_names (name)
-            except KeyError:
-                pack = targetpackage.load_target_package (settings, name)
-
-        pack_dict[name] = pack
-
-        return [] ## FIXME.
-
-    todo += pack_dict.keys ()
-
-    name_to_deps = name_to_dependencies_via_gub
-    if settings.platform == 'cygwin':
-        cygwin.init_cygwin_package_finder (settings)
-        name_to_deps = name_to_dependencies_via_cygwin
+        name = gub.get_base_package_name (name)
         
-    package_names = topologically_sorted (todo, {}, name_to_deps)
-    pack_dict = dict ((n,pack_dict[n]) for n in package_names)
+        try:
+            spec = spec_dict[name]
+        except KeyError:
+            spec = targetpackage.load_target_package (settings, name)
+            spec_dict[name] = spec
+        
+        deps = spec.get_build_dependencies ()
+        return map (gub.get_base_package_name, deps)
 
-    cross.set_cross_dependencies (pack_dict)
+    ## todo: cygwin.
+    name_to_deps = name_to_dependencies_via_gub
 
-    ## sort for cross deps too.
+    spec_names = topologically_sorted (todo, {}, name_to_deps)
+
+    spec_dict = dict ((n,spec_dict[n]) for n in spec_names)
+
+    cross.set_cross_dependencies (spec_dict)
+
     def obj_to_dependency_objects (obj):
-        return [pack_dict[n] for n in obj.get_build_dependencies ()]
+        return [spec_dict[gub.get_base_package_name (n)] for n in obj.get_build_dependencies ()]
 
-    package_objs = topologically_sorted (pack_dict.values (), {},
-                                         obj_to_dependency_objects)
+    spec_objs = topologically_sorted (spec_dict.values (), {},
+                                      obj_to_dependency_objects)
 
-    return ([o.name () for o in package_objs], pack_dict)
+    sorted_names = [o.name () for o in spec_objs]
+    return (sorted_names, spec_dict)
 
 def get_target_manager (settings):
     target_manager = DependencyManager (settings.system_root,

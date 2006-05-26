@@ -7,13 +7,12 @@ import toolpackage
 class Fontconfig (targetpackage.Target_package):
     def __init__ (self, settings):
         targetpackage.Target_package.__init__ (self, settings)
-        self.with (version='2.3.2', mirror=download.fontconfig,
-                   builddeps=['expat', 'freetype', 'libtool']),
+        self.with (version='2.3.2', mirror=download.fontconfig)
 
     def get_build_dependencies (self):
         return ['libtool', 'expat-devel', 'freetype-devel']
 
-    def get_dependency_dict ():
+    def get_dependency_dict (self):
         return {'': ['expat', 'freetype', 'libtool']}
 
     def configure_command (self):
@@ -28,10 +27,10 @@ class Fontconfig (targetpackage.Target_package):
 #--urg-broken-if-set-exec-prefix=%(system_root)s/usr
 
     def configure (self):
-        gub.Package.system (self, '''
+        self.system (self, '''
         rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
 ''',
-              env={'ft_config' : '''/usr/bin/freetype-config \
+                     env={'ft_config' : '''/usr/bin/freetype-config \
 --prefix=%(system_root)s/usr \
 '''})
 #--urg-broken-if-set-exec-prefix=%(system_root)s/usr \
@@ -80,8 +79,7 @@ class Fontconfig__mingw (Fontconfig):
 
     def x__init__ (self, settings):
         Fontconfig.__init__ (self, settings)
-        self.with (version='2.3.94', mirror=download.fontconfig,
-             builddeps=['expat', 'freetype', 'libtool'])
+        self.with (version='2.3.94', mirror=download.fontconfig)
 
     def patch (self):
         Fontconfig.patch (self)
@@ -120,6 +118,5 @@ class Fontconfig__freebsd (Fontconfig__linux):
 class Fontconfig__local (toolpackage.Tool_package):
     def __init__ (self, settings):
         toolpackage.Tool_package.__init__ (self, settings)
-        self.with (version='2.3.2', mirror=download.fontconfig,
-                   builddeps=['expat', 'freetype'])
+        self.with (version='2.3.2', mirror=download.fontconfig)
         

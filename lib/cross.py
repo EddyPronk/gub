@@ -120,13 +120,16 @@ def set_cross_dependencies (package_object_dict):
     sdk_packs = [p for p in packs if isinstance (p, gub.Sdk_package)]
     other_packs = [p for p in packs if (not isinstance (p, Cross_package)
                                         and not isinstance (p, gub.Sdk_package)
-                                        and not isinstancee (p, gub.Binary_package))]
+                                        and not isinstance (p, gub.Binary_package))]
     
-    for p in other_packs:
-        x = p.get_build_dependencies
-        p.get_build_dependencies = (lambda: [c.name() for c in cross_packs] + x())
-
     sdk_names = [s.name() for s in sdk_packs]
+    cross_names = [s.name() for s in cross_packs]
+
+    for p in other_packs:
+        old_callback = p.get_build_dependencies
+        p.get_build_dependencies = MethodOverrider (old_callback,
+                                                    lambda x,y: x+y, (cross_names,)).method
+
     for p in other_packs + cross_packs:
         old_callback = p.get_build_dependencies
         p.get_build_dependencies = MethodOverrider (old_callback,

@@ -13,7 +13,7 @@ class Glib (targetpackage.Target_package):
         return ['gettext-devel', 'libtool']
 
     def get_dependency_dict (self):
-        d = targetpackage.Target_package.get_dependency_dict ()
+        d = targetpackage.Target_package.get_dependency_dict (self)
         d[''].append ('gettext')
         return d
     

@@ -10,14 +10,15 @@ class Freetype (targetpackage.Target_package):
 
     def get_build_dependencies (self):
         return ['libtool', 'zlib-devel']
-    def get_dependency_dict ():
-        return {'': 'zlib'}
+    
+    def get_dependency_dict (self):
+        return {'': ['zlib']}
         
     def configure (self):
 #                self.autoupdate (autodir=os.path.join (self.srcdir (),
 #                                                       'builds/unix'))
 
-        gub.Package.system (self, '''
+        self.system ('''
         rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
 ''')
         targetpackage.Target_package.configure (self)

@@ -135,7 +135,7 @@ class Python__darwin (gub.Null_package):
     def srcdir (self):
         return '%(allsrcdir)s/python-darwin'
     def package (self):
-        gub.Package.package (self)
+        gub.BuildSpecification.package (self)
         
     def install (self):
         self.system ('mkdir -p %(install_root)s/usr/cross/bin/')

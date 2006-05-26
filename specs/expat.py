@@ -6,8 +6,7 @@ import toolpackage
 class Expat (targetpackage.Target_package):
     def __init__ (self, settings):
         targetpackage.Target_package.__init__ (self, settings)
-        self.with (version='1.95.8', mirror=download.sf, format='gz',
-                   builddeps=['libtool'])
+        self.with (version='1.95.8', mirror=download.sf, format='gz')
 
     def get_build_dependencies (self):
         return ['libtool']
@@ -38,5 +37,4 @@ RUN_FC_CACHE_TEST=false
 class Expat__local (toolpackage.Tool_package):
     def __init__ (self,settings):
         toolpackage.Tool_package.__init__ (self, settings)
-        self.with (version='1.95.8', mirror=download.sf, format='gz',
-                   builddepends=['libtool'])
+        self.with (version='1.95.8', mirror=download.sf, format='gz')

@@ -328,8 +328,10 @@ def load_target_package (settings, url):
         for i in init_vars.keys ():
             if d.has_key (i):
                 init_vars[i] = d[i]
+    else:
+        ## yes: sucks for cygwin etc. but need this for debugging the rest.
+        raise Exception ("no such spec: " + url)
         
-                
     if not klass:
         # Without explicit spec will only work if URL
         # includes version and format, eg,

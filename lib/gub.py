@@ -98,7 +98,8 @@ class BuildSpecification (Os_context_wrapper):
     def get_dependency_dict (self):
         """subpackage -> list of dependency dict."""
         
-        return {}
+        return {'': []}
+    
     def builder (self):
         available = dict (inspect.getmembers (self, callable))
         if self.settings.options.stage:
@@ -494,6 +495,7 @@ rm -f %(install_root)s/usr/share/info/dir %(install_root)s/usr/cross/info/dir %(
             if not d.has_key (name):
                 continue
 
+            assert type (d[name]) == type([])
             deps = ';'.join (d[name])
             if p._dict['dependencies_string']:
                 deps = ';' + deps

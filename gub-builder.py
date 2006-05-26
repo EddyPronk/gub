@@ -209,7 +209,6 @@ def main ():
 
     (package_names, spec_object_dict) = gup.get_source_packages (settings,
                                                                  commands)
-
     if c == 'download' or c == 'build':
         def get_all_deps (name):
             package = spec_object_dict[name]
@@ -243,6 +242,7 @@ def main ():
         gup.add_packages_to_manager (pm, settings, spec_object_dict)
 
         deps = filter (spec_object_dict.has_key, package_names)
+        print deps
 #        deps = filter (pm.is_registered, deps)
 
         run_builder (settings, pm, deps, spec_object_dict)
