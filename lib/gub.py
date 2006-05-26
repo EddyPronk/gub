@@ -244,7 +244,7 @@ cd %(cvs_dest)s && cvs -q update -dAPr %(version)s
         return f
 
     @subst_method
-    def branch (self):
+    def vc_branch (self):
         if self.track_development:
             return '%(version)s'
         else:

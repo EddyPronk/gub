@@ -8,7 +8,7 @@ import time
 
 class SystemFailed (Exception):
     pass
-    
+
 def system (cmd):
     print cmd
     stat = os.system (cmd)

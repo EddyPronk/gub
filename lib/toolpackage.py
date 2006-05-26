@@ -18,8 +18,8 @@ class ToolBuildSpecification  (gub.BuildSpecification):
     def compile_command (self):
         return self.native_compile_command ()
 
-    def get_subpackage_definitions (self):
-        return [('', '/')]
+    def get_subpackage_names (self):
+        return ['']
     
     def get_substitution_dict (self, env={}):
         dict = {
