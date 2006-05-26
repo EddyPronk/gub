@@ -38,8 +38,10 @@ class Nsis (ToolBuildSpecification):
         self.with (version='2.16',
                    mirror="http://surfnet.dl.sourceforge.net/sourceforge/%(name)s/%(name)s-%(version)s-src.tar.%(format)s",
                    
-                   format="bz2",
-                   depends=["scons"])
+                   format="bz2")
+
+    def get_build_dependencies (self):
+        return ["scons"]
 
     def patch (self):
   

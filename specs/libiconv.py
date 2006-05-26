@@ -3,7 +3,10 @@ import targetpackage
 class Libiconv (targetpackage.Target_package):
     def __init__ (self, settings):
         targetpackage.Target_package.__init__ (self, settings)
-        self.with (version='1.9.2', depends=['gettext', 'libtool'])
+        self.with (version='1.9.2')
+
+    def get_build_dependencies (self):
+        return ['gettext-devel', 'libtool']
 
     def configure (self):
         targetpackage.Target_package.configure (self)

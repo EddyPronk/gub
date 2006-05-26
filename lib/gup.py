@@ -18,6 +18,8 @@ import targetpackage
 from misc import *  # URG, fixme
 import cygwin
 
+import gub ## ugh
+
 class GupException (Exception):
     pass
 
@@ -189,8 +191,9 @@ class PackageManager (FileManager):
             self.register_package_dict (pickle.loads (v))
 
     def register_package_dict (self, d):
-        
         nm = d['name']
+        if d.has_key ('split_name'):
+            nm = d['split_name']
         if (self._packages.has_key (nm)):
             if self._packages[nm]['spec_checksum'] != d['spec_checksum']:
                 self.os_interface.log_command ('******** checksum of %s changed!\n\n' % nm)
@@ -206,14 +209,15 @@ class PackageManager (FileManager):
         str = open (package_hdr).read ()
 
         d = pickle.loads (str)
-        if (d['cvs_branch']
-            and branch <> d['cvs_branch']):
+        if (d['vc_branch']
+            and branch <> d['vc_branch']):
             print 'ignoring header for wrong branch', package_hdr
             return
-        
-        if self._package_dict_db.has_key (d['name']):
-            if str != self._package_dict_db[d['name']]:
-                self.os_interface.log_command ("package header changed for %(name)s\n" % d)
+
+        name = d['split_name']
+        if self._package_dict_db.has_key (name):
+            if str != self._package_dict_db[name]:
+                self.os_interface.log_command ("package header changed for %s\n" % name)
 
             return
 
@@ -232,9 +236,8 @@ class PackageManager (FileManager):
 
     def is_installable (self, name):
         d = self._packages[name]
-
-        ball = '%(gub_ball)s' % d
-        hdr = '%(hdr_file)s' % d
+        ball = '%(split_ball)s' % d
+        hdr = '%(split_hdr)s' % d
         return os.path.exists (ball) and os.path.exists (ball)
 
     def install_package (self, name):
@@ -246,7 +249,7 @@ class PackageManager (FileManager):
             print 'already have package ', name
             raise 'abort'
         d = self._packages[name]
-        ball = '%(gub_ball)s' % d
+        ball = '%(split_ball)s' % d
         self.install_tarball (ball, name)
         self._package_dict_db[name] = pickle.dumps (d)
 
@@ -317,62 +320,60 @@ def topologically_sorted (todo, done, dependency_getter,
     s = []
     for t in todo:
         s += topologically_sorted_one (t, done, dependency_getter,
-                       recurse_stop_predicate)
+                                       recurse_stop_predicate)
 
     return s
 
 
+    
+
 ################################################################
 # UGH
 # this is too hairy. --hwn
-def get_packages (settings, todo):
+
+def get_source_packages (settings, todo):
+    """TODO is a list of (source) buildspecs.
+
+Generate a list of BuildSpecification needed to build TODO, in
+topological order
+    
+"""
+    
     cross_packages = cross.get_cross_packages (settings)
-    pack_dict = dict ((p.name (), p) for p in cross_packages)
+    spec_dict = dict ((p.name (), p) for p in cross_packages)
+
+
+    todo += spec_dict.keys ()
 
     def name_to_dependencies_via_gub (name):
-        try:
-            pack = pack_dict[name]
-        except KeyError:
-            pack = targetpackage.load_target_package (settings, name)
-            pack_dict[name] = pack
-
-        retval = pack.name_dependencies + pack.name_build_dependencies
-        return retval
-
-    def name_to_dependencies_via_cygwin (name):
-        try:
-            pack = pack_dict [name]
-        except KeyError:
-            try:
-                pack = cygwin.cygwin_name_to_dependency_names (name)
-            except KeyError:
-                pack = targetpackage.load_target_package (settings, name)
-
-        pack_dict[name] = pack
-
-        return pack.name_dependencies + pack.name_build_dependencies
-
-    todo += pack_dict.keys ()
-
-    name_to_deps = name_to_dependencies_via_gub
-    if settings.platform == 'cygwin':
-        cygwin.init_cygwin_package_finder (settings)
-        name_to_deps = name_to_dependencies_via_cygwin
+        name = gub.get_base_package_name (name)
         
-    package_names = topologically_sorted (todo, {}, name_to_deps)
-    pack_dict = dict ((n,pack_dict[n]) for n in package_names)
+        try:
+            spec = spec_dict[name]
+        except KeyError:
+            spec = targetpackage.load_target_package (settings, name)
+            spec_dict[name] = spec
+        
+        deps = spec.get_build_dependencies ()
+        return map (gub.get_base_package_name, deps)
 
-    cross.set_cross_dependencies (pack_dict)
+    ## todo: cygwin.
+    name_to_deps = name_to_dependencies_via_gub
 
-    ## sort for cross deps too.
+    spec_names = topologically_sorted (todo, {}, name_to_deps)
+
+    spec_dict = dict ((n,spec_dict[n]) for n in spec_names)
+
+    cross.set_cross_dependencies (spec_dict)
+
     def obj_to_dependency_objects (obj):
-        return [pack_dict[n] for n in obj.name_dependencies
-            + obj.name_build_dependencies]
-    
-    package_objs = topologically_sorted (pack_dict.values (), {},
-                      obj_to_dependency_objects)
+        return [spec_dict[gub.get_base_package_name (n)] for n in obj.get_build_dependencies ()]
 
-    return ([o.name () for o in package_objs], pack_dict)
+    spec_objs = topologically_sorted (spec_dict.values (), {},
+                                      obj_to_dependency_objects)
+
+    sorted_names = [o.name () for o in spec_objs]
+    return (sorted_names, spec_dict)
 
 def get_target_manager (settings):
     target_manager = DependencyManager (settings.system_root,
@@ -380,14 +381,16 @@ def get_target_manager (settings):
     return target_manager
 
 def add_packages_to_manager (target_manager, settings, package_object_dict):
-
+    
     ## Ugh, this sucks: we now have to have all packages
     ## registered at the same time.
-
+    
     cross_module = cross.get_cross_module (settings.platform)
     cross_module.change_target_packages (package_object_dict)
 
-    for p in package_object_dict.values ():
-        target_manager.register_package_dict (p.get_substitution_dict ())
+    for spec in package_object_dict.values ():
+        for package in spec.get_packages ():
+            target_manager.register_package_dict (package.dict ())
 
     return target_manager
+

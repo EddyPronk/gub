@@ -34,8 +34,8 @@ def get_debian_package (settings, description):
     s = description[:description.find ('\nDescription')]
     d = dict (map (lambda line: line.split (': ', 1),
            map (string.strip, s.split ('\n'))))
-    Package = classobj (d['Package'], (gub.Binary_package,), {})
-    package = Package (settings)
+    package_class = classobj (d['Package'], (gub.Binary_package,), {})
+    package = package_class (settings)
     package.name_dependencies = []
     if d.has_key ('Depends'):
         deps = map (string.strip,
@@ -52,7 +52,8 @@ def get_debian_package (settings, description):
         deps = filter (lambda x: x not in blacklist, deps)
         package.name_dependencies = deps
 
-    package.name_build_dependencies = []
+    ## FIXME.    
+    # package.name_build_dependencies = []
     package.ball_version = d['Version']
     package.url = mirror + '/' + d['Filename']
     package.format = 'deb'

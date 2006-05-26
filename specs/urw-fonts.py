@@ -9,6 +9,7 @@ class Urw_fonts (gub.Binary_package):
         self.system ('mkdir -p %(install_root)s/usr/share/fonts/default/Type1')
         self.system ('cp %(srcdir)s/root/* %(install_root)s/usr/share/fonts/default/Type1/')
     def package (self):
-        gub.Package.package (self)
-    
+        gub.BuildSpecification.package (self)
+    def get_subpackage_names (self):
+        return ['']
 

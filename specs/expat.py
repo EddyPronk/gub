@@ -6,8 +6,10 @@ import toolpackage
 class Expat (targetpackage.Target_package):
     def __init__ (self, settings):
         targetpackage.Target_package.__init__ (self, settings)
-        self.with (version='1.95.8', mirror=download.sf, format='gz',
-                   depends=['libtool'])
+        self.with (version='1.95.8', mirror=download.sf, format='gz')
+
+    def get_build_dependencies (self):
+        return ['libtool']
 
     def patch (self):
         targetpackage.Target_package.patch (self)
@@ -35,5 +37,4 @@ RUN_FC_CACHE_TEST=false
 class Expat__local (toolpackage.ToolBuildSpecification):
     def __init__ (self,settings):
         toolpackage.ToolBuildSpecification.__init__ (self, settings)
-        self.with (version='1.95.8', mirror=download.sf, format='gz',
-                   depends=['libtool'])
+        self.with (version='1.95.8', mirror=download.sf, format='gz')

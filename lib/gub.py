@@ -16,7 +16,66 @@ import md5
 
 from context import *
 
-class Package (Os_context_wrapper):
+
+
+class PackageSpecification:
+    "How to package part of an install_root."
+    
+    def __init__ (self, os_interface):
+        self._dict = {}
+        self._os_interface = os_interface
+        self._file_specs = []
+        self._dependencies = []
+        
+    def set_dict (self, dict, sub_name):
+        self._dict = dict.copy ()
+        self._dict['sub_name'] = sub_name
+        
+        if sub_name:
+            sub_name = '-' + sub_name
+
+        s = ('%(name)s' % dict) + sub_name
+
+        branch = self.expand ('%(vc_branch)s')
+
+        if branch:
+            self._dict['vc_branch_suffix'] = '-' + branch
+        else:
+            self._dict['vc_branch_suffix'] = ''
+            
+        self._dict['split_name'] = s
+        self._dict['split_ball'] = '%(gub_uploads)s/%(split_name)s-%(version)s.%(platform)s.gup' % self._dict
+        self._dict['split_hdr'] = '%(gub_uploads)s/%(split_name)s%(vc_branch)s.%(platform)s.hdr' % self._dict
+
+        deps =  ';'.join (self._dependencies)
+        self._dict['dependencies_string'] = deps
+
+    def expand (self, s):
+        return s % self._dict
+    
+    def dump_header_file (self):
+        hdr = self.expand ('%(split_hdr)s' )
+        self._os_interface.dump (pickle.dumps (self._dict), hdr)
+        
+    def clean (self):
+        for f in self._file_specs:
+            base = self.expand ('rm -rf %(install_root)s/')
+            self._os_interface.system (base + f)
+            
+    def create_tarball (self):
+        cmd = self.expand ('tar -C %(install_root)s --ignore-failed --exclude="*~" -zcf %(split_ball)s ')
+        cmd += (' '.join ('./%s' % f for f in self._file_specs)).replace ('//','/')
+
+        
+        self._os_interface.system (cmd)
+
+    def dict (self):
+        return self._dict
+
+    def name (self):
+        return "%(split_name)s" % self._dict
+    
+class BuildSpecification (Os_context_wrapper):
     def __init__ (self, settings):
         Os_context_wrapper.__init__(self, settings)
 
@@ -36,15 +95,15 @@ class Package (Os_context_wrapper):
         self.split_packages = []
         self.sover = '1'
 
-        self.name_dependencies = []
-        self.name_build_dependencies = []
-
-
-
     # urg: naming conflicts with module.
     def do_download (self):
         self._downloader ()
 
+    def get_dependency_dict (self):
+        """subpackage -> list of dependency dict."""
+        
+        return {'': []}
+    
     def builder (self):
         available = dict (inspect.getmembers (self, callable))
         if self.settings.options.stage:
@@ -52,8 +111,8 @@ class Package (Os_context_wrapper):
             return
 
         stages = ['untar', 'patch',
-                  'configure', 'compile', 'install', 'split',
-                  'src_package', 'package', 'dump_header_file', 'clean']
+                  'configure', 'compile', 'install', 
+                  'src_package', 'package', 'clean']
 
         if not self.settings.build_source:
             stages.remove ('src_package')
@@ -158,7 +217,7 @@ cd %(cvs_dest)s && cvs -q update -dAPr %(version)s
 
     def cvs_checksum_file (self):
         dir = '%s/%s-%s/' % (self.settings.downloaddir, self.name(),
-                  self.version ())
+                             self.version ())
 
         file = '%s/.cvs-checksum' % dir
         return file
@@ -185,7 +244,7 @@ cd %(cvs_dest)s && cvs -q update -dAPr %(version)s
         return f
 
     @subst_method
-    def cvs_branch (self):
+    def branch (self):
         if self.track_development:
             return '%(version)s'
         else:
@@ -197,11 +256,8 @@ cd %(cvs_dest)s && cvs -q update -dAPr %(version)s
 
     @subst_method
     def build_dependencies_string (self):
-        return ';'.join (self.name_build_dependencies)
-
-    @subst_method
-    def dependencies_string (self):
-        return ';'.join (self.name_dependencies)
+        deps = self.get_build_dependencies ()
+        return ';'.join (deps)
 
     @subst_method
     def version (self):
@@ -254,29 +310,12 @@ cd %(cvs_dest)s && cvs -q update -dAPr %(version)s
 
 
     @subst_method
-    def gub_name (self):
-        return '%(name)s-%(version)s.%(platform)s.gub'
-
-    @subst_method
     def gub_name_src (self):
         return '%(name)s-%(version)s-src.%(platform)s.gub'
 
     @subst_method
     def gub_src_uploads (self):
         return '%(gub_uploads)s'
-
-    @subst_method
-    def hdr_name (self):
-        s = '%(name)s'
-        if self.track_development:
-            s += '-%(version)s'
-        
-        return s + '.%(platform)s.hdr'
-    
-
-    @subst_method
-    def hdr_file (self):
-        return '%(gub_uploads)s/%(hdr_name)s'
 
     @subst_method
     def stamp_file (self):
@@ -409,128 +448,76 @@ rm -f %(install_root)s/usr/share/info/dir %(install_root)s/usr/cross/info/dir %(
                             ],
                            full_la, env=locals ())
 
-    def split_devel (self):
-        split_root = '%(install_root)s-devel'
-        split_prefix = '%(install_root)s-devel/usr'
-# Only static .a libs in devel, load time .la files go in LIB (or mingw
-# BIN) package.
-        self.system ('''
-rm -rf %(split_root)s
-mkdir -p %(split_prefix)s/bin
-mv %(install_prefix)s/bin/*-config %(split_prefix)s/bin || true
-tar -C %(install_root)s -cf - usr/include | tar -C %(split_root)s -xf -
-rm -rf %(install_root)s/usr/include
-mkdir -p %(split_prefix)s/lib
-mv %(install_root)s/usr/lib/*.a %(split_prefix)s/lib || true
-mv %(install_root)s/usr/lib/pkgconfig %(split_prefix)s/lib || true
-mkdir -p %(split_prefix)s/share
-tar -C %(install_root)s -cf - %(split_prefix)s/share/aclocal | tar -C %(split_root)s -xf -
-rm -rf %(install_root)s/usr/share/aclocal
-tar -C %(install_root)s -cf - %(split_prefix)s/share/libtool | tar -C %(split_root)s -xf -
-rm -rf %(install_root)s/usr/share/libtool
-rmdir %(install_root)s/usr/lib || true
-rmdir %(install_root)s/usr/share || true
-rmdir %(split_root)s/usr/lib || true
-rmdir %(split_root)s/usr/share || true
-''',
-                     locals ())
-
-    def split_doc (self):
-        split_root = '%(install_root)s-doc'
-        split_prefix = '%(install_root)s-doc/usr'
-        self.system ('''
-rm -rf %(split_root)s
-mkdir -p %(split_prefix)s/share
-tar -C %(install_prefix)s -cf - share/info | tar -C %(split_prefix)s -xf -
-rm -rf %(install_root)s/usr/share/info
-tar -C %(install_prefix)s -cf - share/man | tar -C %(split_prefix)s -xf -
-rm -rf %(install_root)s/usr/share/man
-tar -C %(install_prefix)s -cf - doc/%(name)s | tar -C %(split_prefix)s/share -xf -
-tar -C %(install_prefix)s -cf - share/doc/%(name)s | tar -C %(split_prefix)s -xf -
-rm -rf %(install_root)s/usr/doc/%(name)s %(install_root)s/usr/share/doc/%(name)s
-rmdir %(split_root)s/usr/share/info || true
-rmdir %(split_root)s/usr/share/man || true
-rmdir %(split_root)s/usr/share/doc/%(name)s || true
-rmdir %(split_root)s/usr/share || true
-''',
-                     locals ())
-
-    def split_lib (self):
-        split_root = '%(install_root)s-lib'
-        split_prefix = '%(install_root)s-lib/usr'
-# better move dlls to bin, see gmp
-        self.system ('''
-rm -rf %(split_root)s
-mkdir -p %(split_prefix)s/bin
-mv %(install_root)s/usr/bin/*.dll %(split_prefix)s/bin || true
-mkdir -p %(split_prefix)s/lib
-mv %(install_root)s/usr/lib/*.dll %(split_prefix)s/lib || true
-mkdir -p %(split_prefix)s/lib
-mv %(install_root)s/usr/lib/lib*.la %(split_prefix)s/lib || true
-mkdir -p %(split_prefix)s/share
-mv %(install_root)s/usr/share/%(name)s %(split_prefix)s/share || true
-rmdir %(install_root)s/usr/bin || true
-rmdir %(install_root)s/usr/lib || true
-rmdir %(install_root)s/usr/share || true
-rmdir %(split_root)s/usr/bin || true
-rmdir %(split_root)s/usr/lib || true
-rmdir %(split_root)s/usr/share || true
-''',
-              locals ())
-
-    def split (self):
-        available = dict (inspect.getmembers (self, callable))
-        for i in self.split_packages:
-            available['split_' + i] ()
-
     def compile (self):
         self.system ('cd %(builddir)s && %(compile_command)s')
 
-    # FIXME: should not misuse patch for auto stuff
+    # FIXME: should not misusde patch for auto stuff
     def patch (self):
         if not os.path.exists ('%(srcdir)s/configure' \
                    % self.get_substitution_dict ()):
             self.autoupdate ()
 
     @subst_method
-    def gub_name_devel (self):
-        return '%(name)s-devel-%(version)s.%(platform)s.gub'
-
-    @subst_method
-    def gub_name_doc (self):
-        return '%(name)s-doc-%(version)s.%(platform)s.gub'
-
-    @subst_method
-    def gub_name_lib (self):
-        if self.name ().startswith ('lib'):
-            sover = self.sover
-            return '%(name)s%(sover)s-%(version)s.%(platform)s.gub'
-        return 'lib%(name)s%(sover)s-%(version)s.%(platform)s.gub'
-
-    @subst_method
-    def gub_ball (self):
-        return '%(gub_uploads)s/%(gub_name)s'
-
-    @subst_method
     def is_sdk_package (self):
         return 'false'
     
     def package (self):
+        ps = self.get_packages ()
+        for p in ps:
+            p.create_tarball ()
+            p.dump_header_file ()
+            p.clean ()
+            
+    def get_build_dependencies (self):
+        return []
 
-        # naive tarball packages for now
-        self.system ('''
-tar -C %(install_root)s --exclude="*~" -zcf %(gub_ball)s .
-''')
+    def get_subpackage_definitions (self):
+        return [('devel', ['/usr/include',
+                           '/usr/cross/include',
+                           ]),
+                ('doc', ['/usr/share/doc',
+                         '/usr/share/info',
+                         '/usr/share/man',
+                         '/usr/cross/info',
+                         '/usr/cross/man',
+                         ]),
+                ('', '/')]
+
+    def get_subpackage_names (self):
+        return ['devel','doc','']
+    
+    def get_packages (self):
+        defs = dict (self.get_subpackage_definitions ())
+
+        ps = []
         
-        # WIP
-        available = dict (inspect.getmembers (self, callable))
-        for i in self.split_packages:
-            split_gub_name = available['gub_name_' + i] ()
-            self.system ('''
-tar -C %(install_root)s-%(i)s -zcf %(gub_uploads)s/%(split_gub_name)s .
-''',
-                  locals ())
+        for sub in self.get_subpackage_names ():
+            filespecs = defs[sub]
+            
+            p = PackageSpecification (self.os_interface)
 
+            if sub:
+                p._dependencies = [self.expand ("%(name)s")]
+                
+            p._file_specs = filespecs
+            p.set_dict (self.get_substitution_dict(), sub)
+            ps.append (p)
+            
+        d = self.get_dependency_dict ()
+        for p in ps: 
+            name = p.expand ('%(sub_name)s')
+            if not d.has_key (name):
+                continue
+
+            assert type (d[name]) == type([])
+            deps = ';'.join (d[name])
+            if p._dict['dependencies_string']:
+                deps = ';' + deps
+                
+            p._dict['dependencies_string'] += deps
+
+        return ps
+    
     def src_package (self):
         # URG: basename may not be source dir name, eg,
         # package libjpeg uses jpeg-6b.  Better fix at untar
@@ -541,11 +528,6 @@ tar -C %(install_root)s-%(i)s -zcf %(gub_uploads)s/%(split_gub_name)s .
 tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"  -zcf %(gub_src_uploads)s/%(gub_name_src)s %(dir_name)s
 ''',
                      locals ())
-
-    def dump_header_file (self):
-        hdr = self.expand ('%(hdr_file)s')
-        self.log_command ("Writing %s\n" % hdr)
-        pickle.dump (self.get_substitution_dict (), open (hdr, 'w'))
 
     def clean (self):
         self.system ('rm -rf  %(stamp_file)s %(install_root)s', locals ())
@@ -581,19 +563,17 @@ rm -rf %(srcdir)s %(builddir)s %(install_root)s
 ''')
             self._untar ('%(allsrcdir)s')
 
-        ## FIXME what was this for? --hwn
         self.system ('cd %(srcdir)s && chmod -R +w .')
 
     def with (self, version='HEAD', mirror=download.gnu,
-         format='gz', depends=[], builddeps=[],
-         track_development=False
-         ):
+              format='gz', 
+              track_development=False
+              ):
+        
         self.format = format
         self.ball_version = version
         ball_version = version
-        # Use copy of default empty depends, to be able to change it.
-        self.name_dependencies = list (depends)
-        self.name_build_dependencies = list (builddeps)
+        
         self.track_development = track_development
         self.url = mirror
 
@@ -602,7 +582,7 @@ rm -rf %(srcdir)s %(builddir)s %(install_root)s
 
         return self
 
-class Binary_package (Package):
+class Binary_package (BuildSpecification):
     def untar (self):
         self.system ('''
 rm -rf %(srcdir)s %(builddir)s %(install_root)s
@@ -628,7 +608,7 @@ rm -rf %(srcdir)s %(builddir)s %(install_root)s
         self.system ('tar -C %(srcdir)s/root -cf- . | tar -C %(install_root)s -xf-')
         self.libtool_installed_la_fixups ()
 
-class Null_package (Package):
+class Null_package (BuildSpecification):
     """Placeholder for downloads """
 
     def compile (self):
@@ -652,8 +632,11 @@ class Null_package (Package):
 
 class Sdk_package (Null_package):
     def untar (self):
-        Package.untar (self)
+        BuildSpecification.untar (self)
 
+    def get_subpackage_names (self):
+        return ['']
+    
     ## UGH: should store superclass names of each package.
     def is_sdk_package (self):
         return 'true'
@@ -694,3 +677,8 @@ def append_target_dict (package, add_dict):
         package.get_substitution_dict = Change_target_dict (package, add_dict).append_dict
     except AttributeError:
         pass
+
+def get_base_package_name (name):
+    name = re.sub ('-devel$', '', name)
+    name = re.sub ('-doc$', '', name)
+    return name

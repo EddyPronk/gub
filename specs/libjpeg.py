@@ -13,6 +13,9 @@ class Libjpeg (targetpackage.Target_package):
     def name (self):
         return 'libjpeg'
 
+    def get_subpackage_names (self):
+        return ['devel', '']
+    
     def srcdir (self):
         return re.sub (r'src\.v', '-', targetpackage.Target_package.srcdir(self))
 

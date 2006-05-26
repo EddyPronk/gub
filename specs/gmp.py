@@ -9,11 +9,13 @@ class Gmp (targetpackage.Target_package):
         targetpackage.Target_package.__init__ (self, settings)
         self.with (version='4.2.1-rc',
                    mirror="ftp://ftp.swox.com/pub/gmp/src/gmp-4.2.1-rc.tar.bz2",
-                   format="bz2",
-                   depends=['libtool'])
+                   format="bz2")
 
         if not self.settings.platform.startswith ('darwin'):
             self.target_architecture = re.sub ('i[0-9]86-', 'i386-', settings.target_architecture)
+
+    def get_build_dependencies (self):
+        return ['libtool']
 
     def configure_command (self):
         c = targetpackage.Target_package.configure_command (self)
@@ -87,6 +89,6 @@ class Gmp__local (ToolBuildSpecification):
         self.with (version='4.1.4',
 #                   mirror="ftp://ftp.swox.com/pub/gmp/src/gmp-%(version)s-rc.tar.bz2",
                    mirror="ftp://ftp.gnu.org/gnu/gmp/gmp-%(version)s.tar.bz2",
-                   depends=[])
+                   )
 
 

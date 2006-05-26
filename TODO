@@ -20,6 +20,7 @@ lagere prioriteit
 
 - Group spec/patch/source files by package
 
+- gcc 4.1 for linux
 - strip lily specific stuff from installer.py 
 
 - Bugfixes:

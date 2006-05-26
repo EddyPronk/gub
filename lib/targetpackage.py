@@ -9,7 +9,7 @@ import cross
 from new import classobj
 
 
-class Target_package (gub.Package):
+class Target_package (gub.BuildSpecification):
     def configure_command (self):
         return misc.join_lines ('''%(srcdir)s/configure
 --config-cache
@@ -28,7 +28,7 @@ class Target_package (gub.Package):
 
     def install (self):
         self.pre_install_libtool_fixup ()
-        gub.Package.install (self)
+        gub.BuildSpecification.install (self)
 
     def pre_install_libtool_fixup (self):
         ## Workaround for libtool bug.
@@ -72,7 +72,7 @@ class Target_package (gub.Package):
             + cross_config_cache[self.settings.platform])
 
     def compile_command (self):
-        c = gub.Package.compile_command (self)
+        c = gub.BuildSpecification.compile_command (self)
         if (self.settings.cross_distcc_hosts
           and re.search (r'\bmake\b', c)):
             jobs = '-j%d ' % (2*len (self.settings.cross_distcc_hosts.split (' ')))
@@ -87,7 +87,7 @@ class Target_package (gub.Package):
             
     def configure (self):
         self.config_cache ()
-        gub.Package.configure (self)
+        gub.BuildSpecification.configure (self)
 
     ## FIXME: this should move elsewhere , as it's not
     ## package specific
@@ -138,7 +138,7 @@ class Target_package (gub.Package):
             }
 
         dict.update (env)
-        d =  gub.Package.get_substitution_dict (self, dict).copy()
+        d =  gub.BuildSpecification.get_substitution_dict (self, dict).copy()
         return d
 
 
@@ -328,8 +328,10 @@ def load_target_package (settings, url):
         for i in init_vars.keys ():
             if d.has_key (i):
                 init_vars[i] = d[i]
+    else:
+        ## yes: sucks for cygwin etc. but need this for debugging the rest.
+        raise Exception ("no such spec: " + url)
         
-                
     if not klass:
         # Without explicit spec will only work if URL
         # includes version and format, eg,
@@ -346,7 +348,5 @@ def load_target_package (settings, url):
 #                package.with (format=init_vars['format'],
 #                              mirror=init_vars['url'],
 #                              version=init_vars['version'],
-#                              depends=init_vars['depends'],
-#                              builddeps=init_vars['builddeps'])
 
     return package

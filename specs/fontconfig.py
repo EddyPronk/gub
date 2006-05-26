@@ -7,31 +7,32 @@ import toolpackage
 class Fontconfig (targetpackage.Target_package):
     def __init__ (self, settings):
         targetpackage.Target_package.__init__ (self, settings)
-        self.with (version='2.3.2', mirror=download.fontconfig,
-             depends=['expat', 'freetype', 'libtool']),
+        self.with (version='2.3.2', mirror=download.fontconfig)
+
+    def get_build_dependencies (self):
+        return ['libtool', 'expat-devel', 'freetype-devel']
+
+    def get_dependency_dict (self):
+        return {'': ['expat', 'freetype', 'libtool']}
 
     def configure_command (self):
         # FIXME: system dir vs packaging install
 
         ## UGH  - this breaks  on Darwin!
-        return targetpackage.Target_package.configure_command (self) \
-           + misc.join_lines ('''
+        return (targetpackage.Target_package.configure_command (self) 
+                + misc.join_lines ('''
 --with-freetype-config="%(system_root)s/usr/bin/freetype-config
 --prefix=%(system_root)s/usr
-"''')
-#--urg-broken-if-set-exec-prefix=%(system_root)s/usr
+"'''))
 
     def configure (self):
-        gub.Package.system (self, '''
-        rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
-''',
-              env={'ft_config' : '''/usr/bin/freetype-config \
---prefix=%(system_root)s/usr \
-'''})
-#--urg-broken-if-set-exec-prefix=%(system_root)s/usr \
+        self.system ('''
+rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
+''')
+
         targetpackage.Target_package.configure (self)
 
-        # # FIXME: libtool too old for cross compile
+        ## FIXME: libtool too old for cross compile
         self.update_libtool ()
 
         # FIXME: how to put in __mingw class without duplicating
@@ -74,8 +75,7 @@ class Fontconfig__mingw (Fontconfig):
 
     def x__init__ (self, settings):
         Fontconfig.__init__ (self, settings)
-        self.with (version='2.3.94', mirror=download.fontconfig,
-             depends=['expat', 'freetype', 'libtool'])
+        self.with (version='2.3.94', mirror=download.fontconfig)
 
     def patch (self):
         Fontconfig.patch (self)
@@ -114,6 +114,5 @@ class Fontconfig__freebsd (Fontconfig__linux):
 class Fontconfig__local (toolpackage.ToolBuildSpecification):
     def __init__ (self, settings):
         toolpackage.ToolBuildSpecification.__init__ (self, settings)
-        self.with (version='2.3.2', mirror=download.fontconfig,
-             depends=['expat', 'freetype'])
+        self.with (version='2.3.2', mirror=download.fontconfig)
         

@@ -11,10 +11,15 @@ class Ghostscript (targetpackage.Target_package):
         xsf = re.sub ('version\)s', 'version)s-gpl', download.sf)
         assert xsf <> download.sf
         self.with (version='8.50',
-             #mirror='ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs850/ghostscript-8.50-gpl.tar.bz2',
-             mirror=xsf,
-             format='bz2',
-             depends=['libiconv', 'libjpeg', 'libpng'])
+                   #mirror='ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs850/ghostscript-8.50-gpl.tar.bz2',
+                   mirror=xsf,
+                   format='bz2')
+
+    def get_build_dependencies (self):
+        return ['libjpeg-devel', 'libpng-devel']
+
+    def get_dependency_dict (self):
+        return {'': ['libjpeg', 'libpng']}
 
     def srcdir (self):
         return re.sub ('-source', '', targetpackage.Target_package.srcdir (self))
@@ -195,3 +200,10 @@ mkdir -p %(install_root)s/%(gs_prefix)s/fonts
 cp %(dir)s/{%(fonts_string)s}{.afm,.pfb} %(install_root)s/%(gs_prefix)s/fonts
 fc-cache %(install_root)s/%(gs_prefix)s/fonts
 ''', locals ())
+
+class Ghostscript__freebsd (Ghostscript):
+    def get_dependency_dict (self):
+        d = Ghostscript.get_dependency_dict (self)
+        d[''].append ('libiconv')
+        return d
+

@@ -11,12 +11,18 @@ import targetpackage
 from context import *
 
 class LilyPond (targetpackage.Target_package):
+    def get_dependency_dict (self):
+        return {'': ['fontconfig', 'gettext', 
+                     'guile', 'pango', 'python',
+                     'ghostscript']}
+    
+    def get_build_dependencies (self):
+        return ['guile-devel', 'python-devel', 'fontconfig-devel',
+                'gettext-devel',  'pango-devel', 'freetype-devel', 'urw-fonts']
+
     def __init__ (self, settings):
         targetpackage.Target_package.__init__ (self, settings)
         self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
-                   builddeps=['urw-fonts'],
-                   depends=['fontconfig', 'gettext', 
-                            'guile', 'pango', 'python', 'ghostscript'],
                    track_development=True)
 
         # FIXME: should add to C_INCLUDE_PATH
@@ -49,7 +55,7 @@ class LilyPond (targetpackage.Target_package):
         if not os.path.exists (self.expand ('%(builddir)s/FlexLexer.h')):
             flex = self.read_pipe ('which flex')
             flex_include_dir = os.path.split (flex)[0] + "/../include"
-            gub.Package.system (self, '''
+            self.system ('''
 mkdir -p %(builddir)s
 cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/
 ''', locals ())
@@ -138,13 +144,11 @@ class LilyPond__cygwin (LilyPond):
     def __init__ (self, settings):
         LilyPond.__init__ (self, settings)
         self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
-                   depends=['fontconfig', 'freetype2', 'gettext', 'glib2', 'guile',
-                            'libiconv', 'pango', 'python'],
-                   builddeps=['gettext-devel', 'glib2-devel', 'guile',
-                              'libfontconfig-devel', 'libfreetype2-devel', 'libiconv',
-                              'pango-devel', 'python'],
                    track_development=True)
-        self.split_packages = ['doc']
+
+    def get_dependency_dict (self):
+        return {'': ['fontconfig', 'freetype2', 'gettext', 'glib2', 'guile',
+                     'libiconv', 'pango', 'python']}
 
     def patch (self):
         # FIXME: for our gcc-3.4.5 cross compiler in the mingw
@@ -238,21 +242,21 @@ tar -C %(install_root)s/usr/share/doc/lilypond -jxf %(docball)s
 class LilyPond__freebsd (LilyPond):
     def __init__ (self, settings):
         LilyPond.__init__ (self, settings)
-
-        # libgcc.so
-        self.name_dependencies.append ('gcc')
+    def get_dependency_dict (self):
+        d = LilyPond.get_dependency_dict (self)
+        d[''].append ('gcc')
 
 class LilyPond__mingw (LilyPond__cygwin):
     def __init__ (self, settings):
         LilyPond__cygwin.__init__ (self, settings)
         self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
-                   depends=['fontconfig', 'gettext', 
-                            'guile', 'pango', 'python', 'ghostscript', 'lilypad'],
-                   builddeps=['urw-fonts'],
                    track_development=True)
 
         self.split_packages = []
+    def get_dependency_dict (self):
 
+        d = LilyPond.get_dependency_dict (self)
+        d[''].append ('lilypad')        
     def do_configure (self):
         LilyPond__cygwin.do_configure (self)
 
@@ -300,8 +304,6 @@ class LilyPond__debian (LilyPond):
     def __init__ (self, settings):
         LilyPond.__init__ (self, settings)
         self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
-                   builddeps=['libfontconfig1-dev', 'guile-1.6-dev',
-                              'libpango1.0-dev', 'python-dev'],
                    track_development=True)
     def install (self):
         targetpackage.Target_package.install (self)
@@ -313,13 +315,15 @@ class LilyPond__darwin (LilyPond):
         LilyPond.__init__ (self, settings)
         self.with (version=settings.lilypond_branch,
                    mirror=cvs.gnu,
-                   track_development=True,
-                   depends=['pango', 'guile', 'gettext', 'ghostscript',
-                            'python', 'urw-fonts',
-                            'fondu', 'osx-lilypad'])
+                   track_development=True)
+
+    def get_dependency_dict (self):
+        d = LilyPond.get_dependency_dict (self)
+        d[''] += [ 'fondu', 'osx-lilypad']
 
     def compile_command (self):
         return LilyPond.compile_command (self) + " TARGET_PYTHON=/usr/bin/python "
+    
     def configure_command (self):
         cmd = LilyPond.configure_command (self)
         cmd += ' --enable-static-gxx '
