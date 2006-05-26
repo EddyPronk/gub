@@ -344,7 +344,6 @@ def get_source_packages (settings, todo):
 
         retval = map (gub.get_base_package_name, pack.get_build_dependencies ())
         for subdeps in pack.get_dependency_dict ().values ():
-            print subdeps
             retval += map (gub.get_base_package_name,  subdeps)
             
         return retval
@@ -377,9 +376,9 @@ def get_source_packages (settings, todo):
     ## sort for cross deps too.
     def obj_to_dependency_objects (obj):
         return [pack_dict[n] for n in obj.get_build_dependencies ()]
-    
+
     package_objs = topologically_sorted (pack_dict.values (), {},
-                      obj_to_dependency_objects)
+                                         obj_to_dependency_objects)
 
     return ([o.name () for o in package_objs], pack_dict)
 
