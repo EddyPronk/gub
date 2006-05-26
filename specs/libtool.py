@@ -1,5 +1,5 @@
 import targetpackage
-from toolpackage import Tool_package
+from toolpackage import ToolBuildSpecification
 
 # FIXME, need for WITH settings when building dependency 'libtool'
 # This works without libtool.py:
@@ -20,7 +20,7 @@ class Libtool__darwin (Libtool):
                    '%(install_root)s/usr/etc/relocate/libtool.reloc')
 
 
-class Libtool__local (Tool_package):
+class Libtool__local (ToolBuildSpecification):
     """
 
 Libtool as a local package is rather painful, as Darwin has its own
@@ -30,5 +30,5 @@ dylibs.
     """
     
     def __init__ (self, settings):
-        Tool_package.__init__ (self, settings)
+        ToolBuildSpecification.__init__ (self, settings)
         self.with (version='1.5.20')

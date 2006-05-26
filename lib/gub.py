@@ -362,7 +362,7 @@ tooldir=%(install_prefix)s
     def kill_libtool_installation_test (self, file):
         self.file_sub ([(r'if test "\$inst_prefix_dir" = "\$destdir"; then',
                          'if false && test "$inst_prefix_dir" = "$destdir"; then')],
-               file, must_succeed=True)
+                       file, must_succeed=True)
         
     def update_libtool (self):
         new_lt = self.expand ('%(system_root)s/usr/bin/libtool')

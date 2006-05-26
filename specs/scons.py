@@ -1,7 +1,7 @@
-from toolpackage import Tool_package
+from toolpackage import ToolBuildSpecification
 import download
 
-class Scons (Tool_package):
+class Scons (ToolBuildSpecification):
     def compile (self):
         pass
 
@@ -18,7 +18,7 @@ class Scons (Tool_package):
         self.system ('tar -C %(install_root)s/%(buildtools)s/../ -zcf %(gub_uploads)s/%(gub_name)s .')
     
     def __init__ (self, settings):
-        Tool_package.__init__ (self, settings)
+        ToolBuildSpecification.__init__ (self, settings)
         self.with (version='0.96.91',
              format = 'gz',
              mirror=download.sf),

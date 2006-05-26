@@ -38,11 +38,11 @@ class Libpng__mingw (Libpng):
         self.autoupdate ()
         Libpng.configure (self)
 
-from toolpackage import Tool_package
+from toolpackage import ToolBuildSpecification
 
-class Libpng__local (Tool_package, Libpng):
+class Libpng__local (ToolBuildSpecification, Libpng):
     def __init__ (self, settings):
-        Tool_package.__init__ (self, settings)
+        ToolBuildSpecification.__init__ (self, settings)
         self.with (version='1.2.8', mirror=download.libpng)
 
     def patch (self):

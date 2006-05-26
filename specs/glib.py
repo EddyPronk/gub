@@ -31,15 +31,15 @@ class Glib__darwin (Glib):
                '%(builddir)s/libtool')
 
 
-class Glib__local (toolpackage.Tool_package):
+class Glib__local (toolpackage.ToolBuildSpecification):
    def __init__ (self, settings):
-       toolpackage.Tool_package.__init__ (self, settings)
+       toolpackage.ToolBuildSpecification.__init__ (self, settings)
        self.with (version='2.10.1',
                    mirror='ftp://ftp.gnome.org/Public/GNOME/sources/glib/2.10/%(name)s-%(ball_version)s.tar.%(format)s',
                    format='bz2',
                    depends=['gettext', 'libtool'])
    def install (self):
-            toolpackage.Tool_package.install(self)
+            toolpackage.ToolBuildSpecification.install(self)
             self.system ('rm %(install_root)s/usr/lib/charset.alias',
               ignore_error=True)
 

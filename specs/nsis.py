@@ -1,8 +1,8 @@
-from toolpackage import Tool_package
+from toolpackage import ToolBuildSpecification
 import os
 
 ## 2.06 and earlier.
-class Nsis__old (Tool_package):
+class Nsis__old (ToolBuildSpecification):
     def compile (self): 
         env = {}
         env['PATH'] = '%(topdir)s/target/mingw/system/usr/cross/bin:' + os.environ['PATH']
@@ -14,7 +14,7 @@ class Nsis__old (Tool_package):
         self.system ('ln -s %(srcdir)s %(builddir)s') 
         
     def srcdir (self):
-        d = Tool_package.srcdir (self).replace ('_','-')
+        d = ToolBuildSpecification.srcdir (self).replace ('_','-')
         return d
 
     def configure (self):
@@ -32,9 +32,9 @@ cd %(builddir)s && ./install.sh %(system_root)s/usr/ %(install_root)s
         self.system ('tar -C %(install_root)s/%(system_root)s/ -zcf %(gub_uploads)s/%(gub_name)s .')
 
 
-class Nsis (Tool_package):
+class Nsis (ToolBuildSpecification):
     def __init__ (self, settings):
-        Tool_package.__init__(self, settings)
+        ToolBuildSpecification.__init__(self, settings)
         self.with (version='2.16',
                    mirror="http://surfnet.dl.sourceforge.net/sourceforge/%(name)s/%(name)s-%(version)s-src.tar.%(format)s",
                    
@@ -75,7 +75,7 @@ class Nsis (Tool_package):
 
         
     def srcdir (self):
-        d = Tool_package.srcdir (self).replace ('_','-') + '-src'
+        d = ToolBuildSpecification.srcdir (self).replace ('_','-') + '-src'
         return d
           
 

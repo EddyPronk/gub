@@ -4,7 +4,7 @@ import download
 import misc
 import os
 
-class Tool_package (gub.Package):
+class ToolBuildSpecification (gub.Package):
     def configure_command (self):
         return (gub.Package.configure_command (self)
             + misc.join_lines ('''

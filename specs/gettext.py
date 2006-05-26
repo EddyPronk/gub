@@ -64,8 +64,12 @@ class Gettext__darwin (Gettext):
                        Gettext.configure_command (self))
 
 
-class Gettext__local (toolpackage.Tool_package):
+class Gettext__local (toolpackage.ToolBuildSpecification):
     def __init__ (self, settings):
-        toolpackage.Tool_package.__init__(self,settings)
+        toolpackage.ToolBuildSpecification.__init__(self,settings)
         self.with (version='0.14.1', mirror=download.gnu, format='gz',
                    depends=['libtool'])
+
+    def configure (self):
+        toolpackage.ToolBuildSpecification.configure (self)
+        self.update_libtool ()
