@@ -35,7 +35,7 @@ INVOKE_INSTALLER_BUILDER=$(PYTHON) installer-builder.py \
   --branch $(LILYPOND_BRANCH) \
 
 BUILD=$(call INVOKE_GUB_BUILDER,$(1)) build $(2) \
-  && $(call INVOKE_INSTALLER_BUILDER,$(1)) build lilypond \
+  && $(call INVOKE_INSTALLER_BUILDER,$(1)) build lilypond ghostscript \
   && $(call INVOKE_INSTALLER_BUILDER,$(1)) strip \
   && $(call INVOKE_INSTALLER_BUILDER,$(1)) package \
 
