@@ -31,7 +31,7 @@ class CrossToolSpec (gub.BuildSpec):
         return '%(gub_cross_uploads)s'
 
     def get_subpackage_names (self):
-        return ['', 'doc']
+        return ['doc', '']
     
 class Binutils (CrossToolSpec):
     def install (self):
