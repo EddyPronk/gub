@@ -14,7 +14,7 @@ class Odcctools (cross.CrossToolSpec):
 
         ## remove LD64 support.
         self.file_sub ([('ld64','')],
-               self.builddir () + '/Makefile')
+                       self.builddir () + '/Makefile')
 
 class Darwin_sdk (gub.SdkBuildSpec):
     def __init__ (self, settings):
@@ -233,13 +233,6 @@ def change_target_packages (packages):
             'CPPFLAGS' : '-DSTDC_HEADERS',
             })
         
-        remove = ('libiconv', 'zlib')
-        if p.name () in remove:
-            del packages[p.name ()]
-        if p.name_dependencies:
-            p.name_dependencies = filter (lambda x: x not in remove,
-                           p.name_dependencies)
-
 def system (c):
     s = os.system (c)
     if s:

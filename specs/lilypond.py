@@ -320,7 +320,8 @@ class LilyPond__darwin (LilyPond):
     def get_dependency_dict (self):
         d = LilyPond.get_dependency_dict (self)
         d[''] += [ 'fondu', 'osx-lilypad']
-
+        return d
+    
     def compile_command (self):
         return LilyPond.compile_command (self) + " TARGET_PYTHON=/usr/bin/python "
     
