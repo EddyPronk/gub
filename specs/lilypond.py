@@ -18,6 +18,9 @@ class LilyPond (targetpackage.TargetBuildSpec):
     
     def get_build_dependencies (self):
         return ['guile-devel', 'python-devel', 'fontconfig-devel',
+
+                ## not really true, but makes our GNUmakefile more difficult otherwise 
+                'ghostscript',
                 'gettext-devel',  'pango-devel', 'freetype-devel', 'urw-fonts']
 
     def __init__ (self, settings):
@@ -321,7 +324,9 @@ class LilyPond__darwin (LilyPond):
         d = LilyPond.get_dependency_dict (self)
         d[''] += [ 'fondu', 'osx-lilypad']
         return d
-    
+    def get_build_dependencies (self):
+        return LilyPond.get_build_dependencies (self) + [ 'fondu', 'osx-lilypad']
+
     def compile_command (self):
         return LilyPond.compile_command (self) + " TARGET_PYTHON=/usr/bin/python "
     
