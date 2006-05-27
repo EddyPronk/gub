@@ -501,7 +501,7 @@ rm -f %(install_root)s/usr/share/info/dir %(install_root)s/usr/cross/info/dir %(
             p._file_specs = filespecs
             p.set_dict (self.get_substitution_dict(), sub)
             ps.append (p)
-            
+
         d = self.get_dependency_dict ()
         for p in ps: 
             name = p.expand ('%(sub_name)s')
@@ -614,18 +614,14 @@ class NullBuildSpec (BuildSpec):
         pass
     def configure (self):
         pass
+
     def install (self):
-        pass
+        self.system ('mkdir -p %(install_root)s')
+
     def untar (self):
         pass
     def patch (self):
         pass
-
-    ## need to create a .gub, otherwise driver.py is confused: a
-    ## package should be installable after building.
-    def package (self):
-        self.system ('tar -czf %(gub_uploads)s/%(gub_name)s --files-from=/dev/null')
-
     def src_package (self):
         pass
 
@@ -639,9 +635,9 @@ class SdkBuildSpec (NullBuildSpec):
     ## UGH: should store superclass names of each package.
     def is_sdk_package (self):
         return 'true'
-
-    def package (self):
-        self.system ('tar -C %(srcdir)s/ -czf %(gub_uploads)s/%(gub_name)s .')
+    
+    def install_root (self):
+        return self.srcdir()
 
 class Change_target_dict:
     def __init__ (self, package, override):
