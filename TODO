@@ -13,7 +13,7 @@ lagere prioriteit
 
 - GUILE bouwen zonder locale devel packages.
 
-- update packages:
+- update packages: nsis 2.17
 
 - Python: should compile .pyc with matching local python version.
 => add to local packages.

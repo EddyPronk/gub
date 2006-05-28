@@ -34,3 +34,11 @@ class ToolBuildSpec  (gub.BuildSpec):
         dict.update (env)
         d = gub.BuildSpec.get_substitution_dict (self, dict).copy()
         return d
+
+
+    def get_broken_packages (self):
+        packs = ToolBuildSpec.get_packages (self)
+        for p in packs:
+            # FIXME.
+            p._dict['install_root'] = self.expand ('%(install_root)s/%(topdir)s/target/local/system/')
+        return packs
