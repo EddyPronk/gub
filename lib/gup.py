@@ -2,21 +2,17 @@ import gdbm as dbmodule
 #import dbhash as dbmodule
 
 import pickle
-import gzip
 import os
 import re
 import string
 import fcntl
 import sys
-import imp
 import glob
 
 #
 import cross
-import framework
 import targetpackage
 from misc import *  # URG, fixme
-import cygwin
 
 import gub ## ugh
 
@@ -76,7 +72,7 @@ class FileManager:
         name = self.__class__.__name__
         root = self.root
         distro =  self.is_distro
-        return '%(name)s: %(root)s, distro: %(distro)d build: %(build)d'  % locals()
+        return '%(name)s: %(root)s, distro: %(distro)d'  % locals()
 
     def tarball_files (self, ball):
         flag = tar_compression_flag (ball)
@@ -107,7 +103,7 @@ class FileManager:
                 conflicts = True
 
         if conflicts and not self.is_distro:
-            raise 'abort'
+            raise Exception ('abort')
 
         self.os_interface.system ('tar -C %(root)s -x%(flag)sf %(ball)s' % locals ())
 
@@ -156,10 +152,6 @@ class FileManager:
                 print 'db delete failing for ', f
         del self._package_file_db[name]
 
-    def installed_package_dicts (self):
-        names = self._package_file_db.keys ()
-        return [self._packages[p] for p in names]
-
     def installed_packages (self):
         names = self._package_file_db.keys ()
         return names
@@ -189,6 +181,10 @@ class PackageManager (FileManager):
         for k in self._package_dict_db.keys ():
             v = self._package_dict_db[k]
             self.register_package_dict (pickle.loads (v))
+
+    def installed_package_dicts (self):
+        names = self._package_file_db.keys ()
+        return [self._packages[p] for p in names]
 
     def register_package_dict (self, d):
         nm = d['name']
@@ -238,7 +234,7 @@ class PackageManager (FileManager):
         d = self._packages[name]
         ball = '%(split_ball)s' % d
         hdr = '%(split_hdr)s' % d
-        return os.path.exists (ball) and os.path.exists (ball)
+        return os.path.exists (ball) and os.path.exists (hdr)
 
     def install_package (self, name):
         if self.is_installed (name):
@@ -247,7 +243,7 @@ class PackageManager (FileManager):
                        % name)
         if self._package_file_db.has_key (name):
             print 'already have package ', name
-            raise 'abort'
+            raise Exception ('abort')
         d = self._packages[name]
         ball = '%(split_ball)s' % d
         self.install_tarball (ball, name)

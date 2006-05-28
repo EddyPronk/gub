@@ -11,7 +11,6 @@ import re
 import string
 import subprocess
 import sys
-import time
 import md5
 
 from context import *
@@ -645,9 +644,9 @@ class Change_target_dict:
         self._add_dict = override
 
     def target_dict (self, env={}):
-        env = env.copy()
-        env.update (self._add_dict)
-        d = self._target_dict_method (env)
+        env_copy = env.copy()
+        env_copy.update (self._add_dict)
+        d = self._target_dict_method (env_copy)
         return d
 
     def append_dict (self, env= {}):

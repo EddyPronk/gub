@@ -6,8 +6,6 @@
  License: GNU GPL
 '''
 
-import __main__
-import os
 import re
 import string
 import sys
@@ -15,7 +13,6 @@ import optparse
 
 sys.path.insert (0, 'lib/')
 
-import settings as settings_mod
 import gup
 import oslog
 
@@ -51,14 +48,6 @@ class Command:
                 if regexp.search ('/%s' % i)]
         print (string.join (hits, '\n'))
 
-    def help (self):
-        '''help COMMAND'''
-        if len (self.options.arguments) < 1:
-            usage (self.options)
-            sys.exit ()
-
-        print  Command.__dict__[self.options.packagename].__doc__
-
     def install (self):
         '''download and install packages with dependencies'''
         packs=[]
@@ -79,7 +68,7 @@ class Command:
         else:
             print '\n'.join (sort (['%(split_name)-20s%(version)s' % d for d in self.pm.installed_package_dicts()]))
 
-    def remove_package (self, p, packs):
+    def remove_package (self, p):
         if not self.pm.is_installed (p):
             print '%s not installed' % p
         else:
@@ -89,12 +78,11 @@ class Command:
         '''uninstall packages'''
 
         packages = gup.topologically_sorted (self.options.arguments, {},
-                           self.pm.dependencies,
-                           recurse_stop_predicate
-                           =lambda p: p not in self.options.arguments)
+                                             self.pm.dependencies,
+                                             recurse_stop_predicate=lambda p: p not in self.options.arguments)
         packages.reverse ()
         for p in packages:
-            self.remove_package (p, packages) 
+            self.remove_package (p) 
 
 
 def get_cli_parser ():

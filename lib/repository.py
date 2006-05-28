@@ -238,3 +238,5 @@ def get_repository_proxy (dir):
         return DarcsRepository (dir)
     else:
         raise Exception('repo format unknown: ' + dir)
+
+    return Repository('', '')

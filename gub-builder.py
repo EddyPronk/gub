@@ -1,13 +1,10 @@
 #!/usr/bin/python
 
-import __main__
 import optparse
 import os
 import re
 import string
 import sys
-import inspect
-import types
 
 sys.path.insert (0, 'lib/')
 
@@ -16,9 +13,7 @@ import gup
 import cross
 import framework
 import gub
-import installer
 import settings as settings_mod
-import subprocess
 import pickle
 
 
@@ -121,8 +116,7 @@ def run_builder (settings, manager, names, spec_object_dict):
     PATH = os.environ['PATH']
 
     ## crossprefix is also necessary for building cross packages, such as GCC
-    os.environ['PATH'] = settings.expand ('%(crossprefix)s/bin:%(PATH)s',
-                                          locals ())
+    os.environ['PATH'] = settings.expand ('%(crossprefix)s/bin:' + PATH, locals ())
 
     ## UGH -> double work, see cross.change_target_packages () ?
     sdk_pkgs = [p for p in spec_object_dict.values ()
@@ -186,7 +180,7 @@ def main ():
     (options, commands)  = cli_parser.parse_args ()
 
     if not options.platform:
-        raise 'error: no platform specified'
+        raise Exception ('error: no platform specified')
         cli_parser.print_help ()
         sys.exit (2)
 
@@ -203,8 +197,7 @@ def main ():
     ## such as GCC
 
     PATH = os.environ['PATH']
-    os.environ['PATH'] = settings.expand ('%(buildtools)s/bin:%(PATH)s',
-                       locals ())
+    os.environ['PATH'] = settings.expand ('%(buildtools)s/bin:' + PATH)
 
     (package_names, spec_object_dict) = gup.get_source_packages (settings,
                                                                  commands)
