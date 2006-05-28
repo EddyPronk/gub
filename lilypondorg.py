@@ -17,8 +17,18 @@ platforms = ['linux-x86',
 #             'linux-arm',
       'mingw']
 
+
+build_platform = {
+	'darwin': 'darwin-ppc',
+	'linux2': 'linux',
+}[sys.platform]
+
 base_url = 'http://lilypond.org/download'
-host_spec = 'hanwen@lilypond.org:/var/www/lilypond/download/binaries'
+
+
+host_spec = 'hanwen@lilypond.org:/var/www/lilypond'
+host_binaries_spec = host_spec + '/download/binaries'
+host_doc_spec = host_spec + '/doc'
 
 def get_alias (p):
     try:
@@ -160,11 +170,11 @@ def upload_binaries (version):
             barf = 1
         else:
             ## globals -> locals.
-            host = host_spec 
+            host = host_binaries_spec 
             src_dests.append((bin, '%(host)s/%(platform)s' % locals()))
             
         if (platform <> 'documentation'
-              and  not os.path.exists ('log/%s.test.pdf' % base)):
+            and  not os.path.exists ('log/%s.test.pdf' % base)):
             print 'test result does not exist for %s' % base
             barf = 1
 
@@ -183,11 +193,17 @@ def upload_binaries (version):
     
     tag_cmd = 'darcs tag --patch "release %(version_str)s-%(build)d of ChangeLog rev %(changelog_rev)s %(changelog_date)s"' % locals()
 
+
     cmds.append (tag_cmd)
+    d = globals().copy()
+    d.update (locals())
+    cmds.append ('python test-lily/rsync-lily-doc.py --upload %(host_doc_spec)s target/%(build_platform)s/build/lilypond-%(branch)s/out/web-root/' % d)
+    
 
     
     print '\n\n'
     print '\n'.join (cmds);
+    print '\n\n'
     if barf:
         raise 'barf'
 
