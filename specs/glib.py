@@ -38,6 +38,15 @@ class Glib__darwin (Glib):
         self.file_sub ([('nmedit', '%(target_architecture)s-nmedit')],
                        '%(builddir)s/libtool')
         
+class Glib__mingw (Glib):
+    def get_dependency_dict (self):
+        d = Glib.get_dependency_dict (self)
+        d[''].append ('libiconv')
+        return d
+    
+    def get_build_dependencies (self):
+        return Glib.get_build_dependencies (self) + ['libiconv-devel']
+
 class Glib__freebsd (Glib):
     def get_dependency_dict (self):
         d = Gettext.get_dependency_dict (self)

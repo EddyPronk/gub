@@ -256,10 +256,12 @@ class LilyPond__mingw (LilyPond__cygwin):
                    track_development=True)
 
         self.split_packages = []
-    def get_dependency_dict (self):
 
+    def get_dependency_dict (self):
         d = LilyPond.get_dependency_dict (self)
         d[''].append ('lilypad')        
+        return d
+    
     def do_configure (self):
         LilyPond__cygwin.do_configure (self)
 
