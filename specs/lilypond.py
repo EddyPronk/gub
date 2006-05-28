@@ -146,12 +146,6 @@ class LilyPond__cygwin (LilyPond):
                    track_development=True)
         self.split_packages = ['doc']
 
-    def patch (self):
-        # FIXME: for our gcc-3.4.5 cross compiler in the mingw
-        # environment, THIS is a magic word.
-        self.file_sub ([('THIS', 'SELF')],
-               '%(srcdir)s/lily/parser.yy')
-
     def compile_command (self):
 
         ## UGH - * sucks.
