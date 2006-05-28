@@ -35,7 +35,7 @@ INVOKE_INSTALLER_BUILDER=$(PYTHON) installer-builder.py \
   --branch $(LILYPOND_BRANCH) \
 
 BUILD=$(call INVOKE_GUB_BUILDER,$(1)) build $(2) \
-  && $(call INVOKE_INSTALLER_BUILDER,$(1)) build \
+  && $(call INVOKE_INSTALLER_BUILDER,$(1)) build lilypond \
   && $(call INVOKE_INSTALLER_BUILDER,$(1)) strip \
   && $(call INVOKE_INSTALLER_BUILDER,$(1)) package \
 
@@ -171,7 +171,7 @@ local-distcc:
 	chmod +x lib/distcc.py
 	rm -rf target/native-distcc/bin/ target/cross-distcc/bin/
 	mkdir -p target/cross-distcc/bin/ target/native-distcc/bin/
-	$(foreach binary,$(foreach p,$(PLATFORMS), $(wildcard target/$(p)/system/usr/cross/bin/*)), \
+	$(foreach binary,$(foreach p,$(PLATFORMS), $(filter-out %/python-config,$(wildcard target/$(p)/system/usr/cross/bin/*))), \
 		ln -s $(CWD)/lib/distcc.py target/cross-distcc/bin/$(notdir $(binary)) && ) true
 	$(foreach binary, gcc g++, \
 		ln -s $(CWD)/lib/distcc.py target/native-distcc/bin/$(notdir $(binary)) && ) true
@@ -183,7 +183,7 @@ cross-distccd:
 	-$(if $(wildcard log/$@.pid),kill `cat log/$@.pid`, true)
 	rm -rf target/cross-distccd/bin/
 	mkdir -p target/cross-distccd/bin/
-	ln -s $(foreach p,$(PLATFORMS),$(wildcard $(CWD)/target/$(p)/system/usr/cross/bin/*)) target/cross-distccd/bin
+	ln -s $(foreach p,$(PLATFORMS),$(filter-out %/python-config,$(wildcard $(CWD)/target/$(p)/system/usr/cross/bin/*))) target/cross-distccd/bin
 
 	DISTCCD_PATH=$(CWD)/target/cross-distccd/bin distccd --daemon $(addprefix --allow ,$(GUB_DISTCC_ALLOW_HOSTS)) \
 		--port 3633 --pid-file $(CWD)/log/$@.pid \

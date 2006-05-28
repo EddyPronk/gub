@@ -37,7 +37,7 @@ def string_to_version (s):
     s = s.strip ()
     def atoi (x):
         if re.match ('^[0-9]+$', x):
-            return string.atoi (x)
+            return int (x)
         return x
     return tuple (map (atoi, (string.split (s, ' '))))
 
@@ -70,17 +70,19 @@ def uniq (list):
 def intersect (l1, l2):
     return [l for l in l1 if l in l2]
 
-def bind_method (func, self):
-    return lambda *args: func (self, *args)
+def bind_method (func, obj):
+    return lambda *args: func (obj, *args)
 
 
 def tar_compression_flag (ball):
     compression_flag = ''
     if ball.endswith ('gub'):
         compression_flag = 'z'
-    if ball.endswith ('bz2'):
+    elif ball.endswith ('gup'):
+        compression_flag = 'z'
+    elif ball.endswith ('bz2'):
         compression_flag = 'j'
-    if ball.endswith ('gz'):
+    elif ball.endswith ('gz'):
         compression_flag = 'z'
     return compression_flag
 

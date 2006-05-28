@@ -1,10 +1,6 @@
 import inspect
 import os
-import time
-import sys
-import subprocess
 import re
-import stat
 import fnmatch
 
 def subst_method (func):
@@ -28,7 +24,7 @@ def is_subst_method_in_class (method_name, klass):
 def typecheck_substitution_dict (d):
     for (k, v) in d.items ():
         if type (v) != type(''):
-            raise 'type', (k, v)
+            raise Exception ('type', (k, v))
 
 def recurse_substitutions (d):
     for (k, v) in d.items ():

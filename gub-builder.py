@@ -1,25 +1,19 @@
 #!/usr/bin/python
 
-import __main__
 import optparse
 import os
 import re
 import string
 import sys
-import inspect
-import types
 
 sys.path.insert (0, 'lib/')
 
 from misc import *
 import gup
 import cross
-import distcc
 import framework
 import gub
-import installer
 import settings as settings_mod
-import subprocess
 import pickle
 
 
@@ -98,27 +92,20 @@ def checksums_valid (manager, specname, spec_object_dict):
     spec = spec_object_dict[specname]
 
     valid = True
-    for p in spec.get_packages ():
-        name = p.name()
-        package_dict =  manager.package_dict (name)
+    for package in spec.get_packages ():
+        name = package.name()
+        package_dict = manager.package_dict (name)
         valid = (spec.spec_checksum == package_dict['spec_checksum']
                  and spec.source_checksum () == package_dict['source_checksum'])
         
-        hdr = spec.expand ('%(hdr_file)s')
+        hdr = package.expand ('%(split_hdr)s')
         valid = valid and os.path.exists (hdr)
         if valid:
             hdr_dict = pickle.load (open (hdr)) 
             hdr_sum = hdr_dict['spec_checksum']
             valid = valid and hdr_sum == spec.spec_checksum
-
-        try:
             valid = valid and spec.source_checksum () == hdr_dict['source_checksum']
 
-            ## FIXME
-        except KeyError:
-            pass
-            
-    
     ## let's be lenient for cross packages.
     ## spec.cross_checksum == manager.package_dict(name)['cross_checksum'])
 
@@ -129,14 +116,13 @@ def run_builder (settings, manager, names, spec_object_dict):
     PATH = os.environ['PATH']
 
     ## crossprefix is also necessary for building cross packages, such as GCC
-    os.environ['PATH'] = settings.expand ('%(crossprefix)s/bin:%(PATH)s',
-                                          locals ())
+    os.environ['PATH'] = settings.expand ('%(crossprefix)s/bin:' + PATH, locals ())
 
     ## UGH -> double work, see cross.change_target_packages () ?
     sdk_pkgs = [p for p in spec_object_dict.values ()
-                if isinstance (p, gub.Sdk_package)]
+                if isinstance (p, gub.SdkBuildSpec)]
     cross_pkgs = [p for p in spec_object_dict.values ()
-                  if isinstance (p, cross.Cross_package)]
+                  if isinstance (p, cross.CrossToolSpec)]
 
     extra_build_deps = [p.name () for p in sdk_pkgs + cross_pkgs]
     framework.package_fixups (settings, spec_object_dict.values (),
@@ -155,10 +141,10 @@ def run_builder (settings, manager, names, spec_object_dict):
                 if (manager.is_installed (p.name ()) and
                     (not manager.is_installable (p.name ())
                      or not checksum_ok)):
+
                     manager.uninstall_package (p.name ())
 
     for spec_name in names:
-        
         spec = spec_object_dict[spec_name]
         all_installed = True
         for p in spec.get_packages():
@@ -175,15 +161,12 @@ def run_builder (settings, manager, names, spec_object_dict):
         if (settings.options.stage
             or not is_installable
             or not checksum_ok):
-            settings.os_interface.log_command ('building package: %s\n'
-                                               % p)
-            
+            settings.os_interface.log_command ('building package: %s\n' % spec_name)
+
             spec.builder ()
 
         for p in spec.get_packages():
             name = p.name()
-            print name
-            print manager.is_installable (name)
             
             if (manager.is_installable (name)
                 and not manager.is_installed (name)):
@@ -197,7 +180,7 @@ def main ():
     (options, commands)  = cli_parser.parse_args ()
 
     if not options.platform:
-        raise 'error: no platform specified'
+        raise Exception ('error: no platform specified')
         cli_parser.print_help ()
         sys.exit (2)
 
@@ -214,19 +197,21 @@ def main ():
     ## such as GCC
 
     PATH = os.environ['PATH']
-    os.environ['PATH'] = settings.expand ('%(buildtools)s/bin:%(PATH)s',
-                       locals ())
+    os.environ['PATH'] = settings.expand ('%(buildtools)s/bin:' + PATH)
 
-    (package_names, spec_object_dict) = gup.get_packages (settings,
-                                                             commands)
-
+    (package_names, spec_object_dict) = gup.get_source_packages (settings,
+                                                                 commands)
     if c == 'download' or c == 'build':
         def get_all_deps (name):
             package = spec_object_dict[name]
-            return (package.name_dependencies
-                + package.name_build_dependencies)
+            deps = package.get_build_dependencies ()
+
+            ## ugh.
+            deps = [gub.get_base_package_name (d) for d in deps]
+            return deps
+
         deps = gup.topologically_sorted (commands, {}, get_all_deps,
-                         None)
+                                         None)
         if options.verbose:
             print 'deps:' + `deps`
 
@@ -242,13 +227,11 @@ def main ():
             if options.skip_if_locked:
                 sys.exit (0)
             raise 
-            
 
-        # FIXME: what happens here, {cross, cross_module}.packages
-        # are already added?
         gup.add_packages_to_manager (pm, settings, spec_object_dict)
+
         deps = filter (spec_object_dict.has_key, package_names)
-        deps = filter (pm.is_registered, deps)
+#        deps = filter (pm.is_registered, deps)
 
         run_builder (settings, pm, deps, spec_object_dict)
     else:

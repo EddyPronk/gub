@@ -8,17 +8,17 @@ import download
 import gub
 
 darwin_sdk_version = '0.4'
-class Odcctools (cross.Cross_package):
+class Odcctools (cross.CrossToolSpec):
     def configure (self):
-        cross.Cross_package.configure (self)
+        cross.CrossToolSpec.configure (self)
 
         ## remove LD64 support.
         self.file_sub ([('ld64','')],
-               self.builddir () + '/Makefile')
+                       self.builddir () + '/Makefile')
 
-class Darwin_sdk (gub.Sdk_package):
+class Darwin_sdk (gub.SdkBuildSpec):
     def __init__ (self, settings):
-        gub.Sdk_package.__init__ (self, settings)
+        gub.SdkBuildSpec.__init__ (self, settings)
         
         os_version = 7
         if settings.platform == 'darwin-x86':
@@ -88,6 +88,9 @@ class Gcc (cross.Gcc):
         cross.Gcc.install (self)
         self.rewire_gcc_libs ()
 
+    def get_build_dependencies (self):
+        return ['odcctools']
+    
 class Gcc__darwin (Gcc):
     def configure (self):
         cross.Gcc.configure (self)
@@ -209,19 +212,11 @@ def get_cross_packages (settings):
     if settings.target_architecture.startswith ("powerpc"):
         packages.append (Gcc (settings).with (version='4.1.0',
                                               mirror=download.gcc_41,
-                                              format='bz2',
-                                              depends=['odcctools']))
-    elif 1:
+                                              format='bz2'))
+    else:
         packages.append (Gcc (settings).with (version='4.2-20060513',
                                               mirror=download.gcc_snap,
-                                              format='bz2',
-                                              depends=['odcctools']))
-    else:
-        packages.append (Gcc__darwin (settings)
-                         .with (version='5250',
-                                mirror='http://www.opensource.apple.com/darwinsource/tarballs/other/gcc-5250.tar.gz',
-                                depends=['odcctools']))
-        
+                                              format='bz2'))
 
     return packages
 
@@ -238,13 +233,6 @@ def change_target_packages (packages):
             'CPPFLAGS' : '-DSTDC_HEADERS',
             })
         
-        remove = ('libiconv', 'zlib')
-        if p.name () in remove:
-            del packages[p.name ()]
-        if p.name_dependencies:
-            p.name_dependencies = filter (lambda x: x not in remove,
-                           p.name_dependencies)
-
 def system (c):
     s = os.system (c)
     if s:

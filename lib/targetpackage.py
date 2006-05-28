@@ -9,7 +9,7 @@ import cross
 from new import classobj
 
 
-class Target_package (gub.BuildSpecification):
+class TargetBuildSpec (gub.BuildSpec):
     def configure_command (self):
         return misc.join_lines ('''%(srcdir)s/configure
 --config-cache
@@ -28,7 +28,7 @@ class Target_package (gub.BuildSpecification):
 
     def install (self):
         self.pre_install_libtool_fixup ()
-        gub.BuildSpecification.install (self)
+        gub.BuildSpec.install (self)
 
     def pre_install_libtool_fixup (self):
         ## Workaround for libtool bug.
@@ -67,12 +67,11 @@ class Target_package (gub.BuildSpecification):
             os.chmod (self.expand (cache_file), 0755)
 
     def config_cache_settings (self):
-        return self.config_cache_overrides (
-            cross_config_cache['all']
-            + cross_config_cache[self.settings.platform])
+        return self.config_cache_overrides (cross_config_cache['all']
+                                            + cross_config_cache[self.settings.platform])
 
     def compile_command (self):
-        c = gub.BuildSpecification.compile_command (self)
+        c = gub.BuildSpec.compile_command (self)
         if (self.settings.cross_distcc_hosts
           and re.search (r'\bmake\b', c)):
             jobs = '-j%d ' % (2*len (self.settings.cross_distcc_hosts.split (' ')))
@@ -87,7 +86,7 @@ class Target_package (gub.BuildSpecification):
             
     def configure (self):
         self.config_cache ()
-        gub.BuildSpecification.configure (self)
+        gub.BuildSpec.configure (self)
 
     ## FIXME: this should move elsewhere , as it's not
     ## package specific
@@ -138,11 +137,12 @@ class Target_package (gub.BuildSpecification):
             }
 
         dict.update (env)
-        d =  gub.BuildSpecification.get_substitution_dict (self, dict).copy()
+        d =  gub.BuildSpec.get_substitution_dict (self, dict).copy()
         return d
 
 
 cross_config_cache = {
+    'local': '',
     'all': '''
 
 ac_16bit_type=${ac_16bit_type=short}
@@ -277,7 +277,7 @@ cross_config_cache['debian'] = cross_config_cache['linux']
 
 def load_target_package (settings, url):
     """
-    Return Target_package instance to build package from URL.
+    Return TargetBuildSpec instance to build package from URL.
 
     URL can be partly specified (eg: only a name, `lilypond'),
     defaults are taken from the spec file.
@@ -328,14 +328,16 @@ def load_target_package (settings, url):
         for i in init_vars.keys ():
             if d.has_key (i):
                 init_vars[i] = d[i]
+    else:
+        ## yes: sucks for cygwin etc. but need this for debugging the rest.
+        raise Exception ("no such spec: " + url)
         
-                
     if not klass:
         # Without explicit spec will only work if URL
         # includes version and format, eg,
         # URL=libtool-1.5.22.tar.gz
         klass = classobj (name,
-                 (Target_package,),
+                 (TargetBuildSpec,),
                  {})
     package = klass (settings)
     package.spec_checksum = checksum
@@ -346,7 +348,5 @@ def load_target_package (settings, url):
 #                package.with (format=init_vars['format'],
 #                              mirror=init_vars['url'],
 #                              version=init_vars['version'],
-#                              depends=init_vars['depends'],
-#                              builddeps=init_vars['builddeps'])
 
     return package

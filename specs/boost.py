@@ -3,9 +3,9 @@ import targetpackage
 
 # Shared libraries do not build with Boost's home-grown build system
 # [that hides compile and link commands].
-class Boost (targetpackage.Target_package):
+class Boost (targetpackage.TargetBuildSpec):
     def __init__ (self,settings):
-        targetpackage.Target_package.__init__ (self, settings)
+        targetpackage.TargetBuildSpec.__init__ (self, settings)
         self.with (version='1.33.1', mirror=download.boost, format='bz2')
 
         # Configure generates invalid Makefile if CC has arguments
@@ -25,7 +25,7 @@ cd %(srcdir)s/tools/build/v1 cp -pv gcc-tools.jam %(tool_prefix)sgcc.jam
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
 
     def get_substitution_dict (self, env={}):
-        dict = targetpackage.Target_package.get_substitution_dict (self, env)
+        dict = targetpackage.TargetBuildSpec.get_substitution_dict (self, env)
         # When using GCC, boost ignores standard CC,CXX
         # settings, but looks at GCC,GXX.
         dict['GCC'] = dict['CC']
@@ -51,7 +51,7 @@ INCLUDEDIR=%(install_prefix)s/include
 ''')
 
     def install (self):
-        targetpackage.Target_package.install (self)
+        targetpackage.TargetBuildSpec.install (self)
         self.system ('''
 cd %(install_prefix)s/include && mv boost-1_33_1/boost .
 cd %(install_prefix)s/include && rm -rf boost-1_33_1

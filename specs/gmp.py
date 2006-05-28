@@ -2,27 +2,29 @@ import re
 
 import download
 import targetpackage
-from toolpackage import Tool_package
+from toolpackage import ToolBuildSpec
 
-class Gmp (targetpackage.Target_package):
+class Gmp (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
-        targetpackage.Target_package.__init__ (self, settings)
+        targetpackage.TargetBuildSpec.__init__ (self, settings)
         self.with (version='4.2.1-rc',
                    mirror="ftp://ftp.swox.com/pub/gmp/src/gmp-4.2.1-rc.tar.bz2",
-                   format="bz2",
-                   depends=['libtool'])
+                   format="bz2")
 
         if not self.settings.platform.startswith ('darwin'):
             self.target_architecture = re.sub ('i[0-9]86-', 'i386-', settings.target_architecture)
 
+    def get_build_dependencies (self):
+        return ['libtool']
+
     def configure_command (self):
-        c = targetpackage.Target_package.configure_command (self)
+        c = targetpackage.TargetBuildSpec.configure_command (self)
 
         c += ' --disable-cxx '
         return c
 
     def configure (self):
-        targetpackage.Target_package.configure (self)
+        targetpackage.TargetBuildSpec.configure (self)
         # # FIXME: libtool too old for cross compile
         self.update_libtool ()
         # automake's Makefile.in's too old for new libtool,
@@ -81,12 +83,13 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/gmp-4.1.4-1.patch
 mv %(install_root)s/usr/lib/*dll %(install_root)s/usr/bin || true
 ''')
 
-class Gmp__local (Tool_package):
+class Gmp__local (ToolBuildSpec):
     def __init__ (self, s):
-        Tool_package.__init__ (self, s)
+        ToolBuildSpec.__init__ (self, s)
         self.with (version='4.1.4',
 #                   mirror="ftp://ftp.swox.com/pub/gmp/src/gmp-%(version)s-rc.tar.bz2",
-                   mirror="ftp://ftp.gnu.org/gnu/gmp/gmp-%(version)s.tar.bz2",
-                   depends=[])
+                   mirror="ftp://ftp.gnu.org/gnu/gmp/gmp-%(version)s.tar.bz2")
 
+    def get_build_dependencies (self):
+        return ['libtool']            
 

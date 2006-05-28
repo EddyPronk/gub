@@ -1,15 +1,18 @@
 import targetpackage
 
-class Libiconv (targetpackage.Target_package):
+class Libiconv (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
-        targetpackage.Target_package.__init__ (self, settings)
-        self.with (version='1.9.2', depends=['gettext', 'libtool'])
+        targetpackage.TargetBuildSpec.__init__ (self, settings)
+        self.with (version='1.9.2')
+
+    def get_build_dependencies (self):
+        return ['gettext-devel', 'libtool']
 
     def configure (self):
-        targetpackage.Target_package.configure (self)
+        targetpackage.TargetBuildSpec.configure (self)
         # # FIXME: libtool too old for cross compile
         self.update_libtool ()
     def install (self):
-        targetpackage.Target_package.install (self)
+        targetpackage.TargetBuildSpec.install (self)
         self.system ('rm %(install_root)s/usr/lib/charset.alias')
         

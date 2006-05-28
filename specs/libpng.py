@@ -1,11 +1,16 @@
 import download
 import targetpackage
 
-class Libpng (targetpackage.Target_package):
+class Libpng (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
-        targetpackage.Target_package.__init__ (self, settings)
-        self.with (version='1.2.8', mirror=download.libpng,
-             depends=['zlib'])
+        targetpackage.TargetBuildSpec.__init__ (self, settings)
+        self.with (version='1.2.8', mirror=download.libpng)
+
+    def get_dependency_dict (self):
+        return {'':['zlib']}
+    
+    def get_build_dependencies (self):
+        return ['zlib-devel']
 
     def name (self):
         return 'libpng'
@@ -19,12 +24,12 @@ class Libpng (targetpackage.Target_package):
                '%(srcdir)s/Makefile.am')
 
     def configure (self):
-        targetpackage.Target_package.configure (self)
+        targetpackage.TargetBuildSpec.configure (self)
         # # FIXME: libtool too old for cross compile
         self.update_libtool ()
 
     def compile_command (self):
-        c = targetpackage.Target_package.compile_command (self)
+        c = targetpackage.TargetBuildSpec.compile_command (self)
         ## need to call twice, first one triggers spurious Automake stuff.                
         return '(%s) || (%s)' % (c,c)
     
@@ -38,12 +43,15 @@ class Libpng__mingw (Libpng):
         self.autoupdate ()
         Libpng.configure (self)
 
-from toolpackage import Tool_package
+from toolpackage import ToolBuildSpec
 
-class Libpng__local (Tool_package, Libpng):
+class Libpng__local (ToolBuildSpec, Libpng):
     def __init__ (self, settings):
-        Tool_package.__init__ (self, settings)
+        ToolBuildSpec.__init__ (self, settings)
         self.with (version='1.2.8', mirror=download.libpng)
+
+    def get_build_dependencies (self):
+        return ['libtool']
 
     def patch (self):
         Libpng.patch (self)

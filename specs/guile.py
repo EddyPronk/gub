@@ -6,17 +6,21 @@ import shutil
 import download
 import misc
 import targetpackage
-from toolpackage import Tool_package
+from toolpackage import ToolBuildSpec
 
 
-class Guile (targetpackage.Target_package):
+class Guile (targetpackage.TargetBuildSpec):
     def set_mirror(self):
-        self.with (version='1.8.0',
-                   mirror=download.gnu, format='gz',
-                   depends=['gettext', 'gmp', 'libtool'])
+        self.with (version='1.8.0', format='gz')
+
+    def get_dependency_dict (self):
+        return {'': ['gmp']}
+
+    def get_build_dependencies (self):
+        return ['gmp-devel', 'libtool']
         
     def __init__ (self, settings):
-        targetpackage.Target_package.__init__ (self, settings)
+        targetpackage.TargetBuildSpec.__init__ (self, settings)
         self.set_mirror ()
 
     # FIXME: C&P.
@@ -28,7 +32,7 @@ class Guile (targetpackage.Target_package):
         self.autoupdate ()
 
     def configure_command (self):
-        return (targetpackage.Target_package.configure_command (self)
+        return (targetpackage.TargetBuildSpec.configure_command (self)
             + misc.join_lines ('''
 --without-threads
 --with-gnu-ld
@@ -42,14 +46,14 @@ class Guile (targetpackage.Target_package):
 
         ## Ugh : broken dependencies barf with make -jX
         self.system ('cd %(builddir)s/libguile && make scmconfig.h ')
-        targetpackage.Target_package.compile (self)
+        targetpackage.TargetBuildSpec.compile (self)
 
     def configure (self):
-        targetpackage.Target_package.configure (self)
+        targetpackage.TargetBuildSpec.configure (self)
         self.update_libtool ()
 
     def install (self):
-        targetpackage.Target_package.install (self)
+        targetpackage.TargetBuildSpec.install (self)
         
         
         majmin_version = '.'.join (self.expand ('%(version)s').split ('.')[0:2])
@@ -75,12 +79,22 @@ exit 0
              '%(install_prefix)s/cross/bin/%(target_architecture)s-guile-config')
         os.chmod ('%(install_prefix)s/cross/bin/%(target_architecture)s-guile-config' % self.get_substitution_dict (), 0755)
 
+
+    
 class Guile__mingw (Guile):
     def __init__ (self, settings):
         Guile.__init__ (self, settings)
         # Configure (compile) without -mwindows for console
         self.target_gcc_flags = '-mms-bitfields'
-        self.name_dependencies.append ('regex')
+
+
+    def get_build_dependencies (self):
+        return Guile.get_build_dependencies (self) +  ['regex-devel']
+        
+    def get_dependency_dict (self):
+        d = Guile.get_dependency_dict (self)
+        d[''].append ('regex')
+        return d
 
 # FIXME: ugh, C&P to Guile__freebsd, put in cross-Guile?
     def configure_command (self):
@@ -117,7 +131,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
 
     def configure (self):
         if 0: # using patch
-            targetpackage.Target_package.autoupdate (self)
+            targetpackage.TargetBuildSpec.autoupdate (self)
 
         if 1:
             self.file_sub ([('''^#(LIBOBJS=".*fileblocks.*)''',
@@ -208,9 +222,7 @@ class Guile__cygwin (Guile):
         # (which uses libiconv2, but libintl depends on that).
         # So, Cygwin's guile build depends on libiconv.
         self.with (version='1.8.0',
-                   mirror=download.gnu, format='gz',
-                   depends=['gettext', 'gmp', 'libtool'],
-                   builddeps=['libiconv'])
+                   mirror=download.gnu, format='gz')
 
         # FIXME: WIP.  splitting works, xpm can't handle split
         # packages yet, xpm will try to load FOO.py for
@@ -220,8 +232,9 @@ class Guile__cygwin (Guile):
         # must enable for building guile (installer) for cygwin,
         # so cannot simply use cmdline --split switch.
         self.sover = '17'
-        if self.settings.options.split_packages:
-            self.split_packages = ['devel', 'doc', 'lib']
+
+    def get_build_dependencies (self):
+        return Guile.get_build_dependencies (self) + ['libiconv']
 
     def config_cache_overrides (self, str):
         return str + '''
@@ -233,8 +246,8 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
     def configure (self):
         if 1:
             self.file_sub ([('''^#(LIBOBJS=".*fileblocks.*)''',
-                    '\\1')],
-                   '%(srcdir)s/configure')
+                             '\\1')],
+                           '%(srcdir)s/configure')
 
         Guile.configure (self)
 
@@ -313,19 +326,20 @@ mkdir -p %(install_root)s/etc/hints
              
                  env=locals ())
 
-class Guile__local (Tool_package, Guile):
+class Guile__local (ToolBuildSpec, Guile):
     def configure (self):
-        Tool_package.configure (self)
+        ToolBuildSpec.configure (self)
         self.update_libtool ()
         
     def install (self):
-        Tool_package.install (self)
+        ToolBuildSpec.install (self)
 
         ## don't want local GUILE headers to interfere with compile.
         self.system ("rm -rf %(install_root)s/usr/include/ %(install_root)s/usr/bin/guile-config ")
 
     def __init__ (self, settings):
-        Tool_package.__init__ (self, settings)
+        ToolBuildSpec.__init__ (self, settings)
         self.set_mirror ()
-        self.name_build_dependencies = ['gmp', 'libtool']
-        self.name_dependencies = ['gmp']
+
+    def get_build_dependencies (self):
+        return ['gmp-devel', 'libtool']

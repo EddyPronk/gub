@@ -8,7 +8,7 @@ import time
 
 class SystemFailed (Exception):
     pass
-    
+
 def system (cmd):
     print cmd
     stat = os.system (cmd)
@@ -238,3 +238,5 @@ def get_repository_proxy (dir):
         return DarcsRepository (dir)
     else:
         raise Exception('repo format unknown: ' + dir)
+
+    return Repository('', '')

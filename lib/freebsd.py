@@ -26,7 +26,7 @@ class Gcc (cross.Gcc):
 --program-prefix=%(tool_prefix)s
 '''))
 
-class Freebsd_runtime (gub.Binary_package, gub.Sdk_package):
+class Freebsd_runtime (gub.BinarySpec, gub.SdkBuildSpec):
     def patch (self):
         self.system ('rm -rf %(srcdir)s/root/usr/include/g++')
 
@@ -35,14 +35,14 @@ def get_cross_packages (settings):
         Freebsd_runtime (settings).with (version='4.10-2', mirror=download.jantien),
         Binutils (settings).with (version='2.16.1', format='bz2'),
         Gcc (settings).with (version='4.1.0', mirror=download.gcc_41,
-                  format='bz2', depends=['binutils']),
+                             format='bz2'),
         )
 
 
 def change_target_packages (packages):
     cross.change_target_packages (packages)
     cross.set_framework_ldpath ([p for p in packages.values ()
-                  if isinstance (p, targetpackage.Target_package)])
+                  if isinstance (p, targetpackage.TargetBuildSpec)])
 
 # FIXME: download from sane place.
 def get_sdk():

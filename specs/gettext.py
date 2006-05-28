@@ -2,18 +2,20 @@ import download
 import targetpackage
 import toolpackage
 
-class Gettext (targetpackage.Target_package):
+class Gettext (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
-        targetpackage.Target_package.__init__ (self, settings)
-        self.with (version='0.14.1', mirror=download.gnu, format='gz',
-                   depends=['libtool'])
+        targetpackage.TargetBuildSpec.__init__ (self, settings)
+        self.with (version='0.14.1', mirror=download.gnu, format='gz')
+
+    def get_build_dependencies (self):
+        return ['libtool']
 
     def configure_command (self):
-        return (targetpackage.Target_package.configure_command (self)
+        return (targetpackage.TargetBuildSpec.configure_command (self)
                 + ' --disable-csharp')
 
     def configure (self):
-        targetpackage.Target_package.configure (self)
+        targetpackage.TargetBuildSpec.configure (self)
         
         ## FIXME: libtool too old for cross compile
         self.update_libtool ()
@@ -22,9 +24,13 @@ class Gettext (targetpackage.Target_package):
 class Gettext__freebsd (Gettext):
     def __init__ (self, settings):
         Gettext.__init__ (self, settings)
-        self.with (version='0.14.1', mirror=download.gnu, format='gz',
-                   depends=['libtool', 'libgnugetopt'])
+        self.with (version='0.14.1', mirror=download.gnu, format='gz')
 
+    def get_dependency_dict (self):
+        d = Gettext.get_dependency_dict (self)
+        d[''].append ('libgnugetopt')
+        return d
+    
     def patch (self):
         Gettext.patch (self)
         self.system ('''
@@ -35,8 +41,7 @@ cd %(srcdir)s && patch -p0 < %(patchdir)s/gettext-0.14.1-getopt.patch
 class Gettext__mingw (Gettext):
     def __init__ (self, settings):
         Gettext.__init__ (self, settings)
-        self.with (version='0.14.5', mirror=download.gnu, format='gz',
-                   depends=['libtool'])
+        self.with (version='0.14.5', mirror=download.gnu, format='gz')
 
     def config_cache_overrides (self, str):
         return (re.sub ('ac_cv_func_select=yes', 'ac_cv_func_select=no',
@@ -47,7 +52,7 @@ gl_cv_func_mbrtowc=${gl_cv_func_mbrtowc=no}
 jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
 ''')
     def patch (self):
-        targetpackage.Target_package.patch (self)
+        targetpackage.TargetBuildSpec.patch (self)
         self.system ("cd %(srcdir)s && patch -p1 < %(patchdir)s/gettext-0.14.5-mingw.patch")
         self.system ("cd %(srcdir)s && patch -p0 < %(patchdir)s/gettext-xgettext-dll-autoimport.patch")
         
@@ -64,8 +69,10 @@ class Gettext__darwin (Gettext):
                        Gettext.configure_command (self))
 
 
-class Gettext__local (toolpackage.Tool_package):
+class Gettext__local (toolpackage.ToolBuildSpec):
     def __init__ (self, settings):
-        toolpackage.Tool_package.__init__(self,settings)
-        self.with (version='0.14.1', mirror=download.gnu, format='gz',
-                   depends=['libtool'])
+        toolpackage.ToolBuildSpec.__init__(self,settings)
+        self.with (version='0.14.1', mirror=download.gnu, format='gz')
+
+    def get_build_dependencies (self):
+        return ['libtool']            

@@ -6,19 +6,23 @@ import gub
 
 from context import *
 
-class Python (targetpackage.Target_package):
+class Python (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
-        targetpackage.Target_package.__init__ (self, settings)
+        targetpackage.TargetBuildSpec.__init__ (self, settings)
         self.with (version='2.4.2',
                    mirror=download.python,
-                   format='bz2',
-                   depends=['expat', 'zlib'])
+                   format='bz2')
+        
+        
 
         ## don't import settings from build system. 
 	self.BASECFLAGS=''
-             
+
+    def get_build_dependencies (self):
+        return ['expat-devel', 'zlib-devel']
+    
     def patch (self):
-        targetpackage.Target_package.patch (self)
+        targetpackage.TargetBuildSpec.patch (self)
         self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-1.patch')
         self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-configure.in-posix.patch')
         self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-configure.in-sysname.patch')
@@ -28,24 +32,24 @@ class Python (targetpackage.Target_package):
     def configure (self):
         self.system ('''cd %(srcdir)s && autoconf''')
         self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
-        targetpackage.Target_package.configure (self)
+        targetpackage.TargetBuildSpec.configure (self)
 
     def compile_command (self):
         ##
         ## UGH.: darwin Python vs python (case insensitive FS)
-        c = targetpackage.Target_package.compile_command (self)
+        c = targetpackage.TargetBuildSpec.compile_command (self)
         c += ' BUILDPYTHON=python-bin '
         return c
 
     def install_command (self):
         ##
         ## UGH.: darwin Python vs python (case insensitive FS)
-        c = targetpackage.Target_package.install_command (self)
+        c = targetpackage.TargetBuildSpec.install_command (self)
         c += ' BUILDPYTHON=python-bin '
         return c
 
     def install (self):
-        targetpackage.Target_package.install (self)
+        targetpackage.TargetBuildSpec.install (self)
         cfg = open (self.expand ('%(sourcefiledir)s/python-config.py.in')).read ()
         cfg = re.sub ('@PYTHON_VERSION@', self.expand ('%(version)s'), cfg)
         cfg = re.sub ('@PREFIX@', self.expand ('%(system_root)s/usr/'), cfg)
@@ -60,9 +64,9 @@ class Python (targetpackage.Target_package):
     def python_version (self):
         return '.'.join (self.ball_version.split ('.')[0:2])
 
-class Python__mingw_binary (gub.Binary_package):
+class Python__mingw_binary (gub.BinarySpec):
     def __init__ (self, settings):
-        gub.Binary_package.__init__ (self, settings)
+        gub.BinarySpec.__init__ (self, settings)
         self.with (mirror="http://lilypond.org/~hanwen/python-2.4.2-windows.tar.gz",
                    version='2.4.2')
 
@@ -70,7 +74,7 @@ class Python__mingw_binary (gub.Binary_package):
         return '2.4'
 
     def install (self):
-        gub.Binary_package.install (self)
+        gub.BinarySpec.install (self)
         
         self.system ("cd %(install_root)s/ && mkdir usr && mv Python24/include  usr/ ")
         self.system ("cd %(install_root)s/ && mkdir -p usr/bin/ && mv Python24/* usr/bin/ ")
@@ -123,15 +127,15 @@ chmod 755 %(install_root)s/usr/bin/*
 class Python__mingw (Python__mingw_cross):
     pass
 
-class Python__darwin (gub.Null_package):
+class Python__darwin (gub.NullBuildSpec):
     def __init__ (self, settings):
-        gub.Null_package.__init__ (self, settings)
+        gub.NullBuildSpec.__init__ (self, settings)
         self.version = (lambda: '2.3')
         self.has_source = False
     def srcdir (self):
         return '%(allsrcdir)s/python-darwin'
     def package (self):
-        gub.Package.package (self)
+        gub.BuildSpec.package (self)
         
     def install (self):
         self.system ('mkdir -p %(install_root)s/usr/cross/bin/')

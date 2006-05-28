@@ -6,27 +6,32 @@ import misc
 import targetpackage
 import re
 
-class Pango (targetpackage.Target_package):
+class Pango (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
-        targetpackage.Target_package.__init__ (self, settings)
+        targetpackage.TargetBuildSpec.__init__ (self, settings)
         self.with (version='1.12.1',
                    mirror=download.gnome_214,
-                   format='bz2',
-                   depends=['freetype', 'fontconfig', 'glib',
-                            'libiconv', 'libtool'])
+                   format='bz2')
+    def get_build_dependencies (self):
+        return ['freetype-devel', 'fontconfig-devel', 'glib-devel',
+                'libtool-devel']
+
+    def get_dependency_dict (self):
+        return {'': ['freetype', 'fontconfig', 'glib',
+                     'libtool']}
 
     def configure_command (self):
-        return targetpackage.Target_package.configure_command (self) \
+        return targetpackage.TargetBuildSpec.configure_command (self) \
            + misc.join_lines ('''
 --without-x
 --without-cairo
 ''')
 
     def configure (self):
-        targetpackage.Target_package.configure (self)                
+        targetpackage.TargetBuildSpec.configure (self)                
         self.update_libtool ()
     def patch (self):
-        targetpackage.Target_package.patch (self)
+        targetpackage.TargetBuildSpec.patch (self)
         self.system ('cd %(srcdir)s && patch --force -p1 < %(patchdir)s/pango-substitute-env.patch')
 
     def fix_modules (self):
@@ -59,7 +64,7 @@ ModulesPath = $PANGO_PREFIX/lib/pango/%(pango_module_version)s/modules
 
 
     def install (self):
-        targetpackage.Target_package.install (self)                
+        targetpackage.TargetBuildSpec.install (self)                
         self.dump ("""
 setfile PANGO_RC_FILE=$INSTALLER_PREFIX/etc/pango/pangorc
 setdir PANGO_PREFIX=$INSTALLER_PREFIX/
@@ -86,8 +91,10 @@ class Pango__freebsd (Pango__linux):
         Pango__linux.__init__ (self, settings)
         self.with (version='1.11.2',
              mirror=download.gnome_213,
-             format='bz2',
-             depends=['freetype', 'fontconfig', 'glib', 'libiconv', 'libtool'])
+             format='bz2')
+
+    def get_build_dependencies (self):
+        return Pango__linux.get_build_dependencies (self) + ['libiconv-devel']
 
     def install (self):
         Pango__linux.install (self)

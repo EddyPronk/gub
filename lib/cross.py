@@ -6,12 +6,12 @@ import imp
 import md5
 
 from context import subst_method 
-class Cross_package (gub.BuildSpecification):
+class CrossToolSpec (gub.BuildSpec):
     """Package for cross compilers/linkers etc.
     """
 
     def configure_command (self):
-        return (gub.BuildSpecification.configure_command (self)
+        return (gub.BuildSpec.configure_command (self)
             + misc.join_lines ('''
 --program-prefix=%(target_architecture)s-
 --prefix=%(crossprefix)s/
@@ -25,22 +25,24 @@ class Cross_package (gub.BuildSpecification):
         
     def install_command (self):
         return '''make DESTDIR=%(install_root)s prefix=/usr/cross/ install'''
-    
 
     def gub_src_uploads (self):
         return '%(gub_cross_uploads)s'
 
-    def hdr_file (self):
-        return '%(gub_cross_uploads)s/%(hdr_name)s'
-
-class Binutils (Cross_package):
+    def get_subpackage_names (self):
+        return ['doc', '']
+    
+class Binutils (CrossToolSpec):
     def install (self):
-        Cross_package.install (self)
+        CrossToolSpec.install (self)
         self.system ('rm %(install_root)s/usr/cross/lib/libiberty.a')
-
-class Gcc (Cross_package):
+    
+class Gcc (CrossToolSpec):
+    def get_build_dependencies (self):
+        return ['binutils']
+    
     def configure_command (self):
-        cmd = Cross_package.configure_command (self)
+        cmd = CrossToolSpec.configure_command (self)
         # FIXME: using --prefix=%(tooldir)s makes this
         # uninstallable as a normal system package in
         # /usr/i686-mingw/
@@ -67,7 +69,7 @@ class Gcc (Cross_package):
 
         return misc.join_lines (cmd)
     def configure(self):
-        Cross_package.configure (self)
+        CrossToolSpec.configure (self)
 
 
     def move_target_libs (self, libdir):
@@ -88,7 +90,7 @@ class Gcc (Cross_package):
             self.system ('mv %(f)s %(install_prefix)s/lib', locals())
 
     def install (self):
-        Cross_package.install (self)
+        CrossToolSpec.install (self)
         old_libs = self.expand ('%(install_root)s/usr/cross/%(target_architecture)s')
 
         self.move_target_libs (old_libs)
@@ -103,22 +105,37 @@ cd %(install_root)s/usr/lib && ln -fs libgcc_s.so.1 libgcc_s.so
 def change_target_packages (package_object_dict):
     pass
 
+class MethodOverrider:
+    """UGH, python closures don't work reliably?"""
+    
+    def __init__ (self, old_func, new_func, extra_args):
+        self.new_func = new_func
+        self.old_func = old_func
+        self.args = extra_args
+    def method (self):
+        all_args = (self.old_func (),) + self.args  
+        return apply (self.new_func, all_args)
 
 def set_cross_dependencies (package_object_dict):
     packs = package_object_dict.values ()
-    cross_packs = [p for p in packs if isinstance (p, Cross_package)]
-    sdk_packs = [p for p in packs if isinstance (p, gub.Sdk_package)]
-    other_packs = [p for p in packs if (not isinstance (p, Cross_package)
-                      and not isinstance (p, gub.Sdk_package)
-                      and not isinstance (p, gub.Binary_package))]
+    cross_packs = [p for p in packs if isinstance (p, CrossToolSpec)]
+    sdk_packs = [p for p in packs if isinstance (p, gub.SdkBuildSpec)]
+    other_packs = [p for p in packs if (not isinstance (p, CrossToolSpec)
+                                        and not isinstance (p, gub.SdkBuildSpec)
+                                        and not isinstance (p, gub.BinarySpec))]
     
+    sdk_names = [s.name() for s in sdk_packs]
+    cross_names = [s.name() for s in cross_packs]
+
     for p in other_packs:
-        p.name_build_dependencies += map (lambda x: x.name (),
-                         cross_packs)
+        old_callback = p.get_build_dependencies
+        p.get_build_dependencies = MethodOverrider (old_callback,
+                                                    lambda x,y: x+y, (cross_names,)).method
 
     for p in other_packs + cross_packs:
-        p.name_build_dependencies += map (lambda x: x.name (),
-                         sdk_packs)
+        old_callback = p.get_build_dependencies
+        p.get_build_dependencies = MethodOverrider (old_callback,
+                                                    lambda x,y: x+y, (sdk_names,)).method
 
     return packs
 
@@ -126,14 +143,14 @@ def set_framework_ldpath (packs):
     for c in packs:
         change = gub.Change_target_dict (c, {'LDFLAGS': r" -Wl,--rpath,'$${ORIGIN}/../lib/' "})
         c.get_substitution_dict = change.append_dict
-
+        
 
 
 cross_module_checksums = {}
 def get_cross_module (platform):
     base = platform
     try:
-        base =         {'debian':'debian_unstable',
+        base = {'debian':'debian_unstable',
             'darwin-ppc':'darwintools',
             'darwin-x86':'darwintools',
             'local':'tools'}[platform]

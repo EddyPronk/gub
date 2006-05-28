@@ -5,20 +5,23 @@ import download
 import misc
 import targetpackage
 
-class Libjpeg (targetpackage.Target_package):
+class Libjpeg (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
-        targetpackage.Target_package.__init__ (self, settings)
+        targetpackage.TargetBuildSpec.__init__ (self, settings)
         self.with (version='v6b', mirror=download.jpeg)
 
     def name (self):
         return 'libjpeg'
 
+    def get_subpackage_names (self):
+        return ['devel', '']
+    
     def srcdir (self):
-        return re.sub (r'src\.v', '-', targetpackage.Target_package.srcdir(self))
+        return re.sub (r'src\.v', '-', targetpackage.TargetBuildSpec.srcdir(self))
 
     def configure_command (self):
         return re.sub ('--config-cache', '--cache-file=config.cache',
-               targetpackage.Target_package.configure_command (self))
+               targetpackage.TargetBuildSpec.configure_command (self))
     
 
     def update_libtool (self):
@@ -26,7 +29,7 @@ class Libjpeg (targetpackage.Target_package):
 cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh %(target_architecture)s'''
               , locals ())
         
-        targetpackage.Target_package.update_libtool (self)
+        targetpackage.TargetBuildSpec.update_libtool (self)
 
     def configure (self):
         guess = self.expand ('%(system_root)s/usr/share/libtool/config.guess')
@@ -35,7 +38,7 @@ cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh 
             if os.path.exists (file):
                 self.system ('cp -pv %(file)s %(srcdir)s',  locals ())
 
-        targetpackage.Target_package.configure (self)
+        targetpackage.TargetBuildSpec.configure (self)
         self.update_libtool ()
         self.file_sub (
             [
@@ -56,7 +59,7 @@ class Libjpeg__darwin (Libjpeg):
         self.system ('''
 cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh %(arch)s
 ''', locals ())
-        targetpackage.Target_package.update_libtool (self)
+        targetpackage.TargetBuildSpec.update_libtool (self)
 
 class Libjpeg__mingw (Libjpeg):
     def configure (self):

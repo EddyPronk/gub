@@ -1,25 +1,15 @@
 #!/usr/bin/python
 
-import __main__
 import optparse
 import os
-import re
-import string
 import sys
-import inspect
-import types
 
 sys.path.insert (0, 'lib/')
 
 import gup
 import cross
-import distcc
-import framework
-import gub
 import installer
 import settings as settings_mod
-import subprocess
-import pickle
 
 
 def get_cli_parser ():
@@ -117,7 +107,7 @@ def installer_command (c, settings, args):
     elif c == 'package':
         package_installer (settings, installers)
     else:
-        raise 'unknown installer command', c
+        raise  Exception ('unknown installer command', c)
 
 
 def main ():
@@ -125,7 +115,7 @@ def main ():
     (options, commands)  = cli_parser.parse_args ()
 
     if not options.platform:
-        raise 'error: no platform specified'
+        raise Exception ('error: no platform specified')
         cli_parser.print_help ()
         sys.exit (2)
 
@@ -138,8 +128,7 @@ def main ():
     ## such as GCC
 
     PATH = os.environ['PATH']
-    os.environ['PATH'] = settings.expand ('%(buildtools)s/bin:%(PATH)s',
-                       locals ())
+    os.environ['PATH'] = settings.expand ('%(buildtools)s/bin:' + PATH)
 
     print c
     if c in ('clean', 'build', 'strip', 'package'):

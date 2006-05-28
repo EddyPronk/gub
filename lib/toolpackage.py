@@ -4,28 +4,27 @@ import download
 import misc
 import os
 
-class Tool_package (gub.BuildSpecification):
+class ToolBuildSpec  (gub.BuildSpec):
     def configure_command (self):
-        return (gub.BuildSpecification.configure_command (self)
+        return (gub.BuildSpec.configure_command (self)
             + misc.join_lines ('''
 --prefix=%(buildtools)s/
 '''))
 
-    ## ugh: this will trigger libtool relinks. 
+    ## ugh: prefix= will trigger libtool relinks. 
     def install_command (self):
         return '''make DESTDIR=%(install_root)s prefix=/usr install'''
 
     def compile_command (self):
         return self.native_compile_command ()
 
-    def get_packages (self):
-        return [self.get_tool_package()]
-    def get_tool_package (self):
-        p = gub.PackageSpecification (self.os_interface)
-        p.set_dict (self.get_substitution_dict(), '')
-        p._file_specs = ['/']
-        return p
-    
+    def get_subpackage_names (self):
+        return ['']
+
+    def configure (self):
+        gub.BuildSpec.configure (self)
+        self.update_libtool ()
+
     def get_substitution_dict (self, env={}):
         dict = {
             'C_INCLUDE_PATH': '%(buildtools)s/include',
@@ -33,5 +32,13 @@ class Tool_package (gub.BuildSpecification):
             'CPLUS_INCLUDE_PATH': '%(buildtools)s/include',
         }
         dict.update (env)
-        d =  gub.BuildSpecification.get_substitution_dict (self, dict).copy()
+        d = gub.BuildSpec.get_substitution_dict (self, dict).copy()
         return d
+
+
+    def get_broken_packages (self):
+        packs = ToolBuildSpec.get_packages (self)
+        for p in packs:
+            # FIXME.
+            p._dict['install_root'] = self.expand ('%(install_root)s/%(topdir)s/target/local/system/')
+        return packs

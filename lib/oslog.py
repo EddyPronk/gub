@@ -39,7 +39,7 @@ Encapsulate OS/File system commands for proper logging.
         if stat and not ignore_error:
             m = 'Command barfed: %s\n' % cmd
             self.log_command (m)
-            raise m
+            raise Exception (m)
 
         return 0
 
@@ -113,7 +113,7 @@ is sent to there.
         for frm, to in re_pairs:
             new_text = re.sub (re.compile (frm, re.MULTILINE), to, t)
             if (t == new_text and must_succeed):
-                raise 'nothing changed!'
+                raise Exception ('nothing changed!')
             t = new_text
             
         if s != t or (to_name and name != to_name):
@@ -138,7 +138,7 @@ is sent to there.
         
         # successful pipe close returns None
         if not ignore_error and status:
-            raise 'read_pipe failed'
+            raise Exception ('read_pipe failed')
         return output
 
 

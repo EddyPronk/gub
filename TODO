@@ -13,13 +13,14 @@ lagere prioriteit
 
 - GUILE bouwen zonder locale devel packages.
 
-- update packages:
+- update packages: 
 
 - Python: should compile .pyc with matching local python version.
 => add to local packages.
 
 - Group spec/patch/source files by package
 
+- gcc 4.1 for linux
 - strip lily specific stuff from installer.py 
 
 - Bugfixes:
