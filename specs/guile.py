@@ -86,7 +86,15 @@ class Guile__mingw (Guile):
         Guile.__init__ (self, settings)
         # Configure (compile) without -mwindows for console
         self.target_gcc_flags = '-mms-bitfields'
-        self.name_dependencies.append ('regex')
+
+
+    def get_build_dependencies (self):
+        return Guile.get_build_dependencies (self) +  ['regex-devel']
+        
+    def get_dependency_dict (self):
+        d = Guile.get_dependency_dict (self)
+        d[''].append ('regex')
+        return d
 
 # FIXME: ugh, C&P to Guile__freebsd, put in cross-Guile?
     def configure_command (self):
