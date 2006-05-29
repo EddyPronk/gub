@@ -112,22 +112,29 @@ def find (dir, pattern):
 def download_url (url, dest_dir):
     bufsize = 1024 * 50
     filename = os.path.split (urllib.splithost (url)[1])[1]
-    
-    output = open (dest_dir + '/' + filename, 'w')
 
-    opener = urllib.URLopener ()
-    url_stream = opener.open (url)
-    print 'downloading', url
-    while True:
-        contents = url_stream.read (bufsize)
-        output.write (contents)
-        sys.stderr.write ('.')
-        sys.stderr.flush ()
-        
-        if not contents:
-            break
-    sys.stderr.write ('\n')
-        
+    if not os.path.isdir (dest_dir):
+        raise Exception ("not a dir", dest_dir)
+
+    out_filename = dest_dir + '/' + filename
+    try:
+        output = open (out_filename, 'w')
+        opener = urllib.URLopener ()
+        url_stream = opener.open (url)
+        print 'downloading', url
+        while True:
+            contents = url_stream.read (bufsize)
+            output.write (contents)
+            sys.stderr.write ('.')
+            sys.stderr.flush ()
+
+            if not contents:
+                break
+        sys.stderr.write ('\n')
+    except:
+        os.unlink (out_filename)
+        raise
+    
 def forall (generator):
     v = True
     try:
