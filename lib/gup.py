@@ -202,6 +202,10 @@ class PackageManager (FileManager):
         self._packages[nm] = d
 
     def register_package_header (self, package_hdr, branch):
+        if self.verbose:
+            self.os_interface.log_command ('reading package header: %s\n'
+                                           % `package_hdr`)
+
         str = open (package_hdr).read ()
 
         d = pickle.loads (str)
@@ -216,10 +220,6 @@ class PackageManager (FileManager):
                 self.os_interface.log_command ("package header changed for %s\n" % name)
 
             return
-
-        if self.verbose:
-            self.os_interface.log_command ('registering package: %s\n'
-                                           % `package_hdr`)
 
         self.register_package_dict (d)
 
