@@ -10,3 +10,12 @@ class Icoutils (ToolBuildSpec):
         return ['libpng-devel']
     def get_dependency_dict (self):
         return {'': ['libpng']}
+    def configure_command (self):
+        return ToolBuildSpec.configure_command (self) + ' --with-libintl-prefix=%(system_root)s/usr/ '  
+
+    def patch (self):
+
+        ## necessary for MacOS X.
+        for f in 'wrestool', 'icotool':
+            self.file_sub ([(r'\$\(LIBS\)', '$(INTLLIBS) $(LIBS)')],
+                           '%(srcdir)s/' + f + "/Makefile.in")
