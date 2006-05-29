@@ -42,7 +42,7 @@ class PackageSpec:
             
         self._dict['split_name'] = s
         self._dict['split_ball'] = '%(gub_uploads)s/%(split_name)s-%(version)s.%(platform)s.gup' % self._dict
-        self._dict['split_hdr'] = '%(gub_uploads)s/%(split_name)s%(vc_branch)s.%(platform)s.hdr' % self._dict
+        self._dict['split_hdr'] = '%(gub_uploads)s/%(split_name)s%(vc_branch_suffix)s.%(platform)s.hdr' % self._dict
 
         deps =  ';'.join (self._dependencies)
         self._dict['dependencies_string'] = deps
@@ -500,6 +500,7 @@ rm -f %(install_root)s/usr/share/info/dir %(install_root)s/usr/cross/info/dir %(
             ps.append (p)
 
         d = self.get_dependency_dict ()
+        
         for p in ps: 
             name = p.expand ('%(sub_name)s')
             if not d.has_key (name):
