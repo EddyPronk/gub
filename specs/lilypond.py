@@ -242,7 +242,8 @@ class LilyPond__freebsd (LilyPond):
     def get_dependency_dict (self):
         d = LilyPond.get_dependency_dict (self)
         d[''].append ('gcc')
-
+        return d
+    
 class LilyPond__mingw (LilyPond__cygwin):
     def __init__ (self, settings):
         LilyPond__cygwin.__init__ (self, settings)
@@ -318,6 +319,7 @@ class LilyPond__darwin (LilyPond):
         d = LilyPond.get_dependency_dict (self)
         d[''] += [ 'fondu', 'osx-lilypad']
         return d
+
     def get_build_dependencies (self):
         return LilyPond.get_build_dependencies (self) + [ 'fondu', 'osx-lilypad']
 

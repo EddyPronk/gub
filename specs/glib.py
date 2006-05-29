@@ -49,7 +49,7 @@ class Glib__mingw (Glib):
 
 class Glib__freebsd (Glib):
     def get_dependency_dict (self):
-        d = Gettext.get_dependency_dict (self)
+        d = Glib.get_dependency_dict (self)
         d[''].append ('libiconv')
         return d
     
