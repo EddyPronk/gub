@@ -201,8 +201,7 @@ def upload_binaries (version):
     d['lilybuild'] = 'target/%(build_platform)s/build/lilypond-%(branch)s' % d
     d['lilysrc'] = 'target/%(build_platform)s/src/lilypond-%(branch)s' % d 
 
-    test_cmd =r'''PYTHONPATH=%(lilysrc)s/python python test-lily/rsync-lily-doc.py\
-  --output-distance %(lilysrc)s/buildscripts/output-distance.py \
+    test_cmd =r'''PYTHONPATH=%(lilysrc)s/python python test-lily/rsync-lily-doc.py \
   --upload %(host_doc_spec)s \
   %(lilybuild)s/out-www/web-root/''' % d
 

@@ -20,6 +20,11 @@ def parse_options ():
                   dest="output_distance_script",
                   help="compute signature distances using script") 
 
+    p.add_option ('--recreate',
+                  dest="recreate",
+                  action="store_true"
+                  help="rebuild webdirectory. Discards test-results.") 
+
     home = os.environ['HOME']
     p.add_option ('--unpack-dir',
 		  dest='unpack_dir',
@@ -161,7 +166,8 @@ def main ():
     (opts, args) = parse_options ()
 
     for a in args:
-	create_local_web_dir (opts, a)
+        if opts.recreate:
+            create_local_web_dir (opts, a)
         if opts.output_distance_script:
             compute_distances (opts, a)
 	if opts.destination:
