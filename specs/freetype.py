@@ -44,4 +44,4 @@ class Freetype__local (toolpackage.ToolBuildSpec):
         self.with (version='2.1.10', mirror=download.nongnu_savannah)
 
     def get_build_dependencies (self):
-        return ['libtool']            
+        return ['libtool']
