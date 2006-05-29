@@ -21,6 +21,9 @@ class Ghostscript (targetpackage.TargetBuildSpec):
     def get_dependency_dict (self):
         return {'': ['libjpeg', 'libpng']}
 
+    def get_subpackage_names (self):
+        return ['doc', '']
+    
     def srcdir (self):
         return re.sub ('-source', '', targetpackage.TargetBuildSpec.srcdir (self))
 
@@ -35,16 +38,12 @@ class Ghostscript (targetpackage.TargetBuildSpec):
         return '.'.join (self.ball_version.split ('.')[0:2])
 
     def patch (self):
-        self.file_sub ([(r'\$\(bindir\)', '$(DESTDIR)$(bindir)'),
+
+        substs = [(r'\$\(%s\)' % d, '$(DESTDIR)$(%s)' % d) for d in
+                  ['bindir', 'datadir', 'gsdir', 'gsdatadir', 'docdir',
+                   'mandir', 'scriptdir', 'exdir']]
                 
-                (r'\$\(datadir\)', '$(DESTDIR)$(datadir)'),
-                (r'\$\(gsdir\)', '$(DESTDIR)$(gsdir)'),
-                (r'\$\(gsdatadir\)', '$(DESTDIR)$(gsdatadir)'),
-                (r'\$\(scriptdir\)', '$(DESTDIR)$(scriptdir)'),
-                (r'\$\(docdir\)', '$(DESTDIR)$(docdir)'),
-                (r'\$\(exdir\)', '$(DESTDIR)$(exdir)'),
-                ],
-               '%(srcdir)s/src/unixinst.mak')
+        self.file_sub (substs, '%(srcdir)s/src/unixinst.mak')
         self.system ("cd %(srcdir)s && patch -p2 < %(patchdir)s/ghostscript-8.50-ttf.patch")
         self.system ("cd %(srcdir)s && patch -p2 < %(patchdir)s/ghostscript-8.50-encoding.patch")
 
@@ -75,7 +74,7 @@ class Ghostscript (targetpackage.TargetBuildSpec):
         self.file_sub (substs, '%(builddir)s/obj/arch.h')
 
     def compile_command (self):
-        return targetpackage.TargetBuildSpec.compile_command (self) + " INCLUDE=%(system_root)s/usr/include/"
+        return targetpackage.TargetBuildSpec.compile_command (self) + " INCLUDE=%(system_root)s/usr/include/ PSDOCDIR=/usr/share/doc/ PSMANDIR=/usr/share/man "
         
     def compile (self):
         self.system ('''
@@ -117,11 +116,12 @@ cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS
                '%(builddir)s/Makefile')
 
     def install_command (self):
-
-
         return (targetpackage.TargetBuildSpec.install_command (self)
-            + ' install_prefix=%(install_root)s'
-            + ' mandir=%(install_root)s/usr/man/ ')
+                + ' install_prefix=%(install_root)s'
+                + ' mandir=/usr/share/man/ '
+                + ' docdir=/usr/share/doc/ghostscript/doc '
+                + ' exdir=/usr/share/doc/ghostscript/examples '
+                )
 
     def install (self):
         targetpackage.TargetBuildSpec.install (self)
