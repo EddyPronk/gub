@@ -115,4 +115,4 @@ class Fontconfig__local (toolpackage.ToolBuildSpec):
         self.with (version='2.3.2', mirror=download.fontconfig)
         
     def get_build_dependencies (self):
-        return ['libtool', 'freetype']
+        return ['libtool', 'freetype', 'expat']
