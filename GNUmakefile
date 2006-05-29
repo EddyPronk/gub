@@ -32,6 +32,8 @@ INVOKE_GUP=$(PYTHON) gup-manager.py \
 
 INVOKE_INSTALLER_BUILDER=$(PYTHON) installer-builder.py \
   --target-platform $(1) \
+  --installer-version $(LILYPOND_VERSION) \
+  --installer-build $(INSTALLER_BUILD) \
   --branch $(LILYPOND_BRANCH) \
 
 BUILD=$(call INVOKE_GUB_BUILDER,$(1)) build $(2) \
@@ -63,7 +65,6 @@ ifneq ($(wildcard local.make),)
   include local.make
 endif
 
-
 ifeq ($(wildcard $(LILYPOND_CVSDIR)),)
 
   ################
@@ -78,6 +79,7 @@ ifeq ($(wildcard $(LILYPOND_CVSDIR)),)
 	  $(PYTHON) gub-builder.py -p linux download
 
 else
+
 
   ################
   # ensuing runs, we have CVS.
