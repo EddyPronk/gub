@@ -197,15 +197,22 @@ def upload_binaries (version):
     cmds.append (tag_cmd)
     d = globals().copy()
     d.update (locals())
-    cmds.append ('python test-lily/rsync-lily-doc.py --upload %(host_doc_spec)s target/%(build_platform)s/build/lilypond-%(branch)s/out/web-root/' % d)
-    
 
+    d['lilybuild'] = 'target/%(build_platform)s/build/lilypond-%(branch)s' % d
+    d['lilysrc'] = 'target/%(build_platform)s/src/lilypond-%(branch)s' % d 
+
+    test_cmd =r'''PYTHONPATH=%(lilysrc)s/python python test-lily/rsync-lily-doc.py\
+  --output-distance %(lilysrc)s/buildscripts/output-distance.py \
+  --upload %(host_doc_spec)s \
+  %(lilybuild)s/out-www/web-root/''' % d
+
+    cmds.insert (0, test_cmd)
     
     print '\n\n'
     print '\n'.join (cmds);
     print '\n\n'
     if barf:
-        raise 'barf'
+        raise Exception ('barf')
 
     for cmd in cmds:
         system (cmd)
