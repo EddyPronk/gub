@@ -48,38 +48,38 @@ build             - build target packages
                   help='select target platform',
                   choices=settings_mod.platforms.keys ())
 
-    p.add_option ('', '--stage', action='store',
+    p.add_option ('--stage', action='store',
                   dest='stage', default=None,
                   help='Force rebuild of stage')
     
-    p.add_option ('', '--cross-distcc-host', action='append',
+    p.add_option ('--cross-distcc-host', action='append',
                   dest='cross_distcc_hosts', default=[],
                   help='Add another cross compiling distcc host')
     
-    p.add_option ('', '--native-distcc-host', action='append',
+    p.add_option ('--native-distcc-host', action='append',
                   dest='native_distcc_hosts', default=[],
                   help='Add another native distcc host')
     
     p.add_option ('-V', '--verbose', action='store_true',
                   dest='verbose')
 
-    p.add_option ('', '--force-package', action='store_true',
+    p.add_option ('--force-package', action='store_true',
                   default=False,
                   dest='force_package',
                   help='allow packaging of tainted compiles' )
     
-    p.add_option ('', '--build-source', action='store_true',
+    p.add_option ('--build-source', action='store_true',
                   default=False,
                   dest='build_source',
                   help='build source packages')
     
-    p.add_option ('', '--lax-checksums',
+    p.add_option ('--lax-checksums',
                   action='store_true',
                   default=False,
                   dest='lax_checksums',
                   help="don't rebuild packages with differing checksums")
     
-    p.add_option ('', '--skip-if-locked',
+    p.add_option ('-l', '--skip-if-locked',
                   default=False,
                   dest="skip_if_locked",
                   action="store_true",

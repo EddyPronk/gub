@@ -66,7 +66,7 @@ def opt_parser ():
                   default=[],
                   help='where to send error report')
     
-    p.add_option ('', '--bcc',
+    p.add_option ('--bcc',
                   action='append',
                   dest='bcc_address',
                   default=[],
@@ -78,26 +78,26 @@ def opt_parser ():
                   default=address,
                   help='whom to list as sender')
     
-    p.add_option ('', '--repository',
+    p.add_option ('--repository',
                   action="store",
                   dest="repository",
                   default=".",
                   help="repository directory")
     
-    p.add_option ('', '--tag-repo',
+    p.add_option ('--tag-repo',
                   action='store',
                   dest='tag_repo',
                   default='',
                   help='where to push success tags.')
 
-    p.add_option ('', '--quiet',
+    p.add_option ('--quiet',
                   action='store_true',
                   dest='be_quiet',
                   default=False,
                   help='only send mail when there was an error.')
 
 
-    p.add_option ('', '--posthook',
+    p.add_option ('--posthook',
                   action='append',
                   dest='posthooks',
                   default=[],

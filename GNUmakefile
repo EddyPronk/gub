@@ -1,13 +1,11 @@
 
-.PHONY: all default distclean download test TAGS
+.PHONY: all default distclean download TAGS
 .PHONY: cygwin darwin-ppc darwin-x86 debian freebsd linux mingw bootstrap-download bootstrap
 .PHONY: update-buildnumber
 
 default: all
 
 
-
-TEST_PLATFORMS=$(PLATFORMS)
 
 ## must always have one host.
 GUB_DISTCC_ALLOW_HOSTS=127.0.0.1
@@ -50,9 +48,6 @@ sources = GNUmakefile $(wildcard *.py specs/*.py lib/*.py)
 
 NATIVE_TARGET_DIR=$(CWD)/target/$(BUILD_PLATFORM)/
 BUILDNUMBER_FILE = buildnumber-$(LILYPOND_BRANCH).make
-
-## TODO: should LilyPond revision in targetname too.
-RUN_TEST=$(PYTHON) test-gub.py --summary --tag-repo abc.webdev.nl:/home/hanwen/repo/gub-tags --to hanwen@xs4all.nl --to janneke-list@xs4all.nl --smtp smtp.xs4all.nl 
 
 # local.make should set the following variables:
 #
@@ -154,10 +149,6 @@ realclean:
 
 TAGS: $(sources)
 	etags $^
-
-test:
-	make realclean PLATFORMS="$(TEST_PLATFORMS)"
-	$(RUN_TEST) $(foreach p, $(TEST_PLATFORMS), "make $(p) from=$(BUILD_PLATFORM)")
 
 release-test:
 	$(foreach p,$(PLATFORMS), $(PYTHON) test-lily/test-gub-build.py uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).$(p) && ) true
