@@ -143,8 +143,6 @@ def set_framework_ldpath (packs):
     for c in packs:
         change = gub.Change_target_dict (c, {'LDFLAGS': r" -Wl,--rpath,'$${ORIGIN}/../lib/' "})
         c.get_substitution_dict = change.append_dict
-        
-
 
 cross_module_checksums = {}
 def get_cross_module (platform):

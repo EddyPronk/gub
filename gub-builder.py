@@ -11,7 +11,6 @@ sys.path.insert (0, 'lib/')
 from misc import *
 import gup
 import cross
-import framework
 import gub
 import settings as settings_mod
 import pickle
@@ -125,9 +124,6 @@ def run_builder (settings, manager, names, spec_object_dict):
                   if isinstance (p, cross.CrossToolSpec)]
 
     extra_build_deps = [p.name () for p in sdk_pkgs + cross_pkgs]
-    framework.package_fixups (settings, spec_object_dict.values (),
-                              extra_build_deps)
-
     if not settings.options.stage:
         
         reved = names[:]

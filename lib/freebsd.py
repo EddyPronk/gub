@@ -3,7 +3,6 @@ import re
 
 import cross
 import download
-import framework
 import gub
 import misc
 import targetpackage
