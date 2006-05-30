@@ -169,19 +169,31 @@ to skip this check.
             misc.download_url (self.expand (self.url), self.expand ('%(downloaddir)s'))
             
     def cvs (self):
-        url = self.expand (self.url)
+
+        
         dir = self.expand ('%(name)s-%(version)s')
         cvs_dest = self.expand ('%(downloaddir)s/%(dir)s' , locals ())
+        timestamp_file = cvs_dest + '/.cvsup-timestamp'
+        
+        ## don't run CVS too often.
+        import time
+        time_window = 10
+        if (os.path.exists (timestamp_file)
+            and misc.file_mod_time (timestamp_file) > time.time () - time_window):
+            return
+        
+        url = self.expand (self.url)
         if not os.path.exists (cvs_dest):
             self.system ('''
 cd %(downloaddir)s && cvs -d %(url)s -q co -d %(dir)s -r %(version)s %(name)s
 ''', locals ())
         else:
-# Hmm, let's save local changes?
-#cd %(srcdir)s && cvs update -dCAP -r %(version)s
             self.system ('''
 cd %(cvs_dest)s && cvs -q update -dAPr %(version)s
 ''', locals ())
+
+        open (timestamp_file, 'w').write ('changed')
+
         self.touch_cvs_checksum (cvs_dest)
 
     def touch_cvs_checksum (self, cvs_dest):

@@ -4,7 +4,7 @@ import re
 import string
 import sys
 import urllib
-
+ 
 def join_lines (str):
     return str.replace ('\n', ' ')
 
@@ -150,3 +150,7 @@ def testme ():
     
 if __name__=='__main__':
     testme ()
+
+def file_mod_time (path):
+    import stat
+    return os.stat (path)[stat.ST_MTIME]
