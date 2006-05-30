@@ -8,7 +8,8 @@ import gub
 import targetpackage
 
 class Libc6 (gub.BinarySpec, gub.SdkBuildSpec):
-    pass
+    def patch (self):
+        self.system ('cd %(srcdir)s && rm -rf usr/sbin/ sbin/ bin/ usr/bin')
 
 class Libc6_dev (gub.BinarySpec, gub.SdkBuildSpec):
     def untar (self):
