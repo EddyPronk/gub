@@ -17,9 +17,8 @@ class Gcc (cross.Gcc):
 class Mingw_runtime (gub.BinarySpec, gub.SdkBuildSpec):
     def untar (self):
         gub.BinarySpec.untar (self)
-        self.system ('mkdir -p %(srcdir)s/root/usr')
-        self.system ('cd %(srcdir)s/root && mv * usr',
-              ignore_error=True)
+        self.system ('mkdir -p %(srcdir)s/root/usr/share', ignore_error=True)
+        self.system ('''cd %(srcdir)s/root && mv * usr && mv usr/doc usr/share/''')
 
 class Cygcheck (gub.BinarySpec):
     "Only need the cygcheck.exe binary."
