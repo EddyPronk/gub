@@ -39,7 +39,8 @@ class Libc6_dev (gub.BinarySpec, gub.SdkBuildSpec):
         self.system ('rm -rf  %(srcdir)s/root/usr/include/asm/  %(srcdir)s/root/usr/include/linux ')
             
 class Linux_kernel_headers (gub.BinarySpec, gub.SdkBuildSpec):
-    pass
+    def get_subpackage_names (self):
+        return ['']
 
 # use gcc 4.0 because
 """configure:2076: i686-linux-g++    -L/var/tmp/test-gub/target/linux/system/usr/lib -L/var/tmp/test-gub/target/linux/system/usr/bin -L/var/tmp/test-gub/target/linux/system/usr/lib/w32api -Wl,--as-needed  -Wl,--rpath,'$${ORIGIN}/../lib/'  conftest.cc  >&5
