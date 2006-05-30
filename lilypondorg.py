@@ -262,7 +262,6 @@ def main ():
     else:
         base_url = "http://download.linuxaudio.org/lilypond"
         print max_src_version_url ((2,9))
-        raise 'sthin'
         print max_version_build ('documentation')
         print max_branch_version_build_url ((2, 6), 'linux-x86')
         print max_branch_version_build_url ((2, 9), 'linux-x86')

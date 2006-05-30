@@ -22,7 +22,7 @@ def parse_options ():
 
     p.add_option ('--recreate',
                   dest="recreate",
-                  action="store_true"
+                  action="store_true",
                   help="rebuild webdirectory. Discards test-results.") 
 
     home = os.environ['HOME']
