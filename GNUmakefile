@@ -35,9 +35,7 @@ INVOKE_INSTALLER_BUILDER=$(PYTHON) installer-builder.py \
   --branch $(LILYPOND_BRANCH) \
 
 BUILD=$(call INVOKE_GUB_BUILDER,$(1)) build $(2) \
-  && $(call INVOKE_INSTALLER_BUILDER,$(1)) build lilypond \
-  && $(call INVOKE_INSTALLER_BUILDER,$(1)) strip \
-  && $(call INVOKE_INSTALLER_BUILDER,$(1)) package \
+  && $(call INVOKE_INSTALLER_BUILDER,$(1)) build-all 
 
 CWD:=$(shell pwd)
 
@@ -99,8 +97,6 @@ $(BUILDNUMBER_FILE):
 download:
 	$(UPDATE-BUILDNUMBER)
 	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB_BUILDER,$(p)) download lilypond && ) true
-	$(call INVOKE_GUB_BUILDER,mingw) download lilypad
-	$(call INVOKE_GUB_BUILDER,darwin-ppc) download osx-lilypad
 	rm -f target/*/status/lilypond*
 	rm -f log/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).*.test.pdf
 
@@ -139,7 +135,7 @@ linux:
 	$(call BUILD,$@,lilypond)
 
 mingw:
-	$(call BUILD,$@,lilypad lilypond)
+	$(call BUILD,$@,lilypond)
 
 clean:
 	rm -rf $(foreach p, $(PLATFORMS), target/*$(p)* )
@@ -154,7 +150,7 @@ release-test:
 	$(foreach p,$(PLATFORMS), $(PYTHON) test-lily/test-gub-build.py uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).$(p) && ) true
 
 
-distccd: clean-distccd cross-distccd-compilers cross-distccd native-distccd local-distcc
+distccd: clean-distccd cross-compilers cross-distccd native-distccd local-distcc
 
 clean-distccd:
 	rm -rf $(DISTCC_DIRS)
@@ -169,7 +165,7 @@ local-distcc:
 	$(foreach binary, gcc g++, \
 		ln -s $(CWD)/lib/distcc.py target/native-distcc/bin/$(notdir $(binary)) && ) true
 
-cross-distccd-compilers:
+cross-compilers:
 	$(foreach p, $(PLATFORMS),$(call INVOKE_GUB_BUILDER, $(p)) build gcc && ) true
 
 cross-distccd:
@@ -224,9 +220,10 @@ bootstrap:
 	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local download flex mftrace potrace fontforge \
 	   guile pkg-config nsis icoutils fontconfig expat gettext \
 	   distcc 
-	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local build flex mftrace potrace fontforge \
-	   guile pkg-config fontconfig expat icoutils glib \
-	   distcc 
-	make distccd
+	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local build \
+		flex mftrace potrace fontforge \
+		guile pkg-config fontconfig expat icoutils glib \
+		distcc 
+	$(MAKE) cross-compilers
 	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local build nsis 
 	$(MAKE) download
