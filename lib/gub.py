@@ -486,6 +486,7 @@ rm -f %(install_root)s/usr/share/info/dir %(install_root)s/usr/cross/info/dir %(
                            '/usr/cross/include',
                            ]),
                 ('doc', ['/usr/share/doc',
+                         '/usr/share/gtk-doc',
                          '/usr/share/info',
                          '/usr/share/man',
                          '/usr/cross/info',
