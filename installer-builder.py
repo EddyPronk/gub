@@ -33,11 +33,11 @@ package - build installer binary
                   help='select lilypond branch [HEAD]',
                   choices=['lilypond_2_6', 'lilypond_2_8', 'HEAD'])
     
-    p.add_option ('', '--installer-version', action='store',
+    p.add_option ('-v', '--installer-version', action='store',
                   default='0.0.0',
                   dest='installer_version')
     
-    p.add_option ('', '--installer-build', action='store',
+    p.add_option ('-b', '--installer-build', action='store',
                   default='0',
                   dest='installer_build')
 
@@ -97,14 +97,16 @@ def package_installer (settings, installers):
         p.create ()
         
 def installer_command (c, settings, args):
-    if c == 'build':
+    if c in ('build', 'build-all'):
         build_installer (settings, args)
-        return
+        if c=='build':
+            return
     
     installers = installer.get_installers (settings, args)
-    if c == 'strip':
+    if c in ('strip', 'build-all'):
         strip_installer (settings, installers)
-    elif c == 'package':
+
+    if c in ('build-all', 'package'):
         package_installer (settings, installers)
     else:
         raise  Exception ('unknown installer command', c)
@@ -131,7 +133,7 @@ def main ():
     os.environ['PATH'] = settings.expand ('%(buildtools)s/bin:' + PATH)
 
     print c
-    if c in ('clean', 'build', 'strip', 'package'):
+    if c in ('clean', 'build', 'strip', 'package', 'build-all'):
         installer_command (c, settings, commands)
         return
 
