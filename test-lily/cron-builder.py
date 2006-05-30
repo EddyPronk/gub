@@ -123,6 +123,9 @@ def main ():
     
     system (make_cmd + 'download')
 
+    lily_build_dir = 'target/%s/build/lilypond-%s' %  (build_platform, opts.branch) 
+    lily_src_dir = 'target/%s/src/lilypond-%s' % (build_platform, opts.branch) 
+
     test_cmds = []
     if opts.build_package:
         test_cmds += [python_cmd + 'gub-builder.py --branch %s -lp %s build lilypond ' % (opts.branch, p) for p in args]
@@ -136,9 +139,13 @@ def main ():
 
     if opts.build_docs:
         args = args + ['doc']
-        test_cmds += [make_cmd + 'doc-build']
+        test_cmds += [make_cmd + 'doc-build',
+                      python_cmd + 'test-lily/rsync-lily-doc.py '
+                      '--recreate '
+                      '--output-distance %s/scripts/output-distance.py '
+                      ' %s/out-www/web-root ' % (lily_src_dir, lily_build_dir)]
 
-
+    
     system (python_cmd + 'test-gub.py %s %s '
             % (opts.test_options, ' '.join (["'%s'" % c for c in test_cmds])))
 
