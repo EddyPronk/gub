@@ -72,6 +72,8 @@ def create_local_web_dir (options, source):
     if not os.path.isdir (options.unpack_dir):
         system ('mkdir -p '  + options.unpack_dir)
 
+    source = os.path.abspath (source)
+
     print 'creating web root in',  options.unpack_dir 
     os.chdir (options.unpack_dir)
 
