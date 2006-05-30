@@ -116,13 +116,11 @@ def main ():
 
     make_cmd = 'make %s ' % opts.make_options
     python_cmd = sys.executable  + ' '
+
     ## can't have these in test-gub, since these
     ## will always usually result in "release already tested"
-    if not os.path.exists ('downloads/lilypond-%s' % opts.branch):
-        system (make_cmd + 'bootstrap-download')
-    
     for a in args:
-        system (python_cmd + 'gub-builder.py -p %s download lilypond' % a)
+        system (python_cmd + 'gub-builder.py --branch %s -p %s download lilypond' % (opts.branch, a))
         system ('rm -f target/%s/status/lilypond-%s' % (a, opts.branch))
 
     system ('make update-buildnumber')

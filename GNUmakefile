@@ -69,7 +69,7 @@ ifeq ($(wildcard $(LILYPOND_CVSDIR)),)
 
   ## need to download CVS before we can actually start doing anything.
   bootstrap-download: update-buildnumber
-	  $(PYTHON) gub-builder.py -p linux download
+	  $(PYTHON) gub-builder.py -p linux download lilypond
 
 else
 
