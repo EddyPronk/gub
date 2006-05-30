@@ -62,6 +62,7 @@ def test_build (bin):
         base_test_file_stem = os.path.splitext (base_test_file)[0]
 
         system ('ssh %(uid)s@%(host)s mkdir  %(dir)s' % locals (), ignore_error=True)
+        system ('ssh %(uid)s@%(host)s rm  %(dir)s/%(base_test_file_stem)s.*' % locals (), ignore_error=True)
         
         system ('scp %(test_file)s test-lily/test-%(platform)s-gub.sh '
                 ' %(bin)s '
