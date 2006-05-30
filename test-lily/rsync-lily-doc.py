@@ -72,8 +72,6 @@ def create_local_web_dir (options, source):
     if not os.path.isdir (options.unpack_dir):
         system ('mkdir -p '  + options.unpack_dir)
 
-    source = os.path.abspath (source)
-
     print 'creating web root in',  options.unpack_dir 
     os.chdir (options.unpack_dir)
 
@@ -104,13 +102,13 @@ def create_local_web_dir (options, source):
 
 def compute_distances (options, source):
     os.chdir (options.unpack_dir)
+
     
     cur_version = tuple (map (int, read_version (source)))
     region = 3
 
     versions = [(cur_version[0], cur_version[1], cur_version[2] - i) for i in range (1, region + 1)]
     version_dirs = ['v%d.%d.%d' % v for v in versions]
-    print cur_version
     version_str = '%d.%d.%d'  % cur_version
 
     if cur_version[1] % 2 == 1:
@@ -123,8 +121,8 @@ def compute_distances (options, source):
             stable_dirs.reverse ()
             version_dirs.append (stable_dirs[0])
 
-#    version_dirs = [d for d in version_dirs if
-# os.path.isdir (os.path.join (options.unpack_dir, d))]
+    version_dirs = [d for d in version_dirs if
+                    os.path.isdir (os.path.join (options.unpack_dir, d))]
 
     cur_dir = 'v' + version_str
 
@@ -136,9 +134,14 @@ def compute_distances (options, source):
         base = os.path.split (d)[1]
 
         html += '<li><a href="%(base)s.html">results for %(base)s</a>' % locals()
-        
-        print cmd
+        system (cmd)
 
+    if html:
+        html = '<ul>%(html)s</ul>' % locals ()
+    else:
+        html = 'no previous versions to compare with'
+        
+        
     html = '''<html>
 <head>
 <title>
@@ -147,7 +150,8 @@ Regression test results for %(version_str)s
 </head>
 <body>
 <h1>Regression test results</h1>
-<ul>%(html)s</ul>
+
+%(html)s
 </body>
 </html>
 ''' % locals() 
@@ -168,6 +172,8 @@ def main ():
     (opts, args) = parse_options ()
 
     for a in args:
+        a = os.path.abspath (a)
+        
         if opts.recreate:
             create_local_web_dir (opts, a)
         if opts.output_distance_script:
