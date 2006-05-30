@@ -27,7 +27,7 @@ $filename /S
 status="$?"
 
 
-cachefile=`echo "/cygdrive/c/Program\ Files/LilyPond/usr/etc/fonts/local.conf" | grep cache | sed 's!<cache>!!g' | sed 's!</cache>!!g'`
+cachefile=`cat "/cygdrive/c/Program Files/LilyPond/usr/etc/fonts/local.conf" | grep cache | sed 's!<cache>!!g' | sed 's!</cache>!!g' | sed 's!~!'$HOME'!g' `
 
 if test ! -s "$cachefile" ; then
 	status="1"
