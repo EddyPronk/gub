@@ -28,3 +28,10 @@ lagere prioriteit
   * fontconfig 2.4; Blocker: mingw mmap() compat. support.
 
 - junk Makefile, create python based driver.
+
+- better branch separation:
+  separate dirs for
+
+   * targetroot 
+   * installer
+   * install_root
