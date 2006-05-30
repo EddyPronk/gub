@@ -73,7 +73,9 @@ class TargetBuildSpec (gub.BuildSpec):
     def compile_command (self):
         c = gub.BuildSpec.compile_command (self)
         if (self.settings.cross_distcc_hosts
-          and re.search (r'\bmake\b', c)):
+            and not self.broken_for_distcc ()
+            and re.search (r'\bmake\b', c)):
+            
             jobs = '-j%d ' % (2*len (self.settings.cross_distcc_hosts.split (' ')))
             c = re.sub (r'\bmake\b', 'make ' + jobs, c)
 

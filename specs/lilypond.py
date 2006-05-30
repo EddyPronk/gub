@@ -16,6 +16,10 @@ class LilyPond (targetpackage.TargetBuildSpec):
                      'guile', 'pango', 'python',
                      'ghostscript']}
     
+    def broken_for_distcc (self):
+
+        ## mf/ is broken
+        return True
     def get_build_dependencies (self):
         return ['guile-devel', 'python-devel', 'fontconfig-devel',
 

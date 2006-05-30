@@ -153,9 +153,10 @@ to skip this check.
             if stage != 'clean':
                 self.set_done (stage, stages.index (stage))
 
-    def skip (self):
-        pass
-
+    def broken_for_distcc (self):
+        """Set to true if package can't handle make -jX """
+        return False
+    
     def is_downloaded (self):
         if not self.has_source:
             return True
