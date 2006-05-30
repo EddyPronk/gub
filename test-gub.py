@@ -142,19 +142,19 @@ def test_target (repo, options, target, last_patch):
         diff = repo.get_diff_from_tag (base_tag)
 
         result = 'FAIL'
-        attachments = ['error for %s\n\n%s' % (target,
+        attachments = ['error for\n\n\t%s\n\n\n%s' % (target,
                                                '\n'.join (body[-0:])),
                        diff]
     else:
         tag = base_tag + canonicalize_target (last_patch['date'])
         repo.tag (tag)
-        result = "SUCCESS"
         if options.tag_repo:
             repo.push (tag, options.tag_repo)
             
-        result += ', tagging with %s' % tag
-            
-        attachments = ['\n'.join (body[-10:])]
+        result = "SUCCESS"
+        attachments = ['success for\n\n\t%s\n\n%s'
+                       % (target,
+                          '\n'.join (body[-10:]))]
 
     repo.set_checked_before (release_hash, db_file_name)
     return (result, attachments)
@@ -207,12 +207,11 @@ MD5 of complete patch set: %(release_hash)s
         if not (options.be_quiet and success):
             msg = result_message (atts, subject="Autotester: %s %s" % (r, a))
             send_message (options, msg)
-        
 
         if not success and options.is_dependent:
             break
         
-    main = '\n'.join (['%s: %s' % (target, res)
+    main = '\n\n' + '\n'.join (['%s\n  %s' % (target, res)
              for (target, (res, atts)) in results.items ()])
 
     msg_body = [main, release_id]
