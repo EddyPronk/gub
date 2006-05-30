@@ -11,7 +11,12 @@ run as
   --test-opts "--to me@mydomain.org --from me@mydomain.org --repository . --smtp smtp.xs4all.nl" 
 
 """
+
 dry_run = False
+build_platform = {
+	'darwin': 'darwin-ppc',
+	'linux2': 'linux',
+}[sys.platform]
 
 def parse_options ():
     p = optparse.OptionParser ()
@@ -110,7 +115,7 @@ def main ():
         system ('darcs pull -a ' + opts.darcs_upstream)
 
     make_cmd = 'make %s ' % opts.make_options
-
+    python_cmd = sys.executable  + ' '
     ## can't have these in test-gub, since these
     ## will always usually result in "release already tested"
     if not os.path.exists ('downloads/lilypond-%s' % opts.branch):
@@ -120,23 +125,31 @@ def main ():
 
     test_cmds = []
     if opts.build_package:
-        test_cmds += ['python gub-builder.py --branch %s -lp %s build lilypond ' % (opts.branch, p) for p in args]
+        test_cmds += [python_cmd + 'gub-builder.py --branch %s -lp %s build lilypond ' % (opts.branch, p) for p in args]
     if opts.build_installer:
         build_str = read_make_vars ('buildnumber-%s.make' % opts.branch)['INSTALLER_BUILD']
         version_str = ('%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s'
                        % read_make_vars ('downloads/lilypond-%s/VERSION' % opts.branch))
 
-        test_cmds += ['python installer-builder.py -b %s -v %s --branch %s -p %s build-all '
+        test_cmds += [python_cmd + 'installer-builder.py -b %s -v %s --branch %s -p %s build-all '
                       % (build_str, version_str, opts.branch, p) for p in args]
 
     if opts.build_docs:
         args = args + ['doc']
         test_cmds += [make_cmd + 'doc-build']
 
-    system ('python test-gub.py %s %s '
+
+    system (python_cmd + 'test-gub.py %s %s '
             % (opts.test_options, ' '.join (["'%s'" % c for c in test_cmds])))
 
-    
+    if opts.build_docs and not opts.clean:
+
+        ## refresh once a day 
+        system ("find target/%s/build/lilypond-%s/ -name 'lily-[0-9]*' -mtime +1   -exec rm '{}' ';'" % (build_platform, opts.branch))
+        
+        ## texi2dvi leaves junk that confuse make. FIXME
+        system ("rm -f target/%s/build/lilypond-%s/Documentation/user/out-www/{lilypond,lilypond-internals,music-glossary}.*" % (build_platform, opts.branch))
+        
 if __name__ == '__main__':
     main ()
 
