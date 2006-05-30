@@ -2,19 +2,16 @@
 import sys
 import os
 import optparse
+import re
 
 """
 run as
 
   python clean-gub-build.py --darcs-upstream http://lilypond.org/~hanwen/gub/ \
-  --test-opts "--to hanwen@xs4all.nl --to janneke-list@xs4all.nl --smtp smtp.xs4all.nl" 
-
-
-This script will setup local distcc on ports 3633 and 3634. Do not run
-unless behind a firewall.
+  --test-opts "--to me@mydomain.org --from me@mydomain.org --repository . --smtp smtp.xs4all.nl" 
 
 """
-test_self = False
+dry_run = False
 
 def parse_options ():
     p = optparse.OptionParser ()
@@ -31,11 +28,24 @@ def parse_options ():
                   action="store",
                   help="")
     
-    p.add_option ('--package-only',
+
+    p.add_option ('--installer',
                   action="store_true",
-                  dest="package_only",
+                  dest="build_installer",
                   default=None,
-                  help="only build lilypond package")
+                  help="build lilypond installer")
+
+    p.add_option ('--docs',
+                  action="store_true",
+                  dest="build_docs",
+                  default=None,
+                  help="build docs")
+    
+    p.add_option ('--package',
+                  action="store_true",
+                  dest="build_package",
+                  default=None,
+                  help="build lilypond gup package")
 
     p.add_option ('--make-options',
                   action='store',
@@ -56,15 +66,15 @@ def parse_options ():
                   help="upstream repository")
 
 
-    p.add_option ('--test-self',
+    p.add_option ('--dry-run',
                   action="store_true",
-                  dest="test_self",
+                  dest="dry_run",
                   default=False,
                   help="test self")
 
     (opts, args) = p.parse_args ()
-    global test_self
-    test_self = opts.test_self
+    global dry_run
+    dry_run = opts.dry_run
     opts.make_options += " BRANCH=%s" % opts.branch
 
     return (opts, args)
@@ -74,11 +84,22 @@ def system (c, ignore_error=False):
     print 'executing' , c
 
     s = None
-    if not test_self:
+    if not dry_run:
         s = os.system (c)
         
     if s and not ignore_error:
         raise 'barf'
+
+
+def read_make_vars (file):
+    d = {}
+    for l in open (file).readlines():
+        def func(m):
+            d[m.group(1)] = m.group(2)
+            return ''
+
+        l = re.sub ('^([a-zA-Z0-9_]+) *= *(.*)', func, l)
+    return d
 
 def main ():
     (opts,args) = parse_options ()
@@ -88,13 +109,29 @@ def main ():
     if opts.darcs_upstream:
         system ('darcs pull -a ' + opts.darcs_upstream)
 
+    make_cmd = 'make %s ' % opts.make_options
+
+    ## can't have these in test-gub, since these
+    ## will always usually result in "release already tested"
+    if not os.path.exists ('downloads/lilypond-%s' % opts.branch):
+        system (make_cmd + 'bootstrap-download')
+    
+    system (make_cmd + 'download')
+
     test_cmds = []
-    if opts.package_only:
-        test_platforms = ['python gub-builder.py --branch %s -lp %s build lilypond ' % (opts.branch, p) for p in args]
-        test_cmds = ['make %s download' % opts.make_options] + test_platforms
-    else:
-        args = ['bootstrap-download', 'bootstrap'] + args + ['doc']
-        test_cmds = ['make %s %s' % (opts.make_options, p) for p in args]
+    if opts.build_package:
+        test_cmds += ['python gub-builder.py --branch %s -lp %s build lilypond ' % (opts.branch, p) for p in args]
+    if opts.build_installer:
+        build_str = read_make_vars ('buildnumber-%s.make' % opts.branch)['INSTALLER_BUILD']
+        version_str = ('%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s'
+                       % read_make_vars ('downloads/lilypond-%s/VERSION' % opts.branch))
+
+        test_cmds += ['python installer-builder.py -b %s -v %s --branch %s -p %s build-all '
+                      % (build_str, version_str, opts.branch, p) for p in args]
+
+    if opts.build_docs:
+        args = args + ['doc']
+        test_cmds += [make_cmd + 'doc-build']
 
     system ('python test-gub.py %s %s '
             % (opts.test_options, ' '.join (["'%s'" % c for c in test_cmds])))
