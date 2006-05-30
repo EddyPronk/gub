@@ -261,6 +261,8 @@ class LilyPond__mingw (LilyPond__cygwin):
         d = LilyPond.get_dependency_dict (self)
         d[''].append ('lilypad')        
         return d
+    def get_build_dependencies (self):
+        return LilyPond__cygwin.get_build_dependencies () + ['lilypad']
     
     def do_configure (self):
         LilyPond__cygwin.do_configure (self)
