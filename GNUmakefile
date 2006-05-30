@@ -94,6 +94,9 @@ UPDATE-BUILDNUMBER=(echo -n "INSTALLER_BUILD=" && \
 $(BUILDNUMBER_FILE):
 	$(UPDATE-BUILDNUMBER)
 
+update-buildnumber:
+	$(UPDATE-BUILDNUMBER)
+
 download:
 	$(UPDATE-BUILDNUMBER)
 	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB_BUILDER,$(p)) download lilypond && ) true
