@@ -10,6 +10,9 @@ class Freetype (targetpackage.TargetBuildSpec):
 
     def get_build_dependencies (self):
         return ['libtool', 'zlib-devel']
+
+    def get_subpackage_names (self):
+        return ['devel', '']
     
     def get_dependency_dict (self):
         return {'': ['zlib']}

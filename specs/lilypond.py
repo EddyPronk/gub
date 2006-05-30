@@ -15,6 +15,9 @@ class LilyPond (targetpackage.TargetBuildSpec):
         return {'': ['fontconfig', 'gettext', 
                      'guile', 'pango', 'python',
                      'ghostscript']}
+
+    def get_subpackage_names (self):
+        return ['']
     
     def broken_for_distcc (self):
 
