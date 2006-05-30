@@ -178,13 +178,18 @@ cross-distccd:
 	mkdir -p target/cross-distccd/bin/
 	ln -s $(foreach p,$(PLATFORMS),$(filter-out %/python-config,$(wildcard $(CWD)/target/$(p)/system/usr/cross/bin/*))) target/cross-distccd/bin
 
-	DISTCCD_PATH=$(CWD)/target/cross-distccd/bin distccd --daemon $(addprefix --allow ,$(GUB_DISTCC_ALLOW_HOSTS)) \
+	PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
+		DISTCCD_PATH=$(CWD)/target/cross-distccd/bin \
+		distccd --daemon \
+		$(addprefix --allow ,$(GUB_DISTCC_ALLOW_HOSTS)) \
 		--port 3633 --pid-file $(CWD)/log/$@.pid \
 		--log-file $(CWD)/log/cross-distccd.log  --log-level info
 
 native-distccd:
 	-$(if $(wildcard log/$@.pid),kill `cat log/$@.pid`, true)
-	distccd --daemon $(addprefix --allow ,$(GUB_DISTCC_ALLOW_HOSTS)) \
+	PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
+		distccd --daemon \
+		$(addprefix --allow ,$(GUB_DISTCC_ALLOW_HOSTS)) \
 		--port 3634 --pid-file $(CWD)/log/$@.pid \
 		--log-file $(CWD)/log/$@.log  --log-level info
 
@@ -217,9 +222,11 @@ doc-build:
 
 bootstrap:
 	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local download flex mftrace potrace fontforge \
-	   guile pkg-config nsis icoutils fontconfig expat gettext
+	   guile pkg-config nsis icoutils fontconfig expat gettext \
+	   distcc 
 	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local build flex mftrace potrace fontforge \
-	   guile pkg-config fontconfig expat icoutils glib
+	   guile pkg-config fontconfig expat icoutils glib \
+	   distcc 
 	make distccd
 	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local build nsis 
 	$(MAKE) download
