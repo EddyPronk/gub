@@ -123,8 +123,10 @@ def main ():
     
     for a in args:
         system (python_cmd + 'gub-builder.py -p %s download lilypond' % a)
-        system ('rm target/%s/status/lilypond-%s' % (a, opts.branch))
+        system ('rm -f target/%s/status/lilypond-%s' % (a, opts.branch))
 
+    system ('make update-buildnumber')
+        
     lily_build_dir = 'target/%s/build/lilypond-%s' %  (build_platform, opts.branch) 
     lily_src_dir = 'target/%s/src/lilypond-%s' % (build_platform, opts.branch) 
 
