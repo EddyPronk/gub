@@ -95,8 +95,13 @@ def opt_parser ():
                   dest='be_quiet',
                   default=False,
                   help='only send mail when there was an error.')
-
-
+    
+    p.add_option ('--dependent',
+                  action="store_true",
+                  dest="is_dependent",
+                  default=False,
+                  help="test targets depend on each other")
+                  
     p.add_option ('--posthook',
                   action='append',
                   dest='posthooks',
@@ -204,6 +209,8 @@ MD5 of complete patch set: %(release_hash)s
             send_message (options, msg)
         
 
+        if not success and options.is_dependent:
+            break
         
     main = '\n'.join (['%s: %s' % (target, res)
              for (target, (res, atts)) in results.items ()])
