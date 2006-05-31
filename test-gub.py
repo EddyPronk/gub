@@ -25,7 +25,7 @@ def read_tail (file, amount=10240):
     return f.read ()
 
 def canonicalize_target (target):
-    canonicalize = re.sub('[ \t\n]', '_', target)
+    canonicalize = re.sub ('[ \t\n]', '_', target)
     canonicalize = re.sub ('[^a-zA-Z0-9-]+', '_', canonicalize)
     return canonicalize
 
@@ -56,7 +56,7 @@ def result_message (parts, subject='') :
 
     msg = parts[0]
     if len (parts) > 1:
-        msg = email.MIMEMultipart.MIMEMultipart()
+        msg = email.MIMEMultipart.MIMEMultipart ()
         for p in parts:
             msg.attach (p)
     
@@ -70,11 +70,11 @@ def opt_parser ():
         address = os.environ['EMAIL']
     else:
         try:
-            address = '%s@localhost' % os.getlogin()
+            address = '%s@localhost' % os.getlogin ()
         except OSError:
             address = 'root@localhost'
     
-    p = optparse.OptionParser(usage="test-gub.py [options] command command ... ")
+    p = optparse.OptionParser (usage="test-gub.py [options] command command ... ")
     p.add_option ('-t', '--to',
                   action='append',
                   dest='address',
@@ -140,10 +140,10 @@ def test_target (repo, options, target, last_patch):
         log_file.log ('release has already been checked in %s ' % db_file_name)
         return None
 
-    logfile = 'test-%(canonicalize)s.log' %  locals()
+    logfile = 'test-%(canonicalize)s.log' %  locals ()
     logfile = os.path.join (repo.test_dir, logfile)
     
-    cmd = "nice time %(target)s >& %(logfile)s" %  locals()
+    cmd = "nice time %(target)s >& %(logfile)s" %  locals ()
 
     log_file.log (cmd)
     
@@ -196,7 +196,7 @@ def send_message (options, msg):
     connection.sendmail (options.sender, options.address, msg.as_string ())
 
 def main ():
-    (options, args) = opt_parser().parse_args ()
+    (options, args) = opt_parser ().parse_args ()
 
     global log_file
     log_file = LogFile ('log/test-gub.log')
@@ -258,7 +258,7 @@ MD5 of complete patch set: %(release_hash)s
             os.system (p)
 
 def test ():
-    (options, args) = opt_parser().parse_args ()
+    (options, args) = opt_parser ().parse_args ()
 
     repo = repository.get_repository_proxy (options.repository)
     print repo.read_last_patch ()
@@ -268,5 +268,5 @@ def test ():
     repo.get_diff_from_tag ('testje2')
 
 if __name__ == '__main__':    
-#    test()
-    main()
+#    test ()
+    main ()
