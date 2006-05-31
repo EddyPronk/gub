@@ -206,7 +206,9 @@ doc-update:
 	rm -f target/$(BUILD_PLATFORM)/status/lilypond*
 
 NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_BRANCH)
-NATIVE_ROOT=$(NATIVE_TARGET_DIR)/installer-$(LILYPOND_BRANCH)/
+
+## no trailing slash!
+NATIVE_ROOT=$(NATIVE_TARGET_DIR)/installer-$(LILYPOND_BRANCH)
 
 doc: doc-build
 
@@ -220,7 +222,7 @@ unlocked-doc-build:
 	    -cjf $(CWD)/uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).documentation.tar.bz2 . 
 
 doc-build:
-	$(PYTHON) test-lily/with-lock.py --skip $(NATIVE_LILY_BUILD)/doc-lock $(MAKE) unlocked-doc-build 
+	$(PYTHON) test-lily/with-lock.py --skip $(NATIVE_ROOT).lock $(MAKE) unlocked-doc-build 
 
 bootstrap:
 	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local download flex mftrace potrace fontforge \

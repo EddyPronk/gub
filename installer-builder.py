@@ -59,12 +59,10 @@ package - build installer binary
 def build_installer (installer, args):
     settings = installer.settings
     
-    installer.system ('rm -rf %(installer_root)s')
-    installer.system ('rm -rf %(installer_db)s')
-    
     install_manager = gup.DependencyManager (installer.expand ('%(installer_root)s'),
                                              settings.os_interface,
-                                             dbdir=installer.expand ('%(installer_db)s'))
+                                             dbdir=installer.expand ('%(installer_db)s'),
+                                             clean=True)
     
     install_manager.include_build_deps = False
     install_manager.read_package_headers (installer.expand ('%(gub_uploads)s'), settings.lilypond_branch)
