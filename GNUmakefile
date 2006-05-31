@@ -149,9 +149,8 @@ realclean:
 TAGS: $(sources)
 	etags $^
 
-release-test:
-	$(foreach p,$(PLATFORMS), $(PYTHON) test-lily/test-gub-build.py uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).$(p) && ) true
-
+################################################################
+# compilers and tools
 
 distccd: clean-distccd cross-compilers cross-distccd native-distccd local-distcc
 
@@ -191,19 +190,26 @@ native-distccd:
 		$(addprefix --allow ,$(GUB_DISTCC_ALLOW_HOSTS)) \
 		--port 3634 --pid-file $(CWD)/log/$@.pid \
 		--log-file $(CWD)/log/$@.log  --log-level info
+bootstrap:
+	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local download flex mftrace potrace fontforge \
+	   guile pkg-config nsis icoutils fontconfig expat gettext \
+	   distcc texinfo
+	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local build \
+		flex mftrace potrace fontforge \
+		guile pkg-config fontconfig expat icoutils glib \
+		distcc texinfo 
+	$(MAKE) cross-compilers
+	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local build nsis 
+	$(MAKE) download
 
+
+################################################################
+# docs
 doc-clean:
-	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_BRANCH) \
-		DOCUMENTATION=yes web-clean
+	$(PYTHON) test-lily/with-lock.py --skip $(NATIVE_ROOT).lock $(MAKE) unlocked-doc-clean
 
-doc-update:
-	$(PYTHON) gub-builder.py --branch $(LILYPOND_BRANCH) \
-		-p $(BUILD_PLATFORM) download lilypond
-	$(PYTHON) gup-manager.py --branch $(LILYPOND_BRANCH) \
-		-p $(BUILD_PLATFORM) remove lilypond
-	$(PYTHON) gub-builder.py --branch $(LILYPOND_BRANCH) \
-		-p $(BUILD_PLATFORM) --stage untar build lilypond
-	rm -f target/$(BUILD_PLATFORM)/status/lilypond*
+doc-build:
+	$(PYTHON) test-lily/with-lock.py --skip $(NATIVE_ROOT).lock $(MAKE) unlocked-doc-build 
 
 NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_BRANCH)
 
@@ -211,6 +217,10 @@ NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_BRANCH)
 NATIVE_ROOT=$(NATIVE_TARGET_DIR)/installer-$(LILYPOND_BRANCH)
 
 doc: doc-build
+
+unlocked-doc-clean:
+	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_BRANCH) \
+		DOCUMENTATION=yes web-clean
 
 unlocked-doc-build:
 	unset LILYPONDPREFIX \
@@ -221,17 +231,3 @@ unlocked-doc-build:
 	tar -C $(NATIVE_LILY_BUILD)/out-www/web-root/ \
 	    -cjf $(CWD)/uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).documentation.tar.bz2 . 
 
-doc-build:
-	$(PYTHON) test-lily/with-lock.py --skip $(NATIVE_ROOT).lock $(MAKE) unlocked-doc-build 
-
-bootstrap:
-	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local download flex mftrace potrace fontforge \
-	   guile pkg-config nsis icoutils fontconfig expat gettext \
-	   distcc texinfo
-	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local build \
-		flex mftrace potrace fontforge \
-		guile pkg-config fontconfig expat icoutils glib \
-		distcc texinfo
-	$(MAKE) cross-compilers
-	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local build nsis 
-	$(MAKE) download
