@@ -130,6 +130,9 @@ class BuildSpec (Os_context_wrapper):
         if (os.path.exists (timestamp_file)
             and misc.file_mod_time (timestamp_file) > time.time () - time_window):
             return
+
+        ## TODO: should use locking.
+        open (timestamp_file, 'w').write ('changed')
         
         url = self.expand (self.url)
         if not os.path.exists (cvs_dest):
@@ -140,8 +143,6 @@ cd %(downloaddir)s && cvs -d %(url)s -q co -d %(dir)s -r %(version)s %(name)s
             self.system ('''
 cd %(cvs_dest)s && cvs -q update -dAPr %(version)s
 ''', locals ())
-
-        open (timestamp_file, 'w').write ('changed')
 
         self.touch_cvs_checksum (cvs_dest)
 
