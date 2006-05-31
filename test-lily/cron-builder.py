@@ -144,33 +144,18 @@ def main ():
                       % (build_str, version_str, opts.branch, p) for p in args]
 
        
-    lock_file_name = 'target/%s/doc-build-lock' % build_platform
-    if not os.path.exists (lock_file_name):
-        open (lock_file_name, 'w').write ('')
 
-    lock_file = open (lock_file_name, 'r')
     if opts.build_docs:
-        try:
-            fcntl.flock (lock_file.fileno (),
-                         fcntl.LOCK_EX | fcntl.LOCK_NB)
-
-            args = args + ['doc']
-            test_cmds += [make_cmd + 'doc-build',
-                          python_cmd + 'test-lily/rsync-lily-doc.py '
-                          '--recreate '
-                          '--output-distance %s/scripts/output-distance.py '
-                          ' %s/out-www/web-root ' % (lily_src_dir, lily_build_dir)]
+        args = args + ['doc']
+        test_cmds += [make_cmd + 'doc-build',
+                      python_cmd + 'test-lily/rsync-lily-doc.py '
+                      '--recreate '
+                      '--output-distance %s/scripts/output-distance.py '
+                      ' %s/out-www/web-root ' % (lily_src_dir, lily_build_dir)]
             
-        except IOError:
-            print "Can't acquire lock %s, not building docs." % lock_file_name
-            opts.build_docs = False
 
     system (python_cmd + 'test-gub.py %s %s '
             % (opts.test_options, ' '.join (["'%s'" % c for c in test_cmds])))
-
-    
-    if opts.build_docs:
-        fcntl.flock (lock_file.fileno(), fcntl.LOCK_UN)
 
     if opts.build_docs and not opts.clean:
 
