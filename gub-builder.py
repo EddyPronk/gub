@@ -5,6 +5,7 @@ import os
 import re
 import string
 import sys
+import inspect
 
 sys.path.insert (0, 'lib/')
 
@@ -110,8 +111,59 @@ def checksums_valid (manager, specname, spec_object_dict):
 
     return valid
 
+def run_one_builder (options, spec_obj):
+    available = dict (inspect.getmembers (spec_obj, callable))
+    if options.stage:
+        (available[options.stage]) ()
+        return
 
-def run_builder (settings, manager, names, spec_object_dict):
+    stages = ['untar', 'patch',
+              'configure', 'compile', 'install', 
+              'src_package', 'package', 'clean']
+
+    if not options.build_source:
+        stages.remove ('src_package')
+
+    tainted = False
+    for stage in stages:
+        if (not available.has_key (stage)):
+            continue
+
+        if spec_obj.is_done (stage, stages.index (stage)):
+            tainted = True
+            continue
+
+        spec_obj.os_interface.log_command (' *** Stage: %s (%s)\n'
+                       % (stage, spec_obj.name ()))
+
+        if stage == 'package' and tainted and not options.force_package:
+            msg = spec_obj.expand ('''Compile was continued from previous run.
+Will not package.
+Use
+
+rm %(stamp_file)s
+
+to force rebuild, or
+
+--force-package
+
+to skip this check.
+''')
+            spec_obj.os_interface.log_command (msg)
+            raise 'abort'
+
+
+        if (stage == 'clean'
+            and options.keep_build):
+            os.unlink (spec_obj.get_stamp_file ())
+            continue
+
+        (available[stage]) ()
+
+        if stage != 'clean':
+            spec_obj.set_done (stage, stages.index (stage))
+    
+def run_builder (options, settings, manager, names, spec_object_dict):
     PATH = os.environ['PATH']
 
     ## crossprefix is also necessary for building cross packages, such as GCC
@@ -124,14 +176,14 @@ def run_builder (settings, manager, names, spec_object_dict):
                   if isinstance (p, cross.CrossToolSpec)]
 
     extra_build_deps = [p.name () for p in sdk_pkgs + cross_pkgs]
-    if not settings.options.stage:
+    if not options.stage:
         
         reved = names[:]
         reved.reverse ()
         for spec_name in reved:
             spec = spec_object_dict[spec_name]
             
-            checksum_ok = (settings.options.lax_checksums
+            checksum_ok = (options.lax_checksums
                            or checksums_valid (manager, spec_name, spec_object_dict))
             for p in spec.get_packages ():
                 if (manager.is_installed (p.name ()) and
@@ -149,17 +201,17 @@ def run_builder (settings, manager, names, spec_object_dict):
         if all_installed:
             continue
         
-        checksum_ok = (settings.options.lax_checksums
+        checksum_ok = (options.lax_checksums
                        or checksums_valid (manager, spec_name, spec_object_dict))
 
         is_installable = forall(manager.is_installable (p.name ()) for p in spec.get_packages())
         
-        if (settings.options.stage
+        if (options.stage
             or not is_installable
             or not checksum_ok):
             settings.os_interface.log_command ('building package: %s\n' % spec_name)
 
-            spec.builder ()
+            run_one_builder (options, spec)
 
         for p in spec.get_packages():
             name = p.name()
@@ -231,7 +283,7 @@ def main ():
         deps = filter (spec_object_dict.has_key, package_names)
 #        deps = filter (pm.is_registered, deps)
 
-        run_builder (settings, pm, deps, spec_object_dict)
+        run_builder (options, settings, pm, deps, spec_object_dict)
     else:
         raise 'unknown gub-builder command %s.' % c
         cli_parser.print_help ()

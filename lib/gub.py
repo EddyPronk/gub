@@ -100,59 +100,7 @@ class BuildSpec (Os_context_wrapper):
         """subpackage -> list of dependency dict."""
         
         return {'': []}
-    
-    def builder (self):
-        available = dict (inspect.getmembers (self, callable))
-        if self.settings.options.stage:
-            (available[self.settings.options.stage]) ()
-            return
-
-        stages = ['untar', 'patch',
-                  'configure', 'compile', 'install', 
-                  'src_package', 'package', 'clean']
-
-        if not self.settings.build_source:
-            stages.remove ('src_package')
-
-        tainted = False
-        for stage in stages:
-            if (not available.has_key (stage)):
-                continue
-
-            if self.is_done (stage, stages.index (stage)):
-                tainted = True
-                continue
-
-            self.os_interface.log_command (' *** Stage: %s (%s)\n'
-                           % (stage, self.name ()))
-
-            if stage == 'package' and tainted and not self.settings.options.force_package:
-                msg = self.expand ('''Compile was continued from previous run.
-Will not package.
-Use
-
- rm %(stamp_file)s
-
-to force rebuild, or
-
- --force-package
-
-to skip this check.
-''')
-                self.os_interface.log_command (msg)
-                raise 'abort'
-
-
-            if (stage == 'clean'
-              and self.settings.options.keep_build):
-                os.unlink (self.get_stamp_file ())
-                continue
-
-            (available[stage]) ()
-
-            if stage != 'clean':
-                self.set_done (stage, stages.index (stage))
-
+  
     def broken_for_distcc (self):
         """Set to true if package can't handle make -jX """
         return False
