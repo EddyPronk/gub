@@ -143,14 +143,12 @@ def main ():
         test_cmds += [python_cmd + 'installer-builder.py -b %s -v %s --branch %s -p %s build-all lilypond '
                       % (build_str, version_str, opts.branch, p) for p in args]
 
-       
-
     if opts.build_docs:
         args = args + ['doc']
         test_cmds += [make_cmd + 'doc-build',
                       python_cmd + 'test-lily/rsync-lily-doc.py '
                       '--recreate '
-                      '--output-distance %s/scripts/output-distance.py '
+                      '--output-distance %s/buildscripts/output-distance.py '
                       ' %s/out-www/web-root ' % (lily_src_dir, lily_build_dir)]
             
 

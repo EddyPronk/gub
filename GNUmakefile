@@ -208,7 +208,7 @@ doc-update:
 NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_BRANCH)
 NATIVE_ROOT=$(NATIVE_TARGET_DIR)/installer-$(LILYPOND_BRANCH)/
 
-doc: $(BUILD_PLATFORM) doc-build
+doc: doc-build
 
 unlocked-doc-build:
 	unset LILYPONDPREFIX \
