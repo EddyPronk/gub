@@ -210,14 +210,17 @@ NATIVE_ROOT=$(NATIVE_TARGET_DIR)/installer-$(LILYPOND_BRANCH)/
 
 doc: $(BUILD_PLATFORM) doc-build
 
-doc-build:
+unlocked-doc-build:
 	unset LILYPONDPREFIX \
-	  && make -C $(NATIVE_LILY_BUILD) \
-	  LILYPOND_EXTERNAL_BINARY="$(NATIVE_ROOT)/usr/bin/lilypond"\
-	  PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
-	  DOCUMENTATION=yes web 
+	    && make -C $(NATIVE_LILY_BUILD) \
+	    LILYPOND_EXTERNAL_BINARY="$(NATIVE_ROOT)/usr/bin/lilypond"\
+	    PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
+	    DOCUMENTATION=yes web
 	tar -C $(NATIVE_LILY_BUILD)/out-www/web-root/ \
-		-cjf $(CWD)/uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).documentation.tar.bz2 .
+	    -cjf $(CWD)/uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).documentation.tar.bz2 . 
+
+doc-build:
+	$(PYTHON) test-lily/with-lock.py --skip $(NATIVE_LILY_BUILD)/doc-lock $(MAKE) unlocked-doc-build 
 
 bootstrap:
 	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local download flex mftrace potrace fontforge \
