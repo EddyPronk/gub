@@ -66,12 +66,13 @@ def result_message (parts, subject='') :
     return msg
 
 def opt_parser ():
-    try:
+    if os.environ.has_key ('EMAIL'):
         address = os.environ['EMAIL']
-    except KeyError:
-        address = '%s@localhost' % os.getlogin()
-
-
+    else:
+        try:
+            address = '%s@localhost' % os.getlogin()
+        except OSError:
+            address = 'root@localhost'
     
     p = optparse.OptionParser(usage="test-gub.py [options] command command ... ")
     p.add_option ('-t', '--to',
