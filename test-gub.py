@@ -29,6 +29,20 @@ def canonicalize_target (target):
     canonicalize = re.sub ('[^a-zA-Z0-9-]+', '_', canonicalize)
     return canonicalize
 
+class LogFile:
+    def __init__ (self, name):
+        self.file = open (name, 'a')
+        self.prefix = 'test-gub.py[%d]: ' % os.getpid ()
+
+    def log (self, msg):
+        self.file.write ('%s%s\n' % (self.prefix, msg))
+        self.file.flush ()
+        
+    def __del__ (self):
+        self.log ('finished')
+
+log_file = None
+
 ################################################################
 #
 
@@ -122,7 +136,7 @@ def test_target (repo, options, target, last_patch):
 
     db_file_name = 'test-done-%s.db' % canonicalize
     if repo.try_checked_before (release_hash, db_file_name):
-        print 'release has already been checked: ', release_hash 
+        log_file.log ('release has already been checked in %s ' % db_file_name)
         return None
 
     logfile = 'test-%(canonicalize)s.log' %  locals()
@@ -130,7 +144,8 @@ def test_target (repo, options, target, last_patch):
     
     cmd = "nice time %(target)s >& %(logfile)s" %  locals()
 
-    print 'starting : ', cmd
+    log_file.log (cmd)
+    
     stat = os.system (cmd)
     base_tag = 'success-%(canonicalize)s-' % locals ()
 
@@ -148,6 +163,9 @@ def test_target (repo, options, target, last_patch):
     else:
         tag = base_tag + canonicalize_target (last_patch['date'])
         repo.tag (tag)
+
+        log_file.log ('tagging with %s' % tag)
+        
         if options.tag_repo:
             repo.push (tag, options.tag_repo)
             
@@ -156,11 +174,15 @@ def test_target (repo, options, target, last_patch):
                        % (target,
                           '\n'.join (body[-10:]))]
 
+    log_file.log ('%s: %s' % (target, result))
+    
     repo.set_checked_before (release_hash, db_file_name)
     return (result, attachments)
     
 def send_message (options, msg):
-    print 'sending message.'
+    if not options.address:
+        log_file.log ('No recipients for result mail')
+        return
     
     COMMASPACE = ', '
     msg['From'] = options.sender
@@ -175,7 +197,15 @@ def send_message (options, msg):
 def main ():
     (options, args) = opt_parser().parse_args ()
 
+    global log_file
+    log_file = LogFile ('log/test-gub.log')
+    log_file.log (' *** Starting tests:\n  %s' % '\n  '.join (args))
+
+
+
     repo = repository.get_repository_proxy (options.repository)
+    log_file.log ("Repository %s" % str (repo))
+    
     last_patch = repo.read_last_patch ()
     
     release_hash = repo.get_release_hash ()
@@ -190,6 +220,8 @@ MD5 of complete patch set: %(release_hash)s
 
 ''' % last_patch
 
+
+    summary_body = '\n\n'
     results = {}
     failures = 0
     for a in args:
@@ -197,24 +229,21 @@ MD5 of complete patch set: %(release_hash)s
         if not result_tup:
             continue
 
+        (result, atts) = result_tup
+
         results[a] = result_tup
         
-        (r, atts) = result_tup
-        success = r.startswith ('SUCCESS')
+        success = result.startswith ('SUCCESS')
         if not success:
             failures += 1
 
         if not (options.be_quiet and success):
-            msg = result_message (atts, subject="Autotester: %s %s" % (r, a))
+            msg = result_message (atts, subject="Autotester: %s %s" % (result, a))
             send_message (options, msg)
 
-        if not success and options.is_dependent:
-            break
+        summary_body += '%s\n  %s'  % (a, result)
 
-    main = '\n\n' + '\n'.join (['%s\n  %s' % (a, results[a][0])
-                                for a in args])
-
-    msg_body = [main, release_id]
+    msg_body = [summary_body, release_id]
     msg = result_message (msg_body, subject="Autotester: summary")
 
     if (results

@@ -31,7 +31,7 @@ class KeyCollision (Exception):
 
 class Repository:
     def __init__ (self, dir, repo_admin_dir):
-        self.repodir = dir
+        self.repo_dir = dir
         self.repo_admin_dir = repo_admin_dir
         self.test_dir = os.path.join (self.repo_admin_dir, 'test-results')
         self._databases = {}
@@ -39,12 +39,15 @@ class Repository:
         if not os.path.isdir (self.test_dir):
             os.makedirs (self.test_dir)
 
+    def __repr__ (self):
+        return '%s: %s' % (self.__class__.__name__, self.repo_dir)
+    
+
     def get_db (self, name):
         try:
             return self._databases[name]
         except KeyError:
             db_file = os.path.join (self.test_dir, name)
-            print 'Using database ', db_file
             db = dbhash.open (db_file, 'c')
             self._databases[name] = db
             
@@ -90,8 +93,8 @@ class DarcsRepository (Repository):
 
     def base_command (self, subcmd):
         repo_opt = ""
-        if self.repodir <> '.':
-            repo_opt = "cd %s && " % self.repodir
+        if self.repo_dir <> '.':
+            repo_opt = "cd %s && " % self.repo_dir
             
         return '%sdarcs %s ' % (repo_opt, subcmd)
     
@@ -153,7 +156,6 @@ class CVSRepository (Repository):
         self.read_cvs_entries ()
         
     def read_cvs_entries (self):
-        print 'reading entries from', self.repodir
         checksum = md5.md5()
 
         latest_stamp = 0
@@ -175,8 +177,6 @@ class CVSRepository (Repository):
         if self.tag_db.has_key (name):
             raise KeyCollision ("DB already has key " + name)
 
-        print 'tagging db with %s' % name
-        
         tup = time.gmtime (self.time_stamp)
         val = time.strftime (self.tag_dateformat, tup)
         self.tag_db[name] = val
@@ -185,7 +185,7 @@ class CVSRepository (Repository):
         date = self.tag_db [name]
         date = date.replace ('/', '')
         
-        cmd = 'cd %s && cvs diff -uD "%s" ' % (self.repodir, date)
+        cmd = 'cd %s && cvs diff -uD "%s" ' % (self.repo_dir, date)
         return 'diff from %s\n%s:\n' % (name, cmd) + read_pipe (cmd, ignore_error=True)
 
     def get_diff_from_tag (self, name):
@@ -204,17 +204,17 @@ class CVSRepository (Repository):
         d['date'] = time.strftime (self.tag_dateformat, time.gmtime (self.time_stamp))
         d['release_hash'] = self.version_checksum
         
-        for (name, version, date, dontknow) in self.cvs_entries (self.repodir + '/CVS'):
+        for (name, version, date, dontknow) in self.cvs_entries (self.repo_dir + '/CVS'):
             if name == 'ChangeLog':
                 d['name']  = version
                 break
 
-        d['patch_contents'] = read_changelog (self.repodir + '/ChangeLog')[0]
+        d['patch_contents'] = read_changelog (self.repo_dir + '/ChangeLog')[0]
         return d
         
     def cvs_dirs (self):
         retval =  []
-        for (base, dirs, files) in os.walk (self.repodir):
+        for (base, dirs, files) in os.walk (self.repo_dir):
             retval += [os.path.join (base, d) for d in dirs
                        if d == 'CVS']
             
