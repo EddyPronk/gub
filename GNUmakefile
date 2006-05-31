@@ -222,11 +222,11 @@ doc-build:
 bootstrap:
 	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local download flex mftrace potrace fontforge \
 	   guile pkg-config nsis icoutils fontconfig expat gettext \
-	   distcc 
+	   distcc texinfo
 	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local build \
 		flex mftrace potrace fontforge \
 		guile pkg-config fontconfig expat icoutils glib \
-		distcc 
+		distcc texinfo
 	$(MAKE) cross-compilers
 	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local build nsis 
 	$(MAKE) download
