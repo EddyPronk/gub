@@ -78,10 +78,10 @@ class Settings (Context):
             os.mkdir ('log')
             
         self.os_interface = oslog.Os_commands ('log/build-%s.log'
-                           % self.target_architecture)
+                                               % self.target_architecture)
         self.create_dirs ()
         self.build_architecture = self.os_interface.read_pipe ('gcc -dumpmachine',
-                            silent=True)[:-1]
+                                                               silent=True)[:-1]
 
         
     def verbose (self):
@@ -111,15 +111,6 @@ class Settings (Context):
 
             self.os_interface.system ('mkdir -p %s' % dir)
 
-
-    def add_options (settings, options):
-        settings.options = options
-
-        for a in ['lilypond_branch',  'build_source']:
-            try:
-                settings.__dict__[a] = options.__dict__[a]
-            except KeyError:
-                pass
 
     def set_distcc_hosts (self, options):
         def hosts (xs):

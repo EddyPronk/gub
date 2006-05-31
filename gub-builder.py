@@ -181,7 +181,9 @@ def main ():
         sys.exit (2)
 
     settings = settings_mod.get_settings (options.platform)
-    settings.add_options (options)
+    settings.lilypond_branch = options.lilypond_branch
+    settings.build_source = options.build_source
+    
     settings.set_distcc_hosts (options)
 
     c = commands.pop (0)
