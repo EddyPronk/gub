@@ -111,7 +111,6 @@ class BuildSpec (Os_context_wrapper):
         
         name = self.expand ('%(downloaddir)s/%(file_name)s')
         return os.path.exists (name)
-
     
     def wget (self):
         if not self.is_downloaded ():
@@ -143,6 +142,9 @@ cd %(downloaddir)s && cvs -d %(url)s -q co -d %(dir)s -r %(version)s %(name)s
             self.system ('''
 cd %(cvs_dest)s && cvs -q update -dAPr %(version)s
 ''', locals ())
+
+        ## again: cvs up can take a long time.
+        open (timestamp_file, 'w').write ('changed')
 
         self.touch_cvs_checksum (cvs_dest)
 
