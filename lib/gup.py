@@ -26,26 +26,30 @@ class FileManager:
 
     """FileManager handles a tree, and keeps track of files,
     associating files with a package name"""
-    
-    def __init__ (self, root, os_interface, dbdir=None):
-        self.root = root
+
+
+    def make_dirs (self):
+        if not os.path.isdir (self.config):
+            self.os_interface.system ('mkdir -p %s' % self.config)
+        if not os.path.isdir (self.root):
+            self.os_interface.system ('mkdir -p %s' % self.root)
+        
+    def __init__ (self, root, os_interface, dbdir=None, clean=False):
+        self.root = os.path.normpath (root)
         if dbdir:
             self.config = dbdir
         else:
             self.config = self.root + '/etc/gup/'
-            
+
+        self.config = os.path.normpath (self.config)
         self.os_interface = os_interface
         self.verbose = True
         self.is_distro = False
 
-        if not os.path.isdir (self.config):
-            os_interface.system ('mkdir -p %s' % self.config)
-        if not os.path.isdir (self.root):
-            os_interface.system ('mkdir -p %s' % self.root)
-
-        lock_file_name = self.config + 'lock'
+        ## lock must be outside of root, otherwise we can't rm -rf root 
+        lock_file_name = self.root + '.lock'
         self._lock_file = open (lock_file_name, 'w')
-
+        
         ## should only del if locking was successful
         self.lock_file_name = None
 
@@ -57,16 +61,22 @@ class FileManager:
             e = LockError("Can't acquire PackageManager lock %s\n\nAbort\n" % lock_file_name)
             raise e
 
+        if clean:
+            os_interface.system ('rm -fr %s' % self.config)
+            os_interface.system ('rm -fr %s' % self.root)
+            
+        self.make_dirs ()
         self._file_package_db = dbmodule.open (self.config
                            + '/files.db', 'c')
         self._package_file_db = dbmodule.open (self.config
                            + '/packages.db', 'c')
 
     def __del__ (self):
-        if self._lock_file:
-            self._lock_file.close ()
         if self.lock_file_name:
             os.unlink (self.lock_file_name)
+        if self._lock_file:
+            fcntl.flock (self._lock_file.fileno (), fcntl.LOCK_UN)
+            self._lock_file.close ()
         
     def __repr__ (self):
         name = self.__class__.__name__
@@ -172,8 +182,8 @@ class PackageManager (FileManager):
     """
 
     
-    def __init__ (self, root, os_interface, dbdir=None):
-        FileManager.__init__ (self, root, os_interface, dbdir)
+    def __init__ (self, root, os_interface, **kwargs):
+        FileManager.__init__ (self, root, os_interface, **kwargs)
 
         self._package_dict_db = dbmodule.open (self.config
                            + '/dicts.db', 'c')
@@ -267,8 +277,8 @@ class DependencyManager (PackageManager):
     """Manage packages that have dependencies and
     build_dependencies in their package dicts"""
 
-    def __init__ (self, root, os_interface, dbdir=None):
-        PackageManager.__init__ (self, root, os_interface, dbdir)
+    def __init__ (self, root, os_interface, **kwargs):
+        PackageManager.__init__ (self, root, os_interface, **kwargs)
         self.include_build_deps = True
 
     def dependencies (self, name):
