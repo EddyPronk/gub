@@ -210,9 +210,9 @@ MD5 of complete patch set: %(release_hash)s
 
         if not success and options.is_dependent:
             break
-        
-    main = '\n\n' + '\n'.join (['%s\n  %s' % (target, res)
-             for (target, (res, atts)) in results.items ()])
+
+    main = '\n\n' + '\n'.join (['%s\n  %s' % (a, results[a][0])
+                                for a in args])
 
     msg_body = [main, release_id]
     msg = result_message (msg_body, subject="Autotester: summary")

@@ -162,7 +162,7 @@ class Darwin_bundle (Installer):
         rw.set_ignore_libs (pm)
         osx_lilypad_version = pm.package_dict ('osx-lilypad')['version']
         
-        rw.rewire_root (self.settings.installer_root)
+        rw.rewire_root (self.expand ('%(installer_root)s'))
 
         bundle_zip = self.expand ('%(uploads)s/lilypond-%(installer_version)s-%(installer_build)s.%(platform)s.tar.bz2')
         self.system ('''

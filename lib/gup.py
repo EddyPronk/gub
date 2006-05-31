@@ -54,15 +54,15 @@ class FileManager:
                          fcntl.LOCK_EX | fcntl.LOCK_NB)
             self.lock_file_name = lock_file_name
         except IOError:
-            e = LockError("Can't acquire PackageManager lock %s\n\nAbort\n" % self.lock_file_name)
+            e = LockError("Can't acquire PackageManager lock %s\n\nAbort\n" % lock_file_name)
             raise e
 
         self._file_package_db = dbmodule.open (self.config
                            + '/files.db', 'c')
         self._package_file_db = dbmodule.open (self.config
                            + '/packages.db', 'c')
-    def __del__ (self):
 
+    def __del__ (self):
         if self._lock_file:
             self._lock_file.close ()
         if self.lock_file_name:
