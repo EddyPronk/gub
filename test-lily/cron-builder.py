@@ -140,7 +140,7 @@ def main ():
         version_str = ('%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s'
                        % read_make_vars ('downloads/lilypond-%s/VERSION' % opts.branch))
 
-        test_cmds += [python_cmd + 'installer-builder.py -b %s -v %s --branch %s -p %s build-all lilypond '
+        test_cmds += [python_cmd + 'installer-builder.py --skip-if-locked -b %s -v %s --branch %s -p %s build-all lilypond '
                       % (build_str, version_str, opts.branch, p) for p in args]
 
     if opts.build_docs:
