@@ -96,25 +96,22 @@ def strip_installer (obj):
     obj.strip ()
 
 def package_installer (installer):
-    installer.log_command (' *** Stage: %s (%s)\n'
-                           % ('create', installer.name ()))
     installer.create ()
         
-def installer_command (c, settings, args):
-
-
+def run_installer_commands (commands, settings, args):
     installer_obj = installer.get_installer (settings, args)
+    for c in commands:
+        installer_obj.log_command (' *** Stage: %s (%s)\n'
+                                   % (c, installer_obj.name ()))
     
-    if c in ('build', 'build-all'):
-        build_installer (installer_obj, args)
-        if c=='build':
-            return
-    
-    if c in ('strip', 'build-all'):
-        strip_installer (installer_obj)
-
-    if c in ('build-all', 'package'):
-        package_installer (installer_obj)
+        if c == ('build'):
+            build_installer (installer_obj, args)
+        elif c == ('strip'):
+            strip_installer (installer_obj)
+        elif c == ('package'):
+            package_installer (installer_obj)
+        else:
+            raise  Exception ('unknown installer command', c)
 
 
 def main ():
@@ -139,10 +136,10 @@ def main ():
     PATH = os.environ['PATH']
     os.environ['PATH'] = settings.expand ('%(buildtools)s/bin:' + PATH)
 
-    if c in ('clean', 'build', 'strip', 'package', 'build-all'):
-        installer_command (c, settings, commands)
-    else:
-        raise  Exception ('unknown installer command', c)
+    cs = [c]
+    if c == 'build-all':
+        cs = ['build', 'strip', 'package']
+    run_installer_commands (cs, settings, commands)
 
 if __name__ == '__main__':
     main ()

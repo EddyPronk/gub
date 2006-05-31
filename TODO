@@ -1,8 +1,6 @@
 
 lagere prioriteit
 
-- create installer_root by copying system_root ?
-
 - move patches upstream, eg.
 
   * libpng
@@ -15,12 +13,15 @@ lagere prioriteit
 
 - update packages: 
 
+- split gcc -> gcc-runtime/gcc-cross
+
 - Python: should compile .pyc with matching local python version.
 => add to local packages.
 
 - Group spec/patch/source files by package
 
 - gcc 4.1 for linux
+
 - strip lily specific stuff from installer.py 
 
 - Bugfixes:
