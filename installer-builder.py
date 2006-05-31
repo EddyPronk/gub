@@ -33,6 +33,12 @@ package - build installer binary
                   help='select lilypond branch [HEAD]',
                   choices=['lilypond_2_6', 'lilypond_2_8', 'HEAD'])
     
+    p.add_option ('-l', '--skip-if-locked',
+                  default=False,
+                  dest="skip_if_locked",
+                  action="store_true",
+                  help="Return successfully if another build is already running")
+
     p.add_option ('-v', '--installer-version', action='store',
                   default='0.0.0',
                   dest='installer_version')
@@ -139,7 +145,13 @@ def main ():
     cs = [c]
     if c == 'build-all':
         cs = ['build', 'strip', 'package']
-    run_installer_commands (cs, settings, commands)
+    try:
+        run_installer_commands (cs, settings, commands)
+    except gup.LockError:
+        if options.skip_if_locked:
+            print 'skipping build; install_root is locked'
+            sys.exit (0)
+        raise
 
 if __name__ == '__main__':
     main ()
