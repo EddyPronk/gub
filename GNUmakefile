@@ -206,7 +206,7 @@ doc-update:
 	rm -f target/$(BUILD_PLATFORM)/status/lilypond*
 
 NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_BRANCH)
-NATIVE_ROOT=$(NATIVE_TARGET_DIR)/installer/
+NATIVE_ROOT=$(NATIVE_TARGET_DIR)/installer-$(LILYPOND_BRANCH)/
 
 doc: $(BUILD_PLATFORM) doc-build
 

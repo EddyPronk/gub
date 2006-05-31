@@ -14,12 +14,19 @@ class Installer (context.Os_context_wrapper):
     def __init__ (self, settings):
         context.Os_context_wrapper.__init__ (self, settings)
 
+        
         self.settings = settings
         self.strip_command = '%(crossprefix)s/bin/%(target_architecture)s-strip' 
         self.no_binary_strip = []
         self.no_binary_strip_extensions = ['.la', '.py', '.def',
-                         '.scm', '.pyc']
+                                           '.scm', '.pyc']
 
+        self.installer_root = '%(targetdir)s/installer-%(lilypond_branch)s'
+        self.installer_db = '%(targetdir)s/installer-%(lilypond_branch)s-dbdir'
+        self.installer_uploads = settings.uploads
+        self.installer_version = None
+        self.installer_build = None
+      
     @context.subst_method
     def name (self):
         return 'lilypond'
@@ -387,20 +394,28 @@ tar -C %(dir)s --owner=0 --group=0 -jcf %(cygwin_uploads)s/%(base_name)s/%(ball_
         self.strip_binary_dir ('%(installer_root)s/usr/bin')
         self.system ('gzip %(installer_root)s/usr/share/info/*')
 
-def get_installers (settings, args=[]):
+def get_installer (settings, args=[]):
 
     ## UGH : creating 6 instances of installer ?!
     installers = {
-        'arm' : [Shar (settings)],
-        'darwin-ppc' : [Darwin_bundle (settings)],
-        'darwin-x86' : [Darwin_bundle (settings)],
-        'freebsd' : [Shar (settings)],
-        'linux' : [Shar (settings)],
-        'mingw' : [Nsis (settings)],
+        'arm' : Shar (settings),
+        'darwin-ppc' : Darwin_bundle (settings),
+        'darwin-x86' : Darwin_bundle (settings),
+        'freebsd' : Shar (settings),
+        'linux' : Shar (settings),
+        'mingw' : Nsis (settings),
     }
 
     if settings.platform == 'cygwin':
+        ##
+        ## FIXME: should have distinction between
+        ##
+        ## Installer_builder (platform specific, 1 per platform)
+        ## and Installer_packager (nsis, shar; more per platform)
+        ## 
+        
+        return None
         return map (lambda x:
-              Cygwin_package (settings, x), args)
+                    Cygwin_package (settings, x), args)
     
     return installers[settings.platform]

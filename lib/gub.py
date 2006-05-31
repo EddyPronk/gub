@@ -287,7 +287,7 @@ cd %(cvs_dest)s && cvs -q update -dAPr %(version)s
 
     @subst_method
     def install_root (self):
-        return self.settings.installdir + "/" + self.name () + '-root'
+        return '%(installdir)s/%(name)s-%(version)s-root'
 
     @subst_method
     def install_prefix (self):

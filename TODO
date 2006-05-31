@@ -32,6 +32,4 @@ lagere prioriteit
 - better branch separation:
   separate dirs for
 
-   * targetroot 
-   * installer
-   * install_root
+   * targetroot ?

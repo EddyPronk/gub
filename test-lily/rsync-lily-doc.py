@@ -34,6 +34,7 @@ def parse_options ():
     (opts, args) = p.parse_args ()
 
     opts.unpack_dir = os.path.abspath (opts.unpack_dir)
+    opts.output_distance_script = os.path.abspath (opts.output_distance_script)
 
     if not args:
         p.print_help()

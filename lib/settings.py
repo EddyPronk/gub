@@ -66,14 +66,7 @@ class Settings (Context):
         self.cross_distcc_bindir = self.topdir + '/target/cross-distcc/bin/'
         self.native_distcc_bindir = self.topdir + '/target/native-distcc/bin/'
         
-        # INSTALLERS
-        self.installer_root = self.targetdir + '/installer'
-        self.installer_db = self.targetdir + '/installerdb'
-        ##self.installer_uploads = self.targetdir + '/uploads'
-        self.installer_uploads = self.uploads
-        self.installer_version = None
-        self.installer_build = None
-        
+      
         self.package_arch = re.sub ('-.*', '', self.target_architecture)
         self.package_arch = re.sub ('i[0-9]86', 'i386', self.package_arch)
         
@@ -103,7 +96,6 @@ class Settings (Context):
             'logdir',
             'gub_uploads',
             'gub_cross_uploads',
-            'installer_uploads',
             'specdir',
             'allsrcdir',
             'statusdir',
@@ -123,8 +115,7 @@ class Settings (Context):
     def add_options (settings, options):
         settings.options = options
 
-        for a in ['lilypond_branch', 'installer_version',
-                  'installer_build', 'build_source']:
+        for a in ['lilypond_branch',  'build_source']:
             try:
                 settings.__dict__[a] = options.__dict__[a]
             except KeyError:

@@ -50,16 +50,21 @@ package - build installer binary
     return p
 
 
-def build_installer (settings, args):
-    settings.os_interface.system (settings.expand ('rm -rf %(installer_root)s'))
-    settings.os_interface.system (settings.expand ('rm -rf %(installer_db)s'))
+def build_installer (installer, args):
+    settings = installer.settings
     
-    install_manager = gup.DependencyManager (settings.installer_root,
+    installer.system ('rm -rf %(installer_root)s')
+    installer.system ('rm -rf %(installer_db)s')
+    
+    install_manager = gup.DependencyManager (installer.expand ('%(installer_root)s'),
                                              settings.os_interface,
-                                             dbdir=settings.installer_db)
+                                             dbdir=installer.expand ('%(installer_db)s'))
+    
     install_manager.include_build_deps = False
-    install_manager.read_package_headers (settings.gub_uploads, settings.lilypond_branch)
-    install_manager.read_package_headers (settings.gub_cross_uploads, settings.lilypond_branch)
+    install_manager.read_package_headers (installer.expand ('%(gub_uploads)s'), settings.lilypond_branch)
+    
+    ## fixme
+    #    install_manager.read_package_headers (self.expand ('%(gub_uploads)s'),  settings.lilypond_branch)
 
     def get_dep (x):
         return install_manager.dependencies (x)
@@ -68,6 +73,7 @@ def build_installer (settings, args):
                                               get_dep,
                                               None)
 
+    ## fixme: should split GCC in gcc and gcc-runtime.
     package_names += [p.name() for p in cross.get_cross_packages (settings)]
     def is_sdk (x):
         try:
@@ -84,32 +90,31 @@ def build_installer (settings, args):
         install_manager.install_package (a)
 
 
-def strip_installer (settings, installers):
-    for p in installers:
-        settings.os_interface.log_command (' ** Stage: %s (%s)\n'
-                         % ('strip', p.name ()))
-        p.strip ()
+def strip_installer (obj):
+    obj.log_command (' ** Stage: %s (%s)\n'
+                           % ('strip', obj.name ()))
+    obj.strip ()
 
-def package_installer (settings, installers):
-    for p in installers:
-        settings.os_interface.log_command (' *** Stage: %s (%s)\n'
-                         % ('create', p.name ()))
-        p.create ()
+def package_installer (installer):
+    installer.log_command (' *** Stage: %s (%s)\n'
+                           % ('create', installer.name ()))
+    installer.create ()
         
 def installer_command (c, settings, args):
+
+
+    installer_obj = installer.get_installer (settings, args)
+    
     if c in ('build', 'build-all'):
-        build_installer (settings, args)
+        build_installer (installer_obj, args)
         if c=='build':
             return
     
-    installers = installer.get_installers (settings, args)
     if c in ('strip', 'build-all'):
-        strip_installer (settings, installers)
+        strip_installer (installer_obj)
 
     if c in ('build-all', 'package'):
-        package_installer (settings, installers)
-    else:
-        raise  Exception ('unknown installer command', c)
+        package_installer (installer_obj)
 
 
 def main ():
@@ -122,8 +127,10 @@ def main ():
         sys.exit (2)
 
     settings = settings_mod.get_settings (options.platform)
-    settings.add_options (options)
-
+    settings.installer_version = options.installer_version
+    settings.installer_build = options.installer_build
+    settings.lilypond_branch = options.lilypond_branch
+                  
     c = commands.pop (0)
 
     ## crossprefix is also necessary for building cross packages,
@@ -132,10 +139,10 @@ def main ():
     PATH = os.environ['PATH']
     os.environ['PATH'] = settings.expand ('%(buildtools)s/bin:' + PATH)
 
-    print c
     if c in ('clean', 'build', 'strip', 'package', 'build-all'):
         installer_command (c, settings, commands)
-        return
+    else:
+        raise  Exception ('unknown installer command', c)
 
 if __name__ == '__main__':
     main ()
