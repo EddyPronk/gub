@@ -83,7 +83,7 @@ def create_local_web_dir (options, source):
     system ('mkdir -p %s' % dir)
     os.chdir (dir)
     
-    system ('rsync -a %s/ . ' % source)
+    system ('rsync -Wa %s/ . ' % source)
     system ('chmod -R g+w . ' )
     system ('chgrp -R lilypond . ' )
     system ('chmod 2755 `find -type d ` . ')

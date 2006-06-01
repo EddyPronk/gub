@@ -242,7 +242,7 @@ MD5 of complete patch set: %(release_hash)s
             msg = result_message (atts, subject="Autotester: %s %s" % (result, a))
             send_message (options, msg)
 
-        summary_body += '%s\n  %s'  % (a, result)
+        summary_body += '%s\n  %s\n'  % (a, result)
 
     msg_body = [summary_body, release_id]
     msg = result_message (msg_body, subject="Autotester: summary")
