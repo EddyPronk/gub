@@ -117,11 +117,11 @@ def download_url (url, dest_dir):
         raise Exception ("not a dir", dest_dir)
 
     out_filename = dest_dir + '/' + filename
+    print 'downloading', url
     try:
         output = open (out_filename, 'w')
         opener = urllib.URLopener ()
         url_stream = opener.open (url)
-        print 'downloading', url
         while True:
             contents = url_stream.read (bufsize)
             output.write (contents)
