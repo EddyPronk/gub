@@ -18,6 +18,12 @@ import repository
 ################################################################
 # utils.
 
+def system (c):
+    print c
+    if os.system (c):
+        raise Exception ('barf')
+    
+    
 def read_tail (file, amount=10240):
     f = open (file)
     f.seek (0, 2)
@@ -124,6 +130,12 @@ def opt_parser ():
                   default=[],
                   help='commands to execute after successful tests.')
 
+    p.add_option ('--test-self',
+                  action='store_true',
+                  dest='test_self',
+                  default=False,
+                  help='run a cursory self test.')
+
     p.add_option ('-s', '--smtp',
                   action='store',
                   dest='smtp',
@@ -196,15 +208,22 @@ def send_message (options, msg):
     connection = smtplib.SMTP (options.smtp)
     connection.sendmail (options.sender, options.address, msg.as_string ())
 
-def main ():
-    (options, args) = opt_parser ().parse_args ()
 
+def send_result_by_mail (options, parts, subject="Autotester result"):
+    msg = result_message (parts, subject="Autotester: summary")
+    send_message (options, msg)
+
+def print_results (options, parts, subject="Autotester result"):
+    print '\n===\n\nSUBJECT: ', subject
+    print '\n---\n'.join (parts)
+    print 'END RESULT\n=== '
+
+def real_main (options, args, handle_result):
     global log_file
+    
     log_file = LogFile ('log/test-gub.log')
-    log_file.log (' *** Starting tests:\n  %s' % '\n  '.join (args))
     log_file.log (' *** %s' % time.ctime ())
-
-
+    log_file.log (' *** Starting tests:\n  %s' % '\n  '.join (args))
 
     repo = repository.get_repository_proxy (options.repository)
     log_file.log ("Repository %s" % str (repo))
@@ -241,19 +260,17 @@ MD5 of complete patch set: %(release_hash)s
             failures += 1
 
         if not (options.be_quiet and success):
-            msg = result_message (atts, subject="Autotester: %s %s" % (result, a))
-            send_message (options, msg)
+            handle_result (options, atts, subject="Autotester: %s %s" % (result, a))
 
         summary_body += '%s\n  %s\n'  % (a, result)
 
-    msg_body = [summary_body, release_id]
-    msg = result_message (msg_body, subject="Autotester: summary")
 
     if (results
         and len (args) > 1
         and (failures > 0 or not options.be_quiet)):
         
-        send_message (options, msg)
+        handle_result (options,
+                       [summary_body, release_id], subject="Autotester: summary")
 
     if failures == 0 and results:
         for p in options.posthooks:
@@ -268,6 +285,36 @@ def test ():
 #    repository.tag ('testje21')
 #    repository.tag ('testje22')
     repo.get_diff_from_tag ('testje2')
+
+
+def test_self (options, args):
+    self_test_dir = 'test-gub-test'
+    system ('rm -rf %s ' %  self_test_dir)
+    system ('mkdir %s ' %  self_test_dir)
+    os.chdir (self_test_dir)
+    system ('mkdir log')
+    system (r"echo -e '#!/bin/sh\ntrue\n' > foo.sh")
+    system ('darcs init')
+    system ('darcs add foo.sh')
+    system ('darcs record  -am "add bla"')
+    options.repository = '.'
+    real_main (options, ['false', 'true', 'sh foo.sh'], print_results)
+
+    system (r"echo -e '#!/bin/sh\nfalse\n' > foo.sh")
+    system ('darcs record  -am "change bla"')
+    real_main (options, ['false', 'true', 'sh foo.sh'], print_results)
+    
+    
+
+def main ():
+    (options, args) = opt_parser ().parse_args ()
+
+    if options.test_self:
+        test_self (options, args)
+    else:
+        real_main (options, args, send_result_by_mail)
+    
+
 
 if __name__ == '__main__':    
 #    test ()
