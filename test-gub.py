@@ -8,6 +8,7 @@ import email.MIMEText
 import email.Message
 import email.MIMEMultipart
 import optparse
+import time
 
 sys.path.insert (0, 'lib/')
 
@@ -201,6 +202,7 @@ def main ():
     global log_file
     log_file = LogFile ('log/test-gub.log')
     log_file.log (' *** Starting tests:\n  %s' % '\n  '.join (args))
+    log_file.log (' *** %s' % time.ctime ()))
 
 
 
