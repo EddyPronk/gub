@@ -202,7 +202,7 @@ def main ():
     global log_file
     log_file = LogFile ('log/test-gub.log')
     log_file.log (' *** Starting tests:\n  %s' % '\n  '.join (args))
-    log_file.log (' *** %s' % time.ctime ()))
+    log_file.log (' *** %s' % time.ctime ())
 
 
 
