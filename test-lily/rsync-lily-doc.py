@@ -84,9 +84,6 @@ def create_local_web_dir (options, source):
     os.chdir (dir)
     
     system ('rsync -Wa %s/ . ' % source)
-    system ('chmod -R g+w . ' )
-    system ('chgrp -R lilypond . ' )
-    system ('chmod 2755 `find -type d ` . ')
 
     print 'Instrumenting for Google Analytics' 
     for f in ['Documentation/index.html',
@@ -165,6 +162,10 @@ def upload (options, source):
     version = read_version (source)
     dir = 'v%s' % '.'.join (version)
     os.chdir (dir)
+
+    system ('chmod -R g+w . ' )
+    system ('chgrp -R lilypond . ' )
+    system ('chmod 2755 `find -type d ` . ')
     branch_dir = 'v%s.%s' % (version[:2])
     system ('rsync --delete --stats --progress -pgorltvu -e ssh . %s/%s/' % (options.destination, branch_dir))
     
