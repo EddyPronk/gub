@@ -210,7 +210,7 @@ def send_message (options, msg):
 
 
 def send_result_by_mail (options, parts, subject="Autotester result"):
-    msg = result_message (parts, subject="Autotester: summary")
+    msg = result_message (parts, subject)
     send_message (options, msg)
 
 def print_results (options, parts, subject="Autotester result"):
@@ -276,17 +276,6 @@ MD5 of complete patch set: %(release_hash)s
         for p in options.posthooks:
             os.system (p)
 
-def test ():
-    (options, args) = opt_parser ().parse_args ()
-
-    repo = repository.get_repository_proxy (options.repository)
-    print repo.read_last_patch ()
-#    repository.tag ('testje')
-#    repository.tag ('testje21')
-#    repository.tag ('testje22')
-    repo.get_diff_from_tag ('testje2')
-
-
 def test_self (options, args):
     self_test_dir = 'test-gub-test'
     system ('rm -rf %s ' %  self_test_dir)
@@ -295,8 +284,9 @@ def test_self (options, args):
     system ('mkdir log')
     system (r"echo -e '#!/bin/sh\ntrue\n' > foo.sh")
     system ('darcs init')
+    system ('echo author > _darcs/prefs/author')
     system ('darcs add foo.sh')
-    system ('darcs record  -am "add bla"')
+    system ('darcs record -am "add bla"')
     options.repository = '.'
     real_main (options, ['false', 'true', 'sh foo.sh'], print_results)
 
