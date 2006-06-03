@@ -5,6 +5,8 @@ import time
 import re
 import stat
 
+from misc import SystemFailed
+
 def now ():
     return time.asctime (time.localtime ())
 
@@ -39,7 +41,8 @@ Encapsulate OS/File system commands for proper logging.
         if stat and not ignore_error:
             m = 'Command barfed: %s\n' % cmd
             self.log_command (m)
-            raise Exception (m)
+
+            raise SystemFailed (m)
 
         return 0
 
