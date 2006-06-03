@@ -1,9 +1,11 @@
 #!/usr/bin/python
+
 import sys
 import os
 import optparse
 import re
 import fcntl
+import time
 
 """
 run as
@@ -19,6 +21,22 @@ build_platform = {
 	'linux2': 'linux',
 }[sys.platform]
 
+################################################################
+# UGh , cut & paste
+class LogFile:
+    def __init__ (self, name):
+        self.file = open (name, 'a')
+        self.prefix = 'cron-builder.py[%d]: ' % os.getpid ()
+
+    def log (self, msg):
+        self.file.write ('%s%s\n' % (self.prefix, msg))
+        self.file.flush ()
+        
+    def __del__ (self):
+        self.log (' *** finished')
+
+log_file = None
+
 def parse_options ():
     p = optparse.OptionParser ()
 
@@ -33,7 +51,6 @@ def parse_options ():
                   default="HEAD",
                   action="store",
                   help="which branch of lily to build")
-    
 
     p.add_option ('--installer',
                   action="store_true",
@@ -87,7 +104,7 @@ def parse_options ():
 
 
 def system (c, ignore_error=False):
-    print 'executing' , c
+    log_file.log ('executing %s' % c)
 
     s = None
     if not dry_run:
@@ -109,6 +126,14 @@ def read_make_vars (file):
 
 def main ():
     (opts,args) = parse_options ()
+
+    global log_file
+    
+    log_file = LogFile ('log/cron-builder.log')
+    log_file.log (' *** %s' % time.ctime ())
+    log_file.log (' *** Starting cron-builder:\n  %s ' % '\n  '.join (args)) 
+
+
 
     if opts.clean:
         system ('rm -rf log/ target/ uploads/ buildnumber-* downloads/lilypond-*')
