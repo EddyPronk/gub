@@ -94,8 +94,11 @@ UPDATE-BUILDNUMBER=(echo -n "INSTALLER_BUILD=" && \
 $(BUILDNUMBER_FILE):
 	$(UPDATE-BUILDNUMBER)
 
-update-buildnumber:
+unlocked-update-buildnumber:
 	$(UPDATE-BUILDNUMBER)
+
+update-buildnumber:
+	$(PYTHON) test-lily/with-lock.py --skip $(BUILDNUMBER_FILE).lock make unlocked-update-buildnumber
 
 download:
 	$(UPDATE-BUILDNUMBER)
