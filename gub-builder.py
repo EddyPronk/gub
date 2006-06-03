@@ -134,7 +134,7 @@ def run_one_builder (options, spec_obj):
             continue
 
         spec_obj.os_interface.log_command (' *** Stage: %s (%s)\n'
-                       % (stage, spec_obj.name ()))
+                                           % (stage, spec_obj.name ()))
 
         if stage == 'package' and tainted and not options.force_package:
             msg = spec_obj.expand ('''Compile was continued from previous run.
@@ -157,9 +157,17 @@ to skip this check.
             and options.keep_build):
             os.unlink (spec_obj.get_stamp_file ())
             continue
+        
+        try:
+            (available[stage]) ()
+        except SystemFailed:
 
-        (available[stage]) ()
-
+            ## failed patch will leave system in unpredictable state.
+            if stage == 'patch':
+                spec_obj.system ('rm %(stamp_file)s')
+            
+            raise
+        
         if stage != 'clean':
             spec_obj.set_done (stage, stages.index (stage))
     
