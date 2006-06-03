@@ -198,7 +198,7 @@ class Nsis (Installer):
         Installer.create (self)
         
         # FIXME: build in separate nsis dir, copy or use symlink
-        installer = os.path.basename (self.settings.installer_root)
+        installer = os.path.basename (self.expand ('%(installer_root)s'))
 
         package_manager = gup.DependencyManager (self.settings.system_root,
                                                   self.settings.os_interface)
