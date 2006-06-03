@@ -206,15 +206,17 @@ bootstrap:
 ################################################################
 # docs
 doc-clean:
-	$(PYTHON) test-lily/with-lock.py --skip $(NATIVE_ROOT).lock $(MAKE) unlocked-doc-clean
+	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-clean
 
 doc-build:
-	$(PYTHON) test-lily/with-lock.py --skip $(NATIVE_ROOT).lock $(MAKE) unlocked-doc-build 
+	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-build 
 
 NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_BRANCH)
+NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/src/lilypond-$(LILYPOND_BRANCH)
 
 ## no trailing slash!
 NATIVE_ROOT=$(NATIVE_TARGET_DIR)/installer-$(LILYPOND_BRANCH)
+DOC_LOCK=$(NATIVE_ROOT).lock
 
 doc: doc-build
 
@@ -231,3 +233,10 @@ unlocked-doc-build:
 	tar -C $(NATIVE_LILY_BUILD)/out-www/web-root/ \
 	    -cjf $(CWD)/uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).documentation.tar.bz2 . 
 
+
+unlocked-doc-export:
+	$(PYTHON) test-lily/rsync-lily-doc.py --recreate --output-distance \
+		$(NATIVE_LILY_SRC)/buildscripts/output-distance.py $(NATIVE_LILY_BUILD)/out-www/web-root/
+
+doc-export:
+	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-export 
