@@ -6,15 +6,7 @@ import re
 import os
 import time
 
-class SystemFailed (Exception):
-    pass
-
-def system (cmd):
-    print cmd
-    stat = os.system (cmd)
-    if stat:
-        raise SystemFailed('Command failed ' + `stat`)
-
+from misc import *
 
 def read_pipe (cmd, ignore_error=False):
     print 'pipe:', cmd

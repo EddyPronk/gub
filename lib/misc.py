@@ -145,6 +145,17 @@ def forall (generator):
 
     return v
             
+class SystemFailed (Exception):
+    pass
+
+
+def system (cmd):
+    print cmd
+    stat = os.system (cmd)
+    if stat:
+        raise SystemFailed('Command failed ' + `stat`)
+
+
 def testme ():
     print forall(x for x in [1,1])
     
@@ -154,3 +165,4 @@ if __name__=='__main__':
 def file_mod_time (path):
     import stat
     return os.stat (path)[stat.ST_MTIME]
+
