@@ -216,7 +216,7 @@ def send_result_by_mail (options, parts, subject="Autotester result"):
 def print_results (options, parts, subject="Autotester result"):
     print '\n===\n\nSUBJECT: ', subject
     print '\n---\n'.join (parts)
-    print 'END RESULT\n=== '
+    print 'END RESULT\n==='
 
 def real_main (options, args, handle_result):
     global log_file
@@ -292,7 +292,7 @@ def test_self (options, args):
 
     system (r"echo -e '#!/bin/sh\nfalse\n' > foo.sh")
     system ('darcs record  -am "change bla"')
-    real_main (options, ['false', 'true', 'sh foo.sh'], print_results)
+    real_main (options, ['sh foo.sh'], print_results)
     
     
 
