@@ -193,12 +193,14 @@ native-distccd:
 bootstrap:
 	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local download flex mftrace potrace fontforge \
 	   guile pkg-config nsis icoutils fontconfig expat gettext \
-	   distcc texinfo
+	   distcc texinfo automake
 	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local build \
 		flex mftrace potrace fontforge \
 		guile pkg-config fontconfig expat icoutils glib \
-		distcc texinfo 
+		distcc texinfo automake 
 	$(MAKE) cross-compilers
+
+## TODO: switch off if mingw not in platforms.
 	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local build nsis 
 	$(MAKE) download
 
