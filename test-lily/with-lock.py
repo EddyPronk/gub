@@ -2,7 +2,11 @@
 import optparse
 import sys
 import os
-import fcntl
+
+
+sys.path.insert (0, os.path.split (sys.argv[0])[0] + '/../lib/')
+
+import locker
 
 def parse_options ():
     p = optparse.OptionParser ()
@@ -19,6 +23,11 @@ def parse_options ():
 	
     return o,a
 
+def run_command_with_lock (lock_file_name, cmd, args):
+    lock_obj = locker.Locker (lock_file_name)
+    stat = os.spawnvp (os.P_WAIT, cmd, args)
+    return stat
+
 def main ():
     (opts, args) = parse_options ()
 
@@ -27,26 +36,17 @@ def main ():
 
     ## need to include binary too.
     args = args[1:]
-    
-    lock_file = open (lock_file_name, 'w')
-    lock_file.write ('')
+
 
     try:
-	fcntl.flock (lock_file.fileno (),
-		     fcntl.LOCK_EX | fcntl.LOCK_NB)
-
-    except IOError:
+        stat = run_command_with_lock (lock_file_name, cmd, args)
+        sys.exit (stat)
+    except locker.LockedError:
 	print "Can't acquire lock %s" % lock_file_name
 	if opts.skip:
 	    sys.exit (0)
 	else:
 	    sys.exit (1)
 
-    stat = os.spawnvp (os.P_WAIT, cmd, args)
-    os.remove (lock_file_name)
-    fcntl.flock (lock_file.fileno(), fcntl.LOCK_UN)
-    
-    sys.exit (stat)
-     
 if __name__ == '__main__':
     main ()
