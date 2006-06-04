@@ -33,7 +33,6 @@ class Repository:
 
     def __repr__ (self):
         return '%s: %s' % (self.__class__.__name__, self.repo_dir)
-    
 
     def get_db (self, name):
         try:
@@ -60,15 +59,12 @@ class Repository:
         """Return a dict with info about the last patch"""
         
         assert 0
-        
         return {}
-
 
     def get_diff_from_tag (self, name):
         """Return diff wrt to last tag that starts with NAME  """
 
         assert 0
-        
         return 'baseclass method called'
     
 def read_changelog (file):
@@ -155,6 +151,9 @@ class CVSRepository (Repository):
             for e in self.cvs_entries (d):
                 (name, version, date, dontknow) = e
                 checksum.update (name + ':' + version)
+
+                if date == 'Result of merge':
+                    raise Exception ("repository has been altered")
                 
                 stamp = time.mktime (time.strptime (date))
                 latest_stamp = max (stamp, latest_stamp)
