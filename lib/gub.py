@@ -3,6 +3,7 @@ import cvs
 import download
 import glob
 import misc
+import locker
 
 # sys
 import pickle
@@ -132,7 +133,9 @@ class BuildSpec (Os_context_wrapper):
 
         ## TODO: should use locking.
         open (timestamp_file, 'w').write ('changed')
-        
+
+        lock_file = self.expand ('%(downloaddir)s/%(name)s-%(version)s.lock')
+        lock = locker.Locker (lock_file)
         url = self.expand (self.url)
         if not os.path.exists (cvs_dest):
             self.system ('''
