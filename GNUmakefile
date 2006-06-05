@@ -87,9 +87,7 @@ else
 
 endif
 
-UPDATE-BUILDNUMBER=(echo -n "INSTALLER_BUILD=" && \
-		$(PYTHON) lilypondorg.py nextbuild $(LILYPOND_VERSION) ) > buildnumber.tmp && \
-		mv buildnumber.tmp $(BUILDNUMBER_FILE)
+UPDATE-BUILDNUMBER=echo 'INSTALLER_BUILD='`python lilypondorg.py nextbuild $(LILYPOND_VERSION)` > $(BUILDNUMBER_FILE)
 
 $(BUILDNUMBER_FILE):
 	$(UPDATE-BUILDNUMBER)
