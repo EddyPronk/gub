@@ -27,6 +27,7 @@ base_url = 'http://lilypond.org/download'
 
 
 host_spec = 'hanwen@lilypond.org:/var/www/lilypond'
+host_source_spec = host_spec
 host_binaries_spec = host_spec + '/download/binaries'
 host_doc_spec = host_spec + '/doc'
 
@@ -185,6 +186,7 @@ def upload_binaries (version):
         print "source tarball doesn't exist", src_tarball
         barf = True
     else:
+        host = host_source_spec 
         majmin = '.'.join (['%d' % v for v in version[:2]])
         src_dests.append ((src_tarball, '%(host)s/v%(majmin)s' % locals ()) )
         
