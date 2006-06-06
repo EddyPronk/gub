@@ -23,7 +23,7 @@ class KeyCollision (Exception):
 
 class Repository:
     def __init__ (self, dir, repo_admin_dir):
-        self.repo_dir = dir
+        self.repo_dir = os.path.normpath (dir)
         self.repo_admin_dir = repo_admin_dir
         self.test_dir = os.path.join (self.repo_admin_dir, 'test-results')
         self._databases = {}
@@ -221,6 +221,23 @@ class CVSRepository (Repository):
                 entries.append (tuple (m.groups ()))
         return entries
         
+    def all_cvs_entries (self):
+        ds = self.cvs_dirs ()
+        es = []
+        for d in ds:
+            
+            ## strip CVS/
+            basedir = os.path.split (d)[0]
+            for e in self.cvs_entries (d):
+                
+                
+                filename = os.path.join (basedir, e[0])
+                filename = filename.replace (self.repo_dir + '/', '')
+
+                es.append ((filename,) + e[1:])
+            
+
+        return es
 
 def get_repository_proxy (dir):
     if os.path.isdir (dir + '/CVS'):
@@ -231,3 +248,9 @@ def get_repository_proxy (dir):
         raise Exception('repo format unknown: ' + dir)
 
     return Repository('', '')
+
+
+## test routine
+if __name__ == '__main__':
+    repo = get_repository_proxy (sys.argv[1])
+    print repo.all_cvs_entries ()
