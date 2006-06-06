@@ -155,7 +155,7 @@ def upload_binaries (version):
     build = uploaded_build_number (version) + 1
     version_str = '.'.join (['%d' % v for v in version])
 
-    src_dests= []
+    src_dests = []
     barf = 0
     for platform in platforms:
         plat = get_alias (platform)
@@ -171,7 +171,7 @@ def upload_binaries (version):
         else:
             ## globals -> locals.
             host = host_binaries_spec 
-            src_dests.append((bin, '%(host)s/%(platform)s' % locals()))
+            src_dests.append((os.path.abspath (bin), '%(host)s/%(platform)s' % locals()))
             
         if (platform <> 'documentation'
             and  not os.path.exists ('log/%s.test.pdf' % base)):
@@ -198,10 +198,11 @@ def upload_binaries (version):
     d = globals().copy()
     d.update (locals())
 
-    d['lilybuild'] = 'target/%(build_platform)s/build/lilypond-%(branch)s' % d
-    d['lilysrc'] = 'target/%(build_platform)s/src/lilypond-%(branch)s' % d 
-
-    test_cmd =r'''PYTHONPATH=%(lilysrc)s/python python test-lily/rsync-lily-doc.py \
+    d['cwd'] = os.getcwd ()
+    d['lilybuild'] = d['cwd'] + 'target/%(build_platform)s/build/lilypond-%(branch)s' % d
+    d['lilysrc'] = d['cwd'] + 'target/%(build_platform)s/src/lilypond-%(branch)s' % d 
+    
+    test_cmd =r'''python %(cwd)s/test-lily/rsync-lily-doc.py \
   --upload %(host_doc_spec)s \
   %(lilybuild)s/out-www/web-root/''' % d
 
