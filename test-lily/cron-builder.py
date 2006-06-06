@@ -62,7 +62,7 @@ def parse_options ():
                   action="store_true",
                   dest="build_docs",
                   default=None,
-                  help="build docs")
+                  help="build docs. Implies --dependent for test-gub.py")
     
     p.add_option ('--package',
                   action="store_true",
@@ -133,8 +133,6 @@ def main ():
     log_file.log (' *** %s' % time.ctime ())
     log_file.log (' *** Starting cron-builder:\n  %s ' % '\n  '.join (args)) 
 
-
-
     if opts.clean:
         system ('rm -rf log/ target/ uploads/ buildnumber-* downloads/lilypond-*')
     if opts.darcs_upstream:
@@ -170,6 +168,7 @@ def main ():
     if opts.build_docs:
         test_cmds += [make_cmd + 'doc-build',
                       make_cmd + 'doc-export']
+        opts.test_options += ' --dependent '
 
     system (python_cmd + 'test-gub.py %s %s '
             % (opts.test_options, ' '.join (["'%s'" % c for c in test_cmds])))
