@@ -245,3 +245,10 @@ unlocked-doc-export:
 
 doc-export:
 	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-export 
+
+unlocked-dist-check:
+	$(PYTHON) test-lily/dist-check.py --repository downloads/lilypond-$(BRANCH) $(NATIVE_LILY_BUILD)
+
+dist-check:
+	$(PYTHON) test-lily/with-lock.py --skip downloads/lilypond-$(BRANCH).lock \
+		make unlocked-dist-check

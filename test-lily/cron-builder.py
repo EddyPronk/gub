@@ -70,6 +70,12 @@ def parse_options ():
                   default=None,
                   help="build lilypond gup package")
 
+    p.add_option ('--tarball',
+                  action="store_true",
+                  dest="build_tarball",
+                  default=None,
+                  help="build and check lilypond source tarball")
+
     p.add_option ('--make-options',
                   action='store',
                   dest='make_options',
@@ -169,6 +175,10 @@ def main ():
         test_cmds += [make_cmd + 'doc-build',
                       make_cmd + 'doc-export']
         opts.test_options += ' --dependent '
+
+
+    if opts.build_tarball:
+        test_cmds += [make_cmd + " dist-check.py"]
 
     system (python_cmd + 'test-gub.py %s %s '
             % (opts.test_options, ' '.join (["'%s'" % c for c in test_cmds])))
