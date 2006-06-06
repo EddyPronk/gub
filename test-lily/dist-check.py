@@ -70,7 +70,10 @@ def check_files (tarball, cvs_repo):
     ly_files  = [f for f in files
                  if re.search (r'\.ly$', f)]
 
-    no_version = popen (r"grep '\\version' -L %s" % string.join (ly_files)).readlines ()
+
+    ly_file_str = ' '.join (ly_files)
+    
+    no_version = popen (r"cd %(dir)s && grep '\\version' -L %(ly_file_str)s" % locals ()).readlines ()
     if no_version:
         print 'Files without \\version: '
         print ', '.join (no_version)

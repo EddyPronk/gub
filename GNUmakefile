@@ -253,6 +253,7 @@ doc-export:
 
 unlocked-dist-check:
 	$(PYTHON) test-lily/dist-check.py --repository downloads/lilypond-$(BRANCH) $(NATIVE_LILY_BUILD)
+	ln $(NATIVE_LILY_BUILD)/out/lilypond-$(LILYPOND_VERSION).tar.gz uploads/
 
 dist-check:
 	$(PYTHON) test-lily/with-lock.py --skip downloads/lilypond-$(BRANCH).lock \
