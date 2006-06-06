@@ -179,12 +179,14 @@ def upload_binaries (version):
             barf = 1
 
     src_tarball = "uploads/lilypond-%(version_str)s.tar.gz" % locals ()
+    src_tarball = os.path.abspath (src_tarball)
+    
     if not os.path.exists (src_tarball):
         print "source tarball doesn't exist", src_tarball
         barf = True
     else:
-        majmin = '.'.join (version[:2])
-        src_dests.append ((src_tarball), '%(host)s/v%(majmin)s')
+        majmin = '.'.join (['%d' % v for v in version[:2]])
+        src_dests.append ((src_tarball, '%(host)s/v%(majmin)s' % locals ()) )
         
     cmds = ['scp %s %s' % tup for tup in src_dests]
 
