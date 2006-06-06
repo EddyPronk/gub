@@ -122,3 +122,18 @@ run the following without arguments for instructions.
   lilypondorg.py - inspect lilypond.org download area
   test-gub.py    - build tester; integrates with Darcs/CVS 
 
+
+TESTING
+*******
+
+The test-lily directory contains scripts for running various
+tests. Run without arguments for instructions
+
+  cron-builder.py - entry point from continuous crontab testing
+  test-binary.py  - test binary builds
+  with-lock.py    - run a command with a lockfile
+  rsync-lily-doc.py
+                  - prepare documentation for upload
+  dist-check.py   - check tarball for anomalies
+		  
+
