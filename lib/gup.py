@@ -13,13 +13,11 @@ import glob
 import cross
 import targetpackage
 from misc import *  # URG, fixme
+import locker
 
 import gub ## ugh
 
 class GupException (Exception):
-    pass
-
-class LockError (GupException):
     pass
 
 class FileManager:
@@ -46,21 +44,8 @@ class FileManager:
         self.verbose = True
         self.is_distro = False
 
-        ## lock must be outside of root, otherwise we can't rm -rf root 
-        lock_file_name = self.root + '.lock'
-        self._lock_file = open (lock_file_name, 'w')
-        
-        ## should only del if locking was successful
-        self.lock_file_name = None
-
-        try:
-            fcntl.flock (self._lock_file.fileno (),
-                         fcntl.LOCK_EX | fcntl.LOCK_NB)
-            self.lock_file_name = lock_file_name
-        except IOError:
-            e = LockError("Can't acquire PackageManager lock %s\n\nAbort\n" % lock_file_name)
-            raise e
-
+        ## lock must be outside of root, otherwise we can't rm -rf root
+        self.lock = locker.Locker (self.root + '.lock')
         if clean:
             os_interface.system ('rm -fr %s' % self.config)
             os_interface.system ('rm -fr %s' % self.root)
@@ -71,13 +56,6 @@ class FileManager:
         self._package_file_db = dbmodule.open (self.config
                            + '/packages.db', 'c')
 
-    def __del__ (self):
-        if self.lock_file_name:
-            os.unlink (self.lock_file_name)
-        if self._lock_file:
-            fcntl.flock (self._lock_file.fileno (), fcntl.LOCK_UN)
-            self._lock_file.close ()
-        
     def __repr__ (self):
         name = self.__class__.__name__
         root = self.root

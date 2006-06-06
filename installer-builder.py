@@ -10,7 +10,7 @@ import gup
 import cross
 import installer
 import settings as settings_mod
-
+import locker
 
 def get_cli_parser ():
     p = optparse.OptionParser ()
@@ -145,7 +145,7 @@ def main ():
         cs = ['build', 'strip', 'package']
     try:
         run_installer_commands (cs, settings, commands)
-    except gup.LockError:
+    except locker.LockedError:
         if options.skip_if_locked:
             print 'skipping build; install_root is locked'
             sys.exit (0)

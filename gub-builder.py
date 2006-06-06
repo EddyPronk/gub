@@ -280,7 +280,7 @@ def main ():
     elif c == 'build':
         try:
             pm = gup.get_target_manager (settings)
-        except gup.LockError:
+        except locker.LockedError:
             print 'another build in progress. Skipping.'
             if options.skip_if_locked:
                 sys.exit (0)
