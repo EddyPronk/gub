@@ -1,12 +1,10 @@
 #!/usr/bin/python
 
-
 import re
 import sys
 import os
 import glob
 import optparse
-
 
 sys.path.insert (0, os.path.split (sys.argv[0])[0] + '/../lib/')
 
@@ -17,10 +15,6 @@ import misc
 def parse_options ():
     p = optparse.OptionParser ()
     p.usage = "dist-check.py BUILD-DIR"
-    p.add_option ('--skip',
-		  action="store_true",
-		  dest="skip",
-		  help="return 0 if couldn't get lock.")
     p.add_option ('--repository',
 		  action="store",
 		  dest="repository",
