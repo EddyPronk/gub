@@ -256,14 +256,15 @@ MD5 of complete patch set: %(release_hash)s
         results[a] = result_tup
         
         success = result.startswith ('SUCCESS')
-        if not success:
-            failures += 1
-
         if not (options.be_quiet and success):
             handle_result (options, atts, subject="Autotester: %s %s" % (result, a))
-
         summary_body += '%s\n  %s\n'  % (a, result)
 
+
+        if not success:
+            failures += 1
+            if options.is_dependent:
+                break
 
     if (results
         and len (args) > 1
