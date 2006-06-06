@@ -99,10 +99,12 @@ update-buildnumber:
 	$(PYTHON) test-lily/with-lock.py --skip $(BUILDNUMBER_FILE).lock make unlocked-update-buildnumber
 
 download:
-	$(UPDATE-BUILDNUMBER)
 	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB_BUILDER,$(p)) download lilypond && ) true
 	rm -f target/*/status/lilypond*
 	rm -f log/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).*.test.pdf
+
+## should be last, to incorporate changed VERSION file.
+	$(UPDATE-BUILDNUMBER)
 
 all: $(BUILD_PLATFORM) doc $(OTHER_PLATFORMS) gub_builder.py
 
