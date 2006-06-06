@@ -132,7 +132,7 @@ def compute_distances (options, source):
 
         base = os.path.split (d)[1]
 
-        html += '<li><a href="%(base)s/index.html">results for %(base)s</a>' % locals()
+        html += '<li><a href="compare-%(base)s/index.html">results for %(base)s</a>' % locals()
         system (cmd)
 
     if html:
