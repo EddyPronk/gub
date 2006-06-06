@@ -60,26 +60,35 @@ def get_config_dict (dir):
     return d
 
 def check_files (tarball, cvs_repo):
-    tarball = os.path.abspath (tarball)
+    error_found = False
 
+    tarball = os.path.abspath (tarball)
     tarball_dirname = re.sub ('\.tar.*', '', os.path.split (tarball)[1])
 
     repo = repository.get_repository_proxy (cvs_repo)
     
     dir = tempfile.mkdtemp ()
-    print dir
     
     files = popen ('cd %(dir)s && tar xzvf %(tarball)s' % locals ()).readlines ()
     files = [f.strip () for f in files]
+
+    ## .ly files
     ly_files  = [f for f in files
                  if re.search (r'\.ly$', f)]
 
+    no_version = popen (r"grep '\\version' -L %s" % string.join (ly_files)).readlines ()
+    if no_version:
+        print 'Files without \\version: '
+        print ', '.join (no_version)
+        error_found = True
+
+
+    ## tarball <-> CVS
     file_dict = dict ((f, 1) for f in files)
     
     entries =  repo.all_cvs_entries ()
     exceptions = ['.cvsignore', 'stepmake/.cvsignore']
 
-    error_found = False
     for e in entries:
         filename = e[0]
 
@@ -101,7 +110,7 @@ def main ():
     builddir = args[0]
     config = get_config_dict (builddir)
 
-    system ('cd %(builddir)s/ && make dist' % locals ())
+    system ('cd %(builddir)s/ && make DOCUMENTATION=yes dist' % locals ())
     tarball = '%(builddir)s/out/lilypond-%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s.tar.gz' % config
     check_files (tarball, options.repository)
 
