@@ -46,7 +46,7 @@ class LogFile:
         self.file.flush ()
         
     def __del__ (self):
-        self.log ('finished')
+        self.log (' *** finished')
 
 log_file = None
 
