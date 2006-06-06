@@ -178,7 +178,7 @@ def main ():
 
 
     if opts.build_tarball:
-        test_cmds += [make_cmd + " dist-check.py"]
+        test_cmds += [make_cmd + " dist-check"]
 
     system (python_cmd + 'test-gub.py %s %s '
             % (opts.test_options, ' '.join (["'%s'" % c for c in test_cmds])))
