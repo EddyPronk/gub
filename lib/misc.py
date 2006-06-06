@@ -11,7 +11,7 @@ def join_lines (str):
 def grok_sh_variables (file):
     dict = {}
     for i in open (file).readlines ():
-        m = re.search ('^(\w+)\s*=\s*(\w*)', i)
+        m = re.search ('^([^ =]+) *=\s*(.*)$', i)
         if m:
             k = m.group (1)
             s = m.group (2)
