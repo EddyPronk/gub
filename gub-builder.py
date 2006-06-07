@@ -6,6 +6,7 @@ import re
 import string
 import sys
 import inspect
+import pickle
 
 sys.path.insert (0, 'lib/')
 
@@ -14,8 +15,7 @@ import gup
 import cross
 import gub
 import settings as settings_mod
-import pickle
-
+import locker
 
 def get_cli_parser ():
     p = optparse.OptionParser ()
