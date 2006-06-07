@@ -173,11 +173,6 @@ uninstall:
 	Call postinstall_lilypond
 	Call postinstall_lilypad
 	Call postinstall_guile
-!ifndef UPGRADE
-	Call postinstall_gs
-	Call postinstall_fontconfig
-;;	Call ooes_test
-!endif
 SectionEnd
 
 ;; Optional section (can be disabled by the user)
@@ -417,11 +412,7 @@ Function registry_lilypond
 ;;exit:
 FunctionEnd
 
-Function postinstall_fontconfig
-	StrCpy $0 "$INSTDIR\usr\etc\fonts\fonts.conf"
-	CopyFiles /silent "$0" "$0.in"
-	${SubstituteAtVariables} "$0.in" "$0"
-FunctionEnd
+
 
 Function postinstall_lilypad
 	StrCpy $0 "$INSTDIR\usr\bin\lilypad"
@@ -457,16 +448,7 @@ dos:
 	StrCpy $0 "$INSTDIR\usr\bin\lilypond-windows.bat"
 	${SubstituteAtVariables} "$0.in" "$0"
 
-;;        Exec '"$INSTDIR\usr\bin\guile" -e main -s "$INSTDIR\usr\bin\touch.scm" "$INSTDIR\usr\share\lilypond\current\fonts\type1\fonts.cache-1" "$INSTDIR\usr\share\lilypond\current\fonts\otf\fonts.cache-1"'
 exit:	
-FunctionEnd
-
-Function postinstall_gs
-!ifdef UPGRADE
-	StrCpy $0 "gs.bat"
-	Delete "$INSTDIR\usr\bin\$0"
-!endif	
-	CopyFiles /silent "$INSTDIR\usr\bin\gswin32c.exe" "$INSTDIR\usr\bin\gs.exe"
 FunctionEnd
 
 Function postinstall_guile
