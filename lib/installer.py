@@ -144,7 +144,10 @@ class Installer (context.Os_context_wrapper):
         self.strip_unnecessary_files ()
         self.strip_binary_dir ('%(installer_root)s/usr/lib')
         self.strip_binary_dir ('%(installer_root)s/usr/bin')
-        
+
+    def use_install_root_manager (self, manager):
+        pass
+    
     def create (self):
         pass
         
@@ -153,16 +156,19 @@ class Darwin_bundle (Installer):
         Installer.__init__ (self, settings)
         self.strip_command += ' -S '
         self.darwin_bundle_dir = '%(targetdir)s/LilyPond.app'
+        self.rewirer = darwintools.Rewirer (self.settings)
+        
+    def use_install_root_manager (self, package_manager):
+        tarball = package_manager.package_dict ('darwin-sdk')['split_ball']
+        self.package_manager = package_manager
+        self.rewirer.set_ignore_libs_from_tarball (tarball)
         
     def create (self):
         Installer.create (self)
-        rw = darwintools.Rewirer (self.settings)
-        pm = gup.DependencyManager (self.settings.system_root,
-	                              self.settings.os_interface)
-        rw.set_ignore_libs (pm)
-        osx_lilypad_version = pm.package_dict ('osx-lilypad')['version']
         
-        rw.rewire_root (self.expand ('%(installer_root)s'))
+        osx_lilypad_version = self.package_manager.package_dict ('osx-lilypad')['version']
+        
+        self.rewirer.rewire_root (self.expand ('%(installer_root)s'))
 
         bundle_zip = self.expand ('%(uploads)s/lilypond-%(installer_version)s-%(installer_build)s.%(platform)s.tar.bz2')
         self.system ('''

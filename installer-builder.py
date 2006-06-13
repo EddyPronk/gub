@@ -66,9 +66,6 @@ def build_installer (installer, args):
     
     install_manager.include_build_deps = False
     install_manager.read_package_headers (installer.expand ('%(gub_uploads)s'), settings.lilypond_branch)
-    
-    ## fixme
-    #    install_manager.read_package_headers (self.expand ('%(gub_uploads)s'),  settings.lilypond_branch)
 
     def get_dep (x):
         return install_manager.dependencies (x)
@@ -85,14 +82,18 @@ def build_installer (installer, args):
         except KeyError:
             # ugh.
             return (x in ['darwin-sdk', 'w32api', 'freebsd-runtime',
-                          'mingw-runtime', 'libc6', 'libc6-dev', 'linux-kernel-headers',
+                          'mingw-runtime', 'libc6', 'libc6-dev',
+                          'linux-kernel-headers',
                           ])
-        
+
     package_names = [p for p in package_names
                      if not is_sdk (p)]
+
     for a in package_names:
         install_manager.install_package (a)
 
+    installer.use_install_root_manager (install_manager)
+    
 
 def strip_installer (obj):
     obj.log_command (' ** Stage: %s (%s)\n'
