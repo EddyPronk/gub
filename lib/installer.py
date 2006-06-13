@@ -281,18 +281,6 @@ class Rpm (Linux_installer):
     def create (self):
         self.system ('cd %(installer_uploads)s && fakeroot alien --keep-version --to-rpm %(bundle_tarball)s', locals ())
 
-class Autopackage (Linux_installer):
-    def create (self):
-        self.system ('rm -rf %(build_autopackage)s')
-        self.system ('mkdir -p %(build_autopackage)s/autopackage')
-        self.file_sub ([('@VERSION@', '%(installer_version)s')],
-               '%(specdir)s/lilypond.apspec.in',
-               to_name='%(build_autopackage)s/autopackage/default.apspec')
-        # FIXME: just use symlink?
-        self.system ('tar -C %(installer_root)s/usr -cf- . | tar -C %(build_autopackage)s -xvf-')
-        self.system ('cd %(build_autopackage)s && makeinstaller')
-        self.system ('mv %(build_autopackage)s/*.package %(installer_uploads)s')
-
 class Cygwin_package (Installer):
     def __init__ (self, settings, name):
         Installer.__init__ (self, settings)

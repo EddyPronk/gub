@@ -174,14 +174,15 @@ class Rewirer (context.Os_context_wrapper):
             if os.path.isfile (f):
                 self.rewire_mach_o_object_executable_path(f)
 
-    def set_ignore_libs (self, file_manager):
-        files = file_manager.installed_files ('darwin-sdk')
-
-        d = dict ((k.strip()[1:], True)
+    def set_ignore_libs_from_tarball (self, tarball):
+        file_str = self.read_pipe ('tar tzf %(tarball)s', locals())
+        files = file_str.split ('\n')
+        self.set_ignore_libs_from_files (files)
+        
+    def set_ignore_libs_from_files (self, files):
+        self.ignore_libs = dict ((k.strip()[1:], True)
              for k in files
              if re.match (r'^\./usr/lib/', k))
-
-        self.ignore_libs = d  
 
     def rewire_root (self, root):
         if self.ignore_libs == None:
