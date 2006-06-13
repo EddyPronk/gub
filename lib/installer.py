@@ -199,16 +199,12 @@ class Nsis (Installer):
         
         # FIXME: build in separate nsis dir, copy or use symlink
         installer = os.path.basename (self.expand ('%(installer_root)s'))
-
-        package_manager = gup.DependencyManager (self.settings.system_root,
-                                                  self.settings.os_interface)
         
-        self.file_sub ([('@GHOSTSCRIPT_VERSION@', package_manager.package_dict ('ghostscript')['version']),
-                        
-                        ('@GUILE_VERSION@', package_manager.package_dict ('ghostscript')['version']),
+        self.file_sub ([                        
                         ('@LILYPOND_BUILD@', '%(installer_build)s'),
                         ('@LILYPOND_VERSION@', '%(installer_version)s'),
-                        ('@PYTHON_VERSION@', package_manager.package_dict ('python')['version']),
+
+                        ## fixme:  JUNKME.
                         ('@ROOT@', '%(installer)s'),
                         ],
                        '%(nsisdir)s/lilypond.nsi.in',

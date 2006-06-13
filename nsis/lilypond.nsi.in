@@ -8,9 +8,6 @@
 ;;; substitutions
 !define LILYPOND_VERSION "@LILYPOND_VERSION@"
 !define LILYPOND_BUILD "@LILYPOND_BUILD@"
-!define BUNDLE_VERSION "@BUNDLE_VERSION@"
-!define GUILE_VERSION "@GUILE_VERSION@"
-!define PYTHON_VERSION @PYTHON_VERSION@
 !define ENVIRON "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"
 
 !define UNINSTALL \
@@ -251,20 +248,6 @@ path_loop:
 	StrCmp $0 "" path_done path_loop
 
 path_done:
-#     	ReadRegStr $R0 HKLM "${ENVIRON}" "PYTHONPATH"
-#  	${UnStrLoc} $0 $R0 "$INSTDIR\usr\lib\python${PYTHON_VERSION};" >
-# pythonpath_loop:
-# 	StrCmp $0 "" pythonpath_done
-# 	StrLen $1 "$INSTDIR\usr\bin;"
-# 	IntOp $2 $0 + $1
-# 	StrCpy $3 $R0 $0 0
-# 	StrCpy $4 $R0 10000 $2
-# 	WriteRegExpandStr HKLM "${ENVIRON}" "PYTHONPATH" "$3$4"
-# 	ReadRegStr $R0 HKLM "${ENVIRON}" "PYTHONPATH"
-# 	${UnStrLoc} $0 $R0 "$INSTDIR\usr\lib\python${PYTHON_VERSION};" >
-# 	StrCmp $0 "" pythonpath_done pythonpath_loop
-#
-#pythonpath_done:
 	;; Remove files and uninstaller
 	;; Try only to delete LilyPond (and not user) stuff
 	;; FIXME: include list of installed files
@@ -273,13 +256,13 @@ path_done:
 
 	RMDir /r $INSTDIR\usr\lib\lilypond
 	RMDir /r $INSTDIR\usr\lib\pango
-	RMDir /r $INSTDIR\usr\lib\python${PYTHON_VERSION}
+	RMDir /r $INSTDIR\usr\lib\python*.*
 	Delete $INSTDIR\usr\lib\*.*
 	RMDir $INSTDIR\usr\lib
 
 	RMDir /r $INSTDIR\usr\share\guile
 	RMDir /r $INSTDIR\usr\share\gs
-	RMDir /r $INSTDIR\usr\share\lilypond\${LILYPOND_VERSION}
+	RMDir /r $INSTDIR\usr\share\lilypond\*.*
 	RMDir $INSTDIR\usr\share\lilypond
 	RMDir /r $INSTDIR\usr\share
 	RMDir $INSTDIR\usr\share
@@ -472,7 +455,7 @@ scm_done:
 	ReadRegStr $R0 HKCR "GUILE\shell\open\command" ""
 	;;StrCmp $R0 "" 0 exit
 	WriteRegStr HKCR "GUILE\shell" "" "open"
-	WriteRegExpandStr HKCR "GUILE\shell\open\command" "" '"$INSTDIR\usr\bin\guile.exe" -L $INSTDIR\usr\share\guile\${GUILE_VERSION} -e main -s "%1"'
+	WriteRegExpandStr HKCR "GUILE\shell\open\command" "" '"$INSTDIR\usr\bin\guile.exe" -e main -s "%1"'
 exit:
 FunctionEnd
 
@@ -483,9 +466,6 @@ Function registry_python
 	WriteRegStr HKLM "${ENVIRON}" "PATHEXT" ".PY;$R0"
 
 py_done:
-#	ReadRegStr $R0 HKLM "${ENVIRON}" "PYTHONPATH"
-#	WriteRegExpandStr HKLM "${ENVIRON}" "PYTHONPATH" "$INSTDIR\usr\lib\python${PYTHON_VERSION};$R0"
-#
 	WriteRegStr HKCR ".py" "" "Python"
 	WriteRegStr HKCR ".py" "Python" "Python"
 	WriteRegStr HKCR ".py" "Content Type" "text/x-python"
