@@ -127,18 +127,6 @@ def system (c, ignore_error=False):
     if s and not ignore_error:
         raise 'barf'
 
-
-## todo: duplicated in misc.py
-def read_make_vars (file):
-    d = {}
-    for l in open (file).readlines():
-        def func(m):
-            d[m.group(1)] = m.group(2)
-            return ''
-
-        l = re.sub ('^([a-zA-Z0-9_]+) *= *(.*)', func, l)
-    return d
-
 def main ():
     (opts,args) = parse_options ()
 
