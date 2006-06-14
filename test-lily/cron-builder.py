@@ -94,6 +94,11 @@ def parse_options ():
                   default=None,
                   help="upstream repository")
 
+    p.add_option ('--unversioned',
+                  action="store_true",
+                  dest="unversioned",
+                  default=False,
+                  help="produce 0.0.0-0 binary") 
 
     p.add_option ('--dry-run',
                   action="store_true",
@@ -102,10 +107,13 @@ def parse_options ():
                   help="test self")
 
     (opts, args) = p.parse_args ()
+    
     global dry_run
     dry_run = opts.dry_run
     opts.make_options += " BRANCH=%s" % opts.branch
 
+
+        
     return (opts, args)
 
 
@@ -120,6 +128,7 @@ def system (c, ignore_error=False):
         raise 'barf'
 
 
+## todo: duplicated in misc.py
 def read_make_vars (file):
     d = {}
     for l in open (file).readlines():
@@ -138,6 +147,9 @@ def main ():
     log_file = LogFile ('log/cron-builder.log')
     log_file.log (' *** %s' % time.ctime ())
     log_file.log (' *** Starting cron-builder:\n  %s ' % '\n  '.join (args)) 
+
+    if opts.dry_run:
+        log_file.file = sys.stdout
 
     if opts.clean:
         system ('rm -rf log/ target/ uploads/ buildnumber-* downloads/lilypond-*')
@@ -164,12 +176,13 @@ def main ():
                       % (opts.branch, p) for p in args]
         
     if opts.build_installer:
-        build_str = read_make_vars ('buildnumber-%s.make' % opts.branch)['INSTALLER_BUILD']
-        version_str = ('%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s'
-                       % read_make_vars ('downloads/lilypond-%s/VERSION' % opts.branch))
-
-        test_cmds += [python_cmd + 'installer-builder.py --skip-if-locked -b %s -v %s --branch %s -p %s build-all lilypond '
-                      % (build_str, version_str, opts.branch, p) for p in args]
+        version_opts = '' 
+        if not opts.unversioned:
+            version_opts = ('-b buildnumber-%s.make ' % opts.branch
+                            + ' -v downloads/lilypond-%s/VERSION' % opts.branch)
+            
+        test_cmds += [python_cmd + 'installer-builder.py --skip-if-locked %s --branch %s -p %s build-all lilypond '
+                      % (version_opts, opts.branch, p) for p in args]
 
     if opts.build_docs:
         test_cmds += [make_cmd + 'doc-build',

@@ -11,8 +11,9 @@ import cross
 import installer
 import settings as settings_mod
 import locker
+import misc
 
-def get_cli_parser ():
+def parse_command_line ():
     p = optparse.OptionParser ()
 
     p.usage='''gub-builder.py [OPTION]... COMMAND [PACKAGE]...
@@ -39,13 +40,13 @@ package - build installer binary
                   action="store_true",
                   help="Return successfully if another build is already running")
 
-    p.add_option ('-v', '--installer-version', action='store',
-                  default='0.0.0',
-                  dest='installer_version')
+    p.add_option ('-v', '--version-file', action='store',
+                  default='',
+                  dest='version_file')
     
-    p.add_option ('-b', '--installer-build', action='store',
-                  default='0',
-                  dest='installer_build')
+    p.add_option ('-b', '--buildnumber-file', action='store',
+                  default='',
+                  dest='build_file')
 
     p.add_option ('-p', '--target-platform', action='store',
                   dest='platform',
@@ -53,7 +54,28 @@ package - build installer binary
                   default=None,
                   help='select target platform',
                   choices=settings_mod.platforms.keys ())
-    return p
+
+    (options, args) = p.parse_args ()
+
+    if not options.platform:
+        raise Exception ('error: no platform specified')
+        cli_parser.print_help ()
+        sys.exit (2)
+
+    
+    options.installer_version = '0.0.0'
+    options.installer_build = '0'
+
+    if options.build_file:
+        options.installer_build = misc.grok_sh_variables (options.build_file)['INSTALLER_BUILD']
+    
+    if options.version_file:
+        d = misc.grok_sh_variables (options.version_file)
+        options.installer_version = ('%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d)
+
+    print "Using version number", options.installer_version, options.installer_build
+
+    return (options, args)
 
 
 def build_installer (installer, args):
@@ -120,13 +142,7 @@ def run_installer_commands (commands, settings, args):
 
 
 def main ():
-    cli_parser = get_cli_parser ()
-    (options, commands)  = cli_parser.parse_args ()
-
-    if not options.platform:
-        raise Exception ('error: no platform specified')
-        cli_parser.print_help ()
-        sys.exit (2)
+    (options, commands)  = parse_command_line()
 
     settings = settings_mod.get_settings (options.platform)
     settings.installer_version = options.installer_version
