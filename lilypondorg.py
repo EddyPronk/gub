@@ -155,9 +155,15 @@ def uploaded_build_number (version):
 def upload_binaries (version):
     build = uploaded_build_number (version) + 1
     version_str = '.'.join (['%d' % v for v in version])
+    branch = 'HEAD'
+    if (version[1] % 2) == 0:
+        branch = 'lilypond_%d_%d' % (version[0], version[1])
+
 
     src_dests = []
-    barf = 0
+    cmds = []
+
+    barf = False
     for platform in platforms:
         plat = get_alias (platform)
         
@@ -177,6 +183,8 @@ def upload_binaries (version):
         if (platform <> 'documentation'
             and  not os.path.exists ('log/%s.test.pdf' % base)):
             print 'test result does not exist for %s' % base
+            cmds.append ('python test-lily/test-binary.py %s' % os.path.abspath (bin))
+            
             barf = 1
 
     src_tarball = "uploads/lilypond-%(version_str)s.tar.gz" % locals ()
@@ -190,22 +198,8 @@ def upload_binaries (version):
         majmin = '.'.join (['%d' % v for v in version[:2]])
         src_dests.append ((src_tarball, '%(host)s/v%(majmin)s' % locals ()) )
         
-    cmds = ['scp %s %s' % tup for tup in src_dests]
 
 
-    branch = 'HEAD'
-    if (version[1] % 2) == 0:
-        branch = 'lilypond_%d_%d' % (version[0], version[1])
-
-    entries = open ('downloads/lilypond-%s/CVS/Entries' % branch).read ()
-    changelog_match = re.search ('/ChangeLog/([0-9.]+)/([^/]+)', entries)
-    changelog_rev = changelog_match.group (1)
-    changelog_date = changelog_match.group (2)
-    
-    tag_cmd = 'darcs tag --patch "release %(version_str)s-%(build)d of ChangeLog rev %(changelog_rev)s %(changelog_date)s"' % locals()
-
-
-    cmds.append (tag_cmd)
     d = globals().copy()
     d.update (locals())
 
@@ -216,8 +210,21 @@ def upload_binaries (version):
     test_cmd =r'''python %(cwd)s/test-lily/rsync-lily-doc.py \
   --upload %(host_doc_spec)s \
   %(lilybuild)s/out-www/web-root/''' % d
+    
+    cmds.append (test_cmd)
 
-    cmds.insert (0, test_cmd)
+    cmds += ['scp %s %s' % tup for tup in src_dests]
+
+
+    entries = open ('downloads/lilypond-%s/CVS/Entries' % branch).read ()
+    changelog_match = re.search ('/ChangeLog/([0-9.]+)/([^/]+)', entries)
+    changelog_rev = changelog_match.group (1)
+    changelog_date = changelog_match.group (2)
+    
+    tag_cmd = 'darcs tag --patch "release %(version_str)s-%(build)d of ChangeLog rev %(changelog_rev)s %(changelog_date)s"' % locals()
+
+
+    cmds.append (tag_cmd)
     
     print '\n\n'
     print '\n'.join (cmds);
