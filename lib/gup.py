@@ -14,7 +14,7 @@ import cross
 import targetpackage
 from misc import *  # URG, fixme
 import locker
-
+import cygwin
 import gub ## ugh
 
 class GupException (Exception):
@@ -341,8 +341,26 @@ topological order
         deps = spec.get_build_dependencies ()
         return map (gub.get_base_package_name, deps)
 
+    def name_to_dependencies_via_cygwin (name):
+        try:
+            pack = spec_dict [name]
+        except KeyError:
+            try:
+                pack = cygwin.cygwin_name_to_dependency_names (name)
+            except KeyError:
+                pack = targetpackage.load_target_package (settings, name)
+
+        spec_dict[name] = pack
+
+        return pack.get_build_dependencies()
+
+
     ## todo: cygwin.
     name_to_deps = name_to_dependencies_via_gub
+    if settings.platform == 'cygwin':
+        cygwin.init_cygwin_package_finder (settings)
+        name_to_deps = name_to_dependencies_via_cygwin
+
 
     spec_names = topologically_sorted (todo, {}, name_to_deps)
 

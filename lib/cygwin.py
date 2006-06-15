@@ -21,7 +21,7 @@ tooldir="%(crossprefix)s/%(target_architecture)s"
         return ( cross.Binutils.configure_command (self)
                  + ' --disable-werror ')
 
-class W32api_in_usr_lib (gub.BinarySpec):
+class W32api_in_usr_lib (gub.BinarySpec, gub.SdkBuildSpec):
     def do_download (self):
         pass
     def untar (self):

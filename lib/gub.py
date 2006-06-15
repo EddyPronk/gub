@@ -433,7 +433,7 @@ rm -f %(install_root)s/usr/share/info/dir %(install_root)s/usr/cross/info/dir %(
             p.clean ()
             
     def get_build_dependencies (self):
-        return []
+        return ['cygwin']
 
     def get_subpackage_definitions (self):
         return [('devel', ['/usr/include',
