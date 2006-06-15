@@ -76,7 +76,7 @@ def check_files (tarball, cvs_repo):
     no_version = popen (r"cd %(dir)s && grep '\\version' -L %(ly_file_str)s" % locals ()).readlines ()
     if no_version:
         print 'Files without \\version: '
-        print ', '.join (no_version)
+        print '\n'.join (no_version)
         error_found = True
 
 
@@ -111,5 +111,7 @@ def main ():
     tarball = '%(builddir)s/out/lilypond-%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s.tar.gz' % config
     check_files (tarball, options.repository)
 
+    # uploading is done by makefile.
+    
 if __name__ == '__main__':
     main ()

@@ -80,7 +80,6 @@ INSTALLING
 this should leave packages in
 
   uploads/PLATFORM/
-  uploads/PLATFORM-cross/
 
 and an installer in
 

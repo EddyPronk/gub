@@ -204,8 +204,8 @@ def upload_binaries (version):
     d.update (locals())
 
     d['cwd'] = os.getcwd ()
-    d['lilybuild'] = d['cwd'] + 'target/%(build_platform)s/build/lilypond-%(branch)s' % d
-    d['lilysrc'] = d['cwd'] + 'target/%(build_platform)s/src/lilypond-%(branch)s' % d 
+    d['lilybuild'] = d['cwd'] + '/target/%(build_platform)s/build/lilypond-%(branch)s' % d
+    d['lilysrc'] = d['cwd'] + '/target/%(build_platform)s/src/lilypond-%(branch)s' % d 
     
     test_cmd =r'''python %(cwd)s/test-lily/rsync-lily-doc.py \
   --upload %(host_doc_spec)s \
