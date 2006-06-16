@@ -112,6 +112,8 @@ def parse_options ():
     dry_run = opts.dry_run
     opts.make_options += " BRANCH=%s" % opts.branch
 
+    if opts.test_options.find ('--repository') == -1:
+        opts.test_options += ' --repository downloads/lilypond-%s ' % opts.branch
 
         
     return (opts, args)
