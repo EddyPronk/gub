@@ -256,7 +256,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
         for i in self.locate_files ('%(builddir)s', "Makefile"):
             self.file_sub ([
                 ('PATH_SEPARATOR = .', 'PATH_SEPARATOR = ;'),
-                ], '%(builddir)s/' + i)
+                ], i)
 
         self.file_sub ([
             ('^(allow_undefined_flag=.*)unsupported', '\\1'),
