@@ -53,13 +53,15 @@ class W32api (gub.BinarySpec, gub.SdkBuildSpec):
               ignore_error=True)
 
 def get_cross_packages (settings):
-    return [cross.Binutils (settings).with (version='2.16.1', format='bz2'),
-            Gcc (settings).with (version='4.1.0',
+    return [cross.Binutils (settings).with (version='2.16.1',
+                                            format='bz2'),
+            Gcc (settings).with (version='4.1.1',
                                  mirror=download.gcc_41),
-            Mingw_runtime (settings).with (version='3.9', mirror=download.mingw),
-            W32api (settings).with (version='3.5', mirror=download.mingw),
+            Mingw_runtime (settings).with (version='3.9',
+                                           mirror=download.mingw),
+            W32api (settings).with (version='3.5',
+                                    mirror=download.mingw),
             ]
-
 
 def change_target_packages (packages):
     cross.change_target_packages (packages)

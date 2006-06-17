@@ -171,6 +171,7 @@ if __name__=='__main__':
     import settings
     s = settings.Settings ('arm')
     c = Os_context_wrapper (s)
+
+    print c.locate_files ('/etc/', '*.conf')
     
     print p.expand ('%(name)s %(bladir)s')
-    print c.locate_files ('_darcs', '*.gz')

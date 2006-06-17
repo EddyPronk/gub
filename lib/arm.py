@@ -21,7 +21,7 @@ def get_cross_packages (settings):
                                                     mirror=download.lkh_deb,
                                                     format='deb'),
         cross.Binutils (settings).with (version='2.16.1', format='bz2'),
-        cross.Gcc (settings).with (version='4.1.0', mirror=download.gcc_41,
+        cross.Gcc (settings).with (version='4.1.1', mirror=download.gcc_41,
                                    format='bz2'),
         )
 

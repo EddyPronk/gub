@@ -211,7 +211,7 @@ def get_cross_packages (settings):
                                             format='bz2')]
 
     if settings.target_architecture.startswith ("powerpc"):
-        packages.append (Gcc (settings).with (version='4.1.0',
+        packages.append (Gcc (settings).with (version='4.1.1',
                                               mirror=download.gcc_41,
                                               format='bz2'))
     else:
