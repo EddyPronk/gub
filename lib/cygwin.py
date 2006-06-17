@@ -22,6 +22,8 @@ tooldir="%(crossprefix)s/%(target_architecture)s"
                  + ' --disable-werror ')
 
 class W32api_in_usr_lib (gub.BinarySpec, gub.SdkBuildSpec):
+    def get_build_dependencies (self):
+        return ['w32api']
     def do_download (self):
         pass
     def untar (self):
@@ -31,6 +33,8 @@ tar -C %(system_root)s/usr/lib/w32api -cf- . | tar -C %(srcdir)s/root/usr/lib -x
 ''')
 
 class Gcc (mingw.Gcc):
+    def get_build_dependencies (self):
+        return mingw.Gcc.get_build_dependencies (self) + ['w32api-in-usr-lib']
     def makeflags (self):
         return misc.join_lines ('''
 tooldir="%(crossprefix)s/%(target_architecture)s"
