@@ -186,19 +186,7 @@ def main ():
     system (python_cmd + 'test-gub.py %s %s '
             % (opts.test_options, ' '.join (["'%s'" % c for c in test_cmds])))
 
-    if opts.build_docs and not opts.clean:
-
-        ## refresh once a day 
-        system ("find %s/ -name 'lily-[0-9]*' -mtime +1   -exec rm '{}' ';'" % lily_build_dir)
-        
-        ## texi2dvi leaves junk that confuse make. FIXME
-        system ("rm -f %s/Documentation/user/out-www/{lilypond,lilypond-internals,music-glossary}.*"
-                % lily_build_dir)
-        
-        
 if __name__ == '__main__':
     main ()
 
 
-    
-                      
