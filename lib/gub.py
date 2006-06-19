@@ -61,10 +61,10 @@ class PackageSpec:
             self._os_interface.system (base + f)
             
     def create_tarball (self):
-        cmd = self.expand ('tar -C %(install_root)s --ignore-failed --exclude="*~" -zcf %(split_ball)s ')
-        cmd += (' '.join ('./%s' % f for f in self._file_specs)).replace ('//','/')
-
-        
+        cmd = 'tar -C %(install_root)s --ignore-failed --exclude="*~" -zcf %(split_ball)s '
+        cmd += (' '.join ('$(cd %%(install_root)s && echo ./%s)'
+                          % f for f in self._file_specs)).replace ('//','/')
+        cmd = self.expand (cmd)
         self._os_interface.system (cmd)
 
     def dict (self):
