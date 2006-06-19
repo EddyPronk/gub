@@ -236,6 +236,11 @@ class Guile__cygwin (Guile):
                                       '/usr/share/guile']
         return d
 
+    def get_dependency_dict (self):
+        d = Guile.get_dependency_dict (self)
+        d[''].append ('cygwin')
+        return d
+
     def get_build_dependencies (self):
         return ['gmp', 'libiconv', 'libtool']
 
