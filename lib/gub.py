@@ -438,6 +438,9 @@ rm -f %(install_root)s/usr/share/info/dir %(install_root)s/usr/cross/info/dir %(
     def get_subpackage_definitions (self):
         return [('devel', ['/usr/include',
                            '/usr/cross/include',
+                           '/usr/share/aclocal',
+                           '/usr/lib/lib*.a',
+                           '/usr/lib/pkgconfig',
                            ]),
                 ('doc', ['/usr/share/doc',
                          '/usr/share/gtk-doc',
