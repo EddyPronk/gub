@@ -60,10 +60,6 @@ class Gcc (cross.Gcc):
         self.file_sub ([('--strip-underscores', '--strip-underscore')],
                        "%(srcdir)s/libstdc++-v3/scripts/make_exports.pl")
 
-        if int (self.expand('%(version)s')[2]) < 2:
-            self.file_sub ([("nm", "%(tool_prefix)snm ")],
-                           "%(srcdir)s/libstdc++-v3/scripts/make_exports.pl")
-
     def configure_command (self):
         c = cross.Gcc.configure_command (self)
 #                c = re.sub ('enable-shared', 'disable-shared', c)

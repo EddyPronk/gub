@@ -224,17 +224,20 @@ class Guile__cygwin (Guile):
         self.with (version='1.8.0',
                    mirror=download.gnu, format='gz')
 
-        # FIXME: WIP.  splitting works, xpm can't handle split
-        # packages yet, xpm will try to load FOO.py for
-        # every split package FOO, eg: libguile17.py.
-
-        # FIXME: Must disable when building guile for lilypond,
-        # must enable for building guile (installer) for cygwin,
-        # so cannot simply use cmdline --split switch.
         self.sover = '17'
 
+    def get_subpackage_names (self):
+        return ['doc', 'devel', 'libguile' + self.sover, '']
+
+    def get_subpackage_definitions (self):
+        d = dict (Guile.get_subpackage_definitions (self))
+        d['devel'] = d['devel'] + ['/usr/bin/*-config']
+        d['libguile' + self.sover] = ['/usr/bin/cyg*dll', '/usr/lib',
+                                      '/usr/share/guile']
+        return d
+
     def get_build_dependencies (self):
-        return Guile.get_build_dependencies (self) + ['libiconv']
+        return ['gmp', 'libiconv', 'libtool']
 
     def config_cache_overrides (self, str):
         return str + '''
@@ -256,7 +259,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
         for i in self.locate_files ('%(builddir)s', "Makefile"):
             self.file_sub ([
                 ('PATH_SEPARATOR = .', 'PATH_SEPARATOR = ;'),
-                ], '%(builddir)s/' + i)
+                ], i)
 
         self.file_sub ([
             ('^(allow_undefined_flag=.*)unsupported', '\\1'),
@@ -304,10 +307,11 @@ mkdir -p %(install_root)s/etc/hints
 ''')
         readme = open (self.settings.sourcefiledir + '/guile.README').read ()
 
+        # FIXME, what's the name of build number this week?
+        bundle_build = "1"
         self.dump (readme,
-             '%(install_root)s/usr/share/doc/Cygwin/%(name)s-%(version)s-%(bundle_build)s.README',
-             env=locals ())
-
+                   '%(install_root)s/usr/share/doc/Cygwin/%(name)s-%(version)s-%(bundle_build)s.README',
+                   env=locals ())
 
         fixdepends = {
             'guile': ['cygwin', 'libguile17', 'libncurses8', 'libreadline6'],

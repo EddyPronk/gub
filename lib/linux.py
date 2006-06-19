@@ -42,9 +42,10 @@ class Linux_kernel_headers (gub.BinarySpec, gub.SdkBuildSpec):
     def get_subpackage_names (self):
         return ['']
 
-# use gcc 4.0 because
-"""configure:2076: i686-linux-g++    -L/var/tmp/test-gub/target/linux/system/usr/lib -L/var/tmp/test-gub/target/linux/system/usr/bin -L/var/tmp/test-gub/target/linux/system/usr/lib/w32api -Wl,--as-needed  -Wl,--rpath,'$${ORIGIN}/../lib/'  conftest.cc  >&5
-/var/tmp/test-gub/target/linux/system/usr/lib/libstdc++.so: undefined reference to `___tls_get_addr'"""
+class Gcc (cross.Gcc):
+    ## TODO: should detect whether libc supports TLS 
+    def configure_command (self):
+        return cross.Gcc.configure_command (self) + ' --disable-tls '
 
 def get_cross_packages (settings):
     packages = [
@@ -55,8 +56,8 @@ def get_cross_packages (settings):
         Linux_kernel_headers (settings).with (version='2.6.13+0rc3-2.1',
                                               mirror=download.lkh_deb, format='deb'),
         cross.Binutils (settings).with (version='2.16.1', format='bz2'),
-        cross.Gcc (settings).with (version='4.0.2',
-                                   mirror=download.gcc, format='bz2'),
+        Gcc (settings).with (version='4.1.1',
+                             mirror=download.gcc, format='bz2'),
         ]
     return packages
 

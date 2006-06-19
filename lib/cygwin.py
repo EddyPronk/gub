@@ -34,7 +34,8 @@ tar -C %(system_root)s/usr/lib/w32api -cf- . | tar -C %(srcdir)s/root/usr/lib -x
 
 class Gcc (mingw.Gcc):
     def get_build_dependencies (self):
-        return mingw.Gcc.get_build_dependencies (self) + ['w32api-in-usr-lib']
+        #return mingw.Gcc.get_build_dependencies (self) + ['cygwin', 'cygwin-devel', 'w32api-in-usr-lib', 'w32api-in-usr-lib-devel']
+        return mingw.Gcc.get_build_dependencies (self) + ['cygwin', 'w32api-in-usr-lib']
     def makeflags (self):
         return misc.join_lines ('''
 tooldir="%(crossprefix)s/%(target_architecture)s"
@@ -60,7 +61,7 @@ def get_cross_packages (settings):
     cross_packs = [
         Binutils (settings).with (version='20050610-1', format='bz2', mirror=download.cygwin),
         W32api_in_usr_lib (settings).with (version='1.0'),
-        Gcc (settings).with (version='4.1.0', mirror=download.gcc_41, format='bz2'),
+        Gcc (settings).with (version='4.1.1', mirror=download.gcc_41, format='bz2'),
         ]
 
     return cross_packs
@@ -69,7 +70,7 @@ def change_target_packages (packages):
     cross.change_target_packages (packages)
 
     # FIXME: this does not work
-    for p in packages:
+    for p in []: #$ packages:
         old_callback = p.get_build_dependencies
         p.get_build_dependencies = cross.MethodOverrider (old_callback,
                                                           lambda old_val, extra_arg: old_val + extra_arg, ['cygwin'],).method
