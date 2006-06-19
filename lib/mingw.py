@@ -8,10 +8,10 @@ import cross
 class Gcc (cross.Gcc):
     def patch (self):
         for f in ['%(srcdir)s/gcc/config/i386/mingw32.h',
-             '%(srcdir)s/gcc/config/i386/t-mingw32']:
+                  '%(srcdir)s/gcc/config/i386/t-mingw32']:
             self.file_sub ([('/mingw/include','/usr/include'),
-                    ('/mingw/lib','/usr/lib'),
-                    ], f)
+                            ('/mingw/lib','/usr/lib'),
+                            ], f)
 
 # UGH: MI
 class Mingw_runtime (gub.BinarySpec, gub.SdkBuildSpec):
