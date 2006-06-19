@@ -226,8 +226,18 @@ class Guile__cygwin (Guile):
 
         self.sover = '17'
 
+    def get_subpackage_names (self):
+        return ['doc', 'devel', 'libguile' + self.sover, '']
+
+    def get_subpackage_definitions (self):
+        d = dict (Guile.get_subpackage_definitions (self))
+        d['devel'] = d['devel'] + ['/usr/bin/*-config']
+        d['libguile' + self.sover] = ['/usr/bin/cyg*dll', '/usr/lib',
+                                      '/usr/share/guile']
+        return d
+
     def get_build_dependencies (self):
-        return Guile.get_build_dependencies (self) + ['libiconv']
+        return ['gmp', 'libiconv', 'libtool']
 
     def config_cache_overrides (self, str):
         return str + '''
