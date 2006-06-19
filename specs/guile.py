@@ -224,13 +224,6 @@ class Guile__cygwin (Guile):
         self.with (version='1.8.0',
                    mirror=download.gnu, format='gz')
 
-        # FIXME: WIP.  splitting works, xpm can't handle split
-        # packages yet, xpm will try to load FOO.py for
-        # every split package FOO, eg: libguile17.py.
-
-        # FIXME: Must disable when building guile for lilypond,
-        # must enable for building guile (installer) for cygwin,
-        # so cannot simply use cmdline --split switch.
         self.sover = '17'
 
     def get_build_dependencies (self):
