@@ -34,7 +34,8 @@ tar -C %(system_root)s/usr/lib/w32api -cf- . | tar -C %(srcdir)s/root/usr/lib -x
 
 class Gcc (mingw.Gcc):
     def get_build_dependencies (self):
-        return mingw.Gcc.get_build_dependencies (self) + ['w32api-in-usr-lib']
+        #return mingw.Gcc.get_build_dependencies (self) + ['cygwin', 'cygwin-devel', 'w32api-in-usr-lib', 'w32api-in-usr-lib-devel']
+        return mingw.Gcc.get_build_dependencies (self) + ['cygwin', 'w32api-in-usr-lib']
     def makeflags (self):
         return misc.join_lines ('''
 tooldir="%(crossprefix)s/%(target_architecture)s"
