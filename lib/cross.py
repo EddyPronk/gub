@@ -40,6 +40,19 @@ class Binutils (CrossToolSpec):
 class Gcc (CrossToolSpec):
     def get_build_dependencies (self):
         return ['binutils']
+
+    @subst_method
+    def NM_FOR_TARGET(self):
+         return "%(tool_prefix)snm"
+
+    def get_subpackage_names (self):
+        return ['doc', 'runtime', '']
+
+    def get_subpackage_definitions (self):
+        d = CrossToolSpec.get_subpackage_definitions (self)
+        d = dict (d)
+        d['runtime'] = ['/usr/lib'] 
+        return d
     
     def configure_command (self):
         cmd = CrossToolSpec.configure_command (self)
@@ -68,9 +81,6 @@ class Gcc (CrossToolSpec):
             cmd +=  ' ' + cxx_opt
 
         return misc.join_lines (cmd)
-    def configure(self):
-        CrossToolSpec.configure (self)
-
 
     def move_target_libs (self, libdir):
         if not os.path.isdir (libdir):

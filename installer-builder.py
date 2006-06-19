@@ -96,20 +96,8 @@ def build_installer (installer, args):
                                               get_dep,
                                               None)
 
-    ## fixme: should split GCC in gcc and gcc-runtime.
-    package_names += [p.name() for p in cross.get_cross_packages (settings)]
-    def is_sdk (x):
-        try:
-            return install_manager.package_dict (p)['is_sdk_package'] == 'true'
-        except KeyError:
-            # ugh.
-            return (x in ['darwin-sdk', 'w32api', 'freebsd-runtime',
-                          'mingw-runtime', 'libc6', 'libc6-dev',
-                          'linux-kernel-headers',
-                          ])
-
-    package_names = [p for p in package_names
-                     if not is_sdk (p)]
+    ## Ugh? 
+    package_names += ["gcc-runtime"]
 
     for a in package_names:
         install_manager.install_package (a)

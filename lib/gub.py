@@ -61,10 +61,10 @@ class PackageSpec:
             self._os_interface.system (base + f)
             
     def create_tarball (self):
-        cmd = self.expand ('tar -C %(install_root)s --ignore-failed --exclude="*~" -zcf %(split_ball)s ')
-        cmd += (' '.join ('./%s' % f for f in self._file_specs)).replace ('//','/')
-
-        
+        cmd = 'tar -C %(install_root)s --ignore-failed --exclude="*~" -zcf %(split_ball)s '
+        cmd += (' '.join ('$(cd %%(install_root)s && echo ./%s)'
+                          % f for f in self._file_specs)).replace ('//','/')
+        cmd = self.expand (cmd)
         self._os_interface.system (cmd)
 
     def dict (self):
@@ -438,6 +438,9 @@ rm -f %(install_root)s/usr/share/info/dir %(install_root)s/usr/cross/info/dir %(
     def get_subpackage_definitions (self):
         return [('devel', ['/usr/include',
                            '/usr/cross/include',
+                           '/usr/share/aclocal',
+                           '/usr/lib/lib*.a',
+                           '/usr/lib/pkgconfig',
                            ]),
                 ('doc', ['/usr/share/doc',
                          '/usr/share/gtk-doc',
@@ -464,7 +467,7 @@ rm -f %(install_root)s/usr/share/info/dir %(install_root)s/usr/cross/info/dir %(
                 p._dependencies = [self.expand ("%(name)s")]
                 
             p._file_specs = filespecs
-            p.set_dict (self.get_substitution_dict(), sub)
+            p.set_dict (self.get_substitution_dict (), sub)
             ps.append (p)
 
         d = self.get_dependency_dict ()
@@ -570,7 +573,10 @@ rm -rf %(srcdir)s %(builddir)s %(install_root)s
         follow this command, since it will erase the old install_root first."""
         
         self.system ('mkdir -p %(install_root)s')
-        self.system ('tar -C %(srcdir)s/root -cf- . | tar -C %(install_root)s -xf-')
+        _verbose = ''
+        if self.verbose:
+            _verbose = ' -v'
+        self.system ('tar -C %(srcdir)s/root -cf- . | tar -C %(install_root)s%(_verbose)s -xf-', env=locals ())
         self.libtool_installed_la_fixups ()
 
 class NullBuildSpec (BuildSpec):
