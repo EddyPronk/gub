@@ -307,10 +307,11 @@ mkdir -p %(install_root)s/etc/hints
 ''')
         readme = open (self.settings.sourcefiledir + '/guile.README').read ()
 
+        # FIXME, what's the name of build number this week?
+        bundle_build = "1"
         self.dump (readme,
-             '%(install_root)s/usr/share/doc/Cygwin/%(name)s-%(version)s-%(bundle_build)s.README',
-             env=locals ())
-
+                   '%(install_root)s/usr/share/doc/Cygwin/%(name)s-%(version)s-%(bundle_build)s.README',
+                   env=locals ())
 
         fixdepends = {
             'guile': ['cygwin', 'libguile17', 'libncurses8', 'libreadline6'],
