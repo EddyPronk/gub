@@ -467,7 +467,7 @@ rm -f %(install_root)s/usr/share/info/dir %(install_root)s/usr/cross/info/dir %(
                 p._dependencies = [self.expand ("%(name)s")]
                 
             p._file_specs = filespecs
-            p.set_dict (self.get_substitution_dict(), sub)
+            p.set_dict (self.get_substitution_dict (), sub)
             ps.append (p)
 
         d = self.get_dependency_dict ()
