@@ -160,6 +160,10 @@ class LilyPond__cygwin (LilyPond):
         return {'': ['fontconfig', 'freetype2', 'gettext', 'glib2', 'guile',
                      'libiconv', 'pango', 'python']}
 
+    def get_build_dependencies (self):
+        #return ['gettext-devel', 'glib2-devel', 'guile-devel', 'libfontconfig-devel', 'libfreetype2-devel', 'libiconv', 'pango-devel', 'python']
+        return ['gettext-devel', 'glib2-devel', 'guile', 'libfontconfig-devel', 'libfreetype2-devel', 'libiconv', 'pango-devel', 'python']
+
     def compile_command (self):
 
         ## UGH - * sucks.
@@ -211,8 +215,9 @@ mkdir -p %(install_root)s/etc/hints
 ''')
 
         readme = open (self.settings.sourcefiledir + '/lilypond.README').read ()
+        bundle_build = "1"
         self.dump (readme,
-                   '%(install_root)s/usr/share/doc/Cygwin/%(name)s-%(bundle_version)s-%(bundle_build)s.README',
+                   '%(install_root)s/usr/share/doc/Cygwin/%(name)s-%(version)s-%(bundle_build)s.README',
                    env=locals ())
 
         fixdepends = {
@@ -232,7 +237,8 @@ mkdir -p %(install_root)s/etc/hints
                  env=locals ())
 
     def split_doc (self):
-        docball = self.expand ('%(uploads)s/lilypond-%(bundle_version)s-%(bundle_build)s.documentation.tar.bz2')
+        bundle_build = "1"
+        docball = self.expand ('%(uploads)s/lilypond-%(version)s-%(bundle_build)s.documentation.tar.bz2', env=locals ())
         if not os.path.exists (docball):
             # Must not have cygwin CC, CXX settings.
             os.system ('''make doc''')
