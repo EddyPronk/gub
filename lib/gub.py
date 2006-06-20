@@ -444,12 +444,13 @@ rm -f %(install_root)s/usr/share/info/dir %(install_root)s/usr/cross/info/dir %(
                            ]),
                 ('doc', ['/usr/share/doc',
                          '/usr/share/gtk-doc',
-                         '/usr/share/info',
-                         '/usr/share/man',
-                         '/usr/cross/info',
-                         '/usr/cross/man',
-                         ]),
-                ('', '/')]
+                        '/usr/share/info',
+                        '/usr/share/man',
+                        '/usr/cross/info',
+                        '/usr/cross/man',
+                        ],
+                '': ['/']
+                }
 
     def get_subpackage_names (self):
         return ['devel','doc','']
