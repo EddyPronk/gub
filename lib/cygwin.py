@@ -73,7 +73,7 @@ def change_target_packages (packages):
     for p in []: #$ packages:
         old_callback = p.get_build_dependencies
         p.get_build_dependencies = cross.MethodOverrider (old_callback,
-                                                          lambda old_val, extra_arg: old_val + extra_arg, ['cygwin'],).method
+                                                          lambda old_val, extra_arg: old_val + extra_arg, (['cygwin'],)).method
         
         gub.change_target_dict (p, {
             'DLLTOOL': '%(tool_prefix)sdlltool',
