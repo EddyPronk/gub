@@ -436,20 +436,20 @@ rm -f %(install_root)s/usr/share/info/dir %(install_root)s/usr/cross/info/dir %(
         return []
 
     def get_subpackage_definitions (self):
-        return [('devel', ['/usr/include',
+        return {'devel': ['/usr/include',
                            '/usr/cross/include',
                            '/usr/share/aclocal',
                            '/usr/lib/lib*.a',
                            '/usr/lib/pkgconfig',
-                           ]),
-                ('doc', ['/usr/share/doc',
+                           ],
+                'doc': ['/usr/share/doc',
                          '/usr/share/gtk-doc',
                         '/usr/share/info',
                         '/usr/share/man',
                         '/usr/cross/info',
                         '/usr/cross/man',
                         ],
-                '': ['/']
+                '': ['/'],
                 }
 
     def get_subpackage_names (self):
