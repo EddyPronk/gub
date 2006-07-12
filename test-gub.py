@@ -99,7 +99,13 @@ def opt_parser ():
                   dest='sender',
                   default=address,
                   help='whom to list as sender')
-    
+
+    p.add_option ('--diff',
+                  action='store_true',
+                  dest="make_diff",
+                  default=False,
+                  help="Generate diffs from last successful build")
+
     p.add_option ('--repository',
                   action="store",
                   dest="repository",
@@ -168,12 +174,12 @@ def test_target (repo, options, target, last_patch):
     
     body = read_tail (logfile, 10240).split ('\n')
     if stat:
-        diff = repo.get_diff_from_tag (base_tag)
-
         result = 'FAIL'
         attachments = ['error for\n\n\t%s\n\n\n%s' % (target,
-                                               '\n'.join (body[-0:])),
-                       diff]
+                                               '\n'.join (body[-0:]))]
+
+        if options.make_diff:
+            attachments += [repo.get_diff_from_tag (base_tag)]
     else:
         tag = base_tag + canonicalize_target (last_patch['date'])
         repo.tag (tag)
