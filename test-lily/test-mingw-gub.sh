@@ -29,7 +29,7 @@ status="$?"
 
 cachefile=`cat "/cygdrive/c/Program Files/LilyPond/usr/etc/fonts/local.conf" | grep cache | sed 's!<cache>!!g' | sed 's!</cache>!!g' | sed 's!~!'$HOME'!g' `
 
-if test ! -s "$cachefile" ; then
+if test -s "$cachefile" ; then
 	status="1"
 	echo "$cachefile has zero length"
 fi 
