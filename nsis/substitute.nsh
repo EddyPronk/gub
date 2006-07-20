@@ -66,20 +66,8 @@ Function SubstituteAtVariablesCallback
 	Push "$INSTDIR"
 	Call StrRep
 
-	Push "@BUNDLE_VERSION@"
-	Push "${BUNDLE_VERSION}"
-	Call StrRep
-
-	Push "@GUILE_VERSION@"
-	Push "${GUILE_VERSION}"
-	Call StrRep
-
 	Push "@LILYPOND_VERSION@"
 	Push "${LILYPOND_VERSION}"
-	Call StrRep
-
-	Push "@PYTHON_VERSION@"
-	Push "${PYTHON_VERSION}"
 	Call StrRep
 
 	Push "@SLASHED_INSTDIR@"
