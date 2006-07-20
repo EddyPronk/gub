@@ -4,7 +4,7 @@ import os
 class Nsis (ToolBuildSpec):
     def __init__ (self, settings):
         ToolBuildSpec.__init__(self, settings)
-        self.with (version='2.17',
+        self.with (version='2.18',
                    mirror="http://surfnet.dl.sourceforge.net/sourceforge/%(name)s/%(name)s-%(version)s-src.tar.%(format)s",
                    
                    format="bz2")
@@ -13,10 +13,6 @@ class Nsis (ToolBuildSpec):
         return ["scons"]
 
     def patch (self):
-  
-        if 0: # 2.16
-            self.system ("cd %(srcdir)s && patch -p1 < %(patchdir)s/nsis-2.16-macos.patch")
-            self.system ("cd %(srcdir)s && patch -p0 < %(patchdir)s/nsis-2.16-platform-h.patch")
         self.system ('mkdir -p %(allbuilddir)s', ignore_error=True)
         self.system ('ln -s %(srcdir)s %(builddir)s') 
 		
