@@ -6,6 +6,7 @@ import cross
 import gup
 import gub
 import misc
+import settings
 
 from new import classobj
 
@@ -76,10 +77,12 @@ class Debian_dependency_finder:
         url = mirror + packages_path
 
         downloaddir = self.settings.downloaddir
-        file = self.settings.downloaddir + '/Packages'
+        base = self.settings.downloaddir + '/Packages'
+        file = base + '.' + self.settings.platform
         if not os.path.exists (file):
-            misc.download_url (url, settings.downloaddir )###self.expand ('%(downloaddir)s'))
-            os.system ('gunzip  %(file)s.gz' % locals ())
+            misc.download_url (url, self.settings.downloaddir )
+            os.system ('gunzip  %(base)s.gz' % locals ())
+            os.system ('mv %(base)s %(file)s' % locals ())
 
         pack_list  = get_debian_packages (self.settings, file)
         for p in pack_list:
