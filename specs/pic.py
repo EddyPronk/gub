@@ -22,8 +22,30 @@ class Pic (targetpackage.TargetBuildSpec):
         ## upnpAllegro is broken
         return True
 
+    def get_stable_build_dependencies (self):
+        return ['libbluetooth1-dev',
+                'libboost-dev',
+                'libboost-filesystem-dev',
+                'libdbi0-dev',
+                'libgphoto2-2-dev',
+                'libobexftp-dev',
+                'libopenobex-1.0-0-dev',
+                'libxerces26-dev',
+                'uuid-dev']
+
     def get_build_dependencies (self):
-        return ['libdbi0-dev', 'libboost-dev']
+        return ['libbluetooth2-dev',
+                'libboost-dev',
+                'libboost-filesystem-dev',
+                'libdbi0-dev',
+                'libexif-dev',
+                'libgphoto2-2-dev',
+                'libid3-3.8.3-dev',
+                'libneon25-dev',
+                'libobexftp-dev',
+                'libopenobex-1.0-0-dev',
+                'libxerces26-dev',
+                'uuid-dev']
 
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
