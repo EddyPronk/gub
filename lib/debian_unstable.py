@@ -5,6 +5,7 @@ import re
 import cross
 import gup
 import gub
+import misc
 
 from new import classobj
 
