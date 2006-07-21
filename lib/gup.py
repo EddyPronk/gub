@@ -15,6 +15,7 @@ import targetpackage
 from misc import *  # URG, fixme
 import locker
 import cygwin
+import debian_unstable
 import gub ## ugh
 
 class GupException (Exception):
@@ -354,13 +355,30 @@ topological order
 
         return pack.get_build_dependencies()
 
+    def name_to_dependencies_via_debian (name):
+        try:
+            pack = spec_dict [name]
+        except KeyError:
+            try:
+                pack = debian_unstable.debian_name_to_dependency_names (name)
+            except KeyError:
+                pack = targetpackage.load_target_package (settings, name)
+
+        spec_dict[name] = pack
+
+        return pack.get_build_dependencies()
+
 
     ## todo: cygwin.
     name_to_deps = name_to_dependencies_via_gub
     if settings.platform == 'cygwin':
         cygwin.init_cygwin_package_finder (settings)
         name_to_deps = name_to_dependencies_via_cygwin
-
+    # TODO: arm, debian unstable
+    elif settings.platform == 'mipsel':
+        debian_unstable.init_debian_package_finder (settings,
+                                                    '/dists/stable/main/binary-mipsel/Packages.gz')
+        name_to_deps = name_to_dependencies_via_debian
 
     spec_names = topologically_sorted (todo, {}, name_to_deps)
 

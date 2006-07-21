@@ -1,14 +1,17 @@
 import os
+import string
+import re
 #
 import cross
 import gup
+import gub
 
 from new import classobj
 
 mirror = 'http://ftp.de.debian.org/debian'
 
 ## FIXME FIXME 
-def get_cross_packages (settings):
+def xxxget_cross_packages (settings):
     p = gup.DependencyManager (settings.system_root, settings.os_interface)
     url = mirror + '/dists/unstable/main/binary-i386/Packages.gz'
     
@@ -59,3 +62,36 @@ def get_debian_package (settings, description):
     package.format = 'deb'
 
     return package
+
+## FIXME: c&p cygwin.py
+class Debian_dependency_finder:
+    def __init__ (self, settings):
+        self.settings = settings
+        self.packages = {}
+        
+    def download (self, packages_path):
+        p = gup.DependencyManager (self.settings.system_root,
+                                   self.settings.os_interface)
+        url = mirror + packages_path
+
+        downloaddir = self.settings.downloaddir
+        file = self.settings.downloaddir + '/Packages'
+        if not os.path.exists (file):
+            misc.download_url (url, settings.downloaddir )###self.expand ('%(downloaddir)s'))
+            os.system ('gunzip  %(file)s.gz' % locals ())
+
+        pack_list  = get_debian_packages (self.settings, file)
+        for p in pack_list:
+            self.packages[p.name()] = p
+
+    def get_dependencies (self, name):
+        return self.packages[name]
+        
+debian_dep_finder = None
+
+def init_debian_package_finder (settings, packages_path):
+    global debian_dep_finder
+    debian_dep_finder  = Debian_dependency_finder (settings)
+    debian_dep_finder.download (packages_path)
+def debian_name_to_dependency_names (name):
+    return debian_dep_finder.get_dependencies (name)

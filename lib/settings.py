@@ -16,9 +16,10 @@ platforms = {
     'linux': 'i686-linux',
     'local': 'local',
     'mingw': 'i686-mingw32',
+    'mipsel': 'mipsel-linux',
 }
 
-distros = ('cygwin', 'debian')
+distros = ('arm', 'cygwin', 'debian', 'mipsel')
             
 class Settings (Context):
     def __init__ (self, platform):
