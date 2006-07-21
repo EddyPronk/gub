@@ -19,11 +19,30 @@ class Mipsel_runtime (gub.BinarySpec, gub.SdkBuildSpec):
 #http://ftp.debian.org/debian/pool/main/l/linux-kernel-headers/linux-kernel-headers_2.5.999-test7-bk-17_mipsel.deb
 
 class Gcc_34 (cross.Gcc):
+    def __init__ (self, settings):
+        cross.Gcc.__init__ (self, settings)
+        self.settings.__dict__['no-c++'] = True
+
     def configure_command (self):
-        return (cross.Gcc.configure_command (self)
-                + '--program-suffix=-3.4')
-    #def name (self):
-    #    return 'gcc'
+        return misc.join_lines (cross.Gcc.configure_command (self)
+                               + '''
+--program-suffix=-3.4
+--with-ar=%(crossprefix)s/bin/%(target_architecture)s-ar
+--with-nm=%(crossprefix)s/bin/%(target_architecture)s-nm
+''')
+
+    def configure (self):
+        cross.Gcc.configure (self)
+        #FIXME: --with-ar, --with-nm does not work?
+        for i in ('ar', 'nm', 'ranlib'):
+            self.system ('cd %(crossprefix)s/bin && ln -sf %(target_architecture)s-%(i)s %(target_architecture)s-%(i)s-3.4', env=locals ())
+                
+    def install (self):
+        # get rid of duplicates
+        self.system ('''
+rm -rf %(install_root)s/usr/cross/info
+rm -rf %(install_root)s/usr/cross/man
+''')
 
 def get_cross_packages (settings):
     lst = [
