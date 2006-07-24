@@ -377,7 +377,7 @@ topological order
     # TODO: arm, debian unstable
     elif settings.platform == 'mipsel':
         debian_unstable.init_debian_package_finder (settings,
-                                                    '/dists/unstable/main/binary-mipsel/Packages.gz')
+                                                    '/dists/stable/main/binary-mipsel/Packages.gz')
         name_to_deps = name_to_dependencies_via_debian
 
     spec_names = topologically_sorted (todo, {}, name_to_deps)
