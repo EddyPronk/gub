@@ -32,6 +32,8 @@ def change_target_packages (packages):
 
 
 def get_debian_packages (settings, package_file):
+    if settings.verbose:
+        print ('reading packages file: %s' % package_file)
     return map (lambda j: get_debian_package (settings, j),
           open (package_file).read ().split ('\n\n')[:-1])
 
