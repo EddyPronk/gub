@@ -21,7 +21,9 @@ class Mipsel_runtime (gub.BinarySpec, gub.SdkBuildSpec):
 class Gcc_34 (cross.Gcc):
     def __init__ (self, settings):
         cross.Gcc.__init__ (self, settings)
-        self.settings.__dict__['no-c++'] = True
+        # FIXME: this overwrites cross.Gcc's dict, so that
+        # the default gcc's c++ is also not built?
+        #self.settings.__dict__['no-c++'] = True
 
     def configure_command (self):
         return misc.join_lines (cross.Gcc.configure_command (self)
