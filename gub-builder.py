@@ -265,11 +265,11 @@ def main ():
             deps = package.get_build_dependencies ()
 
             ## ugh.
-            deps = [gub.get_base_package_name (d) for d in deps]
+            if not settings.is_distro:
+                deps = [gub.get_base_package_name (d) for d in deps]
             return deps
 
-        deps = gup.topologically_sorted (commands, {}, get_all_deps,
-                                         None)
+        deps = gup.topologically_sorted (commands, {}, get_all_deps, None)
         if options.verbose:
             print 'deps:' + `deps`
 

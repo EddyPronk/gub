@@ -42,6 +42,9 @@ class Linux_kernel_headers (gub.BinarySpec, gub.SdkBuildSpec):
     def get_subpackage_names (self):
         return ['']
 
+class Libdbi0_dev (gub.BinarySpec, gub.SdkBuildSpec):
+    pass
+
 class Gcc (cross.Gcc):
     ## TODO: should detect whether libc supports TLS 
     def configure_command (self):

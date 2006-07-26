@@ -34,8 +34,8 @@ tar -C %(system_root)s/usr/lib/w32api -cf- . | tar -C %(srcdir)s/root/usr/lib -x
 
 class Gcc (mingw.Gcc):
     def get_build_dependencies (self):
-        #return mingw.Gcc.get_build_dependencies (self) + ['cygwin', 'cygwin-devel', 'w32api-in-usr-lib', 'w32api-in-usr-lib-devel']
-        return mingw.Gcc.get_build_dependencies (self) + ['cygwin', 'w32api-in-usr-lib']
+        return (mingw.Gcc.get_build_dependencies (self)
+                + ['cygwin', 'w32api-in-usr-lib'])
     def makeflags (self):
         return misc.join_lines ('''
 tooldir="%(crossprefix)s/%(target_architecture)s"
@@ -69,12 +69,14 @@ def get_cross_packages (settings):
 def change_target_packages (packages):
     cross.change_target_packages (packages)
 
-    # FIXME: this does not work
-    for p in []: #$ packages:
+    for p in packages.values ():
         old_callback = p.get_build_dependencies
         p.get_build_dependencies = cross.MethodOverrider (old_callback,
                                                           lambda old_val, extra_arg: old_val + extra_arg, (['cygwin'],)).method
         
+        # FIXME: why do cross packages get here too?
+        if isinstance (p, cross.CrossToolSpec):
+            continue
         gub.change_target_dict (p, {
             'DLLTOOL': '%(tool_prefix)sdlltool',
             'DLLWRAP': '%(tool_prefix)sdllwrap',
@@ -84,6 +86,7 @@ def change_target_packages (packages):
 
 import gup
 from new import classobj
+from new import instancemethod
 import gub
 import re
 
@@ -92,6 +95,7 @@ mirror = 'http://gnu.kookel.org/ftp/cygwin'
 def get_cygwin_package (settings, name, dict):
     package_class = classobj (name, (gub.BinarySpec,), {})
     package = package_class (settings)
+    package.name_dependencies = []
     if dict.has_key ('requires'):
         deps = re.sub ('\([^\)]*\)', '', dict['requires']).split ()
         deps = [x.strip ().lower ().replace ('_', '-') for x in deps]
@@ -132,6 +136,10 @@ def get_cygwin_package (settings, name, dict):
 
         # FIXME.
         ## package.name_build_dependencies = deps
+    def get_build_dependencies (self):
+        return self.name_dependencies
+    package.get_build_dependencies = instancemethod (get_build_dependencies,
+                                                     package, package_class)
     package.ball_version = dict['version']
         
     package.url = (mirror + '/'
@@ -150,10 +158,14 @@ def get_cygwin_packages (settings, package_file):
         name = lines[0].strip ()
         name = name.lower ()
         
-        blacklist = ('binutils', 'gcc', 'guile',
-                     'guile-devel', 'libguile12', 'libguile16',
-                     'libtool',
-                     'libtool1.5', 'libtool-devel', 'libltdl3', 'lilypond')
+        blacklist = ('binutils', 'gcc',
+                     ### FIXME: guile should be read from
+                     ### generated gub-setup.ini
+                     ###'guile', 'guile-devel', 'libguile12', 'libguile16',
+                     ### FIXME: we need our own libtool 
+                     'libtool', 'libtool1.5', 'libtool-devel', 'libltdl3',
+                     ### FIXME: we need to build lilypond from source
+                     'lilypond')
         
         if name in blacklist:
             continue
@@ -213,7 +225,7 @@ class Cygwin_dependency_finder:
 
         pack_list  = get_cygwin_packages (self.settings, file)
         for p in pack_list:
-            self.packages[p.name()] = p
+            self.packages[p.name ()] = p
 
     def get_dependencies (self, name):
         return self.packages[name]
@@ -224,5 +236,6 @@ def init_cygwin_package_finder (settings):
     global cygwin_dep_finder
     cygwin_dep_finder  = Cygwin_dependency_finder (settings)
     cygwin_dep_finder.download ()
+
 def cygwin_name_to_dependency_names (name):
     return cygwin_dep_finder.get_dependencies (name)

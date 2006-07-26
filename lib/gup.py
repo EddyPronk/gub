@@ -15,6 +15,7 @@ import targetpackage
 from misc import *  # URG, fixme
 import locker
 import cygwin
+import debian_unstable
 import gub ## ugh
 
 class GupException (Exception):
@@ -291,8 +292,13 @@ def topologically_sorted_one (todo, done, dependency_getter,
         if recurse_stop_predicate and recurse_stop_predicate (d):
             continue
 
-        assert type(d) == type (todo)
-        
+        if todo.settings.is_distro:
+            if not type (d) == type (todo):
+                print 'dependency not a todo: ' + `d`
+                continue
+        else:
+            assert type (d) == type (todo)
+
         sorted += topologically_sorted_one (d, done, dependency_getter,
                                             recurse_stop_predicate=recurse_stop_predicate)
 
@@ -326,7 +332,6 @@ topological order
     cross_packages = cross.get_cross_packages (settings)
     spec_dict = dict ((p.name (), p) for p in cross_packages)
 
-
     todo += spec_dict.keys ()
 
     def name_to_dependencies_via_gub (name):
@@ -354,13 +359,30 @@ topological order
 
         return pack.get_build_dependencies()
 
+    def name_to_dependencies_via_debian (name):
+        try:
+            pack = spec_dict [name]
+        except KeyError:
+            try:
+                pack = debian_unstable.debian_name_to_dependency_names (name)
+            except KeyError:
+                pack = targetpackage.load_target_package (settings, name)
+
+        spec_dict[name] = pack
+
+        return pack.get_build_dependencies()
+
 
     ## todo: cygwin.
     name_to_deps = name_to_dependencies_via_gub
     if settings.platform == 'cygwin':
         cygwin.init_cygwin_package_finder (settings)
         name_to_deps = name_to_dependencies_via_cygwin
-
+    # TODO: arm, debian unstable
+    elif settings.platform == 'mipsel':
+        debian_unstable.init_debian_package_finder (settings,
+                                                    '/dists/stable/main/binary-mipsel/Packages.gz')
+        name_to_deps = name_to_dependencies_via_debian
 
     spec_names = topologically_sorted (todo, {}, name_to_deps)
 
@@ -368,8 +390,13 @@ topological order
 
     cross.set_cross_dependencies (spec_dict)
 
-    def obj_to_dependency_objects (obj):
-        return [spec_dict[gub.get_base_package_name (n)] for n in obj.get_build_dependencies ()]
+    if settings.is_distro:
+        def obj_to_dependency_objects (obj):
+            return obj.get_build_dependencies ()
+    else:
+        def obj_to_dependency_objects (obj):
+            return [spec_dict[gub.get_base_package_name (n)]
+                    for n in obj.get_build_dependencies ()]
 
     spec_objs = topologically_sorted (spec_dict.values (), {},
                                       obj_to_dependency_objects)

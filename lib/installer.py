@@ -394,6 +394,7 @@ def get_installer (settings, args=[]):
         'freebsd' : Shar (settings),
         'linux' : Shar (settings),
         'mingw' : Nsis (settings),
+        'mipsel' : Shar (settings),
     }
 
     if settings.platform == 'cygwin':

@@ -157,15 +157,12 @@ class LilyPond__cygwin (LilyPond):
                    track_development=True)
 
     def get_dependency_dict (self):
-        #return {'': ['fontconfig', 'freetype2', 'gettext', 'glib2', 'guile',
-        #             'libiconv', 'pango', 'python']}
-        return {'': ['fontconfig', 'freetype2', 'glib2', 'guile',
-                     'libiconv', 'pango', 'python']}
+        return {'' : ['glib2-runtime', 'libfontconfig1', 'libfreetype2',
+                      'libguile17', 'libiconv', 'pango-runtime', 'python']}
 
     def get_build_dependencies (self):
-        #return ['gettext-devel', 'glib2-devel', 'guile-devel', 'libfontconfig-devel', 'libfreetype2-devel', 'libiconv', 'pango-devel', 'python']
-        #return ['gettext-devel', 'glib2-devel', 'guile', 'libfontconfig-devel', 'libfreetype2-devel', 'libiconv', 'pango-devel', 'python']
-        return ['glib2-devel', 'guile', 'libfontconfig-devel', 'libfreetype2-devel', 'libiconv', 'pango-devel', 'python']
+        return ['gettext-devel', 'glib2-devel', 'guile-devel',
+                'libfontconfig-devel', 'libfreetype2-devel', 'pango-devel']
 
     def compile_command (self):
 
