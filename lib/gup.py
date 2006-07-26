@@ -292,7 +292,8 @@ def topologically_sorted_one (todo, done, dependency_getter,
         if recurse_stop_predicate and recurse_stop_predicate (d):
             continue
 
-        if todo.settings.is_distro:
+        # FIXME
+        if 1: # todo.settings.is_distro:
             if not type (d) == type (todo):
                 print 'dependency not a todo: ' + `d`
                 continue
