@@ -320,6 +320,12 @@ class LilyPond__debian (LilyPond):
                    track_development=True)
     def install (self):
         targetpackage.TargetBuildSpec.install (self)
+    def get_build_dependencies (self):
+        return ['libguile-dev', 'python-dev', 'libfontconfig1-dev',
+                ## not really true, but makes our GNUmakefile more difficult otherwise 
+                'gs',
+                'gettext',  'libpango1.0-dev', 'libfreetype6-dev']
+    
 
 
 ##
@@ -369,3 +375,4 @@ Lilypond__darwin = LilyPond__darwin
 Lilypond__debian = LilyPond__debian
 Lilypond__mingw = LilyPond__mingw
 Lilypond__freebsd = LilyPond__freebsd
+Lilypond__mipsel = LilyPond__debian
