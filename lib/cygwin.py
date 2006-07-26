@@ -52,8 +52,7 @@ gcc_tooldir="%(crossprefix)s/%(target_architecture)s"
 --enable-threads
 '''))
     
-
-mirror = 'http://gnu.kookel.org/ftp/cygwin'
+mirror = 'http://ftp.uni-kl.de/pub/windows/cygwin'
 def get_cross_packages (settings):
 
     # FIXME: must add deps to buildeps, otherwise packages do not
@@ -89,8 +88,6 @@ from new import classobj
 from new import instancemethod
 import gub
 import re
-
-mirror = 'http://gnu.kookel.org/ftp/cygwin'
 
 def get_cygwin_package (settings, name, dict):
     package_class = classobj (name, (gub.BinarySpec,), {})
