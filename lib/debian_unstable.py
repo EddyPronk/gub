@@ -41,6 +41,10 @@ def get_debian_package (settings, description):
     s = description[:description.find ('\nDescription')]
     d = dict (map (lambda line: line.split (': ', 1),
            map (string.strip, s.split ('\n'))))
+    # FIXME: should blacklist toplevel gub-builder.py argument iso lilypond
+    blacklist = ['lilypond']
+    if d['Package'] in blacklist:
+        d['Package'] += '_blacklisted'
     package_class = classobj (d['Package'], (gub.BinarySpec,), {})
     package = package_class (settings)
     package.name_dependencies = []
