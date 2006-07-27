@@ -318,22 +318,19 @@ class LilyPond__debian (LilyPond):
         LilyPond.__init__ (self, settings)
         self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
                    track_development=True)
+
     def install (self):
         targetpackage.TargetBuildSpec.install (self)
-    def get_build_dependencies (self):
 
-        # FIXME: dependency getter should resolve dependencies
-        # automagically.  Possibly add depends to build_dependencies?
+    def get_build_dependencies (self):
         return [
             'gettext',
-            'guile-1.6-dev', 'guile-1.6',
-            ## not really true, but makes our GNUmakefile more difficult otherwise 
-            'gs',
-            'libfontconfig1-dev', 'libfontconfig1',
-            'libfreetype6-dev', 'libfreetype6',
-            'libglib2.0-dev', 'libglib2.0-0',
-            'python2.4-dev', 'python2.4',
-            'libpango1.0-dev', 'libpango1.0-0',
+            'guile-1.6-dev',
+            'libfontconfig1-dev',
+            'libfreetype6-dev',
+            'libglib2.0-dev',
+            'python2.4-dev',
+            'libpango1.0-dev',
             ]
 
 ##
