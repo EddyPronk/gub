@@ -9,6 +9,7 @@ import misc
 import settings
 
 from new import classobj
+from new import instancemethod
 
 mirror = 'http://ftp.de.debian.org/debian'
 
@@ -31,9 +32,22 @@ def get_debian_package (settings, description):
     d = dict (map (lambda line: line.split (': ', 1),
            map (string.strip, s.split ('\n'))))
     # FIXME: should blacklist toplevel gub-builder.py argument iso lilypond
-    blacklist = ['lilypond']
+    blacklist = [
+        'binutils',
+        'cpp',
+        'gcc-3.3',
+        'cpp-3.3',
+        'gcc',
+        'gcc-3.4',
+        'libgcc1',
+        'libgcc1-3.4',
+        'lilypond',
+        'perl',
+        'perl-modules',
+        'perl-base',
+        ]
     if d['Package'] in blacklist:
-        d['Package'] += '_blacklisted'
+        d['Package'] += '::blacklisted'
     package_class = classobj (d['Package'], (gub.BinarySpec,), {})
     package = package_class (settings)
     package.name_dependencies = []
@@ -48,12 +62,13 @@ def get_debian_package (settings, description):
         deps = map (lambda x: re.sub ('libc($|-)', 'libc6\\1',
                        x), deps)
         # FIXME: ugh, skip some
-        blacklist = ('perl', 'perl-modules', 'perl-base')
         deps = filter (lambda x: x not in blacklist, deps)
         package.name_dependencies = deps
 
-    ## FIXME.    
-    # package.name_build_dependencies = []
+    def get_build_dependencies (self):
+        return self.name_dependencies
+    package.get_build_dependencies = instancemethod (get_build_dependencies,
+                                                     package, package_class)
     package.ball_version = d['Version']
     package.url = mirror + '/' + d['Filename']
     package.format = 'deb'
