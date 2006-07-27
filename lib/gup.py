@@ -292,13 +292,7 @@ def topologically_sorted_one (todo, done, dependency_getter,
         if recurse_stop_predicate and recurse_stop_predicate (d):
             continue
 
-        # FIXME
-        if 1: # todo.settings.is_distro:
-            if not type (d) == type (todo):
-                print 'dependency not a todo: ' + `d`
-                continue
-        else:
-            assert type (d) == type (todo)
+        assert type (d) == type (todo)
 
         sorted += topologically_sorted_one (d, done, dependency_getter,
                                             recurse_stop_predicate=recurse_stop_predicate)
@@ -387,13 +381,13 @@ topological order
 
     spec_names = topologically_sorted (todo, {}, name_to_deps)
 
-    spec_dict = dict ((n,spec_dict[n]) for n in spec_names)
+    spec_dict = dict ((n, spec_dict[n]) for n in spec_names)
 
     cross.set_cross_dependencies (spec_dict)
 
     if settings.is_distro:
         def obj_to_dependency_objects (obj):
-            return obj.get_build_dependencies ()
+            return [spec_dict[n] for n in obj.get_build_dependencies ()]
     else:
         def obj_to_dependency_objects (obj):
             return [spec_dict[gub.get_base_package_name (n)]
