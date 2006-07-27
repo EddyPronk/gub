@@ -12,20 +12,9 @@ from new import classobj
 
 mirror = 'http://ftp.de.debian.org/debian'
 
-## FIXME FIXME 
-def xxxget_cross_packages (settings):
-    p = gup.DependencyManager (settings.system_root, settings.os_interface)
-    url = mirror + '/dists/unstable/main/binary-i386/Packages.gz'
-    
-    # FIXME: download/offline
-    downloaddir = settings.downloaddir
-    file = settings.downloaddir + '/Packages'
-    if not os.path.exists (file):
-        misc.download_url (url, self.expand ('%(downloaddir)s'))
-        os.system ('gunzip  %(file)s.gz' % locals ())
-
-        ## FIXME. names
-    return filter (lambda x: x.name () not in names, p.get_packages (file))
+## FIXME FIXME: see mipsel.py, also fix arm.py
+def get_cross_packages (settings):
+    pass
 
 def change_target_packages (packages):
     cross.change_target_packages (packages)
