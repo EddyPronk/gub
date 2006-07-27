@@ -139,7 +139,7 @@ def main ():
                   
     c = commands.pop (0)
 
-    ## crossprefix is also necessary for building cross packages,
+    ## cross_prefix is also necessary for building cross packages,
     ## such as GCC
 
     PATH = os.environ['PATH']

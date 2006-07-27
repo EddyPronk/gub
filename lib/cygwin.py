@@ -12,7 +12,7 @@ import gup
 class Binutils (cross.Binutils):
     def makeflags (self):
         return misc.join_lines ('''
-tooldir="%(crossprefix)s/%(target_architecture)s"
+tooldir="%(cross_prefix)s/%(target_architecture)s"
 ''')
     def compile_command (self):
         return (cross.Binutils.compile_command (self)
@@ -38,8 +38,8 @@ class Gcc (mingw.Gcc):
                 + ['cygwin', 'w32api-in-usr-lib'])
     def makeflags (self):
         return misc.join_lines ('''
-tooldir="%(crossprefix)s/%(target_architecture)s"
-gcc_tooldir="%(crossprefix)s/%(target_architecture)s"
+tooldir="%(cross_prefix)s/%(target_architecture)s"
+gcc_tooldir="%(cross_prefix)s/%(target_architecture)s"
 ''')
     def compile_command (self):
         return (mingw.Gcc.compile_command (self)

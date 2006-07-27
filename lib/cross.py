@@ -14,7 +14,7 @@ class CrossToolSpec (gub.BuildSpec):
         return (gub.BuildSpec.configure_command (self)
             + misc.join_lines ('''
 --program-prefix=%(target_architecture)s-
---prefix=%(crossprefix)s/
+--prefix=%(cross_prefix)s/
 --with-slibdir=/usr/lib/
 --target=%(target_architecture)s
 --with-sysroot=%(system_root)s/
@@ -71,8 +71,8 @@ class Gcc (CrossToolSpec):
         cxx_opt = '--enable-libstdcxx-debug '
 
         cmd += '''
---with-as=%(crossprefix)s/bin/%(target_architecture)s-as
---with-ld=%(crossprefix)s/bin/%(target_architecture)s-ld
+--with-as=%(cross_prefix)s/bin/%(target_architecture)s-as
+--with-ld=%(cross_prefix)s/bin/%(target_architecture)s-ld
 --enable-static
 --enable-shared '''
 

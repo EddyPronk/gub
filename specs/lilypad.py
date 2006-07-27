@@ -18,7 +18,7 @@ class LilyPad (targetpackage.TargetBuildSpec):
         # FIXME: better fix Makefile
         return misc.join_lines ('''
 ALL_OBJS='$(OBJS)'
-WRC=%(crossprefix)s/bin/%(target_architecture)s-windres
+WRC=%(cross_prefix)s/bin/%(target_architecture)s-windres
 CPPFLAGS=-I%(system_root)s/usr/include
 RC='$(WRC) $(CPPFLAGS)'
 LIBWINE=

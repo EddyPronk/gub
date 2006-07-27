@@ -54,7 +54,7 @@ rm -rf %(srcdir)s/usr/lib/gcc
 
 class Gcc (cross.Gcc):
     def patch (self):
-        self.file_sub ([('/usr/bin/libtool', '%(crossprefix)s/bin/%(target_architecture)s-libtool')],
+        self.file_sub ([('/usr/bin/libtool', '%(cross_prefix)s/bin/%(target_architecture)s-libtool')],
                        '%(srcdir)s/gcc/config/darwin.h')
 
         self.file_sub ([('--strip-underscores', '--strip-underscore')],
@@ -105,7 +105,7 @@ class Rewirer (context.Os_context_wrapper):
 
     def get_libaries (self, name):
         lib_str = self.read_pipe ('''
-%(crossprefix)s/bin/%(target_architecture)s-otool -L %(name)s
+%(cross_prefix)s/bin/%(target_architecture)s-otool -L %(name)s
 ''',
                      locals (), ignore_error=True)
 
@@ -127,7 +127,7 @@ class Rewirer (context.Os_context_wrapper):
         changes = ' '.join (['-change %s %s' % (o, d)
                   for (o, d) in substitutions])
         self.system ('''
-%(crossprefix)s/bin/%(target_architecture)s-install_name_tool %(changes)s %(name)s ''',
+%(cross_prefix)s/bin/%(target_architecture)s-install_name_tool %(changes)s %(name)s ''',
               locals ())
 
     def rewire_mach_o_object_executable_path (self, name):

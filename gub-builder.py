@@ -174,8 +174,8 @@ to skip this check.
 def run_builder (options, settings, manager, names, spec_object_dict):
     PATH = os.environ['PATH']
 
-    ## crossprefix is also necessary for building cross packages, such as GCC
-    os.environ['PATH'] = settings.expand ('%(crossprefix)s/bin:' + PATH, locals ())
+    ## cross_prefix is also necessary for building cross packages, such as GCC
+    os.environ['PATH'] = settings.expand ('%(cross_prefix)s/bin:' + PATH, locals ())
 
     ## UGH -> double work, see cross.change_target_packages () ?
     sdk_pkgs = [p for p in spec_object_dict.values ()
@@ -251,7 +251,7 @@ def main ():
         commands = ['lilypond']
 
 
-    ## crossprefix is also necessary for building cross packages,
+    ## cross_prefix is also necessary for building cross packages,
     ## such as GCC
 
     PATH = os.environ['PATH']

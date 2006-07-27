@@ -47,15 +47,15 @@ class Gcc_34 (cross.Gcc):
         return misc.join_lines (cross.Gcc.configure_command (self)
                                + '''
 --program-suffix=-3.4
---with-ar=%(crossprefix)s/bin/%(target_architecture)s-ar
---with-nm=%(crossprefix)s/bin/%(target_architecture)s-nm
+--with-ar=%(cross_prefix)s/bin/%(target_architecture)s-ar
+--with-nm=%(cross_prefix)s/bin/%(target_architecture)s-nm
 ''')
 
     def configure (self):
         cross.Gcc.configure (self)
         #FIXME: --with-ar, --with-nm does not work?
         for i in ('ar', 'nm', 'ranlib'):
-            self.system ('cd %(crossprefix)s/bin && ln -sf %(target_architecture)s-%(i)s %(target_architecture)s-%(i)s-3.4', env=locals ())
+            self.system ('cd %(cross_prefix)s/bin && ln -sf %(target_architecture)s-%(i)s %(target_architecture)s-%(i)s-3.4', env=locals ())
                 
     def install (self):
         cross.Gcc.install (self)
@@ -92,6 +92,8 @@ def get_cross_packages (settings):
                              mirror=(download.gnubase
                                      + '/gcc/gcc-3.4.6/gcc-3.4.6.tar.bz2'),
                              format='bz2'),
+        linux.Guile_config (settings).with (version='1.6.7'),
+        linux.Python_config (settings).with (version='2.4.1'),
         ]
     return lst
 

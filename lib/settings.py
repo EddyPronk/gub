@@ -61,7 +61,7 @@ class Settings (Context):
         self.distcc_hosts = ''
         # FIXME: rename to target_root?
         self.system_root = self.targetdir + '/system'
-        self.crossprefix = self.system_root + '/usr/cross'
+        self.cross_prefix = self.system_root + '/usr/cross'
         self.installdir = self.targetdir + '/install'
         self.buildtools = self.topdir + '/target/local/system/usr/' ## FIXME
         self.cross_distcc_bindir = self.topdir + '/target/cross-distcc/bin/'
@@ -101,7 +101,7 @@ class Settings (Context):
             'allsrcdir',
             'statusdir',
             'system_root',
-            'crossprefix',
+            'cross_prefix',
             'targetdir',
             'buildtools',
             'topdir',
