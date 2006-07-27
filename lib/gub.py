@@ -587,10 +587,8 @@ class NullBuildSpec (BuildSpec):
         pass
     def configure (self):
         pass
-
     def install (self):
         self.system ('mkdir -p %(install_root)s')
-
     def untar (self):
         pass
     def patch (self):
