@@ -131,8 +131,6 @@ def get_cygwin_package (settings, name, dict):
         deps = filter (lambda x: x not in blacklist, deps)
         package.name_dependencies = deps
 
-        # FIXME.
-        ## package.name_build_dependencies = deps
     def get_build_dependencies (self):
         return self.name_dependencies
     package.get_build_dependencies = instancemethod (get_build_dependencies,
