@@ -405,6 +405,7 @@ def get_installer (settings, args=[]):
         ## and Installer_packager (nsis, shar; more per platform)
         ## 
         
+        return Cygwin_package (settings, args[0])
         return None
         return map (lambda x:
                     Cygwin_package (settings, x), args)
