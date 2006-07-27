@@ -18,12 +18,30 @@ class Mipsel_runtime (gub.BinarySpec, gub.SdkBuildSpec):
 #http://ftp.debian.org/debian/pool/main/g/glibc/libc6-dev_2.3.2.ds1-22sarge3_mipsel.deb
 #http://ftp.debian.org/debian/pool/main/l/linux-kernel-headers/linux-kernel-headers_2.5.999-test7-bk-17_mipsel.deb
 
+class Gcc (cross.Gcc):
+    def __init__ (self, settings):
+        import settings as set
+        c = set.Settings (settings.platform)
+        c.__dict__ = settings.__dict__.copy ()
+        cross.Gcc.__init__ (self, settings)
+        if self.settings.__dict__.has_key ('no-c++'):
+            print 'Gcc: deleting no-c++'
+            del self.settings.__dict__['no-c++']
+
 class Gcc_34 (cross.Gcc):
     def __init__ (self, settings):
-        cross.Gcc.__init__ (self, settings)
         # FIXME: this overwrites cross.Gcc's dict, so that
         # the default gcc's c++ is also not built?
-        #self.settings.__dict__['no-c++'] = True
+        # cross.Gcc.__init__ (self, settings.copy ())
+        import settings as set
+        c = set.Settings (settings.platform)
+        c.__dict__ = settings.__dict__.copy ()
+        cross.Gcc.__init__ (self, c)
+        print 'Gcc-34: setting no-c++'
+        self.settings.__dict__['no-c++'] = True
+
+#    def get_build_dependencies (self):
+#        return cross.Gcc.get_build_dependencies (self) + ['gcc']
 
     def configure_command (self):
         return misc.join_lines (cross.Gcc.configure_command (self)
@@ -66,9 +84,10 @@ def get_cross_packages (settings):
                                                     mirror=download.lkh_deb,
                                                     format='deb'),
         cross.Binutils (settings).with (version='2.16.1', format='bz2'),
-        cross.Gcc (settings).with (version='4.1.1',
-                                   mirror=download.gcc_41,
-                                   format='bz2'),
+        #cross.Gcc (settings).with (version='4.1.1',
+        Gcc (settings).with (version='4.1.1',
+                             mirror=download.gcc_41,
+                             format='bz2'),
         Gcc_34 (settings).with (version='3.4.6',
                              mirror=(download.gnubase
                                      + '/gcc/gcc-3.4.6/gcc-3.4.6.tar.bz2'),
@@ -91,9 +110,10 @@ def get_unstable_cross_packages (settings):
                                                     mirror=download.lkh_deb,
                                                     format='deb'),
         cross.Binutils (settings).with (version='2.16.1', format='bz2'),
-        cross.Gcc (settings).with (version='4.1.1',
-                                   mirror=download.gcc_41,
-                                   format='bz2'),
+        #cross.Gcc (settings).with (version='4.1.1',
+        Gcc (settings).with (version='4.1.1',
+                             mirror=download.gcc_41,
+                             format='bz2'),
         Gcc_34 (settings).with (version='3.4.6',
                              mirror=(download.gnubase
                                      + '/gcc/gcc-3.4.6/gcc-3.4.6.tar.bz2'),
