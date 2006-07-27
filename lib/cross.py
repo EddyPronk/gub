@@ -53,21 +53,19 @@ class Gcc (CrossToolSpec):
         d = dict (d)
         d['runtime'] = ['/usr/lib'] 
         return d
-    
+
+    def languages (self):
+        return  ['c', 'c++']
+        
     def configure_command (self):
         cmd = CrossToolSpec.configure_command (self)
         # FIXME: using --prefix=%(tooldir)s makes this
         # uninstallable as a normal system package in
         # /usr/i686-mingw/
         # Probably --prefix=/usr is fine too
-        
-        
-        languages = ['c', 'c++']
 
-        if self.settings.__dict__.has_key ("no-c++"):
-            del languages[1]
-
-        language_opt = (' --enable-languages=%s ' % ','.join (languages))
+        language_opt = (' --enable-languages=%s '
+                        % ','.join (self.languages ()))
         cxx_opt = '--enable-libstdcxx-debug '
 
         cmd += '''
@@ -77,7 +75,7 @@ class Gcc (CrossToolSpec):
 --enable-shared '''
 
         cmd += language_opt
-        if 'c++' in languages:
+        if 'c++' in self.languages ():
             cmd +=  ' ' + cxx_opt
 
         return misc.join_lines (cmd)
