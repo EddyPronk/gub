@@ -54,13 +54,15 @@ gcc_tooldir="%(cross_prefix)s/%(target_architecture)s"
     
 mirror = 'http://ftp.uni-kl.de/pub/windows/cygwin'
 def get_cross_packages (settings):
-
+    import linux
     # FIXME: must add deps to buildeps, otherwise packages do not
     # get built in correct dependency order?
     cross_packs = [
         Binutils (settings).with (version='20050610-1', format='bz2', mirror=download.cygwin),
         W32api_in_usr_lib (settings).with (version='1.0'),
         Gcc (settings).with (version='4.1.1', mirror=download.gcc_41, format='bz2'),
+#        linux.Guile_config (settings).with (version='1.6.7'),
+        linux.Python_config (settings).with (version='2.4.3'),
         ]
 
     return cross_packs
