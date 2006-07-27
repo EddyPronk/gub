@@ -331,6 +331,7 @@ class LilyPond__debian (LilyPond):
             'libglib2.0-dev',
             'python2.4-dev',
             'libpango1.0-dev',
+            'zlib1g-dev',
             ]
 
 ##
