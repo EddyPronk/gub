@@ -39,9 +39,20 @@ class Gcc_34 (cross.Gcc):
 rm -f %(install_root)s/usr/lib/libgcc_s.so
 rm -f %(install_root)s/usr/lib/libgcc_s.so.1
 rm -f %(install_root)s/usr/cross/lib/libiberty.a
+rm -rf %(install_root)s/usr/cross/mipsel-linux/lib/libiberty.a
 rm -rf %(install_root)s/usr/cross/info
 rm -rf %(install_root)s/usr/cross/man
 rm -rf %(install_root)s/usr/cross/share/locale
+''')
+        if 'c++' in self.languages ():
+            self.system ('''
+rm -rf %(install_root)s/usr/lib/libsupc++.la
+rm -rf %(install_root)s/usr/lib/libstdc++.la
+rm -rf %(install_root)s/usr/lib/libstdc++.so.6
+rm -rf %(install_root)s/usr/lib/libstdc++.so
+rm -rf %(install_root)s/usr/cross/mipsel-linux/lib/libsupc++.a
+rm -rf %(install_root)s/usr/cross/mipsel-linux/lib/libstdc++.a
+rm -rf %(install_root)s/usr/cross/mipsel-linux/lib/debug/libstdc++.a
 ''')
 
 def get_cross_packages (settings):
