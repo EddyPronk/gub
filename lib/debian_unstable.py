@@ -42,6 +42,7 @@ def get_debian_package (settings, description):
         'libgcc1',
         'libgcc1-3.4',
         'lilypond',
+        'libstdc++-dev',
         'perl',
         'perl-modules',
         'perl-base',
