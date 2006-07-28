@@ -287,6 +287,9 @@ class Cygwin_package (Installer):
         self.strip_command += ' -g '
         self._name = name
 
+    def use_install_root_manager (self, package_manager):
+        self.package_manager = package_manager
+        
     # FIXME: 'build-installer' is NOT create.  package-installer is create.
     # for Cygwin, build-installer is FOO (installs all dependencies),
     # and strip-installer comes too early.
@@ -294,7 +297,7 @@ class Cygwin_package (Installer):
         p = targetpackage.load_target_package (self.settings,
                            self._name)
         self.cygwin_ball (p, '')
-        for i in p.split_packages:
+        for i in p.get_subpackage_names ():
             self.cygwin_ball (p, i)
         self.cygwin_src_ball (p)
 
@@ -302,12 +305,12 @@ class Cygwin_package (Installer):
         cygwin_uploads = '%(gub_uploads)s/release'
         package_name = self._name
         if not split:
-            gub_name = package.gub_name ()
+            # gub_name = package['split_ball']
+            gub_name = self.package_manager.package_dict (package_name) ['split_ball']
         else:
             cygwin_uploads += '/' + self.name ()
             import inspect
-            available = dict (inspect.getmembers (package, callable))
-            gub_name = available['gub_name_' + split] ()
+            gub_name = self.package_manager.package_dict (package_name) ['split_ball'] + split
 
         base_name = re.sub ('-%\(version\)s.*', '', gub_name)
         ball_name = re.sub ('\.%\(platform\)s.*',
