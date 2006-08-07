@@ -4,7 +4,8 @@ import os
 class Nsis (ToolBuildSpec):
     def __init__ (self, settings):
         ToolBuildSpec.__init__(self, settings)
-        self.with (version='2.18',
+        self.with (version='2.19',
+                   
                    mirror="http://surfnet.dl.sourceforge.net/sourceforge/%(name)s/%(name)s-%(version)s-src.tar.%(format)s",
                    
                    format="bz2")
