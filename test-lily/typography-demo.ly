@@ -129,7 +129,7 @@ pianoLH =  \relative c'' \repeat volta 2\new Voice {
 	 \lyricsto "singer" \new Lyrics \firstVerse
 	 \lyricsto "singer" \new Lyrics \secondVerse
 	 \new PianoStaff << 
-	   \set PianoStaff.instrument = \markup {
+	   \set PianoStaff.instrumentName = \markup {
 	     \bold
 	     \bigger\bigger\bigger\bigger
 	     \huge
