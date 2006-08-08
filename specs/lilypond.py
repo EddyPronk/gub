@@ -256,22 +256,21 @@ class LilyPond__freebsd (LilyPond):
         d = LilyPond.get_dependency_dict (self)
         d[''].append ('gcc')
         return d
-    
-class LilyPond__mingw (LilyPond__cygwin):
+
+class LilyPond__mingw (LilyPond):
     def __init__ (self, settings):
-        LilyPond__cygwin.__init__ (self, settings)
+        LilyPond.__init__ (self, settings)
         self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
                    track_development=True)
-
     def get_dependency_dict (self):
         d = LilyPond.get_dependency_dict (self)
         d[''].append ('lilypad')        
         return d
     def get_build_dependencies (self):
-        return LilyPond__cygwin.get_build_dependencies (self) + ['lilypad']
+        return LilyPond.get_build_dependencies (self) + ['lilypad']
     
     def do_configure (self):
-        LilyPond__cygwin.do_configure (self)
+        LilyPond.do_configure (self)
 
         ## huh, why ? --hwn
         self.config_cache ()
