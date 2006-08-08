@@ -236,7 +236,7 @@ class Linux_installer (Installer):
         return Installer.strip_prefixes (self)
 
     def create_tarball (self):
-        self.system ('tar -C %(installer_root)s -jcf %(bundle_tarball)s .', locals ())
+        self.system ('tar --owner=root --group=root -C %(installer_root)s -jcf %(bundle_tarball)s .', locals ())
 
 def create_shar (orig_file, hello, head, target_shar):
     length = os.stat (orig_file)[6]
