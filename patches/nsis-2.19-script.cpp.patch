@@ -1,0 +1,34 @@
+diff -ur nsis-2.19-src/Source/script.cpp nsis-2.19-src.patched/Source/script.cpp
+--- nsis-2.19-src/Source/script.cpp	2006-08-03 20:49:07.000000000 +0200
++++ nsis-2.19-src.patched/Source/script.cpp	2006-08-08 19:25:05.000000000 +0200
+@@ -4748,10 +4748,10 @@
+           {
+             struct
+             {
+-              long l;
+-              long h;
++              unsigned long l;
++              unsigned long h;
+             } words;
+-            long long ll;
++            unsigned long long ll;
+           };
+           ll = (st.st_mtime * 10000000LL) + 116444736000000000LL;
+           high = words.h;
+@@ -6075,10 +6075,10 @@
+         {
+           struct
+           {
+-            long l;
+-            long h;
++            unsigned long l;
++            unsigned long h;
+           } words;
+-          long long ll;
++          unsigned long long ll;
+         };
+         ll = (st.st_mtime * 10000000LL) + 116444736000000000LL;
+ 
+Only in nsis-2.19-src.patched/Source: script.cpp~
+Only in nsis-2.19-src.patched/Source: script.cpp.orig
+Only in nsis-2.19-src.patched/Source: script.cpp.rej
