@@ -132,7 +132,8 @@ class BuildSpec (Os_context_wrapper):
             return
 
         ## TODO: should use locking.
-        open (timestamp_file, 'w').write ('changed')
+        if os.path.isdir (cvs_dest):
+            open (timestamp_file, 'w').write ('changed')
 
         lock_file = self.expand ('%(downloaddir)s/%(name)s-%(version)s.lock')
         lock = locker.Locker (lock_file)
