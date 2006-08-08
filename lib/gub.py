@@ -646,6 +646,8 @@ def append_target_dict (package, add_dict):
 
 def get_base_package_name (name):
     name = re.sub ('-devel$', '', name)
-    name = re.sub ('-runtime$', '', name)
+
+    # breaks mingw dep resolution, mingw-runtime
+    ##name = re.sub ('-runtime$', '', name)
     name = re.sub ('-doc$', '', name)
     return name
