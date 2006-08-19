@@ -13,7 +13,7 @@ def system (c, ignore_error=False):
 
 
 test_settings = {
-    'linux': ('lilytest', 'muurbloem', 'test-gub', None),
+    'linux': ('lilytest', 'haring', 'test-gub', None),
     'freebsd': ('hanwen', 'xs4all.nl', 'test-gub', None),
     'darwin-ppc': ('lilytest', 'maagd', 'test-gub', None),
     'mingw': ('hanwen', 'wklep', 'test-gub', 'test-lily/typography-demo-no-cjk.ly'),
