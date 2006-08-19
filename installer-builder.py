@@ -48,6 +48,11 @@ package - build installer binary
                   default='',
                   dest='build_file')
 
+    p.add_option ("--no-strip", action="store_false",
+                  default=True,
+                  dest="do_strip",
+                  help="don't perform strip stage")
+                  
     p.add_option ('-p', '--target-platform', action='store',
                   dest='platform',
                   type='choice',
@@ -148,6 +153,10 @@ def main ():
     cs = [c]
     if c == 'build-all':
         cs = ['build', 'strip', 'package']
+
+        if not  options.do_strip:
+            cs.remove ('strip')
+        
     try:
         run_installer_commands (cs, settings, commands)
     except locker.LockedError:
