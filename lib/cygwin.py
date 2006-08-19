@@ -70,6 +70,7 @@ def get_cross_packages (settings):
 def change_target_packages (packages):
     cross.change_target_packages (packages)
 
+    # FIXME: this does not work (?)
     for p in packages.values ():
         old_callback = p.get_build_dependencies
         p.get_build_dependencies = cross.MethodOverrider (old_callback,

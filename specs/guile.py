@@ -138,10 +138,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
                     '\\1')],
                    '%(srcdir)s/configure')
 
-
         Guile.configure (self)
-
-
 
         ## probably not necessary, but just be sure.
         for l in self.locate_files ('%(builddir)s', "Makefile"):
@@ -232,7 +229,8 @@ class Guile__cygwin (Guile):
     def get_subpackage_definitions (self):
         d = dict (Guile.get_subpackage_definitions (self))
         d['devel'] = d['devel'] + ['/usr/bin/*-config']
-        d['libguile' + self.sover] = ['/usr/bin/cyg*dll', '/usr/lib',
+        d['libguile' + self.sover] = ['/usr/bin/cyg*dll',
+                                      '/usr/lib',
                                       '/usr/share/guile']
         return d
 
