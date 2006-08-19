@@ -236,6 +236,7 @@ unlocked-doc-build:
 	    PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
 	    DOCUMENTATION=yes do-top-doc
 	unset LILYPONDPREFIX \
+	    && ulimit -m 256000 \
 	    && make -C $(NATIVE_LILY_BUILD) \
 	    LILYPOND_EXTERNAL_BINARY="$(NATIVE_ROOT)/usr/bin/lilypond"\
 	    PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
