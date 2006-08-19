@@ -268,6 +268,20 @@ class LilyPond__mingw (LilyPond):
         return d
     def get_build_dependencies (self):
         return LilyPond.get_build_dependencies (self) + ['lilypad']
+
+
+    ## ugh c&p
+    def compile_command (self):
+
+        ## UGH - * sucks.
+        python_lib = "%(system_root)s/usr/bin/libpython*.dll"
+        LDFLAGS = '-L%(system_root)s/usr/lib -L%(system_root)s/usr/bin -L%(system_root)s/usr/lib/w32api'
+
+        ## UGH. 
+        return (LilyPond.compile_command (self)
+                + misc.join_lines ('''
+LDFLAGS="%(LDFLAGS)s %(python_lib)s"
+'''% locals ()))
     
     def do_configure (self):
         LilyPond.do_configure (self)
