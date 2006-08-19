@@ -1,34 +1,52 @@
 diff -ur nsis-2.19-src/Source/script.cpp nsis-2.19-src.patched/Source/script.cpp
---- nsis-2.19-src/Source/script.cpp	2006-08-03 20:49:07.000000000 +0200
-+++ nsis-2.19-src.patched/Source/script.cpp	2006-08-08 19:25:05.000000000 +0200
-@@ -4748,10 +4748,10 @@
-           {
-             struct
-             {
+--- nsis-2.19-src/Source/script.cpp	2006-08-20 02:55:11.000000000 +0200
++++ nsis-2.19-src.patched/Source/script.cpp	2006-08-20 02:55:32.000000000 +0200
+@@ -4744,18 +4744,9 @@
+         struct stat st;
+         if (!stat(line.gettoken_str(1), &st))
+         {
+-          union
+-          {
+-            struct
+-            {
 -              long l;
 -              long h;
-+              unsigned long l;
-+              unsigned long h;
-             } words;
+-            } words;
 -            long long ll;
-+            unsigned long long ll;
-           };
-           ll = (st.st_mtime * 10000000LL) + 116444736000000000LL;
-           high = words.h;
-@@ -6075,10 +6075,10 @@
+-          };
+-          ll = (st.st_mtime * 10000000LL) + 116444736000000000LL;
+-          high = words.h;
+-          low = words.l;
++          unsigned long long ll = (st.st_mtime * 10000000LL) + 116444736000000000LL;
++          high = (DWORD) (ll >> 32);
++          low = (DWORD) ll;
+         }
+         else
          {
-           struct
-           {
+@@ -6071,22 +6062,13 @@
+       struct stat st;
+       if (!fstat(fd, &st))
+       {
+-        union
+-        {
+-          struct
+-          {
 -            long l;
 -            long h;
-+            unsigned long l;
-+            unsigned long h;
-           } words;
+-          } words;
 -          long long ll;
-+          unsigned long long ll;
-         };
-         ll = (st.st_mtime * 10000000LL) + 116444736000000000LL;
+-        };
+-        ll = (st.st_mtime * 10000000LL) + 116444736000000000LL;
++        unsigned long long ll = (st.st_mtime * 10000000LL) + 116444736000000000LL;
  
+         // FAT write time has a resolution of 2 seconds
+         ll -= ll % 20000000;
+ 
+-        ent.offsets[3] = words.l;
+-        ent.offsets[4] = words.h;
++        ent.offsets[3] = (int) ll;
++        ent.offsets[4] = (int) (ll >> 32);
+       }
+ #endif
+       else
 Only in nsis-2.19-src.patched/Source: script.cpp~
-Only in nsis-2.19-src.patched/Source: script.cpp.orig
-Only in nsis-2.19-src.patched/Source: script.cpp.rej
