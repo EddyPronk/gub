@@ -5,7 +5,7 @@ import targetpackage
 class Glib (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with (version='2.10.1',
+        self.with (version='2.10.3',
 		   mirror='ftp://ftp.gnome.org/Public/GNOME/sources/glib/2.10/%(name)s-%(ball_version)s.tar.%(format)s',
 		   format='bz2')
 
@@ -30,7 +30,7 @@ glib_cv_stack_grows=${glib_cv_stack_grows=no}
     def install (self):
         targetpackage.TargetBuildSpec.install (self)
         self.system ('rm %(install_root)s/usr/lib/charset.alias',
-              ignore_error=True)
+                     ignore_error=True)
         
 class Glib__darwin (Glib):
     def configure (self):
