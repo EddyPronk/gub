@@ -194,9 +194,10 @@ native-distccd:
 		--port 3634 --pid-file $(CWD)/log/$@.pid \
 		--log-file $(CWD)/log/$@.log  --log-level info
 bootstrap:
-	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local download flex mftrace potrace fontforge \
-	   guile pkg-config nsis icoutils fontconfig expat gettext \
-	   distcc texinfo automake
+	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local download \
+		flex mftrace potrace fontforge glib \
+		guile pkg-config nsis icoutils fontconfig expat gettext \
+		distcc texinfo automake
 	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local build \
 		flex mftrace potrace fontforge \
 		guile pkg-config fontconfig expat icoutils glib \
