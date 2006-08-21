@@ -213,7 +213,7 @@ def upload_binaries (version):
     
     cmds.append (test_cmd)
 
-    cmds += ['scp %s %s' % tup for tup in src_dests]
+    cmds += ['rsync --delay-updates --progress %s %s' % tup for tup in src_dests]
 
 
     entries = open ('downloads/lilypond-%s/CVS/Entries' % branch).read ()
