@@ -6,7 +6,7 @@ class Glib (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
         self.with (version='2.10.3',
-		   mirror='ftp://ftp.gnome.org/Public/GNOME/sources/glib/2.10/%(name)s-%(ball_version)s.tar.%(format)s',
+		   mirror=download.gnome_214,
 		   format='bz2')
 
     def get_build_dependencies (self):
@@ -59,8 +59,8 @@ class Glib__freebsd (Glib):
 class Glib__local (toolpackage.ToolBuildSpec):
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
-        self.with (version='2.10.1',
-                   mirror='ftp://ftp.gnome.org/Public/GNOME/sources/glib/2.10/%(name)s-%(ball_version)s.tar.%(format)s',
+        self.with (version='2.10.3',
+                   mirror=download.gnome_214,
                    format='bz2')
 
     def install (self):
