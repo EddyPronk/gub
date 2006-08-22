@@ -21,6 +21,7 @@ class Installer (context.Os_context_wrapper):
         self.no_binary_strip_extensions = ['.la', '.py', '.def',
                                            '.scm', '.pyc']
 
+        #WTF?
         self.installer_root = '%(targetdir)s/installer-%(lilypond_branch)s'
         self.installer_db = '%(targetdir)s/installer-%(lilypond_branch)s-dbdir'
         self.installer_uploads = settings.uploads
@@ -283,9 +284,13 @@ class Rpm (Linux_installer):
 
 class Cygwin_package (Installer):
     def __init__ (self, settings, name):
+        # DUH
+        #settings.set_distcc_hosts ({'cross_distcc_hosts': []})
         Installer.__init__ (self, settings)
         self.strip_command += ' -g '
         self._name = name
+        settings.__dict__['cross_distcc_hosts'] = []
+        settings.__dict__['native_distcc_hosts'] = []
 
     def use_install_root_manager (self, package_manager):
         self.package_manager = package_manager
@@ -310,12 +315,26 @@ class Cygwin_package (Installer):
         else:
             cygwin_uploads += '/' + self.name ()
             import inspect
-            gub_name = self.package_manager.package_dict (package_name) ['split_ball'] + split
+            gub_name = self.package_manager.package_dict (package_name + '-' + split) ['split_ball']
+
+        gub_name = re.sub ('.*/', '', gub_name)
+        # FIXME: fixup broken split names
+        package_prefixed_gub_name = gub_name
+        gub_name = re.sub ('guile-libguile', 'libguile', gub_name)
+        
+        print 'gub_name: ' + gub_name
 
         base_name = re.sub ('-%\(version\)s.*', '', gub_name)
         ball_name = re.sub ('\.%\(platform\)s.*',
                   '-%(installer_build)s.tar.bz2',
                   gub_name)
+
+        # FIXME: version and platform are expanded now?
+        base_name = re.sub ('-[0-9].*', '', gub_name)
+        ball_name = re.sub ('\.cygwin.*',
+                  '-%(installer_build)s.tar.bz2',
+                  gub_name)
+
         # URG urg urgurg
         b = self.settings.lilypond_branch
         # FIXME, package lilypond has gub_name='lilypond-<BRANCH>
@@ -328,11 +347,15 @@ class Cygwin_package (Installer):
                       '-%(installer_version)s-%(installer_build)s.tar.bz2',
                   g)
         hint = base_name + '.hint'
-        dir = '%(installer_root)s-' + base_name
+        # FIXME: sane package installer root
+        self.installer_root = '%(targetdir)s/installer-%(base_name)s'
+
+        dir = self.expand ('%(installer_root)s-' + base_name)
+        installer_root = self.expand ('%(installer_root)s')
         package.system ('''
 rm -rf %(dir)s
 mkdir -p %(dir)s
-tar -C %(dir)s -zxf %(gub_uploads)s/%(gub_name)s
+tar -C %(dir)s -zxf %(gub_uploads)s/%(package_prefixed_gub_name)s
 ''',
                 locals ())
         # FIXME: unconditional strip
@@ -354,10 +377,19 @@ cp -pv %(installer_root)s-%(package_name)s/etc/hints/%(hint)s %(cygwin_uploads)s
     def cygwin_src_ball (self, package):
         cygwin_uploads = '%(gub_uploads)s/release'
         package_name = self._name
-        gub_name = package.gub_name ()
+        gub_name = self.package_manager.package_dict (package_name) ['split_ball']
+        gub_name = re.sub ('.*/', '', gub_name)
         base_name = re.sub ('-%\(version\)s.*', '', gub_name)
         dir_name = re.sub ('\.%\(platform\)s.*', '', gub_name)
+
+        # FIXME: version and platform are expanded now?
+        base_name = re.sub ('-[0-9].*', '', gub_name)
+        dir_name = re.sub ('\.cygwin.*', '', gub_name)
         cyg_name = dir_name + '-%(installer_build)s'
+
+        # FIXME: sane package installer root
+        self.installer_root = '%(targetdir)s/installer-%(base_name)s'
+
         # URG urg urgurg
         b = self.settings.lilypond_branch
         if gub_name.startswith ('lilypond-' + b):
@@ -367,7 +399,7 @@ cp -pv %(installer_root)s-%(package_name)s/etc/hints/%(hint)s %(cygwin_uploads)s
                      '-%(installer_version)s-%(installer_build)s',
                      gub_name)
         ball_name = cyg_name + '-src.tar.bz2'
-        dir = '%(installer_root)s-src'
+        dir = self.expand ('%(installer_root)s-src')
         package.system ('''
 rm -rf %(dir)s
 mkdir -p %(dir)s

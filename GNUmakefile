@@ -119,11 +119,9 @@ cygwin: doc
 	$(call INVOKE_GUB_BUILDER,$@) --build-source build guile
 	$(PYTHON) gup-manager.py -p cygwin remove guile
 	$(call INVOKE_GUB_BUILDER,$@) --build-source --split-packages build guile
-	$(call INVOKE_INSTALLER_BUILDER,$@) --build-source --split-packages package guile
+	$(call INVOKE_INSTALLER_BUILDER,$@) --build-source --split-packages build-all guile
 	$(call INVOKE_GUB_BUILDER,$@) --build-source build lilypond
-	$(call INVOKE_INSTALLER_BUILDER,$@) --build-source build lilypond
-	$(call INVOKE_INSTALLER_BUILDER,$@) --build-source strip lilypond
-	$(call INVOKE_INSTALLER_BUILDER,$@) --build-source package lilypond
+	$(call INVOKE_INSTALLER_BUILDER,$@) --build-source build-all lilypond
 
 darwin-ppc:
 	$(call BUILD,$@,lilypond)
