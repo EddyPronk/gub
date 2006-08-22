@@ -44,7 +44,7 @@ DISTCC_DIRS=target/cross-distcc/bin/  target/cross-distccd/bin/ target/native-di
 PYTHON=python
 sources = GNUmakefile $(wildcard *.py specs/*.py lib/*.py)
 
-NATIVE_TARGET_DIR=$(CWD)/target/$(BUILD_PLATFORM)/
+NATIVE_TARGET_DIR=$(CWD)/target/$(BUILD_PLATFORM)
 BUILDNUMBER_FILE = buildnumber-$(LILYPOND_BRANCH).make
 
 # local.make should set the following variables:

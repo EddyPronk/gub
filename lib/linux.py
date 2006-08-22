@@ -56,7 +56,9 @@ def get_cross_packages (settings):
                                mirror=download.glibc_deb, format='deb'),
         Libc6_dev (settings).with (version='2.2.5-11.8',
                                    mirror=download.glibc_deb, format='deb'),
-        Linux_kernel_headers (settings).with (version='2.6.13+0rc3-2.1',
+#        Linux_kernel_headers (settings).with (version='2.6.13+0rc3-2.1',
+##http://ftp.debian.org/debian/pool/main/l/linux-kernel-headers/linux-kernel-headers_2.6.17.6-1_i386.deb
+        Linux_kernel_headers (settings).with (version='2.6.17.6-1',
                                               mirror=download.lkh_deb, format='deb'),
         cross.Binutils (settings).with (version='2.16.1', format='bz2'),
         Gcc (settings).with (version='4.1.1',
