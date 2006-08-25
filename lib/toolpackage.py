@@ -13,11 +13,15 @@ class ToolBuildSpec  (gub.BuildSpec):
 
     ## ugh: prefix= will trigger libtool relinks. 
     def install_command (self):
-        return '''make DESTDIR=%(install_root)s prefix=/usr install'''
+        return '''make DESTDIR=%(install_root)s install'''
 
     def compile_command (self):
         return self.native_compile_command ()
 
+    ## we need to tar up %(install_root)//%(prefix) 
+    def packaging_suffix_dir (self):
+        return '%(system_root)s'
+    
     def get_subpackage_names (self):
         return ['']
 
@@ -36,9 +40,3 @@ class ToolBuildSpec  (gub.BuildSpec):
         return d
 
 
-    def get_broken_packages (self):
-        packs = ToolBuildSpec.get_packages (self)
-        for p in packs:
-            # FIXME.
-            p._dict['install_root'] = self.expand ('%(install_root)s/%(topdir)s/target/local/system/')
-        return packs

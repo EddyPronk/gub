@@ -13,7 +13,6 @@ from misc import *
 class Installer (context.Os_context_wrapper):
     def __init__ (self, settings):
         context.Os_context_wrapper.__init__ (self, settings)
-
         
         self.settings = settings
         self.strip_command = '%(cross_prefix)s/bin/%(target_architecture)s-strip' 

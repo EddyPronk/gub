@@ -61,7 +61,7 @@ class PackageSpec:
             self._os_interface.system (base + f)
             
     def create_tarball (self):
-        cmd = 'tar -C %(install_root)s --ignore-failed --exclude="*~" -zcf %(split_ball)s '
+        cmd = 'tar -C %(install_root)s/%(packaging_suffix_dir)s --ignore-failed --exclude="*~" -zcf %(split_ball)s '
         cmd += (' '.join ('$(cd %%(install_root)s && echo ./%s)'
                           % f for f in self._file_specs)).replace ('//','/')
         cmd = self.expand (cmd)
@@ -214,6 +214,10 @@ cd %(cvs_dest)s && cvs -q update -dAPr %(version)s
             return '%(version)s'
         else:
             return ''
+
+    @subst_method
+    def packaging_suffix_dir (self):
+        return ''
 
     @subst_method
     def full_version (self):
@@ -384,7 +388,7 @@ tooldir=%(install_prefix)s
         self.system ('''
 rm -rf %(install_root)s
 cd %(builddir)s && %(install_command)s
-rm -f %(install_root)s/usr/share/info/dir %(install_root)s/usr/cross/info/dir %(install_root)s/usr/info/dir
+rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_root)s/%(packaging_suffix_dir)s/usr/cross/info/dir %(install_root)s/%(packaging_suffix_dir)s/usr/info/dir
 ''')
         self.libtool_installed_la_fixups ()
 

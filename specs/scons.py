@@ -14,9 +14,6 @@ class Scons (ToolBuildSpec):
     def install_command (self):
         return 'python %(srcdir)s/setup.py install --prefix=%(buildtools)s --root=%(install_root)s'
 
-    def get_packages (self):
-        return self.get_broken_packages ()
-    
     def __init__ (self, settings):
         ToolBuildSpec.__init__ (self, settings)
         self.with (version='0.96.91',

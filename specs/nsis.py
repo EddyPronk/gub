@@ -40,9 +40,6 @@ class Nsis (ToolBuildSpec):
         d = ToolBuildSpec.srcdir (self).replace ('_','-') + '-src'
         return d
           
-    def get_packages (self):
-        return self.get_broken_packages ()
-    
 
 
 
