@@ -121,7 +121,7 @@ cygwin: doc
 	$(call INVOKE_GUB_BUILDER,$@) --build-source build guile
 	$(call INVOKE_INSTALLER_BUILDER,$@) --build-source build-all guile
 	$(call INVOKE_GUB_BUILDER,$@) --build-source build lilypond
-	$(call INVOKE_INSTALLER_BUILDER,$@) --build-source build-all lilypond
+	$(call INVOKE_INSTALLER_BUILDER,$@) build-all lilypond
 
 darwin-ppc:
 	$(call BUILD,$@,lilypond)
