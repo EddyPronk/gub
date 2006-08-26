@@ -119,7 +119,7 @@ cygwin: doc
 	$(call INVOKE_GUB_BUILDER,$@) --build-source build guile
 	$(PYTHON) gup-manager.py -p cygwin remove guile
 	$(call INVOKE_GUB_BUILDER,$@) --build-source build guile
-	$(call INVOKE_INSTALLER_BUILDER,$@) --build-source build-all guile
+	$(call INVOKE_INSTALLER_BUILDER,$@) build-all guile
 	$(call INVOKE_GUB_BUILDER,$@) --build-source build lilypond
 	$(call INVOKE_INSTALLER_BUILDER,$@) build-all lilypond
 
