@@ -161,8 +161,16 @@ class LilyPond__cygwin (LilyPond):
                       'libguile17', 'libiconv', 'pango-runtime', 'python']}
 
     def get_build_dependencies (self):
-        return ['gettext-devel', 'glib2-devel', 'guile-devel',
+        return ['gettext-devel', 'glib2-devel',
+                #'guile-devel',
+                'guile',
+                'python',
                 'libfontconfig-devel', 'libfreetype2-devel', 'pango-devel']
+
+    def compile (self):
+        self.system ('''
+        cp -pv %(system_root)s/usr/share/gettext/gettext.h %(system_root)s/usr/include''')
+        LilyPond.compile (self)
 
     def compile_command (self):
 
