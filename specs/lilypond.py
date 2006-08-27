@@ -157,8 +157,11 @@ class LilyPond__cygwin (LilyPond):
                    track_development=True)
 
     def get_dependency_dict (self):
-        return {'' : ['glib2-runtime', 'libfontconfig1', 'libfreetype2',
-                      'libguile17', 'libiconv', 'pango-runtime', 'python']}
+        # FIXME: not-build dependencies do not get dowloaded
+        return {'' : [
+            #'glib2-runtime', 'libfontconfig1', 'libfreetype2',
+            #'libguile17', 'libiconv', 'pango-runtime', 'python'
+            ]}
 
     def get_build_dependencies (self):
         return ['gettext-devel', 'glib2-devel',
