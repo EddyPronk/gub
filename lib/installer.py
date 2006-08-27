@@ -399,7 +399,7 @@ cp -pv %(installer_root)s-%(package_name)s/etc/hints/%(hint)s %(cygwin_uploads)s
         b = self.settings.lilypond_branch
         if gub_name.startswith ('lilypond-' + b):
             base_name = re.sub ('-' + b + '.*', '', gub_name)
-            dir_name = re.sub ('.cygwin.gub', '', gub_name)
+            dir_name = re.sub ('.cygwin.gup', '', gub_name)
             cyg_name = re.sub ('-' + b + '.*',
                      '-%(installer_version)s-%(installer_build)s',
                      gub_name)
