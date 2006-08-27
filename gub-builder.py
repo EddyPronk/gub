@@ -85,6 +85,10 @@ build             - build target packages
                   dest="skip_if_locked",
                   action="store_true",
                   help="Return successfully if another build is already running")
+    p.add_option ('-j', '--jobs',
+                  default="1", action='store',
+                  dest='cpu_count',
+                  help='set number of simultaneous jobs')
     
     return p
 
@@ -243,9 +247,9 @@ def main ():
     settings = settings_mod.get_settings (options.platform)
     settings.lilypond_branch = options.lilypond_branch
     settings.build_source = options.build_source
-    
+    settings.cpu_count = options.cpu_count
     settings.set_distcc_hosts (options)
-
+    settings.options = options ##ugh
     c = commands.pop (0)
     if not commands:
         commands = ['lilypond']

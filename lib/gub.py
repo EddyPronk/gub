@@ -267,14 +267,19 @@ cd %(cvs_dest)s && cvs -q update -dAPr %(version)s
     @subst_method
     def native_compile_command (self):
         c = 'make'
-        if (self.settings.native_distcc_hosts):
-            jobs = '-j%d ' % (2*len (self.settings.native_distcc_hosts.split (' ')))
+
+        job_spec = ' '
+        if self.settings.native_distcc_hosts:
+            job_spec = '-j%d ' % (2*len (self.settings.native_distcc_hosts.split (' ')))
 
             ## do this a little complicated: we don't want a trace of
             ## distcc during configure.
-            c = 'DISTCC_HOSTS="%s" %s %s' % (self.settings.native_distcc_hosts, c, jobs)
+            c = 'DISTCC_HOSTS="%s" %s' % (self.settings.native_distcc_hosts, c)
             c = 'PATH="%(native_distcc_bindir)s:$PATH" ' + c
-            
+        elif self.settings.cpu_count <> '1':
+            job_spec += ' -j%s ' % self.settings.cpu_count
+
+        c += job_spec
         return c
 
 
