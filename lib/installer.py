@@ -386,6 +386,12 @@ cp -pv %(installer_root)s-%(package_name)s/etc/hints/%(hint)s %(cygwin_uploads)s
         dir_name = re.sub ('\.cygwin.*', '', gub_name)
         cyg_name = dir_name + '-%(installer_build)s'
 
+        # FIXME2: special case for lilypond branch name
+        b = self.settings.lilypond_branch
+        base_name = re.sub ('-' + b, '', gub_name)
+        dir_name = re.sub ('\.cygwin.*', '', gub_name)
+        cyg_name = dir_name + '-%(installer_build)s'
+
         # FIXME: sane package installer root
         self.installer_root = '%(targetdir)s/installer-%(base_name)s'
 
