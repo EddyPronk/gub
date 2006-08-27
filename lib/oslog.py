@@ -34,7 +34,7 @@ Encapsulate OS/File system commands for proper logging.
         self.log_command ('invoking %s\n' % cmd)
 
         proc = subprocess.Popen (cmd, shell=True, env=env,
-                    stderr=subprocess.STDOUT)
+                                 stderr=subprocess.STDOUT)
 
         stat = proc.wait()
 
@@ -71,7 +71,7 @@ commands.
         call_env.update (env)
 
         if verbose:
-            keys =env.keys()
+            keys = env.keys()
             keys.sort()
             for k in keys:
                 sys.stderr.write ('%s=%s\n' % (k, env[k]))
