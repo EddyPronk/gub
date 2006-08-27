@@ -38,7 +38,9 @@ class Command:
 
     def find (self):
         '''package containing file'''
-        regexp = re.sub ('^%s/' % self.options.ROOT, '/',
+        # urg
+        self.options.packagename = self.options.arguments[0]
+        regexp = re.sub ('^%s/' % self.options.root, '/',
                 self.options.packagename)
         regexp = re.compile (regexp)
         hits = []
