@@ -168,7 +168,8 @@ class LilyPond__cygwin (LilyPond):
                 #'guile-devel',
                 'guile',
                 'python',
-                'libfontconfig-devel', 'libfreetype2-devel', 'pango-devel']
+                'libfontconfig-devel', 'libfreetype2-devel', 'pango-devel',
+                'urw-fonts']
 
     def compile (self):
         self.system ('''
