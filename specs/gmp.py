@@ -50,7 +50,7 @@ class Gmp__darwin (Gmp):
     def install (self):
         Gmp.install (self)
         self.file_sub ([('using std::FILE;','')],
-               '%(install_root)s/usr/include/gmp.h')
+                       '%(install_root)s/usr/include/gmp.h')
 
 class Gmp__darwin__x86 (Gmp__darwin):
     def configure_command (self):

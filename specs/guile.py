@@ -56,8 +56,8 @@ class Guile (targetpackage.TargetBuildSpec):
         majmin_version = '.'.join (self.expand ('%(version)s').split ('.')[0:2])
         
         self.dump ("prependdir GUILE_LOAD_PATH=$INSTALLER_PREFIX/share/guile/%(majmin_version)s\n",
-             '%(install_root)s/usr/etc/relocate/guile.reloc',
-             env=locals())
+                   '%(install_root)s/usr/etc/relocate/guile.reloc',
+                   env=locals())
         
         ## can't assume that /usr/bin/guile is the right one.
         version = self.read_pipe ('''\
@@ -328,7 +328,7 @@ class Guile__local (ToolBuildSpec, Guile):
         ToolBuildSpec.install (self)
 
         ## don't want local GUILE headers to interfere with compile.
-        self.system ("rm -rf %(install_root)s/usr/include/ %(install_root)s/usr/bin/guile-config ")
+        self.system ("rm -rf %(install_root)s/%(packaging_suffix_dir)s/usr/include/ %(install_root)s/%(packaging_suffix_dir)s/usr/bin/guile-config ")
 
     def __init__ (self, settings):
         ToolBuildSpec.__init__ (self, settings)

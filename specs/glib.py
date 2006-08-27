@@ -65,7 +65,7 @@ class Glib__local (toolpackage.ToolBuildSpec):
 
     def install (self):
         toolpackage.ToolBuildSpec.install(self)
-        self.system ('rm %(install_root)s/usr/lib/charset.alias',
+        self.system ('rm %(install_root)s/%(packaging_suffix_dir)s/usr/lib/charset.alias',
                          ignore_error=True)
 
     def get_build_dependencies (self):
