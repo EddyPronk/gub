@@ -22,7 +22,7 @@ INVOKE_GUB_BUILDER=$(PYTHON) gub-builder.py \
 --branch $(LILYPOND_BRANCH) \
 $(foreach h,$(GUB_NATIVE_DISTCC_HOSTS), --native-distcc-host $(h))\
 $(foreach h,$(GUB_CROSS_DISTCC_HOSTS), --cross-distcc-host $(h))\
-$(LOCAL_GUB_OPTIONS)
+$(LOCAL_GUB_BUILDER_OPTIONS)
 
 INVOKE_GUP=$(PYTHON) gup-manager.py \
 --platform $(1) \
@@ -39,7 +39,7 @@ BUILD=$(call INVOKE_GUB_BUILDER,$(1)) build $(2) \
 
 CWD:=$(shell pwd)
 
-DISTCC_DIRS=target/cross-distcc/bin/  target/cross-distccd/bin/ target/native-distcc/bin/ 
+DISTCC_DIRS=target/cross-distcc/bin/ target/cross-distccd/bin/ target/native-distcc/bin/ 
 
 PYTHON=python
 sources = GNUmakefile $(wildcard *.py specs/*.py lib/*.py)
@@ -114,10 +114,8 @@ gub_builder.py:
 arm:
 	$(call BUILD,$@,lilypond)
 
-cygwin: doc
+cygwin:
 	rm -rf uploads/cygwin/*guile*
-	$(call INVOKE_GUB_BUILDER,$@) --build-source build guile
-	$(PYTHON) gup-manager.py -p cygwin remove guile
 	$(call INVOKE_GUB_BUILDER,$@) --build-source build guile
 	$(call INVOKE_INSTALLER_BUILDER,$@) build-all guile
 	$(call INVOKE_GUB_BUILDER,$@) --build-source build lilypond
@@ -192,11 +190,11 @@ native-distccd:
 		--port 3634 --pid-file $(CWD)/log/$@.pid \
 		--log-file $(CWD)/log/$@.log  --log-level info
 bootstrap:
-	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local download \
+	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local download \
 		flex mftrace potrace fontforge glib \
 		guile pkg-config nsis icoutils fontconfig expat gettext \
 		distcc texinfo automake
-	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local build \
+	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local build \
 		flex mftrace potrace fontforge \
 		guile pkg-config fontconfig expat icoutils glib \
 		distcc texinfo automake 
