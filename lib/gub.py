@@ -585,6 +585,11 @@ rm -rf %(srcdir)s %(builddir)s %(install_root)s
         self.system ('tar -C %(srcdir)s/root -cf- . | tar -C %(install_root)s%(_verbose)s -xf-', env=locals ())
         self.libtool_installed_la_fixups ()
 
+    def get_subpackage_names (self):
+        # FIXME: splitting makes that cygwin's gettext + -devel subpackage
+        # gets overwritten by cygwin's gettext-devel + '' base package
+        return ['']
+
 class NullBuildSpec (BuildSpec):
     """Placeholder for downloads """
 
