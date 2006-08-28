@@ -101,8 +101,9 @@ def build_installer (installer, args):
                                               get_dep,
                                               None)
 
-    ## Ugh? 
-    package_names += ["gcc-runtime"]
+    # WTF is gcc-runtime?  Add to package dependencies, if necessary
+    if not settings.is_distro:
+        package_names += ["gcc-runtime"]
 
     for a in package_names:
         install_manager.install_package (a)
