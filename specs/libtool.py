@@ -20,6 +20,10 @@ class Libtool__darwin (Libtool):
         self.dump ("prependdir DYLD_LIBRARY_PATH=$INSTALLER_PREFIX/lib",
                    '%(install_root)s/usr/etc/relocate/libtool.reloc')
 
+class Libtool__cygwin (targetpackage.TargetBuildSpec):
+    def __init__ (self, settings):
+        targetpackage.TargetBuildSpec.__init__ (self, settings)
+        self.with (version='1.5.22')
 
 class Libtool__local (ToolBuildSpec):
     """
