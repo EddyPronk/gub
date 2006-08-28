@@ -61,6 +61,8 @@ cygwin_bin = 'ftp://ftp.sunsite.dk/pub/cygwin/release/%(name)s/%(name)s-%(ball_v
 
 cygwin = 'ftp://ftp.sunsite.dk/pub/cygwin/release/%(name)s/%(name)s-%(ball_version)s-src.tar.%(format)s'
 
+cygwin_gcc = 'ftp://ftp.sunsite.dk/pub/cygwin/release/gcc/%(name)s/%(name)s-%(ball_version)s-src.tar.%(format)s'
+
 # FIXME:  %(version)s should probably be %(ball_version)s for download,
 # to include possible '-xyz' version part.
 cups = 'http://ftp.easysw.com/pub/%(name)s/%(version)s/espgs-%(version)s-source.tar.%(format)s'
