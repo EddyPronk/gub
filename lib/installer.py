@@ -329,10 +329,11 @@ class Cygwin_package (Installer):
                   gub_name)
 
         # FIXME: version and platform are expanded now?
-        base_name = re.sub ('-[0-9].*', '', gub_name)
-        ball_name = re.sub ('\.cygwin.*',
-                  '-%(installer_build)s.tar.bz2',
-                  gub_name)
+        if base_name.endswith ('.gup'):
+            base_name = re.sub ('-[0-9].*', '', gub_name)
+            ball_name = re.sub ('\.cygwin.*',
+                                '-%(installer_build)s.tar.bz2',
+                                gub_name)
 
         # URG urg urgurg
         b = self.settings.lilypond_branch
@@ -382,15 +383,17 @@ cp -pv %(installer_root)s-%(package_name)s/etc/hints/%(hint)s %(cygwin_uploads)s
         dir_name = re.sub ('\.%\(platform\)s.*', '', gub_name)
 
         # FIXME: version and platform are expanded now?
-        base_name = re.sub ('-[0-9].*', '', gub_name)
-        dir_name = re.sub ('\.cygwin.*', '', gub_name)
-        cyg_name = dir_name + '-%(installer_build)s'
+        if base_name.endswith ('.gup'):
+            base_name = re.sub ('-[0-9].*', '', gub_name)
+            dir_name = re.sub ('\.cygwin.*', '', gub_name)
+            cyg_name = dir_name + '-%(installer_build)s'
 
         # FIXME2: special case for lilypond branch name
-        b = self.settings.lilypond_branch
-        base_name = re.sub ('-' + b, '', gub_name)
-        dir_name = re.sub ('\.cygwin.*', '', gub_name)
-        cyg_name = dir_name + '-%(installer_build)s'
+        if base_name.endswith ('.gup'):
+            b = self.settings.lilypond_branch
+            base_name = re.sub ('-' + b, '', gub_name)
+            dir_name = re.sub ('\.cygwin.*', '', gub_name)
+            cyg_name = dir_name + '-%(installer_build)s'
 
         # FIXME: sane package installer root
         self.installer_root = '%(targetdir)s/installer-%(base_name)s'
