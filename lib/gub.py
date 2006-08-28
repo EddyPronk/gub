@@ -172,6 +172,7 @@ cd %(cvs_dest)s && cvs -q update -dAPr %(version)s
         file = self.__class__.__name__.lower ()
         file = re.sub ('__.*', '', file)
         file = re.sub ('_', '-', file)
+        file = re.sub ('xx', '++', file)
         return file
 
 
@@ -542,7 +543,8 @@ rm -rf %(srcdir)s %(builddir)s %(install_root)s
 ''')
             self._untar ('%(allsrcdir)s')
 
-        self.system ('cd %(srcdir)s && chmod -R +w .')
+        if (os.path.isdir (self.expand ('%(srcdir)s'))):
+            self.system ('cd %(srcdir)s && chmod -R +w .')
 
     def with (self, version='HEAD', mirror=download.gnu,
               format='gz', 
