@@ -144,6 +144,40 @@ import gub
 import re
 
 def get_cygwin_package (settings, name, dict):
+    cross = [
+        'base-passwd', 'bintutils',
+        'gcc', 'gcc-core', 'gcc-g++',
+        'gcc-mingw', 'gcc-mingw-core', 'gcc-mingw-g++',
+        'gcc-runtime', 'gcc-core-runtime',
+        ]
+    cycle = ['base-passwd']
+    source = [
+        'guile', 'guile-devel',
+        'libtool', 'libtool-devel', 'libtool1.5', 'libltdl3',
+        'libguile12', 'libguile16', 'libguile17',
+        ]
+    #urg_source_deps_are_broken = ['guile', 'libtool']
+    #source += urg_source_deps_are_broken
+    # FIXME: These packages are not needed for [cross] building,
+    # but most should stay as distro's final install dependency.
+    unneeded = [
+        'bash',
+        'coreutils',
+        'ghostscript-base', 'ghostscript-x11',
+        '-update-info-dir',
+        'libxft', 'libxft1', 'libxft2',
+        'libbz2-1',
+        'tcltk',
+        'x-startup-scripts',
+        'xaw3d',
+        'xorg-x11-bin-lndir',
+        'xorg-x11-etc',
+        'xorg-x11-fnts',
+        'xorg-x11-libs-data',
+        ]
+    blacklist = cross + cycle + source + unneeded
+    if name in blacklist:
+        name += '::blacklisted'
     package_class = classobj (name, (gub.BinarySpec,), {})
     package = package_class (settings)
     package.name_dependencies = []
@@ -151,37 +185,6 @@ def get_cygwin_package (settings, name, dict):
         deps = re.sub ('\([^\)]*\)', '', dict['requires']).split ()
         deps = [x.strip ().lower ().replace ('_', '-') for x in deps]
         ##print 'gcp: ' + `deps`
-        cross = [
-            'base-passwd', 'bintutils',
-            'gcc', 'gcc-core', 'gcc-g++',
-            'gcc-mingw', 'gcc-mingw-core', 'gcc-mingw-g++',
-            ]
-        cycle = ['base-passwd']
-        source = [
-            'guile-devel',
-            'libtool1.5', 'libltdl3',
-            'libguile12', 'libguile16',
-            ]
-        #urg_source_deps_are_broken = ['guile', 'libtool']
-        #source += urg_source_deps_are_broken
-        # FIXME: These packages are not needed for [cross] building,
-        # but most should stay as distro's final install dependency.
-        unneeded = [
-            'bash',
-            'coreutils',
-            'ghostscript-base', 'ghostscript-x11',
-            '-update-info-dir',
-            'libxft', 'libxft1', 'libxft2',
-            'libbz2-1',
-            'tcltk',
-            'x-startup-scripts',
-            'xaw3d',
-            'xorg-x11-bin-lndir',
-            'xorg-x11-etc',
-            'xorg-x11-fnts',
-            'xorg-x11-libs-data',
-            ]
-        blacklist = cross + cycle + source + unneeded
         deps = filter (lambda x: x not in blacklist, deps)
         package.name_dependencies = deps
 
@@ -206,18 +209,6 @@ def get_cygwin_packages (settings, package_file):
         lines = i.split ('\n')
         name = lines[0].strip ()
         name = name.lower ()
-        
-        blacklist = ('binutils', 'gcc',
-                     ### FIXME: guile should be read from
-                     ### generated gub-setup.ini
-                     ###'guile', 'guile-devel', 'libguile12', 'libguile16',
-                     ### FIXME: we need our own libtool 
-                     'libtool', 'libtool1.5', 'libtool-devel', 'libltdl3',
-                     ### FIXME: we need to build lilypond from source
-                     'lilypond')
-        
-        if name in blacklist:
-            continue
         packages = dists['curr']
         records = {
             'sdesc': name,
