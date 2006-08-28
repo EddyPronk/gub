@@ -51,7 +51,54 @@ gcc_tooldir="%(cross_prefix)s/%(target_architecture)s"
 --with-newlib
 --enable-threads
 '''))
-    
+
+class Gcc_core (Gcc):
+    def untar (self):
+        gxx_file_name = re.sub ('-core', '-g++',
+                                self.expand (self.file_name ()))
+        self.untar_cygwin_src_package_variant2 (gxx_file_name, split=True)
+        self.untar_cygwin_src_package_variant2 (self.file_name ())
+
+    def untar_cygwin_src_package_variant2 (self, file_name, split=False):
+        '''Unpack this unbelievably broken version of Cygwin source packages.
+
+foo-split-x.y.z-b.tar.bz2 contains foo-split-x.y.z.tar.bz2 and
+foo-x.y.z-b.patch.  foo-x.y.z.tar.bz2 contains foo-x.y.z.  The patch
+contains patches against all foo split source balls, so applying it
+may fail partly and complain about missing files.'''
+        
+        flags = '-jxf'
+        file_name = self.expand (file_name)
+        no_src = re.sub ('-src', '', file_name)
+        base = re.sub ('\.tar\..*', '', no_src)
+        second_tarball = re.sub ('-[0-9]+\.tar', '.tar', no_src)
+        print 'second_tarball: ' + second_tarball
+        ball_re = '^([a-z]+)(-[a-z+]+)?(.*)(-[0-9]+)'
+        if split:
+            second_tarball_contents = re.sub (ball_re, '\\1\\2\\3', base)
+        else:
+            second_tarball_contents = re.sub (ball_re, '\\1\\3', base)
+        print 'second_tarball_contents: ' + second_tarball_contents
+        self.system ('''
+rm -rf %(allsrcdir)s/%(base)s
+tar -C %(allsrcdir)s %(flags)s %(downloaddir)s/%(file_name)s
+tar -C %(allsrcdir)s %(flags)s %(allsrcdir)s/%(second_tarball)s
+''',
+                     locals ())
+        if split:
+            return
+        patch = re.sub (ball_re, '\\1\\3\\4.patch', base)
+        print 'patch: ' + patch
+        self.system ('''
+cd %(allsrcdir)s && mv %(second_tarball_contents)s %(base)s
+cd %(srcdir)s && patch -p1 -f < %(allsrcdir)s/%(patch)s || true
+''',
+                     locals ())
+
+# download-only package
+class Gcc_gxx (gub.NullBuildSpec):
+    pass
+
 mirror = 'http://ftp.uni-kl.de/pub/windows/cygwin'
 def get_cross_packages (settings):
     import linux
