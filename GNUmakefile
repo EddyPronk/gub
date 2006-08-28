@@ -100,6 +100,7 @@ update-buildnumber:
 
 download:
 	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB_BUILDER,$(p)) download lilypond && ) true
+	$(MAKE download/genini)
 	rm -f target/*/status/lilypond*
 	rm -f log/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).*.test.pdf
 
@@ -114,12 +115,23 @@ gub_builder.py:
 arm:
 	$(call BUILD,$@,lilypond)
 
+#cygwin: doc
 cygwin:
-	rm -rf uploads/cygwin/*guile*
 	$(call INVOKE_GUB_BUILDER,$@) --build-source build guile
+#	rm -rf uploads/cygwin/*guile*
 	$(call INVOKE_INSTALLER_BUILDER,$@) build-all guile
 	$(call INVOKE_GUB_BUILDER,$@) --build-source build lilypond
 	$(call INVOKE_INSTALLER_BUILDER,$@) build-all lilypond
+	$(MAKE) upload-setup-ini
+
+upload-setup-ini:
+	sed -ie 's/1\.8\.0-1/1.8.0-$(INSTALLER_BUILD)/' $$(find uploads/cygwin/release/guile -name setup.hint)
+	cd uploads/cygwin && ../../downloads/genini $$(find release/guile release/lilypond -type d) > setup.ini
+
+downloads/genini:
+	wget -P downloads http://cygwin.com/cgi-bin/cvsweb.cgi/~checkout~/genini/genini?rev=1.2&content-type=text/plain&cvsroot=cygwin-apps&only_with_tag=HEAD'
+	mv 'downloads/genini*HEAD' $@
+	chmod +x $@
 
 darwin-ppc:
 	$(call BUILD,$@,lilypond)
