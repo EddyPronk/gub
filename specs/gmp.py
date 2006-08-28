@@ -61,7 +61,16 @@ class Gmp__darwin__x86 (Gmp__darwin):
         c = re.sub ('--target=[^ ]+', ' ', c)
         return c
 
-    
+class Gmp__cygwin (Gmp):
+    def __init__ (self,settings):
+        Gmp.__init__ (self, settings)
+        self.with (version='4.1.4')
+
+    def patch (self):
+        self.system ('''
+cd %(srcdir)s && patch -p1 < %(patchdir)s/gmp-4.1.4-1.patch
+''')
+
 class Gmp__mingw (Gmp):
     def __init__ (self,settings):
         Gmp.__init__ (self, settings)
