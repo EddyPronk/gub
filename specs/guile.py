@@ -218,10 +218,19 @@ class Guile__cygwin (Guile):
         # Cygwin's libintl.la uses libiconv.la from libiconv
         # (which uses libiconv2, but libintl depends on that).
         # So, Cygwin's guile build depends on libiconv.
-        self.with (version='1.8.0',
-                   mirror=download.gnu, format='gz')
 
-        self.sover = '17'
+        # OK, with cygwin's bintutils, gcc, libtool versions
+        # urg: using implitic patch from cygwin
+        self.with (version='1.6.7-4',
+                   mirror=download.cygwin, format='bz2')
+        self.sover = '12'
+        # Broken, with cygwin's bintutils, gcc, libtool versions
+        #self.with (version='1.8.0',
+        #           mirror=download.gnu, format='gz')
+        # Broken, with cygwin's bintutils, gcc, libtool versions
+        # self.with (version='1.7.2-3',
+        #           mirror=download.cygwin, format='bz2')
+        # self.sover = '17'
 
     def get_subpackage_names (self):
         return ['doc', 'devel', 'libguile' + self.sover, '']
