@@ -117,6 +117,7 @@ def get_cygwin_package (settings, name, dict):
         'guile', 'guile-devel',
         'libtool', 'libtool-devel', 'libtool1.5', 'libltdl3',
         'libguile12', 'libguile16', 'libguile17',
+        'lilypond', 'lilypond-doc',
         ]
     #urg_source_deps_are_broken = ['guile', 'libtool']
     #source += urg_source_deps_are_broken
@@ -124,11 +125,14 @@ def get_cygwin_package (settings, name, dict):
     # but most should stay as distro's final install dependency.
     unneeded = [
         'bash',
+        'autoconf', 'autoconf2.13', 'autoconf2.50',
+        'automake', 'automake1.9',
         'coreutils',
         'ghostscript-base', 'ghostscript-x11',
         '-update-info-dir',
         'libxft', 'libxft1', 'libxft2',
         'libbz2-1',
+        'perl',
         'tcltk',
         'x-startup-scripts',
         'xaw3d',
