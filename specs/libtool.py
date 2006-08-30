@@ -23,11 +23,11 @@ class Libtool__darwin (Libtool):
 class Libtool__cygwin (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        #self.with (version='1.5.22')
-        self.with (version='1.5.22-1',
-                   mirror='http://mirrors.kernel.org/sourceware/cygwin/release/libtool/libtool1.5/libtool1.5-%(version)s-1-src.tar.bz2',)
+        self.with (version='1.5.22')
+        #self.with (version='1.5.22-1',
+        #          mirror='http://mirrors.kernel.org/sourceware/cygwin/release/libtool/libtool1.5/libtool1.5-%(version)s-1-src.tar.bz2',)
 
-    def untar (self):
+    def only_for_cygwin_untar (self):
         self.untar_cygwin_src_package_variant2 (self.file_name ())
 
 class Libtool__local (ToolBuildSpec):

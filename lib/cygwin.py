@@ -67,14 +67,13 @@ mirror = 'http://mirrors.kernel.org/sourceware/cygwin'
 def get_cross_packages (settings):
     import linux
     cross_packs = [
-        #Binutils (settings).with (version='20050610-1', format='bz2', mirror=download.cygwin),
         #Binutils (settings).with (version='2.16.1', format='bz2'),
-        Binutils (settings).with (version='20060817-1', format='bz2', mirror=download.cygwin),
+        Binutils (settings).with (version='2.17', format='bz2'),
+        #Binutils (settings).with (version='20060817-1', format='bz2', mirror=download.cygwin),
         W32api_in_usr_lib (settings).with (version='1.0'),
-        #Gcc (settings).with (version='4.1.1', mirror=download.gcc_41, format='bz2'),
-        Gcc_core (settings).with (version='3.4.4-1', mirror=download.cygwin_gcc, format='bz2'),
-        Gcc_gxx (settings).with (version='3.4.4-1', mirror=download.cygwin_gcc, format='bz2'),
-#        linux.Guile_config (settings).with (version='1.6.7'),
+        Gcc (settings).with (version='4.1.1', mirror=download.gcc_41, format='bz2'),
+        #Gcc_core (settings).with (version='3.4.4-1', mirror=download.cygwin_gcc, format='bz2'),
+        #Gcc_gxx (settings).with (version='3.4.4-1', mirror=download.cygwin_gcc, format='bz2'),
         linux.Python_config (settings).with (version='2.4.3'),
         ]
 

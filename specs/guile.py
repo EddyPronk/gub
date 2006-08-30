@@ -221,16 +221,16 @@ class Guile__cygwin (Guile):
 
         # OK, with cygwin's bintutils, gcc, libtool versions
         # urg: using implitic patch from cygwin
-        self.with (version='1.6.7-4',
-                   mirror=download.cygwin, format='bz2')
-        self.sover = '12'
+        #self.with (version='1.6.7-4',
+        #           mirror=download.cygwin, format='bz2')
+        #self.sover = '12'
         # Broken, with cygwin's bintutils, gcc, libtool versions
-        #self.with (version='1.8.0',
-        #           mirror=download.gnu, format='gz')
+        self.with (version='1.8.0',
+                   mirror=download.gnu, format='gz')
         # Broken, with cygwin's bintutils, gcc, libtool versions
         # self.with (version='1.7.2-3',
         #           mirror=download.cygwin, format='bz2')
-        # self.sover = '17'
+        self.sover = '17'
 
     def get_subpackage_names (self):
         return ['doc', 'devel', 'libguile' + self.sover, '']
