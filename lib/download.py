@@ -57,11 +57,11 @@ fondu = 'http://%(name)s.sourceforge.net/%(name)s_src-%(ball_version)s.tgz'
 
 python = 'http://python.org/ftp/python/%(ball_version)s/Python-%(ball_version)s.tar.%(format)s' 
 
-cygwin_bin = 'ftp://ftp.sunsite.dk/pub/cygwin/release/%(name)s/%(name)s-%(ball_version)s.tar.%(format)s'
+cygwin_bin = 'http://mirrors.kernel.org/sourceware/cygwin/release/%(name)s/%(name)s-%(ball_version)s.tar.%(format)s'
 
-cygwin = 'ftp://ftp.sunsite.dk/pub/cygwin/release/%(name)s/%(name)s-%(ball_version)s-src.tar.%(format)s'
+cygwin = 'http://mirrors.kernel.org/sourceware/cygwin/release/%(name)s/%(name)s-%(ball_version)s-src.tar.%(format)s'
 
-cygwin_gcc = 'ftp://ftp.sunsite.dk/pub/cygwin/release/gcc/%(name)s/%(name)s-%(ball_version)s-src.tar.%(format)s'
+cygwin_gcc = 'http://mirrors.kernel.org/sourceware/cygwin/release/gcc/%(name)s/%(name)s-%(ball_version)s-src.tar.%(format)s'
 
 # FIXME:  %(version)s should probably be %(ball_version)s for download,
 # to include possible '-xyz' version part.

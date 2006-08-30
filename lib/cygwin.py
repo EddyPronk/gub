@@ -63,11 +63,9 @@ class Gcc_core (Gcc):
 class Gcc_gxx (gub.NullBuildSpec):
     pass
 
-mirror = 'http://ftp.uni-kl.de/pub/windows/cygwin'
+mirror = 'http://mirrors.kernel.org/sourceware/cygwin'
 def get_cross_packages (settings):
     import linux
-    # FIXME: must add deps to buildeps, otherwise packages do not
-    # get built in correct dependency order?
     cross_packs = [
         #Binutils (settings).with (version='20050610-1', format='bz2', mirror=download.cygwin),
         #Binutils (settings).with (version='2.16.1', format='bz2'),
