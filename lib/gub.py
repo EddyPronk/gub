@@ -546,6 +546,59 @@ rm -rf %(srcdir)s %(builddir)s %(install_root)s
         if (os.path.isdir (self.expand ('%(srcdir)s'))):
             self.system ('cd %(srcdir)s && chmod -R +w .')
 
+    def untar_cygwin_src_package_variant2 (self, file_name, split=False):
+        '''Unpack this unbelievably broken version of Cygwin source packages.
+
+foo[version][-split]-x.y.z-b.tar.bz2 contains
+foo[-split]-x.y.z.tar.[bz2|gz] and foo[version]-x.y.z-b.patch
+(and optionally foo[version]-x.y.z-b.patch2 ...).
+foo-x.y.z.tar.[bz2|gz] contains foo-x.y.z.  The patch contains patches
+against all foo split source balls, so applying it may fail partly and
+complain about missing files.'''
+        
+        file_name = self.expand (file_name)
+        no_src = re.sub ('-src', '', file_name)
+        base = re.sub ('\.tar\..*', '', no_src)
+        ball_re = '^([a-z]+)([.0-9]+)?(-[a-z+]+)?(.*)(-[0-9]+)'
+        m = re.match (ball_re, base)
+        if m.group (3):
+            second_tarball = re.sub (ball_re, '\\1\\3\\4', base)
+        else:
+            second_tarball = re.sub (ball_re, '\\1\\4', base)
+        print 'second_tarball: ' + second_tarball
+        if split and m.group (3):
+            second_tarball_contents = re.sub (ball_re, '\\1\\3\\4', base)
+        else:
+            second_tarball_contents = re.sub (ball_re, '\\1\\4', base)
+        print 'second_tarball_contents: ' + second_tarball_contents
+        flags = '-jxf'
+        self.system ('''
+rm -rf %(allsrcdir)s/%(base)s
+tar -C %(allsrcdir)s %(flags)s %(downloaddir)s/%(file_name)s
+''',
+                     locals ())
+        tgz = 'tar.bz2'
+        if not os.path.exists (self.expand ('%s(allsrcdir)s/%(second_tarball)s.%(tgz)s',
+                                            locals ())):
+            flags = '-zxf'
+            tgz = 'tar.gz'
+        self.system ('''
+tar -C %(allsrcdir)s %(flags)s %(allsrcdir)s/%(second_tarball)s.%(tgz)s
+''',
+                     locals ())
+        if split:
+            return
+        if m.group (2):
+            patch = re.sub (ball_re, '\\1\\2\\4\\5.patch', base)
+        else:
+            patch = re.sub (ball_re, '\\1\\4\\5.patch', base)
+        print 'patch: ' + patch
+        self.system ('''
+cd %(allsrcdir)s && mv %(second_tarball_contents)s %(base)s
+cd %(srcdir)s && patch -p1 -f < %(allsrcdir)s/%(patch)s || true
+''',
+                     locals ())
+
     def with (self, version='HEAD', mirror=download.gnu,
               format='gz', 
               track_development=False
