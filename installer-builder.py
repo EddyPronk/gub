@@ -78,7 +78,8 @@ package - build installer binary
         d = misc.grok_sh_variables (options.version_file)
         options.installer_version = ('%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d)
 
-    print "Using version number", options.installer_version, options.installer_build
+    print "Using version number", options.installer_version,
+    options.installer_build
 
     return (options, args)
 

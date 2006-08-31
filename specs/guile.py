@@ -298,6 +298,15 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
 
     def install (self):
         Guile.install (self)
+
+        # The current (1.5.22-1) cygltdl-3.dll is broken.  Supply our
+        # own.
+
+        # FIXME: try a silly case trick to circument gup-manager.py's
+        # smart-assery.
+        self.system ('''
+cp -pv %(system_root)s/usr/bin/cygltdl-3.dll %(install_root)s/usr/bin/CYGltdtl-3.dll''')
+
         self.dump_readme_and_hints ()
         self.copy_readmes ()
         # Hmm, is this really necessary?
@@ -309,6 +318,12 @@ cp -pv %(install_root)s/usr/share/doc/Cygwin/* %(cygwin_patches)s
 ''',
               locals ())
 
+    def build_number (self):
+        build_number_file = '%(topdir)s/buildnumber-%(lilypond_branch)s.make'
+        d = misc.grok_sh_variables (self.expand (build_number_file))
+        b = '%(INSTALLER_BUILD)s' % d
+        return b
+
     # FIXME: ints and readmes from file, rather than inline python data.
     def dump_readme_and_hints (self):
         # FIXME: get depends from actual split_packages
@@ -319,10 +334,14 @@ mkdir -p %(install_root)s/etc/hints
 ''')
         readme = open (self.settings.sourcefiledir + '/guile.README').read ()
 
-        # FIXME, what's the name of build number this week?
-        bundle_build = "1"
+        installer_build = self.build_number ()
+
+        # FIXME, this is the accindental build number of LILYPOND,
+        # which is wrong to use for guile, but uh, packages do not
+        # have a build number anymore...
+        build = installer_build
         self.dump (readme,
-                   '%(install_root)s/usr/share/doc/Cygwin/%(name)s-%(version)s-%(bundle_build)s.README',
+                   '%(install_root)s/usr/share/doc/Cygwin/%(name)s-%(version)s-%(build)s.README',
                    env=locals ())
 
         fixdepends = {

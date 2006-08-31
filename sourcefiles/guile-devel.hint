@@ -1,4 +1,4 @@
-curr: %(version)s-%(bundle_build)s
+curr: %(version)s-%(build)s
 prev: 1.6.7-4
 sdesc: "Development headers and static libraries for Guile."
 category: devel libs

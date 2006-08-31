@@ -1,4 +1,4 @@
-curr: %(version)s-%(bundle_build)s
+curr: %(version)s-%(installer_build)s
 #prev: 1.6.7-4
 sdesc: "The GNU extension language and Scheme interpreter (runtime libraries)"
 category: libs

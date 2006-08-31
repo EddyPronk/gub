@@ -1,4 +1,4 @@
-curr: %(version)s-%(bundle_build)s
+curr: %(installer_version)s-%(installer_build)s
 prev: 2.6.4-1
 sdesc: "A program for printing sheet music"
 category: Publishing

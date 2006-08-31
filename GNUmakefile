@@ -125,7 +125,6 @@ cygwin:
 	$(MAKE) upload-setup-ini
 
 upload-setup-ini:
-	sed -ie 's/1\.8\.0-1/1.8.0-$(INSTALLER_BUILD)/' $$(find uploads/cygwin/release/guile -name setup.hint)
 	cd uploads/cygwin && ../../downloads/genini $$(find release/guile release/lilypond -type d) > setup.ini
 
 downloads/genini:

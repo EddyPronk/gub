@@ -98,21 +98,35 @@ cd %(builddir)s && %(configure_command)s''')
         targetpackage.TargetBuildSpec.compile (self)
 
     def name_version (self):
-        # whugh
-        if os.path.exists (self.srcdir ()):
-            d = misc.grok_sh_variables (self.expand ('%(srcdir)s/VERSION'))
-            return 'lilypond-%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
-        return targetpackage.TargetBuildSpec.name_version (self)
+        # FIXME: make use of branch for version explicit, use
+        # name-branch for src /build dir, use name-version for
+        # packaging.
+        try:
+            self.build_version ()
+        except:
+            return targetpackage.TargetBuildSpec.name_version (self)
+
+    def build_version (self):
+        d = misc.grok_sh_variables (self.expand ('%(srcdir)s/VERSION'))
+        v = '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
+        return v
+
+    def build_number (self):
+        build_number_file = '%(topdir)s/buildnumber-%(lilypond_branch)s.make'
+        d = misc.grok_sh_variables (self.expand (build_number_file))
+        b = '%(INSTALLER_BUILD)s' % d
+        return b
 
     def install (self):
         targetpackage.TargetBuildSpec.install (self)
-        d = misc.grok_sh_variables (self.expand ('%(srcdir)s/VERSION'))
-        v = '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
+        # FIXME: is it really the installer version that we need here,
+        # or do we need the version of lilypond?
+        installer_version = build_version ()
         # WTF, current?
-        self.system ("cd %(install_root)s/usr/share/lilypond && mv %(v)s current",
+        self.system ("cd %(install_root)s/usr/share/lilypond && mv %(installer_version)s current",
               locals ())
 
-        self.system ("cd %(install_root)s/usr/lib/lilypond && mv %(v)s current",
+        self.system ("cd %(install_root)s/usr/lib/lilypond && mv %(installer_version)s current",
               locals ())
 
         self.system ('mkdir -p %(install_root)s/usr/etc/fonts/')
@@ -127,11 +141,9 @@ cd %(builddir)s && %(configure_command)s''')
  </rejectfont>
 </selectfont>
 
-<cache>~/.lilypond-%(v)s-font.cache-1</cache>
+<cache>~/.lilypond-%(installer_version)s-font.cache-1</cache>
 </fontconfig>
 ''' % locals ())
-
-
 
     def gub_name (self):
         nv = self.name_version ()
@@ -156,10 +168,15 @@ class LilyPond__cygwin (LilyPond):
         self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
                    track_development=True)
 
+    def get_subpackage_names (self):
+        return ['', 'doc']
+    
     def get_dependency_dict (self):
         return {'' : [
-            'glib2', 'libfontconfig1', 'libfreetype2',
-            'libguile17', 'libiconv', 'pango-runtime', 'python'
+            'glib2', 'libfontconfig1', 'libfreetype26',
+            #'libguile17', #cygwin name
+            'guile-libguile17', #gub name
+            'libiconv', 'pango-runtime', 'python'
             ]}
 
     def get_build_dependencies (self):
@@ -190,6 +207,7 @@ LDFLAGS="%(LDFLAGS)s %(python_lib)s"
     #URG guile.py c&p
     def install (self):
         targetpackage.TargetBuildSpec.install (self)
+        self.install_doc ()
         self.system ('''
 mkdir -p %(install_root)s/usr/share/doc/lilypond
 cp -prv %(srcdir)s/input %(install_root)s/usr/share/doc/lilypond
@@ -226,9 +244,10 @@ mkdir -p %(install_root)s/etc/hints
 ''')
 
         readme = open (self.settings.sourcefiledir + '/lilypond.README').read ()
-        bundle_build = "1"
+        installer_build = self.build_number ()
+        installer_version = self.build_version ()
         self.dump (readme,
-                   '%(install_root)s/usr/share/doc/Cygwin/%(name)s-%(version)s-%(bundle_build)s.README',
+                   '%(install_root)s/usr/share/doc/Cygwin/%(name)s-%(version)s-%(installer_build)s.README',
                    env=locals ())
 
         fixdepends = {
@@ -247,9 +266,10 @@ mkdir -p %(install_root)s/etc/hints
                  '%(install_root)s/etc/hints/%(name)s.hint',
                  env=locals ())
 
-    def split_doc (self):
-        bundle_build = "1"
-        docball = self.expand ('%(uploads)s/lilypond-%(version)s-%(bundle_build)s.documentation.tar.bz2', env=locals ())
+    def install_doc (self):
+        installer_build = self.build_number ()
+        installer_version = self.build_version ()
+        docball = self.expand ('%(uploads)s/lilypond-%(installer_version)s-%(installer_build)s.documentation.tar.bz2', env=locals ())
         if not os.path.exists (docball):
             # Must not have cygwin CC, CXX settings.
             os.system ('''make doc''')
@@ -258,7 +278,6 @@ mkdir -p %(install_root)s/usr/share/doc/lilypond
 tar -C %(install_root)s/usr/share/doc/lilypond -jxf %(docball)s
 ''',
                   locals ())
-        LilyPond.split_doc (self)
 
 class LilyPond__freebsd (LilyPond):
     def __init__ (self, settings):
