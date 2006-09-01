@@ -169,7 +169,7 @@ class LilyPond__cygwin (LilyPond):
                    track_development=True)
 
     def get_subpackage_names (self):
-        return ['', 'doc']
+        return ['doc', '']
     
     def get_dependency_dict (self):
         return {'' : [
