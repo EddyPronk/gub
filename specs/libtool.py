@@ -46,6 +46,26 @@ class Libtool__cygwin (targetpackage.TargetBuildSpec):
             ]
         return d
     
+    def install (self):
+        # FIXME: we MUST do this for all cygwin packages
+        ## FIXME: how to do super.install (self) in python?
+        ##Libtool.install (self)
+        targetpackage.TargetBuildSpec.install (self)
+        import cygwin
+        cygwin.dump_readme_and_hints (self)
+        cygwin.copy_readmes_buildspec (self)
+        cygwin.cygwin_patches_dir_buildspec (self)
+
+    # FIXME: should not be necessary (and should be automatic)
+    # define package naming problems in gup<->distro (source packages?)
+    # '' <-> 'libtool'
+    # 'libtool-libguile17' <-> 'libltdl3'
+    def get_distro_dependency_dict (self):
+        return {
+            'libtool': ['cygwin'],
+            'libltdl3': ['cygwin'],
+        }
+
 class Libtool__local (ToolBuildSpec):
     """
 
