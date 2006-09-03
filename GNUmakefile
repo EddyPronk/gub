@@ -117,6 +117,7 @@ arm:
 
 #cygwin: doc
 cygwin:
+	rm -f uploads/cygwin/setup.ini
 	$(call INVOKE_GUB_BUILDER,$@) --build-source build libtool
 	$(call INVOKE_INSTALLER_BUILDER,$@) build-all libtool
 	$(MAKE) upload-setup-ini
