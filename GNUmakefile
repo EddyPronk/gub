@@ -117,9 +117,12 @@ arm:
 
 #cygwin: doc
 cygwin:
+	$(call INVOKE_GUB_BUILDER,$@) --build-source build libtool
+	$(call INVOKE_INSTALLER_BUILDER,$@) build-all libtool
+	$(MAKE) upload-setup-ini
 	$(call INVOKE_GUB_BUILDER,$@) --build-source build guile
-#	rm -rf uploads/cygwin/*guile*
 	$(call INVOKE_INSTALLER_BUILDER,$@) build-all guile
+	$(MAKE) upload-setup-ini
 	$(call INVOKE_GUB_BUILDER,$@) --build-source build lilypond
 	$(call INVOKE_INSTALLER_BUILDER,$@) build-all lilypond
 	$(MAKE) upload-setup-ini
