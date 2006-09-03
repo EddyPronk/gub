@@ -128,7 +128,7 @@ cygwin:
 	$(MAKE) upload-setup-ini
 
 upload-setup-ini:
-	cd uploads/cygwin && ../../downloads/genini $$(find release/guile release/lilypond -type d) > setup.ini
+	cd uploads/cygwin && ../../downloads/genini $$(find release -type d -mindepth 2 -maxdepth 2) > setup.ini
 
 downloads/genini:
 	wget -P downloads http://cygwin.com/cgi-bin/cvsweb.cgi/~checkout~/genini/genini?rev=1.2&content-type=text/plain&cvsroot=cygwin-apps&only_with_tag=HEAD'
