@@ -251,6 +251,8 @@ class Guile__cygwin (Guile):
 
     # FIXME: should not be necessary (and should be automatic)
     # define package naming problems in gup<->distro (source packages?)
+    # '' <-> 'guile'
+    # 'guile-libguile17' <-> 'libguile17'
     def get_distro_dependency_dict (self):
         return {
             'guile': ['cygwin', 'libguile17', 'libncurses8', 'libreadline6'],
@@ -316,16 +318,6 @@ cp -f /usr/bin/cygltdl-3.dll-fixed /usr/bin/cygltld3.dll
         self.dump (postinstall,
                    '%(install_root)s/etc/postinstall/%(name)s',
                    env=locals ())
-
-    def build_version (self):
-        # FIXME: ugly workaround needed for lilypond package...
-        return self.expand ('%(version)s')
-
-    def build_number (self):
-        build_number_file = '%(topdir)s/buildnumber-%(lilypond_branch)s.make'
-        d = misc.grok_sh_variables (self.expand (build_number_file))
-        b = '%(INSTALLER_BUILD)s' % d
-        return b
 
 class Guile__local (ToolBuildSpec, Guile):
     def configure (self):

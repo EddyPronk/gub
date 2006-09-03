@@ -599,6 +599,17 @@ cd %(srcdir)s && patch -p1 -f < %(allsrcdir)s/%(patch)s || true
 ''',
                      locals ())
 
+    def build_version (self):
+        # FIXME: ugly workaround needed for lilypond package...
+        return self.expand ('%(version)s')
+
+    def build_number (self):
+        # FIXME: actually need the packages' build number here...
+        build_number_file = '%(topdir)s/buildnumber-%(lilypond_branch)s.make'
+        d = misc.grok_sh_variables (self.expand (build_number_file))
+        b = '%(INSTALLER_BUILD)s' % d
+        return b
+
     def with (self, version='HEAD', mirror=download.gnu,
               format='gz', 
               track_development=False
