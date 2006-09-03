@@ -237,7 +237,7 @@ def run_builder (options, settings, manager, names, spec_object_dict):
 
 def main ():
     cli_parser = get_cli_parser ()
-    (options, commands)  = cli_parser.parse_args ()
+    (options, files)  = cli_parser.parse_args ()
 
     if not options.platform:
         raise Exception ('error: no platform specified')
@@ -250,20 +250,15 @@ def main ():
     settings.cpu_count = options.cpu_count
     settings.set_distcc_hosts (options)
     settings.options = options ##ugh
-    c = commands.pop (0)
-    if not commands:
-        commands = ['lilypond']
 
-
-    ## cross_prefix is also necessary for building cross packages,
-    ## such as GCC
+    command = files.pop (0)
 
     PATH = os.environ['PATH']
     os.environ['PATH'] = settings.expand ('%(buildtools)s/bin:' + PATH)
 
     (package_names, spec_object_dict) = gup.get_source_packages (settings,
-                                                                 commands)
-    if c == 'download' or c == 'build':
+                                                                 files)
+    if command == 'download' or command == 'build':
         def get_all_deps (name):
             package = spec_object_dict[name]
             deps = package.get_build_dependencies ()
@@ -273,15 +268,15 @@ def main ():
                 deps = [gub.get_base_package_name (d) for d in deps]
             return deps
 
-        deps = gup.topologically_sorted (commands, {}, get_all_deps, None)
+        deps = gup.topologically_sorted (files, {}, get_all_deps, None)
         if options.verbose:
             print 'deps:' + `deps`
 
-    if c == 'download':
+    if command == 'download':
         for i in deps:
             spec_object_dict[i].do_download ()
 
-    elif c == 'build':
+    elif command == 'build':
         try:
             pm = gup.get_target_manager (settings)
         except locker.LockedError:
@@ -291,13 +286,11 @@ def main ():
             raise 
 
         gup.add_packages_to_manager (pm, settings, spec_object_dict)
-
         deps = filter (spec_object_dict.has_key, package_names)
-#        deps = filter (pm.is_registered, deps)
 
         run_builder (options, settings, pm, deps, spec_object_dict)
     else:
-        raise 'unknown gub-builder command %s.' % c
+        raise 'unknown gub-builder command %s.' % command
         cli_parser.print_help ()
         sys.exit (2)
 
