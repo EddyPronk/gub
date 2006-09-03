@@ -317,9 +317,11 @@ class Cygwin_package (Installer):
             gub_name = self.package_manager.package_dict (package_name + '-' + split) ['split_ball']
 
         gub_name = re.sub ('.*/', '', gub_name)
+
         # FIXME: fixup broken split names
         package_prefixed_gub_name = gub_name
         gub_name = re.sub ('guile-libguile', 'libguile', gub_name)
+        gub_name = re.sub ('libtool-libltdl', 'libltdl', gub_name)
         
         print 'gub_name: ' + gub_name
 
