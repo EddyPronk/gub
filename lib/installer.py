@@ -307,7 +307,7 @@ class Cygwin_package (Installer):
         # FIXME: we used to have python code to generate a setup.ini
         # snippet from a package, in some package-manager class used
         # by gub and cyg-apt packaging...
-        self.system ('''cd %(uploads)s/cygwin && %(downloads)s/genini $(find release -mindepth 1 -maxdepth 2 -type d) > setup.ini)''')
+        self.system ('''cd %(uploads)s/cygwin && %(downloads)s/genini $(find release -mindepth 1 -maxdepth 2 -type d) > setup.ini''')
 
     def cygwin_ball (self, package, split):
         cygwin_uploads = '%(gub_uploads)s/release'
