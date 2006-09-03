@@ -87,11 +87,11 @@ class Debian_dependency_finder:
                                    self.settings.os_interface)
         url = mirror + packages_path
 
-        downloaddir = self.settings.downloaddir
-        base = self.settings.downloaddir + '/Packages'
+        downloads = self.settings.downloads
+        base = self.settings.downloads + '/Packages'
         file = base + '.' + self.settings.platform
         if not os.path.exists (file):
-            misc.download_url (url, self.settings.downloaddir )
+            misc.download_url (url, self.settings.downloads )
             os.system ('gunzip  %(base)s.gz' % locals ())
             os.system ('mv %(base)s %(file)s' % locals ())
 

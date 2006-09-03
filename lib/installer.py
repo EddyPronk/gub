@@ -174,7 +174,7 @@ class Darwin_bundle (Installer):
         self.system ('''
 rm -f %(bundle_zip)s 
 rm -rf %(darwin_bundle_dir)s
-tar -C %(targetdir)s -zxf %(downloaddir)s/osx-lilypad-%(osx_lilypad_version)s.tar.gz
+tar -C %(targetdir)s -zxf %(downloads)s/osx-lilypad-%(osx_lilypad_version)s.tar.gz
 cp %(darwin_bundle_dir)s/Contents/Resources/subprocess.py %(installer_root)s/usr/share/lilypond/current/python/
 cp -pR --link %(installer_root)s/usr/* %(darwin_bundle_dir)s/Contents/Resources/
 
@@ -304,6 +304,10 @@ class Cygwin_package (Installer):
         for i in p.get_subpackage_names ():
             self.cygwin_ball (p, i)
         self.cygwin_src_ball (p)
+        # FIXME: we used to have python code to generate a setup.ini
+        # snippet from a package, in some package-manager class used
+        # by gub and cyg-apt packaging...
+        self.system ('''cd %(uploads)s/cygwin && %(downloads)s/genini $(find release -mindepth 1 -maxdepth 2 -type d) > setup.ini)''')
 
     def cygwin_ball (self, package, split):
         cygwin_uploads = '%(gub_uploads)s/release'

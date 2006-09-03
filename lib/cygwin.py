@@ -220,11 +220,11 @@ class Cygwin_dependency_finder:
     def download (self):
         url = mirror + '/setup.ini'
         # FIXME: download/offline
-        downloaddir = self.settings.downloaddir
+        downloads = self.settings.downloads
 
-        file = self.settings.downloaddir + '/setup.ini'
+        file = self.settings.downloads + '/setup.ini'
         if not os.path.exists (file):
-            misc.download_url (url, self.settings.downloaddir)
+            misc.download_url (url, self.settings.downloads)
 
         pack_list = get_cygwin_packages (self.settings, file)
         for p in pack_list:

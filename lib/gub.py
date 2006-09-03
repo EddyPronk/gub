@@ -110,18 +110,18 @@ class BuildSpec (Os_context_wrapper):
         if not self.has_source:
             return True
         
-        name = self.expand ('%(downloaddir)s/%(file_name)s')
+        name = self.expand ('%(downloads)s/%(file_name)s')
         return os.path.exists (name)
     
     def wget (self):
         if not self.is_downloaded ():
-            misc.download_url (self.expand (self.url), self.expand ('%(downloaddir)s'))
+            misc.download_url (self.expand (self.url), self.expand ('%(downloads)s'))
             
     def cvs (self):
 
         
         dir = self.expand ('%(name)s-%(version)s')
-        cvs_dest = self.expand ('%(downloaddir)s/%(dir)s' , locals ())
+        cvs_dest = self.expand ('%(downloads)s/%(dir)s' , locals ())
         timestamp_file = cvs_dest + '/.cvsup-timestamp'
         
         ## don't run CVS too often.
@@ -135,12 +135,12 @@ class BuildSpec (Os_context_wrapper):
         if os.path.isdir (cvs_dest):
             open (timestamp_file, 'w').write ('changed')
 
-        lock_file = self.expand ('%(downloaddir)s/%(name)s-%(version)s.lock')
+        lock_file = self.expand ('%(downloads)s/%(name)s-%(version)s.lock')
         lock = locker.Locker (lock_file)
         url = self.expand (self.url)
         if not os.path.exists (cvs_dest):
             self.system ('''
-cd %(downloaddir)s && cvs -d %(url)s -q co -d %(dir)s -r %(version)s %(name)s
+cd %(downloads)s && cvs -d %(url)s -q co -d %(dir)s -r %(version)s %(name)s
 ''', locals ())
         else:
             self.system ('''
@@ -182,7 +182,7 @@ cd %(cvs_dest)s && cvs -q update -dAPr %(version)s
         return file
 
     def cvs_checksum_file (self):
-        dir = '%s/%s-%s/' % (self.settings.downloaddir, self.name(),
+        dir = '%s/%s-%s/' % (self.settings.downloads, self.name(),
                              self.version ())
 
         file = '%s/.cvs-checksum' % dir
@@ -298,7 +298,7 @@ cd %(cvs_dest)s && cvs -q update -dAPr %(version)s
 
     @subst_method
     def rsync_command (self):
-        return "rsync --exclude CVS -v -a %(downloaddir)s/%(name)s-%(version)s/ %(srcdir)s"
+        return "rsync --exclude CVS -v -a %(downloads)s/%(name)s-%(version)s/ %(srcdir)s"
 
     def get_stamp_file (self):
         stamp = self.expand ('%(stamp_file)s')
@@ -517,7 +517,7 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"  -zcf %(gub_src_uploads)s
         self.system ('''rm -rf %(srcdir)s %(builddir)s''', locals ())
 
     def _untar (self, dir):
-        tarball = self.expand("%(downloaddir)s/%(file_name)s")
+        tarball = self.expand("%(downloads)s/%(file_name)s")
         if not os.path.exists (tarball):
             raise 'no such file: ' + tarball
         if self.format == 'deb':
@@ -574,7 +574,7 @@ complain about missing files.'''
         flags = '-jxf'
         self.system ('''
 rm -rf %(allsrcdir)s/%(base)s
-tar -C %(allsrcdir)s %(flags)s %(downloaddir)s/%(file_name)s
+tar -C %(allsrcdir)s %(flags)s %(downloads)s/%(file_name)s
 ''',
                      locals ())
         tgz = 'tar.bz2'

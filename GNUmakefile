@@ -120,13 +120,10 @@ cygwin:
 	rm -f uploads/cygwin/setup.ini
 	$(call INVOKE_GUB_BUILDER,$@) --build-source build libtool
 	$(call INVOKE_INSTALLER_BUILDER,$@) build-all libtool
-	$(MAKE) upload-setup-ini
-	$(call INVOKE_GUB_BUILDER,$@) --build-source build guile
+	$(call INVOKE_GUB_BUILDER,$@) --build-source build libtool guile
 	$(call INVOKE_INSTALLER_BUILDER,$@) build-all guile
-	$(MAKE) upload-setup-ini
-	$(call INVOKE_GUB_BUILDER,$@) --build-source build lilypond
+	$(call INVOKE_GUB_BUILDER,$@) --build-source build libtool guile lilypond
 	$(call INVOKE_INSTALLER_BUILDER,$@) build-all lilypond
-	$(MAKE) upload-setup-ini
 
 upload-setup-ini:
 	cd uploads/cygwin && ../../downloads/genini $$(find release -mindepth 1 -maxdepth 2 -type d) > setup.ini

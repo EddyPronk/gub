@@ -32,7 +32,7 @@ class Settings (Context):
         self.target_gcc_flags = '' 
         self.topdir = os.getcwd ()
         self.logdir = self.topdir + '/log'
-        self.downloaddir = self.topdir + '/downloads'
+        self.downloads = self.topdir + '/downloads'
         self.patchdir = self.topdir + '/patches'
         self.sourcefiledir = self.topdir + '/sourcefiles'
         self.specdir = self.topdir + '/specs'
@@ -98,7 +98,7 @@ class Settings (Context):
     
     def create_dirs (self): 
         for a in (
-            'downloaddir',
+            'downloads',
             'logdir',
             'gub_uploads',
             'gub_cross_uploads',
