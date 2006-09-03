@@ -109,23 +109,22 @@ def get_cygwin_package (settings, name, dict):
         'gcc-runtime', 'gcc-core-runtime',
         ]
     cycle = ['base-passwd']
-    source = [
-        'guile', 'guile-devel',
-        'libtool', 'libtool-devel', 'libtool1.5', 'libltdl3',
-        'libguile12', 'libguile16', 'libguile17',
-        'lilypond', 'lilypond-doc',
+    # FIXME: this really sucks, should translate or something
+    # There also is the problem that gub build-dependencies
+    # use unsplit packages.
+    gup_cygwin_name_clashes = [
+        'libtool1.5', # 'libtool' in gup
         ]
-    #urg_source_deps_are_broken = ['guile', 'libtool']
-    #source += urg_source_deps_are_broken
     # FIXME: These packages are not needed for [cross] building,
     # but most should stay as distro's final install dependency.
     unneeded = [
         'bash',
-        'autoconf', 'autoconf2.13', 'autoconf2.50',
+        'autoconf', 'autoconf2.13', 'autoconf2.50', 'autoconf2.5',
         'automake', 'automake1.9',
         'coreutils',
         'ghostscript-base', 'ghostscript-x11',
         '-update-info-dir',
+        'libguile12', 'libguile16', 'libguile17',
         'libxft', 'libxft1', 'libxft2',
         'libbz2-1',
         'perl',
@@ -137,7 +136,7 @@ def get_cygwin_package (settings, name, dict):
         'xorg-x11-fnts',
         'xorg-x11-libs-data',
         ]
-    blacklist = cross + cycle + source + unneeded
+    blacklist = cross + cycle + gup_cygwin_name_clashes + unneeded
     if name in blacklist:
         name += '::blacklisted'
     package_class = classobj (name, (gub.BinarySpec,), {})
