@@ -233,7 +233,7 @@ class Cygwin_dependency_finder:
         local_file = self.settings.uploads + '/cygwin/setup.ini'
         if os.path.exists (local_file):
             local_list = get_cygwin_packages (self.settings, local_file)
-            for p in local_file:
+            for p in local_list:
                 self.packages[p.name ()] = p
 
     def get_packages (self):
