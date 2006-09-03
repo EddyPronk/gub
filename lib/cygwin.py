@@ -274,14 +274,16 @@ cp -pv %(install_root)s/usr/share/doc/Cygwin/* %(cygwin_patches)s
 
 
 def dump_readme_and_hints (spec):
-    changelog = open (spec.expand (spec.settings.sourcefiledir
-                                   + '/%(name)s.changelog')).read ()
+    file = spec.expand (spec.settings.sourcefiledir + '/%(name)s.changelog')
+    if os.path.exists (file):
+        changelog = open (file).read ()
+    else:
+        changelog = 'ChangeLog not recorded.'
+
     spec.system ('''
 mkdir -p %(install_root)s/usr/share/doc/Cygwin
 mkdir -p %(install_root)s/etc/hints
 ''')
-    readme = open (spec.expand (spec.settings.sourcefiledir
-                                + '/%(name)s.README')).read ()
 
     installer_build = spec.build_number ()
 
@@ -297,6 +299,12 @@ mkdir -p %(install_root)s/etc/hints
     # wrong to use for guile and other packages, but uh, individual
     # packages do not have a build number anymore...
     build = installer_build
+
+    file = spec.expand (spec.settings.sourcefiledir + '/%(name)s.README')
+    if os.path.exists (file):
+        readme = open (file).read ()
+    else:
+        readme = 'README for Cygwin %(name)s-%(installer_version)s-%(installer_build)s'
     spec.dump (readme,
                '%(install_root)s/usr/share/doc/Cygwin/%(name)s-%(installer_version)s-%(installer_build)s.README',
                env=locals ())
@@ -309,10 +317,22 @@ mkdir -p %(install_root)s/etc/hints
     for name in distro_depends.keys ():
         depends = distro_depends[name]
         requires = ' '.join (depends)
-        # FIXME: generate hint file (see mknetrel based build system)
-        # if not available
-        hint = spec.expand (open (spec.settings.sourcefiledir
-                                  + '/' + name + '.hint').read (), locals ())
+        external_source = ''
+        file = (spec.settings.sourcefiledir + '/' + name + '.hint')
+        if os.path.exists (file):
+            hint = spec.expand (open .read (file), locals ())
+        else:
+            if name == spec.expand ('%s(name)s'):
+                external_source = 'external-source: %(name)s'
+            hint = spec.expand ('''
+curr: %(installer_version)s-%(installer_build)s
+sdesc: "%(name)s"
+ldesc: "The %(name)s package for Cygwin."
+category: misc
+requires: %(requires)s
+%(external_source)s
+''',
+                                locals ())
         spec.dump (hint,
              '%(install_root)s/etc/hints/%(name)s.hint',
              env=locals ())
