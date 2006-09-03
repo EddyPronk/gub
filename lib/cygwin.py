@@ -183,7 +183,8 @@ def get_cygwin_packages (settings, package_file):
                 j = j + 1
                 continue
             elif lines[j][0] == '[':
-                packages.append (get_cygwin_package (settings, name, records.copy ()))
+                packages.append (get_cygwin_package (settings, name,
+                                                     records.copy ()))
                 packages = dists[lines[j][1:5]]
                 j = j + 1
                 continue
@@ -221,26 +222,33 @@ class Cygwin_dependency_finder:
         url = mirror + '/setup.ini'
         # FIXME: download/offline
         downloaddir = self.settings.downloaddir
+
         file = self.settings.downloaddir + '/setup.ini'
         if not os.path.exists (file):
             misc.download_url (url, self.settings.downloaddir)
 
-        pack_list  = get_cygwin_packages (self.settings, file)
+        pack_list = get_cygwin_packages (self.settings, file)
         for p in pack_list:
             self.packages[p.name ()] = p
 
-    def get_dependencies (self, name):
-        return self.packages[name]
+        local_file = self.settings.uploads + '/cygwin/setup.ini'
+        if os.path.exists (local_file):
+            local_list = get_cygwin_packages (self.settings, local_file)
+            for p in local_file:
+                self.packages[p.name ()] = p
+
+    def get_packages (self):
+        return self.packages
         
 cygwin_dep_finder = None
 
 def init_cygwin_package_finder (settings):
     global cygwin_dep_finder
-    cygwin_dep_finder  = Cygwin_dependency_finder (settings)
+    cygwin_dep_finder = Cygwin_dependency_finder (settings)
     cygwin_dep_finder.download ()
 
-def cygwin_name_to_dependency_names (name):
-    return cygwin_dep_finder.get_dependencies (name)
+def get_packages ():
+    return cygwin_dep_finder.get_packages ()
 
 def copy_readmes_buildspec (spec):
     spec.system ('''

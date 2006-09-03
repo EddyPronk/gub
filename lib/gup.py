@@ -326,49 +326,41 @@ topological order
     
     cross_packages = cross.get_cross_packages (settings)
     spec_dict = dict ((p.name (), p) for p in cross_packages)
-
     todo += spec_dict.keys ()
 
     def name_to_dependencies_via_gub (name):
         name = gub.get_base_package_name (name)
-        
-        try:
+        if spec_dict.has_key (name):
             spec = spec_dict[name]
-        except KeyError:
+        else:
             spec = targetpackage.load_target_package (settings, name)
             spec_dict[name] = spec
-        
-        deps = spec.get_build_dependencies ()
-        return map (gub.get_base_package_name, deps)
+        return map (gub.get_base_package_name, spec.get_build_dependencies ())
 
     def name_to_dependencies_via_cygwin (name):
-        try:
-            pack = spec_dict [name]
-        except KeyError:
-            try:
-                pack = cygwin.cygwin_name_to_dependency_names (name)
-            except KeyError:
-                pack = targetpackage.load_target_package (settings, name)
+        if spec_dict.has_key (name):
+            spec = spec_dict[name]
+        else:
+            distro_packages = cygwin.get_packages ()
+            if name in todo or name not in distro_packages.keys ():
+                spec = targetpackage.load_target_package (settings, name)
+            else:
+                spec = distro_packages[name]
+            spec_dict[name] = spec
+        return spec.get_build_dependencies ()
 
-        spec_dict[name] = pack
-
-        return pack.get_build_dependencies()
-
+    #FIXME: copy from cygwin
     def name_to_dependencies_via_debian (name):
         try:
-            pack = spec_dict [name]
+            pack = spec_dict[name]
         except KeyError:
             try:
                 pack = debian_unstable.debian_name_to_dependency_names (name)
             except KeyError:
                 pack = targetpackage.load_target_package (settings, name)
-
         spec_dict[name] = pack
+        return pack.get_build_dependencies ()
 
-        return pack.get_build_dependencies()
-
-
-    ## todo: cygwin.
     name_to_deps = name_to_dependencies_via_gub
     if settings.platform == 'cygwin':
         cygwin.init_cygwin_package_finder (settings)
