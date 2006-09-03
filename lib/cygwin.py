@@ -322,7 +322,7 @@ mkdir -p %(install_root)s/etc/hints
         if os.path.exists (file):
             hint = spec.expand (open .read (file), locals ())
         else:
-            if name == spec.expand ('%(name)s'):
+            if name != spec.expand ('%(name)s'):
                 external_source = 'external-source: %(name)s'
             hint = spec.expand ('''curr: %(installer_version)s-%(installer_build)s
 sdesc: "%(name)s"
