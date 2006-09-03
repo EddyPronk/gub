@@ -305,6 +305,7 @@ mkdir -p %(install_root)s/etc/hints
         readme = open (file).read ()
     else:
         readme = 'README for Cygwin %(name)s-%(installer_version)s-%(installer_build)s'
+
     spec.dump (readme,
                '%(install_root)s/usr/share/doc/Cygwin/%(name)s-%(installer_version)s-%(installer_build)s.README',
                env=locals ())
@@ -320,7 +321,7 @@ mkdir -p %(install_root)s/etc/hints
         external_source = ''
         file = (spec.settings.sourcefiledir + '/' + name + '.hint')
         if os.path.exists (file):
-            hint = spec.expand (open .read (file), locals ())
+            hint = spec.expand (open (file).read (), locals ())
         else:
             if name != spec.expand ('%(name)s'):
                 external_source = 'external-source: %(name)s'
