@@ -1,11 +1,15 @@
 import os
+import re
+
+from new import classobj
+from new import instancemethod
 #
 import cross
 import download
 import gub
-import misc
-import mingw
 import gup
+import mingw
+import misc
 
 # FIXME: setting binutil's tooldir and/or gcc's gcc_tooldir may fix
 # -luser32 (ie -L .../w32api/) problem without having to set LDFLAGS.
@@ -96,13 +100,6 @@ def change_target_packages (packages):
             'DLLWRAP': '%(tool_prefix)sdllwrap',
             'LDFLAGS': '-L%(system_root)s/usr/lib -L%(system_root)s/usr/bin -L%(system_root)s/usr/lib/w32api',
             })
-        
-
-import gup
-from new import classobj
-from new import instancemethod
-import gub
-import re
 
 def get_cygwin_package (settings, name, dict):
     cross = [
@@ -244,3 +241,71 @@ def init_cygwin_package_finder (settings):
 
 def cygwin_name_to_dependency_names (name):
     return cygwin_dep_finder.get_dependencies (name)
+
+def copy_readmes_buildspec (spec):
+    spec.system ('''
+mkdir -p %(install_root)s/usr/share/doc/%(name)s
+''')
+    import glob
+    for i in glob.glob ('%(srcdir)s/[A-Z]*'
+                        % spec.get_substitution_dict ()):
+        import shutil
+        if (os.path.isfile (i)
+            and not i.startswith ('Makefile')
+            and not i.startswith ('GNUmakefile')):
+            shutil.copy2 (i, '%(install_root)s/usr/share/doc/%(name)s'
+                          % spec.get_substitution_dict ())
+
+def cygwin_patches_dir_buildspec (spec):
+    cygwin_patches = '%(srcdir)s/CYGWIN-PATCHES'
+    spec.system ('''
+mkdir -p %(cygwin_patches)s
+cp -pv %(install_root)s/etc/hints/* %(cygwin_patches)s
+cp -pv %(install_root)s/usr/share/doc/Cygwin/* %(cygwin_patches)s
+''',
+                 locals ())
+
+
+def dump_readme_and_hints (spec):
+    changelog = open (spec.expand (spec.settings.sourcefiledir
+                                   + '/%(name)s.changelog')).read ()
+    spec.system ('''
+mkdir -p %(install_root)s/usr/share/doc/Cygwin
+mkdir -p %(install_root)s/etc/hints
+''')
+    readme = open (spec.expand (spec.settings.sourcefiledir
+                                + '/%(name)s.README')).read ()
+
+    installer_build = spec.build_number ()
+
+    # FIXME: lilypond is built from CVS, in which case version is lost
+    # and overwritten by the CVS branch name.  Therefore, using
+    # %(version)s in lilypond's hint file will not work.  Luckily, for
+    # the lilypond package %(installer_version)s, is what we need.
+    # Note that this breaks when building guile from cvs, eg.
+
+    installer_version = spec.build_version ()
+
+    # FIXME, this is the accidental build number of LILYPOND, which is
+    # wrong to use for guile and other packages, but uh, individual
+    # packages do not have a build number anymore...
+    build = installer_build
+    spec.dump (readme,
+               '%(install_root)s/usr/share/doc/Cygwin/%(name)s-%(installer_version)s-%(installer_build)s.README',
+               env=locals ())
+
+    # FIXME: get depends from actual split_packages
+
+    ##for name in [spec.name ()] + spec.split_packages:
+    ## FIXME split-names
+    distro_depends = spec.get_distro_dependency_dict ()
+    for name in distro_depends.keys ():
+        depends = distro_depends[name]
+        requires = ' '.join (depends)
+        # FIXME: generate hint file (see mknetrel based build system)
+        # if not available
+        hint = spec.expand (open (spec.settings.sourcefiledir
+                                  + '/' + name + '.hint').read (), locals ())
+        spec.dump (hint,
+             '%(install_root)s/etc/hints/%(name)s.hint',
+             env=locals ())

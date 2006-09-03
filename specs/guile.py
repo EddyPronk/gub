@@ -1,8 +1,5 @@
-import glob
 import os
-import re
-import shutil
-
+#
 import download
 import misc
 import targetpackage
@@ -195,6 +192,7 @@ class Guile__darwin (Guile):
     def install (self):
         Guile.install (self)
         pat = self.expand ('%(install_root)s/usr/lib/libguile-srfi*.dylib')
+        import glob
         for f in glob.glob (pat):
             directory = os.path.split (f)[0]
             src = os.path.basename (f)
@@ -251,13 +249,22 @@ class Guile__cygwin (Guile):
     def get_build_dependencies (self):
         return ['gmp', 'libiconv', 'libtool']
 
+    # FIXME: should not be necessary (and should be automatic)
+    # define package naming problems in gup<->distro (source packages?)
+    def get_distro_dependency_dict (self):
+        return {
+            'guile': ['cygwin', 'libguile17', 'libncurses8', 'libreadline6'],
+            'guile-devel': ['bash', 'cygwin', 'guile', 'libguile17'],
+            'guile-doc':  ['texinfo'],
+            'libguile17': ['cygwin', 'crypt', 'gmp', 'libintl3', 'libltdl3'],
+        }
+
     def config_cache_overrides (self, str):
         return str + '''
 guile_cv_func_usleep_declared=${guile_cv_func_usleep_declared=yes}
 guile_cv_exeext=${guile_cv_exeext=}
 libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib"}
 '''
-
     def configure (self):
         if 1:
             self.file_sub ([('''^#(LIBOBJS=".*fileblocks.*)''',
@@ -282,84 +289,43 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
             ],
                '%(builddir)s/guile-readline/libtool')
 
-    def copy_readmes (self):
-        self.system ('''
-mkdir -p %(install_root)s/usr/share/doc/%(name)s
-''')
-        for i in glob.glob ('%(srcdir)s/[A-Z]*'
-                  % self.get_substitution_dict ()):
-            if (os.path.isfile (i)
-              and not i.startswith ('Makefile')
-              and not i.startswith ('GNUmakefile')):
-                shutil.copy2 (i, '%(install_root)s/usr/share/doc/%(name)s' % self.get_substitution_dict ())
-
     def patch (self):
         pass
 
     def install (self):
+        # FIXME: we do this for all cygwin packages
         Guile.install (self)
+        import cygwin
+        cygwin.dump_readme_and_hints (self)
+        cygwin.copy_readmes_buildspec (self)
+        cygwin.cygwin_patches_dir_buildspec (self)
 
-        # The current (1.5.22-1) cygltdl-3.dll is broken.  Supply our
+        self.libtool_cygltdl3_fixup ()
+
+    def libtool_cygltdl3_fixup (self):
+            # The current (1.5.22-1) cygltdl-3.dll is broken.  Supply our
         # own.
-
-        # FIXME: try a silly case trick to circument gup-manager.py's
-        # smart-assery.
         self.system ('''
-cp -pv %(system_root)s/usr/bin/cygltdl-3.dll %(install_root)s/usr/bin/CYGltdtl-3.dll''')
+cp -pv %(system_root)s/usr/bin/cygltdl-3.dll %(install_root)s/usr/bin/cygltdtl-3.dll-fixed''')
 
-        self.dump_readme_and_hints ()
-        self.copy_readmes ()
-        # Hmm, is this really necessary?
-        cygwin_patches = '%(srcdir)s/CYGWIN-PATCHES'
-        self.system ('''
-mkdir -p %(cygwin_patches)s
-cp -pv %(install_root)s/etc/hints/* %(cygwin_patches)s
-cp -pv %(install_root)s/usr/share/doc/Cygwin/* %(cygwin_patches)s
-''',
-              locals ())
+        name = 'guile-postinstall.sh'
+        postinstall = '''#! /bin/sh
+mv /usr/bin/cygltdl-3.dll /usr/bin/cygltdl3.dll-broken
+cp -f /usr/bin/cygltdl-3.dll-fixed /usr/bin/cygltld3.dll
+'''
+        self.dump (postinstall,
+                   '%(install_root)s/etc/postinstall/%(name)s',
+                   env=locals ())
+
+    def build_version (self):
+        # FIXME: ugly workaround needed for lilypond package...
+        return self.expand ('%(version)s')
 
     def build_number (self):
         build_number_file = '%(topdir)s/buildnumber-%(lilypond_branch)s.make'
         d = misc.grok_sh_variables (self.expand (build_number_file))
         b = '%(INSTALLER_BUILD)s' % d
         return b
-
-    # FIXME: ints and readmes from file, rather than inline python data.
-    def dump_readme_and_hints (self):
-        # FIXME: get depends from actual split_packages
-        changelog = open (self.settings.sourcefiledir + '/guile.changelog').read ()
-        self.system ('''
-mkdir -p %(install_root)s/usr/share/doc/Cygwin
-mkdir -p %(install_root)s/etc/hints
-''')
-        readme = open (self.settings.sourcefiledir + '/guile.README').read ()
-
-        installer_build = self.build_number ()
-
-        # FIXME, this is the accindental build number of LILYPOND,
-        # which is wrong to use for guile, but uh, packages do not
-        # have a build number anymore...
-        build = installer_build
-        self.dump (readme,
-                   '%(install_root)s/usr/share/doc/Cygwin/%(name)s-%(version)s-%(build)s.README',
-                   env=locals ())
-
-        fixdepends = {
-            'guile': ['cygwin', 'libguile17', 'libncurses8', 'libreadline6'],
-            'guile-devel': ['bash', 'cygwin', 'guile', 'libguile17'],
-            'guile-doc':  ['texinfo'],
-            'libguile17': ['cygwin', 'crypt', 'gmp', 'libintl3', 'libltdl3'],
-            }
-        ##for name in [self.name ()] + self.split_packages:
-        ## FIXME split-names
-        for name in ['guile', 'guile-devel', 'guile-doc', 'libguile' + self.sover]:
-            depends = fixdepends[name]
-            requires = ' '.join (depends)
-            hint = self.expand (open (self.settings.sourcefiledir + '/' + name + '.hint').read (), locals ())
-            self.dump (hint,
-                 '%(install_root)s/etc/hints/%(name)s.hint',
-             
-                 env=locals ())
 
 class Guile__local (ToolBuildSpec, Guile):
     def configure (self):

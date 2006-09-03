@@ -1,7 +1,6 @@
-import glob
 import os
 import re
-import shutil
+#
 import cvs
 import gub
 import misc
@@ -119,10 +118,14 @@ cd %(builddir)s && %(configure_command)s''')
 
     def install (self):
         targetpackage.TargetBuildSpec.install (self)
+        # FIXME: This should not be in generic package, for installers only.
+        self.installer_install_stuff ()
+
+    def installer_install_stuff (self):
         # FIXME: is it really the installer version that we need here,
         # or do we need the version of lilypond?
         installer_version = build_version ()
-        # WTF, current?
+        # WTF, current.
         self.system ("cd %(install_root)s/usr/share/lilypond && mv %(installer_version)s current",
               locals ())
 
@@ -187,6 +190,15 @@ class LilyPond__cygwin (LilyPond):
                 'libfontconfig-devel', 'libfreetype2-devel', 'pango-devel',
                 'urw-fonts']
 
+    def get_distro_dependency_dict (self):
+        return {
+            'lilypond' : ['bash', 'coreutils', 'cygwin', 'findutils',
+                          'ghostscript', 'glib2-runtime', 'libfontconfig1',
+                          'libfreetype26', 'libguile17', 'libiconv2', 'libintl3',
+                          'pango-runtime', 'python', '_update-info-dir'],
+            'lilypond-doc' : []
+            }
+
     def compile (self):
         self.system ('''
         cp -pv %(system_root)s/usr/share/gettext/gettext.h %(system_root)s/usr/include''')
@@ -204,67 +216,15 @@ class LilyPond__cygwin (LilyPond):
 LDFLAGS="%(LDFLAGS)s %(python_lib)s"
 '''% locals ()))
 
-    #URG guile.py c&p
     def install (self):
+        ##LilyPond.install (self)
         targetpackage.TargetBuildSpec.install (self)
+        import cygwin
+        cygwin.dump_readme_and_hints (self)
+        cygwin.copy_readmes_buildspec (self)
+        cygwin.cygwin_patches_dir_buildspec (self)
+
         self.install_doc ()
-        self.system ('''
-mkdir -p %(install_root)s/usr/share/doc/lilypond
-cp -prv %(srcdir)s/input %(install_root)s/usr/share/doc/lilypond
-''')
-        self.dump_readme_and_hints ()
-        self.copy_readmes ()
-        # Hmm, is this really necessary?
-        cygwin_patches = '%(srcdir)s/CYGWIN-PATCHES'
-        self.system ('''
-mkdir -p %(cygwin_patches)s
-cp -pv %(install_root)s/etc/hints/* %(cygwin_patches)s
-cp -pv %(install_root)s/usr/share/doc/Cygwin/* %(cygwin_patches)s
-''',
-              locals ())
-
-    #URG guile.py c&p
-    def copy_readmes (self):
-        self.system ('''
-mkdir -p %(install_root)s/usr/share/doc/%(name)s
-''')
-        for i in glob.glob ('%(srcdir)s/[A-Z]*'
-                  % self.get_substitution_dict ()):
-            if (os.path.isfile (i)
-              and not i.startswith ('Makefile')
-              and not i.startswith ('GNUmakefile')):
-                shutil.copy2 (i, '%(install_root)s/usr/share/doc/%(name)s' % self.get_substitution_dict ())
-
-    def dump_readme_and_hints (self):
-        # FIXME: get depends from actual split_packages
-        changelog = open (self.settings.sourcefiledir + '/lilypond.changelog').read ()
-        self.system ('''
-mkdir -p %(install_root)s/usr/share/doc/Cygwin
-mkdir -p %(install_root)s/etc/hints
-''')
-
-        readme = open (self.settings.sourcefiledir + '/lilypond.README').read ()
-        installer_build = self.build_number ()
-        installer_version = self.build_version ()
-        self.dump (readme,
-                   '%(install_root)s/usr/share/doc/Cygwin/%(name)s-%(version)s-%(installer_build)s.README',
-                   env=locals ())
-
-        fixdepends = {
-            'lilypond' : ['bash', 'coreutils', 'cygwin', 'findutils',
-                          'ghostscript', 'glib2-runtime', 'libfontconfig1',
-                          'libfreetype26', 'libguile17', 'libiconv2', 'libintl3',
-                          'pango-runtime', 'python', '_update-info-dir'],
-            'lilypond-doc' : []
-            }
-
-        for name in ['lilypond', 'lilypond-doc']:
-            depends = fixdepends[name]
-            requires = ' '.join (depends)
-            hint = self.expand (open (self.settings.sourcefiledir + '/' + name + '.hint').read (), locals ())
-            self.dump (hint,
-                 '%(install_root)s/etc/hints/%(name)s.hint',
-                 env=locals ())
 
     def install_doc (self):
         installer_build = self.build_number ()
@@ -342,6 +302,7 @@ install -m755 %(builddir)s/lily/out/lilypond-console %(install_prefix)s/bin/lily
 cp %(install_root)s/usr/lib/lilypond/*/python/* %(install_root)s/usr/bin
 cp %(install_root)s/usr/share/lilypond/*/python/* %(install_root)s/usr/bin
 ''')
+        import glob
         for i in glob.glob (self.expand ('%(install_root)s/usr/bin/*')):
             s = self.read_pipe ('file %(i)s' % locals ())
             if s.find ('guile') >= 0:
