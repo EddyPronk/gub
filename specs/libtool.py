@@ -26,10 +26,26 @@ class Libtool__cygwin (targetpackage.TargetBuildSpec):
         self.with (version='1.5.22')
         #self.with (version='1.5.22-1',
         #          mirror='http://mirrors.kernel.org/sourceware/cygwin/release/libtool/libtool1.5/libtool1.5-%(version)s-1-src.tar.bz2',)
+        # FIXME: build lib package naming: lib<NAME><MAJOR-SO-VERSION> into gub
+        self.sover = '3'
 
     def only_for_cygwin_untar (self):
         self.untar_cygwin_src_package_variant2 (self.file_name ())
 
+    def get_subpackage_names (self):
+        # FIXME: shared library subpackage name will still be libtool-libltdl3
+        # iso libltdl3
+        return ['libltdl' + self.sover, '']
+
+    def get_subpackage_definitions (self):
+        #d = dict (Libtool.get_subpackage_definitions (self))
+        d = {'': '/'}
+        d['libltdl' + self.sover] = [
+            '/usr/bin/cyg*dll',
+            '/usr/lib',
+            ]
+        return d
+    
 class Libtool__local (ToolBuildSpec):
     """
 
