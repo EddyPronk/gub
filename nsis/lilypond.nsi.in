@@ -26,17 +26,12 @@ SetCompressor lzma  ; very slow
 ;; SetCompressor bzip2  ;;
 
 Name "LilyPond"
-!ifdef UPGRADE
-Caption "LilyPond ${LILYPOND_VERSION} Upgrade for Microsoft Windows"
-;;OutFile "upgrade-${LILYPOND_VERSION}-${LILYPOND_BUILD}.exe"
-OutFile "upgrade.exe"
-BrandingText "LilyPond upgrader v1.0"
-!else
+
 ;;OutFile "lilypond-${LILYPOND_VERSION}-${LILYPOND_BUILD}.exe"
 OutFile "setup.exe"
 Caption "LilyPond ${LILYPOND_VERSION} for Microsoft Windows"
 BrandingText "LilyPond installer v1.0"
-!endif
+
 
 InstallDir $PROGRAMFILES\LilyPond
 InstallDirRegKey HKLM "Software\LilyPond" "Install_Dir"
@@ -59,9 +54,8 @@ LicenseText "GNU General Public licence"
 !ifndef PAGE_DIRECTORY_FUBAR
 ;; FIXME: the intstaller will crash on File /r commands if Page
 ;; directory is not used.
-!ifndef UPGRADE
+
 Page directory
-!endif
 
 !else ;; PAGE_DIRECTORY_FUBAR
 
@@ -69,19 +63,7 @@ Page directory
 ;; to check that the used did not change anything.
 Page directory
 
-!ifdef UPGRADE
-Function .onVerifyInstDir
-	StrCmp $INSTDIR "" 0 guile
- 	MessageBox MB_OK "Invalid installation directory: $INSTDIR."
-	Abort
-	Goto exit
-guile:
-	IfFileExists $INSTDIR\usr\bin\libguile-16.dll exit
-	MessageBox MB_OK "No previous version of LilyPond found in $INSTDIR$\r$\nPlease download a full setup."
-     	Abort
-exit:
-FunctionEnd
-!endif ;; UPGRADE
+
 
 !endif ;; PAGE_DIRECTORY_FUBAR
 
@@ -89,10 +71,8 @@ FunctionEnd
 Page components
 Page instfiles
 
-!ifndef UPGRADE
 UninstPage uninstConfirm
 UninstPage instfiles
-!endif
 
 Section "LilyPond (required)"
 	;; In silent mode (invoke as: setup.exe /S), generate an install log.
@@ -107,22 +87,6 @@ no_overwrite_error:
 
 fresh_install:
 
-!ifdef UPGRADE
-	IfFileExists $INSTDIR\usr\bin\libguile-16.dll uninstall error
-
-error:
-	MessageBox MB_OK "No previous version of LilyPond found$\r$\nPlease download a full setup."
-	Abort "No previous version of LilyPond found$\r$\nPlease download a full setup."
-
-uninstall:
-	Delete $INSTDIR\usr\bin\lilypond.exe
-	Delete $INSTDIR\usr\bin\lilypond-windows.exe
-	Delete $INSTDIR\usr\bin\lilypond-windows-orig.exe
-	RMDir /r $INSTDIR\usr\share\lilypond
-	RMDir /r $INSTDIR\usr\share\doc\lilypond-*
-	Delete $INSTDIR\etc\setup\lilypond.lst.gz
-	Delete $INSTDIR\etc\setup\installed.db
-!endif
 
 	;; FIXME.  As long as we keep changing the icons, remove the
 	;; icon cache.
@@ -148,10 +112,8 @@ uninstall:
 	File "variables.sh.in"
 	SetOutPath $INSTDIR
 
-!ifndef UPGRADE
 	WriteUninstaller "uninstall.exe"
 	CreateDirectory "$INSTDIR\usr\bin"
-!endif
 
 	Call find_editor
 	;; Use tested lilypad for now
@@ -169,7 +131,6 @@ uninstall:
 
 	Call postinstall_lilypond
 	Call postinstall_lilypad
-	Call postinstall_guile
 SectionEnd
 
 ;; Optional section (can be disabled by the user)
@@ -213,7 +174,6 @@ exit:
 	SetOutPath $INSTDIR
 SectionEnd
 
-!ifndef UPGRADE
 Section "Uninstall"
 	ifSilent 0 silent
 ;;	Logset on
@@ -295,7 +255,6 @@ path_done:
 	RMDir "$SMPROGRAMS\LilyPond"
 	RMDir "$INSTDIR"
 SectionEnd
-!endif
 
 Function create_shortcuts
 	;; Start menu
@@ -410,12 +369,6 @@ exit:
 FunctionEnd
 
 Function postinstall_lilypond
-!ifdef UPGRADE
-	StrCpy $0 "lilypond-invoke-editor.bat"
-	Delete "$INSTDIR\usr\bin\$0"
-	StrCpy $0 "lilypond.bat"
-	Delete "$INSTDIR\usr\bin\$0"
-!endif
 	StrCpy $0 "$INSTDIR\usr\bin\variables.sh"
 	${SubstituteAtVariables} "$0.in" "$0"
 
@@ -434,12 +387,6 @@ dos:
 exit:	
 FunctionEnd
 
-Function postinstall_guile
-!ifdef UPGRADE
-	StrCpy $0 "guile.bat"
-	Delete "$INSTDIR\usr\bin\$0"
-!endif
-FunctionEnd
 
 Function registry_guile
 	ReadRegStr $R0 HKLM "${ENVIRON}" "PATHEXT"
