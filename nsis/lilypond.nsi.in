@@ -77,7 +77,7 @@ UninstPage instfiles
 Section "LilyPond (required)"
 	;; In silent mode (invoke as: setup.exe /S), generate an install log.
 	ifSilent 0 silent
-;;	Logset on
+	Logset on
 silent:
 
 	IfFileExists $INSTDIR\usr\bin\gs.exe no_overwrite_error fresh_install
@@ -176,9 +176,10 @@ SectionEnd
 
 Section "Uninstall"
 	ifSilent 0 silent
-;;	Logset on
+	Logset on
 silent:
 	DeleteRegKey HKLM SOFTWARE\LilyPond
+	DeleteRegKey HKLM "Applications\lilypond-windows.exe"
 	DeleteRegKey HKLM "${UNINSTALL}"
 
 	DeleteRegKey HKCR ".ly"
@@ -193,6 +194,10 @@ silent:
 	DeleteRegKey HKCR ".scm"
 	DeleteRegKey HKCR "GUILE\shell\open\command" ""
 	DeleteRegKey HKCR "GUILE" ""
+
+	DeleteRegKey HKCU "Applications\lilypond-windows.exe"
+	DeleteRegKey HKCU ".ly"
+
 
     	ReadRegStr $R0 HKLM "${ENVIRON}" "PATH"
  	${UnStrLoc} $0 $R0 "$INSTDIR\usr\bin;" >
@@ -218,6 +223,7 @@ path_done:
 	RMDir /r $INSTDIR\usr\lib\pango
 	RMDir /r $INSTDIR\usr\lib\python*.*
 	Delete $INSTDIR\usr\lib\*.*
+	Delete $INSTDIR\usr\etc\*.*
 	RMDir $INSTDIR\usr\lib
 
 	RMDir /r $INSTDIR\usr\share\guile
@@ -246,7 +252,7 @@ path_done:
 	Delete "$DESKTOP\LilyPond.lnk"
 	RMDir "$SMPROGRAMS\LilyPond"
 
-        SetShellVarContext current
+	SetShellVarContext current
 	Delete "$SMPROGRAMS\LilyPond\*.*"
 	Delete "$DESKTOP\LilyPond.lnk"
 	RMDir "$SMPROGRAMS\LilyPond"
