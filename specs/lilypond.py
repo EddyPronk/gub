@@ -124,13 +124,13 @@ cd %(builddir)s && %(configure_command)s''')
     def installer_install_stuff (self):
         # FIXME: is it really the installer version that we need here,
         # or do we need the version of lilypond?
-        installer_version = build_version ()
+        installer_version = self.build_version ()
         # WTF, current.
         self.system ("cd %(install_root)s/usr/share/lilypond && mv %(installer_version)s current",
-              locals ())
+                     locals ())
 
         self.system ("cd %(install_root)s/usr/lib/lilypond && mv %(installer_version)s current",
-              locals ())
+                     locals ())
 
         self.system ('mkdir -p %(install_root)s/usr/etc/fonts/')
         fc_conf_file = open (self.expand ('%(install_root)s/usr/etc/fonts/local.conf'), 'w')
