@@ -9,6 +9,7 @@ from toolpackage import ToolBuildSpec
 class Guile (targetpackage.TargetBuildSpec):
     def set_mirror(self):
         self.with (version='1.8.0', format='gz')
+        self.so_version = '17'
 
     def get_dependency_dict (self):
         return {'': ['gmp']}
@@ -212,40 +213,42 @@ class Guile__darwin__x86 (Guile__darwin):
 class Guile__cygwin (Guile):
     def __init__ (self, settings):
         Guile.__init__ (self, settings)
-
-        # Cygwin's libintl.la uses libiconv.la from libiconv
-        # (which uses libiconv2, but libintl depends on that).
-        # So, Cygwin's guile build depends on libiconv.
-
-        # OK, with cygwin's bintutils, gcc, libtool versions
-        # urg: using implitic patch from cygwin
-        #self.with (version='1.6.7-4',
-        #           mirror=download.cygwin, format='bz2')
-        #self.sover = '12'
-        # Broken, with cygwin's bintutils, gcc, libtool versions
         self.with (version='1.8.0',
                    mirror=download.gnu, format='gz')
-        # Broken, with cygwin's bintutils, gcc, libtool versions
-        # self.with (version='1.7.2-3',
-        #           mirror=download.cygwin, format='bz2')
-        self.sover = '17'
 
     def get_subpackage_names (self):
-        return ['doc', 'devel', 'libguile' + self.sover, '']
+        # FIXME: there must not be a distinction in package splitting
+        # between distributions.  If there is, all dependency handling
+        # is foo and must be fixed/duplicated and separately maintained.
+        
+        # FIXME: distinction between functional subpackage name
+        # and actual tarbal/package name is no more??
+
+        # FIXME: guile's lib tarball will still be called guile-libguile17
+        # iso libguile17.
+        return ['doc', 'devel', 'libguile' + self.so_version, '']
 
     def get_subpackage_definitions (self):
         d = dict (Guile.get_subpackage_definitions (self))
         d['devel'] = d['devel'] + ['/usr/bin/*-config']
-        d['libguile' + self.sover] = ['/usr/bin/cyg*dll',
-                                      '/usr/lib',
-                                      '/usr/share/guile']
+        ##d['libguile' + self.so_version].append ('/usr/bin/cyg*dll')
+        d['libguile' + self.so_version] = ['/usr/bin/cyg*dll',
+                                           '/usr/lib',
+                                           '/usr/share/guile']
         return d
 
     def get_dependency_dict (self):
         d = Guile.get_dependency_dict (self)
+        d['devel'] = ['libguile' + self.so_version]
+        d['doc'] = ['texinfo']
+        d['libguile' + self.so_version] = ['gmp', 'gettext-lib', 'libtool-lib']
+
         d[''].append ('cygwin')
+        d['devel'].append ('cygwin')
+        d['libguile' + self.so_version].append ('cygwin')
         return d
 
+    #FIXME: move to Guile ()
     def get_build_dependencies (self):
         return ['gmp', 'libiconv', 'libtool']
 
@@ -255,9 +258,9 @@ class Guile__cygwin (Guile):
     # 'guile-libguile17' <-> 'libguile17'
     def get_distro_dependency_dict (self):
         return {
-            'guile': ['cygwin', 'libguile17', 'libncurses8', 'libreadline6'],
-            'guile-devel': ['bash', 'cygwin', 'guile', 'libguile17'],
-            'guile-doc':  ['texinfo'],
+            '': ['cygwin', 'libguile17'],
+            'devel': ['bash', 'cygwin', 'guile', 'libguile17'],
+            'doc':  ['texinfo'],
             'libguile17': ['cygwin', 'crypt', 'gmp', 'libintl3', 'libltdl3'],
         }
 
@@ -297,10 +300,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
     def install (self):
         # FIXME: we do this for all cygwin packages
         Guile.install (self)
-        import cygwin
-        cygwin.dump_readme_and_hints (self)
-        cygwin.copy_readmes_buildspec (self)
-        cygwin.cygwin_patches_dir_buildspec (self)
+        self.install_readmes ()
 
         self.libtool_cygltdl3_fixup ()
 

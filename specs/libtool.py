@@ -10,7 +10,7 @@ class Libtool (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
         self.with (version='1.5.20')
-
+        self.so_version = '3'
 
 class Libtool__darwin (Libtool):
     def install (self):
@@ -20,41 +20,42 @@ class Libtool__darwin (Libtool):
         self.dump ("prependdir DYLD_LIBRARY_PATH=$INSTALLER_PREFIX/lib",
                    '%(install_root)s/usr/etc/relocate/libtool.reloc')
 
-class Libtool__cygwin (targetpackage.TargetBuildSpec):
+class Libtool__cygwin (Libtool):
     def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
+        Libtool.__init__ (self, settings)
         self.with (version='1.5.22')
         #self.with (version='1.5.22-1',
         #          mirror='http://mirrors.kernel.org/sourceware/cygwin/release/libtool/libtool1.5/libtool1.5-%(version)s-1-src.tar.bz2',)
         # FIXME: build lib package naming: lib<NAME><MAJOR-SO-VERSION> into gub
-        self.sover = '3'
 
     def only_for_cygwin_untar (self):
         self.untar_cygwin_src_package_variant2 (self.file_name ())
 
     def get_subpackage_names (self):
-        # FIXME: shared library subpackage name will still be libtool-libltdl3
-        # iso libltdl3
-        return ['libltdl' + self.sover, '']
+        return ['libltdl' + self.so_version, '']
+
+    def get_dependency_dict (self):
+        d = Libtool.get_dependency_dict (self)
+        d[''].append ('cygwin')
+        return d
 
     def get_subpackage_definitions (self):
-        #d = dict (Libtool.get_subpackage_definitions (self))
-        d = {'': '/'}
-        d['libltdl' + self.sover] = [
-            '/usr/bin/cyg*dll',
-            '/usr/lib',
-            ]
-        return d
+        return {
+            '': ['/'],
+            'libltdl' + self.so_version : ['/usr/lib'],
+            }
     
+    def get_subpackage_definitions (self):
+        d = Libtool.get_subpackage_definitions (self)
+        ##d['libltdl' + self.so_version].append ('/usr/bin/cyg*dll')
+        d['libltdl' + self.so_version] = ['/usr/bin/cyg*dll',
+                                           '/usr/lib',
+                                           '/usr/share/guile']
+        return d
+
     def install (self):
-        # FIXME: we MUST do this for all cygwin packages
-        ## FIXME: how to do super.install (self) in python?
-        ##Libtool.install (self)
-        targetpackage.TargetBuildSpec.install (self)
-        import cygwin
-        cygwin.dump_readme_and_hints (self)
-        cygwin.copy_readmes_buildspec (self)
-        cygwin.cygwin_patches_dir_buildspec (self)
+        Libtool.install (self)
+        self.install_readmes ()
 
     # FIXME: should not be necessary (and should be automatic)
     # define package naming problems in gup<->distro (source packages?)
@@ -62,7 +63,7 @@ class Libtool__cygwin (targetpackage.TargetBuildSpec):
     # 'libtool-libguile17' <-> 'libltdl3'
     def get_distro_dependency_dict (self):
         return {
-            'libtool': ['cygwin'],
+            '': ['cygwin'],
             'libltdl3': ['cygwin'],
         }
 

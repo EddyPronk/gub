@@ -19,15 +19,18 @@ class LilyPond (targetpackage.TargetBuildSpec):
         return ['']
     
     def broken_for_distcc (self):
-
         ## mf/ is broken
         return True
-    def get_build_dependencies (self):
-        return ['guile-devel', 'python-devel', 'fontconfig-devel',
 
-                ## not really true, but makes our GNUmakefile more difficult otherwise 
+    def get_build_dependencies (self):
+        return ['fontconfig-devel',
+                'freetype-devel',
+                'gettext-devel',
                 'ghostscript',
-                'gettext-devel',  'pango-devel', 'freetype-devel', 'urw-fonts']
+                'guile-devel',
+                'pango-devel',
+                'python-devel',
+                'urw-fonts']
 
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
@@ -175,28 +178,38 @@ class LilyPond__cygwin (LilyPond):
         return ['doc', '']
     
     def get_dependency_dict (self):
-        return {'' : [
-            'glib2', 'libfontconfig1', 'libfreetype26',
-            #'libguile17', #cygwin name
-            'guile-libguile17', #gub name
-            'libiconv', 'pango-runtime', 'python'
-            ]}
+        return {
+            '' :
+            [
+            'glib2',
+            'fontconfig',
+            'freetype',
+            'guile-libguile17',
+            'libiconv',
+            'pango-runtime',
+            'python',
+            ],
+            'doc': ['texinfo']
+            }
 
     def get_build_dependencies (self):
-        return ['gettext-devel', 'glib2-devel',
-                #'guile-devel',
-                'guile',
+        return ['gettext-devel',
+                #'glib2-devel',
+                'guile-devel',
+                #'guile',
                 'python',
-                'libfontconfig-devel', 'libfreetype2-devel', 'pango-devel',
+                'libfontconfig-devel',
+                'libfreetype2-devel',
+                'pango-devel',
                 'urw-fonts']
 
     def get_distro_dependency_dict (self):
         return {
-            'lilypond' : ['bash', 'coreutils', 'cygwin', 'findutils',
-                          'ghostscript', 'glib2-runtime', 'libfontconfig1',
-                          'libfreetype26', 'libguile17', 'libiconv2', 'libintl3',
-                          'pango-runtime', 'python', '_update-info-dir'],
-            'lilypond-doc' : []
+            '' : ['bash', 'coreutils', 'cygwin', 'findutils',
+                  'ghostscript', 'glib2-runtime', 'libfontconfig1',
+                  'libfreetype26', 'libguile17', 'libiconv2', 'libintl3',
+                  'pango-runtime', 'python'],
+            'lilypond-doc' : ['texinfo']
             }
 
     def compile (self):
@@ -219,10 +232,7 @@ LDFLAGS="%(LDFLAGS)s %(python_lib)s"
     def install (self):
         ##LilyPond.install (self)
         targetpackage.TargetBuildSpec.install (self)
-        import cygwin
-        cygwin.dump_readme_and_hints (self)
-        cygwin.copy_readmes_buildspec (self)
-        cygwin.cygwin_patches_dir_buildspec (self)
+        self.install_readmes ()
 
         self.install_doc ()
 

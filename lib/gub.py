@@ -91,7 +91,7 @@ class BuildSpec (Os_context_wrapper):
         # set to true for CVS releases
         self.track_development = False
         self.split_packages = []
-        self.sover = '1'
+        self.so_version = '1'
 
     # urg: naming conflicts with module.
     def do_download (self):
@@ -460,11 +460,12 @@ rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_roo
                         '/usr/cross/info',
                         '/usr/cross/man',
                         ],
-                '': ['/'],
+                'lib': ['/usr/lib'],
+                '' : ['/'],
                 }
 
     def get_subpackage_names (self):
-        return ['devel','doc','']
+        return ['devel', 'doc', '']
     
     def get_packages (self):
         defs = dict (self.get_subpackage_definitions ())
@@ -477,7 +478,7 @@ rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_roo
             p = PackageSpec (self.os_interface)
             if sub:
                 p._dependencies = [self.expand ("%(name)s")]
-                
+
             p._file_specs = filespecs
             p.set_dict (self.get_substitution_dict (), sub)
             ps.append (p)
@@ -598,6 +599,20 @@ cd %(allsrcdir)s && mv %(second_tarball_contents)s %(base)s
 cd %(srcdir)s && patch -p1 -f < %(allsrcdir)s/%(patch)s || true
 ''',
                      locals ())
+
+    def install_readmes (self):
+        self.system ('''
+mkdir -p %(install_root)s/usr/share/doc/%(name)s
+''')
+        import glob
+        for i in glob.glob ('%(srcdir)s/[A-Z]*'
+                            % self.get_substitution_dict ()):
+            import shutil
+            if (os.path.isfile (i)
+                and not i.startswith ('Makefile')
+                and not i.startswith ('GNUmakefile')):
+                shutil.copy2 (i, '%(install_root)s/usr/share/doc/%(name)s'
+                              % self.get_substitution_dict ())
 
     def build_version (self):
         # FIXME: ugly workaround needed for lilypond package...

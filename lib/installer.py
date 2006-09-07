@@ -10,6 +10,10 @@ import targetpackage
 from context import subst_method
 from misc import *
 
+def sort (lst):
+    list.sort (lst)
+    return lst
+
 class Installer (context.Os_context_wrapper):
     def __init__ (self, settings):
         context.Os_context_wrapper.__init__ (self, settings)
@@ -294,6 +298,126 @@ class Cygwin_package (Installer):
     def use_install_root_manager (self, package_manager):
         self.package_manager = package_manager
         
+    def cygwin_patches_dir (self, spec):
+        cygwin_patches = '%(srcdir)s/CYGWIN-PATCHES'
+        # FIXME: how does this work?  Why do I sometimes need an
+        # explicit expand?
+        cygwin_patches = spec.expand (cygwin_patches)
+        spec.system ('''
+mkdir -p %(cygwin_patches)s
+cp -pv %(installer_root)s/etc/hints/* %(cygwin_patches)s
+cp -pv %(installer_root)s/usr/share/doc/Cygwin/* %(cygwin_patches)s
+    ''',
+                     self.get_substitution_dict (locals ()))
+
+    def dump_hint (self, spec, split, base_name):
+        # HUH?
+        spec.system ('''
+mkdir -p %(installer_root)s/etc/hints
+''',
+                     self.get_substitution_dict ())
+
+        installer_build = spec.build_number ()
+
+        # FIXME: lilypond is built from CVS, in which case version is lost
+        # and overwritten by the CVS branch name.  Therefore, using
+        # %(version)s in lilypond's hint file will not work.  Luckily, for
+        # the lilypond package %(installer_version)s, is what we need.
+        # Note that this breaks when building guile from cvs, eg.
+
+        installer_version = spec.build_version ()
+
+        # FIXME, this is the accidental build number of LILYPOND, which is
+        # wrong to use for guile and other packages, but uh, individual
+        # packages do not have a build number anymore...
+        build = installer_build
+
+        # FIXME: get depends from actual split_packages
+
+        ##for name in [spec.name ()] + spec.split_packages:
+        ## FIXME split-names
+        depends = spec.get_dependency_dict ()[split]
+        generated_depends = []
+        for dep in depends:
+            import cygwin
+            if dep in cygwin.gub_to_distro_dict.keys ():
+                generated_depends += cygwin.gub_to_distro_dict[dep]
+            else:
+                generated_depends += [dep]
+
+        print 'SPLIT: ' + split
+        print 'dd: ' + `sort (depends)`
+        print 'generated-dd:' + `sort (generated_depends)`
+        depends = generated_depends
+        try:
+            distro_depends = spec.get_distro_dependency_dict ()
+            print 'ddd: ' + `sort (distro_depends)`
+            depends = distro_depends[split]
+        except:
+            print 'ddd: not defined'
+
+        requires = ' '.join (depends)
+        external_source = ''
+        file = (spec.settings.sourcefiledir + '/' + base_name + '.hint')
+        if os.path.exists (file):
+            hint = spec.expand (open (file).read (), locals ())
+        else:
+            if split:
+                external_source = 'external-source: %(name)s'
+                hint = spec.expand ('''curr: %(installer_version)s-%(installer_build)s
+sdesc: "%(name)s"
+ldesc: "The %(name)s package for Cygwin."
+category: misc
+requires: %(requires)s
+%(external_source)s
+    ''',
+                                    locals ())
+        spec.dump (hint,
+                   '%(installer_root)s/etc/hints/%(base_name)s.hint',
+                   env=self.get_substitution_dict (locals ()))
+
+    def dump_readmes (self, spec, base):
+        file = spec.expand (spec.settings.sourcefiledir
+                            + '/%(name)s.changelog')
+        if os.path.exists (file):
+            changelog = open (file).read ()
+        else:
+            changelog = 'ChangeLog not recorded.'
+
+        spec.system ('''
+mkdir -p %(installer_root)s/usr/share/doc/Cygwin
+mkdir -p %(installer_root)s/usr/share/doc/%(base)s.Cygwin
+''',
+                     self.get_substitution_dict (locals ()))
+
+        installer_build = spec.build_number ()
+
+        # FIXME: lilypond is built from CVS, in which case version is lost
+        # and overwritten by the CVS branch name.  Therefore, using
+        # %(version)s in lilypond's hint file will not work.  Luckily, for
+        # the lilypond package %(installer_version)s, is what we need.
+        # Note that this breaks when building guile from cvs, eg.
+
+        installer_version = spec.build_version ()
+
+        # FIXME, this is the accidental build number of LILYPOND, which is
+        # wrong to use for guile and other packages, but uh, individual
+        # packages do not have a build number anymore...
+        build = installer_build
+
+        file = spec.expand (spec.settings.sourcefiledir + '/%(name)s.README')
+        if os.path.exists (file):
+            readme = spec.expand (open (file).read (), locals ())
+        else:
+            readme = spec.expand ('README for Cygwin %(name)s-%(installer_version)s-%(installer_build)s', locals ())
+
+        spec.dump (readme,
+                   '%(installer_root)s/usr/share/doc/Cygwin/%(name)s-%(installer_version)s-%(installer_build)s.README',
+                   env=self.get_substitution_dict (locals ()))
+        spec.dump (readme,
+                   '%(installer_root)s/usr/share/doc/%(base)s/README.Cygwin',
+                   env=self.get_substitution_dict (locals ()))
+
     # FIXME: 'build-installer' is NOT create.  package-installer is create.
     # for Cygwin, build-installer is FOO (installs all dependencies),
     # and strip-installer comes too early.
@@ -353,32 +477,61 @@ class Cygwin_package (Installer):
                       '-%(installer_version)s-%(installer_build)s.tar.bz2',
                   g)
         hint = base_name + '.hint'
-        # FIXME: sane package installer root
-        self.installer_root = '%(targetdir)s/installer-%(base_name)s'
 
-        dir = self.expand ('%(installer_root)s-' + base_name)
-        installer_root = self.expand ('%(installer_root)s')
+        
+        # FIXME: sane package installer root
+        installer_root =  '%(targetdir)s/installer-%(base_name)s'
+        self.get_substitution_dict ()['installer_root'] = installer_root
+        self.get_substitution_dict ()['base_name'] = base_name
+
+        # FIXME: Where does installer_root live?
+        self.installer_root = installer_root
+        self.base_name = base_name
+
+        # FIXME: how does this work?  Why do I sometimes need an
+        # explicit expand?
+
+        self.get_substitution_dict ()['installer_root'] = self.expand (installer_root, locals ())
+
+
+        # 
+        package.get_substitution_dict ()['installer_root'] = installer_root
+        package.get_substitution_dict ()['base_name'] = base_name
+
         package.system ('''
-rm -rf %(dir)s
-mkdir -p %(dir)s
-tar -C %(dir)s -zxf %(gub_uploads)s/%(package_prefixed_gub_name)s
+rm -rf %(installer_root)s
+mkdir -p %(installer_root)s
+tar -C %(installer_root)s -zxf %(gub_uploads)s/%(package_prefixed_gub_name)s
 ''',
-                locals ())
+                self.get_substitution_dict (locals ()))
+
+        self.dump_hint (package, split, base_name)
+        self.dump_readmes (package, base_name)
+        self.cygwin_patches_dir (package)
+
         # FIXME: unconditional strip
         for i in ('bin', 'lib'):
-            d = package.expand ('%(dir)s/usr/' + i, locals ())
+            d = package.expand ('%(installer_root)s/usr/' + i,
+                                self.get_substitution_dict (locals ()))
             if os.path.isdir (d):
                 self.strip_binary_dir (d)
-        infodir = package.expand ('%(dir)s/usr/share/info', locals ())
+        infodir = package.expand ('%(installer_root)s/usr/share/info',
+                                  self.get_substitution_dict (locals ()))
         if os.path.isdir (infodir):
-            package.system ('gzip %(infodir)s/*', locals ())
+            package.system ('gzip %(infodir)s/*',
+                            self.get_substitution_dict (locals ()))
+        if os.path.isdir (infodir + '/' + package_name):
+            package.system ('gzip %(infodir)s/%(package_name)s/*',
+                            self.get_substitution_dict (locals ()))
         package.system ('''
-rm -rf %(dir)s/usr/cross
+rm -rf %(installer_root)s/usr/cross
 mkdir -p %(cygwin_uploads)s/%(base_name)s
-tar -C %(dir)s --owner=0 --group=0 -jcf %(cygwin_uploads)s/%(base_name)s/%(ball_name)s .
-cp -pv %(installer_root)s-%(package_name)s/etc/hints/%(hint)s %(cygwin_uploads)s/%(base_name)s/setup.hint
+tar -C %(installer_root)s --owner=0 --group=0 -jcf %(cygwin_uploads)s/%(base_name)s/%(ball_name)s .
+###cp -pv %(installer_root)s-%(package_name)s/etc/hints/%(hint)s %(cygwin_uploads)s/%(base_name)s/setup.hint
+###cp -pv %(installer_root)s-%(base_name)s/etc/hints/%(hint)s %(cygwin_uploads)s/%(base_name)s/setup.hint
+cp -pv %(installer_root)s/etc/hints/%(hint)s %(cygwin_uploads)s/%(base_name)s/setup.hint
 ''',
-                locals ())
+                self.get_substitution_dict (locals ()))
 
     def cygwin_src_ball (self, package):
         cygwin_uploads = '%(gub_uploads)s/release'

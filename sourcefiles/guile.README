@@ -56,7 +56,7 @@ This will create:
    uploads/cygwin/release/guile-%(version)s-%(build)s.tar.bz2
    uploads/cygwin/release/guile-doc/guile-doc-%(version)s-%(build)s.tar.bz2
    uploads/cygwin/release/guile-devel/guile-devel-%(version)s-%(build)s.tar.bz2
-   uploads/cygwin/release/libguile%(sover)s/libguile%(sover)s-%(version)s-%(build)s.tar.bz2
+   uploads/cygwin/release/libguile%(so_version)s/libguile%(so_version)s-%(version)s-%(build)s.tar.bz2
 
 To find out the files included in the binary distribution, you can use
 "cygcheck -l bash", or browse the listing for the appropriate version

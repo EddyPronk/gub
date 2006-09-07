@@ -249,90 +249,19 @@ def init_cygwin_package_finder (settings):
 def get_packages ():
     return cygwin_dep_finder.get_packages ()
 
-def copy_readmes_buildspec (spec):
-    spec.system ('''
-mkdir -p %(install_root)s/usr/share/doc/%(name)s
-''')
-    import glob
-    for i in glob.glob ('%(srcdir)s/[A-Z]*'
-                        % spec.get_substitution_dict ()):
-        import shutil
-        if (os.path.isfile (i)
-            and not i.startswith ('Makefile')
-            and not i.startswith ('GNUmakefile')):
-            shutil.copy2 (i, '%(install_root)s/usr/share/doc/%(name)s'
-                          % spec.get_substitution_dict ())
+gub_to_distro_dict = {
+    'libtool-lib': ['libltdl3'],
+    'guile-lib' : ['libguile17'],
+    'python-devel': ['python'],
+    'fontconfig-devel' : ['libfontconfig-devel'],
+    'freetype-devel' : ['libfreetype2-devel'],
 
-def cygwin_patches_dir_buildspec (spec):
-    cygwin_patches = '%(srcdir)s/CYGWIN-PATCHES'
-    spec.system ('''
-mkdir -p %(cygwin_patches)s
-cp -pv %(install_root)s/etc/hints/* %(cygwin_patches)s
-cp -pv %(install_root)s/usr/share/doc/Cygwin/* %(cygwin_patches)s
-''',
-                 locals ())
+    # FIXME: gub must split lib package too.
+    'fontconfig' : ['libfontconfig1'],
+    'freetype' : ['libfreetype26'],
+    'gettext' : ['libintl3'],
 
-
-def dump_readme_and_hints (spec):
-    file = spec.expand (spec.settings.sourcefiledir + '/%(name)s.changelog')
-    if os.path.exists (file):
-        changelog = open (file).read ()
-    else:
-        changelog = 'ChangeLog not recorded.'
-
-    spec.system ('''
-mkdir -p %(install_root)s/usr/share/doc/Cygwin
-mkdir -p %(install_root)s/etc/hints
-''')
-
-    installer_build = spec.build_number ()
-
-    # FIXME: lilypond is built from CVS, in which case version is lost
-    # and overwritten by the CVS branch name.  Therefore, using
-    # %(version)s in lilypond's hint file will not work.  Luckily, for
-    # the lilypond package %(installer_version)s, is what we need.
-    # Note that this breaks when building guile from cvs, eg.
-
-    installer_version = spec.build_version ()
-
-    # FIXME, this is the accidental build number of LILYPOND, which is
-    # wrong to use for guile and other packages, but uh, individual
-    # packages do not have a build number anymore...
-    build = installer_build
-
-    file = spec.expand (spec.settings.sourcefiledir + '/%(name)s.README')
-    if os.path.exists (file):
-        readme = spec.expand (open (file).read (), locals ())
-    else:
-        readme = spec.expand ('README for Cygwin %(name)s-%(installer_version)s-%(installer_build)s', locals ())
-
-    spec.dump (readme,
-               '%(install_root)s/usr/share/doc/Cygwin/%(name)s-%(installer_version)s-%(installer_build)s.README',
-               env=locals ())
-
-    # FIXME: get depends from actual split_packages
-
-    ##for name in [spec.name ()] + spec.split_packages:
-    ## FIXME split-names
-    distro_depends = spec.get_distro_dependency_dict ()
-    for name in distro_depends.keys ():
-        depends = distro_depends[name]
-        requires = ' '.join (depends)
-        external_source = ''
-        file = (spec.settings.sourcefiledir + '/' + name + '.hint')
-        if os.path.exists (file):
-            hint = spec.expand (open (file).read (), locals ())
-        else:
-            if name != spec.expand ('%(name)s'):
-                external_source = 'external-source: %(name)s'
-            hint = spec.expand ('''curr: %(installer_version)s-%(installer_build)s
-sdesc: "%(name)s"
-ldesc: "The %(name)s package for Cygwin."
-category: misc
-requires: %(requires)s
-%(external_source)s
-''',
-                                locals ())
-        spec.dump (hint,
-             '%(install_root)s/etc/hints/%(name)s.hint',
-             env=locals ())
+    'fontconfig-lib' : ['libfontconfig1'],
+    'freetype-lib' : ['libfreetype26'],
+    'gettext-lib' : ['libintl3'],
+    }
