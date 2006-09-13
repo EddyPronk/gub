@@ -48,12 +48,6 @@ class Gcc (CrossToolSpec):
     def get_subpackage_names (self):
         return ['doc', 'runtime', '']
 
-    def get_subpackage_definitions (self):
-        d = CrossToolSpec.get_subpackage_definitions (self)
-        d = dict (d)
-        d['runtime'] = ['/usr/lib'] 
-        return d
-
     def languages (self):
         return  ['c', 'c++']
         
