@@ -16,14 +16,13 @@ class Libtool (targetpackage.TargetBuildSpec):
         return ['devel', 'doc', 'runtime', '']
 
     def get_dependency_dict (self):
-        return { '': ['libltdl3'],
+        return { '': ['libtool-runtime'],
                  'devel' : ['libtool'],
                  'doc' : [],
                  'runtime': [],}
 
     def get_subpackage_definitions (self):
         d = targetpackage.TargetBuildSpec.get_subpackage_definitions (self)
-        #d['devel'].append (['/usr/bin', '/usr/share/libltdl'])
         d['devel'].append ('/usr/bin/libtool*')
         d['devel'].append ('/usr/share/libltdl')
         return d
@@ -64,7 +63,7 @@ class Libtool__cygwin (Libtool):
     def get_distro_dependency_dict (self):
         return {
             '': ['cygwin'],
-            'libltdl3': ['cygwin'],
+            'libtool-runtime': ['cygwin'],
         }
 
 class Libtool__local (ToolBuildSpec):
