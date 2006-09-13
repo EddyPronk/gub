@@ -224,52 +224,48 @@ class Guile__cygwin (Guile):
         self.with (version='1.8.0',
                    mirror=download.gnu, format='gz')
 
-    def get_subpackage_names (self):
-        # FIXME: there must not be a distinction in package splitting
-        # between distributions.  If there is, all dependency handling
-        # is foo and must be fixed/duplicated and separately maintained.
-        
-        # FIXME: distinction between functional subpackage name
-        # and actual tarbal/package name is no more??
-
-        # FIXME: guile's lib tarball will still be called guile-libguile17
-        # iso libguile17.
-        return ['doc', 'devel', 'libguile' + self.so_version, '']
-
     def get_subpackage_definitions (self):
         d = dict (Guile.get_subpackage_definitions (self))
-        d['devel'] = d['devel'] + ['/usr/bin/*-config']
-        ##d['libguile' + self.so_version].append ('/usr/bin/cyg*dll')
-        d['libguile' + self.so_version] = ['/usr/bin/cyg*dll',
-                                           '/usr/lib',
-                                           '/usr/share/guile']
+        d['runtime'].append ('/usr/bin/cyg*dll')
+        d['runtime'].append ('/etc/postinstall')
         return d
 
+    # Using gub dependencies only would be nice, but
+    # we need to a lot of gup.gub_to_distro_deps ().
+    def GUB_get_dependency_dict (self):
+        d = Guile.get_dependency_dict (self)
+        d['runtime'].append ('cygwin')
+        return d
+
+    # Using gub dependencies only would be nice, but
+    # we need to a lot of gup.gub_to_distro_deps ().
+    def GUB_get_build_dependencies (self):
+        return Guile.get_build_dependencies (self) + ['libiconv-devel']
+
+    # FIXME: uses mixed gub/distro dependencies
     def get_dependency_dict (self):
         d = Guile.get_dependency_dict (self)
-        d['devel'] = ['libguile' + self.so_version]
+        ##d['devel'] = ['libguile17']
+        d['devel'] = ['guile-runtime']
         d['doc'] = ['texinfo']
-        d['libguile' + self.so_version] = ['gmp', 'gettext-lib', 'libtool-lib']
+        d['runtime'] = ['gmp', 'gettext', 'libtool-runtime']
 
         d[''].append ('cygwin')
         d['devel'].append ('cygwin')
-        d['libguile' + self.so_version].append ('cygwin')
+        d['runtime'].append ('cygwin')
         return d
-
-    #FIXME: move to Guile ()
+ 
+    # FIXME: uses mixed gub/distro dependencies
     def get_build_dependencies (self):
-        return ['gmp', 'libiconv', 'libtool']
+        return ['gmp', 'gettext-devel', 'libiconv', 'libtool']
 
-    # FIXME: should not be necessary (and should be automatic)
-    # define package naming problems in gup<->distro (source packages?)
-    # '' <-> 'guile'
-    # 'guile-libguile17' <-> 'libguile17'
+    # FIXME: junkme.
     def get_distro_dependency_dict (self):
         return {
             '': ['cygwin', 'libguile17'],
-            'devel': ['bash', 'cygwin', 'guile', 'libguile17'],
+            'devel': ['bash', 'cygwin', 'libguile17'],
             'doc':  ['texinfo'],
-            'libguile17': ['cygwin', 'crypt', 'gmp', 'libintl3', 'libltdl3'],
+            'runtime': ['cygwin', 'crypt', 'gmp', 'libintl3', 'libltdl3'],
         }
 
     def config_cache_overrides (self, str):
@@ -341,6 +337,3 @@ class Guile__local (ToolBuildSpec, Guile):
     def __init__ (self, settings):
         ToolBuildSpec.__init__ (self, settings)
         self.set_mirror ()
-
-    def get_build_dependencies (self):
-        return ['gmp-devel', 'libtool']

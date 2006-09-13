@@ -112,8 +112,13 @@ def get_cygwin_package (settings, name, dict):
     # FIXME: this really sucks, should translate or something
     # There also is the problem that gub build-dependencies
     # use unsplit packages.
-    gup_cygwin_name_clashes = [
-        'libtool1.5', # 'libtool' in gup
+    source = [
+        'guile',
+        'guile-devel',
+        'libguile17',
+        'libltdl3',
+        'libtool',
+        'libtool1.5',
         ]
     # FIXME: These packages are not needed for [cross] building,
     # but most should stay as distro's final install dependency.
@@ -124,7 +129,7 @@ def get_cygwin_package (settings, name, dict):
         'coreutils',
         'ghostscript-base', 'ghostscript-x11',
         '-update-info-dir',
-        'libguile12', 'libguile16', 'libguile17',
+        'libguile12', 'libguile16',
         'libxft', 'libxft1', 'libxft2',
         'libbz2-1',
         'perl',
@@ -136,7 +141,7 @@ def get_cygwin_package (settings, name, dict):
         'xorg-x11-fnts',
         'xorg-x11-libs-data',
         ]
-    blacklist = cross + cycle + gup_cygwin_name_clashes + unneeded
+    blacklist = cross + cycle + source + unneeded
     if name in blacklist:
         name += '::blacklisted'
     package_class = classobj (name, (gub.BinarySpec,), {})
@@ -250,18 +255,16 @@ def get_packages ():
     return cygwin_dep_finder.get_packages ()
 
 gub_to_distro_dict = {
-    'libtool-lib': ['libltdl3'],
-    'guile-lib' : ['libguile17'],
-    'python-devel': ['python'],
-    'fontconfig-devel' : ['libfontconfig-devel'],
-    'freetype-devel' : ['libfreetype2-devel'],
-
-    # FIXME: gub must split lib package too.
     'fontconfig' : ['libfontconfig1'],
+    'fontconfig-devel' : ['libfontconfig-devel'],
     'freetype' : ['libfreetype26'],
+    'freetype-devel' : ['libfreetype2-devel'],
     'gettext' : ['libintl3'],
-
-    'fontconfig-lib' : ['libfontconfig1'],
-    'freetype-lib' : ['libfreetype26'],
-    'gettext-lib' : ['libintl3'],
+    'gmp-devel': ['gmp'],
+    'guile-runtime' : ['libguile17'],
+    'libtool-runtime': ['libltdl3'],
+    'libiconv-devel': ['libiconv2'],
+    'pango': ['pango-runtime'],
+    'python-devel': ['python'],
+    'python-runtime': ['python'],
     }

@@ -206,13 +206,14 @@ class LilyPond__cygwin (LilyPond):
                 'pango-devel',
                 'urw-fonts']
 
+    # FIXME: junkme
     def get_distro_dependency_dict (self):
         return {
             '' : ['bash', 'coreutils', 'cygwin', 'findutils',
                   'ghostscript', 'glib2-runtime', 'libfontconfig1',
                   'libfreetype26', 'libguile17', 'libiconv2', 'libintl3',
                   'pango-runtime', 'python'],
-            'lilypond-doc' : ['texinfo']
+            'doc' : ['texinfo']
             }
 
     def compile (self):

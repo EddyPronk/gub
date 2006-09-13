@@ -47,36 +47,20 @@ class Libtool__cygwin (Libtool):
     def only_for_cygwin_untar (self):
         self.untar_cygwin_src_package_variant2 (self.file_name ())
 
-    def get_subpackage_names (self):
-        return ['libltdl' + self.so_version, '']
-
     def get_dependency_dict (self):
         d = Libtool.get_dependency_dict (self)
         d[''].append ('cygwin')
         return d
 
     def get_subpackage_definitions (self):
-        return {
-            '': ['/'],
-            'libltdl' + self.so_version : ['/usr/lib'],
-            }
-    
-    def get_subpackage_definitions (self):
         d = Libtool.get_subpackage_definitions (self)
-        ##d['libltdl' + self.so_version].append ('/usr/bin/cyg*dll')
-        d['libltdl' + self.so_version] = ['/usr/bin/cyg*dll',
-                                           '/usr/lib',
-                                           '/usr/share/guile']
+        d['runtime'].append ('/usr/bin/cyg*dll')
         return d
 
     def install (self):
         Libtool.install (self)
         self.install_readmes ()
 
-    # FIXME: should not be necessary (and should be automatic)
-    # define package naming problems in gup<->distro (source packages?)
-    # '' <-> 'libtool'
-    # 'libtool-libguile17' <-> 'libltdl3'
     def get_distro_dependency_dict (self):
         return {
             '': ['cygwin'],
