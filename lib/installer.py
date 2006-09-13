@@ -357,20 +357,25 @@ mkdir -p %(installer_root)s/etc/hints
             print 'ddd: not defined'
 
         requires = ' '.join (depends)
-        external_source = ''
+        external_source_line = ''
         file = (spec.settings.sourcefiledir + '/' + base_name + '.hint')
         if os.path.exists (file):
             hint = spec.expand (open (file).read (), locals ())
         else:
             if split:
-                external_source = 'external-source: %(name)s'
-                hint = spec.expand ('''curr: %(installer_version)s-%(installer_build)s
+                external_source_line = spec.expand ('''
+external-source: %(name)s''',
+                                                    locals ())
+            requires_line = ''
+            if requires:
+                requires_line = spec.expand ('''
+requires: %(requires)s''',
+                                             locals ())
+            hint = spec.expand ('''curr: %(installer_version)s-%(installer_build)s
 sdesc: "%(name)s"
 ldesc: "The %(name)s package for Cygwin."
-category: misc
-requires: %(requires)s
-%(external_source)s
-    ''',
+category: misc%(requires_line)s%(external_source_line)s
+''',
                                     locals ())
         spec.dump (hint,
                    '%(installer_root)s/etc/hints/%(base_name)s.hint',
@@ -476,9 +481,7 @@ mkdir -p %(installer_root)s/usr/share/doc/%(base)s.Cygwin
             ball_name = re.sub ('-' + b + '.*',
                       '-%(installer_version)s-%(installer_build)s.tar.bz2',
                   g)
-        hint = base_name + '.hint'
 
-        
         # FIXME: sane package installer root
         installer_root =  '%(targetdir)s/installer-%(base_name)s'
         self.get_substitution_dict ()['installer_root'] = installer_root
@@ -505,8 +508,15 @@ tar -C %(installer_root)s -zxf %(gub_uploads)s/%(package_prefixed_gub_name)s
 ''',
                 self.get_substitution_dict (locals ()))
 
-        self.dump_hint (package, split, base_name)
-        self.dump_readmes (package, base_name)
+        import cygwin
+        split_base_name = base_name
+        if base_name in cygwin.gub_to_distro_dict.keys ():
+            split_base_name = cygwin.gub_to_distro_dict[base_name][0]
+        
+        hint = split_base_name + '.hint'
+        
+        self.dump_hint (package, split, split_base_name)
+        self.dump_readmes (package, split_base_name)
         self.cygwin_patches_dir (package)
 
         # FIXME: unconditional strip
@@ -527,8 +537,6 @@ tar -C %(installer_root)s -zxf %(gub_uploads)s/%(package_prefixed_gub_name)s
 rm -rf %(installer_root)s/usr/cross
 mkdir -p %(cygwin_uploads)s/%(base_name)s
 tar -C %(installer_root)s --owner=0 --group=0 -jcf %(cygwin_uploads)s/%(base_name)s/%(ball_name)s .
-###cp -pv %(installer_root)s-%(package_name)s/etc/hints/%(hint)s %(cygwin_uploads)s/%(base_name)s/setup.hint
-###cp -pv %(installer_root)s-%(base_name)s/etc/hints/%(hint)s %(cygwin_uploads)s/%(base_name)s/setup.hint
 cp -pv %(installer_root)s/etc/hints/%(hint)s %(cygwin_uploads)s/%(base_name)s/setup.hint
 ''',
                 self.get_substitution_dict (locals ()))
