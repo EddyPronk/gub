@@ -207,8 +207,7 @@ class LilyPond__cygwin (LilyPond):
                 'python',
                 'libfontconfig-devel',
                 'libfreetype2-devel',
-                ## 'pango-devel',
-                'pango',
+                'pango-devel',
                 'urw-fonts']
 
     # FIXME: junkme
