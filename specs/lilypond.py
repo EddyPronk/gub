@@ -199,11 +199,16 @@ class LilyPond__cygwin (LilyPond):
 
     def get_build_dependencies (self):
         return ['gettext-devel',
-                'guile-devel',
+                ## FIXME: for distro we don't use get_base_package_name,
+                ## so we cannot use split-package names for gub/source
+                ## build dependencies
+                ##'guile-devel',
+                'guile',
                 'python',
                 'libfontconfig-devel',
                 'libfreetype2-devel',
-                'pango-devel',
+                ## 'pango-devel',
+                'pango',
                 'urw-fonts']
 
     # FIXME: junkme
