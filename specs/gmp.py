@@ -14,6 +14,11 @@ class Gmp (targetpackage.TargetBuildSpec):
         if not self.settings.platform.startswith ('darwin'):
             self.target_architecture = re.sub ('i[0-9]86-', 'i386-', settings.target_architecture)
 
+    def get_dependency_dict (self):
+        return { '': [],
+                 'devel' : ['gmp'],
+                 'doc' : [], }
+
     def get_build_dependencies (self):
         return ['libtool']
 

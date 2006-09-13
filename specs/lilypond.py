@@ -11,9 +11,14 @@ from context import *
 
 class LilyPond (targetpackage.TargetBuildSpec):
     def get_dependency_dict (self):
-        return {'': ['fontconfig', 'gettext', 
-                     'guile', 'pango', 'python',
-                     'ghostscript']}
+        return {'': [
+            'fontconfig',
+            'gettext', 
+            'guile-runtime',
+            'pango',
+            'python-runtime',
+            'ghostscript'
+            ]}
 
     def get_subpackage_names (self):
         return ['']
@@ -176,7 +181,7 @@ class LilyPond__cygwin (LilyPond):
 
     def get_subpackage_names (self):
         return ['doc', '']
-    
+
     def get_dependency_dict (self):
         return {
             '' :
@@ -184,7 +189,7 @@ class LilyPond__cygwin (LilyPond):
             'glib2',
             'fontconfig',
             'freetype',
-            'guile-libguile17',
+            'guile-runtime',
             'libiconv',
             'pango-runtime',
             'python',
@@ -194,9 +199,7 @@ class LilyPond__cygwin (LilyPond):
 
     def get_build_dependencies (self):
         return ['gettext-devel',
-                #'glib2-devel',
                 'guile-devel',
-                #'guile',
                 'python',
                 'libfontconfig-devel',
                 'libfreetype2-devel',
@@ -218,7 +221,6 @@ class LilyPond__cygwin (LilyPond):
         LilyPond.compile (self)
 
     def compile_command (self):
-
         ## UGH - * sucks.
         python_lib = "%(system_root)s/usr/bin/libpython*.dll"
         LDFLAGS = '-L%(system_root)s/usr/lib -L%(system_root)s/usr/bin -L%(system_root)s/usr/lib/w32api'
@@ -252,6 +254,7 @@ tar -C %(install_root)s/usr/share/doc/lilypond -jxf %(docball)s
 class LilyPond__freebsd (LilyPond):
     def __init__ (self, settings):
         LilyPond.__init__ (self, settings)
+
     def get_dependency_dict (self):
         d = LilyPond.get_dependency_dict (self)
         d[''].append ('gcc')
@@ -262,13 +265,14 @@ class LilyPond__mingw (LilyPond):
         LilyPond.__init__ (self, settings)
         self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
                    track_development=True)
+
     def get_dependency_dict (self):
         d = LilyPond.get_dependency_dict (self)
         d[''].append ('lilypad')        
         return d
+
     def get_build_dependencies (self):
         return LilyPond.get_build_dependencies (self) + ['lilypad']
-
 
     ## ugh c&p
     def compile_command (self):
@@ -339,6 +343,7 @@ class LilyPond__debian (LilyPond):
         targetpackage.TargetBuildSpec.install (self)
 
     def get_build_dependencies (self):
+        #FIXME: use gub names; see cygwin.gub_to_distro_dict
         return [
             'gettext',
             'guile-1.6-dev',

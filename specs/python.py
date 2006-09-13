@@ -1,9 +1,10 @@
-import glob
 import re
-import download
-import targetpackage
-import gub
 import sys
+#
+import download
+import glob
+import gub
+import targetpackage
 
 from context import *
 
@@ -14,14 +15,20 @@ class Python (targetpackage.TargetBuildSpec):
                    mirror=download.python,
                    format='bz2')
         
-        
-
         ## don't import settings from build system. 
 	self.BASECFLAGS=''
+
+    def get_subpackage_names (self):
+        return ['doc', 'devel', 'runtime', '']
 
     def get_build_dependencies (self):
         return ['expat-devel', 'zlib-devel']
     
+    def get_dependency_dict (self):
+        return { '': ['expat', 'python-runtime', 'zlib'],
+                 'devel' : ['libtool', 'python-devel'],
+                 'runtime': [], }
+
     def patch (self):
         targetpackage.TargetBuildSpec.patch (self)
         self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-1.patch')

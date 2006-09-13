@@ -46,6 +46,7 @@ class Gcc (CrossToolSpec):
          return "%(tool_prefix)snm"
 
     def get_subpackage_names (self):
+        # FIXME: why no -devel package?
         return ['doc', 'runtime', '']
 
     def languages (self):

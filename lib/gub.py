@@ -447,22 +447,26 @@ rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_roo
         return []
 
     def get_subpackage_definitions (self):
-        return {'devel': ['/usr/include',
-                          '/usr/cross/include',
-                          '/usr/share/aclocal',
-                          '/usr/lib/lib*.a',
-                          '/usr/lib/pkgconfig',
-                    ],
-                'doc': ['/usr/share/doc',
-                        '/usr/share/gtk-doc',
-                        '/usr/share/info',
-                        '/usr/share/man',
-                        '/usr/cross/info',
-                        '/usr/cross/man',
-                        ],
-                'lib': ['/usr/lib'],
-                '' : ['/'],
-                }
+        return {
+            'devel': [
+            '/usr/bin/*-config',
+            '/usr/include',
+            '/usr/cross/include',
+            '/usr/share/aclocal',
+            '/usr/lib/lib*.a',
+            '/usr/lib/pkgconfig',
+            ],
+            'doc': [
+            '/usr/share/doc',
+            '/usr/share/gtk-doc',
+            '/usr/share/info',
+            '/usr/share/man',
+            '/usr/cross/info',
+            '/usr/cross/man',
+            ],
+            'runtime': ['/usr/lib', '/usr/share'],
+            '' : ['/'],
+            }
 
     def get_subpackage_names (self):
         return ['devel', 'doc', '']

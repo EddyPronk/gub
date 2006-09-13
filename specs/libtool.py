@@ -12,6 +12,22 @@ class Libtool (targetpackage.TargetBuildSpec):
         self.with (version='1.5.20')
         self.so_version = '3'
 
+    def get_subpackage_names (self):
+        return ['devel', 'doc', 'runtime', '']
+
+    def get_dependency_dict (self):
+        return { '': ['libltdl3'],
+                 'devel' : ['libtool'],
+                 'doc' : [],
+                 'runtime': [],}
+
+    def get_subpackage_definitions (self):
+        d = targetpackage.TargetBuildSpec.get_subpackage_definitions (self)
+        #d['devel'].append (['/usr/bin', '/usr/share/libltdl'])
+        d['devel'].append ('/usr/bin/libtool*')
+        d['devel'].append ('/usr/share/libltdl')
+        return d
+
 class Libtool__darwin (Libtool):
     def install (self):
         Libtool.install (self)

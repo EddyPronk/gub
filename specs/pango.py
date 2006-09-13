@@ -12,13 +12,13 @@ class Pango (targetpackage.TargetBuildSpec):
         self.with (version='1.12.3',
                    mirror=download.gnome_214,
                    format='bz2')
+
     def get_build_dependencies (self):
         return ['freetype-devel', 'fontconfig-devel', 'glib-devel',
-                'libtool-devel']
+                'libtool']
 
     def get_dependency_dict (self):
-        return {'': ['freetype', 'fontconfig', 'glib',
-                     'libtool']}
+        return {'': ['freetype', 'fontconfig', 'glib', 'libtool-runtime']}
 
     def configure_command (self):
         return targetpackage.TargetBuildSpec.configure_command (self) \

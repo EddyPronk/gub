@@ -11,8 +11,16 @@ class Guile (targetpackage.TargetBuildSpec):
         self.with (version='1.8.0', format='gz')
         self.so_version = '17'
 
+    def get_subpackage_names (self):
+        return ['doc', 'devel', 'runtime', '']
+
     def get_dependency_dict (self):
-        return {'': ['gmp']}
+        return {
+            '' : ['guile-runtime'],
+            'runtime': ['gmp', 'gettext', 'libtool-runtime'],
+            'devel': ['guile-runtime'],
+            'doc': ['texinfo'],
+            }
 
     def get_build_dependencies (self):
         return ['gmp-devel', 'libtool']
@@ -91,7 +99,7 @@ class Guile__mingw (Guile):
         
     def get_dependency_dict (self):
         d = Guile.get_dependency_dict (self)
-        d[''].append ('regex')
+        d['runtime'].append ('regex')
         return d
 
 # FIXME: ugh, C&P to Guile__freebsd, put in cross-Guile?
