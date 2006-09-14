@@ -562,6 +562,9 @@ against all foo split source balls, so applying it may fail partly and
 complain about missing files.'''
         
         file_name = self.expand (file_name)
+        import misc
+        t = misc.split (file_name)
+        print 'split: ' + `t`
         no_src = re.sub ('-src', '', file_name)
         base = re.sub ('\.tar\..*', '', no_src)
         ball_re = '^([a-z]+)([.0-9]+)?(-[a-z+]+)?(.*)(-[0-9]+)'

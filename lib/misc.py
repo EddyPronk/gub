@@ -18,11 +18,12 @@ def grok_sh_variables (file):
             dict[k] = s
     return dict
 
+def itoa (x):
+    if type (x) == int:
+        return "%d" % x
+    return x
+
 def version_to_string (t):
-    def itoa (x):
-        if type (x) == int:
-            return "%d" % x
-        return x
     return '%s-%s' % (string.join (map (itoa, t[:-1]), '.'), t[-1])
 
 def split_version (s):
@@ -42,7 +43,7 @@ def string_to_version (s):
     return tuple (map (atoi, (string.split (s, ' '))))
 
 def split_ball (s):
-    m = re.match ('^(.*?)-([0-9].*(-[0-9]+)?)(\.[a-z]*)?(\.tar\.(bz2|gz)|\.gub)$', s)
+    m = re.match ('^(.*?)-([0-9].*(-[0-9]+)?)(\.[a-z]*)?(\.tar\.(bz2|gz)|\.gu[bp])$', s)
     if not m:
         ## FIXME, not an error if not a ball...
         ##sys.stderr.write ('split_ball: ' + s)

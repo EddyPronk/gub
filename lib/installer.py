@@ -413,10 +413,8 @@ mkdir -p %(installer_root)s/usr/share/doc/%(base)s.Cygwin
     # for Cygwin, build-installer is FOO (installs all dependencies),
     # and strip-installer comes too early.
     def create (self):
-        p = targetpackage.load_target_package (self.settings,
-                           self._name)
-        self.cygwin_ball (p, '')
-        for i in p.get_subpackage_names ():
+        p = targetpackage.load_target_package (self.settings, self._name)
+        for i in [''] + p.get_subpackage_names ():
             self.cygwin_ball (p, i)
         self.cygwin_src_ball (p)
         # FIXME: we used to have python code to generate a setup.ini
@@ -424,49 +422,36 @@ mkdir -p %(installer_root)s/usr/share/doc/%(base)s.Cygwin
         # by gub and cyg-apt packaging...
         self.system ('''cd %(uploads)s/cygwin && %(downloads)s/genini $(find release -mindepth 1 -maxdepth 2 -type d) > setup.ini''')
 
-    def cygwin_ball (self, package, split):
+    def get_dict (self, package, split):
         cygwin_uploads = '%(gub_uploads)s/release'
         package_name = self._name
         if not split:
-            # gub_name = package['split_ball']
-            gub_name = self.package_manager.package_dict (package_name) ['split_ball']
+            gub_ball = self.package_manager.package_dict (package_name) ['split_ball']
         else:
             cygwin_uploads += '/' + self.name ()
             import inspect
-            gub_name = self.package_manager.package_dict (package_name + '-' + split) ['split_ball']
+            gub_ball = self.package_manager.package_dict (package_name + '-' + split) ['split_ball']
 
-        gub_name = re.sub ('.*/', '', gub_name)
+        gub_name =  re.sub ('.*/', '', gub_ball)
 
-        # FIXME: fixup broken split names
-        package_prefixed_gub_name = gub_name
-        gub_name = re.sub ('guile-libguile', 'libguile', gub_name)
-        gub_name = re.sub ('libtool-libltdl', 'libltdl', gub_name)
-        
-        print 'gub_name: ' + gub_name
-
-        base_name = re.sub ('-%\(version\)s.*', '', gub_name)
-        ball_name = re.sub ('\.%\(platform\)s.*',
-                  '-%(installer_build)s.tar.bz2',
-                  gub_name)
-
-        # FIXME: version and platform are expanded now?
-        if base_name.endswith ('.gup'):
-            base_name = re.sub ('-[0-9].*', '', gub_name)
-            ball_name = re.sub ('\.cygwin.*',
-                                '-%(installer_build)s.tar.bz2',
-                                gub_name)
-
-        # URG urg urgurg
-        b = self.settings.lilypond_branch
-        # FIXME, package lilypond has gub_name='lilypond-<BRANCH>
-        # but lilypond-doc has gub_name='%(name)s-doc-<BRANCH>'
-        g = package.expand (gub_name)
-        if (g.startswith ('lilypond-' + b)
-          or g.startswith ('lilypond-doc-' + b)):
-            base_name = re.sub ('-' + b +'.*', '', g)
-            ball_name = re.sub ('-' + b + '.*',
-                      '-%(installer_version)s-%(installer_build)s.tar.bz2',
-                  g)
+	import misc
+        branch = self.settings.lilypond_branch
+        fixed_version_name = self.expand (re.sub ('-' + branch,
+                                                  '-%(installer_version)s',
+                                                  gub_name))
+        t = misc.split_ball (fixed_version_name)
+        print 'split: ' + `t`
+        base_name = t[0]
+        import cygwin
+        if cygwin.gub_to_distro_dict.has_key (base_name):
+            base_name = cygwin.gub_to_distro_dict[base_name][0]
+        # strip last two dummy version entries: cygwin, 0
+        # gub packages do not have a build number
+        dir_name = base_name + '-' + '.'.join (map (misc.itoa, t[1][:-2]))
+        cyg_name = dir_name + '-%(installer_build)s'
+        infodir = package.expand ('%(installer_root)s/usr/share/info',
+                                  self.get_substitution_dict (locals ()))
+        hint = base_name + '.hint'
 
         # FIXME: sane package installer root
         installer_root =  '%(targetdir)s/installer-%(base_name)s'
@@ -476,91 +461,60 @@ mkdir -p %(installer_root)s/usr/share/doc/%(base)s.Cygwin
         # FIXME: Where does installer_root live?
         self.installer_root = installer_root
         self.base_name = base_name
-
-        # FIXME: how does this work?  Why do I sometimes need an
-        # explicit expand?
-
         self.get_substitution_dict ()['installer_root'] = self.expand (installer_root, locals ())
-
-
-        # 
         package.get_substitution_dict ()['installer_root'] = installer_root
         package.get_substitution_dict ()['base_name'] = base_name
+        return locals ()
+    
+    def cygwin_ball (self, package, split):
+        d = self.get_dict (package, split)
+        base_name = d['base_name']
+        ball_name =  d['cyg_name'] + '.tar.bz2'
+        hint = d['hint']
+        infodir = d['infodir'] 
+        package_name = d['package_name']
 
+        d['ball_name'] = ball_name
         package.system ('''
 rm -rf %(installer_root)s
 mkdir -p %(installer_root)s
-tar -C %(installer_root)s -zxf %(gub_uploads)s/%(package_prefixed_gub_name)s
+tar -C %(installer_root)s -zxf %(gub_uploads)s/%(gub_name)s
 ''',
-                self.get_substitution_dict (locals ()))
-
-        import cygwin
-        split_base_name = base_name
-        if base_name in cygwin.gub_to_distro_dict.keys ():
-            split_base_name = cygwin.gub_to_distro_dict[base_name][0]
+                self.get_substitution_dict (d))
         
-        hint = split_base_name + '.hint'
-        
-        self.dump_hint (package, split, split_base_name)
-        self.dump_readmes (package, split_base_name)
+        self.dump_hint (package, split, base_name)
+        self.dump_readmes (package, base_name)
         self.cygwin_patches_dir (package)
 
         # FIXME: unconditional strip
         for i in ('bin', 'lib'):
-            d = package.expand ('%(installer_root)s/usr/' + i,
-                                self.get_substitution_dict (locals ()))
-            if os.path.isdir (d):
-                self.strip_binary_dir (d)
-        infodir = package.expand ('%(installer_root)s/usr/share/info',
-                                  self.get_substitution_dict (locals ()))
+            dir = package.expand ('%(installer_root)s/usr/' + i,
+                                  self.get_substitution_dict (d))
+            if os.path.isdir (dir):
+                self.strip_binary_dir (dir)
+
         if os.path.isdir (infodir):
             package.system ('gzip %(infodir)s/*',
-                            self.get_substitution_dict (locals ()))
+                            self.get_substitution_dict (d))
         if os.path.isdir (infodir + '/' + package_name):
             package.system ('gzip %(infodir)s/%(package_name)s/*',
-                            self.get_substitution_dict (locals ()))
+                            self.get_substitution_dict (d))
+
         package.system ('''
 rm -rf %(installer_root)s/usr/cross
 mkdir -p %(cygwin_uploads)s/%(base_name)s
 tar -C %(installer_root)s --owner=0 --group=0 -jcf %(cygwin_uploads)s/%(base_name)s/%(ball_name)s .
 cp -pv %(installer_root)s/etc/hints/%(hint)s %(cygwin_uploads)s/%(base_name)s/setup.hint
 ''',
-                self.get_substitution_dict (locals ()))
+                self.get_substitution_dict (d))
 
     def cygwin_src_ball (self, package):
-        cygwin_uploads = '%(gub_uploads)s/release'
-        package_name = self._name
-        gub_name = self.package_manager.package_dict (package_name) ['split_ball']
-        gub_name = re.sub ('.*/', '', gub_name)
-        base_name = re.sub ('-%\(version\)s.*', '', gub_name)
-        dir_name = re.sub ('\.%\(platform\)s.*', '', gub_name)
-
-        # FIXME: version and platform are expanded now?
-        if base_name.endswith ('.gup'):
-            base_name = re.sub ('-[0-9].*', '', gub_name)
-            dir_name = re.sub ('\.cygwin.*', '', gub_name)
-            cyg_name = dir_name + '-%(installer_build)s'
-
-        # FIXME2: special case for lilypond branch name
-        if base_name.endswith ('.gup'):
-            b = self.settings.lilypond_branch
-            base_name = re.sub ('-' + b, '', gub_name)
-            dir_name = re.sub ('\.cygwin.*', '', gub_name)
-            cyg_name = dir_name + '-%(installer_build)s'
-
-        # FIXME: sane package installer root
-        self.installer_root = '%(targetdir)s/installer-%(base_name)s'
-
-        # URG urg urgurg
-        b = self.settings.lilypond_branch
-        if gub_name.startswith ('lilypond-' + b):
-            base_name = re.sub ('-' + b + '.*', '', gub_name)
-            dir_name = re.sub ('.cygwin.gup', '', gub_name)
-            cyg_name = re.sub ('-' + b + '.*',
-                     '-%(installer_version)s-%(installer_build)s',
-                     gub_name)
-        ball_name = cyg_name + '-src.tar.bz2'
+        d = self.get_dict (package, '')
+        ball_name =  d['cyg_name'] + '-src.tar.bz2'
         dir = self.expand ('%(installer_root)s-src')
+
+        d['ball_name'] = ball_name
+        d['dir'] = dir
         package.system ('''
 rm -rf %(dir)s
 mkdir -p %(dir)s
@@ -569,7 +523,7 @@ mv %(dir)s/%(dir_name)s %(dir)s/%(cyg_name)s
 mkdir -p %(cygwin_uploads)s/%(base_name)s
 tar -C %(dir)s --owner=0 --group=0 -jcf %(cygwin_uploads)s/%(base_name)s/%(ball_name)s %(cyg_name)s
 ''',
-                locals ())
+                        self.get_substitution_dict (d))
 
     def name (self):
         return self._name
