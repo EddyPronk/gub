@@ -563,10 +563,11 @@ complain about missing files.'''
         
         file_name = self.expand (file_name)
         import misc
-        t = misc.split (file_name)
+        t = misc.split_ball (file_name)
         print 'split: ' + `t`
         no_src = re.sub ('-src', '', file_name)
         base = re.sub ('\.tar\..*', '', no_src)
+        # FIXME: use split iso custom ball_re macramee
         ball_re = '^([a-z]+)([.0-9]+)?(-[a-z+]+)?(.*)(-[0-9]+)'
         m = re.match (ball_re, base)
         if m.group (3):
