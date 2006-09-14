@@ -187,10 +187,10 @@ class LilyPond__cygwin (LilyPond):
             '' :
             [
             'glib2',
-            'fontconfig',
-            'freetype',
             'guile-runtime',
-            'libiconv',
+            'libfontconfig1',
+            'libfreetype26',
+            'libiconv2',
             'pango-runtime',
             'python',
             ],
