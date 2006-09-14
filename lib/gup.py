@@ -316,17 +316,6 @@ def topologically_sorted (todo, done, dependency_getter,
 # UGH
 # this is too hairy. --hwn
 
-def gub_to_distro_deps (deps, gub_to_distro_dict):
-    return deps
-    # FIXME: let's not, for now
-    distro = []
-    for i in deps:
-        if i in gub_to_distro_dict.keys ():
-            distro += gub_to_distro_dict[i]
-        else:
-            distro += [i]
-    return distro
-
 def get_source_packages (settings, todo):
     """TODO is a list of (source) buildspecs.
 
@@ -358,8 +347,7 @@ topological order
             else:
                 spec = distro_packages[name]
             spec_dict[name] = spec
-        return gub_to_distro_deps (spec.get_build_dependencies (),
-                                   cygwin.gub_to_distro_dict)
+        return spec.get_build_dependencies ()
 
     # FIXME: todo: copy from cygwin
     def name_to_dependencies_via_debian (name):
@@ -377,13 +365,11 @@ topological order
     if settings.platform == 'cygwin':
         cygwin.init_cygwin_package_finder (settings)
         name_to_deps = name_to_dependencies_via_cygwin
-        gub_to_distro_dict = cygwin.gub_to_distro_dict
     # TODO: arm, debian unstable
     elif settings.platform == 'mipsel':
         debian_unstable.init_debian_package_finder (settings,
                                                     '/dists/stable/main/binary-mipsel/Packages.gz')
         name_to_deps = name_to_dependencies_via_debian
-        gub_to_distro_dict = debian_unstable.gub_to_distro_dict
 
     spec_names = topologically_sorted (todo, {}, name_to_deps)
 
@@ -393,10 +379,7 @@ topological order
 
     if settings.is_distro:
         def obj_to_dependency_objects (obj):
-            #return [spec_dict[n] for n in obj.get_build_dependencies ()]
-            return [spec_dict[n]
-                    for n in gub_to_distro_deps (obj.get_build_dependencies (),
-                                                 gub_to_distro_dict)]
+            return [spec_dict[n] for n in obj.get_build_dependencies ()]
     else:
         def obj_to_dependency_objects (obj):
             return [spec_dict[gub.get_base_package_name (n)]

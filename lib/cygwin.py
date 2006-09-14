@@ -123,10 +123,8 @@ def get_cygwin_package (settings, name, dict):
     # FIXME: These packages are not needed for [cross] building,
     # but most should stay as distro's final install dependency.
     unneeded = [
-        'bash',
         'autoconf', 'autoconf2.13', 'autoconf2.50', 'autoconf2.5',
         'automake', 'automake1.9',
-        'coreutils',
         'ghostscript-base', 'ghostscript-x11',
         '-update-info-dir',
         'libguile12', 'libguile16',

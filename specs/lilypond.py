@@ -206,18 +206,45 @@ class LilyPond__cygwin (LilyPond):
             }
 
     def get_build_dependencies (self):
-        return ['gettext-devel',
-                ## FIXME: for distro we don't use get_base_package_name,
-                ## so we cannot use split-package names for gub/source
-                ## build dependencies
-                ##'guile-devel',
-                'guile',
-                'python',
-                'libfontconfig-devel',
-                'libfreetype2-devel',
-                # cygwin bug: pango-devel should depend on glib2-devel
-                'pango-devel', 'glib2-devel',
-                'urw-fonts']
+
+        #FIXME: aargh, MUST specify bash, coreutils etc here too.
+        # If get_dependency_dict () lists any packages not
+        # part of build_dependencies, we get:
+
+	# Using version number 2.8.6 unknown package bash
+        # installing package: bash
+        # Traceback (most recent call last):
+        #   File "installer-builder.py", line 171, in ?
+        #     main ()
+        #   File "installer-builder.py", line 163, in main
+        #     run_installer_commands (cs, settings, commands)
+        #   File "installer-builder.py", line 130, in run_installer_commands
+        #     build_installer (installer_obj, args)
+        #   File "installer-builder.py", line 110, in build_installer
+        #     install_manager.install_package (a)
+        #   File "lib/gup.py", line 236, in install_package
+        #     d = self._packages[name]
+        # KeyError: 'bash'
+
+        return [
+            'gettext-devel',
+            ## FIXME: for distro we don't use get_base_package_name,
+            ## so we cannot use split-package names for gub/source
+            ## build dependencies
+            ##'guile-devel',
+            'guile',
+            'python',
+            'libfontconfig-devel',
+            'libfreetype2-devel',
+            # cygwin bug: pango-devel should depend on glib2-devel
+            'pango-devel', 'glib2-devel',
+            'urw-fonts'] + [
+            'bash',
+            'coreutils',
+            'cygwin',
+            'findutils',
+            'ghostscript',
+            ]
 
     def compile (self):
         self.system ('''

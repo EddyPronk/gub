@@ -262,15 +262,7 @@ def main ():
         def get_all_deps (name):
             package = spec_object_dict[name]
             deps = package.get_build_dependencies ()
-
-            ## ugh.
-            if settings.is_distro:
-                if settings.platform == 'cygwin':
-                    import cygwin
-                    gub_to_distro_dict = cygwin.gub_to_distro_dict
-                import gup
-                deps = gup.gub_to_distro_deps (deps, cygwin.gub_to_distro_dict)
-            else:
+            if not settings.is_distro:
                 deps = [gub.get_base_package_name (d) for d in deps]
             return deps
 
