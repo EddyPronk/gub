@@ -332,31 +332,17 @@ mkdir -p %(installer_root)s/etc/hints
         # packages do not have a build number anymore...
         build = installer_build
 
-        # FIXME: get depends from actual split_packages
-
-        ##for name in [spec.name ()] + spec.split_packages:
-        ## FIXME split-names
         depends = spec.get_dependency_dict ()[split]
-        generated_depends = []
+        distro_depends = []
         for dep in depends:
             import cygwin
             if dep in cygwin.gub_to_distro_dict.keys ():
-                generated_depends += cygwin.gub_to_distro_dict[dep]
+                distro_depends += cygwin.gub_to_distro_dict[dep]
             else:
-                generated_depends += [dep]
+                distro_depends += [dep]
 
-        print 'SPLIT: ' + split
-        print 'dd: ' + `sort (depends)`
-        print 'generated-dd:' + `sort (generated_depends)`
-        depends = generated_depends
-        try:
-            distro_depends = spec.get_distro_dependency_dict ()
-            print 'ddd: ' + `sort (distro_depends)`
-            depends = distro_depends[split]
-        except:
-            print 'ddd: not defined'
-
-        requires = ' '.join (depends)
+        requires = ' '.join (sort (distro_depends))
+        print 'requires:' + requires
         external_source_line = ''
         file = (spec.settings.sourcefiledir + '/' + base_name + '.hint')
         if os.path.exists (file):

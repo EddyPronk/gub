@@ -60,12 +60,6 @@ class Libtool__cygwin (Libtool):
         Libtool.install (self)
         self.install_readmes ()
 
-    def get_distro_dependency_dict (self):
-        return {
-            '': ['cygwin'],
-            'libtool-runtime': ['cygwin'],
-        }
-
 class Libtool__local (ToolBuildSpec):
     """
 

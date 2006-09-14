@@ -245,28 +245,14 @@ class Guile__cygwin (Guile):
     # FIXME: uses mixed gub/distro dependencies
     def get_dependency_dict (self):
         d = Guile.get_dependency_dict (self)
-        ##d['devel'] = ['libguile17']
-        d['devel'] = ['guile-runtime']
-        d['doc'] = ['texinfo']
-        d['runtime'] = ['gmp', 'gettext', 'libtool-runtime']
-
-        d[''].append ('cygwin')
-        d['devel'].append ('cygwin')
-        d['runtime'].append ('cygwin')
+        d[''] += ['cygwin']
+        d['devel'] += ['cygwin'] + ['bash']
+        d['runtime'] += ['cygwin', 'crypt']
         return d
  
     # FIXME: uses mixed gub/distro dependencies
     def get_build_dependencies (self):
-        return ['gmp', 'gettext-devel', 'libiconv', 'libtool']
-
-    # FIXME: junkme.
-    def get_distro_dependency_dict (self):
-        return {
-            '': ['cygwin', 'libguile17'],
-            'devel': ['bash', 'cygwin', 'libguile17'],
-            'doc':  ['texinfo'],
-            'runtime': ['cygwin', 'crypt', 'gmp', 'libintl3', 'libltdl3'],
-        }
+        return ['crypt', 'gmp', 'gettext-devel', 'libiconv', 'libtool']
 
     def config_cache_overrides (self, str):
         return str + '''

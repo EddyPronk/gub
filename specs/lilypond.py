@@ -191,10 +191,18 @@ class LilyPond__cygwin (LilyPond):
             'libfontconfig1',
             'libfreetype26',
             'libiconv2',
+            'libintl3',
             'pango-runtime',
             'python',
+            ]
+            + [
+            'bash',
+            'coreutils',
+            'cygwin',
+            'findutils',
+            'ghostscript',
             ],
-            'doc': ['texinfo']
+            'doc': ['texinfo'],
             }
 
     def get_build_dependencies (self):
@@ -210,16 +218,6 @@ class LilyPond__cygwin (LilyPond):
                 # cygwin bug: pango-devel should depend on glib2-devel
                 'pango-devel', 'glib2-devel',
                 'urw-fonts']
-
-    # FIXME: junkme
-    def get_distro_dependency_dict (self):
-        return {
-            '' : ['bash', 'coreutils', 'cygwin', 'findutils',
-                  'ghostscript', 'glib2-runtime', 'libfontconfig1',
-                  'libfreetype26', 'libguile17', 'libiconv2', 'libintl3',
-                  'pango-runtime', 'python'],
-            'doc' : ['texinfo']
-            }
 
     def compile (self):
         self.system ('''
