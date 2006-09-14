@@ -115,15 +115,33 @@ gub_builder.py:
 arm:
 	$(call BUILD,$@,lilypond)
 
-#cygwin: doc
-cygwin:
+docball = uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).documentation.tar.bz2
+
+$(docball):
+	$(MAKE) doc
+
+cygwin: $(docball) cygwin-libtool cygwin-libtool-installer cygwin-guile cygwin-guile-installer cygwin-lilypond cygwin-lilypond-installer
+
+cygwin-libtool:
 	rm -f uploads/cygwin/setup.ini
-	$(call INVOKE_GUB_BUILDER,$@) --build-source build libtool
-	$(call INVOKE_INSTALLER_BUILDER,$@) build-all libtool
-	$(call INVOKE_GUB_BUILDER,$@) --build-source build libtool guile
-	$(call INVOKE_INSTALLER_BUILDER,$@) build-all guile
-	$(call INVOKE_GUB_BUILDER,$@) --build-source build libtool guile lilypond
-	$(call INVOKE_INSTALLER_BUILDER,$@) build-all lilypond
+	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build libtool
+
+cygwin-libtool-installer:
+	echo INSTALLER_BUILD=1 > buildnumber-libtool.make
+	$(call INVOKE_INSTALLER_BUILDER,cygwin) --buildnumber-file=buildnumber-libtool.make build-all libtool
+
+cygwin-guile:
+	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build libtool guile
+
+cygwin-guile-installer:
+	echo INSTALLER_BUILD=1 > buildnumber-guile.make
+	$(call INVOKE_INSTALLER_BUILDER,cygwin) --buildnumber-file=buildnumber-guile.make build-all guile
+
+cygwin-lilypond:
+	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build libtool guile lilypond
+
+cygwin-lilypond-installer:
+	$(call INVOKE_INSTALLER_BUILDER,cygwin) build-all lilypond
 
 upload-setup-ini:
 	cd uploads/cygwin && ../../downloads/genini $$(find release -mindepth 1 -maxdepth 2 -type d) > setup.ini
