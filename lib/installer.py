@@ -449,6 +449,8 @@ mkdir -p %(installer_root)s/usr/share/doc/%(base)s.Cygwin
         # gub packages do not have a build number
         dir_name = base_name + '-' + '.'.join (map (misc.itoa, t[1][:-2]))
         cyg_name = dir_name + '-%(installer_build)s'
+        # FIXME: not in case of -branch name
+        dir_name = re.sub ('.cygwin.gu[pb]', '', gub_name)
         infodir = package.expand ('%(installer_root)s/usr/share/info',
                                   self.get_substitution_dict (locals ()))
         hint = base_name + '.hint'
