@@ -208,49 +208,45 @@ def get_cygwin_packages (settings, package_file):
         packages.append (get_cygwin_package (settings, name, records))
 
     # debug
-    names = [p.name() for p in dists[dist]]
-    names.sort()
-
+    names = [p.name () for p in dists[dist]]
+    names.sort ()
     return dists[dist]
 
-
-
-class Cygwin_dependency_finder:
+## FIXME: c&p debian.py
+class Dependency_resolver:
     def __init__ (self, settings):
         self.settings = settings
         self.packages = {}
+        self.load_packages ()
         
-    def download (self):
-        url = mirror + '/setup.ini'
-        # FIXME: download/offline
-        downloads = self.settings.downloads
-
-        file = self.settings.downloads + '/setup.ini'
-        if not os.path.exists (file):
-            misc.download_url (url, self.settings.downloads)
-
-        pack_list = get_cygwin_packages (self.settings, file)
-        for p in pack_list:
+    def grok_setup_ini (self, file):
+        for p in get_cygwin_packages (self.settings, file):
             self.packages[p.name ()] = p
 
+    def load_packages (self):
+        url = mirror + '/setup.ini'
+
+        # FIXME: download/offline update
+        if not os.path.exists (file):
+            misc.download_url (url, self.settings.downloads)
+        self.grok_setup_ini (file)
+
+        # support one extra local setup.ini, that overrides the default
         local_file = self.settings.uploads + '/cygwin/setup.ini'
         if os.path.exists (local_file):
-            local_list = get_cygwin_packages (self.settings, local_file)
-            for p in local_list:
-                self.packages[p.name ()] = p
+            self.grok_setup_ini (local_file)
 
     def get_packages (self):
         return self.packages
         
-cygwin_dep_finder = None
+dependency_resolver = None
 
-def init_cygwin_package_finder (settings):
-    global cygwin_dep_finder
-    cygwin_dep_finder = Cygwin_dependency_finder (settings)
-    cygwin_dep_finder.download ()
+def init_dependency_resolver (settings):
+    global dependency_resolver
+    dependency_resolver = Dependency_resolver (settings)
 
 def get_packages ():
-    return cygwin_dep_finder.get_packages ()
+    return dependency_resolver.get_packages ()
 
 gub_to_distro_dict = {
     'fontconfig' : ['libfontconfig1'],

@@ -169,6 +169,9 @@ linux:
 mingw:
 	$(call BUILD,$@,lilypond)
 
+mipsel:
+	$(call BUILD,$@,lilypond)
+
 clean:
 	rm -rf $(foreach p, $(PLATFORMS), target/*$(p)* )
 

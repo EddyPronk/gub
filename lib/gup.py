@@ -15,7 +15,7 @@ import targetpackage
 from misc import *  # URG, fixme
 import locker
 import cygwin
-import debian_unstable
+import debian
 import gub ## ugh
 
 class GupException (Exception):
@@ -337,11 +337,10 @@ topological order
             spec_dict[name] = spec
         return map (gub.get_base_package_name, spec.get_build_dependencies ())
 
-    def name_to_dependencies_via_cygwin (name):
+    def name_to_dependencies_via_distro (distro_packages, name):
         if spec_dict.has_key (name):
             spec = spec_dict[name]
         else:
-            distro_packages = cygwin.get_packages ()
             if name in todo or name not in distro_packages.keys ():
                 spec = targetpackage.load_target_package (settings, name)
             else:
@@ -349,32 +348,22 @@ topological order
             spec_dict[name] = spec
         return spec.get_build_dependencies ()
 
-    # FIXME: todo: copy from cygwin
+    def name_to_dependencies_via_cygwin (name):
+        return name_to_dependencies_via_distro (cygwin.get_packages (), name)
+
     def name_to_dependencies_via_debian (name):
-        try:
-            pack = spec_dict[name]
-        except KeyError:
-            try:
-                pack = debian_unstable.debian_name_to_dependency_names (name)
-            except KeyError:
-                pack = targetpackage.load_target_package (settings, name)
-        spec_dict[name] = pack
-        return pack.get_build_dependencies ()
+        return name_to_dependencies_via_distro (debian.get_packages (), name)
 
     name_to_deps = name_to_dependencies_via_gub
     if settings.platform == 'cygwin':
-        cygwin.init_cygwin_package_finder (settings)
+        cygwin.init_dependency_resolver (settings)
         name_to_deps = name_to_dependencies_via_cygwin
-    # TODO: arm, debian unstable
-    elif settings.platform == 'mipsel':
-        debian_unstable.init_debian_package_finder (settings,
-                                                    '/dists/stable/main/binary-mipsel/Packages.gz')
+    elif settings.platform in ('arm', 'debian', 'mipsel'):
+        debian.init_dependency_resolver (settings)
         name_to_deps = name_to_dependencies_via_debian
 
     spec_names = topologically_sorted (todo, {}, name_to_deps)
-
     spec_dict = dict ((n, spec_dict[n]) for n in spec_names)
-
     cross.set_cross_dependencies (spec_dict)
 
     if settings.is_distro:

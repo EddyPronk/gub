@@ -28,6 +28,7 @@ class Settings (Context):
         self.target_architecture = platforms[self.platform]
         self.build_source = False
         self.is_distro = platform in distros
+        self.debian_branch = 'stable'
 
         self.target_gcc_flags = '' 
         self.topdir = os.getcwd ()
@@ -67,7 +68,6 @@ class Settings (Context):
         self.cross_distcc_bindir = self.topdir + '/target/cross-distcc/bin/'
         self.native_distcc_bindir = self.topdir + '/target/native-distcc/bin/'
         
-      
         self.package_arch = re.sub ('-.*', '', self.target_architecture)
         self.package_arch = re.sub ('i[0-9]86', 'i386', self.package_arch)
         

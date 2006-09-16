@@ -10,7 +10,8 @@ def subst_method (func):
     return func
 
 def is_subst_method_in_class (method_name, klass):
-    bs = [k for k in klass.__bases__ if is_subst_method_in_class (method_name, k)]
+    bs = [k for k in klass.__bases__
+          if is_subst_method_in_class (method_name, k)]
     if bs:
         return True
     
@@ -143,8 +144,8 @@ class Os_context_wrapper (Context):
         for (root, dirs, files) in os.walk (directory):
 #            relative_root = root.replace (directory, '')
             results += [os.path.join (root, f)
-                        for f in (fnmatch.filter (dirs, pattern) + 
-                                  fnmatch.filter (files, pattern))]
+                        for f in (fnmatch.filter (dirs, pattern)
+                                  + fnmatch.filter (files, pattern))]
 
         return results
 

@@ -151,7 +151,7 @@ cross_module_checksums = {}
 def get_cross_module (platform):
     base = platform
     try:
-        base = {'debian':'debian_unstable',
+        base = {'debian':'debian',
             'darwin-ppc':'darwintools',
             'darwin-x86':'darwintools',
             'local':'tools'}[platform]
