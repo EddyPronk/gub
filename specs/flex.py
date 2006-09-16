@@ -7,7 +7,8 @@ class Flex (ToolBuildSpec):
 
     def install_command (self):
         return self.broken_install_command ()
-        
+    def packaging_suffix_dir (self):
+        return ''
     def patch (self):
         self.system ("cd %(srcdir)s && patch -p1 < %(patchdir)s/flex-2.5.4a-FC4.patch")
 

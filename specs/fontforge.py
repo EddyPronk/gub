@@ -8,6 +8,9 @@ class Fontforge (ToolBuildSpec):
     def install_command (self):
         return self.broken_install_command ()
 
+    def packaging_suffix_dir (self):
+        return ''
+    
     def configure_command (self):
         return ToolBuildSpec.configure_command (self) + " --without-freetype-src "
     def patch (self):
