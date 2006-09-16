@@ -295,15 +295,17 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
         self.libtool_cygltdl3_fixup ()
 
     def libtool_cygltdl3_fixup (self):
-            # The current (1.5.22-1) cygltdl-3.dll is broken.  Supply our
+        # The current (1.5.22-1) cygltdl-3.dll is broken.  Supply our
         # own.
         self.system ('''
 cp -pv %(system_root)s/usr/bin/cygltdl-3.dll %(install_root)s/usr/bin/cygltdtl-3.dll-fixed''')
 
         name = 'guile-postinstall.sh'
         postinstall = '''#! /bin/sh
-mv /usr/bin/cygltdl-3.dll /usr/bin/cygltdl3.dll-broken
-cp -f /usr/bin/cygltdl-3.dll-fixed /usr/bin/cygltld3.dll
+if ! test -e /usr/bin/cygltdl3.dll-broken; then
+    mv /usr/bin/cygltdl-3.dll /usr/bin/cygltdl3.dll-broken
+    cp -f /usr/bin/cygltdl-3.dll-fixed /usr/bin/cygltld3.dll
+fi
 '''
         self.dump (postinstall,
                    '%(install_root)s/etc/postinstall/%(name)s',
