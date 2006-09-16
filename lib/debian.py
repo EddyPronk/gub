@@ -73,11 +73,15 @@ def _get_cross_packages (settings, libc6_version, kernel_version):
                              mirror=download.gcc, format='bz2'),
         ]
 
+# FIXME: determine libc6_version, kernel_version from
+# Packages/Dependency_resolver.
 def get_cross_packages_stable (settings):
     libc6_version = '2.3.2.ds1-22sarge4'
     kernel_version = '2.5.999-test7-bk-17'
     return _get_cross_packages (settings, libc6_version, kernel_version)
 
+# FIXME: determine libc6_version, kernel_version from
+# Packages/Dependency_resolver.
 def get_cross_packages_unstable (settings):
     libc6_version = '2.3.6.ds1-4'
     kernel_version = '2.6.17-10.-3'

@@ -151,7 +151,7 @@ cross_module_checksums = {}
 def get_cross_module (platform):
     base = platform
     try:
-        base = {'debian':'debian',
+        base = {
             'darwin-ppc':'darwintools',
             'darwin-x86':'darwintools',
             'local':'tools'}[platform]
@@ -161,6 +161,7 @@ def get_cross_module (platform):
     desc = ('.py', 'U', 1)
     file_name = 'lib/%s.py' % base
     file = open (file_name)
+    print 'module-name: ' + file_name
     module = imp.load_module (base, file, file_name, desc)
 
     cross_module_checksums[platform] = md5.md5 (open (file_name).read ()).hexdigest ()
