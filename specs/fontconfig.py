@@ -116,3 +116,8 @@ class Fontconfig__local (toolpackage.ToolBuildSpec):
         
     def get_build_dependencies (self):
         return ['libtool', 'freetype', 'expat']
+
+    def compile_command (self):
+        return  toolpackage.ToolBuildSpec.compile_command (self) + ' DOCSRC="" '   
+    def install_command (self):
+        return  toolpackage.ToolBuildSpec.install_command (self) + ' DOCSRC="" '   
