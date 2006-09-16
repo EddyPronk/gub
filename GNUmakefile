@@ -128,7 +128,7 @@ cygwin-libtool:
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build libtool
 
 cygwin-libtool-installer:
-	echo INSTALLER_BUILD=1 > buildnumber-libtool.make
+	echo INSTALLER_BUILD=2 > buildnumber-libtool.make
 	$(call INVOKE_INSTALLER_BUILDER,cygwin) --buildnumber-file=buildnumber-libtool.make build-all libtool
 
 cygwin-guile:
