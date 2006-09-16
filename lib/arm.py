@@ -13,7 +13,7 @@ class Arm_runtime (gub.BinarySpec, gub.SdkBuildSpec):
 
 def get_cross_packages (settings):
     import debian
-    return debian.get_cross_packages_stable (settings)
+    return debian.get_cross_packages (settings)
 
 def change_target_packages (packages):
     cross.change_target_packages (packages)

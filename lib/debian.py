@@ -58,38 +58,35 @@ class Gcc (cross.Gcc):
         return cross.Gcc.configure_command (self) + ' --disable-tls '
 
 # http://ftp.de.debian.org/debian/pool/main/l/linux-kernel-headers/
-def get_cross_packages_stable (settings):
+
+def _get_cross_packages (settings, libc6_version, kernel_version):
     return [
-        Libc6 (settings).with (version='2.2.5-11.8',
+        Libc6 (settings).with (version=libc6_version,
                                mirror=download.glibc_deb, format='deb'),
-        Libc6_dev (settings).with (version='2.2.5-11.8',
+        Libc6_dev (settings).with (version='2.3.2.ds1-22sarge4',
                                    mirror=download.glibc_deb, format='deb'),
-        Linux_kernel_headers (settings).with (version='2.5.999-test7-bk-17',
-                                              mirror=download.lkh_deb, format='deb'),
+        Linux_kernel_headers (settings).with (version=kernel_version,
+                                              mirror=download.lkh_deb,
+                                              format='deb'),
         cross.Binutils (settings).with (version='2.16.1', format='bz2'),
         Gcc (settings).with (version='4.1.1',
                              mirror=download.gcc, format='bz2'),
         ]
 
+def get_cross_packages_stable (settings):
+    libc6_version = '2.3.2.ds1-22sarge4'
+    kernel_version = '2.5.999-test7-bk-17'
+    return _get_cross_packages (settings, libc6_version, kernel_version)
+
 def get_cross_packages_unstable (settings):
-    return [
-        Libc6 (settings).with (version='2.3.2.ds1-22sarge4',
-                               mirror=download.glibc_deb,
-                               format='deb'),
-        Libc6_dev (settings).with (version='2.3.2.ds1-22sarge4',
-                                   mirror=download.glibc_deb,
-                                   format='deb'),
-        Linux_kernel_headers (settings).with (version='2.6.17-10.-3',
-                                              mirror=download.lkh_deb,
-                                              format='deb'),
-        cross.Binutils (settings).with (version='2.16.1', format='bz2'),
-        Gcc (settings).with (version='4.1.1',
-                             mirror=download.gcc_41,
-                             format='bz2'),
-        ]
+    libc6_version = '2.3.6.ds1-4'
+    kernel_version = '2.6.17-10.-3'
+    return _get_cross_packages (settings, libc6_version, kernel_version)
 
 def get_cross_packages (settings):
-    return get_cross_packages_stable (settings)
+    if settings.debian_branch == 'stable':
+        return get_cross_packages_stable (settings)
+    return get_cross_packages_unstable (settings)
 
 def change_target_packages (packages):
     cross.change_target_packages (packages)

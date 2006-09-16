@@ -433,4 +433,5 @@ Lilypond__darwin = LilyPond__darwin
 Lilypond__debian = LilyPond__debian
 Lilypond__mingw = LilyPond__mingw
 Lilypond__freebsd = LilyPond__freebsd
+Lilypond__arm = LilyPond__debian
 Lilypond__mipsel = LilyPond__debian

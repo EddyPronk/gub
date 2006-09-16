@@ -53,7 +53,7 @@ rm -rf %(install_root)s/usr/cross/mipsel-linux/lib/debug/libstdc++.a
 
 def get_cross_packages (settings):
     import debian
-    return debian.get_cross_packages_stable (settings) + [
+    return debian.get_cross_packages (settings) + [
         Gcc_34 (settings).with (version='3.4.6',
                              mirror=(download.gnubase
                                      + '/gcc/gcc-3.4.6/gcc-3.4.6.tar.bz2'),

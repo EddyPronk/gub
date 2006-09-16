@@ -227,6 +227,7 @@ class Dependency_resolver:
         url = mirror + '/setup.ini'
 
         # FIXME: download/offline update
+        file = self.settings.downloads + '/setup.ini'
         if not os.path.exists (file):
             misc.download_url (url, self.settings.downloads)
         self.grok_setup_ini (file)
