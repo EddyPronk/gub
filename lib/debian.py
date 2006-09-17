@@ -63,6 +63,11 @@ class Gcc (cross.Gcc):
 
 def _get_cross_packages (settings,
                          guile_version, libc6_version, kernel_version):
+    configs = []
+    if settings.platform != 'linux':
+        configs = [linux.Guile_config (settings).with (version=guile_version),
+                   linux.Python_config (settings).with (version='2.4.1'),]
+    
     return [
         Libc6 (settings).with (version=libc6_version,
                                mirror=download.glibc_deb, format='deb'),
@@ -74,9 +79,7 @@ def _get_cross_packages (settings,
         cross.Binutils (settings).with (version='2.16.1', format='bz2'),
         Gcc (settings).with (version='4.1.1',
                              mirror=download.gcc, format='bz2'),
-        linux.Guile_config (settings).with (version=guile_version),
-        linux.Python_config (settings).with (version='2.4.1'),
-        ]
+        ] + configs
 
 # FIXME: determine libc6_version, kernel_version from
 # Packages/Dependency_resolver.
