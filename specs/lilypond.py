@@ -84,15 +84,15 @@ cd %(builddir)s && %(configure_command)s''')
     def compile (self):
         d = self.get_substitution_dict ()
         if (misc.file_is_newer ('%(srcdir)s/config.make.in' % d,
-                 '%(builddir)s/config.make' % d)
-          or misc.file_is_newer ('%(srcdir)s/GNUmakefile.in' % d,
-                   '%(builddir)s/GNUmakefile' % d)
-          or misc.file_is_newer ('%(srcdir)s/config.hh.in' % d,
-                   '%(builddir)s/config.make' % d)
-          or misc.file_is_newer ('%(srcdir)s/configure' % d,
-                   '%(builddir)s/config.make' % d)):
+                                '%(builddir)s/config.make' % d)
+            or misc.file_is_newer ('%(srcdir)s/GNUmakefile.in' % d,
+                                   '%(builddir)s/GNUmakefile' % d)
+            or misc.file_is_newer ('%(srcdir)s/config.hh.in' % d,
+                                   '%(builddir)s/config.make' % d)
+            or misc.file_is_newer ('%(srcdir)s/configure' % d,
+                                   '%(builddir)s/config.make' % d)):
             self.do_configure ()
-
+            
         targetpackage.TargetBuildSpec.compile (self)
 
     def name_version (self):
@@ -270,9 +270,6 @@ tar -C %(install_root)s/usr/share/doc/lilypond -jxf %(docball)s
                   locals ())
 
 class LilyPond__freebsd (LilyPond):
-    def __init__ (self, settings):
-        LilyPond.__init__ (self, settings)
-
     def get_dependency_dict (self):
         d = LilyPond.get_dependency_dict (self)
         d[''].append ('gcc')
