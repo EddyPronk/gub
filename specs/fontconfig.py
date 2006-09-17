@@ -7,8 +7,10 @@ import toolpackage
 class Fontconfig (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with (version='2.3.2', mirror=download.fontconfig)
-
+#        self.with (mirror="git://anongit.freedesktop.org/git/fontconfig", version="master", vc_type='git')
+        self.with (mirror=download.freedesktop,
+                   version="2.4.1")
+        
     def get_build_dependencies (self):
         return ['libtool', 'expat-devel', 'freetype-devel']
 
@@ -21,6 +23,7 @@ class Fontconfig (targetpackage.TargetBuildSpec):
         ## UGH  - this breaks  on Darwin!
         return (targetpackage.TargetBuildSpec.configure_command (self) 
                 + misc.join_lines ('''
+--with-arch=%(target_architecture)s
 --with-freetype-config="%(system_root)s/usr/bin/freetype-config
 --prefix=%(system_root)s/usr
 "'''))
@@ -34,32 +37,23 @@ rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,
 
         ## FIXME: libtool too old for cross compile
         self.update_libtool ()
+        self.file_sub ([('DOCSRC *=.*', 'DOCSRC=')],
+                       '%(builddir)s/Makefile')
 
-        # FIXME: how to put in __mingw class without duplicating
-        # configure ()
-        if self.settings.platform.startswith ('mingw'):
-            self.dump ('''
-#define sleep(x) _sleep (x)
-''',
-                 '%(builddir)s/config.h',
-                 mode='a')
+    def compile (self):
+
         # help fontconfig cross compiling a bit, all CC/LD
         # flags are wrong, set to the target's root
 
         cflags = '-I%(srcdir)s -I%(srcdir)s/src ' \
             + self.read_pipe ('freetype-config --cflags')[:-1]
         libs = self.read_pipe ('freetype-config --libs')[:-1]
-        for i in ('fc-case', 'fc-lang', 'fc-glyphname'):
+        for i in ('fc-case', 'fc-lang', 'fc-glyphname', 'fc-arch'):
             self.system ('''
 cd %(builddir)s/%(i)s && make "CFLAGS=%(cflags)s" "LIBS=%(libs)s" CPPFLAGS= LDFLAGS= INCLUDES=
 ''', locals ())
 
-        self.file_sub ([('DOCSRC *=.*', 'DOCSRC=')],
-               '%(builddir)s/Makefile')
-
-    def patch (self):
-        targetpackage.TargetBuildSpec.patch (self)
-        self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/fontconfig-2.3.2-mingw-fccache.patch')
+        targetpackage.TargetBuildSpec.compile (self)
         
     def install (self):
         targetpackage.TargetBuildSpec.install (self)
@@ -70,17 +64,19 @@ set FONTCONFIG_PATH=$INSTALLER_PREFIX/etc/fonts
         
         
 class Fontconfig__mingw (Fontconfig):
-    ## no need to add c:\windows\fonts. FontConfig does this
-    ## automatically
-
-    def x__init__ (self, settings):
-        Fontconfig.__init__ (self, settings)
-        self.with (version='2.3.94', mirror=download.fontconfig)
-
     def patch (self):
         Fontconfig.patch (self)
-        self.system ("cd %(srcdir)s && patch -p1 < %(patchdir)s/fontconfig-2.3.2-mingw-timestamp.patch")
+        self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/fontconfig-2.4.1-mingw.patch')
+        self.system ('cd %(srcdir)s && python %(patchdir)s/fontconfig-make-def.py doc/*.fncs > src/fontconfig.def.in')
 
+    def configure (self):
+        Fontconfig.configure (self)
+        self.dump ('''
+#define sleep(x) _sleep (x)
+''',
+                   '%(builddir)s/config.h',
+                   mode='a')
+        
 class Fontconfig__darwin (Fontconfig):
     def configure_command (self):
         cmd = Fontconfig.configure_command (self)
