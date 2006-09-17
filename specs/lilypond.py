@@ -396,7 +396,12 @@ class LilyPond__darwin (LilyPond):
 
     def get_dependency_dict (self):
         d = LilyPond.get_dependency_dict (self)
-        d[''] += [ 'fondu', 'osx-lilypad']
+
+        deps = d['']
+        deps.remove ('python-runtime')
+        deps += [ 'fondu', 'osx-lilypad']
+
+        d[''] = deps
         return d
 
     def get_build_dependencies (self):
