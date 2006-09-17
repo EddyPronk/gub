@@ -40,13 +40,12 @@ class LilyPond (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
         self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
-                   track_development=True)
-
+                   vc_type='cvs')
+        
         # FIXME: should add to C_INCLUDE_PATH
         builddir = self.builddir ()
         self.target_gcc_flags = (settings.target_gcc_flags
                     + ' -I%(builddir)s' % locals ())
-        self._downloader = self.cvs
 
     def rsync_command (self):
         c = targetpackage.TargetBuildSpec.rsync_command (self)
@@ -81,14 +80,6 @@ cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/
         self.system ('''
 mkdir -p %(builddir)s 
 cd %(builddir)s && %(configure_command)s''')
-
-    # FIXME: shared for all CVS packages
-    def srcdir (self):
-        return '%(allsrcdir)s/%(name)s-%(version)s'
-
-#        # FIXME: shared for all CVS packages
-    def builddir (self):
-        return '%(targetdir)s/build/%(name)s-%(version)s'
 
     def compile (self):
         d = self.get_substitution_dict ()
@@ -177,7 +168,7 @@ class LilyPond__cygwin (LilyPond):
     def __init__ (self, settings):
         LilyPond.__init__ (self, settings)
         self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
-                   track_development=True)
+                   vc_type='cvs')
 
     def get_subpackage_names (self):
         return ['doc', '']
@@ -295,7 +286,7 @@ class LilyPond__mingw (LilyPond):
     def __init__ (self, settings):
         LilyPond.__init__ (self, settings)
         self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
-                   track_development=True)
+                   vc_type='cvs')
 
     def get_dependency_dict (self):
         d = LilyPond.get_dependency_dict (self)
@@ -368,7 +359,7 @@ class LilyPond__debian (LilyPond):
     def __init__ (self, settings):
         LilyPond.__init__ (self, settings)
         self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
-                   track_development=True)
+                   vc_type='cvs')
 
     def install (self):
         targetpackage.TargetBuildSpec.install (self)
@@ -392,7 +383,7 @@ class LilyPond__darwin (LilyPond):
         LilyPond.__init__ (self, settings)
         self.with (version=settings.lilypond_branch,
                    mirror=cvs.gnu,
-                   track_development=True)
+                   vc_type='cvs')
 
     def get_dependency_dict (self):
         d = LilyPond.get_dependency_dict (self)

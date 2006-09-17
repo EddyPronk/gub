@@ -82,7 +82,7 @@ class Pic (targetpackage.TargetBuildSpec):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
         # FIXME: lilypond_branch
         self.with (version=settings.lilypond_branch, mirror=pic_cvs,
-                   track_development=True)
+                   vc_type='cvs')
 
         # FIXME: should add to C_INCLUDE_PATH
         builddir = self.builddir ()
