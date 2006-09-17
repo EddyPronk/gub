@@ -8,7 +8,7 @@ class Fontconfig (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
 #        self.with (mirror="git://anongit.freedesktop.org/git/fontconfig", version="master", vc_type='git')
-        self.with (mirror=download.freedesktop,
+        self.with (mirror=download.fontconfig,
                    version="2.4.1")
         
     def get_build_dependencies (self):
