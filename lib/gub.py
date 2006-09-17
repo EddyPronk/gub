@@ -88,11 +88,8 @@ class BuildSpec (Os_context_wrapper):
         self.spec_checksum = '0000' 
         self.cross_checksum = '0000'
         
-        # set to true for CVS releases
+        ## one of GIT/CVS/<empty>
         self.vc_type = ''
-
-        ## one of GIT/CVS
-        self.development_vc = ''
         
         self.split_packages = []
         self.so_version = '1'
@@ -120,11 +117,6 @@ class BuildSpec (Os_context_wrapper):
     def wget (self):
         if not self.is_downloaded ():
             misc.download_url (self.expand (self.url), self.expand ('%(downloads)s'))
-
-
-    @subst_method
-    def vc_dir (self):
-        return '%(downloads)s/%(name)s-%(version)s'
 
     def vc_download (self):
         timestamp_file = self.expand ('%(vc_dir)s/.cvsup-timestamp')
@@ -167,7 +159,7 @@ cd %(vc_dir)s/ && git checkout %(version)s
         if not os.path.exists (vc_dir):
             action = 'co'
             
-        self.system (commands[self.development_vc + '-' + action])
+        self.system (commands[self.vc_type + '-' + action])
         
         ## again: cvs up can take a long time.
         open (timestamp_file, 'w').write ('changed')
@@ -195,9 +187,9 @@ cd %(vc_dir)s/ && git checkout %(version)s
     def touch_vc_checksum (self):
 
         cs = '0000'
-        if self.development_vc == 'cvs':
+        if self.vc_type == 'cvs':
             cs = self.get_cvs_checksum ()
-        elif self.development_vc == 'git':
+        elif self.vc_type == 'git':
             cs = self.get_git_checksum ()
         
         open (self.vc_checksum_file (), 'w').write (cs)
@@ -253,6 +245,10 @@ cd %(vc_dir)s/ && git checkout %(version)s
             return ''
 
     @subst_method
+    def vc_dir (self):
+        return '%(downloads)s/%(name)s-%(version)s'
+
+    @subst_method
     def packaging_suffix_dir (self):
         return ''
 
@@ -276,14 +272,14 @@ cd %(vc_dir)s/ && git checkout %(version)s
     @subst_method
     def srcdir (self):
         if self.vc_type:
-            return self.settings.allsrcdir + '/' + self.name_version ()
+            return '%(allsrcdir)s/%(name)s-%(version)s'
         else:
             return self.settings.allsrcdir + '/' + self.basename ()
 
     @subst_method
     def builddir (self):
         if self.vc_type:
-            return '%(targetdir)s/build/%(name)s-%(version)s'
+            return '%(allbuilddir)s/%(name)s-%(version)s'
         else:
             return self.settings.allbuilddir + '/' + self.basename ()
 

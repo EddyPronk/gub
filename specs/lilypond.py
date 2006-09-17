@@ -100,7 +100,7 @@ cd %(builddir)s && %(configure_command)s''')
         # name-branch for src /build dir, use name-version for
         # packaging.
         try:
-            self.build_version ()
+            return self.build_version ()
         except:
             return targetpackage.TargetBuildSpec.name_version (self)
 
