@@ -89,7 +89,11 @@ class BuildSpec (Os_context_wrapper):
         self.cross_checksum = '0000'
         
         # set to true for CVS releases
-        self.track_development = False
+        self.vc_type = ''
+
+        ## one of GIT/CVS
+        self.development_vc = ''
+        
         self.split_packages = []
         self.so_version = '1'
 
@@ -116,13 +120,15 @@ class BuildSpec (Os_context_wrapper):
     def wget (self):
         if not self.is_downloaded ():
             misc.download_url (self.expand (self.url), self.expand ('%(downloads)s'))
-            
-    def cvs (self):
 
-        
-        dir = self.expand ('%(name)s-%(version)s')
-        cvs_dest = self.expand ('%(downloads)s/%(dir)s' , locals ())
-        timestamp_file = cvs_dest + '/.cvsup-timestamp'
+
+    @subst_method
+    def vc_dir (self):
+        return '%(downloads)s/%(name)s-%(version)s'
+
+    def vc_download (self):
+        timestamp_file = self.expand ('%(vc_dir)s/.cvsup-timestamp')
+        vc_dir = self.expand ('%(vc_dir)s')
         
         ## don't run CVS too often.
         import time
@@ -132,39 +138,69 @@ class BuildSpec (Os_context_wrapper):
             return
 
         ## TODO: should use locking.
-        if os.path.isdir (cvs_dest):
+        if os.path.isdir (vc_dir):
             open (timestamp_file, 'w').write ('changed')
 
-        lock_file = self.expand ('%(downloads)s/%(name)s-%(version)s.lock')
+        lock_file = self.expand ('%(vc_dir)s.lock')
         lock = locker.Locker (lock_file)
         url = self.expand (self.url)
-        if not os.path.exists (cvs_dest):
-            self.system ('''
-cd %(downloads)s && cvs -d %(url)s -q co -d %(dir)s -r %(version)s %(name)s
-''', locals ())
-        else:
-            self.system ('''
-cd %(cvs_dest)s && cvs -q update -dAPr %(version)s
-''', locals ())
 
+        
+        commands = {
+            'cvs-co': '''mkdir -p %(vc_dir)s
+cd %(vc_dir)/.. && cvs -d %(url)s -q co -d %(name)s-%(version)s -r %(version)s %(name)s''',
+            'cvs-up': '''
+cd %(vc_dir)s && cvs -q update -dAPr %(version)s
+''',
+            'git-co': '''
+cd %(downloads)s/ && git clone %(url)s %(name)s-%(version)s 
+cd %(vc_dir)s/ && git checkout %(version)s 
+''',
+            'git-up': '''
+cd %(vc_dir)s/ && git pull %(url)s 
+cd %(vc_dir)s/ && git checkout %(version)s 
+''',
+            }
+        
+
+        action = 'up'
+        if not os.path.exists (vc_dir):
+            action = 'co'
+            
+        self.system (commands[self.development_vc + '-' + action])
+        
         ## again: cvs up can take a long time.
         open (timestamp_file, 'w').write ('changed')
 
-        self.touch_cvs_checksum (cvs_dest)
+        self.touch_vc_checksum ()
 
-    def touch_cvs_checksum (self, cvs_dest):
+    def get_git_checksum (self):
+        cs = self.read_pipe ('cd %(vc_dir)s && git describe --abbrev=24')
+
         
-        ## checksumming is necessary, otherwise
-        ## we can have out-of-date files installed.
+        return cs.strip ()
+    
+    def get_cvs_checksum (self):
         cvs_dirs =  []
-        for (base, dirs, files) in os.walk (cvs_dest):
+        for (base, dirs, files) in os.walk (self.expand ('vc_dir')):
             cvs_dirs += [os.path.join (base, d) for d in dirs
                          if d == 'CVS']
             
         checksum = md5.md5()
         for d in cvs_dirs:
             checksum.update (open (os.path.join (d, 'Entries')).read ())
-        open (self.cvs_checksum_file (),'w').write (checksum.hexdigest ())
+
+        return checksum.hexdigest ()
+    
+    def touch_vc_checksum (self):
+
+        cs = '0000'
+        if self.development_vc == 'cvs':
+            cs = self.get_cvs_checksum ()
+        elif self.development_vc == 'git':
+            cs = self.get_git_checksum ()
+        
+        open (self.vc_checksum_file (), 'w').write (cs)
 
         
     @subst_method
@@ -181,19 +217,19 @@ cd %(cvs_dest)s && cvs -q update -dAPr %(version)s
         file = re.sub ('.*/([^/]+)', '\\1', self.url)
         return file
 
-    def cvs_checksum_file (self):
+    def vc_checksum_file (self):
         dir = '%s/%s-%s/' % (self.settings.downloads, self.name(),
                              self.version ())
 
-        file = '%s/.cvs-checksum' % dir
+        file = '%s/.vc-checksum' % dir
         return file
 
     @subst_method
     def source_checksum (self):
-        if not self.track_development:
+        if self.vc_type == '':
             return '0000'
-        
-        file = self.cvs_checksum_file ()
+
+        file = self.vc_checksum_file ()
         if os.path.exists (file):
             return open (file).read ()
     
@@ -211,7 +247,7 @@ cd %(cvs_dest)s && cvs -q update -dAPr %(version)s
 
     @subst_method
     def vc_branch (self):
-        if self.track_development:
+        if self.vc_type:
             return '%(version)s'
         else:
             return ''
@@ -239,11 +275,17 @@ cd %(cvs_dest)s && cvs -q update -dAPr %(version)s
 
     @subst_method
     def srcdir (self):
-        return self.settings.allsrcdir + '/' + self.basename ()
+        if self.vc_type:
+            return self.settings.allsrcdir + '/' + self.name_version ()
+        else:
+            return self.settings.allsrcdir + '/' + self.basename ()
 
     @subst_method
     def builddir (self):
-        return self.settings.allbuilddir + '/' + self.basename ()
+        if self.vc_type:
+            return '%(targetdir)s/build/%(name)s-%(version)s'
+        else:
+            return self.settings.allbuilddir + '/' + self.basename ()
 
     @subst_method
     def install_root (self):
@@ -298,7 +340,7 @@ cd %(cvs_dest)s && cvs -q update -dAPr %(version)s
 
     @subst_method
     def rsync_command (self):
-        return "rsync --exclude CVS -v -a %(downloads)s/%(name)s-%(version)s/ %(srcdir)s"
+        return "rsync --exclude .git --exclude CVS -v -a %(downloads)s/%(name)s-%(version)s/ %(srcdir)s"
 
     def get_stamp_file (self):
         stamp = self.expand ('%(stamp_file)s')
@@ -330,8 +372,11 @@ cd %(autodir)s && libtoolize --force --copy --automake
 cd %(autodir)s && ./bootstrap
 ''', locals ())
         elif os.path.exists (os.path.join (autodir, 'autogen.sh')):
+
+            ## --noconfigure ??
+            ## is --noconfigure standard for autogen? 
             self.system ('''
-cd %(autodir)s && bash autogen.sh --noconfigure
+cd %(autodir)s && bash autogen.sh  --noconfigure
 ''', locals ())
         else:
             self.system ('''
@@ -516,7 +561,7 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"  -zcf %(gub_src_uploads)s
 
     def clean (self):
         self.system ('rm -rf  %(stamp_file)s %(install_root)s', locals ())
-        if self.track_development:
+        if self.vc_type:
             return
 
         self.system ('''rm -rf %(srcdir)s %(builddir)s''', locals ())
@@ -539,7 +584,7 @@ tar -C %(dir)s %(flags)s %(tarball)s
                   locals ())
 
     def untar (self):
-        if self.track_development:
+        if self.vc_type:
             ## cp options are not standardized.
             self.system (self.rsync_command ())
         else:
@@ -635,16 +680,19 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
 
     def with (self, version='HEAD', mirror=download.gnu,
               format='gz', 
-              track_development=False
+              vc_type='',
               ):
         
         self.format = format
         self.ball_version = version
         ball_version = version
         
-        self.track_development = track_development
+        self.vc_type = vc_type
         self.url = mirror
 
+        if vc_type :
+            self._downloader = self.vc_download
+            
         ## don't do substitution. We want to postpone
         ## generating the dict until we're sure it doesn't change.
 
