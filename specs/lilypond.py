@@ -165,10 +165,6 @@ cd %(builddir)s && %(configure_command)s''')
             self.do_configure ()
 
 class LilyPond__cygwin (LilyPond):
-    def __init__ (self, settings):
-        LilyPond.__init__ (self, settings)
-        self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
-                   vc_type='cvs')
 
     def get_subpackage_names (self):
         return ['doc', '']
@@ -283,11 +279,6 @@ class LilyPond__freebsd (LilyPond):
         return d
 
 class LilyPond__mingw (LilyPond):
-    def __init__ (self, settings):
-        LilyPond.__init__ (self, settings)
-        self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
-                   vc_type='cvs')
-
     def get_dependency_dict (self):
         d = LilyPond.get_dependency_dict (self)
         d[''].append ('lilypad')        
@@ -356,11 +347,6 @@ cp %(install_root)s/usr/share/lilypond/*/python/* %(install_root)s/usr/bin
 #        '%(install_root)s/usr/share/lilypond/current/scm/lily.scm')
 
 class LilyPond__debian (LilyPond):
-    def __init__ (self, settings):
-        LilyPond.__init__ (self, settings)
-        self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
-                   vc_type='cvs')
-
     def install (self):
         targetpackage.TargetBuildSpec.install (self)
 
@@ -379,12 +365,6 @@ class LilyPond__debian (LilyPond):
 
 ##
 class LilyPond__darwin (LilyPond):
-    def __init__ (self, settings):
-        LilyPond.__init__ (self, settings)
-        self.with (version=settings.lilypond_branch,
-                   mirror=cvs.gnu,
-                   vc_type='cvs')
-
     def get_dependency_dict (self):
         d = LilyPond.get_dependency_dict (self)
 
