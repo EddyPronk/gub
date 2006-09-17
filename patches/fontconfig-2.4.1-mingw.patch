@@ -1,0 +1,577 @@
+diff -urN --exclude '*~' fontconfig-2.4.1/Makefile.in fontconfig-2.4.1.p/Makefile.in
+--- fontconfig-2.4.1/Makefile.in	2006-09-15 19:12:40.000000000 +0200
++++ fontconfig-2.4.1.p/Makefile.in	2006-09-17 20:44:43.000000000 +0200
+@@ -258,7 +258,7 @@
+ sharedstatedir = @sharedstatedir@
+ sysconfdir = @sysconfdir@
+ target_alias = @target_alias@
+-SUBDIRS = fontconfig fc-case fc-lang fc-glyphname fc-arch src \
++SUBDIRS = fontconfig src \
+ 	fc-cache fc-cat fc-list fc-match conf.d $(DOCSRC) test
+ 
+ EXTRA_DIST = fontconfig.pc.in fonts.conf.in fonts.dtd \
+diff -urN --exclude '*~' fontconfig-2.4.1/src/fccache.c fontconfig-2.4.1.p/src/fccache.c
+--- fontconfig-2.4.1/src/fccache.c	2006-09-10 01:30:00.000000000 +0200
++++ fontconfig-2.4.1.p/src/fccache.c	2006-09-17 20:44:43.000000000 +0200
+@@ -223,7 +223,7 @@
+ random_level (void)
+ {
+     /* tricky bit -- each bit is '1' 75% of the time */
+-    long int	bits = random () | random ();
++    long int	bits = rand () | rand ();
+     int	level = 0;
+ 
+     while (++level < FC_CACHE_MAX_LEVEL)
+@@ -443,7 +443,7 @@
+ 					 PAGE_READONLY, 0, 0, NULL);
+ 	    if (hFileMap != NULL)
+ 	    {
+-		cache = MapViewOfFile (hFileMap, FILE_MAP_READ, 0, 0, size);
++		cache = MapViewOfFile (hFileMap, FILE_MAP_READ, 0, 0, fd_stat->st_size);
+ 		CloseHandle (hFileMap);
+ 	    }
+ 	}
+@@ -678,6 +678,11 @@
+     return NULL;
+ }
+ 
++
++#ifdef _WIN32
++#define mkdir(path,mode) _mkdir(path)
++#endif
++
+ static FcBool
+ FcMakeDirectory (const FcChar8 *dir)
+ {
+diff -urN --exclude '*~' fontconfig-2.4.1/src/fcstr.c fontconfig-2.4.1.p/src/fcstr.c
+--- fontconfig-2.4.1/src/fcstr.c	2006-09-05 10:56:47.000000000 +0200
++++ fontconfig-2.4.1.p/src/fcstr.c	2006-09-17 20:49:54.000000000 +0200
+@@ -26,6 +26,9 @@
+ #include <stdlib.h>
+ #include <ctype.h>
+ #include <string.h>
++#ifdef _WIN32
++#include <windows.h>
++#endif
+ 
+ FcChar8 *
+ FcStrCopy (const FcChar8 *s)
+@@ -830,27 +833,44 @@
+     return FcStrCopy (slash + 1);
+ }
+ 
++/*
++  Convert '\\' to '/' , remove double '/' 
++ */
++static void
++de_dossify_path (char *str)
++{
++  size_t len = strlen (str);
++  char *p = str;
++  char *dest = str;
++  char *end = str + len;
++  char last = 0;
++  
++  while (p < end)
++    {
++      if (*p == '\\')
++	*p = '/';
++
++      if (*p != '/'
++	  || last != '/')
++	{
++	  *dest++ = *p;
++	}
++
++      last = *p;
++      p++;
++    }
++
++  *dest = 0;
++}
++
+ FcChar8 *
+-FcStrCanonFilename (const FcChar8 *s)
++FcStrCanonAbsoluteFilename (const FcChar8 *s)
+ {
+     FcChar8 *file;
+     FcChar8 *f;
+     const FcChar8 *slash;
+     int size;
+-    
+-    if (*s != '/')
+-    {
+-	FcChar8	*full;
+-	
+-	FcChar8	cwd[FC_MAX_FILE_LEN + 2];
+-	if (getcwd ((char *) cwd, FC_MAX_FILE_LEN) == NULL)
+-	    return NULL;
+-	strcat ((char *) cwd, "/");
+-	full = FcStrPlus (cwd, s);
+-	file = FcStrCanonFilename (full);
+-	FcStrFree (full);
+-	return file;
+-    }
++
+     size = strlen ((char *) s) + 1;
+     file = malloc (size);
+     if (!file)
+@@ -890,6 +910,52 @@
+     return file;
+ }
+ 
++
++ 
++FcChar8 *
++FcStrCanonFilename (const FcChar8 *s)
++{
++    FcChar8 *file;
++    FcChar8 *f;
++    const FcChar8 *slash;
++    int size;
++
++#ifdef _WIN32
++    {
++      FcChar8 full[FC_MAX_FILE_LEN + 2];
++      FcChar8 basename[FC_MAX_FILE_LEN + 2];
++      int size = GetFullPathName (s, sizeof (full) -1,
++				    full,
++				    basename);
++
++      if (size == 0)
++	{
++	  perror ("GetFullPathName");
++	}
++      
++      de_dossify_path (full);
++      return FcStrCanonAbsoluteFilename (full);
++    }      
++#else
++    if (s[0] == '/')
++      return FcStrCanonAbsoluteFilename (s);
++    else
++      {
++	FcChar8	*full;
++	
++	FcChar8	cwd[FC_MAX_FILE_LEN + 2];
++	if (getcwd ((char *) cwd, FC_MAX_FILE_LEN) == NULL)
++	  return NULL;
++	strcat ((char *) cwd, "/");
++	full = FcStrPlus (cwd, s);
++	file = FcStrCanonAbsoluteFilename (full);
++	FcStrFree (full);
++	return file;
++      }
++#endif
++}
++
++
+ FcStrSet *
+ FcStrSetCreate (void)
+ {
+diff -urN --exclude '*~' fontconfig-2.4.1/src/fontconfig.def.in fontconfig-2.4.1.p/src/fontconfig.def.in
+--- fontconfig-2.4.1/src/fontconfig.def.in	2006-09-04 00:39:41.000000000 +0200
++++ fontconfig-2.4.1.p/src/fontconfig.def.in	2006-09-17 20:44:43.000000000 +0200
+@@ -1,163 +1,153 @@
+ EXPORTS
+-	FcDirCacheValid
+-	FcDirCacheHasCurrentArch
++	FcConfigGetCacheDirs
++	FcDirCacheRead
++	FcCacheDir
++	FcCacheNumFont
++	FcCacheNumSubdir
++	FcCacheSubdir
++	FcConfigEnableHome
++	FcConfigGetCacheDirs
++	FcDirCacheLoad
++	FcDirCacheLoadFile
++	FcDirCacheRead
+ 	FcDirCacheUnlink
++	FcDirCacheUnload
++	FcStrFree
++	FcStrPlus
++	FcFileIsDir
++	FcCacheCopySet
++	FcPatternGetString
++	FcFontSetSortDestroy
++	FcPatternDuplicate
++	FcPatternGetBool
++	FcPatternGetCharSet
++	FcPatternGetDouble
++	FcPatternGetMatrix
++	FcPatternReference
++	FcPatternAddBool
++	FcPatternAddDouble
++	FcPatternAddMatrix
++	FcPatternAddString
++	FcPatternAddCharSet
++	FcPatternAddLangSet
++	FcAtomicCreate
++	FcAtomicLock
++	FcAtomicNewFile
++	FcAtomicOrigFile
++	FcAtomicReplaceOrig
++	FcAtomicDeleteNew
++	FcAtomicUnlock
++	FcAtomicDestroy
+ 	FcBlanksCreate
+ 	FcBlanksDestroy
+ 	FcBlanksAdd
+ 	FcBlanksIsMember
+-	FcConfigHome
+-	FcConfigEnableHome
+-	FcConfigFilename
++	FcCharSetCreate
++	FcCharSetDestroy
++	FcCharSetAddChar
++	FcCharSetCopy
++	FcCharSetEqual
++	FcCharSetIntersect
++	FcCharSetUnion
++	FcCharSetSubtract
++	FcCharSetHasChar
++	FcCharSetCount
++	FcCharSetIntersectCount
++	FcCharSetSubtractCount
++	FcCharSetIsSubset
++	FcCharSetFirstPage
++	FcCharSetNextPage
+ 	FcConfigCreate
+ 	FcConfigDestroy
+ 	FcConfigSetCurrent
+ 	FcConfigGetCurrent
+ 	FcConfigUptoDate
+ 	FcConfigBuildFonts
+-	FcConfigGetFontDirs
+-	FcConfigNormalizeFontDir
+ 	FcConfigGetConfigDirs
++	FcConfigGetFontDirs
+ 	FcConfigGetConfigFiles
+ 	FcConfigGetCache
++	FcConfigGetFonts
+ 	FcConfigGetBlanks
+ 	FcConfigGetRescanInverval
+ 	FcConfigSetRescanInverval
+-	FcConfigGetFonts
+ 	FcConfigAppFontAddFile
+ 	FcConfigAppFontAddDir
+ 	FcConfigAppFontClear
+ 	FcConfigSubstituteWithPat
+ 	FcConfigSubstitute
+-	FcCharSetCreate
+-	FcCharSetDestroy
+-	FcCharSetAddChar
+-	FcCharSetCopy
+-	FcCharSetEqual
+-	FcCharSetIntersect
+-	FcCharSetUnion
+-	FcCharSetSubtract
+-	FcCharSetHasChar
+-	FcCharSetCount
+-	FcCharSetIntersectCount
+-	FcCharSetSubtractCount
+-	FcCharSetIsSubset
+-	FcCharSetFirstPage
+-	FcCharSetNextPage
+-	FcValuePrint
+-	FcPatternPrint
+-	FcFontSetPrint
+-	FcDebugVal
+-	FcFontSetUnserialize
+-	FcDefaultSubstitute
+-	FcFileScan
+-	FcDirScan
+-	FcDirSave
+-	FcFreeTypeQuery
++	FcFontMatch
++	FcFontSort
++	FcFontRenderPrepare
++	FcFontList
++	FcConfigFilename
++	FcConfigParseAndLoad
++	FcNameRegisterConstants 
++	FcNameUnregisterConstants
++	FcNameGetConstant
++	FcNameConstant
++	FcFileScan 
++	FcDirScan 
++	FcDirSave 
++	FcDirCacheValid 
+ 	FcFontSetCreate
+ 	FcFontSetDestroy
+ 	FcFontSetAdd
++	FcFreeTypeCharIndex 
++	FcFreeTypeCharSet 
++	FcFreeTypeQuery 
+ 	FcInitLoadConfig
+-	FcInitLoadConfigAndFonts
+-	FcInit
++	FcInitLoadConfigAndFonts 
++	FcInit 
+ 	FcFini
+-	FcGetVersion
+-	FcInitReinitialize
+-	FcInitBringUptoDate
+-	FcLangSetCreate
+-	FcLangSetDestroy
+-	FcLangSetCopy
+-	FcLangSetAdd
+-	FcLangSetHasLang
+-	FcLangSetCompare
+-	FcLangSetContains
+-	FcLangSetEqual
+-	FcLangSetHash
+-	FcObjectSetCreate
+-	FcObjectSetAdd
+-	FcObjectSetDestroy
+-	FcObjectSetVaBuild
+-	FcObjectSetBuild
+-	FcFontSetList
+-	FcFontList
+-	FcAtomicCreate
+-	FcAtomicLock
+-	FcAtomicNewFile
+-	FcAtomicOrigFile
+-	FcAtomicReplaceOrig
+-	FcAtomicDeleteNew
+-	FcAtomicUnlock
+-	FcAtomicDestroy
+-	FcFontSetMatch
+-	FcFontMatch
+-	FcFontRenderPrepare
+-	FcFontSetSort
+-	FcFontSort
+-	FcFontSetSortDestroy
++	FcGetVersion 
++	FcInitReinitialize 
++	FcInitBringUptoDate 
+ 	FcMatrixCopy
+ 	FcMatrixEqual
+ 	FcMatrixMultiply
+ 	FcMatrixRotate
+ 	FcMatrixScale
+ 	FcMatrixShear
++	FcObjectSetCreate
++	FcObjectSetAdd
++	FcObjectSetDestroy
++	FcObjectSetBuild
+ 	FcNameRegisterObjectTypes
+ 	FcNameUnregisterObjectTypes
+-	FcNameGetObjectType
+-	FcNameRegisterConstants
+-	FcNameUnregisterConstants
+-	FcNameGetConstant
+-	FcNameConstant
+-	FcNameParse
+-	FcNameUnparse
+-	FcNameUnparseEscaped
++	FcNameGetObjectType 
+ 	FcPatternCreate
+-	FcPatternDuplicate
+-	FcPatternReference
+-	FcValueDestroy
+-	FcValueEqual
+-	FcValueSave
+ 	FcPatternDestroy
+ 	FcPatternEqual
+ 	FcPatternEqualSubset
+ 	FcPatternHash
+ 	FcPatternAdd
+ 	FcPatternAddWeak
+-	FcPatternGet
+-	FcPatternDel
+-	FcPatternRemove
+ 	FcPatternAddInteger
+-	FcPatternAddDouble
+-	FcPatternAddString
+-	FcPatternAddMatrix
+-	FcPatternAddCharSet
+-	FcPatternAddBool
+-	FcPatternAddLangSet
++	FcPatternGet
+ 	FcPatternGetInteger
+-	FcPatternGetDouble
+-	FcPatternGetString
+-	FcPatternGetMatrix
+-	FcPatternGetCharSet
+-	FcPatternGetBool
+-	FcPatternGetLangSet
+-	FcPatternVaBuild
+ 	FcPatternBuild
++	FcPatternDel
++	FcPatternRemove
++	FcPatternPrint
++	FcDefaultSubstitute
++	FcNameParse
++	FcNameUnparse
++	FcUtf8ToUcs4 
++	FcUcs4ToUtf8
++	FcUtf8Len
++	FcUtf16ToUcs4
++	FcUtf16Len
+ 	FcStrCopy
+-	FcStrCopyFilename
+ 	FcStrDowncase
++	FcStrCopyFilename
+ 	FcStrCmpIgnoreCase
+-	FcStrCmp
+-	FcStrStrIgnoreCase
+ 	FcStrStr
+-	FcUtf8ToUcs4
+-	FcUtf8Len
+-	FcUcs4ToUtf8
+-	FcUtf16ToUcs4
+-	FcUtf16Len
++	FcStrStrIgnoreCase
+ 	FcStrDirname
+ 	FcStrBasename
+-	FcStrSetCreate
++	FcStrSetCreate 
+ 	FcStrSetMember
+-	FcStrSetEqual
+ 	FcStrSetAdd
+ 	FcStrSetAddFilename
+ 	FcStrSetDel
+@@ -165,139 +155,7 @@
+ 	FcStrListCreate
+ 	FcStrListNext
+ 	FcStrListDone
+-	FcConfigParseAndLoad
+-	FcFreeTypeCharIndex
+-	FcFreeTypeCharSetAndSpacing
+-	FcFreeTypeCharSet
+-	FcPatternGetFTFace
+-	FcPatternAddFTFace
+-	FcGlobalCacheCreate
+-	FcGlobalCacheDestroy
+-	FcGlobalCacheReadDir
+-	FcGlobalCacheLoad
+-	FcGlobalCacheUpdate
+-	FcGlobalCacheSave
+-	FcCacheRead
+-	FcDirCacheWrite
+-	FcDirCacheRead
+-	FcCacheBankToIndexMTF
+-	FcCacheFindBankDir
+-	FcConfigAddConfigDir
+-	FcConfigAddFontDir
+-	FcConfigAddDir
+-	FcConfigAddConfigFile
+-	FcConfigSetCache
+-	FcConfigAddBlank
+-	FcConfigAddEdit
+-	FcConfigSetFonts
+-	FcConfigCompareValue
+-	FcConfigGlobAdd
+-	FcConfigAcceptFilename
+-	FcConfigPatternsAdd
+-	FcConfigAcceptFont
+-	FcConfigModifiedTime
+-	FcLangCharSetPopulate
+-	FcCharSetFreeze
+-	FcCharSetThawAll
+-	FcNameUnparseCharSet
+-	FcNameParseCharSet
+-	FcCharSetFindLeafCreate
+-	FcCharSetNewBank
+-	FcCharSetNeededBytes
+-	FcCharSetNeededBytesAlign
+-	FcCharSetDistributeBytes
+-	FcCharSetUnserialize
+-	FcValueListPrint
+-	FcLangSetPrint
+-	FcOpPrint
+-	FcTestPrint
+-	FcExprPrint
+-	FcEditPrint
+-	FcSubstPrint
+-	FcInitDebug
+-	FcGetDefaultLang
+-	FcFileIsDir
+-	FcFileScanConfig
+-	FcDirScanConfig
+-	FcFreeTypeIsExclusiveLang
+-	FcFreeTypeUcs4ToPrivate
+-	FcFreeTypePrivateToUcs4
+-	FcFreeTypeGetPrivateMap
+-	FcFontSetNewBank
+-	FcFontSetNeededBytes
+-	FcFontSetNeededBytesAlign
+-	FcFontSetDistributeBytes
+-	FcFontSetSerialize
+-	FcConfigSaveField
+-	FcTestDestroy
+-	FcExprCreateInteger
+-	FcExprCreateDouble
+-	FcExprCreateString
+-	FcExprCreateMatrix
+-	FcExprCreateBool
+-	FcExprCreateNil
+-	FcExprCreateField
+-	FcExprCreateConst
+-	FcExprCreateOp
+-	FcExprDestroy
+-	FcEditDestroy
+-	FcMemReport
+-	FcMemAlloc
+-	FcMemFree
+-	FcFreeTypeLangSet
+-	FcLangCompare
+-	FcCharSetForLang
+-	FcLangSetPromote
+-	FcNameParseLangSet
+-	FcNameUnparseLangSet
+-	FcLangSetNewBank
+-	FcLangSetNeededBytes
+-	FcLangSetNeededBytesAlign
+-	FcLangSetDistributeBytes
+-	FcLangSetSerialize
+-	FcLangSetUnserialize
+-	FcListPatternMatchAny
+-	FcNameBool
+-	FcObjectDistributeBytes
+-	FcObjectToPtr
+-	FcObjectNeededBytes
+-	FcObjectNeededBytesAlign
+-	FcObjectUnserialize
+-	FcObjectSerialize
+-	FcObjectPtrU
+-	FcObjectStaticNameFini
+-	FcValueCanonicalize
+-	FcValueListDestroy
+-	FcPatternFindElt
+-	FcPatternInsertElt
+-	FcPatternAddWithBinding
+-	FcPatternFreeze
+-	FcPatternFini
+-	FcPatternAppend
+-	FcPatternAddFullFname
+-	FcPatternTransferFullFname
+-	FcStrStaticName
+-	FcStringHash
+-	FcPatternNewBank
+-	FcPatternNeededBytes
+-	FcPatternNeededBytesAlign
+-	FcPatternDistributeBytes
+-	FcPatternSerialize
+-	FcPatternUnserialize
+-	FcMatrixFree
+-	FcStrPlus
+-	FcStrFree
+-	FcStrBufInit
+-	FcStrBufDestroy
+-	FcStrBufDone
+-	FcStrBufChar
+-	FcStrBufString
+-	FcStrBufData
+-	FcStrCmpIgnoreBlanksAndCase
+-	FcStrContainsIgnoreBlanksAndCase
+-	FcStrContainsIgnoreCase
+-	FcStrUsesHome
+-	FcStrLastSlash
+-	FcStrHashIgnoreCase
++	FcValueDestroy
++	FcValueSave
+ LIBRARY libfontconfig-@LT_CURRENT_MINUS_AGE@.dll
+ VERSION @LT_CURRENT@.@LT_REVISION@
