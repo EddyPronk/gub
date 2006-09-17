@@ -7,6 +7,7 @@ import cross
 import download
 import gup
 import gub
+import linux
 import misc
 import settings
 
@@ -60,7 +61,8 @@ class Gcc (cross.Gcc):
 
 # http://ftp.de.debian.org/debian/pool/main/l/linux-kernel-headers/
 
-def _get_cross_packages (settings, libc6_version, kernel_version):
+def _get_cross_packages (settings,
+                         guile_version, libc6_version, kernel_version):
     return [
         Libc6 (settings).with (version=libc6_version,
                                mirror=download.glibc_deb, format='deb'),
@@ -72,21 +74,27 @@ def _get_cross_packages (settings, libc6_version, kernel_version):
         cross.Binutils (settings).with (version='2.16.1', format='bz2'),
         Gcc (settings).with (version='4.1.1',
                              mirror=download.gcc, format='bz2'),
+        linux.Guile_config (settings).with (version=guile_version),
+        linux.Python_config (settings).with (version='2.4.1'),
         ]
 
 # FIXME: determine libc6_version, kernel_version from
 # Packages/Dependency_resolver.
 def get_cross_packages_stable (settings):
+    guile_version = '1.6.7'
     libc6_version = '2.3.2.ds1-22sarge4'
     kernel_version = '2.5.999-test7-bk-17'
-    return _get_cross_packages (settings, libc6_version, kernel_version)
+    return _get_cross_packages (settings,
+                                guile_version, libc6_version, kernel_version)
 
 # FIXME: determine libc6_version, kernel_version from
 # Packages/Dependency_resolver.
 def get_cross_packages_unstable (settings):
+    guile_version = '1.8.0'
     libc6_version = '2.3.6.ds1-4'
     kernel_version = '2.6.17-10.-3'
-    return _get_cross_packages (settings, libc6_version, kernel_version)
+    return _get_cross_packages (settings,
+                                guile_version, libc6_version, kernel_version)
 
 def get_cross_packages (settings):
     if settings.debian_branch == 'stable':

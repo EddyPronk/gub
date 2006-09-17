@@ -58,8 +58,6 @@ def get_cross_packages (settings):
                              mirror=(download.gnubase
                                      + '/gcc/gcc-3.4.6/gcc-3.4.6.tar.bz2'),
                              format='bz2'),
-        linux.Guile_config (settings).with (version='1.6.7'),
-        linux.Python_config (settings).with (version='2.4.1'),
         ]
 
 def change_target_packages (packages):

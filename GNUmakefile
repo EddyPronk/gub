@@ -9,7 +9,7 @@ default: all
 
 ## must always have one host.
 GUB_DISTCC_ALLOW_HOSTS=127.0.0.1
-ALL_PLATFORMS=arm cygwin darwin-ppc darwin-x86 debian freebsd mingw mipsel linux
+ALL_PLATFORMS=arm cygwin darwin-ppc darwin-x86 debian freebsd linux mingw mipsel
 PLATFORMS=darwin-ppc darwin-x86 mingw linux freebsd cygwin
 
 LILYPOND_CVSDIR=downloads/lilypond-$(BRANCH)/
