@@ -316,6 +316,15 @@ def topologically_sorted (todo, done, dependency_getter,
 # UGH
 # this is too hairy. --hwn
 
+def gub_to_distro_deps (deps, gub_to_distro_dict):
+    distro = []
+    for i in deps:
+        if i in gub_to_distro_dict.keys ():
+            distro += gub_to_distro_dict[i]
+        else:
+            distro += [i]
+    return distro
+
 def get_source_packages (settings, todo):
     """TODO is a list of (source) buildspecs.
 
