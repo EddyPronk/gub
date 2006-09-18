@@ -344,11 +344,16 @@ cp %(install_root)s/usr/share/lilypond/*/python/* %(install_root)s/usr/bin
 #        '%(install_root)s/usr/share/lilypond/current/scm/lily.scm')
 
 class LilyPond__debian (LilyPond):
+    def get_dependency_dict (self):
+        import debian, gup
+        return {'': gup.gub_to_distro_deps (LilyPond.get_dependency_dict (self)[''],
+                                            debian.gub_to_distro_dict)}
+
     def install (self):
         targetpackage.TargetBuildSpec.install (self)
 
     def get_build_dependencies (self):
-        #FIXME: use gub names; see cygwin.gub_to_distro_dict
+        #FIXME: aargh, MUST specify gs,  etc here too.
         return [
             'gettext',
             'guile-1.6-dev',
@@ -358,7 +363,8 @@ class LilyPond__debian (LilyPond):
             'python2.4-dev',
             'libpango1.0-dev',
             'zlib1g-dev',
-            ]
+            'urw-fonts',
+            ] + ['gs']
 
 ##
 class LilyPond__darwin (LilyPond):
