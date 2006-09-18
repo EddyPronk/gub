@@ -451,13 +451,14 @@ mkdir -p %(installer_root)s/usr/share/doc/%(base)s.Cygwin
         cyg_name = dir_name + '-%(installer_build)s'
         # FIXME: not in case of -branch name
         dir_name = re.sub ('.cygwin.gu[pb]', '', gub_name)
-        infodir = '%(installer_root)s/usr/share/info' % locals ()
         hint = base_name + '.hint'
 
         # FIXME: sane package installer root
         installer_root =  '%(targetdir)s/installer-%(base_name)s'
         self.get_substitution_dict ()['installer_root'] = installer_root
         self.get_substitution_dict ()['base_name'] = base_name
+
+        infodir = '%(installer_root)s/usr/share/info' % locals ()
 
         # FIXME: Where does installer_root live?
         self.installer_root = installer_root
