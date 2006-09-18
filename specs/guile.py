@@ -325,6 +325,9 @@ class Guile__local (ToolBuildSpec, Guile):
         ## don't want local GUILE headers to interfere with compile.
         self.system ("rm -rf %(install_root)s/%(packaging_suffix_dir)s/usr/include/ %(install_root)s/%(packaging_suffix_dir)s/usr/bin/guile-config ")
 
+    def get_build_dependencies (self):
+        return ToolBuildSpec.get_build_dependencies (self) + Guile.get_build_dependencies (self)
+    
     def __init__ (self, settings):
         ToolBuildSpec.__init__ (self, settings)
         self.set_mirror ()
