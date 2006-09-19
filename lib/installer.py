@@ -377,7 +377,7 @@ category: misc%(requires_line)s%(external_source_line)s
 
         spec.system ('''
 mkdir -p %(installer_root)s/usr/share/doc/Cygwin
-mkdir -p %(installer_root)s/usr/share/doc/%(base)s.Cygwin
+mkdir -p %(installer_root)s/usr/share/doc/%(base)s
 ''',
                      self.get_substitution_dict (locals ()))
 

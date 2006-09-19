@@ -227,7 +227,10 @@ class Guile__cygwin (Guile):
     def get_subpackage_definitions (self):
         d = dict (Guile.get_subpackage_definitions (self))
         d['runtime'].append ('/usr/bin/cyg*dll')
+
+        # libtool fixups
         d['runtime'].append ('/etc/postinstall')
+        d['runtime'].append ('/usr/bin/cyg*dll-fixed')
         return d
 
     # Using gub dependencies only would be nice, but
