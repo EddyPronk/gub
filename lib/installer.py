@@ -306,7 +306,7 @@ class Cygwin_package (Installer):
         spec.system ('''
 mkdir -p %(cygwin_patches)s
 cp -pv %(installer_root)s/etc/hints/* %(cygwin_patches)s
-cp -pv %(installer_root)s/usr/share/doc/Cygwin/* %(cygwin_patches)s
+cp -pv %(installer_root)s/usr/share/doc/%(name)s/README.Cygwin %(cygwin_patches)s || true
     ''',
                      self.get_substitution_dict (locals ()))
 
@@ -367,7 +367,7 @@ category: misc%(requires_line)s%(external_source_line)s
                    '%(installer_root)s/etc/hints/%(base_name)s.hint',
                    env=self.get_substitution_dict (locals ()))
 
-    def dump_readmes (self, spec, base):
+    def dump_readmes (self, spec):
         file = spec.expand (spec.settings.sourcefiledir
                             + '/%(name)s.changelog')
         if os.path.exists (file):
@@ -377,7 +377,7 @@ category: misc%(requires_line)s%(external_source_line)s
 
         spec.system ('''
 mkdir -p %(installer_root)s/usr/share/doc/Cygwin
-mkdir -p %(installer_root)s/usr/share/doc/%(base)s
+mkdir -p %(installer_root)s/usr/share/doc/%(name)s
 ''',
                      self.get_substitution_dict (locals ()))
 
@@ -396,7 +396,8 @@ mkdir -p %(installer_root)s/usr/share/doc/%(base)s
         # packages do not have a build number anymore...
         build = installer_build
 
-        file = spec.expand (spec.settings.sourcefiledir + '/%(name)s.README')
+        file = spec.expand (spec.settings.sourcefiledir
+                            + '/%(name)s.README', locals ())
         if os.path.exists (file):
             readme = spec.expand (open (file).read (), locals ())
         else:
@@ -406,7 +407,7 @@ mkdir -p %(installer_root)s/usr/share/doc/%(base)s
                    '%(installer_root)s/usr/share/doc/Cygwin/%(name)s-%(installer_version)s-%(installer_build)s.README',
                    env=self.get_substitution_dict (locals ()))
         spec.dump (readme,
-                   '%(installer_root)s/usr/share/doc/%(base)s/README.Cygwin',
+                   '%(installer_root)s/usr/share/doc/%(name)s/README.Cygwin',
                    env=self.get_substitution_dict (locals ()))
 
     # FIXME: 'build-installer' is NOT create.  package-installer is create.
@@ -485,7 +486,9 @@ tar -C %(installer_root)s -zxf %(gub_uploads)s/%(gub_name)s
                 self.get_substitution_dict (d))
         
         self.dump_hint (package, split, base_name)
-        self.dump_readmes (package, base_name)
+
+        if not split:
+            self.dump_readmes (package)
         self.cygwin_patches_dir (package)
 
         # FIXME: unconditional strip
