@@ -174,10 +174,10 @@ cd %(vc_dir)s/ && git checkout %(version)s
     
     def get_cvs_checksum (self):
         cvs_dirs =  []
-        for (base, dirs, files) in os.walk (self.expand ('vc_dir')):
+        for (base, dirs, files) in os.walk (self.expand ('%(vc_dir)s')):
             cvs_dirs += [os.path.join (base, d) for d in dirs
                          if d == 'CVS']
-            
+
         checksum = md5.md5()
         for d in cvs_dirs:
             checksum.update (open (os.path.join (d, 'Entries')).read ())
@@ -191,6 +191,8 @@ cd %(vc_dir)s/ && git checkout %(version)s
             cs = self.get_cvs_checksum ()
         elif self.vc_type == 'git':
             cs = self.get_git_checksum ()
+        else:
+            raise 'barf'
         
         open (self.vc_checksum_file (), 'w').write (cs)
 
