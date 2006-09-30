@@ -118,7 +118,6 @@ class Installer (context.Os_context_wrapper):
             'share/lilypond/*/fonts/type1/feta[0-9]*pfa',
             'share/lilypond/*/fonts/type1/feta-braces-[a-z]*pfa',
             'share/lilypond/*/fonts/type1/parmesan*pfa',
-            'share/locale',
             'share/omf',
             ## 2.6 installer: leave c059*
             'share/gs/fonts/[a-bd-z]*',
