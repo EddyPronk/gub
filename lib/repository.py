@@ -50,7 +50,7 @@ class Repository:
 
     def set_checked_before (self, hash, name):
         db = self.get_db (name)
-        db[hash] = '1'
+        db[hash] = time.ctime ()
 
     def tag (self, name):
         pass

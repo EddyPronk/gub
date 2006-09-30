@@ -88,7 +88,6 @@ class BuildSpec (Os_context_wrapper):
         self.spec_checksum = '0000' 
         self.cross_checksum = '0000'
         
-        ## one of GIT/CVS/<empty>
         self.vc_type = ''
         
         self.split_packages = []
@@ -680,6 +679,12 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
               format='gz', 
               vc_type='',
               ):
+
+        ##
+        ## one of GIT/CVS/<empty>
+        ##
+        ## TODO: should detect git/cvs/darcs/etc. in the URL 
+        ##
         
         self.format = format
         self.ball_version = version
