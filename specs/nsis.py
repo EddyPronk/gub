@@ -4,7 +4,7 @@ import os
 class Nsis (ToolBuildSpec):
     def __init__ (self, settings):
         ToolBuildSpec.__init__(self, settings)
-        self.with (version='2.19',
+        self.with (version='2.20',
                    
                    mirror="http://surfnet.dl.sourceforge.net/sourceforge/%(name)s/%(name)s-%(version)s-src.tar.%(format)s",
                    
@@ -15,8 +15,9 @@ class Nsis (ToolBuildSpec):
 
     def patch (self):
         self.system ('mkdir -p %(allbuilddir)s', ignore_error=True)
-        self.system ('ln -s %(srcdir)s %(builddir)s') 
-        self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/nsis-2.19-script.cpp.patch')
+        self.system ('ln -s %(srcdir)s %(builddir)s')
+        if 0:
+            self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/nsis-2.19-script.cpp.patch')
     def configure (self):
         pass
 
