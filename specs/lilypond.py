@@ -143,7 +143,7 @@ cd %(builddir)s && %(configure_command)s''')
  </rejectfont>
 </selectfont>
 
-<cache>~/.lilypond-%(installer_version)s-font.cache-1</cache>
+<cachedir>~/.lilypond-fonts.cache-2</cachedir>
 </fontconfig>
 ''' % locals ())
 
