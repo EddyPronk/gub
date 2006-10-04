@@ -314,13 +314,14 @@ LDFLAGS="%(LDFLAGS)s %(python_lib)s"
     def compile (self):
         LilyPond.compile (self)
         self.system ('cd %(builddir)s/lily && mv out/lilypond out/lilypond-console')
-        self.system ('cd %(builddir)s/lily && make MODULE_LDFLAGS="-mwindows"')
+        self.system ('cd %(builddir)s/lily && make MODULE_LDFLAGS="-mwindows" && mv out/lilypond out/lilypond-windows')
+        self.system ('cd %(builddir)s/lily && touch out/lilypond')
 
     def install (self):
         LilyPond.install (self)
         self.system ('''
 rm -f %(install_prefix)s/bin/lilypond-windows
-install -m755 %(builddir)s/lily/out/lilypond %(install_prefix)s/bin/lilypond-windows.exe
+install -m755 %(builddir)s/lily/out/lilypond-windows %(install_prefix)s/bin/lilypond-windows.exe
 rm -f %(install_prefix)s/bin/lilypond
 install -m755 %(builddir)s/lily/out/lilypond-console %(install_prefix)s/bin/lilypond.exe
 cp %(install_root)s/usr/lib/lilypond/*/python/* %(install_root)s/usr/bin
