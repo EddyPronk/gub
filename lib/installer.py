@@ -126,8 +126,6 @@ class Installer (context.Os_context_wrapper):
             ):
 
             self.system ('cd %(installer_root)s && rm -rf ' + delete_me, {'i': i })
-        self.system ('rm -f %(installer_root)s/usr/share/lilypond/*/fonts/*/fonts.cache-1')
-        self.system ('fc-cache %(installer_root)s/usr/share/lilypond/*/fonts/*/')
 
     def strip_binary_file (self, file):
         self.system ('%(strip_command)s %(file)s', locals (), ignore_error = True)

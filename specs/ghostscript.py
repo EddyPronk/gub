@@ -198,7 +198,6 @@ include $(GLSRCDIR)/pcwin.mak
         self.system ('''
 mkdir -p %(install_root)s/%(gs_prefix)s/fonts
 cp %(dir)s/{%(fonts_string)s}{.afm,.pfb} %(install_root)s/%(gs_prefix)s/fonts
-fc-cache %(install_root)s/%(gs_prefix)s/fonts
 ''', locals ())
 
 class Ghostscript__freebsd (Ghostscript):
