@@ -225,11 +225,11 @@ native-distccd:
 bootstrap:
 	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local download \
 		flex mftrace potrace fontforge glib \
-		guile pkg-config nsis icoutils fontconfig expat gettext \
+		guile pkg-config nsis icoutils expat gettext \
 		distcc texinfo automake
 	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local build \
 		flex mftrace potrace fontforge \
-		guile pkg-config fontconfig expat icoutils glib \
+		guile pkg-config expat icoutils glib \
 		distcc texinfo automake 
 	$(MAKE) cross-compilers
 
