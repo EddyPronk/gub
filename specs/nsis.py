@@ -16,8 +16,7 @@ class Nsis (ToolBuildSpec):
     def patch (self):
         self.system ('mkdir -p %(allbuilddir)s', ignore_error=True)
         self.system ('ln -s %(srcdir)s %(builddir)s')
-        if 0:
-            self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/nsis-2.19-script.cpp.patch')
+
     def configure (self):
         pass
 
