@@ -108,7 +108,7 @@ class Fontconfig__freebsd (Fontconfig__linux):
 class Fontconfig__local (toolpackage.ToolBuildSpec):
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
-        self.with (version='2.3.2', mirror=download.fontconfig)
+        self.with (version='2.4.1', mirror=download.fontconfig)
         
     def get_build_dependencies (self):
         return ['libtool', 'freetype', 'expat']
