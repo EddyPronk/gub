@@ -222,6 +222,16 @@ class Nsis (Installer):
         self.system ('cp %(nsisdir)s/*.nsh %(targetdir)s')
         self.system ('cp %(nsisdir)s/*.bat.in %(targetdir)s')
         self.system ('cp %(nsisdir)s/*.sh.in %(targetdir)s')
+
+        root = self.expand ('%(installer_root)s')
+        files = [re.sub (root, '', f)
+                 for f in self.locate_files (root, '*')]
+        files.reverse()
+
+        self.dump ('\n'.join (files),
+                   '%(installer_root)s/files.txt',
+                   expand_string=False)
+
         self.system ('cd %(targetdir)s && makensis lilypond.nsi')
 
         final = 'lilypond-%(installer_version)s-%(installer_build)s.%(platform)s.exe'
