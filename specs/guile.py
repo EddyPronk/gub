@@ -8,7 +8,7 @@ from toolpackage import ToolBuildSpec
 
 class Guile (targetpackage.TargetBuildSpec):
     def set_mirror(self):
-        self.with (version='1.8.0', format='gz')
+        self.with (version='1.8.1', format='gz')
         self.so_version = '17'
 
     def get_subpackage_names (self):
@@ -221,7 +221,7 @@ class Guile__darwin__x86 (Guile__darwin):
 class Guile__cygwin (Guile):
     def __init__ (self, settings):
         Guile.__init__ (self, settings)
-        self.with (version='1.8.0',
+        self.with (version='1.8.1',
                    mirror=download.gnu, format='gz')
 
     def get_subpackage_definitions (self):
