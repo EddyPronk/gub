@@ -19,7 +19,7 @@ class Python (targetpackage.TargetBuildSpec):
 	self.BASECFLAGS=''
 
     def license_file (self):
-        return '%(srcdir)s/LICENSE.txt' 
+        return '%(srcdir)s/LICENSE' 
 
     def get_subpackage_names (self):
         return ['doc', 'devel', 'runtime', '']
