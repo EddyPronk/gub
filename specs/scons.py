@@ -20,3 +20,6 @@ class Scons (ToolBuildSpec):
                    format='gz',
                    mirror=download.sf),
         
+    
+    def license_file (self):
+        return '%(srcdir)s/LICENSE.txt' 

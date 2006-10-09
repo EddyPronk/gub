@@ -6,6 +6,9 @@ class Libpng (targetpackage.TargetBuildSpec):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
         self.with (version='1.2.8', mirror=download.libpng)
 
+    def license_file (self):
+        return '%(srcdir)s/LICENSE' 
+
     def get_dependency_dict (self):
         return {'':['zlib']}
     

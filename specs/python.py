@@ -18,6 +18,9 @@ class Python (targetpackage.TargetBuildSpec):
         ## don't import settings from build system. 
 	self.BASECFLAGS=''
 
+    def license_file (self):
+        return '%(srcdir)s/LICENSE.txt' 
+
     def get_subpackage_names (self):
         return ['doc', 'devel', 'runtime', '']
 

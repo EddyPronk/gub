@@ -32,6 +32,9 @@ class CrossToolSpec (gub.BuildSpec):
     def get_subpackage_names (self):
         return ['doc', '']
     
+    def license_file (self):
+        return ''
+
 class Binutils (CrossToolSpec):
     def install (self):
         CrossToolSpec.install (self)

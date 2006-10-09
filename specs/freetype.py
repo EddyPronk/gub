@@ -8,6 +8,9 @@ class Freetype (targetpackage.TargetBuildSpec):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
         self.with (version='2.1.10', mirror=download.nongnu_savannah)
 
+    def license_file (self):
+        return '%(srcdir)s/docs/LICENSE.TXT' 
+
     def get_build_dependencies (self):
         return ['libtool', 'zlib-devel']
 

@@ -11,6 +11,9 @@ class Guile (targetpackage.TargetBuildSpec):
         self.with (version='1.8.1', format='gz')
         self.so_version = '17'
 
+    def license_file (self):
+        return '%(srcdir)s/LICENSE' 
+
     def get_subpackage_names (self):
         return ['doc', 'devel', 'runtime', '']
 
@@ -196,7 +199,6 @@ cc
 -I%(srcdir)s/libguile"
 '''))
 
-
 class Guile__darwin (Guile):
     def install (self):
         Guile.install (self)
@@ -208,15 +210,12 @@ class Guile__darwin (Guile):
             dst = os.path.splitext (os.path.basename (f))[0] + '.so'
 
             self.system ('cd %(directory)s && ln -s %(src)s %(dst)s', locals())
-
-    
  
 class Guile__darwin__x86 (Guile__darwin):
     def configure (self):
         Guile__darwin.configure (self)
         self.file_sub ([('guile-readline', '')],
                        '%(builddir)s/Makefile')
-        
         
 class Guile__cygwin (Guile):
     def __init__ (self, settings):
