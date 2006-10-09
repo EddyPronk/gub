@@ -112,7 +112,7 @@ class BuildSpec (Os_context_wrapper):
         
         name = self.expand ('%(downloads)s/%(file_name)s')
         return os.path.exists (name)
-    
+
     def wget (self):
         if not self.is_downloaded ():
             misc.download_url (self.expand (self.url), self.expand ('%(downloads)s'))
@@ -227,6 +227,10 @@ cd %(vc_dir)s/ && git checkout %(version)s
             return open (file).read ()
     
         return '0000'
+
+    @subst_method
+    def license_file (self):
+        return '%(srcdir)s/COPYING'
     
     @subst_method
     def basename (self):
@@ -393,6 +397,10 @@ mkdir -p %(builddir)s
 cd %(builddir)s && %(configure_command)s
 ''')
 
+    def install_license (self):
+        if self.expand ('%(license_file)s'):
+            self.system ('cp %(license_file)s %(install_root)s/%(name)s.license')
+        
     def broken_install_command (self):
         """For packages that do not honor DESTDIR.
         """
@@ -438,6 +446,7 @@ rm -rf %(install_root)s
 cd %(builddir)s && %(install_command)s
 rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_root)s/%(packaging_suffix_dir)s/usr/cross/info/dir %(install_root)s/%(packaging_suffix_dir)s/usr/info/dir
 ''')
+        self.install_license ()
         self.libtool_installed_la_fixups ()
 
     def libtool_installed_la_fixups (self):
@@ -724,6 +733,7 @@ rm -rf %(srcdir)s %(builddir)s %(install_root)s
         follow this command, since it will erase the old install_root first."""
         
         self.system ('mkdir -p %(install_root)s')
+
         _verbose = ''
         if self.verbose:
             _verbose = ' -v'
