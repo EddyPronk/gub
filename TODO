@@ -11,16 +11,12 @@ lagere prioriteit
 
 - update packages: 
 
-- split gcc -> gcc-runtime/gcc-cross
-
 - Python: should compile .pyc with matching local python version.
 => add to local packages.
 
 - strip lily specific stuff from installer.py 
 
 - Bugfixes:
-
-  * fontconfig 2.4; Blocker: mingw mmap() compat. support.
 
 - junk Makefile, create python based driver.
 
