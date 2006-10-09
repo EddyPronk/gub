@@ -127,7 +127,8 @@ class Os_context_wrapper (Context):
             
         return self.os_interface.dump (str, name, mode=mode)
     
-    def locate_files (self, directory, pattern):
+    def locate_files (self, directory, pattern,
+                      include_dirs=True, include_files=True):
         """
         Find file using glob PATTERNs. DIRECTORY is expanded.
 
@@ -142,10 +143,14 @@ class Os_context_wrapper (Context):
         
         results = []
         for (root, dirs, files) in os.walk (directory):
-#            relative_root = root.replace (directory, '')
+            relative_results = []
+            if include_dirs:
+                relative_results += dirs
+            if include_files:
+                relative_results += files
+                
             results += [os.path.join (root, f)
-                        for f in (fnmatch.filter (dirs, pattern)
-                                  + fnmatch.filter (files, pattern))]
+                        for f in (fnmatch.filter (relative_results, pattern))]
 
         return results
 
