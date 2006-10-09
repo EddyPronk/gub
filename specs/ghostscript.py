@@ -15,6 +15,9 @@ class Ghostscript (targetpackage.TargetBuildSpec):
                    mirror=xsf,
                    format='bz2')
 
+    def license_file (self):
+        return '%(srcdir)s/LICENSE' 
+
     def get_build_dependencies (self):
         return ['libjpeg-devel', 'libpng-devel']
 

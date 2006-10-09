@@ -5,6 +5,9 @@ class Fontforge (ToolBuildSpec):
     def srcdir (self):
         return re.sub ('_full', '', ToolBuildSpec.srcdir(self))
 
+    def license_file (self):
+        return '%(srcdir)s/LICENSE' 
+        
     def install_command (self):
         return self.broken_install_command ()
 
