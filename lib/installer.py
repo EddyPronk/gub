@@ -224,11 +224,10 @@ class Nsis (Installer):
         self.system ('cp %(nsisdir)s/*.sh.in %(targetdir)s')
 
         root = self.expand ('%(installer_root)s')
-        files = [re.sub (root, '', f)
+        files = [re.sub (root, '', f).replace ('/', '\\')
                  for f in self.locate_files (root, '*')]
-        files.reverse()
 
-        self.dump ('\n'.join (files),
+        self.dump ('\r\n'.join (files) + '\r\n',
                    '%(installer_root)s/files.txt',
                    expand_string=False)
 

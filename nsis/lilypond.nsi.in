@@ -18,6 +18,14 @@
 Var "EDITOR"
 Var "UP_DESKTOP"
 
+!define UninstLog "files.txt"
+Var UninstLog
+
+; Uninstall log file missing.
+LangString UninstLogMissing ${LANG_ENGLISH} "${UninstLog} not found.$\r$\nCannot uninstall."
+ 
+
+
 !include "substitute.nsh"
 ${StrLoc}
 ${UnStrLoc}
@@ -103,7 +111,7 @@ fresh_install:
 !else
 	File /r "@ROOT@/usr"
 !endif
-	;;File /r "@ROOT@/var"
+	File "@ROOT@/files.txt"
 
 	SetOutPath $INSTDIR\usr\bin
 ;;	File "../bin/min-apt"
@@ -174,6 +182,51 @@ exit:
 	SetOutPath $INSTDIR
 SectionEnd
 
+Function un.install_installed_files
+ IfFileExists "$INSTDIR\${UninstLog}" +3
+  MessageBox MB_OK|MB_ICONSTOP "$(UninstLogMissing)"
+   Abort
+ 
+ Push $R0
+ Push $R1
+ Push $R2
+ SetFileAttributes "$INSTDIR\${UninstLog}" NORMAL
+ FileOpen $UninstLog "$INSTDIR\${UninstLog}" r
+ StrCpy $R1 0
+ 
+ GetLineCount:
+  ClearErrors
+   FileRead $UninstLog $R0
+   IntOp $R1 $R1 + 1
+   IfErrors 0 GetLineCount
+ 
+ LoopRead:
+  FileSeek $UninstLog 0 SET
+  StrCpy $R2 0
+  FindLine:
+   FileRead $UninstLog $R0
+   IntOp $R2 $R2 + 1
+   StrCmp $R1 $R2 0 FindLine
+ 
+   StrCpy $R0 "$INSTDIR\$R0" -2
+   IfFileExists "$R0\*.*" 0 +3
+    RMDir $R0  #is dir
+   Goto +3
+   IfFileExists "$R0" 0 +2
+    Delete "$R0" #is file
+ 
+  IntOp $R1 $R1 - 1
+  StrCmp $R1 0 LoopDone
+  Goto LoopRead
+ LoopDone:
+ FileClose $UninstLog
+
+ Pop $R2
+ Pop $R1
+ Pop $R0
+
+FunctionEnd
+
 Section "Uninstall"
 	ifSilent 0 silent
 	Logset on
@@ -215,36 +268,12 @@ path_loop:
 path_done:
 	;; Remove files and uninstaller
 	;; Try only to delete LilyPond (and not user) stuff
-	;; FIXME: include list of installed files
-	Delete $INSTDIR\uninstall.exe
-	Delete $INSTDIR\install.log
 
-	RMDir /r $INSTDIR\usr\lib\lilypond
-	RMDir /r $INSTDIR\usr\lib\pango
-	RMDir /r $INSTDIR\usr\lib\python*.*
-	Delete $INSTDIR\usr\lib\*.*
-	Delete $INSTDIR\usr\etc\*.*
-	RMDir $INSTDIR\usr\lib
+	Delete "$INSTDIR\usr\bin\variables.sh.in"
+	Delete "$INSTDIR\usr\bin\variables.sh"
+	Delete "$INSTDIR\usr\bin\lilypond-windows.bat.in"
 
-	RMDir /r $INSTDIR\usr\share\guile
-	RMDir /r $INSTDIR\usr\share\gs
-	RMDir /r $INSTDIR\usr\share\lilypond\*.*
-	RMDir $INSTDIR\usr\share\lilypond
-	RMDir /r $INSTDIR\usr\share
-	RMDir $INSTDIR\usr\share
-
-	Delete $INSTDIR\usr\bin\*.*
-	RMDir $INSTDIR\usr\bin
-
-	RMDir /r $INSTDIR\usr\etc\pango
-	RMDir /r $INSTDIR\usr\etc\fonts
-	RMDir $INSTDIR\usr\etc
-	Delete $INSTDIR\usr\*.*
-	RMDir $INSTDIR\usr
-
-	RMDir /r $INSTDIR\etc\setup
-	RMDir /r $INSTDIR\etc\xpm
-	RMDir $INSTDIR\etc
+	call un.install_installed_files
 
 	;; Remove shortcuts, if any
         SetShellVarContext all
@@ -259,7 +288,12 @@ path_done:
 
 	;; Remove directories used
 	RMDir "$SMPROGRAMS\LilyPond"
+	RMDir "$INSTDIR\usr\bin"
+	RMDir "$INSTDIR\usr\"
+	Delete "$INSTDIR\uninstall.exe"
+	Delete "$INSTDIR\files.txt"
 	RMDir "$INSTDIR"
+
 SectionEnd
 
 Function create_shortcuts
