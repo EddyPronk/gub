@@ -399,7 +399,8 @@ cd %(builddir)s && %(configure_command)s
 
     def install_license (self):
         if self.expand ('%(license_file)s'):
-            self.system ('cp %(license_file)s %(install_root)s/%(name)s.license')
+            self.system ('mkdir -p %(install_root)s/license/', ignore_error=True)
+            self.system ('cp %(license_file)s %(install_root)s/license/%(name)s')
         
     def broken_install_command (self):
         """For packages that do not honor DESTDIR.
