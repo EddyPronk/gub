@@ -12,7 +12,7 @@ class Guile (targetpackage.TargetBuildSpec):
         self.so_version = '17'
 
     def license_file (self):
-        return '%(srcdir)s/LICENSE' 
+        return '%(srcdir)s/COPYING.LIB' 
 
     def get_subpackage_names (self):
         return ['doc', 'devel', 'runtime', '']
@@ -181,11 +181,17 @@ class Guile__freebsd (Guile):
     def config_cache_settings (self):
         return Guile.config_cache_settings (self) + '\nac_cv_type_socklen_t=yes'
 
+    def set_mirror(self):
+        self.with (version='1.8.0', format='gz')
+        self.so_version = '17'
+
     def configure_command (self):
         # watch out for whitespace
         builddir = self.builddir ()
         srcdir = self.srcdir ()
-        return (Guile.configure_command (self)
+        return (
+            ''' guile_cv_use_csqrt="no" '''
+           + Guile.configure_command (self)
            + misc.join_lines ('''\
 CC_FOR_BUILD="
 C_INCLUDE_PATH=
