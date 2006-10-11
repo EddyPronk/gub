@@ -216,6 +216,11 @@ To uninstall lilypond, run
 
     ${prefix}/bin/uninstall-lilypond
 
+
+For license and warranty information, consult
+
+    ${prefix}lilypond/licenses/
+
 EOF
 
 ## need this because binary data starts after this.
