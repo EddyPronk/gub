@@ -139,7 +139,7 @@ class BuildSpec (Os_context_wrapper):
         
         commands = {
             'cvs-co': '''mkdir -p %(vc_dir)s
-cd %(vc_dir)/.. && cvs -d %(url)s -q co -d %(name)s-%(version)s -r %(version)s %(name)s''',
+cd %(vc_dir)s/.. && cvs -d %(url)s -q co -d %(name)s-%(version)s -r %(version)s %(name)s''',
             'cvs-up': '''
 cd %(vc_dir)s && cvs -q update -dAPr %(version)s
 ''',
