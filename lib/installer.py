@@ -150,7 +150,8 @@ class Installer (context.Os_context_wrapper):
         pass
     
     def create (self):
-        pass
+        self.system ("mkdir %(installer_root)s/licenses/", ignore_error=True)
+        self.system ("cp %(sourcefiledir)s/gub.license %(installer_root)s/licenses/README", ignore_error=True)
         
 class Darwin_bundle (Installer):
     def __init__ (self, settings):
