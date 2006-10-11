@@ -219,7 +219,7 @@ To uninstall lilypond, run
 
 For license and warranty information, consult
 
-    ${prefix}lilypond/licenses/
+    ${prefix}lilypond/license/README
 
 EOF
 
