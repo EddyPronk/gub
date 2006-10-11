@@ -150,8 +150,8 @@ class Installer (context.Os_context_wrapper):
         pass
     
     def create (self):
-        self.system ("mkdir %(installer_root)s/licenses/", ignore_error=True)
-        self.system ("cp %(sourcefiledir)s/gub.license %(installer_root)s/licenses/README", ignore_error=True)
+        self.system ("mkdir %(installer_root)s/license/", ignore_error=True)
+        self.system ("cp %(sourcefiledir)s/gub.license %(installer_root)s/license/README", ignore_error=True)
         
 class Darwin_bundle (Installer):
     def __init__ (self, settings):
@@ -274,6 +274,7 @@ def create_shar (orig_file, hello, head, target_shar):
 
 class Shar (Linux_installer):
     def create (self):
+        Linux_installer.create (self)
         self.create_tarball ()
         
         target_shar = self.expand ('%(installer_uploads)s/%(name)s-%(installer_version)s-%(installer_build)s.%(platform)s.sh')
