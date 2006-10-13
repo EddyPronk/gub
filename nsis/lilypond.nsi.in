@@ -47,6 +47,7 @@ InstallDirRegKey HKLM "Software\LilyPond" "Install_Dir"
 CRCCheck on
 XPStyle on
 InstallColors /windows
+
 ;; Friendly LilyPond green gradient
 BGGradient 000000 E8FFE8 FFFFFF
 
@@ -56,25 +57,13 @@ BGGradient 000000 E8FFE8 FFFFFF
 MiscButtonText Back Next Cancel Finish
 
 LicenseText "GNU General Public licence"
-;;LicenseData "COPYING.txt"
+LicenseData "@ROOT@\license\lilypond"
 
-!define PAGE_DIRECTORY_FUBAR
-!ifndef PAGE_DIRECTORY_FUBAR
+Page license
+
 ;; FIXME: the intstaller will crash on File /r commands if Page
 ;; directory is not used.
-
 Page directory
-
-!else ;; PAGE_DIRECTORY_FUBAR
-
-;; The workaround is to alway use page Directory, and use callbacks
-;; to check that the used did not change anything.
-Page directory
-
-
-
-!endif ;; PAGE_DIRECTORY_FUBAR
-
 
 Page components
 Page instfiles
@@ -182,6 +171,8 @@ exit:
 	SetOutPath $INSTDIR
 SectionEnd
 
+
+;; copy & paste from the NSIS code examples 
 Function un.install_installed_files
  IfFileExists "$INSTDIR\${UninstLog}" +3
   MessageBox MB_OK|MB_ICONSTOP "$(UninstLogMissing)"
@@ -226,6 +217,8 @@ Function un.install_installed_files
  Pop $R0
 
 FunctionEnd
+;; end copy & paste
+
 
 Section "Uninstall"
 	ifSilent 0 silent
