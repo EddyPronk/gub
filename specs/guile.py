@@ -150,9 +150,9 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
         Guile.configure (self)
 
         ## probably not necessary, but just be sure.
-        for l in self.locate_files ('%(builddir)s', "Makefile"):
+        for el in self.locate_files ('%(builddir)s', "Makefile"):
             self.file_sub ([('PATH_SEPARATOR = .', 'PATH_SEPARATOR = ;'),
-                            ], l)
+                            ], el)
             
         self.file_sub ([
             #('^(allow_undefined_flag=.*)unsupported', '\\1'),
@@ -228,14 +228,17 @@ class Guile__cygwin (Guile):
         Guile.__init__ (self, settings)
         self.with (version='1.8.1',
                    mirror=download.gnu, format='gz')
+        self.replace_ltdl = False
+        self.static_ltdl = True
 
     def get_subpackage_definitions (self):
         d = dict (Guile.get_subpackage_definitions (self))
         d['runtime'].append ('/usr/bin/cyg*dll')
 
-        # libtool fixups
-        d['runtime'].append ('/etc/postinstall')
-        d['runtime'].append ('/usr/bin/cyg*dll-fixed')
+        if self.replace_ltdl:
+            # libtool fixups
+            d['runtime'].append ('/etc/postinstall')
+            d['runtime'].append ('/usr/bin/cyg*dll-fixed')
         return d
 
     # Using gub dependencies only would be nice, but
@@ -270,11 +273,32 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
 '''
     def configure (self):
         if 1:
-            self.file_sub ([('''^#(LIBOBJS=".*fileblocks.*)''',
-                             '\\1')],
+            self.file_sub ([('''^#(LIBOBJS=".*fileblocks.*)''', '\\1')],
                            '%(srcdir)s/configure')
-
         Guile.configure (self)
+        if self.static_ltdl:
+#            self.file_sub (
+# URG
+# libtool misinterprets `-shared -lfoo -lbar -static -lbaz', translating
+# it to gcc .../system/lib/libfoo.a  .../lib/libbar.a  .../lib/libbaz.a
+#                [(''' (-static )?-lltdl''', ' -static -lltdl')],
+
+# URG2, libtool sees the .a library, and then refuses to link to other
+# shared libraries.  It says:
+#
+# *** I have the capability to make that library automatically link in when
+# *** you link to this library.  But I can only do this if you have a
+# *** shared version of the library, which you do not appear to have
+# *** because the file extensions .a of this argument makes me believe
+# *** that it is just a static archive that I should not used here.
+#
+# And then replaces all -lFoo with .../libfoo.a
+#
+#                [(''' -lltdl''', ' %(system_root)s/usr/lib/libltdl.dll.a')],
+#                       '%(builddir)s/config.status')
+            self.system ('''
+cd %(builddir)s && ./config.status
+''')
 
         ## ugh code dup. 
         ## probably not necessary, but just be sure.
@@ -300,7 +324,8 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
         Guile.install (self)
         self.install_readmes ()
 
-        self.libtool_cygltdl3_fixup ()
+        if self.replace_ltdl:
+            self.libtool_cygltdl3_fixup ()
 
     def libtool_cygltdl3_fixup (self):
         # The current (1.5.22-1) cygltdl-3.dll is broken.  Supply our
