@@ -58,3 +58,8 @@ class Libpng__local (ToolBuildSpec, Libpng):
 
     def patch (self):
         Libpng.patch (self)
+
+    # FIXME, mi-urg?
+    def license_file (self):
+        return Libpng.license_file (self)
+
