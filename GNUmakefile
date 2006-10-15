@@ -269,6 +269,7 @@ unlocked-doc-build:
 	    && ulimit -m 256000 \
 	    && make -C $(NATIVE_LILY_BUILD) \
 	    LILYPOND_EXTERNAL_BINARY="$(NATIVE_ROOT)/usr/bin/lilypond"\
+	    MALLOC_CHECK_=2 \
 	    PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
 	    DOCUMENTATION=yes web
 	tar -C $(NATIVE_LILY_BUILD)/out-www/web-root/ \
