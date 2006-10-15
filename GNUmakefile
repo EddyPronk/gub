@@ -108,7 +108,7 @@ download:
 ## should be last, to incorporate changed VERSION file.
 	$(UPDATE-BUILDNUMBER)
 
-all: $(BUILD_PLATFORM) doc $(OTHER_PLATFORMS) dist-check gub_builder.py
+all: $(BUILD_PLATFORM) doc $(OTHER_PLATFORMS) dist-check doc-export gub_builder.py
 
 gub_builder.py:
 	ln -s gub-builder.py $@
