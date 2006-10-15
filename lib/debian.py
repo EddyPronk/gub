@@ -71,7 +71,7 @@ def _get_cross_packages (settings,
     return [
         Libc6 (settings).with (version=libc6_version,
                                mirror=download.glibc_deb, format='deb'),
-        Libc6_dev (settings).with (version='2.3.2.ds1-22sarge4',
+        Libc6_dev (settings).with (version=libc6_version,
                                    mirror=download.glibc_deb, format='deb'),
         Linux_kernel_headers (settings).with (version=kernel_version,
                                               mirror=download.lkh_deb,
@@ -95,7 +95,7 @@ def get_cross_packages_stable (settings):
 def get_cross_packages_unstable (settings):
     guile_version = '1.8.0'
     libc6_version = '2.3.6.ds1-4'
-    kernel_version = '2.6.17-10.-3'
+    kernel_version = '2.6.18-3'
     return _get_cross_packages (settings,
                                 guile_version, libc6_version, kernel_version)
 
