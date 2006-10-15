@@ -556,7 +556,7 @@ def get_installer (settings, args=[]):
         'darwin-ppc' : Darwin_bundle (settings),
         'darwin-x86' : Darwin_bundle (settings),
         'freebsd' : Shar (settings),
-        'linux' : Shar (settings),
+        'linux-x86' : Shar (settings),
         'mingw' : Nsis (settings),
         'mipsel' : Shar (settings),
     }

@@ -106,8 +106,6 @@ class Gcc (CrossToolSpec):
 cd %(install_root)s/usr/lib && ln -fs libgcc_s.so.1 libgcc_s.so
 ''')
 
-
-
 def change_target_packages (package_object_dict):
     pass
 
@@ -157,6 +155,7 @@ def get_cross_module (platform):
         base = {
             'darwin-ppc':'darwintools',
             'darwin-x86':'darwintools',
+            'linux-x86' : "linux",
             'local':'tools'}[platform]
     except KeyError:
         pass
