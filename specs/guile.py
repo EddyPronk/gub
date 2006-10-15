@@ -40,9 +40,8 @@ class Guile (targetpackage.TargetBuildSpec):
         self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/guile-reloc.patch')
         self.autoupdate ()
 
-    def configure_command (self):
-        return (targetpackage.TargetBuildSpec.configure_command (self)
-            + misc.join_lines ('''
+    def configure_flags (self):
+        return misc.join_lines ('''
 --without-threads
 --with-gnu-ld
 --enable-deprecated
@@ -50,7 +49,12 @@ class Guile (targetpackage.TargetBuildSpec):
 --disable-error-on-warning
 --enable-relocation
 --disable-rpath
-'''))
+''')
+        
+    def configure_command (self):
+        return (targetpackage.TargetBuildSpec.configure_command (self)
+                + self.configure_flags ())
+
     def compile (self):
 
         ## Ugh : broken dependencies barf with make -jX
@@ -346,6 +350,10 @@ fi
                    env=locals ())
 
 class Guile__local (ToolBuildSpec, Guile):
+    def configure_command (self):
+        return (ToolBuildSpec.configure_command (self)
+                + self.configure_flags ())
+
     def configure (self):
         ToolBuildSpec.configure (self)
         self.update_libtool ()
