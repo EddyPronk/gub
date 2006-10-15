@@ -230,7 +230,7 @@ lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=32768}
 ##libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/lib "'"}
 libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/lib "'"}
 ''',
-    'linux' : '''
+    'linux-x86' : '''
 ac_cv_func_posix_getpwuid_r=${ac_cv_func_posix_getpwuid_r=yes}
 ac_cv_lib_dl_dlopen=${ac_cv_lib_dl_dlopen=yes}
 
@@ -286,7 +286,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/l
 '''
 }
 
-cross_config_cache['debian'] = cross_config_cache['linux']
+cross_config_cache['debian'] = cross_config_cache['linux-x86']
 
 
 def load_target_package (settings, url):

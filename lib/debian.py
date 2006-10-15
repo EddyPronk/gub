@@ -64,7 +64,7 @@ class Gcc (cross.Gcc):
 def _get_cross_packages (settings,
                          guile_version, libc6_version, kernel_version):
     configs = []
-    if settings.platform != 'linux':
+    if settings.platform != 'linux-x86':
         configs = [linux.Guile_config (settings).with (version=guile_version),
                    linux.Python_config (settings).with (version='2.4.1'),]
     

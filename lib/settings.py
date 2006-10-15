@@ -13,7 +13,7 @@ platforms = {
     'darwin-x86': 'i686-apple-darwin8',
     'debian': 'i686-linux',
     'freebsd': 'i686-freebsd4',
-    'linux': 'i686-linux',
+    'linux-x86': 'i686-linux',
     'local': 'local',
     'mingw': 'i686-mingw32',
     'mipsel': 'mipsel-linux',
