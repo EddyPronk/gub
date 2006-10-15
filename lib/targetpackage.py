@@ -291,7 +291,7 @@ ac_cv_sizeof_intmax_t=${ac_cv_sizeof_intmax_t=8}
 ac_cv_sizeof_intptr_t=${ac_cv_sizeof_intptr_t=8}
 ac_cv_sizeof_long=${ac_cv_sizeof_long=8}
 ac_cv_sizeof_long_double=${ac_cv_sizeof_long_double=16}
-ac_cv_sizeof_long_long=${ac_cv_sizeof_long_long=16}
+ac_cv_sizeof_long_long=${ac_cv_sizeof_long_long=8}
 ac_cv_sizeof_ptrdiff_t=${ac_cv_sizeof_ptrdiff_t=8}
 ac_cv_sizeof_short=${ac_cv_sizeof_short=2}
 ac_cv_sizeof_size_t=${ac_cv_sizeof_size_t=8}
@@ -300,7 +300,7 @@ ac_cv_sizeof_unsigned___int64=${ac_cv_sizeof_unsigned___int64=0}
 ac_cv_sizeof_unsigned_char=${ac_cv_sizeof_unsigned_char=1}
 ac_cv_sizeof_unsigned_int=${ac_cv_sizeof_unsigned_int=4}
 ac_cv_sizeof_unsigned_long=${ac_cv_sizeof_unsigned_long=8}
-ac_cv_sizeof_unsigned_long_long=${ac_cv_sizeof_unsigned_long_long=16}
+ac_cv_sizeof_unsigned_long_long=${ac_cv_sizeof_unsigned_long_long=8}
 ac_cv_sizeof_unsigned_short=${ac_cv_sizeof_unsigned_short=2}
 ac_cv_sizeof_void_p=${ac_cv_sizeof_void_p=8}
 
