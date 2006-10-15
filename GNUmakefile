@@ -9,8 +9,8 @@ default: all
 
 ## must always have one host.
 GUB_DISTCC_ALLOW_HOSTS=127.0.0.1
-ALL_PLATFORMS=arm cygwin darwin-ppc darwin-x86 debian freebsd linux mingw mipsel
-PLATFORMS=darwin-ppc darwin-x86 mingw linux freebsd cygwin
+ALL_PLATFORMS=arm cygwin darwin-ppc darwin-x86 debian freebsd linux linux-64 mingw mipsel
+PLATFORMS=darwin-ppc darwin-x86 mingw linux linux-64 freebsd cygwin
 
 LILYPOND_CVSDIR=downloads/lilypond-$(BRANCH)/
 LILYPOND_BRANCH=$(BRANCH)
@@ -110,6 +110,8 @@ download:
 
 all: $(BUILD_PLATFORM) doc $(OTHER_PLATFORMS) gub_builder.py
 
+native: $(BUILD_PLATFORM)
+
 gub_builder.py:
 	ln -s gub-builder.py $@
 
@@ -164,6 +166,9 @@ freebsd:
 	$(call BUILD,$@,lilypond)
 
 linux:
+	$(call BUILD,$@,lilypond)
+
+linux-64:
 	$(call BUILD,$@,lilypond)
 
 mingw:

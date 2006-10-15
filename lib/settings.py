@@ -14,6 +14,7 @@ platforms = {
     'debian': 'i686-linux',
     'freebsd': 'i686-freebsd4',
     'linux': 'i686-linux',
+    'linux-64': 'x86_64-linux',
     'local': 'local',
     'mingw': 'i686-mingw32',
     'mipsel': 'mipsel-linux',
@@ -28,7 +29,6 @@ class Settings (Context):
         self.target_architecture = platforms[self.platform]
         self.build_source = False
         self.is_distro = platform in distros
-        self.debian_branch = 'stable'
 
         self.target_gcc_flags = '' 
         self.topdir = os.getcwd ()
@@ -68,8 +68,13 @@ class Settings (Context):
         self.cross_distcc_bindir = self.topdir + '/target/cross-distcc/bin/'
         self.native_distcc_bindir = self.topdir + '/target/native-distcc/bin/'
         
-        self.package_arch = re.sub ('-.*', '', self.target_architecture)
-        self.package_arch = re.sub ('i[0-9]86', 'i386', self.package_arch)
+	if self.target_architecture.startswith ('x86_64'):
+	    self.package_arch = 'amd64'
+            self.debian_branch = 'unstable'
+	else:
+            self.package_arch = re.sub ('-.*', '', self.target_architecture)
+            self.package_arch = re.sub ('i[0-9]86', 'i386', self.package_arch)
+            self.debian_branch = 'stable'
         
         self.keep_build = False
         self.use_tools = False
