@@ -17,6 +17,16 @@ from new import instancemethod
 mirror = 'http://ftp.de.debian.org/debian'
 
 class Libc6 (gub.BinarySpec, gub.SdkBuildSpec):
+    def untar (self):
+        gub.BinarySpec.untar (self)
+        # Ugh, rewire absolute names and symlinks.
+        i = self.expand ('%(srcdir)s/root/lib64')
+        if os.path.islink (i):
+            s = os.readlink (i)
+            if s.startswith ('/'):
+                os.remove (i)
+                os.symlink (s[1:], i)
+
     def patch (self):
         self.system ('cd %(srcdir)s && rm -rf usr/sbin/ sbin/ bin/ usr/bin')
 
@@ -38,8 +48,7 @@ class Libc6_dev (gub.BinarySpec, gub.SdkBuildSpec):
                 s = os.readlink (i)
                 if s.startswith ('/'):
                     os.remove (i)
-                    os.symlink (self.settings.system_root
-                          + s, i)
+                    os.symlink (self.settings.system_root + s, i)
         for i in ('pthread.h', 'bits/sigthread.h'):
             self.file_sub ([('__thread', '___thread')],
                            '%(srcdir)s/root/usr/include/%(i)s',
