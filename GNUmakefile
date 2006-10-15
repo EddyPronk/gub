@@ -1,6 +1,6 @@
 
 .PHONY: all default distclean download TAGS
-.PHONY: cygwin darwin-ppc darwin-x86 debian freebsd linux mingw bootstrap-download bootstrap
+.PHONY: cygwin darwin-ppc darwin-x86 debian freebsd linux-x86 mingw bootstrap-download bootstrap
 .PHONY: update-buildnumber
 
 default: all
@@ -9,8 +9,8 @@ default: all
 
 ## must always have one host.
 GUB_DISTCC_ALLOW_HOSTS=127.0.0.1
-ALL_PLATFORMS=arm cygwin darwin-ppc darwin-x86 debian freebsd linux mingw mipsel
-PLATFORMS=darwin-ppc darwin-x86 mingw linux freebsd cygwin
+ALL_PLATFORMS=arm cygwin darwin-ppc darwin-x86 debian freebsd linux-x86 linux-64 mingw mipsel
+PLATFORMS=darwin-ppc darwin-x86 mingw linux-x86 linux-64 freebsd cygwin
 
 LILYPOND_CVSDIR=downloads/lilypond-$(BRANCH)/
 LILYPOND_BRANCH=$(BRANCH)
@@ -70,7 +70,7 @@ ifeq ($(wildcard $(LILYPOND_CVSDIR)),)
 
   ## need to download CVS before we can actually start doing anything.
   bootstrap-download: update-buildnumber
-	  $(PYTHON) gub-builder.py -p linux download lilypond
+	  $(PYTHON) gub-builder.py -p linux-x86 download lilypond
 
 else
 
@@ -108,7 +108,9 @@ download:
 ## should be last, to incorporate changed VERSION file.
 	$(UPDATE-BUILDNUMBER)
 
-all: $(BUILD_PLATFORM) doc $(OTHER_PLATFORMS) gub_builder.py
+all: $(BUILD_PLATFORM) doc $(OTHER_PLATFORMS) dist-check doc-export gub_builder.py
+
+native: $(BUILD_PLATFORM)
 
 gub_builder.py:
 	ln -s gub-builder.py $@
@@ -163,7 +165,10 @@ debian:
 freebsd:
 	$(call BUILD,$@,lilypond)
 
-linux:
+linux-x86:
+	$(call BUILD,$@,lilypond)
+
+linux-64:
 	$(call BUILD,$@,lilypond)
 
 mingw:
@@ -269,6 +274,7 @@ unlocked-doc-build:
 	    && ulimit -m 256000 \
 	    && make -C $(NATIVE_LILY_BUILD) \
 	    LILYPOND_EXTERNAL_BINARY="$(NATIVE_ROOT)/usr/bin/lilypond"\
+	    MALLOC_CHECK_=2 \
 	    PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
 	    DOCUMENTATION=yes web
 	tar -C $(NATIVE_LILY_BUILD)/out-www/web-root/ \

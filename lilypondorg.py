@@ -20,7 +20,7 @@ platforms = ['linux-x86',
 
 build_platform = {
 	'darwin': 'darwin-ppc',
-	'linux2': 'linux',
+	'linux2': 'linux-x86',
 }[sys.platform]
 
 base_url = 'http://lilypond.org/download'

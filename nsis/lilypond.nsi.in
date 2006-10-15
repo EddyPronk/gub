@@ -56,8 +56,9 @@ BGGradient 000000 E8FFE8 FFFFFF
 ;; much more with "Finish" than with Close.
 MiscButtonText Back Next Cancel Finish
 
-LicenseText "GNU General Public licence"
+LicenseText "Conditions for redistributing LilyPond" "Next"
 LicenseData "@ROOT@\license\lilypond"
+LicenseForceSelection off
 
 Page license
 

@@ -13,7 +13,7 @@ def system (c, ignore_error=False):
 
 
 test_settings = {
-    'linux': ('lilytest', 'haring', 'test-gub', None),
+    'linux-x86': ('lilytest', 'haring', 'test-gub', None),
     'freebsd': ('hanwen', 'xs4all.nl', 'test-gub', None),
     'darwin-ppc': ('lilytest', 'maagd', 'test-gub', None),
     'mingw': ('hanwen', 'wklep', 'test-gub', 'test-lily/typography-demo-no-cjk.ly'),
@@ -27,7 +27,7 @@ def test_build (bin):
     base = os.path.split (bin)[1]
 
     platform = ''
-    for p in ('linux', 'freebsd', 'darwin-ppc', 'darwin-x86', 'mingw'):
+    for p in ('linux-x86', 'freebsd', 'darwin-ppc', 'darwin-x86', 'mingw'):
         if re.search (p, base):
             platform = p
             break
