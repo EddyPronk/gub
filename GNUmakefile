@@ -229,12 +229,12 @@ native-distccd:
 		--log-file $(CWD)/log/$@.log  --log-level info
 bootstrap:
 	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local download \
-		flex mftrace potrace fontforge glib \
+		flex mftrace potrace fontforge glib pango \
 		guile pkg-config nsis icoutils expat gettext \
 		distcc texinfo automake
 	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local build \
 		flex mftrace potrace fontforge \
-		guile pkg-config expat icoutils glib \
+		guile pkg-config expat icoutils glib pango \
 		distcc texinfo automake 
 	$(MAKE) cross-compilers
 
