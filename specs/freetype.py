@@ -44,10 +44,14 @@ LDFLAGS:=$(LDFLAGS) -no-undefined
              '%(builddir)s/Makefile',
              mode='a')
 
-class Freetype__local (toolpackage.ToolBuildSpec):
+class Freetype__local (toolpackage.ToolBuildSpec, Freetype):
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
         self.with (version='2.1.10', mirror=download.nongnu_savannah)
 
     def get_build_dependencies (self):
         return ['libtool']
+
+    # FIXME, mi-urg?
+    def license_file (self):
+        return Freetype.license_file (self)
