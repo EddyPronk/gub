@@ -75,14 +75,15 @@ class Guile (targetpackage.TargetBuildSpec):
         version = self.read_pipe ('''\
 GUILE_LOAD_PATH=%(install_prefix)s/share/guile/* guile -e main -s  %(install_prefix)s/bin/guile-config --version 2>&1\
 ''').split ()[-1]
+	#FIXME: c&p linux.py
         self.dump ('''\
-#!/bin/sh
-[ "$1" == "--version" ] && echo "%(target_architecture)s-guile-config - Guile version %(version)s"
-#[ "$1" == "compile" ] && echo "-I $%(system_root)s/usr/include"
-#[ "$1" == "link" ] && echo "-L%(system_root)s/usr/lib -lguile -lgmp"
+#! /bin/sh
+test "$1" = "--version" && echo "%(target_architecture)s-guile-config - Guile version %(version)s"
+#test "$1" = "compile" && echo "-I $%(system_root)s/usr/include"
+#test "$1" = "link" && echo "-L%(system_root)s/usr/lib -lguile -lgmp"
 prefix=$(dirname $(dirname $0))
-[ "$1" == "compile" ] && echo "-I$prefix/include"
-[ "$1" == "link" ] && echo "-L$prefix/lib -lguile -lgmp"
+test "$1" = "compile" && echo "-I$prefix/include"
+test "$1" = "link" && echo "-L$prefix/lib -lguile -lgmp"
 exit 0
 ''',
              '%(install_prefix)s/cross/bin/%(target_architecture)s-guile-config')

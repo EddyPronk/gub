@@ -18,14 +18,15 @@ class Guile_config (gub.SdkBuildSpec):
         self.system ('mkdir -p %(cross_prefix)s/usr/bin')
         
         version = self.version ()
+	#FIXME: c&p guile.py
         self.dump ('''\
-#!/bin/sh
-[ "$1" == "--version" ] && echo "%(target_architecture)s-guile-config - Guile version %(version)s"
+#! /bin/sh
+test "$1" = "--version" && echo "%(target_architecture)s-guile-config - Guile version %(version)s"
 prefix=$(dirname $(dirname $0))
-[ "$1" == "compile" ] && echo "-I$prefix/include"
-#[ "$1" == "link" ] && echo "-L$prefix/lib -lguile -lgmp"
+test "$1" = "compile" && echo "-I$prefix/include"
+#test "$1" = "link" && echo "-L$prefix/lib -lguile -lgmp"
 # KUCH, debian specific, and [mipsel] reading .la is broken?
-[ "$1" == "link" ] && echo "-L$prefix/lib -lguile -lguile-ltdl  -ldl -lcrypt -lm"
+test "$1" = "link" && echo "-L$prefix/lib -lguile -lguile-ltdl  -ldl -lcrypt -lm"
 exit 0
 ''',
              '%(install_prefix)s/cross/bin/%(target_architecture)s-guile-config')
