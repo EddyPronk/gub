@@ -19,7 +19,7 @@ class Guile_config (gub.SdkBuildSpec):
         
         version = self.version ()
         self.dump ('''\
-#!/bin/sh
+#! /bin/bash
 [ "$1" == "--version" ] && echo "%(target_architecture)s-guile-config - Guile version %(version)s"
 prefix=$(dirname $(dirname $0))
 [ "$1" == "compile" ] && echo "-I$prefix/include"
