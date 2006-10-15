@@ -114,3 +114,11 @@ class Pango__darwin (Pango):
         self.dump ("""
 set PANGO_SO_EXTENSION=.so
 """, '%(install_root)s/usr/etc/relocate/pango.reloc', env=locals(), mode="a")
+
+import toolpackage
+class Pango__local (toolpackage.ToolBuildSpec):
+    def __init__ (self, settings):
+        toolpackage.ToolBuildSpec.__init__ (self, settings)
+        self.with (version='1.12.3',
+                   mirror=download.gnome_214,
+                   format='bz2')
