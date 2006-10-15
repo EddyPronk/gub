@@ -148,6 +148,7 @@ cross_config_cache = {
     'local': '',
     'all': '''
 
+# FIXME: 32 bit only
 ac_16bit_type=${ac_16bit_type=short}
 ac_32bit_type=${ac_32bit_type=int}
 ac_64bit_type=${ac_64bit_type=none}
@@ -161,6 +162,7 @@ ac_cv_func_setvbuf_reversed=${ac_cv_func_setvbuf_reversed=no}
 ac_cv_lib_dld_shl_load=${ac_cv_lib_dld_shl_load=no}
 ac_cv_search_dlopen=${ac_cv_search_dlopen="none required"}
 ac_cv_sizeof___int64=${ac_cv_sizeof___int64=0}
+# FIXME: 32 bit only
 ac_cv_sizeof_char=${ac_cv_sizeof_char=1}
 ac_cv_sizeof_char_p=${ac_cv_sizeof_char_p=4}
 ac_cv_sizeof_double=${ac_cv_sizeof_double=8}
@@ -242,6 +244,66 @@ lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=32768}
 libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/lib"'"}
 ''',
     'linux-64' : '''
+# FIXME: clean type lengths from `all' section
+unset ac_16bit_type
+unset ac_32bit_type
+unset ac_64bit_type
+unset ac_cv_c_long_size_t
+unset ac_cv_c_long_time_t
+#
+unset ac_cv_sizeof___int64
+unset ac_cv_sizeof_char
+unset ac_cv_sizeof_char_p
+unset ac_cv_sizeof_double
+unset ac_cv_sizeof_float
+unset ac_cv_sizeof_int
+unset ac_cv_sizeof_intmax_t
+unset ac_cv_sizeof_intptr_t
+unset ac_cv_sizeof_long
+unset ac_cv_sizeof_long_double
+unset ac_cv_sizeof_long_long
+unset ac_cv_sizeof_ptrdiff_t
+unset ac_cv_sizeof_short
+unset ac_cv_sizeof_size_t
+unset ac_cv_sizeof_uintptr_t
+unset ac_cv_sizeof_unsigned___int64
+unset ac_cv_sizeof_unsigned_char
+unset ac_cv_sizeof_unsigned_int
+unset ac_cv_sizeof_unsigned_long
+unset ac_cv_sizeof_unsigned_long_long
+unset ac_cv_sizeof_unsigned_short
+unset ac_cv_sizeof_void_p
+
+
+ac_16bit_type=${ac_16bit_type=short}
+ac_32bit_type=${ac_32bit_type=int}
+ac_64bit_type=${ac_64bit_type=long}
+ac_cv_c_long_size_t=${ac_cv_c_long_size_t=yes}
+ac_cv_c_long_time_t=${ac_cv_c_long_time_t=yes}
+#
+ac_cv_sizeof___int64=${ac_cv_sizeof___int64=0}
+ac_cv_sizeof_char=${ac_cv_sizeof_char=1}
+ac_cv_sizeof_char_p=${ac_cv_sizeof_char_p=8}
+ac_cv_sizeof_double=${ac_cv_sizeof_double=8}
+ac_cv_sizeof_float=${ac_cv_sizeof_float=4}
+ac_cv_sizeof_int=${ac_cv_sizeof_int=4}
+ac_cv_sizeof_intmax_t=${ac_cv_sizeof_intmax_t=8}
+ac_cv_sizeof_intptr_t=${ac_cv_sizeof_intptr_t=8}
+ac_cv_sizeof_long=${ac_cv_sizeof_long=8}
+ac_cv_sizeof_long_double=${ac_cv_sizeof_long_double=16}
+ac_cv_sizeof_long_long=${ac_cv_sizeof_long_long=16}
+ac_cv_sizeof_ptrdiff_t=${ac_cv_sizeof_ptrdiff_t=8}
+ac_cv_sizeof_short=${ac_cv_sizeof_short=2}
+ac_cv_sizeof_size_t=${ac_cv_sizeof_size_t=8}
+ac_cv_sizeof_uintptr_t=${ac_cv_sizeof_uintptr_t=8}
+ac_cv_sizeof_unsigned___int64=${ac_cv_sizeof_unsigned___int64=0}
+ac_cv_sizeof_unsigned_char=${ac_cv_sizeof_unsigned_char=1}
+ac_cv_sizeof_unsigned_int=${ac_cv_sizeof_unsigned_int=4}
+ac_cv_sizeof_unsigned_long=${ac_cv_sizeof_unsigned_long=8}
+ac_cv_sizeof_unsigned_long_long=${ac_cv_sizeof_unsigned_long_long=16}
+ac_cv_sizeof_unsigned_short=${ac_cv_sizeof_unsigned_short=2}
+ac_cv_sizeof_void_p=${ac_cv_sizeof_void_p=8}
+
 ac_cv_func_posix_getpwuid_r=${ac_cv_func_posix_getpwuid_r=yes}
 ac_cv_lib_dl_dlopen=${ac_cv_lib_dl_dlopen=yes}
 
