@@ -18,7 +18,7 @@ run as
 dry_run = False
 build_platform = {
 	'darwin': 'darwin-ppc',
-	'linux2': 'linux',
+	'linux2': 'linux-x86',
 }[sys.platform]
 
 ################################################################
