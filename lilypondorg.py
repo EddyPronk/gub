@@ -234,6 +234,23 @@ def upload_binaries (version):
     for cmd in cmds:
         system (cmd)
 
+def read_build_versions ():
+    branches = [(2,9), (2,8), (2,6)]
+    version_builds = {}
+    
+    for branch in branches:
+        branch_str = 'v' + '.'.join (['%d' % vc for vc in branch])
+    
+        for p in platforms:
+            (v, b, url) = max_branch_version_build_url (branch, p)
+        
+            v = '.'.join (['%d' % vc for vc in v])
+            version_builds[branch_str + '-' + p] = ('%s-%d' % (v,b), url)
+
+        (version, url) =  max_src_version_url (branch)
+        version_builds[branch_str + '-source'] = ('.'.join (['%d' % vc for vc in version]),
+                                                  url)
+    return version_builds
 
 def get_cli_parser ():
     p = optparse.OptionParser ()
@@ -277,6 +294,10 @@ def main ():
     elif command == 'upload':
         version = tuple (map (string.atoi, commands[0].split ('.')))
         upload_binaries (version)
+    elif command == 'versions':
+        d = read_build_versions ()
+        for k in sorted(d.keys ()):
+            print k, d[k] 
     else:
         base_url = "http://download.linuxaudio.org/lilypond"
         print max_src_version_url ((2,9))
