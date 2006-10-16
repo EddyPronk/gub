@@ -88,7 +88,7 @@ class Settings (Context):
         self.create_dirs ()
         self.build_architecture = self.os_interface.read_pipe ('gcc -dumpmachine',
                                                                silent=True)[:-1]
-        self.cpu_count = '1'
+        self.cpu_count = os.sysconf ('SC_NPROCESSORS_ONLN')
 
         ## fixme: where to do this?
         self.LD_LIBRARY_PATH = '%(buildtools)s/lib'
