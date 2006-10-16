@@ -34,7 +34,6 @@ host_doc_spec = host_spec + '/doc'
 def get_alias (p):
     try:
         return {
-            'linux-x86': 'linux',
             'linux-arm': 'arm',
             'freebsd-x86': 'freebsd',
             }[p]
