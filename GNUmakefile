@@ -35,6 +35,7 @@ INVOKE_INSTALLER_BUILDER=$(PYTHON) installer-builder.py \
   --buildnumber-file  $(BUILDNUMBER_FILE)  \
   --branch $(LILYPOND_BRANCH) \
 
+
 BUILD=$(call INVOKE_GUB_BUILDER,$(1)) build $(2) \
   && $(call INVOKE_INSTALLER_BUILDER,$(1)) build-all lilypond
 
@@ -266,6 +267,7 @@ unlocked-doc-build:
 	    && make -C $(NATIVE_LILY_BUILD) \
 	    LILYPOND_EXTERNAL_BINARY="$(NATIVE_ROOT)/usr/bin/lilypond"\
 	    PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
+	    LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH) \
 	    LD_LIBRARY_PATH=$(CWD)/target/local/system/usr/lib:$(LD_LIBRARY_PATH) \
 	    DOCUMENTATION=yes do-top-doc
 	unset LILYPONDPREFIX \
@@ -274,6 +276,7 @@ unlocked-doc-build:
 	    LILYPOND_EXTERNAL_BINARY="$(NATIVE_ROOT)/usr/bin/lilypond"\
 	    MALLOC_CHECK_=2 \
 	    PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
+	    LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH) \
 	    LD_LIBRARY_PATH=$(CWD)/target/local/system/usr/lib:$(LD_LIBRARY_PATH) \
 	    DOCUMENTATION=yes web
 	tar -C $(NATIVE_LILY_BUILD)/out-www/web-root/ \
