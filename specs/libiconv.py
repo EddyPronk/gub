@@ -18,4 +18,6 @@ class Libiconv (targetpackage.TargetBuildSpec):
     def install (self):
         targetpackage.TargetBuildSpec.install (self)
         self.system ('rm %(install_root)s/usr/lib/charset.alias')
-        
+
+    def license_file (self):
+        return '%(srcdir)s/COPYING.LIB'

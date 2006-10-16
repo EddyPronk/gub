@@ -22,3 +22,7 @@ install: all
     def configure (self):
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
 
+    def license_file (self):
+
+        ## is (L)GPL, but doesn't distribute license file.
+        return '' 
