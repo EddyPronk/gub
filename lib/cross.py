@@ -156,6 +156,7 @@ def get_cross_module (platform):
         base = {
             'darwin-ppc':'darwintools',
             'darwin-x86':'darwintools',
+            "freebsd-x86": 'freebsd',
             'linux-x86' : "linux",
             'local':'tools'}[platform]
     except KeyError:

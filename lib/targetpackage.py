@@ -221,7 +221,7 @@ lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=32768}
 ##libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/usr/lib"'"}
 libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/lib"'"}
 ''',
-    'freebsd' : '''
+    'freebsd-x86' : '''
 ac_cv_func_posix_getpwuid_r=${ac_cv_func_posix_getpwuid_r=no}
 ac_cv_lib_dl_dlopen=${ac_cv_lib_dl_dlopen=no}
 
@@ -243,7 +243,7 @@ lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=32768}
 ##libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/usr/lib"'"}
 libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/lib"'"}
 ''',
-    'linux-64' : '''
+    'linux-64' : """
 # FIXME: clean type lengths from `all' section
 unset ac_16bit_type
 unset ac_32bit_type
@@ -313,7 +313,7 @@ lt_cv_dlopen_libs=${lt_cv_dlopen_libs="-ldl"}
 lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=32768}
 ##libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/usr/lib"'"}
 libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/lib"'"}
-''',
+""",
     'darwin-ppc' : '''
 ac_cv_c_bigendian=${ac_cv_c_bigendian=yes}
 ac_cv_func_posix_getpwuid_r=${ac_cv_func_posix_getpwuid_r=yes}
@@ -380,9 +380,9 @@ def load_target_package (settings, url):
         if not version:
             name = url
         elif (url.startswith ('/')
-            or url.startswith ('file://')
-            or url.startswith ('ftp://')
-            or url.startswith ('http://')):
+              or url.startswith ('file://')
+              or url.startswith ('ftp://')
+              or url.startswith ('http://')):
             init_vars['url'] = url
         if version:
             init_vars['version'] = '.'.join (version)

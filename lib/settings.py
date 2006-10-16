@@ -12,7 +12,7 @@ platforms = {
     'darwin-ppc': 'powerpc-apple-darwin7',
     'darwin-x86': 'i686-apple-darwin8',
     'debian': 'i686-linux',
-    'freebsd': 'i686-freebsd4',
+    'freebsd-x86': 'i686-freebsd4',
     'linux-x86': 'i686-linux',
     'linux-64': 'x86_64-linux',
     'local': 'local',

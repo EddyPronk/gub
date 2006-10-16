@@ -10,12 +10,13 @@ import sys
 import optparse
 
 platforms = ['linux-x86',
-      'darwin-ppc',
-      'darwin-x86',
-      'documentation',
-      'freebsd-x86',
+             'linux-64',
+             'darwin-ppc',
+             'darwin-x86',
+             'documentation',
+             'freebsd-x86',
 #             'linux-arm',
-      'mingw']
+             'mingw']
 
 
 build_platform = {
