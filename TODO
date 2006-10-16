@@ -1,6 +1,8 @@
 
 lagere prioriteit
 
+- use repo.py for gub.py vc checkout
+
 - move patches upstream, eg.
 
   * libpng
@@ -9,7 +11,10 @@ lagere prioriteit
 
   * cygwin GCC
 
-- update packages: 
+- update packages:
+
+  * GS 8.54/53
+  * Gnome 2.16
 
 - Python: should compile .pyc with matching local python version.
 => add to local packages.
@@ -24,3 +29,6 @@ lagere prioriteit
   separate dirs for
 
    * targetroot ?
+
+- Use Xen image for running/installing local tools + x-compilers?
+
