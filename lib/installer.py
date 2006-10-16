@@ -326,7 +326,11 @@ mkdir -p %(installer_root)s/etc/hints
 ''',
                      self.get_substitution_dict ())
 
-        installer_build = spec.build_number ()
+        ### FIXME: this would require guile.py: def build_number ()
+        ### like lilypond.py has
+        ### Just use the overridden --buildnumber-file option.
+        ###installer_build = spec.build_number ()
+        installer_build = self.expand ('%(installer_build)s')
 
         # FIXME: lilypond is built from CVS, in which case version is lost
         # and overwritten by the CVS branch name.  Therefore, using
@@ -390,7 +394,11 @@ mkdir -p %(installer_root)s/usr/share/doc/%(name)s
 ''',
                      self.get_substitution_dict (locals ()))
 
-        installer_build = spec.build_number ()
+        ### FIXME: this would require guile.py: def build_number ()
+        ### like lilypond.py has
+        ### Just use the overridden --buildnumber-file option.
+        ###installer_build = spec.build_number ()
+        installer_build = self.expand ('%(installer_build)s')
 
         # FIXME: lilypond is built from CVS, in which case version is lost
         # and overwritten by the CVS branch name.  Therefore, using
