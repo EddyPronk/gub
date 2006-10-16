@@ -9,8 +9,8 @@ import re
 class Pango (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with (version='1.12.3',
-                   mirror=download.gnome_214,
+        self.with (version='1.14.5',
+                   mirror=download.gnome_216,
                    format='bz2')
 
     def get_build_dependencies (self):
@@ -87,20 +87,8 @@ class Pango__linux (Pango):
 ## Pango 1.12 broken FreeBSD? It tries to load NCSB for Chinese glyphs.
 
 class Pango__freebsd (Pango__linux):
-    def __init__ (self, settings):
-        Pango__linux.__init__ (self, settings)
-        self.with (version='1.11.2',
-             mirror=download.gnome_213,
-             format='bz2')
-
     def get_build_dependencies (self):
         return Pango__linux.get_build_dependencies (self) + ['libiconv-devel']
-
-    def install (self):
-        Pango__linux.install (self)
-        for f in ['%(install_root)s/usr/etc/pango/pangorc',
-                  '%(install_root)s/usr/etc/pango/pango.modules']:
-            self.file_sub ([('pango/1.5.0/', 'pango/1.4.0/')], f)
             
 
 class Pango__darwin (Pango):
@@ -119,6 +107,6 @@ import toolpackage
 class Pango__local (toolpackage.ToolBuildSpec):
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
-        self.with (version='1.12.3',
-                   mirror=download.gnome_214,
+        self.with (version='1.14.5',
+                   mirror=download.gnome_216,
                    format='bz2')
