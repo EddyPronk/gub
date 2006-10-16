@@ -312,7 +312,7 @@ LDFLAGS="%(LDFLAGS)s %(python_lib)s"
                '%(builddir)s/config.make')
 
     def compile (self):
-        self.system ('cd %(builddir)s/lily && rm out/lilypond')
+        self.system ('cd %(builddir)s/lily && rm -f out/lilypond', ignore_error=True)
         LilyPond.compile (self)
         self.system ('cd %(builddir)s/lily && mv out/lilypond out/lilypond-console')
         self.system ('cd %(builddir)s/lily && make MODULE_LDFLAGS="-mwindows" && mv out/lilypond out/lilypond-windows')
