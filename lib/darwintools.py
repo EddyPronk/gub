@@ -203,6 +203,7 @@ def get_cross_packages (settings):
     packages.append (Darwin_sdk (settings))
         
     packages += [Odcctools (settings).with (version='20060413',
+#    packages += [Odcctools (settings).with (version='20060608',
                                             mirror=download.opendarwin,
                                             format='bz2')]
 
