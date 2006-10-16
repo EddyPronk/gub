@@ -550,16 +550,15 @@ tar -C %(dir)s --owner=0 --group=0 -jcf %(cygwin_uploads)s/%(base_name)s/%(ball_
 
 def get_installer (settings, args=[]):
 
-    ## UGH : creating 6 instances of installer ?!
-    installers = {
-        'arm' : Shar (settings),
-        'darwin-ppc' : Darwin_bundle (settings),
-        'darwin-x86' : Darwin_bundle (settings),
-        'freebsd' : Shar (settings),
-        'linux-x86' : Shar (settings),
-        'linux-64' : Shar (settings),
-        'mingw' : Nsis (settings),
-        'mipsel' : Shar (settings),
+    installer_class = {
+        'arm' : Shar,
+        'darwin-ppc' : Darwin_bundle,
+        'darwin-x86' : Darwin_bundle,
+        'freebsd-x86' : Shar,
+        'linux-x86' : Shar,
+        'linux-64' : Shar,
+        'mingw' : Nsis,
+        'mipsel' : Shar,
     }
 
     if settings.platform == 'cygwin':
@@ -575,4 +574,4 @@ def get_installer (settings, args=[]):
         return map (lambda x:
                     Cygwin_package (settings, x), args)
     
-    return installers[settings.platform]
+    return installer_class[settings.platform] (settings)
