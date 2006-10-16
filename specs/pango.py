@@ -39,7 +39,7 @@ class Pango (targetpackage.TargetBuildSpec):
         self.system ('mkdir -p %(etc)s' , locals ())
         for a in glob.glob (etc + '/*'):
             self.file_sub ([('/usr/', '$PANGO_PREFIX/')],
-                   a)
+                           a)
 
         pango_module_version = None
         for dir in glob.glob (self.expand ("%(install_prefix)s/lib/pango/*")):
@@ -82,9 +82,6 @@ class Pango__linux (Pango):
                         ('(cairo[_a-z0-9]*)=yes', '\\1=no')],
                        '%(srcdir)s/configure')
         os.chmod ('%(srcdir)s/configure' % self.get_substitution_dict (), 0755)
-
-## placeholder, don't want plain Pango for freebsd.
-## Pango 1.12 broken FreeBSD? It tries to load NCSB for Chinese glyphs.
 
 class Pango__freebsd (Pango__linux):
     def get_build_dependencies (self):
