@@ -281,6 +281,28 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
             self.file_sub ([('''^#(LIBOBJS=".*fileblocks.*)''', '\\1')],
                            '%(srcdir)s/configure')
         Guile.configure (self)
+
+        ## ugh code dup. 
+        ## probably not necessary, but just be sure.
+        for i in self.locate_files ('%(builddir)s', "Makefile"):
+            self.file_sub ([
+                ('PATH_SEPARATOR = .', 'PATH_SEPARATOR = ;'),
+                ], i)
+
+        self.file_sub ([
+            ('^(allow_undefined_flag=.*)unsupported', '\\1'),
+            ],
+               '%(builddir)s/libtool')
+        self.file_sub ([
+            ('^(allow_undefined_flag=.*)unsupported', '\\1'),
+            ],
+               '%(builddir)s/guile-readline/libtool')
+
+    def patch (self):
+        pass
+
+    def compile (self):
+        Guile.compile (self)
         if self.static_ltdl:
 #            self.file_sub (
 # URG
@@ -301,28 +323,26 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
 #
 #                [(''' -lltdl''', ' %(system_root)s/usr/lib/libltdl.dll.a')],
 #                       '%(builddir)s/config.status')
+            self.dump ('''
+# Hack to link only libltdl statically.  Link using gcc directly,
+# avoiding libtool.
+include Makefile
+
+.PHONY: $(static-ltdl)
+
+static-ltdl = .libs/cygguile-$(LIBGUILE_INTERFACE_CURRENT).dll
+
+static-ltdl: $(static-ltdl)
+
+ldflags = -Wl,-rpath $(libdir) -Wl,-export-dynamic -Wl,-no-undefined
+
+$(static-ltdl): $(libguile_la_OBJECTS) $(libguile_la_DEPENDENCIES)
+	$(CCLD) -shared -o $@ $(ldflags) $(libguile_la_OBJECTS:%%.lo=.libs/%%.o) $(libguile_la_LIBADD:%%.lo=.libs/%%.o) $(LIBS: -lltdl=%(system_root)s/usr/lib/libltdl.dll.a) -lintl
+''',
+                       '%(builddir)s/libguile/static-ltdl.make')
             self.system ('''
-cd %(builddir)s && ./config.status
+cd %(builddir)s/libguile && make -f static-ltdl.make static-ltdl
 ''')
-
-        ## ugh code dup. 
-        ## probably not necessary, but just be sure.
-        for i in self.locate_files ('%(builddir)s', "Makefile"):
-            self.file_sub ([
-                ('PATH_SEPARATOR = .', 'PATH_SEPARATOR = ;'),
-                ], i)
-
-        self.file_sub ([
-            ('^(allow_undefined_flag=.*)unsupported', '\\1'),
-            ],
-               '%(builddir)s/libtool')
-        self.file_sub ([
-            ('^(allow_undefined_flag=.*)unsupported', '\\1'),
-            ],
-               '%(builddir)s/guile-readline/libtool')
-
-    def patch (self):
-        pass
 
     def install (self):
         # FIXME: we do this for all cygwin packages
