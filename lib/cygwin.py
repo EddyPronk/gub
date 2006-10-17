@@ -129,7 +129,6 @@ def get_cygwin_package (settings, name, dict):
         'perl',
         'tcltk',
         'x-startup-scripts',
-        'xaw3d',
         'xorg-x11-bin-lndir',
         'xorg-x11-etc',
         'xorg-x11-fnts',
