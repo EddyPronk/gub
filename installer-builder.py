@@ -76,7 +76,10 @@ package - build installer binary
     
     if options.version_file:
         d = misc.grok_sh_variables (options.version_file)
-        options.installer_version = ('%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d)
+        options.installer_version = d['MAJOR_VERSION']
+        for i in ('MINOR_VERSION', 'PATCH_LEVEL'):
+            if d.has_key (i):
+                options.installer_version += '.' + d[i]
 
     print "Using version number", options.installer_version,
     options.installer_build
