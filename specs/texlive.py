@@ -24,6 +24,7 @@ class Texlive (targetpackage.TargetBuildSpec):
         # urg, how to check-out a single file with svn?
         import misc
         misc.download_url (license_url, self.expand ('%(vc_dir)s'))
+        self.dump ('MAJOR_VERSION=2006', '%(vc_dir)s/VERSION')
                            
     def rsync_command (self):
         return targetpackage.TargetBuildSpec.rsync_command (self).replace ('rsync', 'rsync --exclude=.svn')
