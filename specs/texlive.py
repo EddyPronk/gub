@@ -15,6 +15,16 @@ class Texlive (targetpackage.TargetBuildSpec):
                    mirror=texlive_svn_source,
                    vc_type='svn')
 
+    def get_subpackage_names (self):
+        return ['doc', 'devel', 'base', 'runtime', 'bin', '']
+
+    def get_subpackage_definitions (self):
+        d = targetpackage.TargetBuildSpec.get_subpackage_definitions (self)
+        d['base'] = ['/usr/share/texmf']
+#        d['bin'] = ['/']
+        d['bin'] = ['/etc', '/usr']
+        return d
+
     def do_download (self):
         targetpackage.TargetBuildSpec.do_download (self)
         self._vc_download (texlive_svn_texmf, 'texmf-dist', 'HEAD',
@@ -78,6 +88,12 @@ class Texlive (targetpackage.TargetBuildSpec):
     def install_command (self):
         return self.broken_install_command ()
 
+    def install (self):
+    	targetpackage.TargetBuildSpec.install (self)
+        self.system ('''
+rsync -v -a %(srcdir)s/texmf-dist-HEAD/* %(install_root)s/usr/share/texmf/
+''')
+
     def license_file (self):
         return '%(srcdir)s/LICENSE.TL'
 
@@ -101,6 +117,11 @@ class Texlive__cygwin (Texlive):
     def __init__ (self, settings):
         Texlive.__init__ (self, settings)
 
+    def get_subpackage_definitions (self):
+        d = dict (Texlive.get_subpackage_definitions (self))
+        d['runtime'].append ('/usr/bin/cyg*dll')
+        return d
+
     # FIXME: uses mixed gub/distro dependencies
     def get_dependency_dict (self):
         d = Texlive.get_dependency_dict (self)
@@ -115,6 +136,7 @@ class Texlive__cygwin (Texlive):
         return ['jpeg', 'libfreetype2-devel', 'libgd-devel', 'libncurses-devel', 'libpng12-devel', 'libtool', 't1lib', 'xorg-x11-devel', 'xaw3d', 'zlib']
 
     def config_cache_overrides (self, str):
+        # split part to Texlive ?
         return (str + '''
 xdvi_cv_bitmap_type=${xdvi_cv_bitmap_type='BMTYPE=int BMBYTES=4'}
 xdvi_cv_func_poll=${xdvi_cv_func_poll=yes}
@@ -140,7 +162,7 @@ lt_cv_cc_dll_switch=${lt_cv_cc_dll_switch="-Wl,--dll -nostartfiles"}
                        '%(srcdir)s/texk/kpathsea/kpsewhich.c')
 
     def configure (self):
-        targetpackage.TargetBuildSpec.configure (self)
+        Texlive.configure (self)
         self.update_libtool ()
         self.file_sub ([('(-version-info 4:0:0)', '\\1 -no-undefined')],
                        '%(builddir)s/texk/kpathsea/Makefile')
@@ -152,8 +174,7 @@ CFLAGS="-O2 -g -DKPSE_DLL"
 ''')
 
     def compile_command (self):
-        return (targetpackage.TargetBuildSpec.compile_command (self)
-            + self.makeflags ())
+        return (Texlive.compile_command (self) + self.makeflags ())
 
     # move to gub?
     def libtool_broken_exe_install (self):
@@ -167,4 +188,4 @@ mv %(i)s %(base)s
 
     def install (self):
     	self.libtool_broken_exe_install ()
-        targetpackage.TargetBuildSpec.install (self)
+        Texlive.install (self)
