@@ -66,3 +66,10 @@ class Gettext__local (toolpackage.ToolBuildSpec):
 
     def get_build_dependencies (self):
         return ['libtool']            
+
+    def configure (self):
+        toolpackage.ToolBuildSpec.configure (self)
+        self.file_sub ( [
+                         ('(SUBDIRS *=.*)examples', r'\1 '),
+                         ],
+                        '%(builddir)s/gettext-tools/Makefile')
