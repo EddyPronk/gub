@@ -118,10 +118,9 @@ class BuildSpec (Os_context_wrapper):
         if not self.is_downloaded ():
             misc.download_url (self.expand (self.url), self.expand ('%(downloads)s'))
 
-    def vc_download (self):
-        timestamp_file = self.expand ('%(vc_dir)s/.cvsup-timestamp')
-        vc_dir = self.expand ('%(vc_dir)s')
-        
+    def _vc_download (self, location, module, revision, dir):
+        timestamp_file = self.expand ('%(dir)s/.cvsup-timestamp', locals ())
+
         ## don't run CVS too often.
         import time
         time_window = 10
@@ -130,48 +129,57 @@ class BuildSpec (Os_context_wrapper):
             return
 
         ## TODO: should use locking.
-        if os.path.isdir (vc_dir):
+        if os.path.isdir (dir):
             open (timestamp_file, 'w').write ('changed')
 
-        lock_file = self.expand ('%(vc_dir)s.lock')
+        lock_file = self.expand ('%(dir)s.lock', locals ())
         lock = locker.Locker (lock_file)
-        url = self.expand (self.url)
 
-        
         commands = {
-            'cvs-co': '''mkdir -p %(vc_dir)s
-cd %(vc_dir)s/.. && cvs -d %(url)s -q co -d %(name)s-%(version)s -r %(version)s %(name)s''',
+            'cvs-co': '''mkdir -p %(dir)s
+cd %(dir)s/.. && cvs -d %(location)s -q co -d %(module)s-%(revision)s -r %(revision)s %(module)s''',
             'cvs-up': '''
-cd %(vc_dir)s && cvs -q update -dAPr %(version)s
+cd %(dir)s && cvs -q update -dAPr %(revision)s
 ''',
             'git-co': '''
-cd %(downloads)s/ && git clone %(url)s %(name)s-%(version)s 
-cd %(vc_dir)s/ && git checkout %(version)s 
+cd %(downloads)s/ && git clone %(location)s %(module)s-%(revision)s 
+cd %(dir)s/ && git checkout %(revision)s 
 ''',
             'git-up': '''
-cd %(vc_dir)s/ && git pull %(url)s 
-cd %(vc_dir)s/ && git checkout %(version)s 
+cd %(dir)s/ && git pull %(location)s 
+cd %(dir)s/ && git checkout %(revision)s 
+''',
+            'svn-co': '''
+cd %(dir)s/.. && svn co -r %(revision)s %(location)s %(module)s-%(revision)s 
+''',
+            'svn-up': '''
+cd %(dir)s/ && svn up -r %(revision)s
 ''',
             }
-        
 
         action = 'up'
-        if not os.path.exists (vc_dir):
+        if not os.path.exists (dir):
             action = 'co'
-            
-        self.system (commands[self.vc_type + '-' + action])
-        
+
+        self.system (commands[self.vc_type + '-' + action], locals ())
+
         ## again: cvs up can take a long time.
         open (timestamp_file, 'w').write ('changed')
 
         self.touch_vc_checksum ()
 
+    def vc_download (self):
+        self._vc_download (self.expand (self.url), self.name (), self.version (), self.expand (self.vc_dir ()))
+
     def get_git_checksum (self):
         cs = self.read_pipe ('cd %(vc_dir)s && git describe --abbrev=24')
-
-        
         return cs.strip ()
     
+    def get_svn_checksum (self):
+        cs = self.read_pipe ('cd %(vc_dir)s && svn info')
+        import re
+        return re.sub ('.*Revision: ([0-9]*).*', '\\1', cs)
+
     def get_cvs_checksum (self):
         cvs_dirs =  []
         for (base, dirs, files) in os.walk (self.expand ('%(vc_dir)s')):
@@ -191,6 +199,8 @@ cd %(vc_dir)s/ && git checkout %(version)s
             cs = self.get_cvs_checksum ()
         elif self.vc_type == 'git':
             cs = self.get_git_checksum ()
+        elif self.vc_type == 'svn':
+            cs = self.get_svn_checksum ()
         else:
             raise 'barf'
         
