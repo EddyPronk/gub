@@ -88,8 +88,12 @@ class Settings (Context):
         self.create_dirs ()
         self.build_architecture = self.os_interface.read_pipe ('gcc -dumpmachine',
                                                                silent=True)[:-1]
-        self.cpu_count = os.sysconf ('SC_NPROCESSORS_ONLN')
 
+        try:
+            self.cpu_count = os.sysconf ('SC_NPROCESSORS_ONLN')
+        except ValueError:
+            self.cpu_count = '1'
+            
         ## fixme: where to do this?
         self.LD_LIBRARY_PATH = '%(buildtools)s/lib'
         if os.environ.has_key ('LD_LIBRARY_PATH'):
