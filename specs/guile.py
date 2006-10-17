@@ -369,6 +369,40 @@ fi
                    '%(install_root)s/etc/postinstall/%(name)s',
                    env=locals ())
 
+    # FIXME: we do most of this for all cygwin packages
+    def category_dict (self):
+        return {'': 'interpreters',
+                'runtime': 'libs',
+                'devel': 'devel libs',
+                'doc': 'doc'}
+
+    def description_dict (self):
+        return {
+            '': 'sdesc: '''The GNU extension language and Scheme interpreter (executable
+Guile, the GNU Ubiquitous Intelligent Language for Extension, is a scheme
+implementation designed for real world programming, supporting a
+rich Unix interface, a module system, and undergoing rapid development.
+
+`guile' is a scheme interpreter that can execute scheme scripts (with a
+#! line at the top of the file), or run as an inferior scheme
+process inside Emacs.
+''',
+            'runtime': '''The GNU extension language and Scheme interpreter (runtime libraries)
+Guile shared object libraries and the ice-9 scheme module.  Guile is
+the GNU Ubiquitous Intelligent Language for Extension.
+''',
+            'devel': '''Development headers and static libraries for Guile
+`libguile.h' etc. C headers, aclocal macros, the `guile-snarf' and
+`guile-config' utilities, and static `libguile.a' libraries for Guile,
+the GNU Ubiquitous Intelligent Language for Extension.
+''',
+            'doc': '''The GNU extension language and Scheme interpreter (documentation)
+This package contains the documentation for guile, including both
+a reference manual (via `info guile'), and a tutorial (via `info
+guile-tut').
+''',
+    }
+
 class Guile__local (ToolBuildSpec, Guile):
     def configure_command (self):
         return (ToolBuildSpec.configure_command (self)
