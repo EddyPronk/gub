@@ -20,6 +20,12 @@ test_settings = {
 }
     
 
+platform_test_aliases = {
+    'linux-x86': 'shar',
+    'linux-64': 'unix',
+    'freebsd-x86': 'unix'
+}
+
 def test_build (bin):
     if bin.find (':') < 0:
         bin = os.path.abspath (bin)
@@ -64,11 +70,15 @@ def test_build (bin):
         system ('ssh %(uid)s@%(host)s mkdir  %(dir)s' % locals (), ignore_error=True)
         system ('ssh %(uid)s@%(host)s rm  %(dir)s/%(base_test_file_stem)s.*' % locals (), ignore_error=True)
         
-        system ('scp %(test_file)s test-lily/test-%(platform)s-gub.sh '
+
+        test_platform = platform_test_aliases.get (platform, platform)
+        system ('scp %(test_file)s test-lily/test-%(test_platform)s-gub.sh '
                 ' %(bin)s '
                 ' %(uid)s@%(host)s:%(dir)s/'
                 % locals())
-        system ('ssh %(uid)s@%(host)s sh %(dir)s/test-%(platform)s-gub.sh %(dir)s %(base)s %(base_test_file)s'
+
+
+        system ('ssh %(uid)s@%(host)s sh %(dir)s/test-%(test_platform)s-gub.sh %(dir)s %(base)s %(base_test_file)s'
                 % locals())
         system ('scp %(uid)s@%(host)s:%(dir)s/%(base_test_file_stem)s.pdf %(logdir)s/%(base)s.test.pdf'
                 % locals ())
