@@ -100,7 +100,8 @@ class BuildSpec (Os_context_wrapper):
     def get_dependency_dict (self):
         """subpackage -> list of dependency dict."""
         
-        return {'': []}
+        # FIMXE: '' always depends on runtime?
+        return {'': [], 'devel': [], 'doc': [], 'runtime': []}
   
     def broken_for_distcc (self):
         """Set to true if package can't handle make -jX """
