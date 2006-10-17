@@ -254,6 +254,7 @@ gub_to_distro_dict = {
     'guile-runtime' : ['libguile17'],
     'libtool-runtime': ['libltdl3'],
     'libiconv-devel': ['libiconv2'],
+    'texlive-devel': ['libkpathsea4'],
     'pango': ['pango-runtime'],
     'python-devel': ['python'],
     'python-runtime': ['python'],
