@@ -5,7 +5,11 @@ import targetpackage
 class Glib (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with (version='2.10.3',
+
+
+        ## 2.12.4 : see bug  http://bugzilla.gnome.org/show_bug.cgi?id=362918
+        self.with (#version='2.12.4',   mirror=download.gnome_216,
+            version='2.10.3',
 		   mirror=download.gnome_214,
 		   format='bz2')
 
