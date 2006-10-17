@@ -454,6 +454,9 @@ mkdir -p %(installer_root)s/usr/share/doc/%(name)s
 
 	import misc
         branch = self.settings.lilypond_branch
+        # Urg: other packages than lilypond can have a -BRANCH naming
+        if package_name == 'texlive':
+            branch = 'HEAD'
         fixed_version_name = self.expand (re.sub ('-' + branch,
                                                   '-%(installer_version)s',
                                                   gub_name))
