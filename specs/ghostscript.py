@@ -10,8 +10,8 @@ class Ghostscript (targetpackage.TargetBuildSpec):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
         xsf = re.sub ('version\)s', 'version)s-gpl', download.sf)
         assert xsf <> download.sf
-        self.with (version='8.50',
-                   #mirror='ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs850/ghostscript-8.50-gpl.tar.bz2',
+        self.with (version='8.54',
+                   #mirror='ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs850/ghostscript-8.54-gpl.tar.bz2',
                    mirror=xsf,
                    format='bz2')
 
@@ -47,8 +47,6 @@ class Ghostscript (targetpackage.TargetBuildSpec):
                    'mandir', 'scriptdir', 'exdir']]
                 
         self.file_sub (substs, '%(srcdir)s/src/unixinst.mak')
-        self.system ("cd %(srcdir)s && patch -p2 < %(patchdir)s/ghostscript-8.50-ttf.patch")
-        self.system ("cd %(srcdir)s && patch -p2 < %(patchdir)s/ghostscript-8.50-encoding.patch")
 
     def fixup_arch (self):
         substs = []
@@ -189,8 +187,10 @@ include $(GLSRCDIR)/pcwin.mak
 
     def install (self):
         Ghostscript.install (self)
-        if self.settings.lilypond_branch != 'lilypond_2_6':
-            return
+        if self.settings.lilypond_branch == 'lilypond_2_6':
+            self.lily_26_kludge()
+
+    def lily_26_kludge (self):
         gs_prefix = '/usr/share/ghostscript/%(ghostscript_version)s'
         fonts = ['c059013l', 'c059016l', 'c059033l', 'c059036l']
         for i in self.read_pipe ('locate %s.pfb' % fonts[0]).split ('\n'):
