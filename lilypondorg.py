@@ -42,12 +42,17 @@ def get_alias (p):
         return p
 
 formats = {
-    'linux-x86': 'sh',
     'darwin-ppc': 'tar.bz2',
     'darwin-x86': 'tar.bz2',
-    'freebsd-x86': 'sh',
-    'mingw':'exe',
+
+    'linux-x86': 'sh',
+    'linux-64': 'sh',
     'linux-arm': 'sh',
+
+    'freebsd-x86': 'sh',
+
+    'mingw':'exe',
+
     'documentation': 'tar.bz2',
     }
 
