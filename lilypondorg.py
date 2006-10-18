@@ -32,15 +32,6 @@ host_source_spec = host_spec + '/download'
 host_binaries_spec = host_spec + '/download/binaries'
 host_doc_spec = host_spec + '/doc'
 
-def get_alias (p):
-    try:
-        return {
-            'linux-arm': 'arm',
-            'freebsd-x86': 'freebsd',
-            }[p]
-    except KeyError:
-        return p
-
 formats = {
     'darwin-ppc': 'tar.bz2',
     'darwin-x86': 'tar.bz2',
@@ -170,11 +161,9 @@ def upload_binaries (version):
 
     barf = False
     for platform in platforms:
-        plat = get_alias (platform)
-        
         format = formats[platform]
         
-        base = 'lilypond-%(version_str)s-%(build)d.%(plat)s.%(format)s' % locals()
+        base = 'lilypond-%(version_str)s-%(build)d.%(platform)s.%(format)s' % locals()
         bin = 'uploads/%(base)s' % locals()
         
         if not os.path.exists (bin):
