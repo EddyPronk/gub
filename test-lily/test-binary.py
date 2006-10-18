@@ -12,12 +12,14 @@ def system (c, ignore_error=False):
         raise 'barf'
 
 
-test_settings = {
-    'linux-x86': ('lilytest', 'haring', 'test-gub', None),
-    'freebsd': ('hanwen', 'xs4all.nl', 'test-gub', None),
-    'darwin-ppc': ('lilytest', 'maagd', 'test-gub', None),
-    'mingw': ('hanwen', 'wklep', 'test-gub', 'test-lily/typography-demo-no-cjk.ly'),
-}
+
+
+##
+## format:
+## 
+## "platform": ("login", "host", "directory", test-file")
+##
+test_settings = eval (open ('test-settings.py').read ())
     
 
 platform_test_aliases = {
