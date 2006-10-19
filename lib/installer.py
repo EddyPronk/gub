@@ -491,7 +491,7 @@ mkdir -p %(installer_root)s/usr/share/doc/%(name)s
         hint = base_name + '.hint'
 
         # FIXME: sane package installer root
-        installer_root =  '%(targetdir)s/installer-%(base_name)s'
+        installer_root = '%(targetdir)s/installer-%(base_name)s'
         self.get_substitution_dict ()['installer_root'] = installer_root
         self.get_substitution_dict ()['base_name'] = base_name
 
@@ -545,12 +545,12 @@ tar -C %(installer_root)s -zxf %(gub_uploads)s/%(gub_name)s
 rm -rf %(installer_root)s/usr/cross
 mkdir -p %(cygwin_uploads)s/%(base_name)s
 mkdir -p %(installer_root)s/usr/share/doc/%(base_name)s
-rm -f %(installer_root)s/license*/README
-mv %(installer_root)s/license*/* %(installer_root)s/usr/share/doc/%(base_name)s || true
-rm -rf %(installer_root)s/license*
+rm -f %(installer_root)s/license*
 rmdir %(installer_root)s/bin || true
 rmdir %(installer_root)s/etc || true
 rmdir %(installer_root)s/usr/bin || true
+rm -rf %(installer_root)s/usr/etc/relocate
+rmdir %(installer_root)s/usr/etc || true
 rmdir %(installer_root)s/usr/lib || true
 rmdir %(installer_root)s/usr/share/doc/%(base_name)s || true
 rmdir %(installer_root)s/usr/share/doc || true
