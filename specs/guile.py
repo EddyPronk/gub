@@ -234,10 +234,11 @@ class Guile__cygwin (Guile):
         self.with (version='1.8.1',
                    mirror=download.gnu, format='gz')
         self.replace_ltdl = False
-        self.static_ltdl = True
+        self.static_ltdl = False
 
     def get_subpackage_definitions (self):
         d = dict (Guile.get_subpackage_definitions (self))
+        # FIXME: we do this for all cygwin packages
         d['runtime'].append ('/usr/bin/cyg*dll')
 
         if self.replace_ltdl:
@@ -378,8 +379,6 @@ fi
 
     def description_dict (self):
         return {
-            ##  'sdesc:
-            ## huh --hwn
             '': """The GNU extension language and Scheme interpreter (executable
 Guile, the GNU Ubiquitous Intelligent Language for Extension, is a scheme
 implementation designed for real world programming, supporting a
