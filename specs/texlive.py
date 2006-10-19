@@ -7,6 +7,16 @@ texlive_svn_texmf = texlive_svn + 'Master/texmf'
 license_url = 'http://tug.org/svn/texlive/trunk/Master/LICENSE.TL'
 
 class Texlive (targetpackage.TargetBuildSpec):
+    '''The TeX Live text formatting system - %(flavor)s"
+The TeX Live software distribution offers a complete TeX system.
+It  encompasses programs for editing, typesetting, previewing and printing
+of TeX documents in many different languages, and a large collection
+of TeX macros and font libraries.
+ 
+The distribution also includes extensive general documentation about
+TeX, as well as the documentation accompanying the included software
+packages.'''
+
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
         # FIXME: lilypond_branch
@@ -201,3 +211,33 @@ CFLAGS="-O2 -g -DKPSE_DLL"
         # FIXME: we do this for all cygwin packages
         self.install_readmes ()
         
+    # FIXME: we do most of this for all cygwin packages
+    def category_dict (self):
+        return {'': 'text publishing',
+                'base': 'text publishing',
+                'extra': 'text publishing',
+                'runtime': 'libs',
+                'devel': 'devel libs',
+                'doc': 'doc',
+                'x11': 'x11',
+                }
+
+    def description_dict (self):
+        # FIXME: fairly uninformative description for packages,
+        # unlike, eg, guile-devel.  This is easier, though.
+        d = {}
+        for i in self.get_subpackage_names ():
+            d[i] = self.get_subpackage_doc (i)
+        return d
+
+    def get_subpackage_doc (self, split):
+        flavor = {'': 'installer helper',
+                  'bin': 'executables',
+                  'base': 'base texmf tree',
+                  'extra': 'full texmf tree',
+                  'devel': 'development',
+                  'doc': 'documentation',
+                  'runtime': 'runtime',
+                  'x11': 'x11 executables',
+                  }[split]
+        return Texlive.__doc__ % locals ()
