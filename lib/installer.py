@@ -358,44 +358,39 @@ mkdir -p %(installer_root)s/etc/hints
         print 'requires:' + requires
         external_source_line = ''
         file = (spec.settings.sourcefiledir + '/' + base_name + '.hint')
-        if os.path.exists (file):
-            hint = spec.expand (open (file).read (), locals ())
-        else:
-            if split:
-                external_source_line = spec.expand ('''
+        if split:
+            external_source_line = spec.expand ('''
 external-source: %(name)s''', locals ())
-#            try:
-            if 1:
-                ldesc = spec.description_dict ()[split]
-                sdesc = ldesc[:ldesc.find ('\n')]
-#             except:
-#                 sdesc = spec.expand ('%(name)s')
-#                 if split:
-#                     sdesc += ' ' + split
-#                 flavor = split
-#                 if not flavor:
-#                     flavor = 'executables'
-#                 ldesc = 'The %(name)s package for Cygwin - ' + flavor
-            try:
-                category = spec.category_dict ()[split]
-            except:
-                if not split:
-                    caterory = 'utils'
-                elif split == 'runtime':
-                    caterory = 'libs'
-                else:
-                    caterory = split
-            requires_line = ''
-            if requires:
-                requires_line = spec.expand ('''
+        try:
+            ldesc = spec.description_dict ()[split]
+            sdesc = ldesc[:ldesc.find ('\n')]
+        except:
+            sdesc = spec.expand ('%(name)s')
+            flavor = 'executables'
+            if split:
+                sdesc += ' ' + split
+                flavor = split
+            ldesc = 'The %(name)s package for Cygwin - ' + flavor
+        try:
+            category = spec.category_dict ()[split]
+        except:
+            if not split:
+                caterory = 'utils'
+            elif split == 'runtime':
+                caterory = 'libs'
+            else:
+                caterory = split
+        requires_line = ''
+        if requires:
+            requires_line = spec.expand ('''
 requires: %(requires)s''',
-                                             locals ())
-            hint = spec.expand ('''curr: %(installer_version)s-%(installer_build)s
+                                         locals ())
+        hint = spec.expand ('''curr: %(installer_version)s-%(installer_build)s
 sdesc: "%(sdesc)s"
 ldesc: "%(ldesc)s"
 category: %(category)s%(requires_line)s%(external_source_line)s
 ''',
-                                    locals ())
+                                locals ())
         spec.dump (hint,
                    '%(installer_root)s/etc/hints/%(base_name)s.hint',
                    env=self.get_substitution_dict (locals ()))
