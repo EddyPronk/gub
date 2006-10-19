@@ -5,6 +5,12 @@ import targetpackage
 import toolpackage
 
 class Fontconfig (targetpackage.TargetBuildSpec):
+    '''Generic font configuration library - %(flavor)s
+Fontconfig is a font configuration and customization library, which
+does not depend on the X Window System.  It is designed to locate
+fonts within the system and select them according to requirements
+specified by applications.'''
+
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
 #        self.with (mirror="git://anongit.freedesktop.org/git/fontconfig", version="master", vc_type='git')
@@ -148,3 +154,18 @@ class Fontconfig__cygwin (Fontconfig):
                 'runtime': 'libs',
                 'devel': 'devel libs',
                 'doc': 'doc'}
+
+    def description_dict (self):
+        # FIXME: fairly uninformative description for packages,
+        # unlike, eg, guile-devel.  This is easier, though.
+        d = {}
+        for i in self.get_subpackage_names ():
+            d[i] = self.get_subpackage_doc (i)
+        return d
+
+    def get_subpackage_doc (self, split):
+        flavor = {'': 'executables',
+                  'devel': 'development',
+                  'doc': 'documentation',
+                  'runtime': 'runtime'}[split]
+        return Fontconfig.__doc__ % locals ()
