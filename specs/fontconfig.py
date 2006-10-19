@@ -134,11 +134,6 @@ class Fontconfig__cygwin (Fontconfig):
         d['runtime'].append ('/usr/bin/cyg*dll')
         return d
 
-    def install (self):
-        # FIXME: we do this for all cygwin packages
-        Fontconfig.install (self)
-        self.install_readmes ()
-
     def get_build_dependencies (self):
         return ['libtool', 'libfreetype2-devel', 'expat']
     
@@ -169,3 +164,15 @@ class Fontconfig__cygwin (Fontconfig):
                   'doc': 'documentation',
                   'runtime': 'runtime'}[split]
         return Fontconfig.__doc__ % locals ()
+
+    def configure_command (self):
+        return (Fontconfig.configure_command (self)
+                + ' --sysconfdir=/etc --localstatedir=/var')
+
+    def install (self):
+        Fontconfig.install (self)
+        # FIXME: we do this for all cygwin packages
+	self.post_install_smurf_exe ()
+        self.install_readmes ()
+        
+    
