@@ -117,3 +117,34 @@ class Fontconfig__local (toolpackage.ToolBuildSpec):
         return  toolpackage.ToolBuildSpec.compile_command (self) + ' DOCSRC="" '   
     def install_command (self):
         return  toolpackage.ToolBuildSpec.install_command (self) + ' DOCSRC="" '   
+class Fontconfig__cygwin (Fontconfig):
+    def get_subpackage_names (self):
+        #return ['devel', 'doc', '']
+        return ['devel', 'runtime', '']
+
+    def get_subpackage_definitions (self):
+        d = dict (Fontconfig.get_subpackage_definitions (self))
+        # FIXME: we do this for all cygwin packages
+        d['runtime'].append ('/usr/bin/cyg*dll')
+        return d
+
+    def install (self):
+        # FIXME: we do this for all cygwin packages
+        Fontconfig.install (self)
+        self.install_readmes ()
+
+    def get_build_dependencies (self):
+        return ['libtool', 'libfreetype2-devel', 'expat']
+    
+    def get_dependency_dict (self):
+        return {
+            '': ['libfontconfig1'],
+            'devel': ['libfontconfig1', 'libfreetype2-devel'],
+            'runtime': ['expat', 'libfreetype26', 'zlib'],
+            }
+
+    def category_dict (self):
+        return {'': 'libs',
+                'runtime': 'libs',
+                'devel': 'devel libs',
+                'doc': 'doc'}

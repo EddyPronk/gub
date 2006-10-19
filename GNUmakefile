@@ -131,6 +131,14 @@ cygwin-libtool-installer:
 	echo INSTALLER_BUILD=2 > buildnumber-libtool.make
 	$(call INVOKE_INSTALLER_BUILDER,cygwin) --buildnumber-file=buildnumber-libtool.make build-all libtool
 
+cygwin-fontconfig:
+	rm -f uploads/cygwin/setup.ini
+	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build fontconfig
+
+cygwin-fontconfig-installer:
+	echo INSTALLER_BUILD=1 > buildnumber-fontconfig.make
+	$(call INVOKE_INSTALLER_BUILDER,cygwin) --buildnumber-file=buildnumber-fontconfig.make build-all fontconfig
+
 cygwin-guile:
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build libtool guile
 
