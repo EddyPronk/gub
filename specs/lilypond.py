@@ -10,6 +10,10 @@ import targetpackage
 from context import *
 
 class LilyPond (targetpackage.TargetBuildSpec):
+    '''A program for printing sheet music - %(flavor)s
+LilyPond lets you create music notation.  It produces
+beautiful sheet music from a high-level description file.'''
+
     def get_dependency_dict (self):
         return {'': [
             'fontconfig',
@@ -269,6 +273,21 @@ tar -C %(install_root)s/usr/share/doc/lilypond -jxf %(docball)s
 ''',
                   locals ())
 
+    def category_dict (self):
+        return {'': 'publishing', 'doc': 'doc'}
+
+    def description_dict (self):
+        # FIXME: fairly uninformative description for packages,
+        # unlike, eg, guile-devel.  This is easier, though.
+        d = {}
+        for i in self.get_subpackage_names ():
+            d[i] = self.get_subpackage_doc (i)
+        return d
+
+    def get_subpackage_doc (self, split):
+        flavor = {'': 'executables', 'doc': 'documentation'}[split]
+        return LilyPond.__doc__ % locals ()
+        
 class LilyPond__freebsd (LilyPond):
     def get_dependency_dict (self):
         d = LilyPond.get_dependency_dict (self)
