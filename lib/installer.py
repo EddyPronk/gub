@@ -545,7 +545,7 @@ tar -C %(installer_root)s -zxf %(gub_uploads)s/%(gub_name)s
 rm -rf %(installer_root)s/usr/cross
 mkdir -p %(cygwin_uploads)s/%(base_name)s
 mkdir -p %(installer_root)s/usr/share/doc/%(base_name)s
-rm -f %(installer_root)s/license*
+rm -rf %(installer_root)s/license*
 rmdir %(installer_root)s/bin || true
 rmdir %(installer_root)s/etc || true
 rmdir %(installer_root)s/usr/bin || true
