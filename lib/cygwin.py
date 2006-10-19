@@ -259,6 +259,7 @@ def get_packages ():
 
 gub_to_distro_dict = {
     'expat-devel': ['expat'],
+    'fontconfig' : ['libfontconfig1'],
     'fontconfig-runtime' : ['libfontconfig1'],
     'fontconfig-devel' : ['libfontconfig-devel'],
     'freetype' : ['libfreetype26'],
