@@ -62,6 +62,13 @@ class Libtool__cygwin (Libtool):
         Libtool.install (self)
         self.install_readmes ()
 
+    # FIXME: we do most of this for all cygwin packages
+    def category_dict (self):
+        return {'': 'interpreters',
+                'runtime': 'libs',
+                'devel': 'devel libs',
+                'doc': 'doc'}
+
 class Libtool__local (ToolBuildSpec):
     """
 
