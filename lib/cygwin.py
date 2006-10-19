@@ -36,6 +36,13 @@ class W32api_in_usr_lib (gub.BinarySpec, gub.SdkBuildSpec):
 tar -C %(system_root)s/usr/lib/w32api -cf- . | tar -C %(srcdir)s/root/usr/lib -xf-
 ''')
 
+class Libtool_fixup (gub.NullBuildSpec):
+    def get_build_dependencies (self):
+        return ['libtool']
+    def untar (self):
+        self.file_sub ([('/usr/bin/sed', '/bin/sed')],
+                       '%(system_root)s/usr/bin/libtool')
+
 class Gcc (mingw.Gcc):
     def get_build_dependencies (self):
         return (mingw.Gcc.get_build_dependencies (self)
@@ -75,6 +82,9 @@ def get_cross_packages (settings):
         W32api_in_usr_lib (settings).with (version='1.0'),
         Gcc (settings).with (version='4.1.1', mirror=download.gcc_41, format='bz2'),
         linux.Python_config (settings).with (version='2.4.3'),
+# FIXME: using the binary libtool package is quite involved, it has
+# names of tools hardcoded and wrong (LD, NM, SED, GCC, GREP, ...)
+#        Libtool_fixup (settings).with (version='1.0'),
         ]
 
     return cross_packs
@@ -108,14 +118,17 @@ def get_cygwin_package (settings, name, dict):
     # FIXME: this really sucks, should translate or something
     # There also is the problem that gub build-dependencies
     # use unsplit packages.
-    source = [
+    guile_source = [
         'guile',
         'guile-devel',
         'libguile17',
+        ]
+    libtool_source = [
         'libltdl3',
         'libtool',
         'libtool1.5',
         ]
+    source = guile_source + libtool_source
     # FIXME: These packages are not needed for [cross] building,
     # but most should stay as distro's final install dependency.
     unneeded = [
@@ -245,13 +258,15 @@ def get_packages ():
     return dependency_resolver.get_packages ()
 
 gub_to_distro_dict = {
-    'fontconfig' : ['libfontconfig1'],
+    'expat-devel': ['expat'],
+    'fontconfig-runtime' : ['libfontconfig1'],
     'fontconfig-devel' : ['libfontconfig-devel'],
     'freetype' : ['libfreetype26'],
     'freetype-devel' : ['libfreetype2-devel'],
     'gettext' : ['libintl3'],
     'gmp-devel': ['gmp'],
     'guile-runtime' : ['libguile17'],
+#    'libtool': ['libtool1.5'],
     'libtool-runtime': ['libltdl3'],
     'libiconv-devel': ['libiconv2'],
     'texlive-devel': ['libkpathsea4'],

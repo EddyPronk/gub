@@ -39,7 +39,9 @@ class Libtool__cygwin (Libtool):
     def __init__ (self, settings):
         Libtool.__init__ (self, settings)
         self.with (version='1.5.22')
-        #self.with (version='1.5.22-1',
+        # FIXME: next to impossible to untar and patch automatically
+        # should call for sanity on cygwin-apps@cygwin.com?
+        #self.with (version='1.5.23a',
         #          mirror='http://mirrors.kernel.org/sourceware/cygwin/release/libtool/libtool1.5/libtool1.5-%(version)s-1-src.tar.bz2',)
         # FIXME: build lib package naming: lib<NAME><MAJOR-SO-VERSION> into gub
 
