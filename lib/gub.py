@@ -671,6 +671,21 @@ cd %(srcdir)s && patch -p1 -f < %(allsrcdir)s/%(patch)s || true
 ''',
                      locals ())
 
+    def pre_install_smurf_exe (self):
+        import os
+        for i in self.locate_files ('%(builddir)s', '*.exe'):
+            base = os.path.splitext (i)[0]
+            self.system ('''mv %(i)s %(base)s''', locals ())
+
+    def post_install_smurf_exe (self):
+        import os
+        for i in (self.locate_files ('%(install_root)s/bin', '*')
+                  + self.locate_files ('%(install_root)s/usr/bin', '*')):
+            if (not os.path.islink (i)
+                and not os.path.splitext (i)[1]
+                and not self.read_pipe ('file -b %(i)s', locals ()).startswith ('MS-DOS executable PE')):
+                self.system ('''mv %(i)s %(i)s.exe''', locals ())
+
     def install_readmes (self):
         self.system ('''
 mkdir -p %(install_root)s/usr/share/doc/%(name)s

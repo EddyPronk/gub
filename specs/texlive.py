@@ -186,23 +186,6 @@ CFLAGS="-O2 -g -DKPSE_DLL"
     def compile_command (self):
         return (Texlive.compile_command (self) + self.makeflags ())
 
-    # move to gub?
-    def pre_install_smurf_exe (self):
-        import os
-        for i in self.locate_files ('%(builddir)s', '*.exe'):
-            base = os.path.splitext (i)[0]
-            self.system ('''mv %(i)s %(base)s''', locals ())
-
-    # move to gub?
-    def post_install_smurf_exe (self):
-        import os
-        for i in (self.locate_files ('%(install_root)s/bin', '*')
-                  + self.locate_files ('%(install_root)s/usr/bin', '*')):
-            if (not os.path.islink (i)
-                and not os.path.splitext (i)[1]
-                and not self.read_pipe ('file -b %(i)s', locals ()).startswith ('MS-DOS executable PE')):
-                self.system ('''mv %(i)s %(i)s.exe''', locals ())
-
     def install (self):
     	self.pre_install_smurf_exe ()
         Texlive.install (self)
