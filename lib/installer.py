@@ -373,7 +373,7 @@ requires: %(requires)s''',
             hint = spec.expand ('''curr: %(installer_version)s-%(installer_build)s
 sdesc: "%(name)s"
 ldesc: "The %(name)s package for Cygwin."
-category: misc%(requires_line)s%(external_source_line)s
+category: utils%(requires_line)s%(external_source_line)s
 ''',
                                     locals ())
         spec.dump (hint,
@@ -528,6 +528,18 @@ tar -C %(installer_root)s -zxf %(gub_uploads)s/%(gub_name)s
         package.system ('''
 rm -rf %(installer_root)s/usr/cross
 mkdir -p %(cygwin_uploads)s/%(base_name)s
+mkdir -p %(installer_root)s/usr/share/doc/%(base_name)s
+rm -f %(installer_root)s/license*/README
+mv %(installer_root)s/license*/* %(installer_root)s/usr/share/doc/%(base_name)s || true
+rm -rf %(installer_root)s/licence*
+rmdir %(installer_root)s/bin || true
+rmdir %(installer_root)s/etc || true
+rmdir %(installer_root)s/usr/bin || true
+rmdir %(installer_root)s/usr/lib || true
+rmdir %(installer_root)s/usr/share/doc/%(base_name)s || true
+rmdir %(installer_root)s/usr/share/doc || true
+rmdir %(installer_root)s/usr/share || true
+rmdir %(installer_root)s/usr || true
 tar -C %(installer_root)s --owner=0 --group=0 -jcf %(cygwin_uploads)s/%(base_name)s/%(ball_name)s .
 cp -pv %(installer_root)s/etc/hints/%(hint)s %(cygwin_uploads)s/%(base_name)s/setup.hint
 ''',
