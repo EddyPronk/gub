@@ -391,6 +391,7 @@ ldesc: "%(ldesc)s"
 category: %(category)s%(requires_line)s%(external_source_line)s
 ''',
                                 locals ())
+        print 'dumping hint for: ' + split
         spec.dump (hint,
                    '%(installer_root)s/etc/hints/%(base_name)s.hint',
                    env=self.get_substitution_dict (locals ()))
@@ -546,7 +547,7 @@ mkdir -p %(cygwin_uploads)s/%(base_name)s
 mkdir -p %(installer_root)s/usr/share/doc/%(base_name)s
 rm -f %(installer_root)s/license*/README
 mv %(installer_root)s/license*/* %(installer_root)s/usr/share/doc/%(base_name)s || true
-rm -rf %(installer_root)s/licence*
+rm -rf %(installer_root)s/license*
 rmdir %(installer_root)s/bin || true
 rmdir %(installer_root)s/etc || true
 rmdir %(installer_root)s/usr/bin || true
