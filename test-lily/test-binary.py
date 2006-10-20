@@ -17,7 +17,7 @@ def system (c, ignore_error=False):
 ##
 ## format:
 ## 
-## "platform": ("login", "host", "directory", test-file")
+## { "platform": ("login", "host", "directory", test-file") , ... }
 ##
 test_settings = eval (open ('test-settings.py').read ())
     
