@@ -4,6 +4,7 @@ import download
 import glob
 import misc
 import locker
+import repository
 
 # sys
 import pickle
@@ -118,6 +119,7 @@ class BuildSpec (Os_context_wrapper):
         if not self.is_downloaded ():
             misc.download_url (self.expand (self.url), self.expand ('%(downloads)s'))
 
+    ## TODO: use repository.py
     def _vc_download (self, location, module, revision, dir):
         timestamp_file = self.expand ('%(dir)s/.cvsup-timestamp', locals ())
 
@@ -128,40 +130,17 @@ class BuildSpec (Os_context_wrapper):
             and misc.file_mod_time (timestamp_file) > time.time () - time_window):
             return
 
-        ## TODO: should use locking.
-        if os.path.isdir (dir):
-            open (timestamp_file, 'w').write ('changed')
-
         lock_file = self.expand ('%(dir)s.lock', locals ())
         lock = locker.Locker (lock_file)
 
-        commands = {
-            'cvs-co': '''mkdir -p %(dir)s
-cd %(dir)s/.. && cvs -d %(location)s -q co -d %(module)s-%(revision)s -r %(revision)s %(module)s''',
-            'cvs-up': '''
-cd %(dir)s && cvs -q update -dAPr %(revision)s
-''',
-            'git-co': '''
-cd %(downloads)s/ && git clone %(location)s %(module)s-%(revision)s 
-cd %(dir)s/ && git checkout %(revision)s 
-''',
-            'git-up': '''
-cd %(dir)s/ && git pull %(location)s 
-cd %(dir)s/ && git checkout %(revision)s 
-''',
-            'svn-co': '''
-cd %(dir)s/.. && svn co -r %(revision)s %(location)s %(module)s-%(revision)s 
-''',
-            'svn-up': '''
-cd %(dir)s/ && svn up -r %(revision)s
-''',
-            }
+        if os.path.isdir (dir):
+            open (timestamp_file, 'w').write ('changed')
 
         action = 'up'
         if not os.path.exists (dir):
             action = 'co'
 
-        self.system (commands[self.vc_type + '-' + action], locals ())
+        self.system (repository.download_commands[self.vc_type + '-' + action], locals ())
 
         ## again: cvs up can take a long time.
         open (timestamp_file, 'w').write ('changed')
@@ -169,43 +148,24 @@ cd %(dir)s/ && svn up -r %(revision)s
         self.touch_vc_checksum ()
 
     def vc_download (self):
-        self._vc_download (self.expand (self.url), self.name (), self.version (), self.expand (self.vc_dir ()))
+        self._vc_download (self.expand (self.url), self.name (), self.version (),
+                           self.expand (self.vc_dir ()))
 
-    def get_git_checksum (self):
-        cs = self.read_pipe ('cd %(vc_dir)s && git describe --abbrev=24')
-        return cs.strip ()
-    
-    def get_svn_checksum (self):
-        cs = self.read_pipe ('cd %(vc_dir)s && svn info')
-        import re
-        return re.sub ('.*Revision: ([0-9]*).*', '\\1', cs)
-
-    def get_cvs_checksum (self):
-        cvs_dirs =  []
-        for (base, dirs, files) in os.walk (self.expand ('%(vc_dir)s')):
-            cvs_dirs += [os.path.join (base, d) for d in dirs
-                         if d == 'CVS']
-
-        checksum = md5.md5()
-        for d in cvs_dirs:
-            checksum.update (open (os.path.join (d, 'Entries')).read ())
-
-        return checksum.hexdigest ()
+    def get_repository_proxy (self):
+        dir = self.expand ('%(vc_dir)s')
+        proxy = repository.get_repository_proxy (dir)
+        proxy.system = self.system
+        proxy.read_pipe = self.read_pipe
+        return proxy
     
     def touch_vc_checksum (self):
-
         cs = '0000'
-        if self.vc_type == 'cvs':
-            cs = self.get_cvs_checksum ()
-        elif self.vc_type == 'git':
-            cs = self.get_git_checksum ()
-        elif self.vc_type == 'svn':
-            cs = self.get_svn_checksum ()
-        else:
-            raise 'barf'
-        
-        open (self.vc_checksum_file (), 'w').write (cs)
+        try:
+            cs = self.get_repository_proxy ().get_release_hash()
+        except repository.UnknownVcSystem:
+            pass
 
+        open (self.vc_checksum_file (), 'w').write (cs)
         
     @subst_method
     def name (self):
@@ -352,7 +312,7 @@ cd %(dir)s/ && svn up -r %(revision)s
 
     @subst_method
     def rsync_command (self):
-        return "rsync --exclude .git --exclude CVS -v -a %(downloads)s/%(name)s-%(version)s/ %(srcdir)s"
+        return "rsync --exclude .git --exclude _darcs --exclude .svn --exclude CVS -v -a %(downloads)s/%(name)s-%(version)s/ %(srcdir)s"
 
     def get_stamp_file (self):
         stamp = self.expand ('%(stamp_file)s')
