@@ -10,8 +10,6 @@ import targetpackage
 from context import *
 
 class LilyPond (targetpackage.TargetBuildSpec):
-
-    ##  - %(flavor)s --hwn
     '''A program for printing sheet music
 LilyPond lets you create music notation.  It produces
 beautiful sheet music from a high-level description file.'''
@@ -290,7 +288,8 @@ tar -C %(install_root)s/usr/share/doc/lilypond -jxf %(docball)s
 
     def get_subpackage_doc (self, split):
         flavor = {'': 'executables', 'doc': 'documentation'}[split]
-        return LilyPond.__doc__ % locals ()
+        return (LilyPond.__doc__.replace ('\n', ' - %(flavor)s\n', 1)
+                % locals ())
         
 class LilyPond__freebsd (LilyPond):
     def get_dependency_dict (self):

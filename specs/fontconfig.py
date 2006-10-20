@@ -5,8 +5,6 @@ import targetpackage
 import toolpackage
 
 class Fontconfig (targetpackage.TargetBuildSpec):
-
-    ## - %(flavor)s  ## removed from docstr.
     '''Generic font configuration library 
 Fontconfig is a font configuration and customization library, which
 does not depend on the X Window System.  It is designed to locate
@@ -165,7 +163,8 @@ class Fontconfig__cygwin (Fontconfig):
                   'devel': 'development',
                   'doc': 'documentation',
                   'runtime': 'runtime'}[split]
-        return Fontconfig.__doc__ % locals ()
+        return (Fontconfig.__doc__.replace ('\n', ' - %(flavor)s\n', 1)
+                % locals ())
 
     def configure_command (self):
         return (Fontconfig.configure_command (self)
