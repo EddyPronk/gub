@@ -8,7 +8,7 @@ import time
 
 from misc import *
 
-def read_pipe (cmd, ignore_error=False):
+def default_read_pipe (cmd, ignore_error=False):
     print 'pipe:', cmd
     pipe = os.popen (cmd)
 
@@ -27,6 +27,8 @@ class Repository:
         self.repo_admin_dir = repo_admin_dir
         self.test_dir = os.path.join (self.repo_admin_dir, 'test-results')
         self._databases = {}
+        self.system = os.system
+        self.read_pipe = default_read_pipe
         
         if not os.path.isdir (self.test_dir):
             os.makedirs (self.test_dir)
@@ -67,6 +69,26 @@ class Repository:
         assert 0
         return 'baseclass method called'
     
+    def update (self, runcmd):
+        pass 
+        
+class GitRepository (Repository):
+    def __init__ (self, dir):
+        Repository.__init__ (self, dir, dir + '/.git')
+
+    def get_release_hash (self):
+        cs = self.read_pipe ('cd %s && git describe --abbrev=24' % self.repo_dir)
+        return cs.strip ()
+
+class SvnRepository (Repository):
+    def __init__ (self, dir):
+        Repository.__init__ (self, dir, dir + '/.svn')
+
+    def get_release_hash (self):
+        cs = self.read_pipe ('cd %(vc_dir)s && svn info')
+        return re.sub ('.*Revision: ([0-9]*).*', '\\1', cs)
+
+
 def read_changelog (file):
     contents = open (file).read ()
     regex = re.compile ('\n([0-9])')
@@ -87,17 +109,17 @@ class DarcsRepository (Repository):
         return '%sdarcs %s ' % (repo_opt, subcmd)
     
     def tag (self, name):
-        system (self.base_command ('tag')  + ' --patch-name %s ' % name)
+        self.system (self.base_command ('tag')  + ' --patch-name %s ' % name)
 
     def push (self, name, dest):
-        system (self.base_command ('push') + ' -a -t %s %s ' % (name, dest))
+        self.system (self.base_command ('push') + ' -a -t %s %s ' % (name, dest))
         
     def get_diff_from_tag (self, base_tag):
         return os.popen (self.base_command (' diff ') + ' -u --from-tag %s' % base_tag).read ()
     
     def read_last_patch (self):
 
-        last_change = read_pipe (self.base_command ('changes') + ' --xml --last=1')
+        last_change = self.read_pipe (self.base_command ('changes') + ' --xml --last=1')
         dom = xml.dom.minidom.parseString(last_change)
         patch_node = dom.childNodes[0].childNodes[1]
         name_node = patch_node.childNodes[1]
@@ -121,7 +143,7 @@ class DarcsRepository (Repository):
             return ''
 
     def get_release_hash (self):
-        xml_string = read_pipe (self.base_command ('changes') + ' --xml ')
+        xml_string = self.read_pipe (self.base_command ('changes') + ' --xml ')
         dom = xml.dom.minidom.parseString(xml_string)
         patches = dom.documentElement.getElementsByTagName('patch')
         patches = [p for p in patches if not re.match ('^TAG', self.xml_patch_name (p))]
@@ -142,7 +164,7 @@ class CVSRepository (Repository):
         self.time_stamp = -1
         self.version_checksum = '0000'
         self.read_cvs_entries ()
-        
+
     def read_cvs_entries (self):
         checksum = md5.md5()
 
@@ -177,7 +199,7 @@ class CVSRepository (Repository):
         date = date.replace ('/', '')
         
         cmd = 'cd %s && cvs diff -uD "%s" ' % (self.repo_dir, date)
-        return 'diff from %s\n%s:\n' % (name, cmd) + read_pipe (cmd, ignore_error=True)
+        return 'diff from %s\n%s:\n' % (name, cmd) + self.read_pipe (cmd, ignore_error=True)
 
     def get_diff_from_tag (self, name):
         keys = [k for k in self.tag_db.keys ()
@@ -188,8 +210,7 @@ class CVSRepository (Repository):
             return self.get_diff_from_exact_tag (keys[-1])
         else:
             return 'No previous success result to diff with'
-        
-    
+     
     def read_last_patch (self):
         d = {}
         d['date'] = time.strftime (self.tag_dateformat, time.gmtime (self.time_stamp))
@@ -239,15 +260,45 @@ class CVSRepository (Repository):
 
         return es
 
+class UnknownVcSystem(Exception):
+    pass
+
 def get_repository_proxy (dir):
     if os.path.isdir (dir + '/CVS'):
         return CVSRepository (dir)
     elif os.path.isdir (dir + '/_darcs'):
         return DarcsRepository (dir)
+    elif os.path.isdir (dir + '/.git'):
+        return GitRepository (dir)
+    elif os.path.isdir (dir + '/.svn'):
+        return SvnRepository (dir)
     else:
-        raise Exception('repo format unknown: ' + dir)
+        raise UnknownVcSystem('repo format unknown: ' + dir)
 
     return Repository('', '')
+
+
+download_commands = {
+            'cvs-co': '''mkdir -p %(dir)s
+cd %(dir)s/.. && cvs -d %(location)s -q co -d %(module)s-%(revision)s -r %(revision)s %(module)s''',
+            'cvs-up': '''
+cd %(dir)s && cvs -q update -dAPr %(revision)s
+''',
+            'git-co': '''
+cd %(downloads)s/ && git clone %(location)s %(module)s-%(revision)s 
+cd %(dir)s/ && git checkout %(revision)s 
+''',
+            'git-up': '''
+cd %(dir)s/ && git pull %(location)s 
+cd %(dir)s/ && git checkout %(revision)s 
+''',
+            'svn-co': '''
+cd %(dir)s/.. && svn co -r %(revision)s %(location)s %(module)s-%(revision)s 
+''',
+            'svn-up': '''
+cd %(dir)s/ && svn up -r %(revision)s
+''',
+            }
 
 
 ## test routine
