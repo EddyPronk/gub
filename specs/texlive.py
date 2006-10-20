@@ -7,7 +7,9 @@ texlive_svn_texmf = texlive_svn + 'Master/texmf'
 license_url = 'http://tug.org/svn/texlive/trunk/Master/LICENSE.TL'
 
 class Texlive (targetpackage.TargetBuildSpec):
-    '''The TeX Live text formatting system - %(flavor)s"
+
+    ##  - %(flavor)s"
+    '''The TeX Live text formatting system
 The TeX Live software distribution offers a complete TeX system.
 It  encompasses programs for editing, typesetting, previewing and printing
 of TeX documents in many different languages, and a large collection

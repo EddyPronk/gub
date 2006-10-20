@@ -10,7 +10,9 @@ import targetpackage
 from context import *
 
 class LilyPond (targetpackage.TargetBuildSpec):
-    '''A program for printing sheet music - %(flavor)s
+
+    ##  - %(flavor)s --hwn
+    '''A program for printing sheet music
 LilyPond lets you create music notation.  It produces
 beautiful sheet music from a high-level description file.'''
 

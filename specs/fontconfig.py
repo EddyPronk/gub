@@ -5,7 +5,9 @@ import targetpackage
 import toolpackage
 
 class Fontconfig (targetpackage.TargetBuildSpec):
-    '''Generic font configuration library - %(flavor)s
+
+    ## - %(flavor)s  ## removed from docstr.
+    '''Generic font configuration library 
 Fontconfig is a font configuration and customization library, which
 does not depend on the X Window System.  It is designed to locate
 fonts within the system and select them according to requirements
