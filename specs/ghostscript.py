@@ -10,7 +10,9 @@ class Ghostscript (targetpackage.TargetBuildSpec):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
         xsf = re.sub ('version\)s', 'version)s-gpl', download.sf)
         assert xsf <> download.sf
-        self.with (version='8.54',
+        self.with (version='8.50',
+
+                   ## 8.54 causes piano braces to go bad.
                    #mirror='ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs850/ghostscript-8.54-gpl.tar.bz2',
                    mirror=xsf,
                    format='bz2')
@@ -41,7 +43,10 @@ class Ghostscript (targetpackage.TargetBuildSpec):
         return '.'.join (self.ball_version.split ('.')[0:2])
 
     def patch (self):
-
+        
+        self.system ("cd %(srcdir)s/ && patch --force -p2 < %(patchdir)s/ghostscript-8.50-encoding.patch")
+        self.system ("cd %(srcdir)s/ && patch --force -p2 < %(patchdir)s/ghostscript-8.50-ttf.patch")
+        
         substs = [(r'\$\(%s\)' % d, '$(DESTDIR)$(%s)' % d) for d in
                   ['bindir', 'datadir', 'gsdir', 'gsdatadir', 'docdir',
                    'mandir', 'scriptdir', 'exdir']]
