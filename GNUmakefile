@@ -293,7 +293,7 @@ unlocked-doc-build:
 
 unlocked-doc-export:
 	$(PYTHON) test-lily/rsync-lily-doc.py --recreate --output-distance \
-		$(NATIVE_LILY_SRC)/buildscripts/output-distance.py $(NATIVE_LILY_BUILD)/out-www/web-root/
+		$(LILYPOND_CVSDIR)/buildscripts/output-distance.py $(NATIVE_LILY_BUILD)/out-www/web-root/
 
 doc-export:
 	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-export 
