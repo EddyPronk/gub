@@ -44,13 +44,12 @@ beautiful sheet music from a high-level description file.'''
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
         self.with (version=settings.lilypond_branch,
-                   mirror='http://lilypond.org/~hanwen/lilypond.git/',
-                   vc_type='git')
+                   mirror='git:http://lilypond.org/~hanwen/lilypond.git/')
         
         # FIXME: should add to C_INCLUDE_PATH
         builddir = self.builddir ()
         self.target_gcc_flags = (settings.target_gcc_flags
-                    + ' -I%(builddir)s' % locals ())
+                                 + ' -I%(builddir)s' % locals ())
 
     def rsync_command (self):
         c = targetpackage.TargetBuildSpec.rsync_command (self)

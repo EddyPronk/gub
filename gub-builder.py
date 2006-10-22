@@ -35,7 +35,7 @@ build             - build target packages
                   type='choice',
                   default='HEAD',
                   help='select lilypond branch [HEAD]',
-                  choices=['lilypond_2_6', 'lilypond_2_8', 'HEAD'])
+                  choices=['lilypond_2_6', 'lilypond_2_8', 'origin', 'HEAD'])
     
     p.add_option ('-k', '--keep', action='store_true',
                   dest='keep_build',
@@ -99,6 +99,7 @@ def checksums_valid (manager, specname, spec_object_dict):
     for package in spec.get_packages ():
         name = package.name()
         package_dict = manager.package_dict (name)
+
         valid = (spec.spec_checksum == package_dict['spec_checksum']
                  and spec.source_checksum () == package_dict['source_checksum'])
         

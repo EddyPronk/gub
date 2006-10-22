@@ -5,6 +5,7 @@ import glob
 import misc
 import locker
 import repository
+import gitrepo
 
 # sys
 import pickle
@@ -82,21 +83,23 @@ class BuildSpec (Os_context_wrapper):
         self.settings = settings
         self.url = ''
         self.has_source = True
-        self._downloader = self.wget
         self._dependencies = None
         self._build_dependencies = None
         
         self.spec_checksum = '0000' 
         self.cross_checksum = '0000'
         
-        self.vc_type = ''
+        self.vc_repository = None
         
         self.split_packages = []
         self.so_version = '1'
 
     # urg: naming conflicts with module.
     def do_download (self):
-        self._downloader ()
+        if self.vc_repository:
+            self.vc_download ()
+        else:
+            self.wget ()
 
     def get_dependency_dict (self):
         """subpackage -> list of dependency dict."""
@@ -119,87 +122,36 @@ class BuildSpec (Os_context_wrapper):
         if not self.is_downloaded ():
             misc.download_url (self.expand (self.url), self.expand ('%(downloads)s'))
 
-    ## TODO: use repository.py
-    def _vc_download (self, location, module, revision, dir):
-        timestamp_file = self.expand ('%(dir)s/.cvsup-timestamp', locals ())
-
-        ## don't run CVS too often.
-        import time
-        time_window = 10
-        if (os.path.exists (timestamp_file)
-            and misc.file_mod_time (timestamp_file) > time.time () - time_window):
-            return
-
-        lock_file = self.expand ('%(dir)s.lock', locals ())
-        lock = locker.Locker (lock_file)
-
-        if os.path.isdir (dir):
-            open (timestamp_file, 'w').write ('changed')
-
-        action = 'up'
-        if not os.path.exists (dir):
-            action = 'co'
-
-        self.system (repository.download_commands[self.vc_type + '-' + action], locals ())
-
-        ## again: cvs up can take a long time.
-        open (timestamp_file, 'w').write ('changed')
-
-        self.touch_vc_checksum ()
-
     def vc_download (self):
-        self._vc_download (self.expand (self.url), self.name (), self.version (),
-                           self.expand (self.vc_dir ()))
+        v = self.expand ('%(version)s')
+        print v
+        self.vc_repository.update (self.url, v)
+        return
 
-    def get_repository_proxy (self):
-        dir = self.expand ('%(vc_dir)s')
-        proxy = repository.get_repository_proxy (dir)
-        proxy.system = self.system
-        proxy.read_pipe = self.read_pipe
-        return proxy
-    
-    def touch_vc_checksum (self):
-        cs = '0000'
-        try:
-            cs = self.get_repository_proxy ().get_release_hash()
-        except repository.UnknownVcSystem:
-            pass
-
-        open (self.vc_checksum_file (), 'w').write (cs)
-        
     @subst_method
     def name (self):
         file = self.__class__.__name__.lower ()
         file = re.sub ('__.*', '', file)
         file = re.sub ('_', '-', file)
+
+        ## UGH ? what happens if xx is in a normal name?!
         file = re.sub ('xx', '++', file)
         return file
-
 
     @subst_method
     def file_name (self):
         file = re.sub ('.*/([^/]+)', '\\1', self.url)
         return file
 
-    def vc_checksum_file (self):
-        dir = '%s/%s-%s/' % (self.settings.downloads, self.name(),
-                             self.version ())
-
-        file = '%s/.vc-checksum' % dir
-        return file
+    
 
     @subst_method
     def source_checksum (self):
-        if self.vc_type == '':
+        if self.vc_repository:
+            cs = self.vc_repository.get_release_hash (self.version ())
+            return cs
+        else:
             return '0000'
-        elif self.vc_type == 'git':
-            return self.get_repository_proxy ().get_release_hash ()
-        
-        file = self.vc_checksum_file ()
-        if os.path.exists (file):
-            return open (file).read ()
-    
-        return '0000'
 
     @subst_method
     def license_file (self):
@@ -217,17 +169,10 @@ class BuildSpec (Os_context_wrapper):
 
     @subst_method
     def vc_branch (self):
-        if self.vc_type:
+        if self.vc_repository:
             return '%(version)s'
         else:
             return ''
-
-    @subst_method
-    def vc_dir (self):
-        if self.vc_type == 'git':
-            return '%(downloads)s/%(name)s'
-        else:
-            return '%(downloads)s/%(name)s-%(version)s'
 
     @subst_method
     def packaging_suffix_dir (self):
@@ -252,14 +197,14 @@ class BuildSpec (Os_context_wrapper):
 
     @subst_method
     def srcdir (self):
-        if self.vc_type:
+        if self.vc_repository:
             return '%(allsrcdir)s/%(name)s-%(version)s'
         else:
             return self.settings.allsrcdir + '/' + self.basename ()
 
     @subst_method
     def builddir (self):
-        if self.vc_type:
+        if self.vc_repository:
             return '%(allbuilddir)s/%(name)s-%(version)s'
         else:
             return self.settings.allbuilddir + '/' + self.basename ()
@@ -544,7 +489,7 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"  -zcf %(gub_src_uploads)s
 
     def clean (self):
         self.system ('rm -rf  %(stamp_file)s %(install_root)s', locals ())
-        if self.vc_type:
+        if self.vc_repository:
             return
 
         self.system ('''rm -rf %(srcdir)s %(builddir)s''', locals ())
@@ -567,9 +512,10 @@ tar -C %(dir)s %(flags)s %(tarball)s
                   locals ())
 
     def untar (self):
-        if self.vc_type:
-            ## cp options are not standardized.
-            self.system (self.rsync_command ())
+        if self.vc_repository:
+            self.vc_repository.checkout (self.expand ('%(srcdir)s'),
+                                         self.expand ('%(version)s'))
+            
         else:
             self.system ('''
 rm -rf %(srcdir)s %(builddir)s %(install_root)s
@@ -677,26 +623,24 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
         return b
 
     def with (self, version='HEAD', mirror=download.gnu,
-              format='gz', 
-              vc_type='',
-              ):
+              format='gz'):
 
-        ##
-        ## one of GIT/CVS/<empty>
-        ##
-        ## TODO: should detect git/cvs/darcs/etc. in the URL 
-        ##
-        
+        if mirror.startswith ('git:'):
+            self.url = mirror[len ('git:'):]
+            
+            dir = self.settings.downloads + '/' + self.name()
+            self.vc_repository = gitrepo.GitRepository (dir)
+
+            ## can't set vc_repository.system to self.system
+            ## otherwise, we get into a loop [system -> expand -> checksum -> system]
+        else:
+            self.url = mirror
+
         self.format = format
         self.ball_version = version
         ball_version = version
         
-        self.vc_type = vc_type
-        self.url = mirror
 
-        if vc_type :
-            self._downloader = self.vc_download
-            
         ## don't do substitution. We want to postpone
         ## generating the dict until we're sure it doesn't change.
 
