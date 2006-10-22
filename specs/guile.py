@@ -405,6 +405,10 @@ guile-tut').
     }
 
 class Guile__local (ToolBuildSpec, Guile):
+    def __init__ (self, settings):
+        ToolBuildSpec.__init__ (self, settings)
+        self.set_mirror ()
+
     def configure_command (self):
         return (ToolBuildSpec.configure_command (self)
                 + self.configure_flags ())
@@ -421,7 +425,3 @@ class Guile__local (ToolBuildSpec, Guile):
 
     def get_build_dependencies (self):
         return ToolBuildSpec.get_build_dependencies (self) + Guile.get_build_dependencies (self)
-    
-    def __init__ (self, settings):
-        ToolBuildSpec.__init__ (self, settings)
-        self.set_mirror ()
