@@ -8,7 +8,7 @@ class ToolBuildSpec  (gub.BuildSpec):
     def configure_command (self):
         return (gub.BuildSpec.configure_command (self)
             + misc.join_lines ('''
---prefix=%(buildtools)s/
+--prefix=%(buildtools)s
 '''))
 
     ## ugh: prefix= will trigger libtool relinks. 
@@ -38,5 +38,3 @@ class ToolBuildSpec  (gub.BuildSpec):
         dict.update (env)
         d = gub.BuildSpec.get_substitution_dict (self, dict).copy()
         return d
-
-
