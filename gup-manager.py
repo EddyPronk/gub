@@ -172,7 +172,7 @@ def main ():
     if options.command == 'install':
         platform = options.platform
         target_manager.read_package_headers ('uploads/%(platform)s/' % locals (), options.branch)
-        target_manager.read_package_headers ('uploads/%(platform)s-cross/' % locals(), options.branch)
+#        target_manager.read_package_headers ('uploads/%(platform)s-cross/' % locals(), options.branch)
     
     if options.command:
         commands = Command (target_manager, options)

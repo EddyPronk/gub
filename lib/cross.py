@@ -27,8 +27,8 @@ class CrossToolSpec (gub.BuildSpec):
     def install_command (self):
         return '''make DESTDIR=%(install_root)s prefix=/usr/cross/ install'''
 
-    def gub_src_uploads (self):
-        return '%(gub_cross_uploads)s'
+#    def gub_src_uploads (self):
+#        return '%(gub_cross_uploads)s'
 
     def get_subpackage_names (self):
         return ['doc', '']
