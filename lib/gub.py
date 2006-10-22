@@ -192,7 +192,9 @@ class BuildSpec (Os_context_wrapper):
     def source_checksum (self):
         if self.vc_type == '':
             return '0000'
-
+        elif self.vc_type == 'git':
+            return self.get_repository_proxy ().get_release_hash ()
+        
         file = self.vc_checksum_file ()
         if os.path.exists (file):
             return open (file).read ()
@@ -222,7 +224,10 @@ class BuildSpec (Os_context_wrapper):
 
     @subst_method
     def vc_dir (self):
-        return '%(downloads)s/%(name)s-%(version)s'
+        if self.vc_type == 'git':
+            return '%(downloads)s/%(name)s'
+        else:
+            return '%(downloads)s/%(name)s-%(version)s'
 
     @subst_method
     def packaging_suffix_dir (self):

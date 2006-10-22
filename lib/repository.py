@@ -19,7 +19,8 @@ class Repository:
         self._databases = {}
         self.system = os.system
         self.read_pipe = misc.read_pipe
-        
+
+        ## TODO: only build for tests.
         if not os.path.isdir (self.test_dir):
             os.makedirs (self.test_dir)
 
@@ -268,6 +269,7 @@ def get_repository_proxy (dir):
     return Repository('', '')
 
 
+## TODO : integrate with Repository class.
 download_commands = {
             'cvs-co': '''mkdir -p %(dir)s
 cd %(dir)s/.. && cvs -d %(location)s -q co -d %(module)s-%(revision)s -r %(revision)s %(module)s''',

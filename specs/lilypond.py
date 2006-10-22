@@ -43,8 +43,9 @@ beautiful sheet music from a high-level description file.'''
 
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with (version=settings.lilypond_branch, mirror=cvs.gnu,
-                   vc_type='cvs')
+        self.with (version=settings.lilypond_branch,
+                   mirror='http://lilypond.org/~hanwen/lilypond.git/',
+                   vc_type='git')
         
         # FIXME: should add to C_INCLUDE_PATH
         builddir = self.builddir ()
