@@ -110,17 +110,6 @@ cd %(install_root)s/usr/lib && ln -fs libgcc_s.so.1 libgcc_s.so
 def change_target_packages (package_object_dict):
     pass
 
-class MethodOverrider:
-    """UGH, python closures don't work reliably?"""
-    
-    def __init__ (self, old_func, new_func, extra_args):
-        self.new_func = new_func
-        self.old_func = old_func
-        self.args = extra_args
-    def method (self):
-        all_args = (self.old_func (),) + self.args  
-        return apply (self.new_func, all_args)
-
 def set_cross_dependencies (package_object_dict):
     packs = package_object_dict.values ()
     cross_packs = [p for p in packs if isinstance (p, CrossToolSpec)]

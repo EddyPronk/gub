@@ -167,3 +167,33 @@ def file_mod_time (path):
     import stat
     return os.stat (path)[stat.ST_MTIME]
 
+
+
+class MethodOverrider:
+
+
+    """Override a object method with a function defined outside the
+class hierarchy.
+
+    
+    Usage:
+
+
+    def new_func (old_func, arg1, arg2, .. ):
+        ..do stuff..
+        pass
+    
+    old = obj.func
+    p.func = MethodOverrider (old,
+                              new_func,
+                              (arg1, arg2, .. )).method
+    
+    """
+    
+    def __init__ (self, old_func, new_func, extra_args):
+        self.new_func = new_func
+        self.old_func = old_func
+        self.args = extra_args
+    def method (self):
+        all_args = (self.old_func (),) + self.args  
+        return apply (self.new_func, all_args)
