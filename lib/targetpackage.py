@@ -83,8 +83,8 @@ class TargetBuildSpec (gub.BuildSpec):
             ## distcc during configure.
             c = 'DISTCC_HOSTS="%s" %s' % (self.settings.cross_distcc_hosts , c)
             c = 'PATH="%(cross_distcc_bindir)s:$PATH" ' + c
-        elif self.settings.cpu_count:
-            c += ' -j%s '% self.settings.cpu_count
+        elif self.settings.cpu_count_str:
+            c += ' -j%s '% self.settings.cpu_count_str
         return c
             
     def configure (self):

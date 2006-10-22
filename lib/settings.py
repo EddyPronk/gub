@@ -92,9 +92,9 @@ class Settings (Context):
                                                                silent=True)[:-1]
 
         try:
-            self.cpu_count = os.sysconf ('SC_NPROCESSORS_ONLN')
+            self.cpu_count_str = '%d' % os.sysconf ('SC_NPROCESSORS_ONLN')
         except ValueError:
-            self.cpu_count = '1'
+            self.cpu_count_str = '1'
             
         ## fixme: where to do this?
         self.LD_LIBRARY_PATH = '%(buildtools)s/lib'
