@@ -124,7 +124,6 @@ class BuildSpec (Os_context_wrapper):
 
     def vc_download (self):
         v = self.expand ('%(version)s')
-        print v
         self.vc_repository.update (self.url, v)
         return
 
@@ -148,8 +147,13 @@ class BuildSpec (Os_context_wrapper):
     @subst_method
     def source_checksum (self):
         if self.vc_repository:
-            cs = self.vc_repository.get_release_hash (self.version ())
+            c = self.vc_commit ()
+            if c:
+                return c
+
+            cs = self.vc_repository.get_release_hash (self.vc_branch ())
             return cs
+        
         else:
             return '0000'
 
@@ -170,9 +174,19 @@ class BuildSpec (Os_context_wrapper):
     @subst_method
     def vc_branch (self):
         if self.vc_repository:
-            return '%(version)s'
+            (b, c) = self.vc_repository.parse_version_string (self.ball_version)
+
+            return b
         else:
             return ''
+
+    @subst_method
+    def vc_commit (self):
+        if self.vc_repository:
+            (b, c) = self.vc_repository.parse_version_string (self.ball_version)
+            return c
+        else:
+            return misc.split_version (self.ball_version)[0]
 
     @subst_method
     def packaging_suffix_dir (self):
@@ -189,6 +203,13 @@ class BuildSpec (Os_context_wrapper):
 
     @subst_method
     def version (self):
+        if self.vc_repository:
+            c = self.vc_commit ()
+            if c:
+                return c
+
+            return self.vc_branch ()
+        
         return misc.split_version (self.ball_version)[0]
 
     @subst_method
@@ -489,7 +510,7 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"  -zcf %(gub_src_uploads)s
 
     def clean (self):
         self.system ('rm -rf  %(stamp_file)s %(install_root)s', locals ())
-        if self.vc_repository:
+        if self.vc_branch ():
             return
 
         self.system ('''rm -rf %(srcdir)s %(builddir)s''', locals ())
@@ -514,7 +535,7 @@ tar -C %(dir)s %(flags)s %(tarball)s
     def untar (self):
         if self.vc_repository:
             self.vc_repository.checkout (self.expand ('%(srcdir)s'),
-                                         self.expand ('%(version)s'))
+                                         branch=self.vc_branch(), commit=self.vc_commit ())
             
         else:
             self.system ('''
@@ -622,7 +643,10 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
         b = '%(INSTALLER_BUILD)s' % d
         return b
 
-    def with (self, version='HEAD', mirror=download.gnu,
+    def with (self,
+              
+              version='HEAD',
+              mirror=download.gnu,
               format='gz'):
 
         if mirror.startswith ('git:'):

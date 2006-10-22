@@ -1,6 +1,24 @@
 import misc
 import os
+import re
+
+def parse_version_string (str):
+    "Parse branch=XXX,commit=XXX string"
+    
+    commit = re.search ('commit=([0-9.a-z]+)', str)
+    if commit:
+        commit = commit.group (1)
+    else:
+        commit = ''
         
+    branch = re.search ('branch=([^,]+)', str)
+    if branch:
+        branch = branch.group (1)
+    else:
+        branch = ''
+        
+    return (branch, commit)
+
 class GitRepository:
     def __init__ (self, git_dir):
         self.repo_dir = git_dir
@@ -14,7 +32,6 @@ class GitRepository:
         branches =  [b[2:] for b in branch_lines]
         return [b for b in branches if b]
         
-        
     def git_command (self):
         cmd = 'git --git-dir ' + self.repo_dir
         return cmd
@@ -26,7 +43,7 @@ class GitRepository:
             refs = ' '.join ('%s:%s' % (b,b) for b in self.get_branches ())
             self.system ('%(cmd)s fetch %(source)s %(refs)s' % locals ())
         else:
-            repo = self.repo_dir 
+            repo = self.repo_dir
             self.system ('%(cmd)s clone --bare -n %(source)s %(repo)s' % locals ()) 
 
         self.checksums = {}
@@ -34,19 +51,26 @@ class GitRepository:
     def get_release_hash (self, branch):
         if self.checksums.has_key (branch):
             return self.checksums[branch]
-        
-        cs = self.read_pipe ('%s describe --abbrev=24 %s' % (self.git_command (),
-                                                             branch))
-        cs = cs.strip ()
-        self.checksums[branch] = cs
-        
-        return cs
 
-    def checkout (self, destdir, branch='master'):
+        if os.path.isdir (self.repo_dir):
+            cs = self.read_pipe ('%s describe --abbrev=24 %s' % (self.git_command (),
+                                                                 branch))
+            cs = cs.strip ()
+            self.checksums[branch] = cs
+            return cs
+        else:
+            return 'invalid'
+        
+    def checkout (self, destdir, branch=None, commit=None):
         if not os.path.isdir (destdir):
-            os.makedirs (destdir)
+            self.system ('mkdir -p ' + destdir)
 
         cmd = self.git_command ()
-        self.system ('cd %(destdir)s && %(cmd)s checkout %(branch)s' % locals())
-     
+
+        if branch:
+            self.system ('cd %(destdir)s && %(cmd)s checkout %(branch)s &&  %(cmd)s checkout-index -a' % locals())
+        elif commit:
+            self.system ('cd %(destdir)s && %(cmd)s read-tree %(commit)s && %(cmd)s checkout-index -a ' % locals ())
         
+    def parse_version_string (self, str):
+        return parse_version_string (str)

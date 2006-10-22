@@ -43,7 +43,7 @@ beautiful sheet music from a high-level description file.'''
 
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with (version=settings.lilypond_branch,
+        self.with (version='branch=' + settings.lilypond_branch,
                    mirror='git:http://lilypond.org/~hanwen/lilypond.git/')
         
         # FIXME: should add to C_INCLUDE_PATH
@@ -92,7 +92,7 @@ cd %(builddir)s && %(configure_command)s''')
             or misc.file_is_newer ('%(srcdir)s/GNUmakefile.in' % d,
                                    '%(builddir)s/GNUmakefile' % d)
             or misc.file_is_newer ('%(srcdir)s/config.hh.in' % d,
-                                   '%(builddir)s/config.make' % d)
+                                   '%(builddir)s/config.hh' % d)
             or misc.file_is_newer ('%(srcdir)s/configure' % d,
                                    '%(builddir)s/config.make' % d)):
             self.do_configure ()
