@@ -290,6 +290,23 @@ unlocked-doc-build:
 	tar -C $(NATIVE_LILY_BUILD)/out-www/web-root/ \
 	    -cjf $(CWD)/uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).documentation.tar.bz2 . 
 
+	unset LILYPONDPREFIX \
+	    && ulimit -m 256000 \
+	    && make -C $(NATIVE_LILY_BUILD) \
+	    LILYPOND_EXTERNAL_BINARY="$(NATIVE_ROOT)/usr/bin/lilypond"\
+	    MALLOC_CHECK_=2 \
+	    PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
+	    LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH) \
+	    LD_LIBRARY_PATH=$(CWD)/target/local/system/usr/lib:$(LD_LIBRARY_PATH) \
+	    DOCUMENTATION=yes info
+	make DESTDIR=$(NATIVE_LILY_BUILD)/out-info-man \
+		-C $(NATIVE_LILY_BUILD)/scripts install-help2man
+	make DESTDIR=$(NATIVE_LILY_BUILD)/out-info-man \
+		-C $(NATIVE_LILY_BUILD)/lily install-help2man
+	make DESTDIR=$(NATIVE_LILY_BUILD)/out-info-man \
+		-C $(NATIVE_LILY_BUILD) install-info
+	tar -C $(NATIVE_LILY_BUILD)/out-info-man/ \
+	    -cjf $(CWD)/uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).info-man.tar.bz2 .
 
 unlocked-doc-export:
 	$(PYTHON) test-lily/rsync-lily-doc.py --recreate --output-distance \
