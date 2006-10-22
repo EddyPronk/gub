@@ -655,8 +655,8 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
                             % self.get_substitution_dict ()):
             import shutil
             if (os.path.isfile (i)
-                and not i.startswith ('Makefile')
-                and not i.startswith ('GNUmakefile')):
+                and not os.path.basename (i).startswith ('Makefile')
+                and not os.path.basename (i).startswith ('GNUmakefile')):
                 shutil.copy2 (i, '%(install_root)s/usr/share/doc/%(name)s'
                               % self.get_substitution_dict ())
 
