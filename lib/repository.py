@@ -8,16 +8,6 @@ import time
 
 from misc import *
 
-def default_read_pipe (cmd, ignore_error=False):
-    print 'pipe:', cmd
-    pipe = os.popen (cmd)
-
-    val = pipe.read ()
-    if pipe.close () and not ignore_error:
-        raise SystemFailed ("Pipe failed: %s" % cmd)
-    
-    return val
-
 class KeyCollision (Exception):
     pass
 

@@ -8,6 +8,17 @@ import urllib
 def join_lines (str):
     return str.replace ('\n', ' ')
 
+
+def read_pipe (cmd, ignore_error=False):
+    print 'executing pipe "%s"' % cmd
+    pipe = os.popen (cmd)
+
+    val = pipe.read ()
+    if pipe.close () and not ignore_error:
+        raise SystemFailed ("Pipe failed: %s" % cmd)
+    
+    return val
+
 def grok_sh_variables (file):
     dict = {}
     for i in open (file).readlines ():
@@ -151,7 +162,7 @@ class SystemFailed (Exception):
 
 
 def system (cmd):
-    print cmd
+    print 'Executing command "%s"' % cmd
     stat = os.system (cmd)
     if stat:
         raise SystemFailed('Command failed ' + `stat`)
