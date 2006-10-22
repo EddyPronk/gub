@@ -20,12 +20,16 @@ class Pango (targetpackage.TargetBuildSpec):
     def get_dependency_dict (self):
         return {'': ['freetype', 'fontconfig', 'glib', 'libtool-runtime']}
 
-    def configure_command (self):
-        return targetpackage.TargetBuildSpec.configure_command (self) \
-           + misc.join_lines ('''
+
+    def configure_flags (self):
+        return misc.join_lines ('''
 --without-x
 --without-cairo
 ''')
+
+    def configure_command (self):
+        return (targetpackage.TargetBuildSpec.configure_command (self)
+           + self.configure_flags ())
 
     def configure (self):
         targetpackage.TargetBuildSpec.configure (self)                
@@ -34,15 +38,15 @@ class Pango (targetpackage.TargetBuildSpec):
         targetpackage.TargetBuildSpec.patch (self)
         self.system ('cd %(srcdir)s && patch --force -p1 < %(patchdir)s/pango-substitute-env.patch')
 
-    def fix_modules (self):
-        etc = self.expand ('%(install_root)s/usr/etc/pango')
+    def fix_modules (self, prefix='/usr'):
+        etc = self.expand ('%(install_root)s/%(prefix)s/usr/etc/pango',
+                           locals ())
         self.system ('mkdir -p %(etc)s' , locals ())
         for a in glob.glob (etc + '/*'):
-            self.file_sub ([('/usr/', '$PANGO_PREFIX/')],
-                           a)
+            self.file_sub ([('/%(prefix)s/', '$PANGO_PREFIX/')], a, locals ())
 
         pango_module_version = None
-        for dir in glob.glob (self.expand ("%(install_prefix)s/lib/pango/*")):
+        for dir in glob.glob (self.expand ('%(install_root)s/%(prefix)s/lib/pango/*', locals ())):
             m = re.search ("([0-9.]+)", dir)
             if not m:
                 continue
@@ -59,9 +63,7 @@ ModuleFiles = $PANGO_PREFIX/etc/pango/pango.modules
 ModulesPath = $PANGO_PREFIX/lib/pango/%(pango_module_version)s/modules
 ''' % locals ())
         
-        shutil.copy2 (self.expand ('%(sourcefiledir)s/pango.modules'),
-               etc)
-
+        shutil.copy2 (self.expand ('%(sourcefiledir)s/pango.modules'), etc)
 
     def install (self):
         targetpackage.TargetBuildSpec.install (self)                
@@ -69,7 +71,6 @@ ModulesPath = $PANGO_PREFIX/lib/pango/%(pango_module_version)s/modules
 setfile PANGO_RC_FILE=$INSTALLER_PREFIX/etc/pango/pangorc
 setdir PANGO_PREFIX=$INSTALLER_PREFIX/
 """, '%(install_root)s/usr/etc/relocate/pango.reloc', env=locals())
-
         self.fix_modules ()
 
 class Pango__linux (Pango):
@@ -101,9 +102,20 @@ set PANGO_SO_EXTENSION=.so
 """, '%(install_root)s/usr/etc/relocate/pango.reloc', env=locals(), mode="a")
 
 import toolpackage
-class Pango__local (toolpackage.ToolBuildSpec):
+class Pango__local (toolpackage.ToolBuildSpec, Pango):
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
         self.with (version='1.14.5',
                    mirror=download.gnome_216,
                    format='bz2')
+    def patch (self):
+        Pango.patch (self)
+    def configure_command (self):
+        return (toolpackage.ToolBuildSpec.configure_command (self)
+           + self.configure_flags ())
+    def configure (self):
+        toolpackage.ToolBuildSpec.configure (self)                
+        self.update_libtool ()
+    def install (self):
+        toolpackage.ToolBuildSpec.install (self)
+        self.fix_modules (prefix='%(buildtools)s')
