@@ -13,9 +13,8 @@ specified by applications.'''
 
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-#        self.with (mirror="git://anongit.freedesktop.org/git/fontconfig", version="master", vc_type='git')
-        self.with (mirror=download.fontconfig,
-                   version="2.4.1")
+        self.with (mirror="git://anongit.freedesktop.org/git/fontconfig",
+                   version="commit=0596d7296c94b2bb9817338b8c1a76da91673fb9")
         
     def get_build_dependencies (self):
         return ['libtool', 'expat-devel', 'freetype-devel']
@@ -72,8 +71,8 @@ set FONTCONFIG_PATH=$INSTALLER_PREFIX/etc/fonts
 class Fontconfig__mingw (Fontconfig):
     def patch (self):
         Fontconfig.patch (self)
-        self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/fontconfig-2.4.1-mingw.patch')
-        self.system ('cd %(srcdir)s && python %(patchdir)s/fontconfig-make-def.py doc/*.fncs > src/fontconfig.def.in')
+#        self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/fontconfig-2.4.1-mingw.patch')
+#        self.system ('cd %(srcdir)s && python %(patchdir)s/fontconfig-make-def.py doc/*.fncs > src/fontconfig.def.in')
 
     def configure (self):
         Fontconfig.configure (self)
@@ -114,7 +113,8 @@ class Fontconfig__freebsd (Fontconfig__linux):
 class Fontconfig__local (toolpackage.ToolBuildSpec):
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
-        self.with (version='2.4.1', mirror=download.fontconfig)
+        self.with (mirror="git://anongit.freedesktop.org/git/fontconfig",
+                   version="commit=0596d7296c94b2bb9817338b8c1a76da91673fb9")
         
     def get_build_dependencies (self):
         return ['libtool', 'freetype', 'expat']
@@ -123,6 +123,7 @@ class Fontconfig__local (toolpackage.ToolBuildSpec):
         return  toolpackage.ToolBuildSpec.compile_command (self) + ' DOCSRC="" '   
     def install_command (self):
         return  toolpackage.ToolBuildSpec.install_command (self) + ' DOCSRC="" '   
+
 class Fontconfig__cygwin (Fontconfig):
     def get_subpackage_names (self):
         #return ['devel', 'doc', '']
