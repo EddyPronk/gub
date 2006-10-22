@@ -1,3 +1,10 @@
+guile (1.8.1-1) unstable; urgency=low
+
+  * New upstream release.
+  * Remove libltdl3 workarounds.
+
+ -- Jan Nieuwenhuizen <janneke@gnu.org>  Sun, 22 Oct 2006 10:58:27 +0200
+
 guile (1.8.0-1) unstable; urgency=low
 
   * GUB build.
