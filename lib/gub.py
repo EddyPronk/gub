@@ -626,8 +626,10 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
               format='gz'):
 
         if mirror.startswith ('git:'):
-            self.url = mirror[len ('git:'):]
-            
+            if 'http:' in mirror:
+                mirror = mirror[len ('git:'):]
+
+            self.url = mirror
             dir = self.settings.downloads + '/' + self.name()
             self.vc_repository = gitrepo.GitRepository (dir)
 
