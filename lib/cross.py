@@ -123,12 +123,12 @@ def set_cross_dependencies (package_object_dict):
 
     for p in other_packs:
         old_callback = p.get_build_dependencies
-        p.get_build_dependencies = MethodOverrider (old_callback,
+        p.get_build_dependencies = misc.MethodOverrider (old_callback,
                                                     lambda x,y: x+y, (cross_names,)).method
 
     for p in other_packs + cross_packs:
         old_callback = p.get_build_dependencies
-        p.get_build_dependencies = MethodOverrider (old_callback,
+        p.get_build_dependencies = misc.MethodOverrider (old_callback,
                                                     lambda x,y: x+y, (sdk_names,)).method
 
     return packs
