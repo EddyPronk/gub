@@ -466,7 +466,7 @@ mkdir -p %(installer_root)s/usr/share/doc/%(name)s
             import inspect
             gub_ball = self.package_manager.package_dict (package_name + '-' + split) ['split_ball']
 
-        gub_name =  re.sub ('.*/', '', gub_ball)
+        gub_name = re.sub ('.*/', '', gub_ball)
 
 	import misc
         branch = self.settings.lilypond_branch
@@ -508,9 +508,9 @@ mkdir -p %(installer_root)s/usr/share/doc/%(name)s
     def cygwin_ball (self, package, split):
         d = self.get_dict (package, split)
         base_name = d['base_name']
-        ball_name =  d['cyg_name'] + '.tar.bz2'
+        ball_name = d['cyg_name'] + '.tar.bz2'
         hint = d['hint']
-        infodir = d['infodir'] 
+        infodir = d['infodir'] % self.get_substitution_dict (d)
         package_name = d['package_name']
 
         d['ball_name'] = ball_name
@@ -535,12 +535,9 @@ tar -C %(installer_root)s -zxf %(gub_uploads)s/%(gub_name)s
                 self.strip_binary_dir (dir)
 
         if os.path.isdir (infodir):
-            package.system ('gzip %(infodir)s/*',
-                            self.get_substitution_dict (d))
+            package.system ('gzip %(infodir)s/*', locals ())
         if os.path.isdir (infodir + '/' + package_name):
-            package.system ('gzip %(infodir)s/%(package_name)s/*',
-                            self.get_substitution_dict (d))
-
+            package.system ('gzip %(infodir)s/%(package_name)s/*', locals ())
         package.system ('''
 rm -rf %(installer_root)s/usr/cross
 mkdir -p %(cygwin_uploads)s/%(base_name)s
@@ -563,7 +560,7 @@ cp -pv %(installer_root)s/etc/hints/%(hint)s %(cygwin_uploads)s/%(base_name)s/se
 
     def cygwin_src_ball (self, package):
         d = self.get_dict (package, '')
-        ball_name =  d['cyg_name'] + '-src.tar.bz2'
+        ball_name = d['cyg_name'] + '-src.tar.bz2'
         dir = self.expand ('%(installer_root)s-src')
 
         d['ball_name'] = ball_name
