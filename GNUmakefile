@@ -63,7 +63,8 @@ BUILDNUMBER_FILE = buildnumber-$(LILYPOND_BRANCH).make
 
 LILYPOND_VERSION=$(shell cat VERSION)
 VERSION:
-	$(PYTHON) test-lily/set-installer-version.py $(LILYPOND_GITDIR) $(LILYPOND_CVSDIR)
+	PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
+		$(PYTHON) test-lily/set-installer-version.py $(LILYPOND_GITDIR) $(LILYPOND_CVSDIR)
 
 UPDATE-BUILDNUMBER=echo 'INSTALLER_BUILD='`python lilypondorg.py nextbuild $(LILYPOND_VERSION)` > $(BUILDNUMBER_FILE)
 
@@ -215,14 +216,15 @@ native-distccd:
 		--port 3634 --pid-file $(CWD)/log/$@.pid \
 		--log-file $(CWD)/log/$@.log  --log-level info
 bootstrap:
+	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local download git
+	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local build git
 	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local download \
 		flex mftrace potrace fontforge glib pango \
 		guile pkg-config nsis icoutils expat gettext \
 		distcc texinfo automake
-	$(MAKE) VERSION
 	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local build \
 		flex mftrace potrace fontforge \
-		guile pkg-config expat icoutils glib pango \
+		guile pkg-config expat icoutils \
 		distcc texinfo automake 
 	$(MAKE) cross-compilers
 
