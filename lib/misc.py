@@ -10,7 +10,7 @@ def join_lines (str):
 
 
 def read_pipe (cmd, ignore_error=False):
-    print 'executing pipe "%s"' % cmd
+    print 'executing pipe %s' % cmd
     pipe = os.popen (cmd)
 
     val = pipe.read ()
@@ -166,7 +166,7 @@ class SystemFailed (Exception):
 
 
 def system (cmd):
-    print 'Executing command "%s"' % cmd
+    print 'Executing command %s' % cmd
     stat = os.system (cmd)
     if stat:
         raise SystemFailed('Command failed ' + `stat`)
