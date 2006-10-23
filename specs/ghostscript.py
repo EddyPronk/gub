@@ -9,9 +9,15 @@ class Ghostscript (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
         xsf = re.sub ('version\)s', 'version)s-gpl', download.sf)
-        assert xsf <> download.sf
-        self.with (version='8.50',
-
+        assert (xsf != download.sf)
+        if self.settings.platform == 'linux-64':
+            self.with (version='8.54',
+                   mirror='ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs854/ghostscript-8.54-gpl.tar.bz2',
+                   format='bz2')
+        else:
+            self.with (version='8.50',
+                   ## TODO: see if any of these diffs fixes it...
+                   ## http://ftp.de.debian.org/debian/pool/main/g/gs-gpl/gs-gpl_8.54.dfsg.1-5.diff.gz
                    ## 8.54 causes piano braces to go bad.
                    #mirror='ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs850/ghostscript-8.54-gpl.tar.bz2',
                    mirror=xsf,
@@ -43,9 +49,11 @@ class Ghostscript (targetpackage.TargetBuildSpec):
         return '.'.join (self.ball_version.split ('.')[0:2])
 
     def patch (self):
-        
-        self.system ("cd %(srcdir)s/ && patch --force -p2 < %(patchdir)s/ghostscript-8.50-encoding.patch")
-        self.system ("cd %(srcdir)s/ && patch --force -p2 < %(patchdir)s/ghostscript-8.50-ttf.patch")
+        if self.version == '8.50':
+            self.system ('cd %(srcdir)s/ && patch --force -p2 < %(patchdir)s/ghostscript-8.50-encoding.patch')
+            self.system ('cd %(srcdir)s/ && patch --force -p2 < %(patchdir)s/ghostscript-8.50-ttf.patch')
+        if self.version == '8.54':
+            self.system ('cd %(srcdir)s/ && patch --force -p1 < %(patchdir)s/05_gxfcopy_qsort_64bit_clean.dpatch')
         
         substs = [(r'\$\(%s\)' % d, '$(DESTDIR)$(%s)' % d) for d in
                   ['bindir', 'datadir', 'gsdir', 'gsdatadir', 'docdir',
