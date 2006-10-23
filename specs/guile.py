@@ -348,6 +348,7 @@ cd %(builddir)s/libguile && make -f static-ltdl.make static-ltdl
     def install (self):
         # FIXME: we do this for all cygwin packages
         Guile.install (self)
+	self.post_install_smurf_exe ()
         self.install_readmes ()
 
         if self.replace_ltdl:
