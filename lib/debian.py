@@ -33,9 +33,6 @@ class Libc6 (gub.BinarySpec, gub.SdkBuildSpec):
 class Libc6_dev (gub.BinarySpec, gub.SdkBuildSpec):
     def untar (self):
         gub.BinarySpec.untar (self)
-        # Ugh, rewire absolute names and symlinks.
-        # Better to create relative ones?
-
         # FIXME: this rewiring breaks ld badly, it says
         #     i686-linux-ld: cannot find /home/janneke/bzr/gub/target/i686-linux/system/lib/libc.so.6 inside /home/janneke/bzr/gub/target/i686-linux/system/
         # although that file exists.  Possibly rewiring is not necessary,
@@ -43,12 +40,7 @@ class Libc6_dev (gub.BinarySpec, gub.SdkBuildSpec):
         # self.file_sub ([(' /', ' %(system_root)s/')],
         #               '%(srcdir)s/root/usr/lib/libc.so')
 
-        for i in glob.glob (self.expand ('%(srcdir)s/root/usr/lib/lib*.so')):
-            if os.path.islink (i):
-                s = os.readlink (i)
-                if s.startswith ('/'):
-                    os.remove (i)
-                    os.symlink (self.settings.system_root + s, i)
+        self.lib_rewire ()
         for i in ('pthread.h', 'bits/sigthread.h'):
             self.file_sub ([('__thread', '___thread')],
                            '%(srcdir)s/root/usr/include/%(i)s',
