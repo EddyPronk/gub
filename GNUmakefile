@@ -15,7 +15,12 @@ PLATFORMS=darwin-ppc darwin-x86 mingw linux-x86 linux-64 freebsd-x86 cygwin
 LILYPOND_CVSDIR=downloads/lilypond.cvs/$(BRANCH)/
 LILYPOND_GITDIR=downloads/lilypond.git/
 LILYPOND_BRANCH=$(BRANCH)
-BRANCH=HEAD
+
+# for CVS
+#BRANCH=HEAD
+
+# for CVS import in GIT:
+BRANCH=origin
 PYTHONPATH=lib/
 export PYTHONPATH
 
@@ -60,7 +65,7 @@ BUILDNUMBER_FILE = buildnumber-$(LILYPOND_BRANCH).make
 #  GUB_NATIVE_DISTCC_HOSTS - hosts with matching native compilers
 #
 
-include local.make
+-include local.make
 
 LILYPOND_VERSION=$(shell cat VERSION)
 VERSION:
