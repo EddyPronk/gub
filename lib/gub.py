@@ -123,8 +123,9 @@ class BuildSpec (Os_context_wrapper):
             misc.download_url (self.expand (self.url), self.expand ('%(downloads)s'))
 
     def vc_download (self):
-        v = self.expand ('%(version)s')
-        self.vc_repository.update (self.url, v)
+        self.vc_repository.update (self.url,
+                                   branch=self.vc_branch,
+                                   commit=self.version ())
         return
 
     @subst_method
@@ -148,9 +149,10 @@ class BuildSpec (Os_context_wrapper):
     def source_checksum (self):
         if self.vc_repository:
             if self.vc_branch:
-                return self.vc_repository.get_release_hash (self.vc_branch)
+                x = self.vc_repository.get_branch_version (self.vc_branch)
+                return x
             
-        return self.version 
+        return self.version () 
 
     @subst_method
     def license_file (self):
@@ -639,11 +641,17 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
                 mirror = mirror[len ('git:'):]
 
             self.url = mirror
-            dir = self.settings.downloads + '/' + self.name()
+            dir = self.settings.downloads + '/' + self.name() + '.git'
             self.vc_repository = gitrepo.GitRepository (dir)
 
             ## can't set vc_repository.system to self.system
             ## otherwise, we get into a loop [system -> expand -> checksum -> system]
+        elif mirror.startswith (':pserver:'):
+            name = self.name()
+            self.url = mirror % locals()
+            
+            dir = '%s/%s.cvs' % (self.settings.downloads, name)
+            self.vc_repository = gitrepo.CVSRepository (dir, self.name ())
         else:
             self.url = mirror
 
