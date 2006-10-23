@@ -201,7 +201,7 @@ def get_cygwin_packages (settings, package_file):
 
             try:
                 key, value = [x.strip () for x in lines[j].split (': ', 1)]
-            except KeyError: ### UGH -> what kind of exceptino?
+            except:
                 print lines[j], package_file
                 raise 'URG'
             if (value.startswith ('"')
@@ -238,6 +238,10 @@ class Dependency_resolver:
         file = self.settings.downloads + '/setup.ini'
         if not os.path.exists (file):
             misc.download_url (url, self.settings.downloads)
+            # arg
+            # self.file_sub ([('\':"', "':'")], file)
+            s = open (file).read ()
+            open (file, 'w').write (s.replace ('\':"', "':'"))
         self.grok_setup_ini (file)
 
         # support one extra local setup.ini, that overrides the default
