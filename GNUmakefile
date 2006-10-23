@@ -60,6 +60,7 @@ BUILDNUMBER_FILE = buildnumber-$(LILYPOND_BRANCH).make
 #  GUB_NATIVE_DISTCC_HOSTS - hosts with matching native compilers
 #
 
+include local.make
 
 LILYPOND_VERSION=$(shell cat VERSION)
 VERSION:
