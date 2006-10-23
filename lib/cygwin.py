@@ -95,7 +95,7 @@ def change_target_packages (packages):
     # FIXME: this does not work (?)
     for p in packages.values ():
         old_callback = p.get_build_dependencies
-        p.get_build_dependencies = cross.MethodOverrider (old_callback,
+        p.get_build_dependencies = misc.MethodOverrider (old_callback,
                                                           lambda old_val, extra_arg: old_val + extra_arg, (['cygwin'],)).method
         
         # FIXME: why do cross packages get here too?
