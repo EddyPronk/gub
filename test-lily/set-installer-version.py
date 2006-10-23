@@ -29,8 +29,10 @@ def parse_options ():
 
     
 def get_cvs_version (dir):
-    print 'getting version from cvs .. '
-    d = misc.grok_sh_variables (dir + '/VERSION')
+    f =dir + '/VERSION'
+    print 'getting version from cvs .. ' , f
+    
+    d = misc.grok_sh_variables (f)
     return '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
     
 def get_git_version (dir, branch):
@@ -66,7 +68,7 @@ for a in args:
         # git:
 
         version = get_git_version (a, o.branch)
-    elif os.path.isdir (a + '/' + o.branch):
+    elif os.path.isdir (a + '/' + o.branch + '/CVS'):
         version = get_cvs_version (a + '/' + o.branch)
 
     if version:
@@ -74,5 +76,7 @@ for a in args:
 
 if not version:
     version = '0.0.0'
-    
+
+
+print 'found version', version
 open (o.output, 'w').write (version)
