@@ -1,0 +1,68 @@
+Fontconfig
+------------------------------------------
+Generic font configuration library 
+
+Runtime requirements (these or newer):
+  cygwin-1.5.18
+  libfontconfig%(so_version)s-%(version)s-%(build)s
+  expat-1.95.8-1
+
+Build requirements (these or newer):
+  cygwin-1.5.18
+  gcc-3.4.4-1
+  libtool1.5
+  expat-1.95.8-1
+
+Canonical homepage:
+  http://www.fontconfig.org
+
+Canonical download:
+  http://fontconfig.org/release/
+
+License:
+  BSD-ish, see COPYING.  
+
+Language:
+  C
+
+------------------------------------
+
+Build Instructions:
+
+  # Download GUB
+
+    darcs get http://lilypond.org/people/hanwen/gub
+    cd gub
+
+  # Populate download cache
+
+    ./gub-builder.py -p cygwin download fontconfig
+
+  # Build fontconfig for cygwin
+
+    ./gub-builder.py -p cygwin build fontconfig
+
+  # Package fontconfig for cygwin
+
+    ./installer-builder.py -p cygwin build-all fontconfig
+
+This will create:
+   uploads/cygwin/release/fontconfig-%(version)s-%(build)s-src.tar.bz2
+   uploads/cygwin/release/fontconfig-%(version)s-%(build)s.tar.bz2
+   uploads/cygwin/release/libfontconfig-dev/libfontconfig-dev-%(version)s-%(build)s.tar.bz2
+   uploads/cygwin/release/libfontconfig%(so_version)s/libfontconfig(so_version)s-%(version)s-%(build)s.tar.bz2
+
+To find out the files included in the binary distribution, you can use
+"cygcheck -l bash", or browse the listing for the appropriate version
+at <http://cygwin.com/packages/>.
+
+------------------
+
+Port notes:
+
+%(changelog)s
+
+  These packages were built on GNU/Linux using GUB.
+
+Cygwin port maintained by: Jan Nieuwenhuizen  <janneke@gnu.org>
+Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>

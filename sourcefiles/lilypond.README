@@ -14,7 +14,7 @@ Runtime requirements (these or newer):
   libfreetype2
   libguile17-1.8.0-1
   libiconv2
-  libintl3
+  libintl8
   pango-runtime
   python
 
@@ -65,17 +65,23 @@ Build Instructions:
     darcs get http://lilypond.org/people/hanwen/gub
     cd gub
 
+  # Populate download cache
+
+    ./gub-builder.py -p cygwin download lilypond
+
   # Build lilypond for cygwin
 
     ./gub-builder.py -p cygwin build lilypond
 
   # Package lilypond for cygwin
 
-   ./gub-builder.py -p cygwin package-installer lilypond
+   ./installer-builder.py -p cygwin build-all lilypond
 
 This will create:
    uploads/cygwin/release/lilypond-%(installer_version)s-%(installer_build)s-src.tar.bz2
-
+   uploads/cygwin/release/lilypond-%(installer_version)s-%(installer_build)s.tar.bz2
+   uploads/cygwin/release/lilypond-doc/lilypond-doc-%(installer_version)s-%(installer_build)s-src.tar.bz2
+nn
 To find out the files included in the binary distribution, you can use
 "cygcheck -l bash", or browse the listing for the appropriate version
 at <http://cygwin.com/packages/>.

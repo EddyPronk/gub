@@ -6,9 +6,9 @@ Runtime requirements (these or newer):
   crypt-1.1-1
   cygwin-1.5.18
   gmp-4.1.4
-  libguile17-1.8.0-0
-  libintl-0.10.38
-  libltdl3-1.5.20
+  libguile%(so_version)s-%(version)s-%(build)s
+  libintl-0.15-1
+  libltdl3-1.5.23a-1
 
 Build requirements (these or newer):
   autoconf-2.53a-1
@@ -19,7 +19,7 @@ Build requirements (these or newer):
   cygwin-1.5.18
   gcc-3.4.4-1
   gmp-4.1.4
-  libtool-devel-1.5.20-1
+  libtool1.5
 
 Canonical homepage:
   http://www.gnu.org/software/guile
@@ -43,13 +43,17 @@ Build Instructions:
     darcs get http://lilypond.org/people/hanwen/gub
     cd gub
 
+  # Populate download cache
+
+    ./gub-builder.py -p cygwin download guile
+
   # Build guile for cygwin
 
     ./gub-builder.py -p cygwin build guile
 
   # Package guile for cygwin
 
-   ./gub-builder.py -p cygwin package-installer guile
+   ./installer-builder.py -p cygwin build-all guile
 
 This will create:
    uploads/cygwin/release/guile-%(version)s-%(build)s-src.tar.bz2
