@@ -534,10 +534,11 @@ tar -C %(installer_root)s -zxf %(gub_uploads)s/%(gub_name)s
             if os.path.isdir (dir):
                 self.strip_binary_dir (dir)
 
-        if os.path.isdir (infodir):
-            package.system ('gzip %(infodir)s/*', locals ())
         if os.path.isdir (infodir + '/' + package_name):
-            package.system ('gzip %(infodir)s/%(package_name)s/*', locals ())
+            package.system ('gzip %(infodir)s/%(package_name)s/*.info*',
+                            locals ())
+        elif os.path.isdir (infodir):
+            package.system ('gzip %(infodir)s/*.info*', locals ())
         package.system ('''
 rm -rf %(installer_root)s/usr/cross
 mkdir -p %(cygwin_uploads)s/%(base_name)s

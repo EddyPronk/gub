@@ -255,7 +255,7 @@ doc-clean:
 	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-clean
 
 doc-build:
-	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-build 
+	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-build unlocked-info-man-build
 
 NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_BRANCH)
 NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/src/lilypond-$(LILYPOND_BRANCH)
@@ -290,21 +290,33 @@ unlocked-doc-build:
 	tar -C $(NATIVE_LILY_BUILD)/out-www/web-root/ \
 	    -cjf $(CWD)/uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).documentation.tar.bz2 . 
 
+unlocked-info-man-build:
 	unset LILYPONDPREFIX \
 	    && ulimit -m 256000 \
-	    && make -C $(NATIVE_LILY_BUILD) \
+	    && make -C $(NATIVE_LILY_BUILD)/Documentation/user \
 	    LILYPOND_EXTERNAL_BINARY="$(NATIVE_ROOT)/usr/bin/lilypond"\
 	    MALLOC_CHECK_=2 \
 	    PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
 	    LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH) \
 	    LD_LIBRARY_PATH=$(CWD)/target/local/system/usr/lib:$(LD_LIBRARY_PATH) \
-	    DOCUMENTATION=yes info
+	    DOCUMENTATION=yes out=out-www info
 	make DESTDIR=$(NATIVE_LILY_BUILD)/out-info-man \
-		-C $(NATIVE_LILY_BUILD)/scripts install-help2man
+	    PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
+	    LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH) \
+	    LD_LIBRARY_PATH=$(CWD)/target/local/system/usr/lib:$(LD_LIBRARY_PATH) \
+	    -C $(NATIVE_LILY_BUILD)/Documentation/user out=www install-info
 	make DESTDIR=$(NATIVE_LILY_BUILD)/out-info-man \
-		-C $(NATIVE_LILY_BUILD)/lily install-help2man
+	    PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
+	    LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH) \
+	    LD_LIBRARY_PATH=$(CWD)/target/local/system/usr/lib:$(LD_LIBRARY_PATH) \
+	    -C $(NATIVE_LILY_BUILD)/scripts DOCUMENTATION=yes CROSS=no \
+	    man install-help2man
 	make DESTDIR=$(NATIVE_LILY_BUILD)/out-info-man \
-		-C $(NATIVE_LILY_BUILD) install-info
+	    PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
+	    LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH) \
+	    LD_LIBRARY_PATH=$(CWD)/target/local/system/usr/lib:$(LD_LIBRARY_PATH) \
+	    -C $(NATIVE_LILY_BUILD)/lily DOCUMENTATION=yes CROSS=no \
+	    man install-help2man
 	tar -C $(NATIVE_LILY_BUILD)/out-info-man/ \
 	    -cjf $(CWD)/uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).info-man.tar.bz2 .
 

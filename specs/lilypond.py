@@ -266,12 +266,16 @@ LDFLAGS="%(LDFLAGS)s %(python_lib)s"
         installer_build = self.build_number ()
         installer_version = self.build_version ()
         docball = self.expand ('%(uploads)s/lilypond-%(installer_version)s-%(installer_build)s.documentation.tar.bz2', env=locals ())
+        infomanball = self.expand ('%(uploads)s/lilypond-%(installer_version)s-%(installer_build)s.info-man.tar.bz2', env=locals ())
         if not os.path.exists (docball):
             # Must not have cygwin CC, CXX settings.
             os.system ('''make doc''')
         self.system ('''
 mkdir -p %(install_root)s/usr/share/doc/lilypond
 tar -C %(install_root)s/usr/share/doc/lilypond -jxf %(docball)s
+tar -C %(install_root)s -jxf %(infomanball)s
+mkdir -p %(install_root)s/usr/share/info/lilypond
+cd %(install_root)s/usr/share/info/lilypond && ln -sf ../../doc/lilypond/Documentation/user/*png .
 ''',
                   locals ())
 
