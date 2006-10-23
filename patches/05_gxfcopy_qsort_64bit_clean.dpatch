@@ -1,0 +1,33 @@
+#! /bin/sh -e
+## 04_gxfcopy_qsort_64bit_clean.dpatch by Masayuki Hatta <mhatta@debian.org>
+##
+## All lines beginning with \`## DP:' are a description of the patch.
+## DP: Made qsort funciton call in src/gxfcopy.c 64bit clean
+
+if [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+case "$1" in
+        -patch) patch -f --no-backup-if-mismatch --dry-run -p1 < $0 && patch -f --no-backup-if-mismatch -p1 < $0
+;;
+        -unpatch) patch -f --no-backup-if-mismatch -R -p1 < $0;;
+        *)
+                echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+                exit 1;;
+esac
+
+exit 0
+
+diff -urN gs-gpl-8.54.dfsg.1.orig/src/gxfcopy.c gs-gpl-8.54.dfsg.1/src/gxfcopy.c
+--- gs-gpl-8.54.dfsg.1.orig/src/gxfcopy.c	2006-10-12 09:07:59.000000000 +0900
++++ gs-gpl-8.54.dfsg.1/src/gxfcopy.c	2006-10-12 09:09:09.000000000 +0900
+@@ -2391,7 +2391,7 @@
+ 	    a[j++] = &cfdata->names[i];
+ 	}
+     }
+-    qsort(a, cfdata->num_glyphs, sizeof(int), compare_glyph_names);
++    qsort(a, cfdata->num_glyphs, sizeof(gs_copied_glyph_name_t*), compare_glyph_names);
+     for (; j >= 0; j--)
+ 	cfdata->glyphs[j].order_index = a[j] - cfdata->names;    
+     gs_free_object(memory, a, "order_font_data");
