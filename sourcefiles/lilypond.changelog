@@ -1,3 +1,9 @@
+lilypond (2.8.7-2) unstable; urgency=low
+
+  * Build against libintl3.
+
+ -- Jan Nieuwenhuizen <janneke@gnu.org>  Mon, 23 Oct 2006 00:04:58 +0200
+
 lilypond (2.8.7-1) unstable; urgency=low
 
   * New upstream release.

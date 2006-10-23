@@ -182,7 +182,7 @@ class LilyPond__cygwin (LilyPond):
             'libfontconfig1',
             'libfreetype26',
             'libiconv2',
-            'libintl3',
+            'libintl8', 'libintl3',
             'pango-runtime',
             'python',
             ]
