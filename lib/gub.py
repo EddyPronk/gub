@@ -36,7 +36,7 @@ class PackageSpec:
 
         s = ('%(name)s' % dict) + sub_name
 
-        branch = None #self.expand ('%(vc_branch)s')
+        branch = self.expand ('%(vc_branch)s')
 
         if branch:
             self._dict['vc_branch_suffix'] = '-' + branch
