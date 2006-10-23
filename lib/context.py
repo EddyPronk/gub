@@ -56,7 +56,11 @@ class Context:
         ms = inspect.getmembers (self)
         vars = dict((k, v) for (k, v) in ms if type (v) == type (''))
         member_substs = dict((k, v ()) for (k, v) in ms if callable (v)
-                   and is_subst_method_in_class (k, self.__class__))
+                             and is_subst_method_in_class (k, self.__class__))
+
+        for n in member_substs.values ():
+            if type(n) != type (''):
+                print 'non string value ', n
         
         d.update (vars)
         d.update (member_substs)
