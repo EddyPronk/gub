@@ -43,7 +43,7 @@ beautiful sheet music from a high-level description file.'''
 
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with (version='branch=' + settings.lilypond_branch,
+        self.with (branch=settings.lilypond_branch,
                    mirror='git:http://lilypond.org/~hanwen/lilypond.git/')
         
         # FIXME: should add to C_INCLUDE_PATH

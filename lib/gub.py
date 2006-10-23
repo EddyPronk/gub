@@ -147,15 +147,10 @@ class BuildSpec (Os_context_wrapper):
     @subst_method
     def source_checksum (self):
         if self.vc_repository:
-            c = self.vc_commit ()
-            if c:
-                return c
-
-            cs = self.vc_repository.get_release_hash (self.vc_branch ())
-            return cs
-        
-        else:
-            return '0000'
+            if self.vc_branch:
+                return self.vc_repository.get_release_hash (self.vc_branch)
+            
+        return self.version 
 
     @subst_method
     def license_file (self):
@@ -172,19 +167,9 @@ class BuildSpec (Os_context_wrapper):
         return f
 
     @subst_method
-    def vc_branch (self):
-        if self.vc_repository:
-            (b, c) = self.vc_repository.parse_version_string (self.ball_version)
-
-            return b
-        else:
-            return ''
-
-    @subst_method
     def vc_commit (self):
         if self.vc_repository:
-            (b, c) = self.vc_repository.parse_version_string (self.ball_version)
-            return c
+            return self.ball_version
         else:
             return misc.split_version (self.ball_version)[0]
 
@@ -204,11 +189,10 @@ class BuildSpec (Os_context_wrapper):
     @subst_method
     def version (self):
         if self.vc_repository:
-            c = self.vc_commit ()
-            if c:
-                return c
+            if self.vc_branch:
+                return self.vc_branch
 
-            return self.vc_branch ()
+            return self.ball_version
         
         return misc.split_version (self.ball_version)[0]
 
@@ -510,7 +494,7 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"  -zcf %(gub_src_uploads)s
 
     def clean (self):
         self.system ('rm -rf  %(stamp_file)s %(install_root)s', locals ())
-        if self.vc_branch ():
+        if self.vc_branch:
             return
 
         self.system ('''rm -rf %(srcdir)s %(builddir)s''', locals ())
@@ -535,7 +519,8 @@ tar -C %(dir)s %(flags)s %(tarball)s
     def untar (self):
         if self.vc_repository:
             self.vc_repository.checkout (self.expand ('%(srcdir)s'),
-                                         branch=self.vc_branch(), commit=self.vc_commit ())
+                                         branch=self.vc_branch,
+                                         commit=self.vc_commit)
             
         else:
             self.system ('''
@@ -644,8 +629,8 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
         return b
 
     def with (self,
-              
-              version='HEAD',
+              branch='',
+              version='',
               mirror=download.gnu,
               format='gz'):
 
@@ -664,6 +649,8 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
 
         self.format = format
         self.ball_version = version
+        self.vc_branch = branch
+        
         ball_version = version
         
 

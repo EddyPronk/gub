@@ -2,23 +2,6 @@ import misc
 import os
 import re
 
-def parse_version_string (str):
-    "Parse branch=XXX,commit=XXX string"
-    
-    commit = re.search ('commit=([0-9.a-z]+)', str)
-    if commit:
-        commit = commit.group (1)
-    else:
-        commit = ''
-        
-    branch = re.search ('branch=([^,]+)', str)
-    if branch:
-        branch = branch.group (1)
-    else:
-        branch = ''
-        
-    return (branch, commit)
-
 class GitRepository:
     def __init__ (self, git_dir):
         self.repo_dir = git_dir
@@ -72,5 +55,3 @@ class GitRepository:
         elif commit:
             self.system ('cd %(destdir)s && %(cmd)s read-tree %(commit)s && %(cmd)s checkout-index -a ' % locals ())
         
-    def parse_version_string (self, str):
-        return parse_version_string (str)
