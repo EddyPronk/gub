@@ -4,6 +4,7 @@ import re
 import md5
 import locker
 import time
+import urllib
 
 ## note: repository.py still being used by test-gub, so don't
 ## throw this overboard yet.
@@ -63,10 +64,20 @@ class GitRepository (Repository):
             branches = self.get_branches ()
             
             
-        refs = ' '.join ('%s:%s' % (b,b) for b in branches)
-        self.system ('%(cmd)s fetch %(source)s %(refs)s' % locals ())
+        for b in branches:
+            self.system ('%(cmd)s http-fetch -av heads/%(b)s %(source)s ' % locals ())
 
+            suffix = "/refs/heads/" + b
+            commitish = urllib.urlopen (source + suffix).read ()
+            
+            open (self.repo_dir + suffix, 'w').write (commitish)
+
+            print 'advancing branch', b, 'to', commitish
+            
         self.checksums = {}
+
+    def set_current_branch (self, branch):
+        open (self.repo_dir + '/HEAD', 'w').write ('ref: refs/heads/%s\n' % branch)
         
     def get_branch_version (self, branch):
         if self.checksums.has_key (branch):
@@ -80,6 +91,11 @@ class GitRepository (Repository):
             return cs
         else:
             return 'invalid'
+
+    def all_files (self, branch):
+        cmd = self.git_command ()
+        str = self.read_pipe ('%(cmd)s ls-tree --name-only -r %(branch)s' % locals ())
+        return str.split ('\n')
         
     def checkout (self, destdir, branch=None, commit=None):
         if not os.path.isdir (destdir):
@@ -88,9 +104,11 @@ class GitRepository (Repository):
         cmd = self.git_command ()
 
         if branch:
-            self.system ('cd %(destdir)s && %(cmd)s checkout %(branch)s &&  %(cmd)s checkout-index -a' % locals())
+            self.set_current_branch (branch)
+            self.system ('cd %(destdir)s && %(cmd)s checkout-index -a -f ' % locals())
+            self.set_current_branch ('master')
         elif commit:
-            self.system ('cd %(destdir)s && %(cmd)s read-tree %(commit)s && %(cmd)s checkout-index -a ' % locals ())
+            self.system ('cd %(destdir)s && %(cmd)s read-tree %(commit)s && %(cmd)s checkout-index -a -f ' % locals ())
         
 
 class CVSRepository(Repository):
@@ -190,16 +208,14 @@ class CVSRepository(Repository):
                 entries.append (tuple (m.groups ()))
         return entries
         
-    def all_cvs_entries (self):
-        ds = self.cvs_dirs ()
+    def all_cvs_entries (self, dir):
+        ds = self.cvs_dirs (dir)
         es = []
         for d in ds:
             
             ## strip CVS/
             basedir = os.path.split (d)[0]
             for e in self.cvs_entries (d):
-                
-                
                 filename = os.path.join (basedir, e[0])
                 filename = filename.replace (self.repo_dir + '/', '')
 
@@ -207,3 +223,9 @@ class CVSRepository(Repository):
             
 
         return es
+
+    def all_files (self, branch):
+        entries = self.all_cvs_entries (self.repo_dir + '/' + branch)
+        return [e[0] for e in entries]
+    
+    
