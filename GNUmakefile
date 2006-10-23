@@ -12,7 +12,8 @@ GUB_DISTCC_ALLOW_HOSTS=127.0.0.1
 ALL_PLATFORMS=arm cygwin darwin-ppc darwin-x86 debian freebsd4-x86 freebsd6-x86 linux-x86 linux-64 mingw mipsel
 PLATFORMS=darwin-ppc darwin-x86 mingw linux-x86 linux-64 freebsd-x86 cygwin
 
-LILYPOND_CVSDIR=downloads/lilypond.cvs/$(BRANCH)/
+LILYPOND_CVS_REPODIR=downloads/lilypond.cvs/
+LILYPOND_CVSDIR=$(LILYPOND_CVS_REPODIR)/$(BRANCH)/
 LILYPOND_GITDIR=downloads/lilypond.git/
 LILYPOND_BRANCH=$(BRANCH)
 
@@ -70,7 +71,7 @@ BUILDNUMBER_FILE = buildnumber-$(LILYPOND_BRANCH).make
 LILYPOND_VERSION=$(shell cat VERSION)
 VERSION:
 	PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
-		$(PYTHON) test-lily/set-installer-version.py $(LILYPOND_GITDIR) $(LILYPOND_CVSDIR)
+		$(PYTHON) test-lily/set-installer-version.py --branch $(LILYPOND_BRANCH) $(LILYPOND_GITDIR) $(LILYPOND_CVSDIR)
 
 UPDATE-BUILDNUMBER=echo 'INSTALLER_BUILD='`python lilypondorg.py nextbuild $(LILYPOND_VERSION)` > $(BUILDNUMBER_FILE)
 
