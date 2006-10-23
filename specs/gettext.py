@@ -24,12 +24,12 @@ class Gettext (targetpackage.TargetBuildSpec):
 class Gettext__freebsd (Gettext):
     def get_dependency_dict (self):
         d = Gettext.get_dependency_dict (self)
-        if settings.target_architecture == 'i686-freebsd4':
+        if self.settings.target_architecture == 'i686-freebsd4':
             d[''].append ('libgnugetopt')
         return d
 
     def get_build_dependencies (self):
-        if settings.target_architecture == 'i686-freebsd4':
+        if self.settings.target_architecture == 'i686-freebsd4':
             return ['libgnugetopt'] + Gettext.get_build_dependencies (self)
         return Gettext.get_build_dependencies (self)
 

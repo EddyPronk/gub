@@ -591,6 +591,7 @@ def get_installer (settings, args=[]):
         'arm' : Shar,
         'darwin-ppc' : Darwin_bundle,
         'darwin-x86' : Darwin_bundle,
+        'freebsd4-x86' : Shar,
         'freebsd-x86' : Shar,
         'linux-x86' : Shar,
         'linux-64' : Shar,
