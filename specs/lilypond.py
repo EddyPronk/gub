@@ -239,7 +239,7 @@ class LilyPond__cygwin (LilyPond):
 
     def configure_command (self):
         return LilyPond.configure_command (self).replace ('--enable-relocation',
-                                                          '-ddisable-relocation')
+                                                          '--disable-relocation')
 
     def compile (self):
         self.system ('''
