@@ -19,7 +19,13 @@ def parse_options ():
 		  action="store",
 		  dest="repository",
                   default="",
-		  help="CVS repository of lilypond.")
+		  help="Repository of lilypond.")
+    
+    p.add_option ('--branch',
+		  action="store",
+		  dest="branch",
+                  default="",
+		  help="Branch of lilypond.")
     
     (o,a) = p.parse_args ()
     if len (a) < 1:
@@ -29,7 +35,7 @@ def parse_options ():
     
     o.repository = os.path.abspath (o.repository)
     
-    return o,a
+    return (o, a)
 
 def check_cvs ():
     pass
@@ -38,6 +44,7 @@ def system (s):
     print s
     if os.system (s):
         raise Exception ('failed')
+
 def popen (s):
     print s
     return os.popen (s)
@@ -53,7 +60,7 @@ def get_config_dict (dir):
     
     return d
 
-def check_files (tarball, cvs_repo):
+def check_files (tarball, cvs_repo, branch):
     error_found = False
 
     tarball = os.path.abspath (tarball)
@@ -83,7 +90,7 @@ def check_files (tarball, cvs_repo):
     ## tarball <-> CVS
     file_dict = dict ((f, 1) for f in files)
     
-    entries =  repo.all_cvs_entries ()
+    entries = repo.all_files (branch)
     exceptions = ['.cvsignore', 'stepmake/.cvsignore']
 
     for e in entries:
@@ -109,7 +116,7 @@ def main ():
 
     system ('cd %(builddir)s/ && make DOCUMENTATION=yes dist' % locals ())
     tarball = '%(builddir)s/out/lilypond-%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s.tar.gz' % config
-    check_files (tarball, options.repository)
+    check_files (tarball, options.repository, options.branch)
 
     # uploading is done by makefile.
     
