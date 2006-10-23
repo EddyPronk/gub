@@ -554,7 +554,7 @@ rmdir %(installer_root)s/usr/share/doc/%(base_name)s || true
 rmdir %(installer_root)s/usr/share/doc || true
 rmdir %(installer_root)s/usr/share || true
 rmdir %(installer_root)s/usr || true
-tar -C %(installer_root)s --owner=0 --group=0 -jcf %(cygwin_uploads)s/%(base_name)s/%(ball_name)s .
+cd %(installer_root)s && tar --owner=0 --group=0 -jcf %(cygwin_uploads)s/%(base_name)s/%(ball_name)s *
 cp -pv %(installer_root)s/etc/hints/%(hint)s %(cygwin_uploads)s/%(base_name)s/setup.hint
 ''',
                 self.get_substitution_dict (d))
