@@ -9,5 +9,7 @@ class Git (toolpackage.ToolBuildSpec):
         
     def patch (self):
         self.shadow_tree ("%(srcdir)s", '%(builddir)s')
-        self.system ('cd %(srcdir)s && autoconf')
+    def configure (self):
+        self.dump ( 'prefix=%(system_root)s/usr/', '%(builddir)s/config.mak') 
+
     
