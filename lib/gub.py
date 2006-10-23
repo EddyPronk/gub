@@ -169,13 +169,6 @@ class BuildSpec (Os_context_wrapper):
         return f
 
     @subst_method
-    def vc_commit (self):
-        if self.vc_repository:
-            return self.ball_version
-        else:
-            return misc.split_version (self.ball_version)[0]
-
-    @subst_method
     def packaging_suffix_dir (self):
         return ''
 
@@ -658,6 +651,11 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
         self.format = format
         self.ball_version = version
         self.vc_branch = branch
+
+        if self.vc_repository:
+            self.vc_commit = self.ball_version
+        else:
+            self.vc_commit = misc.split_version (self.ball_version)[0]
         
         ball_version = version
         
