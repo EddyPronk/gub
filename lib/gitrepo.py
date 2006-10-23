@@ -27,7 +27,9 @@ class GitRepository (Repository):
         Repository.__init__ (self)
         self.repo_dir = git_dir
         self.checksums = {}
-        
+    def __repr__ (self):
+        return '#<GitRepository %s>' % self.repo_dir
+    
     def get_branches (self):
         branch_lines = self.read_pipe (self.git_command () + ' branch -l ').split ('\n')
 
@@ -45,13 +47,14 @@ class GitRepository (Repository):
             self.system ('%(cmd)s clone --bare -n %(source)s %(repo)s' % locals ())
             return
 
+
         if commit:
             contents = self.read_pipe ('%(cmd)s ls-tree %(commit)s' % locals (), ignore_error=True)
 
             if contents:
                 return
             
-            self.system ('%(cmd)s http-fetch -c %(commit)s' % commit)
+            self.system ('%(cmd)s http-fetch -v -c %(commit)s' % commit)
 
         branches = []
         if branch:
@@ -59,8 +62,9 @@ class GitRepository (Repository):
         else:
             branches = self.get_branches ()
             
-            refs = ' '.join ('%s:%s' % (b,b) for b in branches)
-            self.system ('%(cmd)s fetch %(source)s %(refs)s' % locals ())
+            
+        refs = ' '.join ('%s:%s' % (b,b) for b in branches)
+        self.system ('%(cmd)s fetch %(source)s %(refs)s' % locals ())
 
         self.checksums = {}
         
