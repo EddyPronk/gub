@@ -6,7 +6,7 @@ import re
 import os
 import time
 
-from misc import *
+import misc
 
 class KeyCollision (Exception):
     pass
@@ -18,7 +18,7 @@ class Repository:
         self.test_dir = os.path.join (self.repo_admin_dir, 'test-results')
         self._databases = {}
         self.system = os.system
-        self.read_pipe = default_read_pipe
+        self.read_pipe = misc.read_pipe
         
         if not os.path.isdir (self.test_dir):
             os.makedirs (self.test_dir)
