@@ -114,7 +114,7 @@ cygwin-libtool:
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build libtool
 
 cygwin-libtool-installer:
-	echo INSTALLER_BUILD=2 > buildnumber-libtool.make
+	echo INSTALLER_BUILD=3 > buildnumber-libtool.make
 	$(call INVOKE_INSTALLER_BUILDER,cygwin) --buildnumber-file=buildnumber-libtool.make build-all libtool
 
 cygwin-fontconfig:
@@ -122,14 +122,14 @@ cygwin-fontconfig:
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build fontconfig
 
 cygwin-fontconfig-installer:
-	echo INSTALLER_BUILD=1 > buildnumber-fontconfig.make
+	echo INSTALLER_BUILD=2 > buildnumber-fontconfig.make
 	$(call INVOKE_INSTALLER_BUILDER,cygwin) --buildnumber-file=buildnumber-fontconfig.make build-all fontconfig
 
 cygwin-guile:
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build libtool guile
 
 cygwin-guile-installer:
-	echo INSTALLER_BUILD=1 > buildnumber-guile.make
+	echo INSTALLER_BUILD=2 > buildnumber-guile.make
 	$(call INVOKE_INSTALLER_BUILDER,cygwin) --buildnumber-file=buildnumber-guile.make build-all guile
 
 cygwin-lilypond:
