@@ -138,7 +138,7 @@ class CVSRepository(Repository):
             suffix = commit
         dir = self.repo_dir  +'/' + suffix        
 
-        self.system ('rsync -av --exclude CVS %(dir)s %(destdir)s')
+        self.system ('rsync -av --exclude CVS %(dir)s/ %(destdir)s' % locals ())
         
     def update (self, source, branch=None, commit=None):
         suffix = branch
