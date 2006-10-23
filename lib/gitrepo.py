@@ -5,6 +5,9 @@ import md5
 import locker
 import time
 
+## note: repository.py still being used by test-gub, so don't
+## throw this overboard yet.
+##
 class Repository: 
     def __init__ (self):
         self.system = misc.system
