@@ -595,7 +595,7 @@ cd %(srcdir)s && patch -p1 -f < %(allsrcdir)s/%(patch)s || true
                   + self.locate_files ('%(install_root)s/usr/bin', '*')):
             if (not os.path.islink (i)
                 and not os.path.splitext (i)[1]
-                and not self.read_pipe ('file -b %(i)s', locals ()).startswith ('MS-DOS executable PE')):
+                and self.read_pipe ('file -b %(i)s', locals ()).startswith ('MS-DOS executable PE')):
                 self.system ('''mv %(i)s %(i)s.exe''', locals ())
 
     def install_readmes (self):
