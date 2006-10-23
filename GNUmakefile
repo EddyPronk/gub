@@ -1,6 +1,6 @@
 
 .PHONY: all default distclean download TAGS
-.PHONY: cygwin darwin-ppc darwin-x86 debian freebsd-x86 linux-x86 mingw bootstrap-download bootstrap
+.PHONY: cygwin darwin-ppc darwin-x86 debian freebsd4-x86 freebsd6-x86 linux-x86 mingw bootstrap-download bootstrap
 .PHONY: update-buildnumber
 
 default: all
@@ -9,7 +9,7 @@ default: all
 
 ## must always have one host.
 GUB_DISTCC_ALLOW_HOSTS=127.0.0.1
-ALL_PLATFORMS=arm cygwin darwin-ppc darwin-x86 debian freebsd4-x86 freebsd-x86 linux-x86 linux-64 mingw mipsel
+ALL_PLATFORMS=arm cygwin darwin-ppc darwin-x86 debian freebsd4-x86 freebsd6-x86 linux-x86 linux-64 mingw mipsel
 PLATFORMS=darwin-ppc darwin-x86 mingw linux-x86 linux-64 freebsd-x86 cygwin
 
 LILYPOND_CVSDIR=downloads/lilypond-$(BRANCH)/
@@ -171,7 +171,7 @@ debian:
 freebsd4-x86:
 	$(call BUILD,$@,lilypond)
 
-freebsd-x86:
+freebsd6-x86:
 	$(call BUILD,$@,lilypond)
 
 linux-x86:

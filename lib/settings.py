@@ -13,7 +13,7 @@ platforms = {
     'darwin-x86': 'i686-apple-darwin8',
     'debian': 'i686-linux',
     'freebsd4-x86': 'i686-freebsd4',
-    'freebsd-x86': 'i686-freebsd6',
+    'freebsd6-x86': 'i686-freebsd6',
     'linux-x86': 'i686-linux',
     'linux-64': 'x86_64-linux',
     'local': 'local',
