@@ -60,6 +60,9 @@ class Glib__freebsd (Glib):
     def get_build_dependencies (self):
         return Glib.get_build_dependencies (self) + ['libiconv-devel']
     
+    def configure_command (self):
+        return Glib.configure_command (self) + ' --disable-threads'
+        
 class Glib__local (toolpackage.ToolBuildSpec):
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
