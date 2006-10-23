@@ -44,8 +44,11 @@ beautiful sheet music from a high-level description file.'''
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
         self.with (branch=settings.lilypond_branch,
-                   mirror='git:http://lilypond.org/~hanwen/lilypond.git/')
-        
+##                   mirror='git:http://lilypond.org/~hanwen/lilypond.git/'
+                   mirror=cvs.gnu
+
+                   )
+
         # FIXME: should add to C_INCLUDE_PATH
         builddir = self.builddir ()
         self.target_gcc_flags = (settings.target_gcc_flags
