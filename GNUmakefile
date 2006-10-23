@@ -12,9 +12,12 @@ GUB_DISTCC_ALLOW_HOSTS=127.0.0.1
 ALL_PLATFORMS=arm cygwin darwin-ppc darwin-x86 debian freebsd4-x86 freebsd6-x86 linux-x86 linux-64 mingw mipsel
 PLATFORMS=darwin-ppc darwin-x86 mingw linux-x86 linux-64 freebsd-x86 cygwin
 
-LILYPOND_CVSDIR=downloads/lilypond-$(BRANCH)/
+LILYPOND_CVSDIR=downloads/lilypond.cvs/$(BRANCH)/
+LILYPOND_GITDIR=downloads/lilypond.git/
 LILYPOND_BRANCH=$(BRANCH)
 BRANCH=HEAD
+PYTHONPATH=lib/
+export PYTHONPATH
 
 OTHER_PLATFORMS=$(filter-out $(BUILD_PLATFORM), $(PLATFORMS))
 
@@ -31,8 +34,8 @@ INVOKE_GUP=$(PYTHON) gup-manager.py \
 
 INVOKE_INSTALLER_BUILDER=$(PYTHON) installer-builder.py \
   --target-platform $(1) \
-  --version-file downloads/lilypond-$(BRANCH)/VERSION \
-  --buildnumber-file  $(BUILDNUMBER_FILE)  \
+  --version-file VERSION \
+  --buildnumber-file $(BUILDNUMBER_FILE)  \
   --branch $(LILYPOND_BRANCH) \
 
 
@@ -56,38 +59,11 @@ BUILDNUMBER_FILE = buildnumber-$(LILYPOND_BRANCH).make
 #  GUB_CROSS_DISTCC_HOSTS - hosts with matching cross compilers
 #  GUB_NATIVE_DISTCC_HOSTS - hosts with matching native compilers
 #
-ifneq ($(wildcard local.make),)
-  include local.make
-endif
-
-ifeq ($(wildcard $(LILYPOND_CVSDIR)),)
-
-  ################
-  # first installation, no LilyPond CVS yet.
-
-  LILYPOND_VERSION=0.0.0
-
-  bootstrap: bootstrap-download
-
-  ## need to download CVS before we can actually start doing anything.
-  bootstrap-download: update-buildnumber
-	  $(PYTHON) gub-builder.py -p linux-x86 download lilypond
-
-else
 
 
-  ################
-  # ensuing runs, we have CVS.
-
-  include $(LILYPOND_CVSDIR)/VERSION
-
-  LILYPOND_VERSION=$(MAJOR_VERSION).$(MINOR_VERSION).$(PATCH_LEVEL)$(if $(strip $(MY_PATCH_LEVEL)),.$(MY_PATCH_LEVEL),)
-
-  bootstrap-download: 
-
-  include $(BUILDNUMBER_FILE)
-
-endif
+LILYPOND_VERSION=$(shell cat VERSION)
+VERSION:
+	$(PYTHON) test-lily/set-installer-version.py $(LILYPOND_GITDIR) $(LILYPOND_CVSDIR)
 
 UPDATE-BUILDNUMBER=echo 'INSTALLER_BUILD='`python lilypondorg.py nextbuild $(LILYPOND_VERSION)` > $(BUILDNUMBER_FILE)
 
@@ -102,6 +78,8 @@ update-buildnumber:
 
 download:
 	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB_BUILDER,$(p)) download lilypond && ) true
+	rm -f VERSION
+	$(MAKE) VERSION
 	$(MAKE) downloads/genini
 	rm -f target/*/status/lilypond*
 	rm -f log/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).*.test.pdf
@@ -241,6 +219,7 @@ bootstrap:
 		flex mftrace potrace fontforge glib pango \
 		guile pkg-config nsis icoutils expat gettext \
 		distcc texinfo automake
+	$(MAKE) VERSION
 	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local build \
 		flex mftrace potrace fontforge \
 		guile pkg-config expat icoutils glib pango \
