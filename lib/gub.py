@@ -125,7 +125,7 @@ class BuildSpec (Os_context_wrapper):
     def vc_download (self):
         self.vc_repository.update (self.url,
                                    branch=self.vc_branch,
-                                   commit=self.version ())
+                                   commit=self.ball_version)
         return
 
     @subst_method
