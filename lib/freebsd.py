@@ -26,17 +26,31 @@ class Gcc (cross.Gcc):
 '''))
 
 class Freebsd_runtime (gub.BinarySpec, gub.SdkBuildSpec):
+    def untar (self):
+        gub.BinarySpec.untar (self)
+        self.lib_rewire ()
     def patch (self):
         self.system ('rm -rf %(srcdir)s/root/usr/include/g++')
 
-def get_cross_packages (settings):
+def _get_cross_packages (settings, libc_version):
     return (
-        Freebsd_runtime (settings).with (version='4.10-2', mirror=download.jantien),
+        Freebsd_runtime (settings).with (version=libc_version,
+                                         mirror=download.jantien),
         Binutils (settings).with (version='2.16.1', format='bz2'),
         Gcc (settings).with (version='4.1.1', mirror=download.gcc_41,
                              format='bz2'),
         )
 
+def get_cross_packages_41 (settings):
+    return _get_cross_packages (settings, '4.10-2')
+
+def get_cross_packages_61 (settings):
+    return _get_cross_packages (settings, '6.1-RELEASE')
+
+def get_cross_packages (settings):
+    if settings.target_architecture == 'i686-freebsd4':
+        return _get_cross_packages_41 (settings)
+    return get_cross_packages_61 (settings)
 
 def change_target_packages (packages):
     cross.change_target_packages (packages)
