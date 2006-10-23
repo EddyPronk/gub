@@ -237,6 +237,10 @@ class LilyPond__cygwin (LilyPond):
             'ghostscript',
             ]
 
+    def configure_command (self):
+        return LilyPond.configure_command (self).replace ('--enable-relocation',
+                                                          '-ddisable-relocation')
+
     def compile (self):
         self.system ('''
         cp -pv %(system_root)s/usr/share/gettext/gettext.h %(system_root)s/usr/include''')
