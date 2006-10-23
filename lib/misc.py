@@ -19,15 +19,19 @@ def read_pipe (cmd, ignore_error=False):
     
     return val
 
-def grok_sh_variables (file):
+def grok_sh_variables_str (str):
     dict = {}
-    for i in open (file).readlines ():
+    for i in str.split ('\n'):
         m = re.search ('^([^ =]+) *=\s*(.*)$', i)
         if m:
             k = m.group (1)
             s = m.group (2)
             dict[k] = s
     return dict
+
+
+def grok_sh_variables (file):
+    return grok_sh_variables_str (open (file).read ())
 
 def itoa (x):
     if type (x) == int:
