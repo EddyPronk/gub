@@ -71,7 +71,7 @@ BUILDNUMBER_FILE = buildnumber-$(LILYPOND_BRANCH).make
 LILYPOND_VERSION=$(shell cat VERSION || echo '0.0.0')
 VERSION:
 	PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
-		$(PYTHON) test-lily/set-installer-version.py --branch $(LILYPOND_BRANCH) $(LILYPOND_GITDIR) $(LILYPOND_CVSDIR)
+		$(PYTHON) test-lily/set-installer-version.py --branch $(LILYPOND_BRANCH) $(LILYPOND_GITDIR) $(LILYPOND_CVS_REPODIR)
 
 UPDATE-BUILDNUMBER=echo 'INSTALLER_BUILD='`python lilypondorg.py nextbuild $(LILYPOND_VERSION)` > $(BUILDNUMBER_FILE)
 

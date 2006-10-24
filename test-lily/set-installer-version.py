@@ -28,10 +28,9 @@ def parse_options ():
     return o,a
 
     
-def get_cvs_version (dir):
-    f =dir + '/VERSION'
+def get_cvs_version (dir, branch):
+    f = dir + '/' + branch + '/VERSION'
     print 'getting version from cvs .. ' , f
-    
     d = misc.grok_sh_variables (f)
     return '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
     
@@ -39,44 +38,48 @@ def get_git_version (dir, branch):
     print 'getting version from git .. '
     
     cmd = 'git --git-dir %(dir)s/ ' % locals ()
-    commit_id = misc.read_pipe ('%(cmd)s log --max-count=1 %(branch)s' % locals ())
+    commit_id = misc.read_pipe ('%(cmd)s log --max-count=1 %(branch)s'
+                                % locals ())
     m = re.search ('commit (.*)\n', commit_id)
-
     commit_id = m.group (1)
-
-    version_id = misc.read_pipe ('%(cmd)s ls-tree %(commit_id)s VERSION' % locals ())
+    version_id = misc.read_pipe ('%(cmd)s ls-tree %(commit_id)s VERSION'
+                                 % locals ())
     version_id = version_id.split (' ')[2]
     version_id = version_id.split ('\t')[0]
 
-    version_str = misc.read_pipe ('%(cmd)s cat-file blob %(version_id)s' % locals())
-
+    version_str = misc.read_pipe ('%(cmd)s cat-file blob %(version_id)s'
+                                  % locals())
     d = misc.grok_sh_variables_str (version_str)
-
     return '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
 
+def scm_flavor (dir, branch):
+    if os.path.isdir (dir + '/objects'):
+        return 'git'
+    if os.path.isdir (dir + '/' + branch + '/CVS'):
+        return 'cvs'
+    return None
 
+def version_from_scm_dir (dir, branch):
+    flavor = scm_flavor (dir, branch)
+    if flavor == 'git':
+        return get_git_version (dir, branch)
+    elif flavor == 'cvs':
+        return get_cvs_version (dir, branch)
+    return None
 
+def main ():
+    (o, dirs) = parse_options ()
 
-(o,args) = parse_options ()
+    for dir in dirs:
+        version = version_from_scm_dir (dir, o.branch)
+        if version:
+            break
 
-version = ''
-for a in args:
-    if not os.path.isdir (a):
-        continue
+    if not version:
+        version = '0.0.0'
 
-    if os.path.isdir (a + '/objects'):
-        # git:
+    print 'found version', version
+    open (o.output, 'w').write (version)
 
-        version = get_git_version (a, o.branch)
-    elif os.path.isdir (a + '/' + o.branch + '/CVS'):
-        version = get_cvs_version (a + '/' + o.branch)
-
-    if version:
-        break
-
-if not version:
-    version = '0.0.0'
-
-
-print 'found version', version
-open (o.output, 'w').write (version)
+if __name__ == '__main__':
+    main ()
