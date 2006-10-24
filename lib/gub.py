@@ -626,25 +626,31 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
     def with (self,
               branch='',
               version='',
+              module='',
               mirror=download.gnu,
               format='gz'):
 
         if mirror.startswith ('git:'):
-            if 'http:' in mirror:
-                mirror = mirror[len ('git:'):]
-
             self.url = mirror
-            dir = self.settings.downloads + '/' + self.name() + '.git'
+            if 'http:' in mirror:
+                self.url = mirror[len ('git:'):]
+
+            dir = self.settings.downloads + '/' + self.name () + '.git'
             self.vc_repository = gitrepo.GitRepository (dir)
 
             ## can't set vc_repository.system to self.system
             ## otherwise, we get into a loop [system -> expand -> checksum -> system]
         elif mirror.startswith (':pserver:'):
-            name = self.name()
-            self.url = mirror % locals()
-            
-            dir = '%s/%s.cvs' % (self.settings.downloads, name)
+            name = self.name ()
+            self.url = mirror % locals ()
+            dir = '%s/%s.cvs' % (self.settings.downloads, self.name ())
             self.vc_repository = gitrepo.CVSRepository (dir, self.name ())
+        elif mirror.startswith ('svn:'):
+            self.url = mirror
+            if 'http:' in mirror:
+                self.url = mirror[len ('svn:'):]
+            dir = '%s/%s.svn' % (self.settings.downloads, self.name ())
+            self.vc_repository = gitrepo.SVNRepository (dir, branch, module)
         else:
             self.url = mirror
 
