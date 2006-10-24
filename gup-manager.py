@@ -96,9 +96,8 @@ def get_cli_parser ():
                 if d[k].__doc__ and type (d[k]) == type (lambda x: x)]
     commands.sort ()
 
-        commands.sort ()
-        for (command,doc) in commands:
-            p.usage += "    %s - %s\n" % (re.sub ('_', '-', command), doc)
+    for (command, doc) in commands:
+        p.usage += "    %s - %s\n" % (re.sub ('_', '-', command), doc)
 
     p.add_option ('-B', '--branch',
                   default="HEAD",
