@@ -165,10 +165,10 @@ class SystemFailed (Exception):
     pass
 
 
-def system (cmd):
+def system (cmd, ignore_error=False):
     print 'Executing command %s' % cmd
     stat = os.system (cmd)
-    if stat:
+    if stat and not ignore_error:
         raise SystemFailed('Command failed ' + `stat`)
 
 
