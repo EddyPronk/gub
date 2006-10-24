@@ -186,7 +186,6 @@ class BuildSpec (Os_context_wrapper):
         if self.vc_repository:
             if self.vc_branch:
                 return self.vc_branch
-
             return self.ball_version
         
         return misc.split_version (self.ball_version)[0]
@@ -657,8 +656,7 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
                 self.url = mirror[len ('svn:'):]
             dir = '%s/%s.svn' % (self.settings.downloads, self.name ())
             self.vc_repository = gitrepo.SVNRepository (dir, branch, module, revision)
-            # FIXME
-            self.vc_branch = revision
+            self.vc_branch = None
         else:
             self.url = mirror
 
