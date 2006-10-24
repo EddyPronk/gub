@@ -39,8 +39,7 @@ class Pango (targetpackage.TargetBuildSpec):
         self.system ('cd %(srcdir)s && patch --force -p1 < %(patchdir)s/pango-substitute-env.patch')
 
     def fix_modules (self, prefix='/usr'):
-        etc = self.expand ('%(install_root)s/%(prefix)s/usr/etc/pango',
-                           locals ())
+        etc = self.expand ('%(install_root)s/%(prefix)s/etc/pango', locals ())
         self.system ('mkdir -p %(etc)s' , locals ())
         for a in glob.glob (etc + '/*'):
             self.file_sub ([('/%(prefix)s/', '$PANGO_PREFIX/')], a, locals ())
