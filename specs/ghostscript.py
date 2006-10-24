@@ -54,11 +54,13 @@ class Ghostscript (targetpackage.TargetBuildSpec):
 
     def patch (self):
         if self.version == '8.50':
-            self.system ('cd %(srcdir)s/ && patch --force -p2 < %(patchdir)s/ghostscript-8.50-encoding.patch')
-            self.system ('cd %(srcdir)s/ && patch --force -p2 < %(patchdir)s/ghostscript-8.50-ttf.patch')
+            self.system ('cd %(srcdir)s && patch --force -p2 < %(patchdir)s/ghostscript-8.50-encoding.patch')
+            self.system ('cd %(srcdir)s && patch --force -p2 < %(patchdir)s/ghostscript-8.50-ttf.patch')
         if self.version == '8.54':
-            self.system ('cd %(srcdir)s/ && patch --force -p1 < %(patchdir)s/05_gxfcopy_qsort_64bit_clean.dpatch')
-            self.system ('cd %(srcdir)s/ && patch --force -p1 < %(patchdir)s/gs-r7029.patch')
+            self.system ('cd %(srcdir)s && patch --force -p1 < %(patchdir)s/05_gxfcopy_qsort_64bit_clean.dpatch')
+            self.system ('cd %(srcdir)s && patch --force -p1 < %(patchdir)s/gs-r7029.patch')
+        if not os.path.exists ('%(srcdir)s/configure'):
+            self.system ('cd %(srcdir)s && ./autogen.sh')
         
         substs = [(r'\$\(%s\)' % d, '$(DESTDIR)$(%s)' % d) for d in
                   ['bindir', 'datadir', 'gsdir', 'gsdatadir', 'docdir',
