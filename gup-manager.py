@@ -132,17 +132,11 @@ def get_cli_parser ():
                   action='store_true',
                   dest="be_verbose",
                   help="be verbose")
-
-
-    
     return p
-
-
-
 
 def parse_options ():
     p = get_cli_parser ()
-    (options, arguments) = p.parse_args()
+    (options, arguments) = p.parse_args ()
 
     options.command = ''
     options.arguments = []
@@ -155,14 +149,10 @@ def parse_options ():
         if not options.platform:
             sys.stderr.write ('need platform or root setting, use -p option')
             sys.stderr.write ('\n\n')
-            p.print_help()
+            p.print_help ()
             sys.exit (2)
         options.root = ('target/%s/system' % options.platform)
-
-
     return options
-
-
 
 def main ():
     options = parse_options ()
