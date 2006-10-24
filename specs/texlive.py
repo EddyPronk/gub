@@ -1,9 +1,9 @@
 import targetpackage
 
-texlive_svn = 'svn://username@tug.org/texlive/trunk'
-texlive_svn_source = texlive_svn + '/Build/source'
-texlive_svn_texmf_dist = texlive_svn + '/Master/texmf-dist'
-texlive_svn_texmf = texlive_svn + 'Master/texmf'
+texlive_svn = 'svn://username@tug.org/texlive'
+#texlive_svn_source = texlive_svn + '/Build/source'
+#texlive_svn_texmf_dist = texlive_svn + '/Master/texmf-dist'
+#texlive_svn_texmf = texlive_svn + 'Master/texmf'
 license_url = 'http://tug.org/svn/texlive/trunk/Master/LICENSE.TL'
 
 class Texlive (targetpackage.TargetBuildSpec):
@@ -22,10 +22,10 @@ packages.'''
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
         # FIXME: lilypond_branch
-        self.with (#version='trunk/Build/source',
+        self.with (branch='trunk',
+                   module='Build/source',
                    version='HEAD',
-                   mirror=texlive_svn_source,
-                   vc_type='svn')
+                   mirror=texlive_svn)
 
     def get_subpackage_names (self):
         return ['doc', 'devel', 'base', 'runtime', 'bin', '']
@@ -39,6 +39,8 @@ packages.'''
 
     def do_download (self):
         targetpackage.TargetBuildSpec.do_download (self)
+        raise 'FIXME'
+        # FIXME
         self._vc_download (texlive_svn_texmf, 'texmf-dist', 'HEAD',
                            self.expand ('%(vc_dir)s/texmf-dist-HEAD'))
 #        self._vc_download (texlive_svn_texmf, 'texmf', 'HEAD',
