@@ -256,8 +256,8 @@ doc-build:
 NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_BRANCH)
 NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/src/lilypond-$(LILYPOND_BRANCH)
 
-## no trailing slash!
 NATIVE_ROOT=$(NATIVE_TARGET_DIR)/installer-$(LILYPOND_BRANCH)
+
 DOC_LOCK=$(NATIVE_ROOT).lock
 
 doc: native doc-build
@@ -292,23 +292,19 @@ unlocked-info-man-build:
 	    MALLOC_CHECK_=2 \
 	    PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
 	    LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH) \
-	    LD_LIBRARY_PATH=$(CWD)/target/local/system/usr/lib:$(LD_LIBRARY_PATH) \
 	    DOCUMENTATION=yes out=out-www info
 	make DESTDIR=$(NATIVE_LILY_BUILD)/out-info-man \
 	    PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
 	    LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH) \
-	    LD_LIBRARY_PATH=$(CWD)/target/local/system/usr/lib:$(LD_LIBRARY_PATH) \
 	    -C $(NATIVE_LILY_BUILD)/Documentation/user out=www install-info
 	make DESTDIR=$(NATIVE_LILY_BUILD)/out-info-man \
 	    PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
 	    LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH) \
-	    LD_LIBRARY_PATH=$(CWD)/target/local/system/usr/lib:$(LD_LIBRARY_PATH) \
 	    -C $(NATIVE_LILY_BUILD)/scripts DOCUMENTATION=yes CROSS=no \
 	    man install-help2man
 	make DESTDIR=$(NATIVE_LILY_BUILD)/out-info-man \
 	    PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
 	    LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH) \
-	    LD_LIBRARY_PATH=$(CWD)/target/local/system/usr/lib:$(LD_LIBRARY_PATH) \
 	    -C $(NATIVE_LILY_BUILD)/lily DOCUMENTATION=yes CROSS=no \
 	    man install-help2man
 	tar -C $(NATIVE_LILY_BUILD)/out-info-man/ \
