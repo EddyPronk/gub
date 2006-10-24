@@ -46,7 +46,7 @@ class Zlib__darwin (gub.NullBuildSpec):
         gub.NullBuildSpec.__init__ (self, settings)
         self.version = (lambda: '1.2.3')
         self.has_source = False
-
+        self.vc_branch = ''
     def srcdir (self):
         return '%(allsrcdir)s/zlib-darwin'
 

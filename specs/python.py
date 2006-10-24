@@ -142,6 +142,7 @@ class Python__darwin (gub.NullBuildSpec):
     def __init__ (self, settings):
         gub.NullBuildSpec.__init__ (self, settings)
         self.version = (lambda: '2.3')
+        self.vc_branch = ''
         self.has_source = False
     def srcdir (self):
         return '%(allsrcdir)s/python-darwin'
