@@ -12,9 +12,9 @@ GUB_DISTCC_ALLOW_HOSTS=127.0.0.1
 ALL_PLATFORMS=arm cygwin darwin-ppc darwin-x86 debian freebsd4-x86 freebsd6-x86 linux-x86 linux-64 mingw mipsel
 PLATFORMS=darwin-ppc darwin-x86 mingw linux-x86 linux-64 freebsd-x86 cygwin
 
-LILYPOND_CVS_REPODIR=downloads/lilypond.cvs/
-LILYPOND_CVSDIR=$(LILYPOND_CVS_REPODIR)/$(BRANCH)/
-LILYPOND_GITDIR=downloads/lilypond.git/
+LILYPOND_CVS_REPODIR=downloads/lilypond.cvs
+LILYPOND_CVSDIR=$(LILYPOND_CVS_REPODIR)/$(BRANCH)
+LILYPOND_GITDIR=downloads/lilypond.git
 LILYPOND_BRANCH=$(BRANCH)
 
 # for CVS
@@ -316,7 +316,7 @@ unlocked-info-man-build:
 
 unlocked-doc-export:
 	$(PYTHON) test-lily/rsync-lily-doc.py --recreate --output-distance \
-		$(LILYPOND_CVSDIR)/buildscripts/output-distance.py $(NATIVE_LILY_BUILD)/out-www/web-root/
+		$(LILYPOND_CVSDIR)/buildscripts/output-distance.py $(NATIVE_LILY_BUILD)/out-www/web-root
 
 doc-export:
 	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-export 
