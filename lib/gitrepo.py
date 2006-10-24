@@ -262,7 +262,10 @@ class SVNRepository (Repository):
         self.system (cmd)
         
     def get_branch_version (self, branch):
-        revision = self.read_pipe ('cd %(vc_dir)s && svn info')
+        # More C&P CVS
+        suffix = branch
+        dir = self.repo_dir  +'/' + suffix
+        revision = self.read_pipe ('cd %(dir)s && svn info' % locals ())
         return re.sub ('.*Revision: ([0-9]*).*', '\\1', revision)
 
     def checkout (self, destdir, branch=None, commit=None):
