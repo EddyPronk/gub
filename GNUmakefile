@@ -68,7 +68,7 @@ BUILDNUMBER_FILE = buildnumber-$(LILYPOND_BRANCH).make
 
 -include local.make
 
-LILYPOND_VERSION=$(shell cat VERSION)
+LILYPOND_VERSION=$(shell cat VERSION || echo '0.0.0')
 VERSION:
 	PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
 		$(PYTHON) test-lily/set-installer-version.py --branch $(LILYPOND_BRANCH) $(LILYPOND_GITDIR) $(LILYPOND_CVSDIR)
