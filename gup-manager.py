@@ -2,14 +2,14 @@
 
 '''
  gup-manager - Keep GUB root up to date
- 
+
  License: GNU GPL
 '''
 
+import optparse
 import re
 import string
 import sys
-import optparse
 
 sys.path.insert (0, 'lib/')
 
@@ -76,7 +76,7 @@ class Command:
             print '%s not installed' % p
         else:
             self.pm.uninstall_package (p)
-        
+
     def remove (self):
         '''uninstall packages'''
 
@@ -85,7 +85,7 @@ class Command:
                                              recurse_stop_predicate=lambda p: p not in self.options.arguments)
         packages.reverse ()
         for p in packages:
-            self.remove_package (p) 
+            self.remove_package (p)
 
 
 def get_cli_parser ():
@@ -104,13 +104,13 @@ def get_cli_parser ():
                   default="HEAD",
                   dest='branch',
                   help="VC branch to use")
-    
+
     p.add_option ('-p', '--platform',
                   default=None,
                   dest='platform',
                   metavar="PLATFORM",
                   help="platform to use")
-    
+
     p.add_option ('', '--name',
                   help="print package name only",
                   action="store_true",
@@ -140,10 +140,10 @@ def parse_options ():
 
     options.command = ''
     options.arguments = []
-    
+
     if len (arguments) > 0:
         options.command = re.sub ('-', '_', arguments.pop (0))
-        
+
     options.arguments = arguments
     if not options.root:
         if not options.platform:
@@ -158,12 +158,12 @@ def main ():
     options = parse_options ()
 
     target_manager = gup.DependencyManager (options.root, oslog.Os_commands ("/dev/null"), dbdir=options.dbdir)
-    
+
     if options.command == 'install':
         platform = options.platform
         target_manager.read_package_headers ('uploads/%(platform)s/' % locals (), options.branch)
 #        target_manager.read_package_headers ('uploads/%(platform)s-cross/' % locals(), options.branch)
-    
+
     if options.command:
         commands = Command (target_manager, options)
         if options.command in Command.__dict__:
