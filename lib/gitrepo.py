@@ -243,12 +243,11 @@ class SVNRepository (Repository):
     def update (self, source, branch=None, commit=None):
         #if commit:
         #    raise 'Barf'
-
         revision = self.revision
-
-        suffix = revision
         rev_opt = '-r %(revision)s ' % locals ()
-        dir = self.repo_dir  +'/' + suffix
+        repo_dir = self.repo_dir
+        branch = self.branch
+        dir = '%(repo_dir)s/%(branch)s-%(revision)s' % locals ()
 
         lock_dir = locker.Locker (dir + '.lock')
         branch = self.branch
@@ -258,28 +257,32 @@ class SVNRepository (Repository):
             cmd += 'cd %(dir)s && svn up %(rev_opt)s' % locals ()
         else:
             repo_dir = self.repo_dir
-            cmd += 'cd %(repo_dir)s && svn co %(rev_opt)s %(source)s/%(branch)s/%(module)s %(suffix)s''' % locals ()
+            cmd += 'cd %(repo_dir)s && svn co %(rev_opt)s %(source)s/%(branch)s/%(module)s %(branch)s-%(revision)s''' % locals ()
 
         self.system (cmd)
         
     def get_branch_version (self, branch):
-        # More C&P CVS
-        suffix = branch
-        dir = self.repo_dir  +'/' + suffix
-        revision = self.read_pipe ('cd %(dir)s && svn info' % locals ())
-        return re.sub ('.*Revision: ([0-9]*).*', '\\1', revision)
+        # C&P update
+        #if commit:
+        #    raise 'Barf'
+        revision = self.revision
+        rev_opt = '-r %(revision)s ' % locals ()
+        repo_dir = self.repo_dir
+        branch = self.branch
+        dir = '%(repo_dir)s/%(branch)s-%(revision)s' % locals ()
+        ##
+        revno = self.read_pipe ('cd %(dir)s && svn info' % locals ())
+        return re.sub ('.*Revision: ([0-9]*).*', '\\1', revno)
 
     def checkout (self, destdir, branch=None, commit=None):
         # C&P update
         #if commit:
         #    raise 'Barf'
-
         revision = self.revision
-
-        suffix = revision
         rev_opt = '-r %(revision)s ' % locals ()
-        dir = self.repo_dir  +'/' + suffix
+        repo_dir = self.repo_dir
+        branch = self.branch
+        dir = '%(repo_dir)s/%(branch)s-%(revision)s' % locals ()
         ##
-
 
         self.system ('rsync -av --exclude .svn %(dir)s/ %(destdir)s' % locals ())
