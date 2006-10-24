@@ -16,7 +16,8 @@ class Ghostscript (targetpackage.TargetBuildSpec):
             #       format='bz2')
             self.with (branch='trunk',
                        module='gs',
-                       version='HEAD',
+                       version='8.55',
+                       revision='HEAD',
                        mirror='svn:http://svn.ghostscript.com:8080/ghostscript')
         else:
             self.with (version='8.50',
