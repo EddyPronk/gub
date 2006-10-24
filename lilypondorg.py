@@ -14,8 +14,8 @@ platforms = ['linux-x86',
              'darwin-ppc',
              'darwin-x86',
              'documentation',
-             'freebsd4-x86',
-             'freebsd6-x86',
+#             'freebsd4-x86',
+#             'freebsd6-x86',
 #             'linux-arm',
              'mingw']
 
