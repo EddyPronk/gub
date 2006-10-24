@@ -260,7 +260,7 @@ NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/src/lilypond-$(LILYPOND_BRANCH)
 NATIVE_ROOT=$(NATIVE_TARGET_DIR)/installer-$(LILYPOND_BRANCH)
 DOC_LOCK=$(NATIVE_ROOT).lock
 
-doc: doc-build
+doc: native doc-build
 
 unlocked-doc-clean:
 	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_BRANCH) \
