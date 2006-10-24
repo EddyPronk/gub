@@ -231,26 +231,24 @@ class CVSRepository(Repository):
     
     
 class SVNRepository (Repository):
-    def __init__ (self, dir, branch, module):
+    def __init__ (self, dir, branch, module, revision):
         Repository.__init__ (self)
         self.repo_dir = dir
         self.branch = branch
         self.module = module
+        self.revision = revision
         if not os.path.isdir (dir):
             self.system ('mkdir -p %s' % dir)
         
     def update (self, source, branch=None, commit=None):
-        # More C&P
-        suffix = branch
-        # FIXME: this is weird, update should not specify branch,
-        # rather revision??
-        # mis-use branch as revision (ie, HEAD)
-        rev_opt = '-r ' + branch
-        if commit:
-            suffix = commit
-            rev_opt = '-r ' + commit
+        #if commit:
+        #    raise 'Barf'
 
-        dir = self.repo_dir  +'/' + suffix        
+        revision = self.revision
+
+        suffix = revision
+        rev_opt = '-r %(revision)s ' % locals ()
+        dir = self.repo_dir  +'/' + suffix
 
         lock_dir = locker.Locker (dir + '.lock')
         branch = self.branch
@@ -272,10 +270,16 @@ class SVNRepository (Repository):
         return re.sub ('.*Revision: ([0-9]*).*', '\\1', revision)
 
     def checkout (self, destdir, branch=None, commit=None):
-        # C&P CVS
-        suffix = branch
-        if commit:
-            suffix = commit
-        dir = self.repo_dir  +'/' + suffix        
+        # C&P update
+        #if commit:
+        #    raise 'Barf'
+
+        revision = self.revision
+
+        suffix = revision
+        rev_opt = '-r %(revision)s ' % locals ()
+        dir = self.repo_dir  +'/' + suffix
+        ##
+
 
         self.system ('rsync -av --exclude .svn %(dir)s/ %(destdir)s' % locals ())
