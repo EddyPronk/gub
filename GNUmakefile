@@ -222,22 +222,27 @@ native-distccd:
 		$(addprefix --allow ,$(GUB_DISTCC_ALLOW_HOSTS)) \
 		--port 3634 --pid-file $(CWD)/log/$@.pid \
 		--log-file $(CWD)/log/$@.log  --log-level info
-bootstrap:
+
+bootstrap: boostrap-git download-local local cross-compilers download
+
+bootstrap-git:
 	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local download git
 	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local build git
+
+download-local:
 	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local download \
-		flex mftrace potrace fontforge glib pango \
+		flex mftrace potrace fontforge \
 		guile pkg-config nsis icoutils expat gettext \
 		distcc texinfo automake
+
+local:
 	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local build \
 		flex mftrace potrace fontforge \
 		guile pkg-config expat icoutils \
 		distcc texinfo automake 
-	$(MAKE) cross-compilers
-
-## TODO: switch off if mingw not in platforms.
+ifneq ($(filter mingw, $(PLATFORMS)),)
 	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local build nsis 
-	$(MAKE) download
+endif
 
 
 ################################################################
@@ -267,7 +272,6 @@ unlocked-doc-build:
 	    LILYPOND_EXTERNAL_BINARY="$(NATIVE_ROOT)/usr/bin/lilypond"\
 	    PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
 	    LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH) \
-	    LD_LIBRARY_PATH=$(CWD)/target/local/system/usr/lib:$(LD_LIBRARY_PATH) \
 	    DOCUMENTATION=yes do-top-doc
 	unset LILYPONDPREFIX \
 	    && ulimit -m 256000 \
@@ -276,7 +280,6 @@ unlocked-doc-build:
 	    MALLOC_CHECK_=2 \
 	    PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
 	    LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH) \
-	    LD_LIBRARY_PATH=$(CWD)/target/local/system/usr/lib:$(LD_LIBRARY_PATH) \
 	    DOCUMENTATION=yes web
 	tar -C $(NATIVE_LILY_BUILD)/out-www/web-root/ \
 	    -cjf $(CWD)/uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).documentation.tar.bz2 . 

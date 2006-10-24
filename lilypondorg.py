@@ -56,7 +56,7 @@ def system (c):
 
 def get_url_versions (url):
     opener = urllib.URLopener ()
-    index = opener.open (url).read()
+    index = opener.open (url).read ()
 
     versions = []
     def note_version (m):
