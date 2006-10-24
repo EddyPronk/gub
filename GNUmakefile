@@ -97,7 +97,7 @@ download:
 
 all: $(BUILD_PLATFORM) doc $(OTHER_PLATFORMS) dist-check doc-export 
 
-native: $(BUILD_PLATFORM)
+native: local $(BUILD_PLATFORM)
 
 arm:
 	$(call BUILD,$@,lilypond)
