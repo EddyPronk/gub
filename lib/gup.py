@@ -198,10 +198,15 @@ class PackageManager (FileManager):
         str = open (package_hdr).read ()
 
         d = pickle.loads (str)
+        # Huh, what's the idea here?  We're comparing LILYPOND_BRANCH
+        # with a package's branch ie, `lilypond_2_8' != ghostscript's
+        # `HEAD'.  Yes, that fails.
         if (d['vc_branch']
-            and branch <> d['vc_branch']):
-            print 'ignoring header for wrong branch', package_hdr
-            return
+            and branch != d['vc_branch']):
+            vc_branch = d['vc_branch']
+            print 'NOT ignoring header: ' + package_hdr
+            print 'branch: %(branch)s, vc_branch: %(vc_branch)s' % locals ()
+            #return
 
         name = d['split_name']
         if self._package_dict_db.has_key (name):
