@@ -54,6 +54,7 @@ class Ghostscript (targetpackage.TargetBuildSpec):
             self.system ('cd %(srcdir)s/ && patch --force -p2 < %(patchdir)s/ghostscript-8.50-ttf.patch')
         if self.version == '8.54':
             self.system ('cd %(srcdir)s/ && patch --force -p1 < %(patchdir)s/05_gxfcopy_qsort_64bit_clean.dpatch')
+            self.system ('cd %(srcdir)s/ && patch --force -p1 < %(patchdir)s/gs-r7029.patch')
         
         substs = [(r'\$\(%s\)' % d, '$(DESTDIR)$(%s)' % d) for d in
                   ['bindir', 'datadir', 'gsdir', 'gsdatadir', 'docdir',
