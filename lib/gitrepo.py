@@ -38,46 +38,40 @@ class GitRepository (Repository):
         return [b for b in branches if b]
         
     def git (self, cmd, dir='', ignore_error=False):
-        cmd = 'GIT_DIR=%s git %s' %(self.repo_dir, cmd)
+        cmd = 'GIT_OBJECTS=%s/objects git %s' %(self.repo_dir, cmd)
         if dir:
             cmd = 'cd %s && %s' % (dir, cmd)
             
         self.system (cmd, ignore_error=ignore_error)
 
-    def git_pipe (self, cmd):
-        return self.read_pipe ('GIT_DIR=%s git %s' %(self.repo_dir, cmd))
+    def git_pipe (self, cmd, ignore_error=False):
+        return self.read_pipe ('GIT_OBJECTS=%s/objects git %s' %(self.repo_dir, cmd))
         
     def update (self, source, branch=None, commit=None):
+        repo = self.repo_dir
         if not os.path.isdir (self.repo_dir):
-            repo = self.repo_dir
-            self.git ('clone --bare -n %(source)s %(repo)s' % locals ())
+            self.git ('clone --git-dir %(repo)s --bare -n %(source)s %(repo)s' % locals ())
             return
 
         if commit:
-            contents = self.git_pipe ('ls-tree %(commit)s' % locals (),
+            contents = self.git_pipe ('--git-dir %(repo)s ls-tree %(commit)s' % locals (),
                                       ignore_error=True)
 
             if contents:
                 return
             
-            self.git ('http-fetch -v -c %(commit)s' % commit)
+            self.git ('--git-dir %(repo)s http-fetch -v -c %(commit)s' % locals ())
 
         branches = []
         if branch:
             branches.append (branch)
         else:
             branches = self.get_branches ()
-            
-        self.git ('fetch --update-head-ok %(source)s ' % locals ())
-            
-#        for b in branches:
-#            self.system ('%(cmd)s http-fetch -av heads/%(b)s %(source)s ' % locals ())
-#            suffix = "/refs/heads/" + b
-#            commitish = urllib.urlopen (source + suffix).read ()
-#            open (self.repo_dir + suffix, 'w').write (commitish)
 
-#            print 'advancing branch', b, 'to', commitish
-	     
+
+        refs = ' '.join (['%s:%s' % (s,s) for s in branches])
+        
+        self.git ('--git-dir %(repo)s fetch --update-head-ok %(source)s %(refs)s ' % locals ())
         self.checksums = {}
 
     def set_current_branch (self, branch):
