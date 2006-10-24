@@ -318,7 +318,7 @@ doc-export:
 	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-export 
 
 unlocked-dist-check:
-	$(PYTHON) test-lily/dist-check.py --repository downloads/lilypond-$(BRANCH) $(NATIVE_LILY_BUILD)
+	$(PYTHON) test-lily/dist-check.py --branch $(BRANCH) --repository downloads/lilypond-$(BRANCH) $(NATIVE_LILY_BUILD)
 	rm -f uploads/lilypond-$(LILYPOND_VERSION).tar.gz
 	ln $(NATIVE_LILY_BUILD)/out/lilypond-$(LILYPOND_VERSION).tar.gz uploads/
 
