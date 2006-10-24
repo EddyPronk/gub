@@ -37,25 +37,30 @@ class GitRepository (Repository):
         branches =  [b[2:] for b in branch_lines]
         return [b for b in branches if b]
         
-    def git_command (self):
-        cmd = 'git --git-dir %s ' % self.repo_dir
-        return cmd
-    
+    def git (self, cmd, dir='', ignore_error=False):
+        cmd = 'GIT_DIR=%s git %s' %(self.repo_dir, cmd)
+        if dir:
+            cmd = 'cd %s && %s' % (dir, cmd)
+            
+        self.system (cmd, ignore_error=ignore_error)
+
+    def git_pipe (self, cmd):
+        return self.read_pipe ('GIT_DIR=%s git %s' %(self.repo_dir, cmd))
+        
     def update (self, source, branch=None, commit=None):
-        cmd = self.git_command ()
         if not os.path.isdir (self.repo_dir):
             repo = self.repo_dir
-            self.system ('%(cmd)s clone --bare -n %(source)s %(repo)s' % locals ())
+            self.git ('clone --bare -n %(source)s %(repo)s' % locals ())
             return
 
-
         if commit:
-            contents = self.read_pipe ('%(cmd)s ls-tree %(commit)s' % locals (), ignore_error=True)
+            contents = self.git_pipe ('ls-tree %(commit)s' % locals (),
+                                      ignore_error=True)
 
             if contents:
                 return
             
-            self.system ('%(cmd)s http-fetch -v -c %(commit)s' % commit)
+            self.git ('http-fetch -v -c %(commit)s' % commit)
 
         branches = []
         if branch:
@@ -63,17 +68,16 @@ class GitRepository (Repository):
         else:
             branches = self.get_branches ()
             
+        self.git ('fetch --update-head-ok %(source)s ' % locals ())
             
-        for b in branches:
-            self.system ('%(cmd)s http-fetch -av heads/%(b)s %(source)s ' % locals ())
+#        for b in branches:
+#            self.system ('%(cmd)s http-fetch -av heads/%(b)s %(source)s ' % locals ())
+#            suffix = "/refs/heads/" + b
+#            commitish = urllib.urlopen (source + suffix).read ()
+#            open (self.repo_dir + suffix, 'w').write (commitish)
 
-            suffix = "/refs/heads/" + b
-            commitish = urllib.urlopen (source + suffix).read ()
-            
-            open (self.repo_dir + suffix, 'w').write (commitish)
-
-            print 'advancing branch', b, 'to', commitish
-            
+#            print 'advancing branch', b, 'to', commitish
+	     
         self.checksums = {}
 
     def set_current_branch (self, branch):
@@ -84,8 +88,7 @@ class GitRepository (Repository):
             return self.checksums[branch]
 
         if os.path.isdir (self.repo_dir):
-            cs = self.read_pipe ('%s describe --abbrev=24 %s' % (self.git_command (),
-                                                                 branch))
+            cs = self.git_pipe ('describe --abbrev=24 %s' % branch)
             cs = cs.strip ()
             self.checksums[branch] = cs
             return cs
@@ -93,22 +96,20 @@ class GitRepository (Repository):
             return 'invalid'
 
     def all_files (self, branch):
-        cmd = self.git_command ()
-        str = self.read_pipe ('%(cmd)s ls-tree --name-only -r %(branch)s' % locals ())
+        str = self.git_pipe ('ls-tree --name-only -r %(branch)s' % locals ())
         return str.split ('\n')
-        
+
     def checkout (self, destdir, branch=None, commit=None):
         if not os.path.isdir (destdir):
             self.system ('mkdir -p ' + destdir)
 
-        cmd = self.git_command ()
-
         if branch:
             self.set_current_branch (branch)
-            self.system ('cd %(destdir)s && %(cmd)s checkout-index -a -f ' % locals())
-            self.set_current_branch ('master')
+            committish = self.get_branch_version (branch)
+            self.git ('reset --hard %(committish)s' % locals(), dir=destdir)
         elif commit:
-            self.system ('cd %(destdir)s && %(cmd)s read-tree %(commit)s && %(cmd)s checkout-index -a -f ' % locals ())
+            self.git ('read-tree %(commit)s' % locals (), dir=destdir)
+            self.git ('checkout-index -a -f ' % locals (), dir=destdir)
         
 
 class CVSRepository(Repository):
