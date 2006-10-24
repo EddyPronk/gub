@@ -26,6 +26,7 @@ class Command:
         self.options = options
 
     def available (self):
+        '''list available packages'''
         print '\n'.join (self.pm._packages.keys ())
 
     def files (self):
