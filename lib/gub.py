@@ -624,15 +624,17 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
         return b
 
     def with (self,
-              branch='',
+              mirror=download.gnu,
               version='',
               module='',
-              mirror=download.gnu,
+              branch='',
+              revision='',
               format='gz'):
 
         self.format = format
         self.ball_version = version
         self.vc_branch = branch
+        self.revision = revision
 
         if mirror.startswith ('git:'):
             self.url = mirror
@@ -654,8 +656,9 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
             if 'http:' in mirror:
                 self.url = mirror[len ('svn:'):]
             dir = '%s/%s.svn' % (self.settings.downloads, self.name ())
-            self.vc_repository = gitrepo.SVNRepository (dir, branch, module)
-            self.vc_branch = version
+            self.vc_repository = gitrepo.SVNRepository (dir, branch, module, revision)
+            # FIXME
+            self.vc_branch = revision
         else:
             self.url = mirror
 
