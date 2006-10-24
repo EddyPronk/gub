@@ -242,6 +242,9 @@ class SVNRepository (Repository):
     def update (self, source, branch=None, commit=None):
         # More C&P
         suffix = branch
+        # FIXME: this is weird, update should not specify branch,
+        # rather revision??
+        # mis-use branch as revision (ie, HEAD)
         rev_opt = '-r ' + branch
         if commit:
             suffix = commit
