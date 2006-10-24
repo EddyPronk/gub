@@ -630,6 +630,10 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
               mirror=download.gnu,
               format='gz'):
 
+        self.format = format
+        self.ball_version = version
+        self.vc_branch = branch
+
         if mirror.startswith ('git:'):
             self.url = mirror
             if 'http:' in mirror:
@@ -651,12 +655,9 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
                 self.url = mirror[len ('svn:'):]
             dir = '%s/%s.svn' % (self.settings.downloads, self.name ())
             self.vc_repository = gitrepo.SVNRepository (dir, branch, module)
+            self.vc_branch = version
         else:
             self.url = mirror
-
-        self.format = format
-        self.ball_version = version
-        self.vc_branch = branch
 
         if self.vc_repository:
             self.vc_commit = self.ball_version
