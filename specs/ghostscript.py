@@ -60,7 +60,7 @@ class Ghostscript (targetpackage.TargetBuildSpec):
             self.system ('cd %(srcdir)s && patch --force -p1 < %(patchdir)s/05_gxfcopy_qsort_64bit_clean.dpatch')
             self.system ('cd %(srcdir)s && patch --force -p1 < %(patchdir)s/gs-r7029.patch')
         if not os.path.exists ('%(srcdir)s/configure'):
-            self.system ('cd %(srcdir)s && ./autogen.sh')
+            self.system ('cd %(srcdir)s && ./autogen.sh --help')
         
         substs = [(r'\$\(%s\)' % d, '$(DESTDIR)$(%s)' % d) for d in
                   ['bindir', 'datadir', 'gsdir', 'gsdatadir', 'docdir',
@@ -113,6 +113,7 @@ cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS
 --disable-cups
 --without-ijs
 --without-omni
+--disable-compile-inits
 '''))
 
     def configure (self):
