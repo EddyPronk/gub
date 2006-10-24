@@ -114,7 +114,7 @@ class GitRepository (Repository):
 
 class CVSRepository(Repository):
     cvs_entries_line = re.compile ("^/([^/]*)/([^/]*)/([^/]*)/([^/]*)/")
-    tag_dateformat = '%Y/%m/%d %H:%M:%S'
+    #tag_dateformat = '%Y/%m/%d %H:%M:%S'
 
     def __init__ (self, dir, module):
         Repository.__init__ (self)
@@ -230,3 +230,46 @@ class CVSRepository(Repository):
         return [e[0] for e in entries]
     
     
+class SVNRepository (Repository):
+    def __init__ (self, dir, branch, module):
+        Repository.__init__ (self)
+        self.repo_dir = dir
+        self.branch = branch
+        self.module = module
+        if not os.path.isdir (dir):
+            self.system ('mkdir -p %s' % dir)
+        
+    def update (self, source, branch=None, commit=None):
+        # More C&P
+        suffix = branch
+        rev_opt = '-r ' + branch
+        if commit:
+            suffix = commit
+            rev_opt = '-r ' + commit
+
+        dir = self.repo_dir  +'/' + suffix        
+
+        lock_dir = locker.Locker (dir + '.lock')
+        branch = self.branch
+        module = self.module
+        cmd = ''
+        if os.path.isdir (dir + '/.svn'):
+            cmd += 'cd %(dir)s && svn up %(rev_opt)s' % locals ()
+        else:
+            repo_dir = self.repo_dir
+            cmd += 'cd %(repo_dir)s && svn co %(rev_opt)s %(source)s/%(branch)s/%(module)s %(suffix)s''' % locals ()
+
+        self.system (cmd)
+        
+    def get_branch_version (self, branch):
+        revision = self.read_pipe ('cd %(vc_dir)s && svn info')
+        return re.sub ('.*Revision: ([0-9]*).*', '\\1', revision)
+
+    def checkout (self, destdir, branch=None, commit=None):
+        # C&P CVS
+        suffix = branch
+        if commit:
+            suffix = commit
+        dir = self.repo_dir  +'/' + suffix        
+
+        self.system ('rsync -av --exclude .svn %(dir)s/ %(destdir)s' % locals ())
