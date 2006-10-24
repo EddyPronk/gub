@@ -90,11 +90,11 @@ class Command:
 def get_cli_parser ():
     p = optparse.OptionParser ()
 
-    if 1:
-        d = Command.__dict__
-        commands = [(k, d[k].__doc__) for  k in d.keys ()
-                    
-                    if d[k].__doc__ and type (d[k]) == type (Command.remove)]
+    p.usage = '%prog [OPTION]... COMMAND\n\nCommands:\n'
+    d = Command.__dict__
+    commands = [(k, d[k].__doc__) for k in d.keys ()
+                if d[k].__doc__ and type (d[k]) == type (lambda x: x)]
+    commands.sort ()
 
         commands.sort ()
         for (command,doc) in commands:
