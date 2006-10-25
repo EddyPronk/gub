@@ -283,6 +283,8 @@ LDFLAGS="%(LDFLAGS)s %(python_lib)s"
 mkdir -p %(install_root)s/usr/share/doc/lilypond
 tar -C %(install_root)s/usr/share/doc/lilypond -jxf %(docball)s
 tar -C %(install_root)s -jxf %(infomanball)s
+rm -rf $(find %(install_root)s -name '*.signature')
+rm -rf $(find %(install_root)s -name '*.ps')
 mkdir -p %(install_root)s/usr/share/info/lilypond
 cd %(install_root)s/usr/share/info/lilypond && ln -sf ../../doc/lilypond/Documentation/user/*png .
 ''',
