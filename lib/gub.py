@@ -36,10 +36,8 @@ class PackageSpec:
 
         s = ('%(name)s' % dict) + sub_name
 
-        branch = self.expand ('%(vc_branch)s')
-
-        if branch:
-            self._dict['vc_branch_suffix'] = '-' + branch
+        if self.__dict__.has_key ('vc_branch') and self.vc_branch:
+            self._dict['vc_branch_suffix'] = '-' + self.vc_branch
         else:
             self._dict['vc_branch_suffix'] = ''
             
@@ -184,6 +182,9 @@ class BuildSpec (Os_context_wrapper):
     @subst_method
     def version (self):
         if self.vc_repository:
+            # FIXME: why not always simply return ball_version for VCS?
+            if self.vc_version:
+                return self.vc_version
             if self.vc_branch:
                 return self.vc_branch
             return self.ball_version
@@ -624,15 +625,16 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
 
     def with (self,
               mirror=download.gnu,
-              version='',
-              module='',
-              branch='',
-              revision='',
+              version=None,
+              module=None,
+              branch=None,
+              revision=None,
               format='gz'):
 
         self.format = format
         self.ball_version = version
         self.vc_branch = branch
+        self.vc_version = None
         self.revision = revision
 
         if mirror.startswith ('git:'):
@@ -642,6 +644,7 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
 
             dir = self.settings.downloads + '/' + self.name () + '.git'
             self.vc_repository = gitrepo.GitRepository (dir)
+            self.vc_version = version
 
             ## can't set vc_repository.system to self.system
             ## otherwise, we get into a loop [system -> expand -> checksum -> system]
@@ -650,13 +653,14 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
             self.url = mirror % locals ()
             dir = '%s/%s.cvs' % (self.settings.downloads, self.name ())
             self.vc_repository = gitrepo.CVSRepository (dir, self.name ())
+            self.vc_version = version
         elif mirror.startswith ('svn:'):
             self.url = mirror
             if 'http:' in mirror:
                 self.url = mirror[len ('svn:'):]
             dir = '%s/%s.svn' % (self.settings.downloads, self.name ())
             self.vc_repository = gitrepo.SVNRepository (dir, branch, module, revision)
-            self.vc_branch = None
+            self.vc_version = version
         else:
             self.url = mirror
 
