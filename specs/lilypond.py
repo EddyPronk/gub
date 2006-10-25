@@ -98,7 +98,9 @@ cd %(builddir)s && %(configure_command)s''')
                                    '%(builddir)s/config.hh' % d)
             or misc.file_is_newer ('%(srcdir)s/configure' % d,
                                    '%(builddir)s/config.make' % d)):
+
             self.do_configure ()
+            self.system ('touch %(builddir)/config.hh')
             
         targetpackage.TargetBuildSpec.compile (self)
 
