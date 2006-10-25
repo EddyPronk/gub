@@ -385,8 +385,7 @@ external-source: %(name)s''', locals ())
             requires_line = spec.expand ('''
 requires: %(requires)s''',
                                          locals ())
-        hint = spec.expand ('''curr: %(installer_version)s-%(installer_build)s
-sdesc: "%(sdesc)s"
+        hint = spec.expand ('''sdesc: "%(sdesc)s"
 ldesc: "%(ldesc)s"
 category: %(category)s%(requires_line)s%(external_source_line)s
 ''',
