@@ -353,11 +353,11 @@ tooldir=%(install_prefix)s
         lst = self.locate_files ('%(builddir)s', 'libtool')
         if lst:
             new = self.expand ('%(system_root)s/usr/bin/libtool')
-            if not os.path.exists (newt):
+            if not os.path.exists (new):
                 self.log_command ("Cannot update libtool: no such file: %(new)s" % locals ())
                 raise 'barf'
             for i in lst:
-                self.system ('cp %(newt)s %(i)s', locals ())
+                self.system ('cp %(new)s %(i)s', locals ())
                 self.kill_libtool_installation_test (i)
                 self.system ('chmod 755  %(i)s', locals ())
 
