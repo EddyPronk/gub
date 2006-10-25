@@ -38,14 +38,14 @@ class GitRepository (Repository):
         return [b for b in branches if b]
         
     def git (self, cmd, dir='', ignore_error=False):
-        cmd = 'GIT_OBJECTS=%s/objects git %s' %(self.repo_dir, cmd)
+        cmd = 'GIT_OBJECT_DIRECTORY=%s/objects git %s' %(self.repo_dir, cmd)
         if dir:
             cmd = 'cd %s && %s' % (dir, cmd)
             
         self.system (cmd, ignore_error=ignore_error)
 
     def git_pipe (self, cmd, ignore_error=False):
-        return self.read_pipe ('GIT_OBJECTS=%s/objects git %s' %(self.repo_dir, cmd))
+        return self.read_pipe ('GIT_OBJECT_DIRECTORY=%s/objects git %s' %(self.repo_dir, cmd))
         
     def update (self, source, branch=None, commit=None):
         repo = self.repo_dir
@@ -81,8 +81,9 @@ class GitRepository (Repository):
         if self.checksums.has_key (branch):
             return self.checksums[branch]
 
-        if os.path.isdir (self.repo_dir):
-            cs = self.git_pipe ('describe --abbrev=24 %s' % branch)
+        repo_dir = self.repo_dir
+        if os.path.isdir (repo_dir):
+            cs = self.git_pipe ('--git-dir %(repo_dir)s describe --abbrev=24 %(branch)s' % locals ())
             cs = cs.strip ()
             self.checksums[branch] = cs
             return cs
@@ -94,17 +95,24 @@ class GitRepository (Repository):
         return str.split ('\n')
 
     def checkout (self, destdir, branch=None, commit=None):
+        repo_dir = self.repo_dir
+        
         if not os.path.isdir (destdir):
             self.system ('mkdir -p ' + destdir)
 
-        if branch:
-            self.set_current_branch (branch)
-            committish = self.get_branch_version (branch)
-            self.git ('reset --hard %(committish)s' % locals(), dir=destdir)
-        elif commit:
-            self.git ('read-tree %(commit)s' % locals (), dir=destdir)
-            self.git ('checkout-index -a -f ' % locals (), dir=destdir)
-        
+        if os.path.isdir (destdir + '/.git'):
+            self.git ('pull %(repo_dir)s' % locals (), dir=destdir)
+        else:
+            self.git ('init-db', dir=destdir)
+
+        if not commit:
+            commit = open ('%(repo_dir)s/refs/heads/%(branch)s' % locals ()).read ()
+
+        if not branch:
+            branch = 'gub_build'
+            
+        open ('%(destdir)s/.git/refs/heads/%(branch)s' % locals (), 'w').write (commit)
+        self.git ('checkout %(branch)s' % locals (), dir=destdir) 
 
 class CVSRepository(Repository):
     cvs_entries_line = re.compile ("^/([^/]*)/([^/]*)/([^/]*)/([^/]*)/")
