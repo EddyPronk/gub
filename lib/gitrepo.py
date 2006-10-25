@@ -50,7 +50,7 @@ class GitRepository (Repository):
     def update (self, source, branch=None, commit=None):
         repo = self.repo_dir
         if not os.path.isdir (self.repo_dir):
-            self.git ('clone --git-dir %(repo)s --bare -n %(source)s %(repo)s' % locals ())
+            self.git ('--git-dir %(repo)s clone --bare -n %(source)s %(repo)s' % locals ())
             return
 
         if commit:
