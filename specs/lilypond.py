@@ -44,8 +44,8 @@ beautiful sheet music from a high-level description file.'''
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
         self.with (branch=settings.lilypond_branch,
-##                   mirror='git:http://lilypond.org/~hanwen/lilypond.git/'
-                   mirror=cvs.gnu
+                   mirror='git:http://lilypond.org/~hanwen/lilypond.git/'
+##                   mirror=cvs.gnu
 
                    )
 
