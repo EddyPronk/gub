@@ -242,49 +242,44 @@ class SVNRepository (Repository):
         if not os.path.isdir (dir):
             self.system ('mkdir -p %s' % dir)
         
+    def checkout (self, destdir, branch=None, commit=None):
+        '''checkout is called to copy the working dir after a checkout'''
+        working = self._get_working_dir ()
+        self._copy_working_dir (working, destdir)
+
     def update (self, source, branch=None, commit=None):
-        #if commit:
-        #    raise 'Barf'
-        revision = self.revision
-        rev_opt = '-r %(revision)s ' % locals ()
-        repo_dir = self.repo_dir
-        branch = self.branch
-        dir = '%(repo_dir)s/%(branch)s-%(revision)s' % locals ()
+        '''update is called for either a checkout or an update'''
+        print 'svn update branch:' + `branch`
+        working = self._get_working_dir ()
+        if not os.path.isdir (working + '/.svn'):
+            self._checkout (source, self.branch, self.module, self.revision)
+        self._update (working, self.revision)
 
-        lock_dir = locker.Locker (dir + '.lock')
-        branch = self.branch
-        module = self.module
-        cmd = ''
-        if os.path.isdir (dir + '/.svn'):
-            cmd += 'cd %(dir)s && svn up %(rev_opt)s' % locals ()
-        else:
-            repo_dir = self.repo_dir
-            cmd += 'cd %(repo_dir)s && svn co %(rev_opt)s %(source)s/%(branch)s/%(module)s %(branch)s-%(revision)s''' % locals ()
-
-        self.system (cmd)
-        
     def get_branch_version (self, branch):
-        # C&P update
-        #if commit:
-        #    raise 'Barf'
-        revision = self.revision
-        rev_opt = '-r %(revision)s ' % locals ()
-        repo_dir = self.repo_dir
-        branch = self.branch
-        dir = '%(repo_dir)s/%(branch)s-%(revision)s' % locals ()
-        ##
-        revno = self.read_pipe ('cd %(dir)s && svn info' % locals ())
+        working = self._get_working_dir ()
+        revno = self.read_pipe ('cd %(working)s && svn info' % locals ())
         return re.sub ('.*Revision: ([0-9]*).*', '\\1', revno)
 
-    def checkout (self, destdir, branch=None, commit=None):
-        # C&P update
-        #if commit:
-        #    raise 'Barf'
-        revision = self.revision
+    def _checkout (self, source, branch, module, revision):
+        '''SVN checkout'''
+        repo_dir = self.repo_dir
         rev_opt = '-r %(revision)s ' % locals ()
+        cmd = 'cd %(repo_dir)s && svn co %(rev_opt)s %(source)s/%(branch)s/%(module)s %(branch)s-%(revision)s''' % locals ()
+        self.system (cmd)
+        
+    def _copy_working_dir (self, working, copy):
+        self.system ('rsync -av --exclude .svn %(working)s/ %(copy)s'
+                     % locals ())
+        
+    def _get_working_dir (self):
+        revision = self.revision
         repo_dir = self.repo_dir
         branch = self.branch
-        dir = '%(repo_dir)s/%(branch)s-%(revision)s' % locals ()
-        ##
+        return '%(repo_dir)s/%(branch)s-%(revision)s' % locals ()
 
-        self.system ('rsync -av --exclude .svn %(dir)s/ %(destdir)s' % locals ())
+    def _update (self, working, revision):
+        '''SVN update'''
+        rev_opt = '-r %(revision)s ' % locals ()
+        cmd = 'cd %(working)s && svn up %(rev_opt)s' % locals ()
+        self.system (cmd)
+
