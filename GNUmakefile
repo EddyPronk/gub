@@ -67,6 +67,7 @@ BUILDNUMBER_FILE = buildnumber-$(LILYPOND_BRANCH).make
 #
 
 -include local.make
+-include $(BUILDNUMBER_FILE)
 
 LILYPOND_VERSION=$(shell cat VERSION || echo '0.0.0')
 VERSION:
