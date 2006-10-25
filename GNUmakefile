@@ -267,12 +267,21 @@ unlocked-doc-clean:
 	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_BRANCH) \
 		DOCUMENTATION=yes web-clean
 
+# During make web, gs is invoked directly from makefile,
+# ie, without lilypond's relocating magic.
+NATIVE_SYSTEM = $(NATIVE_TARGET_DIR)/system
+BARE_GS_RELOCATION = PATH:=$(NATIVE_ROOT)/usr/bin:$(PATH)\
+    GS_LIB=$(wildcard $(NATIVE_ROOT)/usr/share/ghostscript/*/lib):$(wildcard $(NATIVE_ROOT)/usr/share/ghostscript/*/Resource)\
+    GS_FONTPATH:=$(NATIVE_SYSTEM)/usr/share/fonts/default/Type1:$(GS_FONTPATH)\
+    LD_LIBRARY_PATH:=$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH)
+
 unlocked-doc-build:
 	unset LILYPONDPREFIX \
 	    && make -C $(NATIVE_LILY_BUILD) \
 	    LILYPOND_EXTERNAL_BINARY="$(NATIVE_ROOT)/usr/bin/lilypond"\
 	    PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
 	    LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH) \
+	    $(BARE_GS_RELOCATION)\
 	    DOCUMENTATION=yes do-top-doc
 	unset LILYPONDPREFIX \
 	    && ulimit -m 256000 \
@@ -281,6 +290,7 @@ unlocked-doc-build:
 	    MALLOC_CHECK_=2 \
 	    PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
 	    LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH) \
+	    $(BARE_GS_RELOCATION)\
 	    DOCUMENTATION=yes web
 	tar -C $(NATIVE_LILY_BUILD)/out-www/web-root/ \
 	    -cjf $(CWD)/uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).documentation.tar.bz2 . 
