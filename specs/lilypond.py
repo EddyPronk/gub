@@ -48,9 +48,15 @@ beautiful sheet music from a high-level description file.'''
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
 
-        repo = gitrepo.GitRepository (self.get_repodir() + '.git',
+        repo = gitrepo.GitRepository (self.get_repodir(),
                                       branch=settings.lilypond_branch,
                                       source='http://lilypond.org/~hanwen/lilypond.git/')
+        if 0:
+            repo =  gitrepo.CVSRepository (self.get_repodir (),
+                                           source=':pserver:anoncvs@cvs.sv.gnu.org:/cvsroot/lilypond',
+                                           'lilypond',
+                                           tag=settings.lilypond_branch)
+        
         self.with_vc (repo)
 
         # FIXME: should add to C_INCLUDE_PATH

@@ -16,12 +16,13 @@ specified by applications.'''
         targetpackage.TargetBuildSpec.__init__ (self, settings)
 
         self.committish = "0596d7296c94b2bb9817338b8c1a76da91673fb9"
-        self.with_vc (gitrepo.GitRepository (self.get_repodir () + ".git",
+        self.with_vc (gitrepo.GitRepository (self.get_repodir (),
                                              source="git://anongit.freedesktop.org/git/fontconfig",
                                              revision=self.committish))
 
     def version (self):
         return self.committish
+    
     def get_build_dependencies (self):
         return ['libtool', 'expat-devel', 'freetype-devel']
 
