@@ -176,13 +176,42 @@ mkdir -p %(installer_root)s/usr/share/doc/%(name)s
         dependencies_str = ' '.join (dependencies)
         
         (ldesc, sdesc) = self.description (hdr)
-        hint = self.expand ('''
-sdesc: "%(sdesc)s"
-%(version)s-%(build)s
+
+        requires_line = ''
+        if dependencies_str:
+            requires_line = '''
+requires: %(dependencies_str)s''' % locals ()
+
+        external_source_line = ''
+        main_p = hdr['name'] == hdr['split_name']
+        if not main_p:
+            external_source_line = self.expand ('''
+external-source: %(name)s''')
+
+        if not sdesc:
+            sdesc = self.expand ('%(name)s')
+            if not main_p:
+                sdesc += ' ' + hdr['sub_name']
+
+        if not ldesc:
+            flavor = 'executables'
+            if not main_p:
+                flavor = hdr['sub_name']
+            ldesc = 'The %(name)s package for Cygwin - ' + flavor
+
+        category = hdr['category']
+        if not category:
+            if main_p:
+                category = 'utils'
+            elif hdr['sub_name'] == 'runtime':
+                category = 'libs'
+            else:
+                category = hdr['sub_name']
+
+        local_category = category
+        hint = self.expand ('''sdesc: "%(sdesc)s"
 ldesc: "%(ldesc)s"
-category: %(category)s
-requires: %(dependencies_str)s
-external_source: FIXME
+category: %(local_category)s%(requires_line)s%(external_source_line)s
 ''', locals ())
         return hint
 
