@@ -37,7 +37,12 @@ class PackageSpec:
         s = ('%(name)s' % dict) + sub_name
 
         self._dict['split_name'] = s
-        self._dict['split_ball'] = '%(gub_uploads)s/%(split_name)s-%(version)s.%(platform)s.gup' % self._dict
+
+        suffix = '%(verson)s'
+        if dict['vc_branch_suffix']:
+           suffix = dict['vc_branch_suffix']
+            
+        self._dict['split_ball'] = '%(gub_uploads)s/%(split_name)s-' + suffix +'.%(platform)s.gup' % self._dict
         self._dict['split_hdr'] = '%(gub_uploads)s/%(split_name)s%(vc_branch_suffix)s.%(platform)s.hdr' % self._dict
 
         deps =  ';'.join (self._dependencies)
@@ -175,7 +180,7 @@ class BuildSpec (Os_context_wrapper):
     @subst_method
     def vc_branch_suffix (self):
         b = ''
-        if self.vc_repository:
+        if self.vc_repository and self.vc_repository.is_tracking ():
             try:
                 b = self.vc_repository.branch
             except AttributeError:
@@ -192,15 +197,15 @@ class BuildSpec (Os_context_wrapper):
 
     @subst_method
     def srcdir (self):
-        if self.vc_repository:
-            return '%(allsrcdir)s/%(name)s-%(version)s'
+        if self.vc_branch_suffix ():
+            return '%(allsrcdir)s/%(name)s-%(vc_branch_suffix)s'
         else:
             return self.settings.allsrcdir + '/' + self.basename ()
 
     @subst_method
     def builddir (self):
-        if self.vc_repository:
-            return '%(allbuilddir)s/%(name)s-%(version)s'
+        if self.vc_branch_suffix ():
+            return '%(allsrcdir)s/%(name)s-%(vc_branch_suffix)s'
         else:
             return self.settings.allbuilddir + '/' + self.basename ()
 
@@ -596,7 +601,6 @@ cd %(srcdir)s && patch -p1 -f < %(allsrcdir)s/%(patch)s || true
                      locals ())
 
     def pre_install_smurf_exe (self):
-        import os
         for i in self.locate_files ('%(builddir)s', '*.exe'):
             base = os.path.splitext (i)[0]
             self.system ('''mv %(i)s %(base)s''', locals ())
