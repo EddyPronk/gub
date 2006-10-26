@@ -90,14 +90,13 @@ def get_cross_packages (settings):
     return cross_packs
 
 
-def cygwin_subpackage_definitions (build_spec, old_func, extra_arg):
-    d = old_func ()
+def add_cyg_dll (build_spec, get_subpackage_definitions, extra_arg):
+    d = get_subpackage_definitions ()
     k = ''
     if d.has_key (k):
         k = 'runtime'
-
     d[k].append ('/usr/bin/cyg*dll')
-    
+    d[k].append ('/etc/postinstall')
     return d
 
 def change_target_packages (packages):
@@ -105,11 +104,13 @@ def change_target_packages (packages):
 
     # FIXME: this does not work (?)
     for p in packages.values ():
-        old_callback = p.get_build_dependencies
-        p.get_build_dependencies = misc.MethodOverrider (old_callback,
-                                                         lambda old_val, extra_arg: old_val + extra_arg, (['cygwin'],)).method
-        p.get_subpackage_definitions = misc.MethodOverrider (p.get_subpackage_definitions,
-                                                             cygwin_subpackage_definitions, None).method
+        p.get_build_dependencies \
+            = misc.MethodOverrider (p.get_build_dependencies,
+                                    lambda d, extra: d + extra,
+                                    (['cygwin'],)).method
+
+        p.get_subpackage_definitions = misc.MethodOverrider (
+            p.get_subpackage_definitions, add_cyg_dll).method
 
         ## TODO : get_dependency_dict
         
