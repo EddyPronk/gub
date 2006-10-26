@@ -81,6 +81,7 @@ class Context:
 
                 if type (val) != type (''):
                     print 'non string value ', val, 'for subst_method', name
+                    raise Exception
         
         d.update (vars)
         d.update (member_substs)
