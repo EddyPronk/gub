@@ -141,13 +141,6 @@ class Fontconfig__cygwin (Fontconfig):
         #return ['devel', 'doc', '']
         return ['devel', 'runtime', '']
 
-    def get_subpackage_definitions (self):
-        d = dict (Fontconfig.get_subpackage_definitions (self))
-
-        # FIXME: we do this for all cygwin packages
-        d['runtime'].append ('/usr/bin/cyg*dll')
-        return d
-
     def get_build_dependencies (self):
         return ['libtool', 'libfreetype2-devel', 'expat']
     
