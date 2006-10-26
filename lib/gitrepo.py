@@ -37,7 +37,9 @@ class Repository:
 class GitRepository (Repository):
     def __init__ (self, git_dir, source='', branch='', revision=''):
         Repository.__init__ (self)
-        self.repo_dir = git_dir
+
+        
+        self.repo_dir = os.path.normpath (git_dir) + '.git'
         self.checksums = {}
         self.branch = branch
         self.revision = revision
@@ -139,17 +141,25 @@ class CVSRepository(Repository):
     cvs_entries_line = re.compile ("^/([^/]*)/([^/]*)/([^/]*)/([^/]*)/")
     #tag_dateformat = '%Y/%m/%d %H:%M:%S'
 
-    def __init__ (self, dir, module):
+    def __init__ (self, dir,
+                  source='', module='', tag='HEAD'):
         Repository.__init__ (self)
-        self.repo_dir = dir
+        self.repo_dir = os.path.normpath (dir) + '.cvs'
         self.module = module
         self.checksums = {}
+        self.source = source
+        self.tag = tag
         if not os.path.isdir (dir):
             self.system ('mkdir -p %s' % dir)
-        
-    def get_branch_version (self, branch):
-        if self.checksums.has_key (branch):
-            return self.checksums[branch]
+            
+    def _checkout_dir (self):
+        return '%s/%s' % (self.repo_dir, self.tag)
+    def is_tracking (self):
+        return True ##FIXME
+    
+    def get_checksum (self):
+        if self.checksums.has_key (self.tag):
+            return self.checksums[self.tag]
         
         file = '%s/%s/.vc-checksum' % (self.repo_dir, branch)
 
@@ -180,25 +190,20 @@ class CVSRepository(Repository):
 
         return (version_checksum, time_stamp)
     
-    def update_workdir (self, destdir, branch=None, revision=None):
+    def update_workdir (self, destdir):
         
-        suffix = branch
-        if revision:
-            suffix = revision
-        dir = self.repo_dir  +'/' + suffix        
+        dir = self._checkout_dir()
 
 
         ## TODO: can we get deletes from vc?
         self.system ('rsync -av --delete --exclude CVS %(dir)s/ %(destdir)s' % locals ())
         
-    def download (self, source, branch=None, revision=None):
-        suffix = branch
-        rev_opt = '-r ' + branch
-        if revision:
-            suffix = revision
-            rev_opt = '-r ' + revision
-            
-        dir = self.repo_dir  +'/' + suffix        
+    def download (self):
+        suffix = self.tag
+        rev_opt = '-r ' + self.tag
+        source = self.source
+        
+        dir = self._checkout_dir()
 
         lock_dir = locker.Locker (dir + '.lock')
         module = self.module
@@ -258,7 +263,7 @@ class CVSRepository(Repository):
 class Subversion (Repository):
     def __init__ (self, dir, source, branch, module, revision):
         Repository.__init__ (self)
-        self.dir = dir + '.svn'
+        self.dir = os.path.normpath (dir) + '.svn'
         self.source = source
         self.branch = branch
         self.module = module
