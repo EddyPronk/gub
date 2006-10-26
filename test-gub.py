@@ -9,10 +9,11 @@ import email.Message
 import email.MIMEMultipart
 import optparse
 import time
+import dbhash
 
 sys.path.insert (0, 'lib/')
 
-import repository
+import gitrepo
 
 
 ################################################################
@@ -31,7 +32,7 @@ def read_tail (file, amount=10240):
     f.seek (- min (length, amount), 1)
     return f.read ()
 
-def canonicalize_target (target):
+def canonicalize_string (target):
     canonicalize = re.sub ('[ \t\n]', '_', target)
     canonicalize = re.sub ('[^a-zA-Z0-9-]+', '_', canonicalize)
     return canonicalize
@@ -100,12 +101,12 @@ def opt_parser ():
                   default=address,
                   help='whom to list as sender')
 
-    p.add_option ('--diff',
-                  action='store_true',
-                  dest="make_diff",
-                  default=False,
-                  help="Generate diffs from last successful build")
-
+    p.add_option ('--branch',
+                  action="store",
+                  dest="branch",
+                  default="HEAD",
+                  help="which branch to test")
+    
     p.add_option ('--repository',
                   action="store",
                   dest="repository",
@@ -148,47 +149,51 @@ def opt_parser ():
                   default='localhost',
                   help='SMTP server to use.')
 
+    p.add_option ('--result-directory',
+                  action="store",
+                  dest='result_dir',
+                  help="Where to store databases test results",
+                  default="log")
+                  
     return p
 
+
+def get_db (options, name):
+    name = options.result_dir + '/%s.db' % name
+
+    db_file = os.path.join (options.result_dir, name)
+    db = dbhash.open (db_file, 'c')
+    return db
+                        
+
 def test_target (repo, options, target, last_patch):
-    canonicalize = canonicalize_target (target)
-    release_hash = last_patch['release_hash']
+    canonicalize = canonicalize_string (target)
+    release_hash = repo.get_checksum ()
 
-    db_file_name = 'test-done-%s.db' % canonicalize
-    if repo.try_checked_before (release_hash, db_file_name):
-        log_file.log ('release has already been checked in %s ' % db_file_name)
+    done_db = get_db (options, canonicalize)
+    if done_db.has_key (release_hash):
+        log_file.log ('release has already been checked')
         return None
-
+    
     logfile = 'test-%(canonicalize)s.log' %  locals ()
-    logfile = os.path.join (repo.test_dir, logfile)
+    logfile = os.path.join (options.result_dir, logfile)
     
     cmd = "nice time %(target)s >& %(logfile)s" %  locals ()
 
     log_file.log (cmd)
     
     stat = os.system (cmd)
-    base_tag = 'success-%(canonicalize)s-' % locals ()
-
+  
     result = 'unknown'
     attachments = []
-    
+
     body = read_tail (logfile, 10240).split ('\n')
     if stat:
         result = 'FAIL'
         attachments = ['error for\n\n\t%s\n\n\n%s' % (target,
                                                '\n'.join (body[-0:]))]
 
-        if options.make_diff:
-            attachments += [repo.get_diff_from_tag (base_tag)]
     else:
-        tag = base_tag + canonicalize_target (last_patch['date'])
-        repo.tag (tag)
-
-        log_file.log ('tagging with %s' % tag)
-        
-        if options.tag_repo:
-            repo.push (tag, options.tag_repo)
-            
         result = "SUCCESS"
         attachments = ['success for\n\n\t%s\n\n%s'
                        % (target,
@@ -196,7 +201,7 @@ def test_target (repo, options, target, last_patch):
 
     log_file.log ('%s: %s' % (target, result))
     
-    repo.set_checked_before (release_hash, db_file_name)
+    done_db[release_hash] = time.ctime ()
     return (result, attachments)
     
 def send_message (options, msg):
@@ -231,22 +236,21 @@ def real_main (options, args, handle_result):
     log_file.log (' *** %s' % time.ctime ())
     log_file.log (' *** Starting tests:\n  %s' % '\n  '.join (args))
 
-    repo = repository.get_repository_proxy (options.repository)
+    repo = gitrepo.get_repository_proxy (options.repository, options.branch)
     log_file.log ("Repository %s" % str (repo))
     
-    last_patch = repo.read_last_patch ()
-    
-    release_hash = repo.get_release_hash ()
-    last_patch['release_hash'] = release_hash
+    last_patch = repo.get_revision_description ()
+    release_hash = repo.get_checksum ()
+
     release_id = '''
 
 Last patch of this release:
 
-%(patch_contents)s\n
+%(last_patch)s\n
 
-MD5 of complete patch set: %(release_hash)s
+Checksum of revision: %(release_hash)s
 
-''' % last_patch
+''' % locals ()
 
 
     summary_body = '\n\n'
@@ -284,7 +288,7 @@ MD5 of complete patch set: %(release_hash)s
             os.system (p)
 
 def test_self (options, args):
-    self_test_dir = 'test-gub-test'
+    self_test_dir = 'test-gub-test.darcs'
     system ('rm -rf %s ' %  self_test_dir)
     system ('mkdir %s ' %  self_test_dir)
     os.chdir (self_test_dir)
@@ -294,7 +298,8 @@ def test_self (options, args):
     system ('echo author > _darcs/prefs/author')
     system ('darcs add foo.sh')
     system ('darcs record -am "add bla"')
-    options.repository = '.'
+    options.repository = os.getcwd ()
+    
     real_main (options, ['false', 'true', 'sh foo.sh'], print_results)
 
     system (r"echo -e '#!/bin/sh\nfalse\n' > foo.sh")
@@ -306,6 +311,11 @@ def test_self (options, args):
 def main ():
     (options, args) = opt_parser ().parse_args ()
 
+    if not os.path.isdir (options.result_dir):
+        os.makedirs (options.result_dir)
+
+    options.result_dir = os.path.abspath (options.result_dir)
+    
     if options.test_self:
         test_self (options, args)
     else:
