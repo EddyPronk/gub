@@ -36,11 +36,11 @@ class PackageSpec:
 
         s = ('%(name)s' % dict) + sub_name
 
-        if self.__dict__.has_key ('vc_branch') and self.vc_branch:
-            self._dict['vc_branch_suffix'] = '-' + self.vc_branch
+        if dict['vc_branch']:
+            self._dict['vc_branch_suffix'] = '-' + dict['vc_branch']
         else:
             self._dict['vc_branch_suffix'] = ''
-            
+
         self._dict['split_name'] = s
         self._dict['split_ball'] = '%(gub_uploads)s/%(split_name)s-%(version)s.%(platform)s.gup' % self._dict
         self._dict['split_hdr'] = '%(gub_uploads)s/%(split_name)s%(vc_branch_suffix)s.%(platform)s.hdr' % self._dict
@@ -406,6 +406,9 @@ rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_roo
             self.autoupdate ()
 
     @subst_method
+    def shipped_versionN (
+    
+    @subst_method
     def is_sdk_package (self):
         return 'false'
     
@@ -420,7 +423,7 @@ rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_roo
         return []
 
     def get_subpackage_definitions (self):
-        return {
+        d ={
             'devel': [
             '/usr/bin/*-config',
             '/usr/include',
@@ -440,7 +443,7 @@ rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_roo
             'runtime': ['/usr/lib', '/usr/share'],
             '' : ['/'],
             }
-
+        
     def get_subpackage_names (self):
         return ['devel', 'doc', '']
     
@@ -613,8 +616,9 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
                               % self.get_substitution_dict ())
 
     def build_version (self):
+        "the version in the shipped package."
         # FIXME: ugly workaround needed for lilypond package...
-        return self.expand ('%(version)s')
+        return '%(version)s'
 
     def build_number (self):
         # FIXME: actually need the packages' build number here...
@@ -623,18 +627,19 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
         b = '%(INSTALLER_BUILD)s' % d
         return b
 
+    def with_vc (self, repo):
+        self.vc_repository = repo
+        
     def with (self,
               mirror=download.gnu,
-              version=None,
-              module=None,
-              branch=None,
-              revision=None,
+              version='',
+              module='',
+              branch='',
+              revision='',
               format='gz'):
 
         self.format = format
         self.ball_version = version
-        self.vc_branch = branch
-        self.vc_version = None
         self.revision = revision
 
         if mirror.startswith ('git:'):
