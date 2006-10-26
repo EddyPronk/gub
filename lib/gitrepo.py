@@ -119,7 +119,8 @@ class GitRepository (Repository):
 
         repo_dir = self.repo_dir
         branch = self.branch
-
+        revision = self.revision
+        
         if not os.path.isdir (destdir):
             self.system ('mkdir -p ' + destdir)
 
