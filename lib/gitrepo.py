@@ -249,36 +249,33 @@ class CVSRepository(Repository):
 class SVNRepository (Repository):
     def __init__ (self, dir, branch, module, revision):
         Repository.__init__ (self)
-        self.repo_dir = dir
+        self.dir = dir + '.svn'
         self.branch = branch
         self.module = module
         self.revision = revision
-        if not os.path.isdir (dir):
-            self.system ('mkdir -p %s' % dir)
+        if not os.path.isdir (self.dir):
+            self.system ('mkdir -p %(dir)s' % self.__dict__)
         
-    def update_workdir (self, destdir, branch=None, commit=None):
-        '''checkout is called to copy the working dir after a checkout'''
+    def update_workdir (self, destdir):
         working = self._get_working_dir ()
         self._copy_working_dir (working, destdir)
 
-    def download (self, source, branch=None, commit=None):
-        '''update is called for either a checkout or an update'''
-        print 'svn update branch:' + `branch`
+    def download (self):
         working = self._get_working_dir ()
         if not os.path.isdir (working + '/.svn'):
             self._checkout (source, self.branch, self.module, self.revision)
         self._update (working, self.revision)
 
-    def get_branch_version (self, branch):
+    def get_checksum (self):
         working = self._get_working_dir ()
         revno = self.read_pipe ('cd %(working)s && svn info' % locals ())
         return re.sub ('.*Revision: ([0-9]*).*', '\\1', revno)
 
     def _checkout (self, source, branch, module, revision):
         '''SVN checkout'''
-        repo_dir = self.repo_dir
+        dir = self.dir
         rev_opt = '-r %(revision)s ' % locals ()
-        cmd = 'cd %(repo_dir)s && svn co %(rev_opt)s %(source)s/%(branch)s/%(module)s %(branch)s-%(revision)s''' % locals ()
+        cmd = 'cd %(dir)s && svn co %(rev_opt)s %(source)s/%(branch)s/%(module)s %(branch)s-%(revision)s''' % locals ()
         self.system (cmd)
         
     def _copy_working_dir (self, working, copy):
@@ -287,13 +284,12 @@ class SVNRepository (Repository):
         
     def _get_working_dir (self):
         revision = self.revision
-        repo_dir = self.repo_dir
+        dir = self.dir
         branch = self.branch
-        return '%(repo_dir)s/%(branch)s-%(revision)s' % locals ()
+        return '%(dir)s/%(branch)s-%(revision)s' % locals ()
 
     def _update (self, working, revision):
         '''SVN update'''
         rev_opt = '-r %(revision)s ' % locals ()
         cmd = 'cd %(working)s && svn up %(rev_opt)s' % locals ()
         self.system (cmd)
-
