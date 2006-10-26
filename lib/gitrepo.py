@@ -33,6 +33,45 @@ class Repository:
 
         assert 0
 
+class DarcsRepository (Repository):
+    def __init__ (self, dir, source):
+        Repository.__init__ (self)
+        self.dir = dir + '.darcs'
+        self.source = source
+
+    def download (self):
+        dir = self.dir
+        source = self.source
+        self.system ('darcs get %(source)s %(dir)s' % locals ())
+        self.system ('mkdir -p %(dir)s' % locals ())
+        
+    def is_tracking (self):
+        return True
+
+    def get_checksum (self):
+        xml_string = self.read_pipe (self.base_command ('changes') + ' --xml ')
+        dom = xml.dom.minidom.parseString(xml_string)
+        patches = dom.documentElement.getElementsByTagName('patch')
+        patches = [p for p in patches if not re.match ('^TAG', self.xml_patch_name (p))]
+
+        patches.sort ()
+        release_hash = md5.new ()
+        for p in patches:
+            release_hash.update (p.toxml ())
+
+        return release_hash.hexdigest ()        
+
+    def update_workdir (self, destdir):
+        self.system ('mkdir -p %(destdir)s' % locals ())
+        dir = self.dir
+        
+        self.system ('rsync --exclude _darcs -av %(dir)s/* %(destdir)s/' % locals())
+
+    def get_file_content (self, file):
+        dir = self.dir
+        return open ('%(dir)s/%(file)s' % locals ()).read ()
+
+    
 class TarBall (Repository):
     def __init__ (self, dir, url):
         Repository.__init__ (self)
@@ -43,7 +82,8 @@ class TarBall (Repository):
         self.url = url
         self.branch = None
         self.revision = None
-        
+          
+    
     def is_tracking (self):
         return False
 
