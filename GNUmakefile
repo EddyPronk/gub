@@ -225,7 +225,7 @@ native-distccd:
 		--port 3634 --pid-file $(CWD)/log/$@.pid \
 		--log-file $(CWD)/log/$@.log  --log-level info
 
-bootstrap: boostrap-git download-local local cross-compilers download
+bootstrap: bootstrap-git download-local local cross-compilers download
 
 bootstrap-git:
 	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local download git
