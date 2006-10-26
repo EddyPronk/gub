@@ -26,7 +26,10 @@ beautiful sheet music from a high-level description file.'''
             ]}
 
     def version (self):
-        return '0.0.0'
+        s = self.vc_repository.get_file_content ('VERSION')
+        d = misc.grok_sh_variables_str (s)
+        v = '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
+        return v
     
     def get_subpackage_names (self):
         return ['']
