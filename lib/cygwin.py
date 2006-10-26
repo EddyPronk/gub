@@ -107,7 +107,7 @@ def change_target_packages (packages):
         p.get_build_dependencies \
             = misc.MethodOverrider (p.get_build_dependencies,
                                     lambda d, extra: d + extra,
-                                    (['cygwin'],)).method
+                                    (['cygwin'],))
 
         p.get_subpackage_definitions = misc.MethodOverrider (
             p.get_subpackage_definitions, add_cyg_dll).method
