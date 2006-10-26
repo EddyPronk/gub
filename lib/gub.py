@@ -258,7 +258,7 @@ class BuildSpec (Os_context_wrapper):
 
     @subst_method
     def stamp_file (self):
-        return '%(statusdir)s/%(name)s-%(version)s'
+        return '%(statusdir)s/%(name)s-%(version)s-%(source_checksum)s'
 
     @subst_method
     def rsync_command (self):
