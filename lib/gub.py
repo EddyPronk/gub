@@ -99,6 +99,8 @@ class BuildSpec (Os_context_wrapper):
         else:
             self.wget ()
 
+    def get_repodir (self):
+        return self.settings.downloads + '/' + self.name ()
     def get_dependency_dict (self):
         """subpackage -> list of dependency dict."""
         
@@ -405,9 +407,6 @@ rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_roo
                    % self.get_substitution_dict ()):
             self.autoupdate ()
 
-    @subst_method
-    def shipped_versionN (
-    
     @subst_method
     def is_sdk_package (self):
         return 'false'
