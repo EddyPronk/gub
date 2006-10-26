@@ -60,9 +60,8 @@ def get_cross_packages (settings):
                              format='bz2'),
         ]
 
-def change_target_packages (packages):
-    cross.change_target_packages (packages)
-    cross.set_framework_ldpath ([p for p in packages.values ()
-                                 if isinstance (p,
-                                                targetpackage.TargetBuildSpec)])
-    return packages
+def change_target_package (package):
+    cross.change_target_package (package)
+    if isinstance (package, targetpackage.TargetBuildSpec):
+        cross.set_framework_ldpath (package)
+    return package

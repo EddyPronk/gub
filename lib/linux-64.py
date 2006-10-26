@@ -1,6 +1,6 @@
-def change_target_packages (packages):
+def change_target_package (package):
     import debian
-    return debian.change_target_packages (packages)
+    return debian.change_target_package (package)
     
 def get_cross_packages (settings):
     import debian

@@ -107,7 +107,7 @@ class Gcc (CrossToolSpec):
 cd %(install_root)s/usr/lib && ln -fs libgcc_s.so.1 libgcc_s.so
 ''')
 
-def change_target_packages (package_object_dict):
+def change_target_package (package):
     pass
 
 def set_cross_dependencies (package_object_dict):
@@ -133,10 +133,9 @@ def set_cross_dependencies (package_object_dict):
 
     return packs
 
-def set_framework_ldpath (packs):
-    for c in packs:
-        change = gub.Change_target_dict (c, {'LDFLAGS': r" -Wl,--rpath,'$${ORIGIN}/../lib/' "})
-        c.get_substitution_dict = change.append_dict
+def set_framework_ldpath (package):
+    change = gub.Change_target_dict (package, {'LDFLAGS': r" -Wl,--rpath,'$${ORIGIN}/../lib/' "})
+    package.get_substitution_dict = change.append_dict
 
 cross_module_checksums = {}
 def get_cross_module (platform):

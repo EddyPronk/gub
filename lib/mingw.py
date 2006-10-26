@@ -63,11 +63,10 @@ def get_cross_packages (settings):
                                     mirror=download.mingw),
             ]
 
-def change_target_packages (packages):
-    cross.change_target_packages (packages)
+def change_target_package (p):
+    cross.change_target_package (p)
 
-    for p in packages:
-        gub.change_target_dict (p,
+    gub.change_target_dict (p,
                     {
             'DLLTOOL': '%(tool_prefix)sdlltool',
             'DLLWRAP': '%(tool_prefix)sdllwrap',

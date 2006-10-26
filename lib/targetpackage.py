@@ -430,11 +430,15 @@ def load_target_package (settings, url):
     package = klass (settings)
     package.spec_checksum = checksum
     package.cross_checksum = cross.get_cross_checksum (settings.platform)
-    
+
+    ## wtf is this?
     if init_vars['version']:
         package.with (version=init_vars['version'])
 #                package.with (format=init_vars['format'],
 #                              mirror=init_vars['url'],
 #                              version=init_vars['version'],
+
+    crossmod = cross.get_cross_module (settings.platform)
+    crossmod.change_target_package (package)
 
     return package

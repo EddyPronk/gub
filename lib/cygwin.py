@@ -99,25 +99,25 @@ def add_cyg_dll (build_spec, get_subpackage_definitions, extra_arg):
     d[k].append ('/etc/postinstall')
     return d
 
-def change_target_packages (packages):
-    cross.change_target_packages (packages)
+def change_target_package (package):
+    cross.change_target_package (package)
 
     # FIXME: this does not work (?)
-    for p in packages.values ():
-        p.get_build_dependencies \
-            = misc.MethodOverrider (p.get_build_dependencies,
+    package.get_build_dependencies \
+            = misc.MethodOverrider (package.get_build_dependencies,
                                     lambda d, extra: d + extra,
                                     (['cygwin'],))
 
-        p.get_subpackage_definitions = misc.MethodOverrider (
-            p.get_subpackage_definitions, add_cyg_dll).method
+    package.get_subpackage_definitions = misc.MethodOverrider (
+            package.get_subpackage_definitions, add_cyg_dll).method
 
-        ## TODO : get_dependency_dict
+    ## TODO : get_dependency_dict
         
-        # FIXME: why do cross packages get here too?
-        if isinstance (p, cross.CrossToolSpec):
-            continue
-        gub.change_target_dict (p, {
+    # FIXME: why do cross packages get here too?
+    if isinstance (package, cross.CrossToolSpec):
+        return package
+        
+    gub.change_target_dict (package, {
             'DLLTOOL': '%(tool_prefix)sdlltool',
             'DLLWRAP': '%(tool_prefix)sdllwrap',
             'LDFLAGS': '-L%(system_root)s/usr/lib -L%(system_root)s/usr/bin -L%(system_root)s/usr/lib/w32api',

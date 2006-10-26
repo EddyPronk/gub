@@ -52,11 +52,13 @@ def get_cross_packages (settings):
         return get_cross_packages_41 (settings)
     return get_cross_packages_61 (settings)
 
-def change_target_packages (packages):
-    cross.change_target_packages (packages)
-    cross.set_framework_ldpath ([p for p in packages.values ()
-                  if isinstance (p, targetpackage.TargetBuildSpec)])
+def change_target_package (package):
+    cross.change_target_package (package)
+    if isinstance (package, targetpackage.TargetBuildSpec):
+        cross.set_framework_ldpath (package)
 
+        
+    
 # FIXME: download from sane place.
 def get_sdk():
     '''

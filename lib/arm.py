@@ -15,8 +15,8 @@ def get_cross_packages (settings):
     import debian
     return debian.get_cross_packages (settings)
 
-def change_target_packages (packages):
-    cross.change_target_packages (packages)
+def change_target_package (package):
+    cross.change_target_package (packages)
     cross.set_framework_ldpath ([p for p in packages.values ()
                                  if isinstance (p,
                                                 targetpackage.TargetBuildSpec)])

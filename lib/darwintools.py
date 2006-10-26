@@ -1,7 +1,7 @@
 import glob
 import re
 import os
-
+import misc
 import context
 import cross
 import download
@@ -246,10 +246,29 @@ def get_cross_packages (settings):
 
     return packages
 
-def change_target_packages (packages):
-    cross.change_target_packages (packages)
-    for p in packages.values ():
-        gub.change_target_dict (p, {
+def strip_build_dep (old_val, what):
+    deps = old_val
+
+    for w in what:
+        if w in deps:
+            deps.remove (w)
+    deps.sort()
+    return deps                     
+
+    
+def strip_dependency_dict (old_val, what):
+    d = dict((k,[p for p in deps if p not in what])
+             for (k, deps) in old_val.items ())
+
+    return d
+
+def change_target_package (p):
+    cross.change_target_package (p)
+    p.get_build_dependencies = misc.MethodOverrider (p.get_build_dependencies,
+                                                     strip_build_dep, (['zlib', 'zlib-devel'],))
+    p.get_dependency_dict = misc.MethodOverrider (p.get_dependency_dict,
+                                                  strip_dependency_dict, (['zlib', 'zlib-devel'],))
+    gub.change_target_dict (p, {
 
             ## We get a lot of /usr/lib/ -> @executable_path/../lib/
             ## we need enough space in the header to do these relocs.
@@ -259,7 +278,6 @@ def change_target_packages (packages):
             'CPPFLAGS' : '-DSTDC_HEADERS',
             })
 
-        ## todo: strip zlib from deps.
         
 def system (c):
     s = os.system (c)

@@ -105,8 +105,8 @@ def get_cross_packages (settings):
         return get_cross_packages_stable (settings)
     return get_cross_packages_unstable (settings)
 
-def change_target_packages (packages):
-    cross.change_target_packages (packages)
+def change_target_package (p):
+    cross.change_target_package (p)
 
 def get_debian_packages (settings, package_file):
     if settings.verbose:

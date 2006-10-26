@@ -53,19 +53,18 @@ class Python_config (gub.SdkBuildSpec):
                    expand_string=False)
         self.system ('chmod +x %(install_root)s/usr/cross/bin/python-config')
 
-def change_target_packages (packages):
-    cross.change_target_packages (packages)
-    for p in packages.values ():
-        if isinstance (p, targetpackage.TargetBuildSpec):
-            gub.change_target_dict (p,
+def change_target_package (package):
+    cross.change_target_package (package)
+    if isinstance (package, targetpackage.TargetBuildSpec):
+        gub.change_target_dict (package,
                         {'LD': '%(target_architecture)s-ld --as-needed ',
                         })
 
-            gub.append_target_dict (p,
+        gub.append_target_dict (package,
                         { 'LDFLAGS': ' -Wl,--as-needed ' })
 
-    cross.set_framework_ldpath ([p for p in packages.values ()
-                                 if isinstance (p, targetpackage.TargetBuildSpec)])
+    cross.set_framework_ldpath (package)
+    return package
 
 def get_cross_packages (settings):
     import debian
