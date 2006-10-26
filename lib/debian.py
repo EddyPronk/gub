@@ -20,7 +20,7 @@ class Libc6 (gub.BinarySpec, gub.SdkBuildSpec):
     def untar (self):
         gub.BinarySpec.untar (self)
         # Ugh, rewire absolute names and symlinks.
-        i = self.expand ('%(srcdir)s/root/lib64')
+        i = self.expand ('%(srcdir)s/lib64')
         if os.path.islink (i):
             s = os.readlink (i)
             if s.startswith ('/'):
@@ -43,10 +43,10 @@ class Libc6_dev (gub.BinarySpec, gub.SdkBuildSpec):
         self.lib_rewire ()
         for i in ('pthread.h', 'bits/sigthread.h'):
             self.file_sub ([('__thread', '___thread')],
-                           '%(srcdir)s/root/usr/include/%(i)s',
+                           '%(srcdir)s/usr/include/%(i)s',
                            env=locals ())
             
-        self.system ('rm -rf  %(srcdir)s/root/usr/include/asm/  %(srcdir)s/root/usr/include/linux ')
+        self.system ('rm -rf  %(srcdir)s/usr/include/asm/  %(srcdir)s/usr/include/linux ')
             
 class Linux_kernel_headers (gub.BinarySpec, gub.SdkBuildSpec):
     def get_subpackage_names (self):

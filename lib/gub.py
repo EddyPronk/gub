@@ -101,6 +101,7 @@ class BuildSpec (Os_context_wrapper):
 
     def get_repodir (self):
         return self.settings.downloads + '/' + self.name ()
+    
     def get_dependency_dict (self):
         """subpackage -> list of dependency dict."""
         
@@ -614,19 +615,16 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
     def with (self,
               mirror=download.gnu,
               version='',
-              module='',
-              branch='',
-              revision='',
               format='gz'):
 
         self.format = format
         self.ball_version = version
-        self.revision = revision
         self.url = mirror
 
         ball_version = version
 
         name = self.name ()
+        package_arch = self.settings.package_arch
         self.vc_repository = gitrepo.TarBall (self.settings.downloads, mirror % locals ())
         
         self.ball_version = version
@@ -647,13 +645,6 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
                     os.symlink (self.settings.system_root + s, i)
 
 class BinarySpec (BuildSpec):
-    def untar (self):
-        self.system ('''
-rm -rf %(srcdir)s %(builddir)s %(install_root)s
-''')
-        self.system ('mkdir -p %(srcdir)s/root')
-        self._untar ('%(srcdir)s/root')
-
     def configure (self):
         pass
 
@@ -673,7 +664,7 @@ rm -rf %(srcdir)s %(builddir)s %(install_root)s
         _verbose = ''
         if self.verbose:
             _verbose = ' -v'
-        self.system ('tar -C %(srcdir)s/root -cf- . | tar -C %(install_root)s%(_verbose)s -xf-', env=locals ())
+        self.system ('tar -C %(srcdir)s -cf- . | tar -C %(install_root)s%(_verbose)s -xf-', env=locals ())
         self.libtool_installed_la_fixups ()
 
     def get_subpackage_names (self):
