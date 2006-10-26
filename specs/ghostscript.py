@@ -14,11 +14,12 @@ class Ghostscript (targetpackage.TargetBuildSpec):
             #self.with (version='8.54',
             #      mirror='ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs854/ghostscript-8.54-gpl.tar.bz2',
             #       format='bz2')
-            self.with (branch='trunk',
-                       module='gs',
-                       version='8.55',
-                       revision='HEAD',
-                       mirror='svn:http://svn.ghostscript.com:8080/ghostscript')
+
+            self.with_vc(gitrepo.Subversion ())
+            self.with (version='8.55',
+                       #revision='HEAD',
+                       #revision='7221',
+                       mirror='svn:http://svn.ghostscript.com:8080/ghostscript/trunk/gs/')
         else:
             self.with (version='8.50',
                    ## TODO: see if any of these diffs fixes it...

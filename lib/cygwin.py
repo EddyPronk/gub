@@ -89,6 +89,17 @@ def get_cross_packages (settings):
 
     return cross_packs
 
+
+def cygwin_subpackage_definitions (build_spec, old_func, extra_arg):
+    d = old_func ()
+    k = ''
+    if d.has_key (k):
+        k = 'runtime'
+
+    d[k].append ('/usr/bin/cyg*dll')
+    
+    return d
+
 def change_target_packages (packages):
     cross.change_target_packages (packages)
 
@@ -96,7 +107,11 @@ def change_target_packages (packages):
     for p in packages.values ():
         old_callback = p.get_build_dependencies
         p.get_build_dependencies = misc.MethodOverrider (old_callback,
-                                                          lambda old_val, extra_arg: old_val + extra_arg, (['cygwin'],)).method
+                                                         lambda old_val, extra_arg: old_val + extra_arg, (['cygwin'],)).method
+        p.get_subpackage_definitions = misc.MethodOverrider (p.get_subpackage_definitions,
+                                                             cygwin_subpackage_definitions, None).method
+
+        ## TODO : get_dependency_dict
         
         # FIXME: why do cross packages get here too?
         if isinstance (p, cross.CrossToolSpec):
@@ -114,7 +129,7 @@ def get_cygwin_package (settings, name, dict):
         'gcc-mingw', 'gcc-mingw-core', 'gcc-mingw-g++',
         'gcc-runtime', 'gcc-core-runtime',
         ]
-    cycle = ['base-passwd']
+    cycle = ['base-passwd'
     # FIXME: this really sucks, should translate or something
     # There also is the problem that gub build-dependencies
     # use unsplit packages.
