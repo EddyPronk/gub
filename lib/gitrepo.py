@@ -247,10 +247,11 @@ class CVSRepository(Repository):
         return [e[0] for e in entries]
     
     
-class SVNRepository (Repository):
-    def __init__ (self, dir, branch, module, revision):
+class Subversion (Repository):
+    def __init__ (self, dir, source, branch, module, revision):
         Repository.__init__ (self)
         self.dir = dir + '.svn'
+        self.source = source
         self.branch = branch
         self.module = module
         self.revision = revision
@@ -264,7 +265,8 @@ class SVNRepository (Repository):
     def download (self):
         working = self._get_working_dir ()
         if not os.path.isdir (working + '/.svn'):
-            self._checkout (source, self.branch, self.module, self.revision)
+            self._checkout (self.source, self.branch, self.module,
+                            self.revision)
         self._update (working, self.revision)
 
     def get_checksum (self):
