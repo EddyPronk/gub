@@ -23,6 +23,5 @@ class Fontforge (ToolBuildSpec):
 		
     def __init__ (self, settings):
         ToolBuildSpec.__init__ (self, settings)
-#        self.with (mirror="http://fontforge.sourceforge.net/fontforge_full-%(version)s.tar.bz2",
-        self.with (mirror="http://lilypond.org/~hanwen/fontforge_full-%(version)s.tar.bz2",
+        self.with (mirror="http://lilypond.org/~hanwen/gub-sources/fontforge_full-%(version)s.tar.bz2",
                    version="20060501")
