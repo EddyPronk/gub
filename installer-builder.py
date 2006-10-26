@@ -136,7 +136,7 @@ def run_installer_commands (commands, settings, args):
 
 
 def main ():
-    (options, commands)  = parse_command_line()
+    (options, commands)  = parse_command_line ()
 
     settings = settings_mod.get_settings (options.platform)
     settings.installer_version = options.installer_version
