@@ -16,7 +16,7 @@ class Scons (ToolBuildSpec):
 
     def __init__ (self, settings):
         ToolBuildSpec.__init__ (self, settings)
-        self.with (version='0.96.91',
+        self.with (version='0.96.92',
                    format='gz',
                    mirror=download.sf),
         
