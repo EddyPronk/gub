@@ -109,7 +109,7 @@ class Os_context_wrapper (Context):
         self.os_interface = settings.os_interface
         self.verbose = settings.verbose ()
         
-    def file_sub (self, re_pairs, name, to_name=None, env={}, must_succeed=False):
+    def file_sub (self, re_pairs, name, to_name=None, env={}, must_succeed=False, use_re=True):
         substs = []
         for (frm, to) in re_pairs:
             frm = self.expand (frm, env)
@@ -121,7 +121,7 @@ class Os_context_wrapper (Context):
         if to_name:
             to_name = self.expand (to_name, env)
             
-        return self.os_interface.file_sub (substs, self.expand (name, env), to_name, must_succeed)
+        return self.os_interface.file_sub (substs, self.expand (name, env), to_name, must_succeed, use_re=use_re)
     
     def log_command (self, str, env={}):
         str = self.expand (str, env)
