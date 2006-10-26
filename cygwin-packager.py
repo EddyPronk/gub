@@ -40,12 +40,23 @@ class Cygwin_package (context.Os_context_wrapper):
             dbdir=self.expand ('%(installer_db)s'),
             clean=True)
 
+        self.package_manager.include_build_deps = False
+        self.package_manager.read_package_headers (
+            self.expand ('%(gub_uploads)s/%(name)s'), 'HEAD')
+
+        #def get_dep (x):
+        #    return install_manager.dependencies (x)
+    
+        #package_names = gup.topologically_sorted (args, {},
+        #                                          get_dep,
+        #                                          None)
+
         self.create ()
       
     @context.subst_method
     def name (self):
         return self._name
-
+    
     def cygwin_patches_dir (self, spec):
         cygwin_patches = '%(srcdir)s/CYGWIN-PATCHES'
         # FIXME: how does this work?  Why do I sometimes need an
@@ -69,7 +80,7 @@ mkdir -p %(installer_root)s/etc/hints
         ### like lilypond.py has
         ### Just use the overridden --buildnumber-file option.
         ###installer_build = spec.build_number ()
-        installer_build = self.expand ('%(installer_build)s')
+        build_number = self.expand ('%(build_number)s')
 
         # FIXME: lilypond is built from CVS, in which case version is lost
         # and overwritten by the CVS branch name.  Therefore, using
@@ -82,7 +93,7 @@ mkdir -p %(installer_root)s/etc/hints
         # FIXME, this is the accidental build number of LILYPOND, which is
         # wrong to use for guile and other packages, but uh, individual
         # packages do not have a build number anymore...
-        build = installer_build
+        build = build_number
 
         depends = spec.get_dependency_dict ()[split]
         distro_depends = []
@@ -151,8 +162,8 @@ mkdir -p %(installer_root)s/usr/share/doc/%(name)s
         ### FIXME: this would require guile.py: def build_number ()
         ### like lilypond.py has
         ### Just use the overridden --buildnumber-file option.
-        ###installer_build = spec.build_number ()
-        installer_build = self.expand ('%(installer_build)s')
+        ###build_number = spec.build_number ()
+        build_number = self.expand ('%(build_number)s')
 
         # FIXME: lilypond is built from CVS, in which case version is lost
         # and overwritten by the CVS branch name.  Therefore, using
@@ -165,17 +176,17 @@ mkdir -p %(installer_root)s/usr/share/doc/%(name)s
         # FIXME, this is the accidental build number of LILYPOND, which is
         # wrong to use for guile and other packages, but uh, individual
         # packages do not have a build number anymore...
-        build = installer_build
+        build = build_number
 
         file = spec.expand (spec.settings.sourcefiledir
                             + '/%(name)s.README', locals ())
         if os.path.exists (file):
             readme = spec.expand (open (file).read (), locals ())
         else:
-            readme = spec.expand ('README for Cygwin %(name)s-%(installer_version)s-%(installer_build)s', locals ())
+            readme = spec.expand ('README for Cygwin %(name)s-%(installer_version)s-%(build_number)s', locals ())
 
         spec.dump (readme,
-                   '%(installer_root)s/usr/share/doc/Cygwin/%(name)s-%(installer_version)s-%(installer_build)s.README',
+                   '%(installer_root)s/usr/share/doc/Cygwin/%(name)s-%(installer_version)s-%(build_number)s.README',
                    env=self.get_substitution_dict (locals ()))
         spec.dump (readme,
                    '%(installer_root)s/usr/share/doc/%(name)s/README.Cygwin',
@@ -204,10 +215,11 @@ mkdir -p %(installer_root)s/usr/share/doc/%(name)s
             import inspect
             gub_ball = self.package_manager.package_dict (package_name + '-' + split) ['split_ball']
 
+        import re
         gub_name = re.sub ('.*/', '', gub_ball)
 
 	import misc
-        branch = self.settings.lilypond_branch
+        branch = 'HEAD'
         # Urg: other packages than lilypond can have a -BRANCH naming
         if package_name == 'texlive':
             branch = 'HEAD'
@@ -223,7 +235,7 @@ mkdir -p %(installer_root)s/usr/share/doc/%(name)s
         # strip last two dummy version entries: cygwin, 0
         # gub packages do not have a build number
         dir_name = base_name + '-' + '.'.join (map (misc.itoa, t[1][:-2]))
-        cyg_name = dir_name + '-%(installer_build)s'
+        cyg_name = dir_name + '-%(build_number)s'
         # FIXME: not in case of -branch name
         dir_name = re.sub ('.cygwin.gu[pb]', '', gub_name)
         hint = base_name + '.hint'
@@ -243,6 +255,13 @@ mkdir -p %(installer_root)s/usr/share/doc/%(name)s
         package.get_substitution_dict ()['base_name'] = base_name
         return locals ()
     
+    def strip_dir (self, dir):
+        import misc
+        misc.map_command_dir (self.expand (dir),
+                              self.expand ('%(strip_command)s)'),
+                              self.no_binary_strip,
+                              self.no_binary_strip_extensions)
+
     def cygwin_ball (self, package, split):
         d = self.get_dict (package, split)
         base_name = d['base_name']
@@ -270,7 +289,7 @@ tar -C %(installer_root)s -zxf %(gub_uploads)s/%(gub_name)s
             dir = package.expand ('%(installer_root)s/usr/' + i,
                                   self.get_substitution_dict (d))
             if os.path.isdir (dir):
-                self.strip_binary_dir (dir)
+                self.strip_dir (dir)
 
         if os.path.isdir (infodir + '/' + package_name):
             package.system ('gzip %(infodir)s/%(package_name)s/*.info*',
@@ -318,7 +337,7 @@ def parse_command_line ():
     p = optparse.OptionParser ()
     p.usage = 'cygwin-packager.py [OPTION]... PACKAGE'
     p.add_option ('-b', '--build-number',
-                  action='store', default='1', dest='build')
+                  action='store', default='1', dest='build_number')
     p.add_option ('-v', '--version',
                   action='store', default='0.0.0', dest='version')
     (options, args) = p.parse_args ()
@@ -331,6 +350,13 @@ def main ():
     (options, commands)  = parse_command_line ()
     platform = 'cygwin'
     settings = settings_mod.get_settings (platform)
+    settings.build_number = options.build_number
+    settings.version = options.version
+
+    # Barf
+    settings.__dict__['cross_distcc_hosts'] = []
+    settings.__dict__['native_distcc_hosts'] = []
+
     PATH = os.environ['PATH']
     os.environ['PATH'] = settings.expand ('%(buildtools)s/bin:' + PATH)
 
