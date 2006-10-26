@@ -205,7 +205,7 @@ class BuildSpec (Os_context_wrapper):
     @subst_method
     def builddir (self):
         if self.vc_branch_suffix ():
-            return '%(allsrcdir)s/%(name)s-%(vc_branch_suffix)s'
+            return '%(allbuilddir)s/%(name)s-%(vc_branch_suffix)s'
         else:
             return self.settings.allbuilddir + '/' + self.basename ()
 
