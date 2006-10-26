@@ -5,7 +5,7 @@ import glob
 import misc
 import locker
 import repository
-import gitrepo
+import repository
 
 # sys
 import pickle
@@ -625,7 +625,7 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
 
         name = self.name ()
         package_arch = self.settings.package_arch
-        self.vc_repository = gitrepo.TarBall (self.settings.downloads, mirror % locals ())
+        self.vc_repository = repository.TarBall (self.settings.downloads, mirror % locals ())
         
         self.ball_version = version
 

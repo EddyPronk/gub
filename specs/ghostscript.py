@@ -2,14 +2,14 @@ import os
 import re
 
 import download
-import gitrepo
+import repository
 import misc
 import targetpackage
 
 class Ghostscript (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with_vc (gitrepo.Subversion (
+        self.with_vc (repository.Subversion (
                 dir=self.get_repodir (),
                 source='http://svn.ghostscript.com:8080/ghostscript',
                 branch='trunk',

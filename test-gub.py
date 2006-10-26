@@ -13,7 +13,7 @@ import dbhash
 
 sys.path.insert (0, 'lib/')
 
-import gitrepo
+import repository
 
 
 ################################################################
@@ -236,7 +236,7 @@ def real_main (options, args, handle_result):
     log_file.log (' *** %s' % time.ctime ())
     log_file.log (' *** Starting tests:\n  %s' % '\n  '.join (args))
 
-    repo = gitrepo.get_repository_proxy (options.repository, options.branch)
+    repo = repository.get_repository_proxy (options.repository, options.branch)
     log_file.log ("Repository %s" % str (repo))
     
     last_patch = repo.get_revision_description ()

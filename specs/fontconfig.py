@@ -3,7 +3,7 @@ import gub
 import misc
 import targetpackage
 import toolpackage
-import gitrepo
+import repository
 
 class Fontconfig (targetpackage.TargetBuildSpec):
     '''Generic font configuration library 
@@ -16,7 +16,7 @@ specified by applications.'''
         targetpackage.TargetBuildSpec.__init__ (self, settings)
 
         self.committish = "0596d7296c94b2bb9817338b8c1a76da91673fb9"
-        self.with_vc (gitrepo.GitRepository (self.get_repodir (),
+        self.with_vc (repository.GitRepository (self.get_repodir (),
                                              source="git://anongit.freedesktop.org/git/fontconfig",
                                              revision=self.committish))
 
