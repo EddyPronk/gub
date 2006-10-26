@@ -51,7 +51,7 @@ class Ghostscript (targetpackage.TargetBuildSpec):
                   ['bindir', 'datadir', 'gsdir', 'gsdatadir', 'docdir',
                    'mandir', 'scriptdir', 'exdir']]
         self.file_sub (substs, '%(srcdir)s/src/unixinst.mak')
-
+        self.system ('cd %(srcdir)s && ./autogen.sh --help')
     def fixup_arch (self):
         substs = []
         arch = self.settings.target_architecture
