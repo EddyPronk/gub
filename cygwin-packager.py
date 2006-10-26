@@ -78,58 +78,6 @@ cp -pv %(installer_root)s/usr/share/doc/%(name)s/README.Cygwin %(cygwin_patches)
 
         return (short, desc)
 
-    def dump_hint (self, split, base_name):
-        self.system ('mkdir -p %(installer_root)s/etc/hints')
-
-        depends = self.package.get_dependency_dict ()[split]
-        distro_depends = []
-        for dep in depends:
-            import cygwin
-            if dep in cygwin.gub_to_distro_dict.keys ():
-                distro_depends += cygwin.gub_to_distro_dict[dep]
-            else:
-                distro_depends += [dep]
-
-        requires = ' '.join (sorted (distro_depends))
-        print 'requires:' + requires
-        external_source_line = ''
-        file = self.expand ('%(sourcefiledir)s/%(base_name)s.hint',
-                            locals ())
-        if split:
-            external_source_line = self.expand ('''
-external-source: %(name)s''')
-        try:
-            ldesc = self.package.description_dict ()[split]
-            sdesc = ldesc[:ldesc.find ('\n')]
-        except:
-            sdesc = self.expand ('%(name)s')
-            flavor = 'executables'
-            if split:
-                sdesc += ' ' + split
-                flavor = split
-            ldesc = 'The %(name)s package for Cygwin - ' + flavor
-        try:
-            category = self.package.category_dict ()[split]
-        except:
-            if not split:
-                caterory = 'utils'
-            elif split == 'runtime':
-                caterory = 'libs'
-            else:
-                caterory = split
-        requires_line = ''
-        if requires:
-            requires_line = self.expand ('''
-requires: %(requires)s''', locals ())
-        hint = self.expand ('''sdesc: "%(sdesc)s"
-ldesc: "%(ldesc)s"
-category: %(category)s%(requires_line)s%(external_source_line)s
-''', locals ())
-        print 'dumping hint for: ' + split
-        self.dump (hint,
-                   '%(installer_root)s/etc/hints/%(base_name)s.hint',
-                   env=locals ())
-
     def get_readme (self, hdr):
         file = self.expand ('%(sourcefiledir)s/%(name)s.changelog')
         if os.path.exists (file):
