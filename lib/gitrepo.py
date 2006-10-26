@@ -24,6 +24,9 @@ class Repository:
         ## TODO
         
         return
+
+    def is_tracking (self):
+        return False
     
     def update_workdir (self, destdir):
         assert 0
@@ -36,7 +39,10 @@ class GitRepository (Repository):
         self.branch = branch
         self.revision = revision
         self.source = source
-        
+
+    def is_tracking (self):
+        return self.branch != ''
+    
     def __repr__ (self):
         return '#<GitRepository %s>' % self.repo_dir
     
