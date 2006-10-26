@@ -154,7 +154,7 @@ mkdir -p %(installer_root)s/usr/share/doc/%(name)s
         self.system ('''cd %(uploads)s/cygwin && %(downloads)s/genini $(find release -mindepth 1 -maxdepth 2 -type d) > setup.ini''')
 
 
-    def get_dict (self, package, split):
+    def get_dict (self, split):
         cygwin_uploads = '%(gub_uploads)s/release'
         package_name = self._name
         if not split:
@@ -167,41 +167,33 @@ mkdir -p %(installer_root)s/usr/share/doc/%(name)s
         import re
         gub_name = re.sub ('.*/', '', gub_ball)
 
-	import misc
-        branch = 'HEAD'
-        # Urg: other packages than lilypond can have a -BRANCH naming
-        if package_name == 'texlive':
-            branch = 'HEAD'
-        fixed_version_name = self.expand (re.sub ('-' + branch,
-                                                  '-%(version)s',
-                                                  gub_name))
-        t = misc.split_ball (fixed_version_name)
-        print 'split: ' + `t`
-        base_name = t[0]
+#	import misc
+#        branch = 'HEAD'
+#        # Urg: other packages than lilypond can have a -BRANCH naming
+#        if package_name == 'texlive':
+#            branch = 'HEAD'
+#        fixed_version_name = self.expand (re.sub ('-' + branch,
+#                                                  '-%(version)s',
+#                                                  gub_name))
+#       t = misc.split_ball (fixed_version_name)
+#        print 'split: ' + `t`
+#        base_name = t[0]
+        base_name = self.package.basename ()
         import cygwin
         if cygwin.gub_to_distro_dict.has_key (base_name):
             base_name = cygwin.gub_to_distro_dict[base_name][0]
+
         # strip last two dummy version entries: cygwin, 0
         # gub packages do not have a build number
-        dir_name = base_name + '-' + '.'.join (map (misc.itoa, t[1][:-2]))
+#        dir_name = base_name + '-' + '.'.join (map (misc.itoa, t[1][:-2]))
+#        dir_name = base_name + '-' + '.'.join (map (misc.itoa, t[1][:-2]))
+#        cyg_name = dir_name + '-%(build)s'
+        dir_name = base_name + '-' + self.package.version ()
         cyg_name = dir_name + '-%(build)s'
+
         # FIXME: not in case of -branch name
         dir_name = re.sub ('.cygwin.gu[pb]', '', gub_name)
         hint = base_name + '.hint'
-
-        # FIXME: sane package installer root
-        installer_root = '%(targetdir)s/installer-%(base_name)s'
-        self.get_substitution_dict ()['installer_root'] = installer_root
-        self.get_substitution_dict ()['base_name'] = base_name
-
-        infodir = '%(installer_root)s/usr/share/info' % locals ()
-
-        # FIXME: Where does installer_root live?
-        self.installer_root = installer_root
-        self.base_name = base_name
-        self.get_substitution_dict ()['installer_root'] = self.expand (installer_root, locals ())
-        package.get_substitution_dict ()['installer_root'] = installer_root
-        package.get_substitution_dict ()['base_name'] = base_name
         return locals ()
     
     def strip_dir (self, dir):
@@ -212,20 +204,18 @@ mkdir -p %(installer_root)s/usr/share/doc/%(name)s
                               self.no_binary_strip_extensions)
 
     def cygwin_ball (self, split):
-        d = self.get_dict (self.package, split)
+        d = self.get_dict (split)
         base_name = d['base_name']
         ball_name = d['cyg_name'] + '.tar.bz2'
         hint = d['hint']
-        infodir = d['infodir'] % self.get_substitution_dict (d)
         package_name = d['package_name']
 
         d['ball_name'] = ball_name
-        self.package.system ('''
+        self.system ('''
 rm -rf %(installer_root)s
 mkdir -p %(installer_root)s
 tar -C %(installer_root)s -zxf %(gub_uploads)s/%(gub_name)s
-''',
-                self.get_substitution_dict (d))
+''', self.package.get_substitution_dict (d))
         
         self.dump_hint (split, base_name)
 
@@ -240,9 +230,11 @@ tar -C %(installer_root)s -zxf %(gub_uploads)s/%(gub_name)s
             if os.path.isdir (dir):
                 self.strip_dir (dir)
 
+        infodir = self.expand ('%(installer_root)s/usr/share/info')
         if os.path.isdir (infodir + '/' + package_name):
             self.package.system ('gzip %(infodir)s/%(package_name)s/*.info*',
                             locals ())
+
         elif os.path.isdir (infodir):
             self.package.system ('gzip %(infodir)s/*.info*', locals ())
         self.package.system ('''
@@ -266,7 +258,7 @@ cp -pv %(installer_root)s/etc/hints/%(hint)s %(cygwin_uploads)s/%(base_name)s/se
                 self.get_substitution_dict (d))
 
     def cygwin_src_ball (self):
-        d = self.get_dict (self.package, '')
+        d = self.get_dict ('')
         ball_name = d['cyg_name'] + '-src.tar.bz2'
         dir = self.expand ('%(installer_root)s-src')
 
