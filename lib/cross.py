@@ -138,6 +138,7 @@ def set_framework_ldpath (package):
     package.get_substitution_dict = change.append_dict
 
 cross_module_checksums = {}
+cross_module_cache = {}
 def get_cross_module (platform):
     base = platform
     try:
@@ -150,6 +151,9 @@ def get_cross_module (platform):
             'local':'tools'}[platform]
     except KeyError:
         pass
+
+    if cross_module_cache.has_key (platform):
+        return cross_module_cache[platform]
     
     desc = ('.py', 'U', 1)
     file_name = 'lib/%s.py' % base
@@ -158,7 +162,7 @@ def get_cross_module (platform):
     module = imp.load_module (base, file, file_name, desc)
 
     cross_module_checksums[platform] = md5.md5 (open (file_name).read ()).hexdigest ()
-    
+    cross_module_cache[platform] = module
     return module
 
 def get_cross_packages (settings):
