@@ -348,6 +348,7 @@ topological order
         else:
             spec = targetpackage.load_target_package (settings, name)
             spec_dict[name] = spec
+
         return map (gub.get_base_package_name, spec.get_build_dependencies ())
 
     def name_to_dependencies_via_distro (distro_packages, name):
@@ -403,9 +404,6 @@ def add_packages_to_manager (target_manager, settings, package_object_dict):
     ## Ugh, this sucks: we now have to have all packages
     ## registered at the same time.
     
-    cross_module = cross.get_cross_module (settings.platform)
-    cross_module.change_target_packages (package_object_dict)
-
     for spec in package_object_dict.values ():
         for package in spec.get_packages ():
             target_manager.register_package_dict (package.dict ())
