@@ -14,20 +14,29 @@ class Repository:
         self.system = misc.system
         self.read_pipe = misc.read_pipe
         
-    def update (self, source, branch=None, commit=None):
+    def download (self):
         assert 0 
 
-    def get_branch_version (self, branch):
+    def get_checksum (self):
         assert 0
 
-    def checkout (self, destdir, branch=None, commit=None):
+    def get_file_content (self):
+        ## TODO
+        
+        return
+    
+    def update_workdir (self, destdir):
         assert 0
     
 class GitRepository (Repository):
-    def __init__ (self, git_dir):
+    def __init__ (self, git_dir, source='', branch='', revision=''):
         Repository.__init__ (self)
         self.repo_dir = git_dir
         self.checksums = {}
+        self.branch = branch
+        self.revision = revision
+        self.source = source
+        
     def __repr__ (self):
         return '#<GitRepository %s>' % self.repo_dir
     
@@ -47,29 +56,26 @@ class GitRepository (Repository):
     def git_pipe (self, cmd, ignore_error=False):
         return self.read_pipe ('GIT_OBJECT_DIRECTORY=%s/objects git %s' %(self.repo_dir, cmd))
         
-    def update (self, source, branch=None, commit=None):
+    def download (self):
+        "Fetch updates from internet"
+        
         repo = self.repo_dir
+        source = self.source
+        
         if not os.path.isdir (self.repo_dir):
             self.git ('--git-dir %(repo)s clone --bare -n %(source)s %(repo)s' % locals ())
             return
 
-        if commit:
-            contents = self.git_pipe ('--git-dir %(repo)s ls-tree %(commit)s' % locals (),
+        if self.revision:
+            contents = self.git_pipe ('--git-dir %(repo)s ls-tree %(revision)s' % locals (),
                                       ignore_error=True)
 
             if contents:
                 return
             
-            self.git ('--git-dir %(repo)s http-fetch -v -c %(commit)s' % locals ())
+            self.git ('--git-dir %(repo)s http-fetch -v -c %(revision)s' % locals ())
 
-        branches = []
-        if branch:
-            branches.append (branch)
-        else:
-            branches = self.get_branches ()
-
-
-        refs = ' '.join (['%s:%s' % (s,s) for s in branches])
+        refs = '%s:%s' % (self.branch, self.branch)
         
         self.git ('--git-dir %(repo)s fetch --update-head-ok %(source)s %(refs)s ' % locals ())
         self.checksums = {}
@@ -77,7 +83,9 @@ class GitRepository (Repository):
     def set_current_branch (self, branch):
         open (self.repo_dir + '/HEAD', 'w').write ('ref: refs/heads/%s\n' % branch)
         
-    def get_branch_version (self, branch):
+    def get_checksum (self):
+        
+        branch = self.branch
         if self.checksums.has_key (branch):
             return self.checksums[branch]
 
@@ -90,13 +98,17 @@ class GitRepository (Repository):
         else:
             return 'invalid'
 
-    def all_files (self, branch):
+    def all_files (self):
+        branch = self.branch
         str = self.git_pipe ('ls-tree --name-only -r %(branch)s' % locals ())
         return str.split ('\n')
 
-    def checkout (self, destdir, branch=None, commit=None):
+    def copy_to_working_dir (self, destdir):
+        "Populate (preferably update) DESTDIR with sources of specified version/branch"
+
         repo_dir = self.repo_dir
-        
+        branch = self.branch
+
         if not os.path.isdir (destdir):
             self.system ('mkdir -p ' + destdir)
 
@@ -105,13 +117,13 @@ class GitRepository (Repository):
         else:
             self.git ('init-db', dir=destdir)
 
-        if not commit:
-            commit = open ('%(repo_dir)s/refs/heads/%(branch)s' % locals ()).read ()
+        if not revision:
+            revision = open ('%(repo_dir)s/refs/heads/%(branch)s' % locals ()).read ()
 
         if not branch:
             branch = 'gub_build'
             
-        open ('%(destdir)s/.git/refs/heads/%(branch)s' % locals (), 'w').write (commit)
+        open ('%(destdir)s/.git/refs/heads/%(branch)s' % locals (), 'w').write (revision)
         self.git ('checkout %(branch)s' % locals (), dir=destdir) 
 
 class CVSRepository(Repository):
@@ -159,21 +171,23 @@ class CVSRepository(Repository):
 
         return (version_checksum, time_stamp)
     
-    def checkout (self, destdir, branch=None, commit=None):
+    def update_workdir (self, destdir, branch=None, revision=None):
         
         suffix = branch
-        if commit:
-            suffix = commit
+        if revision:
+            suffix = revision
         dir = self.repo_dir  +'/' + suffix        
 
-        self.system ('rsync -av --exclude CVS %(dir)s/ %(destdir)s' % locals ())
+
+        ## TODO: can we get deletes from vc?
+        self.system ('rsync -av --delete --exclude CVS %(dir)s/ %(destdir)s' % locals ())
         
-    def update (self, source, branch=None, commit=None):
+    def download (self, source, branch=None, revision=None):
         suffix = branch
         rev_opt = '-r ' + branch
-        if commit:
-            suffix = commit
-            rev_opt = '-r ' + commit
+        if revision:
+            suffix = revision
+            rev_opt = '-r ' + revision
             
         dir = self.repo_dir  +'/' + suffix        
 
@@ -242,12 +256,12 @@ class SVNRepository (Repository):
         if not os.path.isdir (dir):
             self.system ('mkdir -p %s' % dir)
         
-    def checkout (self, destdir, branch=None, commit=None):
+    def update_workdir (self, destdir, branch=None, commit=None):
         '''checkout is called to copy the working dir after a checkout'''
         working = self._get_working_dir ()
         self._copy_working_dir (working, destdir)
 
-    def update (self, source, branch=None, commit=None):
+    def download (self, source, branch=None, commit=None):
         '''update is called for either a checkout or an update'''
         print 'svn update branch:' + `branch`
         working = self._get_working_dir ()
