@@ -92,7 +92,7 @@ mkdir -p %(installer_root)s/usr/share/doc/%(name)s
 
         file = self.expand ('%(sourcefiledir)s/%(name)s.README')
         if os.path.exists (file):
-            readme = open (file).read ()
+            readme = self.expand (open (file).read (), locals ())
         else:
             readme = 'README for Cygwin %(name)s-%(version)s-%(build)s'
         readme = self.expand (readme, hdr)
