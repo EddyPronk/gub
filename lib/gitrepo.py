@@ -39,17 +39,30 @@ class DarcsRepository (Repository):
         self.dir = dir + '.darcs'
         self.source = source
 
+    def darcs_pipe (self, cmd):
+
+        dir = self.dir
+        return self.read_pipe ('cd %(dir)s && darcs %(cmd)s' % locals ())
+
+    def darcs (self, cmd):
+        dir = self.dir
+        return self.system ('cd %(dir)s && darcs %(cmd)s' % locals ())
+        
+    
     def download (self):
         dir = self.dir
         source = self.source
-        self.system ('darcs get %(source)s %(dir)s' % locals ())
-        self.system ('mkdir -p %(dir)s' % locals ())
+
+        if os.path.exists (dir + '/_darcs'):
+            self.darcs ('pull -a %(source)s' % locals ())
+        else:
+            self.system ('darcs get %(source)s %(dir)s' % locals ())
         
     def is_tracking (self):
         return True
 
     def get_checksum (self):
-        xml_string = self.read_pipe (self.base_command ('changes') + ' --xml ')
+        xml_string = self.darcs_pipe ('changes --xml ')
         dom = xml.dom.minidom.parseString(xml_string)
         patches = dom.documentElement.getElementsByTagName('patch')
         patches = [p for p in patches if not re.match ('^TAG', self.xml_patch_name (p))]
