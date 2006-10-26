@@ -123,7 +123,7 @@ mkdir -p %(installer_root)s/usr/share/doc/%(name)s
         dependencies = sorted (reduce (lambda x,y: x+y, dependencies))
         dependencies_str = ' '.join (dependencies)
         
-        (ldesc, sdesc) = self.description (hdr)
+        (sdesc, ldesc) = self.description (hdr)
 
         requires_line = ''
         if dependencies_str:
