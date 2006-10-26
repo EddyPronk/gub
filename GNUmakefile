@@ -116,29 +116,26 @@ cygwin-libtool:
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build libtool
 
 cygwin-libtool-installer:
-	echo INSTALLER_BUILD=3 > buildnumber-libtool.make
-	$(call INVOKE_INSTALLER_BUILDER,cygwin) --buildnumber-file=buildnumber-libtool.make build-all libtool
+	$(PYTHON) cygwin-packager.py --build-number=3 libtool
 
 cygwin-fontconfig:
 	rm -f uploads/cygwin/setup.ini
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build fontconfig
 
 cygwin-fontconfig-installer:
-	echo INSTALLER_BUILD=2 > buildnumber-fontconfig.make
-	$(call INVOKE_INSTALLER_BUILDER,cygwin) --buildnumber-file=buildnumber-fontconfig.make build-all fontconfig
+	$(PYTHON) cygwin-packager.py --build-number=2 fontconfig
 
 cygwin-guile:
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build libtool guile
 
 cygwin-guile-installer:
-	echo INSTALLER_BUILD=2 > buildnumber-guile.make
-	$(call INVOKE_INSTALLER_BUILDER,cygwin) --buildnumber-file=buildnumber-guile.make build-all guile
+	$(PYTHON) cygwin-packager.py --build-number=2 guile
 
 cygwin-lilypond:
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build libtool guile lilypond
 
 cygwin-lilypond-installer:
-	$(call INVOKE_INSTALLER_BUILDER,cygwin) build-all lilypond
+	$(PYTHON) cygwin-packager.py --build-number=3 lilypond
 
 upload-setup-ini:
 	cd uploads/cygwin && ../../downloads/genini $$(find release -mindepth 1 -maxdepth 2 -type d) > setup.ini
