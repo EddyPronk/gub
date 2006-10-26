@@ -241,7 +241,7 @@ def main ():
     (options, files)  = cli_parser.parse_args ()
 
     if not options.platform:
-        raise Exception ('error: no platform specified')
+        print 'error: no platform specified'
         cli_parser.print_help ()
         sys.exit (2)
 
