@@ -64,6 +64,7 @@ class TarBall (Repository):
         if os.path.isdir (destdir):
             self.system ('rm -rf %s' % destdir)
 
+        tarball = self.dir + '/' + self._filename ()
         self.system ('mkdir %s' % destdir)       
         self.system ('ar p %(tarball)s data.tar.gz | tar -C %(destdir)s --strip-component 1 -zxf -' % locals ())
         
