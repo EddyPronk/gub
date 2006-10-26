@@ -138,27 +138,3 @@ chmod 755 %(install_root)s/usr/bin/*
 class Python__mingw (Python__mingw_cross):
     pass
 
-class Python__darwin (gub.NullBuildSpec):
-    def __init__ (self, settings):
-        gub.NullBuildSpec.__init__ (self, settings)
-        self.version = (lambda: '2.3')
-        self.vc_branch = ''
-        self.has_source = False
-    def srcdir (self):
-        return '%(allsrcdir)s/python-darwin'
-    def package (self):
-        gub.BuildSpec.package (self)
-        
-    def install (self):
-        self.system ('mkdir -p %(install_root)s/usr/cross/bin/')
-        self.dump ('''#!/bin/sh
-if test "$1" == "--cflags"; then
-  echo "-I%(system_root)s/System/Library/Frameworks/Python.framework/Versions/%(version)s/include/python%(version)s"
-fi
-if test "$1" == "--ldflags"; then
-  echo ""
-fi
-''', '%(install_root)s/usr/cross/bin/python-config')
-        self.system ('chmod +x %(install_root)s/usr/cross/bin/python-config')
-        
-

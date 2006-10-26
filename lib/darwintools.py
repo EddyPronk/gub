@@ -16,6 +16,33 @@ class Odcctools (cross.CrossToolSpec):
         self.file_sub ([('ld64','')],
                        self.builddir () + '/Makefile')
 
+## change to sdk package
+class Python (gub.SdkBuildSpec):
+    def __init__ (self, settings):
+        gub.NullBuildSpec.__init__ (self, settings)
+        self.version = (lambda: '2.3')
+        self.vc_branch = ''
+        self.format = ''
+        self.has_source = False
+
+    def srcdir (self):
+        return '%(allsrcdir)s/python-darwin'
+
+    def package (self):
+        gub.BuildSpec.package (self)
+        
+    def install (self):
+        self.system ('mkdir -p %(install_root)s/usr/cross/bin/')
+        self.dump ('''#!/bin/sh
+if test "$1" == "--cflags"; then
+  echo "-I%(system_root)s/System/Library/Frameworks/Python.framework/Versions/%(version)s/include/python%(version)s"
+fi
+if test "$1" == "--ldflags"; then
+  echo ""
+fi
+''', '%(install_root)s/usr/cross/bin/python-config')
+        self.system ('chmod +x %(install_root)s/usr/cross/bin/python-config')
+        
 class Darwin_sdk (gub.SdkBuildSpec):
     def __init__ (self, settings):
         gub.SdkBuildSpec.__init__ (self, settings)
@@ -201,6 +228,7 @@ class Package_rewirer:
 def get_cross_packages (settings):
     packages = []
     packages.append (Darwin_sdk (settings))
+    packages.append (Python (settings))
         
     packages += [Odcctools (settings).with (version='20060413',
 #    packages += [Odcctools (settings).with (version='20060608',
@@ -230,6 +258,8 @@ def change_target_packages (packages):
             ## UGH: gettext fix for ptrdiff_t
             'CPPFLAGS' : '-DSTDC_HEADERS',
             })
+
+        ## todo: strip zlib from deps.
         
 def system (c):
     s = os.system (c)
