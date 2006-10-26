@@ -207,7 +207,9 @@ class CVSRepository(Repository):
             return cs
         else:
             return '0'
-
+    def get_file_content (self, filename):
+        return open (self._checkout_dir () + '/' + filename).read ()
+        
     def read_cvs_entries (self, dir):
         checksum = md5.md5()
 
@@ -297,7 +299,7 @@ class CVSRepository(Repository):
         entries = self.all_cvs_entries (self.repo_dir + '/' + branch)
         return [e[0] for e in entries]
     
-    
+
 class Subversion (Repository):
     def __init__ (self, dir, source, branch, module, revision):
         Repository.__init__ (self)
@@ -310,11 +312,11 @@ class Subversion (Repository):
             self.system ('mkdir -p %(dir)s' % self.__dict__)
         
     def update_workdir (self, destdir):
-        working = self._get_working_dir ()
+        working = self._checkout_dir ()
         self._copy_working_dir (working, destdir)
 
     def download (self):
-        working = self._get_working_dir ()
+        working = self._checkout_dir ()
         if not os.path.isdir (working + '/.svn'):
             self._checkout (self.source, self.branch, self.module,
                             self.revision)
@@ -322,14 +324,14 @@ class Subversion (Repository):
             self._update (working, self.revision)
 
     def _current_revision (self):
-        working = self._get_working_dir ()
+        working = self._checkout_dir ()
         revno = self.read_pipe ('cd %(working)s && svn info' % locals ())
         m = re.search  ('.*Revision: ([0-9]*).*', revno)
         assert m
         return m.group (1)
         
     def get_checksum (self):
-        working = self._get_working_dir ()
+        working = self._checkout_dir ()
         revno = self.read_pipe ('cd %(working)s && svn info' % locals ())
 
         ## fixme: we still get the rest of the lines.
@@ -346,11 +348,14 @@ class Subversion (Repository):
         self.system ('rsync -av --exclude .svn %(working)s/ %(copy)s'
                      % locals ())
         
-    def _get_working_dir (self):
+    def _checkout_dir (self):
         revision = self.revision
         dir = self.dir
         branch = self.branch
         return '%(dir)s/%(branch)s-%(revision)s' % locals ()
+
+    def get_file_content (self, filename)
+        return open (self._checkout_dir () + '/' + filename).read ()
 
     def _update (self, working, revision):
         '''SVN update'''
