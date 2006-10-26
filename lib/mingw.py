@@ -16,12 +16,11 @@ class Gcc (cross.Gcc):
 # UGH: MI
 class Mingw_runtime (gub.BinarySpec, gub.SdkBuildSpec):
     def untar (self):
-        gub.BinarySpec.untar (self)
-        self.system ('''cd %(srcdir)s/ &&  mv root usr''')
-        self.system ('mkdir  %(srcdir)s/root ')
-        self.system ('''cd %(srcdir)s/ &&  mv usr root''')
-        self.system ('mkdir -p %(srcdir)s/root/usr/share ')
-        self.system ('cd %(srcdir)s/root/usr && mv doc/ share/''')
+        tarball = self.vc_repository._filename() # ugh.
+        self.system ('''
+mkdir -p %(srcdir)s/usr/share
+tar -C %(srcdir)s/usr/ -xzf %(downloads)s/%(tarball)s
+mv %(srcdir)s/usr/doc %(srcdir)s/share''', locals ())
 
 class Cygcheck (gub.BinarySpec):
     "Only need the cygcheck.exe binary."
