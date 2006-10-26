@@ -34,7 +34,7 @@ class Repository:
         assert 0
 
 class DarcsRepository (Repository):
-    def __init__ (self, dir, source):
+    def __init__ (self, dir, source=''):
         Repository.__init__ (self)
         self.dir = dir + '.darcs'
         self.source = source
@@ -505,3 +505,24 @@ class Subversion (Repository):
         rev_opt = '-r %(revision)s ' % locals ()
         cmd = 'cd %(working)s && svn up %(rev_opt)s' % locals ()
         self.system (cmd)
+
+
+
+def get_repository_proxy (dir, branch):
+    m = re.search (r"(.*)\.(git|cvs|svn|darcs)", dir)
+    
+    dir = m.group (1)
+    type = m.group (2)
+
+    if type == 'cvs':
+        return CVSRepository (dir, branch=branch )
+    elif type == 'darcs':
+        return DarcsRepository (dir)
+    elif type == 'git':
+        return GitRepository (dir, branch=branch)
+    elif type == 'svn':
+        return SvnRepository (dir, branch=branch)
+    else:
+        raise UnknownVcSystem('repo format unknown: ' + dir)
+
+    return Repository('', '')
