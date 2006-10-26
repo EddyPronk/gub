@@ -116,7 +116,6 @@ class TarBall (Repository):
     
     def _is_downloaded (self):
         name = os.path.join (self.dir, self._filename  ())
-        print name
         return os.path.exists (name)
     
     def download (self):
