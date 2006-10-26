@@ -2,6 +2,7 @@ import os
 import re
 
 import download
+import gitrepo
 import misc
 import targetpackage
 
