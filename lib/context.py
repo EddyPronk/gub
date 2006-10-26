@@ -42,6 +42,12 @@ def recurse_substitutions (d):
 
     return d
 
+class ConstantCall:
+    def __init__ (self, const):
+        self.const = const
+    def __call__ (self):
+        return self.const
+    
 class Context:
     def __init__ (self, parent = None):
         self._substitution_dict = None
@@ -55,12 +61,26 @@ class Context:
             
         ms = inspect.getmembers (self)
         vars = dict((k, v) for (k, v) in ms if type (v) == type (''))
-        member_substs = dict((k, v ()) for (k, v) in ms if callable (v)
-                             and is_subst_method_in_class (k, self.__class__))
 
-        for n in member_substs.values ():
-            if type(n) != type (''):
-                print 'non string value ', n
+        member_substs = {}
+        for (name, method) in ms:
+            try:
+                ccall = self.__dict__[name]
+                if isinstance (ccall, ConstantCall):
+                    method = ccall
+            except KeyError:
+                pass
+            
+            if (callable (method)
+                and is_subst_method_in_class (name, self.__class__)):
+                
+                val = method ()
+                self.__dict__[name] = ConstantCall (val)
+
+                member_substs[name] = val
+
+                if type (val) != type (''):
+                    print 'non string value ', val, 'for subst_method', name
         
         d.update (vars)
         d.update (member_substs)
