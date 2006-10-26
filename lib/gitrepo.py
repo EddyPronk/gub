@@ -26,9 +26,12 @@ class Repository:
         return
 
     def is_tracking (self):
+        "download will fetch newer versions if available"
         return False
     
     def update_workdir (self, destdir):
+        "Populate (preferably update) DESTDIR with sources of specified version/branch"
+
         assert 0
     
 class GitRepository (Repository):
@@ -110,8 +113,7 @@ class GitRepository (Repository):
         str = self.git_pipe ('ls-tree --name-only -r %(branch)s' % locals ())
         return str.split ('\n')
 
-    def copy_to_working_dir (self, destdir):
-        "Populate (preferably update) DESTDIR with sources of specified version/branch"
+    def update_workdir (self, destdir):
 
         repo_dir = self.repo_dir
         branch = self.branch

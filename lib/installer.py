@@ -321,6 +321,8 @@ cp -pv %(installer_root)s/usr/share/doc/%(name)s/README.Cygwin %(cygwin_patches)
 
     def dump_hint (self, spec, split, base_name):
         # HUH?
+
+        ## move to cygwin.py with methodoverrider.
         spec.system ('''
 mkdir -p %(installer_root)s/etc/hints
 ''',
@@ -469,6 +471,7 @@ mkdir -p %(installer_root)s/usr/share/doc/%(name)s
 
 	import misc
         branch = self.settings.lilypond_branch
+
         # Urg: other packages than lilypond can have a -BRANCH naming
         if package_name == 'texlive':
             branch = 'HEAD'

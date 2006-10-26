@@ -485,7 +485,7 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"  -zcf %(gub_src_uploads)s
 
     def clean (self):
         self.system ('rm -rf  %(stamp_file)s %(install_root)s', locals ())
-        if self.vc_branch:
+        if self.vc_repository and self.vc_repository.is_tracking ():
             return
 
         self.system ('''rm -rf %(srcdir)s %(builddir)s''', locals ())
@@ -509,9 +509,7 @@ tar -C %(dir)s %(flags)s %(tarball)s
 
     def untar (self):
         if self.vc_repository:
-            self.vc_repository.checkout (self.expand ('%(srcdir)s'),
-                                         branch=self.vc_branch,
-                                         commit=self.vc_commit)
+            self.vc_repository.update_workdir (self.expand ('%(srcdir)s'))
             
         else:
             self.system ('''
