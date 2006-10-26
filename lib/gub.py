@@ -388,7 +388,7 @@ rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_roo
     # FIXME: should not misusde patch for auto stuff
     def patch (self):
         if not os.path.exists ('%(srcdir)s/configure' \
-                   % self.get_substitution_dict ()):
+                               % self.get_substitution_dict ()):
             self.autoupdate ()
 
     @subst_method

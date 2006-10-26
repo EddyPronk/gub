@@ -29,11 +29,12 @@ class Pango (targetpackage.TargetBuildSpec):
 
     def configure_command (self):
         return (targetpackage.TargetBuildSpec.configure_command (self)
-           + self.configure_flags ())
+                + self.configure_flags ())
 
     def configure (self):
         targetpackage.TargetBuildSpec.configure (self)                
         self.update_libtool ()
+
     def patch (self):
         targetpackage.TargetBuildSpec.patch (self)
         self.system ('cd %(srcdir)s && patch --force -p1 < %(patchdir)s/pango-substitute-env.patch')

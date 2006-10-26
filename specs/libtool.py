@@ -1,7 +1,7 @@
 import targetpackage
 from toolpackage import ToolBuildSpec
 import gub
-
+import download
 # FIXME, need for WITH settings when building dependency 'libtool'
 # This works without libtool.py:
 #    ./gub-builder.py -p mingw build http://ftp.gnu.org/pub/gnu/libtool/libtool-1.5.20.tar.gz
@@ -9,7 +9,7 @@ import gub
 class Libtool (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with (version='1.5.20')
+        self.with (version='1.5.20', mirror=download.gnu)
         self.so_version = '3'
 
     def get_subpackage_names (self):
@@ -80,7 +80,7 @@ dylibs.
     
     def __init__ (self, settings):
         ToolBuildSpec.__init__ (self, settings)
-        self.with (version='1.5.20')
+        self.with (version='1.5.20', mirror=download.gnu)
 
     def configure (self):
         gub.BuildSpec.configure (self)

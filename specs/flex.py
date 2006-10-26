@@ -15,4 +15,4 @@ class Flex (ToolBuildSpec):
     def __init__ (self, settings):
         ToolBuildSpec.__init__ (self, settings)
         self.with (version="2.5.4a",
-             mirror=download.nongnu, format='gz'),
+                   mirror=download.nongnu, format='gz'),

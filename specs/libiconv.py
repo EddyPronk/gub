@@ -3,7 +3,7 @@ import targetpackage
 class Libiconv (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with (version='1.11')
+        self.with (version='1.11', mirror=download.gnu)
     
     def broken_for_distcc (self):
         return True

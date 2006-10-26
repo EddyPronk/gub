@@ -8,7 +8,7 @@ from toolpackage import ToolBuildSpec
 
 class Guile (targetpackage.TargetBuildSpec):
     def set_mirror(self):
-        self.with (version='1.8.1', format='gz')
+        self.with (version='1.8.1', mirror=download.gnu, format='gz')
         self.so_version = '17'
 
     def license_file (self):
@@ -187,7 +187,7 @@ class Guile__freebsd (Guile):
         return Guile.config_cache_settings (self) + '\nac_cv_type_socklen_t=yes'
 
     def set_mirror(self):
-        self.with (version='1.8.0', format='gz')
+        self.with (version='1.8.0', mirror=download.gnu, format='gz')
         self.so_version = '17'
 
     def configure_command (self):
