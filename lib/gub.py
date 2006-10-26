@@ -95,7 +95,7 @@ class BuildSpec (Os_context_wrapper):
     # urg: naming conflicts with module.
     def do_download (self):
         if self.vc_repository:
-            self.vc_download ()
+            self.vc_repository.download ()
         else:
             self.wget ()
 
@@ -111,21 +111,6 @@ class BuildSpec (Os_context_wrapper):
         """Set to true if package can't handle make -jX """
         return False
     
-    def is_downloaded (self):
-        if not self.has_source:
-            return True
-        
-        name = self.expand ('%(downloads)s/%(file_name)s')
-        return os.path.exists (name)
-
-    def wget (self):
-        if not self.is_downloaded ():
-            misc.download_url (self.expand (self.url), self.expand ('%(downloads)s'))
-
-    def vc_download (self):
-        self.vc_repository.download ()
-        return
-
     @subst_method
     def name (self):
         file = self.__class__.__name__.lower ()
@@ -513,35 +498,16 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"  -zcf %(src_package_ball)
 
         self.system ('''rm -rf %(srcdir)s %(builddir)s''', locals ())
 
-    def _untar (self, dir):
-        tarball = self.expand("%(downloads)s/%(file_name)s")
-        if not os.path.exists (tarball):
-            raise 'no such file: ' + tarball
-        if self.format == 'deb':
-            self.system ('''
-mkdir -p %(srcdir)s
-ar p %(tarball)s data.tar.gz | tar -C %(dir)s -zxf-
-''',
-                  locals ())
-        else:
-            flags = download.untar_flags (tarball)
-            self.system ('''
-tar -C %(dir)s %(flags)s %(tarball)s
-''',
-                  locals ())
 
     def untar (self):
         if not self.has_source:
             return False
+        if not (self.vc_repository and self.vc_repository.is_tracking ()) :
+            self.system ('rm -rf %(srcdir)s %(builddir)s %(install_root)s')
+            
         if self.vc_repository:
             self.vc_repository.update_workdir (self.expand ('%(srcdir)s'))
             
-        else:
-            self.system ('''
-rm -rf %(srcdir)s %(builddir)s %(install_root)s
-''')
-            self._untar ('%(allsrcdir)s')
-
         if (os.path.isdir (self.expand ('%(srcdir)s'))):
             self.system ('cd %(srcdir)s && chmod -R +w .')
 
@@ -658,10 +624,10 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
         self.revision = revision
         self.url = mirror
 
-        if self.vc_repository:
-            self.vc_commit = self.ball_version
-        else:
-            self.vc_commit = misc.split_version (self.ball_version)[0]
+        ball_version = version
+
+        name = self.name ()
+        self.vc_repository = gitrepo.TarBall (self.settings.downloads, mirror % locals ())
         
         self.ball_version = version
 
