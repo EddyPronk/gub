@@ -225,7 +225,7 @@ native-distccd:
 		--port 3634 --pid-file $(CWD)/log/$@.pid \
 		--log-file $(CWD)/log/$@.log  --log-level info
 
-bootstrap: bootstrap-git download-local local cross-compilers download
+bootstrap: bootstrap-git download-local local cross-compilers local-cross-tools download 
 
 bootstrap-git:
 	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local download git
@@ -242,10 +242,11 @@ local:
 		flex mftrace potrace fontforge \
 		guile pkg-config expat icoutils \
 		distcc texinfo automake 
+
+local-cross-tools:
 ifneq ($(filter mingw, $(PLATFORMS)),)
 	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local build nsis 
 endif
-
 
 ################################################################
 # docs
