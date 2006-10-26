@@ -5,6 +5,7 @@ import md5
 import locker
 import time
 import urllib
+import download
 
 ## note: repository.py still being used by test-gub, so don't
 ## throw this overboard yet.
@@ -44,22 +45,44 @@ class TarBall (Repository):
         self.revision = None
         
     def is_tracking (self):
-        return false
+        return False
 
     def _filename (self):
-        return re.sub ('.*/([^/]+)$', self.url).group (1)
+        return re.search ('.*/([^/]+)$', self.url).group (1)
     
     def _is_downloaded (self):
         name = self.dir + '/' + self._filename  ()
         return os.path.exists (self)
     
     def download (self):
-        misc.download_url (self.url, self.dor)
+        misc.download_url (self.url, self.dir)
+
+    def get_checksum (self):
+        return self._filename ()
+    
+    def update_workdir_deb (self, destdir):
+        if os.path.isdir (destdir):
+            self.system ('rm -rf %s' % destdir)
+
+        self.system ('mkdir %s' % destdir)       
+        self.system ('ar p %(tarball)s data.tar.gz | tar -C %(destdir)s --strip-component 1 -zxf -' % locals ())
+        
+    def update_workdir_tarball (self, destdir):
+        
+        tarball = self.dir + '/' + self._filename ()
+        flags = download.untar_flags (tarball)
+
+        if os.path.isdir (destdir):
+            self.system ('rm -rf %s' % destdir)
+
+        self.system ('mkdir %s' % destdir)       
+        self.system ('tar -C %(destdir)s --strip-component 1  %(flags)s %(tarball)s' % locals ())
 
     def update_workdir (self, destdir):
-        flags = download.untar_flags (tarball)
-        tarball = self.dir + '/' + self._filename ()
-        self.system ('tar -C %(destdir)s %(flags)s %(tarball)s', locals ())
+        if '.deb' in self._filename () :
+            self.update_workdir_deb (destdir)
+        else:
+            self.update_workdir_tarball (destdir)
 
 class RepositoryException (Exception):
     pass
