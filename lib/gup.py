@@ -116,8 +116,8 @@ class FileManager:
                 files.append (f)
             elif (not os.path.exists (f)
                and not self.is_distro):
-                print 'xpm: uninstall: %s' % name
-                print 'xpm: no such file: %s' % f
+                print 'FileManager: uninstall: %s' % name
+                print 'FileManager: no such file: %s' % f
             elif os.path.isdir (f):
                 dirs.append (f)
             else:
@@ -251,6 +251,9 @@ class PackageManager (FileManager):
 
     def package_dict (self, package_name):
         return self._packages[package_name]
+
+    def get_all_packages (self):
+        return self._packages.values ()
     
 def is_string (x):
     return type (x) == type ('')
