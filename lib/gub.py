@@ -42,7 +42,7 @@ class PackageSpec:
 
         deps =  ';'.join (self._dependencies)
         self._dict['dependencies_string'] = deps
-
+        
     def expand (self, s):
         return s % self._dict
     
@@ -244,11 +244,11 @@ class BuildSpec (Os_context_wrapper):
 
 
     @subst_method
-    def gub_name_src (self):
-        return '%(name)s-%(version)s-src.%(platform)s.gub'
+    def src_package_ball (self):
+        return '%(src_package_uploads)s/%(name)s-%(version)s-src.%(platform)s.tar.gz'
 
     @subst_method
-    def gub_src_uploads (self):
+    def src_package_uploads (self):
         return '%(gub_uploads)s'
 
     @subst_method
@@ -439,11 +439,26 @@ rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_roo
     
     def get_subpackage_names (self):
         return ['devel', 'doc', '']
+
+    ## FIXME: patch in via MethodOverride
+    def description_dict (self):
+        return {}
+
+    ## FIXME: patch in via MethodOverride
+    def category_dict (self):
+        return {'': 'interpreters',
+                'runtime': 'libs',
+                'devel': 'devel libs',
+                'doc': 'doc'}
     
     def get_packages (self):
         defs = dict (self.get_subpackage_definitions ())
 
         ps = []
+
+        dep_dict = self.get_dependency_dict ()
+        descr_dict = self.description_dict  ()
+        category_dict = self.description_dict  ()
         
         for sub in self.get_subpackage_names ():
             filespecs = defs[sub]
@@ -454,21 +469,22 @@ rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_roo
 
             p._file_specs = filespecs
             p.set_dict (self.get_substitution_dict (), sub)
+
+            dep_str = ';'.join (dep_dict.get (sub, []))
+            if p._dict.has_key ('dependencies_string'):
+                dep_str =  p._dict['dependencies_string'] + ';' + dep_str
+
+
+            p._dict['dependencies_string'] = dep_str
+
+	    ## FIXME make generic: use cross.get_subpackage_dict_methods () or similar.
+            desc_str = descr_dict.get (sub, '')
+            p._dict['description'] = desc_str
+
+            cat_str = category_dict.get (sub, '')
+            p._dict['category'] = cat_str
+            
             ps.append (p)
-
-        d = self.get_dependency_dict ()
-        
-        for p in ps: 
-            name = p.expand ('%(sub_name)s')
-            if not d.has_key (name):
-                continue
-
-            assert type (d[name]) == type([])
-            deps = ';'.join (d[name])
-            if p._dict['dependencies_string']:
-                deps = ';' + deps
-                
-            p._dict['dependencies_string'] += deps
 
         return ps
     
@@ -479,7 +495,7 @@ rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_roo
         dir_name = re.sub (self.expand ('%(allsrcdir)s/'), '',
                  self.expand ('%(srcdir)s'))
         self.system ('''
-tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"  -zcf %(gub_src_uploads)s/%(gub_name_src)s %(dir_name)s
+tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"  -zcf %(src_package_ball)s %(dir_name)s
 ''',
                      locals ())
 
@@ -735,6 +751,7 @@ class Change_target_dict:
         return d
 
     def append_dict (self, env= {}):
+
         d = self._target_dict_method ()
         for (k,v) in self._add_dict.items ():
             d[k] += v
