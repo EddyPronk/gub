@@ -33,7 +33,7 @@ class W32api_in_usr_lib (gub.BinarySpec, gub.SdkBuildSpec):
     def untar (self):
         self.system ('mkdir -p %(srcdir)s/root/usr/lib')
         self.system ('''
-tar -C %(system_root)s/usr/lib/w32api -cf- . | tar -C %(srcdir)s/root/usr/lib -xf-
+tar -C %(system_root)s/usr/lib/w32api -cf- . | tar -C %(srcdir)s/usr/lib -xf-
 ''')
 
 class Libtool_fixup (gub.NullBuildSpec):

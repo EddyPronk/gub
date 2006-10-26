@@ -30,7 +30,7 @@ class Freebsd_runtime (gub.BinarySpec, gub.SdkBuildSpec):
         gub.BinarySpec.untar (self)
         self.lib_rewire ()
     def patch (self):
-        self.system ('rm -rf %(srcdir)s/root/usr/include/g++')
+        self.system ('rm -rf %(srcdir)s/usr/include/g++')
 
 def _get_cross_packages (settings, libc_version):
     return (

@@ -96,8 +96,6 @@ class BuildSpec (Os_context_wrapper):
     def do_download (self):
         if self.vc_repository:
             self.vc_repository.download ()
-        else:
-            self.wget ()
 
     def get_repodir (self):
         return self.settings.downloads + '/' + self.name ()
