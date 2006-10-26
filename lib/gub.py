@@ -508,6 +508,8 @@ tar -C %(dir)s %(flags)s %(tarball)s
                   locals ())
 
     def untar (self):
+        if not self.has_source:
+            return False
         if self.vc_repository:
             self.vc_repository.update_workdir (self.expand ('%(srcdir)s'))
             
