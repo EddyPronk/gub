@@ -57,43 +57,24 @@ class Cygwin_package (context.Os_context_wrapper):
     def name (self):
         return self._name
     
+    @context.subst_method
+    def version (self):
+        return self.settings.version
+
+    @context.subst_method
+    def build (self):
+        return self.settings.build
+
     def cygwin_patches_dir (self, spec):
-        cygwin_patches = '%(srcdir)s/CYGWIN-PATCHES'
-        # FIXME: how does this work?  Why do I sometimes need an
-        # explicit expand?
-        cygwin_patches = spec.expand (cygwin_patches)
-        spec.system ('''
+        cygwin_patches = spec.expand ('%(srcdir)s/CYGWIN-PATCHES')
+        self.system ('''
 mkdir -p %(cygwin_patches)s
 cp -pv %(installer_root)s/etc/hints/* %(cygwin_patches)s
 cp -pv %(installer_root)s/usr/share/doc/%(name)s/README.Cygwin %(cygwin_patches)s || true
-    ''',
-                     self.get_substitution_dict (locals ()))
+    ''', locals ())
 
     def dump_hint (self, spec, split, base_name):
-        # HUH?
-        spec.system ('''
-mkdir -p %(installer_root)s/etc/hints
-''',
-                     self.get_substitution_dict ())
-
-        ### FIXME: this would require guile.py: def build_number ()
-        ### like lilypond.py has
-        ### Just use the overridden --buildnumber-file option.
-        ###installer_build = spec.build_number ()
-        build_number = self.expand ('%(build_number)s')
-
-        # FIXME: lilypond is built from CVS, in which case version is lost
-        # and overwritten by the CVS branch name.  Therefore, using
-        # %(version)s in lilypond's hint file will not work.  Luckily, for
-        # the lilypond package %(installer_version)s, is what we need.
-        # Note that this breaks when building guile from cvs, eg.
-
-        installer_version = spec.build_version ()
-
-        # FIXME, this is the accidental build number of LILYPOND, which is
-        # wrong to use for guile and other packages, but uh, individual
-        # packages do not have a build number anymore...
-        build = build_number
+        self.system ('mkdir -p %(installer_root)s/etc/hints')
 
         depends = spec.get_dependency_dict ()[split]
         distro_depends = []
@@ -107,15 +88,17 @@ mkdir -p %(installer_root)s/etc/hints
         requires = ' '.join (sort (distro_depends))
         print 'requires:' + requires
         external_source_line = ''
-        file = (spec.settings.sourcefiledir + '/' + base_name + '.hint')
+        file = self.expand ('%(sourcefiledir)s/%(base_name)s.hint',
+                            locals ())
+#        file = spec.settings.sourcefiledir + '/' + base_name + '.hint')
         if split:
-            external_source_line = spec.expand ('''
-external-source: %(name)s''', locals ())
+            external_source_line = self.expand ('''
+external-source: %(name)s''')
         try:
             ldesc = spec.description_dict ()[split]
             sdesc = ldesc[:ldesc.find ('\n')]
         except:
-            sdesc = spec.expand ('%(name)s')
+            sdesc = self.expand ('%(name)s')
             flavor = 'executables'
             if split:
                 sdesc += ' ' + split
@@ -132,78 +115,51 @@ external-source: %(name)s''', locals ())
                 caterory = split
         requires_line = ''
         if requires:
-            requires_line = spec.expand ('''
-requires: %(requires)s''',
-                                         locals ())
-        hint = spec.expand ('''sdesc: "%(sdesc)s"
+            requires_line = self.expand ('''
+requires: %(requires)s''', locals ())
+        hint = self.expand ('''sdesc: "%(sdesc)s"
 ldesc: "%(ldesc)s"
 category: %(category)s%(requires_line)s%(external_source_line)s
-''',
-                                locals ())
+''', locals ())
         print 'dumping hint for: ' + split
-        spec.dump (hint,
+        self.dump (hint,
                    '%(installer_root)s/etc/hints/%(base_name)s.hint',
-                   env=self.get_substitution_dict (locals ()))
+                   env=locals ())
 
     def dump_readmes (self, spec):
-        file = spec.expand (spec.settings.sourcefiledir
-                            + '/%(name)s.changelog')
+        file = self.expand ('%(sourcefiledir)s/%(name)s.changelog')
         if os.path.exists (file):
             changelog = open (file).read ()
         else:
             changelog = 'ChangeLog not recorded.'
 
-        spec.system ('''
+        self.system ('''
 mkdir -p %(installer_root)s/usr/share/doc/Cygwin
 mkdir -p %(installer_root)s/usr/share/doc/%(name)s
-''',
-                     self.get_substitution_dict (locals ()))
-
-        ### FIXME: this would require guile.py: def build_number ()
-        ### like lilypond.py has
-        ### Just use the overridden --buildnumber-file option.
-        ###build_number = spec.build_number ()
-        build_number = self.expand ('%(build_number)s')
-
-        # FIXME: lilypond is built from CVS, in which case version is lost
-        # and overwritten by the CVS branch name.  Therefore, using
-        # %(version)s in lilypond's hint file will not work.  Luckily, for
-        # the lilypond package %(installer_version)s, is what we need.
-        # Note that this breaks when building guile from cvs, eg.
-
-        installer_version = spec.build_version ()
-
-        # FIXME, this is the accidental build number of LILYPOND, which is
-        # wrong to use for guile and other packages, but uh, individual
-        # packages do not have a build number anymore...
-        build = build_number
-
-        file = spec.expand (spec.settings.sourcefiledir
-                            + '/%(name)s.README', locals ())
+''')
+        file = self.expand ('%(sourcefiledir)s/%(name)s.README')
         if os.path.exists (file):
-            readme = spec.expand (open (file).read (), locals ())
+            readme = open (file).read ()
         else:
-            readme = spec.expand ('README for Cygwin %(name)s-%(installer_version)s-%(build_number)s', locals ())
+            readme = 'README for Cygwin %(name)s-%(version)s-%(build)s'
+        readme = spec.expand (readme, locals ()) # so_version
 
-        spec.dump (readme,
-                   '%(installer_root)s/usr/share/doc/Cygwin/%(name)s-%(installer_version)s-%(build_number)s.README',
-                   env=self.get_substitution_dict (locals ()))
-        spec.dump (readme,
-                   '%(installer_root)s/usr/share/doc/%(name)s/README.Cygwin',
-                   env=self.get_substitution_dict (locals ()))
+        self.dump (readme,
+                   '%(installer_root)s/usr/share/doc/Cygwin/%(name)s-%(version)s-%(build)s.README')
+        self.dump (readme,
+                   '%(installer_root)s/usr/share/doc/%(name)s/README.Cygwin')
 
-    # FIXME: 'build-installer' is NOT create.  package-installer is create.
-    # for Cygwin, build-installer is FOO (installs all dependencies),
-    # and strip-installer comes too early.
     def create (self):
         p = targetpackage.load_target_package (self.settings, self._name)
         for i in [''] + p.get_subpackage_names ():
             self.cygwin_ball (p, i)
         self.cygwin_src_ball (p)
+
         # FIXME: we used to have python code to generate a setup.ini
         # snippet from a package, in some package-manager class used
         # by gub and cyg-apt packaging...
         self.system ('''cd %(uploads)s/cygwin && %(downloads)s/genini $(find release -mindepth 1 -maxdepth 2 -type d) > setup.ini''')
+
 
     def get_dict (self, package, split):
         cygwin_uploads = '%(gub_uploads)s/release'
@@ -224,7 +180,7 @@ mkdir -p %(installer_root)s/usr/share/doc/%(name)s
         if package_name == 'texlive':
             branch = 'HEAD'
         fixed_version_name = self.expand (re.sub ('-' + branch,
-                                                  '-%(installer_version)s',
+                                                  '-%(version)s',
                                                   gub_name))
         t = misc.split_ball (fixed_version_name)
         print 'split: ' + `t`
@@ -235,7 +191,7 @@ mkdir -p %(installer_root)s/usr/share/doc/%(name)s
         # strip last two dummy version entries: cygwin, 0
         # gub packages do not have a build number
         dir_name = base_name + '-' + '.'.join (map (misc.itoa, t[1][:-2]))
-        cyg_name = dir_name + '-%(build_number)s'
+        cyg_name = dir_name + '-%(build)s'
         # FIXME: not in case of -branch name
         dir_name = re.sub ('.cygwin.gu[pb]', '', gub_name)
         hint = base_name + '.hint'
@@ -337,7 +293,7 @@ def parse_command_line ():
     p = optparse.OptionParser ()
     p.usage = 'cygwin-packager.py [OPTION]... PACKAGE'
     p.add_option ('-b', '--build-number',
-                  action='store', default='1', dest='build_number')
+                  action='store', default='1', dest='build')
     p.add_option ('-v', '--version',
                   action='store', default='0.0.0', dest='version')
     (options, args) = p.parse_args ()
@@ -350,7 +306,7 @@ def main ():
     (options, commands)  = parse_command_line ()
     platform = 'cygwin'
     settings = settings_mod.get_settings (platform)
-    settings.build_number = options.build_number
+    settings.build = options.build
     settings.version = options.version
 
     # Barf
