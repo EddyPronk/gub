@@ -61,9 +61,10 @@ def change_target_package (package):
                         })
 
         gub.append_target_dict (package,
-                        { 'LDFLAGS': ' -Wl,--as-needed ' })
+                                { 'LDFLAGS': ' -Wl,--as-needed ' })
 
-    cross.set_framework_ldpath (package)
+    if isinstance (package, targetpackage.TargetBuildSpec):
+       cross.set_framework_ldpath (package)
     return package
 
 def get_cross_packages (settings):
