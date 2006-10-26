@@ -62,3 +62,18 @@ class Glib__freebsd (Glib):
     
     def configure_command (self):
         return Glib.configure_command (self) + ' --disable-threads'
+        
+class Glib__local (toolpackage.ToolBuildSpec):
+    def __init__ (self, settings):
+        toolpackage.ToolBuildSpec.__init__ (self, settings)
+        self.with (version='2.10.3',
+                   mirror=download.gnome_214,
+                   format='bz2')
+
+    def install (self):
+        toolpackage.ToolBuildSpec.install(self)
+        self.system ('rm %(install_root)s/%(packaging_suffix_dir)s/usr/lib/charset.alias',
+                         ignore_error=True)
+
+    def get_build_dependencies (self):
+        return ['gettext-devel', 'libtool']            
