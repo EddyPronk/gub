@@ -2,6 +2,7 @@ import os
 import re
 #
 import cvs
+import gitrepo
 import gub
 import misc
 import targetpackage
@@ -43,11 +44,9 @@ beautiful sheet music from a high-level description file.'''
 
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with (branch=settings.lilypond_branch,
-                   mirror='git:http://lilypond.org/~hanwen/lilypond.git/'
-##                   mirror=cvs.gnu
-
-                   )
+        self.with_vc (gitrepo.GitRepository (settings.downloaddir + '/lilypond.git',
+                                             branch=settings.lilypond_branch,
+                                             source='http://lilypond.org/~hanwen/lilypond.git/')
 
         # FIXME: should add to C_INCLUDE_PATH
         builddir = self.builddir ()
