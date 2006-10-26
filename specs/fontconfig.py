@@ -3,6 +3,7 @@ import gub
 import misc
 import targetpackage
 import toolpackage
+import gitrepo
 
 class Fontconfig (targetpackage.TargetBuildSpec):
     '''Generic font configuration library 
@@ -13,8 +14,9 @@ specified by applications.'''
 
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with (mirror="git://anongit.freedesktop.org/git/fontconfig",
-                   version="0596d7296c94b2bb9817338b8c1a76da91673fb9")
+        self.with_vc (gitrepo.GitRepository (self.get_repodir () + ".git",
+                                             source="git://anongit.freedesktop.org/git/fontconfig",
+                                             revision="0596d7296c94b2bb9817338b8c1a76da91673fb9"))
         
     def get_build_dependencies (self):
         return ['libtool', 'expat-devel', 'freetype-devel']
@@ -131,6 +133,7 @@ class Fontconfig__cygwin (Fontconfig):
 
     def get_subpackage_definitions (self):
         d = dict (Fontconfig.get_subpackage_definitions (self))
+
         # FIXME: we do this for all cygwin packages
         d['runtime'].append ('/usr/bin/cyg*dll')
         return d
