@@ -32,6 +32,35 @@ class Repository:
 
         assert 0
 
+class TarBall (Repository):
+    def __init__ (self, dir, url):
+        Repository.__init__ (self)
+        if not os.path.isdir (dir):
+            self.system ('mkdir -p %s' % dir)
+
+        self.dir = dir
+        self.url = url
+        self.branch = None
+        self.revision = None
+        
+    def is_tracking (self):
+        return false
+
+    def _filename (self):
+        return re.sub ('.*/([^/]+)$', self.url).group (1)
+    
+    def _is_downloaded (self):
+        name = self.dir + '/' + self._filename  ()
+        return os.path.exists (self)
+    
+    def download (self):
+        misc.download_url (self.url, self.dor)
+
+    def update_workdir (self, destdir):
+        flags = download.untar_flags (tarball)
+        tarball = self.dir + '/' + self._filename ()
+        self.system ('tar -C %(destdir)s %(flags)s %(tarball)s', locals ())
+
 class RepositoryException (Exception):
     pass
 
