@@ -20,10 +20,8 @@ class Repository:
     def get_checksum (self):
         assert 0
 
-    def get_file_content (self):
-        ## TODO
-        
-        return
+    def get_file_content (self, filename):
+        return ''
 
     def is_tracking (self):
         "download will fetch newer versions if available"
@@ -33,7 +31,10 @@ class Repository:
         "Populate (preferably update) DESTDIR with sources of specified version/branch"
 
         assert 0
-    
+
+class RepositoryException (Exception):
+    pass
+
 class GitRepository (Repository):
     def __init__ (self, git_dir, source='', branch='', revision=''):
         Repository.__init__ (self)
@@ -50,22 +51,58 @@ class GitRepository (Repository):
     
     def __repr__ (self):
         return '#<GitRepository %s>' % self.repo_dir
-    
+
+    def get_file_content (self, filename):
+        committish = self.git_pipe ('log %(branch)s --max-count=1 --pretty=oneline'
+                                    % self.__dict__).split (' ')[0]
+        m = re.search ('^tree ([0-9a-f]+)',
+                       self.git_pipe ('cat-file commit %(committish)s'  % locals ()))
+
+        treeish = m.group (1)
+        for f in self.git_pipe ('ls-tree -r %(treeish)s' %
+                                locals ()).split ('\n'):
+            (info, name) = f.split ('\t')
+            (mode, type, fileish) = info.split (' ')
+
+            if name == filename:
+                return self.git_pipe ('cat-file blob %(fileish)s ' % locals ())
+
+        raise RepositoryException ('file not found')
+        
     def get_branches (self):
         branch_lines = self.read_pipe (self.git_command () + ' branch -l ').split ('\n')
 
         branches =  [b[2:] for b in branch_lines]
         return [b for b in branches if b]
-        
-    def git (self, cmd, dir='', ignore_error=False):
-        cmd = 'GIT_OBJECT_DIRECTORY=%s/objects git %s' %(self.repo_dir, cmd)
+
+    def git_command (self, object_dir, dir, repo_dir):
+        if repo_dir:
+            repo_dir = '--git-dir %s' % repo_dir
+        c = 'GIT_OBJECT_DIRECTORY=%(object_dir)s git %(repo_dir)s' % locals ()
         if dir:
-            cmd = 'cd %s && %s' % (dir, cmd)
+            c = 'cd %s && %s' % (dir, c)
+
+        return c
+        
+    def git (self, cmd, dir='', ignore_error=False,
+             repo_dir=''):
+
+        if repo_dir == '' and dir == '':
+            repo_dir = self.repo_dir
+        
+        gc = self.git_command (self.repo_dir + '/objects', dir, repo_dir)
+        cmd = '%(gc)s %(cmd)s' % locals ()
             
         self.system (cmd, ignore_error=ignore_error)
 
-    def git_pipe (self, cmd, ignore_error=False):
-        return self.read_pipe ('GIT_OBJECT_DIRECTORY=%s/objects git %s' %(self.repo_dir, cmd))
+    def git_pipe (self, cmd, ignore_error=False,
+                  dir='', repo_dir=''):
+
+        if repo_dir == '' and dir == '':
+            repo_dir = self.repo_dir
+            
+        gc = self.git_command (self.repo_dir + '/objects', dir, repo_dir)
+        return self.read_pipe ('%(gc)s %(cmd)s' % locals ())
         
     def download (self):
         "Fetch updates from internet"
