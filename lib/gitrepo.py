@@ -281,11 +281,21 @@ class Subversion (Repository):
         if not os.path.isdir (working + '/.svn'):
             self._checkout (self.source, self.branch, self.module,
                             self.revision)
-        self._update (working, self.revision)
+        if self._current_revision () != self.revision:
+            self._update (working, self.revision)
 
+    def _current_revision (self):
+        working = self._get_working_dir ()
+        revno = self.read_pipe ('cd %(working)s && svn info' % locals ())
+        m = re.search  ('.*Revision: ([0-9]*).*', revno)
+        assert m
+        return m.group (1)
+        
     def get_checksum (self):
         working = self._get_working_dir ()
         revno = self.read_pipe ('cd %(working)s && svn info' % locals ())
+
+        ## fixme: we still get the rest of the lines.
         return re.sub ('.*Revision: ([0-9]*).*', '\\1', revno)
 
     def _checkout (self, source, branch, module, revision):
