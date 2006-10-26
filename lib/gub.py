@@ -123,9 +123,7 @@ class BuildSpec (Os_context_wrapper):
             misc.download_url (self.expand (self.url), self.expand ('%(downloads)s'))
 
     def vc_download (self):
-        self.vc_repository.update (self.url,
-                                   branch=self.vc_branch,
-                                   commit=self.ball_version)
+        self.vc_repository.download ()
         return
 
     @subst_method
@@ -640,33 +638,7 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
         self.format = format
         self.ball_version = version
         self.revision = revision
-
-        if mirror.startswith ('git:'):
-            self.url = mirror
-            if 'http:' in mirror:
-                self.url = mirror[len ('git:'):]
-
-            dir = self.settings.downloads + '/' + self.name () + '.git'
-            self.vc_repository = gitrepo.GitRepository (dir)
-            self.vc_version = version
-
-            ## can't set vc_repository.system to self.system
-            ## otherwise, we get into a loop [system -> expand -> checksum -> system]
-        elif mirror.startswith (':pserver:'):
-            name = self.name ()
-            self.url = mirror % locals ()
-            dir = '%s/%s.cvs' % (self.settings.downloads, self.name ())
-            self.vc_repository = gitrepo.CVSRepository (dir, self.name ())
-            self.vc_version = version
-        elif mirror.startswith ('svn:'):
-            self.url = mirror
-            if 'http:' in mirror:
-                self.url = mirror[len ('svn:'):]
-            dir = '%s/%s.svn' % (self.settings.downloads, self.name ())
-            self.vc_repository = gitrepo.SVNRepository (dir, branch, module, revision)
-            self.vc_version = version
-        else:
-            self.url = mirror
+        self.url = mirror
 
         if self.vc_repository:
             self.vc_commit = self.ball_version
@@ -674,7 +646,6 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
             self.vc_commit = misc.split_version (self.ball_version)[0]
         
         ball_version = version
-        
 
         ## don't do substitution. We want to postpone
         ## generating the dict until we're sure it doesn't change.

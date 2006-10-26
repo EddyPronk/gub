@@ -61,12 +61,13 @@ class GitRepository (Repository):
         
         repo = self.repo_dir
         source = self.source
+        revision = self.revision
         
         if not os.path.isdir (self.repo_dir):
             self.git ('--git-dir %(repo)s clone --bare -n %(source)s %(repo)s' % locals ())
             return
 
-        if self.revision:
+        if revision:
             contents = self.git_pipe ('--git-dir %(repo)s ls-tree %(revision)s' % locals (),
                                       ignore_error=True)
 
