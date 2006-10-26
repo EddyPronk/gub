@@ -77,7 +77,7 @@ def _get_cross_packages (settings,
         Linux_kernel_headers (settings).with (version=kernel_version,
                                               mirror=download.lkh_deb,
                                               format='deb'),
-        cross.Binutils (settings).with (version='2.16.1', format='bz2'),
+        cross.Binutils (settings).with (version='2.16.1', format='bz2', mirror=download.gnu),
         Gcc (settings).with (version='4.1.1',
                              mirror=download.gcc, format='bz2'),
         ] + configs
