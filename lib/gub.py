@@ -138,10 +138,11 @@ class BuildSpec (Os_context_wrapper):
 
     @subst_method
     def file_name (self):
-        file = re.sub ('.*/([^/]+)', '\\1', self.url)
+        if self.url:
+            file = re.sub ('.*/([^/]+)', '\\1', self.url)
+        else:
+            file = self.name ()
         return file
-
-    
 
     @subst_method
     def source_checksum (self):
@@ -200,7 +201,8 @@ class BuildSpec (Os_context_wrapper):
         if self.vc_branch_suffix ():
             return '%(allsrcdir)s/%(name)s-%(vc_branch_suffix)s'
         else:
-            return self.settings.allsrcdir + '/' + self.basename ()
+            return '%(allsrcdir)s/%(basename)s'
+        
 
     @subst_method
     def builddir (self):
