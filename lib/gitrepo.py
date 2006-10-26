@@ -331,11 +331,7 @@ class Subversion (Repository):
         return m.group (1)
         
     def get_checksum (self):
-        working = self._checkout_dir ()
-        revno = self.read_pipe ('cd %(working)s && svn info' % locals ())
-
-        ## fixme: we still get the rest of the lines.
-        return re.sub ('.*Revision: ([0-9]*).*', '\\1', revno)
+        return self._current_revision ()
 
     def _checkout (self, source, branch, module, revision):
         '''SVN checkout'''
@@ -354,7 +350,7 @@ class Subversion (Repository):
         branch = self.branch
         return '%(dir)s/%(branch)s-%(revision)s' % locals ()
 
-    def get_file_content (self, filename)
+    def get_file_content (self, filename):
         return open (self._checkout_dir () + '/' + filename).read ()
 
     def _update (self, working, revision):
