@@ -25,6 +25,9 @@ beautiful sheet music from a high-level description file.'''
             'ghostscript'
             ]}
 
+    def version (self):
+        return '0.0.0'
+    
     def get_subpackage_names (self):
         return ['']
     
@@ -44,9 +47,11 @@ beautiful sheet music from a high-level description file.'''
 
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with_vc (gitrepo.GitRepository (settings.downloaddir + '/lilypond.git',
-                                             branch=settings.lilypond_branch,
-                                             source='http://lilypond.org/~hanwen/lilypond.git/')
+
+        repo = gitrepo.GitRepository (self.get_repodir() + '.git',
+                                      branch=settings.lilypond_branch,
+                                      source='http://lilypond.org/~hanwen/lilypond.git/')
+        self.with_vc (repo)
 
         # FIXME: should add to C_INCLUDE_PATH
         builddir = self.builddir ()
