@@ -264,7 +264,7 @@ def main ():
             package = spec_object_dict[name]
             deps = package.get_build_dependencies ()
             if not settings.is_distro:
-                deps = [gub.get_base_package_name (d) for d in deps]
+                deps = [gup.get_base_package_name (d) for d in deps]
             return deps
 
         deps = gup.topologically_sorted (files, {}, get_all_deps, None)

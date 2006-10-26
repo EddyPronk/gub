@@ -332,6 +332,14 @@ def gub_to_distro_deps (deps, gub_to_distro_dict):
             distro += [i]
     return distro
 
+def get_base_package_name (name):
+    name = re.sub ('-devel$', '', name)
+
+    # breaks mingw dep resolution, mingw-runtime
+    ##name = re.sub ('-runtime$', '', name)
+    name = re.sub ('-doc$', '', name)
+    return name
+
 def get_source_packages (settings, todo):
     """TODO is a list of (source) buildspecs.
 
@@ -345,14 +353,14 @@ topological order
     todo += spec_dict.keys ()
 
     def name_to_dependencies_via_gub (name):
-        name = gub.get_base_package_name (name)
+        name = get_base_package_name (name)
         if spec_dict.has_key (name):
             spec = spec_dict[name]
         else:
             spec = targetpackage.load_target_package (settings, name)
             spec_dict[name] = spec
 
-        return map (gub.get_base_package_name, spec.get_build_dependencies ())
+        return map (get_base_package_name, spec.get_build_dependencies ())
 
     def name_to_dependencies_via_distro (distro_packages, name):
         if spec_dict.has_key (name):
@@ -388,7 +396,7 @@ topological order
             return [spec_dict[n] for n in obj.get_build_dependencies ()]
     else:
         def obj_to_dependency_objects (obj):
-            return [spec_dict[gub.get_base_package_name (n)]
+            return [spec_dict[get_base_package_name (n)]
                     for n in obj.get_build_dependencies ()]
 
     spec_objs = topologically_sorted (spec_dict.values (), {},

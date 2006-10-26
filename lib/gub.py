@@ -626,7 +626,6 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
         name = self.name ()
         package_arch = self.settings.package_arch
         self.vc_repository = repository.TarBall (self.settings.downloads, mirror % locals ())
-        
         self.ball_version = version
 
         ## don't do substitution. We want to postpone
@@ -736,11 +735,3 @@ def append_target_dict (package, add_dict):
         package.get_substitution_dict = Change_target_dict (package, add_dict).append_dict
     except AttributeError:
         pass
-
-def get_base_package_name (name):
-    name = re.sub ('-devel$', '', name)
-
-    # breaks mingw dep resolution, mingw-runtime
-    ##name = re.sub ('-runtime$', '', name)
-    name = re.sub ('-doc$', '', name)
-    return name
