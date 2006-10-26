@@ -310,7 +310,11 @@ class Subversion (Repository):
         self.revision = revision
         if not os.path.isdir (self.dir):
             self.system ('mkdir -p %(dir)s' % self.__dict__)
-        
+
+    def is_tracking (self):
+        ## fixme, probably wrong.
+        return self.revision == 'HEAD'
+
     def update_workdir (self, destdir):
         working = self._checkout_dir ()
         self._copy_working_dir (working, destdir)
