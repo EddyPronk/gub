@@ -46,7 +46,7 @@ class Libtool__cygwin (Libtool):
         # FIXME: build lib package naming: lib<NAME><MAJOR-SO-VERSION> into gub
 
     def only_for_cygwin_untar (self):
-        self.untar_cygwin_src_package_variant2 (self.file_name ())
+        cygwin.untar_cygwin_src_package_variant2 (self, self.file_name ())
 
     def get_dependency_dict (self):
         d = Libtool.get_dependency_dict (self)
