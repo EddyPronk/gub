@@ -1,8 +1,6 @@
 
 lagere prioriteit
 
-- use repo.py for gub.py vc checkout
-
 - move patches upstream, eg.
 
   * libpng
