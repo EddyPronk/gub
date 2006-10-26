@@ -86,12 +86,9 @@ def get_cross_packages (settings):
 # names of tools hardcoded and wrong (LD, NM, SED, GCC, GREP, ...)
 #        Libtool_fixup (settings).with (version='1.0'),
         ]
-
     return cross_packs
 
-
-def add_cyg_dll (build_spec, get_subpackage_definitions, extra_arg):
-    d = get_subpackage_definitions ()
+def add_cyg_dll (d):
     k = ''
     if d.has_key (k):
         k = 'runtime'
@@ -109,7 +106,7 @@ def change_target_package (package):
                                     (['cygwin'],))
 
     package.get_subpackage_definitions = misc.MethodOverrider (
-            package.get_subpackage_definitions, add_cyg_dll)
+        package.get_subpackage_definitions, add_cyg_dll)
 
     ## TODO : get_dependency_dict
         
