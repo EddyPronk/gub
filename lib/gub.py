@@ -462,8 +462,8 @@ rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_roo
         ps = []
 
         dep_dict = self.get_dependency_dict ()
-        descr_dict = self.description_dict  ()
-        category_dict = self.description_dict  ()
+        descr_dict = self.description_dict ()
+        category_dict = self.category_dict ()
         
         for sub in self.get_subpackage_names ():
             filespecs = defs[sub]
