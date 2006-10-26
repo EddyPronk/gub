@@ -109,7 +109,7 @@ def change_target_package (package):
                                     (['cygwin'],))
 
     package.get_subpackage_definitions = misc.MethodOverrider (
-            package.get_subpackage_definitions, add_cyg_dll).method
+            package.get_subpackage_definitions, add_cyg_dll)
 
     ## TODO : get_dependency_dict
         
