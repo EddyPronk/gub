@@ -641,7 +641,7 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
         else:
             self.vc_commit = misc.split_version (self.ball_version)[0]
         
-        ball_version = version
+        self.ball_version = version
 
         ## don't do substitution. We want to postpone
         ## generating the dict until we're sure it doesn't change.
