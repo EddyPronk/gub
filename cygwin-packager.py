@@ -54,10 +54,6 @@ class Cygwin_package (context.Os_context_wrapper):
         return self._name
     
     @context.subst_method
-    def version (self):
-        return self.settings.version
-
-    @context.subst_method
     def build (self):
         return self.settings.build
 
@@ -68,6 +64,18 @@ mkdir -p %(cygwin_patches)s
 cp -pv %(installer_root)s/etc/hints/* %(cygwin_patches)s
 cp -pv %(installer_root)s/usr/share/doc/%(name)s/README.Cygwin %(cygwin_patches)s || true
     ''', locals ())
+
+    def description (self, hdr):
+        desc = hdr['description']
+        short = ''
+        if not desc:
+            ## do something
+            #short = ldesc[:ldesc.find ('\n')]
+            pass
+        else:
+            short = desc.split ('\n')[0]
+
+        return (short, desc)
 
     def dump_hint (self, split, base_name):
         self.system ('mkdir -p %(installer_root)s/etc/hints')
@@ -81,7 +89,7 @@ cp -pv %(installer_root)s/usr/share/doc/%(name)s/README.Cygwin %(cygwin_patches)
             else:
                 distro_depends += [dep]
 
-        requires = ' '.join (sort (distro_depends))
+        requires = ' '.join (sorted (distro_depends))
         print 'requires:' + requires
         external_source_line = ''
         file = self.expand ('%(sourcefiledir)s/%(base_name)s.hint',
@@ -147,8 +155,10 @@ mkdir -p %(installer_root)s/usr/share/doc/%(name)s
 
 
     def create (self):
-        for i in [''] + self.package.get_subpackage_names ():
-            self.cygwin_ball (i)
+        packs =  self.package_manager.get_all_packages ()
+        for package in packs:
+            self.cygwin_new_ball (package)
+
         self.cygwin_src_ball ()
 
         # FIXME: we used to have python code to generate a setup.ini
@@ -156,49 +166,6 @@ mkdir -p %(installer_root)s/usr/share/doc/%(name)s
         # by gub and cyg-apt packaging...
         self.system ('''cd %(uploads)s/cygwin && %(downloads)s/genini $(find release -mindepth 1 -maxdepth 2 -type d) > setup.ini''')
 
-
-    def get_dict (self, split):
-        cygwin_uploads = '%(gub_uploads)s/release'
-        package_name = self._name
-        if not split:
-            gub_ball = self.package_manager.package_dict (package_name) ['split_ball']
-        else:
-            cygwin_uploads += '/' + self.name ()
-            import inspect
-            gub_ball = self.package_manager.package_dict (package_name + '-' + split) ['split_ball']
-
-        import re
-        gub_name = re.sub ('.*/', '', gub_ball)
-
-#	import misc
-#        branch = 'HEAD'
-#        # Urg: other packages than lilypond can have a -BRANCH naming
-#        if package_name == 'texlive':
-#            branch = 'HEAD'
-#        fixed_version_name = self.expand (re.sub ('-' + branch,
-#                                                  '-%(version)s',
-#                                                  gub_name))
-#       t = misc.split_ball (fixed_version_name)
-#        print 'split: ' + `t`
-#        base_name = t[0]
-        base_name = self.package.basename ()
-        import cygwin
-        if cygwin.gub_to_distro_dict.has_key (base_name):
-            base_name = cygwin.gub_to_distro_dict[base_name][0]
-
-        # strip last two dummy version entries: cygwin, 0
-        # gub packages do not have a build number
-#        dir_name = base_name + '-' + '.'.join (map (misc.itoa, t[1][:-2]))
-#        dir_name = base_name + '-' + '.'.join (map (misc.itoa, t[1][:-2]))
-#        cyg_name = dir_name + '-%(build)s'
-        dir_name = base_name + '-' + self.package.version ()
-        cyg_name = dir_name + '-%(build)s'
-
-        # FIXME: not in case of -branch name
-        dir_name = re.sub ('.cygwin.gu[pb]', '', gub_name)
-        hint = base_name + '.hint'
-        return locals ()
-    
     def strip_dir (self, dir):
         import misc
         misc.map_command_dir (self.expand (dir),
@@ -206,7 +173,33 @@ mkdir -p %(installer_root)s/usr/share/doc/%(name)s
                               self.no_binary_strip,
                               self.no_binary_strip_extensions)
 
-    def cygwin_ball (self, split):
+    def cygwin_new_ball (self, hdr):
+
+        self.system ('''
+rm -rf %(installer_root)s
+mkdir -p %(installer_root)s
+tar -C %(installer_root)s -zxf %(split_ball)s''', hdr)
+
+
+        dependencies = [cygwin.gub_to_distro_dict.get (d, [d])
+                        for d in hdr['dependencies_string'].split (';')]
+        dependencies = sorted (reduce (lambda x,y: x+y, dependencies))
+        dependencies_str = ' '.join (dependencies)
+        
+        (ldesc, sdesc) = self.description (hdr)
+        hint = self.expand ('''
+sdesc: "%(sdesc)s"
+%(version)s-%(build)s
+ldesc: "%(ldesc)s"
+category: %(category)s
+requires: %(dependencies_str)s
+external_source: FIXME
+''', locals ())
+        print hint
+        
+    def cygwin_ball (self, hdr):
+        split  = hdr['split_name']
+
         d = self.get_dict (split)
         base_name = d['base_name']
         ball_name = d['cyg_name'] + '.tar.bz2'
@@ -261,29 +254,27 @@ cp -pv %(installer_root)s/etc/hints/%(hint)s %(cygwin_uploads)s/%(base_name)s/se
                 self.get_substitution_dict (d))
 
     def cygwin_src_ball (self):
-        d = self.get_dict ('')
-        ball_name = d['cyg_name'] + '-src.tar.bz2'
-        dir = self.expand ('%(installer_root)s-src')
+        d = {}
 
-        d['ball_name'] = ball_name
-        d['dir'] = dir
-        self.package.system ('''
+        d['dir'] = self.expand ('%(installer_root)s-src')
+        d['cyg_name'] = self.expand ('%(name)s-%(version)s-%(build)s', d)
+        d['cyg_ball'] = d['cyg_name'] + '-src.tar.bz2'
+        d['cygwin_uploads'] = '%(gub_uploads)s/release'
+        
+        print self.expand ('''
 rm -rf %(dir)s
 mkdir -p %(dir)s
-tar -C %(dir)s -zxf %(gub_uploads)s/%(gub_name_src)s
-mv %(dir)s/%(dir_name)s %(dir)s/%(cyg_name)s
-mkdir -p %(cygwin_uploads)s/%(base_name)s
-tar -C %(dir)s --owner=0 --group=0 -jcf %(cygwin_uploads)s/%(base_name)s/%(ball_name)s %(cyg_name)s
-''',
-                        self.get_substitution_dict (d))
+tar -C %(dir)s -zxf %(src_package_ball)s
+mv %(dir)s/%(name)s-%(version)s %(dir)s/%(cyg_name)s
+mkdir -p %(cygwin_uploads)s/%(name)s
+tar -C %(dir)s --owner=0 --group=0 -jcf %(cygwin_uploads)s/%(name)s/%(cyg_ball)s %(cyg_name)s
+''', env=d)
 
 def parse_command_line ():
     p = optparse.OptionParser ()
     p.usage = 'cygwin-packager.py [OPTION]... PACKAGE'
     p.add_option ('-b', '--build-number',
                   action='store', default='1', dest='build')
-    p.add_option ('-v', '--version',
-                  action='store', default='0.0.0', dest='version')
     (options, args) = p.parse_args ()
     if len (args) != 1:
         p.print_help ()
@@ -295,7 +286,6 @@ def main ():
     platform = 'cygwin'
     settings = settings_mod.get_settings (platform)
     settings.build = options.build
-    settings.version = options.version
 
     # Barf
     settings.__dict__['cross_distcc_hosts'] = []
