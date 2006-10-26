@@ -8,26 +8,12 @@ import targetpackage
 class Ghostscript (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        xsf = re.sub ('version\)s', 'version)s-gpl', download.sf)
-        assert (xsf != download.sf)
-        if self.settings.platform == 'linux-64':
-            #self.with (version='8.54',
-            #      mirror='ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs854/ghostscript-8.54-gpl.tar.bz2',
-            #       format='bz2')
-
-            self.with_vc(gitrepo.Subversion ())
-            self.with (version='8.55',
-                       #revision='HEAD',
-                       #revision='7221',
-                       mirror='svn:http://svn.ghostscript.com:8080/ghostscript/trunk/gs/')
-        else:
-            self.with (version='8.50',
-                   ## TODO: see if any of these diffs fixes it...
-                   ## http://ftp.de.debian.org/debian/pool/main/g/gs-gpl/gs-gpl_8.54.dfsg.1-5.diff.gz
-                   ## 8.54 causes piano braces to go bad.
-                   #mirror='ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs850/ghostscript-8.54-gpl.tar.bz2',
-                   mirror=xsf,
-                   format='bz2')
+        self.with_vc (gitrepo.Subversion (
+                dir=self.get_repodir (),
+                source='http://svn.ghostscript.com:8080/ghostscript',
+                branch='trunk',
+                module='gs',
+                revision='7221')
 
     def license_file (self):
         return '%(srcdir)s/LICENSE' 
@@ -42,10 +28,12 @@ class Ghostscript (targetpackage.TargetBuildSpec):
         return ['doc', '']
     
     def srcdir (self):
-        return re.sub ('-source', '', targetpackage.TargetBuildSpec.srcdir (self))
+        return re.sub ('-source', '',
+                       targetpackage.TargetBuildSpec.srcdir (self))
 
     def builddir (self):
-        return re.sub ('-source', '', targetpackage.TargetBuildSpec.builddir (self))
+        return re.sub ('-source', '',
+                       targetpackage.TargetBuildSpec.builddir (self))
 
     def name (self):
         return 'ghostscript'
@@ -55,19 +43,9 @@ class Ghostscript (targetpackage.TargetBuildSpec):
         return '.'.join (self.ball_version.split ('.')[0:2])
 
     def patch (self):
-        if self.version == '8.50':
-            self.system ('cd %(srcdir)s && patch --force -p2 < %(patchdir)s/ghostscript-8.50-encoding.patch')
-            self.system ('cd %(srcdir)s && patch --force -p2 < %(patchdir)s/ghostscript-8.50-ttf.patch')
-        if self.version == '8.54':
-            self.system ('cd %(srcdir)s && patch --force -p1 < %(patchdir)s/05_gxfcopy_qsort_64bit_clean.dpatch')
-            self.system ('cd %(srcdir)s && patch --force -p1 < %(patchdir)s/gs-r7029.patch')
-        if not os.path.exists ('%(srcdir)s/configure'):
-            self.system ('cd %(srcdir)s && ./autogen.sh --help')
-        
         substs = [(r'\$\(%s\)' % d, '$(DESTDIR)$(%s)' % d) for d in
                   ['bindir', 'datadir', 'gsdir', 'gsdatadir', 'docdir',
                    'mandir', 'scriptdir', 'exdir']]
-                
         self.file_sub (substs, '%(srcdir)s/src/unixinst.mak')
 
     def fixup_arch (self):
