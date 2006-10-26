@@ -202,6 +202,7 @@ local-distcc:
 		ln -s $(CWD)/lib/distcc.py target/native-distcc/bin/$(notdir $(binary)) && ) true
 
 cross-compilers:
+	$(foreach p, $(PLATFORMS),$(call INVOKE_GUB_BUILDER, $(p)) download gcc && ) true
 	$(foreach p, $(PLATFORMS),$(call INVOKE_GUB_BUILDER, $(p)) build gcc && ) true
 
 cross-distccd:
