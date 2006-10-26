@@ -217,8 +217,10 @@ class PackageManager (FileManager):
     def unregister_package_dict (self, name):
         del self._packages[name]
         
-    def read_package_headers (self, dir, branch):
-        for f in glob.glob ('%s/*hdr' % dir):
+    def read_package_headers (self, s, branch):
+        if os.path.isdir (s) and s[:-1] != '/':
+            s += '/'
+        for f in glob.glob ('%(s)s*hdr' % locals ()):
             self.register_package_header (f, branch)
 
     def is_installable (self, name):
