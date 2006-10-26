@@ -9,6 +9,12 @@ def join_lines (str):
     return str.replace ('\n', ' ')
 
 
+def bind(function, arg1):
+    def bound(*args, **kwargs):
+        return function(arg1, *args, **kwargs)
+
+    return bound
+
 def read_pipe (cmd, ignore_error=False):
     print 'executing pipe %s' % cmd
     pipe = os.popen (cmd)
