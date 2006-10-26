@@ -44,13 +44,8 @@ class Cygwin_package (context.Os_context_wrapper):
         self.package_manager.read_package_headers (
             self.expand ('%(gub_uploads)s/%(name)s'), 'HEAD')
 
-        #def get_dep (x):
-        #    return install_manager.dependencies (x)
-    
-        #package_names = gup.topologically_sorted (args, {},
-        #                                          get_dep,
-        #                                          None)
-
+        self.package = targetpackage.load_target_package (self.settings,
+                                                          self._name)
         self.create ()
       
     @context.subst_method
@@ -65,18 +60,18 @@ class Cygwin_package (context.Os_context_wrapper):
     def build (self):
         return self.settings.build
 
-    def cygwin_patches_dir (self, spec):
-        cygwin_patches = spec.expand ('%(srcdir)s/CYGWIN-PATCHES')
+    def cygwin_patches_dir (self):
+        cygwin_patches = self.package.expand ('%(srcdir)s/CYGWIN-PATCHES')
         self.system ('''
 mkdir -p %(cygwin_patches)s
 cp -pv %(installer_root)s/etc/hints/* %(cygwin_patches)s
 cp -pv %(installer_root)s/usr/share/doc/%(name)s/README.Cygwin %(cygwin_patches)s || true
     ''', locals ())
 
-    def dump_hint (self, spec, split, base_name):
+    def dump_hint (self, split, base_name):
         self.system ('mkdir -p %(installer_root)s/etc/hints')
 
-        depends = spec.get_dependency_dict ()[split]
+        depends = self.package.get_dependency_dict ()[split]
         distro_depends = []
         for dep in depends:
             import cygwin
@@ -90,12 +85,11 @@ cp -pv %(installer_root)s/usr/share/doc/%(name)s/README.Cygwin %(cygwin_patches)
         external_source_line = ''
         file = self.expand ('%(sourcefiledir)s/%(base_name)s.hint',
                             locals ())
-#        file = spec.settings.sourcefiledir + '/' + base_name + '.hint')
         if split:
             external_source_line = self.expand ('''
 external-source: %(name)s''')
         try:
-            ldesc = spec.description_dict ()[split]
+            ldesc = self.package.description_dict ()[split]
             sdesc = ldesc[:ldesc.find ('\n')]
         except:
             sdesc = self.expand ('%(name)s')
@@ -105,7 +99,7 @@ external-source: %(name)s''')
                 flavor = split
             ldesc = 'The %(name)s package for Cygwin - ' + flavor
         try:
-            category = spec.category_dict ()[split]
+            category = self.package.category_dict ()[split]
         except:
             if not split:
                 caterory = 'utils'
@@ -126,7 +120,7 @@ category: %(category)s%(requires_line)s%(external_source_line)s
                    '%(installer_root)s/etc/hints/%(base_name)s.hint',
                    env=locals ())
 
-    def dump_readmes (self, spec):
+    def dump_readmes (self):
         file = self.expand ('%(sourcefiledir)s/%(name)s.changelog')
         if os.path.exists (file):
             changelog = open (file).read ()
@@ -142,7 +136,7 @@ mkdir -p %(installer_root)s/usr/share/doc/%(name)s
             readme = open (file).read ()
         else:
             readme = 'README for Cygwin %(name)s-%(version)s-%(build)s'
-        readme = spec.expand (readme, locals ()) # so_version
+        readme = self.package.expand (readme, locals ()) # so_version
 
         self.dump (readme,
                    '%(installer_root)s/usr/share/doc/Cygwin/%(name)s-%(version)s-%(build)s.README')
@@ -150,10 +144,9 @@ mkdir -p %(installer_root)s/usr/share/doc/%(name)s
                    '%(installer_root)s/usr/share/doc/%(name)s/README.Cygwin')
 
     def create (self):
-        p = targetpackage.load_target_package (self.settings, self._name)
-        for i in [''] + p.get_subpackage_names ():
-            self.cygwin_ball (p, i)
-        self.cygwin_src_ball (p)
+        for i in [''] + self.package.get_subpackage_names ():
+            self.cygwin_ball (i)
+        self.cygwin_src_ball ()
 
         # FIXME: we used to have python code to generate a setup.ini
         # snippet from a package, in some package-manager class used
@@ -218,8 +211,8 @@ mkdir -p %(installer_root)s/usr/share/doc/%(name)s
                               self.no_binary_strip,
                               self.no_binary_strip_extensions)
 
-    def cygwin_ball (self, package, split):
-        d = self.get_dict (package, split)
+    def cygwin_ball (self, split):
+        d = self.get_dict (self.package, split)
         base_name = d['base_name']
         ball_name = d['cyg_name'] + '.tar.bz2'
         hint = d['hint']
@@ -227,32 +220,32 @@ mkdir -p %(installer_root)s/usr/share/doc/%(name)s
         package_name = d['package_name']
 
         d['ball_name'] = ball_name
-        package.system ('''
+        self.package.system ('''
 rm -rf %(installer_root)s
 mkdir -p %(installer_root)s
 tar -C %(installer_root)s -zxf %(gub_uploads)s/%(gub_name)s
 ''',
                 self.get_substitution_dict (d))
         
-        self.dump_hint (package, split, base_name)
+        self.dump_hint (split, base_name)
 
         if not split:
-            self.dump_readmes (package)
-        self.cygwin_patches_dir (package)
+            self.dump_readmes ()
+        self.cygwin_patches_dir ()
 
         # FIXME: unconditional strip
         for i in ('bin', 'lib'):
-            dir = package.expand ('%(installer_root)s/usr/' + i,
+            dir = self.package.expand ('%(installer_root)s/usr/' + i,
                                   self.get_substitution_dict (d))
             if os.path.isdir (dir):
                 self.strip_dir (dir)
 
         if os.path.isdir (infodir + '/' + package_name):
-            package.system ('gzip %(infodir)s/%(package_name)s/*.info*',
+            self.package.system ('gzip %(infodir)s/%(package_name)s/*.info*',
                             locals ())
         elif os.path.isdir (infodir):
-            package.system ('gzip %(infodir)s/*.info*', locals ())
-        package.system ('''
+            self.package.system ('gzip %(infodir)s/*.info*', locals ())
+        self.package.system ('''
 rm -rf %(installer_root)s/usr/cross
 mkdir -p %(cygwin_uploads)s/%(base_name)s
 mkdir -p %(installer_root)s/usr/share/doc/%(base_name)s
@@ -272,14 +265,14 @@ cp -pv %(installer_root)s/etc/hints/%(hint)s %(cygwin_uploads)s/%(base_name)s/se
 ''',
                 self.get_substitution_dict (d))
 
-    def cygwin_src_ball (self, package):
-        d = self.get_dict (package, '')
+    def cygwin_src_ball (self):
+        d = self.get_dict (self.package, '')
         ball_name = d['cyg_name'] + '-src.tar.bz2'
         dir = self.expand ('%(installer_root)s-src')
 
         d['ball_name'] = ball_name
         d['dir'] = dir
-        package.system ('''
+        self.package.system ('''
 rm -rf %(dir)s
 mkdir -p %(dir)s
 tar -C %(dir)s -zxf %(gub_uploads)s/%(gub_name_src)s
