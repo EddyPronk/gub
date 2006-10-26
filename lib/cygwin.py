@@ -130,7 +130,7 @@ def get_cygwin_package (settings, name, dict):
         'gcc-mingw', 'gcc-mingw-core', 'gcc-mingw-g++',
         'gcc-runtime', 'gcc-core-runtime',
         ]
-    cycle = ['base-passwd'
+    cycle = ['base-passwd']
     # FIXME: this really sucks, should translate or something
     # There also is the problem that gub build-dependencies
     # use unsplit packages.

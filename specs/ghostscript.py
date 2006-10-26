@@ -14,7 +14,7 @@ class Ghostscript (targetpackage.TargetBuildSpec):
                 source='http://svn.ghostscript.com:8080/ghostscript',
                 branch='trunk',
                 module='gs',
-                revision='7221')
+                revision='7221'))
 
     def license_file (self):
         return '%(srcdir)s/LICENSE' 
