@@ -129,9 +129,12 @@ class Fontconfig__local (toolpackage.ToolBuildSpec):
         return ['libtool', 'freetype', 'expat']
 
     def compile_command (self):
-        return  toolpackage.ToolBuildSpec.compile_command (self) + ' DOCSRC="" '   
+        return (toolpackage.ToolBuildSpec.compile_command (self)
+                + ' DOCSRC="" ')
+
     def install_command (self):
-        return  toolpackage.ToolBuildSpec.install_command (self) + ' DOCSRC="" '   
+        return (toolpackage.ToolBuildSpec.install_command (self)
+                + ' DOCSRC="" ')
 
 class Fontconfig__cygwin (Fontconfig):
     def get_subpackage_names (self):
@@ -186,5 +189,3 @@ class Fontconfig__cygwin (Fontconfig):
         # FIXME: we do this for all cygwin packages
 	self.post_install_smurf_exe ()
         self.install_readmes ()
-        
-    
