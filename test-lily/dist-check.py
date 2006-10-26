@@ -8,7 +8,7 @@ import optparse
 
 sys.path.insert (0, os.path.split (sys.argv[0])[0] + '/../lib/')
 
-import repository
+import gitrepo
 import tempfile
 import misc
 
@@ -60,14 +60,12 @@ def get_config_dict (dir):
     
     return d
 
-def check_files (tarball, cvs_repo, branch):
+def check_files (tarball, repo):
     error_found = False
 
     tarball = os.path.abspath (tarball)
     tarball_dirname = re.sub ('\.tar.*', '', os.path.split (tarball)[1])
 
-    repo = repository.get_repository_proxy (cvs_repo)
-    
     dir = tempfile.mkdtemp ()
     
     files = popen ('cd %(dir)s && tar xzvf %(tarball)s' % locals ()).readlines ()
@@ -90,11 +88,11 @@ def check_files (tarball, cvs_repo, branch):
     ## tarball <-> CVS
     file_dict = dict ((f, 1) for f in files)
     
-    entries = repo.all_files (branch)
+    entries = repo.all_files ()
     exceptions = ['.cvsignore', 'stepmake/.cvsignore']
 
     for e in entries:
-        filename = e[0]
+        filename = e
 
         if filename in exceptions:
             continue
@@ -116,7 +114,12 @@ def main ():
 
     system ('cd %(builddir)s/ && make DOCUMENTATION=yes dist' % locals ())
     tarball = '%(builddir)s/out/lilypond-%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s.tar.gz' % config
-    check_files (tarball, options.repository, options.branch)
+
+
+    repo = gitrepo.GitRepository (options.repository,
+                                  branch=options.branch)
+
+    check_files (tarball, repo)
 
     # uploading is done by makefile.
     

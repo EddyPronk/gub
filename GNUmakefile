@@ -14,7 +14,8 @@ PLATFORMS=darwin-ppc darwin-x86 mingw linux-x86 linux-64 freebsd-x86 cygwin
 
 LILYPOND_CVS_REPODIR=downloads/lilypond.cvs
 LILYPOND_CVSDIR=$(LILYPOND_CVS_REPODIR)/$(BRANCH)
-LILYPOND_GITDIR=downloads/lilypond.git
+LILYPOND_GITDIR=downloads/lilypond,git
+LILYPOND_REPODIR=downloads/lilypond
 LILYPOND_BRANCH=$(BRANCH)
 
 # for CVS
@@ -329,10 +330,10 @@ doc-export:
 	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-export 
 
 unlocked-dist-check:
-	$(PYTHON) test-lily/dist-check.py --branch $(BRANCH) --repository downloads/lilypond-$(BRANCH) $(NATIVE_LILY_BUILD)
+	$(PYTHON) test-lily/dist-check.py --branch $(BRANCH) --repository $(LILYPOND_REPODIR) $(NATIVE_LILY_BUILD)
 	rm -f uploads/lilypond-$(LILYPOND_VERSION).tar.gz
 	ln $(NATIVE_LILY_BUILD)/out/lilypond-$(LILYPOND_VERSION).tar.gz uploads/
 
 dist-check:
-	$(PYTHON) test-lily/with-lock.py --skip downloads/lilypond-$(BRANCH).lock \
+	$(PYTHON) test-lily/with-lock.py --skip $(NATIVE_LILY_BUILD).lock \
 		make unlocked-dist-check
