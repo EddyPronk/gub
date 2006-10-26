@@ -201,14 +201,10 @@ def map_command_dir (dir, command, filter_out=[], extension_filter_out=[]):
                     ignore_error=True)
 
 class MethodOverrider:
-
-
     """Override a object method with a function defined outside the
 class hierarchy.
-
     
     Usage:
-
 
     def new_func (old_func, arg1, arg2, .. ):
         ..do stuff..
@@ -218,9 +214,7 @@ class hierarchy.
     p.func = MethodOverrider (old,
                               new_func,
                               (arg1, arg2, .. ))
-    
     """
-    
     def __init__ (self, old_func, new_func, extra_args=()):
         self.new_func = new_func
         self.old_func = old_func
