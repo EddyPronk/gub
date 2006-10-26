@@ -47,7 +47,9 @@ class DarcsRepository (Repository):
     def darcs (self, cmd):
         dir = self.dir
         return self.system ('cd %(dir)s && darcs %(cmd)s' % locals ())
-        
+
+    def get_revision_description (self):
+        return self.darcs_pipe ('changes --last=1')
     
     def download (self):
         dir = self.dir
@@ -61,7 +63,16 @@ class DarcsRepository (Repository):
     def is_tracking (self):
         return True
 
+    ## UGH.
+    def xml_patch_name (self, patch):
+        name_elts =  patch.getElementsByTagName ('name')
+        try:
+            return name_elts[0].childNodes[0].data
+        except IndexError:
+            return ''
+
     def get_checksum (self):
+        import xml.dom.minidom
         xml_string = self.darcs_pipe ('changes --xml ')
         dom = xml.dom.minidom.parseString(xml_string)
         patches = dom.documentElement.getElementsByTagName('patch')
@@ -144,7 +155,6 @@ class RepositoryException (Exception):
 class GitRepository (Repository):
     def __init__ (self, git_dir, source='', branch='', revision=''):
         Repository.__init__ (self)
-
         
         self.repo_dir = os.path.normpath (git_dir) + '.git'
         self.checksums = {}
@@ -157,6 +167,9 @@ class GitRepository (Repository):
     
     def __repr__ (self):
         return '#<GitRepository %s>' % self.repo_dir
+
+    def get_revision_description (self):
+        return self.git_pipe ('git log --max-count=1') 
 
     def get_file_content (self, filename):
         committish = self.git_pipe ('log %(branch)s --max-count=1 --pretty=oneline'
@@ -281,6 +294,8 @@ class GitRepository (Repository):
         open ('%(destdir)s/.git/refs/heads/%(branch)s' % locals (), 'w').write (revision)
         self.git ('checkout %(branch)s' % locals (), dir=destdir) 
 
+
+
 class CVSRepository(Repository):
     cvs_entries_line = re.compile ("^/([^/]*)/([^/]*)/([^/]*)/([^/]*)/")
     #tag_dateformat = '%Y/%m/%d %H:%M:%S'
@@ -298,9 +313,30 @@ class CVSRepository(Repository):
             
     def _checkout_dir (self):
         return '%s/%s' % (self.repo_dir, self.tag)
+
     def is_tracking (self):
         return True ##FIXME
-    
+
+    def get_revision_description (self):
+        try:
+            contents = get_file_content ('ChangeLog')
+            entry_regex = re.compile ('\n([0-9])')
+            entries = entry_regex.split (contents)
+            descr = entries[0]
+            
+            changelog_rev = ''
+            
+            for (name, version, date, dontknow) in self.cvs_entries (self.repo_dir + '/CVS'):
+                if name == 'ChangeLog':
+                    changelog_rev  = version
+                    break
+
+            return ('ChangeLog rev %(changelog_rev)s\n%(description)s' %
+                    locals ())
+        
+        except IOError:
+            return ''
+
     def get_checksum (self):
         if self.checksums.has_key (self.tag):
             return self.checksums[self.tag]
@@ -313,6 +349,7 @@ class CVSRepository(Repository):
             return cs
         else:
             return '0'
+        
     def get_file_content (self, filename):
         return open (self._checkout_dir () + '/' + filename).read ()
         
