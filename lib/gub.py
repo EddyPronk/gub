@@ -440,7 +440,8 @@ rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_roo
             'runtime': ['/usr/lib', '/usr/share'],
             '' : ['/'],
             }
-        
+        return d
+    
     def get_subpackage_names (self):
         return ['devel', 'doc', '']
     
