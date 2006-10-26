@@ -47,9 +47,11 @@ class Cygcheck (gub.BinarySpec):
 class W32api (gub.BinarySpec, gub.SdkBuildSpec):
     def untar (self):
         gub.BinarySpec.untar (self)
-        self.system ('mkdir -p %(srcdir)s/root/usr')
-        self.system ('cd %(srcdir)s/root && mv * usr',
-              ignore_error=True)
+        self.system ('''
+mkdir -p %(srcdir)s/usr/include
+mkdir -p %(srcdir)s/usr/lib
+cd %(srcdir)s && mv *.a %(srcdir)s/usr/lib && mv *.h ddk GL usr/include/
+''')
 
 def get_cross_packages (settings):
     return [cross.Binutils (settings).with (version='2.16.1',
@@ -58,8 +60,8 @@ def get_cross_packages (settings):
                                  mirror=download.gcc_41),
             Mingw_runtime (settings).with (version='3.9',
                                            mirror=download.mingw),
-            W32api (settings).with (version='3.5',
-                                    mirror=download.mingw),
+            W32api (settings).with (version='3.6',
+                                    mirror=download.mingw)
             ]
 
 def change_target_package (p):
