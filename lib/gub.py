@@ -36,11 +36,6 @@ class PackageSpec:
 
         s = ('%(name)s' % dict) + sub_name
 
-        if dict['vc_branch']:
-            self._dict['vc_branch_suffix'] = '-' + dict['vc_branch']
-        else:
-            self._dict['vc_branch_suffix'] = ''
-
         self._dict['split_name'] = s
         self._dict['split_ball'] = '%(gub_uploads)s/%(split_name)s-%(version)s.%(platform)s.gup' % self._dict
         self._dict['split_hdr'] = '%(gub_uploads)s/%(split_name)s%(vc_branch_suffix)s.%(platform)s.hdr' % self._dict
@@ -146,10 +141,8 @@ class BuildSpec (Os_context_wrapper):
     @subst_method
     def source_checksum (self):
         if self.vc_repository:
-            if self.vc_branch:
-                x = self.vc_repository.get_branch_version (self.vc_branch)
-                return x
-            
+            return self.vc_repository.get_checksum ()
+        
         return self.version () 
 
     @subst_method
@@ -180,15 +173,17 @@ class BuildSpec (Os_context_wrapper):
         return ';'.join (deps)
 
     @subst_method
-    def version (self):
+    def vc_branch_suffix (self):
+        b = ''
         if self.vc_repository:
-            # FIXME: why not always simply return ball_version for VCS?
-            if self.vc_version:
-                return self.vc_version
-            if self.vc_branch:
-                return self.vc_branch
-            return self.ball_version
+            try:
+                b = self.vc_repository.branch
+            except AttributeError:
+                pass
+        return b
         
+    @subst_method
+    def version (self):
         return misc.split_version (self.ball_version)[0]
 
     @subst_method
