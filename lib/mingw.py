@@ -55,6 +55,7 @@ cd %(srcdir)s && mv *.a %(srcdir)s/usr/lib && mv *.h ddk GL usr/include/
 
 def get_cross_packages (settings):
     return [cross.Binutils (settings).with (version='2.16.1',
+                                            mirror=download.gnu,
                                             format='bz2'),
             Gcc (settings).with (version='4.1.1',
                                  mirror=download.gcc_41),
