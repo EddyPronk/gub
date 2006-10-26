@@ -16,6 +16,9 @@ class Ghostscript (targetpackage.TargetBuildSpec):
                 module='gs',
                 revision='7120'))
 
+    def version (self):
+        return '8.55'
+    
     def license_file (self):
         return '%(srcdir)s/LICENSE' 
 
