@@ -236,17 +236,6 @@ class Guile__cygwin (Guile):
         self.replace_ltdl = False
         self.static_ltdl = False
 
-    def get_subpackage_definitions (self):
-        d = dict (Guile.get_subpackage_definitions (self))
-        # FIXME: we do this for all cygwin packages
-        d['runtime'].append ('/usr/bin/cyg*dll')
-
-        if self.replace_ltdl:
-            # libtool fixups
-            d['runtime'].append ('/etc/postinstall')
-            d['runtime'].append ('/usr/bin/cyg*dll-fixed')
-        return d
-
     # Using gub dependencies only would be nice, but
     # we need to a lot of gup.gub_to_distro_deps ().
     def GUB_get_dependency_dict (self):
