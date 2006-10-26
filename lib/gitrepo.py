@@ -115,10 +115,14 @@ class TarBall (Repository):
         return re.search ('.*/([^/]+)$', self.url).group (1)
     
     def _is_downloaded (self):
-        name = self.dir + '/' + self._filename  ()
-        return os.path.exists (self)
+        name = os.path.join (self.dir, self._filename  ())
+        print name
+        return os.path.exists (name)
     
     def download (self):
+        if self._is_downloaded ():
+            return
+        
         misc.download_url (self.url, self.dir)
 
     def get_checksum (self):
