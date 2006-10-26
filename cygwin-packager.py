@@ -11,11 +11,7 @@ import gup
 import cross
 import settings as settings_mod
 import misc
-import targetpackage
-
-def sort (lst):
-    list.sort (lst)
-    return lst
+import cygwin
 
 class Cygwin_package (context.Os_context_wrapper):
     def __init__ (self, settings, name):
