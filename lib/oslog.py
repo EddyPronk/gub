@@ -97,7 +97,7 @@ commands.
         
 
     def file_sub (self, re_pairs, name, to_name=None,
-                  must_succeed=False):
+                  must_succeed=False, use_re=True):
 
 
         """
@@ -114,7 +114,12 @@ is sent to there.
         s = open (name).read ()
         t = s
         for frm, to in re_pairs:
-            new_text = re.sub (re.compile (frm, re.MULTILINE), to, t)
+            new_text = ''
+            if use_re:
+                new_text = re.sub (re.compile (frm, re.MULTILINE), to, t)
+            else:
+                new_text = t.replace (frm, to)
+
             if (t == new_text and must_succeed):
                 raise Exception ('nothing changed!')
             t = new_text
