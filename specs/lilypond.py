@@ -241,7 +241,6 @@ class LilyPond__cygwin (LilyPond):
             'urw-fonts'] + [
             'bash',
             'coreutils',
-            'cygwin',
             'findutils',
             'ghostscript',
             ]
