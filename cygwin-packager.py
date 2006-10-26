@@ -8,7 +8,6 @@ sys.path.insert (0, 'lib/')
 
 import context
 import gup
-import cross
 import settings as settings_mod
 import misc
 import cygwin
@@ -26,24 +25,30 @@ class Cygwin_package (context.Os_context_wrapper):
         self.no_binary_strip_extensions = ['.la', '.py', '.def',
                                            '.scm', '.pyc']
 
-        self.installer_root = '%(targetdir)s/installer-%(name)s'
-        self.installer_db = '%(targetdir)s/installer-%(name)s-dbdir'
+        self.installer_root = settings.expand ('%(targetdir)s/installer-' + name) 
+        self.installer_db = settings.expand ('%(targetdir)s/installer-' + name + '-dbdir')
         self.installer_uploads = settings.uploads
 
         self.package_manager = gup.DependencyManager (
-            self.expand ('%(installer_root)s'),
+            self.installer_root,
             settings.os_interface,
-            dbdir=self.expand ('%(installer_db)s'),
+            dbdir=self.installer_db,
             clean=True)
 
         self.package_manager.include_build_deps = False
         self.package_manager.read_package_headers (
-            self.expand ('%(gub_uploads)s/%(name)s'), 'HEAD')
+            settings.expand ('%(gub_uploads)s/'  + name), 'HEAD')
 
-        self.package = targetpackage.load_target_package (self.settings,
-                                                          self._name)
         self.create ()
-      
+
+    def get_substitution_dict (self, env={}):
+
+        env = env.copy ()
+        env.update (self.package_manager.get_all_packages ()[0])
+        
+        d = context.Os_context_wrapper.get_substitution_dict (self, env=env)
+        return d
+    
     @context.subst_method
     def name (self):
         return self._name
@@ -138,6 +143,8 @@ mkdir -p %(installer_root)s/usr/share/doc/%(name)s
                    '%(installer_root)s/usr/share/doc/Cygwin/%(name)s-%(version)s-%(build)s.README')
         self.dump (readme,
                    '%(installer_root)s/usr/share/doc/%(name)s/README.Cygwin')
+
+
 
     def create (self):
         for i in [''] + self.package.get_subpackage_names ():
