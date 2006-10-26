@@ -15,10 +15,10 @@ class Installer (context.Os_context_wrapper):
         context.Os_context_wrapper.__init__ (self, settings)
         
         self.settings = settings
-        self.strip_command = '%(cross_prefix)s/bin/%(target_architecture)s-strip' 
+        self.strip_command \
+            = '%(cross_prefix)s/bin/%(target_architecture)s-strip' 
         self.no_binary_strip = []
-        self.no_binary_strip_extensions = ['.la', '.py', '.def',
-                                           '.scm', '.pyc']
+        self.no_binary_strip_extensions = ['.la', '.py', '.def', '.scm', '.pyc']
 
         self.installer_root = '%(targetdir)s/installer-%(lilypond_branch)s'
         self.installer_db = self.installer_root + '-dbdir'
@@ -122,24 +122,17 @@ class Installer (context.Os_context_wrapper):
 
             self.system ('cd %(installer_root)s && rm -rf ' + delete_me, {'i': i })
 
-    def strip_binary_file (self, file):
-        self.system ('%(strip_command)s %(file)s', locals (), ignore_error = True)
-
-    def strip_binary_dir (self, dir):
-        if not os.path.isdir (dir % self.get_substitution_dict ()):
-            raise ('warning: no such dir: '
-               + dir % self.get_substitution_dict ())
-        (root, dirs, files) = os.walk (dir % self.get_substitution_dict ()).next ()
-        for f in files:
-            if (os.path.basename (f) not in self.no_binary_strip
-              and (os.path.splitext (f)[1]
-                not in self.no_binary_strip_extensions)):
-                self.strip_binary_file (root + '/' + f)
-
+    def strip_dir (self, dir):
+        import misc
+        misc.map_command_dir (self.expand (dir),
+                              self.expand ('%(strip_command)s)'),
+                              self.no_binary_strip,
+                              self.no_binary_strip_extensions)
+        
     def strip (self):
         self.strip_unnecessary_files ()
-        self.strip_binary_dir ('%(installer_root)s/usr/lib')
-        self.strip_binary_dir ('%(installer_root)s/usr/bin')
+        self.strip_dir ('%(installer_root)s/usr/bin')
+        self.strip_dir ('%(installer_root)s/usr/lib')
 
     def use_install_root_manager (self, manager):
         pass

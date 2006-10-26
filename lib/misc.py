@@ -183,6 +183,16 @@ def file_mod_time (path):
     return os.stat (path)[stat.ST_MTIME]
 
 
+def map_command_dir (dir, command, filter_out=[], extension_filter_out=[]):
+    import os
+    if not os.path.isdir (dir):
+        raise ('warning: no such dir: %(dir)s' % locals ())
+    (root, dirs, files) = os.walk (dir).next ()
+    for f in files:
+        if (os.path.basename (f) not in filter_out
+          and (os.path.splitext (f)[1] not in extension_filter_out)):
+            system ('%(command)s %(root)s)s/file' % locals (),
+                    ignore_error=True)
 
 class MethodOverrider:
 
@@ -212,3 +222,6 @@ class hierarchy.
     def __call__ (self):
         all_args = (self.old_func (),) + self.args  
         return apply (self.new_func, all_args)
+
+
+    
