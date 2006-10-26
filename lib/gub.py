@@ -611,7 +611,7 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
         self.vc_repository = repo
         
     def with (self,
-              mirror=download.gnu,
+              mirror='',
               version='',
               format='gz'):
 
@@ -623,7 +623,8 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
 
         name = self.name ()
         package_arch = self.settings.package_arch
-        self.vc_repository = repository.TarBall (self.settings.downloads, mirror % locals ())
+        if mirror:
+            self.vc_repository = repository.TarBall (self.settings.downloads, mirror % locals ())
         self.ball_version = version
 
         ## don't do substitution. We want to postpone
