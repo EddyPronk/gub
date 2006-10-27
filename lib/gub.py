@@ -684,6 +684,11 @@ class BinarySpec (BuildSpec):
         # gets overwritten by cygwin's gettext-devel + '' base package
         return ['']
 
+    # FIXME: no src packages for binary specs
+    # They used to work, but now they fail?
+    def src_package (self):
+        pass
+
 class NullBuildSpec (BuildSpec):
     """Placeholder for downloads """
 
