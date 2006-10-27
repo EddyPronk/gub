@@ -14,27 +14,32 @@ class Repository:
         self.system = misc.system
         self.read_pipe = misc.read_pipe
         
-# HMM, are these asserts really necessary?
     def download (self):
-        assert 0 
+        pass
 
     def get_checksum (self):
-        assert 0
+        """A checksum that characterizes the entire repository.
+        Typically a hash of all source files."""
+
+        return '0'
 
     def get_file_content (self, file_name):
         return ''
 
     def is_tracking (self):
-        "download will fetch newer versions if available"
+        "Whether download will fetch newer versions if available"
+        
         return False
     
     def update_workdir (self, destdir):
         "Populate (preferably update) DESTDIR with sources of specified version/branch"
-        assert 0
 
-    # FIXME: merge version and checksum?
+        pass
+
+    ## Version should be human-readable version.
     def version  (self):
-        assert 0
+        """A human-readable revision number. It need not be unique over revisions."""
+        return '0'
 
 class Version:
     def __init__ (self, version):
