@@ -161,6 +161,11 @@ def get_debian_package (settings, description):
     package.url = mirror + '/' + d['Filename']
     package.format = 'deb'
 
+    import repository
+    package.vc_repository = repository.TarBall (settings.downloads,
+                                                package.url,
+                                                package.ball_version,
+                                                strip_components=0)
     return package
 
 ## FIXME: c&p cygwin.py
