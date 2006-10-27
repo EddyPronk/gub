@@ -16,13 +16,14 @@ import misc
 def parse_command_line ():
     p = optparse.OptionParser ()
 
-    p.usage='''gub-builder.py [OPTION]... COMMAND [PACKAGE]...
+    p.usage='''installer-builder.py [OPTION]... COMMAND [PACKAGE]
 
 Commands:
 
-build   - build installer root
-strip   - strip installer root
-package - build installer binary
+build     - build installer root
+strip     - strip installer root
+package   - package installer binary
+build-all - build, strip, package
 
 '''
     p.description='Grand Unified Builder - collect in platform dependent package format'
@@ -32,7 +33,7 @@ package - build installer binary
                   type='choice',
                   default='HEAD',
                   help='select lilypond branch [HEAD]',
-                  choices=['lilypond_2_6', 'lilypond_2_8', 'HEAD'])
+                  choices=['lilypond_2_6', 'lilypond_2_8', 'HEAD', 'origin'])
     
     p.add_option ('-l', '--skip-if-locked',
                   default=False,
@@ -92,7 +93,8 @@ def build_installer (installer, args):
                                              clean=True)
     
     install_manager.include_build_deps = False
-    install_manager.read_package_headers (installer.expand ('%(gub_uploads)s'), settings.lilypond_branch)
+    install_manager.read_package_headers (installer.expand ('%(gub_uploads)s'),
+                                          settings.lilypond_branch)
 
     def get_dep (x):
         return install_manager.dependencies (x)
