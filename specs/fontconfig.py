@@ -36,7 +36,7 @@ specified by applications.'''
         return (targetpackage.TargetBuildSpec.configure_command (self) 
                 + misc.join_lines ('''
 --with-arch=%(target_architecture)s
---with-freetype-config="%(system_root)s/usr/bin/freetype-config
+--with-freetype-config="%(system_root)s/usr/cross/bin/freetype-config
 --prefix=%(system_root)s/usr
 "'''))
 

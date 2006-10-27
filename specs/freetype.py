@@ -33,6 +33,10 @@ class Freetype (targetpackage.TargetBuildSpec):
         self.update_libtool ()
 
         self.file_sub ([('^LIBTOOL=.*', 'LIBTOOL=%(builddir)s/libtool --tag=CXX')], '%(builddir)s/Makefile')
+    def install (self):
+        targetpackage.TargetBuildSpec.install (self)
+        self.system ('mkdir -p %(install_root)s/usr/cross/bin/')
+        self.system ('mv %(install_root)s/usr/bin/freetype-config %(install_root)s/usr/cross/bin/freetype-config')
 
 class Freetype__mingw (Freetype):
     def configure (self):
