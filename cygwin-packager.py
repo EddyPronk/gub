@@ -42,6 +42,51 @@ class Cygwin_package (context.Os_context_wrapper):
 
         self.create ()
 
+    def create (self):
+        packs = self.package_manager.get_all_packages ()
+        for package in packs:
+            self.re_ball (package)
+        self.re_src_ball ()
+
+        # FIXME: we used to have python code to generate a setup.ini
+        # snippet from a package, in some package-manager class used
+        # by gub and cyg-apt packaging...
+        self.system ('''cd %(uploads)s/cygwin && %(downloads)s/genini $(find release -mindepth 1 -maxdepth 2 -type d) > setup.ini''')
+
+    def re_ball (self, hdr):
+        cyg_split = cygwin.gub_to_distro_dict.get (hdr['split_name'],
+                                                   [hdr['split_name']])[0]
+        main_p = hdr['name'] == hdr['split_name']
+        subdir = ''
+        if not main_p:
+            subdir = '/' + cyg_split
+
+        subload = self.expand ('%(cygwin_uploads)s/%(name)s%(subdir)s', locals ())
+        ball = self.expand ('%(subload)s/%(cyg_split)s-%(version)s-%(build)s.tar.bz2', locals ())
+
+        self._untar ('%(installer_root)s', '%(split_ball)s' % hdr)
+        self.dump_etc_hint (hdr, cyg_split)
+        self.dump_readmes (hdr)
+        self._CYGWIN_PATCHES_dir ()
+        self.remove_cruft ()
+        self.binary_strip ()
+        self.infodir ()
+        self._tar ('%(installer_root)s', ball, '*', locals ())
+        self.install_hint (cyg_split, subload)
+
+    def re_src_ball (self):
+        dir = self.expand ('%(installer_root)s-src')
+        cyg_name = self.expand ('%(name)s-%(version)s-%(build)s', locals ())
+        cyg_ball = cyg_name + '-src.tar.bz2'
+        ball = (self.expand ('%(cygwin_uploads)s/%(name)s/') + '%(cyg_ball)s'
+                % locals ())
+
+        #self._untar (dir, '%(src_package_ball)s')
+        self._untar (dir, self.expand ('%(src_package_ball)s'))
+        self._mv ('%(dir)s/%(name)s-%(version)s', '%(dir)s/%(cyg_name)s',
+                  locals ())
+        self._tar (dir, ball, cyg_name)
+
     def get_substitution_dict (self, env={}):
 
         env = env.copy ()
@@ -58,8 +103,8 @@ class Cygwin_package (context.Os_context_wrapper):
     def build (self):
         return self.settings.build
 
-    def cygwin_patches_dir (self):
-        cygwin_patches = self.package.expand ('%(srcdir)s/CYGWIN-PATCHES')
+    def _CYGWIN_PATCHES_dir (self):
+        cygwin_patches = self.expand ('%(srcdir)s/CYGWIN-PATCHES')
         self.system ('''
 mkdir -p %(cygwin_patches)s
 cp -pv %(installer_root)s/etc/hints/* %(cygwin_patches)s
@@ -97,18 +142,6 @@ mkdir -p %(installer_root)s/usr/share/doc/%(name)s
             readme = 'README for Cygwin %(name)s-%(version)s-%(build)s'
         readme = self.expand (readme, hdr)
         return readme
-
-    def create (self):
-        packs = self.package_manager.get_all_packages ()
-        for package in packs:
-            self.re_ball (package)
-
-        self.re_src_ball ()
-
-        # FIXME: we used to have python code to generate a setup.ini
-        # snippet from a package, in some package-manager class used
-        # by gub and cyg-apt packaging...
-        self.system ('''cd %(uploads)s/cygwin && %(downloads)s/genini $(find release -mindepth 1 -maxdepth 2 -type d) > setup.ini''')
 
     def strip_dir (self, dir):
         import misc
@@ -163,27 +196,29 @@ category: %(local_category)s%(requires_line)s%(external_source_line)s
 ''', locals ())
         return hint
 
-    def re_ball (self, hdr):
+    def _untar (self, dir, ball, env={}):
+        e = env.copy ()
+        e.update (locals ())
         self.system ('''
-rm -rf %(installer_root)s
-mkdir -p %(installer_root)s
-tar -C %(installer_root)s -zxf %(split_ball)s''', hdr)
+rm -rf %(dir)s
+mkdir -p %(dir)s
+tar -C %(dir)s -zxf %(ball)s''', e)
 
-        cyg_split = cygwin.gub_to_distro_dict.get (hdr['split_name'],
-                                                   [hdr['split_name']])[0]
-        hint = self.get_hint (hdr)
-        self.dump (hint,
-                   '%(installer_root)s/etc/hints/%(cyg_split)s.hint',
-                   env=locals ())
+    def _tar (self, dir, ball, content, env={}):
+        ball_dir = os.path.dirname (ball)
+        e = env.copy ()
+        e.update (locals ())
+        self.system ('''
+mkdir -p %(ball_dir)s
+cd %(dir)s && tar --owner=0 --group=0 -jcf %(ball)s %(content)s
+''', e)
 
-        main_p = hdr['name'] == hdr['split_name']
-        if main_p:
-            readme = self.get_readme (hdr)
-            self.dump (readme,
-                       '%(installer_root)s/usr/share/doc/Cygwin/%(name)s-%(version)s-%(build)s.README')
-            self.dump (readme,
-                       '%(installer_root)s/usr/share/doc/%(name)s/README.Cygwin')
+    def _mv (self, src, dst, env={}):
+        e = env.copy ()
+        e.update (locals ())
+        self.system ('mv %(src)s %(dst)s', e)
 
+    def remove_cruft (self):
         self.system ('''
 rm -rf %(installer_root)s/usr/cross
 rm -rf %(installer_root)s/license*
@@ -199,45 +234,43 @@ rmdir %(installer_root)s/usr/share || true
 rmdir %(installer_root)s/usr || true
 ''')
 
+    def binary_strip (self):
         for i in ('bin', 'lib'):
             dir = self.expand ('%(installer_root)s/usr/%(i)s', locals ())
             if os.path.isdir (dir):
                 self.strip_dir (dir)
 
+    def dump_etc_hint (self, hdr, cyg_split):
+        hint = self.get_hint (hdr)
+        self.dump (hint,
+                   '%(installer_root)s/etc/hints/%(cyg_split)s.hint',
+                   env=locals ())
+
+    def dump_readmes (self, hdr):
+        main_p = hdr['name'] == hdr['split_name']
+        if main_p:
+            readme = self.get_readme (hdr)
+            self.dump (readme,
+                       '%(installer_root)s/usr/share/doc/Cygwin/%(name)s-%(version)s-%(build)s.README')
+            self.dump (readme,
+                       '%(installer_root)s/usr/share/doc/%(name)s/README.Cygwin')
+        self._CYGWIN_PATCHES_dir ()
+
+    def infodir (self):
         infodir = self.expand ('%(installer_root)s/usr/share/info')
         if os.path.isdir (infodir + '/' + self._name):
             self.system ('gzip %(infodir)s/%(name)s/*.info*', locals ())
         elif os.path.isdir (infodir):
             self.system ('gzip %(infodir)s/*.info*', locals ())
 
-        subdir = ''
-        if not main_p:
-            subdir = '/' + cyg_split
-
-        dir = self.expand ('%(cygwin_uploads)s/%(name)s%(subdir)s', locals ())
+    def install_hint (self, cyg_split, dir):
         self.system ('''
-mkdir -p %(dir)s
-cd %(installer_root)s && tar --owner=0 --group=0 -jcf %(dir)s/%(cyg_split)s-%(version)s-%(build)s.tar.bz2 *
 cp -pv %(installer_root)s/etc/hints/%(cyg_split)s.hint %(dir)s/setup.hint
-''', locals ())
-
-    def re_src_ball (self):
-        dir = self.expand ('%(installer_root)s-src')
-        cyg_name = self.expand ('%(name)s-%(version)s-%(build)s', locals ())
-        cyg_ball = cyg_name + '-src.tar.bz2'
-        cygwin_uploads = '%(gub_uploads)s/release'
-        
-        self.system ('''
-rm -rf %(dir)s
-mkdir -p %(dir)s
-tar -C %(dir)s -zxf %(src_package_ball)s
-mv %(dir)s/%(name)s-%(version)s %(dir)s/%(cyg_name)s
-mkdir -p %(cygwin_uploads)s/%(name)s
-tar -C %(dir)s --owner=0 --group=0 -jcf %(cygwin_uploads)s/%(name)s/%(cyg_ball)s %(cyg_name)s
 ''', locals ())
 
 def parse_command_line ():
     p = optparse.OptionParser ()
+    p.description = 'Grand Unified Builder - create cygwin packages.'
     p.usage = 'cygwin-packager.py [OPTION]... PACKAGE'
     p.add_option ('-b', '--build-number',
                   action='store', default='1', dest='build')
