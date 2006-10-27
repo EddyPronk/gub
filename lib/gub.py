@@ -174,7 +174,7 @@ class BuildSpec (Os_context_wrapper):
         
     @subst_method
     def version (self):
-        return misc.split_version (self.ball_version)[0]
+        return self.vc_repository.version ()
 
     @subst_method
     def name_version (self):
@@ -610,6 +610,7 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
     def with_vc (self, repo):
         self.vc_repository = repo
         
+    # TODO: junk this, use with_vc (TarBall (), Version ())
     def with (self,
               mirror='',
               version='',
@@ -633,6 +634,9 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
         if mirror:
             self.vc_repository = repository.TarBall (self.settings.downloads,
                                                      mirror % locals ())
+        else:
+            self.vc_repository = repository.Version (version)
+
         self.ball_version = version
 
         ## don't do substitution. We want to postpone
