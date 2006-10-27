@@ -14,7 +14,7 @@ PLATFORMS=darwin-ppc darwin-x86 mingw linux-x86 linux-64 freebsd4-x86 cygwin
 
 LILYPOND_CVS_REPODIR=downloads/lilypond.cvs
 LILYPOND_CVSDIR=$(LILYPOND_CVS_REPODIR)/$(BRANCH)
-LILYPOND_GITDIR=downloads/lilypond,git
+LILYPOND_GITDIR=downloads/lilypond.git
 LILYPOND_REPODIR=downloads/lilypond
 LILYPOND_BRANCH=$(BRANCH)
 
