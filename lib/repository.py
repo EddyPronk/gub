@@ -21,7 +21,7 @@ class Repository:
     def get_checksum (self):
         assert 0
 
-    def get_file_content (self, filename):
+    def get_file_content (self, file_name):
         return ''
 
     def is_tracking (self):
@@ -32,6 +32,26 @@ class Repository:
         "Populate (preferably update) DESTDIR with sources of specified version/branch"
 
         assert 0
+
+    # FIXME: merge version and checksum?
+    def version  (self):
+        assert 0
+
+class Version:
+    def __init__ (self, version):
+        self._version = version
+
+    def download (self):
+        pass
+
+    def get_checksum (self):
+        return self.version ()
+
+    def is_tracking (self):
+        return False
+
+    def version (self):
+        return self._version
 
 class DarcsRepository (Repository):
     def __init__ (self, dir, source=''):
@@ -97,25 +117,26 @@ class DarcsRepository (Repository):
 
     
 class TarBall (Repository):
-    def __init__ (self, dir, url, strip_dir=True):
+    def __init__ (self, dir, url, version, strip_components=1):
         Repository.__init__ (self)
         if not os.path.isdir (dir):
             self.system ('mkdir -p %s' % dir)
 
         self.dir = dir
         self.url = url
-        self.strip_dir = strip_dir
+        self._version = version
         self.branch = None
         self.revision = None
-    
+        self.strip_components = strip_components
+        
     def is_tracking (self):
         return False
 
-    def _filename (self):
+    def _file_name (self):
         return re.search ('.*/([^/]+)$', self.url).group (1)
     
     def _is_downloaded (self):
-        name = os.path.join (self.dir, self._filename  ())
+        name = os.path.join (self.dir, self._file_name  ())
         return os.path.exists (name)
     
     def download (self):
@@ -125,42 +146,39 @@ class TarBall (Repository):
         misc.download_url (self.url, self.dir)
 
     def get_checksum (self):
-        return self._filename ()
+        import misc
+        return misc.ball_basename (self._file_name ())
     
     def update_workdir_deb (self, destdir):
         if os.path.isdir (destdir):
             self.system ('rm -rf %s' % destdir)
 
-        tarball = self.dir + '/' + self._filename ()
-
-        strip_opt = ''
-        self.system ('mkdir %s' % destdir)
-        if self.strip_dir:
-            strip_opt = '--strip-component 1'
-            
-        self.system ('ar p %(tarball)s data.tar.gz | tar -C %(destdir)s %(strip_opt)s -zxf -' % locals ())
+        tarball = self.dir + '/' + self._file_name ()
+        strip_components = self.strip_components
+        self.system ('mkdir %s' % destdir)       
+        self.system ('ar p %(tarball)s data.tar.gz | tar -C %(destdir)s --strip-component=%(strip_components)d -zxf -' % locals ())
         
     def update_workdir_tarball (self, destdir):
         
-        tarball = self.dir + '/' + self._filename ()
+        tarball = self.dir + '/' + self._file_name ()
         flags = download.untar_flags (tarball)
 
         if os.path.isdir (destdir):
             self.system ('rm -rf %s' % destdir)
 
-        ## fixme C&P
-        strip_opt = ''
-        self.system ('mkdir %s' % destdir)
-        if self.strip_dir:
-            strip_opt = '--strip-component 1'
-
-        self.system ('tar -C %(destdir)s %(strip_opt)s  %(flags)s %(tarball)s' % locals ())
+        self.system ('mkdir %s' % destdir)       
+        strip_components = self.strip_components
+        self.system ('tar -C %(destdir)s --strip-component=%(strip_components)d  %(flags)s %(tarball)s' % locals ())
 
     def update_workdir (self, destdir):
-        if '.deb' in self._filename () :
+        if '.deb' in self._file_name () :
             self.update_workdir_deb (destdir)
         else:
             self.update_workdir_tarball (destdir)
+
+    def version (self):
+        import misc
+        return self._version
 
 class RepositoryException (Exception):
     pass
@@ -175,6 +193,9 @@ class GitRepository (Repository):
         self.revision = revision
         self.source = source
 
+    def version (self):
+        return self.revision
+
     def is_tracking (self):
         return self.branch != ''
     
@@ -184,7 +205,7 @@ class GitRepository (Repository):
     def get_revision_description (self):
         return self.git_pipe ('git log --max-count=1') 
 
-    def get_file_content (self, filename):
+    def get_file_content (self, file_name):
         committish = self.git_pipe ('log %(branch)s --max-count=1 --pretty=oneline'
                                     % self.__dict__).split (' ')[0]
         m = re.search ('^tree ([0-9a-f]+)',
@@ -196,7 +217,7 @@ class GitRepository (Repository):
             (info, name) = f.split ('\t')
             (mode, type, fileish) = info.split (' ')
 
-            if name == filename:
+            if name == file_name:
                 return self.git_pipe ('cat-file blob %(fileish)s ' % locals ())
 
         raise RepositoryException ('file not found')
@@ -363,8 +384,8 @@ class CVSRepository(Repository):
         else:
             return '0'
         
-    def get_file_content (self, filename):
-        return open (self._checkout_dir () + '/' + filename).read ()
+    def get_file_content (self, file_name):
+        return open (self._checkout_dir () + '/' + file_name).read ()
         
     def read_cvs_entries (self, dir):
         checksum = md5.md5()
@@ -443,10 +464,10 @@ class CVSRepository(Repository):
             ## strip CVS/
             basedir = os.path.split (d)[0]
             for e in self.cvs_entries (d):
-                filename = os.path.join (basedir, e[0])
-                filename = filename.replace (self.repo_dir + '/', '')
+                file_name = os.path.join (basedir, e[0])
+                file_name = file_name.replace (self.repo_dir + '/', '')
 
-                es.append ((filename,) + e[1:])
+                es.append ((file_name,) + e[1:])
             
 
         return es
@@ -510,8 +531,8 @@ class Subversion (Repository):
         branch = self.branch
         return '%(dir)s/%(branch)s-%(revision)s' % locals ()
 
-    def get_file_content (self, filename):
-        return open (self._checkout_dir () + '/' + filename).read ()
+    def get_file_content (self, file_name):
+        return open (self._checkout_dir () + '/' + file_name).read ()
 
     def _update (self, working, revision):
         '''SVN update'''
@@ -519,7 +540,8 @@ class Subversion (Repository):
         cmd = 'cd %(working)s && svn up %(rev_opt)s' % locals ()
         self.system (cmd)
 
-
+    def version (self):
+        return self.revision
 
 def get_repository_proxy (dir, branch):
     m = re.search (r"(.*)\.(git|cvs|svn|darcs)", dir)

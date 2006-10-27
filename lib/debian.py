@@ -40,7 +40,6 @@ class Libc6_dev (gub.BinarySpec, gub.SdkBuildSpec):
         # self.file_sub ([(' /', ' %(system_root)s/')],
         #               '%(srcdir)s/root/usr/lib/libc.so')
 
-        self.lib_rewire ()
         for i in ('pthread.h', 'bits/sigthread.h'):
             self.file_sub ([('__thread', '___thread')],
                            '%(srcdir)s/usr/include/%(i)s',
@@ -70,13 +69,14 @@ def _get_cross_packages (settings,
                    linux.Python_config (settings).with (version='2.4.1'),]
     
     return [
-        Libc6 (settings).with (version=libc6_version,
+        Libc6 (settings).with (version=libc6_version, strip_components=0,
                                mirror=download.glibc_deb, format='deb'),
-        Libc6_dev (settings).with (version=libc6_version,
+        Libc6_dev (settings).with (version=libc6_version, strip_components=0,
                                    mirror=download.glibc_deb, format='deb'),
-        Linux_kernel_headers (settings).with (version=kernel_version,
+        Linux_kernel_headers (settings).with (version=kernel_version, strip_components=0,
                                               mirror=download.lkh_deb,
                                               format='deb'),
+        
         cross.Binutils (settings).with (version='2.16.1', format='bz2', mirror=download.gnu),
         Gcc (settings).with (version='4.1.1',
                              mirror=download.gcc, format='bz2'),
