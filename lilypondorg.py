@@ -8,6 +8,11 @@ import re
 import string
 import sys
 import optparse
+import pickle
+
+sys.path.insert (0, 'lib')
+
+import repository
 
 platforms = ['linux-x86',
              'linux-64',
@@ -150,7 +155,7 @@ def uploaded_build_number (version):
 
     return build
 
-def upload_binaries (version):
+def upload_binaries (repo, version):
     build = uploaded_build_number (version) + 1
     version_str = '.'.join (['%d' % v for v in version])
     branch = 'HEAD'
@@ -161,6 +166,7 @@ def upload_binaries (version):
     src_dests = []
     cmds = []
 
+    commitishes = {}
     barf = False
     for platform in platforms:
         format = formats[platform]
@@ -171,6 +177,7 @@ def upload_binaries (version):
         if not os.path.exists (bin):
             print 'binary does not exist', bin
             barf = 1
+            
         else:
             ## globals -> locals.
             host = host_binaries_spec 
@@ -183,6 +190,21 @@ def upload_binaries (version):
             
             barf = 1
 
+        if not barf:
+            branch = 'origin'
+            hdr = pickle.load (open ('uploads/%(platform)s/lilypond-%(branch)s.hdr' % locals ()))
+            key = hdr['source_checksum']
+            
+            lst = commitishes.get (key, [])
+            lst.append (platform)
+            
+            commitishes[key] = lst
+
+        
+    if len (commitishes) > 1:
+        print 'uploading multiple versions'
+        print '\n'.join (commitishes.items ())
+        
     src_tarball = "uploads/lilypond-%(version_str)s.tar.gz" % locals ()
     src_tarball = os.path.abspath (src_tarball)
     
@@ -211,16 +233,13 @@ def upload_binaries (version):
 
     cmds += ['rsync --delay-updates --progress %s %s' % tup for tup in src_dests]
 
+    description = repo.git_pipe ('describe --abbrev=36')
 
-    entries = open ('downloads/lilypond-%s/CVS/Entries' % branch).read ()
-    changelog_match = re.search ('/ChangeLog/([0-9.]+)/([^/]+)', entries)
-    changelog_rev = changelog_match.group (1)
-    changelog_date = changelog_match.group (2)
-    
-    tag_cmd = 'darcs tag --patch "release %(version_str)s-%(build)d of ChangeLog rev %(changelog_rev)s %(changelog_date)s"' % locals()
+    darcs_tag_cmd = 'darcs tag --patch "release %(version_str)s-%(build)d of committish %(description)s' % locals()
+    git_tag_cmd = 'git --git-dir downloads/lilypond.git tag gub-%(version_str)s-%(build)d' % locals ()
 
-
-    cmds.append (tag_cmd)
+    cmds.append (darcs_tag_cmd)
+    cmds.append (git_tag_cmd)
     
     print '\n\n'
     print '\n'.join (cmds);
@@ -266,6 +285,17 @@ nextbuild x.y.z   - get next build number
                   dest='url',
                   default=base_url,
                   help='select base url')
+
+    
+    p.add_option ('', '--branch', action='store',
+                  dest='branch',
+                  default='origin',
+                  help='select upload directory')
+    
+    p.add_option ('', '--repo-dir', action='store',
+                  dest='repo_dir',
+                  default='downloads/lilypond.git',
+                  help='select repository directory')
     
     p.add_option ('', '--upload-host', action='store',
                   dest='upload_host',
@@ -273,6 +303,14 @@ nextbuild x.y.z   - get next build number
                   help='select upload directory')
     
     return p
+
+def get_repository (options):
+
+    dir = options.repo_dir.replace ('.git','')
+    repo = repository.GitRepository (dir, 
+                                     branch=options.branch)
+    
+    return repo
 
 def main ():
     cli_parser = get_cli_parser ()
@@ -284,13 +322,15 @@ def main ():
 
     command = commands[0]
     commands = commands[1:]
+
     
     if command == 'nextbuild':
         version = tuple (map (string.atoi, commands[0].split ('.')))
         print uploaded_build_number (version) + 1
     elif command == 'upload':
+        repo = get_repository (options)
         version = tuple (map (string.atoi, commands[0].split ('.')))
-        upload_binaries (version)
+        upload_binaries (repo, version)
     elif command == 'versions':
         d = read_build_versions ()
         for k in sorted(d.keys ()):
@@ -301,6 +341,7 @@ def main ():
         print max_version_build ('documentation')
         print max_branch_version_build_url ((2, 6), 'linux-x86')
         print max_branch_version_build_url ((2, 9), 'linux-x86')
+
 
 if __name__ == '__main__':
     main()
