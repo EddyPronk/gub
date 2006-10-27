@@ -125,7 +125,7 @@ class Installer (context.Os_context_wrapper):
     def strip_dir (self, dir):
         import misc
         misc.map_command_dir (self.expand (dir),
-                              self.expand ('%(strip_command)s)'),
+                              self.expand ('%(strip_command)s'),
                               self.no_binary_strip,
                               self.no_binary_strip_extensions)
         
