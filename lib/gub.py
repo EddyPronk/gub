@@ -38,12 +38,12 @@ class PackageSpec:
 
         self._dict['split_name'] = s
 
-        suffix = '%(version)s'
+        suffix = '-%(version)s'
         if dict['vc_branch_suffix']:
-           suffix = dict['vc_branch_suffix']
+           suffix = '-' + dict['vc_branch_suffix']
             
-        self._dict['split_ball'] = ('%(gub_uploads)s/%(split_name)s-' + suffix +'.%(platform)s.gup') % self._dict
-        self._dict['split_hdr'] = '%(gub_uploads)s/%(split_name)s%(vc_branch_suffix)s.%(platform)s.hdr' % self._dict
+        self._dict['split_ball'] = ('%(gub_uploads)s/%(split_name)s' + suffix +'.%(platform)s.gup') % self._dict
+        self._dict['split_hdr'] = '%(gub_uploads)s/%(split_name)s' + suffix + '%(vc_branch_suffix)s.%(platform)s.hdr' % self._dict
 
         deps =  ';'.join (self._dependencies)
         self._dict['dependencies_string'] = deps
