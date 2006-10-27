@@ -706,13 +706,12 @@ class Change_target_dict:
         self._add_dict = override
 
     def target_dict (self, env={}):
-        env_copy = env.copy()
+        env_copy = env.copy ()
         env_copy.update (self._add_dict)
         d = self._target_dict_method (env_copy)
         return d
 
-    def append_dict (self, env= {}):
-
+    def append_dict (self, env={}):
         d = self._target_dict_method ()
         for (k,v) in self._add_dict.items ():
             d[k] += v
