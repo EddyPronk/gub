@@ -200,6 +200,15 @@ def map_command_dir (dir, command, filter_out=[], extension_filter_out=[]):
             system ('%(command)s %(root)s/%(file)s' % locals (),
                     ignore_error=True)
 
+def ball_basename (ball):
+    s = ball
+    s = re.sub ('.tgz', '', s)
+    s = re.sub ('-src\.tar.*', '', s)
+    s = re.sub ('\.tar.*', '', s)
+    s = re.sub ('_%\(package_arch\)s.*', '', s)
+    s = re.sub ('_%\(version\)s', '-%(version)s', s)
+    return s
+
 class MethodOverrider:
     """Override a object method with a function defined outside the
 class hierarchy.

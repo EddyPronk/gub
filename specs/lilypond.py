@@ -15,6 +15,37 @@ class LilyPond (targetpackage.TargetBuildSpec):
 LilyPond lets you create music notation.  It produces
 beautiful sheet music from a high-level description file.'''
 
+    def __init__ (self, settings):
+        targetpackage.TargetBuildSpec.__init__ (self, settings)
+
+        repo = repository.GitRepository (
+            self.get_repodir(),
+            branch=settings.lilypond_branch,
+            source='http://lilypond.org/~hanwen/lilypond.git/')
+        
+        if 0:
+            repo = repository.CVSRepository (
+                self.get_repodir (),
+                source=':pserver:anoncvs@cvs.sv.gnu.org:/cvsroot/lilypond',
+                'lilypond',
+                tag=settings.lilypond_branch)
+        
+        def version_from_VERSION (self):
+            s = self.get_file_content ('VERSION')
+            d = misc.grok_sh_variables_str (s)
+            v = '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
+            return v
+
+        from new import instancemethod
+        repo.version = instancemethod (version_from_VERSION, repo, type (repo))
+
+        self.with_vc (repo)
+
+        # FIXME: should add to C_INCLUDE_PATH
+        builddir = self.builddir ()
+        self.target_gcc_flags = (settings.target_gcc_flags
+                                 + ' -I%(builddir)s' % locals ())
+
     def get_dependency_dict (self):
         return {'': [
             'fontconfig',
@@ -24,12 +55,6 @@ beautiful sheet music from a high-level description file.'''
             'python-runtime',
             'ghostscript'
             ]}
-
-    def version (self):
-        s = self.vc_repository.get_file_content ('VERSION')
-        d = misc.grok_sh_variables_str (s)
-        v = '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
-        return v
     
     def get_subpackage_names (self):
         return ['']
@@ -47,25 +72,6 @@ beautiful sheet music from a high-level description file.'''
                 'pango-devel',
                 'python-devel',
                 'urw-fonts']
-
-    def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
-
-        repo = repository.GitRepository (self.get_repodir(),
-                                      branch=settings.lilypond_branch,
-                                      source='http://lilypond.org/~hanwen/lilypond.git/')
-        if 0:
-            repo =  repository.CVSRepository (self.get_repodir (),
-                                              source=':pserver:anoncvs@cvs.sv.gnu.org:/cvsroot/lilypond',
-                                              'lilypond',
-                                              tag=settings.lilypond_branch)
-        
-        self.with_vc (repo)
-
-        # FIXME: should add to C_INCLUDE_PATH
-        builddir = self.builddir ()
-        self.target_gcc_flags = (settings.target_gcc_flags
-                                 + ' -I%(builddir)s' % locals ())
 
     def rsync_command (self):
         c = targetpackage.TargetBuildSpec.rsync_command (self)
@@ -113,7 +119,7 @@ cd %(builddir)s && %(configure_command)s''')
                                    '%(builddir)s/config.make' % d)):
 
             self.do_configure ()
-            self.system ('touch %(builddir)/config.hh')
+            self.system ('touch %(builddir)s/config.hh')
             
         targetpackage.TargetBuildSpec.compile (self)
 

@@ -14,19 +14,19 @@ class Python (targetpackage.TargetBuildSpec):
         self.with (version='2.4.2',
                    mirror=download.python,
                    format='bz2')
-        
-        ## don't import settings from build system. 
+
+        ## don't import settings from build system.
 	self.BASECFLAGS=''
 
     def license_file (self):
-        return '%(srcdir)s/LICENSE' 
+        return '%(srcdir)s/LICENSE'
 
     def get_subpackage_names (self):
         return ['doc', 'devel', 'runtime', '']
 
     def get_build_dependencies (self):
         return ['expat-devel', 'zlib-devel']
-    
+
     def get_dependency_dict (self):
         return { '': ['expat', 'python-runtime', 'zlib'],
                  'devel' : ['libtool', 'python-devel'],
@@ -68,8 +68,8 @@ class Python (targetpackage.TargetBuildSpec):
         self.dump (cfg, '%(install_root)s/usr/cross/bin/python-config',
                    expand_string=False)
         self.system ('chmod +x %(install_root)s/usr/cross/bin/python-config')
-        
-        
+
+
     ### Ugh.
     @subst_method
     def python_version (self):
@@ -86,12 +86,12 @@ class Python__mingw_binary (gub.BinarySpec):
 
     def install (self):
         gub.BinarySpec.install (self)
-        
+
         self.system ("cd %(install_root)s/ && mkdir usr && mv Python24/include  usr/ ")
         self.system ("cd %(install_root)s/ && mkdir -p usr/bin/ && mv Python24/* usr/bin/ ")
         self.system ("rmdir %(install_root)s/Python24/")
 
-        
+
 class Python__mingw_cross (Python):
     def __init__ (self, settings):
         Python.__init__ (self, settings)
@@ -111,7 +111,7 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-winsock2.patch
                 ("import fcntl", ""),
                 ], "%(srcdir)s/Lib/subprocess.py",
                must_succeed=True)
-        
+
     def config_cache_overrides (self, str):
         # Ok, I give up.  The python build system wins.  Once
         # someone manages to get -lwsock32 on the
@@ -127,7 +127,7 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-winsock2.patch
             dll = re.sub ('\.so*', '.dll', i)
             self.system ('mv %(i)s %(dll)s', locals ())
 
-        ## UGH. 
+        ## UGH.
         self.system ('''
 cp %(install_root)s/usr/lib/python%(python_version)s/lib-dynload/* %(install_root)s/usr/bin
 ''')

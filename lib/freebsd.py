@@ -28,13 +28,13 @@ class Gcc (cross.Gcc):
 class Freebsd_runtime (gub.BinarySpec, gub.SdkBuildSpec):
     def untar (self):
         gub.BinarySpec.untar (self)
-        self.lib_rewire ()
     def patch (self):
         self.system ('rm -rf %(srcdir)s/usr/include/g++')
 
 def _get_cross_packages (settings, libc_version):
     return (
         Freebsd_runtime (settings).with (version=libc_version,
+                                         strip_dir=False,
                                          mirror=download.jantien),
         Binutils (settings).with (version='2.16.1', format='bz2', mirror=download.gnu),
         Gcc (settings).with (version='4.1.1', mirror=download.gcc_41,

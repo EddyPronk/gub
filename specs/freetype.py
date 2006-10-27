@@ -33,13 +33,16 @@ class Freetype (targetpackage.TargetBuildSpec):
         self.update_libtool ()
 
         self.file_sub ([('^LIBTOOL=.*', 'LIBTOOL=%(builddir)s/libtool --tag=CXX')], '%(builddir)s/Makefile')
+
+    def munge_ft_config (self, file):
+        self.file_sub ([('\nprefix=[^\n]+\n', '\nlocal_prefix=yes\nprefix=%(system_root)s/usr\n')],
+                       file, must_succeed=True)
+        
     def install (self):
         targetpackage.TargetBuildSpec.install (self)
         self.system ('mkdir -p %(install_root)s/usr/cross/bin/')
         self.system ('mv %(install_root)s/usr/bin/freetype-config %(install_root)s/usr/cross/bin/freetype-config')
-        self.file_sub ([('\nprefix=[^\n]+\n', '\nlocal_prefix=yes\nprefix=%(system_root)s/usr\n')],
-                       '%(install_root)s/usr/cross/bin/freetype-config',
-                       must_succeed=True)
+        self.munge_ft_config ('%(install_root)s/usr/cross/bin/freetype-config')
                        
 class Freetype__mingw (Freetype):
     def configure (self):
@@ -62,3 +65,8 @@ class Freetype__local (toolpackage.ToolBuildSpec, Freetype):
     # FIXME, mi-urg?
     def license_file (self):
         return Freetype.license_file (self)
+
+
+    def install (self):
+        toolpackage.ToolBuildSpec.install (self)
+        self.munge_ft_config ('%(install_root)s/%(buildtools)s/bin/freetype-config')
