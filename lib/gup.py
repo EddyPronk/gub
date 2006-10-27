@@ -199,7 +199,8 @@ class PackageManager (FileManager):
 
         d = pickle.loads (str)
         if (d['basename'] == 'lilypond'
-            and branch != d['vc_branch']):
+            and branch != d['vc_branch_suffix']):
+            
             vc_branch = d['vc_branch']
             print 'ignoring header: ' + package_hdr
             print 'branch: %(branch)s, vc_branch: %(vc_branch)s' % locals ()
