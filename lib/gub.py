@@ -56,10 +56,10 @@ class PackageSpec:
         self._os_interface.dump (pickle.dumps (self._dict), hdr)
         
     def clean (self):
+        base = self.expand ('%(install_root)s/')
         for f in self._file_specs:
-            base = self.expand ('rm -rf %(install_root)s/')
-            self._os_interface.system (base + f)
-            
+            self._os_interface.system ('rm -rf %s%s ' % (base, f))
+
     def create_tarball (self):
         cmd = 'tar -C %(install_root)s/%(packaging_suffix_dir)s --ignore-failed --exclude="*~" -zcf %(split_ball)s '
 
