@@ -635,7 +635,7 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
     def lib_rewire (self):
         # Rewire absolute names and symlinks.
         # Better to create relative ones?
-        for i in glob.glob (self.expand ('%(srcdir)s/root/usr/lib/lib*.so')):
+        for i in glob.glob (self.expand ('%(srcdir)s/usr/lib/lib*.so')):
             if os.path.islink (i):
                 s = os.readlink (i)
                 if s.startswith ('/'):
