@@ -37,10 +37,7 @@ class Freetype (targetpackage.TargetBuildSpec):
         targetpackage.TargetBuildSpec.install (self)
         self.system ('mkdir -p %(install_root)s/usr/cross/bin/')
         self.system ('mv %(install_root)s/usr/bin/freetype-config %(install_root)s/usr/cross/bin/freetype-config')
-        self.file_sub ([('\nprefix=[^\n]+\n', '\nlocal_prefix=yes\nprefix=%(system_root)s/usr\n')],
-                       '%(install_root)s/usr/cross/bin/freetype-config',
-                       must_succeed=True)
-                       
+
 class Freetype__mingw (Freetype):
     def configure (self):
         Freetype.configure (self)
