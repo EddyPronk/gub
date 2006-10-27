@@ -404,7 +404,8 @@ rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_roo
                     print 'changing absolute link %s -> %s' % (f, s)
                     os.remove (f)
                     os.symlink (os.path.join (self.settings.system_root, s[1:]),
-        
+                                f)
+
     def package (self):
         self.rewire_symlinks ()
         
