@@ -12,7 +12,7 @@ class Freetype (targetpackage.TargetBuildSpec):
         return '%(srcdir)s/docs/LICENSE.TXT' 
 
     def get_build_dependencies (self):
-        return ['libtool', 'zlib-devel']
+        return ['libtool-devel', 'zlib-devel']
 
     def get_subpackage_names (self):
         return ['devel', '']
@@ -60,7 +60,7 @@ class Freetype__local (toolpackage.ToolBuildSpec, Freetype):
         self.with (version='2.1.10', mirror=download.nongnu_savannah)
 
     def get_build_dependencies (self):
-        return ['libtool']
+        return ['libtool-devel']
 
     # FIXME, mi-urg?
     def license_file (self):
