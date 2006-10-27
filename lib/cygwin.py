@@ -235,10 +235,12 @@ def get_cygwin_package (settings, name, dict):
     package.get_build_dependencies = instancemethod (get_build_dependencies,
                                                      package, package_class)
     package.ball_version = dict['version']
-        
-    package.url = (mirror + '/'
-           + dict['install'].split ()[0])
+    package.url = (mirror + '/' + dict['install'].split ()[0])
     package.format = 'bz2'
+    import repository
+    package.vc_repository = repository.TarBall (settings.downloads,
+                                                package.url,
+                                                package.ball_version)
     return package
 
 ## UGH.   should split into parsing  package_file and generating gub specs.
