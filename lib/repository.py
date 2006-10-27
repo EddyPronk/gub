@@ -7,9 +7,7 @@ import time
 import urllib
 import download
 
-## note: repository.py still being used by test-gub, so don't
-## throw this overboard yet.
-##
+## Rename to Source/source.py?
 class Repository: 
     def __init__ (self):
         self.system = misc.system
