@@ -31,10 +31,10 @@ class Cygcheck (gub.BinarySpec):
     def untar (self):
         gub.BinarySpec.untar (self)
 
-        file = self.expand ('%(srcdir)s/root/usr/bin/cygcheck.exe')
+        file = self.expand ('%(srcdir)s/usr/bin/cygcheck.exe')
         cygcheck = open (file).read ()
-        self.system ('rm -rf %(srcdir)s/root')
-        self.system ('mkdir -p %(srcdir)s/root/usr/bin/')
+        self.system ('rm -rf %(srcdir)s/')
+        self.system ('mkdir -p %(srcdir)s/usr/bin/')
         open (file, 'w').write (cygcheck)
 
     def basename (self):
@@ -48,9 +48,7 @@ class W32api (gub.BinarySpec, gub.SdkBuildSpec):
     def untar (self):
         gub.BinarySpec.untar (self)
         self.system ('''
-mkdir -p %(srcdir)s/usr/include
-mkdir -p %(srcdir)s/usr/lib
-cd %(srcdir)s && mv *.a %(srcdir)s/usr/lib && mv *.h ddk GL usr/include/
+cd  %(srcdir)s/ && mkdir usr && mv include lib usr/
 ''')
 
 def get_cross_packages (settings):
@@ -60,8 +58,10 @@ def get_cross_packages (settings):
             Gcc (settings).with (version='4.1.1',
                                  mirror=download.gcc_41),
             Mingw_runtime (settings).with (version='3.9',
+                                           strip_dir=False,
                                            mirror=download.mingw),
             W32api (settings).with (version='3.6',
+                                    strip_dir=False,
                                     mirror=download.mingw)
             ]
 
