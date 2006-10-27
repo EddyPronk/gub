@@ -5,7 +5,6 @@ import glob
 import misc
 import locker
 import repository
-import repository
 
 # sys
 import pickle
@@ -53,7 +52,6 @@ class PackageSpec:
     
     def dump_header_file (self):
         hdr = self.expand ('%(split_hdr)s')
-        hdr = self.expand (hdr)
         self._os_interface.dump (pickle.dumps (self._dict), hdr)
         
     def clean (self):
