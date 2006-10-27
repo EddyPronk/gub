@@ -57,12 +57,14 @@ rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,
         # help fontconfig cross compiling a bit, all CC/LD
         # flags are wrong, set to the target's root
 
+        ## we want native freetype-config flags here. 
         cflags = '-I%(srcdir)s -I%(srcdir)s/src ' \
-            + self.read_pipe ('freetype-config --cflags')[:-1]
-        libs = self.read_pipe ('freetype-config --libs')[:-1]
+                 + self.read_pipe ('%(buildtools)s/bin/freetype-config --cflags')[:-1]
+
+        libs = self.read_pipe ('%(buildtools)s/bin/freetype-config --libs')[:-1]
         for i in ('fc-case', 'fc-lang', 'fc-glyphname', 'fc-arch'):
             self.system ('''
-cd %(builddir)s/%(i)s && make "CFLAGS=%(cflags)s" "LIBS=%(libs)s" CPPFLAGS= LDFLAGS= INCLUDES=
+cd %(builddir)s/%(i)s && make "CFLAGS=%(cflags)s" "LIBS=%(libs)s" CPPFLAGS= LDFLAGS= INCLUDES= 
 ''', locals ())
 
         targetpackage.TargetBuildSpec.compile (self)
