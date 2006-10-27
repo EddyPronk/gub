@@ -229,7 +229,6 @@ def run_builder (options, settings, manager, names, spec_object_dict):
 
         for p in spec.get_packages ():
             name = p.name ()
-	    assert manager.is_installable (name)
             if not manager.is_installed (name):
                 manager.unregister_package_dict (p.name ())
                 manager.register_package_dict (p.dict ())
@@ -277,6 +276,8 @@ def main ():
     elif command == 'build':
         try:
             pm = gup.get_target_manager (settings)
+
+            ## Todo: have a readonly lock for local platform
         except locker.LockedError:
             print 'another build in progress. Skipping.'
             if options.skip_if_locked:
