@@ -36,7 +36,7 @@ build             - build target packages
                   default='HEAD',
                   help='select lilypond branch [HEAD]',
                   choices=['lilypond_2_6', 'lilypond_2_8', 'origin', 'HEAD'])
-    
+
     p.add_option ('-k', '--keep', action='store_true',
                   dest='keep_build',
                   default=None,
@@ -52,15 +52,15 @@ build             - build target packages
     p.add_option ('--stage', action='store',
                   dest='stage', default=None,
                   help='Force rebuild of stage')
-    
+
     p.add_option ('--cross-distcc-host', action='append',
                   dest='cross_distcc_hosts', default=[],
                   help='Add another cross compiling distcc host')
-    
+
     p.add_option ('--native-distcc-host', action='append',
                   dest='native_distcc_hosts', default=[],
                   help='Add another native distcc host')
-    
+
     p.add_option ('-V', '--verbose', action='store_true',
                   dest='verbose')
 
@@ -68,18 +68,18 @@ build             - build target packages
                   default=False,
                   dest='force_package',
                   help='allow packaging of tainted compiles' )
-    
+
     p.add_option ('--build-source', action='store_true',
                   default=False,
                   dest='build_source',
                   help='build source packages')
-    
+
     p.add_option ('--lax-checksums',
                   action='store_true',
                   default=False,
                   dest='lax_checksums',
                   help="don't rebuild packages with differing checksums")
-    
+
     p.add_option ('-l', '--skip-if-locked',
                   default=False,
                   dest="skip_if_locked",
@@ -89,7 +89,7 @@ build             - build target packages
                   default="1", action='store',
                   dest='cpu_count',
                   help='set number of simultaneous jobs')
-    
+
     return p
 
 def checksums_valid (manager, specname, spec_object_dict):
@@ -102,11 +102,11 @@ def checksums_valid (manager, specname, spec_object_dict):
 
         valid = (spec.spec_checksum == package_dict['spec_checksum']
                  and spec.source_checksum () == package_dict['source_checksum'])
-        
+
         hdr = package.expand ('%(split_hdr)s')
         valid = valid and os.path.exists (hdr)
         if valid:
-            hdr_dict = pickle.load (open (hdr)) 
+            hdr_dict = pickle.load (open (hdr))
             hdr_sum = hdr_dict['spec_checksum']
             valid = valid and hdr_sum == spec.spec_checksum
             valid = valid and spec.source_checksum () == hdr_dict['source_checksum']
@@ -123,7 +123,7 @@ def run_one_builder (options, spec_obj):
         return
 
     stages = ['untar', 'patch',
-              'configure', 'compile', 'install', 
+              'configure', 'compile', 'install',
               'src_package', 'package', 'clean']
 
     if not options.build_source:
@@ -162,7 +162,7 @@ to skip this check.
             and options.keep_build):
             os.unlink (spec_obj.get_stamp_file ())
             continue
-        
+
         try:
             (available[stage]) ()
         except SystemFailed:
@@ -170,17 +170,18 @@ to skip this check.
             ## failed patch will leave system in unpredictable state.
             if stage == 'patch':
                 spec_obj.system ('rm %(stamp_file)s')
-            
+
             raise
-        
+
         if stage != 'clean':
             spec_obj.set_done (stage, stages.index (stage))
-    
+
 def run_builder (options, settings, manager, names, spec_object_dict):
     PATH = os.environ['PATH']
 
     ## cross_prefix is also necessary for building cross packages, such as GCC
-    os.environ['PATH'] = settings.expand ('%(cross_prefix)s/bin:' + PATH, locals ())
+    os.environ['PATH'] = settings.expand ('%(cross_prefix)s/bin:' + PATH,
+                                          locals ())
 
     ## UGH -> double work, see cross.change_target_packages () ?
     sdk_pkgs = [p for p in spec_object_dict.values ()
@@ -190,14 +191,14 @@ def run_builder (options, settings, manager, names, spec_object_dict):
 
     extra_build_deps = [p.name () for p in sdk_pkgs + cross_pkgs]
     if not options.stage:
-        
+
         reved = names[:]
         reved.reverse ()
         for spec_name in reved:
             spec = spec_object_dict[spec_name]
-            
             checksum_ok = (options.lax_checksums
-                           or checksums_valid (manager, spec_name, spec_object_dict))
+                           or checksums_valid (manager, spec_name,
+                                               spec_object_dict))
             for p in spec.get_packages ():
                 if (manager.is_installed (p.name ()) and
                     (not manager.is_installable (p.name ())
@@ -209,36 +210,34 @@ def run_builder (options, settings, manager, names, spec_object_dict):
         spec = spec_object_dict[spec_name]
         all_installed = True
         for p in spec.get_packages():
-            all_installed = all_installed and manager.is_installed (p.name())
-         
+            all_installed = all_installed and manager.is_installed (p.name ())
         if all_installed:
             continue
-        
         checksum_ok = (options.lax_checksums
-                       or checksums_valid (manager, spec_name, spec_object_dict))
+                       or checksums_valid (manager, spec_name,
+                                           spec_object_dict))
 
-        is_installable = forall(manager.is_installable (p.name ()) for p in spec.get_packages())
-        
+        is_installable = forall (manager.is_installable (p.name ())
+                                 for p in spec.get_packages ())
+
         if (options.stage
             or not is_installable
             or not checksum_ok):
-            settings.os_interface.log_command ('building package: %s\n' % spec_name)
-
+            settings.os_interface.log_command ('building package: %s\n'
+                                               % spec_name)
             run_one_builder (options, spec)
 
-        for p in spec.get_packages():
-            name = p.name()
-            
+        for p in spec.get_packages ():
+            name = p.name ()
             if (manager.is_installable (name)
                 and not manager.is_installed (name)):
-                
                 manager.unregister_package_dict (p.name ())
                 manager.register_package_dict (p.dict ())
                 manager.install_package (p.name ())
 
 def main ():
     cli_parser = get_cli_parser ()
-    (options, files)  = cli_parser.parse_args ()
+    (options, files) = cli_parser.parse_args ()
 
     if not options.platform:
         print 'error: no platform specified'
@@ -282,7 +281,7 @@ def main ():
             print 'another build in progress. Skipping.'
             if options.skip_if_locked:
                 sys.exit (0)
-            raise 
+            raise
 
         gup.add_packages_to_manager (pm, settings, spec_object_dict)
         deps = filter (spec_object_dict.has_key, package_names)
