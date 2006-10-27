@@ -97,16 +97,16 @@ class DarcsRepository (Repository):
 
     
 class TarBall (Repository):
-    def __init__ (self, dir, url):
+    def __init__ (self, dir, url, strip_dir=True):
         Repository.__init__ (self)
         if not os.path.isdir (dir):
             self.system ('mkdir -p %s' % dir)
 
         self.dir = dir
         self.url = url
+        self.strip_dir = strip_dir
         self.branch = None
         self.revision = None
-          
     
     def is_tracking (self):
         return False
@@ -132,8 +132,13 @@ class TarBall (Repository):
             self.system ('rm -rf %s' % destdir)
 
         tarball = self.dir + '/' + self._filename ()
-        self.system ('mkdir %s' % destdir)       
-        self.system ('ar p %(tarball)s data.tar.gz | tar -C %(destdir)s --strip-component 1 -zxf -' % locals ())
+
+        strip_opt = ''
+        self.system ('mkdir %s' % destdir)
+        if self.strip_dir:
+            strip_opt = '--strip-component 1'
+            
+        self.system ('ar p %(tarball)s data.tar.gz | tar -C %(destdir)s %(strip_opt)s -zxf -' % locals ())
         
     def update_workdir_tarball (self, destdir):
         
@@ -143,8 +148,13 @@ class TarBall (Repository):
         if os.path.isdir (destdir):
             self.system ('rm -rf %s' % destdir)
 
-        self.system ('mkdir %s' % destdir)       
-        self.system ('tar -C %(destdir)s --strip-component 1  %(flags)s %(tarball)s' % locals ())
+        ## fixme C&P
+        strip_opt = ''
+        self.system ('mkdir %s' % destdir)
+        if self.strip_dir:
+            strip_opt = '--strip-component 1'
+
+        self.system ('tar -C %(destdir)s %(strip_opt)s  %(flags)s %(tarball)s' % locals ())
 
     def update_workdir (self, destdir):
         if '.deb' in self._filename () :
