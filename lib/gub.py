@@ -88,6 +88,8 @@ class BuildSpec (Os_context_wrapper):
         self.spec_checksum = '0000' 
         self.cross_checksum = '0000'
         
+        # TODO: move to PackageSpec, always instantiate.
+        # then remove all if self.vc_repository checks
         self.vc_repository = None
         
         self.split_packages = []
@@ -614,10 +616,11 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
         b = '%(INSTALLER_BUILD)s' % d
         return b
 
+    # TODO: junk this, always set repo in __init__
     def with_vc (self, repo):
         self.vc_repository = repo
         
-    # TODO: junk this, use with_vc (TarBall (), Version ())
+    # TODO: junk this, use TarBall ()or Version ()
     def with (self,
               mirror='',
               version='',
