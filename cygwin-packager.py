@@ -220,12 +220,13 @@ cd %(dir)s && tar --owner=0 --group=0 -jcf %(ball)s %(content)s
 
     def remove_cruft (self):
         self.system ('''
-rm -rf %(installer_root)s/usr/cross
+rm -rf %(installer_root)s/etc/hints
 rm -rf %(installer_root)s/license*
+rm -rf %(installer_root)s/usr/cross
+rm -rf %(installer_root)s/usr/etc/relocate
 rmdir %(installer_root)s/bin || true
 rmdir %(installer_root)s/etc || true
 rmdir %(installer_root)s/usr/bin || true
-rm -rf %(installer_root)s/usr/etc/relocate
 rmdir %(installer_root)s/usr/etc || true
 rmdir %(installer_root)s/usr/lib || true
 rmdir %(installer_root)s/usr/share/doc/%(name)s || true
