@@ -1,6 +1,6 @@
 import subprocess
 import sys
-import os 
+import os
 import time
 import re
 import stat
@@ -11,12 +11,8 @@ def now ():
     return time.asctime (time.localtime ())
 
 class Os_commands:
-    """
+    '''Encapsulate OS/File system commands for proper logging.'''
 
-Encapsulate OS/File system commands for proper logging.
-
-"""
-    
     def __init__ (self, logfile):
         self.log_file = open (logfile, 'a')
         self.log_file.write ('\n\n * Starting build: %s\n' %  now ())
@@ -25,11 +21,7 @@ Encapsulate OS/File system commands for proper logging.
     ## TODO:
     ## capture complete output of CMD, by polling output, and copying to tty.
     def system_one (self, cmd, env, ignore_error):
-        """
-
-        Run CMD with environment vars ENV.
-        
-        """
+        '''Run CMD with environment vars ENV.'''
 
         self.log_command ('invoking %s\n' % cmd)
 
@@ -47,25 +39,18 @@ Encapsulate OS/File system commands for proper logging.
         return 0
 
     def log_command (self, str):
-        """
+        '''Write STR in the build log.'''
 
-Write STR in the build log.
-
-"""
-        
         sys.stderr.write (str)
         if self.log_file:
             self.log_file.write (str)
             self.log_file.flush ()
-        
+
 
     def system (self, cmd, env={}, ignore_error=False, verbose=False):
-        """
-
-Run os commands, and run multiple lines as multiple
+        '''Run os commands, and run multiple lines as multiple
 commands.
-
-"""
+'''
 
         call_env = os.environ.copy ()
         call_env.update (env)
@@ -87,25 +72,18 @@ commands.
         dir = os.path.split (name)[0]
         if not os.path.exists (dir):
             self.system ('mkdir -p %s' % dir)
-        
+
         self.log_command ("Writing %s (%s)\n" % (name, mode))
-        
+
         f = open (name, mode)
         f.write (str)
         f.close ()
 
-        
-
     def file_sub (self, re_pairs, name, to_name=None,
                   must_succeed=False, use_re=True):
-
-
-        """
-
-Substitute RE_PAIRS in file NAME. if TO_NAME is specified, the output
-is sent to there.
-
-"""
+        '''Substitute RE_PAIRS in file NAME.
+If TO_NAME is specified, the output is sent to there.
+'''
 
         self.log_command ('substituting in %s\n' % name)
         self.log_command (''.join (map (lambda x: "'%s' -> '%s'\n" % x,
@@ -123,7 +101,7 @@ is sent to there.
             if (t == new_text and must_succeed):
                 raise Exception ('nothing changed!')
             t = new_text
-            
+
         if s != t or (to_name and name != to_name):
             stat_info = os.stat(name)
             mode = stat.S_IMODE(stat_info[stat.ST_MODE])
@@ -135,7 +113,7 @@ is sent to there.
             h.write (t)
             h.close ()
             os.chmod (to_name, mode)
-            
+
     def read_pipe (self, cmd, ignore_error=False, silent=False):
         if not silent:
             self.log_command ('Reading pipe: %s\n' % cmd)
@@ -143,17 +121,15 @@ is sent to there.
         pipe = os.popen (cmd, 'r')
         output = pipe.read ()
         status = pipe.close ()
-        
+
         # successful pipe close returns None
         if not ignore_error and status:
             raise Exception ('read_pipe failed')
         return output
 
-
     def shadow_tree (self, src, target):
-        """Symlink files from SRC in TARGET recursively"""
+        '''Symlink files from SRC in TARGET recursively'''
 
-        
         target = os.path.abspath (target)
         src = os.path.abspath (src)
 
