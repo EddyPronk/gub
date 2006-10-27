@@ -9,12 +9,20 @@ import targetpackage
 class Ghostscript (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with_vc (repository.Subversion (
-                dir=self.get_repodir (),
-                source='http://svn.ghostscript.com:8080/ghostscript',
-                branch='trunk',
-                module='gs',
-                revision='7120'))
+        repo = repository.Subversion (
+            dir=self.get_repodir (),
+            source='http://svn.ghostscript.com:8080/ghostscript',
+            branch='trunk',
+            module='gs',
+            revision='7120')
+
+        def fixed_version (self):
+            return '8.55'
+
+        from new import instancemethod
+        repo.version = instancemethod (fixed_version, repo, type (repo))
+
+        self.with_vc (repo)
 
     def version (self):
         return '8.55'

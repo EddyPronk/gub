@@ -125,7 +125,7 @@ class Installer (context.Os_context_wrapper):
     def strip_dir (self, dir):
         import misc
         misc.map_command_dir (self.expand (dir),
-                              self.expand ('%(strip_command)s)'),
+                              self.expand ('%(strip_command)s'),
                               self.no_binary_strip,
                               self.no_binary_strip_extensions)
         
@@ -289,6 +289,7 @@ def get_installer (settings, args=[]):
         'arm' : Shar,
         'darwin-ppc' : Darwin_bundle,
         'darwin-x86' : Darwin_bundle,
+        'freebsd-x86' : Shar,
         'freebsd4-x86' : Shar,
         'freebsd6-x86' : Shar,
         'linux-x86' : Shar,

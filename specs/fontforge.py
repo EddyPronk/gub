@@ -16,6 +16,10 @@ class Fontforge (ToolBuildSpec):
     
     def configure_command (self):
         return ToolBuildSpec.configure_command (self) + " --without-freetype-src "
+
+    def get_build_dependencies (self):
+        return ['freetype']
+    
     def patch (self):
         ToolBuildSpec.patch (self)
         self.system ("cd %(srcdir)s && patch -p0 < %(patchdir)s/fontforge-20060501-srcdir.patch")

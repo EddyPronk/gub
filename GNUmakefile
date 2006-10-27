@@ -14,7 +14,7 @@ PLATFORMS=darwin-ppc darwin-x86 mingw linux-x86 linux-64 freebsd4-x86 cygwin
 
 LILYPOND_CVS_REPODIR=downloads/lilypond.cvs
 LILYPOND_CVSDIR=$(LILYPOND_CVS_REPODIR)/$(BRANCH)
-LILYPOND_GITDIR=downloads/lilypond,git
+LILYPOND_GITDIR=downloads/lilypond.git
 LILYPOND_REPODIR=downloads/lilypond
 LILYPOND_BRANCH=$(BRANCH)
 
@@ -72,7 +72,7 @@ BUILDNUMBER_FILE = buildnumber-$(LILYPOND_BRANCH).make
 
 LILYPOND_VERSION=$(shell cat VERSION || echo '0.0.0')
 VERSION:
-	PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
+	PATH=$(CWD)/target/local/system/usr/bin:$(PATH) \
 		$(PYTHON) test-lily/set-installer-version.py --branch $(LILYPOND_BRANCH) $(LILYPOND_GITDIR) $(LILYPOND_CVS_REPODIR)
 
 UPDATE-BUILDNUMBER=echo 'INSTALLER_BUILD='`python lilypondorg.py nextbuild $(LILYPOND_VERSION)` > $(BUILDNUMBER_FILE)
@@ -116,29 +116,26 @@ cygwin-libtool:
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build libtool
 
 cygwin-libtool-installer:
-	echo INSTALLER_BUILD=3 > buildnumber-libtool.make
-	$(call INVOKE_INSTALLER_BUILDER,cygwin) --buildnumber-file=buildnumber-libtool.make build-all libtool
+	$(PYTHON) cygwin-packager.py --build-number=3 libtool
 
 cygwin-fontconfig:
 	rm -f uploads/cygwin/setup.ini
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build fontconfig
 
 cygwin-fontconfig-installer:
-	echo INSTALLER_BUILD=2 > buildnumber-fontconfig.make
-	$(call INVOKE_INSTALLER_BUILDER,cygwin) --buildnumber-file=buildnumber-fontconfig.make build-all fontconfig
+	$(PYTHON) cygwin-packager.py --build-number=2 fontconfig
 
 cygwin-guile:
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build libtool guile
 
 cygwin-guile-installer:
-	echo INSTALLER_BUILD=2 > buildnumber-guile.make
-	$(call INVOKE_INSTALLER_BUILDER,cygwin) --buildnumber-file=buildnumber-guile.make build-all guile
+	$(PYTHON) cygwin-packager.py --build-number=2 guile
 
 cygwin-lilypond:
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build libtool guile lilypond
 
 cygwin-lilypond-installer:
-	$(call INVOKE_INSTALLER_BUILDER,cygwin) build-all lilypond
+	$(PYTHON) cygwin-packager.py --build-number=3 lilypond
 
 upload-setup-ini:
 	cd uploads/cygwin && ../../downloads/genini $$(find release -mindepth 1 -maxdepth 2 -type d) > setup.ini
@@ -211,7 +208,7 @@ cross-distccd:
 	mkdir -p target/cross-distccd/bin/
 	ln -s $(foreach p,$(PLATFORMS),$(filter-out %/python-config,$(wildcard $(CWD)/target/$(p)/system/usr/cross/bin/*))) target/cross-distccd/bin
 
-	PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
+	PATH=$(CWD)/target/local/system/usr/bin:$(PATH) \
 		DISTCCD_PATH=$(CWD)/target/cross-distccd/bin \
 		distccd --daemon \
 		$(addprefix --allow ,$(GUB_DISTCC_ALLOW_HOSTS)) \
@@ -220,7 +217,7 @@ cross-distccd:
 
 native-distccd:
 	-$(if $(wildcard log/$@.pid),kill `cat log/$@.pid`, true)
-	PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
+	PATH=$(CWD)/target/local/system/usr/bin:$(PATH) \
 		distccd --daemon \
 		$(addprefix --allow ,$(GUB_DISTCC_ALLOW_HOSTS)) \
 		--port 3634 --pid-file $(CWD)/log/$@.pid \
@@ -297,7 +294,7 @@ unlocked-doc-build:
 	unset LILYPONDPREFIX \
 	    && make -C $(NATIVE_LILY_BUILD) \
 	    LILYPOND_EXTERNAL_BINARY="$(NATIVE_ROOT)/usr/bin/lilypond"\
-	    PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
+	    PATH=$(CWD)/target/local/system/usr/bin:$(PATH) \
 	    LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH) \
 	    $(BARE_GS_RELOCATION)\
 	    DOCUMENTATION=yes do-top-doc
@@ -306,7 +303,7 @@ unlocked-doc-build:
 	    && make -C $(NATIVE_LILY_BUILD) \
 	    LILYPOND_EXTERNAL_BINARY="$(NATIVE_ROOT)/usr/bin/lilypond"\
 	    MALLOC_CHECK_=2 \
-	    PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
+	    PATH=$(CWD)/target/local/system/usr/bin:$(PATH) \
 	    LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH) \
 	    $(BARE_GS_RELOCATION)\
 	    DOCUMENTATION=yes web
@@ -319,7 +316,7 @@ unlocked-info-man-build:
 	    && make -C $(NATIVE_LILY_BUILD)/Documentation/user \
 	    LILYPOND_EXTERNAL_BINARY="$(NATIVE_ROOT)/usr/bin/lilypond"\
 	    MALLOC_CHECK_=2 \
-	    PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
+	    PATH=$(CWD)/target/local/system/usr/bin:$(PATH) \
 	    LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH) \
 	    DOCUMENTATION=yes out=out-www info
 	make DESTDIR=$(NATIVE_LILY_BUILD)/out-info-man \
