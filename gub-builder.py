@@ -229,8 +229,8 @@ def run_builder (options, settings, manager, names, spec_object_dict):
 
         for p in spec.get_packages ():
             name = p.name ()
-            if (manager.is_installable (name)
-                and not manager.is_installed (name)):
+	    assert manager.is_installable (name)
+            if not manager.is_installed (name):
                 manager.unregister_package_dict (p.name ())
                 manager.register_package_dict (p.dict ())
                 manager.install_package (p.name ())
