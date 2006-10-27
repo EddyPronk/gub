@@ -60,7 +60,9 @@ class Freetype__local (toolpackage.ToolBuildSpec, Freetype):
         self.with (version='2.1.10', mirror=download.nongnu_savannah)
 
     def get_build_dependencies (self):
-        return ['libtool-devel']
+        # local is not split
+        #return ['libtool-devel']
+        return ['libtool']
 
     # FIXME, mi-urg?
     def license_file (self):
