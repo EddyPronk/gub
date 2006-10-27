@@ -21,7 +21,7 @@ class Repository:
     def get_checksum (self):
         assert 0
 
-    def get_file_content (self, filename):
+    def get_file_content (self, file_name):
         return ''
 
     def is_tracking (self):
@@ -111,11 +111,11 @@ class TarBall (Repository):
     def is_tracking (self):
         return False
 
-    def _filename (self):
+    def _file_name (self):
         return re.search ('.*/([^/]+)$', self.url).group (1)
     
     def _is_downloaded (self):
-        name = os.path.join (self.dir, self._filename  ())
+        name = os.path.join (self.dir, self._file_name  ())
         return os.path.exists (name)
     
     def download (self):
@@ -125,13 +125,14 @@ class TarBall (Repository):
         misc.download_url (self.url, self.dir)
 
     def get_checksum (self):
-        return self._filename ()
+        import misc
+        return misc.ball_basename (self._file_name ())
     
     def update_workdir_deb (self, destdir):
         if os.path.isdir (destdir):
             self.system ('rm -rf %s' % destdir)
 
-        tarball = self.dir + '/' + self._filename ()
+        tarball = self.dir + '/' + self._file_name ()
 
         strip_opt = ''
         self.system ('mkdir %s' % destdir)
@@ -142,7 +143,7 @@ class TarBall (Repository):
         
     def update_workdir_tarball (self, destdir):
         
-        tarball = self.dir + '/' + self._filename ()
+        tarball = self.dir + '/' + self._file_name ()
         flags = download.untar_flags (tarball)
 
         if os.path.isdir (destdir):
@@ -157,7 +158,7 @@ class TarBall (Repository):
         self.system ('tar -C %(destdir)s %(strip_opt)s  %(flags)s %(tarball)s' % locals ())
 
     def update_workdir (self, destdir):
-        if '.deb' in self._filename () :
+        if '.deb' in self._file_name () :
             self.update_workdir_deb (destdir)
         else:
             self.update_workdir_tarball (destdir)
@@ -184,7 +185,7 @@ class GitRepository (Repository):
     def get_revision_description (self):
         return self.git_pipe ('git log --max-count=1') 
 
-    def get_file_content (self, filename):
+    def get_file_content (self, file_name):
         committish = self.git_pipe ('log %(branch)s --max-count=1 --pretty=oneline'
                                     % self.__dict__).split (' ')[0]
         m = re.search ('^tree ([0-9a-f]+)',
@@ -196,7 +197,7 @@ class GitRepository (Repository):
             (info, name) = f.split ('\t')
             (mode, type, fileish) = info.split (' ')
 
-            if name == filename:
+            if name == file_name:
                 return self.git_pipe ('cat-file blob %(fileish)s ' % locals ())
 
         raise RepositoryException ('file not found')
@@ -363,8 +364,8 @@ class CVSRepository(Repository):
         else:
             return '0'
         
-    def get_file_content (self, filename):
-        return open (self._checkout_dir () + '/' + filename).read ()
+    def get_file_content (self, file_name):
+        return open (self._checkout_dir () + '/' + file_name).read ()
         
     def read_cvs_entries (self, dir):
         checksum = md5.md5()
@@ -443,10 +444,10 @@ class CVSRepository(Repository):
             ## strip CVS/
             basedir = os.path.split (d)[0]
             for e in self.cvs_entries (d):
-                filename = os.path.join (basedir, e[0])
-                filename = filename.replace (self.repo_dir + '/', '')
+                file_name = os.path.join (basedir, e[0])
+                file_name = file_name.replace (self.repo_dir + '/', '')
 
-                es.append ((filename,) + e[1:])
+                es.append ((file_name,) + e[1:])
             
 
         return es
@@ -510,8 +511,8 @@ class Subversion (Repository):
         branch = self.branch
         return '%(dir)s/%(branch)s-%(revision)s' % locals ()
 
-    def get_file_content (self, filename):
-        return open (self._checkout_dir () + '/' + filename).read ()
+    def get_file_content (self, file_name):
+        return open (self._checkout_dir () + '/' + file_name).read ()
 
     def _update (self, working, revision):
         '''SVN update'''
