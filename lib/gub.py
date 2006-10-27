@@ -62,6 +62,8 @@ class PackageSpec:
             
     def create_tarball (self):
         cmd = 'tar -C %(install_root)s/%(packaging_suffix_dir)s --ignore-failed --exclude="*~" -zcf %(split_ball)s '
+
+        ## FIXME: use glob.glob 
         cmd += (' '.join ('$(cd %%(install_root)s && echo ./%s)'
                           % f for f in self._file_specs)).replace ('//','/')
         cmd = self.expand (cmd)
@@ -503,12 +505,12 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"  -zcf %(src_package_ball)
             return False
         if not (self.vc_repository and self.vc_repository.is_tracking ()) :
             self.system ('rm -rf %(srcdir)s %(builddir)s %(install_root)s')
-            
+
         if self.vc_repository:
             self.vc_repository.update_workdir (self.expand ('%(srcdir)s'))
             
         if (os.path.isdir (self.expand ('%(srcdir)s'))):
-            self.system ('cd %(srcdir)s && chmod -R +w .')
+            self.system ('chmod -R +w %(srcdir)s')
 
     def untar_cygwin_src_package_variant2 (self, file_name, split=False):
         '''Unpack this unbelievably broken version of Cygwin source packages.
@@ -613,6 +615,7 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
     def with (self,
               mirror='',
               version='',
+              strip_dir=True,
               format='gz'):
 
         self.format = format
@@ -624,7 +627,8 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
         name = self.name ()
         package_arch = self.settings.package_arch
         if mirror:
-            self.vc_repository = repository.TarBall (self.settings.downloads, mirror % locals ())
+            self.vc_repository = repository.TarBall (self.settings.downloads, mirror % locals (),
+                                                     strip_dir=strip_dir)
         self.ball_version = version
 
         ## don't do substitution. We want to postpone
