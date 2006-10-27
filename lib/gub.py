@@ -37,12 +37,14 @@ class PackageSpec:
 
         self._dict['split_name'] = s
 
-        suffix = '-%(version)s'
+        gup_suffix = '-%(version)s'
+        hdr_suffix = '' 
         if dict['vc_branch_suffix']:
-           suffix = '-' + dict['vc_branch_suffix']
+            gup_suffix = '-' + dict['vc_branch_suffix']
+            hdr_suffix = gup_suffix
             
-        self._dict['split_ball'] = ('%(gub_uploads)s/%(split_name)s' + suffix +'.%(platform)s.gup') % self._dict
-        self._dict['split_hdr'] = ('%(gub_uploads)s/%(split_name)s' + suffix + '%(vc_branch_suffix)s.%(platform)s.hdr') % self._dict
+        self._dict['split_ball'] = ('%(gub_uploads)s/%(split_name)s' + gup_suffix +'.%(platform)s.gup') % self._dict
+        self._dict['split_hdr'] = ('%(gub_uploads)s/%(split_name)s' + hdr_suffix + '.%(platform)s.hdr') % self._dict
 
         deps =  ';'.join (self._dependencies)
         self._dict['dependencies_string'] = deps
