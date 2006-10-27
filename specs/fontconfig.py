@@ -17,12 +17,9 @@ specified by applications.'''
 
         self.committish = "0596d7296c94b2bb9817338b8c1a76da91673fb9"
         self.with_vc (repository.GitRepository (self.get_repodir (),
-                                             source="git://anongit.freedesktop.org/git/fontconfig",
-                                             revision=self.committish))
+                                                source="git://anongit.freedesktop.org/git/fontconfig",
+                                                revision=self.committish))
 
-    def version (self):
-        return self.committish
-    
     def get_build_dependencies (self):
         return ['libtool', 'expat-devel', 'freetype-devel']
 
@@ -57,12 +54,14 @@ rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,
         # help fontconfig cross compiling a bit, all CC/LD
         # flags are wrong, set to the target's root
 
+        ## we want native freetype-config flags here. 
         cflags = '-I%(srcdir)s -I%(srcdir)s/src ' \
-            + self.read_pipe ('freetype-config --cflags')[:-1]
-        libs = self.read_pipe ('freetype-config --libs')[:-1]
+                 + self.read_pipe ('%(buildtools)s/bin/freetype-config --cflags')[:-1]
+
+        libs = self.read_pipe ('%(buildtools)s/bin/freetype-config --libs')[:-1]
         for i in ('fc-case', 'fc-lang', 'fc-glyphname', 'fc-arch'):
             self.system ('''
-cd %(builddir)s/%(i)s && make "CFLAGS=%(cflags)s" "LIBS=%(libs)s" CPPFLAGS= LDFLAGS= INCLUDES=
+cd %(builddir)s/%(i)s && make "CFLAGS=%(cflags)s" "LIBS=%(libs)s" CPPFLAGS= LDFLAGS= INCLUDES= 
 ''', locals ())
 
         targetpackage.TargetBuildSpec.compile (self)
@@ -127,21 +126,21 @@ class Fontconfig__local (toolpackage.ToolBuildSpec):
         return ['libtool', 'freetype', 'expat']
 
     def compile_command (self):
-        return  toolpackage.ToolBuildSpec.compile_command (self) + ' DOCSRC="" '   
+        return (toolpackage.ToolBuildSpec.compile_command (self)
+                + ' DOCSRC="" ')
+
     def install_command (self):
-        return  toolpackage.ToolBuildSpec.install_command (self) + ' DOCSRC="" '   
+        return (toolpackage.ToolBuildSpec.install_command (self)
+                + ' DOCSRC="" ')
 
 class Fontconfig__cygwin (Fontconfig):
+    def __init__ (self, settings):
+        Fontconfig.__init__ (self, settings)
+        self.with (mirror=download.fontconfig, version='2.4.1')
+
     def get_subpackage_names (self):
         #return ['devel', 'doc', '']
         return ['devel', 'runtime', '']
-
-    def get_subpackage_definitions (self):
-        d = dict (Fontconfig.get_subpackage_definitions (self))
-
-        # FIXME: we do this for all cygwin packages
-        d['runtime'].append ('/usr/bin/cyg*dll')
-        return d
 
     def get_build_dependencies (self):
         return ['libtool', 'libfreetype2-devel', 'expat']
@@ -184,5 +183,3 @@ class Fontconfig__cygwin (Fontconfig):
         # FIXME: we do this for all cygwin packages
 	self.post_install_smurf_exe ()
         self.install_readmes ()
-        
-    

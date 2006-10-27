@@ -53,11 +53,6 @@ class Libtool__cygwin (Libtool):
         d[''].append ('cygwin')
         return d
 
-    def get_subpackage_definitions (self):
-        d = Libtool.get_subpackage_definitions (self)
-        d['runtime'].append ('/usr/bin/cyg*dll')
-        return d
-
     def install (self):
         Libtool.install (self)
         self.install_readmes ()
@@ -71,11 +66,9 @@ class Libtool__cygwin (Libtool):
 
 class Libtool__local (ToolBuildSpec):
     """
-
 Libtool as a local package is rather painful, as Darwin has its own
 libtool which is unrelated to GNU libtool, but necessary for linking
 dylibs.
-
     """
     
     def __init__ (self, settings):
@@ -84,4 +77,3 @@ dylibs.
 
     def configure (self):
         gub.BuildSpec.configure (self)
-

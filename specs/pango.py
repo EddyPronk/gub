@@ -100,22 +100,3 @@ class Pango__darwin (Pango):
         self.dump ("""
 set PANGO_SO_EXTENSION=.so
 """, '%(install_root)s/usr/etc/relocate/pango.reloc', env=locals(), mode="a")
-
-import toolpackage
-class Pango__local (toolpackage.ToolBuildSpec, Pango):
-    def __init__ (self, settings):
-        toolpackage.ToolBuildSpec.__init__ (self, settings)
-        self.with (version='1.14.5',
-                   mirror=download.gnome_216,
-                   format='bz2')
-    def patch (self):
-        Pango.patch (self)
-    def configure_command (self):
-        return (toolpackage.ToolBuildSpec.configure_command (self)
-           + self.configure_flags ())
-    def configure (self):
-        toolpackage.ToolBuildSpec.configure (self)                
-        self.update_libtool ()
-    def install (self):
-        toolpackage.ToolBuildSpec.install (self)
-        self.fix_modules (prefix='%(buildtools)s')
