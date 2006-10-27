@@ -28,12 +28,11 @@ tooldir="%(cross_prefix)s/%(target_architecture)s"
 class W32api_in_usr_lib (gub.BinarySpec, gub.SdkBuildSpec):
     def get_build_dependencies (self):
         return ['w32api']
-    def do_download (self):
-        pass
-    def untar (self):
-        self.system ('mkdir -p %(srcdir)s/root/usr/lib')
+
+    def install (self):
+        self.system ('mkdir -p %(install_root)s/usr/lib')
         self.system ('''
-tar -C %(system_root)s/usr/lib/w32api -cf- . | tar -C %(srcdir)s/usr/lib -xf-
+tar -C %(system_root)s/usr/lib/w32api -cf- . | tar -C %(install_root)s/usr/lib -xf-
 ''')
 
 class Libtool_fixup (gub.NullBuildSpec):
@@ -137,7 +136,7 @@ def get_cross_packages (settings):
     import linux
     cross_packs = [
         Binutils (settings).with (version='2.17', format='bz2', mirror=download.gnu),
-        W32api_in_usr_lib (settings).with (version='1.0'),
+        W32api_in_usr_lib (settings).with (version='1.0',  strip_components=0),
         Gcc (settings).with (version='4.1.1', mirror=download.gcc_41, format='bz2'),
         linux.Python_config (settings).with (version='2.4.3'),
 # FIXME: using the binary libtool package is quite involved, it has
