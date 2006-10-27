@@ -115,10 +115,6 @@ class TargetBuildSpec (gub.BuildSpec):
             'CPLUS_INCLUDE_PATH': '',
             'CXX':'%(tool_prefix)sg++ %(target_gcc_flags)s',
 
-            ## UGH -- should be done elsewhere.
-            'FREETYPE_CONFIG': '''%(system_root)s/usr/bin/freetype-config \
---prefix=%(system_root)s/usr \
-''',
 #--urg-broken-if-set-exec-prefix=%(system_root)s/usr \
 ## ugh, creeping -L/usr/lib problem
 ## trying revert to LDFLAGS...

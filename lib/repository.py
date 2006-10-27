@@ -33,6 +33,26 @@ class Repository:
 
         assert 0
 
+    # FIXME: merge version and checksum?
+    def version  (self):
+        assert 0
+
+class Version:
+    def __init__ (self, version):
+        self._version = version
+
+    def download (self):
+        pass
+
+    def get_checksum (self):
+        return self.version ()
+
+    def is_tracking (self):
+        return False
+
+    def version (self):
+        return self._version
+
 class DarcsRepository (Repository):
     def __init__ (self, dir, source=''):
         Repository.__init__ (self)
@@ -97,13 +117,14 @@ class DarcsRepository (Repository):
 
     
 class TarBall (Repository):
-    def __init__ (self, dir, url):
+    def __init__ (self, dir, url, version):
         Repository.__init__ (self)
         if not os.path.isdir (dir):
             self.system ('mkdir -p %s' % dir)
 
         self.dir = dir
         self.url = url
+        self._version = version
         self.branch = None
         self.revision = None
         self.strip_components = 1
@@ -155,6 +176,10 @@ class TarBall (Repository):
         else:
             self.update_workdir_tarball (destdir)
 
+    def version (self):
+        import misc
+        return self._version
+
 class RepositoryException (Exception):
     pass
 
@@ -167,6 +192,9 @@ class GitRepository (Repository):
         self.branch = branch
         self.revision = revision
         self.source = source
+
+    def version (self):
+        return self.revision
 
     def is_tracking (self):
         return self.branch != ''
@@ -512,7 +540,8 @@ class Subversion (Repository):
         cmd = 'cd %(working)s && svn up %(rev_opt)s' % locals ()
         self.system (cmd)
 
-
+    def version (self):
+        return self.revision
 
 def get_repository_proxy (dir, branch):
     m = re.search (r"(.*)\.(git|cvs|svn|darcs)", dir)
