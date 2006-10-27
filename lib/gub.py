@@ -143,13 +143,7 @@ class BuildSpec (Os_context_wrapper):
     
     @subst_method
     def basename (self):
-        f = self.file_name ()
-        f = re.sub ('.tgz', '', f)
-        f = re.sub ('-src\.tar.*', '', f)
-        f = re.sub ('\.tar.*', '', f)
-        f = re.sub ('_%\(package_arch\)s.*', '', f)
-        f = re.sub ('_%\(version\)s', '-%(version)s', f)
-        return f
+        return misc.ball_basename (self.file_name ())
 
     @subst_method
     def packaging_suffix_dir (self):
