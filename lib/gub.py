@@ -170,7 +170,7 @@ class BuildSpec (Os_context_wrapper):
         
     @subst_method
     def version (self):
-        return misc.split_version (self.ball_version)[0]
+        return self.vc_repository.version ()
 
     @subst_method
     def name_version (self):
@@ -618,11 +618,18 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
     def with_vc (self, repo):
         self.vc_repository = repo
         
+    # TODO: junk this, use with_vc (TarBall (), Version ())
     def with (self,
               mirror='',
               version='',
-              strip_dir=True,
-              format='gz'):
+              format=''):
+
+        if not format:
+            format = self.__dict__.get ('format', 'gz')
+        if not mirror:
+            mirror = self.__dict__.get ('url', '')
+        if not version and self.version:
+            version = self.ball_version
 
         self.format = format
         self.ball_version = version
@@ -633,15 +640,20 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
         name = self.name ()
         package_arch = self.settings.package_arch
         if mirror:
-            self.vc_repository = repository.TarBall (self.settings.downloads, mirror % locals (),
-                                                     strip_dir=strip_dir)
+            self.vc_repository = repository.TarBall (self.settings.downloads,
+                                                     # Hmm, better to construct
+                                                     # mirror later?
+                                                     mirror % locals (),
+                                                     version)
+        else:
+            self.vc_repository = repository.Version (version)
+
         self.ball_version = version
 
         ## don't do substitution. We want to postpone
         ## generating the dict until we're sure it doesn't change.
 
         return self
-
 
 class BinarySpec (BuildSpec):
     def configure (self):
@@ -707,13 +719,12 @@ class Change_target_dict:
         self._add_dict = override
 
     def target_dict (self, env={}):
-        env_copy = env.copy()
+        env_copy = env.copy ()
         env_copy.update (self._add_dict)
         d = self._target_dict_method (env_copy)
         return d
 
-    def append_dict (self, env= {}):
-
+    def append_dict (self, env={}):
         d = self._target_dict_method ()
         for (k,v) in self._add_dict.items ():
             d[k] += v

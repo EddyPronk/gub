@@ -231,8 +231,7 @@ class Guile__darwin__x86 (Guile__darwin):
 class Guile__cygwin (Guile):
     def __init__ (self, settings):
         Guile.__init__ (self, settings)
-        self.with (version='1.8.1',
-                   mirror=download.gnu, format='gz')
+        self.with (version='1.8.1')
         self.replace_ltdl = False
         self.static_ltdl = False
 
