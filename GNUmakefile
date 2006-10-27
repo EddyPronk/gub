@@ -284,11 +284,9 @@ unlocked-doc-clean:
 
 # During make web, gs is invoked directly from makefile,
 # ie, without lilypond's relocating magic.
-NATIVE_SYSTEM = $(NATIVE_TARGET_DIR)/system
-BARE_GS_RELOCATION = PATH:=$(NATIVE_ROOT)/usr/bin:$(PATH)\
-    GS_LIB=$(wildcard $(NATIVE_ROOT)/usr/share/ghostscript/*/lib):$(wildcard $(NATIVE_ROOT)/usr/share/ghostscript/*/Resource)\
-    GS_FONTPATH:=$(NATIVE_SYSTEM)/usr/share/fonts/default/Type1:$(GS_FONTPATH)\
-    LD_LIBRARY_PATH:=$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH)
+BARE_GS_RELOCATION = PATH=$(NATIVE_ROOT)/usr/bin:$$PATH \
+    GS_LIB=$(NATIVE_ROOT)/usr/share/ghostscript/*/lib \
+    LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$$LD_LIBRARY_PATH
 
 unlocked-doc-build:
 	unset LILYPONDPREFIX \
@@ -333,7 +331,7 @@ unlocked-info-man-build:
 
 unlocked-doc-export:
 	$(PYTHON) test-lily/rsync-lily-doc.py --recreate --output-distance \
-		$(LILYPOND_CVSDIR)/buildscripts/output-distance.py $(NATIVE_LILY_BUILD)/out-www/web-root
+		$(NATIVE_LILY_SRC)/buildscripts/output-distance.py $(NATIVE_LILY_BUILD)/out-www/web-root
 
 doc-export:
 	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-export 
