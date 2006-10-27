@@ -136,7 +136,7 @@ class TargetBuildSpec (gub.BuildSpec):
             }
 
         dict.update (env)
-        d =  gub.BuildSpec.get_substitution_dict (self, dict).copy()
+        d = gub.BuildSpec.get_substitution_dict (self, dict).copy ()
         return d
 
 
