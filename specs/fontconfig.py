@@ -17,12 +17,9 @@ specified by applications.'''
 
         self.committish = "0596d7296c94b2bb9817338b8c1a76da91673fb9"
         self.with_vc (repository.GitRepository (self.get_repodir (),
-                                             source="git://anongit.freedesktop.org/git/fontconfig",
-                                             revision=self.committish))
+                                                source="git://anongit.freedesktop.org/git/fontconfig",
+                                                revision=self.committish))
 
-    def version (self):
-        return self.committish
-    
     def get_build_dependencies (self):
         return ['libtool', 'expat-devel', 'freetype-devel']
 
@@ -132,6 +129,10 @@ class Fontconfig__local (toolpackage.ToolBuildSpec):
         return  toolpackage.ToolBuildSpec.install_command (self) + ' DOCSRC="" '   
 
 class Fontconfig__cygwin (Fontconfig):
+    def __init__ (self, settings):
+        Fontconfig.__init__ (self, settings)
+        self.with (mirror=download.fontconfig, version='2.4.1')
+
     def get_subpackage_names (self):
         #return ['devel', 'doc', '']
         return ['devel', 'runtime', '']
