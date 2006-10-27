@@ -1,4 +1,5 @@
 import targetpackage
+import download
 
 class Libiconv (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
