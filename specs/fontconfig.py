@@ -79,8 +79,8 @@ set FONTCONFIG_PATH=$INSTALLER_PREFIX/etc/fonts
 class Fontconfig__mingw (Fontconfig):
     def patch (self):
         Fontconfig.patch (self)
-#        self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/fontconfig-2.4.1-mingw.patch')
-#        self.system ('cd %(srcdir)s && python %(patchdir)s/fontconfig-make-def.py doc/*.fncs > src/fontconfig.def.in')
+        self.file_sub ([('<cachedir>@FC_CACHEDIR@</cachedir>', '')],
+                       '%(srcdir)s/fonts.conf.in')
 
     def configure (self):
         Fontconfig.configure (self)
@@ -89,7 +89,7 @@ class Fontconfig__mingw (Fontconfig):
 ''',
                    '%(builddir)s/config.h',
                    mode='a')
-        
+
 class Fontconfig__darwin (Fontconfig):
     def configure_command (self):
         cmd = Fontconfig.configure_command (self)
