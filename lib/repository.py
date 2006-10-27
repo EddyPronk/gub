@@ -8,11 +8,13 @@ import urllib
 import download
 
 ## Rename to Source/source.py?
+
 class Repository: 
     def __init__ (self):
         self.system = misc.system
         self.read_pipe = misc.read_pipe
         
+# HMM, are these asserts really necessary?
     def download (self):
         assert 0 
 
@@ -28,7 +30,6 @@ class Repository:
     
     def update_workdir (self, destdir):
         "Populate (preferably update) DESTDIR with sources of specified version/branch"
-
         assert 0
 
     # FIXME: merge version and checksum?
@@ -47,6 +48,9 @@ class Version:
 
     def is_tracking (self):
         return False
+
+    def update_workdir (self, destdir):
+        pass
 
     def version (self):
         return self._version
@@ -140,7 +144,6 @@ class TarBall (Repository):
     def download (self):
         if self._is_downloaded ():
             return
-        
         misc.download_url (self.url, self.dir)
 
     def get_checksum (self):
