@@ -326,13 +326,8 @@ unlocked-info-man-build:
 	make DESTDIR=$(NATIVE_LILY_BUILD)/out-info-man \
 	    PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
 	    LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH) \
-	    -C $(NATIVE_LILY_BUILD)/scripts DOCUMENTATION=yes CROSS=no \
-	    man install-help2man
-	make DESTDIR=$(NATIVE_LILY_BUILD)/out-info-man \
-	    PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
-	    LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH) \
-	    -C $(NATIVE_LILY_BUILD)/lily DOCUMENTATION=yes CROSS=no \
-	    man install-help2man
+	    -C $(NATIVE_LILY_BUILD)/ DOCUMENTATION=yes CROSS=no \
+	    install-help2man
 	tar -C $(NATIVE_LILY_BUILD)/out-info-man/ \
 	    -cjf $(CWD)/uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).info-man.tar.bz2 .
 
