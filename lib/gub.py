@@ -396,8 +396,20 @@ rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_roo
     @subst_method
     def is_sdk_package (self):
         return 'false'
-    
+
+    def rewire_symlinks (self):
+        for f in self.locate_files ('%(install_root)s', '*'):
+            if os.path.islink (f):
+                s = os.readlink (f)
+                if s.startswith ('/') and self.settings.system_root not in s:
+                    print 'changing absolute link %s -> %s' % (f, s)
+                    os.remove (f)
+                    os.symlink (os.path.join (self.settings.system_root, s), f)
+
+        
     def package (self):
+        self.rewire_symlinks ()
+        
         ps = self.get_packages ()
         for p in ps:
             p.create_tarball ()
@@ -636,15 +648,6 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
 
         return self
 
-    def lib_rewire (self):
-        # Rewire absolute names and symlinks.
-        # Better to create relative ones?
-        for i in glob.glob (self.expand ('%(srcdir)s/root/usr/lib/lib*.so')):
-            if os.path.islink (i):
-                s = os.readlink (i)
-                if s.startswith ('/'):
-                    os.remove (i)
-                    os.symlink (self.settings.system_root + s, i)
 
 class BinarySpec (BuildSpec):
     def configure (self):
