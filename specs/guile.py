@@ -67,8 +67,6 @@ class Guile (targetpackage.TargetBuildSpec):
 
     def install (self):
         targetpackage.TargetBuildSpec.install (self)
-        
-        
         majmin_version = '.'.join (self.expand ('%(version)s').split ('.')[0:2])
         
         self.dump ("prependdir GUILE_LOAD_PATH=$INSTALLER_PREFIX/share/guile/%(majmin_version)s\n",
