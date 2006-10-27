@@ -238,11 +238,25 @@ download-local:
 		guile pkg-config nsis icoutils expat gettext \
 		distcc texinfo automake
 
+###
+# document why this is in the bootstrap
+
+# -guile: bootstrap guile
+# -gettext: AM_GNU_GETTEXT
+# -mftrace, fontforge, potrace: lilypond
+# -texinfo: need 4.8 for lily
+# -automake: prevent version confusion
+# -pkg-config: nonstandard (eg. MacOS)
+# -icoutils: lilypond mingw icons
+# -distcc: nonstandard (eg. MacOS)
+
 local:
 	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local build \
 		flex mftrace potrace fontforge \
-		guile pkg-config expat icoutils \
-		distcc texinfo automake 
+		guile pkg-config icoutils \
+		distcc texinfo automake gettext
+
+
 
 local-cross-tools:
 ifneq ($(filter mingw, $(PLATFORMS)),)
