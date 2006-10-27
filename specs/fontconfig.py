@@ -30,6 +30,8 @@ specified by applications.'''
         # FIXME: system dir vs packaging install
 
         ## UGH  - this breaks  on Darwin!
+        ## UGH2 - the added /cross/ breaks Cygwin; possibly need
+        ## Freetype_config package (see Guile_config, Python_config)
         return (targetpackage.TargetBuildSpec.configure_command (self) 
                 + misc.join_lines ('''
 --with-arch=%(target_architecture)s
@@ -174,9 +176,17 @@ class Fontconfig__cygwin (Fontconfig):
         return (Fontconfig.__doc__.replace ('\n', ' - %(flavor)s\n', 1)
                 % locals ())
 
-    def configure_command (self):
+    def old_configure_command (self):
         return (Fontconfig.configure_command (self)
                 + ' --sysconfdir=/etc --localstatedir=/var')
+
+    def configure_command (self):
+        return (targetpackage.TargetBuildSpec.configure_command (self)
+                + misc.join_lines ('''
+--with-arch=%(target_architecture)s
+--with-freetype-config="%(system_root)s/usr/bin/freetype-config
+--prefix=%(system_root)s/usr
+"'''))
 
     def install (self):
         Fontconfig.install (self)
