@@ -4,7 +4,8 @@ class Urw_fonts (gub.BinarySpec):
     def __init__ (self, settings):
         gub.BinarySpec.__init__ (self, settings)
         self.with(version="1.0.7pre41",
-                  mirror="ftp://ftp.gnome.ru/fonts/urw/release/urw-fonts-%(version)s.tar.bz2")
+                  mirror="ftp://ftp.gnome.ru/fonts/urw/release/urw-fonts-%(version)s.tar.bz2",
+                  strip_dir=False)
     def compile (self):
         self.system ('cd %(srcdir)s/ &&  rm README* COPYING ChangeLog TODO')
 
