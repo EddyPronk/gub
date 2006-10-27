@@ -240,7 +240,8 @@ def get_cygwin_package (settings, name, dict):
     import repository
     package.vc_repository = repository.TarBall (settings.downloads,
                                                 package.url,
-                                                package.ball_version)
+                                                package.ball_version,
+                                                strip_components=0)
     return package
 
 ## UGH.   should split into parsing  package_file and generating gub specs.
