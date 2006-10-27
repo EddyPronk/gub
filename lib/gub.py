@@ -393,11 +393,7 @@ rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_roo
         return 'false'
 
     def rewire_symlinks (self):
-        if isinstance (self, BinarySpec):
-            files = self.locate_files ('%(srcdir)s', '*')
-        else:
-            files = self.locate_files ('%(install_root)s', '*')
-        for f in files:
+        for f in self.locate_files ('%(install_root)s', '*'):
             if os.path.islink (f):
                 s = os.readlink (f)
                 if s.startswith ('/') and self.settings.system_root not in s:
