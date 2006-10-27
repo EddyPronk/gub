@@ -24,8 +24,10 @@ test_settings = eval (open ('test-settings.py').read ())
 
 platform_test_aliases = {
     'linux-x86': 'shar',
-    'linux-64': 'unix',
-    'freebsd-x86': 'unix'
+    'linux-64': 'shar',
+    'darwin-ppc' : 'darwin',
+    'darwin-x86' : 'darwin',
+    'freebsd-x86': 'shar'
 }
 
 def test_build (bin):
