@@ -28,7 +28,6 @@ class Gcc (cross.Gcc):
 class Freebsd_runtime (gub.BinarySpec, gub.SdkBuildSpec):
     def untar (self):
         gub.BinarySpec.untar (self)
-        self.lib_rewire ()
     def patch (self):
         self.system ('rm -rf %(srcdir)s/usr/include/g++')
 

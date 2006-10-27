@@ -62,6 +62,8 @@ class PackageSpec:
             
     def create_tarball (self):
         cmd = 'tar -C %(install_root)s/%(packaging_suffix_dir)s --ignore-failed --exclude="*~" -zcf %(split_ball)s '
+
+        ## FIXME: use glob.glob 
         cmd += (' '.join ('$(cd %%(install_root)s && echo ./%s)'
                           % f for f in self._file_specs)).replace ('//','/')
         cmd = self.expand (cmd)
@@ -174,7 +176,7 @@ class BuildSpec (Os_context_wrapper):
         
     @subst_method
     def version (self):
-        return misc.split_version (self.ball_version)[0]
+        return self.vc_repository.version ()
 
     @subst_method
     def name_version (self):
@@ -394,8 +396,20 @@ rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_roo
     @subst_method
     def is_sdk_package (self):
         return 'false'
-    
+
+    def rewire_symlinks (self):
+        for f in self.locate_files ('%(install_root)s', '*'):
+            if os.path.islink (f):
+                s = os.readlink (f)
+                if s.startswith ('/') and self.settings.system_root not in s:
+                    print 'changing absolute link %s -> %s' % (f, s)
+                    os.remove (f)
+                    os.symlink (os.path.join (self.settings.system_root, s), f)
+
+        
     def package (self):
+        self.rewire_symlinks ()
+        
         ps = self.get_packages ()
         for p in ps:
             p.create_tarball ()
@@ -503,12 +517,12 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"  -zcf %(src_package_ball)
             return False
         if not (self.vc_repository and self.vc_repository.is_tracking ()) :
             self.system ('rm -rf %(srcdir)s %(builddir)s %(install_root)s')
-            
+
         if self.vc_repository:
             self.vc_repository.update_workdir (self.expand ('%(srcdir)s'))
             
         if (os.path.isdir (self.expand ('%(srcdir)s'))):
-            self.system ('cd %(srcdir)s && chmod -R +w .')
+            self.system ('chmod -R +w %(srcdir)s')
 
     def untar_cygwin_src_package_variant2 (self, file_name, split=False):
         '''Unpack this unbelievably broken version of Cygwin source packages.
@@ -610,10 +624,18 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
     def with_vc (self, repo):
         self.vc_repository = repo
         
+    # TODO: junk this, use with_vc (TarBall (), Version ())
     def with (self,
               mirror='',
               version='',
-              format='gz'):
+              format=''):
+
+        if not format:
+            format = self.__dict__.get ('format', 'gz')
+        if not mirror:
+            mirror = self.__dict__.get ('url', '')
+        if not version and self.version:
+            version = self.ball_version
 
         self.format = format
         self.ball_version = version
@@ -624,23 +646,20 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
         name = self.name ()
         package_arch = self.settings.package_arch
         if mirror:
-            self.vc_repository = repository.TarBall (self.settings.downloads, mirror % locals ())
+            self.vc_repository = repository.TarBall (self.settings.downloads,
+                                                     # Hmm, better to construct
+                                                     # mirror later?
+                                                     mirror % locals (),
+                                                     version)
+        else:
+            self.vc_repository = repository.Version (version)
+
         self.ball_version = version
 
         ## don't do substitution. We want to postpone
         ## generating the dict until we're sure it doesn't change.
 
         return self
-
-    def lib_rewire (self):
-        # Rewire absolute names and symlinks.
-        # Better to create relative ones?
-        for i in glob.glob (self.expand ('%(srcdir)s/usr/lib/lib*.so')):
-            if os.path.islink (i):
-                s = os.readlink (i)
-                if s.startswith ('/'):
-                    os.remove (i)
-                    os.symlink (self.settings.system_root + s, i)
 
 class BinarySpec (BuildSpec):
     def configure (self):

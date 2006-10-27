@@ -33,6 +33,26 @@ class Repository:
 
         assert 0
 
+    # FIXME: merge version and checksum?
+    def version  (self):
+        assert 0
+
+class Version:
+    def __init__ (self, version):
+        self._version = version
+
+    def download (self):
+        pass
+
+    def get_checksum (self):
+        return self.version ()
+
+    def is_tracking (self):
+        return False
+
+    def version (self):
+        return self._version
+
 class DarcsRepository (Repository):
     def __init__ (self, dir, source=''):
         Repository.__init__ (self)
@@ -97,16 +117,17 @@ class DarcsRepository (Repository):
 
     
 class TarBall (Repository):
-    def __init__ (self, dir, url, strip_dir=True):
+    def __init__ (self, dir, url, version):
         Repository.__init__ (self)
         if not os.path.isdir (dir):
             self.system ('mkdir -p %s' % dir)
 
         self.dir = dir
         self.url = url
-        self.strip_dir = strip_dir
+        self._version = version
         self.branch = None
         self.revision = None
+          
     
     def is_tracking (self):
         return False
@@ -132,13 +153,8 @@ class TarBall (Repository):
             self.system ('rm -rf %s' % destdir)
 
         tarball = self.dir + '/' + self._filename ()
-
-        strip_opt = ''
-        self.system ('mkdir %s' % destdir)
-        if self.strip_dir:
-            strip_opt = '--strip-component 1'
-            
-        self.system ('ar p %(tarball)s data.tar.gz | tar -C %(destdir)s %(strip_opt)s -zxf -' % locals ())
+        self.system ('mkdir %s' % destdir)       
+        self.system ('ar p %(tarball)s data.tar.gz | tar -C %(destdir)s --strip-component 1 -zxf -' % locals ())
         
     def update_workdir_tarball (self, destdir):
         
@@ -148,19 +164,18 @@ class TarBall (Repository):
         if os.path.isdir (destdir):
             self.system ('rm -rf %s' % destdir)
 
-        ## fixme C&P
-        strip_opt = ''
-        self.system ('mkdir %s' % destdir)
-        if self.strip_dir:
-            strip_opt = '--strip-component 1'
-
-        self.system ('tar -C %(destdir)s %(strip_opt)s  %(flags)s %(tarball)s' % locals ())
+        self.system ('mkdir %s' % destdir)       
+        self.system ('tar -C %(destdir)s --strip-component 1  %(flags)s %(tarball)s' % locals ())
 
     def update_workdir (self, destdir):
         if '.deb' in self._filename () :
             self.update_workdir_deb (destdir)
         else:
             self.update_workdir_tarball (destdir)
+
+    def version (self):
+        import misc
+        return self._version
 
 class RepositoryException (Exception):
     pass
@@ -174,6 +189,9 @@ class GitRepository (Repository):
         self.branch = branch
         self.revision = revision
         self.source = source
+
+    def version (self):
+        return self.revision
 
     def is_tracking (self):
         return self.branch != ''
@@ -519,7 +537,8 @@ class Subversion (Repository):
         cmd = 'cd %(working)s && svn up %(rev_opt)s' % locals ()
         self.system (cmd)
 
-
+    def version (self):
+        return self.revision
 
 def get_repository_proxy (dir, branch):
     m = re.search (r"(.*)\.(git|cvs|svn|darcs)", dir)
