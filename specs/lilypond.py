@@ -21,7 +21,7 @@ beautiful sheet music from a high-level description file.'''
         repo = repository.GitRepository (
             self.get_repodir(),
             branch=settings.lilypond_branch,
-            source='http://lilypond.org/~hanwen/lilypond.git/')
+            source='http://lilypond.org/vc/lilypond.git/')
         
         if 0:
             repo = repository.CVSRepository (
