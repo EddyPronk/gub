@@ -285,28 +285,22 @@ unlocked-doc-clean:
 	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_BRANCH) \
 		DOCUMENTATION=yes web-clean
 
-# During make web, gs is invoked directly from makefile,
-# ie, without lilypond's relocating magic.
-BARE_GS_RELOCATION = PATH=$(NATIVE_ROOT)/usr/bin:$$PATH \
+DOC_RELOCATION = \
+    LILYPOND_EXTERNAL_BINARY="$(NATIVE_ROOT)/usr/bin/lilypond" \
+    PATH=$(CWD)/target/local/system/usr/bin:$(NATIVE_ROOT)/usr/bin:$$PATH \
     GS_LIB=$(NATIVE_ROOT)/usr/share/ghostscript/*/lib \
     LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$$LD_LIBRARY_PATH
+    MALLOC_CHECK_=2 \
 
 unlocked-doc-build:
 	unset LILYPONDPREFIX \
-	    && make -C $(NATIVE_LILY_BUILD) \
-	    LILYPOND_EXTERNAL_BINARY="$(NATIVE_ROOT)/usr/bin/lilypond"\
-	    PATH=$(CWD)/target/local/system/usr/bin:$(PATH) \
-	    LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH) \
-	    $(BARE_GS_RELOCATION)\
+	    && $(DOC_RELOCATION) \
+		make -C $(NATIVE_LILY_BUILD) \
 	    DOCUMENTATION=yes do-top-doc
 	unset LILYPONDPREFIX \
 	    && ulimit -m 256000 \
-	    && make -C $(NATIVE_LILY_BUILD) \
-	    LILYPOND_EXTERNAL_BINARY="$(NATIVE_ROOT)/usr/bin/lilypond"\
-	    MALLOC_CHECK_=2 \
-	    PATH=$(CWD)/target/local/system/usr/bin:$(PATH) \
-	    LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH) \
-	    $(BARE_GS_RELOCATION)\
+	    && $(DOC_RELOCATION) \
+		make -C $(NATIVE_LILY_BUILD) \
 	    DOCUMENTATION=yes web
 	tar -C $(NATIVE_LILY_BUILD)/out-www/web-root/ \
 	    -cjf $(CWD)/uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).documentation.tar.bz2 . 
@@ -314,19 +308,12 @@ unlocked-doc-build:
 unlocked-info-man-build:
 	unset LILYPONDPREFIX \
 	    && ulimit -m 256000 \
-	    && make -C $(NATIVE_LILY_BUILD)/Documentation/user \
-	    LILYPOND_EXTERNAL_BINARY="$(NATIVE_ROOT)/usr/bin/lilypond"\
-	    MALLOC_CHECK_=2 \
-	    PATH=$(CWD)/target/local/system/usr/bin:$(PATH) \
-	    LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH) \
+	    && $(DOC_RELOCATION) \
+		make -C $(NATIVE_LILY_BUILD)/Documentation/user \
 	    DOCUMENTATION=yes out=out-www info
-	make DESTDIR=$(NATIVE_LILY_BUILD)/out-info-man \
-	    PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
-	    LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH) \
+	$(DOC_RELOCATION) make DESTDIR=$(NATIVE_LILY_BUILD)/out-info-man \
 	    -C $(NATIVE_LILY_BUILD)/Documentation/user out=www install-info
-	make DESTDIR=$(NATIVE_LILY_BUILD)/out-info-man \
-	    PATH=$(CWD)/target/local/system/usr/bin/:$(PATH) \
-	    LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH) \
+	$(DOC_RELOCATION) make DESTDIR=$(NATIVE_LILY_BUILD)/out-info-man \
 	    -C $(NATIVE_LILY_BUILD)/ DOCUMENTATION=yes CROSS=no \
 	    install-help2man
 	tar -C $(NATIVE_LILY_BUILD)/out-info-man/ \
