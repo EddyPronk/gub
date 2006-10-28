@@ -30,12 +30,8 @@ build-all - build, strip, package
 
     p.add_option ('-B', '--branch', action='store',
                   dest='lilypond_branch',
-                  type='choice',
                   default='origin',
-                  help='select lilypond branch [origin]',
-                  choices=['lilypond_2_6', 'lilypond_2_8', 'origin',
-                           #'HEAD'
-                           ])
+                  help='select lilypond branch [origin]')
     
     p.add_option ('-l', '--skip-if-locked',
                   default=False,
