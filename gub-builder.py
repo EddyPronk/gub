@@ -32,10 +32,8 @@ build             - build target packages
 
     p.add_option ('-B', '--branch', action='store',
                   dest='lilypond_branch',
-                  type='choice',
-                  default='HEAD',
-                  help='select lilypond branch [HEAD]',
-                  choices=['lilypond_2_6', 'lilypond_2_8', 'origin', 'HEAD'])
+                  default='origin',
+                  help='select lilypond branch [origin]')
 
     p.add_option ('-k', '--keep', action='store_true',
                   dest='keep_build',
