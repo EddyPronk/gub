@@ -520,7 +520,7 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"  -zcf %(src_package_ball)
             self.vc_repository.update_workdir (self.expand ('%(srcdir)s'))
             
         if (os.path.isdir (self.expand ('%(srcdir)s'))):
-            self.system ('chmod -R +w %(srcdir)s')
+            self.system ('chmod -R +w %(srcdir)s', ignore_error=True)
 
     def pre_install_smurf_exe (self):
         for i in self.locate_files ('%(builddir)s', '*.exe'):
