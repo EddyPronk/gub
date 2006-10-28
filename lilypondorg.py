@@ -17,7 +17,7 @@ platforms = ['linux-x86',
              'darwin-ppc',
              'darwin-x86',
              'documentation',
-#             'freebsd4-x86',
+             'freebsd-x86',
 #             'freebsd6-x86',
 #             'linux-arm',
              'mingw']
@@ -46,6 +46,7 @@ formats = {
 
     'freebsd4-x86': 'sh',
     'freebsd6-x86': 'sh',
+    'freebsd-x86': 'sh',
 
     'mingw':'exe',
 
