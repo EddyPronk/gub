@@ -43,10 +43,19 @@ ACQUIRING
 The Darcs (www.darcs.net) repository is at 
 
   http://lilypond.org/vc/gub.darcs/
+  http://lilypond.org/vc/gub-stable.darcs/
 
-You can get the GUB builder by doing
+Where the latter is should the last version that has been tested
+extensively.
 
-  darcs get http://lilypond.org/~hanwen/gub/
+You can get the GUB builder by doing 
+
+  darcs get [repository]
+
+for example,
+
+  darcs get http://lilypond.org/vc/gub-stable.darcs/
+
 
 
 INSTALLING
