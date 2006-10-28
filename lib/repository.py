@@ -321,7 +321,7 @@ class GitRepository (Repository):
             self.system ('mkdir -p ' + destdir)
 
         if os.path.isdir (destdir + '/.git'):
-            self.git ('pull %(repo_dir)s %(branch)s:%(branch)s' % locals (), dir=destdir)
+            self.git ('pull --no-tags %(repo_dir)s %(branch)s:%(branch)s' % locals (), dir=destdir)
         else:
             self.git ('init-db', dir=destdir)
 
