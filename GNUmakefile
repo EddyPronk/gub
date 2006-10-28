@@ -69,27 +69,27 @@ BUILDNUMBER_FILE = buildnumber-$(LILYPOND_BRANCH).make
 
 -include local.make
 -include $(BUILDNUMBER_FILE)
+LILYPOND_VERSION=$(shell cat VERSION-$(BRANCH) || echo '0.0.0')
 
-LILYPOND_VERSION=$(shell cat VERSION || echo '0.0.0')
-VERSION:
-	PATH=$(CWD)/target/local/system/usr/bin:$(PATH) \
-		$(PYTHON) test-lily/set-installer-version.py --branch $(LILYPOND_BRANCH) $(LILYPOND_GITDIR) $(LILYPOND_CVS_REPODIR)
-
-UPDATE-BUILDNUMBER=echo 'INSTALLER_BUILD='`python lilypondorg.py nextbuild $(LILYPOND_VERSION)` > $(BUILDNUMBER_FILE)
+VERSION_FILE=VERSION-$(BRANCH)
 
 $(BUILDNUMBER_FILE):
-	$(UPDATE-BUILDNUMBER)
+	echo 'INSTALLER_BUILD='`python lilypondorg.py nextbuild $(LILYPOND_VERSION)` > $(BUILDNUMBER_FILE)
+
+$(VERSION_FILE):
+	PYTHONPATH=lib $(PYTHON) test-lily/set-installer-version.py --output $@ --branch $(LILYPOND_BRANCH) $(LILYPOND_GITDIR) $(LILYPOND_CVS_REPODIR)
 
 unlocked-update-buildnumber:
-	$(UPDATE-BUILDNUMBER)
+	rm $(BUILDNUMBER_FILE)
+	$(MAKE) $(BUILDNUMBER_FILE) 
 
 update-buildnumber:
 	$(PYTHON) test-lily/with-lock.py --skip $(BUILDNUMBER_FILE).lock make unlocked-update-buildnumber
 
 download:
 	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB_BUILDER,$(p)) download lilypond && ) true
-	rm -f VERSION
-	$(MAKE) VERSION
+	rm -f $(VERSION_FILE)
+	$(MAKE) $(VERSION_FILE)
 	$(MAKE) downloads/genini
 	rm -f target/*/status/lilypond*
 	rm -f log/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).*.test.pdf

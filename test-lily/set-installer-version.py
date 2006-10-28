@@ -17,7 +17,7 @@ def parse_options ():
     p.add_option ('--output',
 		  action="store",
 		  dest="output",
-                  default="VERSION",
+                  default="",
 		  help="where to write result.")
     
     (o,a) = p.parse_args ()
@@ -78,8 +78,10 @@ def main ():
     if not version:
         version = '0.0.0'
 
-    print 'found version', version
-    open (o.output, 'w').write (version)
-
+    if o.output:
+        print 'found version', version
+        open (o.output, 'w').write (version)
+    else:
+        print version
 if __name__ == '__main__':
     main ()
