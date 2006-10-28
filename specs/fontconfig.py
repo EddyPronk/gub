@@ -140,6 +140,13 @@ class Fontconfig__cygwin (Fontconfig):
         Fontconfig.__init__ (self, settings)
         self.with (mirror=download.fontconfig, version='2.4.1')
 
+    def get_subpackage_definitions (self):
+        d = dict (Fontconfig.get_subpackage_definitions (self))
+        # urg, must remove usr/share. Because there is no doc package,
+        # runtime iso '' otherwise gets all docs.
+        d['runtime'] = ['/usr/lib']
+        return d
+
     def get_subpackage_names (self):
         #return ['devel', 'doc', '']
         return ['devel', 'runtime', '']
