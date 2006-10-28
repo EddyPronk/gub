@@ -19,7 +19,10 @@ class Gettext (targetpackage.TargetBuildSpec):
         
         ## FIXME: libtool too old for cross compile
         self.update_libtool ()
-        
+        self.file_sub ( [
+                         ('(SUBDIRS *=.*)examples', r'\1 '),
+                         ],
+                        '%(builddir)s/gettext-tools/Makefile')
 
 class Gettext__freebsd (Gettext):
     def get_dependency_dict (self):
