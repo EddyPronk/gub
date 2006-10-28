@@ -381,11 +381,11 @@ class CVSRepository(Repository):
         if self.checksums.has_key (self.tag):
             return self.checksums[self.tag]
         
-        file = '%s/%s/.vc-checksum' % (self.repo_dir, branch)
+        file = '%s/%s/.vc-checksum' % (self.repo_dir, self.tag)
 
         if os.path.exists (file):
             cs = open (file).read ()
-            self.checksums[branch] = cs
+            self.checksums[self.tag] = cs
             return cs
         else:
             return '0'

@@ -19,7 +19,7 @@ beautiful sheet music from a high-level description file.'''
         targetpackage.TargetBuildSpec.__init__ (self, settings)
 
         repo = repository.GitRepository (
-            self.get_repodir(),
+            self.get_repodir (),
             branch=settings.lilypond_branch,
             source='http://lilypond.org/vc/lilypond.git/')
         
@@ -27,7 +27,7 @@ beautiful sheet music from a high-level description file.'''
             repo = repository.CVSRepository (
                 self.get_repodir (),
                 source=':pserver:anoncvs@cvs.sv.gnu.org:/cvsroot/lilypond',
-                'lilypond',
+                module='lilypond',
                 tag=settings.lilypond_branch)
         
         def version_from_VERSION (self):
