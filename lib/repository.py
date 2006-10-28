@@ -234,10 +234,11 @@ class GitRepository (Repository):
         branches =  [b[2:] for b in branch_lines]
         return [b for b in branches if b]
 
-    def git_command (self, object_dir, dir, repo_dir):
+    def git_command (self, dir, repo_dir):
         if repo_dir:
             repo_dir = '--git-dir %s' % repo_dir
-        c = 'GIT_OBJECT_DIRECTORY=%(object_dir)s git %(repo_dir)s' % locals ()
+
+        c = 'git %(repo_dir)s' % locals ()
         if dir:
             c = 'cd %s && %s' % (dir, c)
 
@@ -249,7 +250,7 @@ class GitRepository (Repository):
         if repo_dir == '' and dir == '':
             repo_dir = self.repo_dir
         
-        gc = self.git_command (self.repo_dir + '/objects', dir, repo_dir)
+        gc = self.git_command (dir, repo_dir)
         cmd = '%(gc)s %(cmd)s' % locals ()
             
         self.system (cmd, ignore_error=ignore_error)
@@ -260,12 +261,10 @@ class GitRepository (Repository):
         if repo_dir == '' and dir == '':
             repo_dir = self.repo_dir
             
-        gc = self.git_command (self.repo_dir + '/objects', dir, repo_dir)
+        gc = self.git_command (dir, repo_dir)
         return self.read_pipe ('%(gc)s %(cmd)s' % locals ())
         
     def download (self):
-        "Fetch updates from internet"
-        
         repo = self.repo_dir
         source = self.source
         revision = self.revision
@@ -292,7 +291,6 @@ class GitRepository (Repository):
         open (self.repo_dir + '/HEAD', 'w').write ('ref: refs/heads/%s\n' % branch)
         
     def get_checksum (self):
-        
         branch = self.branch
         if self.checksums.has_key (branch):
             return self.checksums[branch]
@@ -317,13 +315,10 @@ class GitRepository (Repository):
         branch = self.branch
         revision = self.revision
         
-        if not os.path.isdir (destdir):
-            self.system ('mkdir -p ' + destdir)
-
         if os.path.isdir (destdir + '/.git'):
             self.git ('pull --no-tags %(repo_dir)s %(branch)s:%(branch)s' % locals (), dir=destdir)
         else:
-            self.git ('init-db', dir=destdir)
+            self.system ('git-clone -s %(repo_dir)s %(destdir)s' % locals ())
 
         if not revision:
             revision = open ('%(repo_dir)s/refs/heads/%(branch)s' % locals ()).read ()
