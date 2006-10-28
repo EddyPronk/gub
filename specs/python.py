@@ -59,6 +59,7 @@ class Python (targetpackage.TargetBuildSpec):
         c += ' BUILDPYTHON=python-bin '
         return c
 
+    # FIXME: c&p linux.py:install ()
     def install (self):
         targetpackage.TargetBuildSpec.install (self)
         cfg = open (self.expand ('%(sourcefiledir)s/python-config.py.in')).read ()
