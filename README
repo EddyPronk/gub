@@ -17,11 +17,17 @@ darwin-x86
 mingw
    mingw executable for Windows32
 
-linux
+linux-x86
    shar archive for Linux/x86
 
-freebsd
-   shar archive for FreeBSD/x86
+linux-64
+   shar archive for Linux/x86_64
+
+freebsd-x86
+   shar archive for FreeBSD 4/x86
+
+cygwin
+   .tar.bz2 packages for Cygwin/Windows32 
 
 arm
    shar archive for Linux/ARM (largely untested)
@@ -29,8 +35,6 @@ arm
 debian
    .deb package for Debian (Linux/x86) (largely untested)
 
-cygwin
-   .tar.bz2 packages for Cygwin/Windows32 (largely untested)
 
 
 ACQUIRING
@@ -38,7 +42,7 @@ ACQUIRING
 
 The Darcs (www.darcs.net) repository is at 
 
-  http://lilypond.org/~hanwen/gub/
+  http://lilypond.org/vc/gub.darcs/
 
 You can get the GUB builder by doing
 
@@ -50,7 +54,7 @@ INSTALLING
 
 * You need 
 
-  - about 7 GB of free space
+  - about 7 GB of free space (for all platforms.)
 
   - A standard unix development environment with GCC and G++
   GNU Make
@@ -59,52 +63,32 @@ INSTALLING
 
   - A working TeX installation
 
-* Edit local.make to set some variables.  Here is what my local.make
-  contains
+  - A subversion client
 
-  BUILD_PLATFORM=linux
-  GUB_DISTCC_ALLOW_HOSTS='192.168.123.191 192.168.123.162 127.0.0.1 192.168.123.107'
+* Edit local.make to set some variables.  Here is what my local.make
+  contains.
+
+  BUILD_PLATFORM=linux-x86
+
+
+  Typically, you would also set
+
+  PLATFORMS=$(BUILD_PLATFORM)
 
 * Prepare build environment
 
   make bootstrap
 
-* sync the download dir
+* Build everything 
 
-  make download
+  make all
 
-* Build the installers
+this should leave an installer and documentation in
 
-  make PLATFORM
+  uploads/lilypond-VERSION-RELEASE.linux-x86.shar
+  uploads/lilypond-VERSION-RELEASE.documentation.tar.bz2
+  uploads/webdoc/VERSION/
 
-this should leave packages in
-
-  uploads/PLATFORM/
-
-and an installer in
-
-  uploads/lilypond-VERSION-RELEASE.PLATFORM.FORMAT
-
-On linux you can directly run the lilypond version which is installed in
-
-  target/linux/system/usr/bin/lilypond
-
-
-
-DISTCC SUPPORT
-**************
-
-Run
-
-  make distccd
-
-on a compile server, and
-
-  make <targets> GUB_NATIVE_DISTCC_HOSTS='<hostnames>' \
-  	GUB_CROSS_DISTCC_HOSTS='<hostnames>'
-
-GUB_NATIVE_DISTCC_HOSTS should only be used for machines that run the
-same platform.
 
  
 
@@ -134,7 +118,9 @@ tests. Run without arguments for instructions
   rsync-lily-doc.py
                   - prepare documentation for upload
   dist-check.py   - check tarball for anomalies
-		  
+  cygwin-packager.py
+                  - repackage GUB packages into Cygwin tarballs.
+
 
 
 CRON usage
