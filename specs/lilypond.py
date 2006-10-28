@@ -283,10 +283,6 @@ LDFLAGS="%(LDFLAGS)s %(python_lib)s"
     def install (self):
         ##LilyPond.install (self)
         targetpackage.TargetBuildSpec.install (self)
-        # FIXME: we do this for all cygwin packages
-	self.post_install_smurf_exe ()
-        self.install_readmes ()
-
         self.install_doc ()
 
     def install_doc (self):

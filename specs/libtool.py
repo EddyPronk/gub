@@ -55,10 +55,6 @@ class Libtool__cygwin (Libtool):
         d[''].append ('cygwin')
         return d
 
-    def install (self):
-        Libtool.install (self)
-        self.install_readmes ()
-
     # FIXME: we do most of this for all cygwin packages
     def category_dict (self):
         return {'': 'interpreters',

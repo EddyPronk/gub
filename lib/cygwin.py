@@ -138,6 +138,7 @@ def get_cross_packages (settings):
         Binutils (settings).with (version='2.17', format='bz2', mirror=download.gnu),
         W32api_in_usr_lib (settings).with (version='1.0',  strip_components=0),
         Gcc (settings).with (version='4.1.1', mirror=download.gcc_41, format='bz2'),
+        linux.Freetype_config (settings).with (version='2.1.9'),
         linux.Python_config (settings).with (version='2.4.3'),
 # FIXME: using the binary libtool package is quite involved, it has
 # names of tools hardcoded and wrong (LD, NM, SED, GCC, GREP, ...)
@@ -145,25 +146,28 @@ def get_cross_packages (settings):
         ]
     return cross_packs
 
-def add_cyg_dll (d):
-    k = ''
-    if d.has_key (k):
-        k = 'runtime'
-    d[k].append ('/usr/bin/cyg*dll')
-    d[k].append ('/etc/postinstall')
-    return d
-
 def change_target_package (package):
     cross.change_target_package (package)
-
-    # FIXME: this does not work (?)
     package.get_build_dependencies \
             = misc.MethodOverrider (package.get_build_dependencies,
-                                    lambda d, extra: d + extra,
-                                    (['cygwin'],))
+                                    lambda d, extra: d + extra, (['cygwin'],))
 
-    package.get_subpackage_definitions = misc.MethodOverrider (
-        package.get_subpackage_definitions, add_cyg_dll)
+    def add_cyg_dll (d):
+        k = 'runtime'
+        if not d.has_key (k):
+            k = ''
+        d[k].append ('/usr/bin/cyg*dll')
+        d[k].append ('/etc/postinstall')
+        return d
+
+    package.get_subpackage_definitions \
+        = misc.MethodOverrider (package.get_subpackage_definitions, add_cyg_dll)
+
+    def install (package):
+	package.post_install_smurf_exe ()
+        package.install_readmes ()
+
+    package.install = misc.MethodOverrider (package.install, install, package)
 
     ## TODO : get_dependency_dict
         

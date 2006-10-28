@@ -190,6 +190,11 @@ class Fontconfig__cygwin (Fontconfig):
 
     def install (self):
         Fontconfig.install (self)
-        # FIXME: we do this for all cygwin packages
-	self.post_install_smurf_exe ()
-        self.install_readmes ()
+        name = 'fontconfig-postinstall.sh'
+        postinstall = '''#! /bin/sh
+# cleanup previous packages' silly symlink.
+rm -f /usr/X11R6/bin/fontconfig
+'''
+        self.dump (postinstall,
+                   '%(install_root)s/etc/postinstall/%(name)s',
+                   env=locals ())
