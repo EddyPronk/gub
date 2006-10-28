@@ -12,8 +12,6 @@ import pickle
 
 sys.path.insert (0, 'lib')
 
-import repository
-
 platforms = ['linux-x86',
              'linux-64',
              'darwin-ppc',
@@ -313,6 +311,10 @@ nextbuild x.y.z   - get next build number
     return p
 
 def get_repository (options):
+
+    ## do here, because also used in website generation.
+    import repository
+
 
     dir = options.repo_dir.replace ('.git','')
     repo = repository.GitRepository (dir, 
