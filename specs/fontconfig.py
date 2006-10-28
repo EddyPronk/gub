@@ -197,6 +197,7 @@ class Fontconfig__cygwin (Fontconfig):
                 + ' --sysconfdir=/etc --localstatedir=/var')
 
     def install (self):
+        self.pre_install_smurf_exe ()
         Fontconfig.install (self)
         name = 'fontconfig-postinstall.sh'
         postinstall = '''#! /bin/sh
