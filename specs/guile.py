@@ -230,8 +230,6 @@ class Guile__cygwin (Guile):
     def __init__ (self, settings):
         Guile.__init__ (self, settings)
         self.with (version='1.8.1')
-        self.replace_ltdl = False
-        self.static_ltdl = False
 
     # Using gub dependencies only would be nice, but
     # we need to a lot of gup.gub_to_distro_deps ().
