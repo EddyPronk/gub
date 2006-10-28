@@ -131,11 +131,6 @@ class Texlive__cygwin (Texlive):
     def __init__ (self, settings):
         Texlive.__init__ (self, settings)
 
-    def get_subpackage_definitions (self):
-        d = dict (Texlive.get_subpackage_definitions (self))
-        d['runtime'].append ('/usr/bin/cyg*dll')
-        return d
-
     # FIXME: uses mixed gub/distro dependencies
     def get_dependency_dict (self):
         d = Texlive.get_dependency_dict (self)
