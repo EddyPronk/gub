@@ -176,17 +176,18 @@ class Fontconfig__cygwin (Fontconfig):
         return (Fontconfig.__doc__.replace ('\n', ' - %(flavor)s\n', 1)
                 % locals ())
 
-    def old_configure_command (self):
+    def configure_command (self):
         return (Fontconfig.configure_command (self)
                 + ' --sysconfdir=/etc --localstatedir=/var')
 
-    def configure_command (self):
+    def xxx_noconfig_configure_command (self):
         return (targetpackage.TargetBuildSpec.configure_command (self)
                 + misc.join_lines ('''
 --with-arch=%(target_architecture)s
 --with-freetype-config="%(system_root)s/usr/bin/freetype-config
 --prefix=%(system_root)s/usr
-"'''))
+"''')
+                + ' --sysconfdir=/etc --localstatedir=/var')
 
     def install (self):
         Fontconfig.install (self)
