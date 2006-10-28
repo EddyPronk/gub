@@ -166,6 +166,10 @@ def upload_binaries (repo, version):
     src_dests = []
     cmds = []
 
+#    committish = repo.git_pipe ('log --max-count=1')
+#    committish = re.search ('commit[ \t]+(.*)\n', committish).group (1) 
+    
+    committish = repo.git_pipe ('describe --abbrev=24')
     commitishes = {}
     barf = False
     for platform in platforms:
@@ -183,6 +187,18 @@ def upload_binaries (repo, version):
             host = host_binaries_spec 
             src_dests.append((os.path.abspath (bin), '%(host)s/%(platform)s' % locals()))
             
+        try:
+            branch = 'origin'
+            hdr = pickle.load (open ('uploads/%(platform)s/lilypond-%(branch)s.%(platform)s.hdr' % locals ()))
+            key = hdr['source_checksum']
+            
+            lst = commitishes.get (key, [])
+            lst.append (platform)
+            
+            commitishes[key] = lst
+        except IOError:
+            pass
+        
         if (platform <> 'documentation'
             and  not os.path.exists ('log/%s.test.pdf' % base)):
             print 'test result does not exist for %s' % base
@@ -190,20 +206,12 @@ def upload_binaries (repo, version):
             
             barf = 1
 
-        if not barf:
-            branch = 'origin'
-            hdr = pickle.load (open ('uploads/%(platform)s/lilypond-%(branch)s.hdr' % locals ()))
-            key = hdr['source_checksum']
-            
-            lst = commitishes.get (key, [])
-            lst.append (platform)
-            
-            commitishes[key] = lst
-
         
-    if len (commitishes) > 1:
+    if len (commitishes) > 1 or commitishes.keys()[0] != committish:
         print 'uploading multiple versions'
-        print '\n'.join (commitishes.items ())
+        print '\n'.join (`x` for x in commitishes.items ())
+
+        print 'repo:', committish
         
     src_tarball = "uploads/lilypond-%(version_str)s.tar.gz" % locals ()
     src_tarball = os.path.abspath (src_tarball)
@@ -236,7 +244,7 @@ def upload_binaries (repo, version):
     description = repo.git_pipe ('describe --abbrev=36')
 
     darcs_tag_cmd = 'darcs tag --patch "release %(version_str)s-%(build)d of committish %(description)s' % locals()
-    git_tag_cmd = 'git --git-dir downloads/lilypond.git tag gub-%(version_str)s-%(build)d' % locals ()
+    git_tag_cmd = 'git --git-dir downloads/lilypond.git tag gub-%(version_str)s-%(build)d %(branch)s' % locals ()
 
     cmds.append (darcs_tag_cmd)
     cmds.append (git_tag_cmd)
