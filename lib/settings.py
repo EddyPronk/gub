@@ -12,6 +12,8 @@ platforms = {
     'darwin-ppc': 'powerpc-apple-darwin7',
     'darwin-x86': 'i686-apple-darwin8',
     'debian': 'i686-linux',
+    'freebsd-x86': 'i686-freebsd4',
+    
     'freebsd4-x86': 'i686-freebsd4',
     'freebsd6-x86': 'i686-freebsd6',
     'linux-x86': 'i686-linux',
@@ -56,7 +58,6 @@ class Settings (Context):
         ## and still cheaply construct a (partly) system root
         ## from .gub packages.
         self.uploads = self.topdir + '/uploads'
-        #self.gub_uploads = self.uploads + '/gub'
         self.gub_uploads = self.uploads + '/' + self.platform
 
         ## FIXME

@@ -356,6 +356,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/l
 }
 
 cross_config_cache['debian'] = cross_config_cache['linux-x86']
+cross_config_cache['freebsd-x86'] = cross_config_cache['freebsd6-x86']
 cross_config_cache['freebsd4-x86'] = cross_config_cache['freebsd6-x86']
 
 
@@ -387,6 +388,7 @@ def load_target_package (settings, url):
             init_vars['format'] = '.'.join (version)
     except:
         pass
+    
     file_name = settings.specdir + '/' + name + '.py'
     class_name = (name[0].upper () + name[1:]).replace ('-', '_')
     klass = None

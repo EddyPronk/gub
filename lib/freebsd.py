@@ -48,6 +48,8 @@ def get_cross_packages_61 (settings):
     return _get_cross_packages (settings, '6.1-RELEASE')
 
 def get_cross_packages (settings):
+    return get_cross_packages_41 (settings)
+
     if settings.target_architecture == 'i686-freebsd4':
         return get_cross_packages_41 (settings)
     return get_cross_packages_61 (settings)
