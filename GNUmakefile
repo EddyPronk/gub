@@ -234,7 +234,7 @@ bootstrap-git:
 
 download-local:
 	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local download \
-		flex mftrace potrace fontforge \
+		git flex mftrace potrace fontforge \
 		guile pkg-config nsis icoutils expat gettext \
 		distcc texinfo automake
 
@@ -254,7 +254,7 @@ download-local:
 
 local:
 	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local build \
-		flex mftrace potrace fontforge freetype \
+		git flex mftrace potrace fontforge freetype \
 		guile pkg-config icoutils \
 		distcc texinfo automake gettext 
 
