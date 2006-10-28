@@ -65,14 +65,14 @@ class Cygwin_package (context.Os_context_wrapper):
         ball = self.expand ('%(subload)s/%(cyg_split)s-%(version)s-%(build)s.tar.bz2', locals ())
 
         self._untar ('%(installer_root)s', '%(split_ball)s' % hdr)
-        self.dump_etc_hint (hdr, cyg_split)
+        self.dump_hint (hdr, self.expand ('%(installer_root)s/etc/hints/%(cyg_split)s.hint', locals ()))
         self.dump_readmes (hdr)
         self._CYGWIN_PATCHES_dir ()
         self.remove_cruft ()
         self.binary_strip ()
         self.infodir ()
         self._tar ('%(installer_root)s', ball, '*', locals ())
-        self.install_hint (cyg_split, subload)
+        self.dump_hint (hdr, '%(subload)s/setup.hint' % locals ())
 
     def re_src_ball (self):
         dir = self.expand ('%(installer_root)s-src')
@@ -241,11 +241,9 @@ rmdir %(installer_root)s/usr || true
             if os.path.isdir (dir):
                 self.strip_dir (dir)
 
-    def dump_etc_hint (self, hdr, cyg_split):
+    def dump_hint (self, hdr, name):
         hint = self.get_hint (hdr)
-        self.dump (hint,
-                   '%(installer_root)s/etc/hints/%(cyg_split)s.hint',
-                   env=locals ())
+        self.dump (hint, name, env=locals ())
 
     def dump_readmes (self, hdr):
         main_p = hdr['name'] == hdr['split_name']
@@ -255,7 +253,6 @@ rmdir %(installer_root)s/usr || true
                        '%(installer_root)s/usr/share/doc/Cygwin/%(name)s-%(version)s-%(build)s.README')
             self.dump (readme,
                        '%(installer_root)s/usr/share/doc/%(name)s/README.Cygwin')
-        self._CYGWIN_PATCHES_dir ()
 
     def infodir (self):
         infodir = self.expand ('%(installer_root)s/usr/share/info')
@@ -263,11 +260,6 @@ rmdir %(installer_root)s/usr || true
             self.system ('gzip %(infodir)s/%(name)s/*.info*', locals ())
         elif os.path.isdir (infodir):
             self.system ('gzip %(infodir)s/*.info*', locals ())
-
-    def install_hint (self, cyg_split, dir):
-        self.system ('''
-cp -pv %(installer_root)s/etc/hints/%(cyg_split)s.hint %(dir)s/setup.hint
-''', locals ())
 
 def parse_command_line ():
     p = optparse.OptionParser ()
