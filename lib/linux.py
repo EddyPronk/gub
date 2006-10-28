@@ -5,6 +5,35 @@ import cross
 import gub
 import targetpackage
 
+class Freetype_config (gub.SdkBuildSpec):
+    def __init__ (self, settings):
+        gub.SdkBuildSpec.__init__ (self, settings)
+        self.has_source = False
+
+    def untar (self):
+        pass
+
+    def install (self):
+        gub.SdkBuildSpec.install (self)
+        self.system ('mkdir -p %(cross_prefix)s/usr/bin')
+        
+        ft_version = self.version ()
+        prefix = '%(system_root)s/usr'
+        exec_prefix = '${prefix}'
+        includedir = '/usr/include'
+        libdir = '/usr/lib'
+        enable_shared = 'yes'
+        wl = '-Wl,'
+        hardcode_libdir_flag_spec='${wl}--rpath ${wl}$libdir'
+        LIBZ = '-lz'
+
+        s = open (self.expand ('%(sourcefiledir)s/freetype-config.in')).read ()
+        s = re.sub (r'@(\w+?)@', r'%(\1)s', s)
+        s = s % locals ()
+        file = self.expand ('%(install_prefix)s/cross/bin/freetype-config')
+        self.dump (s, file)
+        os.chmod (file, 0755)
+
 class Guile_config (gub.SdkBuildSpec):
     def __init__ (self, settings):
         gub.SdkBuildSpec.__init__ (self, settings)
@@ -41,6 +70,7 @@ class Python_config (gub.SdkBuildSpec):
     def untar (self):
         pass
 
+    # FIXME: c&p python.py:install ()
     def install (self):
         gub.SdkBuildSpec.install (self)
         self.system ('mkdir -p %(cross_prefix)s/usr/bin')
