@@ -163,11 +163,13 @@ def change_target_package (package):
     package.get_subpackage_definitions \
         = misc.MethodOverrider (package.get_subpackage_definitions, add_cyg_dll)
 
-    def install (package):
-	package.post_install_smurf_exe ()
+    def install (whatsthis, lst):
+	package = lst[0]
+        package.post_install_smurf_exe ()
         package.install_readmes ()
 
-    package.install = misc.MethodOverrider (package.install, install, package)
+    package.install \
+        = misc.MethodOverrider (package.install, install, ([package],))
 
     ## TODO : get_dependency_dict
         

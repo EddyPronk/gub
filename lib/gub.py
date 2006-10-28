@@ -418,7 +418,7 @@ rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_roo
         return []
 
     def get_subpackage_definitions (self):
-        d ={
+        d = {
             'devel': [
             '/usr/bin/*-config',
             '/usr/include',
@@ -523,11 +523,13 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"  -zcf %(src_package_ball)
             self.system ('chmod -R +w %(srcdir)s', ignore_error=True)
 
     def pre_install_smurf_exe (self):
+        print 'pre smurf exe'
         for i in self.locate_files ('%(builddir)s', '*.exe'):
             base = os.path.splitext (i)[0]
             self.system ('''mv %(i)s %(base)s''', locals ())
 
     def post_install_smurf_exe (self):
+        print 'post smurf exe'
         import os
         for i in (self.locate_files ('%(install_root)s/bin', '*')
                   + self.locate_files ('%(install_root)s/usr/bin', '*')):
