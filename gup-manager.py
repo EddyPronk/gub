@@ -101,7 +101,7 @@ def get_cli_parser ():
         p.usage += "    %s - %s\n" % (re.sub ('_', '-', command), doc)
 
     p.add_option ('-B', '--branch',
-                  default="HEAD",
+                  default="origin",
                   dest='branch',
                   help="VC branch to use")
 
