@@ -33,7 +33,7 @@ freetype = 'http://download.savannah.gnu.org/releases/freetype/%(name)s-%(ball_v
 
 fontconfig = 'http://www.fontconfig.org/release/%(name)s-%(ball_version)s.tar.%(format)s'
 
-hw = 'http://lilypond.org/~hanwen/gub-sources/%(name)s-%(ball_version)s.tar.%(format)s'
+hw = 'http://lilypond.org/download/gub-sources/%(name)s-%(ball_version)s.tar.%(format)s'
 
 jantien = 'http://www.xs4all.nl/~jantien/%(name)s-%(ball_version)s.tar.%(format)s'
 
