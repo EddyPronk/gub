@@ -41,7 +41,7 @@ INVOKE_GUP=$(PYTHON) gup-manager.py \
 
 INVOKE_INSTALLER_BUILDER=$(PYTHON) installer-builder.py \
   --target-platform $(1) \
-  --version-file VERSION \
+  --version-file $(VERSION_FILE) \
   --buildnumber-file $(BUILDNUMBER_FILE)  \
   --branch $(LILYPOND_BRANCH) \
 
@@ -69,7 +69,7 @@ BUILDNUMBER_FILE = buildnumber-$(LILYPOND_BRANCH).make
 
 -include local.make
 -include $(BUILDNUMBER_FILE)
-LILYPOND_VERSION=$(shell cat VERSION-$(BRANCH) || echo '0.0.0')
+LILYPOND_VERSION=$(shell cat $(VERSION_FILE) || echo '0.0.0')
 
 VERSION_FILE=VERSION-$(BRANCH)
 
@@ -77,6 +77,7 @@ $(BUILDNUMBER_FILE):
 	echo 'INSTALLER_BUILD='`python lilypondorg.py nextbuild $(LILYPOND_VERSION)` > $(BUILDNUMBER_FILE)
 
 $(VERSION_FILE):
+	PATH=$(CWD)/target/local/system/usr/bin:$(PATH) \
 	PYTHONPATH=lib $(PYTHON) test-lily/set-installer-version.py --output $@ --branch $(LILYPOND_BRANCH) $(LILYPOND_GITDIR) $(LILYPOND_CVS_REPODIR)
 
 unlocked-update-buildnumber:
