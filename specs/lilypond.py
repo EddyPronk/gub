@@ -23,7 +23,7 @@ beautiful sheet music from a high-level description file.'''
             branch=settings.lilypond_branch,
             source='http://lilypond.org/vc/lilypond.git/')
         
-        if 0:
+        if os.environ.has_key ('GUB_CVS'):
             repo = repository.CVSRepository (
                 self.get_repodir (),
                 source=':pserver:anoncvs@cvs.sv.gnu.org:/cvsroot/lilypond',
