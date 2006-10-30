@@ -243,7 +243,7 @@ def upload_binaries (repo, version):
     description = repo.git_pipe ('describe --abbrev=36')
 
     darcs_tag_cmd = 'darcs tag --patch "release %(version_str)s-%(build)d of committish %(description)s' % locals()
-    git_tag_cmd = 'git --git-dir downloads/lilypond.git tag gub-%(version_str)s-%(build)d %(branch)s' % locals ()
+    git_tag_cmd = 'git --git-dir downloads/lilypond.git tag -a -m "" gub-%(version_str)s-%(build)d %(branch)s' % locals ()
 
     cmds.append (darcs_tag_cmd)
     cmds.append (git_tag_cmd)
