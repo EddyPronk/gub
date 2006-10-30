@@ -343,6 +343,7 @@ class CVSRepository(Repository):
         self.checksums = {}
         self.source = source
         self.tag = tag
+        self.branch = tag # for vc_version_suffix
         if not os.path.isdir (dir):
             self.system ('mkdir -p %s' % dir)
             
