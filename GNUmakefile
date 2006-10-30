@@ -22,7 +22,7 @@ LILYPOND_BRANCH=$(BRANCH)
 #BRANCH=HEAD
 
 # for CVS import in GIT:
-BRANCH=origin
+BRANCH=cvs-head
 PYTHONPATH=lib/
 export PYTHONPATH
 
