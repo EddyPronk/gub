@@ -289,7 +289,7 @@ unlocked-doc-clean:
 DOC_RELOCATION = \
     LILYPOND_EXTERNAL_BINARY="$(NATIVE_ROOT)/usr/bin/lilypond" \
     PATH=$(CWD)/target/local/system/usr/bin:$(NATIVE_ROOT)/usr/bin:$$PATH \
-    GS_LIB=$(NATIVE_ROOT)/usr/share/ghostscript/*/lib \
+    GS_LIB=$(wildcard $(NATIVE_ROOT)/usr/share/ghostscript/*/lib) \
     LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$$LD_LIBRARY_PATH
     MALLOC_CHECK_=2 \
 
