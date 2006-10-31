@@ -202,7 +202,7 @@ class Fontconfig__cygwin (Fontconfig):
         name = 'fontconfig-postinstall.sh'
         postinstall = '''#! /bin/sh
 # cleanup previous packages' silly symlink.
-rm -f /usr/X11R6/bin/fontconfig
+rm -f /usr/X11R6/bin/fontconfig-config
 '''
         self.dump (postinstall,
                    '%(install_root)s/etc/postinstall/%(name)s',
