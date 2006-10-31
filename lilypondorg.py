@@ -186,8 +186,8 @@ def upload_binaries (repo, version):
             host = host_binaries_spec 
             src_dests.append((os.path.abspath (bin), '%(host)s/%(platform)s' % locals()))
             
-        try:
-            branch = 'origin'
+        if platform != 'documentation':
+            branch = repo.branch
             hdr = pickle.load (open ('uploads/%(platform)s/lilypond-%(branch)s.%(platform)s.hdr' % locals ()))
             key = hdr['source_checksum']
             
@@ -195,8 +195,6 @@ def upload_binaries (repo, version):
             lst.append (platform)
             
             commitishes[key] = lst
-        except IOError:
-            pass
         
         if (platform <> 'documentation'
             and  not os.path.exists ('log/%s.test.pdf' % base)):
