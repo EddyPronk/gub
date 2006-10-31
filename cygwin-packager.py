@@ -13,7 +13,7 @@ import misc
 import cygwin
 
 class Cygwin_package (context.Os_context_wrapper):
-    def __init__ (self, settings, name):
+    def __init__ (self, settings, name, branch):
         context.Os_context_wrapper.__init__ (self, settings)
         self.settings = settings
         self._name = name
@@ -38,7 +38,7 @@ class Cygwin_package (context.Os_context_wrapper):
 
         self.package_manager.include_build_deps = False
         self.package_manager.read_package_headers (
-            settings.expand ('%(gub_uploads)s/'  + name), 'HEAD')
+            settings.expand ('%(gub_uploads)s/'  + name), branch)
 
         self.create ()
 
@@ -267,6 +267,10 @@ def parse_command_line ():
     p.usage = 'cygwin-packager.py [OPTION]... PACKAGE'
     p.add_option ('-b', '--build-number',
                   action='store', default='1', dest='build')
+
+    p.add_option ('--branch',
+                  action='store', dest='branch',
+                  default="HEAD")
     (options, args) = p.parse_args ()
     if len (args) != 1:
         p.print_help ()
@@ -286,7 +290,7 @@ def main ():
     PATH = os.environ['PATH']
     os.environ['PATH'] = settings.expand ('%(buildtools)s/bin:' + PATH)
 
-    Cygwin_package (settings, commands[0])
+    Cygwin_package (settings, commands[0], options.branch)
     
 if __name__ == '__main__':
     main ()
