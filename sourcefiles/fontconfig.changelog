@@ -3,6 +3,8 @@ fontconfig (2.4.1-2) unstable; urgency=low
   * Remove /etc/hints.
   * Doc in main package.
   * Remove curr from hints.
+  * Add manual pages.
+  * Remove old symlink in postinstall script.
 
  -- Jan Nieuwenhuizen <janneke@gnu.org>  Tue, 31 Oct 2006 00:47:35 +0100
 
