@@ -133,6 +133,7 @@ cygwin-libtool-installer:
 cygwin-fontconfig:
 	rm -f uploads/cygwin/setup.ini
 	rm -rf target/cygwin/system
+	$(call INVOKE_GUP, cygwin) install gcc
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build fontconfig
 
 cygwin-fontconfig-installer:
