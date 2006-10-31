@@ -37,14 +37,8 @@ class PackageSpec:
 
         self._dict['split_name'] = s
 
-        gup_suffix = '-%(version)s'
-        hdr_suffix = '' 
-        if dict['vc_branch_suffix']:
-            gup_suffix = '-' + dict['vc_branch_suffix']
-            hdr_suffix = gup_suffix
-            
-        self._dict['split_ball'] = ('%(gub_uploads)s/%(split_name)s' + gup_suffix +'.%(platform)s.gup') % self._dict
-        self._dict['split_hdr'] = ('%(gub_uploads)s/%(split_name)s' + hdr_suffix + '.%(platform)s.hdr') % self._dict
+        self._dict['split_ball'] = ('%(gub_uploads)s/%(split_name)s%(ball_suffix)s.%(platform)s.gup') % self._dict
+        self._dict['split_hdr'] = ('%(gub_uploads)s/%(split_name)s%(vc_branch_suffix)s.%(platform)s.hdr') % self._dict
 
         deps =  ';'.join (self._dependencies)
         self._dict['dependencies_string'] = deps
@@ -162,11 +156,31 @@ class BuildSpec (Os_context_wrapper):
         return ';'.join (deps)
 
     @subst_method
-    def vc_branch_suffix (self):
+    def ball_suffix (self):
+        b = '-%(version)s'
+        if self.vc_repository and self.vc_repository.is_tracking ():
+            try:
+                b = '-' + self.vc_repository.branch
+            except AttributeError:
+                pass
+        return b
+
+    @subst_method
+    def vc_branch (self):
         b = ''
         if self.vc_repository and self.vc_repository.is_tracking ():
             try:
                 b = self.vc_repository.branch
+            except AttributeError:
+                pass
+        return b
+    
+    @subst_method
+    def vc_branch_suffix (self):
+        b = ''
+        if self.vc_repository and self.vc_repository.is_tracking ():
+            try:
+                b = '-' + self.vc_repository.branch
             except AttributeError:
                 pass
         return b
@@ -181,18 +195,12 @@ class BuildSpec (Os_context_wrapper):
 
     @subst_method
     def srcdir (self):
-        if self.vc_branch_suffix ():
-            return '%(allsrcdir)s/%(name)s-%(vc_branch_suffix)s'
-        else:
-            return '%(allsrcdir)s/%(basename)s'
+        return '%(allsrcdir)s/%(name)s%(ball_suffix)s'
         
 
     @subst_method
     def builddir (self):
-        if self.vc_branch_suffix ():
-            return '%(allbuilddir)s/%(name)s-%(vc_branch_suffix)s'
-        else:
-            return self.settings.allbuilddir + '/' + self.basename ()
+        return '%(allbuilddir)s/%(name)s%(ball_suffix)s'
 
     @subst_method
     def install_root (self):

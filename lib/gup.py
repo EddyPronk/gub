@@ -198,9 +198,11 @@ class PackageManager (FileManager):
         str = open (package_hdr).read ()
 
         d = pickle.loads (str)
+
+        ### FIXME - lilypond hardcoded.
         if (d['basename'] == 'lilypond'
-            and branch != d['vc_branch_suffix']):
-            suffix = d['vc_branch_suffix']
+            and branch != d['vc_branch']):
+            suffix = d['vc_branch']
             print 'ignoring header: ' + package_hdr
             print 'branch: %(branch)s, suffix: %(suffix)s' % locals ()
             return
