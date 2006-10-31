@@ -220,7 +220,7 @@ cd %(dir)s && tar --owner=0 --group=0 -jcf %(ball)s %(content)s
 
     def remove_cruft (self):
         self.system ('''
-find %(installer_root)s -name fonts.cache-1 -exec '{}' ';'
+find %(installer_root)s -name fonts.cache-1 -exec rm '{}' ';'
 rm -rf %(installer_root)s/etc/hints
 rm -rf %(installer_root)s/license*
 rm -rf %(installer_root)s/usr/cross
