@@ -209,7 +209,7 @@ class GitRepository (Repository):
         return '#<GitRepository %s>' % self.repo_dir
 
     def get_revision_description (self):
-        return self.git_pipe ('git log --max-count=1') 
+        return self.git_pipe ('log --max-count=1') 
 
     def get_file_content (self, file_name):
         committish = self.git_pipe ('log %(branch)s --max-count=1 --pretty=oneline'

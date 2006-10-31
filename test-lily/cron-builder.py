@@ -113,7 +113,7 @@ def parse_options ():
     opts.make_options += " BRANCH=%s" % opts.branch
 
     if opts.test_options.find ('--repository') == -1:
-        opts.test_options += ' --repository downloads/lilypond-%s ' % opts.branch
+        opts.test_options += ' --repository downloads/lilypond.git ' % opts.branch
 
         
     return (opts, args)
@@ -131,7 +131,7 @@ def system (c, ignore_error=False):
 
 def main ():
     (opts,args) = parse_options ()
-
+    os.environ['PATH']= os.getcwd () + '/target/local/system/usr/bin:' + os.environ['PATH']
     global log_file
     
     log_file = LogFile ('log/cron-builder.log')
