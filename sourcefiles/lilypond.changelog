@@ -1,8 +1,10 @@
-lilypond (2.8.8-2) unstable; urgency=low
+lilypond (2.8.8-1) unstable; urgency=low
 
   * New upstream release.
   * Remove /etc/hints.
   * Remove curr from hints.
+  * Remove /etc/postinstall.
+  * Remove fonts.cache-1 files.
   * Documentation build fixes.
   * Remove signature and ps from documentation.
 
