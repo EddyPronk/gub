@@ -316,7 +316,7 @@ class GitRepository (Repository):
         revision = self.revision
         
         if os.path.isdir (destdir + '/.git'):
-            self.git ('pull --no-tags %(repo_dir)s %(branch)s:%(branch)s' % locals (), dir=destdir)
+            self.git ('pull --no-tags %(repo_dir)s %(branch)s' % locals (), dir=destdir)
         else:
             self.system ('git-clone -s %(repo_dir)s %(destdir)s' % locals ())
 
