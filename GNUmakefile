@@ -118,7 +118,10 @@ docball = uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).documentation.
 $(docball):
 	$(MAKE) doc
 
-cygwin: cygwin-libtool cygwin-libtool-installer cygwin-guile cygwin-guile-installer $(docball) cygwin-lilypond cygwin-lilypond-installer cygwin-fontconfig cygwin-fontconfig-installer
+# Regular cygwin stuff
+cygwin: cygwin-libtool cygwin-libtool-installer $(docball) cygwin-lilypond cygwin-lilypond-installer
+
+cygwin-all: cygwin-libtool cygwin-libtool-installer cygwin-guile cygwin-guile-installer $(docball) cygwin-lilypond cygwin-lilypond-installer cygwin-fontconfig cygwin-fontconfig-installer
 
 cygwin-libtool:
 	rm -f uploads/cygwin/setup.ini
@@ -129,6 +132,7 @@ cygwin-libtool-installer:
 
 cygwin-fontconfig:
 	rm -f uploads/cygwin/setup.ini
+	rm -rf target/cygwin/system
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build fontconfig
 
 cygwin-fontconfig-installer:
