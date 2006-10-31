@@ -428,7 +428,7 @@ class CVSRepository(Repository):
         module = self.module
         cmd = ''
         if os.path.isdir (dir + '/CVS'):
-            cmd += 'cd %(dir)s && cvs -q up -dAP %(rev_opt)s' % locals()
+            cmd += 'cd %(dir)s && cvs -q up -dCAP %(rev_opt)s' % locals()
         else:
             repo_dir = self.repo_dir
             cmd += 'cd %(repo_dir)s/ && cvs -d %(source)s -q co -d %(suffix)s %(rev_opt)s %(module)s''' % locals ()
