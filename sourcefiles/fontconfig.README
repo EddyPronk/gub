@@ -62,7 +62,8 @@ Port notes:
 
 %(changelog)s
 
-  These packages were built on GNU/Linux using GUB.
+  These packages were built on GNU/Linux using GUB, see
+      http://lilypond.org/vc/gub.darcs/READ-ME
 
 Cygwin port maintained by: Jan Nieuwenhuizen  <janneke@gnu.org>
 Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>

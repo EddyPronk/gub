@@ -2,9 +2,10 @@ guile (1.8.1-2) unstable; urgency=low
 
   * Add readline as build dependency, libreadline8 as dependency for
     libguile17 (thanks Ted Anderson).
-  * Remove curr: from hint generation.
+  * Remove /etc/hints.
+  * Remove curr from hints.
 
- -- Jan Nieuwenhuizen <janneke@gnu.org>  Wed, 24 Oct 2006 22:45:04 +0200
+ -- Jan Nieuwenhuizen <janneke@gnu.org>  Tue, 31 Oct 2006 00:47:35 +0100
 
 guile (1.8.1-1) unstable; urgency=low
 

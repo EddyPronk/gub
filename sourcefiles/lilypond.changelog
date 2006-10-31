@@ -1,3 +1,13 @@
+lilypond (2.8.8-2) unstable; urgency=low
+
+  * New upstream release.
+  * Remove /etc/hints.
+  * Remove curr from hints.
+  * Documentation build fixes.
+  * Remove signature and ps from documentation.
+
+ -- Jan Nieuwenhuizen <janneke@gnu.org>  Tue, 31 Oct 2006 00:47:35 +0100
+
 lilypond (2.8.7-2) unstable; urgency=low
 
   * Build against libintl3.

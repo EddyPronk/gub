@@ -1,0 +1,15 @@
+fontconfig (2.4.1-2) unstable; urgency=low
+
+  * Remove /etc/hints.
+  * Doc in main package.
+  * Remove curr from hints.
+
+ -- Jan Nieuwenhuizen <janneke@gnu.org>  Tue, 31 Oct 2006 00:47:35 +0100
+
+fontconfig (2.4.1-1) unstable; urgency=low
+
+  * New maintainer.
+  * Initial.
+
+ -- Jan Nieuwenhuizen <janneke@gnu.org>  Tue, 31 Oct 2006 12:46:24 +0100
+
