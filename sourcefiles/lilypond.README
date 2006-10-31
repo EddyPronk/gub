@@ -78,9 +78,9 @@ Build Instructions:
    ./installer-builder.py -p cygwin build-all lilypond
 
 This will create:
-   uploads/cygwin/release/lilypond-%(installer_version)s-%(installer_build)s-src.tar.bz2
-   uploads/cygwin/release/lilypond-%(installer_version)s-%(installer_build)s.tar.bz2
-   uploads/cygwin/release/lilypond-doc/lilypond-doc-%(installer_version)s-%(installer_build)s-src.tar.bz2
+   uploads/cygwin/release/lilypond-%(version)s-%(build)s-src.tar.bz2
+   uploads/cygwin/release/lilypond-%(version)s-%(build)s.tar.bz2
+   uploads/cygwin/release/lilypond-doc/lilypond-doc-%(version)s-%(build)s-src.tar.bz2
 nn
 To find out the files included in the binary distribution, you can use
 "cygcheck -l bash", or browse the listing for the appropriate version
@@ -92,7 +92,8 @@ Port notes:
 
 %(changelog)s
 
-  These packages were built on GNU/Linux using GUB.
-
+  These packages were built on GNU/Linux using GUB, see
+      http://lilypond.org/vc/gub.darcs/READ-ME
+   
 Cygwin port maintained by: Jan Nieuwenhuizen  <janneke@gnu.org>
 Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>
