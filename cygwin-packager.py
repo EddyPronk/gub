@@ -76,16 +76,16 @@ class Cygwin_package (context.Os_context_wrapper):
 
     def re_src_ball (self):
         dir = self.expand ('%(installer_root)s-src')
-        cyg_name = self.expand ('%(name)s-%(version)s-%(build)s', locals ())
-        cyg_ball = cyg_name + '-src.tar.bz2'
+        cyg_dir = self.expand ('%(name)s-%(version)s-%(build)s', locals ())
+        gub_dir = self.expand ('%(name)s%(ball_suffix)s')
+        cyg_ball = cyg_dir + '-src.tar.bz2'
         ball = (self.expand ('%(cygwin_uploads)s/%(name)s/') + '%(cyg_ball)s'
                 % locals ())
 
         #self._untar (dir, '%(src_package_ball)s')
         self._untar (dir, self.expand ('%(src_package_ball)s'))
-        self._mv ('%(dir)s/%(name)s-%(version)s', '%(dir)s/%(cyg_name)s',
-                  locals ())
-        self._tar (dir, ball, cyg_name)
+        self._mv ('%(dir)s/%(gub_dir)s', '%(dir)s/%(cyg_dir)s', locals ())
+        self._tar (dir, ball, cyg_dir)
 
     def get_substitution_dict (self, env={}):
 

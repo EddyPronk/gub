@@ -196,7 +196,6 @@ class BuildSpec (Os_context_wrapper):
     @subst_method
     def srcdir (self):
         return '%(allsrcdir)s/%(name)s%(ball_suffix)s'
-        
 
     @subst_method
     def builddir (self):
@@ -243,7 +242,7 @@ class BuildSpec (Os_context_wrapper):
 
     @subst_method
     def src_package_ball (self):
-        return '%(src_package_uploads)s/%(name)s-%(version)s-src.%(platform)s.tar.gz'
+        return '%(src_package_uploads)s/%(name)s%(ball_suffix)s-src.%(platform)s.tar.gz'
 
     @subst_method
     def src_package_uploads (self):
@@ -504,7 +503,7 @@ rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_roo
         # package libjpeg uses jpeg-6b.  Better fix at untar
         # stage?
         dir_name = re.sub (self.expand ('%(allsrcdir)s/'), '',
-                 self.expand ('%(srcdir)s'))
+                           self.expand ('%(srcdir)s'))
         self.system ('''
 tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"  -zcf %(src_package_ball)s %(dir_name)s
 ''',
@@ -516,7 +515,6 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"  -zcf %(src_package_ball)
             return
 
         self.system ('''rm -rf %(srcdir)s %(builddir)s''', locals ())
-
 
     def untar (self):
         if not self.has_source:
