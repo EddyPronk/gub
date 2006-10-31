@@ -62,12 +62,20 @@ BUILDNUMBER_FILE = buildnumber-$(LILYPOND_BRANCH).make
 # local.make should set the following variables:
 #
 #  BUILD_PLATFORM  - the platform used for building.
+
+# it may set
+#
 #  GUB_DISTCC_ALLOW_HOSTS - which distcc daemons may connect.
 #  GUB_CROSS_DISTCC_HOSTS - hosts with matching cross compilers
 #  GUB_NATIVE_DISTCC_HOSTS - hosts with matching native compilers
 #
 
 -include local.make
+
+ifeq ($(BUILD_PLATFORM),)
+$(error Must define BUILD_PLATFORM)
+endif 
+
 -include $(BUILDNUMBER_FILE)
 LILYPOND_VERSION=$(shell cat $(VERSION_FILE) || echo '0.0.0')
 
