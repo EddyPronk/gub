@@ -118,7 +118,7 @@ docball = uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).documentation.
 $(docball):
 	$(MAKE) doc
 
-cygwin: $(docball) cygwin-libtool cygwin-libtool-installer cygwin-guile cygwin-guile-installer cygwin-lilypond cygwin-lilypond-installer
+cygwin: cygwin-libtool cygwin-libtool-installer cygwin-guile cygwin-guile-installer $(docball) cygwin-lilypond cygwin-lilypond-installer cygwin-fontconfig cygwin-fontconfig-installer
 
 cygwin-libtool:
 	rm -f uploads/cygwin/setup.ini
@@ -144,7 +144,7 @@ cygwin-lilypond:
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build libtool guile lilypond
 
 cygwin-lilypond-installer:
-	$(PYTHON) cygwin-packager.py --branch $(BRANCH) --build-number=3 lilypond
+	$(PYTHON) cygwin-packager.py --branch $(BRANCH) --build-number=1 lilypond
 
 upload-setup-ini:
 	cd uploads/cygwin && ../../downloads/genini $$(find release -mindepth 1 -maxdepth 2 -type d) > setup.ini
