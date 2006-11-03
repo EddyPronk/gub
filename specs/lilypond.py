@@ -106,6 +106,8 @@ cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/
         self.system ('''
 mkdir -p %(builddir)s 
 cd %(builddir)s && %(configure_command)s''')
+        self.file_sub ([(' -O2 ', ' -O2 -Werror ')],
+                       '%(builddir)s/config.make')
 
     def compile (self):
         d = self.get_substitution_dict ()
