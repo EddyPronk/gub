@@ -315,7 +315,7 @@ unlocked-doc-build:
 	    && $(DOC_RELOCATION) \
 		make -C $(NATIVE_LILY_BUILD) \
 	    DOCUMENTATION=yes web
-	tar -C $(NATIVE_LILY_BUILD)/out-www/web-root/ \
+	tar --exclude '*.signature' -C $(NATIVE_LILY_BUILD)/out-www/web-root/ \
 	    -cjf $(CWD)/uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).documentation.tar.bz2 . 
 
 unlocked-info-man-build:
