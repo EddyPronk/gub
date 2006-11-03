@@ -1,4 +1,3 @@
-
 .PHONY: all default distclean download TAGS
 .PHONY: cygwin darwin-ppc darwin-x86 debian freebsd4-x86 freebsd6-x86 linux-x86 mingw bootstrap-download bootstrap
 .PHONY: update-buildnumber
@@ -312,7 +311,7 @@ unlocked-doc-build:
 		make -C $(NATIVE_LILY_BUILD) \
 	    DOCUMENTATION=yes do-top-doc
 	unset LILYPONDPREFIX \
-	    && ulimit -m 256000 \
+	    && ulimit -m 256000 -d 256000 -v 512000 \
 	    && $(DOC_RELOCATION) \
 		make -C $(NATIVE_LILY_BUILD) \
 	    DOCUMENTATION=yes web
