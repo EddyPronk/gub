@@ -51,7 +51,8 @@ class Guile_config (gub.SdkBuildSpec):
         self.dump ('''\
 #! /bin/sh
 test "$1" = "--version" && echo "%(target_architecture)s-guile-config - Guile version %(version)s"
-prefix=$(dirname $(dirname $0))
+#prefix=$(dirname $(dirname $0))
+prefix=%(system_root)s/usr
 test "$1" = "compile" && echo "-I$prefix/include"
 #test "$1" = "link" && echo "-L$prefix/lib -lguile -lgmp"
 # KUCH, debian specific, and [mipsel] reading .la is broken?
