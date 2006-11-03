@@ -237,8 +237,8 @@ def upload_binaries (repo, version):
     description = repo.git_pipe ('describe --abbrev=40 %(branch)s' % locals())
 
     git_tag = 'gub-%(version_str)s-%(build)d' % locals () 
-    git_tag_cmd = 'git --git-dir downloads/lilypond.git tag -a -m "" %(git_tag)s %(branch)s' % locals ()
-    darcs_tag_cmd = 'darcs tag --patch "release %(version_str)s-%(build)d of lilypond tagged %(git_tag)s' % locals()
+    git_tag_cmd = 'git --git-dir downloads/lilypond.git tag -a -m "build and upload" %(git_tag)s %(branch)s' % locals ()
+    darcs_tag_cmd = 'darcs tag --patch "release %(version_str)s-%(build)d of lilypond tagged %(git_tag)s" ' % locals()
 
     cmds.append (git_tag_cmd)
 
