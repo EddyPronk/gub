@@ -157,7 +157,7 @@ def uploaded_build_number (version):
 def upload_binaries (repo, version):
     build = uploaded_build_number (version) + 1
     version_str = '.'.join (['%d' % v for v in version])
-    branch = 'HEAD'
+    branch = repo.branch
     if (version[1] % 2) == 0:
         branch = 'lilypond_%d_%d' % (version[0], version[1])
 
@@ -165,10 +165,7 @@ def upload_binaries (repo, version):
     src_dests = []
     cmds = []
 
-#    committish = repo.git_pipe ('log --max-count=1')
-#    committish = re.search ('commit[ \t]+(.*)\n', committish).group (1) 
-    
-    committish = repo.git_pipe ('describe --abbrev=24')
+    committish = repo.git_pipe ('describe --abbrev=40 %(branch)s' % locals ()).strip ()
     commitishes = {}
     barf = False
     for platform in platforms:
@@ -186,7 +183,7 @@ def upload_binaries (repo, version):
             host = host_binaries_spec 
             src_dests.append((os.path.abspath (bin), '%(host)s/%(platform)s' % locals()))
             
-        if platform != 'documentation':
+        if platform != 'documentation' and  os.path.exists (bin):
             branch = repo.branch
             hdr = pickle.load (open ('uploads/%(platform)s/lilypond-%(branch)s.%(platform)s.hdr' % locals ()))
             key = hdr['source_checksum']
@@ -207,7 +204,6 @@ def upload_binaries (repo, version):
     if len (commitishes) > 1 or commitishes.keys()[0] != committish:
         print 'uploading multiple versions'
         print '\n'.join (`x` for x in commitishes.items ())
-
         print 'repo:', committish
         
     src_tarball = "uploads/lilypond-%(version_str)s.tar.gz" % locals ()
@@ -238,13 +234,15 @@ def upload_binaries (repo, version):
 
     cmds += ['rsync --delay-updates --progress %s %s' % tup for tup in src_dests]
 
-    description = repo.git_pipe ('describe --abbrev=36')
+    description = repo.git_pipe ('describe --abbrev=40 %(branch)s' % locals())
 
-    darcs_tag_cmd = 'darcs tag --patch "release %(version_str)s-%(build)d of committish %(description)s' % locals()
-    git_tag_cmd = 'git --git-dir downloads/lilypond.git tag -a -m "" gub-%(version_str)s-%(build)d %(branch)s' % locals ()
+    git_tag = 'gub-%(version_str)s-%(build)d' % locals () 
+    git_tag_cmd = 'git --git-dir downloads/lilypond.git tag -a -m "" %(git_tag)s %(branch)s' % locals ()
+    darcs_tag_cmd = 'darcs tag --patch "release %(version_str)s-%(build)d of lilypond tagged %(git_tag)s' % locals()
+
+    cmds.append (git_tag_cmd)
 
     cmds.append (darcs_tag_cmd)
-    cmds.append (git_tag_cmd)
     
     print '\n\n'
     print '\n'.join (cmds);
@@ -318,7 +316,7 @@ def get_repository (options):
     dir = options.repo_dir.replace ('.git','')
     repo = repository.GitRepository (dir, 
                                      branch=options.branch)
-    
+
     return repo
 
 def main ():
