@@ -26,7 +26,7 @@ class Guile (targetpackage.TargetBuildSpec):
             }
 
     def get_build_dependencies (self):
-        return ['gmp-devel', 'libtool']
+        return ['gettext-devel', 'gmp-devel', 'libtool']
         
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
@@ -83,7 +83,8 @@ GUILE_LOAD_PATH=%(install_prefix)s/share/guile/* guile -e main -s  %(install_pre
 test "$1" = "--version" && echo "%(target_architecture)s-guile-config - Guile version %(version)s"
 #test "$1" = "compile" && echo "-I $%(system_root)s/usr/include"
 #test "$1" = "link" && echo "-L%(system_root)s/usr/lib -lguile -lgmp"
-prefix=$(dirname $(dirname $0))
+#prefix=$(dirname $(dirname $0))
+prefix=%(system_root)s/usr
 test "$1" = "compile" && echo "-I$prefix/include"
 test "$1" = "link" && echo "-L$prefix/lib -lguile -lgmp"
 exit 0
