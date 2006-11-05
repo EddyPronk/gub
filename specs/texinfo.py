@@ -9,3 +9,5 @@ class Texinfo(toolpackage.ToolBuildSpec):
     def patch (self):
         toolpackage.ToolBuildSpec.patch (self)
         self.system ('cd %(srcdir)s && patch -p1 <  %(patchdir)s/texinfo-4.8.patch')
+
+    ## TODO: should patch out info reader completely.

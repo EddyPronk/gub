@@ -69,7 +69,7 @@ INSTALLING
 
   - Python 2.4
 
-  - A working TeX installation
+  - A working TeX installation, ncurses, libcurl
 
   - A subversion client
 
