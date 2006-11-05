@@ -148,7 +148,7 @@ cygwin-lilypond:
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build libtool guile lilypond
 
 cygwin-lilypond-installer:
-	$(PYTHON) cygwin-packager.py --branch $(BRANCH) --build-number=1 lilypond
+	$(PYTHON) cygwin-packager.py --branch $(BRANCH) --build-number=2 lilypond
 
 upload-setup-ini:
 	cd uploads/cygwin && ../../downloads/genini $$(find release -mindepth 1 -maxdepth 2 -type d) > setup.ini
@@ -311,7 +311,7 @@ unlocked-doc-build:
 		make -C $(NATIVE_LILY_BUILD) \
 	    DOCUMENTATION=yes do-top-doc
 	unset LILYPONDPREFIX \
-	    && ulimit -m 256000 -d 256000 -v 512000 \
+	    && ulimit -m 256000 && ulimit -d 256000 && ulimit -v 512000 \
 	    && $(DOC_RELOCATION) \
 		make -C $(NATIVE_LILY_BUILD) \
 	    DOCUMENTATION=yes web
