@@ -58,6 +58,8 @@ sources = GNUmakefile $(wildcard *.py specs/*.py lib/*.py)
 NATIVE_TARGET_DIR=$(CWD)/target/$(BUILD_PLATFORM)
 BUILDNUMBER_FILE = buildnumber-$(LILYPOND_BRANCH).make
 
+DOCLIMITS=ulimit -m 256000 -d 256000 -v 512000
+
 # local.make should set the following variables:
 #
 #  BUILD_PLATFORM  - the platform used for building.
@@ -311,7 +313,7 @@ unlocked-doc-build:
 		make -C $(NATIVE_LILY_BUILD) \
 	    DOCUMENTATION=yes do-top-doc
 	unset LILYPONDPREFIX \
-	    && ulimit -m 256000 -d 256000 -v 512000 \
+	    && $(DOC_LIMITS) \
 	    && $(DOC_RELOCATION) \
 		make -C $(NATIVE_LILY_BUILD) \
 	    DOCUMENTATION=yes web
