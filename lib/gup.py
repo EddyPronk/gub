@@ -98,9 +98,8 @@ class FileManager:
 
         self._package_file_db[name] = '\n'.join (lst)
         for f in lst:
-
             # ignore directories.
-            if f and  f[-1] != '/':
+            if not f.endswith ('/'):
                 self._file_package_db[f] = name
             if f.endswith ('.la'):
                 self.libtool_la_fixup (root, f)
@@ -146,7 +145,7 @@ class FileManager:
                 print 'warning: %s not empty' % d
 
         for f in lst:
-            if not f or f[-1] == '/':
+            if f.endswith ('/'):
                 continue
             try:
                 del self._file_package_db[f]
@@ -233,7 +232,7 @@ class PackageManager (FileManager):
         del self._packages[name]
         
     def read_package_headers (self, s, branch):
-        if os.path.isdir (s) and s[:-1] != '/':
+        if os.path.isdir (s) and not s.endswith ('/'):
             s += '/'
         for f in glob.glob ('%(s)s*hdr' % locals ()):
             self.register_package_header (f, branch)
