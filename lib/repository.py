@@ -362,8 +362,8 @@ class CVSRepository(Repository):
         self.source = source
         self.tag = tag
         self.branch = tag # for vc_version_suffix
-        if not os.path.isdir (dir):
-            self.system ('mkdir -p %s' % dir)
+        if not os.path.isdir (self.repo_dir):
+            self.system ('mkdir -p %s' % self.repo_dir)
             
     def _checkout_dir (self):
         return '%s/%s' % (self.repo_dir, self.tag)
