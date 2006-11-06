@@ -16,6 +16,21 @@ class ToolBuildSpec (gub.BuildSpec):
     def install_command (self):
         return '''make DESTDIR=%(install_root)s install'''
 
+    def install (self):
+        gub.BuildSpec.install (self)
+        self.wrap_executables ()
+                
+    def wrap_executables (self):
+        for e in self.locate_files ('%(install_root)s/usr/bin', '*'):
+            dir = os.path.dirname (e)
+            file = os.path.basename (e)
+            self.system ('mv %(e)s %(dir)s/.%(file)s', locals ())
+            self.dump ('''#! /bin/sh
+LD_LIBRARY_PATH=%(system_root)s/usr/lib:$LD_LIBRARY_PATH
+%(system_root)s/usr/bin/.%(file)s "$@"
+''', e, env=locals ())
+            os.chmod (e, 0755)
+
     def compile_command (self):
         return self.native_compile_command ()
 

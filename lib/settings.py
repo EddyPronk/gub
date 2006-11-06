@@ -98,11 +98,6 @@ class Settings (Context):
         except ValueError:
             self.cpu_count_str = '1'
             
-        ## fixme: where to do this?
-        self.LD_LIBRARY_PATH = '%(buildtools)s/lib'
-        if os.environ.has_key ('LD_LIBRARY_PATH'):
-            self.LD_LIBRARY_PATH +=  ':' + os.environ['LD_LIBRARY_PATH']
-        
     def verbose (self):
         try:
             return self.options.verbose
