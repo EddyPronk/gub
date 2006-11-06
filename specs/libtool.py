@@ -72,6 +72,9 @@ dylibs.
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
         self.with (version='1.5.20', mirror=download.gnu)
-
     def configure (self):
         gub.BuildSpec.configure (self)
+    def wrap_executables (self):
+        # The libtool script calls the cross compilers, and moreover,
+        # it is copied.  Two reasons why it cannot be wrapped.
+        pass
