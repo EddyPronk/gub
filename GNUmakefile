@@ -58,7 +58,7 @@ sources = GNUmakefile $(wildcard *.py specs/*.py lib/*.py)
 NATIVE_TARGET_DIR=$(CWD)/target/$(BUILD_PLATFORM)
 VERSION_DB = uploads/versions.db
 
-DOC_LIMITS=ulimit -m 256000 && ulimit -d 256000 && ulimit -v 512000 
+DOC_LIMITS=ulimit -m 256000 && ulimit -d 256000 # && ulimit -v 512000 
 
 # local.make should set the following variables:
 #
@@ -327,7 +327,7 @@ unlocked-info-man-build:
 	    -C $(NATIVE_LILY_BUILD)/ DOCUMENTATION=yes CROSS=no \
 	    install-help2man
 	tar -C $(NATIVE_LILY_BUILD)/out-info-man/ \
-	    -cjf $(CWD)/uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).info-man.tar.bz2 .
+	    -cjf $(CWD)/uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILDNUMBER).info-man.tar.bz2 .
 
 unlocked-doc-export:
 	$(PYTHON) test-lily/rsync-lily-doc.py --recreate --output-distance \
