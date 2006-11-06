@@ -152,7 +152,7 @@ def change_target_package (package):
             = misc.MethodOverrider (package.get_build_dependencies,
                                     lambda d, extra: d + extra, (['cygwin'],))
 
-    def add_cyg_dll (d):
+    def cyg_defs (d):
         k = 'runtime'
         if not d.has_key (k):
             k = ''
@@ -161,7 +161,7 @@ def change_target_package (package):
         return d
 
     package.get_subpackage_definitions \
-        = misc.MethodOverrider (package.get_subpackage_definitions, add_cyg_dll)
+        = misc.MethodOverrider (package.get_subpackage_definitions, cyg_defs)
 
     def install (whatsthis, lst):
 	package = lst[0]
