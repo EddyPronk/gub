@@ -133,13 +133,13 @@ cygwin-fontconfig:
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build fontconfig
 
 cygwin-fontconfig-installer:
-	$(PYTHON) cygwin-packager.py --build-number=2 fontconfig
+	$(PYTHON) cygwin-packager.py --build-number=3 fontconfig
 
 cygwin-guile:
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build libtool guile
 
 cygwin-guile-installer:
-	$(PYTHON) cygwin-packager.py --build-number=2 guile
+	$(PYTHON) cygwin-packager.py --build-number=3 guile
 
 cygwin-lilypond:
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build libtool guile lilypond
