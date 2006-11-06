@@ -31,7 +31,7 @@ class FileManager:
         if dbdir:
             self.config = dbdir
         else:
-            self.config = self.root + '/etc/gup/'
+            self.config = self.root + '/etc/gup'
 
         self.config = os.path.normpath (self.config)
         self.os_interface = os_interface
@@ -56,6 +56,12 @@ class FileManager:
         distro =  self.is_distro
         return '%(name)s: %(root)s, distro: %(distro)d'  % locals()
 
+    def make_dirs (self):
+        if not os.path.isdir (self.config):
+            self.os_interface.system ('mkdir -p %s' % self.config)
+        if not os.path.isdir (self.root):
+            self.os_interface.system ('mkdir -p %s' % self.root)
+        
     def tarball_files (self, ball):
         flag = tar_compression_flag (ball)
         str = self.os_interface.read_pipe ('tar -t%(flag)sf "%(ball)s"'
@@ -80,14 +86,15 @@ class FileManager:
         conflicts = False
         for f in lst:
             if (self._file_package_db.has_key (f)
-                and not os.path.isdir (self.root + '/'+  f)):
+                and not os.path.isdir (self.root + '/' +  f)):
                 print 'already have file %s: %s' % (f, self._file_package_db[f])
                 conflicts = True
 
         if conflicts and not self.is_distro:
             raise Exception ('abort')
 
-        self.os_interface.system ('tar -C %(root)s -x%(flag)sf %(ball)s' % locals ())
+        self.os_interface.system ('tar -C %(root)s -x%(flag)sf %(ball)s'
+                                  % locals ())
 
         self._package_file_db[name] = '\n'.join (lst)
         for f in lst:
