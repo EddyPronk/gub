@@ -14,4 +14,3 @@ class Git (toolpackage.ToolBuildSpec):
         # functionality switching.  Did Linus not read or understand
         # Standards.texi?
         pass
-        
