@@ -195,9 +195,18 @@ class GitRepository (Repository):
         
         self.repo_dir = os.path.normpath (git_dir) + '.git'
         self.checksums = {}
-        self.branch = branch
-        self.revision = revision
+        self.remote_branch = branch
         self.source = source
+        self.revision = revision
+        self.branch = branch
+        ## branch = local branch
+        source = re.sub ('.*://', '', source)
+        self.local_branch = re.sub ('[/:+]+', '-', source)
+        if branch:
+            self.local_branch = branch +  '-' + self.local_branch
+            self.branch = self.local_branch
+        else:
+            self.local_branch = 'master' +  '-' + self.local_branch 
 
     def version (self):
         return self.revision
@@ -212,7 +221,7 @@ class GitRepository (Repository):
         return self.git_pipe ('log --max-count=1') 
 
     def get_file_content (self, file_name):
-        committish = self.git_pipe ('log %(branch)s --max-count=1 --pretty=oneline'
+        committish = self.git_pipe ('log %(local_branch)s --max-count=1 --pretty=oneline'
                                     % self.__dict__).split (' ')[0]
         m = re.search ('^tree ([0-9a-f]+)',
                        self.git_pipe ('cat-file commit %(committish)s'  % locals ()))
@@ -270,7 +279,17 @@ class GitRepository (Repository):
         revision = self.revision
         
         if not os.path.isdir (self.repo_dir):
-            self.git ('--git-dir %(repo)s clone --bare -n %(source)s %(repo)s' % locals ())
+            self.system ('mkdir %s' % self.repo_dir)
+            self.git ('--git-dir %(repo)s init-db' % locals ())
+            branch = self.local_branch
+            
+            remote_branch = self.remote_branch
+
+            if not remote_branch:
+                remote_branch = 'master'
+                branch = 'master' + branch
+                
+            self.git ('--git-dir %(repo)s fetch --update-head-ok %(source)s %(remote_branch)s:%(branch)s' % locals ())
             return
 
         if revision:
@@ -282,16 +301,16 @@ class GitRepository (Repository):
             
             self.git ('--git-dir %(repo)s http-fetch -v -c %(revision)s' % locals ())
 
-        refs = '%s:%s' % (self.branch, self.branch)
+        refs = '%s:%s' % (self.remote_branch, self.branch)
         
         self.git ('--git-dir %(repo)s fetch --update-head-ok %(source)s %(refs)s ' % locals ())
         self.checksums = {}
 
-    def set_current_branch (self, branch):
-        open (self.repo_dir + '/HEAD', 'w').write ('ref: refs/heads/%s\n' % branch)
-        
     def get_checksum (self):
-        branch = self.branch
+        if self.revision:
+            return self.revision
+        
+        branch = self.local_branch
         if self.checksums.has_key (branch):
             return self.checksums[branch]
 
@@ -312,7 +331,7 @@ class GitRepository (Repository):
     def update_workdir (self, destdir):
 
         repo_dir = self.repo_dir
-        branch = self.branch
+        branch = self.local_branch
         revision = self.revision
         
         if os.path.isdir (destdir + '/.git'):
