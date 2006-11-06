@@ -197,15 +197,22 @@ class GitRepository (Repository):
         self.remote_branch = branch
         self.source = source
         self.revision = revision
-        self.branch = branch
-        ## branch = local branch
-        source = re.sub ('.*://', '', source)
-        self.local_branch = re.sub ('[/:+]+', '-', source)
-        if branch:
-            self.local_branch = branch +  '-' + self.local_branch
+
+        if ':' in branch:
+            (self.remote_branch,
+             self.local_branch) = tuple (branch.split (':'))
+
             self.branch = self.local_branch
         else:
-            self.local_branch = 'master' +  '-' + self.local_branch 
+            self.branch = branch
+
+            source = re.sub ('.*://', '', source)
+            self.local_branch = re.sub ('[/:+]+', '-', source)
+            if branch:
+                self.local_branch = branch +  '-' + self.local_branch
+                self.branch = self.local_branch
+            else:
+                self.local_branch = 'master' +  '-' + self.local_branch 
 
     def version (self):
         return self.revision

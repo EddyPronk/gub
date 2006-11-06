@@ -21,7 +21,8 @@ LILYPOND_BRANCH=$(BRANCH)
 #BRANCH=HEAD
 
 # for CVS import in GIT:
-BRANCH=cvs-head
+BRANCH=master
+LILYPOND_LOCAL_BRANCH=master-repo.or.cz-lilypond.git
 PYTHONPATH=lib/
 export PYTHONPATH
 
@@ -29,21 +30,21 @@ OTHER_PLATFORMS=$(filter-out $(BUILD_PLATFORM), $(PLATFORMS))
 
 INVOKE_GUB_BUILDER=$(PYTHON) gub-builder.py \
 --target-platform $(1) \
---branch $(LILYPOND_BRANCH) \
+--branch $(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH) \
 $(foreach h,$(GUB_NATIVE_DISTCC_HOSTS), --native-distcc-host $(h))\
 $(foreach h,$(GUB_CROSS_DISTCC_HOSTS), --cross-distcc-host $(h))\
 $(LOCAL_GUB_BUILDER_OPTIONS)
 
 INVOKE_GUP=$(PYTHON) gup-manager.py \
 --platform $(1) \
---branch $(LILYPOND_BRANCH) 
+--branch $(LILYPOND_LOCAL_BRANCH)
 
 INVOKE_INSTALLER_BUILDER=$(PYTHON) installer-builder.py \
   --target-platform $(1) \
   --version-file $(VERSION_FILE) \
-  --buildnumber-file $(BUILDNUMBER_FILE)  \
-  --branch $(LILYPOND_BRANCH) \
+  --branch $(LILYPOND_LOCAL_BRANCH) \
 
+INSTALLER_BUILDNUMBER=$(shell $(PYTHON) lib/versiondb.py --build-for $(LILYPOND_VERSION))
 
 BUILD=$(call INVOKE_GUB_BUILDER,$(1)) build $(2) \
   && $(call INVOKE_INSTALLER_BUILDER,$(1)) build-all lilypond
@@ -56,7 +57,7 @@ PYTHON=python
 sources = GNUmakefile $(wildcard *.py specs/*.py lib/*.py)
 
 NATIVE_TARGET_DIR=$(CWD)/target/$(BUILD_PLATFORM)
-BUILDNUMBER_FILE = buildnumber-$(LILYPOND_BRANCH).make
+VERSION_DB = uploads/versions.db
 
 DOC_LIMITS=ulimit -m 256000 && ulimit -d 256000 && ulimit -v 512000 
 
@@ -77,24 +78,18 @@ ifeq ($(BUILD_PLATFORM),)
 $(error Must define BUILD_PLATFORM)
 endif 
 
--include $(BUILDNUMBER_FILE)
 LILYPOND_VERSION=$(shell cat $(VERSION_FILE) || echo '0.0.0')
 
-VERSION_FILE=VERSION-$(BRANCH)
-
-$(BUILDNUMBER_FILE):
-	echo 'INSTALLER_BUILD='`python lilypondorg.py nextbuild $(LILYPOND_VERSION)` > $(BUILDNUMBER_FILE)
+VERSION_FILE=VERSION-$(LILYPOND_LOCAL_BRANCH)
 
 $(VERSION_FILE):
-	PATH=$(CWD)/target/local/system/usr/bin:$(PATH) \
-	PYTHONPATH=lib $(PYTHON) test-lily/set-installer-version.py --output $@ --branch $(LILYPOND_BRANCH) $(LILYPOND_GITDIR) $(LILYPOND_CVS_REPODIR)
+	$(PYTHON) gub-builder.py -p $(BUILD_PLATFORM) --inspect-output $@ --branch $(BRANCH):$(LILYPOND_LOCAL_BRANCH) inspect-version lilypond
 
-unlocked-update-buildnumber:
-	rm $(BUILDNUMBER_FILE)
-	$(MAKE) $(BUILDNUMBER_FILE) 
+unlocked-update-versions:
+	python lib/versiondb.py --dbfile $(VERSION_DB) --download
 
-update-buildnumber:
-	$(PYTHON) test-lily/with-lock.py --skip $(BUILDNUMBER_FILE).lock make unlocked-update-buildnumber
+update-versions:
+	$(PYTHON) test-lily/with-lock.py --skip $(VERSION_DB).lock make unlocked-update-versions
 
 download:
 	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB_BUILDER,$(p)) download lilypond && ) true
@@ -102,10 +97,10 @@ download:
 	$(MAKE) $(VERSION_FILE)
 	$(MAKE) downloads/genini
 	rm -f target/*/status/lilypond*
-	rm -f log/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).*.test.pdf
+	rm -f log/lilypond-$(LILYPOND_VERSION)*.*.test.pdf
 
 ## should be last, to incorporate changed VERSION file.
-	$(UPDATE-BUILDNUMBER)
+	$(MAKE) update-versions
 
 all: $(BUILD_PLATFORM) doc $(OTHER_PLATFORMS) dist-check doc-export 
 
@@ -114,13 +109,14 @@ native: local $(BUILD_PLATFORM)
 arm:
 	$(call BUILD,$@,lilypond)
 
-docball = uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).documentation.tar.bz2
+
+docball = uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILDNUMBER).documentation.tar.bz2
 
 $(docball):
 	$(MAKE) doc
 
 # Regular cygwin stuff
-cygwin: cygwin-libtool cygwin-libtool-installer $(docball) cygwin-lilypond cygwin-lilypond-installer
+cygwin: cygwin-libtool cygwin-libtool-installer doc cygwin-lilypond cygwin-lilypond-installer
 
 cygwin-all: cygwin-libtool cygwin-libtool-installer cygwin-guile cygwin-guile-installer $(docball) cygwin-lilypond cygwin-lilypond-installer cygwin-fontconfig cygwin-fontconfig-installer
 
@@ -150,7 +146,7 @@ cygwin-lilypond:
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build libtool guile lilypond
 
 cygwin-lilypond-installer:
-	$(PYTHON) cygwin-packager.py --branch $(BRANCH) --build-number=2 lilypond
+	$(PYTHON) cygwin-packager.py --branch $(LILYPOND_LOCAL_BRANCH) --build-number=2 lilypond
 
 upload-setup-ini:
 	cd uploads/cygwin && ../../downloads/genini $$(find release -mindepth 1 -maxdepth 2 -type d) > setup.ini
@@ -287,17 +283,17 @@ doc-clean:
 doc-build:
 	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-build unlocked-info-man-build
 
-NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_BRANCH)
-NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/src/lilypond-$(LILYPOND_BRANCH)
+NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH)
+NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/src/lilypond-$(LILYPOND_LOCAL_BRANCH)
 
-NATIVE_ROOT=$(NATIVE_TARGET_DIR)/installer-$(LILYPOND_BRANCH)
+NATIVE_ROOT=$(NATIVE_TARGET_DIR)/installer-$(LILYPOND_LOCAL_BRANCH)
 
 DOC_LOCK=$(NATIVE_ROOT).lock
 
 doc: native doc-build
 
 unlocked-doc-clean:
-	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_BRANCH) \
+	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
 		DOCUMENTATION=yes web-clean
 
 DOC_RELOCATION = \
@@ -318,7 +314,7 @@ unlocked-doc-build:
 		make -C $(NATIVE_LILY_BUILD) \
 	    DOCUMENTATION=yes web
 	tar --exclude '*.signature' -C $(NATIVE_LILY_BUILD)/out-www/web-root/ \
-	    -cjf $(CWD)/uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILD).documentation.tar.bz2 . 
+	    -cjf $(CWD)/uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILDNUMBER).documentation.tar.bz2 . 
 
 unlocked-info-man-build:
 	unset LILYPONDPREFIX \
@@ -342,7 +338,7 @@ doc-export:
 	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-export 
 
 unlocked-dist-check:
-	$(PYTHON) test-lily/dist-check.py --branch $(BRANCH) --repository $(LILYPOND_REPODIR) $(NATIVE_LILY_BUILD)
+	$(PYTHON) test-lily/dist-check.py --branch $(LILYPOND_LOCAL_BRANCH) --repository $(LILYPOND_REPODIR) $(NATIVE_LILY_BUILD)
 	rm -f uploads/lilypond-$(LILYPOND_VERSION).tar.gz
 	ln $(NATIVE_LILY_BUILD)/out/lilypond-$(LILYPOND_VERSION).tar.gz uploads/
 
