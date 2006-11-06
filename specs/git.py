@@ -5,11 +5,7 @@ class Git (toolpackage.ToolBuildSpec):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
         self.with (mirror="http://kernel.org/pub/software/scm/git/git-1.4.3.tar.bz2",
                    version="1.4.3")
-
-        
     def patch (self):
         self.shadow_tree ("%(srcdir)s", '%(builddir)s')
     def configure (self):
-        self.dump ( 'prefix=%(system_root)s/usr/', '%(builddir)s/config.mak') 
-
-    
+        self.dump ('prefix=%(system_root)s/usr', '%(builddir)s/config.mak') 

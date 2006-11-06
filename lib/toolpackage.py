@@ -9,7 +9,7 @@ class ToolBuildSpec (gub.BuildSpec):
     def configure_command (self):
         return (gub.BuildSpec.configure_command (self)
             + misc.join_lines ('''
---prefix=%(buildtools)s
+--prefix=%(local_prefix)s
 '''))
 
     ## ugh: prefix= will trigger libtool relinks.
@@ -21,7 +21,9 @@ class ToolBuildSpec (gub.BuildSpec):
         self.wrap_executables ()
                 
     def wrap_executables (self):
-        for e in self.locate_files ('%(install_root)s/usr/bin', '*'):
+        for e in (self.locate_files ('%(install_root)s/usr/bin', '*')
+                  + self.locate_files ('%(install_root)s/%(local_prefix)s/bin',
+                                       '*')):
             dir = os.path.dirname (e)
             file = os.path.basename (e)
             self.system ('mv %(e)s %(dir)s/.%(file)s', locals ())
@@ -47,9 +49,9 @@ LD_LIBRARY_PATH=%(system_root)s/usr/lib:$LD_LIBRARY_PATH
 
     def get_substitution_dict (self, env={}):
         dict = {
-            'C_INCLUDE_PATH': '%(buildtools)s/include',
-            'LIBRARY_PATH': '%(buildtools)s/lib',
-            'CPLUS_INCLUDE_PATH': '%(buildtools)s/include',
+            'C_INCLUDE_PATH': '%(local_prefix)s/include',
+            'LIBRARY_PATH': '%(local_prefix)s/lib',
+            'CPLUS_INCLUDE_PATH': '%(local_prefix)s/include',
         }
         dict.update (env)
         d = gub.BuildSpec.get_substitution_dict (self, dict).copy ()

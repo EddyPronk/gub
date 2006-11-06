@@ -68,9 +68,9 @@ class Settings (Context):
         self.system_root = self.targetdir + '/system'
         self.cross_prefix = self.system_root + '/usr/cross'
         self.installdir = self.targetdir + '/install'
-        self.buildtools = self.topdir + '/target/local/system/usr/' ## FIXME
-        self.cross_distcc_bindir = self.topdir + '/target/cross-distcc/bin/'
-        self.native_distcc_bindir = self.topdir + '/target/native-distcc/bin/'
+        self.local_prefix = self.topdir + '/target/local/system/usr'
+        self.cross_distcc_bindir = self.topdir + '/target/cross-distcc/bin'
+        self.native_distcc_bindir = self.topdir + '/target/native-distcc/bin'
         
 	if self.target_architecture.startswith ('x86_64'):
 	    self.package_arch = 'amd64'
@@ -116,7 +116,7 @@ class Settings (Context):
             'system_root',
             'cross_prefix',
             'targetdir',
-            'buildtools',
+            'local_prefix',
             'topdir',
             ):
             dir = self.__dict__[a]

@@ -12,7 +12,7 @@ class Scons (ToolBuildSpec):
         self.system ('mkdir %(builddir)s')
     
     def install_command (self):
-        return 'python %(srcdir)s/setup.py install --prefix=%(buildtools)s --root=%(install_root)s'
+        return 'python %(srcdir)s/setup.py install --prefix=%(local_prefix)s --root=%(install_root)s'
 
     def __init__ (self, settings):
         ToolBuildSpec.__init__ (self, settings)

@@ -70,4 +70,4 @@ class Freetype__local (toolpackage.ToolBuildSpec, Freetype):
 
     def install (self):
         toolpackage.ToolBuildSpec.install (self)
-        self.munge_ft_config ('%(install_root)s/%(buildtools)s/bin/freetype-config')
+        self.munge_ft_config ('%(install_root)s/%(local_prefix)s/bin/.freetype-config')

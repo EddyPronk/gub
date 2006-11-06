@@ -256,7 +256,7 @@ def main ():
     command = files.pop (0)
 
     PATH = os.environ['PATH']
-    os.environ['PATH'] = settings.expand ('%(buildtools)s/bin:' + PATH)
+    os.environ['PATH'] = settings.expand ('%(local_prefix)s/bin:' + PATH)
 
     (package_names, spec_object_dict) = gup.get_source_packages (settings,
                                                                  files)

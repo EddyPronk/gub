@@ -144,7 +144,7 @@ def main ():
     ## such as GCC
 
 #    PATH = os.environ['PATH']
-#    os.environ['PATH'] = settings.expand ('%(buildtools)s/bin:' + PATH)
+#    os.environ['PATH'] = settings.expand ('%(local_prefix)s/bin:' + PATH)
 
     cs = [c]
     if c == 'build-all':

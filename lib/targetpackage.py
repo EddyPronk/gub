@@ -107,7 +107,7 @@ class TargetBuildSpec (gub.BuildSpec):
             ## note that overrides some headers in sysroot/usr/include,
             ## which is why setting C_INCLUDE_PATH breaks on FreeBSD. 
             ## 
-            ## no %(buildtools)s/usr/include, as this will interfere
+            ## no %(local_prefix)s/usr/include, as this will interfere
             ## with target headers.
             ## The flex header has to be copied into the target compile manually.
             ##
@@ -125,7 +125,7 @@ class TargetBuildSpec (gub.BuildSpec):
             'LD': '%(tool_prefix)sld',
             'NM': '%(tool_prefix)snm',
             'PKG_CONFIG_PATH': '%(system_root)s/usr/lib/pkgconfig',
-            'PATH': '%(cross_prefix)s/bin:%(buildtools)s/bin:' + os.environ['PATH'],
+            'PATH': '%(cross_prefix)s/bin:%(local_prefix)s/bin:' + os.environ['PATH'],
             'PKG_CONFIG': '''pkg-config \
 --define-variable prefix=%(system_root)s/usr \
 --define-variable includedir=%(system_root)s/usr/include \
