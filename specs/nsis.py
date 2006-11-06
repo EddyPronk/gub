@@ -35,11 +35,6 @@ class Nsis (ToolBuildSpec):
     def install (self):
         env = {'PATH': '%(topdir)s/target/mingw/system/usr/cross/bin:' + os.environ['PATH']}
         self.system ('cd %(builddir)s/ && %(compile_command)s install ', env)
-        
-    def srcdir (self):
-        d = ToolBuildSpec.srcdir (self).replace ('_','-') + '-src'
-        return d
-          
 
 
 
