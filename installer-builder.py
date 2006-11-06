@@ -102,6 +102,7 @@ def build_installer (installer, args, options):
     db = versiondb.VersionDataBase (options.version_db)
     buildnumber = '%d' % db.get_next_build_number (version_tup)
 
+    ## ugh: naming consistency.
     installer.lilypond_version = version
     installer.lilypond_build = buildnumber
     settings.installer_version = version
@@ -139,12 +140,6 @@ def main ():
     settings.lilypond_branch = options.lilypond_branch
                   
     c = commands.pop (0)
-
-    ## cross_prefix is also necessary for building cross packages,
-    ## such as GCC
-
-#    PATH = os.environ['PATH']
-#    os.environ['PATH'] = settings.expand ('%(local_prefix)s/bin:' + PATH)
 
     cs = [c]
     if c == 'build-all':
