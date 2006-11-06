@@ -95,7 +95,7 @@ def get_cross_packages_stable (settings):
 # Packages/Dependency_resolver.
 def get_cross_packages_unstable (settings):
     guile_version = '1.8.0'
-    libc6_version = '2.3.6.ds1-4'
+    libc6_version = '2.3.6.ds1-7'
     kernel_version = '2.6.18-3'
     return _get_cross_packages (settings,
                                 guile_version, libc6_version, kernel_version)
