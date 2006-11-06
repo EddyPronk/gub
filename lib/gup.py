@@ -349,6 +349,10 @@ Generate a list of BuildSpec needed to build TODO, in
 topological order
     
 """
+
+    ## don't modify
+    todo = todo[:]
+
     
     cross_packages = cross.get_cross_packages (settings)
     spec_dict = dict ((p.name (), p) for p in cross_packages)
