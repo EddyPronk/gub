@@ -12,6 +12,7 @@ import installer
 import settings as settings_mod
 import locker
 import misc
+import versiondb
 
 def parse_command_line ():
     p = optparse.OptionParser ()
@@ -42,10 +43,10 @@ build-all - build, strip, package
     p.add_option ('-v', '--version-file', action='store',
                   default='',
                   dest='version_file')
-    
-    p.add_option ('-b', '--buildnumber-file', action='store',
-                  default='',
-                  dest='build_file')
+
+    p.add_option ('--version-db', action='store',
+                  default='uploads/versions.db',
+                  dest='version_db')
 
     p.add_option ("--no-strip", action="store_false",
                   default=True,
@@ -70,14 +71,16 @@ build-all - build, strip, package
     options.installer_version = '0.0.0'
     options.installer_build = '0'
 
-    if options.build_file:
-        options.installer_build = misc.grok_sh_variables (options.build_file)['INSTALLER_BUILD']
-    
     if options.version_file:
         options.installer_version = open (options.version_file).read ()
 
-    print "Using version number", options.installer_version,
-    options.installer_build
+    db = versiondb.VersionDataBase (options.version_db)
+
+    v = tuple (map (int , options.installer_version.split ('.')))
+    
+    options.installer_build = '%d' % db.get_next_build_number (v)
+
+    print "Using version number %s-%s" % (options.installer_version, options.installer_build)
 
     return (options, args)
 
