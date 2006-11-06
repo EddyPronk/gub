@@ -159,8 +159,10 @@ class Darwin_bundle (Installer):
         osx_lilypad_version = self.package_manager.package_dict ('osx-lilypad')['version']
         
         self.rewirer.rewire_root (self.expand ('%(installer_root)s'))
-
-        bundle_zip = self.expand ('%(uploads)s/lilypond-%(installer_version)s-%(installer_build)s.%(platform)s.tar.bz2')
+        installer_version = self.settings.installer_version
+        installer_build = self.settings.installer_build
+        
+        bundle_zip = self.expand ('%(uploads)s/lilypond-%(installer_version)s-%(installer_build)s.%(platform)s.tar.bz2', locals ())
         self.system ('''
 rm -f %(bundle_zip)s 
 rm -rf %(darwin_bundle_dir)s
