@@ -6,6 +6,7 @@ import context
 import cross
 import download
 import gub
+import repository
 
 darwin_sdk_version = '0.4'
 class Odcctools (cross.CrossToolSpec):
@@ -38,26 +39,12 @@ if test "$1" == "--cflags"; then
   echo "-I%(system_root)s/System/Library/Frameworks/Python.framework/Versions/%(version)s/include/python%(version)s"
 fi
 if test "$1" == "--ldflags"; then
-  echo ""
+ver  echo ""
 fi
 ''', '%(install_root)s/usr/cross/bin/python-config')
         self.system ('chmod +x %(install_root)s/usr/cross/bin/python-config')
         
 class Darwin_sdk (gub.SdkBuildSpec):
-    def __init__ (self, settings):
-        gub.SdkBuildSpec.__init__ (self, settings)
-        
-        os_version = 7
-        if settings.platform == 'darwin-x86':
-            os_version = 8
-            
-        name = 'darwin%d-sdk' % os_version
-        ball_version = darwin_sdk_version
-        format = 'gz'
-        mirror = download.hw % locals()
-        self.with (version=darwin_sdk_version,
-             mirror=mirror, format='gz')
-
     def patch (self):
         self.system ('''
 rm %(srcdir)s/usr/lib/libgcc*
@@ -227,7 +214,19 @@ class Package_rewirer:
 
 def get_cross_packages (settings):
     packages = []
-    packages.append (Darwin_sdk (settings))
+
+    sdk = Darwin_sdk (settings)
+
+    os_version = 7
+    if settings.platform == 'darwin-x86':
+        os_version = 8
+
+    sdk.vc_repository = repository.TarBall (settings.downloads,
+                                            url='http://lilypond.org/download/gub-sources/darwin%d-sdk-0.4.tar.gz' % os_version,
+                                            version='0.4')
+
+
+    packages.append (sdk)
     packages.append (Python (settings))
         
     packages += [Odcctools (settings).with (version='20060413',
