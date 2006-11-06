@@ -26,13 +26,6 @@ class FileManager:
     """FileManager handles a tree, and keeps track of files,
     associating files with a package name"""
 
-
-    def make_dirs (self):
-        if not os.path.isdir (self.config):
-            self.os_interface.system ('mkdir -p %s' % self.config)
-        if not os.path.isdir (self.root):
-            self.os_interface.system ('mkdir -p %s' % self.root)
-        
     def __init__ (self, root, os_interface, dbdir=None, clean=False):
         self.root = os.path.normpath (root)
         if dbdir:
