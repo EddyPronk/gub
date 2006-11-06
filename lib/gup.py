@@ -102,6 +102,19 @@ class FileManager:
             # ignore directories.
             if f and  f[-1] != '/':
                 self._file_package_db[f] = name
+            if f.endswith ('.la'):
+                self.libtool_la_fixup (root, f)
+
+    def libtool_la_fixup (self, root, file):
+        # avoid using libs from build platform, by adding
+        # %(system_root)s
+        if file.startswith ('./'):
+            file = file[2:]
+        dir = os.path.dirname (file)
+        self.os_interface.file_sub ([('^libdir=.*',
+                                      """libdir='%(root)s/%(dir)s'""" % locals ()
+                                      ),],
+                                    '%(root)s/%(file)s' % locals ())
 
     def uninstall_package (self, name):
         self.os_interface.log_command ('uninstalling package: %s\n' % name)

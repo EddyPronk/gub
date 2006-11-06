@@ -391,12 +391,6 @@ rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_roo
                                  "library_names='lib%(base)s.dll.a'")],
                                full_la, env=locals())
 
-            # avoid using libs from build platform, by adding %(system_root)s
-            self.file_sub ([('^libdir=.*',
-                             """libdir='%(system_root)s/%(dir)s'"""),
-                            ],
-                           full_la, env=locals ())
-
     def compile (self):
         self.system ('cd %(builddir)s && %(compile_command)s')
 
