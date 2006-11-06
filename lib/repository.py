@@ -133,7 +133,6 @@ class TarBall (Repository):
         self.url = url
         self._version = version
         self.branch = None
-        self.revision = None
         self.strip_components = strip_components
         
     def is_tracking (self):
