@@ -223,6 +223,10 @@ class Nsis (Installer):
                    '%(installer_root)s/files.txt',
                    expand_string=False)
 
+        PATH = os.environ['PATH']
+        os.environ['PATH'] = self.expand ('%(local_prefix)s/bin:' + PATH)
+
+
         self.system ('cd %(targetdir)s && makensis lilypond.nsi')
 
         final = 'lilypond-%(installer_version)s-%(installer_build)s.%(platform)s.exe'
