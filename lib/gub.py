@@ -58,9 +58,18 @@ class PackageSpec:
     def create_tarball (self):
         cmd = 'tar -C %(install_root)s/%(packaging_suffix_dir)s --ignore-failed --exclude="*~" -zcf %(split_ball)s '
 
-        ## FIXME: use glob.glob 
-        cmd += (' '.join ('$(cd %%(install_root)s && echo ./%s)'
-                          % f for f in self._file_specs)).replace ('//','/')
+        path = os.path.normpath (self.expand ('%(install_root)s'))
+        globs  = []
+        for f in self._file_specs:
+            f = re.sub ('/+', '/', f)
+            if f.startswith ('/'):
+                f = f[1:]
+                
+            for exp in glob.glob (os.path.join (path, f)):
+                globs.append (exp.replace (path, './').replace ('//', '/'))
+            
+        cmd += ' '.join (globs) 
+
         cmd = self.expand (cmd)
         self._os_interface.system (cmd)
 
