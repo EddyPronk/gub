@@ -41,7 +41,6 @@ INVOKE_GUP=$(PYTHON) gup-manager.py \
 
 INVOKE_INSTALLER_BUILDER=$(PYTHON) installer-builder.py \
   --target-platform $(1) \
-  --version-file $(VERSION_FILE) \
   --branch $(LILYPOND_LOCAL_BRANCH) \
 
 INSTALLER_BUILDNUMBER=$(shell $(PYTHON) lib/versiondb.py --build-for $(LILYPOND_VERSION))

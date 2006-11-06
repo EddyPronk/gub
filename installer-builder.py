@@ -40,10 +40,6 @@ build-all - build, strip, package
                   action="store_true",
                   help="Return successfully if another build is already running")
 
-    p.add_option ('-v', '--version-file', action='store',
-                  default='',
-                  dest='version_file')
-
     p.add_option ('--version-db', action='store',
                   default='uploads/versions.db',
                   dest='version_db')
@@ -68,33 +64,19 @@ build-all - build, strip, package
         sys.exit (2)
 
     
-    options.installer_version = '0.0.0'
-    options.installer_build = '0'
-
-    if options.version_file:
-        options.installer_version = open (options.version_file).read ()
-
-    db = versiondb.VersionDataBase (options.version_db)
-
-    v = tuple (map (int , options.installer_version.split ('.')))
-    
-    options.installer_build = '%d' % db.get_next_build_number (v)
-
-    print "Using version number %s-%s" % (options.installer_version, options.installer_build)
-
     return (options, args)
 
 
-def build_installer (installer, args):
+def build_installer (installer, args, options):
     settings = installer.settings
     
-    install_manager = gup.DependencyManager (installer.expand ('%(installer_root)s'),
+    install_manager = gup.DependencyManager (installer.installer_root,
                                              settings.os_interface,
-                                             dbdir=installer.expand ('%(installer_db)s'),
+                                             dbdir=installer.installer_db,
                                              clean=True)
     
     install_manager.include_build_deps = False
-    install_manager.read_package_headers (installer.expand ('%(gub_uploads)s'),
+    install_manager.read_package_headers (settings.gub_uploads,
                                           settings.lilypond_branch)
 
     def get_dep (x):
@@ -112,6 +94,18 @@ def build_installer (installer, args):
         install_manager.install_package (a)
 
     installer.use_install_root_manager (install_manager)
+
+
+    version = install_manager.package_dict (args[0])['version']
+    version_tup = tuple (map (int, version.split ('.')))
+
+    db = versiondb.VersionDataBase (options.version_db)
+    buildnumber = '%d' % db.get_next_build_number (version_tup)
+
+    installer.lilypond_version = version
+    installer.lilypond_build = buildnumber
+    settings.installer_version = version
+    settings.installer_build = buildnumber
     
 
 def strip_installer (obj):
@@ -122,14 +116,14 @@ def strip_installer (obj):
 def package_installer (installer):
     installer.create ()
         
-def run_installer_commands (commands, settings, args):
+def run_installer_commands (commands, settings, args, options):
     installer_obj = installer.get_installer (settings, args)
     for c in commands:
-        installer_obj.log_command (' *** Stage: %s (%s)\n'
-                                   % (c, installer_obj.name ()))
+        print (' *** Stage: %s (%s)\n'
+               % (c, installer_obj.name ()))
     
         if c == ('build'):
-            build_installer (installer_obj, args)
+            build_installer (installer_obj, args, options)
         elif c == ('strip'):
             strip_installer (installer_obj)
         elif c == ('package'):
@@ -142,8 +136,6 @@ def main ():
     (options, commands)  = parse_command_line ()
 
     settings = settings_mod.get_settings (options.platform)
-    settings.installer_version = options.installer_version
-    settings.installer_build = options.installer_build
     settings.lilypond_branch = options.lilypond_branch
                   
     c = commands.pop (0)
@@ -151,8 +143,8 @@ def main ():
     ## cross_prefix is also necessary for building cross packages,
     ## such as GCC
 
-    PATH = os.environ['PATH']
-    os.environ['PATH'] = settings.expand ('%(buildtools)s/bin:' + PATH)
+#    PATH = os.environ['PATH']
+#    os.environ['PATH'] = settings.expand ('%(buildtools)s/bin:' + PATH)
 
     cs = [c]
     if c == 'build-all':
@@ -162,7 +154,7 @@ def main ():
             cs.remove ('strip')
         
     try:
-        run_installer_commands (cs, settings, commands)
+        run_installer_commands (cs, settings, commands, options)
     except locker.LockedError:
         if options.skip_if_locked:
             print 'skipping build; install_root is locked'
@@ -171,3 +163,6 @@ def main ():
 
 if __name__ == '__main__':
     main ()
+
+
+

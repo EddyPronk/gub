@@ -20,7 +20,7 @@ class Installer (context.Os_context_wrapper):
         self.no_binary_strip = []
         self.no_binary_strip_extensions = ['.la', '.py', '.def', '.scm', '.pyc']
 
-        self.installer_root = '%(targetdir)s/installer-%(lilypond_branch)s'
+        self.installer_root = settings.targetdir + '/installer-%s' % settings.lilypond_branch
         self.installer_db = self.installer_root + '-dbdir'
         self.installer_uploads = settings.uploads
         self.installer_version = None
