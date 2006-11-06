@@ -47,6 +47,11 @@ build             - build target packages
                   help='select target platform',
                   choices=settings_mod.platforms.keys ())
 
+    p.add_option ('--inspect-output', action='store',
+                  dest='inspect_output',
+                  default=None,
+                  help='Where to write result of inspection')
+
     p.add_option ('--stage', action='store',
                   dest='stage', default=None,
                   help='Force rebuild of stage')
@@ -270,7 +275,20 @@ def main ():
     if command == 'download':
         for i in deps:
             spec_object_dict[i].do_download ()
+    elif command.startswith('inspect-'):
+        key = command.replace ('inspect-', '')
 
+        pm = gup.get_target_manager (settings)
+        gup.add_packages_to_manager (pm, settings, spec_object_dict)
+        deps = filter (spec_object_dict.has_key, package_names)
+
+        for f in files:
+            v =  pm.package_dict (f)[key]
+            if options.inspect_output:
+                open (options.inspect_output, 'w').write (v)
+            else:
+                print v
+        
     elif command == 'build':
         try:
             pm = gup.get_target_manager (settings)
