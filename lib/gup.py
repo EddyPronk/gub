@@ -167,9 +167,11 @@ class PackageDictManager:
 
     which can be read off the disk.
     """
-    def __init__ (self):
+    def __init__ (self, os_interface):
         self._packages = {}
- 
+
+        ## ugh: mi overwrite.
+        self.os_interface = os_interface
     def register_package_dict (self, d):
         nm = d['name']
         if d.has_key ('split_name'):
@@ -256,7 +258,7 @@ class PackageManager (FileManager, PackageDictManager):
     
     def __init__ (self, root, os_interface, **kwargs):
         FileManager.__init__ (self, root, os_interface, **kwargs)
-        PackageDictManager.__init__ (self)
+        PackageDictManager.__init__ (self, os_interface)
         
         self._package_dict_db = dbmodule.open (self.config
                            + '/dicts.db', 'c')
@@ -272,7 +274,7 @@ class PackageManager (FileManager, PackageDictManager):
         if self.is_installed (name):
             return
         self.os_interface.log_command ('installing package: %s\n'
-                       % name)
+                                       % name)
         if self._package_file_db.has_key (name):
             print 'already have package ', name
             raise Exception ('abort')
