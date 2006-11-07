@@ -111,7 +111,7 @@ def build_installer (installer, args, options):
 
 
     cs = md5.new()
-    for (name, dict) in sorted (install_manager.installed_package_dicts ()):
+    for dict in sorted (install_manager.installed_package_dicts ()):
         cs.update (dict['source_checksum'])
         cs.update (dict['spec_checksum'])
     
