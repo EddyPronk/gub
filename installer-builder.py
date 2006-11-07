@@ -3,6 +3,7 @@
 import optparse
 import os
 import sys
+import md5
 
 sys.path.insert (0, 'lib/')
 
@@ -107,14 +108,22 @@ def build_installer (installer, args, options):
     installer.lilypond_build = buildnumber
     settings.installer_version = version
     settings.installer_build = buildnumber
+
+
+    cs = md5.new()
+    for (name, dict) in install_manager.installed_package_dicts ():
+        cs.update (dict['source_checksum'])
+        cs.update (dict['spec_checksum'])
     
+    installer.checksum = md5.hexdigest ()
 
 def strip_installer (obj):
     obj.log_command (' ** Stage: %s (%s)\n'
-                           % ('strip', obj.name ()))
+                     % ('strip', obj.name ()))
     obj.strip ()
 
 def package_installer (installer):
+    
     installer.create ()
         
 def run_installer_commands (commands, settings, args, options):
