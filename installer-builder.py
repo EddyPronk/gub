@@ -115,7 +115,7 @@ def build_installer (installer, args, options):
         cs.update (dict['source_checksum'])
         cs.update (dict['spec_checksum'])
     
-    installer.checksum = md5.hexdigest ()
+    installer.checksum = cs.hexdigest ()
 
 def strip_installer (obj):
     obj.log_command (' ** Stage: %s (%s)\n'
