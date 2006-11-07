@@ -16,7 +16,7 @@ class Fondu (targetpackage.TargetBuildSpec):
     def patch (self):
         targetpackage.TargetBuildSpec.patch (self)
         self.file_sub ([('wilprefix', 'prefix')],
-               '%(srcdir)s/Makefile.in')
+                       '%(srcdir)s/Makefile.in')
         
 class Fondu__darwin (Fondu):
     def patch(self):

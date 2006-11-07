@@ -232,7 +232,7 @@ def get_cygwin_package (settings, name, dict):
     if dict.has_key ('requires'):
         deps = re.sub ('\([^\)]*\)', '', dict['requires']).split ()
         deps = [x.strip ().lower ().replace ('_', '-') for x in deps]
-        ##print 'gcp: ' + `deps`
+
         deps = filter (lambda x: x not in blacklist, deps)
         package.name_dependencies = deps
 

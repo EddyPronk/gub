@@ -29,13 +29,14 @@ class Freetype (targetpackage.TargetBuildSpec):
 ''')
         targetpackage.TargetBuildSpec.configure (self)
 
-        # # FIXME: libtool too old for cross compile
+        ## FIXME: libtool too old for cross compile
         self.update_libtool ()
 
         self.file_sub ([('^LIBTOOL=.*', 'LIBTOOL=%(builddir)s/libtool --tag=CXX')], '%(builddir)s/Makefile')
 
     def munge_ft_config (self, file):
-        self.file_sub ([('\nprefix=[^\n]+\n', '\nlocal_prefix=yes\nprefix=%(system_root)s/usr\n')],
+        self.file_sub ([('\nprefix=[^\n]+\n',
+                         '\nlocal_prefix=yes\nprefix=%(system_root)s/usr\n')],
                        file, must_succeed=True)
 
     def install (self):
