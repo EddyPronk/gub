@@ -1,6 +1,10 @@
 
 lagere prioriteit
 
+- Explode inheritance, and use membership in GUP
+
+- Use installer checksums to skip rebuilds if necessary.
+
 - move patches upstream, eg.
 
   * libpng
