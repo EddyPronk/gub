@@ -165,7 +165,8 @@ def upload_binaries (repo, version):
     src_dests = []
     cmds = []
 
-    committish = repo.git_pipe ('describe --abbrev=40 %(branch)s' % locals ()).strip ()
+    ## ugh: 24 is hardcoded in repository.py
+    committish = repo.git_pipe ('describe --abbrev=24 %(branch)s' % locals ()).strip ()
     commitishes = {}
     barf = False
     for platform in platforms:
@@ -200,8 +201,7 @@ def upload_binaries (repo, version):
             
             barf = 1
 
-        
-    if len (commitishes) > 1 or commitishes.keys()[0] != committish:
+    if len (commitishes) > 1 or (len (commitishes) == 1 and  commitishes.keys()[0] != committish):
         print 'uploading multiple versions'
         print '\n'.join (`x` for x in commitishes.items ())
         print 'repo:', committish
@@ -234,13 +234,16 @@ def upload_binaries (repo, version):
 
     cmds += ['rsync --delay-updates --progress %s %s' % tup for tup in src_dests]
 
-    description = repo.git_pipe ('describe --abbrev=40 %(branch)s' % locals())
+    description = repo.git_pipe ('describe --abbrev=39 %(branch)s' % locals())
 
-    git_tag = 'gub-%(version_str)s-%(build)d' % locals () 
+    git_tag = 'gubrelease-%(version_str)s-%(build)d' % locals () 
     git_tag_cmd = 'git --git-dir downloads/lilypond.git tag -a -m "build and upload" %(git_tag)s %(branch)s' % locals ()
+    git_push_cmd = 'git --git-dir downloads/lilypond.git push ssh+git://repo.or.cz/srv/git/lilypond.git/ refs/tags/%(git_tag)s:refs/tags/%(git_tag)s' % locals ()
     darcs_tag_cmd = 'darcs tag --patch "release %(version_str)s-%(build)d of lilypond tagged %(git_tag)s" ' % locals()
 
+
     cmds.append (git_tag_cmd)
+    cmds.append (git_push_cmd)
 
     cmds.append (darcs_tag_cmd)
     
