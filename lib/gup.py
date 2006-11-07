@@ -145,8 +145,11 @@ class FileManager:
                 print 'warning: %s not empty' % d
 
         for f in lst:
-            if f.endswith ('/'):
+
+            ## fixme (?)  -- when is f == ''
+            if not f or f.endswith ('/'):
                 continue
+
             try:
                 del self._file_package_db[f]
             except:
