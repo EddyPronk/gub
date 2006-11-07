@@ -46,9 +46,16 @@ def parse_options ():
                   default=False,
                   help="don't do incremental build.")
 
+
+    p.add_option ('--local-branch',
+                  dest="local_branch",
+                  default="master-repo.or.cz-lilypond.git",
+                  action="store",
+                  help="which branch of lily to build")
+
     p.add_option ('--branch',
                   dest="branch",
-                  default="HEAD",
+                  default="master",
                   action="store",
                   help="which branch of lily to build")
 
@@ -166,12 +173,9 @@ def main ():
         
     if opts.build_installer:
         version_opts = '' 
-        if not opts.unversioned:
-            version_opts = ('-b buildnumber-%s.make ' % opts.branch
-                            + ' -v downloads/lilypond-%s/VERSION' % opts.branch)
             
         test_cmds += [python_cmd + 'installer-builder.py --skip-if-locked %s --branch %s -p %s build-all lilypond '
-                      % (version_opts, opts.branch, p) for p in args]
+                      % (version_opts, opts.local_branch, p) for p in args]
 
     if opts.build_docs:
         test_cmds += [make_cmd + 'doc-build',
