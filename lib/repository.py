@@ -197,7 +197,7 @@ class GitRepository (Repository):
         self.remote_branch = branch
         self.source = source
         self.revision = revision
-
+        self.repo_url_suffix = ''
         
         if ':' in branch:
             (self.remote_branch,
@@ -208,12 +208,12 @@ class GitRepository (Repository):
             self.branch = branch
 
             source = re.sub ('.*://', '', source)
-            self.local_branch = re.sub ('[/:+]+', '-', source)
+            self.repo_url_suffix = '-' + re.sub ('[/:+]+', '-', source)
             if branch:
-                self.local_branch = branch +  '-' + self.local_branch
+                self.local_branch = branch + self.repo_url_suffix
                 self.branch = self.local_branch
             else:
-                self.local_branch = 'master' +  '-' + self.local_branch 
+                self.local_branch = 'master' + self.repo_url_suffix
         else:
             self.branch = branch
             self.local_branch = branch
@@ -289,17 +289,21 @@ class GitRepository (Repository):
         revision = self.revision
         
         if not os.path.isdir (self.repo_dir):
-            self.system ('mkdir %s' % self.repo_dir)
-            self.git ('--git-dir %(repo)s init-db' % locals ())
-            branch = self.local_branch
-            
-            remote_branch = self.remote_branch
+            self.git ('--git-dir %(repo)s clone --bare -n %(source)s %(repo)s' % locals ())
 
-            if not remote_branch:
-                remote_branch = 'master'
-                branch = 'master' + branch
-                
-            self.git ('--git-dir %(repo)s fetch --update-head-ok %(source)s %(remote_branch)s:%(branch)s' % locals ())
+            for (root, dirs, files) in os.walk ('%(repo)s/refs/heads/' % locals ()):
+                for f in files:
+                    self.system ('mv %s %s%s' % (os.path.join (root, f),
+                                                 os.path.join (root, f),
+                                                 self.repo_url_suffix))
+
+
+                head = open ('%(repo)s/HEAD' % locals ()).read ()
+                head = head.strip ()
+                head += self.repo_url_suffix
+
+                open ('%(repo)s/HEAD' % locals (), 'w').write (head)
+
             return
 
         if revision:
