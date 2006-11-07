@@ -34,7 +34,7 @@ glib_cv_stack_grows=${glib_cv_stack_grows=no}
     def install (self):
         targetpackage.TargetBuildSpec.install (self)
         self.system ('rm %(install_root)s/usr/lib/charset.alias',
-                     ignore_errorsTrue)
+                     ignore_errors=True)
         
 class Glib__darwin (Glib):
     def configure (self):
