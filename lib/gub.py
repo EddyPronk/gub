@@ -67,9 +67,11 @@ class PackageSpec:
                 
             for exp in glob.glob (os.path.join (path, f)):
                 globs.append (exp.replace (path, './').replace ('//', '/'))
+
+        if not globs:
+            globs.append ('thisreallysucks-but-lets-hope-I-dont-exist/')
             
         cmd += ' '.join (globs) 
-
         cmd = self.expand (cmd)
         self._os_interface.system (cmd)
 
