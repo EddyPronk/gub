@@ -326,6 +326,9 @@ unlocked-info-man-build:
 	    DOCUMENTATION=yes out=out-www info
 	$(DOC_RELOCATION) make DESTDIR=$(NATIVE_LILY_BUILD)/out-info-man \
 	    -C $(NATIVE_LILY_BUILD)/Documentation/user out=www install-info
+
+	## FIXME: #! guile script is barfing.  
+	touch $(NATIVE_LILY_BUILD)/scripts/out/lilypond-invoke-editor.1
 	$(DOC_RELOCATION) make DESTDIR=$(NATIVE_LILY_BUILD)/out-info-man \
 	    -C $(NATIVE_LILY_BUILD)/ DOCUMENTATION=yes CROSS=no \
 	    install-help2man
