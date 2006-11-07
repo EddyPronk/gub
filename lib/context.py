@@ -128,14 +128,14 @@ class Os_context_wrapper (Context):
         str = self.expand (str, env)
         self.os_interface.log_command (str)
         
-    def read_pipe (self, cmd, env={}, ignore_error=False):
+    def read_pipe (self, cmd, env={}, ignore_errors=False):
         dict = self.get_substitution_dict (env)
-        return self.os_interface.read_pipe (cmd % dict, ignore_error=ignore_error)
+        return self.os_interface.read_pipe (cmd % dict, ignore_errors=ignore_errors)
 
-    def system (self, cmd, env={}, ignore_error=False):
+    def system (self, cmd, env={}, ignore_errors=False):
         dict = self.get_substitution_dict (env)
         cmd = self.expand (cmd, env)
-        self.os_interface.system (cmd, env=dict, ignore_error=ignore_error,
+        self.os_interface.system (cmd, env=dict, ignore_errors=ignore_errors,
                                   verbose=self.verbose)
 
     def shadow_tree (self, src, dest):

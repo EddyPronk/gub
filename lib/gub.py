@@ -321,7 +321,7 @@ cd %(builddir)s && %(configure_command)s
 
     def install_license (self):
         if self.expand ('%(license_file)s'):
-            self.system ('mkdir -p %(install_root)s/license/', ignore_error=True)
+            self.system ('mkdir -p %(install_root)s/license/', ignore_errors=True)
             self.system ('cp %(license_file)s %(install_root)s/license/%(name)s')
         
     def broken_install_command (self):
@@ -529,7 +529,7 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"  -zcf %(src_package_ball)
             self.vc_repository.update_workdir (self.expand ('%(srcdir)s'))
             
         if (os.path.isdir (self.expand ('%(srcdir)s'))):
-            self.system ('chmod -R +w %(srcdir)s', ignore_error=True)
+            self.system ('chmod -R +w %(srcdir)s', ignore_errors=True)
 
     def pre_install_smurf_exe (self):
         for i in self.locate_files ('%(builddir)s', '*.exe'):

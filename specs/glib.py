@@ -34,7 +34,7 @@ glib_cv_stack_grows=${glib_cv_stack_grows=no}
     def install (self):
         targetpackage.TargetBuildSpec.install (self)
         self.system ('rm %(install_root)s/usr/lib/charset.alias',
-                     ignore_error=True)
+                     ignore_errorsTrue)
         
 class Glib__darwin (Glib):
     def configure (self):
@@ -73,7 +73,7 @@ class Glib__local (toolpackage.ToolBuildSpec):
     def install (self):
         toolpackage.ToolBuildSpec.install(self)
         self.system ('rm %(install_root)s/%(packaging_suffix_dir)s/usr/lib/charset.alias',
-                         ignore_error=True)
+                         ignore_errors=True)
 
     def get_build_dependencies (self):
         return ['gettext-devel', 'libtool']            

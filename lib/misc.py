@@ -15,12 +15,12 @@ def bind(function, arg1):
 
     return bound
 
-def read_pipe (cmd, ignore_error=False):
+def read_pipe (cmd, ignore_errors=False):
     print 'executing pipe %s' % cmd
     pipe = os.popen (cmd)
 
     val = pipe.read ()
-    if pipe.close () and not ignore_error:
+    if pipe.close () and not ignore_errors:
         raise SystemFailed ("Pipe failed: %s" % cmd)
     
     return val
@@ -171,10 +171,10 @@ class SystemFailed (Exception):
     pass
 
 
-def system (cmd, ignore_error=False):
+def system (cmd, ignore_errors=False):
     print 'Executing command %s' % cmd
     stat = os.system (cmd)
-    if stat and not ignore_error:
+    if stat and not ignore_errors:
         raise SystemFailed('Command failed ' + `stat`)
 
 
@@ -198,7 +198,7 @@ def map_command_dir (dir, command, filter_out=[], extension_filter_out=[]):
         if (os.path.basename (file) not in filter_out
           and (os.path.splitext (file)[1] not in extension_filter_out)):
             system ('%(command)s %(root)s/%(file)s' % locals (),
-                    ignore_error=True)
+                    ignore_errors=True)
 
 def ball_basename (ball):
     s = ball

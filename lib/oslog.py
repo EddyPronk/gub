@@ -20,7 +20,7 @@ class Os_commands:
 
     ## TODO:
     ## capture complete output of CMD, by polling output, and copying to tty.
-    def system_one (self, cmd, env, ignore_error):
+    def system_one (self, cmd, env, ignore_errors):
         '''Run CMD with environment vars ENV.'''
 
         self.log_command ('invoking %s\n' % cmd)
@@ -30,7 +30,7 @@ class Os_commands:
 
         stat = proc.wait()
 
-        if stat and not ignore_error:
+        if stat and not ignore_errors:
             m = 'Command barfed: %s\n' % cmd
             self.log_command (m)
 
@@ -47,7 +47,7 @@ class Os_commands:
             self.log_file.flush ()
 
 
-    def system (self, cmd, env={}, ignore_error=False, verbose=False):
+    def system (self, cmd, env={}, ignore_errors=False, verbose=False):
         '''Run os commands, and run multiple lines as multiple
 commands.
 '''
@@ -64,7 +64,7 @@ commands.
             sys.stderr.write ('export %s\n' % ' '.join (keys))
         for i in cmd.split ('\n'):
             if i:
-                self.system_one (i, call_env, ignore_error)
+                self.system_one (i, call_env, ignore_errors)
 
         return 0
 
@@ -114,7 +114,7 @@ If TO_NAME is specified, the output is sent to there.
             h.close ()
             os.chmod (to_name, mode)
 
-    def read_pipe (self, cmd, ignore_error=False, silent=False):
+    def read_pipe (self, cmd, ignore_errors=False, silent=False):
         if not silent:
             self.log_command ('Reading pipe: %s\n' % cmd)
 
@@ -123,7 +123,7 @@ If TO_NAME is specified, the output is sent to there.
         status = pipe.close ()
 
         # successful pipe close returns None
-        if not ignore_error and status:
+        if not ignore_errors and status:
             raise Exception ('read_pipe failed')
         return output
 

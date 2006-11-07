@@ -14,7 +14,7 @@ class Nsis (ToolBuildSpec):
         return ["scons"]
 
     def patch (self):
-        self.system ('mkdir -p %(allbuilddir)s', ignore_error=True)
+        self.system ('mkdir -p %(allbuilddir)s', ignore_errors=True)
         self.system ('ln -s %(srcdir)s %(builddir)s')
 
     def configure (self):

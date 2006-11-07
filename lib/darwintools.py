@@ -121,7 +121,7 @@ class Rewirer (context.Os_context_wrapper):
         lib_str = self.read_pipe ('''
 %(cross_prefix)s/bin/%(target_architecture)s-otool -L %(name)s
 ''',
-                     locals (), ignore_error=True)
+                     locals (), ignore_errors=True)
 
         libs = []
         for l in lib_str.split ('\n'):

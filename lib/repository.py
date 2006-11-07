@@ -263,7 +263,7 @@ class GitRepository (Repository):
 
         return c
         
-    def git (self, cmd, dir='', ignore_error=False,
+    def git (self, cmd, dir='', ignore_errors=False,
              repo_dir=''):
 
         if repo_dir == '' and dir == '':
@@ -272,9 +272,9 @@ class GitRepository (Repository):
         gc = self.git_command (dir, repo_dir)
         cmd = '%(gc)s %(cmd)s' % locals ()
             
-        self.system (cmd, ignore_error=ignore_error)
+        self.system (cmd, ignore_errors=ignore_errors)
 
-    def git_pipe (self, cmd, ignore_error=False,
+    def git_pipe (self, cmd, ignore_errors=False,
                   dir='', repo_dir=''):
 
         if repo_dir == '' and dir == '':
@@ -308,7 +308,7 @@ class GitRepository (Repository):
 
         if revision:
             contents = self.git_pipe ('--git-dir %(repo)s ls-tree %(revision)s' % locals (),
-                                      ignore_error=True)
+                                      ignore_errors=True)
 
             if contents:
                 return
