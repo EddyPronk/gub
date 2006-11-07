@@ -28,7 +28,12 @@ def platform ():
         return '%s-%s' % (op_sys, cpu) 
     
 def main ():
-    print platform ()
+
+    ## fail silently, so usable in $(shell ) in makefile.
+    try:
+        print platform ()
+    except:
+        print 
 
 if __name__ == '__main__':    
     main ()
