@@ -18,18 +18,25 @@ beautiful sheet music from a high-level description file.'''
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
 
-        repo = repository.GitRepository (
-            self.get_repodir (),
-            branch=settings.lilypond_branch,
-            source='http://lilypond.org/vc/lilypond.git/')
+
+        try:
+            source = os.environ['GUB_LILYPOND_SOURCE']
+        except KeyError:         
+            source = 'git://repo.or.cz/lilypond.git'
         
-        if os.environ.has_key ('GUB_CVS'):
+        if 'pserver' in source:
             repo = repository.CVSRepository (
                 self.get_repodir (),
                 source=':pserver:anoncvs@cvs.sv.gnu.org:/cvsroot/lilypond',
                 module='lilypond',
                 tag=settings.lilypond_branch)
-        
+        else:
+            repo = repository.GitRepository (
+                self.get_repodir (),
+                branch=settings.lilypond_branch,
+                source=source)
+
+            
         def version_from_VERSION (self):
             s = self.get_file_content ('VERSION')
             d = misc.grok_sh_variables_str (s)
