@@ -60,16 +60,19 @@ VERSION_DB = uploads/versions.db
 
 DOC_LIMITS=ulimit -m 256000 && ulimit -d 256000 # && ulimit -v 512000 
 
-# local.make should set the following variables:
+# local.make may set the following variables:
 #
-#  BUILD_PLATFORM  - the platform used for building.
-
+#  BUILD_PLATFORM  - override the platform used for building,
+#                    if ./build-platform.py should not work.
+#
 # it may set
 #
-#  GUB_DISTCC_ALLOW_HOSTS - which distcc daemons may connect.
 #  GUB_CROSS_DISTCC_HOSTS - hosts with matching cross compilers
+#  GUB_DISTCC_ALLOW_HOSTS - which distcc daemons may connect.
 #  GUB_NATIVE_DISTCC_HOSTS - hosts with matching native compilers
-#
+#  LOCAL_GUB_BUILDER_OPTIONS - esp.: --verbose, --keep [--force-package]
+
+BUILD_PLATFORM = $(shell $(PYTHON) build-platform.py)
 
 -include local.make
 
