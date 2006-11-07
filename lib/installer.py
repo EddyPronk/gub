@@ -25,7 +25,8 @@ class Installer (context.Os_context_wrapper):
         self.installer_uploads = settings.uploads
         self.installer_version = None
         self.installer_build = None
-      
+        self.checksum = '0000'
+        
     @context.subst_method
     def name (self):
         return 'lilypond'
@@ -140,7 +141,11 @@ class Installer (context.Os_context_wrapper):
     def create (self):
         self.system ("mkdir %(installer_root)s/license/", ignore_errors=True)
         self.system ("cp %(sourcefiledir)s/gub.license %(installer_root)s/license/README", ignore_errors=True)
-        
+
+    def write_checksum (self):
+        open (self.expand ('%(installer_root)s.checksum'), 'w').write (self.checksum)
+
+
 class Darwin_bundle (Installer):
     def __init__ (self, settings):
         Installer.__init__ (self, settings)
@@ -186,6 +191,7 @@ cp -pR --link %(installer_root)s/license*/* %(darwin_bundle_dir)s/Contents/Resou
                      locals ())
         
         self.log_command ("Created %(bundle_zip)s\n", locals()) 
+        self.write_checksum ()
         
 class Nsis (Installer):
     def __init__ (self, settings):
@@ -243,7 +249,7 @@ class Linux_installer (Installer):
 
     def create_tarball (self):
         self.system ('tar --owner=0 --group=0 -C %(installer_root)s -jcf %(bundle_tarball)s .', locals ())
-
+        
 def create_shar (orig_file, hello, head, target_shar):
     length = os.stat (orig_file)[6]
 
@@ -279,7 +285,8 @@ class Shar (Linux_installer):
 
         hello = self.expand ("version %(installer_version)s release %(installer_build)s")
         create_shar (tarball, hello, head, target_shar)
-              
+        self.write_checksum ()
+        
 class Deb (Linux_installer):
     def create (self):
         self.system ('cd %(installer_uploads)s && fakeroot alien --keep-version --to-deb %(bundle_tarball)s', locals ())
