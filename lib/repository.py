@@ -197,7 +197,11 @@ class GitRepository (Repository):
         self.remote_branch = branch
         self.source = source
         self.revision = revision
-        self.repo_url_suffix = ''
+
+        self.repo_url_suffix = re.sub ('.*://', '', source)
+
+        if self.repo_url_suffix:
+            self.repo_url_suffix = '-' + re.sub ('[/:+]+', '-', self.repo_url_suffix)
         
         if ':' in branch:
             (self.remote_branch,
@@ -207,8 +211,6 @@ class GitRepository (Repository):
         elif source:
             self.branch = branch
 
-            source = re.sub ('.*://', '', source)
-            self.repo_url_suffix = '-' + re.sub ('[/:+]+', '-', source)
             if branch:
                 self.local_branch = branch + self.repo_url_suffix
                 self.branch = self.local_branch
