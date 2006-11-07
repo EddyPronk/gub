@@ -160,36 +160,16 @@ class FileManager:
         names = self._package_file_db.keys ()
         return names
 
-class PackageManager (FileManager):
-
-
-    """PackageManager is a FileManager, which also associates a
-    key/value dict with each package.
-
-    Such dicts come either from either 
-
-    1. A build spec (ie. a python object)
-
-    2. A pickled dict on disk, a package header
-
-    3. 
+class PackageDictManager:
     """
 
-    
-    def __init__ (self, root, os_interface, **kwargs):
-        FileManager.__init__ (self, root, os_interface, **kwargs)
+    A dict of PackageName ->  (Key->Value dict)
 
-        self._package_dict_db = dbmodule.open (self.config
-                           + '/dicts.db', 'c')
+    which can be read off the disk.
+    """
+    def __init__ (self):
         self._packages = {}
-        for k in self._package_dict_db.keys ():
-            v = self._package_dict_db[k]
-            self.register_package_dict (pickle.loads (v))
-
-    def installed_package_dicts (self):
-        names = self._package_file_db.keys ()
-        return [self._packages[p] for p in names]
-
+ 
     def register_package_dict (self, d):
         nm = d['name']
         if d.has_key ('split_name'):
@@ -204,7 +184,8 @@ class PackageManager (FileManager):
             return
 
         self._packages[nm] = d
-
+   
+        
     def register_package_header (self, package_hdr, branch):
         if self.verbose:
             self.os_interface.log_command ('reading package header: %s\n'
@@ -233,18 +214,59 @@ class PackageManager (FileManager):
 
     def unregister_package_dict (self, name):
         del self._packages[name]
-        
-    def read_package_headers (self, s, branch):
-        if os.path.isdir (s) and not s.endswith ('/'):
-            s += '/'
-        for f in glob.glob ('%(s)s*hdr' % locals ()):
-            self.register_package_header (f, branch)
+
+    def is_registered (self, package):
+        return self._packages.has_key (package)
+
+    def package_dict (self, package_name):
+        return self._packages[package_name]
+
+    def get_all_packages (self):
+        return self._packages.values ()
 
     def is_installable (self, name):
         d = self._packages[name]
         ball = '%(split_ball)s' % d
         hdr = '%(split_hdr)s' % d
         return os.path.exists (ball) and os.path.exists (hdr)
+
+    def read_package_headers (self, s, branch):
+        if os.path.isdir (s) and not s.endswith ('/'):
+            s += '/'
+        for f in glob.glob ('%(s)s*hdr' % locals ()):
+            self.register_package_header (f, branch)
+
+
+## FIXME: MI
+class PackageManager (FileManager, PackageDictManager):
+
+
+    """PackageManager is a FileManager, which also associates a
+    key/value dict with each package.
+
+    Such dicts come either from either 
+
+    1. A build spec (ie. a python object)
+
+    2. A pickled dict on disk, a package header
+
+    3. 
+    """
+
+    
+    def __init__ (self, root, os_interface, **kwargs):
+        FileManager.__init__ (self, root, os_interface, **kwargs)
+        PackageDictManager.__init__ (self)
+        
+        self._package_dict_db = dbmodule.open (self.config
+                           + '/dicts.db', 'c')
+        for k in self._package_dict_db.keys ():
+            v = self._package_dict_db[k]
+            self.register_package_dict (pickle.loads (v))
+
+    def installed_package_dicts (self):
+        names = self._package_file_db.keys ()
+        return [self._packages[p] for p in names]
 
     def install_package (self, name):
         if self.is_installed (name):
@@ -263,14 +285,6 @@ class PackageManager (FileManager):
         FileManager.uninstall_package (self, name)
         del self._package_dict_db[name]
 
-    def is_registered (self, package):
-        return self._packages.has_key (package)
-
-    def package_dict (self, package_name):
-        return self._packages[package_name]
-
-    def get_all_packages (self):
-        return self._packages.values ()
     
 def is_string (x):
     return type (x) == type ('')
