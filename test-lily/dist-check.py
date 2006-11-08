@@ -8,7 +8,7 @@ import optparse
 
 sys.path.insert (0, os.path.split (sys.argv[0])[0] + '/../lib/')
 
-import gitrepo
+import repository
 import tempfile
 import misc
 
@@ -116,8 +116,8 @@ def main ():
     tarball = '%(builddir)s/out/lilypond-%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s.tar.gz' % config
 
 
-    repo = gitrepo.GitRepository (options.repository,
-                                  branch=options.branch)
+    repo = repository.GitRepository (options.repository,
+                                     branch=options.branch)
 
     check_files (tarball, repo)
 
