@@ -20,8 +20,9 @@ platforms = ['linux-x86',
              'freebsd-x86',
 #             'freebsd6-x86',
 #             'linux-arm',
-             'mingw']
-
+             'mingw',
+             'cygwin',
+             ]
 
 build_platform = {
 	'darwin': 'darwin-ppc',
