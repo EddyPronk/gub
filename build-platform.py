@@ -11,7 +11,7 @@ def gcc_machine ():
             cpu = '64'
         for os in lst[1:]:
             if os in ('linux', 'freebsd', 'darwin', 'cygwin'):
-                return '%(cpu)s-%(os)s' % locals ()
+                return '%(os)s-%(cpu)s' % locals ()
         raise 'UnknownOs'
 
 def main ():
