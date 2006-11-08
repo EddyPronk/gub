@@ -40,7 +40,19 @@ class Cygwin_package (context.Os_context_wrapper):
         self.package_manager.read_package_headers (
             settings.expand ('%(gub_uploads)s/'  + name), branch)
 
+        p = self.package_manager.get_all_packages ()[0]
+        self.settings.build = self.build_number (p)
+
         self.create ()
+
+    def build_number (self, package):
+        import versiondb
+        version_file = '%(uploads)s/%(name)s.versions' % package
+        db = versiondb.VersionDataBase (version_file)
+        version = '%(full_version)s' % package
+        v = map (int, version.split ('.'))
+        b = db.get_next_build_number (v)
+        return ('%d' % b)
 
     def create (self):
         packs = self.package_manager.get_all_packages ()
@@ -283,7 +295,6 @@ def main ():
     (options, commands)  = parse_command_line ()
     platform = 'cygwin'
     settings = settings_mod.get_settings (platform)
-    settings.build = options.build
 
     # Barf
     settings.__dict__['cross_distcc_hosts'] = []
