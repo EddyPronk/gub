@@ -147,10 +147,11 @@ cd %(builddir)s && %(configure_command)s''')
         return v
 
     def build_number (self):
-        build_number_file = '%(topdir)s/buildnumber-%(lilypond_branch)s.make'
-        d = misc.grok_sh_variables (self.expand (build_number_file))
-        b = '%(INSTALLER_BUILD)s' % d
-        return b
+        import versiondb
+        db = versiondb.VersionDataBase (self.settings.version_db)
+        v = map (int, self.build_version ().split ('.'))
+        b = db.get_next_build_number (v)
+        return ('%d' % b)
 
     def install (self):
         targetpackage.TargetBuildSpec.install (self)
