@@ -1,39 +1,37 @@
 #! /usr/bin/python
-import re
-import os
-        
-def platform ():
+
+class Gcc_machine:
     _platforms = {
-	'i686-pc-cygwin': 'cygwin',
-	'x86_64-linux-gnu': 'linux-64',
-	'i486-linux-gnu': 'linux-x86',
-	}
-
-    machine = os.popen ('gcc -dumpmachine 2>/dev/null').read ().strip ()
-    
-    try:
-        return _platforms[machine]
-    except KeyError:
-        cpu = machine.split ('-')[0]
-        op_sys = ''
-        if re.search ('i[0-9]86', cpu):
+        'i386-redhat-linux': 'linux-x86',
+        'i486-linux-gnu': 'linux-x86',
+        'i686-pc-cygwin': 'cygwin',
+        'x86_64-linux-gnu': 'linux-64',
+        }
+    def __init__ (self):
+        import os
+        machine = os.popen ('gcc -dumpmachine 2>/dev/null').read ().strip ()
+        if self._platforms.has_key (machine):
+            self._platform = self._platforms[machine]
+        else:
+            self._platform = self.guess_platform (machine.split ('-'))
+    def guess_platform (self, machine):
+        cpu = machine[0]
+        if cpu in ('i386', 'i468', 'i586', 'i686'):
             cpu = 'x86'
-        elif re.search ('x86_64', cpu):
+        elif cpu == 'x86_64':
             cpu = '64'
-            
-        for a in ['linux', 'freebsd', 'darwin']:
-            if a in machine:
-                op_sys = a
-                
-        return '%s-%s' % (op_sys, cpu) 
-    
+        for os in machine[1:]:
+            if os in ('linux', 'freebsd', 'darwin', 'cygwin'):
+                return '%(cpu)s-%(os)s' % locals ()
+    def __str__ (self):
+        return self._platform
+
 def main ():
-
-    ## fail silently, so usable in $(shell ) in makefile.
     try:
-        print platform ()
+        print Gcc_machine ()
     except:
-        print 
+        # On failure print empty line for use in makefile's $(shell ).
+        print
 
-if __name__ == '__main__':    
+if __name__ == '__main__':
     main ()
