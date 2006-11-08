@@ -51,7 +51,7 @@ class VersionDataBase:
             self.read ()
             
     def get_from_url (self, url):
-        package = os.path.basename(os.path.splitext(self.file_name)[0])
+        package = os.path.basename (os.path.splitext (self.file_name)[0])
         for p in platforms:
             u = '%(url)s/%(p)s/' % locals ()
             if p == 'cygwin':
@@ -71,9 +71,9 @@ class VersionDataBase:
             sub_db[platform] = [0]
             if self._db.has_key (platform):
                 sub_db[platform] = [buildnum
-                                for (name, version, buildnum, url) in self._db[platform]
-                                if version == version_tuple]
-
+                                    for (name, version, buildnum, url)
+                                    in self._db[platform]
+                                    if version == version_tuple]
             
         return max (max (bs + [0]) for (p, bs) in sub_db.items ()) + 1
 
