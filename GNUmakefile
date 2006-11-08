@@ -128,7 +128,7 @@ cygwin-libtool:
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build libtool
 
 cygwin-libtool-installer:
-	$(PYTHON) cygwin-packager.py --build-number=3 libtool
+	$(PYTHON) cygwin-packager.py libtool
 
 cygwin-fontconfig:
 	python lib/versiondb.py --dbfile uploads/fontconfig.versions --download
@@ -138,20 +138,20 @@ cygwin-fontconfig:
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build fontconfig
 
 cygwin-fontconfig-installer:
-	$(PYTHON) cygwin-packager.py --build-number=3 fontconfig
+	$(PYTHON) cygwin-packager.py fontconfig
 
 cygwin-guile:
 	python lib/versiondb.py --dbfile uploads/guile.versions --download
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build libtool guile
 
 cygwin-guile-installer:
-	$(PYTHON) cygwin-packager.py --build-number=3 guile
+	$(PYTHON) cygwin-packager.py guile
 
 cygwin-lilypond:
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build libtool guile lilypond
 
 cygwin-lilypond-installer:
-	$(PYTHON) cygwin-packager.py --branch $(LILYPOND_LOCAL_BRANCH) --build-number=2 lilypond
+	$(PYTHON) cygwin-packager.py --branch $(LILYPOND_LOCAL_BRANCH) lilypond
 
 upload-setup-ini:
 	cd uploads/cygwin && ../../downloads/genini $$(find release -mindepth 1 -maxdepth 2 -type d) > setup.ini
