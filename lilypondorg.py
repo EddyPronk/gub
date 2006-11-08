@@ -164,7 +164,6 @@ def upload_binaries (repo, version):
     if (version[1] % 2) == 0:
         branch = 'lilypond_%d_%d' % (version[0], version[1])
 
-
     src_dests = []
     cmds = []
 
@@ -199,13 +198,13 @@ def upload_binaries (repo, version):
         if not os.path.exists (bin):
             print 'binary does not exist', bin
             barf = 1
-            
         else:
             ## globals -> locals.
             host = host_binaries_spec 
-            src_dests.append((os.path.abspath (bin), '%(host)s/%(platform)s' % locals()))
+            src_dests.append ((os.path.abspath (bin),
+                               '%(host)s/%(platform)s' % locals ()))
             
-        if platform != 'documentation' and  os.path.exists (bin):
+        if platform != 'documentation' and os.path.exists (bin):
             branch = repo.branch
             hdr = pickle.load (open ('uploads/%(platform)s/lilypond-%(branch)s.%(platform)s.hdr' % locals ()))
             key = hdr['source_checksum']
@@ -215,14 +214,15 @@ def upload_binaries (repo, version):
             
             commitishes[key] = lst
         
-        if (platform <> 'documentation'
+        if (platform != 'documentation'
             and  not os.path.exists ('log/%s.test.pdf' % base)):
             print 'test result does not exist for %s' % base
-            cmds.append ('python test-lily/test-binary.py %s' % os.path.abspath (bin))
-            
+            cmds.append ('python test-lily/test-binary.py %s'
+                         % os.path.abspath (bin))
             barf = 1
 
-    if len (commitishes) > 1 or (len (commitishes) == 1 and  commitishes.keys()[0] != committish):
+    if len (commitishes) > 1 or (len (commitishes) == 1
+                                 and commitishes.keys()[0] != committish):
         print 'uploading multiple versions'
         print '\n'.join (`x` for x in commitishes.items ())
         print 'repo:', committish
@@ -236,18 +236,16 @@ def upload_binaries (repo, version):
     else:
         host = host_source_spec 
         majmin = '.'.join (['%d' % v for v in version[:2]])
-        src_dests.append ((src_tarball, '%(host)s/v%(majmin)s' % locals ()) )
+        src_dests.append ((src_tarball, '%(host)s/v%(majmin)s' % locals ()))
         
-
-
-    d = globals().copy()
-    d.update (locals())
+    d = globals ().copy ()
+    d.update (locals ())
 
     d['cwd'] = os.getcwd ()
     d['lilybuild'] = d['cwd'] + '/target/%(build_platform)s/build/lilypond-%(branch)s' % d
     d['lilysrc'] = d['cwd'] + '/target/%(build_platform)s/src/lilypond-%(branch)s' % d 
     
-    test_cmd =r'''python %(cwd)s/test-lily/rsync-lily-doc.py \
+    test_cmd = r'''python %(cwd)s/test-lily/rsync-lily-doc.py \
   --upload %(host_doc_spec)s \
   %(lilybuild)s/out-www/web-root/''' % d
     
@@ -298,49 +296,44 @@ def read_build_versions ():
 def get_cli_parser ():
     p = optparse.OptionParser ()
 
-    p.usage="""lilypondorg.py [OPTION]... COMMAND [PACKAGE]...
+    p.usage = """lilypondorg.py [OPTION]... COMMAND [PACKAGE]...
 
 Commands:
 
 upload x.y.z      - upload packages
 nextbuild x.y.z   - get next build number
-
+versions          - print versions
+foobar            - print versions of dl.la.org
 """
-    p.description='look around on lilypond.org'
+    p.description = 'look around on lilypond.org'
 
     p.add_option ('', '--url', action='store',
                   dest='url',
                   default=base_url,
                   help='select base url')
 
-    
     p.add_option ('', '--branch', action='store',
                   dest='branch',
                   default='origin',
                   help='select upload directory')
-    
+
     p.add_option ('', '--repo-dir', action='store',
                   dest='repo_dir',
                   default='downloads/lilypond.git',
                   help='select repository directory')
-    
+
     p.add_option ('', '--upload-host', action='store',
                   dest='upload_host',
                   default=host_spec,
                   help='select upload directory')
-    
     return p
 
 def get_repository (options):
-
     ## do here, because also used in website generation.
     import repository
-
-
     dir = options.repo_dir.replace ('.git','')
     repo = repository.GitRepository (dir, 
                                      branch=options.branch)
-
     return repo
 
 def main ():
@@ -351,10 +344,13 @@ def main ():
     base_url = options.url
     host_spec = options.upload_host
 
+    if not commands:
+        cli_parser.print_help ()
+        sys.exit (2)
+
     command = commands[0]
     commands = commands[1:]
 
-    
     if command == 'nextbuild':
         version = tuple (map (string.atoi, commands[0].split ('.')))
         print uploaded_build_number (version) + 1
@@ -373,7 +369,5 @@ def main ():
         print max_branch_version_build_url ((2, 6), 'linux-x86')
         print max_branch_version_build_url ((2, 9), 'linux-x86')
 
-
 if __name__ == '__main__':
-    main()
-        
+    main ()
