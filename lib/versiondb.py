@@ -13,7 +13,9 @@ platforms = ['linux-x86',
              'freebsd-x86',
 #             'freebsd6-x86',
 #             'linux-arm',
-             'mingw']
+             'mingw',
+             'cygwin',
+             ]
 
 def get_url_versions (url):
     ##    print url
@@ -49,8 +51,11 @@ class VersionDataBase:
             self.read ()
             
     def get_from_url (self, url):
-         for p in platforms:
-            u = '%s/%s/' % (url, p)
+        package = os.path.basename(os.path.splitext(self.file_name)[0])
+        for p in platforms:
+            u = '%(url)s/%(p)s/' % locals ()
+            if p == 'cygwin':
+                u += 'release/%(package)s/' % locals ()
             self._db[p] = get_url_versions (u)
 
     def write (self):
@@ -62,7 +67,9 @@ class VersionDataBase:
     def get_next_build_number (self, version_tuple):
         sub_db = {}
         for platform in platforms:
-            sub_db[platform] = [buildnum
+            sub_db[platform] = [0]
+            if self._db.has_key (platform):
+                sub_db[platform] = [buildnum
                                 for (name, version, buildnum, url) in self._db[platform]
                                 if version == version_tuple]
 
@@ -82,7 +89,7 @@ Inspect lilypond.org download area, and write pickle of all version numbers.
     p.add_option ('--dbfile', action='store',
                   dest="dbfile",
                   help="Pickle of version dict",
-                  default="uploads/versions.db")
+                  default="uploads/lilypond.versions")
                   
     p.add_option ('--url', action='store',
                   dest='url',
@@ -112,9 +119,11 @@ def main ():
 
     db = VersionDataBase (options.dbfile)
     if options.test:
-        print db.get_next_build_number ((2,9,28))
+        print '2.9.28:', db.get_next_build_number ((2,9,28))
+        print '2.8.2:', db.get_next_build_number ((2,8,2))
         db.get_from_url (options.url)
-        print db.get_next_build_number ((2,9,28))
+        print '2.9.28:', db.get_next_build_number ((2,9,28))
+        print '2.8.2:', db.get_next_build_number ((2,8,2))
         return
 
     if options.download:
