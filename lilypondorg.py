@@ -48,7 +48,9 @@ formats = {
     'freebsd6-x86': 'sh',
     'freebsd-x86': 'sh',
 
-    'mingw':'exe',
+    'mingw': 'exe',
+
+    'cygwin': 'tar.bz2',
 
     'documentation': 'tar.bz2',
     }
@@ -171,10 +173,28 @@ def upload_binaries (repo, version):
     barf = False
     for platform in platforms:
         format = formats[platform]
-        
-        base = 'lilypond-%(version_str)s-%(build)d.%(platform)s.%(format)s' % locals()
-        bin = 'uploads/%(base)s' % locals()
-        
+        base = ('lilypond-%(version_str)s-%(build)d.%(platform)s.%(format)s'
+                % locals ())
+        bin = 'uploads/%(base)s' % locals ()
+
+        if platform == 'cygwin':
+            base = ('lilypond-%(version_str)s-%(build)d.%(format)s' % locals ())
+            dir = 'uploads/cygwin/release'
+            bin = '%(dir)s/lilypond/%(base)s' % locals ()
+            if not os.path.exists (bin):
+                print 'no such file', i
+                barf = 1
+            else:
+                # smoke test for lilypond existance only, we need to
+                # copy -doc, setup.ini and all setup.hints too
+#                src_dests.append ((os.path.abspath (bin),
+#                                   ('%(host)s/%(platform)s/release/lilypond/'
+#                                    % locals ())))
+                src_dests.append (('-avz ' + os.path.abspath (dir) + '/',
+                                   ('%(host)s/%(platform)s' % locals ())))
+                                   
+            continue
+
         if not os.path.exists (bin):
             print 'binary does not exist', bin
             barf = 1
