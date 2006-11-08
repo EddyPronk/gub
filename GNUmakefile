@@ -56,7 +56,7 @@ PYTHON=python
 sources = GNUmakefile $(wildcard *.py specs/*.py lib/*.py)
 
 NATIVE_TARGET_DIR=$(CWD)/target/$(BUILD_PLATFORM)
-VERSION_DB = uploads/versions.db
+LILYPOND_VERSIONS = uploads/lilypond.versions
 
 DOC_LIMITS=ulimit -m 256000 && ulimit -d 256000 # && ulimit -v 512000 
 
@@ -88,10 +88,10 @@ $(VERSION_FILE):
 	$(PYTHON) gub-builder.py -p $(BUILD_PLATFORM) --inspect-output $@ --branch $(BRANCH):$(LILYPOND_LOCAL_BRANCH) inspect-version lilypond
 
 unlocked-update-versions:
-	python lib/versiondb.py --dbfile $(VERSION_DB) --download
+	python lib/versiondb.py --dbfile $(LILYPOND_VERSIONS) --download
 
 update-versions:
-	$(PYTHON) test-lily/with-lock.py --skip $(VERSION_DB).lock make unlocked-update-versions
+	$(PYTHON) test-lily/with-lock.py --skip $(LILYPOND_VERSIONS).lock make unlocked-update-versions
 
 download:
 	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB_BUILDER,$(p)) download lilypond && ) true
@@ -123,6 +123,7 @@ cygwin: cygwin-libtool cygwin-libtool-installer doc cygwin-lilypond cygwin-lilyp
 cygwin-all: cygwin-libtool cygwin-libtool-installer cygwin-guile cygwin-guile-installer $(docball) cygwin-lilypond cygwin-lilypond-installer cygwin-fontconfig cygwin-fontconfig-installer
 
 cygwin-libtool:
+	python lib/versiondb.py --dbfile uploads/libtool.versions --download
 	rm -f uploads/cygwin/setup.ini
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build libtool
 
@@ -130,6 +131,7 @@ cygwin-libtool-installer:
 	$(PYTHON) cygwin-packager.py --build-number=3 libtool
 
 cygwin-fontconfig:
+	python lib/versiondb.py --dbfile uploads/fontconfig.versions --download
 	rm -f uploads/cygwin/setup.ini
 	rm -rf target/cygwin/system
 	$(call INVOKE_GUP, cygwin) install gcc
@@ -139,6 +141,7 @@ cygwin-fontconfig-installer:
 	$(PYTHON) cygwin-packager.py --build-number=3 fontconfig
 
 cygwin-guile:
+	python lib/versiondb.py --dbfile uploads/guile.versions --download
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build libtool guile
 
 cygwin-guile-installer:

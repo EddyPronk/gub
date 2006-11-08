@@ -67,9 +67,9 @@ build             - build target packages
     p.add_option ('-V', '--verbose', action='store_true',
                   dest='verbose')
 
-    p.add_option ('--version-db', action='store',
-                  default='uploads/versions.db',
-                  dest='version_db')
+    p.add_option ('--lilypond-versions', action='store',
+                  default='uploads/lilypond.versions',
+                  dest='lilypond_versions')
 
     p.add_option ('--force-package', action='store_true',
                   default=False,
@@ -255,7 +255,7 @@ def main ():
     settings.build_source = options.build_source
     settings.cpu_count = options.cpu_count
     settings.set_distcc_hosts (options)
-    settings.version_db = options.version_db
+    settings.lilypond_versions = options.lilypond_versions
     settings.options = options ##ugh
 
     command = files.pop (0)

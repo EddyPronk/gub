@@ -148,7 +148,7 @@ cd %(builddir)s && %(configure_command)s''')
 
     def build_number (self):
         import versiondb
-        db = versiondb.VersionDataBase (self.settings.version_db)
+        db = versiondb.VersionDataBase (self.settings.lilypond_versions)
         v = map (int, self.build_version ().split ('.'))
         b = db.get_next_build_number (v)
         return ('%d' % b)

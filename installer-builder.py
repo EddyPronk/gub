@@ -42,7 +42,7 @@ build-all - build, strip, package
                   help="Return successfully if another build is already running")
 
     p.add_option ('--version-db', action='store',
-                  default='uploads/versions.db',
+                  default='uploads/lilypond.versions',
                   dest='version_db')
 
     p.add_option ("--no-strip", action="store_false",
