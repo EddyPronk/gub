@@ -65,6 +65,7 @@ class VersionDataBase:
         self._db = pickle.loads (open (self.file_name).read ())
 
     def get_next_build_number (self, version_tuple):
+        assert (type (version_tuple) == type (()))
         sub_db = {}
         for platform in platforms:
             sub_db[platform] = [0]
