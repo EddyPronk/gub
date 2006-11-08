@@ -41,8 +41,8 @@ class Cygwin_package (context.Os_context_wrapper):
             settings.expand ('%(gub_uploads)s/'  + name), branch)
 
         p = self.package_manager.get_all_packages ()[0]
-        self.settings.build = self.build_number (p)
-
+        if not self.settings.build:
+            self.settings.build = self.build_number (p)
         self.create ()
 
     def build_number (self, package):
@@ -50,7 +50,7 @@ class Cygwin_package (context.Os_context_wrapper):
         version_file = '%(uploads)s/%(name)s.versions' % package
         db = versiondb.VersionDataBase (version_file)
         version = '%(full_version)s' % package
-        v = map (int, version.split ('.'))
+        v = tuple (map (int, version.split ('.')))
         b = db.get_next_build_number (v)
         return ('%d' % b)
 
@@ -280,7 +280,7 @@ def parse_command_line ():
     p.description = 'Grand Unified Builder - create cygwin packages.'
     p.usage = 'cygwin-packager.py [OPTION]... PACKAGE'
     p.add_option ('-b', '--build-number',
-                  action='store', default='1', dest='build')
+                  action='store', default=None, dest='build')
 
     p.add_option ('--branch',
                   action='store', dest='branch',
@@ -295,6 +295,9 @@ def main ():
     (options, commands)  = parse_command_line ()
     platform = 'cygwin'
     settings = settings_mod.get_settings (platform)
+    # We want to be able to specify a build number for cygwin packages
+    # that are not distributed on lp.org
+    settings.build = options.build
 
     # Barf
     settings.__dict__['cross_distcc_hosts'] = []
