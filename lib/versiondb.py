@@ -11,8 +11,6 @@ platforms = ['linux-x86',
              'darwin-x86',
              'documentation',
              'freebsd-x86',
-#             'freebsd6-x86',
-#             'linux-arm',
              'mingw',
              'cygwin',
              'source',
@@ -51,6 +49,7 @@ class VersionDataBase:
         self.file_name = file_name
         if os.path.exists (file_name):
             self.read ()
+            
     def platforms (self):
         return self._db.keys ()
     
