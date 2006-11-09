@@ -86,8 +86,6 @@ beautiful sheet music from a high-level description file.'''
         return c
 
     def configure_command (self):
-        
-        
         ## FIXME: pickup $target-guile-config
         return (targetpackage.TargetBuildSpec.configure_command (self)
                 + misc.join_lines ('''
