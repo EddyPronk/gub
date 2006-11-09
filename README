@@ -69,9 +69,11 @@ INSTALLING
 
   - Python 2.4
 
-  - A working TeX installation, ncurses, libcurl
+  - A working TeX installation, ncurses, libcurl, libssl
 
   - A subversion client
+
+  - ImageMagick (the program 'convert')
 
 * Edit local.make to set some variables.  Here is what my local.make
   contains.
