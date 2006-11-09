@@ -12,6 +12,8 @@ import pickle
 
 sys.path.insert (0, 'lib')
 
+import versiondb
+
 platforms = ['linux-x86',
              'linux-64',
              'darwin-ppc',
@@ -61,104 +63,9 @@ def system (c):
     if os.system (c):
         raise 'barf'
 
-def get_url_versions (url):
-    opener = urllib.URLopener ()
-    index = opener.open (url).read ()
-
-    versions = []
-    def note_version (m):
-        version = tuple (map (string.atoi,  m.group (1).split('.')))
-        build = 0
-        build_url = url + re.sub ("HREF=", '', m.group (0))
-        build_url = build_url.replace ('"', "")
-        
-        # disregard buildnumber for src tarball. 
-        if m.group(2):
-            build = string.atoi (m.group (2))
-        versions.append ((version, build, build_url))
-        
-        return ''
-
-    re.sub (r'HREF="lilypond-([0-9.]+)-?([0-9]+)?\.[0-9a-z-]+\.[.0-9a-z-]+"', note_version, index)
-    
-    return versions
-    
-
-def get_versions (platform):
-    url = base_url
-    return get_url_versions ('%(url)s/binaries/%(platform)s/'
-                             % locals ())
-
-def get_src_versions (maj_min_version):
-    (maj_version, min_version) = maj_min_version
-    url = base_url
-    return get_url_versions ('%(url)s/v%(maj_version)d.%(min_version)d/' %  locals())
-
-def get_max_builds (platform):
-    vs = get_versions (platform)
-
-    builds = {}
-    for (version, build, url) in vs:
-        if builds.has_key (version):
-            build = max (build, builds[version][0])
-
-        builds[version] = (build, url)
-
-    return builds
-    
-def max_branch_version_build_url (branch, platform):
-    vbs = get_versions (platform)
-
-    vs = [v for (v,b,u) in vbs if v[0:2] == branch]
-    vs.sort()
-    try:
-        max_version = vs[-1]
-    except IndexError:
-        max_version = (0,0,0)
-        
-    max_b = 0
-    max_url = ''
-    for (v, b, url) in get_versions (platform):
-        if v == max_version:
-            max_b = max (b, max_b)
-            max_url = url
-
-    return (max_version, max_b, max_url)
-
-def max_version_build (platform):
-    vbs = get_versions (platform)
-    vs = [v for (v,b,u) in vbs]
-    vs.sort()
-    max_version = vs[-1]
-
-    max_b = 0
-    for (v,b,u) in get_versions (platform):
-        if v == max_version:
-            max_b = max (b, max_b)
-
-    return (max_version, max_b)
-
-def max_src_version_url (maj_min):
-    vs = get_src_versions (maj_min)
-    vs.sort()
-    try:
-        return (vs[-1][0], vs[-1][2])
-    except:
-        ## don't crash.
-        return maj_min + (-1,)
-
-def uploaded_build_number (version):
-    platform_versions = {}
-    build = 0
-    for p in platforms:
-        vs = get_max_builds (p)
-        if vs.has_key (version):
-            build = max (build, vs[version][0])
-
-    return build
-
-def upload_binaries (repo, version):
-    build = uploaded_build_number (version) + 1
+def upload_binaries (repo, version, version_db):
+    print version
+    build = version_db.get_next_build_number (version)
     version_str = '.'.join (['%d' % v for v in version])
     branch = repo.branch
     if (version[1] % 2) == 0:
@@ -182,7 +89,7 @@ def upload_binaries (repo, version):
             dir = 'uploads/cygwin/release'
             bin = '%(dir)s/lilypond/%(base)s' % locals ()
             if not os.path.exists (bin):
-                print 'no such file', i
+                print 'no such file', bin
                 barf = 1
             else:
                 # smoke test for lilypond existance only, we need to
@@ -305,23 +212,29 @@ nextbuild x.y.z   - get next build number
 versions          - print versions
 foobar            - print versions of dl.la.org
 """
+    
     p.description = 'look around on lilypond.org'
 
-    p.add_option ('', '--url', action='store',
+    p.add_option ('--url', action='store',
                   dest='url',
                   default=base_url,
                   help='select base url')
 
-    p.add_option ('', '--branch', action='store',
+    p.add_option ('--branch', action='store',
                   dest='branch',
                   default='origin',
                   help='select upload directory')
 
-    p.add_option ('', '--repo-dir', action='store',
+    p.add_option ('--repo-dir', action='store',
                   dest='repo_dir',
                   default='downloads/lilypond.git',
                   help='select repository directory')
 
+    p.add_option ('--version-db', action='store',
+                  dest='version_db',
+                  default='lilypond.versions',
+                  help='version database')
+    
     p.add_option ('', '--upload-host', action='store',
                   dest='upload_host',
                   default=host_spec,
@@ -351,17 +264,11 @@ def main ():
     command = commands[0]
     commands = commands[1:]
 
-    if command == 'nextbuild':
-        version = tuple (map (string.atoi, commands[0].split ('.')))
-        print uploaded_build_number (version) + 1
-    elif command == 'upload':
+    if command == 'upload':
         repo = get_repository (options)
         version = tuple (map (string.atoi, commands[0].split ('.')))
-        upload_binaries (repo, version)
-    elif command == 'versions':
-        d = read_build_versions ()
-        for k in sorted(d.keys ()):
-            print k, d[k] 
+        version_db = versiondb.VersionDataBase (options.version_db)
+        upload_binaries (repo, version, version_db)
     else:
         base_url = "http://download.linuxaudio.org/lilypond"
         print max_src_version_url ((2,9))
