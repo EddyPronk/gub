@@ -56,6 +56,9 @@ PYTHON=python
 sources = GNUmakefile $(wildcard *.py specs/*.py lib/*.py)
 
 NATIVE_TARGET_DIR=$(CWD)/target/$(BUILD_PLATFORM)
+
+SET_LOCAL_PATH=PATH=$(CWD)/target/local/system/usr/bin:$(PATH)
+
 LILYPOND_VERSIONS = uploads/lilypond.versions
 
 DOC_LIMITS=ulimit -m 256000 && ulimit -d 256000 # && ulimit -v 512000 
@@ -227,7 +230,7 @@ cross-distccd:
 	mkdir -p target/cross-distccd/bin/
 	ln -s $(foreach p,$(PLATFORMS),$(filter-out %/python-config,$(wildcard $(CWD)/target/$(p)/system/usr/cross/bin/*))) target/cross-distccd/bin
 
-	PATH=$(CWD)/target/local/system/usr/bin:$(PATH) \
+	$(SET_LOCAL_PATH) \
 		DISTCCD_PATH=$(CWD)/target/cross-distccd/bin \
 		distccd --daemon \
 		$(addprefix --allow ,$(GUB_DISTCC_ALLOW_HOSTS)) \
@@ -236,7 +239,7 @@ cross-distccd:
 
 native-distccd:
 	-$(if $(wildcard log/$@.pid),kill `cat log/$@.pid`, true)
-	PATH=$(CWD)/target/local/system/usr/bin:$(PATH) \
+	$(SET_LOCAL_PATH) \
 		distccd --daemon \
 		$(addprefix --allow ,$(GUB_DISTCC_ALLOW_HOSTS)) \
 		--port 3634 --pid-file $(CWD)/log/$@.pid \
@@ -346,7 +349,8 @@ doc-export:
 	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-export 
 
 unlocked-dist-check:
-	$(PYTHON) test-lily/dist-check.py --branch $(LILYPOND_LOCAL_BRANCH) --repository $(LILYPOND_REPODIR) $(NATIVE_LILY_BUILD)
+	$(SET_LOCAL_PATH) \
+		$(PYTHON) test-lily/dist-check.py --branch $(LILYPOND_LOCAL_BRANCH) --repository $(LILYPOND_REPODIR) $(NATIVE_LILY_BUILD)
 	rm -f uploads/lilypond-$(LILYPOND_VERSION).tar.gz
 	ln $(NATIVE_LILY_BUILD)/out/lilypond-$(LILYPOND_VERSION).tar.gz uploads/
 
