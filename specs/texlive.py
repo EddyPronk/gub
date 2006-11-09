@@ -122,7 +122,7 @@ packages.'''
     def install (self):
     	targetpackage.TargetBuildSpec.install (self)
         self.system ('''
-rsync -v -a %(srcdir)s/texmf-dist-HEAD/* %(install_root)s/usr/share/texmf/
+rsync -v -a %(srcdir)s/texmf-dist/* %(install_root)s/usr/share/texmf/
 ''')
 
     def license_file (self):
