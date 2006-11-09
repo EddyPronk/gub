@@ -67,7 +67,6 @@ packages.'''
         self.texmf_repo.update_workdir (self.expand ('%(srcdir)s/texmf-dist'))
 
     def rsync_command (self):
-        raise 'Obsolete?'
         return targetpackage.TargetBuildSpec.rsync_command (self).replace ('rsync', 'rsync --exclude=.svn')
 
     def configure_command (self):
