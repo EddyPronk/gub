@@ -65,7 +65,7 @@ def system (c):
 
 def upload_binaries (repo, version, version_db):
     print version
-    build = version_db.get_next_build_number (version)
+    build = version_db.get_next_build_number (version) -1
     version_str = '.'.join (['%d' % v for v in version])
     branch = repo.branch
     if (version[1] % 2) == 0:
@@ -79,30 +79,15 @@ def upload_binaries (repo, version, version_db):
     commitishes = {}
     barf = False
     for platform in platforms:
+
         format = formats[platform]
         base = ('lilypond-%(version_str)s-%(build)d.%(platform)s.%(format)s'
                 % locals ())
         bin = 'uploads/%(base)s' % locals ()
 
         if platform == 'cygwin':
-            base = ('lilypond-%(version_str)s-%(build)d.%(format)s' % locals ())
-            dir = 'uploads/cygwin/release'
-            bin = '%(dir)s/lilypond/%(base)s' % locals ()
-            if not os.path.exists (bin):
-                print 'no such file', bin
-                barf = 1
-            else:
-                # smoke test for lilypond existance only, we need to
-                # copy -doc, setup.ini and all setup.hints too
-#                src_dests.append ((os.path.abspath (bin),
-#                                   ('%(host)s/%(platform)s/release/lilypond/'
-#                                    % locals ())))
-                src_dests.append (('-avz ' + os.path.abspath (dir) + '/',
-                                   ('%(host)s/%(platform)s' % locals ())))
-                                   
             continue
-
-        if not os.path.exists (bin):
+        elif not os.path.exists (bin):
             print 'binary does not exist', bin
             barf = 1
         else:
@@ -158,7 +143,13 @@ def upload_binaries (repo, version, version_db):
     
     cmds.append (test_cmd)
 
-    cmds += ['rsync --delay-updates --progress %s %s' % tup for tup in src_dests]
+    cmds += ['rsync --delay-updates --progress %s %s'
+             % tup for tup in src_dests]
+
+    
+    cmds.append ("rsync -v --recursive --delay-updates --progress uploads/cygwin/release/ %(host_binaries_spec)s/cygwin/release/" % globals ())
+
+
 
     description = repo.git_pipe ('describe --abbrev=39 %(branch)s' % locals())
 
