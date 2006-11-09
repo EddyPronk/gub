@@ -39,7 +39,9 @@ def get_url_versions (url):
         
         return ''
 
-    re.sub (r'HREF="(.*)-([0-9.]+)(-([0-9]+))?\.[0-9a-z-]+\.[.0-9a-z-]+"', note_version, index)
+    # [^0-9] is to force that version no is not swalled by name. Check this for cygwin libfoo3  
+    # packages
+    re.sub (r'HREF="(.*[^0-9])-([0-9.]+)(-([0-9]+))?\.[0-9a-z-]+\.[.0-9a-z-]+"', note_version, index)
     
     return versions
 
@@ -49,7 +51,9 @@ class VersionDataBase:
         self.file_name = file_name
         if os.path.exists (file_name):
             self.read ()
-
+    def platforms (self):
+        return self._db.keys ()
+    
     def get_sources_from_url (self, url):
 
         directories = ['v0.0', 'v0.1', 'v1.0', 'v1.1', 'v1.2', 'v1.3',
@@ -99,9 +103,9 @@ class VersionDataBase:
         return max (max (bs + [0]) for (p, bs) in sub_db.items ()) + 1
 
     def get_last_release (self, platform, version_tuple):
-        candidates = [(v,b, url) for (name, v, b, url) in  self._db[platform]
+        candidates = [(v, b, url) for (name, v, b, url) in  self._db[platform]
                       if v[:len (version_tuple)] == version_tuple]
-        candidates.append ( ((0,0,0), 0) )
+        candidates.append ( ((0,0,0), 0, '/dev/null' ))
         candidates.sort ()
         
         return candidates[-1]
