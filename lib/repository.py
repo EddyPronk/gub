@@ -445,10 +445,7 @@ class CVSRepository(Repository):
         return (version_checksum, time_stamp)
     
     def update_workdir (self, destdir):
-        
-        dir = self._checkout_dir()
-
-
+        dir = self._checkout_dir ()
         ## TODO: can we get deletes from vc?
         self.system ('rsync -av --delete --exclude CVS %(dir)s/ %(destdir)s' % locals ())
         
@@ -456,9 +453,7 @@ class CVSRepository(Repository):
         suffix = self.tag
         rev_opt = '-r ' + self.tag
         source = self.source
-        
-        dir = self._checkout_dir()
-
+        dir = self._checkout_dir ()
         lock_dir = locker.Locker (dir + '.lock')
         module = self.module
         cmd = ''
