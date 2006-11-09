@@ -151,6 +151,9 @@ def main ():
     cli_parser = get_cli_parser ()
     (options, files) = cli_parser.parse_args ()
 
+    if options.url and not options.url.endswith ('/'):
+        options.url += "/"
+
     db = VersionDataBase (options.dbfile)
     if options.test:
         print '2.9.28:', db.get_next_build_number ((2,9,28))
