@@ -65,7 +65,7 @@ def system (c):
 
 def upload_binaries (repo, version, version_db):
     print version
-    build = version_db.get_next_build_number (version) -1
+    build = version_db.get_next_build_number (version)
     version_str = '.'.join (['%d' % v for v in version])
     branch = repo.branch
     if (version[1] % 2) == 0:
