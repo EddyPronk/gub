@@ -1,14 +1,10 @@
+import repository
 import targetpackage
 
 texlive_svn = 'svn://username@tug.org/texlive'
-#texlive_svn_source = texlive_svn + '/Build/source'
-#texlive_svn_texmf_dist = texlive_svn + '/Master/texmf-dist'
-#texlive_svn_texmf = texlive_svn + 'Master/texmf'
 license_url = 'http://tug.org/svn/texlive/trunk/Master/LICENSE.TL'
 
 class Texlive (targetpackage.TargetBuildSpec):
-
-    ##  - %(flavor)s"
     '''The TeX Live text formatting system
 The TeX Live software distribution offers a complete TeX system.
 It  encompasses programs for editing, typesetting, previewing and printing
@@ -21,12 +17,34 @@ packages.'''
 
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        # FIXME: lilypond_branch
-        self.with (branch='trunk',
-                   module='Build/source',
-                   version='HEAD',
-                   mirror=texlive_svn)
+        repo = repository.Subversion (
+            dir=self.get_repodir (),
+            source=texlive_svn,
+            branch='trunk',
+            module='Build/source',
+            revision='HEAD')
 
+        def fixed_version (self):
+            return '2006'
+
+        from new import instancemethod
+        repo.version = instancemethod (fixed_version, repo, type (repo))
+
+        self.with_vc (repo)
+
+        repo = repository.Subversion (
+# FIXME: module should be used in checkout dir name.            
+            dir=self.get_repodir () + '-texmf-dist',
+#            dir=self.get_repodir () + 'vc_repository._checkout_dir (),
+            source=texlive_svn,
+            branch='trunk',
+            module='Master/texmf-dist',
+            revision='HEAD')
+        self.texmf_repo = repo
+
+    def version (self):
+        return '2006'
+    
     def get_subpackage_names (self):
         return ['doc', 'devel', 'base', 'runtime', 'bin', '']
 
@@ -39,18 +57,17 @@ packages.'''
 
     def do_download (self):
         targetpackage.TargetBuildSpec.do_download (self)
-        raise 'FIXME'
-        # FIXME
-        self._vc_download (texlive_svn_texmf, 'texmf-dist', 'HEAD',
-                           self.expand ('%(vc_dir)s/texmf-dist-HEAD'))
-#        self._vc_download (texlive_svn_texmf, 'texmf', 'HEAD',
-#        self.expand ('%(vc_dir)s/texmf-HEAD')
-        # urg, how to check-out a single file with svn?
+        self.texmf_repo.download ()
         import misc
-        misc.download_url (license_url, self.expand ('%(vc_dir)s'))
-        self.dump ('MAJOR_VERSION=2006', '%(vc_dir)s/VERSION')
+        misc.download_url (license_url,  self.vc_repository._checkout_dir ())
+#        self.dump ('MAJOR_VERSION=2006', self.vc_repository.dir + '/VERSION')
                            
+    def untar (self):
+        targetpackage.TargetBuildSpec.untar (self)
+        self.texmf_repo.update_workdir (self.expand ('%(srcdir)s/texmf-dist'))
+
     def rsync_command (self):
+        raise 'Obsolete?'
         return targetpackage.TargetBuildSpec.rsync_command (self).replace ('rsync', 'rsync --exclude=.svn')
 
     def configure_command (self):
@@ -95,6 +112,7 @@ packages.'''
 --without-texinfo
 --without-ttf2pk
 --without-xetex
+--without-xdvipdfmx
 --x-includes=%(system_root)s/usr/X11R6/include
 --x-libraries=%(system_root)s/usr/X11R6/lib
 '''))
@@ -188,10 +206,6 @@ CFLAGS="-O2 -g -DKPSE_DLL"
     def install (self):
     	self.pre_install_smurf_exe ()
         Texlive.install (self)
-    	self.post_install_smurf_exe ()
-
-        # FIXME: we do this for all cygwin packages
-        self.install_readmes ()
         
     # FIXME: we do most of this for all cygwin packages
     def category_dict (self):
@@ -222,4 +236,5 @@ CFLAGS="-O2 -g -DKPSE_DLL"
                   'runtime': 'runtime',
                   'x11': 'x11 executables',
                   }[split]
-        return Texlive.__doc__ % locals ()
+        return (Texlive.__doc__.replace ('\n', ' - %(flavor)s\n', 1)
+                % locals ())
