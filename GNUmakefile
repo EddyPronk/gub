@@ -92,6 +92,9 @@ $(VERSION_FILE):
 
 unlocked-update-versions:
 	python lib/versiondb.py --dbfile $(LILYPOND_VERSIONS) --download
+	python lib/versiondb.py --dbfile uploads/fontconfig.versions --download
+	python lib/versiondb.py --dbfile uploads/guile.versions --download
+	python lib/versiondb.py --dbfile uploads/libtool.versions --download
 
 update-versions:
 	$(PYTHON) test-lily/with-lock.py --skip $(LILYPOND_VERSIONS).lock make unlocked-update-versions
@@ -126,7 +129,6 @@ cygwin: cygwin-libtool cygwin-libtool-installer doc cygwin-lilypond cygwin-lilyp
 cygwin-all: cygwin-libtool cygwin-libtool-installer cygwin-guile cygwin-guile-installer $(docball) cygwin-lilypond cygwin-lilypond-installer cygwin-fontconfig cygwin-fontconfig-installer
 
 cygwin-libtool:
-	python lib/versiondb.py --dbfile uploads/libtool.versions --download
 	rm -f uploads/cygwin/setup.ini
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build libtool
 
@@ -134,7 +136,6 @@ cygwin-libtool-installer:
 	$(PYTHON) cygwin-packager.py libtool
 
 cygwin-fontconfig:
-	python lib/versiondb.py --dbfile uploads/fontconfig.versions --download
 	rm -f uploads/cygwin/setup.ini
 	rm -rf target/cygwin/system
 	$(call INVOKE_GUP, cygwin) install gcc
@@ -144,7 +145,6 @@ cygwin-fontconfig-installer:
 	$(PYTHON) cygwin-packager.py fontconfig
 
 cygwin-guile:
-	python lib/versiondb.py --dbfile uploads/guile.versions --download
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build libtool guile
 
 cygwin-guile-installer:
