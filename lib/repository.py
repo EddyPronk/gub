@@ -207,7 +207,7 @@ class GitRepository (Repository):
             (self.remote_branch,
              self.local_branch) = tuple (branch.split (':'))
 
-            self.branch = self.local_branch
+            self.branch = self.local_branch.replace ('/', '-')
         elif source:
             self.branch = branch
 
