@@ -352,8 +352,9 @@ gub_to_distro_dict = {
 #    'libtool': ['libtool1.5'],
     'libtool-runtime': ['libltdl3'],
     'libiconv-devel': ['libiconv2'],
-    'texlive-devel': ['libkpathsea4'],
     'pango': ['pango-runtime'],
     'python-devel': ['python'],
     'python-runtime': ['python'],
+    'texlive-devel': ['libkpathsea-devel'],
+    'texlive-runtime': ['libkpathsea4']
     }
