@@ -32,7 +32,16 @@ packages.'''
 
         self.with_vc (repo)
 
-        repo = repository.Subversion (
+        self.texmf_repo = repository.Subversion (
+# FIXME: module should be used in checkout dir name.            
+            dir=self.get_repodir () + '-texmf',
+#            dir=self.get_repodir () + 'vc_repository._checkout_dir (),
+            source=texlive_svn,
+            branch='trunk',
+            module='Master/texmf',
+            revision='HEAD')
+
+        self.texmf_dist_repo = repository.Subversion (
 # FIXME: module should be used in checkout dir name.            
             dir=self.get_repodir () + '-texmf-dist',
 #            dir=self.get_repodir () + 'vc_repository._checkout_dir (),
@@ -40,7 +49,6 @@ packages.'''
             branch='trunk',
             module='Master/texmf-dist',
             revision='HEAD')
-        self.texmf_repo = repo
 
     def version (self):
         return '2006'
@@ -50,6 +58,7 @@ packages.'''
 
     def get_subpackage_definitions (self):
         d = targetpackage.TargetBuildSpec.get_subpackage_definitions (self)
+        d['doc'] += ['/usr/share/texmf/doc']
         d['base'] = ['/usr/share/texmf']
 #        d['bin'] = ['/']
         d['bin'] = ['/etc', '/usr']
@@ -64,7 +73,8 @@ packages.'''
                            
     def untar (self):
         targetpackage.TargetBuildSpec.untar (self)
-        self.texmf_repo.update_workdir (self.expand ('%(srcdir)s/texmf-dist'))
+#        self.texmf_repo.update_workdir (self.expand ('%(srcdir)s/texmf-dist'))
+        self.texmf_repo.update_workdir (self.expand ('%(srcdir)s/texmf'))
 
     def rsync_command (self):
         return targetpackage.TargetBuildSpec.rsync_command (self).replace ('rsync', 'rsync --exclude=.svn')
@@ -72,7 +82,7 @@ packages.'''
     def configure_command (self):
         import misc
         #FIXME
-        return ('export TEXMFMAIN=%(srcdir)s/texmf-dist-HEAD;'
+        return ('export TEXMFMAIN=%(srcdir)s/texmf;'
                 + 'bash '
                 + targetpackage.TargetBuildSpec.configure_command (self).replace ('--config-cache', '--cache-file=config.cache')
                 + misc.join_lines ('''
@@ -122,7 +132,8 @@ packages.'''
     def install (self):
     	targetpackage.TargetBuildSpec.install (self)
         self.system ('''
-rsync -v -a %(srcdir)s/texmf-dist/* %(install_root)s/usr/share/texmf/
+#rsync -v -a %(srcdir)s/texmf-dist/* %(install_root)s/usr/share/texmf-dist
+rsync -v -a %(srcdir)s/texmf/* %(install_root)s/usr/share/texmf/
 ''')
 
     def license_file (self):
