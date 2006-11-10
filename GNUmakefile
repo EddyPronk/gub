@@ -333,11 +333,17 @@ unlocked-info-man-build:
 	$(DOC_RELOCATION) make DESTDIR=$(NATIVE_LILY_BUILD)/out-info-man \
 	    -C $(NATIVE_LILY_BUILD)/Documentation/user out=www install-info
 
-	## FIXME: #! guile script is barfing.  
+## On darwin, all our libraries have the wrong names;
+## overriding with DYLD_LIBRARY_PATH doesn't work,
+## as the libs in system/ are stubs.
+ifneq ($(BUILD_PLATFORM),darwin-ppc)  
+	## FIXME: #! guile script is barfing.
+	-mkdir $(NATIVE_LILY_BUILD)/out-info-man/ \
 	touch $(NATIVE_LILY_BUILD)/scripts/out/lilypond-invoke-editor.1
 	$(DOC_RELOCATION) make DESTDIR=$(NATIVE_LILY_BUILD)/out-info-man \
 	    -C $(NATIVE_LILY_BUILD)/ DOCUMENTATION=yes CROSS=no \
 	    install-help2man
+endif
 	tar -C $(NATIVE_LILY_BUILD)/out-info-man/ \
 	    -cjf $(CWD)/uploads/lilypond-$(DOC_VERSION)-$(INSTALLER_BUILDNUMBER).info-man.tar.bz2 .
 
