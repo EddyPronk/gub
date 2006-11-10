@@ -297,6 +297,8 @@ NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/src/lilypond-$(LILYPOND_LOCAL_BRANCH)
 NATIVE_ROOT=$(NATIVE_TARGET_DIR)/installer-$(LILYPOND_LOCAL_BRANCH)
 
 DOC_LOCK=$(NATIVE_ROOT).lock
+DOC_VERSION=$(shell cat $(NATIVE_LILY_BUILD)/out-www/web-root/VERSION)
+DIST_VERSION=$(shell cat $(NATIVE_LILY_BUILD)/out/VERSION)
 
 doc: native doc-build
 
@@ -322,7 +324,7 @@ unlocked-doc-build:
 		make -C $(NATIVE_LILY_BUILD) \
 	    DOCUMENTATION=yes web
 	tar --exclude '*.signature' -C $(NATIVE_LILY_BUILD)/out-www/web-root/ \
-	    -cjf $(CWD)/uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILDNUMBER).documentation.tar.bz2 . 
+	    -cjf $(CWD)/uploads/lilypond-$(DOC_VERSION)-$(INSTALLER_BUILDNUMBER).documentation.tar.bz2 . 
 
 unlocked-info-man-build:
 	unset LILYPONDPREFIX \
@@ -354,11 +356,12 @@ unlocked-doc-export:
 doc-export:
 	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-export 
 
+
+
 unlocked-dist-check:
 	$(SET_LOCAL_PATH) \
 		$(PYTHON) test-lily/dist-check.py --branch $(LILYPOND_LOCAL_BRANCH) --repository $(LILYPOND_REPODIR) $(NATIVE_LILY_BUILD)
-	rm -f uploads/lilypond-$(LILYPOND_VERSION).tar.gz
-	ln $(NATIVE_LILY_BUILD)/out/lilypond-$(LILYPOND_VERSION).tar.gz uploads/
+	cp $(NATIVE_LILY_BUILD)/out/lilypond-$(DIST_VERSION).tar.gz uploads/
 
 dist-check:
 	$(PYTHON) test-lily/with-lock.py --skip $(NATIVE_LILY_BUILD).lock \
