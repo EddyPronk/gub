@@ -339,7 +339,7 @@ unlocked-info-man-build:
 	    -C $(NATIVE_LILY_BUILD)/ DOCUMENTATION=yes CROSS=no \
 	    install-help2man
 	tar -C $(NATIVE_LILY_BUILD)/out-info-man/ \
-	    -cjf $(CWD)/uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILDNUMBER).info-man.tar.bz2 .
+	    -cjf $(CWD)/uploads/lilypond-$(DOC_VERSION)-$(INSTALLER_BUILDNUMBER).info-man.tar.bz2 .
 
 unlocked-doc-export:
 	$(PYTHON) test-lily/rsync-lily-doc.py --recreate --output-distance \
