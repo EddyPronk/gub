@@ -59,7 +59,28 @@ class Ghostscript (targetpackage.TargetBuildSpec):
                   ['bindir', 'datadir', 'gsdir', 'gsdatadir', 'docdir',
                    'mandir', 'scriptdir', 'exdir']]
         self.file_sub (substs, '%(srcdir)s/src/unixinst.mak')
+
+        disable_re = "(DEVICE_DEVS[0-9]+)=([^\n]+(%s))" %'|'.join (['tiff',
+                                                              'pcx',
+                                                              'uniprint',
+                                                              'deskjet',
+                                                              'djet500',
+                                                              'bmp',
+                                                              'pbm',
+                                                              'bjc200',
+                                                              'cdeskjet',
+                                                              'faxg3',
+                                                              'cljet5'])
+        
+
+        ## generate Makefile.in
         self.system ('cd %(srcdir)s && ./autogen.sh --help')
+
+        self.file_sub ([(disable_re,
+                         r'#\1= -DISABLED- \2 ')],
+                       '%(srcdir)s/Makefile.in')
+
+        
     def fixup_arch (self):
         substs = []
         arch = self.settings.target_architecture
