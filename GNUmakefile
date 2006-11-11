@@ -25,7 +25,7 @@ LILYPOND_BRANCH=$(BRANCH)
 BRANCH=master
 ##### BRANCH=stable/2.10 HUH, WFT? stable branch is called stable-2.10??
 #BRANCH=stable-2.10
-LILYPOND_LOCAL_BRANCH=$(BRANCH)-repo.or.cz-lilypond.git
+LILYPOND_LOCAL_BRANCH=$(BRANCH)-git.sv.gnu.org-lilypond.git
 
 PYTHONPATH=lib/
 export PYTHONPATH

@@ -22,7 +22,7 @@ beautiful sheet music from a high-level description file.'''
         try:
             source = os.environ['GUB_LILYPOND_SOURCE']
         except KeyError:         
-            source = 'git://repo.or.cz/lilypond.git'
+            source = 'git://git.sv.gnu.org/lilypond.git'
         
         if 'pserver' in source:
             repo = repository.CVSRepository (
@@ -36,7 +36,7 @@ beautiful sheet music from a high-level description file.'''
                 branch=settings.lilypond_branch,
                 source=source)
 
-            
+        ## ugh: nested, with self shadow?
         def version_from_VERSION (self):
             s = self.get_file_content ('VERSION')
             d = misc.grok_sh_variables_str (s)
