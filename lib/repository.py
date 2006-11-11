@@ -201,13 +201,17 @@ class GitRepository (Repository):
         self.repo_url_suffix = re.sub ('.*://', '', source)
 
         if self.repo_url_suffix:
-            self.repo_url_suffix = '-' + re.sub ('[/:+]+', '-', self.repo_url_suffix)
+            # FIXME: logic copied foo times
+            fileified_suffix = re.sub ('/', '--', self.repo_url_suffix)
+            # FIXME: projection, where is this used?
+            self.repo_url_suffix = '-' + re.sub ('[:+]+', '-', fileified_suffix)
         
         if ':' in branch:
             (self.remote_branch,
              self.local_branch) = tuple (branch.split (':'))
 
-            self.branch = self.local_branch.replace ('/', '-')
+            # FIXME: logic copied foo times
+            self.branch = self.local_branch.replace ('/', '--')
         elif source:
             self.branch = branch
 

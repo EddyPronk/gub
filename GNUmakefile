@@ -53,7 +53,7 @@ BUILD=$(call INVOKE_GUB_BUILDER,$(1)) build $(2) \
 
 CWD:=$(shell pwd)
 
-DISTCC_DIRS=target/cross-distcc/bin/ target/cross-distccd/bin/ target/native-distcc/bin/ 
+DISTCC_DIRS=target/cross-distcc/bin target/cross-distccd/bin target/native-distcc/bin 
 
 PYTHON=python
 sources = GNUmakefile $(wildcard *.py specs/*.py lib/*.py)
@@ -88,7 +88,9 @@ endif
 
 LILYPOND_VERSION=$(shell cat $(VERSION_FILE) || echo '0.0.0')
 
-VERSION_FILE=VERSION-$(subst /,--,$(LILYPOND_LOCAL_BRANCH))
+# FIXME: logic copied foo times
+LILYPOND_LOCAL_BRANCH_FILEIFIED=$(subst /,--,$(LILYPOND_LOCAL_BRANCH))
+VERSION_FILE=VERSION-$(LILYPOND_LOCAL_BRANCH_FILEIFIED)
 
 $(VERSION_FILE):
 	$(PYTHON) gub-builder.py -p $(BUILD_PLATFORM) --inspect-output $@ --branch $(BRANCH):$(LILYPOND_LOCAL_BRANCH) inspect-version lilypond
@@ -288,25 +290,26 @@ endif
 
 ################################################################
 # docs
+
+NATIVE_ROOT=$(NATIVE_TARGET_DIR)/installer-$(LILYPOND_LOCAL_BRANCH_FILEIFIED)
+DOC_LOCK=$(NATIVE_ROOT).lock
+
 doc-clean:
 	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-clean
 
 doc-build:
 	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-build unlocked-info-man-build
 
-NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH)
-NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/src/lilypond-$(LILYPOND_LOCAL_BRANCH)
+NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH_FILEIFIED)
+NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/src/lilypond-$(LILYPOND_LOCAL_BRANCH_FILEIFIED)
 
-NATIVE_ROOT=$(NATIVE_TARGET_DIR)/installer-$(LILYPOND_LOCAL_BRANCH)
-
-DOC_LOCK=$(NATIVE_ROOT).lock
 DOC_VERSION=$(shell cat $(NATIVE_LILY_BUILD)/out-www/web-root/VERSION)
 DIST_VERSION=$(shell cat $(NATIVE_LILY_BUILD)/out/VERSION)
 
 doc: native doc-build
 
 unlocked-doc-clean:
-	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
+	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH_FILEIFIED) \
 		DOCUMENTATION=yes web-clean
 
 DOC_RELOCATION = \

@@ -59,7 +59,8 @@ build-all - build, strip, package
 
     (options, args) = p.parse_args ()
     
-    options.lilypond_branch = options.lilypond_branch.replace ('/', '-')
+    # FIXME: logic copied foo times
+    options.lilypond_branch = options.lilypond_branch.replace ('/', '--')
     if not options.platform:
         raise Exception ('error: no platform specified')
         cli_parser.print_help ()
