@@ -141,7 +141,7 @@ class BuildSpec (Os_context_wrapper):
     @subst_method
     def source_checksum (self):
         if self.vc_repository:
-            return self.vc_repository.get_checksum ()
+            return self.vc_repository.get_checksum ().replace ('/', '-')
         
         return self.version () 
 
