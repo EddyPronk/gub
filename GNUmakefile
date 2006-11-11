@@ -347,7 +347,7 @@ unlocked-info-man-build:
 ## as the libs in system/ are stubs.
 ifneq ($(BUILD_PLATFORM),darwin-ppc)  
 	## FIXME: #! guile script is barfing.
-	-mkdir $(NATIVE_LILY_BUILD)/out-info-man/ \
+	-mkdir $(NATIVE_LILY_BUILD)/out-info-man
 	touch $(NATIVE_LILY_BUILD)/scripts/out/lilypond-invoke-editor.1
 	$(DOC_RELOCATION) make DESTDIR=$(NATIVE_LILY_BUILD)/out-info-man \
 	    -C $(NATIVE_LILY_BUILD)/ DOCUMENTATION=yes CROSS=no \
