@@ -23,9 +23,11 @@ LILYPOND_BRANCH=$(BRANCH)
 
 # for GIT
 BRANCH=master
-##### BRANCH=stable/2.10 HUH, WFT? stable branch is called stable-2.10??
-#BRANCH=stable-2.10
-LILYPOND_LOCAL_BRANCH=$(BRANCH)-git.sv.gnu.org-lilypond.git
+# BRANCH=stable/2.10
+
+BRANCH_FILEIFIED=$(subst /,--,$(BRANCH))
+
+LILYPOND_LOCAL_BRANCH=$(BRANCH_FILEIFIED)-git.sv.gnu.org-lilypond.git
 
 PYTHONPATH=lib/
 export PYTHONPATH
@@ -90,8 +92,7 @@ endif
 LILYPOND_VERSION=$(shell cat $(VERSION_FILE) || echo '0.0.0')
 
 # FIXME: logic copied foo times
-LILYPOND_LOCAL_BRANCH_FILEIFIED=$(subst /,--,$(LILYPOND_LOCAL_BRANCH))
-VERSION_FILE=VERSION-$(LILYPOND_LOCAL_BRANCH_FILEIFIED)
+VERSION_FILE=VERSION-$(LILYPOND_LOCAL_BRANCH)
 
 $(VERSION_FILE):
 	$(PYTHON) gub-builder.py -p $(BUILD_PLATFORM) --inspect-output $@ --branch $(BRANCH):$(LILYPOND_LOCAL_BRANCH) inspect-version lilypond
@@ -292,7 +293,7 @@ endif
 ################################################################
 # docs
 
-NATIVE_ROOT=$(NATIVE_TARGET_DIR)/installer-$(LILYPOND_LOCAL_BRANCH_FILEIFIED)
+NATIVE_ROOT=$(NATIVE_TARGET_DIR)/installer-$(LILYPOND_LOCAL_BRANCH)
 DOC_LOCK=$(NATIVE_ROOT).lock
 
 doc-clean:
@@ -301,8 +302,8 @@ doc-clean:
 doc-build:
 	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-build unlocked-info-man-build
 
-NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH_FILEIFIED)
-NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/src/lilypond-$(LILYPOND_LOCAL_BRANCH_FILEIFIED)
+NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH)
+NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/src/lilypond-$(LILYPOND_LOCAL_BRANCH)
 
 DOC_VERSION=$(shell cat $(NATIVE_LILY_BUILD)/out-www/web-root/VERSION)
 DIST_VERSION=$(shell cat $(NATIVE_LILY_BUILD)/out/VERSION)
@@ -310,7 +311,7 @@ DIST_VERSION=$(shell cat $(NATIVE_LILY_BUILD)/out/VERSION)
 doc: native doc-build
 
 unlocked-doc-clean:
-	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH_FILEIFIED) \
+	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
 		DOCUMENTATION=yes web-clean
 
 DOC_RELOCATION = \
