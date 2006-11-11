@@ -68,8 +68,10 @@ def upload_binaries (repo, version, version_db):
     build = version_db.get_next_build_number (version)
     version_str = '.'.join (['%d' % v for v in version])
     branch = repo.branch
+#    if (version[1] % 2) == 0:
+#        branch = 'lilypond_%d_%d' % (version[0], version[1])
     if (version[1] % 2) == 0:
-        branch = 'lilypond_%d_%d' % (version[0], version[1])
+        branch = 'stable-%d.%d' % (version[0], version[1])
 
     src_dests = []
     cmds = []
@@ -153,7 +155,7 @@ def upload_binaries (repo, version, version_db):
 
     description = repo.git_pipe ('describe --abbrev=39 %(branch)s' % locals())
 
-    git_tag = 'gubrelease-%(version_str)s-%(build)d' % locals () 
+    git_tag = 'release/%(version_str)s-%(build)d' % locals () 
     git_tag_cmd = 'git --git-dir downloads/lilypond.git tag -a -m "build and upload" %(git_tag)s %(branch)s' % locals ()
     git_push_cmd = 'git --git-dir downloads/lilypond.git push ssh+git://repo.or.cz/srv/git/lilypond.git/ refs/tags/%(git_tag)s:refs/tags/%(git_tag)s' % locals ()
     darcs_tag_cmd = 'darcs tag --patch "release %(version_str)s-%(build)d of lilypond tagged %(git_tag)s" ' % locals()
