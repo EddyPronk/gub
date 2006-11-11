@@ -19,10 +19,13 @@ LILYPOND_BRANCH=$(BRANCH)
 
 # for CVS
 #BRANCH=HEAD
+#BRANCH=lilypond_2_8
 
-# for CVS import in GIT:
+# for GIT
 BRANCH=master
-LILYPOND_LOCAL_BRANCH=master-repo.or.cz-lilypond.git
+# BRANCH=stable/2.10
+LILYPOND_LOCAL_BRANCH=$(BRANCH)-repo.or.cz-lilypond.git
+
 PYTHONPATH=lib/
 export PYTHONPATH
 
