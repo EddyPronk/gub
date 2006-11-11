@@ -88,7 +88,7 @@ endif
 
 LILYPOND_VERSION=$(shell cat $(VERSION_FILE) || echo '0.0.0')
 
-VERSION_FILE=VERSION-$(LILYPOND_LOCAL_BRANCH)
+VERSION_FILE=VERSION-$(subst /,--,$(LILYPOND_LOCAL_BRANCH))
 
 $(VERSION_FILE):
 	$(PYTHON) gub-builder.py -p $(BUILD_PLATFORM) --inspect-output $@ --branch $(BRANCH):$(LILYPOND_LOCAL_BRANCH) inspect-version lilypond
