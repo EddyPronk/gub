@@ -11,12 +11,19 @@ from context import *
 class Python (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with (version='2.4.2',
+        
+        ## don't import settings from build system.
+	self.BASECFLAGS=''
+        self.with (version='2.5',
                    mirror=download.python,
                    format='bz2')
 
-        ## don't import settings from build system.
-	self.BASECFLAGS=''
+    def configure_command (self):
+        return 'ac_cv_printf_zd_format=yes ' + targetpackage.TargetBuildSpec.configure_command (self)
+
+    def patch (self):
+        self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.5.patch')
+
 
     def license_file (self):
         return '%(srcdir)s/LICENSE'
@@ -31,14 +38,6 @@ class Python (targetpackage.TargetBuildSpec):
         return { '': ['expat', 'python-runtime', 'zlib'],
                  'devel' : ['libtool', 'python-devel'],
                  'runtime': [], }
-
-    def patch (self):
-        targetpackage.TargetBuildSpec.patch (self)
-        self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-1.patch')
-        self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-configure.in-posix.patch')
-        self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-configure.in-sysname.patch')
-        self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-configure.in-sysrelease.patch')
-        self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-2.4.2-setup.py-import.patch')
 
     def configure (self):
         self.system ('''cd %(srcdir)s && autoconf''')
@@ -76,26 +75,6 @@ class Python (targetpackage.TargetBuildSpec):
     def python_version (self):
         return '.'.join (self.ball_version.split ('.')[0:2])
 
-class Python25 (Python):
-    def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with (version='2.5',
-                   mirror=download.python,
-                   format='bz2')
-
-    def configure_command (self):
-        return 'ac_cv_printf_zd_format=yes ' + Python.configure_command (self)
-
-    def patch (self):
-        self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.5.patch')
-
-
-class Python__linux (Python25):
-    pass
-
-class Python__freebsd (Python25):
-    pass
-
 class Python__mingw_cross (Python):
     def __init__ (self, settings):
         Python.__init__ (self, settings)
@@ -105,7 +84,8 @@ class Python__mingw_cross (Python):
     # 2.4.2 and combined in one patch; move to cross-Python?
     def patch (self):
         Python.patch (self)
-        self.system ('''
+        if 0:
+            self.system ('''
 cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-winsock2.patch
 ''')
         self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-2.4.2-setup.py-selectmodule.patch')
