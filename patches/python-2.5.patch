@@ -1,0 +1,1889 @@
+diff --exclude '*.orig' --exclude '*.rej' --exclude configure --exclude '*~' -urN Python-2.5/configure.in python-2.5.cross/configure.in
+--- Python-2.5/configure.in	2006-09-05 04:54:42.000000000 +0200
++++ python-2.5.cross/configure.in	2006-11-14 19:44:11.000000000 +0100
+@@ -9,6 +9,11 @@
+ AC_CONFIG_SRCDIR([Include/object.h])
+ AC_CONFIG_HEADER(pyconfig.h)
+ 
++# find compiler while respecting --host setting
++AC_CANONICAL_HOST()
++AC_CHECK_TOOLS(CC,gcc cc)
++AC_CHECK_TOOLS(CXX,g++ c++)
++
+ dnl This is for stuff that absolutely must end up in pyconfig.h.
+ dnl Please use pyport.h instead, if possible.
+ AH_TOP([
+@@ -163,8 +168,8 @@
+ # Set name for machine-dependent library files
+ AC_SUBST(MACHDEP)
+ AC_MSG_CHECKING(MACHDEP)
+-if test -z "$MACHDEP"
+-then
++if test -z "$MACHDEP"; then
++    if test "$cross_compiling" = "no"; then
+ 	ac_sys_system=`uname -s`
+ 	if test "$ac_sys_system" = "AIX" -o "$ac_sys_system" = "Monterey64" \
+ 	-o "$ac_sys_system" = "UnixWare" -o "$ac_sys_system" = "OpenUNIX"; then
+@@ -172,6 +177,22 @@
+ 	else
+ 		ac_sys_release=`uname -r`
+ 	fi
++    else
++	m=`$CC -dumpmachine`
++ 	changequote(<<, >>)#dnl
++	ac_sys_system=`expr "$m" : "[^-]*-\([^-]*\)"`
++ 	changequote([, ])#dnl
++
++
++	case $ac_sys_system in
++	cygwin*) ac_sys_system=`echo $ac_sys_system | sed s/cygwin/CYGWIN/g `;;
++	darwin*) ac_sys_system=`echo $ac_sys_system | sed s/darwin/Darwin/g `;;
++	linux*) ac_sys_system=`echo $ac_sys_system | sed s/linux/Linux/g `;;
++	esac
++	
++
++    fi
++    
+ 	ac_md_system=`echo $ac_sys_system |
+ 			   tr -d '[/ ]' | tr '[[A-Z]]' '[[a-z]]'`
+ 	ac_md_release=`echo $ac_sys_release |
+@@ -296,7 +317,7 @@
+ fi
+ AC_MSG_RESULT($MACHDEP)
+ 
+-# And add extra plat-mac for darwin
++# And add extra plat-mac for Darwin
+ AC_SUBST(EXTRAPLATDIR)
+ AC_SUBST(EXTRAMACHDEPPATH)
+ AC_MSG_CHECKING(EXTRAPLATDIR)
+@@ -315,6 +336,23 @@
+ fi
+ AC_MSG_RESULT($EXTRAPLATDIR)
+ 
++AC_MSG_CHECKING(posix flavour)
++if test -z "$POSIX"
++then
++	case $ac_sys_system/$ac_sys_release in
++	mingw*)
++		DELIM=';'
++		POSIX=nt
++		;;
++	*)
++		DELIM=':'
++		POSIX=posix
++ 		;;
++	esac
++ fi	
++AC_SUBST(DELIM)
++AC_MSG_RESULT($POSIX)
++
+ # Record the configure-time value of MACOSX_DEPLOYMENT_TARGET,
+ # it may influence the way we can build extensions, so distutils
+ # needs to check it
+@@ -475,9 +513,11 @@
+ then
+     AC_MSG_RESULT(yes)
+     BUILDEXEEXT=.exe
++    case_sensitive=no
+ else
+-	AC_MSG_RESULT(no)
+-	BUILDEXEEXT=$EXEEXT
++    AC_MSG_RESULT(no)
++    BUILDEXEEXT=$EXEEXT
++    case_sensitive=yes
+ fi
+ rmdir CaseSensitiveTestDir
+ 
+@@ -625,6 +665,10 @@
+           LDLIBRARY='libpython$(VERSION).dll.a'
+           DLLLIBRARY='libpython$(VERSION).dll'
+           ;;
++    mingw*)
++          LDLIBRARY='libpython$(VERSION).dll.a'
++          DLLLIBRARY='libpython$(VERSION).dll'
++          ;;
+     SunOS*)
+ 	  LDLIBRARY='libpython$(VERSION).so'
+ 	  BLDLIBRARY='-Wl,-R,$(LIBDIR) -L. -lpython$(VERSION)'
+@@ -676,9 +720,9 @@
+ 
+ AC_MSG_RESULT($LDLIBRARY)
+ 
+-AC_PROG_RANLIB
+-AC_SUBST(AR)
+-AC_CHECK_PROGS(AR, ar aal, ar)
++# find tools while respecting --host setting
++AC_CHECK_TOOL(RANLIB,ranlib)
++AC_CHECK_TOOLS(AR,ar aal,ar)
+ 
+ AC_SUBST(SVNVERSION)
+ AC_CHECK_PROG(SVNVERSION, svnversion, found, not-found)
+@@ -866,7 +910,7 @@
+ if test $ac_cv_opt_olimit_ok = yes; then
+     case $ac_sys_system in
+ 	# XXX is this branch needed? On MacOSX 10.2.2 the result of the
+-	# olimit_ok test is "no".  Is it "yes" in some other Darwin-esque
++	# olimit_ok test is "no".  Is it "yes" in some other darwin-esque
+ 	# environment?
+         Darwin*)
+ 	    ;;
+@@ -1407,6 +1451,7 @@
+ 		esac
+ 		;;
+ 	CYGWIN*)   SO=.dll;;
++	mingw*)    SO=.dll;;
+ 	*)	   SO=.so;;
+ 	esac
+ else
+@@ -1530,6 +1575,8 @@
+ 	SCO_SV*) LDSHARED='$(CC) -Wl,-G,-Bexport';;
+ 	Monterey*) LDSHARED="cc -G -dy -Bdynamic -Bexport -L/usr/lib/ia64l64";;
+ 	CYGWIN*) LDSHARED="gcc -shared -Wl,--enable-auto-image-base";;
++	mingw*) LDSHARED='$(CC) -mdll'
++		BLDSHARED='$(CC) -mdll libpython$(VERSION).dll';;
+ 	atheos*) LDSHARED="gcc -shared";;
+ 	*)	LDSHARED="ld";;
+ 	esac
+@@ -1620,6 +1667,11 @@
+ 		then
+ 			LINKFORSHARED='-Wl,--out-implib=$(LDLIBRARY)'
+ 		fi;;
++	mingw*)
++		if test $enable_shared = "no"
++		then
++			LINKFORSHARED='-Wl,--out-implib=$(LDLIBRARY)'
++		fi;;
+ 	esac
+ fi
+ AC_MSG_RESULT($LINKFORSHARED)
+@@ -1689,6 +1741,16 @@
+ # BeOS' sockets are stashed in libnet.
+ AC_CHECK_LIB(nsl, t_open, [LIBS="-lnsl $LIBS"]) # SVR4
+ AC_CHECK_LIB(socket, socket, [LIBS="-lsocket $LIBS"], [], $LIBS) # SVR4 sockets
++AC_CHECK_HEADER(winsock2.h)
++AC_CHECK_LIB(wsock32, select, [LIBS="-lwsock32 $LIBS"], [], $LIBS) # Mingw32 select
++save_LIBS="$LIBS"
++LIBS="-lwsock32 $LIBS"
++AC_MSG_CHECKING([for include <winsock2.h> select in libwinsock32])
++AC_TRY_LINK([#include <winsock2.h>],
++            [select (1,2,3,4,5);],
++ 	    [AC_MSG_RESULT(yes)],
++	    [AC_MSG_RESULT(no)]
++	    [LIBS="$save_LIBS"])
+ 
+ case "$ac_sys_system" in
+ BeOS*)
+@@ -2224,6 +2286,7 @@
+ 	# Use dynload_next.c only on 10.2 and below, which don't have native dlopen()
+ 	Darwin/@<:@0156@:>@\..*) DYNLOADFILE="dynload_next.o";;
+ 	atheos*) DYNLOADFILE="dynload_atheos.o";;
++	mingw*) DYNLOADFILE="dynload_win.o";;
+ 	*)
+ 	# use dynload_shlib.c and dlopen() if we have it; otherwise stub
+ 	# out any dynamic loading
+@@ -2473,6 +2536,8 @@
+   )
+ )
+ 
++AC_CHECK_FUNCS(cwait fsync pipe popen spawnv system)
++
+ AC_MSG_CHECKING(for major, minor, and makedev)
+ AC_TRY_LINK([
+ #if defined(MAJOR_IN_MKDEV)
+@@ -3346,7 +3411,8 @@
+ AC_CHECK_FILE(/dev/ptc, AC_DEFINE(HAVE_DEV_PTC, 1, [Define if we have /dev/ptc.]))
+ 
+ AC_MSG_CHECKING(for %zd printf() format support)
+-AC_TRY_RUN([#include <stdio.h>
++AC_CACHE_VAL(ac_cv_printf_zd_format,
++		    AC_TRY_RUN([#include <stdio.h>
+ #include <stddef.h>
+ #include <string.h>
+ 
+@@ -3364,7 +3430,7 @@
+ }],
+ [AC_MSG_RESULT(yes)
+  AC_DEFINE(PY_FORMAT_SIZE_T, "z", [Define to printf format modifier for Py_ssize_t])],
+- AC_MSG_RESULT(no))
++ AC_MSG_RESULT(no)))
+ 
+ AC_CHECK_TYPE(socklen_t,,
+   AC_DEFINE(socklen_t,int,
+@@ -3394,6 +3460,67 @@
+ done
+ AC_MSG_RESULT(done)
+ 
++# Cross compiling
++AC_SUBST(cross_compiling)
++
++if test "$cross_compiling" = "yes"; then
++    AC_MSG_CHECKING(cc for build)
++    ## /usr/bin/cc still uses wrong assembler
++    ## CC_FOR_BUILD="${CC_FOR_BUILD-/usr/bin/cc}"
++    CC_FOR_BUILD="${CC_FOR_BUILD-PATH=/usr/bin:$PATH cc}"
++else
++    CC_FOR_BUILD="${CC_FOR_BUILD-$CC}"
++fi   
++     
++if test "$cross_compiling" = "yes"; then
++   AC_MSG_RESULT($CC_FOR_BUILD)
++fi
++
++AC_ARG_VAR(CC_FOR_BUILD,[build system C compiler (default: cc)])
++	
++if test "$cross_compiling" = "yes"; then
++    AC_MSG_CHECKING(python for build)
++    PYTHON_FOR_BUILD="${PYTHON_FOR_BUILD-python}"
++else
++    PYTHON_FOR_BUILD='$(BUILDPYTHON)'
++fi   
++
++if test "$cross_compiling" = "yes"; then
++    AC_MSG_RESULT($PYTHON_FOR_BUILD)
++fi
++AC_ARG_VAR(PYTHON_FOR_BUILD,[build system python (default: python)])
++AC_SUBST(PYTHON_FOR_BUILD)
++  			
++if test "$cross_compiling" = "yes"; then
++    CFLAGS_FOR_BUILD=${CFLAGS_FOR_BUILD-}
++    changequote(<<, >>)#dnl
++    python_include=`$PYTHON_FOR_BUILD -c 'import sys; sys.stdout.write ("%s/include/python%s" % (sys.prefix, sys.version[:3]))'`
++    changequote([, ])#dnl
++    CPPFLAGS_FOR_BUILD=${CPPFLAGS_FOR_BUILD-"-I$python_include"}
++    CROSS_COMMENT=#
++    if test "$case_sensitive" = "yes"
++    then
++        EXEEXT_FOR_BUILD=
++    else
++        EXEEXT_FOR_BUILD=.exe
++    fi
++    LDFLAGS_FOR_BUILD=${LDFLAGS_FOR_BUILD-}
++    LIBS_FOR_BUILD=${LIBS_FOR_BUILD-}
++    O_FOR_BUILD=x
++    RUNSHARED="CROSS_TARGET=$ac_sys_system SRCDIR=$srcdir SO=${SO}"
++else
++    CROSS_COMMENT=
++    EXEEXT_FOR_BUILD=$BUILDEXEEXT
++    O_FOR_BUILD=o
++fi
++AC_SUBST(CFLAGS_FOR_BUILD)
++AC_SUBST(CPPFLAGS_FOR_BUILD)
++AC_SUBST(CROSS_COMMENT)
++AC_SUBST(EXEEXT_FOR_BUILD)
++AC_SUBST(LDFLAGS_FOR_BUILD)
++AC_SUBST(LIBS_FOR_BUILD)
++AC_SUBST(O_FOR_BUILD)
++
+ # generate output files
+ AC_CONFIG_FILES(Makefile.pre Modules/Setup.config)
+ AC_OUTPUT
+@@ -3403,6 +3530,9 @@
+ then
+ 	cp $srcdir/Modules/Setup.dist Modules/Setup
+ fi
++mv Modules/Setup Modules/Setup~
++sed -e "s/@POSIX@/$POSIX/g" < Modules/Setup~ > Modules/Setup
++
+ 
+ echo "creating Modules/Setup.local"
+ if test ! -f Modules/Setup.local
+diff --exclude '*.orig' --exclude '*.rej' --exclude configure --exclude '*~' -urN Python-2.5/Include/osdefs.h python-2.5.cross/Include/osdefs.h
+--- Python-2.5/Include/osdefs.h	2006-04-25 17:29:46.000000000 +0200
++++ python-2.5.cross/Include/osdefs.h	2006-11-14 18:06:21.000000000 +0100
+@@ -18,6 +18,7 @@
+ #define SEP '\\'
+ #define ALTSEP '/'
+ #define MAXPATHLEN 256
++#define ROOTSEP ':'
+ #endif
+ #define DELIM ';'
+ #endif
+diff --exclude '*.orig' --exclude '*.rej' --exclude configure --exclude '*~' -urN Python-2.5/Include/pyport.h python-2.5.cross/Include/pyport.h
+--- Python-2.5/Include/pyport.h	2006-06-10 14:23:46.000000000 +0200
++++ python-2.5.cross/Include/pyport.h	2006-11-14 18:06:21.000000000 +0100
+@@ -596,31 +596,31 @@
+   BeOS and cygwin are the only other autoconf platform requiring special
+   linkage handling and both of these use __declspec().
+ */
+-#if defined(__CYGWIN__) || defined(__BEOS__)
++#if defined(__CYGWIN__) || defined(__MINGW32__) || defined(__BEOS__)
+ #	define HAVE_DECLSPEC_DLL
+ #endif
+ 
+ /* only get special linkage if built as shared or platform is Cygwin */
+-#if defined(Py_ENABLE_SHARED) || defined(__CYGWIN__)
++#if defined(Py_ENABLE_SHARED) || defined(__CYGWIN__) || defined(__MINGW32__)
+ #	if defined(HAVE_DECLSPEC_DLL)
+ #		ifdef Py_BUILD_CORE
+ #			define PyAPI_FUNC(RTYPE) __declspec(dllexport) RTYPE
+ #			define PyAPI_DATA(RTYPE) extern __declspec(dllexport) RTYPE
+ 			/* module init functions inside the core need no external linkage */
+ 			/* except for Cygwin to handle embedding (FIXME: BeOS too?) */
+-#			if defined(__CYGWIN__)
++#			if defined(__CYGWIN__) || defined(__MINGW32__)
+ #				define PyMODINIT_FUNC __declspec(dllexport) void
+-#			else /* __CYGWIN__ */
++#			else /* __CYGWIN__ || __MINGW32__ */
+ #				define PyMODINIT_FUNC void
+-#			endif /* __CYGWIN__ */
++#			endif /* __CYGWIN__ || __MINGW32__ */
+ #		else /* Py_BUILD_CORE */
+ 			/* Building an extension module, or an embedded situation */
+ 			/* public Python functions and data are imported */
+ 			/* Under Cygwin, auto-import functions to prevent compilation */
+ 			/* failures similar to http://python.org/doc/FAQ.html#3.24 */
+-#			if !defined(__CYGWIN__)
++#			if !defined(__CYGWIN__) && !defined(__MINGW32__)
+ #				define PyAPI_FUNC(RTYPE) __declspec(dllimport) RTYPE
+-#			endif /* !__CYGWIN__ */
++#			endif /* !__CYGWIN__ && ! __MINGW32__ */
+ #			define PyAPI_DATA(RTYPE) extern __declspec(dllimport) RTYPE
+ 			/* module init functions outside the core must be exported */
+ #			if defined(__cplusplus)
+diff --exclude '*.orig' --exclude '*.rej' --exclude configure --exclude '*~' -urN Python-2.5/Lib/distutils/command/build_ext.py python-2.5.cross/Lib/distutils/command/build_ext.py
+--- Python-2.5/Lib/distutils/command/build_ext.py	2006-05-23 13:47:16.000000000 +0200
++++ python-2.5.cross/Lib/distutils/command/build_ext.py	2006-11-14 18:06:21.000000000 +0100
+@@ -614,6 +614,8 @@
+             ext_path[len(ext_path) - 1] = ext_path[len(ext_path) - 1][:8]
+         # extensions in debug_mode are named 'module_d.pyd' under windows
+         so_ext = get_config_var('SO')
++        if os.environ.get('CROSS_COMPILING') == 'yes':
++            so_ext = os.environ.get('SO')
+         if os.name == 'nt' and self.debug:
+             return apply(os.path.join, ext_path) + '_d' + so_ext
+         return apply(os.path.join, ext_path) + so_ext
+@@ -666,7 +668,7 @@
+             # don't extend ext.libraries, it may be shared with other
+             # extensions, it is a reference to the original list
+             return ext.libraries + [pythonlib]
+-        elif sys.platform[:6] == "cygwin":
++        elif sys.platform[:6] == "cygwin" or sys.platform[:5] == "mingw":
+             template = "python%d.%d"
+             pythonlib = (template %
+                    (sys.hexversion >> 24, (sys.hexversion >> 16) & 0xff))
+diff --exclude '*.orig' --exclude '*.rej' --exclude configure --exclude '*~' -urN Python-2.5/Lib/plat-mingw32msvc2/regen python-2.5.cross/Lib/plat-mingw32msvc2/regen
+--- Python-2.5/Lib/plat-mingw32msvc2/regen	1970-01-01 01:00:00.000000000 +0100
++++ python-2.5.cross/Lib/plat-mingw32msvc2/regen	2006-11-14 18:06:21.000000000 +0100
+@@ -0,0 +1,3 @@
++#! /bin/sh
++set -v
++python$EXE ../../Tools/scripts/h2py.py -i '(u_long)' /usr/include/netinet/in.h
+diff --exclude '*.orig' --exclude '*.rej' --exclude configure --exclude '*~' -urN Python-2.5/Makefile.pre.in python-2.5.cross/Makefile.pre.in
+--- Python-2.5/Makefile.pre.in	2006-07-30 18:20:10.000000000 +0200
++++ python-2.5.cross/Makefile.pre.in	2006-11-14 19:28:59.000000000 +0100
+@@ -18,6 +18,8 @@
+ #
+ # See also the section "Build instructions" in the README file.
+ 
++DELIM=@DELIM@
++
+ # === Variables set by makesetup ===
+ 
+ MODOBJS=        _MODOBJS_
+@@ -72,6 +74,16 @@
+ # C flags used for building the interpreter object files
+ PY_CFLAGS=	$(CFLAGS) $(CPPFLAGS) $(CFLAGSFORSHARED) -DPy_BUILD_CORE
+ 
++# For cross compile: build compiler options
++CC_FOR_BUILD=	@CC_FOR_BUILD@
++CROSS_COMPILING=	@cross_compiling@
++EXEEXT_FOR_BUILD=	@EXEEXT_FOR_BUILD@
++O_FOR_BUILD=	@O_FOR_BUILD@
++
++CFLAGS_FOR_BUILD=	@CFLAGS_FOR_BUILD@
++CPPFLAGS_FOR_BUILD=	@CPPFLAGS_FOR_BUILD@ -I$(srcdir)/Include
++LDFLAGS_FOR_BUILD=	@LDFLAGS_FOR_BUILD@
++LIBS_FOR_BUILD=	@LIBS_FOR_BUILD@
+ 
+ # Machine-dependent subdirectories
+ MACHDEP=	@MACHDEP@
+@@ -103,6 +115,10 @@
+ BLDSHARED=	@BLDSHARED@
+ DESTSHARED=	$(BINLIBDEST)/lib-dynload
+ 
++comma=,
++BLDFLAGS=$(subst -Wl$(comma),,$(LDFLAGS))
++
++
+ # Executable suffix (.exe on Windows and Mac OS X)
+ EXE=		@EXEEXT@
+ BUILDEXE=	@BUILDEXEEXT@
+@@ -169,7 +185,8 @@
+ UNICODE_OBJS=   @UNICODE_OBJS@
+ 
+ PYTHON=		python$(EXE)
+-BUILDPYTHON=	python$(BUILDEXE)
++BUILDPYTHON=	python$(EXE)
++PYTHON_FOR_BUILD=	@PYTHON_FOR_BUILD@
+ 
+ # === Definitions added by makesetup ===
+ 
+@@ -195,7 +212,7 @@
+ 
+ ##########################################################################
+ # Parser
+-PGEN=		Parser/pgen$(EXE)
++PGEN_FOR_BUILD=	Parser/pgen$(EXEEXT_FOR_BUILD)
+ 
+ POBJS=		\
+ 		Parser/acceler.o \
+@@ -212,14 +229,27 @@
+ 
+ PARSER_OBJS=	$(POBJS) Parser/myreadline.o Parser/tokenizer.o
+ 
+-PGOBJS=		\
+-		Objects/obmalloc.o \
+-		Python/mysnprintf.o \
+-		Parser/tokenizer_pgen.o \
+-		Parser/printgrammar.o \
+-		Parser/pgenmain.o
++POBJS_FOR_BUILD=		\
++		Parser/acceler.$(O_FOR_BUILD) \
++		Parser/grammar1.$(O_FOR_BUILD) \
++		Parser/listnode.$(O_FOR_BUILD) \
++		Parser/node.$(O_FOR_BUILD) \
++		Parser/parser.$(O_FOR_BUILD) \
++		Parser/parsetok.$(O_FOR_BUILD) \
++		Parser/bitset.$(O_FOR_BUILD) \
++		Parser/metagrammar.$(O_FOR_BUILD) \
++		Parser/firstsets.$(O_FOR_BUILD) \
++		Parser/grammar.$(O_FOR_BUILD) \
++		Parser/pgen.$(O_FOR_BUILD)
++
++PGOBJS_FOR_BUILD=		\
++		Objects/obmalloc.$(O_FOR_BUILD) \
++		Python/mysnprintf.$(O_FOR_BUILD) \
++		Parser/tokenizer_pgen.$(O_FOR_BUILD) \
++		Parser/printgrammar.$(O_FOR_BUILD) \
++		Parser/pgenmain.$(O_FOR_BUILD)
+ 
+-PGENOBJS=	$(PGENMAIN) $(POBJS) $(PGOBJS)
++PGENOBJS=	$(POBJS_FOR_BUILD) $(PGOBJS_FOR_BUILD)
+ 
+ ##########################################################################
+ # AST
+@@ -338,15 +368,15 @@
+ 			Modules/python.o \
+ 			$(BLDLIBRARY) $(LIBS) $(MODLIBS) $(SYSLIBS) $(LDLAST)
+ 
+-platform: $(BUILDPYTHON)
+-	$(RUNSHARED) ./$(BUILDPYTHON) -E -c 'import sys ; from distutils.util import get_platform ; print get_platform()+"-"+sys.version[0:3]' >platform
++platform: @CROSS_COMMENT@ $(BUILDPYTHON)
++	$(RUNSHARED) $(PYTHON_FOR_BUILD) -E -c 'import sys ; from distutils.util import get_platform ; print get_platform()+"-"+sys.version[0:3]' >platform
+ 
+ 
+ # Build the shared modules
+-sharedmods: $(BUILDPYTHON)
++sharedmods: @CROSS_COMMENT@ $(BUILDPYTHON)
+ 	case $$MAKEFLAGS in \
+-	*-s*) $(RUNSHARED) CC='$(CC)' LDSHARED='$(BLDSHARED)' OPT='$(OPT)' ./$(BUILDPYTHON) -E $(srcdir)/setup.py -q build;; \
+-	*) $(RUNSHARED) CC='$(CC)' LDSHARED='$(BLDSHARED)' OPT='$(OPT)' ./$(BUILDPYTHON) -E $(srcdir)/setup.py build;; \
++	*-s*) $(RUNSHARED) CC='$(CC)' LDFLAGS="$(BLDFLAGS)" CROSS_COMPILING='$(CROSS_COMPILING)' LDSHARED='$(BLDSHARED)' OPT='$(OPT)' $(PYTHON_FOR_BUILD) -E $(srcdir)/setup.py -q build;; \
++	*) $(RUNSHARED) CC='$(CC)' LDFLAGS="$(BLDFLAGS)" CROSS_COMPILING='$(CROSS_COMPILING)' LDSHARED='$(BLDSHARED)' OPT='$(OPT)' $(PYTHON_FOR_BUILD) -E $(srcdir)/setup.py build;; \
+ 	esac
+ 
+ # Build static library
+@@ -469,11 +499,11 @@
+ 	$(MAINCC) -c $(PY_CFLAGS) -o $@ $(srcdir)/Modules/python.c
+ 
+ 
+-$(GRAMMAR_H) $(GRAMMAR_C): $(PGEN) $(GRAMMAR_INPUT)
+-		-$(PGEN) $(GRAMMAR_INPUT) $(GRAMMAR_H) $(GRAMMAR_C)
++$(GRAMMAR_H) $(GRAMMAR_C): $(PGEN_FOR_BUILD) $(GRAMMAR_INPUT)
++		-$(PGEN_FOR_BUILD) $(GRAMMAR_INPUT) $(GRAMMAR_H) $(GRAMMAR_C)
+ 
+-$(PGEN):	$(PGENOBJS)
+-		$(CC) $(OPT) $(LDFLAGS) $(PGENOBJS) $(LIBS) -o $(PGEN)
++$(PGEN_FOR_BUILD):	$(PGENOBJS)
++		$(CC_FOR_BUILD) $(OPT) $(LDFLAGS_FOR_BUILD) $(PGENOBJS) $(LIBS_FOR_BUILD) -o $(PGEN_FOR_BUILD)
+ 
+ Parser/grammar.o:	$(srcdir)/Parser/grammar.c \
+ 				$(srcdir)/Include/token.h \
+@@ -500,6 +530,13 @@
+ 				$(srcdir)/Objects/unicodetype_db.h
+ 
+ ############################################################################
++# Cross compile rules
++
++.SUFFIXES: .x
++.c.x:
++	$(CC_FOR_BUILD) -c $(CPPFLAGS_FOR_BUILD) $(CFLAGS_FOR_BUILD) -o $@ $<
++				
++############################################################################
+ # Header files
+ 
+ PYTHON_HEADERS= \
+@@ -572,7 +609,7 @@
+ 
+ TESTOPTS=	-l $(EXTRATESTOPTS)
+ TESTPROG=	$(srcdir)/Lib/test/regrtest.py
+-TESTPYTHON=	$(RUNSHARED) ./$(BUILDPYTHON) -E -tt
++TESTPYTHON=	$(RUNSHARED) $(PYTHON_FOR_BUILD) -E -tt
+ test:		all platform
+ 		-find $(srcdir)/Lib -name '*.py[co]' -print | xargs rm -f
+ 		-$(TESTPYTHON) $(TESTPROG) $(TESTOPTS)
+@@ -716,7 +753,7 @@
+ 		distutils distutils/command distutils/tests $(XMLLIBSUBDIRS) \
+ 		setuptools setuptools/command setuptools/tests setuptools.egg-info \
+ 		curses $(MACHDEPS)
+-libinstall:	$(BUILDPYTHON) $(srcdir)/Lib/$(PLATDIR)
++libinstall: $(srcdir)/Lib/$(PLATDIR) @CROSS_COMMENT@ $(BUILDPYTHON)
+ 	@for i in $(SCRIPTDIR) $(LIBDEST); \
+ 	do \
+ 		if test ! -d $(DESTDIR)$$i; then \
+@@ -773,19 +810,19 @@
+ 	done
+ 	$(INSTALL_DATA) $(srcdir)/LICENSE $(DESTDIR)$(LIBDEST)/LICENSE.txt
+ 	PYTHONPATH=$(DESTDIR)$(LIBDEST)  $(RUNSHARED) \
+-		./$(BUILDPYTHON) -Wi -tt $(DESTDIR)$(LIBDEST)/compileall.py \
++		$(PYTHON_FOR_BUILD) -Wi -tt $(DESTDIR)$(LIBDEST)/compileall.py \
+ 		-d $(LIBDEST) -f \
+ 		-x 'bad_coding|badsyntax|site-packages' $(DESTDIR)$(LIBDEST)
+ 	PYTHONPATH=$(DESTDIR)$(LIBDEST) $(RUNSHARED) \
+-		./$(BUILDPYTHON) -Wi -tt -O $(DESTDIR)$(LIBDEST)/compileall.py \
++		$(PYTHON_FOR_BUILD) -Wi -tt -O $(DESTDIR)$(LIBDEST)/compileall.py \
+ 		-d $(LIBDEST) -f \
+ 		-x 'bad_coding|badsyntax|site-packages' $(DESTDIR)$(LIBDEST)
+ 	-PYTHONPATH=$(DESTDIR)$(LIBDEST)  $(RUNSHARED) \
+-		./$(BUILDPYTHON) -Wi -t $(DESTDIR)$(LIBDEST)/compileall.py \
++		$(PYTHON_FOR_BUILD) -Wi -t $(DESTDIR)$(LIBDEST)/compileall.py \
+ 		-d $(LIBDEST)/site-packages -f \
+ 		-x badsyntax $(DESTDIR)$(LIBDEST)/site-packages
+ 	-PYTHONPATH=$(DESTDIR)$(LIBDEST) $(RUNSHARED) \
+-		./$(BUILDPYTHON) -Wi -t -O $(DESTDIR)$(LIBDEST)/compileall.py \
++		$(PYTHON_FOR_BUILD) -Wi -t -O $(DESTDIR)$(LIBDEST)/compileall.py \
+ 		-d $(LIBDEST)/site-packages -f \
+ 		-x badsyntax $(DESTDIR)$(LIBDEST)/site-packages
+ 
+@@ -793,9 +830,9 @@
+ $(srcdir)/Lib/$(PLATDIR):
+ 	mkdir $(srcdir)/Lib/$(PLATDIR)
+ 	cp $(srcdir)/Lib/plat-generic/regen $(srcdir)/Lib/$(PLATDIR)/regen
+-	export PATH; PATH="`pwd`:$$PATH"; \
+-	export PYTHONPATH; PYTHONPATH="`pwd`/Lib"; \
+-	export DYLD_FRAMEWORK_PATH; DYLD_FRAMEWORK_PATH="`pwd`"; \
++@CROSS_COMMENT@	export PATH; PATH="`pwd`:$$PATH"; \
++@CROSS_COMMENT@	export PYTHONPATH; PYTHONPATH="`pwd`/Lib"; \
++@CROSS_COMMENT@	export DYLD_FRAMEWORK_PATH; DYLD_FRAMEWORK_PATH="`pwd`"; \
+ 	export EXE; EXE="$(BUILDEXE)"; \
+ 	cd $(srcdir)/Lib/$(PLATDIR); ./regen
+ 
+@@ -885,8 +922,9 @@
+ # Install the dynamically loadable modules
+ # This goes into $(exec_prefix)
+ sharedinstall:
+-	$(RUNSHARED) ./$(BUILDPYTHON) -E $(srcdir)/setup.py install \
+-	   	--prefix=$(prefix) \
++	CC='$(CC)' LDSHARED='$(BLDSHARED)' OPT='$(OPT)' CROSS_COMPILING='$(CROSS_COMPILING)' \
++		$(RUNSHARED) $(PYTHON_FOR_BUILD) -E $(srcdir)/setup.py install \
++		--prefix=$(prefix) \
+ 		--install-scripts=$(BINDIR) \
+ 		--install-platlib=$(DESTSHARED) \
+ 		--root=/$(DESTDIR)
+@@ -959,7 +997,7 @@
+ # This installs a few of the useful scripts in Tools/scripts
+ scriptsinstall:
+ 	SRCDIR=$(srcdir) $(RUNSHARED) \
+-	./$(BUILDPYTHON) $(srcdir)/Tools/scripts/setup.py install \
++	$(PYTHON_FOR_BUILD) $(srcdir)/Tools/scripts/setup.py install \
+ 	--prefix=$(prefix) \
+ 	--install-scripts=$(BINDIR) \
+ 	--root=/$(DESTDIR)
+@@ -1020,11 +1058,12 @@
+ 	find $(srcdir)/build -name 'fficonfig.py' -exec rm -f {} ';' || true
+ 
+ clobber: clean
+-	-rm -f $(BUILDPYTHON) $(PGEN) $(LIBRARY) $(LDLIBRARY) $(DLLLIBRARY) \
++	-rm -f $(BUILDPYTHON) $(PGEN_FOR_BUILD) $(LIBRARY) $(LDLIBRARY) $(DLLLIBRARY) \
+ 		tags TAGS \
+ 		config.cache config.log pyconfig.h Modules/config.c
+ 	-rm -rf build platform
+ 	-rm -rf $(PYTHONFRAMEWORKDIR)
++	-rm -rf buildpython
+ 
+ # Make things extra clean, before making a distribution:
+ # remove all generated files, even Makefile[.pre]
+diff --exclude '*.orig' --exclude '*.rej' --exclude configure --exclude '*~' -urN Python-2.5/mingw/.cvsignore python-2.5.cross/mingw/.cvsignore
+--- Python-2.5/mingw/.cvsignore	1970-01-01 01:00:00.000000000 +0100
++++ python-2.5.cross/mingw/.cvsignore	2006-11-14 18:06:21.000000000 +0100
+@@ -0,0 +1,20 @@
++#*
++*.orig
++*.rej
++*~
++.#*
++.bash_mknetrel
++*.patch
++CYGWIN-PATCHES
++Makefile.in
++aclocal.m4
++autom4te.cache
++config.guess
++config.sub
++configure
++libltdl
++ltmain.sh
++CVS
++missing
++pats
++Modules/dl_nt.c
+diff --exclude '*.orig' --exclude '*.rej' --exclude configure --exclude '*~' -urN Python-2.5/mingw/mknetrel python-2.5.cross/mingw/mknetrel
+--- Python-2.5/mingw/mknetrel	1970-01-01 01:00:00.000000000 +0100
++++ python-2.5.cross/mingw/mknetrel	2006-11-14 18:06:21.000000000 +0100
+@@ -0,0 +1,80 @@
++# -*- shell-script -*-
++# cygwin/mknetrel - Python mknetrel overrides
++
++# This script should be used to package Python for Cygwin.  It can be
++# used to build Python on Cygwin, but also on GNU/Linux.  Use cyg-apt
++# to setup and update Cygwin packages in the cross build environment.
++
++# This needs a patched python-2.4.2 or 2.5-CVS
++
++sover=2.4
++sub_packages="devel extra lib"
++depends="libpython$sover"
++lib_depends="libltdl3 libregex2"
++build_depends="mingw-devel libiconv-devel libtool-devel regex-devel"
++
++# copy and include extra mknetrel stuff
++. $src/$cygwin/mknetrel.extras || . $mknetrel/extras
++
++preconfig () {
++    extras_preconfig
++    cd $src && autoupdate
++    cd $build
++    # FIXME: only compiling console for now.  should build windows and
++    # console applications.  compiled as a windows application, guile
++    # segfaults when run from the gui (ie, without a console).
++    if [ "$cygwin" == "mingw" ]; then
++	build_cc="$target-gcc"
++	build_cxx="$target-g++"
++    fi
++##    export OPT=-g
++    build_cc="$build_cc -DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I$cygwin_prefix/include"
++    CONFIGOPTS="--disable-static --enable-shared $CONFIGOPTS"
++}
++
++preinstall () {
++    extras_preinstall
++    v=$(expr "$ver" : "\(.*\)\.[0-9]-[0-9]*")
++    addmakeflags INCLUDEDIR=$inst/$prefix/include ' ' \
++    MANDIR=$inst/$mandir
++}
++
++cruft="
++bsddb
++compiler
++curses
++distutils
++email
++hotshot
++idlelib
++lib-old
++lib-tk
++logging
++test
++xml
++"
++
++extra_name () {
++    echo $base-extra
++}
++
++extra_split () {
++    v=$(expr "$ver" : "\(.*\)\.[0-9]-[0-9]*")
++    mkdir -p .$prefix/lib/python$v
++    for i in $cruft; do
++	mv $inst$prefix/lib/python$v/$i .$prefix/lib/python$v
++    done
++}
++
++lib_split () {
++    #extras_lib_split
++    mkdir -p .$prefix
++    mv $inst$prefix/lib .$prefix/lib
++}
++
++postinstall () {
++    if [ "$cygwin" == "mingw" ]; then
++	v=$(expr "$ver" : "\(.*\)\.[0-9]-[0-9]*")
++	cp $inst/usr/lib/python$v/lib-dynload/* $inst/usr/bin
++    fi
++}
+diff --exclude '*.orig' --exclude '*.rej' --exclude configure --exclude '*~' -urN Python-2.5/mingw/mknetrel.auto python-2.5.cross/mingw/mknetrel.auto
+--- Python-2.5/mingw/mknetrel.auto	1970-01-01 01:00:00.000000000 +0100
++++ python-2.5.cross/mingw/mknetrel.auto	2006-11-14 18:06:21.000000000 +0100
+@@ -0,0 +1,29 @@
++# -*- shell-script -*-
++
++#
++# mknetrel.split -- autotools
++#
++
++autoupdate () {
++    if [ "$base" != "libtool" ]; then
++	if [ -d libltdl ]; then
++	    rm -rf libltdl
++	    libtoolize --force --copy --automake --ltdl
++	else
++	    libtoolize --force --copy --automake
++	fi
++    fi
++
++    chmod +x ./bootstrap ./autogen.sh || :
++    if [ -x ./bootstrap ]; then
++	./bootstrap --noconfigure
++    elif [ -x ./autogen.sh ]; then
++	./autogen.sh --noconfigure
++    else
++	aclocal
++	autoheader
++	autoconf
++	automake --add-missing
++    fi
++    sed -i~ -e 's/ x$PKG_CONFIG / "$x$PKG_CONFIG" /' $src/configure
++}
+diff --exclude '*.orig' --exclude '*.rej' --exclude configure --exclude '*~' -urN Python-2.5/mingw/mknetrel.cross python-2.5.cross/mingw/mknetrel.cross
+--- Python-2.5/mingw/mknetrel.cross	1970-01-01 01:00:00.000000000 +0100
++++ python-2.5.cross/mingw/mknetrel.cross	2006-11-14 18:06:21.000000000 +0100
+@@ -0,0 +1,113 @@
++# -*- shell-script -*-
++
++#
++# mknetrel.cross -- set cross.cache for configure
++#
++
++# for cross-compiling
++if ! iscygwin; then
++    uploads=$here/uploads/$base && mkdir -p $uploads/
++    tarstem=$uploads/$package
++fi
++
++crosscache () {
++    cat <<EOF > config.cache
++ac_cv_c_bigendian=\${ac_cv_c_bigendian=no}
++ac_cv_c_long_size_t=\${ac_cv_c_long_size_t=no}
++ac_cv_c_long_time_t=\${ac_cv_c_long_time_t=yes}
++ac_cv_sizeof___int64=\${ac_cv_sizeof___int64=0}
++ac_cv_sizeof_char=\${ac_cv_sizeof_char=1}
++ac_cv_sizeof_char_p=\${ac_cv_sizeof_char_p=4}
++ac_cv_sizeof_double=\${ac_cv_sizeof_double=8}
++ac_cv_sizeof_float=\${ac_cv_sizeof_float=4}
++ac_cv_sizeof_int=\${ac_cv_sizeof_int=4}
++ac_cv_sizeof_intmax_t=\${ac_cv_sizeof_intmax_t=8}
++ac_cv_sizeof_intptr_t=\${ac_cv_sizeof_intptr_t=4}
++ac_cv_sizeof_long=\${ac_cv_sizeof_long=4}
++ac_cv_sizeof_long_double=\${ac_cv_sizeof_long_double=12}
++ac_cv_sizeof_long_long=\${ac_cv_sizeof_long_long=8}
++ac_cv_sizeof_ptrdiff_t=\${ac_cv_sizeof_ptrdiff_t=4}
++ac_cv_sizeof_short=\${ac_cv_sizeof_short=2}
++ac_cv_sizeof_size_t=\${ac_cv_sizeof_size_t=4}
++ac_cv_sizeof_uintptr_t=\${ac_cv_sizeof_uintptr_t=4}
++ac_cv_sizeof_unsigned___int64=\${ac_cv_sizeof_unsigned___int64=0}
++ac_cv_sizeof_unsigned_char=\${ac_cv_sizeof_unsigned_char=1}
++ac_cv_sizeof_unsigned_int=\${ac_cv_sizeof_unsigned_int=4}
++ac_cv_sizeof_unsigned_long=\${ac_cv_sizeof_unsigned_long=4}
++ac_cv_sizeof_unsigned_long_long=\${ac_cv_sizeof_unsigned_long_long=8}
++ac_cv_sizeof_unsigned_short=\${ac_cv_sizeof_unsigned_short=2}
++ac_cv_sizeof_void_p=\${ac_cv_sizeof_void_p=4}
++ac_16bit_type=\${ac_16bit_type=short}
++ac_32bit_type=\${ac_32bit_type=int}
++ac_64bit_type=\${ac_64bit_type=none}
++ac_cv_sys_restartable_syscalls=\${ac_cv_sys_restartable_syscalls=yes}
++ac_cv_sprintf_count=\${ac_cv_sprintf_count=yes}
++ac_cv_spinlocks=\${ac_cv_spinlocks=no}
++ac_cv_func_getpgrp_void=\${ac_cv_func_getpgrp_void=yes}
++ac_cv_func_setvbuf_reversed=\${ac_cv_func_setvbuf_reversed=no}
++# but in mingw only if winsock2.h
++ac_cv_func_select=\${ac_cv_func_select=yes}
++ac_cv_search_dlopen=\${ac_cv_search_dlopen="none required"}
++ac_exeext=\${ac_exeext=}
++ac_cv_exeext=\${ac_cv_exeext=}
++
++# libtool searches not only in the cross libpath
++#     /cygwin/usr/lib:/cygwin/usr/lib/w32api:/usr/i686-cygwin/lib
++# but also in /usr/lib.  there it finds libdl.a and adds -ldl
++# to LIBS
++# it seems that libtool is broken wrt cross compilation:
++#    sys_lib_search_path_spec="/usr/lib /lib/w32api /lib /usr/local/lib"
++lt_cv_dlopen=\${lt_cv_dlopen="dlopen"}
++lt_cv_dlopen_libs=\${lt_cv_dlopen_libs="none required"}
++libltdl_cv_sys_search_path=\${libltdl_cv_sys_search_path="'"/lib /usr/lib $cygwin_prefix/lib"'"}
++lt_cv_sys_max_cmd_len=\${lt_cv_sys_max_cmd_len=8192}
++ac_cv_lib_dld_shl_load=\${ac_cv_lib_dld_shl_load=no}
++ac_cv_lib_dl_dlopen=\${ac_cv_lib_dl_dlopen=no}
++ac_cv_c_stack_direction=\${ac_cv_c_stack_direction=-1}
++EOF
++
++    if [ "$cygwin" == "cygwin" ]; then
++	cat <<EOF > config.cache
++ac_cv_func_mkfifo=\${ac_cv_func_mkfifo=yes}
++ac_cv_have_dev_ptmx=\${ac_cv_have_dev_ptmx=}
++ac_cv_have_dev_ptc=\${ac_cv_have_dev_ptc=}
++EOF
++    else
++	cat <<EOF > config.cache
++ac_cv_func_mkfifo=\${ac_cv_func_mkfifo=no}
++ac_cv_have_dev_ptmx=\${ac_cv_have_dev_ptmx=no}
++ac_cv_have_dev_ptc=\${ac_cv_have_dev_ptc=no}
++EOF
++    fi
++}
++
++needdevoflags () {
++    return 1
++}
++
++extras_preconfig () {
++    cd $src || exit 1
++    patchsrc
++    if [ ! -x ./configure ]; then
++	autoupdate
++    fi
++    for i in $(find $src -name configure | xargs grep -l PKG_CONFIG); do
++	sed -i~ -e 's/ x$PKG_CONFIG / "$x$PKG_CONFIG" /' $i
++    done
++    cd $build || exit 1
++    CONFIGOPTS="--config-cache --enable-shared --disable-static $CONFIGOPTS"
++    ##[ "$cygwin" == "mingw" ] && CONFIGOPTS="'LDFLAGS=-mwindows -mms-bitfields' $CONFIGOPTS"
++    iscygwin || crosscache
++}
++
++preconfig () {
++    extras_preconfig
++}
++
++extras_postconfig () {
++    fix_libtool_script
++}
++
++postconfig () {
++    extras_postconfig
++}
+diff --exclude '*.orig' --exclude '*.rej' --exclude configure --exclude '*~' -urN Python-2.5/mingw/mknetrel.doc python-2.5.cross/mingw/mknetrel.doc
+--- Python-2.5/mingw/mknetrel.doc	1970-01-01 01:00:00.000000000 +0100
++++ python-2.5.cross/mingw/mknetrel.doc	2006-11-14 18:06:21.000000000 +0100
+@@ -0,0 +1,40 @@
++# -*- shell-script -*-
++
++#
++# mknetrel.doc -- fixup doc
++#
++
++docprefix=$prefix/share
++docdir=$docprefix/doc
++
++cygdocdir=$docdir/$Cygwin
++infodir=$docprefix/info
++mandir=$docprefix/man
++v=$(expr "$ver" : "\(.*\)-[0-9]*")
++#docdirname=$base-$v
++docdirname=$base
++packagedocdir=$docdir/$docdirname
++
++fixdoc () {
++    #
++    cd $inst || exit 1
++    mkdir -p $inst/$docprefix
++    for i in info man doc; do
++	#if [ -d $inst/$docprefix/$i ]; then
++	if [ -d $inst/$prefix/$i ]; then
++	    cd $inst/$prefix
++	    tar -cf - $i | tar -C $inst/$docprefix -xf -
++	    rm -rf $inst/$prefix/$i
++	fi
++    done
++    if [ -f $inst/$docprefix/$base ]; then
++	mkdir -p $packagedocdir
++	tar -C $inst/$docprefix/$base -cf - . | tar -C $inst/$packagedocdir -xf -
++    fi
++    for i in $inst/$docprefix/info/*.info \
++	$inst/$docprefix/info/*.info-[0-9] \
++	$inst/$docprefix/info/*.info-[0-9][0-9]; do
++	gzip $i
++    done
++    true
++}
+diff --exclude '*.orig' --exclude '*.rej' --exclude configure --exclude '*~' -urN Python-2.5/mingw/mknetrel.extras python-2.5.cross/mingw/mknetrel.extras
+--- Python-2.5/mingw/mknetrel.extras	1970-01-01 01:00:00.000000000 +0100
++++ python-2.5.cross/mingw/mknetrel.extras	2006-11-14 18:06:21.000000000 +0100
+@@ -0,0 +1,12 @@
++# -*- shell-script -*-
++
++# copy and include extra mknetrel stuff
++extras=${extras-"auto cross doc libtool patch split"}
++[ ! -d $src/$cygwin ] && mkdir -p $src/$cygwin
++i=extras
++cp -pv $mknetrel/$i $src/$cygwin/mknetrel.$i
++for i in $extras; do
++    [ -r $mknetrel/$i ] && cp -pv $mknetrel/$i $src/$cygwin/mknetrel.$i
++    . $src/$cygwin/mknetrel.$i
++done
++cp -pv $extra/$base $src/$cygwin/mknetrel
+diff --exclude '*.orig' --exclude '*.rej' --exclude configure --exclude '*~' -urN Python-2.5/mingw/mknetrel.libtool python-2.5.cross/mingw/mknetrel.libtool
+--- Python-2.5/mingw/mknetrel.libtool	1970-01-01 01:00:00.000000000 +0100
++++ python-2.5.cross/mingw/mknetrel.libtool	2006-11-14 18:06:21.000000000 +0100
+@@ -0,0 +1,65 @@
++# -*- shell-script -*-
++# mknetrel.libtool -- libtool fixups
++
++fix_libtool_dltool () {
++    sed -i~ \
++	-e "s/^DLLTOOL=.*/DLLTOOL='$target-dlltool'/" \
++        -e "s/^DLLTOOL=/HOST_CC=gcc\nDLLTOOL=/" \
++        -e "s/^HOST_CC=/SED=sed\nHOST_CC=/" \
++        -e "s/^allow_undefined_flag=.*/allow_undefined_flag=/" \
++	$1
++##	-e "s@^sys_lib_dlsearch_path_spec=.*@sys_lib_dlsearch_path_spec='$cygwin_prefix/lib'@"
++}
++
++fix_libtool_dlopen_undefined () {
++    for i in $(find $build -name libtool); do
++	sed -i~ -e 's/\(allow_undefined_flag=.*\)unsupported/\1/' $i
++    done
++}
++    
++fix_libtool_script () {
++    [ $base != "libtool" ] || return 0
++    for i in $mknetrel_root/bin/$target-libtool \
++	$cygwin_prefix/bin/$target-libtool; do
++	[ -x "$i" ] && fixtool=$i
++    done
++    for i in $(find $build -name libtool); do
++	[ -n "$fixtool" ] || exit 1
++	cp --backup $fixtool $i
++    done
++}
++
++fix_libtool_la () {
++    # fix libtool's .la dependency_libs output for dlopen
++    for i in $inst/lib $inst/$prefix/lib; do
++	if [ -d "$i" ]; then
++	    cd $i || exit 1
++	    for j in $(ls -1 *.la); do
++		sed -i~ \
++		    -e 's/ *-L *[^"'"'"' ][^"'"'"' ]*//g'\
++		    -e "s@\( \|=\|'\)\(/[^ ]*usr/lib/lib\)\([^ ']*\)\.\(a\|la\|so\)[^ ']*@\1-l\3@g"\
++		    $j
++##		    -e "s@\( \|=\|'\)\(cyg\)\([^ ']*\)\(\.dll.a\|.a\)[^ ']*@\1lib\3\4@g"\
++##		    -e "s@\( \|=\|'\)\(/usr/lib/lib\)\([^ ']*\)\.\(a\|la\|so\)[^ ']*@\1-l\3@g"\
++##		    -e "s@\( \|=\|'\)\(/usr/lib/lib\)\([^.]*\)\.\(a\|la\|so\)[^ ']*@\1-l\3@g"\
++##		    -e "s@\( \|=\|'\)\(/usr/lib/lib\)\([^.]*\)[^ ']*@\1-l\3@g"\
++##		    -e "s@\( \|=\|'\)\(/usr/lib/\)\(lib\)@\1\3@g"\
++##		    -e "s@\( \|=\)\(/usr/lib/lib\)@\1$cygwin_root\2@g"\
++##		    -e "s@\( \|=\)\(/usr/lib/lib\)@\1$cygwin_root\2@g"\
++##		    -e "s@\( \|=\)\(/usr/lib/lib\)\([^ ]*\)[.]\(a\|dll\|la\|so[^ ]*\)@-l\2@g"\
++	    done
++	fi
++    done
++
++    # fix some libtool's .dll name
++    mv $inst/$prefix/lib/$dll_prefix$base-$sover $inst/$prefix/bin/$dll_prefix$base-$sover.dll
++
++    # more libtool fixups.  I love libtool.
++    sed -i~ \
++	-e "s@^dlname=.*@dlname='../bin/$dll_prefix$base-$sover.dll'@" \
++	-e "s@^library_names=.*@library_names='lib$base.dll.a'@" \
++	-e "s@^old_library=.*@old_library='lib$base.a'@" \
++	$inst/$prefix/lib/lib$base.la
++##	-e "s@^library_names=.*@library_names='$dll_prefix$base.dll.a'@" \
++##	-e "s@^old_library=.*@old_library='$dll_prefix$base.a'@" \
++}
+diff --exclude '*.orig' --exclude '*.rej' --exclude configure --exclude '*~' -urN Python-2.5/mingw/mknetrel.split python-2.5.cross/mingw/mknetrel.split
+--- Python-2.5/mingw/mknetrel.split	1970-01-01 01:00:00.000000000 +0100
++++ python-2.5.cross/mingw/mknetrel.split	2006-11-14 18:06:21.000000000 +0100
+@@ -0,0 +1,275 @@
++# -*- shell-script -*-
++# mknetrel.split -- split subpackages
++
++extras_preinstall () {
++    :;
++}
++
++extras_presplit () {
++    :;
++}
++
++presplit () {
++    :;
++}
++
++devel_name () {
++    if ! libdev 2> /dev/null ; then
++	echo $base-devel
++    else
++	if expr "$base" : "\(lib\)" > /dev/null 2>&1; then
++	    echo $base-dev
++	else
++	    echo lib$base-dev
++	fi
++    fi
++}
++
++doc_name () {
++    echo $base-doc
++}
++
++lib_name () {
++    if expr "$base" : "\(lib\)" > /dev/null 2>&1; then
++	echo $base$sover
++    else
++	echo lib$base$sover
++    fi
++}
++
++extras_lib_split () {
++    mkdir -p ./$prefix/bin || exit 1
++    mv $inst/$prefix/bin/*.dll ./$prefix/bin
++    # better move dlls to bin, see gmp
++    mkdir -p ./$prefix/lib || exit 1
++    mv $inst/$prefix/lib/*.dll ./$prefix/lib
++    mkdir -p ./$prefix/lib || exit 1
++    mv $inst/$prefix/lib/lib*.la ./$prefix/lib
++    mkdir -p ./$prefix/share || exit 1
++    mv $inst/$prefix/share/$base ./$prefix/share
++    rmdir $inst/$prefix/bin || true
++    rmdir $inst/$prefix/lib || true
++    rmdir $inst/$prefix/share || true
++    true
++}
++   
++extras_devel_split () {
++    mkdir -p ./$prefix/bin || exit 1
++    mv $inst/bin/*-config ./$prefix/bin
++    tar -C $inst -cf - ./$prefix/include | tar -xf -
++    rm -rf $inst/$prefix/include
++    # Only static .a libs in devel, load time .la files go in LIB or
++    # BIN package.
++    mkdir -p ./$prefix/lib || exit 1
++    mv $inst/$prefix/lib/*.a ./$prefix/lib
++    mv $inst/$prefix/lib/pkgconfig ./$prefix/lib
++    mkdir -p ./$prefix/share || exit 1
++    tar -C $inst -cf - ./$prefix/share/aclocal | tar -xf -
++    rm -rf $inst/$prefix/share/aclocal
++    tar -C $inst -cf - ./$prefix/share/libtool | tar -xf -
++    rm -rf $inst/$prefix/share/libtool
++    rmdir $inst/$prefix/lib || true
++    rmdir $inst/$prefix/share || true
++    true
++}
++
++extras_doc_split () {
++    mkdir -p ./$docprefix || exit 1
++    mkdir -p ./$infodir || exit 1
++    tar -C $inst -cf - ./$infodir | tar -xf -
++    rm -rf $inst/$infodir
++    if [ "$cygwin" == "mingw" ]; then
++	mkdir -p ./$mandir || exit 1
++	tar -C $inst -cf - ./$mandir | tar -xf -
++	rm -rf $inst/$mandir
++    fi
++    true
++}
++
++extras_prebuild () {
++    for i in $sub_packages; do
++	rm -rf $inst-$i
++	mkdir -p $inst-$i || exit 1
++    done
++}
++
++extras_postinstall () {
++    fixdoc
++    fix_libtool_la
++    
++    mkdir -p $inst-doc/$docprefix
++    cd $build || exit 1
++
++    cd $src || exit 1
++    install -d -m755 $inst/$packagedocdir
++
++    readmes="$(find . -maxdepth 1 -type f -a -name '[A-Z]*' | egrep -v 'Makefile|GNUmakefile')"
++    install -m644 $readmes $inst/$packagedocdir
++    install -m644 $cygwin/changelog $inst/$packagedocdir/changelog.$Cygwin
++
++    ## Cygwin readmes
++    cd $src || exit 1
++    install -d -m755 $inst/$cygdocdir
++
++    cd $src || exit 1
++    install -m644 $cygwin/README $inst/$packagedocdir/README.$Cygwin
++    install -m644 $cygwin/README $inst/$cygdocdir/$package.README
++    cd $build || exit 1
++    install -m644 $cygwin/out/README $inst/$packagedocdir/README.$Cygwin
++    install -m644 $cygwin/out/README $inst/$cygdocdir/$package.README
++}
++
++auto_requires () {
++    dlls=
++    requires=
++    dlls=$(find . -name '*dll' -o -name '*.exe' \
++	| xargs $cygcheck 2>&1 | grep '^  [^ ]' \
++	| tr -d '[ \r]' | sed 's@.*\\@@g' | sort -u)
++    for x in $(ls -1 bin/* sbin/*); do
++	case $x in
++	    *.exeXXX|*.dllXXX)
++		dlls="$($cygcheck $x 2>&1 | grep '^  [^ ]' | tr -d '[ \r]' | sed 's@.*bin\\@@g') $dlls"
++		;;
++	esac
++	case "$(file -b $x)" in
++	    "*Bourne shell script*")
++		requires="bash\n$requires"
++		;;
++	    "*guile*script*")
++		requires="guile\n$requires"
++		;;
++	    "*perl*script*")
++		requires="perl\n$requires"
++		;;
++	    "*python*script*")
++		requires="python\n$requires"
++		;;
++	esac
++    done
++    for x in $dlls; do
++	requires="$(cyg-apt find $x | sed 's/:.*//')\n$requires"
++    done
++    requires=$(echo -e "$requires" | sort -u)
++    echo $requires
++}
++
++hint () {
++    if [ -r $shint ]; then
++	cp $shint $hint
++    else
++	cat > $hint <<EOF
++sdesc: "$name"
++ldesc: "$name - no description (missing $package/$cygwin/$(basename $shint) file)"
++EOF
++    fi
++    grep ^requires: $hint || echo "requires: $depends" >> $hint
++    if [ "$cygwin" == "cygwin" ]; then
++	if grep ^build-requires: $hint; then
++	    mv $hint $hint~
++	    grep -v build-requires $hint~ > $hint
++	fi
++	if iscygwin; then
++	    cygcheck=cygcheck.exe
++	else
++	    cygcheck="wine $cygwin_prefix/bin/cygcheck.exe"
++	fi
++	echo "#auto-requires: $(cd usr; auto_requires)" >> $hint
++    else
++	grep ^build-requires: $hint || echo "build-requires: $build_depends" >> $hint
++    fi
++}
++
++domkdist () {
++    #
++    # Fix up installation slightly
++    #
++    cd $inst || exit 1
++    chmod -R u+w,og-w,a+rX .
++    cd usr 2>/dev/null && dousrstuff
++
++    # Split off any sub-packages.  The actual splitting is handled by
++    # a package's specific code in extra/.
++
++    # To package `foo' in foo, foo-doc and foo-devel, set
++    # sub_packages='doc devel'.
++
++    # Then provide functions doc_name and devel_name, that return the
++    # full name of the sub-package.  Also provide functions doc_split
++    # and devel_split, that mv part of foo's installation in $inst to
++    # the sub-packages' installation roots $inst-doc and $inst-devel.
++
++    cd $inst || exit 1
++    presplit
++
++    for i in $sub_packages; do
++	subname=$(${i}_name)
++  	cd $inst-$i || exit 1
++	${i}_split || exit 1
++    done
++    
++    cd $inst || exit 1
++    prepackage
++
++    cd $inst || exit 1
++    hard2soft
++
++    #
++    # Make tar balls
++    #
++
++    # The base package
++    echo creating $tarstem.tar.bz2
++    cd $inst || exit 1
++
++    name=$base
++    shint=$src/$cygwin/$name.hint
++    hint=$uploads/setup.hint
++    hint
++    find * -print | egrep -v '\.cvsignore|\.bak$|\.orig$|\.o$|\.rej$|~$|^.#|CVS|/tags$' | sort | tar -T - --no-recursion --owner=0 --group=0 -cjf $tarstem.tar.bz2
++
++    # Any sub-packages
++    for i in $sub_packages; do
++	subname=$(${i}_name)
++	subload=$uploads/$subname
++	subtarstem=$subload/$subname-$ver
++	shint=$src/$cygwin/$subname.hint
++	hint=$subload/setup.hint
++	depends=$(eval echo '$'${i}_depends)
++	mkdir -p $subload || exit 1
++	echo creating $subtarstem.tar.bz2
++	name=$subname
++  	cd $inst-$i
++	hint
++	grep ^external-source: $hint || echo "external-source: $base" >> $hint
++	hard2soft
++	find * -print | egrep -v '\.cvsignore|\.bak$|\.orig$|\.o$|\.rej$|~$|^.#|CVS|/tags$' | sort | tar -T - --no-recursion --owner=0 --group=0 -cjf $subtarstem.tar.bz2
++    done
++
++    # The source package
++    cd $src/.. || exit 1
++    echo creating "$tarstem"-src.tar.bz2
++    ##find $package_src/* -print -follow | egrep -v '\.cvsignore|\.bak$|\.orig$|\.o$|~$|^.#|CVS|%redact|/tags$' | egrep -v "$src_exclude" | sort | tar -T - --no-recursion --owner=0 --group=0 -cjf "$tarstem"-src.tar.bz2
++    find $package_src/* -print | egrep -v '\.cvsignore|\.bak$|\.orig$|\.o$|\.rej$|~$|^.#|CVS|%redact|/tags$|/TAGS$|autom4te.cache$' | egrep -v "$src_exclude" | sort | tar -T - --no-recursion --owner=0 --group=0 -cjf "$tarstem"-src.tar.bz2
++    ##cd $package_src && tar -cj --exclude='\.cvsignore' --exclude='\.bak$' --exclude='\.orig$' --exclude='\.o$' --exclude='~$' --exclude='^.#' --exclude='CVS' --exclude='%redact' --exclude='/tags$' --exclude='/TAGS$' --exclude='autom4te.cache' --owner=0 --group=0 -f "$tarstem"-src.tar.bz2 .
++    postpackage
++}
++
++devel_split () {
++    extras_devel_split
++}
++
++doc_split () {
++    extras_doc_split
++}
++
++lib_split () {
++    extras_lib_split
++}
++
++prebuild () {
++    extras_prebuild
++}
++
++postinstall () {
++    extras_postinstall
++}
+diff --exclude '*.orig' --exclude '*.rej' --exclude configure --exclude '*~' -urN Python-2.5/Modules/datetimemodule.c python-2.5.cross/Modules/datetimemodule.c
+--- Python-2.5/Modules/datetimemodule.c	2006-04-28 21:09:24.000000000 +0200
++++ python-2.5.cross/Modules/datetimemodule.c	2006-11-14 19:41:47.000000000 +0100
+@@ -8,6 +8,10 @@
+ 
+ #include <time.h>
+ 
++#ifdef MS_WINDOWS
++#include <winsock2.h>
++#endif
++
+ #include "timefuncs.h"
+ 
+ /* Differentiate between building the core module and building extension
+diff --exclude '*.orig' --exclude '*.rej' --exclude configure --exclude '*~' -urN Python-2.5/Modules/dl_nt.c python-2.5.cross/Modules/dl_nt.c
+--- Python-2.5/Modules/dl_nt.c	1970-01-01 01:00:00.000000000 +0100
++++ python-2.5.cross/Modules/dl_nt.c	2006-11-14 18:06:21.000000000 +0100
+@@ -0,0 +1,39 @@
++/*
++
++Entry point for the Windows NT DLL.
++
++About the only reason for having this, is so initall() can automatically
++be called, removing that burden (and possible source of frustration if 
++forgotten) from the programmer.
++
++*/
++#include "windows.h"
++
++/* NT and Python share these */
++#include "pyconfig.h"
++#include "Python.h"
++
++char dllVersionBuffer[16] = ""; // a private buffer
++
++// Python Globals
++HMODULE PyWin_DLLhModule = NULL;
++const char *PyWin_DLLVersionString = dllVersionBuffer;
++
++
++BOOL	WINAPI	DllMain (HANDLE hInst, 
++						ULONG ul_reason_for_call,
++						LPVOID lpReserved)
++{
++	switch (ul_reason_for_call)
++	{
++		case DLL_PROCESS_ATTACH:
++			PyWin_DLLhModule = hInst;
++			// 1000 is a magic number I picked out of the air.  Could do with a #define, I spose...
++			LoadString(hInst, 1000, dllVersionBuffer, sizeof(dllVersionBuffer));
++			//initall();
++			break;
++		case DLL_PROCESS_DETACH:
++			break;
++	}
++	return TRUE;
++}
+diff --exclude '*.orig' --exclude '*.rej' --exclude configure --exclude '*~' -urN Python-2.5/Modules/getpath.c python-2.5.cross/Modules/getpath.c
+--- Python-2.5/Modules/getpath.c	2006-07-10 03:18:57.000000000 +0200
++++ python-2.5.cross/Modules/getpath.c	2006-11-14 18:06:21.000000000 +0100
+@@ -125,6 +125,14 @@
+ #define LANDMARK "os.py"
+ #endif
+ 
++#ifndef __MINGW32__
++#define IS_ABSOLUTE(x) (x[0] == SEP)
++#else /* __MINGW32__ */
++#define IS_ABSOLUTE(x) (x[0] == SEP || x[0] == ALTSEP\
++			|| (x[1] && x[1] == ROOTSEP\
++			    && x[2] && (x[2] == SEP || x[2] == ALTSEP)))
++#endif /* __MINGW32__ */
++
+ static char prefix[MAXPATHLEN+1];
+ static char exec_prefix[MAXPATHLEN+1];
+ static char progpath[MAXPATHLEN+1];
+@@ -135,7 +143,12 @@
+ reduce(char *dir)
+ {
+     size_t i = strlen(dir);
+-    while (i > 0 && dir[i] != SEP)
++    while (i > 0
++	   && dir[i] != SEP
++#ifdef ALTSEP
++	   && dir[i] != ALTSEP
++#endif /* ALTSEP */
++	   )
+         --i;
+     dir[i] = '\0';
+ }
+@@ -208,11 +221,16 @@
+ joinpath(char *buffer, char *stuff)
+ {
+     size_t n, k;
+-    if (stuff[0] == SEP)
++    if (IS_ABSOLUTE(stuff))
+         n = 0;
+     else {
+         n = strlen(buffer);
+-        if (n > 0 && buffer[n-1] != SEP && n < MAXPATHLEN)
++        if (n > 0
++	    && buffer[n-1] != SEP
++#ifdef ALTSEP
++	    && buffer[n-1] != ALTSEP
++#endif /* ALTSEP */
++	    && n < MAXPATHLEN)
+             buffer[n++] = SEP;
+     }
+     if (n > MAXPATHLEN)
+@@ -229,11 +247,16 @@
+ static void
+ copy_absolute(char *path, char *p)
+ {
+-    if (p[0] == SEP)
++    if (IS_ABSOLUTE(p))
+         strcpy(path, p);
+     else {
+         getcwd(path, MAXPATHLEN);
+-        if (p[0] == '.' && p[1] == SEP)
++        if (p[0] == '.'
++	    && (p[1] == SEP
++#ifdef ALTSEP
++		|| p[1] == ALTSEP
++#endif /* ALTSEP */
++		))
+             p += 2;
+         joinpath(path, p);
+     }
+@@ -245,7 +268,7 @@
+ {
+     char buffer[MAXPATHLEN + 1];
+ 
+-    if (path[0] == SEP)
++    if (IS_ABSOLUTE(path))
+         return;
+     copy_absolute(buffer, path);
+     strcpy(path, buffer);
+@@ -393,13 +416,23 @@
+ #endif
+ #endif
+ 
+-	/* If there is no slash in the argv0 path, then we have to
+-	 * assume python is on the user's $PATH, since there's no
+-	 * other way to find a directory to start the search from.  If
+-	 * $PATH isn't exported, you lose.
+-	 */
+-	if (strchr(prog, SEP))
+-		strncpy(progpath, prog, MAXPATHLEN);
++    /* If PROG is an absolute name, then we're done.  If PROG is not
++     * an absolute name and contains SEP/ALTSEP, then it must be
++     * reachable from CWD.  Otherwise, python is on the user's $PATH,
++     * since there's no other way to find a directory to start the
++     * search from.  If $PATH isn't exported, you lose.
++     */
++    if (IS_ABSOLUTE(prog))
++    	strncpy(progpath, prog, MAXPATHLEN);
++    else if (strchr(prog, SEP)
++#ifdef ALTSEP
++	     || strchr(prog, ALTSEP)
++#endif /* ALTSEP */
++	     )
++      {
++    	getcwd(progpath, MAXPATHLEN);
++	joinpath(progpath, prog);
++      }
+ #ifdef __APPLE__
+      /* On Mac OS X, if a script uses an interpreter of the form
+       * "#!/opt/python2.3/bin/python", the kernel only passes "python"
+@@ -415,6 +448,9 @@
+        ;
+ #endif /* __APPLE__ */
+ 	else if (path) {
++#ifdef __MINGW32__
++		char const *ext = strchr(prog, '.') ? "" : ".exe";
++#endif
+ 		while (1) {
+ 			char *delim = strchr(path, DELIM);
+ 
+@@ -429,9 +465,11 @@
+ 				strncpy(progpath, path, MAXPATHLEN);
+ 
+ 			joinpath(progpath, prog);
++#ifdef __MINGW32__
++			strcat(progpath, ext);
++#endif
+ 			if (isxfile(progpath))
+ 				break;
+-
+ 			if (!delim) {
+ 				progpath[0] = '\0';
+ 				break;
+@@ -441,7 +479,7 @@
+ 	}
+ 	else
+ 		progpath[0] = '\0';
+-	if (progpath[0] != SEP)
++	if (!IS_ABSOLUTE(progpath))
+ 		absolutize(progpath);
+ 	strncpy(argv0_path, progpath, MAXPATHLEN);
+ 	argv0_path[MAXPATHLEN] = '\0';
+@@ -487,7 +525,7 @@
+         while (linklen != -1) {
+             /* It's not null terminated! */
+             tmpbuffer[linklen] = '\0';
+-            if (tmpbuffer[0] == SEP)
++            if (IS_ABSOLUTE(tmpbuffer))
+                 /* tmpbuffer should never be longer than MAXPATHLEN,
+                    but extra check does not hurt */
+                 strncpy(argv0_path, tmpbuffer, MAXPATHLEN);
+@@ -554,7 +592,7 @@
+     while (1) {
+         char *delim = strchr(defpath, DELIM);
+ 
+-        if (defpath[0] != SEP)
++        if (!IS_ABSOLUTE(defpath))
+             /* Paths are relative to prefix */
+             bufsz += prefixsz;
+ 
+@@ -599,7 +637,7 @@
+         while (1) {
+             char *delim = strchr(defpath, DELIM);
+ 
+-            if (defpath[0] != SEP) {
++            if (!IS_ABSOLUTE(defpath)) {
+                 strcat(buf, prefix);
+                 strcat(buf, separator);
+             }
+diff --exclude '*.orig' --exclude '*.rej' --exclude configure --exclude '*~' -urN Python-2.5/Modules/posixmodule.c python-2.5.cross/Modules/posixmodule.c
+--- Python-2.5/Modules/posixmodule.c	2006-09-06 08:04:06.000000000 +0200
++++ python-2.5.cross/Modules/posixmodule.c	2006-11-14 18:06:21.000000000 +0100
+@@ -131,6 +131,10 @@
+ #define HAVE_FSYNC	1
+ #define fsync _commit
+ #else
++#ifdef __MINGW32__             /* MINGW32 (cross-)compiler*/
++#define HAVE_FSYNC	1
++#define fsync _commit
++#else
+ #if defined(PYOS_OS2) && defined(PYCC_GCC) || defined(__VMS)
+ /* Everything needed is defined in PC/os2emx/pyconfig.h or vms/pyconfig.h */
+ #else			/* all other compilers */
+@@ -156,12 +160,13 @@
+ #define HAVE_WAIT       1
+ #define HAVE_TTYNAME	1
+ #endif  /* PYOS_OS2 && PYCC_GCC && __VMS */
++#endif  /* __MINGW32__ */
+ #endif  /* _MSC_VER */
+ #endif  /* __BORLANDC__ */
+ #endif  /* ! __WATCOMC__ || __QNX__ */
+ #endif /* ! __IBMC__ */
+ 
+-#ifndef _MSC_VER
++#if !defined(_MSC_VER) && !defined(__MINGW32__)
+ 
+ #if defined(__sgi)&&_COMPILER_VERSION>=700
+ /* declare ctermid_r if compiling with MIPSPro 7.x in ANSI C mode
+@@ -207,7 +212,7 @@
+ #endif /* HAVE_LSTAT */
+ #endif /* !HAVE_UNISTD_H */
+ 
+-#endif /* !_MSC_VER */
++#endif /* !_MSC_VER && !__MINGW32__ */
+ 
+ #ifdef HAVE_UTIME_H
+ #include <utime.h>
+@@ -268,7 +273,7 @@
+ #include <shellapi.h>	/* for ShellExecute() */
+ #define popen	_popen
+ #define pclose	_pclose
+-#endif /* _MSC_VER */
++#endif /* _MSC_VER || __MINGW32__ */
+ 
+ #if defined(PYCC_VACPP) && defined(PYOS_OS2)
+ #include <io.h>
+@@ -345,9 +350,9 @@
+ */
+ #include <crt_externs.h>
+ static char **environ;
+-#elif !defined(_MSC_VER) && ( !defined(__WATCOMC__) || defined(__QNX__) )
++#elif !defined(_MSC_VER) && !defined(__MINGW32__) && ( !defined(__WATCOMC__) || defined(__QNX__) )
+ extern char **environ;
+-#endif /* !_MSC_VER */
++#endif /* !_MSC_VER && ! __MINGW32__ */
+ 
+ static PyObject *
+ convertenviron(void)
+@@ -7828,7 +7833,7 @@
+ }
+ #endif
+ 
+-#ifdef MS_WINDOWS
++#if defined(MS_WINDOWS) && !defined(__MINGW32__)
+ 
+ PyDoc_STRVAR(win32_urandom__doc__,
+ "urandom(n) -> str\n\n\
+@@ -8227,7 +8232,7 @@
+ #ifdef HAVE_GETLOADAVG
+ 	{"getloadavg",	posix_getloadavg, METH_NOARGS, posix_getloadavg__doc__},
+ #endif
+- #ifdef MS_WINDOWS
++ #if defined(MS_WINDOWS) && !defined(__MINGW32__)
+  	{"urandom", win32_urandom, METH_VARARGS, win32_urandom__doc__},
+  #endif
+  #ifdef __VMS
+@@ -8509,7 +8514,7 @@
+ }
+ 
+ 
+-#if (defined(_MSC_VER) || defined(__WATCOMC__) || defined(__BORLANDC__)) && !defined(__QNX__)
++#if (defined(_MSC_VER) || defined(__WATCOMC__) || defined(__BORLANDC__) || defined (__MINGW32__)) && !defined(__QNX__)
+ #define INITFUNC initnt
+ #define MODNAME "nt"
+ 
+diff --exclude '*.orig' --exclude '*.rej' --exclude configure --exclude '*~' -urN Python-2.5/Modules/Setup.dist python-2.5.cross/Modules/Setup.dist
+--- Python-2.5/Modules/Setup.dist	2006-08-06 09:26:21.000000000 +0200
++++ python-2.5.cross/Modules/Setup.dist	2006-11-14 18:06:21.000000000 +0100
+@@ -91,12 +91,12 @@
+ TESTPATH=
+ 
+ # Path components for machine- or system-dependent modules and shared libraries
+-MACHDEPPATH=:plat-$(MACHDEP)
++MACHDEPPATH=$(DELIM)plat-$(MACHDEP)
+ EXTRAMACHDEPPATH=
+ 
+ # Path component for the Tkinter-related modules
+ # The TKPATH variable is always enabled, to save you the effort.
+-TKPATH=:lib-tk
++TKPATH=$(DELIM)lib-tk
+ 
+ COREPYTHONPATH=$(DESTPATH)$(SITEPATH)$(TESTPATH)$(MACHDEPPATH)$(EXTRAMACHDEPPATH)$(TKPATH)
+ PYTHONPATH=$(COREPYTHONPATH)
+@@ -109,7 +109,7 @@
+ # This only contains the minimal set of modules required to run the 
+ # setup.py script in the root of the Python source tree.
+ 
+-posix posixmodule.c		# posix (UNIX) system calls
++@POSIX@ posixmodule.c		# posix (UNIX) system calls
+ errno errnomodule.c		# posix (UNIX) errno values
+ pwd pwdmodule.c			# this is needed to find out the user's home dir
+ 				# if $HOME is not set
+diff --exclude '*.orig' --exclude '*.rej' --exclude configure --exclude '*~' -urN Python-2.5/Modules/timemodule.c python-2.5.cross/Modules/timemodule.c
+--- Python-2.5/Modules/timemodule.c	2006-07-22 00:44:07.000000000 +0200
++++ python-2.5.cross/Modules/timemodule.c	2006-11-14 19:41:47.000000000 +0100
+@@ -42,6 +42,10 @@
+ #include <windows.h>
+ #include "pythread.h"
+ 
++#ifdef MS_WINDOWS
++#include <winsock2.h>
++#endif
++
+ /* helper to allow us to interrupt sleep() on Windows*/
+ static HANDLE hInterruptEvent = NULL;
+ static BOOL WINAPI PyCtrlHandler(DWORD dwCtrlType)
+@@ -836,7 +840,9 @@
+ 	   If Ctrl+C event delivered while not sleeping
+ 	   it will be ignored.
+ 	*/
++#ifdef WITH_THREAD
+ 	main_thread = PyThread_get_thread_ident();
++#endif
+ 	hInterruptEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+ 	SetConsoleCtrlHandler( PyCtrlHandler, TRUE);
+ #endif /* MS_WINDOWS */
+@@ -938,8 +944,11 @@
+ 		 * by Guido, only the main thread can be interrupted.
+ 		 */
+ 		ul_millis = (unsigned long)millisecs;
+-		if (ul_millis == 0 ||
+-		    main_thread != PyThread_get_thread_ident())
++		if (ul_millis == 0
++#ifdef WITH_THREAD
++		    || main_thread != PyThread_get_thread_ident()
++#endif
++		    )
+ 			Sleep(ul_millis);
+ 		else {
+ 			DWORD rc;
+diff --exclude '*.orig' --exclude '*.rej' --exclude configure --exclude '*~' -urN Python-2.5/Modules/xxsubtype.c python-2.5.cross/Modules/xxsubtype.c
+--- Python-2.5/Modules/xxsubtype.c	2006-04-12 06:29:01.000000000 +0200
++++ python-2.5.cross/Modules/xxsubtype.c	2006-11-14 18:06:21.000000000 +0100
+@@ -1,6 +1,10 @@
+ #include "Python.h"
+ #include "structmember.h"
+ 
++#ifndef CLOCKS_PER_SEC
++#include <bits/time.h>
++#endif
++
+ PyDoc_STRVAR(xxsubtype__doc__,
+ "xxsubtype is an example module showing how to subtype builtin types from C.\n"
+ "test_descr.py in the standard test suite requires it in order to complete.\n"
+diff --exclude '*.orig' --exclude '*.rej' --exclude configure --exclude '*~' -urN Python-2.5/pyconfig.h.in python-2.5.cross/pyconfig.h.in
+--- Python-2.5/pyconfig.h.in	2006-07-30 16:09:47.000000000 +0200
++++ python-2.5.cross/pyconfig.h.in	2006-11-14 18:06:21.000000000 +0100
+@@ -94,6 +94,9 @@
+ /* Define if you have the 'resize_term' function. */
+ #undef HAVE_CURSES_RESIZE_TERM
+ 
++/* Define to 1 if you have the `cwait' function. */
++#undef HAVE_CWAIT
++
+ /* Define to 1 if you have the device macros. */
+ #undef HAVE_DEVICE_MACROS
+ 
+@@ -158,7 +161,7 @@
+ /* Define to 1 if you have the `fstatvfs' function. */
+ #undef HAVE_FSTATVFS
+ 
+-/* Define if you have the 'fsync' function. */
++/* Define to 1 if you have the `fsync' function. */
+ #undef HAVE_FSYNC
+ 
+ /* Define to 1 if you have the `ftell64' function. */
+@@ -365,6 +368,9 @@
+ /* Define to 1 if you have the `pause' function. */
+ #undef HAVE_PAUSE
+ 
++/* Define to 1 if you have the `pipe' function. */
++#undef HAVE_PIPE
++
+ /* Define to 1 if you have the `plock' function. */
+ #undef HAVE_PLOCK
+ 
+@@ -377,6 +383,9 @@
+ /* Define to 1 if you have the <process.h> header file. */
+ #undef HAVE_PROCESS_H
+ 
++/* Define to 1 if you have the `popen' function. */
++#undef HAVE_POPEN
++
+ /* Define if your compiler supports function prototype */
+ #undef HAVE_PROTOTYPES
+ 
+@@ -491,6 +500,9 @@
+ /* Define if your compiler provides ssize_t */
+ #undef HAVE_SSIZE_T
+ 
++/* Define to 1 if you have the `spawnv' function. */
++#undef HAVE_SPAWNV
++
+ /* Define to 1 if you have the `statvfs' function. */
+ #undef HAVE_STATVFS
+ 
+@@ -562,6 +574,9 @@
+ /* Define to 1 if you have the <sysexits.h> header file. */
+ #undef HAVE_SYSEXITS_H
+ 
++/* Define to 1 if you have the `system' function. */
++#undef HAVE_SYSTEM
++
+ /* Define to 1 if you have the <sys/audioio.h> header file. */
+ #undef HAVE_SYS_AUDIOIO_H
+ 
+diff --exclude '*.orig' --exclude '*.rej' --exclude configure --exclude '*~' -urN Python-2.5/Python/dynload_shlib.c python-2.5.cross/Python/dynload_shlib.c
+--- Python-2.5/Python/dynload_shlib.c	2006-01-04 02:30:17.000000000 +0100
++++ python-2.5.cross/Python/dynload_shlib.c	2006-11-14 18:06:21.000000000 +0100
+@@ -32,7 +32,7 @@
+ 
+ 
+ const struct filedescr _PyImport_DynLoadFiletab[] = {
+-#ifdef __CYGWIN__
++#if defined(__CYGWIN__) || defined(__MINGW32__)
+ 	{".dll", "rb", C_EXTENSION},
+ 	{"module.dll", "rb", C_EXTENSION},
+ #else
+diff --exclude '*.orig' --exclude '*.rej' --exclude configure --exclude '*~' -urN Python-2.5/Python/dynload_win.c python-2.5.cross/Python/dynload_win.c
+--- Python-2.5/Python/dynload_win.c	2006-06-10 14:23:46.000000000 +0200
++++ python-2.5.cross/Python/dynload_win.c	2006-11-14 18:06:21.000000000 +0100
+@@ -31,6 +31,9 @@
+ /* Case insensitive string compare, to avoid any dependencies on particular
+    C RTL implementations */
+ 
++#ifdef __MINGW32__
++#define strcasecmp py_strcasecmp
++#endif
+ static int strcasecmp (char *string1, char *string2)
+ { 
+ 	int first, second;
+diff --exclude '*.orig' --exclude '*.rej' --exclude configure --exclude '*~' -urN Python-2.5/Python/frozenmain.c python-2.5.cross/Python/frozenmain.c
+--- Python-2.5/Python/frozenmain.c	2002-06-30 17:26:10.000000000 +0200
++++ python-2.5.cross/Python/frozenmain.c	2006-11-14 18:06:21.000000000 +0100
+@@ -3,7 +3,7 @@
+ 
+ #include "Python.h"
+ 
+-#ifdef MS_WINDOWS
++#if defined (MS_WINDOWS) && ! defined (__MINGW32__)
+ extern void PyWinFreeze_ExeInit(void);
+ extern void PyWinFreeze_ExeTerm(void);
+ extern int PyInitFrozenExtensions(void);
+@@ -32,12 +32,12 @@
+ 		setbuf(stderr, (char *)NULL);
+ 	}
+ 
+-#ifdef MS_WINDOWS
++#if defined (MS_WINDOWS) && ! defined (__MINGW32__)
+ 	PyInitFrozenExtensions();
+ #endif /* MS_WINDOWS */
+ 	Py_SetProgramName(argv[0]);
+ 	Py_Initialize();
+-#ifdef MS_WINDOWS
++#if defined (MS_WINDOWS) && ! defined (__MINGW32__)
+ 	PyWinFreeze_ExeInit();
+ #endif
+ 
+@@ -60,7 +60,7 @@
+ 	if (inspect && isatty((int)fileno(stdin)))
+ 		sts = PyRun_AnyFile(stdin, "<stdin>") != 0;
+ 
+-#ifdef MS_WINDOWS
++#if defined (MS_WINDOWS) && ! defined (__MINGW32__)
+ 	PyWinFreeze_ExeTerm();
+ #endif
+ 	Py_Finalize();
+diff --exclude '*.orig' --exclude '*.rej' --exclude configure --exclude '*~' -urN Python-2.5/README python-2.5.cross/README
+--- Python-2.5/README	2006-09-18 08:51:50.000000000 +0200
++++ python-2.5.cross/README	2006-11-14 18:06:21.000000000 +0100
+@@ -1196,6 +1196,37 @@
+ do this.
+ 
+ 
++Cross Compiling
++---------------
++
++Python can be cross compiled by supplying different --build and --host
++parameters to configure.  Python is compiled on the "build" system and
++executed on the "host" system.  Cross compiling python requires a
++native Python on the build host, and a natively compiled tool `Pgen'.
++
++Before cross compiling, Python must first be compiled and installed on
++the build host.  The configure script will use `cc' and `python', or
++environment variables CC_FOR_BUILD or PYTHON_FOR_BUILD, eg:
++
++   CC_FOR_BUILD=gcc-3.3 \
++   PYTHON_FOR_BUILD=python2.4 \
++   .../configure --build=i686-linux --host=i586-mingw32
++
++Cross compiling has been tested under linux, mileage may vary for
++other platforms.
++
++A few reminders on using configure to cross compile:
++- Cross compile tools must be in PATH,
++- Cross compile tools must be prefixed with the host type
++  (ie i586-mingw32-gcc, i586-mingw32-ranlib, ...),
++- CC, CXX, AR, and RANLIB must be undefined when running configure,
++  they will be auto-detected.
++
++If you need a cross compiler, Debian ships several several (eg: avr,
++m68hc1x, mingw32), while dpkg-cross easily creates others.  Otherwise,
++check out Dan Kegel's crosstool: http://www.kegel.com/crosstool .
++
++
+ Miscellaneous issues
+ ====================
+ 
+diff --exclude '*.orig' --exclude '*.rej' --exclude configure --exclude '*~' -urN Python-2.5/setup.py python-2.5.cross/setup.py
+--- Python-2.5/setup.py	2006-08-10 01:42:18.000000000 +0200
++++ python-2.5.cross/setup.py	2006-11-14 19:42:58.000000000 +0100
+@@ -17,6 +17,11 @@
+ # This global variable is used to hold the list of modules to be disabled.
+ disabled_module_list = []
+ 
++import os
++sysconfig.get_config_vars()
++sysconfig._config_vars.update (os.environ)
++
++
+ def add_dir_to_list(dirlist, dir):
+     """Add the directory 'dir' to the list 'dirlist' (at the front) if
+     1) 'dir' is not already in 'dirlist'
+@@ -103,6 +108,8 @@
+         # Fix up the autodetected modules, prefixing all the source files
+         # with Modules/ and adding Python's include directory to the path.
+         (srcdir,) = sysconfig.get_config_vars('srcdir')
++        if os.environ.get('CROSS_COMPILING') == 'yes':
++            srcdir = os.environ.get('SRCDIR')
+         if not srcdir:
+             # Maybe running on Windows but not using CYGWIN?
+             raise ValueError("No source directory; cannot proceed.")
+@@ -203,6 +210,10 @@
+             self.announce('WARNING: skipping import check for Cygwin-based "%s"'
+                 % ext.name)
+             return
++        if os.environ.get('CROSS_COMPILING') == 'yes':
++            self.announce('WARNING: skipping import check for cross compiled "%s"'
++                % ext.name)
++            return
+         ext_filename = os.path.join(
+             self.build_lib,
+             self.get_ext_filename(self.get_ext_fullname(ext.name)))
+@@ -236,11 +247,14 @@
+                           level=3)
+ 
+     def get_platform(self):
+-        # Get value of sys.platform
+-        for platform in ['cygwin', 'beos', 'darwin', 'atheos', 'osf1']:
+-            if sys.platform.startswith(platform):
++        # Get value of target's sys.platform
++        p = sys.platform
++        if os.environ.get('CROSS_COMPILING') == 'yes':
++            p = os.environ.get('CROSS_TARGET')
++        for platform in ['cygwin', 'mingw', 'beos', 'darwin', 'atheos', 'osf1']:
++            if p.startswith(platform):
+                 return platform
+-        return sys.platform
++        return p
+ 
+     def detect_modules(self):
+         # Ensure that /usr/local is always used
+@@ -1432,6 +1446,8 @@
+     # mode 755. All installed directories will get mode 755.
+ 
+     so_ext = sysconfig.get_config_var("SO")
++    if os.environ.get('CROSS_COMPILING') == 'yes':
++        so_ext = os.environ.get('SO')
+ 
+     def install(self):
+         outfiles = install_lib.install(self)
