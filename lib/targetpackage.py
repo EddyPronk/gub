@@ -237,6 +237,12 @@ lt_cv_dlopen_libs=${lt_cv_dlopen_libs="-ldl"}
 lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=32768}
 ##libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/usr/lib"'"}
 libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/lib"'"}
+
+ac_cv_file__dev_ptmx=${ac_cv_file__dev_ptmx=yes}
+ac_cv_file__dev_ptc=${ac_cv_file__dev_ptc=no}
+
+
+
 ''',
     'linux-64' : """
 # FIXME: clean type lengths from `all' section
@@ -308,6 +314,10 @@ lt_cv_dlopen_libs=${lt_cv_dlopen_libs="-ldl"}
 lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=32768}
 ##libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/usr/lib"'"}
 libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/lib"'"}
+
+ac_cv_file__dev_ptmx=${ac_cv_file__dev_ptmx=yes}
+ac_cv_file__dev_ptc=${ac_cv_file__dev_ptc=no}
+
 """,
     'darwin-ppc' : '''
 ac_cv_c_bigendian=${ac_cv_c_bigendian=yes}
@@ -318,6 +328,11 @@ glib_cv_uscore=${glib_cv_uscore=no}
 
 lt_cv_dlopen_libs=${lt_cv_dlopen_libs="none required"}
 lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=8192}
+
+ac_cv_file__dev_ptc=${ac_cv_file__dev_ptc=no}
+ac_cv_file__dev_ptmx=${ac_cv_file__dev_ptmx=no}
+
+
 ''',
     'darwin-x86' : '''
 ac_cv_c_bigendian=${ac_cv_c_bigendian=no}
@@ -328,12 +343,19 @@ glib_cv_uscore=${glib_cv_uscore=no}
 
 lt_cv_dlopen_libs=${lt_cv_dlopen_libs="none required"}
 lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=8192}
+
+ac_cv_file__dev_ptc=${ac_cv_file__dev_ptc=no}
+ac_cv_file__dev_ptmx=${ac_cv_file__dev_ptmx=no}
 ''',
+
+    ## check me: ac_cv_file__dev_ptmx
     'cygwin': '''
 ac_cv_func_mkfifo=${ac_cv_func_mkfifo=yes}
 ac_cv_have_dev_ptc=${ac_cv_have_dev_ptc=}
 ac_cv_have_dev_ptmx=${ac_cv_have_dev_ptmx=}
 ac_cv_lib_dl_dlopen=${ac_cv_lib_dl_dlopen=no}
+ac_cv_file__dev_ptmx=${ac_cv_file__dev_ptmx=no}
+ac_cv_file__dev_ptc=${ac_cv_file__dev_ptc=no}
 
 lt_cv_dlopen_libs=${lt_cv_dlopen_libs="none required"}
 lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=8192}
@@ -346,6 +368,8 @@ ac_cv_func_mkfifo=${ac_cv_func_mkfifo=no}
 ac_cv_func_stat_empty_string_bug=${ac_cv_func_stat_empty_string_bug=no}
 ac_cv_have_dev_ptc=${ac_cv_have_dev_ptc=no}
 ac_cv_have_dev_ptmx=${ac_cv_have_dev_ptmx=no}
+ac_cv_file__dev_ptmx=${ac_cv_file__dev_ptmx=no}
+ac_cv_file__dev_ptc=${ac_cv_file__dev_ptc=no}
 ac_cv_lib_dl_dlopen=${ac_cv_lib_dl_dlopen=no}
 
 lt_cv_dlopen_libs=${lt_cv_dlopen_libs="none required"}
