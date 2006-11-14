@@ -334,6 +334,30 @@ class LilyPond__freebsd (LilyPond):
         d[''].append ('gcc')
         return d
 
+## shortcut: take python out of dependencies
+class LilyPond__no_python (LilyPond):
+    def get_build_dependencies (self):
+        d = LilyPond.get_build_dependencies (self)
+        d.remove ('python-devel')
+        return d
+
+    def get_dependency_dict (self):
+        d = LilyPond.get_dependency_dict (self)
+        d[''].remove ('python-runtime')
+        return d
+
+    def do_configure (self):
+        self.system ('mkdir -p %(builddir)s', ignore_errors=True) 
+        self.system ('touch %(builddir)s/Python.h') 
+        LilyPond.do_configure (self)
+        self.dump ('''
+all:
+	true
+
+install:
+	-mkdir -p $(DESTDIR)/usr/lib/lilypond/%(version)s
+''', '%(builddir)s/python/GNUmakefile')
+        
 class LilyPond__mingw (LilyPond):
     def get_dependency_dict (self):
         d = LilyPond.get_dependency_dict (self)
