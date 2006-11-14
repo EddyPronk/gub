@@ -226,6 +226,12 @@ lt_cv_dlopen_libs=${lt_cv_dlopen_libs="-lc"}
 lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=32768}
 ##libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/lib "'"}
 libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/lib "'"}
+
+
+ac_cv_file__dev_ptmx=${ac_cv_file__dev_ptmx=no}
+ac_cv_file__dev_ptc=${ac_cv_file__dev_ptc=no}
+
+
 ''',
     'linux-x86' : '''
 ac_cv_func_posix_getpwuid_r=${ac_cv_func_posix_getpwuid_r=yes}
