@@ -307,6 +307,7 @@ def get_installer (settings, args=[]):
         'freebsd6-x86' : Shar,
         'linux-x86' : Shar,
         'linux-64' : Shar,
+        'linux-ppc' : Shar,
         'mingw' : Nsis,
         'mipsel' : Shar,
     }

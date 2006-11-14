@@ -144,6 +144,7 @@ def get_cross_module (platform):
             "freebsd-x86": 'freebsd',
             "freebsd4-x86": 'freebsd',
             "freebsd6-x86": 'freebsd',
+            'linux-ppc' : "linux",
             'linux-x86' : "linux",
             'local':'tools'}[platform]
     except KeyError:

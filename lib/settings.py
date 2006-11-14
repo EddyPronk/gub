@@ -18,6 +18,7 @@ platforms = {
     'freebsd6-x86': 'i686-freebsd6',
     'linux-x86': 'i686-linux',
     'linux-64': 'x86_64-linux',
+    'linux-ppc': 'powerpc-linux',
     'local': 'local',
     'mingw': 'i686-mingw32',
     'mipsel': 'mipsel-linux',
