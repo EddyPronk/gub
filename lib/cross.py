@@ -133,10 +133,6 @@ def set_cross_dependencies (package_object_dict):
 
     return packs
 
-def set_framework_ldpath (package):
-    change = gub.Change_target_dict (package, {'LDFLAGS': r" -Wl,--rpath,'$${ORIGIN}/../lib/' "})
-    package.get_substitution_dict = change.append_dict
-
 cross_module_checksums = {}
 cross_module_cache = {}
 def get_cross_module (platform):

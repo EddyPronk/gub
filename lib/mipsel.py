@@ -62,6 +62,4 @@ def get_cross_packages (settings):
 
 def change_target_package (package):
     cross.change_target_package (package)
-    if isinstance (package, targetpackage.TargetBuildSpec):
-        cross.set_framework_ldpath (package)
     return package

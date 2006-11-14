@@ -47,7 +47,6 @@ class TargetBuildSpec (gub.BuildSpec):
                 suffix = ''
             self.file_sub ([
                 ("libdir='/usr/lib'", "libdir='%(dir)s%(suffix)s'"),
-                #(' -rpath /usr/lib', '')
                 ],
                    lt, env=locals ())
 
