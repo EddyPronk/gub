@@ -18,9 +18,6 @@ lagere prioriteit
   * GS 8.54/53
   * Gnome 2.16
 
-- Python: should compile .pyc with matching local python version.
-=> add to local packages.
-
 - strip lily specific stuff from installer.py 
 
 - Bugfixes:
