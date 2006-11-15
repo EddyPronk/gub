@@ -24,7 +24,10 @@ class Python (targetpackage.TargetBuildSpec):
     def patch (self):
         self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.5.patch')
 
-
+        self.file_sub ([(r"'/usr/include'",
+                         r"'%(system_root)s/usr/include'")],
+                       "%(srcdir)s/setup.py", must_succeed=True)
+                        
     def license_file (self):
         return '%(srcdir)s/LICENSE'
 
@@ -75,7 +78,7 @@ class Python (targetpackage.TargetBuildSpec):
     def python_version (self):
         return '.'.join (self.ball_version.split ('.')[0:2])
 
-class Python__mingw_cross (Python):
+class Python__mingw (Python):
     def __init__ (self, settings):
         Python.__init__ (self, settings)
         self.target_gcc_flags = '-DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I%(system_root)s/usr/include' % self.settings.__dict__
@@ -89,7 +92,17 @@ class Python__mingw_cross (Python):
 cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-winsock2.patch
 ''')
         self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-2.4.2-setup.py-selectmodule.patch')
+    def compile (self):
+        Python.compile (self)
 
+    def configure (self):
+        Python.configure (self)
+        self.file_sub ([('pwd pwdmodule.c', '')],
+                       '%(builddir)s/Modules/Setup')
+        self.file_sub ([(' Modules/pwdmodule.o ', ' ')],
+                       '%(builddir)s/Makefile')
+        self.system ("cp %(srcdir)s/PC/errmap.h %(builddir)s/")
+        
     def config_cache_overrides (self, str):
         # Ok, I give up.  The python build system wins.  Once
         # someone manages to get -lwsock32 on the
@@ -113,9 +126,6 @@ cp %(install_root)s/usr/lib/python%(python_version)s/lib-dynload/* %(install_roo
 chmod 755 %(install_root)s/usr/bin/*
 ''')
 
-class Python__mingw (Python__mingw_cross):
-    pass
-
 import toolpackage
 class Python__local (toolpackage.ToolBuildSpec, Python):
     def __init__ (self, settings):
@@ -123,14 +133,17 @@ class Python__local (toolpackage.ToolBuildSpec, Python):
         self.with (version='2.5',
                    mirror=download.python,
                    format='bz2')
-        
-#    def patch (self):
-#        self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.5.patch')
 
     def configure (self):
         self.system ('''cd %(srcdir)s && autoconf''')
         self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
         targetpackage.TargetBuildSpec.configure (self)
+    def install (self):
+        toolpackage.ToolBuildSpec.install (self)
+
+
     def license_file (self):
         return '%(srcdir)s/LICENSE'
 
+    def wrap_executables (self):
+        pass
