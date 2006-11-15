@@ -262,7 +262,7 @@ download-local:
 	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local download \
 		git flex mftrace potrace fontforge \
 		guile pkg-config nsis icoutils expat gettext \
-		distcc texinfo automake
+		distcc texinfo automake python
 
 ###
 # document why this is in the bootstrap
@@ -281,7 +281,7 @@ download-local:
 local:
 	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local build \
 		git flex mftrace potrace fontforge freetype \
-		guile pkg-config icoutils \
+		guile pkg-config icoutils python \
 		distcc texinfo automake gettext 
 
 
