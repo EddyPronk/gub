@@ -1497,7 +1497,7 @@ diff --exclude '*.orig' --exclude '*.rej' --exclude configure --exclude '*~' -ur
              }
 diff --exclude '*.orig' --exclude '*.rej' --exclude configure --exclude '*~' -urN Python-2.5/Modules/posixmodule.c python-2.5.cross/Modules/posixmodule.c
 --- Python-2.5/Modules/posixmodule.c	2006-09-06 08:04:06.000000000 +0200
-+++ python-2.5.cross/Modules/posixmodule.c	2006-11-14 18:06:21.000000000 +0100
++++ python-2.5.cross/Modules/posixmodule.c	2006-11-15 00:05:48.000000000 +0100
 @@ -131,6 +131,10 @@
  #define HAVE_FSYNC	1
  #define fsync _commit
@@ -1533,6 +1533,15 @@ diff --exclude '*.orig' --exclude '*.rej' --exclude configure --exclude '*~' -ur
  
  #ifdef HAVE_UTIME_H
  #include <utime.h>
+@@ -252,7 +257,7 @@
+ #endif
+ #endif
+ 
+-#ifdef _MSC_VER
++#if defined (_MSC_VER) || defined (__MINGW32__)
+ #ifdef HAVE_DIRECT_H
+ #include <direct.h>
+ #endif
 @@ -268,7 +273,7 @@
  #include <shellapi.h>	/* for ShellExecute() */
  #define popen	_popen
@@ -1826,7 +1835,7 @@ diff --exclude '*.orig' --exclude '*.rej' --exclude configure --exclude '*~' -ur
  
 diff --exclude '*.orig' --exclude '*.rej' --exclude configure --exclude '*~' -urN Python-2.5/setup.py python-2.5.cross/setup.py
 --- Python-2.5/setup.py	2006-08-10 01:42:18.000000000 +0200
-+++ python-2.5.cross/setup.py	2006-11-14 19:42:58.000000000 +0100
++++ python-2.5.cross/setup.py	2006-11-15 00:21:30.000000000 +0100
 @@ -17,6 +17,11 @@
  # This global variable is used to hold the list of modules to be disabled.
  disabled_module_list = []
@@ -1878,7 +1887,26 @@ diff --exclude '*.orig' --exclude '*.rej' --exclude configure --exclude '*~' -ur
  
      def detect_modules(self):
          # Ensure that /usr/local is always used
-@@ -1432,6 +1446,8 @@
+@@ -746,13 +760,11 @@
+         # We hunt for #define SQLITE_VERSION "n.n.n"
+         # We need to find >= sqlite version 3.0.8
+         sqlite_incdir = sqlite_libdir = None
+-        sqlite_inc_paths = [ '/usr/include',
+-                             '/usr/include/sqlite',
+-                             '/usr/include/sqlite3',
+-                             '/usr/local/include',
+-                             '/usr/local/include/sqlite',
+-                             '/usr/local/include/sqlite3',
+-                           ]
++        sqlite_inc_paths = []
++
++        # Broken for x-compile
++        #'/usr/include', '/usr/include/sqlite', '/usr/include/sqlite3', '/usr/local/include', '/usr/local/include/sqlite', '/usr/local/include/sqlite3', ]
++
+         MIN_SQLITE_VERSION_NUMBER = (3, 0, 8)
+         MIN_SQLITE_VERSION = ".".join([str(x)
+                                     for x in MIN_SQLITE_VERSION_NUMBER])
+@@ -1432,6 +1444,8 @@
      # mode 755. All installed directories will get mode 755.
  
      so_ext = sysconfig.get_config_var("SO")
