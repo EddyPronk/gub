@@ -257,7 +257,7 @@ class LilyPond__cygwin (LilyPond):
             ##'guile-devel',
             'guile',
             'python',
-            'fontconfig-devel', ##'libfontconfig-devel',
+            'fontconfig', ##'libfontconfig-devel',
             'libfreetype2-devel',
             # cygwin bug: pango-devel should depend on glib2-devel
             'pango-devel', 'glib2-devel',
