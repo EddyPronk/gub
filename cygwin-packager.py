@@ -22,6 +22,7 @@ class Cygwin_package (context.Os_context_wrapper):
         self.strip_command \
             = '%(cross_prefix)s/bin/%(target_architecture)s-strip' 
         self.no_binary_strip = []
+        self.binary_debug_strip_extensions = ['.a', '.dll.a']
         self.no_binary_strip_extensions = ['.la', '.py', '.def',
                                            '.scm', '.pyc']
 
@@ -159,6 +160,11 @@ mkdir -p %(installer_root)s/usr/share/doc/%(name)s
         import misc
         misc.map_command_dir (self.expand (dir),
                               self.expand ('%(strip_command)s'),
+                              self.no_binary_strip,
+                              (self.no_binary_strip_extensions
+                               + self.binary_debug_strip_extensions))
+        misc.map_command_dir (self.expand (dir),
+                              self.expand ('%(strip_command)s -g'),
                               self.no_binary_strip,
                               self.no_binary_strip_extensions)
 
