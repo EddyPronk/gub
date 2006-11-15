@@ -158,7 +158,7 @@ cygwin-guile-installer:
 	$(PYTHON) cygwin-packager.py guile
 
 cygwin-lilypond:
-	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build libtool guile lilypond
+	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build libtool guile fontconfig lilypond
 
 cygwin-lilypond-installer:
 	$(PYTHON) cygwin-packager.py --branch $(LILYPOND_LOCAL_BRANCH) lilypond
