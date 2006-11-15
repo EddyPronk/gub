@@ -22,7 +22,6 @@ def get_url_versions (url):
 
     versions = []
     def note_version (m):
-
         name = m.group (1)
         version = tuple (map (int,  m.group (2).split('.')))
         build = 0
@@ -40,7 +39,7 @@ def get_url_versions (url):
     # [^0-9] is to force that version no is not swalled by name. Check this for cygwin libfoo3  
     # packages
     re.sub (r'HREF="(.*[^0-9])-([0-9.]+)(-([0-9]+))?\.[0-9a-z-]+\.[.0-9a-z-]+"', note_version, index)
-    
+
     return versions
 
 class VersionDataBase:
@@ -58,7 +57,7 @@ class VersionDataBase:
         directories = ['v0.0', 'v0.1', 'v1.0', 'v1.1', 'v1.2', 'v1.3',
                        'v1.4', 'v1.5', 'v1.6', 'v1.7', 'v1.8', 'v1.9',
                        'v2.0', 'v2.1', 'v2.2', 'v2.3', 'v2.4', 'v2.5',
-                       'v2.6', 'v2.7', 'v2.8', 'v2.9', 'v2.10']
+                       'v2.6', 'v2.7', 'v2.8', 'v2.9', 'v2.10', 'v2.11']
 
         sources = []
         for d in directories:
@@ -159,6 +158,7 @@ def main ():
         print '2.8.2:', db.get_next_build_number ((2,8,2))
         print '2.9.28:', db.get_next_build_number ((2,9,28))
         print '2.8.2:', db.get_next_build_number ((2,8,2))
+        print '2.10.0 next:', db.get_next_build_number ((2,10,0))
         
         print 'last mingw 2.9.26:', db.get_last_release ('mingw', (2,9,26))
         print 'last mingw 2.9:', db.get_last_release ('mingw', (2,9))
