@@ -172,7 +172,7 @@ mkdir -p %(installer_root)s/usr/share/doc/%(name)s
         dependencies = [cygwin.gub_to_distro_dict.get (d, [d])
                         for d in hdr['dependencies_string'].split (';')]
         dependencies = sorted (reduce (lambda x,y: x+y, dependencies))
-        dependencies_str = ' '.join (dependencies)
+        dependencies_str = ' '.join (dependencies).strip ()
         
         (sdesc, ldesc) = self.description (hdr)
 
