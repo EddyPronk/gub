@@ -183,7 +183,7 @@ def change_target_package (package):
             'LDFLAGS': '-L%(system_root)s/usr/lib -L%(system_root)s/usr/bin -L%(system_root)s/usr/lib/w32api',
             })
 
-def get_cygwin_package (settings, name, dict):
+def get_cygwin_package (settings, name, dict, skip):
     cross = [
         'base-passwd', 'bintutils',
         'gcc', 'gcc-core', 'gcc-g++',
@@ -191,20 +191,6 @@ def get_cygwin_package (settings, name, dict):
         'gcc-runtime', 'gcc-core-runtime',
         ]
     cycle = ['base-passwd']
-    # FIXME: this really sucks, should translate or something
-    # There also is the problem that gub build-dependencies
-    # use unsplit packages.
-    guile_source = [
-        'guile',
-        'guile-devel',
-        'libguile17',
-        ]
-    libtool_source = [
-        'libltdl3',
-        'libtool',
-        'libtool1.5',
-        ]
-    source = guile_source + libtool_source
     # FIXME: These packages are not needed for [cross] building,
     # but most should stay as distro's final install dependency.
     unneeded = [
@@ -223,7 +209,7 @@ def get_cygwin_package (settings, name, dict):
         'xorg-x11-fnts',
         'xorg-x11-libs-data',
         ]
-    blacklist = cross + cycle + source + unneeded
+    blacklist = cross + cycle + skip + unneeded
     if name in blacklist:
         name += '::blacklisted'
     package_class = classobj (name, (gub.BinarySpec,), {})
@@ -251,7 +237,7 @@ def get_cygwin_package (settings, name, dict):
     return package
 
 ## UGH.   should split into parsing  package_file and generating gub specs.
-def get_cygwin_packages (settings, package_file):
+def get_cygwin_packages (settings, package_file, skip=[]):
     dist = 'curr'
 
     dists = {'test': [], 'curr': [], 'prev' : []}
@@ -273,7 +259,8 @@ def get_cygwin_packages (settings, package_file):
                 continue
             elif lines[j][0] == '[':
                 packages.append (get_cygwin_package (settings, name,
-                                                     records.copy ()))
+                                                     records.copy (),
+                                                     skip))
                 packages = dists[lines[j][1:5]]
                 j = j + 1
                 continue
@@ -292,22 +279,43 @@ def get_cygwin_packages (settings, package_file):
                         break
             records[key] = value
             j = j + 1
-        packages.append (get_cygwin_package (settings, name, records))
+        packages.append (get_cygwin_package (settings, name, records, skip))
 
     # debug
     names = [p.name () for p in dists[dist]]
     names.sort ()
     return dists[dist]
 
+# FIXME: this really sucks, should translate or something
+# There also is the problem that gub build-dependencies
+# use unsplit packages.
+guile_source = [
+    'guile',
+    'guile-devel',
+    'libguile17',
+    ]
+fontconfig_source = [
+    'fontconfig',
+    'libfontconfig1',
+    'libfontconfig-devel',
+    'fontconfig-devel',
+    ]
+libtool_source = [
+    'libltdl3',
+    'libtool',
+    'libtool1.5',
+    ]
+
 ## FIXME: c&p debian.py
 class Dependency_resolver:
     def __init__ (self, settings):
         self.settings = settings
         self.packages = {}
+        self.source = fontconfig_source + guile_source + libtool_source
         self.load_packages ()
         
-    def grok_setup_ini (self, file):
-        for p in get_cygwin_packages (self.settings, file):
+    def grok_setup_ini (self, file, skip=[]):
+        for p in get_cygwin_packages (self.settings, file, skip):
             self.packages[p.name ()] = p
 
     def load_packages (self):
@@ -321,12 +329,19 @@ class Dependency_resolver:
             # self.file_sub ([('\':"', "':'")], file)
             s = open (file).read ()
             open (file, 'w').write (s.replace ('\':"', "':'"))
-        self.grok_setup_ini (file)
+        self.grok_setup_ini (file, self.source)
 
         # support one extra local setup.ini, that overrides the default
         local_file = self.settings.uploads + '/cygwin/setup.ini'
         if os.path.exists (local_file):
-            self.grok_setup_ini (local_file)
+            ## FIXME: using the generated setup.ini to install the
+            ## actual to be distributed cygwin packages with cygwin
+            ## names does not work.
+            ##
+            ## After building gub installs the gub packages, using GUB
+            ## naming.
+            #self.grok_setup_ini (local_file)
+            self.grok_setup_ini (local_file, self.source)
 
     def get_packages (self):
         return self.packages
