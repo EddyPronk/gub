@@ -3,7 +3,7 @@
 import optparse
 import os
 import sys
-import md5
+import pickle
 
 sys.path.insert (0, 'lib/')
 
@@ -69,7 +69,25 @@ build-all - build, strip, package
     
     return (options, args)
 
+def check_installer (installer, options, args):
+    settings = installer.settings
+    install_manager = gup.PackageDictManager (settings.os_interface)
+    install_manager.read_package_headers (settings.gub_uploads,
+                                          settings.lilypond_branch)
+    file = installer.installer_root + '.checksum'
+    if not os.path.exists (file):
+        return False
+    
+    checksum = pickle.loads (open (file).read ())
+    ok = True
+    for (p, source_hash, spec_hash) in checksum:
+        dict = install_manager.package_dict (p)
+        ok = (ok
+              and source_hash == dict['source_checksum']
+              and spec_hash == dict['spec_checksum'])
 
+    return ok
+         
 def build_installer (installer, args, options):
     settings = installer.settings
     
@@ -112,12 +130,14 @@ def build_installer (installer, args, options):
     settings.installer_build = buildnumber
 
 
-    cs = md5.new()
-    for dict in sorted (install_manager.installed_package_dicts ()):
-        cs.update (dict['source_checksum'])
-        cs.update (dict['spec_checksum'])
+    checksum_list = []
+    for p in install_manager.installed_packages():
+        dict = install_manager.package_dict (p)
+        checksum_list.append ((p, 
+                               dict['source_checksum'],
+                               dict['spec_checksum']))
     
-    installer.checksum = cs.hexdigest ()
+    installer.checksum = pickle.dumps (checksum_list)
 
 def strip_installer (obj):
     obj.log_command (' ** Stage: %s (%s)\n'
@@ -129,7 +149,13 @@ def package_installer (installer):
     installer.create ()
         
 def run_installer_commands (commands, settings, args, options):
+    
     installer_obj = installer.get_installer (settings, args)
+
+    if check_installer (installer_obj, args, options):
+        print 'installer is up to date'
+        return 
+
     for c in commands:
         print (' *** Stage: %s (%s)\n'
                % (c, installer_obj.name ()))
