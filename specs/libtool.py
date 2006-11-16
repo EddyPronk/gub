@@ -63,12 +63,6 @@ class Libtool__cygwin (Libtool):
                 'doc': 'doc'}
 
 class Libtool__local (toolpackage.ToolBuildSpec):
-    """
-Libtool as a local package is rather painful, as Darwin has its own
-libtool which is unrelated to GNU libtool, but necessary for linking
-dylibs.
-    """
-    
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
         self.with (version='1.5.20', mirror=download.gnu)
