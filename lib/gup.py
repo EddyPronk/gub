@@ -170,6 +170,9 @@ class PackageDictManager:
     def __init__ (self, os_interface):
         self._packages = {}
 
+        ## ugh mi 
+        self.verbose = False
+        
         ## ugh: mi overwrite.
         self.os_interface = os_interface
     def register_package_dict (self, d):
@@ -206,11 +209,13 @@ class PackageDictManager:
             return
 
         name = d['split_name']
-        if self._package_dict_db.has_key (name):
-            if str != self._package_dict_db[name]:
-                self.os_interface.log_command ("package header changed for %s\n" % name)
+        if 0:
+          ## FIXME ?
+          if self._package_dict_db.has_key (name):
+              if str != self._package_dict_db[name]:
+                  self.os_interface.log_command ("package header changed for %s\n" % name)
 
-            return
+              return
 
         self.register_package_dict (d)
 
@@ -235,6 +240,7 @@ class PackageDictManager:
     def read_package_headers (self, s, branch):
         if os.path.isdir (s) and not s.endswith ('/'):
             s += '/'
+            
         for f in glob.glob ('%(s)s*hdr' % locals ()):
             self.register_package_header (f, branch)
 
