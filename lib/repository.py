@@ -202,7 +202,7 @@ class GitRepository (Repository):
 
         if self.repo_url_suffix:
             # FIXME: logic copied foo times
-            fileified_suffix = re.sub ('/', '--', self.repo_url_suffix)
+            fileified_suffix = re.sub ('/', '-', self.repo_url_suffix)
             # FIXME: projection, where is this used?
             self.repo_url_suffix = '-' + re.sub ('[:+]+', '-', fileified_suffix)
         
