@@ -64,14 +64,14 @@ def system (c):
         raise 'barf'
 
 def upload_binaries (repo, version, version_db):
-    print version
     build = version_db.get_next_build_number (version)
+    
     version_str = '.'.join (['%d' % v for v in version])
     branch = repo.branch
 #    if (version[1] % 2) == 0:
 #        branch = 'lilypond_%d_%d' % (version[0], version[1])
-    if (version[1] % 2) == 0:
-        branch = 'stable-%d.%d' % (version[0], version[1])
+#    if (version[1] % 2) == 0:
+#        branch = 'stable-%d.%d' % (version[0], version[1])
 
     src_dests = []
     cmds = []
@@ -157,8 +157,8 @@ def upload_binaries (repo, version, version_db):
 
     git_tag = 'release/%(version_str)s-%(build)d' % locals () 
     git_tag_cmd = 'git --git-dir downloads/lilypond.git tag -a -m "build and upload" %(git_tag)s %(branch)s' % locals ()
-    git_push_cmd = 'git --git-dir downloads/lilypond.git push ssh+git://repo.or.cz/srv/git/lilypond.git/ refs/tags/%(git_tag)s:refs/tags/%(git_tag)s' % locals ()
-    darcs_tag_cmd = 'darcs tag --patch "release %(version_str)s-%(build)d of lilypond tagged %(git_tag)s" ' % locals()
+    git_push_cmd = 'git --git-dir downloads/lilypond.git push ssh+git://git.sv.gnu.org/srv/git/lilypond.git/ refs/tags/%(git_tag)s:refs/tags/%(git_tag)s' % locals ()
+    darcs_tag_cmd = 'darcs tag --patch "release %(version_str)s-%(build)d of lilypond %(description)s" ' % locals()
 
 
     cmds.append (git_tag_cmd)
@@ -175,23 +175,6 @@ def upload_binaries (repo, version, version_db):
     for cmd in cmds:
         system (cmd)
 
-def read_build_versions ():
-    branches = [(2,9), (2,8), (2,6)]
-    version_builds = {}
-    
-    for branch in branches:
-        branch_str = 'v' + '.'.join (['%d' % vc for vc in branch])
-    
-        for p in platforms:
-            (v, b, url) = max_branch_version_build_url (branch, p)
-        
-            v = '.'.join (['%d' % vc for vc in v])
-            version_builds[branch_str + '-' + p] = ('%s-%d' % (v,b), url)
-
-        (version, url) =  max_src_version_url (branch)
-        version_builds[branch_str + '-source'] = ('.'.join (['%d' % vc for vc in version]),
-                                                  url)
-    return version_builds
 
 def get_cli_parser ():
     p = optparse.OptionParser ()
@@ -225,7 +208,7 @@ foobar            - print versions of dl.la.org
 
     p.add_option ('--version-db', action='store',
                   dest='version_db',
-                  default='lilypond.versions',
+                  default='uploads/lilypond.versions',
                   help='version database')
     
     p.add_option ('', '--upload-host', action='store',
