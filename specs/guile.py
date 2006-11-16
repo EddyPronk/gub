@@ -181,6 +181,10 @@ class Guile__linux (Guile):
         return ('export LD_LIBRARY_PATH=%(builddir)s/libguile/.libs:$LD_LIBRARY_PATH;'
                 + Guile.compile_command (self))
 
+class Guile__linux__ppc (Guile__linux):
+    def config_cache_overrides (self, str):
+        return str + "\nguile_cv_have_libc_stack_end=no\n"
+
 class Guile__freebsd (Guile):
     def config_cache_settings (self):
         return Guile.config_cache_settings (self) + '\nac_cv_type_socklen_t=yes'
