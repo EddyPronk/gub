@@ -59,6 +59,9 @@ class Guile (targetpackage.TargetBuildSpec):
 
         ## Ugh : broken dependencies barf with make -jX
         self.system ('cd %(builddir)s/libguile && make scmconfig.h ')
+        # No -L %(system_root)s in `guile-config link'
+        self.file_sub ([('''-L *%(system_root)s''', '-L')],
+                       '%(builddir)s/libguile/libpath.h')
         targetpackage.TargetBuildSpec.compile (self)
 
     def configure (self):
