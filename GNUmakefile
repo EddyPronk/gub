@@ -333,7 +333,7 @@ unlocked-doc-build:
 	    && $(DOC_LIMITS) \
 	    && $(DOC_RELOCATION) \
 		make -C $(NATIVE_LILY_BUILD) \
-	    DOCUMENTATION=yes web
+	    DOCUMENTATION=yes CPU_COUNT=$(LILYPOND_WEB_CPU_COUNT) web
 	tar --exclude '*.signature' -C $(NATIVE_LILY_BUILD)/out-www/web-root/ \
 	    -cjf $(CWD)/uploads/lilypond-$(DOC_VERSION)-$(INSTALLER_BUILDNUMBER).documentation.tar.bz2 . 
 
