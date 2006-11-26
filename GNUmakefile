@@ -324,16 +324,30 @@ DOC_RELOCATION = \
     LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$$LD_LIBRARY_PATH
     MALLOC_CHECK_=2 \
 
-unlocked-doc-build:
+# Build docball first, so that web-root is nice and extension-stripped
+# for rsyncing
+unlocked-doc-build: unlocked-docball-build unlocked-web-root-build
+
+CONTENT_NEGOTIATION = --content-negotiation
+unlocked-doc-compile:
+	find $(NATIVE_LILY_BUILD) -name '*.html' -exec rm '{}' ';'
+# FIXME: what is do-top-doc, why is this separated from web?
 	unset LILYPONDPREFIX \
 	    && $(DOC_RELOCATION) \
 		make -C $(NATIVE_LILY_BUILD) \
-	    DOCUMENTATION=yes do-top-doc
+	    	DOCUMENTATION=yes CONTENT_NEGOTIATION=$(CONTENT_NEGOTIATION) \
+		do-top-doc
 	unset LILYPONDPREFIX \
 	    && $(DOC_LIMITS) \
 	    && $(DOC_RELOCATION) \
 		make -C $(NATIVE_LILY_BUILD) \
-	    DOCUMENTATION=yes web
+	    	DOCUMENTATION=yes CONTENT_NEGOTIATION=$(CONTENT_NEGOTIATION) \
+	    web
+
+unlocked-web-root-build: unlocked-doc-compile
+
+unlocked-docball-build:
+	$(MAKE) unlocked-doc-compile CONTENT_NEGOTIATION=
 	tar --exclude '*.signature' -C $(NATIVE_LILY_BUILD)/out-www/web-root/ \
 	    -cjf $(CWD)/uploads/lilypond-$(DOC_VERSION)-$(INSTALLER_BUILDNUMBER).documentation.tar.bz2 . 
 
