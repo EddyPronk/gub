@@ -187,6 +187,13 @@ cp -pR --link %(installer_root)s/license*/* %(darwin_bundle_dir)s/Contents/Resou
             env=locals (),
             must_succeed=True)
         
+        self.file_sub (
+            [('2.6.0',
+             '%(installer_version)s'),
+            ],
+            '%(darwin_bundle_dir)s/Contents/Resources/Welcome-to-LilyPond-MacOS.ly',
+            env=locals ())
+        
         self.system ('cd %(darwin_bundle_dir)s/../ && tar cjf %(bundle_zip)s LilyPond.app',
                      locals ())
         
