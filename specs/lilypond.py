@@ -413,10 +413,10 @@ cp %(install_root)s/usr/share/lilypond/*/python/* %(install_root)s/usr/bin
 ''')
         import glob
         for i in glob.glob (self.expand ('%(install_root)s/usr/bin/*')):
-            s = self.read_pipe ('file %(i)s' % locals ())
-            if s.find ('guile') >= 0:
+            header = open (i).readline().strip ()
+            if header.endswith ('guile'):
                 self.system ('mv %(i)s %(i)s.scm', locals ())
-            elif s.find ('python') >= 0 and not i.endswith ('.py'):
+            elif header.endswith ('python') and not i.endswith ('.py'):
                 self.system ('mv %(i)s %(i)s.py', locals ())
 
         for i in self.locate_files ('%(install_root)s', "*.ly"):
