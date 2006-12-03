@@ -285,7 +285,7 @@ local:
 	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local build \
 		git flex mftrace potrace fontforge freetype \
 		guile pkg-config icoutils python \
-		distcc texinfo automake gettext 
+		texinfo automake gettext 
 
 
 local-cross-tools:
