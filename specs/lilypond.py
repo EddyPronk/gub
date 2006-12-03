@@ -298,9 +298,12 @@ LDFLAGS="%(LDFLAGS)s %(python_lib)s"
         installer_version = self.build_version ()
         docball = self.expand ('%(uploads)s/lilypond-%(installer_version)s-%(installer_build)s.documentation.tar.bz2', env=locals ())
         infomanball = self.expand ('%(uploads)s/lilypond-%(installer_version)s-%(installer_build)s.info-man.tar.bz2', env=locals ())
+
+
         if not os.path.exists (docball):
-            # Must not have cygwin CC, CXX settings.
-            os.system ('''make doc''')
+            ## can't run make, because we need the right variables (BRANCH, etc.)
+            raise Exception ("cannot find docball %s" % docball)
+            
         self.system ('''
 mkdir -p %(install_root)s/usr/share/doc/lilypond
 tar -C %(install_root)s/usr/share/doc/lilypond -jxf %(docball)s
