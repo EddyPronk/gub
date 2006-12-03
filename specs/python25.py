@@ -11,13 +11,23 @@ from context import *
 class Python (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with (version='2.4.2',
+        
+        ## don't import settings from build system.
+	self.BASECFLAGS=''
+        self.with (version='2.5',
                    mirror=download.python,
                    format='bz2')
 
-        ## don't import settings from build system.
-	self.BASECFLAGS=''
+    def configure_command (self):
+        return 'ac_cv_printf_zd_format=yes ' + targetpackage.TargetBuildSpec.configure_command (self)
 
+    def patch (self):
+        self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.5.patch')
+
+        self.file_sub ([(r"'/usr/include'",
+                         r"'%(system_root)s/usr/include'")],
+                       "%(srcdir)s/setup.py", must_succeed=True)
+                        
     def license_file (self):
         return '%(srcdir)s/LICENSE'
 
@@ -31,14 +41,6 @@ class Python (targetpackage.TargetBuildSpec):
         return { '': ['expat', 'python-runtime', 'zlib'],
                  'devel' : ['libtool', 'python-devel'],
                  'runtime': [], }
-
-    def patch (self):
-        targetpackage.TargetBuildSpec.patch (self)
-        self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-1.patch')
-        self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-configure.in-posix.patch')
-        self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-configure.in-sysname.patch')
-        self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-configure.in-sysrelease.patch')
-        self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-2.4.2-setup.py-import.patch')
 
     def configure (self):
         self.system ('''cd %(srcdir)s && autoconf''')
@@ -76,24 +78,7 @@ class Python (targetpackage.TargetBuildSpec):
     def python_version (self):
         return '.'.join (self.ball_version.split ('.')[0:2])
 
-class Python__mingw_binary (gub.BinarySpec):
-    def __init__ (self, settings):
-        gub.BinarySpec.__init__ (self, settings)
-        self.with (mirror="http://lilypond.org/~hanwen/python-2.4.2-windows.tar.gz",
-                   version='2.4.2')
-
-    def python_version (self):
-        return '2.4'
-
-    def install (self):
-        gub.BinarySpec.install (self)
-
-        self.system ("cd %(install_root)s/ && mkdir usr && mv Python24/include  usr/ ")
-        self.system ("cd %(install_root)s/ && mkdir -p usr/bin/ && mv Python24/* usr/bin/ ")
-        self.system ("rmdir %(install_root)s/Python24/")
-
-
-class Python__mingw_cross (Python):
+class Python__mingw (Python):
     def __init__ (self, settings):
         Python.__init__ (self, settings)
         self.target_gcc_flags = '-DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I%(system_root)s/usr/include' % self.settings.__dict__
@@ -102,24 +87,29 @@ class Python__mingw_cross (Python):
     # 2.4.2 and combined in one patch; move to cross-Python?
     def patch (self):
         Python.patch (self)
-        self.system ('''
+        if 0:
+            self.system ('''
 cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-winsock2.patch
 ''')
         self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-2.4.2-setup.py-selectmodule.patch')
+    def compile (self):
+        Python.compile (self)
 
-        ## to make subprocess.py work.
-        self.file_sub ([
-                ("import fcntl", ""),
-                ], "%(srcdir)s/Lib/subprocess.py",
-               must_succeed=True)
-
+    def configure (self):
+        Python.configure (self)
+        self.file_sub ([('pwd pwdmodule.c', '')],
+                       '%(builddir)s/Modules/Setup')
+        self.file_sub ([(' Modules/pwdmodule.o ', ' ')],
+                       '%(builddir)s/Makefile')
+        self.system ("cp %(srcdir)s/PC/errmap.h %(builddir)s/")
+        
     def config_cache_overrides (self, str):
         # Ok, I give up.  The python build system wins.  Once
         # someone manages to get -lwsock32 on the
         # sharedmodules link command line, *after*
         # timesmodule.o, this can go away.
         return re.sub ('ac_cv_func_select=yes', 'ac_cv_func_select=no',
-               str)
+                       str)
 
     def install (self):
         Python.install (self)
@@ -136,15 +126,11 @@ cp %(install_root)s/usr/lib/python%(python_version)s/lib-dynload/* %(install_roo
 chmod 755 %(install_root)s/usr/bin/*
 ''')
 
-class Python__mingw (Python__mingw_cross):
-    pass
-
-
 import toolpackage
 class Python__local (toolpackage.ToolBuildSpec, Python):
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
-        self.with (version='2.4.2',
+        self.with (version='2.5',
                    mirror=download.python,
                    format='bz2')
 
