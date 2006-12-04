@@ -74,10 +74,26 @@ def upload_binaries (repo, version, version_db):
 #        branch = 'stable-%d.%d' % (version[0], version[1])
 
     src_dests = []
-    cmds = ['chgrp -R lilypond uploads/',
-            "chmod -R  g+rw uploads/",
-            'chmod 4775 `find uploads -type d`']
+    cmds = ['chgrp -R lilypond uploads/lilypond*',
+            "chmod -R g+rw uploads/lilypond*",
+            'chmod 4775 `find uploads/cygwin/release -type d`']
 
+
+    d = globals ().copy ()
+    d.update (locals ())
+
+    d['cwd'] = os.getcwd ()
+    d['lilybuild'] = d['cwd'] + '/target/%(build_platform)s/build/lilypond-%(branch)s' % d
+    d['lilysrc'] = d['cwd'] + '/target/%(build_platform)s/src/lilypond-%(branch)s' % d 
+
+
+    
+    test_cmd = r'''python %(cwd)s/test-lily/rsync-lily-doc.py \
+  --upload %(host_doc_spec)s \
+  %(lilybuild)s/out-www/web-root/''' % d
+    
+    cmds.append (test_cmd)
+    
     ## ugh: 24 is hardcoded in repository.py
     committish = repo.git_pipe ('describe --abbrev=24 %(branch)s' % locals ()).strip ()
     commitishes = {}
@@ -134,19 +150,6 @@ def upload_binaries (repo, version, version_db):
         majmin = '.'.join (['%d' % v for v in version[:2]])
         src_dests.append ((src_tarball, '%(host)s/v%(majmin)s' % locals ()))
         
-    d = globals ().copy ()
-    d.update (locals ())
-
-    d['cwd'] = os.getcwd ()
-    d['lilybuild'] = d['cwd'] + '/target/%(build_platform)s/build/lilypond-%(branch)s' % d
-    d['lilysrc'] = d['cwd'] + '/target/%(build_platform)s/src/lilypond-%(branch)s' % d 
-
-    
-    test_cmd = r'''python %(cwd)s/test-lily/rsync-lily-doc.py \
-  --upload %(host_doc_spec)s \
-  %(lilybuild)s/out-www/web-root/''' % d
-    
-    cmds.append (test_cmd)
 
     cmds += ['rsync --delay-updates --progress %s %s'
              % tup for tup in src_dests]
