@@ -74,7 +74,9 @@ def upload_binaries (repo, version, version_db):
 #        branch = 'stable-%d.%d' % (version[0], version[1])
 
     src_dests = []
-    cmds = []
+    cmds = ['chgrp -R lilypond uploads/',
+            "chmod -R  g+rw uploads/",
+            'chmod 4775 `find uploads -type d`']
 
     ## ugh: 24 is hardcoded in repository.py
     committish = repo.git_pipe ('describe --abbrev=24 %(branch)s' % locals ()).strip ()
@@ -138,6 +140,7 @@ def upload_binaries (repo, version, version_db):
     d['cwd'] = os.getcwd ()
     d['lilybuild'] = d['cwd'] + '/target/%(build_platform)s/build/lilypond-%(branch)s' % d
     d['lilysrc'] = d['cwd'] + '/target/%(build_platform)s/src/lilypond-%(branch)s' % d 
+
     
     test_cmd = r'''python %(cwd)s/test-lily/rsync-lily-doc.py \
   --upload %(host_doc_spec)s \
