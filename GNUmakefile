@@ -1,6 +1,5 @@
 .PHONY: all default distclean download TAGS
 .PHONY: cygwin darwin-ppc darwin-x86 debian freebsd4-x86 freebsd6-x86 linux-x86 mingw bootstrap-download bootstrap
-.PHONY: update-buildnumber
 
 default: all
 
@@ -49,7 +48,6 @@ INVOKE_INSTALLER_BUILDER=$(PYTHON) installer-builder.py \
   --target-platform $(1) \
   --branch $(LILYPOND_LOCAL_BRANCH) \
 
-INSTALLER_BUILDNUMBER=$(shell $(PYTHON) lib/versiondb.py --build-for $(LILYPOND_VERSION))
 
 BUILD=$(call INVOKE_GUB_BUILDER,$(1)) build $(2) \
   && $(call INVOKE_INSTALLER_BUILDER,$(1)) build-all lilypond
@@ -89,13 +87,8 @@ ifeq ($(BUILD_PLATFORM),)
 $(error Must define BUILD_PLATFORM)
 endif 
 
-LILYPOND_VERSION=$(shell cat $(VERSION_FILE) || echo '0.0.0')
-
 # FIXME: logic copied foo times
 VERSION_FILE=VERSION-$(LILYPOND_LOCAL_BRANCH)
-
-$(VERSION_FILE):
-	$(PYTHON) gub-builder.py -p $(BUILD_PLATFORM) --inspect-output $@ --branch $(BRANCH):$(LILYPOND_LOCAL_BRANCH) inspect-version lilypond
 
 unlocked-update-versions:
 	python lib/versiondb.py --dbfile $(LILYPOND_VERSIONS) --download
@@ -125,7 +118,7 @@ arm:
 	$(call BUILD,$@,lilypond)
 
 
-docball = uploads/lilypond-$(LILYPOND_VERSION)-$(INSTALLER_BUILDNUMBER).documentation.tar.bz2
+docball = uploads/lilypond-$(DOC_VERSION)-$(DOC_BUILDNUMBER).documentation.tar.bz2
 
 $(docball):
 	$(MAKE) doc
@@ -310,6 +303,7 @@ NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/src/lilypond-$(LILYPOND_LOCAL_BRANCH)
 
 DOC_VERSION=$(shell cat $(NATIVE_LILY_BUILD)/out-www/web-root/VERSION)
 DIST_VERSION=$(shell cat $(NATIVE_LILY_BUILD)/out/VERSION)
+DOC_BUILDNUMBER:=$(shell $(PYTHON) lib/versiondb.py --build-for $(DOC_VERSION))
 
 doc: native doc-build
 
@@ -335,7 +329,7 @@ unlocked-doc-build:
 		make -C $(NATIVE_LILY_BUILD) \
 	    DOCUMENTATION=yes CPU_COUNT=$(LILYPOND_WEB_CPU_COUNT) web
 	tar --exclude '*.signature' -C $(NATIVE_LILY_BUILD)/out-www/web-root/ \
-	    -cjf $(CWD)/uploads/lilypond-$(DOC_VERSION)-$(INSTALLER_BUILDNUMBER).documentation.tar.bz2 . 
+	    -cjf $(CWD)/uploads/lilypond-$(DOC_VERSION)-$(DOC_BUILDNUMBER).documentation.tar.bz2 . 
 
 unlocked-info-man-build:
 	unset LILYPONDPREFIX \
@@ -358,7 +352,7 @@ ifneq ($(BUILD_PLATFORM),darwin-ppc)
 	    install-help2man
 endif
 	tar -C $(NATIVE_LILY_BUILD)/out-info-man/ \
-	    -cjf $(CWD)/uploads/lilypond-$(DOC_VERSION)-$(INSTALLER_BUILDNUMBER).info-man.tar.bz2 .
+	    -cjf $(CWD)/uploads/lilypond-$(DOC_VERSION)-$(DOC_BUILDNUMBER).info-man.tar.bz2 .
 
 unlocked-doc-export:
 	$(PYTHON) test-lily/rsync-lily-doc.py --recreate --output-distance \
