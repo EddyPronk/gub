@@ -87,9 +87,6 @@ ifeq ($(BUILD_PLATFORM),)
 $(error Must define BUILD_PLATFORM)
 endif 
 
-# FIXME: logic copied foo times
-VERSION_FILE=VERSION-$(LILYPOND_LOCAL_BRANCH)
-
 unlocked-update-versions:
 	python lib/versiondb.py --dbfile $(LILYPOND_VERSIONS) --download
 	python lib/versiondb.py --dbfile uploads/fontconfig.versions --download
@@ -101,8 +98,6 @@ update-versions:
 
 download:
 	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB_BUILDER,$(p)) download lilypond && ) true
-	rm -f $(VERSION_FILE)
-	$(MAKE) $(VERSION_FILE)
 	$(MAKE) downloads/genini
 	rm -f target/*/status/lilypond*
 	rm -f log/lilypond-$(LILYPOND_VERSION)*.*.test.pdf
