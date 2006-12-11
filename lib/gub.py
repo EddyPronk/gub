@@ -1,19 +1,12 @@
 # own
-import cvs
-import download
 import glob
 import misc
-import locker
 import repository
 
 # sys
 import pickle
 import os
 import re
-import string
-import subprocess
-import sys
-import md5
 
 from context import *
 
@@ -539,7 +532,6 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"  -zcf %(src_package_ball)
             self.system ('''mv %(i)s %(base)s''', locals ())
 
     def post_install_smurf_exe (self):
-        import os
         for i in (self.locate_files ('%(install_root)s/bin', '*')
                   + self.locate_files ('%(install_root)s/usr/bin', '*')):
             if (not os.path.islink (i)
@@ -551,7 +543,6 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"  -zcf %(src_package_ball)
         self.system ('''
 mkdir -p %(install_root)s/usr/share/doc/%(name)s
 ''')
-        import glob
         for i in glob.glob ('%(srcdir)s/[A-Z]*'
                             % self.get_substitution_dict ()):
             import shutil
@@ -576,7 +567,7 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
     # TODO: junk this, always set repo in __init__
     def with_vc (self, repo):
         self.vc_repository = repo
-        
+
     # TODO: junk this, use TarBall ()or Version ()
     def with (self,
               mirror='',
