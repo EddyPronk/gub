@@ -16,10 +16,16 @@ def parse_options ():
 		  dest='destination',
 		  help='where to upload the result',
 		  default='')
+    
     p.add_option ('--output-distance',
                   dest="output_distance_script",
                   help="compute signature distances using script") 
 
+    p.add_option ("--version-file",
+                  action="store",
+                  dest="version_file",
+                  help="where to get the version number")
+    
     p.add_option ('--recreate',
                   dest="recreate",
                   action="store_true",
@@ -65,7 +71,7 @@ def system (cmd):
     	raise 'fail'
 
 def read_version (source):
-    s = open (source + '/VERSION').read ()
+    s = open (source).read ()
     s = s.strip()
     return tuple (s.split ('.'))
     
@@ -77,8 +83,7 @@ def create_local_web_dir (options, source):
     print 'creating web root in',  options.unpack_dir 
     os.chdir (options.unpack_dir)
 
-    version = read_version (source)
-    dir = 'v%s' % '.'.join (version)
+    dir = 'v%s' % '.'.join (options.version)
     
     system ('rm -rf %s' % dir)
     system ('mkdir -p %s' % dir)
@@ -103,7 +108,7 @@ def compute_distances (options, source):
     os.chdir (options.unpack_dir)
 
     
-    cur_version = tuple (map (int, read_version (source)))
+    cur_version = tuple (map (int, options.version))
     region = 3
 
     versions = [(cur_version[0], cur_version[1], cur_version[2] - i) for i in range (1, region + 1)]
@@ -160,20 +165,21 @@ Regression test results for %(version_str)s
 def upload (options, source):
     os.chdir (options.unpack_dir)
 
-    version = read_version (source)
-    dir = 'v%s' % '.'.join (version)
+    dir = 'v%s' % '.'.join (options.version)
     os.chdir (dir)
 
     system ('chmod -R g+w . ' )
     system ('chgrp -R lilypond . ' )
     system ('chmod 2755 `find -type d ` . ')
-    branch_dir = 'v%s.%s' % (version[:2])
+    branch_dir = 'v%s.%s' % (options.version[:2])
     system ('rsync --exclude "*.signature" --hard-links --delay-updates --delete --delete-after --stats --progress -pgorltvu -e ssh . %s/%s/' % (options.destination, branch_dir))
     
     
 def main ():
     (opts, args) = parse_options ()
 
+    opts.version  = read_version (opts.version_file)
+    
     for a in args:
         a = os.path.abspath (a)
         

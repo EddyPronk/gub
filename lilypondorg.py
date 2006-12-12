@@ -90,6 +90,7 @@ def upload_binaries (repo, version, version_db):
     
     test_cmd = r'''python %(cwd)s/test-lily/rsync-lily-doc.py \
   --upload %(host_doc_spec)s \
+  --version-file %(lilybuild)s/out/VERSION \
   %(lilybuild)s/out-www/web-root/''' % d
     
     cmds.append (test_cmd)

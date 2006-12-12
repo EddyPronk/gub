@@ -367,7 +367,9 @@ endif
 	    -cjf $(CWD)/uploads/lilypond-$(DIST_VERSION)-$(DOC_BUILDNUMBER).info-man.tar.bz2 .
 
 unlocked-doc-export:
-	$(PYTHON) test-lily/rsync-lily-doc.py --recreate --output-distance \
+	$(PYTHON) test-lily/rsync-lily-doc.py --recreate \
+		--version-file $(NATIVE_LILY_BUILD)/out/VERSION \
+		--output-distance \
 		$(NATIVE_LILY_SRC)/buildscripts/output-distance.py $(NATIVE_LILY_BUILD)/out-www/web-root
 
 doc-export:
