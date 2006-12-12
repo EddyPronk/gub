@@ -298,7 +298,7 @@ NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/src/lilypond-$(LILYPOND_LOCAL_BRANCH)
 
 DOC_VERSION=$(shell cat $(NATIVE_LILY_BUILD)/out-www/web-root/VERSION)
 DIST_VERSION=$(shell cat $(NATIVE_LILY_BUILD)/out/VERSION)
-DOC_BUILDNUMBER:=$(shell $(PYTHON) lib/versiondb.py --build-for $(DOC_VERSION))
+DOC_BUILDNUMBER=$(shell $(PYTHON) lib/versiondb.py --build-for $(DOC_VERSION))
 
 doc: native doc-build
 
@@ -323,6 +323,7 @@ unlocked-doc-build:
 	    && $(DOC_RELOCATION) \
 		make -C $(NATIVE_LILY_BUILD) \
 	    DOCUMENTATION=yes CPU_COUNT=$(LILYPOND_WEB_CPU_COUNT) web
+	$(if $(DOC_BUILDNUMBER),true,false)  ## check if we have a build number
 	tar --exclude '*.signature' -C $(NATIVE_LILY_BUILD)/out-www/web-root/ \
 	    -cjf $(CWD)/uploads/lilypond-$(DOC_VERSION)-$(DOC_BUILDNUMBER).documentation.tar.bz2 . 
 
@@ -342,6 +343,7 @@ ifneq ($(BUILD_PLATFORM),darwin-ppc)
 	## FIXME: #! guile script is barfing.
 	-mkdir $(NATIVE_LILY_BUILD)/out-info-man
 	touch $(NATIVE_LILY_BUILD)/scripts/out/lilypond-invoke-editor.1
+	$(if $(DOC_BUILDNUMBER),true,false)  ## check if we have a build number
 	$(DOC_RELOCATION) make DESTDIR=$(NATIVE_LILY_BUILD)/out-info-man \
 	    -C $(NATIVE_LILY_BUILD)/ DOCUMENTATION=yes CROSS=no \
 	    install-help2man
@@ -355,8 +357,6 @@ unlocked-doc-export:
 
 doc-export:
 	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-export 
-
-
 
 unlocked-dist-check:
 	$(SET_LOCAL_PATH) \
