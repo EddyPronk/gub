@@ -289,9 +289,15 @@ DOC_LOCK=$(NATIVE_ROOT).lock
 doc-clean:
 	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-clean
 
-doc-build:
-	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-build unlocked-info-man-build
+doc-build: 
+	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-build-doc-signature
 
+
+unlocked-build-doc-signature: $(DOC_SIGNATURE)
+
+$(DOC_SIGNATURE): unlocked-info-man-build unlocked-info-man-build
+	touch $@
+6
 NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH)
 NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/src/lilypond-$(LILYPOND_LOCAL_BRANCH)
 NATIVE_BUILD_COMMITTISH=$(shell cd $(NATIVE_LILY_SRC)/ && git rev-list --max-count=1 HEAD )
@@ -315,9 +321,7 @@ DOC_RELOCATION = \
 
 DOC_SIGNATURE=uploads/signatures/lilypond-doc.$(NATIVE_BUILD_COMMITTISH)
 
-unlocked-doc-build: $(DOC_SIGNATURE)
-
-$(DOC_SIGNATURE):
+unlocked-doc-build: 
 	unset LILYPONDPREFIX \
 	    && $(DOC_RELOCATION) \
 		make -C $(NATIVE_LILY_BUILD) \
@@ -330,7 +334,6 @@ $(DOC_SIGNATURE):
 	$(if $(DOC_BUILDNUMBER),true,false)  ## check if we have a build number
 	tar --exclude '*.signature' -C $(NATIVE_LILY_BUILD)/out-www/web-root/ \
 	    -cjf $(CWD)/uploads/lilypond-$(DIST_VERSION)-$(DOC_BUILDNUMBER).documentation.tar.bz2 .
-	touch $@
 
 unlocked-info-man-build:
 	unset LILYPONDPREFIX \
