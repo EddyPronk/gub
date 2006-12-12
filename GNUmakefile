@@ -112,8 +112,7 @@ native: local $(BUILD_PLATFORM)
 arm:
 	$(call BUILD,$@,lilypond)
 
-
-docball = uploads/lilypond-$(DOC_VERSION)-$(DOC_BUILDNUMBER).documentation.tar.bz2
+docball = uploads/lilypond-$(DIST_VERSION)-$(DOC_BUILDNUMBER).documentation.tar.bz2
 
 $(docball):
 	$(MAKE) doc
@@ -295,10 +294,11 @@ doc-build:
 
 NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH)
 NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/src/lilypond-$(LILYPOND_LOCAL_BRANCH)
+NATIVE_BUILD_COMMITTISH=$(shell cd $(NATIVE_LILY_SRC)/ && git rev-list --max-count=1 HEAD )
 
-DOC_VERSION=$(shell cat $(NATIVE_LILY_BUILD)/out-www/web-root/VERSION)
+
 DIST_VERSION=$(shell cat $(NATIVE_LILY_BUILD)/out/VERSION)
-DOC_BUILDNUMBER=$(shell $(PYTHON) lib/versiondb.py --build-for $(DOC_VERSION))
+DOC_BUILDNUMBER=$(shell $(PYTHON) lib/versiondb.py --build-for $(DIST_VERSION))
 
 doc: native doc-build
 
@@ -313,7 +313,11 @@ DOC_RELOCATION = \
     LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$$LD_LIBRARY_PATH
     MALLOC_CHECK_=2 \
 
-unlocked-doc-build:
+DOC_SIGNATURE=uploads/signatures/lilypond-doc.$(NATIVE_BUILD_COMMITTISH)
+
+unlocked-doc-build: $(DOC_SIGNATURE)
+
+$(DOC_SIGNATURE):
 	unset LILYPONDPREFIX \
 	    && $(DOC_RELOCATION) \
 		make -C $(NATIVE_LILY_BUILD) \
@@ -325,7 +329,8 @@ unlocked-doc-build:
 	    DOCUMENTATION=yes CPU_COUNT=$(LILYPOND_WEB_CPU_COUNT) web
 	$(if $(DOC_BUILDNUMBER),true,false)  ## check if we have a build number
 	tar --exclude '*.signature' -C $(NATIVE_LILY_BUILD)/out-www/web-root/ \
-	    -cjf $(CWD)/uploads/lilypond-$(DOC_VERSION)-$(DOC_BUILDNUMBER).documentation.tar.bz2 . 
+	    -cjf $(CWD)/uploads/lilypond-$(DIST_VERSION)-$(DOC_BUILDNUMBER).documentation.tar.bz2 .
+	touch $@
 
 unlocked-info-man-build:
 	unset LILYPONDPREFIX \
@@ -349,7 +354,7 @@ ifneq ($(BUILD_PLATFORM),darwin-ppc)
 	    install-help2man
 endif
 	tar -C $(NATIVE_LILY_BUILD)/out-info-man/ \
-	    -cjf $(CWD)/uploads/lilypond-$(DOC_VERSION)-$(DOC_BUILDNUMBER).info-man.tar.bz2 .
+	    -cjf $(CWD)/uploads/lilypond-$(DIST_VERSION)-$(DOC_BUILDNUMBER).info-man.tar.bz2 .
 
 unlocked-doc-export:
 	$(PYTHON) test-lily/rsync-lily-doc.py --recreate --output-distance \
