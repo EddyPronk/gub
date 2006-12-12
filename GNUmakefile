@@ -293,10 +293,6 @@ doc-build:
 	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-build-doc-signature
 
 
-unlocked-build-doc-signature: $(DOC_SIGNATURE)
-
-$(DOC_SIGNATURE): unlocked-info-man-build unlocked-info-man-build
-	touch $@
 
 NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH)
 NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/src/lilypond-$(LILYPOND_LOCAL_BRANCH)
@@ -320,6 +316,17 @@ DOC_RELOCATION = \
     MALLOC_CHECK_=2 \
 
 DOC_SIGNATURE=uploads/signatures/lilypond-doc.$(NATIVE_BUILD_COMMITTISH)
+
+unlocked-build-doc-signature: $(DOC_SIGNATURE)
+
+$(DOC_SIGNATURE): unlocked-doc-build unlocked-info-man-build
+	touch $@
+
+
+include uploads/signatures/dummy
+uploads/signatures/dummy:
+	-mkdir -p uploads/signatures
+	touch $@
 
 unlocked-doc-build: 
 	unset LILYPONDPREFIX \
