@@ -297,7 +297,7 @@ unlocked-build-doc-signature: $(DOC_SIGNATURE)
 
 $(DOC_SIGNATURE): unlocked-info-man-build unlocked-info-man-build
 	touch $@
-6
+
 NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH)
 NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/src/lilypond-$(LILYPOND_LOCAL_BRANCH)
 NATIVE_BUILD_COMMITTISH=$(shell cd $(NATIVE_LILY_SRC)/ && git rev-list --max-count=1 HEAD )
