@@ -266,7 +266,7 @@ download-local:
 # -icoutils: lilypond mingw icons
 # -distcc: nonstandard (eg. MacOS)
 # -freetype: for bootstrapping fontconfig
-#
+# -imagemagick: for lilypond web site
 
 local:
 	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local build \
