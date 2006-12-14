@@ -313,7 +313,7 @@ class GitRepository (Repository):
             return
 
         if revision:
-            contents = self.git_pipe ('--git-dir %(repo)s ls-tree %(revision)s' % locals (),
+            contents = self.git_pipe ('ls-tree %(revision)s' % locals (),
                                       ignore_errors=True)
 
             if contents:
@@ -322,8 +322,9 @@ class GitRepository (Repository):
             self.git ('--git-dir %(repo)s http-fetch -v -c %(revision)s' % locals ())
 
         refs = '%s:%s' % (self.remote_branch, self.branch)
-        
-        self.git ('--git-dir %(repo)s fetch --update-head-ok %(source)s %(refs)s ' % locals ())
+
+        ## ugh : --no-tags is a 1.4.4.2 oddity.
+        self.git ('fetch --no-tags --update-head-ok %(source)s %(refs)s ' % locals ())
         self.checksums = {}
 
     def get_checksum (self):
@@ -336,7 +337,7 @@ class GitRepository (Repository):
 
         repo_dir = self.repo_dir
         if os.path.isdir (repo_dir):
-            cs = self.git_pipe ('--git-dir %(repo_dir)s describe --abbrev=24 %(branch)s' % locals ())
+            cs = self.git_pipe ('describe --abbrev=24 %(branch)s' % locals ())
             cs = cs.strip ()
             self.checksums[branch] = cs
             return cs
