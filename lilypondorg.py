@@ -205,7 +205,7 @@ foobar            - print versions of dl.la.org
 
     p.add_option ('--branch', action='store',
                   dest='branch',
-                  default='origin',
+                  default='master',
                   help='select upload directory')
 
     p.add_option ('--repo-dir', action='store',
