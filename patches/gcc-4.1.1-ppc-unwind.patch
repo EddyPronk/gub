@@ -1,0 +1,27 @@
+--- gcc-4.1.1/gcc/config/rs6000/linux-unwind.h~	2005-08-06 15:26:35.000000000 +0200
++++ gcc-4.1.1/gcc/config/rs6000/linux-unwind.h	2006-12-17 19:00:41.000000000 +0100
+@@ -202,6 +202,7 @@
+ }
+ #endif
+ 
++#if 0
+ /* Find an entry in the process auxiliary vector.  The canonical way to
+    test for VMX is to look at AT_HWCAP.  */
+ 
+@@ -233,6 +234,7 @@
+       return auxp->a_val;
+   return 0;
+ }
++#endif
+ 
+ /* Do code reading to identify a signal frame, and set the frame
+    state data appropriately.  See unwind-dw2.c for the structs.  */
+@@ -275,7 +277,7 @@
+ 
+   if (hwcap == 0)
+     {
+-      hwcap = ppc_linux_aux_vector (16);
++      hwcap = 0x08000000; /* FPU, VMX from G4 onwards. */
+       /* These will already be set if we found AT_HWCAP.  A nonzero
+ 	 value stops us looking again if for some reason we couldn't
+ 	 find AT_HWCAP.  */
