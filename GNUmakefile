@@ -8,7 +8,7 @@ default: all
 ## must always have one host.
 GUB_DISTCC_ALLOW_HOSTS=127.0.0.1
 ALL_PLATFORMS=arm cygwin darwin-ppc darwin-x86 debian freebsd-x86 freebsd-x86 linux-x86 linux-64 mingw mipsel linux-ppc
-PLATFORMS=darwin-ppc darwin-x86 mingw linux-x86 linux-64 freebsd-x86 cygwin 
+PLATFORMS=darwin-ppc darwin-x86 mingw linux-x86 linux-64 linux-ppc freebsd-x86 cygwin 
 
 LILYPOND_CVS_REPODIR=downloads/lilypond.cvs
 LILYPOND_CVSDIR=$(LILYPOND_CVS_REPODIR)/$(BRANCH)
