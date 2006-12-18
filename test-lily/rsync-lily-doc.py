@@ -170,7 +170,7 @@ def upload (options, source):
 
     system ('chmod -R g+w . ' )
     system ('chgrp -R lilypond . ' )
-    system ('chmod 2755 `find -type d ` . ')
+    system ('chmod 2775 `find -type d ` . ')
     branch_dir = 'v%s.%s' % (options.version[:2])
     system ('rsync --exclude "*.signature" --hard-links --delay-updates --delete --delete-after --stats --progress -pgorltvu -e ssh . %s/%s/' % (options.destination, branch_dir))
     
