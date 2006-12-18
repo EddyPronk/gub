@@ -7,6 +7,7 @@ import os
 
 platforms = ['linux-x86',
              'linux-64',
+             'linux-ppc',
              'darwin-ppc',
              'darwin-x86',
              'documentation',
