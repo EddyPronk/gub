@@ -331,12 +331,6 @@ cd %(install_root)s/usr/share/info/lilypond && ln -sf ../../doc/lilypond/Documen
         return (LilyPond.__doc__.replace ('\n', ' - %(flavor)s\n', 1)
                 % locals ())
         
-class LilyPond__freebsd (LilyPond):
-    def get_dependency_dict (self):
-        d = LilyPond.get_dependency_dict (self)
-        d[''].append ('gcc')
-        return d
-
 ## shortcut: take python out of dependencies
 class LilyPond__no_python (LilyPond):
     def get_build_dependencies (self):
@@ -499,6 +493,8 @@ Lilypond__cygwin = LilyPond__cygwin
 Lilypond__darwin = LilyPond__darwin
 Lilypond__debian = LilyPond__debian
 Lilypond__mingw = LilyPond__mingw
-Lilypond__freebsd = LilyPond__freebsd
+Lilypond__freebsd = LilyPond
 Lilypond__arm = LilyPond__debian
 Lilypond__mipsel = LilyPond__debian
+
+
