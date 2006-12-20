@@ -13,9 +13,11 @@ import pickle
 sys.path.insert (0, 'lib')
 
 import versiondb
+import misc
 
 platforms = ['linux-x86',
              'linux-64',
+             'linux-ppc',
              'darwin-ppc',
              'darwin-x86',
              'documentation',
@@ -46,6 +48,7 @@ formats = {
     'linux-x86': 'sh',
     'linux-64': 'sh',
     'linux-arm': 'sh',
+    'linux-ppc': 'sh',
 
     'freebsd4-x86': 'sh',
     'freebsd6-x86': 'sh',
@@ -155,15 +158,16 @@ def upload_binaries (repo, version, version_db):
     cmds += ['rsync --delay-updates --progress %s %s'
              % tup for tup in src_dests]
 
-    
-    cmds.append ("rsync -v --recursive --delay-updates --progress uploads/cygwin/release/ %(host_binaries_spec)s/cygwin/release/" % globals ())
+
+    ## don't do cygwin .
+    ##    cmds.append ("rsync -v --recursive --delay-updates --progress uploads/cygwin/release/ %(host_binaries_spec)s/cygwin/release/" % globals ())
 
 
 
     description = repo.git_pipe ('describe --abbrev=39 %(branch)s' % locals()).strip ()
     
     git_tag = 'release/%(version_str)s-%(build)d' % locals () 
-    git_tag_cmd = 'git --git-dir downloads/lilypond.git tag -a %(git_tag)s %(branch)s' % locals ()
+    git_tag_cmd = 'git --git-dir downloads/lilypond.git tag -m "build and release"  -a %(git_tag)s %(branch)s' % locals ()
     git_push_cmd = 'git --git-dir downloads/lilypond.git push ssh+git://git.sv.gnu.org/srv/git/lilypond.git/ refs/tags/%(git_tag)s:refs/tags/%(git_tag)s' % locals ()
     darcs_tag_cmd = 'darcs tag --patch "release %(version_str)s-%(build)d of lilypond %(description)s" ' % locals()
 
@@ -191,9 +195,6 @@ def get_cli_parser ():
 Commands:
 
 upload x.y.z      - upload packages
-nextbuild x.y.z   - get next build number
-versions          - print versions
-foobar            - print versions of dl.la.org
 """
     
     p.description = 'look around on lilypond.org'
@@ -240,24 +241,15 @@ def main ():
     base_url = options.url
     host_spec = options.upload_host
 
-    if not commands:
-        cli_parser.print_help ()
-        sys.exit (2)
+    repo = get_repository (options)
 
-    command = commands[0]
-    commands = commands[1:]
+    version_dict = misc.grok_sh_variables_str (repo.get_file_content ('VERSION'))
+    version_tup = tuple (map (version_dict.get, ('MAJOR_VERSION', 'MINOR_VERSION', 'PATCH_LEVEL')))
+    version_tup = tuple (map (int, version_tup))
+    
+    version_db = versiondb.VersionDataBase (options.version_db)
+    upload_binaries (repo, version_tup, version_db)
 
-    if command == 'upload':
-        repo = get_repository (options)
-        version = tuple (map (string.atoi, commands[0].split ('.')))
-        version_db = versiondb.VersionDataBase (options.version_db)
-        upload_binaries (repo, version, version_db)
-    else:
-        base_url = "http://download.linuxaudio.org/lilypond"
-        print max_src_version_url ((2,9))
-        print max_version_build ('documentation')
-        print max_branch_version_build_url ((2, 6), 'linux-x86')
-        print max_branch_version_build_url ((2, 9), 'linux-x86')
 
 if __name__ == '__main__':
     main ()
