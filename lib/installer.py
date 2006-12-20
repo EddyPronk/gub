@@ -307,7 +307,7 @@ class Shar (Linux_installer):
         hello = self.expand ("version %(installer_version)s release %(installer_build)s")
         create_shar (tarball, hello, head, target_shar)
         self.write_checksum ()
-        system ('rm %(bundle_tarball)s')
+        system ('rm %(tarball)s' % locals ())
         
 class Deb (Linux_installer):
     def create (self):
