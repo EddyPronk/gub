@@ -36,7 +36,8 @@ def test_build (bin):
 
     base = os.path.split (bin)[1]
     platform = re.search ('lilypond-[0-9.]+-[0-9]+.([a-z0-9-]+).*', bin).group (1)
-
+    viewer = 'evince'
+    
     if not platform:
         print 'unknown platform for', bin
         return
@@ -81,7 +82,7 @@ def test_build (bin):
             % locals())
     system ('scp %(uid)s@%(host)s:%(dir)s/%(base_test_file_stem)s.pdf %(logdir)s/%(base)s.test.pdf'
             % locals ())
-    system ('xpdf %(logdir)s/%(base)s.test.pdf'
+    system ('%(viewer)s %(logdir)s/%(base)s.test.pdf'
             % locals ())
 
 
