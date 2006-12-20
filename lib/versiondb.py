@@ -54,7 +54,6 @@ class VersionDataBase:
         return self._db.keys ()
     
     def get_sources_from_url (self, url):
-
         directories = ['v0.0', 'v0.1', 'v1.0', 'v1.1', 'v1.2', 'v1.3',
                        'v1.4', 'v1.5', 'v1.6', 'v1.7', 'v1.8', 'v1.9',
                        'v2.0', 'v2.1', 'v2.2', 'v2.3', 'v2.4', 'v2.5',
@@ -62,7 +61,7 @@ class VersionDataBase:
 
         sources = []
         for d in directories:
-            u = '%(url)s%(d)s/' % locals ()
+            u = '%(url)ssources/%(d)s/' % locals ()
             sources += get_url_versions (u)
             
         self._db['source'] = sources
