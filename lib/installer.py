@@ -58,7 +58,8 @@ class Installer (context.Os_context_wrapper):
             'bin/pf2afm',
             'bin/printafm',
             'bin/pv.sh',
-            'bin/pv.sh',
+            'bin/unix-lpr.sh',
+            'bin/wftopfa',
             'bin/idle',
             'bin/font2c',
             'bin/fixmswrd.pl',
@@ -306,6 +307,7 @@ class Shar (Linux_installer):
         hello = self.expand ("version %(installer_version)s release %(installer_build)s")
         create_shar (tarball, hello, head, target_shar)
         self.write_checksum ()
+        system ('rm %(bundle_tarball)s')
         
 class Deb (Linux_installer):
     def create (self):
