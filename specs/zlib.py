@@ -2,6 +2,7 @@ import download
 import targetpackage
 import gub
 import toolpackage
+import re
 
 class Zlib (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
@@ -18,9 +19,13 @@ class Zlib (targetpackage.TargetBuildSpec):
 
     def compile_command (self):
         return targetpackage.TargetBuildSpec.compile_command (self) + ' ARFLAGS=r '
+
     
     def configure_command (self):
-        zlib_is_broken = 'SHAREDTARGET=libz.so.1.2.2'
+        stripped_platform = self.settings.expand ('%(platform)s')
+        stripped_platform = re.sub ('-.*', '', stripped_platform)
+        
+        zlib_is_broken = 'SHAREDTARGET=libz.so.1.2.2 target=' + stripped_platform
 
         ## doesn't use autoconf configure.
         return zlib_is_broken + ' %(srcdir)s/configure --shared '
