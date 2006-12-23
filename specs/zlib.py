@@ -24,6 +24,7 @@ class Zlib (targetpackage.TargetBuildSpec):
     def configure_command (self):
         stripped_platform = self.settings.expand ('%(platform)s')
         stripped_platform = re.sub ('-.*', '', stripped_platform)
+        stripped_platform = stripped_platform.replace ('darwin', 'Darwin')
         
         zlib_is_broken = 'SHAREDTARGET=libz.so.1.2.2 target=' + stripped_platform
 
