@@ -337,10 +337,14 @@ unlocked-doc-build:
 	    && $(DOC_LIMITS) \
 	    && $(DOC_RELOCATION) \
 		make -C $(NATIVE_LILY_BUILD) \
-	    DOCUMENTATION=yes CPU_COUNT=$(LILYPOND_WEB_CPU_COUNT) web
+	    DOCUMENTATION=yes \
+	    WEB_TARGETS="offline online" \
+	    CPU_COUNT=$(LILYPOND_WEB_CPU_COUNT) web
 	$(if $(DOC_BUILDNUMBER),true,false)  ## check if we have a build number
-	tar --exclude '*.signature' -C $(NATIVE_LILY_BUILD)/out-www/web-root/ \
+	tar --exclude '*.signature' -C $(NATIVE_LILY_BUILD)/out-www/offline-root \
 	    -cjf $(CWD)/uploads/lilypond-$(DIST_VERSION)-$(DOC_BUILDNUMBER).documentation.tar.bz2 .
+	tar --exclude '*.signature' -C $(NATIVE_LILY_BUILD)/out-www/online-root \
+	    -cjf $(CWD)/uploads/lilypond-$(DIST_VERSION)-$(DOC_BUILDNUMBER).webdoc.tar.bz2 .
 
 unlocked-info-man-build:
 	unset LILYPONDPREFIX \
