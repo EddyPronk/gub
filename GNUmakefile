@@ -331,7 +331,7 @@ uploads/signatures/dummy:
 unlocked-doc-build: 
 	unset LILYPONDPREFIX \
 	    && $(DOC_RELOCATION) \
-		make -C $(NATIVE_LILY_BUILD) \
+		$(MAKE) -C $(NATIVE_LILY_BUILD) \
 	    DOCUMENTATION=yes do-top-doc
 	unset LILYPONDPREFIX \
 	    && $(DOC_LIMITS) \
@@ -341,6 +341,7 @@ unlocked-doc-build:
 	    WEB_TARGETS="offline online" \
 	    CPU_COUNT=$(LILYPOND_WEB_CPU_COUNT) web
 	$(if $(DOC_BUILDNUMBER),true,false)  ## check if we have a build number
+	$(if $(DIST_VERSION),true,false)  ## check if we have a versiong number
 	tar --exclude '*.signature' -C $(NATIVE_LILY_BUILD)/out-www/offline-root \
 	    -cjf $(CWD)/uploads/lilypond-$(DIST_VERSION)-$(DOC_BUILDNUMBER).documentation.tar.bz2 .
 	tar --exclude '*.signature' -C $(NATIVE_LILY_BUILD)/out-www/online-root \
@@ -374,7 +375,8 @@ unlocked-doc-export:
 	$(PYTHON) test-lily/rsync-lily-doc.py --recreate \
 		--version-file $(NATIVE_LILY_BUILD)/out/VERSION \
 		--output-distance \
-		$(NATIVE_LILY_SRC)/buildscripts/output-distance.py $(NATIVE_LILY_BUILD)/out-www/web-root
+		$(HOME)/vc/lilypond/buildscripts/output-distance.py $(NATIVE_LILY_BUILD)/out-www/web-root
+#		$(NATIVE_LILY_SRC)/buildscripts/output-distance.py $(NATIVE_LILY_BUILD)/out-www/web-root
 
 doc-export:
 	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-export 
