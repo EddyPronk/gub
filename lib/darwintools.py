@@ -39,7 +39,7 @@ if test "$1" == "--cflags"; then
   echo "-I%(system_root)s/System/Library/Frameworks/Python.framework/Versions/%(version)s/include/python%(version)s"
 fi
 if test "$1" == "--ldflags"; then
-ver  echo ""
+  echo ""
 fi
 ''', '%(install_root)s/usr/cross/bin/python-config')
         self.system ('chmod +x %(install_root)s/usr/cross/bin/python-config')
