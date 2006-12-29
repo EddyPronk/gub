@@ -162,8 +162,6 @@ def main ():
                 % (opts.branch, a))
         system ('rm -f target/%s/status/lilypond-%s' % (a, opts.branch))
 
-    system ('make BRANCH=%s update-buildnumber' % opts.branch)
-        
     lily_build_dir = 'target/%s/build/lilypond-%s' %  (build_platform, opts.branch) 
 
     test_cmds = []
