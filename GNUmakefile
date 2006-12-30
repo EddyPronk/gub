@@ -105,7 +105,13 @@ download:
 ## should be last, to incorporate changed VERSION file.
 	$(MAKE) update-versions
 
-all: $(BUILD_PLATFORM) doc $(OTHER_PLATFORMS) dist-check doc-export 
+all: $(BUILD_PLATFORM) doc $(OTHER_PLATFORMS) dist-check doc-export print-success
+
+print-success:
+	@echo "now run "
+	@echo
+	@echo "        python test-lily/upload.py --branch $(LILYPOND_LOCAL_BRANCH)"
+	@echo
 
 native: local $(BUILD_PLATFORM)
 
