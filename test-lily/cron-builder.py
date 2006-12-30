@@ -49,7 +49,7 @@ def parse_options ():
 
     p.add_option ('--local-branch',
                   dest="local_branch",
-                  default="master-repo.or.cz-lilypond.git",
+                  default="master-git.sv.gnu.org-lilypond.git",
                   action="store",
                   help="which branch of lily to build")
 
@@ -119,11 +119,13 @@ def parse_options ():
     dry_run = opts.dry_run
     opts.make_options += " BRANCH=%s" % opts.branch
 
-    if opts.test_options.find ('--repository') == -1:
+    if '--repository' not in  opts.test_options:
         opts.test_options += ' --repository downloads/lilypond.git '
+
+    if '--branch' not in  opts.test_options:
+        opts.test_options += ' --branch %s:%s' % (opts.branch,opts.local_branch)
         
     return (opts, args)
-
 
 def system (c, ignore_error=False):
     log_file.log ('executing %s' % c)
@@ -138,6 +140,7 @@ def system (c, ignore_error=False):
 def main ():
     (opts,args) = parse_options ()
     os.environ['PATH']= os.getcwd () + '/target/local/system/usr/bin:' + os.environ['PATH']
+    print os.environ['PATH']
     global log_file
     
     log_file = LogFile ('log/cron-builder.log')
@@ -158,22 +161,20 @@ def main ():
     ## can't have these in test-gub, since these
     ## will always usually result in "release already tested"
     for a in args:
-        system (python_cmd + 'gub-builder.py --branch %s -p %s download lilypond'
-                % (opts.branch, a))
-        system ('rm -f target/%s/status/lilypond-%s' % (a, opts.branch))
-
-    lily_build_dir = 'target/%s/build/lilypond-%s' %  (build_platform, opts.branch) 
+        system (python_cmd + 'gub-builder.py --branch %s:%s -p %s download lilypond'
+                % (opts.branch, opts.local_branch, a))
+        system ('rm -f target/%s/status/lilypond-%s*' % (a, opts.branch))
 
     test_cmds = []
     if opts.build_package:
-        test_cmds += [python_cmd + 'gub-builder.py --branch %s -lp %s build lilypond '
-                      % (opts.branch, p) for p in args]
+        test_cmds += [python_cmd + 'gub-builder.py --branch %s:%s -lp %s build lilypond '
+                      % (opts.branch, opts.local_branch, p) for p in args]
         
     if opts.build_installer:
         version_opts = '' 
             
-        test_cmds += [python_cmd + 'installer-builder.py --skip-if-locked %s --branch %s -p %s build-all lilypond '
-                      % (version_opts, opts.local_branch, p) for p in args]
+        test_cmds += [python_cmd + 'installer-builder.py --skip-if-locked %s --branch %s:%s -p %s build-all lilypond '
+                      % (version_opts, opts.branch, opts.local_branch, p) for p in args]
 
     if opts.build_docs:
         test_cmds += [make_cmd + 'doc-build',
