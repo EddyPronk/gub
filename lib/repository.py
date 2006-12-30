@@ -231,13 +231,17 @@ class GitRepository (Repository):
         return self.branch != ''
     
     def __repr__ (self):
-        return '#<GitRepository %s>' % self.repo_dir
+        b = self.local_branch
+        if not b:
+            b = self.revision
+        
+        return '#<GitRepository %s#%s>' % (self.repo_dir, b)
 
     def get_revision_description (self):
         return self.git_pipe ('log --max-count=1') 
 
     def get_file_content (self, file_name):
-        committish = self.git_pipe ('log %(local_branch)s --max-count=1 --pretty=oneline'
+        committish = self.git_pipe ('log --max-count=1 --pretty=oneline %(local_branch)s'
                                     % self.__dict__).split (' ')[0]
         m = re.search ('^tree ([0-9a-f]+)',
                        self.git_pipe ('cat-file commit %(committish)s'  % locals ()))
