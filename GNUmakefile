@@ -292,27 +292,14 @@ endif
 NATIVE_ROOT=$(NATIVE_TARGET_DIR)/installer-$(LILYPOND_LOCAL_BRANCH)
 DOC_LOCK=$(NATIVE_ROOT).lock
 
-doc-clean:
-	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-clean
-
-doc-build: 
-	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-build-doc-signature
-
 
 
 NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH)
 NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/src/lilypond-$(LILYPOND_LOCAL_BRANCH)
-NATIVE_BUILD_COMMITTISH=$(shell cd $(NATIVE_LILY_SRC)/ && git rev-list --max-count=1 HEAD )
-
+NATIVE_BUILD_COMMITTISH=$(shell cat downloads/lilypond.git/refs/heads/$(LILYPOND_LOCAL_BRANCH))
 
 DIST_VERSION=$(shell cat $(NATIVE_LILY_BUILD)/out/VERSION)
 DOC_BUILDNUMBER=$(shell $(PYTHON) lib/versiondb.py --build-for $(DIST_VERSION))
-
-doc: native doc-build
-
-unlocked-doc-clean:
-	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
-		DOCUMENTATION=yes web-clean
 
 DOC_RELOCATION = \
     LILYPOND_EXTERNAL_BINARY="$(NATIVE_ROOT)/usr/bin/lilypond" \
@@ -323,23 +310,33 @@ DOC_RELOCATION = \
 
 DOC_SIGNATURE=uploads/signatures/lilypond-doc.$(NATIVE_BUILD_COMMITTISH)
 
-unlocked-build-doc-signature: $(DOC_SIGNATURE)
 
-$(DOC_SIGNATURE): unlocked-doc-build unlocked-info-man-build
-	touch $@
+doc: native doc-build
+
+doc-clean:
+	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-clean
+
+doc-build: 
+	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) cached-doc-build
+
+unlocked-doc-clean:
+	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
+		DOCUMENTATION=yes web-clean
 
 
-include uploads/signatures/dummy
-uploads/signatures/dummy:
-	-mkdir -p uploads/signatures
-	touch $@
+cached-doc-build:
+	-mkdir uploads/signatures/
+	if test ! -f  $(DOC_SIGNATURE) ; then \
+		$(MAKE) unlocked-doc-build \
+		&& touch $(DOC_SIGNATURE) ; fi
 
 unlocked-doc-build:
 	$(PYTHON) gup-manager.py -p $(BUILD_PLATFORM) remove lilypond
 
 	## force update of srcdir.
 	$(PYTHON) gub-builder.py --branch $(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH) \
-		 -p $(BUILD_PLATFORM) --stage untar build lilypond 
+		 -p $(BUILD_PLATFORM) --stage untar build lilypond
+
 	unset LILYPONDPREFIX \
 	    && $(DOC_RELOCATION) \
 		$(MAKE) -C $(NATIVE_LILY_BUILD) \
