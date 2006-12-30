@@ -46,7 +46,6 @@ def parse_options ():
                   default=False,
                   help="don't do incremental build.")
 
-
     p.add_option ('--local-branch',
                   dest="local_branch",
                   default="master-git.sv.gnu.org-lilypond.git",
@@ -173,8 +172,8 @@ def main ():
     if opts.build_installer:
         version_opts = '' 
             
-        test_cmds += [python_cmd + 'installer-builder.py --skip-if-locked %s --branch %s:%s -p %s build-all lilypond '
-                      % (version_opts, opts.branch, opts.local_branch, p) for p in args]
+        test_cmds += [python_cmd + 'installer-builder.py --skip-if-locked %s --branch %s -p %s build-all lilypond '
+                      % (version_opts, opts.local_branch, p) for p in args]
 
     if opts.build_docs:
         test_cmds += [make_cmd + 'doc-build',
