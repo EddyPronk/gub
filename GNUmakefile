@@ -334,7 +334,12 @@ uploads/signatures/dummy:
 	-mkdir -p uploads/signatures
 	touch $@
 
-unlocked-doc-build: 
+unlocked-doc-build:
+	$(PYTHON) gup-manager.py -p $(BUILD_PLATFORM) remove lilypond
+
+	## force update of srcdir.
+	$(PYTHON) gub-builder.py --branch $(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH) \
+		 -p $(BUILD_PLATFORM) --stage untar build lilypond 
 	unset LILYPONDPREFIX \
 	    && $(DOC_RELOCATION) \
 		$(MAKE) -C $(NATIVE_LILY_BUILD) \
