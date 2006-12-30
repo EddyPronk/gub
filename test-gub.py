@@ -39,7 +39,11 @@ def canonicalize_string (target):
 
 class LogFile:
     def __init__ (self, name):
-        self.file = open (name, 'a')
+        if name:
+            self.file = open (name, 'a')
+        else:
+            self.file = sys.stdout
+
         self.prefix = 'test-gub.py[%d]: ' % os.getpid ()
 
     def log (self, msg):
@@ -88,6 +92,11 @@ def opt_parser ():
                   dest='address',
                   default=[],
                   help='where to send error report')
+    p.add_option ('--dry-run',
+                  dest='dry_run',
+                  default=False,
+                  action="store_true",
+                  help="don't run any commands")
     
     p.add_option ('--bcc',
                   action='append',
@@ -172,7 +181,7 @@ def test_target (repo, options, target, last_patch):
 
     done_db = get_db (options, canonicalize)
     if done_db.has_key (release_hash):
-        log_file.log ('release has already been checked')
+        log_file.log ('release %(release_hash)s has already been checked' % locals ())
         return None
     
     logfile = 'test-%(canonicalize)s.log' %  locals ()
@@ -181,7 +190,10 @@ def test_target (repo, options, target, last_patch):
     cmd = "nice time %(target)s >& %(logfile)s" %  locals ()
 
     log_file.log (cmd)
-    
+
+    if options.dry_run:
+        return ('SUCCESS', ['dryrun'])
+        
     stat = os.system (cmd)
   
     result = 'unknown'
@@ -231,8 +243,13 @@ def print_results (options, parts, subject="Autotester result"):
 
 def real_main (options, args, handle_result):
     global log_file
+
+    log = 'log/test-gub.log'
+    if options.dry_run:
+        log = ''
+
+    log_file = LogFile (log)
     
-    log_file = LogFile ('log/test-gub.log')
     log_file.log (' *** %s' % time.ctime ())
     log_file.log (' *** Starting tests:\n  %s' % '\n  '.join (args))
 
@@ -268,6 +285,7 @@ Checksum of revision: %(release_hash)s
         success = result.startswith ('SUCCESS')
         if not (options.be_quiet and success):
             handle_result (options, atts, subject="Autotester: %s %s" % (result, a))
+
         summary_body += '%s\n  %s\n'  % (a, result)
 
 
@@ -306,8 +324,6 @@ def test_self (options, args):
     system ('darcs record  -am "change bla"')
     real_main (options, ['sh foo.sh'], print_results)
     
-    
-
 def main ():
     (options, args) = opt_parser ().parse_args ()
 
