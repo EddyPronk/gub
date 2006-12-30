@@ -3,8 +3,6 @@ lagere prioriteit
 
 - Explode inheritance, and use membership in GUP
 
-- Use installer checksums to skip rebuilds if necessary.
-
 - move patches upstream, eg.
 
   * libpng
@@ -16,6 +14,7 @@ lagere prioriteit
 - update packages:
 
   * GS 8.54/53
+
   * Gnome 2.16
 
 - strip lily specific stuff from installer.py 
