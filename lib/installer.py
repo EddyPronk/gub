@@ -201,10 +201,18 @@ cp -pR --link %(installer_root)s/license*/* %(darwin_bundle_dir)s/Contents/Resou
             '%(darwin_bundle_dir)s/Contents/Info.plist',
             env=locals (),
             must_succeed=True)
+
+        majmin = '.'.join (installer_version.split ('.')[:2])
+        self.file_sub (
+            [('doc/v2.6/',
+             'doc/v%(majmin)s/'),
+            ],
+            '%(darwin_bundle_dir)s/Contents/Resources/Credits.html',
+            env=locals (),
+            must_succeed=True)
         
         self.file_sub (
-            [('2.6.0',
-             '%(installer_version)s'),
+            [('2.6.0', installer_version),
             ],
             '%(darwin_bundle_dir)s/Contents/Resources/Welcome-to-LilyPond-MacOS.ly',
             env=locals ())
