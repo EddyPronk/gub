@@ -176,7 +176,8 @@ class Darwin_bundle (Installer):
         Installer.create (self)
         
         osx_lilypad_version = self.package_manager.package_dict ('osx-lilypad')['version']
-        
+
+        cpu_type = self.expand ('%(platform)s').replace ('darwin-', '')
         self.rewirer.rewire_root (self.expand ('%(installer_root)s'))
         installer_version = self.settings.installer_version
         installer_build = self.settings.installer_build
@@ -185,14 +186,14 @@ class Darwin_bundle (Installer):
         self.system ('''
 rm -f %(bundle_zip)s 
 rm -rf %(darwin_bundle_dir)s
-tar -C %(targetdir)s -zxf %(downloads)s/osx-lilypad-%(osx_lilypad_version)s.tar.gz
+tar -C %(targetdir)s -zxf %(downloads)s/osx-lilypad-%(cpu_type)s-%(osx_lilypad_version)s.tar.gz
 cp %(darwin_bundle_dir)s/Contents/Resources/subprocess.py %(installer_root)s/usr/share/lilypond/current/python/
 cp -pR --link %(installer_root)s/usr/* %(darwin_bundle_dir)s/Contents/Resources/
 mkdir -p %(darwin_bundle_dir)s/Contents/Resources/license/
 cp -pR --link %(installer_root)s/license*/* %(darwin_bundle_dir)s/Contents/Resources/license/
 ''', locals ())
         self.file_sub (
-            [('2.[0-9].[0-9]+-[0-9]',
+            [('2.[0-9]+.[0-9]+-[0-9]',
              '%(installer_version)s-%(installer_build)s'),
             ('Build from .*',
              'Build from %s' % time.asctime()),
