@@ -152,7 +152,7 @@ def upload_binaries (repo, version, version_db):
     else:
         host = host_source_spec 
         majmin = '.'.join (['%d' % v for v in version[:2]])
-        src_dests.append ((src_tarball, '%(host)s/v%(majmin)s' % locals ()))
+        src_dests.append ((src_tarball, '%(host)s/sources/v%(majmin)s' % locals ()))
         
 
     cmds += ['rsync --delay-updates --progress %s %s'
