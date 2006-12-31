@@ -1,5 +1,14 @@
 .PHONY: all default distclean download TAGS
 .PHONY: cygwin darwin-ppc darwin-x86 debian freebsd4-x86 freebsd6-x86 linux-x86 mingw bootstrap-download bootstrap
+.PHONY: unlocked-update-versions update-versions download print-success arm
+.PHONY: cygwin-libtool cygwin-libtool-installer cygwin-fontconfig
+.PHONY: cygwin-fontconfig-installer cygwin-guile cygwin-guile-installer
+.PHONY: cygwin-lilypond cygwin-lilypond-installer upload-setup-ini darwin-ppc
+.PHONY: debian linux-ppc mingw mipsel clean realclean clean-distccd
+.PHONY: local-distcc cross-compilers cross-distccd native-distccd
+.PHONY: bootstrap-git download-local local local-cross-tools doc-clean
+.PHONY: unlocked-doc-clean unlocked-doc-build unlocked-info-man-build
+.PHONY: unlocked-doc-export doc-export unlocked-dist-check dist-check
 
 default: all
 
@@ -15,10 +24,6 @@ LILYPOND_CVSDIR=$(LILYPOND_CVS_REPODIR)/$(BRANCH)
 LILYPOND_GITDIR=downloads/lilypond.git
 LILYPOND_REPODIR=downloads/lilypond
 LILYPOND_BRANCH=$(BRANCH)
-
-# for CVS
-#BRANCH=HEAD
-#BRANCH=lilypond_2_8
 
 # for GIT
 BRANCH=master
@@ -105,11 +110,12 @@ download:
 ## should be last, to incorporate changed VERSION file.
 	$(MAKE) update-versions
 
-all: $(BUILD_PLATFORM) doc $(OTHER_PLATFORMS) dist-check doc-export print-success
+all: $(BUILD_PLATFORM) dist-check doc-build doc-export $(OTHER_PLATFORMS) test print-success
 
 print-success:
 	@echo "now run "
 	@echo
+	@echo "        make BRANCH=$(BRANCH) test"   
 	@echo "        python test-lily/upload.py --branch $(LILYPOND_LOCAL_BRANCH)"
 	@echo
 
@@ -378,6 +384,22 @@ ifneq ($(BUILD_PLATFORM),darwin-ppc)
 endif
 	tar -C $(NATIVE_LILY_BUILD)/out-info-man/ \
 	    -cjf $(CWD)/uploads/lilypond-$(DIST_VERSION)-$(DOC_BUILDNUMBER).info-man.tar.bz2 .
+
+test: 
+	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-test
+
+unlocked-test: 
+	unset LILYPONDPREFIX \
+	    && $(DOC_LIMITS) \
+	    && $(DOC_RELOCATION) \
+		make -C $(NATIVE_LILY_BUILD)/ \
+	    DOCUMENTATION=yes CPU_COUNT=$(LILYPOND_WEB_CPU_COUNT) test-clean 
+	unset LILYPONDPREFIX \
+	    && $(DOC_LIMITS) \
+	    && $(DOC_RELOCATION) \
+		make -C $(NATIVE_LILY_BUILD)/ \
+	    DOCUMENTATION=yes CPU_COUNT=$(LILYPOND_WEB_CPU_COUNT) LILYPOND_JOBS="-djob-count=2" test
+
 
 unlocked-doc-export:
 	$(PYTHON) test-lily/rsync-lily-doc.py --recreate \
