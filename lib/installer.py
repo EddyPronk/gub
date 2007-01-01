@@ -177,7 +177,8 @@ class Darwin_bundle (Installer):
         
         osx_lilypad_version = self.package_manager.package_dict ('osx-lilypad')['version']
 
-        cpu_type = self.expand ('%(platform)s').replace ('darwin-', '')
+        ## cpu_type = self.expand ('%(platform)s').replace ('darwin-', '')
+        cpu_type = 'ppc'
         self.rewirer.rewire_root (self.expand ('%(installer_root)s'))
         installer_version = self.settings.installer_version
         installer_build = self.settings.installer_build
