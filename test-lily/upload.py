@@ -91,12 +91,7 @@ def upload_binaries (repo, version, version_db):
 
 
     
-    test_cmd = r'''python %(cwd)s/test-lily/rsync-lily-doc.py \
-  --upload %(host_doc_spec)s \
-  --version-file %(lilybuild)s/out/VERSION \
-  %(lilybuild)s/out-www/online-root/''' % d
-    
-    cmds.append (test_cmd)
+
     
     ## ugh: 24 is hardcoded in repository.py
     committish = repo.git_pipe ('describe --abbrev=24 %(branch)s' % locals ()).strip ()
@@ -154,7 +149,13 @@ def upload_binaries (repo, version, version_db):
         majmin = '.'.join (['%d' % v for v in version[:2]])
         src_dests.append ((src_tarball, '%(host)s/sources/v%(majmin)s' % locals ()))
         
-
+    test_cmd = r'''python %(cwd)s/test-lily/rsync-lily-doc.py \
+  --upload %(host_doc_spec)s \
+  --version-file %(lilybuild)s/out/VERSION \
+  %(lilybuild)s/out-www/online-root/''' % d
+    
+    cmds.append (test_cmd)
+    
     cmds += ['rsync --delay-updates --progress %s %s'
              % tup for tup in src_dests]
 
