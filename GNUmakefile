@@ -366,7 +366,7 @@ unlocked-info-man-build:
 	    && ulimit -m 256000 \
 	    && $(DOC_RELOCATION) \
 		make -C $(NATIVE_LILY_BUILD)/Documentation/user \
-	    DOCUMENTATION=yes out=out-www info
+	    DOCUMENTATION=yes out=www info
 	$(DOC_RELOCATION) make DESTDIR=$(NATIVE_LILY_BUILD)/out-info-man \
 	    -C $(NATIVE_LILY_BUILD)/Documentation/user out=www install-info
 
