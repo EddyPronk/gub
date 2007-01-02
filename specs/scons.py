@@ -16,10 +16,9 @@ class Scons (ToolBuildSpec):
 
     def __init__ (self, settings):
         ToolBuildSpec.__init__ (self, settings)
-        self.with (version='0.96.92',
+        self.with (version='0.96.93',
                    format='gz',
                    mirror=download.sf),
-        
-    
+
     def license_file (self):
         return '%(srcdir)s/LICENSE.txt' 
