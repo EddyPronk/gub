@@ -1,14 +1,23 @@
 from toolpackage import ToolBuildSpec
 import os
+import repository
 
 class Nsis (ToolBuildSpec):
     def __init__ (self, settings):
         ToolBuildSpec.__init__(self, settings)
-        self.with (version='2.20',
-                   
-                   mirror="http://surfnet.dl.sourceforge.net/sourceforge/%(name)s/%(name)s-%(version)s-src.tar.%(format)s",
-                   
-                   format="bz2")
+
+        if 1:
+            self.with (version='2.22',
+                       mirror="http://surfnet.dl.sourceforge.net/sourceforge/%(name)s/%(name)s-%(version)s-src.tar.%(format)s",
+                       
+                       format="bz2")
+        else:
+            repo = repository.CVSRepository (
+                self.get_repodir (),
+                source=':pserver:anonymous@nsis.cvs.sourceforge.net:/cvsroot/nsis',
+                module='NSIS',
+                tag='HEAD')
+            self.with_vc (repo)
 
     def get_build_dependencies (self):
         return ["scons"]
