@@ -385,22 +385,6 @@ endif
 	tar -C $(NATIVE_LILY_BUILD)/out-info-man/ \
 	    -cjf $(CWD)/uploads/lilypond-$(DIST_VERSION)-$(DOC_BUILDNUMBER).info-man.tar.bz2 .
 
-test: 
-	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-test
-
-unlocked-test: 
-	unset LILYPONDPREFIX \
-	    && $(DOC_LIMITS) \
-	    && $(DOC_RELOCATION) \
-		make -C $(NATIVE_LILY_BUILD)/ \
-	    DOCUMENTATION=yes CPU_COUNT=$(LILYPOND_WEB_CPU_COUNT) test-clean 
-	unset LILYPONDPREFIX \
-	    && $(DOC_LIMITS) \
-	    && $(DOC_RELOCATION) \
-		make -C $(NATIVE_LILY_BUILD)/ \
-	    DOCUMENTATION=yes CPU_COUNT=$(LILYPOND_WEB_CPU_COUNT) LILYPOND_JOBS="-djob-count=2" test
-
-
 unlocked-doc-export:
 	$(PYTHON) test-lily/rsync-lily-doc.py --recreate \
 		--version-file $(NATIVE_LILY_BUILD)/out/VERSION \
