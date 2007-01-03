@@ -1,0 +1,104 @@
+Index: gc.c
+===================================================================
+RCS file: /cvsroot/guile/guile/guile-core/libguile/gc.c,v
+retrieving revision 1.276
+retrieving revision 1.277
+diff -p -u -c -r1.276 -r1.277
+cvs diff: conflicting specifications of output style
+*** libguile/gc.c~	8 Nov 2006 09:34:35 -0000	1.276
+--- libguile/gc.c	3 Jan 2007 17:26:32 -0000	1.277
+*************** unsigned long scm_mtrigger;
+*** 208,213 ****
+--- 208,214 ----
+  /* GC Statistics Keeping
+   */
+  unsigned long scm_cells_allocated = 0;
++ unsigned long scm_last_cells_allocated = 0;
+  unsigned long scm_mallocated = 0;
+  
+  /* Global GC sweep statistics since the last full GC.  */
+*************** static scm_t_sweep_statistics scm_i_gc_s
+*** 217,222 ****
+--- 218,224 ----
+  /* Total count of cells marked/swept.  */
+  static double scm_gc_cells_marked_acc = 0.;
+  static double scm_gc_cells_swept_acc = 0.;
++ static double scm_gc_cells_allocated_acc = 0.;
+  
+  static unsigned long scm_gc_time_taken = 0;
+  static unsigned long t_before_gc;
+*************** SCM_SYMBOL (sym_cells_swept, "cells-swep
+*** 246,253 ****
+  SCM_SYMBOL (sym_malloc_yield, "malloc-yield");
+  SCM_SYMBOL (sym_cell_yield, "cell-yield");
+  SCM_SYMBOL (sym_protected_objects, "protected-objects");
+! 
+! 
+  
+  
+  /* Number of calls to SCM_NEWCELL since startup.  */
+--- 248,254 ----
+  SCM_SYMBOL (sym_malloc_yield, "malloc-yield");
+  SCM_SYMBOL (sym_cell_yield, "cell-yield");
+  SCM_SYMBOL (sym_protected_objects, "protected-objects");
+! SCM_SYMBOL (sym_total_cells_allocated, "total-cells-allocated");
+  
+  
+  /* Number of calls to SCM_NEWCELL since startup.  */
+*************** SCM_DEFINE (scm_gc_stats, "gc-stats", 0,
+*** 318,323 ****
+--- 319,325 ----
+    unsigned long int local_protected_obj_count;
+    double local_scm_gc_cells_swept;
+    double local_scm_gc_cells_marked;
++   double local_scm_total_cells_allocated;
+    SCM answer;
+    unsigned long *bounds = 0;
+    int table_size = scm_i_heap_segment_table_size;  
+*************** SCM_DEFINE (scm_gc_stats, "gc-stats", 0,
+*** 359,364 ****
+--- 361,369 ----
+      +(double) scm_i_gc_sweep_stats.swept
+      -(double) scm_i_gc_sweep_stats.collected;
+  
++   local_scm_total_cells_allocated = scm_gc_cells_allocated_acc
++     + (double) (scm_cells_allocated - scm_last_cells_allocated);
++   
+    for (i = table_size; i--;)
+      {
+        heap_segs = scm_cons (scm_cons (scm_from_ulong (bounds[2*i]),
+*************** SCM_DEFINE (scm_gc_stats, "gc-stats", 0,
+*** 372,377 ****
+--- 377,384 ----
+  			  scm_from_ulong (local_scm_gc_time_taken)),
+  		scm_cons (sym_cells_allocated,
+  			  scm_from_ulong (local_scm_cells_allocated)),
++ 		scm_cons (sym_total_cells_allocated,
++ 			  scm_from_double (local_scm_total_cells_allocated)),
+  		scm_cons (sym_heap_size,
+  			  scm_from_ulong (local_scm_heap_size)),
+  		scm_cons (sym_mallocated,
+*************** SCM_DEFINE (scm_gc_stats, "gc-stats", 0,
+*** 393,398 ****
+--- 400,406 ----
+  		scm_cons (sym_protected_objects,
+  			  scm_from_ulong (local_protected_obj_count)),
+  		scm_cons (sym_heap_segments, heap_segs),
++ 		
+  		SCM_UNDEFINED);
+    SCM_CRITICAL_SECTION_END;
+    
+*************** gc_update_stats (scm_t_sweep_statistics 
+*** 422,428 ****
+--- 430,440 ----
+        abort ();
+      }
+  
++   scm_gc_cells_allocated_acc +=
++     (double) (scm_cells_allocated - scm_last_cells_allocated);
++ 
+    scm_cells_allocated -= sweep_stats.collected;
++   scm_last_cells_allocated = scm_cells_allocated;
+  }
+  
+  static void
