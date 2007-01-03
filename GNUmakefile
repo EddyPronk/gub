@@ -115,7 +115,6 @@ all: $(BUILD_PLATFORM) dist-check doc-build doc-export $(OTHER_PLATFORMS) test p
 print-success:
 	@echo "now run "
 	@echo
-	@echo "        make BRANCH=$(BRANCH) test"   
 	@echo "        python test-lily/upload.py --branch $(LILYPOND_LOCAL_BRANCH)"
 	@echo
 
@@ -315,6 +314,7 @@ DOC_RELOCATION = \
     MALLOC_CHECK_=2 \
 
 DOC_SIGNATURE=uploads/signatures/lilypond-doc.$(NATIVE_BUILD_COMMITTISH)
+DIST_SIGNATURE=uploads/signatures/dist.$(NATIVE_BUILD_COMMITTISH)
 
 
 doc: native doc-build
@@ -335,6 +335,12 @@ cached-doc-build:
 	if test ! -f  $(DOC_SIGNATURE) ; then \
 		$(MAKE) unlocked-doc-build \
 		&& touch $(DOC_SIGNATURE) ; fi
+
+cached-dist-check:
+	-mkdir uploads/signatures/
+	if test ! -f  $(DIST_SIGNATURE) ; then \
+		$(MAKE) unlocked-dist-check \
+		&& touch $(DIST_SIGNATURE) ; fi
 
 unlocked-doc-build:
 	$(PYTHON) gup-manager.py -p $(BUILD_PLATFORM) remove lilypond
@@ -401,4 +407,4 @@ unlocked-dist-check:
 
 dist-check:
 	$(PYTHON) test-lily/with-lock.py --skip $(NATIVE_LILY_BUILD).lock \
-		make unlocked-dist-check
+		make cached-dist-check
