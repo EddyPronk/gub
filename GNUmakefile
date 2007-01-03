@@ -110,7 +110,7 @@ download:
 ## should be last, to incorporate changed VERSION file.
 	$(MAKE) update-versions
 
-all: $(BUILD_PLATFORM) dist-check doc-build doc-export $(OTHER_PLATFORMS) test print-success
+all: $(BUILD_PLATFORM) dist-check doc-build doc-export $(OTHER_PLATFORMS) print-success
 
 print-success:
 	@echo "now run "
