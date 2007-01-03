@@ -95,6 +95,8 @@ def upload_binaries (repo, version, version_db):
     
     ## ugh: 24 is hardcoded in repository.py
     committish = repo.git_pipe ('describe --abbrev=24 %(branch)s' % locals ()).strip ()
+    regularized_committish = committish.replace ("/", '-')
+    
     commitishes = {}
     barf = False
     for platform in platforms:
@@ -133,10 +135,10 @@ def upload_binaries (repo, version, version_db):
             barf = 1
 
     if len (commitishes) > 1 or (len (commitishes) == 1
-                                 and commitishes.keys()[0] != committish):
+                                 and commitishes.keys()[0] != regularized_committish):
         print 'uploading multiple versions'
         print '\n'.join (`x` for x in commitishes.items ())
-        print 'repo:', committish
+        print 'repo:', `regularized_committish`
         
     src_tarball = "uploads/lilypond-%(version_str)s.tar.gz" % locals ()
     src_tarball = os.path.abspath (src_tarball)
