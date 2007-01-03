@@ -345,6 +345,9 @@ class Guile__local (ToolBuildSpec, Guile):
     def configure (self):
         ToolBuildSpec.configure (self)
         self.update_libtool ()
+
+    def patch (self):
+        self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/guile-1.8-rational.patch')
         
     def install (self):
         ToolBuildSpec.install (self)
