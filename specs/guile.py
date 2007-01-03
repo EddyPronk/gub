@@ -39,7 +39,9 @@ class Guile (targetpackage.TargetBuildSpec):
     def patch (self):
         self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/guile-reloc.patch')
         self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/guile-1.8-rational.patch')
-        self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/guile-1.8-gcstats.patch')
+
+        ## darn; patch is for GUILE 1.9 CVS. 
+        ## self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/guile-1.8-gcstats.patch')
         self.autoupdate ()
 
     def configure_flags (self):
