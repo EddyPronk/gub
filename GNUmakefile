@@ -328,7 +328,7 @@ doc-build:
 unlocked-doc-clean:
 	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
 		DOCUMENTATION=yes web-clean
-
+	rm $(DOC_SIGNATURE)
 
 cached-doc-build:
 	-mkdir uploads/signatures/
