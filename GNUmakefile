@@ -328,7 +328,7 @@ doc-build:
 unlocked-doc-clean:
 	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
 		DOCUMENTATION=yes web-clean
-	rm $(DOC_SIGNATURE)
+	rm -f $(DOC_SIGNATURE)
 
 cached-doc-build:
 	-mkdir uploads/signatures/
@@ -392,6 +392,7 @@ endif
 	    -cjf $(CWD)/uploads/lilypond-$(DIST_VERSION)-$(DOC_BUILDNUMBER).info-man.tar.bz2 .
 
 unlocked-doc-export:
+	PYTHONPATH=$(NATIVE_LILY_BUILD)/python/out \
 	$(PYTHON) test-lily/rsync-lily-doc.py --recreate \
 		--version-file $(NATIVE_LILY_BUILD)/out/VERSION \
 		--output-distance \
