@@ -70,7 +70,7 @@ SET_LOCAL_PATH=PATH=$(CWD)/target/local/system/usr/bin:$(PATH)
 
 LILYPOND_VERSIONS = uploads/lilypond.versions
 
-DOC_LIMITS=ulimit -m 256000 && ulimit -d 256000 # && ulimit -v 512000 
+DOC_LIMITS=ulimit -m 256000 && ulimit -d 256000 && ulimit -v 384000 
 
 # local.make may set the following variables:
 #
