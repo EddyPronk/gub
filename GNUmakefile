@@ -313,9 +313,7 @@ DOC_RELOCATION = \
     LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$$LD_LIBRARY_PATH
     MALLOC_CHECK_=2 \
 
-DOC_SIGNATURE=uploads/signatures/lilypond-doc.$(NATIVE_BUILD_COMMITTISH)
-DIST_SIGNATURE=uploads/signatures/dist.$(NATIVE_BUILD_COMMITTISH)
-
+SIGNATURE_FUNCTION=uploads/signatures/$(1).$(NATIVE_BUILD_COMMITTISH)
 
 doc: native doc-build
 
@@ -328,19 +326,14 @@ doc-build:
 unlocked-doc-clean:
 	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
 		DOCUMENTATION=yes web-clean
-	rm $(DOC_SIGNATURE)
+	rm -f $(call SIGNATURE_FUNCTION,cached-doc-build)
+	rm -f $(call SIGNATURE_FUNCTION,cached-doc-export)
 
-cached-doc-build:
+cached-doc-build cached-dist-check cached-doc-export:
 	-mkdir uploads/signatures/
-	if test ! -f  $(DOC_SIGNATURE) ; then \
-		$(MAKE) unlocked-doc-build \
-		&& touch $(DOC_SIGNATURE) ; fi
-
-cached-dist-check:
-	-mkdir uploads/signatures/
-	if test ! -f  $(DIST_SIGNATURE) ; then \
-		$(MAKE) unlocked-dist-check \
-		&& touch $(DIST_SIGNATURE) ; fi
+	if test ! -f  $(call SIGNATURE_FUNCTION,$@) ; then \
+		$(MAKE) $(subst cached,unlocked,$@) \
+		&& touch $(call SIGNATURE_FUNCTION,$@) ; fi
 
 unlocked-doc-build:
 	$(PYTHON) gup-manager.py -p $(BUILD_PLATFORM) remove lilypond
@@ -392,13 +385,14 @@ endif
 	    -cjf $(CWD)/uploads/lilypond-$(DIST_VERSION)-$(DOC_BUILDNUMBER).info-man.tar.bz2 .
 
 unlocked-doc-export:
+	PYTHONPATH=$(NATIVE_LILY_BUILD)/python/out \
 	$(PYTHON) test-lily/rsync-lily-doc.py --recreate \
 		--version-file $(NATIVE_LILY_BUILD)/out/VERSION \
 		--output-distance \
 		$(NATIVE_LILY_SRC)/buildscripts/output-distance.py $(NATIVE_LILY_BUILD)/out-www/online-root
 
 doc-export:
-	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-export 
+	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) cached-doc-export 
 
 unlocked-dist-check:
 	$(SET_LOCAL_PATH) \

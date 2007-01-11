@@ -1,3 +1,9 @@
+lilypond (2.10.7-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Jan Nieuwenhuizen <janneke@gnu.org>  Mon,  1 Jan 2007 15:47:51 +0100
+
 lilypond (2.8.8-2) unstable; urgency=low
 
   * Include music-drawing-routines.ps.
