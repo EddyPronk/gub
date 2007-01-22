@@ -327,8 +327,7 @@ class GitRepository (Repository):
 
         refs = '%s:%s' % (self.remote_branch, self.branch)
 
-        ## ugh : --no-tags is a 1.4.4.2 oddity.
-        self.git ('fetch --no-tags --update-head-ok %(source)s %(refs)s ' % locals ())
+        self.git ('fetch --update-head-ok %(source)s %(refs)s ' % locals ())
         self.checksums = {}
 
     def get_checksum (self):
@@ -360,7 +359,7 @@ class GitRepository (Repository):
         revision = self.revision
         
         if os.path.isdir (destdir + '/.git'):
-            self.git ('pull --no-tags %(repo_dir)s %(branch)s' % locals (), dir=destdir)
+            self.git ('pull %(repo_dir)s %(branch)s' % locals (), dir=destdir)
         else:
             self.system ('git-clone -s %(repo_dir)s %(destdir)s' % locals ())
 
@@ -372,8 +371,6 @@ class GitRepository (Repository):
             
         open ('%(destdir)s/.git/refs/heads/%(branch)s' % locals (), 'w').write (revision)
         self.git ('checkout %(branch)s' % locals (), dir=destdir) 
-
-
 
 class CVSRepository(Repository):
     cvs_entries_line = re.compile ("^/([^/]*)/([^/]*)/([^/]*)/([^/]*)/")
