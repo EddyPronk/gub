@@ -25,7 +25,8 @@ class Nsis (ToolBuildSpec):
     def patch (self):
         self.system ('mkdir -p %(allbuilddir)s', ignore_errors=True)
         self.system ('ln -s %(srcdir)s %(builddir)s')
-
+        self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/nsis-2.22-contrib-math.patch')
+        
     def configure (self):
         pass
 
