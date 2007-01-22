@@ -9,7 +9,7 @@ import re
 class Pango (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with (version='1.14.5',
+        self.with (version='1.14.8',
                    mirror=download.gnome_216,
                    format='bz2')
 
