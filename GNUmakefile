@@ -112,6 +112,8 @@ download:
 
 all: $(BUILD_PLATFORM) dist-check doc-build doc-export $(OTHER_PLATFORMS) print-success
 
+platforms: $(PLATFORMS)
+
 print-success:
 	@echo "now run "
 	@echo
