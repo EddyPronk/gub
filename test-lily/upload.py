@@ -179,15 +179,8 @@ def upload_binaries (repo, version, version_db):
 
     cmds.append (darcs_tag_cmd)
     cmds.append ('make update-versions')
-    
-    print '\n\n'
-    print '\n'.join (cmds);
-    print '\n\n'
-    if barf:
-        raise Exception ('barf')
 
-    for cmd in cmds:
-        system (cmd)
+    return cmds
 
 
 def get_cli_parser ():
@@ -211,6 +204,12 @@ upload x.y.z      - upload packages
                   dest='branch',
                   default='master',
                   help='select upload directory')
+
+    p.add_option ('--execute', action='store_true',
+                  dest='execute',
+                  default=False,
+                  help='execute the commands.')
+
 
     p.add_option ('--repo-dir', action='store',
                   dest='repo_dir',
@@ -251,8 +250,16 @@ def main ():
     version_tup = tuple (map (int, version_tup))
     
     version_db = versiondb.VersionDataBase (options.version_db)
-    upload_binaries (repo, version_tup, version_db)
+    cmds = upload_binaries (repo, version_tup, version_db)
 
+    if options.execute:
+        cmds = [c for c in cmds if 'test-binary' not in c]
+        for cmd in cmds:
+            system (cmd)
+    else:
+        print '\n\n'
+        print '\n'.join (cmds);
+        print '\n\n'
 
 if __name__ == '__main__':
     main ()
