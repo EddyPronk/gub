@@ -21,6 +21,12 @@ def parse_options ():
                   dest="output_distance_script",
                   help="compute signature distances using script") 
 
+    p.add_option ("--dry-run",
+                  action="store_true",
+                  dest="dry_run",
+                  default=False,
+                  help="don't actually run any commands.")
+    
     p.add_option ("--version-file",
                   action="store",
                   dest="version_file",
@@ -91,6 +97,9 @@ def create_local_web_dir (options, source):
     
     system ('rsync -Wa %s/ . ' % source)
 
+    if options.dry_run:
+        return
+    
     print 'Instrumenting for Google Analytics' 
     for f in ['Documentation/index.html',
 	      'Documentation/topdocs/NEWS.html',
@@ -119,10 +128,16 @@ def compute_distances (options, source):
         stable_major = cur_version[1] - 1
 
         stable_dirs = glob.glob ('v%d.%d.*' % (cur_version[0], stable_major))
-
+                        
         if stable_dirs:
+            def dir2number (m):
+                return tuple (map (int, m.groups ())) + (m.group (0),)
+            
+            stable_dirs = [dir2number (re.search ('v([0-9]+)[.]([0-9]+)[.]([0-9]+)', s))
+                           for s in stable_dirs]
             stable_dirs.sort ()
             stable_dirs.reverse ()
+            stable_dirs = [t[-1] for t in stable_dirs]
             version_dirs.append (stable_dirs[0])
 
     version_dirs = [d for d in version_dirs if
@@ -182,7 +197,14 @@ def main ():
     
     for a in args:
         a = os.path.abspath (a)
-        
+
+        if opts.dry_run:
+            def my_system (x):
+                print x
+            global system
+            system = my_system
+
+        print system
         if opts.recreate:
             create_local_web_dir (opts, a)
         if opts.output_distance_script:
