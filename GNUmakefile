@@ -115,9 +115,11 @@ all: $(BUILD_PLATFORM) dist-check doc-build doc-export $(OTHER_PLATFORMS) print-
 platforms: $(PLATFORMS)
 
 print-success:
-	@echo "now run "
+	python test-lily/upload.py --branch $(LILYPOND_LOCAL_BRANCH)
+	@echo ""
+	@echo "To upload, run "
 	@echo
-	@echo "        python test-lily/upload.py --branch $(LILYPOND_LOCAL_BRANCH)"
+	@echo "        python test-lily/upload.py --branch $(LILYPOND_LOCAL_BRANCH) --execute"
 	@echo
 
 native: local $(BUILD_PLATFORM)
