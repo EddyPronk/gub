@@ -170,7 +170,7 @@ def upload_binaries (repo, version, version_db):
     description = repo.git_pipe ('describe --abbrev=39 %(branch)s' % locals()).strip ()
     
     git_tag = 'release/%(version_str)s-%(build)d' % locals () 
-    git_tag_cmd = 'git --git-dir downloads/lilypond.git tag -m "build and release"  -a %(git_tag)s %(branch)s' % locals ()
+    git_tag_cmd = 'git --git-dir downloads/lilypond.git tag -m ""  -a %(git_tag)s %(branch)s' % locals ()
     git_push_cmd = 'git --git-dir downloads/lilypond.git push ssh+git://git.sv.gnu.org/srv/git/lilypond.git/ refs/tags/%(git_tag)s:refs/tags/%(git_tag)s' % locals ()
     darcs_tag_cmd = 'darcs tag --patch "release %(version_str)s-%(build)d of lilypond %(description)s" ' % locals()
 
