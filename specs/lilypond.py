@@ -123,7 +123,11 @@ cd %(builddir)s && %(configure_command)s''')
             or misc.file_is_newer ('%(srcdir)s/config.hh.in' % d,
                                    '%(builddir)s/config.hh' % d)
             or misc.file_is_newer ('%(srcdir)s/configure' % d,
-                                   '%(builddir)s/config.make' % d)):
+                                   '%(builddir)s/config.make' % d)
+
+            ## need to reconfigure if dirs were added.
+            or (len (self.locate_files ('%(builddir)s', "GNUmakefile"))
+                != len (self.locate_files ('%(srcdir)s', "GNUmakefile")) + 1)):
 
             self.do_configure ()
             self.system ('touch %(builddir)s/config.hh')
