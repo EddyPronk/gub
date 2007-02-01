@@ -14,7 +14,7 @@ class Ghostscript (targetpackage.TargetBuildSpec):
             source='http://svn.ghostscript.com:8080/ghostscript',
             branch='trunk',
             module='gs',
-            revision='7120')
+            revision='7665')
 
         def fixed_version (self):
             return '8.55'
@@ -55,22 +55,18 @@ class Ghostscript (targetpackage.TargetBuildSpec):
         return '.'.join (self.ball_version.split ('.')[0:2])
 
     def patch (self):
-        substs = [(r'\$\(%s\)' % d, '$(DESTDIR)$(%s)' % d) for d in
-                  ['bindir', 'datadir', 'gsdir', 'gsdatadir', 'docdir',
-                   'mandir', 'scriptdir', 'exdir']]
-        self.file_sub (substs, '%(srcdir)s/src/unixinst.mak')
 
         disable_re = "(DEVICE_DEVS[0-9]+)=([^\n]+(%s))" %'|'.join (['tiff',
-                                                              'pcx',
-                                                              'uniprint',
-                                                              'deskjet',
-                                                              'djet500',
-                                                              'bmp',
-                                                              'pbm',
-                                                              'bjc200',
-                                                              'cdeskjet',
-                                                              'faxg3',
-                                                              'cljet5'])
+                                                                    'pcx',
+                                                                    'uniprint',
+                                                                    'deskjet',
+                                                                    'djet500',
+                                                                    'bmp',
+                                                                    'pbm',
+                                                                    'bjc200',
+                                                                    'cdeskjet',
+                                                                    'faxg3',
+                                                                    'cljet5'])
         
 
         ## generate Makefile.in
