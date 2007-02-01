@@ -4,7 +4,7 @@ class Git (toolpackage.ToolBuildSpec):
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
         self.with (mirror="http://kernel.org/pub/software/scm/git/git-%(version)s.tar.bz2",
-                   version="1.5.0.rc2")
+                   version="1.5.0.rc3")
     def patch (self):
         self.shadow_tree ("%(srcdir)s", '%(builddir)s')
     def configure (self):
