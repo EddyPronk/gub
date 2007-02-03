@@ -150,7 +150,6 @@ ac_64bit_type=${ac_64bit_type=none}
 ac_cv_c_long_size_t=${ac_cv_c_long_size_t=no}
 ac_cv_c_long_time_t=${ac_cv_c_long_time_t=yes}
 ac_cv_c_stack_direction=${ac_cv_c_stack_direction=-1}
-ac_cv_exeext=${ac_cv_exeext=}
 ac_cv_func_getpgrp_void=${ac_cv_func_getpgrp_void=yes}
 ac_cv_func_select=${ac_cv_func_select=yes} # but in mingw only if winsock2.h
 ac_cv_func_setvbuf_reversed=${ac_cv_func_setvbuf_reversed=no}
@@ -182,7 +181,6 @@ ac_cv_sizeof_void_p=${ac_cv_sizeof_void_p=4}
 ac_cv_spinlocks=${ac_cv_spinlocks=no}
 ac_cv_sprintf_count=${ac_cv_sprintf_count=yes}
 ac_cv_sys_restartable_syscalls=${ac_cv_sys_restartable_syscalls=yes}
-ac_exeext=${ac_exeext=}
 
 # libtool searches not only in the cross libpath
 #     /cygwin/usr/lib:/cygwin/usr/lib/w32api:/usr/i686-cygwin/lib
@@ -394,6 +392,8 @@ ac_cv_have_dev_ptmx=${ac_cv_have_dev_ptmx=no}
 ac_cv_file__dev_ptmx=${ac_cv_file__dev_ptmx=no}
 ac_cv_file__dev_ptc=${ac_cv_file__dev_ptc=no}
 ac_cv_lib_dl_dlopen=${ac_cv_lib_dl_dlopen=no}
+ac_cv_exeext=${ac_cv_exeext=.exe}
+ac_exeext=${ac_exeext=}
 
 lt_cv_dlopen_libs=${lt_cv_dlopen_libs="none required"}
 lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=8192}
