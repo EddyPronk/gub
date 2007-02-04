@@ -16,17 +16,18 @@ class Ghostscript (targetpackage.TargetBuildSpec):
             module='gs',
             revision='7665')
 
-        def fixed_version (self):
-            return '8.55'
+        ## ugh: nested, with self shadow?
+        def version_from_VERSION (self):
+            s = self.get_file_content ('src/version.mak')
+            d = misc.grok_sh_variables_str (s)
+            v = '%(GS_VERSION_MAJOR)s.%(GS_VERSION_MINOR)s' % d
+            return v
 
         from new import instancemethod
-        repo.version = instancemethod (fixed_version, repo, type (repo))
+        repo.version = instancemethod (version_from_VERSION, repo, type (repo))
 
         self.with_vc (repo)
 
-    def version (self):
-        return '8.55'
-    
     def license_file (self):
         return '%(srcdir)s/LICENSE' 
 
