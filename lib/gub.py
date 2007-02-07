@@ -297,9 +297,19 @@ cd %(autodir)s && ./bootstrap
 cd %(autodir)s && bash autogen.sh  --noconfigure
 ''', locals ())
         else:
+            headcmd = ''
+            for c in ('configure.in','configure.ac'):
+                try:
+                    
+                    if 'AC_CONFIG_HEADER' in open (self.expand ('%(srcdir)s/' + c)).read ():
+                        headcmd = self.expand ('cd %(autodir)s && autoheader -I %(system_root)s/usr/share/aclocal')
+                        break
+                except IOError:
+                    pass
+                
             self.system ('''
 cd %(autodir)s && aclocal -I %(system_root)s/usr/share/aclocal
-cd %(autodir)s && autoheader -I %(system_root)s/usr/share/aclocal
+%(headcmd)s
 cd %(autodir)s && autoconf -I %(system_root)s/usr/share/aclocal
 ''', locals ())
             if os.path.exists (self.expand ('%(srcdir)s/Makefile.am')):
