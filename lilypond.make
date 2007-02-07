@@ -79,7 +79,7 @@ unlocked-update-versions:
 	python lib/versiondb.py --dbfile uploads/libtool.versions --download
 
 update-versions:
-	$(PYTHON) test-lily/with-lock.py --skip $(LILYPOND_VERSIONS).lock make unlocked-update-versions
+	$(PYTHON) lib/with-lock.py --skip $(LILYPOND_VERSIONS).lock make unlocked-update-versions
 
 download:
 	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB_BUILDER,$(p)) download lilypond && ) true
@@ -253,10 +253,10 @@ SIGNATURE_FUNCTION=uploads/signatures/$(1).$(NATIVE_BUILD_COMMITTISH)
 doc: native doc-build
 
 doc-clean:
-	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-clean
+	$(PYTHON) lib/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-clean
 
 doc-build: 
-	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) cached-doc-build
+	$(PYTHON) lib/with-lock.py --skip $(DOC_LOCK) $(MAKE) cached-doc-build
 
 unlocked-doc-clean:
 	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
@@ -327,7 +327,7 @@ unlocked-doc-export:
 		$(NATIVE_LILY_SRC)/buildscripts/output-distance.py $(NATIVE_LILY_BUILD)/out-www/online-root
 
 doc-export:
-	$(PYTHON) test-lily/with-lock.py --skip $(DOC_LOCK) $(MAKE) cached-doc-export 
+	$(PYTHON) lib/with-lock.py --skip $(DOC_LOCK) $(MAKE) cached-doc-export 
 
 unlocked-dist-check:
 	$(SET_LOCAL_PATH) \
@@ -335,5 +335,5 @@ unlocked-dist-check:
 	cp $(NATIVE_LILY_BUILD)/out/lilypond-$(DIST_VERSION).tar.gz uploads/
 
 dist-check:
-	$(PYTHON) test-lily/with-lock.py --skip $(NATIVE_LILY_BUILD).lock \
+	$(PYTHON) lib/with-lock.py --skip $(NATIVE_LILY_BUILD).lock \
 		make cached-dist-check
