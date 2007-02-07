@@ -30,7 +30,7 @@ $(LOCAL_GUB_BUILDER_OPTIONS)
 INVOKE_INSTALLER_BUILDER=$(PYTHON) installer-builder.py \
   --target-platform $(1) \
   --branch git=$(GIT_LOCAL_BRANCH) \
-
+  --version-db uploads/git.db
 
 BUILD=$(call INVOKE_GUB_BUILDER,$(1)) build $(2) \
   && $(call INVOKE_INSTALLER_BUILDER,$(1)) build-all git
@@ -47,10 +47,6 @@ download:
 
 bootstrap: bootstrap-git download-local local cross-compilers local-cross-tools download 
 
-bootstrap-git:
-	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local download git
-	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local build git
-
 download-local:
 	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local download \
 		git pkg-config nsis icoutils 
@@ -62,3 +58,6 @@ local:
 
 mingw:
 	$(call BUILD,$@,git)
+
+update-versions:
+	python lib/versiondb.py --no-sources --url http://lilypond.org/git --dbfile uploads/git.db --download
