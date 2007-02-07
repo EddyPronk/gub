@@ -54,6 +54,8 @@ class VersionDataBase:
         return self._db.keys ()
     
     def get_sources_from_url (self, url):
+
+        ## ugh: should follow urls in the index.
         directories = ['v0.0', 'v0.1', 'v1.0', 'v1.1', 'v1.2', 'v1.3',
                        'v1.4', 'v1.5', 'v1.6', 'v1.7', 'v1.8', 'v1.9',
                        'v2.0', 'v2.1', 'v2.2', 'v2.3', 'v2.4', 'v2.5',
@@ -77,8 +79,13 @@ class VersionDataBase:
             
             if p == 'cygwin':
                 u += 'release/%(package)s/' % locals ()
-            self._db[p] = get_url_versions (u)
 
+            try:
+                self._db[p] = get_url_versions (u)
+            except IOError, x:
+                print 'problem loading', u 
+                continue
+            
     def write (self):
         open (self.file_name,'w').write (pickle.dumps (self._db))
 
@@ -133,6 +140,12 @@ Inspect lilypond.org download area, and write pickle of all version numbers.
                   default=False,
                   help='download new versions')
 
+
+    p.add_option ('--no-sources', action='store_false',
+                  dest='do_sources',
+                  default=True,
+                  help="do not look for versions of sources")
+
     p.add_option ('--build-for', action='store',
                   dest='version',
                   default='',
@@ -167,7 +180,11 @@ def main ():
         return
 
     if options.download:
-        db.get_sources_from_url (options.url)
+        
+        ##ugh
+        if options.do_sources: 
+            db.get_sources_from_url (options.url)
+            
         db.get_binaries_from_url (options.url)
         db.write ()
 
