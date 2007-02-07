@@ -226,11 +226,6 @@ local:
 		texinfo automake gettext 
 
 
-local-cross-tools:
-ifneq ($(filter mingw,$(PLATFORMS)),)
-	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local build nsis 
-endif
-
 ################################################################
 # docs
 

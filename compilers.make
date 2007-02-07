@@ -68,3 +68,8 @@ bootstrap-git:
 	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local download git
 	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local build git
 
+local-cross-tools:
+ifneq ($(filter mingw,$(PLATFORMS)),)
+	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local build nsis 
+endif
+
