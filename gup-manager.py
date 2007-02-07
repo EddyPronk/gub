@@ -101,9 +101,9 @@ def get_cli_parser ():
         p.usage += "    %s - %s\n" % (re.sub ('_', '-', command), doc)
 
     p.add_option ('-B', '--branch',
-                  default="master",
-                  dest='branch',
-                  help="VC branch to use")
+                  default=[],
+                  dest='branches',
+                  help="PACKAGE=VC-BRANCH settings to use")
 
     p.add_option ('-p', '--platform',
                   default=None,
@@ -159,10 +159,12 @@ def main ():
 
     target_manager = gup.DependencyManager (options.root, oslog.Os_commands ("/dev/null"), dbdir=options.dbdir)
 
+    
+    branch_dict = dict ([tuple (b.split ('=')) for b in options.branches])
     if options.command == 'install':
         platform = options.platform
-        target_manager.read_package_headers ('uploads/%(platform)s/' % locals (), options.branch)
-#        target_manager.read_package_headers ('uploads/%(platform)s-cross/' % locals(), options.branch)
+        
+        target_manager.read_package_headers ('uploads/%(platform)s/' % locals (), branch_dict)
 
     if options.command:
         commands = Command (target_manager, options)

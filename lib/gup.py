@@ -191,7 +191,7 @@ class PackageDictManager:
         self._packages[nm] = d
    
         
-    def register_package_header (self, package_hdr, branch):
+    def register_package_header (self, package_hdr, branch_dict):
         if self.verbose:
             self.os_interface.log_command ('reading package header: %s\n'
                                            % `package_hdr`)
@@ -200,11 +200,11 @@ class PackageDictManager:
 
         d = pickle.loads (str)
 
-        ### FIXME - lilypond hardcoded.
-        if (d['basename'] == 'lilypond'
-            and branch != d['vc_branch']):
+        if (branch_dict.has_key (d['basename'])
+            and branch_dict[d['basename']] != d['vc_branch']):
             suffix = d['vc_branch']
             print 'ignoring header: ' + package_hdr
+            branch = branch_dict[d['basename']]
             print 'branch: %(branch)s, suffix: %(suffix)s' % locals ()
             return
 
@@ -237,12 +237,12 @@ class PackageDictManager:
         hdr = '%(split_hdr)s' % d
         return os.path.exists (ball) and os.path.exists (hdr)
 
-    def read_package_headers (self, s, branch):
+    def read_package_headers (self, s, branch_dict):
         if os.path.isdir (s) and not s.endswith ('/'):
             s += '/'
             
         for f in glob.glob ('%(s)s*hdr' % locals ()):
-            self.register_package_header (f, branch)
+            self.register_package_header (f, branch_dict)
 
 
 ## FIXME: MI

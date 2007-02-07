@@ -39,7 +39,7 @@ class Cygwin_package (context.Os_context_wrapper):
 
         self.package_manager.include_build_deps = False
         self.package_manager.read_package_headers (
-            settings.expand ('%(gub_uploads)s/'  + name), branch)
+            settings.expand ('%(gub_uploads)s/'  + name), settings.branch_dict)
 
         p = self.package_manager.get_all_packages ()[0]
         if not self.settings.build:

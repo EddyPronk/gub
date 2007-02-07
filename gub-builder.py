@@ -30,10 +30,11 @@ build             - build target packages
 '''
     p.description='Grand Unified Builder.  Specify --package-version to set build version'
 
-    p.add_option ('-B', '--branch', action='store',
-                  dest='lilypond_branch',
-                  default='master',
-                  help='select lilypond branch [master]')
+    p.add_option ('-B', '--branch', action='append',
+                  dest='branches',
+                  default=[],
+                  metavar='NAME=BRANCH',
+                  help='select branch')
 
     p.add_option ('-k', '--keep', action='store_true',
                   dest='keep_build',
@@ -251,7 +252,7 @@ def main ():
         sys.exit (2)
 
     settings = settings_mod.get_settings (options.platform)
-    settings.lilypond_branch = options.lilypond_branch
+    settings.set_branches (options.branches)
     settings.build_source = options.build_source
     settings.cpu_count = options.cpu_count
     settings.set_distcc_hosts (options)

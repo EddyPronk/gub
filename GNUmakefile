@@ -40,18 +40,18 @@ OTHER_PLATFORMS=$(filter-out $(BUILD_PLATFORM), $(PLATFORMS))
 
 INVOKE_GUB_BUILDER=$(PYTHON) gub-builder.py \
 --target-platform $(1) \
---branch $(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH) \
+--branch lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH) \
 $(foreach h,$(GUB_NATIVE_DISTCC_HOSTS), --native-distcc-host $(h))\
 $(foreach h,$(GUB_CROSS_DISTCC_HOSTS), --cross-distcc-host $(h))\
 $(LOCAL_GUB_BUILDER_OPTIONS)
 
 INVOKE_GUP=$(PYTHON) gup-manager.py \
 --platform $(1) \
---branch $(LILYPOND_LOCAL_BRANCH)
+--branch lilypond=$(LILYPOND_LOCAL_BRANCH)
 
 INVOKE_INSTALLER_BUILDER=$(PYTHON) installer-builder.py \
   --target-platform $(1) \
-  --branch $(LILYPOND_LOCAL_BRANCH) \
+  --branch lilypond=$(LILYPOND_LOCAL_BRANCH) \
 
 
 BUILD=$(call INVOKE_GUB_BUILDER,$(1)) build $(2) \
@@ -163,7 +163,7 @@ cygwin-lilypond:
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build libtool guile fontconfig lilypond
 
 cygwin-lilypond-installer:
-	$(PYTHON) cygwin-packager.py --branch $(LILYPOND_LOCAL_BRANCH) lilypond
+	$(PYTHON) cygwin-packager.py --branch lilypond=$(LILYPOND_LOCAL_BRANCH) lilypond
 
 upload-setup-ini:
 	cd uploads/cygwin && ../../downloads/genini $$(find release -mindepth 1 -maxdepth 2 -type d) > setup.ini
@@ -343,7 +343,7 @@ unlocked-doc-build:
 	$(PYTHON) gup-manager.py -p $(BUILD_PLATFORM) remove lilypond
 
 	## force update of srcdir.
-	$(PYTHON) gub-builder.py --branch $(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH) \
+	$(PYTHON) gub-builder.py --branch lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH) \
 		 -p $(BUILD_PLATFORM) --stage untar build lilypond
 
 	unset LILYPONDPREFIX \

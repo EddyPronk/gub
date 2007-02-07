@@ -137,6 +137,18 @@ class Settings (Context):
         self.native_distcc_hosts = ' '.join (distcc.live_hosts (hosts (options.native_distcc_hosts), port=3634))
 
 
+
+    def set_branches (self, bs):
+        "set branches, takes a list of name=branch strings."
+
+        self.branch_dict = {}
+        for b in bs:
+            (name, br) = tuple (b.split ('='))
+            br = br.replace ('/', '--')
+
+            self.branch_dict[name] = br
+            self.__dict__['%s_branch' % name]= br
+
 def get_settings (platform):
     settings = Settings (platform)
     

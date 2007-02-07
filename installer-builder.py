@@ -30,10 +30,12 @@ build-all - build, strip, package
 '''
     p.description='Grand Unified Builder - collect in platform dependent package format'
 
-    p.add_option ('-B', '--branch', action='store',
-                  dest='lilypond_branch',
-                  default='master',
-                  help='select lilypond branch [master]')
+    p.add_option ('-B', '--branch', 
+                  dest='branches',
+                  default=[],
+                  action='append',
+                  help='set branch for package')
+
     p.add_option ('-l', '--skip-if-locked',
                   default=False,
                   dest="skip_if_locked",
@@ -58,8 +60,6 @@ build-all - build, strip, package
 
     (options, args) = p.parse_args ()
     
-    # FIXME: logic copied foo times
-    options.lilypond_branch = options.lilypond_branch.replace ('/', '--')
     if not options.platform:
         raise Exception ('error: no platform specified')
         cli_parser.print_help ()
@@ -72,7 +72,7 @@ def check_installer (installer, options, args):
     settings = installer.settings
     install_manager = gup.PackageDictManager (settings.os_interface)
     install_manager.read_package_headers (settings.gub_uploads,
-                                          settings.lilypond_branch)
+                                          settings.branch_dict)
     file = installer.installer_root + '.checksum'
     if not os.path.exists (file):
         return False
@@ -97,7 +97,7 @@ def build_installer (installer, args, options):
     
     install_manager.include_build_deps = False
     install_manager.read_package_headers (settings.gub_uploads,
-                                          settings.lilypond_branch)
+                                          settings.branch_dict)
 
     def get_dep (x):
         return install_manager.dependencies (x)
@@ -173,8 +173,9 @@ def main ():
     (options, commands)  = parse_command_line ()
 
     settings = settings_mod.get_settings (options.platform)
-    settings.lilypond_branch = options.lilypond_branch
-                  
+
+    settings.set_branches (options.branches)
+        
     c = commands.pop (0)
 
     cs = [c]
