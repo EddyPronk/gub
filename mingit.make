@@ -34,6 +34,12 @@ INVOKE_INSTALLER_BUILDER=$(PYTHON) installer-builder.py \
 
 BUILD=$(call INVOKE_GUB_BUILDER,$(1)) build $(2) \
   && $(call INVOKE_INSTALLER_BUILDER,$(1)) build-all git
+
+
+default: all
+
+all: $(PLATFORMS)
+
 include compilers.make
 
 download:
