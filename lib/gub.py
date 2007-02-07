@@ -303,20 +303,24 @@ cd %(autodir)s && ./bootstrap
 cd %(autodir)s && bash autogen.sh  --noconfigure
 ''', locals ())
         else:
+            aclocal_opt = ''
+            if os.path.exists (self.expand ('%(system_root)s/usr/share/aclocal')):
+                aclocal_opt = '-I %(system_root)s/usr/share/aclocal'
+                
             headcmd = ''
             for c in ('configure.in','configure.ac'):
                 try:
                     
                     if 'AC_CONFIG_HEADER' in open (self.expand ('%(srcdir)s/' + c)).read ():
-                        headcmd = self.expand ('cd %(autodir)s && autoheader -I %(system_root)s/usr/share/aclocal')
+                        headcmd = self.expand ('cd %(autodir)s && autoheader %(aclocal_opt)s')
                         break
                 except IOError:
                     pass
                 
             self.system ('''
-cd %(autodir)s && aclocal -I %(system_root)s/usr/share/aclocal
+cd %(autodir)s && aclocal %(aclocal_opt)s
 %(headcmd)s
-cd %(autodir)s && autoconf -I %(system_root)s/usr/share/aclocal
+cd %(autodir)s && autoconf %(aclocal_opt)s
 ''', locals ())
             if os.path.exists (self.expand ('%(srcdir)s/Makefile.am')):
                 self.system ('''
