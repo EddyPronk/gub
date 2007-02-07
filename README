@@ -23,6 +23,9 @@ linux-x86
 linux-64
    shar archive for Linux/x86_64
 
+linux-ppc
+   shar archive for Linux/PowerPC
+
 freebsd-x86
    shar archive for FreeBSD 4/x86
 
@@ -62,42 +65,27 @@ INSTALLING
 
 * You need 
 
-  - about 7 GB of free space (for all platforms.)
+  - about 9 GB of free space (for all platforms.)
 
   - A standard unix development environment with GCC and G++
   GNU Make
 
   - Python 2.4
 
-  - A working TeX installation, ncurses, libcurl, libssl
-
-  - A subversion client
-
-  - ImageMagick (the program 'convert')
-
-* Edit local.make to set some variables.  Here is what my local.make
-  contains.
-
-  BUILD_PLATFORM=linux-x86
-
-
-  Typically, you would also set
-
-  PLATFORMS=$(BUILD_PLATFORM)
-
 * Prepare build environment
 
-  make bootstrap
+  make -f <package>.make bootstrap
+
+  use mingit.make for building the MinGW version of Git.
+
 
 * Build everything 
 
-  make all
+  make -f <package>.make all
 
-this should leave an installer and documentation in
+this should leave installers and documentation in
 
-  uploads/lilypond-VERSION-RELEASE.linux-x86.shar
-  uploads/lilypond-VERSION-RELEASE.documentation.tar.bz2
-  uploads/webdoc/VERSION/
+  uploads/
 
 
  
@@ -112,57 +100,5 @@ run the following without arguments for instructions.
   gub-builder.py - build packages
   installer-builder.py
                  - build (platform dependent) installers
-  lilypondorg.py - inspect lilypond.org download area
   test-gub.py    - build tester; integrates with Darcs/CVS 
-
-
-TESTING
-*******
-
-The test-lily directory contains scripts for running various
-tests. Run without arguments for instructions
-
-  cron-builder.py - entry point from continuous crontab testing
-  test-binary.py  - test binary builds
-  with-lock.py    - run a command with a lockfile
-  rsync-lily-doc.py
-                  - prepare documentation for upload
-  dist-check.py   - check tarball for anomalies
-  cygwin-packager.py
-                  - repackage GUB packages into Cygwin tarballs.
-
-
-
-CRON usage
-**********
-
-I have the following in my crontab
-
-
-* Hourly build of LilyPond subpackage for all platforms except native
-
-test-lily/cron-builder.py --package
-  --test-options "--to lilypond-cvs@gnu.org --quiet --from hanwen@lilypond.org
-                  --smtp smtp.xs4all.nl --repository downloads/lilypond-HEAD"
-  darwin-x86 freebsd linux mingw
-
-  
-* Hourly build of native installer, to run documentation and dist check.
-  
-test-lily/cron-builder.py
-  --package --installer --tarball --docs
-  --test-options "--to lilypond-cvs@gnu.org --dependent --quiet
-                  --from hanwen@lilypond.org --smtp smtp.xs4all.nl --repository downloads/lilypond-HEAD"
-  --unversioned
-  darwin-ppc
-
-
-* Nightly build of all installers, to be ready for shipping binaries
-  in the morning.
-  
-test-lily/cron-builder.py
-  --installer
-  --test-options "--to lilypond-cvs@gnu.org --quiet --from hanwen@lilypond.org
-                  --smtp smtp.xs4all.nl --repository downloads/lilypond-HEAD"
-  darwin-x86 freebsd mingw linux darwin-ppc
 

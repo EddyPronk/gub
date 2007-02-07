@@ -1,0 +1,76 @@
+
+INSTALLING
+**********
+
+in addition to the requirements for GUB, you need:
+
+    * A working TeX installation, ncurses, libcurl, libssl
+    * A subversion client
+    * ImageMagick (the program 'convert')
+
+
+* Prepare build environment
+
+  make -f lilypond.make bootstrap
+
+* Build everything 
+
+  make -f lilypond.make all
+
+this should leave an installer and documentation in
+
+  uploads/PACKAGE-VERSION-RELEASE.linux-x86.shar
+  uploads/PACKAGE-VERSION-RELEASE.documentation.tar.bz2
+  uploads/webdoc/VERSION/
+
+
+TESTING
+*******
+
+The test-lily directory contains scripts for running various
+tests. Run without arguments for instructions
+
+  cron-builder.py - entry point from continuous crontab testing
+  test-binary.py  - test binary builds
+  with-lock.py    - run a command with a lockfile
+  rsync-lily-doc.py
+                  - prepare documentation for upload
+  dist-check.py   - check tarball for anomalies
+  cygwin-packager.py
+                  - repackage GUB packages into Cygwin tarballs.
+
+
+
+CRON usage
+**********
+
+I have the following in my crontab
+
+
+* Hourly build of LilyPond subpackage for all platforms except native
+
+test-lily/cron-builder.py --package
+  --test-options "--to lilypond-cvs@gnu.org --quiet --from hanwen@lilypond.org
+                  --smtp smtp.xs4all.nl --repository downloads/lilypond-HEAD"
+  darwin-x86 freebsd linux mingw
+
+  
+* Hourly build of native installer, to run documentation and dist check.
+  
+test-lily/cron-builder.py
+  --package --installer --tarball --docs
+  --test-options "--to lilypond-cvs@gnu.org --dependent --quiet
+                  --from hanwen@lilypond.org --smtp smtp.xs4all.nl --repository downloads/lilypond-HEAD"
+  --unversioned
+  darwin-ppc
+
+
+* Nightly build of all installers, to be ready for shipping binaries
+  in the morning.
+  
+test-lily/cron-builder.py
+  --installer
+  --test-options "--to lilypond-cvs@gnu.org --quiet --from hanwen@lilypond.org
+                  --smtp smtp.xs4all.nl --repository downloads/lilypond-HEAD"
+  darwin-x86 freebsd mingw linux darwin-ppc
+
