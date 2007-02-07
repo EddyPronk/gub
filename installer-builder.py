@@ -51,6 +51,13 @@ build-all - build, strip, package
                   dest="do_strip",
                   help="don't perform strip stage")
                   
+    p.add_option ("--setting", '-s',
+                  action="append",
+                  default=[],
+                  dest="settings",
+                  help="extra overrides for settings")
+
+                  
     p.add_option ('-p', '--target-platform', action='store',
                   dest='platform',
                   type='choice',
@@ -175,7 +182,12 @@ def main ():
     settings = settings_mod.get_settings (options.platform)
 
     settings.set_branches (options.branches)
-        
+    for s in options.settings:
+        (k, v) = tuple (s.split ('='))
+        if settings.__dict__.has_key (k):
+            print "warning overwriting %s = %s with %s" % (k, settings.__dict__[k], v)
+            
+        settings.__dict__[k] = v
     c = commands.pop (0)
 
     cs = [c]
