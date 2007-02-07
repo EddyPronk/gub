@@ -124,6 +124,12 @@ class BuildSpec (Os_context_wrapper):
         return file
 
     @subst_method
+    def pretty_name (self):
+        name = self.__class__.__name__
+        name = re.sub ('__.*', '', name)
+        return name
+    
+    @subst_method
     def file_name (self):
         if self.url:
             file = re.sub ('.*/([^/]+)', '\\1', self.url)
