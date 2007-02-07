@@ -148,6 +148,9 @@ cd %(builddir)s && %(configure_command)s''')
         v = '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
         return v
 
+    def pretty_name (self):
+        return 'LilyPond'
+    
     def build_number (self):
         import versiondb
         db = versiondb.VersionDataBase (self.settings.lilypond_versions)
