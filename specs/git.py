@@ -18,9 +18,8 @@ class Git (toolpackage.ToolBuildSpec):
         # Standards.texi?
         pass
 
-class Git__mingw (targetpackage.TargetBuildSpec):
+class Git (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
-    
         targetpackage.TargetBuildSpec.__init__ (self, settings)
         source = 'git://repo.or.cz/git/mingw.git'
 
@@ -30,12 +29,14 @@ class Git__mingw (targetpackage.TargetBuildSpec):
             
             source=source)
         self.with_vc (repo)
-
+        self.target_gcc_flags = ' -mms-bitfields '
+        
     def version (self):
         return '1.4.9993'
 
     def get_dependency_dict (self):
         return {'': [
+            'bash',
             'zlib',
             'regex', 
             ]}    
@@ -53,6 +54,11 @@ class Git__mingw (targetpackage.TargetBuildSpec):
         self.system ('rm -rf %(builddir)s')
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
 
+class Git__mingw (Git):
+    def __init__ (self, settings):
+        Git.__init__ (self, settings)
+        self.target_gcc_flags = ' -mms-bitfields '
+        
     def configure (self):
         targetpackage.TargetBuildSpec.configure (self)
         self.file_sub ([('CFLAGS = -g',
@@ -72,3 +78,4 @@ class Git__mingw (targetpackage.TargetBuildSpec):
         return (targetpackage.TargetBuildSpec.install_command (self)
                 + ' uname_S=MINGW'
                 + ' SHELL_PATH=/bin/sh')
+    
