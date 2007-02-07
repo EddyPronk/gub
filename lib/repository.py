@@ -340,7 +340,8 @@ class GitRepository (Repository):
 
         repo_dir = self.repo_dir
         if os.path.isdir (repo_dir):
-            cs = self.git_pipe ('describe --abbrev=24 %(branch)s' % locals ())
+            ## can't use describe: fails in absence of tags.
+            cs = self.git_pipe ('rev-list  --max-count=1 %(branch)s' % locals ())
             cs = cs.strip ()
             self.checksums[branch] = cs
             return cs
