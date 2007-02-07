@@ -1,4 +1,6 @@
 import toolpackage
+import targetpackage
+import repository
 
 class Git (toolpackage.ToolBuildSpec):
     def __init__ (self, settings):
@@ -15,3 +17,58 @@ class Git (toolpackage.ToolBuildSpec):
         # functionality switching.  Did Linus not read or understand
         # Standards.texi?
         pass
+
+class Git__mingw (targetpackage.TargetBuildSpec):
+    def __init__ (self, settings):
+    
+        targetpackage.TargetBuildSpec.__init__ (self, settings)
+        source = 'git://repo.or.cz/git/mingw.git'
+
+        repo = repository.GitRepository (
+            self.get_repodir (),
+            branch=settings.git_branch,
+            
+            source=source)
+        self.with_vc (repo)
+
+    def version (self):
+        return '1.4.9993'
+
+    def get_dependency_dict (self):
+        return {'': [
+            'zlib',
+            'regex', 
+            ]}    
+
+    def get_subpackage_names (self):
+        return ['']
+
+    def get_build_dependencies (self):
+        return ['zlib-devel',
+                'regex-devel', 
+                ]
+
+    def patch (self):
+        targetpackage.TargetBuildSpec.patch (self)
+        self.system ('rm -rf %(builddir)s')
+        self.shadow_tree ('%(srcdir)s', '%(builddir)s')
+
+    def configure (self):
+        targetpackage.TargetBuildSpec.configure (self)
+        self.file_sub ([('CFLAGS = -g',
+                         'CFLAGS = -I compat/ -g')],
+                       '%(builddir)s/config.mak.autogen')
+        self.file_sub ([('-lsocket',
+                         '-lwsock32'),
+                        ('TRACK_CFLAGS *=', 'XXX_TRACK_CFLAGS = '),
+                        ],
+                       '%(builddir)s/Makefile')
+
+    def compile_command (self):
+        return (targetpackage.TargetBuildSpec.compile_command (self)
+                + ' uname_S=MINGW'
+                + ' SHELL_PATH=/bin/sh')
+    def install_command (self):
+        return (targetpackage.TargetBuildSpec.install_command (self)
+                + ' uname_S=MINGW'
+                + ' SHELL_PATH=/bin/sh')
