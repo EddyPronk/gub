@@ -1,3 +1,5 @@
+# -*-Makefile-*-
+
 
 ALL_PLATFORMS=mingw
 
@@ -32,6 +34,7 @@ INVOKE_INSTALLER_BUILDER=$(PYTHON) installer-builder.py \
 
 BUILD=$(call INVOKE_GUB_BUILDER,$(1)) build $(2) \
   && $(call INVOKE_INSTALLER_BUILDER,$(1)) build-all git
+include compilers.make
 
 download:
 	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB_BUILDER,$(p)) download git && ) true
@@ -45,6 +48,11 @@ bootstrap-git:
 download-local:
 	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local download \
 		git pkg-config nsis icoutils 
+
+local:
+	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local build \
+		git 
+
 
 mingw:
 	$(call BUILD,$@,git)
