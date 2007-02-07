@@ -19,17 +19,10 @@ class Installer (context.Os_context_wrapper):
             = '%(cross_prefix)s/bin/%(target_architecture)s-strip' 
         self.no_binary_strip = []
         self.no_binary_strip_extensions = ['.la', '.py', '.def', '.scm', '.pyc']
-
-        self.installer_root = settings.targetdir + '/installer-%s' % settings.lilypond_branch
-        self.installer_db = self.installer_root + '-dbdir'
         self.installer_uploads = settings.uploads
         self.installer_version = None
         self.installer_build = None
         self.checksum = '0000'
-        
-    @context.subst_method
-    def name (self):
-        return 'lilypond'
 
     @context.subst_method
     def version (self):
@@ -157,29 +150,37 @@ class Installer (context.Os_context_wrapper):
         self.system ("cp %(sourcefiledir)s/gub.license %(installer_root)s/license/README", ignore_errors=True)
 
     def write_checksum (self):
-        open (self.expand ('%(installer_root)s.checksum'), 'w').write (self.checksum)
+        open (self.expand ('%(installer_checksum_file)s'), 'w').write (self.checksum)
 
 
-class Darwin_bundle (Installer):
+class DarwinRoot (Installer):
     def __init__ (self, settings):
         Installer.__init__ (self, settings)
         self.strip_command += ' -S '
-        self.darwin_bundle_dir = '%(targetdir)s/LilyPond.app'
         self.rewirer = darwintools.Rewirer (self.settings)
-        
+
     def use_install_root_manager (self, package_manager):
         tarball = package_manager.package_dict ('darwin-sdk')['split_ball']
         self.package_manager = package_manager
         self.rewirer.set_ignore_libs_from_tarball (tarball)
-        
+
     def create (self):
         Installer.create (self)
+        self.rewirer.rewire_root (self.expand ('%(installer_root)s'))
+        
+    
+class DarwinBundle (DarwinRoot):
+    def __init__ (self, settings):
+        DarwinRoot.__init__ (self, settings)
+        self.darwin_bundle_dir = '%(targetdir)s/LilyPond.app'
+        
+    def create (self):
+        DarwinRoot.create (self)
         
         osx_lilypad_version = self.package_manager.package_dict ('osx-lilypad')['version']
 
         ## cpu_type = self.expand ('%(platform)s').replace ('darwin-', '')
         cpu_type = 'ppc'
-        self.rewirer.rewire_root (self.expand ('%(installer_root)s'))
         installer_version = self.settings.installer_version
         installer_build = self.settings.installer_build
         
@@ -224,10 +225,14 @@ cp -pR --link %(installer_root)s/license*/* %(darwin_bundle_dir)s/Contents/Resou
         self.log_command ("Created %(bundle_zip)s\n", locals()) 
         self.write_checksum ()
         
-class Nsis (Installer):
+class MingwRoot (Installer):
     def __init__ (self, settings):
         Installer.__init__ (self, settings)
         self.strip_command += ' -g '
+    
+class Nsis (MingwRoot):
+    def __init__ (self, settings):
+        MingwRoot.__init__ (self, settings)
         self.no_binary_strip = ['gsdll32.dll', 'gsdll32.lib']
 
     def create (self):
@@ -235,25 +240,31 @@ class Nsis (Installer):
         
         # FIXME: build in separate nsis dir, copy or use symlink
         installer = os.path.basename (self.expand ('%(installer_root)s'))
-        
-        self.file_sub ([                        
-                        ('@LILYPOND_BUILD@', '%(installer_build)s'),
-                        ('@LILYPOND_VERSION@', '%(installer_version)s'),
+        ns_dir = self.expand ('%(installer_db)s')
 
-                        ## fixme:  JUNKME.
-                        ('@ROOT@', '%(installer)s'),
-                        ],
-                       '%(nsisdir)s/lilypond.nsi.in',
-                       #                               to_name='%(targetdir)s/lilypond.nsi',
-                       to_name='%(targetdir)s/lilypond.nsi',
-                       env=locals ())
+        self.dump (r'''
+!define INSTALLER_VERSION "%(installer_version)s"
+!define INSTALLER_BUILD "%(installer_build)s"
+!define INSTALLER_OUTPUT_DIR "%(ns_dir)s"
+!define ROOT "%(installer)s"
+!define PRETTY_NAME "%(pretty_name)s"
+!define CANARY_EXE "%(name)s"
+!define NAME "%(name)s"
+
+!addincludedir "${INSTALLER_OUTPUT_DIR}"
+OutFile "${INSTALLER_OUTPUT_DIR}/setup.exe"
+''',
+                   ## FIXME: CANARY_EXE doesn't actually work for mingit. 
+                   '%(ns_dir)s/definitions.nsh',
+                   env=locals ())
         
-        self.system ('cp %(nsisdir)s/*.nsh %(targetdir)s')
-        self.system ('cp %(nsisdir)s/*.bat.in %(targetdir)s')
-        self.system ('cp %(nsisdir)s/*.sh.in %(targetdir)s')
+        self.system (r'''cp %(nsisdir)s/*.nsh %(ns_dir)s
+cp %(nsisdir)s/*.bat.in %(ns_dir)s
+cp %(nsisdir)s/*.nsi %(ns_dir)s
+cp %(nsisdir)s/*.sh.in %(ns_dir)s''', locals ())
 
         root = self.expand ('%(installer_root)s')
-        files = [re.sub (root, '', f).replace ('/', '\\')
+        files = [f.replace (root, '').replace ('/', '\\')
                  for f in self.locate_files (root, '*')]
 
         self.dump ('\r\n'.join (files) + '\r\n',
@@ -261,13 +272,12 @@ class Nsis (Installer):
                    expand_string=False)
 
         PATH = os.environ['PATH']
-        os.environ['PATH'] = self.expand ('%(local_prefix)s/bin:' + PATH)
+        PATH = '%(local_prefix)s/bin:' + PATH
+        
+        self.system ('cd %(targetdir)s && makensis -NOCD %(ns_dir)s/definitions.nsh %(ns_dir)s/%(name)s.nsi', locals ())
 
-
-        self.system ('cd %(targetdir)s && makensis lilypond.nsi')
-
-        final = 'lilypond-%(installer_version)s-%(installer_build)s.%(platform)s.exe'
-        self.system ('mv %(targetdir)s/setup.exe %(installer_uploads)s/%(final)s', locals ())
+        final = '%(name)s-%(installer_version)s-%(installer_build)s.%(platform)s.exe'
+        self.system ('mv %(ns_dir)s/setup.exe %(installer_uploads)s/%(final)s', locals ())
 
 
 class Linux_installer (Installer):
@@ -280,7 +290,7 @@ class Linux_installer (Installer):
 
     def create_tarball (self):
         self.system ('tar --owner=0 --group=0 -C %(installer_root)s -jcf %(bundle_tarball)s .', locals ())
-        
+
 def create_shar (orig_file, hello, head, target_shar):
     length = os.stat (orig_file)[6]
 
@@ -332,8 +342,8 @@ def get_installer (settings, args=[]):
 
     installer_class = {
         'arm' : Shar,
-        'darwin-ppc' : Darwin_bundle,
-        'darwin-x86' : Darwin_bundle,
+        'darwin-ppc' : DarwinBundle,
+        'darwin-x86' : DarwinBundle,
         'freebsd-x86' : Shar,
         'freebsd4-x86' : Shar,
         'freebsd6-x86' : Shar,
@@ -341,6 +351,7 @@ def get_installer (settings, args=[]):
         'linux-64' : Shar,
         'linux-ppc' : Shar,
         'mingw' : Nsis,
+#        'mingw' : MingwRoot,
         'mipsel' : Shar,
     }
 

@@ -80,7 +80,9 @@ def check_installer (installer, options, args):
     install_manager = gup.PackageDictManager (settings.os_interface)
     install_manager.read_package_headers (settings.gub_uploads,
                                           settings.branch_dict)
-    file = installer.installer_root + '.checksum'
+
+    ## can't interrogate installer yet, because version is not known yet.
+    file = installer.installer_checksum_file
     if not os.path.exists (file):
         return False
     
@@ -129,9 +131,6 @@ def build_installer (installer, args, options):
     db = versiondb.VersionDataBase (options.version_db)
     buildnumber = '%d' % db.get_next_build_number (version_tup)
 
-    ## ugh: naming consistency.
-    installer.lilypond_version = version
-    installer.lilypond_build = buildnumber
     settings.installer_version = version
     settings.installer_build = buildnumber
 
@@ -147,7 +146,7 @@ def build_installer (installer, args, options):
 
 def strip_installer (obj):
     obj.log_command (' ** Stage: %s (%s)\n'
-                     % ('strip', obj.name ()))
+                     % ('strip', obj.name))
     obj.strip ()
 
 def package_installer (installer):
@@ -157,14 +156,26 @@ def package_installer (installer):
 def run_installer_commands (commands, settings, args, options):
     
     installer_obj = installer.get_installer (settings, args)
+    installer_obj.name = args[0]
 
-    if check_installer (installer_obj, args, options):
+    ## UGH -  we don't have the package dicts yet.
+    installer_obj.pretty_name = {
+        'lilypond': 'LilyPond',
+        'git': 'Git',
+        }[args[0]]
+    installer_obj.package_branch = settings.branch_dict[args[0]]
+    installer_obj.installer_root = settings.targetdir + '/installer-%s-%s' % (args[0],
+                                                                              installer_obj.package_branch)
+    installer_obj.installer_checksum_file = installer_obj.installer_root + '.checksum'
+    installer_obj.installer_db = installer_obj.installer_root + '-dbdir'
+    
+    if check_installer (installer_obj, options, args):
         print 'installer is up to date'
         return 
 
     for c in commands:
         print (' *** Stage: %s (%s)\n'
-               % (c, installer_obj.name ()))
+               % (c, installer_obj.name))
     
         if c == ('build'):
             build_installer (installer_obj, args, options)
