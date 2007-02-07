@@ -36,7 +36,6 @@ class Git (targetpackage.TargetBuildSpec):
 
     def get_dependency_dict (self):
         return {'': [
-            'bash',
             'zlib',
             'regex', 
             ]}    
