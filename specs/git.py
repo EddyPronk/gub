@@ -2,11 +2,11 @@ import toolpackage
 import targetpackage
 import repository
 
-class Git (toolpackage.ToolBuildSpec):
+class Git__local (toolpackage.ToolBuildSpec):
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
         self.with (mirror="http://kernel.org/pub/software/scm/git/git-%(version)s.tar.bz2",
-                   version="1.5.0.rc3")
+                   version="1.5.0.rc4")
     def patch (self):
         self.shadow_tree ("%(srcdir)s", '%(builddir)s')
     def configure (self):
@@ -22,7 +22,6 @@ class Git (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
         source = 'git://repo.or.cz/git/mingw.git'
-
         repo = repository.GitRepository (
             self.get_repodir (),
             branch=settings.git_branch,
