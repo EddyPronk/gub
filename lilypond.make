@@ -29,7 +29,7 @@ LILYPOND_BRANCH=$(BRANCH)
 # for GIT
 BRANCH=master
 # BRANCH=stable/2.10
-
+MAKE += -f lilypond.make 
 BRANCH_FILEIFIED=$(subst /,--,$(BRANCH))
 
 LILYPOND_LOCAL_BRANCH=$(BRANCH_FILEIFIED)-git.sv.gnu.org-lilypond.git
@@ -259,7 +259,7 @@ doc-build:
 	$(PYTHON) lib/with-lock.py --skip $(DOC_LOCK) $(MAKE) cached-doc-build
 
 unlocked-doc-clean:
-	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
+	$(MAKE) -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
 		DOCUMENTATION=yes web-clean
 	rm -f $(call SIGNATURE_FUNCTION,cached-doc-build)
 	rm -f $(call SIGNATURE_FUNCTION,cached-doc-export)
@@ -284,7 +284,7 @@ unlocked-doc-build:
 	unset LILYPONDPREFIX \
 	    && $(DOC_LIMITS) \
 	    && $(DOC_RELOCATION) \
-		make -C $(NATIVE_LILY_BUILD) \
+		$(MAKE) -C $(NATIVE_LILY_BUILD) \
 	    DOCUMENTATION=yes \
 	    WEB_TARGETS="offline online" \
 	    CPU_COUNT=$(LILYPOND_WEB_CPU_COUNT) web
@@ -299,9 +299,9 @@ unlocked-info-man-build:
 	unset LILYPONDPREFIX \
 	    && ulimit -m 256000 \
 	    && $(DOC_RELOCATION) \
-		make -C $(NATIVE_LILY_BUILD)/Documentation/user \
+		$(MAKE) -C $(NATIVE_LILY_BUILD)/Documentation/user \
 	    DOCUMENTATION=yes out=www info
-	$(DOC_RELOCATION) make DESTDIR=$(NATIVE_LILY_BUILD)/out-info-man \
+	$(DOC_RELOCATION) $(MAKE) DESTDIR=$(NATIVE_LILY_BUILD)/out-info-man \
 	    -C $(NATIVE_LILY_BUILD)/Documentation/user out=www install-info
 
 ## On darwin, all our libraries have the wrong names;
@@ -312,7 +312,7 @@ ifneq ($(BUILD_PLATFORM),darwin-ppc)
 	-mkdir $(NATIVE_LILY_BUILD)/out-info-man
 	touch $(NATIVE_LILY_BUILD)/scripts/out/lilypond-invoke-editor.1
 	$(if $(DOC_BUILDNUMBER),true,false)  ## check if we have a build number
-	$(DOC_RELOCATION) make DESTDIR=$(NATIVE_LILY_BUILD)/out-info-man \
+	$(DOC_RELOCATION) $(MAKE) DESTDIR=$(NATIVE_LILY_BUILD)/out-info-man \
 	    -C $(NATIVE_LILY_BUILD)/ DOCUMENTATION=yes CROSS=no \
 	    install-help2man
 endif
@@ -336,4 +336,4 @@ unlocked-dist-check:
 
 dist-check:
 	$(PYTHON) lib/with-lock.py --skip $(NATIVE_LILY_BUILD).lock \
-		make cached-dist-check
+		$(MAKE) cached-dist-check

@@ -15,7 +15,10 @@ def parse_options ():
 		  action="store_true",
 		  dest="skip",
 		  help="return 0 if couldn't get lock.")
-    
+
+    p.disable_interspersed_args()
+
+
     (o,a) = p.parse_args ()
     if len (a) < 2:
 	p.print_help()
