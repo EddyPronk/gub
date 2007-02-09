@@ -279,12 +279,12 @@ unlocked-doc-build:
 
 	unset LILYPONDPREFIX \
 	    && $(DOC_RELOCATION) \
-		$(MAKE) -C $(NATIVE_LILY_BUILD) \
+		make -C $(NATIVE_LILY_BUILD) \
 	    DOCUMENTATION=yes do-top-doc
 	unset LILYPONDPREFIX \
 	    && $(DOC_LIMITS) \
 	    && $(DOC_RELOCATION) \
-		$(MAKE) -C $(NATIVE_LILY_BUILD) \
+		make -C $(NATIVE_LILY_BUILD) \
 	    DOCUMENTATION=yes \
 	    WEB_TARGETS="offline online" \
 	    CPU_COUNT=$(LILYPOND_WEB_CPU_COUNT) web
@@ -299,9 +299,9 @@ unlocked-info-man-build:
 	unset LILYPONDPREFIX \
 	    && ulimit -m 256000 \
 	    && $(DOC_RELOCATION) \
-		$(MAKE) -C $(NATIVE_LILY_BUILD)/Documentation/user \
+		make -C $(NATIVE_LILY_BUILD)/Documentation/user \
 	    DOCUMENTATION=yes out=www info
-	$(DOC_RELOCATION) $(MAKE) DESTDIR=$(NATIVE_LILY_BUILD)/out-info-man \
+	$(DOC_RELOCATION) make DESTDIR=$(NATIVE_LILY_BUILD)/out-info-man \
 	    -C $(NATIVE_LILY_BUILD)/Documentation/user out=www install-info
 
 ## On darwin, all our libraries have the wrong names;
@@ -312,7 +312,7 @@ ifneq ($(BUILD_PLATFORM),darwin-ppc)
 	-mkdir $(NATIVE_LILY_BUILD)/out-info-man
 	touch $(NATIVE_LILY_BUILD)/scripts/out/lilypond-invoke-editor.1
 	$(if $(DOC_BUILDNUMBER),true,false)  ## check if we have a build number
-	$(DOC_RELOCATION) $(MAKE) DESTDIR=$(NATIVE_LILY_BUILD)/out-info-man \
+	$(DOC_RELOCATION) make DESTDIR=$(NATIVE_LILY_BUILD)/out-info-man \
 	    -C $(NATIVE_LILY_BUILD)/ DOCUMENTATION=yes CROSS=no \
 	    install-help2man
 endif
