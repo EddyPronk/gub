@@ -178,7 +178,7 @@ def upload_binaries (repo, version, version_db):
     cmds.append (git_push_cmd)
 
     cmds.append (darcs_tag_cmd)
-    cmds.append ('make update-versions')
+    cmds.append ('make -f lilypond.make update-versions')
 
     return cmds
 

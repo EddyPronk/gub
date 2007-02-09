@@ -79,7 +79,7 @@ unlocked-update-versions:
 	python lib/versiondb.py --dbfile uploads/libtool.versions --download
 
 update-versions:
-	$(PYTHON) lib/with-lock.py --skip $(LILYPOND_VERSIONS).lock make unlocked-update-versions
+	$(PYTHON) lib/with-lock.py --skip $(LILYPOND_VERSIONS).lock $(MAKE) unlocked-update-versions
 
 download:
 	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB_BUILDER,$(p)) download lilypond && ) true
