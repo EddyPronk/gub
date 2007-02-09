@@ -236,7 +236,7 @@ class Nsis (MingwRoot):
         self.no_binary_strip = ['gsdll32.dll', 'gsdll32.lib']
 
     def create (self):
-        Installer.create (self)
+        MingwRoot.create (self)
         
         # FIXME: build in separate nsis dir, copy or use symlink
         installer = os.path.basename (self.expand ('%(installer_root)s'))
@@ -254,7 +254,6 @@ class Nsis (MingwRoot):
 !addincludedir "${INSTALLER_OUTPUT_DIR}"
 OutFile "${INSTALLER_OUTPUT_DIR}/setup.exe"
 ''',
-                   ## FIXME: CANARY_EXE doesn't actually work for mingit. 
                    '%(ns_dir)s/definitions.nsh',
                    env=locals ())
         
@@ -329,15 +328,6 @@ class Shar (Linux_installer):
         self.write_checksum ()
         system ('rm %(tarball)s' % locals ())
         
-class Deb (Linux_installer):
-    def create (self):
-        self.system ('cd %(installer_uploads)s && fakeroot alien --keep-version --to-deb %(bundle_tarball)s', locals ())
-
-class Rpm (Linux_installer):
-    def create (self):
-        self.system ('cd %(installer_uploads)s && fakeroot alien --keep-version --to-rpm %(bundle_tarball)s', locals ())
-
-
 def get_installer (settings, args=[]):
 
     installer_class = {
