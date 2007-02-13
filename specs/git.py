@@ -9,6 +9,9 @@ class Git__local (toolpackage.ToolBuildSpec):
                    version="1.5.0.rc4")
     def patch (self):
         self.shadow_tree ("%(srcdir)s", '%(builddir)s')
+        self.file_sub ([('git describe','true')],
+                       '%(srcdir)s/GIT-VERSION-GEN')
+
     def configure (self):
         self.dump ('prefix=%(system_root)s/usr', '%(builddir)s/config.mak')
         
