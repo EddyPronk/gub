@@ -43,21 +43,16 @@ debian
 ACQUIRING
 *********
 
-The Darcs (www.darcs.net) repository is at 
+The Git repository is at 
 
-  http://lilypond.org/vc/gub.darcs/
-  http://lilypond.org/vc/gub-stable.darcs/
+  http://git.sv.gnu.org/gitweb/?p=lilypond.git;a=log;h=gub
 
-Where the latter is the last version that has been tested extensively.
+You can get it by doing 
 
-You can get the GUB builder by doing 
-
-  darcs get [repository]
-
-for example,
-
-  darcs get http://lilypond.org/vc/gub-stable.darcs/
-
+  mkdir gub
+  cd gub
+  git init
+  git pull git://git.sv.gnu.org/lilypond.git gub:
 
 
 INSTALLING
