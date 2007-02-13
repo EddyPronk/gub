@@ -89,7 +89,9 @@ fresh_install:
 	AllowSkipFiles on
 	SetOutPath $INSTDIR
 
-	File /r "${ROOT}"
+        File /r "${ROOT}\usr"
+        File /r "${ROOT}\license"
+        File /r "${ROOT}\files.txt"
 
 	WriteUninstaller "uninstall.exe"
 	CreateDirectory "$INSTDIR\usr\bin"
