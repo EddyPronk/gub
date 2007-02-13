@@ -10,7 +10,7 @@ import time
 """
 run as
 
-  python clean-gub-build.py --darcs-upstream http://lilypond.org/~hanwen/gub/ \
+  python clean-gub-build.py / \
   --test-opts "--to me@mydomain.org --from me@mydomain.org --repository . --smtp smtp.xs4all.nl" 
 
 """
@@ -94,12 +94,6 @@ def parse_options ():
                   default="",
                   help='what to pass to test-gub.py')
 
-    p.add_option ('--darcs-upstream',
-                  action="store",
-                  dest="darcs_upstream",
-                  default=None,
-                  help="upstream repository")
-
     p.add_option ('--unversioned',
                   action="store_true",
                   dest="unversioned",
@@ -151,8 +145,6 @@ def main ():
 
     if opts.clean:
         system ('rm -rf log/ target/ uploads/ buildnumber-* downloads/lilypond-*')
-    if opts.darcs_upstream:
-        system ('darcs pull -a ' + opts.darcs_upstream)
 
     make_cmd = 'make %s ' % opts.make_options
     python_cmd = sys.executable  + ' '
