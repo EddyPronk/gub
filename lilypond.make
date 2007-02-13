@@ -259,7 +259,7 @@ doc-build:
 	$(PYTHON) lib/with-lock.py --skip $(DOC_LOCK) $(MAKE) cached-doc-build
 
 unlocked-doc-clean:
-	$(MAKE) -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
+	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
 		DOCUMENTATION=yes web-clean
 	rm -f $(call SIGNATURE_FUNCTION,cached-doc-build)
 	rm -f $(call SIGNATURE_FUNCTION,cached-doc-export)
