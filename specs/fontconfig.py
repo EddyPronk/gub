@@ -15,7 +15,7 @@ specified by applications.'''
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
 
-        self.committish = "0596d7296c94b2bb9817338b8c1a76da91673fb9"
+        self.committish = "2373f904265a05761039cfc5fe305bf588e831c5"
         self.with_vc (repository.GitRepository (self.get_repodir (),
                                                 source="git://anongit.freedesktop.org/git/fontconfig",
                                                 revision=self.committish))
