@@ -233,7 +233,7 @@ local:
 ################################################################
 # docs
 
-NATIVE_ROOT=$(NATIVE_TARGET_DIR)/installer-$(LILYPOND_LOCAL_BRANCH)
+NATIVE_ROOT=$(NATIVE_TARGET_DIR)/installer-lilypond-$(LILYPOND_LOCAL_BRANCH)
 DOC_LOCK=$(NATIVE_ROOT).lock
 
 
