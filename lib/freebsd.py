@@ -35,7 +35,7 @@ def _get_cross_packages (settings, libc_version):
     return (
         Freebsd_runtime (settings).with (version=libc_version,
                                          strip_components=0,
-                                         mirror=download.jantien),
+                                         mirror=download.lilypondorg),
         Binutils (settings).with (version='2.16.1', format='bz2', mirror=download.gnu),
         Gcc (settings).with (version='4.1.1', mirror=download.gcc_41,
                              format='bz2'),

@@ -74,14 +74,14 @@ def _get_cross_packages (settings,
     if not settings.platform.startswith ('linux'):
         configs = [linux.Guile_config (settings).with (version=guile_version),
                    linux.Python_config (settings).with (version='2.4.1'),]
-    
+
     return [
         Libc6 (settings).with (version=libc6_version, strip_components=0,
-                               mirror=download.glibc_deb, format='deb'),
+                               mirror=download.lilypondorg_deb, format='deb'),
         Libc6_dev (settings).with (version=libc6_version, strip_components=0,
-                                   mirror=download.glibc_deb, format='deb'),
+                                   mirror=download.lilypondorg_deb, format='deb'),
         Linux_kernel_headers (settings).with (version=kernel_version, strip_components=0,
-                                              mirror=download.lkh_deb,
+                                              mirror=download.lilypondorg_deb,
                                               format='deb'),
         
         cross.Binutils (settings).with (version='2.16.1', format='bz2', mirror=download.gnu),
@@ -103,7 +103,7 @@ def get_cross_packages_stable (settings):
 def get_cross_packages_unstable (settings):
     guile_version = '1.8.0'
     libc6_version = '2.3.6.ds1-9'
-    kernel_version = '2.6.18-3'
+    kernel_version = '2.6.18-6'
     return _get_cross_packages (settings,
                                 guile_version, libc6_version, kernel_version)
 

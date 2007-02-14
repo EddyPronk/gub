@@ -239,7 +239,7 @@ def get_cross_packages (settings):
                                               mirror=download.gcc_41,
                                               format='bz2'))
     else:
-        packages.append (Gcc (settings).with (version='4.2-20060513',
+        packages.append (Gcc (settings).with (version='4.2-20070207',
                                               mirror=download.gcc_snap,
                                               format='bz2'))
 

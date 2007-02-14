@@ -34,6 +34,7 @@ freetype = 'http://download.savannah.gnu.org/releases/freetype/%(name)s-%(ball_v
 fontconfig = 'http://www.fontconfig.org/release/%(name)s-%(ball_version)s.tar.%(format)s'
 
 lilypondorg = 'http://lilypond.org/download/gub-sources/%(name)s-%(ball_version)s.tar.%(format)s'
+lilypondorg_deb = 'http://lilypond.org/download/gub-sources/%(name)s_%(ball_version)s_%(package_arch)s.%(format)s'
 
 jantien = 'http://www.xs4all.nl/~jantien/%(name)s-%(ball_version)s.tar.%(format)s'
 
