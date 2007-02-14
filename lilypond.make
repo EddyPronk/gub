@@ -21,10 +21,8 @@ ALL_PLATFORMS=arm cygwin darwin-ppc darwin-x86 debian freebsd-x86 freebsd-x86 li
 PLATFORMS=darwin-ppc darwin-x86 mingw linux-x86 linux-64 linux-ppc freebsd-x86 cygwin 
 
 LILYPOND_CVS_REPODIR=downloads/lilypond.cvs
-LILYPOND_CVSDIR=$(LILYPOND_CVS_REPODIR)/$(BRANCH)
 LILYPOND_GITDIR=downloads/lilypond.git
 LILYPOND_REPODIR=downloads/lilypond
-LILYPOND_BRANCH=$(BRANCH)
 
 # for GIT
 BRANCH=master
@@ -32,9 +30,9 @@ BRANCH=master
 
 # BRANCH=stable/2.10
 MAKE += -f lilypond.make 
-BRANCH_FILEIFIED=$(subst /,--,$(BRANCH))
+LILYPOND_BRANCH_FILEIFIED=$(subst /,--,$(LILYPOND_BRANCH))
 
-LILYPOND_LOCAL_BRANCH=$(BRANCH_FILEIFIED)-git.sv.gnu.org-lilypond.git
+LILYPOND_LOCAL_BRANCH=$(LILYPOND_BRANCH_FILEIFIED)-git.sv.gnu.org-lilypond.git
 
 PYTHONPATH=lib/
 export PYTHONPATH
