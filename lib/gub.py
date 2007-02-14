@@ -311,10 +311,12 @@ cd %(autodir)s && bash autogen.sh  --noconfigure
             for c in ('configure.in','configure.ac'):
                 try:
                     str = open (self.expand ('%(srcdir)s/' + c)).read ()
-                    if re.search ('A[CM]_CONFIG_HEADER', str):
-                        str = 0   ## don't want to expand str
+                    m = re.search ('A[CM]_CONFIG_HEADER', str)
+                    str = 0   ## don't want to expand str
+                    if m:
                         headcmd = self.expand ('cd %(autodir)s && autoheader %(aclocal_opt)s', env=locals ())
                         break
+                    
                 except IOError:
                     pass
                 
