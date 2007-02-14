@@ -6,7 +6,7 @@ class Git__local (toolpackage.ToolBuildSpec):
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
         self.with (mirror="http://kernel.org/pub/software/scm/git/git-%(version)s.tar.bz2",
-                   version="1.5.0.rc4")
+                   version="1.5.0")
     def patch (self):
         self.shadow_tree ("%(srcdir)s", '%(builddir)s')
         self.file_sub ([('git describe','true')],
@@ -54,7 +54,10 @@ class Git (targetpackage.TargetBuildSpec):
         targetpackage.TargetBuildSpec.patch (self)
         self.system ('rm -rf %(builddir)s')
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
+        self.file_sub ([('git describe','true')],
+                        '%(srcdir)s/GIT-VERSION-GEN')
 
+                       
 class Git__mingw (Git):
     def __init__ (self, settings):
         Git.__init__ (self, settings)
