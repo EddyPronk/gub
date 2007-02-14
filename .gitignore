@@ -1,0 +1,6 @@
+uploads
+*.pyc
+downloads
+target
+log
+*~
