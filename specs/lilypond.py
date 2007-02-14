@@ -24,17 +24,10 @@ beautiful sheet music from a high-level description file.'''
         except KeyError:         
             source = 'git://git.sv.gnu.org/lilypond.git'
         
-        if 'pserver' in source:
-            repo = repository.CVSRepository (
-                self.get_repodir (),
-                source=':pserver:anoncvs@cvs.sv.gnu.org:/cvsroot/lilypond',
-                module='lilypond',
-                tag=settings.lilypond_branch)
-        else:
-            repo = repository.GitRepository (
-                self.get_repodir (),
-                branch=settings.lilypond_branch,
-                source=source)
+        repo = repository.GitRepository (
+            self.get_repodir (),
+            branch=settings.lilypond_branch,
+            source=source)
 
         ## ugh: nested, with self shadow?
         def version_from_VERSION (self):
