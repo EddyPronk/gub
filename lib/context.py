@@ -97,9 +97,13 @@ class Context:
         if env:
             d = d.copy ()
             for (k, v) in env.items ():
-                if type (v) == type (''):
-                    d.update ({k: v % d})
-                    
+                try:
+                    if type (v) == type (''):
+                        d.update ({k: v % d})
+                except:
+                    print 'error substituting in', v
+                    print 'with', k
+                    raise 
         return d
     
     def expand (self, s, env={}):
