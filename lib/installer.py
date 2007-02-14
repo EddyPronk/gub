@@ -231,10 +231,6 @@ class MingwRoot (Installer):
         self.strip_command += ' -g '
     
 class Nsis (MingwRoot):
-    def __init__ (self, settings):
-        MingwRoot.__init__ (self, settings)
-        self.no_binary_strip = ['gsdll32.dll', 'gsdll32.lib']
-
     def create (self):
         MingwRoot.create (self)
         
