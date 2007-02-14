@@ -312,7 +312,7 @@ cd %(autodir)s && bash autogen.sh  --noconfigure
                 try:
                     str = open (self.expand ('%(srcdir)s/' + c)).read ()
                     if re.search ('A[CM]_CONFIG_HEADER', str):
-                        str = 0
+                        str = 0   ## don't want to expand str
                         headcmd = self.expand ('cd %(autodir)s && autoheader %(aclocal_opt)s', env=locals ())
                         break
                 except IOError:
