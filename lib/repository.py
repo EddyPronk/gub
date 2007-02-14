@@ -210,8 +210,8 @@ class GitRepository (Repository):
             (self.remote_branch,
              self.local_branch) = tuple (branch.split (':'))
 
-            # FIXME: logic copied foo times
-            self.branch = self.local_branch.replace ('/', '--')
+            self.local_branch = self.local_branch.replace ('/', '--')
+            self.branch = self.local_branch
         elif source:
             self.branch = branch
 

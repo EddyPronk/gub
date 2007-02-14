@@ -28,6 +28,8 @@ LILYPOND_BRANCH=$(BRANCH)
 
 # for GIT
 BRANCH=master
+
+
 # BRANCH=stable/2.10
 MAKE += -f lilypond.make 
 BRANCH_FILEIFIED=$(subst /,--,$(BRANCH))
@@ -72,6 +74,10 @@ LILYPOND_VERSIONS = uploads/lilypond.versions
 DOC_LIMITS=ulimit -m 256000 && ulimit -d 256000 && ulimit -v 384000 
 
 
+include compilers.make
+
+################
+
 unlocked-update-versions:
 	python lib/versiondb.py --dbfile $(LILYPOND_VERSIONS) --download
 	python lib/versiondb.py --dbfile uploads/fontconfig.versions --download
@@ -90,7 +96,7 @@ download:
 ## should be last, to incorporate changed VERSION file.
 	$(MAKE) update-versions
 
-all: $(BUILD_PLATFORM) dist-check doc-build doc-export $(OTHER_PLATFORMS) print-success
+all: native dist-check doc-build doc-export $(OTHER_PLATFORMS) print-success
 
 platforms: $(PLATFORMS)
 
@@ -196,8 +202,6 @@ TAGS: $(sources)
 
 ################################################################
 # compilers and tools
-
-include compilers.make
 
 download-local:
 	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local download \
