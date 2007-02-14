@@ -288,9 +288,12 @@ def parse_command_line ():
     p.add_option ('-b', '--build-number',
                   action='store', default=None, dest='build')
 
-    p.add_option ('--branch',
-                  action='store', dest='branch',
-                  default="HEAD")
+    p.add_option ('--branch', 
+                  dest='branches',
+                  default=[],
+                  action='append',
+                  help='set branch for package')
+
     (options, args) = p.parse_args ()
     if len (args) != 1:
         p.print_help ()
@@ -305,6 +308,8 @@ def main ():
     # that are not distributed on lp.org
     settings.build = options.build
 
+    settings.set_branches (options.branches)
+
     # Barf
     settings.__dict__['cross_distcc_hosts'] = []
     settings.__dict__['native_distcc_hosts'] = []
@@ -312,7 +317,7 @@ def main ():
     PATH = os.environ['PATH']
     os.environ['PATH'] = settings.expand ('%(local_prefix)s/bin:' + PATH)
 
-    Cygwin_package (settings, commands[0], options.branch)
+    Cygwin_package (settings, commands[0], settings.branch_dict.get (commands[0], 'HEAD'))
     
 if __name__ == '__main__':
     main ()
