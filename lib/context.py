@@ -96,8 +96,10 @@ class Context:
         d = self._substitution_dict
         if env:
             d = d.copy ()
-            (d.update ((k, v % d) for (k, v) in env.items ()
-                 if type (v) == type ('')))
+            for (k, v) in env.items ():
+                if type (v) == type (''):
+                    d.update ({k: v % d})
+                    
         return d
     
     def expand (self, s, env={}):
