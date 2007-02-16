@@ -34,7 +34,7 @@ class Git (targetpackage.TargetBuildSpec):
         self.target_gcc_flags = ' -mms-bitfields '
         
     def version (self):
-        return '1.4.9993'
+        return '1.5.0'
 
     def get_dependency_dict (self):
         return {'': [
