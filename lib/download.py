@@ -86,3 +86,5 @@ gcc_snap = 'ftp://ftp.fu-berlin.de/unix/languages/gcc/snapshots/%(ball_version)s
 
 boost = 'http://surfnet.dl.sourceforge.net/sourceforge/boost/boost_1_33_1.tar.%(format)s'
 
+
+gnucvs =  ':pserver:anoncvs@cvs.sv.gnu.org:/cvsroot/%(name)s'
