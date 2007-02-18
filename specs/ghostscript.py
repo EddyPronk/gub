@@ -56,7 +56,6 @@ class Ghostscript (targetpackage.TargetBuildSpec):
         return '.'.join (self.ball_version.split ('.')[0:2])
 
     def patch (self):
-
         disable_re = "(DEVICE_DEVS[0-9]+)=([^\n]+(%s))" %'|'.join (['tiff',
                                                                     'pcx',
                                                                     'uniprint',
