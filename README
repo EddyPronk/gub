@@ -35,9 +35,12 @@ cygwin
 arm
    shar archive for Linux/ARM (largely untested)
 
-debian
-   .deb package for Debian (Linux/x86) (largely untested)
 
+LICENSE
+*******
+
+Gub is distributed under the terms of the GNU General Public License,
+version 2 or later.   Gub comes with NO WARRANTY.
 
 
 ACQUIRING
