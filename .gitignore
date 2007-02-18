@@ -5,3 +5,4 @@ target
 log
 *~
 local.make
+test-settings.py
