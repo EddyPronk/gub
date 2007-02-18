@@ -1,3 +1,24 @@
+
+"""
+    Copyright (c) 2005--2007
+    Jan Nieuwenhuizen <janneke@gnu.org>
+    Han-Wen Nienhuys <hanwen@xs4all.nl>
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2, or (at your option)
+    any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+"""
+
 import misc
 import os
 import re
@@ -60,7 +81,7 @@ class Version:
     def version (self):
         return self._version
 
-class DarcsRepository (Repository):
+class Darcs (Repository):
     def __init__ (self, dir, source=''):
         Repository.__init__ (self)
         self.dir = dir + '.darcs'
@@ -188,7 +209,7 @@ class TarBall (Repository):
 class RepositoryException (Exception):
     pass
 
-class GitRepository (Repository):
+class Git (Repository):
     def __init__ (self, git_dir, source='', branch='', revision=''):
         Repository.__init__ (self)
         
@@ -373,7 +394,7 @@ class GitRepository (Repository):
         open ('%(destdir)s/.git/refs/heads/%(branch)s' % locals (), 'w').write (revision)
         self.git ('checkout %(branch)s' % locals (), dir=destdir) 
 
-class CVSRepository(Repository):
+class CVS(Repository):
     cvs_entries_line = re.compile ("^/([^/]*)/([^/]*)/([^/]*)/([^/]*)/")
     #tag_dateformat = '%Y/%m/%d %H:%M:%S'
 
@@ -589,13 +610,13 @@ def get_repository_proxy (dir, branch):
     type = m.group (2)
 
     if type == 'cvs':
-        return CVSRepository (dir, branch=branch )
+        return CVS (dir, branch=branch )
     elif type == 'darcs':
-        return DarcsRepository (dir)
+        return Darcs (dir)
     elif type == 'git':
-        return GitRepository (dir, branch=branch)
+        return Git (dir, branch=branch)
     elif type == 'svn':
-        return SvnRepository (dir, branch=branch)
+        return Subversion (dir, branch=branch)
     else:
         raise UnknownVcSystem('repo format unknown: ' + dir)
 

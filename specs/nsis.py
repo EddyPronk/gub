@@ -12,7 +12,7 @@ class Nsis (ToolBuildSpec):
                        
                        format="bz2")
         else:
-            repo = repository.CVSRepository (
+            repo = repository.CVS (
                 self.get_repodir (),
                 source=':pserver:anonymous@nsis.cvs.sourceforge.net:/cvsroot/nsis',
                 module='NSIS',

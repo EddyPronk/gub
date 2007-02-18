@@ -25,12 +25,12 @@ class Git (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
         source = 'git://repo.or.cz/git/mingw.git'
-        repo = repository.GitRepository (
-            self.get_repodir (),
-            branch=settings.git_branch,
-            
-            source=source)
+        repo = repository.Git (self.get_repodir (),
+                               branch=settings.git_branch,
+                               source=source)
         self.with_vc (repo)
+
+        ## strip -mwindows.
         self.target_gcc_flags = ' -mms-bitfields '
         
     def version (self):

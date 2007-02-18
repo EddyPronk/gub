@@ -24,10 +24,9 @@ beautiful sheet music from a high-level description file.'''
         except KeyError:         
             source = 'git://git.sv.gnu.org/lilypond.git'
         
-        repo = repository.GitRepository (
-            self.get_repodir (),
-            branch=settings.lilypond_branch,
-            source=source)
+        repo = repository.Git (self.get_repodir (),
+                               branch=settings.lilypond_branch,
+                               source=source)
 
         ## ugh: nested, with self shadow?
         def version_from_VERSION (self):
