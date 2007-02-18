@@ -12,8 +12,10 @@ class Expat (targetpackage.TargetBuildSpec):
         return ['libtool']
 
     def patch (self):
-        targetpackage.TargetBuildSpec.patch (self)
+        self.system ("rm %(srcdir)s/configure")
         self.system ("cd %(srcdir)s && patch -p1 < %(patchdir)s/expat-1.95.8-mingw.patch")
+        self.system ("touch %(srcdir)s/tests/xmltest.sh.in")
+        targetpackage.TargetBuildSpec.patch (self)
 
     def configure (self):
         targetpackage.TargetBuildSpec.configure (self)
