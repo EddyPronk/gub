@@ -35,7 +35,9 @@ cygwin
 arm
    shar archive for Linux/ARM (largely untested)
 
-
+debian
+   shar archive for Debian (largely untested)
+ 
 LICENSE
 *******
 
