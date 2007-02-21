@@ -105,7 +105,6 @@ fresh_install:
 	Call find_desktop
 
 	Call registry_guile
-	Call registry_python
 	Call registry_lilypond
 
 	;; FIXME: these postinstall things should be part of their
@@ -117,6 +116,15 @@ fresh_install:
 
 
 SectionEnd
+
+;; Optional section (can be disabled by the user)
+Section "Bundled Python"
+    ;; Only make bundled python interpreter the default
+    ;; if user wants it to be (i.e.  for the average windows
+    ;; user who only cares that software works just like that)
+    Call registry_python
+SectionEnd
+
 
 ;; Optional section (can be disabled by the user)
 Section "Start Menu Shortcuts"
