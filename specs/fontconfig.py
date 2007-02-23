@@ -101,7 +101,15 @@ class Fontconfig__darwin (Fontconfig):
         self.file_sub ([('-Wl,[^ ]+ ', '')],
                '%(builddir)s/src/Makefile')
 
+class Fontconfig__darwin__x86 (Fontconfig__darwin):
+    def __init__ (self, settings):
+        Fontconfig__darwin.__init__ (self, settings)
 
+        self.committish = "0596d7296c94b2bb9817338b8c1a76da91673fb9"
+        self.with_vc (repository.Git (self.get_repodir (),
+                                      source="git://anongit.freedesktop.org/git/fontconfig",
+                                      revision=self.committish))
+    
 class Fontconfig__linux (Fontconfig):
     def configure (self):
         Fontconfig.configure (self)
