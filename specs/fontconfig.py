@@ -5,6 +5,8 @@ import targetpackage
 import toolpackage
 import repository
 
+fc_version = "0596d7296c94b2bb9817338b8c1a76da91673fb9"
+
 class Fontconfig (targetpackage.TargetBuildSpec):
     '''Generic font configuration library 
 Fontconfig is a font configuration and customization library, which
@@ -14,10 +16,9 @@ specified by applications.'''
 
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.committish = "0596d7296c94b2bb9817338b8c1a76da91673fb9"
         self.with_vc (repository.Git (self.get_repodir (),
                                       source="git://anongit.freedesktop.org/git/fontconfig",
-                                      revision=self.committish))
+                                      revision=fc_version))
 
     def get_build_dependencies (self):
         return ['libtool', 'expat-devel', 'freetype-devel']
@@ -120,7 +121,7 @@ class Fontconfig__local (toolpackage.ToolBuildSpec):
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
         self.with (mirror="git://anongit.freedesktop.org/git/fontconfig",
-                   version="0596d7296c94b2bb9817338b8c1a76da91673fb9")
+                   version=fc_version)
         
     def get_build_dependencies (self):
         return ['libtool', 'freetype', 'expat']
