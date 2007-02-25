@@ -231,7 +231,7 @@ def get_repository (options):
     ## do here, because also used in website generation.
     import repository
     dir = options.repo_dir.replace ('.git','')
-    repo = repository.GitRepository (dir, 
+    repo = repository.Git (dir, 
                                      branch=options.branch)
     return repo
 

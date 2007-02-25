@@ -116,7 +116,7 @@ def main ():
     tarball = '%(builddir)s/out/lilypond-%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s.tar.gz' % config
 
 
-    repo = repository.GitRepository (options.repository,
+    repo = repository.Git (options.repository,
                                      branch=options.branch)
 
     check_files (tarball, repo)
