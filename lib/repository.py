@@ -215,6 +215,7 @@ class Git (Repository):
         
         self.repo_dir = os.path.normpath (git_dir) + '.git'
         self.checksums = {}
+        self.local_branch = ''
         self.remote_branch = branch
         self.source = source
         self.revision = revision
@@ -239,8 +240,6 @@ class Git (Repository):
             if branch:
                 self.local_branch = branch + self.repo_url_suffix
                 self.branch = self.local_branch
-            else:
-                self.local_branch = 'master' + self.repo_url_suffix
         else:
             self.branch = branch
             self.local_branch = branch
@@ -383,7 +382,7 @@ class Git (Repository):
         if os.path.isdir (destdir + '/.git'):
             self.git ('pull %(repo_dir)s %(branch)s' % locals (), dir=destdir)
         else:
-            self.system ('git-clone -s %(repo_dir)s %(destdir)s' % locals ())
+            self.system ('git-clone -l -s %(repo_dir)s %(destdir)s' % locals ())
 
         if not revision:
             revision = open ('%(repo_dir)s/refs/heads/%(branch)s' % locals ()).read ()
