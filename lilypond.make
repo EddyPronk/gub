@@ -279,11 +279,11 @@ unlocked-doc-build:
 	$(PYTHON) gub-builder.py --branch lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH) \
 		 -p $(BUILD_PLATFORM) --stage untar build lilypond
 
-	unset LILYPONDPREFIX \
+	unset LILYPONDPREFIX LILYPOND_DATADIR \
 	    && $(DOC_RELOCATION) \
 		make -C $(NATIVE_LILY_BUILD) \
 	    DOCUMENTATION=yes do-top-doc
-	unset LILYPONDPREFIX \
+	unset LILYPONDPREFIX LILYPOND_DATADIR \
 	    && $(DOC_LIMITS) \
 	    && $(DOC_RELOCATION) \
 		make -C $(NATIVE_LILY_BUILD) \
@@ -298,7 +298,7 @@ unlocked-doc-build:
 	    -cjf $(CWD)/uploads/lilypond-$(DIST_VERSION)-$(DOC_BUILDNUMBER).webdoc.tar.bz2 .
 
 unlocked-info-man-build:
-	unset LILYPONDPREFIX \
+	unset LILYPONDPREFIX LILYPOND_DATADIR \
 	    && ulimit -m 256000 \
 	    && $(DOC_RELOCATION) \
 		make -C $(NATIVE_LILY_BUILD)/Documentation/user \
