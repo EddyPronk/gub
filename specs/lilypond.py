@@ -1,7 +1,6 @@
 import os
 import re
 #
-import cvs
 import repository
 import gub
 import misc
