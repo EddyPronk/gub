@@ -78,7 +78,6 @@ INSTALLING
 
   use mingit.make for building the MinGW version of Git.
 
-
 * Build everything 
 
   make -f <package>.make all
@@ -86,10 +85,6 @@ INSTALLING
 this should leave installers and documentation in
 
   uploads/
-
-
- 
-
 
 USAGE
 *****

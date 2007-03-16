@@ -25,10 +25,9 @@ LILYPOND_GITDIR=downloads/lilypond.git
 LILYPOND_REPODIR=downloads/lilypond
 
 # for GIT
-BRANCH=master
+LILYPOND_BRANCH=master
+# LILYPOND_BRANCH=stable/2.10
 
-
-# BRANCH=stable/2.10
 MAKE += -f lilypond.make 
 LILYPOND_BRANCH_FILEIFIED=$(subst /,--,$(LILYPOND_BRANCH))
 
