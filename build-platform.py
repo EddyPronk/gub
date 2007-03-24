@@ -26,7 +26,7 @@ def gcc_machine ():
         machine = os.popen ('gcc -dumpmachine 2>/dev/null').read ().strip ()
         lst = machine.split ('-')
         cpu = lst[0]
-        if cpu in ('i386', 'i468', 'i586', 'i686'):
+        if cpu in ('i386', 'i486', 'i586', 'i686'):
             cpu = 'x86'
         elif cpu == 'x86_64':
             cpu = '64'
