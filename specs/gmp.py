@@ -8,9 +8,8 @@ class Gmp (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
         self.with (version='4.2.1',
-                   mirror="ftp://ftp.swox.com/pub/gmp/src/gmp-%(version)s.tar.bz2",
+                   mirror="http://ftp.sunet.se/pub/gnu/gmp/gmp-%(version)s.tar.bz2",
                    format="bz2")
-
         if not self.settings.platform.startswith ('darwin'):
             self.target_architecture = re.sub ('i[0-9]86-', 'i386-', settings.target_architecture)
 
