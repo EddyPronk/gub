@@ -219,12 +219,12 @@ download-local:
 # -distcc: nonstandard (eg. MacOS)
 # -freetype: for bootstrapping fontconfig
 # -imagemagick: for lilypond web site
-
+# -netpbm: website
 local:
 	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local build \
 		git flex mftrace potrace fontforge freetype \
 		guile pkg-config icoutils python \
-		texinfo automake gettext 
+		texinfo automake gettext netpbm
 
 
 ################################################################
@@ -246,8 +246,8 @@ DOC_RELOCATION = \
     LILYPOND_EXTERNAL_BINARY="$(NATIVE_ROOT)/usr/bin/lilypond" \
     PATH=$(CWD)/target/local/system/usr/bin:$(NATIVE_ROOT)/usr/bin:$$PATH \
     GS_LIB=$(wildcard $(NATIVE_ROOT)/usr/share/ghostscript/*/lib) \
-    LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$$LD_LIBRARY_PATH
     MALLOC_CHECK_=2 \
+    LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$$LD_LIBRARY_PATH
 
 SIGNATURE_FUNCTION=uploads/signatures/$(1).$(NATIVE_BUILD_COMMITTISH)
 
