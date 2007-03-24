@@ -7,7 +7,8 @@ in addition to the requirements for GUB, you need:
     * A working TeX installation, ncurses, libcurl, libssl
     * A subversion client
     * ImageMagick (the program 'convert')
-
+    * pngtopnm
+    * t1utils
 
 * Prepare build environment
 
