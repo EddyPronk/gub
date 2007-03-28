@@ -163,6 +163,12 @@ def change_target_package (package):
     package.get_subpackage_definitions \
         = misc.MethodOverrider (package.get_subpackage_definitions, cyg_defs)
 
+    def enable_static (d):
+        return d.replace ('--disable-static', '--enable-static')
+
+    package.configure_command \
+        = misc.MethodOverrider (package.configure_command, enable_static)
+
     def install (whatsthis, lst):
 	package = lst[0]
         package.post_install_smurf_exe ()
