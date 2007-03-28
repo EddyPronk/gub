@@ -173,11 +173,10 @@ def parse_options ():
 
 def main ():
     options = parse_options ()
-
-    target_manager = gup.DependencyManager (options.root, oslog.Os_commands ("/dev/null"), dbdir=options.dbdir)
-
-    
-    branch_dict = dict ([tuple (b.split ('=')) for b in options.branches])
+    target_manager = gup.DependencyManager (options.root,
+                                            oslog.Os_commands ("/dev/null"),
+                                            dbdir=options.dbdir)
+    branch_dict = dict ([tuple (options.branches.split ('='))])
     if options.command == 'install':
         platform = options.platform
         
