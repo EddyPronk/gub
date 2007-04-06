@@ -3,14 +3,31 @@ import os
 import download
 import misc
 import targetpackage
+import repository
+
 from toolpackage import ToolBuildSpec
 
 
 class Guile (targetpackage.TargetBuildSpec):
     def set_mirror(self):
-        self.with (version='1.8.1', mirror=download.gnu, format='gz')
+        source = 'git://repo.or.cz/guile.git'
+        repo = repository.Git (self.get_repodir (),
+                               branch='branch_release-1-8', 
+                               source=source)
+        repo.version = lambda: '1.8.2'
+        self.with_vc (repo)
         self.so_version = '17'
 
+    def autogen_sh (self):
+        self.file_sub ([(r'AC_CONFIG_SUBDIRS\(guile-readline\)', '')],
+                       '%(srcdir)s/configure.in')
+        self.file_sub ([(r'guile-readline', '')],
+                       '%(srcdir)s/Makefile.am')
+        self.dump ('',
+                   '%(srcdir)s/doc/ref/version.texi')
+        self.dump ('',
+                   '%(srcdir)s/doc/tutorial/version.texi')
+        
     def license_file (self):
         return '%(srcdir)s/COPYING.LIB' 
 
@@ -37,11 +54,8 @@ class Guile (targetpackage.TargetBuildSpec):
         return '.'.join (self.ball_version.split ('.')[0:2])
 
     def patch (self):
+        self.autogen_sh()
         self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/guile-reloc.patch')
-        self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/guile-1.8-rational.patch')
-
-        ## darn; patch is for GUILE 1.9 CVS. 
-        ## self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/guile-1.8-gcstats.patch')
         self.autoupdate ()
 
     def configure_flags (self):
@@ -347,8 +361,9 @@ class Guile__local (ToolBuildSpec, Guile):
         self.update_libtool ()
 
     def patch (self):
-        self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/guile-1.8-rational.patch')
-        
+        self.autogen_sh()
+        self.autoupdate ()
+
     def install (self):
         ToolBuildSpec.install (self)
 
