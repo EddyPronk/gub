@@ -74,9 +74,14 @@ class Guile (targetpackage.TargetBuildSpec):
 ''')
         
     def configure_command (self):
-        return (targetpackage.TargetBuildSpec.configure_command (self)
+        return ('GUILE_FOR_BUILD=%(local_prefix)s/bin/guile '
+                + targetpackage.TargetBuildSpec.configure_command (self)
                 + self.configure_flags ())
 
+    def compile_command (self):
+        return ('preinstguile=%(local_prefix)s/bin/guile ' +
+                targetpackage.TargetBuildSpec.compile_command (self))
+    
     def compile (self):
 
         ## Ugh : broken dependencies barf with make -jX
