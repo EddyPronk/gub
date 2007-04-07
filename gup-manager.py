@@ -176,7 +176,11 @@ def main ():
     target_manager = gup.DependencyManager (options.root,
                                             oslog.Os_commands ("/dev/null"),
                                             dbdir=options.dbdir)
-    branch_dict = dict ([tuple (options.branches.split ('='))])
+
+    branch_dict = {}
+    for b in options.branches:
+        (package, branch_name) = b.split ('=')
+        branch_dict[package] = branch_name
     if options.command == 'install':
         platform = options.platform
         
