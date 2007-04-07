@@ -1,3 +1,4 @@
+import re
 import os
 #
 import download
@@ -30,7 +31,7 @@ class Guile (targetpackage.TargetBuildSpec):
         
     def license_file (self):
         return '%(srcdir)s/COPYING.LIB' 
-
+ 
     def get_subpackage_names (self):
         return ['doc', 'devel', 'runtime', '']
 
@@ -55,7 +56,10 @@ class Guile (targetpackage.TargetBuildSpec):
 
     def patch (self):
         self.autogen_sh()
-        self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/guile-reloc.patch')
+
+        ## Don't apply patch twice.
+        if None == re.search ('reloc_p=', open (self.expand ('%(srcdir)s/configure.in')).read()):
+            self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/guile-reloc.patch')
         self.autoupdate ()
 
     def configure_flags (self):
