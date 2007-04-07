@@ -60,6 +60,10 @@ class Guile (targetpackage.TargetBuildSpec):
         ## Don't apply patch twice.
         if None == re.search ('reloc_p=', open (self.expand ('%(srcdir)s/configure.in')).read()):
             self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/guile-reloc.patch')
+            self.dump ('''#!/bin/sh
+exec %(local_prefix)s/bin/guile "$@"
+''', "%(srcdir)s/pre-inst-guile.in")
+            
         self.autoupdate ()
 
     def configure_flags (self):
