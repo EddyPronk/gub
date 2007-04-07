@@ -45,7 +45,8 @@ class Settings (Context):
         self.gtk_version = '2.8'
 
         self.tool_prefix = self.target_architecture + '-'
-        self.targetdir = self.topdir + '/target/' + self.platform
+        self.system_root = self.topdir + '/target/' + self.platform
+        self.targetdir = self.system_root + '/gubfiles'
 
         ## Patches are architecture dependent, 
         ## so to ensure reproducibility, we unpack for each
@@ -65,11 +66,11 @@ class Settings (Context):
 ##        self.gub_cross_uploads = '%s/%s-cross' % (self.uploads, self.platform)
 
         self.distcc_hosts = ''
+        
         # FIXME: rename to target_root?
-        self.system_root = self.targetdir + '/system'
         self.cross_prefix = self.system_root + '/usr/cross'
         self.installdir = self.targetdir + '/install'
-        self.local_prefix = self.topdir + '/target/local/system/usr'
+        self.local_prefix = self.topdir + '/target/local/usr'
         self.cross_distcc_bindir = self.topdir + '/target/cross-distcc/bin'
         self.native_distcc_bindir = self.topdir + '/target/native-distcc/bin'
         

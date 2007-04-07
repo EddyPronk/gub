@@ -8,6 +8,7 @@ import cross
 
 from new import classobj
 
+from context import subst_method
 
 class TargetBuildSpec (gub.BuildSpec):
     def configure_command (self):
@@ -26,6 +27,14 @@ class TargetBuildSpec (gub.BuildSpec):
 --libdir=/usr/lib
 ''')
 
+    def __init__ (self, settings):
+        gub.BuildSpec.__init__ (self, settings)
+
+        
+    @subst_method
+    def LD_PRELOAD (self):
+        return '%(topdir)s/librestrict/librestrict.so'
+    
     def install (self):
         self.pre_install_libtool_fixup ()
         gub.BuildSpec.install (self)
