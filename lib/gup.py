@@ -208,7 +208,7 @@ class PackageDictManager:
                 print 'branch: %(branch)s, suffix: %(suffix)s' % locals ()
                 return
         elif d['vc_branch']:
-            print 'ignoring header (no branch for this package):', package_hdr
+            sys.stdout.write ('No branch for package %s, ignoring header: %s\n' % (d['basename'], package_hdr))
             return
         
         name = d['split_name']

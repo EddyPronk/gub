@@ -46,13 +46,13 @@ $(foreach h,$(GUB_CROSS_DISTCC_HOSTS), --cross-distcc-host $(h))\
 $(LOCAL_GUB_BUILDER_OPTIONS)
 
 INVOKE_GUP=$(PYTHON) gup-manager.py \
---platform $(1) \
---branch guile=branch_release-1-8 \
---branch lilypond=$(LILYPOND_LOCAL_BRANCH)
+  --platform $(1) \
+  --branch guile=branch_release-1-8-repo.or.cz-guile.git \
+  --branch lilypond=$(LILYPOND_LOCAL_BRANCH)
 
 INVOKE_INSTALLER_BUILDER=$(PYTHON) installer-builder.py \
   --target-platform $(1) \
-  --branch guile=branch_release-1-8 \
+  --branch guile=branch_release-1-8-repo.or.cz-guile.git \
   --branch lilypond=$(LILYPOND_LOCAL_BRANCH) \
 
 
