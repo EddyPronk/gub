@@ -39,6 +39,10 @@ add_allowed (char const *p)
   allowed_count ++;
 }
 
+/*
+  prepend cwd if necessary.  Leaks memory.
+ */
+static
 char const *
 expand_path (char const *p)
 {
@@ -60,6 +64,9 @@ expand_path (char const *p)
 static int
 is_allowed (char const *fn, char const *call)
 {
+  if (allowed_count == 0)
+    return 1;
+  
   char const *fullpath = expand_path (fn);
   int i = 0;
   for (i = 0; i < allowed_count; i++)
@@ -68,9 +75,6 @@ is_allowed (char const *fn, char const *call)
 	return 1;
       }
 
-  if (allowed_count == 0)
-    return 1;
-  
   fprintf (stderr, "%s: tried to %s() file %s\nallowed:\n",
 	   executable_name, call, fullpath);
 
@@ -78,9 +82,6 @@ is_allowed (char const *fn, char const *call)
     fprintf (stderr, "  %s\n", allowed[i].prefix);
   
   return 0;
-
- allowed:
-  return 1;
 }
 
 
@@ -92,7 +93,7 @@ get_executable_name (void)
   ssize_t ss = readlink ("/proc/self/exe", s, MAXLEN);
   if (ss < 0)
     {
-      printf("restrict.c: failed reading /proc/self/exe");
+      fprintf(stderr, "restrict.c: failed reading /proc/self/exe");
       abort ();
     }
   s[ss] = '\0';
@@ -142,10 +143,6 @@ void initialize (void)
   char *allow = get_allowed_prefix (executable_name);
   if (allow)
     {
-      #if 0
-      fprintf (stderr, "init %s: %s", 
-	       executable_name, allow);
-      #endif
       add_allowed (allow);
       add_allowed ("/tmp");
     }
