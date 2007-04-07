@@ -47,10 +47,12 @@ $(LOCAL_GUB_BUILDER_OPTIONS)
 
 INVOKE_GUP=$(PYTHON) gup-manager.py \
 --platform $(1) \
+--branch guile=branch_release-1-8 \
 --branch lilypond=$(LILYPOND_LOCAL_BRANCH)
 
 INVOKE_INSTALLER_BUILDER=$(PYTHON) installer-builder.py \
   --target-platform $(1) \
+  --branch guile=branch_release-1-8 \
   --branch lilypond=$(LILYPOND_LOCAL_BRANCH) \
 
 
