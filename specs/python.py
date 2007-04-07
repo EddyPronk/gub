@@ -16,7 +16,8 @@ class Python (targetpackage.TargetBuildSpec):
                    format='bz2')
 
         ## don't import settings from build system.
-	self.BASECFLAGS=''
+	self.BASECFLAGS = ''
+        self.CROSS_ROOT = '%(system_root)s'
 
     def license_file (self):
         return '%(srcdir)s/LICENSE'
@@ -39,6 +40,9 @@ class Python (targetpackage.TargetBuildSpec):
         self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-configure.in-sysname.patch')
         self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-configure.in-sysrelease.patch')
         self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-2.4.2-setup.py-import.patch')
+        self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-2.4.2-setup.py-cross_root.patch')
+        self.file_sub ([('@CC@', '@CC@ -I$(shell pwd)')],
+                        '%(srcdir)s/Makefile.pre.in')
 
     def configure (self):
         self.system ('''cd %(srcdir)s && autoconf''')
