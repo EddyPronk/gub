@@ -99,7 +99,9 @@ class Settings (Context):
             self.cpu_count_str = '%d' % os.sysconf ('SC_NPROCESSORS_ONLN')
         except ValueError:
             self.cpu_count_str = '1'
-            
+
+        # make sure we don't import build system.
+        self.LD_LIBRARY_PATH = '%(system_root)s/usr/lib'
     def verbose (self):
         try:
             return self.options.verbose

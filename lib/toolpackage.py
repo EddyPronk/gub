@@ -27,8 +27,8 @@ class ToolBuildSpec (gub.BuildSpec):
             dir = os.path.dirname (e)
             file = os.path.basename (e)
             self.system ('mv %(e)s %(dir)s/.%(file)s', locals ())
-            self.dump ('''#! /bin/sh
-LD_LIBRARY_PATH=%(system_root)s/usr/lib:$LD_LIBRARY_PATH
+            self.dump ('''#!/bin/sh
+LD_LIBRARY_PATH=%(system_root)s/usr/lib
 %(system_root)s/usr/bin/.%(file)s "$@"
 ''', e, env=locals ())
             os.chmod (e, 0755)
