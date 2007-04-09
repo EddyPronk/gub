@@ -100,8 +100,9 @@ class Settings (Context):
         except ValueError:
             self.cpu_count_str = '1'
 
-        # make sure we don't import build system.
-        self.LD_LIBRARY_PATH = '%(system_root)s/usr/lib'
+        ## make sure we don't confuse build or target system.
+        self.LD_LIBRARY_PATH = '%(system_root)s/'
+        
     def verbose (self):
         try:
             return self.options.verbose
