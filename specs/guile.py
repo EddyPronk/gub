@@ -60,6 +60,7 @@ class Guile (targetpackage.TargetBuildSpec):
         ## Don't apply patch twice.
         if None == re.search ('reloc_p=', open (self.expand ('%(srcdir)s/configure.in')).read()):
             self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/guile-reloc.patch')
+            self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/guile-cexp.patch')
             self.dump ('''#!/bin/sh
 exec %(local_prefix)s/bin/guile "$@"
 ''', "%(srcdir)s/pre-inst-guile.in")
@@ -225,11 +226,6 @@ class Guile__linux__ppc (Guile__linux):
 class Guile__freebsd (Guile):
     def config_cache_settings (self):
         return Guile.config_cache_settings (self) + '\nac_cv_type_socklen_t=yes'
-
-    def set_mirror(self):
-        self.with (version='1.8.0', mirror=download.gnu, format='gz')
-        self.so_version = '17'
-
     def configure_command (self):
         # watch out for whitespace
         builddir = self.builddir ()
@@ -376,7 +372,7 @@ class Guile__local (ToolBuildSpec, Guile):
         self.update_libtool ()
 
     def patch (self):
-        self.autogen_sh()
+        self.autogen_sh ()
         self.autoupdate ()
 
     def install (self):
