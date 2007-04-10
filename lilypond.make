@@ -66,7 +66,7 @@ sources = GNUmakefile $(wildcard *.py specs/*.py lib/*.py)
 
 NATIVE_TARGET_DIR=$(CWD)/target/$(BUILD_PLATFORM)
 
-SET_LOCAL_PATH=PATH=$(CWD)/target/local/system/usr/bin:$(PATH)
+SET_LOCAL_PATH=PATH=$(CWD)/target/local/usr/bin:$(PATH)
 
 LILYPOND_VERSIONS = uploads/lilypond.versions
 
@@ -131,7 +131,7 @@ cygwin-libtool-installer:
 
 cygwin-fontconfig:
 	rm -f uploads/cygwin/setup.ini
-	rm -rf target/cygwin/system
+	rm -rf target/cygwin/
 	$(call INVOKE_GUP, cygwin) install gcc
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build fontconfig
 
@@ -232,13 +232,13 @@ local:
 ################################################################
 # docs
 
-NATIVE_ROOT=$(NATIVE_TARGET_DIR)/installer-lilypond-$(LILYPOND_LOCAL_BRANCH)
+NATIVE_ROOT=$(NATIVE_TARGET_DIR)/gubfiles/installer-lilypond-$(LILYPOND_LOCAL_BRANCH)
 DOC_LOCK=$(NATIVE_ROOT).lock
 
 
 
-NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH)
-NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/src/lilypond-$(LILYPOND_LOCAL_BRANCH)
+NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/gubfiles/build/lilypond-$(LILYPOND_LOCAL_BRANCH)
+NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/gubfiles/src/lilypond-$(LILYPOND_LOCAL_BRANCH)
 NATIVE_BUILD_COMMITTISH=$(shell cat downloads/lilypond.git/refs/heads/$(LILYPOND_LOCAL_BRANCH))
 
 DIST_VERSION=$(shell cat $(NATIVE_LILY_BUILD)/out/VERSION)
@@ -246,7 +246,7 @@ DOC_BUILDNUMBER=$(shell $(PYTHON) lib/versiondb.py --build-for $(DIST_VERSION))
 
 DOC_RELOCATION = \
     LILYPOND_EXTERNAL_BINARY="$(NATIVE_ROOT)/usr/bin/lilypond" \
-    PATH=$(CWD)/target/local/system/usr/bin:$(NATIVE_ROOT)/usr/bin:$$PATH \
+    PATH=$(CWD)/target/local/usr/bin:$(NATIVE_ROOT)/usr/bin:$$PATH \
     GS_LIB=$(wildcard $(NATIVE_ROOT)/usr/share/ghostscript/*/lib) \
     MALLOC_CHECK_=2 \
     LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib
@@ -262,7 +262,7 @@ doc-build:
 	$(PYTHON) lib/with-lock.py --skip $(DOC_LOCK) $(MAKE) cached-doc-build
 
 unlocked-doc-clean:
-	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
+	make -C $(NATIVE_TARGET_DIR)/gubfiles/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
 		DOCUMENTATION=yes web-clean
 	rm -f $(call SIGNATURE_FUNCTION,cached-doc-build)
 	rm -f $(call SIGNATURE_FUNCTION,cached-doc-export)
