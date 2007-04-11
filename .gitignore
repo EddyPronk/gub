@@ -6,3 +6,4 @@ log
 *~
 local.make
 test-settings.py
+*.so
