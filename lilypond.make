@@ -60,8 +60,8 @@ BUILD=$(call INVOKE_GUB_BUILDER,$(1)) build $(2) \
   && $(call INVOKE_INSTALLER_BUILDER,$(1)) build-all lilypond
 
 CWD:=$(shell pwd)
-
 PYTHON=python
+
 sources = GNUmakefile $(wildcard *.py specs/*.py lib/*.py)
 
 NATIVE_TARGET_DIR=$(CWD)/target/$(BUILD_PLATFORM)
@@ -71,7 +71,6 @@ SET_LOCAL_PATH=PATH=$(CWD)/target/local/usr/bin:$(PATH)
 LILYPOND_VERSIONS = uploads/lilypond.versions
 
 DOC_LIMITS=ulimit -m 256000 && ulimit -d 256000 && ulimit -v 384000 
-
 
 include compilers.make
 

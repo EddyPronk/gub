@@ -11,7 +11,12 @@
 #  GUB_NATIVE_DISTCC_HOSTS - hosts with matching native compilers
 #  LOCAL_GUB_BUILDER_OPTIONS - esp.: --verbose, --keep [--force-package]
 
-CWD:=$(shell pwd)
+ifeq ($(CWD),)
+$(error Must set CWD)
+endif
+ifeq ($(PYTHON),)
+$(error Must set PYTHON)
+endif
 
 BUILD_PLATFORM = $(shell $(PYTHON) build-platform.py)
 
