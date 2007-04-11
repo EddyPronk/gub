@@ -11,6 +11,8 @@
 #  GUB_NATIVE_DISTCC_HOSTS - hosts with matching native compilers
 #  LOCAL_GUB_BUILDER_OPTIONS - esp.: --verbose, --keep [--force-package]
 
+CWD:=$(shell pwd)
+
 BUILD_PLATFORM = $(shell $(PYTHON) build-platform.py)
 
 DISTCC_DIRS=target/cross-distcc/bin target/cross-distccd/bin target/native-distcc/bin 
