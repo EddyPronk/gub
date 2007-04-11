@@ -5,16 +5,16 @@ import repository
 class Git__local (toolpackage.ToolBuildSpec):
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
-        self.with (mirror="http://kernel.org/pub/software/scm/git/git-%(version)s.tar.bz2",
-                   version="1.5.0")
+        self.with (mirror='http://kernel.org/pub/software/scm/git/git-%(version)s.tar.bz2',
+                   version='1.5.0')
     def patch (self):
-        self.shadow_tree ("%(srcdir)s", '%(builddir)s')
+        self.shadow_tree ('%(srcdir)s', '%(builddir)s')
         self.file_sub ([('git describe','true')],
                        '%(srcdir)s/GIT-VERSION-GEN')
 
     def configure (self):
         self.dump ('prefix=%(system_root)s/usr', '%(builddir)s/config.mak')
-        
+
     def wrap_executables (self):
         # GIT executables use ancient unix style smart name-based
         # functionality switching.  Did Linus not read or understand
@@ -32,22 +32,22 @@ class Git (targetpackage.TargetBuildSpec):
 
         ## strip -mwindows.
         self.target_gcc_flags = ' -mms-bitfields '
-        
+
     def version (self):
         return '1.5.0'
 
     def get_dependency_dict (self):
         return {'': [
             'zlib',
-            'regex', 
-            ]}    
+            'regex',
+            ]}
 
     def get_subpackage_names (self):
         return ['']
 
     def get_build_dependencies (self):
         return ['zlib-devel',
-                'regex-devel', 
+                'regex-devel',
                 ]
 
     def patch (self):
@@ -57,12 +57,12 @@ class Git (targetpackage.TargetBuildSpec):
         self.file_sub ([('git describe','true')],
                         '%(srcdir)s/GIT-VERSION-GEN')
 
-                       
+
 class Git__mingw (Git):
     def __init__ (self, settings):
         Git.__init__ (self, settings)
         self.target_gcc_flags = ' -mms-bitfields '
-        
+
     def configure (self):
         targetpackage.TargetBuildSpec.configure (self)
         self.file_sub ([('CFLAGS = -g',
@@ -78,8 +78,9 @@ class Git__mingw (Git):
         return (targetpackage.TargetBuildSpec.compile_command (self)
                 + ' uname_S=MINGW'
                 + ' SHELL_PATH=/bin/sh')
+
     def install_command (self):
         return (targetpackage.TargetBuildSpec.install_command (self)
                 + ' uname_S=MINGW'
                 + ' SHELL_PATH=/bin/sh')
-    
+
