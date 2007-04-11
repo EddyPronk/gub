@@ -57,9 +57,11 @@ class Libdbi0_dev (gub.BinarySpec, gub.SdkBuildSpec):
 class Gcc (cross.Gcc):
     def patch (self):
         cross.Gcc.patch (self)
-        self.system ("""
+        # KUCH
+        if self.vc_repository._version == '4.1.1':
+            self.system ('''
 cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-4.1.1-ppc-unwind.patch
-""")
+''')
         
 
     ## TODO: should detect whether libc supports TLS 
