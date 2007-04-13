@@ -1,0 +1,80 @@
+# gcc-3.4.3-arm-softvfp.patch:
+#   Make gcc for ARM emit software floating point in VFP format.
+# 
+# WARNING: Only apply *after* the standard crosstool patches.
+#
+# Description:
+#   This patch changes the behaviour of gcc's floating point options, when
+#   compiling for ARM.  In particular, gcc will emit software floating point
+#   in VFP (aka native endian) format by default.  Overview:
+#
+#   +--------------+---------------+-----------------------+
+#   | float option | gas option    | object format         |
+#   +--------------+---------------+-----------------------+
+#   | <none>       | -mfpu=softvfp | softfloat, VFP format |
+#   | -msoft-float | -mfpu=softfpa | softfloat, FPA format |
+#   | -mhard-float | -mfpu=fpa     | hardfloat, FPA format |
+#   +--------------+---------------+-----------------------+
+#     (Note that hardfloat is always FPA, i.e. bigendian)
+#
+# Dimitry Andric <dimitry@andric.com>, 2005-04-11 22:16:51
+
+diff -urNd a/gcc/config/arm/coff.h b/gcc/config/arm/coff.h
+--- a/gcc/config/arm/coff.h	2004-02-24 15:25:22.000000000 +0100
++++ b/gcc/config/arm/coff.h	2004-12-05 04:03:21.000000000 +0100
+@@ -31,7 +31,7 @@
+ #define TARGET_VERSION fputs (" (ARM/coff)", stderr)
+ 
+ #undef  TARGET_DEFAULT
+-#define TARGET_DEFAULT (ARM_FLAG_SOFT_FLOAT | ARM_FLAG_APCS_32 | ARM_FLAG_APCS_FRAME | ARM_FLAG_MMU_TRAPS)
++#define TARGET_DEFAULT (ARM_FLAG_SOFT_FLOAT | ARM_FLAG_APCS_32 | ARM_FLAG_APCS_FRAME | ARM_FLAG_MMU_TRAPS | ARM_FLAG_VFP)
+ 
+ #ifndef MULTILIB_DEFAULTS
+ #define MULTILIB_DEFAULTS \
+diff -urNd a/gcc/config/arm/elf.h b/gcc/config/arm/elf.h
+--- a/gcc/config/arm/elf.h	2004-02-24 15:25:22.000000000 +0100
++++ b/gcc/config/arm/elf.h	2004-12-05 04:15:29.000000000 +0100
+@@ -46,7 +46,9 @@
+ 
+ #ifndef SUBTARGET_ASM_FLOAT_SPEC
+ #define SUBTARGET_ASM_FLOAT_SPEC "\
+-%{mapcs-float:-mfloat} %{msoft-float:-mfpu=softfpa}"
++%{mapcs-float:-mfloat} \
++%{mhard-float:-mfpu=fpa} \
++%{!mhard-float:%{msoft-float:-mfpu=softfpa}%{!msoft-float:-mfpu=softvfp}}"
+ #endif
+ 
+ #ifndef ASM_SPEC
+@@ -106,7 +108,7 @@
+ #endif
+ 
+ #ifndef TARGET_DEFAULT
+-#define TARGET_DEFAULT (ARM_FLAG_SOFT_FLOAT | ARM_FLAG_APCS_32 | ARM_FLAG_APCS_FRAME | ARM_FLAG_MMU_TRAPS)
++#define TARGET_DEFAULT (ARM_FLAG_SOFT_FLOAT | ARM_FLAG_APCS_32 | ARM_FLAG_APCS_FRAME | ARM_FLAG_MMU_TRAPS | ARM_FLAG_VFP)
+ #endif
+ 
+ #ifndef MULTILIB_DEFAULTS
+diff -urNd a/gcc/config/arm/linux-elf.h b/gcc/config/arm/linux-elf.h
+--- a/gcc/config/arm/linux-elf.h	2004-11-11 15:33:05.000000000 +0100
++++ b/gcc/config/arm/linux-elf.h	2004-12-05 04:15:29.000000000 +0100
+@@ -32,7 +32,7 @@
+ 
+ /* Default is to use APCS-32 mode.  */
+ #undef  TARGET_DEFAULT
+-#define TARGET_DEFAULT (ARM_FLAG_APCS_32 | ARM_FLAG_MMU_TRAPS)
++#define TARGET_DEFAULT (ARM_FLAG_APCS_32 | ARM_FLAG_MMU_TRAPS | ARM_FLAG_SOFT_FLOAT | ARM_FLAG_VFP)
+ 
+ #define SUBTARGET_CPU_DEFAULT TARGET_CPU_arm6
+ 
+diff -urNd a/gcc/config/arm/unknown-elf.h b/gcc/config/arm/unknown-elf.h
+--- a/gcc/config/arm/unknown-elf.h	2004-02-24 15:25:22.000000000 +0100
++++ b/gcc/config/arm/unknown-elf.h	2004-12-05 04:17:35.000000000 +0100
+@@ -30,7 +30,7 @@
+ 
+ /* Default to using APCS-32 and software floating point.  */
+ #ifndef TARGET_DEFAULT
+-#define TARGET_DEFAULT	(ARM_FLAG_SOFT_FLOAT | ARM_FLAG_APCS_32 | ARM_FLAG_APCS_FRAME | ARM_FLAG_MMU_TRAPS)
++#define TARGET_DEFAULT	(ARM_FLAG_SOFT_FLOAT | ARM_FLAG_APCS_32 | ARM_FLAG_APCS_FRAME | ARM_FLAG_MMU_TRAPS | ARM_FLAG_VFP)
+ #endif
+ 
+ /* Now we define the strings used to build the spec file.  */
