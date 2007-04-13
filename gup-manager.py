@@ -168,7 +168,7 @@ def parse_options ():
             sys.stderr.write ('\n\n')
             p.print_help ()
             sys.exit (2)
-        options.root = ('target/%s/system' % options.platform)
+        options.root = ('target/%s' % options.platform)
     return options
 
 def main ():
