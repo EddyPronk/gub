@@ -128,7 +128,7 @@ class TargetBuildSpec (gub.BuildSpec):
 ## ugh, creeping -L/usr/lib problem
 ## trying revert to LDFLAGS...
 ##                        'LIBRARY_PATH': '%(system_root)s/usr/lib:%(system_root)s/usr/bin',
-
+            'LIBRARY_PATH': '',
 # FIXME: usr/bin and w32api belongs to mingw/cygwin; but overriding is broken
             'LDFLAGS': '-L%(system_root)s/usr/lib -L%(system_root)s/usr/bin -L%(system_root)s/usr/lib/w32api',
             'LD': '%(tool_prefix)sld',
