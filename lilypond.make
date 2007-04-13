@@ -17,8 +17,8 @@ default: all
 
 ## must always have one host.
 GUB_DISTCC_ALLOW_HOSTS=127.0.0.1
-ALL_PLATFORMS=arm cygwin darwin-ppc darwin-x86 debian freebsd-x86 freebsd-x86 linux-x86 linux-64 mingw mipsel linux-ppc
-PLATFORMS=darwin-ppc darwin-x86 mingw linux-x86 linux-64 linux-ppc freebsd-x86 cygwin 
+ALL_PLATFORMS=arm cygwin darwin-ppc darwin-x86 debian freebsd-x86 linux-x86 linux-64 mingw mipsel linux-ppc
+PLATFORMS=darwin-ppc darwin-x86 mingw linux-x86 linux-64 linux-ppc freebsd-x86 cygwin
 
 LILYPOND_CVS_REPODIR=downloads/lilypond.cvs
 LILYPOND_GITDIR=downloads/lilypond.git
@@ -28,7 +28,7 @@ LILYPOND_REPODIR=downloads/lilypond
 LILYPOND_BRANCH=master
 # LILYPOND_BRANCH=stable/2.10
 
-MAKE += -f lilypond.make 
+MAKE += -f lilypond.make
 LILYPOND_BRANCH_FILEIFIED=$(subst /,--,$(LILYPOND_BRANCH))
 
 LILYPOND_LOCAL_BRANCH=$(LILYPOND_BRANCH_FILEIFIED)-git.sv.gnu.org-lilypond.git
@@ -70,7 +70,7 @@ SET_LOCAL_PATH=PATH=$(CWD)/target/local/usr/bin:$(PATH)
 
 LILYPOND_VERSIONS = uploads/lilypond.versions
 
-DOC_LIMITS=ulimit -m 256000 && ulimit -d 256000 && ulimit -v 384000 
+DOC_LIMITS=ulimit -m 256000 && ulimit -d 256000 && ulimit -v 384000
 
 include compilers.make
 
@@ -257,7 +257,7 @@ doc: native doc-build
 doc-clean:
 	$(PYTHON) lib/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-clean
 
-doc-build: 
+doc-build:
 	$(PYTHON) lib/with-lock.py --skip $(DOC_LOCK) $(MAKE) cached-doc-build
 
 unlocked-doc-clean:
@@ -309,7 +309,7 @@ unlocked-info-man-build:
 ## On darwin, all our libraries have the wrong names;
 ## overriding with DYLD_LIBRARY_PATH doesn't work,
 ## as the libs in system/ are stubs.
-ifneq ($(BUILD_PLATFORM),darwin-ppc)  
+ifneq ($(BUILD_PLATFORM),darwin-ppc)
 	## FIXME: #! guile script is barfing.
 	-mkdir $(NATIVE_LILY_BUILD)/out-info-man
 	touch $(NATIVE_LILY_BUILD)/scripts/out/lilypond-invoke-editor.1
@@ -329,7 +329,7 @@ unlocked-doc-export:
 		$(NATIVE_LILY_SRC)/buildscripts/output-distance.py $(NATIVE_LILY_BUILD)/out-www/online-root
 
 doc-export:
-	$(PYTHON) lib/with-lock.py --skip $(DOC_LOCK) $(MAKE) cached-doc-export 
+	$(PYTHON) lib/with-lock.py --skip $(DOC_LOCK) $(MAKE) cached-doc-export
 
 unlocked-dist-check:
 	$(SET_LOCAL_PATH) \
