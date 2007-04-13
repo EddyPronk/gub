@@ -18,11 +18,12 @@ def get_cross_packages (settings):
 
 def get_cross_packages_pre_eabi (settings):
     binutils_version = '2.16.1'
-    gcc_version = '3.4.6' # only change
+    gcc_version = '3.4.3' # only change
     guile_version = '1.6.7'
     kernel_version = '2.5.999-test7-bk-17'
     libc6_version = '2.3.2.ds1-22sarge4'
     python_version = '2.4.1'
+    import debian
     return debian._get_cross_packages (settings,
                                        binutils_version, gcc_version,
                                        guile_version,

@@ -71,10 +71,10 @@ class Gcc (cross.Gcc):
 cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-4.1.1-ppc-unwind.patch
 ''')
         # KUCH, KUCH
-        if (self.vc_repository._version == '3.4.6'
+        if (self.vc_repository._version == '3.4.3'
             and self.settings.platform == 'arm'):
             self.system ('''
-cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-3.4.3-arm-softvfp.patch
+cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-3.4.3-arm-softvfp-jcn.patch
 ''')
         
 
