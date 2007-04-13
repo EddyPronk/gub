@@ -71,43 +71,60 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-4.1.1-ppc-unwind.patch
 # http://ftp.de.debian.org/debian/pool/main/l/linux-kernel-headers/
 
 def _get_cross_packages (settings,
-                         guile_version, libc6_version, kernel_version):
+                         binutils_version, gcc_version,
+                         guile_version, kernel_version, libc6_version,
+                         python_version):
     configs = []
     if not settings.platform.startswith ('linux'):
-        configs = [linux.Guile_config (settings).with (version=guile_version),
-                   linux.Python_config (settings).with (version='2.4.1'),]
+        configs = [
+            linux.Guile_config (settings).with (version=guile_version),
+            linux.Python_config (settings).with (version=python_version),
+            ]
 
     return [
         Libc6 (settings).with (version=libc6_version, strip_components=0,
                                mirror=download.lilypondorg_deb, format='deb'),
         Libc6_dev (settings).with (version=libc6_version, strip_components=0,
-                                   mirror=download.lilypondorg_deb, format='deb'),
-        Linux_kernel_headers (settings).with (version=kernel_version, strip_components=0,
+                                   mirror=download.lilypondorg_deb,
+                                   format='deb'),
+        Linux_kernel_headers (settings).with (version=kernel_version,
+                                              strip_components=0,
                                               mirror=download.lilypondorg_deb,
                                               format='deb'),
         
-        cross.Binutils (settings).with (version='2.16.1', format='bz2', mirror=download.gnu),
-        Gcc (settings).with (version='4.1.1',
+        cross.Binutils (settings).with (version=binutils_version,
+                                        format='bz2', mirror=download.gnu),
+        Gcc (settings).with (version=gcc_version,
                              mirror=download.gcc, format='bz2'),
         ] + configs
 
 # FIXME: determine libc6_version, kernel_version from
 # Packages/Dependency_resolver.
 def get_cross_packages_stable (settings):
+    binutils_version = '2.16.1'
+    gcc_version = '4.1.1'
     guile_version = '1.6.7'
-    libc6_version = '2.3.2.ds1-22sarge4'
     kernel_version = '2.5.999-test7-bk-17'
+    libc6_version = '2.3.2.ds1-22sarge4'
+    python_version = '2.4.1'
     return _get_cross_packages (settings,
-                                guile_version, libc6_version, kernel_version)
+                                binutils_version, gcc_version,
+                                guile_version, kernel_version, libc6_version,
+                                python_version)
 
 # FIXME: determine libc6_version, kernel_version from
 # Packages/Dependency_resolver.
 def get_cross_packages_unstable (settings):
+    binutils_version = '2.16.1'
+    gcc_version = '4.1.1'
     guile_version = '1.8.0'
-    libc6_version = '2.3.6.ds1-9'
     kernel_version = '2.6.18-6'
+    libc6_version = '2.3.6.ds1-9'
+    python_version = '2.4.1'
     return _get_cross_packages (settings,
-                                guile_version, libc6_version, kernel_version)
+                                binutils_version, gcc_version,
+                                guile_version, kernel_version, libc6_version,
+                                python_version)
 
 def get_cross_packages (settings):
     if settings.debian_branch == 'stable':
@@ -144,7 +161,7 @@ def get_debian_package (settings, description):
         'perl',
         'perl-modules',
         'perl-base',
-        'pkg-config',
+#        'pkg-config',
         ]
     if d['Package'] in blacklist:
         d['Package'] += '::blacklisted'
