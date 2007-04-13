@@ -138,10 +138,13 @@ def get_debian_package (settings, description):
         'libgcc1',
         'libgcc1-3.4',
         'lilypond',
+        'libstdc++6',
         'libstdc++-dev',
+        'libtool',
         'perl',
         'perl-modules',
         'perl-base',
+        'pkg-config',
         ]
     if d['Package'] in blacklist:
         d['Package'] += '::blacklisted'
@@ -156,8 +159,9 @@ def get_debian_package (settings, description):
         deps = filter (lambda x: x.find ('|') == -1, deps)
         # FIXME: how to handle Provides: ?
         # FIXME: BARF, fixup libc Provides
-        deps = map (lambda x: re.sub ('libc($|-)', 'libc6\\1',
-                       x), deps)
+        deps = map (lambda x: re.sub ('libc($|-)', 'libc6\\1', x), deps)
+        deps = map (lambda x: re.sub ('liba52-dev', 'liba52-0.7.4-dev', x), deps)
+        deps = map (lambda x: re.sub ('libpng12-0-dev', 'libpng12-dev', x), deps)
         # FIXME: ugh, skip some
         deps = filter (lambda x: x not in blacklist, deps)
         package.name_dependencies = deps
