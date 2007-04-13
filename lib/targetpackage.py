@@ -106,8 +106,8 @@ class TargetBuildSpec (gub.BuildSpec):
             'AR': '%(tool_prefix)sar',
             'AS': '%(tool_prefix)sas',
             'CC': '%(tool_prefix)sgcc %(target_gcc_flags)s',
-            'CC_FOR_BUILD': 'C_INCLUDE_PATH= CPPFLAGS= LIBRARY_PATH= cc',
-            'CCLD_FOR_BUILD': 'C_INCLUDE_PATH= CPPFLAGS= LIBRARY_PATH= cc',
+            'CC_FOR_BUILD': 'C_INCLUDE_PATH= CPATH= CPPFLAGS= LIBRARY_PATH= cc',
+            'CCLD_FOR_BUILD': 'C_INCLUDE_PATH= CPATH= CPPFLAGS= LIBRARY_PATH= cc',
 
 
             ## %(system_root)s/usr/include is already done by
@@ -120,6 +120,7 @@ class TargetBuildSpec (gub.BuildSpec):
             ## The flex header has to be copied into the target compile manually.
             ##
             'C_INCLUDE_PATH': '',
+            'CPATH': '',
             'CPLUS_INCLUDE_PATH': '',
             'CXX':'%(tool_prefix)sg++ %(target_gcc_flags)s',
 
