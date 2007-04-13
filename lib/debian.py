@@ -54,6 +54,14 @@ class Linux_kernel_headers (gub.BinarySpec, gub.SdkBuildSpec):
 class Libdbi0_dev (gub.BinarySpec, gub.SdkBuildSpec):
     pass
 
+class Libqt4_dev (gub.BinarySpec, gub.SdkBuildSpec):
+    def untar (self):
+        gub.BinarySpec.untar (self)
+        for i in ('QtCore.pc', 'QtGui.pc', 'QtNetwork.pc'):
+            self.file_sub ([('includedir', 'deepqtincludedir')],
+                           '%(srcdir)s/usr/lib/pkgconfig/%(i)s',
+                           env=locals ())
+
 class Gcc (cross.Gcc):
     def patch (self):
         cross.Gcc.patch (self)
@@ -61,6 +69,12 @@ class Gcc (cross.Gcc):
         if self.vc_repository._version == '4.1.1':
             self.system ('''
 cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-4.1.1-ppc-unwind.patch
+''')
+        # KUCH, KUCH
+        if (self.vc_repository._version == '3.4.6'
+            and self.settings.platform == 'arm'):
+            self.system ('''
+cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-3.4.3-arm-softvfp.patch
 ''')
         
 
@@ -207,7 +221,22 @@ class Dependency_resolver:
         
     def grok_packages_file (self, file):
         for p in get_debian_packages (self.settings, file):
+            self.package_fixups (p)
             self.packages[p.name ()] = p
+
+    def package_fixups (self, package):
+        if package.name () == 'libqt4-dev':
+            def untar (whatsthis):
+                gub.BinarySpec.untar (package)
+                for i in ('QtCore.pc', 'QtGui.pc', 'QtNetwork.pc'):
+                    package.file_sub ([
+                            ('includedir', 'deepqtincludedir'),
+                            ('(-I|-L) */usr',
+                             '''\\1%(system_root)s/usr''' % locals ()),
+                            ],
+                                      '%(srcdir)s/usr/lib/pkgconfig/%(i)s',
+                                      env=locals ())
+            package.untar = misc.MethodOverrider (package.untar, untar)
 
     def load_packages (self):
         p = gup.DependencyManager (self.settings.system_root,
