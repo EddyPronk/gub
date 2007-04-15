@@ -9,4 +9,4 @@ class Hello (targetpackage.TargetBuildSpec):
                                           version='1.0',
                                           strip_components=True))
 
-Hello__arm = Hello
+Hello__debian_arm = Hello

@@ -206,7 +206,7 @@ if __name__=='__main__':
     
     p = TestClass ()
     import settings
-    s = settings.Settings ('arm')
+    s = settings.Settings ('debian-arm')
     c = Os_context_wrapper (s)
 
     print c.locate_files ('/etc/', '*.conf')

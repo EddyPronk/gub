@@ -327,7 +327,7 @@ class Shar (Linux_installer):
 def get_installer (settings, args=[]):
 
     installer_class = {
-        'arm' : Shar,
+        'debian-arm' : Shar,
         'darwin-ppc' : DarwinBundle,
         'darwin-x86' : DarwinBundle,
         'freebsd-x86' : Shar,

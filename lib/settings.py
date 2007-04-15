@@ -7,7 +7,7 @@ import gub
 from context import *
 
 platforms = {
-    'arm': 'arm-linux',
+    'debian-arm': 'arm-linux',
     'cygwin': 'i686-cygwin',
     'darwin-ppc': 'powerpc-apple-darwin7',
     'darwin-x86': 'i686-apple-darwin8',
@@ -24,7 +24,7 @@ platforms = {
     'mipsel': 'mipsel-linux',
 }
 
-distros = ('arm', 'cygwin', 'debian', 'mipsel')
+distros = ('debian-arm', 'cygwin', 'debian', 'mipsel')
             
 class Settings (Context):
     def __init__ (self, platform):

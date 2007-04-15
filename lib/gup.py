@@ -442,7 +442,7 @@ topological order
     if settings.platform == 'cygwin':
         cygwin.init_dependency_resolver (settings)
         name_to_deps = name_to_dependencies_via_cygwin
-    elif settings.platform in ('arm', 'debian', 'mipsel'):
+    elif settings.platform in ('debian-arm', 'debian', 'mipsel'):
         debian.init_dependency_resolver (settings)
         name_to_deps = name_to_dependencies_via_debian
 

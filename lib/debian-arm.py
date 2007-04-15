@@ -8,7 +8,7 @@ import linux
 import misc
 import targetpackage
 
-class Arm_runtime (gub.BinarySpec, gub.SdkBuildSpec):
+class Debian_arm_runtime (gub.BinarySpec, gub.SdkBuildSpec):
     pass
 
 def get_cross_packages (settings):

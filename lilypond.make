@@ -1,7 +1,9 @@
 # -*-Makefile-*-
 .PHONY: all default distclean download TAGS
-.PHONY: cygwin darwin-ppc darwin-x86 debian freebsd4-x86 freebsd6-x86 linux-x86 mingw bootstrap-download bootstrap
-.PHONY: unlocked-update-versions update-versions download print-success arm
+.PHONY: cygwin debian debian-arm
+.PHONY: darwin-ppc darwin-x86 freebsd4-x86 freebsd6-x86 linux-x86 mingw
+.PHONY: bootstrap-download bootstrap
+.PHONY: unlocked-update-versions update-versions download print-success
 .PHONY: cygwin-libtool cygwin-libtool-installer cygwin-fontconfig
 .PHONY: cygwin-fontconfig-installer cygwin-guile cygwin-guile-installer
 .PHONY: cygwin-lilypond cygwin-lilypond-installer upload-setup-ini darwin-ppc
@@ -17,7 +19,7 @@ default: all
 
 ## must always have one host.
 GUB_DISTCC_ALLOW_HOSTS=127.0.0.1
-ALL_PLATFORMS=arm cygwin darwin-ppc darwin-x86 debian freebsd-x86 linux-x86 linux-64 mingw mipsel linux-ppc
+ALL_PLATFORMS=cygwin darwin-ppc darwin-x86 debian debian-arm freebsd-x86 linux-x86 linux-64 mingw mipsel linux-ppc
 PLATFORMS=darwin-ppc darwin-x86 mingw linux-x86 linux-64 linux-ppc freebsd-x86 cygwin
 
 LILYPOND_CVS_REPODIR=downloads/lilypond.cvs
@@ -106,7 +108,7 @@ print-success:
 
 native: local $(BUILD_PLATFORM)
 
-arm:
+debian-arm:
 	$(call BUILD,$@,lilypond)
 
 docball = uploads/lilypond-$(DIST_VERSION)-$(DOC_BUILDNUMBER).documentation.tar.bz2
