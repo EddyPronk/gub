@@ -219,6 +219,7 @@ download-local:
 # -imagemagick: for lilypond web site
 # -netpbm: website
 local:
+	cd librestrict && make -f GNUmakefile
 	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local build \
 		git flex mftrace potrace fontforge freetype \
 		guile pkg-config icoutils python \
