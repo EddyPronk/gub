@@ -75,6 +75,8 @@ class Ghostscript (targetpackage.TargetBuildSpec):
         self.file_sub ([(disable_re,
                          r'#\1= -DISABLED- \2 ')],
                        '%(srcdir)s/Makefile.in')
+        self.system ("cd %(srcdir)s/ && patch --force -p1 < %(patchdir)s/gs-r7842-ttftable.patch")
+
 
         
     def fixup_arch (self):

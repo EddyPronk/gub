@@ -1,0 +1,87 @@
+Only in gs.patched/: Bug688971-r7842-to-r7842A.diff.txt
+Only in gs.patched/: Bug688971-r7842-to-r7842C.diff.txt
+Only in gs.patched/: Bug688971-r7842-to-r7842D.diff.txt
+Only in gs.patched/: Bug688971-r7842-to-r7842E.diff.txt
+Only in gs.patched/: Bug688971-r7842A-to-r7842AB.diff.txt
+Only in gs.patched/: Bug688971-r7842E-to-r7842EF.diff.txt
+Only in gs.patched/: gs
+diff -ur gs/src/gstype42.c gs.patched/src/gstype42.c
+--- gs/src/gstype42.c	2007-03-17 13:27:48.000000000 -0400
++++ gs.patched/src/gstype42.c	2007-04-15 23:59:02.000000000 -0400
+@@ -93,6 +93,27 @@
+  * Note that this initializes the type42_data procedures other than
+  * string_proc, and the font procedures as well.
+  */
++
++/* compare fn used by gs_type42_font_init() for sorting the 'loca' table */
++typedef struct gs_type42_font_init_sort_s {
++    ulong glyph_offset;
++    int glyph_num;
++} gs_type42_font_init_sort_t;
++private int
++gs_type42_font_init_compare (const void *a, const void *b)
++{
++    ulong a_offset = ((const gs_type42_font_init_sort_t *)a)->glyph_offset;
++    ulong b_offset = ((const gs_type42_font_init_sort_t *)b)->glyph_offset;
++    if (a < b)
++	return -1;
++    else if (a > b)
++	return +1;
++    else
++	/* make the sort stable */
++	return ((const gs_type42_font_init_sort_t *)a)->glyph_num -
++	       ((const gs_type42_font_init_sort_t *)b)->glyph_num;
++}
++
+ int
+ gs_type42_font_init(gs_font_type42 * pfont, int subfontID)
+ {
+@@ -242,26 +263,34 @@
+ 	glyph_start = glyph_offset;
+     }
+     if (i < loca_size) {
+-        uint j;
+-	ulong trial_glyph_length;
+         /*
+          * loca was out of order, build the len_glyphs the hard way      
+ 	 * Assume that some of the len_glyphs built so far may be wrong 
+-	 * For each starting offset, find the next higher ending offset
+-	 * Note that doing this means that there can only be zero length
+-	 * glyphs that have loca table offset equal to the last 'dummy'
+-         * entry. Otherwise we assume that it is a duplicated entry.
++	 * For each starting offset, we use the next higher starting offset 
++	 * to compute the glyph length. An equal entry found towards the end 
++	 * of the original (unsorted) 'loca' table means the glyph has a 
++	 * length of 0. Since the sorting below preserves the relative order 
++	 * of equal 'loca' entries, this keeps unaltered all glyphs that 
++	 * correspond to segments of 'loca' that are "in good shape" (in 
++	 * ascending order, and no other entries belong inside that segment).
+ 	 */
+-	for (i = 0; i < loca_size - 1; i++) {
+-	    glyph_start = get_glyph_offset(pfont, i);
+-	    for (j = 1, glyph_length = 0x80000000; j < loca_size; j++) {
+-		glyph_offset = get_glyph_offset(pfont, j);
+-		trial_glyph_length = glyph_offset - glyph_start;
+-		if ((trial_glyph_length > 0) && (trial_glyph_length < glyph_length))
+-		    glyph_length = trial_glyph_length;
++	gs_type42_font_init_sort_t *psort;
++	gs_type42_font_init_sort_t *psortary = 
++	    (gs_type42_font_init_sort_t *)gs_alloc_byte_array_immovable(pfont->memory, 
++		loca_size, sizeof(gs_type42_font_init_sort_t), "gs_type42_font_init(sort loca)");
++
++	if (psortary == 0)
++	    return_error(gs_error_VMerror);
++	for (i = 0, psort = psortary; i < loca_size; i++, psort++) {
++	    psort->glyph_num = i;
++	    psort->glyph_offset = get_glyph_offset(pfont, i);
+ 	    }
+-	    pfont->data.len_glyphs[i] = glyph_length < 0x80000000 ? glyph_length : 0;
++	qsort(psortary, loca_size, sizeof(gs_type42_font_init_sort_t), gs_type42_font_init_compare);
++	for (i = loca_size - 1, psort = psortary + i - 1; i--; psort--) {
++	    glyph_length = psort[1].glyph_offset - psort[0].glyph_offset;
++	    pfont->data.len_glyphs[psort->glyph_num] = glyph_length;
+ 	}
++	gs_free_object(pfont->memory, psortary, "gs_type42_font_init(sort loca)");
+     }
+     /*
+      * If the font doesn't have a valid FontBBox, compute one from the
