@@ -13,6 +13,9 @@ class Libjpeg (targetpackage.TargetBuildSpec):
     def name (self):
         return 'libjpeg'
 
+    def get_build_dependencies (self):
+        return ['libtool']
+
     def get_subpackage_names (self):
         return ['devel', '']
     
@@ -23,7 +26,6 @@ class Libjpeg (targetpackage.TargetBuildSpec):
         return re.sub ('--config-cache', '--cache-file=config.cache',
                targetpackage.TargetBuildSpec.configure_command (self))
     
-
     def update_libtool (self):
         self.system ('''
 cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh %(target_architecture)s'''
