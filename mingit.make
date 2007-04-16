@@ -1,5 +1,7 @@
 # -*-Makefile-*-
 
+PYTHON=python
+CWD:=$(shell pwd)
 include compilers.make
 
 ALL_PLATFORMS=mingw
@@ -13,7 +15,6 @@ MINGIT_LOCAL_BRANCH=$(MINGIT_BRANCH_FILEIFIED)-repo.or.cz-git-mingw.git
 PYTHONPATH=lib/
 export PYTHONPATH
 
-PYTHON=python
 OTHER_PLATFORMS=$(filter-out $(BUILD_PLATFORM), $(PLATFORMS))
 
 INVOKE_GUP=$(PYTHON) gup-manager.py \

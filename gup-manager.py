@@ -168,16 +168,19 @@ def parse_options ():
             sys.stderr.write ('\n\n')
             p.print_help ()
             sys.exit (2)
-        options.root = ('target/%s/system' % options.platform)
+        options.root = ('target/%s' % options.platform)
     return options
 
 def main ():
     options = parse_options ()
+    target_manager = gup.DependencyManager (options.root,
+                                            oslog.Os_commands ("/dev/null"),
+                                            dbdir=options.dbdir)
 
-    target_manager = gup.DependencyManager (options.root, oslog.Os_commands ("/dev/null"), dbdir=options.dbdir)
-
-    
-    branch_dict = dict ([tuple (b.split ('=')) for b in options.branches])
+    branch_dict = {}
+    for b in options.branches:
+        (package, branch_name) = b.split ('=')
+        branch_dict[package] = branch_name
     if options.command == 'install':
         platform = options.platform
         

@@ -1,19 +1,37 @@
+import re
 import os
 #
 import download
 import misc
 import targetpackage
+import repository
+
 from toolpackage import ToolBuildSpec
 
 
 class Guile (targetpackage.TargetBuildSpec):
     def set_mirror(self):
-        self.with (version='1.8.1', mirror=download.gnu, format='gz')
+        source = 'git://repo.or.cz/guile.git'
+        repo = repository.Git (self.get_repodir (),
+                               branch='branch_release-1-8', 
+                               source=source)
+        repo.version = lambda: '1.8.2'
+        self.with_vc (repo)
         self.so_version = '17'
 
+    def autogen_sh (self):
+        self.file_sub ([(r'AC_CONFIG_SUBDIRS\(guile-readline\)', '')],
+                       '%(srcdir)s/configure.in')
+        self.file_sub ([(r'guile-readline', '')],
+                       '%(srcdir)s/Makefile.am')
+        self.dump ('',
+                   '%(srcdir)s/doc/ref/version.texi')
+        self.dump ('',
+                   '%(srcdir)s/doc/tutorial/version.texi')
+        
     def license_file (self):
         return '%(srcdir)s/COPYING.LIB' 
-
+ 
     def get_subpackage_names (self):
         return ['doc', 'devel', 'runtime', '']
 
@@ -37,11 +55,16 @@ class Guile (targetpackage.TargetBuildSpec):
         return '.'.join (self.ball_version.split ('.')[0:2])
 
     def patch (self):
-        self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/guile-reloc.patch')
-        self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/guile-1.8-rational.patch')
+        self.autogen_sh()
 
-        ## darn; patch is for GUILE 1.9 CVS. 
-        ## self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/guile-1.8-gcstats.patch')
+        ## Don't apply patch twice.
+        if None == re.search ('reloc_p=', open (self.expand ('%(srcdir)s/configure.in')).read()):
+            self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/guile-reloc.patch')
+            self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/guile-cexp.patch')
+            self.dump ('''#!/bin/sh
+exec %(local_prefix)s/bin/guile "$@"
+''', "%(srcdir)s/pre-inst-guile.in")
+            
         self.autoupdate ()
 
     def configure_flags (self):
@@ -56,9 +79,14 @@ class Guile (targetpackage.TargetBuildSpec):
 ''')
         
     def configure_command (self):
-        return (targetpackage.TargetBuildSpec.configure_command (self)
+        return ('GUILE_FOR_BUILD=%(local_prefix)s/bin/guile '
+                + targetpackage.TargetBuildSpec.configure_command (self)
                 + self.configure_flags ())
 
+    def compile_command (self):
+        return ('preinstguile=%(local_prefix)s/bin/guile ' +
+                targetpackage.TargetBuildSpec.compile_command (self))
+    
     def compile (self):
 
         ## Ugh : broken dependencies barf with make -jX
@@ -171,11 +199,13 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
             ('-mwindows', ''),
             ],
                '%(builddir)s/libtool')
-        self.file_sub ([
-            #('^(allow_undefined_flag=.*)unsupported', '\\1'),
-            ('-mwindows', ''),
-            ],
-               '%(builddir)s/guile-readline/libtool')
+
+        if os.path.exists (self.expand ('%(builddir)s/guile-readline/libtool')):
+            self.file_sub ([
+                #('^(allow_undefined_flag=.*)unsupported', '\\1'),
+                ('-mwindows', ''),
+                ],
+                           '%(builddir)s/guile-readline/libtool')
 
     def install (self):
         Guile.install (self)
@@ -196,11 +226,6 @@ class Guile__linux__ppc (Guile__linux):
 class Guile__freebsd (Guile):
     def config_cache_settings (self):
         return Guile.config_cache_settings (self) + '\nac_cv_type_socklen_t=yes'
-
-    def set_mirror(self):
-        self.with (version='1.8.0', mirror=download.gnu, format='gz')
-        self.so_version = '17'
-
     def configure_command (self):
         # watch out for whitespace
         builddir = self.builddir ()
@@ -347,8 +372,9 @@ class Guile__local (ToolBuildSpec, Guile):
         self.update_libtool ()
 
     def patch (self):
-        self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/guile-1.8-rational.patch')
-        
+        self.autogen_sh ()
+        self.autoupdate ()
+
     def install (self):
         ToolBuildSpec.install (self)
 

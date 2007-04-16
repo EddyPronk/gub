@@ -54,12 +54,28 @@ class Linux_kernel_headers (gub.BinarySpec, gub.SdkBuildSpec):
 class Libdbi0_dev (gub.BinarySpec, gub.SdkBuildSpec):
     pass
 
+class Libqt4_dev (gub.BinarySpec, gub.SdkBuildSpec):
+    def untar (self):
+        gub.BinarySpec.untar (self)
+        for i in ('QtCore.pc', 'QtGui.pc', 'QtNetwork.pc'):
+            self.file_sub ([('includedir', 'deepqtincludedir')],
+                           '%(srcdir)s/usr/lib/pkgconfig/%(i)s',
+                           env=locals ())
+
 class Gcc (cross.Gcc):
     def patch (self):
         cross.Gcc.patch (self)
-        self.system ("""
+        # KUCH
+        if self.vc_repository._version == '4.1.1':
+            self.system ('''
 cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-4.1.1-ppc-unwind.patch
-""")
+''')
+        # KUCH, KUCH
+        if (self.vc_repository._version == '3.4.3'
+            and self.settings.platform == 'arm'):
+            self.system ('''
+cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-3.4.3-arm-softvfp-jcn.patch
+''')
         
 
     ## TODO: should detect whether libc supports TLS 
@@ -69,43 +85,60 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-4.1.1-ppc-unwind.patch
 # http://ftp.de.debian.org/debian/pool/main/l/linux-kernel-headers/
 
 def _get_cross_packages (settings,
-                         guile_version, libc6_version, kernel_version):
+                         binutils_version, gcc_version,
+                         guile_version, kernel_version, libc6_version,
+                         python_version):
     configs = []
     if not settings.platform.startswith ('linux'):
-        configs = [linux.Guile_config (settings).with (version=guile_version),
-                   linux.Python_config (settings).with (version='2.4.1'),]
+        configs = [
+            linux.Guile_config (settings).with (version=guile_version),
+            linux.Python_config (settings).with (version=python_version),
+            ]
 
     return [
         Libc6 (settings).with (version=libc6_version, strip_components=0,
                                mirror=download.lilypondorg_deb, format='deb'),
         Libc6_dev (settings).with (version=libc6_version, strip_components=0,
-                                   mirror=download.lilypondorg_deb, format='deb'),
-        Linux_kernel_headers (settings).with (version=kernel_version, strip_components=0,
+                                   mirror=download.lilypondorg_deb,
+                                   format='deb'),
+        Linux_kernel_headers (settings).with (version=kernel_version,
+                                              strip_components=0,
                                               mirror=download.lilypondorg_deb,
                                               format='deb'),
         
-        cross.Binutils (settings).with (version='2.16.1', format='bz2', mirror=download.gnu),
-        Gcc (settings).with (version='4.1.1',
+        cross.Binutils (settings).with (version=binutils_version,
+                                        format='bz2', mirror=download.gnu),
+        Gcc (settings).with (version=gcc_version,
                              mirror=download.gcc, format='bz2'),
         ] + configs
 
 # FIXME: determine libc6_version, kernel_version from
 # Packages/Dependency_resolver.
 def get_cross_packages_stable (settings):
+    binutils_version = '2.16.1'
+    gcc_version = '4.1.1'
     guile_version = '1.6.7'
-    libc6_version = '2.3.2.ds1-22sarge4'
     kernel_version = '2.5.999-test7-bk-17'
+    libc6_version = '2.3.2.ds1-22sarge4'
+    python_version = '2.4.1'
     return _get_cross_packages (settings,
-                                guile_version, libc6_version, kernel_version)
+                                binutils_version, gcc_version,
+                                guile_version, kernel_version, libc6_version,
+                                python_version)
 
 # FIXME: determine libc6_version, kernel_version from
 # Packages/Dependency_resolver.
 def get_cross_packages_unstable (settings):
+    binutils_version = '2.16.1'
+    gcc_version = '4.1.1'
     guile_version = '1.8.0'
-    libc6_version = '2.3.6.ds1-9'
     kernel_version = '2.6.18-6'
+    libc6_version = '2.3.6.ds1-9'
+    python_version = '2.4.1'
     return _get_cross_packages (settings,
-                                guile_version, libc6_version, kernel_version)
+                                binutils_version, gcc_version,
+                                guile_version, kernel_version, libc6_version,
+                                python_version)
 
 def get_cross_packages (settings):
     if settings.debian_branch == 'stable':
@@ -136,10 +169,13 @@ def get_debian_package (settings, description):
         'libgcc1',
         'libgcc1-3.4',
         'lilypond',
+        'libstdc++6',
         'libstdc++-dev',
+        'libtool',
         'perl',
         'perl-modules',
         'perl-base',
+#        'pkg-config',
         ]
     if d['Package'] in blacklist:
         d['Package'] += '::blacklisted'
@@ -154,8 +190,9 @@ def get_debian_package (settings, description):
         deps = filter (lambda x: x.find ('|') == -1, deps)
         # FIXME: how to handle Provides: ?
         # FIXME: BARF, fixup libc Provides
-        deps = map (lambda x: re.sub ('libc($|-)', 'libc6\\1',
-                       x), deps)
+        deps = map (lambda x: re.sub ('libc($|-)', 'libc6\\1', x), deps)
+        deps = map (lambda x: re.sub ('liba52-dev', 'liba52-0.7.4-dev', x), deps)
+        deps = map (lambda x: re.sub ('libpng12-0-dev', 'libpng12-dev', x), deps)
         # FIXME: ugh, skip some
         deps = filter (lambda x: x not in blacklist, deps)
         package.name_dependencies = deps
@@ -184,7 +221,22 @@ class Dependency_resolver:
         
     def grok_packages_file (self, file):
         for p in get_debian_packages (self.settings, file):
+            self.package_fixups (p)
             self.packages[p.name ()] = p
+
+    def package_fixups (self, package):
+        if package.name () == 'libqt4-dev':
+            def untar (whatsthis):
+                gub.BinarySpec.untar (package)
+                for i in ('QtCore.pc', 'QtGui.pc', 'QtNetwork.pc'):
+                    package.file_sub ([
+                            ('includedir', 'deepqtincludedir'),
+                            ('(-I|-L) */usr',
+                             '''\\1%(system_root)s/usr''' % locals ()),
+                            ],
+                                      '%(srcdir)s/usr/lib/pkgconfig/%(i)s',
+                                      env=locals ())
+            package.untar = misc.MethodOverrider (package.untar, untar)
 
     def load_packages (self):
         p = gup.DependencyManager (self.settings.system_root,

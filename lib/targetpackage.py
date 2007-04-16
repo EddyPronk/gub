@@ -8,6 +8,7 @@ import cross
 
 from new import classobj
 
+from context import subst_method
 
 class TargetBuildSpec (gub.BuildSpec):
     def configure_command (self):
@@ -26,6 +27,14 @@ class TargetBuildSpec (gub.BuildSpec):
 --libdir=/usr/lib
 ''')
 
+    def __init__ (self, settings):
+        gub.BuildSpec.__init__ (self, settings)
+
+        
+    @subst_method
+    def LD_PRELOAD (self):
+        return '%(topdir)s/librestrict/librestrict.so'
+    
     def install (self):
         self.pre_install_libtool_fixup ()
         gub.BuildSpec.install (self)
@@ -97,8 +106,8 @@ class TargetBuildSpec (gub.BuildSpec):
             'AR': '%(tool_prefix)sar',
             'AS': '%(tool_prefix)sas',
             'CC': '%(tool_prefix)sgcc %(target_gcc_flags)s',
-            'CC_FOR_BUILD': 'C_INCLUDE_PATH= CPPFLAGS= LIBRARY_PATH= cc',
-            'CCLD_FOR_BUILD': 'C_INCLUDE_PATH= CPPFLAGS= LIBRARY_PATH= cc',
+            'CC_FOR_BUILD': 'C_INCLUDE_PATH= CPATH= CPPFLAGS= LIBRARY_PATH= cc',
+            'CCLD_FOR_BUILD': 'C_INCLUDE_PATH= CPATH= CPPFLAGS= LIBRARY_PATH= cc',
 
 
             ## %(system_root)s/usr/include is already done by
@@ -111,6 +120,7 @@ class TargetBuildSpec (gub.BuildSpec):
             ## The flex header has to be copied into the target compile manually.
             ##
             'C_INCLUDE_PATH': '',
+            'CPATH': '',
             'CPLUS_INCLUDE_PATH': '',
             'CXX':'%(tool_prefix)sg++ %(target_gcc_flags)s',
 
@@ -118,7 +128,7 @@ class TargetBuildSpec (gub.BuildSpec):
 ## ugh, creeping -L/usr/lib problem
 ## trying revert to LDFLAGS...
 ##                        'LIBRARY_PATH': '%(system_root)s/usr/lib:%(system_root)s/usr/bin',
-
+            'LIBRARY_PATH': '',
 # FIXME: usr/bin and w32api belongs to mingw/cygwin; but overriding is broken
             'LDFLAGS': '-L%(system_root)s/usr/lib -L%(system_root)s/usr/bin -L%(system_root)s/usr/lib/w32api',
             'LD': '%(tool_prefix)sld',

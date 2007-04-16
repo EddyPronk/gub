@@ -1,0 +1,23 @@
+--- setup.py~	2007-04-07 13:58:49.000000000 -0300
++++ setup.py	2007-04-07 18:48:31.000000000 -0300
+@@ -185,13 +189,18 @@
+         build_ext.build_extensions(self)
+ 
+     def build_extension(self, ext):
+-
+         try:
++            self.include_dirs = []
++            root = os.environ.get ('CROSS_ROOT','')
++            ext.include_dirs = [d for d in ext.include_dirs
++                                 if d.startswith (root)]
++            self.compiler.include_dirs = [d for d in self.compiler.include_dirs
++                                          if d.startswith (root)]
+             build_ext.build_extension(self, ext)
+         except (CCompilerError, DistutilsError), why:
+             self.announce('WARNING: building of extension "%s" failed: %s' %
+                           (ext.name, sys.exc_info()[1]))
+-            return
++            return
+         # Workaround for Mac OS X: The Carbon-based modules cannot be
+         # reliably imported into a command-line Python
+         if 'Carbon' in ext.extra_link_args:

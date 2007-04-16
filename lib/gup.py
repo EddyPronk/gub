@@ -103,6 +103,8 @@ class FileManager:
                 self._file_package_db[f] = name
             if f.endswith ('.la'):
                 self.libtool_la_fixup (root, f)
+            if f.endswith ('.pc'):
+                self.pkgconfig_pc_fixup (root, f)
 
     def libtool_la_fixup (self, root, file):
         # avoid using libs from build platform, by adding
@@ -112,6 +114,17 @@ class FileManager:
         dir = os.path.dirname (file)
         self.os_interface.file_sub ([('^libdir=.*',
                                       """libdir='%(root)s/%(dir)s'""" % locals ()
+                                      ),],
+                                    '%(root)s/%(file)s' % locals ())
+
+    def pkgconfig_pc_fixup (self, root, file):
+        # avoid using libs from build platform, by adding
+        # %(system_root)s
+        if file.startswith ('./'):
+            file = file[2:]
+        dir = os.path.dirname (file)
+        self.os_interface.file_sub ([('(-I|-L) */usr',
+                                      '''\\1%(root)s/usr''' % locals ()
                                       ),],
                                     '%(root)s/%(file)s' % locals ())
 
@@ -208,7 +221,7 @@ class PackageDictManager:
                 print 'branch: %(branch)s, suffix: %(suffix)s' % locals ()
                 return
         elif d['vc_branch']:
-            print 'ignoring header (no branch for this package):', package_hdr
+            sys.stdout.write ('No branch for package %s, ignoring header: %s\n' % (d['basename'], package_hdr))
             return
         
         name = d['split_name']

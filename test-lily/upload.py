@@ -86,8 +86,8 @@ def upload_binaries (repo, version, version_db):
     d.update (locals ())
 
     d['cwd'] = os.getcwd ()
-    d['lilybuild'] = d['cwd'] + '/target/%(build_platform)s/build/lilypond-%(branch)s' % d
-    d['lilysrc'] = d['cwd'] + '/target/%(build_platform)s/src/lilypond-%(branch)s' % d 
+    d['lilybuild'] = d['cwd'] + '/target/%(build_platform)s/gubfiles/build/lilypond-%(branch)s' % d
+    d['lilysrc'] = d['cwd'] + '/target/%(build_platform)s/gubfiles/src/lilypond-%(branch)s' % d 
 
 
     

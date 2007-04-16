@@ -16,13 +16,13 @@ class Gettext (targetpackage.TargetBuildSpec):
 
     def configure (self):
         targetpackage.TargetBuildSpec.configure (self)
-        
+
         ## FIXME: libtool too old for cross compile
         self.update_libtool ()
-        self.file_sub ( [
-                         ('(SUBDIRS *=.*)examples', r'\1 '),
-                         ],
-                        '%(builddir)s/gettext-tools/Makefile')
+        self.file_sub ([
+                ('(SUBDIRS *=.*)examples', r'\1 '),
+                ],
+                       '%(builddir)s/gettext-tools/Makefile')
 
 class Gettext__freebsd (Gettext):
     def get_dependency_dict (self):
@@ -51,18 +51,16 @@ jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
 ''')
 
     def configure_command (self):
-        return Gettext.configure_command (self) + ' --disable-libasprintf' 
+        return Gettext.configure_command (self) + ' --disable-libasprintf'
 
     def configure (self):
         Gettext.configure (self)
         self.file_sub ( [(' gettext-tools ', ' ')],
                         '%(builddir)s/Makefile')
-                       
 
     def install (self):
-
         ## compile of gettext triggers configure in between.  (hgwurgh.)
-        self.update_libtool()
+        self.update_libtool ()
         Gettext.install (self)
 
 class Gettext__local (toolpackage.ToolBuildSpec):
@@ -71,11 +69,11 @@ class Gettext__local (toolpackage.ToolBuildSpec):
         self.with (version='0.15', mirror=download.gnu, format='gz')
 
     def get_build_dependencies (self):
-        return ['libtool']            
+        return ['libtool']
 
     def configure (self):
         toolpackage.ToolBuildSpec.configure (self)
-        self.file_sub ( [
-                         ('(SUBDIRS *=.*)examples', r'\1 '),
-                         ],
-                        '%(builddir)s/gettext-tools/Makefile')
+        self.file_sub ([
+                ('(SUBDIRS *=.*)examples', r'\1 '),
+                ],
+                       '%(builddir)s/gettext-tools/Makefile')

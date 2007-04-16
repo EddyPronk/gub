@@ -17,8 +17,8 @@ default: all
 
 ## must always have one host.
 GUB_DISTCC_ALLOW_HOSTS=127.0.0.1
-ALL_PLATFORMS=arm cygwin darwin-ppc darwin-x86 debian freebsd-x86 freebsd-x86 linux-x86 linux-64 mingw mipsel linux-ppc
-PLATFORMS=darwin-ppc darwin-x86 mingw linux-x86 linux-64 linux-ppc freebsd-x86 cygwin 
+ALL_PLATFORMS=arm cygwin darwin-ppc darwin-x86 debian freebsd-x86 linux-x86 linux-64 mingw mipsel linux-ppc
+PLATFORMS=darwin-ppc darwin-x86 mingw linux-x86 linux-64 linux-ppc freebsd-x86 cygwin
 
 LILYPOND_CVS_REPODIR=downloads/lilypond.cvs
 LILYPOND_GITDIR=downloads/lilypond.git
@@ -28,7 +28,7 @@ LILYPOND_REPODIR=downloads/lilypond
 LILYPOND_BRANCH=master
 # LILYPOND_BRANCH=stable/2.10
 
-MAKE += -f lilypond.make 
+MAKE += -f lilypond.make
 LILYPOND_BRANCH_FILEIFIED=$(subst /,--,$(LILYPOND_BRANCH))
 
 LILYPOND_LOCAL_BRANCH=$(LILYPOND_BRANCH_FILEIFIED)-git.sv.gnu.org-lilypond.git
@@ -46,11 +46,13 @@ $(foreach h,$(GUB_CROSS_DISTCC_HOSTS), --cross-distcc-host $(h))\
 $(LOCAL_GUB_BUILDER_OPTIONS)
 
 INVOKE_GUP=$(PYTHON) gup-manager.py \
---platform $(1) \
---branch lilypond=$(LILYPOND_LOCAL_BRANCH)
+  --platform $(1) \
+  --branch guile=branch_release-1-8-repo.or.cz-guile.git \
+  --branch lilypond=$(LILYPOND_LOCAL_BRANCH)
 
 INVOKE_INSTALLER_BUILDER=$(PYTHON) installer-builder.py \
   --target-platform $(1) \
+  --branch guile=branch_release-1-8-repo.or.cz-guile.git \
   --branch lilypond=$(LILYPOND_LOCAL_BRANCH) \
 
 
@@ -59,16 +61,15 @@ BUILD=$(call INVOKE_GUB_BUILDER,$(1)) build $(2) \
 
 CWD:=$(shell pwd)
 
-sources = GNUmakefile $(wildcard *.py specs/*.py lib/*.py)
+PYTHON=python
 
 NATIVE_TARGET_DIR=$(CWD)/target/$(BUILD_PLATFORM)
 
-SET_LOCAL_PATH=PATH=$(CWD)/target/local/system/usr/bin:$(PATH)
+SET_LOCAL_PATH=PATH=$(CWD)/target/local/usr/bin:$(PATH)
 
 LILYPOND_VERSIONS = uploads/lilypond.versions
 
-DOC_LIMITS=ulimit -m 256000 && ulimit -d 256000 && ulimit -v 384000 
-
+DOC_LIMITS=ulimit -m 256000 && ulimit -d 256000 && ulimit -v 384000
 
 include compilers.make
 
@@ -128,7 +129,7 @@ cygwin-libtool-installer:
 
 cygwin-fontconfig:
 	rm -f uploads/cygwin/setup.ini
-	rm -rf target/cygwin/system
+	rm -rf target/cygwin/
 	$(call INVOKE_GUP, cygwin) install gcc
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build fontconfig
 
@@ -193,8 +194,6 @@ clean:
 realclean:
 	rm -rf $(foreach p, $(PLATFORMS), uploads/$(p)/* uploads/$(p)-cross/* target/*$(p)* )
 
-TAGS: $(sources)
-	etags $^
 
 ################################################################
 # compilers and tools
@@ -229,13 +228,13 @@ local:
 ################################################################
 # docs
 
-NATIVE_ROOT=$(NATIVE_TARGET_DIR)/installer-lilypond-$(LILYPOND_LOCAL_BRANCH)
+NATIVE_ROOT=$(NATIVE_TARGET_DIR)/gubfiles/installer-lilypond-$(LILYPOND_LOCAL_BRANCH)
 DOC_LOCK=$(NATIVE_ROOT).lock
 
 
 
-NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH)
-NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/src/lilypond-$(LILYPOND_LOCAL_BRANCH)
+NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/gubfiles/build/lilypond-$(LILYPOND_LOCAL_BRANCH)
+NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/gubfiles/src/lilypond-$(LILYPOND_LOCAL_BRANCH)
 NATIVE_BUILD_COMMITTISH=$(shell cat downloads/lilypond.git/refs/heads/$(LILYPOND_LOCAL_BRANCH))
 
 DIST_VERSION=$(shell cat $(NATIVE_LILY_BUILD)/out/VERSION)
@@ -243,10 +242,10 @@ DOC_BUILDNUMBER=$(shell $(PYTHON) lib/versiondb.py --build-for $(DIST_VERSION))
 
 DOC_RELOCATION = \
     LILYPOND_EXTERNAL_BINARY="$(NATIVE_ROOT)/usr/bin/lilypond" \
-    PATH=$(CWD)/target/local/system/usr/bin:$(NATIVE_ROOT)/usr/bin:$$PATH \
+    PATH=$(CWD)/target/local/usr/bin:$(NATIVE_ROOT)/usr/bin:$$PATH \
     GS_LIB=$(wildcard $(NATIVE_ROOT)/usr/share/ghostscript/*/lib) \
     MALLOC_CHECK_=2 \
-    LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$$LD_LIBRARY_PATH
+    LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib
 
 SIGNATURE_FUNCTION=uploads/signatures/$(1).$(NATIVE_BUILD_COMMITTISH)
 
@@ -255,11 +254,11 @@ doc: native doc-build
 doc-clean:
 	$(PYTHON) lib/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-clean
 
-doc-build: 
+doc-build:
 	$(PYTHON) lib/with-lock.py --skip $(DOC_LOCK) $(MAKE) cached-doc-build
 
 unlocked-doc-clean:
-	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
+	make -C $(NATIVE_TARGET_DIR)/gubfiles/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
 		DOCUMENTATION=yes web-clean
 	rm -f $(call SIGNATURE_FUNCTION,cached-doc-build)
 	rm -f $(call SIGNATURE_FUNCTION,cached-doc-export)
@@ -307,7 +306,7 @@ unlocked-info-man-build:
 ## On darwin, all our libraries have the wrong names;
 ## overriding with DYLD_LIBRARY_PATH doesn't work,
 ## as the libs in system/ are stubs.
-ifneq ($(BUILD_PLATFORM),darwin-ppc)  
+ifneq ($(BUILD_PLATFORM),darwin-ppc)
 	## FIXME: #! guile script is barfing.
 	-mkdir $(NATIVE_LILY_BUILD)/out-info-man
 	touch $(NATIVE_LILY_BUILD)/scripts/out/lilypond-invoke-editor.1
@@ -327,7 +326,7 @@ unlocked-doc-export:
 		$(NATIVE_LILY_SRC)/buildscripts/output-distance.py $(NATIVE_LILY_BUILD)/out-www/online-root
 
 doc-export:
-	$(PYTHON) lib/with-lock.py --skip $(DOC_LOCK) $(MAKE) cached-doc-export 
+	$(PYTHON) lib/with-lock.py --skip $(DOC_LOCK) $(MAKE) cached-doc-export
 
 unlocked-dist-check:
 	$(SET_LOCAL_PATH) \
