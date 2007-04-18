@@ -18,23 +18,19 @@ class PackageSpec:
         self._os_interface = os_interface
         self._file_specs = []
         self._dependencies = []
+        self._conflicts = []
         
     def set_dict (self, dict, sub_name):
         self._dict = dict.copy ()
         self._dict['sub_name'] = sub_name
-        
         if sub_name:
             sub_name = '-' + sub_name
-
         s = ('%(name)s' % dict) + sub_name
-
         self._dict['split_name'] = s
-
         self._dict['split_ball'] = ('%(gub_uploads)s/%(split_name)s%(ball_suffix)s.%(platform)s.gup') % self._dict
         self._dict['split_hdr'] = ('%(gub_uploads)s/%(split_name)s%(vc_branch_suffix)s.%(platform)s.hdr') % self._dict
-
-        deps =  ';'.join (self._dependencies)
-        self._dict['dependencies_string'] = deps
+        self._dict['conflicts_string'] = ';'.join (self._conflicts)
+        self._dict['dependencies_string'] = ';'.join (self._dependencies)
         
     def expand (self, s):
         return s % self._dict
@@ -103,9 +99,12 @@ class BuildSpec (Os_context_wrapper):
     def get_repodir (self):
         return self.settings.downloads + '/' + self.name ()
     
+    def get_conflict_dict (self):
+        """subpackage -> list of confict dict."""
+        return {'': [], 'devel': [], 'doc': [], 'runtime': []}
+  
     def get_dependency_dict (self):
         """subpackage -> list of dependency dict."""
-        
         # FIMXE: '' always depends on runtime?
         return {'': [], 'devel': [], 'doc': [], 'runtime': []}
   
@@ -243,7 +242,7 @@ class BuildSpec (Os_context_wrapper):
             ## distcc during configure.
             c = 'DISTCC_HOSTS="%s" %s' % (self.settings.native_distcc_hosts, c)
             c = 'PATH="%(native_distcc_bindir)s:$PATH" ' + c
-        elif self.settings.cpu_count_str <> '1':
+        elif self.settings.cpu_count_str != '1':
             job_spec += ' -j%s ' % self.settings.cpu_count_str
 
         c += job_spec
@@ -487,6 +486,7 @@ rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_roo
 
         ps = []
 
+        conflict_dict = self.get_conflict_dict ()
         dep_dict = self.get_dependency_dict ()
         descr_dict = self.description_dict ()
         category_dict = self.category_dict ()
@@ -501,11 +501,14 @@ rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_roo
             p._file_specs = filespecs
             p.set_dict (self.get_substitution_dict (), sub)
 
+            conflict_str = ';'.join (conflict_dict.get (sub, []))
+            if p._dict.has_key ('conflicts_string'):
+                conflict_str = p._dict['conflicts_string'] + ';' + conflict_str
+            p._dict['conflicts_string'] = conflict_str
+
             dep_str = ';'.join (dep_dict.get (sub, []))
             if p._dict.has_key ('dependencies_string'):
-                dep_str =  p._dict['dependencies_string'] + ';' + dep_str
-
-
+                dep_str = p._dict['dependencies_string'] + ';' + dep_str
             p._dict['dependencies_string'] = dep_str
 
 	    ## FIXME make generic: use cross.get_subpackage_dict_methods () or similar.

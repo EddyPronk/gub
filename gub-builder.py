@@ -258,6 +258,9 @@ def run_builder (options, settings, manager, names, spec_object_dict):
         for p in spec.get_packages ():
             name = p.name ()
             if not manager.is_installed (name):
+                if spec.get_conflict_dict ().has_key (name):
+                    for c in spec.get_conflict_dict ()[name].split ():
+                        manager.uninstall (c)
                 manager.unregister_package_dict (p.name ())
                 manager.register_package_dict (p.dict ())
                 manager.install_package (p.name ())
