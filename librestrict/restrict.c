@@ -58,7 +58,7 @@ expand_path (char const *p)
       strcat (s, p);
       return strdup (s);
     }
-      
+
 }
 
 static int
@@ -66,21 +66,19 @@ is_allowed (char const *fn, char const *call)
 {
   if (allowed_count == 0)
     return 1;
-  
+
   char const *fullpath = expand_path (fn);
   int i = 0;
   for (i = 0; i < allowed_count; i++)
     if (0 == strncmp (fullpath, allowed[i].prefix, allowed[i].prefix_len))
-      {
-	return 1;
-      }
+      return 1;
 
   fprintf (stderr, "%s: tried to %s() file %s\nallowed:\n",
 	   executable_name, call, fullpath);
 
   for (i = 0; i < allowed_count; i++)
     fprintf (stderr, "  %s\n", allowed[i].prefix);
-  
+
   return 0;
 }
 
@@ -97,7 +95,7 @@ get_executable_name (void)
       abort ();
     }
   s[ss] = '\0';
-  
+
   return strdup (s);
 }
 
@@ -127,7 +125,7 @@ get_allowed_prefix (char const *exe_name)
 
   int prefix_len = last_found - exe_name;
   char *allowed_prefix = malloc (sizeof (char) * (prefix_len  + 1));
-  
+
   strncpy (allowed_prefix, exe_name, prefix_len);
   allowed_prefix[prefix_len] = '\0';
 
@@ -145,6 +143,7 @@ void initialize (void)
     {
       add_allowed (allow);
       add_allowed ("/tmp");
+      add_allowed ("/dev/null");
     }
 }
 
@@ -166,16 +165,16 @@ __open (const char *fn, int flags, ...)
       abort ();
       return -1;
     }
-  
+
   int rv = real_open (fn, flags, va_arg (p, int));
-  
-  return rv;    
+
+  return rv;
 }
 
 int open (const char *fn, int flags, ...) __attribute__ ((alias ("__open")));
 
 #ifdef TEST_SELF
-int 
+int
 main ()
 {
   char *exe = "/home/hanwen/vc/gub/target/mingw/usr/cross/bin/foo";
@@ -183,7 +182,7 @@ main ()
 
   char const *h = "aabbaabba";
   char const *n = "bb";
-  
+
   printf ("strrstr %s %s: %s\n", h,n, strrstr (h,n));
   printf ("allowed for %s : %s\n", exe, get_allowed_prefix (exe));
 }
