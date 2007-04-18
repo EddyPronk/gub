@@ -1,0 +1,11 @@
+--- csu/Makefile~	2002-12-31 23:24:37.000000000 +0100
++++ csu/Makefile	2007-04-16 08:53:24.000000000 +0200
+@@ -99,7 +99,7 @@
+ $(objpfx)crt%.o: $(objpfx)crt%.S $(objpfx)defs.h
+ 	$(compile.S) -g0 $(ASFLAGS-.os) -o $@
+ 
+-CFLAGS-initfini.s = -g0 -fPIC -fno-inline-functions
++CFLAGS-initfini.s = -g0 -fPIC -fno-inline-functions -O1
+ 
+ vpath initfini.c $(full_config_sysdirs)
+ 
