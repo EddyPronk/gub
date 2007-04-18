@@ -103,8 +103,9 @@ class Gcc (CrossToolSpec):
 
         self.move_target_libs (old_libs)
         self.move_target_libs (self.expand ('%(install_root)s/usr/cross/lib'))
-        ## FIXME: .so senseless for darwin.
-        self.system ('''
+        if os.path.exists (self.expand ('cd %(install_root)s/usr/lib/libgcc_s.so.1')):
+            # FIXME: .so senseless for darwin.
+            self.system ('''
 cd %(install_root)s/usr/lib && ln -fs libgcc_s.so.1 libgcc_s.so
 ''')
 
