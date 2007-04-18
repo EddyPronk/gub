@@ -23,6 +23,7 @@ gnubase = 'ftp://ftp.gnu.org/pub/gnu'
 gnu = gnubase + '/%(name)s/%(name)s-%(ball_version)s.tar.%(format)s'
 
 gcc = gnubase + '/%(name)s/%(name)s-%(ball_version)s/%(name)s-%(ball_version)s.tar.%(format)s'
+glibc = gnubase + '/glibc/%(name)s-%(ball_version)s.tar.%(format)s'
 alphabase = 'ftp://alpha.gnu.org/pub/gnu'
 alpha = alphabase + '/%(name)s/%(name)s-%(ball_version)s.tar.%(format)s'
 
