@@ -1,75 +1,73 @@
 import download
+import misc
 import targetpackage
 
-# Shared libraries do not build with Boost's home-grown build system
-# [that hides compile and link commands].
-class Boost (targetpackage.TargetBuildSpec):
-    def __init__ (self,settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with (version='1.33.1', mirror=download.boost, format='bz2')
-
-        # Configure generates invalid Makefile if CC has arguments
-        self.target_gcc_flags = ''
-        
+# TODO: AutoToolSpec
+class BjamBuildSpec (targetpackage.TargetBuildSpec):
     def patch (self):
-        self.system ('''
-cd %(srcdir)s/tools/build/v1 cp -pv gcc-tools.jam %(tool_prefix)sgcc.jam
-''')
-        self.file_sub ([
-            (' ar ', ' %(tool_prefix)sar'),
-            (' objcopy ', ' %(tool_prefix)sobjcopy'),
-            ],
-               '%(srcdir)s/tools/build/v1/gcc-tools.jam')
-               
-        # Boost does not support --srcdir builds
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
-
     def get_substitution_dict (self, env={}):
         dict = targetpackage.TargetBuildSpec.get_substitution_dict (self, env)
         # When using GCC, boost ignores standard CC,CXX
         # settings, but looks at GCC,GXX.
         dict['GCC'] = dict['CC']
         dict['GXX'] = dict['CXX']
+        dict['CFLAGS'] = 'boe'
         return dict
-
     def configure_command (self):
-        # Boost configure barfs on standard options
-###--with-toolset=%(tool_prefix)sgcc
-        return misc.join_lines ('''C_INCLUDE_PATH= LIBRARY_PATH= %(srcdir)s/configure
+        return 'true'
+    def compile_command (self):
+# FIXME: get_substitution_dict is broken?
+#'-sGCC=%(tool_prefix)s-gcc %(CFLAGS)s'
+#'-sGXX=%(tool_prefix)s-g++ %(CFLAGS)s'
+# FIXME: WTF, where has python_version gone?
+#'-sPYTHON_VERSION=%(python_version)s'
+# only static because dynamic libs fail on linux-64..?
+#<runtime-link>static/dynamic
+# --without-test because is only available as shared lib
+        return misc.join_lines ('''
+bjam
+'-sTOOLS=gcc'
+'-sGCC=%(tool_prefix)sgcc -fPIC -DBOOST_PLATFORM_CONFIG=\\"boost/config/platform/linux.hpp\\"'
+'-sGXX=%(tool_prefix)sg++ -fPIC -DBOOST_PLATFORM_CONFIG=\\"boost/config/platform/linux.hpp\\"'
+'-sNO_BZIP2=1'
+'-sNO_ZLIB=1'
+'-sBUILD=release <optimization>space <inlining>on <debug-symbols>off <runtime-link>static'
+'-sPYTHON_VERSION=2.4'
+'-scxxflags=-fPIC'
+--without-python
+--without-test
+--with-python-root=/dev/null
+--layout=system
+--builddir=%(builddir)s
+--with-python-root=/dev/null
 --prefix=/usr
---includedir=/usr/include
+--exec-prefix=/usr
 --libdir=/usr/lib
---with-libraries=test
+--includedir=/usr/include
 ''')
-
     def install_command (self):
-        return misc.join_lines ('''make install
-EPREFIX=%(install_prefix)s
-PREFIX=%(install_prefix)s
-LIBDIR=%(install_prefix)s/lib
-INCLUDEDIR=%(install_prefix)s/include
-''')
+        return (self.compile_command ()
+                + ' install').replace ('=/usr', '=%(install_root)s/usr')
 
-    def install (self):
-        targetpackage.TargetBuildSpec.install (self)
-        self.system ('''
-cd %(install_prefix)s/include && mv boost-1_33_1/boost .
-cd %(install_prefix)s/include && rm -rf boost-1_33_1
-''')
-
-class Boost__mingw (Boost):
-    def patch (self):
-        Boost.patch (self)
-        self.file_sub ([
-            ('-fPIC', ''),
-            (' rt ', ' '),
-            ('-pthread', '-mthreads'),
-            ('"\$\(DLL_LINK_FLAGS\)"',
-            '\1 "-Wl,--export-all-symbols"'),
-            ],
-               '%(srcdir)s/tools/build/v1/gcc-tools.jam')
-
-    # HUH?
+class Boost (BjamBuildSpec):
+    def __init__ (self,settings):
+        BjamBuildSpec.__init__ (self, settings)
+        self.with (version='1.33.1', mirror=download.boost_1_33_1, format='bz2')
     def get_substitution_dict (self, env={}):
-        return Boost.get_substitution_dict (self, env)
+        dict = BjamBuildSpec.get_substitution_dict (self, env)
+        # When using GCC, boost ignores standard CC,CXX
+        # settings, but looks at GCC,GXX.
+        dict['GCC'] = dict['CC']
+        dict['GXX'] = dict['CXX']
+        # WT-Bloody-F?
+        dict['CFLAGS'] = '-DBOOST_PLATFORM_CONFIG=\\"boost/config/platform/linux.hpp\\"'
+        return dict
+    def license_file (self):
+        return '%(srcdir)s/LICENSE_1_0.txt'
 
+class Boost__linux_arm_softfloat (BjamBuildSpec):
+    def configure_command (self):
+        self.system ('''
+cp -f boost/config/platform/linux.hpp boost/config/platform/linux-gnueabi.hpp
+''')
