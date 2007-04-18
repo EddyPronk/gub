@@ -62,6 +62,7 @@ BUILD=$(call INVOKE_GUB_BUILDER,$(1)) build $(2) \
   && $(call INVOKE_INSTALLER_BUILDER,$(1)) build-all lilypond
 
 CWD:=$(shell pwd)
+
 PYTHON=python
 
 NATIVE_TARGET_DIR=$(CWD)/target/$(BUILD_PLATFORM)
@@ -220,6 +221,7 @@ download-local:
 # -imagemagick: for lilypond web site
 # -netpbm: website
 local:
+	cd librestrict && make -f GNUmakefile
 	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local build \
 		git flex mftrace potrace fontforge freetype \
 		guile pkg-config icoutils python \
