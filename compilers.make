@@ -19,8 +19,10 @@ $(error Must set PYTHON)
 endif
 
 BUILD_PLATFORM = $(shell $(PYTHON) build-platform.py)
-
 DISTCC_DIRS=target/cross-distcc/bin target/cross-distccd/bin target/native-distcc/bin 
+
+default: cross-compilers
+compilers: cross-compilers
 
 -include local.make
 
