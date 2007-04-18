@@ -206,6 +206,12 @@ class TarBall (Repository):
         import misc
         return self._version
 
+class NewTarBall (TarBall):
+    def __init__ (self, dir, mirror, name, ball_version, format='gz',
+                  strip_components=1):
+        TarBall.__init__ (self, dir, mirror % locals (), ball_version,
+                          strip_components)
+
 class RepositoryException (Exception):
     pass
 
