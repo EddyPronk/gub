@@ -7,3 +7,5 @@ log
 local.make
 test-settings.py
 *.so
+nohup.out
+TAGS
