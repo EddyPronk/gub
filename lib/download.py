@@ -85,7 +85,6 @@ libdbi_deb = 'http://ftp.debian.org/debian/pool/main/libd/libdbi/%(name)s_%(ball
 gcc_41 = 'ftp://ftp.fu-berlin.de/unix/languages/gcc/releases/gcc-%(ball_version)s/gcc-%(ball_version)s.tar.bz2'
 gcc_snap = 'ftp://ftp.fu-berlin.de/unix/languages/gcc/snapshots/%(ball_version)s/gcc-%(ball_version)s.tar.bz2'
 
-boost = 'http://surfnet.dl.sourceforge.net/sourceforge/boost/boost_1_33_1.tar.%(format)s'
-
+boost_1_33_1 = 'http://surfnet.dl.sourceforge.net/sourceforge/boost/boost_1_33_1.tar.%(format)s'
 
 gnucvs =  ':pserver:anoncvs@cvs.sv.gnu.org:/cvsroot/%(name)s'
