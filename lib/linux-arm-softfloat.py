@@ -10,10 +10,20 @@ import targetpackage
 import repository
 
 
-# Hmm? TARGET_CFLAGS=-O
+# Hmm? TARGET_CFLAGS=-O --> targetpackage.py
 
-class Linux_arm_softfloat_runtime (gub.BinarySpec, gub.SdkBuildSpec):
-    pass
+class Linux_kernel_headers (gub.BinarySpec, gub.SdkBuildSpec):
+    def get_subpackage_names (self):
+        return ['']
+    def patch (self):
+        self.system ('''
+#cd %(srcdir)s && yes yes | make ARCH=%(package_arch)s oldconfig include/linux/version.h
+cd %(srcdir)s && yes yes | make ARCH=i386 oldconfig include/linux/version.h
+cd %(srcdir)s && mv include .include
+cd %(srcdir)s && rm -rf *
+cd %(srcdir)s && mkdir usr
+cd %(srcdir)s && mv .include usr/include
+''')
 
 class Gcc (cross.Gcc):
     #FIXME: what about apply_all (%(patchdir)s/%(version)s)?
@@ -189,9 +199,8 @@ cp %(builddir)s/bits/stdio_lim.h %(install_root)s/usr/include/bits
 ''')
 
 def _get_cross_packages (settings,
-                         binutils_version, gcc_version,
-                         guile_version, kernel_version, glibc_version,
-                         python_version):
+                         linux_version, binutils_version, gcc_version,
+                         glibc_version, guile_version, python_version):
     configs = []
     if not settings.platform.startswith ('linux'):
         configs = [
@@ -199,13 +208,10 @@ def _get_cross_packages (settings,
             linux.Python_config (settings).with (version=python_version),
             ]
 
-    import debian
     return [
-        debian.Linux_kernel_headers (settings).with (version=kernel_version,
-                                                     strip_components=0,
-                                                     mirror=download.lilypondorg_deb,
-                                                     format='deb'),
-        
+        Linux_kernel_headers (settings).with_tarball (mirror=download.linux_2_4,
+                                                      version=linux_version,
+                                                      format='bz2'),
         cross.Binutils (settings).with (version=binutils_version,
                                         format='bz2', mirror=download.gnu),
         Gcc_core (settings).with (version=gcc_version,
@@ -225,26 +231,31 @@ def _get_cross_packages (settings,
         ] + configs
 
 def get_cross_packages (settings):
-    #import debian
-    #return debian.get_cross_packages (settings)
     return get_cross_packages_pre_eabi (settings)
 
-def get_cross_packages_pre_eabi (settings):
+def rget_cross_packages (settings):
+    linux_version = '2.6.20.7'
     binutils_version = '2.16.1'
-    #gcc_version = '3.4.0'
-    gcc_version = '3.4.5'
+    gcc_version = '4.1.1'
+    glibc_version = '2.4'
     guile_version = '1.6.7'
-    kernel_version = '2.5.999-test7-bk-17'
-    #glibc_version = '2.3.2.ds1-22sarge4'
-    #glibc_version = '2.3.2'
-    glibc_version = '2.3.6'
     python_version = '2.4.1'
-    #import debian
     return _get_cross_packages (settings,
-                                binutils_version, gcc_version,
-                                guile_version,
-                                kernel_version, glibc_version,
-                                python_version)
+                                linux_version, binutils_version,
+                                gcc_version, glibc_version,
+                                guile_version, python_version)
+
+def get_cross_packages_pre_eabi (settings):
+    linux_version = '2.4.18'
+    binutils_version = '2.16.1'
+    gcc_version = '3.4.5'
+    glibc_version = '2.3.6'
+    guile_version = '1.6.7'
+    python_version = '2.4.1'
+    return _get_cross_packages (settings,
+                                linux_version, binutils_version,
+                                gcc_version, glibc_version,
+                                guile_version, python_version)
 
 def change_target_package (p):
     cross.change_target_package (p)

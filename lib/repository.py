@@ -194,7 +194,7 @@ class TarBall (Repository):
 
         self.system ('mkdir %s' % destdir)       
         strip_components = self.strip_components
-        self.system ('tar -C %(destdir)s --strip-component=%(strip_components)d  %(flags)s %(tarball)s' % locals ())
+        self.system ('tar -C %(destdir)s --strip-component=%(strip_components)d %(flags)s %(tarball)s' % locals ())
 
     def update_workdir (self, destdir):
         if '.deb' in self._file_name () :
