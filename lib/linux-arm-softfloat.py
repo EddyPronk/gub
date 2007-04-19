@@ -16,17 +16,20 @@ class Linux_arm_softfloat_runtime (gub.BinarySpec, gub.SdkBuildSpec):
     pass
 
 class Gcc (cross.Gcc):
+    #FIXME: what about apply_all (%(patchdir)s/%(version)s)?
     def patch_3_4_0 (self):
         self.system ('''
 cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-3.4.0-arm-softfloat.patch
 cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-3.4.0-arm-lib1asm.patch
 cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-3.4.0-arm-nolibfloat.patch
 ''')
-    def patch (self):
+    def patch_3_4_5 (self):
         self.system ('''
 cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-3.4.0-arm-lib1asm.patch
 cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-3.4.0-arm-nolibfloat.patch
 ''')
+    def patch (self):
+        self.invoke_version ('patch')
     def get_build_dependencies (self):
         return cross.Gcc.get_build_dependencies (self) + ['gcc-core', 'glibc-core']
     def get_conflict_dict (self):
@@ -52,6 +55,8 @@ mv %(install_root)s/usr/cross/lib/gcc/%(target_architecture)s/%(version)s/libgcc
 class Gcc_core (Gcc):
     def __init__ (self, settings):
         Gcc.__init__ (self, settings)
+    def patch (self):
+        pass
     def get_subpackage_names (self):
         return ['']
     def name (self):
@@ -94,7 +99,6 @@ class Glibc (targetpackage.TargetBuildSpec):
     #FIXME: what about apply_all (%(patchdir)s/%(version)s)?
     def patch_2_3_2 (self):
         self.system ('''
-#cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-linuxthreads-2.3.2-allow-3.4.patch
 cd %(srcdir)s && patch -p0 < %(patchdir)s/glibc-linuxthreads-2.3.2-initfini.patch
 cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3.2-output_format.patch
 cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3.2-sysctl.patch
@@ -104,14 +108,13 @@ cd %(srcdir)s && patch -p0 < %(patchdir)s/glibc-2.3.2-clobber-a1.patch
 cd %(srcdir)s && patch -p0 < %(patchdir)s/glibc-2.3.2-sscanf.patch
 cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3.2-arm-ctl_bus_isa.patch
 ''')
-
-    def patch (self):
+    def patch_2_3_6 (self):
         self.system ('''
 cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3.6-wordexp-inline.patch
 cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3.2-arm-ctl_bus_isa.patch
-##cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3.6-make-install-lib-all.patch
 ''')
-
+    def patch (self):
+        self.invoke_version ('patch')
 #--disable-sanity-checks
     def configure_command (self):
         return 'BUILD_CC=gcc ' + misc.join_lines (targetpackage.TargetBuildSpec.configure_command (self) + '''
@@ -160,11 +163,13 @@ class Glibc_core (Glibc):
         return ['']
     def get_conflict_dict (self):
         return {'': ['glibc', 'glibc-devel', 'glibc-doc', 'glibc-runtime']}
-    def patch (self):
+    def patch_2_3_6 (self):
         Glibc.patch (self)
         self.system ('''
 cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3.6-make-install-lib-all.patch
 ''')
+    def patch (self):
+        self.invoke_version ('patch')
     def compile_command (self):
         return (Glibc.compile_command (self)
                 + ' lib')

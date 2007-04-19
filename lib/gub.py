@@ -91,6 +91,10 @@ class BuildSpec (Os_context_wrapper):
         self.split_packages = []
         self.so_version = '1'
 
+    def invoke_version (self, name):
+        self.__class__.__dict__[name + '_'
+                                + self.version ().replace ('.', '_')] (self)
+
     # urg: naming conflicts with module.
     def do_download (self):
         if self.vc_repository:
