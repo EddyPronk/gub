@@ -1,12 +1,7 @@
-import repository
+import download
 import targetpackage
 
 class Hello (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with_vc (repository.TarBall (self.settings.downloads,
-                                          url='http://lilypond.org/download/gub-sources/hello-1.0.tar.gz',
-                                          version='1.0',
-                                          strip_components=True))
-
-Hello__debian_arm = Hello
+        self.with_tarball (mirror=download.lilypondorg, version='1.0')

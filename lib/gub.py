@@ -593,6 +593,14 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
     # TODO: junk this, always set repo in __init__
     def with_vc (self, repo):
         self.vc_repository = repo
+        return self
+
+    def with_tarball (self, mirror, version):
+        return self.with_vc (self.get_tarball (mirror, version))
+
+    def get_tarball (self, mirror, version):
+        import repository
+        return repository.NewTarBall (self.settings.downloads, mirror, self.name (), version)
 
     # TODO: junk this, use TarBall ()or Version ()
     def with (self,
