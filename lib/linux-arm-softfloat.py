@@ -164,7 +164,7 @@ class Glibc_core (Glibc):
     def get_conflict_dict (self):
         return {'': ['glibc', 'glibc-devel', 'glibc-doc', 'glibc-runtime']}
     def patch_2_3_6 (self):
-        Glibc.patch (self)
+        Glibc.patch_2_3_6 (self)
         self.system ('''
 cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3.6-make-install-lib-all.patch
 ''')
