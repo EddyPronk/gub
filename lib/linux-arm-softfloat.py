@@ -16,36 +16,27 @@ class Linux_arm_softfloat_runtime (gub.BinarySpec, gub.SdkBuildSpec):
     pass
 
 class Gcc (cross.Gcc):
+    #FIXME: what about apply_all (%(patchdir)s/%(version)s)?
     def patch_3_4_0 (self):
         self.system ('''
 cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-3.4.0-arm-softfloat.patch
 cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-3.4.0-arm-lib1asm.patch
 cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-3.4.0-arm-nolibfloat.patch
 ''')
-    def patch (self):
+    def patch_3_4_5 (self):
         self.system ('''
 cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-3.4.0-arm-lib1asm.patch
 cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-3.4.0-arm-nolibfloat.patch
 ''')
-        ##self.file_sub ([('^.NOEXPORT', '#.NOEXPORT')], '%(srcdir)s/Makefile.in')
+    def patch (self):
+        self.invoke_version ('patch')
     def get_build_dependencies (self):
         return cross.Gcc.get_build_dependencies (self) + ['gcc-core', 'glibc-core']
-    def get_substitution_dict (self, env={}):
-        #FIXME: why does setting this not work?
-        d = cross.Gcc.get_substitution_dict (self, env)
-        d['LDFLAGS_FOR_TARGET'] = '-Wl,-rpath-link=%(core_prefix)s/lib'
-        d['CFLAGS_FOR_TARGET'] = '-I%(core_prefix)s/include'
-#        d['STAGE_CC_WRAPPER'] = '"CPATH=%(core_prefix)s/include LIBRARY_PATH=%(core_prefix)s/lib"'
-#        d['X_CFLAGS'] = '-B%(core_prefix)s/lib'
-        d['X_CFLAGS'] = ' X_CFLAGS="-B%(core_prefix)s/lib -I%(core_prefix)s/include -Wl,-rpath-link=%(core_prefix)s/lib "'
-        d['wrapper'] = '%(builddir)s/stage-cc-wrapper'
-        return d
+    def get_conflict_dict (self):
+        return {'': ['gcc-core'], 'doc': ['gcc-core'], 'runtime': ['gcc-core']}
     def configure_command (self):
-        return (#' FLAGS_FOR_TARGET="-B%(core_prefix)s/lib"'
-            ' FLAGS_FOR_TARGET="-B%(core_prefix)s/lib -I%(core_prefix)s/include -Wl,-rpath-link=%(core_prefix)s/lib"'
-                + 'CFLAGS_FOR_TARGET="-I%(core_prefix)s/include" '
-                + 'LDFLAGS_FOR_TARGET="-Wl,-rpath-link=%(core_prefix)s/lib" '
-                + misc.join_lines (cross.Gcc.configure_command (self) + '''
+        return (cross.Gcc.configure_command (self)
+                + misc.join_lines ('''
 --with-local-prefix=%(system_root)s/usr
 --disable-multilib
 --disable-nls
@@ -54,60 +45,32 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-3.4.0-arm-nolibfloat.patch
 --enable-symvers=gnu
 --with-float=soft
 '''))
-    def compile_command (self):
-        wrapper = '%(builddir)s/stage-cc-wrapper'
-        return (cross.Gcc.compile_command (self)
-                + ' CFLAGS_FOR_TARGET="-I%(core_prefix)s/include"'
-                + ' LDFLAGS_FOR_TARGET="-Wl,-rpath-link=%(core_prefix)s/lib"'
-#                + ' STAGE_CC_WRAPPER="CPATH=%(core_prefix)s/include LIBRARY_PATH=%(core_prefix)s/lib"'
-#                + ' STAGE_CC_WRAPPER="%(wrapper)s"'
-                + ' STAGE_CC_WRAPPER="%(builddir)s/stage-cc-wrapper"'
-#                + ' X_CFLAGS="-B%(core_prefix)s/lib "'
-                + ' X_CFLAGS="-B%(core_prefix)s/lib -I%(core_prefix)s/include -Wl,-rpath-link=%(core_prefix)s/lib "')
-    def compile (self):
-        #wrapper = self.expand ('%(wrapper)s')
-        wrapper = '%(builddir)s/stage-cc-wrapper'
-        self.dump ('''#! /bin/sh
-set -x
-cc="$1"
-shift
-#$cc -B%(core_prefix)s/lib -I%(core_prefix)s/include -Wl,-rpath-link=%(core_prefix)s/lib "$@"
-$cc -B%(core_prefix)s/lib -I%(core_prefix)s/include "$@"
-''',
-                   wrapper)
-        os.chmod (self.expand (wrapper), 0755)
-        # The link command of libgcc_s.so needs the -B flag to cross/core
-        # from X_CFLAGS.
-        # The X_CFLAGS does not find its way into libgcc.mk in the
-        # defaut toplevel compile because of .NOEXPORT??
-        make = self.compile_command ()
-        self.system ('''
-cd %(builddir)s && %(make)s || true  # FIXME
-cd %(builddir)s/gcc && mv libgcc.mk libgcc.mk-
-cd %(builddir)s/gcc && %(make)s libgcc.mk
-''',
-                     locals ())
-        cross.Gcc.compile (self)
     def install (self):
         cross.Gcc.install (self)
         self.system ('''
-mv %(install_root)s/%(cross_prefix)s/lib/gcc/%(target_architecture)s/%(version)s/libgcc_eh.a %(install_root)s/%(cross_prefix)s/lib
-#mv %(install_root)s/%(cross_prefix)s/lib/gcc/%(target_architecture)s/%(version)s/libgcc_eh.a %(install_root)s/usr/lib
+mv %(install_root)s/usr/cross/lib/gcc/%(target_architecture)s/%(version)s/libgcc_eh.a %(install_root)s/usr/lib
 ''')
         
 
 class Gcc_core (Gcc):
     def __init__ (self, settings):
         Gcc.__init__ (self, settings)
+    def patch (self):
+        pass
+    def get_subpackage_names (self):
+        return ['']
     def name (self):
         return 'gcc-core'
     def file_name (self):
         return 'gcc-core'
     def get_build_dependencies (self):
         return cross.Gcc.get_build_dependencies (self) + ['binutils']
+    def get_conflict_dict (self):
+        return {'': ['gcc', 'gcc-devel', 'gcc-doc', 'gcc-runtime']}
     def configure_command (self):
         return (misc.join_lines (Gcc.configure_command (self) + '''
---prefix=%(core_prefix)s
+--prefix=%(cross_prefix)s
+--prefix=/usr
 --with-newlib
 --enable-threads=no
 --without-headers
@@ -123,7 +86,8 @@ class Gcc_core (Gcc):
     def install_command (self):
         return (Gcc.install_command (self)
                 .replace (' install', ' install-gcc')
-                + ' prefix=/usr/cross/core')
+                #+ ' prefix=/usr/cross/core'
+                )
     def install (self):
         # cross.Gcc moves libs into system lib places, which will
         # make gcc-core conflict with gcc.
@@ -132,9 +96,9 @@ class Gcc_core (Gcc):
         return  ['c']
 
 class Glibc (targetpackage.TargetBuildSpec):
+    #FIXME: what about apply_all (%(patchdir)s/%(version)s)?
     def patch_2_3_2 (self):
         self.system ('''
-#cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-linuxthreads-2.3.2-allow-3.4.patch
 cd %(srcdir)s && patch -p0 < %(patchdir)s/glibc-linuxthreads-2.3.2-initfini.patch
 cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3.2-output_format.patch
 cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3.2-sysctl.patch
@@ -144,14 +108,13 @@ cd %(srcdir)s && patch -p0 < %(patchdir)s/glibc-2.3.2-clobber-a1.patch
 cd %(srcdir)s && patch -p0 < %(patchdir)s/glibc-2.3.2-sscanf.patch
 cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3.2-arm-ctl_bus_isa.patch
 ''')
-
-    def patch (self):
+    def patch_2_3_6 (self):
         self.system ('''
 cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3.6-wordexp-inline.patch
 cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3.2-arm-ctl_bus_isa.patch
-##cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3.6-make-install-lib-all.patch
 ''')
-
+    def patch (self):
+        self.invoke_version ('patch')
 #--disable-sanity-checks
     def configure_command (self):
         return 'BUILD_CC=gcc ' + misc.join_lines (targetpackage.TargetBuildSpec.configure_command (self) + '''
@@ -166,10 +129,10 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3.2-arm-ctl_bus_isa.patch
 ''')
     def get_build_dependencies (self):
         return ['gcc-core']
-    def get_substitution_dict (self, env={}):
+    def get_conflict_dict (self):
+        return {'': ['glibc-core'], 'devel': ['glibc-core'], 'doc': ['glibc-core'], 'runtime': ['glibc-core']}
+    def FIXME_DOES_NOT_WORK_get_substitution_dict (self, env={}):
         d = targetpackage.TargetBuildSpec.get_substitution_dict (self, env)
-        d['PATH'] = self.settings.core_prefix + '/bin:' + d['PATH']
-        #glibc does not compile with dash, uses bash echo feature
         d['SHELL'] = '/bin/bash'
         return d
     def linuxthreads (self):
@@ -196,14 +159,17 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3.2-arm-ctl_bus_isa.patch
                 + ' install_root=%(install_root)s')
 
 class Glibc_core (Glibc):
-    def patch (self):
+    def get_subpackage_names (self):
+        return ['']
+    def get_conflict_dict (self):
+        return {'': ['glibc', 'glibc-devel', 'glibc-doc', 'glibc-runtime']}
+    def patch_2_3_6 (self):
         Glibc.patch (self)
         self.system ('''
 cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3.6-make-install-lib-all.patch
 ''')
-    def configure_command (self):
-        return (Glibc.configure_command (self)
-                    .replace ('=/usr', '=/usr/cross/core'))
+    def patch (self):
+        self.invoke_version ('patch')
     def compile_command (self):
         return (Glibc.compile_command (self)
                 + ' lib')
@@ -215,11 +181,11 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3.6-make-install-lib-all.patch
     def install (self):
         Glibc.install (self)
         self.system ('''
-mkdir -p %(install_root)s/usr/cross/core/include/gnu
-touch %(install_root)s/usr/cross/core/include/gnu/stubs.h
-cp %(srcdir)s/include/features.h %(install_root)s/usr/cross/core/include
-mkdir -p %(install_root)s/usr/cross/core/include/bits
-cp %(builddir)s/bits/stdio_lim.h %(install_root)s/usr/cross/core/include/bits
+mkdir -p %(install_root)s/usr/include/gnu
+touch %(install_root)s/usr/include/gnu/stubs.h
+cp %(srcdir)s/include/features.h %(install_root)s/usr/include
+mkdir -p %(install_root)s/usr/include/bits
+cp %(builddir)s/bits/stdio_lim.h %(install_root)s/usr/include/bits
 ''')
 
 def _get_cross_packages (settings,
