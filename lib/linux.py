@@ -167,8 +167,6 @@ def src_get_cross_packages (settings):
                                 guile_version, python_version)
 
 def get_cross_packages (settings):
-    if settings.package_arch == 'powerpc':
-        return old_get_cross_packages (settings)
     return src_get_cross_packages (settings)
         
     

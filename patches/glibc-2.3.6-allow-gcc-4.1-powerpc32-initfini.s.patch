@@ -20,3 +20,13 @@ fixes
 
  # There is no benefit to using sdata for these objects, and the user
  # of the library should be able to control what goes into sdata.
+--- ./linuxthreads/sysdeps/powerpc/Makefile~	2003-02-17 21:33:17.000000000 +0100
++++ ./linuxthreads/sysdeps/powerpc/Makefile	2007-04-20 16:51:30.000000000 +0200
+@@ -1,6 +1,6 @@
+ ifeq ($(subdir):$(elf),linuxthreads:yes)
+ # See CFLAGS-initfini.s above; this is the same code.
+-CFLAGS-pt-initfini.s = -g0 -fpic -O1
++CFLAGS-pt-initfini.s = -g0 -fpic -O1 $(fno-unit-at-a-time)
+ endif
+ ifeq ($(subdir),csu)
+ gen-as-const-headers += tcb-offsets.sym

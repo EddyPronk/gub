@@ -22,14 +22,19 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3.2-arm-ctl_bus_isa.patch
 ''')
     def patch_2_3_6 (self):
         self.system ('''
+cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-linuxthreads-2.3.6-allow-3.4.patch
 cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3.6-wordexp-inline.patch
 cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3.2-arm-ctl_bus_isa.patch
 cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-linuxthreads-2.3.6-allow-3.4-powerpc.patch
 cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3.6-allow-gcc-4.1-powerpc32-initfini.s.patch
 ''')
     def patch (self):
+        if self.settings.package_arch == 'powerpc':
+            self.file_sub ([('\$\(CFLAGS-pt-initfini.s\)',
+                             '$(CFLAGS-pt-initfini.s) -fno-unit-at-a-time')],
+                           '%(srcdir)s/linuxthreads/Makefile')
         self.system ('''
-rm -rf %(srcdir)s/nptl
+#rm -rf %(srcdir)s/nptl
 ''')
         self.class_invoke_version (Glibc, 'patch')
 #--disable-sanity-checks
@@ -92,6 +97,10 @@ class Glibc_core (Glibc):
     def patch_2_3_6 (self):
         Glibc.patch_2_3_6 (self)
     def patch (self):
+        if self.settings.package_arch == 'powerpc':
+            self.file_sub ([('\$\(CFLAGS-pt-initfini.s\)',
+                             '$(CFLAGS-pt-initfini.s) -fno-unit-at-a-time')],
+                           '%(srcdir)s/linuxthreads/Makefile')
         self.system ('''
 #rm -rf %(srcdir)s/nptl
 cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3.6-make-install-lib-all.patch
