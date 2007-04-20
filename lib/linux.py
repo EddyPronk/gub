@@ -2,6 +2,7 @@ import os
 import re
 #
 import cross
+import download
 import gub
 import targetpackage
 
@@ -96,7 +97,80 @@ def change_target_package (package):
 
     return package
 
-def get_cross_packages (settings):
+def old_get_cross_packages (settings):
     import debian
     return debian.get_cross_packages (settings)
+
+#FIXME, c&p linux-arm-softfloat.py
+def _get_cross_packages (settings,
+                         linux_version, binutils_version, gcc_version,
+                         glibc_version, guile_version, python_version):
+    configs = []
+    if not settings.platform.startswith ('linux'):
+        configs = [
+            linux.Guile_config (settings).with (version=guile_version),
+            linux.Python_config (settings).with (version=python_version),
+            ]
+
+    import linux_headers
+    import debian
+    import binutils
+    import gcc
+    import glibc
+    headers = linux_headers.Linux_headers (settings)\
+        .with_tarball (mirror=download.linux_2_4,
+                       version=linux_version,
+                       format='bz2')
+    if settings.package_arch != 'i386':
+        # other arch's need sane linux .config; where to get it?
+        linux_version = '2.5.999-test7-bk-17'
+        headers = debian.Linux_kernel_headers (settings)\
+            .with (version=linux_version,
+                   strip_components=0,
+                   mirror=download.lilypondorg_deb,
+                   format='deb')
+    return [
+        headers,
+        binutils.Binutils (settings).with (version=binutils_version,
+                                           format='bz2', mirror=download.gnu),
+        gcc.Gcc_core (settings).with (version=gcc_version,
+                                      mirror=download.gcc % {'name': 'gcc',
+                                                             'ball_version': gcc_version,
+                                                             'format': 'bz2',},
+                                      format='bz2'),
+        glibc.Glibc_core (settings).with (version=glibc_version,
+                                          mirror=download.glibc % {'name': 'glibc',
+                                                                   'ball_version': glibc_version,
+                                                                   'format': 'bz2',},
+                                          format='bz2'),
+        gcc.Gcc (settings).with (version=gcc_version,
+                                 mirror=download.gcc, format='bz2'),
+        glibc.Glibc (settings).with (version=glibc_version, mirror=download.gnu,
+                                     format='bz2'),
+        ] + configs
+
+def src_get_cross_packages (settings):
+    linux_version = '2.4.34'
+    #linux_version = '2.5.999-test7-bk-17'
+    # 2.6 needs .config to make include/linux/version.h?
+    #linux_version = '2.6.20.7'
+    binutils_version = '2.16.1'
+    gcc_version = '4.1.1'
+    # gcc-core --disable-threads cannot booststrap glibc-2.4
+    #glibc_version = '2.4' 
+    glibc_version = '2.3.6'
+    guile_version = '1.6.7'
+    python_version = '2.4.1'
+    return _get_cross_packages (settings,
+                                linux_version, binutils_version,
+                                gcc_version, glibc_version,
+                                guile_version, python_version)
+
+def get_cross_packages (settings):
+    if settings.package_arch == 'powerpc':
+        return old_get_cross_packages ()
+    return src_get_cross_packages ()
+        
+    
+    
 
