@@ -1,0 +1,12 @@
+--- configure.in~       2006-08-13 16:13:31.000000000 +0200
++++ configure.in        2006-09-12 16:31:07.000000000 +0200
+@@ -118,4 +118,7 @@
+   AC_DEFINE([HAVE_BMP], 1, [User wants beep media player plugin built])
+   AM_CONDITIONAL([HAVE_XMMS], true)
+   AM_CONDITIONAL([HAVE_BMP], true)
++else
++  AM_CONDITIONAL([HAVE_XMMS], false)
++  AM_CONDITIONAL([HAVE_BMP], false)
+ fi
+
+ if test x$WITHDRM = xyes; then
