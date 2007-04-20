@@ -84,6 +84,7 @@ class Settings (Context):
             self.package_arch = re.sub ('-.*', '', self.target_architecture)
             self.package_arch = re.sub ('i[0-9]86', 'i386', self.package_arch)
             self.package_arch = re.sub ('arm.*', 'arm', self.package_arch)
+#            self.package_arch = re.sub ('powerpc.*', 'ppc', self.package_arch)
             self.debian_branch = 'stable'
         
         self.keep_build = False

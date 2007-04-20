@@ -1,0 +1,22 @@
+fixes
+
+/local/crosstool/gcc-4.1.0-glibc-2.3.6/powerpc-860-linux-gnu/lib/gcc/powerpc-860-linux-gnu/4.1.0/../../../../powerpc-860-linux-gnu/lib/crtn.o: In function `dummy':
+/home/nyet/src/crosstool/build/powerpc-860-linux-gnu/gcc-4.1.0-glibc-2.3.6/build-glibc-startfiles/csu/crtn.S:14: multiple definition of `dummy'
+/local/crosstool/gcc-4.1.0-glibc-2.3.6/powerpc-860-linux-gnu/lib/gcc/powerpc-860-linux-gnu/4.1.0/../../../../powerpc-860-linux-gnu/lib/crti.o:/home/nyet/src/crosstool/build/powerpc-860-linux-gnu/gcc-4.1.0-glibc-2.3.6/build-glibc-startfiles/csu/crti.S:33: first defined here
+/local/crosstool/gcc-4.1.0-glibc-2.3.6/powerpc-860-linux-gnu/lib/gcc/powerpc-860-linux-gnu/4.1.0/../../../../powerpc-860-linux-gnu/lib/crtn.o: In function `_init':
+/home/nyet/src/crosstool/build/powerpc-860-linux-gnu/gcc-4.1.0-glibc-2.3.6/build-glibc-startfiles/csu/crtn.S:30: multiple definition of `_init'
+/local/crosstool/gcc-4.1.0-glibc-2.3.6/powerpc-860-linux-gnu/lib/gcc/powerpc-860-linux-gnu/4.1.0/../../../../powerpc-860-linux-gnu/lib/crti.o:/home/nyet/src/crosstool/build/powerpc-860-linux-gnu/gcc-4.1.0-glibc-2.3.6/build-glibc-startfiles/csu/crti.S:65: first defined here
+/local/crosstool/gcc-4.1.0-glibc-2.3.6/powerpc-860-linux-gnu/lib/gcc/powerpc-860-linux-gnu/4.1.0/../../../../powerpc-860-linux-gnu/lib/crtn.o: In function `_fini':
+/home/nyet/src/crosstool/build/powerpc-860-linux-gnu/gcc-4.1.0-glibc-2.3.6/build-glibc-startfiles/csu/crtn.S:25: multiple definition of `_fini'
+
+--- glibc-2.3.6/sysdeps/powerpc/powerpc32/Makefile.org  2006-08-21 19:03:01.000000000 -0700
++++ glibc-2.3.6/sysdeps/powerpc/powerpc32/Makefile      2006-08-21 19:03:19.000000000 -0700
+@@ -21,7 +21,7 @@
+ ifneq ($(elf),no)
+ # The initfini generation code doesn't work in the presence of -fPIC, so
+ # we use -fpic instead which is much better.
+-CFLAGS-initfini.s = -g0 -fpic -O1
++CFLAGS-initfini.s = -g0 -fpic -O1 $(fno-unit-at-a-time)
+
+ # There is no benefit to using sdata for these objects, and the user
+ # of the library should be able to control what goes into sdata.

@@ -2,7 +2,7 @@ import glob
 import imp
 import md5
 import os
-
+#
 import gub
 import misc
 
@@ -175,4 +175,3 @@ def get_cross_checksum (platform):
     except KeyError:
         print 'No cross module found'
         return '0000'
-
