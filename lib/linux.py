@@ -168,8 +168,8 @@ def src_get_cross_packages (settings):
 
 def get_cross_packages (settings):
     if settings.package_arch == 'powerpc':
-        return old_get_cross_packages ()
-    return src_get_cross_packages ()
+        return old_get_cross_packages (settings)
+    return src_get_cross_packages (settings)
         
     
     
