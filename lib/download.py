@@ -64,8 +64,9 @@ python = 'http://python.org/ftp/python/%(ball_version)s/Python-%(ball_version)s.
 cygwin_bin = 'http://mirrors.kernel.org/sourceware/cygwin/release/%(name)s/%(name)s-%(ball_version)s.tar.%(format)s'
 
 # FIXME: s/nl/%(gps-location)s/
-linux_2_4 = 'http://www.nl.kernel.org/mirror/linux/kernel/v2.4/linux-%(ball_version)s.tar.%(format)s'
-linux_2_6 = 'http://www.nl.kernel.org/mirror/linux/kernel/v2.6/linux-%(ball_version)s.tar.%(format)s'
+linux_2_4 = 'http://www.nl.kernel.org/pub/linux/kernel/v2.4/linux-%(ball_version)s.tar.%(format)s'
+linux_2_5 = 'http://www.nl.kernel.org/pub/linux/kernel/v2.5/linux-%(ball_version)s.tar.%(format)s'
+linux_2_6 = 'http://www.nl.kernel.org/pub/linux/kernel/v2.6/linux-%(ball_version)s.tar.%(format)s'
 
 cygwin = 'http://mirrors.kernel.org/sourceware/cygwin/release/%(name)s/%(name)s-%(ball_version)s-src.tar.%(format)s'
 
