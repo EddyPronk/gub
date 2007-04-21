@@ -9,15 +9,9 @@ import os
 
 class Glibc (targetpackage.TargetBuildSpec):
     def patch (self):
-        # FIXME: How to fix this using a neat patch?
-        if self.settings.package_arch == 'powerpc':
-            self.file_sub ([('\$\(CFLAGS-initfini.s\)',
-                             '$(CFLAGS-initfini.s) $(fno-unit-at-a-time)')],
-                           '%(srcdir)s/csu/Makefile')
-            self.file_sub ([('\$\(CFLAGS-pt-initfini.s\)',
-                             '$(CFLAGS-pt-initfini.s) $(fno-unit-at-a-time)')],
-                           '%(srcdir)s/linuxthreads/Makefile')
-        ##self.class_invoke_version (Glibc, 'patch')
+        self.system ('''
+cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3-powerpc-initfini.patch
+''')
     def configure_command (self):
         add_ons = ''
         for i in ('linuxthreads',):
@@ -46,20 +40,18 @@ class Glibc (targetpackage.TargetBuildSpec):
         return d
     def linuxthreads (self):
         return repository.NewTarBall (dir=self.settings.downloads,
-                                      #mirror=download.glibc,
-                                      #name='glibc-linuxthreads',
-                                      mirror=download.glibc_2_3_snapshots,
-                                      name='glibc-2.3-linuxthreads',
+                                      mirror=download.glibc,
+                                      name='glibc-linuxthreads',
                                       ball_version=self.version (),
                                       format='bz2',
                                       strip_components=0)
     def do_download (self):
         targetpackage.TargetBuildSpec.do_download (self)
-        if self.version () != '2.4':
+        if self.version () == '2.3.6':
             self.linuxthreads ().download ()
     def untar (self):
         targetpackage.TargetBuildSpec.untar (self)
-        if self.version () != '2.4':
+        if self.version () == '2.3.6':
             self.linuxthreads ().update_workdir (self.expand ('%(srcdir)s/urg-do-not-mkdir-or-rm-me'))
             self.system ('mv %(srcdir)s/urg-do-not-mkdir-or-rm-me/* %(srcdir)s')
     def configure (self):
@@ -79,7 +71,7 @@ class Glibc_core (Glibc):
     def patch (self):
         Glibc.patch (self)
         self.system ('''
-cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3.6-make-install-lib-all.patch
+cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3-core-install.patch
 ''')
     def compile_command (self):
         return (Glibc.compile_command (self)

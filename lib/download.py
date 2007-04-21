@@ -96,4 +96,5 @@ gnucvs =  ':pserver:anoncvs@cvs.sv.gnu.org:/cvsroot/%(name)s'
 
 redhat_snapshots = 'ftp://sources.redhat.com/pub/%(name)s/snapshots/%(name)s-%(ball_version)s.tar.%(format)s'
 
-glibc_2_3_snapshots = 'ftp://sources.redhat.com/pub/glibc/snapshots/glibc-2.3-%(ball_version)s.tar.%(format)s'
+#glibc_2_3_snapshots = redhat_snapshots
+glibc_2_3_snapshots = lilypondorg

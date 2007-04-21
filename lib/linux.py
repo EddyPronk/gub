@@ -155,16 +155,15 @@ def _get_cross_packages (settings,
         ] + configs
 
 def src_get_cross_packages (settings):
-    linux_version = '2.4.34'
+    #linux_version = '2.5.75'
     #linux_version = '2.5.999-test7-bk-17'
     # 2.6 needs .config to make include/linux/version.h?
     #linux_version = '2.6.20.7'
+    linux_version = '2.4.34'
     binutils_version = '2.16.1'
     gcc_version = '4.1.1'
     # gcc-core --disable-threads cannot booststrap glibc-2.4
-    # glibc_version = '2.4' 
-    # glibc_version = '2.3.6'
-    glibc_version = '20070416'
+    glibc_version = '2.3-20070416'
     guile_version = '1.6.7'
     python_version = '2.4.1'
     return _get_cross_packages (settings,

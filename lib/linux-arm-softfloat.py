@@ -23,6 +23,11 @@ Configured with: /work/GNU/CodeSourcery/src/gcc-3.4.0/configure
 '''
 
 class Gcc (gcc.Gcc):
+    def patch (self):
+        self.system ('''
+cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-3.4.0-arm-lib1asm.patch
+cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-3.4.0-arm-nolibfloat.patch
+''')
     def configure_command (self):
         return (gcc.Gcc.configure_command (self)
                 + misc.join_lines ('''
@@ -30,6 +35,11 @@ class Gcc (gcc.Gcc):
 '''))
 
 class Gcc_core (gcc.Gcc_core):
+    def patch (self):
+        self.system ('''
+cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-3.4.0-arm-lib1asm.patch
+cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-3.4.0-arm-nolibfloat.patch
+''')
     def configure_command (self):
         return (gcc.Gcc_core.configure_command (self)
                 + misc.join_lines ('''
@@ -37,6 +47,10 @@ class Gcc_core (gcc.Gcc_core):
 '''))
 
 class Glibc (glibc.Glibc):
+    def patch (self):
+        self.system ('''
+cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3-wordexp-inline.patch
+''')
     def configure_command (self):
         return (glibc.Glibc.configure_command (self)
                 + misc.join_lines ('''
@@ -44,6 +58,10 @@ class Glibc (glibc.Glibc):
 '''))
 
 class Glibc_core (glibc.Glibc_core):
+    def patch (self):
+        self.system ('''
+cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3-wordexp-inline.patch
+''')
     def configure_command (self):
         return (glibc.Glibc_core.configure_command (self)
                 + misc.join_lines ('''
@@ -111,10 +129,10 @@ def get_cross_packages (settings):
 def get_cross_packages_pre_eabi (settings):
     #linux_version = '2.5.75'
     linux_version = '2.5.999-test7-bk-17'
+    #linux_version = '2.4.34'
     binutils_version = '2.16.1'
-    gcc_version = '3.4.5'
-    #glibc_version = '2.3.6'
-    glibc_version = '20070416'
+    gcc_version = '3.4.6'
+    glibc_version = '2.3-20070416'
     guile_version = '1.6.7'
     python_version = '2.4.1'
     return _get_cross_packages (settings,
