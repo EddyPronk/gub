@@ -134,18 +134,23 @@ def _get_cross_packages (settings,
         binutils.Binutils (settings).with (version=binutils_version,
                                            format='bz2', mirror=download.gnu),
         gcc.Gcc_core (settings).with (version=gcc_version,
-                                      mirror=download.gcc % {'name': 'gcc',
-                                                             'ball_version': gcc_version,
-                                                             'format': 'bz2',},
+                                      mirror=(download.gcc
+                                              % {'name': 'gcc',
+                                                 'ball_version': gcc_version,
+                                                 'format': 'bz2',}),
                                       format='bz2'),
         glibc.Glibc_core (settings).with (version=glibc_version,
-                                          mirror=download.glibc % {'name': 'glibc',
-                                                                   'ball_version': glibc_version,
-                                                                   'format': 'bz2',},
+                                          #mirror=(download.glibc
+                                          mirror=(download.glibc_2_3_snapshots
+                                                  % {'name': 'glibc',
+                                                     'ball_version': glibc_version,
+                                                     'format': 'bz2',}),
                                           format='bz2'),
         gcc.Gcc (settings).with (version=gcc_version,
                                  mirror=download.gcc, format='bz2'),
-        glibc.Glibc (settings).with (version=glibc_version, mirror=download.gnu,
+        glibc.Glibc (settings).with (version=glibc_version,
+                                     #mirror=download.gnu,
+                                     mirror=download.glibc_2_3_snapshots,
                                      format='bz2'),
         ] + configs
 
@@ -157,8 +162,9 @@ def src_get_cross_packages (settings):
     binutils_version = '2.16.1'
     gcc_version = '4.1.1'
     # gcc-core --disable-threads cannot booststrap glibc-2.4
-    #glibc_version = '2.4' 
-    glibc_version = '2.3.6'
+    # glibc_version = '2.4' 
+    # glibc_version = '2.3.6'
+    glibc_version = '20070416'
     guile_version = '1.6.7'
     python_version = '2.4.1'
     return _get_cross_packages (settings,
@@ -168,7 +174,3 @@ def src_get_cross_packages (settings):
 
 def get_cross_packages (settings):
     return src_get_cross_packages (settings)
-        
-    
-    
-

@@ -8,36 +8,16 @@ import os
 # Hmm? TARGET_CFLAGS=-O --> targetpackage.py
 
 class Glibc (targetpackage.TargetBuildSpec):
-    #FIXME: what about apply_all (%(patchdir)s/%(version)s)?
-    def patch_2_3_2 (self):
-        self.system ('''
-cd %(srcdir)s && patch -p0 < %(patchdir)s/glibc-linuxthreads-2.3.2-initfini.patch
-cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3.2-output_format.patch
-cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3.2-sysctl.patch
-cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-vfp.patch
-cd %(srcdir)s && patch -p0 < %(patchdir)s/glibc-2.3.2-arm-nobits.patch
-cd %(srcdir)s && patch -p0 < %(patchdir)s/glibc-2.3.2-clobber-a1.patch
-cd %(srcdir)s && patch -p0 < %(patchdir)s/glibc-2.3.2-sscanf.patch
-cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3.2-arm-ctl_bus_isa.patch
-''')
-    def patch_2_3_6 (self):
-        self.system ('''
-cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-linuxthreads-2.3.6-allow-3.4.patch
-cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3.6-wordexp-inline.patch
-cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3.2-arm-ctl_bus_isa.patch
-cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-linuxthreads-2.3.6-allow-3.4-powerpc.patch
-cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3.6-allow-gcc-4.1-powerpc32-initfini.s.patch
-''')
     def patch (self):
+        # FIXME: How to fix this using a neat patch?
         if self.settings.package_arch == 'powerpc':
+            self.file_sub ([('\$\(CFLAGS-initfini.s\)',
+                             '$(CFLAGS-initfini.s) $(fno-unit-at-a-time)')],
+                           '%(srcdir)s/csu/Makefile')
             self.file_sub ([('\$\(CFLAGS-pt-initfini.s\)',
-                             '$(CFLAGS-pt-initfini.s) -fno-unit-at-a-time')],
+                             '$(CFLAGS-pt-initfini.s) $(fno-unit-at-a-time)')],
                            '%(srcdir)s/linuxthreads/Makefile')
-        self.system ('''
-#rm -rf %(srcdir)s/nptl
-''')
-        self.class_invoke_version (Glibc, 'patch')
-#--disable-sanity-checks
+        ##self.class_invoke_version (Glibc, 'patch')
     def configure_command (self):
         add_ons = ''
         for i in ('linuxthreads',):
@@ -66,8 +46,10 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3.6-allow-gcc-4.1-powerpc32-in
         return d
     def linuxthreads (self):
         return repository.NewTarBall (dir=self.settings.downloads,
-                                      mirror=download.glibc,
-                                      name='glibc-linuxthreads',
+                                      #mirror=download.glibc,
+                                      #name='glibc-linuxthreads',
+                                      mirror=download.glibc_2_3_snapshots,
+                                      name='glibc-2.3-linuxthreads',
                                       ball_version=self.version (),
                                       format='bz2',
                                       strip_components=0)
@@ -94,18 +76,11 @@ class Glibc_core (Glibc):
         return ['']
     def get_conflict_dict (self):
         return {'': ['glibc', 'glibc-devel', 'glibc-doc', 'glibc-runtime']}
-    def patch_2_3_6 (self):
-        Glibc.patch_2_3_6 (self)
     def patch (self):
-        if self.settings.package_arch == 'powerpc':
-            self.file_sub ([('\$\(CFLAGS-pt-initfini.s\)',
-                             '$(CFLAGS-pt-initfini.s) -fno-unit-at-a-time')],
-                           '%(srcdir)s/linuxthreads/Makefile')
+        Glibc.patch (self)
         self.system ('''
-#rm -rf %(srcdir)s/nptl
 cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3.6-make-install-lib-all.patch
 ''')
-        self.class_invoke_version (Glibc_core, 'patch')
     def compile_command (self):
         return (Glibc.compile_command (self)
                 + ' lib')

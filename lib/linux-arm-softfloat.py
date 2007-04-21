@@ -83,19 +83,24 @@ def _get_cross_packages (settings,
         binutils.Binutils (settings).with (version=binutils_version,
                                            format='bz2', mirror=download.gnu),
         Gcc_core (settings).with (version=gcc_version,
-                                      mirror=download.gcc % {'name': 'gcc',
-                                                             'ball_version': gcc_version,
-                                                             'format': 'bz2',},
-                                      format='bz2'),
+                                  mirror=(download.gcc
+                                          % {'name': 'gcc',
+                                             'ball_version': gcc_version,
+                                             'format': 'bz2',}),
+                                  format='bz2'),
         Glibc_core (settings).with (version=glibc_version,
-                                          mirror=download.glibc % {'name': 'glibc',
-                                                                   'ball_version': glibc_version,
-                                                                   'format': 'bz2',},
-                                          format='bz2'),
+                                    #mirror=(download.glibc
+                                    mirror=(download.glibc_2_3_snapshots
+                                            % {'name': 'glibc',
+                                               'ball_version': glibc_version,
+                                               'format': 'bz2',}),
+                                    format='bz2'),
         Gcc (settings).with (version=gcc_version,
                                  mirror=download.gcc, format='bz2'),
-        Glibc (settings).with (version=glibc_version, mirror=download.gnu,
-                                     format='bz2'),
+        Glibc (settings).with (version=glibc_version,
+                               #mirror=download.gnu,
+                               mirror=download.glibc_2_3_snapshots,
+                               format='bz2'),
         ] + configs
 
 
@@ -108,7 +113,8 @@ def get_cross_packages_pre_eabi (settings):
     linux_version = '2.5.999-test7-bk-17'
     binutils_version = '2.16.1'
     gcc_version = '3.4.5'
-    glibc_version = '2.3.6'
+    #glibc_version = '2.3.6'
+    glibc_version = '20070416'
     guile_version = '1.6.7'
     python_version = '2.4.1'
     return _get_cross_packages (settings,

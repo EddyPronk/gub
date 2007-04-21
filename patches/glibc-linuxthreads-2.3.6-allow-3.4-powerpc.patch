@@ -1,8 +1,0 @@
---- ./linuxthreads/sysdeps/unix/sysv/linux/powerpc/Makefile~	2003-01-12 09:12:11.000000000 +0100
-+++ ./linuxthreads/sysdeps/unix/sysv/linux/powerpc/Makefile	2007-04-20 11:36:15.000000000 +0200
-@@ -1,2 +1,5 @@
- # pull in __syscall_error routine
- libpthread-routines += sysdep
-+ifeq ($(subdir),linuxthreads)
-+CFLAGS-pt-initfini.s = $(fno-unit-at-a-time)
-+endif
