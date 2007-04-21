@@ -98,3 +98,5 @@ redhat_snapshots = 'ftp://sources.redhat.com/pub/%(name)s/snapshots/%(name)s-%(b
 
 #glibc_2_3_snapshots = redhat_snapshots
 glibc_2_3_snapshots = lilypondorg
+
+berlios = 'http://download.berlios.de/%(name)s/%(name)s-%(ball_version)s.tar.%(format)s'
