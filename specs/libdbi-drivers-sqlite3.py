@@ -41,10 +41,6 @@ cd %(builddir)s && touch doc/Makefile.in doc/include/Makefile.in
         return (targetpackage.TargetBuildSpec.install_command (self)
                 + self.makeflags ())
 
-    def install (self):
-        targetpackage.TargetBuildSpec.install (self)
-        self.system ('''mv %(install_root)s/usr/lib/dbd/libsqlite3.so %(install_root)s/usr/lib/dbd/libdbdsqlite3.so''')
-
 class Libdbi_drivers_sqlite3__debian__arm (Libdbi_drivers_sqlite3):
     def get_build_dependencies (self):
         return ['sqlite3-dev', 'libdbi', 'libtool']
