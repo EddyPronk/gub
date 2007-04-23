@@ -7,7 +7,7 @@ class Libdbi_drivers_sqlite3 (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
         #self.with (version='0.8.1', mirror=download.sf, format='gz')
-        self.with_vc (repository.NewTarBall (self.settings.downloads, download.sf, 'libdbi-drivers', '0.8.1'))
+        self.with_vc (repository.NewTarBall (self.settings.downloads, download.sf, 'libdbi-drivers', '0.8.2'))
 
     def get_build_dependencies (self):
         #return ['sqlite3', 'libdbi', 'libtool']
@@ -16,6 +16,7 @@ class Libdbi_drivers_sqlite3 (targetpackage.TargetBuildSpec):
     def configure_command (self):
         return (targetpackage.TargetBuildSpec.configure_command (self)
                 + misc.join_lines ('''
+--disable-docs
 --with-dbi-incdir=%(system_root)s/usr/include
 --with-sqlite3
 --with-sqlite3-libdir=%(system_root)s/usr/include
@@ -23,6 +24,10 @@ class Libdbi_drivers_sqlite3 (targetpackage.TargetBuildSpec):
 '''))
 
     def configure (self):
+        self.system ('''
+cd %(builddir)s && mkdir -p doc/include
+cd %(builddir)s && touch doc/Makefile.in doc/include/Makefile.in
+''')
         targetpackage.TargetBuildSpec.configure (self)
         self.update_libtool ()
 
