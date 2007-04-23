@@ -1,9 +1,10 @@
-import gub
-import misc
 import glob
-import os
 import imp
 import md5
+import os
+#
+import gub
+import misc
 
 from context import subst_method 
 class CrossToolSpec (gub.BuildSpec):
@@ -14,10 +15,10 @@ class CrossToolSpec (gub.BuildSpec):
         return (gub.BuildSpec.configure_command (self)
             + misc.join_lines ('''
 --program-prefix=%(target_architecture)s-
---prefix=%(cross_prefix)s/
---with-slibdir=/usr/lib/
+--prefix=%(cross_prefix)s
+--with-slibdir=/usr/lib
 --target=%(target_architecture)s
---with-sysroot=%(system_root)s/
+--with-sysroot=%(system_root)s
 --disable-multilib
 '''))
 
@@ -25,7 +26,7 @@ class CrossToolSpec (gub.BuildSpec):
         return self.native_compile_command ()
         
     def install_command (self):
-        return '''make DESTDIR=%(install_root)s prefix=/usr/cross/ install'''
+        return '''make DESTDIR=%(install_root)s prefix=/usr/cross install'''
 
 #    def gub_src_uploads (self):
 #        return '%(gub_cross_uploads)s'
@@ -47,7 +48,7 @@ class Gcc (CrossToolSpec):
 
     @subst_method
     def NM_FOR_TARGET(self):
-         return "%(tool_prefix)snm"
+         return '%(tool_prefix)snm'
 
     def get_subpackage_names (self):
         # FIXME: why no -devel package?
@@ -91,10 +92,10 @@ class Gcc (CrossToolSpec):
             
         for f in files:
             (dir, file) = os.path.split (f)
-            target = self.expand ('%(install_prefix)s/%(dir)s', locals())
+            target = self.expand ('%(install_prefix)s/%(dir)s', locals ())
             if not os.path.isdir (target):
                 os.makedirs (target)
-            self.system ('mv %(f)s %(install_prefix)s/lib', locals())
+            self.system ('mv %(f)s %(install_prefix)s/lib', locals ())
 
     def install (self):
         CrossToolSpec.install (self)
@@ -102,8 +103,9 @@ class Gcc (CrossToolSpec):
 
         self.move_target_libs (old_libs)
         self.move_target_libs (self.expand ('%(install_root)s/usr/cross/lib'))
-        ## FIXME: .so senseless for darwin.
-        self.system ('''
+        if os.path.exists (self.expand ('cd %(install_root)s/usr/lib/libgcc_s.so.1')):
+            # FIXME: .so senseless for darwin.
+            self.system ('''
 cd %(install_root)s/usr/lib && ln -fs libgcc_s.so.1 libgcc_s.so
 ''')
 
@@ -141,11 +143,11 @@ def get_cross_module (platform):
         base = {
             'darwin-ppc':'darwintools',
             'darwin-x86':'darwintools',
-            "freebsd-x86": 'freebsd',
-            "freebsd4-x86": 'freebsd',
-            "freebsd6-x86": 'freebsd',
-            'linux-ppc' : "linux",
-            'linux-x86' : "linux",
+            'freebsd-x86': 'freebsd',
+            'freebsd4-x86': 'freebsd',
+            'freebsd6-x86': 'freebsd',
+            'linux-ppc' : 'linux',
+            'linux-x86' : 'linux',
             'local':'tools'}[platform]
     except KeyError:
         pass
@@ -173,4 +175,3 @@ def get_cross_checksum (platform):
     except KeyError:
         print 'No cross module found'
         return '0000'
-

@@ -194,7 +194,7 @@ class TarBall (Repository):
 
         self.system ('mkdir %s' % destdir)       
         strip_components = self.strip_components
-        self.system ('tar -C %(destdir)s --strip-component=%(strip_components)d  %(flags)s %(tarball)s' % locals ())
+        self.system ('tar -C %(destdir)s --strip-component=%(strip_components)d %(flags)s %(tarball)s' % locals ())
 
     def update_workdir (self, destdir):
         if '.deb' in self._file_name () :
@@ -205,6 +205,12 @@ class TarBall (Repository):
     def version (self):
         import misc
         return self._version
+
+class NewTarBall (TarBall):
+    def __init__ (self, dir, mirror, name, ball_version, format='gz',
+                  strip_components=1):
+        TarBall.__init__ (self, dir, mirror % locals (), ball_version,
+                          strip_components)
 
 class RepositoryException (Exception):
     pass

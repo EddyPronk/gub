@@ -258,6 +258,14 @@ def run_builder (options, settings, manager, names, spec_object_dict):
         for p in spec.get_packages ():
             name = p.name ()
             if not manager.is_installed (name):
+                subname = ''
+                if spec.name () != p.name ():
+                    subname = name.split ('-')[-1]
+                if spec.get_conflict_dict ().has_key (subname):
+                    for c in spec.get_conflict_dict ()[subname]:
+                        if manager.is_installed (c):
+                            print '%(c)s conflicts with %(name)s' % locals ()
+                            manager.uninstall_package (c)
                 manager.unregister_package_dict (p.name ())
                 manager.register_package_dict (p.dict ())
                 manager.install_package (p.name ())

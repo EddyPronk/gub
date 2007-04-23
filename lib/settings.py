@@ -7,7 +7,7 @@ import gub
 from context import *
 
 platforms = {
-    'arm': 'arm-linux',
+    'debian-arm': 'arm-linux',
     'cygwin': 'i686-cygwin',
     'darwin-ppc': 'powerpc-apple-darwin7',
     'darwin-x86': 'i686-apple-darwin8',
@@ -16,6 +16,7 @@ platforms = {
     
     'freebsd4-x86': 'i686-freebsd4',
     'freebsd6-x86': 'i686-freebsd6',
+    'linux-arm-softfloat': 'armv5te-softfloat-linux',
     'linux-x86': 'i686-linux',
     'linux-64': 'x86_64-linux',
     'linux-ppc': 'powerpc-linux',
@@ -24,13 +25,14 @@ platforms = {
     'mipsel': 'mipsel-linux',
 }
 
-distros = ('arm', 'cygwin', 'debian', 'mipsel')
+distros = ('debian-arm', 'cygwin', 'debian', 'mipsel')
             
 class Settings (Context):
     def __init__ (self, platform):
         Context.__init__ (self)
         self.platform = platform
         self.target_architecture = platforms[self.platform]
+        self.cpu = self.target_architecture.split ('-')[0]
         self.build_source = False
         self.is_distro = platform in distros
 
@@ -67,6 +69,7 @@ class Settings (Context):
 
         self.distcc_hosts = ''
         
+        self.core_prefix = self.system_root + '/usr/cross/core'
         # FIXME: rename to target_root?
         self.cross_prefix = self.system_root + '/usr/cross'
         self.installdir = self.targetdir + '/install'
@@ -80,6 +83,8 @@ class Settings (Context):
 	else:
             self.package_arch = re.sub ('-.*', '', self.target_architecture)
             self.package_arch = re.sub ('i[0-9]86', 'i386', self.package_arch)
+            self.package_arch = re.sub ('arm.*', 'arm', self.package_arch)
+#            self.package_arch = re.sub ('powerpc.*', 'ppc', self.package_arch)
             self.debian_branch = 'stable'
         
         self.keep_build = False
@@ -119,6 +124,7 @@ class Settings (Context):
             'allsrcdir',
             'statusdir',
             'system_root',
+            'core_prefix',
             'cross_prefix',
             'targetdir',
             'local_prefix',

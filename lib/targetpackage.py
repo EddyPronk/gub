@@ -144,6 +144,10 @@ class TargetBuildSpec (gub.BuildSpec):
             'SED': 'sed', # libtool (expat mingw) fixup
             }
 
+        #FIXME: how to move this to arm.py?
+        if self.settings.target_architecture == 'armv5te-softfloat-linux':
+            dict['CFLAGS'] = '-O'
+
         dict.update (env)
         d = gub.BuildSpec.get_substitution_dict (self, dict).copy ()
         return d
@@ -239,6 +243,9 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/l
 ac_cv_file__dev_ptmx=${ac_cv_file__dev_ptmx=no}
 ac_cv_file__dev_ptc=${ac_cv_file__dev_ptc=no}
 
+
+libc_cv_forced_unwind=${libc_cv_forced_unwind=yes}
+libc_cv_c_cleanup=${libc_cv_c_cleanup=yes}
 
 ''',
     'linux-x86' : '''
@@ -413,6 +420,8 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/l
 }
 
 cross_config_cache['debian'] = cross_config_cache['linux-x86']
+cross_config_cache['debian-arm'] = cross_config_cache['arm']
+cross_config_cache['linux-arm-softfloat'] = cross_config_cache['arm']
 cross_config_cache['freebsd-x86'] = cross_config_cache['freebsd6-x86']
 cross_config_cache['freebsd4-x86'] = cross_config_cache['freebsd6-x86']
 

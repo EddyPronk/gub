@@ -1,0 +1,58 @@
+--- glibc-2.3.6/linuxthreads/sysdeps/unix/sysv/linux/mips/Makefile~	2004-05-30 18:24:41.000000000 -0700
++++ glibc-2.3.6/linuxthreads/sysdeps/unix/sysv/linux/mips/Makefile	2004-05-30 18:28:03.000000000 -0700
+@@ -1,2 +1,6 @@
+ # pull in __syscall_error routine
+ libpthread-routines += sysdep
++
++ifeq ($(subdir),linuxthreads)
++CFLAGS-pt-initfini.s += $(fno-unit-at-a-time)
++endif
+--- glibc-2.3.2/linuxthreads/sysdeps/unix/sysv/linux/powerpc/Makefile~	2003-01-12 09:09:45.000000000 +0100
++++ glibc-2.3.2/linuxthreads/sysdeps/unix/sysv/linux/powerpc/Makefile	2004-07-08 17:30:36.000000000 +0200
+@@ -1,2 +1,6 @@
+ # pull in __syscall_error routine
+ libpthread-routines += sysdep
++
++ifeq ($(subdir),linuxthreads)
++CFLAGS-pt-initfini.s += $(fno-unit-at-a-time)
++endif
+--- glibc-2.3.6/sysdeps/powerpc/Makefile~	2007-04-21 11:24:56.000000000 +0200
++++ glibc-2.3.6/sysdeps/powerpc/Makefile	2007-04-21 11:21:31.000000000 +0200
+@@ -27,4 +27,9 @@
+ ifeq ($(subdir),csu)
+ # get offset to rtld_global._dl_hwcap
+ gen-as-const-headers += rtld-global-offsets.sym
++CFLAGS-initfini.s += $(fno-unit-at-a-time)
++endif
++
++ifeq ($(subdir),linuxthreads)
++CFLAGS-pt-initfini.s += $(fno-unit-at-a-time)
+ endif
+--- glibc-2.3.6/sysdeps/powerpc/powerpc32/Makefile~	2007-04-21 11:24:29.000000000 +0200
++++ glibc-2.3.6/sysdeps/powerpc/powerpc32/Makefile	2007-04-21 11:22:52.000000000 +0200
+@@ -42,3 +42,11 @@
+ # extra shared linker files to link only into dl-allobjs.so
+ sysdep-rtld-routines += dl-start
+ endif
++
++ifeq ($(subdir),csu)
++CFLAGS-initfini.s += $(fno-unit-at-a-time)
++endif
++
++ifeq ($(subdir),linuxthreads)
++CFLAGS-pt-initfini.s += $(fno-unit-at-a-time)
++endif
+--- glibc-2.3.6/sysdeps/powerpc/powerpc64/Makefile~	2007-04-21 11:24:16.000000000 +0200
++++ glibc-2.3.6/sysdeps/powerpc/powerpc64/Makefile	2007-04-21 11:23:19.000000000 +0200
+@@ -29,3 +29,11 @@
+ # for moving memory around.
+ CFLAGS-mcount.c += -msoft-float
+ endif
++
++ifeq ($(subdir),csu)
++CFLAGS-initfini.s += $(fno-unit-at-a-time)
++endif
++
++ifeq ($(subdir),linuxthreads)
++CFLAGS-pt-initfini.s += $(fno-unit-at-a-time)
++endif

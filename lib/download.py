@@ -23,6 +23,7 @@ gnubase = 'ftp://ftp.gnu.org/pub/gnu'
 gnu = gnubase + '/%(name)s/%(name)s-%(ball_version)s.tar.%(format)s'
 
 gcc = gnubase + '/%(name)s/%(name)s-%(ball_version)s/%(name)s-%(ball_version)s.tar.%(format)s'
+glibc = gnubase + '/glibc/%(name)s-%(ball_version)s.tar.%(format)s'
 alphabase = 'ftp://alpha.gnu.org/pub/gnu'
 alpha = alphabase + '/%(name)s/%(name)s-%(ball_version)s.tar.%(format)s'
 
@@ -62,6 +63,11 @@ python = 'http://python.org/ftp/python/%(ball_version)s/Python-%(ball_version)s.
 
 cygwin_bin = 'http://mirrors.kernel.org/sourceware/cygwin/release/%(name)s/%(name)s-%(ball_version)s.tar.%(format)s'
 
+# FIXME: s/nl/%(gps-location)s/
+linux_2_4 = 'http://www.nl.kernel.org/pub/linux/kernel/v2.4/linux-%(ball_version)s.tar.%(format)s'
+linux_2_5 = 'http://www.nl.kernel.org/pub/linux/kernel/v2.5/linux-%(ball_version)s.tar.%(format)s'
+linux_2_6 = 'http://www.nl.kernel.org/pub/linux/kernel/v2.6/linux-%(ball_version)s.tar.%(format)s'
+
 cygwin = 'http://mirrors.kernel.org/sourceware/cygwin/release/%(name)s/%(name)s-%(ball_version)s-src.tar.%(format)s'
 
 cygwin_gcc = 'http://mirrors.kernel.org/sourceware/cygwin/release/gcc/%(name)s/%(name)s-%(ball_version)s-src.tar.%(format)s'
@@ -84,7 +90,15 @@ libdbi_deb = 'http://ftp.debian.org/debian/pool/main/libd/libdbi/%(name)s_%(ball
 gcc_41 = 'ftp://ftp.fu-berlin.de/unix/languages/gcc/releases/gcc-%(ball_version)s/gcc-%(ball_version)s.tar.bz2'
 gcc_snap = 'ftp://ftp.fu-berlin.de/unix/languages/gcc/snapshots/%(ball_version)s/gcc-%(ball_version)s.tar.bz2'
 
-boost = 'http://surfnet.dl.sourceforge.net/sourceforge/boost/boost_1_33_1.tar.%(format)s'
-
+boost_1_33_1 = 'http://surfnet.dl.sourceforge.net/sourceforge/boost/boost_1_33_1.tar.%(format)s'
 
 gnucvs =  ':pserver:anoncvs@cvs.sv.gnu.org:/cvsroot/%(name)s'
+
+redhat_snapshots = 'ftp://sources.redhat.com/pub/%(name)s/snapshots/%(name)s-%(ball_version)s.tar.%(format)s'
+
+#glibc_2_3_snapshots = redhat_snapshots
+glibc_2_3_snapshots = lilypondorg
+
+berlios = 'http://download.berlios.de/%(name)s/%(name)s-%(ball_version)s.tar.%(format)s'
+
+xerces_c = 'http://apache.cs.uu.nl/dist/xml/%(name)s/source/%(name)s-src_%(ball_version)s.tar.%(format)s'
