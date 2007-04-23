@@ -91,6 +91,17 @@ class BuildSpec (Os_context_wrapper):
         self.split_packages = []
         self.so_version = '1'
 
+    def get_substitution_dict (self, env={}):
+        dict = {
+            'CPATH': '',
+            'CPLUS_INCLUDE_PATH': '',
+            'C_INCLUDE_PATH': '',
+            'LIBRARY_PATH': '',
+            }
+        dict.update (env)
+        d = Os_context_wrapper.get_substitution_dict (self, dict).copy ()
+        return d
+          
     def class_invoke_version (self, klas, name):
         name_version = name + '_' + self.version ().replace ('.', '_')
         if klas.__dict__.has_key (name_version):
