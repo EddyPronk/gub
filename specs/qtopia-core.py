@@ -63,7 +63,12 @@ unset CC CXX; bash -x %(srcdir)s/configure
         return '%(srcdir)s/LICENSE.GPL'
     def install (self):
         targetpackage.TargetBuildSpec.install (self)
+        self.system ('mkdir -p %(install_root)s/usr/lib/pkgconfig/%(i)')
         for i in ('QtCore.pc', 'QtGui.pc', 'QtNetwork.pc'):
+            self.system ('''
+mv %(install_root)s/usr/lib/%(i) %(install_root)s/usr/lib/pkgconfig/%(i)
+''',
+                         locals ())
             self.file_sub ([('includedir', 'deepqtincludedir')],
                            '%(install_root)s/usr/lib/pkgconfig/%(i)s',
                            env=locals ())
