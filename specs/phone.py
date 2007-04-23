@@ -12,6 +12,26 @@ class Phone (targetpackage.TargetBuildSpec):
             revision='773')
 
         self.with_vc (repo)
+    def get_build_dependencies (self):
+        return [
+            'expat',
+            'ffmpeg',
+            'boost',
+            'libdbi-drivers-sqlite3',
+            'libdral',
+            'libmobtv',
+            'qtopia-core',
+            'libtool',
+            'pkg-config',
+            'libxml2',
+            #'sqlite3',
+            'pjproject',
+            'xerces-c',
+            'zlib',
+            ]
+
+    def get_dependency_dict (self):
+        return {'': ['']}
 
     def configure_command (self):
         return (targetpackage.TargetBuildSpec.configure_command (self)
@@ -28,6 +48,15 @@ class Phone (targetpackage.TargetBuildSpec):
     def configure (self):
         targetpackage.TargetBuildSpec.configure (self)
 
+    def compile_command (self):
+        return (targetpackage.TargetBuildSpec.compile_command (self)
+                + ' phone')
+
+    def install_command (self):
+        return (targetpackage.TargetBuildSpec.install_command (self)
+                + ' -C app/phone')
+
+class Phone__debian__arm (Phone):
     def get_build_dependencies (self):
         return [#'libavcodec-dev'
             'expat',
@@ -61,12 +90,3 @@ class Phone (targetpackage.TargetBuildSpec):
 #        return {'': ['libavcodec']}
         return {'': ['libavformat']}
 
-    def compile_command (self):
-        return (targetpackage.TargetBuildSpec.compile_command (self)
-                + ' phone')
-
-    def install_command (self):
-        return (targetpackage.TargetBuildSpec.install_command (self)
-                + ' -C app/phone')
-
-Phone__arm = Phone
