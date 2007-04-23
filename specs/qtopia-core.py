@@ -1,3 +1,4 @@
+import gub
 import misc
 import targetpackage
 
@@ -7,6 +8,12 @@ class Qtopia_core (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
         self.with_tarball (mirror=trolltech, version='4.2.0')
+        dict = {
+            'CC': 'gcc',
+            'CXX': 'g++',
+            #'LINK': '%(tool_prefix)sg++',
+            }
+        gub.change_target_dict (self, dict)
     def get_build_dependencies (self):
         return ['freetype', 'glib', 'tslib']
     def patch (self):
@@ -14,7 +21,7 @@ class Qtopia_core (targetpackage.TargetBuildSpec):
                        '%(srcdir)s/configure')
     def configure_command (self):
         return misc.join_lines ('''
-bash -x %(srcdir)s/configure
+unset CC CXX; bash -x %(srcdir)s/configure
 -prefix /usr
 -bindir /usr/bin
 -libdir /usr/lib
@@ -44,7 +51,6 @@ bash -x %(srcdir)s/configure
 -examplesdir /usr/share/doc/qtopia/examples
 -demosdir /usr/share/doc/qtopia/demos
 -verbose
--verbose
 ''')
     def configure (self):
         targetpackage.TargetBuildSpec.configure (self)
@@ -56,14 +62,14 @@ bash -x %(srcdir)s/configure
     def license_file (self):
         return '%(srcdir)s/LICENSE.GPL'
 
-class Qtopia_core__linux_arm_softfloat (Qtopia_core):
+class Qtopia_core__linux__arm__softfloat (Qtopia_core):
     def patch (self):
         Qtopia_core.patch (self)
         self.system ('''
 cd %(srcdir)s/mkspecs/qws && cp -R linux-arm-g++ %(target_architecture)s
 ''')
-        self.file_sub ([('arm', '%(target_architecture)s')],
-                       '%(srcdir)s/mkspecs/qws/qmake.conf')
+        self.file_sub ([('arm-linux', '%(target_architecture)s')],
+                       '%(srcdir)s/mkspecs/qws/%(target_architecture)s/qmake.conf')
 
 class Qtopia_core__linux__64 (Qtopia_core):
     def patch (self):
