@@ -19,6 +19,10 @@ class Xerces_c (targetpackage.TargetBuildSpec):
             'CXXFLAGS': ' -DPROJ_XMLPARSER -DPROJ_XMLUTIL -DPROJ_PARSERS -DPROJ_SAX4C -DPROJ_SAX2 -DPROJ_DOM -DPROJ_DEPRECATED_DOM -DPROJ_VALIDATORS -DXML_USE_NATIVE_TRANSCODER -DXML_USE_INMEM_MESSAGELOADER -DXML_USE_PTHREADS -DXML_USE_NETACCESSOR_SOCKET ',
             }
         gub.change_target_dict (self, self.compile_dict)
+        # FIXME: broken for make -j2, why does broken_for_distcc not handle?
+        self.settings.cpu_count_str = '1'
+    def broken_for_distcc (self):
+        return True
     def patch (self):
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
     def configure_command (self):
@@ -35,12 +39,15 @@ class Xerces_c (targetpackage.TargetBuildSpec):
         for i in self.compile_dict.keys ():
             s += ' ' + i + '="' + self.compile_dict[i] + '"'
         return s
-    def compile_command (self):
+    def xcompile_command (self):
         return (targetpackage.TargetBuildSpec.compile_command (self)
                 + self.makeflags ()
                 + ';' + targetpackage.TargetBuildSpec.compile_command (self)
                 + self.makeflags ()
                 + ';' + targetpackage.TargetBuildSpec.compile_command (self)
+                + self.makeflags ())
+    def compile_command (self):
+        return (targetpackage.TargetBuildSpec.compile_command (self)
                 + self.makeflags ())
     def install_command (self):
         return (targetpackage.TargetBuildSpec.install_command (self)
