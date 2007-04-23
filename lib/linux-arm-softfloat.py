@@ -24,6 +24,7 @@ Configured with: /work/GNU/CodeSourcery/src/gcc-3.4.0/configure
 
 class Gcc (gcc.Gcc):
     def patch (self):
+        gcc.Gcc.patch (self)
         self.system ('''
 cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-3.4.0-arm-lib1asm.patch
 cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-3.4.0-arm-nolibfloat.patch
@@ -36,6 +37,7 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-3.4.0-arm-nolibfloat.patch
 
 class Gcc_core (gcc.Gcc_core):
     def patch (self):
+        gcc.Gc_core.patch (self)
         self.system ('''
 cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-3.4.0-arm-lib1asm.patch
 cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-3.4.0-arm-nolibfloat.patch
@@ -48,8 +50,10 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-3.4.0-arm-nolibfloat.patch
 
 class Glibc (glibc.Glibc):
     def patch (self):
+        glibc.Glibc.patch (self)
         self.system ('''
 cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3-wordexp-inline.patch
+cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3-linux-2.4.23-arm-bus-isa.patch
 ''')
     def configure_command (self):
         return (glibc.Glibc.configure_command (self)
@@ -59,6 +63,7 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3-wordexp-inline.patch
 
 class Glibc_core (glibc.Glibc_core):
     def patch (self):
+        glibc.Glibc_core.patch (self)
         self.system ('''
 cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3-wordexp-inline.patch
 ''')
