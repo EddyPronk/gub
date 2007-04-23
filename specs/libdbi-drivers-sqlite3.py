@@ -24,7 +24,7 @@ class Libdbi_drivers_sqlite3 (targetpackage.TargetBuildSpec):
 
     def configure (self):
         self.system ('''
-cd %(builddir)s && mkdir -p doc/include
+mkdir -p %(builddir)s/doc/include
 cd %(builddir)s && touch doc/Makefile.in doc/include/Makefile.in
 ''')
         targetpackage.TargetBuildSpec.configure (self)
