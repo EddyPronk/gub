@@ -37,7 +37,7 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-3.4.0-arm-nolibfloat.patch
 
 class Gcc_core (gcc.Gcc_core):
     def patch (self):
-        gcc.Gc_core.patch (self)
+        gcc.Gcc_core.patch (self)
         self.system ('''
 cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-3.4.0-arm-lib1asm.patch
 cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-3.4.0-arm-nolibfloat.patch
