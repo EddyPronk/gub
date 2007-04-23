@@ -23,8 +23,8 @@ class Libjpeg (targetpackage.TargetBuildSpec):
         return re.sub (r'src\.v', '-', targetpackage.TargetBuildSpec.srcdir(self))
 
     def configure_command (self):
-        return re.sub ('--config-cache', '--cache-file=config.cache',
-               targetpackage.TargetBuildSpec.configure_command (self))
+        return (targetpackage.TargetBuildSpec.configure_command (self)
+                .replace ('--config-cache', '--cache-file=config.cache'))
     
     def update_libtool (self):
         self.system ('''
