@@ -16,6 +16,8 @@ gnome_214 ='http://ftp.gnome.org/pub/GNOME/platform/2.14/2.14.3/sources/%(name)s
 
 gnome_216 ='http://ftp.gnome.org/pub/GNOME/platform/2.16/2.16.2/sources/%(name)s-%(ball_version)s.tar.%(format)s'
 
+gnome_218 ='http://ftp.gnome.org/pub/GNOME/platform/2.18/2.18.1/sources/%(name)s-%(ball_version)s.tar.%(format)s'
+
 gnubase = 'ftp://ftp.gnu.org/pub/gnu'
     # FIXME: find complete GNU mirror
     # base = 'ftp://dl.xs4all.nl/pub/mirror/gnu'
