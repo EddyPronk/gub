@@ -61,6 +61,12 @@ unset CC CXX; bash -x %(srcdir)s/configure
                 + ' INSTALL_ROOT=%(install_root)s')
     def license_file (self):
         return '%(srcdir)s/LICENSE.GPL'
+    def install (self):
+        targetpackage.TargetBuildSpec.install (self)
+        for i in ('QtCore.pc', 'QtGui.pc', 'QtNetwork.pc'):
+            self.file_sub ([('includedir', 'deepqtincludedir')],
+                           '%(install_root)s/usr/lib/pkgconfig/%(i)s',
+                           env=locals ())
 
 class Qtopia_core__linux__arm__softfloat (Qtopia_core):
     def patch (self):
