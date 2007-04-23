@@ -96,7 +96,7 @@ class BuildSpec (Os_context_wrapper):
             'CPATH': '',
             'CPLUS_INCLUDE_PATH': '',
             'C_INCLUDE_PATH': '',
-            'LIBRARY_PATH': '',
+            'LIBRARY_PATH': '/empty-means-cwd-in-feisty',
             }
         dict.update (env)
         d = Os_context_wrapper.get_substitution_dict (self, dict).copy ()
