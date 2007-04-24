@@ -541,20 +541,20 @@ class CVS(Repository):
         entries = self.all_cvs_entries (self.repo_dir + '/' + branch)
         return [e[0] for e in entries]
     
-
-class Subversion (Repository):
-    def __init__ (self, dir, source, branch, module, revision):
+# FIXME: why are cvs, darcs, git so complicated?
+class SimpleRepo (Repository):
+    def __init__ (self, dir, repository, source, branch, revision='HEAD'):
         Repository.__init__ (self)
-        self.dir = os.path.normpath (dir) + '.svn'
+        self.repository = repository
+        self.dir = os.path.normpath (dir) + self.repository
         self.source = source
-        self.branch = branch
-        self.module = module
         self.revision = revision
+        self.branch = branch
         if not os.path.isdir (self.dir):
             self.system ('mkdir -p %(dir)s' % self.__dict__)
 
     def is_tracking (self):
-        ## fixme, probably wrong.
+        ## FIXME, probably wrong.
         return self.revision == 'HEAD'
 
     def update_workdir (self, destdir):
@@ -563,11 +563,37 @@ class Subversion (Repository):
 
     def download (self):
         working = self._checkout_dir ()
-        if not os.path.isdir (working + '/.svn'):
-            self._checkout (self.source, self.branch, self.module,
-                            self.revision)
+        if not os.path.isdir (working + '/' + self.repository):
+            self._checkout ()
         if self._current_revision () != self.revision:
             self._update (working, self.revision)
+
+    def _copy_working_dir (self, working, copy):
+        repository = self.repository
+        self.system ('rsync -av --exclude %(repository)s %(working)s/ %(copy)s'
+                     % locals ())
+
+    def _checkout_dir (self):
+        revision = self.revision
+        dir = self.dir
+        branch = self.branch
+        if branch:
+            branch += '-'
+        return '%(dir)s/%(branch)s%(revision)s' % locals ()
+
+    def get_file_content (self, file_name):
+        return open (self._checkout_dir () + '/' + file_name).read ()
+
+    def get_checksum (self):
+        return self._current_revision ()
+
+    def version (self):
+        return self.revision
+
+class Subversion (SimpleRepo):
+    def __init__ (self, dir, source, branch, module, revision='HEAD'):
+        SimpleRepo.__init__ (self, dir, '.svn', source, branch, revision)
+        self.module = module
 
     def _current_revision (self):
         working = self._checkout_dir ()
@@ -579,43 +605,56 @@ class Subversion (Repository):
     def get_checksum (self):
         return self._current_revision ()
 
-    def _checkout (self, source, branch, module, revision):
-        '''SVN checkout'''
+    def _checkout (self):
         dir = self.dir
+        source = self.source
+        branch = self.branch
+        module = self.module
+        revision = self.revision
         rev_opt = '-r %(revision)s ' % locals ()
         cmd = 'cd %(dir)s && svn co %(rev_opt)s %(source)s/%(branch)s/%(module)s %(branch)s-%(revision)s''' % locals ()
         self.system (cmd)
         
-    def _copy_working_dir (self, working, copy):
-        self.system ('rsync -av --exclude .svn %(working)s/ %(copy)s'
-                     % locals ())
-        
-    def _checkout_dir (self):
-        revision = self.revision
-        dir = self.dir
-        branch = self.branch
-        return '%(dir)s/%(branch)s-%(revision)s' % locals ()
-
-    def get_file_content (self, file_name):
-        return open (self._checkout_dir () + '/' + file_name).read ()
-
     def _update (self, working, revision):
-        '''SVN update'''
         rev_opt = '-r %(revision)s ' % locals ()
         cmd = 'cd %(working)s && svn up %(rev_opt)s' % locals ()
         self.system (cmd)
 
-    def version (self):
-        return self.revision
+class Bazaar (SimpleRepo):
+    def __init__ (self, dir, source, revision='HEAD'):
+        # FIXME: multi-branch repos not supported for now
+        SimpleRepo.__init__ (self, dir, '.bzr', source, '', revision)
+
+    def _current_revision (self):
+        working = self._checkout_dir ()
+        revno = self.read_pipe ('cd %(working)s && bzr revno' % locals ())
+        assert revno
+        return revno[:-1]
+
+    def _checkout (self):
+        dir = self.dir
+        source = self.source
+        revision = self.revision
+        rev_opt = '-r %(revision)s ' % locals ()
+        cmd = ('cd %(dir)s && bzr branch %(rev_opt)s %(source)s %(revision)s'''
+               % locals ())
+        self.system (cmd)
+        
+    def _update (self, working, revision):
+        rev_opt = '-r %(revision)s ' % locals ()
+        cmd = 'cd %(working)s && bzr pull %(rev_opt)s' % locals ()
+        self.system (cmd)
 
 def get_repository_proxy (dir, branch):
-    m = re.search (r"(.*)\.(git|cvs|svn|darcs)", dir)
+    m = re.search (r"(.*)\.(bzr|git|cvs|svn|darcs)", dir)
     
     dir = m.group (1)
     type = m.group (2)
 
-    if type == 'cvs':
-        return CVS (dir, branch=branch )
+    if type == 'bzr':
+        return Bazaar (dir, branch=branch)
+    elif type == 'cvs':
+        return CVS (dir, branch=branch)
     elif type == 'darcs':
         return Darcs (dir)
     elif type == 'git':
