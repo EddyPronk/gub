@@ -4,6 +4,9 @@ import targetpackage
 
 trolltech = 'ftp://ftp.trolltech.com/qt/source/%(name)s-opensource-src-%(ball_version)s.tar.%(format)s'
 
+# TODO: base class Qmake build.
+#       sort-out what exactly is Qmake build, qt, and qtopia-core specific
+
 class Qtopia_core (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
@@ -63,10 +66,10 @@ unset CC CXX; bash -x %(srcdir)s/configure
         return '%(srcdir)s/LICENSE.GPL'
     def install (self):
         targetpackage.TargetBuildSpec.install (self)
-        self.system ('mkdir -p %(install_root)s/usr/lib/pkgconfig/%(i)')
+        self.system ('mkdir -p %(install_root)s/usr/lib/pkgconfig')
         for i in ('QtCore.pc', 'QtGui.pc', 'QtNetwork.pc'):
             self.system ('''
-mv %(install_root)s/usr/lib/%(i) %(install_root)s/usr/lib/pkgconfig/%(i)
+mv %(install_root)s/usr/lib/%(i)s %(install_root)s/usr/lib/pkgconfig/%(i)s
 ''',
                          locals ())
             self.file_sub ([('includedir', 'deepqtincludedir')],
