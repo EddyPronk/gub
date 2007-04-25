@@ -2,7 +2,7 @@
 # local.make may set the following variables:
 #
 #  BUILD_PLATFORM  - override the platform used for building,
-#                    if ./build-platform.py should not work.
+#                    if ./bin/build-platform should not work.
 #
 # it may set
 #
@@ -77,10 +77,10 @@ native-distccd:
 bootstrap: bootstrap-git download-local local cross-compilers local-cross-tools download 
 
 bootstrap-git:
-	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local git
+	$(GUB_BUILDER) $(LOCAL_GUB_BUILDER_OPTIONS) -p local git
 
 local-cross-tools:
 ifneq ($(filter mingw,$(PLATFORMS)),)
-	$(PYTHON) gub-builder.py $(LOCAL_DRIVER_OPTIONS) -p local build nsis 
+	$(GUB_BUILDER) $(LOCAL_DRIVER_OPTIONS) -p local build nsis 
 endif
 

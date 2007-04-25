@@ -38,7 +38,7 @@ def get_cli_parser ():
     import optparse
     p = optparse.OptionParser ()
 
-    p.usage='''gub-builder.py [OPTION]... [PACKAGE]...
+    p.usage='''gub [OPTION]... [PACKAGE]...
 
 '''
     p.description='Grand Unified Builder.  Specify --package-version to set build version'

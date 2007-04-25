@@ -30,12 +30,12 @@ download:
 bootstrap: bootstrap-git download-local local cross-compilers local-cross-tools download 
 
 download-local:
-	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local\
+	$(GUB_BUILDER) $(LOCAL_GUB_BUILDER_OPTIONS) -p local\
 		--stage=download \
 		git pkg-config nsis icoutils 
 
 local:
-	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local git 
+	$(GUB_BUILDER) $(LOCAL_GUB_BUILDER_OPTIONS) -p local git 
 
 
 mingw:

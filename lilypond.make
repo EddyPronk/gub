@@ -108,7 +108,7 @@ cygwin-libtool:
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source libtool
 
 cygwin-libtool-installer:
-	$(PYTHON) cygwin-packager.py libtool
+	$(CYGWIN_PACKAGER) libtool
 
 cygwin-fontconfig:
 	rm -f uploads/cygwin/setup.ini
@@ -117,19 +117,19 @@ cygwin-fontconfig:
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source fontconfig
 
 cygwin-fontconfig-installer:
-	$(PYTHON) cygwin-packager.py fontconfig
+	$(CYGWIN_PACKAGER) fontconfig
 
 cygwin-guile:
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source libtool guile
 
 cygwin-guile-installer:
-	$(PYTHON) cygwin-packager.py guile
+	$(CYGWIN_PACKAGER) guile
 
 cygwin-lilypond:
 	$(call INVOKE_GUB_BUILDER,cygwin) --build-source libtool guile fontconfig lilypond
 
 cygwin-lilypond-installer:
-	$(PYTHON) cygwin-packager.py --branch lilypond=$(LILYPOND_LOCAL_BRANCH) lilypond
+	$(CYGWIN_PACKAGER) --branch lilypond=$(LILYPOND_LOCAL_BRANCH) lilypond
 
 upload-setup-ini:
 	cd uploads/cygwin && ../../downloads/genini $$(find release -mindepth 1 -maxdepth 2 -type d) > setup.ini
@@ -216,13 +216,13 @@ locals =\
 # -netpbm: website
 
 download-local:
-	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) \
+	$(GUB_BUILDER) $(LOCAL_GUB_BUILDER_OPTIONS) \
 		-p local --stage=download \
 		$(locals)
 
 local:
 	cd librestrict && make -f GNUmakefile
-	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local \
+	$(GUB_BUILDER) $(LOCAL_GUB_BUILDER_OPTIONS) -p local \
 		$(locals)
 
 
@@ -271,10 +271,10 @@ cached-doc-build cached-dist-check cached-doc-export:
 		&& touch $(call SIGNATURE_FUNCTION,$@) ; fi
 
 unlocked-doc-build:
-	$(PYTHON) gup-manager.py -p $(BUILD_PLATFORM) remove lilypond
+	$(GUP_MANAGER) -p $(BUILD_PLATFORM) remove lilypond
 
 	## force update of srcdir.
-	$(PYTHON) gub-builder.py --branch lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH) \
+	$(GUB_BUILDER) --branch lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH) \
 		 -p $(BUILD_PLATFORM) --stage untar lilypond
 
 	unset LILYPONDPREFIX LILYPOND_DATADIR \
