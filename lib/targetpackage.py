@@ -422,6 +422,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/l
 cross_config_cache['debian'] = cross_config_cache['linux-x86']
 cross_config_cache['debian-arm'] = cross_config_cache['arm']
 cross_config_cache['linux-arm-softfloat'] = cross_config_cache['arm']
+cross_config_cache['linux-arm-vfp'] = cross_config_cache['arm']
 cross_config_cache['freebsd-x86'] = cross_config_cache['freebsd6-x86']
 cross_config_cache['freebsd4-x86'] = cross_config_cache['freebsd6-x86']
 
