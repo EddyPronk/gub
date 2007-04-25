@@ -130,7 +130,8 @@ class TargetBuildSpec (gub.BuildSpec):
 ##                        'LIBRARY_PATH': '%(system_root)s/usr/lib:%(system_root)s/usr/bin',
             'LIBRARY_PATH': '',
 # FIXME: usr/bin and w32api belongs to mingw/cygwin; but overriding is broken
-            'LDFLAGS': '-L%(system_root)s/usr/lib -L%(system_root)s/usr/bin -L%(system_root)s/usr/lib/w32api',
+#            'LDFLAGS': '-L%(system_root)s/usr/lib -L%(system_root)s/usr/bin -L%(system_root)s/usr/lib/w32api',
+            'LDFLAGS': '',
             'LD': '%(tool_prefix)sld',
             'NM': '%(tool_prefix)snm',
             'PKG_CONFIG_PATH': '%(system_root)s/usr/lib/pkgconfig',
@@ -143,6 +144,13 @@ class TargetBuildSpec (gub.BuildSpec):
             'RANLIB': '%(tool_prefix)sranlib',
             'SED': 'sed', # libtool (expat mingw) fixup
             }
+
+        # FIXME: usr/bin and w32api belongs to mingw/cygwin; but overriding is broken
+        # FIXME: how to move this to cygwin.py/mingw.py?
+        # Hmm, better to make wrappers for gcc/c++/g++ that add options;
+        # see (gub-samco branch) linux-arm-vfp.py?
+        if self.settings.platform in ('cygwin', 'mingw'):
+            dict['LDFLAGS'] = '-L%(system_root)s/usr/lib -L%(system_root)s/usr/bin -L%(system_root)s/usr/lib/w32api'
 
         #FIXME: how to move this to arm.py?
         if self.settings.target_architecture == 'armv5te-softfloat-linux':
