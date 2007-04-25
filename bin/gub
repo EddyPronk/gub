@@ -200,7 +200,7 @@ to skip this check.
 
         try:
             (available[stage]) ()
-        except SystemFailed:
+        except misc.SystemFailed:
 
             ## failed patch will leave system in unpredictable state.
             if stage == 'patch':
