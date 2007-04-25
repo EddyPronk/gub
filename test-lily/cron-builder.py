@@ -10,8 +10,8 @@ import time
 """
 run as
 
-  python clean-gub-build.py / \
-  --test-opts "--to me@mydomain.org --from me@mydomain.org --repository . --smtp smtp.xs4all.nl" 
+  python test-lily/cron-builder.py \
+  --test-opts "--to me@mydomain.org --from me@mydomain.org --repository . --smtp smtp.xs4all.nl" [PLATFORM]...
 
 """
 
@@ -68,7 +68,7 @@ def parse_options ():
                   action="store_true",
                   dest="build_docs",
                   default=None,
-                  help="build docs. Implies --dependent for test-gub.py")
+                  help="build docs. Implies --dependent for test-gub")
     
     p.add_option ('--package',
                   action="store_true",
@@ -92,7 +92,7 @@ def parse_options ():
                   action='store',
                   dest='test_options',
                   default="",
-                  help='what to pass to test-gub.py')
+                  help='what to pass to test-gub')
 
     p.add_option ('--unversioned',
                   action="store_true",
@@ -131,7 +131,7 @@ def system (c, ignore_error=False):
         raise 'barf'
 
 def main ():
-    (opts,args) = parse_options ()
+    (opts, args) = parse_options ()
     os.environ['PATH']= os.getcwd () + '/target/local/system/usr/bin:' + os.environ['PATH']
     print os.environ['PATH']
     global log_file
@@ -152,19 +152,19 @@ def main ():
     ## can't have these in test-gub, since these
     ## will always usually result in "release already tested"
     for a in args:
-        system (python_cmd + 'gub-builder.py --branch %s:%s -p %s download lilypond'
+        system (python_cmd + 'bin/gub --branch %s:%s -p %s --stage=download lilypond'
                 % (opts.branch, opts.local_branch, a))
         system ('rm -f target/%s/status/lilypond-%s*' % (a, opts.branch))
 
     test_cmds = []
     if opts.build_package:
-        test_cmds += [python_cmd + 'gub-builder.py --branch %s:%s -lp %s build lilypond '
+        test_cmds += [python_cmd + 'bin/gub --branch %s:%s -lp %s build lilypond '
                       % (opts.branch, opts.local_branch, p) for p in args]
         
     if opts.build_installer:
         version_opts = '' 
             
-        test_cmds += [python_cmd + 'installer-builder.py --skip-if-locked %s --branch %s -p %s build-all lilypond '
+        test_cmds += [python_cmd + 'bin/installer-builder --skip-if-locked %s --branch %s -p %s build-all lilypond '
                       % (version_opts, opts.local_branch, p) for p in args]
 
     if opts.build_docs:
@@ -176,7 +176,7 @@ def main ():
     if opts.build_tarball:
         test_cmds += [make_cmd + " dist-check"]
 
-    system (python_cmd + 'test-gub.py %s %s '
+    system (python_cmd + 'bin/test-gub %s %s '
             % (opts.test_options, ' '.join (["'%s'" % c for c in test_cmds])))
 
 if __name__ == '__main__':

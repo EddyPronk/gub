@@ -89,11 +89,10 @@ this should leave installers and documentation in
 USAGE
 *****
 
-run the following without arguments for instructions.
+Run these programs with --help argument for instructions
 
-  gup-manager.py - package manager 
-  gub-builder.py - build packages
-  installer-builder.py
-                 - build (platform dependent) installers
-  test-gub.py    - build tester; integrates with Darcs/CVS 
-
+  bin/gpkg              - package manager 
+  bin/gub               - build packages
+  bin/installer-builder - build (platform dependent) installers
+  bin/test-gub          - build tester; integrates with Darcs/CVS 
+  bin/cygwin-packager   - roll cygwin package

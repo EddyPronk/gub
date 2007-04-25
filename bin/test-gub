@@ -44,7 +44,7 @@ class LogFile:
         else:
             self.file = sys.stdout
 
-        self.prefix = 'test-gub.py[%d]: ' % os.getpid ()
+        self.prefix = 'test-gub[%d]: ' % os.getpid ()
 
     def log (self, msg):
         self.file.write ('%s%s\n' % (self.prefix, msg))
@@ -86,7 +86,7 @@ def opt_parser ():
         except OSError:
             address = 'root@localhost'
     
-    p = optparse.OptionParser (usage="test-gub.py [options] command command ... ")
+    p = optparse.OptionParser (usage="test-gub [options] command command ... ")
     p.add_option ('-t', '--to',
                   action='append',
                   dest='address',
