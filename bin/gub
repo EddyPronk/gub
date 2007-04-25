@@ -71,7 +71,8 @@ def get_cli_parser ():
                   help='Where to write result of inspection')
 
     p.add_option ('--offline', action='store_true',
-                  dest='offline')
+                  dest='offline',
+                  help='Do not attempt to download anything')
 
     p.add_option ('--stage', action='store',
                   dest='stage', default=None,
