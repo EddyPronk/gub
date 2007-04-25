@@ -2,7 +2,7 @@ import os
 import re
 #
 import cross
-import download
+import mirrors
 import gub
 import targetpackage
 
@@ -118,7 +118,7 @@ def _get_cross_packages (settings,
     import gcc
     import glibc
     headers = linux_headers.Linux_headers (settings)\
-        .with_tarball (mirror=download.linux_2_4,
+        .with_tarball (mirror=mirrors.linux_2_4,
                        version=linux_version,
                        format='bz2')
     if settings.package_arch != 'i386':
@@ -127,30 +127,30 @@ def _get_cross_packages (settings,
         headers = debian.Linux_kernel_headers (settings)\
             .with (version=linux_version,
                    strip_components=0,
-                   mirror=download.lilypondorg_deb,
+                   mirror=mirrors.lilypondorg_deb,
                    format='deb')
     return [
         headers,
         binutils.Binutils (settings).with (version=binutils_version,
-                                           format='bz2', mirror=download.gnu),
+                                           format='bz2', mirror=mirrors.gnu),
         gcc.Gcc_core (settings).with (version=gcc_version,
-                                      mirror=(download.gcc
+                                      mirror=(mirrors.gcc
                                               % {'name': 'gcc',
                                                  'ball_version': gcc_version,
                                                  'format': 'bz2',}),
                                       format='bz2'),
         glibc.Glibc_core (settings).with (version=glibc_version,
-                                          #mirror=(download.glibc
-                                          mirror=(download.glibc_2_3_snapshots
+                                          #mirror=(mirrors.glibc
+                                          mirror=(mirrors.glibc_2_3_snapshots
                                                   % {'name': 'glibc',
                                                      'ball_version': glibc_version,
                                                      'format': 'bz2',}),
                                           format='bz2'),
         gcc.Gcc (settings).with (version=gcc_version,
-                                 mirror=download.gcc, format='bz2'),
+                                 mirror=mirrors.gcc, format='bz2'),
         glibc.Glibc (settings).with (version=glibc_version,
-                                     #mirror=download.gnu,
-                                     mirror=download.glibc_2_3_snapshots,
+                                     #mirror=mirrors.gnu,
+                                     mirror=mirrors.glibc_2_3_snapshots,
                                      format='bz2'),
         ] + configs
 

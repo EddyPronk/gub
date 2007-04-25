@@ -5,7 +5,7 @@ from new import classobj
 from new import instancemethod
 #
 import cross
-import download
+import mirrors
 import gub
 import gup
 import mingw

@@ -1,4 +1,4 @@
-import download
+import mirrors
 import targetpackage
 
 class Fondu (targetpackage.TargetBuildSpec):

@@ -1,4 +1,4 @@
-import download
+import mirrors
 import toolpackage
 import repository
 

@@ -1,7 +1,7 @@
-from toolpackage import ToolBuildSpec
+import toolpackage
 
-class Potrace (ToolBuildSpec):
+class Potrace (toolpackage.ToolBuildSpec):
     def __init__ (self, settings):
-        ToolBuildSpec.__init__ (self, settings)
-	import download
-        self.with (mirror=download.sf, version="1.7"),
+        toolpackage.ToolBuildSpec.__init__ (self, settings)
+	import mirrors
+        self.with (mirror=mirrors.sf, version="1.7"),

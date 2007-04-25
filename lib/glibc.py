@@ -1,4 +1,4 @@
-import download
+import mirrors
 import misc
 import repository
 import targetpackage
@@ -40,13 +40,13 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3-powerpc-initfini.patch
         return d
     def linuxthreads (self):
         return repository.NewTarBall (dir=self.settings.downloads,
-                                      mirror=download.glibc,
+                                      mirror=mirrors.glibc,
                                       name='glibc-linuxthreads',
                                       ball_version=self.version (),
                                       format='bz2',
                                       strip_components=0)
-    def do_download (self):
-        targetpackage.TargetBuildSpec.do_download (self)
+    def download (self):
+        targetpackage.TargetBuildSpec.download (self)
         if self.version () == '2.3.6':
             self.linuxthreads ().download ()
     def untar (self):

@@ -90,7 +90,7 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3-linux-2.4.23-arm-bus-isa.pat
 '''))
 
 #FIXME, c&p linux.py
-import download
+import mirrors
 import misc
 def _get_cross_packages (settings,
                          linux_version, binutils_version, gcc_version,
@@ -108,14 +108,14 @@ def _get_cross_packages (settings,
     import gcc
     import glibc
     headers = linux_headers.Linux_headers (settings)\
-        .with_tarball (mirror=download.linux_2_6,
+        .with_tarball (mirror=mirrors.linux_2_6,
                        version=linux_version,
                        format='bz2')
     if settings.package_arch == 'arm':
         headers = debian.Linux_kernel_headers (settings)\
             .with (version=linux_version,
                    strip_components=0,
-                   mirror=download.lilypondorg_deb,
+                   mirror=mirrors.lilypondorg_deb,
                    format='deb')
     sdk = []
     if binutils_version in ('2004-q1a',):
@@ -127,23 +127,23 @@ def _get_cross_packages (settings,
         headers,
         binutils.Binutils (settings).with (version=binutils_version,
                                            format=binutils_format,
-                                           mirror=download.gnu),
+                                           mirror=mirrors.gnu),
         Gcc_core (settings).with (version=gcc_version,
-                                  mirror=(download.gcc
+                                  mirror=(mirrors.gcc
                                           % {'name': 'gcc',
                                              'ball_version': gcc_version,
                                              'format': gcc_format,}),
                                   format='bz2'),
         Glibc_core (settings).with (version=glibc_version,
-                                    mirror=(download.glibc_2_3_snapshots
+                                    mirror=(mirrors.glibc_2_3_snapshots
                                             % {'name': 'glibc',
                                                'ball_version': glibc_version,
                                                'format': 'bz2',}),
                                     format='bz2'),
         Gcc (settings).with (version=gcc_version,
-                                 mirror=download.gcc, format=gcc_format),
+                                 mirror=mirrors.gcc, format=gcc_format),
         Glibc (settings).with (version=glibc_version,
-                               mirror=download.glibc_2_3_snapshots,
+                               mirror=mirrors.glibc_2_3_snapshots,
                                format='bz2'),
         ] + configs
 

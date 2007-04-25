@@ -4,7 +4,7 @@ import re
 import string
 #
 import cross
-import download
+import mirrors
 import gup
 import gub
 import linux
@@ -97,19 +97,19 @@ def _get_cross_packages (settings,
 
     return [
         Libc6 (settings).with (version=libc6_version, strip_components=0,
-                               mirror=download.lilypondorg_deb, format='deb'),
+                               mirror=mirrors.lilypondorg_deb, format='deb'),
         Libc6_dev (settings).with (version=libc6_version, strip_components=0,
-                                   mirror=download.lilypondorg_deb,
+                                   mirror=mirrors.lilypondorg_deb,
                                    format='deb'),
         Linux_kernel_headers (settings).with (version=kernel_version,
                                               strip_components=0,
-                                              mirror=download.lilypondorg_deb,
+                                              mirror=mirrors.lilypondorg_deb,
                                               format='deb'),
         
         cross.Binutils (settings).with (version=binutils_version,
-                                        format='bz2', mirror=download.gnu),
+                                        format='bz2', mirror=mirrors.gnu),
         Gcc (settings).with (version=gcc_version,
-                             mirror=download.gcc, format='bz2'),
+                             mirror=mirrors.gcc, format='bz2'),
         ] + configs
 
 # FIXME: determine libc6_version, kernel_version from

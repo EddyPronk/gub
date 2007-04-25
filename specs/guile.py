@@ -1,16 +1,12 @@
 import re
 import os
 #
-import download
 import misc
 import targetpackage
 import repository
 
-from toolpackage import ToolBuildSpec
-
-
 class Guile (targetpackage.TargetBuildSpec):
-    def set_mirror(self):
+    def set_mirror (self):
         source = 'git://repo.or.cz/guile.git'
         repo = repository.Git (self.get_repodir (),
                                branch='branch_release-1-8', 

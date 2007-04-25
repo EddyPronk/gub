@@ -2,7 +2,7 @@ import os
 import re
 
 import cross
-import download
+import mirrors
 import gub
 import misc
 import targetpackage
@@ -35,9 +35,9 @@ def _get_cross_packages (settings, libc_version):
     return (
         Freebsd_runtime (settings).with (version=libc_version,
                                          strip_components=0,
-                                         mirror=download.lilypondorg),
-        Binutils (settings).with (version='2.16.1', format='bz2', mirror=download.gnu),
-        Gcc (settings).with (version='4.1.1', mirror=download.gcc_41,
+                                         mirror=mirrors.lilypondorg),
+        Binutils (settings).with (version='2.16.1', format='bz2', mirror=mirrors.gnu),
+        Gcc (settings).with (version='4.1.1', mirror=mirrors.gcc_41,
                              format='bz2'),
         )
 

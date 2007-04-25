@@ -1,6 +1,6 @@
 import re
 
-import download
+import mirrors
 import targetpackage
 from toolpackage import ToolBuildSpec
 

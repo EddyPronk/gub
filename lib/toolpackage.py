@@ -1,4 +1,3 @@
-import download
 import misc
 import os
 import re

@@ -1,4 +1,4 @@
-import download
+import mirrors
 import gub
 
 class Osx_lilypad (gub.NullBuildSpec):

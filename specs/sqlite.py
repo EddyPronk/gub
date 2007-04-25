@@ -1,4 +1,3 @@
-import download
 import targetpackage
 
 sqlite = 'http://www.sqlite.org/sqlite-%(ball_version)s.tar.%(format)s'

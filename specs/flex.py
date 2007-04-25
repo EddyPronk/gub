@@ -1,11 +1,11 @@
-from toolpackage import ToolBuildSpec
-import download
+import toolpackage
+import mirrors
 
-class Flex (ToolBuildSpec):
+class Flex (toolpackage.ToolBuildSpec):
     def __init__ (self, settings):
-        ToolBuildSpec.__init__ (self, settings)
+        toolpackage.ToolBuildSpec.__init__ (self, settings)
         self.with (version="2.5.4a",
-                   mirror=download.nongnu, format='gz'),
+                   mirror=mirrors.nongnu, format='gz'),
     def srcdir (self):
         return '%(allsrcdir)s/flex-2.5.4'
     def install_command (self):

@@ -1,14 +1,14 @@
 import re
 import os
 
-import download
+import mirrors
 import misc
 import targetpackage
 
 class Libjpeg (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with (version='v6b', mirror=download.jpeg)
+        self.with (version='v6b', mirror=mirrors.jpeg)
 
     def name (self):
         return 'libjpeg'

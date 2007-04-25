@@ -1,7 +1,7 @@
 import os
 import re
 
-import download
+import mirrors
 import repository
 import misc
 import targetpackage

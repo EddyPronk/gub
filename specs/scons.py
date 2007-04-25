@@ -1,7 +1,13 @@
-from toolpackage import ToolBuildSpec
-import download
+import toolpackage
+import mirrors
 
-class Scons (ToolBuildSpec):
+class Scons (toolpackage.ToolBuildSpec):
+    def __init__ (self, settings):
+        toolpackage.ToolBuildSpec.__init__ (self, settings)
+        self.with (version='0.96.93',
+                   format='gz',
+                   mirror=mirrors.sf),
+
     def compile (self):
         pass
 
@@ -13,12 +19,6 @@ class Scons (ToolBuildSpec):
     
     def install_command (self):
         return 'python %(srcdir)s/setup.py install --prefix=%(local_prefix)s --root=%(install_root)s'
-
-    def __init__ (self, settings):
-        ToolBuildSpec.__init__ (self, settings)
-        self.with (version='0.96.93',
-                   format='gz',
-                   mirror=download.sf),
 
     def license_file (self):
         return '%(srcdir)s/LICENSE.txt' 

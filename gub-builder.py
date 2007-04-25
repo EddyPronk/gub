@@ -107,7 +107,7 @@ def get_cli_parser ():
                   action='store_true',
                   default=False,
                   dest='lax_checksums',
-                  help="don't rebuild packages with differing checksums")
+                  help="do not rebuild packages with failing checksums")
 
     p.add_option ('-l', '--skip-if-locked',
                   default=False,
@@ -153,12 +153,12 @@ def run_one_builder (options, spec_obj):
         (available[options.stage]) ()
         return
 
-    stages = ['do_download', 'untar', 'patch',
+    stages = ['download', 'untar', 'patch',
               'configure', 'compile', 'install',
               'src_package', 'package', 'clean']
 
     if options.offline:
-        stages.remove ('do_download')
+        stages.remove ('download')
 
     if not options.build_source:
         stages.remove ('src_package')

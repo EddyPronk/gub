@@ -1,4 +1,4 @@
-import download
+import mirrors
 import gub
 import misc
 import targetpackage
@@ -6,7 +6,7 @@ import targetpackage
 class Xerces_c (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with_tarball (mirror=download.xerces_c, version='2_7_0')
+        self.with_tarball (mirror=mirrors.xerces_c, version='2_7_0')
         self.compile_dict = {
             'XERCESCROOT': '%(builddir)s',
             'TRANSCODER': 'NATIVE',

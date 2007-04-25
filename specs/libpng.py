@@ -1,10 +1,10 @@
-import download
+import mirrors
 import targetpackage
 
 class Libpng (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with (version='1.2.8', mirror=download.libpng)
+        self.with (version='1.2.8', mirror=mirrors.libpng)
 
     def license_file (self):
         return '%(srcdir)s/LICENSE' 
@@ -46,12 +46,12 @@ class Libpng__mingw (Libpng):
         self.autoupdate ()
         Libpng.configure (self)
 
-from toolpackage import ToolBuildSpec
+import toolpackage 
 
-class Libpng__local (ToolBuildSpec, Libpng):
+class Libpng__local (toolpackage.ToolBuildSpec, Libpng):
     def __init__ (self, settings):
-        ToolBuildSpec.__init__ (self, settings)
-        self.with (version='1.2.8', mirror=download.libpng)
+        toolpackage.ToolBuildSpec.__init__ (self, settings)
+        self.with (version='1.2.8', mirror=mirrors.libpng)
 
     def get_build_dependencies (self):
         return ['libtool']

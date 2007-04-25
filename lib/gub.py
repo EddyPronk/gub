@@ -107,8 +107,7 @@ class BuildSpec (Os_context_wrapper):
         if klas.__dict__.has_key (name_version):
             klas.__dict__[name_version] (self)
 
-    # urg: naming conflicts with module.
-    def do_download (self):
+    def download (self):
         if self.vc_repository:
             self.vc_repository.download ()
 

@@ -64,8 +64,8 @@ packages.'''
         d['bin'] = ['/etc', '/usr']
         return d
 
-    def do_download (self):
-        targetpackage.TargetBuildSpec.do_download (self)
+    def download (self):
+        targetpackage.TargetBuildSpec.download (self)
         self.texmf_repo.download ()
         import misc
         misc.download_url (license_url,  self.vc_repository._checkout_dir ())

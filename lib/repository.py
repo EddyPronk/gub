@@ -26,7 +26,7 @@ import md5
 import locker
 import time
 import urllib
-import download
+import mirrors
 
 ## Rename to Source/source.py?
 
@@ -187,7 +187,7 @@ class TarBall (Repository):
     def update_workdir_tarball (self, destdir):
         
         tarball = self.dir + '/' + self._file_name ()
-        flags = download.untar_flags (tarball)
+        flags = mirrors.untar_flags (tarball)
 
         if os.path.isdir (destdir):
             self.system ('rm -rf %s' % destdir)

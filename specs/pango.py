@@ -1,7 +1,7 @@
 import glob
 import os
 import shutil
-import download
+import mirrors
 import misc
 import targetpackage
 import re
@@ -10,7 +10,7 @@ class Pango (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
         self.with (version='1.14.8',
-                   mirror=download.gnome_216,
+                   mirror=mirrors.gnome_216,
                    format='bz2')
 
     def get_build_dependencies (self):

@@ -4,7 +4,7 @@ import os
 import misc
 import context
 import cross
-import download
+import mirrors
 import gub
 import repository
 
@@ -231,16 +231,16 @@ def get_cross_packages (settings):
         
     packages += [Odcctools (settings).with (version='20060413',
 #    packages += [Odcctools (settings).with (version='20060608',
-                                            mirror=download.opendarwin,
+                                            mirror=mirrors.opendarwin,
                                             format='bz2')]
 
     if settings.target_architecture.startswith ("powerpc"):
         packages.append (Gcc (settings).with (version='4.1.1',
-                                              mirror=download.gcc_41,
+                                              mirror=mirrors.gcc_41,
                                               format='bz2'))
     else:
         packages.append (Gcc (settings).with (version='4.2-20070207',
-                                              mirror=download.gcc_snap,
+                                              mirror=mirrors.gcc_snap,
                                               format='bz2'))
 
     return packages

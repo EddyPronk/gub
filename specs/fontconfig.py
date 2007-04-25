@@ -1,4 +1,4 @@
-import download
+import mirrors
 import gub
 import misc
 import targetpackage

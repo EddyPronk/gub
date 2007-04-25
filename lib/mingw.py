@@ -1,7 +1,7 @@
 import os
 import re
 
-import download
+import mirrors
 import gub
 import cross
 
@@ -26,7 +26,7 @@ class Cygcheck (gub.BinarySpec):
     "Only need the cygcheck.exe binary."
     def __init__ (self, settings):
         gub.BinarySpec.__init__ (self, settings)
-        self.with (version='1.5.18-1', mirror=download.cygwin_bin, format='bz2')
+        self.with (version='1.5.18-1', mirror=mirrors.cygwin_bin, format='bz2')
         
     def untar (self):
         gub.BinarySpec.untar (self)
@@ -53,16 +53,16 @@ cd  %(srcdir)s/ && mkdir usr && mv include lib usr/
 
 def get_cross_packages (settings):
     return [cross.Binutils (settings).with (version='2.16.1',
-                                            mirror=download.gnu,
+                                            mirror=mirrors.gnu,
                                             format='bz2'),
             Gcc (settings).with (version='4.1.1',
-                                 mirror=download.gcc_41),
+                                 mirror=mirrors.gcc_41),
             Mingw_runtime (settings).with (version='3.9',
                                            strip_components=0,
-                                           mirror=download.mingw),
+                                           mirror=mirrors.mingw),
             W32api (settings).with (version='3.6',
                                     strip_components=0,
-                                    mirror=download.mingw)
+                                    mirror=mirrors.mingw)
             ]
 
 def change_target_package (p):

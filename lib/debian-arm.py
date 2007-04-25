@@ -2,7 +2,7 @@ import os
 import re
 #
 import cross
-import download
+import mirrors
 import gub
 import linux
 import misc

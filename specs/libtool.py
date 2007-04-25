@@ -1,6 +1,6 @@
 import targetpackage
 import gub
-import download
+import mirrors
 import toolpackage
 
 
@@ -11,7 +11,7 @@ import toolpackage
 class Libtool (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with (version='1.5.20', mirror=download.gnu)
+        self.with (version='1.5.20', mirror=mirrors.gnu)
         self.so_version = '3'
 
     def get_subpackage_names (self):
@@ -65,7 +65,7 @@ class Libtool__cygwin (Libtool):
 class Libtool__local (toolpackage.ToolBuildSpec):
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
-        self.with (version='1.5.20', mirror=download.gnu)
+        self.with (version='1.5.20', mirror=mirrors.gnu)
     def configure (self):
         gub.BuildSpec.configure (self)
     def wrap_executables (self):
