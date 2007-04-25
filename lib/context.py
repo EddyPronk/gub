@@ -110,6 +110,9 @@ class Context:
         d = self.get_substitution_dict (env)
         try:
             e = s % d
+        except KeyError, v:
+            print 's=', s
+            raise v
         except ValueError, v:
             print 's=', s
             raise v
