@@ -15,10 +15,8 @@
 
 default: all
 
+PACKAGE = lilypond
 
-
-## must always have one host.
-GUB_DISTCC_ALLOW_HOSTS=127.0.0.1
 ALL_PLATFORMS=cygwin darwin-ppc darwin-x86 debian debian-arm freebsd-x86 linux-x86 linux-64 mingw mipsel linux-ppc
 PLATFORMS=darwin-ppc darwin-x86 mingw linux-x86 linux-64 linux-ppc freebsd-x86 cygwin
 
@@ -35,35 +33,18 @@ LILYPOND_BRANCH_FILEIFIED=$(subst /,--,$(LILYPOND_BRANCH))
 
 LILYPOND_LOCAL_BRANCH=$(LILYPOND_BRANCH_FILEIFIED)-git.sv.gnu.org-lilypond.git
 
-PYTHONPATH=lib/
-export PYTHONPATH
+GUB_BUILDER_OPTIONS =\
+ --branch lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH)
 
-OTHER_PLATFORMS=$(filter-out $(BUILD_PLATFORM), $(PLATFORMS))
+GUP_OPTIONS =\
+ --branch guile=branch_release-1-8-repo.or.cz-guile.git\
+ --branch lilypond=$(LILYPOND_LOCAL_BRANCH)
 
-INVOKE_GUB_BUILDER=$(PYTHON) gub-builder.py \
---target-platform $(1) \
---branch lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH) \
-$(foreach h,$(GUB_NATIVE_DISTCC_HOSTS), --native-distcc-host $(h))\
-$(foreach h,$(GUB_CROSS_DISTCC_HOSTS), --cross-distcc-host $(h))\
-$(LOCAL_GUB_BUILDER_OPTIONS)
+INSTALLER_BUILDER_OPTIONS =\
+ --branch guile=branch_release-1-8-repo.or.cz-guile.git \
+ --branch lilypond=$(LILYPOND_LOCAL_BRANCH)
 
-INVOKE_GUP=$(PYTHON) gup-manager.py \
-  --platform $(1) \
-  --branch guile=branch_release-1-8-repo.or.cz-guile.git \
-  --branch lilypond=$(LILYPOND_LOCAL_BRANCH)
-
-INVOKE_INSTALLER_BUILDER=$(PYTHON) installer-builder.py \
-  --target-platform $(1) \
-  --branch guile=branch_release-1-8-repo.or.cz-guile.git \
-  --branch lilypond=$(LILYPOND_LOCAL_BRANCH) \
-
-
-BUILD=$(call INVOKE_GUB_BUILDER,$(1)) --offline $(2) \
-  && $(call INVOKE_INSTALLER_BUILDER,$(1)) build-all lilypond
-
-CWD:=$(shell pwd)
-
-PYTHON=python
+include gub.make
 
 NATIVE_TARGET_DIR=$(CWD)/target/$(BUILD_PLATFORM)
 
@@ -200,12 +181,24 @@ realclean:
 ################################################################
 # compilers and tools
 
-download-local:
-	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) \
-		-p local --stage=download \
-		git flex mftrace potrace fontforge \
-		guile pkg-config nsis icoutils expat gettext \
-		distcc texinfo automake python
+locals =\
+ automake\
+ distcc\
+ expat\
+ flex\
+ fontforge\
+ freetype\
+ gettext\
+ git\
+ guile\
+ icoutils\
+ mftrace\
+ netpbm
+ nsis\
+ pkg-config\
+ potrace\
+ python
+ texinfo\
 
 ###
 # document why this is in the bootstrap
@@ -221,13 +214,16 @@ download-local:
 # -freetype: for bootstrapping fontconfig
 # -imagemagick: for lilypond web site
 # -netpbm: website
+
+download-local:
+	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) \
+		-p local --stage=download \
+		$(locals)
+
 local:
 	cd librestrict && make -f GNUmakefile
-	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) \
-		-p local --offline \
-		git flex mftrace potrace fontforge freetype \
-		guile pkg-config icoutils python \
-		texinfo automake gettext netpbm
+	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local \
+		$(locals)
 
 
 ################################################################
@@ -279,7 +275,7 @@ unlocked-doc-build:
 
 	## force update of srcdir.
 	$(PYTHON) gub-builder.py --branch lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH) \
-		 -p $(BUILD_PLATFORM) --stage untar --offline lilypond
+		 -p $(BUILD_PLATFORM) --stage untar lilypond
 
 	unset LILYPONDPREFIX LILYPOND_DATADIR \
 	    && $(DOC_RELOCATION) \

@@ -29,11 +29,9 @@ import pickle
 sys.path.insert (0, 'lib/')
 
 import gup
-import cross
 import installer
 import settings as settings_mod
 import locker
-import misc
 import versiondb
 
 def parse_command_line ():
@@ -239,6 +237,3 @@ def main ():
 
 if __name__ == '__main__':
     main ()
-
-
-

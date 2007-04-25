@@ -45,9 +45,11 @@ local-distcc:
 	$(foreach binary, gcc g++, \
 		ln -s $(CWD)/lib/distcc.py target/native-distcc/bin/$(notdir $(binary)) && ) true
 
+# Find out if we need gcc or glibc as topmost cross compile target
+gcc_or_glibc = $(shell $(GUB_BUILDER) -p $(1) --inspect=version glibc > /dev/null 2>/dev/null && echo glibc || echo gcc) 
+
 cross-compilers:
-	$(foreach p, $(PLATFORMS),$(call INVOKE_GUB_BUILDER, $(p)) download gcc && ) true
-	$(foreach p, $(PLATFORMS),$(call INVOKE_GUB_BUILDER, $(p)) build gcc && ) true
+	$(foreach p, $(PLATFORMS),$(call INVOKE_GUB_BUILDER, $(p)) $(call gcc_or_glibc, $(p)) && ) true
 
 cross-distccd:
 	-$(if $(wildcard log/$@.pid),kill `cat log/$@.pid`, true)
@@ -73,8 +75,7 @@ native-distccd:
 bootstrap: bootstrap-git download-local local cross-compilers local-cross-tools download 
 
 bootstrap-git:
-	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local download git
-	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local build git
+	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local git
 
 local-cross-tools:
 ifneq ($(filter mingw,$(PLATFORMS)),)
