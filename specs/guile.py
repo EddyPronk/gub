@@ -360,6 +360,9 @@ class Guile__local (toolpackage.ToolBuildSpec, Guile):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
         self.set_mirror ()
 
+    def get_build_dependencies (self):
+        return Guile.get_build_dependencies + ['automake']
+
     def configure_command (self):
         return (toolpackage.ToolBuildSpec.configure_command (self)
                 + self.configure_flags ())
