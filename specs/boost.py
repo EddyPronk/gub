@@ -67,6 +67,16 @@ class Boost (BjamBuildSpec):
         return '%(srcdir)s/LICENSE_1_0.txt'
     def install (self):
         BjamBuildSpec.install (self)
+        # Bjam `installs' header files by using symlinks to the source dir?
+        for i in self.locate_files ('%(install_root)s/usr/include/boost',
+                                    '*.hpp'):
+            if os.path.islink (i):
+                s = os.readlink (i)
+                self.system ('''
+rm %(i)s
+cp %(s)s %(i)s
+''',
+                             locals ())
         cwd = os.getcwd ()
         os.chdir (self.expand ('%(install_root)s/usr/lib'))
         for i in self.locate_files ('%(install_root)s/usr/lib', 'libboost_*-s.a'):

@@ -611,12 +611,14 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
         self.vc_repository = repo
         return self
 
-    def with_tarball (self, mirror, version, format='gz'):
-        return self.with_vc (self.get_tarball (mirror, version, format))
+    def with_tarball (self, mirror, version, format='gz', strip_components=1, name=''):
+        return self.with_vc (self.get_tarball (mirror, version, format, strip_components, name))
 
-    def get_tarball (self, mirror, version, format='gz'):
+    def get_tarball (self, mirror, version, format='gz', strip_components=1, name=''):
+        if not name:
+            name = self.name ()
         import repository
-        return repository.NewTarBall (self.settings.downloads, mirror, self.name (), version, format)
+        return repository.NewTarBall (self.settings.downloads, mirror, name, version, format, strip_components)
 
     # TODO: junk this, use TarBall ()or Version ()
     def with (self,

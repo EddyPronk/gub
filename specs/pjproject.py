@@ -8,7 +8,7 @@ class Pjproject (targetpackage.TargetBuildSpec):
                                           url='http://www.pjsip.org/release/0.5.10.1/pjproject-0.5.10.1.tar.gz',
                                           version='0.5.10.1',
                                           strip_components=True))
-        # broken for multiple make jobs make -j2
+        # FIXME: broken for make -j2, why does broken_for_distcc not handle?
         self.settings.cpu_count_str = '1'
     def broken_for_distcc (self):
         return True

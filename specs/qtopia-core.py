@@ -4,6 +4,9 @@ import targetpackage
 
 trolltech = 'ftp://ftp.trolltech.com/qt/source/%(name)s-opensource-src-%(ball_version)s.tar.%(format)s'
 
+# TODO: base class Qmake build.
+#       sort-out what exactly is Qmake build, qt, and qtopia-core specific
+
 class Qtopia_core (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
@@ -63,7 +66,12 @@ unset CC CXX; bash -x %(srcdir)s/configure
         return '%(srcdir)s/LICENSE.GPL'
     def install (self):
         targetpackage.TargetBuildSpec.install (self)
+        self.system ('mkdir -p %(install_root)s/usr/lib/pkgconfig')
         for i in ('QtCore.pc', 'QtGui.pc', 'QtNetwork.pc'):
+            self.system ('''
+mv %(install_root)s/usr/lib/%(i)s %(install_root)s/usr/lib/pkgconfig/%(i)s
+''',
+                         locals ())
             self.file_sub ([('includedir', 'deepqtincludedir')],
                            '%(install_root)s/usr/lib/pkgconfig/%(i)s',
                            env=locals ())
@@ -76,6 +84,8 @@ cd %(srcdir)s/mkspecs/qws && cp -R linux-arm-g++ %(target_architecture)s
 ''')
         self.file_sub ([('arm-linux', '%(target_architecture)s')],
                        '%(srcdir)s/mkspecs/qws/%(target_architecture)s/qmake.conf')
+
+Qtopia_core__linux__arm__vfp = Qtopia_core__linux__arm__softfloat
 
 class Qtopia_core__linux__64 (Qtopia_core):
     def patch (self):

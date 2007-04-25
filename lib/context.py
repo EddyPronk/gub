@@ -108,7 +108,15 @@ class Context:
     
     def expand (self, s, env={}):
         d = self.get_substitution_dict (env)
-        return s % d
+        try:
+            e = s % d
+        except KeyError, v:
+            print 's=', s
+            raise v
+        except ValueError, v:
+            print 's=', s
+            raise v
+        return e
 
 class Os_context_wrapper (Context):
     def __init__ (self, settings):
