@@ -361,7 +361,13 @@ class Guile__local (toolpackage.ToolBuildSpec, Guile):
         self.set_mirror ()
 
     def get_build_dependencies (self):
-        return Guile.get_build_dependencies + ['automake']
+        return (toolpackage.ToolBuildSpec.get_build_dependencies (self)
+                + Guile.get_build_dependencies (self)
+                + ['automake'])
+
+    def patch (self):
+        self.autogen_sh ()
+        self.autoupdate ()
 
     def configure_command (self):
         return (toolpackage.ToolBuildSpec.configure_command (self)
@@ -371,16 +377,8 @@ class Guile__local (toolpackage.ToolBuildSpec, Guile):
         toolpackage.ToolBuildSpec.configure (self)
         self.update_libtool ()
 
-    def patch (self):
-        self.autogen_sh ()
-        self.autoupdate ()
-
     def install (self):
         toolpackage.ToolBuildSpec.install (self)
 
         ## don't want local GUILE headers to interfere with compile.
         self.system ("rm -rf %(install_root)s/%(packaging_suffix_dir)s/usr/include/ %(install_root)s/%(packaging_suffix_dir)s/usr/bin/guile-config ")
-
-    def get_build_dependencies (self):
-        return (toolpackage.ToolBuildSpec.get_build_dependencies (self)
-                + Guile.get_build_dependencies (self))
