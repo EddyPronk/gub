@@ -58,7 +58,7 @@ INVOKE_INSTALLER_BUILDER=$(PYTHON) installer-builder.py \
   --branch lilypond=$(LILYPOND_LOCAL_BRANCH) \
 
 
-BUILD=$(call INVOKE_GUB_BUILDER,$(1)) build $(2) \
+BUILD=$(call INVOKE_GUB_BUILDER,$(1)) --offline $(2) \
   && $(call INVOKE_INSTALLER_BUILDER,$(1)) build-all lilypond
 
 CWD:=$(shell pwd)
@@ -87,7 +87,7 @@ update-versions:
 	$(PYTHON) lib/with-lock.py --skip $(LILYPOND_VERSIONS).lock $(MAKE) unlocked-update-versions
 
 download:
-	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB_BUILDER,$(p)) download lilypond && ) true
+	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB_BUILDER,$(p)) --stage=download lilypond && ) true
 	$(MAKE) downloads/genini
 	rm -f target/*/status/lilypond*
 	rm -f log/lilypond-$(LILYPOND_VERSION)*.*.test.pdf
@@ -124,7 +124,7 @@ cygwin-all: cygwin-libtool cygwin-libtool-installer cygwin-guile cygwin-guile-in
 
 cygwin-libtool:
 	rm -f uploads/cygwin/setup.ini
-	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build libtool
+	$(call INVOKE_GUB_BUILDER,cygwin) --build-source libtool
 
 cygwin-libtool-installer:
 	$(PYTHON) cygwin-packager.py libtool
@@ -133,19 +133,19 @@ cygwin-fontconfig:
 	rm -f uploads/cygwin/setup.ini
 	rm -rf target/cygwin/
 	$(call INVOKE_GUP, cygwin) install gcc
-	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build fontconfig
+	$(call INVOKE_GUB_BUILDER,cygwin) --build-source fontconfig
 
 cygwin-fontconfig-installer:
 	$(PYTHON) cygwin-packager.py fontconfig
 
 cygwin-guile:
-	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build libtool guile
+	$(call INVOKE_GUB_BUILDER,cygwin) --build-source libtool guile
 
 cygwin-guile-installer:
 	$(PYTHON) cygwin-packager.py guile
 
 cygwin-lilypond:
-	$(call INVOKE_GUB_BUILDER,cygwin) --build-source build libtool guile fontconfig lilypond
+	$(call INVOKE_GUB_BUILDER,cygwin) --build-source libtool guile fontconfig lilypond
 
 cygwin-lilypond-installer:
 	$(PYTHON) cygwin-packager.py --branch lilypond=$(LILYPOND_LOCAL_BRANCH) lilypond
@@ -201,7 +201,8 @@ realclean:
 # compilers and tools
 
 download-local:
-	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local download \
+	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) \
+		-p local --stage=download \
 		git flex mftrace potrace fontforge \
 		guile pkg-config nsis icoutils expat gettext \
 		distcc texinfo automake python
@@ -222,7 +223,8 @@ download-local:
 # -netpbm: website
 local:
 	cd librestrict && make -f GNUmakefile
-	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local build \
+	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) \
+		-p local --offline \
 		git flex mftrace potrace fontforge freetype \
 		guile pkg-config icoutils python \
 		texinfo automake gettext netpbm
@@ -277,7 +279,7 @@ unlocked-doc-build:
 
 	## force update of srcdir.
 	$(PYTHON) gub-builder.py --branch lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH) \
-		 -p $(BUILD_PLATFORM) --stage untar build lilypond
+		 -p $(BUILD_PLATFORM) --stage untar --offline lilypond
 
 	unset LILYPONDPREFIX LILYPOND_DATADIR \
 	    && $(DOC_RELOCATION) \

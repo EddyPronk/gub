@@ -33,7 +33,7 @@ INVOKE_INSTALLER_BUILDER=$(PYTHON) installer-builder.py \
   --branch git=$(MINGIT_LOCAL_BRANCH) \
   --version-db uploads/git.db
 
-BUILD=$(call INVOKE_GUB_BUILDER,$(1)) build $(2) \
+BUILD=$(call INVOKE_GUB_BUILDER,$(1)) --offline $(2) \
   && $(call INVOKE_INSTALLER_BUILDER,$(1)) build-all git
 
 default: all
@@ -47,12 +47,13 @@ download:
 bootstrap: bootstrap-git download-local local cross-compilers local-cross-tools download 
 
 download-local:
-	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local download \
+	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) \
+		-p local --stage=download \
 		git pkg-config nsis icoutils 
 
 local:
-	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) -p local build \
-		git 
+	$(PYTHON) gub-builder.py $(LOCAL_GUB_BUILDER_OPTIONS) \
+		-p local --offline git 
 
 
 mingw:

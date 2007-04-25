@@ -20,13 +20,10 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 """
 
-import optparse
 import os
 import re
 import string
 import sys
-import inspect
-import pickle
 
 sys.path.insert (0, 'lib/')
 
@@ -38,14 +35,10 @@ import settings as settings_mod
 import locker
 
 def get_cli_parser ():
+    import optparse
     p = optparse.OptionParser ()
 
-    p.usage='''gub-builder.py [OPTION]... COMMAND [PACKAGE]...
-
-Commands:
-
-download          - download packages
-build             - build target packages
+    p.usage='''gub-builder.py [OPTION]... [PACKAGE]...
 
 '''
     p.description='Grand Unified Builder.  Specify --package-version to set build version'
@@ -68,10 +61,18 @@ build             - build target packages
                   help='select target platform',
                   choices=settings_mod.platforms.keys ())
 
+    p.add_option ('--inspect', action='store',
+                  dest='inspect_key',
+                  default=None,
+                  help='Key of package to inspect')
+
     p.add_option ('--inspect-output', action='store',
                   dest='inspect_output',
                   default=None,
                   help='Where to write result of inspection')
+
+    p.add_option ('--offline', action='store_true',
+                  dest='offline')
 
     p.add_option ('--stage', action='store',
                   dest='stage', default=None,
@@ -121,6 +122,7 @@ build             - build target packages
     return p
 
 def checksums_valid (manager, specname, spec_object_dict):
+    import pickle
     spec = spec_object_dict[specname]
 
     valid = True
@@ -145,14 +147,18 @@ def checksums_valid (manager, specname, spec_object_dict):
     return valid
 
 def run_one_builder (options, spec_obj):
+    import inspect
     available = dict (inspect.getmembers (spec_obj, callable))
     if options.stage:
         (available[options.stage]) ()
         return
 
-    stages = ['untar', 'patch',
+    stages = ['do_download', 'untar', 'patch',
               'configure', 'compile', 'install',
               'src_package', 'package', 'clean']
+
+    if options.offline:
+        stages.remove ('do_download')
 
     if not options.build_source:
         stages.remove ('src_package')
@@ -270,6 +276,59 @@ def run_builder (options, settings, manager, names, spec_object_dict):
                 manager.register_package_dict (p.dict ())
                 manager.install_package (p.name ())
 
+def get_settings (options):
+    # FIXME, move (all these get_setting*) to constructors
+    settings = settings_mod.get_settings (options.platform)
+    settings.set_branches (options.branches)
+    settings.build_source = options.build_source
+    settings.cpu_count = options.cpu_count
+    settings.set_distcc_hosts (options)
+    settings.lilypond_versions = options.lilypond_versions
+    settings.options = options ##ugh
+    return settings
+
+def inspect (settings, files):
+    (names, specs) = gup.get_source_packages (settings, files)
+    pm = gup.get_target_manager (settings)
+    gup.add_packages_to_manager (pm, settings, specs)
+    deps = filter (specs.has_key, names)
+
+    for f in files:
+        v =  pm.package_dict (f)[settings.options.inspect_key]
+        if settings.options.inspect_output:
+            open (settings.options.inspect_output, 'w').write (v)
+        else:
+            print v
+        
+def build (settings, files):
+    PATH = os.environ['PATH']
+    os.environ['PATH'] = settings.expand ('%(local_prefix)s/bin:' + PATH)
+    (names, specs) = gup.get_source_packages (settings, files)
+    def get_all_deps (name):
+        package = specs[name]
+        deps = package.get_build_dependencies ()
+        if not settings.is_distro:
+            deps = [gup.get_base_package_name (d) for d in deps]
+        return deps
+
+    deps = gup.topologically_sorted (files, {}, get_all_deps, None)
+    if settings.options.verbose:
+        print 'deps:' + `deps`
+
+    try:
+        pm = gup.get_target_manager (settings)
+
+        ## Todo: have a readonly lock for local platform
+    except locker.LockedError:
+        print 'another build in progress. Skipping.'
+        if settings.options.skip_if_locked:
+            sys.exit (0)
+        raise
+
+    gup.add_packages_to_manager (pm, settings, specs)
+    deps = filter (specs.has_key, names)
+    run_builder (settings.options, settings, pm, deps, specs)
+
 def main ():
     cli_parser = get_cli_parser ()
     (options, files) = cli_parser.parse_args ()
@@ -279,69 +338,13 @@ def main ():
         cli_parser.print_help ()
         sys.exit (2)
 
-    settings = settings_mod.get_settings (options.platform)
-    settings.set_branches (options.branches)
-    settings.build_source = options.build_source
-    settings.cpu_count = options.cpu_count
-    settings.set_distcc_hosts (options)
-    settings.lilypond_versions = options.lilypond_versions
-    settings.options = options ##ugh
+    settings = get_settings (options)
 
-    command = files.pop (0)
+    if options.inspect_key:
+        inspect (settings, files)
+        sys.exit (0)
 
-    PATH = os.environ['PATH']
-    os.environ['PATH'] = settings.expand ('%(local_prefix)s/bin:' + PATH)
-
-    (package_names, spec_object_dict) = gup.get_source_packages (settings,
-                                                                 files)
-    if command == 'download' or command == 'build':
-        def get_all_deps (name):
-            package = spec_object_dict[name]
-            deps = package.get_build_dependencies ()
-            if not settings.is_distro:
-                deps = [gup.get_base_package_name (d) for d in deps]
-            return deps
-
-        deps = gup.topologically_sorted (files, {}, get_all_deps, None)
-        if options.verbose:
-            print 'deps:' + `deps`
-
-    if command == 'download':
-        for i in deps:
-            spec_object_dict[i].do_download ()
-    elif command.startswith('inspect-'):
-        key = command.replace ('inspect-', '')
-
-        pm = gup.get_target_manager (settings)
-        gup.add_packages_to_manager (pm, settings, spec_object_dict)
-        deps = filter (spec_object_dict.has_key, package_names)
-
-        for f in files:
-            v =  pm.package_dict (f)[key]
-            if options.inspect_output:
-                open (options.inspect_output, 'w').write (v)
-            else:
-                print v
-        
-    elif command == 'build':
-        try:
-            pm = gup.get_target_manager (settings)
-
-            ## Todo: have a readonly lock for local platform
-        except locker.LockedError:
-            print 'another build in progress. Skipping.'
-            if options.skip_if_locked:
-                sys.exit (0)
-            raise
-
-        gup.add_packages_to_manager (pm, settings, spec_object_dict)
-        deps = filter (spec_object_dict.has_key, package_names)
-
-        run_builder (options, settings, pm, deps, spec_object_dict)
-    else:
-        raise 'unknown gub-builder command %s.' % command
-        cli_parser.print_help ()
-        sys.exit (2)
+    build (settings, files)
 
 if __name__ == '__main__':
     main ()
