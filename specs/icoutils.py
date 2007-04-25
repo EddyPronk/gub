@@ -13,7 +13,7 @@ class Icoutils (toolpackage.ToolBuildSpec):
         return (toolpackage.ToolBuildSpec.configure_command (self)
                 + ' --with-libintl-prefix=%(system_root)s/usr/ ')
 
-class Icoutils__darwin (Icoutils)
+class Icoutils__darwin (Icoutils):
     def patch (self):
         for f in 'wrestool', 'icotool':
             self.file_sub ([(r'\$\(LIBS\)', '$(INTLLIBS) $(LIBS)')],

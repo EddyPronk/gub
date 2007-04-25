@@ -354,17 +354,18 @@ guile-tut').
 """,
     }
 
-class Guile__local (ToolBuildSpec, Guile):
+import toolpackage
+class Guile__local (toolpackage.ToolBuildSpec, Guile):
     def __init__ (self, settings):
-        ToolBuildSpec.__init__ (self, settings)
+        toolpackage.ToolBuildSpec.__init__ (self, settings)
         self.set_mirror ()
 
     def configure_command (self):
-        return (ToolBuildSpec.configure_command (self)
+        return (toolpackage.ToolBuildSpec.configure_command (self)
                 + self.configure_flags ())
 
     def configure (self):
-        ToolBuildSpec.configure (self)
+        toolpackage.ToolBuildSpec.configure (self)
         self.update_libtool ()
 
     def patch (self):
@@ -372,10 +373,11 @@ class Guile__local (ToolBuildSpec, Guile):
         self.autoupdate ()
 
     def install (self):
-        ToolBuildSpec.install (self)
+        toolpackage.ToolBuildSpec.install (self)
 
         ## don't want local GUILE headers to interfere with compile.
         self.system ("rm -rf %(install_root)s/%(packaging_suffix_dir)s/usr/include/ %(install_root)s/%(packaging_suffix_dir)s/usr/bin/guile-config ")
 
     def get_build_dependencies (self):
-        return ToolBuildSpec.get_build_dependencies (self) + Guile.get_build_dependencies (self)
+        return (toolpackage.ToolBuildSpec.get_build_dependencies (self)
+                + Guile.get_build_dependencies (self))

@@ -7,7 +7,6 @@ PLATFORMS=$(ALL_PLATFORMS)
 MINGIT_BRANCH_FILEIFIED=$(subst /,--,$(MINGIT_BRANCH))
 MINGIT_LOCAL_BRANCH=$(MINGIT_BRANCH_FILEIFIED)-repo.or.cz-git-mingw.git
 
-
 default: all
 
 include gub.make

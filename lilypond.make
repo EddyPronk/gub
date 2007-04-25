@@ -193,12 +193,12 @@ locals =\
  guile\
  icoutils\
  mftrace\
- netpbm
+ netpbm\
  nsis\
  pkg-config\
  potrace\
- python
- texinfo\
+ python\
+ texinfo
 
 ###
 # document why this is in the bootstrap

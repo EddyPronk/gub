@@ -30,6 +30,7 @@ sys.path.insert (0, 'lib/')
 import gup
 import cross
 import gub
+import misc
 import settings as settings_mod
 import locker
 
@@ -251,8 +252,8 @@ def run_builder (options, settings, manager, names, spec_object_dict):
                        or checksums_valid (manager, spec_name,
                                            spec_object_dict))
 
-        is_installable = forall (manager.is_installable (p.name ())
-                                 for p in spec.get_packages ())
+        is_installable = misc.forall (manager.is_installable (p.name ())
+                                      for p in spec.get_packages ())
 
         if (options.stage
             or not is_installable
