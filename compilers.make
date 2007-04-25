@@ -17,8 +17,10 @@ endif
 ifeq ($(PYTHON),)
 $(error Must set PYTHON)
 endif
+ifeq ($(BUILD_PLATFORM),)
+$(error Must set BUILD_PLATFORM)
+endif
 
-BUILD_PLATFORM = $(shell $(PYTHON) build-platform.py)
 DISTCC_DIRS=target/cross-distcc/bin target/cross-distccd/bin target/native-distcc/bin 
 
 default: cross-compilers

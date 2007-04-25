@@ -27,4 +27,5 @@ INVOKE_INSTALLER_BUILDER=$(INSTALLER_BUILDER)\
 BUILD=$(call INVOKE_GUB_BUILDER,$(1)) --offline $(2)\
   && $(call INVOKE_INSTALLER_BUILDER,$(1)) build-all $(PACKAGE)
 
+BUILD_PLATFORM = $(shell $(PYTHON) build-platform.py)
 OTHER_PLATFORMS=$(filter-out $(BUILD_PLATFORM), $(PLATFORMS))
