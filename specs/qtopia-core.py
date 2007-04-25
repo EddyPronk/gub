@@ -85,6 +85,8 @@ cd %(srcdir)s/mkspecs/qws && cp -R linux-arm-g++ %(target_architecture)s
         self.file_sub ([('arm-linux', '%(target_architecture)s')],
                        '%(srcdir)s/mkspecs/qws/%(target_architecture)s/qmake.conf')
 
+Qtopia_core__linux__arm__vfp = Qtopia_core__linux__arm__softfloat
+
 class Qtopia_core__linux__64 (Qtopia_core):
     def patch (self):
         Qtopia_core.patch (self)
