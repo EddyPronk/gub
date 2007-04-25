@@ -334,6 +334,7 @@ def get_installer (settings, args=[]):
         'freebsd4-x86' : Shar,
         'freebsd6-x86' : Shar,
         'linux-arm-softfloat' : Shar,
+        'linux-arm-vfp' : Shar,
         'linux-x86' : Shar,
         'linux-64' : Shar,
         'linux-ppc' : Shar,

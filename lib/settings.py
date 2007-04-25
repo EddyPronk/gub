@@ -17,6 +17,7 @@ platforms = {
     'freebsd4-x86': 'i686-freebsd4',
     'freebsd6-x86': 'i686-freebsd6',
     'linux-arm-softfloat': 'armv5te-softfloat-linux',
+    'linux-arm-vfp': 'arm-linux',
     'linux-x86': 'i686-linux',
     'linux-64': 'x86_64-linux',
     'linux-ppc': 'powerpc-linux',
