@@ -14,7 +14,8 @@ class Ghostscript (targetpackage.TargetBuildSpec):
             source='http://svn.ghostscript.com:8080/ghostscript',
             branch='trunk',
             module='gs',
-            revision='7665')
+            ## 8.56
+            revision='7881')
 
         ## ugh: nested, with self shadow?
         def version_from_VERSION (self):
@@ -75,7 +76,6 @@ class Ghostscript (targetpackage.TargetBuildSpec):
         self.file_sub ([(disable_re,
                          r'#\1= -DISABLED- \2 ')],
                        '%(srcdir)s/Makefile.in')
-        self.system ("cd %(srcdir)s/ && patch --force -p1 < %(patchdir)s/gs-r7842-ttftable.patch")
 
 
         
