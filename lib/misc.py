@@ -175,14 +175,7 @@ def system (cmd, ignore_errors=False):
     print 'Executing command %s' % cmd
     stat = os.system (cmd)
     if stat and not ignore_errors:
-        raise SystemFailed('Command failed ' + `stat`)
-
-
-def testme ():
-    print forall(x for x in [1,1])
-    
-if __name__=='__main__':
-    testme ()
+        raise SystemFailed ('Command failed ' + `stat`)
 
 def file_mod_time (path):
     import stat
@@ -232,5 +225,9 @@ class hierarchy.
         all_args = (self.old_func (),) + self.args  
         return apply (self.new_func, all_args)
 
-
+def testme ():
+    print forall (x for x in [1, 1])
     
+if __name__ =='__main__':
+    testme ()
+
