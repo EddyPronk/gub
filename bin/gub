@@ -122,9 +122,9 @@ def get_cli_parser ():
 
     return p
 
-def checksums_valid (manager, specname, spec_object_dict):
+def checksums_valid (manager, specname, specs):
     import pickle
-    spec = spec_object_dict[specname]
+    spec = specs[specname]
 
     valid = True
     for package in spec.get_packages ():
@@ -211,46 +211,46 @@ to skip this check.
         if stage != 'clean':
             spec_obj.set_done (stage, stages.index (stage))
 
-def run_builder (options, settings, manager, names, spec_object_dict):
+# What a mess, what happens here?
+def run_builder (options, settings, manager, names, specs):
     PATH = os.environ['PATH']
-
     ## cross_prefix is also necessary for building cross packages, such as GCC
     os.environ['PATH'] = settings.expand ('%(cross_prefix)s/bin:' + PATH,
                                           locals ())
 
     ## UGH -> double work, see cross.change_target_packages () ?
-    sdk_pkgs = [p for p in spec_object_dict.values ()
+    sdk_pkgs = [p for p in specs.values ()
                 if isinstance (p, gub.SdkBuildSpec)]
-    cross_pkgs = [p for p in spec_object_dict.values ()
+    cross_pkgs = [p for p in specs.values ()
                   if isinstance (p, cross.CrossToolSpec)]
 
     extra_build_deps = [p.name () for p in sdk_pkgs + cross_pkgs]
+    gup.add_packages_to_manager (manager, settings, specs)
     if not options.stage:
-
         reved = names[:]
         reved.reverse ()
         for spec_name in reved:
-            spec = spec_object_dict[spec_name]
+            spec = specs[spec_name]
             checksum_ok = (options.lax_checksums
                            or checksums_valid (manager, spec_name,
-                                               spec_object_dict))
+                                               specs))
             for p in spec.get_packages ():
                 if (manager.is_installed (p.name ()) and
                     (not manager.is_installable (p.name ())
                      or not checksum_ok)):
-
                     manager.uninstall_package (p.name ())
 
     for spec_name in names:
-        spec = spec_object_dict[spec_name]
+        spec = specs[spec_name]
         all_installed = True
-        for p in spec.get_packages():
+        for p in spec.get_packages ():
             all_installed = all_installed and manager.is_installed (p.name ())
         if all_installed:
             continue
+
+        # ugh, dupe
         checksum_ok = (options.lax_checksums
-                       or checksums_valid (manager, spec_name,
-                                           spec_object_dict))
+                       or checksums_valid (manager, spec_name, specs))
 
         is_installable = misc.forall (manager.is_installable (p.name ())
                                       for p in spec.get_packages ())
@@ -262,6 +262,8 @@ def run_builder (options, settings, manager, names, spec_object_dict):
                                                % spec_name)
             run_one_builder (options, spec)
 
+
+        # FIXME, pkg_install should be stage?
         for p in spec.get_packages ():
             name = p.name ()
             if not manager.is_installed (name):
@@ -302,8 +304,6 @@ def inspect (settings, files):
             print v
         
 def build (settings, files):
-    PATH = os.environ['PATH']
-    os.environ['PATH'] = settings.expand ('%(local_prefix)s/bin:' + PATH)
     (names, specs) = gup.get_source_packages (settings, files)
     def get_all_deps (name):
         package = specs[name]
@@ -316,6 +316,19 @@ def build (settings, files):
     if settings.options.verbose:
         print 'deps:' + `deps`
 
+    PATH = os.environ['PATH']
+    os.environ['PATH'] = settings.expand ('%(local_prefix)s/bin:' + PATH)
+
+    if settings.options.stage == 'download':
+        # FIXME: urg.  [only] For a real clean gub, with nothing in
+        # downloads/, we cannot go into build process, and let stage
+        # handle its own, as someone wants to create all spec
+        # substitution dicts, and that needs certain source trees to
+        # be already checked-out, eg ghostscript
+        for i in deps:
+            specs[i].download ()
+        sys.exit (0)
+
     try:
         pm = gup.get_target_manager (settings)
 
@@ -326,7 +339,6 @@ def build (settings, files):
             sys.exit (0)
         raise
 
-    gup.add_packages_to_manager (pm, settings, specs)
     deps = filter (specs.has_key, names)
     run_builder (settings.options, settings, pm, deps, specs)
 
