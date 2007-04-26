@@ -69,7 +69,7 @@ class Boost (BjamBuildSpec):
         BjamBuildSpec.install (self)
         # Bjam `installs' header files by using symlinks to the source dir?
         for i in self.locate_files ('%(install_root)s/usr/include/boost',
-                                    '*.hpp'):
+                                    '*'):
             if os.path.islink (i):
                 s = os.readlink (i)
                 self.system ('''
