@@ -27,7 +27,7 @@ INVOKE_INSTALLER_BUILDER=$(INSTALLER_BUILDER)\
  --target-platform $(1)\
  $(INSTALLER_BUILDER_OPTIONS)
 
-BUILD=$(call INVOKE_GUB_BUILDER,$(1)) --offline $(2)\
+BUILD=$(call INVOKE_GUB_BUILDER,$(1)) $(2)\
   && $(call INVOKE_INSTALLER_BUILDER,$(1)) build-all $(PACKAGE)
 
 BUILD_PLATFORM = $(shell $(PYTHON) bin/build-platform)
