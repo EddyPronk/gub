@@ -602,9 +602,6 @@ class Subversion (SimpleRepo):
         assert m
         return m.group (1)
         
-    def get_checksum (self):
-        return self._current_revision ()
-
     def _checkout (self):
         dir = self.dir
         source = self.source
