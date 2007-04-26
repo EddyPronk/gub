@@ -194,11 +194,14 @@ locals =\
  icoutils\
  mftrace\
  netpbm\
- nsis\
  pkg-config\
  potrace\
  python\
  texinfo
+
+ifneq ($(BUILD_PLATFORM),linux-64)
+locals += nsis
+endif
 
 ###
 # document why this is in the bootstrap
