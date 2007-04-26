@@ -262,6 +262,9 @@ def run_builder (options, settings, manager, names, specs):
                                                % spec_name)
             run_one_builder (options, spec)
 
+        # FIXME, pkg_install should be stage?
+        if options.stage: # and options.stage != pkg_install:
+            continue
 
         # FIXME, pkg_install should be stage?
         for p in spec.get_packages ():
