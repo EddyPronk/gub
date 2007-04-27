@@ -1,3 +1,4 @@
+import context
 import gub
 import misc
 import targetpackage
@@ -10,7 +11,7 @@ trolltech = 'ftp://ftp.trolltech.com/qt/source/%(name)s-opensource-src-%(ball_ve
 class Qtopia_core (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with_tarball (mirror=trolltech, version='4.2.0')
+        self.with_tarball (mirror=trolltech, version='4.2.2')
         dict = {
             'CC': 'gcc',
             'CXX': 'g++',
@@ -33,7 +34,7 @@ unset CC CXX; bash -x %(srcdir)s/configure
 -headerdir /usr/include
 -datadir /usr/share
 -sysconfdir /etc
--xplatform qws/%(target_architecture)s
+-xplatform qws/%(qmake_target_architecture)s
 -depths 8,24
 
 -little-endian
@@ -45,6 +46,7 @@ unset CC CXX; bash -x %(srcdir)s/configure
 -nomake examples
 -nomake tools
 -qt-mouse-tslib
+-qt-libjpeg
 
 -confirm-license
 
@@ -77,23 +79,26 @@ mv %(install_root)s/usr/lib/%(i)s %(install_root)s/usr/lib/pkgconfig/%(i)s
                            env=locals ())
 
 class Qtopia_core__linux__arm__softfloat (Qtopia_core):
+    @context.subst_method
+    def qmake_target_architecture (self):
+        return 'linux-arm-g++'
     def patch (self):
         Qtopia_core.patch (self)
-        self.system ('''
-cd %(srcdir)s/mkspecs/qws && cp -R linux-arm-g++ %(target_architecture)s
-''')
         self.file_sub ([('arm-linux', '%(target_architecture)s')],
-                       '%(srcdir)s/mkspecs/qws/%(target_architecture)s/qmake.conf')
+                       '%(srcdir)s/mkspecs/qws/%(qmake_target_architecture)s/qmake.conf')
 
 Qtopia_core__linux__arm__vfp = Qtopia_core__linux__arm__softfloat
 
 class Qtopia_core__linux__64 (Qtopia_core):
+    @context.subst_method
+    def qmake_target_architecture (self):
+        return 'linux-x86_64-g++'
     def patch (self):
         Qtopia_core.patch (self)
         # ugh, dupe
         self.system ('''
-cd %(srcdir)s/mkspecs/qws && cp -R linux-x86_64-g++ %(target_architecture)s
-cd %(srcdir)s/mkspecs && cp -R linux-g++ %(target_architecture)s
+#cd %(srcdir)s/mkspecs/qws && cp -R linux-x86_64-g++ %(target_architecture)s
+cd %(srcdir)s/mkspecs && cp -R linux-g++ %(qmake_target_architecture)s
 ''')
         self.file_sub ([
                 ('= gcc', '= %(target_architecture)s-gcc'),
