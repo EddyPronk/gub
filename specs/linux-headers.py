@@ -25,7 +25,12 @@ cd %(srcdir)s && rm -f\
 ''')
 
 import debian
-Linux_headers__powerpc = debian.Linux_kernel_headers
-Linux_headers__linux__64 = debian.Linux_kernel_headers
-Linux_headers__arm__linux__softfloat = debian.Linux_kernel_headers
-Linux_headers__arm__linux__vfp = debian.Linux_kernel_headers
+class Linux_headers__debian (debian.Linux_kernel_headers):
+    def __init__ (self, settings):
+        debian.Linux_kernel_headers.__init__ (self, settings)
+        self.with (name='linux-kernel-headers')
+
+Linux_headers__linux__ppc = Linux_headers__debian
+Linux_headers__linux__64 = Linux_headers__debian
+Linux_headers__linux__arm__softfloat = Linux_headers__debian
+Linux_headers__linux__arm__vfp = Linux_headers__debian

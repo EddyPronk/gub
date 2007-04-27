@@ -618,12 +618,19 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
         self.vc_repository = repo
         return self
 
-    def with_tarball (self, mirror, version, format='gz', strip_components=1, name=''):
+    def with_tarball (self, mirror='', version='', format='gz', strip_components=1, name=''):
         return self.with_vc (self.get_tarball (mirror, version, format, strip_components, name))
 
     def get_tarball (self, mirror, version, format='gz', strip_components=1, name=''):
         if not name:
             name = self.name ()
+        if not format:
+            format = self.__dict__.get ('format', 'gz')
+        if not mirror:
+            mirror = self.__dict__.get ('url', '')
+        if not version and self.version:
+            version = self.ball_version
+
         import repository
         return repository.NewTarBall (self.settings.downloads, mirror, name, version, format, strip_components)
 
@@ -632,8 +639,11 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
               mirror='',
               version='',
               strip_components=1,
-              format=''):
+              format='',
+              name=''):
 
+        if not name:
+            name = self.name ()
         if not format:
             format = self.__dict__.get ('format', 'gz')
         if not mirror:
@@ -647,7 +657,6 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
 
         ball_version = version
 
-        name = self.name ()
         package_arch = self.settings.package_arch
         if mirror:
             self.vc_repository = repository.TarBall (self.settings.downloads,
