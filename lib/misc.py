@@ -63,13 +63,13 @@ def string_to_version (s):
         return x
     return tuple (map (atoi, (string.split (s, ' '))))
 
+def is_ball (s):
+    return re.match ('^(.*?)-([0-9].*(-[0-9]+)?)(\.[a-z]*)?(\.tar\.(bz2|gz)|\.gu[bp])$', s)
+
 def split_ball (s):
-    m = re.match ('^(.*?)-([0-9].*(-[0-9]+)?)(\.[a-z]*)?(\.tar\.(bz2|gz)|\.gu[bp])$', s)
+    m = is_ball (s)
     if not m:
-        ## FIXME, not an error if not a ball...
-        ##sys.stderr.write ('split_ball: ' + s)
-        ##sys.stderr.write ('\n')
-        return (s[:2], (0, 0), 'gz')
+        return (s, (0, 0), '')
     return (m.group (1), string_to_version (string.join (split_version (m.group (2)), '-')), m.group (6))
 
 def list_append (lists):

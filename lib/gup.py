@@ -338,8 +338,10 @@ class DependencyManager (PackageManager):
         deps = [d for d in deps if d]
         return deps
 
+
 ################
 # UGh moveme
+
 
 def topologically_sorted_one (todo, done, dependency_getter,
                               recurse_stop_predicate=None):
@@ -372,8 +374,6 @@ def topologically_sorted (todo, done, dependency_getter,
     return s
 
 
-    
-
 ################################################################
 # UGH
 # this is too hairy. --hwn
@@ -404,19 +404,24 @@ topological order
 """
 
     ## don't modify
+    #FIXME: why not, *why* do we need a copy?
     todo = todo[:]
 
-    
     cross_packages = cross.get_cross_packages (settings)
     spec_dict = dict ((p.name (), p) for p in cross_packages)
     todo += spec_dict.keys ()
+    if cross_packages:
+        # see linux.py
+        print 'get_cross_packages is deprecated, update to get_build_dependencies.'
+    else:
+        todo += cross.get_build_dependencies (settings)
 
     def name_to_dependencies_via_gub (name):
         name = get_base_package_name (name)
         if spec_dict.has_key (name):
             spec = spec_dict[name]
         else:
-            spec = targetpackage.load_target_package (settings, name)
+            spec = targetpackage.get_build_spec (settings, name)
             spec_dict[name] = spec
 
         return map (get_base_package_name, spec.get_build_dependencies ())
@@ -426,7 +431,7 @@ topological order
             spec = spec_dict[name]
         else:
             if name in todo or name not in distro_packages.keys ():
-                spec = targetpackage.load_target_package (settings, name)
+                spec = targetpackage.get_build_spec (settings, name)
             else:
                 spec = distro_packages[name]
             spec_dict[name] = spec

@@ -1,6 +1,11 @@
 import gub
+import mirrors
 
 class Linux_headers (gub.BinarySpec, gub.SdkBuildSpec):
+    def __init__ (self, settings):
+        gub.BinarySpec.__init__ (self, settings)
+        self.with_tarball (mirror=mirrors.linux_2_4, version='2.3.34',
+                           format='bz2')
     def get_subpackage_names (self):
         return ['']
     def patch (self):
@@ -18,3 +23,9 @@ cd %(srcdir)s && rm -f\
  usr/include/scsi/scsi_ioctl.h\
  usr/include/net/route.h
 ''')
+
+import debian
+Linux_headers__ppc = debian.Linux_kernel_headers
+Linux_headers__linux__64 = debian.Linux_kernel_headers
+Linux_headers__arm__linux__softfloat = debian.Linux_kernel_headers
+Linux_headers__arm__linux__vfp = debian.Linux_kernel_headers

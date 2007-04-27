@@ -215,6 +215,10 @@ class BuildSpec (Os_context_wrapper):
         
     @subst_method
     def version (self):
+        # kugh, must construct using vc_repository in __init__
+        if not self.vc_repository :
+            print 'need version, but repository not yet set: ', self.name ()
+            raise 'urg'
         return self.vc_repository.version ()
 
     @subst_method
@@ -723,7 +727,7 @@ class SdkBuildSpec (NullBuildSpec):
         return 'true'
     
     def install_root (self):
-        return self.srcdir()
+        return self.srcdir ()
 
 class Change_target_dict:
     def __init__ (self, package, override):
@@ -758,3 +762,89 @@ def append_target_dict (package, add_dict):
         package.get_substitution_dict = Change_target_dict (package, add_dict).append_dict
     except AttributeError:
         pass
+
+def get_class_from_spec_file (settings, file_name, name):
+    import imp
+
+    print 'reading spec', file_name
+    class_name = (name[0].upper () + name[1:]).replace ('-', '_')
+    file = open (file_name)
+    desc = ('.py', 'U', 1)
+    module = imp.load_module (name, file, file_name, desc)
+    full = class_name + '__' + settings.platform.replace ('-', '__')
+
+    d = module.__dict__
+    while full:
+        if d.has_key (full):
+            klass = d[full]
+            break
+        full = full[:max (full.rfind ('__'), 0)]
+
+#    dropped feature:
+#    version = xxx at toplevel of spec file
+#    mirror = xxx at toplevel of spec file
+#    for i in init_vars.keys ():
+#        if d.has_key (i):
+#            init_vars[i] = d[i]
+
+    return klass
+
+def get_build_spec (flavour, settings, url):
+    """
+    Return BuildSpec instance to build package from URL.
+
+    URL can be partly specified (eg: only a name, `lilypond'),
+    defaults are taken from the spec file.
+    """
+    name = os.path.basename (url)
+    init_vars = {'format':None, 'version':None, 'url': None,}
+    if misc.is_ball (name):
+        ball = name
+        name, version_tuple, format = misc.split_ball (ball)
+        version = misc.version_to_string (version_tuple)
+        if not version:
+            name = url
+        elif (url.startswith ('/')
+              or url.startswith ('file://')
+              or url.startswith ('ftp://')
+              or url.startswith ('http://')):
+            init_vars['url'] = url
+        if version:
+            init_vars['version'] = version
+        if format:
+            init_vars['format'] = format
+
+    file_name = settings.specdir + '/' + name + '.py'
+    klass = None
+    checksum = '0000'
+    
+    if os.path.exists (file_name):
+        klass = get_class_from_spec_file (settings, file_name, name)
+        if klass:
+            import md5
+            checksum = md5.md5 (open (file_name).read ()).hexdigest ()
+#   else:
+#       # FIXME: make a --debug-must-have-spec option
+#       ## yes: sucks for cygwin etc. but need this for debugging the rest.
+#       raise Exception ("no such spec: " + url)
+
+    if not klass:
+        print 'NO SPEC'
+        from new import classobj
+        # Without explicit spec will only work if URL
+        # includes version and format, eg,
+        # URL=libtool-1.5.22.tar.gz
+        klass = classobj (name, (flavour,), {})
+    package = klass (settings)
+    package.spec_checksum = checksum
+    import cross
+    package.cross_checksum = cross.get_cross_checksum (settings.platform)
+
+    # Initialise building package from url, without spec
+    # test:
+    # bin/gub -p linux-64 ftp://ftp.gnu.org/pub/gnu/bison/bison-2.3.tar.gz
+    if init_vars['version']:
+        package.with (format=init_vars['format'],
+                      mirror=init_vars['url'],
+                      version=init_vars['version'])
+    return package

@@ -6,8 +6,6 @@ import imp
 import md5
 import cross
 
-from new import classobj
-
 from context import subst_method
 
 class TargetBuildSpec (gub.BuildSpec):
@@ -156,10 +154,7 @@ class TargetBuildSpec (gub.BuildSpec):
         d = gub.BuildSpec.get_substitution_dict (self, dict).copy ()
         return d
 
-
-
-
-def load_target_package (settings, url):
+def get_build_spec (settings, url):
     """
     Return TargetBuildSpec instance to build package from URL.
 
@@ -167,76 +162,8 @@ def load_target_package (settings, url):
     defaults are taken from the spec file.
     """
 
-    name = os.path.basename (url)
-    init_vars = {'format':None, 'version':None, 'url': None,}
-    if 1: #try:
-        ball = name
-        name, v, format = misc.split_ball (ball)
-        version = misc.version_to_string (v)
-        if not version:
-            name = url
-        elif (url.startswith ('/')
-              or url.startswith ('file://')
-              or url.startswith ('ftp://')
-              or url.startswith ('http://')):
-            init_vars['url'] = url
-        if version:
-            init_vars['version'] = version
-        if format:
-            init_vars['format'] = format
-#    except:
-#        pass
-    
-    file_name = settings.specdir + '/' + name + '.py'
-    class_name = (name[0].upper () + name[1:]).replace ('-', '_')
-    klass = None
-    checksum = '0000'
-    
-    if os.path.exists (file_name):
-        print 'reading spec', file_name
-
-        desc = ('.py', 'U', 1)
-        checksum = md5.md5 (open (file_name).read ()).hexdigest ()
-
-        file = open (file_name)
-        module = imp.load_module (name, file, file_name, desc)
-        full = class_name + '__' + settings.platform.replace ('-', '__')
-
-        d = module.__dict__
-        while full:
-            if d.has_key (full):
-                klass = d[full]
-                break
-            full = full[:max (full.rfind ('__'), 0)]
-
-        for i in init_vars.keys ():
-            if d.has_key (i):
-                init_vars[i] = d[i]
-#    else:
-#        # FIXME: make a --debug-must-have-spec option
-#        ## yes: sucks for cygwin etc. but need this for debugging the rest.
-#        raise Exception ("no such spec: " + url)
-        
-    if not klass:
-        # Without explicit spec will only work if URL
-        # includes version and format, eg,
-        # URL=libtool-1.5.22.tar.gz
-        klass = classobj (name,
-                 (TargetBuildSpec,),
-                 {})
-    package = klass (settings)
-    package.spec_checksum = checksum
-    package.cross_checksum = cross.get_cross_checksum (settings.platform)
-
-    # Initialise building target package from url, without spec
-    # test:
-    # bin/gub -p linux-64 ftp://ftp.gnu.org/pub/gnu/bison/bison-2.3.tar.gz
-    if init_vars['version']:
-        package.with (format=init_vars['format'],
-                      mirror=init_vars['url'],
-                      version=init_vars['version'])
-
+    package = gub.get_build_spec (TargetBuildSpec, settings, url)
     crossmod = cross.get_cross_module (settings.platform)
     crossmod.change_target_package (package)
-
     return package
+    

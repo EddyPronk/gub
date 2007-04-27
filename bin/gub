@@ -27,9 +27,9 @@ import sys
 
 sys.path.insert (0, 'lib/')
 
-import gup
 import cross
 import gub
+import gup
 import misc
 import settings as settings_mod
 import locker

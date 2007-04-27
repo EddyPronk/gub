@@ -1,6 +1,3 @@
-import glob
-import imp
-import md5
 import os
 #
 import gub
@@ -37,11 +34,13 @@ class CrossToolSpec (gub.BuildSpec):
     def license_file (self):
         return ''
 
+#FIXME: merge fully with specs/binutils.py
 class Binutils (CrossToolSpec):
     def install (self):
         CrossToolSpec.install (self)
         self.system ('rm %(install_root)s/usr/cross/lib/libiberty.a')
     
+#FIXME: merge fully with specs/gcc
 class Gcc (CrossToolSpec):
     def get_build_dependencies (self):
         return ['binutils']
@@ -132,6 +131,7 @@ def set_cross_dependencies (package_object_dict):
         old_callback = p.get_build_dependencies
         p.get_build_dependencies = misc.MethodOverrider (old_callback,
                                                     lambda x,y: x+y, (sdk_names,))
+        print p.name (), p.get_build_dependencies ()
 
     return packs
 
@@ -148,6 +148,7 @@ def get_cross_module (platform):
             'freebsd6-x86': 'freebsd',
             'linux-ppc' : 'linux',
             'linux-x86' : 'linux',
+            'linux-64' : 'linux',
             'local':'tools'}[platform]
     except KeyError:
         pass
@@ -159,8 +160,10 @@ def get_cross_module (platform):
     file_name = 'lib/%s.py' % base
     file = open (file_name)
     print 'module-name: ' + file_name
+    import imp
     module = imp.load_module (base, file, file_name, desc)
 
+    import md5
     cross_module_checksums[platform] = md5.md5 (open (file_name).read ()).hexdigest ()
     cross_module_cache[platform] = module
     return module
@@ -168,6 +171,10 @@ def get_cross_module (platform):
 def get_cross_packages (settings):
     mod = get_cross_module (settings.platform)
     return mod.get_cross_packages (settings)
+
+def get_build_dependencies (settings):
+    mod = get_cross_module (settings.platform)
+    return mod.get_cross_build_dependencies (settings)
 
 def get_cross_checksum (platform):
     try:

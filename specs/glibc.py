@@ -8,6 +8,11 @@ import os
 # Hmm? TARGET_CFLAGS=-O --> targetpackage.py
 
 class Glibc (targetpackage.TargetBuildSpec):
+    def __init__ (self, settings):
+        targetpackage.TargetBuildSpec.__init__ (self, settings)
+        #self.with_tarball (mirror=mirrors.gnu, version='2.3.6')
+        self.with_tarball (mirror=mirrors.lilypondorg, version='2.3-20070416',
+                           format='bz2')
     def patch (self):
         self.system ('''
 cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3-powerpc-initfini.patch
@@ -17,7 +22,7 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3-powerpc-initfini.patch
         for i in ('linuxthreads',):
             # FIXME cannot expand in *_command ()
             #if os.path.exists (self.expand ('%(srcdir)s/') + i):
-            if self.version () != '2.4':
+            if 1: #self.version () != '2.4':
                 add_ons += ' --enable-add-ons=' + i
         return ('BUILD_CC=gcc '
                 + misc.join_lines (targetpackage.TargetBuildSpec.configure_command (self) + '''
@@ -62,31 +67,3 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3-powerpc-initfini.patch
     def install_command (self):
         return (targetpackage.TargetBuildSpec.install_command (self)
                 + ' install_root=%(install_root)s')
-
-class Glibc_core (Glibc):
-    def get_subpackage_names (self):
-        return ['']
-    def get_conflict_dict (self):
-        return {'': ['glibc', 'glibc-devel', 'glibc-doc', 'glibc-runtime']}
-    def patch (self):
-        Glibc.patch (self)
-        self.system ('''
-cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3-core-install.patch
-''')
-    def compile_command (self):
-        return (Glibc.compile_command (self)
-                + ' lib')
-    def install_command (self):
-        return Glibc.install_command (self)
-    def install_command (self):
-        return (Glibc.install_command (self)
-                    .replace (' install ', ' install-lib-all install-headers '))
-    def install (self):
-        Glibc.install (self)
-        self.system ('''
-mkdir -p %(install_root)s/usr/include/gnu
-touch %(install_root)s/usr/include/gnu/stubs.h
-cp %(srcdir)s/include/features.h %(install_root)s/usr/include
-mkdir -p %(install_root)s/usr/include/bits
-cp %(builddir)s/bits/stdio_lim.h %(install_root)s/usr/include/bits
-''')

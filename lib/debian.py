@@ -48,6 +48,12 @@ class Libc6_dev (gub.BinarySpec, gub.SdkBuildSpec):
         self.system ('rm -rf  %(srcdir)s/usr/include/asm/  %(srcdir)s/usr/include/linux ')
             
 class Linux_kernel_headers (gub.BinarySpec, gub.SdkBuildSpec):
+    def __init__ (self, settings):
+        gub.BinarySpec.__init__ (self, settings)
+        self.with (version='2.5.999-test7-bk-17',
+                   strip_components=0,
+                   mirror=mirrors.lilypondorg_deb,
+                   format='deb')
     def get_subpackage_names (self):
         return ['']
 
