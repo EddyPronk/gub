@@ -8,7 +8,9 @@ class Gcc_core (gcc.Gcc):
         gcc.Gcc.__init__ (self, settings)
         self.with_tarball (mirror=mirrors.gnu,
                            version='4.1.1', format='bz2', name='gcc')
-
+    def get_build_dependencies (self):
+        return filter (lambda x: x != 'gcc-core' and x != 'glibc-core',
+                       gcc.Gcc.get_build_dependencies (self))
     def get_subpackage_names (self):
         return ['']
     def name (self):

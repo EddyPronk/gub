@@ -13,6 +13,10 @@ class Glibc (targetpackage.TargetBuildSpec):
         #self.with_tarball (mirror=mirrors.gnu, version='2.3.6')
         self.with_tarball (mirror=mirrors.lilypondorg, version='2.3-20070416',
                            format='bz2')
+    def get_build_dependencies (self):
+        return ['gcc-core', 'glibc-core']
+    def get_conflict_dict (self):
+        return {'': ['glibc-core'], 'devel': ['glibc-core'], 'doc': ['glibc-core'], 'runtime': ['glibc-core']}
     def patch (self):
         self.system ('''
 cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3-powerpc-initfini.patch
@@ -34,11 +38,6 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3-powerpc-initfini.patch
 --without-__thread
 ''')
                 + add_ons)
-
-    def get_build_dependencies (self):
-        return ['gcc-core']
-    def get_conflict_dict (self):
-        return {'': ['glibc-core'], 'devel': ['glibc-core'], 'doc': ['glibc-core'], 'runtime': ['glibc-core']}
     def FIXME_DOES_NOT_WORK_get_substitution_dict (self, env={}):
         d = targetpackage.TargetBuildSpec.get_substitution_dict (self, env)
         d['SHELL'] = '/bin/bash'
