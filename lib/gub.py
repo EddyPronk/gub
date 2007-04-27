@@ -656,7 +656,6 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
         self.url = mirror
 
         ball_version = version
-
         package_arch = self.settings.package_arch
         if mirror:
             self.vc_repository = repository.TarBall (self.settings.downloads,

@@ -453,6 +453,14 @@ topological order
 
     spec_names = topologically_sorted (todo, {}, name_to_deps)
     spec_dict = dict ((n, spec_dict[n]) for n in spec_names)
+
+    # Fixup for build from url: spec_dict key is full url,
+    # change to base name
+    for name in spec_dict.keys ():
+        spec = spec_dict[name]
+        if name != spec.name ():
+            spec_dict[spec.name ()] = spec
+
     cross.set_cross_dependencies (spec_dict)
 
     if settings.is_distro:
@@ -463,12 +471,11 @@ topological order
             return [spec_dict[get_base_package_name (n)]
                     for n in obj.get_build_dependencies ()]
 
-    spec_objs = topologically_sorted (spec_dict.values (), {},
-                                      obj_to_dependency_objects)
+    sorted_specs = topologically_sorted (spec_dict.values (), {},
+                                         obj_to_dependency_objects)
 
-#FIXME: what is this (sorted?) it breaks building from url.
-#    sorted_names = [o.name () for o in spec_objs]
-    sorted_names = spec_names
+    # Make sure we build dependencies in order
+    sorted_names = [o.name () for o in sorted_specs]
     return (sorted_names, spec_dict)
 
 def get_target_manager (settings):
