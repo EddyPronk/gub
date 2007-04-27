@@ -31,6 +31,11 @@ class Linux_headers__debian (debian.Linux_kernel_headers):
         self.with (name='linux-kernel-headers')
 
 Linux_headers__linux__ppc = Linux_headers__debian
-Linux_headers__linux__64 = Linux_headers__debian
+#Linux_headers__linux__64 = Linux_headers__debian
 Linux_headers__linux__arm__softfloat = Linux_headers__debian
 Linux_headers__linux__arm__vfp = Linux_headers__debian
+
+class Linux_headers__linux__64 (Linux_headers__debian):
+    def __init__ (self, settings):
+        Linux_headers__debian.__init__ (self, settings)
+        self.with (version='2.6.18-6', name='linux-kernel-headers')
