@@ -1,4 +1,7 @@
 def change_target_package (package):
+    import cross
+    import gub
+    import targetpackage
     cross.change_target_package (package)
     if isinstance (package, targetpackage.TargetBuildSpec):
         gub.change_target_dict (package,
