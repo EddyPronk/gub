@@ -91,6 +91,10 @@ class BuildSpec (Os_context_wrapper):
         self.split_packages = []
         self.so_version = '1'
 
+    @subst_method
+    def LD_PRELOAD (self):
+        return '%(topdir)s/librestrict/librestrict.so'
+    
     def get_substitution_dict (self, env={}):
         dict = {
             'CPATH': '',

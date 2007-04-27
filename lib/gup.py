@@ -461,7 +461,9 @@ topological order
     spec_objs = topologically_sorted (spec_dict.values (), {},
                                       obj_to_dependency_objects)
 
-    sorted_names = [o.name () for o in spec_objs]
+#FIXME: what is this (sorted?) it breaks building from url.
+#    sorted_names = [o.name () for o in spec_objs]
+    sorted_names = spec_names
     return (sorted_names, spec_dict)
 
 def get_target_manager (settings):
