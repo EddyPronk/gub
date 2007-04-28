@@ -8,7 +8,7 @@ include compilers.make
 TAGS: $(sources)
 	etags $^
 
-MAKE_FILES = $(wildcard *.make)
+MAKE_FILES = $(filter-out compilers.make gub.make,$(wildcard *.make))
 MAKE_BASES = $(MAKE_FILES:%.make=%)
 
 help:
@@ -17,6 +17,6 @@ help:
 	@echo For more elaborate use, see READMEs
 
 $(MAKE_BASES):
-	make -f $@.make
+	$(MAKE) -f $@.make
 
 download-local:
