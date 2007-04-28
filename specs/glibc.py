@@ -14,7 +14,7 @@ class Glibc (targetpackage.TargetBuildSpec):
         self.with_tarball (mirror=mirrors.lilypondorg, version='2.3-20070416',
                            format='bz2')
     def get_build_dependencies (self):
-        return ['gcc-core', 'glibc-core']
+        return ['gcc', 'glibc-core']
     def get_conflict_dict (self):
         return {'': ['glibc-core'], 'devel': ['glibc-core'], 'doc': ['glibc-core'], 'runtime': ['glibc-core']}
     def patch (self):
