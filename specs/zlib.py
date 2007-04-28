@@ -37,7 +37,7 @@ class Zlib (targetpackage.TargetBuildSpec):
 
 class Zlib__mingw (Zlib):
     # FIXME: removeme, try zlib-1.2.3.patch
-    def __init__ (self, settings):
+    def x__init__ (self, settings):
         Zlib.__init__ (self, settings)
         self.with (version='1.2.2',
                    mirror='http://heanet.dl.sourceforge.net/sourceforge/libpng/zlib-1.2.2.tar.gz')

@@ -135,9 +135,9 @@ mirror = 'http://mirrors.kernel.org/sourceware/cygwin'
 def get_cross_packages (settings):
     import linux
     cross_packs = [
-        Binutils (settings).with (version='2.17', format='bz2', mirror=download.gnu),
+        Binutils (settings).with (version='2.17', format='bz2', mirror=mirrors.gnu),
         W32api_in_usr_lib (settings).with (version='1.0',  strip_components=0),
-        Gcc (settings).with (version='4.1.1', mirror=download.gcc_41, format='bz2'),
+        Gcc (settings).with (version='4.1.1', mirror=mirrors.gcc_41, format='bz2'),
         linux.Freetype_config (settings).with (version='2.1.9'),
         linux.Python_config (settings).with (version='2.4.3'),
 # FIXME: using the binary libtool package is quite involved, it has

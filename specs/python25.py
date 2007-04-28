@@ -1,7 +1,7 @@
 import re
 import sys
 #
-import download
+import mirrors
 import glob
 import gub
 import targetpackage
@@ -15,7 +15,7 @@ class Python (targetpackage.TargetBuildSpec):
         ## don't import settings from build system.
 	self.BASECFLAGS=''
         self.with (version='2.5',
-                   mirror=download.python,
+                   mirror=mirrors.python,
                    format='bz2')
 
     def configure_command (self):
@@ -131,7 +131,7 @@ class Python__local (toolpackage.ToolBuildSpec, Python):
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
         self.with (version='2.5',
-                   mirror=download.python,
+                   mirror=mirrors.python,
                    format='bz2')
 
     def configure (self):
