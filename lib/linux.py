@@ -5,7 +5,7 @@ def change_target_package (package):
     cross.change_target_package (package)
     if isinstance (package, targetpackage.TargetBuildSpec):
         gub.change_target_dict (package,
-                                {'LD': '%(target_architecture)s-ld --as-needed, ',})
+                                {'LD': '%(target_architecture)s-ld --as-needed ',})
         gub.append_target_dict (package,
                                 {'LDFLAGS': ' -Wl,--as-needed ' })
     return package
