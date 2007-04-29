@@ -79,6 +79,10 @@ def get_cli_parser ():
                   dest='stage', default=None,
                   help='Force rebuild of stage')
 
+    p.add_option ('--fresh', action='store_true',
+                  dest='fresh', default=False,
+                  help='Restart all builds')
+
     p.add_option ('--cross-distcc-host', action='append',
                   dest='cross_distcc_hosts', default=[],
                   help='Add another cross compiling distcc host')
@@ -115,6 +119,7 @@ def get_cli_parser ():
                   dest="skip_if_locked",
                   action="store_true",
                   help="Return successfully if another build is already running")
+
     p.add_option ('-j', '--jobs',
                   default="1", action='store',
                   dest='cpu_count',
@@ -163,6 +168,13 @@ def run_one_builder (options, spec_obj):
 
     if not options.build_source:
         stages.remove ('src_package')
+
+    if options.fresh:
+        try:
+            spec_obj.os_interface.log_command ('Removing status file')
+            os.unlink (spec_obj.get_stamp_file ())
+        except OSError:
+            pass
 
     tainted = False
     for stage in stages:
