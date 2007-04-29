@@ -24,17 +24,14 @@ import os
 import re
 import string
 import sys
-
-sys.path.insert (0, 'lib/')
-
-import cross
-
+#
+from gub import cross
 ## fixme: double use of gub name.
-import gub
-import gup
-import misc
-import settings as settings_mod
-import locker
+from gub import gubb
+from gub import misc
+import gub.settings
+from gub import locker
+from gub import gup
 
 def get_cli_parser ():
     import optparse
@@ -61,7 +58,7 @@ def get_cli_parser ():
                   type='choice',
                   default=None,
                   help='select target platform',
-                  choices=settings_mod.platforms.keys ())
+                  choices=gub.settings.platforms.keys ())
 
     p.add_option ('--inspect', action='store',
                   dest='inspect_key',
@@ -327,7 +324,7 @@ def build_source_packages (settings, specs, names):
 
     ## UGH -> double work, see cross.change_target_packages () ?
     sdk_pkgs = [p for p in specs.values ()
-                if isinstance (p, gub.SdkBuildSpec)]
+                if isinstance (p, gubb.SdkBuildSpec)]
     cross_pkgs = [p for p in specs.values ()
                   if isinstance (p, cross.CrossToolSpec)]
 
@@ -343,7 +340,7 @@ def build_source_packages (settings, specs, names):
         
 def get_settings (options):
     # FIXME, move (all these get_setting*) to constructors
-    settings = settings_mod.get_settings (options.platform)
+    settings = gub.settings.get_settings (options.platform)
     settings.set_branches (options.branches)
     settings.build_source = options.build_source
     settings.cpu_count = options.cpu_count

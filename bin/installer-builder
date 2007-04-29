@@ -28,11 +28,11 @@ import pickle
 
 sys.path.insert (0, 'lib/')
 
-import gup
-import installer
-import settings as settings_mod
-import locker
-import versiondb
+from gub import gup
+from gub import installer
+import gub.settings
+from gub import locker
+from gub import versiondb
 
 def parse_command_line ():
     p = optparse.OptionParser ()
@@ -82,7 +82,7 @@ build-all - build, strip, package
                   type='choice',
                   default=None,
                   help='select target platform',
-                  choices=settings_mod.platforms.keys ())
+                  choices=gub.settings.platforms.keys ())
 
     (options, args) = p.parse_args ()
     
@@ -209,7 +209,7 @@ def run_installer_commands (commands, settings, args, options):
 def main ():
     (options, commands)  = parse_command_line ()
 
-    settings = settings_mod.get_settings (options.platform)
+    settings = gub.settings.get_settings (options.platform)
 
     settings.set_branches (options.branches)
     for s in options.settings:

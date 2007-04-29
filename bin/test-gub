@@ -244,7 +244,7 @@ def print_results (options, parts, subject="Autotester result"):
 def real_main (options, args, handle_result):
     global log_file
 
-    log = 'log/test-gub.log'
+    log = 'log/test-gubb.log'
     if options.dry_run:
         log = ''
 

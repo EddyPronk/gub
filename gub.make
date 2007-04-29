@@ -1,7 +1,7 @@
 CWD:=$(shell pwd)
 PYTHON=python
-PYTHONPATH=lib/
-export PYTHONPATH
+#PYTHONPATH=gub
+#export PYTHONPATH
 
 ## must always have one host.
 GUB_DISTCC_ALLOW_HOSTS=127.0.0.1
