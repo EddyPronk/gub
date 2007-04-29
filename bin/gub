@@ -366,38 +366,18 @@ def inspect (settings, files):
             print v
         
 def build (settings, files):
-    try:
-        pm = gup.get_target_manager (settings)
-
-        ## Todo: have a readonly lock for local platform
-    except locker.LockedError:
-        print 'another build in progress. Skipping.'
-        if settings.options.skip_if_locked:
-            sys.exit (0)
-        raise
-
-
     (names, specs) = gup.get_source_packages (settings, files)
     def get_all_deps (name):
-        buildspec = specs[name]
-        deps = []
-
-        is_installable = misc.forall (pm.is_registered (package.name ())
-                                      and pm.is_installable (package.name ())
-                                      for package in buildspec.get_packages ())
-
-        if not is_installable:
-            deps = buildspec.get_build_dependencies ()
+        package = specs[name]
+        deps = package.get_build_dependencies ()
         if not settings.is_distro:
             deps = [gup.get_base_package_name (d) for d in deps]
-            
         return deps
 
     # FIXME: why do we only use deps for download, not for build?
     deps = gup.topologically_sorted (files, {}, get_all_deps, None)
     if settings.options.verbose:
         print 'deps:' + `deps`
-
 
     PATH = os.environ['PATH']
     os.environ['PATH'] = settings.expand ('%(local_prefix)s/bin:' + PATH)
@@ -412,6 +392,7 @@ def build (settings, files):
             specs[i].download ()
         sys.exit (0)
 
+    # FIXME: hw, why is this?  Doesn't this break 
     if settings.options.stage:
         names = files
 
