@@ -20,11 +20,3 @@ lagere prioriteit
 - Bugfixes:
 
 - junk Makefile, create python based driver.
-
-- better branch separation:
-  separate dirs for
-
-   * targetroot ?
-
-- Use Xen image for running/installing local tools + x-compilers?
-

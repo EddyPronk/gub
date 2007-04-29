@@ -406,8 +406,7 @@ topological order
     
 """
 
-    ## don't modify
-    #FIXME: why not, *why* do we need a copy?
+    ## don't confuse callers by not modifying argument
     todo = todo[:]
 
     cross_packages = cross.get_cross_packages (settings)

@@ -1,4 +1,4 @@
-import download
+import mirrors
 import gub
 import misc
 import targetpackage
@@ -57,7 +57,7 @@ bjam
 class Boost (BjamBuildSpec):
     def __init__ (self,settings):
         BjamBuildSpec.__init__ (self, settings)
-        self.with (version='1.33.1', mirror=download.boost_1_33_1, format='bz2')
+        self.with (version='1.33.1', mirror=mirrors.boost_1_33_1, format='bz2')
         gub.change_target_dict (self, {'CFLAGS': '-DBOOST_PLATFORM_CONFIG=\\"boost/config/platform/linux.hpp\\"'})
     def get_substitution_dict (self, env={}):
         dict = BjamBuildSpec.get_substitution_dict (self, env)

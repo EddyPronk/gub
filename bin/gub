@@ -28,6 +28,8 @@ import sys
 sys.path.insert (0, 'lib/')
 
 import cross
+
+## fixme: double use of gub name.
 import gub
 import gup
 import misc
@@ -79,6 +81,10 @@ def get_cli_parser ():
                   dest='stage', default=None,
                   help='Force rebuild of stage')
 
+    p.add_option ('--fresh', action='store_true',
+                  dest='fresh', default=False,
+                  help='Restart all builds')
+
     p.add_option ('--cross-distcc-host', action='append',
                   dest='cross_distcc_hosts', default=[],
                   help='Add another cross compiling distcc host')
@@ -115,6 +121,7 @@ def get_cli_parser ():
                   dest="skip_if_locked",
                   action="store_true",
                   help="Return successfully if another build is already running")
+
     p.add_option ('-j', '--jobs',
                   default="1", action='store',
                   dest='cpu_count',
@@ -157,7 +164,7 @@ def run_one_builder (options, spec):
     if options.stage:
         (available[options.stage]) ()
         return
-
+    
     stages = ['download', 'untar', 'patch',
               'configure', 'compile', 'install',
               'src_package', 'package', 'clean']
@@ -167,6 +174,13 @@ def run_one_builder (options, spec):
 
     if not options.build_source:
         stages.remove ('src_package')
+
+    if options.fresh:
+        try:
+            spec_obj.os_interface.log_command ('Removing status file')
+            os.unlink (spec_obj.get_stamp_file ())
+        except OSError:
+            pass
 
     tainted = False
     for stage in stages:
@@ -352,18 +366,38 @@ def inspect (settings, files):
             print v
         
 def build (settings, files):
+    try:
+        pm = gup.get_target_manager (settings)
+
+        ## Todo: have a readonly lock for local platform
+    except locker.LockedError:
+        print 'another build in progress. Skipping.'
+        if settings.options.skip_if_locked:
+            sys.exit (0)
+        raise
+
+
     (names, specs) = gup.get_source_packages (settings, files)
     def get_all_deps (name):
-        package = specs[name]
-        deps = package.get_build_dependencies ()
+        buildspec = specs[name]
+        deps = []
+
+        is_installable = misc.forall (pm.is_registered (package.name ())
+                                      and pm.is_installable (package.name ())
+                                      for package in buildspec.get_packages ())
+
+        if not is_installable:
+            deps = buildspec.get_build_dependencies ()
         if not settings.is_distro:
             deps = [gup.get_base_package_name (d) for d in deps]
+            
         return deps
 
     # FIXME: why do we only use deps for download, not for build?
     deps = gup.topologically_sorted (files, {}, get_all_deps, None)
     if settings.options.verbose:
         print 'deps:' + `deps`
+
 
     PATH = os.environ['PATH']
     os.environ['PATH'] = settings.expand ('%(local_prefix)s/bin:' + PATH)
@@ -377,6 +411,9 @@ def build (settings, files):
         for i in deps:
             specs[i].download ()
         sys.exit (0)
+
+    if settings.options.stage:
+        names = files
 
     build_source_packages (settings, specs, names)
 

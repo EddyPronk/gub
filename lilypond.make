@@ -37,11 +37,11 @@ GUB_BUILDER_OPTIONS =\
  --branch lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH)
 
 GUP_OPTIONS =\
- --branch guile=branch_release-1-8-repo.or.cz-guile.git\
+ --branch guile=$(GUILE_LOCAL_BRANCH) \
  --branch lilypond=$(LILYPOND_LOCAL_BRANCH)
 
 INSTALLER_BUILDER_OPTIONS =\
- --branch guile=branch_release-1-8-repo.or.cz-guile.git \
+ --branch guile=$(GUILE_LOCAL_BRANCH) \
  --branch lilypond=$(LILYPOND_LOCAL_BRANCH)
 
 include gub.make
@@ -199,9 +199,6 @@ locals =\
  python\
  texinfo
 
-ifneq ($(BUILD_PLATFORM),linux-64)
-locals += nsis
-endif
 
 ###
 # document why this is in the bootstrap

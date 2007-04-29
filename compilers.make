@@ -81,6 +81,8 @@ bootstrap-git:
 
 local-cross-tools:
 ifneq ($(filter mingw,$(PLATFORMS)),)
-	$(GUB_BUILDER) $(LOCAL_DRIVER_OPTIONS) -p local build nsis 
+ifneq ($(BUILD_PLATFORM),linux-64)
+	$(GUB_BUILDER) $(LOCAL_DRIVER_OPTIONS) -p local nsis 
+endif
 endif
 

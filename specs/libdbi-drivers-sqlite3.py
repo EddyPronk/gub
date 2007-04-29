@@ -1,4 +1,4 @@
-import download
+import mirrors
 import misc
 import repository
 import targetpackage
@@ -6,8 +6,8 @@ import targetpackage
 class Libdbi_drivers_sqlite3 (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        #self.with (version='0.8.1', mirror=download.sf, format='gz')
-        self.with_vc (repository.NewTarBall (self.settings.downloads, download.sf, 'libdbi-drivers', '0.8.2'))
+        #self.with (version='0.8.1', mirror=mirrors.sf, format='gz')
+        self.with_vc (repository.NewTarBall (self.settings.downloads, mirrors.sf, 'libdbi-drivers', '0.8.2'))
 
     def get_build_dependencies (self):
         return ['sqlite', 'libdbi', 'libtool']
