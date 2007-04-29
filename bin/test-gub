@@ -11,9 +11,7 @@ import optparse
 import time
 import dbhash
 
-sys.path.insert (0, 'lib/')
-
-import repository
+from gub import repository
 
 
 ################################################################

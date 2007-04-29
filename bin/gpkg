@@ -28,8 +28,8 @@ import re
 import string
 import sys
 #
-import gup
-import oslog
+from gub import gup
+from gub import oslog
 
 def sort (lst):
     list.sort (lst)
