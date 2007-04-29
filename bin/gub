@@ -28,6 +28,8 @@ import sys
 sys.path.insert (0, 'lib/')
 
 import cross
+
+## fixme: double use of gub name.
 import gub
 import gup
 import misc
@@ -158,7 +160,7 @@ def run_one_builder (options, spec_obj):
     if options.stage:
         (available[options.stage]) ()
         return
-
+    
     stages = ['download', 'untar', 'patch',
               'configure', 'compile', 'install',
               'src_package', 'package', 'clean']
@@ -319,17 +321,37 @@ def inspect (settings, files):
             print v
         
 def build (settings, files):
+    try:
+        pm = gup.get_target_manager (settings)
+
+        ## Todo: have a readonly lock for local platform
+    except locker.LockedError:
+        print 'another build in progress. Skipping.'
+        if settings.options.skip_if_locked:
+            sys.exit (0)
+        raise
+
+
     (names, specs) = gup.get_source_packages (settings, files)
     def get_all_deps (name):
-        package = specs[name]
-        deps = package.get_build_dependencies ()
+        buildspec = specs[name]
+        deps = []
+
+        is_installable = misc.forall (pm.is_registered (package.name ())
+                                      and pm.is_installable (package.name ())
+                                      for package in buildspec.get_packages ())
+
+        if not is_installable:
+            deps = buildspec.get_build_dependencies ()
         if not settings.is_distro:
             deps = [gup.get_base_package_name (d) for d in deps]
+            
         return deps
 
     deps = gup.topologically_sorted (files, {}, get_all_deps, None)
     if settings.options.verbose:
         print 'deps:' + `deps`
+
 
     PATH = os.environ['PATH']
     os.environ['PATH'] = settings.expand ('%(local_prefix)s/bin:' + PATH)
@@ -344,17 +366,11 @@ def build (settings, files):
             specs[i].download ()
         sys.exit (0)
 
-    try:
-        pm = gup.get_target_manager (settings)
+    if settings.options.stage:
+        names = files
 
-        ## Todo: have a readonly lock for local platform
-    except locker.LockedError:
-        print 'another build in progress. Skipping.'
-        if settings.options.skip_if_locked:
-            sys.exit (0)
-        raise
-
-    deps = filter (specs.has_key, names)
+    deps = filter (specs.has_key, deps)
+    
     run_builder (settings.options, settings, pm, deps, specs)
 
 def main ():
