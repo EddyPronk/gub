@@ -309,6 +309,9 @@ class PackageManager (FileManager, PackageDictManager):
         FileManager.uninstall_package (self, name)
         del self._package_dict_db[name]
 
+    def source_name (self, name):
+        return self._packages [name]['source_name']
+
     
 def is_string (x):
     return type (x) == type ('')

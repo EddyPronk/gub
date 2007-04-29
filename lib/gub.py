@@ -31,6 +31,9 @@ class PackageSpec:
         self._dict['split_hdr'] = ('%(gub_uploads)s/%(split_name)s%(vc_branch_suffix)s.%(platform)s.hdr') % self._dict
         self._dict['conflicts_string'] = ';'.join (self._conflicts)
         self._dict['dependencies_string'] = ';'.join (self._dependencies)
+        self._dict['source_name'] = self.name ()
+        if sub_name:
+            self._dict['source_name'] = self.name ()[:-len (sub_name)]
         
     def expand (self, s):
         return s % self._dict
