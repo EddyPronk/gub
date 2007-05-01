@@ -787,7 +787,6 @@ def get_class_from_spec_file (settings, file_name, name):
     full = class_name + '__' + settings.platform.replace ('-', '__')
 
     d = module.__dict__
-    print 'full:', full
     klass = None
     while full:
         if d.has_key (full):
@@ -802,7 +801,6 @@ def get_class_from_spec_file (settings, file_name, name):
 #        if d.has_key (i):
 #            init_vars[i] = d[i]
 
-    print klass.__dict__
     print klass
     return klass
 
