@@ -1,65 +1,16 @@
-import os
-import re
-
-from gub import cross
-from gub import mirrors
-from gub import gubb
-from gub import misc
-from gub import targetpackage
-
-class Binutils (cross.Binutils):
-    def configure_command (self):
-        # Add --program-prefix, otherwise we get
-        # i686-freebsd-FOO iso i686-freebsd4-FOO.
-        return (cross.Binutils.configure_command (self)
-            + misc.join_lines ('''
---program-prefix=%(tool_prefix)s
-'''))
-
-class Gcc (cross.Gcc):
-    def configure_command (self):
-        # Add --program-prefix, otherwise we get
-        # i686-freebsd-FOO iso i686-freebsd4-FOO.
-        return (cross.Gcc.configure_command (self)
-            + misc.join_lines ('''
---program-prefix=%(tool_prefix)s
-'''))
-
-class Freebsd_runtime (gubb.BinarySpec, gubb.SdkBuildSpec):
-    def untar (self):
-        gubb.BinarySpec.untar (self)
-    def patch (self):
-        self.system ('rm -rf %(srcdir)s/usr/include/g++')
-
-def _get_cross_packages (settings, libc_version):
-    return (
-        Freebsd_runtime (settings).with (version=libc_version,
-                                         strip_components=0,
-                                         mirror=mirrors.lilypondorg),
-        Binutils (settings).with (version='2.16.1', format='bz2', mirror=mirrors.gnu),
-        Gcc (settings).with (version='4.1.1', mirror=mirrors.gcc_41,
-                             format='bz2'),
-        )
-
-def get_cross_packages_41 (settings):
-    return _get_cross_packages (settings, '4.10-2')
-
-def get_cross_packages_61 (settings):
-    return _get_cross_packages (settings, '6.1-RELEASE')
-
 def get_cross_packages (settings):
-    return get_cross_packages_41 (settings)
+    # obsolete
+    return []
 
-    if settings.target_architecture == 'i686-freebsd4':
-        return get_cross_packages_41 (settings)
-    return get_cross_packages_61 (settings)
+def get_cross_build_dependencies (settings):
+    return ['cross/gcc']
 
 def change_target_package (package):
+    from gub import cross
     cross.change_target_package (package)
 
-        
-    
-# FIXME: download from sane place.
+# FIXME: download from sane place; or rather download only kernel
+# headers and build full toolchain from source?
 def get_sdk():
     '''
 
