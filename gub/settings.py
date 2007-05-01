@@ -66,8 +66,10 @@ class Settings (Context):
         self.uploads = self.topdir + '/uploads'
         self.gub_uploads = self.uploads + '/' + self.platform
 
-        ## FIXME
-##        self.gub_cross_uploads = '%s/%s-cross' % (self.uploads, self.platform)
+        # Hmm, change `cross/' to `cross.' or `cross-' in name?
+        self.cross_gub_uploads = self.gub_uploads + '/cross'
+        self.cross_allsrcdir = self.allsrcdir + '/cross'
+        self.cross_statusdir = self.statusdir + '/cross'
 
         self.distcc_hosts = ''
         
@@ -121,7 +123,6 @@ class Settings (Context):
             'downloads',
             'logdir',
             'gub_uploads',
-#            'gub_cross_uploads',
             'specdir',
             'allsrcdir',
             'statusdir',
@@ -131,6 +132,10 @@ class Settings (Context):
             'targetdir',
             'local_prefix',
             'topdir',
+
+            'cross_gub_uploads',
+            'cross_statusdir',
+            'cross_allsrcdir',
             ):
             dir = self.__dict__[a]
             if os.path.isdir (dir):

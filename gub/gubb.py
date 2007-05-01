@@ -133,9 +133,11 @@ class BuildSpec (Os_context_wrapper):
     
     @subst_method
     def name (self):
-        file = self.__class__.__name__.lower ()
-        file = re.sub ('__.*', '', file)
-        file = re.sub ('_', '-', file)
+        if 0: # old method, removes cross/
+            file = self.__class__.__name__.lower ()
+            file = re.sub ('__.*', '', file)
+            file = re.sub ('_', '-', file)
+        file = self.__class__.__module__
 
         ## UGH ? what happens if xx is in a normal name?!
         file = re.sub ('xx', '++', file)

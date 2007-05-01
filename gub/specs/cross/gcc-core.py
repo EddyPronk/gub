@@ -14,7 +14,7 @@ class Gcc_core (gcc.Gcc):
     def get_subpackage_names (self):
         return ['']
     def name (self):
-        return 'gcc-core'
+        return 'cross/gcc-core'
     def file_name (self):
         return 'gcc-core'
     def get_conflict_dict (self):
