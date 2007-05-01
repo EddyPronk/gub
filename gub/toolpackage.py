@@ -51,6 +51,7 @@ LD_LIBRARY_PATH=%(system_root)s/usr/lib
             'C_INCLUDE_PATH': '%(local_prefix)s/include',
             'LIBRARY_PATH': '%(local_prefix)s/lib',
             'CPLUS_INCLUDE_PATH': '%(local_prefix)s/include',
+            'LD_LIBRARY_PATH': '%(local_prefix)s/lib',
         }
         dict.update (env)
         d = gubb.BuildSpec.get_substitution_dict (self, dict).copy ()
