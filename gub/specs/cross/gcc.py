@@ -49,3 +49,22 @@ class Gcc__mingw (cross.Gcc):
             self.file_sub ([('/mingw/include','/usr/include'),
                             ('/mingw/lib','/usr/lib'),
                             ], f)
+
+class Gcc__cygwin (Gcc__mingw):
+    def get_build_dependencies (self):
+        return (Gcc__mingw.get_build_dependencies (self)
+                + ['cygwin', 'w32api-in-usr-lib'])
+    def makeflags (self):
+        return misc.join_lines ('''
+tooldir="%(cross_prefix)s/%(target_architecture)s"
+gcc_tooldir="%(cross_prefix)s/%(target_architecture)s"
+''')
+    def compile_command (self):
+        return (Gcc__mingw.compile_command (self)
+                + self.makeflags ())
+    def configure_command (self):
+        return (Gcc__mingw.configure_command (self)
+                + misc.join_lines ('''
+--with-newlib
+--enable-threads
+'''))

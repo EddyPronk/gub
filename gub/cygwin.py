@@ -4,64 +4,8 @@ import re
 from new import classobj
 from new import instancemethod
 #
-from gub import cross
-from gub import mirrors
 from gub import gubb
-#from gub import gup
-from gub import mingw
 from gub import misc
-
-# FIXME: setting binutil's tooldir and/or gcc's gcc_tooldir may fix
-# -luser32 (ie -L .../w32api/) problem without having to set LDFLAGS.
-class Binutils (cross.Binutils):
-    def makeflags (self):
-        return misc.join_lines ('''
-tooldir="%(cross_prefix)s/%(target_architecture)s"
-''')
-    def compile_command (self):
-        return (cross.Binutils.compile_command (self)
-                + self.makeflags ())
-    def configure_command (self):
-        return ( cross.Binutils.configure_command (self)
-                 + ' --disable-werror ')
-
-class W32api_in_usr_lib (gubb.BinarySpec, gubb.SdkBuildSpec):
-    def get_build_dependencies (self):
-        return ['w32api']
-
-    def install (self):
-        self.system ('mkdir -p %(install_root)s/usr/lib')
-        self.system ('''
-tar -C %(system_root)s/usr/lib/w32api -cf- . | tar -C %(install_root)s/usr/lib -xf-
-''')
-
-class Libtool_fixup (gubb.NullBuildSpec):
-    def get_build_dependencies (self):
-        return ['libtool']
-    def untar (self):
-        self.file_sub ([('/usr/bin/sed', '/bin/sed')],
-                       '%(system_root)s/usr/bin/libtool')
-
-class Gcc (mingw.Gcc):
-    def get_build_dependencies (self):
-        return (mingw.Gcc.get_build_dependencies (self)
-                + ['cygwin', 'w32api-in-usr-lib'])
-    def makeflags (self):
-        return misc.join_lines ('''
-tooldir="%(cross_prefix)s/%(target_architecture)s"
-gcc_tooldir="%(cross_prefix)s/%(target_architecture)s"
-''')
-    def compile_command (self):
-        return (mingw.Gcc.compile_command (self)
-                + self.makeflags ())
-
-    def configure_command (self):
-        return (mingw.Gcc.configure_command (self)
-                + misc.join_lines ('''
---with-newlib
---enable-threads
-'''))
-
 
 def untar_cygwin_src_package_variant2 (self, file_name, split=False):
     '''Unpack this unbelievably broken version of Cygwin source packages.
@@ -120,33 +64,17 @@ cd %(srcdir)s && patch -p1 -f < %(allsrcdir)s/%(patch)s || true
 ''',
                  locals ())
 
-class Gcc_core (Gcc):
-    def untar (self):
-        gxx_file_name = re.sub ('-core', '-g++',
-                                self.expand (self.file_name ()))
-        untar_cygwin_src_package_variant2 (self, gxx_file_name, split=True)
-        untar_cygwin_src_package_variant2 (self, self.file_name ())
-
-# download-only package
-class Gcc_gxx (gubb.NullBuildSpec):
-    pass
-
 mirror = 'http://mirrors.kernel.org/sourceware/cygwin'
+
 def get_cross_packages (settings):
-    from gub import linux
-    cross_packs = [
-        Binutils (settings).with (version='2.17', format='bz2', mirror=mirrors.gnu),
-        W32api_in_usr_lib (settings).with (version='1.0',  strip_components=0),
-        Gcc (settings).with (version='4.1.1', mirror=mirrors.gcc_41, format='bz2'),
-        linux.Freetype_config (settings).with (version='2.1.9'),
-        linux.Python_config (settings).with (version='2.4.3'),
-# FIXME: using the binary libtool package is quite involved, it has
-# names of tools hardcoded and wrong (LD, NM, SED, GCC, GREP, ...)
-#        Libtool_fixup (settings).with (version='1.0'),
-        ]
-    return cross_packs
+    # obsolete
+    return []
+
+def get_cross_build_dependencies (settings):
+    return ['cross/gcc', 'freetype-config', 'python-config']
 
 def change_target_package (package):
+    from gub import cross
     cross.change_target_package (package)
     package.get_build_dependencies \
             = misc.MethodOverrider (package.get_build_dependencies,
@@ -232,6 +160,11 @@ def get_cygwin_package (settings, name, dict, skip):
         return self.name_dependencies
     package.get_build_dependencies = instancemethod (get_build_dependencies,
                                                      package, package_class)
+    pkg_name = name
+    def name (self):
+        return pkg_name
+    package.name = instancemethod (name, package, package_class)
+
     package.ball_version = dict['version']
     package.url = (mirror + '/' + dict['install'].split ()[0])
     package.format = 'bz2'
