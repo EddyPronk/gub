@@ -1,5 +1,28 @@
+* update platform packages to use get_cross_build_dependencies
+  - cywgin 
+  - darwin
+  - freebsd
+  - debian?
 
-lagere prioriteit
+  DONE
+  - linux
+  - mingw
+
+* Split build recipe's into Basic (configure??; make; make install),
+  AutoTools; move Scons, Bjam recipes to gub lib.
+
+* Bootstrap whole toolchain from source on more platforms (freebsd)
+
+* Much less verbosity, write oslog.system () to log file.  (Verbosity
+  levels?)
+
+* Install cross toolchain packages in target/local? 
+
+LOWER PRIORITY
+
+- rename mipsel to debian-mipsel.py (and other debian-based platforms)
+
+- Split gub/*py into packager, builder, platform
 
 - Explode inheritance, and use membership in GUP
 
@@ -22,3 +45,5 @@ lagere prioriteit
 - Bugfixes:
 
 - junk Makefile, create python based driver.
+
+- prerequisites: curl [lilypond: texinfo]
