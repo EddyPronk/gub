@@ -801,7 +801,6 @@ def get_class_from_spec_file (settings, file_name, name):
 #        if d.has_key (i):
 #            init_vars[i] = d[i]
 
-    print klass
     return klass
 
 def get_build_spec (flavour, settings, url):
