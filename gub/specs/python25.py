@@ -6,7 +6,8 @@ import glob
 from gub import gubb
 from gub import targetpackage
 
-from context import *
+from gub import context
+
 
 class Python (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
@@ -74,7 +75,7 @@ class Python (targetpackage.TargetBuildSpec):
 
 
     ### Ugh.
-    @subst_method
+    @context.subst_method
     def python_version (self):
         return '.'.join (self.ball_version.split ('.')[0:2])
 

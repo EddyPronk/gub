@@ -5,9 +5,7 @@ from gub import repository
 from gub import gubb
 from gub import misc
 from gub import targetpackage
-
-
-from context import *
+from gub import context
 
 class LilyPond (targetpackage.TargetBuildSpec):
     '''A program for printing sheet music

@@ -1,10 +1,11 @@
-from toolpackage import ToolBuildSpec
 import os
-from gub import repository
 
-class Nsis (ToolBuildSpec):
+from gub import repository
+from gub import toolpackage
+
+class Nsis (toolpackage.ToolBuildSpec):
     def __init__ (self, settings):
-        ToolBuildSpec.__init__(self, settings)
+        toolpackage.ToolBuildSpec.__init__ (self, settings)
 
         if 1:
             self.with (version='2.23',
@@ -20,7 +21,7 @@ class Nsis (ToolBuildSpec):
             self.with_vc (repo)
 
     def get_build_dependencies (self):
-        return ["scons"]
+        return ['scons']
 
     def patch (self):
         self.system ('mkdir -p %(allbuilddir)s', ignore_errors=True)

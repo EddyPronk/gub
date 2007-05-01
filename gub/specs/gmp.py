@@ -2,7 +2,6 @@ import re
 
 from gub import mirrors
 from gub import targetpackage
-from toolpackage import ToolBuildSpec
 
 class Gmp (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
@@ -96,9 +95,10 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/gmp-4.1.4-1.patch
 mv %(install_root)s/usr/lib/*dll %(install_root)s/usr/bin || true
 ''')
 
-class Gmp__local (ToolBuildSpec):
+from gub import toolpackage
+class Gmp__local (toolpackage.ToolBuildSpec):
     def __init__ (self, s):
-        ToolBuildSpec.__init__ (self, s)
+        toolpackage.ToolBuildSpec.__init__ (self, s)
         self.with (version='4.2.1',
                    mirror="ftp://ftp.gnu.org/gnu/gmp/gmp-%(version)s.tar.bz2")
 

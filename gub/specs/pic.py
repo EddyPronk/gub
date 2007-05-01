@@ -9,8 +9,6 @@ from gub import targetpackage
 
 pic_cvs = ':pserver:anonymous@gforge.natlab.research.philips.com:/cvsroot/pfgpsc'
 
-from context import *
-
 class Pic (targetpackage.TargetBuildSpec):
     def get_dependency_dict (self):
         return {'': []}
