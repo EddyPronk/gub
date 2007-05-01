@@ -9,7 +9,10 @@
   - mingw
 
 * Split build recipe's into Basic (configure??; make; make install),
-  AutoTools; move Scons, Bjam recipes to gub lib.
+  AutoTools; move Scons, Bjam recipes to gub lib.  Softcode stages,
+  move autotools patching to autogen/prepare_configure stage.
+
+* move makeflags () feature to buildspec.
 
 * Bootstrap whole toolchain from source on more platforms (freebsd)
 
@@ -19,6 +22,8 @@
 * Install cross toolchain packages in target/local? 
 
 LOWER PRIORITY
+
+- better name for gubb.py
 
 - rename mipsel to debian-mipsel.py (and other debian-based platforms)
 

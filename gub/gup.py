@@ -431,6 +431,7 @@ topological order
             spec = spec_dict[name]
         else:
             if name in todo or name not in distro_packages.keys ():
+#            if name not in distro_packages.keys ():
                 spec = targetpackage.get_build_spec (settings, name)
             else:
                 spec = distro_packages[name]

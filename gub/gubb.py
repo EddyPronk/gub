@@ -219,7 +219,9 @@ class BuildSpec (Os_context_wrapper):
     def version (self):
         # kugh, must construct using vc_repository in __init__
         if not self.vc_repository :
-            print 'need version, but repository not yet set: ', self.name ()
+            print 'need version, but repository not yet set:', self.name ()
+            print 'type:', type (self)
+            print 'class:', self.__class__
             raise 'urg'
         return self.vc_repository.version ()
 
@@ -785,6 +787,9 @@ def get_class_from_spec_file (settings, file_name, name):
     base = os.path.basename (name)
     class_name = (base[0].upper () + base[1:]).replace ('-', '_')
     full = class_name + '__' + settings.platform.replace ('-', '__')
+
+    if name == 'cygwin':
+        boe
 
     d = module.__dict__
     klass = None
