@@ -41,4 +41,4 @@ mingw:
 	$(call BUILD,$@,git)
 
 update-versions:
-	python lib/versiondb.py --no-sources --url http://lilypond.org/git --dbfile uploads/git.db --download
+	python gub/versiondb.py --no-sources --url http://lilypond.org/git --dbfile uploads/git.db --download

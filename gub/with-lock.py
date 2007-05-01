@@ -26,7 +26,7 @@ import sys
 import os
 
 
-sys.path.insert (0, os.path.split (sys.argv[0])[0] + '/../lib/')
+sys.path.insert (0, os.path.split (sys.argv[0])[0] + '/..')
 
 from gub import locker
 
