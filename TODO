@@ -1,10 +1,11 @@
 * update platform packages to use get_cross_build_dependencies
-  - darwin
-  - debian?
-  - mipsel?
+  - debian-*
+  - mipsel
   - linux-arm-...
 
   DONE
+  - darwin
+  - debian
   - cygwin
   - linux
   - mingw

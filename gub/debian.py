@@ -1,158 +1,36 @@
-import glob
-import os
-import re
 import string
 #
-from gub import cross
-from gub import mirrors
-#from gub import gup
-#import gub.gup as gup
 from gub import gubb
-from gub import linux
 from gub import misc
-from gub import settings
 
 from new import classobj
 from new import instancemethod
 
 mirror = 'http://ftp.de.debian.org/debian'
 
-class Libc6 (gubb.BinarySpec, gubb.SdkBuildSpec):
-    def untar (self):
-        gubb.BinarySpec.untar (self)
-        # Ugh, rewire absolute names and symlinks.
-        i = self.expand ('%(srcdir)s/lib64')
-        if os.path.islink (i):
-            s = os.readlink (i)
-            if s.startswith ('/'):
-                os.remove (i)
-                os.symlink (s[1:], i)
-
-    def patch (self):
-        self.system ('cd %(srcdir)s && rm -rf usr/sbin/ sbin/ bin/ usr/bin')
-
-class Libc6_dev (gubb.BinarySpec, gubb.SdkBuildSpec):
-    def untar (self):
-        gubb.BinarySpec.untar (self)
-        # FIXME: this rewiring breaks ld badly, it says
-        #     i686-linux-ld: cannot find /home/janneke/bzr/gub/target/i686-linux/system/lib/libc.so.6 inside /home/janneke/bzr/gub/target/i686-linux/system/
-        # although that file exists.  Possibly rewiring is not necessary,
-        # but we can only check on non-linux platform.
-        # self.file_sub ([(' /', ' %(system_root)s/')],
-        #               '%(srcdir)s/root/usr/lib/libc.so')
-
-        for i in ('pthread.h', 'bits/sigthread.h'):
-            self.file_sub ([('__thread', '___thread')],
-                           '%(srcdir)s/usr/include/%(i)s',
-                           env=locals ())
-            
-        self.system ('rm -rf  %(srcdir)s/usr/include/asm/  %(srcdir)s/usr/include/linux ')
-            
-class Linux_kernel_headers (gubb.BinarySpec, gubb.SdkBuildSpec):
-    def __init__ (self, settings):
-        gubb.BinarySpec.__init__ (self, settings)
-        self.with (version='2.5.999-test7-bk-17',
-                   strip_components=0,
-                   mirror=mirrors.lilypondorg_deb,
-                   format='deb')
-    def get_subpackage_names (self):
-        return ['']
-
-class Libdbi0_dev (gubb.BinarySpec, gubb.SdkBuildSpec):
-    pass
-
-class Libqt4_dev (gubb.BinarySpec, gubb.SdkBuildSpec):
-    def untar (self):
-        gubb.BinarySpec.untar (self)
-        for i in ('QtCore.pc', 'QtGui.pc', 'QtNetwork.pc'):
-            self.file_sub ([('includedir', 'deepqtincludedir')],
-                           '%(srcdir)s/usr/lib/pkgconfig/%(i)s',
-                           env=locals ())
-
-class Gcc (cross.Gcc):
-    def patch (self):
-        cross.Gcc.patch (self)
-        # KUCH
-        if self.vc_repository._version == '4.1.1':
-            self.system ('''
-cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-4.1.1-ppc-unwind.patch
-''')
-        # KUCH, KUCH
-        if (self.vc_repository._version == '3.4.3'
-            and self.settings.platform == 'arm'):
-            self.system ('''
-cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-3.4.3-arm-softvfp-jcn.patch
-''')
-        
-
-    ## TODO: should detect whether libc supports TLS 
-    def configure_command (self):
-        return cross.Gcc.configure_command (self) + ' --disable-tls '
-
 # http://ftp.de.debian.org/debian/pool/main/l/linux-kernel-headers/
 
-def _get_cross_packages (settings,
-                         binutils_version, gcc_version,
-                         guile_version, kernel_version, libc6_version,
-                         python_version):
-    configs = []
-    if not settings.platform.startswith ('linux'):
-        configs = [
-            linux.Guile_config (settings).with (version=guile_version),
-            linux.Python_config (settings).with (version=python_version),
-            ]
-
-    return [
-        Libc6 (settings).with (version=libc6_version, strip_components=0,
-                               mirror=mirrors.lilypondorg_deb, format='deb'),
-        Libc6_dev (settings).with (version=libc6_version, strip_components=0,
-                                   mirror=mirrors.lilypondorg_deb,
-                                   format='deb'),
-        Linux_kernel_headers (settings).with (version=kernel_version,
-                                              strip_components=0,
-                                              mirror=mirrors.lilypondorg_deb,
-                                              format='deb'),
-        
-        cross.Binutils (settings).with (version=binutils_version,
-                                        format='bz2', mirror=mirrors.gnu),
-        Gcc (settings).with (version=gcc_version,
-                             mirror=mirrors.gcc, format='bz2'),
-        ] + configs
-
-# FIXME: determine libc6_version, kernel_version from
-# Packages/Dependency_resolver.
-def get_cross_packages_stable (settings):
-    binutils_version = '2.16.1'
-    gcc_version = '4.1.1'
-    guile_version = '1.6.7'
-    kernel_version = '2.5.999-test7-bk-17'
-    libc6_version = '2.3.2.ds1-22sarge4'
-    python_version = '2.4.1'
-    return _get_cross_packages (settings,
-                                binutils_version, gcc_version,
-                                guile_version, kernel_version, libc6_version,
-                                python_version)
-
-# FIXME: determine libc6_version, kernel_version from
-# Packages/Dependency_resolver.
-def get_cross_packages_unstable (settings):
-    binutils_version = '2.16.1'
-    gcc_version = '4.1.1'
-    guile_version = '1.8.0'
-    kernel_version = '2.6.18-6'
-    libc6_version = '2.3.6.ds1-9'
-    python_version = '2.4.1'
-    return _get_cross_packages (settings,
-                                binutils_version, gcc_version,
-                                guile_version, kernel_version, libc6_version,
-                                python_version)
-
 def get_cross_packages (settings):
+    # obsolete
+    return []
+
+gcc_version = '4.1.1'
+glibc_version='2.3.2.ds1-22sarge4'
+linux_version = '2.5.999-test7-bk-17'
+def get_cross_build_dependencies (settings):
+    global gcc_version, glibc_version, linux_version
+    #FIXME too late
+    gcc_version = '4.1.1'
     if settings.debian_branch == 'stable':
-        return get_cross_packages_stable (settings)
-    return get_cross_packages_unstable (settings)
+        glibc_version='2.3.2.ds1-22sarge4'
+        linux_version = '2.5.999-test7-bk-17'
+    else:
+        glibc_version='2.3.6.ds1-9'
+        linux_version = '2.6.18-6'
+    return ['cross/gcc', 'guile-config', 'python-config']
 
 def change_target_package (p):
+    from gub import cross
     cross.change_target_package (p)
 
 def get_debian_packages (settings, package_file):
@@ -165,7 +43,7 @@ def get_debian_package (settings, description):
     s = description[:description.find ('\nDescription')]
     d = dict (map (lambda line: line.split (': ', 1),
            map (string.strip, s.split ('\n'))))
-    # FIXME: should blacklist toplevel gub-builder.py argument iso lilypond
+    # FIXME: should blacklist toplevel bin/gub argument iso lilypond
     blacklist = [
         'binutils',
         'cpp',
@@ -189,6 +67,7 @@ def get_debian_package (settings, description):
     package_class = classobj (d['Package'], (gubb.BinarySpec,), {})
     package = package_class (settings)
     package.name_dependencies = []
+    import re
     if d.has_key ('Depends'):
         deps = map (string.strip,
               re.sub ('\([^\)]*\)', '',
@@ -225,7 +104,7 @@ class Dependency_resolver:
         self.settings = settings
         self.packages = {}
         self.load_packages ()
-        
+
     def grok_packages_file (self, file):
         for p in get_debian_packages (self.settings, file):
             self.package_fixups (p)
@@ -246,6 +125,7 @@ class Dependency_resolver:
             package.untar = misc.MethodOverrider (package.untar, untar)
 
     def load_packages (self):
+        from gub import gup
         p = gup.DependencyManager (self.settings.system_root,
                                    self.settings.os_interface)
 #        arch = settings.platform
@@ -260,6 +140,7 @@ class Dependency_resolver:
         file = '.'.join ((base, arch, branch))
 
         # FIXME: download/offline update
+        import os
         if not os.path.exists (file):
             misc.download_url (url, self.settings.downloads)
             os.system ('gunzip  %(base)s.gz' % locals ())
