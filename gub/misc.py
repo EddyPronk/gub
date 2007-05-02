@@ -8,15 +8,28 @@ import urllib
 def join_lines (str):
     return str.replace ('\n', ' ')
 
+def load_module (file_name, name=None):
+    if not name:
+        import os
+        name = os.path.split (os.path.basename (file_name))[0]
+    file = open (file_name)
+    desc = ('.py', 'U', 1)
+    import imp
+    return imp.load_module (name, file, file_name, desc)
 
-def bind(function, arg1):
-    def bound(*args, **kwargs):
-        return function(arg1, *args, **kwargs)
+def load_spec (spec_file_name):
+    import os
+    # FIXME: should use settings.specdir
+    specdir = os.getcwd () + '/gub/specs'
+    return load_module ('%(specdir)s/%(spec_file_name)s.py' % locals ())
 
+def bind (function, arg1):
+    def bound (*args, **kwargs):
+        return function (arg1, *args, **kwargs)
     return bound
 
 def read_pipe (cmd, ignore_errors=False):
-    print 'executing pipe %s' % cmd
+    print 'Executing pipe %s' % cmd
     pipe = os.popen (cmd)
 
     val = pipe.read ()

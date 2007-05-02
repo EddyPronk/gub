@@ -33,7 +33,7 @@ from gub import mirrors
 
 class Repository: 
     def __init__ (self):
-        #URG, go through oslog
+        # Fallback, this will go through oslog
         self.system = misc.system
         self.read_pipe = misc.read_pipe
         

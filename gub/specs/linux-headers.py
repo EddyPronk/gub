@@ -24,7 +24,11 @@ cd %(srcdir)s && rm -f\
  usr/include/net/route.h
 ''')
 
-from gub import debian
+#urg, shoot /me in foot
+#from gub import debian
+from gub import misc
+debian = misc.load_spec ('debian/linux-kernel-headers')
+
 class Linux_headers__debian (debian.Linux_kernel_headers):
     def __init__ (self, settings):
         debian.Linux_kernel_headers.__init__ (self, settings)

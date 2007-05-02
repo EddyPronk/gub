@@ -141,17 +141,14 @@ def get_cross_module (settings):
         return cross_module_cache[platform]
 
     import re
-    desc = ('.py', 'U', 1)
-
     base = re.sub ('[-0-9].*', '', platform)
     for name in platform, base:
         file_name = 'gub/%(name)s.py' % locals ()
         if os.path.exists (file_name):
             break
-    file = open (file_name)
     settings.os_interface.info ('module-name: ' + file_name + '\n')
-    import imp
-    module = imp.load_module (base, file, file_name, desc)
+    import misc
+    module = misc.load_module (file_name, base)
 
     import md5
     cross_module_checksums[platform] = md5.md5 (open (file_name).read ()).hexdigest ()

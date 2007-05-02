@@ -620,6 +620,8 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
     # TODO: junk this, always set repo in __init__
     def with_vc (self, repo):
         self.vc_repository = repo
+        self.vc_repository.system = self.os_interface.system
+        self.vc_repository.read_pipe = self.os_interface.read_pipe
         return self
 
     def with_tarball (self, mirror='', version='', format='gz', strip_components=1, name=''):
@@ -776,12 +778,10 @@ def append_target_dict (package, add_dict):
         pass
 
 def get_class_from_spec_file (settings, file_name, name):
-    import imp
-
+    import misc
     settings.os_interface.info ('reading spec: ' + file_name + '\n')
-    file = open (file_name)
-    desc = ('.py', 'U', 1)
-    module = imp.load_module (name, file, file_name, desc)
+    module = misc.load_module (file_name, name)
+
     # cross/gcc.py:Gcc will be called: cross/Gcc.py,
     # to distinguish from specs/gcc.py:Gcc.py
     base = os.path.basename (name)
