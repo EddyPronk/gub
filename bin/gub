@@ -29,8 +29,8 @@ sys.path.insert (0, '.')
 from gub import cross
 ## fixme: double use of gub name.
 from gub import gubb
-from gub import misc
 import gub.settings
+from gub import misc
 from gub import locker
 from gub import gup
 
@@ -91,8 +91,7 @@ def get_cli_parser ():
                   dest='native_distcc_hosts', default=[],
                   help='Add another native distcc host')
 
-    p.add_option ('-V', '--verbose', action='store_true',
-                  dest='verbose')
+    p.add_option ('-v', '--verbose', action='count', dest='verbose', default=0)
 
     p.add_option ('--lilypond-versions', action='store',
                   default='uploads/lilypond.versions',
@@ -175,7 +174,7 @@ def run_one_builder (options, spec):
 
     if options.fresh:
         try:
-            spec_obj.os_interface.log_command ('Removing status file')
+            spec_obj.os_interface.action ('Removing status filex')
             os.unlink (spec_obj.get_stamp_file ())
         except OSError:
             pass
@@ -189,8 +188,8 @@ def run_one_builder (options, spec):
             tainted = True
             continue
 
-        spec.os_interface.log_command (' *** Stage: %s (%s)\n'
-                                           % (stage, spec.name ()))
+        spec.os_interface.stage (' *** Stage: %s (%s)\n'
+                                 % (stage, spec.name ()))
 
         if stage == 'package' and tainted and not options.force_package:
             msg = spec.expand ('''Compile was continued from previous run.
@@ -205,7 +204,7 @@ to force rebuild, or
 
 to skip this check.
 ''')
-            spec.os_interface.log_command (msg)
+            spec.os_interface.error (msg)
             raise 'abort'
 
 
@@ -280,7 +279,7 @@ def spec_build (settings, manager, specs, spec_name):
     if (settings.options.stage
         or not is_installable
         or not checksum_ok):
-        settings.os_interface.log_command ('building package: %s\n' % spec_name)
+        settings.os_interface.stage ('building package: %s\n' % spec_name)
         run_one_builder (settings.options, spec)
 
     # FIXME, spec_install should be stage?
@@ -339,17 +338,6 @@ def build_source_packages (settings, specs, names):
     for spec_name in deps:
         spec_build (settings, manager, specs, spec_name)
         
-def get_settings (options):
-    # FIXME, move (all these get_setting*) to constructors
-    settings = gub.settings.get_settings (options.platform)
-    settings.set_branches (options.branches)
-    settings.build_source = options.build_source
-    settings.cpu_count = options.cpu_count
-    settings.set_distcc_hosts (options)
-    settings.lilypond_versions = options.lilypond_versions
-    settings.options = options ##ugh
-    return settings
-
 def inspect (settings, files):
     (names, specs) = gup.get_source_packages (settings, files)
     pm = gup.get_target_manager (settings)
@@ -374,8 +362,7 @@ def build (settings, files):
 
     # FIXME: why do we only use deps for download, not for build?
     deps = gup.topologically_sorted (files, {}, get_all_deps, None)
-    if settings.options.verbose:
-        print 'deps:' + `deps`
+    settings.os_interface.info ('deps:' + `deps` + '\n')
 
     PATH = os.environ['PATH']
     os.environ['PATH'] = settings.expand ('%(local_prefix)s/bin:' + PATH)
@@ -405,7 +392,7 @@ def main ():
         cli_parser.print_help ()
         sys.exit (2)
 
-    settings = get_settings (options)
+    settings = gub.settings.Settings (options)
 
     if options.inspect_key:
         inspect (settings, files)

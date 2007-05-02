@@ -135,7 +135,8 @@ def set_cross_dependencies (package_object_dict):
 
 cross_module_checksums = {}
 cross_module_cache = {}
-def get_cross_module (platform):
+def get_cross_module (settings):
+    platform = settings.platform
     if cross_module_cache.has_key (platform):
         return cross_module_cache[platform]
 
@@ -148,7 +149,7 @@ def get_cross_module (platform):
         if os.path.exists (file_name):
             break
     file = open (file_name)
-    print 'module-name: ' + file_name
+    settings.os_interface.info ('module-name: ' + file_name + '\n')
     import imp
     module = imp.load_module (base, file, file_name, desc)
 
@@ -158,11 +159,11 @@ def get_cross_module (platform):
     return module
 
 def get_cross_packages (settings):
-    mod = get_cross_module (settings.platform)
+    mod = get_cross_module (settings)
     return mod.get_cross_packages (settings)
 
 def get_build_dependencies (settings):
-    mod = get_cross_module (settings.platform)
+    mod = get_cross_module (settings)
     return mod.get_cross_build_dependencies (settings)
 
 def get_cross_checksum (platform):

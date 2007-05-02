@@ -163,8 +163,7 @@ def build_installer (installer, args, options):
     installer.checksum = pickle.dumps (checksum_list)
 
 def strip_installer (obj):
-    obj.log_command (' ** Stage: %s (%s)\n'
-                     % ('strip', obj.name))
+    obj.command (' ** Stage: %s (%s)\n' % ('strip', obj.name))
     obj.strip ()
 
 def package_installer (installer):

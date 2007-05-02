@@ -163,7 +163,7 @@ def get_build_spec (settings, url):
     """
 
     package = gubb.get_build_spec (TargetBuildSpec, settings, url)
-    crossmod = cross.get_cross_module (settings.platform)
+    crossmod = cross.get_cross_module (settings)
     crossmod.change_target_package (package)
     return package
     
