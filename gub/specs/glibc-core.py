@@ -23,6 +23,14 @@ class Glibc_core (glibc.Glibc):
         self.system ('''
 cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3-core-install.patch
 ''')
+    def get_add_ons (self):
+        return ''
+    def configure_command (self):
+        return (glibc.Glibc.configure_command (self)
+                + misc.join_lines ('''
+--without-tls
+--without-__thread
+'''))
     def compile_command (self):
         return (glibc.Glibc.compile_command (self)
                 + ' lib')
