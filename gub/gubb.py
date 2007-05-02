@@ -788,9 +788,6 @@ def get_class_from_spec_file (settings, file_name, name):
     class_name = (base[0].upper () + base[1:]).replace ('-', '_')
     full = class_name + '__' + settings.platform.replace ('-', '__')
 
-    if name == 'cygwin':
-        boe
-
     d = module.__dict__
     klass = None
     while full:
@@ -835,19 +832,17 @@ def get_build_spec (flavour, settings, url):
         if format:
             init_vars['format'] = format
 
-    file_name = settings.specdir + '/' + name + '.py'
     klass = None
     checksum = '0000'
-    
-    if os.path.exists (file_name):
-        klass = get_class_from_spec_file (settings, file_name, name)
-        if klass:
-            import md5
-            checksum = md5.md5 (open (file_name).read ()).hexdigest ()
-#   else:
-#       # FIXME: make a --debug-must-have-spec option
-#       ## yes: sucks for cygwin etc. but need this for debugging the rest.
-#       raise Exception ("no such spec: " + url)
+    file_base = name + '.py'
+    for dir in (settings.specdir + '/' + settings.os, settings.specdir):
+        file_name = dir + '/' + file_base
+        if os.path.exists (file_name):
+            klass = get_class_from_spec_file (settings, file_name, name)
+            if klass:
+                import md5
+                checksum = md5.md5 (open (file_name).read ()).hexdigest ()
+                break
 
     if not klass:
         print 'NO SPEC for', name

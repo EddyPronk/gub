@@ -1,4 +1,4 @@
-sources = GNUmakefile $(filter-out %~, $(wildcard *.make bin/* gub/*.py gub/specs/*.py gub/specs/cross/*.py))
+sources = GNUmakefile $(filter-out %~, $(wildcard *.make bin/* gub/*.py gub/*/*.py gub/*/*/*.py gub/*/*/*/*.py))
 
 default: compilers
 

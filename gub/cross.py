@@ -136,11 +136,11 @@ def set_cross_dependencies (package_object_dict):
 cross_module_checksums = {}
 cross_module_cache = {}
 def get_cross_module (platform):
-    import re
-    base = re.sub ('[-0-9].*', '', platform)
     if cross_module_cache.has_key (platform):
         return cross_module_cache[platform]
-    
+
+    import re
+    base = re.sub ('[-0-9].*', '', platform)
     desc = ('.py', 'U', 1)
     # FIXME: absolute path, should resolve in some way
     file_name = 'gub/%s.py' % base
