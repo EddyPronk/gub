@@ -140,10 +140,13 @@ def get_cross_module (platform):
         return cross_module_cache[platform]
 
     import re
-    base = re.sub ('[-0-9].*', '', platform)
     desc = ('.py', 'U', 1)
-    # FIXME: absolute path, should resolve in some way
-    file_name = 'gub/%s.py' % base
+
+    base = re.sub ('[-0-9].*', '', platform)
+    for name in base, platform:
+        file_name = 'gub/%(name)s.py' % locals ()
+        if os.path.exists (file_name):
+            break
     file = open (file_name)
     print 'module-name: ' + file_name
     import imp
