@@ -143,7 +143,7 @@ def get_cross_module (platform):
     desc = ('.py', 'U', 1)
 
     base = re.sub ('[-0-9].*', '', platform)
-    for name in base, platform:
+    for name in platform, base:
         file_name = 'gub/%(name)s.py' % locals ()
         if os.path.exists (file_name):
             break
