@@ -27,6 +27,7 @@ import optparse
 import re
 import string
 import sys
+sys.path.insert (0, '.')
 #
 from gub import gup
 from gub import oslog

@@ -27,15 +27,19 @@ class Gcc (cross.Gcc):
         cross.Gcc.configure (self)
 
     def rewire_gcc_libs (self):
+	import os
         skip_libs = ['libgcc_s']
-        for l in self.locate_files ("%(install_root)s/usr/lib/", '*.dylib'):
-            found_skips = [s for s in  skip_libs if l.find (s) >= 0]
+        for ell in self.locate_files ("%(install_root)s/usr/lib/", '*.dylib'):
+            found_skips = [s for s in  skip_libs if ell.find (s) >= 0]
             if found_skips:
                 continue
             
-            id = self.read_pipe ('%(tool_prefix)sotool -L %(l)s', locals ()).split()[1]
+            id = self.read_pipe ('%(tool_prefix)sotool -L %(ell)s', 
+		locals ()).split()[1]
             id = os.path.split (id)[1]
-            self.system ('%(tool_prefix)sinstall_name_tool -id /usr/lib/%(id)s %(l)s', locals ())
+            self.system ('''
+%(tool_prefix)sinstall_name_tool -id /usr/lib/%(id)s %(ell)s
+''', locals ())
         
     def install (self):
         cross.Gcc.install (self)

@@ -154,7 +154,7 @@ class BuildSpec (Os_context_wrapper):
         if self.url:
             file = re.sub ('.*/([^/]+)', '\\1', self.url)
         else:
-            file = self.name ()
+            file = os.path.basename (self.name ())
         return file
 
     @subst_method
@@ -627,7 +627,7 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
 
     def get_tarball (self, mirror, version, format='gz', strip_components=1, name=''):
         if not name:
-            name = self.name ()
+            name = self.file_name ()
         if not format:
             format = self.__dict__.get ('format', 'gz')
         if not mirror:
@@ -647,7 +647,7 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
               name=''):
 
         if not name:
-            name = self.name ()
+            name = self.file_name ()
         if not format:
             format = self.__dict__.get ('format', 'gz')
         if not mirror:

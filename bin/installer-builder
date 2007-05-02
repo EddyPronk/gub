@@ -25,9 +25,8 @@ import optparse
 import os
 import sys
 import pickle
-
-sys.path.insert (0, 'lib/')
-
+sys.path.insert (0, '.')
+#
 from gub import gup
 from gub import installer
 import gub.settings
