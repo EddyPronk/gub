@@ -19,9 +19,6 @@
 
 * Bootstrap whole toolchain from source on more platforms (freebsd)
 
-* Much less verbosity, write oslog.system () to log file.  (Verbosity
-  levels?)
-
 * Install cross toolchain packages in target/local? 
 
 LOWER PRIORITY
