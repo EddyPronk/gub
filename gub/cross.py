@@ -136,21 +136,8 @@ def set_cross_dependencies (package_object_dict):
 cross_module_checksums = {}
 cross_module_cache = {}
 def get_cross_module (platform):
-    base = platform
-    try:
-        base = {
-            'darwin-ppc':'darwintools',
-            'darwin-x86':'darwintools',
-            'freebsd-x86': 'freebsd',
-            'freebsd4-x86': 'freebsd',
-            'freebsd6-x86': 'freebsd',
-            'linux-ppc' : 'linux',
-            'linux-x86' : 'linux',
-            'linux-64' : 'linux',
-            'local':'tools'}[platform]
-    except KeyError:
-        pass
-
+    import re
+    base = re.sub ('[-0-9].*', '', platform)
     if cross_module_cache.has_key (platform):
         return cross_module_cache[platform]
     
