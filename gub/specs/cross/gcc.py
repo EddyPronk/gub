@@ -37,6 +37,7 @@ mv %(install_root)s/usr/cross/lib/gcc/%(target_architecture)s/%(version)s/libgcc
 ''')
 
 class Gcc__mingw (cross.Gcc):
+    #REMOVEME
     def __init__ (self, settings):
         cross.Gcc.__init__ (self, settings)
         self.with_tarball (mirror=mirrors.gnu, version='4.1.1', format='bz2')
@@ -67,4 +68,20 @@ gcc_tooldir="%(cross_prefix)s/%(target_architecture)s"
                 + misc.join_lines ('''
 --with-newlib
 --enable-threads
+'''))
+
+class Gcc__freebsd (cross.Gcc):
+    #REMOVEME
+    def __init__ (self, settings):
+        cross.Gcc.__init__ (self, settings)
+        self.with_tarball (mirror=mirrors.gnu, version='4.1.1', format='bz2')
+    def get_build_dependencies (self):
+        return (cross.Gcc.get_build_dependencies (self)
+                + ['freebsd-runtime'])
+    def configure_command (self):
+        # Add --program-prefix, otherwise we get
+        # i686-freebsd-FOO iso i686-freebsd4-FOO.
+        return (cross.Gcc.configure_command (self)
+            + misc.join_lines ('''
+--program-prefix=%(tool_prefix)s
 '''))

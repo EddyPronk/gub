@@ -32,6 +32,8 @@ class Settings (Context):
     def __init__ (self, platform):
         Context.__init__ (self)
         self.platform = platform
+        self.os = re.sub ('[-0-9].*', '', platform)
+    
         self.target_architecture = platforms[self.platform]
         self.cpu = self.target_architecture.split ('-')[0]
         self.build_source = False

@@ -154,7 +154,7 @@ class BuildSpec (Os_context_wrapper):
         if self.url:
             file = re.sub ('.*/([^/]+)', '\\1', self.url)
         else:
-            file = self.name ()
+            file = os.path.basename (self.name ())
         return file
 
     @subst_method
@@ -627,7 +627,7 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
 
     def get_tarball (self, mirror, version, format='gz', strip_components=1, name=''):
         if not name:
-            name = self.name ()
+            name = self.file_name ()
         if not format:
             format = self.__dict__.get ('format', 'gz')
         if not mirror:
@@ -647,7 +647,7 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
               name=''):
 
         if not name:
-            name = self.name ()
+            name = self.file_name ()
         if not format:
             format = self.__dict__.get ('format', 'gz')
         if not mirror:
@@ -788,9 +788,6 @@ def get_class_from_spec_file (settings, file_name, name):
     class_name = (base[0].upper () + base[1:]).replace ('-', '_')
     full = class_name + '__' + settings.platform.replace ('-', '__')
 
-    if name == 'cygwin':
-        boe
-
     d = module.__dict__
     klass = None
     while full:
@@ -835,19 +832,17 @@ def get_build_spec (flavour, settings, url):
         if format:
             init_vars['format'] = format
 
-    file_name = settings.specdir + '/' + name + '.py'
     klass = None
     checksum = '0000'
-    
-    if os.path.exists (file_name):
-        klass = get_class_from_spec_file (settings, file_name, name)
-        if klass:
-            import md5
-            checksum = md5.md5 (open (file_name).read ()).hexdigest ()
-#   else:
-#       # FIXME: make a --debug-must-have-spec option
-#       ## yes: sucks for cygwin etc. but need this for debugging the rest.
-#       raise Exception ("no such spec: " + url)
+    file_base = name + '.py'
+    for dir in (settings.specdir + '/' + settings.os, settings.specdir):
+        file_name = dir + '/' + file_base
+        if os.path.exists (file_name):
+            klass = get_class_from_spec_file (settings, file_name, name)
+            if klass:
+                import md5
+                checksum = md5.md5 (open (file_name).read ()).hexdigest ()
+                break
 
     if not klass:
         print 'NO SPEC for', name
