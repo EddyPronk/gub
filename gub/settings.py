@@ -29,17 +29,36 @@ platforms = {
 distros = ('debian-arm', 'cygwin', 'debian', 'mipsel')
             
 class Settings (Context):
-    def __init__ (self, platform):
+    def __init__ (self, options):
         Context.__init__ (self)
-        self.platform = platform
-        self.os = re.sub ('[-0-9].*', '', platform)
+        self.platform = options.platform
+
+        if self.platform not in platforms.keys ():
+            raise 'unknown platform', self.platform
+        
+        self.target_gcc_flags = '' 
+        if self.platform == 'darwin-ppc':
+            self.target_gcc_flags = '-D__ppc__'
+        elif self.platform == 'mingw':
+            self.target_gcc_flags = '-mwindows -mms-bitfields'
+
+        self.set_branches (options.branches)
+        self.build_source = options.build_source
+        self.cpu_count = options.cpu_count
+        self.set_distcc_hosts (options)
+        self.lilypond_versions = options.lilypond_versions
+        self.options = options ##ugh
+
+        #urg
+        self.verbose = self.options.verbose
+    
+        self.os = re.sub ('[-0-9].*', '', self.platform)
     
         self.target_architecture = platforms[self.platform]
         self.cpu = self.target_architecture.split ('-')[0]
         self.build_source = False
-        self.is_distro = platform in distros
+        self.is_distro = self.platform in distros
 
-        self.target_gcc_flags = '' 
         self.topdir = os.getcwd ()
         self.logdir = self.topdir + '/log'
         self.downloads = self.topdir + '/downloads'
@@ -101,7 +120,8 @@ class Settings (Context):
             os.mkdir ('log')
             
         self.os_interface = oslog.Os_commands ('log/build-%s.log'
-                                               % self.target_architecture)
+                                               % self.target_architecture,
+                                               self.options.verbose)
         self.create_dirs ()
         self.build_architecture = self.os_interface.read_pipe ('gcc -dumpmachine',
                                                                silent=True)[:-1]
@@ -114,12 +134,6 @@ class Settings (Context):
         ## make sure we don't confuse build or target system.
         self.LD_LIBRARY_PATH = '%(system_root)s/'
         
-    def verbose (self):
-        try:
-            return self.options.verbose
-        except AttributeError:
-            return False
-    
     def create_dirs (self): 
         for a in (
             'downloads',
@@ -166,19 +180,4 @@ class Settings (Context):
 
             self.branch_dict[name] = br
             self.__dict__['%s_branch' % name]= br
-
-            
-def get_settings (platform):
-    settings = Settings (platform)
-    
-    if platform not in platforms.keys ():
-        raise 'unknown platform', platform
-        
-    if platform == 'darwin-ppc':
-        settings.target_gcc_flags = '-D__ppc__'
-    elif platform == 'mingw':
-        settings.target_gcc_flags = '-mwindows -mms-bitfields'
-
-    return settings
-
 

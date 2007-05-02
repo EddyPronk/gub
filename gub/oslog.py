@@ -10,62 +10,103 @@ from misc import SystemFailed
 def now ():
     return time.asctime (time.localtime ())
 
+level = {'quiet': 0,
+         'error': 0,
+         'stage': 0,
+         'info': 1,
+         'command': 2,
+         'action': 2,
+         'output': 3,
+         'debug': 4}
+
 class Os_commands:
+    level = level
+
     '''Encapsulate OS/File system commands for proper logging.'''
 
-    def __init__ (self, logfile):
+    def __init__ (self, logfile, verbose):
+        self.verbose = verbose
         self.log_file = open (logfile, 'a')
         self.log_file.write ('\n\n * Starting build: %s\n' %  now ())
 
-
     ## TODO:
     ## capture complete output of CMD, by polling output, and copying to tty.
-    def system_one (self, cmd, env, ignore_errors):
+    def system_one (self, cmd, env, ignore_errors, verbose=None):
         '''Run CMD with environment vars ENV.'''
 
-        self.log_command ('invoking %s\n' % cmd)
+        if not verbose:
+            verbose = self.verbose
 
-        proc = subprocess.Popen (cmd, shell=True, env=env,
-                                 stderr=subprocess.STDOUT)
+        self.log ('invoking %s\n' % cmd, level['command'], verbose)
 
-        stat = proc.wait()
+        log_file = open ('system.log', 'wa')
 
-        if stat and not ignore_errors:
+        proc = subprocess.Popen (cmd, bufsize=1, shell=True, env=env,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.STDOUT,
+                                 close_fds=True)
+
+        while proc.poll () is None:
+            line = proc.stdout.readline ()
+            self.log (line, level['output'], verbose)
+            time.sleep (0.0001)
+
+        if proc.returncode and not ignore_errors:
             m = 'Command barfed: %s\n' % cmd
-            self.log_command (m)
-
+            self.error (m)
             raise SystemFailed (m)
 
         return 0
 
-    def log_command (self, str):
-        '''Write STR in the build log.'''
-
-        sys.stderr.write (str)
+    def log (self, str, threshold, verbose=None):
+        if not verbose:
+            verbose = self.verbose
+        if verbose >= threshold:
+            sys.stderr.write (str)
         if self.log_file:
             self.log_file.write (str)
             self.log_file.flush ()
 
 
-    def system (self, cmd, env={}, ignore_errors=False, verbose=False):
+    # FIXME
+    def action (self, str):
+        self.log (str, level['action'], self.verbose)
+
+    def stage (self, str):
+        self.log (str, level['stage'], self.verbose)
+
+    def error (self, str):
+        self.log (str, level['error'], self.verbose)
+
+    def info (self, str):
+        self.log (str, level['info'], self.verbose)
+              
+    def command (self, str):
+        self.log (str, level['command'], self.verbose)
+              
+    def debug (self, str):
+        self.log (str, level['debug'], self.verbose)
+              
+    def system (self, cmd, env={}, ignore_errors=False, verbose=None):
         '''Run os commands, and run multiple lines as multiple
 commands.
 '''
-
+        if not verbose:
+            verbose = self.verbose
         call_env = os.environ.copy ()
         call_env.update (env)
 
         if verbose:
-            keys = env.keys()
+            keys = env.keys ()
             keys.sort()
             for k in keys:
-                sys.stderr.write ('%s=%s\n' % (k, env[k]))
+                self.log ('%s=%s\n' % (k, env[k]), level['debug'], verbose)
+            self.log ('export %s\n' % ' '.join (keys), level['debug'],
+                      verbose)
 
-            sys.stderr.write ('export %s\n' % ' '.join (keys))
         for i in cmd.split ('\n'):
             if i:
-                self.system_one (i, call_env, ignore_errors)
-
+                self.system_one (i, call_env, ignore_errors, verbose=verbose)
         return 0
 
     def dump (self, str, name, mode='w'):
@@ -73,7 +114,7 @@ commands.
         if not os.path.exists (dir):
             self.system ('mkdir -p %s' % dir)
 
-        self.log_command ("Writing %s (%s)\n" % (name, mode))
+        self.action ('Writing %s (%s)\n' % (name, mode))
 
         f = open (name, mode)
         f.write (str)
@@ -85,9 +126,9 @@ commands.
 If TO_NAME is specified, the output is sent to there.
 '''
 
-        self.log_command ('substituting in %s\n' % name)
-        self.log_command (''.join (map (lambda x: "'%s' -> '%s'\n" % x,
-                     re_pairs)))
+        self.action ('substituting in %s\n' % name)
+        self.command (''.join (map (lambda x: "'%s' -> '%s'\n" % x,
+                                   re_pairs)))
 
         s = open (name).read ()
         t = s
@@ -116,7 +157,7 @@ If TO_NAME is specified, the output is sent to there.
 
     def read_pipe (self, cmd, ignore_errors=False, silent=False):
         if not silent:
-            self.log_command ('Reading pipe: %s\n' % cmd)
+            self.action ('Reading pipe: %s\n' % cmd)
 
         pipe = os.popen (cmd, 'r')
         output = pipe.read ()
@@ -133,12 +174,10 @@ If TO_NAME is specified, the output is sent to there.
         target = os.path.abspath (target)
         src = os.path.abspath (src)
 
-        self.log_command ("Shadowing %s to %s\n" % (src, target))
+        self.action ('Shadowing %s to %s\n' % (src, target))
         os.makedirs (target)
-        (root, dirs, files) = os.walk(src).next()
+        (root, dirs, files) = os.walk (src).next ()
         for f in files:
-            os.symlink (os.path.join (root, f),
-                  os.path.join (target, f))
+            os.symlink (os.path.join (root, f), os.path.join (target, f))
         for d in dirs:
-            self.shadow_tree (os.path.join (root, d),
-                     os.path.join (target, d))
+            self.shadow_tree (os.path.join (root, d), os.path.join (target, d))

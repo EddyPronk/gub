@@ -75,8 +75,8 @@ class FileManager:
         return self._package_file_db.has_key (name)
 
     def install_tarball (self, ball, name):
-        self.os_interface.log_command ('installing package %(name)s from %(ball)s\n'
-                                       % locals ())
+        self.os_interface.action ('installing package %(name)s from %(ball)s\n'
+                                % locals ())
 
         flag = tar_compression_flag (ball)
         root = self.root
@@ -86,7 +86,7 @@ class FileManager:
         for f in lst:
             if (self._file_package_db.has_key (f)
                 and not os.path.isdir (self.root + '/' +  f)):
-                print 'already have file %s: %s' % (f, self._file_package_db[f])
+                self.os_interface.error ('already have file %s: %s\n' % (f, self._file_package_db[f]))
                 conflicts = True
 
         if conflicts and not self.is_distro:
@@ -128,7 +128,7 @@ class FileManager:
                                     '%(root)s/%(file)s' % locals ())
 
     def uninstall_package (self, name):
-        self.os_interface.log_command ('uninstalling package: %s\n' % name)
+        self.os_interface.action ('uninstalling package: %s\n' % name)
 
         lst = self.installed_files (name)
 
@@ -193,11 +193,11 @@ class PackageDictManager:
             nm = d['split_name']
         if (self._packages.has_key (nm)):
             if self._packages[nm]['spec_checksum'] != d['spec_checksum']:
-                self.os_interface.log_command ('******** checksum of %s changed!\n\n' % nm)
+                self.os_interface.info ('******** checksum of %s changed!\n\n' % nm)
 
             ## UGH ; need to look at installed hdr.
             if self._packages[nm]['cross_checksum'] != d['cross_checksum']:
-                self.os_interface.log_command ('******** checksum of cross changed for %s\n' % nm)
+                self.os_interface.info ('******** checksum of cross changed for %s\n' % nm)
             return
 
         self._packages[nm] = d
@@ -205,7 +205,7 @@ class PackageDictManager:
         
     def register_package_header (self, package_hdr, branch_dict):
         if self.verbose:
-            self.os_interface.log_command ('reading package header: %s\n'
+            self.os_interface.info ('reading package header: %s\n'
                                            % `package_hdr`)
 
         str = open (package_hdr).read ()
@@ -228,7 +228,7 @@ class PackageDictManager:
           ## FIXME ?
           if self._package_dict_db.has_key (name):
               if str != self._package_dict_db[name]:
-                  self.os_interface.log_command ("package header changed for %s\n" % name)
+                  self.os_interface.info ("package header changed for %s\n" % name)
 
               return
 
@@ -294,10 +294,9 @@ class PackageManager (FileManager, PackageDictManager):
     def install_package (self, name):
         if self.is_installed (name):
             return
-        self.os_interface.log_command ('installing package: %s\n'
-                                       % name)
+        self.os_interface.action ('installing package: %s\n' % name)
         if self._package_file_db.has_key (name):
-            print 'already have package ', name
+            self.os_interface.error ('already have package: ' + name + '\n')
             raise Exception ('abort')
         d = self._packages[name]
         ball = '%(split_ball)s' % d

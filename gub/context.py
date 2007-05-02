@@ -122,7 +122,7 @@ class Os_context_wrapper (Context):
     def __init__ (self, settings):
         Context.__init__ (self, settings)
         self.os_interface = settings.os_interface
-        self.verbose = settings.verbose ()
+        self.verbose = settings.options.verbose
         
     def file_sub (self, re_pairs, name, to_name=None, env={}, must_succeed=False, use_re=True):
         substs = []
@@ -140,7 +140,7 @@ class Os_context_wrapper (Context):
     
     def log_command (self, str, env={}):
         str = self.expand (str, env)
-        self.os_interface.log_command (str)
+        self.os_interface.command (str)
         
     def read_pipe (self, cmd, env={}, ignore_errors=False):
         dict = self.get_substitution_dict (env)

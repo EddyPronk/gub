@@ -172,6 +172,7 @@ class SystemFailed (Exception):
 
 
 def system (cmd, ignore_errors=False):
+    #URG, go through oslog
     print 'Executing command %s' % cmd
     stat = os.system (cmd)
     if stat and not ignore_errors:

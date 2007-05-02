@@ -72,9 +72,9 @@ class PackageSpec:
     
 class BuildSpec (Os_context_wrapper):
     def __init__ (self, settings):
-        Os_context_wrapper.__init__(self, settings)
+        Os_context_wrapper.__init__ (self, settings)
 
-        self.verbose = settings.verbose ()
+        self.verbose = settings.verbose
         self.settings = settings
         self.url = ''
         self.has_source = True
@@ -400,7 +400,7 @@ tooldir=%(install_prefix)s
         if lst:
             new = self.expand ('%(system_root)s/usr/bin/libtool')
             if not os.path.exists (new):
-                self.log_command ("Cannot update libtool: no such file: %(new)s" % locals ())
+                self.error ('Cannot update libtool: no such file: %(new)s' % locals ())
                 raise 'barf'
             for i in lst:
                 self.system ('cp %(new)s %(i)s', locals ())
@@ -778,7 +778,7 @@ def append_target_dict (package, add_dict):
 def get_class_from_spec_file (settings, file_name, name):
     import imp
 
-    print 'reading spec', file_name
+    settings.os_interface.info ('reading spec: ' + file_name + '\n')
     file = open (file_name)
     desc = ('.py', 'U', 1)
     module = imp.load_module (name, file, file_name, desc)
