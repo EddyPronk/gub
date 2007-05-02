@@ -70,7 +70,7 @@ gcc_tooldir="%(cross_prefix)s/%(target_architecture)s"
 --enable-threads
 '''))
 
-class Gcc (cross.Gcc):
+class Gcc__freebsd (cross.Gcc):
     #REMOVEME
     def __init__ (self, settings):
         cross.Gcc.__init__ (self, settings)
