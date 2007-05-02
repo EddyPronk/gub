@@ -181,3 +181,8 @@ If TO_NAME is specified, the output is sent to there.
             os.symlink (os.path.join (root, f), os.path.join (target, f))
         for d in dirs:
             self.shadow_tree (os.path.join (root, d), os.path.join (target, d))
+
+    def download_url (self, url, dest_dir):
+        import misc
+        self.action ('downloading %(s)s -> %(dest_dir)s', locals ())
+        misc._download_url (url, dest_dir, sys.stderr)

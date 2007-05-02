@@ -36,6 +36,7 @@ class Repository:
         # Fallback, this will go through oslog
         self.system = misc.system
         self.read_pipe = misc.read_pipe
+        self.download_url = misc.download_url
         
     def download (self):
         pass
@@ -171,7 +172,7 @@ class TarBall (Repository):
     def download (self):
         if self._is_downloaded ():
             return
-        misc.download_url (self.url, self.dir)
+        self.download_url (self.url, self.dir)
 
     def get_checksum (self):
         from gub import misc

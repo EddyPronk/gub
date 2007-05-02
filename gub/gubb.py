@@ -622,6 +622,7 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
         self.vc_repository = repo
         self.vc_repository.system = self.os_interface.system
         self.vc_repository.read_pipe = self.os_interface.read_pipe
+        self.vc_repository.download_url = self.os_interface.download_url
         return self
 
     def with_tarball (self, mirror='', version='', format='gz', strip_components=1, name=''):

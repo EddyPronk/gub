@@ -145,14 +145,17 @@ def find (dir, pattern):
     return results
 
 def download_url (url, dest_dir):
-    bufsize = 1024 * 50
-    filename = os.path.split (urllib.splithost (url)[1])[1]
-
+    print 'Downloading', url
+    _download_url (url, dest_dir)
+    
+def _download_url (url, dest_dir, stderr)
     if not os.path.isdir (dest_dir):
         raise Exception ("not a dir", dest_dir)
 
+    bufsize = 1024 * 50
+    filename = os.path.split (urllib.splithost (url)[1])[1]
+
     out_filename = dest_dir + '/' + filename
-    print 'downloading', url
     try:
         output = open (out_filename, 'w')
         opener = urllib.URLopener ()
@@ -160,12 +163,11 @@ def download_url (url, dest_dir):
         while True:
             contents = url_stream.read (bufsize)
             output.write (contents)
-            sys.stderr.write ('.')
-            sys.stderr.flush ()
-
+            stderr.write ('.')
+            stderr.flush ()
             if not contents:
                 break
-        sys.stderr.write ('\n')
+        stderr.write ('\n')
     except:
         os.unlink (out_filename)
         raise
