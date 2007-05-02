@@ -154,7 +154,7 @@ class FileManager:
             try:
                 os.rmdir (d)
             except OSError:
-                print 'warning: %s not empty' % d
+                self.os_interface.harmless ('warning: %s not empty' % d)
 
         for f in lst:
 

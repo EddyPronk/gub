@@ -5,7 +5,7 @@ import time
 import re
 import stat
 
-from misc import SystemFailed
+from gub import misc
 
 def now ():
     return time.asctime (time.localtime ())
@@ -14,6 +14,8 @@ level = {'quiet': 0,
          'error': 0,
          'stage': 0,
          'info': 1,
+         'harmless': 23,
+         'warning': 1,
          'command': 2,
          'action': 2,
          'output': 3,
@@ -28,6 +30,13 @@ class Os_commands:
         self.verbose = verbose
         self.log_file = open (logfile, 'a')
         self.log_file.write ('\n\n * Starting build: %s\n' %  now ())
+
+        # ARRRGH no python doc on Feisty?
+        if 0: #for i in level.keys ():
+            def __log (this, message):
+                this.log (message, level[i], this.verbose)
+            misc.bind_method (__log, self)
+            self.i = self.__log
 
     ## TODO:
     ## capture complete output of CMD, by polling output, and copying to tty.
@@ -54,7 +63,7 @@ class Os_commands:
         if proc.returncode and not ignore_errors:
             m = 'Command barfed: %s\n' % cmd
             self.error (m)
-            raise SystemFailed (m)
+            raise misc.SystemFailed (m)
 
         return 0
 
@@ -86,6 +95,12 @@ class Os_commands:
               
     def debug (self, str):
         self.log (str, level['debug'], self.verbose)
+              
+    def warning (self, str):
+        self.log (str, level['warning'], self.verbose)
+              
+    def harmless (self, str):
+        self.log (str, level['harmless'], self.verbose)
               
     def system (self, cmd, env={}, ignore_errors=False, verbose=None):
         '''Run os commands, and run multiple lines as multiple

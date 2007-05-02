@@ -28,6 +28,9 @@ def bind (function, arg1):
         return function (arg1, *args, **kwargs)
     return bound
 
+def bind_method (func, obj):
+    return lambda *args: func (obj, *args)
+
 def read_pipe (cmd, ignore_errors=False):
     print 'Executing pipe %s' % cmd
     pipe = os.popen (cmd)
@@ -105,10 +108,6 @@ def uniq (list):
 def intersect (l1, l2):
     return [l for l in l1 if l in l2]
 
-def bind_method (func, obj):
-    return lambda *args: func (obj, *args)
-
-
 def tar_compression_flag (ball):
     compression_flag = ''
     if ball.endswith ('gub'):
@@ -148,7 +147,7 @@ def download_url (url, dest_dir):
     print 'Downloading', url
     _download_url (url, dest_dir)
     
-def _download_url (url, dest_dir, stderr)
+def _download_url (url, dest_dir, stderr):
     if not os.path.isdir (dest_dir):
         raise Exception ("not a dir", dest_dir)
 
