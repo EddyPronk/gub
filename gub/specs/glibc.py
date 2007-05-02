@@ -22,16 +22,16 @@ class Glibc (targetpackage.TargetBuildSpec):
 cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3-powerpc-initfini.patch
 ''')
     def get_add_ons (self):
+        return ('linuxthreads', 'nptl')
+    def configure_command (self):    
+        #FIXME: TODO, figure out which of --enable-add-ons=nptl,
+        # --with-tls, --with-__thread fixes the ___tls_get_addr.
         add_ons = ''
-        for i in ('linuxthreads', 'nptl'):
+        for i in self.get_add_ons ():
             # FIXME cannot expand in *_command ()
             #if os.path.exists (self.expand ('%(srcdir)s/') + i):
             if 1: #self.version () != '2.4':
                 add_ons += ' --enable-add-ons=' + i
-        return add_ons
-    def configure_command (self):
-        #FIXME: TODO, figure out which of --enable-add-ons=nptl,
-        # --with-tls, --with-__thread fixes the ___tls_get_addr.
         return ('BUILD_CC=gcc '
                 + misc.join_lines (targetpackage.TargetBuildSpec.configure_command (self) + '''
 --disable-profile
@@ -41,7 +41,7 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3-powerpc-initfini.patch
 ''')
 #--without-tls
 #--without-__thread
-                + self.get_add_ons ())
+                + add_ons)
     def FIXME_DOES_NOT_WORK_get_substitution_dict (self, env={}):
         d = targetpackage.TargetBuildSpec.get_substitution_dict (self, env)
         d['SHELL'] = '/bin/bash'

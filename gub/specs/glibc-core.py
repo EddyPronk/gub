@@ -24,7 +24,7 @@ class Glibc_core (glibc.Glibc):
 cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3-core-install.patch
 ''')
     def get_add_ons (self):
-        return ''
+        return ('linuxthreads',)
     def configure_command (self):
         return (glibc.Glibc.configure_command (self)
                 + misc.join_lines ('''
