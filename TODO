@@ -1,14 +1,3 @@
-* update platform packages to use get_cross_build_dependencies
-  - linux-arm-...
-
-  DONE
-  - darwin
-  - debian
-  - cygwin
-  - linux
-  - mingw
-  - freebsd
-
 * Split build recipe's into Basic (configure??; make; make install),
   AutoTools; move Scons, Bjam recipes to gub lib.  Softcode stages,
   move autotools patching to autogen/prepare_configure stage.
@@ -17,7 +6,9 @@
 
 * Bootstrap whole toolchain from source on more platforms (freebsd)
 
-* Install cross toolchain packages in target/local? 
+* Install cross toolchain packages in target/local?
+
+* move and merge cross.Gcc, cross.Binutils into cross/gcc, cross/binutils.
 
 LOWER PRIORITY
 

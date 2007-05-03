@@ -836,7 +836,9 @@ def get_build_spec (flavour, settings, url):
     klass = None
     checksum = '0000'
     file_base = name + '.py'
-    for dir in (settings.specdir + '/' + settings.os, settings.specdir):
+    for dir in (settings.specdir + '/' + settings.platform,
+                settings.specdir + '/' + settings.os,
+                settings.specdir):
         file_name = dir + '/' + file_base
         if os.path.exists (file_name):
             klass = get_class_from_spec_file (settings, file_name, name)

@@ -24,23 +24,23 @@ cd %(srcdir)s && rm -f\
  usr/include/net/route.h
 ''')
 
-#urg, shoot /me in foot
-#from gub import debian
-#from gub import misc
-debian = misc.load_spec ('debian/linux-kernel-headers')
+from gub import misc
+linux_kernel_headers = misc.load_spec ('debian/linux-kernel-headers')
 
-
-class Linux_headers__debian (debian.Linux_kernel_headers):
+class Linux_headers__debian (linux_kernel_headers.Linux_kernel_headers):
     def __init__ (self, settings):
-        debian.Linux_kernel_headers.__init__ (self, settings)
-        self.with (name='linux-kernel-headers',
-                   version=debian.get_packages ()['linux-kernel-headers'].version (),
+        linux_kernel_headers.Linux_kernel_headers.__init__ (self, settings)
+        from gub import debian
+#        debian.init_dependency_resolver (settings)
+        self.with (
+            name='linux-kernel-headers',
 # FIXME: we do not mirror all 12 debian arch's,
-#                   mirror=mirrors.lilypondorg_deb,
-#                   version='2.5.999-test7-bk-17',
-                   mirror=mirrors.lkh_deb,
-                   strip_components=0,
-                   format='deb')
+#           version=debian.get_packages ()['linux-kernel-headers'].version (),
+#           mirror=mirrors.lilypondorg_deb,
+            version='2.5.999-test7-bk-17',
+            mirror=mirrors.lkh_deb,
+            strip_components=0,
+            format='deb')
 
 Linux_headers__linux__ppc = Linux_headers__debian
 #Linux_headers__linux__64 = Linux_headers__debian
