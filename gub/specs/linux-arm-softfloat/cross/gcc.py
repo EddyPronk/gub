@@ -1,3 +1,4 @@
+from gub import mirrors
 from gub.specs.cross import gcc
 from gub import misc
 
