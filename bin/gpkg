@@ -173,7 +173,8 @@ def parse_options ():
 def main ():
     options = parse_options ()
     target_manager = gup.DependencyManager (options.root,
-                                            oslog.Os_commands ("/dev/null"),
+                                            oslog.Os_commands ("/dev/null",
+                                                               oslog.level['info']),
                                             dbdir=options.dbdir)
 
     branch_dict = {}
