@@ -2,6 +2,9 @@ from gub.specs.cross import gcc
 from gub import misc
 
 class Gcc (gcc.Gcc):
+    def __init__ (self, settings):
+        gcc.Gcc.__init__ (self, settings)
+        self.with_tarball (mirror=mirrors.gnu, version='3.4.6', format='bz2')
     def patch (self):
         gcc.Gcc.patch (self)
         self.system ('''
