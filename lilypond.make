@@ -17,7 +17,7 @@ default: all
 
 PACKAGE = lilypond
 
-ALL_PLATFORMS=cygwin darwin-ppc darwin-x86 debian debian-arm freebsd-x86 linux-x86 linux-64 mingw mipsel linux-ppc
+ALL_PLATFORMS=cygwin darwin-ppc darwin-x86 debian debian-arm freebsd-x86 linux-x86 linux-64 mingw debian-mipsel linux-ppc
 PLATFORMS=darwin-ppc darwin-x86 mingw linux-x86 linux-64 linux-ppc freebsd-x86 cygwin
 
 LILYPOND_CVS_REPODIR=downloads/lilypond.cvs
