@@ -400,7 +400,7 @@ def main ():
 
     try:
         build (settings, files)
-        settings.os_interface.info ('done')
+        settings.os_interface.info ('done\n')
         settings.os_interface.info ('build log written to: ' +
                                     settings.os_interface.log_file_name
                                     + '\n')
