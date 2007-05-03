@@ -398,7 +398,23 @@ def main ():
         inspect (settings, files)
         sys.exit (0)
 
-    build (settings, files)
+    try:
+        build (settings, files)
+        settings.os_interface.info ('done')
+        settings.os_interface.info ('build log written to: ' +
+                                    settings.os_interface.log_file_name
+                                    + '\n')
+    except BaseException, e:
+        if settings.options.verbose < settings.os_interface.level['output']:
+            print >>sys.stderr,\
+                (''.join (open (settings.os_interface.log_file_name)
+                          .readlines ()[-50:]))
+            log_file = settings.os_interface.log_file_name
+        settings.os_interface.error (misc.exception_string (e))
+        settings.os_interface.error ('build log written to: ' +
+                                    settings.os_interface.log_file_name
+                                    + '\n')
+        sys.exit (1)
 
 if __name__ == '__main__':
     main ()

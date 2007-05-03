@@ -120,8 +120,8 @@ class Settings (context.Context):
         if not os.path.isdir ('log'):
             os.mkdir ('log')
             
-        self.os_interface = oslog.Os_commands ('log/build-%s.log'
-                                               % self.target_architecture,
+        self.os_interface = oslog.Os_commands (('log/%(platform)s.log'
+                                                % self.__dict__),
                                                self.options.verbose)
         self.create_dirs ()
         self.build_architecture = self.os_interface.read_pipe ('gcc -dumpmachine',

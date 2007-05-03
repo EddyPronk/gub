@@ -26,9 +26,10 @@ class Os_commands:
 
     '''Encapsulate OS/File system commands for proper logging.'''
 
-    def __init__ (self, logfile, verbose):
+    def __init__ (self, log_file_name, verbose):
         self.verbose = verbose
-        self.log_file = open (logfile, 'a')
+        self.log_file_name = log_file_name
+        self.log_file = open (self.log_file_name, 'a')
         self.log_file.write ('\n\n * Starting build: %s\n' %  now ())
 
         # ARRRGH no python doc on Feisty?

@@ -180,7 +180,11 @@ def forall (generator):
         pass
 
     return v
-            
+
+def exception_string (exception=Exception ('no message')):
+    import traceback
+    return traceback.format_exc (None)
+
 class SystemFailed (Exception):
     pass
 

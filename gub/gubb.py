@@ -222,7 +222,7 @@ class BuildSpec (Os_context_wrapper):
             print 'need version, but repository not yet set:', self.name ()
             print 'type:', type (self)
             print 'class:', self.__class__
-            raise 'urg'
+            raise Exception ('urg')
         return self.vc_repository.version ()
 
     @subst_method
@@ -401,7 +401,7 @@ tooldir=%(install_prefix)s
             new = self.expand ('%(system_root)s/usr/bin/libtool')
             if not os.path.exists (new):
                 self.error ('Cannot update libtool: no such file: %(new)s' % locals ())
-                raise 'barf'
+                raise Exception ('barf')
             for i in lst:
                 self.system ('cp %(new)s %(i)s', locals ())
                 self.kill_libtool_installation_test (i)
