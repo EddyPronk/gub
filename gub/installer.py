@@ -327,7 +327,11 @@ class Shar (Linux_installer):
 def get_installer (settings, args=[]):
 
     installer_class = {
+        # TODO: ipkg/dpkg
+        'debian' : Shar,
         'debian-arm' : Shar,
+        'debian-mipsel' : Shar,
+        
         'darwin-ppc' : DarwinBundle,
         'darwin-x86' : DarwinBundle,
         'freebsd-x86' : Shar,
@@ -340,7 +344,6 @@ def get_installer (settings, args=[]):
         'linux-ppc' : Shar,
         'mingw' : Nsis,
 #        'mingw' : MingwRoot,
-        'mipsel' : Shar,
     }
 
     return installer_class[settings.platform] (settings)

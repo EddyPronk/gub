@@ -3,15 +3,16 @@ import re
 from gub import oslog
 from gub import distcc
 from gub import gubb
-
-from context import *
+from gub import context
 
 platforms = {
+    'debian': 'i686-linux',
     'debian-arm': 'arm-linux',
+    'debian-mipsel': 'mipsel-linux',
+    'debian-x86': 'i686-linux',
     'cygwin': 'i686-cygwin',
     'darwin-ppc': 'powerpc-apple-darwin7',
     'darwin-x86': 'i686-apple-darwin8',
-    'debian': 'i686-linux',
     'freebsd-x86': 'i686-freebsd4',
     
     'freebsd4-x86': 'i686-freebsd4',
@@ -23,14 +24,13 @@ platforms = {
     'linux-ppc': 'powerpc-linux',
     'local': 'local',
     'mingw': 'i686-mingw32',
-    'mipsel': 'mipsel-linux',
 }
 
-distros = ('debian-arm', 'cygwin', 'debian', 'mipsel')
+distros = ('cygwin')
             
-class Settings (Context):
+class Settings (context.Context):
     def __init__ (self, options):
-        Context.__init__ (self)
+        context.Context.__init__ (self)
         self.platform = options.platform
 
         if self.platform not in platforms.keys ():
@@ -57,7 +57,8 @@ class Settings (Context):
         self.target_architecture = platforms[self.platform]
         self.cpu = self.target_architecture.split ('-')[0]
         self.build_source = False
-        self.is_distro = self.platform in distros
+        self.is_distro = (self.platform in distros
+                          or self.platform.startswith ('debian'))
 
         self.topdir = os.getcwd ()
         self.logdir = self.topdir + '/log'

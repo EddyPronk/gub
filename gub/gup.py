@@ -448,7 +448,7 @@ topological order
         from gub import cygwin
         cygwin.init_dependency_resolver (settings)
         name_to_deps = name_to_dependencies_via_cygwin
-    elif settings.platform in ('debian-arm', 'debian', 'mipsel'):
+    elif settings.platform.startswith ('debian'):
         from gub import debian
         debian.init_dependency_resolver (settings)
         name_to_deps = name_to_dependencies_via_debian

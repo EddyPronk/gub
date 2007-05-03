@@ -91,6 +91,12 @@ def get_debian_package (settings, description):
     package.url = mirror + '/' + d['Filename']
     package.format = 'deb'
 
+    pkg_name = d['Package']
+    def name (self):
+        return pkg_name
+    package.name = instancemethod (name, package, package_class)
+
+    package.ball_version = d['Version']
     from gub import repository
     package.vc_repository = repository.TarBall (settings.downloads,
                                                 package.url,

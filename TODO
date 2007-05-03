@@ -1,6 +1,4 @@
 * update platform packages to use get_cross_build_dependencies
-  - debian-*
-  - mipsel
   - linux-arm-...
 
   DONE
@@ -24,8 +22,6 @@
 LOWER PRIORITY
 
 - better name for gubb.py
-
-- rename mipsel to debian-mipsel.py (and other debian-based platforms)
 
 - Split gub/*py into packager, builder, platform
 

@@ -1,3 +1,5 @@
+from gub import gubb
+
 class Libqt4_dev (gubb.BinarySpec, gubb.SdkBuildSpec):
     def untar (self):
         gubb.BinarySpec.untar (self)

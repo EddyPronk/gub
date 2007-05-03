@@ -17,4 +17,5 @@ class Gcc__debian__arm (Gcc):
     def __init__ (self, settings):
         cross.Gcc.__init__ (self, settings)
         self.with_tarball (mirror=mirrors.gnu, version='3.4.6', format='bz2')
-    
+
+

@@ -266,6 +266,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/l
 
 config_cache['debian'] = config_cache['linux-x86']
 config_cache['debian-arm'] = config_cache['arm']
+config_cache['debian-mipsel'] = config_cache['mipsel']
 config_cache['linux-arm-softfloat'] = config_cache['arm']
 config_cache['linux-arm-vfp'] = config_cache['arm']
 config_cache['freebsd-x86'] = config_cache['freebsd6-x86']

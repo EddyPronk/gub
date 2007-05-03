@@ -26,13 +26,21 @@ cd %(srcdir)s && rm -f\
 
 #urg, shoot /me in foot
 #from gub import debian
-from gub import misc
+#from gub import misc
 debian = misc.load_spec ('debian/linux-kernel-headers')
+
 
 class Linux_headers__debian (debian.Linux_kernel_headers):
     def __init__ (self, settings):
         debian.Linux_kernel_headers.__init__ (self, settings)
-        self.with (name='linux-kernel-headers')
+        self.with (name='linux-kernel-headers',
+                   version=debian.get_packages ()['linux-kernel-headers'].version (),
+# FIXME: we do not mirror all 12 debian arch's,
+#                   mirror=mirrors.lilypondorg_deb,
+#                   version='2.5.999-test7-bk-17',
+                   mirror=mirrors.lkh_deb,
+                   strip_components=0,
+                   format='deb')
 
 Linux_headers__linux__ppc = Linux_headers__debian
 #Linux_headers__linux__64 = Linux_headers__debian

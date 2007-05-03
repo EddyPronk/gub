@@ -145,7 +145,7 @@ def find (dir, pattern):
 
 def download_url (url, dest_dir):
     print 'Downloading', url
-    _download_url (url, dest_dir)
+    _download_url (url, dest_dir, sys.stderr)
     
 def _download_url (url, dest_dir, stderr):
     if not os.path.isdir (dest_dir):
