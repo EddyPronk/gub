@@ -38,4 +38,5 @@ LOWER PRIORITY
 
 - junk Makefile, create python based driver.
 
-- prerequisites: curl, gcc, libc-dev [lilypond: texinfo]
+- prerequisites: curl, gcc, libc-dev
+  + [lilypond: autoconf, bison, texinfo, libcurl3-dev, libexpat-dev]
