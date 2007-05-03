@@ -45,4 +45,5 @@ LOWER PRIORITY
 	       texinfo (for gettext),
 	       libcurl3-dev (for git),
 	       libexpat-dev (for git)
-	       libjpeg-dev (for netpbm)]
+	       libjpeg-dev (for netpbm)
+	       libtiff-dev (for netpbm)]
