@@ -48,8 +48,6 @@ class Os_commands:
 
         self.log ('invoking %s\n' % cmd, level['command'], verbose)
 
-        log_file = open ('system.log', 'wa')
-
         proc = subprocess.Popen (cmd, bufsize=1, shell=True, env=env,
                                  stdout=subprocess.PIPE,
                                  stderr=subprocess.STDOUT,
@@ -111,7 +109,8 @@ commands.
         call_env = os.environ.copy ()
         call_env.update (env)
 
-        if verbose:
+        # only log debugging stuf in log/* file if high log level
+        if verbose >= self.level['debug']:
             keys = env.keys ()
             keys.sort()
             for k in keys:
