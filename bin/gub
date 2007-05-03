@@ -404,6 +404,8 @@ def main ():
         settings.os_interface.info ('build log written to: ' +
                                     settings.os_interface.log_file_name
                                     + '\n')
+    except SystemExit, e:
+        sys.exit (e.value)
     except BaseException, e:
         if settings.options.verbose < settings.os_interface.level['output']:
             print >>sys.stderr,\
