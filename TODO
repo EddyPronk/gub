@@ -43,7 +43,9 @@ LOWER PRIORITY
     	       bison (for flex),
 	       g++ (for python),
 	       texinfo (for gettext),
+	       libncurses-dev (for texinfo),
 	       libcurl3-dev (for git),
-	       libexpat-dev (for git)
-	       libjpeg-dev (for netpbm)
-	       libtiff-dev (for netpbm)]
+	       libexpat-dev (for git),
+	       libjpeg-dev (for netpbm),
+	       libtiff-dev (for netpbm),
+	       libx11-dev (for netpbm)]
