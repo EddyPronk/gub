@@ -47,8 +47,11 @@ local-distcc:
 	$(foreach binary, gcc g++, \
 		ln -s $(CWD)/gub/distcc.py target/native-distcc/bin/$(notdir $(binary)) && ) true
 
-# Find out if we need gcc or glibc as topmost cross compile target
-gcc_or_glibc = $(shell $(GUB_BUILDER) -p $(1) --inspect=version glibc > /dev/null 2>/dev/null && echo glibc || echo gcc) 
+# Find out if we need cross/gcc or glibc as topmost cross compile target
+#gcc_or_glibc = $(shell $(GUB_BUILDER) -p $(1) --inspect=version glibc > /dev/null 2>/dev/null && echo glibc || echo cross/gcc)
+
+# URG
+gcc_or_glibc = $(shell if echo $(1) | grep linux > /dev/null 2>/dev/null; then echo glibc; else echo cross/gcc; fi)
 
 cross-compilers:
 	$(foreach p, $(PLATFORMS),$(call INVOKE_GUB_BUILDER, $(p)) $(call gcc_or_glibc, $(p)) && ) true
