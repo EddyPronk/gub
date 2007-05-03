@@ -199,5 +199,5 @@ If TO_NAME is specified, the output is sent to there.
 
     def download_url (self, url, dest_dir):
         import misc
-        self.action ('downloading %(s)s -> %(dest_dir)s', locals ())
+        self.action ('downloading %(url)s -> %(dest_dir)s' % locals ())
         misc._download_url (url, dest_dir, sys.stderr)
