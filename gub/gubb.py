@@ -667,21 +667,16 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
         ball_version = version
         package_arch = self.settings.package_arch
         if mirror:
-            self.vc_repository = repository.TarBall (self.settings.downloads,
-                                                     # Hmm, better to construct
-                                                     # mirror later?
-                                                     mirror % locals (),
-                                                     version,
-                                                     strip_components=strip_components)
+            repo = repository.TarBall (self.settings.downloads,
+                                       # Hmm, better to construct
+                                       # mirror later?
+                                       mirror % locals (),
+                                       version,
+                                       strip_components=strip_components)
         else:
-            self.vc_repository = repository.Version (version)
+            repo = repository.Version (version)
 
-        self.ball_version = version
-
-        ## don't do substitution. We want to postpone
-        ## generating the dict until we're sure it doesn't change.
-
-        return self
+        return self.with_vc (repo)
 
 class BinarySpec (BuildSpec):
     def configure (self):
