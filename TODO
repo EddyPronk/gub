@@ -44,4 +44,5 @@ LOWER PRIORITY
 	       g++ (for python),
 	       texinfo (for gettext),
 	       libcurl3-dev (for git),
-	       libexpat-dev (for git)]
+	       libexpat-dev (for git)
+	       libjpeg-dev (for netpbm)]
