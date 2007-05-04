@@ -112,7 +112,7 @@ class Builder:
                                      % (stage, spec.name ()))
 
             if (stage == 'package' and tainted
-                and not settings.options.force_package):
+                and not self.settings.options.force_package):
                 msg = spec.expand ('''Compile was continued from previous run.
 Will not package.
 Use
