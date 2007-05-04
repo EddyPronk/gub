@@ -76,7 +76,7 @@ update-versions:
 	$(PYTHON) gub/with-lock.py --skip $(LILYPOND_VERSIONS).lock $(MAKE) unlocked-update-versions
 
 download:
-	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB_BUILDER,$(p)) --stage=download lilypond && ) true
+	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB_BUILDER,$(p)) --online --stage=download lilypond && ) true
 	$(MAKE) downloads/genini
 	rm -f target/*/status/lilypond*
 	rm -f log/lilypond-$(LILYPOND_VERSION)*.*.test.pdf

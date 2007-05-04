@@ -75,6 +75,10 @@ def get_cli_parser ():
                   dest='offline',
                   help='Do not attempt to download anything')
 
+    p.add_option ('--online', action='store_false',
+                  dest='offline',
+                  help='Download as part of the build')
+
     p.add_option ('--stage', action='store',
                   dest='stage', default=None,
                   help='Force rebuild of stage')
@@ -174,8 +178,8 @@ def run_one_builder (options, spec):
 
     if options.fresh:
         try:
-            spec_obj.os_interface.action ('Removing status filex')
-            os.unlink (spec_obj.get_stamp_file ())
+            spec.os_interface.action ('Removing status filex')
+            os.unlink (spec.get_stamp_file ())
         except OSError:
             pass
 

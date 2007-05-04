@@ -13,6 +13,7 @@ CYGWIN_PACKAGER = $(PYTHON) bin/cygwin-packager
 
 INVOKE_GUB_BUILDER=$(GUB_BUILDER)\
  --target-platform $(1)\
+ $(GUB_ONLINE_OPTION) \
  $(foreach h,$(GUB_NATIVE_DISTCC_HOSTS), --native-distcc-host $(h))\
  $(foreach h,$(GUB_CROSS_DISTCC_HOSTS), --cross-distcc-host $(h))\
  $(GUB_BUILDER_OPTIONS)\
