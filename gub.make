@@ -6,28 +6,34 @@ PYTHON=python
 ## must always have one host.
 GUB_DISTCC_ALLOW_HOSTS=127.0.0.1
 
-GUB_BUILDER = $(PYTHON) bin/gub
-GUP_MANAGER = $(PYTHON) bin/gpkg
+GUB = $(PYTHON) bin/gub
+GPKG = $(PYTHON) bin/gpkg
 INSTALLER_BUILDER = $(PYTHON) bin/installer-builder
 CYGWIN_PACKAGER = $(PYTHON) bin/cygwin-packager
 
-INVOKE_GUB_BUILDER=$(GUB_BUILDER)\
+ifneq ($(LOCAL_GUB_BUILDER_OPTIONS),)
+$(warning LOCAL_GUB_BUILDER_OPTIONS is deprecated, use LOCAL_GUB_OPTIONS)
+LOCAL_GUB_OPTIONS += LOCAL_GUB_BUILDER_OPTIONS
+endif
+
+INVOKE_GUB=$(GUB)\
  --target-platform $(1)\
  $(foreach h,$(GUB_NATIVE_DISTCC_HOSTS), --native-distcc-host $(h))\
  $(foreach h,$(GUB_CROSS_DISTCC_HOSTS), --cross-distcc-host $(h))\
- $(GUB_BUILDER_OPTIONS)\
- $(LOCAL_GUB_BUILDER_OPTIONS)
+ $(GUB_OPTIONS)\
+ $(LOCAL_GUB_OPTIONS)
 
-
-INVOKE_GUP=$(GUP_MANAGER)\
+INVOKE_GUP=$(GPKG)\
  --platform $(1)\
- $(GUP_OPTIONS)
+ $(GPKG_OPTIONS)\
+ $(LOCAL_GPKG_OPIONS)
 
 INVOKE_INSTALLER_BUILDER=$(INSTALLER_BUILDER)\
  --target-platform $(1)\
- $(INSTALLER_BUILDER_OPTIONS)
+ $(INSTALLER_BUILDER_OPTIONS)\
+ $(LOCAL_INSTALLER_BUILDER_OPTIONS)
 
-BUILD=$(call INVOKE_GUB_BUILDER,$(1)) $(2)\
+BUILD=$(call INVOKE_GUB,$(1)) $(2)\
   && $(call INVOKE_INSTALLER_BUILDER,$(1)) build-all $(PACKAGE)
 
 BUILD_PLATFORM = $(shell $(PYTHON) bin/build-platform)

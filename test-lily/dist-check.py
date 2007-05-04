@@ -1,16 +1,16 @@
 #!/usr/bin/python
 
-import re
-import sys
-import os
 import glob
 import optparse
-
-sys.path.insert (0, os.path.split (sys.argv[0])[0] + '/../lib/')
-
-import repository
+import os
+import re
+import sys
 import tempfile
-import misc
+
+sys.path.insert (0, os.path.split (sys.argv[0])[0] + '/..')
+
+from gub import repository
+from gub import misc
 
 def parse_options ():
     p = optparse.OptionParser ()

@@ -3,7 +3,7 @@ import re
 import time
 
 from gub import context
-from gub import darwintools
+from gub import darwin
 from gub import gup
 from gub import targetpackage
 
@@ -157,7 +157,7 @@ class DarwinRoot (Installer):
     def __init__ (self, settings):
         Installer.__init__ (self, settings)
         self.strip_command += ' -S '
-        self.rewirer = darwintools.Rewirer (self.settings)
+        self.rewirer = darwin.Rewirer (self.settings)
 
     def use_install_root_manager (self, package_manager):
         tarball = package_manager.package_dict ('darwin-sdk')['split_ball']
@@ -222,7 +222,7 @@ cp -pR --link %(installer_root)s/license*/* %(darwin_bundle_dir)s/Contents/Resou
         self.system ('cd %(darwin_bundle_dir)s/../ && tar cjf %(bundle_zip)s LilyPond.app',
                      locals ())
         
-        self.log_command ("Created %(bundle_zip)s\n", locals()) 
+        self.info ("Created %(bundle_zip)s\n", locals()) 
         self.write_checksum ()
         
 class MingwRoot (Installer):

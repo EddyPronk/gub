@@ -315,6 +315,8 @@ def parse_command_line ():
                   action='append',
                   help='set branch for package')
 
+    p.add_option ('-v', '--verbose', action='count', dest='verbose', default=0)
+
     (options, args) = p.parse_args ()
     if len (args) != 1:
         p.print_help ()
@@ -322,9 +324,9 @@ def parse_command_line ():
     return (options, args)
 
 def main ():
-    (options, commands)  = parse_command_line ()
-    platform = 'cygwin'
-    settings = gub.settings.get_settings (platform)
+    (options, commands) = parse_command_line ()
+    options.platform = 'cygwin'
+    settings = gub.settings.Settins (options)
     # We want to be able to specify a build number for cygwin packages
     # that are not distributed on lp.org
     settings.build = options.build

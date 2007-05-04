@@ -74,7 +74,6 @@ build-all - build, strip, package
                   default=[],
                   dest="settings",
                   help="extra overrides for settings")
-
                   
     p.add_option ('-p', '--target-platform', action='store',
                   dest='platform',
@@ -82,6 +81,8 @@ build-all - build, strip, package
                   default=None,
                   help='select target platform',
                   choices=gub.settings.platforms.keys ())
+
+    p.add_option ('-v', '--verbose', action='count', dest='verbose', default=0)
 
     (options, args) = p.parse_args ()
     
@@ -97,6 +98,8 @@ def check_installer (installer, options, args):
     settings = installer.settings
     install_manager = gup.PackageDictManager (settings.os_interface)
     install_manager.read_package_headers (settings.gub_uploads,
+                                          settings.branch_dict)
+    install_manager.read_package_headers (settings.cross_gub_uploads,
                                           settings.branch_dict)
 
     ## can't interrogate installer yet, because version is not known yet.
@@ -125,6 +128,8 @@ def build_installer (installer, args, options):
     install_manager.include_build_deps = False
     install_manager.read_package_headers (settings.gub_uploads,
                                           settings.branch_dict)
+    install_manager.read_package_headers (settings.cross_gub_uploads,
+                                          settings.branch_dict)
 
     def get_dep (x):
         return install_manager.dependencies (x)
@@ -135,7 +140,7 @@ def build_installer (installer, args, options):
 
     # WTF is gcc-runtime?  Add to package dependencies, if necessary
     if not settings.is_distro:
-        package_names += ["gcc-runtime"]
+        package_names += ["cross/gcc-runtime"]
 
     for a in package_names:
         install_manager.install_package (a)
@@ -207,7 +212,7 @@ def run_installer_commands (commands, settings, args, options):
 def main ():
     (options, commands)  = parse_command_line ()
 
-    settings = gub.settings.get_settings (options.platform)
+    settings = gub.settings.Settings (options)
 
     settings.set_branches (options.branches)
     for s in options.settings:

@@ -185,6 +185,7 @@ def main ():
         platform = options.platform
         
         target_manager.read_package_headers ('uploads/%(platform)s/' % locals (), branch_dict)
+        target_manager.read_package_headers ('uploads/%(platform)s/cross/' % locals (), branch_dict)
 
     if options.command:
         commands = Command (target_manager, options)

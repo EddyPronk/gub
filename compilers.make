@@ -9,7 +9,8 @@
 #  GUB_CROSS_DISTCC_HOSTS - hosts with matching cross compilers
 #  GUB_DISTCC_ALLOW_HOSTS - which distcc daemons may connect.
 #  GUB_NATIVE_DISTCC_HOSTS - hosts with matching native compilers
-#  LOCAL_GUB_BUILDER_OPTIONS - esp.: --verbose, --keep [--force-package]
+#  LOCAL_GUB_OPTIONS - esp.: --verbose, --keep [--force-package]
+#  LOCAL_GUB_BUILDER_OPTIONS - deprecated
 
 ifeq ($(CWD),)
 $(error Must set CWD)
@@ -48,13 +49,13 @@ local-distcc:
 		ln -s $(CWD)/gub/distcc.py target/native-distcc/bin/$(notdir $(binary)) && ) true
 
 # Find out if we need cross/gcc or glibc as topmost cross compile target
-#gcc_or_glibc = $(shell $(GUB_BUILDER) -p $(1) --inspect=version glibc > /dev/null 2>/dev/null && echo glibc || echo cross/gcc)
+#gcc_or_glibc = $(shell $(GUB) -p $(1) --inspect=version glibc > /dev/null 2>/dev/null && echo glibc || echo cross/gcc)
 
 # URG
 gcc_or_glibc = $(shell if echo $(1) | grep linux > /dev/null 2>/dev/null; then echo glibc; else echo cross/gcc; fi)
 
 cross-compilers:
-	$(foreach p, $(PLATFORMS),$(call INVOKE_GUB_BUILDER, $(p)) $(call gcc_or_glibc, $(p)) && ) true
+	$(foreach p, $(PLATFORMS),$(call INVOKE_GUB, $(p)) $(call gcc_or_glibc, $(p)) && ) true
 
 cross-distccd:
 	-$(if $(wildcard log/$@.pid),kill `cat log/$@.pid`, true)
@@ -80,12 +81,12 @@ native-distccd:
 bootstrap: bootstrap-git download-local local cross-compilers local-cross-tools download 
 
 bootstrap-git:
-	$(GUB_BUILDER) $(LOCAL_GUB_BUILDER_OPTIONS) -p local git
+	$(GUB) $(LOCAL_GUB_OPTIONS) -p local git
 
 local-cross-tools:
 ifneq ($(filter mingw,$(PLATFORMS)),)
 ifneq ($(BUILD_PLATFORM),linux-64)
-	$(GUB_BUILDER) $(LOCAL_DRIVER_OPTIONS) -p local nsis 
+	$(GUB) $(LOCAL_GUB_OPTIONS) -p local nsis 
 endif
 endif
 

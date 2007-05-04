@@ -41,10 +41,12 @@ LILYPOND_BRANCH_FILEIFIED=$(subst /,--,$(LILYPOND_BRANCH))
 
 LILYPOND_LOCAL_BRANCH=$(LILYPOND_BRANCH_FILEIFIED)-git.sv.gnu.org-lilypond.git
 
-GUB_BUILDER_OPTIONS =\
+GUILE_LOCAL_BRANCH=branch_release-1-8-lilypond.org-vc-guile.git
+
+GUB_OPTIONS =\
  --branch lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH)
 
-GUP_OPTIONS =\
+GPKG_OPTIONS =\
  --branch guile=$(GUILE_LOCAL_BRANCH) \
  --branch lilypond=$(LILYPOND_LOCAL_BRANCH)
 
@@ -76,7 +78,7 @@ update-versions:
 	$(PYTHON) gub/with-lock.py --skip $(LILYPOND_VERSIONS).lock $(MAKE) unlocked-update-versions
 
 download:
-	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB_BUILDER,$(p)) --stage=download lilypond && ) true
+	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB,$(p)) --stage=download lilypond && ) true
 	$(MAKE) downloads/genini
 	rm -f target/*/status/lilypond*
 	rm -f log/lilypond-$(LILYPOND_VERSION)*.*.test.pdf
@@ -113,7 +115,7 @@ cygwin-all: cygwin-libtool cygwin-libtool-installer cygwin-guile cygwin-guile-in
 
 cygwin-libtool:
 	rm -f uploads/cygwin/setup.ini
-	$(call INVOKE_GUB_BUILDER,cygwin) --build-source libtool
+	$(call INVOKE_GUB,cygwin) --build-source libtool
 
 cygwin-libtool-installer:
 	$(CYGWIN_PACKAGER) libtool
@@ -122,19 +124,19 @@ cygwin-fontconfig:
 	rm -f uploads/cygwin/setup.ini
 	rm -rf target/cygwin/
 	$(call INVOKE_GUP, cygwin) install gcc
-	$(call INVOKE_GUB_BUILDER,cygwin) --build-source fontconfig
+	$(call INVOKE_GUB,cygwin) --build-source fontconfig
 
 cygwin-fontconfig-installer:
 	$(CYGWIN_PACKAGER) fontconfig
 
 cygwin-guile:
-	$(call INVOKE_GUB_BUILDER,cygwin) --build-source libtool guile
+	$(call INVOKE_GUB,cygwin) --build-source libtool guile
 
 cygwin-guile-installer:
 	$(CYGWIN_PACKAGER) guile
 
 cygwin-lilypond:
-	$(call INVOKE_GUB_BUILDER,cygwin) --build-source libtool guile fontconfig lilypond
+	$(call INVOKE_GUB,cygwin) --build-source libtool guile fontconfig lilypond
 
 cygwin-lilypond-installer:
 	$(CYGWIN_PACKAGER) --branch lilypond=$(LILYPOND_LOCAL_BRANCH) lilypond
@@ -224,13 +226,13 @@ locals =\
 # -netpbm: website
 
 download-local:
-	$(GUB_BUILDER) $(LOCAL_GUB_BUILDER_OPTIONS) \
+	$(GUB) $(LOCAL_GUB_OPTIONS) \
 		-p local --stage=download \
 		$(locals)
 
 local:
 	cd librestrict && make -f GNUmakefile
-	$(GUB_BUILDER) $(LOCAL_GUB_BUILDER_OPTIONS) -p local \
+	$(GUB) $(LOCAL_GUB_OPTIONS) -p local \
 		$(locals)
 
 
@@ -279,10 +281,10 @@ cached-doc-build cached-dist-check cached-doc-export:
 		&& touch $(call SIGNATURE_FUNCTION,$@) ; fi
 
 unlocked-doc-build:
-	$(GUP_MANAGER) -p $(BUILD_PLATFORM) remove lilypond
+	$(GPKG) -p $(BUILD_PLATFORM) remove lilypond
 
 	## force update of srcdir.
-	$(GUB_BUILDER) --branch lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH) \
+	$(GUB) --branch lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH) \
 		 -p $(BUILD_PLATFORM) --stage untar lilypond
 
 	unset LILYPONDPREFIX LILYPOND_DATADIR \
