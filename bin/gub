@@ -71,6 +71,10 @@ def get_cli_parser ():
                   dest='offline',
                   help='Do not attempt to download anything')
 
+    p.add_option ('--online', action='store_false',
+                  dest='offline',
+                  help='Download as part of the build')
+
     p.add_option ('--stage', action='store',
                   dest='stage', default=None,
                   help='Force rebuild of stage')
@@ -121,7 +125,6 @@ def get_cli_parser ():
                   help='set number of simultaneous jobs')
 
     return p
-
 
 #FIXME: move to Builder?
 def inspect (settings, files):
