@@ -79,7 +79,7 @@ class Builder ():
         import inspect
         available = dict (inspect.getmembers (spec, callable))
         if self.settings.options.stage:
-            (available[options.stage]) ()
+            (available[self.settings.options.stage]) ()
             return
 
         stages = ['download', 'untar', 'patch',
