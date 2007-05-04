@@ -111,7 +111,8 @@ class Builder:
             spec.os_interface.stage (' *** Stage: %s (%s)\n'
                                      % (stage, spec.name ()))
 
-            if stage == 'package' and tainted and not options.force_package:
+            if (stage == 'package' and tainted
+                and not settings.options.force_package):
                 msg = spec.expand ('''Compile was continued from previous run.
 Will not package.
 Use
