@@ -387,6 +387,34 @@ def build (settings, files):
 
     build_source_packages (settings, specs, names)
 
+def exceptional_build (settings, files):
+    status = 1
+    try:
+        build (settings, files)
+        status = 0
+    except SystemExit, e:
+        status = e.code
+        pass
+    except KeyboardInterrupt, e:
+        pass
+    except Exception, e:
+        pass
+
+    if status:
+        if settings.options.verbose < settings.os_interface.level['output']:
+            print >>sys.stderr,\
+                (''.join (open (settings.os_interface.log_file_name)
+                          .readlines ()[-50:]))
+            log_file = settings.os_interface.log_file_name
+        settings.os_interface.error (misc.exception_string (e))
+    else:
+        settings.os_interface.info ('done\n')
+        
+    settings.os_interface.error ('build log written to: ' +
+                                 settings.os_interface.log_file_name
+                                 + '\n')
+    return status
+
 def main ():
     cli_parser = get_cli_parser ()
     (options, files) = cli_parser.parse_args ()
@@ -402,25 +430,7 @@ def main ():
         inspect (settings, files)
         sys.exit (0)
 
-    try:
-        build (settings, files)
-        settings.os_interface.info ('done\n')
-        settings.os_interface.info ('build log written to: ' +
-                                    settings.os_interface.log_file_name
-                                    + '\n')
-    except SystemExit, e:
-        sys.exit (e.code)
-    except BaseException, e:
-        if settings.options.verbose < settings.os_interface.level['output']:
-            print >>sys.stderr,\
-                (''.join (open (settings.os_interface.log_file_name)
-                          .readlines ()[-50:]))
-            log_file = settings.os_interface.log_file_name
-        settings.os_interface.error (misc.exception_string (e))
-        settings.os_interface.error ('build log written to: ' +
-                                    settings.os_interface.log_file_name
-                                    + '\n')
-        sys.exit (1)
+    sys.exit (exceptional_build (settings, files))
 
 if __name__ == '__main__':
     main ()
