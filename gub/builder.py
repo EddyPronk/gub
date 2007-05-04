@@ -29,7 +29,7 @@ from gub import misc
 from gub import gup
 
 #FIXME: split spec_* into SpecBuiler?
-class Builder ():
+class Builder:
     def __init__ (self, manager, settings, specs):
         self.manager = manager
         self.settings = settings
