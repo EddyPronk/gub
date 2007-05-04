@@ -630,7 +630,7 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
 
     def get_tarball (self, mirror, version, format='gz', strip_components=1, name=''):
         if not name:
-            name = self.name ()
+            name = os.path.basename (self.name ())
         if not format:
             format = self.__dict__.get ('format', 'gz')
         if not mirror:
@@ -650,7 +650,7 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
               name=''):
 
         if not name:
-            name = self.name ()
+            name = os.path.basename (self.name ())
         if not format:
             format = self.__dict__.get ('format', 'gz')
         if not mirror:
