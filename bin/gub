@@ -20,9 +20,6 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 """
 
-import os
-import re
-import string
 import sys
 sys.path.insert (0, '.')
 #
@@ -38,9 +35,8 @@ def get_cli_parser ():
     import optparse
     p = optparse.OptionParser ()
 
-    p.usage='''gub [OPTION]... [PACKAGE]...
+    p.usage='''gub [OPTION]... [PACKAGE]...'''
 
-'''
     p.description='Grand Unified Builder.'
 
     p.add_option ('-B', '--branch', action='append',
@@ -130,222 +126,11 @@ def get_cli_parser ():
 
     return p
 
-# FIXME: put all these functions that take manager, settings, specs, deps
-# into a 'builder' class?
-def pkg_checksum_valid (manager, spec, pkg):
-    name = pkg.name ()
-    pkg_dict = manager.package_dict (name)
-
-    valid = (spec.spec_checksum == pkg_dict['spec_checksum']
-             and spec.source_checksum () == pkg_dict['source_checksum'])
-
-    hdr = pkg.expand ('%(split_hdr)s')
-    valid = valid and os.path.exists (hdr)
-    if valid:
-        import pickle
-        hdr_dict = pickle.load (open (hdr))
-        hdr_sum = hdr_dict['spec_checksum']
-        valid = valid and hdr_sum == spec.spec_checksum
-        valid = valid and spec.source_checksum () == hdr_dict['source_checksum']
-
-    ## let's be lenient for cross pkgs.
-    ## spec.cross_checksum == manager.package_dict(name)['cross_checksum'])
-    return valid
-    
-
-def spec_checksums_valid (manager, spec):
-    valid = True
-    for pkg in spec.get_packages ():
-        valid = valid and pkg_checksum_valid (manager, spec, pkg)
-    return valid
-
-def run_one_builder (options, spec):
-    import inspect
-    available = dict (inspect.getmembers (spec, callable))
-    if options.stage:
-        (available[options.stage]) ()
-        return
-    
-    stages = ['download', 'untar', 'patch',
-              'configure', 'compile', 'install',
-              'src_package', 'package', 'clean']
-
-    if options.offline:
-        stages.remove ('download')
-
-    if not options.build_source:
-        stages.remove ('src_package')
-
-    if options.fresh:
-        try:
-            spec.os_interface.action ('Removing status filex')
-            os.unlink (spec.get_stamp_file ())
-        except OSError:
-            pass
-
-    tainted = False
-    for stage in stages:
-        if (not available.has_key (stage)):
-            continue
-
-        if spec.is_done (stage, stages.index (stage)):
-            tainted = True
-            continue
-
-        spec.os_interface.stage (' *** Stage: %s (%s)\n'
-                                 % (stage, spec.name ()))
-
-        if stage == 'package' and tainted and not options.force_package:
-            msg = spec.expand ('''Compile was continued from previous run.
-Will not package.
-Use
-
-rm %(stamp_file)s
-
-to force rebuild, or
-
---force-package
-
-to skip this check.
-''')
-            spec.os_interface.error (msg)
-            raise 'abort'
-
-
-        if (stage == 'clean'
-            and options.keep_build):
-            os.unlink (spec.get_stamp_file ())
-            continue
-
-        try:
-            (available[stage]) ()
-        except misc.SystemFailed:
-
-            ## failed patch will leave system in unpredictable state.
-            if stage == 'patch':
-                spec.system ('rm %(stamp_file)s')
-
-            raise
-
-        if stage != 'clean':
-            spec.set_done (stage, stages.index (stage))
-
-def spec_conflict_resolution (manager, spec, pkg):
-    pkg_name = pkg.name ()
-    install_candidate = pkg
-    subname = ''
-    if spec.name () != pkg_name:
-        subname = pkg_name.split ('-')[-1]
-    if spec.get_conflict_dict ().has_key (subname):
-        for c in spec.get_conflict_dict ()[subname]:
-            if manager.is_installed (c):
-                print '%(c)s conflicts with %(pkg_name)s' % locals ()
-                conflict_source = manager.source_name (c)
-                # FIXME: implicit provides: foo-* provides foo-core,
-                # should implement explicit provides
-                if conflict_source + '-core' == pkg_name:
-                    print ('  non-core %(conflict_source)s already installed'
-                           % locals ())
-                    print ('    skipping request to install %(pkg_name)s'
-                           % locals ())
-                    install_candidate = None
-                    continue
-                manager.uninstall_package (c)
-    return install_candidate
-
-def pkg_install (manager, spec, pkg):
-    if not manager.is_installed (pkg.name ()):
-        install_candidate = spec_conflict_resolution (manager, spec, pkg)
-        if install_candidate:
-            manager.unregister_package_dict (install_candidate.name ())
-            manager.register_package_dict (install_candidate.dict ())
-            manager.install_package (install_candidate.name ())
-            
-def spec_install (manager, spec):
-    for pkg in spec.get_packages ():
-        pkg_install (manager, spec, pkg)
-
-def spec_build (settings, manager, specs, spec_name):
-    spec = specs[spec_name]
-    all_installed = True
-    for p in spec.get_packages ():
-        all_installed = all_installed and manager.is_installed (p.name ())
-    if all_installed:
-        return
-
-    # ugh, dupe
-    checksum_ok = (settings.options.lax_checksums
-                   or spec_checksums_valid (manager, specs[spec_name]))
-
-    is_installable = misc.forall (manager.is_installable (p.name ())
-                                  for p in spec.get_packages ())
-
-    if (settings.options.stage
-        or not is_installable
-        or not checksum_ok):
-        settings.os_interface.stage ('building package: %s\n' % spec_name)
-        run_one_builder (settings.options, spec)
-
-    # FIXME, spec_install should be stage?
-    if settings.options.stage: # and options.stage != spec_install:
-        return
-
-    # FIXME, spec_install should be stage?
-    spec_install (manager, spec)
-
-def uninstall_outdated_specs (settings, manager, specs, deps):
-    def reverse (lst):
-        list.reverse (lst)
-        return lst
-    for spec_name in reverse (deps[:]):
-        spec = specs[spec_name]
-        # ugh, dupe
-        checksum_ok = (settings.options.lax_checksums
-                       or spec_checksums_valid (manager, specs[spec_name]))
-        for pkg in spec.get_packages ():
-            if (manager.is_installed (pkg.name ())
-                and (not manager.is_installable (pkg.name ())
-                     or not checksum_ok)):
-                manager.uninstall_package (pkg.name ())
-
-def build_source_packages (settings, specs, names):
-    try:
-        manager = gup.get_target_manager (settings)
-
-        ## Todo: have a readonly lock for local platform
-    except locker.LockedError:
-        print 'another build in progress. Skipping.'
-        if settings.options.skip_if_locked:
-            sys.exit (0)
-        raise
-
-    deps = filter (specs.has_key, names)
-
-    PATH = os.environ['PATH']
-    ## cross_prefix is also necessary for building cross packages, such as GCC
-    os.environ['PATH'] = settings.expand ('%(cross_prefix)s/bin:' + PATH,
-                                          locals ())
-
-    ## UGH -> double work, see cross.change_target_packages () ?
-    sdk_pkgs = [p for p in specs.values ()
-                if isinstance (p, gubb.SdkBuildSpec)]
-    cross_pkgs = [p for p in specs.values ()
-                  if isinstance (p, cross.CrossToolSpec)]
-
-    extra_build_deps = [p.name () for p in sdk_pkgs + cross_pkgs]
-    gup.add_packages_to_manager (manager, settings, specs)
-
-    # FIXME: what happens here, move to descriptive function?
-    if not settings.options.stage:
-        uninstall_outdated_specs (settings, manager, specs, deps)
-
-    for spec_name in deps:
-        spec_build (settings, manager, specs, spec_name)
-        
+#FIXME: move to Builder?
 def inspect (settings, files):
     (names, specs) = gup.get_source_packages (settings, files)
     pm = gup.get_target_manager (settings)
-    gup.add_packages_to_manager (pm, settings, specs)
+    gup.add_packages_to_self.manager (pm, settings, specs)
     deps = filter (specs.has_key, names)
 
     for f in files:
@@ -354,7 +139,8 @@ def inspect (settings, files):
             open (settings.options.inspect_output, 'w').write (v)
         else:
             print v
-        
+
+#FIXME: move to Builder?
 def build (settings, files):
     (names, specs) = gup.get_source_packages (settings, files)
     def get_all_deps (name):
@@ -368,6 +154,7 @@ def build (settings, files):
     deps = gup.topologically_sorted (files, {}, get_all_deps, None)
     settings.os_interface.info ('deps:' + `deps` + '\n')
 
+    import os
     PATH = os.environ['PATH']
     os.environ['PATH'] = settings.expand ('%(local_prefix)s/bin:' + PATH)
 
@@ -385,7 +172,18 @@ def build (settings, files):
     if settings.options.stage:
         names = files
 
-    build_source_packages (settings, specs, names)
+    try:
+        manager = gup.get_target_manager (settings)
+        ## Todo: have a readonly lock for local platform
+    except locker.LockedError:
+        settings.os_interface.error ('another build in progress.  Skipping.')
+        if settings.options.skip_if_locked:
+            sys.exit (0)
+        raise
+
+    from gub import builder
+    b = builder.Builder (manager, settings, specs)
+    b.build_source_packages (names)
 
 def exceptional_build (settings, files):
     status = 1

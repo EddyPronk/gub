@@ -12,9 +12,9 @@ default: all
 include gub.make
 include compilers.make
 
-GUP_OPTIONS=--branch git=$(MINGIT_LOCAL_BRANCH)
+GPKG_OPTIONS=--branch git=$(MINGIT_LOCAL_BRANCH)
 
-GUB_BUILDER_OPTIONS=\
+GUB_OPTIONS=\
  --branch git=$(MINGIT_BRANCH):$(MINGIT_LOCAL_BRANCH)
 
 INSTALLER_BUILDER_OPTIONS=\
@@ -24,17 +24,17 @@ INSTALLER_BUILDER_OPTIONS=\
 all: $(PLATFORMS)
 
 download:
-	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB_BUILDER,$(p)) download git && ) true
+	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB,$(p)) download git && ) true
 
 bootstrap: bootstrap-git download-local local cross-compilers local-cross-tools download 
 
 download-local:
-	$(GUB_BUILDER) $(LOCAL_GUB_BUILDER_OPTIONS) -p local\
+	$(GUB) $(LOCAL_GUB_OPTIONS) -p local\
 		--stage=download \
 		git pkg-config nsis icoutils 
 
 local:
-	$(GUB_BUILDER) $(LOCAL_GUB_BUILDER_OPTIONS) -p local git 
+	$(GUB) $(LOCAL_GUB_OPTIONS) -p local git 
 
 
 mingw:

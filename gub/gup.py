@@ -217,7 +217,7 @@ class PackageDictManager:
                 suffix = d['vc_branch']
                 print 'ignoring header: ' + package_hdr
                 branch = branch_dict[d['basename']]
-                print 'branch: %(branch)s, suffix: %(suffix)s' % locals ()
+                print 'branch: %(branch)s, expecting: %(suffix)s' % locals ()
                 return
         elif d['vc_branch']:
             sys.stdout.write ('No branch for package %s, ignoring header: %s\n' % (d['basename'], package_hdr))
@@ -255,7 +255,6 @@ class PackageDictManager:
     def read_package_headers (self, s, branch_dict):
         if os.path.isdir (s) and not s.endswith ('/'):
             s += '/'
-            
         for f in glob.glob ('%(s)s*hdr' % locals ()):
             self.register_package_header (f, branch_dict)
 
