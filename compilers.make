@@ -27,8 +27,6 @@ DISTCC_DIRS=target/cross-distcc/bin target/cross-distccd/bin target/native-distc
 default: cross-compilers
 compilers: cross-compilers
 
--include local.make
-
 ifeq ($(BUILD_PLATFORM),)
 $(error Must define BUILD_PLATFORM)
 endif

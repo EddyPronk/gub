@@ -1,7 +1,9 @@
 CWD:=$(shell pwd)
 PYTHON=python
-#PYTHONPATH=gub
-#export PYTHONPATH
+PYTHONPATH=.
+export PYTHONPATH
+
+-include local.make
 
 ## must always have one host.
 GUB_DISTCC_ALLOW_HOSTS=127.0.0.1
@@ -13,7 +15,7 @@ CYGWIN_PACKAGER = $(PYTHON) bin/cygwin-packager
 
 ifneq ($(LOCAL_GUB_BUILDER_OPTIONS),)
 $(warning LOCAL_GUB_BUILDER_OPTIONS is deprecated, use LOCAL_GUB_OPTIONS)
-LOCAL_GUB_OPTIONS += LOCAL_GUB_BUILDER_OPTIONS
+LOCAL_GUB_OPTIONS += $(LOCAL_GUB_BUILDER_OPTIONS)
 endif
 
 INVOKE_GUB=$(GUB)\
