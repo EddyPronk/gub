@@ -1,11 +1,11 @@
-from gub import cross
+from gub.specs.cross import gcc
 
-class Gcc_34__debian__mipsel (cross.Gcc):
+class Gcc_34__debian__mipsel (gcc.Gcc):
     def languages (self):
         return  ['c']
         
     def configure_command (self):
-        return misc.join_lines (cross.Gcc.configure_command (self)
+        return misc.join_lines (gcc.Gcc.configure_command (self)
                                + '''
 --program-suffix=-3.4
 --with-ar=%(cross_prefix)s/bin/%(target_architecture)s-ar
@@ -13,13 +13,13 @@ class Gcc_34__debian__mipsel (cross.Gcc):
 ''')
 
     def configure (self):
-        cross.Gcc.configure (self)
+        gcc.Gcc.configure (self)
         #FIXME: --with-ar, --with-nm does not work?
         for i in ('ar', 'nm', 'ranlib'):
             self.system ('cd %(cross_prefix)s/bin && ln -sf %(target_architecture)s-%(i)s %(target_architecture)s-%(i)s-3.4', env=locals ())
                 
     def install (self):
-        cross.Gcc.install (self)
+        gcc.Gcc.install (self)
         # get rid of duplicates
         self.system ('''
 rm -f %(install_root)s/usr/lib/libgcc_s.so

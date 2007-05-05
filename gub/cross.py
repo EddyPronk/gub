@@ -1,5 +1,3 @@
-import os
-#
 from gub import gubb
 from gub import misc
 
@@ -33,74 +31,6 @@ class CrossToolSpec (gubb.BuildSpec):
     
     def license_file (self):
         return ''
-
-#FIXME: merge fully with specs/gcc
-class Gcc (CrossToolSpec):
-    def get_build_dependencies (self):
-        return ['cross/binutils']
-
-    @subst_method
-    def NM_FOR_TARGET(self):
-         return '%(tool_prefix)snm'
-
-    def get_subpackage_names (self):
-        # FIXME: why no -devel package?
-        return ['doc', 'runtime', '']
-
-    def languages (self):
-        return  ['c', 'c++']
-        
-    def configure_command (self):
-        cmd = CrossToolSpec.configure_command (self)
-        # FIXME: using --prefix=%(tooldir)s makes this
-        # uninstallable as a normal system package in
-        # /usr/i686-mingw/
-        # Probably --prefix=/usr is fine too
-
-        language_opt = (' --enable-languages=%s '
-                        % ','.join (self.languages ()))
-        cxx_opt = '--enable-libstdcxx-debug '
-
-        cmd += '''
---with-as=%(cross_prefix)s/bin/%(target_architecture)s-as
---with-ld=%(cross_prefix)s/bin/%(target_architecture)s-ld
---enable-static
---enable-shared '''
-
-        cmd += language_opt
-        if 'c++' in self.languages ():
-            cmd +=  ' ' + cxx_opt
-
-        return misc.join_lines (cmd)
-
-    def move_target_libs (self, libdir):
-        if not os.path.isdir (libdir):
-            return
-
-        files = []
-
-        ## .so* because version numbers trail .so extension. 
-        for suf in ['.la', '.so*', '.dylib']:
-            files += self.locate_files (libdir, 'lib*' + suf)
-            
-        for f in files:
-            (dir, file) = os.path.split (f)
-            target = self.expand ('%(install_prefix)s/%(dir)s', locals ())
-            if not os.path.isdir (target):
-                os.makedirs (target)
-            self.system ('mv %(f)s %(install_prefix)s/lib', locals ())
-
-    def install (self):
-        CrossToolSpec.install (self)
-        old_libs = self.expand ('%(install_root)s/usr/cross/%(target_architecture)s')
-
-        self.move_target_libs (old_libs)
-        self.move_target_libs (self.expand ('%(install_root)s/usr/cross/lib'))
-        if os.path.exists (self.expand ('cd %(install_root)s/usr/lib/libgcc_s.so.1')):
-            # FIXME: .so senseless for darwin.
-            self.system ('''
-cd %(install_root)s/usr/lib && ln -fs libgcc_s.so.1 libgcc_s.so
-''')
 
 def change_target_package (package):
     pass
@@ -138,6 +68,7 @@ def get_cross_module (settings):
     base = re.sub ('[-0-9].*', '', platform)
     for name in platform, base:
         file_name = 'gub/%(name)s.py' % locals ()
+        import os
         if os.path.exists (file_name):
             break
     settings.os_interface.info ('module-name: ' + file_name + '\n')

@@ -1,5 +1,3 @@
-* move and merge cross.Gcc into cross/gcc
-
 * Softcode stages.
 
 * move Scons, Bjam recipes to gub lib.
@@ -21,6 +19,8 @@
 
 
 LOWER PRIORITY
+
+- replace os. calls with os.context wrapper ones
 
 - better name for gubb.py
 

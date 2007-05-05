@@ -1,10 +1,10 @@
-from gub import cross
+from gub.specs.cross import gcc
 from gub import mirrors
 
-class Gcc (cross.Gcc):
+class Gcc (gcc.Gcc):
     def __init__ (self, settings):
         #FIXME: separate-out: darwin-ppc/gcc.py / class Gcc__darwin__powerpc ()
-        cross.Gcc.__init__ (self, settings)
+        gcc.Gcc.__init__ (self, settings)
         if self.settings.target_architecture.startswith ("powerpc"):
             self.with (version='4.1.1', mirror=mirrors.gcc_41, format='bz2')
         else:
@@ -18,13 +18,13 @@ class Gcc (cross.Gcc):
                        "%(srcdir)s/libstdc++-v3/scripts/make_exports.pl")
 
     def configure_command (self):
-        c = cross.Gcc.configure_command (self)
+        c = gcc.Gcc.configure_command (self)
 #                c = re.sub ('enable-shared', 'disable-shared', c)
         return c
     
 
     def configure (self):
-        cross.Gcc.configure (self)
+        gcc.Gcc.configure (self)
 
     def rewire_gcc_libs (self):
 	import os
@@ -42,7 +42,7 @@ class Gcc (cross.Gcc):
 ''', locals ())
         
     def install (self):
-        cross.Gcc.install (self)
+        gcc.Gcc.install (self)
         self.rewire_gcc_libs ()
 
     def get_build_dependencies (self):
@@ -50,12 +50,12 @@ class Gcc (cross.Gcc):
     
 class Not_used__Gcc__darwin (Gcc):
     def configure (self):
-        cross.Gcc.configure (self)
+        gcc.Gcc.configure (self)
 
     def install (self):
         ## UGH ?
         ## Gcc.install (self)
 
-        cross.Gcc.install (self)
+        gcc.Gcc.install (self)
         self.rewire_gcc_libs ()
         
