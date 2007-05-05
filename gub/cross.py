@@ -34,12 +34,6 @@ class CrossToolSpec (gubb.BuildSpec):
     def license_file (self):
         return ''
 
-#FIXME: merge fully with specs/binutils.py
-class Binutils (CrossToolSpec):
-    def install (self):
-        CrossToolSpec.install (self)
-        self.system ('rm %(install_root)s/usr/cross/lib/libiberty.a')
-    
 #FIXME: merge fully with specs/gcc
 class Gcc (CrossToolSpec):
     def get_build_dependencies (self):
