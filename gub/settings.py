@@ -42,16 +42,8 @@ class Settings (context.Context):
         elif self.platform == 'mingw':
             self.target_gcc_flags = '-mwindows -mms-bitfields'
 
-        try:
-            self.options = options ##ugh
-            self.set_branches (options.branches)
-            self.build_source = options.build_source
-            self.lilypond_versions = options.lilypond_versions
-            self.cpu_count = options.cpu_count
-            self.set_distcc_hosts (options)
-        except:
-            pass
-
+        self.set_branches (options.branches)
+        self.options = options ##ugh
         self.verbose = self.options.verbose
         self.os = re.sub ('[-0-9].*', '', self.platform)
 

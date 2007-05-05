@@ -213,6 +213,12 @@ def exceptional_build (settings, files):
                                  + '\n')
     return status
 
+def urg_add_more_settings_for_gub (settings, options):
+    settings.build_source = options.build_source
+    settings.lilypond_versions = options.lilypond_versions
+    settings.cpu_count = options.cpu_count
+    settings.set_distcc_hosts (options)
+
 def main ():
     cli_parser = get_cli_parser ()
     (options, files) = cli_parser.parse_args ()
@@ -223,6 +229,7 @@ def main ():
         sys.exit (2)
 
     settings = gub.settings.Settings (options)
+    urg_add_more_settings_for_gub (settings, options)
 
     if options.inspect_key:
         inspect (settings, files)

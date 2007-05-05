@@ -838,11 +838,13 @@ def get_build_spec (flavour, settings, url):
                 settings.specdir):
         file_name = dir + '/' + file_base
         if os.path.exists (file_name):
-            klass = get_class_from_spec_file (settings, file_name, name)
-            if klass:
-                import md5
-                checksum = md5.md5 (open (file_name).read ()).hexdigest ()
-                break
+            if not klass:
+                klass = get_class_from_spec_file (settings, file_name, name)
+            import md5
+            # FIXME: pretty lame, checksum based on all matching
+            # specs found, eg
+            # linux-x86/cross/binutils, linux/cross/binutils, cross/binutils
+            checksum += md5.md5 (open (file_name).read ()).hexdigest ()
 
     if not klass:
         print 'NO SPEC for', name

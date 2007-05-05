@@ -213,8 +213,6 @@ def main ():
     (options, commands)  = parse_command_line ()
 
     settings = gub.settings.Settings (options)
-
-    settings.set_branches (options.branches)
     for s in options.settings:
         (k, v) = tuple (s.split ('='))
         if settings.__dict__.has_key (k):
