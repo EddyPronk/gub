@@ -59,10 +59,13 @@ class Os_commands:
             self.log (line, level['output'], verbose)
             time.sleep (0.0001)
 
-        if proc.returncode and not ignore_errors:
-            m = 'Command barfed: %s\n' % cmd
+        line = proc.stdout.readline ()
+        self.log (line, level['output'], verbose)
+        if proc.returncode:
+            m = 'Command barfed: %(cmd)s\n' % locals ()
             self.error (m)
-            raise misc.SystemFailed (m)
+	    if not ignore_errors:
+        	raise misc.SystemFailed (m)
 
         return 0
 
