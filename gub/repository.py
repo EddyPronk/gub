@@ -561,19 +561,19 @@ class SimpleRepo (Repository):
         return self.revision == 'HEAD'
 
     def update_workdir (self, destdir):
-        working = self._checkout_dir ()
-        self._copy_working_dir (working, destdir)
+        dir = self._checkout_dir ()
+        self._copy_working_dir (dir, destdir)
 
     def download (self):
-        working = self._checkout_dir ()
-        if not os.path.isdir (working + '/' + self.repository):
+        dir = self._checkout_dir ()
+        if not os.path.isdir (dir + '/' + self.repository):
             self._checkout ()
         if self._current_revision () != self.revision:
-            self._update (working, self.revision)
+            self._update (self.revision)
 
-    def _copy_working_dir (self, working, copy):
+    def _copy_working_dir (self, dir, copy):
         repository = self.repository
-        self.system ('rsync -av --exclude %(repository)s %(working)s/ %(copy)s'
+        self.system ('rsync -av --exclude %(repository)s %(dir)s/ %(copy)s'
                      % locals ())
 
     def _checkout_dir (self):
@@ -599,8 +599,8 @@ class Subversion (SimpleRepo):
         self.module = module
 
     def _current_revision (self):
-        working = self._checkout_dir ()
-        revno = self.read_pipe ('cd %(working)s && svn info' % locals ())
+        dir = self._checkout_dir ()
+        revno = self.read_pipe ('cd %(dir)s && svn info' % locals ())
         m = re.search  ('.*Revision: ([0-9]*).*', revno)
         assert m
         return m.group (1)
@@ -615,9 +615,10 @@ class Subversion (SimpleRepo):
         cmd = 'cd %(dir)s && svn co %(rev_opt)s %(source)s/%(branch)s/%(module)s %(branch)s-%(revision)s''' % locals ()
         self.system (cmd)
         
-    def _update (self, working, revision):
+    def _update (self, revision):
+        dir = self._checkout_dir ()
         rev_opt = '-r %(revision)s ' % locals ()
-        cmd = 'cd %(working)s && svn up %(rev_opt)s' % locals ()
+        cmd = 'cd %(dir)s && svn up %(rev_opt)s' % locals ()
         self.system (cmd)
 
 class Bazaar (SimpleRepo):
@@ -626,24 +627,31 @@ class Bazaar (SimpleRepo):
         SimpleRepo.__init__ (self, dir, '.bzr', source, '', revision)
 
     def _current_revision (self):
-        working = self._checkout_dir ()
-        revno = self.read_pipe ('cd %(working)s && bzr revno' % locals ())
+        revno = self.bzr_pipe ('revno' % locals ())
         assert revno
         return revno[:-1]
 
     def _checkout (self):
-        dir = self.dir
         source = self.source
         revision = self.revision
         rev_opt = '-r %(revision)s ' % locals ()
-        cmd = ('cd %(dir)s && bzr branch %(rev_opt)s %(source)s %(revision)s'''
-               % locals ())
-        self.system (cmd)
+        self.system ('''branch %(rev_opt)s %(source)s %(revision)s'''
+                     % locals ())
         
-    def _update (self, working, revision):
+    def _update (self, revision):
         rev_opt = '-r %(revision)s ' % locals ()
-        cmd = 'cd %(working)s && bzr pull %(rev_opt)s' % locals ()
-        self.system (cmd)
+        self.bzr_system ('pull %(rev_opt)s' % locals ())
+
+    def bzr_pipe (self, cmd):
+        dir = self._checkout_dir ()
+        return self.read_pipe ('cd %(dir)s && bzr %(cmd)s' % locals ())
+
+    def bzr_system (self, cmd):
+        dir = self._checkout_dir ()
+        return self.system ('cd %(dir)s && bzr %(cmd)s' % locals ())
+
+    def get_revision_description (self):
+        return self.bzr_pipe ('log --verbose -r-1')
 
 # FIXME: repository detection AND repositories only work if they are
 # checked-out in a dir named .../name.REPOSITORY Eg, for GIT, this
@@ -656,10 +664,15 @@ class Bazaar (SimpleRepo):
 # not an existing directory, it gets `.REPOSITORY' appended in the
 # constructors.
 
-# For test-gub to work outside gub again, for now use the
-# workaround
-#    bzr branch xxx  foo.BZR
-#    cd foo.BZR && test-gub --repository $(pwd)
+# Also, different revisions get checked-out in different directories:
+#, eg: foo.svn/trunk-7111, foo.svn/trunk-HEAD, etc.
+
+# For test-gub to work outside gub again, for now use a workaround
+# like
+#    mkdir foo.bzr && cd foo.bzr
+#    bzr branch URL HEAD
+#    cd HEAD && mkdir log
+#    test-gub --repository $(cd .. && pwd)
 def get_repository_proxy (dir, branch):
     m = re.search (r"(.*)\.(bzr|git|cvs|svn|darcs)", dir)
 
@@ -669,7 +682,7 @@ def get_repository_proxy (dir, branch):
     type = m.group (2)
 
     if type == 'bzr':
-        return Bazaar (dir, branch=branch)
+        return Bazaar (dir, source='unknown')
     elif type == 'cvs':
         return CVS (dir, branch=branch)
     elif type == 'darcs':

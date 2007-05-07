@@ -1,3 +1,9 @@
+* Make test-gub work with plain, user-checked-out repositories again
+  (and/or remove lilypond hardcoding from cron-builder, move checkout
+   command from cron-builder to separate app (or into test-gub)).
+  Add option to send diffs again.
+
+
 * Softcode stages.
 
 * move Scons, Bjam recipes to gub lib.
