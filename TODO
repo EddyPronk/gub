@@ -58,4 +58,5 @@ LOWER PRIORITY
 	       libexpat-dev (for git),
 	       libjpeg-dev (for netpbm),
 	       libtiff-dev (for netpbm),
-	       libx11-dev (for netpbm)]
+	       libx11-dev (for netpbm),
+	       svn (for ghostscript)]
