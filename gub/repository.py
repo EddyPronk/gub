@@ -645,8 +645,25 @@ class Bazaar (SimpleRepo):
         cmd = 'cd %(working)s && bzr pull %(rev_opt)s' % locals ()
         self.system (cmd)
 
+# FIXME: repository detection AND repositories only work if they are
+# checked-out in a dir named .../name.REPOSITORY Eg, for GIT, this
+# means that only the first arbitrary in .git in
+# `downloads/lilypond.git/.git' is `detected'.  Repositories passed to
+# test-gub must have the .REPOSITORY stripped, --repository=. does not
+# work.
+
+# This is not trivial to fix, as the DIR passed to Repository () is
+# not an existing directory, it gets `.REPOSITORY' appended in the
+# constructors.
+
+# For test-gub to work outside gub again, for now use the
+# workaround
+#    bzr branch xxx  foo.BZR
+#    cd foo.BZR && test-gub --repository $(pwd)
 def get_repository_proxy (dir, branch):
     m = re.search (r"(.*)\.(bzr|git|cvs|svn|darcs)", dir)
+
+    print 'dir:', dir
     
     dir = m.group (1)
     type = m.group (2)
