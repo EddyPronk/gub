@@ -1,16 +1,37 @@
-* Split build recipe's into Basic (configure??; make; make install),
-  AutoTools; move Scons, Bjam recipes to gub lib.  Softcode stages,
-  move autotools patching to autogen/prepare_configure stage.
+* Make test-gub work with plain, user-checked-out repositories again
+  (and/or remove lilypond hardcoding from cron-builder, move checkout
+   command from cron-builder to separate app (or into test-gub)).
+  Add option to send diffs again.  Use case
+
+     bzr branch http://foo/bar.bzr && test-gub bar
+
+  [or alternatively, something like
+
+     gub --stage=download http://foo/bar.bzr && test-gub bar]
+
+* Softcode stages.
+
+* move Scons, Bjam recipes to gub lib.
+
+* code cygwin installer as alternative build spec.
+
+* code .deb installer as alternative build spec.
+
+* look at other installer-builders -> build spec?
+
+* Split build recipes into Basic (configure??; make; make install),
+  AutoTools
+
+* move autotools patching to autogen/prepare_configure stage.
 
 * move makeflags () feature to buildspec.
 
-* Bootstrap whole toolchain from source on more platforms (freebsd)
+* Bootstrap whole toolchain from source on more platforms (freebsd)?
 
-* Install cross toolchain packages in target/local?
-
-* move and merge cross.Gcc, cross.Binutils into cross/gcc, cross/binutils.
 
 LOWER PRIORITY
+
+- replace os. calls with os.context wrapper ones
 
 - better name for gubb.py
 
@@ -48,4 +69,5 @@ LOWER PRIORITY
 	       libexpat-dev (for git),
 	       libjpeg-dev (for netpbm),
 	       libtiff-dev (for netpbm),
-	       libx11-dev (for netpbm)]
+	       libx11-dev (for netpbm),
+	       svn (for ghostscript)]

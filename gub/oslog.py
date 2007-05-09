@@ -57,16 +57,22 @@ class Os_commands:
         while proc.poll () is None:
             line = proc.stdout.readline ()
             self.log (line, level['output'], verbose)
+            # FIXME: how to yield time slice in python?
             time.sleep (0.0001)
 
-        if proc.returncode and not ignore_errors:
-            m = 'Command barfed: %s\n' % cmd
+        line = proc.stdout.readline ()
+        self.log (line, level['output'], verbose)
+        if proc.returncode:
+            m = 'Command barfed: %(cmd)s\n' % locals ()
             self.error (m)
-            raise misc.SystemFailed (m)
+	    if not ignore_errors:
+        	raise misc.SystemFailed (m)
 
         return 0
 
     def log (self, str, threshold, verbose=None):
+        if not str:
+            return
         if not verbose:
             verbose = self.verbose
         if verbose >= threshold:
@@ -74,7 +80,6 @@ class Os_commands:
         if self.log_file:
             self.log_file.write (str)
             self.log_file.flush ()
-
 
     # FIXME
     def action (self, str):
