@@ -34,8 +34,16 @@ class Repository:
     def __init__ (self, dir, vcs, source):
         self.vcs = vcs
         self.dir = os.path.normpath (dir) + self.vcs
+
         if not dir or dir == '.':
-            self.dir = os.path.join (os.getcwd (), self.vcs)
+            dir = os.getcwd ()
+            if os.path.isdir (os.path.join (dir, self.vcs)):
+                # Support user-checkouts: If we're already checked-out
+                # HERE, use that as repository
+                self.dir = dir
+            else:
+                # Otherwise, check fresh repository out under .VCS
+                self.dir = os.path.join (os.getcwd (), self.vcs)
         self .source = source
 
         self.oslog = None
@@ -81,6 +89,16 @@ class Repository:
         """A human-readable revision number. It need not be unique over revisions."""
         return '0'
 
+    def read_last_patch (self):
+        """Return a dict with info about the last patch"""
+        assert 0
+        return {}
+
+    def get_diff_from_tag (self, name):
+        """Return diff wrt to last tag that starts with NAME  """
+        assert 0
+        return 'baseclass method called'
+
 class Version:
     def __init__ (self, version):
         self.dir = None
@@ -100,6 +118,9 @@ class Version:
 
     def version (self):
         return self._version
+
+    def set_oslog (self, oslog):
+        pass
 
 class Darcs (Repository):
     def __init__ (self, dir, source=''):
@@ -245,12 +266,17 @@ class RepositoryException (Exception):
 class Git (Repository):
     def __init__ (self, dir, source='', branch='', revision=''):
         Repository.__init__ (self, dir, '.git', source)
+        user_repo_dir = os.path.join (self.dir, self.vcs)
+        if os.path.isdir (user_repo_dir):
+            self.dir = user_repo_dir
         self.checksums = {}
         self.local_branch = ''
         self.remote_branch = branch
         self.revision = revision
 
-        self.repo_url_suffix = re.sub ('.*://', '', source)
+        self.repo_url_suffix = None
+        if source:
+            self.repo_url_suffix = re.sub ('.*://', '', source)
 
         if self.repo_url_suffix:
             # FIXME: logic copied foo times
@@ -284,7 +310,6 @@ class Git (Repository):
         b = self.local_branch
         if not b:
             b = self.revision
-        
         return '#<GitRepository %s#%s>' % (self.dir, b)
 
     def get_revision_description (self):
@@ -294,52 +319,42 @@ class Git (Repository):
         committish = self.git_pipe ('log --max-count=1 --pretty=oneline %(local_branch)s'
                                     % self.__dict__).split (' ')[0]
         m = re.search ('^tree ([0-9a-f]+)',
-                       self.git_pipe ('cat-file commit %(committish)s'  % locals ()))
-
+                       self.git_pipe ('cat-file commit %(committish)s'
+                                      % locals ()))
         treeish = m.group (1)
-        for f in self.git_pipe ('ls-tree -r %(treeish)s' %
-                                locals ()).split ('\n'):
+        for f in self.git_pipe ('ls-tree -r %(treeish)s'
+                                % locals ()).split ('\n'):
             (info, name) = f.split ('\t')
             (mode, type, fileish) = info.split (' ')
-
             if name == file_name:
                 return self.git_pipe ('cat-file blob %(fileish)s ' % locals ())
 
         raise RepositoryException ('file not found')
         
     def get_branches (self):
-        branch_lines = self.read_pipe (self.git_command () + ' branch -l ').split ('\n')
-
+        branch_lines = self.read_pipe (self.git_command ()
+                                       + ' branch -l ').split ('\n')
         branches =  [b[2:] for b in branch_lines]
         return [b for b in branches if b]
 
     def git_command (self, dir, repo_dir):
         if repo_dir:
             repo_dir = '--git-dir %s' % repo_dir
-
         c = 'git %(repo_dir)s' % locals ()
         if dir:
             c = 'cd %s && %s' % (dir, c)
-
         return c
         
-    def git (self, cmd, dir='', ignore_errors=False,
-             repo_dir=''):
-
+    def git (self, cmd, dir='', ignore_errors=False, repo_dir=''):
         if repo_dir == '' and dir == '':
             repo_dir = self.dir
-        
         gc = self.git_command (dir, repo_dir)
         cmd = '%(gc)s %(cmd)s' % locals ()
-            
         self.system (cmd, ignore_errors=ignore_errors)
 
-    def git_pipe (self, cmd, ignore_errors=False,
-                  dir='', repo_dir=''):
-
+    def git_pipe (self, cmd, ignore_errors=False, dir='', repo_dir=''):
         if repo_dir == '' and dir == '':
             repo_dir = self.dir
-            
         gc = self.git_command (dir, repo_dir)
         return self.read_pipe ('%(gc)s %(cmd)s' % locals ())
         
@@ -380,6 +395,8 @@ class Git (Repository):
 
         refs = '%s:%s' % (self.remote_branch, self.branch)
 
+        # FIXME: if source == None (for user checkouts), how to ask
+        # git what parent url is?  `git info' does not work
         self.git ('fetch --update-head-ok %(source)s %(refs)s ' % locals ())
         self.checksums = {}
 
@@ -607,6 +624,9 @@ class SimpleRepo (Repository):
                      % locals ())
 
     def _checkout_dir (self):
+        # Support user-check-outs
+        if os.path.isdir (os.path.join (self.dir, self.vcs)):
+            return self.dir
         revision = self.revision
         dir = self.dir
         branch = self.branch
@@ -676,6 +696,8 @@ class Bazaar (SimpleRepo):
     def _update (self, revision):
         rev_opt = '-r %(revision)s ' % locals ()
         source = self.source
+        if not source:
+            source = ''
         self.bzr_system ('pull %(rev_opt)s %(source)s' % locals ())
 
     def bzr_pipe (self, cmd):
@@ -689,27 +711,6 @@ class Bazaar (SimpleRepo):
     def get_revision_description (self):
         return self.bzr_pipe ('log --verbose -r-1')
 
-# FIXME: repository detection AND repositories only work if they are
-# checked-out in a dir named .../name.REPOSITORY Eg, for GIT, this
-# means that only the first arbitrary in .git in
-# `downloads/lilypond.git/.git' is `detected'.  Repositories passed to
-# test-gub must have the .REPOSITORY stripped, --repository=. does not
-# work.
-
-# This is not trivial to fix, as the DIR passed to Repository () is
-# not an existing directory, it gets `.REPOSITORY' appended in the
-# constructors.
-
-# Also, different revisions get checked-out in different directories:
-#, eg: foo.svn/trunk-7111, foo.svn/trunk-HEAD, etc.
-
-# For gub-tester to work with user-checkouts again, for now use a workaround
-# like
-#    mkdir foo.bzr && cd foo.bzr
-#    bzr branch URL HEAD
-#    cd HEAD && mkdir log
-#    gub-tester --repository $(cd .. && pwd)
-
 def get_appended_vcs_name (name):
     return re.search (r"(.*)\.(bzr|git|cvs|svn|darcs|.tar(.gz|.bz2))", name)
 
@@ -720,9 +721,19 @@ def get_prepended_vcs_name (name):
 # and use that as cache
 def get_vcs_type_from_checkout_directory_name (dir):
     m = get_appended_vcs_name (dir)
-    dir = m.group (1)
-    type = m.group (2)
-    return dir, type
+    if m:
+        dir = m.group (1)
+        type = m.group (2)
+        return dir, type
+    return dir, None
+
+def get_vcs_type_of_dir (dir):
+    # FIXME: get these from all repositories...
+    for i in ('.bzr', '.git', 'CVS', '.svn', '_darcs'):
+        if os.path.isdir (os.path.join (dir, i)):
+            return i.replace ('.', '').replace ('_', '')
+    #Hmm
+    return 'tar.gz'
 
 def get_vcs_type_from_url (url):
     m = get_prepended_vcs_name (url)
@@ -750,6 +761,9 @@ def get_repository_proxy (dir, url, revision, branch):
         url, type = get_vcs_type_from_url (url)
     if not type:
         dir, type = get_vcs_type_from_checkout_directory_name (dir)
+    if not type:
+        # FIXME: todo: teach repositories that they might be
+        type = get_vcs_type_of_dir (dir)
 
     if type == 'bzr':
         return Bazaar (dir, source=url, revision=revision)
@@ -761,8 +775,10 @@ def get_repository_proxy (dir, url, revision, branch):
         return Git (dir, source=url, branch=branch, revision=revision)
     elif type == 'svn':
         return Subversion (dir, source=url, branch=branch)
-    elif type.startswith ('.tar.'):
+    elif type and type.startswith ('.tar.'):
         return TarBall (dir, url=url, branch=branch)
     
-    raise UnknownVcSystem ('Cannot determine vcs type: url=%(url)s, dir=%(dir)'
+    class UnknownVcSystem (Exception):
+        pass
+    raise UnknownVcSystem ('Cannot determine vcs type: url=%(url)s, dir=%(dir)s'
                            % locals ())

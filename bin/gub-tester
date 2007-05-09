@@ -77,26 +77,19 @@ def opt_parser ():
             address = '%s@localhost' % os.getlogin ()
         except OSError:
             address = 'root@localhost'
-    
-    p = optparse.OptionParser (usage='gub-tester [options] command command ... ')
 
+    p = optparse.OptionParser (usage='gub-tester [options] command command ... ')
+    p.address = [address]
+    
     examples = '''Examples:
 gub-tester --repository=downloads/lilypond.git \\
     gub --branch=lilypond:master lilypond
 
 gub-tester --url=http://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr \\
-    'make all test'
+    'make all check'
 
-# FIXME: does not work any more
 bzr branch http://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr
-cd yaffut.bzr && test-gub 'make all test'
-
-# For gub-tester to work with user-checkouts again, for now use a workaround
-# like
-#    mkdir foo.bzr && cd foo.bzr
-#    bzr branch URL HEAD
-#    cd HEAD && mkdir log
-#    gub-tester --repository $(cd .. && pwd)
+cd yaffut.bzr && gub-tester 'make all check'
 
 '''
 
@@ -118,6 +111,12 @@ cd yaffut.bzr && test-gub 'make all test'
                   default=False,
                   action='store_true',
                   help='do not run any commands')
+    
+    p.add_option ('--append-diff',
+                  dest='append_diff',
+                  default=False,
+                  action='store_true',
+                  help='append diff since last successful run')
     
     p.add_option ('--bcc',
                   action='append',
@@ -237,7 +236,7 @@ def test_target (repo, options, target, last_patch):
         return ('SUCCESS', ['dryrun'])
         
     stat = os.system (cmd)
-  
+    base_tag = 'success-%(canonicalize)s-' % locals ()
     result = 'unknown'
     attachments = []
 
@@ -246,8 +245,20 @@ def test_target (repo, options, target, last_patch):
         result = 'FAIL'
         attachments = ['error for\n\n\t%s\n\n\n%s' % (target,
                                                '\n'.join (body[-0:]))]
-
+        if options.append_diff:
+            attachments += [repo.get_diff_from_tag (base_tag)]
     else:
+        if 0:
+            # FIXME: find in archives, what did this do?
+            # format of last_patch?
+            # canonicalize_target vs canonicalize_string?
+            print last_patch
+            tag = base_tag + canonicalize_string (last_patch['date'])
+            repo.tag (tag)
+            log_file.log ('tagging with %s' % tag)
+            if options.tag_repo:
+                repo.push (tag, options.tag_repo)
+
         result = 'SUCCESS'
         attachments = ['success for\n\n\t%s\n\n%s'
                        % (target,
@@ -261,6 +272,7 @@ def test_target (repo, options, target, last_patch):
 def send_message (options, msg):
     if not options.address:
         log_file.info ('No recipients for result mail')
+        # FIXME: what about env[EMAIL]?
         return
     
     COMMASPACE = ', '
