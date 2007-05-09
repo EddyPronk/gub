@@ -105,6 +105,14 @@ gub-tester --url=http://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr \\
 # FIXME: does not work any more
 bzr branch http://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr
 cd yaffut.bzr && test-gub 'make all test'
+
+# For gub-tester to work with user-checkouts again, for now use a workaround
+# like
+#    mkdir foo.bzr && cd foo.bzr
+#    bzr branch URL HEAD
+#    cd HEAD && mkdir log
+#    gub-tester --repository $(cd .. && pwd)
+
 '''
 
     def format_examples (self):
@@ -364,16 +372,17 @@ def test_self (options, args):
     system ('mkdir %s ' %  self_test_dir)
     os.chdir (self_test_dir)
     system ('mkdir log')
-    system (r"echo -e '#!/bin/sh\ntrue\n' > foo.sh")
+    system ('''echo '#!/bin/sh
+true' > foo.sh''')
     system ('darcs init')
     system ('echo author > _darcs/prefs/author')
     system ('darcs add foo.sh')
     system ('darcs record -am "add bla"')
     options.repository = os.getcwd ()
-    
     real_main (options, ['false', 'true', 'sh foo.sh'], print_results)
 
-    system (r"echo -e '#!/bin/sh\nfalse\n' > foo.sh")
+    system ('''echo '#!/bin/sh
+true' > foo.sh''')
     system ('darcs record  -am "change bla"')
     real_main (options, ['sh foo.sh'], print_results)
     

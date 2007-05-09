@@ -68,7 +68,7 @@ def parse_options ():
                   action="store_true",
                   dest="build_docs",
                   default=None,
-                  help="build docs. Implies --dependent for test-gub")
+                  help="build docs. Implies --dependent for gub-tester")
     
     p.add_option ('--package',
                   action="store_true",
@@ -92,7 +92,7 @@ def parse_options ():
                   action='store',
                   dest='test_options',
                   default="",
-                  help='what to pass to test-gub')
+                  help='what to pass to gub-tester')
 
     p.add_option ('--unversioned',
                   action="store_true",
@@ -149,7 +149,8 @@ def main ():
     make_cmd = 'make %s ' % opts.make_options
     python_cmd = sys.executable  + ' '
 
-    ## can't have these in test-gub, since these
+    # FIXME: use gub-tester's download facility
+    ## can't have these in gub-tester, since these
     ## will always usually result in "release already tested"
     for a in args:
         system (python_cmd + 'bin/gub --branch %s:%s -p %s --stage=download lilypond'
@@ -158,7 +159,7 @@ def main ():
 
     test_cmds = []
     if opts.build_package:
-        test_cmds += [python_cmd + 'bin/gub --branch %s:%s -lp %s build lilypond '
+        test_cmds += [python_cmd + 'bin/gub --branch %s:%s -lp %s lilypond '
                       % (opts.branch, opts.local_branch, p) for p in args]
         
     if opts.build_installer:
@@ -176,7 +177,7 @@ def main ():
     if opts.build_tarball:
         test_cmds += [make_cmd + " dist-check"]
 
-    system (python_cmd + 'bin/test-gub %s %s '
+    system (python_cmd + 'bin/gub-tester %s %s '
             % (opts.test_options, ' '.join (["'%s'" % c for c in test_cmds])))
 
 if __name__ == '__main__':

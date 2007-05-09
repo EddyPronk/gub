@@ -1,4 +1,3 @@
-
 """
     Copyright (c) 2005--2007
     Jan Nieuwenhuizen <janneke@gnu.org>
@@ -32,12 +31,18 @@ from gub import mirrors
 ## Rename to Source/source.py?
 
 class Repository: 
-    def __init__ (self):
-        # Fallback, this will go through oslog
+    def __init__ (self, dir, vcs, source):
+        self.vcs = vcs
+        self.dir = os.path.normpath (dir) + self.vcs
+        if not dir or dir == '.':
+            self.dir = os.path.join (os.getcwd (), self.vcs)
+        self .source = source
+
+        # Fallbacks, this will go through oslog
         self.system = misc.system
         self.read_pipe = misc.read_pipe
         self.download_url = misc.download_url
-        
+
     def download (self):
         pass
 
@@ -52,7 +57,10 @@ class Repository:
 
     def is_tracking (self):
         "Whether download will fetch newer versions if available"
-        
+        return False
+    
+    def is_downloaded (self):
+        "Whether repository is available"
         return False
     
     def update_workdir (self, destdir):
@@ -67,6 +75,7 @@ class Repository:
 
 class Version:
     def __init__ (self, version):
+        self.dir = None
         self._version = version
 
     def download (self):
@@ -86,12 +95,9 @@ class Version:
 
 class Darcs (Repository):
     def __init__ (self, dir, source=''):
-        Repository.__init__ (self)
-        self.dir = dir + '.darcs'
-        self.source = source
+        Repository.__init__ (self, dir, '.darcs', source)
 
     def darcs_pipe (self, cmd):
-
         dir = self.dir
         return self.read_pipe ('cd %(dir)s && darcs %(cmd)s' % locals ())
 
@@ -102,13 +108,15 @@ class Darcs (Repository):
     def get_revision_description (self):
         return self.darcs_pipe ('changes --last=1')
     
-    def download (self):
-        dir = self.dir
-        source = self.source
+    def is_downloaded (self):
+        return os.path.isdir (self.dir + '/_darcs')
 
-        if os.path.exists (dir + '/_darcs'):
+    def download (self):
+        source = self.source
+        if not self.is_downloaded ():
             self.darcs ('pull -a %(source)s' % locals ())
         else:
+            dir = self.dir
             self.system ('darcs get %(source)s %(dir)s' % locals ())
         
     def is_tracking (self):
@@ -148,14 +156,19 @@ class Darcs (Repository):
 
     
 class TarBall (Repository):
-    def __init__ (self, dir, url, version, strip_components=1):
-        Repository.__init__ (self)
-        if not os.path.isdir (dir):
-            self.system ('mkdir -p %s' % dir)
+    # TODO: s/url/source
+    def __init__ (self, dir, url, version=None, strip_components=1):
+        Repository.__init__ (self, dir, '.tar', url)
 
         self.dir = dir
-        self.url = url
+        if not os.path.isdir (self.dir):
+            self.system ('mkdir -p %s' % self.dir)
+
         self._version = version
+        if not version:
+            x, v = misc.split_ball (url)
+            self._version = '.'.join (v)
+
         self.branch = None
         self.strip_components = strip_components
         
@@ -163,16 +176,16 @@ class TarBall (Repository):
         return False
 
     def _file_name (self):
-        return re.search ('.*/([^/]+)$', self.url).group (1)
+        return re.search ('.*/([^/]+)$', self.source).group (1)
     
-    def _is_downloaded (self):
+    def is_downloaded (self):
         name = os.path.join (self.dir, self._file_name  ())
         return os.path.exists (name)
     
     def download (self):
-        if self._is_downloaded ():
+        if self.is_downloaded ():
             return
-        self.download_url (self.url, self.dir)
+        self.download_url (self.source, self.dir)
 
     def get_checksum (self):
         from gub import misc
@@ -219,14 +232,11 @@ class RepositoryException (Exception):
     pass
 
 class Git (Repository):
-    def __init__ (self, git_dir, source='', branch='', revision=''):
-        Repository.__init__ (self)
-        
-        self.repo_dir = os.path.normpath (git_dir) + '.git'
+    def __init__ (self, dir, source='', branch='', revision=''):
+        Repository.__init__ (self, dir, '.git', source)
         self.checksums = {}
         self.local_branch = ''
         self.remote_branch = branch
-        self.source = source
         self.revision = revision
 
         self.repo_url_suffix = re.sub ('.*://', '', source)
@@ -264,7 +274,7 @@ class Git (Repository):
         if not b:
             b = self.revision
         
-        return '#<GitRepository %s#%s>' % (self.repo_dir, b)
+        return '#<GitRepository %s#%s>' % (self.dir, b)
 
     def get_revision_description (self):
         return self.git_pipe ('log --max-count=1 %s' % self.local_branch)  
@@ -306,7 +316,7 @@ class Git (Repository):
              repo_dir=''):
 
         if repo_dir == '' and dir == '':
-            repo_dir = self.repo_dir
+            repo_dir = self.dir
         
         gc = self.git_command (dir, repo_dir)
         cmd = '%(gc)s %(cmd)s' % locals ()
@@ -317,17 +327,20 @@ class Git (Repository):
                   dir='', repo_dir=''):
 
         if repo_dir == '' and dir == '':
-            repo_dir = self.repo_dir
+            repo_dir = self.dir
             
         gc = self.git_command (dir, repo_dir)
         return self.read_pipe ('%(gc)s %(cmd)s' % locals ())
         
+    def is_downloaded (self):
+        return os.path.isdir (self.dir)
+
     def download (self):
-        repo = self.repo_dir
+        repo = self.dir
         source = self.source
         revision = self.revision
         
-        if not os.path.isdir (self.repo_dir):
+        if not self.is_downloaded ():
             self.git ('--git-dir %(repo)s clone --bare -n %(source)s %(repo)s' % locals ())
 
             for (root, dirs, files) in os.walk ('%(repo)s/refs/heads/' % locals ()):
@@ -367,7 +380,7 @@ class Git (Repository):
         if self.checksums.has_key (branch):
             return self.checksums[branch]
 
-        repo_dir = self.repo_dir
+        repo_dir = self.dir
         if os.path.isdir (repo_dir):
             ## can't use describe: fails in absence of tags.
             cs = self.git_pipe ('rev-list  --max-count=1 %(branch)s' % locals ())
@@ -384,7 +397,7 @@ class Git (Repository):
 
     def update_workdir (self, destdir):
 
-        repo_dir = self.repo_dir
+        repo_dir = self.dir
         branch = self.local_branch
         revision = self.revision
         
@@ -402,24 +415,22 @@ class Git (Repository):
         open ('%(destdir)s/.git/refs/heads/%(branch)s' % locals (), 'w').write (revision)
         self.git ('checkout %(branch)s' % locals (), dir=destdir) 
 
-class CVS(Repository):
+class CVS (Repository):
     cvs_entries_line = re.compile ("^/([^/]*)/([^/]*)/([^/]*)/([^/]*)/")
     #tag_dateformat = '%Y/%m/%d %H:%M:%S'
 
-    def __init__ (self, dir,
-                  source='', module='', tag='HEAD'):
-        Repository.__init__ (self)
-        self.repo_dir = os.path.normpath (dir) + '.cvs'
+    def __init__ (self, dir, source='', module='', tag='HEAD'):
+        Repository.__init__ (self, dir, '.cvs', source)
         self.module = module
         self.checksums = {}
         self.source = source
         self.tag = tag
         self.branch = tag # for vc_version_suffix
-        if not os.path.isdir (self.repo_dir):
-            self.system ('mkdir -p %s' % self.repo_dir)
+        if not os.path.isdir (self.dir):
+            self.system ('mkdir -p %s' % self.dir)
             
     def _checkout_dir (self):
-        return '%s/%s' % (self.repo_dir, self.tag)
+        return '%s/%s' % (self.dir, self.tag)
 
     def is_tracking (self):
         return True ##FIXME
@@ -433,7 +444,7 @@ class CVS(Repository):
             
             changelog_rev = ''
             
-            for (name, version, date, dontknow) in self.cvs_entries (self.repo_dir + '/CVS'):
+            for (name, version, date, dontknow) in self.cvs_entries (self.dir + '/CVS'):
                 if name == 'ChangeLog':
                     changelog_rev  = version
                     break
@@ -448,7 +459,7 @@ class CVS(Repository):
         if self.checksums.has_key (self.tag):
             return self.checksums[self.tag]
         
-        file = '%s/%s/.vc-checksum' % (self.repo_dir, self.tag)
+        file = '%s/%s/.vc-checksum' % (self.dir, self.tag)
 
         if os.path.exists (file):
             cs = open (file).read ()
@@ -485,6 +496,10 @@ class CVS(Repository):
         ## TODO: can we get deletes from vc?
         self.system ('rsync -av --delete --exclude CVS %(dir)s/ %(destdir)s' % locals ())
         
+    def is_downloaded (self):
+        dir = self._checkout_dir ()
+        return os.path.isdir (dir + '/CVS')
+
     def download (self):
         suffix = self.tag
         rev_opt = '-r ' + self.tag
@@ -493,10 +508,10 @@ class CVS(Repository):
         lock_dir = locker.Locker (dir + '.lock')
         module = self.module
         cmd = ''
-        if os.path.isdir (dir + '/CVS'):
+        if not self.is_downloaded ():
             cmd += 'cd %(dir)s && cvs -q up -dCAP %(rev_opt)s' % locals()
         else:
-            repo_dir = self.repo_dir
+            repo_dir = self.dir
             cmd += 'cd %(repo_dir)s/ && cvs -d %(source)s -q co -d %(suffix)s %(rev_opt)s %(module)s''' % locals ()
 
         self.system (cmd)
@@ -528,28 +543,23 @@ class CVS(Repository):
         ds = self.cvs_dirs (dir)
         es = []
         for d in ds:
-            
             ## strip CVS/
             basedir = os.path.split (d)[0]
             for e in self.cvs_entries (d):
                 file_name = os.path.join (basedir, e[0])
-                file_name = file_name.replace (self.repo_dir + '/', '')
+                file_name = file_name.replace (self.dir + '/', '')
 
                 es.append ((file_name,) + e[1:])
-            
-
         return es
 
     def all_files (self, branch):
-        entries = self.all_cvs_entries (self.repo_dir + '/' + branch)
+        entries = self.all_cvs_entries (self.dir + '/' + branch)
         return [e[0] for e in entries]
     
 # FIXME: why are cvs, darcs, git so complicated?
 class SimpleRepo (Repository):
-    def __init__ (self, dir, repository, source, branch, revision='HEAD'):
-        Repository.__init__ (self)
-        self.repository = repository
-        self.dir = os.path.normpath (dir) + self.repository
+    def __init__ (self, dir, vcs, source, branch, revision='HEAD'):
+        Repository.__init__ (self, dir, vcs, source)
         self.source = source
         self.revision = revision
         self.branch = branch
@@ -558,21 +568,24 @@ class SimpleRepo (Repository):
 
     def is_tracking (self):
         ## FIXME, probably wrong.
-        return self.revision == 'HEAD'
+        return (not self.revision or self.revision == 'HEAD')
 
     def update_workdir (self, destdir):
         dir = self._checkout_dir ()
         self._copy_working_dir (dir, destdir)
 
-    def download (self):
+    def is_downloaded (self):
         dir = self._checkout_dir ()
-        if not os.path.isdir (dir + '/' + self.repository):
+        return os.path.isdir (os.path.join (dir, self.vcs))
+
+    def download (self):
+        if not self.is_downloaded ():
             self._checkout ()
         if self._current_revision () != self.revision:
             self._update (self.revision)
 
     def _copy_working_dir (self, dir, copy):
-        repository = self.repository
+        repository = self.vcs
         self.system ('rsync -av --exclude %(repository)s %(dir)s/ %(copy)s'
                      % locals ())
 
@@ -595,6 +608,8 @@ class SimpleRepo (Repository):
 
 class Subversion (SimpleRepo):
     def __init__ (self, dir, source, branch, module, revision='HEAD'):
+        if not revision:
+            revision = 'HEAD'
         SimpleRepo.__init__ (self, dir, '.svn', source, branch, revision)
         self.module = module
 
@@ -624,6 +639,8 @@ class Subversion (SimpleRepo):
 class Bazaar (SimpleRepo):
     def __init__ (self, dir, source, revision='HEAD'):
         # FIXME: multi-branch repos not supported for now
+        if not revision:
+            revision = '0'
         SimpleRepo.__init__ (self, dir, '.bzr', source, '', revision)
 
     def _current_revision (self):
@@ -632,15 +649,17 @@ class Bazaar (SimpleRepo):
         return revno[:-1]
 
     def _checkout (self):
+        dir = self.dir
         source = self.source
         revision = self.revision
         rev_opt = '-r %(revision)s ' % locals ()
-        self.system ('''branch %(rev_opt)s %(source)s %(revision)s'''
-                     % locals ())
+        self.system ('''cd %(dir)s && bzr branch %(rev_opt)s %(source)s %(revision)s'''
+                         % locals ())
         
     def _update (self, revision):
         rev_opt = '-r %(revision)s ' % locals ()
-        self.bzr_system ('pull %(rev_opt)s' % locals ())
+        source = self.source
+        self.bzr_system ('pull %(rev_opt)s %(source)s' % locals ())
 
     def bzr_pipe (self, cmd):
         dir = self._checkout_dir ()
@@ -667,31 +686,66 @@ class Bazaar (SimpleRepo):
 # Also, different revisions get checked-out in different directories:
 #, eg: foo.svn/trunk-7111, foo.svn/trunk-HEAD, etc.
 
-# For test-gub to work outside gub again, for now use a workaround
+# For gub-tester to work with user-checkouts again, for now use a workaround
 # like
 #    mkdir foo.bzr && cd foo.bzr
 #    bzr branch URL HEAD
 #    cd HEAD && mkdir log
-#    test-gub --repository $(cd .. && pwd)
-def get_repository_proxy (dir, branch):
-    m = re.search (r"(.*)\.(bzr|git|cvs|svn|darcs)", dir)
+#    gub-tester --repository $(cd .. && pwd)
 
-    print 'dir:', dir
-    
+def get_appended_vcs_name (name):
+    return re.search (r"(.*)\.(bzr|git|cvs|svn|darcs|.tar(.gz|.bz2))", name)
+
+def get_prepended_vcs_name (name):
+    return re.search (r"(bzr|git|cvs|svn|darcs):", name)
+
+# FIXME: removeme, allow for user to checkout sources in any directory
+# and use that as cache
+def get_vcs_type_from_checkout_directory_name (dir):
+    m = get_appended_vcs_name (dir)
     dir = m.group (1)
     type = m.group (2)
+    return dir, type
+
+def get_vcs_type_from_url (url):
+    m = get_prepended_vcs_name (url)
+    if m:
+        type = m.group (1)
+        url = m.group (2)
+        return url, type
+    p = url.find ('//:')
+    if p > 0:
+        protocol = url[:p]
+        type = {'bzr+ssh': 'bzr',
+                'svn+ssh': 'svn',
+            }.get (protocol, None)
+        if type:
+            return url, type
+    m = get_appended_vcs_name (url)
+    if m:
+        type = m.group (2)
+        return url, type
+    return url, None
+
+def get_repository_proxy (dir, url, revision, branch):
+    type = None
+    if url:
+        url, type = get_vcs_type_from_url (url)
+    if not type:
+        dir, type = get_vcs_type_from_checkout_directory_name (dir)
 
     if type == 'bzr':
-        return Bazaar (dir, source='unknown')
+        return Bazaar (dir, source=url, revision=revision)
     elif type == 'cvs':
-        return CVS (dir, branch=branch)
+        return CVS (dir, source=url, tag=branch)
     elif type == 'darcs':
-        return Darcs (dir)
+        return Darcs (dir, source=url)
     elif type == 'git':
-        return Git (dir, branch=branch)
+        return Git (dir, source=url, branch=branch, revision=revision)
     elif type == 'svn':
-        return Subversion (dir, branch=branch)
-    else:
-        raise UnknownVcSystem('repo format unknown: ' + dir)
-
-    return Repository('', '')
+        return Subversion (dir, source=url, branch=branch)
+    elif type.startswith ('.tar.'):
+        return TarBall (dir, url=url, branch=branch)
+    
+    raise UnknownVcSystem ('Cannot determine vcs type: url=%(url)s, dir=%(dir)'
+                           % locals ())

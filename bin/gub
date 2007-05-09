@@ -20,8 +20,15 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 """
 
+def argv0_relocation ():
+    import os, sys
+    bindir = os.path.dirname (sys.argv[0])
+    prefix = os.path.dirname (bindir)
+    sys.path.insert (0, prefix)
+
+argv0_relocation ()
+
 import sys
-sys.path.insert (0, '.')
 #
 from gub import cross
 ## fixme: double use of gub name.

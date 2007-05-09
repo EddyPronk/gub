@@ -1,13 +1,4 @@
-* Make test-gub work with plain, user-checked-out repositories again
-  (and/or remove lilypond hardcoding from cron-builder, move checkout
-   command from cron-builder to separate app (or into test-gub)).
-  Add option to send diffs again.  Use case
-
-     bzr branch http://foo/bar.bzr && test-gub bar
-
-  [or alternatively, something like
-
-     gub --stage=download http://foo/bar.bzr && test-gub bar]
+* Make gub-tester work with plain, user-checked-out repositories again?
 
 * Softcode stages.
 
@@ -31,9 +22,12 @@
 
 LOWER PRIORITY
 
-- replace os. calls with os.context wrapper ones
+- replace os. calls with os.context wrapper ones (make a real
+  dry-run to quick-test all .py scripts?)
 
 - better name for gubb.py
+
+- name for gub-tester (test-repo, repo-builder?)
 
 - Split gub/*py into packager, builder, platform
 
