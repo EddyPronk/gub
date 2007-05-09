@@ -159,7 +159,7 @@ cd yaffut.bzr && test-gub 'make all test'
                   help='where to fetch sources')
     
     p.add_option ('--update',
-                  action='store',
+                  action='store_true',
                   dest='update',
                   default=False,
                   help='checkout or update sources')
@@ -242,7 +242,7 @@ def test_target (repo, options, target, last_patch):
     logfile = 'test-%(canonicalize)s.log' %  locals ()
     logfile = os.path.join (options.result_dir, logfile)
     
-    cmd = 'nice time %(target)s > %(logfile)s 2>&1' %  locals ()
+    cmd = '(nice time %(target)s) > %(logfile)s 2>&1' %  locals ()
 
     log_file.log (cmd)
 

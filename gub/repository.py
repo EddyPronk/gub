@@ -38,10 +38,18 @@ class Repository:
             self.dir = os.path.join (os.getcwd (), self.vcs)
         self .source = source
 
+        self.oslog = None
         # Fallbacks, this will go through oslog
         self.system = misc.system
         self.read_pipe = misc.read_pipe
         self.download_url = misc.download_url
+
+    def set_oslog (self, oslog):
+        # Fallbacks, this will go through oslog
+        self.oslog = oslog
+        self.system = oslog.system
+        self.read_pipe = oslog.read_pipe
+        self.download_url = oslog.download_url
 
     def download (self):
         pass
@@ -148,7 +156,10 @@ class Darcs (Repository):
         self.system ('mkdir -p %(destdir)s' % locals ())
         dir = self.dir
         
-        self.system ('rsync --exclude _darcs -av %(dir)s/* %(destdir)s/' % locals())
+        verbose = ''
+        if self.oslog and self.oslog.verbose >= self.oslog.commands:
+            verbose = 'v'
+        self.system ('rsync --exclude _darcs -a%(verbose)s %(dir)s/* %(destdir)s/' % locals())
 
     def get_file_content (self, file):
         dir = self.dir
@@ -494,7 +505,10 @@ class CVS (Repository):
     def update_workdir (self, destdir):
         dir = self._checkout_dir ()
         ## TODO: can we get deletes from vc?
-        self.system ('rsync -av --delete --exclude CVS %(dir)s/ %(destdir)s' % locals ())
+        verbose = ''
+        if self.oslog and self.oslog.verbose >= self.oslog.commands:
+            verbose = 'v'
+        self.system ('rsync -a%(verbose)s --delete --exclude CVS %(dir)s/ %(destdir)s' % locals ())
         
     def is_downloaded (self):
         dir = self._checkout_dir ()
@@ -586,7 +600,10 @@ class SimpleRepo (Repository):
 
     def _copy_working_dir (self, dir, copy):
         repository = self.vcs
-        self.system ('rsync -av --exclude %(repository)s %(dir)s/ %(copy)s'
+        verbose = ''
+        if self.oslog and self.oslog.verbose >= self.oslog.commands:
+            verbose = 'v'
+        self.system ('rsync -a%(verbose)s --exclude %(repository)s %(dir)s/ %(copy)s'
                      % locals ())
 
     def _checkout_dir (self):
