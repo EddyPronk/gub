@@ -1,3 +1,5 @@
+* Add diff option: 561096638b3718af86d61570ac63bafa5c4a99f8
+
 * Make gub-tester work with plain, user-checked-out repositories again?
 
 * Softcode stages.
@@ -19,6 +21,16 @@
 
 * Bootstrap whole toolchain from source on more platforms (freebsd)?
 
+* Fix configure/make command env var settings (grep FIXME)
+
+ @subst_method
+ def CFLAGS(self):
+    return 'bla'
+
+or
+
+ def init(self):
+   self.CFLAGS='bla'
 
 LOWER PRIORITY
 

@@ -21,6 +21,7 @@ import dbhash
 
 
 from gub import repository
+from gub import oslog
 
 
 ################################################################
@@ -43,22 +44,6 @@ def canonicalize_string (target):
     canonicalize = re.sub ('[ \t\n]', '_', target)
     canonicalize = re.sub ('[^a-zA-Z0-9-]+', '_', canonicalize)
     return canonicalize
-
-class LogFile:
-    def __init__ (self, name):
-        if name:
-            self.file = open (name, 'a')
-        else:
-            self.file = sys.stdout
-
-        self.prefix = 'gub-tester [%d]: ' % os.getpid ()
-
-    def log (self, msg):
-        self.file.write ('%s%s\n' % (self.prefix, msg))
-        self.file.flush ()
-        
-    def __del__ (self):
-        self.log (' *** finished')
 
 log_file = None
 
@@ -218,6 +203,8 @@ cd yaffut.bzr && test-gub 'make all test'
                   help='Where to store databases test results',
                   default='log')
                   
+    p.add_option ('-v', '--verbose', action='count', dest='verbose', default=0)
+
     return p
 
 
@@ -235,16 +222,16 @@ def test_target (repo, options, target, last_patch):
 
     done_db = get_db (options, canonicalize)
     if done_db.has_key (release_hash):
-        log_file.log ('release %(release_hash)s has already been checked'
+        log_file.info ('release %(release_hash)s has already been checked'
                       % locals ())
         return None
     
     logfile = 'test-%(canonicalize)s.log' %  locals ()
     logfile = os.path.join (options.result_dir, logfile)
     
-    cmd = '(nice time %(target)s) > %(logfile)s 2>&1' %  locals ()
+    cmd = 'nice time sh -c "(%(target)s)" > %(logfile)s 2>&1' %  locals ()
 
-    log_file.log (cmd)
+    log_file.command (cmd)
 
     if options.dry_run:
         return ('SUCCESS', ['dryrun'])
@@ -266,14 +253,14 @@ def test_target (repo, options, target, last_patch):
                        % (target,
                           '\n'.join (body[-10:]))]
 
-    log_file.log ('%s: %s' % (target, result))
+    log_file.info ('%s: %s' % (target, result))
     
     done_db[release_hash] = time.ctime ()
     return (result, attachments)
     
 def send_message (options, msg):
     if not options.address:
-        log_file.log ('No recipients for result mail')
+        log_file.info ('No recipients for result mail')
         return
     
     COMMASPACE = ', '
@@ -299,14 +286,14 @@ def print_results (options, parts, subject='Autotester result'):
 def real_main (options, args, handle_result):
     global log_file
 
-    log = 'log/test-gubb.log'
+    log = 'log/gub-tester.log'
     if options.dry_run:
-        log = ''
+        log = '/dev/stdout'
 
-    log_file = LogFile (log)
+    log_file = oslog.Os_commands (log, options.verbose)
     
-    log_file.log (' *** %s' % time.ctime ())
-    log_file.log (' *** Starting tests:\n  %s' % '\n  '.join (args))
+    log_file.info (' *** %s' % time.ctime ())
+    log_file.info (' *** Starting tests:\n  %s' % '\n  '.join (args))
 
     repo = repository.get_repository_proxy (options.repository,
                                             options.url,
@@ -317,7 +304,7 @@ def real_main (options, args, handle_result):
         repo.download ()
         repo.update_workdir ('.')
 
-    log_file.log ('Repository %s' % str (repo))
+    log_file.info ('Repository %s' % str (repo))
     
     last_patch = repo.get_revision_description ()
     release_hash = repo.get_checksum ()
