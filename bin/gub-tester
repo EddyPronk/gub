@@ -1,5 +1,13 @@
 #!/usr/bin/python
 
+def argv0_relocation ():
+    import os, sys
+    bindir = os.path.dirname (sys.argv[0])
+    prefix = os.path.dirname (bindir)
+    sys.path.insert (0, prefix)
+
+argv0_relocation ()
+
 import sys
 import re
 import os
@@ -11,8 +19,9 @@ import optparse
 import time
 import dbhash
 
-sys.path.insert (0, '.')
+
 from gub import repository
+from gub import oslog
 
 
 ################################################################
@@ -35,22 +44,6 @@ def canonicalize_string (target):
     canonicalize = re.sub ('[ \t\n]', '_', target)
     canonicalize = re.sub ('[^a-zA-Z0-9-]+', '_', canonicalize)
     return canonicalize
-
-class LogFile:
-    def __init__ (self, name):
-        if name:
-            self.file = open (name, 'a')
-        else:
-            self.file = sys.stdout
-
-        self.prefix = 'test-gub[%d]: ' % os.getpid ()
-
-    def log (self, msg):
-        self.file.write ('%s%s\n' % (self.prefix, msg))
-        self.file.flush ()
-        
-    def __del__ (self):
-        self.log (' *** finished')
 
 log_file = None
 
@@ -84,8 +77,30 @@ def opt_parser ():
             address = '%s@localhost' % os.getlogin ()
         except OSError:
             address = 'root@localhost'
+
+    p = optparse.OptionParser (usage='gub-tester [options] command command ... ')
+    p.address = [address]
     
-    p = optparse.OptionParser (usage="test-gub [options] command command ... ")
+    examples = '''Examples:
+gub-tester --repository=downloads/lilypond.git \\
+    gub --branch=lilypond:master lilypond
+
+gub-tester --url=http://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr \\
+    'make all check'
+
+bzr branch http://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr
+cd yaffut.bzr && gub-tester 'make all check'
+
+'''
+
+    def format_examples (self):
+        return examples
+    if p.__dict__.has_key ('epilog'):
+        p.formatter.format_epilog = format_examples
+        p.epilog = examples
+    else:
+        p.formatter.format_description = format_examples
+        p.description = examples
     p.add_option ('-t', '--to',
                   action='append',
                   dest='address',
@@ -94,8 +109,14 @@ def opt_parser ():
     p.add_option ('--dry-run',
                   dest='dry_run',
                   default=False,
-                  action="store_true",
-                  help="don't run any commands")
+                  action='store_true',
+                  help='do not run any commands')
+    
+    p.add_option ('--append-diff',
+                  dest='append_diff',
+                  default=False,
+                  action='store_true',
+                  help='append diff since last successful run')
     
     p.add_option ('--bcc',
                   action='append',
@@ -110,16 +131,34 @@ def opt_parser ():
                   help='whom to list as sender')
 
     p.add_option ('--branch',
-                  action="store",
-                  dest="branch",
-                  default="HEAD",
-                  help="which branch to test")
+                  action='store',
+                  dest='branch',
+                  default='HEAD',
+                  help='which branch to fetch [GIT repositories]')
+    
+    p.add_option ('--url',
+                  action='store',
+                  dest='url',
+                  default=None,
+                  help='where to fetch sources')
+    
+    p.add_option ('--update',
+                  action='store_true',
+                  dest='update',
+                  default=False,
+                  help='checkout or update sources')
+    
+    p.add_option ('--revision',
+                  action='store',
+                  dest='revision',
+                  default=None,
+                  help='what revision to fetch')
     
     p.add_option ('--repository',
-                  action="store",
-                  dest="repository",
-                  default=".",
-                  help="repository directory")
+                  action='store',
+                  dest='repository',
+                  default='.',
+                  help='where to download/cache repository')
     
     p.add_option ('--tag-repo',
                   action='store',
@@ -134,10 +173,10 @@ def opt_parser ():
                   help='only send mail when there was an error.')
     
     p.add_option ('--dependent',
-                  action="store_true",
-                  dest="is_dependent",
+                  action='store_true',
+                  dest='is_dependent',
                   default=False,
-                  help="test targets depend on each other")
+                  help='test targets depend on each other')
                   
     p.add_option ('--posthook',
                   action='append',
@@ -158,11 +197,13 @@ def opt_parser ():
                   help='SMTP server to use.')
 
     p.add_option ('--result-directory',
-                  action="store",
+                  action='store',
                   dest='result_dir',
-                  help="Where to store databases test results",
-                  default="log")
+                  help='Where to store databases test results',
+                  default='log')
                   
+    p.add_option ('-v', '--verbose', action='count', dest='verbose', default=0)
+
     return p
 
 
@@ -180,21 +221,22 @@ def test_target (repo, options, target, last_patch):
 
     done_db = get_db (options, canonicalize)
     if done_db.has_key (release_hash):
-        log_file.log ('release %(release_hash)s has already been checked' % locals ())
+        log_file.info ('release %(release_hash)s has already been checked'
+                      % locals ())
         return None
     
     logfile = 'test-%(canonicalize)s.log' %  locals ()
     logfile = os.path.join (options.result_dir, logfile)
     
-    cmd = "nice time %(target)s > %(logfile)s 2>&1" %  locals ()
+    cmd = 'nice time sh -c "(%(target)s)" > %(logfile)s 2>&1' %  locals ()
 
-    log_file.log (cmd)
+    log_file.command (cmd)
 
     if options.dry_run:
         return ('SUCCESS', ['dryrun'])
         
     stat = os.system (cmd)
-  
+    base_tag = 'success-%(canonicalize)s-' % locals ()
     result = 'unknown'
     attachments = []
 
@@ -203,21 +245,34 @@ def test_target (repo, options, target, last_patch):
         result = 'FAIL'
         attachments = ['error for\n\n\t%s\n\n\n%s' % (target,
                                                '\n'.join (body[-0:]))]
-
+        if options.append_diff:
+            attachments += [repo.get_diff_from_tag (base_tag)]
     else:
-        result = "SUCCESS"
+        if 0:
+            # FIXME: find in archives, what did this do?
+            # format of last_patch?
+            # canonicalize_target vs canonicalize_string?
+            print last_patch
+            tag = base_tag + canonicalize_string (last_patch['date'])
+            repo.tag (tag)
+            log_file.log ('tagging with %s' % tag)
+            if options.tag_repo:
+                repo.push (tag, options.tag_repo)
+
+        result = 'SUCCESS'
         attachments = ['success for\n\n\t%s\n\n%s'
                        % (target,
                           '\n'.join (body[-10:]))]
 
-    log_file.log ('%s: %s' % (target, result))
+    log_file.info ('%s: %s' % (target, result))
     
     done_db[release_hash] = time.ctime ()
     return (result, attachments)
     
 def send_message (options, msg):
     if not options.address:
-        log_file.log ('No recipients for result mail')
+        log_file.info ('No recipients for result mail')
+        # FIXME: what about env[EMAIL]?
         return
     
     COMMASPACE = ', '
@@ -231,11 +286,11 @@ def send_message (options, msg):
     connection.sendmail (options.sender, options.address, msg.as_string ())
 
 
-def send_result_by_mail (options, parts, subject="Autotester result"):
+def send_result_by_mail (options, parts, subject='Autotester result'):
     msg = result_message (parts, subject)
     send_message (options, msg)
 
-def print_results (options, parts, subject="Autotester result"):
+def print_results (options, parts, subject='Autotester result'):
     print '\n===\n\nSUBJECT: ', subject
     print '\n---\n'.join (parts)
     print 'END RESULT\n==='
@@ -243,17 +298,25 @@ def print_results (options, parts, subject="Autotester result"):
 def real_main (options, args, handle_result):
     global log_file
 
-    log = 'log/test-gubb.log'
+    log = 'log/gub-tester.log'
     if options.dry_run:
-        log = ''
+        log = '/dev/stdout'
 
-    log_file = LogFile (log)
+    log_file = oslog.Os_commands (log, options.verbose)
     
-    log_file.log (' *** %s' % time.ctime ())
-    log_file.log (' *** Starting tests:\n  %s' % '\n  '.join (args))
+    log_file.info (' *** %s' % time.ctime ())
+    log_file.info (' *** Starting tests:\n  %s' % '\n  '.join (args))
 
-    repo = repository.get_repository_proxy (options.repository, options.branch)
-    log_file.log ("Repository %s" % str (repo))
+    repo = repository.get_repository_proxy (options.repository,
+                                            options.url,
+                                            options.revision,
+                                            options.branch)
+
+    if (not repo.is_downloaded () or options.update or options.revision):
+        repo.download ()
+        repo.update_workdir ('.')
+
+    log_file.info ('Repository %s' % str (repo))
     
     last_patch = repo.get_revision_description ()
     release_hash = repo.get_checksum ()
@@ -276,17 +339,14 @@ Checksum of revision: %(release_hash)s
         result_tup = test_target (repo, options, a, last_patch)
         if not result_tup:
             continue
-
         (result, atts) = result_tup
-
         results[a] = result_tup
-        
         success = result.startswith ('SUCCESS')
         if not (options.be_quiet and success):
-            handle_result (options, atts, subject="Autotester: %s %s" % (result, a))
+            handle_result (options, atts, subject='Autotester: %s %s'
+                           % (result, a))
 
         summary_body += '%s\n  %s\n'  % (a, result)
-
 
         if not success:
             failures += 1
@@ -298,7 +358,8 @@ Checksum of revision: %(release_hash)s
         and (failures > 0 or not options.be_quiet)):
         
         handle_result (options,
-                       [summary_body, release_id], subject="Autotester: summary")
+                       [summary_body, release_id],
+                       subject='Autotester: summary')
 
     if failures == 0 and results:
         for p in options.posthooks:
@@ -310,16 +371,17 @@ def test_self (options, args):
     system ('mkdir %s ' %  self_test_dir)
     os.chdir (self_test_dir)
     system ('mkdir log')
-    system (r"echo -e '#!/bin/sh\ntrue\n' > foo.sh")
+    system ('''echo '#!/bin/sh
+true' > foo.sh''')
     system ('darcs init')
     system ('echo author > _darcs/prefs/author')
     system ('darcs add foo.sh')
     system ('darcs record -am "add bla"')
     options.repository = os.getcwd ()
-    
     real_main (options, ['false', 'true', 'sh foo.sh'], print_results)
 
-    system (r"echo -e '#!/bin/sh\nfalse\n' > foo.sh")
+    system ('''echo '#!/bin/sh
+true' > foo.sh''')
     system ('darcs record  -am "change bla"')
     real_main (options, ['sh foo.sh'], print_results)
     
@@ -335,9 +397,6 @@ def main ():
         test_self (options, args)
     else:
         real_main (options, args, send_result_by_mail)
-    
-
 
 if __name__ == '__main__':    
-#    test ()
     main ()

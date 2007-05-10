@@ -1,13 +1,9 @@
-* Make test-gub work with plain, user-checked-out repositories again
-  (and/or remove lilypond hardcoding from cron-builder, move checkout
-   command from cron-builder to separate app (or into test-gub)).
-  Add option to send diffs again.  Use case
+* Add diff option: 561096638b3718af86d61570ac63bafa5c4a99f8
 
-     bzr branch http://foo/bar.bzr && test-gub bar
-
-  [or alternatively, something like
-
-     gub --stage=download http://foo/bar.bzr && test-gub bar]
+* Make downloaded repositories easier, something like
+    downloads/lilypond.git/.git  # lilypond.git usable with git commands
+    downloads/ghostscript-trunk-HEAD.svn/.svn
+    downloads/ghostscript-trunk-7882.svn/.svn
 
 * Softcode stages.
 
@@ -28,12 +24,25 @@
 
 * Bootstrap whole toolchain from source on more platforms (freebsd)?
 
+* Fix configure/make command env var settings (grep FIXME)
+
+ @subst_method
+ def CFLAGS(self):
+    return 'bla'
+
+or
+
+ def init(self):
+   self.CFLAGS='bla'
 
 LOWER PRIORITY
 
-- replace os. calls with os.context wrapper ones
+- replace os. calls with os.context wrapper ones (make a real
+  dry-run to quick-test all .py scripts?)
 
 - better name for gubb.py
+
+- name for gub-tester (test-repo, repo-builder?)
 
 - Split gub/*py into packager, builder, platform
 

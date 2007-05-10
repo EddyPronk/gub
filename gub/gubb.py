@@ -620,9 +620,7 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
     # TODO: junk this, always set repo in __init__
     def with_vc (self, repo):
         self.vc_repository = repo
-        self.vc_repository.system = self.os_interface.system
-        self.vc_repository.read_pipe = self.os_interface.read_pipe
-        self.vc_repository.download_url = self.os_interface.download_url
+        self.vc_repository.set_oslog (self.os_interface)
         return self
 
     def with_tarball (self, mirror='', version='', format='gz', strip_components=1, name=''):

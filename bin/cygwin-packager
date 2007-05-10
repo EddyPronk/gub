@@ -22,17 +22,16 @@
 """
 
 
+def argv0_relocation ():
+    import os, sys
+    bindir = os.path.dirname (sys.argv[0])
+    prefix = os.path.dirname (bindir)
+    sys.path.insert (0, prefix)
+
+argv0_relocation ()
+
 import optparse
 import os
-import sys
-
-
-sys.path.insert (0, 'lib') ## for versiondb
-sys.path.insert (0, '.')
-
-
-
-
 #
 from gub import context
 from gub import gup
@@ -75,7 +74,7 @@ class Cygwin_package (context.Os_context_wrapper):
         self.create ()
 
     def build_number (self, package):
-        import versiondb
+        from gub import versiondb
         version_file = '%(uploads)s/%(name)s.versions' % package
         db = versiondb.VersionDataBase (version_file)
         version = '%(full_version)s' % package
@@ -185,7 +184,7 @@ mkdir -p %(installer_root)s/usr/share/doc/%(name)s
         return readme
 
     def strip_dir (self, dir):
-        import misc
+        from gub import misc
         misc.map_command_dir (self.expand (dir),
                               self.expand ('%(strip_command)s'),
                               self.no_binary_strip,
@@ -327,6 +326,7 @@ def parse_command_line ():
     (options, args) = p.parse_args ()
     if len (args) != 1:
         p.print_help ()
+        import sys
         sys.exit (2)
     return (options, args)
 
