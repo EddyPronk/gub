@@ -74,13 +74,8 @@ class Git__mingw (Git):
                         ],
                        '%(builddir)s/Makefile')
 
-    def compile_command (self):
-        return (targetpackage.TargetBuildSpec.compile_command (self)
-                + ' uname_S=MINGW'
-                + ' SHELL_PATH=/bin/sh')
-
-    def install_command (self):
-        return (targetpackage.TargetBuildSpec.install_command (self)
-                + ' uname_S=MINGW'
-                + ' SHELL_PATH=/bin/sh')
-
+    def makeflags (self):
+        return (' uname_S=MINGW'
+                + ' SHELL_PATH=/bin/sh'
+                + ' PERL_PATH=/bin/perl')
+    
