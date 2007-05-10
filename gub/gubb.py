@@ -245,7 +245,7 @@ class BuildSpec (Os_context_wrapper):
 
     @subst_method
     def install_command (self):
-        return '''make DESTDIR=%(install_root)s install'''
+        return '''make %(makeflags)s DESTDIR=%(install_root)s install'''
 
     @subst_method
     def configure_command (self):
@@ -253,7 +253,7 @@ class BuildSpec (Os_context_wrapper):
 
     @subst_method
     def compile_command (self):
-        return 'make'
+        return 'make %(makeflags)s '
 
     @subst_method
     def native_compile_command (self):
@@ -290,6 +290,10 @@ class BuildSpec (Os_context_wrapper):
     def rsync_command (self):
         return "rsync --exclude .git --exclude _darcs --exclude .svn --exclude CVS -v -a %(downloads)s/%(name)s-%(version)s/ %(srcdir)s"
 
+    @subst_method
+    def makeflags (self):
+        return ''
+    
     def get_stamp_file (self):
         stamp = self.expand ('%(stamp_file)s')
         return stamp
@@ -355,6 +359,7 @@ cd %(srcdir)s && automake --add-missing --foreign
 ''', locals ())
 
 
+                
     def configure (self):
         self.system ('''
 mkdir -p %(builddir)s
@@ -372,7 +377,7 @@ cd %(builddir)s && %(configure_command)s
 
         # FIXME: use sysconfdir=%(install_PREFIX)s/etc?  If
         # so, must also ./configure that way
-        return misc.join_lines ('''make install
+        return misc.join_lines ('''make %(makeflags)s install
 bindir=%(install_prefix)s/bin
 aclocaldir=%(install_prefix)s/share/aclocal
 datadir=%(install_prefix)s/share
