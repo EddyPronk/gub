@@ -618,7 +618,9 @@ class SimpleRepo (Repository):
     def _copy_working_dir (self, dir, copy):
         repository = self.vcs
         verbose = ''
-        if self.oslog and self.oslog.verbose >= self.oslog.commands:
+
+        from gub import oslog
+        if self.oslog and self.oslog.verbose >= oslog.level['command']:
             verbose = 'v'
         self.system ('rsync -a%(verbose)s --exclude %(repository)s %(dir)s/ %(copy)s'
                      % locals ())
