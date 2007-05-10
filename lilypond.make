@@ -228,13 +228,13 @@ locals =\
 download-local:
 	$(GUB) $(LOCAL_GUB_OPTIONS) \
 		-p local --stage=download \
-		$(locals)
+		$(locals) nsis
 
 local:
 	cd librestrict && make -f GNUmakefile
 	$(GUB) $(LOCAL_GUB_OPTIONS) -p local \
 		$(locals)
-
+	$(MAKE) local-cross-tools
 
 ################################################################
 # docs
