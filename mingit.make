@@ -24,7 +24,7 @@ INSTALLER_BUILDER_OPTIONS=\
 all: $(PLATFORMS)
 
 download:
-	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB,$(p)) download git && ) true
+	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB,$(p)) --online --stage=download  git && ) true
 
 bootstrap: bootstrap-git download-local local cross-compilers local-cross-tools download 
 
