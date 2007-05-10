@@ -25,7 +25,14 @@
 import optparse
 import os
 import sys
+
+
+sys.path.insert (0, 'lib') ## for versiondb
 sys.path.insert (0, '.')
+
+
+
+
 #
 from gub import context
 from gub import gup
@@ -326,7 +333,7 @@ def parse_command_line ():
 def main ():
     (options, commands) = parse_command_line ()
     options.platform = 'cygwin'
-    settings = gub.settings.Settins (options)
+    settings = gub.settings.Settings (options)
     # We want to be able to specify a build number for cygwin packages
     # that are not distributed on lp.org
     settings.build = options.build
