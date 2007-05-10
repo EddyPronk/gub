@@ -219,10 +219,8 @@ class BuildSpec (Os_context_wrapper):
     def version (self):
         # kugh, must construct using vc_repository in __init__
         if not self.vc_repository :
-            print 'need version, but repository not yet set:', self.name ()
-            print 'type:', type (self)
-            print 'class:', self.__class__
-            raise Exception ('urg')
+            msg = 'need version, but repository not yet set: %s, type: %s class: %s' % (self.name (), type (self), self.__class__)
+            raise Exception (msg)
         return self.vc_repository.version ()
 
     @subst_method
