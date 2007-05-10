@@ -86,7 +86,8 @@ class TargetBuildSpec (gubb.BuildSpec):
             c = 'DISTCC_HOSTS="%s" %s' % (self.settings.cross_distcc_hosts , c)
             c = 'PATH="%(cross_distcc_bindir)s:$PATH" ' + c
         elif self.settings.cpu_count_str:
-            c += ' -j%s '% self.settings.cpu_count_str
+            c = re.sub (r'\bmake\b', 'make -j%s '% self.settings.cpu_count_str, c)
+
         return c
             
     def configure (self):
