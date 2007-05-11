@@ -12,13 +12,23 @@ class Libgphoto2 (targetpackage.TargetBuildSpec):
   --define-variable prefix=%(system_root)s/usr\
   --define-variable includedir=%(system_root)s/usr/include\
   --define-variable libdir=%(system_root)s/usr/lib\
-"$@"
+  "$@"
 ''',
                    '%(srcdir)s/pkg-config')
         import os
         os.chmod (self.expand ('%(srcdir)s/pkg-config'), 0755)
+    def wrap_libusb_config (self):
+        self.dump ('''#! /bin/sh
+/usr/bin/libusb-config\
+  --prefix=%(system_root)s/usr\
+  "$@"
+''',
+                   '%(srcdir)s/libusb-config')
+        import os
+        os.chmod (self.expand ('%(srcdir)s/libusb-config'), 0755)
     def patch (self):
         self.wrap_pkg_config ()
+        self.wrap_libusb_config ()
     def configure_command (self):
         return ('PATH=%(srcdir)s:$PATH '
                 + targetpackage.TargetBuildSpec.configure_command (self))
