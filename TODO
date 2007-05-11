@@ -22,7 +22,10 @@
 
 * move autotools patching to autogen/prepare_configure stage.
 
-* move makeflags () feature to buildspec.
+* fix all instances of makeflags () and compile/install
+
+* move wrap_pkg_config from libgphoto2 to target/build spec (note
+  configure: PATH setting?)
 
 * Bootstrap whole toolchain from source on more platforms (freebsd)?
 
