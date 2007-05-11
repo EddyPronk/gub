@@ -8,6 +8,8 @@ class Libgphoto2 (targetpackage.TargetBuildSpec):
 # -lltdl build problem
 #        self.with (version='2.3.0', mirror=sf_gphoto)
         self.with (version='2.3.1', mirror=sf_gphoto)
+    def get_build_dependencies (self):
+        return ['libexif', 'libjpeg', 'libusb']
     def wrap_pkg_config (self):
         self.dump ('''#! /bin/sh
 /usr/bin/pkg-config\
@@ -34,8 +36,10 @@ class Libgphoto2 (targetpackage.TargetBuildSpec):
     def configure_command (self):
         return ('PATH=%(srcdir)s:$PATH '
                 + targetpackage.TargetBuildSpec.configure_command (self))
-    def get_build_dependencies (self):
-        return ['libexif', 'libjpeg', 'libusb']
+    def configure (self):
+        targetpackage.TargetBuildSpec.configure (self)
+        # # FIXME: libtool too old for cross compile
+        self.update_libtool ()
     def makeflags (self):
-        return """ libgphoto2_port_la_DEPENDENCIES='$(top_srcdir)/gphoto2/gphoto2-port-version.h $(top_srcdir)/gphoto2/gphoto2-port-library.h $(srcdir)/libgphoto2_port.sym' libgphoto2_la_DEPENDENCIES='$(top_srcdir)/gphoto2/gphoto2-version.h $(srcdir)/libgphoto2.sym'"""
+        return """ libgphoto2_port_la_DEPENDENCIES='$(top_srcdir)/gphoto2/gphoto2-port-version.h $(top_srcdir)/gphoto2/gphoto2-port-library.h $(srcdir)/libgphoto2_port.sym' libgphoto2_la_DEPENDENCIES='$(top_srcdir)/gphoto2/gphoto2-version.h $(srcdir)/libgphoto2.sym' LDFLAGS='-Wl,--rpath-link,%(system_root)s/usr/lib'"""
 
