@@ -76,6 +76,8 @@ class Git__mingw (Git):
 
     def makeflags (self):
         return (' uname_S=MINGW'
+                + ' V=1 '
+                + ' instdir_SQ=%(install_root)s/usr/lib/ '
                 + ' SHELL_PATH=/bin/sh'
                 + ' PERL_PATH=/bin/perl')
-    
+
