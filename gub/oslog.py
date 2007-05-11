@@ -61,7 +61,9 @@ class Os_commands:
             time.sleep (0.0001)
 
         line = proc.stdout.readline ()
-        self.log (line, level['output'], verbose)
+        while line:
+            self.log (line, level['output'], verbose)
+            line = proc.stdout.readline ()
         if proc.returncode:
             m = 'Command barfed: %(cmd)s\n' % locals ()
             self.error (m)
