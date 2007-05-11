@@ -40,6 +40,9 @@ or
  def init(self):
    self.CFLAGS='bla'
 
+* Packages file with download and update facility, like
+  cyg-apt.
+
 LOWER PRIORITY
 
 - replace os. calls with os.context wrapper ones (make a real
