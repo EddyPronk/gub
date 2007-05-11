@@ -18,6 +18,8 @@
 * Split build recipes into Basic (configure??; make; make install),
   AutoTools
 
+* Automagically do:  # # FIXME libtool too olds for autotool packages.
+
 * move autotools patching to autogen/prepare_configure stage.
 
 * move makeflags () feature to buildspec.
