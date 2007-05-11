@@ -13,6 +13,6 @@ class Busybox (targetpackage.TargetBuildSpec):
     def configure_command (self):
         return 'make -f %(srcdir)s/Makefile defconfig'
     def makeflags (self):
-        return ' CROSS_COMPILE=%(tool_prefix)s'
+        return ' CROSS_COMPILE=%(tool_prefix)s CONFIG_PREFIX=%(install_root)s'
     def license_file (self):
         return '%(srcdir)s/LICENSE'
