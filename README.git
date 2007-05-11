@@ -1,0 +1,15 @@
+
+GIT
+
+This makes a binary installer for the git version control system for
+MinGW.
+
+Run as
+
+	make -f mingit.make bootstrap	
+	make -f mingit.make mingw
+
+this leaves an installer in uploads/
+
+
+
