@@ -4,7 +4,7 @@ from gub import targetpackage
 class Pjproject (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with_vc (repository.TarBall (self.settings.mirrorss,
+        self.with_vc (repository.TarBall (self.settings.downloads,
                                           url='http://www.pjsip.org/release/0.5.10.1/pjproject-0.5.10.1.tar.gz',
                                           version='0.5.10.1',
                                           strip_components=True))
