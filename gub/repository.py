@@ -198,8 +198,9 @@ class TarBall (Repository):
 
         self._version = version
         if not version:
-            x, v = misc.split_ball (url)
-            self._version = '.'.join (v)
+            print misc.split_ball (url)
+            x, v, f = misc.split_ball (url)
+            self._version = '.'.join (map (str, v[:-1]))
 
         self.branch = None
         self.strip_components = strip_components
