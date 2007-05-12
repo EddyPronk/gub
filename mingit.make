@@ -20,7 +20,7 @@ GUB_OPTIONS=\
 
 INSTALLER_BUILDER_OPTIONS=\
   --branch git=$(MINGIT_LOCAL_BRANCH)\
-  --version-db uploads/git.versions
+  --version-db uploads/git.versions \
 
 all: $(PLATFORMS)
 
@@ -42,7 +42,7 @@ mingw:
 	$(call BUILD,$@,git)
 
 update-versions:
-	python gub/versiondb.py --no-sources --url http://lilypond.org/git --dbfile uploads/git.db --download --platforms="$(PLATFORMS)"
+	python gub/versiondb.py --no-sources --url http://lilypond.org/git --dbfile uploads/git.versions --download --platforms="$(PLATFORMS)"
 
 upload:
-	scp `ls -1 -tr upload/git*.exe` hanwen@lilypond.org:www/git/binaries/mingw/
+	scp `ls -1 -t uploads/git*.exe|head -1` hanwen@lilypond.org:www/git/binaries/mingw/

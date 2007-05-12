@@ -99,10 +99,12 @@ class VersionDataBase:
                 continue
             
     def write (self):
-        open (self.file_name,'w').write (pickle.dumps (self._db))
+        open (self.file_name,'w').write (pickle.dumps ((self.platforms,
+                                                        self._db)))
 
     def read (self):
-        self._db = pickle.loads (open (self.file_name).read ())
+        (self.platforms,
+         self._db) = pickle.loads (open (self.file_name).read ())
 
 
     ## UI functions:
