@@ -124,7 +124,7 @@ class Version:
 
 class Darcs (Repository):
     def __init__ (self, dir, source=''):
-        Repository.__init__ (self, dir, '.darcs', source)
+        Repository.__init__ (self, dir, '_darcs', source)
 
     def darcs_pipe (self, cmd):
         dir = self.dir
@@ -138,7 +138,7 @@ class Darcs (Repository):
         return self.darcs_pipe ('changes --last=1')
     
     def is_downloaded (self):
-        return os.path.isdir (self.dir + '/_darcs')
+        return os.path.isdir (os.path.join (self.dir, self.vcs))
 
     def download (self):
         source = self.source
@@ -180,7 +180,8 @@ class Darcs (Repository):
         verbose = ''
         if self.oslog and self.oslog.verbose >= self.oslog.commands:
             verbose = 'v'
-        self.system ('rsync --exclude _darcs -a%(verbose)s %(dir)s/* %(destdir)s/' % locals())
+        vcs = self.vcs
+        self.system ('rsync --exclude %(vcs)s -a%(verbose)s %(dir)s/* %(destdir)s/' % locals())
 
     def get_file_content (self, file):
         dir = self.dir
@@ -430,7 +431,7 @@ class Git (Repository):
         branch = self.local_branch
         revision = self.revision
         
-        if os.path.isdir (destdir + '/.git'):
+        if os.path.isdir (os.path.join (destdir, self.vcs)):
             self.git ('pull %(repo_dir)s %(branch)s' % locals (), dir=destdir)
         else:
             self.system ('git-clone -l -s %(repo_dir)s %(destdir)s' % locals ())
@@ -617,13 +618,13 @@ class SimpleRepo (Repository):
             self._update (self.revision)
 
     def _copy_working_dir (self, dir, copy):
-        repository = self.vcs
+        vcs = self.vcs
         verbose = ''
 
         from gub import oslog
         if self.oslog and self.oslog.verbose >= oslog.level['command']:
             verbose = 'v'
-        self.system ('rsync -a%(verbose)s --exclude %(repository)s %(dir)s/ %(copy)s'
+        self.system ('rsync -a%(verbose)s --exclude %(vcs)s %(dir)s/ %(copy)s'
                      % locals ())
 
     def _checkout_dir (self):
@@ -633,7 +634,7 @@ class SimpleRepo (Repository):
         revision = self.revision
         dir = self.dir
         branch = self.branch
-        if branch:
+        if branch and revision:
             branch += '-'
         return '%(dir)s/%(branch)s%(revision)s' % locals ()
 
@@ -715,7 +716,7 @@ class Bazaar (SimpleRepo):
         return self.bzr_pipe ('log --verbose -r-1')
 
 def get_appended_vcs_name (name):
-    return re.search (r"(.*)\.(bzr|git|cvs|svn|darcs|.tar(.gz|.bz2))", name)
+    return re.search (r"(.*)[._](bzr|git|cvs|svn|darcs|tar(.gz|.bz2))", name)
 
 def get_prepended_vcs_name (name):
     return re.search (r"(bzr|git|cvs|svn|darcs):", name)
