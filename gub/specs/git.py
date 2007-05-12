@@ -6,7 +6,7 @@ class Git__local (toolpackage.ToolBuildSpec):
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
         self.with (mirror='http://kernel.org/pub/software/scm/git/git-%(version)s.tar.bz2',
-                   version='1.5.1.2')
+                   version='1.5.1.4')
     def patch (self):
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
         self.file_sub ([('git describe','true')],
@@ -40,6 +40,7 @@ class Git (targetpackage.TargetBuildSpec):
         return {'': [
             'zlib',
             'regex',
+            'libiconv'
             ]}
 
     def get_subpackage_names (self):
@@ -48,6 +49,7 @@ class Git (targetpackage.TargetBuildSpec):
     def get_build_dependencies (self):
         return ['zlib-devel',
                 'regex-devel',
+                'libiconv-devel'
                 ]
 
     def patch (self):

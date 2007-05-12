@@ -2,7 +2,6 @@
 
 PACKAGE = git
 ALL_PLATFORMS=mingw
-PLATFORMS=$(ALL_PLATFORMS)
 
 MINGIT_BRANCH_FILEIFIED=$(subst /,--,$(MINGIT_BRANCH))
 MINGIT_LOCAL_BRANCH=$(MINGIT_BRANCH_FILEIFIED)-repo.or.cz-git-mingw.git
@@ -12,6 +11,8 @@ default: all
 include gub.make
 include compilers.make
 
+PLATFORMS = mingw
+
 GPKG_OPTIONS=--branch git=$(MINGIT_LOCAL_BRANCH)
 
 GUB_OPTIONS=\
@@ -19,7 +20,7 @@ GUB_OPTIONS=\
 
 INSTALLER_BUILDER_OPTIONS=\
   --branch git=$(MINGIT_LOCAL_BRANCH)\
-  --version-db uploads/git.versions
+  --version-db uploads/git.versions \
 
 all: $(PLATFORMS)
 
@@ -41,4 +42,7 @@ mingw:
 	$(call BUILD,$@,git)
 
 update-versions:
-	python gub/versiondb.py --no-sources --url http://lilypond.org/git --dbfile uploads/git.db --download
+	python gub/versiondb.py --no-sources --url http://lilypond.org/git --dbfile uploads/git.versions --download --platforms="$(PLATFORMS)"
+
+upload:
+	scp `ls -1 -t uploads/git*.exe|head -1` hanwen@lilypond.org:www/git/binaries/mingw/

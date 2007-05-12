@@ -69,7 +69,7 @@ include compilers.make
 ################
 
 unlocked-update-versions:
-	python gub/versiondb.py --dbfile $(LILYPOND_VERSIONS) --download
+	python gub/versiondb.py --dbfile $(LILYPOND_VERSIONS) --download 
 	python gub/versiondb.py --dbfile uploads/fontconfig.versions --download
 	python gub/versiondb.py --dbfile uploads/guile.versions --download
 	python gub/versiondb.py --dbfile uploads/libtool.versions --download

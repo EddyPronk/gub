@@ -16,7 +16,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
+    along with this program; if not, write toth e Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 """
 
@@ -27,17 +27,6 @@ import pickle
 import optparse
 import os
 
-platforms = ['linux-x86',
-             'linux-64',
-             'linux-ppc',
-             'darwin-ppc',
-             'darwin-x86',
-             'documentation',
-             'freebsd-x86',
-             'mingw',
-             'cygwin',
-             'source',
-             ]
 
 def get_url_versions (url):
     opener = urllib.URLopener ()
@@ -69,6 +58,7 @@ class VersionDataBase:
     def __init__ (self, file_name):
         self._db = {}
         self.file_name = file_name
+        self.platforms = []
         if os.path.exists (file_name):
             self.read ()
             
@@ -93,7 +83,7 @@ class VersionDataBase:
 
     def get_binaries_from_url (self, url):
         package = os.path.basename (os.path.splitext (self.file_name)[0])
-        for p in platforms:
+        for p in self.platforms:
             if p == 'source':
                 continue
             
@@ -109,17 +99,19 @@ class VersionDataBase:
                 continue
             
     def write (self):
-        open (self.file_name,'w').write (pickle.dumps (self._db))
+        open (self.file_name,'w').write (pickle.dumps ((self.platforms,
+                                                        self._db)))
 
     def read (self):
-        self._db = pickle.loads (open (self.file_name).read ())
+        (self.platforms,
+         self._db) = pickle.loads (open (self.file_name).read ())
 
 
     ## UI functions:
     def get_next_build_number (self, version_tuple):
         assert (type (version_tuple) == type (()))
         sub_db = {}
-        for platform in platforms:
+        for platform in self.platforms:
             sub_db[platform] = [0]
             if self._db.has_key (platform):
                 sub_db[platform] = [buildnum
@@ -178,6 +170,11 @@ Inspect lilypond.org download area, and write pickle of all version numbers.
                   default=False,
                   help='self test')
 
+    p.add_option ('--platforms', action='store',
+                  dest='platforms',
+                  default='',
+                  help='platforms to inspect; space separated')
+    
     return p
 
 def main ():
@@ -188,6 +185,7 @@ def main ():
         options.url += "/"
 
     db = VersionDataBase (options.dbfile)
+    db.platforms = options.platforms.split (' ')
     if options.test:
         print '2.9.28:', db.get_next_build_number ((2,9,28))
         print '2.8.2:', db.get_next_build_number ((2,8,2))
