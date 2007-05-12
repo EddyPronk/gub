@@ -42,4 +42,7 @@ mingw:
 	$(call BUILD,$@,git)
 
 update-versions:
-	python gub/versiondb.py --no-sources --url http://lilypond.org/git --dbfile uploads/git.db --download
+	python gub/versiondb.py --no-sources --url http://lilypond.org/git --dbfile uploads/git.db --download --platforms="$(PLATFORMS)"
+
+upload:
+	scp `ls -1 -tr upload/git*.exe` hanwen@lilypond.org:www/git/binaries/mingw/

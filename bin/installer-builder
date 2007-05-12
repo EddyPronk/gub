@@ -88,6 +88,12 @@ build-all - build, strip, package
                   help='select target platform',
                   choices=gub.settings.platforms.keys ())
 
+
+    p.add_option ('--platforms', action='store',
+                  dest='platforms',
+                  default='',
+                  help='platforms to inspect; space separated')
+
     p.add_option ('-v', '--verbose', action='count', dest='verbose', default=0)
 
     (options, args) = p.parse_args ()
@@ -158,6 +164,7 @@ def build_installer (installer, args, options):
     version_tup = tuple (map (int, version.split ('.')))
 
     db = versiondb.VersionDataBase (options.version_db)
+    db.platforms = options.platforms.split (' ')
     buildnumber = '%d' % db.get_next_build_number (version_tup)
 
     settings.installer_version = version
@@ -174,7 +181,7 @@ def build_installer (installer, args, options):
     installer.checksum = pickle.dumps (checksum_list)
 
 def strip_installer (obj):
-    obj.command (' ** Stage: %s (%s)\n' % ('strip', obj.name))
+    obj.command (' ** Stage: %s (%s installer)\n' % ('strip', obj.name))
     obj.strip ()
 
 def package_installer (installer):
