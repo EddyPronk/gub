@@ -31,8 +31,8 @@ LangString UninstLogMissing ${LANG_ENGLISH} "${UninstLog} not found.$\r$\nCannot
 ${UnStrLoc}
 
 ;;SetCompressor lzma  ; very slow
-SetCompressor zlib
-;; SetCompressor bzip2  ;;
+;;SetCompressor zlib
+SetCompressor bzip2  ;;
 
 Name "${PRETTY_NAME}"
 
@@ -96,7 +96,14 @@ fresh_install:
 	CreateDirectory "$INSTDIR\usr\bin"
 
 	Call registry_installer
+	Call registry_path 
 SectionEnd
+
+
+Function registry_path
+	ReadRegStr $R0 HKLM "${ENVIRON}" "PATH"
+	WriteRegExpandStr HKLM "${ENVIRON}" "PATH" "$R0;$INSTDIR\usr\bin"
+FunctionEnd
 
 ;; copy & paste from the NSIS code examples 
 Function un.install_installed_files
