@@ -656,7 +656,9 @@ class Subversion (SimpleRepo):
 
     def _current_revision (self):
         dir = self._checkout_dir ()
-        revno = self.read_pipe ('cd %(dir)s && svn info' % locals ())
+
+        ## UGH: should not parse user oriented output
+        revno = self.read_pipe ('cd %(dir)s && LANG= svn info' % locals ())
         m = re.search  ('.*Revision: ([0-9]*).*', revno)
         assert m
         return m.group (1)
