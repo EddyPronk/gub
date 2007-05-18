@@ -5,7 +5,7 @@ from gub import debian
 class Linux_kernel_headers (gubb.BinarySpec, gubb.SdkBuildSpec):
     def __init__ (self, settings):
         gubb.BinarySpec.__init__ (self, settings)
-        self.with (
+        self.with_template (
 # FIXME: we do not mirror all 12 debian arch's,
 #            version=debian.get_packages ()['linux-kernel-headers'].version (),
 #           mirror=mirrors.lkh_deb,

@@ -5,7 +5,7 @@ from gub import mirrors
 class Libc6 (gubb.BinarySpec, gubb.SdkBuildSpec):
     def __init__ (self, settings):
         gubb.BinarySpec.__init__ (self, settings)
-        self.with (version=debian.get_packages ()['libc6'].version (),
+        self.with_template (version=debian.get_packages ()['libc6'].version (),
                    strip_components=0,
                    mirror=mirrors.glibc_deb,
 # FIXME: we do not mirror all 12 debian arch's,

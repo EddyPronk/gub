@@ -1,6 +1,7 @@
 
 ## untested.
-        Alien (settings).with (version="8.60",
+if 0:
+        Alien (settings).with_template (version="8.60",
                    mirror="http://www.kitenet.net/programs/alien/alien_8.60.tar.gz",
                    format="gz"),
 

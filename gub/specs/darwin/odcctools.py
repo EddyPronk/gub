@@ -4,7 +4,7 @@ from gub import mirrors
 class Odcctools (cross.CrossToolSpec):
     def __init__ (self, settings):
         cross.CrossToolSpec.__init__ (self, settings)
-        self.with (version='20060413',
+        self.with_template (version='20060413',
                    ####version='20060608',
                    #version='20061117',
                    mirror=mirrors.opendarwin,
