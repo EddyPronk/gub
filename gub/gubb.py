@@ -642,13 +642,6 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
         from gub import repository
         return repository.NewTarBall (self.settings.downloads, mirror, name, version, format, strip_components)
 
-    def with (self,
-              mirror='',
-              version='',
-              strip_components=1,
-              format='',
-              name=''):
-        self.with_template (mirror, version, strip_components, format, name)
 
     # TODO: junk this, use TarBall ()or Version ()
     def with_template (self,
@@ -871,7 +864,7 @@ def get_build_spec (flavour, settings, url):
     # test:
     # bin/gub -p linux-64 ftp://ftp.gnu.org/pub/gnu/bison/bison-2.3.tar.gz
     if init_vars['version']:
-        package.with (format=init_vars['format'],
+        package.with_template (format=init_vars['format'],
                       mirror=init_vars['url'],
                       version=init_vars['version'])
     return package
