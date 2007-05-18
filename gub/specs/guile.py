@@ -266,9 +266,9 @@ class Guile__cygwin (Guile):
     def __init__ (self, settings):
         Guile.__init__ (self, settings)
 #FIXME: barf, this breaks now that Guile uses git repo
-#        self.with (version='1.8.1')
+#        self.with_template (version='1.8.1')
         from gub import mirrors
-        self.with (version='1.8.1', mirror=mirrors.gnu, format='gz')
+        self.with_template (version='1.8.1', mirror=mirrors.gnu, format='gz')
         self.so_version = '17'
 
     # Using gub dependencies only would be nice, but

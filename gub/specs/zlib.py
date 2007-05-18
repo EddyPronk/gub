@@ -5,7 +5,7 @@ from gub import toolpackage
 class Zlib (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-	self.with (version='1.2.3',
+	self.with_template (version='1.2.3',
                    mirror='http://heanet.dl.sourceforge.net/sourceforge/libpng/zlib-1.2.3.tar.gz')
         
     def patch (self):
@@ -39,7 +39,7 @@ class Zlib__mingw (Zlib):
     # FIXME: removeme, try zlib-1.2.3.patch
     def x__init__ (self, settings):
         Zlib.__init__ (self, settings)
-        self.with (version='1.2.2',
+        self.with_template (version='1.2.2',
                    mirror='http://heanet.dl.sourceforge.net/sourceforge/libpng/zlib-1.2.2.tar.gz')
 
     def patch (self):
@@ -56,7 +56,7 @@ class Zlib__mingw (Zlib):
 class Zlib__local (toolpackage.ToolBuildSpec, Zlib):
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
-        self.with (version='1.2.3',
+        self.with_template (version='1.2.3',
                    mirror='http://heanet.dl.sourceforge.net/sourceforge/libpng/zlib-1.2.3.tar.gz')
 
         

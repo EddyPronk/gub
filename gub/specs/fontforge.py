@@ -4,7 +4,7 @@ import re
 class Fontforge (toolpackage.ToolBuildSpec):
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
-        self.with (mirror='http://lilypond.org/download/gub-sources/fontforge_full-%(version)s.tar.bz2',
+        self.with_template (mirror='http://lilypond.org/download/gub-sources/fontforge_full-%(version)s.tar.bz2',
                    version="20060501")
 
 

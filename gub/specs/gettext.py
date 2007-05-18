@@ -5,7 +5,7 @@ from gub import toolpackage
 class Gettext (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with (version='0.15', mirror=mirrors.gnu, format='gz')
+        self.with_template (version='0.15', mirror=mirrors.gnu, format='gz')
 
     def get_build_dependencies (self):
         return ['libtool']
@@ -39,7 +39,7 @@ class Gettext__freebsd (Gettext):
 class Gettext__mingw (Gettext):
     def __init__ (self, settings):
         Gettext.__init__ (self, settings)
-        self.with (version='0.15', mirror=mirrors.gnu, format='gz')
+        self.with_template (version='0.15', mirror=mirrors.gnu, format='gz')
 
     def config_cache_overrides (self, str):
         return (re.sub ('ac_cv_func_select=yes', 'ac_cv_func_select=no',
@@ -66,7 +66,7 @@ jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
 class Gettext__local (toolpackage.ToolBuildSpec):
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__(self,settings)
-        self.with (version='0.15', mirror=mirrors.gnu, format='gz')
+        self.with_template (version='0.15', mirror=mirrors.gnu, format='gz')
 
     def get_build_dependencies (self):
         return ['libtool']

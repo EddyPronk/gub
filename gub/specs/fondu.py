@@ -4,7 +4,7 @@ from gub import targetpackage
 class Fondu (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with (version="060102",
+        self.with_template (version="060102",
              mirror='http://fondu.sourceforge.net/fondu_src-060102.tgz')
 
     def srcdir (self):

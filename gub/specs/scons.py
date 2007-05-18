@@ -4,7 +4,7 @@ from gub import mirrors
 class Scons (toolpackage.ToolBuildSpec):
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
-        self.with (version='0.96.93',
+        self.with_template (version='0.96.93',
                    format='gz',
                    mirror=mirrors.sf),
 

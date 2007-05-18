@@ -79,7 +79,7 @@ class Pic (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
         # FIXME: lilypond_branch
-        self.with (version=settings.lilypond_branch, mirror=pic_cvs,
+        self.with_template (version=settings.lilypond_branch, mirror=pic_cvs,
                    vc_type='cvs')
 
         # FIXME: should add to C_INCLUDE_PATH

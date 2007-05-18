@@ -32,7 +32,7 @@ class Linux_headers__debian (linux_kernel_headers.Linux_kernel_headers):
         linux_kernel_headers.Linux_kernel_headers.__init__ (self, settings)
         from gub import debian
 #        debian.init_dependency_resolver (settings)
-        self.with (
+        self.with_template (
             name='linux-kernel-headers',
 # FIXME: we do not mirror all 12 debian arch's,
 #           version=debian.get_packages ()['linux-kernel-headers'].version (),
@@ -50,4 +50,4 @@ Linux_headers__linux__arm__vfp = Linux_headers__debian
 class Linux_headers__linux__64 (Linux_headers__debian):
     def __init__ (self, settings):
         Linux_headers__debian.__init__ (self, settings)
-        self.with (version='2.6.18-7', name='linux-kernel-headers')
+        self.with_template (version='2.6.18-7', name='linux-kernel-headers')

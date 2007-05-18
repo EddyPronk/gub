@@ -10,7 +10,7 @@ from gub import context
 class Python (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with (version='2.4.2',
+        self.with_template (version='2.4.2',
                    mirror=mirrors.python,
                    format='bz2')
 
@@ -82,7 +82,7 @@ class Python (targetpackage.TargetBuildSpec):
 class Python__mingw_binary (gubb.BinarySpec):
     def __init__ (self, settings):
         gubb.BinarySpec.__init__ (self, settings)
-        self.with (mirror="http://lilypond.org/~hanwen/python-2.4.2-windows.tar.gz",
+        self.with_template (mirror="http://lilypond.org/~hanwen/python-2.4.2-windows.tar.gz",
                    version='2.4.2')
 
     def python_version (self):
@@ -147,7 +147,7 @@ from gub import toolpackage
 class Python__local (toolpackage.ToolBuildSpec, Python):
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
-        self.with (version='2.4.2',
+        self.with_template (version='2.4.2',
                    mirror=mirrors.python,
                    format='bz2')
 

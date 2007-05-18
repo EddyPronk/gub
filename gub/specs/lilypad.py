@@ -5,7 +5,7 @@ from gub import misc
 class LilyPad (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with (version='0.0.7-1',
+        self.with_template (version='0.0.7-1',
                    mirror='http://lilypond.org/download/gub-sources/lilypad-0.0.7-1-src.tar.bz2',
                    format='bz2')
 

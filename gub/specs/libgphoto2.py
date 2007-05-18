@@ -6,8 +6,8 @@ class Libgphoto2 (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
 # -lltdl build problem
-#        self.with (version='2.3.0', mirror=sf_gphoto)
-        self.with (version='2.3.1', mirror=sf_gphoto)
+#        self.with_template (version='2.3.0', mirror=sf_gphoto)
+        self.with_template (version='2.3.1', mirror=sf_gphoto)
     def get_build_dependencies (self):
         return ['libexif', 'libjpeg', 'libusb']
     def wrap_pkg_config (self):

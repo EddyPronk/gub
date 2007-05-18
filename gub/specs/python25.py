@@ -15,7 +15,7 @@ class Python (targetpackage.TargetBuildSpec):
         
         ## don't from gub import settings from build system.
 	self.BASECFLAGS=''
-        self.with (version='2.5',
+        self.with_template (version='2.5',
                    mirror=mirrors.python,
                    format='bz2')
 
@@ -131,7 +131,7 @@ from gub import toolpackage
 class Python__local (toolpackage.ToolBuildSpec, Python):
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
-        self.with (version='2.5',
+        self.with_template (version='2.5',
                    mirror=mirrors.python,
                    format='bz2')
 

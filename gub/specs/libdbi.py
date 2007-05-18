@@ -4,7 +4,7 @@ from gub import targetpackage
 class Libdbi (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with (version='0.8.1', mirror=mirrors.sf, format='gz')
+        self.with_template (version='0.8.1', mirror=mirrors.sf, format='gz')
 
     def patch (self):
         targetpackage.TargetBuildSpec.patch (self)

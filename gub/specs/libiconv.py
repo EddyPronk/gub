@@ -4,7 +4,7 @@ from gub import mirrors
 class Libiconv (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with (version='1.11', mirror=mirrors.gnu)
+        self.with_template (version='1.11', mirror=mirrors.gnu)
     
     def broken_for_distcc (self):
         return True

@@ -5,7 +5,7 @@ from gub import repository
 class Git__local (toolpackage.ToolBuildSpec):
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
-        self.with (mirror='http://kernel.org/pub/software/scm/git/git-%(version)s.tar.bz2',
+        self.with_template (mirror='http://kernel.org/pub/software/scm/git/git-%(version)s.tar.bz2',
                    version='1.5.1.4')
     def patch (self):
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')

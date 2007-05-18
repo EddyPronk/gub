@@ -5,7 +5,7 @@ class Cygcheck (gubb.BinarySpec):
     "Only need the cygcheck.exe binary."
     def __init__ (self, settings):
         gubb.BinarySpec.__init__ (self, settings)
-        self.with (version='1.5.18-1', mirror=mirrors.cygwin_bin, format='bz2')
+        self.with_template (version='1.5.18-1', mirror=mirrors.cygwin_bin, format='bz2')
         
     def untar (self):
         gubb.BinarySpec.untar (self)

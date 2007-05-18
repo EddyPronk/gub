@@ -8,7 +8,7 @@ class Nsis (toolpackage.ToolBuildSpec):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
 
         if 1:
-            self.with (version='2.23',
+            self.with_template (version='2.23',
                        mirror="http://surfnet.dl.sourceforge.net/sourceforge/%(name)s/%(name)s-%(version)s-src.tar.%(format)s",
                        
                        format="bz2")

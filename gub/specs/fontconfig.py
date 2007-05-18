@@ -120,7 +120,7 @@ class Fontconfig__freebsd (Fontconfig__linux):
 class Fontconfig__local (toolpackage.ToolBuildSpec):
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
-        self.with (mirror="git://anongit.freedesktop.org/git/fontconfig",
+        self.with_template (mirror="git://anongit.freedesktop.org/git/fontconfig",
                    version=fc_version)
         
     def get_build_dependencies (self):
@@ -137,7 +137,7 @@ class Fontconfig__local (toolpackage.ToolBuildSpec):
 class Fontconfig__cygwin (Fontconfig):
     def __init__ (self, settings):
         Fontconfig.__init__ (self, settings)
-        self.with (mirror=mirrors.fontconfig, version='2.4.1')
+        self.with_template (mirror=mirrors.fontconfig, version='2.4.1')
 
     def get_subpackage_definitions (self):
         d = dict (Fontconfig.get_subpackage_definitions (self))

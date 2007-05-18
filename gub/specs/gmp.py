@@ -6,7 +6,7 @@ from gub import targetpackage
 class Gmp (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with (version='4.2.1',
+        self.with_template (version='4.2.1',
                    mirror="http://ftp.sunet.se/pub/gnu/gmp/gmp-%(version)s.tar.bz2",
                    format="bz2")
         if not self.settings.platform.startswith ('darwin'):
@@ -67,7 +67,7 @@ class Gmp__darwin__x86 (Gmp__darwin):
 class Gmp__cygwin (Gmp):
     def __init__ (self,settings):
         Gmp.__init__ (self, settings)
-        self.with (version='4.1.4')
+        self.with_template (version='4.1.4')
 
     def patch (self):
         self.system ('''
@@ -99,7 +99,7 @@ from gub import toolpackage
 class Gmp__local (toolpackage.ToolBuildSpec):
     def __init__ (self, s):
         toolpackage.ToolBuildSpec.__init__ (self, s)
-        self.with (version='4.2.1',
+        self.with_template (version='4.2.1',
                    mirror="ftp://ftp.gnu.org/gnu/gmp/gmp-%(version)s.tar.bz2")
 
     def get_build_dependencies (self):

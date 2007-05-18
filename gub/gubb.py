@@ -642,8 +642,16 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
         from gub import repository
         return repository.NewTarBall (self.settings.downloads, mirror, name, version, format, strip_components)
 
-    # TODO: junk this, use TarBall ()or Version ()
     def with (self,
+              mirror='',
+              version='',
+              strip_components=1,
+              format='',
+              name=''):
+        self.with_template (mirror, version, strip_components, format, name)
+
+    # TODO: junk this, use TarBall ()or Version ()
+    def with_template (self,
               mirror='',
               version='',
               strip_components=1,

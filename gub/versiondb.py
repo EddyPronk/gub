@@ -29,6 +29,7 @@ import os
 
 
 def get_url_versions (url):
+    print url
     opener = urllib.URLopener ()
     index = opener.open (url).read ()
 
@@ -186,6 +187,10 @@ def main ():
 
     db = VersionDataBase (options.dbfile)
     db.platforms = options.platforms.split (' ')
+
+    if db.platforms == []:
+        sys.stderr.write ("need --platforms definition")
+        
     if options.test:
         print '2.9.28:', db.get_next_build_number ((2,9,28))
         print '2.8.2:', db.get_next_build_number ((2,8,2))

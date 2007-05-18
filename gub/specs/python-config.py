@@ -4,7 +4,7 @@ class Python_config (gubb.SdkBuildSpec):
     def __init__ (self, settings):
         gubb.SdkBuildSpec.__init__ (self, settings)
         self.has_source = False
-        self.with (version='2.4.1')
+        self.with_template (version='2.4.1')
     def untar (self):
         pass
     # FIXME: c&p python.py:install ()

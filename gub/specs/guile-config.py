@@ -4,7 +4,7 @@ class Guile_config (gubb.SdkBuildSpec):
     def __init__ (self, settings):
         gubb.SdkBuildSpec.__init__ (self, settings)
         self.has_source = False
-        self.with (version='1.8.0')
+        self.with_template (version='1.8.0')
 
     def untar (self):
         pass

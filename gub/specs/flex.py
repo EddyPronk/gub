@@ -4,7 +4,7 @@ from gub import mirrors
 class Flex (toolpackage.ToolBuildSpec):
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
-        self.with (version="2.5.4a",
+        self.with_template (version="2.5.4a",
                    mirror=mirrors.sf, format='gz'),
     def srcdir (self):
         return '%(allsrcdir)s/flex-2.5.4'

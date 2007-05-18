@@ -4,7 +4,7 @@ class Urw_fonts (gubb.BinarySpec):
     def __init__ (self, settings):
         gubb.BinarySpec.__init__ (self, settings)
 
-        self.with (version='1.0.7pre41',
+        self.with_template (version='1.0.7pre41',
                    mirror='ftp://ftp.gnome.ru/fonts/urw/release/urw-fonts-%(version)s.tar.bz2')
         self.vc_repository.strip_components = 0
     def compile (self):

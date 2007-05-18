@@ -6,7 +6,7 @@ from gub import toolpackage
 class Freetype (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with (version='2.1.10', mirror=mirrors.nongnu_savannah)
+        self.with_template (version='2.1.10', mirror=mirrors.nongnu_savannah)
 
     def license_file (self):
         return '%(srcdir)s/docs/LICENSE.TXT'
@@ -58,7 +58,7 @@ LDFLAGS:=$(LDFLAGS) -no-undefined
 class Freetype__local (toolpackage.ToolBuildSpec, Freetype):
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
-        self.with (version='2.1.10', mirror=mirrors.nongnu_savannah)
+        self.with_template (version='2.1.10', mirror=mirrors.nongnu_savannah)
 
     def get_build_dependencies (self):
         # local is not split

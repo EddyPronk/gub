@@ -3,7 +3,7 @@ from gub import gubb
 class W32api_in_usr_lib (gubb.BinarySpec, gubb.SdkBuildSpec):
     def __init__ (self, settings):
         gubb.BinarySpec.__init__ (self, settings)
-        self.with (version='1.0',  strip_components=0)
+        self.with_template (version='1.0',  strip_components=0)
     def get_build_dependencies (self):
         return ['w32api']
     def install (self):

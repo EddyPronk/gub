@@ -17,7 +17,7 @@ class Netpbm (toolpackage.ToolBuildSpec):
 
         
         # self.with_vc (repo)
-        self.with (mirror='http://lilypond.org/download/gub-sources/netpbm-patched-10.35.tar.bz2',
+        self.with_template (mirror='http://lilypond.org/download/gub-sources/netpbm-patched-10.35.tar.bz2',
                    version='10.35')
 
     def configure (self):

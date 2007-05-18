@@ -8,7 +8,7 @@ class Glib (targetpackage.TargetBuildSpec):
 
 
         ## 2.12.4 : see bug  http://bugzilla.gnome.org/show_bug.cgi?id=362918
-        self.with (#version='2.12.4',   mirror=mirrors.gnome_216,
+        self.with_template (#version='2.12.4',   mirror=mirrors.gnome_216,
             version='2.10.3',
 		   mirror=mirrors.gnome_214,
 		   format='bz2')
@@ -66,7 +66,7 @@ class Glib__freebsd (Glib):
 class Glib__local (toolpackage.ToolBuildSpec):
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
-        self.with (version='2.10.3',
+        self.with_template (version='2.10.3',
                    mirror=mirrors.gnome_214,
                    format='bz2')
 

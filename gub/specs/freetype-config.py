@@ -4,7 +4,7 @@ class Freetype_config (gubb.SdkBuildSpec):
     def __init__ (self, settings):
         gubb.SdkBuildSpec.__init__ (self, settings)
         self.has_source = False
-        self.with (version='2.1.9')
+        self.with_template (version='2.1.9')
     def untar (self):
         pass
     def install (self):

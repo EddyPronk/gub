@@ -6,7 +6,7 @@ from gub import toolpackage
 class Expat (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with (version='1.95.8', mirror=mirrors.sf, format='gz')
+        self.with_template (version='1.95.8', mirror=mirrors.sf, format='gz')
 
     def get_build_dependencies (self):
         return ['libtool']
@@ -39,7 +39,7 @@ RUN_FC_CACHE_TEST=false
 class Expat__local (toolpackage.ToolBuildSpec):
     def __init__ (self,settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
-        self.with (version='1.95.8', mirror=mirrors.sf, format='gz')
+        self.with_template (version='1.95.8', mirror=mirrors.sf, format='gz')
 
     def patch (self):
         toolpackage.ToolBuildSpec.patch (self)

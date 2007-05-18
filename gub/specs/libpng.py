@@ -4,7 +4,7 @@ from gub import targetpackage
 class Libpng (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with (version='1.2.8', mirror=mirrors.libpng)
+        self.with_template (version='1.2.8', mirror=mirrors.libpng)
 
     def license_file (self):
         return '%(srcdir)s/LICENSE' 
@@ -51,7 +51,7 @@ from gub import toolpackage
 class Libpng__local (toolpackage.ToolBuildSpec, Libpng):
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
-        self.with (version='1.2.8', mirror=mirrors.libpng)
+        self.with_template (version='1.2.8', mirror=mirrors.libpng)
 
     def get_build_dependencies (self):
         return ['libtool']
