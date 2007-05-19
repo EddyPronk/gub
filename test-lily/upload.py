@@ -10,10 +10,17 @@ import sys
 import optparse
 import pickle
 
-sys.path.insert (0, 'lib')
 
-import versiondb
-import misc
+def argv0_relocation ():
+    import os, sys
+    bindir = os.path.abspath (os.path.dirname (sys.argv[0]))
+    prefix = os.path.dirname (bindir)
+    sys.path.insert (0, prefix)
+
+argv0_relocation ()
+
+from gub import versiondb
+from gub import misc
 
 platforms = ['linux-x86',
              'linux-64',
@@ -229,7 +236,7 @@ upload x.y.z      - upload packages
 
 def get_repository (options):
     ## do here, because also used in website generation.
-    import repository
+    from gub import repository
     dir = options.repo_dir.replace ('.git','')
     repo = repository.Git (dir, 
                                      branch=options.branch)
