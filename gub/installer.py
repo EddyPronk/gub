@@ -222,7 +222,6 @@ cp -pR --link %(installer_root)s/license*/* %(darwin_bundle_dir)s/Contents/Resou
         self.system ('cd %(darwin_bundle_dir)s/../ && tar cjf %(bundle_zip)s LilyPond.app',
                      locals ())
         
-        self.info ("Created %(bundle_zip)s\n", locals()) 
         self.write_checksum ()
         
 class MingwRoot (Installer):
