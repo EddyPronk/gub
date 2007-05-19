@@ -7,7 +7,7 @@ class Freebsd_runtime (gubb.BinarySpec, gubb.SdkBuildSpec):
         version = '4.10-2'
         if 0 and settings.target_architecture == 'i686-freebsd6':
             version = '6.1-RELEASE'
-        self. with (version=version, strip_components=0, mirror=mirrors.lilypondorg)
+        self.with_template (version=version, strip_components=0, mirror=mirrors.lilypondorg)
     def untar (self):
         gubb.BinarySpec.untar (self)
     def patch (self):

@@ -6,7 +6,7 @@ class Binutils (binutils.Binutils):
     def __init__ (self, settings):
         binutils.Binutils.__init__ (self, settings)
         from gub import mirrors
-        self.with (version='2.17', format='bz2', mirror=mirrors.gnu)
+        self.with_template (version='2.17', format='bz2', mirror=mirrors.gnu)
     def makeflags (self):
         from gub import misc
         return misc.join_lines ('''

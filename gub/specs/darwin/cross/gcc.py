@@ -6,9 +6,9 @@ class Gcc (gcc.Gcc):
         #FIXME: separate-out: darwin-ppc/gcc.py / class Gcc__darwin__powerpc ()
         gcc.Gcc.__init__ (self, settings)
         if self.settings.target_architecture.startswith ("powerpc"):
-            self.with (version='4.1.1', mirror=mirrors.gcc_41, format='bz2')
+            self.with_template (version='4.1.1', mirror=mirrors.gcc_41, format='bz2')
         else:
-            self.with (version='4.2-20070207', mirror=mirrors.gcc_snap,
+            self.with_template (version='4.2-20070207', mirror=mirrors.gcc_snap,
                        format='bz2')
     def patch (self):
         self.file_sub ([('/usr/bin/libtool', '%(cross_prefix)s/bin/%(target_architecture)s-libtool')],
