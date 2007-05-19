@@ -459,7 +459,7 @@ rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_roo
 
                     new_dest = os.path.join (self.settings.system_root, s[1:])
                     os.remove (f)
-                    print 'changing absolute link %s -> %s' % (f, new_dest)
+                    self.os_interface.action ('changing absolute link %(f)s -> %(new_dest)s' % locals())
                     os.symlink (new_dest, f)
 
     def package (self):

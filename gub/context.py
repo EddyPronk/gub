@@ -141,10 +141,6 @@ class Os_context_wrapper (Context):
     def command (self, str):
         self.os_interface.command (str)
         
-    def log (self, str, env={}):
-        str = self.expand (str, env)
-        self.os_interface.log (str)
-        
     def read_pipe (self, cmd, env={}, ignore_errors=False):
         dict = self.get_substitution_dict (env)
         return self.os_interface.read_pipe (cmd % dict, ignore_errors=ignore_errors)
