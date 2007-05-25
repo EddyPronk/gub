@@ -8,6 +8,7 @@ class Git__local (toolpackage.ToolBuildSpec):
         self.with_template (mirror='http://kernel.org/pub/software/scm/git/git-%(version)s.tar.bz2',
                    version='1.5.1.4')
     def patch (self):
+        self.system('cd %(srcdir)s && git reset --hard HEAD')
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
         self.file_sub ([('git describe','true')],
                        '%(srcdir)s/GIT-VERSION-GEN')
@@ -53,11 +54,13 @@ class Git (targetpackage.TargetBuildSpec):
                 ]
 
     def patch (self):
+        self.system('cd %(srcdir)s && git reset --hard HEAD')
         targetpackage.TargetBuildSpec.patch (self)
         self.system ('rm -rf %(builddir)s')
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
         self.file_sub ([('git describe','true')],
                         '%(srcdir)s/GIT-VERSION-GEN')
+        self.system('cd %(srcdir)s && patch -p1 < %(patchdir)s/git-1.5-shell-anality.patch')
 
 
 class Git__mingw (Git):
@@ -72,7 +75,6 @@ class Git__mingw (Git):
                        '%(builddir)s/config.mak.autogen')
         self.file_sub ([('-lsocket',
                          '-lwsock32'),
-                        ('TRACK_CFLAGS *=', 'XXX_TRACK_CFLAGS = '),
                         ],
                        '%(builddir)s/Makefile')
 
