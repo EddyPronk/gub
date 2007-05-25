@@ -17,8 +17,8 @@ default: all
 
 PACKAGE = lilypond
 
-ALL_PLATFORMS=cygwin debian debian-arm freebsd-x86 linux-x86 linux-64 mingw debian-mipsel linux-ppc
-PLATFORMS=linux-x86 linux-64 linux-ppc freebsd-x86 cygwin mingw
+ALL_PLATFORMS=debian debian-arm freebsd-x86 linux-x86 linux-64 mingw debian-mipsel linux-ppc
+PLATFORMS=linux-x86 darwin-ppc linux-64 linux-ppc freebsd-x86 mingw darwin-x86
 ifneq ($(BUILD_PLATFORM),linux-64)
 # odcctools do not build on linux-64
 ALL_PLATFORMS+=darwin-ppc darwin-x86
@@ -27,6 +27,12 @@ ALL_PLATFORMS+=darwin-ppc darwin-x86
 #ALL_PLATFORMS+=mingw
 ALL_PLATFORMS+=darwin-ppc darwin-x86
 endif
+
+
+## want cygwin to be the last, because it is not a core lilypond platform. 
+ALL_PLATFORMS += cygwin
+PLATFORMS += cygwin
+
 
 LILYPOND_CVS_REPODIR=downloads/lilypond.cvs
 LILYPOND_GITDIR=downloads/lilypond.git
