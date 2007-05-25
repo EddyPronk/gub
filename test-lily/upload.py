@@ -179,7 +179,7 @@ def upload_binaries (repo, version, version_db):
     git_tag = 'release/%(version_str)s-%(build)d' % locals () 
     git_tag_cmd = 'git --git-dir downloads/lilypond.git tag -m ""  -a %(git_tag)s %(branch)s' % locals ()
     git_push_cmd = 'git --git-dir downloads/lilypond.git push ssh+git://git.sv.gnu.org/srv/git/lilypond.git/ refs/tags/%(git_tag)s:refs/tags/%(git_tag)s' % locals ()
-    gub_tag_cmd = 'git tag "release-lilypond-%(version_str)s-%(build)d" -m "release of lilypond %(description)s (%(version_str)s-%(build)d)" ' % locals()
+    gub_tag_cmd = 'git tag "gub-release-lilypond-%(version_str)s-%(build)d" -m "release of lilypond %(description)s (%(version_str)s-%(build)d)" ' % locals()
 
     cmds.append (git_tag_cmd)
     cmds.append (git_push_cmd)
