@@ -71,8 +71,9 @@ UninstPage uninstConfirm
 UninstPage instfiles
 
 Section "${PRETTY_NAME} (required)"
-	;; In silent mode (invoke as: setup.exe /S), generate an install log.
-	ifSilent 0 silent
+
+
+	;; always generate install log
 	Logset on
 silent:
 
