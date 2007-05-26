@@ -1,0 +1,43 @@
+From 33d227ce82df98ecfd5b787f33b6d785808606da Mon Sep 17 00:00:00 2001
+From: Han-Wen Nienhuys <hanwen@xs4all.nl>
+Date: Sat, 26 May 2007 20:03:57 -0300
+Subject: [PATCH] move template_dir logic to configure script.
+
+---
+ config.mak.in |    2 +-
+ configure.ac  |    6 ++++++
+ 2 files changed, 7 insertions(+), 1 deletions(-)
+
+diff --git a/config.mak.in b/config.mak.in
+index 9a57840..12a541f 100644
+--- a/config.mak.in
++++ b/config.mak.in
+@@ -12,7 +12,7 @@ exec_prefix = @exec_prefix@
+ bindir = @bindir@
+ #gitexecdir = @libexecdir@/git-core/
+ datarootdir = @datarootdir@
+-template_dir = @datadir@/git-core/templates/
++template_dir = @template_dir@
+ 
+ mandir=@mandir@
+ 
+diff --git a/configure.ac b/configure.ac
+index 7cfb3a0..d1622a6 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -323,6 +323,12 @@ GIT_PARSE_WITH(iconv))
+ # change being considered an inode change from the update-cache perspective.
+ 
+ 
++
++AC_SUBST(template_dir)
++if test "$template_dir" = ""; then
++  template_dir='${datadir}/git-core/templates/'
++fi
++
+ ## Output files
+ AC_CONFIG_FILES(["${config_file}":"${config_in}":"${config_append}"])
+ AC_OUTPUT
+-- 
+1.5.0.6
+
