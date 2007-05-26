@@ -55,14 +55,14 @@ class Git (targetpackage.TargetBuildSpec):
 
     def patch (self):
         self.system('cd %(srcdir)s && git reset --hard HEAD')
+        self.system('cd %(srcdir)s && patch -p1 < %(patchdir)s/git-1.5.2-templatedir.patch')
         targetpackage.TargetBuildSpec.patch (self)
         self.system ('rm -rf %(builddir)s')
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
         self.file_sub ([('git describe','true')],
                         '%(srcdir)s/GIT-VERSION-GEN')
         self.system('cd %(srcdir)s && patch -p1 < %(patchdir)s/git-1.5-shell-anality.patch')
-
-
+        
 class Git__mingw (Git):
     def __init__ (self, settings):
         Git.__init__ (self, settings)
@@ -77,6 +77,7 @@ class Git__mingw (Git):
                          '-lwsock32'),
                         ],
                        '%(builddir)s/Makefile')
+        self.dump('%(version)s-GUB', '%(builddir)s/version')
 
     def makeflags (self):
         return (' uname_S=MINGW'
@@ -87,7 +88,4 @@ class Git__mingw (Git):
                 + ' instdir_SQ=%(install_root)s/usr/lib/ '
                 + ' SHELL_PATH=/bin/sh'
                 + ' PERL_PATH=/bin/perl')
-
-    def version (self):
-        return '1.5.1'
 
