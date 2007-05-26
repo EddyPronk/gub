@@ -20,6 +20,7 @@ GUB_OPTIONS=\
  --branch git=$(MINGIT_BRANCH):$(MINGIT_LOCAL_BRANCH)
 
 INSTALLER_BUILDER_OPTIONS=\
+  -v -v -v \
   --branch git=$(MINGIT_LOCAL_BRANCH)\
   --version-db uploads/git.versions \
 
