@@ -432,6 +432,7 @@ class Git (Repository):
         revision = self.revision
         
         if os.path.isdir (os.path.join (destdir, self.vcs)):
+            self.git ('reset --hard HEAD' % locals (), dir=destdir)
             self.git ('pull %(repo_dir)s %(branch)s' % locals (), dir=destdir)
         else:
             self.system ('git-clone -l -s %(repo_dir)s %(destdir)s' % locals ())
