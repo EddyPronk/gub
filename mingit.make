@@ -27,6 +27,7 @@ all: $(PLATFORMS)
 
 download:
 	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB,$(p)) --online --stage=download  git && ) true
+	$(MAKE) update-versions
 
 bootstrap: bootstrap-git download-local local cross-compilers local-cross-tools download 
 
