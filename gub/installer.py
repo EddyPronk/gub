@@ -253,7 +253,6 @@ OutFile "${INSTALLER_OUTPUT_DIR}/setup.exe"
                    env=locals ())
         
         self.system (r'''cp %(nsisdir)s/*.nsh %(ns_dir)s
-cp %(nsisdir)s/*.bat.in %(ns_dir)s
 cp %(nsisdir)s/*.nsi %(ns_dir)s
 cp %(nsisdir)s/*.sh.in %(ns_dir)s''', locals ())
 

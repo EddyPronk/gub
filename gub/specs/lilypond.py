@@ -416,6 +416,11 @@ cp %(install_root)s/usr/share/lilypond/*/python/* %(install_root)s/usr/bin
             s = open (i).read ()
             open (i, 'w').write (re.sub ('\r*\n', '\r\n', s))
 
+        bat = r'''@echo off
+"@INSTDIR@\usr\bin\lilypond-windows.exe" -dgui %1 %2 %3 %4 %5 %6 %7 %8 %9
+'''.replace ('%', '%%').replace ('\n', '\r\n')
+            
+        self.dump (bat, '%(install_root)s/usr/bin/lilypond-windows.bat.in')
 
 ## please document exactly why if this is switched back.
 #        self.file_sub ([(r'gs-font-load\s+#f', 'gs-font-load #t')],
