@@ -38,6 +38,7 @@ download-local:
 		git pkg-config nsis icoutils 
 
 local:
+	cd librestrict && make -f GNUmakefile
 	$(GUB) $(LOCAL_GUB_OPTIONS) -p local git 
 
 
