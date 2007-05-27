@@ -51,7 +51,7 @@ update-versions:
 LAST_GIT=$(shell ls -1 -t uploads/git*.exe|head -1)
 TAG=gub-release-mingw-git-$(subst uploads/git-,,$(LAST_GIT))
 upload:
-	rsync $(LAST_GIT) hanwen@lilypond.org:www/git/binaries/mingw/
+	rsync -v --progress $(LAST_GIT) hanwen@lilypond.org:www/git/binaries/mingw/
 	$(MAKE) update-versions
 	git tag $(TAG)
 	git push ssh+git://git.sv.gnu.org/srv/git/lilypond.git $(TAG):refs/tags/$(TAG)
