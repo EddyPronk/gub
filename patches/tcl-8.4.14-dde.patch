@@ -1,0 +1,32 @@
+--- tcl8.4.14old/win/tclWinDde.c	2006-04-05 17:50:46.000000000 -0300
++++ tcl8.4.14/win/tclWinDde.c	2007-05-27 04:08:46.000000000 -0300
+@@ -1308,8 +1308,13 @@
+ 	    }
+ 
+ 	    objc -= (async + 3);
+-	    ((Tcl_Obj **) objv) += (async + 3);
+-
++	    {
++ 		Tcl_Obj ** cast_objv = (Tcl_Obj **) objv;
++		cast_objv += 3;
++		objv = cast_objv;
++		
++	/*	((Tcl_Obj **) objv) += (async + 3);*/
++	    }
+             /*
+ 	     * See if the target interpreter is local.  If so, execute
+ 	     * the command directly without going through the DDE server.
+--- tcl8.4.14old/win/tclWinReg.c	2006-04-05 13:22:18.000000000 -0300
++++ tcl8.4.14/win/tclWinReg.c	2007-05-27 04:13:55.000000000 -0300
+@@ -747,7 +747,10 @@
+ 		    Tcl_NewStringObj(Tcl_DStringValue(&buf),
+ 			    Tcl_DStringLength(&buf)));
+ 	    if (regWinProcs->useWide) {
+-		while (*((Tcl_UniChar *)p)++ != 0) {}
++		Tcl_UniChar *up = (Tcl_UniChar *)p;
++
++		while (*up++ != 0) {}
++		p = (char *) up;
+ 	    } else {
+ 		while (*p++ != '\0') {}
+ 	    }
