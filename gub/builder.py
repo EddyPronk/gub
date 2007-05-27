@@ -113,8 +113,9 @@ class Builder:
 
             if (stage == 'package' and tainted
                 and not self.settings.options.force_package):
-                msg = spec.expand ('''Compile was continued from previous run.
-Will not package.
+                msg = spec.expand ('''This compile has previously been interrupted.
+To ensure a repeatable build, this will not be packaged.
+
 Use
 
 rm %(stamp_file)s
