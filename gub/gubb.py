@@ -267,7 +267,8 @@ class BuildSpec (Os_context_wrapper):
             ## distcc during configure.
             c = 'DISTCC_HOSTS="%s" %s' % (self.settings.native_distcc_hosts, c)
             c = 'PATH="%(native_distcc_bindir)s:$PATH" ' + c
-        elif self.settings.cpu_count_str != '1':
+        elif (not self.broken_for_distcc()
+              and self.settings.cpu_count_str != '1'):
             job_spec += ' -j%s ' % self.settings.cpu_count_str
 
         c += job_spec
