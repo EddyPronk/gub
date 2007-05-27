@@ -8,8 +8,6 @@
 ;; !define TEST "1"
 
 
-!include "StrFunc.nsh"
-
 ;;; substitutions
 
 !define ENVIRON "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"
@@ -28,11 +26,14 @@ Var UninstLog
 ; Uninstall log file missing.
 LangString UninstLogMissing ${LANG_ENGLISH} "${UninstLog} not found.$\r$\nCannot uninstall."
 
+
+!include "substitute.nsh"
+${StrLoc}
 ${UnStrLoc}
 
 ;;SetCompressor lzma  ; very slow
-;;SetCompressor zlib
-SetCompressor bzip2  ;;
+SetCompressor zlib
+;SetCompressor bzip2  ;;
 
 Name "${PRETTY_NAME}"
 
@@ -97,7 +98,11 @@ fresh_install:
 	CreateDirectory "$INSTDIR\usr\bin"
 
 	Call registry_installer
-	Call registry_path 
+	Call registry_path
+	
+	StrCpy $0 "$INSTDIR\usr\bin\gitk.bat"
+	${SubstituteAtVariables} "$0.in" "$0"
+
 SectionEnd
 
 
@@ -197,6 +202,10 @@ path_done:
 	RMDir "$INSTDIR\usr\"
 	Delete "$INSTDIR\uninstall.exe"
 	Delete "$INSTDIR\files.txt"
+
+	Delete "$INSTDIR\usr\bin\gitk.bat"
+	Delete "$INSTDIR\usr\bin\gitk.bat.in"
+	
 	RMDir "$INSTDIR"
 SectionEnd
 

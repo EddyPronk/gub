@@ -93,3 +93,8 @@ class Git__mingw (Git):
         d = Git.get_dependency_dict (self)
         d[''].append ('tcltk')
         return d
+    def install (self):
+        Git.install(self)
+        self.dump ('''@echo off
+r"@INSTDIR@\usr\bin\wish.exe" "@INSTDIR@\usr\bin\gitk" %%1 %%2 %%3 %%4 %%5 %%6 %%7 %%8 %%9
+''', '%(install_root)s/usr/bin/gitk.bat.in')
