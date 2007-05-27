@@ -62,6 +62,7 @@ class Git (targetpackage.TargetBuildSpec):
         self.file_sub ([('git describe','true')],
                         '%(srcdir)s/GIT-VERSION-GEN')
         self.system('cd %(srcdir)s && patch -p1 < %(patchdir)s/git-1.5-shell-anality.patch')
+        self.autoupdate()
         
 class Git__mingw (Git):
     def __init__ (self, settings):
