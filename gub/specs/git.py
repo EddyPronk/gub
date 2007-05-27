@@ -95,6 +95,7 @@ class Git__mingw (Git):
         return d
     def install (self):
         Git.install(self)
-        self.dump (r'''@echo off
-"@INSTDIR@\usr\bin\wish.exe" "@INSTDIR@\usr\bin\gitk" %%1 %%2 %%3 %%4 %%5 %%6 %%7 %%8 %%9
-''', '%(install_root)s/usr/bin/gitk.bat.in')
+        bat = r'''@echo off
+"@INSTDIR@\usr\bin\wish.exe" "@INSTDIR@\usr\bin\gitk" %1 %2 %3 %4 %5 %6 %7 %8 %9
+'''.replace ('%','%%').replace ('\n','\r\n')
+        self.dump (bat, '%(install_root)s/usr/bin/gitk.bat.in')
