@@ -55,10 +55,6 @@ beautiful sheet music from a high-level description file.'''
     def get_subpackage_names (self):
         return ['']
     
-    def force_sequential_build (self):
-        ## mf/ is broken
-        return True
-
     def get_build_dependencies (self):
         return ['fontconfig-devel',
                 'freetype-devel',
