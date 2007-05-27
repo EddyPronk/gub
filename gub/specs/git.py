@@ -93,6 +93,12 @@ class Git__mingw (Git):
         d = Git.get_dependency_dict (self)
         d[''].append ('tcltk')
         return d
+
+    def get_build_dependencies (self):
+        d =  Git.get_build_dependencies (self)
+        d.append ('tcltk')
+        return d
+    
     def install (self):
         Git.install(self)
         bat = r'''@echo off
