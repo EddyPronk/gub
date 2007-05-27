@@ -12,7 +12,7 @@ class Git__local (toolpackage.ToolBuildSpec):
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
         self.file_sub ([('git describe','true')],
                        '%(srcdir)s/GIT-VERSION-GEN')
-
+        
     def configure (self):
         self.dump ('prefix=%(system_root)s/usr', '%(builddir)s/config.mak')
 
@@ -55,6 +55,12 @@ class Git (targetpackage.TargetBuildSpec):
 
     def patch (self):
         self.system('cd %(srcdir)s && git reset --hard HEAD')
+        self.file_sub ([('GIT-CFLAGS','$(GIT_CFLAGS_FILE)')],
+                        '%(srcdir)s/Makefile')
+        self.file_sub ([('\.\./GIT-CFLAGS Makefile', 'Makefile')],
+                        '%(srcdir)s/perl/Makefile')
+
+        
         self.system('cd %(srcdir)s && patch -p1 < %(patchdir)s/git-1.5.2-templatedir.patch')
         targetpackage.TargetBuildSpec.patch (self)
         self.system ('rm -rf %(builddir)s')
@@ -84,11 +90,16 @@ class Git__mingw (Git):
         return (' uname_S=MINGW'
                 + ' V=1 '
 
-                ## we'll consider it if they 
+                ## we'll consider it if they clean up their act
                 + ' SCRIPT_PERL= '
                 + ' instdir_SQ=%(install_root)s/usr/lib/ '
                 + ' SHELL_PATH=/bin/sh'
                 + ' PERL_PATH=/bin/perl')
+
+    def compile_command (self):
+
+        ## want this setting to reach compile, but not install
+        return Git.compile_command (self) + ' template_dir=../share/git-core/templates/ '
 
     def get_dependency_dict (self):
         d = Git.get_dependency_dict (self)
