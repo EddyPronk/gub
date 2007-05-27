@@ -8,8 +8,6 @@ class Pjproject (targetpackage.TargetBuildSpec):
                                           url='http://www.pjsip.org/release/0.5.10.1/pjproject-0.5.10.1.tar.gz',
                                           version='0.5.10.1',
                                           strip_components=True))
-        # FIXME: broken for make -j2, why does force_sequential_build not handle?
-        self.settings.cpu_count_str = '1'
     def force_sequential_build (self):
         return True
     def patch (self):
