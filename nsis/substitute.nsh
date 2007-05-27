@@ -66,8 +66,8 @@ Function SubstituteAtVariablesCallback
 	Push "$INSTDIR"
 	Call StrRep
 
-	Push "@LILYPOND_VERSION@"
-	Push "${LILYPOND_VERSION}"
+	Push "@MAINPACKAGE_VERSION@"
+	Push "${MAINPACKAGE_VERSION}"
 	Call StrRep
 
 	Push "@SLASHED_INSTDIR@"
