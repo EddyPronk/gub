@@ -126,7 +126,7 @@ to force rebuild, or
 to skip this check.
 ''')
                 spec.os_interface.error (msg)
-                raise 'abort'
+                sys.exit(1)
 
 
             if (stage == 'clean'
