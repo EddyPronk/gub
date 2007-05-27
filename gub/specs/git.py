@@ -89,3 +89,7 @@ class Git__mingw (Git):
                 + ' SHELL_PATH=/bin/sh'
                 + ' PERL_PATH=/bin/perl')
 
+    def get_dependency_dict (self):
+        d = Git.get_dependency_dict (self)
+        d[''].append ('tcltk')
+        return d
