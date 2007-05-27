@@ -32,8 +32,8 @@ ${StrLoc}
 ${UnStrLoc}
 
 ;;SetCompressor lzma  ; very slow
-SetCompressor zlib
-;SetCompressor bzip2  ;;
+;SetCompressor zlib
+SetCompressor bzip2  ;;
 
 Name "${PRETTY_NAME}"
 
