@@ -441,7 +441,7 @@ rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_roo
     def compile (self):
         self.system ('cd %(builddir)s && %(compile_command)s')
 
-    # FIXME: should not misusde patch for auto stuff
+    # FIXME: should not misuse patch for auto stuff
     def patch (self):
         if not os.path.exists ('%(srcdir)s/configure' \
                                % self.get_substitution_dict ()):
