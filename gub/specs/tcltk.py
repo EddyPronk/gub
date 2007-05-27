@@ -28,6 +28,11 @@ cd %(srcdir)s/tk/ && ./unix/configure --prefix=%(install_prefix)s
         self.system ('cd %(builddir)s/tcl && make DESTDIR=%(install_root)s install')
         self.system ('cd %(builddir)s/tk && make DESTDIR=%(install_root)s install')
 
+    def get_subpackage_definitions (self):
+        s = targetpackage.TargetBuildSpec.get_subpackage_definitions (self)
+        s['doc'].append ('/usr/lib/tk8.4/demos')
+        return s
+    
 class Tcltk__mingw (Tcltk):
     @context.subst_method
     def RC(self):
