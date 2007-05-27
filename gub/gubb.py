@@ -127,7 +127,7 @@ class BuildSpec (Os_context_wrapper):
         # FIMXE: '' always depends on runtime?
         return {'': [], 'devel': [], 'doc': [], 'runtime': []}
   
-    def broken_for_distcc (self):
+    def force_sequential_build (self):
         """Set to true if package can't handle make -jX """
         return False
     
@@ -267,7 +267,7 @@ class BuildSpec (Os_context_wrapper):
             ## distcc during configure.
             c = 'DISTCC_HOSTS="%s" %s' % (self.settings.native_distcc_hosts, c)
             c = 'PATH="%(native_distcc_bindir)s:$PATH" ' + c
-        elif (not self.broken_for_distcc()
+        elif (not self.force_sequential_build()
               and self.settings.cpu_count_str != '1'):
             job_spec += ' -j%s ' % self.settings.cpu_count_str
 

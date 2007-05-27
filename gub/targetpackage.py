@@ -75,7 +75,7 @@ class TargetBuildSpec (gubb.BuildSpec):
     def compile_command (self):
         c = gubb.BuildSpec.compile_command (self)
         if (self.settings.cross_distcc_hosts
-            and not self.broken_for_distcc ()
+            and not self.force_sequential_build ()
             and re.search (r'\bmake\b', c)):
             
             jobs = '-j%d ' % (2*len (self.settings.cross_distcc_hosts.split (' ')))
@@ -85,7 +85,7 @@ class TargetBuildSpec (gubb.BuildSpec):
             ## distcc during configure.
             c = 'DISTCC_HOSTS="%s" %s' % (self.settings.cross_distcc_hosts , c)
             c = 'PATH="%(cross_distcc_bindir)s:$PATH" ' + c
-        elif (not self.broken_for_distcc ()
+        elif (not self.force_sequential_build ()
               and self.settings.cpu_count_str):
             c = re.sub (r'\bmake\b', 'make -j%s '% self.settings.cpu_count_str, c)
 

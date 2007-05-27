@@ -55,7 +55,7 @@ beautiful sheet music from a high-level description file.'''
     def get_subpackage_names (self):
         return ['']
     
-    def broken_for_distcc (self):
+    def force_sequential_build (self):
         ## mf/ is broken
         return True
 

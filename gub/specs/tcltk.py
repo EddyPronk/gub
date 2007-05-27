@@ -11,7 +11,7 @@ class Tcltk (targetpackage.TargetBuildSpec):
             version='8.4.14')
     def license_file (self):
         return "%(srcdir)s/tcl/license.terms"
-    def broken_for_distcc (self):
+    def force_sequential_build (self):
         return True
     def configure (self):
         self.system ('''cd %(srcdir)s/tcl &&  ./unix/configure --prefix=%(install_prefix)s

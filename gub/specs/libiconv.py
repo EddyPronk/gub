@@ -6,7 +6,7 @@ class Libiconv (targetpackage.TargetBuildSpec):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
         self.with_template (version='1.11', mirror=mirrors.gnu)
     
-    def broken_for_distcc (self):
+    def force_sequential_build (self):
         return True
     
     def get_build_dependencies (self):

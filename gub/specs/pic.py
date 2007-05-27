@@ -16,7 +16,7 @@ class Pic (targetpackage.TargetBuildSpec):
     def get_subpackage_names (self):
         return ['']
     
-    def broken_for_distcc (self):
+    def force_sequential_build (self):
         ## upnpAllegro is broken
         return True
 
