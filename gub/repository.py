@@ -27,6 +27,7 @@ import urllib
 from gub import misc
 from gub import locker
 from gub import mirrors
+from gub import oslog
 
 ## Rename to Source/source.py?
 
@@ -528,7 +529,7 @@ class CVS (Repository):
         dir = self._checkout_dir ()
         ## TODO: can we get deletes from vc?
         verbose = ''
-        if self.oslog and self.oslog.verbose >= self.oslog.commands:
+        if self.oslog and self.oslog.verbose >= oslog.level['command']:
             verbose = 'v'
         self.system ('rsync -a%(verbose)s --delete --exclude CVS %(dir)s/ %(destdir)s' % locals ())
         
@@ -624,7 +625,6 @@ class SimpleRepo (Repository):
         vcs = self.vcs
         verbose = ''
 
-        from gub import oslog
         if self.oslog and self.oslog.verbose >= oslog.level['command']:
             verbose = 'v'
         self.system ('rsync -a%(verbose)s --exclude %(vcs)s %(dir)s/ %(copy)s'
