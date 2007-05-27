@@ -457,8 +457,10 @@ class CVS (Repository):
         self.source = source
         self.tag = tag
         self.branch = tag # for vc_version_suffix
-        if not os.path.isdir (self.dir):
-            self.system ('mkdir -p %s' % self.dir)
+
+        branch_dir = os.path.join (self.dir, tag)
+        if not os.path.isdir (branch_dir):
+            self.system ('mkdir -p %s' % branch_dir)
             
     def _checkout_dir (self):
         return '%s/%s' % (self.dir, self.tag)
@@ -542,7 +544,7 @@ class CVS (Repository):
         lock_dir = locker.Locker (dir + '.lock')
         module = self.module
         cmd = ''
-        if not self.is_downloaded ():
+        if self.is_downloaded ():
             cmd += 'cd %(dir)s && cvs -q up -dCAP %(rev_opt)s' % locals()
         else:
             repo_dir = self.dir
