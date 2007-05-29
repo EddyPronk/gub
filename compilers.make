@@ -82,7 +82,7 @@ bootstrap-git:
 	$(GUB) $(LOCAL_GUB_OPTIONS) -p local git
 
 local-cross-tools:
-ifneq ($(filter mingw,$(PLATFORMS)),)
+ifeq ($(findstring mingw, $(PLATFORMS)),mingw)
 ifneq ($(BUILD_PLATFORM),linux-64)
 	$(GUB) $(LOCAL_GUB_OPTIONS) -p local nsis 
 endif
