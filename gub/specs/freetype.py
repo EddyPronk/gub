@@ -71,6 +71,10 @@ class Freetype__cygwin (Freetype):
         Freetype.__init__ (self, settings)
         self.with_template (version='2.1.10', mirror=mirrors.nongnu_savannah)
 
+    def patch (self):
+        Freetype.patch (self)
+        self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/freetype-libtool-no-version.patch')
+
     def get_subpackage_definitions (self):
         d = dict (Freetype.get_subpackage_definitions (self))
         # urg, must remove usr/share. Because there is no doc package,

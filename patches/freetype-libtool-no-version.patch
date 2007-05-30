@@ -1,0 +1,13 @@
+This fixes building of the dll on Cygwin.
+
+--- ./builds/unix/unix-cc.in~	2003-11-09 09:37:13.000000000 +0100
++++ ./builds/unix/unix-cc.in	2007-05-30 14:34:33.000000000 +0200
+@@ -93,7 +93,7 @@
+ # Library linking
+ #
+ LINK_LIBRARY = $(LIBTOOL) --mode=link $(CCraw) -o $@ $(OBJECTS_LIST) \
+-                          -rpath $(libdir) -version-info $(version_info) \
++                          -rpath $(libdir) -no-undefined -version-info $(version_info) \
+                           $(LDFLAGS)
+ 
+ 

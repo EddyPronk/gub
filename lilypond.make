@@ -11,7 +11,7 @@
 .PHONY: unlocked-doc-export doc-export unlocked-dist-check dist-check
 
 .PHONY: cygwin-libtool cygwin-libtool-installer cygwin-fontconfig
-.PHONY: cygwin-freetype cygwin-freetype-installer
+.PHONY: cygwin-freetype2 cygwin-freetype2-installer
 .PHONY: cygwin-fontconfig-installer cygwin-guile cygwin-guile-installer
 .PHONY: cygwin-lilypond cygwin-lilypond-installer upload-setup-ini darwin-ppc
 
@@ -78,7 +78,7 @@ include compilers.make
 
 unlocked-update-versions:
 	python gub/versiondb.py --dbfile $(LILYPOND_VERSIONS) --download  --platforms="$(PLATFORMS)"
-	python gub/versiondb.py --dbfile uploads/freetype.versions --download  --platforms="$(PLATFORMS)"
+	python gub/versiondb.py --dbfile uploads/freetype2.versions --download  --platforms="$(PLATFORMS)"
 	python gub/versiondb.py --dbfile uploads/fontconfig.versions --download  --platforms="$(PLATFORMS)"
 	python gub/versiondb.py --dbfile uploads/guile.versions --download --platforms="$(PLATFORMS)"
 	python gub/versiondb.py --dbfile uploads/libtool.versions --download --platforms="$(PLATFORMS)"
@@ -129,17 +129,17 @@ cygwin-libtool:
 cygwin-libtool-installer:
 	$(CYGWIN_PACKAGER) libtool
 
-cygwin-freetype:
+cygwin-freetype2:
 	# when forcing a source build we remove everything,
 	# because freetype by default comes from cygwin as a binary
 	rm -f uploads/cygwin/setup.ini
 	rm -rf target/cygwin/
 	$(call INVOKE_GUP, cygwin) install cross/gcc
 #	$(call INVOKE_GUB,cygwin) freetype-config
-	$(call INVOKE_GUB,cygwin) --build-source freetype
+	$(call INVOKE_GUB,cygwin) --build-source freetype2
 
-cygwin-freetype-installer:
-	$(CYGWIN_PACKAGER) freetype
+cygwin-freetype2-installer:
+	$(CYGWIN_PACKAGER) freetype2
 
 cygwin-fontconfig:
 	# when forcing a source build we remove everything,
