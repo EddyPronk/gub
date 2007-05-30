@@ -8,10 +8,10 @@ MINGIT_LOCAL_BRANCH=$(MINGIT_BRANCH_FILEIFIED)-repo.or.cz-git-mingw.git
 
 default: all
 
+PLATFORMS = mingw
+
 include gub.make
 include compilers.make
-
-PLATFORMS = mingw
 
 GPKG_OPTIONS=--branch git=$(MINGIT_LOCAL_BRANCH)
 
