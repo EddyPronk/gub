@@ -70,6 +70,7 @@ class Freetype__cygwin (Freetype):
     def __init__ (self, settings):
         Freetype.__init__ (self, settings)
         self.with_template (version='2.1.10', mirror=mirrors.nongnu_savannah)
+        self.so_version = '6'
 
     def patch (self):
         Freetype.patch (self)

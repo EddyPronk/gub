@@ -144,6 +144,7 @@ class Fontconfig__cygwin (Fontconfig):
     def __init__ (self, settings):
         Fontconfig.__init__ (self, settings)
         self.with_template (mirror=mirrors.fontconfig, version='2.4.1')
+        self.so_version = '1'
 
     def get_subpackage_definitions (self):
         d = dict (Fontconfig.get_subpackage_definitions (self))

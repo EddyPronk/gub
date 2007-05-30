@@ -47,7 +47,7 @@ This will create:
    uploads/cygwin/release/fontconfig-%(version)s-%(build)s-src.tar.bz2
    uploads/cygwin/release/fontconfig-%(version)s-%(build)s.tar.bz2
    uploads/cygwin/release/libfontconfig-devel/libfontconfig-devel-%(version)s-%(build)s.tar.bz2
-   uploads/cygwin/release/libfontconfig%(so_version)s/libfontconfig(so_version)s-%(version)s-%(build)s.tar.bz2
+   uploads/cygwin/release/libfontconfig%(so_version)s/libfontconfig%(so_version)s-%(version)s-%(build)s.tar.bz2
 
 To find out the files included in the binary distribution, you can use
 "cygcheck -l bash", or browse the listing for the appropriate version

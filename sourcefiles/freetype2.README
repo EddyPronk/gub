@@ -4,7 +4,7 @@ Software font engine
 
 Runtime requirements (these or newer):
   cygwin-1.5.18
-  libfreetype%(so_version)s-%(version)s-%(build)s
+  libfreetype2%(so_version)s-%(version)s-%(build)s
 
 Build requirements (these or newer):
   cygwin-1.5.18
@@ -45,8 +45,8 @@ Build Instructions:
 This will create:
    uploads/cygwin/release/freetype2-%(version)s-%(build)s-src.tar.bz2
    uploads/cygwin/release/freetype2-%(version)s-%(build)s.tar.bz2
-   uploads/cygwin/release/libfreetype-dev/libfreetype2-devel-%(version)s-%(build)s.tar.bz2
-   uploads/cygwin/release/libfreetype%(so_version)s/libfreetype(so_version)s-%(version)s-%(build)s.tar.bz2
+   uploads/cygwin/release/libfreetype2-devel/libfreetype2-devel-%(version)s-%(build)s.tar.bz2
+   uploads/cygwin/release/libfreetype2%(so_version)s/libfreetype2%(so_version)s-%(version)s-%(build)s.tar.bz2
 
 To find out the files included in the binary distribution, you can use
 "cygcheck -l bash", or browse the listing for the appropriate version
