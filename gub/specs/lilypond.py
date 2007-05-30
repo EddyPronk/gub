@@ -203,8 +203,8 @@ class LilyPond__cygwin (LilyPond):
             [
             'glib2',
             'guile-runtime',
-            'fontconfig-runtime', ## 'libfontconfig1',
-            'libfreetype26',
+            'fontconfig-runtime', ## CYGWIN name: 'libfontconfig1',
+            'freetype2-runtime', ## CYGWIN name: 'libfreetype26',
             'libiconv2',
             'libintl8', 'libintl3',
             'pango-runtime',
@@ -249,8 +249,8 @@ class LilyPond__cygwin (LilyPond):
             ##'guile-devel',
             'guile',
             'python',
-            'fontconfig', ##'libfontconfig-devel',
-            'libfreetype2-devel',
+            'fontconfig', ## CYGWIN: 'libfontconfig-devel',
+            'freetype2', ## CYGWIN: 'libfreetype2-devel',
             # cygwin bug: pango-devel should depend on glib2-devel
             'pango-devel', 'glib2-devel',
             'urw-fonts'] + [
