@@ -32,6 +32,12 @@ specified by applications.'''
         ## UGH  - this breaks  on Darwin!
         ## UGH2 - the added /cross/ breaks Cygwin; possibly need
         ## Freetype_config package (see Guile_config, Python_config)
+
+        # FIXME: this is broken.  for a sane target development package,
+        # we want /usr/bin/fontconfig-config must survive.
+        # While cross building, we create an  <toolprefix>-fontconfig-config
+        # and prefer that.
+
         return (targetpackage.TargetBuildSpec.configure_command (self) 
                 + misc.join_lines ('''
 --with-arch=%(target_architecture)s

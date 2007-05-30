@@ -4,6 +4,13 @@ from gub import targetpackage
 from gub import toolpackage
 
 class Freetype (targetpackage.TargetBuildSpec):
+    '''Software font engine
+FreeType is a software font engine that is designed to be small,
+efficient, highly customizable and portable while capable of producing
+high-quality output (glyph images). It can be used in graphics
+libraries, display servers, font conversion tools, text image generation
+tools, and many other products as well.'''
+
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
         self.with_template (version='2.1.10', mirror=mirrors.nongnu_savannah)
@@ -41,6 +48,10 @@ class Freetype (targetpackage.TargetBuildSpec):
 
     def install (self):
         targetpackage.TargetBuildSpec.install (self)
+        # FIXME: this is broken.  for a sane target development package,
+        # we want /usr/bin/freetype-config must survive.
+        # While cross building, we create an  <toolprefix>-freetype-config
+        # and prefer that.
         self.system ('mkdir -p %(install_root)s/usr/cross/bin/')
         self.system ('mv %(install_root)s/usr/bin/freetype-config %(install_root)s/usr/cross/bin/freetype-config')
         self.munge_ft_config ('%(install_root)s/usr/cross/bin/freetype-config')
@@ -54,6 +65,62 @@ LDFLAGS:=$(LDFLAGS) -no-undefined
 ''',
              '%(builddir)s/Makefile',
              mode='a')
+
+class Freetype__cygwin (Freetype):
+    def __init__ (self, settings):
+        Freetype.__init__ (self, settings)
+        self.with_template (version='2.1.10', mirror=mirrors.nongnu_savannah)
+
+    def get_subpackage_definitions (self):
+        d = dict (Freetype.get_subpackage_definitions (self))
+        # urg, must remove usr/share. Because there is no doc package,
+        # runtime iso '' otherwise gets all docs.
+        d['runtime'] = ['/usr/bin/*dll', '/usr/lib/*.la']
+        return d
+
+    def get_subpackage_names (self):
+        #return ['devel', 'doc', '']
+        return ['devel', 'runtime', '']
+
+    def get_build_dependencies (self):
+        return ['libtool']
+    
+    def get_dependency_dict (self):
+        return {
+            '': ['libfreetype26'],
+            'devel': ['libfreetype26'],
+            'runtime': ['zlib'],
+            }
+
+    def category_dict (self):
+        return {'': 'libs',
+                'runtime': 'libs',
+                'devel': 'devel libs',
+                'doc': 'doc'}
+
+    def description_dict (self):
+        # FIXME: fairly uninformative description for packages,
+        # unlike, eg, guile-devel.  This is easier, though.
+        d = {}
+        for i in self.get_subpackage_names ():
+            d[i] = self.get_subpackage_doc (i)
+        return d
+
+    def get_subpackage_doc (self, split):
+        flavor = {'': 'executables',
+                  'devel': 'development',
+                  'doc': 'documentation',
+                  'runtime': 'runtime'}[split]
+        return (Freetype.__doc__.replace ('\n', ' - %(flavor)s\n', 1)
+                % locals ())
+
+    def configure_command (self):
+        return (Freetype.configure_command (self)
+                + ' --sysconfdir=/etc --localstatedir=/var')
+
+    def install (self):
+        targetpackage.TargetBuildSpec.install (self)
+        self.pre_install_smurf_exe ()
 
 class Freetype__local (toolpackage.ToolBuildSpec, Freetype):
     def __init__ (self, settings):
