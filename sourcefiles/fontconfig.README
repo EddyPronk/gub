@@ -30,26 +30,23 @@ Language:
 Build Instructions:
 
   # Download GUB
-
-    darcs get http://lilypond.org/people/hanwen/gub
+    mkdir gub
     cd gub
+    git init
+    git pull git://git.sv.gnu.org/lilypond.git gub:
 
-  # Populate download cache
+  # Build Fontconfig for Cygwin
 
-    ./gub-builder.py -p cygwin download fontconfig
+    bin/gub -p cygwin fontconfig
 
-  # Build fontconfig for cygwin
+  # Package Fontconfig for Cygwin
 
-    ./gub-builder.py -p cygwin build fontconfig
-
-  # Package fontconfig for cygwin
-
-    ./installer-builder.py -p cygwin build-all fontconfig
+    bin/cygwin-packager fontconfig
 
 This will create:
    uploads/cygwin/release/fontconfig-%(version)s-%(build)s-src.tar.bz2
    uploads/cygwin/release/fontconfig-%(version)s-%(build)s.tar.bz2
-   uploads/cygwin/release/libfontconfig-dev/libfontconfig-dev-%(version)s-%(build)s.tar.bz2
+   uploads/cygwin/release/libfontconfig-devel/libfontconfig-devel-%(version)s-%(build)s.tar.bz2
    uploads/cygwin/release/libfontconfig%(so_version)s/libfontconfig(so_version)s-%(version)s-%(build)s.tar.bz2
 
 To find out the files included in the binary distribution, you can use
@@ -63,7 +60,7 @@ Port notes:
 %(changelog)s
 
   These packages were built on GNU/Linux using GUB, see
-      http://lilypond.org/vc/gub.darcs/READ-ME
+    http://git.sv.gnu.org/gitweb/?p=lilypond.git;a=blob_plain;f=README;hb=gub
 
 Cygwin port maintained by: Jan Nieuwenhuizen  <janneke@gnu.org>
 Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>

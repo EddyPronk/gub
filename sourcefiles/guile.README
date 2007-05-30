@@ -39,21 +39,18 @@ Language:
 Build Instructions:
 
   # Download GUB
-
-    darcs get http://lilypond.org/people/hanwen/gub
+    mkdir gub
     cd gub
+    git init
+    git pull git://git.sv.gnu.org/lilypond.git gub:
 
-  # Populate download cache
+  # Build Guile for Cygwin
 
-    ./gub-builder.py -p cygwin download guile
+    bin/gub -p cygwin guile
 
-  # Build guile for cygwin
+  # Package Guile for Cygwin
 
-    ./gub-builder.py -p cygwin build guile
-
-  # Package guile for cygwin
-
-   ./installer-builder.py -p cygwin build-all guile
+    bin/cygwin-packager guile
 
 This will create:
    uploads/cygwin/release/guile-%(version)s-%(build)s-src.tar.bz2
@@ -73,7 +70,7 @@ Port notes:
 %(changelog)s
 
   These packages were built on GNU/Linux using GUB, see
-      http://lilypond.org/vc/gub.darcs/READ-ME
+    http://git.sv.gnu.org/gitweb/?p=lilypond.git;a=blob_plain;f=README;hb=gub
 
 Cygwin port maintained by: Jan Nieuwenhuizen  <janneke@gnu.org>
 Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>
