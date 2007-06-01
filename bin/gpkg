@@ -123,10 +123,11 @@ def get_cli_parser ():
     for (command, doc) in commands:
         p.usage += "    %s - %s\n" % (re.sub ('_', '-', command), doc)
 
-    p.add_option ('-B', '--branch',
-                  default=[],
+    p.add_option ('-B', '--branch', action='append',
                   dest='branches',
-                  help="PACKAGE=VC-BRANCH settings to use")
+                  default=[],
+                  metavar='NAME=BRANCH',
+                  help='select branch')
 
     p.add_option ('-p', '--platform',
                   default=None,

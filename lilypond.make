@@ -4,14 +4,16 @@
 .PHONY: darwin-ppc darwin-x86 freebsd4-x86 freebsd6-x86 linux-x86 mingw
 .PHONY: bootstrap-download bootstrap
 .PHONY: unlocked-update-versions update-versions download print-success
-.PHONY: cygwin-libtool cygwin-libtool-installer cygwin-fontconfig
-.PHONY: cygwin-fontconfig-installer cygwin-guile cygwin-guile-installer
-.PHONY: cygwin-lilypond cygwin-lilypond-installer upload-setup-ini darwin-ppc
 .PHONY: debian linux-ppc mingw mipsel clean realclean clean-distccd
 .PHONY: local-distcc cross-compilers cross-distccd native-distccd
 .PHONY: bootstrap-git download-local local local-cross-tools doc-clean
 .PHONY: unlocked-doc-clean unlocked-doc-build unlocked-info-man-build
 .PHONY: unlocked-doc-export doc-export unlocked-dist-check dist-check
+
+.PHONY: cygwin-libtool cygwin-libtool-installer cygwin-fontconfig
+.PHONY: cygwin-freetype2 cygwin-freetype2-installer
+.PHONY: cygwin-fontconfig-installer cygwin-guile cygwin-guile-installer
+.PHONY: cygwin-lilypond cygwin-lilypond-installer upload-setup-ini darwin-ppc
 
 default: all
 
@@ -76,6 +78,7 @@ include compilers.make
 
 unlocked-update-versions:
 	python gub/versiondb.py --dbfile $(LILYPOND_VERSIONS) --download  --platforms="$(PLATFORMS)"
+	python gub/versiondb.py --dbfile uploads/freetype2.versions --download  --platforms="$(PLATFORMS)"
 	python gub/versiondb.py --dbfile uploads/fontconfig.versions --download  --platforms="$(PLATFORMS)"
 	python gub/versiondb.py --dbfile uploads/guile.versions --download --platforms="$(PLATFORMS)"
 	python gub/versiondb.py --dbfile uploads/libtool.versions --download --platforms="$(PLATFORMS)"
@@ -126,10 +129,24 @@ cygwin-libtool:
 cygwin-libtool-installer:
 	$(CYGWIN_PACKAGER) libtool
 
-cygwin-fontconfig:
+cygwin-freetype2:
+	# when forcing a source build we remove everything,
+	# because freetype by default comes from cygwin as a binary
 	rm -f uploads/cygwin/setup.ini
 	rm -rf target/cygwin/
-	$(call INVOKE_GUP, cygwin) install gcc
+	$(call INVOKE_GUP, cygwin) install cross/gcc
+#	$(call INVOKE_GUB,cygwin) freetype-config
+	$(call INVOKE_GUB,cygwin) --build-source freetype2
+
+cygwin-freetype2-installer:
+	$(CYGWIN_PACKAGER) freetype2
+
+cygwin-fontconfig:
+	# when forcing a source build we remove everything,
+	# because fontconfig by default comes from cygwin as a binary
+	rm -f uploads/cygwin/setup.ini
+	rm -rf target/cygwin/
+	$(call INVOKE_GUP, cygwin) install cross/gcc
 	$(call INVOKE_GUB,cygwin) --build-source fontconfig
 
 cygwin-fontconfig-installer:

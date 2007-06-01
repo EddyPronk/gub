@@ -20,3 +20,9 @@ class Python_config (gubb.SdkBuildSpec):
         self.dump (cfg, '%(install_root)s/usr/cross/bin/python-config',
                    expand_string=False)
         self.system ('chmod +x %(install_root)s/usr/cross/bin/python-config')
+
+class Python_config__cygwin (Python_config):
+    def __init__ (self, settings):
+        gubb.SdkBuildSpec.__init__ (self, settings)
+        self.has_source = False
+        self.with_template (version='2.5')

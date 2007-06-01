@@ -271,6 +271,9 @@ class Guile__cygwin (Guile):
         self.with_template (version='1.8.1', mirror=mirrors.gnu, format='gz')
         self.so_version = '17'
 
+    def patch (self):
+        self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/guile-1.8-rational.patch')
+
     # Using gub dependencies only would be nice, but
     # we need to a lot of gup.gub_to_distro_deps ().
     def GUB_get_dependency_dict (self):
@@ -322,9 +325,6 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
             ('^(allow_undefined_flag=.*)unsupported', '\\1'),
             ],
                '%(builddir)s/guile-readline/libtool')
-
-    def patch (self):
-        pass
 
     # FIXME: we do most of this for all cygwin packages
     def category_dict (self):

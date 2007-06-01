@@ -32,6 +32,12 @@ specified by applications.'''
         ## UGH  - this breaks  on Darwin!
         ## UGH2 - the added /cross/ breaks Cygwin; possibly need
         ## Freetype_config package (see Guile_config, Python_config)
+
+        # FIXME: this is broken.  for a sane target development package,
+        # we want /usr/bin/fontconfig-config must survive.
+        # While cross building, we create an  <toolprefix>-fontconfig-config
+        # and prefer that.
+
         return (targetpackage.TargetBuildSpec.configure_command (self) 
                 + misc.join_lines ('''
 --with-arch=%(target_architecture)s
@@ -138,6 +144,7 @@ class Fontconfig__cygwin (Fontconfig):
     def __init__ (self, settings):
         Fontconfig.__init__ (self, settings)
         self.with_template (mirror=mirrors.fontconfig, version='2.4.1')
+        self.so_version = '1'
 
     def get_subpackage_definitions (self):
         d = dict (Fontconfig.get_subpackage_definitions (self))
@@ -151,7 +158,8 @@ class Fontconfig__cygwin (Fontconfig):
         return ['devel', 'runtime', '']
 
     def get_build_dependencies (self):
-        return ['libtool', 'libfreetype2-devel', 'expat']
+        #        return ['libtool', 'libfreetype2-devel', 'expat']
+        return ['libtool', 'freetype2', 'expat']
     
     def get_dependency_dict (self):
         return {

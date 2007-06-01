@@ -1,3 +1,9 @@
+guile (1.8.1-7) unstable; urgency=low
+
+  * Apply guile-1.8-rational patch.
+
+ -- Jan Nieuwenhuizen <janneke@gnu.org>  Wed, 30 May 2007 21:04:44 +0200
+
 guile (1.8.1-6) unstable; urgency=low
 
   * Also build static libraries for cygwin.
