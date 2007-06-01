@@ -12,7 +12,8 @@ class Root_image (gubb.NullBuildSpec):
             'busybox',
             'dhcp',
             'dropbear',
-            #'fuser',
+            #'fuser', -> psmisc
+            'psmisc',
             #'initscripts',
             #'linux-hotplug',
             #'makedevs',
