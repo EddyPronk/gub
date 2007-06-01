@@ -7,8 +7,8 @@ class Root_image (gubb.NullBuildSpec):
         self.with_vc (repository.Version ('1.0'))
     def get_build_dependencies (self):
         return [
-            #'base-files',
-            #'base-passwd',
+            'base-files',
+            'base-passwd',
             'busybox',
             'dhcp',
             'dropbear',

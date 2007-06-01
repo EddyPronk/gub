@@ -7,6 +7,8 @@ class Dropbear (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
         self.with_vc (repository.TarBall (self.settings.downloads, url))
+    def get_subpackage_names (self):
+        return ['']
     def get_build_dependencies (self):
         return ['zlib']
     def configure (self):
