@@ -45,6 +45,8 @@ or
 
 LOWER PRIORITY
 
+* do not package emtpy subpackages (doc, devel)
+
 - replace os. calls with os.context wrapper ones (make a real
   dry-run to quick-test all .py scripts?)
 

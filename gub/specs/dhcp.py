@@ -7,6 +7,8 @@ class Dhcp (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
         self.with_vc (repository.TarBall (self.settings.downloads, url))
+    def get_subpackage_names (self):
+        return ['']
     def patch (self):
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
     def configure_command (self):
