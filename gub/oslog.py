@@ -204,7 +204,21 @@ If TO_NAME is specified, the output is sent to there.
         for d in dirs:
             self.shadow_tree (os.path.join (root, d), os.path.join (target, d))
 
-    def download_url (self, url, dest_dir):
+    def download_url (self, url, dest_dir, fallback=None):
         import misc
-        self.action ('downloading %(url)s -> %(dest_dir)s' % locals ())
-        misc._download_url (url, dest_dir, sys.stderr)
+        self.action ('downloading %(url)s -> %(dest_dir)s\n' % locals ())
+
+        # FIXME: where to get settings, fallback should be a user-definable list
+	fallback = 'http://peder.xs4all.nl/gub-sources'
+
+	try:
+            misc._download_url (url, dest_dir, sys.stderr)
+        except Exception, e:
+	    if fallback:
+	        fallback_url = fallback + url[url.rfind ('/'):]
+ 		self.action ('downloading %(fallback_url)s -> %(dest_dir)s\n'
+		             % locals ())
+	        misc._download_url (fallback_url, dest_dir, sys.stderr)
+	    else:
+	        raise e
+	
