@@ -95,7 +95,7 @@ download:
 ## should be last, to incorporate changed VERSION file.
 	$(MAKE) update-versions
 
-all: native dist-check doc-build doc-export $(OTHER_PLATFORMS) print-success
+all: native dist-check doc-build test-output doc-export $(OTHER_PLATFORMS) print-success
 
 platforms: $(PLATFORMS)
 
@@ -264,8 +264,7 @@ local:
 
 NATIVE_ROOT=$(NATIVE_TARGET_DIR)/gubfiles/installer-lilypond-$(LILYPOND_LOCAL_BRANCH)
 DOC_LOCK=$(NATIVE_ROOT).lock
-
-
+TEST_LOCK=$(NATIVE_ROOT).lock
 
 NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/gubfiles/build/lilypond-$(LILYPOND_LOCAL_BRANCH)
 NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/gubfiles/src/lilypond-$(LILYPOND_LOCAL_BRANCH)
@@ -283,6 +282,7 @@ DOC_RELOCATION = \
 
 SIGNATURE_FUNCTION=uploads/signatures/$(1).$(NATIVE_BUILD_COMMITTISH)
 
+
 doc: native doc-build
 
 doc-clean:
@@ -291,17 +291,25 @@ doc-clean:
 doc-build:
 	$(PYTHON) gub/with-lock.py --skip $(DOC_LOCK) $(MAKE) cached-doc-build
 
+test-output:
+	$(PYTHON) gub/with-lock.py --skip $(TEST_LOCK) $(MAKE) cached-test-output
+
 unlocked-doc-clean:
 	make -C $(NATIVE_TARGET_DIR)/gubfiles/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
 		DOCUMENTATION=yes web-clean
 	rm -f $(call SIGNATURE_FUNCTION,cached-doc-build)
 	rm -f $(call SIGNATURE_FUNCTION,cached-doc-export)
 
-cached-doc-build cached-dist-check cached-doc-export:
+cached-test-output cached-doc-build cached-dist-check cached-doc-export:
 	-mkdir uploads/signatures/
 	if test ! -f  $(call SIGNATURE_FUNCTION,$@) ; then \
 		$(MAKE) $(subst cached,unlocked,$@) \
 		&& touch $(call SIGNATURE_FUNCTION,$@) ; fi
+unlocked-test-output:
+	cd $(NATIVE_LILY_BUILD) && $(DOC_RELOCATION) \
+		make CPU_COUNT=$(LILYPOND_WEB_CPU_COUNT)  test
+	tar '*.signature' -C $(NATIVE_LILY_BUILD)/ \
+	    -cjf $(CWD)/uploads/lilypond-$(DIST_VERSION)-$(DOC_BUILDNUMBER).test-output.tar.bz2 input/regression/out-test/
 
 unlocked-doc-build:
 	$(GPKG) -p $(BUILD_PLATFORM) remove lilypond
