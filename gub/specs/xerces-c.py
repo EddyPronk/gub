@@ -59,3 +59,8 @@ class Xerces_c (targetpackage.TargetBuildSpec):
     def install (self):
         self.system ('cd %(builddir)s/src/xercesc && %(install_command)s')
 
+class Xerces_c__linux__arm__vfp (Xerces_c):
+    def __init__ (self, settings):
+        Xerces_c.__init__ (self, settings)
+        self.with_template (version='2_6_0',
+                            mirror='http://archive.apache.org/dist/xml/xerces-c/Xerces-C_%(ball_version)s/%(name)s-src_%(ball_version)s.tar.%(format)s')

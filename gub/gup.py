@@ -92,7 +92,7 @@ class FileManager:
         if conflicts and not self.is_distro:
             raise Exception ('abort')
 
-        self.os_interface.system ('tar -C %(root)s -x%(flag)sf %(ball)s'
+        self.os_interface.system ('tar -C %(root)s -p -x%(flag)sf %(ball)s'
                                   % locals ())
 
         self._package_file_db[name] = '\n'.join (lst)

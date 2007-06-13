@@ -19,7 +19,8 @@ class Qtopia_core (targetpackage.TargetBuildSpec):
             }
         gubb.change_target_dict (self, dict)
     def get_build_dependencies (self):
-        return ['freetype', 'glib', 'tslib']
+#        return ['freetype', 'glib', 'tslib']
+        return ['freetype', 'tslib']
     def patch (self):
         self.file_sub ([('pkg-config', '$PKG_CONFIG')],
                        '%(srcdir)s/configure')

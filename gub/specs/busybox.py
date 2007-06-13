@@ -1,12 +1,16 @@
 from gub import targetpackage
 from gub import repository
 
-url = 'http://busybox.net/downloads/busybox-1.5.0.tar.bz2'
+url = 'http://busybox.net/downloads/busybox-1.5.1.tar.bz2'
+# miscutils/taskset.c:18: warning: function declaration isn't a prototype
+# cpu_set_t
 
 class Busybox (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
         self.with_vc (repository.TarBall (self.settings.downloads, url))
+    def get_subpackage_names (self):
+        return ['']
     def patch (self):
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
         pass # FIXME: no ./configure, but do not run autoupdate
@@ -16,3 +20,20 @@ class Busybox (targetpackage.TargetBuildSpec):
         return ' CROSS_COMPILE=%(tool_prefix)s CONFIG_PREFIX=%(install_root)s'
     def license_file (self):
         return '%(srcdir)s/LICENSE'
+
+# 1.5 is too new for glibc on vfp
+class Busybox__linux__arm__vfp (Busybox):
+    def __init__ (self, settings):
+        targetpackage.TargetBuildSpec.__init__ (self, settings)
+        url = 'http://busybox.net/downloads/busybox-1.2.2.1.tar.bz2'
+        self.with_vc (repository.TarBall (self.settings.downloads, url))
+    def patch (self):
+        self.system ('''
+cd %(srcdir)s && patch -p1 < %(patchdir)s/busybox-mkconfigs.patch
+''')
+        Busybox.patch (self)
+        
+                      
+                                          
+    
+

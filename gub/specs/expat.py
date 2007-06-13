@@ -36,6 +36,14 @@ RUN_FC_CACHE_TEST=false
         return (targetpackage.TargetBuildSpec.install_command (self)
                 + self.makeflags ())
 
+class Expat__linux__arm__vfp (Expat):
+    def __init__ (self, settings):
+        Expat.__init__ (self, settings)
+        self.with_template (version='2.0.0')
+    def patch (self):
+        self.system ("touch %(srcdir)s/tests/xmltest.sh.in")
+        targetpackage.TargetBuildSpec.patch (self)
+
 class Expat__local (toolpackage.ToolBuildSpec):
     def __init__ (self,settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)

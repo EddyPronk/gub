@@ -143,9 +143,19 @@ def find (dir, pattern):
         
     return results
 
-def download_url (url, dest_dir):
+# c&p oslog.py
+def download_url (url, dest_dir, fallback=None):
     print 'Downloading', url
-    _download_url (url, dest_dir, sys.stderr)
+    # FIXME: where to get settings, fallback should be a user-definable list
+    fallback = 'http://peder.xs4all.nl/gub-sources'
+    try:
+        _download_url (url, dest_dir, sys.stderr)
+    except Exception, e:
+	if fallback:
+	    fallback_url = fallback + url[url.rfind ('/'):]
+	    _download_url (fallback_url, dest_dir, sys.stderr)
+	else:
+	    raise e
     
 def _download_url (url, dest_dir, stderr):
     if not os.path.isdir (dest_dir):

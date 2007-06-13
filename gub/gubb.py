@@ -701,7 +701,7 @@ class BinarySpec (BuildSpec):
         _verbose = ''
         if self.verbose:
             _verbose = ' -v'
-        self.system ('tar -C %(srcdir)s -cf- . | tar -C %(install_root)s%(_verbose)s -xf-', env=locals ())
+        self.system ('tar -C %(srcdir)s -cf- . | tar -C %(install_root)s%(_verbose)s -p -xf-', env=locals ())
         self.libtool_installed_la_fixups ()
 
     def get_subpackage_names (self):
