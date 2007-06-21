@@ -289,7 +289,7 @@ doc-clean:
 	$(PYTHON) gub/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-clean
 
 doc-build:
-	$(PYTHON) gub/with-lock.py --skip $(DOC_LOCK) $(MAKE) cached-doc-build
+	$(PYTHON) gub/with-lock.py --skip $(DOC_LOCK) $(MAKE) cached-doc-build cached-info-man-build
 
 unlocked-doc-clean:
 	make -C $(NATIVE_TARGET_DIR)/gubfiles/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
@@ -297,7 +297,7 @@ unlocked-doc-clean:
 	rm -f $(call SIGNATURE_FUNCTION,cached-doc-build)
 	rm -f $(call SIGNATURE_FUNCTION,cached-doc-export)
 
-cached-doc-build cached-dist-check cached-doc-export:
+cached-doc-build cached-dist-check cached-doc-export cached-info-man-build:
 	-mkdir uploads/signatures/
 	if test ! -f  $(call SIGNATURE_FUNCTION,$@) ; then \
 		$(MAKE) $(subst cached,unlocked,$@) \
