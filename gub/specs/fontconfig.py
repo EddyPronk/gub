@@ -158,8 +158,8 @@ class Fontconfig__cygwin (Fontconfig):
         return ['devel', 'runtime', '']
 
     def get_build_dependencies (self):
-        #        return ['libtool', 'libfreetype2-devel', 'expat']
-        return ['libtool', 'freetype2', 'expat']
+        return ['libtool', 'libfreetype2-devel', 'expat']
+        #return ['libtool', 'freetype2', 'expat']
     
     def get_dependency_dict (self):
         return {

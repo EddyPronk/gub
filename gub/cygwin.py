@@ -255,7 +255,8 @@ class Dependency_resolver:
     def __init__ (self, settings):
         self.settings = settings
         self.packages = {}
-        self.source = fontconfig_source + freetype_source + guile_source + libtool_source
+#        self.source = fontconfig_source + freetype_source + guile_source + libtool_source
+        self.source = fontconfig_source + guile_source + libtool_source
         self.load_packages ()
         
     def grok_setup_ini (self, file, skip=[]):

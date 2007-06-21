@@ -66,7 +66,7 @@ LDFLAGS:=$(LDFLAGS) -no-undefined
              '%(builddir)s/Makefile',
              mode='a')
 
-class Freetype__cygwin (Freetype):
+class XFreetype__cygwin (Freetype):
     def __init__ (self, settings):
         Freetype.__init__ (self, settings)
         self.with_template (version='2.1.10', mirror=mirrors.nongnu_savannah)
