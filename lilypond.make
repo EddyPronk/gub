@@ -308,7 +308,7 @@ cached-test-output cached-doc-build cached-dist-check cached-doc-export:
 unlocked-test-output:
 	cd $(NATIVE_LILY_BUILD) && $(DOC_RELOCATION) \
 		make CPU_COUNT=$(LILYPOND_WEB_CPU_COUNT)  test
-	tar '*.signature' -C $(NATIVE_LILY_BUILD)/ \
+	tar -C $(NATIVE_LILY_BUILD)/ \
 	    -cjf $(CWD)/uploads/lilypond-$(DIST_VERSION)-$(DOC_BUILDNUMBER).test-output.tar.bz2 input/regression/out-test/
 
 unlocked-doc-build:
