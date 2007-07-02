@@ -7,7 +7,7 @@ from gub import context
 class Gcc (cross.CrossToolSpec):
     def __init__ (self, settings):
         cross.CrossToolSpec.__init__ (self, settings)
-        self.with_tarball (mirror=mirrors.gnu, version='4.1.1', format='bz2')
+        self.with_tarball (mirror=mirrors.gcc, version='4.1.1', format='bz2')
 
     def get_build_dependencies (self):
         return ['cross/binutils']

@@ -28,6 +28,7 @@ platforms = ['linux-x86',
              'darwin-ppc',
              'darwin-x86',
              'documentation',
+             'test-output',
              'freebsd-x86',
 #             'freebsd6-x86',
 #             'linux-arm',
@@ -66,6 +67,7 @@ formats = {
     'cygwin': 'tar.bz2',
 
     'documentation': 'tar.bz2',
+    'test-output': 'tar.bz2',
     }
 
 def system (c):
@@ -124,7 +126,8 @@ def upload_binaries (repo, version, version_db):
             src_dests.append ((os.path.abspath (bin),
                                '%(host)s/%(platform)s' % locals ()))
             
-        if platform != 'documentation' and os.path.exists (bin):
+        if (platform not in ('documentation', 'test-output')
+             and os.path.exists (bin)):
             branch = repo.branch
             hdr = pickle.load (open ('uploads/%(platform)s/lilypond-%(branch)s.%(platform)s.hdr' % locals ()))
             key = hdr['source_checksum']
@@ -134,7 +137,7 @@ def upload_binaries (repo, version, version_db):
             
             commitishes[key] = lst
         
-        if (platform != 'documentation'
+        if (platform not in ('documentation', 'test-output')
             and  not os.path.exists ('log/%s.test.pdf' % base)):
             print 'test result does not exist for %s' % base
             cmds.append ('python test-lily/test-binary.py %s'
