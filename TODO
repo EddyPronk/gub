@@ -38,7 +38,7 @@
 or
 
  def init(self):
-   self.CFLAGS='bla'
+   self.CFLAGS='bla'   ? see noweb, no go?
 
 * Packages file with download and update facility, like
   cyg-apt.

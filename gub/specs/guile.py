@@ -326,13 +326,6 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
             ],
                '%(builddir)s/guile-readline/libtool')
 
-    # FIXME: we do most of this for all cygwin packages
-    def category_dict (self):
-        return {'': 'interpreters',
-                'runtime': 'libs',
-                'devel': 'devel libs',
-                'doc': 'doc'}
-
     def description_dict (self):
         return {
             '': """The GNU extension language and Scheme interpreter - executables
