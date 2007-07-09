@@ -786,7 +786,9 @@ def get_class_from_spec_file (settings, file_name, name):
     # cross/gcc.py:Gcc will be called: cross/Gcc.py,
     # to distinguish from specs/gcc.py:Gcc.py
     base = os.path.basename (name)
-    class_name = (base[0].upper () + base[1:]).replace ('-', '_')
+    class_name = ((base[0].upper () + base[1:])
+                  .replace ('-', '_')
+                  .replace ('+', 'x'))
     full = class_name + '__' + settings.platform.replace ('-', '__')
 
     d = module.__dict__
