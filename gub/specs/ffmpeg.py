@@ -14,7 +14,7 @@ class Ffmpeg (targetpackage.TargetBuildSpec):
             module='.',
             revision=self.revision)
         def fixed_version (self):
-            return self.version ()
+            return self.revision
         from new import instancemethod
         repo.version = instancemethod (fixed_version, repo, type (repo))
         self.with_vc (repo)
