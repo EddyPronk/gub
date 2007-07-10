@@ -128,7 +128,7 @@ class Installer (context.Os_context_wrapper):
             'share/gs/Resource',                        
             ):
 
-            self.system ('cd %(installer_root)s && rm -rf ' + delete_me, {'i': i })
+            self.system ('cd %(installer_root)s && rm -rf ' + delete_me, {'i': i }, locals ())
 
     def strip_dir (self, dir):
         from gub import misc
@@ -276,7 +276,12 @@ cp %(nsisdir)s/*.sh.in %(ns_dir)s''', locals ())
 class Linux_installer (Installer):
     def __init__ (self, settings):
         Installer.__init__ (self, settings)
-        self.bundle_tarball = '%(targetdir)s/%(name)s-%(installer_version)s-%(installer_build)s.%(platform)s.tar.bz2'
+        try:
+            #FIXME: how can installer_build/installer_version be undefined?
+            self.bundle_tarball = '%(targetdir)s/%(name)s-%(installer_version)s-%(installer_build)s.%(platform)s.tar.bz2'
+            self.expand (self.bundle_tarball)
+        except:
+            self.bundle_tarball = 'image.tar.bz2'
 
     def strip_prefixes (self):
         return Installer.strip_prefixes (self)
