@@ -46,7 +46,6 @@ class PackageSpec:
 
     def create_tarball (self):
         cmd = 'tar -C %(install_root)s/%(packaging_suffix_dir)s --ignore-failed --exclude="*~" -zcf %(split_ball)s '
-
         path = os.path.normpath (self.expand ('%(install_root)s'))
         globs  = []
         for f in self._file_specs:
@@ -187,10 +186,11 @@ class BuildSpec (Os_context_wrapper):
 
     @subst_method
     def ball_suffix (self):
+        # FIXME: use repository.version ()
         b = '-%(version)s'
         if self.vc_repository and self.vc_repository.is_tracking ():
             try:
-                b = '-' + self.vc_repository.branch
+                b = '-' + self.vc_repository.branch.replace ('/', '-')
             except AttributeError:
                 pass
         return b
@@ -200,17 +200,18 @@ class BuildSpec (Os_context_wrapper):
         b = ''
         if self.vc_repository and self.vc_repository.is_tracking ():
             try:
-                b = self.vc_repository.branch
+                b = self.vc_repository.branch.replace ('/', '-')
             except AttributeError:
                 pass
         return b
     
     @subst_method
     def vc_branch_suffix (self):
+        # FIXME: use repository.version ()
         b = ''
         if self.vc_repository and self.vc_repository.is_tracking ():
             try:
-                b = '-' + self.vc_repository.branch
+                b = '-' + self.vc_repository.branch.replace ('/', '-')
             except AttributeError:
                 pass
         return b
