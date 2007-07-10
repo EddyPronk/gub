@@ -12,6 +12,9 @@ class Libdbi_drivers_sqlite3 (targetpackage.TargetBuildSpec):
     def get_build_dependencies (self):
         return ['sqlite', 'libdbi', 'libtool']
 
+    def get_dependency_dict (self):
+        return {'': self.get_build_dependencies ()}
+
     def configure_command (self):
         return (targetpackage.TargetBuildSpec.configure_command (self)
                 + misc.join_lines ('''

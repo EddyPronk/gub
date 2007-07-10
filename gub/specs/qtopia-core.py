@@ -21,6 +21,8 @@ class Qtopia_core (targetpackage.TargetBuildSpec):
     def get_build_dependencies (self):
 #        return ['freetype', 'glib', 'tslib']
         return ['freetype', 'tslib']
+    def get_dependency_dict (self):
+        return {'': self.get_build_dependencies ()}
     def patch (self):
         self.file_sub ([('pkg-config', '$PKG_CONFIG')],
                        '%(srcdir)s/configure')

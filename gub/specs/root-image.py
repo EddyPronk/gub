@@ -15,6 +15,8 @@ class Root_image (gubb.NullBuildSpec):
             'psmisc',
             'sysvinit',
             ]
+    def get_dependency_dict (self):
+        return {'': self.get_build_dependencies ()}
     def get_ipkg_dependencies (self):
         return [
             'initscripts',
