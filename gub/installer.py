@@ -23,7 +23,6 @@ class Installer (context.Os_context_wrapper):
         self.installer_version = None
         self.installer_build = None
         self.checksum = '0000'
-        assert settings._substitution_dict == None
     @context.subst_method
     def version (self):
         return self.settings.installer_version
