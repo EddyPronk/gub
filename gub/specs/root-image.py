@@ -5,7 +5,7 @@ class Root_image (gubb.NullBuildSpec):
         gubb.NullBuildSpec.__init__ (self, settings)
         from gub import repository
         self.with_vc (repository.Version ('1.0'))
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return [
             'base-files',
             'base-passwd',
@@ -14,11 +14,18 @@ class Root_image (gubb.NullBuildSpec):
             'dropbear',
             'psmisc',
             'sysvinit',
+            'tinylogin',
+#Reading pipe: tar -tzf "/home/janneke/vc/gub-samco/uploads/linux-arm-vfp/sysvinit-2.86.linux-arm-vfp.gup"
+#already have file ./sbin/sulogin: tinylogin
             ]
+    def get_build_dependencies (self):
+        return self._get_build_dependencies ()
     def get_dependency_dict (self):
-        return {'': self.get_build_dependencies ()}
+        return {'': self._get_build_dependencies ()}
     def get_ipkg_dependencies (self):
         return [
+            'dev',
+            'etc-rc',
             'initscripts',
             'linux-hotplug',
             'makedevs',
@@ -35,9 +42,6 @@ class Root_image (gubb.NullBuildSpec):
             'strace',
             'sysvinit-inittab',
             'sysvinit-pidof',
-#            'tinylogin',
-#Reading pipe: tar -tzf "/home/janneke/vc/gub-samco/uploads/linux-arm-vfp/sysvinit-2.86.linux-arm-vfp.gup"
-#already have file ./sbin/sulogin: tinylogin
             'tslib-conf',
             'update-rc.d',
             ]
@@ -51,7 +55,7 @@ class Root_image (gubb.NullBuildSpec):
             if self.verbose >= self.os_interface.level['command']:
                 v = 'v'
             self.system ('''
-cd %(install_root)s && ar p %(f)s data.tar.gz | tar -zx%(v)sf -
+cd %(install_root)s && ar p %(f)s data.tar.gz | fakeroot tar -zx%(v)sf -
 ''', locals ())
     def install (self):
         gubb.NullBuildSpec.install (self)

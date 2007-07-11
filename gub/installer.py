@@ -20,8 +20,6 @@ class Installer (context.Os_context_wrapper):
         self.no_binary_strip = []
         self.no_binary_strip_extensions = ['.la', '.py', '.def', '.scm', '.pyc']
         self.installer_uploads = settings.uploads
-        self.installer_version = None
-        self.installer_build = None
         self.checksum = '0000'
     @context.subst_method
     def version (self):
@@ -273,11 +271,19 @@ cp %(nsisdir)s/*.sh.in %(ns_dir)s''', locals ())
 
 
 class Linux_installer (Installer):
+    def __init__ (self, settings):
+        Installer.__init__ (self, settings)
+        self.bundle_tarball = '%(targetdir)s/%(name)s-%(installer_version)s-%(installer_build)s.%(platform)s.tar.bz2'
+
     def strip_prefixes (self):
         return Installer.strip_prefixes (self)
 
     def create_tarball (self, bundle_tarball):
         self.system ('tar --owner=0 --group=0 -C %(installer_root)s -jcf %(bundle_tarball)s .', locals ())
+
+    def create (self):
+        Installer.create (self)
+        self.create_tarball (self.bundle_tarball)
 
 def create_shar (orig_file, hello, head, target_shar):
     length = os.stat (orig_file)[6]
@@ -293,8 +299,6 @@ def create_shar (orig_file, hello, head, target_shar):
     f = open (target_shar, 'w')
     f.write (script % locals())
     f.close ()
-
-        
     cmd = 'cat %(orig_file)s >> %(target_shar)s' % locals ()
     print 'invoking ', cmd
     stat = os.system (cmd)
@@ -305,16 +309,9 @@ def create_shar (orig_file, hello, head, target_shar):
 class Shar (Linux_installer):
     def create (self):
         Linux_installer.create (self)
-
-        bundle_tarball = '%(targetdir)s/%(name)s-%(installer_version)s-%(installer_build)s.%(platform)s.tar.bz2'
-
-        self.create_tarball (bundle_tarball)
-        
         target_shar = self.expand ('%(installer_uploads)s/%(name)s-%(installer_version)s-%(installer_build)s.%(platform)s.sh')
-
         head = self.expand ('%(sourcefiledir)s/sharhead.sh')
-        tarball = self.expand (bundle_tarball)
-
+        tarball = self.expand (self.bundle_tarball)
         hello = self.expand ("version %(installer_version)s release %(installer_build)s")
         create_shar (tarball, hello, head, target_shar)
         self.write_checksum ()
@@ -334,7 +331,7 @@ def get_installer (settings, args=[]):
         'freebsd4-x86' : Shar,
         'freebsd6-x86' : Shar,
         'linux-arm-softfloat' : Shar,
-        'linux-arm-vfp' : Shar,
+        'linux-arm-vfp' : Linux_installer,
         'linux-x86' : Shar,
         'linux-64' : Shar,
         'linux-ppc' : Shar,
