@@ -154,16 +154,14 @@ def build_installer (installer, args, options):
 
     installer.use_install_root_manager (install_manager)
 
-
     version = install_manager.package_dict (args[0])['version']
-    version_tup = 0,0
-    buildnumber = 0
     try:
         version_tup = tuple (map (int, version.split ('.')))
         db = versiondb.VersionDataBase (options.version_db)
         buildnumber = '%d' % db.get_next_build_number (version_tup)
     except:
-        pass
+        version = '0.0'
+        buildnumber = '0'
 
     settings.installer_version = version
     settings.installer_build = buildnumber
