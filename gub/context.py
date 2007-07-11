@@ -57,7 +57,8 @@ class Context:
         self._parent = parent
 
     def __setattr__(self, k, v):
-        if k <> '_substitution_dict' and self._substitution_dict:
+        if (type(v) == type('')
+            and k <> '_substitution_dict' and self._substitution_dict):
             raise SetAttrTooLate((k, self))
 
         self.__dict__[k] = v
