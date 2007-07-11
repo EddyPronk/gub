@@ -47,12 +47,21 @@ class ConstantCall:
         self.const = const
     def __call__ (self):
         return self.const
-    
+
+class SetAttrTooLate(Exception):
+    pass
+
 class Context:
     def __init__ (self, parent = None):
         self._substitution_dict = None
         self._parent = parent
 
+    def __setattr__(self, k, v):
+        if k <> '_substitution_dict' and self._substitution_dict:
+            raise SetAttrTooLate((k, self))
+
+        self.__dict__[k] = v
+        
     def get_constant_substitution_dict (self):
         d = {}
         if self._parent:
