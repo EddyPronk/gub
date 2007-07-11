@@ -23,7 +23,7 @@ class Installer (context.Os_context_wrapper):
         self.installer_version = None
         self.installer_build = None
         self.checksum = '0000'
-
+        assert settings._substitution_dict == None
     @context.subst_method
     def version (self):
         return self.settings.installer_version
@@ -274,19 +274,10 @@ cp %(nsisdir)s/*.sh.in %(ns_dir)s''', locals ())
 
 
 class Linux_installer (Installer):
-    def __init__ (self, settings):
-        Installer.__init__ (self, settings)
-        try:
-            #FIXME: how can installer_build/installer_version be undefined?
-            self.bundle_tarball = '%(targetdir)s/%(name)s-%(installer_version)s-%(installer_build)s.%(platform)s.tar.bz2'
-            self.expand (self.bundle_tarball)
-        except:
-            self.bundle_tarball = 'image.tar.bz2'
-
     def strip_prefixes (self):
         return Installer.strip_prefixes (self)
 
-    def create_tarball (self):
+    def create_tarball (self, bundle_tarball):
         self.system ('tar --owner=0 --group=0 -C %(installer_root)s -jcf %(bundle_tarball)s .', locals ())
 
 def create_shar (orig_file, hello, head, target_shar):
@@ -315,12 +306,15 @@ def create_shar (orig_file, hello, head, target_shar):
 class Shar (Linux_installer):
     def create (self):
         Linux_installer.create (self)
-        self.create_tarball ()
+
+        bundle_tarball = '%(targetdir)s/%(name)s-%(installer_version)s-%(installer_build)s.%(platform)s.tar.bz2'
+
+        self.create_tarball (bundle_tarball)
         
         target_shar = self.expand ('%(installer_uploads)s/%(name)s-%(installer_version)s-%(installer_build)s.%(platform)s.sh')
 
         head = self.expand ('%(sourcefiledir)s/sharhead.sh')
-        tarball = self.expand (self.bundle_tarball)
+        tarball = self.expand (bundle_tarball)
 
         hello = self.expand ("version %(installer_version)s release %(installer_build)s")
         create_shar (tarball, hello, head, target_shar)
@@ -349,4 +343,5 @@ def get_installer (settings, args=[]):
 #        'mingw' : MingwRoot,
     }
 
-    return installer_class[settings.platform] (settings)
+    installer = installer_class[settings.platform] (settings)
+    return installer
