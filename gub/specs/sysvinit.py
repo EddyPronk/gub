@@ -30,7 +30,8 @@ mkdir -p %(install_root)s/usr/include &&
 mkdir -p %(install_root)s/usr/share/man/man1 &&
 mkdir -p %(install_root)s/usr/share/man/man5 &&
 mkdir -p %(install_root)s/usr/share/man/man8 &&
-cd %(builddir)s/src && fakeroot make install %(makeflags)s
+cd %(builddir)s/src && fakeroot make install %(makeflags)s &&
+rm -f %(install_root)s/sbin/sulogin # tinylogin
 ''')
     def license_file (self):
         return '%(srcdir)s/doc/Install'

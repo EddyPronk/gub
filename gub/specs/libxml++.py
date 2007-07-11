@@ -7,7 +7,9 @@ class Libxmlxx (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
         self.with_vc (repository.TarBall (self.settings.downloads, url))
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['glibmm']
+    def get_build_dependencies (self):
+        return self._get_build_dependencies ()
     def get_dependency_dict (self):
-        return {'': self.get_build_dependencies ()}
+        return {'': self._get_build_dependencies ()}
