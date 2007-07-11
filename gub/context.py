@@ -2,6 +2,7 @@ import inspect
 import os
 import re
 import fnmatch
+import traceback
 
 def subst_method (func):
     """Decorator to match Context.get_substitution_dict()"""
@@ -55,10 +56,14 @@ class Context:
     def __init__ (self, parent = None):
         self._substitution_dict = None
         self._parent = parent
+        self._substitution_assignment_traceback = None
 
     def __setattr__(self, k, v):
         if (type(v) == type('')
             and k <> '_substitution_dict' and self._substitution_dict):
+            print 'was already set in'
+            print ''.join(traceback.format_list (self._substitution_assignment_traceback))
+
             raise SetAttrTooLate((k, self))
 
         self.__dict__[k] = v
@@ -101,6 +106,7 @@ class Context:
 
     def get_substitution_dict (self, env={}):
         if  self._substitution_dict == None:
+            self._substitution_assignment_traceback = traceback.extract_stack()
             self._substitution_dict = self.get_constant_substitution_dict ()
 
         d = self._substitution_dict
