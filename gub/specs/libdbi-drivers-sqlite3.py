@@ -9,11 +9,12 @@ class Libdbi_drivers_sqlite3 (targetpackage.TargetBuildSpec):
         #self.with_template (version='0.8.1', mirror=mirrors.sf, format='gz')
         self.with_vc (repository.NewTarBall (self.settings.downloads, mirrors.sf, 'libdbi-drivers', '0.8.2'))
 
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['sqlite', 'libdbi', 'libtool']
-
+    def get_build_dependencies (self):
+        return self._get_build_dependencies ()
     def get_dependency_dict (self):
-        return {'': self.get_build_dependencies ()}
+        return {'': self._get_build_dependencies ()}
 
     def configure_command (self):
         return (targetpackage.TargetBuildSpec.configure_command (self)
