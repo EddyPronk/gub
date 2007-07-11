@@ -146,7 +146,7 @@ def build_installer (installer, args, options):
                                               None)
 
     # WTF is gcc-runtime?  Add to package dependencies, if necessary
-    if not settings.is_distro:
+    if not settings.is_distro and not settings.platform == 'linux-arm-vfp':
         package_names += ["cross/gcc-runtime"]
 
     for a in package_names:
@@ -156,17 +156,20 @@ def build_installer (installer, args, options):
 
 
     version = install_manager.package_dict (args[0])['version']
-    version_tup = tuple (map (int, version.split ('.')))
-
-    db = versiondb.VersionDataBase (options.version_db)
-    buildnumber = '%d' % db.get_next_build_number (version_tup)
+    version_tup = 0,0
+    buildnumber = 0
+    try:
+        version_tup = tuple (map (int, version.split ('.')))
+        db = versiondb.VersionDataBase (options.version_db)
+        buildnumber = '%d' % db.get_next_build_number (version_tup)
+    except:
+        pass
 
     settings.installer_version = version
     settings.installer_build = buildnumber
 
-
     checksum_list = []
-    for p in install_manager.installed_packages():
+    for p in install_manager.installed_packages ():
         dict = install_manager.package_dict (p)
         checksum_list.append ((p, 
                                dict['source_checksum'],
@@ -179,11 +182,9 @@ def strip_installer (obj):
     obj.strip ()
 
 def package_installer (installer):
-    
     installer.create ()
         
 def run_installer_commands (commands, settings, args, options):
-    
     installer_obj = installer.get_installer (settings, args)
     installer_obj.name = args[0]
 
@@ -191,6 +192,7 @@ def run_installer_commands (commands, settings, args, options):
     installer_obj.pretty_name = {
         'lilypond': 'LilyPond',
         'git': 'Git',
+        'phone': 'Phone',
         }[args[0]]
     installer_obj.package_branch = settings.branch_dict[args[0]]
     installer_obj.installer_root = settings.targetdir + '/installer-%s-%s' % (args[0],
@@ -217,7 +219,7 @@ def run_installer_commands (commands, settings, args, options):
 
 
 def main ():
-    (options, commands)  = parse_command_line ()
+    (options, commands) = parse_command_line ()
 
     settings = gub.settings.Settings (options)
     for s in options.settings:
@@ -231,8 +233,7 @@ def main ():
     cs = [c]
     if c == 'build-all':
         cs = ['build', 'strip', 'package']
-
-        if not  options.do_strip:
+        if not options.do_strip:
             cs.remove ('strip')
         
     try:

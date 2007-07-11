@@ -96,7 +96,9 @@ class VersionDataBase:
             try:
                 self._db[p] = get_url_versions (u)
             except IOError, x:
-                print 'problem loading', u 
+                print 'problem loading', u
+                from gub import misc
+                print misc.exception_string (x)
                 continue
             
     def write (self):

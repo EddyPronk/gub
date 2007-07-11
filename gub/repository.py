@@ -620,6 +620,7 @@ class SimpleRepo (Repository):
             self._checkout ()
         if self._current_revision () != self.revision:
             self._update (self.revision)
+        self.oslog.info ('downloaded version: ' + self.version () + '\n')
 
     def _copy_working_dir (self, dir, copy):
         vcs = self.vcs
@@ -634,12 +635,11 @@ class SimpleRepo (Repository):
         # Support user-check-outs
         if os.path.isdir (os.path.join (self.dir, self.vcs)):
             return self.dir
-        revision = self.revision
         dir = self.dir
         branch = self.branch
-        if branch and revision:
-            branch += '-'
-        return '%(dir)s/%(branch)s%(revision)s' % locals ()
+        module = self.module
+        revision = self.revision
+        return '%(dir)s/%(branch)s/%(module)s/%(revision)s' % locals ()
 
     def get_file_content (self, file_name):
         return open (self._checkout_dir () + '/' + file_name).read ()
@@ -648,7 +648,10 @@ class SimpleRepo (Repository):
         return self._current_revision ()
 
     def version (self):
-        return self.revision
+        return ('-'.join ([self.branch, self.revision])
+                .replace ('/', '-')
+                .replace ('.-', '')
+                .replace ('--', '-'))
 
 class Subversion (SimpleRepo):
     def __init__ (self, dir, source, branch, module, revision='HEAD'):
@@ -673,7 +676,7 @@ class Subversion (SimpleRepo):
         module = self.module
         revision = self.revision
         rev_opt = '-r %(revision)s ' % locals ()
-        cmd = 'cd %(dir)s && svn co %(rev_opt)s %(source)s/%(branch)s/%(module)s %(branch)s-%(revision)s''' % locals ()
+        cmd = 'cd %(dir)s && svn co %(rev_opt)s %(source)s/%(branch)s/%(module)s %(branch)s/%(module)s/%(revision)s''' % locals ()
         self.system (cmd)
         
     def _update (self, revision):
@@ -687,7 +690,8 @@ class Bazaar (SimpleRepo):
         # FIXME: multi-branch repos not supported for now
         if not revision:
             revision = '0'
-        SimpleRepo.__init__ (self, dir, '.bzr', source, '', revision)
+        SimpleRepo.__init__ (self, dir, '.bzr', source, '.', revision)
+        self.module = '.'
 
     def _current_revision (self):
         revno = self.bzr_pipe ('revno' % locals ())

@@ -1,12 +1,12 @@
 from gub import targetpackage
 from gub import repository
 
-url = 'http://ftp.isc.org/isc/dhcp/dhcp-3.0.5.tar.gz'
+url = 'http://ftp.isc.org/isc/dhcp/dhcp-3.0.6.tar.gz'
 
 class Dhcp (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with_vc (repository.TarBall (self.settings.downloads, url))
+        self.with_vc (repository.TarBall (self.settings.downloads, url, strip_components=2))
     def get_subpackage_names (self):
         return ['']
     def patch (self):
