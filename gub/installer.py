@@ -21,7 +21,6 @@ class Installer (context.Os_context_wrapper):
         self.no_binary_strip_extensions = ['.la', '.py', '.def', '.scm', '.pyc']
         self.installer_uploads = settings.uploads
         self.checksum = '0000'
-        assert settings._substitution_dict == None
     @context.subst_method
     def version (self):
         return self.settings.installer_version

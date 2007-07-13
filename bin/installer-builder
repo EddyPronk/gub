@@ -152,8 +152,6 @@ def build_installer (installer, args, options):
     for a in package_names:
         install_manager.install_package (a)
 
-    installer.use_install_root_manager (install_manager)
-
     version = install_manager.package_dict (args[0])['version']
     try:
         version_tup = tuple (map (int, version.split ('.')))
@@ -165,6 +163,9 @@ def build_installer (installer, args, options):
 
     settings.installer_version = version
     settings.installer_build = buildnumber
+
+
+    installer.use_install_root_manager (install_manager)
 
     checksum_list = []
     for p in install_manager.installed_packages ():
