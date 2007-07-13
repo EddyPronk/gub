@@ -124,6 +124,8 @@ class Installer (context.Os_context_wrapper):
             'share/gs/fonts/[a-bd-z]*',
             'share/gs/fonts/c[^0][^5][^9]*',
             'share/gs/Resource',                        
+# Urg: prune qt fonts, keep helvetica
+            'share/fonts/[^h]*',
             ):
 
             self.system ('cd %(installer_root)s && rm -rf ' + delete_me, {'i': i }, locals ())
@@ -145,7 +147,7 @@ class Installer (context.Os_context_wrapper):
     
     def create (self):
         self.system ("mkdir %(installer_root)s/license/", ignore_errors=True)
-        self.system ("cp %(sourcefiledir)s/gubb.license %(installer_root)s/license/README", ignore_errors=True)
+        self.system ("cp %(sourcefiledir)s/gub.license %(installer_root)s/license/README", ignore_errors=True)
 
     def write_checksum (self):
         open (self.expand ('%(installer_checksum_file)s'), 'w').write (self.checksum)
@@ -274,7 +276,7 @@ cp %(nsisdir)s/*.sh.in %(ns_dir)s''', locals ())
 class Linux_installer (Installer):
     def __init__ (self, settings):
         Installer.__init__ (self, settings)
-        self.bundle_tarball = '%(targetdir)s/%(name)s-%(installer_version)s-%(installer_build)s.%(platform)s.tar.bz2'
+        self.bundle_tarball = '%(installer_uploads)s/%(name)s-%(installer_version)s-%(installer_build)s.%(platform)s.tar.bz2'
 
     def strip_prefixes (self):
         return Installer.strip_prefixes (self)
