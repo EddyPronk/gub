@@ -211,8 +211,7 @@ class BuildSpec (Os_context_wrapper):
         b = ''
         if self.vc_repository and self.vc_repository.is_tracking ():
             try:
-                #b = '-' + self.vc_repository.branch.replace ('/', '-')
-                b = '-' + self.vc_repository.version ()
+                b = '-' + self.vc_repository.branch.replace ('/', '-')
             except AttributeError:
                 pass
         return b
