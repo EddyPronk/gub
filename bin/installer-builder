@@ -244,6 +244,9 @@ def main ():
             sys.exit (0)
         raise e
     settings.os_interface.info ('done\n')
+    settings.os_interface.error ('build log written to: ' +
+                                 settings.os_interface.log_file_name
+                                 + '\n')
 
 if __name__ == '__main__':
     main ()
