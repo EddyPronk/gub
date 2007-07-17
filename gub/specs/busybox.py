@@ -16,6 +16,11 @@ class Busybox (targetpackage.TargetBuildSpec):
         pass # FIXME: no ./configure, but do not run autoupdate
     def configure_command (self):
         return 'make -f %(srcdir)s/Makefile defconfig'
+    def configure (self):
+        targetpackage.TargetBuildSpec.configure (self)
+        self.file_sub ([('^# CONFIG_FEATURE_SH_IS_ASH is not set', 'CONFIG_FEATURE_SH_IS_ASH=y'),
+                        ('^CONFIG_FEATURE_SH_IS_NONE=y', '# CONFIG_FEATURE_SH_IS_NONE is not set'),
+                        ], '%(builddir)s/.config')
     def makeflags (self):
         return ' CROSS_COMPILE=%(tool_prefix)s CONFIG_PREFIX=%(install_root)s'
     def license_file (self):
@@ -32,7 +37,9 @@ class Busybox__linux__arm__vfp (Busybox):
 cd %(srcdir)s && patch -p1 < %(patchdir)s/busybox-mkconfigs.patch
 ''')
         Busybox.patch (self)
-        
+    def makeflags (self):
+        return ' CROSS=%(tool_prefix)s PREFIX=%(install_root)s'
+
                       
                                           
     

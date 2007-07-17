@@ -18,11 +18,13 @@ class Qtopia_core (targetpackage.TargetBuildSpec):
             #'LINK': '%(tool_prefix)sg++',
             }
         gubb.change_target_dict (self, dict)
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
 #        return ['freetype', 'glib', 'tslib']
         return ['freetype', 'tslib']
+    def get_build_dependencies (self):
+        return self._get_build_dependencies ()
     def get_dependency_dict (self):
-        return {'': self.get_build_dependencies ()}
+        return {'': self._get_build_dependencies ()}
     def patch (self):
         self.file_sub ([('pkg-config', '$PKG_CONFIG')],
                        '%(srcdir)s/configure')

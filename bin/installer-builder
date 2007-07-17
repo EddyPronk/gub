@@ -152,21 +152,20 @@ def build_installer (installer, args, options):
     for a in package_names:
         install_manager.install_package (a)
 
-    installer.use_install_root_manager (install_manager)
-
-
     version = install_manager.package_dict (args[0])['version']
-    version_tup = 0,0
-    buildnumber = 0
     try:
         version_tup = tuple (map (int, version.split ('.')))
         db = versiondb.VersionDataBase (options.version_db)
         buildnumber = '%d' % db.get_next_build_number (version_tup)
     except:
-        pass
+        version = '0.0'
+        buildnumber = '0'
 
     settings.installer_version = version
     settings.installer_build = buildnumber
+
+
+    installer.use_install_root_manager (install_manager)
 
     checksum_list = []
     for p in install_manager.installed_packages ():
@@ -201,12 +200,12 @@ def run_installer_commands (commands, settings, args, options):
     installer_obj.installer_db = installer_obj.installer_root + '-dbdir'
     
     if check_installer (installer_obj, options, args):
-        print 'installer is up to date'
+        settings.os_interface.info ('installer is up to date\n')
         return 
 
     for c in commands:
-        print (' *** Stage: %s (%s)\n'
-               % (c, installer_obj.name))
+        settings.os_interface.info (' *** IStage: %s (%s)\n'
+                                    % (c, installer_obj.name))
     
         if c == ('build'):
             build_installer (installer_obj, args, options)
@@ -215,7 +214,7 @@ def run_installer_commands (commands, settings, args, options):
         elif c == ('package'):
             package_installer (installer_obj)
         else:
-            raise  Exception ('unknown installer command', c)
+            raise Exception ('unknown installer command', c)
 
 
 def main ():
@@ -225,8 +224,8 @@ def main ():
     for s in options.settings:
         (k, v) = tuple (s.split ('='))
         if settings.__dict__.has_key (k):
-            print "warning overwriting %s = %s with %s" % (k, settings.__dict__[k], v)
-            
+            settings.os_interface.warn ('overwriting %s = %s with %s\n'
+                                        % (k, settings.__dict__[k], v))
         settings.__dict__[k] = v
     c = commands.pop (0)
 
@@ -238,11 +237,12 @@ def main ():
         
     try:
         run_installer_commands (cs, settings, commands, options)
-    except locker.LockedError:
+    except locker.LockedError, e:
         if options.skip_if_locked:
-            print 'skipping build; install_root is locked'
+            settings.os_interface.error ('skipping build; install_root is locked\n')
             sys.exit (0)
-        raise
+        raise e
+    settings.os_interface.info ('done\n')
 
 if __name__ == '__main__':
     main ()
