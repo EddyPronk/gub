@@ -230,6 +230,7 @@ locals =\
  pkg-config\
  potrace\
  python\
+ imagemagick \
  texinfo
 
 
@@ -247,7 +248,8 @@ locals =\
 # -freetype: for bootstrapping fontconfig
 # -imagemagick: for lilypond web site
 # -netpbm: website
-
+# -python: bootstrap for python x-compile
+# -icoutils: icon build for mingw
 download-local:
 	$(GUB) $(LOCAL_GUB_OPTIONS) \
 		-p local --stage=download \
