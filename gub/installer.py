@@ -31,11 +31,7 @@ class Installer (context.Os_context_wrapper):
     def strip_unnecessary_files (self):
         "Remove unnecessary cruft."
 
-        delete_me = ''
-        for p in self.strip_prefixes ():
-            delete_me += p + '%(i)s '
-
-        for i in (
+        globs = [
             'bin/autopoint',
             'bin/glib-mkenums',
             'bin/guile-*',
@@ -73,8 +69,6 @@ class Installer (context.Os_context_wrapper):
             'lib/gettext/urlget*',
             'lib/glib-2.0/include/glibconfig.h',
             'lib/glib-2.0',
-            'lib/libc.*',
-            'lib/libm.*',
             'lib/pkgconfig',
             'lib/*~',
             'lib/*.a',
@@ -124,10 +118,26 @@ class Installer (context.Os_context_wrapper):
             'share/gs/fonts/c[^0][^5][^9]*',
             'share/gs/Resource',                        
 # Urg: prune qt fonts, keep helvetica
-            'share/fonts/[^h]*',
-            ):
+            'lib/fonts/[^h]*',
+            'share/mkspecs',
+            'share/terminfo',
+            ]
 
-            self.system ('cd %(installer_root)s && rm -rf ' + delete_me, {'i': i }, locals ())
+        # FIXME: why are we removing these, we need these in a root fs
+        # (phone).  How to make a better check here?
+        if not self.expand ('%(name)').startswith ('phone'):
+            globs += [
+            'lib/libc.*',
+            'lib/libm.*',
+            ]
+
+        delete_me = ''
+        for p in self.strip_prefixes ():
+            delete_me += p + '%(i)s '
+
+        for i in globs:
+            # [^..] dash globbing is broken, {,} globbing is bashism
+            self.system ("cd %(installer_root)s && bash -c 'rm -rf " + delete_me + "'", {'i': i }, locals ())
 
     def strip_dir (self, dir):
         from gub import misc
@@ -145,8 +155,8 @@ class Installer (context.Os_context_wrapper):
         pass
     
     def create (self):
-        self.system ("mkdir %(installer_root)s/license/", ignore_errors=True)
-        self.system ("cp %(sourcefiledir)s/gub.license %(installer_root)s/license/README", ignore_errors=True)
+        self.system ('mkdir %(installer_root)s/license', ignore_errors=True)
+        self.system ('cp %(sourcefiledir)s/gub.license %(installer_root)s/license/README', ignore_errors=True)
 
     def write_checksum (self):
         open (self.expand ('%(installer_checksum_file)s'), 'w').write (self.checksum)
@@ -286,6 +296,7 @@ class Linux_installer (Installer):
     def create (self):
         Installer.create (self)
         self.create_tarball (self.bundle_tarball)
+        self.write_checksum ()
 
 def create_shar (orig_file, hello, head, target_shar):
     length = os.stat (orig_file)[6]
@@ -316,7 +327,6 @@ class Shar (Linux_installer):
         tarball = self.expand (self.bundle_tarball)
         hello = self.expand ("version %(installer_version)s release %(installer_build)s")
         create_shar (tarball, hello, head, target_shar)
-        self.write_checksum ()
         system ('rm %(tarball)s' % locals ())
         
 def get_installer (settings, args=[]):
