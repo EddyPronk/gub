@@ -125,7 +125,7 @@ class Installer (context.Os_context_wrapper):
 
         # FIXME: why are we removing these, we need these in a root fs
         # (phone).  How to make a better check here?
-        if not self.expand ('%(name)').startswith ('phone'):
+        if not self.expand ('%(name)s').startswith ('phone'):
             globs += [
             'lib/libc.*',
             'lib/libm.*',
