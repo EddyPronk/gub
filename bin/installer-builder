@@ -191,7 +191,7 @@ def run_installer_commands (commands, settings, args, options):
     installer_obj.pretty_name = {
         'lilypond': 'LilyPond',
         'git': 'Git',
-        'phone': 'Phone',
+        'root-image': 'root-image',
         }[args[0]]
     installer_obj.package_branch = settings.branch_dict[args[0]]
     installer_obj.installer_root = settings.targetdir + '/installer-%s-%s' % (args[0],

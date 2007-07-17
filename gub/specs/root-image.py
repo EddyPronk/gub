@@ -63,3 +63,12 @@ cd %(install_root)s && ar p %(f)s data.tar.gz | fakeroot tar -zx%(v)sf -
         gubb.NullBuildSpec.install (self)
         for i in self.get_ipkg_dependencies ():
             self.install_ipkg (i)
+
+class Root_image__linux__arm__vfp (Root_image):
+    def _get_build_dependencies (self):
+        return (Root_image._get_build_dependencies (self)
+                + ['csl-toolchain-binary',
+                   'csl-toolchain-binary-runtime',
+                   'phone'])
+
+    
