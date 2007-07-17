@@ -25,6 +25,8 @@ class Root_image (gubb.NullBuildSpec):
     def get_ipkg_dependencies (self):
         busybox = ['makedevs']
         return [
+            'base-files',
+            'base-passwd',
             'dev',
             'etc-rc',
             'initscripts',
