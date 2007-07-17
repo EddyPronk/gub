@@ -94,6 +94,11 @@ class Qtopia_core__linux__arm__softfloat (Qtopia_core):
 
 Qtopia_core__linux__arm__vfp = Qtopia_core__linux__arm__softfloat
 
+class Qtopia_core__linux__x86 (Qtopia_core):
+    @context.subst_method
+    def qmake_target_architecture (self):
+        return 'linux-x86'
+
 class Qtopia_core__linux__64 (Qtopia_core):
     @context.subst_method
     def qmake_target_architecture (self):
