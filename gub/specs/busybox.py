@@ -20,7 +20,8 @@ class Busybox (targetpackage.TargetBuildSpec):
         targetpackage.TargetBuildSpec.configure (self)
         self.file_sub ([('^# CONFIG_FEATURE_SH_IS_ASH is not set', 'CONFIG_FEATURE_SH_IS_ASH=y'),
                         ('^CONFIG_FEATURE_SH_IS_NONE=y', '# CONFIG_FEATURE_SH_IS_NONE is not set'),
-                        ], '%(builddir)s/.config')
+                        ('^CONFIG_FEATURE_SH_STANDALONE_SHELL=y', '# CONFIG_FEATURE_SH_STANDALONE_SHELL is not set')],
+                       '%(builddir)s/.config')
     def makeflags (self):
         return ' CROSS_COMPILE=%(tool_prefix)s CONFIG_PREFIX=%(install_root)s'
     def license_file (self):
