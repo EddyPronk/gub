@@ -125,7 +125,8 @@ class Installer (context.Os_context_wrapper):
 
         # FIXME: why are we removing these, we need these in a root image.
         # How to make a better check here?
-        if not self.expand ('%(name)s').startswith ('root-image'):
+        if (not self.expand ('%(name)s').startswith ('root-image')
+            and not self.expand ('%(name)s').startswith ('phone')):
             globs += [
             'lib/libc.*',
             'lib/libm.*',

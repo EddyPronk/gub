@@ -188,11 +188,12 @@ def run_installer_commands (commands, settings, args, options):
     installer_obj.name = args[0]
 
     ## UGH -  we don't have the package dicts yet.
-    installer_obj.pretty_name = {
+    ## barf, this should be in config file, not in code
+    pretty_names = {
         'lilypond': 'LilyPond',
         'git': 'Git',
-        'root-image': 'root-image',
-        }[args[0]]
+        }
+    installer_obj.pretty_name = pretty_names.get (args[0], args[0])
     installer_obj.package_branch = settings.branch_dict[args[0]]
     installer_obj.installer_root = settings.targetdir + '/installer-%s-%s' % (args[0],
                                                                               installer_obj.package_branch)
