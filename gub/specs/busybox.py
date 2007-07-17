@@ -22,6 +22,8 @@ class Busybox (targetpackage.TargetBuildSpec):
                         ('^CONFIG_FEATURE_SH_IS_NONE=y', '# CONFIG_FEATURE_SH_IS_NONE is not set'),
                         ('^CONFIG_FEATURE_SH_STANDALONE_SHELL=y', '# CONFIG_FEATURE_SH_STANDALONE_SHELL is not set')],
                        '%(builddir)s/.config')
+        self.system ('''rm -f %(builddir)s/include/bb_config.h
+cd %(builddir)s && make include/bb_config.h > /dev/null 2>&1''')
     def makeflags (self):
         return ' CROSS_COMPILE=%(tool_prefix)s CONFIG_PREFIX=%(install_root)s'
     def license_file (self):
