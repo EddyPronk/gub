@@ -7,6 +7,7 @@ class Root_image (gubb.NullBuildSpec):
         self.with_vc (repository.Version ('1.0'))
     def _get_build_dependencies (self):
         busybox = [
+            'dhcp',
             'psmisc',
             'sysvinit',
             'tinylogin',
@@ -15,7 +16,6 @@ class Root_image (gubb.NullBuildSpec):
             'base-files',
             'base-passwd',
             'busybox',
-            'dhcp',
             'dropbear',
             ]
     def get_build_dependencies (self):
@@ -29,6 +29,7 @@ class Root_image (gubb.NullBuildSpec):
             'base-passwd',
             'dev',
             'etc-rc',
+            'etc-usr-share',
             'initscripts',
             'linux-hotplug',
             'module-init-tools-depmod',
