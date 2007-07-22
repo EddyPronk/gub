@@ -296,11 +296,19 @@ doc-build:
 test-output:
 	$(PYTHON) gub/with-lock.py --skip $(TEST_LOCK) $(MAKE) cached-test-output
 
+test-clean:
+	$(PYTHON) gub/with-lock.py --skip $(TEST_LOCK) $(MAKE) unlocked-test-clean
+
 unlocked-doc-clean:
 	make -C $(NATIVE_TARGET_DIR)/gubfiles/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
 		DOCUMENTATION=yes web-clean
 	rm -f $(call SIGNATURE_FUNCTION,cached-doc-build)
 	rm -f $(call SIGNATURE_FUNCTION,cached-doc-export)
+
+unlocked-test-clean:
+	make -C $(NATIVE_TARGET_DIR)/gubfiles/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
+		DOCUMENTATION=yes test-clean
+	rm -f $(call SIGNATURE_FUNCTION,cached-test-output)
 
 cached-test-output cached-doc-build cached-dist-check cached-doc-export cached-info-man-build:
 	-mkdir uploads/signatures/
@@ -366,6 +374,7 @@ unlocked-doc-export:
 	PYTHONPATH=$(NATIVE_LILY_BUILD)/python/out \
 	$(PYTHON) test-lily/rsync-lily-doc.py --recreate \
 		--version-file $(NATIVE_LILY_BUILD)/out/VERSION \
+		--test-dir uploads/webtest \
 		--output-distance \
 		$(NATIVE_LILY_SRC)/buildscripts/output-distance.py $(NATIVE_LILY_BUILD)/out-www/online-root
 

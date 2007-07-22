@@ -7,40 +7,52 @@ import string
 import glob
 import optparse
 
+sys.path.insert (0, os.path.split (sys.argv[0])[0] + '/..')
+
+from gub import versiondb
+
 ################
 # settings
 # 'hanwen@ssh.webdev.nl:/var/www/lilypond/doc'
 def parse_options ():
+    home = os.environ['HOME']
+
     p = optparse.OptionParser ()
     p.add_option ('--upload',
 		  dest='destination',
 		  help='where to upload the result',
 		  default='')
-    
+    p.add_option ('--dbfile',
+		  dest='dbfile',
+		  help='which version db to use',
+		  default='uploads/lilypond.versions')
     p.add_option ('--output-distance',
                   dest="output_distance_script",
                   help="compute signature distances using script") 
-
     p.add_option ("--dry-run",
                   action="store_true",
                   dest="dry_run",
                   default=False,
                   help="don't actually run any commands.")
-    
     p.add_option ("--version-file",
                   action="store",
                   dest="version_file",
                   help="where to get the version number")
-    
     p.add_option ('--recreate',
                   dest="recreate",
                   action="store_true",
                   help="rebuild webdirectory. Discards test-results.") 
-
-    home = os.environ['HOME']
     p.add_option ('--unpack-dir',
 		  dest='unpack_dir',
 		  default='uploads/webdoc/',
+		  help="Where to put local versions of the docs")
+    p.add_option ('--test-dir',
+		  dest='test_dir',
+		  default='uploads/webtest/',
+		  help="Where to put local versions of the docs")
+    p.add_option ('--upload-dir',
+		  dest='upload_dir',
+		  default='uploads/',
 		  help="Where to put local versions of the docs")
 
     (opts, args) = p.parse_args ()
@@ -82,7 +94,6 @@ def read_version (source):
     return tuple (s.split ('.'))
     
 def create_local_web_dir (options, source):
-
     if not os.path.isdir (options.unpack_dir):
         system ('mkdir -p '  + options.unpack_dir)
 
@@ -109,14 +120,97 @@ def create_local_web_dir (options, source):
 	      'Documentation/user/music-glossary/index.html',
 	      'Documentation/topdocs/NEWS.html',
 	      'Documentation/user/lilypond/Tutorial.html',
-	      'input/test/collated-files.html',
+#	      'input/test/collated-files.html',
 	      'input/regression/collated-files.html']:
         do_urchin (f)
 
+def compare_test_tarballs (options, version_file_tuples):
+    (version, build), last_file = version_file_tuples[-1]
+    dest_dir = '%s/v%s-%d' % (options.test_dir,
+                              '.'.join (map (str, version)),
+                              build)
+
+    dest_dir = os.path.abspath(dest_dir)
+    if not os.path.isdir (dest_dir):
+        os.makedirs (dest_dir)
+
+    dirs = []
+    version_strs = []
+    unpack_dir = os.path.abspath(dest_dir) + '-unpack'
+    
+    for (tup, file) in version_file_tuples:
+        version, build = tup
+        version_str = '%s-%d' % ('.'.join(map (str, version)), build)
+        version_strs.append (version_str)
+        dir_str = 'v' + version_str
+        dirs.append (dir_str)
+
+        dir_str = unpack_dir + '/' + dir_str
+        if os.path.exists (dir_str):
+            system ('rm -rf %s' % dir_str)
+        os.makedirs (dir_str)
+        system ('tar --strip-component=3 -C %s -xjf %s' % (dir_str, file))
+
+    html = ''
+    for d in dirs[:-1]:
+        cmd = ('cd %s && python %s --create-images --output-dir %s/compare-%s --local-datadir %s %s '
+               % (unpack_dir,
+                  options.output_distance_script,
+                  dest_dir, d, d, dirs[-1]))
+        html += '<li><a href="compare-%(d)s/index.html">results for %(d)s</a>' % locals()
+        system(cmd)
+
+    if html:
+        html = '<ul>%(html)s</ul>' % locals ()
+    else:
+        html = 'no previous versions to compare with'
+
+    version_str = version_strs[-1]
+    html = '''<html>
+<head>
+<title>
+Regression test results for %(version_str)s
+</title>
+</head>
+<body>
+<h1>Regression test results</h1>
+
+%(html)s
+</body>
+</html>
+''' % locals()
+
+    system ('rm -rf %(unpack_dir)s' % locals ())
+    
+    open (dest_dir + '/test-results.html', 'w').write (html)
+
+def compare_test_info (options):
+    outputs = glob.glob(options.upload_dir + '/lilypond-*.test-output*')
+
+    current_version = tuple (map (int, options.version))
+    db = versiondb.VersionDataBase (options.dbfile)
+    current_build = db.get_next_build_number (current_version)
+    current_tuple = (current_version, current_build)
+
+    versions_found = []
+    current_test_output = ''
+    for f in outputs:
+        m = re.search ('lilypond-([.0-9]+)-([0-9]+).test-output.tar.bz2', f)
+        assert m
+
+        version = map (int, m.group (1).split ('.'))
+        build = int (m.group (2))
+        tup = (version, build)
+        
+        if tup <= current_tuple:
+           versions_found.append ((tup, f))
+
+    versions_found.sort()
+    compare_test_tarballs (options, versions_found[-3:])
+
+# deprecated
 def compute_distances (options, source):
     os.chdir (options.unpack_dir)
-
-    
     cur_version = tuple (map (int, options.version))
     region = 3
 
@@ -204,13 +298,12 @@ def main ():
             global system
             system = my_system
 
-        print system
         if opts.recreate:
             create_local_web_dir (opts, a)
         if opts.output_distance_script:
-            compute_distances (opts, a)
-	if opts.destination:
-	    upload (opts, a)
+            compare_test_info (opts)
+	if opts.destination:	
+            upload (opts, a)
 
 
 if __name__ == '__main__':
