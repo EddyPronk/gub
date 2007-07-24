@@ -17,6 +17,10 @@ class Sysvinit (targetpackage.TargetBuildSpec):
         return 'CC=%(tool_prefix)sgcc ROOT=%(install_root)s'
     def compile_command (self):
         return 'cd %(builddir)s/src && make %(makeflags)s'
+    def install (self):
+        fakeroot_cache = self.builddir ()
+        self.fakeroot (self.expand (self.settings.fakeroot, locals ()))
+        targetpackage.TargetBuildSpec.install (self)
     def install_command (self):
         from gub import misc
         # FIXME: cannot do these as self.system () in install () as

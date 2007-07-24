@@ -13,6 +13,10 @@ class Tinylogin (targetpackage.TargetBuildSpec):
         return 'true'
     def makeflags (self):
         return 'CROSS=%(tool_prefix)s PREFIX=%(install_root)s'
+    def install (self):
+        fakeroot_cache = self.builddir ()
+        self.fakeroot (self.expand (self.settings.fakeroot, locals ()))
+        targetpackage.TargetBuildSpec.install (self)
     def install_command (self):
         return 'fakeroot make install %(makeflags)s'
     def license_file (self):
