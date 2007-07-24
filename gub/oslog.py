@@ -52,7 +52,9 @@ class Os_commands:
             verbose = self.verbose
 
         if self.fakeroot_cmd:
-            cmd = re.sub ('''(^ *|['"();|& ]*)(chown|fakeroot|rm|tar) ''',
+            cmd = re.sub ('''(^ *|['"();|& ]*)(fakeroot) ''',
+                          '\\1%(fakeroot_cmd)s' % self.__dict__, cmd)
+            cmd = re.sub ('''(^ *|['"();|& ]*)(chown|rm|tar) ''',
                           '\\1%(fakeroot_cmd)s\\2 ' % self.__dict__, cmd)
 
         self.log ('invoking %s\n' % cmd, level['command'], verbose)
