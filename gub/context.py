@@ -154,6 +154,9 @@ class Os_context_wrapper (Context):
             
         return self.os_interface.file_sub (substs, self.expand (name, env), to_name, must_succeed, use_re=use_re)
     
+    def fakeroot (self, s):
+        self.os_interface.fakeroot (s)
+        
     def command (self, str):
         self.os_interface.command (str)
         
