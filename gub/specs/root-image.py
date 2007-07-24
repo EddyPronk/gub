@@ -9,7 +9,6 @@ class Root_image (gubb.NullBuildSpec):
         busybox = [
             'dhcp',
             'psmisc',
-            'sysvinit',
             'tinylogin',
             ]
         return [
@@ -17,6 +16,7 @@ class Root_image (gubb.NullBuildSpec):
             'base-passwd',
             'busybox',
             'dropbear',
+            'sysvinit',
             ]
     def get_build_dependencies (self):
         return self._get_build_dependencies ()
@@ -44,7 +44,6 @@ class Root_image (gubb.NullBuildSpec):
             'setserial',
             'strace',
             'sysvinit-inittab',
-            'sysvinit-pidof',
             'tslib-conf',
             'update-rc.d',
             ]

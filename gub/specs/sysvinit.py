@@ -18,7 +18,7 @@ class Sysvinit (targetpackage.TargetBuildSpec):
     def compile_command (self):
         return 'cd %(builddir)s/src && make %(makeflags)s'
     def install (self):
-        fakeroot_cache = self.builddir ()
+        fakeroot_cache = self.builddir () + '/fakeroot.cache'
         self.fakeroot (self.expand (self.settings.fakeroot, locals ()))
         targetpackage.TargetBuildSpec.install (self)
     def install_command (self):
@@ -35,7 +35,7 @@ mkdir -p %(install_root)s/usr/share/man/man1 &&
 mkdir -p %(install_root)s/usr/share/man/man5 &&
 mkdir -p %(install_root)s/usr/share/man/man8 &&
 cd %(builddir)s/src && fakeroot make install %(makeflags)s &&
-rm -f %(install_root)s/sbin/sulogin # tinylogin
+find %(install_root)s/bin %(install_root)s/sbin %(install_root)s/usr/bin -type f -o -type l | grep -Ev 'sbin/(tel|)init$' | xargs -I'{}' mv '{}' '{}'.sysvinit
 ''')
     def license_file (self):
         return '%(srcdir)s/doc/Install'

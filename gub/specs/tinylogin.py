@@ -14,7 +14,7 @@ class Tinylogin (targetpackage.TargetBuildSpec):
     def makeflags (self):
         return 'CROSS=%(tool_prefix)s PREFIX=%(install_root)s'
     def install (self):
-        fakeroot_cache = self.builddir ()
+        fakeroot_cache = self.builddir () + '/fakeroot.cache'
         self.fakeroot (self.expand (self.settings.fakeroot, locals ()))
         targetpackage.TargetBuildSpec.install (self)
     def install_command (self):

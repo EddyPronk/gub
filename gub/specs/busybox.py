@@ -30,6 +30,11 @@ class Busybox (targetpackage.TargetBuildSpec):
 cd %(builddir)s && make include/%(autoconf_h)s > /dev/null 2>&1''')
     def makeflags (self):
         return ' CROSS_COMPILE=%(tool_prefix)s CONFIG_PREFIX=%(install_root)s'
+    def install (self):
+        targetpackage.TargetBuildSpec.install (self)
+        self.system ('''
+cd %(install_root)s && mv sbin/init sbin/init.busybox
+''')
     def license_file (self):
         return '%(srcdir)s/LICENSE'
 

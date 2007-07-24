@@ -12,7 +12,7 @@ class Base_files (gubb.BinarySpec):
     def get_subpackage_names (self):
         return ['']
     def patch (self):
-        fakeroot_cache = self.builddir ()
+        fakeroot_cache = self.builddir () + '/fakeroot.cache'
         self.fakeroot (self.expand (self.settings.fakeroot, locals ()))
         self.system ('''
 cd %(srcdir)s && mkdir -p `cat debian/directory-list`
