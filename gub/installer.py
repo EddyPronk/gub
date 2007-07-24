@@ -10,8 +10,15 @@ from gub import targetpackage
 from context import subst_method
 from misc import *
 
+# UGH -  we don't have the package dicts yet.
+# barf, this should be in config file, not in code
+pretty_names = {
+    'lilypond': 'LilyPond',
+    'git': 'Git',
+    }
+
 class Installer (context.Os_context_wrapper):
-    def __init__ (self, settings):
+    def __init__ (self, settings, name):
         context.Os_context_wrapper.__init__ (self, settings)
         
         self.settings = settings
@@ -21,6 +28,16 @@ class Installer (context.Os_context_wrapper):
         self.no_binary_strip_extensions = ['.la', '.py', '.def', '.scm', '.pyc']
         self.installer_uploads = settings.uploads
         self.checksum = '0000'
+
+        self.name = name
+        self.pretty_name = pretty_names.get (name, name)
+        self.package_branch = settings.branch_dict[name]
+        self.installer_root = (settings.targetdir
+                               + '/installer-%s-%s' % (name,
+                                                       self.package_branch))
+        self.installer_checksum_file = self.installer_root + '.checksum'
+        self.installer_db = self.installer_root + '-dbdir'
+
     @context.subst_method
     def version (self):
         return self.settings.installer_version
@@ -117,8 +134,8 @@ class Installer (context.Os_context_wrapper):
             'share/gs/fonts/[a-bd-z]*',
             'share/gs/fonts/c[^0][^5][^9]*',
             'share/gs/Resource',                        
-# Urg: prune qt fonts, keep helvetica
-            'lib/fonts/[^h]*',
+# Urg: prune qt fonts, keep helvetica, fontdir
+            'lib/fonts/[^hf]*',
             'share/mkspecs',
             'share/terminfo',
             ]
@@ -284,8 +301,11 @@ cp %(nsisdir)s/*.sh.in %(ns_dir)s''', locals ())
 
 
 class Linux_installer (Installer):
-    def __init__ (self, settings):
-        Installer.__init__ (self, settings)
+    def __init__ (self, settings, name):
+        Installer.__init__ (self, settings, name)
+        self.settings.fakeroot_cache = ('%(installer_root)s/fakeroot.save'
+                                        % self.__dict__)
+        self.fakeroot (self.settings.fakeroot % self.settings.__dict__ )
         self.bundle_tarball = '%(installer_uploads)s/%(name)s-%(installer_version)s-%(installer_build)s.%(platform)s.tar.bz2'
 
     def strip_prefixes (self):
@@ -330,7 +350,7 @@ class Shar (Linux_installer):
         create_shar (tarball, hello, head, target_shar)
         system ('rm %(tarball)s' % locals ())
         
-def get_installer (settings, args=[]):
+def get_installer (settings, name):
 
     installer_class = {
         # TODO: ipkg/dpkg
@@ -352,5 +372,5 @@ def get_installer (settings, args=[]):
 #        'mingw' : MingwRoot,
     }
 
-    installer = installer_class[settings.platform] (settings)
+    installer = installer_class[settings.platform] (settings, name)
     return installer
