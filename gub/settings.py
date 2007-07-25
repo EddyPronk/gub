@@ -113,6 +113,9 @@ class Settings (context.Context):
         self.use_tools = False
         self.build_autopackage = self.allbuilddir + '/autopackage'
 
+        self.fakeroot_cache = '' # %(builddir)s/fakeroot.save'
+        self.fakeroot = 'fakeroot -i%(fakeroot_cache)s -s%(fakeroot_cache)s '
+
         if not os.path.isdir ('log'):
             os.mkdir ('log')
             

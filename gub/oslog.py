@@ -31,6 +31,7 @@ class Os_commands:
         self.log_file_name = log_file_name
         self.log_file = open (self.log_file_name, 'a')
         self.log_file.write ('\n\n * Starting build: %s\n' %  now ())
+        self.fakeroot_cmd = False
 
         # ARRRGH no python doc on Feisty?
         if 0: #for i in level.keys ():
@@ -39,6 +40,9 @@ class Os_commands:
             misc.bind_method (__log, self)
             self.i = self.__log
 
+    def fakeroot (self, s):
+        self.fakeroot_cmd = s
+        
     ## TODO:
     ## capture complete output of CMD, by polling output, and copying to tty.
     def system_one (self, cmd, env, ignore_errors, verbose=None):
@@ -46,6 +50,12 @@ class Os_commands:
 
         if not verbose:
             verbose = self.verbose
+
+        if self.fakeroot_cmd:
+            cmd = re.sub ('''(^ *|['"();|& ]*)(fakeroot) ''',
+                          '\\1%(fakeroot_cmd)s' % self.__dict__, cmd)
+            cmd = re.sub ('''(^ *|['"();|& ]*)(chown|rm|tar) ''',
+                          '\\1%(fakeroot_cmd)s\\2 ' % self.__dict__, cmd)
 
         self.log ('invoking %s\n' % cmd, level['command'], verbose)
 

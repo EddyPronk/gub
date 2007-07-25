@@ -481,7 +481,11 @@ rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_roo
             'devel': [
             '/usr/bin/*-config',
             '/usr/include',
+            '/usr/cross/bin',
             '/usr/cross/include',
+            '/usr/cross/lib',
+            '/usr/cross/libexec',
+            '/usr/cross/' + self.settings.target_architecture,
             '/usr/share/aclocal',
             '/usr/lib/lib*.a',
             '/usr/lib/pkgconfig',
@@ -494,7 +498,7 @@ rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_roo
             '/usr/cross/info',
             '/usr/cross/man',
             ],
-            'runtime': ['/usr/lib', '/usr/share'],
+            'runtime': ['/lib', '/usr/lib', '/usr/share'],
             '' : ['/'],
             }
         return d

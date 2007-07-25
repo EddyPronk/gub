@@ -94,15 +94,14 @@ class Qtopia_core__linux__arm__softfloat (Qtopia_core):
 
 Qtopia_core__linux__arm__vfp = Qtopia_core__linux__arm__softfloat
 
-class Qtopia_core__linux__64 (Qtopia_core):
+class Qtopia_core__linux__x86 (Qtopia_core):
     @context.subst_method
     def qmake_target_architecture (self):
-        return 'linux-x86_64-g++'
+        return 'linux-x86-g++'
     def patch (self):
         Qtopia_core.patch (self)
         # ugh, dupe
         self.system ('''
-#cd %(srcdir)s/mkspecs/qws && cp -R linux-x86_64-g++ %(target_architecture)s
 cd %(srcdir)s/mkspecs && cp -R linux-g++ %(qmake_target_architecture)s
 ''')
         self.file_sub ([
@@ -111,4 +110,9 @@ cd %(srcdir)s/mkspecs && cp -R linux-g++ %(qmake_target_architecture)s
                 ('= ar', '= %(target_architecture)s-ar'),
                 ('= ranlib', '= %(target_architecture)s-ranlib'),
                 ],
-                       '%(srcdir)s/mkspecs/qws/%(target_architecture)s/qmake.conf')
+                       '%(srcdir)s/mkspecs/qws/%(qmake_target_architecture)s/qmake.conf')
+
+class Qtopia_core__linux__64 (Qtopia_core__linux__x86):
+    @context.subst_method
+    def qmake_target_architecture (self):
+        return 'linux-x86_64-g++'
