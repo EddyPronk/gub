@@ -13,10 +13,13 @@ platforms = {
     'cygwin': 'i686-cygwin',
     'darwin-ppc': 'powerpc-apple-darwin7',
     'darwin-x86': 'i686-apple-darwin8',
-    'freebsd-x86': 'i686-freebsd4',
-    
+
     'freebsd4-x86': 'i686-freebsd4',
     'freebsd6-x86': 'i686-freebsd6',
+
+    'freebsd-x86': 'i686-freebsd4',
+    'freebsd-64': 'x86_64-freebsd6',
+
     'linux-arm-softfloat': 'armv5te-softfloat-linux',
     'linux-arm-vfp': 'arm-linux',
     'linux-x86': 'i686-linux',

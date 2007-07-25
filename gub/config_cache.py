@@ -271,3 +271,7 @@ config_cache['linux-arm-softfloat'] = config_cache['arm']
 config_cache['linux-arm-vfp'] = config_cache['arm']
 config_cache['freebsd-x86'] = config_cache['freebsd6-x86']
 config_cache['freebsd4-x86'] = config_cache['freebsd6-x86']
+
+#FIXME: split freebsd-*, linux-* into freebsd, linux, gcc-32, gcc-64?
+config_cache['freebsd-64'] = config_cache['linux-64'] 
+config_cache['freebsd-64'] += config_cache['freebsd6-x86']

@@ -19,8 +19,8 @@ default: all
 
 PACKAGE = lilypond
 
-ALL_PLATFORMS=debian debian-arm freebsd-x86 linux-x86 linux-64 mingw debian-mipsel linux-ppc
-PLATFORMS=linux-x86 darwin-ppc linux-64 linux-ppc freebsd-x86 mingw darwin-x86
+ALL_PLATFORMS=debian debian-arm freebsd-x86 linux-x86 linux-64 mingw debian-mipsel linux-ppc freebsd-64
+PLATFORMS=linux-x86 darwin-ppc linux-64 linux-ppc freebsd-x86 mingw darwin-x86 freebsd-64
 ifneq ($(BUILD_PLATFORM),linux-64)
 # odcctools do not build on linux-64
 ALL_PLATFORMS+=darwin-ppc darwin-x86
