@@ -124,90 +124,6 @@ def create_local_web_dir (options, source):
 	      'input/regression/collated-files.html']:
         do_urchin (f)
 
-def compare_test_tarballs (options, version_file_tuples):
-    (version, build), last_file = version_file_tuples[-1]
-    dest_dir = '%s/v%s-%d' % (options.test_dir,
-                              '.'.join (map (str, version)),
-                              build)
-
-    dest_dir = os.path.abspath(dest_dir)
-    if not os.path.isdir (dest_dir):
-        os.makedirs (dest_dir)
-
-    dirs = []
-    version_strs = []
-    unpack_dir = os.path.abspath(dest_dir) + '-unpack'
-    
-    for (tup, file) in version_file_tuples:
-        version, build = tup
-        version_str = '%s-%d' % ('.'.join(map (str, version)), build)
-        version_strs.append (version_str)
-        dir_str = 'v' + version_str
-        dirs.append (dir_str)
-
-        dir_str = unpack_dir + '/' + dir_str
-        if os.path.exists (dir_str):
-            system ('rm -rf %s' % dir_str)
-        os.makedirs (dir_str)
-        system ('tar --strip-component=3 -C %s -xjf %s' % (dir_str, file))
-
-    html = ''
-    for d in dirs[:-1]:
-        cmd = ('cd %s && python %s --create-images --output-dir %s/compare-%s --local-datadir %s %s '
-               % (unpack_dir,
-                  options.output_distance_script,
-                  dest_dir, d, d, dirs[-1]))
-        html += '<li><a href="compare-%(d)s/index.html">results for %(d)s</a>' % locals()
-        system(cmd)
-
-    if html:
-        html = '<ul>%(html)s</ul>' % locals ()
-    else:
-        html = 'no previous versions to compare with'
-
-    version_str = version_strs[-1]
-    html = '''<html>
-<head>
-<title>
-Regression test results for %(version_str)s
-</title>
-</head>
-<body>
-<h1>Regression test results</h1>
-
-%(html)s
-</body>
-</html>
-''' % locals()
-
-    system ('rm -rf %(unpack_dir)s' % locals ())
-    
-    open (dest_dir + '/test-results.html', 'w').write (html)
-
-def compare_test_info (options):
-    outputs = glob.glob(options.upload_dir + '/lilypond-*.test-output*')
-
-    current_version = tuple (map (int, options.version))
-    db = versiondb.VersionDataBase (options.dbfile)
-    current_build = db.get_next_build_number (current_version)
-    current_tuple = (current_version, current_build)
-
-    versions_found = []
-    current_test_output = ''
-    for f in outputs:
-        m = re.search ('lilypond-([.0-9]+)-([0-9]+).test-output.tar.bz2', f)
-        assert m
-
-        version = map (int, m.group (1).split ('.'))
-        build = int (m.group (2))
-        tup = (version, build)
-        
-        if tup <= current_tuple:
-           versions_found.append ((tup, f))
-
-    versions_found.sort()
-    compare_test_tarballs (options, versions_found[-3:])
-
 # deprecated
 def compute_distances (options, source):
     os.chdir (options.unpack_dir)
@@ -300,8 +216,6 @@ def main ():
 
         if opts.recreate:
             create_local_web_dir (opts, a)
-        if opts.output_distance_script:
-            compare_test_info (opts)
 	if opts.destination:	
             upload (opts, a)
 
