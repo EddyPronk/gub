@@ -49,9 +49,6 @@ def parse_options ():
     if options.output_distance_script:
         options.output_distance_script = os.path.abspath (options.output_distance_script)
 
-    if not args:
-        p.print_help()
-    
     return (options, args)
 
 ## UGH C&P
