@@ -63,6 +63,7 @@ def parse_options ():
 
     if not args:
         p.print_help()
+        sys.exit(2)
     
     return (opts, args)
 
