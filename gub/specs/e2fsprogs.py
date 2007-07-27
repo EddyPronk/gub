@@ -1,6 +1,9 @@
 from gub import mirrors
 from gub import targetpackage
 
+http://www.eecs.harvard.edu/~nr/noweb/dist/noweb-2.11b.tgz
+
+
 class E2fsprogs (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)

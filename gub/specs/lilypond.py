@@ -312,19 +312,6 @@ cd %(install_root)s/usr/share/info/lilypond && ln -sf ../../doc/lilypond/Documen
     def category_dict (self):
         return {'': 'publishing', 'doc': 'doc'}
 
-    def description_dict (self):
-        # FIXME: fairly uninformative description for packages,
-        # unlike, eg, guile-devel.  This is easier, though.
-        d = {}
-        for i in self.get_subpackage_names ():
-            d[i] = self.get_subpackage_doc (i)
-        return d
-
-    def get_subpackage_doc (self, split):
-        flavor = {'': 'executables', 'doc': 'documentation'}[split]
-        return (LilyPond.__doc__.replace ('\n', ' - %(flavor)s\n', 1)
-                % locals ())
-        
 ## shortcut: take python out of dependencies
 class LilyPond__no_python (LilyPond):
     def get_build_dependencies (self):

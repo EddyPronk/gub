@@ -506,17 +506,13 @@ rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_roo
     def get_subpackage_names (self):
         return ['devel', 'doc', '']
 
-    ## FIXME: patch in via MethodOverride
+    ## FIXME: when only patched in via MethodOverride, the real descr_dict,
+    ## category_dict are not pickled and cygwin packaging fails
     def description_dict (self):
         return {}
-
-    ## FIXME: patch in via MethodOverride
     def category_dict (self):
-        return {'': 'interpreters',
-                'runtime': 'libs',
-                'devel': 'devel libs',
-                'doc': 'doc'}
-    
+        return {}
+
     def get_packages (self):
         defs = dict (self.get_subpackage_definitions ())
 

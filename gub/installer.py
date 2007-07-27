@@ -38,6 +38,13 @@ class Installer (context.Os_context_wrapper):
         self.installer_checksum_file = self.installer_root + '.checksum'
         self.installer_db = self.installer_root + '-dbdir'
 
+
+    def building_root_image (self):
+        # FIXME: why are we removing these, we need these in a root image.
+        # How to make a better check here?
+        return (self.expand ('%(name)s').startswith ('root-image')
+                or self.expand ('%(name)s').startswith ('phone'))
+
     @context.subst_method
     def version (self):
         return self.settings.installer_version
@@ -142,8 +149,7 @@ class Installer (context.Os_context_wrapper):
 
         # FIXME: why are we removing these, we need these in a root image.
         # How to make a better check here?
-        if (not self.expand ('%(name)s').startswith ('root-image')
-            and not self.expand ('%(name)s').startswith ('phone')):
+        if not self.building_root_image ():
             globs += [
             'lib/libc.*',
             'lib/libm.*',
@@ -305,7 +311,8 @@ class Linux_installer (Installer):
         Installer.__init__ (self, settings, name)
         self.settings.fakeroot_cache = ('%(installer_root)s/fakeroot.save'
                                         % self.__dict__)
-        self.fakeroot (self.settings.fakeroot % self.settings.__dict__ )
+        if self.building_root_image ():
+            self.fakeroot (self.settings.fakeroot % self.settings.__dict__)
         self.bundle_tarball = '%(installer_uploads)s/%(name)s-%(installer_version)s-%(installer_build)s.%(platform)s.tar.bz2'
 
     def strip_prefixes (self):
@@ -363,6 +370,7 @@ def get_installer (settings, name):
         'freebsd-x86' : Shar,
         'freebsd4-x86' : Shar,
         'freebsd6-x86' : Shar,
+        'freebsd-64' : Shar,
         'linux-arm-softfloat' : Shar,
         'linux-arm-vfp' : Linux_installer,
         'linux-x86' : Shar,

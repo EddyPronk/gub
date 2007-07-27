@@ -103,22 +103,6 @@ class XFreetype__cygwin (Freetype):
                 'devel': 'devel libs',
                 'doc': 'doc'}
 
-    def description_dict (self):
-        # FIXME: fairly uninformative description for packages,
-        # unlike, eg, guile-devel.  This is easier, though.
-        d = {}
-        for i in self.get_subpackage_names ():
-            d[i] = self.get_subpackage_doc (i)
-        return d
-
-    def get_subpackage_doc (self, split):
-        flavor = {'': 'executables',
-                  'devel': 'development',
-                  'doc': 'documentation',
-                  'runtime': 'runtime'}[split]
-        return (Freetype.__doc__.replace ('\n', ' - %(flavor)s\n', 1)
-                % locals ())
-
     def configure_command (self):
         return (Freetype.configure_command (self)
                 + ' --sysconfdir=/etc --localstatedir=/var')

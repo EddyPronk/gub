@@ -63,6 +63,18 @@ class Glib__freebsd (Glib):
     def configure_command (self):
         return Glib.configure_command (self) + ' --disable-threads'
         
+gnome_2183 ='http://ftp.gnome.org/pub/GNOME/platform/2.18/2.18.3/sources/%(name)s-%(ball_version)s.tar.%(format)s'
+
+gnome_2195 = 'http://ftp.gnome.org/pub/GNOME/platform/2.19/2.19.5/sources/%(name)s-%(ball_version)s.tar.%(format)s'
+
+class Glib__freebsd__64 (Glib__freebsd):
+    def __init__ (self, settings):
+        Glib__freebsd.__init__ (self, settings)
+        self.with_template (version='2.12.12', mirror=gnome_2183,
+                   format='bz2')
+    def configure_command (self):
+        return Glib.configure_command (self) + ' --disable-threads --disable-timeloop'
+
 class Glib__local (toolpackage.ToolBuildSpec):
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)

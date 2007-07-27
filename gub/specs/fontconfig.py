@@ -174,33 +174,8 @@ class Fontconfig__cygwin (Fontconfig):
                 'devel': 'devel libs',
                 'doc': 'doc'}
 
-    def description_dict (self):
-        # FIXME: fairly uninformative description for packages,
-        # unlike, eg, guile-devel.  This is easier, though.
-        d = {}
-        for i in self.get_subpackage_names ():
-            d[i] = self.get_subpackage_doc (i)
-        return d
-
-    def get_subpackage_doc (self, split):
-        flavor = {'': 'executables',
-                  'devel': 'development',
-                  'doc': 'documentation',
-                  'runtime': 'runtime'}[split]
-        return (Fontconfig.__doc__.replace ('\n', ' - %(flavor)s\n', 1)
-                % locals ())
-
     def configure_command (self):
         return (Fontconfig.configure_command (self)
-                + ' --sysconfdir=/etc --localstatedir=/var')
-
-    def xxx_noconfig_configure_command (self):
-        return (targetpackage.TargetBuildSpec.configure_command (self)
-                + misc.join_lines ('''
---with-arch=%(target_architecture)s
---with-freetype-config="%(system_root)s/usr/bin/freetype-config
---prefix=%(system_root)s/usr
-"''')
                 + ' --sysconfdir=/etc --localstatedir=/var')
 
     def install (self):
