@@ -49,7 +49,9 @@ LILYPOND_BRANCH_FILEIFIED=$(subst /,--,$(LILYPOND_BRANCH))
 
 LILYPOND_LOCAL_BRANCH=$(LILYPOND_BRANCH_FILEIFIED)-git.sv.gnu.org-lilypond.git
 
+# FIXME: this is duplicated and must match actual info in guile.py
 GUILE_LOCAL_BRANCH=branch_release-1-8-lilypond.org-vc-guile.git
+GUILE_LOCAL_BRANCH=branch_release-1-8-repo.or.cz-guile.git
 
 GUB_OPTIONS =\
  --branch lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH)
