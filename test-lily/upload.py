@@ -48,6 +48,7 @@ host_spec = 'hanwen@lilypond.org:/var/www/lilypond'
 host_source_spec = host_spec + '/download'
 host_binaries_spec = host_spec + '/download/binaries'
 host_doc_spec = host_spec + '/doc'
+host_test_spec = host_spec + '/test' 
 
 formats = {
     'darwin-ppc': 'tar.bz2',
@@ -98,10 +99,6 @@ def upload_binaries (repo, version, version_db):
     d['lilybuild'] = d['cwd'] + '/target/%(build_platform)s/gubfiles/build/lilypond-%(branch)s' % d
     d['lilysrc'] = d['cwd'] + '/target/%(build_platform)s/gubfiles/src/lilypond-%(branch)s' % d 
 
-
-    
-
-    
     ## ugh: 24 is hardcoded in repository.py
     committish = repo.git_pipe ('describe --abbrev=24 %(branch)s' % locals ()).strip ()
     regularized_committish = committish.replace ("/", '-')
@@ -167,7 +164,12 @@ def upload_binaries (repo, version, version_db):
   %(lilybuild)s/out-www/online-root/''' % d
     
     cmds.append (test_cmd)
+    test_cmd = r'''python %(cwd)s/test-lily/rsync-test.py \
+  --upload %(host_test_spec)s \
+  --version-file %(lilybuild)s/out/VERSION \
+  %(lilybuild)s/out-www/online-root/''' % d
     
+    cmds.append (test_cmd)
     cmds += ['rsync --delay-updates --progress %s %s'
              % tup for tup in src_dests]
 
@@ -219,7 +221,6 @@ upload x.y.z      - upload packages
                   dest='execute',
                   default=False,
                   help='execute the commands.')
-
 
     p.add_option ('--repo-dir', action='store',
                   dest='repo_dir',

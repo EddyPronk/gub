@@ -7,40 +7,52 @@ import string
 import glob
 import optparse
 
+sys.path.insert (0, os.path.split (sys.argv[0])[0] + '/..')
+
+from gub import versiondb
+
 ################
 # settings
 # 'hanwen@ssh.webdev.nl:/var/www/lilypond/doc'
 def parse_options ():
+    home = os.environ['HOME']
+
     p = optparse.OptionParser ()
     p.add_option ('--upload',
 		  dest='destination',
 		  help='where to upload the result',
 		  default='')
-    
+    p.add_option ('--dbfile',
+		  dest='dbfile',
+		  help='which version db to use',
+		  default='uploads/lilypond.versions')
     p.add_option ('--output-distance',
                   dest="output_distance_script",
                   help="compute signature distances using script") 
-
     p.add_option ("--dry-run",
                   action="store_true",
                   dest="dry_run",
                   default=False,
                   help="don't actually run any commands.")
-    
     p.add_option ("--version-file",
                   action="store",
                   dest="version_file",
                   help="where to get the version number")
-    
     p.add_option ('--recreate',
                   dest="recreate",
                   action="store_true",
                   help="rebuild webdirectory. Discards test-results.") 
-
-    home = os.environ['HOME']
     p.add_option ('--unpack-dir',
 		  dest='unpack_dir',
 		  default='uploads/webdoc/',
+		  help="Where to put local versions of the docs")
+    p.add_option ('--test-dir',
+		  dest='test_dir',
+		  default='uploads/webtest/',
+		  help="Where to put local versions of the docs")
+    p.add_option ('--upload-dir',
+		  dest='upload_dir',
+		  default='uploads/',
 		  help="Where to put local versions of the docs")
 
     (opts, args) = p.parse_args ()
@@ -51,6 +63,7 @@ def parse_options ():
 
     if not args:
         p.print_help()
+        sys.exit(2)
     
     return (opts, args)
 
@@ -82,7 +95,6 @@ def read_version (source):
     return tuple (s.split ('.'))
     
 def create_local_web_dir (options, source):
-
     if not os.path.isdir (options.unpack_dir):
         system ('mkdir -p '  + options.unpack_dir)
 
@@ -109,14 +121,13 @@ def create_local_web_dir (options, source):
 	      'Documentation/user/music-glossary/index.html',
 	      'Documentation/topdocs/NEWS.html',
 	      'Documentation/user/lilypond/Tutorial.html',
-	      'input/test/collated-files.html',
+#	      'input/test/collated-files.html',
 	      'input/regression/collated-files.html']:
         do_urchin (f)
 
+# deprecated
 def compute_distances (options, source):
     os.chdir (options.unpack_dir)
-
-    
     cur_version = tuple (map (int, options.version))
     region = 3
 
@@ -204,13 +215,10 @@ def main ():
             global system
             system = my_system
 
-        print system
         if opts.recreate:
             create_local_web_dir (opts, a)
-        if opts.output_distance_script:
-            compute_distances (opts, a)
-	if opts.destination:
-	    upload (opts, a)
+	if opts.destination:	
+            upload (opts, a)
 
 
 if __name__ == '__main__':
