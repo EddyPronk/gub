@@ -19,7 +19,6 @@ class Qtopia_core (targetpackage.TargetBuildSpec):
             }
         gubb.change_target_dict (self, dict)
     def _get_build_dependencies (self):
-#        return ['freetype', 'glib', 'tslib']
         return ['freetype', 'tslib']
     def get_build_dependencies (self):
         return self._get_build_dependencies ()
@@ -29,8 +28,9 @@ class Qtopia_core (targetpackage.TargetBuildSpec):
         self.file_sub ([('pkg-config', '$PKG_CONFIG')],
                        '%(srcdir)s/configure')
     def configure_command (self):
+#unset CC CXX; bash -x %(srcdir)s/configure
         return misc.join_lines ('''
-unset CC CXX; bash -x %(srcdir)s/configure
+unset CC CXX; bash %(srcdir)s/configure
 -prefix /usr
 -bindir /usr/bin
 -libdir /usr/lib
@@ -40,13 +40,14 @@ unset CC CXX; bash -x %(srcdir)s/configure
 -datadir /usr/share
 -sysconfdir /etc
 -xplatform qws/%(qmake_target_architecture)s
--depths 8,24
+-depths 8,16,32
 
 -little-endian
 -release
 -no-cups
 -no-accessibility
 -no-freetype
+-no-glib
 -nomake demos
 -nomake examples
 -nomake tools
