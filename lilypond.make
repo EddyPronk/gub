@@ -190,6 +190,9 @@ freebsd6-x86:
 freebsd-x86:
 	$(call BUILD,$@,lilypond)
 
+freebsd-64:
+	$(call BUILD,$@,lilypond)
+
 linux-x86:
 	$(call BUILD,$@,lilypond)
 

@@ -1,0 +1,20 @@
+2007-07-27  Jan Nieuwenhuizen  <janneke@gnu.org>
+
+	* gthread-impl.c (g_thread_init_with_errorcheck_mutexes)
+	[!G_THREADS_ENABLED]: Dummy implementation.  Fixes build with
+	--disable-threads.
+
+
+--- ./gthread/gthread-impl.c~	2007-05-02 01:12:49.000000000 +0200
++++ ./gthread/gthread-impl.c	2007-07-27 14:19:58.000000000 +0200
+@@ -363,4 +363,10 @@ g_thread_init (GThreadFunctions* init)
+   g_error ("GLib thread support is disabled.");
+ }
+ 
++void
++g_thread_init_with_errorcheck_mutexes (GThreadFunctions* init)
++{
++  g_thread_init (init);
++}
++
+ #endif /* !G_THREADS_ENABLED */
