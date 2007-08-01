@@ -8,12 +8,6 @@ class Git__local (toolpackage.ToolBuildSpec):
         self.with_template (mirror='http://kernel.org/pub/software/scm/git/git-%(version)s.tar.bz2',
                    version='1.5.1.4')
     def patch (self):
-# huh? reset in a tarball dir?
-# invoking cd /home/janneke/vc/gub/target/local/gubfiles/src/git-1.5.1.4 && git reset --hard HEAD
-# fatal: Not a git repository: '.git'
-# Command barfed: cd /home/janneke/vc/gub/target/local/gubfiles/src/git-1.5.1.4 && git reset --hard HEAD
-
-        self.system ('echo NOT "cd %(srcdir)s && git reset --hard HEAD"')
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
         self.file_sub ([('git describe','true')],
                        '%(srcdir)s/GIT-VERSION-GEN')
@@ -40,7 +34,7 @@ class Git (targetpackage.TargetBuildSpec):
         self.target_gcc_flags = ' -mms-bitfields '
 
     def version (self):
-        return '1.5.2.1'
+        return '1.5.3.rc2'
 
     def get_dependency_dict (self):
         return {'': [
@@ -59,7 +53,6 @@ class Git (targetpackage.TargetBuildSpec):
                 ]
 
     def patch (self):
-        self.system('cd %(srcdir)s && git reset --hard HEAD')
         self.file_sub ([('GIT-CFLAGS','$(GIT_CFLAGS_FILE)')],
                         '%(srcdir)s/Makefile')
         self.file_sub ([('\.\./GIT-CFLAGS Makefile', 'Makefile')],
