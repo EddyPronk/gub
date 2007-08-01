@@ -156,7 +156,13 @@ def build_installer (installer, args, options):
 
 
     version = install_manager.package_dict (args[0])['version']
-    version_tup = tuple (map (int, version.split ('.')))
+    def robust_toint (x):
+        try:
+            return int (x)
+        except ValueError:
+            return x
+        
+    version_tup = tuple (map (robust_toint, version.split ('.')))
 
     db = versiondb.VersionDataBase (options.version_db)
     buildnumber = '%d' % db.get_next_build_number (version_tup)
