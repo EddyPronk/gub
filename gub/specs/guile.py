@@ -2,11 +2,12 @@ import re
 import os
 #
 from gub import misc
+from gub import mirrors
 from gub import targetpackage
 from gub import repository
 
 class Guile (targetpackage.TargetBuildSpec):
-    def set_mirror (self):
+    def set_vc_mirror (self):
         source = 'http://lilypond.org/vc/guile.git'
         source = 'git://repo.or.cz/guile.git'
 
@@ -17,6 +18,12 @@ class Guile (targetpackage.TargetBuildSpec):
         self.with_vc (repo)
         self.so_version = '17'
 
+    def set_tarball_mirror (self):
+        self.with_template (mirror=mirrors.gnu, version='1.8.2',
+                            format='gz')
+        self.so_version = '17'
+    def set_mirror(self):
+        self.set_tarball_mirror()
     def autogen_sh (self):
         self.file_sub ([(r'AC_CONFIG_SUBDIRS\(guile-readline\)', '')],
                        '%(srcdir)s/configure.in')
@@ -53,7 +60,7 @@ class Guile (targetpackage.TargetBuildSpec):
         return '.'.join (self.ball_version.split ('.')[0:2])
 
     def patch (self):
-        self.system ('cd %(srcdir)s && git reset --hard HEAD')
+        targetpackage.TargetBuildSpec.patch(self)
         self.autogen_sh()
 
         ## Don't apply patch twice.
