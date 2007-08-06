@@ -19,8 +19,8 @@ default: all
 
 PACKAGE = lilypond
 
-ALL_PLATFORMS=debian debian-arm freebsd-x86 linux-x86 linux-64 mingw debian-mipsel linux-ppc
-PLATFORMS=linux-x86 darwin-ppc linux-64 linux-ppc freebsd-x86 mingw darwin-x86
+ALL_PLATFORMS=debian debian-arm freebsd-x86 linux-x86 linux-64 mingw debian-mipsel linux-ppc freebsd-64
+PLATFORMS=linux-x86 darwin-ppc linux-64 linux-ppc freebsd-x86 mingw darwin-x86 freebsd-64
 ifneq ($(BUILD_PLATFORM),linux-64)
 # odcctools do not build on linux-64
 ALL_PLATFORMS+=darwin-ppc darwin-x86
@@ -49,7 +49,9 @@ LILYPOND_BRANCH_FILEIFIED=$(subst /,--,$(LILYPOND_BRANCH))
 
 LILYPOND_LOCAL_BRANCH=$(LILYPOND_BRANCH_FILEIFIED)-git.sv.gnu.org-lilypond.git
 
+# FIXME: this is duplicated and must match actual info in guile.py
 GUILE_LOCAL_BRANCH=branch_release-1-8-lilypond.org-vc-guile.git
+GUILE_LOCAL_BRANCH=branch_release-1-8-repo.or.cz-guile.git
 
 GUB_OPTIONS =\
  --branch lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH)
@@ -82,6 +84,7 @@ unlocked-update-versions:
 	python gub/versiondb.py --dbfile uploads/fontconfig.versions --download  --platforms="$(PLATFORMS)"
 	python gub/versiondb.py --dbfile uploads/guile.versions --download --platforms="$(PLATFORMS)"
 	python gub/versiondb.py --dbfile uploads/libtool.versions --download --platforms="$(PLATFORMS)"
+	python gub/versiondb.py --dbfile uploads/noweb.versions --download --platforms="$(PLATFORMS)"
 
 update-versions:
 	$(PYTHON) gub/with-lock.py --skip $(LILYPOND_VERSIONS).lock $(MAKE) unlocked-update-versions
@@ -189,6 +192,9 @@ freebsd6-x86:
 freebsd-x86:
 	$(call BUILD,$@,lilypond)
 
+freebsd-64:
+	$(call BUILD,$@,lilypond)
+
 linux-x86:
 	$(call BUILD,$@,lilypond)
 
@@ -230,6 +236,7 @@ locals =\
  pkg-config\
  potrace\
  python\
+ imagemagick \
  texinfo
 
 
@@ -247,7 +254,8 @@ locals =\
 # -freetype: for bootstrapping fontconfig
 # -imagemagick: for lilypond web site
 # -netpbm: website
-
+# -python: bootstrap for python x-compile
+# -icoutils: icon build for mingw
 download-local:
 	$(GUB) $(LOCAL_GUB_OPTIONS) \
 		-p local --stage=download \
@@ -294,13 +302,21 @@ doc-build:
 test-output:
 	$(PYTHON) gub/with-lock.py --skip $(TEST_LOCK) $(MAKE) cached-test-output
 
+test-clean:
+	$(PYTHON) gub/with-lock.py --skip $(TEST_LOCK) $(MAKE) unlocked-test-clean
+
 unlocked-doc-clean:
 	make -C $(NATIVE_TARGET_DIR)/gubfiles/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
 		DOCUMENTATION=yes web-clean
 	rm -f $(call SIGNATURE_FUNCTION,cached-doc-build)
 	rm -f $(call SIGNATURE_FUNCTION,cached-doc-export)
 
-cached-test-output cached-doc-build cached-dist-check cached-doc-export cached-info-man-build:
+unlocked-test-clean:
+	make -C $(NATIVE_TARGET_DIR)/gubfiles/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
+		DOCUMENTATION=yes test-clean
+	rm -f $(call SIGNATURE_FUNCTION,cached-test-output)
+
+cached-test-output cached-doc-build cached-dist-check cached-doc-export cached-info-man-build cached-test-export:
 	-mkdir uploads/signatures/
 	if test ! -f  $(call SIGNATURE_FUNCTION,$@) ; then \
 		$(MAKE) $(subst cached,unlocked,$@) \
@@ -367,8 +383,18 @@ unlocked-doc-export:
 		--output-distance \
 		$(NATIVE_LILY_SRC)/buildscripts/output-distance.py $(NATIVE_LILY_BUILD)/out-www/online-root
 
+unlocked-test-export:
+	PYTHONPATH=$(NATIVE_LILY_BUILD)/python/out \
+	$(PYTHON) test-lily/rsync-test.py \
+		--version-file $(NATIVE_LILY_BUILD)/out/VERSION \
+		--output-distance $(NATIVE_LILY_SRC)/buildscripts/output-distance.py \
+		--test-dir uploads/webtest
+
 doc-export:
 	$(PYTHON) gub/with-lock.py --skip $(DOC_LOCK) $(MAKE) cached-doc-export
+
+test-export:
+	$(PYTHON) gub/with-lock.py --skip $(DOC_LOCK) $(MAKE) cached-test-export
 
 unlocked-dist-check:
 	$(SET_LOCAL_PATH) \

@@ -146,33 +146,29 @@ def build_installer (installer, args, options):
                                               None)
 
     # WTF is gcc-runtime?  Add to package dependencies, if necessary
-    if not settings.is_distro:
+    if not settings.is_distro and not settings.platform == 'linux-arm-vfp':
         package_names += ["cross/gcc-runtime"]
 
     for a in package_names:
         install_manager.install_package (a)
 
-    installer.use_install_root_manager (install_manager)
-
-
     version = install_manager.package_dict (args[0])['version']
-    def robust_toint (x):
-        try:
-            return int (x)
-        except ValueError:
-            return x
-        
-    version_tup = tuple (map (robust_toint, version.split ('.')))
-
-    db = versiondb.VersionDataBase (options.version_db)
-    buildnumber = '%d' % db.get_next_build_number (version_tup)
+    try:
+        version_tup = tuple (map (int, version.split ('.')))
+        db = versiondb.VersionDataBase (options.version_db)
+        buildnumber = '%d' % db.get_next_build_number (version_tup)
+    except:
+        version = '0.0'
+        buildnumber = '0'
 
     settings.installer_version = version
     settings.installer_build = buildnumber
 
 
+    installer.use_install_root_manager (install_manager)
+
     checksum_list = []
-    for p in install_manager.installed_packages():
+    for p in install_manager.installed_packages ():
         dict = install_manager.package_dict (p)
         checksum_list.append ((p, 
                                dict['source_checksum'],
@@ -185,32 +181,19 @@ def strip_installer (obj):
     obj.strip ()
 
 def package_installer (installer):
-    
     installer.create ()
         
 def run_installer_commands (commands, settings, args, options):
-    
-    installer_obj = installer.get_installer (settings, args)
-    installer_obj.name = args[0]
+    name = args[0]
+    installer_obj = installer.get_installer (settings, name)
 
-    ## UGH -  we don't have the package dicts yet.
-    installer_obj.pretty_name = {
-        'lilypond': 'LilyPond',
-        'git': 'Git',
-        }[args[0]]
-    installer_obj.package_branch = settings.branch_dict[args[0]]
-    installer_obj.installer_root = settings.targetdir + '/installer-%s-%s' % (args[0],
-                                                                              installer_obj.package_branch)
-    installer_obj.installer_checksum_file = installer_obj.installer_root + '.checksum'
-    installer_obj.installer_db = installer_obj.installer_root + '-dbdir'
-    
     if check_installer (installer_obj, options, args):
-        print 'installer is up to date'
+        settings.os_interface.info ('installer is up to date\n')
         return 
 
     for c in commands:
-        print (' *** Stage: %s (%s)\n'
-               % (c, installer_obj.name))
+        settings.os_interface.info (' *** IStage: %s (%s)\n'
+                                    % (c, installer_obj.name))
     
         if c == ('build'):
             build_installer (installer_obj, args, options)
@@ -219,35 +202,38 @@ def run_installer_commands (commands, settings, args, options):
         elif c == ('package'):
             package_installer (installer_obj)
         else:
-            raise  Exception ('unknown installer command', c)
+            raise Exception ('unknown installer command', c)
 
 
 def main ():
-    (options, commands)  = parse_command_line ()
+    (options, commands) = parse_command_line ()
 
     settings = gub.settings.Settings (options)
     for s in options.settings:
         (k, v) = tuple (s.split ('='))
         if settings.__dict__.has_key (k):
-            print "warning overwriting %s = %s with %s" % (k, settings.__dict__[k], v)
-            
+            settings.os_interface.warn ('overwriting %s = %s with %s\n'
+                                        % (k, settings.__dict__[k], v))
         settings.__dict__[k] = v
     c = commands.pop (0)
 
     cs = [c]
     if c == 'build-all':
         cs = ['build', 'strip', 'package']
-
-        if not  options.do_strip:
+        if not options.do_strip:
             cs.remove ('strip')
         
     try:
         run_installer_commands (cs, settings, commands, options)
-    except locker.LockedError:
+    except locker.LockedError, e:
         if options.skip_if_locked:
-            print 'skipping build; install_root is locked'
+            settings.os_interface.error ('skipping build; install_root is locked\n')
             sys.exit (0)
-        raise
+        raise e
+    settings.os_interface.info ('done\n')
+    settings.os_interface.error ('build log written to: ' +
+                                 settings.os_interface.log_file_name
+                                 + '\n')
 
 if __name__ == '__main__':
     main ()

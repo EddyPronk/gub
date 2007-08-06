@@ -1,3 +1,4 @@
+.PHONY: lilypond mingit phone 
 sources = GNUmakefile $(filter-out %~, $(wildcard *.make bin/* gub/*.py gub/*/*.py gub/*/*/*.py gub/*/*/*/*.py))
 
 default: compilers

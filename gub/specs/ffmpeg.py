@@ -14,14 +14,18 @@ class Ffmpeg (targetpackage.TargetBuildSpec):
             module='.',
             revision=self.revision)
         def fixed_version (self):
-            return self.version ()
+            return self.revision
         from new import instancemethod
         repo.version = instancemethod (fixed_version, repo, type (repo))
         self.with_vc (repo)
     def version (self):
         return self.revision
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['faac', 'faad2', 'a52dec']
+    def get_build_dependencies (self):
+        return self._get_build_dependencies ()
+    def get_dependency_dict (self):
+        return {'': self._get_build_dependencies ()}
     def configure_command (self):
         #FIXME: this is autoconf
         #targetpackage.TargetBuildSpec.configure_command (self)

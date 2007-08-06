@@ -11,8 +11,12 @@ class Libgphoto2 (targetpackage.TargetBuildSpec):
         self.with_template (version='2.3.1', mirror=sf_gphoto)
 # Does not compile
 #        self.with_template (version='2.1.6', mirror=sf_gphoto)
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['libexif', 'libjpeg', 'libusb']
+    def get_build_dependencies (self):
+        return self._get_build_dependencies ()
+    def get_dependency_dict (self):
+        return {'': self._get_build_dependencies ()}
     def wrap_pkg_config (self):
         self.dump ('''#! /bin/sh
 /usr/bin/pkg-config\

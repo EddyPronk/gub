@@ -10,8 +10,15 @@ from gub import targetpackage
 from context import subst_method
 from misc import *
 
+# UGH -  we don't have the package dicts yet.
+# barf, this should be in config file, not in code
+pretty_names = {
+    'lilypond': 'LilyPond',
+    'git': 'Git',
+    }
+
 class Installer (context.Os_context_wrapper):
-    def __init__ (self, settings):
+    def __init__ (self, settings, name):
         context.Os_context_wrapper.__init__ (self, settings)
         
         self.settings = settings
@@ -20,9 +27,23 @@ class Installer (context.Os_context_wrapper):
         self.no_binary_strip = []
         self.no_binary_strip_extensions = ['.la', '.py', '.def', '.scm', '.pyc']
         self.installer_uploads = settings.uploads
-        self.installer_version = None
-        self.installer_build = None
         self.checksum = '0000'
+
+        self.name = name
+        self.pretty_name = pretty_names.get (name, name)
+        self.package_branch = settings.branch_dict[name]
+        self.installer_root = (settings.targetdir
+                               + '/installer-%s-%s' % (name,
+                                                       self.package_branch))
+        self.installer_checksum_file = self.installer_root + '.checksum'
+        self.installer_db = self.installer_root + '-dbdir'
+
+
+    def building_root_image (self):
+        # FIXME: why are we removing these, we need these in a root image.
+        # How to make a better check here?
+        return (self.expand ('%(name)s').startswith ('root-image')
+                or self.expand ('%(name)s').startswith ('phone'))
 
     @context.subst_method
     def version (self):
@@ -34,11 +55,7 @@ class Installer (context.Os_context_wrapper):
     def strip_unnecessary_files (self):
         "Remove unnecessary cruft."
 
-        delete_me = ''
-        for p in self.strip_prefixes ():
-            delete_me += p + '%(i)s '
-
-        for i in (
+        globs = [
             'bin/autopoint',
             'bin/glib-mkenums',
             'bin/guile-*',
@@ -76,8 +93,6 @@ class Installer (context.Os_context_wrapper):
             'lib/gettext/urlget*',
             'lib/glib-2.0/include/glibconfig.h',
             'lib/glib-2.0',
-            'lib/libc.*',
-            'lib/libm.*',
             'lib/pkgconfig',
             'lib/*~',
             'lib/*.a',
@@ -126,9 +141,27 @@ class Installer (context.Os_context_wrapper):
             'share/gs/fonts/[a-bd-z]*',
             'share/gs/fonts/c[^0][^5][^9]*',
             'share/gs/Resource',                        
-            ):
+# Urg: prune qt fonts, keep helvetica, fontdir
+            'lib/fonts/[^hf]*',
+            'share/mkspecs',
+            'share/terminfo',
+            ]
 
-            self.system ('cd %(installer_root)s && rm -rf ' + delete_me, {'i': i })
+        # FIXME: why are we removing these, we need these in a root image.
+        # How to make a better check here?
+        if not self.building_root_image ():
+            globs += [
+            'lib/libc.*',
+            'lib/libm.*',
+            ]
+
+        delete_me = ''
+        for p in self.strip_prefixes ():
+            delete_me += p + '%(i)s '
+
+        for i in globs:
+            # [^..] dash globbing is broken, {,} globbing is bashism
+            self.system ("cd %(installer_root)s && bash -c 'rm -rf " + delete_me + "'", {'i': i }, locals ())
 
     def strip_dir (self, dir):
         from gub import misc
@@ -146,8 +179,8 @@ class Installer (context.Os_context_wrapper):
         pass
     
     def create (self):
-        self.system ("mkdir %(installer_root)s/license/", ignore_errors=True)
-        self.system ("cp %(sourcefiledir)s/gubb.license %(installer_root)s/license/README", ignore_errors=True)
+        self.system ('mkdir %(installer_root)s/license', ignore_errors=True)
+        self.system ('cp %(sourcefiledir)s/gub.license %(installer_root)s/license/README', ignore_errors=True)
 
     def write_checksum (self):
         open (self.expand ('%(installer_checksum_file)s'), 'w').write (self.checksum)
@@ -274,15 +307,24 @@ cp %(nsisdir)s/*.sh.in %(ns_dir)s''', locals ())
 
 
 class Linux_installer (Installer):
-    def __init__ (self, settings):
-        Installer.__init__ (self, settings)
-        self.bundle_tarball = '%(targetdir)s/%(name)s-%(installer_version)s-%(installer_build)s.%(platform)s.tar.bz2'
+    def __init__ (self, settings, name):
+        Installer.__init__ (self, settings, name)
+        self.settings.fakeroot_cache = ('%(installer_root)s/fakeroot.save'
+                                        % self.__dict__)
+        if self.building_root_image ():
+            self.fakeroot (self.settings.fakeroot % self.settings.__dict__)
+        self.bundle_tarball = '%(installer_uploads)s/%(name)s-%(installer_version)s-%(installer_build)s.%(platform)s.tar.bz2'
 
     def strip_prefixes (self):
         return Installer.strip_prefixes (self)
 
-    def create_tarball (self):
+    def create_tarball (self, bundle_tarball):
         self.system ('tar --owner=0 --group=0 -C %(installer_root)s -jcf %(bundle_tarball)s .', locals ())
+
+    def create (self):
+        Installer.create (self)
+        self.create_tarball (self.bundle_tarball)
+        self.write_checksum ()
 
 def create_shar (orig_file, hello, head, target_shar):
     length = os.stat (orig_file)[6]
@@ -298,8 +340,6 @@ def create_shar (orig_file, hello, head, target_shar):
     f = open (target_shar, 'w')
     f.write (script % locals())
     f.close ()
-
-        
     cmd = 'cat %(orig_file)s >> %(target_shar)s' % locals ()
     print 'invoking ', cmd
     stat = os.system (cmd)
@@ -310,19 +350,14 @@ def create_shar (orig_file, hello, head, target_shar):
 class Shar (Linux_installer):
     def create (self):
         Linux_installer.create (self)
-        self.create_tarball ()
-        
         target_shar = self.expand ('%(installer_uploads)s/%(name)s-%(installer_version)s-%(installer_build)s.%(platform)s.sh')
-
         head = self.expand ('%(sourcefiledir)s/sharhead.sh')
         tarball = self.expand (self.bundle_tarball)
-
         hello = self.expand ("version %(installer_version)s release %(installer_build)s")
         create_shar (tarball, hello, head, target_shar)
-        self.write_checksum ()
         system ('rm %(tarball)s' % locals ())
         
-def get_installer (settings, args=[]):
+def get_installer (settings, name):
 
     installer_class = {
         # TODO: ipkg/dpkg
@@ -335,8 +370,9 @@ def get_installer (settings, args=[]):
         'freebsd-x86' : Shar,
         'freebsd4-x86' : Shar,
         'freebsd6-x86' : Shar,
+        'freebsd-64' : Shar,
         'linux-arm-softfloat' : Shar,
-        'linux-arm-vfp' : Shar,
+        'linux-arm-vfp' : Linux_installer,
         'linux-x86' : Shar,
         'linux-64' : Shar,
         'linux-ppc' : Shar,
@@ -344,4 +380,5 @@ def get_installer (settings, args=[]):
 #        'mingw' : MingwRoot,
     }
 
-    return installer_class[settings.platform] (settings)
+    installer = installer_class[settings.platform] (settings, name)
+    return installer

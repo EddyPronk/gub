@@ -76,6 +76,10 @@ def get_cross_build_dependencies (settings):
 def change_target_package (package):
     from gub import cross
     cross.change_target_package (package)
+
+    import inspect
+    available = dict (inspect.getmembers (package, callable))
+
     package.get_build_dependencies \
             = misc.MethodOverrider (package.get_build_dependencies,
                                     lambda d, extra: d + extra, (['cygwin'],))
@@ -97,13 +101,44 @@ def change_target_package (package):
     package.configure_command \
         = misc.MethodOverrider (package.configure_command, enable_static)
 
-    def install (whatsthis, lst):
-	package = lst[0]
+    def install (whatsthis):
         package.post_install_smurf_exe ()
         package.install_readmes ()
 
-    package.install \
-        = misc.MethodOverrider (package.install, install, ([package],))
+    package.install = misc.MethodOverrider (package.install, install)
+
+    def description_dict (foo):
+        # FIXME: fairly uninformative description for packages,
+        # unlike, eg, guile-devel.  This is easier, though.
+        def get_subpackage_doc (split):
+            flavor = {'': 'executables',
+                      'devel': 'development',
+                      'doc': 'documentation',
+                      'runtime': 'runtime'}[split]
+            doc = package.__class__.__doc__
+            if not doc:
+                doc = '\n'
+            return (doc.replace ('\n', ' - %(flavor)s\n', 1) % locals ())
+
+        if type (foo) == type (dict ()) and foo.values ():
+            return foo
+        d = {}
+        for i in package.get_subpackage_names ():
+            d[i] = get_subpackage_doc (i)
+        return d
+
+    package.description_dict = misc.MethodOverrider (package.description_dict,
+                                                     description_dict)
+
+    def category_dict (foo):
+        return {'': 'interpreters',
+                'runtime': 'libs',
+                'devel': 'devel libs',
+                'doc': 'doc'}
+    
+    package.category_dict = misc.MethodOverrider (package.category_dict,
+                                                  category_dict)
+
 
     ## TODO : get_dependency_dict
         
