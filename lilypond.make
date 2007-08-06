@@ -57,11 +57,11 @@ GUB_OPTIONS =\
  --branch lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH)
 
 GPKG_OPTIONS =\
- --branch guile=$(GUILE_LOCAL_BRANCH) \
+ $(if $(GUILE_LOCAL_BRANCH), --branch guile=$(GUILE_LOCAL_BRANCH),) \
  --branch lilypond=$(LILYPOND_LOCAL_BRANCH)
 
 INSTALLER_BUILDER_OPTIONS =\
- --branch guile=$(GUILE_LOCAL_BRANCH) \
+ $(if $(GUILE_LOCAL_BRANCH), --branch guile=$(GUILE_LOCAL_BRANCH),) \
  --branch lilypond=$(LILYPOND_LOCAL_BRANCH)
 
 include gub.make
@@ -297,7 +297,7 @@ doc-clean:
 	$(PYTHON) gub/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-clean
 
 doc-build:
-	$(PYTHON) gub/with-lock.py --skip $(DOC_LOCK) $(MAKE) cached-doc-build cached-info-man-build
+	$(PYTHON) gub/with-lock.py --skip $(DOC_LOCK) $(MAKE) cached-doc-build
 
 test-output:
 	$(PYTHON) gub/with-lock.py --skip $(TEST_LOCK) $(MAKE) cached-test-output
