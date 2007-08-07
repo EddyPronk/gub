@@ -53,6 +53,8 @@ class SetAttrTooLate(Exception):
     pass
 class ExpandInInit(Exception):
     pass
+class NonStringExpansion(Exception):
+    pass
 
 class Context:
     def __init__ (self, parent = None):
@@ -98,7 +100,7 @@ class Context:
 
                 if type (val) != type (''):
                     print 'non string value ', val, 'for subst_method', name
-                    raise Exception
+                    raise NonStringExpansion
         
         d.update (vars)
         d.update (member_substs)
@@ -143,10 +145,10 @@ class Context:
         try:
             e = s % d
         except KeyError, v:
-            print 's=', s
+            print 'format-string =', s
             raise v
         except ValueError, v:
-            print 's=', s
+            print 'format-string =', s
             raise v
         return e
 
