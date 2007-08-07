@@ -51,6 +51,8 @@ class ConstantCall:
 
 class SetAttrTooLate(Exception):
     pass
+class ExpandInInit(Exception):
+    pass
 
 class Context:
     def __init__ (self, parent = None):
@@ -105,10 +107,24 @@ class Context:
         return d
 
     def get_substitution_dict (self, env={}):
-        if  self._substitution_dict == None:
+        if self._substitution_dict == None:
             self._substitution_assignment_traceback = traceback.extract_stack()
             self._substitution_dict = self.get_constant_substitution_dict ()
 
+            init_found = False
+            for (file, line, name, text) in self._substitution_assignment_traceback:
+                # this is a kludge, but traceback doesn't yield enough info
+                # to actually check that the __init__ being called is a
+                # derived from self.__init__
+                if name == '__init__' and 'builder.py' not in file:
+                    init_found = True
+                 
+            if init_found:
+                # if this happens derived classes cannot override settings
+                # from the baseclass.
+                print ' Cannot Context.expand() in __init__()'
+                raise ExpandInInit()
+            
         d = self._substitution_dict
         if env:
             d = d.copy ()
