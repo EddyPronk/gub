@@ -32,6 +32,9 @@ class Ghostscript (targetpackage.TargetBuildSpec):
     def license_file (self):
         return '%(srcdir)s/LICENSE' 
 
+    def force_sequential_build (self):
+        return True
+    
     def get_build_dependencies (self):
         return ['libjpeg-devel', 'libpng-devel']
 
