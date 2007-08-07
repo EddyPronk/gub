@@ -42,8 +42,8 @@ class Installer (context.Os_context_wrapper):
     def building_root_image (self):
         # FIXME: why are we removing these, we need these in a root image.
         # How to make a better check here?
-        return (self.expand ('%(name)s').startswith ('root-image')
-                or self.expand ('%(name)s').startswith ('phone'))
+        return (self.name.startswith ('root-image')
+                or self.name.startswith ('phone'))
 
     @context.subst_method
     def version (self):
@@ -311,7 +311,10 @@ class Linux_installer (Installer):
         Installer.__init__ (self, settings, name)
         self.settings.fakeroot_cache = ('%(installer_root)s/fakeroot.save'
                                         % self.__dict__)
+
         if self.building_root_image ():
+            # ugh - consider postponing actions until after the ctor
+            # inside we can't use expand()
             self.fakeroot (self.settings.fakeroot % self.settings.__dict__)
         self.bundle_tarball = '%(installer_uploads)s/%(name)s-%(installer_version)s-%(installer_build)s.%(platform)s.tar.bz2'
 
