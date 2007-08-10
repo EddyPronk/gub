@@ -50,7 +50,7 @@ class Root_image (gubb.NullBuildSpec):
     def get_subpackage_names (self):
         return ['']
     def install_ipkg (self, i):
-        fakeroot_cache = self.builddir ()
+        fakeroot_cache = self.builddir () + '/fakeroot.cache'
         self.fakeroot (self.expand (self.settings.fakeroot, locals ()))
         import glob
         for f in glob.glob (self.expand ('%(downloads)s/ipk/%(i)s_*.ipk',
