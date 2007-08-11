@@ -188,6 +188,7 @@ def main ():
         options.url += "/"
 
     db = VersionDataBase (options.dbfile)
+    options.platforms = re.sub(' +', ' ', options.platforms)
     db.platforms = options.platforms.split (' ')
 
     if db.platforms == []:

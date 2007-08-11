@@ -38,7 +38,7 @@ class Builder:
         PATH = os.environ['PATH']
         ## cross_prefix is also necessary for building cross packages, such as GCC
         os.environ['PATH'] = self.settings.expand ('%(cross_prefix)s/bin:' + PATH,
-                                              locals ())
+                                                   locals ())
 
         ## UGH -> double work, see cross.change_target_packages () ?
         sdk_pkgs = [p for p in self.specs.values ()
