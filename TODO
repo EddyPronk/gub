@@ -1,3 +1,12 @@
+* Add new platform
+
+    -3. gub/settings.py
+    -2. gub/config_cache.py
+    -1. gub/installer.py
+     0. lilypond.make
+     1. toevoegen aan platforms in makefile
+     2. toevoegen aan platform lijst, die in test-lily/upload wordt gebruikt.
+
 * Add diff option: 561096638b3718af86d61570ac63bafa5c4a99f8
 
 * Make downloaded repositories easier, something like
