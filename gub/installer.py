@@ -187,8 +187,8 @@ class Installer (context.Os_context_wrapper):
 
 
 class DarwinRoot (Installer):
-    def __init__ (self, settings):
-        Installer.__init__ (self, settings)
+    def __init__ (self, settings, name):
+        Installer.__init__ (self, settings, name)
         self.strip_command += ' -S '
         self.rewirer = darwin.Rewirer (self.settings)
 
@@ -203,8 +203,8 @@ class DarwinRoot (Installer):
         
     
 class DarwinBundle (DarwinRoot):
-    def __init__ (self, settings):
-        DarwinRoot.__init__ (self, settings)
+    def __init__ (self, settings, name):
+        DarwinRoot.__init__ (self, settings, name)
         self.darwin_bundle_dir = '%(targetdir)s/LilyPond.app'
         
     def create (self):
@@ -258,8 +258,8 @@ cp -pR --link %(installer_root)s/license*/* %(darwin_bundle_dir)s/Contents/Resou
         self.write_checksum ()
         
 class MingwRoot (Installer):
-    def __init__ (self, settings):
-        Installer.__init__ (self, settings)
+    def __init__ (self, settings, name):
+        Installer.__init__ (self, settings, name)
         self.strip_command += ' -g '
     
 class Nsis (MingwRoot):
@@ -383,5 +383,7 @@ def get_installer (settings, name):
 #        'mingw' : MingwRoot,
     }
 
-    installer = installer_class[settings.platform] (settings, name)
+    ctor = installer_class[settings.platform]
+    print ctor
+    installer = ctor(settings, name)
     return installer
