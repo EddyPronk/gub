@@ -27,8 +27,8 @@ platform_test_script_types = {
     'linux-64': 'shar',
     'darwin-ppc' : 'darwin',
     'darwin-x86' : 'darwin',
-    'freebsd-x86': 'shar'
-    'freebsd-64': 'shar'
+    'freebsd-x86': 'shar',
+    'freebsd-64': 'shar',
 }
 
 def test_build (bin):
