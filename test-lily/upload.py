@@ -30,8 +30,7 @@ platforms = ['linux-x86',
              'documentation',
              'test-output',
              'freebsd-x86',
-#             'freebsd6-x86',
-#             'linux-arm',
+             'freebsd-64',
              'mingw',
              'cygwin',
              ]
@@ -62,6 +61,7 @@ formats = {
     'freebsd4-x86': 'sh',
     'freebsd6-x86': 'sh',
     'freebsd-x86': 'sh',
+    'freebsd-64': 'sh',
 
     'mingw': 'exe',
 
@@ -164,12 +164,13 @@ def upload_binaries (repo, version, version_db):
   %(lilybuild)s/out-www/online-root/''' % d
     
     cmds.append (test_cmd)
-    test_cmd = r'''python %(cwd)s/test-lily/rsync-test.py \
+    if tuple(version[:2]) > (2,10):
+        test_cmd = r'''python %(cwd)s/test-lily/rsync-test.py \
   --upload %(host_test_spec)s \
   --version-file %(lilybuild)s/out/VERSION \
   %(lilybuild)s/out-www/online-root/''' % d
-    
-    cmds.append (test_cmd)
+        cmds.append (test_cmd)
+
     cmds += ['rsync --delay-updates --progress %s %s'
              % tup for tup in src_dests]
 
