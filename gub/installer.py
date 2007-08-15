@@ -179,7 +179,7 @@ class Installer (context.Os_context_wrapper):
         pass
     
     def create (self):
-        self.system ('mkdir %(installer_root)s/license', ignore_errors=True)
+        self.system ('mkdir -p %(installer_root)s/license')
         self.system ('cp %(sourcefiledir)s/gub.license %(installer_root)s/license/README', ignore_errors=True)
 
     def write_checksum (self):
@@ -224,7 +224,7 @@ rm -rf %(darwin_bundle_dir)s
 tar -C %(targetdir)s -zxf %(downloads)s/osx-lilypad-%(cpu_type)s-%(osx_lilypad_version)s.tar.gz
 cp %(darwin_bundle_dir)s/Contents/Resources/subprocess.py %(installer_root)s/usr/share/lilypond/current/python/
 cp -pR --link %(installer_root)s/usr/* %(darwin_bundle_dir)s/Contents/Resources/
-mkdir -p %(darwin_bundle_dir)s/Contents/Resources/license/
+mkdir -p %(darwin_bundle_dir)s/Contents/Resources/license
 cp -pR --link %(installer_root)s/license*/* %(darwin_bundle_dir)s/Contents/Resources/license/
 ''', locals ())
         self.file_sub (
