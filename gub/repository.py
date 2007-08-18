@@ -427,25 +427,29 @@ class Git (Repository):
         return str.split ('\n')
 
     def update_workdir (self, destdir):
-
         repo_dir = self.dir
         branch = self.local_branch
         revision = self.revision
         
         if os.path.isdir (os.path.join (destdir, self.vcs)):
             self.git ('reset --hard HEAD' % locals (), dir=destdir)
-            self.git ('pull %(repo_dir)s %(branch)s' % locals (), dir=destdir)
+            self.git ('pull %(repo_dir)s %(branch)s:' % locals (), dir=destdir)
         else:
             self.system ('git-clone -l -s %(repo_dir)s %(destdir)s' % locals ())
+            try:
+                ## We always want to use 'master' in the checkout,
+                ## Since the branch name of the clone is
+                ## unpredictable, we force it here.
+                os.unlink ('%(destdir)s/.git/refs/heads/master' % locals ())
+            except OSError:
+                pass
 
-        if not revision:
-            revision = open ('%(repo_dir)s/refs/heads/%(branch)s' % locals ()).read ()
-
-        if not branch:
-            branch = 'gub_build'
+            if not revision:
+                revision = 'origin/%(branch)s' % locals ()
             
-        open ('%(destdir)s/.git/refs/heads/%(branch)s' % locals (), 'w').write (revision)
-        self.git ('checkout %(branch)s' % locals (), dir=destdir) 
+            self.git ('branch master %(revision)s' % locals (),
+                      dir=destdir)
+            self.git ('checkout master', dir=destdir)
 
 class CVS (Repository):
     cvs_entries_line = re.compile ("^/([^/]*)/([^/]*)/([^/]*)/([^/]*)/")
