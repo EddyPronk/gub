@@ -29,6 +29,9 @@ linux-ppc
 freebsd-x86
    shar archive for FreeBSD 4/x86
 
+freebsd-64
+   shar archive for FreeBSD 6/x86_64
+
 cygwin
    .tar.bz2 packages for Cygwin/Windows32 
 
