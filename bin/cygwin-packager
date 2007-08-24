@@ -52,11 +52,10 @@ class Cygwin_package (context.Os_context_wrapper):
         self.binary_debug_strip_extensions = ['.a', '.dll.a']
         self.no_binary_strip_extensions = ['.la', '.py', '.def',
                                            '.scm', '.pyc']
-
-        self.installer_root = settings.expand ('%(targetdir)s/installer-' + name) 
-        self.installer_db = settings.expand ('%(targetdir)s/installer-' + name + '-dbdir')
+        self.installer_root = settings.targetdir + '/installer-' + name
+        self.installer_db = settings.targetdir + '/installer-' + name + '-dbdir'
         self.installer_uploads = settings.uploads
-        self.cygwin_uploads = settings.expand ('%(gub_uploads)s/release')
+        self.cygwin_uploads = settings.gub_uploads + '/release'
 
         self.package_manager = gup.DependencyManager (
             self.installer_root,
@@ -66,12 +65,11 @@ class Cygwin_package (context.Os_context_wrapper):
 
         self.package_manager.include_build_deps = False
         self.package_manager.read_package_headers (
-            settings.expand ('%(gub_uploads)s/'  + name), settings.branch_dict)
+            settings.gub_uploads + '/' + name, settings.branch_dict)
 
         p = self.package_manager.get_all_packages ()[0]
         if not self.settings.build:
             self.settings.build = self.build_number (p)
-        self.create ()
 
     def build_number (self, package):
         from gub import versiondb
@@ -98,6 +96,7 @@ class Cygwin_package (context.Os_context_wrapper):
     def re_ball (self, hdr):
         cyg_split = cygwin.gub_to_distro_dict.get (hdr['split_name'],
                                                    [hdr['split_name']])[0]
+        self.os_interface.info ('creating cygwin package: ' + cyg_split + '\n')
         main_p = hdr['name'] == hdr['split_name']
         subdir = ''
         if not main_p:
@@ -112,6 +111,7 @@ class Cygwin_package (context.Os_context_wrapper):
         self._CYGWIN_PATCHES_dir ()
         self.remove_cruft ()
         self.binary_strip ()
+        self.replace_interpreters ()
         self.infodir ()
         self._tar ('%(installer_root)s', ball, '*', locals ())
         self.dump_hint (hdr, '%(subload)s/setup.hint' % locals ())
@@ -124,6 +124,7 @@ class Cygwin_package (context.Os_context_wrapper):
         ball = (self.expand ('%(cygwin_uploads)s/%(name)s/') + '%(cyg_ball)s'
                 % locals ())
 
+        self.os_interface.info ('creating cygwin src package: ' + cyg_ball + '\n')
         #self._untar (dir, '%(src_package_ball)s')
         self._untar (dir, self.expand ('%(src_package_ball)s'))
         self._mv ('%(dir)s/%(gub_dir)s', '%(dir)s/%(cyg_dir)s', locals ())
@@ -186,7 +187,6 @@ mkdir -p %(installer_root)s/usr/share/doc/%(name)s
         return readme
 
     def strip_dir (self, dir):
-        from gub import misc
         misc.map_command_dir (self.expand (dir),
                               self.expand ('%(strip_command)s'),
                               self.no_binary_strip,
@@ -196,6 +196,38 @@ mkdir -p %(installer_root)s/usr/share/doc/%(name)s
                               self.expand ('%(strip_command)s -g'),
                               self.no_binary_strip,
                               self.no_binary_strip_extensions)
+
+    def replace_interpreters (self):
+        import magic
+        mime = magic.open (magic.MAGIC_NONE)
+        mime.load ()
+        mime_to_interpreter = {
+            'python script text executable': '/usr/bin/python',
+            'script text executable': '/usr/bin/python',
+            'cript text executable': '/usr/bin/bash',
+            'ript text executable': '/usr/bin/sh',
+            }
+        
+        def _replace_interpreters (dir, base):
+            file = os.path.join (dir, base)
+            mime_type = mime.file (file)
+            print 'interpreters:', file, ':', mime_type
+            for key in mime_to_interpreter.keys ():
+                # magic gives any of
+                #    python script text executable
+                #    a /foe/bin/python script text executable
+                #    a /home/janneke/vc/gub/target/loc script text executable
+                #      31 chars max
+                if key in mime_type:
+                    interpreter = mime_to_interpreter[key]
+                    #self.file_sub ((['^#! .*'], '#! ' + interpreter), file)
+                    self.file_sub ([('^#!(.*/local/)', '#! /')], file)
+                    self.system ('rm -f %(file)s~', locals ())
+            
+        for d in ('bin', 'sbin', 'usr/bin', 'usr/sbin'):
+            dir = self.expand ('%(installer_root)s/' + d)
+            if os.path.isdir (dir):
+                misc.map_dir (_replace_interpreters, self.expand (dir))
 
     def get_hint (self, hdr):
         dependencies = [cygwin.gub_to_distro_dict.get (d, [d])
@@ -244,12 +276,15 @@ category: %(local_category)s%(requires_line)s%(external_source_line)s
         return hint
 
     def _untar (self, dir, ball, env={}):
+        v = ''
+        if self.verbose >= self.os_interface.level['command']:
+            v = 'v'
         e = env.copy ()
         e.update (locals ())
         self.system ('''
 rm -rf %(dir)s
 mkdir -p %(dir)s
-tar -C %(dir)s -zxf %(ball)s''', e)
+tar -C %(dir)s -z%(v)sxf %(ball)s''', e)
 
     def _tar (self, dir, ball, content, env={}):
         ball_dir = os.path.dirname (ball)
@@ -347,9 +382,10 @@ def main ():
     settings.__dict__['native_distcc_hosts'] = []
 
     PATH = os.environ['PATH']
-    os.environ['PATH'] = settings.expand ('%(local_prefix)s/bin:' + PATH)
+    os.environ['PATH'] = settings.local_prefix + '/bin:' + PATH
 
-    Cygwin_package (settings, commands[0], settings.branch_dict.get (commands[0], 'HEAD'))
+    c = Cygwin_package (settings, commands[0], settings.branch_dict.get (commands[0], 'HEAD'))
+    c.create ()
     
 if __name__ == '__main__':
     main ()
