@@ -11,7 +11,9 @@ GUB_DISTCC_ALLOW_HOSTS=127.0.0.1
 GUB = $(PYTHON) bin/gub
 GPKG = $(PYTHON) bin/gpkg
 INSTALLER_BUILDER = $(PYTHON) bin/installer-builder
-CYGWIN_PACKAGER = $(PYTHON) bin/cygwin-packager
+CYGWIN_PACKAGER = $(PYTHON) bin/cygwin-packager \
+ $(CYGWIN_PACKAGER_OPTIONS)\
+ $(LOCAL_CYGWIN_PACKAGER_OPTIONS)
 
 ifneq ($(LOCAL_GUB_BUILDER_OPTIONS),)
 $(warning LOCAL_GUB_BUILDER_OPTIONS is deprecated, use LOCAL_GUB_OPTIONS)
