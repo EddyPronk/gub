@@ -268,7 +268,8 @@ class LilyPond__cygwin (LilyPond):
 
     def compile (self):
         self.system ('''
-        cp -pv %(system_root)s/usr/share/gettext/gettext.h %(system_root)s/usr/include''')
+cd %(builddir)s && make -C scripts PYTHON=/usr/bin/python
+cp -pv %(system_root)s/usr/share/gettext/gettext.h %(system_root)s/usr/include''')
         LilyPond.compile (self)
 
     def compile_command (self):
@@ -416,6 +417,12 @@ class LilyPond__debian (LilyPond):
         from gub import debian, gup
         return {'': gup.gub_to_distro_deps (LilyPond.get_dependency_dict (self)[''],
                                             debian.gub_to_distro_dict)}
+
+    def compile (self):
+        self.system ('''
+cd %(builddir)s && make -C scripts PYTHON=/usr/bin/python
+''')
+        LilyPond.compile (self)
 
     def install (self):
         targetpackage.TargetBuildSpec.install (self)
