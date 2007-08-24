@@ -65,7 +65,7 @@ unset CC CXX; bash %(srcdir)s/configure
 ''')
     def configure (self):
         targetpackage.TargetBuildSpec.configure (self)
-        for i in misc.find (self.expand ('%(install_root)s'), 'Makefile'):
+        for i in misc.find_files (self.expand ('%(install_root)s'), 'Makefile'):
             self.file_sub ([('-I/usr', '-I%(system_root)/usr')], i)
     def install_command (self):
         return (targetpackage.TargetBuildSpec.install_command (self)

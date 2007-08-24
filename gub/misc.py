@@ -125,23 +125,34 @@ def file_is_newer (f1, f2):
     return (not os.path.exists (f2)
         or os.stat (f1).st_mtime > os.stat (f2).st_mtime)
 
-def find (dir, pattern):
-    """
-    Find files under DIR match the regex pattern.
-    """
-    
-    if type('') == type(pattern):
-        pattern = re.compile (pattern)
-
+def find (dir, test):
     dir = re.sub ( "/*$", '/', dir)
-    results = []
+    result = []
     for (root, dirs, files) in os.walk (dir):
+        result += test (root, dirs, files)
+    return result
+
+def find_files (dir, pattern):
+    '''
+    Return list of files under DIR matching the regex pattern.
+    '''
+    if type ('') == type (pattern):
+        pattern = re.compile (pattern)
+    def test (root, dirs, files):
+        #HMM?
         root = root.replace (dir, '')
-        files = [os.path.join (root, f) for f in files if pattern.search (f)]
+        return [os.path.join (root, f) for f in files if pattern.search (f)]
+    return find (dir, test)
         
-        results += files
-        
-    return results
+def find_dirs (dir, pattern):
+    '''
+    Return list of dirs under DIR matching the regex pattern.
+    '''
+    if type ('') == type (pattern):
+        pattern = re.compile (pattern)
+    def test (root, dirs, files):
+        return [os.path.join (root, d) for d in dirs if pattern.search (d)]
+    return find (dir, test)
 
 # c&p oslog.py
 def download_url (url, dest_dir, fallback=None):

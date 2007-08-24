@@ -422,7 +422,7 @@ rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_roo
         self.libtool_installed_la_fixups ()
 
     def libtool_installed_la_fixups (self):
-        for la in misc.find (self.expand ('%(install_root)s'), '\.la$'):
+        for la in misc.find_files (self.expand ('%(install_root)s'), '\.la$'):
             (dir, base) = os.path.split (la)
             base = base[3:-3]
             dir = re.sub (r"^\./", "/", dir)
