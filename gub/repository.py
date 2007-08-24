@@ -18,9 +18,10 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 """
 
+import md5
 import os
 import re
-import md5
+import sys
 import time
 import urllib
 
@@ -47,7 +48,7 @@ class Repository:
                 self.dir = dir
             else:
                 # Otherwise, check fresh repository out under .VC_SYSTEM
-                self.dir = os.path.join (os.getcwd (), self.vc_system)
+                self.dir = os.path.join (os.getcwd (), '.gub' + self.vc_system)
         self .source = source
 
         self.oslog = None
@@ -55,6 +56,7 @@ class Repository:
         self.system = misc.system
         self.read_pipe = misc.read_pipe
         self.download_url = misc.download_url
+        self.info = sys.stdout.write
 
     def set_oslog (self, oslog):
         # Fallbacks, this will go through oslog
@@ -62,6 +64,7 @@ class Repository:
         self.system = oslog.system
         self.read_pipe = oslog.read_pipe
         self.download_url = oslog.download_url
+        self.info = oslog.info
 
     def download (self):
         pass
@@ -203,7 +206,7 @@ class TarBall (Repository):
 
         self._version = version
         if not version:
-            print misc.split_ball (url)
+            #print misc.split_ball (url)
             x, v, f = misc.split_ball (url)
             self._version = '.'.join (map (str, v[:-1]))
 
@@ -627,7 +630,7 @@ class SimpleRepo (Repository):
             self._checkout ()
         if self._current_revision () != self.revision:
             self._update (self.revision)
-        self.oslog.info ('downloaded version: ' + self.version () + '\n')
+        self.info ('downloaded version: ' + self.version () + '\n')
 
     def _copy_working_dir (self, dir, copy):
         vc_system = self.vc_system
@@ -752,6 +755,10 @@ def get_vc_system_type_of_dir (dir):
     for i in ('.bzr', '.git', 'CVS', '.svn', '_darcs'):
         if os.path.isdir (os.path.join (dir, i)):
             return i.replace ('.', '').replace ('_', '')
+        elif os.path.isdir (os.path.join (dir, '.gub' + i)):
+            d = misc.find_dirs (dir, '^' + i)
+            if d:
+                return get_vc_system_type_of_dir (os.path.dirname (d[0]))
     #Hmm
     return 'tar.gz'
 

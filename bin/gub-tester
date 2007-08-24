@@ -91,6 +91,9 @@ gub-tester --url=http://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr \\
 bzr branch http://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr
 cd yaffut.bzr && gub-tester 'make all check'
 
+In a previously git-tester'ed directory:
+gub-tester --update 'make all check'
+
 '''
 
     def format_examples (self):
