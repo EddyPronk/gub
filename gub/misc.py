@@ -210,7 +210,6 @@ def file_mod_time (path):
     import stat
     return os.stat (path)[stat.ST_MTIME]
 
-
 def map_command_dir (dir, command, filter_out=[], extension_filter_out=[]):
     import os
     if not os.path.isdir (dir):
@@ -221,6 +220,13 @@ def map_command_dir (dir, command, filter_out=[], extension_filter_out=[]):
           and (os.path.splitext (file)[1] not in extension_filter_out)):
             system ('%(command)s %(root)s/%(file)s' % locals (),
                     ignore_errors=True)
+
+def map_dir (func, dir):
+    if not os.path.isdir (dir):
+        raise ('warning: no such dir: %(dir)s' % locals ())
+    (root, dirs, files) = os.walk (dir).next ()
+    for file in files:
+        func (root, file)
 
 def ball_basename (ball):
     s = ball
