@@ -29,22 +29,25 @@ from gub import locker
 from gub import mirrors
 from gub import oslog
 
+class UnknownVcSystem (Exception):
+    pass
+
 ## Rename to Source/source.py?
 
 class Repository: 
-    def __init__ (self, dir, vcs, source):
-        self.vcs = vcs
-        self.dir = os.path.normpath (dir) + self.vcs
+    def __init__ (self, dir, vc_system, source):
+        self.vc_system = vc_system
+        self.dir = os.path.normpath (dir) + self.vc_system
 
         if not dir or dir == '.':
             dir = os.getcwd ()
-            if os.path.isdir (os.path.join (dir, self.vcs)):
+            if os.path.isdir (os.path.join (dir, self.vc_system)):
                 # Support user-checkouts: If we're already checked-out
                 # HERE, use that as repository
                 self.dir = dir
             else:
-                # Otherwise, check fresh repository out under .VCS
-                self.dir = os.path.join (os.getcwd (), self.vcs)
+                # Otherwise, check fresh repository out under .VC_SYSTEM
+                self.dir = os.path.join (os.getcwd (), self.vc_system)
         self .source = source
 
         self.oslog = None
@@ -139,7 +142,7 @@ class Darcs (Repository):
         return self.darcs_pipe ('changes --last=1')
     
     def is_downloaded (self):
-        return os.path.isdir (os.path.join (self.dir, self.vcs))
+        return os.path.isdir (os.path.join (self.dir, self.vc_system))
 
     def download (self):
         source = self.source
@@ -181,8 +184,8 @@ class Darcs (Repository):
         verbose = ''
         if self.oslog and self.oslog.verbose >= self.oslog.commands:
             verbose = 'v'
-        vcs = self.vcs
-        self.system ('rsync --exclude %(vcs)s -a%(verbose)s %(dir)s/* %(destdir)s/' % locals())
+        vc_system = self.vc_system
+        self.system ('rsync --exclude %(vc_system)s -a%(verbose)s %(dir)s/* %(destdir)s/' % locals())
 
     def get_file_content (self, file):
         dir = self.dir
@@ -269,7 +272,7 @@ class RepositoryException (Exception):
 class Git (Repository):
     def __init__ (self, dir, source='', branch='', revision=''):
         Repository.__init__ (self, dir, '.git', source)
-        user_repo_dir = os.path.join (self.dir, self.vcs)
+        user_repo_dir = os.path.join (self.dir, self.vc_system)
         if os.path.isdir (user_repo_dir):
             self.dir = user_repo_dir
         self.checksums = {}
@@ -427,25 +430,29 @@ class Git (Repository):
         return str.split ('\n')
 
     def update_workdir (self, destdir):
-
         repo_dir = self.dir
         branch = self.local_branch
         revision = self.revision
         
-        if os.path.isdir (os.path.join (destdir, self.vcs)):
+        if os.path.isdir (os.path.join (destdir, self.vc_system)):
             self.git ('reset --hard HEAD' % locals (), dir=destdir)
-            self.git ('pull %(repo_dir)s %(branch)s' % locals (), dir=destdir)
+            self.git ('pull %(repo_dir)s %(branch)s:' % locals (), dir=destdir)
         else:
             self.system ('git-clone -l -s %(repo_dir)s %(destdir)s' % locals ())
+            try:
+                ## We always want to use 'master' in the checkout,
+                ## Since the branch name of the clone is
+                ## unpredictable, we force it here.
+                os.unlink ('%(destdir)s/.git/refs/heads/master' % locals ())
+            except OSError:
+                pass
 
-        if not revision:
-            revision = open ('%(repo_dir)s/refs/heads/%(branch)s' % locals ()).read ()
-
-        if not branch:
-            branch = 'gub_build'
+            if not revision:
+                revision = 'origin/%(branch)s' % locals ()
             
-        open ('%(destdir)s/.git/refs/heads/%(branch)s' % locals (), 'w').write (revision)
-        self.git ('checkout %(branch)s' % locals (), dir=destdir) 
+            self.git ('branch master %(revision)s' % locals (),
+                      dir=destdir)
+            self.git ('checkout master', dir=destdir)
 
 class CVS (Repository):
     cvs_entries_line = re.compile ("^/([^/]*)/([^/]*)/([^/]*)/([^/]*)/")
@@ -595,8 +602,8 @@ class CVS (Repository):
     
 # FIXME: why are cvs, darcs, git so complicated?
 class SimpleRepo (Repository):
-    def __init__ (self, dir, vcs, source, branch, revision='HEAD'):
-        Repository.__init__ (self, dir, vcs, source)
+    def __init__ (self, dir, vc_system, source, branch, revision='HEAD'):
+        Repository.__init__ (self, dir, vc_system, source)
         self.source = source
         self.revision = revision
         self.branch = branch
@@ -613,7 +620,7 @@ class SimpleRepo (Repository):
 
     def is_downloaded (self):
         dir = self._checkout_dir ()
-        return os.path.isdir (os.path.join (dir, self.vcs))
+        return os.path.isdir (os.path.join (dir, self.vc_system))
 
     def download (self):
         if not self.is_downloaded ():
@@ -623,17 +630,17 @@ class SimpleRepo (Repository):
         self.oslog.info ('downloaded version: ' + self.version () + '\n')
 
     def _copy_working_dir (self, dir, copy):
-        vcs = self.vcs
+        vc_system = self.vc_system
         verbose = ''
 
         if self.oslog and self.oslog.verbose >= oslog.level['command']:
             verbose = 'v'
-        self.system ('rsync -a%(verbose)s --exclude %(vcs)s %(dir)s/ %(copy)s'
+        self.system ('rsync -a%(verbose)s --exclude %(vc_system)s %(dir)s/ %(copy)s'
                      % locals ())
 
     def _checkout_dir (self):
         # Support user-check-outs
-        if os.path.isdir (os.path.join (self.dir, self.vcs)):
+        if os.path.isdir (os.path.join (self.dir, self.vc_system)):
             return self.dir
         dir = self.dir
         branch = self.branch
@@ -724,23 +731,23 @@ class Bazaar (SimpleRepo):
     def get_revision_description (self):
         return self.bzr_pipe ('log --verbose -r-1')
 
-def get_appended_vcs_name (name):
+def get_appended_vc_system_name (name):
     return re.search (r"(.*)[._](bzr|git|cvs|svn|darcs|tar(.gz|.bz2))", name)
 
-def get_prepended_vcs_name (name):
+def get_prepended_vc_system_name (name):
     return re.search (r"(bzr|git|cvs|svn|darcs):", name)
 
 # FIXME: removeme, allow for user to checkout sources in any directory
 # and use that as cache
-def get_vcs_type_from_checkout_directory_name (dir):
-    m = get_appended_vcs_name (dir)
+def get_vc_system_type_from_checkout_directory_name (dir):
+    m = get_appended_vc_system_name (dir)
     if m:
         dir = m.group (1)
         type = m.group (2)
         return dir, type
     return dir, None
 
-def get_vcs_type_of_dir (dir):
+def get_vc_system_type_of_dir (dir):
     # FIXME: get these from all repositories...
     for i in ('.bzr', '.git', 'CVS', '.svn', '_darcs'):
         if os.path.isdir (os.path.join (dir, i)):
@@ -748,8 +755,8 @@ def get_vcs_type_of_dir (dir):
     #Hmm
     return 'tar.gz'
 
-def get_vcs_type_from_url (url):
-    m = get_prepended_vcs_name (url)
+def get_vc_system_type_from_url (url):
+    m = get_prepended_vc_system_name (url)
     if m:
         type = m.group (1)
         url = m.group (2)
@@ -762,7 +769,7 @@ def get_vcs_type_from_url (url):
             }.get (protocol, None)
         if type:
             return url, type
-    m = get_appended_vcs_name (url)
+    m = get_appended_vc_system_name (url)
     if m:
         type = m.group (2)
         return url, type
@@ -771,12 +778,12 @@ def get_vcs_type_from_url (url):
 def get_repository_proxy (dir, url, revision, branch):
     type = None
     if url:
-        url, type = get_vcs_type_from_url (url)
+        url, type = get_vc_system_type_from_url (url)
     if not type:
-        dir, type = get_vcs_type_from_checkout_directory_name (dir)
+        dir, type = get_vc_system_type_from_checkout_directory_name (dir)
     if not type:
         # FIXME: todo: teach repositories that they might be
-        type = get_vcs_type_of_dir (dir)
+        type = get_vc_system_type_of_dir (dir)
 
     if type == 'bzr':
         return Bazaar (dir, source=url, revision=revision)
@@ -791,7 +798,5 @@ def get_repository_proxy (dir, url, revision, branch):
     elif type and type.startswith ('.tar.'):
         return TarBall (dir, url=url, branch=branch)
     
-    class UnknownVcSystem (Exception):
-        pass
-    raise UnknownVcSystem ('Cannot determine vcs type: url=%(url)s, dir=%(dir)s'
+    raise UnknownVcSystem ('Cannot determine vc_system type: url=%(url)s, dir=%(dir)s'
                            % locals ())

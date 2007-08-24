@@ -126,7 +126,7 @@ def upload_binaries (repo, version, version_db):
         if (platform not in ('documentation', 'test-output')
              and os.path.exists (bin)):
             branch = repo.branch
-            hdr = pickle.load (open ('uploads/%(platform)s/lilypond-%(branch)s.%(platform)s.hdr' % locals ()))
+            hdr = pickle.load (open ('packages/%(platform)s/lilypond-%(branch)s.%(platform)s.hdr' % locals ()))
             key = hdr['source_checksum']
             
             lst = commitishes.get (key, [])
