@@ -46,14 +46,6 @@ def parse_options ():
 		  dest='unpack_dir',
 		  default='uploads/webdoc/',
 		  help="Where to put local versions of the docs")
-    p.add_option ('--test-dir',
-		  dest='test_dir',
-		  default='uploads/webtest/',
-		  help="Where to put local versions of the docs")
-    p.add_option ('--upload-dir',
-		  dest='upload_dir',
-		  default='uploads/',
-		  help="Where to put local versions of the docs")
 
     (opts, args) = p.parse_args ()
 
