@@ -83,6 +83,7 @@ class Settings (context.Context):
         ## from .gub packages.
         self.uploads = self.topdir + '/uploads'
         self.gub_uploads = self.topdir + '/packages/' + self.platform
+        self.platform_uploads = self.topdir + '/uploads/' + self.platform
 
         # Hmm, change `cross/' to `cross.' or `cross-' in name?
         self.cross_gub_uploads = self.gub_uploads + '/cross'

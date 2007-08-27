@@ -55,7 +55,7 @@ class Cygwin_package (context.Os_context_wrapper):
         self.installer_root = settings.targetdir + '/installer-' + name
         self.installer_db = settings.targetdir + '/installer-' + name + '-dbdir'
         self.installer_uploads = settings.uploads
-        self.cygwin_uploads = settings.gub_uploads + '/release'
+        self.cygwin_uploads = settings.platform_uploads + '/release'
 
         self.package_manager = gup.DependencyManager (
             self.installer_root,
