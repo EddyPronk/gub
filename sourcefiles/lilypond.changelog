@@ -1,3 +1,10 @@
+lilypond (2.10.29-1) unstable; urgency=low
+
+  * New upstream release.
+  * Fix python #! on scripts.  Thanks Volker!
+
+ -- Jan Nieuwenhuizen <janneke@gnu.org>  Fri, 24 Aug 2007 22:12:47 +0200
+
 lilypond (2.10.7-1) unstable; urgency=low
 
   * New upstream release.
