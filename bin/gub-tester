@@ -45,7 +45,7 @@ def canonicalize_string (target):
     canonicalize = re.sub ('[^a-zA-Z0-9-]+', '_', canonicalize)
     return canonicalize
 
-log_file = None
+main_log = None
 
 ################################################################
 #
@@ -224,26 +224,27 @@ def test_target (repo, options, target, last_patch):
 
     done_db = get_db (options, canonicalize)
     if done_db.has_key (release_hash):
-        log_file.info ('release %(release_hash)s has already been checked'
+        main_log.info ('release %(release_hash)s has already been checked'
                       % locals ())
         return None
     
-    logfile = 'test-%(canonicalize)s.log' %  locals ()
-    logfile = os.path.join (options.result_dir, logfile)
+    log = 'test-%(canonicalize)s.log' %  locals ()
+    log = os.path.join (options.result_dir, log)
     
-    cmd = 'nice time sh -c "(%(target)s)" > %(logfile)s 2>&1' %  locals ()
-
-    log_file.command (cmd)
+    cmd = 'nice time sh -c "(%(target)s)"' % locals ()
+    main_log.command (cmd + '\n')
+    main_log.error ('Logging test output to %(log)s\n' % locals ())
 
     if options.dry_run:
         return ('SUCCESS', ['dryrun'])
         
-    stat = os.system (cmd)
+    test_log = oslog.Os_commands (log, options.verbose)
+    stat = test_log.system (cmd)
     base_tag = 'success-%(canonicalize)s-' % locals ()
     result = 'unknown'
     attachments = []
 
-    body = read_tail (logfile, 10240).split ('\n')
+    body = read_tail (log, 10240).split ('\n')
     if stat:
         result = 'FAIL'
         attachments = ['error for\n\n\t%s\n\n\n%s' % (target,
@@ -258,7 +259,7 @@ def test_target (repo, options, target, last_patch):
             print last_patch
             tag = base_tag + canonicalize_string (last_patch['date'])
             repo.tag (tag)
-            log_file.log ('tagging with %s' % tag)
+            main_log.log ('tagging with %s' % tag)
             if options.tag_repo:
                 repo.push (tag, options.tag_repo)
 
@@ -267,14 +268,14 @@ def test_target (repo, options, target, last_patch):
                        % (target,
                           '\n'.join (body[-10:]))]
 
-    log_file.info ('%s: %s' % (target, result))
+    main_log.info ('%s: %s' % (target, result))
     
     done_db[release_hash] = time.ctime ()
     return (result, attachments)
     
 def send_message (options, msg):
     if not options.address:
-        log_file.info ('No recipients for result mail')
+        main_log.info ('No recipients for result mail')
         # FIXME: what about env[EMAIL]?
         return False
     
@@ -300,16 +301,16 @@ def print_results (options, parts, subject='Autotester result'):
     print 'END RESULT\n==='
 
 def real_main (options, args, handle_result):
-    global log_file
+    global main_log
 
     log = 'log/gub-tester.log'
     if options.dry_run:
         log = '/dev/stdout'
 
-    log_file = oslog.Os_commands (log, options.verbose)
+    main_log = oslog.Os_commands (log, options.verbose)
     
-    log_file.info (' *** %s' % time.ctime ())
-    log_file.info (' *** Starting tests:\n  %s' % '\n  '.join (args))
+    main_log.info (' *** %s' % time.ctime ())
+    main_log.info (' *** Starting tests:\n  %s' % '\n  '.join (args))
 
     repo = repository.get_repository_proxy (options.repository,
                                             options.url,
@@ -320,7 +321,7 @@ def real_main (options, args, handle_result):
         repo.download ()
         repo.update_workdir ('.')
 
-    log_file.info ('Repository %s' % str (repo))
+    main_log.info ('Repository %s' % str (repo))
     
     last_patch = repo.get_revision_description ()
     release_hash = repo.get_checksum ()
