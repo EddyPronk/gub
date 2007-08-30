@@ -175,6 +175,12 @@ gub-tester --update 'make all check'
                   default=False,
                   help='only send mail when there was an error.')
     
+    p.add_option ('--force',
+                  action='store_true',
+                  dest='force',
+                  default=False,
+                  help='force rechecking even if release already checked.')
+    
     p.add_option ('--dependent',
                   action='store_true',
                   dest='is_dependent',
@@ -224,9 +230,11 @@ def test_target (repo, options, target, last_patch):
 
     done_db = get_db (options, canonicalize)
     if done_db.has_key (release_hash):
-        main_log.info ('release %(release_hash)s has already been checked'
+        main_log.info ('release %(release_hash)s has already been checked\n'
                       % locals ())
-        return None
+        if not options.force:
+            return None
+        main_log.info ('recheck forced\n' % locals ())
     
     log = 'test-%(canonicalize)s.log' %  locals ()
     log = os.path.join (options.result_dir, log)
