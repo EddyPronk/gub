@@ -239,7 +239,7 @@ def test_target (repo, options, target, last_patch):
         return ('SUCCESS', ['dryrun'])
         
     test_log = oslog.Os_commands (log, options.verbose)
-    stat = test_log.system (cmd)
+    stat = test_log.system (cmd, ignore_errors=True)
     base_tag = 'success-%(canonicalize)s-' % locals ()
     result = 'unknown'
     attachments = []
@@ -275,7 +275,7 @@ def test_target (repo, options, target, last_patch):
     
 def send_message (options, msg):
     if not options.address:
-        main_log.info ('No recipients for result mail')
+        main_log.info ('No recipients for result mail\n')
         # FIXME: what about env[EMAIL]?
         return False
     
@@ -310,18 +310,18 @@ def real_main (options, args, handle_result):
     main_log = oslog.Os_commands (log, options.verbose)
     
     main_log.info (' *** %s' % time.ctime ())
-    main_log.info (' *** Starting tests:\n  %s' % '\n  '.join (args))
+    main_log.info (' *** Starting tests:\n %s\n' % '\n  '.join (args))
 
     repo = repository.get_repository_proxy (options.repository,
                                             options.url,
                                             options.revision,
                                             options.branch)
-
+    repo.set_oslog (main_log)
     if (not repo.is_downloaded () or options.update or options.revision):
         repo.download ()
         repo.update_workdir ('.')
 
-    main_log.info ('Repository %s' % str (repo))
+    main_log.info ('Repository %s\n' % str (repo))
     
     last_patch = repo.get_revision_description ()
     release_hash = repo.get_checksum ()
