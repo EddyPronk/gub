@@ -79,8 +79,7 @@ class Os_commands:
             self.error (m)
 	    if not ignore_errors:
         	raise misc.SystemFailed (m)
-
-        return 0
+        return proc.returncode
 
     def log (self, str, threshold, verbose=None):
         if not str:
@@ -136,10 +135,11 @@ commands.
             self.log ('export %s\n' % ' '.join (keys), level['debug'],
                       verbose)
 
+        stat = 0
         for i in cmd.split ('\n'):
             if i:
-                self.system_one (i, call_env, ignore_errors, verbose=verbose)
-        return 0
+                stat += self.system_one (i, call_env, ignore_errors, verbose=verbose)
+        return stat
 
     def dump (self, str, name, mode='w'):
         dir = os.path.split (name)[0]
