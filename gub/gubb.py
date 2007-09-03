@@ -859,6 +859,7 @@ def get_build_spec (flavour, settings, url):
         # includes version and format, eg,
         # URL=libtool-1.5.22.tar.gz
         klass = classobj (name, (flavour,), {})
+        klass.__module__ = name
     package = klass (settings)
     package.spec_checksum = checksum
     from gub import cross
@@ -869,6 +870,6 @@ def get_build_spec (flavour, settings, url):
     # bin/gub -p linux-64 ftp://ftp.gnu.org/pub/gnu/bison/bison-2.3.tar.gz
     if init_vars['version']:
         package.with_template (format=init_vars['format'],
-                      mirror=init_vars['url'],
-                      version=init_vars['version'])
+                               mirror=init_vars['url'],
+                               version=init_vars['version'])
     return package
