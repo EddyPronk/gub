@@ -851,15 +851,20 @@ def get_build_spec (flavour, settings, url):
             name, version_tuple, format = misc.split_ball (ball)
         print 'NO SPEC for', name
         from new import classobj
-        # Without explicit spec will only work if URL
-        # includes version and format, eg,
-        # URL=libtool-1.5.22.tar.gz
+        # Direct url build feature
+        #   * gub http://ftp.gnu.org/pub/gnu/tar/tar-1.18.tar.gz
+        # WIP:
+        #   * gub git://git.kernel.org/pub/scm/git/git
+        #   * gub bzr:http://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr
+        # must remove specs/git.py for now to get this to work.
+        # git.py overrides repository and branch settings
         klass = classobj (name, (flavour,), {})
         klass.__module__ = name
         try:
            dir = os.path.join (settings.downloads, name)
            repo = repository.get_repository_proxy (dir, url, '', '')
         except repository.UnknownVcSystem:
+            # FIXME: remove this or needed for distro builds: debian/cygwin?
             pass
     package = klass (settings)
     package.spec_checksum = checksum
