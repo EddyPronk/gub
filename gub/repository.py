@@ -308,6 +308,12 @@ class Git (Repository):
         else:
             self.branch = branch
             self.local_branch = branch
+
+        # Wow, 15 lines of branch juggling.., what's going on here?
+        # what if we just want to build a copy of
+        # `git://git.kernel.org/pub/scm/git/git'.  Let's try `HEAD'
+        if not self.local_branch:
+            self.local_branch = 'HEAD'
             
     def version (self):
         return self.revision
@@ -704,7 +710,13 @@ class Bazaar (SimpleRepo):
         self.module = '.'
 
     def _current_revision (self):
-        revno = self.bzr_pipe ('revno' % locals ())
+        try:
+            revno = self.bzr_pipe ('revno' % locals ())
+        except:
+            # FIXME: there's something nasty wrt version numbers, gub
+            # wants to know about version before it downloads a repo.
+            self.download ()
+            revno = self.bzr_pipe ('revno' % locals ())
         assert revno
         return revno[:-1]
 
@@ -738,7 +750,7 @@ def get_appended_vc_system_name (name):
     return re.search (r"(.*)[._](bzr|git|cvs|svn|darcs|tar(.gz|.bz2))", name)
 
 def get_prepended_vc_system_name (name):
-    return re.search (r"(bzr|git|cvs|svn|darcs):", name)
+    return re.search (r"(bzr|git|cvs|svn|darcs):(.+://.+)", name)
 
 # FIXME: removeme, allow for user to checkout sources in any directory
 # and use that as cache
@@ -764,15 +776,16 @@ def get_vc_system_type_of_dir (dir):
 
 def get_vc_system_type_from_url (url):
     m = get_prepended_vc_system_name (url)
-    if m:
+    if m and m.group (2):
         type = m.group (1)
         url = m.group (2)
         return url, type
-    p = url.find ('//:')
+    p = url.find ('://')
     if p > 0:
         protocol = url[:p]
         type = {'bzr+ssh': 'bzr',
                 'svn+ssh': 'svn',
+                'git': 'git',
             }.get (protocol, None)
         if type:
             return url, type
