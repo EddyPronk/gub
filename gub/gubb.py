@@ -445,8 +445,17 @@ rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_roo
 
     # FIXME: should not misuse patch for auto stuff
     def patch (self):
-        if not os.path.exists (self.expand ('%(srcdir)s/configure')):
+        if (not os.path.exists (self.expand ('%(srcdir)s/configure'))
+            and (os.path.exists (self.expand ('%(srcdir)s/configure.ac'))
+                 or os.path.exists (self.expand ('%(srcdir)s/configure.in'))
+                 or (not os.path.exists (self.expand ('%(srcdir)s/Makefile'))
+                     and not os.path.exists (self.expand ('%(srcdir)s/makefile'))
+                     and not os.path.exists (self.expand ('%(srcdir)s/SConstruct'))))):
             self.autoupdate ()
+        else:
+            self.system ('''touch %(srcdir)s/configure
+chmod +x %(srcdir)s/configure''')
+            self.shadow_tree ('%(srcdir)s', '%(builddir)s')
 
     @subst_method
     def is_sdk_package (self):
