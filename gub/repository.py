@@ -780,6 +780,15 @@ def get_vc_system_type_from_url (url):
         type = m.group (1)
         url = m.group (2)
         return url, type
+    file_p = 'file://'
+    p = url.find (file_p)
+    if p >= 0:
+        # Duh, git says: fatal: I don't handle protocol 'file'
+        url = url[p + len (file_p):]
+        type = get_vc_system_type_of_dir (url)
+        if type:
+            print type
+            return url, type
     p = url.find ('://')
     if p > 0:
         protocol = url[:p]

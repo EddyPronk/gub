@@ -849,6 +849,8 @@ def get_build_spec (flavour, settings, url):
         if misc.is_ball (name):
             ball = name
             name, version_tuple, format = misc.split_ball (ball)
+        elif name.find ('/') >= 0:
+            name = os.path.basename (name)
         print 'NO SPEC for', name
         from new import classobj
         # Direct url build feature
