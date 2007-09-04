@@ -445,8 +445,7 @@ rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_roo
 
     # FIXME: should not misuse patch for auto stuff
     def patch (self):
-        if not os.path.exists ('%(srcdir)s/configure' \
-                               % self.get_substitution_dict ()):
+        if not os.path.exists (self.expand ('%(srcdir)s/configure')):
             self.autoupdate ()
 
     @subst_method
@@ -819,7 +818,10 @@ def get_build_spec (flavour, settings, url):
     name = url
     if url.find (':') >= 0:
         name = os.path.basename (url)
+
     init_vars = {'format':None, 'version':None, 'url': None,}
+    # FIXME: this build-from-url autodetection should be handled
+    # by repository.py
     if misc.is_ball (name):
         ball = name
         name, version_tuple, format = misc.split_ball (ball)
@@ -835,6 +837,8 @@ def get_build_spec (flavour, settings, url):
             init_vars['version'] = version
         if format:
             init_vars['format'] = format
+    elif url.startswith ('git:') or url.startswith ('bzr:'):
+        init_vars['url'] = url
 
     klass = None
     checksum = '0000'
@@ -869,7 +873,17 @@ def get_build_spec (flavour, settings, url):
     # test:
     # bin/gub -p linux-64 ftp://ftp.gnu.org/pub/gnu/bison/bison-2.3.tar.gz
     if init_vars['version']:
+        # FIXME: merge with next url entry: packages should take vc in
+        # constructor
         package.with_template (format=init_vars['format'],
                                mirror=init_vars['url'],
                                version=init_vars['version'])
+    elif init_vars['url']:
+        # WIP: * gub git://git.kernel.org/pub/scm/git/git
+        #      * gub bzr:http://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr
+        # must remove specs/git.py for now to get this to work.
+        # git.py overrides repository and branch settings
+        dir = os.path.join (settings.downloads, name)
+        repo = repository.get_repository_proxy (dir, init_vars['url'], '', '')
+        package.with_vc (repo)
     return package
