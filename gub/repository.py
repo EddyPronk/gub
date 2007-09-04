@@ -815,8 +815,8 @@ def get_repository_proxy (dir, url, revision, branch):
         return Git (dir, source=url, branch=branch, revision=revision)
     elif type == 'svn':
         return Subversion (dir, source=url, branch=branch)
-    elif type and type.startswith ('.tar.'):
-        return TarBall (dir, url=url, branch=branch)
+    elif type and type.startswith ('tar.'):
+        return TarBall (dir, url=url)
     
     raise UnknownVcSystem ('Cannot determine vc_system type: url=%(url)s, dir=%(dir)s'
                            % locals ())
