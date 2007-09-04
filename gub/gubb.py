@@ -828,27 +828,6 @@ def get_build_spec (flavour, settings, url):
     if url.find (':') >= 0:
         name = os.path.basename (url)
 
-    init_vars = {'format':None, 'version':None, 'url': None,}
-    # FIXME: this build-from-url autodetection should be handled
-    # by repository.py
-    if misc.is_ball (name):
-        ball = name
-        name, version_tuple, format = misc.split_ball (ball)
-        version = misc.version_to_string (version_tuple)
-        if not version:
-            name = url
-        elif (url.startswith ('/')
-              or url.startswith ('file://')
-              or url.startswith ('ftp://')
-              or url.startswith ('http://')):
-            init_vars['url'] = url
-        if version:
-            init_vars['version'] = version
-        if format:
-            init_vars['format'] = format
-    elif url.startswith ('git:') or url.startswith ('bzr:'):
-        init_vars['url'] = url
-
     klass = None
     checksum = '0000'
     file_base = name + '.py'
@@ -865,7 +844,11 @@ def get_build_spec (flavour, settings, url):
             # linux-x86/cross/binutils, linux/cross/binutils, cross/binutils
             checksum += md5.md5 (open (file_name).read ()).hexdigest ()
 
+    repo = None
     if not klass:
+        if misc.is_ball (name):
+            ball = name
+            name, version_tuple, format = misc.split_ball (ball)
         print 'NO SPEC for', name
         from new import classobj
         # Without explicit spec will only work if URL
@@ -873,26 +856,16 @@ def get_build_spec (flavour, settings, url):
         # URL=libtool-1.5.22.tar.gz
         klass = classobj (name, (flavour,), {})
         klass.__module__ = name
+        try:
+           dir = os.path.join (settings.downloads, name)
+           repo = repository.get_repository_proxy (dir, url, '', '')
+        except repository.UnknownVcSystem:
+            pass
     package = klass (settings)
     package.spec_checksum = checksum
     from gub import cross
     package.cross_checksum = cross.get_cross_checksum (settings.platform)
-
-    # Initialise building package from url, without spec
-    # test:
-    # bin/gub -p linux-64 ftp://ftp.gnu.org/pub/gnu/bison/bison-2.3.tar.gz
-    if init_vars['version']:
-        # FIXME: merge with next url entry: packages should take vc in
-        # constructor
-        package.with_template (format=init_vars['format'],
-                               mirror=init_vars['url'],
-                               version=init_vars['version'])
-    elif init_vars['url']:
-        # WIP: * gub git://git.kernel.org/pub/scm/git/git
-        #      * gub bzr:http://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr
-        # must remove specs/git.py for now to get this to work.
-        # git.py overrides repository and branch settings
-        dir = os.path.join (settings.downloads, name)
-        repo = repository.get_repository_proxy (dir, init_vars['url'], '', '')
+    if repo:
         package.with_vc (repo)
+
     return package
