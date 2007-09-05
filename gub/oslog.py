@@ -26,8 +26,9 @@ class Os_commands:
 
     '''Encapsulate OS/File system commands for proper logging.'''
 
-    def __init__ (self, log_file_name, verbose):
+    def __init__ (self, log_file_name, verbose, dry_run=False):
         self.verbose = verbose
+        self.dry_run = dry_run
         self.log_file_name = log_file_name
         self.log_file = open (self.log_file_name, 'a')
         self.log_file.write ('\n\n * Starting build: %s\n' %  now ())
@@ -58,6 +59,8 @@ class Os_commands:
                           '\\1%(fakeroot_cmd)s\\2 ' % self.__dict__, cmd)
 
         self.log ('invoking %s\n' % cmd, level['command'], verbose)
+        if self.dry_run:
+            return 0
 
         proc = subprocess.Popen (cmd, bufsize=1, shell=True, env=env,
                                  stdout=subprocess.PIPE,
