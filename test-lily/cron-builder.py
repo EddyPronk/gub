@@ -126,8 +126,8 @@ def main ():
         options.verbose = oslog.Os_commands['command']
     log_file = oslog.Os_commands ('log/cron-builder.log', options.verbose,
                                   dry_run)
-    log_file.log (' *** %s' % time.ctime ())
-    log_file.log (' *** Starting cron-builder:\n  %s ' % '\n  '.join (args)) 
+    log_file.info (' *** %s' % time.ctime ())
+    log_file.info (' *** Starting cron-builder:\n  %s ' % '\n  '.join (args)) 
 
     if options.clean:
         log_file.system ('rm -rf log/ target/ packages/ uploads/ buildnumber-* downloads/lilypond-*')
