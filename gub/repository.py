@@ -750,7 +750,7 @@ def get_appended_vc_system_name (name):
     return re.search (r"(.*)[._](bzr|git|cvs|svn|darcs|tar(.gz|.bz2))", name)
 
 def get_prepended_vc_system_name (name):
-    return re.search (r"(bzr|git|cvs|svn|darcs):(.+://.+)", name)
+    return re.search (r"(bzr|git|cvs|svn|darcs):(.+:.+)", name)
 
 # FIXME: removeme, allow for user to checkout sources in any directory
 # and use that as cache
@@ -817,7 +817,10 @@ def get_repository_proxy (dir, url, revision, branch):
     if type == 'bzr':
         return Bazaar (dir, source=url, revision=revision)
     elif type == 'cvs':
-        return CVS (dir, source=url, tag=branch)
+        if not branch:
+            branch='HEAD'
+        p = url.rfind ('/')
+        return CVS (dir, source=url, module=url[p+1:], tag=branch)
     elif type == 'darcs':
         return Darcs (dir, source=url)
     elif type == 'git':
