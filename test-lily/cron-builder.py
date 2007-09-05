@@ -155,13 +155,13 @@ def main ():
     ## can't have these in gub-tester, since these
     ## will always usually result in "release already tested"
     for a in args:
-        system (python_cmd + 'bin/gub --branch %s:%s -p %s --stage=download lilypond'
+        system (python_cmd + 'bin/gub --branch=lilypond=%s:%s -p %s --stage=download lilypond'
                 % (opts.branch, opts.local_branch, a))
         system ('rm -f target/%s/status/lilypond-%s*' % (a, opts.branch))
 
     test_cmds = []
     if opts.build_package:
-        test_cmds += [python_cmd + 'bin/gub --branch %s:%s -lp %s lilypond '
+        test_cmds += [python_cmd + 'bin/gub --branch=lilypond=%s:%s -lp %s lilypond '
                       % (opts.branch, opts.local_branch, p) for p in args]
         
     if opts.build_installer:
