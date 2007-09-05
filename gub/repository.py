@@ -97,7 +97,12 @@ class Repository:
     create = staticmethod (create)
 
     def __init__ (self, dir, source):
-        self.dir = os.path.normpath (dir) + self.vc_system
+        self.dir = os.path.normpath (dir)
+        dir_vcs = self.dir + self.vc_system
+        if not os.path.isdir (dir) and os.path.isdir (dir_vcs):
+            # URG, Fixme, wtf?:
+            print 'WARNING, appending ' + self.vc_system + ' to checkout dir'
+            self.dir = dir_vcs
 
         if not dir or dir == '.':
             dir = os.getcwd ()
@@ -356,9 +361,7 @@ class Git (Repository):
 
     def __init__ (self, dir, source='', branch='', revision=''):
         Repository.__init__ (self, dir, source)
-        user_repo_dir = os.path.join (self.dir, self.vc_system)
-        if os.path.isdir (user_repo_dir):
-            self.dir = user_repo_dir
+
         self.checksums = {}
         self.local_branch = ''
         self.remote_branch = branch
@@ -395,7 +398,7 @@ class Git (Repository):
         # `git://git.kernel.org/pub/scm/git/git'.  Let's try `HEAD'
         if not self.local_branch:
             self.local_branch = 'HEAD'
-            
+
     def version (self):
         return self.revision
 
