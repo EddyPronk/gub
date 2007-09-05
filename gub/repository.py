@@ -33,9 +33,19 @@ from gub import oslog
 class UnknownVcSystem (Exception):
     pass
 
+class RepositoryException (Exception):
+    pass
+
+class RepositoryProxy:
+    repositories = []
+    def register (vcs):
+        RepositoryProxy.repositories.append (vcs)
+    register = staticmethod (register)
+
 ## Rename to Source/source.py?
 
 class Repository: 
+    vcs = None
     def __init__ (self, dir, vc_system, source):
         self.vc_system = vc_system
         self.dir = os.path.normpath (dir) + self.vc_system
@@ -129,6 +139,8 @@ class Version:
     def set_oslog (self, oslog):
         pass
 
+#RepositoryProxy.register (Version)
+
 class Darcs (Repository):
     def __init__ (self, dir, source=''):
         Repository.__init__ (self, dir, '_darcs', source)
@@ -194,6 +206,7 @@ class Darcs (Repository):
         dir = self.dir
         return open ('%(dir)s/%(file)s' % locals ()).read ()
 
+RepositoryProxy.register (Darcs)
     
 class TarBall (Repository):
     # TODO: s/url/source
@@ -263,16 +276,16 @@ class TarBall (Repository):
         from gub import misc
         return self._version
 
+RepositoryProxy.register (TarBall)
+
 class NewTarBall (TarBall):
     def __init__ (self, dir, mirror, name, ball_version, format='gz',
                   strip_components=1):
         TarBall.__init__ (self, dir, mirror % locals (), ball_version,
                           strip_components)
 
-class RepositoryException (Exception):
-    pass
-
 class Git (Repository):
+    vcs = '.git'
     def __init__ (self, dir, source='', branch='', revision=''):
         Repository.__init__ (self, dir, '.git', source)
         user_repo_dir = os.path.join (self.dir, self.vc_system)
@@ -463,6 +476,8 @@ class Git (Repository):
                       dir=destdir)
             self.git ('checkout master', dir=destdir)
 
+RepositoryProxy.register (Git)
+
 class CVS (Repository):
     cvs_entries_line = re.compile ("^/([^/]*)/([^/]*)/([^/]*)/([^/]*)/")
     #tag_dateformat = '%Y/%m/%d %H:%M:%S'
@@ -609,6 +624,8 @@ class CVS (Repository):
         entries = self.all_cvs_entries (self.dir + '/' + branch)
         return [e[0] for e in entries]
     
+RepositoryProxy.register (CVS)
+
 # FIXME: why are cvs, darcs, git so complicated?
 class SimpleRepo (Repository):
     def __init__ (self, dir, vc_system, source, branch, revision='HEAD'):
@@ -701,6 +718,8 @@ class Subversion (SimpleRepo):
         cmd = 'cd %(dir)s && svn up %(rev_opt)s' % locals ()
         self.system (cmd)
 
+RepositoryProxy.register (Subversion)
+
 class Bazaar (SimpleRepo):
     def __init__ (self, dir, source, revision='HEAD'):
         # FIXME: multi-branch repos not supported for now
@@ -745,6 +764,8 @@ class Bazaar (SimpleRepo):
 
     def get_revision_description (self):
         return self.bzr_pipe ('log --verbose -r-1')
+
+RepositoryProxy.register (Bazaar)
 
 def get_appended_vc_system_name (name):
     return re.search (r"(.*)[._](bzr|git|cvs|svn|darcs|tar(.gz|.bz2))", name)
@@ -832,3 +853,20 @@ def get_repository_proxy (dir, url, revision, branch):
     
     raise UnknownVcSystem ('Cannot determine vc_system type: url=%(url)s, dir=%(dir)s'
                            % locals ())
+
+def test ():
+     import unittest
+
+     class Test_get_repository_proxy (unittest.TestCase):
+         def testCVS (self):
+             repo = get_repository_proxy ('', 'cvs::pserver:anonymous@cvs.savannah.gnu.org:/sources/emacs', '', '')
+             self.assertEqual (repo.__class__, CVS)
+
+     suite = unittest.makeSuite (Test_get_repository_proxy)
+     unittest.TextTestRunner (verbosity=2).run (suite)
+
+     for i in RepositoryProxy.repositories:
+         print i, i.vcs
+
+if __name__ == '__main__':
+    test ()
