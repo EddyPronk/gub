@@ -49,29 +49,29 @@ I have the following in my crontab
 
 
 * Hourly build of LilyPond subpackage for all platforms except native
+  (native is darwin-pcc?)
 
-test-lily/cron-builder.py --package
+test-lily/cron-builder.py --package\
   --test-options "--to lilypond-cvs@gnu.org --quiet --from hanwen@lilypond.org
-                  --smtp smtp.xs4all.nl --repository downloads/lilypond-HEAD"
-  darwin-x86 freebsd linux mingw
-
+                  --smtp smtp.xs4all.nl --repository downloads/lilypond-HEAD"\
+  darwin-x86 freebsd-x86 freebsd-64 mingw linux-x86 linux-64
   
 * Hourly build of native installer, to run documentation and dist check.
   
-test-lily/cron-builder.py
-  --package --installer --tarball --docs
-  --test-options "--to lilypond-cvs@gnu.org --dependent --quiet
-                  --from hanwen@lilypond.org --smtp smtp.xs4all.nl --repository downloads/lilypond-HEAD"
-  --unversioned
+test-lily/cron-builder.py\
+  --package --installer --tarball --docs\
+  --test-options "--to lilypond-cvs@gnu.org --dependent --quiet\
+                  --from hanwen@lilypond.org --smtp smtp.xs4all.nl --repository downloads/lilypond-HEAD"\
+  --unversioned\
   darwin-ppc
 
 
 * Nightly build of all installers, to be ready for shipping binaries
   in the morning.
   
-test-lily/cron-builder.py
-  --installer
-  --test-options "--to lilypond-cvs@gnu.org --quiet --from hanwen@lilypond.org
-                  --smtp smtp.xs4all.nl --repository downloads/lilypond-HEAD"
-  darwin-x86 freebsd mingw linux darwin-ppc
+test-lily/cron-builder.py\
+  --installer\
+  --test-options "--to lilypond-cvs@gnu.org --quiet --from hanwen@lilypond.org\
+                  --smtp smtp.xs4all.nl --repository downloads/lilypond-HEAD"\
+  darwin-x86 freebsd-x86 freebsd-64 mingw linux-x86 linux-64 darwin-ppc
 
