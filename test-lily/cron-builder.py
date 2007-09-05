@@ -136,6 +136,7 @@ def main ():
     print os.environ['PATH']
     global log_file
     
+    os.system ('mkdir -p log')
     log_file = LogFile ('log/cron-builder.log')
     log_file.log (' *** %s' % time.ctime ())
     log_file.log (' *** Starting cron-builder:\n  %s ' % '\n  '.join (args)) 
