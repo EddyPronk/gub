@@ -42,10 +42,54 @@ class RepositoryProxy:
         RepositoryProxy.repositories.append (repository)
     register = staticmethod (register)
 
-## Rename to Source/source.py?
+    def get_repository (dir, url, revision, branch):
+        for i in RepositoryProxy.repositories:
+            if i.check_url (i, url):
+                return i.create (i, dir, url, revision, branch)
+        file_p = 'file://'
+        if url.startswith (file_p):
+            url_dir = url[len (file_p):]
+            for i in RepositoryProxy.repositories:
+                if i.check_dir (i, url_dir):
+                    # Duh, git says: fatal: I don't handle protocol 'file'
+                    # return i.create (i, dir, url, revision, branch)
+                    return i.create (i, dir, url_dir, revision, branch)
+        for i in RepositoryProxy.repositories:
+            if i.check_dir (i, dir):
+                return i.create (i, dir, url, revision, branch)
+        for i in RepositoryProxy.repositories:
+            if i.check_suffix (i, url):
+                return i.create (i, dir, url, revision, branch)
+        for i in RepositoryProxy.repositories:
+            if os.path.isdir (os.path.join (dir, '.gub' + i.vc_system)):
+                d = misc.find_dirs (dir, '^' + i.vc_system)
+                if d and i.check_dir (i, os.path.dirname (d[0])):
+                    return i.create (i, dir, url, revision, branch)
+        raise UnknownVcSystem ('Cannot determine vc_system type: url=%(url)s, dir=%(dir)s'
+                           % locals ())
+    get_repository = staticmethod (get_repository)
 
+## Rename to Source/source.py?
 class Repository: 
     vc_system = None
+
+    def check_dir (rety, dir):
+        return os.path.isdir (os.path.join (dir, rety.vc_system))
+    check_dir = staticmethod (check_dir)
+
+    def check_url (rety, url):
+        vcs = rety.vc_system.replace ('_', '',).replace ('.', '').lower ()
+        return url.startswith (vcs + ':')
+    check_url = staticmethod (check_url)
+
+    def check_suffix (rety, url):
+        return url.endswith (rety.vc_system)
+    check_suffix = staticmethod (check_suffix)
+
+    def create (rety, dir, source, branch='', revision=''):
+        return rety (dir, source, branch, revision)
+    create = staticmethod (create)
+
     def __init__ (self, dir, source):
         self.dir = os.path.normpath (dir) + self.vc_system
 
@@ -56,9 +100,9 @@ class Repository:
                 # HERE, use that as repository
                 self.dir = dir
             else:
-                # Otherwise, check fresh repository out under .VC_SYSTEM
+                # Otherwise, check fresh repository out under .gub.VC_SYSTEM
                 self.dir = os.path.join (os.getcwd (), '.gub' + self.vc_system)
-        self .source = source
+        self.source = source
 
         self.oslog = None
         # Fallbacks, this will go through oslog
@@ -142,6 +186,11 @@ class Version:
 
 class Darcs (Repository):
     vc_system = '_darcs'
+
+    def create (rety, dir, source, branch='', revision=''):
+        return Darcs (dir, source)
+    create = staticmethod (create)
+ 
     def __init__ (self, dir, source=''):
         Repository.__init__ (self, dir, source)
 
@@ -210,6 +259,17 @@ RepositoryProxy.register (Darcs)
     
 class TarBall (Repository):
     vc_system = '.tar'
+
+    def create (rety, dir, source, branch='', revision=''):
+        return TarBall (dir, source)
+    create = staticmethod (create)
+
+    def check_suffix (rety, url):
+         return (url.endswith (rety.vc_system)
+                or url.endswith (rety.vc_system + '.gz')
+                or url.endswith (rety.vc_system + '.bz2'))
+    check_suffix = staticmethod (check_suffix)
+
     # TODO: s/url/source
     def __init__ (self, dir, url, version=None, strip_components=1):
         Repository.__init__ (self, dir, url)
@@ -287,6 +347,7 @@ class NewTarBall (TarBall):
 
 class Git (Repository):
     vc_system = '.git'
+
     def __init__ (self, dir, source='', branch='', revision=''):
         Repository.__init__ (self, dir, source)
         user_repo_dir = os.path.join (self.dir, self.vc_system)
@@ -483,6 +544,13 @@ class CVS (Repository):
     vc_system = 'CVS'
     cvs_entries_line = re.compile ("^/([^/]*)/([^/]*)/([^/]*)/([^/]*)/")
     #tag_dateformat = '%Y/%m/%d %H:%M:%S'
+
+    def create (rety, dir, source, branch='', revision=''):
+        if not branch:
+            branch='HEAD'
+        p = source.rfind ('/')
+        return CVS (dir, source=source, module=source[p+1:], tag=branch)
+    create = staticmethod (create)
 
     def __init__ (self, dir, source='', module='', tag='HEAD'):
         Repository.__init__ (self, dir, source)
@@ -690,6 +758,11 @@ class SimpleRepo (Repository):
 
 class Subversion (SimpleRepo):
     vc_system = '.svn'
+
+    def create (rety, dir, source, branch='', revision=''):
+        return Subversion (dir, source=source, branch=branch)
+    create = staticmethod (create)
+
     def __init__ (self, dir, source, branch, module, revision='HEAD'):
         if not revision:
             revision = 'HEAD'
@@ -725,6 +798,11 @@ RepositoryProxy.register (Subversion)
 
 class Bazaar (SimpleRepo):
     vc_system = '.bzr'
+
+    def create (rety, dir, source, branch='', revision=''):
+        return Bazaar (dir, source=source, revision=revision)
+    create = staticmethod (create)
+
     def __init__ (self, dir, source, revision='HEAD'):
         # FIXME: multi-branch repos not supported for now
         if not revision:
@@ -859,33 +937,51 @@ def get_repository_proxy (dir, url, revision, branch):
                            % locals ())
 
 def test ():
-     import unittest
+    import unittest
 
-     for i in RepositoryProxy.repositories:
-         print i, i.vc_system
+    for i in RepositoryProxy.repositories:
+        print i, i.vc_system
 
-     class Test_get_repository_proxy (unittest.TestCase):
-         def testCVS (self):
-             repo = get_repository_proxy ('downloads/test/', 'cvs::pserver:anonymous@cvs.savannah.gnu.org:/sources/emacs', '', '')
-             self.assertEqual (repo.__class__, CVS)
-         def testTarBall (self):
-             repo = get_repository_proxy ('downloads/test/', 'http://ftp.gnu.org/pub/gnu/hello/hello-2.3.tar.gz', '', '')
-             self.assertEqual (repo.__class__, TarBall)
-         def testGit (self):
-             repo = get_repository_proxy ('downloads/test/', 'git://git.kernel.org/pub/scm/git/git', '', '')
-             self.assertEqual (repo.__class__, Git)
-         def testLocalGit (self):
-             os.system ('rm -rf downloads/test/git')
-             os.system ('mkdir -p downloads/test/git')
-             os.system ('cd downloads/test/git && git init')
-             repo = get_repository_proxy ('downloads/test/', 'file://' + os.getcwd () + '/downloads/test/git', '', '')
-             self.assertEqual (repo.__class__, Git)
-         def testBazaar (self):
-             repo = get_repository_proxy ('downloads/test/', 'bzr:http://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr', '', '')
-             self.assertEqual (repo.__class__, Bazaar)
+    # This is not a unittest, it only serves as a smoke test mainly as
+    # an aid to get rid safely of the global non-oo repository_proxy
+    # stuff
+    global get_repository_proxy
 
-     suite = unittest.makeSuite (Test_get_repository_proxy)
-     unittest.TextTestRunner (verbosity=2).run (suite)
+    class Test_get_repository_proxy (unittest.TestCase):
+        def setUp (self):
+            os.system ('rm -rf downloads/test')
+        def testCVS (self):
+            repo = get_repository_proxy ('downloads/test/', 'cvs::pserver:anonymous@cvs.savannah.gnu.org:/sources/emacs', '', '')
+            self.assertEqual (repo.__class__, CVS)
+        def testTarBall (self):
+            repo = get_repository_proxy ('downloads/test/', 'http://ftp.gnu.org/pub/gnu/hello/hello-2.3.tar.gz', '', '')
+            self.assertEqual (repo.__class__, TarBall)
+        def testGit (self):
+            repo = get_repository_proxy ('downloads/test/', 'git://git.kernel.org/pub/scm/git/git', '', '')
+            self.assertEqual (repo.__class__, Git)
+        def testLocalGit (self):
+            os.system ('mkdir -p downloads/test/git')
+            os.system ('cd downloads/test/git && git init')
+            repo = get_repository_proxy ('downloads/test/', 'file://' + os.getcwd () + '/downloads/test/git', '', '')
+            self.assertEqual (repo.__class__, Git)
+        def testBazaar (self):
+            repo = get_repository_proxy ('downloads/test/', 'bzr:http://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr', '', '')
+            self.assertEqual (repo.__class__, Bazaar)
+        def testBazaarGub (self):
+            os.system ('mkdir -p downloads/test/bzr')
+            cwd = os.getcwd ()
+            os.chdir ('downloads/test/bzr')
+            repo = get_repository_proxy ('.', 'bzr:http://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr', '', '')
+            self.assert_ (os.path.isdir ('.gub.bzr'))
+            os.chdir (cwd)
+           
+    suite = unittest.makeSuite (Test_get_repository_proxy)
+    unittest.TextTestRunner (verbosity=2).run (suite)
+
+    # Flip the big switch
+    get_repository_proxy = RepositoryProxy.get_repository
+    suite = unittest.makeSuite (Test_get_repository_proxy)
+    unittest.TextTestRunner (verbosity=2).run (suite)
 
 if __name__ == '__main__':
     test ()
