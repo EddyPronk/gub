@@ -65,6 +65,12 @@ class RepositoryProxy:
                 d = misc.find_dirs (dir, '^' + i.vc_system)
                 if d and i.check_dir (i, os.path.dirname (d[0])):
                     return i.create (i, dir, url, revision, branch)
+        for i in RepositoryProxy.repositories:
+            # FIXME: this is currently used to determine flavour of
+            # downloads/lilypond.git.  But is is ugly and fragile;
+            # what if I do brz branch foo foo.git?
+            if i.check_suffix (i, dir):
+                return i.create (i, dir, url, revision, branch)
         raise UnknownVcSystem ('Cannot determine vc_system type: url=%(url)s, dir=%(dir)s'
                            % locals ())
     get_repository = staticmethod (get_repository)
@@ -889,6 +895,12 @@ def test ():
             repo = get_repository_proxy ('.', 'bzr:http://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr', '', '')
             self.assert_ (os.path.isdir ('.gub.bzr'))
             os.chdir (cwd)
+        def testGitSuffix (self):
+            # FIXME: this is currently used to determine flavour of
+            # downloads/lilypond.git.  But is is ugly and fragile;
+            # what if I do brz branch foo foo.git?
+            repo = get_repository_proxy ('/foo/bar/barf/i-do-not-exist-or-possibly-am-of-bzr-flavour.git', '', '', '')
+            self.assertEqual (repo.__class__, Git)
            
     suite = unittest.makeSuite (Test_get_repository_proxy)
     unittest.TextTestRunner (verbosity=2).run (suite)
