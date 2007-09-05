@@ -38,16 +38,15 @@ class RepositoryException (Exception):
 
 class RepositoryProxy:
     repositories = []
-    def register (vcs):
-        RepositoryProxy.repositories.append (vcs)
+    def register (repository):
+        RepositoryProxy.repositories.append (repository)
     register = staticmethod (register)
 
 ## Rename to Source/source.py?
 
 class Repository: 
-    vcs = None
-    def __init__ (self, dir, vc_system, source):
-        self.vc_system = vc_system
+    vc_system = None
+    def __init__ (self, dir, source):
         self.dir = os.path.normpath (dir) + self.vc_system
 
         if not dir or dir == '.':
@@ -142,8 +141,9 @@ class Version:
 #RepositoryProxy.register (Version)
 
 class Darcs (Repository):
+    vc_system = '_darcs'
     def __init__ (self, dir, source=''):
-        Repository.__init__ (self, dir, '_darcs', source)
+        Repository.__init__ (self, dir, source)
 
     def darcs_pipe (self, cmd):
         dir = self.dir
@@ -209,9 +209,10 @@ class Darcs (Repository):
 RepositoryProxy.register (Darcs)
     
 class TarBall (Repository):
+    vc_system = '.tar'
     # TODO: s/url/source
     def __init__ (self, dir, url, version=None, strip_components=1):
-        Repository.__init__ (self, dir, '.tar', url)
+        Repository.__init__ (self, dir, url)
 
         self.dir = dir
         if not os.path.isdir (self.dir):
@@ -285,9 +286,9 @@ class NewTarBall (TarBall):
                           strip_components)
 
 class Git (Repository):
-    vcs = '.git'
+    vc_system = '.git'
     def __init__ (self, dir, source='', branch='', revision=''):
-        Repository.__init__ (self, dir, '.git', source)
+        Repository.__init__ (self, dir, source)
         user_repo_dir = os.path.join (self.dir, self.vc_system)
         if os.path.isdir (user_repo_dir):
             self.dir = user_repo_dir
@@ -479,11 +480,12 @@ class Git (Repository):
 RepositoryProxy.register (Git)
 
 class CVS (Repository):
+    vc_system = 'CVS'
     cvs_entries_line = re.compile ("^/([^/]*)/([^/]*)/([^/]*)/([^/]*)/")
     #tag_dateformat = '%Y/%m/%d %H:%M:%S'
 
     def __init__ (self, dir, source='', module='', tag='HEAD'):
-        Repository.__init__ (self, dir, '.cvs', source)
+        Repository.__init__ (self, dir, source)
         self.module = module
         self.checksums = {}
         self.source = source
@@ -628,8 +630,8 @@ RepositoryProxy.register (CVS)
 
 # FIXME: why are cvs, darcs, git so complicated?
 class SimpleRepo (Repository):
-    def __init__ (self, dir, vc_system, source, branch, revision='HEAD'):
-        Repository.__init__ (self, dir, vc_system, source)
+    def __init__ (self, dir, source, branch, revision='HEAD'):
+        Repository.__init__ (self, dir, source)
         self.source = source
         self.revision = revision
         self.branch = branch
@@ -687,10 +689,11 @@ class SimpleRepo (Repository):
                 .replace ('--', '-'))
 
 class Subversion (SimpleRepo):
+    vc_system = '.svn'
     def __init__ (self, dir, source, branch, module, revision='HEAD'):
         if not revision:
             revision = 'HEAD'
-        SimpleRepo.__init__ (self, dir, '.svn', source, branch, revision)
+        SimpleRepo.__init__ (self, dir, source, branch, revision)
         self.module = module
 
     def _current_revision (self):
@@ -721,11 +724,12 @@ class Subversion (SimpleRepo):
 RepositoryProxy.register (Subversion)
 
 class Bazaar (SimpleRepo):
+    vc_system = '.bzr'
     def __init__ (self, dir, source, revision='HEAD'):
         # FIXME: multi-branch repos not supported for now
         if not revision:
             revision = '0'
-        SimpleRepo.__init__ (self, dir, '.bzr', source, '.', revision)
+        SimpleRepo.__init__ (self, dir, source, '.', revision)
         self.module = '.'
 
     def _current_revision (self):
@@ -857,16 +861,31 @@ def get_repository_proxy (dir, url, revision, branch):
 def test ():
      import unittest
 
+     for i in RepositoryProxy.repositories:
+         print i, i.vc_system
+
      class Test_get_repository_proxy (unittest.TestCase):
          def testCVS (self):
-             repo = get_repository_proxy ('', 'cvs::pserver:anonymous@cvs.savannah.gnu.org:/sources/emacs', '', '')
+             repo = get_repository_proxy ('downloads/test/', 'cvs::pserver:anonymous@cvs.savannah.gnu.org:/sources/emacs', '', '')
              self.assertEqual (repo.__class__, CVS)
+         def testTarBall (self):
+             repo = get_repository_proxy ('downloads/test/', 'http://ftp.gnu.org/pub/gnu/hello/hello-2.3.tar.gz', '', '')
+             self.assertEqual (repo.__class__, TarBall)
+         def testGit (self):
+             repo = get_repository_proxy ('downloads/test/', 'git://git.kernel.org/pub/scm/git/git', '', '')
+             self.assertEqual (repo.__class__, Git)
+         def testLocalGit (self):
+             os.system ('rm -rf downloads/test/git')
+             os.system ('mkdir -p downloads/test/git')
+             os.system ('cd downloads/test/git && git init')
+             repo = get_repository_proxy ('downloads/test/', 'file://' + os.getcwd () + '/downloads/test/git', '', '')
+             self.assertEqual (repo.__class__, Git)
+         def testBazaar (self):
+             repo = get_repository_proxy ('downloads/test/', 'bzr:http://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr', '', '')
+             self.assertEqual (repo.__class__, Bazaar)
 
      suite = unittest.makeSuite (Test_get_repository_proxy)
      unittest.TextTestRunner (verbosity=2).run (suite)
-
-     for i in RepositoryProxy.repositories:
-         print i, i.vcs
 
 if __name__ == '__main__':
     test ()
