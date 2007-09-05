@@ -1,5 +1,7 @@
 #! /usr/bin/python
 
+# FIXME: replace `lilypond' with $package to make generic tester
+
 import sys
 import os
 import optparse
@@ -21,19 +23,9 @@ build_platform = {
 	'linux2': 'linux-x86',
 }[sys.platform]
 
-################################################################
-# UGh , cut & paste
-class LogFile:
-    def __init__ (self, name):
-        self.file = open (name, 'a')
-        self.prefix = 'cron-builder.py[%d]: ' % os.getpid ()
+sys.path.insert (0, os.path.split (sys.argv[0])[0] + '/..')
 
-    def log (self, msg):
-        self.file.write ('%s%s\n' % (self.prefix, msg))
-        self.file.flush ()
-        
-    def __del__ (self):
-        self.log (' *** finished')
+from gub import oslog
 
 log_file = None
 
@@ -106,6 +98,8 @@ def parse_options ():
                   default=False,
                   help="test self")
 
+    p.add_option ('-v', '--verbose', action='count', dest='verbose', default=0)
+
     (opts, args) = p.parse_args ()
     
     global dry_run
@@ -121,16 +115,6 @@ def parse_options ():
         
     return (opts, args)
 
-def system (c, ignore_error=False):
-    log_file.log ('executing %s' % c)
-
-    s = None
-    if not dry_run:
-        s = os.system (c)
-        
-    if s and not ignore_error:
-        raise 'barf'
-
 def main ():
     (opts, args) = parse_options ()
     os.environ['PATH']= os.getcwd () + '/target/local/system/usr/bin:' + os.environ['PATH']
@@ -138,15 +122,15 @@ def main ():
     global log_file
     
     os.system ('mkdir -p log')
-    log_file = LogFile ('log/cron-builder.log')
+    if opts.dry_run:
+        options.verbose = oslog.Os_commands['command']
+    log_file = oslog.Os_commands ('log/cron-builder.log', options.verbose,
+                                  dry_run)
     log_file.log (' *** %s' % time.ctime ())
     log_file.log (' *** Starting cron-builder:\n  %s ' % '\n  '.join (args)) 
 
-    if opts.dry_run:
-        log_file.file = sys.stdout
-
     if opts.clean:
-        system ('rm -rf log/ target/ uploads/ buildnumber-* downloads/lilypond-*')
+        log_file.system ('rm -rf log/ target/ packages/ uploads/ buildnumber-* downloads/lilypond-*')
 
     make_cmd = 'make %s ' % opts.make_options
     python_cmd = sys.executable  + ' '
@@ -155,9 +139,9 @@ def main ():
     ## can't have these in gub-tester, since these
     ## will always usually result in "release already tested"
     for a in args:
-        system (python_cmd + 'bin/gub --branch=lilypond=%s:%s -p %s --stage=download lilypond'
+        log_file.system (python_cmd + 'bin/gub --branch=lilypond=%s:%s -p %s --stage=download lilypond'
                 % (opts.branch, opts.local_branch, a))
-        system ('rm -f target/%s/status/lilypond-%s*' % (a, opts.branch))
+        log_file.system ('rm -f target/%s/status/lilypond-%s*' % (a, opts.branch))
 
     test_cmds = []
     if opts.build_package:
@@ -179,7 +163,7 @@ def main ():
     if opts.build_tarball:
         test_cmds += [make_cmd + " dist-check"]
 
-    system (python_cmd + 'bin/gub-tester %s %s '
+    log_file.system (python_cmd + 'bin/gub-tester %s %s '
             % (opts.test_options, ' '.join (["'%s'" % c for c in test_cmds])))
 
 if __name__ == '__main__':
