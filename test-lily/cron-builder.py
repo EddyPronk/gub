@@ -12,8 +12,8 @@ import time
 """
 run as
 
-  python test-lily/cron-builder.py \
-  --test-opts "--to me@mydomain.org --from me@mydomain.org --repository . --smtp smtp.xs4all.nl" [PLATFORM]...
+  test-lily/cron-builder.py \
+  --test-options "--to me@mydomain.org --from me@mydomain.org --repository . --smtp smtp.xs4all.nl" [PLATFORM]...
 
 """
 

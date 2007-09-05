@@ -9,10 +9,7 @@
 
 * Add diff option: 561096638b3718af86d61570ac63bafa5c4a99f8
 
-* Make downloaded repositories easier, something like
-    downloads/lilypond.git/.git  # lilypond.git usable with git commands
-    downloads/ghostscript-trunk-HEAD.svn/.svn
-    downloads/ghostscript-trunk-7882.svn/.svn
+* Robustification against ^C, esp. in in repository.download ()
 
 * Softcode stages.
 
