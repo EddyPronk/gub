@@ -849,91 +849,7 @@ class Bazaar (SimpleRepo):
 
 RepositoryProxy.register (Bazaar)
 
-def get_appended_vc_system_name (name):
-    return re.search (r"(.*)[._](bzr|git|cvs|svn|darcs|tar(.gz|.bz2))", name)
-
-def get_prepended_vc_system_name (name):
-    return re.search (r"(bzr|git|cvs|svn|darcs):(.+:.+)", name)
-
-# FIXME: removeme, allow for user to checkout sources in any directory
-# and use that as cache
-def get_vc_system_type_from_checkout_directory_name (dir):
-    m = get_appended_vc_system_name (dir)
-    if m:
-        dir = m.group (1)
-        type = m.group (2)
-        return dir, type
-    return dir, None
-
-def get_vc_system_type_of_dir (dir):
-    # FIXME: get these from all repositories...
-    for i in ('.bzr', '.git', 'CVS', '.svn', '_darcs'):
-        if os.path.isdir (os.path.join (dir, i)):
-            return i.replace ('.', '').replace ('_', '')
-        elif os.path.isdir (os.path.join (dir, '.gub' + i)):
-            d = misc.find_dirs (dir, '^' + i)
-            if d:
-                return get_vc_system_type_of_dir (os.path.dirname (d[0]))
-    return None
-
-def get_vc_system_type_from_url (url):
-    m = get_prepended_vc_system_name (url)
-    if m and m.group (2):
-        type = m.group (1)
-        url = m.group (2)
-        return url, type
-    file_p = 'file://'
-    p = url.find (file_p)
-    if p >= 0:
-        # Duh, git says: fatal: I don't handle protocol 'file'
-        url = url[p + len (file_p):]
-        type = get_vc_system_type_of_dir (url)
-        if type:
-            print type
-            return url, type
-    p = url.find ('://')
-    if p > 0:
-        protocol = url[:p]
-        type = {'bzr+ssh': 'bzr',
-                'svn+ssh': 'svn',
-                'git': 'git',
-            }.get (protocol, None)
-        if type:
-            return url, type
-    m = get_appended_vc_system_name (url)
-    if m:
-        type = m.group (2)
-        return url, type
-    return url, None
-
-def get_repository_proxy (dir, url, revision, branch):
-    type = None
-    if url:
-        url, type = get_vc_system_type_from_url (url)
-    if not type:
-        dir, type = get_vc_system_type_from_checkout_directory_name (dir)
-    if not type:
-        # FIXME: todo: teach repositories that they might be
-        type = get_vc_system_type_of_dir (dir)
-
-    if type == 'bzr':
-        return Bazaar (dir, source=url, revision=revision)
-    elif type == 'cvs':
-        if not branch:
-            branch='HEAD'
-        p = url.rfind ('/')
-        return CVS (dir, source=url, module=url[p+1:], tag=branch)
-    elif type == 'darcs':
-        return Darcs (dir, source=url)
-    elif type == 'git':
-        return Git (dir, source=url, branch=branch, revision=revision)
-    elif type == 'svn':
-        return Subversion (dir, source=url, branch=branch)
-    elif type and type.startswith ('tar.'):
-        return TarBall (dir, url=url)
-    
-    raise UnknownVcSystem ('Cannot determine vc_system type: url=%(url)s, dir=%(dir)s'
-                           % locals ())
+get_repository_proxy = RepositoryProxy.get_repository
 
 def test ():
     import unittest
@@ -974,11 +890,6 @@ def test ():
             self.assert_ (os.path.isdir ('.gub.bzr'))
             os.chdir (cwd)
            
-    suite = unittest.makeSuite (Test_get_repository_proxy)
-    unittest.TextTestRunner (verbosity=2).run (suite)
-
-    # Flip the big switch
-    get_repository_proxy = RepositoryProxy.get_repository
     suite = unittest.makeSuite (Test_get_repository_proxy)
     unittest.TextTestRunner (verbosity=2).run (suite)
 
