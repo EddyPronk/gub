@@ -113,10 +113,11 @@ def parse_options ():
     opts.make_options += " BRANCH=%s" % opts.branch
 
     if '--repository' not in  opts.test_options:
-        opts.test_options += ' --repository downloads/lilypond.git '
+        opts.test_options += ' --repository=downloads/lilypond.git '
 
     if '--branch' not in  opts.test_options:
-        opts.test_options += ' --branch %s:%s' % (opts.branch,opts.local_branch)
+        opts.test_options += (' --branch=lilypond=%s:%s'
+                              % (opts.branch, opts.local_branch))
         
     return (opts, args)
 
