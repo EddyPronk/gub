@@ -2,12 +2,12 @@
 
 # FIXME: replace `lilypond' with $package to make generic tester
 
-import sys
 import os
 import optparse
-import re
-import fcntl
-import time
+import sys
+
+sys.path.insert (0, os.path.split (sys.argv[0])[0] + '/..')
+from gub import oslog
 
 """
 run as
@@ -18,15 +18,6 @@ run as
 """
 
 dry_run = False
-build_platform = {
-	'darwin': 'darwin-ppc',
-	'linux2': 'linux-x86',
-}[sys.platform]
-
-sys.path.insert (0, os.path.split (sys.argv[0])[0] + '/..')
-
-from gub import oslog
-
 log_file = None
 
 def parse_options ():
@@ -126,7 +117,6 @@ def main ():
         options.verbose = oslog.Os_commands['command']
     log_file = oslog.Os_commands ('log/cron-builder.log', options.verbose,
                                   dry_run)
-    log_file.info (' *** %s' % time.ctime ())
     log_file.info (' *** Starting cron-builder:\n  %s ' % '\n  '.join (args)) 
 
     if options.clean:
