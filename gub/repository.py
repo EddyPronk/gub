@@ -874,8 +874,7 @@ def get_vc_system_type_of_dir (dir):
             d = misc.find_dirs (dir, '^' + i)
             if d:
                 return get_vc_system_type_of_dir (os.path.dirname (d[0]))
-    #Hmm
-    return 'tar.gz'
+    return None
 
 def get_vc_system_type_from_url (url):
     m = get_prepended_vc_system_name (url)
