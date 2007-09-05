@@ -100,39 +100,39 @@ def parse_options ():
 
     p.add_option ('-v', '--verbose', action='count', dest='verbose', default=0)
 
-    (opts, args) = p.parse_args ()
+    (options, args) = p.parse_args ()
     
     global dry_run
-    dry_run = opts.dry_run
-    opts.make_options += " BRANCH=%s" % opts.branch
+    dry_run = options.dry_run
+    options.make_options += " BRANCH=%s" % options.branch
 
-    if '--repository' not in  opts.test_options:
-        opts.test_options += ' --repository=downloads/lilypond.git '
+    if '--repository' not in options.test_options:
+        options.test_options += ' --repository=downloads/lilypond.git '
 
-    if '--branch' not in  opts.test_options:
-        opts.test_options += (' --branch=lilypond=%s:%s'
-                              % (opts.branch, opts.local_branch))
+    if '--branch' not in  options.test_options:
+        options.test_options += (' --branch=lilypond=%s:%s'
+                              % (options.branch, options.local_branch))
         
-    return (opts, args)
+    return (options, args)
 
 def main ():
-    (opts, args) = parse_options ()
+    (options, args) = parse_options ()
     os.environ['PATH']= os.getcwd () + '/target/local/system/usr/bin:' + os.environ['PATH']
     print os.environ['PATH']
     global log_file
     
     os.system ('mkdir -p log')
-    if opts.dry_run:
+    if options.dry_run:
         options.verbose = oslog.Os_commands['command']
     log_file = oslog.Os_commands ('log/cron-builder.log', options.verbose,
                                   dry_run)
     log_file.log (' *** %s' % time.ctime ())
     log_file.log (' *** Starting cron-builder:\n  %s ' % '\n  '.join (args)) 
 
-    if opts.clean:
+    if options.clean:
         log_file.system ('rm -rf log/ target/ packages/ uploads/ buildnumber-* downloads/lilypond-*')
 
-    make_cmd = 'make %s ' % opts.make_options
+    make_cmd = 'make %s ' % options.make_options
     python_cmd = sys.executable  + ' '
 
     # FIXME: use gub-tester's download facility
@@ -140,31 +140,31 @@ def main ():
     ## will always usually result in "release already tested"
     for a in args:
         log_file.system (python_cmd + 'bin/gub --branch=lilypond=%s:%s -p %s --stage=download lilypond'
-                % (opts.branch, opts.local_branch, a))
-        log_file.system ('rm -f target/%s/status/lilypond-%s*' % (a, opts.branch))
+                % (options.branch, options.local_branch, a))
+        log_file.system ('rm -f target/%s/status/lilypond-%s*' % (a, options.branch))
 
     test_cmds = []
-    if opts.build_package:
+    if options.build_package:
         test_cmds += [python_cmd + 'bin/gub --branch=lilypond=%s:%s -lp %s lilypond '
-                      % (opts.branch, opts.local_branch, p) for p in args]
+                      % (options.branch, options.local_branch, p) for p in args]
         
-    if opts.build_installer:
-        version_opts = '' 
+    if options.build_installer:
+        version_options = '' 
             
         test_cmds += [python_cmd + 'bin/installer-builder --skip-if-locked %s --branch %s -p %s build-all lilypond '
-                      % (version_opts, opts.local_branch, p) for p in args]
+                      % (version_options, options.local_branch, p) for p in args]
 
-    if opts.build_docs:
+    if options.build_docs:
         test_cmds += [make_cmd + 'doc-build',
                       make_cmd + 'doc-export']
-        opts.test_options += ' --dependent '
+        options.test_options += ' --dependent '
 
 
-    if opts.build_tarball:
+    if options.build_tarball:
         test_cmds += [make_cmd + " dist-check"]
 
     log_file.system (python_cmd + 'bin/gub-tester %s %s '
-            % (opts.test_options, ' '.join (["'%s'" % c for c in test_cmds])))
+            % (options.test_options, ' '.join (["'%s'" % c for c in test_cmds])))
 
 if __name__ == '__main__':
     main ()
