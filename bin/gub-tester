@@ -322,8 +322,8 @@ def real_main (options, args, handle_result):
 
     repo = repository.get_repository_proxy (options.repository,
                                             options.url,
-                                            options.revision,
-                                            options.branch)
+                                            options.branch,
+                                            options.revision)
     repo.set_oslog (main_log)
     if (not repo.is_downloaded () or options.update or options.revision):
         repo.download ()

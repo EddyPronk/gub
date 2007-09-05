@@ -42,35 +42,35 @@ class RepositoryProxy:
         RepositoryProxy.repositories.append (repository)
     register = staticmethod (register)
 
-    def get_repository (dir, url, revision, branch):
+    def get_repository (dir, url, branch, revision):
         for i in RepositoryProxy.repositories:
             if i.check_url (i, url):
-                return i.create (i, dir, url, revision, branch)
+                return i.create (i, dir, url, branch, revision)
         file_p = 'file://'
         if url and url.startswith (file_p):
             url_dir = url[len (file_p):]
             for i in RepositoryProxy.repositories:
                 if i.check_dir (i, url_dir):
                     # Duh, git says: fatal: I don't handle protocol 'file'
-                    # return i.create (i, dir, url, revision, branch)
-                    return i.create (i, dir, url_dir, revision, branch)
+                    # return i.create (i, dir, url, branch, revision)
+                    return i.create (i, dir, url_dir, branch, revision)
         for i in RepositoryProxy.repositories:
             if i.check_dir (i, dir):
-                return i.create (i, dir, url, revision, branch)
+                return i.create (i, dir, url, branch, revision)
         for i in RepositoryProxy.repositories:
             if i.check_suffix (i, url):
-                return i.create (i, dir, url, revision, branch)
+                return i.create (i, dir, url, branch, revision)
         for i in RepositoryProxy.repositories:
             if os.path.isdir (os.path.join (dir, '.gub' + i.vc_system)):
                 d = misc.find_dirs (dir, '^' + i.vc_system)
                 if d and i.check_dir (i, os.path.dirname (d[0])):
-                    return i.create (i, dir, url, revision, branch)
+                    return i.create (i, dir, url, branch, revision)
         for i in RepositoryProxy.repositories:
             # FIXME: this is currently used to determine flavour of
             # downloads/lilypond.git.  But is is ugly and fragile;
             # what if I do brz branch foo foo.git?
             if i.check_suffix (i, dir):
-                return i.create (i, dir, url, revision, branch)
+                return i.create (i, dir, url, branch, revision)
         raise UnknownVcSystem ('Cannot determine vc_system type: url=%(url)s, dir=%(dir)s'
                            % locals ())
     get_repository = staticmethod (get_repository)
