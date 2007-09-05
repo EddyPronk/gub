@@ -47,7 +47,7 @@ class RepositoryProxy:
             if i.check_url (i, url):
                 return i.create (i, dir, url, revision, branch)
         file_p = 'file://'
-        if url.startswith (file_p):
+        if url and url.startswith (file_p):
             url_dir = url[len (file_p):]
             for i in RepositoryProxy.repositories:
                 if i.check_dir (i, url_dir):
@@ -79,11 +79,11 @@ class Repository:
 
     def check_url (rety, url):
         vcs = rety.vc_system.replace ('_', '',).replace ('.', '').lower ()
-        return url.startswith (vcs + ':')
+        return url and url.startswith (vcs + ':')
     check_url = staticmethod (check_url)
 
     def check_suffix (rety, url):
-        return url.endswith (rety.vc_system)
+        return url and url.endswith (rety.vc_system)
     check_suffix = staticmethod (check_suffix)
 
     def create (rety, dir, source, branch='', revision=''):
@@ -265,9 +265,9 @@ class TarBall (Repository):
     create = staticmethod (create)
 
     def check_suffix (rety, url):
-         return (url.endswith (rety.vc_system)
-                or url.endswith (rety.vc_system + '.gz')
-                or url.endswith (rety.vc_system + '.bz2'))
+         return url and (url.endswith (rety.vc_system)
+                         or url.endswith (rety.vc_system + '.gz')
+                         or url.endswith (rety.vc_system + '.bz2'))
     check_suffix = staticmethod (check_suffix)
 
     # TODO: s/url/source
