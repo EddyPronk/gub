@@ -101,7 +101,7 @@ class Repository:
         dir_vcs = self.dir + self.vc_system
         if not os.path.isdir (dir) and os.path.isdir (dir_vcs):
             # URG, Fixme, wtf?:
-            print 'WARNING, appending ' + self.vc_system + ' to checkout dir'
+            sys.stderr.write('appending %s to checkout dir %s\n' % (self.vc_system, self.dir))
             self.dir = dir_vcs
 
         if not dir or dir == '.':
