@@ -107,7 +107,11 @@ class Builder:
             if spec.is_done (stage, stages.index (stage)):
                 tainted = True
                 continue
-
+            if (stage == 'clean'
+                and self.settings.options.keep_build):
+                os.unlink (spec.get_stamp_file ())
+                continue
+            
             spec.os_interface.stage (' *** Stage: %s (%s, %s)\n'
                                      % (stage, spec.name (), self.settings.platform))
 
@@ -142,11 +146,6 @@ to skip this check.
                 spec.set_done (stage, stages.index (stage))
 
         spec.os_interface.execute_commands()
-        if 0:
-            if (stage == 'clean'
-                and self.settings.options.keep_build):
-                os.unlink (spec.get_stamp_file ())
-                continue
 
 
     def spec_conflict_resolution (self, spec, pkg):
