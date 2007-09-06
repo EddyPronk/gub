@@ -64,8 +64,7 @@ class TargetBuildSpec (gubb.BuildSpec):
         if str:
             self.system ('mkdir -p %(builddir)s')
             cache_file = '%(builddir)s/config.cache'
-            self.dump (self.config_cache_settings (), cache_file)
-            os.chmod (self.expand (cache_file), 0755)
+            self.dump (self.config_cache_settings (), cache_file, permissions=0755)
 
     def config_cache_settings (self):
         from gub import config_cache

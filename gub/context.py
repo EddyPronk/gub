@@ -170,7 +170,8 @@ class Os_context_wrapper (Context):
         if to_name:
             to_name = self.expand (to_name, env)
             
-        return self.os_interface.file_sub (substs, self.expand (name, env), to_name, must_succeed, use_re=use_re)
+        return self.os_interface.file_sub (substs, self.expand (name, env), to_name=to_name,
+                                           must_succeed=must_succeed, use_re=use_re)
     
     def fakeroot (self, s):
         self.os_interface.fakeroot (s)
@@ -194,13 +195,13 @@ class Os_context_wrapper (Context):
         self.os_interface.shadow_tree (src, dest)
         
     def dump (self, str, name, mode='w', env={},
-              expand_string=True, expand_name=True):
+              expand_string=True, expand_name=True, permissions=0644):
         if expand_name:
             name = self.expand (name, env)
         if expand_string:
             str = self.expand (str, env)
             
-        return self.os_interface.dump (str, name, mode=mode)
+        return self.os_interface.dump (str, name, mode=mode, permissions=permissions)
     
     def locate_files (self, directory, pattern,
                       include_dirs=True, include_files=True):

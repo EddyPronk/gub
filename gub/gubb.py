@@ -5,6 +5,7 @@ import re
 #
 from gub import misc
 from gub import repository
+from gub import oslog
 from gub.context import *
 
 class PackageSpec:
@@ -309,58 +310,8 @@ class BuildSpec (Os_context_wrapper):
     def set_done (self, stage, stage_number):
         open (self.get_stamp_file (),'w'). write ('%d' % stage_number) 
 
-    def autoupdate (self, autodir=0):
-        if not autodir:
-            autodir = self.srcdir ()
-        if os.path.isdir (os.path.join (self.srcdir (), 'ltdl')):
-            self.system ('''
-rm -rf %(autodir)s/libltdl
-cd %(autodir)s && libtoolize --force --copy --automake --ltdl
-''', locals ())
-        else:
-            self.system ('''
-cd %(autodir)s && libtoolize --force --copy --automake
-''', locals ())
-        if os.path.exists (os.path.join (autodir, 'bootstrap')):
-            self.system ('''
-cd %(autodir)s && ./bootstrap
-''', locals ())
-        elif os.path.exists (os.path.join (autodir, 'autogen.sh')):
-
-            ## --noconfigure ??
-            ## is --noconfigure standard for autogen? 
-            self.system ('''
-cd %(autodir)s && bash autogen.sh  --noconfigure
-''', locals ())
-        else:
-            aclocal_opt = ''
-            if os.path.exists (self.expand ('%(system_root)s/usr/share/aclocal')):
-                aclocal_opt = '-I %(system_root)s/usr/share/aclocal'
-                
-            headcmd = ''
-            for c in ('configure.in','configure.ac'):
-                try:
-                    str = open (self.expand ('%(srcdir)s/' + c)).read ()
-                    m = re.search ('A[CM]_CONFIG_HEADER', str)
-                    str = 0   ## don't want to expand str
-                    if m:
-                        headcmd = self.expand ('cd %(autodir)s && autoheader %(aclocal_opt)s', env=locals ())
-                        break
-                    
-                except IOError:
-                    pass
-                
-            self.system ('''
-cd %(autodir)s && aclocal %(aclocal_opt)s
-%(headcmd)s
-cd %(autodir)s && autoconf %(aclocal_opt)s
-''', locals ())
-            if os.path.exists (self.expand ('%(srcdir)s/Makefile.am')):
-                self.system ('''
-cd %(srcdir)s && automake --add-missing --foreign
-''', locals ())
-
-
+    def autoupdate (self):
+        self.os_interface.add_serialized (oslog.AutogenMagic(self))
                 
     def configure (self):
         self.system ('''
@@ -445,17 +396,7 @@ rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_roo
 
     # FIXME: should not misuse patch for auto stuff
     def patch (self):
-        if not os.path.exists (self.expand ('%(srcdir)s/configure')):
-            if (os.path.exists (self.expand ('%(srcdir)s/configure.ac'))
-                or os.path.exists (self.expand ('%(srcdir)s/configure.in'))
-                or (not os.path.exists (self.expand ('%(srcdir)s/Makefile'))
-                    and not os.path.exists (self.expand ('%(srcdir)s/makefile'))
-                    and not os.path.exists (self.expand ('%(srcdir)s/SConstruct')))):
-                self.autoupdate ()
-            else:
-                self.system ('''touch %(srcdir)s/configure
-chmod +x %(srcdir)s/configure''')
-                self.shadow_tree ('%(srcdir)s', '%(builddir)s')
+        self.autoupdate ()
 
     @subst_method
     def is_sdk_package (self):

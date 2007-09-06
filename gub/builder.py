@@ -128,13 +128,6 @@ to skip this check.
 ''')
                 spec.os_interface.error (msg)
                 sys.exit(1)
-
-
-            if (stage == 'clean'
-                and self.settings.options.keep_build):
-                os.unlink (spec.get_stamp_file ())
-                continue
-
             try:
                 (available[stage]) ()
             except misc.SystemFailed:
@@ -147,6 +140,14 @@ to skip this check.
 
             if stage != 'clean':
                 spec.set_done (stage, stages.index (stage))
+
+        spec.os_interface.execute_commands()
+        if 0:
+            if (stage == 'clean'
+                and self.settings.options.keep_build):
+                os.unlink (spec.get_stamp_file ())
+                continue
+
 
     def spec_conflict_resolution (self, spec, pkg):
         pkg_name = pkg.name ()

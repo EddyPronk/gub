@@ -19,7 +19,6 @@ specified by applications.'''
         self.with_vc (repository.Git (self.get_repodir (),
                                       source="git://anongit.freedesktop.org/git/fontconfig",
                                       revision=fc_version))
-
     def get_build_dependencies (self):
         return ['libtool', 'expat-devel', 'freetype-devel']
 
@@ -49,7 +48,6 @@ specified by applications.'''
         self.system ('''
 rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
 ''')
-
         targetpackage.TargetBuildSpec.configure (self)
 
         ## FIXME: libtool too old for cross compile
