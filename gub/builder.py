@@ -108,8 +108,8 @@ class Builder:
                 tainted = True
                 continue
 
-            spec.os_interface.stage (' *** Stage: %s (%s)\n'
-                                     % (stage, spec.name ()))
+            spec.os_interface.stage (' *** Stage: %s (%s, %s)\n'
+                                     % (stage, spec.name (), self.settings.platform))
 
             if (stage == 'package' and tainted
                 and not self.settings.options.force_package):
