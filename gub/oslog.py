@@ -176,7 +176,7 @@ class Conditional (SerializedCommand):
             return self.child.execute (os_commands)
         elif self.child_false:
             return self.child_false.execute (os_commands)
-        
+
 class FilePredicateConditional (Conditional):
     def exists (self):
         self.name 
@@ -188,7 +188,6 @@ class FilePredicateConditional (Conditional):
         self.child = child
 
 class ShadowTree (SerializedCommand):
-
     def __init__ (self, src, dest):
         self.src = src
         self.dest = dest
@@ -209,7 +208,37 @@ class ShadowTree (SerializedCommand):
         for d in dirs:
             self.shadow (os.path.join (root, d), os.path.join (target, d), os_commands)
 
-    
+
+class PackageGlobs (SerializedCommand):
+    def __init__ (self, root, suffix_dir, globs, dest):
+        self.globs = globs
+        self.root = root
+        self.suffix_dir = suffix_dir
+        self.dest = dest
+        
+    def execute (self, os_commands):
+        root = self.root
+        suffix_dir = self.suffix_dir
+        dest = self.dest
+        
+
+
+        import glob
+        globs = []
+        for f in self.globs:
+            f = re.sub ('/+', '/', f)
+            if f.startswith ('/'):
+                f = f[1:]
+                
+            for exp in glob.glob (os.path.join (self.root, f)):
+                globs.append (exp.replace (root, './').replace ('//', '/'))
+
+        if not globs:
+            globs.append ('thisreallysucks-but-lets-hope-I-dont-exist/')
+
+        cmd = 'tar -C %(root)s/%(suffix_dir)s --ignore-failed --exclude="*~" -zcf %(dest)s ' % locals()
+        cmd += ' '.join (globs) 
+        System (cmd).execute(os_commands)
 
 # FIXME
 class ForcedAutogenMagic (Conditional):

@@ -46,24 +46,14 @@ class PackageSpec:
             self._os_interface.system ('rm -rf %s%s ' % (base, f))
 
     def create_tarball (self):
-        cmd = 'tar -C %(install_root)s/%(packaging_suffix_dir)s --ignore-failed --exclude="*~" -zcf %(split_ball)s '
         path = os.path.normpath (self.expand ('%(install_root)s'))
-        globs  = []
-        for f in self._file_specs:
-            f = re.sub ('/+', '/', f)
-            if f.startswith ('/'):
-                f = f[1:]
-                
-            for exp in glob.glob (os.path.join (path, f)):
-                globs.append (exp.replace (path, './').replace ('//', '/'))
+        suffix = self.expand ('%(packaging_suffix_dir)s')
+        split_ball = self.expand ('%(split_ball)s')
 
-        if not globs:
-            globs.append ('thisreallysucks-but-lets-hope-I-dont-exist/')
-            
-        cmd += ' '.join (globs) 
-        cmd = self.expand (cmd)
-        self._os_interface.system (cmd)
-
+        self._os_interface.add_serialized (oslog.PackageGlobs (path,
+                                                               suffix,
+                                                               self._file_specs,
+                                                               split_ball))
     def dict (self):
         return self._dict
 
