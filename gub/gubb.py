@@ -861,6 +861,12 @@ def get_build_spec (flavour, settings, url):
         #   * gub bzr:http://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr
         # must remove specs/git.py for now to get this to work.
         # git.py overrides repository and branch settings
+
+        ### building for local without spec hack
+        if settings.platform == 'local':
+            from gub import toolpackage
+            flavour = toolpackage.ToolBuildSpec
+
         klass = classobj (name, (flavour,), {})
         klass.__module__ = name
         try:

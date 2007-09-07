@@ -39,10 +39,14 @@ class Settings (context.Context):
         if self.platform not in platforms.keys ():
             raise 'unknown platform', self.platform
 
+        GUB_LOCAL_PREFIX = os.environ.get ('GUB_LOCAL_PREFIX')
+        
         # config dirs
 
         # TODO: local-prefix, target-prefix, cross-prefix?
         self.prefix_dir = '/usr'
+        if self.platform == 'local' and GUB_LOCAL_PREFIX:
+            self.prefix_dir = ''
 
         # gubdir is top of `installed' gub repository
         self.gubdir = os.getcwd ()
@@ -63,7 +67,10 @@ class Settings (context.Context):
         self.targetdir = self.alltargetdir + '/' + self.platform
 
         self.system_root = self.targetdir + '/root'
+        if self.platform == 'local' and GUB_LOCAL_PREFIX:
+            self.system_root = GUB_LOCAL_PREFIX
         self.system_prefix = self.system_root + self.prefix_dir
+
         ## Patches are architecture dependent, 
         ## so to ensure reproducibility, we unpack for each
         ## architecture separately.
@@ -76,10 +83,14 @@ class Settings (context.Context):
         self.platform_uploads = self.uploads + '/' + self.platform
 
         # FIXME: rename to cross_root?
-        self.cross_prefix = self.system_prefix + '/cross'
+        ##self.cross_prefix = self.system_prefix + '/cross'
+        self.cross_prefix = self.targetdir + '/root' + self.prefix_dir + '/cross'
         self.installdir = self.targetdir + '/install'
         self.local_root = self.alltargetdir + '/local/root'
         self.local_prefix = self.local_root + self.prefix_dir
+        if GUB_LOCAL_PREFIX:
+            self.local_root = GUB_LOCAL_PREFIX
+            self.local_prefix = GUB_LOCAL_PREFIX
         self.cross_distcc_bindir = self.alltargetdir + '/cross-distcc/bin'
         self.native_distcc_bindir = self.alltargetdir + '/native-distcc/bin'
 
@@ -87,7 +98,7 @@ class Settings (context.Context):
         self.cross_allsrcdir = self.allsrcdir + '/cross'
         self.cross_statusdir = self.statusdir + '/cross'
 
-        self.core_prefix = self.system_prefix + '/cross/core'
+        self.core_prefix = self.cross_prefix + '/core'
         # end config dirs
 
 

@@ -38,10 +38,14 @@ class FileManager:
         self.is_distro = False
 
         ## lock must be outside of root, otherwise we can't rm -rf root
-        self.lock = locker.Locker (self.root + '.lock')
+        self.lock_file = self.root + '.lock'
+        if self.root == os.environ['HOME']:
+            self.lock_file = self.root + '/.gub.lock'
+        self.lock = locker.Locker (self.lock_file)
         if clean:
             os_interface.system ('rm -fr %s' % self.config)
-            os_interface.system ('rm -fr %s' % self.root)
+            # Whoa, this is fucking scary!
+            ## os_interface.system ('rm -fr %s' % self.root)
             
         self.make_dirs ()
         self._file_package_db = dbmodule.open (self.config + '/files.db', 'c')
