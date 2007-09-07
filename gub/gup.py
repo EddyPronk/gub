@@ -44,11 +44,10 @@ class FileManager:
             os_interface.system ('rm -fr %s' % self.root)
             
         self.make_dirs ()
-        self._file_package_db = dbmodule.open (self.config
-                           + '/files.db', 'c')
+        self._file_package_db = dbmodule.open (self.config + '/files.db', 'c')
         self._package_file_db = dbmodule.open (self.config
-                           + '/packages.db', 'c')
-
+                                               + '/packages.db', 'c')
+        
     def __repr__ (self):
         name = self.__class__.__name__
         root = self.root
@@ -481,7 +480,7 @@ topological order
 
 def get_target_manager (settings):
     target_manager = DependencyManager (settings.system_root,
-                      settings.os_interface)
+                                        settings.os_interface)
     return target_manager
 
 def add_packages_to_manager (target_manager, settings, package_object_dict):

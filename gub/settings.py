@@ -60,14 +60,14 @@ class Settings (context.Context):
         self.logdir = self.workdir + '/log'
         self.downloads = self.workdir + '/downloads'
         self.alltargetdir = self.workdir + '/target'
-        self.targetdir = self.alltargetdir + self.platform
+        self.targetdir = self.alltargetdir + '/' + self.platform
 
         self.system_root = self.targetdir + '/root'
         self.system_prefix = self.system_root + self.prefix_dir
         ## Patches are architecture dependent, 
         ## so to ensure reproducibility, we unpack for each
         ## architecture separately.
-        self.allsrcdir = self.targetdir, '/src'
+        self.allsrcdir = self.targetdir + '/src'
         self.allbuilddir = self.targetdir + '/build'
         self.statusdir = self.targetdir + '/status'
         self.packages = self.targetdir + '/packages'
