@@ -117,8 +117,8 @@ static char *
 get_allowed_prefix (char const *exe_name)
 {
   // can't add bin/ due to libexec.
-  char *cross_suffix = "/usr/cross/";
-  char const *last_found = strrstr(exe_name, cross_suffix);
+  char *cross_suffix = "/root/usr/cross/";
+  char const *last_found = strrstr (exe_name, cross_suffix);
 
   if (NULL == last_found)
     return ;

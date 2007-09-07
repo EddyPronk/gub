@@ -57,9 +57,9 @@ class Settings (context.Context):
         self.logdir = self.workdir + '/log'
         self.downloads = self.workdir + '/downloads'
         self.alltargetdir = self.workdir + '/target'
-        self.targetdir = self.alltargetdir + self.platform + '/gubfiles'
+        self.targetdir = self.alltargetdir + self.platform
 
-        self.system_root = self.alltargetdir
+        self.system_root = self.targetdir + '/root'
         ## Patches are architecture dependent, 
         ## so to ensure reproducibility, we unpack for each
         ## architecture separately.
