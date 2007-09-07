@@ -70,7 +70,7 @@ ModulesPath = $PANGO_PREFIX/lib/pango/%(pango_module_version)s/modules
         self.dump ("""
 setfile PANGO_RC_FILE=$INSTALLER_PREFIX/etc/pango/pangorc
 setdir PANGO_PREFIX=$INSTALLER_PREFIX/
-""", '%(install_root)s/usr/etc/relocate/pango.reloc', env=locals())
+""", '%(install_prefix)s/etc/relocate/pango.reloc', env=locals())
         self.fix_modules ()
 
 class Pango__linux (Pango):
@@ -99,4 +99,4 @@ class Pango__darwin (Pango):
         Pango.install (self)                
         self.dump ("""
 set PANGO_SO_EXTENSION=.so
-""", '%(install_root)s/usr/etc/relocate/pango.reloc', env=locals(), mode="a")
+""", '%(install_prefix)s/etc/relocate/pango.reloc', env=locals(), mode="a")

@@ -22,22 +22,22 @@ class Gcc_34__debian__mipsel (gcc.Gcc):
         gcc.Gcc.install (self)
         # get rid of duplicates
         self.system ('''
-rm -f %(install_root)s/usr/lib/libgcc_s.so
-rm -f %(install_root)s/usr/lib/libgcc_s.so.1
-rm -f %(install_root)s/usr/cross/lib/libiberty.a
-rm -rf %(install_root)s/usr/cross/mipsel-linux/lib/libiberty.a
-rm -rf %(install_root)s/usr/cross/info
-rm -rf %(install_root)s/usr/cross/man
-rm -rf %(install_root)s/usr/cross/share/locale
+rm -f %(install_prefix)s/lib/libgcc_s.so
+rm -f %(install_prefix)s/lib/libgcc_s.so.1
+rm -f %(install_prefix)s/cross/lib/libiberty.a
+rm -rf %(install_prefix)s/cross/mipsel-linux/lib/libiberty.a
+rm -rf %(install_prefix)s/cross/info
+rm -rf %(install_prefix)s/cross/man
+rm -rf %(install_prefix)s/cross/share/locale
 ''')
         if 'c++' in self.languages ():
             self.system ('''
-rm -rf %(install_root)s/usr/lib/libsupc++.la
-rm -rf %(install_root)s/usr/lib/libstdc++.la
-rm -rf %(install_root)s/usr/lib/libstdc++.so.6
-rm -rf %(install_root)s/usr/lib/libstdc++.so
-rm -rf %(install_root)s/usr/cross/mipsel-linux/lib/libsupc++.a
-rm -rf %(install_root)s/usr/cross/mipsel-linux/lib/libstdc++.a
-rm -rf %(install_root)s/usr/cross/mipsel-linux/lib/debug/libstdc++.a
+rm -rf %(install_prefix)s/lib/libsupc++.la
+rm -rf %(install_prefix)s/lib/libstdc++.la
+rm -rf %(install_prefix)s/lib/libstdc++.so.6
+rm -rf %(install_prefix)s/lib/libstdc++.so
+rm -rf %(install_prefix)s/cross/mipsel-linux/lib/libsupc++.a
+rm -rf %(install_prefix)s/cross/mipsel-linux/lib/libstdc++.a
+rm -rf %(install_prefix)s/cross/mipsel-linux/lib/debug/libstdc++.a
 ''')
 

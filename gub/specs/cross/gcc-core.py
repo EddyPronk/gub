@@ -22,7 +22,7 @@ class Gcc_core (gcc.Gcc_from_source):
         return (misc.join_lines (gcc.Gcc_from_source.configure_command (self)
                                  + '''
 --prefix=%(cross_prefix)s
---prefix=/usr
+--prefix=%(prefix_dir)s
 --with-newlib
 --enable-threads=no
 --without-headers

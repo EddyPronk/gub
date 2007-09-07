@@ -77,7 +77,7 @@ beautiful sheet music from a high-level description file.'''
 --enable-relocation
 --disable-documentation
 --enable-static-gxx
---with-ncsb-dir=%(system_root)s/usr/share/fonts/default/Type1
+--with-ncsb-dir=%(system_prefix)s/share/fonts/default/Type1
 '''))
 
     def configure (self):
@@ -153,14 +153,14 @@ cd %(builddir)s && %(configure_command)s''')
         # or do we need the version of lilypond?
         installer_version = self.build_version ()
         # WTF, current.
-        self.system ("cd %(install_root)s/usr/share/lilypond && mv %(installer_version)s current",
+        self.system ("cd %(install_prefix)s/share/lilypond && mv %(installer_version)s current",
                      locals ())
 
-        self.system ("cd %(install_root)s/usr/lib/lilypond && mv %(installer_version)s current",
+        self.system ("cd %(install_prefix)s/lib/lilypond && mv %(installer_version)s current",
                      locals ())
 
-        self.system ('mkdir -p %(install_root)s/usr/etc/fonts/')
-        fc_conf_file = open (self.expand ('%(install_root)s/usr/etc/fonts/local.conf'), 'w')
+        self.system ('mkdir -p %(install_prefix)s/etc/fonts/')
+        fc_conf_file = open (self.expand ('%(install_prefix)s/etc/fonts/local.conf'), 'w')
         fc_conf_file.write ('''
 <fontconfig>
 <selectfont>
@@ -269,13 +269,13 @@ class LilyPond__cygwin (LilyPond):
     def compile (self):
         self.system ('''
 cd %(builddir)s && make -C scripts PYTHON=/usr/bin/python
-cp -pv %(system_root)s/usr/share/gettext/gettext.h %(system_root)s/usr/include''')
+cp -pv %(system_prefix)s/share/gettext/gettext.h %(system_prefix)s/include''')
         LilyPond.compile (self)
 
     def compile_command (self):
         ## UGH - * sucks.
-        python_lib = "%(system_root)s/usr/bin/libpython*.dll"
-        LDFLAGS = '-L%(system_root)s/usr/lib -L%(system_root)s/usr/bin -L%(system_root)s/usr/lib/w32api'
+        python_lib = "%(system_prefix)s/bin/libpython*.dll"
+        LDFLAGS = '-L%(system_prefix)s/lib -L%(system_prefix)s/bin -L%(system_prefix)s/lib/w32api'
 
         ## UGH. 
         return (LilyPond.compile_command (self)
@@ -300,13 +300,13 @@ LDFLAGS="%(LDFLAGS)s %(python_lib)s"
             raise Exception ("cannot find docball %s" % docball)
             
         self.system ('''
-mkdir -p %(install_root)s/usr/share/doc/lilypond
-tar -C %(install_root)s/usr/share/doc/lilypond -jxf %(docball)s
+mkdir -p %(install_prefix)s/share/doc/lilypond
+tar -C %(install_prefix)s/share/doc/lilypond -jxf %(docball)s
 tar -C %(install_root)s -jxf %(infomanball)s
-find %(install_root)s/usr/share/doc/lilypond -name '*.signature' -exec rm '{}' ';'
-find %(install_root)s/usr/share/doc/lilypond -name '*.ps' -exec rm '{}' ';'
-mkdir -p %(install_root)s/usr/share/info/lilypond
-cd %(install_root)s/usr/share/info/lilypond && ln -sf ../../doc/lilypond/Documentation/user/*png .
+find %(install_prefix)s/share/doc/lilypond -name '*.signature' -exec rm '{}' ';'
+find %(install_prefix)s/share/doc/lilypond -name '*.ps' -exec rm '{}' ';'
+mkdir -p %(install_prefix)s/share/info/lilypond
+cd %(install_prefix)s/share/info/lilypond && ln -sf ../../doc/lilypond/Documentation/user/*png .
 ''',
                   locals ())
 
@@ -334,7 +334,7 @@ all:
 	true
 
 install:
-	-mkdir -p $(DESTDIR)/usr/lib/lilypond/%(version)s
+	-mkdir -p $(DESTDIR)%(prefix_dir)s/lib/lilypond/%(version)s
 ''', '%(builddir)s/python/GNUmakefile')
         
 class LilyPond__mingw (LilyPond):
@@ -350,8 +350,8 @@ class LilyPond__mingw (LilyPond):
     def compile_command (self):
 
         ## UGH - * sucks.
-        python_lib = "%(system_root)s/usr/bin/libpython*.dll"
-        LDFLAGS = '-L%(system_root)s/usr/lib -L%(system_root)s/usr/bin -L%(system_root)s/usr/lib/w32api'
+        python_lib = "%(system_prefix)s/bin/libpython*.dll"
+        LDFLAGS = '-L%(system_prefix)s/lib -L%(system_prefix)s/bin -L%(system_prefix)s/lib/w32api'
 
         ## UGH. 
         return (LilyPond.compile_command (self)
@@ -387,11 +387,11 @@ rm -f %(install_prefix)s/bin/lilypond-windows
 install -m755 %(builddir)s/lily/out/lilypond-windows %(install_prefix)s/bin/lilypond-windows.exe
 rm -f %(install_prefix)s/bin/lilypond
 install -m755 %(builddir)s/lily/out/lilypond-console %(install_prefix)s/bin/lilypond.exe
-cp %(install_root)s/usr/lib/lilypond/*/python/* %(install_root)s/usr/bin
-cp %(install_root)s/usr/share/lilypond/*/python/* %(install_root)s/usr/bin
+cp %(install_prefix)s/lib/lilypond/*/python/* %(install_prefix)s/bin
+cp %(install_prefix)s/share/lilypond/*/python/* %(install_prefix)s/bin
 ''')
         import glob
-        for i in glob.glob (self.expand ('%(install_root)s/usr/bin/*')):
+        for i in glob.glob (self.expand ('%(install_prefix)s/bin/*')):
             header = open (i).readline().strip ()
             if header.endswith ('guile'):
                 self.system ('mv %(i)s %(i)s.scm', locals ())
@@ -406,11 +406,11 @@ cp %(install_root)s/usr/share/lilypond/*/python/* %(install_root)s/usr/bin
 "@INSTDIR@\usr\bin\lilypond-windows.exe" -dgui %1 %2 %3 %4 %5 %6 %7 %8 %9
 '''.replace ('%', '%%').replace ('\n', '\r\n')
             
-        self.dump (bat, '%(install_root)s/usr/bin/lilypond-windows.bat.in')
+        self.dump (bat, '%(install_prefix)s/bin/lilypond-windows.bat.in')
 
 ## please document exactly why if this is switched back.
 #        self.file_sub ([(r'gs-font-load\s+#f', 'gs-font-load #t')],
-#        '%(install_root)s/usr/share/lilypond/current/scm/lily.scm')
+#        '%(install_prefix)s/share/lilypond/current/scm/lily.scm')
 
 class LilyPond__debian (LilyPond):
     def get_dependency_dict (self):

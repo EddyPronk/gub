@@ -33,18 +33,18 @@ class Nsis (toolpackage.ToolBuildSpec):
 
     def compile_command (self):
         ## no trailing / in paths!
-        return (' scons PREFIX=%(system_root)s/usr PREFIX_DEST=%(install_root)s '
+        return (' scons PREFIX=%(system_prefix)s PREFIX_DEST=%(install_root)s '
                 ' DEBUG=yes '
                 ' NSIS_CONFIG_LOG=yes '
                 ' SKIPPLUGINS=System')
     
     def compile (self): 
-        env = {'PATH': '%(alltargetdir)s/mingw/usr/cross/bin:' + os.environ['PATH']}
+        env = {'PATH': '%(alltargetdir)s/mingw%(prefix_dir)s/cross/bin:' + os.environ['PATH']}
         self.system ('cd %(builddir)s/ && %(compile_command)s',
                      env)
 
     def install (self):
-        env = {'PATH': '%(alltargetdir)s/mingw/usr/cross/bin:' + os.environ['PATH']}
+        env = {'PATH': '%(alltargetdir)s/mingw%(prefix_dir)s/cross/bin:' + os.environ['PATH']}
         self.system ('cd %(builddir)s/ && %(compile_command)s install ', env)
 
 

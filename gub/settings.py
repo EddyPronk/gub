@@ -41,6 +41,9 @@ class Settings (context.Context):
 
         # config dirs
 
+        # TODO: local-prefix, target-prefix, cross-prefix?
+        self.prefix_dir = '/usr'
+
         # gubdir is top of `installed' gub repository
         self.gubdir = os.getcwd ()
 
@@ -60,6 +63,7 @@ class Settings (context.Context):
         self.targetdir = self.alltargetdir + self.platform
 
         self.system_root = self.targetdir + '/root'
+        self.system_prefix = self.system_root + self.prefix_dir
         ## Patches are architecture dependent, 
         ## so to ensure reproducibility, we unpack for each
         ## architecture separately.
@@ -72,9 +76,9 @@ class Settings (context.Context):
         self.platform_uploads = self.uploads + '/' + self.platform
 
         # FIXME: rename to cross_root?
-        self.cross_prefix = self.system_root + '/usr/cross'
+        self.cross_prefix = self.system_prefix + '/cross'
         self.installdir = self.targetdir + '/install'
-        self.local_prefix = self.alltargetdir + '/local/usr'
+        self.local_prefix = self.alltargetdir + '/local' + self.prefix_dir
         self.cross_distcc_bindir = self.alltargetdir + '/cross-distcc/bin'
         self.native_distcc_bindir = self.alltargetdir + '/native-distcc/bin'
 
@@ -82,7 +86,7 @@ class Settings (context.Context):
         self.cross_allsrcdir = self.allsrcdir + '/cross'
         self.cross_statusdir = self.statusdir + '/cross'
 
-        self.core_prefix = self.system_root + '/usr/cross/core'
+        self.core_prefix = self.system_prefix + '/cross/core'
         # end config dirs
 
 

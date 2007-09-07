@@ -37,8 +37,8 @@ cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh 
         self.system ('cp %(sourcefiledir)s/jpeg.license %(license_file)s')
 
     def configure (self):
-        guess = self.expand ('%(system_root)s/usr/share/libtool/config.guess')
-        sub = self.expand ('%(system_root)s/usr/share/libtool/config.sub')
+        guess = self.expand ('%(system_prefix)s/share/libtool/config.guess')
+        sub = self.expand ('%(system_prefix)s/share/libtool/config.sub')
         for file in sub, guess:
             if os.path.exists (file):
                 self.system ('cp -pv %(file)s %(srcdir)s',  locals ())
@@ -54,7 +54,7 @@ cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh 
 
     def install_command (self):
         return misc.join_lines ('''
-mkdir -p %(install_root)s/usr/include %(install_root)s/usr/lib
+mkdir -p %(install_prefix)s/include %(install_prefix)s/lib
 && make DESTDIR=%(install_root)s install-headers install-lib
 ''')
 

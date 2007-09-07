@@ -109,7 +109,7 @@ class Ghostscript (targetpackage.TargetBuildSpec):
         self.file_sub (substs, '%(builddir)s/obj/arch.h')
 
     def compile_command (self):
-        return targetpackage.TargetBuildSpec.compile_command (self) + " INCLUDE=%(system_root)s/usr/include/ PSDOCDIR=/usr/share/doc/ PSMANDIR=/usr/share/man "
+        return targetpackage.TargetBuildSpec.compile_command (self) + " INCLUDE=%(system_prefix)s/include/ PSDOCDIR=%(prefix_dir)s/share/doc/ PSMANDIR=%(prefix_dir)s/share/man "
         
     def compile (self):
         self.system ('''
@@ -154,14 +154,14 @@ cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS
     def install_command (self):
         return (targetpackage.TargetBuildSpec.install_command (self)
                 + ' install_prefix=%(install_root)s'
-                + ' mandir=/usr/share/man/ '
-                + ' docdir=/usr/share/doc/ghostscript/doc '
-                + ' exdir=/usr/share/doc/ghostscript/examples '
+                + ' mandir=%(prefix_dir)s/share/man/ '
+                + ' docdir=%(prefix_dir)s/share/doc/ghostscript/doc '
+                + ' exdir=%(prefix_dir)s/share/doc/ghostscript/examples '
                 )
 
     def install (self):
         targetpackage.TargetBuildSpec.install (self)
-        self.system ('mkdir -p %(install_root)s/usr/etc/relocate/')
+        self.system ('mkdir -p %(install_prefix)s/etc/relocate/')
         self.dump ('''
 
 prependdir GS_FONTPATH=$INSTALLER_PREFIX/share/ghostscript/%(version)s/fonts
@@ -169,7 +169,7 @@ prependdir GS_FONTPATH=$INSTALLER_PREFIX/share/gs/fonts
 prependdir GS_LIB=$INSTALLER_PREFIX/share/ghostscript/%(version)s/Resource
 prependdir GS_LIB=$INSTALLER_PREFIX/share/ghostscript/%(version)s/lib
 
-''', '%(install_root)s/usr/etc/relocate/gs.reloc')
+''', '%(install_prefix)s/etc/relocate/gs.reloc')
 
 class Ghostscript__mingw (Ghostscript):
     def __init__ (self, settings):
@@ -230,7 +230,7 @@ include $(GLSRCDIR)/pcwin.mak
             self.lily_26_kludge()
 
     def lily_26_kludge (self):
-        gs_prefix = '/usr/share/ghostscript/%(ghostscript_version)s'
+        gs_prefix = '%(prefix_dir)s/share/ghostscript/%(ghostscript_version)s'
         fonts = ['c059013l', 'c059016l', 'c059033l', 'c059036l']
         for i in self.read_pipe ('locate %s.pfb' % fonts[0]).split ('\n'):
             dir = os.path.dirname (i)

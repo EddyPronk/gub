@@ -47,7 +47,7 @@ ac_cv_sys_restartable_syscalls=${ac_cv_sys_restartable_syscalls=yes}
 # to LIBS
 # it seems that libtool is broken wrt cross compilation:
 #    sys_lib_search_path_spec="/usr/lib /lib/w32api /lib /usr/local/lib"
-libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/lib"'"}
+libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_prefix)s/lib %(system_root)s/lib"'"}
 
 lt_cv_dlopen=${lt_cv_dlopen="dlopen"}
 ''',
@@ -59,8 +59,8 @@ glib_cv_uscore=${glib_cv_uscore=no}
 
 lt_cv_dlopen_libs=${lt_cv_dlopen_libs="-ldl"}
 lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=32768}
-##libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/usr/lib"'"}
-libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/lib"'"}
+##libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_prefix)s/lib %(system_prefix)s/lib"'"}
+libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_prefix)s/lib %(system_root)s/lib"'"}
 ''',
     'mipsel' : '''
 ac_cv_func_posix_getpwuid_r=${ac_cv_func_posix_getpwuid_r=yes}
@@ -70,8 +70,8 @@ glib_cv_uscore=${glib_cv_uscore=no}
 
 lt_cv_dlopen_libs=${lt_cv_dlopen_libs="-ldl"}
 lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=32768}
-##libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/usr/lib"'"}
-libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/lib"'"}
+##libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_prefix)s/lib %(system_prefix)s/lib"'"}
+libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_prefix)s/lib %(system_root)s/lib"'"}
 ''',
     'freebsd6-x86' : '''
 ac_cv_func_posix_getpwuid_r=${ac_cv_func_posix_getpwuid_r=no}
@@ -81,8 +81,8 @@ glib_cv_uscore=${glib_cv_uscore=no}
 
 lt_cv_dlopen_libs=${lt_cv_dlopen_libs="-lc"}
 lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=32768}
-##libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/lib "'"}
-libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/lib "'"}
+##libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_prefix)s/lib %(system_root)s/lib "'"}
+libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_prefix)s/lib %(system_root)s/lib "'"}
 
 
 ac_cv_file__dev_ptmx=${ac_cv_file__dev_ptmx=no}
@@ -101,8 +101,8 @@ glib_cv_uscore=${glib_cv_uscore=no}
 
 lt_cv_dlopen_libs=${lt_cv_dlopen_libs="-ldl"}
 lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=32768}
-##libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/usr/lib"'"}
-libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/lib"'"}
+##libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_prefix)s/lib %(system_prefix)s/lib"'"}
+libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_prefix)s/lib %(system_root)s/lib"'"}
 
 ac_cv_file__dev_ptmx=${ac_cv_file__dev_ptmx=yes}
 ac_cv_file__dev_ptc=${ac_cv_file__dev_ptc=no}
@@ -178,8 +178,8 @@ glib_cv_uscore=${glib_cv_uscore=no}
 
 lt_cv_dlopen_libs=${lt_cv_dlopen_libs="-ldl"}
 lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=32768}
-##libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/usr/lib"'"}
-libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/lib"'"}
+##libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_prefix)s/lib %(system_prefix)s/lib"'"}
+libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_prefix)s/lib %(system_root)s/lib"'"}
 
 ac_cv_file__dev_ptmx=${ac_cv_file__dev_ptmx=yes}
 ac_cv_file__dev_ptc=${ac_cv_file__dev_ptc=no}
@@ -208,8 +208,8 @@ glib_cv_uscore=${glib_cv_uscore=no}
 
 lt_cv_dlopen_libs=${lt_cv_dlopen_libs="-ldl"}
 lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=32768}
-##libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/usr/lib"'"}
-libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/lib"'"}
+##libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_prefix)s/lib %(system_prefix)s/lib"'"}
+libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_prefix)s/lib %(system_root)s/lib"'"}
 ac_cv_c_bigendian=${ac_cv_c_bigendian=yes}
 
 ac_cv_file__dev_ptmx=${ac_cv_file__dev_ptmx=yes}
@@ -242,7 +242,7 @@ ac_cv_file__dev_ptc=${ac_cv_file__dev_ptc=no}
 
 lt_cv_dlopen_libs=${lt_cv_dlopen_libs="none required"}
 lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=8192}
-libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/usr/lib/w32api %(system_root)s/lib"'"}
+libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_prefix)s/lib %(system_prefix)s/lib/w32api %(system_root)s/lib"'"}
 ''',
     'mingw': '''
 ac_cv_func_malloc_0_nonnull=${ac_cv_func_malloc_0_nonnull=yes}
@@ -260,7 +260,7 @@ ac_cv_type_struct_sockaddr_storage=${ac_cv_type_struct_sockaddr_storage=yes}
 ac_cv_c_c99_format=${ac_cv_c_c99_format=no}
 lt_cv_dlopen_libs=${lt_cv_dlopen_libs="none required"}
 lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=8192}
-libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_root)s/usr/lib %(system_root)s/usr/lib/w32api %(system_root)s/lib"'"}
+libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_prefix)s/lib %(system_prefix)s/lib/w32api %(system_root)s/lib"'"}
 '''
 }
 

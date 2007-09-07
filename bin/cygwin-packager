@@ -53,6 +53,7 @@ class Cygwin_package (context.Os_context_wrapper):
         self.no_binary_strip_extensions = ['.la', '.py', '.def',
                                            '.scm', '.pyc']
         self.installer_root = settings.targetdir + '/installer-' + name
+        self.installer_prefix = self.installer_root + settings.prefix_dir
         self.installer_db = settings.targetdir + '/installer-' + name + '-dbdir'
         self.installer_uploads = settings.uploads
         self.cygwin_uploads = settings.platform_uploads + '/release'
@@ -151,7 +152,7 @@ class Cygwin_package (context.Os_context_wrapper):
         self.system ('''
 mkdir -p %(cygwin_patches)s
 cp -pv %(installer_root)s/etc/hints/* %(cygwin_patches)s
-cp -pv %(installer_root)s/usr/share/doc/%(name)s/README.Cygwin %(cygwin_patches)s || true
+cp -pv %(installer_prefix)s/share/doc/%(name)s/README.Cygwin %(cygwin_patches)s || true
     ''', locals ())
 
     def description (self, hdr):
@@ -174,8 +175,8 @@ cp -pv %(installer_root)s/usr/share/doc/%(name)s/README.Cygwin %(cygwin_patches)
             changelog = 'ChangeLog not recorded.'
 
         self.system ('''
-mkdir -p %(installer_root)s/usr/share/doc/Cygwin
-mkdir -p %(installer_root)s/usr/share/doc/%(name)s
+mkdir -p %(installer_prefix)s/share/doc/Cygwin
+mkdir -p %(installer_prefix)s/share/doc/%(name)s
 ''')
 
         file = self.expand ('%(sourcefiledir)s/%(name)s.README')
@@ -305,23 +306,23 @@ cd %(dir)s && tar --owner=0 --group=0 -jcf %(ball)s %(content)s
 find %(installer_root)s -name fonts.cache-1 -exec rm '{}' ';'
 rm -rf %(installer_root)s/etc/hints
 rm -rf %(installer_root)s/license*
-rm -rf %(installer_root)s/usr/cross
-rm -rf %(installer_root)s/usr/etc/relocate
+rm -rf %(installer_prefix)s/cross
+rm -rf %(installer_prefix)s/etc/relocate
 rmdir %(installer_root)s/bin || true
 rmdir %(installer_root)s/etc/postinstall || true
 rmdir %(installer_root)s/etc || true
-rmdir %(installer_root)s/usr/bin || true
-rmdir %(installer_root)s/usr/etc || true
-rmdir %(installer_root)s/usr/lib || true
-rmdir %(installer_root)s/usr/share/doc/%(name)s || true
-rmdir %(installer_root)s/usr/share/doc || true
-rmdir %(installer_root)s/usr/share || true
-rmdir %(installer_root)s/usr || true
+rmdir %(installer_prefix)s/bin || true
+rmdir %(installer_prefix)s/etc || true
+rmdir %(installer_prefix)s/lib || true
+rmdir %(installer_prefix)s/share/doc/%(name)s || true
+rmdir %(installer_prefix)s/share/doc || true
+rmdir %(installer_prefix)s/share || true
+rmdir %(installer_prefix)s || true
 ''')
 
     def binary_strip (self):
         for i in ('bin', 'lib'):
-            dir = self.expand ('%(installer_root)s/usr/%(i)s', locals ())
+            dir = self.expand ('%(installer_prefix)s/%(i)s', locals ())
             if os.path.isdir (dir):
                 self.strip_dir (dir)
 
@@ -334,12 +335,12 @@ rmdir %(installer_root)s/usr || true
         if main_p:
             readme = self.get_readme (hdr)
             self.dump (readme,
-                       '%(installer_root)s/usr/share/doc/Cygwin/%(name)s-%(version)s-%(build)s.README')
+                       '%(installer_prefix)s/share/doc/Cygwin/%(name)s-%(version)s-%(build)s.README')
             self.dump (readme,
-                       '%(installer_root)s/usr/share/doc/%(name)s/README.Cygwin')
+                       '%(installer_prefix)s/share/doc/%(name)s/README.Cygwin')
 
     def infodir (self):
-        infodir = self.expand ('%(installer_root)s/usr/share/info')
+        infodir = self.expand ('%(installer_prefix)s/share/info')
         if os.path.isdir (infodir + '/' + self._name):
             self.system ('gzip %(infodir)s/%(name)s/*.info*', locals ())
         elif os.path.isdir (infodir):

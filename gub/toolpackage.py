@@ -20,15 +20,15 @@ class ToolBuildSpec (gubb.BuildSpec):
         self.wrap_executables ()
                 
     def wrap_executables (self):
-        for e in (self.locate_files ('%(install_root)s/usr/bin', '*')
+        for e in (self.locate_files ('%(install_prefix)s/bin', '*')
                   + self.locate_files ('%(install_root)s/%(local_prefix)s/bin',
                                        '*')):
             dir = os.path.dirname (e)
             file = os.path.basename (e)
             self.system ('mv %(e)s %(dir)s/.%(file)s', locals ())
             self.dump ('''#!/bin/sh
-LD_LIBRARY_PATH=%(system_root)s/usr/lib
-%(system_root)s/usr/bin/.%(file)s "$@"
+LD_LIBRARY_PATH=%(system_prefix)s/lib
+%(system_prefix)s/bin/.%(file)s "$@"
 ''', e, env=locals ())
             os.chmod (e, 0755)
 

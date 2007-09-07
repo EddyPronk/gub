@@ -41,8 +41,8 @@ specified by applications.'''
         return (targetpackage.TargetBuildSpec.configure_command (self) 
                 + misc.join_lines ('''
 --with-arch=%(target_architecture)s
---with-freetype-config="%(system_root)s/usr/cross/bin/freetype-config
---prefix=%(system_root)s/usr
+--with-freetype-config="%(system_prefix)s/cross/bin/freetype-config
+--prefix=%(system_prefix)s
 "'''))
 
     def configure (self):
@@ -79,7 +79,7 @@ cd %(builddir)s/%(i)s && make "CFLAGS=%(cflags)s" "LIBS=%(libs)s" CPPFLAGS= LDFL
         self.dump ('''set FONTCONFIG_FILE=$INSTALLER_PREFIX/etc/fonts/fonts.conf
 set FONTCONFIG_PATH=$INSTALLER_PREFIX/etc/fonts
 ''', 
-             '%(install_root)s/usr/etc/relocate/fontconfig.reloc')
+             '%(install_prefix)s/etc/relocate/fontconfig.reloc')
         
         
 class Fontconfig__mingw (Fontconfig):
@@ -112,11 +112,11 @@ class Fontconfig__linux (Fontconfig):
         Fontconfig.configure (self)
         self.file_sub ([
             ('^sys_lib_search_path_spec="/lib/* ',
-            'sys_lib_search_path_spec="%(system_root)s/usr/lib /lib '),
+            'sys_lib_search_path_spec="%(system_prefix)s/lib /lib '),
             # FIXME: typo: dl_search (only dlsearch exists).
             # comment-out for now
             #('^sys_lib_dl_search_path_spec="/lib/* ',
-            # 'sys_lib_dl_search_path_spec="%(system_root)s/usr/lib /lib ')
+            # 'sys_lib_dl_search_path_spec="%(system_prefix)s/lib /lib ')
             ],
                '%(builddir)s/libtool')
 
@@ -150,7 +150,7 @@ class Fontconfig__cygwin (Fontconfig):
         d = dict (Fontconfig.get_subpackage_definitions (self))
         # urg, must remove usr/share. Because there is no doc package,
         # runtime iso '' otherwise gets all docs.
-        d['runtime'] = ['/usr/lib']
+        d['runtime'] = [self.settings.prefix_dir + '/lib']
         return d
 
     def get_subpackage_names (self):

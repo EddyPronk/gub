@@ -42,9 +42,9 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3-core-install.patch
     def install (self):
         glibc.Glibc.install (self)
         self.system ('''
-mkdir -p %(install_root)s/usr/include/gnu
-touch %(install_root)s/usr/include/gnu/stubs.h
-cp %(srcdir)s/include/features.h %(install_root)s/usr/include
-mkdir -p %(install_root)s/usr/include/bits
-cp %(builddir)s/bits/stdio_lim.h %(install_root)s/usr/include/bits
+mkdir -p %(install_prefix)s/include/gnu
+touch %(install_prefix)s/include/gnu/stubs.h
+cp %(srcdir)s/include/features.h %(install_prefix)s/include
+mkdir -p %(install_prefix)s/include/bits
+cp %(builddir)s/bits/stdio_lim.h %(install_prefix)s/include/bits
 ''')

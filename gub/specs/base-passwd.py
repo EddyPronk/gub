@@ -10,7 +10,7 @@ class UnixBuildSpec (gubb.BuildSpec):
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
     @context.subst_method
     def configure_command (self):
-        return './configure --prefix=/usr'
+        return './configure --prefix=%(prefix_dir)s'
 
 class Base_passwd (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):

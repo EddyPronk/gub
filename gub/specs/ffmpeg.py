@@ -31,7 +31,7 @@ class Ffmpeg (targetpackage.TargetBuildSpec):
         #targetpackage.TargetBuildSpec.configure_command (self)
         return misc.join_lines ('''
 CC=%(tool_prefix)sgcc CFLAGS=-fPIC %(srcdir)s/configure
---prefix=/usr
+--prefix=%(prefix_dir)s
 --cross-prefix=%(cross_prefix)s/bin/%(tool_prefix)s
 --cpu=%(cpu)s
 --enable-faad

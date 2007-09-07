@@ -35,6 +35,7 @@ class Installer (context.Os_context_wrapper):
         self.installer_root = (settings.targetdir
                                + '/installer-%s-%s' % (name,
                                                        self.package_branch))
+        self.installer_prefix = self.installer_root + settings.prefix_dir
         self.installer_checksum_file = self.installer_root + '.checksum'
         self.installer_db = self.installer_root + '-dbdir'
 
@@ -172,8 +173,8 @@ class Installer (context.Os_context_wrapper):
         
     def strip (self):
         self.strip_unnecessary_files ()
-        self.strip_dir ('%(installer_root)s/usr/bin')
-        self.strip_dir ('%(installer_root)s/usr/lib')
+        self.strip_dir ('%(installer_prefix)s/bin')
+        self.strip_dir ('%(installer_prefix)s/lib')
 
     def use_install_root_manager (self, manager):
         pass
@@ -222,8 +223,8 @@ class DarwinBundle (DarwinRoot):
 rm -f %(bundle_zip)s 
 rm -rf %(darwin_bundle_dir)s
 tar -C %(targetdir)s -zxf %(downloads)s/osx-lilypad-%(cpu_type)s-%(osx_lilypad_version)s.tar.gz
-cp %(darwin_bundle_dir)s/Contents/Resources/subprocess.py %(installer_root)s/usr/share/lilypond/current/python/
-cp -pR --link %(installer_root)s/usr/* %(darwin_bundle_dir)s/Contents/Resources/
+cp %(darwin_bundle_dir)s/Contents/Resources/subprocess.py %(installer_prefix)s/share/lilypond/current/python/
+cp -pR --link %(installer_prefix)s/* %(darwin_bundle_dir)s/Contents/Resources/
 mkdir -p %(darwin_bundle_dir)s/Contents/Resources/license
 cp -pR --link %(installer_root)s/license*/* %(darwin_bundle_dir)s/Contents/Resources/license/
 ''', locals ())

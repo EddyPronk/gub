@@ -8,7 +8,7 @@ class Libgnugetopt (targetpackage.TargetBuildSpec):
 
     def patch (self):
         self.dump ('''
-prefix = /usr
+prefix = %(prefix_dir)s
 libdir = $(prefix)/lib
 includedir = $(prefix)/include
 install: all

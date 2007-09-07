@@ -11,7 +11,7 @@ class Guile_config (gubb.SdkBuildSpec):
 
     def install (self):
         gubb.SdkBuildSpec.install (self)
-        self.system ('mkdir -p %(cross_prefix)s/usr/bin')
+        self.system ('mkdir -p %(cross_prefix)s%(prefix_dir)s/bin')
         
         import os
         version = self.version ()
@@ -20,7 +20,7 @@ class Guile_config (gubb.SdkBuildSpec):
 #! /bin/sh
 test "$1" = "--version" && echo "%(target_architecture)s-guile-config - Guile version %(version)s"
 #prefix=$(dirname $(dirname $0))
-prefix=%(system_root)s/usr
+prefix=%(system_prefix)s
 test "$1" = "compile" && echo "-I$prefix/include"
 #test "$1" = "link" && echo "-L$prefix/lib -lguile -lgmp"
 # KUCH, debian specific, and [mipsel] reading .la is broken?

@@ -11,7 +11,7 @@ class Icoutils (toolpackage.ToolBuildSpec):
         return {'': ['libpng']}
     def configure_command (self):
         return (toolpackage.ToolBuildSpec.configure_command (self)
-                + ' --with-libintl-prefix=%(system_root)s/usr/ ')
+                + ' --with-libintl-prefix=%(system_prefix)s/ ')
 
 class Icoutils__darwin (Icoutils):
     def patch (self):

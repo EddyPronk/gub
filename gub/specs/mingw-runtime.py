@@ -7,8 +7,8 @@ class Mingw_runtime (gubb.BinarySpec, gubb.SdkBuildSpec):
         self.with_template (version='3.9', strip_components=0, mirror=mirrors.mingw)
     def install (self):
         self.system ('''
-mkdir -p %(install_root)s/usr/share
-tar -C %(srcdir)s/ -cf - . | tar -C %(install_root)s/usr -xf -
-mv %(install_root)s/usr/doc %(install_root)s/share
+mkdir -p %(install_prefix)s/share
+tar -C %(srcdir)s/ -cf - . | tar -C %(install_prefix)s -xf -
+mv %(install_prefix)s/doc %(install_root)s/share
 ''', locals ())
 

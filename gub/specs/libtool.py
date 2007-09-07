@@ -25,8 +25,8 @@ class Libtool (targetpackage.TargetBuildSpec):
 
     def get_subpackage_definitions (self):
         d = targetpackage.TargetBuildSpec.get_subpackage_definitions (self)
-        d['devel'].append ('/usr/bin/libtool*')
-        d['devel'].append ('/usr/share/libltdl')
+        d['devel'].append (self.settings.prefix_dir + '/bin/libtool*')
+        d['devel'].append (self.settings.prefix_dir + '/share/libltdl')
         return d
 
 class Libtool__darwin (Libtool):
@@ -35,7 +35,7 @@ class Libtool__darwin (Libtool):
 
         ## necessary for programs that load dynamic modules.
         self.dump ("prependdir DYLD_LIBRARY_PATH=$INSTALLER_PREFIX/lib",
-                   '%(install_root)s/usr/etc/relocate/libtool.reloc')
+                   '%(install_prefix)s/etc/relocate/libtool.reloc')
 
 class Libtool__cygwin (Libtool):
     def __init__ (self, settings):

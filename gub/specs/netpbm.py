@@ -37,15 +37,15 @@ class Netpbm (toolpackage.ToolBuildSpec):
 ''')
     def install (self):
         self.system ('mkdir -p %(install_root)s/')
-        self.system ('cd %(builddir)s && make package pkgdir=%(install_root)s/usr LINUXSVGALIB="NONE" XML2LIBS="NONE"')
-        self.system ('''rm -rf %(install_root)s/usr/misc 
-rm -rf %(install_root)s/usr/README
-rm -rf %(install_root)s/usr/VERSION
-rm -rf %(install_root)s/usr/link
-rm -rf %(install_root)s/usr/misc
-rm -rf %(install_root)s/usr/man
-rm -rf %(install_root)s/usr/pkginfo
-rm -rf %(install_root)s/usr/config_template
+        self.system ('cd %(builddir)s && make package pkgdir=%(install_prefix)s LINUXSVGALIB="NONE" XML2LIBS="NONE"')
+        self.system ('''rm -rf %(install_prefix)s/misc 
+rm -rf %(install_prefix)s/README
+rm -rf %(install_prefix)s/VERSION
+rm -rf %(install_prefix)s/link
+rm -rf %(install_prefix)s/misc
+rm -rf %(install_prefix)s/man
+rm -rf %(install_prefix)s/pkginfo
+rm -rf %(install_prefix)s/config_template
 ''')
     def packaging_suffix_dir (self):
         return ''

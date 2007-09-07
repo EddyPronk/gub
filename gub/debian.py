@@ -124,7 +124,7 @@ class Dependency_resolver:
                     package.file_sub ([
                             ('includedir', 'deepqtincludedir'),
                             ('(-I|-L) */usr',
-                             '''\\1%(system_root)s/usr''' % locals ()),
+                             '''\\1%(system_prefix)s''' % locals ()),
                             ],
                                       '%(srcdir)s/usr/lib/pkgconfig/%(i)s',
                                       env=locals ())

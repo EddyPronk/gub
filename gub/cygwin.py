@@ -149,7 +149,7 @@ def change_target_package (package):
     gubb.change_target_dict (package, {
             'DLLTOOL': '%(tool_prefix)sdlltool',
             'DLLWRAP': '%(tool_prefix)sdllwrap',
-            'LDFLAGS': '-L%(system_root)s/usr/lib -L%(system_root)s/usr/bin -L%(system_root)s/usr/lib/w32api',
+            'LDFLAGS': '-L%(system_prefix)s/lib -L%(system_prefix)s/bin -L%(system_prefix)s/lib/w32api',
             })
 
 def get_cygwin_package (settings, name, dict, skip):

@@ -29,7 +29,7 @@ class Gcc (gcc.Gcc):
     def rewire_gcc_libs (self):
 	import os
         skip_libs = ['libgcc_s']
-        for ell in self.locate_files ("%(install_root)s/usr/lib/", '*.dylib'):
+        for ell in self.locate_files ("%(install_prefix)s/lib/", '*.dylib'):
             found_skips = [s for s in  skip_libs if ell.find (s) >= 0]
             if found_skips:
                 continue
