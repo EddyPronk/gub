@@ -45,7 +45,7 @@ class PackageSpec:
             self._os_interface.system ('rm -rf %s%s ' % (base, f))
 
     def create_tarball (self):
-        cmd = 'tar -C %(install_root)s/%(packaging_suffix_dir)s --ignore-failed --exclude="*~" -zcf %(split_ball)s '
+        cmd = 'tar -C %(install_root)s%(packaging_suffix_dir)s --ignore-failed --exclude="*~" -zcf %(split_ball)s '
         path = os.path.normpath (self.expand ('%(install_root)s'))
         globs  = []
         for f in self._file_specs:
@@ -416,7 +416,7 @@ tooldir=%(install_prefix)s
         self.system ('''
 rm -rf %(install_root)s
 cd %(builddir)s && %(install_command)s
-rm -f %(install_root)s/%(packaging_suffix_dir)s%(prefix_dir)s/share/info/dir %(install_root)s/%(packaging_suffix_dir)s/%(prefix_dir)s/cross/info/dir %(install_root)s/%(packaging_suffix_dir)s%(prefix_dir)s/info/dir
+rm -f %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/share/info/dir %(install_root)s%(packaging_suffix_dir)s/%(prefix_dir)s/cross/info/dir %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/info/dir
 ''')
         self.install_license ()
         self.libtool_installed_la_fixups ()

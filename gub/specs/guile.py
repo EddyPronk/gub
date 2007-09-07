@@ -379,4 +379,4 @@ class Guile__local (toolpackage.ToolBuildSpec, Guile):
         toolpackage.ToolBuildSpec.install (self)
 
         ## don't want local GUILE headers to interfere with compile.
-        self.system ("rm -rf %(install_root)s/%(packaging_suffix_dir)s%(prefix_dir)s/include/ %(install_root)s/%(packaging_suffix_dir)s%(prefix_dir)s/bin/guile-config ")
+        self.system ("rm -rf %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/include/ %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/bin/guile-config ")

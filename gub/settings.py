@@ -78,7 +78,8 @@ class Settings (context.Context):
         # FIXME: rename to cross_root?
         self.cross_prefix = self.system_prefix + '/cross'
         self.installdir = self.targetdir + '/install'
-        self.local_prefix = self.alltargetdir + '/local' + self.prefix_dir
+        self.local_root = self.alltargetdir + '/local/root'
+        self.local_prefix = self.local_root + self.prefix_dir
         self.cross_distcc_bindir = self.alltargetdir + '/cross-distcc/bin'
         self.native_distcc_bindir = self.alltargetdir + '/native-distcc/bin'
 

@@ -122,7 +122,7 @@ class FileManager:
             file = file[2:]
         dir = os.path.dirname (file)
         self.os_interface.file_sub ([('(-I|-L) */usr',
-                                      '''\\1%(root)s%(prefix_dir)s''' % locals ()
+                                      '''\\1%(root)s%%(prefix_dir)s''' % locals ()
                                       ),],
                                     '%(root)s/%(file)s' % locals ())
 
