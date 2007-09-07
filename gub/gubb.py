@@ -485,7 +485,7 @@ chmod +x %(srcdir)s/configure''')
         return []
 
     def get_subpackage_definitions (self):
-	prefix = self.settings.prefix_dir
+	prefix_dir = self.settings.prefix_dir
         d = {
             'devel': [
             prefix_dir + '/bin/*-config',
