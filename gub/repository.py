@@ -557,6 +557,7 @@ class CVS (Repository):
     def create (rety, dir, source, branch='', revision=''):
         if not branch:
             branch='HEAD'
+        source = source.replace ('cvs::pserver', ':pserver')
         p = source.rfind ('/')
         return CVS (dir, source=source, module=source[p+1:], tag=branch)
     create = staticmethod (create)
