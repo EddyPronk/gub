@@ -66,9 +66,9 @@ class Settings (context.Context):
         self.allsrcdir = self.targetdir, '/src'
         self.allbuilddir = self.targetdir + '/build'
         self.statusdir = self.targetdir + '/status'
+        self.packages = self.targetdir + '/packages'
 
         self.uploads = self.workdir + '/uploads'
-        self.packages = self.workdir + '/packages/' + self.platform
         self.platform_uploads = self.uploads + '/' + self.platform
 
         # FIXME: rename to cross_root?

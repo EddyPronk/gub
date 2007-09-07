@@ -126,7 +126,8 @@ def upload_binaries (repo, version, version_db):
         if (platform not in ('documentation', 'test-output')
              and os.path.exists (bin)):
             branch = repo.branch
-            hdr = pickle.load (open ('packages/%(platform)s/lilypond-%(branch)s.%(platform)s.hdr' % locals ()))
+            # FIXME: what if user changes ~/.gubrc?  should use gubb.Settings!
+            hdr = pickle.load (open ('target/%(platform)s/packages/lilypond-%(branch)s.%(platform)s.hdr' % locals ()))
             key = hdr['source_checksum']
             
             lst = commitishes.get (key, [])

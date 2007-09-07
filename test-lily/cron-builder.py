@@ -120,7 +120,8 @@ def main ():
     log_file.info (' *** Starting cron-builder:\n  %s ' % '\n  '.join (args)) 
 
     if options.clean:
-        log_file.system ('rm -rf log/ target/ packages/ uploads/ buildnumber-* downloads/lilypond-*')
+        # FIXME: what if user changes ~/.gubrc?  should use gubb.Settings!
+        log_file.system ('rm -rf log/ target/ uploads/ buildnumber-* downloads/lilypond-*')
 
     make_cmd = 'make %s ' % options.make_options
     python_cmd = sys.executable  + ' '
