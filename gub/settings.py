@@ -38,7 +38,55 @@ class Settings (context.Context):
 
         if self.platform not in platforms.keys ():
             raise 'unknown platform', self.platform
+
+        # config dirs
+
+        # gubdir is top of `installed' gub repository
+        self.gubdir = os.getcwd ()
+
+        # workdir is top of writable build stuff
+        self.workdir = os.getcwd ()
         
+        # gubdir based: fixed repository layout
+        self.patchdir = self.gubdir + '/patches'
+        self.sourcefiledir = self.gubdir + '/sourcefiles'
+        self.specdir = self.gubdir + '/gub/specs'
+        self.nsisdir = self.gubdir + '/nsis'
+
+        # workdir based; may be changed
+        self.logdir = self.workdir + '/log'
+        self.downloads = self.workdir + '/downloads'
+        self.alltargetdir = self.workdir + '/target'
+        self.targetdir = self.alltargetdir + self.platform + '/gubfiles'
+
+        self.system_root = self.alltargetdir
+        ## Patches are architecture dependent, 
+        ## so to ensure reproducibility, we unpack for each
+        ## architecture separately.
+        self.allsrcdir = self.targetdir, '/src'
+        self.allbuilddir = self.targetdir + '/build'
+        self.statusdir = self.targetdir + '/status'
+
+        self.uploads = self.workdir + '/uploads'
+        self.packages = self.workdir + '/packages/' + self.platform
+        self.platform_uploads = self.uploads + '/' + self.platform
+
+        # FIXME: rename to cross_root?
+        self.cross_prefix = self.system_root + '/usr/cross'
+        self.installdir = self.targetdir + '/install'
+        self.local_prefix = self.alltargetdir + '/local/usr'
+        self.cross_distcc_bindir = self.alltargetdir + '/cross-distcc/bin'
+        self.native_distcc_bindir = self.alltargetdir + '/native-distcc/bin'
+
+        self.cross_packages = self.packages + '/cross'
+        self.cross_allsrcdir = self.allsrcdir + '/cross'
+        self.cross_statusdir = self.statusdir + '/cross'
+
+        self.core_prefix = self.system_root + '/usr/cross/core'
+        # end config dirs
+
+
+
         self.target_gcc_flags = '' 
         if self.platform == 'darwin-ppc':
             self.target_gcc_flags = '-D__ppc__'
@@ -56,49 +104,10 @@ class Settings (context.Context):
         self.is_distro = (self.platform in distros
                           or self.platform.startswith ('debian'))
 
-        self.topdir = os.getcwd ()
-        self.logdir = self.topdir + '/log'
-        self.downloads = self.topdir + '/downloads'
-        self.patchdir = self.topdir + '/patches'
-        self.sourcefiledir = self.topdir + '/sourcefiles'
-        # FIXME: absolute path
-        self.specdir = self.topdir + '/gub/specs'
-        self.nsisdir = self.topdir + '/nsis'
+
         self.gtk_version = '2.8'
-
         self.tool_prefix = self.target_architecture + '-'
-        self.system_root = self.topdir + '/target/' + self.platform
-        self.targetdir = self.system_root + '/gubfiles'
-
-        ## Patches are architecture dependent, 
-        ## so to ensure reproducibility, we unpack for each
-        ## architecture separately.
-        self.allsrcdir = os.path.join (self.targetdir, 'src')
-        
-        self.allbuilddir = self.targetdir + '/build'
-        self.statusdir = self.targetdir + '/status'
-
-        ## Safe uploads, so that we can rm -rf target/*
-        ## and still cheaply construct a (partly) system root
-        ## from .gub packages.
-        self.uploads = self.topdir + '/uploads'
-        self.gub_uploads = self.topdir + '/packages/' + self.platform
-        self.platform_uploads = self.topdir + '/uploads/' + self.platform
-
-        # Hmm, change `cross/' to `cross.' or `cross-' in name?
-        self.cross_gub_uploads = self.gub_uploads + '/cross'
-        self.cross_allsrcdir = self.allsrcdir + '/cross'
-        self.cross_statusdir = self.statusdir + '/cross'
-
         self.distcc_hosts = ''
-        
-        self.core_prefix = self.system_root + '/usr/cross/core'
-        # FIXME: rename to target_root?
-        self.cross_prefix = self.system_root + '/usr/cross'
-        self.installdir = self.targetdir + '/install'
-        self.local_prefix = self.topdir + '/target/local/usr'
-        self.cross_distcc_bindir = self.topdir + '/target/cross-distcc/bin'
-        self.native_distcc_bindir = self.topdir + '/target/native-distcc/bin'
         
 	if self.target_architecture.startswith ('x86_64'):
 	    self.package_arch = 'amd64'
@@ -112,7 +121,6 @@ class Settings (context.Context):
         
         self.keep_build = False
         self.use_tools = False
-        self.build_autopackage = self.allbuilddir + '/autopackage'
 
         self.fakeroot_cache = '' # %(builddir)s/fakeroot.save'
         self.fakeroot = 'fakeroot -i%(fakeroot_cache)s -s%(fakeroot_cache)s '
@@ -139,7 +147,7 @@ class Settings (context.Context):
         for a in (
             'downloads',
             'logdir',
-            'gub_uploads',
+            'packages',
             'specdir',
             'allsrcdir',
             'statusdir',
@@ -148,9 +156,9 @@ class Settings (context.Context):
             'cross_prefix',
             'targetdir',
             'local_prefix',
-            'topdir',
+            'gubdir',
 
-            'cross_gub_uploads',
+            'cross_packages',
             'cross_statusdir',
             'cross_allsrcdir',
             ):

@@ -39,12 +39,12 @@ class Nsis (toolpackage.ToolBuildSpec):
                 ' SKIPPLUGINS=System')
     
     def compile (self): 
-        env = {'PATH': '%(topdir)s/target/mingw/usr/cross/bin:' + os.environ['PATH']}
+        env = {'PATH': '%(alltargetdir)s/mingw/usr/cross/bin:' + os.environ['PATH']}
         self.system ('cd %(builddir)s/ && %(compile_command)s',
                      env)
 
     def install (self):
-        env = {'PATH': '%(topdir)s/target/mingw/usr/cross/bin:' + os.environ['PATH']}
+        env = {'PATH': '%(alltargetdir)s/mingw/usr/cross/bin:' + os.environ['PATH']}
         self.system ('cd %(builddir)s/ && %(compile_command)s install ', env)
 
 
