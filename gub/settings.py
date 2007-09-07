@@ -173,6 +173,7 @@ class Settings (context.Context):
             'targetdir',
             'local_prefix',
             'gubdir',
+            'uploads',
 
             'cross_packages',
             'cross_statusdir',
