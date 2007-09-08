@@ -161,18 +161,18 @@ class Settings (context.Context):
         
     def create_dirs (self): 
         for a in (
+            'allsrcdir',
+            'core_prefix',
+            'cross_prefix',
             'downloads',
+            'gubdir',
+            'local_prefix',
             'logdir',
             'packages',
             'specdir',
-            'allsrcdir',
             'statusdir',
             'system_root',
-            'core_prefix',
-            'cross_prefix',
             'targetdir',
-            'local_prefix',
-            'gubdir',
             'uploads',
 
             'cross_packages',
