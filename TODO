@@ -95,4 +95,6 @@ LOWER PRIORITY
 	       libjpeg-dev (for netpbm),
 	       libtiff-dev (for netpbm),
 	       libx11-dev (for netpbm),
-	       svn (for ghostscript)]
+	       svn (for ghostscript),
+	       python-gdbm (for gub: gub/gup.py) this means, btw, that gub
+	        does not run with python from local; it lacks gdbm]
