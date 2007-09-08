@@ -176,8 +176,8 @@ def parse_options ():
             sys.stderr.write ('\n\n')
             p.print_help ()
             sys.exit (2)
-        options.root = ('target/%s' % options.platform)
         # FIXME: what if user changes ~/.gubrc?  should use gubb.Settings!
+        options.root = ('target/%s/root' % options.platform)
         GUB_LOCAL_PREFIX = os.environ.get ('GUB_LOCAL_PREFIX')
         if GUB_LOCAL_PREFIX and options.platform == 'local':
             options.root = GUB_LOCAL_PREFIX
