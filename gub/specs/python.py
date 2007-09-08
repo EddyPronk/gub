@@ -16,7 +16,7 @@ class Python (targetpackage.TargetBuildSpec):
 
         ## don't from gub import settings from build system.
 	self.BASECFLAGS = ''
-        self.CROSS_ROOT = '%(system_root)s'
+        self.CROSS_ROOT = '%(targetdir)s'
 
     def license_file (self):
         return '%(srcdir)s/LICENSE'
