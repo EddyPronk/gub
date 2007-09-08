@@ -270,12 +270,12 @@ local:
 ################################################################
 # docs
 
-NATIVE_ROOT=$(NATIVE_TARGET_DIR)/gubfiles/installer-lilypond-$(LILYPOND_LOCAL_BRANCH)
+NATIVE_ROOT=$(NATIVE_TARGET_DIR)/installer-lilypond-$(LILYPOND_LOCAL_BRANCH)
 DOC_LOCK=$(NATIVE_ROOT).lock
 TEST_LOCK=$(NATIVE_ROOT).lock
 
-NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/gubfiles/build/lilypond-$(LILYPOND_LOCAL_BRANCH)
-NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/gubfiles/src/lilypond-$(LILYPOND_LOCAL_BRANCH)
+NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH)
+NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/src/lilypond-$(LILYPOND_LOCAL_BRANCH)
 NATIVE_BUILD_COMMITTISH=$(shell cat downloads/lilypond.git/refs/heads/$(LILYPOND_LOCAL_BRANCH))
 
 DIST_VERSION=$(shell cat $(NATIVE_LILY_BUILD)/out/VERSION)
@@ -283,7 +283,7 @@ DOC_BUILDNUMBER=$(shell $(PYTHON) gub/versiondb.py --build-for $(DIST_VERSION))
 
 DOC_RELOCATION = \
     LILYPOND_EXTERNAL_BINARY="$(NATIVE_ROOT)/usr/bin/lilypond" \
-    PATH=$(CWD)/target/local/usr/bin:$(NATIVE_ROOT)/usr/bin:$$PATH \
+    PATH=$(CWD)/target/local/root/usr/bin:$(NATIVE_ROOT)/usr/bin:$$PATH \
     GS_LIB=$(wildcard $(NATIVE_ROOT)/usr/share/ghostscript/*/lib) \
     MALLOC_CHECK_=2 \
     LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib
@@ -306,13 +306,13 @@ test-clean:
 	$(PYTHON) gub/with-lock.py --skip $(TEST_LOCK) $(MAKE) unlocked-test-clean
 
 unlocked-doc-clean:
-	make -C $(NATIVE_TARGET_DIR)/gubfiles/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
+	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
 		DOCUMENTATION=yes web-clean
 	rm -f $(call SIGNATURE_FUNCTION,cached-doc-build)
 	rm -f $(call SIGNATURE_FUNCTION,cached-doc-export)
 
 unlocked-test-clean:
-	make -C $(NATIVE_TARGET_DIR)/gubfiles/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
+	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
 		DOCUMENTATION=yes test-clean
 	rm -f $(call SIGNATURE_FUNCTION,cached-test-output)
 
