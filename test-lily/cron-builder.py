@@ -135,6 +135,8 @@ def main ():
         log_file.system ('rm -f target/%s/status/lilypond-%s*' % (a, options.branch))
 
     test_cmds = []
+    if 1:
+        test_cmds += 'make bootstrap'
     if options.build_package:
         test_cmds += [python_cmd + 'bin/gub --branch=lilypond=%s:%s -lp %s lilypond '
                       % (options.branch, options.local_branch, p) for p in args]
