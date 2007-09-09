@@ -127,7 +127,7 @@ compatibility installed:
         print 'error: cannot run 32 bit executable: 32bit\n'
         raise Exception ('Package %s depends on 32 bit libraries'''
                          % package.__class__)
-    os.system ('rm -f 32bit')
+    os.system ('rm -f 32bit 32bit.c')
 
     def set_env (command):
         return ('PATH=' + package.PATH + ' '
