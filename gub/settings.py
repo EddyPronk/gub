@@ -45,6 +45,8 @@ class Settings (context.Context):
 
         # TODO: local-prefix, target-prefix, cross-prefix?
         self.prefix_dir = '/usr'
+        self.root_dir = '/root'
+        self.cross_dir = '/cross'
         if self.platform == 'local' and GUB_LOCAL_PREFIX:
             self.prefix_dir = ''
 
@@ -66,7 +68,7 @@ class Settings (context.Context):
         self.alltargetdir = self.workdir + '/target'
         self.targetdir = self.alltargetdir + '/' + self.platform
 
-        self.system_root = self.targetdir + '/root'
+        self.system_root = self.targetdir + self.root_dir
         if self.platform == 'local' and GUB_LOCAL_PREFIX:
             self.system_root = GUB_LOCAL_PREFIX
         self.system_prefix = self.system_root + self.prefix_dir
@@ -83,10 +85,10 @@ class Settings (context.Context):
         self.platform_uploads = self.uploads + '/' + self.platform
 
         # FIXME: rename to cross_root?
-        ##self.cross_prefix = self.system_prefix + '/cross'
-        self.cross_prefix = self.targetdir + '/root' + self.prefix_dir + '/cross'
+        ##self.cross_prefix = self.system_prefix + self.cross_dir
+        self.cross_prefix = self.targetdir + self.root_dir + self.prefix_dir + self.cross_dir
         self.installdir = self.targetdir + '/install'
-        self.local_root = self.alltargetdir + '/local/root'
+        self.local_root = self.alltargetdir + '/local' + self.root_dir
         self.local_prefix = self.local_root + self.prefix_dir
         if GUB_LOCAL_PREFIX:
             self.local_root = GUB_LOCAL_PREFIX
@@ -94,9 +96,9 @@ class Settings (context.Context):
         self.cross_distcc_bindir = self.alltargetdir + '/cross-distcc/bin'
         self.native_distcc_bindir = self.alltargetdir + '/native-distcc/bin'
 
-        self.cross_packages = self.packages + '/cross'
-        self.cross_allsrcdir = self.allsrcdir + '/cross'
-        self.cross_statusdir = self.statusdir + '/cross'
+        self.cross_packages = self.packages + self.cross_dir
+        self.cross_allsrcdir = self.allsrcdir + self.cross_dir
+        self.cross_statusdir = self.statusdir + self.cross_dir
 
         self.core_prefix = self.cross_prefix + '/core'
         # end config dirs
