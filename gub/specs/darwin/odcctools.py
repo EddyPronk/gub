@@ -9,6 +9,9 @@ class Odcctools (cross.CrossToolSpec):
                    #version='20061117',
                    mirror=mirrors.opendarwin,
                    format='bz2')
+        # odcctools does not build with 64 bit compiler
+        if settings.build_architecture.startswith ('x86_64-linux'):
+            cross.setup_linux_x86 (self)
     def get_build_dependencies (self):
         return ['darwin-sdk']
     def configure (self):
