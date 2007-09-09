@@ -45,7 +45,7 @@ class Nsis (toolpackage.ToolBuildSpec):
     def patch (self):
         self.system ('mkdir -p %(allbuilddir)s', ignore_errors=True)
         self.system ('ln -s %(srcdir)s %(builddir)s')
-        if settings.build_architecture.startswith ('x86_64-linux'):
+        if self.settings.build_architecture.startswith ('x86_64-linux'):
             self.file_sub ([('''^Export\('defenv'\)''', '''
 import os
 defenv['CC'] = os.environ['CC']
