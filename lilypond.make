@@ -19,15 +19,14 @@ default: all
 
 PACKAGE = lilypond
 
-ALL_PLATFORMS=debian debian-arm freebsd-x86 linux-x86 linux-64 mingw debian-mipsel linux-ppc freebsd-64
-PLATFORMS=linux-x86 darwin-ppc linux-64 linux-ppc freebsd-x86 mingw darwin-x86 freebsd-64
+ALL_PLATFORMS=darwin-ppc darwin-x86 debian debian-arm freebsd-64 freebsd-x86 linux-x86 linux-64 mingw debian-mipsel linux-ppc
+PLATFORMS=linux-x86 linux-64 linux-ppc freebsd-x86 freebsd-64
 ifneq ($(BUILD_PLATFORM),linux-64)
 # odcctools do not build on linux-64
-ALL_PLATFORMS+=darwin-ppc darwin-x86
-# nsis does not build on linux-64, but we can build everything except for
+PLATFORMS+=darwin-ppc darwin-x86
+# nsis does not build on linux-64, but we could build everything except for
 # the installer...
-#ALL_PLATFORMS+=mingw
-ALL_PLATFORMS+=darwin-ppc darwin-x86
+PLATFORMS+=mingw
 endif
 
 
@@ -239,6 +238,10 @@ locals =\
  imagemagick \
  texinfo
 
+ifneq ($(BUILD_PLATFORM),linux-64)
+# nsis does not build on linux-64
+locals += nsis
+endif
 
 ###
 # document why this is in the bootstrap
@@ -257,14 +260,11 @@ locals =\
 # -python: bootstrap for python x-compile
 # -icoutils: icon build for mingw
 download-local:
-	$(GUB) $(LOCAL_GUB_OPTIONS) \
-		-p local --stage=download \
-		$(locals) nsis
+	$(GUB) $(LOCAL_GUB_OPTIONS) -p local --stage=download $(locals) nsis
 
 local:
 	cd librestrict && make -f GNUmakefile
-	$(GUB) $(LOCAL_GUB_OPTIONS) -p local \
-		$(locals)
+	$(GUB) $(LOCAL_GUB_OPTIONS) -p local $(locals)
 	$(MAKE) local-cross-tools
 
 ################################################################
