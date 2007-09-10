@@ -170,7 +170,7 @@ def parse_options ():
     options.arguments = arguments
 
     if not options.command:
-        print p.print_help ()
+        p.print_help ()
         sys.exit (2)
     return options
 
