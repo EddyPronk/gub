@@ -136,7 +136,7 @@ def main ():
 
     test_cmds = []
     if 1:
-        test_cmds += 'make bootstrap'
+        test_cmds.append ('make bootstrap')
     if options.build_package:
         test_cmds += [python_cmd + 'bin/gub --branch=lilypond=%s:%s -lp %s lilypond '
                       % (options.branch, options.local_branch, p) for p in args]
