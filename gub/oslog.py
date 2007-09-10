@@ -31,7 +31,8 @@ class Os_commands:
         self.dry_run = dry_run
         self.log_file_name = log_file_name
         self.log_file = open (self.log_file_name, 'a')
-        self.log_file.write ('\n\n * Starting build: %s\n' %  now ())
+        self.start_marker = ' * Starting build: %s\n' %  now ()
+        self.log_file.write ('\n\n' + self.start_marker)
         self.fakeroot_cmd = False
 
         # ARRRGH no python doc on Feisty?
@@ -41,6 +42,10 @@ class Os_commands:
             misc.bind_method (__log, self)
             self.i = self.__log
 
+    def read_tail (self, size=10240, lines=100):
+        return misc.read_tail (self.log_file_name, size, lines,
+                               self.start_marker)
+        
     def fakeroot (self, s):
         self.fakeroot_cmd = s
         

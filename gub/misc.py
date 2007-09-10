@@ -250,6 +250,24 @@ def ball_basename (ball):
     s = re.sub ('_%\(version\)s', '-%(version)s', s)
     return s
 
+def read_tail (file, size=10240, lines=50, marker=None):
+    '''
+Efficiently read tail of a file, return list of full lines.
+
+Typical used for reading tail of a log file.  Read a maximum of
+SIZE, return a maximum line count of LINES, truncate everything
+before MARKER.
+'''
+    f = open (file)
+    f.seek (0, 2)
+    length = f.tell()
+    f.seek (- min (length, size), 1)
+    s = f.read ()
+    if marker:
+        p = s.find (marker)
+        s = s[p:]
+    return s.split ('\n')[-lines:]
+
 class MethodOverrider:
     """Override a object method with a function defined outside the
 class hierarchy.

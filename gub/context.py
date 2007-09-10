@@ -64,11 +64,11 @@ class Context:
 
     def __setattr__(self, k, v):
         if (type(v) == type('')
-            and k <> '_substitution_dict' and self._substitution_dict):
+            and k != '_substitution_dict' and self._substitution_dict):
             print 'was already set in'
-            print ''.join(traceback.format_list (self._substitution_assignment_traceback))
+            print ''.join (traceback.format_list (self._substitution_assignment_traceback))
 
-            raise SetAttrTooLate((k, self))
+            raise SetAttrTooLate ((k, self))
 
         self.__dict__[k] = v
         
@@ -79,7 +79,7 @@ class Context:
             d = d.copy ()
             
         ms = inspect.getmembers (self)
-        vars = dict((k, v) for (k, v) in ms if type (v) == type (''))
+        vars = dict ((k, v) for (k, v) in ms if type (v) == type (''))
 
         member_substs = {}
         for (name, method) in ms:
@@ -125,7 +125,7 @@ class Context:
                 # if this happens derived classes cannot override settings
                 # from the baseclass.
                 print ' Cannot Context.expand() in __init__()'
-                raise ExpandInInit()
+                raise ExpandInInit ()
             
         d = self._substitution_dict
         if env:

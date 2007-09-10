@@ -19,26 +19,8 @@ import optparse
 import time
 import dbhash
 
-
 from gub import repository
 from gub import oslog
-
-
-################################################################
-# utils.
-
-def system (c):
-    print c
-    if os.system (c):
-        raise Exception ('barf')
-    
-    
-def read_tail (file, amount=10240):
-    f = open (file)
-    f.seek (0, 2)
-    length = f.tell()
-    f.seek (- min (length, amount), 1)
-    return f.read ()
 
 def canonicalize_string (target):
     canonicalize = re.sub ('[ \t\n]', '_', target)
@@ -46,9 +28,6 @@ def canonicalize_string (target):
     return canonicalize
 
 main_log = None
-
-################################################################
-#
 
 def result_message (parts, subject='') :
     """Concatenate PARTS to a Message object."""
@@ -252,11 +231,11 @@ def test_target (repo, options, target, last_patch):
     result = 'unknown'
     attachments = []
 
-    body = read_tail (log, 10240).split ('\n')
+    body = test_log.read_tail ()
     if stat:
         result = 'FAIL'
         attachments = ['error for\n\n\t%s\n\n\n%s' % (target,
-                                               '\n'.join (body[-0:]))]
+                                                      '\n'.join (body))]
         if options.append_diff:
             attachments += [repo.get_diff_from_tag (base_tag)]
     else:
@@ -380,6 +359,10 @@ Checksum of revision: %(release_hash)s
     return failures
 
 def test_self (options, args):
+    def system (c):
+        print c
+        if os.system (c):
+            raise Exception ('barf')
     self_test_dir = 'test-gub-test.darcs'
     system ('rm -rf %s ' %  self_test_dir)
     system ('mkdir %s ' %  self_test_dir)

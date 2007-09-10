@@ -133,30 +133,30 @@ def get_cli_parser ():
     p.add_option ('-p', '--platform',
                   default=None,
                   dest='platform',
-                  metavar="PLATFORM",
-                  help="platform to use")
+                  metavar='PLATFORM',
+                  help='platform to use')
 
-    p.add_option ('', '--name',
-                  help="print package name only",
-                  action="store_true",
-                  dest="print_only_name")
+    p.add_option ('-n', '--name',
+                  help='print package name only',
+                  action='store_true',
+                  dest='print_only_name')
     p.add_option ('-r','--root',
-                  help="set platform root",
-                  metavar="DIR",
-                  dest="root",
-                  action="store")
+                  help='set platform root',
+                  metavar='DIR',
+                  dest='root',
+                  action='store')
     p.add_option ('-x', '--no-deps',
-                  help="ignore dependencies",
-                  action="store",
-                  dest="no_deps")
+                  help='ignore dependencies',
+                  action='store',
+                  dest='no_deps')
     p.add_option ('','--dbdir',
-                  action="store",
-                  dest="dbdir",
-                  help="set db directory")
+                  action='store',
+                  dest='dbdir',
+                  help='set db directory')
     p.add_option ('-v', '--verbose',
                   action='store_true',
-                  dest="be_verbose",
-                  help="be verbose")
+                  dest='verbose',
+                  help='be verbose')
     return p
 
 def parse_options ():
@@ -165,49 +165,41 @@ def parse_options ():
 
     options.command = ''
     options.arguments = []
-
     if len (arguments) > 0:
         options.command = re.sub ('-', '_', arguments.pop (0))
-
     options.arguments = arguments
-    if not options.root:
-        if not options.platform:
-            sys.stderr.write ('need platform or root setting, use -p option')
-            sys.stderr.write ('\n\n')
-            p.print_help ()
-            sys.exit (2)
-        # FIXME: what if user changes ~/.gubrc?  should use gubb.Settings!
-        options.root = ('target/%s/root' % options.platform)
-        GUB_LOCAL_PREFIX = os.environ.get ('GUB_LOCAL_PREFIX')
-        if GUB_LOCAL_PREFIX and options.platform == 'local':
-            options.root = GUB_LOCAL_PREFIX
+
+    if not options.command:
+        print p.print_help ()
+        sys.exit (2)
     return options
 
 def main ():
     options = parse_options ()
+    from gub.settings import Settings
+    settings = Settings (options)
+    options.root = settings.system_root
+    options.platform = settings.platform
+    osi = oslog.Os_commands ('/dev/null', oslog.level['error'])
+    osi.stage ('root: ' + settings.system_root + '\n')
+    osi.info ('platform: ' + settings.platform + '\n')
     target_manager = gup.DependencyManager (options.root,
-                                            oslog.Os_commands ("/dev/null",
-                                                               oslog.level['info']),
+                                            osi,
                                             dbdir=options.dbdir)
 
-    branch_dict = {}
-    for b in options.branches:
-        (package, branch_name) = b.split ('=')
-        branch_dict[package] = branch_name
     if options.command == 'install':
-        platform = options.platform
-        # FIXME: what if user changes ~/.gubrc?  should use gubb.Settings!
-        target_manager.read_package_headers ('packages/%(platform)s/' % locals (), branch_dict)
-        target_manager.read_package_headers ('packages/%(platform)s/cross/' % locals (), branch_dict)
+        target_manager.read_package_headers (settings.packages,
+                                             settings.branches)
+        target_manager.read_package_headers (settings.cross_packages,
+                                             settings.branches)
 
-    if options.command:
-        commands = Command (target_manager, options)
-        if options.command in Command.__dict__:
-            Command.__dict__[options.command] (commands)
-        else:
-            sys.stderr.write ('no such command: ' + options.command)
-            sys.stderr.write ('\n')
-            sys.exit (2)
+    commands = Command (target_manager, options)
+    if options.command in Command.__dict__:
+        Command.__dict__[options.command] (commands)
+    else:
+        sys.stderr.write ('no such command: ' + options.command)
+        sys.stderr.write ('\n')
+        sys.exit (2)
 
 if __name__ == '__main__':
     main ()

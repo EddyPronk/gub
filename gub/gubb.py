@@ -852,7 +852,8 @@ def get_build_spec (flavour, settings, url):
             name, version_tuple, format = misc.split_ball (ball)
         elif name.find ('/') >= 0:
             name = os.path.basename (name)
-        print 'NO SPEC for', name
+        settings.os_interface.error ('NO SPEC for package: %(name)s\n'
+                                     % locals ())
         from new import classobj
         # Direct url build feature
         #   * gub http://ftp.gnu.org/pub/gnu/tar/tar-1.18.tar.gz

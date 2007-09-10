@@ -30,31 +30,60 @@ platforms = {
 }
 
 distros = ('cygwin')
-            
+
+class UnknownPlatform (Exception):
+    pass
+
+def get_platform_from_dir (settings, dir):
+    m = re.match ('.*?([^/]+)(' + settings.root_dir + ')?/*$', dir)
+    if m:
+        return m.group (1)
+    return None
+
 class Settings (context.Context):
     def __init__ (self, options):
         context.Context.__init__ (self)
-        self.platform = options.platform
-
-        if self.platform not in platforms.keys ():
-            raise 'unknown platform', self.platform
-
-        GUB_LOCAL_PREFIX = os.environ.get ('GUB_LOCAL_PREFIX')
-        
-        # config dirs
 
         # TODO: local-prefix, target-prefix, cross-prefix?
         self.prefix_dir = '/usr'
         self.root_dir = '/root'
         self.cross_dir = '/cross'
+
+        if not options.platform:
+            if options.__dict__.has_key ('root') and options.root:
+                options.platform = get_platform_from_dir (self, options.root)
+                if not options.platform:
+                    self.error ('invalid root: %(root)s, no platform found'
+                                % options)
+                    raise UnknownPlatform (options.root)
+            else:
+                guess = get_platform_from_dir (self, os.getcwd ())
+                if guess in platforms.keys ():
+                    options.platforms = guess
+            
+        if not options.platform:
+            options.platform = 'local'
+
+        self.platform = options.platform
+        if self.platform not in platforms.keys ():
+            raise UnknownPlatform (self.platform)
+
+        GUB_LOCAL_PREFIX = os.environ.get ('GUB_LOCAL_PREFIX')
+        
+        # config dirs
+
         if self.platform == 'local' and GUB_LOCAL_PREFIX:
             self.prefix_dir = ''
 
         # gubdir is top of `installed' gub repository
-        self.gubdir = os.getcwd ()
+        ## self.gubdir = os.getcwd ()
+        self.gubdir = os.path.dirname (os.path.dirname (__file__))
+        if not self.gubdir:
+            self.gubdir = os.getcwd ()
 
         # workdir is top of writable build stuff
-        self.workdir = os.getcwd ()
+        ##self.workdir = os.getcwd ()
+        self.workdir = self.gubdir
         
         # gubdir based: fixed repository layout
         self.patchdir = self.gubdir + '/patches'
@@ -236,10 +265,12 @@ Print settings and directory layout.
     return p
 
 def as_variables (settings):
+    lst = []
     for k in settings.__dict__.keys ():
         v = settings.__dict__[k]
         if type (v) == type (str ()):
-            print '%(k)s=%(v)s' % locals ()
+            lst.append ('%(k)s=%(v)s' % locals ())
+    return lst
 
 def main ():
     cli_parser = get_cli_parser ()
@@ -248,7 +279,7 @@ def main ():
         raise 'barf'
         sys.exit (2)
     settings = Settings (options)
-    print as_variables (settings)
+    print '\n'.join (as_variables (settings))
 
 if __name__ == '__main__':
     main ()
