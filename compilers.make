@@ -79,11 +79,11 @@ native-distccd:
 bootstrap: bootstrap-git download-local local cross-compilers local-cross-tools download 
 
 bootstrap-git:
-	$(GUB) $(LOCAL_GUB_OPTIONS) -p local git
+	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=local git
 
 local-cross-tools:
 ifeq ($(findstring mingw, $(PLATFORMS)),mingw)
 ifneq ($(XBUILD_PLATFORM),linux-64)
-	$(GUB) $(LOCAL_GUB_OPTIONS) -p local nsis 
+	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=local nsis 
 endif
 endif

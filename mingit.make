@@ -33,13 +33,13 @@ download:
 bootstrap: bootstrap-git download-local local cross-compilers local-cross-tools download 
 
 download-local:
-	$(GUB) $(LOCAL_GUB_OPTIONS) -p local\
+	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=local\
 		--stage=download \
 		git pkg-config nsis icoutils 
 
 local:
 	cd librestrict && make -f GNUmakefile
-	$(GUB) $(LOCAL_GUB_OPTIONS) -p local git 
+	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=local git 
 
 
 mingw:

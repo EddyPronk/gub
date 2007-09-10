@@ -262,15 +262,15 @@ locals =\
 # -icoutils: icon build for mingw
 download-local:
 ifneq ($(BUILD_PLATFORM),linux-64)
-	$(GUB) $(LOCAL_GUB_OPTIONS) -p local --stage=download $(locals) nsis
+	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=local --stage=download $(locals) nsis
 else
 # ugh, can only download nsis after cross-compilers...
-	$(GUB) $(LOCAL_GUB_OPTIONS) -p local --stage=download $(locals)
+	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=local --stage=download $(locals)
 endif
 
 local:
 	cd librestrict && make -f GNUmakefile
-	$(GUB) $(LOCAL_GUB_OPTIONS) -p local $(locals)
+	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=local $(locals)
 # local-cross-tools depend on cross-compilers, see compilers.make.
 # We need linux-x86 and mingw before nsis can be build
 #	$(MAKE) local-cross-tools
@@ -336,11 +336,11 @@ unlocked-test-output:
 	    -cjf $(CWD)/uploads/lilypond-$(DIST_VERSION)-$(DOC_BUILDNUMBER).test-output.tar.bz2 input/regression/out-test/
 
 unlocked-doc-build:
-	$(GPKG) -p $(BUILD_PLATFORM) remove lilypond
+	$(GPKG) --platform=$(BUILD_PLATFORM) remove lilypond
 
 	## force update of srcdir.
 	$(GUB) --branch=lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH) \
-		 -p $(BUILD_PLATFORM) --stage=untar lilypond
+		 --platform=$(BUILD_PLATFORM) --stage=untar lilypond
 
 	unset LILYPONDPREFIX LILYPOND_DATADIR \
 	    && $(DOC_RELOCATION) \
