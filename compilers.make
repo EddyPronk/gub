@@ -53,7 +53,7 @@ local-distcc:
 gcc_or_glibc = $(shell if echo $(1) | grep linux > /dev/null 2>/dev/null; then echo glibc; else echo cross/gcc; fi)
 
 cross-compilers:
-	$(foreach p, $(PLATFORMS),$(call INVOKE_GUB, $(p)) $(call gcc_or_glibc, $(p)) && ) true
+	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB,$(p)) $(call gcc_or_glibc,$(p)) && ) true
 
 cross-distccd:
 	-$(if $(wildcard log/$@.pid),kill `cat log/$@.pid`, true)

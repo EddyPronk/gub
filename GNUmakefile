@@ -1,4 +1,5 @@
-.PHONY: lilypond mingit phone 
+.PHONY: lilypond mingit phone
+.PHONY: default compilers TAGS help local download-local
 sources = GNUmakefile $(filter-out %~, $(wildcard *.make bin/* gub/*.py gub/*/*.py gub/*/*/*.py gub/*/*/*/*.py))
 
 default: compilers
@@ -9,7 +10,7 @@ include compilers.make
 TAGS: $(sources)
 	etags $^
 
-MAKE_FILES = $(filter-out compilers.make gub.make,$(wildcard *.make))
+MAKE_FILES = $(filter-out compilers.make gub.make local.make,$(wildcard *.make))
 MAKE_BASES = $(MAKE_FILES:%.make=%)
 
 help:
