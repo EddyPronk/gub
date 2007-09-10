@@ -23,8 +23,8 @@ endif
 INVOKE_GUB=$(GUB)\
  --platform=$(1)\
  $(GUB_ONLINE_OPTION)\
- $(foreach h,$(GUB_NATIVE_DISTCC_HOSTS), --native-distcc-host=$(h))\
- $(foreach h,$(GUB_CROSS_DISTCC_HOSTS), --cross-distcc-host=$(h))\
+$(foreach h,$(GUB_NATIVE_DISTCC_HOSTS), --native-distcc-host=$(h))\
+$(foreach h,$(GUB_CROSS_DISTCC_HOSTS), --cross-distcc-host=$(h))\
  $(GUB_OPTIONS)\
  $(LOCAL_GUB_OPTIONS)
 
