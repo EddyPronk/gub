@@ -111,8 +111,8 @@ cd %(builddir)s && %(configure_command)s''')
                                    '%(builddir)s/config.make' % d)
 
             ## need to reconfigure if dirs were added.
-            or (len (self.locate_files ('%(builddir)s', "GNUmakefile"))
-                != len (self.locate_files ('%(srcdir)s', "GNUmakefile")) + 1)):
+            or (len (self.locate_files ('%(builddir)s', 'GNUmakefile'))
+                != len (self.locate_files ('%(srcdir)s', 'GNUmakefile')) + 1)):
 
             self.do_configure ()
             self.system ('touch %(builddir)s/config.hh')
@@ -153,10 +153,10 @@ cd %(builddir)s && %(configure_command)s''')
         # or do we need the version of lilypond?
         installer_version = self.build_version ()
         # WTF, current.
-        self.system ("cd %(install_prefix)s/share/lilypond && mv %(installer_version)s current",
+        self.system ('cd %(install_prefix)s/share/lilypond && mv %(installer_version)s current',
                      locals ())
 
-        self.system ("cd %(install_prefix)s/lib/lilypond && mv %(installer_version)s current",
+        self.system ('cd %(install_prefix)s/lib/lilypond && mv %(installer_version)s current',
                      locals ())
 
         self.system ('mkdir -p %(install_prefix)s/etc/fonts/')
@@ -274,7 +274,7 @@ cp -pv %(system_prefix)s/share/gettext/gettext.h %(system_prefix)s/include''')
 
     def compile_command (self):
         ## UGH - * sucks.
-        python_lib = "%(system_prefix)s/bin/libpython*.dll"
+        python_lib = '%(system_prefix)s/bin/libpython*.dll'
         LDFLAGS = '-L%(system_prefix)s/lib -L%(system_prefix)s/bin -L%(system_prefix)s/lib/w32api'
 
         ## UGH. 
@@ -297,7 +297,7 @@ LDFLAGS="%(LDFLAGS)s %(python_lib)s"
 
         if not os.path.exists (docball):
             ## can't run make, because we need the right variables (BRANCH, etc.)
-            raise Exception ("cannot find docball %s" % docball)
+            raise Exception ('cannot find docball %s' % docball)
             
         self.system ('''
 mkdir -p %(install_prefix)s/share/doc/lilypond
@@ -350,7 +350,7 @@ class LilyPond__mingw (LilyPond):
     def compile_command (self):
 
         ## UGH - * sucks.
-        python_lib = "%(system_prefix)s/bin/libpython*.dll"
+        python_lib = '%(system_prefix)s/bin/libpython*.dll'
         LDFLAGS = '-L%(system_prefix)s/lib -L%(system_prefix)s/bin -L%(system_prefix)s/lib/w32api'
 
         ## UGH. 
@@ -398,7 +398,7 @@ cp %(install_prefix)s/share/lilypond/*/python/* %(install_prefix)s/bin
             elif header.endswith ('python') and not i.endswith ('.py'):
                 self.system ('mv %(i)s %(i)s.py', locals ())
 
-        for i in self.locate_files ('%(install_root)s', "*.ly"):
+        for i in self.locate_files ('%(install_root)s', '*.ly'):
             s = open (i).read ()
             open (i, 'w').write (re.sub ('\r*\n', '\r\n', s))
 
@@ -445,36 +445,31 @@ cd %(builddir)s && make -C scripts PYTHON=/usr/bin/python
 class LilyPond__darwin (LilyPond):
     def get_dependency_dict (self):
         d = LilyPond.get_dependency_dict (self)
-
         deps = d['']
         deps.remove ('python-runtime')
         deps += [ 'fondu', 'osx-lilypad']
-
         d[''] = deps
         return d
 
     def get_build_dependencies (self):
-        return LilyPond.get_build_dependencies (self) + [ 'fondu', 'osx-lilypad']
+        return (LilyPond.get_build_dependencies (self)
+                + [ 'fondu', 'osx-lilypad'])
 
     def compile_command (self):
-        return LilyPond.compile_command (self) + " TARGET_PYTHON=/usr/bin/python "
+        return (LilyPond.compile_command (self)
+                + ' TARGET_PYTHON=/usr/bin/python')
     
     def configure_command (self):
-        cmd = LilyPond.configure_command (self)
-        cmd += ' --enable-static-gxx '
-
-        return cmd
+        return (LilyPond.configure_command (self)
+                + ' --enable-static-gxx')
 
     def do_configure (self):
         LilyPond.do_configure (self)
-
         make = self.expand ('%(builddir)s/config.make')
-
-        if re.search ("GUILE_ELLIPSIS", open (make).read ()):
+        if re.search ('GUILE_ELLIPSIS', open (make).read ()):
             return
         self.file_sub ([('CONFIG_CXXFLAGS = ',
                          'CONFIG_CXXFLAGS = -DGUILE_ELLIPSIS=... '),
-
 ## optionally: switch off for debugging.
 #                                (' -O2 ', '')
                 ],
