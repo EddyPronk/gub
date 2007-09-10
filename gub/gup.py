@@ -1,5 +1,6 @@
-import gdbm as dbmodule
-#import dbhash as dbmodule
+#local python has no gdbm, breaks simple home python/lilypond build
+#import gdbm as dbmodule
+import dbhash as dbmodule
 
 import pickle
 import os
@@ -48,10 +49,15 @@ class FileManager:
             ## os_interface.system ('rm -fr %s' % self.root)
             
         self.make_dirs ()
-        self._file_package_db = dbmodule.open (self.config + '/files.db', 'c')
-        self._package_file_db = dbmodule.open (self.config
-                                               + '/packages.db', 'c')
-        
+        files_db = self.config + '/files.db'
+        packages_db = self.config + '/packages.db'
+        self._file_package_db = dbmodule.open (files_db, 'c')
+        self._package_file_db = dbmodule.open (packages_db, 'c')
+        #except DBInvalidArgError:
+        # import gdmb
+        # file_db = gdbm.open (file_db, 'c')
+        # packages_db = gdbm.open (packages_db, 'c')
+            
     def __repr__ (self):
         name = self.__class__.__name__
         root = self.root
@@ -283,8 +289,8 @@ class PackageManager (FileManager, PackageDictManager):
         FileManager.__init__ (self, root, os_interface, **kwargs)
         PackageDictManager.__init__ (self, os_interface)
         
-        self._package_dict_db = dbmodule.open (self.config
-                           + '/dicts.db', 'c')
+        dicts_db = self.config + '/dicts.db'
+        self._package_dict_db = dbmodule.open (dicts_db, 'c')
         for k in self._package_dict_db.keys ():
             v = self._package_dict_db[k]
             self.register_package_dict (pickle.loads (v))
