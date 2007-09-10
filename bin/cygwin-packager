@@ -188,12 +188,14 @@ mkdir -p %(installer_prefix)s/share/doc/%(name)s
         return readme
 
     def strip_dir (self, dir):
-        misc.map_command_dir (self.expand (dir),
+        misc.map_command_dir (self,
+                              self.expand (dir),
                               self.expand ('%(strip_command)s'),
                               self.no_binary_strip,
                               (self.no_binary_strip_extensions
                                + self.binary_debug_strip_extensions))
-        misc.map_command_dir (self.expand (dir),
+        misc.map_command_dir (self,
+                              self.expand (dir),
                               self.expand ('%(strip_command)s -g'),
                               self.no_binary_strip,
                               self.no_binary_strip_extensions)

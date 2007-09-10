@@ -166,7 +166,8 @@ class Installer (context.Os_context_wrapper):
 
     def strip_dir (self, dir):
         from gub import misc
-        misc.map_command_dir (self.expand (dir),
+        misc.map_command_dir (self,
+                              self.expand (dir),
                               self.expand ('%(strip_command)s'),
                               self.no_binary_strip,
                               self.no_binary_strip_extensions)
@@ -385,6 +386,6 @@ def get_installer (settings, name):
     }
 
     ctor = installer_class[settings.platform]
-    print ctor
-    installer = ctor(settings, name)
+    print 'Installer:', ctor
+    installer = ctor (settings, name)
     return installer

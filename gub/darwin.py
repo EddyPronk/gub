@@ -15,11 +15,11 @@ class Rewirer (context.Os_context_wrapper):
         lib_str = self.read_pipe ('''
 %(cross_prefix)s/bin/%(target_architecture)s-otool -L %(name)s
 ''',
-                     locals (), ignore_errors=True)
+                                  locals (), ignore_errors=True)
 
         libs = []
-        for l in lib_str.split ('\n'):
-            m = re.search (r"\s+(.*) \(.*\)", l)
+        for i in lib_str.split ('\n'):
+            m = re.search (r'\s+(.*) \(.*\)', i)
             if not m:
                 continue
             if self.ignore_libs.has_key (m.group (1)):
@@ -33,7 +33,7 @@ class Rewirer (context.Os_context_wrapper):
         if not substitutions:
             return
         changes = ' '.join (['-change %s %s' % (o, d)
-                  for (o, d) in substitutions])
+                             for (o, d) in substitutions])
         self.system ('''
 %(cross_prefix)s/bin/%(target_architecture)s-install_name_tool %(changes)s %(name)s ''',
               locals ())
@@ -43,20 +43,22 @@ class Rewirer (context.Os_context_wrapper):
 
         libs = self.get_libaries (name)
         subs = []
-        for l in libs:
+        for i in libs:
 
+            # FIXME: I do not understand this comment
             ## ignore self.
-            print os.path.split (l)[1], os.path.split (name)[1]
+            self.os_interface.action (os.path.split (i)[1] + ' '
+                                      + os.path.split (name)[1] + '\n')
 
-            if os.path.split (l)[1] == os.path.split (name)[1]:
+            if os.path.split (i)[1] == os.path.split (name)[1]:
                 continue
 
             for o in orig_libs:
-                if re.search (o, l):
-                    newpath = re.sub (o, '@executable_path/../lib/', l);
-                    subs.append ((l, newpath))
-                elif l.find (self.expand ('%(targetdir)s')) >= 0:
-                    print 'found targetdir in linkage', l
+                if re.search (o, i):
+                    newpath = re.sub (o, '@executable_path/../lib/', i);
+                    subs.append ((i, newpath))
+                elif i.find (self.expand ('%(targetdir)s')) >= 0:
+                    print 'found targetdir in linkage', i
                     raise 'abort'
 
         self.rewire_mach_o_object (name, subs)
@@ -76,7 +78,7 @@ class Rewirer (context.Os_context_wrapper):
                 continue
 
             if os.path.isfile (f):
-                self.rewire_mach_o_object_executable_path(f)
+                self.rewire_mach_o_object_executable_path (f)
 
     def set_ignore_libs_from_tarball (self, tarball):
         file_str = self.read_pipe ('tar tzf %(tarball)s', locals())
@@ -84,7 +86,7 @@ class Rewirer (context.Os_context_wrapper):
         self.set_ignore_libs_from_files (files)
 
     def set_ignore_libs_from_files (self, files):
-        self.ignore_libs = dict ((k.strip()[1:], True)
+        self.ignore_libs = dict ((k.strip ()[1:], True)
              for k in files
              if re.match (r'^\./usr/lib/', k))
 
@@ -160,11 +162,11 @@ def get_darwin_sdk ():
         if os.system (s):
             raise 'barf'
 
-    host  = 'maagd'
+    host = 'maagd'
     version = '0.4'
     darwin_version  = 8
 
-    dest =        'darwin%(darwin_version)d-sdk-%(version)s' % locals()
+    dest = 'darwin%(darwin_version)d-sdk-%(version)s' % locals()
 
     system ('rm -rf %s' % dest)
     os.mkdir (dest)
@@ -176,10 +178,10 @@ def get_darwin_sdk ():
     else:
         src += 'MacOSX10.4u.sdk'
 
-    cmd =  ('rsync -a -v %s:%s/ %s/ ' % (host, src, dest))
+    cmd =  ('rsync -a -v %s:%s/ %s/' % (host, src, dest))
     system (cmd)
-    system ('chmod -R +w %s '  % dest)
-    system ('tar cfz %s.tar.gz %s '  % (dest, dest))
+    system ('chmod -R +w %s' % dest)
+    system ('tar cfz %s.tar.gz %s' % (dest, dest))
 
 if __name__== '__main__':
     import sys
