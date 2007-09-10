@@ -192,8 +192,8 @@ def run_installer_commands (commands, settings, args, options):
         return 
 
     for c in commands:
-        settings.os_interface.info (' *** IStage: %s (%s)\n'
-                                    % (c, installer_obj.name))
+        settings.os_interface.stage (' *** IStage: %s (%s)\n'
+                                     % (c, installer_obj.name))
     
         if c == ('build'):
             build_installer (installer_obj, args, options)
@@ -230,7 +230,7 @@ def main ():
             settings.os_interface.error ('skipping build; install_root is locked\n')
             sys.exit (0)
         raise e
-    settings.os_interface.info ('done\n')
+    settings.os_interface.stage ('done\n')
     settings.os_interface.error ('build log written to: ' +
                                  settings.os_interface.log_file_name
                                  + '\n')
