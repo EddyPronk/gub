@@ -111,7 +111,8 @@ class Settings (context.Context):
         elif self.platform == 'mingw':
             self.target_gcc_flags = '-mwindows -mms-bitfields'
 
-        self.set_branches (options.branches)
+        if options.branches:
+            self.set_branches (options.branches)
         self.options = options ##ugh
         self.verbose = self.options.verbose
         self.os = re.sub ('[-0-9].*', '', self.platform)
@@ -159,7 +160,7 @@ class Settings (context.Context):
             self.cpu_count_str = '1'
 
         ## make sure we don't confuse build or target system.
-        self.LD_LIBRARY_PATH = '%(system_root)s/'
+        self.LD_LIBRARY_PATH = '%(system_root)s'
         
     def create_dirs (self): 
         for a in (
@@ -187,7 +188,6 @@ class Settings (context.Context):
 
             self.os_interface.system ('mkdir -p %s' % dir)
 
-
     def set_distcc_hosts (self, options):
         def hosts (xs):
             return reduce (lambda x,y: x+y,
@@ -198,14 +198,57 @@ class Settings (context.Context):
         self.native_distcc_hosts = ' '.join (distcc.live_hosts (hosts (options.native_distcc_hosts), port=3634))
 
 
-
     def set_branches (self, bs):
         "set branches, takes a list of name=branch strings."
 
-        self.branch_dict = {}
+        self.branch_dict = dict ()
         for b in bs:
             (name, br) = tuple (b.split ('='))
-
             self.branch_dict[name] = br
-            self.__dict__['%s_branch' % name]= br
+            self.__dict__['%s_branch' % name] = br
 
+def get_cli_parser ():
+    import optparse
+    p = optparse.OptionParser ()
+
+    p.usage = '''settings.py [OPTION]...
+
+Print settings and directory layout.
+
+'''
+    p.description = 'Grand Unified Builder.  Settings and directory layout.'
+
+    # c&p #10?
+    #import gub_options
+    #gub_options.add_common_options (platform,branch,verbose)?
+    p.add_option ('-p', '--platform', action='store',
+                  dest='platform',
+                  type='choice',
+                  default=None,
+                  help='select target platform',
+                  choices=platforms.keys ())
+    p.add_option ('-B', '--branch', action='append',
+                  dest='branches',
+                  default=[],
+                  metavar='NAME=BRANCH',
+                  help='select branch')
+    p.add_option ('-v', '--verbose', action='count', dest='verbose', default=0)
+    return p
+
+def as_variables (settings):
+    for k in settings.__dict__.keys ():
+        v = settings.__dict__[k]
+        if type (v) == type (str ()):
+            print '%(k)s=%(v)s' % locals ()
+
+def main ():
+    cli_parser = get_cli_parser ()
+    (options, files) = cli_parser.parse_args ()
+    if not options.platform or files:
+        raise 'barf'
+        sys.exit (2)
+    settings = Settings (options)
+    print as_variables (settings)
+
+if __name__ == '__main__':
+    main ()

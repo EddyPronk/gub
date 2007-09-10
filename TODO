@@ -1,4 +1,8 @@
-* Add new platform
+* Remove duplication of directory layout.  gub/settings should be only
+  place, layout is partly duplicated in bin/* and test-lily/* and *.make.
+  Make gub/settings print layout for use in sh/make.
+
+* Document and make easier to add new platform
 
     -3. gub/settings.py
     -2. gub/config_cache.py
