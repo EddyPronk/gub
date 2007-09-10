@@ -143,9 +143,9 @@ Inspect lilypond.org download area, and write pickle of all version numbers.
     p.description='Grand Unified Builder.  Specify --package-version to set build version'
 
     p.add_option ('--dbfile', action='store',
-                  dest="dbfile",
-                  help="Pickle of version dict",
-                  default="uploads/lilypond.versions")
+                  dest='dbfile',
+                  help='Pickle of version dict',
+                  default='uploads/lilypond.versions')
                   
     p.add_option ('--url', action='store',
                   dest='url',
@@ -161,7 +161,7 @@ Inspect lilypond.org download area, and write pickle of all version numbers.
     p.add_option ('--no-sources', action='store_false',
                   dest='do_sources',
                   default=True,
-                  help="do not look for versions of sources")
+                  help='do not look for versions of sources')
 
     p.add_option ('--build-for', action='store',
                   dest='version',

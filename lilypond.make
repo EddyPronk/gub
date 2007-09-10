@@ -59,15 +59,15 @@ GUILE_LOCAL_BRANCH=branch_release-1-8-lilypond.org-vc-guile.git
 GUILE_LOCAL_BRANCH=branch_release-1-8-repo.or.cz-guile.git
 
 GUB_OPTIONS =\
- --branch lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH)
+ --branch=lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH)
 
 GPKG_OPTIONS =\
- $(if $(GUILE_LOCAL_BRANCH), --branch guile=$(GUILE_LOCAL_BRANCH),) \
- --branch lilypond=$(LILYPOND_LOCAL_BRANCH)
+ $(if $(GUILE_LOCAL_BRANCH), --branch=guile=$(GUILE_LOCAL_BRANCH),)\
+ --branch=lilypond=$(LILYPOND_LOCAL_BRANCH)
 
 INSTALLER_BUILDER_OPTIONS =\
- $(if $(GUILE_LOCAL_BRANCH), --branch guile=$(GUILE_LOCAL_BRANCH),) \
- --branch lilypond=$(LILYPOND_LOCAL_BRANCH)
+ $(if $(GUILE_LOCAL_BRANCH), --branch=guile=$(GUILE_LOCAL_BRANCH),)\
+ --branch=lilypond=$(LILYPOND_LOCAL_BRANCH)
 
 include gub.make
 
@@ -84,12 +84,12 @@ include compilers.make
 ################
 
 unlocked-update-versions:
-	python gub/versiondb.py --dbfile $(LILYPOND_VERSIONS) --download  --platforms="$(PLATFORMS)"
-	python gub/versiondb.py --dbfile uploads/freetype2.versions --download  --platforms="cygwin"
-	python gub/versiondb.py --dbfile uploads/fontconfig.versions --download  --platforms="cygwin"
-	python gub/versiondb.py --dbfile uploads/guile.versions --download --platforms="cygwin"
-	python gub/versiondb.py --dbfile uploads/libtool.versions --download --platforms="cygwin"
-	python gub/versiondb.py --dbfile uploads/noweb.versions --download --platforms="cygwin"
+	python gub/versiondb.py --dbfile=$(LILYPOND_VERSIONS) --download  --platforms="$(PLATFORMS)"
+	python gub/versiondb.py --dbfile=uploads/freetype2.versions --download  --platforms="cygwin"
+	python gub/versiondb.py --dbfile=uploads/fontconfig.versions --download  --platforms="cygwin"
+	python gub/versiondb.py --dbfile=uploads/guile.versions --download --platforms="cygwin"
+	python gub/versiondb.py --dbfile=uploads/libtool.versions --download --platforms="cygwin"
+	python gub/versiondb.py --dbfile=uploads/noweb.versions --download --platforms="cygwin"
 
 update-versions:
 	$(PYTHON) gub/with-lock.py --skip $(LILYPOND_VERSIONS).lock $(MAKE) unlocked-update-versions
@@ -170,7 +170,7 @@ cygwin-lilypond:
 	$(call INVOKE_GUB,cygwin) --build-source libtool guile fontconfig lilypond
 
 cygwin-lilypond-installer:
-	$(CYGWIN_PACKAGER) --branch lilypond=$(LILYPOND_LOCAL_BRANCH) lilypond
+	$(CYGWIN_PACKAGER) --branch=lilypond=$(LILYPOND_LOCAL_BRANCH) lilypond
 
 upload-setup-ini:
 	cd uploads/cygwin && ../../downloads/genini $$(find release -mindepth 1 -maxdepth 2 -type d) > setup.ini
@@ -287,7 +287,7 @@ NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/src/lilypond-$(LILYPOND_LOCAL_BRANCH)
 NATIVE_BUILD_COMMITTISH=$(shell cat downloads/lilypond.git/refs/heads/$(LILYPOND_LOCAL_BRANCH))
 
 DIST_VERSION=$(shell cat $(NATIVE_LILY_BUILD)/out/VERSION)
-DOC_BUILDNUMBER=$(shell $(PYTHON) gub/versiondb.py --build-for $(DIST_VERSION))
+DOC_BUILDNUMBER=$(shell $(PYTHON) gub/versiondb.py --build-for=$(DIST_VERSION))
 
 DOC_RELOCATION = \
     LILYPOND_EXTERNAL_BINARY="$(NATIVE_ROOT)/usr/bin/lilypond" \
@@ -339,8 +339,8 @@ unlocked-doc-build:
 	$(GPKG) -p $(BUILD_PLATFORM) remove lilypond
 
 	## force update of srcdir.
-	$(GUB) --branch lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH) \
-		 -p $(BUILD_PLATFORM) --stage untar lilypond
+	$(GUB) --branch=lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH) \
+		 -p $(BUILD_PLATFORM) --stage=untar lilypond
 
 	unset LILYPONDPREFIX LILYPOND_DATADIR \
 	    && $(DOC_RELOCATION) \
@@ -387,21 +387,19 @@ endif
 unlocked-doc-export:
 	PYTHONPATH=$(NATIVE_LILY_BUILD)/python/out \
 	$(PYTHON) test-lily/rsync-lily-doc.py --recreate \
-		--version-file $(NATIVE_LILY_BUILD)/out/VERSION \
-		--output-distance \
-		$(NATIVE_LILY_SRC)/buildscripts/output-distance.py $(NATIVE_LILY_BUILD)/out-www/online-root
+		--version-file=$(NATIVE_LILY_BUILD)/out/VERSION \
+		--output-distance=$(NATIVE_LILY_SRC)/buildscripts/output-distance.py $(NATIVE_LILY_BUILD)/out-www/online-root
 	$(PYTHON) test-lily/rsync-lily-doc.py --recreate \
-		--version-file $(NATIVE_LILY_BUILD)/out/VERSION \
-		--unpack-dir uploads/localdoc/ \
-		--output-distance \
-		$(NATIVE_LILY_SRC)/buildscripts/output-distance.py $(NATIVE_LILY_BUILD)/out-www/offline-root
+		--version-file=$(NATIVE_LILY_BUILD)/out/VERSION \
+		--unpack-dir=uploads/localdoc/ \
+		--output-distance=$(NATIVE_LILY_SRC)/buildscripts/output-distance.py $(NATIVE_LILY_BUILD)/out-www/offline-root
 
 unlocked-test-export:
 	PYTHONPATH=$(NATIVE_LILY_BUILD)/python/out \
 	$(PYTHON) test-lily/rsync-test.py \
-		--version-file $(NATIVE_LILY_BUILD)/out/VERSION \
-		--output-distance $(NATIVE_LILY_SRC)/buildscripts/output-distance.py \
-		--test-dir uploads/webtest
+		--version-file=$(NATIVE_LILY_BUILD)/out/VERSION \
+		--output-distance=$(NATIVE_LILY_SRC)/buildscripts/output-distance.py \
+		--test-dir=uploads/webtest
 
 doc-export:
 	$(PYTHON) gub/with-lock.py --skip $(DOC_LOCK) $(MAKE) cached-doc-export
@@ -410,9 +408,11 @@ test-export:
 	$(PYTHON) gub/with-lock.py --skip $(DOC_LOCK) $(MAKE) cached-test-export
 
 unlocked-dist-check:
-	$(SET_LOCAL_PATH) \
-		$(PYTHON) test-lily/dist-check.py --branch $(LILYPOND_LOCAL_BRANCH) --repository $(LILYPOND_REPODIR) $(NATIVE_LILY_BUILD)
-	cp $(NATIVE_LILY_BUILD)/out/lilypond-$(DIST_VERSION).tar.gz uploads/
+	$(SET_LOCAL_PATH)\
+		$(PYTHON) test-lily/dist-check.py\
+		--branch=$(LILYPOND_LOCAL_BRANCH)\
+		--repository=$(LILYPOND_REPODIR) $(NATIVE_LILY_BUILD)
+	cp $(NATIVE_LILY_BUILD)/out/lilypond-$(DIST_VERSION).tar.gz uploads
 
 dist-check:
 	$(PYTHON) gub/with-lock.py --skip $(NATIVE_LILY_BUILD).lock \

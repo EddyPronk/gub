@@ -24,25 +24,25 @@ def parse_options ():
 		  help='which version db to use',
 		  default='uploads/lilypond.versions')
     p.add_option ('--output-distance',
-                  dest="output_distance_script",
-                  help="compute signature distances using script") 
-    p.add_option ("--dry-run",
-                  action="store_true",
-                  dest="dry_run",
+                  dest='output_distance_script',
+                  help='compute signature distances using script') 
+    p.add_option ('--dry-run',
+                  action='store_true',
+                  dest='dry_run',
                   default=False,
-                  help="don't actually run any commands.")
-    p.add_option ("--version-file",
-                  action="store",
-                  dest="version_file",
-                  help="where to get the version number")
+                  help='do not actually run any commands.')
+    p.add_option ('--version-file',
+                  action='store',
+                  dest='version_file',
+                  help='where to get the version number')
     p.add_option ('--test-dir',
 		  dest='test_dir',
 		  default='uploads/webtest/',
-		  help="Where to put local versions of the test output")
+		  help='Where to put local versions of the test output')
     p.add_option ('--upload-dir',
 		  dest='upload_dir',
 		  default='uploads/',
-		  help="Where to find test-output tarballs")
+		  help='Where to find test-output tarballs')
 
     (options, args) = p.parse_args ()
 

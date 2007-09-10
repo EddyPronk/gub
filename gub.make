@@ -21,21 +21,21 @@ LOCAL_GUB_OPTIONS += $(LOCAL_GUB_BUILDER_OPTIONS)
 endif
 
 INVOKE_GUB=$(GUB)\
- --target-platform $(1)\
- $(GUB_ONLINE_OPTION) \
- $(foreach h,$(GUB_NATIVE_DISTCC_HOSTS), --native-distcc-host $(h))\
- $(foreach h,$(GUB_CROSS_DISTCC_HOSTS), --cross-distcc-host $(h))\
+ --platform=$(1)\
+ $(GUB_ONLINE_OPTION)\
+ $(foreach h,$(GUB_NATIVE_DISTCC_HOSTS), --native-distcc-host=$(h))\
+ $(foreach h,$(GUB_CROSS_DISTCC_HOSTS), --cross-distcc-host=$(h))\
  $(GUB_OPTIONS)\
  $(LOCAL_GUB_OPTIONS)
 
 INVOKE_GUP=$(GPKG)\
- --platform $(1)\
+ --platform=$(1)\
  $(GPKG_OPTIONS)\
  $(LOCAL_GPKG_OPIONS)
 
 INVOKE_INSTALLER_BUILDER=$(INSTALLER_BUILDER)\
- --target-platform $(1) \
- $(INSTALLER_BUILDER_OPTIONS) \
+ --platform=$(1)\
+ $(INSTALLER_BUILDER_OPTIONS)\
  $(LOCAL_INSTALLER_BUILDER_OPTIONS)
 
 BUILD=$(call INVOKE_GUB,$(1)) $(2)\

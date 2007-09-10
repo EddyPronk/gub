@@ -81,7 +81,7 @@ build-all - build, strip, package
                   dest="settings",
                   help="extra overrides for settings")
                   
-    p.add_option ('-p', '--target-platform', action='store',
+    p.add_option ('-p', '--platform', action='store',
                   dest='platform',
                   type='choice',
                   default=None,

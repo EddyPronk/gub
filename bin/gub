@@ -57,7 +57,7 @@ def get_cli_parser ():
                   default=None,
                   help='leave build and src dir for inspection')
 
-    p.add_option ('-p', '--target-platform', action='store',
+    p.add_option ('-p', '--platform', action='store',
                   dest='platform',
                   type='choice',
                   default=None,
