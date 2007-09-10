@@ -11,8 +11,14 @@ class Guile (targetpackage.TargetBuildSpec):
         source = 'http://lilypond.org/vc/guile.git'
         source = 'git://repo.or.cz/guile.git'
 
+	#--branch=guile=branch_release-1-8-repo.or.cz-guile.git
+        # branch = 'branch_release-1-8-repo.or.cz-guile.git'
+        
+        branch = 'branch_release-1-8', 
+        if settings.__dict__.has_key ('guile_branch') and settings.guile_branch:
+            branch = settings.guile_branch
         repo = repository.Git (self.get_repodir (),
-                               branch='branch_release-1-8', 
+                               branch=branch,
                                source=source)
         repo.version = lambda: '1.8.2'
         self.with_vc (repo)

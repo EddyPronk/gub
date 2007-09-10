@@ -14,15 +14,18 @@ beautiful sheet music from a high-level description file.'''
 
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-
-
         try:
             source = os.environ['GUB_LILYPOND_SOURCE']
         except KeyError:         
             source = 'git://git.sv.gnu.org/lilypond.git'
-        
-        repo = repository.Git (self.get_repodir (),
-                               branch=settings.lilypond_branch,
+
+	# --branch=lilypond=master:master-git.sv.gnu.org-lilypond.git
+        branch = 'master:master-git.sv.gnu.org-lilypond.git'
+        if (settings.__dict__.has_key ('lilypond_branch')
+            and settings.lilypond_branch):
+            branch = settings.lilypond_branch
+	repo = repository.Git (self.get_repodir (),
+                               branch=branch,
                                source=source)
 
         ## ugh: nested, with self shadow?
