@@ -30,7 +30,7 @@ download:
 	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB,$(p)) --online --stage=download  git && ) true
 	$(MAKE) -f mingit.make update-versions
 
-bootstrap: bootstrap-git download-local local cross-compilers local-cross-tools download 
+bootstrap: download
 
 download-local:
 	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=local\
