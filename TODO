@@ -1,6 +1,6 @@
-* Remove duplication of directory layout.  gub/settings should be only
-  place, layout is partly duplicated in bin/* and test-lily/* and *.make.
-  Make gub/settings print layout for use in sh/make.
+* Remove duplication of directory layout.  layout is partly duplicated
+  in test-lily/* and *.make.  gub/settings should usable now from any
+  .py, gub/settings.py --plaftorm '' prints layout for use in sh/make.
 
 * Document and make easier to add new platform
 
