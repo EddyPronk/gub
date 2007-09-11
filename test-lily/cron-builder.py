@@ -115,7 +115,7 @@ def main ():
     
     os.system ('mkdir -p log')
     if options.dry_run:
-        options.verbose = oslog.Os_commands['command']
+        options.verbose = oslog.level['command']
     log_file = oslog.Os_commands ('log/cron-builder.log', options.verbose,
                                   dry_run)
     log_file.info (' *** Starting cron-builder:\n  %s ' % '\n  '.join (args)) 
@@ -137,7 +137,7 @@ def main ():
 
     test_cmds = []
     if 1:
-        test_cmds.append ('make bootstrap')
+        test_cmds.append ('make -f lilypond.make bootstrap')
     if options.build_package:
         test_cmds += [python_cmd + 'bin/gub --branch=lilypond=%s:%s -lp %s lilypond '
                       % (options.branch, options.local_branch, p) for p in args]
