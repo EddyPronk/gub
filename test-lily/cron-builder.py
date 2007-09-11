@@ -108,8 +108,9 @@ def parse_options ():
 
 def main ():
     (options, args) = parse_options ()
-    os.environ['PATH']= os.getcwd () + '/target/local/system/usr/bin:' + os.environ['PATH']
-    print os.environ['PATH']
+# FIXME: local/system; wow that's from two layout changes ago!
+#    os.environ['PATH']= os.getcwd () + '/target/local/system/usr/bin:' + os.environ['PATH']
+#    print os.environ['PATH']
     global log_file
     
     os.system ('mkdir -p log')
