@@ -14,7 +14,7 @@ level = {'quiet': 0,
          'error': 0,
          'stage': 0,
          'info': 1,
-         'harmless': 23,
+         'harmless': 2,
          'warning': 1,
          'command': 2,
          'action': 2,
@@ -84,9 +84,10 @@ class Os_commands:
             line = proc.stdout.readline ()
         if proc.returncode:
             m = 'Command barfed: %(cmd)s\n' % locals ()
-            self.error (m)
 	    if not ignore_errors:
+                self.error (m)
         	raise misc.SystemFailed (m)
+            self.warning (m)
         return proc.returncode
 
     def log (self, str, threshold, verbose=None):
