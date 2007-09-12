@@ -101,4 +101,6 @@ LOWER PRIORITY
 	       libx11-dev (for netpbm),
 	       svn (for ghostscript),
 	       python-gdbm (for gub: gub/gup.py) this means, btw, that gub
-	        does not run with python from local; it lacks gdbm]
+	          does not run with python from local; it lacks gdbm,
+               inkscape (for lilypond doc)]
+
