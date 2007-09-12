@@ -85,7 +85,8 @@ class Repository:
 
     def check_url (rety, url):
         vcs = rety.vc_system.replace ('_', '',).replace ('.', '').lower ()
-        return url and url.startswith (vcs + ':')
+        return url and (url.startswith (vcs + ':')
+                        or url.startswith (vcs + '+'))
     check_url = staticmethod (check_url)
 
     def check_suffix (rety, url):
@@ -769,11 +770,16 @@ class SimpleRepo (Repository):
 class Subversion (SimpleRepo):
     vc_system = '.svn'
 
-    def create (rety, dir, source, branch='', revision=''):
-        return Subversion (dir, source=source, branch=branch)
+    def create (rety, dir, source, branch, revision='HEAD'):
+        if not branch:
+            branch = '.'
+        if not revision:
+            revision = 'HEAD'
+        return Subversion (dir, source=source, branch=branch,
+                           module='.', revision=revision)
     create = staticmethod (create)
 
-    def __init__ (self, dir, source, branch, module, revision='HEAD'):
+    def __init__ (self, dir, source, branch='.', module='.', revision='HEAD'):
         if not revision:
             revision = 'HEAD'
         SimpleRepo.__init__ (self, dir, source, branch, revision)
@@ -905,6 +911,17 @@ def test ():
             # what if I do brz branch foo foo.git?
             repo = get_repository_proxy ('/foo/bar/barf/i-do-not-exist-or-possibly-am-of-bzr-flavour.git', '', '', '')
             self.assertEqual (repo.__class__, Git)
+        def testPlusSsh (self):
+            repo = get_repository_proxy ('downloads/test/', 'bzr+ssh://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr', '', '')
+            print repo, repo.__class__
+            self.assertEqual (repo.__class__, Bazaar)
+            repo = get_repository_proxy ('downloads/test/', 'git+ssh://git.sv.gnu.org/srv/git/lilypond.git', '', '')
+            print repo, repo.__class__
+            self.assertEqual (repo.__class__, Git)
+            repo = get_repository_proxy ('downloads/test/', 'svn+ssh://gforge/svnroot/public/samco/trunk', '', '')
+            self.assertEqual (repo.__class__, Subversion)
+            repo.download ()
+            
            
     suite = unittest.makeSuite (Test_get_repository_proxy)
     unittest.TextTestRunner (verbosity=2).run (suite)
