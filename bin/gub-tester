@@ -115,7 +115,7 @@ gub-tester --update 'make all check'
     p.add_option ('--branch',
                   action='store',
                   dest='branch',
-                  default='HEAD',
+                  default=None,
                   help='which branch to fetch [GIT repositories]')
     
     p.add_option ('--url',
