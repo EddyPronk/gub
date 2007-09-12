@@ -75,7 +75,9 @@ native-distccd:
 		--port 3634 --pid-file $(CWD)/log/$@.pid \
 		--log-file $(CWD)/log/$@.log  --log-level info
 
-bootstrap: bootstrap-git download-local local cross-compilers local-cross-tools download 
+bootstrap: bootstrap-git download-local local cross-compilers local-cross-tools download
+
+download:
 
 bootstrap-git:
 	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=local git
