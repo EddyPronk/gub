@@ -169,8 +169,8 @@ class Installer (context.Os_context_wrapper):
         misc.map_command_dir (self,
                               self.expand (dir),
                               self.expand ('%(strip_command)s'),
-                              self.no_binary_strip,
-                              self.no_binary_strip_extensions)
+                              misc.binary_strip_p (self.no_binary_strip,
+                                                   self.no_binary_strip_extensions))
         
     def strip (self):
         self.strip_unnecessary_files ()
