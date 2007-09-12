@@ -305,7 +305,7 @@ doc-clean:
 	$(PYTHON) gub/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-clean
 
 doc-build:
-	$(PYTHON) gub/with-lock.py --skip $(DOC_LOCK) $(MAKE) cached-doc-build
+	$(PYTHON) gub/with-lock.py --skip $(DOC_LOCK) $(MAKE) cached-doc-build #cached-info-man-build
 
 test-output:
 	$(PYTHON) gub/with-lock.py --skip $(TEST_LOCK) $(MAKE) cached-test-output
