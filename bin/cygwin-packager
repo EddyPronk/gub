@@ -191,41 +191,22 @@ mkdir -p %(installer_prefix)s/share/doc/%(name)s
         misc.map_command_dir (self,
                               self.expand (dir),
                               self.expand ('%(strip_command)s'),
-                              self.no_binary_strip,
-                              (self.no_binary_strip_extensions
-                               + self.binary_debug_strip_extensions))
+                              misc.binary_strip_p (self.no_binary_strip,
+                                                   (self.no_binary_strip_extensions
+                                                    + self.binary_debug_strip_extensions)))
         misc.map_command_dir (self,
                               self.expand (dir),
                               self.expand ('%(strip_command)s -g'),
-                              self.no_binary_strip,
-                              self.no_binary_strip_extensions)
+                              misc.binary_strip_p (self.no_binary_strip,
+                                                   self.no_binary_strip_extensions))
 
     def replace_interpreters (self):
-        import magic
-        mime = magic.open (magic.MAGIC_NONE)
-        mime.load ()
-        mime_to_interpreter = {
-            'python script text executable': '/usr/bin/python',
-            'script text executable': '/usr/bin/python',
-            'cript text executable': '/usr/bin/bash',
-            'ript text executable': '/usr/bin/sh',
-            }
         
         def _replace_interpreters (dir, base):
             file = os.path.join (dir, base)
-            mime_type = mime.file (file)
-            print 'interpreters:', file, ':', mime_type
-            for key in mime_to_interpreter.keys ():
-                # magic gives any of
-                #    python script text executable
-                #    a /foe/bin/python script text executable
-                #    a /home/janneke/vc/gub/target/loc script text executable
-                #      31 chars max
-                if key in mime_type:
-                    interpreter = mime_to_interpreter[key]
-                    #self.file_sub ((['^#! .*'], '#! ' + interpreter), file)
-                    self.file_sub ([('^#!(.*/local/)', '#! /')], file)
-                    self.system ('rm -f %(file)s~', locals ())
+            if misc.get_interpreter (file):
+                self.file_sub ([('^#!(.*/local/)', '#! /')], file)
+                self.system ('rm -f %(file)s~', locals ())
             
         for d in ('bin', 'sbin', 'usr/bin', 'usr/sbin'):
             dir = self.expand ('%(installer_root)s/' + d)

@@ -87,7 +87,7 @@ class FileManager:
     def is_installed (self, name):
         return self._package_file_db.has_key (name)
 
-    def install_tarball (self, ball, name):
+    def install_tarball (self, ball, name, prefix_dir):
         self.os_interface.action ('installing package %(name)s from %(ball)s\n'
                                 % locals ())
 
@@ -116,7 +116,7 @@ class FileManager:
             if f.endswith ('.la'):
                 self.libtool_la_fixup (root, f)
             if f.endswith ('.pc'):
-                self.pkgconfig_pc_fixup (root, f)
+                self.pkgconfig_pc_fixup (root, f, prefix_dir)
 
     def libtool_la_fixup (self, root, file):
         # avoid using libs from build platform, by adding
@@ -129,14 +129,16 @@ class FileManager:
                                       ),],
                                     '%(root)s/%(file)s' % locals ())
 
-    def pkgconfig_pc_fixup (self, root, file):
+    def pkgconfig_pc_fixup (self, root, file, prefix_dir):
         # avoid using libs from build platform, by adding
         # %(system_root)s
         if file.startswith ('./'):
             file = file[2:]
         dir = os.path.dirname (file)
+        if '%' in prefix_dir or not prefix_dir:
+            barf
         self.os_interface.file_sub ([('(-I|-L) */usr',
-                                      '''\\1%(root)s%%(prefix_dir)s''' % locals ()
+                                      '''\\1%(root)s%(prefix_dir)s''' % locals ()
                                       ),],
                                     '%(root)s/%(file)s' % locals ())
 
@@ -312,7 +314,7 @@ class PackageManager (FileManager, PackageDictManager):
             raise Exception ('abort')
         d = self._packages[name]
         ball = '%(split_ball)s' % d
-        self.install_tarball (ball, name)
+        self.install_tarball (ball, name, d['prefix_dir'])
         self._package_dict_db[name] = pickle.dumps (d)
 
     def uninstall_package (self, name):

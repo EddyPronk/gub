@@ -292,7 +292,11 @@ LDFLAGS="%(LDFLAGS)s %(python_lib)s"
         self.install_doc ()
 
     def install_doc (self):
-        installer_build = self.build_number ()
+        # lilypond.make uses `python gub/versiondb.py --build-for=2.11.32'
+        # which only looks at source ball build numbers, which are always `1'
+        # This could be fixed, but for now just build one doc ball per release?
+        # installer_build = self.build_number ()
+        installer_build = '1'
         installer_version = self.build_version ()
         docball = self.expand ('%(uploads)s/lilypond-%(installer_version)s-%(installer_build)s.documentation.tar.bz2', env=locals ())
         infomanball = self.expand ('%(uploads)s/lilypond-%(installer_version)s-%(installer_build)s.info-man.tar.bz2', env=locals ())
