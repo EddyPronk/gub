@@ -359,6 +359,7 @@ guile-tut').
     }
 
 from gub import toolpackage
+from gub import gubb
 class Guile__local (toolpackage.ToolBuildSpec, Guile):
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
@@ -382,7 +383,10 @@ class Guile__local (toolpackage.ToolBuildSpec, Guile):
         self.update_libtool ()
 
     def install (self):
-        toolpackage.ToolBuildSpec.install (self)
+        ## guile runs fine without wrapper (if it doesn't, use the
+        ## relocation patch), while a sh wrapper breaks executable
+        ## scripts toolpackage.ToolBuildSpec.install (self)
+        gubb.BuildSpec.install (self)
 
         ## don't want local GUILE headers to interfere with compile.
         self.system ("rm -rf %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/include/ %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/bin/guile-config ")
