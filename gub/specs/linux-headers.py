@@ -44,8 +44,10 @@ class Linux_headers__debian (linux_kernel_headers.Linux_kernel_headers):
 
 Linux_headers__linux__ppc = Linux_headers__debian
 #Linux_headers__linux__64 = Linux_headers__debian
+Linux_headers__linux__arm = Linux_headers__debian
 Linux_headers__linux__arm__softfloat = Linux_headers__debian
 Linux_headers__linux__arm__vfp = Linux_headers__debian
+Linux_headers__linux__mipsel = Linux_headers__debian
 
 class Linux_headers__linux__64 (Linux_headers__debian):
     def __init__ (self, settings):
