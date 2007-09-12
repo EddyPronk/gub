@@ -811,7 +811,8 @@ class Subversion (SimpleRepo):
         self.system (cmd)
 
     def get_revision_description (self):
-        return self.system ('svn log --verbose --limit=1')
+        dir = self._checkout_dir ()
+        return self.read_pipe ('cd %(dir)s && svn log --verbose --limit=1')
 
 RepositoryProxy.register (Subversion)
 
