@@ -305,7 +305,7 @@ doc-clean:
 	$(PYTHON) gub/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-clean
 
 doc-build:
-	$(PYTHON) gub/with-lock.py --skip $(DOC_LOCK) $(MAKE) cached-doc-build #cached-info-man-build
+	$(PYTHON) gub/with-lock.py --skip $(DOC_LOCK) $(MAKE) cached-doc-build cached-info-man-build
 
 test-output:
 	$(PYTHON) gub/with-lock.py --skip $(TEST_LOCK) $(MAKE) cached-test-output
@@ -335,13 +335,22 @@ unlocked-test-output:
 	tar -C $(NATIVE_LILY_BUILD)/ \
 	    -cjf $(CWD)/uploads/lilypond-$(DIST_VERSION)-$(DOC_BUILDNUMBER).test-output.tar.bz2 input/regression/out-test/
 
-unlocked-doc-build:
-	$(GPKG) --platform=$(BUILD_PLATFORM) remove lilypond
+# How about just always building info-man?
+unlocked-doc-build: update-lily unlocked-updated-doc-build
+unlocked-info-man-build: update-lily unlocked-updated-info-man-build
+
+update-lily:
+	$(GPKG) $(LOCAL_GPKG_OPIONS) --platform=$(BUILD_PLATFORM) remove lilypond
 
 	## force update of srcdir.
-	$(GUB) --branch=lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH) \
+	$(GUB) $(LOCAL_GUB_OPTIONS) --branch=lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH) \
 		 --platform=$(BUILD_PLATFORM) --stage=untar lilypond
 
+	## after forced update, make sure that lilypond is up to date
+	$(GUB) $(LOCAL_GUB_OPTIONS) --branch=lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH) \
+		 --platform=$(BUILD_PLATFORM) --offline --stage=compile lilypond
+
+unlocked-updated-doc-build:
 	unset LILYPONDPREFIX LILYPOND_DATADIR \
 	    && $(DOC_RELOCATION) \
 		make -C $(NATIVE_LILY_BUILD) \
@@ -360,7 +369,7 @@ unlocked-doc-build:
 	tar --exclude '*.signature' -C $(NATIVE_LILY_BUILD)/out-www/online-root \
 	    -cjf $(CWD)/uploads/lilypond-$(DIST_VERSION)-$(DOC_BUILDNUMBER).webdoc.tar.bz2 .
 
-unlocked-info-man-build:
+unlocked-updated-info-man-build:
 	unset LILYPONDPREFIX LILYPOND_DATADIR \
 	    && ulimit -m 256000 \
 	    && $(DOC_RELOCATION) \
@@ -373,9 +382,7 @@ unlocked-info-man-build:
 ## overriding with DYLD_LIBRARY_PATH doesn't work,
 ## as the libs in system/ are stubs.
 ifneq ($(BUILD_PLATFORM),darwin-ppc)
-	## FIXME: #! guile script is barfing.
 	-mkdir $(NATIVE_LILY_BUILD)/out-info-man
-	touch $(NATIVE_LILY_BUILD)/scripts/out/lilypond-invoke-editor.1
 	$(if $(DOC_BUILDNUMBER),true,false)  ## check if we have a build number
 	$(DOC_RELOCATION) make DESTDIR=$(NATIVE_LILY_BUILD)/out-info-man \
 	    -C $(NATIVE_LILY_BUILD)/ DOCUMENTATION=yes CROSS=no \
