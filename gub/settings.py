@@ -20,8 +20,12 @@ platforms = {
     'freebsd-x86': 'i686-freebsd4',
     'freebsd-64': 'x86_64-freebsd6',
 
+    'linux-arm': 'arm-linux',
     'linux-arm-softfloat': 'armv5te-softfloat-linux',
     'linux-arm-vfp': 'arm-linux',
+
+    'linux-mipsel': 'mipsel-linux',
+
     'linux-x86': 'i686-linux',
     'linux-64': 'x86_64-linux',
     'linux-ppc': 'powerpc-linux',
