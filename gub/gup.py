@@ -1,6 +1,10 @@
-#local python has no gdbm, breaks simple home python/lilypond build
-#import gdbm as dbmodule
-import dbhash as dbmodule
+# local python has no gdbm, breaks simple home python/lilypond build
+# but dbhash seems to break in odd ways:
+#  File "bsddb/dbutils.py", line 62, in DeadlockWrap
+#  DBPageNotFoundError: (-30987, 'DB_PAGE_NOTFOUND: Requested page not found')
+
+import gdbm as dbmodule
+#import dbhash as dbmodule
 
 import pickle
 import os

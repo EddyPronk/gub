@@ -1,5 +1,5 @@
 .PHONY: lilypond mingit phone
-.PHONY: default compilers TAGS help local download-local
+.PHONY: default compilers TAGS help local download download-local
 sources = GNUmakefile $(filter-out %~, $(wildcard *.make bin/* gub/*.py gub/*/*.py gub/*/*/*.py gub/*/*/*/*.py))
 
 default: compilers
@@ -22,3 +22,6 @@ $(MAKE_BASES):
 	$(MAKE) -f $@.make
 
 download-local:
+
+download:
+	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB,$(p)) --online --stage=download $(call gcc_or_glibc,$(p)) && ) true
