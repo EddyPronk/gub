@@ -121,7 +121,6 @@ class VersionDataBase:
                                     for (name, version, buildnum, url)
                                     in self._db[platform]
                                     if version == version_tuple]
-            
         return max (max (bs + [0]) for (p, bs) in sub_db.items ()) + 1
 
     def get_last_release (self, platform, version_tuple):
@@ -188,7 +187,7 @@ def main ():
         options.url += "/"
 
     db = VersionDataBase (options.dbfile)
-    options.platforms = re.sub(' +', ' ', options.platforms)
+    options.platforms = re.sub ('[, ]+', ' ', options.platforms)
     db.platforms = options.platforms.split (' ')
 
     if db.platforms == []:
