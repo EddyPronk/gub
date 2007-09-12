@@ -810,6 +810,9 @@ class Subversion (SimpleRepo):
         cmd = 'cd %(dir)s && svn up %(rev_opt)s' % locals ()
         self.system (cmd)
 
+    def get_revision_description (self):
+        return self.system ('svn log --verbose --limit=1')
+
 RepositoryProxy.register (Subversion)
 
 class Bazaar (SimpleRepo):
@@ -913,10 +916,8 @@ def test ():
             self.assertEqual (repo.__class__, Git)
         def testPlusSsh (self):
             repo = get_repository_proxy ('downloads/test/', 'bzr+ssh://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr', '', '')
-            print repo, repo.__class__
             self.assertEqual (repo.__class__, Bazaar)
             repo = get_repository_proxy ('downloads/test/', 'git+ssh://git.sv.gnu.org/srv/git/lilypond.git', '', '')
-            print repo, repo.__class__
             self.assertEqual (repo.__class__, Git)
             repo = get_repository_proxy ('downloads/test/', 'svn+ssh://gforge/svnroot/public/samco/trunk', '', '')
             self.assertEqual (repo.__class__, Subversion)
