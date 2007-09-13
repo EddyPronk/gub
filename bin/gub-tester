@@ -290,7 +290,7 @@ def print_results (options, parts, subject='Autotester result'):
 def real_main (options, args, handle_result):
     global main_log
 
-    log = 'log/gub-tester.log'
+    log = os.path.join (options.result_dir, 'gub-tester.log')
     if options.dry_run:
         log = '/dev/stdout'
 
