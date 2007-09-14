@@ -27,6 +27,9 @@ def canonicalize_string (target):
     canonicalize = re.sub ('[^a-zA-Z0-9-]+', '_', canonicalize)
     return canonicalize
 
+CACHED = 'CACHED'
+CACHED_FAIL = 'CACHED-FAIL'
+CACHED_SUCCESS = 'CACHED-SUCCESS'
 FAIL = 'FAIL'
 SUCCESS = 'SUCCESS'
 
@@ -222,7 +225,10 @@ def test_target (repo, options, target, last_patch):
         main_log.info ('release %(release_hash)s has already been checked\n'
                       % locals ())
         if not options.force:
-            return None
+            RESULT = CACHED_SUCCESS
+            if done_db[release_hash].endswith (FAIL):
+                RESULT = CACHED_FAIL
+            return RESULT, ['cached %(RESULT)s of %(release_hash)s' % locals ()]
         recheck = ' (forced recheck of %(release_hash)s)' % locals ()
         main_log.info ('recheck forced\n' % locals ())
     
@@ -272,7 +278,7 @@ def test_target (repo, options, target, last_patch):
     if options.append_diff:
         attachments += [repo.get_diff_from_tag (base_tag)]
     main_log.info ('%(target)s: %(RESULT)s\n' % locals ())
-    done_db[release_hash] = time.ctime ()
+    done_db[release_hash] = time.ctime () + ' ' + RESULT
     return (RESULT, attachments)
     
 def send_message (options, msg):
@@ -342,11 +348,14 @@ Checksum of revision: %(release_hash)s
     summary_body = '\n\n'
     results = {}
     failures = 0
+    cached_failures = 0
     for a in args:
         result_tup = test_target (repo, options, a, last_patch)
-        if not result_tup:
-            continue
         (result, atts) = result_tup
+        if result.startswith (CACHED):
+            if result == CACHED_FAIL:
+                cached_failures += 1
+            continue
         results[a] = result_tup
         success = result.startswith (SUCCESS)
         if not (options.be_quiet and success):
@@ -371,7 +380,7 @@ Checksum of revision: %(release_hash)s
     if failures == 0 and results:
         for p in options.posthooks:
             os.system (p)
-    return failures
+    return failures + cached_failures
 
 def test_self (options, args):
     def system (c):
