@@ -208,11 +208,13 @@ def test_target (repo, options, target, last_patch):
     release_hash = repo.get_checksum ()
 
     done_db = get_db (options, canonicalize)
+    recheck = ''
     if done_db.has_key (release_hash):
         main_log.info ('release %(release_hash)s has already been checked\n'
                       % locals ())
         if not options.force:
             return None
+        recheck = ' (forced recheck of %(release_hash)s)' % locals ()
         main_log.info ('recheck forced\n' % locals ())
     
     log = 'test-%(canonicalize)s.log' %  locals ()
@@ -233,12 +235,12 @@ def test_target (repo, options, target, last_patch):
 
     body = test_log.read_tail ()
     if stat:
-        result = 'FAIL'
-        attachments = ['error for\n\n\t%s\n\n\n%s' % (target,
-                                                      '\n'.join (body))]
-        if options.append_diff:
-            attachments += [repo.get_diff_from_tag (base_tag)]
+        RESULT = 'FAIL'
+        result = 'error'
     else:
+        RESULT = 'SUCCESS'
+        result = 'success'
+        body = body[-10:]
         if 0:
             # FIXME: find in archives, what did this do?
             # format of last_patch?
@@ -250,13 +252,17 @@ def test_target (repo, options, target, last_patch):
             if options.tag_repo:
                 repo.push (tag, options.tag_repo)
 
-        result = 'SUCCESS'
-        attachments = ['success for\n\n\t%s\n\n%s'
-                       % (target,
-                          '\n'.join (body[-10:]))]
+    message = '''%(result)s for%(recheck)s:
 
-    main_log.info ('%s: %s' % (target, result))
-    
+	%(target)s
+
+
+%(tail)s'''
+    tail = '\n'.join (body)
+    attachments = [message % locals ()]
+    if options.append_diff:
+        attachments += [repo.get_diff_from_tag (base_tag)]
+    main_log.info ('%(target)s: %(RESULT)s' % locals ())
     done_db[release_hash] = time.ctime ()
     return (result, attachments)
     
