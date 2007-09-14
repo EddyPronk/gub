@@ -248,7 +248,7 @@ def test_target (repo, options, target, last_patch):
             print last_patch
             tag = base_tag + canonicalize_string (last_patch['date'])
             repo.tag (tag)
-            main_log.log ('tagging with %s' % tag)
+            main_log.log ('tagging with %s\n' % tag)
             if options.tag_repo:
                 repo.push (tag, options.tag_repo)
 
@@ -262,7 +262,7 @@ def test_target (repo, options, target, last_patch):
     attachments = [message % locals ()]
     if options.append_diff:
         attachments += [repo.get_diff_from_tag (base_tag)]
-    main_log.info ('%(target)s: %(RESULT)s' % locals ())
+    main_log.info ('%(target)s: %(RESULT)s\n' % locals ())
     done_db[release_hash] = time.ctime ()
     return (result, attachments)
     
@@ -302,7 +302,7 @@ def real_main (options, args, handle_result):
 
     main_log = oslog.Os_commands (log, options.verbose)
     
-    main_log.info (' *** %s' % time.ctime ())
+    main_log.info (' *** %s\n' % time.ctime ())
     main_log.info (' *** Starting tests:\n %s\n' % '\n  '.join (args))
 
     repo = repository.get_repository_proxy (options.repository,
