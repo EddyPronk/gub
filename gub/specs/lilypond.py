@@ -273,7 +273,7 @@ class LilyPond__cygwin (LilyPond):
 	# Because of relocation script, python must be built before scripts
         # PYTHON= is replaces the detected python interpreter in local.
         self.system ('''
-cd %(builddir)s && make -C python PYTHON=/usr/bin/python
+cd %(builddir)s && make -C python
 cd %(builddir)s && make -C scripts PYTHON=/usr/bin/python
 cp -pv %(system_prefix)s/share/gettext/gettext.h %(system_prefix)s/include''')
         LilyPond.compile (self)
