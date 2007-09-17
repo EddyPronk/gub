@@ -429,7 +429,9 @@ class LilyPond__debian (LilyPond):
                                             debian.gub_to_distro_dict)}
 
     def compile (self):
+	# Because of relocation script, python must be built before scripts
         self.system ('''
+cd %(builddir)s && make -C python
 cd %(builddir)s && make -C scripts PYTHON=/usr/bin/python
 ''')
         LilyPond.compile (self)
