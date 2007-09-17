@@ -289,12 +289,21 @@ NATIVE_BUILD_COMMITTISH=$(shell cat downloads/lilypond.git/refs/heads/$(LILYPOND
 DIST_VERSION=$(shell cat $(NATIVE_LILY_BUILD)/out/VERSION)
 DOC_BUILDNUMBER=$(shell $(PYTHON) gub/versiondb.py --build-for=$(DIST_VERSION))
 
+# lilypond-invoke-editor: We are trying to run guile from local using
+# guile from native, which fails: ERROR: In procedure dynamic-link:
+# ERROR: file: "libguile-srfi-srfi-1-v-4", message:
+# "libguile-srfi-srfi-1-v-4.so: cannot open shared object file: No
+# such file or directory"
+# Must use local's lib prior to native's for ld-library-path and use
+# system's LD_LIBRARY_PATH, because that's what local is being built with.
+# We cannot use a SH wrapper for guile, as that breaks using guile for
+# scripts.
 DOC_RELOCATION = \
     LILYPOND_EXTERNAL_BINARY="$(NATIVE_ROOT)/usr/bin/lilypond" \
     PATH=$(CWD)/target/local/root/usr/bin:$(NATIVE_ROOT)/usr/bin:$$PATH \
     GS_LIB=$(wildcard $(NATIVE_ROOT)/usr/share/ghostscript/*/lib) \
     MALLOC_CHECK_=2 \
-    LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib
+    LD_LIBRARY_PATH=$(CWD)/target/local/root/usr/lib:$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH)
 
 SIGNATURE_FUNCTION=uploads/signatures/$(1).$(NATIVE_BUILD_COMMITTISH)
 
