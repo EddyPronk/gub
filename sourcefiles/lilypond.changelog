@@ -1,3 +1,9 @@
+lilypond (2.10.29-2) unstable; urgency=low
+
+  * Fix python relocation header by compiling python dir first.
+
+ -- Jan Nieuwenhuizen <janneke@gnu.org>  Mon, 17 Sep 2007 21:19:45 +0200
+
 lilypond (2.10.29-1) unstable; urgency=low
 
   * New upstream release.
