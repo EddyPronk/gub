@@ -215,7 +215,7 @@ def system (cmd, ignore_errors=False):
     print 'Executing command %s' % cmd
     stat = os.system (cmd)
     if stat and not ignore_errors:
-        raise SystemFailed ('Command failed ' + `stat`)
+        raise SystemFailed ('Command failed (' + `stat/256` + '): ' + cmd)
 
 def file_mod_time (path):
     import stat
@@ -276,7 +276,8 @@ before MARKER.
     s = f.read ()
     if marker:
         p = s.find (marker)
-        s = s[p:]
+        if p >= 0:
+            s = s[p:]
     return s.split ('\n')[-lines:]
 
 class MethodOverrider:
