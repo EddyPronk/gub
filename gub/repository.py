@@ -816,8 +816,8 @@ class Subversion (SimpleRepo):
     def __init__ (self, dir, source=None, branch='.', module='.', revision='HEAD'):
         if not revision:
             revision = 'HEAD'
-        SimpleRepo.__init__ (self, dir, source, branch, revision)
         self.module = module
+        SimpleRepo.__init__ (self, dir, source, branch, revision)
 
     def _current_revision (self):
         dir = self._checkout_dir ()
@@ -916,8 +916,8 @@ class Bazaar (SimpleRepo):
         # FIXME: multi-branch repos not supported for now
         if not revision:
             revision = '0'
-        SimpleRepo.__init__ (self, dir, source, '.', revision)
         self.module = '.'
+        SimpleRepo.__init__ (self, dir, source, '.', revision)
 
     def _current_revision (self):
         try:
