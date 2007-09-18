@@ -901,7 +901,9 @@ class Subversion (SimpleRepo):
 
     def tag_list (self, tag):
         root = self._root ()
-        return self.read_pipe ('LANG= svn ls %(root)s/tags | grep %(tag)s' % locals ()).split ('\n')
+        lst = self.read_pipe ('LANG= svn ls %(root)s/tags' % locals ()).split (\
+'\n')
+        return filter (lambda x: x.startswith (tag), lst)
 
 RepositoryProxy.register (Subversion)
 
