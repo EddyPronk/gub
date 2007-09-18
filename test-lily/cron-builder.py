@@ -124,7 +124,7 @@ def main ():
         # FIXME: what if user changes ~/.gubrc?  should use gubb.Settings!
         log_file.system ('rm -rf log/ target/ uploads/ buildnumber-* downloads/lilypond-*')
 
-    make_cmd = 'make %s ' % options.make_options
+    make_cmd = 'make -f lilypond.make %s ' % options.make_options
     python_cmd = sys.executable  + ' '
 
     # FIXME: use gub-tester's download facility
@@ -137,7 +137,7 @@ def main ():
 
     test_cmds = []
     if 1:
-        test_cmds.append ('make -f lilypond.make bootstrap')
+        test_cmds.append ('make bootstrap')
     if options.build_package:
         test_cmds += [python_cmd + 'bin/gub --branch=lilypond=%s:%s -lp %s lilypond '
                       % (options.branch, options.local_branch, p) for p in args]
@@ -145,8 +145,8 @@ def main ():
     if options.build_installer:
         version_options = '' 
             
-        test_cmds += [python_cmd + 'bin/installer-builder --skip-if-locked %s --branch %s -p %s build-all lilypond '
-                      % (version_options, options.local_branch, p) for p in args]
+        test_cmds += [python_cmd + 'bin/installer-builder --skip-if-locked %s  --branch=lilypond=%s:%s -p %s build-all lilypond '
+                      % (version_options, options.branch, options.local_branch, p) for p in args]
 
     if options.build_docs:
         test_cmds += [make_cmd + 'doc-build',
