@@ -876,7 +876,7 @@ class Subversion (SimpleRepo):
         m = re.search  ('.*Repository Root: (.*)', s)
         root = m.group (1)
         assert source.startswith (root)
-        branch = source[len (root):]
+        branch = source[len (root)+1:]
         return root, branch
 
     def tag (self, name):
