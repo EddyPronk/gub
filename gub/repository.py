@@ -168,13 +168,11 @@ It need not be unique over revisions.'''
 
     def read_last_patch (self):
         '''Return a dict with info about the last patch'''
-        assert 0
-        return {}
+        return {'date': None, 'patch': None}
 
     def get_diff_from_tag (self, name):
         '''Return diff wrt to tag NAME'''
-        assert 0
-        return 'baseclass method called'
+        None
 
     def get_diff_from_tag_base (self, name):
         '''Return diff wrt to last tag that starts with NAME'''
@@ -575,6 +573,7 @@ class Git (Repository):
         stamp = rfc822.parsedate (date)
         tag = name + '-' + time.strftime (self.tag_dateformat, stamp)
         self.git ('tag %(tag)s' % locals ())
+        return tag
 
     def tag_list (self, tag):
         return self.git_pipe ('tag -l %(tag)s*' % locals ()).split ('\n')
@@ -898,6 +897,7 @@ class Subversion (SimpleRepo):
         tag = name + '-' + time.strftime (self.tag_dateformat, stamp)
         root = self._root ()
         self.system ('svn cp -m "" %(rev_opt)s %(source)s/%(branch)s/%(module)s %(root)s/tags/%(tag)s''' % locals ())
+        return tag
 
     def tag_list (self, tag):
         root = self._root ()
