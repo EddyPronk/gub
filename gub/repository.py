@@ -578,7 +578,7 @@ class Git (Repository):
         revision = self.revision
         
         if os.path.isdir (os.path.join (destdir, self.vc_system)):
-            if self.git_pipe ('git diff'):
+            if self.git_pipe ('diff'):
                 self.git ('reset --hard HEAD' % locals (), dir=destdir)
             self.git ('pull %(repo_dir)s %(branch)s:' % locals (), dir=destdir)
         else:
