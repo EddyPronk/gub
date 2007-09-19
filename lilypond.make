@@ -362,8 +362,8 @@ unlocked-test-output:
 	    -cjf $(CWD)/uploads/lilypond-$(DIST_VERSION)-$(DOC_BUILDNUMBER).test-output.tar.bz2 input/regression/out-test/
 
 # How about just always building info-man?
-unlocked-doc-build: update-lily unlocked-updated-doc-build
-unlocked-info-man-build: update-lily unlocked-updated-info-man-build
+unlocked-doc-build: unlocked-updated-doc-build
+unlocked-info-man-build: unlocked-updated-info-man-build
 
 update-lily:
 	$(GPKG) $(LOCAL_GPKG_OPIONS) --platform=$(BUILD_PLATFORM) remove lilypond
