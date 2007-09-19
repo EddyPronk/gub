@@ -220,6 +220,7 @@ def test_target (repo, options, target, last_patch):
     release_hash = repo.get_checksum ()
 
     done_db = get_db (options, canonicalize)
+    tag_db = repository.TagDb (options.result_dir)
     recheck = ''
     if done_db.has_key (release_hash):
         main_log.info ('release %(release_hash)s has already been checked\n'
@@ -254,15 +255,16 @@ def test_target (repo, options, target, last_patch):
         RESULT = FAIL
         result = 'error'
         if options.append_diff:
-            diff = repo.get_diff_from_tag_base (base_tag)
+            if repo.is_distributed ():
+                diff = repo.get_diff_from_tag_base (base_tag)
+            else:
+                diff = tag_db.get_diff_from_tag_base (base_tag, repo)
     else:
         RESULT = SUCCESS
         result = 'success'
         body = body[-10:]
-        if 1:
-            # possibly expensive and fragile (SVN)
-            # rather use tags_db[tag] from test-gub
-            # cd442c49c216e69de94b97eb6ca2aefb20be832c ?
+        tag_db.tag (base_tag, repo)
+        if repo.is_distributed ():
             tag = repo.tag (base_tag)
             main_log.log ('tagging with %(tag)s\n' % locals ())
             if options.tag_repo:

@@ -29,6 +29,7 @@ from gub import misc
 from gub import locker
 from gub import mirrors
 from gub import oslog
+from gub import tztime
 
 class UnknownVcSystem (Exception):
     pass
@@ -78,7 +79,7 @@ class RepositoryProxy:
 ## Rename to Source/source.py?
 class Repository: 
     vc_system = None
-    tag_dateformat = '%Y-%m-%d_%H-%M-%S-%Z'
+    tag_dateformat = '%Y-%m-%d_%H-%M-%S%z'
 
     def check_dir (rety, dir):
         return os.path.isdir (os.path.join (dir, rety.vc_system))
@@ -145,6 +146,10 @@ Typically a hash of all source files.'''
     def get_file_content (self, file_name):
         return ''
 
+    def is_distributed (self):
+        '''Whether repository is central or uses distributed repositories'''
+        return True
+    
     def is_tracking (self):
         '''Whether download will fetch newer versions if available'''
         return False
@@ -166,6 +171,10 @@ Updating is preferably done by updating'''
 It need not be unique over revisions.'''
         return '0'
 
+    def last_patch_date (self):
+        '''Return timestamp of last patch'''
+        return None
+
     def read_last_patch (self):
         '''Return a dict with info about the last patch'''
         return {'date': None, 'patch': None}
@@ -180,6 +189,25 @@ It need not be unique over revisions.'''
         tags.sort ()
         if tags:
             return self.get_diff_from_tag (tags[-1])
+        return None
+
+class TagDb:
+    def __init__ (self, dir):
+        import gdbm as dbmodule
+        self.db = dbmodule.open (os.path.join (dir, 'tag.db'), 'c')
+    def tag (self, name, repo):
+        stamp = repo.last_patch_date ()
+        if stamp:
+            date = tztime.format (stamp)
+            self.db[name + '-' + date] = date
+    def tag_list (self, name):
+        return map (lambda x: self.db[x], filter (lambda x: x.startswith (name),
+                                                  self.db.keys ()))
+    def get_diff_from_tag_base (self, name, repo):
+        tags = self.tag_list (name)
+        if tags:
+            tags.sort ()
+            return repo.get_diff_from_date (tztime.parse (tags[-1]))
         return None
 
 class Version:
@@ -370,7 +398,7 @@ class NewTarBall (TarBall):
 
 class Git (Repository):
     vc_system = '.git'
-    patch_dateformat = '%a %b %d %H:%M:%S %Y %Z'
+    patch_dateformat = '%a %b %d %H:%M:%S %Y %z'
 
     def __init__ (self, dir, source='', branch='', revision=''):
         Repository.__init__ (self, dir, source)
@@ -563,15 +591,15 @@ class Git (Repository):
     def get_diff_from_tag (self, tag):
         return self.git_pipe ('diff %(tag)s HEAD' % locals ())
 
-    def tag (self, name):
+    def last_patch_date (self):
         s = self.git_pipe ('log -1')
         m = re.search  ('Date: *(.*)', s)
         date = m.group (1)
-#Huh, python cannot parse +0000?
-#        stamp = time.mktime (time.strptime (date), self.patch_dateformat)
-        import rfc822
-        stamp = rfc822.parsedate (date)
-        tag = name + '-' + time.strftime (self.tag_dateformat, stamp)
+        return tztime.parse (date, self.patch_dateformat)
+
+    def tag (self, name):
+        stamp = self.last_patch_date ()
+        tag = name + '-' + tztime.format (stamp, self.tag_dateformat)
         self.git ('tag %(tag)s' % locals ())
         return tag
 
@@ -606,6 +634,9 @@ class CVS (Repository):
             
     def _checkout_dir (self):
         return '%s/%s' % (self.dir, self.tag)
+
+    def is_distributed (self):
+        return False
 
     def is_tracking (self):
         return True ##FIXME
@@ -800,9 +831,9 @@ class SimpleRepo (Repository):
 
 class Subversion (SimpleRepo):
     vc_system = '.svn'
-#    patch_dateformat = '%Y-%m-%d %H:%M:%S %Z'
-#Huh, python cannot parse +0000?
-    patch_dateformat = '%Y-%m-%d %H:%M:%S'
+    patch_dateformat = '%Y-%m-%d %H:%M:%S %z'
+    diff_xmldateformat = '%Y-%m-%d %H:%M:%S.999999'
+    patch_xmldateformat = '%Y-%m-%dT%H:%M:%S'
 
     def create (rety, dir, source, branch, revision='HEAD'):
         if not branch:
@@ -819,12 +850,15 @@ class Subversion (SimpleRepo):
         self.module = module
         SimpleRepo.__init__ (self, dir, source, branch, revision)
 
+    def is_distributed (self):
+        return False
+
     def _current_revision (self):
         dir = self._checkout_dir ()
-
         ## UGH: should not parse user oriented output
-        revno = self.read_pipe ('cd %(dir)s && LANG= svn info' % locals ())
-        m = re.search  ('.*Revision: ([0-9]*).*', revno)
+        revno = self.read_pipe ('cd %(dir)s && LANG= svn log --limit=1'
+                                % locals ())
+        m = re.search  ('-+\nr([0-9]+) |', revno)
         assert m
         return m.group (1)
         
@@ -854,10 +888,19 @@ class Subversion (SimpleRepo):
         source = self.source
         branch = self.branch
         module = self.module
-        revision = self.revision
-        rev_opt = '-r %(revision)s ' % locals ()
         root = self._root ()
         return self.read_pipe ('cd %(dir)s && LANG= svn diff %(root)s/tags/%(tag)s %(source)s/%(branch)s/%(module)s' % locals ())
+
+    # FIXME: use from_revision?  how to do play nicely with TagDb
+    def get_diff_from_date (self, stamp):
+#        date = tztime.format (stamp, self.patch_dateformat)
+        date = tztime.format (stamp, self.diff_xmldateformat)
+        dir = self._checkout_dir ()
+        source = self.source
+        branch = self.branch
+        module = self.module
+        root = self._root ()
+        return self.read_pipe ('cd %(dir)s && TZ= LANG= svn diff -r "{%(date)s}"' % locals ())
 
     def _root (self):
         dir = self._checkout_dir ()
@@ -879,22 +922,22 @@ class Subversion (SimpleRepo):
         branch = source[len (root)+1:]
         return root, branch
 
+    def last_patch_date (self):
+        dir = self._checkout_dir ()
+        s = self.read_pipe ('cd %(dir)s && LANG= svn log --limit=1 --xml' % locals ())
+#        m = re.search  ('Last Changed Date: (.*) \(', s)
+        m = re.search  ('<date>(.*)\.[0-9]{6}Z</date>', s)
+        date = m.group (1)
+        return tztime.parse (date, self.patch_xmldateformat)
+        
     def tag (self, name):
         source = self.source
         branch = self.branch
         module = self.module
         revision = self.revision
         rev_opt = '-r %(revision)s ' % locals ()
-        dir = self._checkout_dir ()
-        s = self.read_pipe ('cd %(dir)s && LANG= svn info' % locals ())
-        print 'INFO:', s
-#Huh, python cannot parse +0000?
-#        m = re.search  ('Last Changed Date: (.*) \(', s)
-        m = re.search  ('Last Changed Date: (.*) ([+-][0-9]*) \(', s)
-        date = m.group (1)
-        tz = m.group (2)
-        stamp = time.strptime (date, self.patch_dateformat)
-        tag = name + '-' + time.strftime (self.tag_dateformat, stamp)
+        stamp = self.last_patch_date ()
+        tag = name + '-' + tztime.format (stamp, self.tag_dateformat)
         root = self._root ()
         self.system ('svn cp -m "" %(rev_opt)s %(source)s/%(branch)s/%(module)s %(root)s/tags/%(tag)s''' % locals ())
         return tag
@@ -1020,8 +1063,8 @@ def test ():
             os.system ('cd downloads/test/git && echo one >> README')
             os.system ('cd downloads/test/git && git add .')
             os.system ('cd downloads/test/git && git commit -m "1"')
-            repo.tag ('success-test')
             time.sleep (1)
+            repo.tag ('success-test')
             os.system ('cd downloads/test/git && echo two >> README')
             os.system ('cd downloads/test/git && git add .')
             os.system ('cd downloads/test/git && git commit -m "2"')
@@ -1042,6 +1085,7 @@ def test ():
             os.system ('cd downloads/test/svn && svnadmin create .repo')
             os.system ('cd downloads/test/svn && svn co file://localhost$(pwd)/.repo root')
             repo = Subversion (os.getcwd () + '/downloads/test/svn/root')
+            tag_db = TagDb ('downloads/test')
             os.system ('cd downloads/test/svn/root && mkdir trunk tags')
             os.system ('cd downloads/test/svn/root && svn add trunk tags')
             os.system ('cd downloads/test/svn/root && svn commit -m "init"')
@@ -1052,11 +1096,13 @@ def test ():
             os.system ('cd downloads/test/svn/trunk && svn commit -m "1"')
             os.system ('cd downloads/test/svn/trunk && svn up')
             repo.tag ('success-test')
-            time.sleep (1)
+            tag_db.tag ('success-test', repo)
             os.system ('cd downloads/test/svn/trunk && echo two >> README')
             os.system ('cd downloads/test/svn/trunk && svn commit -m "2"')
             os.system ('cd downloads/test/svn/trunk && svn up')
+            os.system ('cd downloads/test/svn/trunk && svn info > info')
             repo.tag ('success-test')
+            tag_db.tag ('success-test', repo)
             os.system ('cd downloads/test/svn/trunk && echo three >> README')
             os.system ('cd downloads/test/svn/trunk && svn commit -m "3"')
             patch = '''
@@ -1066,6 +1112,8 @@ def test ():
 +three
 '''
             diff = repo.get_diff_from_tag_base ('success-test')
+            self.assert_ (diff.find (patch) >=0)
+            diff = tag_db.get_diff_from_tag_base ('success-test', repo)
             self.assert_ (diff.find (patch) >=0)
 
     suite = unittest.makeSuite (Test_get_repository_proxy)
