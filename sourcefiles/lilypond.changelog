@@ -1,3 +1,11 @@
+lilypond (2.10.33-1) unstable; urgency=low
+
+  * New upstream release.
+  * Use __doc__ of parent buildspec if necessary.  Fixes doc in automatic
+    hint file.
+
+ -- Jan Nieuwenhuizen janneke@gnu.org>  Thu, 20 Sep 2007 11:59:12 +0200
+
 lilypond (2.10.29-2) unstable; urgency=low
 
   * Fix python relocation header by compiling python dir first.
