@@ -11,8 +11,6 @@
      1. toevoegen aan platforms in makefile
      2. toevoegen aan platform lijst, die in test-lily/upload wordt gebruikt.
 
-* Add diff option: 561096638b3718af86d61570ac63bafa5c4a99f8
-
 * Robustification against ^C, esp. in in repository.download ()
 
 * Softcode stages.

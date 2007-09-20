@@ -220,6 +220,7 @@ def test_target (repo, options, target, last_patch):
     release_hash = repo.get_checksum ()
 
     done_db = get_db (options, canonicalize)
+    tag_db = repository.TagDb (options.result_dir)
     recheck = ''
     if done_db.has_key (release_hash):
         main_log.info ('release %(release_hash)s has already been checked\n'
@@ -249,21 +250,23 @@ def test_target (repo, options, target, last_patch):
     attachments = []
 
     body = test_log.read_tail ()
+    diff = None
     if stat:
         RESULT = FAIL
         result = 'error'
+        if options.append_diff:
+            if repo.is_distributed ():
+                diff = repo.get_diff_from_tag_base (base_tag)
+            else:
+                diff = tag_db.get_diff_from_tag_base (base_tag, repo)
     else:
         RESULT = SUCCESS
         result = 'success'
         body = body[-10:]
-        if 0:
-            # FIXME: find in archives, what did this do?
-            # format of last_patch?
-            # canonicalize_target vs canonicalize_string?
-            print last_patch
-            tag = base_tag + canonicalize_string (last_patch['date'])
-            repo.tag (tag)
-            main_log.log ('tagging with %s\n' % tag)
+        tag_db.tag (base_tag, repo)
+        if repo.is_distributed ():
+            tag = repo.tag (base_tag)
+            main_log.log ('tagging with %(tag)s\n' % locals ())
             if options.tag_repo:
                 repo.push (tag, options.tag_repo)
 
@@ -275,8 +278,8 @@ def test_target (repo, options, target, last_patch):
 %(tail)s'''
     tail = '\n'.join (body)
     attachments = [message % locals ()]
-    if options.append_diff:
-        attachments += [repo.get_diff_from_tag (base_tag)]
+    if diff:
+        attachments.append (diff)
     main_log.info ('%(target)s: %(RESULT)s\n' % locals ())
     done_db[release_hash] = time.ctime () + ' ' + RESULT
     return (RESULT, attachments)
