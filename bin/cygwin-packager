@@ -205,7 +205,7 @@ mkdir -p %(installer_prefix)s/share/doc/%(name)s
         def _replace_interpreters (dir, base):
             file = os.path.join (dir, base)
             if misc.get_interpreter (file):
-                self.file_sub ([('^#!(.*/local/)', '#! /')], file)
+                self.file_sub ([('^#!(.*/local%(root_dir)s/)', '#! /')], file)
                 self.system ('rm -f %(file)s~', locals ())
             
         for d in ('bin', 'sbin', 'usr/bin', 'usr/sbin'):
