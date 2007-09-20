@@ -266,7 +266,7 @@ def test_target (repo, options, target, last_patch):
         tag_db.tag (base_tag, repo)
         if repo.is_distributed ():
             tag = repo.tag (base_tag)
-            main_log.log ('tagging with %(tag)s\n' % locals ())
+            main_log.action ('tagging with %(tag)s\n' % locals ())
             if options.tag_repo:
                 repo.push (tag, options.tag_repo)
 
