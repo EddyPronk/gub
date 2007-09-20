@@ -371,7 +371,16 @@ def topologically_sorted_one (todo, done, dependency_getter,
         if recurse_stop_predicate and recurse_stop_predicate (d):
             continue
 
-        assert type (d) == type (todo)
+        # 
+        if not type (d) == type (todo):
+            print type (d), '!=', type (todo)
+            assert type (d) == type (todo)
+        # New style class attempt...
+        if (not ((isinstance (d, gubb.BuildSpec)
+                  and isinstance (d, gubb.BuildSpec))
+                 or (type (d) == type (todo)))):
+            print type (d), '!=', type (todo)
+            assert type (d) == type (todo)
 
         sorted += topologically_sorted_one (d, done, dependency_getter,
                                             recurse_stop_predicate=recurse_stop_predicate)

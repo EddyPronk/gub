@@ -117,6 +117,17 @@ def change_target_package (package):
                       'runtime': 'runtime'}[split]
             doc = package.__class__.__doc__
             if not doc:
+                base = package.__class__.__name__
+                p = package.__class__.__name__.find ('__')
+                if p >= 0:
+                    base = base[:p]
+                for i in package.__class__.__bases__:
+                    if not base in i.__name__:
+                        break
+                    if i.__doc__:
+                        doc = i.__doc__
+                        break
+            if not doc:
                 doc = '\n'
             return (doc.replace ('\n', ' - %(flavor)s\n', 1) % locals ())
 

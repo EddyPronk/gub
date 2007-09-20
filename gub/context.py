@@ -56,6 +56,14 @@ class ExpandInInit(Exception):
 class NonStringExpansion(Exception):
     pass
 
+#class Context (object):
+# FIXME: using new style classes breaks in several ways:
+#  File "gub/gup.py", line 377, in topologically_sorted_one
+#    assert type (d) == type (todo)
+#
+#   File "gub/context.py", line 21, in is_subst_method_in_class
+#    and klass.__dict__[method_name].__dict__.has_key ('substitute_me')):
+#AttributeError: 'wrapper_descriptor' object has no attribute '__dict__'
 class Context:
     def __init__ (self, parent = None):
         self._substitution_dict = None
