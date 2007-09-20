@@ -592,7 +592,14 @@ class Git (Repository):
         return self.git_pipe ('diff %(tag)s HEAD' % locals ())
 
     def last_patch_date (self):
-        s = self.git_pipe ('log -1')
+        # Whurg.  Because we use the complex non-standard and silly --git-dir
+        # option, we cannot use git log without supplying a branch, which
+        # is not documented in git log, btw.
+        # fatal: bad default revision 'HEAD'
+        # I'm not even sure if we need branch or local_branch... and why
+        # our branch names are so difficult master-git.sv.gnu.org-lilypond.git
+        branch = self.branch
+        s = self.git_pipe ('log -1 %(branch)s' % locals ())
         m = re.search  ('Date: *(.*)', s)
         date = m.group (1)
         return tztime.parse (date, self.patch_dateformat)
@@ -600,7 +607,10 @@ class Git (Repository):
     def tag (self, name):
         stamp = self.last_patch_date ()
         tag = name + '-' + tztime.format (stamp, self.tag_dateformat)
-        self.git ('tag %(tag)s' % locals ())
+        # See last_patch_date
+        # fatal: Failed to resolve 'HEAD' as a valid ref.
+        branch = self.branch
+        self.git ('tag %(tag)s %(branch)s' % locals ())
         return tag
 
     def tag_list (self, tag):
