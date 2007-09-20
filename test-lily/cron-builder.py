@@ -95,7 +95,7 @@ def parse_options ():
     
     global dry_run
     dry_run = options.dry_run
-    options.make_options += " BRANCH=%s" % options.branch
+    options.make_options += ' LILYPOND_BRANCH=%s' % options.branch
 
     if '--repository' not in options.test_options:
         options.test_options += ' --repository=downloads/lilypond.git '
@@ -139,13 +139,13 @@ def main ():
     if 1:
         test_cmds.append (make_cmd + 'bootstrap')
     if options.build_package:
-        test_cmds += [python_cmd + 'bin/gub --branch=lilypond=%s:%s -lp %s lilypond '
+        test_cmds += [python_cmd + 'bin/gub --branch=lilypond=%s:%s --skip-if-locked --platform=%s lilypond '
                       % (options.branch, options.local_branch, p) for p in args]
         
     if options.build_installer:
         version_options = '' 
             
-        test_cmds += [python_cmd + 'bin/installer-builder --skip-if-locked %s  --branch=lilypond=%s:%s -p %s build-all lilypond '
+        test_cmds += [python_cmd + 'bin/installer-builder --skip-if-locked %s --branch=lilypond=%s:%s --platform=%s build-all lilypond '
                       % (version_options, options.branch, options.local_branch, p) for p in args]
 
     if options.build_docs:
@@ -155,7 +155,7 @@ def main ():
 
 
     if options.build_tarball:
-        test_cmds += [make_cmd + " dist-check"]
+        test_cmds += [make_cmd + 'dist-check']
 
     log_file.system (python_cmd + 'bin/gub-tester %s %s '
             % (options.test_options, ' '.join (["'%s'" % c for c in test_cmds])))
