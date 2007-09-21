@@ -1,7 +1,6 @@
 import inspect
 import os
 import re
-import fnmatch
 import traceback
 
 def subst_method (func):
@@ -205,30 +204,12 @@ class Os_context_wrapper (Context):
     
     def locate_files (self, directory, pattern,
                       include_dirs=True, include_files=True):
-        """
-        Find file using glob PATTERNs. DIRECTORY is expanded.
+        '''Return list of files under DIRECTORY using glob PATTERNs
 
-        Results include DIRECTORY in the filenames.
-        """
+Results include DIRECTORY in the filenames.'''
 
-        ## find() is actually not portable across unices,
-        ## so we bake our own.
-        
-        directory = self.expand (directory)
-        directory = re.sub ( "/*$", '/', directory)
-        
-        results = []
-        for (root, dirs, files) in os.walk (directory):
-            relative_results = []
-            if include_dirs:
-                relative_results += dirs
-            if include_files:
-                relative_results += files
-                
-            results += [os.path.join (root, f)
-                        for f in (fnmatch.filter (relative_results, pattern))]
-
-        return results
+        return self.os_interface.locate_files (self.expand (directory),
+                                               pattern, include_dirs, include_files)
 
 #
 # Tests.

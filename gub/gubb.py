@@ -343,16 +343,15 @@ tooldir=%(install_prefix)s
                        file, must_succeed=True)
         
     def update_libtool (self):
-        lst = self.locate_files ('%(builddir)s', 'libtool')
-        if lst:
+        def update (file):
             new = self.expand ('%(system_root)s/usr/bin/libtool')
             if not os.path.exists (new):
                 self.error ('Cannot update libtool: no such file: %(new)s' % locals ())
                 raise Exception ('barf')
-            for i in lst:
-                self.system ('cp %(new)s %(i)s', locals ())
-                self.kill_libtool_installation_test (i)
-                self.system ('chmod 755  %(i)s', locals ())
+            self.system ('cp %(new)s %(file)s', locals ())
+            self.kill_libtool_installation_test (file)
+            self.system ('chmod 755  %(file)s', locals ())
+        self.os_interface.map_locate (update, self.expand ('%(builddir)s'), 'libtool')
 
     def install (self):
         self.system ('''

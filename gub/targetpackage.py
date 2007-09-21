@@ -38,19 +38,19 @@ class TargetBuildSpec (gubb.BuildSpec):
         ## on the target system. It will try link in libraries from
         ## /usr/lib/ on the build system. This seems to be problematic for libltdl.a and libgcc.a on MacOS.
         ##
-        for lt in self.locate_files ("%(builddir)s", '*.la'):
-            lt = lt.strip()
-            if not lt:
-                continue
-
-            dir = os.path.split (lt)[0]
-            suffix = "/.libs"
-            if re.search("\\.libs$", dir):
+        def fixup (file):
+            file = file.strip ()
+            if not file:
+                return
+            dir = os.path.split (file)[0]
+            suffix = '/.libs'
+            if re.search('\\.libs$', dir):
                 suffix = ''
             self.file_sub ([
                 ("libdir='/usr/lib'", "libdir='%(dir)s%(suffix)s'"),
                 ],
-                   lt, env=locals ())
+                   file, env=locals ())
+        self.os_interface.map_locate (fixup, self.expand ('%(builddir)s'), '*.la')
 
     ## UGH. only for cross!
     def config_cache_overrides (self, str):

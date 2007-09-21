@@ -5,6 +5,7 @@ import time
 import re
 import stat
 import traceback
+import fnmatch
 
 from gub import misc
 
@@ -86,6 +87,15 @@ class Message (SerializedCommand):
     def execute (self, os_commands):
         os_commands.log (self.message, level['stage'], os_commands.verbose)
         
+class MapLocate (SerializedCommand):
+    def __init__ (self, func, directory, pattern):
+        self.func = func
+        self.directory = directory
+        self.pattern = pattern
+    def execute (self, os_commands):
+        return map (self.func,
+                    os_commands.locate_files (self.directory, self.pattern))
+
 class ReadFile (SerializedCommand):
     def __init__ (self, file):
         self.file = file
@@ -186,14 +196,14 @@ class Conditional (SerializedCommand):
             return self.child_false.execute (os_commands)
 
 class FilePredicateConditional (Conditional):
-    def exists (self):
-        self.name 
     def __init__ (self, name, predicate, child):
         SerializedCommand.__init__ (self)
         def pred():
             return predicate (name)
         self.predicate = pred
         self.child = child
+    def exists (self):
+        self.name 
 
 class ShadowTree (SerializedCommand):
     def __init__ (self, src, dest):
@@ -228,25 +238,21 @@ class PackageGlobs (SerializedCommand):
         root = self.root
         suffix_dir = self.suffix_dir
         dest = self.dest
-        
-
 
         import glob
-        globs = []
+        globs = list ()
         for f in self.globs:
             f = re.sub ('/+', '/', f)
             if f.startswith ('/'):
                 f = f[1:]
-                
             for exp in glob.glob (os.path.join (self.root, f)):
                 globs.append (exp.replace (root, './').replace ('//', '/'))
-
         if not globs:
             globs.append ('thisreallysucks-but-lets-hope-I-dont-exist/')
 
         cmd = 'tar -C %(root)s/%(suffix_dir)s --ignore-failed --exclude="*~" -zcf %(dest)s ' % locals()
         cmd += ' '.join (globs) 
-        System (cmd).execute(os_commands)
+        System (cmd).execute (os_commands)
 
 # FIXME
 class ForcedAutogenMagic (Conditional):
@@ -334,10 +340,13 @@ This enables proper logging and deferring and checksumming of commands.'''
 
     def execute_deferred (self):
         a = self._deferred_commands
+        defer = self._defer
+        self._defer = False
         self._deferred_commands = list ()
         for cmd in a:
             cmd.execute (self)
         assert self._deferred_commands == list ()
+        self._defer = defer
 
     def _execute (self, command, defer=None):
         if defer == None:
@@ -472,3 +481,19 @@ commands.
 	    else:
 	        raise e
 	
+    def locate_files (self, directory, pattern,
+                      include_dirs=True, include_files=True):
+        directory = re.sub ( "/*$", '/', directory)
+        results = list ()
+        for (root, dirs, files) in os.walk (directory):
+            relative_results = list ()
+            if include_dirs:
+                relative_results += dirs
+            if include_files:
+                relative_results += files
+            results += [os.path.join (root, f)
+                        for f in (fnmatch.filter (relative_results, pattern))]
+        return results
+
+    def map_locate (self, func, directory, pattern):
+        return self._execute (MapLocate (func, directory, pattern))
