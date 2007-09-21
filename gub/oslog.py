@@ -353,6 +353,22 @@ This enables proper logging and deferring and checksumming of commands.'''
     def fakeroot (self, s):
         self.fakeroot_cmd = s
         
+    def system_one (self, cmd, env, ignore_errors, verbose=None, defer=None):
+        '''Run CMD with environment vars ENV.'''
+        if not verbose:
+            verbose = self.verbose
+
+        if self.fakeroot_cmd:
+            cmd = re.sub ('''(^ *|['"();|& ]*)(fakeroot) ''',
+                          '\\1%(fakeroot_cmd)s' % self.__dict__, cmd)
+            cmd = re.sub ('''(^ *|['"();|& ]*)(chown|rm|tar) ''',
+                          '\\1%(fakeroot_cmd)s\\2 ' % self.__dict__, cmd)
+
+
+        # ' 
+        
+        return self._execute (System (cmd, ignore_errors=ignore_errors, verbose=verbose), defer=defer)
+
     def log (self, str, threshold, verbose=None, defer=None):
         # TODO: defer
         if not str:
@@ -389,22 +405,6 @@ This enables proper logging and deferring and checksumming of commands.'''
     def harmless (self, str):
         self.log (str, level['harmless'], self.verbose)
               
-    def system_one (self, cmd, env, ignore_errors, verbose=None, defer=None):
-        '''Run CMD with environment vars ENV.'''
-        if not verbose:
-            verbose = self.verbose
-
-        if self.fakeroot_cmd:
-            cmd = re.sub ('''(^ *|['"();|& ]*)(fakeroot) ''',
-                          '\\1%(fakeroot_cmd)s' % self.__dict__, cmd)
-            cmd = re.sub ('''(^ *|['"();|& ]*)(chown|rm|tar) ''',
-                          '\\1%(fakeroot_cmd)s\\2 ' % self.__dict__, cmd)
-
-
-        # ' 
-        
-        return self._execute (System (cmd, ignore_errors=ignore_errors, verbose=verbose), defer=defer)
-
     def system (self, cmd, env={}, ignore_errors=False, verbose=None, defer=None):
         '''Run os commands, and run multiple lines as multiple
 commands.
