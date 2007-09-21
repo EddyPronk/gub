@@ -150,8 +150,9 @@ class BuildSpec (Os_context_wrapper):
     @subst_method
     def source_checksum (self):
         if self.vc_repository:
-            return self.vc_repository.get_checksum ().replace ('/', '-')
-        
+            #return self.vc_repository.get_checksum ().replace ('/', '-')
+            print 'FIXME: serialization: want checksum TOO SOON'
+            return '0000'
         return self.version () 
 
     @subst_method

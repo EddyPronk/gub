@@ -25,7 +25,9 @@ class Ghostscript (targetpackage.TargetBuildSpec):
             return v
 
         from new import instancemethod
-        repo.version = instancemethod (version_from_VERSION, repo, type (repo))
+        #repo.version = instancemethod (version_from_VERSION, repo, type (repo))
+        print 'FIXME: serialization: want version package TOO SOON'
+        repo.version = instancemethod (lambda x: '8.56', repo, type (repo))
 
         self.with_vc (repo)
 
