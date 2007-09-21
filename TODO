@@ -1,3 +1,13 @@
+* Fix --branch mess:
+
+  -gub: --branch=<PACKAGE>=<BRANCH>:<LOCAL_BRANCH>, eg
+        --branch=lilypond=master-git.sv.gnu.org-lilypond.git
+  -cron-builder: --branch=<LILYPOND-BRANCH>
+                 --local-branch=<LILYPOND-LOCAL-BRANCH>
+    + `branch' means remote branch
+  -installer-builder: --branch=<PACKAGE>=<LOCAL_BRANCH>
+    + `branch' means local branch
+
 * Remove duplication of directory layout.  layout is partly duplicated
   in test-lily/* and *.make.  gub/settings should usable now from any
   .py, gub/settings.py --plaftorm '' prints layout for use in sh/make.

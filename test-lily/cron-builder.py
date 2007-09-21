@@ -145,6 +145,7 @@ def main ():
     if options.build_installer:
         version_options = '' 
             
+        # installer-builder does not need remote-branch
         test_cmds += [python_cmd + 'bin/installer-builder --skip-if-locked %s --branch=lilypond=%s:%s --platform=%s build-all lilypond '
                       % (version_options, options.branch, options.local_branch, p) for p in args]
 

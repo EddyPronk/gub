@@ -418,6 +418,7 @@ class Git (Repository):
             # FIXME: projection, where is this used?
             self.repo_url_suffix = '-' + re.sub ('[:+]+', '-', fileified_suffix)
         
+        # FIXME: handle outside Git
         if ':' in branch:
             (self.remote_branch,
              self.local_branch) = tuple (branch.split (':'))

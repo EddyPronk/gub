@@ -228,11 +228,14 @@ class PackageDictManager:
         d = pickle.loads (str)
 
         if branch_dict.has_key (d['basename']):
-            if branch_dict[d['basename']] != d['vc_branch']:
+            branch = branch_dict[d['basename']]
+            if ':' in branch:
+                (remote_branch, branch) = tuple (branch.split (':'))
+            if branch != d['vc_branch']:
                 suffix = d['vc_branch']
-                print 'ignoring header: ' + package_hdr
-                branch = branch_dict[d['basename']]
-                print 'branch: %(branch)s, expecting: %(suffix)s' % locals ()
+                self.os_interface.error ('ignoring header: %(package_hdr)s\n'
+                                        % locals ())
+                self.os_interface.error ('package of branch: %(suffix)s, expecting: %(branch)s\n' % locals ())
                 return
         elif d['vc_branch']:
             sys.stdout.write ('No branch for package %s, ignoring header: %s\n' % (d['basename'], package_hdr))

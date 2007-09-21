@@ -32,6 +32,10 @@ class Installer (context.Os_context_wrapper):
         self.name = name
         self.pretty_name = pretty_names.get (name, name)
         self.package_branch = settings.branch_dict[name]
+        if ':' in self.package_branch:
+            (self.remote_package_branch,
+             self.package_branch) = tuple (self.package_branch.split (':'))
+
         self.installer_root = (settings.targetdir
                                + '/installer-%s-%s' % (name,
                                                        self.package_branch))
