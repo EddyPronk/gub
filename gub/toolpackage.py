@@ -23,14 +23,14 @@ class ToolBuildSpec (gubb.BuildSpec):
         def wrap (file):
             dir = os.path.dirname (file)
             base = os.path.basename (file)
-            self.system ('mv %(e)s %(dir)s/.%(base)s', locals ())
+            self.system ('mv %(file)s %(dir)s/.%(base)s', locals ())
             self.dump ('''#!/bin/sh
 LD_LIBRARY_PATH=%(system_root)s/usr/lib
 %(system_root)s/usr/bin/.%(base)s "$@"
 ''', file, env=locals ())
             os.chmod (file, 0755)
-        self.os_interface.map_locate (wrap, '%(install_root)s/usr/bin', '*')
-        self.os_interface.map_locate (wrap, '%(install_root)s/%(local_prefix)s/bin', '*')
+        self.map_locate (wrap, '%(install_root)s/usr/bin', '*')
+        self.map_locate (wrap, '%(install_root)s/%(local_prefix)s/bin', '*')
 
     def compile_command (self):
         return self.native_compile_command ()

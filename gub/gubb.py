@@ -351,7 +351,7 @@ tooldir=%(install_prefix)s
             self.system ('cp %(new)s %(file)s', locals ())
             self.kill_libtool_installation_test (file)
             self.system ('chmod 755  %(file)s', locals ())
-        self.os_interface.map_locate (update, self.expand ('%(builddir)s'), 'libtool')
+        self.map_locate (update, '%(builddir)s', 'libtool')
 
     def install (self):
         self.system ('''

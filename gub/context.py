@@ -211,6 +211,10 @@ Results include DIRECTORY in the filenames.'''
         return self.os_interface.locate_files (self.expand (directory),
                                                pattern, include_dirs, include_files)
 
+    def map_locate (self, func, directory, pattern):
+        return self.os_interface.map_locate (func, self.expand (directory),
+                                             pattern)
+
 #
 # Tests.
 #

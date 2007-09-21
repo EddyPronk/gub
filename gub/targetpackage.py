@@ -50,7 +50,7 @@ class TargetBuildSpec (gubb.BuildSpec):
                 ("libdir='/usr/lib'", "libdir='%(dir)s%(suffix)s'"),
                 ],
                    file, env=locals ())
-        self.os_interface.map_locate (fixup, self.expand ('%(builddir)s'), '*.la')
+        self.map_locate (fixup, '%(builddir)s', '*.la')
 
     ## UGH. only for cross!
     def config_cache_overrides (self, str):
