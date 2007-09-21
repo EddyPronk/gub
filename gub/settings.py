@@ -122,7 +122,8 @@ class Settings (context.Context):
             
         self.os_interface = oslog.Os_commands (('log/%(platform)s.log'
                                                 % self.__dict__),
-                                               self.options.verbose)
+                                               self.options.verbose,
+                                               defer=True)
         self.create_dirs ()
         self.build_architecture = self.os_interface.read_pipe ('gcc -dumpmachine',
                                                                silent=True)[:-1]
@@ -158,7 +159,7 @@ class Settings (context.Context):
             if os.path.isdir (dir):
                 continue
 
-            self.os_interface.system ('mkdir -p %s' % dir)
+            self.os_interface.system ('mkdir -p %s' % dir, defer=False)
 
 
     def set_distcc_hosts (self, options):

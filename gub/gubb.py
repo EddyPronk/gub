@@ -50,10 +50,10 @@ class PackageSpec:
         suffix = self.expand ('%(packaging_suffix_dir)s')
         split_ball = self.expand ('%(split_ball)s')
 
-        self._os_interface.add_serialized (oslog.PackageGlobs (path,
-                                                               suffix,
-                                                               self._file_specs,
-                                                               split_ball))
+        self._os_interface._execute (oslog.PackageGlobs (path,
+                                                         suffix,
+                                                         self._file_specs,
+                                                         split_ball))
     def dict (self):
         return self._dict
 
@@ -301,7 +301,7 @@ class BuildSpec (Os_context_wrapper):
         open (self.get_stamp_file (),'w'). write ('%d' % stage_number) 
 
     def autoupdate (self):
-        self.os_interface.add_serialized (oslog.AutogenMagic(self))
+        self.os_interface._execute (oslog.AutogenMagic(self))
                 
     def configure (self):
         self.system ('''

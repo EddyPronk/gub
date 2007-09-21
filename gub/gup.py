@@ -57,9 +57,9 @@ class FileManager:
 
     def make_dirs (self):
         if not os.path.isdir (self.config):
-            self.os_interface.system ('mkdir -p %s' % self.config)
+            self.os_interface.system ('mkdir -p %s' % self.config, defer=False)
         if not os.path.isdir (self.root):
-            self.os_interface.system ('mkdir -p %s' % self.root)
+            self.os_interface.system ('mkdir -p %s' % self.root, defer=False)
         
     def tarball_files (self, ball):
         flag = tar_compression_flag (ball)

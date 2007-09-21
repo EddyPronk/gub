@@ -24,13 +24,13 @@ level = {'quiet': 0,
 
 class SerializedCommand:
     def __init__ (self):
-        self.instantiation_traceback = traceback.extract_stack()
+        self.instantiation_traceback = traceback.extract_stack ()
 
     def execute (self, os_commands):
         print 'Not implemented', self
 
     def print_source (self):
-        print ''.join(traceback.format_list (self.instantiation_traceback))
+        print ''.join (traceback.format_list (self.instantiation_traceback))
 
 class Nop (SerializedCommand):
     def execute (self):
@@ -50,6 +50,7 @@ class System (SerializedCommand):
         verbose = os_commands.verbose
         ignore_errors = self.kwargs.get('ignore_errors')
         os_commands.log ('invoking %s\n' % cmd, level['command'], verbose)
+
         if os_commands.dry_run:
             return 0
 
@@ -309,54 +310,44 @@ class AutogenMagic (ForcedAutogenMagic):
                 ForcedAutogenMagic.execute (self, os_commands)
 
 class Os_commands:
+    '''Encapsulate OS/File system commands
+
+This enables proper logging and deferring and checksumming of commands.'''
     level = level
 
-    def execute_commands(self):
-        '''Encapsulate OS/File system commands for proper logging.'''
-        a =  self.accumulated
-        self.accumulated = []
-        for cmd in a:
-            cmd.execute(self)
-        assert self.accumulated == []
-
-    def command_checksum (self):
-        return '0000'
-    
-    def __init__ (self, log_file_name, verbose, dry_run=False):
-        self.accumulated = []
+    def __init__ (self, log_file_name, verbose, dry_run=False, defer=False):
         self.verbose = verbose
         self.dry_run = dry_run
+        self._defer = defer
+        self._deferred_commands = list ()
         self.log_file_name = log_file_name
         self.log_file = open (self.log_file_name, 'a')
         self.log_file.write ('\n\n * Starting build: %s\n' %  now ())
         self.fakeroot_cmd = False
 
+    def execute_deferred (self):
+        a = self._deferred_commands
+        self._deferred_commands = list ()
+        for cmd in a:
+            cmd.execute (self)
+        assert self._deferred_commands == list ()
+
+    def _execute (self, command, defer=None):
+        if defer == None:
+            defer = self._defer
+        if defer:
+            self._deferred_commands.append (command)
+            return 0
+        return command.execute (self)
+        
+    def command_checksum (self):
+        return '0000'
+
     def fakeroot (self, s):
         self.fakeroot_cmd = s
         
-    ## TODO:
-    ## capture complete output of CMD, by polling output, and copying to tty.
-    def system_one (self, cmd, env, ignore_errors, verbose=None):
-        '''Run CMD with environment vars ENV.'''
-        if not verbose:
-            verbose = self.verbose
-
-        if self.fakeroot_cmd:
-            cmd = re.sub ('''(^ *|['"();|& ]*)(fakeroot) ''',
-                          '\\1%(fakeroot_cmd)s' % self.__dict__, cmd)
-            cmd = re.sub ('''(^ *|['"();|& ]*)(chown|rm|tar) ''',
-                          '\\1%(fakeroot_cmd)s\\2 ' % self.__dict__, cmd)
-
-
-        # ' 
-        
-        self.accumulated.append (System (cmd, ignore_errors=ignore_errors, verbose=verbose))
-        return 0
-
-    def add_serialized (self, serialized):
-        self.accumulated.append (serialized)
-        
-    def log (self, str, threshold, verbose=None):
+    def log (self, str, threshold, verbose=None, defer=None):
+        # TODO: defer
         if not str:
             return
         if not verbose:
@@ -367,12 +358,11 @@ class Os_commands:
             self.log_file.write (str)
             self.log_file.flush ()
 
-    # FIXME
     def action (self, str):
         self.log (str, level['action'], self.verbose)
 
-    def stage (self, str):
-        self.add_serialized (Message (str))
+    def stage (self, str, defer=None):
+        return self._execute (Message (str), defer=defer)
 
     def error (self, str):
         self.log (str, level['error'], self.verbose)
@@ -392,7 +382,23 @@ class Os_commands:
     def harmless (self, str):
         self.log (str, level['harmless'], self.verbose)
               
-    def system (self, cmd, env={}, ignore_errors=False, verbose=None):
+    def system_one (self, cmd, env, ignore_errors, verbose=None, defer=None):
+        '''Run CMD with environment vars ENV.'''
+        if not verbose:
+            verbose = self.verbose
+
+        if self.fakeroot_cmd:
+            cmd = re.sub ('''(^ *|['"();|& ]*)(fakeroot) ''',
+                          '\\1%(fakeroot_cmd)s' % self.__dict__, cmd)
+            cmd = re.sub ('''(^ *|['"();|& ]*)(chown|rm|tar) ''',
+                          '\\1%(fakeroot_cmd)s\\2 ' % self.__dict__, cmd)
+
+
+        # ' 
+        
+        return self._execute (System (cmd, ignore_errors=ignore_errors, verbose=verbose), defer=defer)
+
+    def system (self, cmd, env={}, ignore_errors=False, verbose=None, defer=None):
         '''Run os commands, and run multiple lines as multiple
 commands.
 '''
@@ -406,22 +412,21 @@ commands.
             keys = env.keys ()
             keys.sort()
             for k in keys:
-                self.log ('%s=%s\n' % (k, env[k]), level['debug'], verbose)
+                self.log ('%s=%s\n' % (k, env[k]), level['debug'], verbose, defer=defer)
             self.log ('export %s\n' % ' '.join (keys), level['debug'],
-                      verbose)
+                      verbose, defer=defer)
 
         stat = 0
         for i in cmd.split ('\n'):
             if i:
-                stat += self.system_one (i, call_env, ignore_errors, verbose=verbose)
+                stat += self.system_one (i, call_env, ignore_errors, verbose=verbose, defer=defer)
         return stat
 
     def dump (self, *args, **kwargs):
-        self.accumulated.append (Dump (*args, **kwargs))
+        return self._execute (Dump (*args, **kwargs))
         
-
     def file_sub (self, *args, **kwargs):
-        self.accumulated.append (Substitute (*args, **kwargs))
+        return self._execute (Substitute (*args, **kwargs))
 
     def read_pipe (self, cmd, ignore_errors=False, silent=False):
         if not silent:
@@ -437,7 +442,7 @@ commands.
         return output
 
     def shadow_tree (self, src, target):
-        self.add_serialized (ShadowTree (src, target))
+        return self._execute (ShadowTree (src, target))
 
     def download_url (self, url, dest_dir, fallback=None):
         import misc

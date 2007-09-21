@@ -145,7 +145,7 @@ to skip this check.
             if stage != 'clean':
                 spec.set_done (stage, stages.index (stage))
 
-        spec.os_interface.execute_commands()
+        spec.os_interface.execute_deferred ()
 
 
     def spec_conflict_resolution (self, spec, pkg):
