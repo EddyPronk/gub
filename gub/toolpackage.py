@@ -20,17 +20,17 @@ class ToolBuildSpec (gubb.BuildSpec):
         self.wrap_executables ()
                 
     def wrap_executables (self):
-        for e in (self.locate_files ('%(install_root)s/usr/bin', '*')
-                  + self.locate_files ('%(install_root)s/%(local_prefix)s/bin',
-                                       '*')):
-            dir = os.path.dirname (e)
-            file = os.path.basename (e)
-            self.system ('mv %(e)s %(dir)s/.%(file)s', locals ())
+        def wrap (file):
+            dir = os.path.dirname (file)
+            base = os.path.basename (file)
+            self.system ('mv %(e)s %(dir)s/.%(base)s', locals ())
             self.dump ('''#!/bin/sh
 LD_LIBRARY_PATH=%(system_root)s/usr/lib
-%(system_root)s/usr/bin/.%(file)s "$@"
-''', e, env=locals ())
-            os.chmod (e, 0755)
+%(system_root)s/usr/bin/.%(base)s "$@"
+''', file, env=locals ())
+            os.chmod (file, 0755)
+        self.os_interface.map_locate (wrap, '%(install_root)s/usr/bin', '*')
+        self.os_interface.map_locate (wrap, '%(install_root)s/%(local_prefix)s/bin', '*')
 
     def compile_command (self):
         return self.native_compile_command ()
