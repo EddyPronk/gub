@@ -126,6 +126,7 @@ class Repository:
         # Fallbacks, this will go through oslog
         self.oslog = oslog
         self.system = oslog.system
+        self.read_file = oslog.read_file
         self.read_pipe = oslog.read_pipe
         self.download_url = oslog.download_url
         self.info = oslog.info
@@ -264,7 +265,7 @@ class Darcs (Repository):
 
     def get_file_content (self, file):
         dir = self.dir
-        return open ('%(dir)s/%(file)s' % locals ()).read ()
+        return self.read_file ('%(dir)s/%(file)s' % locals ())
 
 RepositoryProxy.register (Darcs)
     
@@ -754,7 +755,7 @@ class SimpleRepo (Repository):
         return '%(dir)s/%(branch)s/%(module)s/%(revision)s' % locals ()
 
     def get_file_content (self, file_name):
-        return open (self._checkout_dir () + '/' + file_name).read ()
+        return self.read_file (self._checkout_dir () + '/' + file_name)
 
     def get_checksum (self):
         return self._current_revision ()

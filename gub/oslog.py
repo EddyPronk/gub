@@ -86,6 +86,13 @@ class Message (SerializedCommand):
     def execute (self, os_commands):
         os_commands.log (self.message, level['stage'], os_commands.verbose)
         
+class ReadFile (SerializedCommand):
+    def __init__ (self, file):
+        self.file = file
+    def execute (self, os_commands):
+        os_commands.action ('Reading %(file)s\n' % self.__dict__)
+        return file (self.file).read ()
+        
 class Dump (SerializedCommand):
     def __init__ (self, *args, **kwargs):
         SerializedCommand.__init__ (self)
@@ -427,6 +434,9 @@ commands.
         
     def file_sub (self, *args, **kwargs):
         return self._execute (Substitute (*args, **kwargs))
+
+    def read_file (self, *args, **kwargs):
+        return self._execute (ReadFile (*args, **kwargs), defer=False)
 
     def read_pipe (self, cmd, ignore_errors=False, silent=False):
         if not silent:
