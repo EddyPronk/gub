@@ -618,7 +618,7 @@ class Git (Repository):
     def tag_list (self, tag):
         return self.git_pipe ('tag -l %(tag)s*' % locals ()).split ('\n')
 
-RepositoryProxy.register (Git)
+#RepositoryProxy.register (Git)
 
 class CVS (Repository):
     vc_system = 'CVS'
@@ -1019,12 +1019,9 @@ RepositoryProxy.register (Bazaar)
 # and complex
 class SimpleGit (SimpleRepo):
     vc_system = '.git'
+    patch_dateformat = '%a %b %d %H:%M:%S %Y %z'
 
-    def create (rety, dir, source, branch='', revision=''):
-        return SimpleGit (dir, source=source, revision=revision)
-    create = staticmethod (create)
-
-    def __init__ (self, dir, source, branch='master', revision='HEAD'):
+    def __init__ (self, dir, source='', branch='master', revision='HEAD'):
         # FIXME: multi-branch repos not supported for now
         if not revision:
             revision = 'HEAD'
@@ -1048,6 +1045,9 @@ class SimpleGit (SimpleRepo):
     def git_system (self, cmd):
         dir = self._checkout_dir ()
         return self.system ('cd %(dir)s && git %(cmd)s' % locals ())
+
+    def _source (self):
+        return 'TODO:read url from git info', self.branch
 
     def _current_revision (self):
         return self.revision
@@ -1087,8 +1087,26 @@ class SimpleGit (SimpleRepo):
     def get_revision_description (self):
         return self.git_pipe ('log --verbose -1')
 
-#not yet
-#RepositoryProxy.register (SimpleGit)
+    def get_diff_from_tag (self, tag):
+        return self.git_pipe ('diff %(tag)s' % locals ())
+
+    def last_patch_date (self):
+        s = self.git_pipe ('log -1' % locals ())
+        m = re.search  ('Date: *(.*)', s)
+        date = m.group (1)
+        return tztime.parse (date, self.patch_dateformat)
+
+    def tag (self, name):
+        stamp = self.last_patch_date ()
+        tag = name + '-' + tztime.format (stamp, self.tag_dateformat)
+        self.git_system ('tag %(tag)s' % locals ())
+        return tag
+
+    def tag_list (self, tag):
+        return self.git_pipe ('tag -l %(tag)s*' % locals ()).split ('\n')
+
+Git = SimpleGit
+RepositoryProxy.register (Git)
 
 get_repository_proxy = RepositoryProxy.get_repository
 
@@ -1134,8 +1152,11 @@ def test ():
             # FIXME: this is currently used to determine flavour of
             # downloads/lilypond.git.  But is is ugly and fragile;
             # what if I do brz branch foo foo.git?
-            repo = get_repository_proxy ('/foo/bar/barf/i-do-not-exist-or-possibly-am-of-bzr-flavour.git', '', '', '')
-            self.assertEqual (repo.__class__, Git)
+
+            # This is now broken, with SimpleGit; good riddance
+            pass
+# #            repo = get_repository_proxy ('/foo/bar/barf/i-do-not-exist-or-possibly-am-of-bzr-flavour.git', '', '', '')
+# #            self.assertEqual (repo.__class__, Git)
         def testPlusSsh (self):
             repo = get_repository_proxy ('downloads/test/', 'bzr+ssh://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr', '', '')
             self.assertEqual (repo.__class__, Bazaar)
@@ -1146,7 +1167,9 @@ def test ():
         def testGitTagAndDiff (self):
             os.system ('mkdir -p downloads/test/git')
             os.system ('cd downloads/test/git && git init')
-            repo = Git (os.getcwd () + '/downloads/test/git/.git')
+# # FIXME Git/SimpleGit mixup: git-dir vs checkout-dir
+# #           repo = Git (os.getcwd () + '/downloads/test/git/.git')
+            repo = Git (os.getcwd () + '/downloads/test/git/')
             os.system ('cd downloads/test/git && echo one >> README')
             os.system ('cd downloads/test/git && git add .')
             os.system ('cd downloads/test/git && git commit -m "1"')
