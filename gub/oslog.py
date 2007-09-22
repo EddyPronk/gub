@@ -397,7 +397,7 @@ This enables proper logging and deferring and checksumming of commands.'''
     def stage (self, str, defer=None):
         self.log (str, level['stage'], self.verbose, defer)
 
-    def error (self, str):
+    def error (self, str, defer=None):
         self.log (str, level['error'], self.verbose, defer)
 
     def info (self, str, defer=None):

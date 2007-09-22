@@ -25,3 +25,8 @@ download-local:
 
 download:
 	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB,$(p)) --online --stage=download $(call gcc_or_glibc,$(p)) && ) true
+
+test:
+	rm -rf target
+	make -f lilypond.make local LOCAL_GUB_OPTIONS=-vvv
+	bin/gub -p $(BUILD_PLATFORM) --branch=lilypond=master:master lilypond -vvv
