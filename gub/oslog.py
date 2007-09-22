@@ -79,11 +79,22 @@ class System (SerializedCommand):
         return proc.returncode
 
 class Message (SerializedCommand):
-    def __init__ (self, message):
+    def __init__ (self, message, threshold, verbose, defer):
         self.message = message
+        self.threshold = threshold
+        self.verbose = verbose
+        self.defer = defer
     def execute (self, os_commands):
-        os_commands.log (self.message, level['stage'], os_commands.verbose)
-        
+        if not self.message:
+            return 0
+        if not self.verbose:
+            self.verbose = os_commands.verbose
+        if self.verbose >= self.threshold:
+            sys.stderr.write (self.message)
+        if os_commands.log_file:
+            os_commands.log_file.write (self.message)
+            os_commands.log_file.flush ()
+
 class MapLocate (SerializedCommand):
     def __init__ (self, func, directory, pattern):
         self.func = func
@@ -378,40 +389,31 @@ This enables proper logging and deferring and checksumming of commands.'''
         return self._execute (System (cmd, ignore_errors=ignore_errors, verbose=verbose), defer=defer)
 
     def log (self, str, threshold, verbose=None, defer=None):
-        # TODO: defer
-        if not str:
-            return
-        if not verbose:
-            verbose = self.verbose
-        if verbose >= threshold:
-            sys.stderr.write (str)
-        if self.log_file:
-            self.log_file.write (str)
-            self.log_file.flush ()
+        return self._execute (Message (str, threshold, verbose, defer))
 
-    def action (self, str):
-        self.log (str, level['action'], self.verbose)
+    def action (self, str, defer=None):
+        self.log (str, level['action'], self.verbose, defer)
 
     def stage (self, str, defer=None):
-        return self._execute (Message (str), defer=defer)
+        self.log (str, level['stage'], self.verbose, defer)
 
     def error (self, str):
-        self.log (str, level['error'], self.verbose)
+        self.log (str, level['error'], self.verbose, defer)
 
-    def info (self, str):
-        self.log (str, level['info'], self.verbose)
+    def info (self, str, defer=None):
+        self.log (str, level['info'], self.verbose, defer)
               
-    def command (self, str):
-        self.log (str, level['command'], self.verbose)
+    def command (self, str, defer=None):
+        self.log (str, level['command'], self.verbose, defer)
               
-    def debug (self, str):
-        self.log (str, level['debug'], self.verbose)
+    def debug (self, str, defer=None):
+        self.log (str, level['debug'], self.verbose, defer)
               
-    def warning (self, str):
-        self.log (str, level['warning'], self.verbose)
+    def warning (self, str, defer=None):
+        self.log (str, level['warning'], self.verbose, defer)
               
-    def harmless (self, str):
-        self.log (str, level['harmless'], self.verbose)
+    def harmless (self, str, defer=None):
+        self.log (str, level['harmless'], self.verbose, defer)
               
     def system (self, cmd, env={}, ignore_errors=False, verbose=None, defer=None):
         '''Run os commands, and run multiple lines as multiple
