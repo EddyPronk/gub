@@ -26,7 +26,7 @@ class ToolBuildSpec (gubb.BuildSpec):
             self.system ('mv %(file)s %(dir)s/.%(base)s', locals ())
             self.dump ('''#!/bin/sh
 LD_LIBRARY_PATH=%(system_prefix)s/lib
-%(system_prefix)s/bin/.%(file)s "$@"
+%(system_prefix)s/bin/.%(base)s "$@"
 ''', file, env=locals ())
             os.chmod (file, 0755)
         self.map_locate (wrap, '%(install_prefix)s/bin', '*')
