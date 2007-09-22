@@ -97,34 +97,34 @@ class Builder:
 
         if self.settings.options.fresh:
             try:
-                spec_obj.os_interface.action ('Removing status filex')
+                spec_obj.os_interface.action ('removing status filex')
                 os.unlink (spec_obj.get_stamp_file ())
-            except OSError:
+            except oserror:
                 pass
 
-        tainted = False
+        tainted = false
         for stage in stages:
             if (not available.has_key (stage)):
                 continue
 
             if spec.is_done (stage, stages.index (stage)):
-                tainted = True
+                tainted = true
                 continue
             if (stage == 'clean'
                 and self.settings.options.keep_build):
                 os.unlink (spec.get_stamp_file ())
                 continue
             
-            spec.os_interface.stage (' *** Stage: %s (%s, %s)\n'
+            spec.os_interface.stage (' *** stage: %s (%s, %s)\n'
                                      % (stage, spec.name (),
                                         self.settings.platform))
 
             if (stage == 'package' and tainted
                 and not self.settings.options.force_package):
-                msg = spec.expand ('''This compile has previously been interrupted.
-To ensure a repeatable build, this will not be packaged.
+                msg = spec.expand ('''this compile has previously been interrupted.
+to ensure a repeatable build, this will not be packaged.
 
-Use
+use
 
 rm %(stamp_file)s
 
@@ -138,7 +138,7 @@ to skip this check.
                 sys.exit(1)
             try:
                 (available[stage]) ()
-            except misc.SystemFailed:
+            except misc.systemfailed:
 
                 ## failed patch will leave system in unpredictable state.
                 if stage == 'patch':
@@ -148,6 +148,8 @@ to skip this check.
 
             if stage != 'clean':
                 spec.set_done (stage, stages.index (stage))
+        # FIXME: we also do this after pkg_install.  If this is removed
+        # here, packages do not build at all??
         spec.os_interface.execute_deferred ()
 
     def spec_conflict_resolution (self, spec, pkg):
