@@ -79,9 +79,9 @@ class Builder:
         import inspect
         available = dict (inspect.getmembers (spec, callable))
         if self.settings.options.stage:
-            spec.os_interface.stage (' *** Stage: %s (%s)\n'
-                                     % (self.settings.options.stage,
-                                        spec.name ()))
+            spec.os_interface.stage (' *** Stage: %s (%s, %s)\n'
+                                     % (stage, spec.name (),
+                                        self.settings.platform))
             (available[self.settings.options.stage]) ()
             return
 
@@ -116,7 +116,8 @@ class Builder:
                 continue
             
             spec.os_interface.stage (' *** Stage: %s (%s, %s)\n'
-                                     % (stage, spec.name (), self.settings.platform))
+                                     % (stage, spec.name (),
+                                        self.settings.platform))
 
             if (stage == 'package' and tainted
                 and not self.settings.options.force_package):
@@ -147,9 +148,7 @@ to skip this check.
 
             if stage != 'clean':
                 spec.set_done (stage, stages.index (stage))
-
         spec.os_interface.execute_deferred ()
-
 
     def spec_conflict_resolution (self, spec, pkg):
         pkg_name = pkg.name ()
@@ -207,11 +206,13 @@ to skip this check.
             self.run_one_builder (spec)
 
         # FIXME, spec_install should be stage?
-        if self.settings.options.stage: # and options.stage != spec_install:
-            return
-
-        # FIXME, spec_install should be stage?
-        self.spec_install (spec)
+        if not self.settings.options.stage: # or options.stage == spec_install:
+            # FIXME, spec_install should be stage?
+            spec.os_interface.stage (' *** Stage: %s (%s, %s)\n'
+                                     % ('pkg_install', spec.name (),
+                                        self.settings.platform))
+            self.spec_install (spec)
+        spec.os_interface.execute_deferred ()
 
     def uninstall_outdated_spec (self, spec_name):
             spec = self.specs[spec_name]
