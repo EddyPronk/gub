@@ -1015,6 +1015,81 @@ class Bazaar (SimpleRepo):
 
 RepositoryProxy.register (Bazaar)
 
+# class Git does not survive serialization and it is just too weird
+# and complex
+class SimpleGit (SimpleRepo):
+    vc_system = '.git'
+
+    def create (rety, dir, source, branch='', revision=''):
+        return SimpleGit (dir, source=source, revision=revision)
+    create = staticmethod (create)
+
+    def __init__ (self, dir, source, branch='master', revision='HEAD'):
+        # FIXME: multi-branch repos not supported for now
+        if not revision:
+            revision = 'HEAD'
+        if not branch:
+            branch = 'master'
+        self.module = '.'
+
+        # FIXME: keep (silly?) local-branch-name-juggling for compat reasons
+        # FIXME: handle outside Git
+        if ':' in branch:
+            (branch,
+             self.local_branch) = tuple (branch.split (':'))
+            self.local_branch = self.local_branch.replace ('/', '--')
+
+        SimpleRepo.__init__ (self, dir, source, branch, revision)
+
+    def git_pipe (self, cmd):
+        dir = self._checkout_dir ()
+        return self.read_pipe ('cd %(dir)s && git %(cmd)s' % locals ())
+
+    def git_system (self, cmd):
+        dir = self._checkout_dir ()
+        return self.system ('cd %(dir)s && git %(cmd)s' % locals ())
+
+    def _current_revision (self):
+        return self.revision
+
+    def _checkout (self):
+        dir = self.dir
+        source = self.source
+        base = self._checkout_dir ()
+        self.system ('cd %(dir)s && git clone %(source)s %(base)s' % locals ())
+        # FIXME: keep (silly?) local-branch-name-juggling for compat reasons
+        branch = self.branch
+        if self.revision:
+            branch = self.revision
+        elif self.local_branch:
+            self.git_system ('checkout %(branch)s' % locals ())
+            branch = self.local_branch
+            self.git_system ('branch %(branch)s' % locals ())
+        # end FIXME
+        self.git_system ('checkout %(branch)s' % locals ())
+
+    def _update (self, revision):
+        self.git_system ('pull')
+
+    def update_workdir (self, destdir):
+        # FIXME: keep (silly?) local-branch-name-juggling for compat reasons
+        branch = self.branch
+        if self.revision:
+            branch = self.revision
+        elif self.local_branch:
+            self.git_system ('checkout %(branch)s' % locals ())
+            branch = self.local_branch
+            self.git_system ('branch %(branch)s' % locals ())
+        # end FIXME
+        self.git_system ('checkout %(branch)s' % locals ())
+        SimpleRepo.update_workdir (self, destdir)
+
+    def get_revision_description (self):
+        return self.git_pipe ('log --verbose -1')
+
+#not yet
+#RepositoryProxy.register (SimpleGit)
+
 get_repository_proxy = RepositoryProxy.get_repository
 
 def test ():
