@@ -215,22 +215,29 @@ def system (cmd, ignore_errors=False):
     print 'Executing command %s' % cmd
     stat = os.system (cmd)
     if stat and not ignore_errors:
-        raise SystemFailed ('Command failed ' + `stat`)
+        raise SystemFailed ('Command failed (' + `stat/256` + '): ' + cmd)
 
 def file_mod_time (path):
     import stat
     return os.stat (path)[stat.ST_MTIME]
 
-def map_command_dir (dir, command, filter_out=[], extension_filter_out=[]):
+def binary_strip_p (filter_out=[], extension_filter_out=[]):
+    def predicate (file):
+        return (os.path.basename (file) not in filter_out
+                and (os.path.splitext (file)[1] not in extension_filter_out)
+                and not get_interpreter (file))
+    return predicate
+
+# Move to Os_commands?
+def map_command_dir (os_commands, dir, command, predicate):
     import os
     if not os.path.isdir (dir):
         raise ('warning: no such dir: %(dir)s' % locals ())
     (root, dirs, files) = os.walk (dir).next ()
     for file in files:
-        if (os.path.basename (file) not in filter_out
-          and (os.path.splitext (file)[1] not in extension_filter_out)):
-            system ('%(command)s %(root)s/%(file)s' % locals (),
-                    ignore_errors=True)
+        if predicate (os.path.join (root, file)):
+            os_commands.system ('%(command)s %(root)s/%(file)s' % locals (),
+                                ignore_errors=True)
 
 def map_dir (func, dir):
     if not os.path.isdir (dir):
@@ -247,6 +254,31 @@ def ball_basename (ball):
     s = re.sub ('_%\(package_arch\)s.*', '', s)
     s = re.sub ('_%\(version\)s', '-%(version)s', s)
     return s
+
+def get_interpreter (file):
+    s = open (file).readline (200)
+    if s.startswith ('#!'):
+        return s
+    return None
+
+def read_tail (file, size=10240, lines=100, marker=None):
+    '''
+Efficiently read tail of a file, return list of full lines.
+
+Typical used for reading tail of a log file.  Read a maximum of
+SIZE, return a maximum line count of LINES, truncate everything
+before MARKER.
+'''
+    f = open (file)
+    f.seek (0, 2)
+    length = f.tell ()
+    f.seek (- min (length, size), 1)
+    s = f.read ()
+    if marker:
+        p = s.find (marker)
+        if p >= 0:
+            s = s[p:]
+    return s.split ('\n')[-lines:]
 
 class MethodOverrider:
     """Override a object method with a function defined outside the

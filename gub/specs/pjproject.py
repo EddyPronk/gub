@@ -21,4 +21,4 @@ class Pjproject (targetpackage.TargetBuildSpec):
         targetpackage.TargetBuildSpec.configure (self)
     def install_command (self):
         return (targetpackage.TargetBuildSpec.install_command (self)
-                + ' prefix=/usr')
+                + ' prefix=%(prefix_dir)s')

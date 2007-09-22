@@ -45,14 +45,14 @@ bjam
 --layout=system
 --builddir=%(builddir)s
 --with-python-root=/dev/null
---prefix=/usr
---exec-prefix=/usr
---libdir=/usr/lib
---includedir=/usr/include
+--prefix=%(prefix_dir)s
+--exec-prefix=%(prefix_dir)s
+--libdir=%(prefix_dir)s/lib
+--includedir=%(prefix_dir)s/include
 ''')
     def install_command (self):
         return (self.compile_command ()
-                + ' install').replace ('=/usr', '=%(install_root)s/usr')
+                + ' install').replace ('=%(prefix_dir)s', '=%(install_prefix)s')
 
 class Boost (BjamBuildSpec):
     def __init__ (self,settings):
@@ -68,7 +68,7 @@ class Boost (BjamBuildSpec):
     def install (self):
         BjamBuildSpec.install (self)
         # Bjam `installs' header files by using symlinks to the source dir?
-        for i in self.locate_files ('%(install_root)s/usr/include/boost',
+        for i in self.locate_files ('%(install_prefix)s/include/boost',
                                     '*'):
             if os.path.islink (i):
                 s = os.readlink (i)
@@ -78,8 +78,8 @@ cp %(s)s %(i)s
 ''',
                              locals ())
         cwd = os.getcwd ()
-        os.chdir (self.expand ('%(install_root)s/usr/lib'))
-        for i in self.locate_files ('%(install_root)s/usr/lib', 'libboost_*-s.a'):
+        os.chdir (self.expand ('%(install_prefix)s/lib'))
+        for i in self.locate_files ('%(install_prefix)s/lib', 'libboost_*-s.a'):
             f = os.path.basename (i)
             os.symlink (f, f.replace ('-s.a', '.a'))
         os.chdir (cwd)

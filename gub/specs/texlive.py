@@ -58,10 +58,10 @@ packages.'''
 
     def get_subpackage_definitions (self):
         d = targetpackage.TargetBuildSpec.get_subpackage_definitions (self)
-        d['doc'] += ['/usr/share/texmf/doc']
-        d['base'] = ['/usr/share/texmf']
+        d['doc'] += [self.settings.prefix_dir + '/share/texmf/doc']
+        d['base'] = [self.settings.prefix_dir + '/share/texmf']
 #        d['bin'] = ['/']
-        d['bin'] = ['/etc', '/usr']
+        d['bin'] = ['/etc', self.settings.prefix_dir]
         return d
 
     def download (self):
@@ -95,10 +95,10 @@ packages.'''
 --with-oxdvik
 --with-pdflatex
 --with-pdftex
---with-pnglib-include=%(system_root)s/usr/include/libpng12
+--with-pnglib-include=%(system_prefix)s/include/libpng12
 --with-system-freetype
 --with-system-freetype2
---with-freetype2-include=%(system_root)s/usr/include/freetype2
+--with-freetype2-include=%(system_prefix)s/include/freetype2
 --with-system-gd
 --with-system-ncurses
 --with-system-pnglib
@@ -122,8 +122,8 @@ packages.'''
 --without-ttf2pk
 --without-xetex
 --without-xdvipdfmx
---x-includes=%(system_root)s/usr/X11R6/include
---x-libraries=%(system_root)s/usr/X11R6/lib
+--x-includes=%(system_prefix)s/X11R6/include
+--x-libraries=%(system_prefix)s/X11R6/lib
 '''))
 
     def install_command (self):
@@ -132,8 +132,8 @@ packages.'''
     def install (self):
     	targetpackage.TargetBuildSpec.install (self)
         self.system ('''
-#rsync -v -a %(srcdir)s/texmf-dist/* %(install_root)s/usr/share/texmf-dist
-rsync -v -a %(srcdir)s/texmf/* %(install_root)s/usr/share/texmf/
+#rsync -v -a %(srcdir)s/texmf-dist/* %(install_prefix)s/share/texmf-dist
+rsync -v -a %(srcdir)s/texmf/* %(install_prefix)s/share/texmf/
 ''')
 
     def license_file (self):

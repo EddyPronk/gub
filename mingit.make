@@ -30,16 +30,16 @@ download:
 	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB,$(p)) --online --stage=download  git && ) true
 	$(MAKE) -f mingit.make update-versions
 
-bootstrap: bootstrap-git download-local local cross-compilers local-cross-tools download 
+bootstrap: download
 
 download-local:
-	$(GUB) $(LOCAL_GUB_OPTIONS) -p local\
+	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=local\
 		--stage=download \
 		git pkg-config nsis icoutils 
 
 local:
 	cd librestrict && make -f GNUmakefile
-	$(GUB) $(LOCAL_GUB_OPTIONS) -p local git 
+	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=local git 
 
 
 mingw:

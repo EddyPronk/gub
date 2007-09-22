@@ -14,15 +14,18 @@ beautiful sheet music from a high-level description file.'''
 
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
-
-
         try:
             source = os.environ['GUB_LILYPOND_SOURCE']
         except KeyError:         
             source = 'git://git.sv.gnu.org/lilypond.git'
-        
-        repo = repository.Git (self.get_repodir (),
-                               branch=settings.lilypond_branch,
+
+	# --branch=lilypond=master:master-git.sv.gnu.org-lilypond.git
+        branch = 'master:master-git.sv.gnu.org-lilypond.git'
+        if (settings.__dict__.has_key ('lilypond_branch')
+            and settings.lilypond_branch):
+            branch = settings.lilypond_branch
+	repo = repository.Git (self.get_repodir (),
+                               branch=branch,
                                source=source)
 
         ## ugh: nested, with self shadow?
@@ -79,7 +82,7 @@ beautiful sheet music from a high-level description file.'''
 --enable-relocation
 --disable-documentation
 --enable-static-gxx
---with-ncsb-dir=%(system_root)s/usr/share/fonts/default/Type1
+--with-ncsb-dir=%(system_prefix)s/share/fonts/default/Type1
 '''))
 
     def configure (self):
@@ -113,8 +116,8 @@ cd %(builddir)s && %(configure_command)s''')
                                    '%(builddir)s/config.make' % d)
 
             ## need to reconfigure if dirs were added.
-            or (len (self.locate_files ('%(builddir)s', "GNUmakefile"))
-                != len (self.locate_files ('%(srcdir)s', "GNUmakefile")) + 1)):
+            or (len (self.locate_files ('%(builddir)s', 'GNUmakefile'))
+                != len (self.locate_files ('%(srcdir)s', 'GNUmakefile')) + 1)):
 
             self.do_configure ()
             self.system ('touch %(builddir)s/config.hh')
@@ -155,14 +158,14 @@ cd %(builddir)s && %(configure_command)s''')
         # or do we need the version of lilypond?
         installer_version = self.build_version ()
         # WTF, current.
-        self.system ("cd %(install_root)s/usr/share/lilypond && mv %(installer_version)s current",
+        self.system ('cd %(install_prefix)s/share/lilypond && mv %(installer_version)s current',
                      locals ())
 
-        self.system ("cd %(install_root)s/usr/lib/lilypond && mv %(installer_version)s current",
+        self.system ('cd %(install_prefix)s/lib/lilypond && mv %(installer_version)s current',
                      locals ())
 
-        self.system ('mkdir -p %(install_root)s/usr/etc/fonts/')
-        fc_conf_file = open (self.expand ('%(install_root)s/usr/etc/fonts/local.conf'), 'w')
+        self.system ('mkdir -p %(install_prefix)s/etc/fonts/')
+        fc_conf_file = open (self.expand ('%(install_prefix)s/etc/fonts/local.conf'), 'w')
         fc_conf_file.write ('''
 <fontconfig>
 <selectfont>
@@ -269,15 +272,18 @@ class LilyPond__cygwin (LilyPond):
                                                           '--disable-relocation')
 
     def compile (self):
+	# Because of relocation script, python must be built before scripts
+        # PYTHON= is replaces the detected python interpreter in local.
         self.system ('''
+cd %(builddir)s && make -C python LDFLAGS=%(system_prefix)s/bin/libpython*.dll
 cd %(builddir)s && make -C scripts PYTHON=/usr/bin/python
-cp -pv %(system_root)s/usr/share/gettext/gettext.h %(system_root)s/usr/include''')
+cp -pv %(system_prefix)s/share/gettext/gettext.h %(system_prefix)s/include''')
         LilyPond.compile (self)
 
     def compile_command (self):
         ## UGH - * sucks.
-        python_lib = "%(system_root)s/usr/bin/libpython*.dll"
-        LDFLAGS = '-L%(system_root)s/usr/lib -L%(system_root)s/usr/bin -L%(system_root)s/usr/lib/w32api'
+        python_lib = '%(system_prefix)s/bin/libpython*.dll'
+        LDFLAGS = '-L%(system_prefix)s/lib -L%(system_prefix)s/bin -L%(system_prefix)s/lib/w32api'
 
         ## UGH. 
         return (LilyPond.compile_command (self)
@@ -291,7 +297,11 @@ LDFLAGS="%(LDFLAGS)s %(python_lib)s"
         self.install_doc ()
 
     def install_doc (self):
-        installer_build = self.build_number ()
+        # lilypond.make uses `python gub/versiondb.py --build-for=2.11.32'
+        # which only looks at source ball build numbers, which are always `1'
+        # This could be fixed, but for now just build one doc ball per release?
+        # installer_build = self.build_number ()
+        installer_build = '1'
         installer_version = self.build_version ()
         docball = self.expand ('%(uploads)s/lilypond-%(installer_version)s-%(installer_build)s.documentation.tar.bz2', env=locals ())
         infomanball = self.expand ('%(uploads)s/lilypond-%(installer_version)s-%(installer_build)s.info-man.tar.bz2', env=locals ())
@@ -299,16 +309,16 @@ LDFLAGS="%(LDFLAGS)s %(python_lib)s"
 
         if not os.path.exists (docball):
             ## can't run make, because we need the right variables (BRANCH, etc.)
-            raise Exception ("cannot find docball %s" % docball)
+            raise Exception ('cannot find docball %s' % docball)
             
         self.system ('''
-mkdir -p %(install_root)s/usr/share/doc/lilypond
-tar -C %(install_root)s/usr/share/doc/lilypond -jxf %(docball)s
+mkdir -p %(install_prefix)s/share/doc/lilypond
+tar -C %(install_prefix)s/share/doc/lilypond -jxf %(docball)s
 tar -C %(install_root)s -jxf %(infomanball)s
-find %(install_root)s/usr/share/doc/lilypond -name '*.signature' -exec rm '{}' ';'
-find %(install_root)s/usr/share/doc/lilypond -name '*.ps' -exec rm '{}' ';'
-mkdir -p %(install_root)s/usr/share/info/lilypond
-cd %(install_root)s/usr/share/info/lilypond && ln -sf ../../doc/lilypond/Documentation/user/*png .
+find %(install_prefix)s/share/doc/lilypond -name '*.signature' -exec rm '{}' ';'
+find %(install_prefix)s/share/doc/lilypond -name '*.ps' -exec rm '{}' ';'
+mkdir -p %(install_prefix)s/share/info/lilypond
+cd %(install_prefix)s/share/info/lilypond && ln -sf ../../doc/lilypond/Documentation/user/*png .
 ''',
                   locals ())
 
@@ -336,7 +346,7 @@ all:
 	true
 
 install:
-	-mkdir -p $(DESTDIR)/usr/lib/lilypond/%(version)s
+	-mkdir -p $(DESTDIR)%(prefix_dir)s/lib/lilypond/%(version)s
 ''', '%(builddir)s/python/GNUmakefile')
         
 class LilyPond__mingw (LilyPond):
@@ -352,8 +362,8 @@ class LilyPond__mingw (LilyPond):
     def compile_command (self):
 
         ## UGH - * sucks.
-        python_lib = "%(system_root)s/usr/bin/libpython*.dll"
-        LDFLAGS = '-L%(system_root)s/usr/lib -L%(system_root)s/usr/bin -L%(system_root)s/usr/lib/w32api'
+        python_lib = '%(system_prefix)s/bin/libpython*.dll'
+        LDFLAGS = '-L%(system_prefix)s/lib -L%(system_prefix)s/bin -L%(system_prefix)s/lib/w32api'
 
         ## UGH. 
         return (LilyPond.compile_command (self)
@@ -389,18 +399,18 @@ rm -f %(install_prefix)s/bin/lilypond-windows
 install -m755 %(builddir)s/lily/out/lilypond-windows %(install_prefix)s/bin/lilypond-windows.exe
 rm -f %(install_prefix)s/bin/lilypond
 install -m755 %(builddir)s/lily/out/lilypond-console %(install_prefix)s/bin/lilypond.exe
-cp %(install_root)s/usr/lib/lilypond/*/python/* %(install_root)s/usr/bin
-cp %(install_root)s/usr/share/lilypond/*/python/* %(install_root)s/usr/bin
+cp %(install_prefix)s/lib/lilypond/*/python/* %(install_prefix)s/bin
+cp %(install_prefix)s/share/lilypond/*/python/* %(install_prefix)s/bin
 ''')
         import glob
-        for i in glob.glob (self.expand ('%(install_root)s/usr/bin/*')):
+        for i in glob.glob (self.expand ('%(install_prefix)s/bin/*')):
             header = open (i).readline().strip ()
             if header.endswith ('guile'):
                 self.system ('mv %(i)s %(i)s.scm', locals ())
             elif header.endswith ('python') and not i.endswith ('.py'):
                 self.system ('mv %(i)s %(i)s.py', locals ())
 
-        for i in self.locate_files ('%(install_root)s', "*.ly"):
+        for i in self.locate_files ('%(install_root)s', '*.ly'):
             s = open (i).read ()
             open (i, 'w').write (re.sub ('\r*\n', '\r\n', s))
 
@@ -408,11 +418,11 @@ cp %(install_root)s/usr/share/lilypond/*/python/* %(install_root)s/usr/bin
 "@INSTDIR@\usr\bin\lilypond-windows.exe" -dgui %1 %2 %3 %4 %5 %6 %7 %8 %9
 '''.replace ('%', '%%').replace ('\n', '\r\n')
             
-        self.dump (bat, '%(install_root)s/usr/bin/lilypond-windows.bat.in')
+        self.dump (bat, '%(install_prefix)s/bin/lilypond-windows.bat.in')
 
 ## please document exactly why if this is switched back.
 #        self.file_sub ([(r'gs-font-load\s+#f', 'gs-font-load #t')],
-#        '%(install_root)s/usr/share/lilypond/current/scm/lily.scm')
+#        '%(install_prefix)s/share/lilypond/current/scm/lily.scm')
 
 class LilyPond__debian (LilyPond):
     def get_dependency_dict (self):
@@ -421,7 +431,9 @@ class LilyPond__debian (LilyPond):
                                             debian.gub_to_distro_dict)}
 
     def compile (self):
+	# Because of relocation script, python must be built before scripts
         self.system ('''
+cd %(builddir)s && make -C python
 cd %(builddir)s && make -C scripts PYTHON=/usr/bin/python
 ''')
         LilyPond.compile (self)
@@ -447,36 +459,31 @@ cd %(builddir)s && make -C scripts PYTHON=/usr/bin/python
 class LilyPond__darwin (LilyPond):
     def get_dependency_dict (self):
         d = LilyPond.get_dependency_dict (self)
-
         deps = d['']
         deps.remove ('python-runtime')
         deps += [ 'fondu', 'osx-lilypad']
-
         d[''] = deps
         return d
 
     def get_build_dependencies (self):
-        return LilyPond.get_build_dependencies (self) + [ 'fondu', 'osx-lilypad']
+        return (LilyPond.get_build_dependencies (self)
+                + [ 'fondu', 'osx-lilypad'])
 
     def compile_command (self):
-        return LilyPond.compile_command (self) + " TARGET_PYTHON=/usr/bin/python "
+        return (LilyPond.compile_command (self)
+                + ' TARGET_PYTHON=/usr/bin/python')
     
     def configure_command (self):
-        cmd = LilyPond.configure_command (self)
-        cmd += ' --enable-static-gxx '
-
-        return cmd
+        return (LilyPond.configure_command (self)
+                + ' --enable-static-gxx')
 
     def do_configure (self):
         LilyPond.do_configure (self)
-
         make = self.expand ('%(builddir)s/config.make')
-
-        if re.search ("GUILE_ELLIPSIS", open (make).read ()):
+        if re.search ('GUILE_ELLIPSIS', open (make).read ()):
             return
         self.file_sub ([('CONFIG_CXXFLAGS = ',
                          'CONFIG_CXXFLAGS = -DGUILE_ELLIPSIS=... '),
-
 ## optionally: switch off for debugging.
 #                                (' -O2 ', '')
                 ],

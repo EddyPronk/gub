@@ -16,7 +16,7 @@ class Python (targetpackage.TargetBuildSpec):
 
         ## don't from gub import settings from build system.
 	self.BASECFLAGS = ''
-        self.CROSS_ROOT = '%(system_root)s'
+        self.CROSS_ROOT = '%(targetdir)s'
 
     def license_file (self):
         return '%(srcdir)s/LICENSE'
@@ -67,11 +67,11 @@ class Python (targetpackage.TargetBuildSpec):
         targetpackage.TargetBuildSpec.install (self)
         cfg = open (self.expand ('%(sourcefiledir)s/python-config.py.in')).read ()
         cfg = re.sub ('@PYTHON_VERSION@', self.expand ('%(version)s'), cfg)
-        cfg = re.sub ('@PREFIX@', self.expand ('%(system_root)s/usr/'), cfg)
+        cfg = re.sub ('@PREFIX@', self.expand ('%(system_prefix)s/'), cfg)
         cfg = re.sub ('@PYTHON_FOR_BUILD@', sys.executable, cfg)
-        self.dump (cfg, '%(install_root)s/usr/cross/bin/python-config',
+        self.dump (cfg, '%(install_prefix)s/cross/bin/python-config',
                    expand_string=False)
-        self.system ('chmod +x %(install_root)s/usr/cross/bin/python-config')
+        self.system ('chmod +x %(install_prefix)s/cross/bin/python-config')
 
 
     ### Ugh.
@@ -99,7 +99,7 @@ class Python__mingw_binary (gubb.BinarySpec):
 class Python__mingw_cross (Python):
     def __init__ (self, settings):
         Python.__init__ (self, settings)
-        self.target_gcc_flags = '-DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I%(system_root)s/usr/include' % self.settings.__dict__
+        self.target_gcc_flags = '-DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I%(system_prefix)s/include' % self.settings.__dict__
 
     # FIXME: first is cross compile + mingw patch, backported to
     # 2.4.2 and combined in one patch; move to cross-Python?
@@ -126,17 +126,17 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-winsock2.patch
 
     def install (self):
         Python.install (self)
-        for i in glob.glob ('%(install_root)s/usr/lib/python%(python_version)s/lib-dynload/*.so*' \
+        for i in glob.glob ('%(install_prefix)s/lib/python%(python_version)s/lib-dynload/*.so*' \
                   % self.get_substitution_dict ()):
             dll = re.sub ('\.so*', '.dll', i)
             self.system ('mv %(i)s %(dll)s', locals ())
 
         ## UGH.
         self.system ('''
-cp %(install_root)s/usr/lib/python%(python_version)s/lib-dynload/* %(install_root)s/usr/bin
+cp %(install_prefix)s/lib/python%(python_version)s/lib-dynload/* %(install_prefix)s/bin
 ''')
         self.system ('''
-chmod 755 %(install_root)s/usr/bin/*
+chmod 755 %(install_prefix)s/bin/*
 ''')
 
 class Python__mingw (Python__mingw_cross):

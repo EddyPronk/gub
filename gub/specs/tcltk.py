@@ -30,7 +30,7 @@ cd %(srcdir)s/tk/ && ./unix/configure --prefix=%(install_prefix)s
 
     def get_subpackage_definitions (self):
         s = targetpackage.TargetBuildSpec.get_subpackage_definitions (self)
-        s['doc'].append ('/usr/lib/tk8.4/demos')
+        s['doc'].append (self.settings.prefix_dir + '/lib/tk8.4/demos')
         return s
     
 class Tcltk__mingw (Tcltk):

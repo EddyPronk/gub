@@ -32,7 +32,7 @@ from gub import locker
 
 def parse_options ():
     p = optparse.OptionParser ()
-    p.usage = "with-lock.py FILE COMMAND"
+    p.usage = 'with-lock.py FILE COMMAND'
     p.add_option ('--skip',
 		  action="store_true",
 		  dest="skip",

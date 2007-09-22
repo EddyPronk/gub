@@ -1,4 +1,18 @@
-* Add new platform
+* Fix --branch mess:
+
+  -gub: --branch=<PACKAGE>=<BRANCH>:<LOCAL_BRANCH>, eg
+        --branch=lilypond=master-git.sv.gnu.org-lilypond.git
+  -cron-builder: --branch=<LILYPOND-BRANCH>
+                 --local-branch=<LILYPOND-LOCAL-BRANCH>
+    + `branch' means remote branch
+  -installer-builder: --branch=<PACKAGE>=<LOCAL_BRANCH>
+    + `branch' means local branch
+
+* Remove duplication of directory layout.  layout is partly duplicated
+  in test-lily/* and *.make.  gub/settings should usable now from any
+  .py, gub/settings.py --plaftorm '' prints layout for use in sh/make.
+
+* Document and make easier to add new platform
 
     -3. gub/settings.py
     -2. gub/config_cache.py
@@ -6,8 +20,6 @@
      0. lilypond.make
      1. toevoegen aan platforms in makefile
      2. toevoegen aan platform lijst, die in test-lily/upload wordt gebruikt.
-
-* Add diff option: 561096638b3718af86d61570ac63bafa5c4a99f8
 
 * Robustification against ^C, esp. in in repository.download ()
 
@@ -95,4 +107,8 @@ LOWER PRIORITY
 	       libjpeg-dev (for netpbm),
 	       libtiff-dev (for netpbm),
 	       libx11-dev (for netpbm),
-	       svn (for ghostscript)]
+	       svn (for ghostscript),
+	       python-gdbm (for gub: gub/gup.py) this means, btw, that gub
+	          does not run with python from local; it lacks gdbm,
+               inkscape (for lilypond doc)]
+

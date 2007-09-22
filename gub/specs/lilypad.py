@@ -19,7 +19,7 @@ class LilyPad (targetpackage.TargetBuildSpec):
         return misc.join_lines ('''
 ALL_OBJS='$(OBJS)'
 WRC=%(cross_prefix)s/bin/%(target_architecture)s-windres
-CPPFLAGS=-I%(system_root)s/usr/include
+CPPFLAGS=-I%(system_prefix)s/include
 RC='$(WRC) $(CPPFLAGS)'
 LIBWINE=
 LIBPORT=

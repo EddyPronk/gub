@@ -43,7 +43,7 @@ tools, and many other products as well.'''
 
     def munge_ft_config (self, file):
         self.file_sub ([('\nprefix=[^\n]+\n',
-                         '\nlocal_prefix=yes\nprefix=%(system_root)s/usr\n')],
+                         '\nlocal_prefix=yes\nprefix=%(system_prefix)s\n')],
                        file, must_succeed=True)
 
     def install (self):
@@ -52,9 +52,9 @@ tools, and many other products as well.'''
         # we want /usr/bin/freetype-config must survive.
         # While cross building, we create an  <toolprefix>-freetype-config
         # and prefer that.
-        self.system ('mkdir -p %(install_root)s/usr/cross/bin/')
-        self.system ('mv %(install_root)s/usr/bin/freetype-config %(install_root)s/usr/cross/bin/freetype-config')
-        self.munge_ft_config ('%(install_root)s/usr/cross/bin/freetype-config')
+        self.system ('mkdir -p %(install_prefix)s/cross/bin/')
+        self.system ('mv %(install_prefix)s/bin/freetype-config %(install_prefix)s/cross/bin/freetype-config')
+        self.munge_ft_config ('%(install_prefix)s/cross/bin/freetype-config')
 
 class Freetype__mingw (Freetype):
     def configure (self):
@@ -80,7 +80,8 @@ class XFreetype__cygwin (Freetype):
         d = dict (Freetype.get_subpackage_definitions (self))
         # urg, must remove usr/share. Because there is no doc package,
         # runtime iso '' otherwise gets all docs.
-        d['runtime'] = ['/usr/bin/*dll', '/usr/lib/*.la']
+        d['runtime'] = [self.settings.prefix_dir + '/bin/*dll',
+                        self.settings.prefix_dir + '/lib/*.la']
         return d
 
     def get_subpackage_names (self):

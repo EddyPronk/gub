@@ -12,10 +12,10 @@ class Freetype_config (gubb.SdkBuildSpec):
         self.system ('mkdir -p %(cross_prefix)s/usr/bin')
         
         ft_version = self.version ()
-        prefix = '%(system_root)s/usr'
+        prefix = '%(system_prefix)s'
         exec_prefix = '${prefix}'
-        includedir = '/usr/include'
-        libdir = '/usr/lib'
+        includedir = '%(prefix_dir)s/include'
+        libdir = '%(prefix_dir)s/lib'
         enable_shared = 'yes'
         wl = '-Wl,'
         hardcode_libdir_flag_spec='${wl}--rpath ${wl}$libdir'

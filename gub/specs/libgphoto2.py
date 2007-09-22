@@ -20,9 +20,9 @@ class Libgphoto2 (targetpackage.TargetBuildSpec):
     def wrap_pkg_config (self):
         self.dump ('''#! /bin/sh
 /usr/bin/pkg-config\
-  --define-variable prefix=%(system_root)s/usr\
-  --define-variable includedir=%(system_root)s/usr/include\
-  --define-variable libdir=%(system_root)s/usr/lib\
+  --define-variable prefix=%(system_prefix)s\
+  --define-variable includedir=%(system_prefix)s/include\
+  --define-variable libdir=%(system_prefix)s/lib\
   "$@"
 ''',
                    '%(srcdir)s/pkg-config')
@@ -31,7 +31,7 @@ class Libgphoto2 (targetpackage.TargetBuildSpec):
     def wrap_libusb_config (self):
         self.dump ('''#! /bin/sh
 /usr/bin/libusb-config\
-  --prefix=%(system_root)s/usr\
+  --prefix=%(system_prefix)s\
   "$@"
 ''',
                    '%(srcdir)s/libusb-config')
@@ -48,5 +48,5 @@ class Libgphoto2 (targetpackage.TargetBuildSpec):
         # # FIXME: libtool too old for cross compile
         self.update_libtool ()
     def makeflags (self):
-        return """ libgphoto2_port_la_DEPENDENCIES='$(top_srcdir)/gphoto2/gphoto2-port-version.h $(top_srcdir)/gphoto2/gphoto2-port-library.h $(srcdir)/libgphoto2_port.sym' libgphoto2_la_DEPENDENCIES='$(top_srcdir)/gphoto2/gphoto2-version.h $(srcdir)/libgphoto2.sym' LDFLAGS='-Wl,--rpath-link,%(system_root)s/usr/lib'"""
+        return """ libgphoto2_port_la_DEPENDENCIES='$(top_srcdir)/gphoto2/gphoto2-port-version.h $(top_srcdir)/gphoto2/gphoto2-port-library.h $(srcdir)/libgphoto2_port.sym' libgphoto2_la_DEPENDENCIES='$(top_srcdir)/gphoto2/gphoto2-version.h $(srcdir)/libgphoto2.sym' LDFLAGS='-Wl,--rpath-link,%(system_prefix)s/lib'"""
 

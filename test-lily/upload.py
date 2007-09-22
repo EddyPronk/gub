@@ -88,7 +88,7 @@ def upload_binaries (repo, version, version_db):
 
     src_dests = []
     cmds = ['chgrp -R lilypond uploads/lilypond*',
-            "chmod -R g+rw uploads/lilypond*",
+            'chmod -R g+rw uploads/lilypond*',
             'chmod 4775 `find uploads/cygwin/release -type d`']
 
 
@@ -96,12 +96,13 @@ def upload_binaries (repo, version, version_db):
     d.update (locals ())
 
     d['cwd'] = os.getcwd ()
-    d['lilybuild'] = d['cwd'] + '/target/%(build_platform)s/gubfiles/build/lilypond-%(branch)s' % d
-    d['lilysrc'] = d['cwd'] + '/target/%(build_platform)s/gubfiles/src/lilypond-%(branch)s' % d 
+    # FIXME: what if user changes ~/.gubrc?  should use gubb.Settings!
+    d['lilybuild'] = d['cwd'] + '/target/%(build_platform)s/build/lilypond-%(branch)s' % d
+    d['lilysrc'] = d['cwd'] + '/target/%(build_platform)s/src/lilypond-%(branch)s' % d 
 
     ## ugh: 24 is hardcoded in repository.py
     committish = repo.git_pipe ('describe --abbrev=24 %(branch)s' % locals ()).strip ()
-    regularized_committish = committish.replace ("/", '-')
+    regularized_committish = committish.replace ('/', '-')
     
     commitishes = {}
     barf = False
@@ -126,7 +127,8 @@ def upload_binaries (repo, version, version_db):
         if (platform not in ('documentation', 'test-output')
              and os.path.exists (bin)):
             branch = repo.branch
-            hdr = pickle.load (open ('packages/%(platform)s/lilypond-%(branch)s.%(platform)s.hdr' % locals ()))
+            # FIXME: what if user changes ~/.gubrc?  should use gubb.Settings!
+            hdr = pickle.load (open ('target/%(platform)s/packages/lilypond-%(branch)s.%(platform)s.hdr' % locals ()))
             key = hdr['source_checksum']
             
             lst = commitishes.get (key, [])
@@ -141,17 +143,18 @@ def upload_binaries (repo, version, version_db):
                          % os.path.abspath (bin))
             barf = 1
 
-    if len (commitishes) > 1 or (len (commitishes) == 1
-                                 and commitishes.keys()[0] != regularized_committish):
+    if (len (commitishes) > 1
+        or (len (commitishes) == 1
+            and commitishes.keys ()[0] != regularized_committish)):
         print 'uploading multiple versions'
         print '\n'.join (`x` for x in commitishes.items ())
         print 'repo:', `regularized_committish`
         
-    src_tarball = "uploads/lilypond-%(version_str)s.tar.gz" % locals ()
+    src_tarball = 'uploads/lilypond-%(version_str)s.tar.gz' % locals ()
     src_tarball = os.path.abspath (src_tarball)
     
     if not os.path.exists (src_tarball):
-        print "source tarball doesn't exist", src_tarball
+        print 'source tarball does not exist', src_tarball
         barf = True
     else:
         host = host_source_spec 
@@ -176,14 +179,14 @@ def upload_binaries (repo, version, version_db):
 
 
     ## don't do cygwin .
-    ##    cmds.append ("rsync -v --recursive --delay-updates --progress uploads/cygwin/release/ %(host_binaries_spec)s/cygwin/release/" % globals ())
+    ##    cmds.append ('rsync -v --recursive --delay-updates --progress uploads/cygwin/release/ %(host_binaries_spec)s/cygwin/release/' % globals ())
 
 
 
     description = repo.git_pipe ('describe --abbrev=39 %(branch)s' % locals()).strip ()
     
     git_tag = 'release/%(version_str)s-%(build)d' % locals () 
-    git_tag_cmd = 'git --git-dir downloads/lilypond.git tag -m ""  -a %(git_tag)s %(branch)s' % locals ()
+    git_tag_cmd = 'git --git-dir downloads/lilypond.git tag -m "" -a %(git_tag)s %(branch)s' % locals ()
     git_push_cmd = 'git --git-dir downloads/lilypond.git push ssh+git://git.sv.gnu.org/srv/git/lilypond.git/ refs/tags/%(git_tag)s:refs/tags/%(git_tag)s' % locals ()
     gub_tag_cmd = 'git tag "gub-release-lilypond-%(version_str)s-%(build)d" -m "release of lilypond %(description)s (%(version_str)s-%(build)d)" ' % locals()
 
@@ -199,12 +202,12 @@ def upload_binaries (repo, version, version_db):
 def get_cli_parser ():
     p = optparse.OptionParser ()
 
-    p.usage = """lilypondorg.py [OPTION]... COMMAND [PACKAGE]...
+    p.usage = '''lilypondorg.py [OPTION]... COMMAND [PACKAGE]...
 
 Commands:
 
 upload x.y.z      - upload packages
-"""
+'''
     
     p.description = 'look around on lilypond.org'
 

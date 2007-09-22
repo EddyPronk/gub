@@ -66,15 +66,15 @@ class Gcc (cross.CrossToolSpec):
 
     def install (self):
         cross.CrossToolSpec.install (self)
-        old_libs = self.expand ('%(install_root)s/usr/cross/%(target_architecture)s')
+        old_libs = self.expand ('%(install_prefix)s/cross/%(target_architecture)s')
 
         self.move_target_libs (old_libs)
-        self.move_target_libs (self.expand ('%(install_root)s/usr/cross/lib'))
+        self.move_target_libs (self.expand ('%(install_prefix)s/cross/lib'))
         import os
-        if os.path.exists (self.expand ('cd %(install_root)s/usr/lib/libgcc_s.so.1')):
+        if os.path.exists (self.expand ('cd %(install_prefix)s/lib/libgcc_s.so.1')):
             # FIXME: .so senseless for darwin.
             self.system ('''
-cd %(install_root)s/usr/lib && ln -fs libgcc_s.so.1 libgcc_s.so
+cd %(install_prefix)s/lib && ln -fs libgcc_s.so.1 libgcc_s.so
 ''')
 
 class Gcc_from_source (Gcc):
@@ -87,7 +87,7 @@ class Gcc_from_source (Gcc):
     def configure_command (self):
         return (Gcc.configure_command (self)
                 + misc.join_lines ('''
---with-local-prefix=%(system_root)s/usr
+--with-local-prefix=%(system_prefix)s
 --disable-multilib
 --disable-nls
 --enable-threads=posix
@@ -100,7 +100,7 @@ class Gcc_from_source (Gcc):
     def install (self):
         Gcc.install (self)
         self.system ('''
-mv %(install_root)s/usr/cross/lib/gcc/%(target_architecture)s/%(version)s/libgcc_eh.a %(install_root)s/usr/lib
+mv %(install_prefix)s/cross/lib/gcc/%(target_architecture)s/%(version)s/libgcc_eh.a %(install_prefix)s/lib
 ''')
 
 Gcc__linux = Gcc_from_source
@@ -116,8 +116,8 @@ class Gcc__mingw (Gcc):
     def patch (self):
         for f in ['%(srcdir)s/gcc/config/i386/mingw32.h',
                   '%(srcdir)s/gcc/config/i386/t-mingw32']:
-            self.file_sub ([('/mingw/include','/usr/include'),
-                            ('/mingw/lib','/usr/lib'),
+            self.file_sub ([('/mingw/include','%(prefix_dir)s/include'),
+                            ('/mingw/lib','%(prefix_dir)s/lib'),
                             ], f)
 
 class Gcc__cygwin (Gcc__mingw):

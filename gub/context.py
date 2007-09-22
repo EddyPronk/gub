@@ -55,6 +55,14 @@ class ExpandInInit(Exception):
 class NonStringExpansion(Exception):
     pass
 
+#class Context (object):
+# FIXME: using new style classes breaks in several ways:
+#  File "gub/gup.py", line 377, in topologically_sorted_one
+#    assert type (d) == type (todo)
+#
+#   File "gub/context.py", line 21, in is_subst_method_in_class
+#    and klass.__dict__[method_name].__dict__.has_key ('substitute_me')):
+#AttributeError: 'wrapper_descriptor' object has no attribute '__dict__'
 class Context:
     def __init__ (self, parent = None):
         self._substitution_dict = None
@@ -63,11 +71,11 @@ class Context:
 
     def __setattr__(self, k, v):
         if (type(v) == type('')
-            and k <> '_substitution_dict' and self._substitution_dict):
+            and k != '_substitution_dict' and self._substitution_dict):
             print 'was already set in'
-            print ''.join(traceback.format_list (self._substitution_assignment_traceback))
+            print ''.join (traceback.format_list (self._substitution_assignment_traceback))
 
-            raise SetAttrTooLate((k, self))
+            raise SetAttrTooLate ((k, self))
 
         self.__dict__[k] = v
         
@@ -78,7 +86,7 @@ class Context:
             d = d.copy ()
             
         ms = inspect.getmembers (self)
-        vars = dict((k, v) for (k, v) in ms if type (v) == type (''))
+        vars = dict ((k, v) for (k, v) in ms if type (v) == type (''))
 
         member_substs = {}
         for (name, method) in ms:
@@ -124,7 +132,7 @@ class Context:
                 # if this happens derived classes cannot override settings
                 # from the baseclass.
                 print ' Cannot Context.expand() in __init__()'
-                raise ExpandInInit()
+                raise ExpandInInit ()
             
         d = self._substitution_dict
         if env:

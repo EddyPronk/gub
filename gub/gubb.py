@@ -25,8 +25,8 @@ class PackageSpec:
             sub_name = '-' + sub_name
         s = ('%(name)s' % dict) + sub_name
         self._dict['split_name'] = s
-        self._dict['split_ball'] = ('%(gub_uploads)s/%(split_name)s%(ball_suffix)s.%(platform)s.gup') % self._dict
-        self._dict['split_hdr'] = ('%(gub_uploads)s/%(split_name)s%(vc_branch_suffix)s.%(platform)s.hdr') % self._dict
+        self._dict['split_ball'] = ('%(packages)s/%(split_name)s%(ball_suffix)s.%(platform)s.gup') % self._dict
+        self._dict['split_hdr'] = ('%(packages)s/%(split_name)s%(vc_branch_suffix)s.%(platform)s.hdr') % self._dict
         self._dict['conflicts_string'] = ';'.join (self._conflicts)
         self._dict['dependencies_string'] = ';'.join (self._dependencies)
         self._dict['source_name'] = self.name ()
@@ -49,7 +49,6 @@ class PackageSpec:
         path = os.path.normpath (self.expand ('%(install_root)s'))
         suffix = self.expand ('%(packaging_suffix_dir)s')
         split_ball = self.expand ('%(split_ball)s')
-
         self._os_interface._execute (oslog.PackageGlobs (path,
                                                          suffix,
                                                          self._file_specs,
@@ -83,7 +82,7 @@ class BuildSpec (Os_context_wrapper):
 
     @subst_method
     def LD_PRELOAD (self):
-        return '%(topdir)s/librestrict/librestrict.so'
+        return '%(gubdir)s/librestrict/librestrict.so'
     
     def get_substitution_dict (self, env={}):
         dict = {
@@ -234,7 +233,7 @@ class BuildSpec (Os_context_wrapper):
 
     @subst_method
     def install_prefix (self):
-        return self.install_root () + '/usr'
+        return '%(install_root)s%(prefix_dir)s'
 
     @subst_method
     def install_command (self):
@@ -274,7 +273,7 @@ class BuildSpec (Os_context_wrapper):
 
     @subst_method
     def src_package_uploads (self):
-        return '%(gub_uploads)s'
+        return '%(packages)s'
 
     @subst_method
     def stamp_file (self):
@@ -344,7 +343,7 @@ tooldir=%(install_prefix)s
         
     def update_libtool (self):
         def update (file):
-            new = self.expand ('%(system_root)s/usr/bin/libtool')
+            new = self.expand ('%(system_prefix)s/bin/libtool')
             if not os.path.exists (new):
                 self.error ('Cannot update libtool: no such file: %(new)s' % locals ())
                 raise Exception ('barf')
@@ -357,7 +356,7 @@ tooldir=%(install_prefix)s
         self.system ('''
 rm -rf %(install_root)s
 cd %(builddir)s && %(install_command)s
-rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_root)s/%(packaging_suffix_dir)s/usr/cross/info/dir %(install_root)s/%(packaging_suffix_dir)s/usr/info/dir
+rm -f %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/share/info/dir %(install_root)s%(packaging_suffix_dir)s/%(prefix_dir)s/cross/info/dir %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/info/dir
 ''')
         self.install_license ()
         self.libtool_installed_la_fixups ()
@@ -416,28 +415,29 @@ rm -f %(install_root)s/%(packaging_suffix_dir)s/usr/share/info/dir %(install_roo
         return []
 
     def get_subpackage_definitions (self):
+	prefix_dir = self.settings.prefix_dir
         d = {
             'devel': [
-            '/usr/bin/*-config',
-            '/usr/include',
-            '/usr/cross/bin',
-            '/usr/cross/include',
-            '/usr/cross/lib',
-            '/usr/cross/libexec',
-            '/usr/cross/' + self.settings.target_architecture,
-            '/usr/share/aclocal',
-            '/usr/lib/lib*.a',
-            '/usr/lib/pkgconfig',
+            prefix_dir + '/bin/*-config',
+            prefix_dir + '/include',
+            prefix_dir + '/cross/bin',
+            prefix_dir + '/cross/include',
+            prefix_dir + '/cross/lib',
+            prefix_dir + '/cross/libexec',
+            prefix_dir + '/cross/' + self.settings.target_architecture,
+            prefix_dir + '/share/aclocal',
+            prefix_dir + '/lib/lib*.a',
+            prefix_dir + '/lib/pkgconfig',
             ],
             'doc': [
-            '/usr/share/doc',
-            '/usr/share/gtk-doc',
-            '/usr/share/info',
-            '/usr/share/man',
-            '/usr/cross/info',
-            '/usr/cross/man',
+            prefix_dir + '/share/doc',
+            prefix_dir + '/share/gtk-doc',
+            prefix_dir + '/share/info',
+            prefix_dir + '/share/man',
+            prefix_dir + '/cross/info',
+            prefix_dir + '/cross/man',
             ],
-            'runtime': ['/lib', '/usr/lib', '/usr/share'],
+            'runtime': ['/lib', prefix_dir + '/lib', prefix_dir + '/share'],
             '' : ['/'],
             }
         return d
@@ -530,7 +530,7 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"  -zcf %(src_package_ball)
 
     def post_install_smurf_exe (self):
         for i in (self.locate_files ('%(install_root)s/bin', '*')
-                  + self.locate_files ('%(install_root)s/usr/bin', '*')):
+                  + self.locate_files ('%(install_prefix)s/bin', '*')):
             if (not os.path.islink (i)
                 and not os.path.splitext (i)[1]
                 and self.read_pipe ('file -b %(i)s', locals ()).startswith ('MS-DOS executable PE')):
@@ -538,7 +538,7 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"  -zcf %(src_package_ball)
 
     def install_readmes (self):
         self.system ('''
-mkdir -p %(install_root)s/usr/share/doc/%(name)s
+mkdir -p %(install_prefix)s/share/doc/%(name)s
 ''')
         for i in glob.glob ('%(srcdir)s/[A-Z]*'
                             % self.get_substitution_dict ()):
@@ -546,7 +546,7 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
             if (os.path.isfile (i)
                 and not os.path.basename (i).startswith ('Makefile')
                 and not os.path.basename (i).startswith ('GNUmakefile')):
-                shutil.copy2 (i, '%(install_root)s/usr/share/doc/%(name)s'
+                shutil.copy2 (i, '%(install_prefix)s/share/doc/%(name)s'
                               % self.get_substitution_dict ())
 
     def build_version (self):
@@ -556,7 +556,7 @@ mkdir -p %(install_root)s/usr/share/doc/%(name)s
 
     def build_number (self):
         # FIXME: actually need the packages' build number here...
-        build_number_file = '%(topdir)s/buildnumber-%(lilypond_branch)s.make'
+        build_number_file = '%(gubdir)s/buildnumber-%(lilypond_branch)s.make'
         d = misc.grok_sh_variables (self.expand (build_number_file))
         b = '%(INSTALLER_BUILD)s' % d
         return b
@@ -782,7 +782,8 @@ def get_build_spec (flavour, settings, url):
             name, version_tuple, format = misc.split_ball (ball)
         elif name.find ('/') >= 0:
             name = os.path.basename (name)
-        print 'NO SPEC for', name
+        settings.os_interface.error ('NO SPEC for package: %(name)s\n'
+                                     % locals ())
         from new import classobj
         # Direct url build feature
         #   * gub http://ftp.gnu.org/pub/gnu/tar/tar-1.18.tar.gz
@@ -791,6 +792,12 @@ def get_build_spec (flavour, settings, url):
         #   * gub bzr:http://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr
         # must remove specs/git.py for now to get this to work.
         # git.py overrides repository and branch settings
+
+        ### building for local without spec hack
+        if settings.platform == 'local':
+            from gub import toolpackage
+            flavour = toolpackage.ToolBuildSpec
+
         klass = classobj (name, (flavour,), {})
         klass.__module__ = name
         try:

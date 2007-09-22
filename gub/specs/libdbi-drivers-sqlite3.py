@@ -20,10 +20,10 @@ class Libdbi_drivers_sqlite3 (targetpackage.TargetBuildSpec):
         return (targetpackage.TargetBuildSpec.configure_command (self)
                 + misc.join_lines ('''
 --disable-docs
---with-dbi-incdir=%(system_root)s/usr/include
+--with-dbi-incdir=%(system_prefix)s/include
 --with-sqlite3
---with-sqlite3-libdir=%(system_root)s/usr/include
---with-sqlite3-incdir=%(system_root)s/usr/include
+--with-sqlite3-libdir=%(system_prefix)s/include
+--with-sqlite3-incdir=%(system_prefix)s/include
 '''))
 
     def configure (self):

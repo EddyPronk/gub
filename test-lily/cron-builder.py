@@ -95,7 +95,7 @@ def parse_options ():
     
     global dry_run
     dry_run = options.dry_run
-    options.make_options += " BRANCH=%s" % options.branch
+    options.make_options += ' LILYPOND_BRANCH=%s' % options.branch
 
     if '--repository' not in options.test_options:
         options.test_options += ' --repository=downloads/lilypond.git '
@@ -108,21 +108,23 @@ def parse_options ():
 
 def main ():
     (options, args) = parse_options ()
-    os.environ['PATH']= os.getcwd () + '/target/local/system/usr/bin:' + os.environ['PATH']
-    print os.environ['PATH']
+# FIXME: local/system; wow that's from two layout changes ago!
+#    os.environ['PATH']= os.getcwd () + '/target/local/system/usr/bin:' + os.environ['PATH']
+#    print os.environ['PATH']
     global log_file
     
     os.system ('mkdir -p log')
     if options.dry_run:
-        options.verbose = oslog.Os_commands['command']
+        options.verbose = oslog.level['command']
     log_file = oslog.Os_commands ('log/cron-builder.log', options.verbose,
                                   dry_run)
     log_file.info (' *** Starting cron-builder:\n  %s ' % '\n  '.join (args)) 
 
     if options.clean:
-        log_file.system ('rm -rf log/ target/ packages/ uploads/ buildnumber-* downloads/lilypond-*')
+        # FIXME: what if user changes ~/.gubrc?  should use gubb.Settings!
+        log_file.system ('rm -rf log/ target/ uploads/ buildnumber-* downloads/lilypond-*')
 
-    make_cmd = 'make %s ' % options.make_options
+    make_cmd = 'make -f lilypond.make %s ' % options.make_options
     python_cmd = sys.executable  + ' '
 
     # FIXME: use gub-tester's download facility
@@ -134,15 +136,18 @@ def main ():
         log_file.system ('rm -f target/%s/status/lilypond-%s*' % (a, options.branch))
 
     test_cmds = []
+    if 1:
+        test_cmds.append (make_cmd + 'bootstrap')
     if options.build_package:
-        test_cmds += [python_cmd + 'bin/gub --branch=lilypond=%s:%s -lp %s lilypond '
+        test_cmds += [python_cmd + 'bin/gub --branch=lilypond=%s:%s --skip-if-locked --platform=%s lilypond '
                       % (options.branch, options.local_branch, p) for p in args]
         
     if options.build_installer:
         version_options = '' 
             
-        test_cmds += [python_cmd + 'bin/installer-builder --skip-if-locked %s --branch %s -p %s build-all lilypond '
-                      % (version_options, options.local_branch, p) for p in args]
+        # installer-builder does not need remote-branch
+        test_cmds += [python_cmd + 'bin/installer-builder --skip-if-locked %s --branch=lilypond=%s:%s --platform=%s build-all lilypond '
+                      % (version_options, options.branch, options.local_branch, p) for p in args]
 
     if options.build_docs:
         test_cmds += [make_cmd + 'doc-build',
@@ -151,7 +156,7 @@ def main ():
 
 
     if options.build_tarball:
-        test_cmds += [make_cmd + " dist-check"]
+        test_cmds += [make_cmd + 'dist-check']
 
     log_file.system (python_cmd + 'bin/gub-tester %s %s '
             % (options.test_options, ' '.join (["'%s'" % c for c in test_cmds])))

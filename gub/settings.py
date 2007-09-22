@@ -20,8 +20,12 @@ platforms = {
     'freebsd-x86': 'i686-freebsd4',
     'freebsd-64': 'x86_64-freebsd6',
 
+    'linux-arm': 'arm-linux',
     'linux-arm-softfloat': 'armv5te-softfloat-linux',
     'linux-arm-vfp': 'arm-linux',
+
+    'linux-mipsel': 'mipsel-linux',
+
     'linux-x86': 'i686-linux',
     'linux-64': 'x86_64-linux',
     'linux-ppc': 'powerpc-linux',
@@ -30,22 +34,118 @@ platforms = {
 }
 
 distros = ('cygwin')
-            
+
+class UnknownPlatform (Exception):
+    pass
+
+def get_platform_from_dir (settings, dir):
+    m = re.match ('.*?([^/]+)(' + settings.root_dir + ')?/*$', dir)
+    if m:
+        return m.group (1)
+    return None
+
 class Settings (context.Context):
     def __init__ (self, options):
         context.Context.__init__ (self)
-        self.platform = options.platform
 
+        # TODO: local-prefix, target-prefix, cross-prefix?
+        self.prefix_dir = '/usr'
+        self.root_dir = '/root'
+        self.cross_dir = '/cross'
+
+        if not options.platform:
+            if options.__dict__.has_key ('root') and options.root:
+                options.platform = get_platform_from_dir (self, options.root)
+                if not options.platform:
+                    self.error ('invalid root: %(root)s, no platform found'
+                                % options)
+                    raise UnknownPlatform (options.root)
+            else:
+                guess = get_platform_from_dir (self, os.getcwd ())
+                if guess in platforms.keys ():
+                    options.platforms = guess
+            
+        if not options.platform:
+            options.platform = 'local'
+
+        self.platform = options.platform
         if self.platform not in platforms.keys ():
-            raise 'unknown platform', self.platform
+            raise UnknownPlatform (self.platform)
+
+        GUB_LOCAL_PREFIX = os.environ.get ('GUB_LOCAL_PREFIX')
         
+        # config dirs
+
+        if self.platform == 'local' and GUB_LOCAL_PREFIX:
+            self.prefix_dir = ''
+
+        # gubdir is top of `installed' gub repository
+        ## self.gubdir = os.getcwd ()
+        self.gubdir = os.path.dirname (os.path.dirname (__file__))
+        if not self.gubdir:
+            self.gubdir = os.getcwd ()
+
+        # workdir is top of writable build stuff
+        ##self.workdir = os.getcwd ()
+        self.workdir = self.gubdir
+        
+        # gubdir based: fixed repository layout
+        self.patchdir = self.gubdir + '/patches'
+        self.sourcefiledir = self.gubdir + '/sourcefiles'
+        self.specdir = self.gubdir + '/gub/specs'
+        self.nsisdir = self.gubdir + '/nsis'
+
+        # workdir based; may be changed
+        self.logdir = self.workdir + '/log'
+        self.downloads = self.workdir + '/downloads'
+        self.alltargetdir = self.workdir + '/target'
+        self.targetdir = self.alltargetdir + '/' + self.platform
+
+        self.system_root = self.targetdir + self.root_dir
+        if self.platform == 'local' and GUB_LOCAL_PREFIX:
+            self.system_root = GUB_LOCAL_PREFIX
+        self.system_prefix = self.system_root + self.prefix_dir
+
+        ## Patches are architecture dependent, 
+        ## so to ensure reproducibility, we unpack for each
+        ## architecture separately.
+        self.allsrcdir = self.targetdir + '/src'
+        self.allbuilddir = self.targetdir + '/build'
+        self.statusdir = self.targetdir + '/status'
+        self.packages = self.targetdir + '/packages'
+
+        self.uploads = self.workdir + '/uploads'
+        self.platform_uploads = self.uploads + '/' + self.platform
+
+        # FIXME: rename to cross_root?
+        ##self.cross_prefix = self.system_prefix + self.cross_dir
+        self.cross_prefix = self.targetdir + self.root_dir + self.prefix_dir + self.cross_dir
+        self.installdir = self.targetdir + '/install'
+        self.local_root = self.alltargetdir + '/local' + self.root_dir
+        self.local_prefix = self.local_root + self.prefix_dir
+        if GUB_LOCAL_PREFIX:
+            self.local_root = GUB_LOCAL_PREFIX
+            self.local_prefix = GUB_LOCAL_PREFIX
+        self.cross_distcc_bindir = self.alltargetdir + '/cross-distcc/bin'
+        self.native_distcc_bindir = self.alltargetdir + '/native-distcc/bin'
+
+        self.cross_packages = self.packages + self.cross_dir
+        self.cross_allsrcdir = self.allsrcdir + self.cross_dir
+        self.cross_statusdir = self.statusdir + self.cross_dir
+
+        self.core_prefix = self.cross_prefix + '/core'
+        # end config dirs
+
+
+
         self.target_gcc_flags = '' 
         if self.platform == 'darwin-ppc':
             self.target_gcc_flags = '-D__ppc__'
         elif self.platform == 'mingw':
             self.target_gcc_flags = '-mwindows -mms-bitfields'
 
-        self.set_branches (options.branches)
+        if options.branches:
+            self.set_branches (options.branches)
         self.options = options ##ugh
         self.verbose = self.options.verbose
         self.os = re.sub ('[-0-9].*', '', self.platform)
@@ -56,49 +156,10 @@ class Settings (context.Context):
         self.is_distro = (self.platform in distros
                           or self.platform.startswith ('debian'))
 
-        self.topdir = os.getcwd ()
-        self.logdir = self.topdir + '/log'
-        self.downloads = self.topdir + '/downloads'
-        self.patchdir = self.topdir + '/patches'
-        self.sourcefiledir = self.topdir + '/sourcefiles'
-        # FIXME: absolute path
-        self.specdir = self.topdir + '/gub/specs'
-        self.nsisdir = self.topdir + '/nsis'
+
         self.gtk_version = '2.8'
-
         self.tool_prefix = self.target_architecture + '-'
-        self.system_root = self.topdir + '/target/' + self.platform
-        self.targetdir = self.system_root + '/gubfiles'
-
-        ## Patches are architecture dependent, 
-        ## so to ensure reproducibility, we unpack for each
-        ## architecture separately.
-        self.allsrcdir = os.path.join (self.targetdir, 'src')
-        
-        self.allbuilddir = self.targetdir + '/build'
-        self.statusdir = self.targetdir + '/status'
-
-        ## Safe uploads, so that we can rm -rf target/*
-        ## and still cheaply construct a (partly) system root
-        ## from .gub packages.
-        self.uploads = self.topdir + '/uploads'
-        self.gub_uploads = self.topdir + '/packages/' + self.platform
-        self.platform_uploads = self.topdir + '/uploads/' + self.platform
-
-        # Hmm, change `cross/' to `cross.' or `cross-' in name?
-        self.cross_gub_uploads = self.gub_uploads + '/cross'
-        self.cross_allsrcdir = self.allsrcdir + '/cross'
-        self.cross_statusdir = self.statusdir + '/cross'
-
         self.distcc_hosts = ''
-        
-        self.core_prefix = self.system_root + '/usr/cross/core'
-        # FIXME: rename to target_root?
-        self.cross_prefix = self.system_root + '/usr/cross'
-        self.installdir = self.targetdir + '/install'
-        self.local_prefix = self.topdir + '/target/local/usr'
-        self.cross_distcc_bindir = self.topdir + '/target/cross-distcc/bin'
-        self.native_distcc_bindir = self.topdir + '/target/native-distcc/bin'
         
 	if self.target_architecture.startswith ('x86_64'):
 	    self.package_arch = 'amd64'
@@ -112,7 +173,6 @@ class Settings (context.Context):
         
         self.keep_build = False
         self.use_tools = False
-        self.build_autopackage = self.allbuilddir + '/autopackage'
 
         self.fakeroot_cache = '' # %(builddir)s/fakeroot.save'
         self.fakeroot = 'fakeroot -i%(fakeroot_cache)s -s%(fakeroot_cache)s '
@@ -134,24 +194,25 @@ class Settings (context.Context):
             self.cpu_count_str = '1'
 
         ## make sure we don't confuse build or target system.
-        self.LD_LIBRARY_PATH = '%(system_root)s/'
+        self.LD_LIBRARY_PATH = '%(system_root)s'
         
     def create_dirs (self): 
         for a in (
-            'downloads',
-            'logdir',
-            'gub_uploads',
-            'specdir',
             'allsrcdir',
-            'statusdir',
-            'system_root',
             'core_prefix',
             'cross_prefix',
-            'targetdir',
+            'downloads',
+            'gubdir',
             'local_prefix',
-            'topdir',
+            'logdir',
+            'packages',
+            'specdir',
+            'statusdir',
+            'system_root',
+            'targetdir',
+            'uploads',
 
-            'cross_gub_uploads',
+            'cross_packages',
             'cross_statusdir',
             'cross_allsrcdir',
             ):
@@ -160,7 +221,6 @@ class Settings (context.Context):
                 continue
 
             self.os_interface.system ('mkdir -p %s' % dir, defer=False)
-
 
     def set_distcc_hosts (self, options):
         def hosts (xs):
@@ -172,14 +232,59 @@ class Settings (context.Context):
         self.native_distcc_hosts = ' '.join (distcc.live_hosts (hosts (options.native_distcc_hosts), port=3634))
 
 
-
     def set_branches (self, bs):
         "set branches, takes a list of name=branch strings."
 
-        self.branch_dict = {}
+        self.branch_dict = dict ()
         for b in bs:
             (name, br) = tuple (b.split ('='))
-
             self.branch_dict[name] = br
-            self.__dict__['%s_branch' % name]= br
+            self.__dict__['%s_branch' % name] = br
 
+def get_cli_parser ():
+    import optparse
+    p = optparse.OptionParser ()
+
+    p.usage = '''settings.py [OPTION]...
+
+Print settings and directory layout.
+
+'''
+    p.description = 'Grand Unified Builder.  Settings and directory layout.'
+
+    # c&p #10?
+    #import gub_options
+    #gub_options.add_common_options (platform,branch,verbose)?
+    p.add_option ('-p', '--platform', action='store',
+                  dest='platform',
+                  type='choice',
+                  default=None,
+                  help='select target platform',
+                  choices=platforms.keys ())
+    p.add_option ('-B', '--branch', action='append',
+                  dest='branches',
+                  default=[],
+                  metavar='NAME=BRANCH',
+                  help='select branch')
+    p.add_option ('-v', '--verbose', action='count', dest='verbose', default=0)
+    return p
+
+def as_variables (settings):
+    lst = []
+    for k in settings.__dict__.keys ():
+        v = settings.__dict__[k]
+        if type (v) == type (str ()):
+            lst.append ('%(k)s=%(v)s' % locals ())
+    return lst
+
+def main ():
+    cli_parser = get_cli_parser ()
+    (options, files) = cli_parser.parse_args ()
+    if not options.platform or files:
+        raise 'barf'
+        sys.exit (2)
+    settings = Settings (options)
+    print '\n'.join (as_variables (settings))
+
+if __name__ == '__main__':
+    main ()

@@ -31,13 +31,13 @@ class Qtopia_core (targetpackage.TargetBuildSpec):
 #unset CC CXX; bash -x %(srcdir)s/configure
         return misc.join_lines ('''
 unset CC CXX; bash %(srcdir)s/configure
--prefix /usr
--bindir /usr/bin
--libdir /usr/lib
+-prefix %(prefix_dir)s
+-bindir %(prefix_dir)s/bin
+-libdir %(prefix_dir)s/lib
 -embedded %(cpu)s
 -fast
--headerdir /usr/include
--datadir /usr/share
+-headerdir %(prefix_dir)s/include
+-datadir %(prefix_dir)s/share
 -sysconfdir /etc
 -xplatform qws/%(qmake_target_architecture)s
 -depths 8,16,32
@@ -56,17 +56,17 @@ unset CC CXX; bash %(srcdir)s/configure
 
 -confirm-license
 
--docdir /usr/share/doc/qtopia
--plugindir /usr/share/qtopia/plugins
--translationdir /usr/share/qtopia/translations
--examplesdir /usr/share/doc/qtopia/examples
--demosdir /usr/share/doc/qtopia/demos
+-docdir %(prefix_dir)s/share/doc/qtopia
+-plugindir %(prefix_dir)s/share/qtopia/plugins
+-translationdir %(prefix_dir)s/share/qtopia/translations
+-examplesdir %(prefix_dir)s/share/doc/qtopia/examples
+-demosdir %(prefix_dir)s/share/doc/qtopia/demos
 -verbose
 ''')
     def configure (self):
         targetpackage.TargetBuildSpec.configure (self)
         for i in misc.find_files (self.expand ('%(install_root)s'), 'Makefile'):
-            self.file_sub ([('-I/usr', '-I%(system_root)/usr')], i)
+            self.file_sub ([('-I/usr', '-I%(system_prefix)s')], i)
     def install_command (self):
         return (targetpackage.TargetBuildSpec.install_command (self)
                 + ' INSTALL_ROOT=%(install_root)s')
@@ -74,14 +74,14 @@ unset CC CXX; bash %(srcdir)s/configure
         return '%(srcdir)s/LICENSE.GPL'
     def install (self):
         targetpackage.TargetBuildSpec.install (self)
-        self.system ('mkdir -p %(install_root)s/usr/lib/pkgconfig')
+        self.system ('mkdir -p %(install_prefix)s/lib/pkgconfig')
         for i in ('QtCore.pc', 'QtGui.pc', 'QtNetwork.pc'):
             self.system ('''
-mv %(install_root)s/usr/lib/%(i)s %(install_root)s/usr/lib/pkgconfig/%(i)s
+mv %(install_prefix)s/lib/%(i)s %(install_prefix)s/lib/pkgconfig/%(i)s
 ''',
                          locals ())
             self.file_sub ([('includedir', 'deepqtincludedir')],
-                           '%(install_root)s/usr/lib/pkgconfig/%(i)s',
+                           '%(install_prefix)s/lib/pkgconfig/%(i)s',
                            env=locals ())
 
 class Qtopia_core__linux__arm__softfloat (Qtopia_core):

@@ -29,13 +29,13 @@ class Sysvinit (targetpackage.TargetBuildSpec):
         return misc.join_lines ('''
 mkdir -p %(install_root)s/bin &&
 mkdir -p %(install_root)s/sbin &&
-mkdir -p %(install_root)s/usr/bin &&
-mkdir -p %(install_root)s/usr/include &&
-mkdir -p %(install_root)s/usr/share/man/man1 &&
-mkdir -p %(install_root)s/usr/share/man/man5 &&
-mkdir -p %(install_root)s/usr/share/man/man8 &&
+mkdir -p %(install_prefix)s/bin &&
+mkdir -p %(install_prefix)s/include &&
+mkdir -p %(install_prefix)s/share/man/man1 &&
+mkdir -p %(install_prefix)s/share/man/man5 &&
+mkdir -p %(install_prefix)s/share/man/man8 &&
 cd %(builddir)s/src && fakeroot make install %(makeflags)s &&
-find %(install_root)s/bin %(install_root)s/sbin %(install_root)s/usr/bin -type f -o -type l | grep -Ev 'sbin/(tel|)init$' | xargs -I'{}' mv '{}' '{}'.sysvinit
+find %(install_root)s/bin %(install_root)s/sbin %(install_prefix)s/bin -type f -o -type l | grep -Ev 'sbin/(tel|)init$' | xargs -I'{}' mv '{}' '{}'.sysvinit
 ''')
     def license_file (self):
         return '%(srcdir)s/doc/Install'

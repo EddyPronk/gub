@@ -24,7 +24,6 @@ endif
 
 DISTCC_DIRS=target/cross-distcc/bin target/cross-distccd/bin target/native-distcc/bin 
 
-default: cross-compilers
 compilers: cross-compilers
 
 ifeq ($(BUILD_PLATFORM),)
@@ -53,7 +52,7 @@ local-distcc:
 gcc_or_glibc = $(shell if echo $(1) | grep linux > /dev/null 2>/dev/null; then echo glibc; else echo cross/gcc; fi)
 
 cross-compilers:
-	$(foreach p, $(PLATFORMS),$(call INVOKE_GUB, $(p)) $(call gcc_or_glibc, $(p)) && ) true
+	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB,$(p)) $(call gcc_or_glibc,$(p)) && ) true
 
 cross-distccd:
 	-$(if $(wildcard log/$@.pid),kill `cat log/$@.pid`, true)
@@ -76,15 +75,16 @@ native-distccd:
 		--port 3634 --pid-file $(CWD)/log/$@.pid \
 		--log-file $(CWD)/log/$@.log  --log-level info
 
-bootstrap: bootstrap-git download-local local cross-compilers local-cross-tools download 
+bootstrap: bootstrap-git download-local local cross-compilers local-cross-tools download
+
+download:
 
 bootstrap-git:
-	$(GUB) $(LOCAL_GUB_OPTIONS) -p local git
+	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=local git
 
 local-cross-tools:
 ifeq ($(findstring mingw, $(PLATFORMS)),mingw)
-ifneq ($(BUILD_PLATFORM),linux-64)
-	$(GUB) $(LOCAL_GUB_OPTIONS) -p local nsis 
+ifneq ($(XBUILD_PLATFORM),linux-64)
+	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=local nsis 
 endif
 endif
-

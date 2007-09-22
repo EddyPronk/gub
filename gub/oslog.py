@@ -16,7 +16,7 @@ level = {'quiet': 0,
          'error': 0,
          'stage': 0,
          'info': 1,
-         'harmless': 23,
+         'harmless': 2,
          'warning': 1,
          'command': 2,
          'action': 2,
@@ -71,14 +71,11 @@ class System (SerializedCommand):
         while line:
             os_commands.log (line, level['output'], verbose)
             line = proc.stdout.readline ()
-
         if proc.returncode:
             m = 'Command barfed: %(cmd)s\n' % locals ()
-            os_commands.error (m)
             if not ignore_errors:
-                print self.kwargs
+                os_commands.error (m)
                 raise misc.SystemFailed (m)
-
         return proc.returncode
 
 class Message (SerializedCommand):
@@ -287,8 +284,8 @@ class ForcedAutogenMagic (Conditional):
 
         else:
             aclocal_opt = ''
-            if os.path.exists (package.expand ('%(system_root)s/usr/share/aclocal')):
-                aclocal_opt = '-I %(system_root)s/usr/share/aclocal'
+            if os.path.exists (package.expand ('%(system_prefix)s/share/aclocal')):
+                aclocal_opt = '-I %(system_prefix)s/share/aclocal'
 
             headcmd = ''
             for c in ('configure.in','configure.ac'):
@@ -335,7 +332,8 @@ This enables proper logging and deferring and checksumming of commands.'''
         self._deferred_commands = list ()
         self.log_file_name = log_file_name
         self.log_file = open (self.log_file_name, 'a')
-        self.log_file.write ('\n\n * Starting build: %s\n' %  now ())
+        self.start_marker = ' * Starting build: %s\n' %  now ()
+        self.log_file.write ('\n\n' + self.start_marker)
         self.fakeroot_cmd = False
 
     def execute_deferred (self):
@@ -359,6 +357,10 @@ This enables proper logging and deferring and checksumming of commands.'''
     def command_checksum (self):
         return '0000'
 
+    def read_tail (self, size=10240, lines=100):
+        return misc.read_tail (self.log_file_name, size, lines,
+                               self.start_marker)
+        
     def fakeroot (self, s):
         self.fakeroot_cmd = s
         
@@ -372,10 +374,7 @@ This enables proper logging and deferring and checksumming of commands.'''
                           '\\1%(fakeroot_cmd)s' % self.__dict__, cmd)
             cmd = re.sub ('''(^ *|['"();|& ]*)(chown|rm|tar) ''',
                           '\\1%(fakeroot_cmd)s\\2 ' % self.__dict__, cmd)
-
-
         # ' 
-        
         return self._execute (System (cmd, ignore_errors=ignore_errors, verbose=verbose), defer=defer)
 
     def log (self, str, threshold, verbose=None, defer=None):

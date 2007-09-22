@@ -19,15 +19,20 @@ default: all
 
 PACKAGE = lilypond
 
-ALL_PLATFORMS=debian debian-arm freebsd-x86 linux-x86 linux-64 mingw debian-mipsel linux-ppc freebsd-64
-PLATFORMS=linux-x86 darwin-ppc linux-64 linux-ppc freebsd-x86 mingw darwin-x86 freebsd-64
-ifneq ($(BUILD_PLATFORM),linux-64)
-# odcctools do not build on linux-64
-ALL_PLATFORMS+=darwin-ppc darwin-x86
-# nsis does not build on linux-64, but we can build everything except for
-# the installer...
-#ALL_PLATFORMS+=mingw
-ALL_PLATFORMS+=darwin-ppc darwin-x86
+ALL_PLATFORMS=linux-x86 darwin-ppc darwin-x86 debian debian-arm freebsd-64 freebsd-x86 linux-64 mingw debian-mipsel linux-ppc
+PLATFORMS=linux-x86 linux-64 linux-ppc freebsd-x86 freebsd-64
+
+# XBUILD_PLATFORM: leave checks in place for now:
+# we need 32 bit compatibility libs and linux-x86 built for this to work
+
+ifneq ($(XBUILD_PLATFORM),linux-64)
+# odcctools do not build with 64 bit compiler
+PLATFORMS+=darwin-ppc darwin-x86
+endif
+
+ifneq ($(XBUILD_PLATFORM),linux-64)
+# nsis does not build with 64 bit compiler
+PLATFORMS+=mingw
 endif
 
 
@@ -54,15 +59,15 @@ GUILE_LOCAL_BRANCH=branch_release-1-8-lilypond.org-vc-guile.git
 GUILE_LOCAL_BRANCH=branch_release-1-8-repo.or.cz-guile.git
 
 GUB_OPTIONS =\
- --branch lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH)
+ --branch=lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH)
 
 GPKG_OPTIONS =\
- $(if $(GUILE_LOCAL_BRANCH), --branch guile=$(GUILE_LOCAL_BRANCH),) \
- --branch lilypond=$(LILYPOND_LOCAL_BRANCH)
+ $(if $(GUILE_LOCAL_BRANCH), --branch=guile=$(GUILE_LOCAL_BRANCH),)\
+ --branch=lilypond=$(LILYPOND_LOCAL_BRANCH)
 
 INSTALLER_BUILDER_OPTIONS =\
- $(if $(GUILE_LOCAL_BRANCH), --branch guile=$(GUILE_LOCAL_BRANCH),) \
- --branch lilypond=$(LILYPOND_LOCAL_BRANCH)
+ $(if $(GUILE_LOCAL_BRANCH), --branch=guile=$(GUILE_LOCAL_BRANCH),)\
+ --branch=lilypond=$(LILYPOND_LOCAL_BRANCH)
 
 include gub.make
 
@@ -79,12 +84,12 @@ include compilers.make
 ################
 
 unlocked-update-versions:
-	python gub/versiondb.py --dbfile $(LILYPOND_VERSIONS) --download  --platforms="$(PLATFORMS)"
-	python gub/versiondb.py --dbfile uploads/freetype2.versions --download  --platforms="cygwin"
-	python gub/versiondb.py --dbfile uploads/fontconfig.versions --download  --platforms="cygwin"
-	python gub/versiondb.py --dbfile uploads/guile.versions --download --platforms="cygwin"
-	python gub/versiondb.py --dbfile uploads/libtool.versions --download --platforms="cygwin"
-	python gub/versiondb.py --dbfile uploads/noweb.versions --download --platforms="cygwin"
+	python gub/versiondb.py --dbfile=$(LILYPOND_VERSIONS) --download  --platforms="$(PLATFORMS)"
+	python gub/versiondb.py --dbfile=uploads/freetype2.versions --download  --platforms="cygwin"
+	python gub/versiondb.py --dbfile=uploads/fontconfig.versions --download  --platforms="cygwin"
+	python gub/versiondb.py --dbfile=uploads/guile.versions --download --platforms="cygwin"
+	python gub/versiondb.py --dbfile=uploads/libtool.versions --download --platforms="cygwin"
+	python gub/versiondb.py --dbfile=uploads/noweb.versions --download --platforms="cygwin"
 
 update-versions:
 	$(PYTHON) gub/with-lock.py --skip $(LILYPOND_VERSIONS).lock $(MAKE) unlocked-update-versions
@@ -103,11 +108,11 @@ all: native dist-check doc-build test-output doc-export $(OTHER_PLATFORMS) print
 platforms: $(PLATFORMS)
 
 print-success:
-	python test-lily/upload.py --branch $(LILYPOND_LOCAL_BRANCH)
+	python test-lily/upload.py --branch=$(LILYPOND_LOCAL_BRANCH)
 	@echo ""
 	@echo "To upload, run "
 	@echo
-	@echo "        python test-lily/upload.py --branch $(LILYPOND_LOCAL_BRANCH) --execute"
+	@echo "        python test-lily/upload.py --branch=$(LILYPOND_LOCAL_BRANCH) --execute"
 	@echo
 
 native: local $(BUILD_PLATFORM)
@@ -165,7 +170,7 @@ cygwin-lilypond:
 	$(call INVOKE_GUB,cygwin) --build-source libtool guile fontconfig lilypond
 
 cygwin-lilypond-installer:
-	$(CYGWIN_PACKAGER) --branch lilypond=$(LILYPOND_LOCAL_BRANCH) lilypond
+	$(CYGWIN_PACKAGER) --branch=lilypond=$(LILYPOND_LOCAL_BRANCH) lilypond
 
 upload-setup-ini:
 	cd uploads/cygwin && ../../downloads/genini $$(find release -mindepth 1 -maxdepth 2 -type d) > setup.ini
@@ -239,7 +244,6 @@ locals =\
  imagemagick \
  texinfo
 
-
 ###
 # document why this is in the bootstrap
 
@@ -257,36 +261,49 @@ locals =\
 # -python: bootstrap for python x-compile
 # -icoutils: icon build for mingw
 download-local:
-	$(GUB) $(LOCAL_GUB_OPTIONS) \
-		-p local --stage=download \
-		$(locals) nsis
+ifneq ($(BUILD_PLATFORM),linux-64)
+	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=local --stage=download $(locals) nsis
+else
+# ugh, can only download nsis after cross-compilers...
+	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=local --stage=download $(locals)
+endif
 
 local:
 	cd librestrict && make -f GNUmakefile
-	$(GUB) $(LOCAL_GUB_OPTIONS) -p local \
-		$(locals)
-	$(MAKE) local-cross-tools
+	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=local $(locals)
+# local-cross-tools depend on cross-compilers, see compilers.make.
+# We need linux-x86 and mingw before nsis can be build
+#	$(MAKE) local-cross-tools
 
 ################################################################
 # docs
 
-NATIVE_ROOT=$(NATIVE_TARGET_DIR)/gubfiles/installer-lilypond-$(LILYPOND_LOCAL_BRANCH)
+NATIVE_ROOT=$(NATIVE_TARGET_DIR)/installer-lilypond-$(LILYPOND_LOCAL_BRANCH)
 DOC_LOCK=$(NATIVE_ROOT).lock
 TEST_LOCK=$(NATIVE_ROOT).lock
 
-NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/gubfiles/build/lilypond-$(LILYPOND_LOCAL_BRANCH)
-NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/gubfiles/src/lilypond-$(LILYPOND_LOCAL_BRANCH)
+NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH)
+NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/src/lilypond-$(LILYPOND_LOCAL_BRANCH)
 NATIVE_BUILD_COMMITTISH=$(shell cat downloads/lilypond.git/refs/heads/$(LILYPOND_LOCAL_BRANCH))
 
 DIST_VERSION=$(shell cat $(NATIVE_LILY_BUILD)/out/VERSION)
-DOC_BUILDNUMBER=$(shell $(PYTHON) gub/versiondb.py --build-for $(DIST_VERSION))
+DOC_BUILDNUMBER=$(shell $(PYTHON) gub/versiondb.py --build-for=$(DIST_VERSION))
 
+# lilypond-invoke-editor: We are trying to run guile from local using
+# guile from native, which fails: ERROR: In procedure dynamic-link:
+# ERROR: file: "libguile-srfi-srfi-1-v-4", message:
+# "libguile-srfi-srfi-1-v-4.so: cannot open shared object file: No
+# such file or directory"
+# Must use local's lib prior to native's for ld-library-path and use
+# system's LD_LIBRARY_PATH, because that's what local is being built with.
+# We cannot use a SH wrapper for guile, as that breaks using guile for
+# scripts.
 DOC_RELOCATION = \
     LILYPOND_EXTERNAL_BINARY="$(NATIVE_ROOT)/usr/bin/lilypond" \
-    PATH=$(CWD)/target/local/usr/bin:$(NATIVE_ROOT)/usr/bin:$$PATH \
+    PATH=$(CWD)/target/local/root/usr/bin:$(NATIVE_ROOT)/usr/bin:$$PATH \
     GS_LIB=$(wildcard $(NATIVE_ROOT)/usr/share/ghostscript/*/lib) \
     MALLOC_CHECK_=2 \
-    LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib
+    LD_LIBRARY_PATH=$(CWD)/target/local/root/usr/lib:$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH)
 
 SIGNATURE_FUNCTION=uploads/signatures/$(1).$(NATIVE_BUILD_COMMITTISH)
 
@@ -297,7 +314,7 @@ doc-clean:
 	$(PYTHON) gub/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-clean
 
 doc-build:
-	$(PYTHON) gub/with-lock.py --skip $(DOC_LOCK) $(MAKE) cached-doc-build
+	$(PYTHON) gub/with-lock.py --skip $(DOC_LOCK) $(MAKE) cached-doc-build cached-info-man-build
 
 test-output:
 	$(PYTHON) gub/with-lock.py --skip $(TEST_LOCK) $(MAKE) cached-test-output
@@ -306,13 +323,13 @@ test-clean:
 	$(PYTHON) gub/with-lock.py --skip $(TEST_LOCK) $(MAKE) unlocked-test-clean
 
 unlocked-doc-clean:
-	make -C $(NATIVE_TARGET_DIR)/gubfiles/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
+	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
 		DOCUMENTATION=yes web-clean
 	rm -f $(call SIGNATURE_FUNCTION,cached-doc-build)
 	rm -f $(call SIGNATURE_FUNCTION,cached-doc-export)
 
 unlocked-test-clean:
-	make -C $(NATIVE_TARGET_DIR)/gubfiles/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
+	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
 		DOCUMENTATION=yes test-clean
 	rm -f $(call SIGNATURE_FUNCTION,cached-test-output)
 
@@ -327,13 +344,22 @@ unlocked-test-output:
 	tar -C $(NATIVE_LILY_BUILD)/ \
 	    -cjf $(CWD)/uploads/lilypond-$(DIST_VERSION)-$(DOC_BUILDNUMBER).test-output.tar.bz2 input/regression/out-test/
 
-unlocked-doc-build:
-	$(GPKG) -p $(BUILD_PLATFORM) remove lilypond
+# How about just always building info-man?
+unlocked-doc-build: update-lily unlocked-updated-doc-build
+unlocked-info-man-build: update-lily unlocked-updated-info-man-build
+
+update-lily:
+	$(GPKG) $(LOCAL_GPKG_OPIONS) --platform=$(BUILD_PLATFORM) remove lilypond
 
 	## force update of srcdir.
-	$(GUB) --branch lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH) \
-		 -p $(BUILD_PLATFORM) --stage untar lilypond
+	$(GUB) $(LOCAL_GUB_OPTIONS) --branch=lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH) \
+		 --platform=$(BUILD_PLATFORM) --stage=untar lilypond
 
+	## after forced update, make sure that lilypond is up to date
+	$(GUB) $(LOCAL_GUB_OPTIONS) --branch=lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH) \
+		 --platform=$(BUILD_PLATFORM) --offline --stage=compile lilypond
+
+unlocked-updated-doc-build:
 	unset LILYPONDPREFIX LILYPOND_DATADIR \
 	    && $(DOC_RELOCATION) \
 		make -C $(NATIVE_LILY_BUILD) \
@@ -352,7 +378,7 @@ unlocked-doc-build:
 	tar --exclude '*.signature' -C $(NATIVE_LILY_BUILD)/out-www/online-root \
 	    -cjf $(CWD)/uploads/lilypond-$(DIST_VERSION)-$(DOC_BUILDNUMBER).webdoc.tar.bz2 .
 
-unlocked-info-man-build:
+unlocked-updated-info-man-build:
 	unset LILYPONDPREFIX LILYPOND_DATADIR \
 	    && ulimit -m 256000 \
 	    && $(DOC_RELOCATION) \
@@ -365,9 +391,7 @@ unlocked-info-man-build:
 ## overriding with DYLD_LIBRARY_PATH doesn't work,
 ## as the libs in system/ are stubs.
 ifneq ($(BUILD_PLATFORM),darwin-ppc)
-	## FIXME: #! guile script is barfing.
 	-mkdir $(NATIVE_LILY_BUILD)/out-info-man
-	touch $(NATIVE_LILY_BUILD)/scripts/out/lilypond-invoke-editor.1
 	$(if $(DOC_BUILDNUMBER),true,false)  ## check if we have a build number
 	$(DOC_RELOCATION) make DESTDIR=$(NATIVE_LILY_BUILD)/out-info-man \
 	    -C $(NATIVE_LILY_BUILD)/ DOCUMENTATION=yes CROSS=no \
@@ -379,21 +403,19 @@ endif
 unlocked-doc-export:
 	PYTHONPATH=$(NATIVE_LILY_BUILD)/python/out \
 	$(PYTHON) test-lily/rsync-lily-doc.py --recreate \
-		--version-file $(NATIVE_LILY_BUILD)/out/VERSION \
-		--output-distance \
-		$(NATIVE_LILY_SRC)/buildscripts/output-distance.py $(NATIVE_LILY_BUILD)/out-www/online-root
+		--version-file=$(NATIVE_LILY_BUILD)/out/VERSION \
+		--output-distance=$(NATIVE_LILY_SRC)/buildscripts/output-distance.py $(NATIVE_LILY_BUILD)/out-www/online-root
 	$(PYTHON) test-lily/rsync-lily-doc.py --recreate \
-		--version-file $(NATIVE_LILY_BUILD)/out/VERSION \
-		--unpack-dir uploads/localdoc/ \
-		--output-distance \
-		$(NATIVE_LILY_SRC)/buildscripts/output-distance.py $(NATIVE_LILY_BUILD)/out-www/offline-root
+		--version-file=$(NATIVE_LILY_BUILD)/out/VERSION \
+		--unpack-dir=uploads/localdoc/ \
+		--output-distance=$(NATIVE_LILY_SRC)/buildscripts/output-distance.py $(NATIVE_LILY_BUILD)/out-www/offline-root
 
 unlocked-test-export:
 	PYTHONPATH=$(NATIVE_LILY_BUILD)/python/out \
 	$(PYTHON) test-lily/rsync-test.py \
-		--version-file $(NATIVE_LILY_BUILD)/out/VERSION \
-		--output-distance $(NATIVE_LILY_SRC)/buildscripts/output-distance.py \
-		--test-dir uploads/webtest
+		--version-file=$(NATIVE_LILY_BUILD)/out/VERSION \
+		--output-distance=$(NATIVE_LILY_SRC)/buildscripts/output-distance.py \
+		--test-dir=uploads/webtest
 
 doc-export:
 	$(PYTHON) gub/with-lock.py --skip $(DOC_LOCK) $(MAKE) cached-doc-export
@@ -402,9 +424,11 @@ test-export:
 	$(PYTHON) gub/with-lock.py --skip $(DOC_LOCK) $(MAKE) cached-test-export
 
 unlocked-dist-check:
-	$(SET_LOCAL_PATH) \
-		$(PYTHON) test-lily/dist-check.py --branch $(LILYPOND_LOCAL_BRANCH) --repository $(LILYPOND_REPODIR) $(NATIVE_LILY_BUILD)
-	cp $(NATIVE_LILY_BUILD)/out/lilypond-$(DIST_VERSION).tar.gz uploads/
+	$(SET_LOCAL_PATH)\
+		$(PYTHON) test-lily/dist-check.py\
+		--branch=$(LILYPOND_LOCAL_BRANCH)\
+		--repository=$(LILYPOND_REPODIR) $(NATIVE_LILY_BUILD)
+	cp $(NATIVE_LILY_BUILD)/out/lilypond-$(DIST_VERSION).tar.gz uploads
 
 dist-check:
 	$(PYTHON) gub/with-lock.py --skip $(NATIVE_LILY_BUILD).lock \

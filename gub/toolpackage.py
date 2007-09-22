@@ -25,11 +25,11 @@ class ToolBuildSpec (gubb.BuildSpec):
             base = os.path.basename (file)
             self.system ('mv %(file)s %(dir)s/.%(base)s', locals ())
             self.dump ('''#!/bin/sh
-LD_LIBRARY_PATH=%(system_root)s/usr/lib
-%(system_root)s/usr/bin/.%(base)s "$@"
+LD_LIBRARY_PATH=%(system_prefix)s/lib
+%(system_prefix)s/bin/.%(file)s "$@"
 ''', file, env=locals ())
             os.chmod (file, 0755)
-        self.map_locate (wrap, '%(install_root)s/usr/bin', '*')
+        self.map_locate (wrap, '%(install_prefix)s/bin', '*')
         self.map_locate (wrap, '%(install_root)s/%(local_prefix)s/bin', '*')
 
     def compile_command (self):

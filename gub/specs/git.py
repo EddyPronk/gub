@@ -13,7 +13,7 @@ class Git__local (toolpackage.ToolBuildSpec):
                        '%(srcdir)s/GIT-VERSION-GEN')
         
     def configure (self):
-        self.dump ('prefix=%(system_root)s/usr', '%(builddir)s/config.mak')
+        self.dump ('prefix=%(system_prefix)s', '%(builddir)s/config.mak')
 
     def wrap_executables (self):
         # GIT executables use ancient unix style smart name-based
@@ -90,7 +90,7 @@ class Git__mingw (Git):
 
                 ## we'll consider it if they clean up their act
                 + ' SCRIPT_PERL= '
-                + ' instdir_SQ=%(install_root)s/usr/lib/ '
+                + ' instdir_SQ=%(install_prefix)s/lib/ '
                 + ' SHELL_PATH=/bin/sh'
                 + ' PERL_PATH=/bin/perl')
 
@@ -114,4 +114,4 @@ class Git__mingw (Git):
         bat = r'''@echo off
 "@INSTDIR@\usr\bin\wish84.exe" "@INSTDIR@\usr\bin\gitk" %1 %2 %3 %4 %5 %6 %7 %8 %9
 '''.replace ('%','%%').replace ('\n','\r\n')
-        self.dump (bat, '%(install_root)s/usr/bin/gitk.bat.in')
+        self.dump (bat, '%(install_prefix)s/bin/gitk.bat.in')

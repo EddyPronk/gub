@@ -11,8 +11,14 @@ class Guile (targetpackage.TargetBuildSpec):
         source = 'http://lilypond.org/vc/guile.git'
         source = 'git://repo.or.cz/guile.git'
 
+	#--branch=guile=branch_release-1-8-repo.or.cz-guile.git
+        # branch = 'branch_release-1-8-repo.or.cz-guile.git'
+        
+        branch = 'branch_release-1-8', 
+        if settings.__dict__.has_key ('guile_branch') and settings.guile_branch:
+            branch = settings.guile_branch
         repo = repository.Git (self.get_repodir (),
-                               branch='branch_release-1-8', 
+                               branch=branch,
                                source=source)
         repo.version = lambda: '1.8.2'
         self.with_vc (repo)
@@ -111,7 +117,7 @@ exec %(local_prefix)s/bin/guile "$@"
         majmin_version = '.'.join (self.expand ('%(version)s').split ('.')[0:2])
         
         self.dump ("prependdir GUILE_LOAD_PATH=$INSTALLER_PREFIX/share/guile/%(majmin_version)s\n",
-                   '%(install_root)s/usr/etc/relocate/guile.reloc',
+                   '%(install_prefix)s/etc/relocate/guile.reloc',
                    env=locals())
         
         ## can't assume that /usr/bin/guile is the right one.
@@ -122,10 +128,10 @@ GUILE_LOAD_PATH=%(install_prefix)s/share/guile/* guile -e main -s  %(install_pre
         self.dump ('''\
 #! /bin/sh
 test "$1" = "--version" && echo "%(target_architecture)s-guile-config - Guile version %(version)s"
-#test "$1" = "compile" && echo "-I $%(system_root)s/usr/include"
-#test "$1" = "link" && echo "-L%(system_root)s/usr/lib -lguile -lgmp"
+#test "$1" = "compile" && echo "-I $%(system_prefix)s/include"
+#test "$1" = "link" && echo "-L%(system_prefix)s/lib -lguile -lgmp"
 #prefix=$(dirname $(dirname $0))
-prefix=%(system_root)s/usr
+prefix=%(system_prefix)s
 test "$1" = "compile" && echo "-I$prefix/include"
 test "$1" = "link" && echo "-L$prefix/lib -lguile -lgmp"
 exit 0
@@ -162,7 +168,7 @@ class Guile__mingw (Guile):
 
         return (Guile.configure_command (self)
            + misc.join_lines ('''
-LDFLAGS=-L%(system_root)s/usr/lib
+LDFLAGS=-L%(system_prefix)s/lib
 CC_FOR_BUILD="
 C_INCLUDE_PATH=
 CPPFLAGS=
@@ -180,7 +186,7 @@ cc
         return str + '''
 guile_cv_func_usleep_declared=${guile_cv_func_usleep_declared=yes}
 guile_cv_exeext=${guile_cv_exeext=}
-libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib"}
+libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_prefix)s/lib"}
 '''
 
     def configure (self):
@@ -215,7 +221,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib
     def install (self):
         Guile.install (self)
         # dlopen-able .la files go in BIN dir, BIN OR LIB package
-        self.system ('''mv %(install_root)s/usr/lib/lib*[0-9].la %(install_root)s/usr/bin''')
+        self.system ('''mv %(install_prefix)s/lib/lib*[0-9].la %(install_prefix)s/bin''')
 
 class Guile__linux (Guile):
     def compile_command (self):
@@ -254,7 +260,7 @@ cc
 class Guile__darwin (Guile):
     def install (self):
         Guile.install (self)
-        pat = self.expand ('%(install_root)s/usr/lib/libguile-srfi*.dylib')
+        pat = self.expand ('%(install_prefix)s/lib/libguile-srfi*.dylib')
         import glob
         for f in glob.glob (pat):
             directory = os.path.split (f)[0]
@@ -301,7 +307,7 @@ class Guile__cygwin (Guile):
         return str + '''
 guile_cv_func_usleep_declared=${guile_cv_func_usleep_declared=yes}
 guile_cv_exeext=${guile_cv_exeext=}
-libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_root)s/usr/lib"}
+libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_prefix)s/lib"}
 '''
     def configure (self):
         if 1:
@@ -353,6 +359,7 @@ guile-tut').
     }
 
 from gub import toolpackage
+from gub import gubb
 class Guile__local (toolpackage.ToolBuildSpec, Guile):
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
@@ -376,7 +383,10 @@ class Guile__local (toolpackage.ToolBuildSpec, Guile):
         self.update_libtool ()
 
     def install (self):
-        toolpackage.ToolBuildSpec.install (self)
+        ## guile runs fine without wrapper (if it doesn't, use the
+        ## relocation patch), while a sh wrapper breaks executable
+        ## scripts toolpackage.ToolBuildSpec.install (self)
+        gubb.BuildSpec.install (self)
 
         ## don't want local GUILE headers to interfere with compile.
-        self.system ("rm -rf %(install_root)s/%(packaging_suffix_dir)s/usr/include/ %(install_root)s/%(packaging_suffix_dir)s/usr/bin/guile-config ")
+        self.system ("rm -rf %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/include/ %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/bin/guile-config ")

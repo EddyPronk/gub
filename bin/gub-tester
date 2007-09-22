@@ -19,36 +19,21 @@ import optparse
 import time
 import dbhash
 
-
 from gub import repository
 from gub import oslog
-
-
-################################################################
-# utils.
-
-def system (c):
-    print c
-    if os.system (c):
-        raise Exception ('barf')
-    
-    
-def read_tail (file, amount=10240):
-    f = open (file)
-    f.seek (0, 2)
-    length = f.tell()
-    f.seek (- min (length, amount), 1)
-    return f.read ()
 
 def canonicalize_string (target):
     canonicalize = re.sub ('[ \t\n]', '_', target)
     canonicalize = re.sub ('[^a-zA-Z0-9-]+', '_', canonicalize)
     return canonicalize
 
-main_log = None
+CACHED = 'CACHED'
+CACHED_FAIL = 'CACHED-FAIL'
+CACHED_SUCCESS = 'CACHED-SUCCESS'
+FAIL = 'FAIL'
+SUCCESS = 'SUCCESS'
 
-################################################################
-#
+main_log = None
 
 def result_message (parts, subject='') :
     """Concatenate PARTS to a Message object."""
@@ -136,7 +121,7 @@ gub-tester --update 'make all check'
     p.add_option ('--branch',
                   action='store',
                   dest='branch',
-                  default='HEAD',
+                  default=None,
                   help='which branch to fetch [GIT repositories]')
     
     p.add_option ('--url',
@@ -173,13 +158,13 @@ gub-tester --update 'make all check'
                   action='store_true',
                   dest='be_quiet',
                   default=False,
-                  help='only send mail when there was an error.')
+                  help='only send mail when there was an error')
     
     p.add_option ('--force',
                   action='store_true',
                   dest='force',
                   default=False,
-                  help='force rechecking even if release already checked.')
+                  help='force rechecking even if release already checked')
     
     p.add_option ('--dependent',
                   action='store_true',
@@ -187,23 +172,29 @@ gub-tester --update 'make all check'
                   default=False,
                   help='test targets depend on each other')
                   
+    p.add_option ('--package',
+                  action='store',
+                  dest='package',
+                  default='lilypond',
+                  help='name of package under test')
+
     p.add_option ('--posthook',
                   action='append',
                   dest='posthooks',
                   default=[],
-                  help='commands to execute after successful tests.')
+                  help='commands to execute after successful tests')
 
     p.add_option ('--test-self',
                   action='store_true',
                   dest='test_self',
                   default=False,
-                  help='run a cursory self test.')
+                  help='run a cursory self test')
 
     p.add_option ('-s', '--smtp',
                   action='store',
                   dest='smtp',
                   default='localhost',
-                  help='SMTP server to use.')
+                  help='SMTP server to use')
 
     p.add_option ('--result-directory',
                   action='store',
@@ -229,11 +220,17 @@ def test_target (repo, options, target, last_patch):
     release_hash = repo.get_checksum ()
 
     done_db = get_db (options, canonicalize)
+    tag_db = repository.TagDb (options.result_dir)
+    recheck = ''
     if done_db.has_key (release_hash):
         main_log.info ('release %(release_hash)s has already been checked\n'
                       % locals ())
         if not options.force:
-            return None
+            RESULT = CACHED_SUCCESS
+            if done_db[release_hash].endswith (FAIL):
+                RESULT = CACHED_FAIL
+            return RESULT, ['cached %(RESULT)s of %(release_hash)s' % locals ()]
+        recheck = ' (forced recheck of %(release_hash)s)' % locals ()
         main_log.info ('recheck forced\n' % locals ())
     
     log = 'test-%(canonicalize)s.log' %  locals ()
@@ -244,7 +241,7 @@ def test_target (repo, options, target, last_patch):
     main_log.error ('Logging test output to %(log)s\n' % locals ())
 
     if options.dry_run:
-        return ('SUCCESS', ['dryrun'])
+        return (SUCCESS, ['dryrun'])
         
     test_log = oslog.Os_commands (log, options.verbose)
     stat = test_log.system (cmd, ignore_errors=True)
@@ -252,34 +249,40 @@ def test_target (repo, options, target, last_patch):
     result = 'unknown'
     attachments = []
 
-    body = read_tail (log, 10240).split ('\n')
+    body = test_log.read_tail ()
+    diff = None
     if stat:
-        result = 'FAIL'
-        attachments = ['error for\n\n\t%s\n\n\n%s' % (target,
-                                               '\n'.join (body[-0:]))]
+        RESULT = FAIL
+        result = 'error'
         if options.append_diff:
-            attachments += [repo.get_diff_from_tag (base_tag)]
+            if repo.is_distributed ():
+                diff = repo.get_diff_from_tag_base (base_tag)
+            else:
+                diff = tag_db.get_diff_from_tag_base (base_tag, repo)
     else:
-        if 0:
-            # FIXME: find in archives, what did this do?
-            # format of last_patch?
-            # canonicalize_target vs canonicalize_string?
-            print last_patch
-            tag = base_tag + canonicalize_string (last_patch['date'])
-            repo.tag (tag)
-            main_log.log ('tagging with %s' % tag)
+        RESULT = SUCCESS
+        result = 'success'
+        body = body[-10:]
+        tag_db.tag (base_tag, repo)
+        if repo.is_distributed ():
+            tag = repo.tag (base_tag)
+            main_log.action ('tagging with %(tag)s\n' % locals ())
             if options.tag_repo:
                 repo.push (tag, options.tag_repo)
 
-        result = 'SUCCESS'
-        attachments = ['success for\n\n\t%s\n\n%s'
-                       % (target,
-                          '\n'.join (body[-10:]))]
+    message = '''%(result)s for%(recheck)s:
 
-    main_log.info ('%s: %s' % (target, result))
-    
-    done_db[release_hash] = time.ctime ()
-    return (result, attachments)
+	%(target)s
+
+
+%(tail)s'''
+    tail = '\n'.join (body)
+    attachments = [message % locals ()]
+    if diff:
+        attachments.append (diff)
+    main_log.info ('%(target)s: %(RESULT)s\n' % locals ())
+    done_db[release_hash] = time.ctime () + ' ' + RESULT
+    return (RESULT, attachments)
     
 def send_message (options, msg):
     if not options.address:
@@ -293,7 +296,7 @@ def send_message (options, msg):
     if options.bcc_address:
         msg['BCC'] = COMMASPACE.join (options.bcc_address)
         
-    msg['X-Autogenerated'] = 'lilypond'
+    msg['X-Autogenerated'] = 'GUB %s' % options.package
     connection = smtplib.SMTP (options.smtp)
     connection.sendmail (options.sender, options.address, msg.as_string ())
     return True
@@ -311,13 +314,13 @@ def print_results (options, parts, subject='Autotester result'):
 def real_main (options, args, handle_result):
     global main_log
 
-    log = 'log/gub-tester.log'
+    log = os.path.join (options.result_dir, 'gub-tester.log')
     if options.dry_run:
         log = '/dev/stdout'
 
     main_log = oslog.Os_commands (log, options.verbose)
     
-    main_log.info (' *** %s' % time.ctime ())
+    main_log.info (' *** %s\n' % time.ctime ())
     main_log.info (' *** Starting tests:\n %s\n' % '\n  '.join (args))
 
     repo = repository.get_repository_proxy (options.repository,
@@ -348,13 +351,16 @@ Checksum of revision: %(release_hash)s
     summary_body = '\n\n'
     results = {}
     failures = 0
+    cached_failures = 0
     for a in args:
         result_tup = test_target (repo, options, a, last_patch)
-        if not result_tup:
-            continue
         (result, atts) = result_tup
+        if result.startswith (CACHED):
+            if result == CACHED_FAIL:
+                cached_failures += 1
+            continue
         results[a] = result_tup
-        success = result.startswith ('SUCCESS')
+        success = result.startswith (SUCCESS)
         if not (options.be_quiet and success):
             handle_result (options, atts, subject='Autotester: %s %s'
                            % (result, a))
@@ -377,9 +383,13 @@ Checksum of revision: %(release_hash)s
     if failures == 0 and results:
         for p in options.posthooks:
             os.system (p)
-    return failures
+    return failures + cached_failures
 
 def test_self (options, args):
+    def system (c):
+        print c
+        if os.system (c):
+            raise Exception ('barf')
     self_test_dir = 'test-gub-test.darcs'
     system ('rm -rf %s ' %  self_test_dir)
     system ('mkdir %s ' %  self_test_dir)

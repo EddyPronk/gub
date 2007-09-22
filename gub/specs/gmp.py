@@ -33,7 +33,8 @@ class Gmp (targetpackage.TargetBuildSpec):
         # automake's Makefile.in's too old for new libtool,
         # but autoupdating breaks even more.  This nice
         # hack seems to work.
-        self.file_sub ([('#! /bin/sh', '#! /bin/sh\ntagname=CXX')],
+        self.file_sub ([('#! /bin/sh', '#! /bin/sh\ntagname=CXX'),
+                        ('#! /bin/bash', '#! /bin/bash\ntagname=CXX')],
                '%(builddir)s/libtool')
         
 class Gmp__darwin (Gmp):
@@ -53,7 +54,7 @@ class Gmp__darwin (Gmp):
     def install (self):
         Gmp.install (self)
         self.file_sub ([('using std::FILE;','')],
-                       '%(install_root)s/usr/include/gmp.h')
+                       '%(install_prefix)s/include/gmp.h')
 
 class Gmp__darwin__x86 (Gmp__darwin):
     def configure_command (self):
@@ -92,7 +93,7 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/gmp-4.1.4-1.patch
     def install (self):
         Gmp.install (self)
         self.system ('''
-mv %(install_root)s/usr/lib/*dll %(install_root)s/usr/bin || true
+mv %(install_prefix)s/lib/*dll %(install_prefix)s/bin || true
 ''')
 
 from gub import toolpackage

@@ -32,9 +32,14 @@ class Installer (context.Os_context_wrapper):
         self.name = name
         self.pretty_name = pretty_names.get (name, name)
         self.package_branch = settings.branch_dict[name]
+        if ':' in self.package_branch:
+            (self.remote_package_branch,
+             self.package_branch) = tuple (self.package_branch.split (':'))
+
         self.installer_root = (settings.targetdir
                                + '/installer-%s-%s' % (name,
                                                        self.package_branch))
+        self.installer_prefix = self.installer_root + settings.prefix_dir
         self.installer_checksum_file = self.installer_root + '.checksum'
         self.installer_db = self.installer_root + '-dbdir'
 
@@ -165,15 +170,16 @@ class Installer (context.Os_context_wrapper):
 
     def strip_dir (self, dir):
         from gub import misc
-        misc.map_command_dir (self.expand (dir),
+        misc.map_command_dir (self,
+                              self.expand (dir),
                               self.expand ('%(strip_command)s'),
-                              self.no_binary_strip,
-                              self.no_binary_strip_extensions)
+                              misc.binary_strip_p (self.no_binary_strip,
+                                                   self.no_binary_strip_extensions))
         
     def strip (self):
         self.strip_unnecessary_files ()
-        self.strip_dir ('%(installer_root)s/usr/bin')
-        self.strip_dir ('%(installer_root)s/usr/lib')
+        self.strip_dir ('%(installer_prefix)s/bin')
+        self.strip_dir ('%(installer_prefix)s/lib')
 
     def use_install_root_manager (self, manager):
         pass
@@ -222,8 +228,8 @@ class DarwinBundle (DarwinRoot):
 rm -f %(bundle_zip)s 
 rm -rf %(darwin_bundle_dir)s
 tar -C %(targetdir)s -zxf %(downloads)s/osx-lilypad-%(cpu_type)s-%(osx_lilypad_version)s.tar.gz
-cp %(darwin_bundle_dir)s/Contents/Resources/subprocess.py %(installer_root)s/usr/share/lilypond/current/python/
-cp -pR --link %(installer_root)s/usr/* %(darwin_bundle_dir)s/Contents/Resources/
+cp %(darwin_bundle_dir)s/Contents/Resources/subprocess.py %(installer_prefix)s/share/lilypond/current/python/
+cp -pR --link %(installer_prefix)s/* %(darwin_bundle_dir)s/Contents/Resources/
 mkdir -p %(darwin_bundle_dir)s/Contents/Resources/license
 cp -pR --link %(installer_root)s/license*/* %(darwin_bundle_dir)s/Contents/Resources/license/
 ''', locals ())
@@ -384,6 +390,6 @@ def get_installer (settings, name):
     }
 
     ctor = installer_class[settings.platform]
-    print ctor
-    installer = ctor(settings, name)
+    print 'Installer:', ctor
+    installer = ctor (settings, name)
     return installer

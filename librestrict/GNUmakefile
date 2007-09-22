@@ -1,6 +1,6 @@
-
+CC = gcc -W -Wall
 librestrict.so: restrict.c 
-	gcc -shared -fPIC -o $@ $<
+	$(CC) -shared -fPIC -o $@ $<
 
 test-librestrict: restrict.c 
-	gcc -o $@ -DTEST_SELF $< 
+	$(CC) -o $@ -DTEST_SELF $< 

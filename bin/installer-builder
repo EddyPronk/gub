@@ -81,7 +81,7 @@ build-all - build, strip, package
                   dest="settings",
                   help="extra overrides for settings")
                   
-    p.add_option ('-p', '--target-platform', action='store',
+    p.add_option ('-p', '--platform', action='store',
                   dest='platform',
                   type='choice',
                   default=None,
@@ -104,9 +104,9 @@ build-all - build, strip, package
 def check_installer (installer, options, args):
     settings = installer.settings
     install_manager = gup.PackageDictManager (settings.os_interface)
-    install_manager.read_package_headers (settings.gub_uploads,
+    install_manager.read_package_headers (settings.packages,
                                           settings.branch_dict)
-    install_manager.read_package_headers (settings.cross_gub_uploads,
+    install_manager.read_package_headers (settings.cross_packages,
                                           settings.branch_dict)
 
     ## can't interrogate installer yet, because version is not known yet.
@@ -133,9 +133,9 @@ def build_installer (installer, args, options):
                                              clean=True)
     
     install_manager.include_build_deps = False
-    install_manager.read_package_headers (settings.gub_uploads,
+    install_manager.read_package_headers (settings.packages,
                                           settings.branch_dict)
-    install_manager.read_package_headers (settings.cross_gub_uploads,
+    install_manager.read_package_headers (settings.cross_packages,
                                           settings.branch_dict)
 
     def get_dep (x):
@@ -192,8 +192,8 @@ def run_installer_commands (commands, settings, args, options):
         return 
 
     for c in commands:
-        settings.os_interface.info (' *** IStage: %s (%s)\n'
-                                    % (c, installer_obj.name))
+        settings.os_interface.stage (' *** IStage: %s (%s)\n'
+                                     % (c, installer_obj.name))
     
         if c == ('build'):
             build_installer (installer_obj, args, options)
@@ -230,7 +230,7 @@ def main ():
             settings.os_interface.error ('skipping build; install_root is locked\n')
             sys.exit (0)
         raise e
-    settings.os_interface.info ('done\n')
+    settings.os_interface.stage ('done\n')
     settings.os_interface.error ('build log written to: ' +
                                  settings.os_interface.log_file_name
                                  + '\n')

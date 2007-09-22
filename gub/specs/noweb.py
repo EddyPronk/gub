@@ -27,7 +27,7 @@ simplicity, extensibility, and language-independence.
     def install_command (self):
         from gub import misc
         return misc.join_lines ('''
-mkdir -p %(install_root)s/usr/bin %(install_root)s/usr/lib %(install_root)s/usr/share/man/man1 %(install_root)s/usr/share/tex/inputs
+mkdir -p %(install_prefix)s/bin %(install_prefix)s/lib %(install_prefix)s/share/man/man1 %(install_prefix)s/share/tex/inputs
 && make %(makeflags)s DESTDIR=%(install_root)s install
 ''')
     def license_file (self):

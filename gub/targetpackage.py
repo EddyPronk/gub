@@ -17,12 +17,12 @@ class TargetBuildSpec (gubb.BuildSpec):
 --build=%(build_architecture)s
 --host=%(target_architecture)s
 --target=%(target_architecture)s
---prefix=/usr
---sysconfdir=/usr/etc
---includedir=/usr/include
---infodir=/usr/share/info
---mandir=/usr/share/man
---libdir=/usr/lib
+--prefix=%(prefix_dir)s
+--sysconfdir=%(prefix_dir)s/etc
+--includedir=%(prefix_dir)s/include
+--infodir=%(prefix_dir)s/share/info
+--mandir=%(prefix_dir)s/share/man
+--libdir=%(prefix_dir)s/lib
 ''')
 
     def __init__ (self, settings):
@@ -33,10 +33,11 @@ class TargetBuildSpec (gubb.BuildSpec):
         gubb.BuildSpec.install (self)
 
     def pre_install_libtool_fixup (self):
-        ## Workaround for libtool bug.
-        ## libtool inserts -L/usr/lib into command line, but this is
-        ## on the target system. It will try link in libraries from
-        ## /usr/lib/ on the build system. This seems to be problematic for libltdl.a and libgcc.a on MacOS.
+        ## Workaround for libtool bug.  libtool inserts -L/usr/lib
+        ## into command line, but this is on the target system. It
+        ## will try link in libraries from /usr/lib/ on the build
+        ## system.  This seems to be problematic for libltdl.a and
+        ## libgcc.a on MacOS.
         ##
         def fixup (file):
             file = file.strip ()
@@ -105,7 +106,7 @@ class TargetBuildSpec (gubb.BuildSpec):
             'CCLD_FOR_BUILD': 'C_INCLUDE_PATH= CPATH= CPPFLAGS= LIBRARY_PATH= cc',
 
 
-            ## %(system_root)s/usr/include is already done by
+            ## %(system_prefix)s/include is already done by
             ## GCC --with-sysroot config, but we  have to be sure
             ## note that overrides some headers in sysroot/usr/include,
             ## which is why setting C_INCLUDE_PATH breaks on FreeBSD. 
@@ -119,22 +120,22 @@ class TargetBuildSpec (gubb.BuildSpec):
             'CPLUS_INCLUDE_PATH': '',
             'CXX':'%(tool_prefix)sg++ %(target_gcc_flags)s',
 
-#--urg-broken-if-set-exec-prefix=%(system_root)s/usr \
+#--urg-broken-if-set-exec-prefix=%(system_prefix)s \
 ## ugh, creeping -L/usr/lib problem
 ## trying revert to LDFLAGS...
-##                        'LIBRARY_PATH': '%(system_root)s/usr/lib:%(system_root)s/usr/bin',
+##                        'LIBRARY_PATH': '%(system_prefix)s/lib:%(system_prefix)s/bin',
             'LIBRARY_PATH': '',
 # FIXME: usr/bin and w32api belongs to mingw/cygwin; but overriding is broken
-#            'LDFLAGS': '-L%(system_root)s/usr/lib -L%(system_root)s/usr/bin -L%(system_root)s/usr/lib/w32api',
+#            'LDFLAGS': '-L%(system_prefix)s/lib -L%(system_prefix)s/bin -L%(system_prefix)s/lib/w32api',
             'LDFLAGS': '',
             'LD': '%(tool_prefix)sld',
             'NM': '%(tool_prefix)snm',
-            'PKG_CONFIG_PATH': '%(system_root)s/usr/lib/pkgconfig',
+            'PKG_CONFIG_PATH': '%(system_prefix)s/lib/pkgconfig',
             'PATH': '%(cross_prefix)s/bin:%(local_prefix)s/bin:' + os.environ['PATH'],
             'PKG_CONFIG': '''pkg-config \
---define-variable prefix=%(system_root)s/usr \
---define-variable includedir=%(system_root)s/usr/include \
---define-variable libdir=%(system_root)s/usr/lib \
+--define-variable prefix=%(system_prefix)s \
+--define-variable includedir=%(system_prefix)s/include \
+--define-variable libdir=%(system_prefix)s/lib \
 ''',
             'RANLIB': '%(tool_prefix)sranlib',
             'SED': 'sed', # libtool (expat mingw) fixup
@@ -145,7 +146,7 @@ class TargetBuildSpec (gubb.BuildSpec):
         # Hmm, better to make wrappers for gcc/c++/g++ that add options;
         # see (gub-samco branch) linux-arm-vfp.py?
         if self.settings.platform in ('cygwin', 'mingw'):
-            dict['LDFLAGS'] = '-L%(system_root)s/usr/lib -L%(system_root)s/usr/bin -L%(system_root)s/usr/lib/w32api'
+            dict['LDFLAGS'] = '-L%(system_prefix)s/lib -L%(system_prefix)s/bin -L%(system_prefix)s/lib/w32api'
 
         #FIXME: how to move this to arm.py?
         if self.settings.target_architecture == 'armv5te-softfloat-linux':

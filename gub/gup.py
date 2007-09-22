@@ -1,3 +1,8 @@
+# local python has no gdbm, breaks simple home python/lilypond build
+# but dbhash seems to break in odd ways:
+#  File "bsddb/dbutils.py", line 62, in DeadlockWrap
+#  DBPageNotFoundError: (-30987, 'DB_PAGE_NOTFOUND: Requested page not found')
+
 import gdbm as dbmodule
 #import dbhash as dbmodule
 
@@ -38,17 +43,25 @@ class FileManager:
         self.is_distro = False
 
         ## lock must be outside of root, otherwise we can't rm -rf root
-        self.lock = locker.Locker (self.root + '.lock')
+        self.lock_file = self.root + '.lock'
+        if self.root == os.environ['HOME']:
+            self.lock_file = self.root + '/.gub.lock'
+        self.lock = locker.Locker (self.lock_file)
         if clean:
             os_interface.system ('rm -fr %s' % self.config)
-            os_interface.system ('rm -fr %s' % self.root)
+            # Whoa, this is fucking scary!
+            ## os_interface.system ('rm -fr %s' % self.root)
             
         self.make_dirs ()
-        self._file_package_db = dbmodule.open (self.config
-                           + '/files.db', 'c')
-        self._package_file_db = dbmodule.open (self.config
-                           + '/packages.db', 'c')
-
+        files_db = self.config + '/files.db'
+        packages_db = self.config + '/packages.db'
+        self._file_package_db = dbmodule.open (files_db, 'c')
+        self._package_file_db = dbmodule.open (packages_db, 'c')
+        #except DBInvalidArgError:
+        # import gdmb
+        # file_db = gdbm.open (file_db, 'c')
+        # packages_db = gdbm.open (packages_db, 'c')
+            
     def __repr__ (self):
         name = self.__class__.__name__
         root = self.root
@@ -74,7 +87,7 @@ class FileManager:
     def is_installed (self, name):
         return self._package_file_db.has_key (name)
 
-    def install_tarball (self, ball, name):
+    def install_tarball (self, ball, name, prefix_dir):
         self.os_interface.action ('installing package %(name)s from %(ball)s\n'
                                 % locals ())
 
@@ -103,7 +116,7 @@ class FileManager:
             if f.endswith ('.la'):
                 self.libtool_la_fixup (root, f)
             if f.endswith ('.pc'):
-                self.pkgconfig_pc_fixup (root, f)
+                self.pkgconfig_pc_fixup (root, f, prefix_dir)
 
     def libtool_la_fixup (self, root, file):
         # avoid using libs from build platform, by adding
@@ -116,14 +129,16 @@ class FileManager:
                                       ),],
                                     '%(root)s/%(file)s' % locals ())
 
-    def pkgconfig_pc_fixup (self, root, file):
+    def pkgconfig_pc_fixup (self, root, file, prefix_dir):
         # avoid using libs from build platform, by adding
         # %(system_root)s
         if file.startswith ('./'):
             file = file[2:]
         dir = os.path.dirname (file)
+        if '%' in prefix_dir or not prefix_dir:
+            barf
         self.os_interface.file_sub ([('(-I|-L) */usr',
-                                      '''\\1%(root)s/usr''' % locals ()
+                                      '''\\1%(root)s%(prefix_dir)s''' % locals ()
                                       ),],
                                     '%(root)s/%(file)s' % locals ())
 
@@ -213,11 +228,14 @@ class PackageDictManager:
         d = pickle.loads (str)
 
         if branch_dict.has_key (d['basename']):
-            if branch_dict[d['basename']] != d['vc_branch']:
+            branch = branch_dict[d['basename']]
+            if ':' in branch:
+                (remote_branch, branch) = tuple (branch.split (':'))
+            if branch != d['vc_branch']:
                 suffix = d['vc_branch']
-                print 'ignoring header: ' + package_hdr
-                branch = branch_dict[d['basename']]
-                print 'branch: %(branch)s, expecting: %(suffix)s' % locals ()
+                self.os_interface.error ('ignoring header: %(package_hdr)s\n'
+                                        % locals ())
+                self.os_interface.error ('package of branch: %(suffix)s, expecting: %(branch)s\n' % locals ())
                 return
         elif d['vc_branch']:
             sys.stdout.write ('No branch for package %s, ignoring header: %s\n' % (d['basename'], package_hdr))
@@ -280,8 +298,8 @@ class PackageManager (FileManager, PackageDictManager):
         FileManager.__init__ (self, root, os_interface, **kwargs)
         PackageDictManager.__init__ (self, os_interface)
         
-        self._package_dict_db = dbmodule.open (self.config
-                           + '/dicts.db', 'c')
+        dicts_db = self.config + '/dicts.db'
+        self._package_dict_db = dbmodule.open (dicts_db, 'c')
         for k in self._package_dict_db.keys ():
             v = self._package_dict_db[k]
             self.register_package_dict (pickle.loads (v))
@@ -299,7 +317,7 @@ class PackageManager (FileManager, PackageDictManager):
             raise Exception ('abort')
         d = self._packages[name]
         ball = '%(split_ball)s' % d
-        self.install_tarball (ball, name)
+        self.install_tarball (ball, name, d['prefix_dir'])
         self._package_dict_db[name] = pickle.dumps (d)
 
     def uninstall_package (self, name):
@@ -356,7 +374,16 @@ def topologically_sorted_one (todo, done, dependency_getter,
         if recurse_stop_predicate and recurse_stop_predicate (d):
             continue
 
-        assert type (d) == type (todo)
+        # 
+        if not type (d) == type (todo):
+            print type (d), '!=', type (todo)
+            assert type (d) == type (todo)
+        # New style class attempt...
+        if (not ((isinstance (d, gubb.BuildSpec)
+                  and isinstance (d, gubb.BuildSpec))
+                 or (type (d) == type (todo)))):
+            print type (d), '!=', type (todo)
+            assert type (d) == type (todo)
 
         sorted += topologically_sorted_one (d, done, dependency_getter,
                                             recurse_stop_predicate=recurse_stop_predicate)
@@ -481,7 +508,7 @@ topological order
 
 def get_target_manager (settings):
     target_manager = DependencyManager (settings.system_root,
-                      settings.os_interface)
+                                        settings.os_interface)
     return target_manager
 
 def add_packages_to_manager (target_manager, settings, package_object_dict):

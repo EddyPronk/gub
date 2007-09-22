@@ -10,8 +10,8 @@ class Urw_fonts (gubb.BinarySpec):
     def compile (self):
         self.system ('cd %(srcdir)s && rm README* COPYING ChangeLog TODO')
     def install (self):
-        self.system ('mkdir -p %(install_root)s/usr/share/fonts/default/Type1')
-        self.system ('cp %(srcdir)s/* %(install_root)s/usr/share/fonts/default/Type1/')
+        self.system ('mkdir -p %(install_prefix)s/share/fonts/default/Type1')
+        self.system ('cp %(srcdir)s/* %(install_prefix)s/share/fonts/default/Type1/')
     def package (self):
         gubb.BuildSpec.package (self)
     def get_subpackage_names (self):

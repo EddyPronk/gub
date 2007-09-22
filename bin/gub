@@ -57,7 +57,7 @@ def get_cli_parser ():
                   default=None,
                   help='leave build and src dir for inspection')
 
-    p.add_option ('-p', '--target-platform', action='store',
+    p.add_option ('-p', '--platform', action='store',
                   dest='platform',
                   type='choice',
                   default=None,
@@ -208,8 +208,8 @@ def exceptional_build (settings, files):
     if status:
         if settings.options.verbose < settings.os_interface.level['output']:
             print >>sys.stderr,\
-                (''.join (open (settings.os_interface.log_file_name)
-                          .readlines ()[-50:]))
+                ('\n\nTail of ' + settings.os_interface.log_file_name + ':\n'
+                 + '\n'.join (settings.os_interface.read_tail ()))
             log_file = settings.os_interface.log_file_name
         settings.os_interface.error (misc.exception_string (e))
     else:
@@ -230,11 +230,6 @@ def main ():
     cli_parser = get_cli_parser ()
     (options, files) = cli_parser.parse_args ()
 
-    if not options.platform:
-        print 'error: no platform specified'
-        cli_parser.print_help ()
-        sys.exit (2)
-
     settings = gub.settings.Settings (options)
     urg_add_more_settings_for_gub (settings, options)
 
@@ -242,6 +237,14 @@ def main ():
         inspect (settings, files)
         sys.exit (0)
 
+    settings.os_interface.stage ('root: ' + settings.system_root + '\n')
+    settings.os_interface.info ('platform: ' + settings.platform + '\n')
+
+    if not files:
+        settings.os_interface.error ('error: nothing to do\n')
+        cli_parser.print_help ()
+        sys.exit (2)
+        
     sys.exit (exceptional_build (settings, files))
 
 if __name__ == '__main__':

@@ -29,6 +29,7 @@ from gub import misc
 from gub import locker
 from gub import mirrors
 from gub import oslog
+from gub import tztime
 
 class UnknownVcSystem (Exception):
     pass
@@ -78,6 +79,7 @@ class RepositoryProxy:
 ## Rename to Source/source.py?
 class Repository: 
     vc_system = None
+    tag_dateformat = '%Y-%m-%d_%H-%M-%S%z'
 
     def check_dir (rety, dir):
         return os.path.isdir (os.path.join (dir, rety.vc_system))
@@ -85,7 +87,8 @@ class Repository:
 
     def check_url (rety, url):
         vcs = rety.vc_system.replace ('_', '',).replace ('.', '').lower ()
-        return url and url.startswith (vcs + ':')
+        return url and (url.startswith (vcs + ':')
+                        or url.startswith (vcs + '+'))
     check_url = staticmethod (check_url)
 
     def check_suffix (rety, url):
@@ -135,41 +138,78 @@ class Repository:
         pass
 
     def get_checksum (self):
-        """A checksum that characterizes the entire repository.
-        Typically a hash of all source files."""
+        '''A checksum that characterizes the entire repository.
+
+Typically a hash of all source files.'''
 
         return '0'
 
     def get_file_content (self, file_name):
         return ''
 
+    def is_distributed (self):
+        '''Whether repository is central or uses distributed repositories'''
+        return True
+    
     def is_tracking (self):
-        "Whether download will fetch newer versions if available"
+        '''Whether download will fetch newer versions if available'''
         return False
     
     def is_downloaded (self):
-        "Whether repository is available"
+        '''Whether repository is available'''
         return False
     
     def update_workdir (self, destdir):
-        "Populate (preferably update) DESTDIR with sources of specified version/branch"
+        '''Populate DESTDIR with sources of specified version/branch
 
+Updating is preferably done by updating'''
         pass
 
     ## Version should be human-readable version.
     def version  (self):
-        """A human-readable revision number. It need not be unique over revisions."""
+        '''A human-readable revision number.
+
+It need not be unique over revisions.'''
         return '0'
 
+    def last_patch_date (self):
+        '''Return timestamp of last patch'''
+        return None
+
     def read_last_patch (self):
-        """Return a dict with info about the last patch"""
-        assert 0
-        return {}
+        '''Return a dict with info about the last patch'''
+        return {'date': None, 'patch': None}
 
     def get_diff_from_tag (self, name):
-        """Return diff wrt to last tag that starts with NAME  """
-        assert 0
-        return 'baseclass method called'
+        '''Return diff wrt to tag NAME'''
+        None
+
+    def get_diff_from_tag_base (self, name):
+        '''Return diff wrt to last tag that starts with NAME'''
+        tags = self.tag_list (name)
+        tags.sort ()
+        if tags:
+            return self.get_diff_from_tag (tags[-1])
+        return None
+
+class TagDb:
+    def __init__ (self, dir):
+        import gdbm as dbmodule
+        self.db = dbmodule.open (os.path.join (dir, 'tag.db'), 'c')
+    def tag (self, name, repo):
+        stamp = repo.last_patch_date ()
+        if stamp:
+            date = tztime.format (stamp)
+            self.db[name + '-' + date] = date
+    def tag_list (self, name):
+        return map (lambda x: self.db[x], filter (lambda x: x.startswith (name),
+                                                  self.db.keys ()))
+    def get_diff_from_tag_base (self, name, repo):
+        tags = self.tag_list (name)
+        if tags:
+            tags.sort ()
+            return repo.get_diff_from_date (tztime.parse (tags[-1]))
+        return None
 
 class Version:
     def __init__ (self, version):
@@ -359,6 +399,7 @@ class NewTarBall (TarBall):
 
 class Git (Repository):
     vc_system = '.git'
+    patch_dateformat = '%a %b %d %H:%M:%S %Y %z'
 
     def __init__ (self, dir, source='', branch='', revision=''):
         Repository.__init__ (self, dir, source)
@@ -378,6 +419,7 @@ class Git (Repository):
             # FIXME: projection, where is this used?
             self.repo_url_suffix = '-' + re.sub ('[:+]+', '-', fileified_suffix)
         
+        # FIXME: handle outside Git
         if ':' in branch:
             (self.remote_branch,
              self.local_branch) = tuple (branch.split (':'))
@@ -548,16 +590,44 @@ class Git (Repository):
                       dir=destdir)
             self.git ('checkout master', dir=destdir)
 
+    def get_diff_from_tag (self, tag):
+        return self.git_pipe ('diff %(tag)s HEAD' % locals ())
+
+    def last_patch_date (self):
+        # Whurg.  Because we use the complex non-standard and silly --git-dir
+        # option, we cannot use git log without supplying a branch, which
+        # is not documented in git log, btw.
+        # fatal: bad default revision 'HEAD'
+        # I'm not even sure if we need branch or local_branch... and why
+        # our branch names are so difficult master-git.sv.gnu.org-lilypond.git
+        branch = self.branch
+        s = self.git_pipe ('log -1 %(branch)s' % locals ())
+        m = re.search  ('Date: *(.*)', s)
+        date = m.group (1)
+        return tztime.parse (date, self.patch_dateformat)
+
+    def tag (self, name):
+        stamp = self.last_patch_date ()
+        tag = name + '-' + tztime.format (stamp, self.tag_dateformat)
+        # See last_patch_date
+        # fatal: Failed to resolve 'HEAD' as a valid ref.
+        branch = self.branch
+        self.git ('tag %(tag)s %(branch)s' % locals ())
+        return tag
+
+    def tag_list (self, tag):
+        return self.git_pipe ('tag -l %(tag)s*' % locals ()).split ('\n')
+
 RepositoryProxy.register (Git)
 
 class CVS (Repository):
     vc_system = 'CVS'
-    cvs_entries_line = re.compile ("^/([^/]*)/([^/]*)/([^/]*)/([^/]*)/")
-    #tag_dateformat = '%Y/%m/%d %H:%M:%S'
+    cvs_entries_line = re.compile ('^/([^/]*)/([^/]*)/([^/]*)/([^/]*)/')
 
     def create (rety, dir, source, branch='', revision=''):
         if not branch:
             branch='HEAD'
+        source = source.replace ('cvs::pserver', ':pserver')
         p = source.rfind ('/')
         return CVS (dir, source=source, module=source[p+1:], tag=branch)
     create = staticmethod (create)
@@ -576,6 +646,9 @@ class CVS (Repository):
             
     def _checkout_dir (self):
         return '%s/%s' % (self.dir, self.tag)
+
+    def is_distributed (self):
+        return False
 
     def is_tracking (self):
         return True ##FIXME
@@ -715,6 +788,8 @@ class SimpleRepo (Repository):
         self.branch = branch
         if not os.path.isdir (self.dir):
             self.system ('mkdir -p %(dir)s' % self.__dict__)
+        if not source:
+            self.source, self.branch = self._source ()
 
     def is_tracking (self):
         ## FIXME, probably wrong.
@@ -768,23 +843,34 @@ class SimpleRepo (Repository):
 
 class Subversion (SimpleRepo):
     vc_system = '.svn'
+    patch_dateformat = '%Y-%m-%d %H:%M:%S %z'
+    diff_xmldateformat = '%Y-%m-%d %H:%M:%S.999999'
+    patch_xmldateformat = '%Y-%m-%dT%H:%M:%S'
 
-    def create (rety, dir, source, branch='', revision=''):
-        return Subversion (dir, source=source, branch=branch)
-    create = staticmethod (create)
-
-    def __init__ (self, dir, source, branch, module, revision='HEAD'):
+    def create (rety, dir, source, branch, revision='HEAD'):
+        if not branch:
+            branch = '.'
         if not revision:
             revision = 'HEAD'
-        SimpleRepo.__init__ (self, dir, source, branch, revision)
+        return Subversion (dir, source=source, branch=branch,
+                           module='.', revision=revision)
+    create = staticmethod (create)
+
+    def __init__ (self, dir, source=None, branch='.', module='.', revision='HEAD'):
+        if not revision:
+            revision = 'HEAD'
         self.module = module
+        SimpleRepo.__init__ (self, dir, source, branch, revision)
+
+    def is_distributed (self):
+        return False
 
     def _current_revision (self):
         dir = self._checkout_dir ()
-
         ## UGH: should not parse user oriented output
-        revno = self.read_pipe ('cd %(dir)s && LANG= svn info' % locals ())
-        m = re.search  ('.*Revision: ([0-9]*).*', revno)
+        revno = self.read_pipe ('cd %(dir)s && LANG= svn log --limit=1'
+                                % locals ())
+        m = re.search  ('-+\nr([0-9]+) |', revno)
         assert m
         return m.group (1)
         
@@ -804,6 +890,76 @@ class Subversion (SimpleRepo):
         cmd = 'cd %(dir)s && svn up %(rev_opt)s' % locals ()
         self.system (cmd)
 
+    def get_revision_description (self):
+        dir = self._checkout_dir ()
+        return self.read_pipe ('cd %(dir)s && LANG= svn log --verbose --limit=1'
+                               % locals ())
+
+    def get_diff_from_tag (self, tag):
+        dir = self._checkout_dir ()
+        source = self.source
+        branch = self.branch
+        module = self.module
+        root = self._root ()
+        return self.read_pipe ('cd %(dir)s && LANG= svn diff %(root)s/tags/%(tag)s %(source)s/%(branch)s/%(module)s' % locals ())
+
+    # FIXME: use from_revision?  how to do play nicely with TagDb
+    def get_diff_from_date (self, stamp):
+#        date = tztime.format (stamp, self.patch_dateformat)
+        date = tztime.format (stamp, self.diff_xmldateformat)
+        dir = self._checkout_dir ()
+        source = self.source
+        branch = self.branch
+        module = self.module
+        root = self._root ()
+        return self.read_pipe ('cd %(dir)s && TZ= LANG= svn diff -r "{%(date)s}"' % locals ())
+
+    def _root (self):
+        dir = self._checkout_dir ()
+        ## UGH: should not parse user oriented output
+        root = self.read_pipe ('cd %(dir)s && LANG= svn info' % locals ())
+        m = re.search  ('.*Root: (.*)', root)
+        assert m
+        return m.group (1)
+
+    def _source (self):
+        dir = self._checkout_dir ()
+        ## UGH: should not parse user oriented output
+        s = self.read_pipe ('cd %(dir)s && LANG= svn info' % locals ())
+        m = re.search  ('.*URL: (.*)', s)
+        source = m.group (1)
+        m = re.search  ('.*Repository Root: (.*)', s)
+        root = m.group (1)
+        assert source.startswith (root)
+        branch = source[len (root)+1:]
+        return root, branch
+
+    def last_patch_date (self):
+        dir = self._checkout_dir ()
+        s = self.read_pipe ('cd %(dir)s && LANG= svn log --limit=1 --xml' % locals ())
+#        m = re.search  ('Last Changed Date: (.*) \(', s)
+        m = re.search  ('<date>(.*)\.[0-9]{6}Z</date>', s)
+        date = m.group (1)
+        return tztime.parse (date, self.patch_xmldateformat)
+        
+    def tag (self, name):
+        source = self.source
+        branch = self.branch
+        module = self.module
+        revision = self.revision
+        rev_opt = '-r %(revision)s ' % locals ()
+        stamp = self.last_patch_date ()
+        tag = name + '-' + tztime.format (stamp, self.tag_dateformat)
+        root = self._root ()
+        self.system ('svn cp -m "" %(rev_opt)s %(source)s/%(branch)s/%(module)s %(root)s/tags/%(tag)s''' % locals ())
+        return tag
+
+    def tag_list (self, tag):
+        root = self._root ()
+        lst = self.read_pipe ('LANG= svn ls %(root)s/tags' % locals ()).split (\
+'\n')
+        return filter (lambda x: x.startswith (tag), lst)
+
 RepositoryProxy.register (Subversion)
 
 class Bazaar (SimpleRepo):
@@ -817,8 +973,8 @@ class Bazaar (SimpleRepo):
         # FIXME: multi-branch repos not supported for now
         if not revision:
             revision = '0'
-        SimpleRepo.__init__ (self, dir, source, '.', revision)
         self.module = '.'
+        SimpleRepo.__init__ (self, dir, source, '.', revision)
 
     def _current_revision (self):
         try:
@@ -905,7 +1061,73 @@ def test ():
             # what if I do brz branch foo foo.git?
             repo = get_repository_proxy ('/foo/bar/barf/i-do-not-exist-or-possibly-am-of-bzr-flavour.git', '', '', '')
             self.assertEqual (repo.__class__, Git)
-           
+        def testPlusSsh (self):
+            repo = get_repository_proxy ('downloads/test/', 'bzr+ssh://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr', '', '')
+            self.assertEqual (repo.__class__, Bazaar)
+            repo = get_repository_proxy ('downloads/test/', 'git+ssh://git.sv.gnu.org/srv/git/lilypond.git', '', '')
+            self.assertEqual (repo.__class__, Git)
+            repo = get_repository_proxy ('downloads/test/', 'svn+ssh://gforge/svnroot/public/samco/trunk', '', '')
+            self.assertEqual (repo.__class__, Subversion)
+        def testGitTagAndDiff (self):
+            os.system ('mkdir -p downloads/test/git')
+            os.system ('cd downloads/test/git && git init')
+            repo = Git (os.getcwd () + '/downloads/test/git/.git')
+            os.system ('cd downloads/test/git && echo one >> README')
+            os.system ('cd downloads/test/git && git add .')
+            os.system ('cd downloads/test/git && git commit -m "1"')
+            time.sleep (1)
+            repo.tag ('success-test')
+            os.system ('cd downloads/test/git && echo two >> README')
+            os.system ('cd downloads/test/git && git add .')
+            os.system ('cd downloads/test/git && git commit -m "2"')
+            repo.tag ('success-test')
+            os.system ('cd downloads/test/git && echo three >> README')
+            os.system ('cd downloads/test/git && git add .')
+            os.system ('cd downloads/test/git && git commit -m "3"')
+            patch = '''
+@@ -1,2 +1,3 @@
+ one
+ two
++three
+'''
+            diff = repo.get_diff_from_tag_base ('success-test')
+            self.assert_ (diff.find (patch) >=0)
+        def testSnvTagAndDiff (self):
+            os.system ('mkdir -p downloads/test/svn')
+            os.system ('cd downloads/test/svn && svnadmin create .repo')
+            os.system ('cd downloads/test/svn && svn co file://localhost$(pwd)/.repo root')
+            repo = Subversion (os.getcwd () + '/downloads/test/svn/root')
+            tag_db = TagDb ('downloads/test')
+            os.system ('cd downloads/test/svn/root && mkdir trunk tags')
+            os.system ('cd downloads/test/svn/root && svn add trunk tags')
+            os.system ('cd downloads/test/svn/root && svn commit -m "init"')
+            os.system ('cd downloads/test/svn && svn co file://localhost$(pwd)/.repo/trunk trunk')
+            repo = Subversion (os.getcwd () + '/downloads/test/svn/trunk')
+            os.system ('cd downloads/test/svn/trunk && echo one >> README')
+            os.system ('cd downloads/test/svn/trunk && svn add README')
+            os.system ('cd downloads/test/svn/trunk && svn commit -m "1"')
+            os.system ('cd downloads/test/svn/trunk && svn up')
+            repo.tag ('success-test')
+            tag_db.tag ('success-test', repo)
+            os.system ('cd downloads/test/svn/trunk && echo two >> README')
+            os.system ('cd downloads/test/svn/trunk && svn commit -m "2"')
+            os.system ('cd downloads/test/svn/trunk && svn up')
+            os.system ('cd downloads/test/svn/trunk && svn info > info')
+            repo.tag ('success-test')
+            tag_db.tag ('success-test', repo)
+            os.system ('cd downloads/test/svn/trunk && echo three >> README')
+            os.system ('cd downloads/test/svn/trunk && svn commit -m "3"')
+            patch = '''
+@@ -1,2 +1,3 @@
+ one
+ two
++three
+'''
+            diff = repo.get_diff_from_tag_base ('success-test')
+            self.assert_ (diff.find (patch) >=0)
+            diff = tag_db.get_diff_from_tag_base ('success-test', repo)
+            self.assert_ (diff.find (patch) >=0)
+
     suite = unittest.makeSuite (Test_get_repository_proxy)
     unittest.TextTestRunner (verbosity=2).run (suite)
 

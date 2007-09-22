@@ -4,16 +4,16 @@
  */
 
 
-#include <sys/syscall.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <string.h>
+#include <assert.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <regex.h>
-#include <errno.h>
+#include <stdarg.h>
+#include <stdio.h>
 #include <stdlib.h>
-#include <assert.h>
-
+#include <string.h>
+#include <sys/syscall.h>
+#include <unistd.h>
 
 static char *executable_name;
 
@@ -82,7 +82,6 @@ is_allowed (char const *fn, char const *call)
   return 0;
 }
 
-
 static char *
 get_executable_name (void)
 {
@@ -106,7 +105,7 @@ strrstr (char const *haystack, char const *needle)
   char const *last_match = NULL;
   while ((p = strstr (p, needle)) != NULL)
     {
-      last_match  = p;
+      last_match = p;
       p ++;
     }
 
@@ -117,14 +116,14 @@ static char *
 get_allowed_prefix (char const *exe_name)
 {
   // can't add bin/ due to libexec.
-  char *cross_suffix = "/usr/cross/";
-  char const *last_found = strrstr(exe_name, cross_suffix);
+  char *cross_suffix = "/root/usr/cross/";
+  char const *last_found = strrstr (exe_name, cross_suffix);
 
-  if (NULL == last_found)
-    return ;
+  if (last_found == NULL)
+    return NULL;
 
   int prefix_len = last_found - exe_name;
-  char *allowed_prefix = malloc (sizeof (char) * (prefix_len  + 1));
+  char *allowed_prefix = malloc (sizeof (char) * (prefix_len + 1));
 
   strncpy (allowed_prefix, exe_name, prefix_len);
   allowed_prefix[prefix_len] = '\0';
@@ -138,10 +137,13 @@ static
 void initialize (void)
 {
   executable_name = get_executable_name ();
-  char *allow = get_allowed_prefix (executable_name);
-  if (allow)
+  char *restrict = get_allowed_prefix (executable_name);
+  if (restrict)
     {
-      add_allowed (allow);
+      add_allowed (restrict);
+      char *allow = getenv ("LIBRESTRICT_ALLOW");
+      if (allow)
+	add_allowed (allow);
       add_allowed ("/tmp");
       add_allowed ("/dev/null");
     }
@@ -150,7 +152,7 @@ void initialize (void)
 static int
 real_open (const char *fn, int flags, int mode)
 {
-  return syscall(SYS_open, fn, flags, mode);
+  return syscall (SYS_open, fn, flags, mode);
 }
 
 
