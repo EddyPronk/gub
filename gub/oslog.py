@@ -178,11 +178,11 @@ If TO_NAME is specified, the output is sent to there.
             t = new_text
 
         if s != t or (to_name and name != to_name):
-            stat_info = os.stat(name)
-            mode = stat.S_IMODE(stat_info[stat.ST_MODE])
+            stat_info = os.stat (name)
+            mode = stat.S_IMODE (stat_info[stat.ST_MODE])
 
             if not to_name:
-                os_commands.action ('backing up: %(name)s\n' % locals())
+                os_commands.action ('backing up: %(name)s\n' % locals ())
                 try:
                     os.unlink (name + '~')
                 except OSError:
