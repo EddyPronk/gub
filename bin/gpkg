@@ -83,7 +83,10 @@ class Command:
             else:
                 packs.append (p)
 
-        packs = gup.topologically_sorted (packs, {}, self.pm.dependencies)
+        dependency_getter = self.pm.dependencies
+        if self.options.no_deps:
+            dependency_getter = lambda x: list ()
+        packs = gup.topologically_sorted (packs, {}, dependency_getter)
         for p in packs:
             self.pm.install_package (p)
 
@@ -146,7 +149,7 @@ def get_cli_parser ():
                   action='store')
     p.add_option ('-x', '--no-deps',
                   help='ignore dependencies',
-                  action='store',
+                  action='store_true',
                   dest='no_deps')
     p.add_option ('','--dbdir',
                   action='store',
