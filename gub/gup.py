@@ -122,7 +122,6 @@ class FileManager:
                                       """libdir='%(root)s/%(dir)s'""" % locals ()
                                       ),],
                                     '%(root)s/%(file)s' % locals (),
-                                    use_re=True,
                                     must_succeed=True)
 
     def pkgconfig_pc_fixup (self, root, file, prefix_dir):

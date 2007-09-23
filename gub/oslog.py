@@ -153,7 +153,12 @@ If TO_NAME is specified, the output is sent to there.
         (re_pairs, name) = self.args
         to_name = self.kwargs.get ('to_name')
         must_succeed = self.kwargs.get ('must_succeed')
-        use_re = self.kwargs.get ('use_re')
+#        use_re = self.kwargs.get ('use_re')
+        # FIXME: kwargs approach is fragile, must check other
+        # defaults.  use_re defaulted to True...
+        use_re = True
+        if self.kwargs.has_key ('use_re'):
+            use_re = self.kwargs.get ('use_re')
                   
         os_commands.action ('substituting in %s\n' % name)
         os_commands.command (''.join (map (lambda x: "'%s' -> '%s'\n" % x,
