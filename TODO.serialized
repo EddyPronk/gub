@@ -1,3 +1,9 @@
+* task at hand:
+
+    make test
+  
+  --> pango.py: glob.glob
+
 * FIXME: serialization: want checksum TOO SOON
 
 * FIXME: serialization: want version package TOO SOON
@@ -10,6 +16,10 @@
   build bug is fixed.
 
 * actually checksumming of deferred_commands
+
+* rewrite locate_files using map_locate
+
+* eradicate glob.glob (use map_locate)
 
 NICE TO HAVE
 
