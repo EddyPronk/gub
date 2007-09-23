@@ -116,10 +116,14 @@ class FileManager:
         if file.startswith ('./'):
             file = file[2:]
         dir = os.path.dirname (file)
+        # FIXME: this never worked because we never had us_re?
+        # we may want to try removing this altogether.
         self.os_interface.file_sub ([('^libdir=.*',
                                       """libdir='%(root)s/%(dir)s'""" % locals ()
                                       ),],
-                                    '%(root)s/%(file)s' % locals ())
+                                    '%(root)s/%(file)s' % locals (),
+                                    use_re=True,
+                                    must_succeed=True)
 
     def pkgconfig_pc_fixup (self, root, file, prefix_dir):
         # avoid using libs from build platform, by adding
