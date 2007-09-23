@@ -78,6 +78,20 @@ class System (SerializedCommand):
                 raise misc.SystemFailed (m)
         return proc.returncode
 
+class Copy (SerializedCommand):
+    def __init__ (self, src, dest):
+        self.src = src
+        self.dest = dest
+    def execute (self, os_commands):
+        import shutil
+        shutil.copy2 (self.src, self.dest)
+
+class Func (SerializedCommand):
+    def __init__ (self, func):
+        self.func = func
+    def execute (self, os_commands):
+        return self.func ()
+
 class Message (SerializedCommand):
     def __init__ (self, message, threshold, verbose):
         self.message = message
@@ -509,3 +523,9 @@ commands.
 
     def map_locate (self, func, directory, pattern):
         return self._execute (MapLocate (func, directory, pattern))
+
+    def copy (self, src, dest):
+        return self._execute (Copy (src, dest))
+
+    def func (self, f):
+        return self._execute (Func (f))

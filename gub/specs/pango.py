@@ -1,10 +1,10 @@
 import glob
 import os
-import shutil
+import re
+
 from gub import mirrors
 from gub import misc
 from gub import targetpackage
-import re
 
 class Pango (targetpackage.TargetBuildSpec):
     def __init__ (self, settings):
@@ -28,7 +28,14 @@ class Pango (targetpackage.TargetBuildSpec):
 ''')
 
     def configure_command (self):
-        return (targetpackage.TargetBuildSpec.configure_command (self)
+        print 'FIXME: what happened to targetpackage.get_dependency_dict'
+        return ('PKG_CONFIG_PATH=%(system_prefix)s/lib/pkgconfig '
+                + 'PKG_CONFIG="pkg-config \
+--define-variable prefix=%(system_prefix)s \
+--define-variable includedir=%(system_prefix)s/include \
+--define-variable libdir=%(system_prefix)s/lib \
+" '
+                + targetpackage.TargetBuildSpec.configure_command (self)
                 + self.configure_flags ())
 
     def configure (self):
@@ -42,28 +49,29 @@ class Pango (targetpackage.TargetBuildSpec):
     def fix_modules (self, prefix='/usr'):
         etc = self.expand ('%(install_root)s/%(prefix)s/etc/pango', locals ())
         self.system ('mkdir -p %(etc)s' , locals ())
-        for a in glob.glob (etc + '/*'):
-            self.file_sub ([('/%(prefix)s/', '$PANGO_PREFIX/')], a, locals ())
+
+        self.map_locate (lambda x: self.file_sub ([('/%(prefix)s/',
+                                                    '$PANGO_PREFIX/')], x,
+                                                  locals ()), etc, '*')
 
         pango_module_version = None
-        for dir in glob.glob (self.expand ('%(install_root)s/%(prefix)s/lib/pango/*', locals ())):
+        def write_pangorc (dir):
+            if pango_module_version:
+                return
             m = re.search ("([0-9.]+)", dir)
-            if not m:
-                continue
-            
-            pango_module_version = m.group (1)
-            break
-        
-        if not pango_module_version:
-            raise 'No version found'
-        
-        open (etc + '/pangorc', 'w').write (
-        '''[Pango]
+            if m:
+                pango_module_version = m.group (1)
+                open (etc + '/pangorc', 'w').write ('''[Pango]
 ModuleFiles = $PANGO_PREFIX/etc/pango/pango.modules
 ModulesPath = $PANGO_PREFIX/lib/pango/%(pango_module_version)s/modules
 ''' % locals ())
         
-        shutil.copy2 (self.expand ('%(sourcefiledir)s/pango.modules'), etc)
+        self.map_locate (write_pangorc, '%%(install_root)s/%(prefix)s/lib/pango' % locals (), '*')
+
+        def check_pango_module_version ():
+            assert (pango_module_version)
+        self.os_interface.func (check_pango_module_version)
+        self.copy ('%(sourcefiledir)s/pango.modules', etc)
 
     def install (self):
         targetpackage.TargetBuildSpec.install (self)                

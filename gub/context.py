@@ -223,6 +223,9 @@ Results include DIRECTORY in the filenames.'''
         return self.os_interface.map_locate (func, self.expand (directory),
                                              pattern)
 
+    def copy (self, src, dest):
+        return self.os_interface.copy (self.expand (src), self.expand (dest))
+
 #
 # Tests.
 #
