@@ -82,7 +82,6 @@ class Pango__linux (Pango):
         self.file_sub ([('(have_cairo[_a-z0-9]*)=true', '\\1=false'),
                         ('(cairo[_a-z0-9]*)=yes', '\\1=no')],
                        '%(srcdir)s/configure')
-        os.chmod ('%(srcdir)s/configure' % self.get_substitution_dict (), 0755)
 
 class Pango__freebsd (Pango__linux):
     def get_build_dependencies (self):
