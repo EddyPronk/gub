@@ -97,34 +97,34 @@ class Builder:
 
         if self.settings.options.fresh:
             try:
-                spec_obj.os_interface.action ('removing status filex')
+                spec_obj.os_interface.action ('Removing status filex')
                 os.unlink (spec_obj.get_stamp_file ())
-            except oserror:
+            except OSError:
                 pass
 
-        tainted = false
+        tainted = False
         for stage in stages:
             if (not available.has_key (stage)):
                 continue
 
             if spec.is_done (stage, stages.index (stage)):
-                tainted = true
+                tainted = True
                 continue
             if (stage == 'clean'
                 and self.settings.options.keep_build):
                 os.unlink (spec.get_stamp_file ())
                 continue
             
-            spec.os_interface.stage (' *** stage: %s (%s, %s)\n'
+            spec.os_interface.stage (' *** Stage: %s (%s, %s)\n'
                                      % (stage, spec.name (),
                                         self.settings.platform))
 
             if (stage == 'package' and tainted
                 and not self.settings.options.force_package):
-                msg = spec.expand ('''this compile has previously been interrupted.
-to ensure a repeatable build, this will not be packaged.
+                msg = spec.expand ('''This compile has previously been interrupted.
+To ensure a repeatable build, this will not be packaged.
 
-use
+Use
 
 rm %(stamp_file)s
 
@@ -138,19 +138,14 @@ to skip this check.
                 sys.exit(1)
             try:
                 (available[stage]) ()
-            except misc.systemfailed:
-
-                ## failed patch will leave system in unpredictable state.
+            except misc.SystemFailed, e:
+                # A failed patch will leave system in unpredictable state.
                 if stage == 'patch':
                     spec.system ('rm %(stamp_file)s')
-
-                raise
+                raise e
 
             if stage != 'clean':
                 spec.set_done (stage, stages.index (stage))
-        # FIXME: we also do this after pkg_install.  If this is removed
-        # here, packages do not build at all??
-        spec.os_interface.execute_deferred ()
 
     def spec_conflict_resolution (self, spec, pkg):
         pkg_name = pkg.name ()
@@ -206,6 +201,10 @@ to skip this check.
             self.settings.os_interface.stage ('building package: %s\n'
                                               % spec_name)
             self.run_one_builder (spec)
+        # FIXME: If this is removed we get an error from tar-read pipe:
+        # tar: /home/janneke/vc/gub-serialized/target/local/packages/pkg-config-0.20.local.gup: Functie open() is mislukt: Bestand of map bestaat niet
+        # should defer action on read-pipe ...
+        spec.os_interface.execute_deferred ()
 
         # FIXME, spec_install should be stage?
         if not self.settings.options.stage: # or options.stage == spec_install:
