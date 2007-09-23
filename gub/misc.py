@@ -103,23 +103,18 @@ def uniq (list):
 
     return u
 
-
-
 def intersect (l1, l2):
     return [l for l in l1 if l in l2]
 
-def tar_compression_flag (ball):
-    compression_flag = ''
-    if ball.endswith ('gub'):
-        compression_flag = 'z'
-    elif ball.endswith ('gup'):
-        compression_flag = 'z'
+def compression_flag (ball):
+    if (ball.endswith ('gub')
+        or ball.endswith ('gup')
+        or ball.endswith ('gz')
+        or ball.endswith ('tgz')):
+        return ' -z'
     elif ball.endswith ('bz2'):
-        compression_flag = 'j'
-    elif ball.endswith ('gz'):
-        compression_flag = 'z'
-    return compression_flag
-
+        return ' -j'
+    return ''
 
 def file_is_newer (f1, f2):
     return (not os.path.exists (f2)

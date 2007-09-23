@@ -337,15 +337,10 @@ class Linux_installer (Installer):
 
 def create_shar (orig_file, hello, head, target_shar):
     length = os.stat (orig_file)[6]
-
-    tarflag = tar_compression_flag (orig_file)
-
     base_orig_file = os.path.split (orig_file)[1]
     script = open (head).read ()
-
     header_length = 0
     header_length = len (script % locals ()) + 1
-
     f = open (target_shar, 'w')
     f.write (script % locals())
     f.close ()

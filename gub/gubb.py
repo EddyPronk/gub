@@ -499,8 +499,9 @@ rm -f %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/share/info/dir %(in
         # stage?
         dir_name = re.sub (self.expand ('%(allsrcdir)s/'), '',
                            self.expand ('%(srcdir)s'))
+        _v = self.verbose_flag ()
         self.system ('''
-tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"  -zcf %(src_package_ball)s %(dir_name)s
+tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"%(_v)s -zcf %(src_package_ball)s %(dir_name)s
 ''',
                      locals ())
 
@@ -638,10 +639,8 @@ class BinarySpec (BuildSpec):
         
         self.system ('mkdir -p %(install_root)s')
 
-        _verbose = ''
-        if self.verbose:
-            _verbose = ' -v'
-        self.system ('tar -C %(srcdir)s -cf- . | tar -C %(install_root)s%(_verbose)s -p -xf-', env=locals ())
+        _v = self.os_interface.verbose_flag ()
+        self.system ('tar -C %(srcdir)s -cf- . | tar -C %(install_root)s%(_v)s -p -xf-', env=locals ())
         self.libtool_installed_la_fixups ()
 
     def get_subpackage_names (self):

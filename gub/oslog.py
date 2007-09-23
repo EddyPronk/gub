@@ -38,18 +38,18 @@ class Nop (SerializedCommand):
         pass
     
 class System (SerializedCommand):
-    def __init__(self, c, **kwargs):
+    def __init__ (self, c, **kwargs):
         SerializedCommand.__init__ (self)
         self.command = c
         self.kwargs = kwargs
         
     def __repr__ (self):
-        return 'System(%s)' % repr(self.command)
+        return 'System (%s)' % repr (self.command)
 
     def execute (self, os_commands):
         cmd = self.command
         verbose = os_commands.verbose
-        ignore_errors = self.kwargs.get('ignore_errors')
+        ignore_errors = self.kwargs.get ('ignore_errors')
         os_commands.log ('invoking %s\n' % cmd, level['command'], verbose)
 
         if os_commands.dry_run:
@@ -79,11 +79,10 @@ class System (SerializedCommand):
         return proc.returncode
 
 class Message (SerializedCommand):
-    def __init__ (self, message, threshold, verbose, defer):
+    def __init__ (self, message, threshold, verbose):
         self.message = message
         self.threshold = threshold
         self.verbose = verbose
-        self.defer = defer
     def execute (self, os_commands):
         if not self.message:
             return 0
@@ -117,7 +116,7 @@ class Dump (SerializedCommand):
         self.args = args
         self.kwargs = kwargs
     def __repr__ (self):
-        return 'Dump(%s)' % repr(self.args)
+        return 'Dump (%s)' % repr (self.args)
 
     def execute (self, os_commands):
         str, name = self.args
@@ -148,7 +147,7 @@ If TO_NAME is specified, the output is sent to there.
         self.kwargs = kwargs
         
     def __repr__ (self):
-        return 'Substitute(%s)' % repr(self.args)
+        return 'Substitute (%s)' % repr (self.args)
 
     def execute (self, os_commands):
         (re_pairs, name) = self.args
@@ -258,7 +257,8 @@ class PackageGlobs (SerializedCommand):
         if not globs:
             globs.append ('thisreallysucks-but-lets-hope-I-dont-exist/')
 
-        cmd = 'tar -C %(root)s/%(suffix_dir)s --ignore-failed --exclude="*~" -zcf %(dest)s ' % locals()
+        _v = os_commands.verbose_flag ()
+        cmd = 'tar -C %(root)s/%(suffix_dir)s --ignore-failed --exclude="*~"%(_v)s -zcf %(dest)s ' % locals()
         cmd += ' '.join (globs) 
         System (cmd).execute (os_commands)
 
@@ -347,15 +347,16 @@ This enables proper logging and deferring and checksumming of commands.'''
         self.log_file.write ('\n\n' + self.start_marker)
         self.fakeroot_cmd = False
 
+    def defer_execution (self, defer=True):
+        self._defer = defer
+
     def execute_deferred (self):
         a = self._deferred_commands
-        defer = self._defer
         self._defer = False
         self._deferred_commands = list ()
         for cmd in a:
             cmd.execute (self)
         assert self._deferred_commands == list ()
-        self._defer = defer
 
     def _execute (self, command, defer=None):
         if defer == None:
@@ -375,6 +376,11 @@ This enables proper logging and deferring and checksumming of commands.'''
     def fakeroot (self, s):
         self.fakeroot_cmd = s
         
+    def verbose_flag (self):
+        if self.verbose >= level['output']:
+            return ' -v'
+        return ''
+
     def system_one (self, cmd, env, ignore_errors, verbose=None, defer=None):
         '''Run CMD with environment vars ENV.'''
         if not verbose:
@@ -389,7 +395,7 @@ This enables proper logging and deferring and checksumming of commands.'''
         return self._execute (System (cmd, ignore_errors=ignore_errors, verbose=verbose), defer=defer)
 
     def log (self, str, threshold, verbose=None, defer=None):
-        return self._execute (Message (str, threshold, verbose, defer))
+        return self._execute (Message (str, threshold, verbose), defer)
 
     def action (self, str, defer=None):
         self.log (str, level['action'], self.verbose, defer)

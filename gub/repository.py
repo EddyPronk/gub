@@ -365,19 +365,18 @@ class TarBall (Repository):
         tarball = self.dir + '/' + self._file_name ()
         strip_components = self.strip_components
         self.system ('mkdir %s' % destdir)       
-        self.system ('ar p %(tarball)s data.tar.gz | tar -C %(destdir)s --strip-component=%(strip_components)d -zxf -' % locals ())
+        _v = self.oslog.verbose_flag ()
+        self.system ('ar p %(tarball)s data.tar.gz | tar -C %(destdir)s --strip-component=%(strip_components)d%(_v)s -zxf -' % locals ())
         
     def update_workdir_tarball (self, destdir):
-        
         tarball = self.dir + '/' + self._file_name ()
-        flags = mirrors.untar_flags (tarball)
-
         if os.path.isdir (destdir):
             self.system ('rm -rf %s' % destdir)
-
         self.system ('mkdir %s' % destdir)       
         strip_components = self.strip_components
-        self.system ('tar -C %(destdir)s --strip-component=%(strip_components)d %(flags)s %(tarball)s' % locals ())
+        _v = self.oslog.verbose_flag ()
+        _z = misc.compression_flag (tarball)
+        self.system ('tar -C %(destdir)s --strip-component=%(strip_components)d %(_v)s%(_z)s -xf %(tarball)s' % locals ())
 
     def update_workdir (self, destdir):
         if '.deb' in self._file_name () :

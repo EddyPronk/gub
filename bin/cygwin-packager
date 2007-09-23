@@ -260,15 +260,13 @@ category: %(local_category)s%(requires_line)s%(external_source_line)s
         return hint
 
     def _untar (self, dir, ball, env={}):
-        v = ''
-        if self.verbose >= self.os_interface.level['command']:
-            v = 'v'
+        _v = self.os_interface.verbose_flag ()
         e = env.copy ()
         e.update (locals ())
         self.system ('''
 rm -rf %(dir)s
 mkdir -p %(dir)s
-tar -C %(dir)s -z%(v)sxf %(ball)s''', e)
+tar -C %(dir)s%(_v)s -zxf %(ball)s''', e)
 
     def _tar (self, dir, ball, content, env={}):
         ball_dir = os.path.dirname (ball)

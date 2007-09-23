@@ -53,13 +53,11 @@ class Root_image (gubb.NullBuildSpec):
         fakeroot_cache = self.builddir () + '/fakeroot.cache'
         self.fakeroot (self.expand (self.settings.fakeroot, locals ()))
         import glob
+        _v = self.os_interface.verbose_flag ()
         for f in glob.glob (self.expand ('%(downloads)s/ipk/%(i)s_*.ipk',
                                          locals ())):
-            v = ''
-            if self.verbose >= self.os_interface.level['command']:
-                v = 'v'
             self.system ('''
-cd %(install_root)s && ar p %(f)s data.tar.gz | tar -zx%(v)sf -
+cd %(install_root)s && ar p %(f)s data.tar.gz | tar%(_v)s -zxf -
 ''', locals ())
     def install (self):
         gubb.NullBuildSpec.install (self)

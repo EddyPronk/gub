@@ -45,7 +45,7 @@ def get_platform_from_dir (settings, dir):
     return None
 
 class Settings (context.Context):
-    def __init__ (self, options):
+    def __init__ (self, options, os_interface=None):
         context.Context.__init__ (self)
 
         # TODO: local-prefix, target-prefix, cross-prefix?
@@ -144,6 +144,7 @@ class Settings (context.Context):
         elif self.platform == 'mingw':
             self.target_gcc_flags = '-mwindows -mms-bitfields'
 
+        self.branches = dict ()
         if options.branches:
             self.set_branches (options.branches)
         self.options = options ##ugh
@@ -180,10 +181,11 @@ class Settings (context.Context):
         if not os.path.isdir ('log'):
             os.mkdir ('log')
             
-        self.os_interface = oslog.Os_commands (('log/%(platform)s.log'
-                                                % self.__dict__),
-                                               self.options.verbose,
-                                               defer=True)
+        self.os_interface = os_interface
+        if not self.os_interface:
+            self.os_interface = oslog.Os_commands (('log/%(platform)s.log'
+                                                    % self.__dict__),
+                                                   self.options.verbose)
         self.create_dirs ()
         self.build_architecture = self.os_interface.read_pipe ('gcc -dumpmachine',
                                                                silent=True)[:-1]

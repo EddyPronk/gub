@@ -1,5 +1,4 @@
-#!/usr/bin/python
-
+#! /usr/bin/python
 
 """
     gpkg - GUB package manager
@@ -51,7 +50,7 @@ class Command:
 
     def available (self):
         '''list available packages'''
-        print '\n'.join (self.pm._packages.keys ())
+        print '\n'.join (sort (self.pm._packages.keys ()))
 
     def files (self):
         '''list installed files'''
@@ -153,10 +152,7 @@ def get_cli_parser ():
                   action='store',
                   dest='dbdir',
                   help='set db directory')
-    p.add_option ('-v', '--verbose',
-                  action='store_true',
-                  dest='verbose',
-                  help='be verbose')
+    p.add_option ('-v', '--verbose', action='count', dest='verbose', default=0)
     return p
 
 def parse_options ():
@@ -177,10 +173,10 @@ def parse_options ():
 def main ():
     options = parse_options ()
     from gub.settings import Settings
-    settings = Settings (options)
+    osi = oslog.Os_commands ('/dev/null', options.verbose)
+    settings = Settings (options, osi)
     options.root = settings.system_root
     options.platform = settings.platform
-    osi = oslog.Os_commands ('/dev/null', oslog.level['error'])
     osi.stage ('root: ' + settings.system_root + '\n')
     osi.info ('platform: ' + settings.platform + '\n')
     target_manager = gup.DependencyManager (options.root,

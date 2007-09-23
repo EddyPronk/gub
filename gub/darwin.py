@@ -81,8 +81,7 @@ class Rewirer (context.Os_context_wrapper):
                 self.rewire_mach_o_object_executable_path (f)
 
     def set_ignore_libs_from_tarball (self, tarball):
-        file_str = self.read_pipe ('tar tzf %(tarball)s', locals())
-        files = file_str.split ('\n')
+        files = self.read_pipe ('tar -tzf %(tarball)s', locals ()).split ('\n')
         self.set_ignore_libs_from_files (files)
 
     def set_ignore_libs_from_files (self, files):

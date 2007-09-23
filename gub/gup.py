@@ -15,12 +15,11 @@ import sys
 import glob
 
 #
-from gub.misc import * # FIXME
-
 from gub import cross
-from gub import targetpackage
+from gub import gubb
 from gub import locker
-from gub import gubb ## ugh
+from gub import misc
+from gub import targetpackage
 
 class GupException (Exception):
     pass
@@ -74,13 +73,6 @@ class FileManager:
         if not os.path.isdir (self.root):
             self.os_interface.system ('mkdir -p %s' % self.root, defer=False)
         
-    def tarball_files (self, ball):
-        flag = tar_compression_flag (ball)
-        str = self.os_interface.read_pipe ('tar -t%(flag)sf "%(ball)s"'
-                                           % locals ())
-        lst = str.split ('\n')
-        return lst
-
     def installed_files (self, package):
         return self._package_file_db[package].split ('\n')
 
@@ -88,13 +80,13 @@ class FileManager:
         return self._package_file_db.has_key (name)
 
     def install_tarball (self, ball, name, prefix_dir):
-        self.os_interface.action ('installing package %(name)s from %(ball)s\n'
-                                % locals ())
+        self.os_interface.action ('untarring: %(ball)s\n' % locals ())
 
-        flag = tar_compression_flag (ball)
+        _z = misc.compression_flag (ball)
+        _v = self.os_interface.verbose_flag ()
         root = self.root
-        lst = self.tarball_files (ball)
-
+        lst = self.os_interface.read_pipe ('tar -t%(_z)s -f "%(ball)s"'
+                                           % locals ()).split ('\n')
         conflicts = False
         for f in lst:
             if (self._file_package_db.has_key (f)
@@ -105,7 +97,7 @@ class FileManager:
         if conflicts and not self.is_distro:
             raise Exception ('abort')
 
-        self.os_interface.system ('tar -C %(root)s -p -x%(flag)sf %(ball)s'
+        self.os_interface.system ('tar -C %(root)s -p -x%(_z)s%(_v)s -f %(ball)s'
                                   % locals ())
 
         self._package_file_db[name] = '\n'.join (lst)
@@ -169,14 +161,12 @@ class FileManager:
             try:
                 os.rmdir (d)
             except OSError:
-                self.os_interface.harmless ('warning: %s not empty' % d)
-
+                self.os_interface.harmless ('warning: %(d)s not empty\n'
+                                            % locals ())
         for f in lst:
-
             ## fixme (?)  -- when is f == ''
             if not f or f.endswith ('/'):
                 continue
-
             try:
                 del self._file_package_db[f]
             except:
@@ -345,8 +335,8 @@ class DependencyManager (PackageManager):
         try:
             return self.dict_dependencies (self._packages[name])
         except KeyError:
-            print 'unknown package', name
-            return []
+            self.os_interface.error ('no such package: %(name)s\n' % locals ())
+            return list ()
 
     def dict_dependencies (self, dict):
         deps = dict['dependencies_string'].split (';')

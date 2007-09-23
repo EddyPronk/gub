@@ -134,8 +134,8 @@ to force rebuild, or
 
 to skip this check.
 ''')
-                spec.os_interface.error (msg)
-                sys.exit(1)
+                spec.os_interface.error (msg, defer=False)
+                sys.exit (1)
             try:
                 (available[stage]) ()
             except misc.SystemFailed, e:
@@ -200,11 +200,9 @@ to skip this check.
             or not checksum_ok):
             self.settings.os_interface.stage ('building package: %s\n'
                                               % spec_name)
+            spec.os_interface.defer_execution ()
             self.run_one_builder (spec)
-        # FIXME: If this is removed we get an error from tar-read pipe:
-        # tar: /home/janneke/vc/gub-serialized/target/local/packages/pkg-config-0.20.local.gup: Functie open() is mislukt: Bestand of map bestaat niet
-        # should defer action on read-pipe ...
-        spec.os_interface.execute_deferred ()
+            spec.os_interface.execute_deferred ()
 
         # FIXME, spec_install should be stage?
         if not self.settings.options.stage: # or options.stage == spec_install:
@@ -213,7 +211,6 @@ to skip this check.
                                      % ('pkg_install', spec.name (),
                                         self.settings.platform))
             self.spec_install (spec)
-        spec.os_interface.execute_deferred ()
 
     def uninstall_outdated_spec (self, spec_name):
             spec = self.specs[spec_name]
