@@ -147,6 +147,8 @@ to skip this check.
             if stage != 'clean':
                 spec.set_done (stage, stages.index (stage))
 
+    # FIXME: this should be in gpkg/gup.py otherwise it's impossible
+    # to install packages in a conflict situation manually
     def spec_conflict_resolution (self, spec, pkg):
         pkg_name = pkg.name ()
         install_candidate = pkg
