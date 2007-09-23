@@ -182,7 +182,7 @@ If TO_NAME is specified, the output is sent to there.
             mode = stat.S_IMODE(stat_info[stat.ST_MODE])
 
             if not to_name:
-                os_commands.action ('backing up %(name)s' % locals())
+                os_commands.action ('backing up: %(name)s\n' % locals())
                 try:
                     os.unlink (name + '~')
                 except OSError:
