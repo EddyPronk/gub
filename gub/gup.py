@@ -116,8 +116,6 @@ class FileManager:
         if file.startswith ('./'):
             file = file[2:]
         dir = os.path.dirname (file)
-        # FIXME: this never worked because we never had us_re?
-        # we may want to try removing this altogether.
         self.os_interface.file_sub ([('^libdir=.*',
                                       """libdir='%(root)s/%(dir)s'""" % locals ()
                                       ),],
