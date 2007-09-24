@@ -48,11 +48,11 @@ class ConstantCall:
     def __call__ (self):
         return self.const
 
-class SetAttrTooLate(Exception):
+class SetAttrTooLate (Exception):
     pass
-class ExpandInInit(Exception):
+class ExpandInInit (Exception):
     pass
-class NonStringExpansion(Exception):
+class NonStringExpansion (Exception):
     pass
 
 #class Context (object):
@@ -69,14 +69,12 @@ class Context:
         self._parent = parent
         self._substitution_assignment_traceback = None
 
-    def __setattr__(self, k, v):
-        if (type(v) == type('')
+    def __setattr__ (self, k, v):
+        if (type (v) == type ('')
             and k != '_substitution_dict' and self._substitution_dict):
             print 'was already set in'
             print ''.join (traceback.format_list (self._substitution_assignment_traceback))
-
             raise SetAttrTooLate ((k, self))
-
         self.__dict__[k] = v
         
     def get_constant_substitution_dict (self):
