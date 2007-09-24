@@ -298,7 +298,7 @@ class BuildSpec (Os_context_wrapper):
         return False
 
     def set_done (self, stage, stage_number):
-        open (self.get_stamp_file (),'w'). write ('%d' % stage_number) 
+        self.dump ('%(stage_number)d' % locals (), self.get_stamp_file (), 'w')
 
     def autoupdate (self):
         self.os_interface._execute (oslog.AutogenMagic(self))
