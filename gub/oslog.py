@@ -87,6 +87,13 @@ class Copy (SerializedCommand):
         import shutil
         shutil.copy2 (self.src, self.dest)
 
+class Chmod (SerializedCommand):
+    def __init__ (self, file, mode):
+        self.file = file
+        self.mode = mode
+    def execute (self, os_commands):
+        os.chmod (self.file, self.mode)
+
 class Func (SerializedCommand):
     def __init__ (self, func):
         self.func = func
@@ -530,3 +537,6 @@ commands.
 
     def func (self, f):
         return self._execute (Func (f))
+
+    def chmod (self, file, mode):
+        return self._execute (Chmod (file, mode))

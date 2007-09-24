@@ -224,6 +224,9 @@ Results include DIRECTORY in the filenames.'''
     def copy (self, src, dest):
         return self.os_interface.copy (self.expand (src), self.expand (dest))
 
+    def chmod (self, file, mode):
+        return self.os_interface.chmod (self.expand (file), mode)
+
 #
 # Tests.
 #
