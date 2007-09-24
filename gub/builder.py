@@ -112,7 +112,9 @@ class Builder:
                 continue
             if (stage == 'clean'
                 and self.settings.options.keep_build):
-                os.unlink (spec.get_stamp_file ())
+                # defer unlink?
+                # os.unlink (spec.get_stamp_file ())
+                spec.os_interface.system ('rm ' + spec.get_stamp_file ())
                 continue
             
             spec.os_interface.stage (' *** Stage: %s (%s, %s)\n'
