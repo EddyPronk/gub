@@ -42,7 +42,7 @@ class System (SerializedCommand):
         SerializedCommand.__init__ (self)
         self.command = c
         self.kwargs = kwargs
-        
+
     def __repr__ (self):
         return 'System (%s)' % repr (self.command)
 
@@ -55,7 +55,8 @@ class System (SerializedCommand):
         if os_commands.dry_run:
             return 0
 
-        proc = subprocess.Popen (cmd,  bufsize=1, shell=True, env=self.kwargs.get('env'),
+        proc = subprocess.Popen (cmd,  bufsize=1, shell=True,
+                                 env=self.kwargs.get ('env'),
                                  stdout=subprocess.PIPE,
                                  stderr=subprocess.STDOUT,
                                  close_fds=True)
@@ -411,7 +412,7 @@ This enables proper logging and deferring and checksumming of commands.'''
             cmd = re.sub ('''(^ *|['"();|& ]*)(chown|rm|tar) ''',
                           '\\1%(fakeroot_cmd)s\\2 ' % self.__dict__, cmd)
         # ' 
-        return self._execute (System (cmd, ignore_errors=ignore_errors, verbose=verbose), defer=defer)
+        return self._execute (System (cmd, env=env, ignore_errors=ignore_errors, verbose=verbose), defer=defer)
 
     def log (self, str, threshold, verbose=None, defer=None):
         return self._execute (Message (str, threshold, verbose), defer)
