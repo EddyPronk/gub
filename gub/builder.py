@@ -97,8 +97,8 @@ class Builder:
 
         if self.settings.options.fresh:
             try:
-                spec_obj.os_interface.action ('Removing status file')
-                os.unlink (spec_obj.get_stamp_file ())
+                spec.os_interface.action ('Removing status file')
+                os.unlink (spec.get_stamp_file ())
             except OSError:
                 pass
 
