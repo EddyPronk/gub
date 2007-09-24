@@ -28,14 +28,7 @@ class Pango (targetpackage.TargetBuildSpec):
 ''')
 
     def configure_command (self):
-        print 'FIXME: what happened to targetpackage.get_dependency_dict'
-        return ('PKG_CONFIG_PATH=%(system_prefix)s/lib/pkgconfig '
-                + 'PKG_CONFIG="pkg-config \
---define-variable prefix=%(system_prefix)s \
---define-variable includedir=%(system_prefix)s/include \
---define-variable libdir=%(system_prefix)s/lib \
-" '
-                + targetpackage.TargetBuildSpec.configure_command (self)
+        return (targetpackage.TargetBuildSpec.configure_command (self)
                 + self.configure_flags ())
 
     def configure (self):
