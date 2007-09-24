@@ -124,7 +124,9 @@ class FileManager:
         # fails.  Would have been a nice assert.  Possibly for platforms
         # other than local?  Hmm, let's try that.
         #                            must_succeed=True)
-                                    must_succeed=self.platform != 'local')
+#                                    must_succeed=self.settings.platform != 'local'
+                                    # Whurg, we do not know the platform here...
+                                    must_succeed='local/root' not in self.root)
 
     def pkgconfig_pc_fixup (self, root, file, prefix_dir):
         # avoid using libs from build platform, by adding
