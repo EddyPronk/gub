@@ -143,7 +143,11 @@ class Dump (SerializedCommand):
     def execute (self, os_commands):
         str, name = self.args
         mode = self.kwargs.get ('mode', 'w')
-        assert type (mode) == type ('')
+        if not type (mode) == type (''):
+            print 'MODE:', mode
+            print 'STR:', str
+            print 'NAME:', name
+            assert type (mode) == type ('')
 
         dir = os.path.split (name)[0]
         if not os.path.exists (dir):
