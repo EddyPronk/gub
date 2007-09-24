@@ -805,7 +805,7 @@ class SimpleRepo (Repository):
     def download (self):
         if not self.is_downloaded ():
             self._checkout ()
-        if self._current_revision () != self.revision:
+        elif self._current_revision () != self.revision:
             self._update (self.revision)
         self.info ('downloaded version: ' + self.version () + '\n')
 
