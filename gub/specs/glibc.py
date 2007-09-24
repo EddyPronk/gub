@@ -2,12 +2,13 @@ from gub import mirrors
 from gub import misc
 from gub import repository
 from gub import targetpackage
+from gub import cross
 #
 import os
 
 # Hmm? TARGET_CFLAGS=-O --> targetpackage.py
 
-class Glibc (targetpackage.TargetBuildSpec):
+class Glibc (targetpackage.TargetBuildSpec, cross.CrossToolSpec):
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
         #self.with_tarball (mirror=mirrors.gnu, version='2.3.6')
