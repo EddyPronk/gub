@@ -25,6 +25,8 @@
 
 * eradicate glob.glob (use map_locate)
 
+* [misc.]find_files
+
 NICE TO HAVE
 
 * autotools magic -> script
@@ -34,3 +36,8 @@ NICE TO HAVE
 * replace *args, **kwargs with actual values?
 
 * naming of `oslog', `os_commands'
+
+* investigate flavours of libtool_la fixups:
+   - gubb.libtool_installed_la_fixups ()
+   - gup.libtool_la_fixup ()
+   - targetpackage.pre_install_libtool_fixup ()

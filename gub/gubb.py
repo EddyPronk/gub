@@ -362,23 +362,22 @@ rm -f %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/share/info/dir %(in
         self.libtool_installed_la_fixups ()
 
     def libtool_installed_la_fixups (self):
-        for la in misc.find_files (self.expand ('%(install_root)s'), '\.la$'):
+        def installed_la_fixup (la):
             (dir, base) = os.path.split (la)
             base = base[3:-3]
             dir = re.sub (r"^\./", "/", dir)
-            full_la = self.expand ("%(install_root)s/%(la)s", locals())
-
             self.file_sub ([(''' *-L *[^\"\' ][^\"\' ]*''', ''),
                     ('''( |=|\')(/[^ ]*usr/lib|%(targetdir)s.*)/lib([^ \'/]*)\.(a|la|so)[^ \']*''',
                     '\\1-l\\3 '),
                     ('^old_library=.*',
                     """old_library='lib%(base)s.a'"""),
                     ],
-                   full_la, env=locals ())
+                   la, env=locals ())
             if self.settings.platform.startswith ('mingw'):
                 self.file_sub ([('library_names=.*',
                                  "library_names='lib%(base)s.dll.a'")],
-                               full_la, env=locals())
+                               la, env=locals ())
+        self.map_locate (installed_la_fixup, '%(install_root)s', 'lib*.la')
 
     def compile (self):
         self.system ('cd %(builddir)s && %(compile_command)s')
