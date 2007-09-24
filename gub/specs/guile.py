@@ -120,10 +120,12 @@ exec %(local_prefix)s/bin/guile "$@"
                    '%(install_prefix)s/etc/relocate/guile.reloc',
                    env=locals())
         
-        ## can't assume that /usr/bin/guile is the right one.
-        version = self.read_pipe ('''\
+        if 0:
+            version = self.read_pipe ('''\
 GUILE_LOAD_PATH=%(install_prefix)s/share/guile/* guile -e main -s  %(install_prefix)s/bin/guile-config --version 2>&1\
 ''').split ()[-1]
+        print 'FIXME: should defer read_pipe to get version?'
+        version = self.expand ('%(version)s')
 	#FIXME: c&p linux.py
         self.dump ('''\
 #! /bin/sh
@@ -137,10 +139,8 @@ test "$1" = "link" && echo "-L$prefix/lib -lguile -lgmp"
 exit 0
 ''',
              '%(install_prefix)s/cross/bin/%(target_architecture)s-guile-config')
-        os.chmod ('%(install_prefix)s/cross/bin/%(target_architecture)s-guile-config' % self.get_substitution_dict (), 0755)
+        self.chmod ('%(install_prefix)s/cross/bin/%(target_architecture)s-guile-config', 0755)
 
-
-    
 class Guile__mingw (Guile):
     def __init__ (self, settings):
         Guile.__init__ (self, settings)
