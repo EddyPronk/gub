@@ -120,7 +120,11 @@ class FileManager:
                                       """libdir='%(root)s/%(dir)s'""" % locals ()
                                       ),],
                                     '%(root)s/%(file)s' % locals (),
-                                    must_succeed=True)
+        # FIXME: for local libtool 1.5.20, libdir is already OK, so this
+        # fails.  Would have been a nice assert.  Possibly for platforms
+        # other than local?  Hmm, let's try that.
+        #                            must_succeed=True)
+                                    must_succeed=self.platform != 'local')
 
     def pkgconfig_pc_fixup (self, root, file, prefix_dir):
         # avoid using libs from build platform, by adding
