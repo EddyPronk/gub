@@ -54,22 +54,23 @@ class Pango (targetpackage.TargetBuildSpec):
                                                     '$PANGO_PREFIX/')], x,
                                                   locals ()), etc, '*')
 
-        pango_module_version = None
+        self.pango_module_version = None
         def write_pangorc (dir):
-            if pango_module_version:
+            if self.pango_module_version:
                 return
-            m = re.search ("([0-9.]+)", dir)
+            m = re.search ('([0-9.]+)', dir)
             if m:
-                pango_module_version = m.group (1)
+                #FIXME: circumvent SetAttrTooLate arg.
+                self.__dict__['pango_module_version'] = m.group (1)
                 open (etc + '/pangorc', 'w').write ('''[Pango]
 ModuleFiles = $PANGO_PREFIX/etc/pango/pango.modules
 ModulesPath = $PANGO_PREFIX/lib/pango/%(pango_module_version)s/modules
-''' % locals ())
+''' % self.__dict__)
         
         self.map_locate (write_pangorc, '%%(install_root)s/%(prefix)s/lib/pango' % locals (), '*')
 
         def check_pango_module_version ():
-            assert (pango_module_version)
+            assert (self.pango_module_version)
         self.os_interface.func (check_pango_module_version)
         self.copy ('%(sourcefiledir)s/pango.modules', etc)
 

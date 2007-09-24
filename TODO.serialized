@@ -2,8 +2,6 @@
 
     make test
   
-  --> pango.py: weird libtool/glib linking error
-
 * What happens to targetpackage.get_substitution_dict (self, env={})?
   see pango.py: must manually set PKG_CONFIG_PATH (same as in
   get_substitution_dict) for configure to find fontconfig
