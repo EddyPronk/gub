@@ -1,21 +1,13 @@
-* task at hand:
+* On linux-64, for linux-64, local and lilypond build, ie
 
     make test
-  
-* What happens to targetpackage.get_substitution_dict (self, env={})?
-  see pango.py: must manually set PKG_CONFIG_PATH (same as in
-  get_substitution_dict) for configure to find fontconfig
 
-* FIXME: serialization: want checksum TOO SOON
+* New task at hand: make all ...
 
-* FIXME: serialization: want version package TOO SOON
+* Fix cutting of corners, marked by
 
-* fix continued build: when a package fails to build, next attempt
-  does not carry on where the status file should have left it and
-  complain about --force-package, but tries to install
-  from an un-existent tar ball package.  that removes the
-  status file and the next build attempt will succeed if the
-  build bug is fixed.
+  -FIXME: serialization: want checksum TOO SOON
+  -FIXME: serialization: want version package TOO SOON
 
 * actually checksumming of deferred_commands
 
@@ -31,7 +23,8 @@ NICE TO HAVE
 
 * Junk Git for SimpleGit (or fix Git to handle serialization?)
 
-* replace *args, **kwargs with actual values?
+* replace *args, **kwargs with actual values?  In any case, have
+  uniformity in SerializedCommand implementations.
 
 * naming of `oslog', `os_commands'
 
