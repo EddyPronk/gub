@@ -90,6 +90,11 @@ class BuildSpec (Os_context_wrapper):
         self.split_packages = []
         self.so_version = '1'
 
+    def stages (self):
+        return ['download', 'untar', 'patch',
+                'configure', 'compile', 'install',
+                'src_package', 'package', 'clean']
+
     @subst_method
     def LD_PRELOAD (self):
         return '%(gubdir)s/librestrict/librestrict.so'
@@ -124,7 +129,7 @@ class BuildSpec (Os_context_wrapper):
     def get_dependency_dict (self):
         """subpackage -> list of dependency dict."""
         # FIMXE: '' always depends on runtime?
-        return {'': [], 'devel': [], 'doc': [], 'runtime': []}
+        return {'': [], 'devel': [], 'doc': [], 'runtime': [], 'x11': []}
   
     def force_sequential_build (self):
         """Set to true if package can't handle make -jX """
@@ -248,7 +253,7 @@ class BuildSpec (Os_context_wrapper):
     def install_command (self):
         return '''make %(makeflags)s DESTDIR=%(install_root)s install'''
 
-    @subst_method
+    @subst_method 
     def configure_command (self):
         return '%(srcdir)s/configure --prefix=%(install_prefix)s'
 
@@ -360,8 +365,6 @@ cd %(autodir)s && autoconf %(aclocal_opt)s
 cd %(srcdir)s && automake --add-missing --foreign
 ''', locals ())
 
-
-                
     def configure (self):
         self.system ('''
 mkdir -p %(builddir)s
@@ -372,7 +375,7 @@ cd %(builddir)s && %(configure_command)s
         if self.expand ('%(license_file)s'):
             self.system ('mkdir -p %(install_root)s/license/', ignore_errors=True)
             self.system ('cp %(license_file)s %(install_root)s/license/%(name)s')
-        
+
     def broken_install_command (self):
         """For packages that do not honor DESTDIR.
         """
@@ -508,6 +511,7 @@ chmod +x %(srcdir)s/configure''')
             prefix_dir + '/cross/man',
             ],
             'runtime': ['/lib', prefix_dir + '/lib', prefix_dir + '/share'],
+            'x11': [prefix_dir + '/X11', prefix_dir + '/X11R6'],
             '' : ['/'],
             }
         return d

@@ -85,9 +85,7 @@ class Builder:
             (available[self.settings.options.stage]) ()
             return
 
-        stages = ['download', 'untar', 'patch',
-                  'configure', 'compile', 'install',
-                  'src_package', 'package', 'clean']
+        stages = spec.stages ()
 
         if self.settings.options.offline:
             stages.remove ('download')

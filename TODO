@@ -23,7 +23,9 @@
 
 * Robustification against ^C, esp. in in repository.download ()
 
-* Softcode stages.
+* Use names of stage iso number in status/stamp file.
+
+* Move classes to classname.py:ClassName iso targetpackage.TargetBuildSpec etc.
 
 * move Scons, Bjam recipes to gub lib.
 
