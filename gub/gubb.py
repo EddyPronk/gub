@@ -391,19 +391,18 @@ rm -f %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/share/info/dir %(in
         return 'false'
 
     def rewire_symlinks (self):
-        for f in self.locate_files ('%(install_root)s', '*'):
-            if os.path.islink (f):
-                s = os.readlink (f)
+        def rewire (file):
+            if os.path.islink (file):
+                s = os.readlink (file)
                 if s.startswith ('/') and self.settings.system_root not in s:
-
                     new_dest = os.path.join (self.settings.system_root, s[1:])
-                    os.remove (f)
-                    self.os_interface.action ('changing absolute link %(f)s -> %(new_dest)s' % locals())
-                    os.symlink (new_dest, f)
+                    os.remove (file)
+                    self.os_interface.action ('changing absolute link %(file)s -> %(new_dest)s' % locals())
+                    os.symlink (new_dest, file)
+        self.map_locate (rewire, '%(install_root)s', '*')
 
     def package (self):
         self.rewire_symlinks ()
-        
         ps = self.get_packages ()
         for p in ps:
             p.create_tarball ()
