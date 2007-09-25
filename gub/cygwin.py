@@ -111,10 +111,14 @@ def change_target_package (package):
         # FIXME: fairly uninformative description for packages,
         # unlike, eg, guile-devel.  This is easier, though.
         def get_subpackage_doc (split):
-            flavor = {'': 'executables',
+            flavor = {'': 'executables and common files',
+                      'bin': 'executables',
+                      'common': 'common files',
                       'devel': 'development',
                       'doc': 'documentation',
-                      'runtime': 'runtime'}[split]
+                      'runtime': 'runtime',
+                      'x11': 'x11 executables',
+                      }[split]
             doc = package.__class__.__doc__
             if not doc:
                 base = package.__class__.__name__
@@ -279,6 +283,11 @@ guile_source = [
     'guile-devel',
     'libguile17',
     ]
+ghostscript_source = [
+    'ghostscript',
+    'ghostscript-doc',
+    'ghostscript-x11',
+    ]
 fontconfig_source = [
     'fontconfig',
     'libfontconfig1',
@@ -302,7 +311,7 @@ class Dependency_resolver:
         self.settings = settings
         self.packages = {}
 #        self.source = fontconfig_source + freetype_source + guile_source + libtool_source
-        self.source = fontconfig_source + guile_source + libtool_source
+        self.source = fontconfig_source + ghostscript_source + guile_source + libtool_source
         self.load_packages ()
         
     def grok_setup_ini (self, file, skip=[]):
