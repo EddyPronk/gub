@@ -5,8 +5,16 @@ from gub import mirrors
 from gub import repository
 from gub import misc
 from gub import targetpackage
+from gub import context
 
 class Ghostscript (targetpackage.TargetBuildSpec):
+    '''The GPL Ghostscript PostScript interpreter
+Ghostscript is used for PostScript preview and printing.  It can
+display PostScript documents in an X11 environment.  It can render
+PostScript files as graphics to be printed on non-PostScript printers.
+Supported printers include common dot-matrix, inkjet and laser
+models.'''
+
     def __init__ (self, settings):
         targetpackage.TargetBuildSpec.__init__ (self, settings)
         repo = repository.Subversion (
@@ -132,12 +140,17 @@ cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS
 
     def configure (self):
         targetpackage.TargetBuildSpec.configure (self)
+        self.makefile_fixup ('%(builddir)s/Makefile')
+
+    def makefile_fixup (self, file):
         self.file_sub ([
             ('-Dmalloc=rpl_malloc', ''),
             ('GLSRCDIR=./src', 'GLSRCDIR=%(srcdir)s/src'),
             ('PSSRCDIR=./src', 'PSSRCDIR=%(srcdir)s/src'),
             ('PSLIBDIR=./lib', 'PSLIBDIR=%(srcdir)s/lib'),
             ('ICCSRCDIR=icclib', 'ICCSRCDIR=%(srcdir)s/icclib'),
+            ('CONTRIBDIR=./contrib', 'CONTRIBDIR=%(srcdir)s/contrib'),
+            ('^@CONTRIBINCLUDE@', '# @CONTRIBINCLUDE@'),
             # ESP-specific: addonsdir, omit zillion of
             # warnings (any important ones may be noticed
             # easier).
@@ -149,7 +162,7 @@ cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS
             ## ugh:  GS compile adds another layer of shell expansion. Yuck.
             (r'\$\${ORIGIN}', '\\$${ORIGIN}'),
             ],
-               '%(builddir)s/Makefile')
+               file)
 
     def install_command (self):
         return (targetpackage.TargetBuildSpec.install_command (self)
@@ -248,3 +261,66 @@ class Ghostscript__freebsd (Ghostscript):
         d[''].append ('libiconv')
         return d
 
+url='http://mirror3.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/ghostscript-8.60.tar.gz'
+class Ghostscript__cygwin (Ghostscript):
+    def _8_60_fails__init__ (self, settings):
+        #Ghostscript.__init__ (self, settings)
+        targetpackage.TargetBuildSpec.__init__ (self, settings)
+        self.with_vc (repository.TarBall (self.settings.downloads, url))
+    def patch (self):
+        self.system ('cd %(srcdir)s && ./autogen.sh --help')
+        self.system ('cd %(srcdir)s && cp Makefile.in Makefile-x11.in')
+        self.system ("cd %(srcdir)s/ && patch --force -p1 < %(patchdir)s/ghostscript-8.57-cygwin-esp.patch")
+    def get_build_dependencies (self):
+        return ['jpeg', 'libpng12-devel', 'xorg-x11-devel', 'zlib']
+    def get_dependency_dict (self):
+        return {'': ['libjpeg62', 'libpng12', 'zlib'],
+                'x11': ['ghostscript', 'xorg-x11-base']}
+    def get_subpackage_names (self):
+        return ['doc', 'x11', '']
+    def get_subpackage_definitions (self):
+        d = Ghostscript.get_subpackage_definitions (self)
+	prefix_dir = self.settings.prefix_dir
+        d['x11'] += [prefix_dir + '/bin/gs-x11*']
+        return d
+
+# X11 stuff
+    def stages (self):
+        lst = Ghostscript.stages (self)
+        return misc.list_insert (lst, misc.list_find (lst, 'install') + 1,
+                                 ['configure_x11', 'compile_x11', 'install_x11'])
+    def config_cache (self):
+        Ghostscript.config_cache (self)
+        self.system ('cd %(builddir)s && cp -p config.cache config-x11.cache')
+    @context.subst_method
+    def configure_command_x11 (self):
+        return ('CONFIG_FILES=Makefile-x11'
+                + ' CONFIG_STATUS=config-x11.status'
+                + ' ' + Ghostscript.configure_command (self)
+                .replace ('--without-x', '--with-x')
+                .replace ('--config-cache', '--cache-file=config-x11.cache')
+                + ' --x-includes=%(system_prefix)s/X11R6/include'
+                + ' --x-libraries=%(system_prefix)s/X11R6/lib'
+                + ' Makefile')
+    def configure_x11 (self):
+        self.system ('''
+mkdir -p %(builddir)s
+cd %(builddir)s && %(configure_command_x11)s
+''')
+        self.makefile_fixup ('%(builddir)s/Makefile-x11')
+    @context.subst_method
+    def compile_command_x11 (self):
+        return Ghostscript.compile_command (self) + ' -f Makefile-x11 GS=gs-x11'
+    def compile_x11 (self):
+        self.system ('''
+cd %(builddir)s && %(compile_command_x11)s
+''')
+    @context.subst_method
+    def install_command_x11 (self):
+        return (Ghostscript.install_command (self)
+                .replace (' install ', ' install-exec ')
+                + ' -f Makefile-x11 GS=gs-x11')
+    def install_x11 (self):
+        self.system ('''
+cd %(builddir)s && %(install_command_x11)s
+''')

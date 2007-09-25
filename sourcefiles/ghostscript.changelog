@@ -1,0 +1,6 @@
+ghostscript (8.57-1) unstable; urgency=low
+
+  * New maintainer.
+  * Initial Release.
+
+ -- Jan Nieuwenhuizen <janneke@gnu.org>  Tue, 25 Sep 2007 15:46:13 +0200

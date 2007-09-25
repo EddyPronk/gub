@@ -1,0 +1,72 @@
+Ghostscript
+------------------------------------------
+The GPL Ghostscript PostScript interpreter
+
+Runtime requirements (these or newer):
+  cygwin-1.5.18
+  libpng12
+  libjpeg62
+  zlib
+
+  and for the ghostscript-x11 package:
+  
+  xorg-x11-base
+
+Build requirements (these or newer):
+  cygwin-1.5.18
+  jpeg
+  libpng12-devel
+  xorg-x11-devel
+  zlib
+
+Canonical homepage:
+  http://www.ghostscript.com
+
+Canonical download:
+  http://mirror3.cs.wisc.edu/pub/mirrors/ghost/GPL
+
+License:
+  GNU GPL version 2
+
+Language:
+  C
+
+------------------------------------
+
+Build Instructions:
+
+  # Download GUB
+    mkdir gub
+    cd gub
+    git init
+    git pull git://git.sv.gnu.org/lilypond.git gub:
+
+  # Build Ghostscript for Cygwin
+
+    bin/gub -p cygwin ghostscript
+
+  # Package Ghostscript for Cygwin
+
+    bin/cygwin-packager ghostscript
+
+This will create:
+   uploads/cygwin/release/ghostscript-%(version)s-%(build)s-src.tar.bz2
+   uploads/cygwin/release/ghostscript-%(version)s-%(build)s.tar.bz2
+   uploads/cygwin/release/ghostscript-doc/ghostscript-doc-%(version)s-%(build)s.tar.bz2
+   uploads/cygwin/release/ghostscript-x11/ghostscript-x11-%(version)s-%(build)s.tar.bz2
+
+To find out the files included in the binary distribution, you can use
+"cygcheck -l bash", or browse the listing for the appropriate version
+at <http://cygwin.com/packages/>.
+
+------------------
+
+Port notes:
+
+%(changelog)s
+
+  These packages were built on GNU/Linux using GUB, see
+    http://git.sv.gnu.org/gitweb/?p=lilypond.git;a=blob_plain;f=README;hb=gub
+
+Cygwin port maintained by: Jan Nieuwenhuizen  <janneke@gnu.org>
+Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>

@@ -1,0 +1,28 @@
+i686-cygwin-gcc   -DHAVE_MKSTEMP -DHAVE_HYPOT  -O2 -Wall -Wwrite-strings -Wno-strict-aliasing -fno-builtin -fno-common -DHAVE_STDINT_H -DGX_COLOR_INDEX_TYPE="unsigned long long"   -I/home/janneke/vc/gub/target/cygwin/src/ghostscript-8.57/src -I./obj -I./obj -I/home/janneke/vc/gub/target/cygwin/src/ghostscript-8.57/src  -o ./obj/zfile.o -c /home/janneke/vc/gub/target/cygwin/src/ghostscript-8.57/src/zfile.c
+In file included from /home/janneke/vc/gub/target/cygwin/root/usr/include/sys/signal.h:107,
+                 from /home/janneke/vc/gub/target/cygwin/root/usr/include/signal.h:5,
+                 from /home/janneke/vc/gub/target/cygwin/root/usr/include/time.h:140,
+                 from /home/janneke/vc/gub/target/cygwin/root/usr/include/sys/stat.h:9,
+                 from /home/janneke/vc/gub/target/cygwin/src/ghostscript-8.57/src/stat_.h:27,
+                 from /home/janneke/vc/gub/target/cygwin/src/ghostscript-8.57/src/gxiodev.h:21,
+                 from /home/janneke/vc/gub/target/cygwin/src/ghostscript-8.57/src/stream.h:22,
+                 from /home/janneke/vc/gub/target/cygwin/src/ghostscript-8.57/src/zfile.c:36:
+/home/janneke/vc/gub/target/cygwin/root/usr/include/cygwin/signal.h:54: error: expected ')' before '->' token
+/home/janneke/vc/gub/target/cygwin/root/usr/include/cygwin/signal.h:54: error: expected ')' before '.' token
+/home/janneke/vc/gub/target/cygwin/root/usr/include/cygwin/signal.h:54: error: expected ')' before '.' token
+/home/janneke/vc/gub/target/cygwin/root/usr/include/cygwin/signal.h:55: error: expected ';' before 'unsigned'
+make: *** [obj/zfile.o] Error 1
+
+--- ./src/estack.h~	2007-07-25 11:23:32.000000000 +0200
++++ ./src/estack.h	2007-09-25 11:25:01.000000000 +0200
+@@ -29,6 +29,10 @@
+ #define iexec_stack (i_ctx_p->exec_stack)
+ #define e_stack (iexec_stack.stack)
+ 
++#if __CYGWIN__
++#include <sys/stat.h>  /* include before redefinition of esp.  */
++#endif
++
+ #define esbot (e_stack.bot)
+ #define esp (e_stack.p)
+ #define estop (e_stack.top)
