@@ -374,7 +374,9 @@ class TarBall (Repository):
             self.system ('rm -rf %s' % destdir)
         self.system ('mkdir %s' % destdir)       
         strip_components = self.strip_components
-        _v = self.oslog.verbose_flag ()
+        _v = ''
+        if self.oslog:  #urg, will be fixed when .vc_repository is mandatory
+            _v = self.oslog.verbose_flag ()
         _z = misc.compression_flag (tarball)
         self.system ('tar -C %(destdir)s --strip-component=%(strip_components)d %(_v)s%(_z)s -xf %(tarball)s' % locals ())
 
