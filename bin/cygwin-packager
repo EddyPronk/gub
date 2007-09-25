@@ -110,6 +110,11 @@ class Cygwin_package (context.Os_context_wrapper):
         self.dump_hint (hdr, self.expand ('%(installer_root)s/etc/hints/%(cyg_split)s.hint', locals ()))
         self.dump_readmes (hdr)
         self._CYGWIN_PATCHES_dir ()
+        name = hdr['name']
+        if main_p:
+            self.system ('''
+cp %(installer_root)s/license/%(name)s %(installer_root)s/usr/share/doc/%(name)s/LICENSE
+''')
         self.remove_cruft ()
         self.binary_strip ()
         self.replace_interpreters ()
