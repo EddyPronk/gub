@@ -278,12 +278,11 @@ class Ghostscript__cygwin (Ghostscript):
                 'x11': ['ghostscript', 'xorg-x11-base']}
     def get_subpackage_names (self):
         return ['doc', 'x11', '']
-    def get_subpackage_definitions (self):
-        d = Ghostscript.get_subpackage_definitions (self)
-	prefix_dir = self.settings.prefix_dir
-        d['x11'] += [prefix_dir + '/bin/gs-x11*']
-        return d
-
+    def compile (self):
+        self.system ('''
+cd %(builddir)s && rm -f obj/*.tr
+''')
+        Ghostscript.compile (self)
 # X11 stuff
     def stages (self):
         lst = Ghostscript.stages (self)
@@ -310,16 +309,17 @@ cd %(builddir)s && %(configure_command_x11)s
         self.makefile_fixup ('%(builddir)s/Makefile-x11')
     @context.subst_method
     def compile_command_x11 (self):
-        return Ghostscript.compile_command (self) + ' -f Makefile-x11 GS=gs-x11'
+        return Ghostscript.compile_command (self) + ' -f Makefile-x11 GS=gs-x11.exe'
     def compile_x11 (self):
         self.system ('''
+cd %(builddir)s && rm -f obj/*.tr
 cd %(builddir)s && %(compile_command_x11)s
 ''')
     @context.subst_method
     def install_command_x11 (self):
         return (Ghostscript.install_command (self)
                 .replace (' install ', ' install-exec ')
-                + ' -f Makefile-x11 GS=gs-x11')
+                + ' -f Makefile-x11 GS=gs-x11.exe prefix=/usr/X11R6')
     def install_x11 (self):
         self.system ('''
 cd %(builddir)s && %(install_command_x11)s
