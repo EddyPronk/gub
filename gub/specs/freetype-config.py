@@ -28,7 +28,7 @@ class Freetype_config (gubb.SdkBuildSpec):
         s = s % locals ()
         file = self.expand ('%(install_prefix)s/cross/bin/freetype-config')
         self.dump (s, file)
-        os.chmod (file, 0755)
+        self.chmod (file, 0755)
 
 class Freetype_config__cygwin (Freetype_config):
     def __init__ (self, settings):

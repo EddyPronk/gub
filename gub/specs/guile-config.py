@@ -28,5 +28,4 @@ test "$1" = "link" && echo "-L$prefix/lib -lguile -lguile-ltdl  -ldl -lcrypt -lm
 exit 0
 ''',
              '%(install_prefix)s/cross/bin/%(target_architecture)s-guile-config')
-        os.chmod ('%(install_prefix)s/cross/bin/%(target_architecture)s-guile-config'
-                  % self.get_substitution_dict (), 0755)
+        self.chmod ('%(install_prefix)s/cross/bin/%(target_architecture)s-guile-config', 0755)

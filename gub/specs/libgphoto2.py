@@ -26,8 +26,7 @@ class Libgphoto2 (targetpackage.TargetBuildSpec):
   "$@"
 ''',
                    '%(srcdir)s/pkg-config')
-        import os
-        os.chmod (self.expand ('%(srcdir)s/pkg-config'), 0755)
+        self.chmod ('%(srcdir)s/pkg-config', 0755)
     def wrap_libusb_config (self):
         self.dump ('''#! /bin/sh
 /usr/bin/libusb-config\
@@ -35,8 +34,7 @@ class Libgphoto2 (targetpackage.TargetBuildSpec):
   "$@"
 ''',
                    '%(srcdir)s/libusb-config')
-        import os
-        os.chmod (self.expand ('%(srcdir)s/libusb-config'), 0755)
+        self.chmod ('%(srcdir)s/libusb-config', 0755)
     def patch (self):
         self.wrap_pkg_config ()
         self.wrap_libusb_config ()
