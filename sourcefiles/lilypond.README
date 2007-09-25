@@ -56,6 +56,12 @@ Canonical homepage:
 Canonical download:
   http://lilypond.org/download
   
+License:
+  GNU GPL version 2
+
+Language:
+  C, C++, METAFONT, PostScript, Python, Scheme (GUILE)
+
 ------------------------------------
 
 Build Instructions:
