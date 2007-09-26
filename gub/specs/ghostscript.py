@@ -130,6 +130,7 @@ cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS
     def configure_command (self):
         return (targetpackage.TargetBuildSpec.configure_command (self)
             + misc.join_lines ('''
+--enable-debug
 --with-drivers=FILES
 --without-x
 --disable-cups
@@ -149,8 +150,10 @@ cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS
             ('PSSRCDIR=./src', 'PSSRCDIR=%(srcdir)s/src'),
             ('PSLIBDIR=./lib', 'PSLIBDIR=%(srcdir)s/lib'),
             ('ICCSRCDIR=icclib', 'ICCSRCDIR=%(srcdir)s/icclib'),
+            ('IJSSRCDIR=src', 'IJSSRCDIR=%(srcdir)s/src'),
+            ('IMDISRCDIR=imdi', 'IMDISRCDIR=%(srcdir)s/imdi'),
             ('CONTRIBDIR=./contrib', 'CONTRIBDIR=%(srcdir)s/contrib'),
-            ('^@CONTRIBINCLUDE@', '# @CONTRIBINCLUDE@'),
+            ('include contrib/', 'include %(srcdir)s/contrib/'),
             # ESP-specific: addonsdir, omit zillion of
             # warnings (any important ones may be noticed
             # easier).
@@ -262,12 +265,17 @@ class Ghostscript__freebsd (Ghostscript):
         return d
 
 url='http://mirror3.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/ghostscript-8.60.tar.gz'
+url='http://mirror3.cs.wisc.edu/pub/mirrors/ghost/GPL/gs850/ghostscript-8.50-gpl.tar.gz'
+#8250
 class Ghostscript__cygwin (Ghostscript):
-    def _8_60_fails__init__ (self, settings):
-        #Ghostscript.__init__ (self, settings)
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with_vc (repository.TarBall (self.settings.downloads, url))
+    def __init__ (self, settings):
+        Ghostscript.__init__ (self, settings)
+        #self.vc_repository.revision = '8250'
+        #targetpackage.TargetBuildSpec.__init__ (self, settings)
+        #self.with_vc (repository.TarBall (self.settings.downloads, url))
     def patch (self):
+        from gub import cygwin
+        cygwin.libpng12_fixup (self)
         self.system ('cd %(srcdir)s && ./autogen.sh --help')
         self.system ('cd %(srcdir)s && cp Makefile.in Makefile-x11.in')
         self.system ("cd %(srcdir)s/ && patch --force -p1 < %(patchdir)s/ghostscript-8.57-cygwin-esp.patch")
@@ -278,6 +286,9 @@ class Ghostscript__cygwin (Ghostscript):
                 'x11': ['ghostscript', 'xorg-x11-base']}
     def get_subpackage_names (self):
         return ['doc', 'x11', '']
+    def configure_command (self):
+        return (Ghostscript.configure_command (self)
+                .replace (' --with-drivers=FILES', ' --with-drivers=ALL'))
     def compile (self):
         self.system ('''
 cd %(builddir)s && rm -f obj/*.tr
@@ -295,7 +306,7 @@ cd %(builddir)s && rm -f obj/*.tr
     def configure_command_x11 (self):
         return ('CONFIG_FILES=Makefile-x11'
                 + ' CONFIG_STATUS=config-x11.status'
-                + ' ' + Ghostscript.configure_command (self)
+                + ' ' + self.configure_command ()
                 .replace ('--without-x', '--with-x')
                 .replace ('--config-cache', '--cache-file=config-x11.cache')
                 + ' --x-includes=%(system_prefix)s/X11R6/include'
@@ -324,3 +335,5 @@ cd %(builddir)s && %(compile_command_x11)s
         self.system ('''
 cd %(builddir)s && %(install_command_x11)s
 ''')
+    def makeflags (self):
+        return ' CFLAGS_STANDARD="-g -O2"'
