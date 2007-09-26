@@ -120,7 +120,7 @@ class Gcc__mingw (Gcc):
                             ('/mingw/lib','%(prefix_dir)s/lib'),
                             ], f)
 
-class Gcc__cygwin (Gcc__mingw):
+class urg_ghostscript_fails_Gcc__cygwin (Gcc__mingw):
     def get_build_dependencies (self):
         return (Gcc__mingw.get_build_dependencies (self)
                 + ['cygwin', 'w32api-in-usr-lib'])
@@ -133,10 +133,60 @@ gcc_tooldir="%(cross_prefix)s/%(target_architecture)s"
         return (Gcc__mingw.compile_command (self)
                 + self.makeflags ())
     def configure_command (self):
+        # We must use --with-newlib, otherwise configure fails:
+        # No support for this host/target combination.
+        # [configure-target-libstdc++-v3]
         return (Gcc__mingw.configure_command (self)
                 + misc.join_lines ('''
 --with-newlib
 --enable-threads
+'''))
+
+from gub import cygwin
+
+class Gcc__cygwin (Gcc):
+    def __init__ (self, settings):
+        Gcc.__init__ (self, settings)
+        self.with_tarball (mirror=mirrors.cygwin, version='3.4.4-3', format='bz2', name='cross/gcc-core')
+    def name (self):
+        return 'cross/gcc-core'
+    def untar (self):
+        #gxx_file_name = re.sub ('-core', '-g++',
+        #                        self.expand (self.file_name ()))
+#        ball = 'cross/' + self.vc_repository._file_name ().replace ('gcc', 'gcc-core')
+        ball = self.vc_repository._file_name ()
+        cygwin.untar_cygwin_src_package_variant2 (self, ball.replace ('-core', '-g++'),
+                                                  split=True)
+        cygwin.untar_cygwin_src_package_variant2 (self, ball)
+    def get_build_dependencies (self):
+        return (Gcc.get_build_dependencies (self)
+                + ['cygwin', 'w32api-in-usr-lib', 'cross/gcc-g++'])
+    def makeflags (self):
+        return misc.join_lines ('''
+tooldir="%(cross_prefix)s/%(target_architecture)s"
+gcc_tooldir="%(cross_prefix)s/%(target_architecture)s"
+''')
+    def configure_command (self):
+        # We must use --with-newlib, otherwise configure fails:
+        # No support for this host/target combination.
+        # [configure-target-libstdc++-v3]
+        return (Gcc.configure_command (self)
+                + misc.join_lines ('''
+--with-newlib
+--verbose
+--enable-nls
+--without-included-gettext
+--enable-version-specific-runtime-libs
+--without-x
+--enable-libgcj
+--with-system-zlib
+--enable-interpreter
+--disable-libgcj-debug
+--enable-threads=posix
+--disable-win32-registry
+--enable-sjlj-exceptions
+--enable-hash-synchronization
+--enable-libstdcxx-debug
 '''))
 
 class Gcc__darwin (Gcc):

@@ -18,6 +18,7 @@ against all foo split source balls, so applying it may fail partly and
 complain about missing files.'''
 
     file_name = self.expand (file_name)
+    unpackdir = os.path.dirname (self.expand (self.srcdir ()))
     from gub import misc
     t = misc.split_ball (file_name)
     print 'split: ' + `t`
@@ -38,17 +39,19 @@ complain about missing files.'''
     print 'second_tarball_contents: ' + second_tarball_contents
     flags = '-jxf'
     self.system ('''
-rm -rf %(allsrcdir)s/%(base)s
-tar -C %(allsrcdir)s %(flags)s %(downloads)s/%(file_name)s
+rm -rf %(unpackdir)s/%(base)s
+tar -C %(unpackdir)s %(flags)s %(downloads)s/%(file_name)s
 ''',
                  locals ())
     tgz = 'tar.bz2'
-    if not os.path.exists (self.expand ('%s(allsrcdir)s/%(second_tarball)s.%(tgz)s',
-                                        locals ())):
+# WTF?  self.expand is broken here?
+#    if not os.path.exists (self.expand ('%s(unpackdir)s/%(second_tarball)s.%(tgz)s',
+#                                        locals ())):
+    if not os.path.exists (unpackdir + '/' + second_tarball + '.' + tgz):
         flags = '-zxf'
         tgz = 'tar.gz'
     self.system ('''
-tar -C %(allsrcdir)s %(flags)s %(allsrcdir)s/%(second_tarball)s.%(tgz)s
+tar -C %(unpackdir)s %(flags)s %(unpackdir)s/%(second_tarball)s.%(tgz)s
 ''',
                  locals ())
     if split:
@@ -58,11 +61,17 @@ tar -C %(allsrcdir)s %(flags)s %(allsrcdir)s/%(second_tarball)s.%(tgz)s
     else:
         patch = re.sub (ball_re, '\\1\\4\\5.patch', base)
     print 'patch: ' + patch
+    print 'scrdir: ', self.expand ('%(srcdir)s')
     self.system ('''
-cd %(allsrcdir)s && mv %(second_tarball_contents)s %(base)s
-cd %(srcdir)s && patch -p1 -f < %(allsrcdir)s/%(patch)s || true
+cd %(unpackdir)s && mv %(second_tarball_contents)s %(base)s
+cd %(srcdir)s && patch -p1 -f < %(unpackdir)s/%(patch)s || true
 ''',
                  locals ())
+
+def libpng12_fixup (self):
+    self.system ('cd %(system_prefix)s/lib && ln -sf libpng12.a libpng.a')
+    self.system ('cd %(system_prefix)s/include && ln -sf libpng12/png.h .')
+    self.system ('cd %(system_prefix)s/include && ln -sf libpng12/pngconf.h .')
 
 mirror = 'http://mirrors.kernel.org/sourceware/cygwin'
 
