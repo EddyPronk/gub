@@ -67,7 +67,7 @@ class PackageSpec:
         return self._dict
 
     def name (self):
-        return "%(split_name)s" % self._dict
+        return '%(split_name)s' % self._dict
     
 class BuildSpec (Os_context_wrapper):
     def __init__ (self, settings):
