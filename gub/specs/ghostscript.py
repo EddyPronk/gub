@@ -91,12 +91,20 @@ models.'''
 
         
     def fixup_arch (self):
+        # FIXME: wow, this is broken, cross-compile-wise.  Use a compiled
+        # c program to determine the size of basic types *after* an
+        # autoconf run.  Should see if afpl ghostscript also uses autoconf
+        # and send a patch that generates arch.h from configure.
         substs = []
         arch = self.settings.target_architecture
 
         cache_size = 1024*1024
         big_endian = 0
         can_shift = 1
+        align_long_mod = 4
+        align_ptr_mod = 4
+        log2_sizeof_long = 2
+        sizeof_ptr = 4
         
         if arch.find ('powerpc') >= 0:
             big_endian = 1
@@ -106,13 +114,29 @@ models.'''
             big_endian = 0
             can_shift = 0
             cache_size = 1048576
-            
-        substs = [('#define ARCH_CAN_SHIFT_FULL_LONG .',
-             '#define ARCH_CAN_SHIFT_FULL_LONG %d' % can_shift),
-             ('#define ARCH_CACHE1_SIZE [0-9]+',
-             '#define ARCH_CACHE1_SIZE %d' % cache_size),
-             ('#define ARCH_IS_BIG_ENDIAN [0-9]',
-             '#define ARCH_IS_BIG_ENDIAN %d' % big_endian)]
+
+        if arch.find ('64'):
+            align_long_mod = 8
+            align_ptr_mod = 8
+            log2_sizeof_long = 3
+            sizeof_ptr = 8
+
+        substs = [
+            ('#define ARCH_CAN_SHIFT_FULL_LONG .',
+             '#define ARCH_CAN_SHIFT_FULL_LONG %(can_shift)d' % locals ()),
+            ('#define ARCH_CACHE1_SIZE [0-9]+',
+             '#define ARCH_CACHE1_SIZE %(cache_size)d' % locals ()),
+            ('#define ARCH_IS_BIG_ENDIAN [0-9]',
+             '#define ARCH_IS_BIG_ENDIAN %(big_endian)d' % locals ())
+            ('#define ARCH_ALIGN_LONG_MOD [0-9]',
+             '#define ARCH_ALIGN_LONG_MOD %(align_long_mod)d' % locals ())
+            ('#define ARCH_ALIGN_PTR_MOD [0-9]',
+             '#define ARCH_ALIGN_PTR_MOD %(align_ptr_mod)d' % locals ())
+            ('#define ARCH_LOG2_SIZEOF_LONG [0-9]',
+             '#define ARCH_LOG2_SIZEOF_LONG %(log2_sizeof_long)d' % locals ())
+            ('#define ARCH_SIZEOF_PTR [0-9]',
+             '#define ARCH_SIZEOF_PTR %(sizeof_ptr)d' % locals ())
+            ]
         
         self.file_sub (substs, '%(builddir)s/obj/arch.h')
 
@@ -121,7 +145,7 @@ models.'''
         
     def compile (self):
         self.system ('''
-cd %(builddir)s && (mkdir obj || true)
+cd %(builddir)s && mkdir -p obj
 cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS= LIBRARY_PATH= obj/genconf obj/echogs obj/genarch obj/arch.h
 ''')
         self.fixup_arch ()
@@ -136,6 +160,7 @@ cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS
 --disable-cups
 --without-ijs
 --without-omni
+--without-jasper
 --disable-compile-inits
 '''))
 
@@ -291,6 +316,7 @@ class Ghostscript__cygwin (Ghostscript):
                 .replace (' --with-drivers=FILES', ' --with-drivers=ALL'))
     def compile (self):
         self.system ('''
+mkdir -p %(builddir)s
 cd %(builddir)s && rm -f obj/*.tr
 ''')
         Ghostscript.compile (self)
