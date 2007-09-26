@@ -120,7 +120,7 @@ class Gcc__mingw (Gcc):
                             ('/mingw/lib','%(prefix_dir)s/lib'),
                             ], f)
 
-class urg_ghostscript_fails_Gcc__cygwin (Gcc__mingw):
+class Gcc__cygwin (Gcc__mingw):
     def get_build_dependencies (self):
         return (Gcc__mingw.get_build_dependencies (self)
                 + ['cygwin', 'w32api-in-usr-lib'])
@@ -144,7 +144,7 @@ gcc_tooldir="%(cross_prefix)s/%(target_architecture)s"
 
 from gub import cygwin
 
-class Gcc__cygwin (Gcc):
+class use_cygwin_sources_Gcc__cygwin (Gcc):
     def __init__ (self, settings):
         Gcc.__init__ (self, settings)
         self.with_tarball (mirror=mirrors.cygwin, version='3.4.4-3', format='bz2', name='cross/gcc-core')
