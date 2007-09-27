@@ -490,6 +490,8 @@ chmod +x %(srcdir)s/configure''')
     def get_subpackage_definitions (self):
 	prefix_dir = self.settings.prefix_dir
         d = {
+            'base': [prefix_dir + '/share'],
+            'common': [prefix_dir + '/share'],
             'devel': [
             prefix_dir + '/bin/*-config',
             prefix_dir + '/include',
