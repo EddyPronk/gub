@@ -277,6 +277,8 @@ tar -C %(dir)s -z%(v)sxf %(ball)s''', e)
 
     def _tar (self, dir, ball, content, env={}):
         ball_dir = os.path.dirname (ball)
+        if not self.locate_files (dir, content):
+            content = '.'
         e = env.copy ()
         e.update (locals ())
         self.system ('''
