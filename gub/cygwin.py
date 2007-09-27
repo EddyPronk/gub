@@ -118,6 +118,7 @@ def change_target_package (package):
 
     def category_dict (d):
         default = {
+            '': 'utils',
             'devel': 'devel',
             'doc': 'doc',
             'runtime': 'libs',
