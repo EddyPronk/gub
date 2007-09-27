@@ -321,7 +321,7 @@ cd %(install_prefix)s/share/info/lilypond && ln -sf ../../doc/lilypond/Documenta
                   locals ())
 
     def category_dict (self):
-        return {'': 'publishing'}
+        return {'': 'Publishing'}
 
 ## shortcut: take python out of dependencies
 class LilyPond__no_python (LilyPond):

@@ -99,7 +99,7 @@ class XFreetype__cygwin (Freetype):
             }
 
     def category_dict (self):
-        return {'': 'libs'}
+        return {'': 'Libs'}
 
     def configure_command (self):
         return (Freetype.configure_command (self)

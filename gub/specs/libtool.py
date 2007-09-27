@@ -57,7 +57,7 @@ class Libtool__cygwin (Libtool):
 
     # FIXME: we do most of this for all cygwin packages
     def category_dict (self):
-        return {'': 'devel'}
+        return {'': 'Devel'}
 
 class Libtool__local (toolpackage.ToolBuildSpec):
     def __init__ (self, settings):

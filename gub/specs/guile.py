@@ -277,7 +277,7 @@ class Guile__darwin__x86 (Guile__darwin):
         
 class Guile__cygwin (Guile):
     def category_dict (self):
-        return {'': 'interpreters'}
+        return {'': 'Interpreters'}
 
     def patch (self):
         pass
