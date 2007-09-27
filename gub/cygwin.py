@@ -116,18 +116,24 @@ def change_target_package (package):
 
     package.install = misc.MethodOverrider (package.install, install)
 
-    def description_dict (foo):
-        # FIXME: fairly uninformative description for packages,
-        # unlike, eg, guile-devel.  This is easier, though.
-        def get_subpackage_doc (split):
-            flavor = {'': 'executables and common files',
+    def category_dict (foo):
+        return {'': 'executables and common files',
                       'bin': 'executables',
                       'common': 'common files',
                       'devel': 'development',
                       'doc': 'documentation',
                       'runtime': 'runtime',
                       'x11': 'x11 executables',
-                      }[split]
+                      }
+    
+    package.category_dict = misc.MethodOverrider (package.category_dict,
+                                                  category_dict)
+
+    def description_dict (d):
+        # FIXME: fairly uninformative description for packages,
+        # unlike, eg, guile-devel.  This is easier, though.
+        def get_subpackage_doc (split):
+            flavor = package.category_dict ()[split]
             doc = package.__class__.__doc__
             if not doc:
                 base = package.__class__.__name__
@@ -144,25 +150,13 @@ def change_target_package (package):
                 doc = '\n'
             return (doc.replace ('\n', ' - %(flavor)s\n', 1) % locals ())
 
-        if type (foo) == type (dict ()) and foo.values ():
-            return foo
-        d = {}
         for i in package.get_subpackage_names ():
-            d[i] = get_subpackage_doc (i)
+            if not d.get (i):
+                d[i] = get_subpackage_doc (i)
         return d
 
     package.description_dict = misc.MethodOverrider (package.description_dict,
                                                      description_dict)
-
-    def category_dict (foo):
-        return {'': 'interpreters',
-                'runtime': 'libs',
-                'devel': 'devel libs',
-                'doc': 'doc'}
-    
-    package.category_dict = misc.MethodOverrider (package.category_dict,
-                                                  category_dict)
-
 
     ## TODO : get_dependency_dict
         
