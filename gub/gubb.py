@@ -40,9 +40,10 @@ class PackageSpec:
         self._os_interface.dump (pickle.dumps (self._dict), hdr)
         
     def clean (self):
-        base = self.expand ('%(install_root)s/')
+        base = self.expand ('%(install_root)s')
         for f in self._file_specs:
-            self._os_interface.system ('rm -rf %s%s ' % (base, f))
+            if f and f != '/' and f != '.':
+                self._os_interface.system ('rm -rf %(base)s%(f)s ' % locals ())
 
     def create_tarball (self):
         cmd = 'tar -C %(install_root)s%(packaging_suffix_dir)s --ignore-failed --exclude="*~" -zcf %(split_ball)s '
@@ -57,8 +58,8 @@ class PackageSpec:
                 globs.append (exp.replace (path, './').replace ('//', '/'))
 
         if not globs:
-            globs.append ('thisreallysucks-but-lets-hope-I-dont-exist/')
-            
+            globs.append (self.expand ('no-globs-for-%(split_ball)s'))
+
         cmd += ' '.join (globs) 
         cmd = self.expand (cmd)
         self._os_interface.system (cmd)
@@ -477,13 +478,13 @@ chmod +x %(srcdir)s/configure''')
 
     def package (self):
         self.rewire_symlinks ()
-        
         ps = self.get_packages ()
         for p in ps:
             p.create_tarball ()
             p.dump_header_file ()
             p.clean ()
-            
+        self.system ('rm -rf %(install_root)s')
+        
     def get_build_dependencies (self):
         return []
 
