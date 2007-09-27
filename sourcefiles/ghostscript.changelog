@@ -4,3 +4,35 @@ ghostscript (8.57-1) unstable; urgency=low
   * Initial Release.
 
  -- Jan Nieuwenhuizen <janneke@gnu.org>  Tue, 25 Sep 2007 15:46:13 +0200
+
+Version 8.50, Release 1 (8.50-1)
+15 February, 2006
+Prepared by  James R. Phillips
+New Upstream Release
+------------------------------------------
+Version 8.15, Release 2 (8.15-2)
+23 December, 2004
+Prepared by Rajesh Balakrishnan (rajeshb@infosys.com)
+8.15-2 fixes unixinst.mak to install missing document files.
+------------------------------------------
+Version 7.05
+Prepared by Dario Alcocer (alcocer@helixdigital.com) -- http://www.helixdigital.com
+
+The Cygwin version of GNU Ghostscript now supports both a native Win32
+version and a X11 version for Cygwin/X.  A single source package
+is used to build both versions.  Three separate packages are used:
+
+  * A base package, ghostscript-base, which contains the support
+    files necessary for both the native and X11 versions, as well
+    as the manual pages and documentation.
+
+  * A native package, ghostscript, which contains the native version
+    of Ghostscript (gs.exe), along with the corresponding scripts.
+
+  * An X11 package, ghostscript-x11, which contains the X11 version
+    of Ghostscript (gs.exe) and scripts.
+
+Both binary versions use the libpng and zlib shared libraries.
+
+This release now links /usr/lib/binmode.o to fix the text-mode mount
+bug reported by Sven Kohler.
