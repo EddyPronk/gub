@@ -68,35 +68,20 @@ models.'''
         return '.'.join (self.ball_version.split ('.')[0:2])
 
     def patch (self):
-        disable_re = "(DEVICE_DEVS[0-9]+)=([^\n]+(%s))" %'|'.join (['tiff',
-                                                                    'pcx',
-                                                                    'uniprint',
-                                                                    'deskjet',
-                                                                    'djet500',
-                                                                    'bmp',
-                                                                    'pbm',
-                                                                    'bjc200',
-                                                                    'cdeskjet',
-                                                                    'faxg3',
-                                                                    'cljet5'])
-        
-
+        disable_re = ('(DEVICE_DEVS[0-9]+)=([^\n]+(%s))'
+                      % '|'.join (['tiff', 'pcx', 'uniprint',
+                                   'deskjet', 'djet500', 'bmp', 'pbm',
+                                   'bjc200', 'cdeskjet', 'faxg3', 'cljet5']))
         ## generate Makefile.in
         self.system ('cd %(srcdir)s && ./autogen.sh --help')
-
-        self.file_sub ([(disable_re,
-                         r'#\1= -DISABLED- \2 ')],
+        self.file_sub ([(disable_re, r'#\1= -DISABLED- \2 ')],
                        '%(srcdir)s/Makefile.in')
-
-
         
     def fixup_arch (self):
         # FIXME: wow, this is broken, cross-compile-wise.  Use a compiled
         # c program to determine the size of basic types *after* an
         # autoconf run.  Should see if afpl ghostscript also uses autoconf
         # and send a patch that generates arch.h from configure.
-        substs = []
-        arch = self.settings.target_architecture
 
         cache_size = 1024*1024
         big_endian = 0
@@ -106,42 +91,43 @@ models.'''
         log2_sizeof_long = 2
         sizeof_ptr = 4
         
-        if arch.find ('powerpc') >= 0:
+        if 'powerpc' in self.settings.target_architecture:
             big_endian = 1
             can_shift = 1
             cache_size = 2097152
-        elif re.search ('i[0-9]86', arch):
+        elif re.search ('i[0-9]86', self.settings.target_architecture):
             big_endian = 0
             can_shift = 0
             cache_size = 1048576
 
-        if arch.find ('64'):
+        if '64' in self.settings.target_architecture:
             align_long_mod = 8
             align_ptr_mod = 8
             log2_sizeof_long = 3
             sizeof_ptr = 8
 
-        substs = [
-            ('#define ARCH_CAN_SHIFT_FULL_LONG .',
-             '#define ARCH_CAN_SHIFT_FULL_LONG %(can_shift)d' % locals ()),
-            ('#define ARCH_CACHE1_SIZE [0-9]+',
-             '#define ARCH_CACHE1_SIZE %(cache_size)d' % locals ()),
-            ('#define ARCH_IS_BIG_ENDIAN [0-9]',
-             '#define ARCH_IS_BIG_ENDIAN %(big_endian)d' % locals ())
-            ('#define ARCH_ALIGN_LONG_MOD [0-9]',
-             '#define ARCH_ALIGN_LONG_MOD %(align_long_mod)d' % locals ())
-            ('#define ARCH_ALIGN_PTR_MOD [0-9]',
-             '#define ARCH_ALIGN_PTR_MOD %(align_ptr_mod)d' % locals ())
-            ('#define ARCH_LOG2_SIZEOF_LONG [0-9]',
-             '#define ARCH_LOG2_SIZEOF_LONG %(log2_sizeof_long)d' % locals ())
-            ('#define ARCH_SIZEOF_PTR [0-9]',
-             '#define ARCH_SIZEOF_PTR %(sizeof_ptr)d' % locals ())
-            ]
-        
-        self.file_sub (substs, '%(builddir)s/obj/arch.h')
+        self.file_sub (
+            [('#define ARCH_CAN_SHIFT_FULL_LONG .',
+              '#define ARCH_CAN_SHIFT_FULL_LONG %(can_shift)d' % locals ()),
+             ('#define ARCH_CACHE1_SIZE [0-9]+',
+              '#define ARCH_CACHE1_SIZE %(cache_size)d' % locals ()),
+             ('#define ARCH_IS_BIG_ENDIAN [0-9]',
+              '#define ARCH_IS_BIG_ENDIAN %(big_endian)d' % locals ()),
+             ('#define ARCH_ALIGN_LONG_MOD [0-9]',
+              '#define ARCH_ALIGN_LONG_MOD %(align_long_mod)d' % locals ()),
+             ('#define ARCH_ALIGN_PTR_MOD [0-9]',
+              '#define ARCH_ALIGN_PTR_MOD %(align_ptr_mod)d' % locals ()),
+             ('#define ARCH_LOG2_SIZEOF_LONG [0-9]',
+              '#define ARCH_LOG2_SIZEOF_LONG %(log2_sizeof_long)d' % locals ()),
+             ('#define ARCH_SIZEOF_PTR [0-9]',
+              '#define ARCH_SIZEOF_PTR %(sizeof_ptr)d' % locals ()),
+             ], '%(builddir)s/obj/arch.h')
 
     def compile_command (self):
-        return targetpackage.TargetBuildSpec.compile_command (self) + " INCLUDE=%(system_prefix)s/include/ PSDOCDIR=%(prefix_dir)s/share/doc/ PSMANDIR=%(prefix_dir)s/share/man "
+        return (targetpackage.TargetBuildSpec.compile_command (self)
+                + ' INCLUDE=%(system_prefix)s/include'
+                + ' PSDOCDIR=%(prefix_dir)s/share/doc'
+                + ' PSMANDIR=%(prefix_dir)s/share/man')
         
     def compile (self):
         self.system ('''
@@ -221,17 +207,22 @@ class Ghostscript__mingw (Ghostscript):
 
     def patch (self):
         Ghostscript.patch (self)
-        self.system ("cd %(srcdir)s/ && patch --force -p1 < %(patchdir)s/ghostscript-8.15-cygwin.patch")
-        self.system ("cd %(srcdir)s/ && patch --force -p1 < %(patchdir)s/ghostscript-8.50-make.patch")
-        self.system ("cd %(srcdir)s/ && patch --force -p1 < %(patchdir)s/ghostscript-8.50-gs_dll.h.patch")
+        self.system ('''
+#checkme, seems obsolete, is this still necessary?
+cd %(srcdir)s/ && patch -p1 < %(patchdir)s/ghostscript-8.15-cygwin.patch
+cd %(srcdir)s/ && patch -p1 < %(patchdir)s/ghostscript-8.15-windows-wb.patch
+cd %(srcdir)s/ && patch -p1 < %(patchdir)s/ghostscript-8.50-make.patch
+cd %(srcdir)s/ && patch -p1 < %(patchdir)s/ghostscript-8.50-gs_dll.h.patch
+''')
         self.file_sub ([('unix__=$(GLOBJ)gp_getnv.$(OBJ) $(GLOBJ)gp_unix.$(OBJ) $(GLOBJ)gp_unifs.$(OBJ) $(GLOBJ)gp_unifn.$(OBJ) $(GLOBJ)gp_stdia.$(OBJ) $(GLOBJ)gp_unix_cache.$(OBJ)',
                          'unix__= $(GLOBJ)gp_mswin.$(OBJ) $(GLOBJ)gp_wgetv.$(OBJ) $(GLOBJ)gp_stdia.$(OBJ) $(GLOBJ)gsdll.$(OBJ) $(GLOBJ)gp_ntfs.$(OBJ) $(GLOBJ)gp_win32.$(OBJ)')],
                        '%(srcdir)s/src/unix-aux.mak',
                        use_re=False, must_succeed=True)
-#        self.system ("cd %(srcdir)s/ && patch --force -p1 < %(patchdir)s/ghostscript-8.50-unix-aux.mak.patch")
+#        self.system ('cd %(srcdir)s/ && patch --force -p1 < %(patchdir)s/ghostscript-8.50-unix-aux.mak.patch')
 
     def configure (self):
         Ghostscript.configure (self)
+        # FIXME: use makeflags: EXTRALIBS=... ?
         self.file_sub ([('^(EXTRALIBS *=.*)', '\\1 -lwinspool -lcomdlg32 -lz')],
                '%(builddir)s/Makefile')
 
@@ -292,18 +283,27 @@ class Ghostscript__freebsd (Ghostscript):
 url='http://mirror3.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/ghostscript-8.60.tar.gz'
 url='http://mirror3.cs.wisc.edu/pub/mirrors/ghost/GPL/gs850/ghostscript-8.50-gpl.tar.gz'
 #8250
+fonts_url = 'http://mirror2.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/ghostscript-fonts-std-8.11.tar.gz'
 class Ghostscript__cygwin (Ghostscript):
     def __init__ (self, settings):
         Ghostscript.__init__ (self, settings)
         #self.vc_repository.revision = '8250'
         #targetpackage.TargetBuildSpec.__init__ (self, settings)
         #self.with_vc (repository.TarBall (self.settings.downloads, url))
+        self.fonts_source = repository.TarBall (self.settings.downloads,
+                                                fonts_url)
+    def download (self):
+        Ghostscript.download (self)
+        self.fonts_source.download ()
     def patch (self):
         from gub import cygwin
         cygwin.libpng12_fixup (self)
-        self.system ('cd %(srcdir)s && ./autogen.sh --help')
-        self.system ('cd %(srcdir)s && cp Makefile.in Makefile-x11.in')
-        self.system ("cd %(srcdir)s/ && patch --force -p1 < %(patchdir)s/ghostscript-8.57-cygwin-esp.patch")
+        self.system ('''
+cd %(srcdir)s && ./autogen.sh --help
+cd %(srcdir)s && cp Makefile.in Makefile-x11.in
+cd %(srcdir)s/ && patch -p1 < %(patchdir)s/ghostscript-8.15-windows-wb.patch
+cd %(srcdir)s/ && patch -p1 < %(patchdir)s/ghostscript-8.57-cygwin-esp.patch
+''')
     def get_build_dependencies (self):
         return ['jpeg', 'libpng12-devel', 'xorg-x11-devel', 'zlib']
     def get_dependency_dict (self):
@@ -324,7 +324,8 @@ cd %(builddir)s && rm -f obj/*.tr
     def stages (self):
         lst = Ghostscript.stages (self)
         return misc.list_insert (lst, misc.list_find (lst, 'install') + 1,
-                                 ['configure_x11', 'compile_x11', 'install_x11'])
+                                 ['configure_x11', 'compile_x11', 'install_x11',
+                                  'install_fonts'])
     def config_cache (self):
         Ghostscript.config_cache (self)
         self.system ('cd %(builddir)s && cp -p config.cache config-x11.cache')
@@ -361,5 +362,11 @@ cd %(builddir)s && %(compile_command_x11)s
         self.system ('''
 cd %(builddir)s && %(install_command_x11)s
 ''')
+    def install_fonts (self):
+        fontdir = self.expand ('%(install_prefix)s/share/ghostscript/fonts')
+        self.fonts_source.update_workdir (fontdir)
     def makeflags (self):
-        return ' CFLAGS_STANDARD="-g -O2"'
+        # Link to binmode to fix text mode mount problem
+        # http://cygwin.com/ml/cygwin/2002-07/msg02302.html
+        # although text mode mounts are considered evil...
+        return ' CFLAGS_STANDARD="-g -O2" EXTRALIBS=-lbinmode'
