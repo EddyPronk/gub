@@ -542,8 +542,6 @@ chmod +x %(srcdir)s/configure''')
             filespecs = defs[sub]
             
             p = PackageSpec (self.os_interface)
-            if sub:
-                p._dependencies = [self.expand ("%(name)s")]
 
             p._file_specs = filespecs
             p.set_dict (self.get_substitution_dict (), sub)
