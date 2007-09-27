@@ -298,6 +298,18 @@ class hierarchy.
         all_args = (self.old_func (),) + self.args  
         return apply (self.new_func, all_args)
 
+def list_find (lst, a):
+    if a in lst:
+        return lst.index (a)
+    return -1
+
+def list_insert (lst, idx, a):
+    if type (a) == type (list ()):
+        lst = lst[:idx] + a + lst[idx:]
+    else:
+        lst.insert (idx, a)
+    return lst
+
 def testme ():
     print forall (x for x in [1, 1])
     

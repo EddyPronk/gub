@@ -286,7 +286,7 @@ class PackageGlobs (SerializedCommand):
             for exp in glob.glob (os.path.join (self.root, f)):
                 globs.append (exp.replace (root, './').replace ('//', '/'))
         if not globs:
-            globs.append ('thisreallysucks-but-lets-hope-I-dont-exist/')
+            globs.append ('no-globs-for-%(dest)s' % locals ())
 
         _v = os_commands.verbose_flag ()
         cmd = 'tar -C %(root)s/%(suffix_dir)s --ignore-failed --exclude="*~"%(_v)s -zcf %(dest)s ' % locals()

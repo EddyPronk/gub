@@ -131,7 +131,7 @@ def main ():
     ## can't have these in gub-tester, since these
     ## will always usually result in "release already tested"
     for a in args:
-        log_file.system (python_cmd + 'bin/gub --branch=lilypond=%s:%s -p %s --stage=download lilypond'
+        log_file.system (python_cmd + 'bin/gub --branch=lilypond=%s:%s --platform=%s --stage=download lilypond'
                 % (options.branch, options.local_branch, a))
         log_file.system ('rm -f target/%s/status/lilypond-%s*' % (a, options.branch))
 

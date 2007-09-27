@@ -90,6 +90,7 @@ unlocked-update-versions:
 	python gub/versiondb.py --dbfile=uploads/guile.versions --download --platforms="cygwin"
 	python gub/versiondb.py --dbfile=uploads/libtool.versions --download --platforms="cygwin"
 	python gub/versiondb.py --dbfile=uploads/noweb.versions --download --platforms="cygwin"
+	python gub/versiondb.py --dbfile=uploads/ghostscript.versions --download --platforms="cygwin"
 
 update-versions:
 	$(PYTHON) gub/with-lock.py --skip $(LILYPOND_VERSIONS).lock $(MAKE) unlocked-update-versions
@@ -129,6 +130,13 @@ $(docball):
 cygwin: cygwin-libtool cygwin-libtool-installer doc cygwin-lilypond cygwin-lilypond-installer
 
 cygwin-all: cygwin-libtool cygwin-libtool-installer cygwin-guile cygwin-guile-installer $(docball) cygwin-lilypond cygwin-lilypond-installer cygwin-fontconfig cygwin-fontconfig-installer
+
+cygwin-ghostscript:
+	rm -f uploads/cygwin/setup.ini
+	$(call INVOKE_GUB,cygwin) --build-source ghostscript
+
+cygwin-ghostscript-installer:
+	$(CYGWIN_PACKAGER) ghostscript
 
 cygwin-libtool:
 	rm -f uploads/cygwin/setup.ini

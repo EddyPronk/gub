@@ -41,9 +41,10 @@ class PackageSpec:
         self._os_interface.dump (pickle.dumps (self._dict), hdr)
         
     def clean (self):
-        base = self.expand ('%(install_root)s/')
+        base = self.expand ('%(install_root)s')
         for f in self._file_specs:
-            self._os_interface.system ('rm -rf %s%s ' % (base, f))
+            if f and f != '/' and f != '.':
+                self._os_interface.system ('rm -rf %(base)s%(f)s ' % locals ())
 
     def create_tarball (self):
         path = os.path.normpath (self.expand ('%(install_root)s'))
@@ -57,7 +58,7 @@ class PackageSpec:
         return self._dict
 
     def name (self):
-        return "%(split_name)s" % self._dict
+        return '%(split_name)s' % self._dict
     
 class BuildSpec (Os_context_wrapper):
     def __init__ (self, settings):
@@ -79,6 +80,11 @@ class BuildSpec (Os_context_wrapper):
         
         self.split_packages = []
         self.so_version = '1'
+
+    def stages (self):
+        return ['download', 'untar', 'patch',
+                'configure', 'compile', 'install',
+                'src_package', 'package', 'clean']
 
     @subst_method
     def LD_PRELOAD (self):
@@ -114,7 +120,7 @@ class BuildSpec (Os_context_wrapper):
     def get_dependency_dict (self):
         """subpackage -> list of dependency dict."""
         # FIMXE: '' always depends on runtime?
-        return {'': [], 'devel': [], 'doc': [], 'runtime': []}
+        return {'': [], 'devel': [], 'doc': [], 'runtime': [], 'x11': []}
   
     def force_sequential_build (self):
         """Set to true if package can't handle make -jX """
@@ -239,7 +245,7 @@ class BuildSpec (Os_context_wrapper):
     def install_command (self):
         return '''make %(makeflags)s DESTDIR=%(install_root)s install'''
 
-    @subst_method
+    @subst_method 
     def configure_command (self):
         return '%(srcdir)s/configure --prefix=%(install_prefix)s'
 
@@ -298,11 +304,71 @@ class BuildSpec (Os_context_wrapper):
         return False
 
     def set_done (self, stage, stage_number):
+<<<<<<< HEAD:gub/gubb.py
         self.dump ('%(stage_number)d' % locals (), self.get_stamp_file (), 'w')
+=======
+        open (self.get_stamp_file (),'w'). write ('%d' % stage_number) 
+>>>>>>> b7ba3e5d2ffaf22a9e1b67df3453d2199b2c33a5:gub/gubb.py
 
+<<<<<<< HEAD:gub/gubb.py
     def autoupdate (self):
         self.os_interface._execute (oslog.AutogenMagic(self))
+=======
+    def autoupdate (self, autodir=0):
+        if not autodir:
+            autodir = self.srcdir ()
+        if os.path.isdir (os.path.join (self.srcdir (), 'ltdl')):
+            self.system ('''
+rm -rf %(autodir)s/libltdl
+cd %(autodir)s && libtoolize --force --copy --automake --ltdl
+''', locals ())
+        else:
+            self.system ('''
+cd %(autodir)s && libtoolize --force --copy --automake
+''', locals ())
+        if os.path.exists (os.path.join (autodir, 'bootstrap')):
+            self.system ('''
+cd %(autodir)s && ./bootstrap
+''', locals ())
+        elif os.path.exists (os.path.join (autodir, 'autogen.sh')):
+
+            ## --noconfigure ??
+            ## is --noconfigure standard for autogen? 
+            self.system ('''
+cd %(autodir)s && bash autogen.sh  --noconfigure
+''', locals ())
+        else:
+            aclocal_opt = ''
+            if os.path.exists (self.expand ('%(system_prefix)s/share/aclocal')):
+                aclocal_opt = '-I %(system_prefix)s/share/aclocal'
                 
+            headcmd = ''
+            for c in ('configure.in','configure.ac'):
+                try:
+                    str = open (self.expand ('%(srcdir)s/' + c)).read ()
+                    m = re.search ('A[CM]_CONFIG_HEADER', str)
+                    str = 0   ## don't want to expand str
+                    if m:
+                        headcmd = self.expand ('cd %(autodir)s && autoheader %(aclocal_opt)s', env=locals ())
+                        break
+                    
+                except IOError:
+                    pass
+>>>>>>> b7ba3e5d2ffaf22a9e1b67df3453d2199b2c33a5:gub/gubb.py
+                
+<<<<<<< HEAD:gub/gubb.py
+=======
+            self.system ('''
+cd %(autodir)s && aclocal %(aclocal_opt)s
+%(headcmd)s
+cd %(autodir)s && autoconf %(aclocal_opt)s
+''', locals ())
+            if os.path.exists (self.expand ('%(srcdir)s/Makefile.am')):
+                self.system ('''
+cd %(srcdir)s && automake --add-missing --foreign
+''', locals ())
+
+>>>>>>> b7ba3e5d2ffaf22a9e1b67df3453d2199b2c33a5:gub/gubb.py
     def configure (self):
         self.system ('''
 mkdir -p %(builddir)s
@@ -313,7 +379,7 @@ cd %(builddir)s && %(configure_command)s
         if self.expand ('%(license_file)s'):
             self.system ('mkdir -p %(install_root)s/license/', ignore_errors=True)
             self.system ('cp %(license_file)s %(install_root)s/license/%(name)s')
-        
+
     def broken_install_command (self):
         """For packages that do not honor DESTDIR.
         """
@@ -408,13 +474,16 @@ rm -f %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/share/info/dir %(in
             p.create_tarball ()
             p.dump_header_file ()
             p.clean ()
-            
+        self.system ('rm -rf %(install_root)s')
+        
     def get_build_dependencies (self):
         return []
 
     def get_subpackage_definitions (self):
 	prefix_dir = self.settings.prefix_dir
         d = {
+            'base': [prefix_dir + '/share'],
+            'common': [prefix_dir + '/share'],
             'devel': [
             prefix_dir + '/bin/*-config',
             prefix_dir + '/include',
@@ -436,6 +505,7 @@ rm -f %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/share/info/dir %(in
             prefix_dir + '/cross/man',
             ],
             'runtime': ['/lib', prefix_dir + '/lib', prefix_dir + '/share'],
+            'x11': [prefix_dir + '/X11', prefix_dir + '/X11R6'],
             '' : ['/'],
             }
         return d
@@ -464,8 +534,6 @@ rm -f %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/share/info/dir %(in
             filespecs = defs[sub]
             
             p = PackageSpec (self.os_interface)
-            if sub:
-                p._dependencies = [self.expand ("%(name)s")]
 
             p._file_specs = filespecs
             p.set_dict (self.get_substitution_dict (), sub)

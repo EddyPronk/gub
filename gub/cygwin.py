@@ -18,6 +18,7 @@ against all foo split source balls, so applying it may fail partly and
 complain about missing files.'''
 
     file_name = self.expand (file_name)
+    unpackdir = os.path.dirname (self.expand (self.srcdir ()))
     from gub import misc
     t = misc.split_ball (file_name)
     print 'split: ' + `t`
@@ -38,17 +39,19 @@ complain about missing files.'''
     print 'second_tarball_contents: ' + second_tarball_contents
     flags = '-jxf'
     self.system ('''
-rm -rf %(allsrcdir)s/%(base)s
-tar -C %(allsrcdir)s %(flags)s %(downloads)s/%(file_name)s
+rm -rf %(unpackdir)s/%(base)s
+tar -C %(unpackdir)s %(flags)s %(downloads)s/%(file_name)s
 ''',
                  locals ())
     tgz = 'tar.bz2'
-    if not os.path.exists (self.expand ('%s(allsrcdir)s/%(second_tarball)s.%(tgz)s',
-                                        locals ())):
+# WTF?  self.expand is broken here?
+#    if not os.path.exists (self.expand ('%s(unpackdir)s/%(second_tarball)s.%(tgz)s',
+#                                        locals ())):
+    if not os.path.exists (unpackdir + '/' + second_tarball + '.' + tgz):
         flags = '-zxf'
         tgz = 'tar.gz'
     self.system ('''
-tar -C %(allsrcdir)s %(flags)s %(allsrcdir)s/%(second_tarball)s.%(tgz)s
+tar -C %(unpackdir)s %(flags)s %(unpackdir)s/%(second_tarball)s.%(tgz)s
 ''',
                  locals ())
     if split:
@@ -58,11 +61,17 @@ tar -C %(allsrcdir)s %(flags)s %(allsrcdir)s/%(second_tarball)s.%(tgz)s
     else:
         patch = re.sub (ball_re, '\\1\\4\\5.patch', base)
     print 'patch: ' + patch
+    print 'scrdir: ', self.expand ('%(srcdir)s')
     self.system ('''
-cd %(allsrcdir)s && mv %(second_tarball_contents)s %(base)s
-cd %(srcdir)s && patch -p1 -f < %(allsrcdir)s/%(patch)s || true
+cd %(unpackdir)s && mv %(second_tarball_contents)s %(base)s
+cd %(srcdir)s && patch -p1 -f < %(unpackdir)s/%(patch)s || true
 ''',
                  locals ())
+
+def libpng12_fixup (self):
+    self.system ('cd %(system_prefix)s/lib && ln -sf libpng12.a libpng.a')
+    self.system ('cd %(system_prefix)s/include && ln -sf libpng12/png.h .')
+    self.system ('cd %(system_prefix)s/include && ln -sf libpng12/pngconf.h .')
 
 mirror = 'http://mirrors.kernel.org/sourceware/cygwin'
 
@@ -107,14 +116,24 @@ def change_target_package (package):
 
     package.install = misc.MethodOverrider (package.install, install)
 
-    def description_dict (foo):
+    def category_dict (foo):
+        return {'': 'executables and common files',
+                      'bin': 'executables',
+                      'common': 'common files',
+                      'devel': 'development',
+                      'doc': 'documentation',
+                      'runtime': 'runtime',
+                      'x11': 'x11 executables',
+                      }
+    
+    package.category_dict = misc.MethodOverrider (package.category_dict,
+                                                  category_dict)
+
+    def description_dict (d):
         # FIXME: fairly uninformative description for packages,
         # unlike, eg, guile-devel.  This is easier, though.
         def get_subpackage_doc (split):
-            flavor = {'': 'executables',
-                      'devel': 'development',
-                      'doc': 'documentation',
-                      'runtime': 'runtime'}[split]
+            flavor = package.category_dict ()[split]
             doc = package.__class__.__doc__
             if not doc:
                 base = package.__class__.__name__
@@ -131,25 +150,13 @@ def change_target_package (package):
                 doc = '\n'
             return (doc.replace ('\n', ' - %(flavor)s\n', 1) % locals ())
 
-        if type (foo) == type (dict ()) and foo.values ():
-            return foo
-        d = {}
         for i in package.get_subpackage_names ():
-            d[i] = get_subpackage_doc (i)
+            if not d.get (i):
+                d[i] = get_subpackage_doc (i)
         return d
 
     package.description_dict = misc.MethodOverrider (package.description_dict,
                                                      description_dict)
-
-    def category_dict (foo):
-        return {'': 'interpreters',
-                'runtime': 'libs',
-                'devel': 'devel libs',
-                'doc': 'doc'}
-    
-    package.category_dict = misc.MethodOverrider (package.category_dict,
-                                                  category_dict)
-
 
     ## TODO : get_dependency_dict
         
@@ -279,6 +286,11 @@ guile_source = [
     'guile-devel',
     'libguile17',
     ]
+ghostscript_source = [
+    'ghostscript',
+    'ghostscript-doc',
+    'ghostscript-x11',
+    ]
 fontconfig_source = [
     'fontconfig',
     'libfontconfig1',
@@ -302,7 +314,7 @@ class Dependency_resolver:
         self.settings = settings
         self.packages = {}
 #        self.source = fontconfig_source + freetype_source + guile_source + libtool_source
-        self.source = fontconfig_source + guile_source + libtool_source
+        self.source = fontconfig_source + ghostscript_source + guile_source + libtool_source
         self.load_packages ()
         
     def grok_setup_ini (self, file, skip=[]):

@@ -1,25 +1,32 @@
-Freetype2
+Ghostscript
 ------------------------------------------
-Software font engine
+The GPL Ghostscript PostScript interpreter
 
 Runtime requirements (these or newer):
   cygwin-1.5.18
-  libfreetype2%(so_version)s-%(version)s-%(build)s
+  libpng12
+  libjpeg62
+  zlib
+
+  and for the ghostscript-x11 package:
+  
+  xorg-x11-base
 
 Build requirements (these or newer):
   cygwin-1.5.18
-  gcc-3.4.4-1
-  libtool1.5
+  jpeg
+  libpng12-devel
+  xorg-x11-devel
   zlib
 
 Canonical homepage:
-  http://www.freetype.org
+  http://www.ghostscript.com
 
 Canonical download:
-  http://download.savannah.nongnu.org/releases/freetype
+  http://mirror3.cs.wisc.edu/pub/mirrors/ghost/GPL
 
 License:
-  GNU GPL version 2, docs/GPL.TXT
+  GNU GPL version 2
 
 Language:
   C
@@ -34,19 +41,19 @@ Build Instructions:
     git init
     git pull git://git.sv.gnu.org/lilypond.git gub:
 
-  # Build Freetype for Cygwin
+  # Build Ghostscript for Cygwin
 
-    bin/gub -p cygwin freetype2
+    bin/gub -p cygwin ghostscript
 
-  # Package Freetype for Cygwin
+  # Package Ghostscript for Cygwin
 
-    bin/cygwin-packager freetype2
+    bin/cygwin-packager ghostscript
 
 This will create:
-   uploads/cygwin/release/freetype2-%(version)s-%(build)s-src.tar.bz2
-   uploads/cygwin/release/freetype2-%(version)s-%(build)s.tar.bz2
-   uploads/cygwin/release/libfreetype2-devel/libfreetype2-devel-%(version)s-%(build)s.tar.bz2
-   uploads/cygwin/release/libfreetype2%(so_version)s/libfreetype2%(so_version)s-%(version)s-%(build)s.tar.bz2
+   uploads/cygwin/release/ghostscript-%(version)s-%(build)s-src.tar.bz2
+   uploads/cygwin/release/ghostscript-%(version)s-%(build)s.tar.bz2
+   uploads/cygwin/release/ghostscript-doc/ghostscript-doc-%(version)s-%(build)s.tar.bz2
+   uploads/cygwin/release/ghostscript-x11/ghostscript-x11-%(version)s-%(build)s.tar.bz2
 
 To find out the files included in the binary distribution, you can use
 "cygcheck -l bash", or browse the listing for the appropriate version

@@ -29,7 +29,7 @@ Canonical download:
   ftp://ftp.gnu.org/pub/gnu/guile    # stable releases
 
 License:
-  LGPL
+  GNU LGPL version 2.1
 
 Language:
   C, Scheme

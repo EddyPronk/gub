@@ -126,7 +126,8 @@ def get_cli_parser ():
     for (command, doc) in commands:
         p.usage += "    %s - %s\n" % (re.sub ('_', '-', command), doc)
 
-    p.add_option ('-B', '--branch', action='append',
+    p.add_option ('--branch',
+                  action='append',
                   dest='branches',
                   default=[],
                   metavar='NAME=BRANCH',
@@ -155,7 +156,8 @@ def get_cli_parser ():
                   action='store',
                   dest='dbdir',
                   help='set db directory')
-    p.add_option ('-v', '--verbose', action='count', dest='verbose', default=0)
+    p.add_option ('-v', '--verbose', action='count', dest='verbose', default=1)
+    p.add_option ('-q', '--quiet', action='count', dest='quiet', default=0)
     return p
 
 def parse_options ():
@@ -175,6 +177,7 @@ def parse_options ():
 
 def main ():
     options = parse_options ()
+    options.verbose -= options.quiet
     from gub.settings import Settings
     osi = oslog.Os_commands ('/dev/null', options.verbose)
     settings = Settings (options, osi)

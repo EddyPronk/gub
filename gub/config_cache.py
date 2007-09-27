@@ -239,6 +239,10 @@ ac_cv_have_dev_ptmx=${ac_cv_have_dev_ptmx=}
 ac_cv_lib_dl_dlopen=${ac_cv_lib_dl_dlopen=no}
 ac_cv_file__dev_ptmx=${ac_cv_file__dev_ptmx=no}
 ac_cv_file__dev_ptc=${ac_cv_file__dev_ptc=no}
+ac_cv_func_malloc_0_nonnull=${ac_cv_func_malloc_0_nonnull=yes}
+ac_cv_func_lstat_dereferences_slashed_symlink=${ac_cv_func_lstat_dereferences_slashed_symlink=yes}
+ac_cv_func_memcmp_working=${ac_cv_func_memcmp_working=yes}
+ac_cv_func_stat_empty_string_bug=${ac_cv_func_stat_empty_string_bug=no}
 
 lt_cv_dlopen_libs=${lt_cv_dlopen_libs="none required"}
 lt_cv_sys_max_cmd_len=${lt_cv_sys_max_cmd_len=8192}

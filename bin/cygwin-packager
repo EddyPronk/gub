@@ -110,6 +110,11 @@ class Cygwin_package (context.Os_context_wrapper):
         self.dump_hint (hdr, self.expand ('%(installer_root)s/etc/hints/%(cyg_split)s.hint', locals ()))
         self.dump_readmes (hdr)
         self._CYGWIN_PATCHES_dir ()
+        name = hdr['name']
+        if main_p:
+            self.system ('''
+cp %(installer_root)s/license/%(name)s %(installer_root)s/usr/share/doc/%(name)s/LICENSE
+''')
         self.remove_cruft ()
         self.binary_strip ()
         self.replace_interpreters ()
@@ -270,6 +275,8 @@ tar -C %(dir)s%(_v)s -zxf %(ball)s''', e)
 
     def _tar (self, dir, ball, content, env={}):
         ball_dir = os.path.dirname (ball)
+        if not self.locate_files (dir, content):
+            content = '.'
         e = env.copy ()
         e.update (locals ())
         self.system ('''
@@ -340,9 +347,11 @@ def parse_command_line ():
                   action='append',
                   help='set branch for package')
 
-    p.add_option ('-v', '--verbose', action='count', dest='verbose', default=0)
+    p.add_option ('-v', '--verbose', action='count', dest='verbose', default=1)
+    p.add_option ('-q', '--quiet', action='count', dest='quiet', default=0)
 
     (options, args) = p.parse_args ()
+    options.verbose -= options.quiet
     if len (args) != 1:
         p.print_help ()
         import sys

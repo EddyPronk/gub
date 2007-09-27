@@ -867,6 +867,7 @@ class Subversion (SimpleRepo):
         return False
 
     def _current_revision (self):
+        return self.revision
         dir = self._checkout_dir ()
         ## UGH: should not parse user oriented output
         revno = self.read_pipe ('cd %(dir)s && LANG= svn log --limit=1'
