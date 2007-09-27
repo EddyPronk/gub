@@ -347,9 +347,11 @@ def parse_command_line ():
                   action='append',
                   help='set branch for package')
 
-    p.add_option ('-v', '--verbose', action='count', dest='verbose', default=0)
+    p.add_option ('-v', '--verbose', action='count', dest='verbose', default=1)
+    p.add_option ('-q', '--quiet', action='count', dest='quiet', default=0)
 
     (options, args) = p.parse_args ()
+    options.verbose -= options.quiet
     if len (args) != 1:
         p.print_help ()
         import sys

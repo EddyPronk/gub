@@ -100,6 +100,8 @@ def get_cli_parser ():
 
     p.add_option ('-v', '--verbose', action='count', dest='verbose', default=0)
 
+    p.add_option ('-q', '--quiet', action='count', dest='quiet', default=0)
+
     p.add_option ('--lilypond-versions', action='store',
                   default='uploads/lilypond.versions',
                   dest='lilypond_versions')
@@ -229,6 +231,7 @@ def urg_add_more_settings_for_gub (settings, options):
 def main ():
     cli_parser = get_cli_parser ()
     (options, files) = cli_parser.parse_args ()
+    options.verbose -= options.quiet
 
     settings = gub.settings.Settings (options)
     urg_add_more_settings_for_gub (settings, options)
