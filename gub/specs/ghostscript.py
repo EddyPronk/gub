@@ -309,7 +309,10 @@ cd %(srcdir)s/ && patch -p1 < %(patchdir)s/ghostscript-8.57-cygwin-esp.patch
     def get_build_dependencies (self):
         return ['jpeg', 'libpng12-devel', 'xorg-x11-devel', 'zlib']
     def get_dependency_dict (self):
-        return {'': ['libjpeg62', 'libpng12', 'zlib'],
+        return {'': [
+                # REMOVE after first cygwin release.
+                'ghostscript-base',
+                'libjpeg62', 'libpng12', 'zlib'],
                 'x11': ['ghostscript', 'xorg-x11-base']}
     def get_subpackage_names (self):
         return ['doc', 'x11', '',

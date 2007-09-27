@@ -167,10 +167,7 @@ class Fontconfig__cygwin (Fontconfig):
             }
 
     def category_dict (self):
-        return {'': 'libs',
-                'runtime': 'libs',
-                'devel': 'devel libs',
-                'doc': 'doc'}
+        return {'': 'libs'}
 
     def configure_command (self):
         return (Fontconfig.configure_command (self)

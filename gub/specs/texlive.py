@@ -221,12 +221,7 @@ CFLAGS="-O2 -g -DKPSE_DLL"
     def category_dict (self):
         return {'': 'text publishing',
                 'base': 'text publishing',
-                'extra': 'text publishing',
-                'runtime': 'libs',
-                'devel': 'devel libs',
-                'doc': 'doc',
-                'x11': 'x11',
-                }
+                'extra': 'text publishing',}
 
     def description_dict (self):
         # FIXME: fairly uninformative description for packages,
