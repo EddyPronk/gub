@@ -310,7 +310,14 @@ cd %(srcdir)s/ && patch -p1 < %(patchdir)s/ghostscript-8.57-cygwin-esp.patch
         return {'': ['libjpeg62', 'libpng12', 'zlib'],
                 'x11': ['ghostscript', 'xorg-x11-base']}
     def get_subpackage_names (self):
-        return ['doc', 'x11', '']
+        return ['doc', 'x11', '',
+                # REMOVE after first cygwin release.
+                'base']
+    # REMOVE after first cygwin release.
+    def get_subpackage_definitions (self):
+        d = Ghostscript.get_subpackage_definitions (self)
+        d['base'] = []
+        return d
     def configure_command (self):
         return (Ghostscript.configure_command (self)
                 .replace (' --with-drivers=FILES', ' --with-drivers=ALL'))
@@ -361,6 +368,7 @@ cd %(builddir)s && %(compile_command_x11)s
     def install_x11 (self):
         self.system ('''
 cd %(builddir)s && %(install_command_x11)s
+cd %(install_prefix)s && rm -rf usr/X11R6/share
 ''')
     def install_fonts (self):
         fontdir = self.expand ('%(install_prefix)s/share/ghostscript/fonts')
@@ -370,3 +378,6 @@ cd %(builddir)s && %(install_command_x11)s
         # http://cygwin.com/ml/cygwin/2002-07/msg02302.html
         # although text mode mounts are considered evil...
         return ' CFLAGS_STANDARD="-g -O2" EXTRALIBS=-lbinmode'
+    # REMOVE after first cygwin release.
+    def description_dict (self):
+        return {'base': 'The GPL Ghostscript PostScript interpreter - transitional package\nThis is an empty package to streamline the upgrade.'}
