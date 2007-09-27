@@ -116,15 +116,15 @@ def change_target_package (package):
 
     package.install = misc.MethodOverrider (package.install, install)
 
-    def category_dict (foo):
-        return {'': 'executables and common files',
-                      'bin': 'executables',
-                      'common': 'common files',
-                      'devel': 'development',
-                      'doc': 'documentation',
-                      'runtime': 'runtime',
-                      'x11': 'x11 executables',
-                      }
+    def category_dict (d):
+        default = {
+            'devel': 'devel',
+            'doc': 'doc',
+            'runtime': 'libs',
+            'x11': 'x11',
+            }
+        d.update (default)
+        return d
     
     package.category_dict = misc.MethodOverrider (package.category_dict,
                                                   category_dict)
