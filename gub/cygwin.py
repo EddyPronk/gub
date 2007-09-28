@@ -118,14 +118,18 @@ def change_target_package (package):
 
     def category_dict (d):
         default = {
-            '': 'utils',
-            'devel': 'devel',
-            'doc': 'doc',
-            'runtime': 'libs',
-            'x11': 'x11',
+            '': 'Utils',
+            'devel': 'Devel',
+            'doc': 'Doc',
+            'runtime': 'Libs',
+            'x11': 'X11',
             }
-        d.update (default)
-        return d
+        full = default.copy ()
+        full.update (d)
+        for i in package.get_subpackage_names ():
+            if not full.get (i):
+                full[i] = full['']
+        return full
     
     package.category_dict = misc.MethodOverrider (package.category_dict,
                                                   category_dict)

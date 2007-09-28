@@ -219,9 +219,9 @@ CFLAGS="-O2 -g -DKPSE_DLL"
         
     # FIXME: we do most of this for all cygwin packages
     def category_dict (self):
-        return {'': 'text publishing',
-                'base': 'text publishing',
-                'extra': 'text publishing',}
+        return {'': 'Text Publishing',
+                'base': 'Text Publishing',
+                'extra': 'Text Publishing',}
 
     def description_dict (self):
         # FIXME: fairly uninformative description for packages,

@@ -306,6 +306,8 @@ cd %(srcdir)s && cp Makefile.in Makefile-x11.in
 cd %(srcdir)s/ && patch -p1 < %(patchdir)s/ghostscript-8.15-windows-wb.patch
 cd %(srcdir)s/ && patch -p1 < %(patchdir)s/ghostscript-8.57-cygwin-esp.patch
 ''')
+    def category_dict (self):
+        return {'': 'Graphics'}
     def get_build_dependencies (self):
         return ['jpeg', 'libpng12-devel', 'xorg-x11-devel', 'zlib']
     def get_dependency_dict (self):

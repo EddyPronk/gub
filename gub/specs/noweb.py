@@ -17,7 +17,7 @@ simplicity, extensibility, and language-independence.
         self.MAN='%(install_prefix)s/share/man'
         self.TEXINPUTS='%(install_prefix)s/share/tex/inputs'
     def category_dict (self):
-        return {'': 'text science'}
+        return {'': 'Text Science'}
     def makeflags (self):
         return 'BIN=%(install_prefix)s/bin LIB=%(install_prefix)s/lib MAN=%(install_prefix)s/share/man TEXINPUTS=%(install_prefix)s/share/tex/inputs'
     def patch (self):
