@@ -124,11 +124,12 @@ def change_target_package (package):
             'runtime': 'Libs',
             'x11': 'X11',
             }
-        d.update (default)
+        full = default.copy ()
+        full.update (d)
         for i in package.get_subpackage_names ():
-            if not d.get (i):
-                d[i] = d['']
-        return d
+            if not full.get (i):
+                full[i] = full['']
+        return full
     
     package.category_dict = misc.MethodOverrider (package.category_dict,
                                                   category_dict)
