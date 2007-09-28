@@ -40,12 +40,20 @@ beautiful sheet music from a high-level description file.'''
         print 'FIXME: serialization: want version package TOO SOON'
         repo.version = instancemethod (lambda x: '2.11.33', repo, type (repo))
 
+        def changelog (x):
+            dir = repo.checkout_dir ()
+            repo.system ('''cd %(dir)s && make -f GNUmakefile.in dist-changelog''')
+        repo._checkout = misc.MethodOverrider (repo._checkout, changelog)
         self.with_vc (repo)
 
         # FIXME: should add to C_INCLUDE_PATH
         builddir = self.builddir ()
         self.target_gcc_flags = (settings.target_gcc_flags
                                  + ' -I%(builddir)s' % locals ())
+
+    def patch (self):
+        print 'FIXME: serialization: broken ChangeLog make rule'
+        self.system ('''touch %(srcdir)s/ChangeLog''')
 
     def get_dependency_dict (self):
         return {'': [
