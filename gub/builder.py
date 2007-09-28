@@ -80,7 +80,7 @@ class Builder:
         available = dict (inspect.getmembers (spec, callable))
         if self.settings.options.stage:
             spec.os_interface.stage (' *** Stage: %s (%s, %s)\n'
-                                     % (stage, spec.name (),
+                                     % (self.settings.options.stage, spec.name (),
                                         self.settings.platform))
             (available[self.settings.options.stage]) ()
             return
