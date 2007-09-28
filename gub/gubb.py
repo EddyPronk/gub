@@ -304,71 +304,11 @@ class BuildSpec (Os_context_wrapper):
         return False
 
     def set_done (self, stage, stage_number):
-<<<<<<< HEAD:gub/gubb.py
         self.dump ('%(stage_number)d' % locals (), self.get_stamp_file (), 'w')
-=======
-        open (self.get_stamp_file (),'w'). write ('%d' % stage_number) 
->>>>>>> b7ba3e5d2ffaf22a9e1b67df3453d2199b2c33a5:gub/gubb.py
 
-<<<<<<< HEAD:gub/gubb.py
     def autoupdate (self):
         self.os_interface._execute (oslog.AutogenMagic(self))
-=======
-    def autoupdate (self, autodir=0):
-        if not autodir:
-            autodir = self.srcdir ()
-        if os.path.isdir (os.path.join (self.srcdir (), 'ltdl')):
-            self.system ('''
-rm -rf %(autodir)s/libltdl
-cd %(autodir)s && libtoolize --force --copy --automake --ltdl
-''', locals ())
-        else:
-            self.system ('''
-cd %(autodir)s && libtoolize --force --copy --automake
-''', locals ())
-        if os.path.exists (os.path.join (autodir, 'bootstrap')):
-            self.system ('''
-cd %(autodir)s && ./bootstrap
-''', locals ())
-        elif os.path.exists (os.path.join (autodir, 'autogen.sh')):
 
-            ## --noconfigure ??
-            ## is --noconfigure standard for autogen? 
-            self.system ('''
-cd %(autodir)s && bash autogen.sh  --noconfigure
-''', locals ())
-        else:
-            aclocal_opt = ''
-            if os.path.exists (self.expand ('%(system_prefix)s/share/aclocal')):
-                aclocal_opt = '-I %(system_prefix)s/share/aclocal'
-                
-            headcmd = ''
-            for c in ('configure.in','configure.ac'):
-                try:
-                    str = open (self.expand ('%(srcdir)s/' + c)).read ()
-                    m = re.search ('A[CM]_CONFIG_HEADER', str)
-                    str = 0   ## don't want to expand str
-                    if m:
-                        headcmd = self.expand ('cd %(autodir)s && autoheader %(aclocal_opt)s', env=locals ())
-                        break
-                    
-                except IOError:
-                    pass
->>>>>>> b7ba3e5d2ffaf22a9e1b67df3453d2199b2c33a5:gub/gubb.py
-                
-<<<<<<< HEAD:gub/gubb.py
-=======
-            self.system ('''
-cd %(autodir)s && aclocal %(aclocal_opt)s
-%(headcmd)s
-cd %(autodir)s && autoconf %(aclocal_opt)s
-''', locals ())
-            if os.path.exists (self.expand ('%(srcdir)s/Makefile.am')):
-                self.system ('''
-cd %(srcdir)s && automake --add-missing --foreign
-''', locals ())
-
->>>>>>> b7ba3e5d2ffaf22a9e1b67df3453d2199b2c33a5:gub/gubb.py
     def configure (self):
         self.system ('''
 mkdir -p %(builddir)s
