@@ -35,7 +35,7 @@ models.'''
         from new import instancemethod
         #repo.version = instancemethod (version_from_VERSION, repo, type (repo))
         print 'FIXME: serialization: want version package TOO SOON'
-        repo.version = instancemethod (lambda x: '8.56', repo, type (repo))
+        repo.version = instancemethod (lambda x: '8.57', repo, type (repo))
 
         self.with_vc (repo)
 
@@ -294,6 +294,7 @@ class Ghostscript__cygwin (Ghostscript):
         #self.with_vc (repository.TarBall (self.settings.downloads, url))
         self.fonts_source = repository.TarBall (self.settings.downloads,
                                                 fonts_url)
+        self.fonts_source.set_oslog (self.os_interface)
     def download (self):
         Ghostscript.download (self)
         self.fonts_source.download ()
