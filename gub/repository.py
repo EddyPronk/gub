@@ -121,6 +121,7 @@ class Repository:
         self.oslog = None
         # Fallbacks, this will go through oslog
         self.system = misc.system
+        self.read_file = misc.read_file
         self.read_pipe = misc.read_pipe
         self.download_url = misc.download_url
         self.info = sys.stdout.write

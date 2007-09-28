@@ -41,6 +41,9 @@ def read_pipe (cmd, ignore_errors=False):
     
     return val
 
+def read_file (file):
+    return open (file).read ()
+
 def grok_sh_variables_str (str):
     dict = {}
     for i in str.split ('\n'):
