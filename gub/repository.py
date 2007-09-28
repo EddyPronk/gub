@@ -1107,6 +1107,11 @@ class SimpleGit (SimpleRepo):
     def tag_list (self, tag):
         return self.git_pipe ('tag -l %(tag)s*' % locals ()).split ('\n')
 
+    def all_files (self):
+        branch = self.branch
+        str = self.git_pipe ('ls-tree --name-only -r %(branch)s' % locals ())
+        return str.split ('\n')
+
 Git = SimpleGit
 RepositoryProxy.register (Git)
 
