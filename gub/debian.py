@@ -98,10 +98,10 @@ def get_debian_package (settings, description):
 
     package.ball_version = d['Version']
     from gub import repository
-    package.vc_repository = repository.TarBall (settings.downloads,
-                                                package.url,
-                                                package.ball_version,
-                                                strip_components=0)
+    package.with_vc (repository.TarBall (settings.downloads,
+                                         package.url,
+                                         package.ball_version,
+                                         strip_components=0))
     return package
 
 ## FIXME: c&p cygwin.py
