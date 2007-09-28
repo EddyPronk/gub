@@ -547,14 +547,12 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"%(_v)s -zcf %(src_package_
         self.system ('''
 mkdir -p %(install_prefix)s/share/doc/%(name)s
 ''')
-        for i in glob.glob ('%(srcdir)s/[A-Z]*'
-                            % self.get_substitution_dict ()):
-            import shutil
-            if (os.path.isfile (i)
-                and not os.path.basename (i).startswith ('Makefile')
-                and not os.path.basename (i).startswith ('GNUmakefile')):
-                shutil.copy2 (i, '%(install_prefix)s/share/doc/%(name)s'
-                              % self.get_substitution_dict ())
+        def copy_readme (file):
+            if (os.path.isfile (file)
+                and not os.path.basename (file).startswith ('Makefile')
+                and not os.path.basename (file).startswith ('GNUmakefile')):
+                self.copy (file, '%(install_prefix)s/share/doc/%(name)s')
+        self.map_locate (copy_readme, '%(srcdir)s', '[A-Z]*')
 
     def build_version (self):
         "the version in the shipped package."
