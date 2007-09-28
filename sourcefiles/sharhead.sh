@@ -209,7 +209,7 @@ chmod +x $uninstall_script
 ##
 ##  lilypond-invoke-editor
 echo Untarring "$me"
-tail -c+%(header_length)012d "$0" | tar -C "$lilydir" -x%(tarflag)sf -
+tail -c+%(header_length)012d "$0" | tar -C "$lilydir"%(_z)s -xf -
 
 cat <<EOF
 To uninstall lilypond, run 

@@ -6,9 +6,8 @@ from gub import context
 from gub import darwin
 from gub import gup
 from gub import targetpackage
-
-from context import subst_method
-from misc import *
+from gub import context
+from gub import misc
 
 # UGH -  we don't have the package dicts yet.
 # barf, this should be in config file, not in code
@@ -169,7 +168,6 @@ class Installer (context.Os_context_wrapper):
             self.system ("cd %(installer_root)s && bash -c 'rm -rf " + delete_me + "'", {'i': i }, locals ())
 
     def strip_dir (self, dir):
-        from gub import misc
         misc.map_command_dir (self,
                               self.expand (dir),
                               self.expand ('%(strip_command)s'),
@@ -341,6 +339,9 @@ def create_shar (orig_file, hello, head, target_shar):
     script = open (head).read ()
     header_length = 0
     header_length = len (script % locals ()) + 1
+    _z = misc.compression_flag (tarball)
+    used_in_sharhead = '%(base_orig_file)s %(hello)s %(header_length)s %(_z)'
+    used_in_sharhead % locals ()
     f = open (target_shar, 'w')
     f.write (script % locals())
     f.close ()
