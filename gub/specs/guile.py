@@ -24,12 +24,6 @@ class Guile (targetbuild.TargetBuild):
         self.with_vc (repo)
         self.so_version = '17'
 
-    def set_tarball_mirror (self):
-        self.with_template (mirror=mirrors.gnu, version='1.8.2',
-                            format='gz')
-        self.so_version = '17'
-    def set_mirror(self):
-        self.set_tarball_mirror()
     def autogen_sh (self):
         self.file_sub ([(r'AC_CONFIG_SUBDIRS\(guile-readline\)', '')],
                        '%(srcdir)s/configure.in')
@@ -40,9 +34,6 @@ class Guile (targetbuild.TargetBuild):
         self.dump ('',
                    '%(srcdir)s/doc/tutorial/version.texi')
         
-    def license_file (self):
-        return '%(srcdir)s/COPYING.LIB' 
- 
     def get_subpackage_names (self):
         return ['doc', 'devel', 'runtime', '']
 
@@ -57,10 +48,6 @@ class Guile (targetbuild.TargetBuild):
     def get_build_dependencies (self):
         return ['gettext-devel', 'gmp-devel', 'libtool']
         
-    def __init__ (self, settings):
-        targetbuild.TargetBuild.__init__ (self, settings)
-        self.set_mirror ()
-
     # FIXME: C&P.
     def guile_version (self):
         return '.'.join (self.ball_version.split ('.')[0:2])
@@ -364,10 +351,6 @@ guile-tut').
 from gub import toolsbuild
 from gub import build
 class Guile__tools (toolsbuild.ToolsBuild, Guile):
-    def __init__ (self, settings):
-        toolsbuild.ToolsBuild.__init__ (self, settings)
-        self.set_mirror ()
-
     def get_build_dependencies (self):
         return (toolsbuild.ToolsBuild.get_build_dependencies (self)
                 + Guile.get_build_dependencies (self)

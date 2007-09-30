@@ -25,8 +25,6 @@ mkdir -p %(builddir)s/libtomcrypt/src/modes/lrw
     def compile_command (self):
         return (targetbuild.TargetBuild.compile_command (self)
             + ' SCPPROGRESS=1 MULTI=1')
-    def license_file (self):
-        return '%(srcdir)s/LICENSE'
 
 class Dropbear__linux__arm__vfp (Dropbear):
     def patch (self):

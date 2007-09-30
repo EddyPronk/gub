@@ -246,15 +246,10 @@ class Settings (context.Context):
 
     def dependency_url (self, string):
         # FIXME: read from settings.rc, take platform into account
-        gnu = 'ftp://ftp.gnu.org/pub/gnu'
-        return {
-            'xlibtool': mirrors.gnu % { 'name': 'libtool',
-                                        'version': '1.5.22',
-                                        'format': 'gz'},
-            'ylibtool': os.path.join (gnu, 'libtool/libtool-1.5.22.tar.gz'),
-            'libtool': 'ftp://ftp.gnu.org/pub/gnu/libtool/libtool-1.5.22.tar.gz',
-            }.get (string, string)
-        
+        import sources
+        name = string.replace ('-', '_')
+        return sources.__dict__.get (name, string)
+
 def get_cli_parser ():
     import optparse
     p = optparse.OptionParser ()

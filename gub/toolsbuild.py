@@ -18,7 +18,7 @@ class ToolsBuild (build.UnixBuild):
     def install (self):
         build.UnixBuild.install (self)
         self.wrap_executables ()
-                
+
     def wrap_executables (self):
         def wrap (file):
             dir = os.path.dirname (file)
@@ -30,7 +30,7 @@ LD_LIBRARY_PATH=%(system_prefix)s/lib
 ''', file, env=locals ())
             os.chmod (file, 0755)
         self.map_locate (wrap, '%(install_prefix)s/bin', '*')
-        self.map_locate (wrap, '%(install_root)s/%(toolchain_prefix)s/bin', '*')
+        self.map_locate (wrap, '%(install_root)s/%(tools_prefix)s/bin', '*')
 
     def compile_command (self):
         return self.native_compile_command ()

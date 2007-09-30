@@ -4,11 +4,8 @@ from gub import mirrors
 from gub import targetbuild
 
 class Gmp (targetbuild.TargetBuild):
-    def __init__ (self, settings):
-        targetbuild.TargetBuild.__init__ (self, settings)
-        self.with_template (version='4.2.1',
-                   mirror="http://ftp.sunet.se/pub/gnu/gmp/gmp-%(version)s.tar.bz2",
-                   format="bz2")
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
         if not self.settings.platform.startswith ('darwin'):
             self.target_architecture = re.sub ('i[0-9]86-', 'i386-', settings.target_architecture)
 
@@ -98,11 +95,5 @@ mv %(install_prefix)s/lib/*dll %(install_prefix)s/bin || true
 
 from gub import toolsbuild
 class Gmp__tools (toolsbuild.ToolsBuild):
-    def __init__ (self, s):
-        toolsbuild.ToolsBuild.__init__ (self, s)
-        self.with_template (version='4.2.1',
-                   mirror="ftp://ftp.gnu.org/gnu/gmp/gmp-%(version)s.tar.bz2")
-
     def get_build_dependencies (self):
         return ['libtool']            
-

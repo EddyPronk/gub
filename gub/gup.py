@@ -204,7 +204,8 @@ class PackageDictManager:
         nm = d['name']
         if d.has_key ('split_name'):
             nm = d['split_name']
-        if (self._packages.has_key (nm)):
+        
+        if 0 and (self._packages.has_key (nm)):
             if self._packages[nm]['spec_checksum'] != d['spec_checksum']:
                 self.os_interface.info ('******** checksum of %s changed!\n\n' % nm)
 

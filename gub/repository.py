@@ -72,7 +72,7 @@ class RepositoryProxy:
             # what if I do brz branch foo foo.git?
             if i.check_suffix (i, dir):
                 return i.create (i, dir, url, branch, revision)
-        raise UnknownVcSystem ('Cannot determine vc_system type: url=%(url)s, dir=%(dir)s'
+        raise UnknownVcSystem ('Cannot determine source: url=%(url)s, dir=%(dir)s'
                            % locals ())
     get_repository = staticmethod (get_repository)
 

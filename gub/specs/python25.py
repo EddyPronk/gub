@@ -29,9 +29,6 @@ class Python (targetbuild.TargetBuild):
                          r"'%(system_prefix)s/include'")],
                        "%(srcdir)s/setup.py", must_succeed=True)
                         
-    def license_file (self):
-        return '%(srcdir)s/LICENSE'
-
     def get_subpackage_names (self):
         return ['doc', 'devel', 'runtime', '']
 
@@ -141,10 +138,6 @@ class Python__tools (toolsbuild.ToolsBuild, Python):
         targetbuild.TargetBuild.configure (self)
     def install (self):
         toolsbuild.ToolsBuild.install (self)
-
-
-    def license_file (self):
-        return '%(srcdir)s/LICENSE'
 
     def wrap_executables (self):
         pass

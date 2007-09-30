@@ -94,6 +94,31 @@ class Chmod (SerializedCommand):
     def execute (self, os_commands):
         os.chmod (self.file, self.mode)
 
+# FIXME: can't this be done a bit easier?
+class InstallLicense (SerializedCommand):
+    def __init__ (self, name, srcdir, install_root, file):
+        self.install_root = install_root
+        self.name = name
+        self.srcdir = srcdir
+        self.install_root = install_root
+        self.file = file
+    def execute (self, os_commands):
+        name = self.name
+        srcdir = self.srcdir
+        file = self.file
+        install_root = self.install_root
+        if type (self.file) == type (''):
+            file = self.file % locals ()
+        else:
+            for file in self.file:
+                file = file % locals ()
+                if os.path.exists (file):
+                    break
+        os_commands.system ('''
+mkdir -p %(install_root)s/license
+cp %(file)s %(install_root)s/license/%(name)s
+''' % locals ())
+
 class Func (SerializedCommand):
     def __init__ (self, func):
         self.func = func
@@ -544,3 +569,7 @@ commands.
 
     def chmod (self, file, mode):
         return self._execute (Chmod (file, mode))
+
+    def install_license (self, name, srcdir, install_root, file):
+        return self._execute (InstallLicense (name, srcdir, install_root, file))
+

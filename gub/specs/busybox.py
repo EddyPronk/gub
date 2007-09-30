@@ -35,8 +35,6 @@ cd %(builddir)s && make include/%(autoconf_h)s > /dev/null 2>&1''')
         self.system ('''
 cd %(install_root)s && mv sbin/init sbin/init.busybox
 ''')
-    def license_file (self):
-        return '%(srcdir)s/LICENSE'
 
 # 1.5 is too new for glibc on vfp
 class Busybox__linux__arm__vfp (Busybox):

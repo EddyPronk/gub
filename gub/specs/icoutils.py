@@ -1,10 +1,6 @@
 from gub import toolsbuild
 
 class Icoutils (toolsbuild.ToolsBuild):
-    def __init__ (self, settings):
-        toolsbuild.ToolsBuild.__init__ (self, settings)
-	from gub import mirrors
-        self.with_template (version='0.26.0', mirror=mirrors.nongnu_savannah)
     def get_build_dependencies (self):
         return ['libpng-devel']
     def get_dependency_dict (self):

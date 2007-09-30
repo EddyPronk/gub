@@ -19,5 +19,3 @@ class Tinylogin (targetbuild.TargetBuild):
         targetbuild.TargetBuild.install (self)
     def install_command (self):
         return 'fakeroot make install %(makeflags)s'
-    def license_file (self):
-        return '%(srcdir)s/LICENSE'

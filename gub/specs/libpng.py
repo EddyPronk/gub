@@ -5,10 +5,6 @@ class Libpng (targetbuild.TargetBuild):
     def __init__ (self, settings):
         targetbuild.TargetBuild.__init__ (self, settings)
         self.with_template (version='1.2.8', mirror=mirrors.libpng)
-
-    def license_file (self):
-        return '%(srcdir)s/LICENSE' 
-
     def get_dependency_dict (self):
         return {'':['zlib']}
     
@@ -49,17 +45,7 @@ class Libpng__mingw (Libpng):
 from gub import toolsbuild 
 
 class Libpng__tools (toolsbuild.ToolsBuild, Libpng):
-    def __init__ (self, settings):
-        toolsbuild.ToolsBuild.__init__ (self, settings)
-        self.with_template (version='1.2.8', mirror=mirrors.libpng)
-
     def get_build_dependencies (self):
         return ['libtool']
-
     def patch (self):
         Libpng.patch (self)
-
-    # FIXME, mi-urg?
-    def license_file (self):
-        return Libpng.license_file (self)
-

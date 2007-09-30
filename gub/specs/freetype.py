@@ -110,19 +110,13 @@ class XFreetype__cygwin (Freetype):
         self.pre_install_smurf_exe ()
 
 class Freetype__tools (toolsbuild.ToolsBuild, Freetype):
-    def __init__ (self, settings):
-        toolsbuild.ToolsBuild.__init__ (self, settings)
-        self.with_template (version='2.1.10', mirror=mirrors.nongnu_savannah)
-
     def get_build_dependencies (self):
         # tools is not split
         #return ['libtool-devel']
         return ['libtool']
-
     # FIXME, mi-urg?
     def license_file (self):
         return Freetype.license_file (self)
-
     def install (self):
         toolsbuild.ToolsBuild.install (self)
         self.munge_ft_config ('%(install_root)s/%(tools_prefix)s/bin/.freetype-config')

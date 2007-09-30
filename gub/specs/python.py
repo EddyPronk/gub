@@ -18,9 +18,6 @@ class Python (targetbuild.TargetBuild):
 	self.BASECFLAGS = ''
         self.CROSS_ROOT = '%(targetdir)s'
 
-    def license_file (self):
-        return '%(srcdir)s/LICENSE'
-
     def get_subpackage_names (self):
         return ['doc', 'devel', 'runtime', '']
 
@@ -77,7 +74,7 @@ class Python (targetbuild.TargetBuild):
     ### Ugh.
     @context.subst_method
     def python_version (self):
-        return '.'.join (self.ball_version.split ('.')[0:2])
+        return '.'.join (self.version ().split ('.')[0:2])
 
 class Python__mingw_binary (build.BinaryBuild):
     def __init__ (self, settings):
@@ -145,22 +142,11 @@ class Python__mingw (Python__mingw_cross):
 
 from gub import toolsbuild
 class Python__tools (toolsbuild.ToolsBuild, Python):
-    def __init__ (self, settings):
-        toolsbuild.ToolsBuild.__init__ (self, settings)
-        self.with_template (version='2.4.2',
-                   mirror=mirrors.python,
-                   format='bz2')
-
     def configure (self):
         self.system ('''cd %(srcdir)s && autoconf''')
         self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
         targetbuild.TargetBuild.configure (self)
     def install (self):
         toolsbuild.ToolsBuild.install (self)
-
-
-    def license_file (self):
-        return '%(srcdir)s/LICENSE'
-
     def wrap_executables (self):
         pass

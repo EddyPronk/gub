@@ -45,13 +45,7 @@ class Expat__linux__arm__vfp (Expat):
         targetbuild.TargetBuild.patch (self)
 
 class Expat__tools (toolsbuild.ToolsBuild):
-    def __init__ (self,settings):
-        toolsbuild.ToolsBuild.__init__ (self, settings)
-        self.with_template (version='1.95.8', mirror=mirrors.sf, format='gz')
-
     def patch (self):
-        toolsbuild.ToolsBuild.patch (self)
-        self.system ("cd %(srcdir)s && patch -p1 < %(patchdir)s/expat-1.95.8-mingw.patch")
-
+        self.apply_patch ('expat-1.95.8-mingw.patch')
     def get_build_dependencies (self):
-        return ['libtool']            
+        return ['libtool']

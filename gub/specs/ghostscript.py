@@ -39,9 +39,6 @@ models.'''
 
         self.with_vc (repo)
 
-    def license_file (self):
-        return '%(srcdir)s/LICENSE' 
-
     def force_sequential_build (self):
         return True
     

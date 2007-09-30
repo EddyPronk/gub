@@ -21,6 +21,10 @@ TODO: move all non configure-make-make install stuff from UnixBuild here
         self.settings = settings
     def stages (self):
         return list ()
+    def apply_patch (name):
+        self.system ('''
+cd %(srcdir)s && patch -p1 < %(patchdir)s/%(name)s
+''', locals ())
 
 class UnixBuild (Build):
     '''Build a source package the traditional Unix way
@@ -104,9 +108,11 @@ tries to do everything including autotooling and libtool fooling.  '''
     def source_checksum (self):
         return self.source.checksum ()
 
-    @context.subst_method
     def license_file (self):
-        return '%(srcdir)s/COPYING'
+        return ['%(srcdir)s/COPYING',
+                '%(srcdir)s/COPYING.LIB',
+                '%(srcdir)s/LICENSE',
+                '%(srcdir)s/LICENCE',]
     
     @context.subst_method
     def basename (self):
@@ -127,7 +133,7 @@ tries to do everything including autotooling and libtool fooling.  '''
 
     @context.subst_method
     def ball_suffix (self):
-        print 'FIXME: use version ()'
+        # FIXME: use version ()
         return '-' + self.source.version ()
 
     @context.subst_method
@@ -239,11 +245,6 @@ mkdir -p %(builddir)s
 cd %(builddir)s && %(configure_command)s
 ''')
 
-    def install_license (self):
-        if self.expand ('%(license_file)s'):
-            self.system ('mkdir -p %(install_root)s/license/', ignore_errors=True)
-            self.system ('cp %(license_file)s %(install_root)s/license/%(name)s')
-
     def broken_install_command (self):
         """For packages that do not honor DESTDIR.
         """
@@ -290,6 +291,12 @@ rm -f %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/share/info/dir %(in
 ''')
         self.install_license ()
         self.libtool_installed_la_fixups ()
+
+    def install_license (self):
+        self.os_interface.install_license (self.name (),
+                                           self.expand ('%(srcdir)s'),
+                                           self.expand ('%(install_root)s'),
+                                           self.license_file ())
 
     def libtool_installed_la_fixups (self):
         def installed_la_fixup (la):
@@ -538,7 +545,8 @@ NAME is less significant when it contains less bits sepated by SEP.'''
     return v
 
 def get_build_from_file (settings, file_name, name):
-    settings.os_interface.info ('reading spec: ' + file_name + '\n')
+    gub_name = file_name.replace (os.getcwd () + '/', '')
+    settings.os_interface.info ('reading spec: %(gub_name)s\n' % locals ())
     module = misc.load_module (file_name, name)
     # cross/gcc.py:Gcc will be called: cross/Gcc.py,
     # to distinguish from specs/gcc.py:Gcc.py
@@ -551,8 +559,7 @@ def get_build_from_file (settings, file_name, name):
 def get_build_class (settings, flavour, name):
     cls = get_build_from_module (settings, name)
     if not cls:
-        settings.os_interface.error ('NO SPEC for package: %(name)s\n'
-                                     % locals ())
+        settings.os_interface.harmless ('making spec:  %(name)s\n' % locals ())
         cls = get_build_without_module (flavour, name)
     return cls
 
@@ -594,6 +601,13 @@ class Dependency:
     def __init__ (self, settings, string):
         self.settings = settings
         self._url = self.settings.dependency_url (string)
+        self._name = string
+        if ':' in string or misc.is_ball (string):
+            # FIXME: this sucks, but is necessary because sources.py
+            # return these changed urls:
+            # netpbm->netpbm-patched
+            # fontforge->fontforge_full
+            self._name = misc.name_from_url (self.url ())
         from gub import targetbuild
         self.flavour = targetbuild.TargetBuild
         if self.settings.platform == 'tools':
@@ -602,7 +616,7 @@ class Dependency:
     def url (self):
         return self._url
     def name (self):
-        return misc.name_from_url (self.url ())
+        return self._name
     def build (self):
         b = self.create_build ()
         if not self.settings.platform == 'tools':

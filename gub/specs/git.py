@@ -3,10 +3,6 @@ from gub import targetbuild
 from gub import repository
 
 class Git__tools (toolsbuild.ToolsBuild):
-    def __init__ (self, settings):
-        toolsbuild.ToolsBuild.__init__ (self, settings)
-        self.with_template (mirror='http://kernel.org/pub/software/scm/git/git-%(version)s.tar.bz2',
-                   version='1.5.1.4')
     def patch (self):
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
         self.file_sub ([('git describe','true')],

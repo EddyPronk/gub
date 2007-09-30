@@ -64,13 +64,8 @@ jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
         Gettext.install (self)
 
 class Gettext__tools (toolsbuild.ToolsBuild):
-    def __init__ (self, settings):
-        toolsbuild.ToolsBuild.__init__(self,settings)
-        self.with_template (version='0.15', mirror=mirrors.gnu, format='gz')
-
     def get_build_dependencies (self):
         return ['libtool']
-
     def configure (self):
         toolsbuild.ToolsBuild.configure (self)
         self.file_sub ([

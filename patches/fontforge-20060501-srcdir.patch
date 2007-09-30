@@ -1,5 +1,5 @@
---- fontforge/Makefile.in~	Thu Apr 13 19:39:21 2006
-+++ fontforge/Makefile.in	Tue May  2 14:29:14 2006
+--- ./fontforge/Makefile.in~	Thu Apr 13 19:39:21 2006
++++ ./fontforge/Makefile.in	Tue May  2 14:29:14 2006
 @@ -61,9 +61,9 @@
  	$(LIBTOOL) --mode=link $(CC) -export-dynamic -o fontforge main.o $(fontforge_LIBOBJECTS) $(LIBS)
  

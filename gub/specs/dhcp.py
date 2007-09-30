@@ -24,5 +24,3 @@ NM=%(toolchain_prefix)snm
 RANLIB=%(toolchain_prefix)sranlib
 STRIP=%(toolchain_prefix)sstrip
 ''')
-    def license_file (self):
-        return '%(srcdir)s/LICENSE'

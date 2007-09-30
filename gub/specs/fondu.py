@@ -10,8 +10,6 @@ class Fondu (targetbuild.TargetBuild):
     def srcdir (self):
         return '%(allsrcdir)s/' + ('fondu-%s' % self.version())
 
-    def license_file (self):
-        return '%(srcdir)s/LICENSE'
     
     def patch (self):
         targetbuild.TargetBuild.patch (self)

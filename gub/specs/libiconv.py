@@ -20,6 +20,3 @@ class Libiconv (targetbuild.TargetBuild):
     def install (self):
         targetbuild.TargetBuild.install (self)
         self.system ('rm %(install_prefix)s/lib/charset.alias')
-
-    def license_file (self):
-        return '%(srcdir)s/COPYING.LIB'
