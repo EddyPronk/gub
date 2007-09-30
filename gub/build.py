@@ -21,7 +21,7 @@ TODO: move all non configure-make-make install stuff from UnixBuild here
         self.settings = settings
     def stages (self):
         return list ()
-    def apply_patch (name):
+    def apply_patch (self, name):
         self.system ('''
 cd %(srcdir)s && patch -p1 < %(patchdir)s/%(name)s
 ''', locals ())
