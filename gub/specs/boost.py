@@ -1,18 +1,18 @@
 from gub import mirrors
 from gub import build
 from gub import misc
-from gub import targetpackage
+from gub import targetbuild
 #
 import os
 
 # TODO: AutoToolSpec
-class BjamBuild (targetpackage.TargetBuild):
+class BjamBuild (targetbuild.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuild.__init__ (self, settings)
+        targetbuild.TargetBuild.__init__ (self, settings)
         build.append_target_dict (self, {'CFLAGS': ''})
     def get_substitution_dict (self, env={}):
         # FIXME: how to add settings to dict?
-        dict = targetpackage.TargetBuild.get_substitution_dict (self, env)
+        dict = targetbuild.TargetBuild.get_substitution_dict (self, env)
         dict['CFLAGS'] = ''
         return dict
     def patch (self):

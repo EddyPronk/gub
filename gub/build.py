@@ -6,16 +6,19 @@ from gub import misc
 from gub import repository
 from gub import oslog
 from gub import context
+from gub import guppackage
 
-class Build (Os_context_wrapper):
+class Build (context.Os_context_wrapper):
     '''How to build a piece of software
 
 TODO: move all non configure-make-make install stuff from UnixBuild here
 '''
     def __init__ (self, settings, source):
-        Os_context_wrapper.__init__ (self, settings)
+        context.Os_context_wrapper.__init__ (self, settings)
         self.source = source
         self.source.set_oslog (self.os_interface)
+        self.verbose = settings.verbose
+        self.settings = settings
     def stages (self):
         return list ()
 
@@ -24,18 +27,10 @@ class UnixBuild (Build):
 
 Based on the traditional configure; make; make install, this class
 tries to do everything including autotooling and libtool fooling.  '''
-    def __init__ (self, settings):
-        Os_context_wrapper.__init__ (self, settings)
-
-        self.verbose = settings.verbose
-        self.settings = settings
-        self.url = ''
+    def __init__ (self, settings, source):
+        Build.__init__ (self, settings, source)
         self._dependencies = None
         self._build_dependencies = None
-        
-        self.spec_checksum = '0000' 
-        self.cross_checksum = '0000'
-        
         self.split_packages = []
         self.so_version = '1'
 
@@ -56,7 +51,7 @@ tries to do everything including autotooling and libtool fooling.  '''
             'LIBRARY_PATH': '/empty-means-cwd-in-feisty',
             }
         dict.update (env)
-        d = Os_context_wrapper.get_substitution_dict (self, dict).copy ()
+        d = context.Os_context_wrapper.get_substitution_dict (self, dict).copy ()
         return d
           
     def class_invoke_version (self, klas, name):
@@ -103,11 +98,7 @@ tries to do everything including autotooling and libtool fooling.  '''
     
     @context.subst_method
     def file_name (self):
-        if self.url:
-            file = re.sub ('.*/([^/]+)', '\\1', self.url)
-        else:
-            file = os.path.basename (self.name ())
-        return file
+        return self.source.file_name ()
 
     @context.subst_method
     def source_checksum (self):
@@ -406,7 +397,7 @@ rm -f %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/share/info/dir %(in
         for sub in self.get_subpackage_names ():
             filespecs = defs[sub]
             
-            p = GupPackage (self.os_interface)
+            p = guppackage.GupPackage (self.os_interface)
             # FIXME: feature envy -> GupPackage constructor/factory
             p._file_specs = filespecs
             p.set_dict (self.get_substitution_dict (), sub)
@@ -452,7 +443,7 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"%(_v)s -zcf %(src_package_
         self.system ('''rm -rf %(srcdir)s %(builddir)s''', locals ())
 
     def untar (self):
-        if not self..source:
+        if not self.source:
             return False
         if not self.source.is_tracking ():
             self.system ('rm -rf %(srcdir)s %(builddir)s %(install_root)s')
@@ -534,99 +525,91 @@ class SdkBuild (UnixBuild):
     def install_root (self):
         return self.srcdir ()
 
-def get_class_from_spec_file (settings, file_name, name):
-    import misc
+def most_significant_in_dict (d, name, sep):
+    '''Return most significant variable from DICT
+
+NAME is less significant when it contains less bits sepated by SEP.'''
+    v = None
+    while name:
+        if d.has_key (name):
+            v = d[name]
+            break
+        name = name[:max (name.rfind (sep), 0)]
+    return v
+
+def get_build_from_file (settings, file_name, name):
     settings.os_interface.info ('reading spec: ' + file_name + '\n')
     module = misc.load_module (file_name, name)
-
     # cross/gcc.py:Gcc will be called: cross/Gcc.py,
     # to distinguish from specs/gcc.py:Gcc.py
     base = os.path.basename (name)
-    class_name = ((base[0].upper () + base[1:])
-                  .replace ('-', '_')
+    class_name = ((base[0].upper () + base[1:] + '-' + settings.platform)
+                  .replace ('-', '__')
                   .replace ('+', 'x'))
-    full = class_name + '__' + settings.platform.replace ('-', '__')
+    return most_significant_in_dict (module.__dict__, class_name, '__')
 
-    d = module.__dict__
-    klass = None
-    while full:
-        if d.has_key (full):
-            klass = d[full]
-            break
-        full = full[:max (full.rfind ('__'), 0)]
-
-#    dropped feature:
-#    version = xxx at toplevel of spec file
-#    mirror = xxx at toplevel of spec file
-#    for i in init_vars.keys ():
-#        if d.has_key (i):
-#            init_vars[i] = d[i]
-
-    return klass
-
-def get_build_spec (flavour, settings, url):
-    """
-    Return UnixBuild instance to build package from URL.
-
-    URL can be partly specified (eg: only a name, `lilypond'),
-    defaults are taken from the spec file.
-    """
-    name = url
-    if url.find (':') >= 0:
-        name = os.path.basename (url)
-
-    klass = None
-    checksum = '0000'
-    file_base = name + '.py'
-    for dir in (settings.specdir + '/' + settings.platform,
-                settings.specdir + '/' + settings.os,
-                settings.specdir):
-        file_name = dir + '/' + file_base
-        if os.path.exists (file_name):
-            if not klass:
-                klass = get_class_from_spec_file (settings, file_name, name)
-            import md5
-            # FIXME: pretty lame, checksum based on all matching
-            # specs found, eg
-            # linux-x86/cross/binutils, linux/cross/binutils, cross/binutils
-            checksum += md5.md5 (open (file_name).read ()).hexdigest ()
-
-    repo = None
-    if not klass:
-        if misc.is_ball (name):
-            ball = name
-            name, version_tuple, format = misc.split_ball (ball)
-        elif name.find ('/') >= 0:
-            name = os.path.basename (name)
+def get_build_class (settings, flavour, name):
+    cls = get_build_from_module (settings, name)
+    if not cls:
         settings.os_interface.error ('NO SPEC for package: %(name)s\n'
                                      % locals ())
-        from new import classobj
-        # Direct url build feature
-        #   * gub http://ftp.gnu.org/pub/gnu/tar/tar-1.18.tar.gz
-        # WIP:
-        #   * gub git://git.kernel.org/pub/scm/git/git
-        #   * gub bzr:http://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr
-        # must remove specs/git.py for now to get this to work.
-        # git.py overrides repository and branch settings
+        cls = get_build_without_module (flavour, name)
+    return cls
 
-        ### building for tools without spec hack
-        if settings.platform == 'tools':
+def get_build_from_module (settings, name):
+    file = get_build_module (settings, name)
+    if file:
+        return get_build_from_file (settings, file, name)
+    return None
+
+def get_build_module (settings, name):
+    file_base = name + '.py'
+    for dir in (os.path.join (settings.specdir, settings.platform),
+                os.path.join (settings.specdir, settings.os),
+                settings.specdir):
+        file_name = os.path.join (dir, file_base)
+        if os.path.exists (file_name):
+            return file_name
+    return None
+
+def get_build_without_module (flavour, name):
+    '''Direct dependency build feature
+
+* gub http://ftp.gnu.org/pub/gnu/tar/tar-1.18.tar.gz
+WIP:
+* gub git://git.kernel.org/pub/scm/git/git
+* bzr:http://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr
+* must remove specs/git.py for now to get this to work
+* git.py overrides repository and branch settings'''
+    from new import classobj
+    cls = classobj (name, (flavour,), {})
+    cls.__module__ = name
+    return cls
+
+# JUNKME
+def get_build_spec (settings, dependency):
+    return Dependency (settings, dependency).build ()
+
+class Dependency:
+    def __init__ (self, settings, string):
+        self.settings = settings
+        self._url = self.settings.dependency_url (string)
+        from gub import targetbuild
+        self.flavour = targetbuild.TargetBuild
+        if self.settings.platform == 'tools':
             from gub import toolsbuild
-            flavour = toolsbuild.ToolsBuild
-
-        klass = classobj (name, (flavour,), {})
-        klass.__module__ = name
-        try:
-           dir = os.path.join (settings.downloads, name)
-           repo = repository.get_repository_proxy (dir, url, '', '')
-        except repository.UnknownVcSystem:
-            # FIXME: remove this or needed for distro builds: debian/cygwin?
-            pass
-    package = klass (settings)
-    package.spec_checksum = checksum
-    from gub import cross
-    package.cross_checksum = cross.get_cross_checksum (settings.platform)
-    if repo:
-        package.with_vc (repo)
-
-    return package
+            self.flavour = toolsbuild.ToolsBuild
+    def url (self):
+        return self._url
+    def name (self):
+        return misc.name_from_url (self.url ())
+    def build (self):
+        b = self.create_build ()
+        if not self.settings.platform == 'tools':
+            cross.get_cross_module (self.settings).change_target_package (b)
+        return b
+    def create_build (self):
+        cls = get_build_class (self.settings, self.flavour, self.name ())
+        dir = os.path.join (self.settings.downloads, self.name ())
+        source = repository.get_repository_proxy (dir, self.url (), '', '')
+        return cls (self.settings, source)

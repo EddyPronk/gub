@@ -1,11 +1,11 @@
 import re
 
 from gub import mirrors
-from gub import targetpackage
+from gub import targetbuild
 
-class Gmp (targetpackage.TargetBuild):
+class Gmp (targetbuild.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuild.__init__ (self, settings)
+        targetbuild.TargetBuild.__init__ (self, settings)
         self.with_template (version='4.2.1',
                    mirror="http://ftp.sunet.se/pub/gnu/gmp/gmp-%(version)s.tar.bz2",
                    format="bz2")
@@ -21,13 +21,13 @@ class Gmp (targetpackage.TargetBuild):
         return ['libtool']
 
     def configure_command (self):
-        c = targetpackage.TargetBuild.configure_command (self)
+        c = targetbuild.TargetBuild.configure_command (self)
 
         c += ' --disable-cxx '
         return c
 
     def configure (self):
-        targetpackage.TargetBuild.configure (self)
+        targetbuild.TargetBuild.configure (self)
         # # FIXME: libtool too old for cross compile
         self.update_libtool ()
         # automake's Makefile.in's too old for new libtool,

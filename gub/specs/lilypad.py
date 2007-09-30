@@ -1,10 +1,10 @@
 from gub import mirrors
-from gub import targetpackage
+from gub import targetbuild
 from gub import misc
 
-class LilyPad (targetpackage.TargetBuild):
+class LilyPad (targetbuild.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuild.__init__ (self, settings)
+        targetbuild.TargetBuild.__init__ (self, settings)
         self.with_template (version='0.0.7-1',
                    mirror='http://lilypond.org/download/gub-sources/lilypad-0.0.7-1-src.tar.bz2',
                    format='bz2')
@@ -28,11 +28,11 @@ INSTALL_PROGRAM=%(srcdir)s/install-sh
 ''')
 
     def compile_command (self):
-        return (targetpackage.TargetBuild.compile_command (self)
+        return (targetbuild.TargetBuild.compile_command (self)
            + self.makeflags ())
 
     def install_command (self):
-        return (targetpackage.TargetBuild.broken_install_command (self)
+        return (targetbuild.TargetBuild.broken_install_command (self)
            + self.makeflags ())
     def license_file (self):
         return ''

@@ -1,11 +1,11 @@
 from gub import mirrors
 from gub import misc
 from gub import repository
-from gub import targetpackage
+from gub import targetbuild
 
-class Libdbi_drivers_sqlite3 (targetpackage.TargetBuild):
+class Libdbi_drivers_sqlite3 (targetbuild.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuild.__init__ (self, settings)
+        targetbuild.TargetBuild.__init__ (self, settings)
         #self.with_template (version='0.8.1', mirror=mirrors.sf, format='gz')
         self.with_vc (repository.NewTarBall (self.settings.downloads, mirrors.sf, 'libdbi-drivers', '0.8.2'))
 
@@ -17,7 +17,7 @@ class Libdbi_drivers_sqlite3 (targetpackage.TargetBuild):
         return {'': self._get_build_dependencies ()}
 
     def configure_command (self):
-        return (targetpackage.TargetBuild.configure_command (self)
+        return (targetbuild.TargetBuild.configure_command (self)
                 + misc.join_lines ('''
 --disable-docs
 --with-dbi-incdir=%(system_prefix)s/include
@@ -31,18 +31,18 @@ class Libdbi_drivers_sqlite3 (targetpackage.TargetBuild):
 mkdir -p %(builddir)s/doc/include
 cd %(builddir)s && touch doc/Makefile.in doc/include/Makefile.in
 ''')
-        targetpackage.TargetBuild.configure (self)
+        targetbuild.TargetBuild.configure (self)
         self.update_libtool ()
 
     def makeflags (self):
         return ' doc_DATA= html_DATA='
 
     def compile_command (self):
-        return (targetpackage.TargetBuild.compile_command (self)
+        return (targetbuild.TargetBuild.compile_command (self)
                 + self.makeflags ())
 
     def install_command (self):
-        return (targetpackage.TargetBuild.install_command (self)
+        return (targetbuild.TargetBuild.install_command (self)
                 + self.makeflags ())
 
 class Libdbi_drivers_sqlite3__debian__arm (Libdbi_drivers_sqlite3):

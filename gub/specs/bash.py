@@ -1,8 +1,8 @@
-from gub import targetpackage
+from gub import targetbuild
 
-class Bash (targetpackage.TargetBuild):
+class Bash (targetbuild.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuild.__init__ (self, settings)
+        targetbuild.TargetBuild.__init__ (self, settings)
         self.with_template (version='3.2',
                    mirror='ftp://ftp.cwru.edu/pub/bash/bash-3.2.tar.gz',
                    format='bz2')

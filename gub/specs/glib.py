@@ -1,10 +1,10 @@
 from gub import mirrors
 from gub import toolsbuild
-from gub import targetpackage
+from gub import targetbuild
 
-class Glib (targetpackage.TargetBuild):
+class Glib (targetbuild.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuild.__init__ (self, settings)
+        targetbuild.TargetBuild.__init__ (self, settings)
 
 
         ## 2.12.4 : see bug  http://bugzilla.gnome.org/show_bug.cgi?id=362918
@@ -17,7 +17,7 @@ class Glib (targetpackage.TargetBuild):
         return ['gettext-devel', 'libtool']
 
     def get_dependency_dict (self):
-        d = targetpackage.TargetBuild.get_dependency_dict (self)
+        d = targetbuild.TargetBuild.get_dependency_dict (self)
         d[''].append ('gettext')
         return d
     
@@ -26,13 +26,13 @@ class Glib (targetpackage.TargetBuild):
 glib_cv_stack_grows=${glib_cv_stack_grows=no}
 '''
     def configure (self):
-        targetpackage.TargetBuild.configure (self)
+        targetbuild.TargetBuild.configure (self)
 
         ## FIXME: libtool too old for cross compile
         self.update_libtool ()
         
     def install (self):
-        targetpackage.TargetBuild.install (self)
+        targetbuild.TargetBuild.install (self)
         self.system ('rm %(install_prefix)s/lib/charset.alias',
                      ignore_errors=True)
         

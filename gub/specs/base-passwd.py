@@ -1,4 +1,4 @@
-from gub import targetpackage
+from gub import targetbuild
 from gub import build
 
 url='ftp://ftp.nl.debian.org/debian/pool/main/b/base-passwd/base-passwd_3.5.11.tar.gz'
@@ -12,9 +12,9 @@ class UnixBuild (build.UnixBuild):
     def configure_command (self):
         return './configure --prefix=%(prefix_dir)s'
 
-class Base_passwd (targetpackage.TargetBuild):
+class Base_passwd (targetbuild.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuild.__init__ (self, settings)
+        targetbuild.TargetBuild.__init__ (self, settings)
         from gub import repository
         # FIXME: cannot parse debian balls
         self.ball_version = '3.5.11'
@@ -24,5 +24,5 @@ class Base_passwd (targetpackage.TargetBuild):
     def patch (self):
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
     def configure_command (self):
-        return (targetpackage.TargetBuild.configure_command (self)
+        return (targetbuild.TargetBuild.configure_command (self)
                 .replace ('--config-cache', '--cache-file=%(builddir)s/config.cache'))

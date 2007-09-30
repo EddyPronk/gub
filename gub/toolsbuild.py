@@ -8,7 +8,7 @@ class ToolsBuild (build.UnixBuild):
     def configure_command (self):
         return (build.UnixBuild.configure_command (self)
             + misc.join_lines ('''
---prefix=%(toolchain_prefix)s
+--prefix=%(tools_prefix)s
 '''))
 
     ## ugh: prefix= will trigger libtool relinks.

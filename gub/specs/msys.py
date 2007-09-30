@@ -1,11 +1,11 @@
-from gub import targetpackage
+from gub import targetbuild
 from gub import repository
 
 
 ### BROKEN
-class Msys(targetpackage.TargetBuild):
+class Msys(targetbuild.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuild.__init__ (self, settings)
+        targetbuild.TargetBuild.__init__ (self, settings)
         repo = repository.CVS (self.get_repodir(),
                                source=':pserver:anonymous@mingw.cvs.sourceforge.net:/cvsroot/mingw',
                                module='msys/rt/src'

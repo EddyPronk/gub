@@ -1,11 +1,11 @@
 from gub import mirrors
 from gub import build
 from gub import misc
-from gub import targetpackage
+from gub import targetbuild
 
-class Xerces_c (targetpackage.TargetBuild):
+class Xerces_c (targetbuild.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuild.__init__ (self, settings)
+        targetbuild.TargetBuild.__init__ (self, settings)
         self.with_tarball (mirror=mirrors.xerces_c, version='2_7_0')
         self.compile_dict = {
             'XERCESCROOT': '%(builddir)s',
@@ -30,7 +30,7 @@ class Xerces_c (targetpackage.TargetBuild):
         # cool, it can serve the INSTALL file!  Let's remove it from
         # the tarball!
         return (self.makeflags () + ' '
-                + targetpackage.TargetBuild.configure_command (self)
+                + targetbuild.TargetBuild.configure_command (self)
                 .replace ('/configure ', '/src/xercesc/configure ')
                 .replace ('--config-cache', '--cache-file=%(builddir)s/config.cache'))
     def makeflags (self):
@@ -39,17 +39,17 @@ class Xerces_c (targetpackage.TargetBuild):
             s += ' ' + i + '="' + self.compile_dict[i] + '"'
         return s
     def xcompile_command (self):
-        return (targetpackage.TargetBuild.compile_command (self)
+        return (targetbuild.TargetBuild.compile_command (self)
                 + self.makeflags ()
-                + ';' + targetpackage.TargetBuild.compile_command (self)
+                + ';' + targetbuild.TargetBuild.compile_command (self)
                 + self.makeflags ()
-                + ';' + targetpackage.TargetBuild.compile_command (self)
+                + ';' + targetbuild.TargetBuild.compile_command (self)
                 + self.makeflags ())
     def compile_command (self):
-        return (targetpackage.TargetBuild.compile_command (self)
+        return (targetbuild.TargetBuild.compile_command (self)
                 + self.makeflags ())
     def install_command (self):
-        return (targetpackage.TargetBuild.install_command (self)
+        return (targetbuild.TargetBuild.install_command (self)
                 + self.makeflags ())
     def configure (self):
         self.config_cache ()

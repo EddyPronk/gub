@@ -4,16 +4,16 @@ import re
 from gub import repository
 from gub import build
 from gub import misc
-from gub import targetpackage
+from gub import targetbuild
 from gub import context
 
-class LilyPond (targetpackage.TargetBuild):
+class LilyPond (targetbuild.TargetBuild):
     '''A program for printing sheet music
 LilyPond lets you create music notation.  It produces
 beautiful sheet music from a high-level description file.'''
 
     def __init__ (self, settings):
-        targetpackage.TargetBuild.__init__ (self, settings)
+        targetbuild.TargetBuild.__init__ (self, settings)
         try:
             source = os.environ['GUB_LILYPOND_SOURCE']
         except KeyError:         
@@ -79,13 +79,13 @@ beautiful sheet music from a high-level description file.'''
                 'urw-fonts']
 
     def rsync_command (self):
-        c = targetpackage.TargetBuild.rsync_command (self)
+        c = targetbuild.TargetBuild.rsync_command (self)
         c = c.replace ('rsync', 'rsync --delete --exclude configure')
         return c
 
     def configure_command (self):
         ## FIXME: pickup $target-guile-config
-        return (targetpackage.TargetBuild.configure_command (self)
+        return (targetbuild.TargetBuild.configure_command (self)
                 + misc.join_lines ('''
 --enable-relocation
 --disable-documentation
@@ -130,7 +130,7 @@ cd %(builddir)s && %(configure_command)s''')
             self.do_configure ()
             self.system ('touch %(builddir)s/config.hh')
             
-        targetpackage.TargetBuild.compile (self)
+        targetbuild.TargetBuild.compile (self)
 
     def name_version (self):
         # FIXME: make use of branch for version explicit, use
@@ -139,7 +139,7 @@ cd %(builddir)s && %(configure_command)s''')
         try:
             return self.build_version ()
         except:
-            return targetpackage.TargetBuild.name_version (self)
+            return targetbuild.TargetBuild.name_version (self)
 
     def xxxbuild_version (self):
         d = misc.grok_sh_variables (self.expand ('%(srcdir)s/VERSION'))
@@ -161,7 +161,7 @@ cd %(builddir)s && %(configure_command)s''')
         return ('%d' % b)
 
     def install (self):
-        targetpackage.TargetBuild.install (self)
+        targetbuild.TargetBuild.install (self)
         # FIXME: This should not be in generic package, for installers only.
         self.installer_install_stuff ()
 
@@ -304,7 +304,7 @@ LDFLAGS="%(LDFLAGS)s %(python_lib)s"
 
     def install (self):
         ##LilyPond.install (self)
-        targetpackage.TargetBuild.install (self)
+        targetbuild.TargetBuild.install (self)
         self.install_doc ()
 
     def install_doc (self):
@@ -450,7 +450,7 @@ cd %(builddir)s && make -C scripts PYTHON=/usr/bin/python
         LilyPond.compile (self)
 
     def install (self):
-        targetpackage.TargetBuild.install (self)
+        targetbuild.TargetBuild.install (self)
 
     def get_build_dependencies (self):
         #FIXME: aargh, MUST specify gs,  etc here too.

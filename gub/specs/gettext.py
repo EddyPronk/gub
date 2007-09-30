@@ -1,21 +1,21 @@
 from gub import mirrors
-from gub import targetpackage
+from gub import targetbuild
 from gub import toolsbuild
 
-class Gettext (targetpackage.TargetBuild):
+class Gettext (targetbuild.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuild.__init__ (self, settings)
+        targetbuild.TargetBuild.__init__ (self, settings)
         self.with_template (version='0.15', mirror=mirrors.gnu, format='gz')
 
     def get_build_dependencies (self):
         return ['libtool']
 
     def configure_command (self):
-        return (targetpackage.TargetBuild.configure_command (self)
+        return (targetbuild.TargetBuild.configure_command (self)
                 + ' --disable-threads --disable-csharp --disable-java ')
 
     def configure (self):
-        targetpackage.TargetBuild.configure (self)
+        targetbuild.TargetBuild.configure (self)
 
         ## FIXME: libtool too old for cross compile
         self.update_libtool ()

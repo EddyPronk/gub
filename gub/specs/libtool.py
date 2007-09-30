@@ -1,4 +1,4 @@
-from gub import targetpackage
+from gub import targetbuild
 from gub import build
 from gub import mirrors
 from gub import toolsbuild
@@ -8,23 +8,20 @@ from gub import toolsbuild
 # This works without libtool.py:
 #    ./gub-builder.py -p mingw build http://ftp.gnu.org/pub/gnu/libtool/libtool-1.5.20.tar.gz
 
-class Libtool (targetpackage.TargetBuild):
-    def __init__ (self, settings):
-        targetpackage.TargetBuild.__init__ (self, settings)
-        self.with_template (version='1.5.20', mirror=mirrors.gnu)
+class Libtool (targetbuild.TargetBuild):
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
+        # KUGH
         self.so_version = '3'
-
     def get_subpackage_names (self):
         return ['devel', 'doc', 'runtime', '']
-
     def get_dependency_dict (self):
         return { '': ['libtool-runtime'],
                  'devel' : ['libtool'],
                  'doc' : [],
                  'runtime': [],}
-
     def get_subpackage_definitions (self):
-        d = targetpackage.TargetBuild.get_subpackage_definitions (self)
+        d = targetbuild.TargetBuild.get_subpackage_definitions (self)
         d['devel'].append (self.settings.prefix_dir + '/bin/libtool*')
         d['devel'].append (self.settings.prefix_dir + '/share/libltdl')
         return d
@@ -32,7 +29,6 @@ class Libtool (targetpackage.TargetBuild):
 class Libtool__darwin (Libtool):
     def install (self):
         Libtool.install (self)
-
         ## necessary for programs that load dynamic modules.
         self.dump ("prependdir DYLD_LIBRARY_PATH=$INSTALLER_PREFIX/lib",
                    '%(install_prefix)s/etc/relocate/libtool.reloc')
@@ -41,28 +37,19 @@ class Libtool__cygwin (Libtool):
     def __init__ (self, settings):
         Libtool.__init__ (self, settings)
         self.with_template (version='1.5.22')
-        # FIXME: next to impossible to untar and patch automatically
-        # should call for sanity on cygwin-apps@cygwin.com?
-        #self.with_template (version='1.5.23a',
-        #          mirror='http://mirrors.kernel.org/sourceware/cygwin/release/libtool/libtool1.5/libtool1.5-%(version)s-1-src.tar.bz2',)
-        # FIXME: build lib package naming: lib<NAME><MAJOR-SO-VERSION> into gub
-
     def only_for_cygwin_untar (self):
         cygwin.untar_cygwin_src_package_variant2 (self, self.file_name ())
-
+    # FIXME: we do most of this for all cygwin packages
     def get_dependency_dict (self):
         d = Libtool.get_dependency_dict (self)
         d[''].append ('cygwin')
         return d
-
-    # FIXME: we do most of this for all cygwin packages
     def category_dict (self):
         return {'': 'Devel'}
 
 class Libtool__tools (toolsbuild.ToolsBuild):
-    def __init__ (self, settings):
-        toolsbuild.ToolsBuild.__init__ (self, settings)
-        self.with_template (version='1.5.20', mirror=mirrors.gnu)
+    def __init__ (self, settings, source):
+        toolsbuild.ToolsBuild.__init__ (self, settings, source)
     def configure (self):
         build.UnixBuild.configure (self)
     def wrap_executables (self):

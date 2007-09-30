@@ -1,22 +1,22 @@
-from gub import targetpackage
+from gub import targetbuild
 from gub import build
 from gub import toolsbuild
 
-class Zlib (targetpackage.TargetBuild):
+class Zlib (targetbuild.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuild.__init__ (self, settings)
+        targetbuild.TargetBuild.__init__ (self, settings)
 	self.with_template (version='1.2.3',
                    mirror='http://heanet.dl.sourceforge.net/sourceforge/libpng/zlib-1.2.3.tar.gz')
         
     def patch (self):
-        targetpackage.TargetBuild.patch (self)
+        targetbuild.TargetBuild.patch (self)
 
         self.system ('cp %(sourcefiledir)s/zlib.license %(license_file)s')
         self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/zlib-1.2.3.patch')
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
 
     def compile_command (self):
-        return targetpackage.TargetBuild.compile_command (self) + ' ARFLAGS=r '
+        return targetbuild.TargetBuild.compile_command (self) + ' ARFLAGS=r '
 
     
     def configure_command (self):
@@ -31,7 +31,7 @@ class Zlib (targetpackage.TargetBuild):
         return zlib_is_broken + ' %(srcdir)s/configure --shared '
 
     def install_command (self):
-        return targetpackage.TargetBuild.broken_install_command (self)
+        return targetbuild.TargetBuild.broken_install_command (self)
 
 
 

@@ -1,12 +1,9 @@
 import os
-from gub import build
-from gub import misc
 import re
-import imp
-import md5
-from gub import cross
 
-from context import subst_method
+from gub import build
+from gub import context
+from gub import misc
 
 class TargetBuild (build.UnixBuild):
     def configure_command (self):
@@ -156,19 +153,6 @@ class TargetBuild (build.UnixBuild):
         d = build.UnixBuild.get_substitution_dict (self, dict).copy ()
         return d
 
-def get_build_spec (settings, url):
-    """
-    Return TargetBuild instance to build package from URL.
-
-    URL can be partly specified (eg: only a name, `lilypond'),
-    defaults are taken from the spec file.
-    """
-
-    package = build.get_build_spec (TargetBuild, settings, url)
-    crossmod = cross.get_cross_module (settings)
-    crossmod.change_target_package (package)
-    return package
-    
 class Change_target_dict:
     def __init__ (self, package, override):
         self._target_dict_method = package.get_substitution_dict

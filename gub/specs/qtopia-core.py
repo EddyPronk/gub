@@ -1,16 +1,16 @@
 from gub import context
 from gub import build
 from gub import misc
-from gub import targetpackage
+from gub import targetbuild
 
 trolltech = 'ftp://ftp.trolltech.com/qt/source/%(name)s-opensource-src-%(ball_version)s.tar.%(format)s'
 
 # TODO: base class Qmake build.
 #       sort-out what exactly is Qmake build, qt, and qtopia-core specific
 
-class Qtopia_core (targetpackage.TargetBuild):
+class Qtopia_core (targetbuild.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuild.__init__ (self, settings)
+        targetbuild.TargetBuild.__init__ (self, settings)
         self.with_tarball (mirror=trolltech, version='4.2.2')
         dict = {
             'CC': 'gcc',
@@ -64,16 +64,16 @@ unset CC CXX; bash %(srcdir)s/configure
 -verbose
 ''')
     def configure (self):
-        targetpackage.TargetBuild.configure (self)
+        targetbuild.TargetBuild.configure (self)
         for i in misc.find_files (self.expand ('%(install_root)s'), 'Makefile'):
             self.file_sub ([('-I/usr', '-I%(system_prefix)s')], i)
     def install_command (self):
-        return (targetpackage.TargetBuild.install_command (self)
+        return (targetbuild.TargetBuild.install_command (self)
                 + ' INSTALL_ROOT=%(install_root)s')
     def license_file (self):
         return '%(srcdir)s/LICENSE.GPL'
     def install (self):
-        targetpackage.TargetBuild.install (self)
+        targetbuild.TargetBuild.install (self)
         self.system ('mkdir -p %(install_prefix)s/lib/pkgconfig')
         for i in ('QtCore.pc', 'QtGui.pc', 'QtNetwork.pc'):
             self.system ('''

@@ -140,6 +140,10 @@ class Repository:
             return self.branch.replace ('/', '-')
         return ''
 
+    def file_name (self):
+#        return re.sub ('.*/([^/]+)', '\\1', self.source)
+        return os.path.basename (self.source)
+
     def download (self):
         pass
 

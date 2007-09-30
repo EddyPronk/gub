@@ -445,7 +445,7 @@ topological order
         if spec_dict.has_key (name):
             spec = spec_dict[name]
         else:
-            spec = targetbuild.get_build_spec (settings, name)
+            spec = build.get_build_spec (settings, name)
             spec_dict[name] = spec
         return map (get_base_package_name, spec.get_build_dependencies ())
 
@@ -454,8 +454,7 @@ topological order
             spec = spec_dict[name]
         else:
             if name in todo or name not in distro_packages.keys ():
-#            if name not in distro_packages.keys ():
-                spec = targetbuild.get_build_spec (settings, name)
+                spec = build.get_build_spec (settings, name)
             else:
                 spec = distro_packages[name]
             spec_dict[name] = spec

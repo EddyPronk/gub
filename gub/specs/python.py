@@ -4,12 +4,12 @@ import sys
 #
 from gub import mirrors
 from gub import build
-from gub import targetpackage
+from gub import targetbuild
 from gub import context
 
-class Python (targetpackage.TargetBuild):
+class Python (targetbuild.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuild.__init__ (self, settings)
+        targetbuild.TargetBuild.__init__ (self, settings)
         self.with_template (version='2.4.2',
                    mirror=mirrors.python,
                    format='bz2')
@@ -33,7 +33,7 @@ class Python (targetpackage.TargetBuild):
                  'runtime': [], }
 
     def patch (self):
-        targetpackage.TargetBuild.patch (self)
+        targetbuild.TargetBuild.patch (self)
         self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-1.patch')
         self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-configure.in-posix.patch')
         self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-configure.in-sysname.patch')
@@ -46,25 +46,25 @@ class Python (targetpackage.TargetBuild):
     def configure (self):
         self.system ('''cd %(srcdir)s && autoconf''')
         self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
-        targetpackage.TargetBuild.configure (self)
+        targetbuild.TargetBuild.configure (self)
 
     def compile_command (self):
         ##
         ## UGH.: darwin Python vs python (case insensitive FS)
-        c = targetpackage.TargetBuild.compile_command (self)
+        c = targetbuild.TargetBuild.compile_command (self)
         c += ' BUILDPYTHON=python-bin '
         return c
 
     def install_command (self):
         ##
         ## UGH.: darwin Python vs python (case insensitive FS)
-        c = targetpackage.TargetBuild.install_command (self)
+        c = targetbuild.TargetBuild.install_command (self)
         c += ' BUILDPYTHON=python-bin '
         return c
 
     # FIXME: c&p linux.py:install ()
     def install (self):
-        targetpackage.TargetBuild.install (self)
+        targetbuild.TargetBuild.install (self)
         cfg = open (self.expand ('%(sourcefiledir)s/python-config.py.in')).read ()
         cfg = re.sub ('@PYTHON_VERSION@', self.expand ('%(version)s'), cfg)
         cfg = re.sub ('@PREFIX@', self.expand ('%(system_prefix)s/'), cfg)
@@ -154,7 +154,7 @@ class Python__tools (toolsbuild.ToolsBuild, Python):
     def configure (self):
         self.system ('''cd %(srcdir)s && autoconf''')
         self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
-        targetpackage.TargetBuild.configure (self)
+        targetbuild.TargetBuild.configure (self)
     def install (self):
         toolsbuild.ToolsBuild.install (self)
 

@@ -1,10 +1,10 @@
 from gub import repository
-from gub import targetpackage
+from gub import targetbuild
 
 texlive_svn = 'svn://username@tug.org/texlive'
 license_url = 'http://tug.org/svn/texlive/trunk/Master/LICENSE.TL'
 
-class Texlive (targetpackage.TargetBuild):
+class Texlive (targetbuild.TargetBuild):
     '''The TeX Live text formatting system
 The TeX Live software distribution offers a complete TeX system.
 It  encompasses programs for editing, typesetting, previewing and printing
@@ -16,7 +16,7 @@ TeX, as well as the documentation accompanying the included software
 packages.'''
 
     def __init__ (self, settings):
-        targetpackage.TargetBuild.__init__ (self, settings)
+        targetbuild.TargetBuild.__init__ (self, settings)
         repo = repository.Subversion (
             dir=self.get_repodir (),
             source=texlive_svn,
@@ -57,7 +57,7 @@ packages.'''
         return ['doc', 'devel', 'base', 'runtime', 'bin', '']
 
     def get_subpackage_definitions (self):
-        d = targetpackage.TargetBuild.get_subpackage_definitions (self)
+        d = targetbuild.TargetBuild.get_subpackage_definitions (self)
         d['doc'] += [self.settings.prefix_dir + '/share/texmf/doc']
         d['base'] = [self.settings.prefix_dir + '/share/texmf']
 #        d['bin'] = ['/']
@@ -65,26 +65,26 @@ packages.'''
         return d
 
     def download (self):
-        targetpackage.TargetBuild.download (self)
+        targetbuild.TargetBuild.download (self)
         self.texmf_repo.download ()
         from gub import misc
         misc.download_url (license_url,  self.source._checkout_dir ())
 #        self.dump ('MAJOR_VERSION=2006', self.source.dir + '/VERSION')
                            
     def untar (self):
-        targetpackage.TargetBuild.untar (self)
+        targetbuild.TargetBuild.untar (self)
 #        self.texmf_repo.update_workdir (self.expand ('%(srcdir)s/texmf-dist'))
         self.texmf_repo.update_workdir (self.expand ('%(srcdir)s/texmf'))
 
     def rsync_command (self):
-        return targetpackage.TargetBuild.rsync_command (self).replace ('rsync', 'rsync --exclude=.svn')
+        return targetbuild.TargetBuild.rsync_command (self).replace ('rsync', 'rsync --exclude=.svn')
 
     def configure_command (self):
         from gub import misc
         #FIXME
         return ('export TEXMFMAIN=%(srcdir)s/texmf;'
                 + 'bash '
-                + targetpackage.TargetBuild.configure_command (self).replace ('--config-cache', '--cache-file=config.cache')
+                + targetbuild.TargetBuild.configure_command (self).replace ('--config-cache', '--cache-file=config.cache')
                 + misc.join_lines ('''
 --disable-multiplatform
 --enable-ipc
@@ -130,7 +130,7 @@ packages.'''
         return self.broken_install_command ()
 
     def install (self):
-    	targetpackage.TargetBuild.install (self)
+    	targetbuild.TargetBuild.install (self)
         self.system ('''
 #rsync -v -a %(srcdir)s/texmf-dist/* %(install_prefix)s/share/texmf-dist
 rsync -v -a %(srcdir)s/texmf/* %(install_prefix)s/share/texmf/

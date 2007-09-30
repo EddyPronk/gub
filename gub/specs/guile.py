@@ -3,10 +3,10 @@ import os
 #
 from gub import misc
 from gub import mirrors
-from gub import targetpackage
+from gub import targetbuild
 from gub import repository
 
-class Guile (targetpackage.TargetBuild):
+class Guile (targetbuild.TargetBuild):
     def set_vc_mirror (self):
         source = 'http://lilypond.org/vc/guile.git'
         source = 'git://repo.or.cz/guile.git'
@@ -58,7 +58,7 @@ class Guile (targetpackage.TargetBuild):
         return ['gettext-devel', 'gmp-devel', 'libtool']
         
     def __init__ (self, settings):
-        targetpackage.TargetBuild.__init__ (self, settings)
+        targetbuild.TargetBuild.__init__ (self, settings)
         self.set_mirror ()
 
     # FIXME: C&P.
@@ -66,7 +66,7 @@ class Guile (targetpackage.TargetBuild):
         return '.'.join (self.ball_version.split ('.')[0:2])
 
     def patch (self):
-        targetpackage.TargetBuild.patch(self)
+        targetbuild.TargetBuild.patch(self)
         self.autogen_sh()
 
         ## Don't apply patch twice.
@@ -91,12 +91,12 @@ exec %(tools_prefix)s/bin/guile "$@"
         
     def configure_command (self):
         return ('GUILE_FOR_BUILD=%(tools_prefix)s/bin/guile '
-                + targetpackage.TargetBuild.configure_command (self)
+                + targetbuild.TargetBuild.configure_command (self)
                 + self.configure_flags ())
 
     def compile_command (self):
         return ('preinstguile=%(tools_prefix)s/bin/guile ' +
-                targetpackage.TargetBuild.compile_command (self))
+                targetbuild.TargetBuild.compile_command (self))
     
     def compile (self):
 
@@ -106,14 +106,14 @@ exec %(tools_prefix)s/bin/guile "$@"
         self.system ('cd %(builddir)s/libguile && make libpath.h')
         self.file_sub ([('''-L *%(system_root)s''', '-L')],
                        '%(builddir)s/libguile/libpath.h')
-        targetpackage.TargetBuild.compile (self)
+        targetbuild.TargetBuild.compile (self)
 
     def configure (self):
-        targetpackage.TargetBuild.configure (self)
+        targetbuild.TargetBuild.configure (self)
         self.update_libtool ()
 
     def install (self):
-        targetpackage.TargetBuild.install (self)
+        targetbuild.TargetBuild.install (self)
         majmin_version = '.'.join (self.expand ('%(version)s').split ('.')[0:2])
         
         self.dump ("prependdir GUILE_LOAD_PATH=$INSTALLER_PREFIX/share/guile/%(majmin_version)s\n",
@@ -191,7 +191,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_prefix)s/lib"}
 
     def configure (self):
         if 0: # using patch
-            targetpackage.TargetBuild.autoupdate (self)
+            targetbuild.TargetBuild.autoupdate (self)
 
         if 1:
             self.file_sub ([('''^#(LIBOBJS=".*fileblocks.*)''',

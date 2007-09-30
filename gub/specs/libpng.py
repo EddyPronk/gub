@@ -1,9 +1,9 @@
 from gub import mirrors
-from gub import targetpackage
+from gub import targetbuild
 
-class Libpng (targetpackage.TargetBuild):
+class Libpng (targetbuild.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuild.__init__ (self, settings)
+        targetbuild.TargetBuild.__init__ (self, settings)
         self.with_template (version='1.2.8', mirror=mirrors.libpng)
 
     def license_file (self):
@@ -27,12 +27,12 @@ class Libpng (targetpackage.TargetBuild):
                '%(srcdir)s/Makefile.am')
 
     def configure (self):
-        targetpackage.TargetBuild.configure (self)
+        targetbuild.TargetBuild.configure (self)
         # # FIXME: libtool too old for cross compile
         self.update_libtool ()
 
     def compile_command (self):
-        c = targetpackage.TargetBuild.compile_command (self)
+        c = targetbuild.TargetBuild.compile_command (self)
         ## need to call twice, first one triggers spurious Automake stuff.                
         return '(%s) || (%s)' % (c,c)
     

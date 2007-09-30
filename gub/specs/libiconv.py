@@ -1,9 +1,9 @@
-from gub import targetpackage
+from gub import targetbuild
 from gub import mirrors
 
-class Libiconv (targetpackage.TargetBuild):
+class Libiconv (targetbuild.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuild.__init__ (self, settings)
+        targetbuild.TargetBuild.__init__ (self, settings)
         self.with_template (version='1.11', mirror=mirrors.gnu)
     
     def force_sequential_build (self):
@@ -13,12 +13,12 @@ class Libiconv (targetpackage.TargetBuild):
         return ['gettext-devel', 'libtool']
 
     def configure (self):
-        targetpackage.TargetBuild.configure (self)
+        targetbuild.TargetBuild.configure (self)
         # # FIXME: libtool too old for cross compile
         self.update_libtool ()
         
     def install (self):
-        targetpackage.TargetBuild.install (self)
+        targetbuild.TargetBuild.install (self)
         self.system ('rm %(install_prefix)s/lib/charset.alias')
 
     def license_file (self):

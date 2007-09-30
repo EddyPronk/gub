@@ -1,5 +1,5 @@
 from gub import toolsbuild
-from gub import targetpackage
+from gub import targetbuild
 from gub import repository
 
 class Git__tools (toolsbuild.ToolsBuild):
@@ -21,9 +21,9 @@ class Git__tools (toolsbuild.ToolsBuild):
         # Standards.texi?
         pass
 
-class Git (targetpackage.TargetBuild):
+class Git (targetbuild.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuild.__init__ (self, settings)
+        targetbuild.TargetBuild.__init__ (self, settings)
         source = 'git://repo.or.cz/git/mingw.git'
         repo = repository.Git (self.get_repodir (),
                                branch=settings.git_branch,
@@ -60,7 +60,7 @@ class Git (targetpackage.TargetBuild):
 
         
         self.system('cd %(srcdir)s && patch -p1 < %(patchdir)s/git-1.5.2-templatedir.patch')
-        targetpackage.TargetBuild.patch (self)
+        targetbuild.TargetBuild.patch (self)
         self.system ('rm -rf %(builddir)s')
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
         self.file_sub ([('git describe','true')],
@@ -74,7 +74,7 @@ class Git__mingw (Git):
         self.target_gcc_flags = ' -mms-bitfields '
 
     def configure (self):
-        targetpackage.TargetBuild.configure (self)
+        targetbuild.TargetBuild.configure (self)
         self.file_sub ([('CFLAGS = -g',
                          'CFLAGS = -I compat/ -g')],
                        '%(builddir)s/config.mak.autogen')

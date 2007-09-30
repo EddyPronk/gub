@@ -1,11 +1,11 @@
 from gub import mirrors
 from gub import misc
-from gub import targetpackage
+from gub import targetbuild
 from gub import toolsbuild
 
-class Expat (targetpackage.TargetBuild):
+class Expat (targetbuild.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuild.__init__ (self, settings)
+        targetbuild.TargetBuild.__init__ (self, settings)
         self.with_template (version='1.95.8', mirror=mirrors.sf, format='gz')
 
     def get_build_dependencies (self):
@@ -15,10 +15,10 @@ class Expat (targetpackage.TargetBuild):
         self.system ("rm %(srcdir)s/configure")
         self.system ("cd %(srcdir)s && patch -p1 < %(patchdir)s/expat-1.95.8-mingw.patch")
         self.system ("touch %(srcdir)s/tests/xmltest.sh.in")
-        targetpackage.TargetBuild.patch (self)
+        targetbuild.TargetBuild.patch (self)
 
     def configure (self):
-        targetpackage.TargetBuild.configure (self)
+        targetbuild.TargetBuild.configure (self)
         # # FIXME: libtool too old for cross compile
         self.update_libtool ()
 
@@ -29,11 +29,11 @@ EXEEXT=
 RUN_FC_CACHE_TEST=false
 ''')
     def compile_command (self):
-        return (targetpackage.TargetBuild.compile_command (self)
+        return (targetbuild.TargetBuild.compile_command (self)
             + self.makeflags ())
 
     def install_command (self):
-        return (targetpackage.TargetBuild.install_command (self)
+        return (targetbuild.TargetBuild.install_command (self)
                 + self.makeflags ())
 
 class Expat__linux__arm__vfp (Expat):
@@ -42,7 +42,7 @@ class Expat__linux__arm__vfp (Expat):
         self.with_template (version='2.0.0')
     def patch (self):
         self.system ("touch %(srcdir)s/tests/xmltest.sh.in")
-        targetpackage.TargetBuild.patch (self)
+        targetbuild.TargetBuild.patch (self)
 
 class Expat__tools (toolsbuild.ToolsBuild):
     def __init__ (self,settings):

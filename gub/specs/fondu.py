@@ -1,9 +1,9 @@
 from gub import mirrors
-from gub import targetpackage
+from gub import targetbuild
 
-class Fondu (targetpackage.TargetBuild):
+class Fondu (targetbuild.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuild.__init__ (self, settings)
+        targetbuild.TargetBuild.__init__ (self, settings)
         self.with_template (version="060102",
              mirror='http://fondu.sourceforge.net/fondu_src-060102.tgz')
 
@@ -14,7 +14,7 @@ class Fondu (targetpackage.TargetBuild):
         return '%(srcdir)s/LICENSE'
     
     def patch (self):
-        targetpackage.TargetBuild.patch (self)
+        targetbuild.TargetBuild.patch (self)
         self.file_sub ([('wilprefix', 'prefix')],
                        '%(srcdir)s/Makefile.in')
         

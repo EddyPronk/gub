@@ -28,6 +28,7 @@ class GupPackage:
         return s % self._dict
     
     def dump_header_file (self):
+        import pickle
         hdr = self.expand ('%(split_hdr)s')
         self._os_interface.dump (pickle.dumps (self._dict), hdr)
         
@@ -38,6 +39,8 @@ class GupPackage:
                 self._os_interface.system ('rm -rf %(base)s%(f)s ' % locals ())
 
     def create_tarball (self):
+        import os
+        from gub import oslog
         path = os.path.normpath (self.expand ('%(install_root)s'))
         suffix = self.expand ('%(packaging_suffix_dir)s')
         split_ball = self.expand ('%(split_ball)s')

@@ -4,6 +4,7 @@ from gub import oslog
 from gub import distcc
 from gub import build
 from gub import context
+from gub import mirrors
 
 platforms = {
     'debian': 'i686-linux',
@@ -243,6 +244,17 @@ class Settings (context.Context):
             self.branch_dict[name] = br
             self.__dict__['%s_branch' % name] = br
 
+    def dependency_url (self, string):
+        # FIXME: read from settings.rc, take platform into account
+        gnu = 'ftp://ftp.gnu.org/pub/gnu'
+        return {
+            'xlibtool': mirrors.gnu % { 'name': 'libtool',
+                                        'version': '1.5.22',
+                                        'format': 'gz'},
+            'ylibtool': os.path.join (gnu, 'libtool/libtool-1.5.22.tar.gz'),
+            'libtool': 'ftp://ftp.gnu.org/pub/gnu/libtool/libtool-1.5.22.tar.gz',
+            }.get (string, string)
+        
 def get_cli_parser ():
     import optparse
     p = optparse.OptionParser ()

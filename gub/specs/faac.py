@@ -1,7 +1,7 @@
 from gub import mirrors
-from gub import targetpackage
+from gub import targetbuild
 
-class Faac (targetpackage.TargetBuild):
+class Faac (targetbuild.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuild.__init__ (self, settings)
+        targetbuild.TargetBuild.__init__ (self, settings)
         self.with_tarball (mirror=mirrors.sf, version='1.24')

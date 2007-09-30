@@ -1,13 +1,13 @@
 from gub import mirrors
 from gub import build
 from gub import misc
-from gub import targetpackage
+from gub import targetbuild
 from gub import toolsbuild
 from gub import repository
 
 fc_version = "0596d7296c94b2bb9817338b8c1a76da91673fb9"
 
-class Fontconfig (targetpackage.TargetBuild):
+class Fontconfig (targetbuild.TargetBuild):
     '''Generic font configuration library 
 Fontconfig is a font configuration and customization library, which
 does not depend on the X Window System.  It is designed to locate
@@ -15,7 +15,7 @@ fonts within the system and select them according to requirements
 specified by applications.'''
 
     def __init__ (self, settings):
-        targetpackage.TargetBuild.__init__ (self, settings)
+        targetbuild.TargetBuild.__init__ (self, settings)
         self.with_vc (repository.Git (self.get_repodir (),
                                       source="git://anongit.freedesktop.org/git/fontconfig",
                                       revision=fc_version))
@@ -37,7 +37,7 @@ specified by applications.'''
         # While cross building, we create an  <toolprefix>-fontconfig-config
         # and prefer that.
 
-        return (targetpackage.TargetBuild.configure_command (self) 
+        return (targetbuild.TargetBuild.configure_command (self) 
                 + misc.join_lines ('''
 --with-arch=%(target_architecture)s
 --with-freetype-config="%(system_prefix)s/cross/bin/freetype-config
@@ -48,7 +48,7 @@ specified by applications.'''
         self.system ('''
 rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
 ''')
-        targetpackage.TargetBuild.configure (self)
+        targetbuild.TargetBuild.configure (self)
 
         ## FIXME: libtool too old for cross compile
         self.update_libtool ()
@@ -70,10 +70,10 @@ rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,
 cd %(builddir)s/%(i)s && make "CFLAGS=%(cflags)s" "LIBS=%(libs)s" CPPFLAGS= LDFLAGS= INCLUDES= 
 ''', locals ())
 
-        targetpackage.TargetBuild.compile (self)
+        targetbuild.TargetBuild.compile (self)
         
     def install (self):
-        targetpackage.TargetBuild.install (self)
+        targetbuild.TargetBuild.install (self)
         self.dump ('''set FONTCONFIG_FILE=$INSTALLER_PREFIX/etc/fonts/fonts.conf
 set FONTCONFIG_PATH=$INSTALLER_PREFIX/etc/fonts
 ''', 
