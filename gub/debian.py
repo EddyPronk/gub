@@ -1,6 +1,6 @@
 import string
 #
-from gub import gubb
+from gub import build
 from gub import misc
 
 from new import classobj
@@ -64,7 +64,7 @@ def get_debian_package (settings, description):
         ]
     if d['Package'] in blacklist:
         d['Package'] += '::blacklisted'
-    package_class = classobj (d['Package'], (gubb.BinarySpec,), {})
+    package_class = classobj (d['Package'], (build.BinaryBuild,), {})
     package = package_class (settings)
     package.name_dependencies = []
     import re
@@ -119,7 +119,7 @@ class Dependency_resolver:
     def package_fixups (self, package):
         if package.name () == 'libqt4-dev':
             def untar (whatsthis):
-                gubb.BinarySpec.untar (package)
+                build.BinaryBuild.untar (package)
                 for i in ('QtCore.pc', 'QtGui.pc', 'QtNetwork.pc'):
                     package.file_sub ([
                             ('includedir', 'deepqtincludedir'),

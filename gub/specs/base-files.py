@@ -1,10 +1,10 @@
-from gub import gubb
+from gub import build
 
 url='ftp://ftp.nl.debian.org/debian/pool/main/b/base-files/base-files_4.0.0.tar.gz'
 
-class Base_files (gubb.BinarySpec):
+class Base_files (build.BinaryBuild):
     def __init__ (self, settings):
-        gubb.BinarySpec.__init__ (self, settings)
+        build.BinaryBuild.__init__ (self, settings)
         from gub import repository
         # FIXME: cannot parse debian balls
         self.ball_version = '4.0.0'

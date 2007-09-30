@@ -3,13 +3,13 @@ import os
 import re
 import shutil
 import cvs
-from gub import gubb
+from gub import build
 from gub import misc
 from gub import targetpackage
 
 pic_cvs = ':pserver:anonymous@gforge.natlab.research.philips.com:/cvsroot/pfgpsc'
 
-class Pic (targetpackage.TargetBuildSpec):
+class Pic (targetpackage.TargetBuild):
     def get_dependency_dict (self):
         return {'': []}
 
@@ -77,7 +77,7 @@ class Pic (targetpackage.TargetBuildSpec):
                 ]
 
     def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
+        targetpackage.TargetBuild.__init__ (self, settings)
         # FIXME: lilypond_branch
         self.with_template (version=settings.lilypond_branch, mirror=pic_cvs,
                    vc_type='cvs')
@@ -89,12 +89,12 @@ class Pic (targetpackage.TargetBuildSpec):
         self._downloader = self.cvs
 
     def rsync_command (self):
-        c = targetpackage.TargetBuildSpec.rsync_command (self)
+        c = targetpackage.TargetBuild.rsync_command (self)
         c = c.replace ('rsync', 'rsync --delete') # --exclude configure')
         return c
 
     def configure_command (self):
-        return (targetpackage.TargetBuildSpec.configure_command (self)
+        return (targetpackage.TargetBuild.configure_command (self)
                 + misc.join_lines ('''
 --enable-media-server
 --disable-decui
@@ -109,14 +109,14 @@ sed -i 's/gphoto2_port/gphoto2_port dl/' %(srcdir)s/comps/mtmUsb/CMakeLists.txt
 ''')
 
     def configure (self):
-        targetpackage.TargetBuildSpec.configure (self)
+        targetpackage.TargetBuild.configure (self)
         self.system ('''
 echo '#define HAVE_OBEXFTP_CLIENT_BODY_CONTENT 1' >> %(builddir)s/build/config.h
 ''')
 #'
 
     def compile_command (self):
-        return (targetpackage.TargetBuildSpec.compile_command (self)
+        return (targetpackage.TargetBuild.compile_command (self)
             + ' mediaServer')
 
     def install_command (self):
@@ -135,11 +135,11 @@ echo '#define HAVE_OBEXFTP_CLIENT_BODY_CONTENT 1' >> %(builddir)s/build/config.h
         if os.path.exists (self.srcdir ()):
             d = misc.grok_sh_variables (self.expand ('%(srcdir)s/VERSION'))
             return 'pic-%(VERSION)s' % d
-        #return targetpackage.TargetBuildSpec.name_version (self)
+        #return targetpackage.TargetBuild.name_version (self)
         return 'pic-1.67'
 
     def install (self):
-        targetpackage.TargetBuildSpec.install (self)
+        targetpackage.TargetBuild.install (self)
 
     def gub_name (self):
         nv = self.name_version ()

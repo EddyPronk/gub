@@ -1,10 +1,10 @@
-from gub import gubb
+from gub import build
 from gub import debian
 from gub import mirrors
 
-class Libc6_dev (gubb.BinarySpec, gubb.SdkBuildSpec):
+class Libc6_dev (build.BinaryBuild, build.SdkBuild):
     def __init__ (self, settings):
-        gubb.BinarySpec.__init__ (self, settings)
+        build.BinaryBuild.__init__ (self, settings)
         self.with_template  (version=debian.get_packages ()['libc6-dev'].version (),
                    strip_components=0,
                    mirror=mirrors.glibc_deb,
@@ -12,7 +12,7 @@ class Libc6_dev (gubb.BinarySpec, gubb.SdkBuildSpec):
 #                   mirror=mirrors.lilypondorg_deb,
                    format='deb')
     def untar (self):
-        gubb.BinarySpec.untar (self)
+        build.BinaryBuild.untar (self)
         # FIXME: this rewiring breaks ld badly, it says
         #     i686-linux-ld: cannot find /home/janneke/bzr/gub/target/i686-linux/system/lib/libc.so.6 inside /home/janneke/bzr/gub/target/i686-linux/system/
         # although that file exists.  Possibly rewiring is not necessary,

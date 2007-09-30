@@ -5,7 +5,7 @@ import time
 from gub import context
 from gub import darwin
 from gub import gup
-from gub import targetpackage
+from gub import targetbuild
 from gub import context
 from gub import misc
 
@@ -234,8 +234,8 @@ cp -pR --link %(installer_root)s/license*/* %(darwin_bundle_dir)s/Contents/Resou
         self.file_sub (
             [('2.[0-9]+.[0-9]+-[0-9]',
              '%(installer_version)s-%(installer_build)s'),
-            ('Build from .*',
-             'Build from %s' % time.asctime()),
+            ('UnixBuild from .*',
+             'UnixBuild from %s' % time.asctime()),
             ],
             '%(darwin_bundle_dir)s/Contents/Info.plist',
             env=locals (),
@@ -302,7 +302,7 @@ cp %(nsisdir)s/*.sh.in %(ns_dir)s''', locals ())
                    expand_string=False)
 
         PATH = os.environ['PATH']
-        PATH = '%(local_prefix)s/bin:' + PATH
+        PATH = '%(tools_prefix)s/bin:' + PATH
         
         self.system ('cd %(targetdir)s && makensis -NOCD %(ns_dir)s/definitions.nsh %(ns_dir)s/%(name)s.nsi', locals ())
 

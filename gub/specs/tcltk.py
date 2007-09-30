@@ -3,9 +3,9 @@ from gub import misc
 from gub import targetpackage
 from gub import context
  
-class Tcltk (targetpackage.TargetBuildSpec):
+class Tcltk (targetpackage.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
+        targetpackage.TargetBuild.__init__ (self, settings)
         self.with_template (
             mirrors.lilypondorg,
             version='8.4.14')
@@ -29,7 +29,7 @@ cd %(srcdir)s/tk/ && ./unix/configure --prefix=%(install_prefix)s
         self.system ('cd %(builddir)s/tk && make DESTDIR=%(install_root)s install')
 
     def get_subpackage_definitions (self):
-        s = targetpackage.TargetBuildSpec.get_subpackage_definitions (self)
+        s = targetpackage.TargetBuild.get_subpackage_definitions (self)
         s['doc'].append (self.settings.prefix_dir + '/lib/tk8.4/demos')
         return s
     

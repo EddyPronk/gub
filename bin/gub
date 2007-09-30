@@ -32,7 +32,7 @@ import sys
 #
 from gub import cross
 ## fixme: double use of gub name.
-from gub import gubb
+from gub import build
 import gub.settings
 from gub import misc
 from gub import locker
@@ -165,7 +165,7 @@ def build (settings, files):
 
     import os
     PATH = os.environ['PATH']
-    os.environ['PATH'] = settings.expand ('%(local_prefix)s/bin:' + PATH)
+    os.environ['PATH'] = settings.expand ('%(tools_prefix)s/bin:' + PATH)
 
     if settings.options.stage == 'download':
         # FIXME: urg.  [only] For a real clean gub, with nothing in
@@ -183,7 +183,7 @@ def build (settings, files):
 
     try:
         manager = gup.get_target_manager (settings)
-        ## Todo: have a readonly lock for local platform
+        ## Todo: have a readonly lock for tools platform
     except locker.LockedError:
         settings.os_interface.error ('another build in progress.  Skipping.')
         if settings.options.skip_if_locked:

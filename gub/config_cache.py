@@ -1,5 +1,5 @@
 config_cache = {
-    'local': '',
+    'tools': '',
     'all': '''
 
 # FIXME: 32 bit only

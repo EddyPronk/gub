@@ -8,9 +8,9 @@ import os
 
 # Hmm? TARGET_CFLAGS=-O --> targetpackage.py
 
-class Glibc (targetpackage.TargetBuildSpec, cross.CrossToolSpec):
+class Glibc (targetpackage.TargetBuild, cross.CrossToolSpec):
     def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
+        targetpackage.TargetBuild.__init__ (self, settings)
         #self.with_tarball (mirror=mirrors.gnu, version='2.3.6')
         self.with_tarball (mirror=mirrors.lilypondorg, version='2.3-20070416',
                            format='bz2')
@@ -34,7 +34,7 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3-powerpc-initfini.patch
             if 1: #self.version () != '2.4':
                 add_ons += ' --enable-add-ons=' + i
         return ('BUILD_CC=gcc '
-                + misc.join_lines (targetpackage.TargetBuildSpec.configure_command (self) + '''
+                + misc.join_lines (targetpackage.TargetBuild.configure_command (self) + '''
 --disable-profile
 --disable-debug
 --without-cvs
@@ -44,7 +44,7 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3-powerpc-initfini.patch
 #--without-__thread
                 + add_ons)
     def FIXME_DOES_NOT_WORK_get_substitution_dict (self, env={}):
-        d = targetpackage.TargetBuildSpec.get_substitution_dict (self, env)
+        d = targetpackage.TargetBuild.get_substitution_dict (self, env)
         d['SHELL'] = '/bin/bash'
         return d
     def linuxthreads (self):
@@ -55,19 +55,19 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3-powerpc-initfini.patch
                                       format='bz2',
                                       strip_components=0)
     def download (self):
-        targetpackage.TargetBuildSpec.download (self)
+        targetpackage.TargetBuild.download (self)
         if self.version () == '2.3.6':
             self.linuxthreads ().download ()
     def untar (self):
-        targetpackage.TargetBuildSpec.untar (self)
+        targetpackage.TargetBuild.untar (self)
         if self.version () == '2.3.6':
             self.linuxthreads ().update_workdir (self.expand ('%(srcdir)s/urg-do-not-mkdir-or-rm-me'))
             self.system ('mv %(srcdir)s/urg-do-not-mkdir-or-rm-me/* %(srcdir)s')
     def configure (self):
-        targetpackage.TargetBuildSpec.configure (self)
+        targetpackage.TargetBuild.configure (self)
     def compile_command (self):
-        return (targetpackage.TargetBuildSpec.compile_command (self)
+        return (targetpackage.TargetBuild.compile_command (self)
                 + ' SHELL=/bin/bash')
     def install_command (self):
-        return (targetpackage.TargetBuildSpec.install_command (self)
+        return (targetpackage.TargetBuild.install_command (self)
                 + ' install_root=%(install_root)s')

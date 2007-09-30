@@ -1,10 +1,10 @@
 from gub import mirrors
-from gub import toolpackage
+from gub import toolsbuild
 from gub import repository
 
-class Netpbm (toolpackage.ToolBuildSpec):
+class Netpbm (toolsbuild.ToolsBuild):
     def __init__ (self, settings):
-        toolpackage.ToolBuildSpec.__init__ (self, settings)
+        toolsbuild.ToolsBuild.__init__ (self, settings)
 
         # https://svn.sourceforge.net/svnroot/netpbm/advanced netpbm
 

@@ -1,9 +1,9 @@
-from gub import toolpackage 
+from gub import toolsbuild 
 import re
 
-class Fontforge (toolpackage.ToolBuildSpec):
+class Fontforge (toolsbuild.ToolsBuild):
     def __init__ (self, settings):
-        toolpackage.ToolBuildSpec.__init__ (self, settings)
+        toolsbuild.ToolsBuild.__init__ (self, settings)
         self.with_template (mirror='http://lilypond.org/download/gub-sources/fontforge_full-%(version)s.tar.bz2',
                    version="20060501")
 
@@ -12,16 +12,16 @@ class Fontforge (toolpackage.ToolBuildSpec):
         return ['freetype']
 
     def patch (self):
-        toolpackage.ToolBuildSpec.patch (self)
+        toolsbuild.ToolsBuild.patch (self)
         self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/fontforge-20060501-srcdir.patch')
         self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/fontforge-20060501-execprefix.patch')
 
     def configure_command (self):
-        return (toolpackage.ToolBuildSpec.configure_command (self)
+        return (toolsbuild.ToolsBuild.configure_command (self)
                 + ' --without-freetype-src ')
 
     def srcdir (self):
-        return re.sub ('_full', '', toolpackage.ToolBuildSpec.srcdir (self))
+        return re.sub ('_full', '', toolsbuild.ToolsBuild.srcdir (self))
 
     def license_file (self):
         return '%(srcdir)s/LICENSE' 

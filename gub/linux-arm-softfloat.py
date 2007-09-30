@@ -1,8 +1,8 @@
-from gub import gubb
+from gub import build
 
 code_sourcery = 'http://www.codesourcery.com/public/gnu_toolchain/%(name)s/arm-%(ball_version)s-%(name)s.src.tar.%(format)s'
 
-class Arm_none_elf (gubb.BinarySpec, gubb.SdkBuildSpec):
+class Arm_none_elf (build.BinaryBuild, build.SdkBuild):
     def install (self):
         self.system ('''
 mv %(srcdir)s/*gz %(downloads)s

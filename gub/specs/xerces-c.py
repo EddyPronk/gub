@@ -1,11 +1,11 @@
 from gub import mirrors
-from gub import gubb
+from gub import build
 from gub import misc
 from gub import targetpackage
 
-class Xerces_c (targetpackage.TargetBuildSpec):
+class Xerces_c (targetpackage.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
+        targetpackage.TargetBuild.__init__ (self, settings)
         self.with_tarball (mirror=mirrors.xerces_c, version='2_7_0')
         self.compile_dict = {
             'XERCESCROOT': '%(builddir)s',
@@ -19,7 +19,7 @@ class Xerces_c (targetpackage.TargetBuildSpec):
             'CFLAGS': ' -DPROJ_XMLPARSER -DPROJ_XMLUTIL -DPROJ_PARSERS -DPROJ_SAX4C -DPROJ_SAX2 -DPROJ_DOM -DPROJ_DEPRECATED_DOM -DPROJ_VALIDATORS -DXML_USE_NATIVE_TRANSCODER -DXML_USE_INMEM_MESSAGELOADER -DXML_USE_PTHREADS -DXML_USE_NETACCESSOR_SOCKET ',
             'CXXFLAGS': ' -DPROJ_XMLPARSER -DPROJ_XMLUTIL -DPROJ_PARSERS -DPROJ_SAX4C -DPROJ_SAX2 -DPROJ_DOM -DPROJ_DEPRECATED_DOM -DPROJ_VALIDATORS -DXML_USE_NATIVE_TRANSCODER -DXML_USE_INMEM_MESSAGELOADER -DXML_USE_PTHREADS -DXML_USE_NETACCESSOR_SOCKET ',
             }
-        gubb.change_target_dict (self, self.compile_dict)
+        build.change_target_dict (self, self.compile_dict)
     def force_sequential_build (self):
         return True
     def patch (self):
@@ -30,7 +30,7 @@ class Xerces_c (targetpackage.TargetBuildSpec):
         # cool, it can serve the INSTALL file!  Let's remove it from
         # the tarball!
         return (self.makeflags () + ' '
-                + targetpackage.TargetBuildSpec.configure_command (self)
+                + targetpackage.TargetBuild.configure_command (self)
                 .replace ('/configure ', '/src/xercesc/configure ')
                 .replace ('--config-cache', '--cache-file=%(builddir)s/config.cache'))
     def makeflags (self):
@@ -39,17 +39,17 @@ class Xerces_c (targetpackage.TargetBuildSpec):
             s += ' ' + i + '="' + self.compile_dict[i] + '"'
         return s
     def xcompile_command (self):
-        return (targetpackage.TargetBuildSpec.compile_command (self)
+        return (targetpackage.TargetBuild.compile_command (self)
                 + self.makeflags ()
-                + ';' + targetpackage.TargetBuildSpec.compile_command (self)
+                + ';' + targetpackage.TargetBuild.compile_command (self)
                 + self.makeflags ()
-                + ';' + targetpackage.TargetBuildSpec.compile_command (self)
+                + ';' + targetpackage.TargetBuild.compile_command (self)
                 + self.makeflags ())
     def compile_command (self):
-        return (targetpackage.TargetBuildSpec.compile_command (self)
+        return (targetpackage.TargetBuild.compile_command (self)
                 + self.makeflags ())
     def install_command (self):
-        return (targetpackage.TargetBuildSpec.install_command (self)
+        return (targetpackage.TargetBuild.install_command (self)
                 + self.makeflags ())
     def configure (self):
         self.config_cache ()

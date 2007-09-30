@@ -7,10 +7,10 @@ def get_cross_build_dependencies (settings):
     
 def change_target_package (p):
     from gub import cross
-    from gub import gubb
+    from gub import build
     cross.change_target_package (p)
-    gubb.change_target_dict (p,
+    targetbuild.change_target_dict (p,
                     {
-            'DLLTOOL': '%(tool_prefix)sdlltool',
-            'DLLWRAP': '%(tool_prefix)sdllwrap',
+            'DLLTOOL': '%(toolchain_prefix)sdlltool',
+            'DLLWRAP': '%(toolchain_prefix)sdllwrap',
             })

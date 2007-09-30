@@ -1,9 +1,9 @@
-from gub import gubb
+from gub import build
 from gub import mirrors
 
-class Mingw_runtime (gubb.BinarySpec, gubb.SdkBuildSpec):
+class Mingw_runtime (build.BinaryBuild, build.SdkBuild):
     def __init__ (self, settings):
-        gubb.BinarySpec.__init__ (self, settings)
+        build.BinaryBuild.__init__ (self, settings)
         self.with_template (version='3.9', strip_components=0, mirror=mirrors.mingw)
     def install (self):
         self.system ('''

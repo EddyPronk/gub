@@ -14,7 +14,7 @@ class Gcc (cross.CrossToolSpec):
 
     @context.subst_method
     def NM_FOR_TARGET(self):
-         return '%(tool_prefix)snm'
+         return '%(toolchain_prefix)snm'
 
     def get_subpackage_names (self):
         # FIXME: why no -devel package?
@@ -153,8 +153,8 @@ class use_cygwin_sources_Gcc__cygwin (Gcc):
     def untar (self):
         #gxx_file_name = re.sub ('-core', '-g++',
         #                        self.expand (self.file_name ()))
-#        ball = 'cross/' + self.vc_repository._file_name ().replace ('gcc', 'gcc-core')
-        ball = self.vc_repository._file_name ()
+#        ball = 'cross/' + self.source._file_name ().replace ('gcc', 'gcc-core')
+        ball = self.source._file_name ()
         cygwin.untar_cygwin_src_package_variant2 (self, ball.replace ('-core', '-g++'),
                                                   split=True)
         cygwin.untar_cygwin_src_package_variant2 (self, ball)
@@ -192,7 +192,7 @@ gcc_tooldir="%(cross_prefix)s/%(target_architecture)s"
 class Gcc__darwin (Gcc):
     #FIXME: what about apply_all (%(patchdir)s/%(version)s)?
     def patch (self):
-        if self.vc_repository._version == '4.1.1':
+        if self.source._version == '4.1.1':
             self.system ('''
 cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-4.1.1-ppc-unwind.patch
 ''')
@@ -210,5 +210,5 @@ class Gcc__freebsd (Gcc):
         # i686-freebsd-FOO iso i686-freebsd4-FOO.
         return (Gcc.configure_command (self)
             + misc.join_lines ('''
---program-prefix=%(tool_prefix)s
+--program-prefix=%(toolchain_prefix)s
 '''))

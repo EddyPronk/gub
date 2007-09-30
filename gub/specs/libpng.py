@@ -1,9 +1,9 @@
 from gub import mirrors
 from gub import targetpackage
 
-class Libpng (targetpackage.TargetBuildSpec):
+class Libpng (targetpackage.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
+        targetpackage.TargetBuild.__init__ (self, settings)
         self.with_template (version='1.2.8', mirror=mirrors.libpng)
 
     def license_file (self):
@@ -27,12 +27,12 @@ class Libpng (targetpackage.TargetBuildSpec):
                '%(srcdir)s/Makefile.am')
 
     def configure (self):
-        targetpackage.TargetBuildSpec.configure (self)
+        targetpackage.TargetBuild.configure (self)
         # # FIXME: libtool too old for cross compile
         self.update_libtool ()
 
     def compile_command (self):
-        c = targetpackage.TargetBuildSpec.compile_command (self)
+        c = targetpackage.TargetBuild.compile_command (self)
         ## need to call twice, first one triggers spurious Automake stuff.                
         return '(%s) || (%s)' % (c,c)
     
@@ -46,11 +46,11 @@ class Libpng__mingw (Libpng):
         self.autoupdate ()
         Libpng.configure (self)
 
-from gub import toolpackage 
+from gub import toolsbuild 
 
-class Libpng__local (toolpackage.ToolBuildSpec, Libpng):
+class Libpng__tools (toolsbuild.ToolsBuild, Libpng):
     def __init__ (self, settings):
-        toolpackage.ToolBuildSpec.__init__ (self, settings)
+        toolsbuild.ToolsBuild.__init__ (self, settings)
         self.with_template (version='1.2.8', mirror=mirrors.libpng)
 
     def get_build_dependencies (self):

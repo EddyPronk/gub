@@ -1,14 +1,14 @@
-from gub import gubb
+from gub import build
 
-class Freetype_config (gubb.SdkBuildSpec):
+class Freetype_config (build.SdkBuild):
     def __init__ (self, settings):
-        gubb.SdkBuildSpec.__init__ (self, settings)
+        build.SdkBuild.__init__ (self, settings)
         self.has_source = False
         self.with_template (version='2.1.9')
     def untar (self):
         pass
     def install (self):
-        gubb.SdkBuildSpec.install (self)
+        build.SdkBuild.install (self)
         self.system ('mkdir -p %(cross_prefix)s/usr/bin')
         
         ft_version = self.version ()

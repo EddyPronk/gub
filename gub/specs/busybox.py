@@ -6,9 +6,9 @@ url = 'http://busybox.net/downloads/busybox-1.5.1.tar.bz2'
 # miscutils/taskset.c:18: warning: function declaration isn't a prototype
 # cpu_set_t
 
-class Busybox (targetpackage.TargetBuildSpec):
+class Busybox (targetpackage.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
+        targetpackage.TargetBuild.__init__ (self, settings)
         self.with_vc (repository.TarBall (self.settings.downloads, url))
     def get_subpackage_names (self):
         return ['']
@@ -21,7 +21,7 @@ class Busybox (targetpackage.TargetBuildSpec):
     def autoconf_h (self):
         return 'autoconf.h'
     def configure (self):
-        targetpackage.TargetBuildSpec.configure (self)
+        targetpackage.TargetBuild.configure (self)
         self.file_sub ([('^# CONFIG_FEATURE_SH_IS_ASH is not set', 'CONFIG_FEATURE_SH_IS_ASH=y'),
                         ('^CONFIG_FEATURE_SH_IS_NONE=y', '# CONFIG_FEATURE_SH_IS_NONE is not set'),
                         ('^CONFIG_FEATURE_SH_STANDALONE_SHELL=y', '# CONFIG_FEATURE_SH_STANDALONE_SHELL is not set')],
@@ -29,9 +29,9 @@ class Busybox (targetpackage.TargetBuildSpec):
         self.system ('''rm -f %(builddir)s/include/%(autoconf_h)s
 cd %(builddir)s && make include/%(autoconf_h)s > /dev/null 2>&1''')
     def makeflags (self):
-        return ' CROSS_COMPILE=%(tool_prefix)s CONFIG_PREFIX=%(install_root)s'
+        return ' CROSS_COMPILE=%(toolchain_prefix)s CONFIG_PREFIX=%(install_root)s'
     def install (self):
-        targetpackage.TargetBuildSpec.install (self)
+        targetpackage.TargetBuild.install (self)
         self.system ('''
 cd %(install_root)s && mv sbin/init sbin/init.busybox
 ''')
@@ -41,7 +41,7 @@ cd %(install_root)s && mv sbin/init sbin/init.busybox
 # 1.5 is too new for glibc on vfp
 class Busybox__linux__arm__vfp (Busybox):
     def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
+        targetpackage.TargetBuild.__init__ (self, settings)
         url = 'http://busybox.net/downloads/busybox-1.2.2.1.tar.bz2'
         self.with_vc (repository.TarBall (self.settings.downloads, url))
     def patch (self):
@@ -50,7 +50,7 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/busybox-mkconfigs.patch
 ''')
         Busybox.patch (self)
     def makeflags (self):
-        return ' CROSS=%(tool_prefix)s PREFIX=%(install_root)s'
+        return ' CROSS=%(toolchain_prefix)s PREFIX=%(install_root)s'
     @context.subst_method
     def autoconf_h (self):
         return 'bb_config.h'

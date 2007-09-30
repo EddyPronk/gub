@@ -1,4 +1,3 @@
-import glob
 import pickle
 import os
 import re
@@ -6,77 +5,36 @@ import re
 from gub import misc
 from gub import repository
 from gub import oslog
-from gub.context import *
+from gub import context
 
-class PackageSpec:
-    "How to package part of an install_root."
-    
-    def __init__ (self, os_interface):
-        self._dict = {}
-        self._os_interface = os_interface
-        self._file_specs = []
-        self._dependencies = []
-        self._conflicts = []
-        
-    def set_dict (self, dict, sub_name):
-        self._dict = dict.copy ()
-        self._dict['sub_name'] = sub_name
-        if sub_name:
-            sub_name = '-' + sub_name
-        s = ('%(name)s' % dict) + sub_name
-        self._dict['split_name'] = s
-        self._dict['split_ball'] = ('%(packages)s/%(split_name)s%(ball_suffix)s.%(platform)s.gup') % self._dict
-        self._dict['split_hdr'] = ('%(packages)s/%(split_name)s%(vc_branch_suffix)s.%(platform)s.hdr') % self._dict
-        self._dict['conflicts_string'] = ';'.join (self._conflicts)
-        self._dict['dependencies_string'] = ';'.join (self._dependencies)
-        self._dict['source_name'] = self.name ()
-        if sub_name:
-            self._dict['source_name'] = self.name ()[:-len (sub_name)]
-        
-    def expand (self, s):
-        return s % self._dict
-    
-    def dump_header_file (self):
-        hdr = self.expand ('%(split_hdr)s')
-        self._os_interface.dump (pickle.dumps (self._dict), hdr)
-        
-    def clean (self):
-        base = self.expand ('%(install_root)s')
-        for f in self._file_specs:
-            if f and f != '/' and f != '.':
-                self._os_interface.system ('rm -rf %(base)s%(f)s ' % locals ())
+class Build (Os_context_wrapper):
+    '''How to build a piece of software
 
-    def create_tarball (self):
-        path = os.path.normpath (self.expand ('%(install_root)s'))
-        suffix = self.expand ('%(packaging_suffix_dir)s')
-        split_ball = self.expand ('%(split_ball)s')
-        self._os_interface._execute (oslog.PackageGlobs (path,
-                                                         suffix,
-                                                         self._file_specs,
-                                                         split_ball))
-    def dict (self):
-        return self._dict
+TODO: move all non configure-make-make install stuff from UnixBuild here
+'''
+    def __init__ (self, settings, source):
+        Os_context_wrapper.__init__ (self, settings)
+        self.source = source
+        self.source.set_oslog (self.os_interface)
+    def stages (self):
+        return list ()
 
-    def name (self):
-        return '%(split_name)s' % self._dict
-    
-class BuildSpec (Os_context_wrapper):
+class UnixBuild (Build):
+    '''Build a source package the traditional Unix way
+
+Based on the traditional configure; make; make install, this class
+tries to do everything including autotooling and libtool fooling.  '''
     def __init__ (self, settings):
         Os_context_wrapper.__init__ (self, settings)
 
         self.verbose = settings.verbose
         self.settings = settings
         self.url = ''
-        self.has_source = True
         self._dependencies = None
         self._build_dependencies = None
         
         self.spec_checksum = '0000' 
         self.cross_checksum = '0000'
-        
-        # TODO: move to PackageSpec, always instantiate.
-        # then remove all if self.vc_repository checks
-        self.vc_repository = None
         
         self.split_packages = []
         self.so_version = '1'
@@ -86,7 +44,7 @@ class BuildSpec (Os_context_wrapper):
                 'configure', 'compile', 'install',
                 'src_package', 'package', 'clean']
 
-    @subst_method
+    @context.subst_method
     def LD_PRELOAD (self):
         return '%(gubdir)s/librestrict/librestrict.so'
     
@@ -107,8 +65,7 @@ class BuildSpec (Os_context_wrapper):
             klas.__dict__[name_version] (self)
 
     def download (self):
-        if self.vc_repository:
-            self.vc_repository.download ()
+        self.source.download ()
 
     def get_repodir (self):
         return self.settings.downloads + '/' + self.name ()
@@ -126,7 +83,7 @@ class BuildSpec (Os_context_wrapper):
         """Set to true if package can't handle make -jX """
         return False
     
-    @subst_method
+    @context.subst_method
     def name (self):
         if 0: # old method, removes cross/
             file = self.__class__.__name__.lower ()
@@ -138,13 +95,13 @@ class BuildSpec (Os_context_wrapper):
         file = re.sub ('xx', '++', file)
         return file
 
-    @subst_method
+    @context.subst_method
     def pretty_name (self):
         name = self.__class__.__name__
         name = re.sub ('__.*', '', name)
         return name
     
-    @subst_method
+    @context.subst_method
     def file_name (self):
         if self.url:
             file = re.sub ('.*/([^/]+)', '\\1', self.url)
@@ -152,108 +109,84 @@ class BuildSpec (Os_context_wrapper):
             file = os.path.basename (self.name ())
         return file
 
-    @subst_method
+    @context.subst_method
     def source_checksum (self):
-        if self.vc_repository:
-            #return self.vc_repository.get_checksum ().replace ('/', '-')
-            print 'FIXME: serialization: want checksum TOO SOON'
-            return '0000'
-        return self.version () 
+        return self.source.checksum ()
 
-    @subst_method
+    @context.subst_method
     def license_file (self):
         return '%(srcdir)s/COPYING'
     
-    @subst_method
+    @context.subst_method
     def basename (self):
         return misc.ball_basename (self.file_name ())
 
-    @subst_method
+    @context.subst_method
     def packaging_suffix_dir (self):
         return ''
 
-    @subst_method
+    @context.subst_method
     def full_version (self):
         return self.version ()
 
-    @subst_method
+    @context.subst_method
     def build_dependencies_string (self):
         deps = self.get_build_dependencies ()
         return ';'.join (deps)
 
-    @subst_method
+    @context.subst_method
     def ball_suffix (self):
-        # FIXME: use repository.version ()
-        b = '-%(version)s'
-        if self.vc_repository and self.vc_repository.is_tracking ():
-            try:
-                b = '-' + self.vc_repository.branch.replace ('/', '-')
-            except AttributeError:
-                pass
-        return b
+        print 'FIXME: use version ()'
+        return '-' + self.source.version ()
 
-    @subst_method
+    @context.subst_method
     def vc_branch (self):
-        b = ''
-        if self.vc_repository and self.vc_repository.is_tracking ():
-            try:
-                b = self.vc_repository.branch.replace ('/', '-')
-            except AttributeError:
-                pass
-        return b
+        return self.source.canonical_branch ()
     
-    @subst_method
+    @context.subst_method
     def vc_branch_suffix (self):
-        # FIXME: use repository.version ()
-        b = ''
-        if self.vc_repository and self.vc_repository.is_tracking ():
-            try:
-                b = '-' + self.vc_repository.branch.replace ('/', '-')
-            except AttributeError:
-                pass
+        b = self.vc_branch ()
+        if b:
+            b = '-' + b
         return b
         
-    @subst_method
+    @context.subst_method
     def version (self):
-        # kugh, must construct using vc_repository in __init__
-        if not self.vc_repository :
-            msg = 'need version, but repository not yet set: %s, type: %s class: %s' % (self.name (), type (self), self.__class__)
-            raise Exception (msg)
-        return self.vc_repository.version ()
+        return self.source.version ()
 
-    @subst_method
+    @context.subst_method
     def name_version (self):
         return '%s-%s' % (self.name (), self.version ())
 
-    @subst_method
+    @context.subst_method
     def srcdir (self):
         return '%(allsrcdir)s/%(name)s%(ball_suffix)s'
 
-    @subst_method
+    @context.subst_method
     def builddir (self):
         return '%(allbuilddir)s/%(name)s%(ball_suffix)s'
 
-    @subst_method
+    @context.subst_method
     def install_root (self):
         return '%(installdir)s/%(name)s-%(version)s-root'
 
-    @subst_method
+    @context.subst_method
     def install_prefix (self):
         return '%(install_root)s%(prefix_dir)s'
 
-    @subst_method
+    @context.subst_method
     def install_command (self):
         return '''make %(makeflags)s DESTDIR=%(install_root)s install'''
 
-    @subst_method 
+    @context.subst_method 
     def configure_command (self):
         return '%(srcdir)s/configure --prefix=%(install_prefix)s'
 
-    @subst_method
+    @context.subst_method
     def compile_command (self):
         return 'make %(makeflags)s '
 
-    @subst_method
+    @context.subst_method
     def native_compile_command (self):
         c = 'make'
 
@@ -273,23 +206,23 @@ class BuildSpec (Os_context_wrapper):
         return c
 
 
-    @subst_method
+    @context.subst_method
     def src_package_ball (self):
         return '%(src_package_uploads)s/%(name)s%(ball_suffix)s-src.%(platform)s.tar.gz'
 
-    @subst_method
+    @context.subst_method
     def src_package_uploads (self):
         return '%(packages)s'
 
-    @subst_method
+    @context.subst_method
     def stamp_file (self):
         return '%(statusdir)s/%(name)s-%(version)s-%(source_checksum)s'
 
-    @subst_method
+    @context.subst_method
     def rsync_command (self):
         return "rsync --exclude .git --exclude _darcs --exclude .svn --exclude CVS -v -a %(downloads)s/%(name)s-%(version)s/ %(srcdir)s"
 
-    @subst_method
+    @context.subst_method
     def makeflags (self):
         return ''
     
@@ -307,7 +240,7 @@ class BuildSpec (Os_context_wrapper):
         self.dump ('%(stage_number)d' % locals (), self.get_stamp_file (), 'w')
 
     def autoupdate (self):
-        self.os_interface._execute (oslog.AutogenMagic(self))
+        self.os_interface._execute (oslog.AutogenMagic (self))
 
     def configure (self):
         self.system ('''
@@ -392,7 +325,7 @@ rm -f %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/share/info/dir %(in
     def patch (self):
         self.autoupdate ()
 
-    @subst_method
+    @context.subst_method
     def is_sdk_package (self):
         return 'false'
 
@@ -473,8 +406,8 @@ rm -f %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/share/info/dir %(in
         for sub in self.get_subpackage_names ():
             filespecs = defs[sub]
             
-            p = PackageSpec (self.os_interface)
-
+            p = GupPackage (self.os_interface)
+            # FIXME: feature envy -> GupPackage constructor/factory
             p._file_specs = filespecs
             p.set_dict (self.get_substitution_dict (), sub)
 
@@ -513,19 +446,19 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"%(_v)s -zcf %(src_package_
 
     def clean (self):
         self.system ('rm -rf  %(stamp_file)s %(install_root)s', locals ())
-        if self.vc_repository and self.vc_repository.is_tracking ():
+        if self.source.is_tracking ():
+            # URG
             return
-
         self.system ('''rm -rf %(srcdir)s %(builddir)s''', locals ())
 
     def untar (self):
-        if not self.has_source:
+        if not self..source:
             return False
-        if not (self.vc_repository and self.vc_repository.is_tracking ()) :
+        if not self.source.is_tracking ():
             self.system ('rm -rf %(srcdir)s %(builddir)s %(install_root)s')
 
-        if self.vc_repository:
-            self.vc_repository.update_workdir (self.expand ('%(srcdir)s'))
+        if self.source:
+            self.source.update_workdir (self.expand ('%(srcdir)s'))
             
         if (os.path.isdir (self.expand ('%(srcdir)s'))):
             self.system ('chmod -R +w %(srcdir)s', ignore_errors=True)
@@ -566,76 +499,9 @@ mkdir -p %(install_prefix)s/share/doc/%(name)s
         b = '%(INSTALLER_BUILD)s' % d
         return b
 
-    # TODO: junk this, always set repo in __init__
-    def with_vc (self, repo):
-        self.vc_repository = repo
-        self.vc_repository.set_oslog (self.os_interface)
-        return self
-
-    def with_tarball (self, mirror='', version='', format='gz', strip_components=1, name=''):
-        return self.with_vc (self.get_tarball (mirror, version, format, strip_components, name))
-
-    def get_tarball (self, mirror, version, format='gz', strip_components=1, name=''):
-        if not name:
-            name = os.path.basename (self.name ())
-        if not format:
-            format = self.__dict__.get ('format', 'gz')
-        if not mirror:
-            mirror = self.__dict__.get ('url', '')
-        if not version and self.version:
-            version = self.ball_version
-
-        from gub import repository
-        return repository.NewTarBall (self.settings.downloads, mirror, name, version, format, strip_components)
-
-
-    # TODO: junk this, use TarBall ()or Version ()
-    def with_template (self,
-              mirror='',
-              version='',
-              strip_components=1,
-              format='',
-              name=''):
-
-        if not name:
-            name = os.path.basename (self.name ())
-        if not format:
-            format = self.__dict__.get ('format', 'gz')
-        if not mirror:
-            mirror = self.__dict__.get ('url', '')
-        if not version and self.version:
-            version = self.ball_version
-        if not version and self.vc_repository:
-            version = self.vc_repository.version ()
-
-        self.format = format
-        self.ball_version = version
-        self.url = mirror
-
-        ball_version = version
-        package_arch = self.settings.package_arch
-        if mirror:
-            repo = repository.TarBall (self.settings.downloads,
-                                       # Hmm, better to construct
-                                       # mirror later?
-                                       mirror % locals (),
-                                       version,
-                                       strip_components=strip_components)
-        else:
-            repo = repository.Version (version)
-
-        return self.with_vc (repo)
-
-class BinarySpec (BuildSpec):
-    def configure (self):
-        pass
-
-    def patch (self):
-        pass
-
-    def compile (self):
-        pass
-
+class BinaryBuild (UnixBuild):
+    def stages (self):
+        return ['download', 'untar', 'configure', 'install', 'package', 'clean']
     def install (self):
         
         """Install package into %(install_root). Any overrides should
@@ -646,80 +512,27 @@ class BinarySpec (BuildSpec):
         _v = self.os_interface.verbose_flag ()
         self.system ('tar -C %(srcdir)s -cf- . | tar -C %(install_root)s%(_v)s -p -xf-', env=locals ())
         self.libtool_installed_la_fixups ()
-
     def get_subpackage_names (self):
         # FIXME: splitting makes that cygwin's gettext + -devel subpackage
         # gets overwritten by cygwin's gettext-devel + '' base package
         return ['']
 
-    # FIXME: no src packages for binary specs
-    # They used to work, but now they fail?
-    def src_package (self):
-        pass
-
-class NullBuildSpec (BuildSpec):
+class NullBuild (UnixBuild):
     """Placeholder for downloads """
-
-    def compile (self):
-        pass
-    def configure (self):
-        pass
-    def install (self):
-        self.system ('mkdir -p %(install_root)s')
-    def untar (self):
-        pass
-    def patch (self):
-        pass
-    def src_package (self):
-        pass
-
-class SdkBuildSpec (NullBuildSpec):
-    def untar (self):
-        BuildSpec.untar (self)
-
+    def stages (self):
+        return ['download', 'patch', 'install', 'package', 'clean']
     def get_subpackage_names (self):
         return ['']
-    
-    ## UGH: should store superclass names of each package.
+
+class SdkBuild (UnixBuild):
+    def stages (self):
+        return ['download', 'patch', 'untar', 'install', 'package', 'clean']
+    def get_subpackage_names (self):
+        return ['']
     def is_sdk_package (self):
         return 'true'
-    
     def install_root (self):
         return self.srcdir ()
-
-class Change_target_dict:
-    def __init__ (self, package, override):
-        self._target_dict_method = package.get_substitution_dict
-        self._add_dict = override
-
-    def target_dict (self, env={}):
-        env_copy = env.copy ()
-        env_copy.update (self._add_dict)
-        d = self._target_dict_method (env_copy)
-        return d
-
-    def append_dict (self, env={}):
-        d = self._target_dict_method ()
-        for (k,v) in self._add_dict.items ():
-            d[k] += v
-
-        d.update (env)
-        d = recurse_substitutions (d)
-        return d
-
-def change_target_dict (package, add_dict):
-    """Override the get_substitution_dict() method of PACKAGE."""
-    try:
-        package.get_substitution_dict = Change_target_dict (package, add_dict).target_dict
-    except AttributeError:
-        pass
-
-def append_target_dict (package, add_dict):
-    """Override the get_substitution_dict() method of PACKAGE."""
-    try:
-        package.get_substitution_dict = Change_target_dict (package, add_dict).append_dict
-    except AttributeError:
-        pass
 
 def get_class_from_spec_file (settings, file_name, name):
     import misc
@@ -753,7 +566,7 @@ def get_class_from_spec_file (settings, file_name, name):
 
 def get_build_spec (flavour, settings, url):
     """
-    Return BuildSpec instance to build package from URL.
+    Return UnixBuild instance to build package from URL.
 
     URL can be partly specified (eg: only a name, `lilypond'),
     defaults are taken from the spec file.
@@ -796,10 +609,10 @@ def get_build_spec (flavour, settings, url):
         # must remove specs/git.py for now to get this to work.
         # git.py overrides repository and branch settings
 
-        ### building for local without spec hack
-        if settings.platform == 'local':
-            from gub import toolpackage
-            flavour = toolpackage.ToolBuildSpec
+        ### building for tools without spec hack
+        if settings.platform == 'tools':
+            from gub import toolsbuild
+            flavour = toolsbuild.ToolsBuild
 
         klass = classobj (name, (flavour,), {})
         klass.__module__ = name

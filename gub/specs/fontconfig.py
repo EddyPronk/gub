@@ -1,13 +1,13 @@
 from gub import mirrors
-from gub import gubb
+from gub import build
 from gub import misc
 from gub import targetpackage
-from gub import toolpackage
+from gub import toolsbuild
 from gub import repository
 
 fc_version = "0596d7296c94b2bb9817338b8c1a76da91673fb9"
 
-class Fontconfig (targetpackage.TargetBuildSpec):
+class Fontconfig (targetpackage.TargetBuild):
     '''Generic font configuration library 
 Fontconfig is a font configuration and customization library, which
 does not depend on the X Window System.  It is designed to locate
@@ -15,7 +15,7 @@ fonts within the system and select them according to requirements
 specified by applications.'''
 
     def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
+        targetpackage.TargetBuild.__init__ (self, settings)
         self.with_vc (repository.Git (self.get_repodir (),
                                       source="git://anongit.freedesktop.org/git/fontconfig",
                                       revision=fc_version))
@@ -37,7 +37,7 @@ specified by applications.'''
         # While cross building, we create an  <toolprefix>-fontconfig-config
         # and prefer that.
 
-        return (targetpackage.TargetBuildSpec.configure_command (self) 
+        return (targetpackage.TargetBuild.configure_command (self) 
                 + misc.join_lines ('''
 --with-arch=%(target_architecture)s
 --with-freetype-config="%(system_prefix)s/cross/bin/freetype-config
@@ -48,7 +48,7 @@ specified by applications.'''
         self.system ('''
 rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
 ''')
-        targetpackage.TargetBuildSpec.configure (self)
+        targetpackage.TargetBuild.configure (self)
 
         ## FIXME: libtool too old for cross compile
         self.update_libtool ()
@@ -62,18 +62,18 @@ rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,
 
         ## we want native freetype-config flags here. 
         cflags = '-I%(srcdir)s -I%(srcdir)s/src ' \
-                 + self.read_pipe ('%(local_prefix)s/bin/freetype-config --cflags')[:-1]
+                 + self.read_pipe ('%(tools_prefix)s/bin/freetype-config --cflags')[:-1]
 
-        libs = self.read_pipe ('%(local_prefix)s/bin/freetype-config --libs')[:-1]
+        libs = self.read_pipe ('%(tools_prefix)s/bin/freetype-config --libs')[:-1]
         for i in ('fc-case', 'fc-lang', 'fc-glyphname', 'fc-arch'):
             self.system ('''
 cd %(builddir)s/%(i)s && make "CFLAGS=%(cflags)s" "LIBS=%(libs)s" CPPFLAGS= LDFLAGS= INCLUDES= 
 ''', locals ())
 
-        targetpackage.TargetBuildSpec.compile (self)
+        targetpackage.TargetBuild.compile (self)
         
     def install (self):
-        targetpackage.TargetBuildSpec.install (self)
+        targetpackage.TargetBuild.install (self)
         self.dump ('''set FONTCONFIG_FILE=$INSTALLER_PREFIX/etc/fonts/fonts.conf
 set FONTCONFIG_PATH=$INSTALLER_PREFIX/etc/fonts
 ''', 
@@ -121,9 +121,9 @@ class Fontconfig__linux (Fontconfig):
 class Fontconfig__freebsd (Fontconfig__linux):
     pass
 
-class Fontconfig__local (toolpackage.ToolBuildSpec):
+class Fontconfig__tools (toolsbuild.ToolsBuild):
     def __init__ (self, settings):
-        toolpackage.ToolBuildSpec.__init__ (self, settings)
+        toolsbuild.ToolsBuild.__init__ (self, settings)
         self.with_template (mirror="git://anongit.freedesktop.org/git/fontconfig",
                    version=fc_version)
         
@@ -131,11 +131,11 @@ class Fontconfig__local (toolpackage.ToolBuildSpec):
         return ['libtool', 'freetype', 'expat']
 
     def compile_command (self):
-        return (toolpackage.ToolBuildSpec.compile_command (self)
+        return (toolsbuild.ToolsBuild.compile_command (self)
                 + ' DOCSRC="" ')
 
     def install_command (self):
-        return (toolpackage.ToolBuildSpec.install_command (self)
+        return (toolsbuild.ToolsBuild.install_command (self)
                 + ' DOCSRC="" ')
 
 class Fontconfig__cygwin (Fontconfig):

@@ -3,13 +3,13 @@ import re
 import sys
 #
 from gub import mirrors
-from gub import gubb
+from gub import build
 from gub import targetpackage
 from gub import context
 
-class Python (targetpackage.TargetBuildSpec):
+class Python (targetpackage.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
+        targetpackage.TargetBuild.__init__ (self, settings)
         self.with_template (version='2.4.2',
                    mirror=mirrors.python,
                    format='bz2')
@@ -33,7 +33,7 @@ class Python (targetpackage.TargetBuildSpec):
                  'runtime': [], }
 
     def patch (self):
-        targetpackage.TargetBuildSpec.patch (self)
+        targetpackage.TargetBuild.patch (self)
         self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-1.patch')
         self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-configure.in-posix.patch')
         self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-configure.in-sysname.patch')
@@ -46,25 +46,25 @@ class Python (targetpackage.TargetBuildSpec):
     def configure (self):
         self.system ('''cd %(srcdir)s && autoconf''')
         self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
-        targetpackage.TargetBuildSpec.configure (self)
+        targetpackage.TargetBuild.configure (self)
 
     def compile_command (self):
         ##
         ## UGH.: darwin Python vs python (case insensitive FS)
-        c = targetpackage.TargetBuildSpec.compile_command (self)
+        c = targetpackage.TargetBuild.compile_command (self)
         c += ' BUILDPYTHON=python-bin '
         return c
 
     def install_command (self):
         ##
         ## UGH.: darwin Python vs python (case insensitive FS)
-        c = targetpackage.TargetBuildSpec.install_command (self)
+        c = targetpackage.TargetBuild.install_command (self)
         c += ' BUILDPYTHON=python-bin '
         return c
 
     # FIXME: c&p linux.py:install ()
     def install (self):
-        targetpackage.TargetBuildSpec.install (self)
+        targetpackage.TargetBuild.install (self)
         cfg = open (self.expand ('%(sourcefiledir)s/python-config.py.in')).read ()
         cfg = re.sub ('@PYTHON_VERSION@', self.expand ('%(version)s'), cfg)
         cfg = re.sub ('@PREFIX@', self.expand ('%(system_prefix)s/'), cfg)
@@ -79,9 +79,9 @@ class Python (targetpackage.TargetBuildSpec):
     def python_version (self):
         return '.'.join (self.ball_version.split ('.')[0:2])
 
-class Python__mingw_binary (gubb.BinarySpec):
+class Python__mingw_binary (build.BinaryBuild):
     def __init__ (self, settings):
-        gubb.BinarySpec.__init__ (self, settings)
+        build.BinaryBuild.__init__ (self, settings)
         self.with_template (mirror="http://lilypond.org/~hanwen/python-2.4.2-windows.tar.gz",
                    version='2.4.2')
 
@@ -89,7 +89,7 @@ class Python__mingw_binary (gubb.BinarySpec):
         return '2.4'
 
     def install (self):
-        gubb.BinarySpec.install (self)
+        build.BinaryBuild.install (self)
 
         self.system ("cd %(install_root)s/ && mkdir usr && mv Python24/include  usr/ ")
         self.system ("cd %(install_root)s/ && mkdir -p usr/bin/ && mv Python24/* usr/bin/ ")
@@ -143,10 +143,10 @@ class Python__mingw (Python__mingw_cross):
     pass
 
 
-from gub import toolpackage
-class Python__local (toolpackage.ToolBuildSpec, Python):
+from gub import toolsbuild
+class Python__tools (toolsbuild.ToolsBuild, Python):
     def __init__ (self, settings):
-        toolpackage.ToolBuildSpec.__init__ (self, settings)
+        toolsbuild.ToolsBuild.__init__ (self, settings)
         self.with_template (version='2.4.2',
                    mirror=mirrors.python,
                    format='bz2')
@@ -154,9 +154,9 @@ class Python__local (toolpackage.ToolBuildSpec, Python):
     def configure (self):
         self.system ('''cd %(srcdir)s && autoconf''')
         self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
-        targetpackage.TargetBuildSpec.configure (self)
+        targetpackage.TargetBuild.configure (self)
     def install (self):
-        toolpackage.ToolBuildSpec.install (self)
+        toolsbuild.ToolsBuild.install (self)
 
 
     def license_file (self):

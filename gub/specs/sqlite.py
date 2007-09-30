@@ -2,12 +2,12 @@ from gub import targetpackage
 
 sqlite = 'http://www.sqlite.org/sqlite-%(ball_version)s.tar.%(format)s'
 
-class Sqlite (targetpackage.TargetBuildSpec):
+class Sqlite (targetpackage.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
+        targetpackage.TargetBuild.__init__ (self, settings)
         self.with_tarball (mirror=sqlite, version='3.3.16')
     def configure_command (self):
-        return (targetpackage.TargetBuildSpec.configure_command (self)
+        return (targetpackage.TargetBuild.configure_command (self)
                 + ' --disable-tcl --enable-threadsafe')
     def patch (self):
         open (self.expand ('%(srcdir)s/PUBLIC-DOMAIN'), 'w').write ('''

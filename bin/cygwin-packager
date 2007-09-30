@@ -373,7 +373,7 @@ def main ():
     settings.__dict__['native_distcc_hosts'] = []
 
     PATH = os.environ['PATH']
-    os.environ['PATH'] = settings.local_prefix + '/bin:' + PATH
+    os.environ['PATH'] = settings.tools_prefix + '/bin:' + PATH
 
     c = Cygwin_package (settings, commands[0], settings.branch_dict.get (commands[0], 'HEAD'))
     c.create ()

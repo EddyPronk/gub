@@ -5,8 +5,8 @@
 .PHONY: bootstrap-download bootstrap
 .PHONY: unlocked-update-versions update-versions download print-success
 .PHONY: debian linux-ppc mingw mipsel clean realclean clean-distccd
-.PHONY: local-distcc cross-compilers cross-distccd native-distccd
-.PHONY: bootstrap-git download-local local local-cross-tools doc-clean
+.PHONY: tools-distcc cross-compilers cross-distccd native-distccd
+.PHONY: bootstrap-git download-tools tools tools-cross-tools doc-clean
 .PHONY: unlocked-doc-clean unlocked-doc-build unlocked-info-man-build
 .PHONY: unlocked-doc-export doc-export unlocked-dist-check dist-check
 
@@ -73,7 +73,7 @@ include gub.make
 
 NATIVE_TARGET_DIR=$(CWD)/target/$(BUILD_PLATFORM)
 
-SET_LOCAL_PATH=PATH=$(CWD)/target/local/usr/bin:$(PATH)
+SET_LOCAL_PATH=PATH=$(CWD)/target/tools/usr/bin:$(PATH)
 
 LILYPOND_VERSIONS = uploads/lilypond.versions
 
@@ -116,7 +116,7 @@ print-success:
 	@echo "        python test-lily/upload.py --branch=$(LILYPOND_LOCAL_BRANCH) --execute"
 	@echo
 
-native: local $(BUILD_PLATFORM)
+native: tools $(BUILD_PLATFORM)
 
 debian-arm:
 	$(call BUILD,$@,lilypond)
@@ -268,20 +268,20 @@ locals =\
 # -netpbm: website
 # -python: bootstrap for python x-compile
 # -icoutils: icon build for mingw
-download-local:
+download-tools:
 ifneq ($(BUILD_PLATFORM),linux-64)
-	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=local --stage=download $(locals) nsis
+	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools --stage=download $(locals) nsis
 else
 # ugh, can only download nsis after cross-compilers...
-	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=local --stage=download $(locals)
+	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools --stage=download $(locals)
 endif
 
-local:
+tools:
 	cd librestrict && make -f GNUmakefile
-	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=local $(locals)
-# local-cross-tools depend on cross-compilers, see compilers.make.
+	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools $(locals)
+# tools-cross-tools depend on cross-compilers, see compilers.make.
 # We need linux-x86 and mingw before nsis can be build
-#	$(MAKE) local-cross-tools
+#	$(MAKE) tools-cross-tools
 
 ################################################################
 # docs
@@ -297,21 +297,21 @@ NATIVE_BUILD_COMMITTISH=$(shell cat downloads/lilypond.git/refs/heads/$(LILYPOND
 DIST_VERSION=$(shell cat $(NATIVE_LILY_BUILD)/out/VERSION)
 DOC_BUILDNUMBER=$(shell $(PYTHON) gub/versiondb.py --build-for=$(DIST_VERSION))
 
-# lilypond-invoke-editor: We are trying to run guile from local using
+# lilypond-invoke-editor: We are trying to run guile from tools using
 # guile from native, which fails: ERROR: In procedure dynamic-link:
 # ERROR: file: "libguile-srfi-srfi-1-v-4", message:
 # "libguile-srfi-srfi-1-v-4.so: cannot open shared object file: No
 # such file or directory"
-# Must use local's lib prior to native's for ld-library-path and use
-# system's LD_LIBRARY_PATH, because that's what local is being built with.
+# Must use tools's lib prior to native's for ld-library-path and use
+# system's LD_LIBRARY_PATH, because that's what tools is being built with.
 # We cannot use a SH wrapper for guile, as that breaks using guile for
 # scripts.
 DOC_RELOCATION = \
     LILYPOND_EXTERNAL_BINARY="$(NATIVE_ROOT)/usr/bin/lilypond" \
-    PATH=$(CWD)/target/local/root/usr/bin:$(NATIVE_ROOT)/usr/bin:$$PATH \
+    PATH=$(CWD)/target/tools/root/usr/bin:$(NATIVE_ROOT)/usr/bin:$$PATH \
     GS_LIB=$(wildcard $(NATIVE_ROOT)/usr/share/ghostscript/*/lib) \
     MALLOC_CHECK_=2 \
-    LD_LIBRARY_PATH=$(CWD)/target/local/root/usr/lib:$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH)
+    LD_LIBRARY_PATH=$(CWD)/target/tools/root/usr/lib:$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH)
 
 SIGNATURE_FUNCTION=uploads/signatures/$(1).$(NATIVE_BUILD_COMMITTISH)
 

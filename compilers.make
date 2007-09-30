@@ -30,13 +30,13 @@ ifeq ($(BUILD_PLATFORM),)
 $(error Must define BUILD_PLATFORM)
 endif
 
-distccd: clean-distccd cross-compilers cross-distccd native-distccd local-distcc
+distccd: clean-distccd cross-compilers cross-distccd native-distccd tools-distcc
 
 clean-distccd:
 	rm -rf $(DISTCC_DIRS)
 	mkdir -p $(DISTCC_DIRS)
 
-local-distcc:
+tools-distcc:
 	chmod +x gub/distcc.py
 	rm -rf target/native-distcc/bin/ target/cross-distcc/bin/
 	mkdir -p target/cross-distcc/bin/ target/native-distcc/bin/
@@ -75,16 +75,16 @@ native-distccd:
 		--port 3634 --pid-file $(CWD)/log/$@.pid \
 		--log-file $(CWD)/log/$@.log  --log-level info
 
-bootstrap: bootstrap-git download-local local cross-compilers local-cross-tools download
+bootstrap: bootstrap-git download-tools tools cross-compilers tools-cross-tools download
 
 download:
 
 bootstrap-git:
-	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=local git
+	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools git
 
-local-cross-tools:
+tools-cross-tools:
 ifeq ($(findstring mingw, $(PLATFORMS)),mingw)
 ifneq ($(XBUILD_PLATFORM),linux-64)
-	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=local nsis 
+	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools nsis 
 endif
 endif

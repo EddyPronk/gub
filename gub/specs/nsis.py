@@ -1,11 +1,11 @@
 import os
 
 from gub import repository
-from gub import toolpackage
+from gub import toolsbuild
 
-class Nsis (toolpackage.ToolBuildSpec):
+class Nsis (toolsbuild.ToolsBuild):
     def __init__ (self, settings):
-        toolpackage.ToolBuildSpec.__init__ (self, settings)
+        toolsbuild.ToolsBuild.__init__ (self, settings)
         self.save_path = os.environ['PATH']
         mingw_dir = settings.alltargetdir + '/mingw' + settings.root_dir
         os.environ['PATH'] = (mingw_dir
@@ -75,4 +75,4 @@ Export('defenv')
             os.environ['PATH'] = self.save_path
             del os.environ['CC']
             del os.environ['CXX']
-        toolpackage.ToolBuildSpec.clean (self)
+        toolsbuild.ToolsBuild.clean (self)

@@ -3,9 +3,9 @@ from gub import targetpackage
 
 url='http://ftp.gnome.org/pub/GNOME/sources/glibmm/2.12/glibmm-2.12.10.tar.gz'
 
-class Glibmm (targetpackage.TargetBuildSpec):
+class Glibmm (targetpackage.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
+        targetpackage.TargetBuild.__init__ (self, settings)
         self.with_vc (repository.TarBall (self.settings.downloads, url))
     def _get_build_dependencies (self):
         return ['glib', 'libsig++']

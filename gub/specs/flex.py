@@ -1,9 +1,9 @@
-from gub import toolpackage
+from gub import toolsbuild
 from gub import mirrors
 
-class Flex (toolpackage.ToolBuildSpec):
+class Flex (toolsbuild.ToolsBuild):
     def __init__ (self, settings):
-        toolpackage.ToolBuildSpec.__init__ (self, settings)
+        toolsbuild.ToolsBuild.__init__ (self, settings)
         self.with_template (version="2.5.4a",
                    mirror=mirrors.sf, format='gz'),
     def srcdir (self):

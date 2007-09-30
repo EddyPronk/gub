@@ -3,9 +3,9 @@ from gub import repository
 
 url = 'http://ftp.isc.org/isc/dhcp/dhcp-3.0.6.tar.gz'
 
-class Dhcp (targetpackage.TargetBuildSpec):
+class Dhcp (targetpackage.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
+        targetpackage.TargetBuild.__init__ (self, settings)
         self.with_vc (repository.TarBall (self.settings.downloads, url, strip_components=2))
     def get_subpackage_names (self):
         return ['']
@@ -16,13 +16,13 @@ class Dhcp (targetpackage.TargetBuildSpec):
     def makeflags (self):
         from gub import misc
         return misc.join_lines ('''
-CC=%(tool_prefix)sgcc
-AR=%(tool_prefix)sar
-AS=%(tool_prefix)sas
-LD=%(tool_prefix)sld
-NM=%(tool_prefix)snm
-RANLIB=%(tool_prefix)sranlib
-STRIP=%(tool_prefix)sstrip
+CC=%(toolchain_prefix)sgcc
+AR=%(toolchain_prefix)sar
+AS=%(toolchain_prefix)sas
+LD=%(toolchain_prefix)sld
+NM=%(toolchain_prefix)snm
+RANLIB=%(toolchain_prefix)sranlib
+STRIP=%(toolchain_prefix)sstrip
 ''')
     def license_file (self):
         return '%(srcdir)s/LICENSE'

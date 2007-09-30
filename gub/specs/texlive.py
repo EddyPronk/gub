@@ -4,7 +4,7 @@ from gub import targetpackage
 texlive_svn = 'svn://username@tug.org/texlive'
 license_url = 'http://tug.org/svn/texlive/trunk/Master/LICENSE.TL'
 
-class Texlive (targetpackage.TargetBuildSpec):
+class Texlive (targetpackage.TargetBuild):
     '''The TeX Live text formatting system
 The TeX Live software distribution offers a complete TeX system.
 It  encompasses programs for editing, typesetting, previewing and printing
@@ -16,12 +16,12 @@ TeX, as well as the documentation accompanying the included software
 packages.'''
 
     def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
+        targetpackage.TargetBuild.__init__ (self, settings)
         repo = repository.Subversion (
             dir=self.get_repodir (),
             source=texlive_svn,
             branch='trunk',
-            module='Build/source',
+            module='UnixBuild/source',
             revision='HEAD')
 
         def fixed_version (self):
@@ -35,7 +35,7 @@ packages.'''
         self.texmf_repo = repository.Subversion (
 # FIXME: module should be used in checkout dir name.            
             dir=self.get_repodir () + '-texmf',
-#            dir=self.get_repodir () + 'vc_repository._checkout_dir (),
+#            dir=self.get_repodir () + 'source._checkout_dir (),
             source=texlive_svn,
             branch='trunk',
             module='Master/texmf',
@@ -44,7 +44,7 @@ packages.'''
         self.texmf_dist_repo = repository.Subversion (
 # FIXME: module should be used in checkout dir name.            
             dir=self.get_repodir () + '-texmf-dist',
-#            dir=self.get_repodir () + 'vc_repository._checkout_dir (),
+#            dir=self.get_repodir () + 'source._checkout_dir (),
             source=texlive_svn,
             branch='trunk',
             module='Master/texmf-dist',
@@ -57,7 +57,7 @@ packages.'''
         return ['doc', 'devel', 'base', 'runtime', 'bin', '']
 
     def get_subpackage_definitions (self):
-        d = targetpackage.TargetBuildSpec.get_subpackage_definitions (self)
+        d = targetpackage.TargetBuild.get_subpackage_definitions (self)
         d['doc'] += [self.settings.prefix_dir + '/share/texmf/doc']
         d['base'] = [self.settings.prefix_dir + '/share/texmf']
 #        d['bin'] = ['/']
@@ -65,26 +65,26 @@ packages.'''
         return d
 
     def download (self):
-        targetpackage.TargetBuildSpec.download (self)
+        targetpackage.TargetBuild.download (self)
         self.texmf_repo.download ()
         from gub import misc
-        misc.download_url (license_url,  self.vc_repository._checkout_dir ())
-#        self.dump ('MAJOR_VERSION=2006', self.vc_repository.dir + '/VERSION')
+        misc.download_url (license_url,  self.source._checkout_dir ())
+#        self.dump ('MAJOR_VERSION=2006', self.source.dir + '/VERSION')
                            
     def untar (self):
-        targetpackage.TargetBuildSpec.untar (self)
+        targetpackage.TargetBuild.untar (self)
 #        self.texmf_repo.update_workdir (self.expand ('%(srcdir)s/texmf-dist'))
         self.texmf_repo.update_workdir (self.expand ('%(srcdir)s/texmf'))
 
     def rsync_command (self):
-        return targetpackage.TargetBuildSpec.rsync_command (self).replace ('rsync', 'rsync --exclude=.svn')
+        return targetpackage.TargetBuild.rsync_command (self).replace ('rsync', 'rsync --exclude=.svn')
 
     def configure_command (self):
         from gub import misc
         #FIXME
         return ('export TEXMFMAIN=%(srcdir)s/texmf;'
                 + 'bash '
-                + targetpackage.TargetBuildSpec.configure_command (self).replace ('--config-cache', '--cache-file=config.cache')
+                + targetpackage.TargetBuild.configure_command (self).replace ('--config-cache', '--cache-file=config.cache')
                 + misc.join_lines ('''
 --disable-multiplatform
 --enable-ipc
@@ -130,7 +130,7 @@ packages.'''
         return self.broken_install_command ()
 
     def install (self):
-    	targetpackage.TargetBuildSpec.install (self)
+    	targetpackage.TargetBuild.install (self)
         self.system ('''
 #rsync -v -a %(srcdir)s/texmf-dist/* %(install_prefix)s/share/texmf-dist
 rsync -v -a %(srcdir)s/texmf/* %(install_prefix)s/share/texmf/

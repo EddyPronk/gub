@@ -1,8 +1,8 @@
 from gub import mirrors
-from gub import toolpackage
+from gub import toolsbuild
 
-class Automake (toolpackage.ToolBuildSpec):
+class Automake (toolsbuild.ToolsBuild):
     def __init__ (self, settings):
-	toolpackage.ToolBuildSpec.__init__ (self, settings)
+	toolsbuild.ToolsBuild.__init__ (self, settings)
 	self.with_template (mirror=mirrors.gnu,
 		   version="1.10", format='gz')

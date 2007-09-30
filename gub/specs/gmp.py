@@ -3,9 +3,9 @@ import re
 from gub import mirrors
 from gub import targetpackage
 
-class Gmp (targetpackage.TargetBuildSpec):
+class Gmp (targetpackage.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
+        targetpackage.TargetBuild.__init__ (self, settings)
         self.with_template (version='4.2.1',
                    mirror="http://ftp.sunet.se/pub/gnu/gmp/gmp-%(version)s.tar.bz2",
                    format="bz2")
@@ -21,13 +21,13 @@ class Gmp (targetpackage.TargetBuildSpec):
         return ['libtool']
 
     def configure_command (self):
-        c = targetpackage.TargetBuildSpec.configure_command (self)
+        c = targetpackage.TargetBuild.configure_command (self)
 
         c += ' --disable-cxx '
         return c
 
     def configure (self):
-        targetpackage.TargetBuildSpec.configure (self)
+        targetpackage.TargetBuild.configure (self)
         # # FIXME: libtool too old for cross compile
         self.update_libtool ()
         # automake's Makefile.in's too old for new libtool,
@@ -96,10 +96,10 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/gmp-4.1.4-1.patch
 mv %(install_prefix)s/lib/*dll %(install_prefix)s/bin || true
 ''')
 
-from gub import toolpackage
-class Gmp__local (toolpackage.ToolBuildSpec):
+from gub import toolsbuild
+class Gmp__tools (toolsbuild.ToolsBuild):
     def __init__ (self, s):
-        toolpackage.ToolBuildSpec.__init__ (self, s)
+        toolsbuild.ToolsBuild.__init__ (self, s)
         self.with_template (version='4.2.1',
                    mirror="ftp://ftp.gnu.org/gnu/gmp/gmp-%(version)s.tar.bz2")
 

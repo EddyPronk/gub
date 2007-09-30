@@ -8,7 +8,7 @@ from gub.specs import glibc
 
 class Glibc_core (glibc.Glibc):
     def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
+        targetpackage.TargetBuild.__init__ (self, settings)
         #self.with_tarball (mirror=mirrors.gnu, version='2.3.6')
         self.with_tarball (mirror=mirrors.lilypondorg,
                            version='2.3-20070416', format='bz2', name='glibc')

@@ -1,4 +1,4 @@
-from gub import gubb
+from gub import build
 
-class Libdbi0_dev (gubb.BinarySpec, gubb.SdkBuildSpec):
+class Libdbi0_dev (build.BinaryBuild, build.SdkBuild):
     pass

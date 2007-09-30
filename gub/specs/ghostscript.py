@@ -7,7 +7,7 @@ from gub import misc
 from gub import targetpackage
 from gub import context
 
-class Ghostscript (targetpackage.TargetBuildSpec):
+class Ghostscript (targetpackage.TargetBuild):
     '''The GPL Ghostscript PostScript interpreter
 Ghostscript is used for PostScript preview and printing.  It can
 display PostScript documents in an X11 environment.  It can render
@@ -16,7 +16,7 @@ Supported printers include common dot-matrix, inkjet and laser
 models.'''
 
     def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
+        targetpackage.TargetBuild.__init__ (self, settings)
         repo = repository.Subversion (
             dir=self.get_repodir (),
             source='http://svn.ghostscript.com:8080/ghostscript',
@@ -56,11 +56,11 @@ models.'''
     
     def srcdir (self):
         return re.sub ('-source', '',
-                       targetpackage.TargetBuildSpec.srcdir (self))
+                       targetpackage.TargetBuild.srcdir (self))
 
     def builddir (self):
         return re.sub ('-source', '',
-                       targetpackage.TargetBuildSpec.builddir (self))
+                       targetpackage.TargetBuild.builddir (self))
 
     def name (self):
         return 'ghostscript'
@@ -126,7 +126,7 @@ models.'''
              ], '%(builddir)s/obj/arch.h')
 
     def compile_command (self):
-        return (targetpackage.TargetBuildSpec.compile_command (self)
+        return (targetpackage.TargetBuild.compile_command (self)
                 + ' INCLUDE=%(system_prefix)s/include'
                 + ' PSDOCDIR=%(prefix_dir)s/share/doc'
                 + ' PSMANDIR=%(prefix_dir)s/share/man')
@@ -137,10 +137,10 @@ cd %(builddir)s && mkdir -p obj
 cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS= LIBRARY_PATH= obj/genconf obj/echogs obj/genarch obj/arch.h
 ''')
         self.fixup_arch ()
-        targetpackage.TargetBuildSpec.compile (self)
+        targetpackage.TargetBuild.compile (self)
         
     def configure_command (self):
-        return (targetpackage.TargetBuildSpec.configure_command (self)
+        return (targetpackage.TargetBuild.configure_command (self)
             + misc.join_lines ('''
 --enable-debug
 --with-drivers=FILES
@@ -153,7 +153,7 @@ cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS
 '''))
 
     def configure (self):
-        targetpackage.TargetBuildSpec.configure (self)
+        targetpackage.TargetBuild.configure (self)
         self.makefile_fixup ('%(builddir)s/Makefile')
 
     def makefile_fixup (self, file):
@@ -181,7 +181,7 @@ cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS
                file)
 
     def install_command (self):
-        return (targetpackage.TargetBuildSpec.install_command (self)
+        return (targetpackage.TargetBuild.install_command (self)
                 + ' install_prefix=%(install_root)s'
                 + ' mandir=%(prefix_dir)s/share/man/ '
                 + ' docdir=%(prefix_dir)s/share/doc/ghostscript/doc '
@@ -189,7 +189,7 @@ cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS
                 )
 
     def install (self):
-        targetpackage.TargetBuildSpec.install (self)
+        targetpackage.TargetBuild.install (self)
         self.system ('mkdir -p %(install_prefix)s/etc/relocate/')
         self.dump ('''
 
@@ -289,8 +289,8 @@ fonts_url = 'http://mirror2.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/ghostscript-
 class Ghostscript__cygwin (Ghostscript):
     def __init__ (self, settings):
         Ghostscript.__init__ (self, settings)
-        #self.vc_repository.revision = '8250'
-        #targetpackage.TargetBuildSpec.__init__ (self, settings)
+        #self.source.revision = '8250'
+        #targetpackage.TargetBuild.__init__ (self, settings)
         #self.with_vc (repository.TarBall (self.settings.downloads, url))
         self.fonts_source = repository.TarBall (self.settings.downloads,
                                                 fonts_url)

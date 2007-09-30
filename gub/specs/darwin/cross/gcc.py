@@ -34,11 +34,11 @@ class Gcc (gcc.Gcc):
             if found_skips:
                 continue
             
-            id = self.read_pipe ('%(tool_prefix)sotool -L %(ell)s', 
+            id = self.read_pipe ('%(toolchain_prefix)sotool -L %(ell)s', 
 		locals ()).split()[1]
             id = os.path.split (id)[1]
             self.system ('''
-%(tool_prefix)sinstall_name_tool -id /usr/lib/%(id)s %(ell)s
+%(toolchain_prefix)sinstall_name_tool -id /usr/lib/%(id)s %(ell)s
 ''', locals ())
         
     def install (self):

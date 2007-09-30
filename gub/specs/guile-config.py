@@ -1,8 +1,8 @@
-from gub import gubb
+from gub import build
 
-class Guile_config (gubb.SdkBuildSpec):
+class Guile_config (build.SdkBuild):
     def __init__ (self, settings):
-        gubb.SdkBuildSpec.__init__ (self, settings)
+        build.SdkBuild.__init__ (self, settings)
         self.has_source = False
         self.with_template (version='1.8.0')
 
@@ -10,7 +10,7 @@ class Guile_config (gubb.SdkBuildSpec):
         pass
 
     def install (self):
-        gubb.SdkBuildSpec.install (self)
+        build.SdkBuild.install (self)
         self.system ('mkdir -p %(cross_prefix)s%(prefix_dir)s/bin')
         
         import os

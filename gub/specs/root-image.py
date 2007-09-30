@@ -1,8 +1,8 @@
-from gub import gubb
+from gub import build
 
-class Root_image (gubb.NullBuildSpec):
+class Root_image (build.NullBuild):
     def __init__ (self, settings):
-        gubb.NullBuildSpec.__init__ (self, settings)
+        build.NullBuild.__init__ (self, settings)
         from gub import repository
         self.with_vc (repository.Version ('1.0'))
     def _get_build_dependencies (self):
@@ -60,7 +60,7 @@ class Root_image (gubb.NullBuildSpec):
 cd %(install_root)s && ar p %(f)s data.tar.gz | tar%(_v)s -zxf -
 ''', locals ())
     def install (self):
-        gubb.NullBuildSpec.install (self)
+        build.NullBuild.install (self)
         for i in self.get_ipkg_dependencies ():
             self.install_ipkg (i)
 

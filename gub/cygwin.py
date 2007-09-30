@@ -4,7 +4,7 @@ import re
 from new import classobj
 from new import instancemethod
 #
-from gub import gubb
+from gub import build
 from gub import misc
 
 def untar_cygwin_src_package_variant2 (self, file_name, split=False):
@@ -169,9 +169,9 @@ def change_target_package (package):
     if isinstance (package, cross.CrossToolSpec):
         return package
         
-    gubb.change_target_dict (package, {
-            'DLLTOOL': '%(tool_prefix)sdlltool',
-            'DLLWRAP': '%(tool_prefix)sdllwrap',
+    targetbuild.change_target_dict (package, {
+            'DLLTOOL': '%(toolchain_prefix)sdlltool',
+            'DLLWRAP': '%(toolchain_prefix)sdllwrap',
             'LDFLAGS': '-L%(system_prefix)s/lib -L%(system_prefix)s/bin -L%(system_prefix)s/lib/w32api',
             })
 
@@ -204,7 +204,7 @@ def get_cygwin_package (settings, name, dict, skip):
     blacklist = cross + cycle + skip + unneeded
     if name in blacklist:
         name += '::blacklisted'
-    package_class = classobj (name, (gubb.BinarySpec,), {})
+    package_class = classobj (name, (build.BinaryBuild,), {})
     package = package_class (settings)
     package.name_dependencies = []
     if dict.has_key ('requires'):
@@ -339,7 +339,7 @@ class Dependency_resolver:
             open (file, 'w').write (s.replace ('\':"', "':'"))
         self.grok_setup_ini (file, self.source)
 
-        # support one extra local setup.ini, that overrides the default
+        # support one extra tools setup.ini, that overrides the default
         local_file = self.settings.uploads + '/cygwin/setup.ini'
         if os.path.exists (local_file):
             ## FIXME: using the generated setup.ini to install the

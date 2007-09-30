@@ -2,18 +2,18 @@ import os
 import re
 #
 from gub import repository
-from gub import gubb
+from gub import build
 from gub import misc
 from gub import targetpackage
 from gub import context
 
-class LilyPond (targetpackage.TargetBuildSpec):
+class LilyPond (targetpackage.TargetBuild):
     '''A program for printing sheet music
 LilyPond lets you create music notation.  It produces
 beautiful sheet music from a high-level description file.'''
 
     def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
+        targetpackage.TargetBuild.__init__ (self, settings)
         try:
             source = os.environ['GUB_LILYPOND_SOURCE']
         except KeyError:         
@@ -79,13 +79,13 @@ beautiful sheet music from a high-level description file.'''
                 'urw-fonts']
 
     def rsync_command (self):
-        c = targetpackage.TargetBuildSpec.rsync_command (self)
+        c = targetpackage.TargetBuild.rsync_command (self)
         c = c.replace ('rsync', 'rsync --delete --exclude configure')
         return c
 
     def configure_command (self):
         ## FIXME: pickup $target-guile-config
-        return (targetpackage.TargetBuildSpec.configure_command (self)
+        return (targetpackage.TargetBuild.configure_command (self)
                 + misc.join_lines ('''
 --enable-relocation
 --disable-documentation
@@ -130,7 +130,7 @@ cd %(builddir)s && %(configure_command)s''')
             self.do_configure ()
             self.system ('touch %(builddir)s/config.hh')
             
-        targetpackage.TargetBuildSpec.compile (self)
+        targetpackage.TargetBuild.compile (self)
 
     def name_version (self):
         # FIXME: make use of branch for version explicit, use
@@ -139,7 +139,7 @@ cd %(builddir)s && %(configure_command)s''')
         try:
             return self.build_version ()
         except:
-            return targetpackage.TargetBuildSpec.name_version (self)
+            return targetpackage.TargetBuild.name_version (self)
 
     def xxxbuild_version (self):
         d = misc.grok_sh_variables (self.expand ('%(srcdir)s/VERSION'))
@@ -161,7 +161,7 @@ cd %(builddir)s && %(configure_command)s''')
         return ('%d' % b)
 
     def install (self):
-        targetpackage.TargetBuildSpec.install (self)
+        targetpackage.TargetBuild.install (self)
         # FIXME: This should not be in generic package, for installers only.
         self.installer_install_stuff ()
 
@@ -284,7 +284,7 @@ class LilyPond__cygwin (LilyPond):
 
     def compile (self):
 	# Because of relocation script, python must be built before scripts
-        # PYTHON= is replaces the detected python interpreter in local.
+        # PYTHON= is replaces the detected python interpreter in tools.
         self.system ('''
 cd %(builddir)s && make -C python LDFLAGS=%(system_prefix)s/bin/libpython*.dll
 cd %(builddir)s && make -C scripts PYTHON=/usr/bin/python
@@ -304,7 +304,7 @@ LDFLAGS="%(LDFLAGS)s %(python_lib)s"
 
     def install (self):
         ##LilyPond.install (self)
-        targetpackage.TargetBuildSpec.install (self)
+        targetpackage.TargetBuild.install (self)
         self.install_doc ()
 
     def install_doc (self):
@@ -450,7 +450,7 @@ cd %(builddir)s && make -C scripts PYTHON=/usr/bin/python
         LilyPond.compile (self)
 
     def install (self):
-        targetpackage.TargetBuildSpec.install (self)
+        targetpackage.TargetBuild.install (self)
 
     def get_build_dependencies (self):
         #FIXME: aargh, MUST specify gs,  etc here too.

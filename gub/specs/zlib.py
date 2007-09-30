@@ -1,22 +1,22 @@
 from gub import targetpackage
-from gub import gubb
-from gub import toolpackage
+from gub import build
+from gub import toolsbuild
 
-class Zlib (targetpackage.TargetBuildSpec):
+class Zlib (targetpackage.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
+        targetpackage.TargetBuild.__init__ (self, settings)
 	self.with_template (version='1.2.3',
                    mirror='http://heanet.dl.sourceforge.net/sourceforge/libpng/zlib-1.2.3.tar.gz')
         
     def patch (self):
-        targetpackage.TargetBuildSpec.patch (self)
+        targetpackage.TargetBuild.patch (self)
 
         self.system ('cp %(sourcefiledir)s/zlib.license %(license_file)s')
         self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/zlib-1.2.3.patch')
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
 
     def compile_command (self):
-        return targetpackage.TargetBuildSpec.compile_command (self) + ' ARFLAGS=r '
+        return targetpackage.TargetBuild.compile_command (self) + ' ARFLAGS=r '
 
     
     def configure_command (self):
@@ -31,7 +31,7 @@ class Zlib (targetpackage.TargetBuildSpec):
         return zlib_is_broken + ' %(srcdir)s/configure --shared '
 
     def install_command (self):
-        return targetpackage.TargetBuildSpec.broken_install_command (self)
+        return targetpackage.TargetBuild.broken_install_command (self)
 
 
 
@@ -53,27 +53,27 @@ class Zlib__mingw (Zlib):
         zlib_is_broken = 'target=mingw'
         return zlib_is_broken + ' %(srcdir)s/configure --shared '
 
-class Zlib__local (toolpackage.ToolBuildSpec, Zlib):
+class Zlib__tools (toolsbuild.ToolsBuild, Zlib):
     def __init__ (self, settings):
-        toolpackage.ToolBuildSpec.__init__ (self, settings)
+        toolsbuild.ToolsBuild.__init__ (self, settings)
         self.with_template (version='1.2.3',
                    mirror='http://heanet.dl.sourceforge.net/sourceforge/libpng/zlib-1.2.3.tar.gz')
 
         
     def patch (self):
         ## ugh : C&P
-        toolpackage.ToolBuildSpec.patch (self)
+        toolsbuild.ToolsBuild.patch (self)
         
         self.system ('cp %(sourcefiledir)s/zlib.license %(license_file)s')
         self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/zlib-1.2.3.patch')
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
       
     def install_command (self):
-        return toolpackage.ToolBuildSpec.broken_install_command (self)
+        return toolsbuild.ToolsBuild.broken_install_command (self)
         
     def install (self):
-        toolpackage.ToolBuildSpec.install (self)
-        self.system ('cd %(install_root)s && mkdir -p ./%(local_prefix)s && cp -av usr/* ./%(local_prefix)s && rm -rf usr')
+        toolsbuild.ToolsBuild.install (self)
+        self.system ('cd %(install_root)s && mkdir -p ./%(tools_prefix)s && cp -av usr/* ./%(tools_prefix)s && rm -rf usr')
 
     def configure_command (self):
         return Zlib.configure_command (self)

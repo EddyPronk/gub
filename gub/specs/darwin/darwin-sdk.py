@@ -1,8 +1,8 @@
-from gub import gubb
+from gub import build
 
-class Darwin_sdk (gubb.SdkBuildSpec):
+class Darwin_sdk (build.SdkBuild):
     def __init__ (self, settings):
-        gubb.SdkBuildSpec.__init__ (self, settings)
+        build.SdkBuild.__init__ (self, settings)
         os_version = 7
         if settings.platform == 'darwin-x86':
             os_version = 8

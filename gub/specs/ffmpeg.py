@@ -2,9 +2,9 @@ from gub import misc
 from gub import repository
 from gub import targetpackage
 
-class Ffmpeg (targetpackage.TargetBuildSpec):
+class Ffmpeg (targetpackage.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
+        targetpackage.TargetBuild.__init__ (self, settings)
         # FIXME: fixed version for svn, what a mess
         self.revision = '6017'
         repo = repository.Subversion (
@@ -28,11 +28,11 @@ class Ffmpeg (targetpackage.TargetBuildSpec):
         return {'': self._get_build_dependencies ()}
     def configure_command (self):
         #FIXME: this is autoconf
-        #targetpackage.TargetBuildSpec.configure_command (self)
+        #targetpackage.TargetBuild.configure_command (self)
         return misc.join_lines ('''
-CC=%(tool_prefix)sgcc CFLAGS=-fPIC %(srcdir)s/configure
+CC=%(toolchain_prefix)sgcc CFLAGS=-fPIC %(srcdir)s/configure
 --prefix=%(prefix_dir)s
---cross-prefix=%(cross_prefix)s/bin/%(tool_prefix)s
+--cross-prefix=%(cross_prefix)s/bin/%(toolchain_prefix)s
 --cpu=%(cpu)s
 --enable-faad
 --enable-a52
@@ -50,5 +50,5 @@ CC=%(tool_prefix)sgcc CFLAGS=-fPIC %(srcdir)s/configure
 --disable-opts
 ''')
     def install_command (self):
-        return (targetpackage.TargetBuildSpec.install_command (self)
+        return (targetpackage.TargetBuild.install_command (self)
                 + ' INSTALLSTRIP=')

@@ -1,16 +1,16 @@
 from gub import targetpackage
-from gub import gubb
+from gub import build
 from gub import mirrors
-from gub import toolpackage
+from gub import toolsbuild
 
 
 # FIXME, need for WITH settings when building dependency 'libtool'
 # This works without libtool.py:
 #    ./gub-builder.py -p mingw build http://ftp.gnu.org/pub/gnu/libtool/libtool-1.5.20.tar.gz
 
-class Libtool (targetpackage.TargetBuildSpec):
+class Libtool (targetpackage.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
+        targetpackage.TargetBuild.__init__ (self, settings)
         self.with_template (version='1.5.20', mirror=mirrors.gnu)
         self.so_version = '3'
 
@@ -24,7 +24,7 @@ class Libtool (targetpackage.TargetBuildSpec):
                  'runtime': [],}
 
     def get_subpackage_definitions (self):
-        d = targetpackage.TargetBuildSpec.get_subpackage_definitions (self)
+        d = targetpackage.TargetBuild.get_subpackage_definitions (self)
         d['devel'].append (self.settings.prefix_dir + '/bin/libtool*')
         d['devel'].append (self.settings.prefix_dir + '/share/libltdl')
         return d
@@ -59,12 +59,12 @@ class Libtool__cygwin (Libtool):
     def category_dict (self):
         return {'': 'Devel'}
 
-class Libtool__local (toolpackage.ToolBuildSpec):
+class Libtool__tools (toolsbuild.ToolsBuild):
     def __init__ (self, settings):
-        toolpackage.ToolBuildSpec.__init__ (self, settings)
+        toolsbuild.ToolsBuild.__init__ (self, settings)
         self.with_template (version='1.5.20', mirror=mirrors.gnu)
     def configure (self):
-        gubb.BuildSpec.configure (self)
+        build.UnixBuild.configure (self)
     def wrap_executables (self):
         # The libtool script calls the cross compilers, and moreover,
         # it is copied.  Two reasons why it cannot be wrapped.

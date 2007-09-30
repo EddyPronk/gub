@@ -1,10 +1,10 @@
 from gub import mirrors
-from gub import toolpackage
+from gub import toolsbuild
 from gub import targetpackage
 
-class Glib (targetpackage.TargetBuildSpec):
+class Glib (targetpackage.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
+        targetpackage.TargetBuild.__init__ (self, settings)
 
 
         ## 2.12.4 : see bug  http://bugzilla.gnome.org/show_bug.cgi?id=362918
@@ -17,7 +17,7 @@ class Glib (targetpackage.TargetBuildSpec):
         return ['gettext-devel', 'libtool']
 
     def get_dependency_dict (self):
-        d = targetpackage.TargetBuildSpec.get_dependency_dict (self)
+        d = targetpackage.TargetBuild.get_dependency_dict (self)
         d[''].append ('gettext')
         return d
     
@@ -26,13 +26,13 @@ class Glib (targetpackage.TargetBuildSpec):
 glib_cv_stack_grows=${glib_cv_stack_grows=no}
 '''
     def configure (self):
-        targetpackage.TargetBuildSpec.configure (self)
+        targetpackage.TargetBuild.configure (self)
 
         ## FIXME: libtool too old for cross compile
         self.update_libtool ()
         
     def install (self):
-        targetpackage.TargetBuildSpec.install (self)
+        targetpackage.TargetBuild.install (self)
         self.system ('rm %(install_prefix)s/lib/charset.alias',
                      ignore_errors=True)
         
@@ -79,15 +79,15 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/glib-2.12.12-disable-threads.patch
     def configure_command (self):
         return Glib.configure_command (self) + ' --disable-threads --disable-timeloop'
 
-class Glib__local (toolpackage.ToolBuildSpec):
+class Glib__tools (toolsbuild.ToolsBuild):
     def __init__ (self, settings):
-        toolpackage.ToolBuildSpec.__init__ (self, settings)
+        toolsbuild.ToolsBuild.__init__ (self, settings)
         self.with_template (version='2.10.3',
                    mirror=mirrors.gnome_214,
                    format='bz2')
 
     def install (self):
-        toolpackage.ToolBuildSpec.install(self)
+        toolsbuild.ToolsBuild.install(self)
         self.system ('rm %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/lib/charset.alias',
                          ignore_errors=True)
 

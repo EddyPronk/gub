@@ -24,7 +24,7 @@ sys.path.insert (0, '.')
 #
 from gub import cross
 ## fixme: double use of gub name.
-from gub import gubb
+from gub import build
 from gub import misc
 from gub import gup
 
@@ -42,7 +42,7 @@ class Builder:
 
         ## UGH -> double work, see cross.change_target_packages () ?
         sdk_pkgs = [p for p in self.specs.values ()
-                    if isinstance (p, gubb.SdkBuildSpec)]
+                    if isinstance (p, build.SdkBuild)]
         cross_pkgs = [p for p in self.specs.values ()
                       if isinstance (p, cross.CrossToolSpec)]
 

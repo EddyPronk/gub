@@ -135,10 +135,15 @@ class Repository:
         self.download_url = oslog.download_url
         self.info = oslog.info
 
+    def canonical_branch (self):
+        if self.is_tracking ():
+            return self.branch.replace ('/', '-')
+        return ''
+
     def download (self):
         pass
 
-    def get_checksum (self):
+    def checksum (self):
         '''A checksum that characterizes the entire repository.
 
 Typically a hash of all source files.'''
@@ -220,7 +225,7 @@ class Version:
     def download (self):
         pass
 
-    def get_checksum (self):
+    def checksum (self):
         return self.version ()
 
     def is_tracking (self):
@@ -280,7 +285,7 @@ class Darcs (Repository):
         except IndexError:
             return ''
 
-    def get_checksum (self):
+    def checksum (self):
         import xml.dom.minidom
         xml_string = self.darcs_pipe ('changes --xml ')
         dom = xml.dom.minidom.parseString(xml_string)
@@ -355,7 +360,7 @@ class TarBall (Repository):
             return
         self.download_url (self.source, self.dir)
 
-    def get_checksum (self):
+    def checksum (self):
         from gub import misc
         return misc.ball_basename (self._file_name ())
     
@@ -376,7 +381,7 @@ class TarBall (Repository):
         self.system ('mkdir %s' % destdir)       
         strip_components = self.strip_components
         _v = ''
-        if self.oslog:  #urg, will be fixed when .vc_repository is mandatory
+        if self.oslog:  #urg, will be fixed when .source is mandatory
             _v = self.oslog.verbose_flag ()
         _z = misc.compression_flag (tarball)
         self.system ('tar -C %(destdir)s --strip-component=%(strip_components)d %(_v)s%(_z)s -xf %(tarball)s' % locals ())
@@ -544,7 +549,7 @@ class Git (Repository):
         self.git ('fetch --update-head-ok %(source)s %(refs)s ' % locals ())
         self.checksums = {}
 
-    def get_checksum (self):
+    def checksum (self):
         if self.revision:
             return self.revision
         
@@ -675,7 +680,7 @@ class CVS (Repository):
         except IOError:
             return ''
 
-    def get_checksum (self):
+    def checksum (self):
         if self.checksums.has_key (self.tag):
             return self.checksums[self.tag]
         
@@ -834,7 +839,7 @@ class SimpleRepo (Repository):
     def get_file_content (self, file_name):
         return self.read_file (self._checkout_dir () + '/' + file_name)
 
-    def get_checksum (self):
+    def checksum (self):
         return self._current_revision ()
 
     def version (self):

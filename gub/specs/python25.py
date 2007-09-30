@@ -3,15 +3,15 @@ import sys
 #
 from gub import mirrors
 import glob
-from gub import gubb
+from gub import build
 from gub import targetpackage
 
 from gub import context
 
 
-class Python (targetpackage.TargetBuildSpec):
+class Python (targetpackage.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
+        targetpackage.TargetBuild.__init__ (self, settings)
         
         ## don't from gub import settings from build system.
 	self.BASECFLAGS=''
@@ -20,7 +20,7 @@ class Python (targetpackage.TargetBuildSpec):
                    format='bz2')
 
     def configure_command (self):
-        return 'ac_cv_printf_zd_format=yes ' + targetpackage.TargetBuildSpec.configure_command (self)
+        return 'ac_cv_printf_zd_format=yes ' + targetpackage.TargetBuild.configure_command (self)
 
     def patch (self):
         self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.5.patch')
@@ -46,25 +46,25 @@ class Python (targetpackage.TargetBuildSpec):
     def configure (self):
         self.system ('''cd %(srcdir)s && autoconf''')
         self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
-        targetpackage.TargetBuildSpec.configure (self)
+        targetpackage.TargetBuild.configure (self)
 
     def compile_command (self):
         ##
         ## UGH.: darwin Python vs python (case insensitive FS)
-        c = targetpackage.TargetBuildSpec.compile_command (self)
+        c = targetpackage.TargetBuild.compile_command (self)
         c += ' BUILDPYTHON=python-bin '
         return c
 
     def install_command (self):
         ##
         ## UGH.: darwin Python vs python (case insensitive FS)
-        c = targetpackage.TargetBuildSpec.install_command (self)
+        c = targetpackage.TargetBuild.install_command (self)
         c += ' BUILDPYTHON=python-bin '
         return c
 
     # FIXME: c&p linux.py:install ()
     def install (self):
-        targetpackage.TargetBuildSpec.install (self)
+        targetpackage.TargetBuild.install (self)
         cfg = open (self.expand ('%(sourcefiledir)s/python-config.py.in')).read ()
         cfg = re.sub ('@PYTHON_VERSION@', self.expand ('%(version)s'), cfg)
         cfg = re.sub ('@PREFIX@', self.expand ('%(system_prefix)s/'), cfg)
@@ -127,10 +127,10 @@ cp %(install_prefix)s/lib/python%(python_version)s/lib-dynload/* %(install_prefi
 chmod 755 %(install_prefix)s/bin/*
 ''')
 
-from gub import toolpackage
-class Python__local (toolpackage.ToolBuildSpec, Python):
+from gub import toolsbuild
+class Python__tools (toolsbuild.ToolsBuild, Python):
     def __init__ (self, settings):
-        toolpackage.ToolBuildSpec.__init__ (self, settings)
+        toolsbuild.ToolsBuild.__init__ (self, settings)
         self.with_template (version='2.5',
                    mirror=mirrors.python,
                    format='bz2')
@@ -138,9 +138,9 @@ class Python__local (toolpackage.ToolBuildSpec, Python):
     def configure (self):
         self.system ('''cd %(srcdir)s && autoconf''')
         self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
-        targetpackage.TargetBuildSpec.configure (self)
+        targetpackage.TargetBuild.configure (self)
     def install (self):
-        toolpackage.ToolBuildSpec.install (self)
+        toolsbuild.ToolsBuild.install (self)
 
 
     def license_file (self):

@@ -1,9 +1,9 @@
-from gub import gubb
+from gub import build
 from gub import mirrors
 
-class Linux_headers (gubb.BinarySpec, gubb.SdkBuildSpec):
+class Linux_headers (build.BinaryBuild, build.SdkBuild):
     def __init__ (self, settings):
-        gubb.BinarySpec.__init__ (self, settings)
+        build.BinaryBuild.__init__ (self, settings)
         self.with_tarball (mirror=mirrors.linux_2_4,
                            version='2.4.34', format='bz2')
     def get_subpackage_names (self):

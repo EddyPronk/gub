@@ -1,8 +1,8 @@
-from gub import gubb
+from gub import build
 
-class Python_config (gubb.SdkBuildSpec):
+class Python_config (build.SdkBuild):
     def __init__ (self, settings):
-        gubb.SdkBuildSpec.__init__ (self, settings)
+        build.SdkBuild.__init__ (self, settings)
         self.has_source = False
         self.with_template (version='2.4.1')
     def untar (self):
@@ -10,7 +10,7 @@ class Python_config (gubb.SdkBuildSpec):
     # FIXME: c&p python.py:install ()
     def install (self):
         import re
-        gubb.SdkBuildSpec.install (self)
+        build.SdkBuild.install (self)
         self.system ('mkdir -p %(cross_prefix)s%(prefix_dir)s/bin')
         cfg = open (self.expand ('%(sourcefiledir)s/python-config.py.in')).read ()
         cfg = re.sub ('@PYTHON_VERSION@', self.expand ('%(version)s'), cfg)
@@ -23,6 +23,6 @@ class Python_config (gubb.SdkBuildSpec):
 
 class Python_config__cygwin (Python_config):
     def __init__ (self, settings):
-        gubb.SdkBuildSpec.__init__ (self, settings)
+        build.SdkBuild.__init__ (self, settings)
         self.has_source = False
         self.with_template (version='2.5')

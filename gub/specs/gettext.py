@@ -1,21 +1,21 @@
 from gub import mirrors
 from gub import targetpackage
-from gub import toolpackage
+from gub import toolsbuild
 
-class Gettext (targetpackage.TargetBuildSpec):
+class Gettext (targetpackage.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
+        targetpackage.TargetBuild.__init__ (self, settings)
         self.with_template (version='0.15', mirror=mirrors.gnu, format='gz')
 
     def get_build_dependencies (self):
         return ['libtool']
 
     def configure_command (self):
-        return (targetpackage.TargetBuildSpec.configure_command (self)
+        return (targetpackage.TargetBuild.configure_command (self)
                 + ' --disable-threads --disable-csharp --disable-java ')
 
     def configure (self):
-        targetpackage.TargetBuildSpec.configure (self)
+        targetpackage.TargetBuild.configure (self)
 
         ## FIXME: libtool too old for cross compile
         self.update_libtool ()
@@ -63,16 +63,16 @@ jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
         self.update_libtool ()
         Gettext.install (self)
 
-class Gettext__local (toolpackage.ToolBuildSpec):
+class Gettext__tools (toolsbuild.ToolsBuild):
     def __init__ (self, settings):
-        toolpackage.ToolBuildSpec.__init__(self,settings)
+        toolsbuild.ToolsBuild.__init__(self,settings)
         self.with_template (version='0.15', mirror=mirrors.gnu, format='gz')
 
     def get_build_dependencies (self):
         return ['libtool']
 
     def configure (self):
-        toolpackage.ToolBuildSpec.configure (self)
+        toolsbuild.ToolsBuild.configure (self)
         self.file_sub ([
                 ('(SUBDIRS *=.*)examples', r'\1 '),
                 ],

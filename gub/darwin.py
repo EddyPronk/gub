@@ -132,7 +132,7 @@ def strip_dependency_dict (old_val, what):
 def change_target_package (p):
     from gub import misc
     from gub import cross
-    from gub import gubb
+    from gub import build
     cross.change_target_package (p)
     p.get_build_dependencies = misc.MethodOverrider (p.get_build_dependencies,
                                                      strip_build_dep,
@@ -140,7 +140,7 @@ def change_target_package (p):
     p.get_dependency_dict = misc.MethodOverrider (p.get_dependency_dict,
                                                   strip_dependency_dict,
                                                   (['zlib', 'zlib-devel'],))
-    gubb.change_target_dict (p, {
+    targetbuild.change_target_dict (p, {
 
             ## We get a lot of /usr/lib/ -> @executable_path/../lib/
             ## we need enough space in the header to do these relocs.

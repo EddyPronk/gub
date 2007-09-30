@@ -6,9 +6,9 @@ from gub import mirrors
 from gub import misc
 from gub import targetpackage
 
-class Pango (targetpackage.TargetBuildSpec):
+class Pango (targetpackage.TargetBuild):
     def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
+        targetpackage.TargetBuild.__init__ (self, settings)
         self.with_template (version='1.14.8',
                    mirror=mirrors.gnome_216,
                    format='bz2')
@@ -28,15 +28,15 @@ class Pango (targetpackage.TargetBuildSpec):
 ''')
 
     def configure_command (self):
-        return (targetpackage.TargetBuildSpec.configure_command (self)
+        return (targetpackage.TargetBuild.configure_command (self)
                 + self.configure_flags ())
 
     def configure (self):
-        targetpackage.TargetBuildSpec.configure (self)                
+        targetpackage.TargetBuild.configure (self)                
         self.update_libtool ()
 
     def patch (self):
-        targetpackage.TargetBuildSpec.patch (self)
+        targetpackage.TargetBuild.patch (self)
         self.system ('cd %(srcdir)s && patch --force -p1 < %(patchdir)s/pango-substitute-env.patch')
 
     def fix_modules (self, prefix='/usr'):
@@ -68,7 +68,7 @@ ModulesPath = $PANGO_PREFIX/lib/pango/%(pango_module_version)s/modules
         self.copy ('%(sourcefiledir)s/pango.modules', etc)
 
     def install (self):
-        targetpackage.TargetBuildSpec.install (self)                
+        targetpackage.TargetBuild.install (self)                
         self.dump ("""
 setfile PANGO_RC_FILE=$INSTALLER_PREFIX/etc/pango/pangorc
 setdir PANGO_PREFIX=$INSTALLER_PREFIX/

@@ -1,4 +1,4 @@
-# local python has no gdbm, breaks simple home python/lilypond build
+# tools python has no gdbm, breaks simple home python/lilypond build
 # but dbhash seems to break in odd ways:
 #  File "bsddb/dbutils.py", line 62, in DeadlockWrap
 #  DBPageNotFoundError: (-30987, 'DB_PAGE_NOTFOUND: Requested page not found')
@@ -16,10 +16,10 @@ import glob
 
 #
 from gub import cross
-from gub import gubb
+from gub import build
 from gub import locker
 from gub import misc
-from gub import targetpackage
+from gub import targetbuild
 
 class GupException (Exception):
     pass
@@ -120,13 +120,13 @@ class FileManager:
                                       """libdir='%(root)s/%(dir)s'""" % locals ()
                                       ),],
                                     '%(root)s/%(file)s' % locals (),
-        # FIXME: for local libtool 1.5.20, libdir is already OK, so this
+        # FIXME: for tools libtool 1.5.20, libdir is already OK, so this
         # fails.  Would have been a nice assert.  Possibly for platforms
-        # other than local?  Hmm, let's try that.
+        # other than tools?  Hmm, let's try that.
         #                            must_succeed=True)
-#                                    must_succeed=self.settings.platform != 'local'
+#                                    must_succeed=self.settings.platform != 'tools'
                                     # Whurg, we do not know the platform here...
-                                    must_succeed=('local/root' not in self.root
+                                    must_succeed=('tools/root' not in self.root
                                                   and 'cross' not in dir))
 
     def pkgconfig_pc_fixup (self, root, file, prefix_dir):
@@ -377,8 +377,8 @@ def topologically_sorted_one (todo, done, dependency_getter,
             print type (d), '!=', type (todo)
             assert type (d) == type (todo)
         # New style class attempt...
-        if (not ((isinstance (d, gubb.BuildSpec)
-                  and isinstance (d, gubb.BuildSpec))
+        if (not ((isinstance (d, build.UnixBuild)
+                  and isinstance (d, build.UnixBuild))
                  or (type (d) == type (todo)))):
             print type (d), '!=', type (todo)
             assert type (d) == type (todo)
@@ -421,9 +421,9 @@ def get_base_package_name (name):
     return name
 
 def get_source_packages (settings, todo):
-    """TODO is a list of (source) buildspecs.
+    """TODO is a list of (source) builds.
 
-Generate a list of BuildSpec needed to build TODO, in
+Generate a list of UnixBuild needed to build TODO, in
 topological order
     
 """
@@ -445,7 +445,7 @@ topological order
         if spec_dict.has_key (name):
             spec = spec_dict[name]
         else:
-            spec = targetpackage.get_build_spec (settings, name)
+            spec = targetbuild.get_build_spec (settings, name)
             spec_dict[name] = spec
         return map (get_base_package_name, spec.get_build_dependencies ())
 
@@ -455,7 +455,7 @@ topological order
         else:
             if name in todo or name not in distro_packages.keys ():
 #            if name not in distro_packages.keys ():
-                spec = targetpackage.get_build_spec (settings, name)
+                spec = targetbuild.get_build_spec (settings, name)
             else:
                 spec = distro_packages[name]
             spec_dict[name] = spec

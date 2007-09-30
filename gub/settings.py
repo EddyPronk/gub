@@ -2,7 +2,7 @@ import os
 import re
 from gub import oslog
 from gub import distcc
-from gub import gubb
+from gub import build
 from gub import context
 
 platforms = {
@@ -29,7 +29,7 @@ platforms = {
     'linux-x86': 'i686-linux',
     'linux-64': 'x86_64-linux',
     'linux-ppc': 'powerpc-linux',
-    'local': 'local',
+    'tools': 'tools',
     'mingw': 'i686-mingw32',
 }
 
@@ -48,7 +48,7 @@ class Settings (context.Context):
     def __init__ (self, options, os_interface=None):
         context.Context.__init__ (self)
 
-        # TODO: local-prefix, target-prefix, cross-prefix?
+        # TODO: tools-prefix, target-prefix, cross-prefix?
         self.prefix_dir = '/usr'
         self.root_dir = '/root'
         self.cross_dir = '/cross'
@@ -66,17 +66,17 @@ class Settings (context.Context):
                     options.platforms = guess
             
         if not options.platform:
-            options.platform = 'local'
+            options.platform = 'tools'
 
         self.platform = options.platform
         if self.platform not in platforms.keys ():
             raise UnknownPlatform (self.platform)
 
-        GUB_LOCAL_PREFIX = os.environ.get ('GUB_LOCAL_PREFIX')
+        GUB_TOOLS_PREFIX = os.environ.get ('GUB_TOOLS_PREFIX')
         
         # config dirs
 
-        if self.platform == 'local' and GUB_LOCAL_PREFIX:
+        if self.platform == 'tools' and GUB_TOOLS_PREFIX:
             self.prefix_dir = ''
 
         # gubdir is top of `installed' gub repository
@@ -102,8 +102,8 @@ class Settings (context.Context):
         self.targetdir = self.alltargetdir + '/' + self.platform
 
         self.system_root = self.targetdir + self.root_dir
-        if self.platform == 'local' and GUB_LOCAL_PREFIX:
-            self.system_root = GUB_LOCAL_PREFIX
+        if self.platform == 'tools' and GUB_TOOLS_PREFIX:
+            self.system_root = GUB_TOOLS_PREFIX
         self.system_prefix = self.system_root + self.prefix_dir
 
         ## Patches are architecture dependent, 
@@ -121,11 +121,11 @@ class Settings (context.Context):
         ##self.cross_prefix = self.system_prefix + self.cross_dir
         self.cross_prefix = self.targetdir + self.root_dir + self.prefix_dir + self.cross_dir
         self.installdir = self.targetdir + '/install'
-        self.local_root = self.alltargetdir + '/local' + self.root_dir
-        self.local_prefix = self.local_root + self.prefix_dir
-        if GUB_LOCAL_PREFIX:
-            self.local_root = GUB_LOCAL_PREFIX
-            self.local_prefix = GUB_LOCAL_PREFIX
+        self.tools_root = self.alltargetdir + '/tools' + self.root_dir
+        self.tools_prefix = self.tools_root + self.prefix_dir
+        if GUB_TOOLS_PREFIX:
+            self.tools_root = GUB_TOOLS_PREFIX
+            self.tools_prefix = GUB_TOOLS_PREFIX
         self.cross_distcc_bindir = self.alltargetdir + '/cross-distcc/bin'
         self.native_distcc_bindir = self.alltargetdir + '/native-distcc/bin'
 
@@ -159,7 +159,7 @@ class Settings (context.Context):
 
 
         self.gtk_version = '2.8'
-        self.tool_prefix = self.target_architecture + '-'
+        self.toolchain_prefix = self.target_architecture + '-'
         self.distcc_hosts = ''
         
 	if self.target_architecture.startswith ('x86_64'):
@@ -205,7 +205,7 @@ class Settings (context.Context):
             'cross_prefix',
             'downloads',
             'gubdir',
-            'local_prefix',
+            'tools_prefix',
             'logdir',
             'packages',
             'specdir',

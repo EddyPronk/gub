@@ -1,13 +1,13 @@
-from gub import gubb
+from gub import build
 from gub import misc
 
 from context import subst_method 
-class CrossToolSpec (gubb.BuildSpec):
+class CrossToolSpec (build.UnixBuild):
     """Package for cross compilers/linkers etc.
     """
 
     def configure_command (self):
-        return (gubb.BuildSpec.configure_command (self)
+        return (build.UnixBuild.configure_command (self)
             + misc.join_lines ('''
 --program-prefix=%(target_architecture)s-
 --prefix=%(cross_prefix)s
@@ -38,10 +38,10 @@ def change_target_package (package):
 def set_cross_dependencies (package_object_dict):
     packs = package_object_dict.values ()
     cross_packs = [p for p in packs if isinstance (p, CrossToolSpec)]
-    sdk_packs = [p for p in packs if isinstance (p, gubb.SdkBuildSpec)]
+    sdk_packs = [p for p in packs if isinstance (p, build.SdkBuild)]
     other_packs = [p for p in packs if (not isinstance (p, CrossToolSpec)
-                                        and not isinstance (p, gubb.SdkBuildSpec)
-                                        and not isinstance (p, gubb.BinarySpec))]
+                                        and not isinstance (p, build.SdkBuild)
+                                        and not isinstance (p, build.BinaryBuild))]
     
     sdk_names = [s.name() for s in sdk_packs]
     cross_names = [s.name() for s in cross_packs]

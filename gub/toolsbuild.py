@@ -2,13 +2,13 @@ from gub import misc
 import os
 import re
 
-from gub import gubb
+from gub import build
 
-class ToolBuildSpec (gubb.BuildSpec):
+class ToolsBuild (build.UnixBuild):
     def configure_command (self):
-        return (gubb.BuildSpec.configure_command (self)
+        return (build.UnixBuild.configure_command (self)
             + misc.join_lines ('''
---prefix=%(local_prefix)s
+--prefix=%(toolchain_prefix)s
 '''))
 
     ## ugh: prefix= will trigger libtool relinks.
@@ -16,7 +16,7 @@ class ToolBuildSpec (gubb.BuildSpec):
         return '''make DESTDIR=%(install_root)s install'''
 
     def install (self):
-        gubb.BuildSpec.install (self)
+        build.UnixBuild.install (self)
         self.wrap_executables ()
                 
     def wrap_executables (self):
@@ -30,7 +30,7 @@ LD_LIBRARY_PATH=%(system_prefix)s/lib
 ''', file, env=locals ())
             os.chmod (file, 0755)
         self.map_locate (wrap, '%(install_prefix)s/bin', '*')
-        self.map_locate (wrap, '%(install_root)s/%(local_prefix)s/bin', '*')
+        self.map_locate (wrap, '%(install_root)s/%(toolchain_prefix)s/bin', '*')
 
     def compile_command (self):
         return self.native_compile_command ()
@@ -43,16 +43,16 @@ LD_LIBRARY_PATH=%(system_prefix)s/lib
         return ['']
 
     def configure (self):
-        gubb.BuildSpec.configure (self)
+        build.UnixBuild.configure (self)
         self.update_libtool ()
 
     def get_substitution_dict (self, env={}):
         dict = {
-            'C_INCLUDE_PATH': '%(local_prefix)s/include',
-            'LIBRARY_PATH': '%(local_prefix)s/lib',
-            'CPLUS_INCLUDE_PATH': '%(local_prefix)s/include',
-            'LD_LIBRARY_PATH': '%(local_prefix)s/lib',
+            'C_INCLUDE_PATH': '%(toolchain_prefix)s/include',
+            'LIBRARY_PATH': '%(toolchain_prefix)s/lib',
+            'CPLUS_INCLUDE_PATH': '%(toolchain_prefix)s/include',
+            'LD_LIBRARY_PATH': '%(toolchain_prefix)s/lib',
         }
         dict.update (env)
-        d = gubb.BuildSpec.get_substitution_dict (self, dict).copy ()
+        d = build.UnixBuild.get_substitution_dict (self, dict).copy ()
         return d
