@@ -233,7 +233,7 @@ realclean:
 ################################################################
 # compilers and tools
 
-locals =\
+tools =\
  automake\
  distcc\
  expat\
@@ -270,15 +270,15 @@ locals =\
 # -icoutils: icon build for mingw
 download-tools:
 ifneq ($(BUILD_PLATFORM),linux-64)
-	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools --stage=download $(locals) nsis
+	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools --stage=download $(tools) nsis
 else
 # ugh, can only download nsis after cross-compilers...
-	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools --stage=download $(locals)
+	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools --stage=download $(tools)
 endif
 
 tools:
 	cd librestrict && make -f GNUmakefile
-	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools $(locals)
+	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools $(tools)
 # tools-cross-tools depend on cross-compilers, see compilers.make.
 # We need linux-x86 and mingw before nsis can be build
 #	$(MAKE) tools-cross-tools
