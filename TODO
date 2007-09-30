@@ -25,7 +25,11 @@
 
 * Use names of stage iso number in status/stamp file.
 
-* Move classes to classname.py:ClassName iso targetpackage.TargetBuildSpec etc.
+* repository -> source
+
+* ./gub -> gublib
+
+* ./gub/specs -> ?
 
 * move Scons, Bjam recipes to gub lib.
 
