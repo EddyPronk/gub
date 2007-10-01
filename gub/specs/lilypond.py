@@ -40,10 +40,6 @@ beautiful sheet music from a high-level description file.'''
         print 'FIXME: serialization: want version package TOO SOON'
         repo.version = instancemethod (lambda x: '2.11.33', repo, type (repo))
 
-        def changelog (x):
-            dir = repo.checkout_dir ()
-            repo.system ('''cd %(dir)s && make -f GNUmakefile.in dist-changelog''')
-        repo._checkout = misc.MethodOverrider (repo._checkout, changelog)
         self.with_vc (repo)
 
         # FIXME: should add to C_INCLUDE_PATH
