@@ -21,7 +21,6 @@
 """
 
 import fnmatch
-import md5
 import os
 import re
 import stat
