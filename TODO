@@ -1,3 +1,8 @@
+* python 3k compatibility
+  - junk print
+  - junk has_key
+  - 
+
 * Fix --branch mess:
 
   -gub: --branch=<PACKAGE>=<BRANCH>:<LOCAL_BRANCH>, eg
