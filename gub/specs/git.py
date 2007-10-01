@@ -3,31 +3,37 @@ from gub import targetbuild
 from gub import repository
 
 class Git__tools (toolsbuild.ToolsBuild):
-    def patch (self):
-        self.shadow_tree ('%(srcdir)s', '%(builddir)s')
-        self.file_sub ([('git describe','true')],
-                       '%(srcdir)s/GIT-VERSION-GEN')
-        
     def configure (self):
         self.dump ('prefix=%(system_prefix)s', '%(builddir)s/config.mak')
 
+    def patch(self):
+        toolsbuild.ToolsBuild.patch(self)
+        self.shadow_tree ('%(srcdir)s', '%(builddir)s')
+        self.file_sub ([('git describe','true')],
+                       '%(srcdir)s/GIT-VERSION-GEN')
+        # kill perl.
+        self.dump ('''
+install:
+\ttrue
+''', '%(srcdir)s/perl/Makefile')
+
+        self.file_sub ([('\t\\$\\(QUIET_SUBDIR0\\)perl[^\n]+\n', ''),
+                        ('SCRIPT_PERL = ', 'SCRIPT_PERL_X = ')],
+                       '%(srcdir)s/Makefile')
+  
     def wrap_executables (self):
         # GIT executables use ancient unix style smart name-based
-        # functionality switching.  Did Linus not read or understand
-        # Standards.texi?
+        # functionality switching.  
         pass
 
+    def makeflags (self):
+        return ' SCRIPT_PERL= '
+                
 class Git (targetbuild.TargetBuild):
-    def __init__ (self, settings):
-        targetbuild.TargetBuild.__init__ (self, settings)
-        source = 'git://repo.or.cz/git/mingw.git'
-        repo = repository.Git (self.get_repodir (),
-                               branch=settings.git_branch,
-                               source=source)
-        self.with_vc (repo)
 
-        ## strip -mwindows.
-        self.target_gcc_flags = ' -mms-bitfields '
+    # TODO: where should this go?
+    ## strip -mwindows.
+    #self.target_gcc_flags = ' -mms-bitfields '
 
     def version (self):
         return '1.5.3.rc2'
@@ -49,12 +55,13 @@ class Git (targetbuild.TargetBuild):
                 ]
 
     def patch (self):
-        self.file_sub ([('GIT-CFLAGS','$(GIT_CFLAGS_FILE)')],
+        self.file_sub ([('GIT-CFLAGS','$(GIT_CFLAGS_FILE)'),
+                        ('\t\\$\\(MAKE\\) -C perl[^\n]\n', '')
+                        ],
                         '%(srcdir)s/Makefile')
         self.file_sub ([('\.\./GIT-CFLAGS Makefile', 'Makefile')],
                         '%(srcdir)s/perl/Makefile')
 
-        
         self.system('cd %(srcdir)s && patch -p1 < %(patchdir)s/git-1.5.2-templatedir.patch')
         targetbuild.TargetBuild.patch (self)
         self.system ('rm -rf %(builddir)s')
