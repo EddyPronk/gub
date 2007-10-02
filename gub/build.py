@@ -714,7 +714,7 @@ class Dependency:
             try:
                 self._url = self.build_class ().source
             except:
-                pass
+                self.settings.os_interface.warning ('no source defined in class:' + self.build_class ().__name__)
         if not self._url:
             self._url = self.settings.dependency_url (self.name ())
         if not self._url:
