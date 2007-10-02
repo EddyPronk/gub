@@ -26,7 +26,7 @@ freetype = 'http://download.savannah.gnu.org/releases/freetype/%(name)s-%(versio
 fontconfig = 'http://www.fontconfig.org/release/%(name)s-%(version)s.tar.%(format)s'
 
 lilypondorg = 'http://lilypond.org/download/gub-sources/%(name)s-%(version)s.tar.%(format)s'
-lilypondorg_deb = 'http://lilypond.org/download/gub-sources/%(name)s_%(version)s_%(package_arch)s.%(format)s'
+lilypondorg_deb = 'http://lilypond.org/download/gub-sources/%(name)s_%(version)s_%%(package_arch)s.%(format)s'
 
 jantien = 'http://www.xs4all.nl/~jantien/%(name)s-%(version)s.tar.%(format)s'
 
@@ -72,11 +72,11 @@ freebsd_ports = 'ftp://ftp.uk.freebsd.org/pub/FreeBSD/ports/local-distfiles/liou
 
 freedesktop = 'http://%(name)s.freedesktop.org/releases/%(name)s-%(version)s.tar.%(format)s'
 
-glibc_deb = 'http://ftp.debian.org/debian/pool/main/g/glibc/%(name)s_%(version)s_%(package_arch)s.%(format)s'
+glibc_deb = 'http://ftp.debian.org/debian/pool/main/g/glibc/%(name)s_%(version)s_%%(package_arch)s.%(format)s'
 
-lkh_deb = 'http://ftp.debian.org/debian/pool/main/l/linux-kernel-headers/%(name)s_%(version)s_%(package_arch)s.%(format)s'
+lkh_deb = 'http://ftp.debian.org/debian/pool/main/l/linux-kernel-headers/%(name)s_%(version)s_%%(package_arch)s.%(format)s'
 
-libdbi_deb = 'http://ftp.debian.org/debian/pool/main/libd/libdbi/%(name)s_%(version)s_%(package_arch)s.%(format)s'
+libdbi_deb = 'http://ftp.debian.org/debian/pool/main/libd/libdbi/%(name)s_%(version)s_%%(package_arch)s.%(format)s'
 
 gcc_41 = 'ftp://ftp.fu-berlin.de/unix/languages/gcc/releases/gcc-%(version)s/gcc-%(version)s.tar.bz2'
 gcc_snap = 'ftp://ftp.fu-berlin.de/unix/languages/gcc/snapshots/%(version)s/gcc-%(version)s.tar.bz2'
@@ -96,10 +96,10 @@ xerces_c = 'http://apache.cs.uu.nl/dist/xml/%(name)s/source/%(name)s-src_%(versi
 
 
 def with_template (
-    mirror='',
+    mirror=gnu,
     version='',
     strip_components=1,
-    format='',
+    format='gz',
     name='',
     ball_version=''):
     if not ball_version and version:
@@ -107,6 +107,7 @@ def with_template (
     url = mirror % locals ()
     if strip_components != 1:
         url += '&strip_components=%(strip_components)s'
+    # update helper
     print "%(name)s.py:\n    source = '%(url)s'" % locals ()
     return url
 
