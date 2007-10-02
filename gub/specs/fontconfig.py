@@ -136,9 +136,9 @@ class Fontconfig__tools (toolsbuild.ToolsBuild):
                 + ' DOCSRC="" ')
 
 class Fontconfig__cygwin (Fontconfig):
+    source = mirrors.with_template (name='fontconfig', mirror=mirrors.fontconfig, version='2.4.1')
     def __init__ (self, settings, source):
         Fontconfig.__init__ (self, settings, source)
-        self.with_template (mirror=mirrors.fontconfig, version='2.4.1')
         self.so_version = '1'
 
     def get_subpackage_definitions (self):

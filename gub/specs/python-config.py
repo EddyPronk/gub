@@ -4,7 +4,7 @@ class Python_config (build.SdkBuild):
     def __init__ (self, settings, source):
         build.SdkBuild.__init__ (self, settings, source)
         self.has_source = False
-        self.with_template (version='2.4.1')
+    source = mirrors.with_template (name='python-config', version='2.4.1')
     def untar (self):
         pass
     # FIXME: c&p python.py:install ()
@@ -25,4 +25,4 @@ class Python_config__cygwin (Python_config):
     def __init__ (self, settings, source):
         build.SdkBuild.__init__ (self, settings, source)
         self.has_source = False
-        self.with_template (version='2.5')
+    source = mirrors.with_template (name='python-config', version='2.5')

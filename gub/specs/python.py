@@ -8,12 +8,12 @@ from gub import targetbuild
 from gub import context
 
 class Python (targetbuild.TargetBuild):
-    def __init__ (self, settings, source):
-        targetbuild.TargetBuild.__init__ (self, settings, source)
-        self.with_template (version='2.4.2',
+    source = mirrors.with_template (name='python', version='2.4.2',
                    mirror=mirrors.python,
                    format='bz2')
 
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
         ## don't from gub import settings from build system.
 	self.BASECFLAGS = ''
         self.CROSS_ROOT = '%(targetdir)s'
@@ -79,7 +79,7 @@ class Python (targetbuild.TargetBuild):
 class Python__mingw_binary (build.BinaryBuild):
     def __init__ (self, settings, source):
         build.BinaryBuild.__init__ (self, settings, source)
-        self.with_template (mirror="http://lilypond.org/~hanwen/python-2.4.2-windows.tar.gz",
+    source = mirrors.with_template (name='python', mirror="http://lilypond.org/~hanwen/python-2.4.2-windows.tar.gz",
                    version='2.4.2')
 
     def python_version (self):

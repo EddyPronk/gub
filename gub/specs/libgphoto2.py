@@ -6,11 +6,11 @@ class Libgphoto2 (targetbuild.TargetBuild):
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
 # -lltdl build problem
-#        self.with_template (version='2.3.0', mirror=sf_gphoto)
+#    source = mirrors.with_template (name='libgphoto2', version='2.3.0', mirror=sf_gphoto)
 # needs libexif >= 0.6.13, which we currently cannot compile/install
-        self.with_template (version='2.3.1', mirror=sf_gphoto)
+    source = mirrors.with_template (name='libgphoto2', version='2.3.1', mirror=sf_gphoto)
 # Does not compile
-#        self.with_template (version='2.1.6', mirror=sf_gphoto)
+#    source = mirrors.with_template (name='libgphoto2', version='2.1.6', mirror=sf_gphoto)
     def _get_build_dependencies (self):
         return ['libexif', 'libjpeg', 'libusb']
     def get_build_dependencies (self):

@@ -13,7 +13,7 @@ tools, and many other products as well.'''
 
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
-        self.with_template (version='2.1.10', mirror=mirrors.nongnu_savannah)
+    source = mirrors.with_template (name='freetype', version='2.1.10', mirror=mirrors.nongnu_savannah)
 
     def license_file (self):
         return '%(srcdir)s/docs/LICENSE.TXT'
@@ -67,9 +67,9 @@ LDFLAGS:=$(LDFLAGS) -no-undefined
              mode='a')
 
 class XFreetype__cygwin (Freetype):
+    source = mirrors.with_template (name='freetype', version='2.1.10', mirror=mirrors.nongnu_savannah)
     def __init__ (self, settings, source):
         Freetype.__init__ (self, settings, source)
-        self.with_template (version='2.1.10', mirror=mirrors.nongnu_savannah)
         self.so_version = '6'
 
     def patch (self):

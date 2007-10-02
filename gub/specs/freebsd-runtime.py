@@ -9,7 +9,7 @@ class Freebsd_runtime (build.BinaryBuild, build.SdkBuild):
             version = '6.1-RELEASE'
         if settings.target_architecture.startswith ('x86_64-freebsd'):
             version = '6.2-1.amd64'
-        self.with_template (version=version, strip_components=0, mirror=mirrors.lilypondorg)
+    source = mirrors.with_template (name='freebsd-runtime', version=version, strip_components=0, mirror=mirrors.lilypondorg)
     def untar (self):
         build.BinaryBuild.untar (self)
     def patch (self):

@@ -24,7 +24,7 @@ class Nsis (toolsbuild.ToolsBuild):
             self.CPATH = mingw_dir + settings.prefix_dir + '/include'
 
         if 1:
-            self.with_template (version='2.24',
+        source = mirrors.with_template (name='nsis', version='2.24',
                 # wx-windows, does not compile
                 # version='2.30',
                 # bzip2 install problem

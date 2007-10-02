@@ -65,7 +65,7 @@ class Gmp__darwin__x86 (Gmp__darwin):
 class Gmp__cygwin (Gmp):
     def __init__ (self,settings):
         Gmp.__init__ (self, settings, source)
-        self.with_template (version='4.1.4')
+    source = mirrors.with_template (name='gmp', version='4.1.4')
 
     def patch (self):
         self.system ('''

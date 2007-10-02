@@ -39,7 +39,7 @@ class Zlib__mingw (Zlib):
     # FIXME: removeme, try zlib-1.2.3.patch
     def x__init__ (self, settings, source):
         Zlib.__init__ (self, settings, source)
-        self.with_template (version='1.2.2',
+    source = mirrors.with_template (name='zlib', version='1.2.2',
                    mirror='http://heanet.dl.sourceforge.net/sourceforge/libpng/zlib-1.2.2.tar.gz')
 
     def patch (self):
@@ -56,7 +56,7 @@ class Zlib__mingw (Zlib):
 class Zlib__tools (toolsbuild.ToolsBuild, Zlib):
     def __init__ (self, settings, source):
         toolsbuild.ToolsBuild.__init__ (self, settings, source)
-        self.with_template (version='1.2.3',
+    source = mirrors.with_template (name='zlib', version='1.2.3',
                    mirror='http://heanet.dl.sourceforge.net/sourceforge/libpng/zlib-1.2.3.tar.gz')
 
         

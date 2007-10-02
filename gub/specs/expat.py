@@ -6,7 +6,7 @@ from gub import toolsbuild
 class Expat (targetbuild.TargetBuild):
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
-        self.with_template (version='1.95.8', mirror=mirrors.sf, format='gz')
+    source = mirrors.with_template (name='expat', version='1.95.8', mirror=mirrors.sf, format='gz')
 
     def get_build_dependencies (self):
         return ['libtool']
@@ -39,7 +39,7 @@ RUN_FC_CACHE_TEST=false
 class Expat__linux__arm__vfp (Expat):
     def __init__ (self, settings, source):
         Expat.__init__ (self, settings, source)
-        self.with_template (version='2.0.0')
+    source = mirrors.with_template (name='expat', version='2.0.0')
     def patch (self):
         self.system ("touch %(srcdir)s/tests/xmltest.sh.in")
         targetbuild.TargetBuild.patch (self)

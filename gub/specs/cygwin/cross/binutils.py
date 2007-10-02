@@ -7,7 +7,7 @@ class Binutils (binutils.Binutils):
     def __init__ (self, settings, source):
         binutils.Binutils.__init__ (self, settings, source)
         from gub import mirrors
-        self.with_template (version='2.17', format='bz2', mirror=mirrors.gnu)
+    source = mirrors.with_template (name='binutils', version='2.17', format='bz2', mirror=mirrors.gnu)
     def makeflags (self):
         from gub import misc
         return misc.join_lines ('''
@@ -21,4 +21,4 @@ class use_cygwin_sources_Binutils (binutils.Binutils):
     def __init__ (self, settings, source):
         binutils.Binutils.__init__ (self, settings, source)
         from gub import mirrors
-        self.with_template (version='20060817-1', format='bz2', mirror=mirrors.cygwin)
+    source = mirrors.with_template (name='binutils', version='20060817-1', format='bz2', mirror=mirrors.cygwin)

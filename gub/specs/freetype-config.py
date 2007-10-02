@@ -4,7 +4,7 @@ class Freetype_config (build.SdkBuild):
     def __init__ (self, settings, source):
         build.SdkBuild.__init__ (self, settings, source)
         self.has_source = False
-        self.with_template (version='2.1.9')
+    source = mirrors.with_template (name='freetype-config', version='2.1.9')
     def untar (self):
         pass
     def install (self):
@@ -33,5 +33,5 @@ class Freetype_config (build.SdkBuild):
 class Freetype_config__cygwin (Freetype_config):
     def __init__ (self, settings, source):
         Freetype_config.__init__ (self, settings, source)
-        self.with_template (version='2.3.4')
+    source = mirrors.with_template (name='freetype-config', version='2.3.4')
         

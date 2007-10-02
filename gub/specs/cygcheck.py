@@ -5,7 +5,7 @@ class Cygcheck (build.BinaryBuild):
     "Only need the cygcheck.exe binary."
     def __init__ (self, settings, source):
         build.BinaryBuild.__init__ (self, settings, source)
-        self.with_template (version='1.5.18-1', mirror=mirrors.cygwin_bin, format='bz2')
+    source = mirrors.with_template (name='cygcheck', version='1.5.18-1', mirror=mirrors.cygwin_bin, format='bz2')
         
     def untar (self):
         build.BinaryBuild.untar (self)

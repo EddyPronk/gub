@@ -8,7 +8,7 @@ from gub import targetbuild
 class Libjpeg (targetbuild.TargetBuild):
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
-        self.with_template (version='v6b', mirror=mirrors.jpeg)
+    source = mirrors.with_template (name='libjpeg', version='v6b', mirror=mirrors.jpeg)
 
     def name (self):
         return 'libjpeg'
@@ -33,8 +33,8 @@ cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh 
         
         targetbuild.TargetBuild.update_libtool (self)
 
-    def patch (self):
-        self.system ('cp %(sourcefiledir)s/jpeg.license %(license_file)s')
+    def license_file (self):
+        return '%(sourcefiledir)s/jpeg.license'
 
     def configure (self):
         guess = self.expand ('%(system_prefix)s/share/libtool/config.guess')
@@ -82,4 +82,3 @@ class Libjpeg__linux (Libjpeg):
 #define \\1
 #endif''')],
                '%(builddir)s/jconfig.h')
-

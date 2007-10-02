@@ -4,7 +4,7 @@ from gub import mirrors
 class Mingw_runtime (build.BinaryBuild, build.SdkBuild):
     def __init__ (self, settings, source):
         build.BinaryBuild.__init__ (self, settings, source)
-        self.with_template (version='3.9', strip_components=0, mirror=mirrors.mingw)
+    source = mirrors.with_template (name='mingw-runtime', version='3.9', strip_components=0, mirror=mirrors.mingw)
     def install (self):
         self.system ('''
 mkdir -p %(install_prefix)s/share

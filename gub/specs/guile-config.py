@@ -4,7 +4,7 @@ class Guile_config (build.SdkBuild):
     def __init__ (self, settings, source):
         build.SdkBuild.__init__ (self, settings, source)
         self.has_source = False
-        self.with_template (version='1.8.0')
+    source = mirrors.with_template (name='guile-config', version='1.8.0')
 
     def untar (self):
         pass

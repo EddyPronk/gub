@@ -8,16 +8,17 @@ from gub import targetbuild
 
 from gub import context
 
-
+## WTF is this, a full c&p from python.py?
 class Python (targetbuild.TargetBuild):
+    source = mirrors.with_template (name='python25', version='2.5',
+                   mirror=mirrors.python,
+                   format='bz2')
+
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
         
         ## don't from gub import settings from build system.
 	self.BASECFLAGS=''
-        self.with_template (version='2.5',
-                   mirror=mirrors.python,
-                   format='bz2')
 
     def configure_command (self):
         return 'ac_cv_printf_zd_format=yes ' + targetbuild.TargetBuild.configure_command (self)
@@ -128,7 +129,7 @@ from gub import toolsbuild
 class Python__tools (toolsbuild.ToolsBuild, Python):
     def __init__ (self, settings, source):
         toolsbuild.ToolsBuild.__init__ (self, settings, source)
-        self.with_template (version='2.5',
+    source = mirrors.with_template (name='python25', version='2.5',
                    mirror=mirrors.python,
                    format='bz2')
 

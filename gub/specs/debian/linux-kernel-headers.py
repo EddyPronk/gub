@@ -5,7 +5,7 @@ from gub import debian
 class Linux_kernel_headers (build.BinaryBuild, build.SdkBuild):
     def __init__ (self, settings, source):
         build.BinaryBuild.__init__ (self, settings, source)
-        self.with_template (
+    source = mirrors.with_template (name='linux-kernel-headers', 
 # FIXME: we do not mirror all 12 debian arch's,
 #            version=debian.get_packages ()['linux-kernel-headers'].version (),
 #           mirror=mirrors.lkh_deb,

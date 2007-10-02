@@ -36,7 +36,7 @@ class Libtool__darwin (Libtool):
 class Libtool__cygwin (Libtool):
     def __init__ (self, settings, source):
         Libtool.__init__ (self, settings, source)
-        self.with_template (version='1.5.22')
+    source = mirrors.with_template (name='libtool', version='1.5.22')
     def only_for_cygwin_untar (self):
         cygwin.untar_cygwin_src_package_variant2 (self, self.file_name ())
     # FIXME: we do most of this for all cygwin packages

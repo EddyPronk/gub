@@ -57,7 +57,7 @@ bjam
 class Boost (BjamBuild):
     def __init__ (self,settings):
         BjamBuild.__init__ (self, settings, source)
-        self.with_template (version='1.33.1', mirror=mirrors.boost_1_33_1, format='bz2')
+    source = mirrors.with_template (name='boost', version='1.33.1', mirror=mirrors.boost_1_33_1, format='bz2')
         build.change_target_dict (self, {'CFLAGS': '-DBOOST_PLATFORM_CONFIG=\\"boost/config/platform/linux.hpp\\"'})
     def get_substitution_dict (self, env={}):
         dict = BjamBuild.get_substitution_dict (self, env)
