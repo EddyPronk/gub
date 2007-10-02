@@ -129,7 +129,7 @@ class BuildRunner:
             return
         # ugh, dupe
         checksum_ok = (self.settings.options.lax_checksums
-                       or self.specs[spec_name].checksum_valid ())
+                       or self.spec_checksums_valid (self.specs[spec_name]))
         is_installable = misc.forall (self.manager.is_installable (p.name ())
                                       for p in spec.get_packages ())
         if (self.settings.options.stage
