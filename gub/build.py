@@ -551,7 +551,6 @@ def get_build_from_file (settings, file_name, name):
 def get_build_class (settings, flavour, name):
     cls = get_build_from_module (settings, name)
     if not cls:
-        print 'NO BUILD for %(name)s\n:' % locals ()
         settings.os_interface.harmless ('making spec:  %(name)s\n' % locals ())
         cls = get_build_without_module (flavour, name)
     return cls
@@ -598,11 +597,13 @@ class Dependency:
             self._name = misc.name_from_url (string)
         self._cls = self._flavour = self._url = None
     def flavour (self):
-        from gub import targetbuild
-        self._flavour = targetbuild.TargetBuild
-        if self.settings.platform == 'tools':
-            from gub import toolsbuild
-            self._flavour = toolsbuild.ToolsBuild
+        if not self._flavour:
+            from gub import targetbuild
+            self._flavour = targetbuild.TargetBuild
+            if self.settings.platform == 'tools':
+                from gub import toolsbuild
+                self._flavour = toolsbuild.ToolsBuild
+        return self._flavour
     def _check_source_tree (self, source):
         if self.build_class ().need_source_tree and not source.is_downloaded ():
             if self.settings.options.offline:
