@@ -11,8 +11,8 @@ high-quality output (glyph images). It can be used in graphics
 libraries, display servers, font conversion tools, text image generation
 tools, and many other products as well.'''
 
-    def __init__ (self, settings):
-        targetbuild.TargetBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
         self.with_template (version='2.1.10', mirror=mirrors.nongnu_savannah)
 
     def license_file (self):
@@ -67,8 +67,8 @@ LDFLAGS:=$(LDFLAGS) -no-undefined
              mode='a')
 
 class XFreetype__cygwin (Freetype):
-    def __init__ (self, settings):
-        Freetype.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        Freetype.__init__ (self, settings, source)
         self.with_template (version='2.1.10', mirror=mirrors.nongnu_savannah)
         self.so_version = '6'
 

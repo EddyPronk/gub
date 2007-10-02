@@ -3,8 +3,8 @@ from gub.specs.cross import gcc
 from gub import misc
 
 class Gcc (gcc.Gcc_from_source):
-    def __init__ (self, settings):
-        gcc.Gcc_from_source.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        gcc.Gcc_from_source.__init__ (self, settings, source)
         self.with_tarball (mirror=mirrors.gnu, version='3.4.6', format='bz2')
     def patch (self):
         gcc.Gcc_from_source.patch (self)

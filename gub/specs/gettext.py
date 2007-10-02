@@ -3,8 +3,8 @@ from gub import targetbuild
 from gub import toolsbuild
 
 class Gettext (targetbuild.TargetBuild):
-    def __init__ (self, settings):
-        targetbuild.TargetBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
         self.with_template (version='0.15', mirror=mirrors.gnu, format='gz')
 
     def get_build_dependencies (self):
@@ -37,8 +37,8 @@ class Gettext__freebsd (Gettext):
         return Gettext.get_build_dependencies (self)
 
 class Gettext__mingw (Gettext):
-    def __init__ (self, settings):
-        Gettext.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        Gettext.__init__ (self, settings, source)
         self.with_template (version='0.15', mirror=mirrors.gnu, format='gz')
 
     def config_cache_overrides (self, str):

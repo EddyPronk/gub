@@ -2,8 +2,8 @@ from gub import mirrors
 from gub import targetbuild
 
 class Fondu (targetbuild.TargetBuild):
-    def __init__ (self, settings):
-        targetbuild.TargetBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
         self.with_template (version="060102",
              mirror='http://fondu.sourceforge.net/fondu_src-060102.tgz')
 

@@ -3,8 +3,8 @@ from gub import repository
 from gub import targetbuild
 
 class Ffmpeg (targetbuild.TargetBuild):
-    def __init__ (self, settings):
-        targetbuild.TargetBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
         # FIXME: fixed version for svn, what a mess
         self.revision = '6017'
         repo = repository.Subversion (

@@ -6,6 +6,9 @@ from gub import context
 from gub import misc
 
 class TargetBuild (build.UnixBuild):
+    def __init__ (self, settings, source):
+        build.UnixBuild.__init__ (self, settings, source)
+
     def configure_command (self):
         return misc.join_lines ('''%(srcdir)s/configure
 --config-cache
@@ -21,9 +24,6 @@ class TargetBuild (build.UnixBuild):
 --mandir=%(prefix_dir)s/share/man
 --libdir=%(prefix_dir)s/lib
 ''')
-
-    def __init__ (self, settings):
-        build.UnixBuild.__init__ (self, settings)
 
     def install (self):
         self.pre_install_libtool_fixup ()

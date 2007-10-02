@@ -7,8 +7,8 @@ from gub import misc
 from gub import targetbuild
 
 class Pango (targetbuild.TargetBuild):
-    def __init__ (self, settings):
-        targetbuild.TargetBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
         self.with_template (version='1.14.8',
                    mirror=mirrors.gnome_216,
                    format='bz2')

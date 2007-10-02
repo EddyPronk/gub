@@ -3,8 +3,8 @@ sf = 'http://surfnet.dl.sourceforge.net/sourceforge/%(name)s/%(name)s-%(ball_ver
 sf_gphoto = 'http://surfnet.dl.sourceforge.net/sourceforge/gphoto/%(name)s-%(ball_version)s.tar.%(format)s'
 
 class Libgphoto2 (targetbuild.TargetBuild):
-    def __init__ (self, settings):
-        targetbuild.TargetBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
 # -lltdl build problem
 #        self.with_template (version='2.3.0', mirror=sf_gphoto)
 # needs libexif >= 0.6.13, which we currently cannot compile/install

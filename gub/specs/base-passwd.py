@@ -13,8 +13,8 @@ class UnixBuild (build.UnixBuild):
         return './configure --prefix=%(prefix_dir)s'
 
 class Base_passwd (targetbuild.TargetBuild):
-    def __init__ (self, settings):
-        targetbuild.TargetBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
         from gub import repository
         # FIXME: cannot parse debian balls
         self.ball_version = '3.5.11'

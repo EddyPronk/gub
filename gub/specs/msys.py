@@ -4,8 +4,8 @@ from gub import repository
 
 ### BROKEN
 class Msys(targetbuild.TargetBuild):
-    def __init__ (self, settings):
-        targetbuild.TargetBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
         repo = repository.CVS (self.get_repodir(),
                                source=':pserver:anonymous@mingw.cvs.sourceforge.net:/cvsroot/mingw',
                                module='msys/rt/src'

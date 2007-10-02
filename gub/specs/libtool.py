@@ -34,8 +34,8 @@ class Libtool__darwin (Libtool):
                    '%(install_prefix)s/etc/relocate/libtool.reloc')
 
 class Libtool__cygwin (Libtool):
-    def __init__ (self, settings):
-        Libtool.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        Libtool.__init__ (self, settings, source)
         self.with_template (version='1.5.22')
     def only_for_cygwin_untar (self):
         cygwin.untar_cygwin_src_package_variant2 (self, self.file_name ())

@@ -7,8 +7,8 @@ url = 'http://busybox.net/downloads/busybox-1.5.1.tar.bz2'
 # cpu_set_t
 
 class Busybox (targetbuild.TargetBuild):
-    def __init__ (self, settings):
-        targetbuild.TargetBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
         self.with_vc (repository.TarBall (self.settings.downloads, url))
     def get_subpackage_names (self):
         return ['']
@@ -38,8 +38,8 @@ cd %(install_root)s && mv sbin/init sbin/init.busybox
 
 # 1.5 is too new for glibc on vfp
 class Busybox__linux__arm__vfp (Busybox):
-    def __init__ (self, settings):
-        targetbuild.TargetBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
         url = 'http://busybox.net/downloads/busybox-1.2.2.1.tar.bz2'
         self.with_vc (repository.TarBall (self.settings.downloads, url))
     def patch (self):

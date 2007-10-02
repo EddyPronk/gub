@@ -2,8 +2,8 @@ from gub import build
 from gub import mirrors
 
 class Freebsd_runtime (build.BinaryBuild, build.SdkBuild):
-    def __init__ (self, settings):
-        build.BinaryBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        build.BinaryBuild.__init__ (self, settings, source)
         version = '4.10-2'
         if 0 and settings.target_architecture == 'i686-freebsd6':
             version = '6.1-RELEASE'

@@ -1,8 +1,8 @@
 from gub import build
 
 class Freetype_config (build.SdkBuild):
-    def __init__ (self, settings):
-        build.SdkBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        build.SdkBuild.__init__ (self, settings, source)
         self.has_source = False
         self.with_template (version='2.1.9')
     def untar (self):
@@ -31,7 +31,7 @@ class Freetype_config (build.SdkBuild):
         self.chmod (file, 0755)
 
 class Freetype_config__cygwin (Freetype_config):
-    def __init__ (self, settings):
-        Freetype_config.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        Freetype_config.__init__ (self, settings, source)
         self.with_template (version='2.3.4')
         

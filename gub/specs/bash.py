@@ -1,8 +1,8 @@
 from gub import targetbuild
 
 class Bash (targetbuild.TargetBuild):
-    def __init__ (self, settings):
-        targetbuild.TargetBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
         self.with_template (version='3.2',
                    mirror='ftp://ftp.cwru.edu/pub/bash/bash-3.2.tar.gz',
                    format='bz2')
@@ -12,8 +12,8 @@ class Bash (targetbuild.TargetBuild):
 
 
 class Bash__mingw (Bash):
-    def __init__ (self, settings):
-        Bash.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        Bash.__init__ (self, settings, source)
         self.with_template (version='2.05b-MSYS',
                             mirror='http://ufpr.dl.sourceforge.net/sourceforge/mingw/bash-2.05b-MSYS-src.tar.bz2',
                             format='bz2', strip_components=2)

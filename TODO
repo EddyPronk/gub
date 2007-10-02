@@ -35,15 +35,15 @@
      1. toevoegen aan platforms in makefile
      2. toevoegen aan platform lijst, die in test-lily/upload wordt gebruikt.
 
+RENAMES
+
+* repository -> source
+* ./gub -> gublib ?
+* ./gub/specs -> gub/builds?
+
 * Robustification against ^C, esp. in in repository.download ()
 
 * Use names of stage iso number in status/stamp file.
-
-* repository -> source
-
-* ./gub -> gublib ?
-
-* ./gub/specs -> gub/builds?
 
 * move Scons, Bjam recipes to gub lib.
 

@@ -1,8 +1,8 @@
 from gub import build
 
 class Urw_fonts (build.BinaryBuild):
-    def __init__ (self, settings):
-        build.BinaryBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        build.BinaryBuild.__init__ (self, settings, source)
 
         self.with_template (version='1.0.7pre41',
                    mirror='ftp://ftp.gnome.ru/fonts/urw/release/urw-fonts-%(version)s.tar.bz2')

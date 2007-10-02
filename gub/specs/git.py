@@ -72,8 +72,8 @@ class Git (targetbuild.TargetBuild):
         self.autoupdate()
         
 class Git__mingw (Git):
-    def __init__ (self, settings):
-        Git.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        Git.__init__ (self, settings, source)
         self.target_gcc_flags = ' -mms-bitfields '
 
     def configure (self):

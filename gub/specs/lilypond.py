@@ -16,7 +16,7 @@ class LilyPond (targetbuild.TargetBuild):
 LilyPond lets you create music notation.  It produces
 beautiful sheet music from a high-level description file.'''
 
-    def __init__ (self, settings):
+    def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
         if os.environ.has_key ('GUB_LILYPOND_SOURCE'):
             raise 'Just use generic feature: bin/gub -p %(platform)s $GUB_LILYPOND_SOURCE' % settings.__dict__

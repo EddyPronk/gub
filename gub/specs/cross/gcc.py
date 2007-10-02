@@ -5,8 +5,8 @@ from gub import context
 
 #FIXME: merge fully with specs/gcc
 class Gcc (cross.CrossToolSpec):
-    def __init__ (self, settings):
-        cross.CrossToolSpec.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        cross.CrossToolSpec.__init__ (self, settings, source)
         self.with_tarball (mirror=mirrors.gcc, version='4.1.1', format='bz2')
 
     def get_build_dependencies (self):
@@ -107,8 +107,8 @@ Gcc__linux = Gcc_from_source
 
 class Gcc__mingw (Gcc):
     #REMOVEME
-    def __init__ (self, settings):
-        Gcc.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        Gcc.__init__ (self, settings, source)
         self.with_tarball (mirror=mirrors.gnu, version='4.1.1', format='bz2')
     def get_build_dependencies (self):
         return (Gcc.get_build_dependencies (self)
@@ -145,8 +145,8 @@ gcc_tooldir="%(cross_prefix)s/%(target_architecture)s"
 from gub import cygwin
 
 class use_cygwin_sources_Gcc__cygwin (Gcc):
-    def __init__ (self, settings):
-        Gcc.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        Gcc.__init__ (self, settings, source)
         self.with_tarball (mirror=mirrors.cygwin, version='3.4.4-3', format='bz2', name='cross/gcc-core')
     def name (self):
         return 'cross/gcc-core'
@@ -199,8 +199,8 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-4.1.1-ppc-unwind.patch
 
 class Gcc__freebsd (Gcc):
     #REMOVEME
-    def __init__ (self, settings):
-        Gcc.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        Gcc.__init__ (self, settings, source)
         self.with_tarball (mirror=mirrors.gnu, version='4.1.1', format='bz2')
     def get_build_dependencies (self):
         return (Gcc.get_build_dependencies (self)

@@ -3,8 +3,8 @@ from gub import mirrors
 from gub import debian
 
 class Linux_kernel_headers (build.BinaryBuild, build.SdkBuild):
-    def __init__ (self, settings):
-        build.BinaryBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        build.BinaryBuild.__init__ (self, settings, source)
         self.with_template (
 # FIXME: we do not mirror all 12 debian arch's,
 #            version=debian.get_packages ()['linux-kernel-headers'].version (),

@@ -7,8 +7,8 @@ import os
 
 # TODO: AutoToolSpec
 class BjamBuild (targetbuild.TargetBuild):
-    def __init__ (self, settings):
-        targetbuild.TargetBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
         build.append_target_dict (self, {'CFLAGS': ''})
     def get_substitution_dict (self, env={}):
         # FIXME: how to add settings to dict?
@@ -56,7 +56,7 @@ bjam
 
 class Boost (BjamBuild):
     def __init__ (self,settings):
-        BjamBuild.__init__ (self, settings)
+        BjamBuild.__init__ (self, settings, source)
         self.with_template (version='1.33.1', mirror=mirrors.boost_1_33_1, format='bz2')
         build.change_target_dict (self, {'CFLAGS': '-DBOOST_PLATFORM_CONFIG=\\"boost/config/platform/linux.hpp\\"'})
     def get_substitution_dict (self, env={}):

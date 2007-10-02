@@ -3,8 +3,8 @@ from gub import toolsbuild
 from gub import targetbuild
 
 class Glib (targetbuild.TargetBuild):
-    def __init__ (self, settings):
-        targetbuild.TargetBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
 
 
         ## 2.12.4 : see bug  http://bugzilla.gnome.org/show_bug.cgi?id=362918
@@ -68,8 +68,8 @@ gnome_2183 ='http://ftp.gnome.org/pub/GNOME/platform/2.18/2.18.3/sources/%(name)
 gnome_2195 = 'http://ftp.gnome.org/pub/GNOME/platform/2.19/2.19.5/sources/%(name)s-%(ball_version)s.tar.%(format)s'
 
 class Glib__freebsd__64 (Glib__freebsd):
-    def __init__ (self, settings):
-        Glib__freebsd.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        Glib__freebsd.__init__ (self, settings, source)
         self.with_template (version='2.12.12', mirror=gnome_2183,
                    format='bz2')
     def patch (self):
@@ -80,8 +80,8 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/glib-2.12.12-disable-threads.patch
         return Glib.configure_command (self) + ' --disable-threads --disable-timeloop'
 
 class Glib__tools (toolsbuild.ToolsBuild):
-    def __init__ (self, settings):
-        toolsbuild.ToolsBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        toolsbuild.ToolsBuild.__init__ (self, settings, source)
         self.with_template (version='2.10.3',
                    mirror=mirrors.gnome_214,
                    format='bz2')

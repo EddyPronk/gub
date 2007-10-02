@@ -10,8 +10,8 @@ from gub import context
 
 
 class Python (targetbuild.TargetBuild):
-    def __init__ (self, settings):
-        targetbuild.TargetBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
         
         ## don't from gub import settings from build system.
 	self.BASECFLAGS=''
@@ -77,8 +77,8 @@ class Python (targetbuild.TargetBuild):
         return '.'.join (self.ball_version.split ('.')[0:2])
 
 class Python__mingw (Python):
-    def __init__ (self, settings):
-        Python.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        Python.__init__ (self, settings, source)
         self.target_gcc_flags = '-DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I%(system_prefix)s/include' % self.settings.__dict__
 
     # FIXME: first is cross compile + mingw patch, backported to
@@ -126,8 +126,8 @@ chmod 755 %(install_prefix)s/bin/*
 
 from gub import toolsbuild
 class Python__tools (toolsbuild.ToolsBuild, Python):
-    def __init__ (self, settings):
-        toolsbuild.ToolsBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        toolsbuild.ToolsBuild.__init__ (self, settings, source)
         self.with_template (version='2.5',
                    mirror=mirrors.python,
                    format='bz2')

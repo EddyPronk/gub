@@ -2,9 +2,9 @@ from gub.specs.cross import gcc
 from gub import mirrors
 
 class Gcc (gcc.Gcc):
-    def __init__ (self, settings):
+    def __init__ (self, settings, source):
         #FIXME: separate-out: darwin-ppc/gcc.py / class Gcc__darwin__powerpc ()
-        gcc.Gcc.__init__ (self, settings)
+        gcc.Gcc.__init__ (self, settings, source)
         if self.settings.target_architecture.startswith ("powerpc"):
             self.with_template (version='4.1.1', mirror=mirrors.gcc_41, format='bz2')
         else:

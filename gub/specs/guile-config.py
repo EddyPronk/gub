@@ -1,8 +1,8 @@
 from gub import build
 
 class Guile_config (build.SdkBuild):
-    def __init__ (self, settings):
-        build.SdkBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        build.SdkBuild.__init__ (self, settings, source)
         self.has_source = False
         self.with_template (version='1.8.0')
 

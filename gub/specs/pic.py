@@ -76,8 +76,8 @@ class Pic (targetbuild.TargetBuild):
                 'uuid-dev',
                 ]
 
-    def __init__ (self, settings):
-        targetbuild.TargetBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
         # FIXME: lilypond_branch
         self.with_template (version=settings.lilypond_branch, mirror=pic_cvs,
                    vc_type='cvs')

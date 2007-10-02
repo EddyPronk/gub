@@ -2,8 +2,8 @@ from gub import build
 
 ## change to sdk package
 class Python (build.SdkBuild):
-    def __init__ (self, settings):
-        build.NullBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        build.NullBuild.__init__ (self, settings, source)
         self.version = (lambda: '2.3')
         self.vc_branch = ''
         self.format = ''

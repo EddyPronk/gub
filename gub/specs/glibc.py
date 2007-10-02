@@ -9,8 +9,8 @@ import os
 # Hmm? TARGET_CFLAGS=-O --> targetbuild.py
 
 class Glibc (targetbuild.TargetBuild, cross.CrossToolSpec):
-    def __init__ (self, settings):
-        targetbuild.TargetBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
         #self.with_tarball (mirror=mirrors.gnu, version='2.3.6')
         self.with_tarball (mirror=mirrors.lilypondorg, version='2.3-20070416',
                            format='bz2')

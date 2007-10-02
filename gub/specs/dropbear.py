@@ -4,8 +4,8 @@ from gub import repository
 url = 'http://matt.ucc.asn.au/dropbear/releases/dropbear-0.49.tar.gz'
 
 class Dropbear (targetbuild.TargetBuild):
-    def __init__ (self, settings):
-        targetbuild.TargetBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
         self.with_vc (repository.TarBall (self.settings.downloads, url))
     def get_subpackage_names (self):
         return ['']

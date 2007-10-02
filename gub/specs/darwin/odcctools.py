@@ -2,8 +2,8 @@ from gub import cross
 from gub import mirrors
 
 class Odcctools (cross.CrossToolSpec):
-    def __init__ (self, settings):
-        cross.CrossToolSpec.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        cross.CrossToolSpec.__init__ (self, settings, source)
         self.with_template (version='20060413',
                    ####version='20060608',
                    #version='20061117',

@@ -4,8 +4,8 @@ from gub import repository
 from gub import toolsbuild
 
 class Nsis (toolsbuild.ToolsBuild):
-    def __init__ (self, settings):
-        toolsbuild.ToolsBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        toolsbuild.ToolsBuild.__init__ (self, settings, source)
         self.save_path = os.environ['PATH']
         mingw_dir = settings.alltargetdir + '/mingw' + settings.root_dir
         os.environ['PATH'] = (mingw_dir

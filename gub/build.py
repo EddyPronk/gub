@@ -703,4 +703,12 @@ class Dependency:
         dir = os.path.join (self.settings.downloads, self.name ())
         source = repository.get_repository_proxy (dir, self.url (), '', '')
         self._check_source_tree (source)
-        return self.build_class () (self.settings, source)
+        ## return self.build_class () (self.settings, source)
+        ## temporary workaround for __init__ help
+        try:
+            return self.build_class () (self.settings, source)
+        except Exception, e:
+            e.message += '\n: Class = ' + self._cls.__name__
+            print e.message
+            raise e
+        

@@ -15,8 +15,8 @@ PostScript files as graphics to be printed on non-PostScript printers.
 Supported printers include common dot-matrix, inkjet and laser
 models.'''
 
-    def __init__ (self, settings):
-        targetbuild.TargetBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
         repo = repository.Subversion (
             dir=self.get_repodir (),
             source='http://svn.ghostscript.com:8080/ghostscript',
@@ -198,8 +198,8 @@ prependdir GS_LIB=$INSTALLER_PREFIX/share/ghostscript/%(version)s/lib
 ''', '%(install_prefix)s/etc/relocate/gs.reloc')
 
 class Ghostscript__mingw (Ghostscript):
-    def __init__ (self, settings):
-        Ghostscript.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        Ghostscript.__init__ (self, settings, source)
         # Configure (compile) without -mwindows for console
         # FIXME: should add to CPPFLAGS...
         self.target_gcc_flags = '-mms-bitfields -D_Windows -D__WINDOWS__'
@@ -284,10 +284,10 @@ url='http://mirror3.cs.wisc.edu/pub/mirrors/ghost/GPL/gs850/ghostscript-8.50-gpl
 #8250
 fonts_url = 'http://mirror2.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/ghostscript-fonts-std-8.11.tar.gz'
 class Ghostscript__cygwin (Ghostscript):
-    def __init__ (self, settings):
-        Ghostscript.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        Ghostscript.__init__ (self, settings, source)
         #self.source.revision = '8250'
-        #targetbuild.TargetBuild.__init__ (self, settings)
+        #targetbuild.TargetBuild.__init__ (self, settings, source)
         #self.with_vc (repository.TarBall (self.settings.downloads, url))
         self.fonts_source = repository.TarBall (self.settings.downloads,
                                                 fonts_url)

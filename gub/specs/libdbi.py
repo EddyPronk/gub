@@ -2,8 +2,8 @@ from gub import mirrors
 from gub import targetbuild
 
 class Libdbi (targetbuild.TargetBuild):
-    def __init__ (self, settings):
-        targetbuild.TargetBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
         self.with_template (version='0.8.1', mirror=mirrors.sf, format='gz')
 
     def patch (self):

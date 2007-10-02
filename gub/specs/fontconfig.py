@@ -14,8 +14,8 @@ does not depend on the X Window System.  It is designed to locate
 fonts within the system and select them according to requirements
 specified by applications.'''
 
-    def __init__ (self, settings):
-        targetbuild.TargetBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
         self.with_vc (repository.Git (self.get_repodir (),
                                       source="git://anongit.freedesktop.org/git/fontconfig",
                                       revision=fc_version))
@@ -122,8 +122,8 @@ class Fontconfig__freebsd (Fontconfig__linux):
     pass
 
 class Fontconfig__tools (toolsbuild.ToolsBuild):
-    def __init__ (self, settings):
-        toolsbuild.ToolsBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        toolsbuild.ToolsBuild.__init__ (self, settings, source)
         self.with_template (mirror="git://anongit.freedesktop.org/git/fontconfig",
                    version=fc_version)
         
@@ -139,8 +139,8 @@ class Fontconfig__tools (toolsbuild.ToolsBuild):
                 + ' DOCSRC="" ')
 
 class Fontconfig__cygwin (Fontconfig):
-    def __init__ (self, settings):
-        Fontconfig.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        Fontconfig.__init__ (self, settings, source)
         self.with_template (mirror=mirrors.fontconfig, version='2.4.1')
         self.so_version = '1'
 

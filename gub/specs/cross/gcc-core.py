@@ -4,8 +4,8 @@ from gub import mirrors
 from gub import misc
         
 class Gcc_core (gcc.Gcc_from_source):
-    def __init__ (self, settings):
-        gcc.Gcc_from_source.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        gcc.Gcc_from_source.__init__ (self, settings, source)
         self.with_tarball (mirror=mirrors.gcc,
                            version='4.1.1', format='bz2', name='gcc')
     def get_build_dependencies (self):

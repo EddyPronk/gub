@@ -64,7 +64,7 @@ class Gmp__darwin__x86 (Gmp__darwin):
 
 class Gmp__cygwin (Gmp):
     def __init__ (self,settings):
-        Gmp.__init__ (self, settings)
+        Gmp.__init__ (self, settings, source)
         self.with_template (version='4.1.4')
 
     def patch (self):
@@ -74,7 +74,7 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/gmp-4.1.4-1.patch
 
 class Gmp__mingw (Gmp):
     def __init__ (self,settings):
-        Gmp.__init__ (self, settings)
+        Gmp.__init__ (self, settings, source)
         
         # Configure (compile) without -mwindows for console
         self.target_gcc_flags = '-mms-bitfields'

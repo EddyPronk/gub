@@ -129,8 +129,8 @@ exit 0
         self.chmod ('%(install_prefix)s/cross/bin/%(target_architecture)s-guile-config', 0755)
 
 class Guile__mingw (Guile):
-    def __init__ (self, settings):
-        Guile.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        Guile.__init__ (self, settings, source)
         # Configure (compile) without -mwindows for console
         self.target_gcc_flags = '-mms-bitfields'
 

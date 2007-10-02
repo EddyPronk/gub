@@ -8,8 +8,8 @@ from gub import targetbuild
 from gub import context
 
 class Python (targetbuild.TargetBuild):
-    def __init__ (self, settings):
-        targetbuild.TargetBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
         self.with_template (version='2.4.2',
                    mirror=mirrors.python,
                    format='bz2')
@@ -77,8 +77,8 @@ class Python (targetbuild.TargetBuild):
         return '.'.join (self.version ().split ('.')[0:2])
 
 class Python__mingw_binary (build.BinaryBuild):
-    def __init__ (self, settings):
-        build.BinaryBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        build.BinaryBuild.__init__ (self, settings, source)
         self.with_template (mirror="http://lilypond.org/~hanwen/python-2.4.2-windows.tar.gz",
                    version='2.4.2')
 
@@ -94,8 +94,8 @@ class Python__mingw_binary (build.BinaryBuild):
 
 
 class Python__mingw_cross (Python):
-    def __init__ (self, settings):
-        Python.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        Python.__init__ (self, settings, source)
         self.target_gcc_flags = '-DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I%(system_prefix)s/include' % self.settings.__dict__
 
     # FIXME: first is cross compile + mingw patch, backported to

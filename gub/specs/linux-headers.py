@@ -2,8 +2,8 @@ from gub import build
 from gub import mirrors
 
 class Linux_headers (build.BinaryBuild, build.SdkBuild):
-    def __init__ (self, settings):
-        build.BinaryBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        build.BinaryBuild.__init__ (self, settings, source)
         self.with_tarball (mirror=mirrors.linux_2_4,
                            version='2.4.34', format='bz2')
     def get_subpackage_names (self):
@@ -28,8 +28,8 @@ from gub import misc
 linux_kernel_headers = misc.load_spec ('debian/linux-kernel-headers')
 
 class Linux_headers__debian (linux_kernel_headers.Linux_kernel_headers):
-    def __init__ (self, settings):
-        linux_kernel_headers.Linux_kernel_headers.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        linux_kernel_headers.Linux_kernel_headers.__init__ (self, settings, source)
         from gub import debian
 #        debian.init_dependency_resolver (settings)
         self.with_template (
@@ -50,6 +50,6 @@ Linux_headers__linux__arm__vfp = Linux_headers__debian
 Linux_headers__linux__mipsel = Linux_headers__debian
 
 class Linux_headers__linux__64 (Linux_headers__debian):
-    def __init__ (self, settings):
-        Linux_headers__debian.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        Linux_headers__debian.__init__ (self, settings, source)
         self.with_template (version='2.6.18-7', name='linux-kernel-headers')

@@ -3,8 +3,8 @@ from gub import debian
 from gub import mirrors
 
 class Libc6_dev (build.BinaryBuild, build.SdkBuild):
-    def __init__ (self, settings):
-        build.BinaryBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        build.BinaryBuild.__init__ (self, settings, source)
         self.with_template  (version=debian.get_packages ()['libc6-dev'].version (),
                    strip_components=0,
                    mirror=mirrors.glibc_deb,

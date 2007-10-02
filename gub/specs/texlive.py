@@ -15,8 +15,8 @@ The distribution also includes extensive general documentation about
 TeX, as well as the documentation accompanying the included software
 packages.'''
 
-    def __init__ (self, settings):
-        targetbuild.TargetBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
         repo = repository.Subversion (
             dir=self.get_repodir (),
             source=texlive_svn,
@@ -156,8 +156,8 @@ rsync -v -a %(srcdir)s/texmf/* %(install_prefix)s/share/texmf/
         return 'texlive-3.0'
 
 class Texlive__cygwin (Texlive):
-    def __init__ (self, settings):
-        Texlive.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        Texlive.__init__ (self, settings, source)
 
     # FIXME: uses mixed gub/distro dependencies
     def get_dependency_dict (self):

@@ -3,8 +3,8 @@ from gub import build
 from gub import toolsbuild
 
 class Zlib (targetbuild.TargetBuild):
-    def __init__ (self, settings):
-        targetbuild.TargetBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
 	self.with_template (version='1.2.3',
                    mirror='http://heanet.dl.sourceforge.net/sourceforge/libpng/zlib-1.2.3.tar.gz')
         
@@ -37,8 +37,8 @@ class Zlib (targetbuild.TargetBuild):
 
 class Zlib__mingw (Zlib):
     # FIXME: removeme, try zlib-1.2.3.patch
-    def x__init__ (self, settings):
-        Zlib.__init__ (self, settings)
+    def x__init__ (self, settings, source):
+        Zlib.__init__ (self, settings, source)
         self.with_template (version='1.2.2',
                    mirror='http://heanet.dl.sourceforge.net/sourceforge/libpng/zlib-1.2.2.tar.gz')
 
@@ -54,8 +54,8 @@ class Zlib__mingw (Zlib):
         return zlib_is_broken + ' %(srcdir)s/configure --shared '
 
 class Zlib__tools (toolsbuild.ToolsBuild, Zlib):
-    def __init__ (self, settings):
-        toolsbuild.ToolsBuild.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        toolsbuild.ToolsBuild.__init__ (self, settings, source)
         self.with_template (version='1.2.3',
                    mirror='http://heanet.dl.sourceforge.net/sourceforge/libpng/zlib-1.2.3.tar.gz')
 
