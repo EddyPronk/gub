@@ -162,9 +162,18 @@ class InstallLicense (SerializedCommand):
             file = self.file % locals ()
         else:
             for file in self.file:
+                print 'checking:',  file
                 file = file % locals ()
                 if os.path.exists (file):
+                    print 'FOUND:', file
                     break
+        if not file:
+            # FIXME: this is needed for CrossToolsBuild that has
+            # license_file: return ''.
+            # But this is ugly for other packages that fail to
+            # provide a license file (typo).
+            os_commands.warning ('no license found for %(name)s\n' % locals ())
+            return
         os_commands.system ('''
 mkdir -p %(install_root)s/license
 cp %(file)s %(install_root)s/license/%(name)s
