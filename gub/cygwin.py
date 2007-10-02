@@ -142,7 +142,7 @@ def change_target_package (package):
             doc = package.__class__.__doc__
             if not doc:
                 base = package.__class__.__name__
-                p = package.__class__.__name__.find ('__')
+                p = base.find ('__')
                 if p >= 0:
                     base = base[:p]
                 for i in package.__class__.__bases__:
