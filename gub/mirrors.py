@@ -105,7 +105,7 @@ def with_template (
     if not ball_version and version:
         ball_version = version
     if strip_components != 1:
-        url += '&strip_components=%(strip_components)s'
+        mirror += '&strip_components=%(strip_components)s'
     url = mirror % locals ()
     # update helper
     print "%(name)s.py:\n    source = '%(url)s'" % locals ()
