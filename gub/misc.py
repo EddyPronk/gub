@@ -86,6 +86,9 @@ def is_ball (s):
     return re.match ('^(.*?)-([0-9].*(-[0-9]+)?)(\.[a-z]*)?(\.tar\.(bz2|gz)|\.gu[bp])$', s)
 
 def split_ball (s):
+    p = s.rfind ('/')
+    if p >= 0:
+        s = s[p+1:]
     m = is_ball (s)
     if not m:
         return (s, (0, 0), '')
