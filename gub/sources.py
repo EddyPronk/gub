@@ -1,3 +1,15 @@
+
+# FIXME: added option to add source as static build class member
+# see flex.  Remove/deprecate this central source feature?
+# Use only for local overrides?
+
+# We have to find out what we want.  It is nice to have build classes
+# be independent of source urls, and take a source url and list of
+# patches.  Otoh, it is nice for a build class to be self-contained.
+# This is a much more pluggable design for adding packages than also
+# needing to update a central file.
+
+
 from os.path import join
 from gub import mirrors
 
@@ -16,7 +28,8 @@ libtool = join (gnu, 'libtool/libtool-1.5.22.tar.gz')
 automake = join (gnu, 'automake/automake-1.10.tar.gz')
 distcc = 'http://distcc.samba.org/ftp/distcc/distcc-2.18.3.tar.bz2'
 expat = join (sf, 'expat/expat-1.95.8.tar.gz')
-flex = join (sf, 'flex/flex-2.5.4a.tar.gz')
+#flex = join (sf, 'flex/flex-2.5.4a.tar.gz')
+flex = join (sf, 'bex/flex-2.5.4a.tar.gz')
 fontforge = join (gub, 'fontforge_full-20060501.tar.bz2')
 freetype = join (nongnu, 'freetype/freetype-2.1.10.tar.gz')
 gettext = join (gnu, 'gettext/gettext-0.15.tar.gz')

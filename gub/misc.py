@@ -319,6 +319,18 @@ def list_insert (lst, idx, a):
         lst.insert (idx, a)
     return lst
 
+def most_significant_in_dict (d, name, sep):
+    '''Return most significant variable from DICT
+
+NAME is less significant when it contains less bits sepated by SEP.'''
+    v = None
+    while name:
+        if d.has_key (name):
+            v = d[name]
+            break
+        name = name[:max (name.rfind (sep), 0)]
+    return v
+
 def testme ():
     print forall (x for x in [1, 1])
     

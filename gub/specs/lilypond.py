@@ -8,16 +8,41 @@ from gub import targetbuild
 from gub import context
 
 class LilyPond (targetbuild.TargetBuild):
+    source = 'git://git.sv.gnu.org/lilypond.git'
+    download_before_init = True
+    need_source_tree = True
+
     '''A program for printing sheet music
 LilyPond lets you create music notation.  It produces
 beautiful sheet music from a high-level description file.'''
 
     def __init__ (self, settings):
-        targetbuild.TargetBuild.__init__ (self, settings)
-        try:
-            source = os.environ['GUB_LILYPOND_SOURCE']
-        except KeyError:         
-            source = 'git://git.sv.gnu.org/lilypond.git'
+        targetbuild.TargetBuild.__init__ (self, settings, source)
+        if os.environ.has_key ('GUB_LILYPOND_SOURCE'):
+            raise 'Just use generic feature: bin/gub -p %(platform)s $GUB_LILYPOND_SOURCE' % settings.__dict__
+
+        # FIXME: should add to C_INCLUDE_PATH
+        builddir = self.builddir ()
+        self.target_gcc_flags = (settings.target_gcc_flags
+                                 + ' -I%(builddir)s' % locals ())
+
+        ## ugh: nested, with self shadow?
+        def version_from_VERSION (self):
+            s = self.get_file_content ('VERSION')
+            d = misc.grok_sh_variables_str (s)
+            v = '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
+            return v
+
+        from new import instancemethod
+        if type (source) == type (repository.SimpleGit):
+            source.version = instancemethod (version_from_VERSION, source, type (source))
+            print 'FIXME: serialization: want version package TOO SOON'
+            source.version = instancemethod (lambda x: '2.11.33', repo, type (source))
+
+
+        # FIXME: where to put branch macramee?  And do we really need
+        # these special exceptions for the combination of GIT *and*
+        # LilyPond.  Seems doubly broken to me. -- jcn
 
 	# --branch=lilypond=master:master-git.sv.gnu.org-lilypond.git
         branch = 'master:master-git.sv.gnu.org-lilypond.git'
@@ -28,24 +53,6 @@ beautiful sheet music from a high-level description file.'''
                                branch=branch,
                                source=source)
 
-        ## ugh: nested, with self shadow?
-        def version_from_VERSION (self):
-            s = self.get_file_content ('VERSION')
-            d = misc.grok_sh_variables_str (s)
-            v = '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
-            return v
-
-        from new import instancemethod
-        #repo.version = instancemethod (version_from_VERSION, repo, type (repo))
-        print 'FIXME: serialization: want version package TOO SOON'
-        repo.version = instancemethod (lambda x: '2.11.33', repo, type (repo))
-
-        self.with_vc (repo)
-
-        # FIXME: should add to C_INCLUDE_PATH
-        builddir = self.builddir ()
-        self.target_gcc_flags = (settings.target_gcc_flags
-                                 + ' -I%(builddir)s' % locals ())
 
     def patch (self):
         print 'FIXME: serialization: broken ChangeLog make rule'
@@ -505,5 +512,3 @@ Lilypond__mingw = LilyPond__mingw
 Lilypond__freebsd = LilyPond
 Lilypond__debian_arm = LilyPond__debian
 Lilypond__mipsel = LilyPond__debian
-
-

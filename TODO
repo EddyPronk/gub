@@ -6,6 +6,12 @@
       if type (foo) == type (bar)
     constructions barf
 
+* use of member functions vs class variables/static functions:
+   - need_source_tree
+   - build_dependencies
+   - dependencies
+   - force_sequential_build
+
 * Fix --branch mess:
 
   -gub: --branch=<PACKAGE>=<BRANCH>:<LOCAL_BRANCH>, eg
@@ -35,9 +41,9 @@
 
 * repository -> source
 
-* ./gub -> gublib
+* ./gub -> gublib ?
 
-* ./gub/specs -> ?
+* ./gub/specs -> gub/builds?
 
 * move Scons, Bjam recipes to gub lib.
 

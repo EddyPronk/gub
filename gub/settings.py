@@ -5,6 +5,7 @@ from gub import distcc
 from gub import build
 from gub import context
 from gub import mirrors
+from gub import misc
 
 platforms = {
     'debian': 'i686-linux',
@@ -248,7 +249,7 @@ class Settings (context.Context):
         # FIXME: read from settings.rc, take platform into account
         import sources
         name = string.replace ('-', '_')
-        return sources.__dict__.get (name, string)
+        return misc.most_significant_in_dict (sources.__dict__, name, '__')
 
 def get_cli_parser ():
     import optparse

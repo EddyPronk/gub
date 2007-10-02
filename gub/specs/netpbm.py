@@ -3,6 +3,11 @@ from gub import toolsbuild
 from gub import repository
 
 class Netpbm (toolsbuild.ToolsBuild):
+    # FIXME: just to test
+    source = 'barf'
+    #download_before_init = True
+    need_source_tree = True
+
     def __init__ (self, settings, source):
         toolsbuild.ToolsBuild.__init__ (self, settings, source)
 

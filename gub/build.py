@@ -13,6 +13,9 @@ class Build (context.Os_context_wrapper):
 
 TODO: move all non configure-make-make install stuff from UnixBuild here
 '''
+
+    need_source_tree = False
+
     def __init__ (self, settings, source):
         context.Os_context_wrapper.__init__ (self, settings)
         self.source = source
@@ -533,18 +536,6 @@ class SdkBuild (UnixBuild):
     def install_root (self):
         return self.srcdir ()
 
-def most_significant_in_dict (d, name, sep):
-    '''Return most significant variable from DICT
-
-NAME is less significant when it contains less bits sepated by SEP.'''
-    v = None
-    while name:
-        if d.has_key (name):
-            v = d[name]
-            break
-        name = name[:max (name.rfind (sep), 0)]
-    return v
-
 def get_build_from_file (settings, file_name, name):
     gub_name = file_name.replace (os.getcwd () + '/', '')
     settings.os_interface.info ('reading spec: %(gub_name)s\n' % locals ())
@@ -555,11 +546,12 @@ def get_build_from_file (settings, file_name, name):
     class_name = ((base[0].upper () + base[1:] + '-' + settings.platform)
                   .replace ('-', '__')
                   .replace ('+', 'x'))
-    return most_significant_in_dict (module.__dict__, class_name, '__')
+    return misc.most_significant_in_dict (module.__dict__, class_name, '__')
 
 def get_build_class (settings, flavour, name):
     cls = get_build_from_module (settings, name)
     if not cls:
+        print 'NO BUILD for %(name)s\n:' % locals ()
         settings.os_interface.harmless ('making spec:  %(name)s\n' % locals ())
         cls = get_build_without_module (flavour, name)
     return cls
@@ -601,30 +593,42 @@ def get_build_spec (settings, dependency):
 class Dependency:
     def __init__ (self, settings, string):
         self.settings = settings
-        self._url = self.settings.dependency_url (string)
         self._name = string
         if ':' in string or misc.is_ball (string):
-            # FIXME: this sucks, but is necessary because sources.py
-            # return these changed urls:
-            # netpbm->netpbm-patched
-            # fontforge->fontforge_full
-            self._name = misc.name_from_url (self.url ())
+            self._name = misc.name_from_url (string)
+        self._cls = self._flavour = self._url = None
+    def flavour (self):
         from gub import targetbuild
-        self.flavour = targetbuild.TargetBuild
+        self._flavour = targetbuild.TargetBuild
         if self.settings.platform == 'tools':
             from gub import toolsbuild
-            self.flavour = toolsbuild.ToolsBuild
+            self._flavour = toolsbuild.ToolsBuild
+    def _check_source_tree (self, source):
+        if self.build_class ().need_source_tree and not source.is_downloaded ():
+            if self.settings.options.offline:
+                raise 'Early download requested for %(_name)s in offline mode' % self.__dict__
+            self.settings.os_interface.info ('early download for: %(_name)s\n' % self.__dict__)
+            source.download ()
+    def build_class (self):
+        if not self._cls:
+            self._cls = get_build_class (self.settings, self.flavour (),
+                                         self.name ())
+        return self._cls
     def url (self):
+        if not self._url:
+            self._url = self.build_class ().__dict__.get ('source')
+        if not self._url:
+            self._url = self.settings.dependency_url (self.name ())
         return self._url
     def name (self):
         return self._name
     def build (self):
-        b = self.create_build ()
+        b = self._create_build ()
         if not self.settings.platform == 'tools':
             cross.get_cross_module (self.settings).change_target_package (b)
         return b
-    def create_build (self):
-        cls = get_build_class (self.settings, self.flavour, self.name ())
+    def _create_build (self):
         dir = os.path.join (self.settings.downloads, self.name ())
         source = repository.get_repository_proxy (dir, self.url (), '', '')
-        return cls (self.settings, source)
+        self._check_source_tree (source)
+        return self.build_class () (self.settings, source)

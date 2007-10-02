@@ -2,18 +2,10 @@
   gub/sources.py:
      - isn't this going to be a hotspot?
 
-     - add option of toplevel 'url' variable in build spec files?
-
-     - different versions for different targets?
-
-     - now all of as sudden, a .py file does not fully specify the
-       build.  or, our spec/ directory does not specify a working
-       set of packages.  you now also need/that is now defined in sources.py.
-
-     - TODO: for some packages (gs, lilypond), repo needs to be
-       dowloaded before __init__ happens, so that version can be
-       determined.  for most packages, this is unnecessary.  ->
-       lazy_download / early_download flag?
+       in this case, a .py file does not fully specify the
+       build.  or, our spec/ directory does not specify a working set
+       of packages.  you now also need/that is now defined in
+       sources.py.  Use this only to override a package's source url?
 
 * On linux-64, for linux-64, local and lilypond build, ie
 
@@ -26,7 +18,7 @@
   -FIXME: serialization: want checksum TOO SOON
   -FIXME: serialization: want version package TOO SOON
 
-* actually checksumming of deferred_commands
+* actually storing and verifying build checksums
 
 * rewrite locate_files using map_locate
 
