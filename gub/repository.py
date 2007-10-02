@@ -44,6 +44,13 @@ class RepositoryProxy:
     register = staticmethod (register)
 
     def get_repository (dir, url, branch, revision):
+        parameters = dict ()
+        if url:
+            url, parameters = misc.dissect_url (url)
+            branch = parameters.get ('branch', branch)
+            revision = parameters.get ('revision', revision)
+            #patch = parameters.get ('patch')
+
         for i in RepositoryProxy.repositories:
             if i.check_url (i, url):
                 return i.create (i, dir, url, branch, revision)

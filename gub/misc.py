@@ -331,9 +331,35 @@ NAME is less significant when it contains less bits sepated by SEP.'''
         name = name[:max (name.rfind (sep), 0)]
     return v
 
+def dissect_url (url):
+    s = url.replace ('?', '&')
+    lst = s.split ('&')
+    def dict (tuple_lst):
+        '''allow multiple values to be appended into a list'''
+        d = {}
+        for k, v in tuple_lst:
+            if not k in d.keys ():
+                d[k] = v
+            else:
+                if type (d[k]) == type (''):
+                    # FIXME: list constructor barfs for strings?
+                    # d[k] = list (d[k])
+                    d[k] = [d[k]]
+                d[k].append (v)
+        return d
+    return lst[0], dict (map (lambda x: x.split ('='), lst[1:]))
+
 def testme ():
     print forall (x for x in [1, 1])
-    
+    print dissect_url ('git://anongit.freedesktop.org/git/fontconfig?revision=1234')
+    print dissect_url ('http://lilypond.org/foo-123.tar.gz&patch=a&patch=b')
+
+def appy_or_map (f, x):
+    if type (x) == type (''):
+        f (x)
+    elif type (x) == type (list ()) or type (x) == type (tuple ()):
+        map (f, x)
+
 if __name__ =='__main__':
     testme ()
 
