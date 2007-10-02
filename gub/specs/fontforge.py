@@ -4,6 +4,8 @@ class Fontforge (toolsbuild.ToolsBuild):
     source = ('http://lilypond.org/gub-sources/fontforge_full-20060501.tar.bz2'
               + '&patch=fontforge-20060501-srcdir.patch'
               + '&patch=fontforge-20060501-execprefix.patch')
+    auto_source = mirrors.with_template (name='fontforge', mirror='http://lilypond.org/download/gub-sources/fontforge_full-%(version)s.tar.bz2',
+                   version="20060501")
     def get_build_dependencies (self):
         return ['freetype']
     def patched_through_source_url_now (self):

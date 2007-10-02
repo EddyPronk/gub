@@ -1,6 +1,6 @@
 from gub import toolsbuild
 
 class Texinfo (toolsbuild.ToolsBuild):
-    def patch (self):
-        toolsbuild.ToolsBuild.patch (self)
-        self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/texinfo-4.8.patch')
+    source = mirrors.with_template (name='texinfo', version="4.8",
+                   mirror=mirrors.gnu, format="bz2")
+    patches = 'texinfo-4.8.patch'

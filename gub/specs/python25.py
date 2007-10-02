@@ -127,8 +127,6 @@ chmod 755 %(install_prefix)s/bin/*
 
 from gub import toolsbuild
 class Python__tools (toolsbuild.ToolsBuild, Python):
-    def __init__ (self, settings, source):
-        toolsbuild.ToolsBuild.__init__ (self, settings, source)
     source = mirrors.with_template (name='python25', version='2.5',
                    mirror=mirrors.python,
                    format='bz2')

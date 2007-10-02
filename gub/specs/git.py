@@ -3,11 +3,13 @@ from gub import targetbuild
 from gub import repository
 
 class Git__tools (toolsbuild.ToolsBuild):
+    source = mirrors.with_template (name='git', mirror='http://kernel.org/pub/software/scm/git/git-%(version)s.tar.bz2',
+                   version='1.5.1.4')
     def configure (self):
         self.dump ('prefix=%(system_prefix)s', '%(builddir)s/config.mak')
 
-    def patch(self):
-        toolsbuild.ToolsBuild.patch(self)
+    def patch (self):
+        toolsbuild.ToolsBuild.patch (self)
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
         self.file_sub ([('git describe','true')],
                        '%(srcdir)s/GIT-VERSION-GEN')
