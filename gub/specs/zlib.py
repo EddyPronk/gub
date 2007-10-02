@@ -1,5 +1,6 @@
 from gub import targetbuild
 from gub import build
+from gub import mirrors
 from gub import toolsbuild
 
 class Zlib (targetbuild.TargetBuild):

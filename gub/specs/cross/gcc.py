@@ -5,7 +5,7 @@ from gub import context
 
 #FIXME: merge fully with specs/gcc
 class Gcc (cross.CrossToolsBuild):
-    source = mirrors.with_tarball (name='gcc', mirror=mirrors.gcc, version='4.1.1', format='bz2')
+    source = mirrors.with_tarball (mirror=mirrors.gcc, version='4.1.1', format='bz2', name='cross/gcc-core')
 
     def get_build_dependencies (self):
         return ['cross/binutils']
@@ -75,7 +75,7 @@ class Gcc (cross.CrossToolsBuild):
 cd %(install_prefix)s/lib && ln -fs libgcc_s.so.1 libgcc_s.so
 ''')
 
-class Gcc_from_source (Gcc):
+class Gcc__from__source (Gcc):
     def get_build_dependencies (self):
         return (Gcc.get_build_dependencies (self)
                 + ['cross/gcc-core', 'glibc-core'])
@@ -101,7 +101,7 @@ class Gcc_from_source (Gcc):
 mv %(install_prefix)s/cross/lib/gcc/%(target_architecture)s/%(version)s/libgcc_eh.a %(install_prefix)s/lib
 ''')
 
-Gcc__linux = Gcc_from_source
+Gcc__linux = Gcc__from__source
 
 class Gcc__mingw (Gcc):
     #REMOVEME
@@ -145,7 +145,7 @@ from gub import cygwin
 class use_cygwin_sources_Gcc__cygwin (Gcc):
     def __init__ (self, settings, source):
         Gcc.__init__ (self, settings, source)
-    source = mirrors.with_tarball (name='gcc', mirror=mirrors.cygwin, version='3.4.4-3', format='bz2', name='cross/gcc-core')
+    source = mirrors.with_tarball (mirror=mirrors.cygwin, version='3.4.4-3', format='bz2', name='cross/gcc-core')
     def name (self):
         return 'cross/gcc-core'
     def untar (self):

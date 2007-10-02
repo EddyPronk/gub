@@ -32,8 +32,7 @@ class Linux_headers__debian (linux_kernel_headers.Linux_kernel_headers):
         linux_kernel_headers.Linux_kernel_headers.__init__ (self, settings, source)
         from gub import debian
 #        debian.init_dependency_resolver (settings)
-    source = mirrors.with_template (name='linux-headers', 
-            name='linux-kernel-headers',
+    source = mirrors.with_template (name='linux-kernel-headers',
 # FIXME: we do not mirror all 12 debian arch's,
 #           version=debian.get_packages ()['linux-kernel-headers'].version (),
 #           mirror=mirrors.lilypondorg_deb,
@@ -52,4 +51,4 @@ Linux_headers__linux__mipsel = Linux_headers__debian
 class Linux_headers__linux__64 (Linux_headers__debian):
     def __init__ (self, settings, source):
         Linux_headers__debian.__init__ (self, settings, source)
-    source = mirrors.with_template (name='linux-headers', version='2.6.18-7', name='linux-kernel-headers')
+    source = mirrors.with_template (version='2.6.18-7', name='linux-kernel-headers')
