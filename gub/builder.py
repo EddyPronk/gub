@@ -206,6 +206,8 @@ to skip this check.
             spec.os_interface.defer_execution ()
             self.run_one_builder (spec)
             spec.os_interface.debug (spec.os_interface.checksum (), defer=False)
+            ## spec.build_checksum = spec.os_interface.checksum ()
+            ## SetAttrTooLate: ('build_checksum', <flex.Flex instance at 0x95be18>)
             spec.os_interface.execute_deferred ()
 
         # FIXME, spec_install should be stage?

@@ -19,6 +19,7 @@ TODO: move all non configure-make-make install stuff from UnixBuild here
         self.source.set_oslog (self.os_interface)
         self.verbose = settings.verbose
         self.settings = settings
+        self.build_checksum = '0000' 
     def stages (self):
         return list ()
     def apply_patch (self, name):
