@@ -363,6 +363,21 @@ def appy_or_map (f, x):
         print type (x)
         barf
 
+def get_from_bases (cls, key):
+    base = cls.__name__
+    p = base.find ('__')
+    if p >= 0:
+        base = base[:p]
+    for i in cls.__bases__:
+        if not base in i.__name__:
+            # multiple inheritance, a base class like UnixBuild
+            # can come earlier that Python without __tools,
+            # so continue rather than break
+            continue
+        if i.__dict__.get ('source'):
+            return i.__dict__.get ('source')
+    return None
+
 if __name__ =='__main__':
     testme ()
 

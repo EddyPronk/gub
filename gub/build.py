@@ -712,23 +712,17 @@ class Dependency:
     def url (self):
         if not self._url:
             self._url = self.build_class ().__dict__.get ('source')
-
             if not self._url:
-                base = self._cls.__name__
-                p = base.find ('__')
-                if p >= 0:
-                    base = base[:p]
-                for i in self._cls.__bases__:
-                    if not base in i.__name__:
-                        break
-                    if i.__dict__.get ('source'):
-                        self._url = i.__dict__.get ('source')
-                        break
+                self._url = misc.get_from_bases (self._cls, 'source')
         if not self._url:
             self._url = self.settings.dependency_url (self.name ())
         if not self._url:
             raise 'No URL for:' + self._name
-        self._url = self._url % self.settings.__dict__
+        try:
+            self._url = self._url % self.settings.__dict__
+        except Exception, e:
+            print 'URL:', self._url
+            raise e
         x, parameters = misc.dissect_url (self._url)
         if parameters.get ('patch'):
             self._cls.patches = parameters['patch']
