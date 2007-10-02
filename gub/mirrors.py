@@ -107,3 +107,5 @@ def with_template (
         url += '&strip_components=%(strip_components)s'
     print "%(name)s.py:\n    source = '%(url)s'" % locals ()
     return url
+
+with_tarball = with_template
