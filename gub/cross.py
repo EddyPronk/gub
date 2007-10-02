@@ -2,7 +2,7 @@ from gub import build
 from gub import misc
 
 from context import subst_method 
-class CrossToolSpec (build.UnixBuild):
+class CrossToolsBuild (build.UnixBuild):
     """Package for cross compilers/linkers etc.
     """
 
@@ -37,9 +37,9 @@ def change_target_package (package):
 
 def set_cross_dependencies (package_object_dict):
     packs = package_object_dict.values ()
-    cross_packs = [p for p in packs if isinstance (p, CrossToolSpec)]
+    cross_packs = [p for p in packs if isinstance (p, CrossToolsBuild)]
     sdk_packs = [p for p in packs if isinstance (p, build.SdkBuild)]
-    other_packs = [p for p in packs if (not isinstance (p, CrossToolSpec)
+    other_packs = [p for p in packs if (not isinstance (p, CrossToolsBuild)
                                         and not isinstance (p, build.SdkBuild)
                                         and not isinstance (p, build.BinaryBuild))]
     

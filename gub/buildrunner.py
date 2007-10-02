@@ -47,7 +47,7 @@ class BuildRunner:
         sdk_pkgs = [p for p in self.specs.values ()
                     if isinstance (p, build.SdkBuild)]
         cross_pkgs = [p for p in self.specs.values ()
-                      if isinstance (p, cross.CrossToolSpec)]
+                      if isinstance (p, cross.CrossToolsBuild)]
 
         extra_build_deps = [p.name () for p in sdk_pkgs + cross_pkgs]
         gup.add_packages_to_manager (self.manager, self.settings, self.specs)

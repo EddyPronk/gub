@@ -166,7 +166,7 @@ def change_target_package (package):
     ## TODO : get_dependency_dict
         
     # FIXME: why do cross packages get here too?
-    if isinstance (package, cross.CrossToolSpec):
+    if isinstance (package, cross.CrossToolsBuild):
         return package
         
     targetbuild.change_target_dict (package, {

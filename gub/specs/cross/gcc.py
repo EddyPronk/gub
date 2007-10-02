@@ -4,9 +4,7 @@ from gub import mirrors
 from gub import context
 
 #FIXME: merge fully with specs/gcc
-class Gcc (cross.CrossToolSpec):
-    def __init__ (self, settings, source):
-        cross.CrossToolSpec.__init__ (self, settings, source)
+class Gcc (cross.CrossToolsBuild):
     source = mirrors.with_tarball (name='gcc', mirror=mirrors.gcc, version='4.1.1', format='bz2')
 
     def get_build_dependencies (self):
@@ -24,7 +22,7 @@ class Gcc (cross.CrossToolSpec):
         return  ['c', 'c++']
         
     def configure_command (self):
-        cmd = cross.CrossToolSpec.configure_command (self)
+        cmd = cross.CrossToolsBuild.configure_command (self)
         # FIXME: using --prefix=%(tooldir)s makes this
         # uninstallable as a normal system package in
         # /usr/i686-mingw/
@@ -65,7 +63,7 @@ class Gcc (cross.CrossToolSpec):
             self.system ('mv %(f)s %(install_prefix)s/lib', locals ())
 
     def install (self):
-        cross.CrossToolSpec.install (self)
+        cross.CrossToolsBuild.install (self)
         old_libs = self.expand ('%(install_prefix)s/cross/%(target_architecture)s')
 
         self.move_target_libs (old_libs)
