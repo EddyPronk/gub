@@ -2,8 +2,6 @@ from gub import targetbuild
 from gub import mirrors
 
 class Bash (targetbuild.TargetBuild):
-    def __init__ (self, settings, source):
-        targetbuild.TargetBuild.__init__ (self, settings, source)
     source = mirrors.with_template (name='bash', version='3.2',
                    mirror='ftp://ftp.cwru.edu/pub/bash/bash-3.2.tar.gz',
                    format='bz2')

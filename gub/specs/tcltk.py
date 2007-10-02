@@ -4,8 +4,6 @@ from gub import targetbuild
 from gub import context
  
 class Tcltk (targetbuild.TargetBuild):
-    def __init__ (self, settings, source):
-        targetbuild.TargetBuild.__init__ (self, settings, source)
     source = mirrors.with_template (name='tcltk', 
             mirrors.lilypondorg,
             version='8.4.14')

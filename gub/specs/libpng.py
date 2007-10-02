@@ -2,8 +2,6 @@ from gub import mirrors
 from gub import targetbuild
 
 class Libpng (targetbuild.TargetBuild):
-    def __init__ (self, settings, source):
-        targetbuild.TargetBuild.__init__ (self, settings, source)
     source = mirrors.with_template (name='libpng', version='1.2.8', mirror=mirrors.libpng)
     def get_dependency_dict (self):
         return {'':['zlib']}

@@ -6,8 +6,6 @@ from gub import misc
 from gub import targetbuild
 
 class Libjpeg (targetbuild.TargetBuild):
-    def __init__ (self, settings, source):
-        targetbuild.TargetBuild.__init__ (self, settings, source)
     source = mirrors.with_template (name='libjpeg', version='v6b', mirror=mirrors.jpeg)
 
     def name (self):

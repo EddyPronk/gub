@@ -9,8 +9,6 @@ trolltech = 'ftp://ftp.trolltech.com/qt/source/%(name)s-opensource-src-%(ball_ve
 #       sort-out what exactly is Qmake build, qt, and qtopia-core specific
 
 class Qtopia_core (targetbuild.TargetBuild):
-    def __init__ (self, settings, source):
-        targetbuild.TargetBuild.__init__ (self, settings, source)
     source = mirrors.with_tarball (name='qtopia-core', mirror=trolltech, version='4.2.2')
         dict = {
             'CC': 'gcc',

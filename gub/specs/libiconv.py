@@ -2,8 +2,6 @@ from gub import targetbuild
 from gub import mirrors
 
 class Libiconv (targetbuild.TargetBuild):
-    def __init__ (self, settings, source):
-        targetbuild.TargetBuild.__init__ (self, settings, source)
     source = mirrors.with_template (name='libiconv', version='1.11', mirror=mirrors.gnu)
     
     def force_sequential_build (self):

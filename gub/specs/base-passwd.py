@@ -14,8 +14,6 @@ class UnixBuild (build.UnixBuild):
         return './configure --prefix=%(prefix_dir)s'
 
 class Base_passwd (targetbuild.TargetBuild):
-    def __init__ (self, settings, source):
-        targetbuild.TargetBuild.__init__ (self, settings, source)
     source = mirrors.with_tarball (name='base-passwd', mirror=url, version='', ball_version=3.5.11)
     def get_subpackage_names (self):
         return ['']

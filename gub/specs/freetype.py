@@ -11,8 +11,6 @@ high-quality output (glyph images). It can be used in graphics
 libraries, display servers, font conversion tools, text image generation
 tools, and many other products as well.'''
 
-    def __init__ (self, settings, source):
-        targetbuild.TargetBuild.__init__ (self, settings, source)
     source = mirrors.with_template (name='freetype', version='2.1.10', mirror=mirrors.nongnu_savannah)
 
     def license_file (self):

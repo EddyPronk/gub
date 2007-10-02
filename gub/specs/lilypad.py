@@ -3,8 +3,6 @@ from gub import targetbuild
 from gub import misc
 
 class LilyPad (targetbuild.TargetBuild):
-    def __init__ (self, settings, source):
-        targetbuild.TargetBuild.__init__ (self, settings, source)
     source = mirrors.with_template (name='lilypad', version='0.0.7-1',
                    mirror='http://lilypond.org/download/gub-sources/lilypad-0.0.7-1-src.tar.bz2',
                    format='bz2')

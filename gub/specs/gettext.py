@@ -3,8 +3,6 @@ from gub import targetbuild
 from gub import toolsbuild
 
 class Gettext (targetbuild.TargetBuild):
-    def __init__ (self, settings, source):
-        targetbuild.TargetBuild.__init__ (self, settings, source)
     source = mirrors.with_template (name='gettext', version='0.15', mirror=mirrors.gnu, format='gz')
 
     def get_build_dependencies (self):

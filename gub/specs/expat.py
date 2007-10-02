@@ -4,8 +4,6 @@ from gub import targetbuild
 from gub import toolsbuild
 
 class Expat (targetbuild.TargetBuild):
-    def __init__ (self, settings, source):
-        targetbuild.TargetBuild.__init__ (self, settings, source)
     source = mirrors.with_template (name='expat', version='1.95.8', mirror=mirrors.sf, format='gz')
 
     def get_build_dependencies (self):

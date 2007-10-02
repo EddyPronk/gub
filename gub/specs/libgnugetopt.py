@@ -2,8 +2,6 @@ from gub import mirrors
 from gub import targetbuild
 
 class Libgnugetopt (targetbuild.TargetBuild):
-    def __init__ (self, settings, source):
-        targetbuild.TargetBuild.__init__ (self, settings, source)
     source = mirrors.with_template (name='libgnugetopt', version='1.3', format='bz2', mirror=mirrors.freebsd_ports)
 
     def patch (self):
