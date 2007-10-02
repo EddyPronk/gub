@@ -93,3 +93,16 @@ glibc_2_3_snapshots = lilypondorg
 berlios = 'http://download.berlios.de/%(name)s/%(name)s-%(version)s.tar.%(format)s'
 
 xerces_c = 'http://apache.cs.uu.nl/dist/xml/%(name)s/source/%(name)s-src_%(version)s.tar.%(format)s'
+
+
+def with_template (
+    mirror='',
+    version='',
+    strip_components=1,
+    format='',
+    name=''):
+    url = mirror % locals ()
+    if strip_components != 1:
+        url += '&strip_components=%(strip_components)s'
+    print "%(name)s.py:\n    source = '%(url)s'" % locals ()
+    return url
