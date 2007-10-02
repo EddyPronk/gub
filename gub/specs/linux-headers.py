@@ -4,7 +4,7 @@ from gub import mirrors
 class Linux_headers (build.BinaryBuild, build.SdkBuild):
     def __init__ (self, settings, source):
         build.BinaryBuild.__init__ (self, settings, source)
-        self.with_tarball (mirror=mirrors.linux_2_4,
+    source = mirrors.with_tarball (name='linux-headers', mirror=mirrors.linux_2_4,
                            version='2.4.34', format='bz2')
     def get_subpackage_names (self):
         return ['']

@@ -11,7 +11,7 @@ trolltech = 'ftp://ftp.trolltech.com/qt/source/%(name)s-opensource-src-%(ball_ve
 class Qtopia_core (targetbuild.TargetBuild):
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
-        self.with_tarball (mirror=trolltech, version='4.2.2')
+    source = mirrors.with_tarball (name='qtopia-core', mirror=trolltech, version='4.2.2')
         dict = {
             'CC': 'gcc',
             'CXX': 'g++',

@@ -4,9 +4,9 @@ from gub import misc
 from gub import targetbuild
 
 class Xerces_c (targetbuild.TargetBuild):
+    source = mirrors.with_tarball (name='xerces-c', mirror=mirrors.xerces_c, version='2_7_0')
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
-        self.with_tarball (mirror=mirrors.xerces_c, version='2_7_0')
         self.compile_dict = {
             'XERCESCROOT': '%(builddir)s',
             'TRANSCODER': 'NATIVE',

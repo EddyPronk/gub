@@ -12,7 +12,7 @@ class Glibc (targetbuild.TargetBuild, cross.CrossToolSpec):
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
         #self.with_tarball (mirror=mirrors.gnu, version='2.3.6')
-        self.with_tarball (mirror=mirrors.lilypondorg, version='2.3-20070416',
+    source = mirrors.with_tarball (name='glibc', mirror=mirrors.lilypondorg, version='2.3-20070416',
                            format='bz2')
     def get_build_dependencies (self):
         return ['cross/gcc', 'glibc-core']
