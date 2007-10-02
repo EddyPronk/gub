@@ -36,8 +36,8 @@ beautiful sheet music from a high-level description file.'''
         from new import instancemethod
         if type (source) == type (repository.SimpleGit):
             source.version = instancemethod (version_from_VERSION, source, type (source))
-            print 'FIXME: serialization: want version package TOO SOON'
-            source.version = instancemethod (lambda x: '2.11.33', repo, type (source))
+            #print 'FIXME: serialization: want version package TOO SOON'
+            # source.version = instancemethod (lambda x: '2.11.33', repo, type (source))
 
 
         # FIXME: where to put branch macramee?  And do we really need
