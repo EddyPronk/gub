@@ -5,7 +5,7 @@ from gub import targetbuild
 from gub import toolsbuild
 from gub import repository
 
-fc_version = "0596d7296c94b2bb9817338b8c1a76da91673fb9"
+version = "0596d7296c94b2bb9817338b8c1a76da91673fb9"
 
 class Fontconfig (targetbuild.TargetBuild):
     '''Generic font configuration library 
@@ -14,11 +14,10 @@ does not depend on the X Window System.  It is designed to locate
 fonts within the system and select them according to requirements
 specified by applications.'''
 
+    source = 'git://anongit.freedesktop.org/git/fontconfig?revision=' + version
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
-        self.with_vc (repository.Git (self.get_repodir (),
-                                      source="git://anongit.freedesktop.org/git/fontconfig",
-                                      revision=fc_version))
+        #self.with_vc (repository.Git (self.get_repodir (), source="git://anongit.freedesktop.org/git/fontconfig", revision=fc_version))
     def get_build_dependencies (self):
         return ['libtool', 'expat-devel', 'freetype-devel']
 
@@ -122,11 +121,9 @@ class Fontconfig__freebsd (Fontconfig__linux):
     pass
 
 class Fontconfig__tools (toolsbuild.ToolsBuild):
-    def __init__ (self, settings, source):
-        toolsbuild.ToolsBuild.__init__ (self, settings, source)
-        self.with_template (mirror="git://anongit.freedesktop.org/git/fontconfig",
-                   version=fc_version)
-        
+    # FIXME: use mi to get to source?
+    source = 'git://anongit.freedesktop.org/git/fontconfig?revision=' + version
+    
     def get_build_dependencies (self):
         return ['libtool', 'freetype', 'expat']
 
