@@ -5,7 +5,7 @@ from gub import context
 
 #FIXME: merge fully with specs/gcc
 class Gcc (cross.CrossToolsBuild):
-    source = mirrors.with_tarball (mirror=mirrors.gcc, version='4.1.1', format='bz2', name='cross/gcc-core')
+    source = mirrors.with_tarball (mirror=mirrors.gcc, version='4.1.1', format='bz2', name='gcc')
 
     def get_build_dependencies (self):
         return ['cross/binutils']
@@ -145,7 +145,7 @@ from gub import cygwin
 class use_cygwin_sources_Gcc__cygwin (Gcc):
     def __init__ (self, settings, source):
         Gcc.__init__ (self, settings, source)
-    source = mirrors.with_tarball (mirror=mirrors.cygwin, version='3.4.4-3', format='bz2', name='cross/gcc-core')
+    source = mirrors.with_tarball (mirror=mirrors.cygwin, version='3.4.4-3', format='bz2', name='gcc')
     def name (self):
         return 'cross/gcc-core'
     def untar (self):
