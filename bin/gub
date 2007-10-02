@@ -135,7 +135,7 @@ def get_cli_parser ():
 
     return p
 
-#FIXME: move to Builder?
+#FIXME: move to BuildRunner?
 def inspect (settings, files):
     (names, specs) = gup.get_source_packages (settings, files)
     pm = gup.get_target_manager (settings)
@@ -149,7 +149,7 @@ def inspect (settings, files):
         else:
             print v
 
-#FIXME: move to Builder?
+#FIXME: move to BuildRunner?
 def build (settings, files):
     (names, specs) = gup.get_source_packages (settings, files)
     def get_all_deps (name):
@@ -190,8 +190,8 @@ def build (settings, files):
             sys.exit (0)
         raise
 
-    from gub import builder
-    b = builder.Builder (manager, settings, specs)
+    from gub import buildrunner
+    b = buildrunner.BuildRunner (manager, settings, specs)
     b.build_source_packages (names)
 
 def exceptional_build (settings, files):

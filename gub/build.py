@@ -29,6 +29,77 @@ TODO: move all non configure-make-make install stuff from UnixBuild here
         self.system ('''
 cd %(srcdir)s && patch -p1 < %(patchdir)s/%(name)s
 ''', locals ())
+    def build (self):
+        import inspect
+        available = dict (inspect.getmembers (self, callable))
+        if self.settings.options.stage:
+            self.os_interface.stage (' *** Stage: %s (%s, %s)\n'
+                                     % (self.settings.options.stage, self.name (),
+                                        self.settings.platform))
+            (available[self.settings.options.stage]) ()
+            return
+
+        stages = self.stages ()
+
+        if self.settings.options.offline:
+            stages.remove ('download')
+
+        if not self.settings.options.build_source:
+            stages.remove ('src_package')
+
+        if self.settings.options.fresh:
+            try:
+                self.os_interface.action ('Removing status file')
+                os.unlink (self.get_stamp_file ())
+            except OSError:
+                pass
+
+        tainted = False
+        for stage in stages:
+            if (not available.has_key (stage)):
+                continue
+
+            if self.is_done (stage, stages.index (stage)):
+                tainted = True
+                continue
+            if (stage == 'clean'
+                and self.settings.options.keep_build):
+                # defer unlink?
+                # os.unlink (self.get_stamp_file ())
+                self.os_interface.system ('rm ' + self.get_stamp_file ())
+                continue
+            
+            self.os_interface.stage (' *** Stage: %s (%s, %s)\n'
+                                     % (stage, self.name (),
+                                        self.settings.platform))
+
+            if (stage == 'package' and tainted
+                and not self.settings.options.force_package):
+                msg = self.expand ('''This compile has previously been interrupted.
+To ensure a repeatable build, this will not be packaged.
+
+Use
+
+rm %(stamp_file)s
+
+to force rebuild, or
+
+--force-package
+
+to skip this check.
+''')
+                self.os_interface.error (msg, defer=False)
+                sys.exit (1)
+            try:
+                (available[stage]) ()
+            except misc.SystemFailed, e:
+                # A failed patch will leave system in unpredictable state.
+                if stage == 'patch':
+                    self.system ('rm %(stamp_file)s')
+                raise e
+
+            if stage != 'clean':
+                self.set_done (stage, stages.index (stage))
 
 class UnixBuild (Build):
     '''Build a source package the traditional Unix way

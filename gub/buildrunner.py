@@ -28,8 +28,11 @@ from gub import build
 from gub import misc
 from gub import gup
 
+# FIXME s/spec/build/, but we also have two definitions of package/pkg
+# here: sub packages and name of global package under build
+
 #FIXME: split spec_* into SpecBuiler?
-class Builder:
+class BuildRunner:
     def __init__ (self, manager, settings, specs):
         self.manager = manager
         self.settings = settings
@@ -49,6 +52,7 @@ class Builder:
         extra_build_deps = [p.name () for p in sdk_pkgs + cross_pkgs]
         gup.add_packages_to_manager (self.manager, self.settings, self.specs)
 
+    # FIXME: move to gup.py or to build.py?
     def pkg_checksum_valid (self, spec, pkg):
         return True
         name = pkg.name ()
@@ -70,83 +74,13 @@ class Builder:
         ## spec.cross_checksum == self.manager.package_dict(name)['cross_checksum'])
         return valid
 
+    # FIXME: move to gup.py or to build.py?
     def spec_checksums_valid (self, spec):
         valid = True
         for pkg in spec.get_packages ():
             valid = valid and self.pkg_checksum_valid (spec, pkg)
         return valid
 
-    def run_one_builder (self, spec):
-        import inspect
-        available = dict (inspect.getmembers (spec, callable))
-        if self.settings.options.stage:
-            spec.os_interface.stage (' *** Stage: %s (%s, %s)\n'
-                                     % (self.settings.options.stage, spec.name (),
-                                        self.settings.platform))
-            (available[self.settings.options.stage]) ()
-            return
-
-        stages = spec.stages ()
-
-        if self.settings.options.offline:
-            stages.remove ('download')
-
-        if not self.settings.options.build_source:
-            stages.remove ('src_package')
-
-        if self.settings.options.fresh:
-            try:
-                spec.os_interface.action ('Removing status file')
-                os.unlink (spec.get_stamp_file ())
-            except OSError:
-                pass
-
-        tainted = False
-        for stage in stages:
-            if (not available.has_key (stage)):
-                continue
-
-            if spec.is_done (stage, stages.index (stage)):
-                tainted = True
-                continue
-            if (stage == 'clean'
-                and self.settings.options.keep_build):
-                # defer unlink?
-                # os.unlink (spec.get_stamp_file ())
-                spec.os_interface.system ('rm ' + spec.get_stamp_file ())
-                continue
-            
-            spec.os_interface.stage (' *** Stage: %s (%s, %s)\n'
-                                     % (stage, spec.name (),
-                                        self.settings.platform))
-
-            if (stage == 'package' and tainted
-                and not self.settings.options.force_package):
-                msg = spec.expand ('''This compile has previously been interrupted.
-To ensure a repeatable build, this will not be packaged.
-
-Use
-
-rm %(stamp_file)s
-
-to force rebuild, or
-
---force-package
-
-to skip this check.
-''')
-                spec.os_interface.error (msg, defer=False)
-                sys.exit (1)
-            try:
-                (available[stage]) ()
-            except misc.SystemFailed, e:
-                # A failed patch will leave system in unpredictable state.
-                if stage == 'patch':
-                    spec.system ('rm %(stamp_file)s')
-                raise e
-
-            if stage != 'clean':
-                spec.set_done (stage, stages.index (stage))
 
     # FIXME: this should be in gpkg/gup.py otherwise it's impossible
     # to install packages in a conflict situation manually
@@ -195,7 +129,7 @@ to skip this check.
             return
         # ugh, dupe
         checksum_ok = (self.settings.options.lax_checksums
-                       or self.spec_checksums_valid (self.specs[spec_name]))
+                       or self.specs[spec_name].checksum_valid ())
         is_installable = misc.forall (self.manager.is_installable (p.name ())
                                       for p in spec.get_packages ())
         if (self.settings.options.stage
@@ -204,7 +138,7 @@ to skip this check.
             self.settings.os_interface.stage ('building package: %s\n'
                                               % spec_name)
             spec.os_interface.defer_execution ()
-            self.run_one_builder (spec)
+            spec.build ()
             spec.os_interface.debug (spec.os_interface.checksum (), defer=False)
             ## spec.build_checksum = spec.os_interface.checksum ()
             ## SetAttrTooLate: ('build_checksum', <flex.Flex instance at 0x95be18>)

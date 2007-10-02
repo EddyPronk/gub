@@ -25,6 +25,8 @@ ltool = mirrors.gnu % { 'name': 'libtool', 'version': '1.5.22', 'format': 'gz'}
 libtool = join (gnu, 'libtool/libtool-1.5.22.tar.gz')
 # libtool = 'ftp://ftp.gnu.org/pub/gnu/libtool/libtool-1.5.22.tar.gz'
 
+# foo__PLATFORM should also work here
+
 automake = join (gnu, 'automake/automake-1.10.tar.gz')
 distcc = 'http://distcc.samba.org/ftp/distcc/distcc-2.18.3.tar.bz2'
 expat = join (sf, 'expat/expat-1.95.8.tar.gz')

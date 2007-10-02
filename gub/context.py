@@ -123,7 +123,7 @@ class Context:
                 # this is a kludge, but traceback doesn't yield enough info
                 # to actually check that the __init__ being called is a
                 # derived from self.__init__
-                if name == '__init__' and 'builder.py' not in file:
+                if name == '__init__' and 'buildrunner.py' not in file:
                     init_found = True
                  
             if init_found:
