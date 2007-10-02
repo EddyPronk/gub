@@ -1,9 +1,12 @@
 from gub import toolsbuild 
 
 class Fontforge (toolsbuild.ToolsBuild):
+    source = ('http://lilypond.org/gub-sources/fontforge_full-20060501.tar.bz2'
+              + '&patch=fontforge-20060501-srcdir.patch'
+              + '&patch=fontforge-20060501-execprefix.patch')
     def get_build_dependencies (self):
         return ['freetype']
-    def patch (self):
+    def patched_through_source_url_now (self):
         self.apply_patch ('fontforge-20060501-srcdir.patch')
         self.apply_patch ('fontforge-20060501-execprefix.patch')
     def configure_command (self):
