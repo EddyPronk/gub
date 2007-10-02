@@ -49,6 +49,11 @@ Linux_headers__linux__arm__vfp = Linux_headers__debian
 Linux_headers__linux__mipsel = Linux_headers__debian
 
 class Linux_headers__linux__64 (Linux_headers__debian):
-    def __init__ (self, settings, source):
-        Linux_headers__debian.__init__ (self, settings, source)
-    source = mirrors.with_template (version='2.6.18-7', name='linux-kernel-headers')
+    source = mirrors.with_template (name='linux-kernel-headers',
+# FIXME: we do not mirror all 12 debian arch's,
+#           version=debian.get_packages ()['linux-kernel-headers'].version (),
+#           mirror=mirrors.lilypondorg_deb,
+            version='2.6.18-7',
+            mirror=mirrors.lkh_deb,
+            strip_components=0,
+            format='deb')

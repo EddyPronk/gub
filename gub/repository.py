@@ -336,7 +336,10 @@ class TarBall (Repository):
     def check_suffix (rety, url):
          return url and (url.endswith (rety.vc_system)
                          or url.endswith (rety.vc_system + '.gz')
-                         or url.endswith (rety.vc_system + '.bz2'))
+                         or url.endswith (rety.vc_system + '.bz2')
+                         # FIXME: DebianPackage should derive from TarBall,
+                         # rather than extending it in place
+                         or url.endswith ('.deb'))
     check_suffix = staticmethod (check_suffix)
 
     # TODO: s/url/source
