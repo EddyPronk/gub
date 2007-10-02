@@ -713,7 +713,7 @@ class Dependency:
         if not self._url:
             self._url = self.build_class ().__dict__.get ('source')
             if not self._url:
-                self._url = misc.get_from_bases (self._cls, 'source')
+                self._url = misc.get_from_parents (self._cls, 'source')
         if not self._url:
             self._url = self.settings.dependency_url (self.name ())
         if not self._url:

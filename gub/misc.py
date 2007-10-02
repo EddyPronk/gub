@@ -363,7 +363,7 @@ def appy_or_map (f, x):
         print type (x)
         barf
 
-def get_from_bases (cls, key):
+def get_from_parents (cls, key):
     base = cls.__name__
     p = base.find ('__')
     if p >= 0:
