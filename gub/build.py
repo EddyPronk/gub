@@ -711,9 +711,10 @@ class Dependency:
             source.download ()
     def url (self):
         if not self._url:
-            self._url = self.build_class ().__dict__.get ('source')
-            if not self._url:
-                self._url = misc.get_from_parents (self._cls, 'source')
+            try:
+                self._url = self.build_class ().source
+            except:
+                pass
         if not self._url:
             self._url = self.settings.dependency_url (self.name ())
         if not self._url:
