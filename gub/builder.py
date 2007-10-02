@@ -205,6 +205,7 @@ to skip this check.
                                               % spec_name)
             spec.os_interface.defer_execution ()
             self.run_one_builder (spec)
+            spec.os_interface.debug (spec.os_interface.checksum (), defer=False)
             spec.os_interface.execute_deferred ()
 
         # FIXME, spec_install should be stage?

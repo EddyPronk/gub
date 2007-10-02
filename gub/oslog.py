@@ -28,6 +28,7 @@ import subprocess
 import sys
 import time
 import traceback
+import inspect
 
 from gub import misc
 
@@ -48,23 +49,19 @@ level = {'quiet': 0,
 class SerializedCommand:
     def __init__ (self):
         self.instantiation_traceback = traceback.extract_stack ()
-
     def execute (self, os_commands):
         print 'Not implemented', self
-
     def print_source (self):
         print ''.join (traceback.format_list (self.instantiation_traceback))
-
     def checksum (self, hasher):
-        hasher.update('0')
-    
+        hasher.update (self.__class__.__name__)
+
 class Nop (SerializedCommand):
     def execute (self):
         pass
-
     def checksum (self, hasher):
-        hasher.update('0')
-    
+        hasher.update (self.__class__.__name__)
+
 class System (SerializedCommand):
     def __init__ (self, c, **kwargs):
         SerializedCommand.__init__ (self)
@@ -75,9 +72,9 @@ class System (SerializedCommand):
         return 'System (%s)' % repr (self.command)
 
     def checksum (self, hasher):
-        hasher.update(self.command)
+        hasher.update (self.command)
         # TODO: use env too.
-        
+
     def execute (self, os_commands):
         cmd = self.command
         verbose = os_commands.verbose
@@ -92,7 +89,7 @@ class System (SerializedCommand):
                                  stdout=subprocess.PIPE,
                                  stderr=subprocess.STDOUT,
                                  close_fds=True)
-        
+
         while proc.poll () is None:
             line = proc.stdout.readline ()
             os_commands.log (line, level['output'], verbose)
@@ -115,12 +112,10 @@ class Copy (SerializedCommand):
     def __init__ (self, src, dest):
         self.src = src
         self.dest = dest
-
     def checksum (self, hasher):
-        hasher.update('copy')
-        hasher.update(src)
-        hasher.update(dest)
-        
+        hasher.update (self.__class__.__name__)
+        hasher.update (src)
+        hasher.update (dest)
     def execute (self, os_commands):
         import shutil
         shutil.copy2 (self.src, self.dest)
@@ -131,14 +126,24 @@ class Chmod (SerializedCommand):
         self.mode = mode
     def execute (self, os_commands):
         os.chmod (self.file, self.mode)
-
     def checksum (self, hasher):
-        hasher.update('chmod')
-        hasher.update(self.file)
-        hasher.update(str(self.mode))
+        hasher.update (self.__class__.__name__)
+        hasher.update (self.file)
+        hasher.update (str(self.mode))
 
 # FIXME: can't this be done a bit easier?
 # why is this needed ? --hwn
+#
+# install_licence wants to check for several files if they exist.
+# Because of the current implementation as a subst method, deferring
+# breaked with infinate recursion when attepmting a simple
+# implementation using func () or map_locate (), because those
+# functions also calls subst.
+#
+# This is something I wanted to do earlier, this simple change
+# allows to delete a number of build specifications and makes
+# others more simple.  We want to get rid of as many build
+# specifications as we can.  --jcn
 class InstallLicense (SerializedCommand):
     def __init__ (self, name, srcdir, install_root, file):
         self.install_root = install_root
@@ -147,7 +152,7 @@ class InstallLicense (SerializedCommand):
         self.install_root = install_root
         self.file = file
     def checksum (self, hasher):
-        hasher.update('license')
+        hasher.update (self.__class__.__name__)
     def execute (self, os_commands):
         name = self.name
         srcdir = self.srcdir
@@ -165,10 +170,12 @@ mkdir -p %(install_root)s/license
 cp %(file)s %(install_root)s/license/%(name)s
 ''' % locals ())
 
-# WTF is this; how can we ever checksum arbitrary func() --hwn
 class Func (SerializedCommand):
     def __init__ (self, func):
         self.func = func
+    def checksum (self, hasher):
+        hasher.update (self.__class__.__name__)
+        hasher.update (inspect.getsource (self.func))
     def execute (self, os_commands):
         return self.func ()
 
@@ -190,8 +197,6 @@ class Message (SerializedCommand):
     def checksum (self, hasher):
         pass
 
-
-# WTF, see Func()
 class MapLocate (SerializedCommand):
     def __init__ (self, func, directory, pattern):
         self.func = func
@@ -202,10 +207,10 @@ class MapLocate (SerializedCommand):
                     os_commands.locate_files (self.directory, self.pattern))
 
     def checksum (self, hasher):
-        hasher.update('maplocate')
-        hasher.update(self.directory)
-        hasher.update(self.pattern)
-        
+        hasher.update (self.__class__.__name__)
+        hasher.update (inspect.getsource (self.func))
+        hasher.update (self.directory)
+        hasher.update (self.pattern)
 
 class ReadFile (SerializedCommand):
     def __init__ (self, file):
@@ -214,9 +219,9 @@ class ReadFile (SerializedCommand):
         os_commands.action ('Reading %(file)s\n' % self.__dict__)
         return file (self.file).read ()
     def checksum (self, hasher):
-        hasher.update('readfile')
-        hasher.update(self.file)
-    
+        hasher.update (self.__class__.__name__)
+        hasher.update (self.file)
+
 class Dump (SerializedCommand):
     def __init__ (self, *args, **kwargs):
         SerializedCommand.__init__ (self)
@@ -224,14 +229,11 @@ class Dump (SerializedCommand):
         self.kwargs = kwargs
     def __repr__ (self):
         return 'Dump (%s)' % repr (self.args)
-
     def checksum (self, hasher):
         str, name = self.args
-
-        hasher.update('dump')
-        hasher.update(name)
-        hasher.update(str)
-
+        hasher.update (self.__class__.__name__)
+        hasher.update (name)
+        hasher.update (str)
     def execute (self, os_commands):
         str, name = self.args
         mode = self.kwargs.get ('mode', 'w')
@@ -253,7 +255,7 @@ class Dump (SerializedCommand):
 
         if 'permissions' in self.kwargs:
             os.chmod (name, self.kwargs['permissions'])
-            
+
 class Substitute (SerializedCommand):
     '''Substitute RE_PAIRS in file NAME.
 If TO_NAME is specified, the output is sent to there.
@@ -263,18 +265,18 @@ If TO_NAME is specified, the output is sent to there.
         SerializedCommand.__init__ (self)
         self.args = args
         self.kwargs = kwargs
-        
+
     def __repr__ (self):
         return 'Substitute (%s)' % repr (self.args)
 
     def checksum (self, hasher):
         (re_pairs, name) = self.args
-        hasher.update('substitute')
-        hasher.update(name)
+        hasher.update (self.__class__.__name__)
+        hasher.update (name)
         for (src, dst) in re_pairs:
-            hasher.update(src)
-            hasher.update(dst)
-            
+            hasher.update (src)
+            hasher.update (dst)
+
     def execute (self, os_commands):
         (re_pairs, name) = self.args
         to_name = self.kwargs.get ('to_name')
@@ -285,7 +287,7 @@ If TO_NAME is specified, the output is sent to there.
         use_re = True
         if self.kwargs.has_key ('use_re'):
             use_re = self.kwargs.get ('use_re')
-                  
+
         os_commands.action ('substituting in %s\n' % name)
         os_commands.command (''.join (map (lambda x: "'%s' -> '%s'\n" % x,
                                    re_pairs)))
@@ -327,14 +329,12 @@ class Conditional (SerializedCommand):
         self.child = child
         self.child_false = child_false
     def checksum (self, hasher):
-        hasher.update('cond')
-
-        # TODO : howto checksum predicate? Maybe extract source code?
+        hasher.update (self.__class__.__name__)
+        hasher.update (inspect.getsource (self.predicate))
         if self.child:
-            self.child.checksum(hasher)
+            self.child.checksum (hasher)
         if self.child_false:
-            self.child_false.checksum(hasher)
-
+            self.child_false.checksum (hasher)
     def execute (self, os_commands):
         if self.predicate():
             return self.child.execute (os_commands)
@@ -348,36 +348,31 @@ class FilePredicateConditional (Conditional):
             return predicate (name)
         self.predicate = pred
         self.child = child
-
     def exists (self):
-        self.name 
+        self.name
 
 class ShadowTree (SerializedCommand):
     def __init__ (self, src, dest):
         self.src = src
         self.dest = dest
-        
     def execute (self, os_commands):
         '''Symlink files from SRC in TARGET recursively'''
         self.shadow (self.src, self.dest, os_commands)
-
     def checksum (self, hasher):
-        hasher.update ('shadow')
+        hasher.update (self.__class__.__name__)
         hasher.update (self.src)
         hasher.update (self.dest)
-
     def shadow (self, src, target, os_commands):
         target = os.path.abspath (target)
         src = os.path.abspath (src)
-
         os_commands.action ('Shadowing %s to %s\n' % (src, target))
         os.makedirs (target)
         (root, dirs, files) = os.walk (src).next ()
         for f in files:
             os.symlink (os.path.join (root, f), os.path.join (target, f))
         for d in dirs:
-            self.shadow (os.path.join (root, d), os.path.join (target, d), os_commands)
-
+            self.shadow (os.path.join (root, d), os.path.join (target, d),
+                         os_commands)
 
 class PackageGlobs (SerializedCommand):
     def __init__ (self, root, suffix_dir, globs, dest):
@@ -387,12 +382,12 @@ class PackageGlobs (SerializedCommand):
         self.dest = dest
 
     def checksum (self, hasher):
-        hasher.update ('globs')
-        hasher.update (''.join(self.globs))
+        hasher.update (self.__class__.__name__)
+        hasher.update (''.join (self.globs))
         hasher.update (self.root)
         hasher.update (self.suffix_dir)
-        hasher.update (dest)
-        
+        hasher.update (self.dest)
+
     def execute (self, os_commands):
         root = self.root
         suffix_dir = self.suffix_dir
@@ -411,7 +406,7 @@ class PackageGlobs (SerializedCommand):
 
         _v = os_commands.verbose_flag ()
         cmd = 'tar -C %(root)s/%(suffix_dir)s --ignore-failed --exclude="*~"%(_v)s -zcf %(dest)s ' % locals()
-        cmd += ' '.join (globs) 
+        cmd += ' '.join (globs)
         System (cmd).execute (os_commands)
 
 # FIXME
@@ -514,6 +509,19 @@ This enables proper logging and deferring and checksumming of commands.'''
             cmd.execute (self)
         assert self._deferred_commands == list ()
 
+    def checksum (self):
+        class StringHasher (object):
+            def __init__ (self):
+                self._commands = list ()
+            def update (self, x):
+                self._commands.append (x)
+        # A visitor pattern versus simple return, is that handy/really
+        # necessary?
+        hasher = StringHasher ()
+        map (lambda x: x.checksum (hasher), self._deferred_commands)
+        map (lambda x: x.checksum (hasher), self._deferred_commands)
+        return '\n'.join (hasher._commands)
+
     def _execute (self, command, defer=None):
         if defer == None:
             defer = self._defer
@@ -521,17 +529,14 @@ This enables proper logging and deferring and checksumming of commands.'''
             self._deferred_commands.append (command)
             return 0
         return command.execute (self)
-        
-    def command_checksum (self):
-        return '0000'
 
     def read_tail (self, size=10240, lines=100):
         return misc.read_tail (self.log_file_name, size, lines,
                                self.start_marker)
-        
+
     def fakeroot (self, s):
         self.fakeroot_cmd = s
-        
+
     def verbose_flag (self):
         if self.verbose >= level['output']:
             return ' -v'
@@ -547,7 +552,7 @@ This enables proper logging and deferring and checksumming of commands.'''
                           '\\1%(fakeroot_cmd)s' % self.__dict__, cmd)
             cmd = re.sub ('''(^ *|['"();|& ]*)(chown|rm|tar) ''',
                           '\\1%(fakeroot_cmd)s\\2 ' % self.__dict__, cmd)
-        # ' 
+        # '
         return self._execute (System (cmd, env=env, ignore_errors=ignore_errors, verbose=verbose), defer=defer)
 
     def log (self, str, threshold, verbose=None, defer=None):
@@ -564,19 +569,19 @@ This enables proper logging and deferring and checksumming of commands.'''
 
     def info (self, str, defer=None):
         self.log (str, level['info'], self.verbose, defer)
-              
+
     def command (self, str, defer=None):
         self.log (str, level['command'], self.verbose, defer)
-              
+
     def debug (self, str, defer=None):
         self.log (str, level['debug'], self.verbose, defer)
-              
+
     def warning (self, str, defer=None):
         self.log (str, level['warning'], self.verbose, defer)
-              
+
     def harmless (self, str, defer=None):
         self.log (str, level['harmless'], self.verbose, defer)
-              
+
     def system (self, cmd, env={}, ignore_errors=False, verbose=None, defer=None):
         '''Run os commands, and run multiple lines as multiple
 commands.
@@ -604,7 +609,7 @@ commands.
 
     def dump (self, *args, **kwargs):
         return self._execute (Dump (*args, **kwargs))
-        
+
     def file_sub (self, *args, **kwargs):
         return self._execute (Substitute (*args, **kwargs))
 
@@ -644,7 +649,7 @@ commands.
 	        misc._download_url (fallback_url, dest_dir, sys.stderr)
 	    else:
 	        raise e
-	
+
     def locate_files (self, directory, pattern,
                       include_dirs=True, include_files=True):
         directory = re.sub ( "/*$", '/', directory)

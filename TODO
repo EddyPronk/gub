@@ -1,7 +1,10 @@
 * python 3k compatibility
-  - junk print
-  - junk has_key
-  - 
+  - junk print (replace by what?)
+  - junk has_key (replace by what?)
+  - move to new style classes: class Foo -> class Foo (object).
+    This means that all sorts of
+      if type (foo) == type (bar)
+    constructions barf
 
 * Fix --branch mess:
 
