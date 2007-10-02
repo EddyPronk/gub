@@ -627,7 +627,7 @@ def get_build_from_file (settings, file_name, name):
                   .replace ('-', '_')
                   .replace ('+', 'x')
                   + ('-' + settings.platform).replace ('-', '__'))
-    print 'LOOKING FOR:', class_name
+    settings.os_interface.debug ('LOOKING FOR: %(class_name)s' % locals ())
     return misc.most_significant_in_dict (module.__dict__, class_name, '__')
 
 def get_build_class (settings, flavour, name):
@@ -712,10 +712,23 @@ class Dependency:
     def url (self):
         if not self._url:
             self._url = self.build_class ().__dict__.get ('source')
+
+            if not self._url:
+                base = self._cls.__name__
+                p = base.find ('__')
+                if p >= 0:
+                    base = base[:p]
+                for i in self._cls.__bases__:
+                    if not base in i.__name__:
+                        break
+                    if i.__dict__.get ('source'):
+                        self._url = i.__dict__.get ('source')
+                        break
         if not self._url:
             self._url = self.settings.dependency_url (self.name ())
         if not self._url:
             raise 'No URL for:' + self._name
+        self._url = self._url % self.settings.__dict__
         x, parameters = misc.dissect_url (self._url)
         if parameters.get ('patch'):
             self._cls.patches = parameters['patch']
@@ -725,5 +738,6 @@ class Dependency:
     def build (self):
         b = self._create_build ()
         if not self.settings.platform == 'tools':
+            import cross
             cross.get_cross_module (self.settings).change_target_package (b)
         return b
