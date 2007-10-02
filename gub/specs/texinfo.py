@@ -1,3 +1,4 @@
+from gub import mirrors
 from gub import toolsbuild
 
 class Texinfo (toolsbuild.ToolsBuild):

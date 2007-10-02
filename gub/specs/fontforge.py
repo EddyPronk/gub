@@ -1,4 +1,5 @@
 from gub import toolsbuild 
+from gub import mirrors
 
 class Fontforge (toolsbuild.ToolsBuild):
     source = ('http://lilypond.org/gub-sources/fontforge_full-20060501.tar.bz2'

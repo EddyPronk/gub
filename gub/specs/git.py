@@ -1,3 +1,4 @@
+from gub import mirrors
 from gub import toolsbuild
 from gub import targetbuild
 from gub import repository
