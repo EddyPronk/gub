@@ -628,7 +628,8 @@ commands.
 
     def download_url (self, url, dest_dir, fallback=None):
         import misc
-        self.action ('downloading %(url)s -> %(dest_dir)s\n' % locals ())
+        self.action ('downloading %(url)s -> %(dest_dir)s\n' % locals (),
+                     defer=False)
 
         # FIXME: where to get settings, fallback should be a user-definable list
 	fallback = 'http://peder.xs4all.nl/gub-sources'
