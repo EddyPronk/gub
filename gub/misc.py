@@ -359,6 +359,9 @@ def appy_or_map (f, x):
         f (x)
     elif type (x) == type (list ()) or type (x) == type (tuple ()):
         map (f, x)
+    else:
+        print type (x)
+        barf
 
 if __name__ =='__main__':
     testme ()

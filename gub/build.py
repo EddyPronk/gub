@@ -89,6 +89,9 @@ to force rebuild, or
 to skip this check.
 ''')
                 self.os_interface.error (msg, defer=False)
+                #FIXME: throw exception.  this plays nice with
+                # buildrunner and with bin/gub, so check that.
+                import sys
                 sys.exit (1)
             try:
                 (available[stage]) ()
@@ -394,8 +397,14 @@ rm -f %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/share/info/dir %(in
     def compile (self):
         self.system ('cd %(builddir)s && %(compile_command)s')
 
-    # FIXME: should not misuse patch for auto stuff
     def patch (self):
+        if self.__class__.__dict__.get ('patches'):
+            misc.appy_or_map (self.apply_patch, self.__class__.patches)
+        # FIXME: should not misuse patch for auto stuff
+
+        # We cannot easily move this to 'autoupdate' stage now,
+        # because some packages depend on this brokennes by redefining
+        # patch () to avoid auto-updating.
         self.autoupdate ()
 
     @context.subst_method
@@ -667,6 +676,23 @@ class Dependency:
         if ':' in string or misc.is_ball (string):
             self._name = misc.name_from_url (string)
         self._cls = self._flavour = self._url = None
+    def _create_build (self):
+        dir = os.path.join (self.settings.downloads, self.name ())
+        source = repository.get_repository_proxy (dir, self.url (), '', '')
+        self._check_source_tree (source)
+        ## return self.build_class () (self.settings, source)
+        ## temporary workaround for __init__ help
+        try:
+            return self.build_class () (self.settings, source)
+        except Exception, e:
+            e.message += '\n: Class = ' + self._cls.__name__
+            print e.message
+            raise e
+    def build_class (self):
+        if not self._cls:
+            self._cls = get_build_class (self.settings, self.flavour (),
+                                         self.name ())
+        return self._cls
     def flavour (self):
         if not self._flavour:
             from gub import targetbuild
@@ -681,16 +707,14 @@ class Dependency:
                 raise 'Early download requested for %(_name)s in offline mode' % self.__dict__
             self.settings.os_interface.info ('early download for: %(_name)s\n' % self.__dict__)
             source.download ()
-    def build_class (self):
-        if not self._cls:
-            self._cls = get_build_class (self.settings, self.flavour (),
-                                         self.name ())
-        return self._cls
     def url (self):
         if not self._url:
             self._url = self.build_class ().__dict__.get ('source')
         if not self._url:
             self._url = self.settings.dependency_url (self.name ())
+        x, parameters = misc.dissect_url (self._url)
+        if parameters.get ('patch'):
+            self._cls.patches = parameters['patch']
         return self._url
     def name (self):
         return self._name
@@ -699,16 +723,3 @@ class Dependency:
         if not self.settings.platform == 'tools':
             cross.get_cross_module (self.settings).change_target_package (b)
         return b
-    def _create_build (self):
-        dir = os.path.join (self.settings.downloads, self.name ())
-        source = repository.get_repository_proxy (dir, self.url (), '', '')
-        self._check_source_tree (source)
-        ## return self.build_class () (self.settings, source)
-        ## temporary workaround for __init__ help
-        try:
-            return self.build_class () (self.settings, source)
-        except Exception, e:
-            e.message += '\n: Class = ' + self._cls.__name__
-            print e.message
-            raise e
-        
