@@ -15,15 +15,9 @@ PostScript files as graphics to be printed on non-PostScript printers.
 Supported printers include common dot-matrix, inkjet and laser
 models.'''
 
+    source = 'svn:http://svn.ghostscript.com:8080/ghostscript/trunk/gs&revision=7881'
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
-        repo = repository.Subversion (
-            dir=self.get_repodir (),
-            source='http://svn.ghostscript.com:8080/ghostscript',
-            branch='trunk',
-            module='gs',
-            ## 8.56
-            revision='7881')
 
         ## ugh: nested, with self shadow?
         def version_from_VERSION (self):
@@ -32,12 +26,11 @@ models.'''
             v = '%(GS_VERSION_MAJOR)s.%(GS_VERSION_MINOR)s' % d
             return v
 
-        from new import instancemethod
-        #repo.version = instancemethod (version_from_VERSION, repo, type (repo))
-        print 'FIXME: serialization: want version package TOO SOON'
-        repo.version = instancemethod (lambda x: '8.57', repo, type (repo))
-
-        self.with_vc (repo)
+        if type (source) == type (repository.Subversion):
+            from new import instancemethod
+            source.version = instancemethod (version_from_VERSION, source, type (source))
+            # print 'FIXME: serialization: want version package TOO SOON'
+            repo.version = instancemethod (lambda x: '8.57', repo, type (repo))
 
     def force_sequential_build (self):
         return True
