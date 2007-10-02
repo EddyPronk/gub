@@ -41,10 +41,10 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/%(name)s
 
         stages = self.stages ()
 
-        if self.settings.options.offline:
+        if 'dowload' in stages and self.settings.options.offline:
             stages.remove ('download')
 
-        if not self.settings.options.build_source:
+        if 'src_package' in stages and not self.settings.options.build_source:
             stages.remove ('src_package')
 
         if self.settings.options.fresh:
@@ -583,7 +583,7 @@ mkdir -p %(install_prefix)s/share/doc/%(name)s
 
 class BinaryBuild (UnixBuild):
     def stages (self):
-        return ['download', 'untar', 'configure', 'install', 'package', 'clean']
+        return ['download', 'untar', 'install', 'package', 'clean']
     def install (self):
         
         """Install package into %(install_root). Any overrides should
@@ -623,9 +623,11 @@ def get_build_from_file (settings, file_name, name):
     # cross/gcc.py:Gcc will be called: cross/Gcc.py,
     # to distinguish from specs/gcc.py:Gcc.py
     base = os.path.basename (name)
-    class_name = ((base[0].upper () + base[1:] + '-' + settings.platform)
-                  .replace ('-', '__')
-                  .replace ('+', 'x'))
+    class_name = ((base[0].upper () + base[1:])
+                  .replace ('-', '_')
+                  .replace ('+', 'x')
+                  + ('-' + settings.platform).replace ('-', '__'))
+    print 'LOOKING FOR:', class_name
     return misc.most_significant_in_dict (module.__dict__, class_name, '__')
 
 def get_build_class (settings, flavour, name):
@@ -712,6 +714,8 @@ class Dependency:
             self._url = self.build_class ().__dict__.get ('source')
         if not self._url:
             self._url = self.settings.dependency_url (self.name ())
+        if not self._url:
+            raise 'No URL for:' + self._name
         x, parameters = misc.dissect_url (self._url)
         if parameters.get ('patch'):
             self._cls.patches = parameters['patch']

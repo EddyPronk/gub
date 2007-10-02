@@ -7,6 +7,10 @@
        of packages.  you now also need/that is now defined in
        sources.py.  Use this only to override a package's source url?
 
+* find a clean way to pass strip_components to TarBall (See urw-fonts.py)
+  (and similar repository-dependent settings that are not revision or
+   branch)
+
 * On linux-64, for linux-64, local and lilypond build, ie
 
     make test

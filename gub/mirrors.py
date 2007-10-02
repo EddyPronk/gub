@@ -101,6 +101,7 @@ def with_template (
     strip_components=1,
     format='',
     name=''):
+    ball_version = version
     url = mirror % locals ()
     if strip_components != 1:
         url += '&strip_components=%(strip_components)s'
