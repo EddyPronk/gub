@@ -144,12 +144,13 @@ cd %(builddir)s && %(configure_command)s''')
         except:
             return targetbuild.TargetBuild.name_version (self)
 
-    def xxxbuild_version (self):
+    def build_version (self):
         d = misc.grok_sh_variables (self.expand ('%(srcdir)s/VERSION'))
         v = '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
+        self.os_interface.info ('LILYPOND-VERSION: %(v)s' % locals ())
         return v
 
-    def build_version (self):
+    def xxxbuild_version (self):
         print 'FIXME: serialization: want version package TOO SOON'
         return '2.11.33'
 
