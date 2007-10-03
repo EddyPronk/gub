@@ -5,6 +5,7 @@
     This means that all sorts of
       if type (foo) == type (bar)
     constructions barf
+  - junk ` ` constucts (replace by what?)
 
 *  we moeten env ook nog ergens losknippen. We zetten nu onze
    eigen variabelen over de user zijn env heen, maar dan kan er dus (niet

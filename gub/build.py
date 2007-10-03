@@ -371,10 +371,15 @@ rm -f %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/share/info/dir %(in
         self.libtool_installed_la_fixups ()
 
     def install_license (self):
-        self.os_interface.install_license (self.name (),
-                                           self.expand ('%(srcdir)s'),
-                                           self.expand ('%(install_root)s'),
-                                           self.license_file ())
+        def install (lst):
+            for file in lst:
+                if os.path.exists (file):
+                    self.system ('''
+mkdir -p %(install_root)s/license
+cp %(file)s %(install_root)s/license/%(name)s
+''', locals ())
+                    return
+        self.func (install, map (self.expand, misc.lst (self.license_file ())))
 
     def libtool_installed_la_fixups (self):
         def installed_la_fixup (la):

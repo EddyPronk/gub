@@ -131,62 +131,16 @@ class Chmod (SerializedCommand):
         hasher.append (self.file)
         hasher.append (str(self.mode))
 
-# FIXME: can't this be done a bit easier?
-# why is this needed ? --hwn
-#
-# install_licence wants to check for several files if they exist.
-# Because of the current implementation as a subst method, deferring
-# breaked with infinate recursion when attepmting a simple
-# implementation using func () or map_locate (), because those
-# functions also calls subst.
-#
-# This is something I wanted to do earlier, this simple change
-# allows to delete a number of build specifications and makes
-# others more simple.  We want to get rid of as many build
-# specifications as we can.  --jcn
-class InstallLicense (SerializedCommand):
-    def __init__ (self, name, srcdir, install_root, file):
-        self.install_root = install_root
-        self.name = name
-        self.srcdir = srcdir
-        self.install_root = install_root
-        self.file = file
-    def checksum (self, hasher):
-        hasher.append (self.__class__.__name__)
-    def execute (self, os_commands):
-        name = self.name
-        srcdir = self.srcdir
-        file = self.file
-        install_root = self.install_root
-        if type (self.file) == type (''):
-            file = self.file % locals ()
-        else:
-            for file in self.file:
-                print 'checking:',  file
-                file = file % locals ()
-                if os.path.exists (file):
-                    print 'FOUND:', file
-                    break
-        if not file:
-            # FIXME: this is needed for CrossToolsBuild that has
-            # license_file: return ''.
-            # But this is ugly for other packages that fail to
-            # provide a license file (typo).
-            os_commands.warning ('no license found for %(name)s\n' % locals ())
-            return
-        os_commands.system ('''
-mkdir -p %(install_root)s/license
-cp %(file)s %(install_root)s/license/%(name)s
-''' % locals ())
-
 class Func (SerializedCommand):
-    def __init__ (self, func):
+    def __init__ (self, func, *args):
         self.func = func
+        self.args = args
     def checksum (self, hasher):
         hasher.append (self.__class__.__name__)
         hasher.append (inspect.getsource (self.func))
+        hasher.append (`self.args`)
     def execute (self, os_commands):
-        return self.func ()
+        return self.func (*self.args)
 
 class Message (SerializedCommand):
     def __init__ (self, message, threshold, verbose):
@@ -656,6 +610,9 @@ commands.
 
     def locate_files (self, directory, pattern,
                       include_dirs=True, include_files=True):
+        if not directory or not pattern:
+            directory = os.path.dirname (directory + pattern)
+            pattern = os.path.basename (directory + pattern)
         directory = re.sub ( "/*$", '/', directory)
         results = list ()
         for (root, dirs, files) in os.walk (directory):
@@ -674,12 +631,11 @@ commands.
     def copy (self, src, dest):
         return self._execute (Copy (src, dest))
 
-    def func (self, f):
-        return self._execute (Func (f))
+    def func (self, f, *args):
+        return self._execute (Func (f, *args))
 
     def chmod (self, file, mode):
         return self._execute (Chmod (file, mode))
 
     def install_license (self, name, srcdir, install_root, file):
         return self._execute (InstallLicense (name, srcdir, install_root, file))
-
