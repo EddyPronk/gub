@@ -3,6 +3,7 @@ import os
 #
 from gub import misc
 from gub import mirrors
+from gub import sources
 from gub import targetbuild
 from gub import repository
 
