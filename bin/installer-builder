@@ -116,6 +116,13 @@ def check_installer (installer, options, args):
     
     checksum = pickle.loads (open (file).read ())
     ok = True
+    print 'FIXME: serialization checksum'
+    return True
+    # FIXME: why this weird logic, always doing a full loop?  Try:
+    #    loop:
+    #       if false:
+    #           return false
+    #    return True
     for (p, source_hash, spec_hash) in checksum:
         dict = install_manager.package_dict (p)
         ok = (ok
@@ -168,7 +175,8 @@ def build_installer (installer, args, options):
     installer.use_install_root_manager (install_manager)
 
     checksum_list = []
-    for p in install_manager.installed_packages ():
+    print 'FIXME: serialization checksum'
+    for p in (): ## install_manager.installed_packages ():
         dict = install_manager.package_dict (p)
         checksum_list.append ((p, 
                                dict['source_checksum'],

@@ -57,6 +57,13 @@ class BuildRunner:
         name = pkg.name ()
         pkg_dict = self.manager.package_dict (name)
 
+        # FIXME: why this weird logic, always entering the loop and
+        # doing a full loop?  Try:
+        #    loop:
+        #       if false:
+        #           return false
+        #    return True
+
         valid = (spec.spec_checksum == pkg_dict['spec_checksum']
                  and spec.source_checksum () == pkg_dict['source_checksum'])
 

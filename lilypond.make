@@ -54,6 +54,10 @@ LILYPOND_BRANCH_FILEIFIED=$(subst /,--,$(LILYPOND_BRANCH))
 
 LILYPOND_LOCAL_BRANCH=$(LILYPOND_BRANCH_FILEIFIED)-git.sv.gnu.org-lilypond.git
 
+# SimpleGit kludge
+$(warning FIXME: serialization using LILYPOND_LOCAL_BRANCH=master)
+LILYPOND_LOCAL_BRANCH=master
+
 # FIXME: this is duplicated and must match actual info in guile.py
 GUILE_LOCAL_BRANCH=branch_release-1-8-lilypond.org-vc-guile.git
 GUILE_LOCAL_BRANCH=branch_release-1-8-repo.or.cz-guile.git
