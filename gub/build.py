@@ -522,7 +522,7 @@ cp %(file)s %(install_root)s/license/%(name)s
         # stage?
         dir_name = re.sub (self.expand ('%(allsrcdir)s/'), '',
                            self.expand ('%(srcdir)s'))
-        _v = self.verbose_flag ()
+        _v = self.os_interface.verbose_flag ()
         self.system ('''
 tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"%(_v)s -zcf %(src_package_ball)s %(dir_name)s
 ''',
