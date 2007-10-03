@@ -151,36 +151,27 @@ class Repository:
         if self.is_tracking ():
             return self.branch.replace ('/', '-')
         return ''
-
     def file_name (self):
 #        return re.sub ('.*/([^/]+)', '\\1', self.source)
         return os.path.splitext (os.path.basename (self.source))[0]
-
     def download (self):
         pass
-
     def checksum (self):
         '''A checksum that characterizes the entire repository.
 
 Typically a hash of all source files.'''
-
-        return '0'
-
+        return self.version ()
     def read_file (self, file_name):
         return ''
-
     def is_distributed (self):
         '''Whether repository is central or uses distributed repositories'''
         return True
-    
     def is_tracking (self):
         '''Whether download will fetch newer versions if available'''
         return False
-    
     def is_downloaded (self):
         '''Whether repository is available'''
         return False
-    
     def update_workdir (self, destdir):
         '''Populate DESTDIR with sources of specified version/branch
 
@@ -201,11 +192,9 @@ It need not be unique over revisions.'''
     def read_last_patch (self):
         '''Return a dict with info about the last patch'''
         return {'date': None, 'patch': None}
-
     def get_diff_from_tag (self, name):
         '''Return diff wrt to tag NAME'''
         None
-
     def get_diff_from_tag_base (self, name):
         '''Return diff wrt to last tag that starts with NAME'''
         tags = self.tag_list (name)
@@ -233,26 +222,16 @@ class TagDb:
             return repo.get_diff_from_date (tztime.parse (tags[-1]))
         return None
 
-class Version:
-    def __init__ (self, version):
+class Version (Repository):
+    def __init__ (self, name, version):
         self.dir = None
+        self._name = name
+        self.source = name + '-' + version
         self._version = version
-
-    def download (self):
-        pass
-
-    def checksum (self):
-        return self.version ()
-
-    def is_tracking (self):
-        return False
-
-    def update_workdir (self, destdir):
-        pass
-
     def version (self):
         return self._version
-
+    def name (self):
+        return self._name
     def set_oslog (self, oslog):
         pass
 
