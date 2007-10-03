@@ -112,3 +112,6 @@ def with_template (
     return url
 
 with_tarball = with_template
+
+def with_vc (x):
+    return x
