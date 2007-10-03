@@ -230,6 +230,10 @@ Results include DIRECTORY in the filenames.'''
     def chmod (self, file, mode):
         return self.os_interface.chmod (self.expand (file), mode)
 
+    def first_is_newer (self, first, second, env={}):
+        return self.os_interface.first_is_newer (self.expand (first, env),
+                                                 self.expand (second, env))
+
 #
 # Tests.
 #

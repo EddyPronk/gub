@@ -5,12 +5,15 @@ from gub import repository
 from gub import build
 from gub import misc
 from gub import targetbuild
-from gub import context
+from gub import oslog
 
 class LilyPond (targetbuild.TargetBuild):
     source = 'git://git.sv.gnu.org/lilypond.git'
     download_before_init = True
     need_source_tree = True
+    # Let's not add branch to url, so that it will be overridden by
+    # branch in settings.  Otherwise, the one in url would win.
+    branch = 'master:master-git.sv.gnu.org-lilypond.git'
 
     '''A program for printing sheet music
 LilyPond lets you create music notation.  It produces
@@ -38,21 +41,6 @@ beautiful sheet music from a high-level description file.'''
             source.version = instancemethod (version_from_VERSION, source, type (source))
             #print 'FIXME: serialization: want version package TOO SOON'
             # source.version = instancemethod (lambda x: '2.11.33', repo, type (source))
-
-
-        # FIXME: where to put branch macramee?  And do we really need
-        # these special exceptions for the combination of GIT *and*
-        # LilyPond.  Seems doubly broken to me. -- jcn
-
-	# --branch=lilypond=master:master-git.sv.gnu.org-lilypond.git
-        branch = 'master:master-git.sv.gnu.org-lilypond.git'
-        if (settings.__dict__.has_key ('lilypond_branch')
-            and settings.lilypond_branch):
-            branch = settings.lilypond_branch
-	repo = repository.Git (self.get_repodir (),
-                               branch=branch,
-                               source=source)
-
 
     def patch (self):
         print 'FIXME: serialization: broken ChangeLog make rule'
@@ -85,6 +73,19 @@ beautiful sheet music from a high-level description file.'''
         c = targetbuild.TargetBuild.rsync_command (self)
         c = c.replace ('rsync', 'rsync --delete --exclude configure')
         return c
+    def stages (self):
+        return misc.list_insert_before (targetbuild.TargetBuild.stages (self),
+                                        'configure', 'autoupdate')
+    def autoupdate (self):
+        # FIXME: why do we need a specific lilypond kludge.  can't
+        # this be done more genericly?  shouldn't we check on
+        # source.is_tracking?
+        def must_autogen ():
+            return (self.first_is_newer ('%(srcdir)s/configure.in',
+                                         '%(builddir)s/config.make')
+                    or self.first_is_newer ('%(srcdir)s/stepmake/aclocal.m4',
+                                            '%(srcdir)s/configure'))
+        self.os_interface.pred_if_else (must_autogen, oslog.System (self.expand ('cd %(srcdir)s && bash autogen.sh --noconfigure')))
 
     def configure_command (self):
         ## FIXME: pickup $target-guile-config
@@ -97,57 +98,48 @@ beautiful sheet music from a high-level description file.'''
 '''))
 
     def configure (self):
-        self.autoupdate ()
+        # FIXME: why do we need a specific lilypond kludge.  can't
+        # this be done more genericly?  shouldn't we check on
+        # source.is_tracking?
+        def must_reconfigure ():
+            return (self.first_is_newer ('%(srcdir)s/config.make.in',
+                                         '%(builddir)s/config.make')
+                    or self.first_is_newer ('%(srcdir)s/GNUmakefile.in',
+                                            '%(builddir)s/GNUmakefile')
+                    or self.first_is_newer ('%(srcdir)s/config.hh.in',
+                                            '%(builddir)s/config.hh')
+                    or self.first_is_newer ('%(srcdir)s/configure',
+                                            '%(builddir)s/config.make')
+                    ## need to reconfigure if dirs were added.
+                    or (len (self.locate_files ('%(builddir)s', 'GNUmakefile'))
+                        != len (self.locate_files ('%(srcdir)s', 'GNUmakefile')) + 1))
+        self.os_interface.pred_if_else (must_reconfigure,
+                                        oslog.Func (self.reconfigure))
 
-    def do_configure (self):
+    def reconfigure (self):
         if not os.path.exists (self.expand ('%(builddir)s/FlexLexer.h')):
             flex = self.read_pipe ('which flex')
-            flex_include_dir = os.path.split (flex)[0] + "/../include"
+            flex_include_dir = os.path.split (flex)[0] + '/../include'
             self.system ('''
 mkdir -p %(builddir)s
-cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/
+cp %(flex_include_dir)s/FlexLexer.h %(builddir)s
 ''', locals ())
-            
         self.config_cache ()
-        self.system ('''
-mkdir -p %(builddir)s 
-cd %(builddir)s && %(configure_command)s''')
-        self.file_sub ([(' -O2 ', ' -O2 -Werror ')],
-                       '%(builddir)s/config.make')
+        targetbuild.TargetBuild.configure (self)
+        self.system ('touch %(builddir)s/config.hh')
+        self.file_sub ([(' -O2 ', ' -O2 -Werror ')], '%(builddir)s/config.make')
 
     def compile (self):
-        d = self.get_substitution_dict ()
-        if (misc.file_is_newer ('%(srcdir)s/config.make.in' % d,
-                                '%(builddir)s/config.make' % d)
-            or misc.file_is_newer ('%(srcdir)s/GNUmakefile.in' % d,
-                                   '%(builddir)s/GNUmakefile' % d)
-            or misc.file_is_newer ('%(srcdir)s/config.hh.in' % d,
-                                   '%(builddir)s/config.hh' % d)
-            or misc.file_is_newer ('%(srcdir)s/configure' % d,
-                                   '%(builddir)s/config.make' % d)
-
-            ## need to reconfigure if dirs were added.
-            or (len (self.locate_files ('%(builddir)s', 'GNUmakefile'))
-                != len (self.locate_files ('%(srcdir)s', 'GNUmakefile')) + 1)):
-
-            self.do_configure ()
-            self.system ('touch %(builddir)s/config.hh')
-            
+        self.configure ()
         targetbuild.TargetBuild.compile (self)
 
     def name_version (self):
-        # FIXME: make use of branch for version explicit, use
-        # name-branch for src /build dir, use name-version for
-        # packaging.
-        try:
-            return self.build_version ()
-        except:
-            return targetbuild.TargetBuild.name_version (self)
+        return targetbuild.TargetBuild.name_version (self)
 
     def build_version (self):
         d = misc.grok_sh_variables_str (self.source.read_file ('VERSION'))
         v = '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
-        self.os_interface.info ('LILYPOND-VERSION: %(v)s' % locals ())
+        self.os_interface.info ('LILYPOND-VERSION: %(v)s\n' % locals ())
         return v
 
     def pretty_name (self):
@@ -195,18 +187,6 @@ cd %(builddir)s && %(configure_command)s''')
         nv = self.name_version ()
         p = self.settings.platform
         return '%(nv)s.%(p)s.gub' % locals ()
-
-    def autoupdate (self, autodir=0):
-        autodir = self.srcdir ()
-
-        if (misc.file_is_newer (self.expand ('%(autodir)s/configure.in', locals ()),
-                                self.expand ('%(builddir)s/config.make',locals ()))
-            or misc.file_is_newer (self.expand ('%(autodir)s/stepmake/aclocal.m4', locals ()),
-                                   self.expand ('%(autodir)s/configure', locals ()))):
-            self.system ('''
-            cd %(autodir)s && bash autogen.sh --noconfigure
-            ''', locals ())
-            self.do_configure ()
 
 class LilyPond__cygwin (LilyPond):
 
@@ -279,8 +259,8 @@ class LilyPond__cygwin (LilyPond):
             ]
 
     def configure_command (self):
-        return LilyPond.configure_command (self).replace ('--enable-relocation',
-                                                          '--disable-relocation')
+        return (LilyPond.configure_command (self)
+                .replace ('--enable-relocation', '--disable-relocation'))
 
     def compile (self):
 	# Because of relocation script, python must be built before scripts
@@ -348,10 +328,10 @@ class LilyPond__no_python (LilyPond):
         d[''].remove ('python-runtime')
         return d
 
-    def do_configure (self):
+    def configure (self):
         self.system ('mkdir -p %(builddir)s', ignore_errors=True) 
         self.system ('touch %(builddir)s/Python.h') 
-        LilyPond.do_configure (self)
+        LilyPond.configure (self)
         self.dump ('''
 all:
 	true
@@ -382,8 +362,8 @@ class LilyPond__mingw (LilyPond):
 LDFLAGS="%(LDFLAGS)s %(python_lib)s"
 '''% locals ()))
     
-    def do_configure (self):
-        LilyPond.do_configure (self)
+    def configure (self):
+        LilyPond.configure (self)
 
         ## huh, why ? --hwn
         self.config_cache ()
@@ -488,8 +468,8 @@ class LilyPond__darwin (LilyPond):
         return (LilyPond.configure_command (self)
                 + ' --enable-static-gxx')
 
-    def do_configure (self):
-        LilyPond.do_configure (self)
+    def configure (self):
+        LilyPond.configure (self)
         make = self.expand ('%(builddir)s/config.make')
         if re.search ('GUILE_ELLIPSIS', open (make).read ()):
             return

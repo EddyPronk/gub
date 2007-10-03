@@ -11,6 +11,12 @@
    eigen variabelen over de user zijn env heen, maar dan kan er dus (niet
    gechecksumde) info uit de user environment lekken.
 
+* add stage: autoupdate, move autoupdate kludges from patch stage
+
+* add functions: must_autoupdate, must_configure that return TRUE.
+  and check for these before running autoupdate and configure.
+  remove specific code from lilypond.
+
 * use of member functions vs class variables/static functions:
    - need_source_tree
    - build_dependencies

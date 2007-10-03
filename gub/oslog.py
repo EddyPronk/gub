@@ -286,33 +286,23 @@ If TO_NAME is specified, the output is sent to there.
             os.chmod (to_name, mode)
 
 class Conditional (SerializedCommand):
-    def __init__ (self, predicate, child, child_false=None):
+    def __init__ (self, predicate, true, false=None):
         SerializedCommand.__init__ (self)
         self.predicate = predicate
-        self.child = child
-        self.child_false = child_false
+        self.true = true
+        self.false = false
     def checksum (self, hasher):
         hasher.append (self.__class__.__name__)
         hasher.append (inspect.getsource (self.predicate))
-        if self.child:
-            self.child.checksum (hasher)
-        if self.child_false:
-            self.child_false.checksum (hasher)
+        if self.true:
+            self.true.checksum (hasher)
+        if self.false:
+            self.false.checksum (hasher)
     def execute (self, os_commands):
         if self.predicate():
-            return self.child.execute (os_commands)
-        elif self.child_false:
-            return self.child_false.execute (os_commands)
-
-class FilePredicateConditional (Conditional):
-    def __init__ (self, name, predicate, child):
-        SerializedCommand.__init__ (self)
-        def pred():
-            return predicate (name)
-        self.predicate = pred
-        self.child = child
-    def exists (self):
-        self.name
+            return self.true.execute (os_commands)
+        elif self.false:
+            return self.false.execute (os_commands)
 
 class ShadowTree (SerializedCommand):
     def __init__ (self, src, dest):
@@ -373,18 +363,15 @@ class PackageGlobs (SerializedCommand):
         System (cmd).execute (os_commands)
 
 # FIXME
-class ForcedAutogenMagic (Conditional):
+class ForcedAutogenMagic (SerializedCommand):
     def __init__ (self, package):
         self.package = package
         SerializedCommand.__init__ (self)
-
     def system (self, cmd, os_commands):
         return System (cmd).execute (os_commands)
-
     def checksum (self, hasher):
         hasher.append (self.__class__.__name__)
         hasher.append (inspect.getsource (ForcedAutogenMagic.execute))
-
     def execute (self, os_commands):
         package = self.package
         autodir = None
@@ -636,6 +623,9 @@ commands.
 
     def chmod (self, file, mode):
         return self._execute (Chmod (file, mode))
+    
+    def first_is_newer (self, first, second):
+        return misc.first_is_newer (first, second)
 
-    def install_license (self, name, srcdir, install_root, file):
-        return self._execute (InstallLicense (name, srcdir, install_root, file))
+    def pred_if_else (self, predicate, true, false=None):
+        return self._execute (Conditional (predicate, true, false))

@@ -128,7 +128,7 @@ def compression_flag (ball):
         return ' -j'
     return ''
 
-def file_is_newer (f1, f2):
+def first_is_newer (f1, f2):
     return (not os.path.exists (f2)
         or os.stat (f1).st_mtime > os.stat (f2).st_mtime)
 
@@ -321,6 +321,9 @@ def list_insert (lst, idx, a):
     else:
         lst.insert (idx, a)
     return lst
+
+def list_insert_before (lst, target, a):
+    return list_insert (lst, list_find (lst, target), a)
 
 def most_significant_in_dict (d, name, sep):
     '''Return most significant variable from DICT
