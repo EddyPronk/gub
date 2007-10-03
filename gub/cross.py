@@ -22,7 +22,7 @@ class CrossToolsBuild (build.UnixBuild):
     def get_subpackage_names (self):
         return ['doc', '']
     def install_license (self):
-        self.harmless ('not installing license file for cross package: %(name)s' % self.get_substitution_dict ())
+        self.os_interface.harmless ('not installing license file for cross package: %(name)s' % self.get_substitution_dict ())
 
 def change_target_package (package):
     pass
