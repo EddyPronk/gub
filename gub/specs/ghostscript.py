@@ -15,7 +15,11 @@ PostScript files as graphics to be printed on non-PostScript printers.
 Supported printers include common dot-matrix, inkjet and laser
 models.'''
 
-    source = 'svn:http://svn.ghostscript.com:8080/ghostscript/trunk/gs&revision=7881'
+    #subversion is broken, this also works but gives less nice results
+    #source = 'svn:http://svn.ghostscript.com:8080/ghostscript/trunk/gs&revision=7881'
+    # this does not yet work
+    # source = 'svn:http://svn.ghostscript.com:8080/ghostscript&branch=trunk&module=gs&revision=7881'
+    source = 'svn:http://svn.ghostscript.com:8080/ghostscript&branch=trunk/gs&revision=7881'
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
 

@@ -49,6 +49,11 @@ class RepositoryProxy:
             url, parameters = misc.dissect_url (url)
             branch = parameters.get ('branch', branch)
             revision = parameters.get ('revision', revision)
+
+            # FIXME/TODO: pass these nicely to create ()
+            # possibly do dir,url,branch,revision also as dict or kwargs?
+            module = parameters.get ('module', '')
+            strip_components = parameters.get ('strip_components', 1)
             #patch = parameters.get ('patch')
 
         for i in RepositoryProxy.repositories:
@@ -869,6 +874,7 @@ class Subversion (SimpleRepo):
     patch_xmldateformat = '%Y-%m-%dT%H:%M:%S'
 
     def create (rety, dir, source, branch, revision='HEAD'):
+        source = source.replace ('svn:http://', 'http://')
         if not branch:
             branch = '.'
         if not revision:
