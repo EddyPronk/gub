@@ -1,5 +1,6 @@
-from gub import targetbuild
+from gub import mirrors
 from gub import repository
+from gub import targetbuild
 
 url = 'http://tinylogin.busybox.net/downloads/tinylogin-1.4.tar.gz'
 

@@ -15,22 +15,18 @@ The distribution also includes extensive general documentation about
 TeX, as well as the documentation accompanying the included software
 packages.'''
 
+    source = mirrors.with_vc (repository.Subversion (None,
+                                                     source=texlive_svn,
+                                                     branch='trunk',
+                                                     module='UnixBuild/source',
+                                                     revision='HEAD'))
+
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
-        repo = repository.Subversion (
-            dir=self.get_repodir (),
-            source=texlive_svn,
-            branch='trunk',
-            module='UnixBuild/source',
-            revision='HEAD')
-
         def fixed_version (self):
             return '2006'
-
         from new import instancemethod
-        repo.version = instancemethod (fixed_version, repo, type (repo))
-
-    source = mirrors.with_vc (repo)
+        source.version = instancemethod (fixed_version, source, type (source))
 
         self.texmf_repo = repository.Subversion (
 # FIXME: module should be used in checkout dir name.            

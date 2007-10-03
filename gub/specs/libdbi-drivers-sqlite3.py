@@ -4,9 +4,6 @@ from gub import repository
 from gub import targetbuild
 
 class Libdbi_drivers_sqlite3 (targetbuild.TargetBuild):
-    def __init__ (self, settings, source):
-        targetbuild.TargetBuild.__init__ (self, settings, source)
-        #self.with_template (version='0.8.1', mirror=mirrors.sf, format='gz')
     source = mirrors.with_vc (repository.NewTarBall (self.settings.downloads, mirrors.sf, 'libdbi-drivers', '0.8.2'))
 
     def _get_build_dependencies (self):

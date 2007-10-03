@@ -1,9 +1,7 @@
+from gub import mirrors
 from gub import build
 
 class Root_image (build.NullBuild):
-    def __init__ (self, settings, source):
-        build.NullBuild.__init__ (self, settings, source)
-        from gub import repository
     source = mirrors.with_vc (repository.Version ('1.0'))
     def _get_build_dependencies (self):
         busybox = [

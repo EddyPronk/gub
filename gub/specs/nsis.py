@@ -1,9 +1,22 @@
 import os
 
+from gub import mirrors
 from gub import repository
 from gub import toolsbuild
 
 class Nsis (toolsbuild.ToolsBuild):
+    source = mirrors.with_template (name='nsis', version='2.24',
+                                    # wx-windows, does not compile
+                                    # version='2.30',
+                                    # bzip2 install problem
+                                    # version='2.23',
+                                    mirror='http://surfnet.dl.sourceforge.net/sourceforge/%(name)s/%(name)s-%(version)s-src.tar.%(format)s',
+                                    format='bz2')
+    FOOsource = repository.CVS (None,
+                             source=':pserver:anonymous@nsis.cvs.sourceforge.net:/cvsroot/nsis',
+                             module='NSIS',
+                             tag='HEAD')
+
     def __init__ (self, settings, source):
         toolsbuild.ToolsBuild.__init__ (self, settings, source)
         self.save_path = os.environ['PATH']
@@ -22,22 +35,6 @@ class Nsis (toolsbuild.ToolsBuild):
             # FIXME: need this to find windows.h on linux-64;
             # how does this ever work on linux-x86?
             self.CPATH = mingw_dir + settings.prefix_dir + '/include'
-
-        if 1:
-        source = mirrors.with_template (name='nsis', version='2.24',
-                # wx-windows, does not compile
-                # version='2.30',
-                # bzip2 install problem
-                # version='2.23',
-                       mirror='http://surfnet.dl.sourceforge.net/sourceforge/%(name)s/%(name)s-%(version)s-src.tar.%(format)s',
-                       format='bz2')
-        else:
-            repo = repository.CVS (
-                self.get_repodir (),
-                source=':pserver:anonymous@nsis.cvs.sourceforge.net:/cvsroot/nsis',
-                module='NSIS',
-                tag='HEAD')
-        source = mirrors.with_vc (repo)
 
     def get_build_dependencies (self):
         return ['scons']

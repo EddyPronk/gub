@@ -3,21 +3,7 @@ from gub import repository
 from gub import targetbuild
 
 class Ffmpeg (targetbuild.TargetBuild):
-    def __init__ (self, settings, source):
-        targetbuild.TargetBuild.__init__ (self, settings, source)
-        # FIXME: fixed version for svn, what a mess
-        self.revision = '6017'
-        repo = repository.Subversion (
-            dir=self.get_repodir (),
-            source='svn://svn.mplayerhq.hu/ffmpeg',
-            branch='trunk',
-            module='.',
-            revision=self.revision)
-        def fixed_version (self):
-            return self.revision
-        from new import instancemethod
-        repo.version = instancemethod (fixed_version, repo, type (repo))
-    source = mirrors.with_vc (repo)
+    source='svn://svn.mplayerhq.hu/ffmpeg&branch=trunk&revision=6017',
     def version (self):
         return self.revision
     def _get_build_dependencies (self):

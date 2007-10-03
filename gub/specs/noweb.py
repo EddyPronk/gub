@@ -10,6 +10,8 @@ remaining as simple as possible.  Its primary advantages are
 simplicity, extensibility, and language-independence.
 '''
     source = mirrors.with_vc (repository.TarBall (self.settings.downloads, url, version='2.11b'))
+    def __init__ (self, settings, source):
+        targetbuild.TarBall.__init__ (self, settings, source)
         self.BIN='%(install_prefix)s/bin'
         self.LIB='%(install_prefix)s/lib'
         self.MAN='%(install_prefix)s/share/man'

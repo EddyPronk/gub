@@ -4,13 +4,9 @@ from gub import repository
 
 ### BROKEN
 class Msys(targetbuild.TargetBuild):
-    def __init__ (self, settings, source):
-        targetbuild.TargetBuild.__init__ (self, settings, source)
-        repo = repository.CVS (self.get_repodir(),
+    source = mirrors.with_vc (repository.CVS (None,
                                source=':pserver:anonymous@mingw.cvs.sourceforge.net:/cvsroot/mingw',
-                               module='msys/rt/src'
-                               )
-    source = mirrors.with_vc (repo)
+                               module='msys/rt/src'))
 
     def patch(self):
         self.system ('cd %(srcdir)s && dos2unix `find -type f`')
