@@ -8,6 +8,7 @@ class Urw_fonts (build.BinaryBuild):
         build.BinaryBuild.__init__ (self, settings, source)
         # FIXME: TODO: find nice way to pass strip_components
         # parameter to TarBall
+        print 'FIXME: strip-components'
         source.strip_components = 0
     def compile (self):
         self.system ('cd %(srcdir)s && rm README* COPYING ChangeLog TODO')

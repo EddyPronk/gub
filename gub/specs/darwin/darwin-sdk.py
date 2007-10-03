@@ -3,11 +3,14 @@ from gub import build
 class Darwin_sdk (build.SdkBuild):
     def __init__ (self, settings, source):
         build.SdkBuild.__init__ (self, settings, source)
+        # FIXME: move os_version check + var to settings,
+        # escape %%(darwin_os_version)s and handle as package_arch
+        # in build.py
         os_version = 7
         if settings.platform == 'darwin-x86':
             os_version = 8
         from gub import repository
-        self.with_vc (repository.TarBall (settings.downloads,
+    source = mirrors.with_vc (repository.TarBall (settings.downloads,
                                           url='http://lilypond.org/download/gub-sources/darwin%d-sdk-0.4.tar.gz' % os_version,
                                           version='0.4'))
     def patch (self):

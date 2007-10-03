@@ -11,7 +11,7 @@ simplicity, extensibility, and language-independence.
 '''
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
-        self.with_vc (repository.TarBall (self.settings.downloads, url, version='2.11b'))
+    source = mirrors.with_vc (repository.TarBall (self.settings.downloads, url, version='2.11b'))
         self.BIN='%(install_prefix)s/bin'
         self.LIB='%(install_prefix)s/lib'
         self.MAN='%(install_prefix)s/share/man'

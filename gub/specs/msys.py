@@ -10,7 +10,7 @@ class Msys(targetbuild.TargetBuild):
                                source=':pserver:anonymous@mingw.cvs.sourceforge.net:/cvsroot/mingw',
                                module='msys/rt/src'
                                )
-        self.with_vc(repo)
+    source = mirrors.with_vc (repo)
 
     def patch(self):
         self.system ('cd %(srcdir)s && dos2unix `find -type f`')

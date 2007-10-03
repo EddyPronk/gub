@@ -4,9 +4,11 @@ from gub import repository
 url = 'http://ftp.isc.org/isc/dhcp/dhcp-3.0.6.tar.gz'
 
 class Dhcp (targetbuild.TargetBuild):
+    source = mirrors.with_vc (repository.TarBall (self.settings.downloads, url, strip_components=2))
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
-        self.with_vc (repository.TarBall (self.settings.downloads, url, strip_components=2))
+        print 'FIXME: strip-components'
+        source.strip_components = 2
     def get_subpackage_names (self):
         return ['']
     def patch (self):

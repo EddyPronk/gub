@@ -30,7 +30,7 @@ packages.'''
         from new import instancemethod
         repo.version = instancemethod (fixed_version, repo, type (repo))
 
-        self.with_vc (repo)
+    source = mirrors.with_vc (repo)
 
         self.texmf_repo = repository.Subversion (
 # FIXME: module should be used in checkout dir name.            

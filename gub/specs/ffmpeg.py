@@ -17,7 +17,7 @@ class Ffmpeg (targetbuild.TargetBuild):
             return self.revision
         from new import instancemethod
         repo.version = instancemethod (fixed_version, repo, type (repo))
-        self.with_vc (repo)
+    source = mirrors.with_vc (repo)
     def version (self):
         return self.revision
     def _get_build_dependencies (self):

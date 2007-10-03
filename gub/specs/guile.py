@@ -21,7 +21,7 @@ class Guile (targetbuild.TargetBuild):
                                branch=branch,
                                source=source)
         repo.version = lambda: '1.8.2'
-        self.with_vc (repo)
+    source = mirrors.with_vc (repo)
         self.so_version = '17'
 
     def autogen_sh (self):

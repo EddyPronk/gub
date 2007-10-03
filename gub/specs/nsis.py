@@ -37,7 +37,7 @@ class Nsis (toolsbuild.ToolsBuild):
                 source=':pserver:anonymous@nsis.cvs.sourceforge.net:/cvsroot/nsis',
                 module='NSIS',
                 tag='HEAD')
-            self.with_vc (repo)
+        source = mirrors.with_vc (repo)
 
     def get_build_dependencies (self):
         return ['scons']
