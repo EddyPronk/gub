@@ -43,6 +43,7 @@ class Libpng__mingw (Libpng):
 from gub import toolsbuild 
 
 class Libpng__tools (toolsbuild.ToolsBuild, Libpng):
+    source = Libpng.source
     def get_build_dependencies (self):
         return ['libtool']
     def patch (self):

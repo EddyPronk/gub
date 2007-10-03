@@ -48,27 +48,17 @@ class Zlib__mingw (Zlib):
         return zlib_is_broken + ' %(srcdir)s/configure --shared '
 
 class Zlib__tools (toolsbuild.ToolsBuild, Zlib):
-    def __init__ (self, settings, source):
-        toolsbuild.ToolsBuild.__init__ (self, settings, source)
-    source = mirrors.with_template (name='zlib', version='1.2.3',
-                   mirror='http://heanet.dl.sourceforge.net/sourceforge/libpng/zlib-1.2.3.tar.gz')
-
-        
+    source = Zlib.source
     def patch (self):
-        ## ugh : C&P
         toolsbuild.ToolsBuild.patch (self)
-        self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/zlib-1.2.3.patch')
+        self.apply_patch ('zlib-1.2.3.patch')
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
-      
     def install_command (self):
         return toolsbuild.ToolsBuild.broken_install_command (self)
-        
     def install (self):
         toolsbuild.ToolsBuild.install (self)
         self.system ('cd %(install_root)s && mkdir -p ./%(tools_prefix)s && cp -av usr/* ./%(tools_prefix)s && rm -rf usr')
-
     def configure_command (self):
         return Zlib.configure_command (self)
-
     def license_file (self):
         return '%(sourcefiledir)s/zlib.license'

@@ -351,6 +351,7 @@ guile-tut').
 from gub import toolsbuild
 from gub import build
 class Guile__tools (toolsbuild.ToolsBuild, Guile):
+    source = Guile.source
     def get_build_dependencies (self):
         return (toolsbuild.ToolsBuild.get_build_dependencies (self)
                 + Guile.get_build_dependencies (self)

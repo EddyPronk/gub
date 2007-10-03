@@ -127,16 +127,12 @@ chmod 755 %(install_prefix)s/bin/*
 
 from gub import toolsbuild
 class Python__tools (toolsbuild.ToolsBuild, Python):
-    source = mirrors.with_template (name='python25', version='2.5',
-                   mirror=mirrors.python,
-                   format='bz2')
-
+    source = Python.source
     def configure (self):
         self.system ('''cd %(srcdir)s && autoconf''')
         self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
         targetbuild.TargetBuild.configure (self)
     def install (self):
         toolsbuild.ToolsBuild.install (self)
-
     def wrap_executables (self):
         pass

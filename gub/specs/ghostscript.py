@@ -331,10 +331,10 @@ cd %(builddir)s && rm -f obj/*.tr
         Ghostscript.compile (self)
 # X11 stuff
     def stages (self):
-        lst = Ghostscript.stages (self)
-        return misc.list_insert (lst, misc.list_find (lst, 'install') + 1,
-                                 ['configure_x11', 'compile_x11', 'install_x11',
-                                  'install_fonts'])
+        return misc.list_insert_before (Ghostscript.stages (self),
+                                        'package',
+                                        ['configure_x11', 'compile_x11',
+                                         'install_x11', 'install_fonts'])
     def config_cache (self):
         Ghostscript.config_cache (self)
         self.system ('cd %(builddir)s && cp -p config.cache config-x11.cache')

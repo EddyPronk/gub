@@ -108,7 +108,7 @@ class XFreetype__cygwin (Freetype):
         self.pre_install_smurf_exe ()
 
 class Freetype__tools (toolsbuild.ToolsBuild, Freetype):
-    auto_source = mirrors.with_template (name='freetype', version='2.1.10', mirror=mirrors.nongnu_savannah)
+    source = Freetype.source
     def get_build_dependencies (self):
         # tools is not split
         #return ['libtool-devel']

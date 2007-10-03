@@ -142,9 +142,7 @@ class Python__mingw (Python__mingw_cross):
 
 from gub import toolsbuild
 class Python__tools (toolsbuild.ToolsBuild, Python):
-    auto_source = mirrors.with_template (name='python', version='2.4.2',
-                   mirror=mirrors.python,
-                   format='bz2')
+    source = Python.source
     def configure (self):
         self.system ('''cd %(srcdir)s && autoconf''')
         self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
