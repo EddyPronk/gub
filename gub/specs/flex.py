@@ -3,7 +3,7 @@ from gub import sources
 from gub import mirrors
 
 class Flex (toolsbuild.ToolsBuild):
-    source = sources.join (sources.sf, 'flex/flex-2.5.4a.tar.gz')
+    source = sources.join (sources.sf, 'flex/flex-2.5.33.tar.gz')
     auto_source = mirrors.with_template (name='flex', version="2.5.4a",
                    mirror=mirrors.sf, format='gz'),
     def srcdir (self):
