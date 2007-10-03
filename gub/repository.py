@@ -1088,7 +1088,7 @@ class SimpleGit (SimpleRepo):
         elif self.local_branch and self.local_branch != self.branch:
             self.git_system ('checkout %(branch)s' % locals ())
             branch = self.local_branch
-            self.git_system ('branch %(branch)s' % locals ())
+            self.git_system ('branch -f %(branch)s' % locals ())
         # end FIXME
         self.git_system ('checkout %(branch)s' % locals ())
         SimpleRepo.update_workdir (self, destdir)
