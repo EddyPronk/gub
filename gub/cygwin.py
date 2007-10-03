@@ -205,7 +205,13 @@ def get_cygwin_package (settings, name, dict, skip):
     if name in blacklist:
         name += '::blacklisted'
     package_class = classobj (name, (build.BinaryBuild,), {})
-    package = package_class (settings)
+    from gub import repository
+    source = repository.TarBall (settings.downloads,
+                                 os.path.join (mirror,
+                                               dict['install'].split ()[0]),
+                                 dict['version'],
+                                 strip_components=0)
+    package = package_class (settings, source)
     package.name_dependencies = []
     if dict.has_key ('requires'):
         deps = re.sub ('\([^\)]*\)', '', dict['requires']).split ()
@@ -222,15 +228,6 @@ def get_cygwin_package (settings, name, dict, skip):
     def name (self):
         return pkg_name
     package.name = instancemethod (name, package, package_class)
-
-    package.ball_version = dict['version']
-    package.url = (mirror + '/' + dict['install'].split ()[0])
-    package.format = 'bz2'
-    from gub import repository
-    package.with_vc (repository.TarBall (settings.downloads,
-                                         package.url,
-                                         package.ball_version,
-                                         strip_components=0))
     return package
 
 ## UGH.   should split into parsing  package_file and generating gub specs.
