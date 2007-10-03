@@ -13,7 +13,7 @@ class Guile (targetbuild.TargetBuild):
     #--branch=guile=branch_release-1-8-repo.or.cz-guile.git
     branch = 'branch_release-1-8-repo.or.cz-guile.git'
     branch = 'branch_release-1-8', 
-    source = sources.join (gnu, 'guile/guile-1.8.2.tar.gz')
+    source = sources.join (sources.gnu, 'guile/guile-1.8.2.tar.gz')
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
         if instanceof (source, repository.Repository):
