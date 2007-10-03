@@ -80,8 +80,6 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/glib-2.12.12-disable-threads.patch
         return Glib.configure_command (self) + ' --disable-threads --disable-timeloop'
 
 class Glib__tools (toolsbuild.ToolsBuild):
-    def __init__ (self, settings, source):
-        toolsbuild.ToolsBuild.__init__ (self, settings, source)
     source = mirrors.with_template (name='glib', version='2.10.3',
                    mirror=mirrors.gnome_214,
                    format='bz2')

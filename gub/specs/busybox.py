@@ -7,8 +7,6 @@ url = 'http://busybox.net/downloads/busybox-1.5.1.tar.bz2'
 # cpu_set_t
 
 class Busybox (targetbuild.TargetBuild):
-    def __init__ (self, settings, source):
-        targetbuild.TargetBuild.__init__ (self, settings, source)
     source = mirrors.with_vc (repository.TarBall (self.settings.downloads, url))
     def get_subpackage_names (self):
         return ['']

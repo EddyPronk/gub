@@ -4,8 +4,6 @@ from gub import repository
 url = 'ftp://ftp.cistron.nl/pub/people/miquels/sysvinit/sysvinit-2.86.tar.gz'
 
 class Sysvinit (targetbuild.TargetBuild):
-    def __init__ (self, settings, source):
-        targetbuild.TargetBuild.__init__ (self, settings, source)
     source = mirrors.with_vc (repository.TarBall (self.settings.downloads, url))
     def get_subpackage_names (self):
         return ['']

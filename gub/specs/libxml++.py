@@ -4,8 +4,6 @@ from gub import targetbuild
 url='http://ftp.gnome.org/pub/GNOME/sources/libxml++/2.18/libxml++-2.18.1.tar.gz'
 
 class Libxml_xx_ (targetbuild.TargetBuild):
-    def __init__ (self, settings, source):
-        targetbuild.TargetBuild.__init__ (self, settings, source)
     source = mirrors.with_vc (repository.TarBall (self.settings.downloads, url))
     def _get_build_dependencies (self):
         return ['glibmm']

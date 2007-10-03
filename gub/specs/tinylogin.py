@@ -4,8 +4,6 @@ from gub import repository
 url = 'http://tinylogin.busybox.net/downloads/tinylogin-1.4.tar.gz'
 
 class Tinylogin (targetbuild.TargetBuild):
-    def __init__ (self, settings, source):
-        targetbuild.TargetBuild.__init__ (self, settings, source)
     source = mirrors.with_vc (repository.TarBall (self.settings.downloads, url))
     def patch (self):
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')

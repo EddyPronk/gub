@@ -2,8 +2,6 @@ from gub import toolsbuild
 from gub import mirrors
 
 class Scons (toolsbuild.ToolsBuild):
-    def __init__ (self, settings, source):
-        toolsbuild.ToolsBuild.__init__ (self, settings, source)
     source = mirrors.with_template (name='scons', version='0.96.93',
                    format='gz',
                    mirror=mirrors.sf),

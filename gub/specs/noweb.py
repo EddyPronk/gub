@@ -9,8 +9,6 @@ Noweb is designed to meet the needs of literate programmers while
 remaining as simple as possible.  Its primary advantages are
 simplicity, extensibility, and language-independence.
 '''
-    def __init__ (self, settings, source):
-        targetbuild.TargetBuild.__init__ (self, settings, source)
     source = mirrors.with_vc (repository.TarBall (self.settings.downloads, url, version='2.11b'))
         self.BIN='%(install_prefix)s/bin'
         self.LIB='%(install_prefix)s/lib'
