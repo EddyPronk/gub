@@ -164,14 +164,9 @@ tries to do everything including autotooling and libtool fooling.  '''
     
     @context.subst_method
     def name (self):
-        if 0: # old method, removes cross/
-            file = self.__class__.__name__.lower ()
-            file = re.sub ('__.*', '', file)
-            file = re.sub ('_', '-', file)
         file = self.__class__.__module__
-
-        ## UGH ? what happens if xx is in a normal name?!
-        file = re.sub ('xx', '++', file)
+        file = re.sub ('_xx_', '++', file)
+        file = re.sub ('_x_', '+', file)
         return file
 
     @context.subst_method
@@ -632,7 +627,8 @@ def get_build_from_file (settings, file_name, name):
     base = os.path.basename (name)
     class_name = ((base[0].upper () + base[1:])
                   .replace ('-', '_')
-                  .replace ('+', 'x')
+                  .replace ('++', '_xx_')
+                  .replace ('+', '_x_')
                   + ('-' + settings.platform).replace ('-', '__'))
     settings.os_interface.debug ('LOOKING FOR: %(class_name)s' % locals ())
     return misc.most_significant_in_dict (module.__dict__, class_name, '__')
