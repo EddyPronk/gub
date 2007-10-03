@@ -357,14 +357,18 @@ def testme ():
     print dissect_url ('git://anongit.freedesktop.org/git/fontconfig?revision=1234')
     print dissect_url ('http://lilypond.org/foo-123.tar.gz&patch=a&patch=b')
 
+def list_or_tuple (x):
+    return type (x) == type (list ()) or type (x) != type (tuple ())
+
 def appy_or_map (f, x):
-    if type (x) == type (''):
-        f (x)
-    elif type (x) == type (list ()) or type (x) == type (tuple ()):
-        map (f, x)
-    else:
-        print type (x)
-        barf
+    if list_or_tuple (x):
+        return map (f, x)
+    return [f (x)]
+
+def lst (x):
+    if not list_or_tuple (x):
+        return [x]
+    return x
 
 def get_from_parents (cls, key):
     base = cls.__name__
