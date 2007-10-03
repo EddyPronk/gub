@@ -1,11 +1,10 @@
 from gub import build
 from gub import misc
+from gub import context
 
-from context import subst_method 
 class CrossToolsBuild (build.UnixBuild):
     """Package for cross compilers/linkers etc.
     """
-
     def configure_command (self):
         return (build.UnixBuild.configure_command (self)
             + misc.join_lines ('''
@@ -16,21 +15,14 @@ class CrossToolsBuild (build.UnixBuild):
 --with-sysroot=%(system_root)s
 --disable-multilib
 '''))
-
     def compile_command (self):
         return self.native_compile_command ()
-        
     def install_command (self):
         return '''make DESTDIR=%(install_root)s prefix=/usr/cross install'''
-
-#    def gub_src_uploads (self):
-#        return '%(gub_cross_uploads)s'
-
     def get_subpackage_names (self):
         return ['doc', '']
-    
-    def license_file (self):
-        return ''
+    def install_license (self):
+        self.harmless ('not installing license file for cross package: %(name)s' % self.get_substitution_dict ())
 
 def change_target_package (package):
     pass
