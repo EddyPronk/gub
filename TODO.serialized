@@ -1,12 +1,3 @@
-* init-repo:
-  gub/sources.py:
-     - isn't this going to be a hotspot?
-
-       in this case, a .py file does not fully specify the
-       build.  or, our spec/ directory does not specify a working set
-       of packages.  you now also need/that is now defined in
-       sources.py.  Use this only to override a package's source url?
-
 * find a clean way to pass strip_components to TarBall (See urw-fonts.py)
   (and similar repository-dependent settings that are not revision or
    branch)
@@ -14,16 +5,16 @@
 * On linux-64, for linux-64, local and lilypond build, ie
 
     make test
+    --> GIT (checkout + simplify)/SimpleGit (add local branch macramee ??)
 
-* New task at hand: make all ...
+* Actual checksum checking
+  - of package
+  - of all dependencies/of cross build packages?
 
 * Fix cutting of corners, marked by
+   print 'FIXME: serialization ...
 
-  -FIXME: serialization: want checksum TOO SOON
-  -FIXME: serialization: want version package TOO SOON
-
-* actually storing and verifying build checksums
-
+* other platforms that linux-64
 * rewrite locate_files using map_locate
 
 * eradicate glob.glob (use map_locate)
