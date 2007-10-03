@@ -16,7 +16,7 @@ class Guile (targetbuild.TargetBuild):
     source = sources.join (sources.gnu, 'guile/guile-1.8.2.tar.gz')
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
-        if instanceof (source, repository.Repository):
+        if isinstance (source, repository.Repository):
             source.version = source.version = lambda: '1.8.2'
         self.so_version = '17'
 
