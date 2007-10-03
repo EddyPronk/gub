@@ -358,7 +358,7 @@ def testme ():
     print dissect_url ('http://lilypond.org/foo-123.tar.gz&patch=a&patch=b')
 
 def list_or_tuple (x):
-    return type (x) == type (list ()) or type (x) != type (tuple ())
+    return type (x) == type (list ()) or type (x) == type (tuple ())
 
 def appy_or_map (f, x):
     if list_or_tuple (x):
