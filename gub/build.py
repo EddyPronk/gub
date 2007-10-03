@@ -689,7 +689,9 @@ class Dependency:
         dir = os.path.join (self.settings.downloads, self.name ())
         branch = self.settings.__dict__.get ('%(_name)s_branch' % self.__dict__,
                                              self.build_class ().branch)
-        source = repository.get_repository_proxy (dir, self.url (), branch, '')
+        source = self.url ()
+        if not isinstance (source, repository.Repository):
+            source = repository.get_repository_proxy (dir, source, branch, '')
         self._check_source_tree (source)
         return self.build_class () (self.settings, source)
     def build_class (self):
