@@ -1029,10 +1029,10 @@ class SimpleGit (SimpleRepo):
     vc_system = '.git'
     patch_dateformat = '%a %b %d %H:%M:%S %Y %z'
 
-    def __init__ (self, dir, source='', branch='master', revision='HEAD'):
+    def __init__ (self, dir, source='', branch='master', revision=''):
         # FIXME: multi-branch repos not supported for now
-        if not revision:
-            revision = 'HEAD'
+#        if not revision:
+#            revision = 'HEAD'
         if not branch:
             branch = 'master'
         self.module = '.'
@@ -1085,7 +1085,7 @@ class SimpleGit (SimpleRepo):
         branch = self.branch
         if self.revision:
             branch = self.revision
-        elif self.local_branch:
+        elif self.local_branch and self.local_branch != self.branch:
             self.git_system ('checkout %(branch)s' % locals ())
             branch = self.local_branch
             self.git_system ('branch %(branch)s' % locals ())
