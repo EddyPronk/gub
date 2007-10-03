@@ -114,8 +114,8 @@ class Copy (SerializedCommand):
         self.dest = dest
     def checksum (self, hasher):
         hasher.append (self.__class__.__name__)
-        hasher.append (src)
-        hasher.append (dest)
+        hasher.append (self.src)
+        hasher.append (self.dest)
     def execute (self, os_commands):
         import shutil
         shutil.copy2 (self.src, self.dest)
