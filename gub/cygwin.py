@@ -6,6 +6,7 @@ from new import instancemethod
 #
 from gub import build
 from gub import misc
+from gub import targetbuild
 
 def untar_cygwin_src_package_variant2 (self, file_name, split=False):
     '''Unpack this unbelievably broken version of Cygwin source packages.

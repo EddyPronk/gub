@@ -373,6 +373,13 @@ def lst (x):
         return [x]
     return x
 
+def list_remove (lst, x):
+    if not list_or_tuple (x):
+        lst.remove (x)
+    else:
+        lst = filter (lambda i: i not in x, lst)
+    return lst
+
 def get_from_parents (cls, key):
     base = cls.__name__
     p = base.find ('__')
