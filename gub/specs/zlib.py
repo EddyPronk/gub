@@ -9,15 +9,11 @@ class Zlib (targetbuild.TargetBuild):
         
     def patch (self):
         targetbuild.TargetBuild.patch (self)
-
-        self.system ('cp %(sourcefiledir)s/zlib.license %(license_file)s')
-        self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/zlib-1.2.3.patch')
+        self.apply_patch ('zlib-1.2.3.patch')
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
 
     def compile_command (self):
         return targetbuild.TargetBuild.compile_command (self) + ' ARFLAGS=r '
-
-    
     def configure_command (self):
         import re
         stripped_platform = self.settings.expand ('%(platform)s')
@@ -25,14 +21,13 @@ class Zlib (targetbuild.TargetBuild):
         stripped_platform = stripped_platform.replace ('darwin', 'Darwin')
         
         zlib_is_broken = 'SHAREDTARGET=libz.so.1.2.3 target=' + stripped_platform
-
         ## doesn't use autoconf configure.
         return zlib_is_broken + ' %(srcdir)s/configure --shared '
 
     def install_command (self):
         return targetbuild.TargetBuild.broken_install_command (self)
-
-
+    def license_file (self):
+        return '%(sourcefiledir)s/zlib.license'
 
 class Zlib__mingw (Zlib):
     # FIXME: removeme, try zlib-1.2.3.patch
@@ -62,8 +57,6 @@ class Zlib__tools (toolsbuild.ToolsBuild, Zlib):
     def patch (self):
         ## ugh : C&P
         toolsbuild.ToolsBuild.patch (self)
-        
-        self.system ('cp %(sourcefiledir)s/zlib.license %(license_file)s')
         self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/zlib-1.2.3.patch')
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
       
@@ -76,3 +69,6 @@ class Zlib__tools (toolsbuild.ToolsBuild, Zlib):
 
     def configure_command (self):
         return Zlib.configure_command (self)
+
+    def license_file (self):
+        return '%(sourcefiledir)s/zlib.license'
