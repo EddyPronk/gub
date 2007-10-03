@@ -37,10 +37,8 @@ beautiful sheet music from a high-level description file.'''
             return v
 
         from new import instancemethod
-        if type (source) == type (repository.SimpleGit):
+        if isinstance (source, repository.Repository):
             source.version = instancemethod (version_from_VERSION, source, type (source))
-            #print 'FIXME: serialization: want version package TOO SOON'
-            # source.version = instancemethod (lambda x: '2.11.33', repo, type (source))
 
     def patch (self):
         print 'FIXME: serialization: broken ChangeLog make rule'
