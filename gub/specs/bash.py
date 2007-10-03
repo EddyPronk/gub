@@ -11,11 +11,13 @@ class Bash (targetbuild.TargetBuild):
 
 
 class Bash__mingw (Bash):
-    def __init__ (self, settings, source):
-        Bash.__init__ (self, settings, source)
     source = mirrors.with_template (name='bash', version='2.05b-MSYS',
                             mirror='http://ufpr.dl.sourceforge.net/sourceforge/mingw/bash-2.05b-MSYS-src.tar.bz2',
                             format='bz2', strip_components=2)
+    def __init__ (self, settings, source):
+        Bash.__init__ (self, settings, source)
+        print 'FIXME:', __file__, ': strip-components'
+        source.strip_components = 2
 
     def patch (self):
         self.file_sub ([(r'test \$ac_cv_sys_tiocgwinsz_in_termios_h != yes',

@@ -33,8 +33,6 @@ models.'''
         if type (source) == type (repository.Subversion):
             from new import instancemethod
             source.version = instancemethod (version_from_VERSION, source, type (source))
-            # print 'FIXME: serialization: want version package TOO SOON'
-            repo.version = instancemethod (lambda x: '8.57', repo, type (repo))
 
     def force_sequential_build (self):
         return True
