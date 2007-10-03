@@ -206,9 +206,14 @@ tries to do everything including autotooling and libtool fooling.  '''
         deps = self.get_build_dependencies ()
         return ';'.join (deps)
 
+    # FIXME: move version/branch/tracking macramee to Repository
     @context.subst_method
     def ball_suffix (self):
-        # FIXME: use version ()
+        # FIXME: ball suffix is also used by %(srcdir)s
+        # for tracking repositories, the name of the source and
+        # build dir must stay the same.
+        if self.source.is_tracking ():
+            return self.vc_branch_suffix ()
         return '-' + self.source.version ()
 
     @context.subst_method
