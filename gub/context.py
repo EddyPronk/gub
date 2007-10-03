@@ -185,8 +185,11 @@ class Os_context_wrapper (Context):
         self.os_interface.command (str)
         
     def read_pipe (self, cmd, env={}, ignore_errors=False):
-        dict = self.get_substitution_dict (env)
-        return self.os_interface.read_pipe (cmd % dict, ignore_errors=ignore_errors)
+        return self.os_interface.read_pipe (self.expand (cmd, env),
+                                            ignore_errors=ignore_errors)
+
+    def read_file (self, file, env={}):
+        return self.os_interface.read_file (self.expand (file, env))
 
     def system (self, cmd, env={}, ignore_errors=False):
         dict = self.get_substitution_dict (env)
@@ -205,7 +208,6 @@ class Os_context_wrapper (Context):
             name = self.expand (name, env)
         if expand_string:
             str = self.expand (str, env)
-            
         return self.os_interface.dump (str, name, mode=mode, permissions=permissions)
     
     def locate_files (self, directory, pattern,

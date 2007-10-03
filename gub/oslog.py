@@ -185,6 +185,27 @@ class ReadFile (SerializedCommand):
         hasher.append (self.__class__.__name__)
         hasher.append (self.file)
 
+class ReadPipe (SerializedCommand):
+    def __init__ (self, cmd, ignore_errors=False, silent=False):
+        self.cmd = cmd
+        self.ignore_errors = ignore_errors
+        self.silent = silent
+    def execute (self, os_commands):
+        os_commands.action ('Reading %(file)s\n' % self.__dict__)
+        return file (self.file).read ()
+    def checksum (self, hasher):
+        hasher.append (self.__class__.__name__)
+        hasher.append (self.cmd)
+        hasher.append (str (self.ignore_errors))
+    def execute (self, os_commands):
+        pipe = os.popen (self.cmd, 'r')
+        output = pipe.read ()
+        status = pipe.close ()
+        # successful pipe close returns None
+        if not self.ignore_errors and status:
+            raise Exception ('read_pipe failed')
+        return output
+
 class Dump (SerializedCommand):
     def __init__ (self, *args, **kwargs):
         SerializedCommand.__init__ (self)
@@ -557,21 +578,13 @@ commands.
     def file_sub (self, *args, **kwargs):
         return self._execute (Substitute (*args, **kwargs))
 
-    def read_file (self, *args, **kwargs):
-        return self._execute (ReadFile (*args, **kwargs), defer=False)
+    def read_file (self, file):
+        return self._execute (ReadFile (file), defer=False)
 
     def read_pipe (self, cmd, ignore_errors=False, silent=False):
-        if not silent:
-            self.action ('Reading pipe: %s\n' % cmd)
-
-        pipe = os.popen (cmd, 'r')
-        output = pipe.read ()
-        status = pipe.close ()
-
-        # successful pipe close returns None
-        if not ignore_errors and status:
-            raise Exception ('read_pipe failed')
-        return output
+        return self._execute (ReadPipe (cmd, ignore_errors=ignore_errors,
+                                        silent=silent),
+                              defer=False)
 
     def shadow_tree (self, src, target):
         return self._execute (ShadowTree (src, target))
