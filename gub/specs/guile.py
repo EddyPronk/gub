@@ -7,21 +7,15 @@ from gub import targetbuild
 from gub import repository
 
 class Guile (targetbuild.TargetBuild):
-    def set_vc_mirror (self):
-        source = 'http://lilypond.org/vc/guile.git'
-        source = 'git://repo.or.cz/guile.git'
-
-	#--branch=guile=branch_release-1-8-repo.or.cz-guile.git
-        # branch = 'branch_release-1-8-repo.or.cz-guile.git'
-        
-        branch = 'branch_release-1-8', 
-        if settings.__dict__.has_key ('guile_branch') and settings.guile_branch:
-            branch = settings.guile_branch
-        repo = repository.Git (self.get_repodir (),
-                               branch=branch,
-                               source=source)
-        repo.version = lambda: '1.8.2'
-    source = mirrors.with_vc (repo)
+    source = 'http://lilypond.org/vc/guile.git'
+    source = 'git://repo.or.cz/guile.git'
+    #--branch=guile=branch_release-1-8-repo.or.cz-guile.git
+    branch = 'branch_release-1-8-repo.or.cz-guile.git'
+    branch = 'branch_release-1-8', 
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
+        if instanceof (source, repository.Repository):
+            source.version = source.version = lambda: '1.8.2'
         self.so_version = '17'
 
     def autogen_sh (self):
@@ -29,11 +23,9 @@ class Guile (targetbuild.TargetBuild):
                        '%(srcdir)s/configure.in')
         self.file_sub ([(r'guile-readline', '')],
                        '%(srcdir)s/Makefile.am')
-        self.dump ('',
-                   '%(srcdir)s/doc/ref/version.texi')
-        self.dump ('',
-                   '%(srcdir)s/doc/tutorial/version.texi')
-        
+        self.dump ('', '%(srcdir)s/doc/ref/version.texi')
+        self.dump ('', '%(srcdir)s/doc/tutorial/version.texi')
+
     def get_subpackage_names (self):
         return ['doc', 'devel', 'runtime', '']
 
