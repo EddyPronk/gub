@@ -1,12 +1,12 @@
 from gub import build
+from gub import misc
+from gub import repository
 
 class Freetype_config (build.SdkBuild):
-    def __init__ (self, settings, source):
-        build.SdkBuild.__init__ (self, settings, source)
-        self.has_source = False
-    source = mirrors.with_template (name='freetype-config', version='2.1.9')
-    def untar (self):
-        pass
+    source = repository.Version (name='freetype-config', version='2.1.9')
+    def stages (self):
+        return misc.list_remove (build.SdkBuild.stages (self),
+                       ['download', 'untar', 'patch'])
     def install (self):
         build.SdkBuild.install (self)
         self.system ('mkdir -p %(cross_prefix)s/usr/bin')
@@ -23,15 +23,12 @@ class Freetype_config (build.SdkBuild):
 
         import re
         import os
-        s = open (self.expand ('%(sourcefiledir)s/freetype-config.in')).read ()
+        s = self.read_file ('%(sourcefiledir)s/freetype-config.in')
         s = re.sub (r'@(\w+?)@', r'%(\1)s', s)
         s = s % locals ()
-        file = self.expand ('%(install_prefix)s/cross/bin/freetype-config')
-        self.dump (s, file)
-        self.chmod (file, 0755)
+        self.dump (s, '%(install_prefix)s/cross/bin/freetype-config',
+                   env=locals (),
+                   permissions=0755)
 
 class Freetype_config__cygwin (Freetype_config):
-    def __init__ (self, settings, source):
-        Freetype_config.__init__ (self, settings, source)
-    source = mirrors.with_template (name='freetype-config', version='2.3.4')
-        
+    source = repository.Version (name='freetype-config', version='2.3.4')
