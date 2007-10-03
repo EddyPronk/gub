@@ -296,6 +296,8 @@ TEST_LOCK=$(NATIVE_ROOT).lock
 
 NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH)
 NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/src/lilypond-$(LILYPOND_LOCAL_BRANCH)
+# URG: try to guess at what repository will do.  should ask
+# repository.read_file(), I guess.
 NATIVE_BUILD_COMMITTISH=$(shell cat downloads/lilypond.git/refs/heads/$(LILYPOND_LOCAL_BRANCH))
 
 DIST_VERSION=$(shell cat $(NATIVE_LILY_BUILD)/out/VERSION)
