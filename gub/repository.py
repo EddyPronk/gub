@@ -133,7 +133,7 @@ class Repository:
         self.oslog = None
         # Fallbacks, this will go through oslog
         self.system = misc.system
-        self.read_file = misc.read_file
+        self._read_file = misc.read_file
         self.read_pipe = misc.read_pipe
         self.download_url = misc.download_url
         self.info = sys.stdout.write
@@ -142,7 +142,7 @@ class Repository:
         # Fallbacks, this will go through oslog
         self.oslog = oslog
         self.system = oslog.system
-        self.read_file = oslog.read_file
+        self._read_file = oslog.read_file
         self.read_pipe = oslog.read_pipe
         self.download_url = oslog.download_url
         self.info = oslog.info
@@ -166,7 +166,7 @@ Typically a hash of all source files.'''
 
         return '0'
 
-    def get_file_content (self, file_name):
+    def read_file (self, file_name):
         return ''
 
     def is_distributed (self):
@@ -325,9 +325,9 @@ class Darcs (Repository):
         vc_system = self.vc_system
         self.system ('rsync --exclude %(vc_system)s -a%(verbose)s %(dir)s/* %(destdir)s/' % locals())
 
-    def get_file_content (self, file):
+    def read_file (self, file):
         dir = self.dir
-        return self.read_file ('%(dir)s/%(file)s' % locals ())
+        return self._read_file ('%(dir)s/%(file)s' % locals ())
 
 RepositoryProxy.register (Darcs)
     
@@ -483,7 +483,7 @@ class Git (Repository):
     def get_revision_description (self):
         return self.git_pipe ('log --max-count=1 %s' % self.local_branch)  
 
-    def get_file_content (self, file_name):
+    def read_file (self, file_name):
         committish = self.git_pipe ('log --max-count=1 --pretty=oneline %(local_branch)s'
                                     % self.__dict__).split (' ')[0]
         m = re.search ('^tree ([0-9a-f]+)',
@@ -681,7 +681,7 @@ class CVS (Repository):
 
     def get_revision_description (self):
         try:
-            contents = get_file_content ('ChangeLog')
+            contents = read_file ('ChangeLog')
             entry_regex = re.compile ('\n([0-9])')
             entries = entry_regex.split (contents)
             descr = entries[0]
@@ -712,7 +712,7 @@ class CVS (Repository):
         else:
             return '0'
         
-    def get_file_content (self, file_name):
+    def read_file (self, file_name):
         return open (self._checkout_dir () + '/' + file_name).read ()
         
     def read_cvs_entries (self, dir):
@@ -855,8 +855,8 @@ class SimpleRepo (Repository):
         revision = self.revision
         return '%(dir)s/%(branch)s/%(module)s/%(revision)s' % locals ()
 
-    def get_file_content (self, file_name):
-        return self.read_file (self._checkout_dir () + '/' + file_name)
+    def read_file (self, file_name):
+        return self._read_file (self._checkout_dir () + '/' + file_name)
 
     def checksum (self):
         return self._current_revision ()
