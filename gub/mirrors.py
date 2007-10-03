@@ -108,7 +108,7 @@ def with_template (
         mirror += '&strip_components=%(strip_components)s'
     url = mirror % locals ()
     # update helper
-    print "%(name)s.py:\n    source = '%(url)s'" % locals ()
+    # print "%(name)s.py:\n    source = '%(url)s'" % locals ()
     return url
 
 with_tarball = with_template
