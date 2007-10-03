@@ -607,12 +607,12 @@ class NullBuild (UnixBuild):
         return ['download', 'patch', 'install', 'package', 'clean']
     def get_subpackage_names (self):
         return ['']
+    def install (self):
+        self.system ('mkdir -p %(install_root)s')
 
-class SdkBuild (UnixBuild):
+class SdkBuild (NullBuild):
     def stages (self):
         return ['download', 'patch', 'untar', 'install', 'package', 'clean']
-    def get_subpackage_names (self):
-        return ['']
     def is_sdk_package (self):
         return 'true'
     def install_root (self):
@@ -718,14 +718,15 @@ class Dependency:
             self._url = self.settings.dependency_url (self.name ())
         if not self._url:
             raise 'No URL for:' + self._name
-        try:
-            self._url = self._url % self.settings.__dict__
-        except Exception, e:
-            print 'URL:', self._url
-            raise e
-        x, parameters = misc.dissect_url (self._url)
-        if parameters.get ('patch'):
-            self._cls.patches = parameters['patch']
+        if type (self._url) == type (''):
+            try:
+                self._url = self._url % self.settings.__dict__
+            except Exception, e:
+                print 'URL:', self._url
+                raise e
+            x, parameters = misc.dissect_url (self._url)
+            if parameters.get ('patch'):
+                self._cls.patches = parameters['patch']
         return self._url
     def name (self):
         return self._name
