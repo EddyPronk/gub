@@ -23,7 +23,6 @@ import sys
 sys.path.insert (0, '.')
 #
 from gub import cross
-## fixme: double use of gub name.
 from gub import build
 from gub import misc
 from gub import gup
