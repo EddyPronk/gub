@@ -365,7 +365,6 @@ def main ():
     # We want to be able to specify a build number for cygwin packages
     # that are not distributed on lp.org
     settings.build = options.build
-
     settings.set_branches (options.branches)
 
     # Barf

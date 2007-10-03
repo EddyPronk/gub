@@ -30,7 +30,7 @@ models.'''
             v = '%(GS_VERSION_MAJOR)s.%(GS_VERSION_MINOR)s' % d
             return v
 
-        if type (source) == type (repository.Subversion):
+        if isinstance (source, repository.Repository):
             from new import instancemethod
             source.version = instancemethod (version_from_VERSION, source, type (source))
 
