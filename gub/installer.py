@@ -338,8 +338,8 @@ def create_shar (orig_file, hello, head, target_shar):
     base_orig_file = os.path.split (orig_file)[1]
     script = open (head).read ()
     header_length = 0
-    header_length = len (script % locals ()) + 1
     _z = misc.compression_flag (tarball)
+    header_length = len (script % locals ()) + 1
     used_in_sharhead = '%(base_orig_file)s %(hello)s %(header_length)s %(_z)'
     used_in_sharhead % locals ()
     f = open (target_shar, 'w')
