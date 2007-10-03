@@ -154,7 +154,7 @@ class Repository:
 
     def file_name (self):
 #        return re.sub ('.*/([^/]+)', '\\1', self.source)
-        return os.path.basename (self.source)
+        return os.path.splitext (os.path.basename (self.source))[0]
 
     def download (self):
         pass
@@ -1059,6 +1059,7 @@ class SimpleGit (SimpleRepo):
 
         # FIXME: keep (silly?) local-branch-name-juggling for compat reasons
         # FIXME: handle outside Git
+        self.local_branch = ''
         if ':' in branch:
             (branch,
              self.local_branch) = tuple (branch.split (':'))

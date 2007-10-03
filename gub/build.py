@@ -15,6 +15,8 @@ TODO: move all non configure-make-make install stuff from UnixBuild here
 '''
 
     need_source_tree = False
+    source = ''
+    branch = ''
 
     def __init__ (self, settings, source):
         context.Os_context_wrapper.__init__ (self, settings)
@@ -685,16 +687,11 @@ class Dependency:
         self._cls = self._flavour = self._url = None
     def _create_build (self):
         dir = os.path.join (self.settings.downloads, self.name ())
-        source = repository.get_repository_proxy (dir, self.url (), '', '')
+        branch = self.settings.__dict__.get ('%(_name)s_branch' % self.__dict__,
+                                             self.build_class ().branch)
+        source = repository.get_repository_proxy (dir, self.url (), branch, '')
         self._check_source_tree (source)
-        ## return self.build_class () (self.settings, source)
-        ## temporary workaround for __init__ help
-        try:
-            return self.build_class () (self.settings, source)
-        except Exception, e:
-            e.message += '\n: Class = ' + self._cls.__name__
-            print e.message
-            raise e
+        return self.build_class () (self.settings, source)
     def build_class (self):
         if not self._cls:
             self._cls = get_build_class (self.settings, self.flavour (),
@@ -716,10 +713,9 @@ class Dependency:
             source.download ()
     def url (self):
         if not self._url:
-            try:
-                self._url = self.build_class ().source
-            except:
-                self.settings.os_interface.warning ('no source specified in class:' + self.build_class ().__name__ + '\n')
+            self._url = self.build_class ().source
+        if not self._url:
+            self.settings.os_interface.warning ('no source specified in class:' + self.build_class ().__name__ + '\n')
         if not self._url:
             self._url = self.settings.dependency_url (self.name ())
         if not self._url:
