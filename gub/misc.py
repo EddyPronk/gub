@@ -391,8 +391,8 @@ def get_from_parents (cls, key):
             # can come earlier that Python without __tools,
             # so continue rather than break
             continue
-        if i.__dict__.get ('source'):
-            return i.__dict__.get ('source')
+        if i.__dict__.get (key):
+            return i.__dict__.get (key)
     return None
 
 if __name__ =='__main__':

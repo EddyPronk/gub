@@ -142,16 +142,7 @@ def change_target_package (package):
             flavor = package.category_dict ()[split]
             doc = package.__class__.__doc__
             if not doc:
-                base = package.__class__.__name__
-                p = base.find ('__')
-                if p >= 0:
-                    base = base[:p]
-                for i in package.__class__.__bases__:
-                    if not base in i.__name__:
-                        break
-                    if i.__doc__:
-                        doc = i.__doc__
-                        break
+                doc = misc.get_from_parents (package.__class__, '__doc__')
             if not doc:
                 doc = '\n'
             return (doc.replace ('\n', ' - %(flavor)s\n', 1) % locals ())
