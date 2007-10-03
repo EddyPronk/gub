@@ -630,7 +630,7 @@ def get_build_from_file (settings, file_name, name):
                   .replace ('++', '_xx_')
                   .replace ('+', '_x_')
                   + ('-' + settings.platform).replace ('-', '__'))
-    settings.os_interface.debug ('LOOKING FOR: %(class_name)s' % locals ())
+    settings.os_interface.debug ('LOOKING FOR: %(class_name)s\n' % locals ())
     return misc.most_significant_in_dict (module.__dict__, class_name, '__')
 
 def get_build_class (settings, flavour, name):
