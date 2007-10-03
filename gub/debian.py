@@ -68,7 +68,7 @@ def get_debian_package (settings, description):
     source = repository.TarBall (settings.downloads,
                                  os.path.join (mirror, d['Filename']),
                                  d['Version'],
-                                 strip_components=0))
+                                 strip_components=0)
     package = package_class (settings, source)
     package.name_dependencies = []
     import re
