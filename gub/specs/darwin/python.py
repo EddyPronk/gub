@@ -4,6 +4,7 @@ from gub import repository
 ## change to sdk package
 class Python (build.SdkBuild):
     source = repository.Version (name='python', version='2.3')
+
     def srcdir (self):
         return '%(allsrcdir)s/python-darwin'
     def package (self):
