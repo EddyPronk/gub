@@ -1,9 +1,11 @@
 import re
 
 from gub import mirrors
+from gub import sources
 from gub import targetbuild
 
 class Gmp (targetbuild.TargetBuild):
+    source = sources.join (gnu, 'gmp/gmp-4.2.1.tar.gz')
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
         if not self.settings.platform.startswith ('darwin'):
@@ -63,19 +65,15 @@ class Gmp__darwin__x86 (Gmp__darwin):
         return c
 
 class Gmp__cygwin (Gmp):
-    def __init__ (self,settings):
-        Gmp.__init__ (self, settings, source)
     source = mirrors.with_template (name='gmp', version='4.1.4')
-
     def patch (self):
         self.system ('''
 cd %(srcdir)s && patch -p1 < %(patchdir)s/gmp-4.1.4-1.patch
 ''')
 
 class Gmp__mingw (Gmp):
-    def __init__ (self,settings):
+    def __init__ (self, settings, source):
         Gmp.__init__ (self, settings, source)
-        
         # Configure (compile) without -mwindows for console
         self.target_gcc_flags = '-mms-bitfields'
         
@@ -94,6 +92,7 @@ mv %(install_prefix)s/lib/*dll %(install_prefix)s/bin || true
 ''')
 
 from gub import toolsbuild
-class Gmp__tools (toolsbuild.ToolsBuild):
+class Gmp__tools (toolsbuild.ToolsBuild, Gmp):
+    source = Gmp.source
     def get_build_dependencies (self):
         return ['libtool']            

@@ -55,9 +55,9 @@ bjam
                 + ' install').replace ('=%(prefix_dir)s', '=%(install_prefix)s')
 
 class Boost (BjamBuild):
-    def __init__ (self,settings):
-        BjamBuild.__init__ (self, settings, source)
     source = mirrors.with_template (name='boost', version='1.33.1', mirror=mirrors.boost_1_33_1, format='bz2')
+    def __init__ (self, settings, source):
+        BjamBuild.__init__ (self, settings, source)
         build.change_target_dict (self, {'CFLAGS': '-DBOOST_PLATFORM_CONFIG=\\"boost/config/platform/linux.hpp\\"'})
     def get_substitution_dict (self, env={}):
         dict = BjamBuild.get_substitution_dict (self, env)
