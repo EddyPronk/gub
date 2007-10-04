@@ -3,6 +3,7 @@ import re
 import os
 #
 from gub import context
+from gub import targetbuild
 
 darwin_sdk_version = '0.4'
 
