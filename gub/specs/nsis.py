@@ -12,7 +12,7 @@ class Nsis (toolsbuild.ToolsBuild):
                                     # version='2.23',
                                     mirror='http://surfnet.dl.sourceforge.net/sourceforge/%(name)s/%(name)s-%(version)s-src.tar.%(format)s',
                                     format='bz2')
-    FOOsource = repository.CVS (None,
+    FOOsource = repository.CVS ('downloads/nsis',
                              source=':pserver:anonymous@nsis.cvs.sourceforge.net:/cvsroot/nsis',
                              module='NSIS',
                              tag='HEAD')
