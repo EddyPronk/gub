@@ -2,10 +2,15 @@ from gub import build
 from gub import mirrors
 
 class Linux_headers (build.BinaryBuild, build.SdkBuild):
-    def __init__ (self, settings, source):
-        build.BinaryBuild.__init__ (self, settings, source)
-    source = mirrors.with_tarball (name='linux-headers', mirror=mirrors.linux_2_4,
-                           version='2.4.34', format='bz2')
+    source = mirrors.with_tarball (name='linux-headers',
+                                   mirror=mirrors.linux_2_4,
+                                   version='2.4.34', format='bz2')
+    # HMm, is this more handy than patch ():pass in BinaryBuild?
+    # possibly we should simply override install (), but that is
+    # always a problem because install ()
+    def stages (self):
+        return misc.list_insert_before (build.BinaryBuild.stages (self),
+                                        'install', 'patch')
     def get_subpackage_names (self):
         return ['']
     def patch (self):
