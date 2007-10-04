@@ -179,7 +179,9 @@ def download_url (url, dest_dir,
                   fallback=['http://lilypond.org/downloads/gub-sources'],
                   log=sys.stderr.write):
     for i in lst (local) + [url] + lst (fallback):
-        e = _download_url (rewrite_url (url, i), dest_dir, log)
+        if not is_ball (os.path.basename (i)):
+            i = rewrite_url (url, i)
+        e = _download_url (i, dest_dir, log)
         if not e:
             return
     raise e
@@ -190,7 +192,7 @@ def _download_url (url, dest_dir, log=sys.stderr.write):
         size = __download_url (url, dest_dir, log)
         log ('done (%(size)s)\n' % locals ())
     except Exception, e:
-        log ('download failed: ' + e.message)
+        log ('download failed: ' + exception_string (e) + '\n')
         return e
     return None
 
