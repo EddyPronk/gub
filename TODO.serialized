@@ -1,11 +1,19 @@
+DONE:
+   tools
+   linux-64 (native...) + doc
+   cygwin
+   mingw cross-compilers
+
+IN PROGRESS:
+   linux-x86 cross-compilers
+   darwin-ppc (waiting for linux-x86 cross-compilers)
+   
+TODO:
 * find a clean way to pass strip_components to TarBall (See urw-fonts.py)
   (and similar repository-dependent settings that are not revision or
    branch)
 
-* On linux-64, for linux-64, local and lilypond build, ie
-
-    make test
-    --> GIT (checkout + simplify)/SimpleGit (add local branch macramee ??)
+* GIT (checkout + simplify)/SimpleGit (add local branch macramee ??)
 
 * Actual checksum checking
   - of package
