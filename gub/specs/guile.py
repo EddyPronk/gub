@@ -105,7 +105,7 @@ exec %(tools_prefix)s/bin/guile "$@"
             version = self.read_pipe ('''\
 GUILE_LOAD_PATH=%(install_prefix)s/share/guile/* guile -e main -s  %(install_prefix)s/bin/guile-config --version 2>&1\
 ''').split ()[-1]
-        print 'FIXME: should defer read_pipe to get version?'
+        print 'FIXME: serialization: should defer read_pipe to get version?'
         version = self.expand ('%(version)s')
 	#FIXME: c&p linux.py
         self.dump ('''\
