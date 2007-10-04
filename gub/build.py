@@ -422,10 +422,6 @@ cp %(file)s %(install_root)s/license/%(name)s
         # patch () to avoid auto-updating.
         self.autoupdate ()
 
-    @context.subst_method
-    def is_sdk_package (self):
-        return 'false'
-
     def rewire_symlinks (self):
         def rewire (file):
             if os.path.islink (file):
@@ -621,8 +617,6 @@ class NullBuild (UnixBuild):
 class SdkBuild (NullBuild):
     def stages (self):
         return ['download', 'patch', 'untar', 'install', 'package', 'clean']
-    def is_sdk_package (self):
-        return 'true'
     def install_root (self):
         return self.srcdir ()
 
