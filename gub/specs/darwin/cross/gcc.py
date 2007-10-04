@@ -41,7 +41,7 @@ class Gcc (gcc.Gcc):
     def get_build_dependencies (self):
         return ['odcctools', 'cross/binutils']
     
-class Gcc__darwin__x86 (gcc.Gcc):
+class Gcc__darwin__x86 (Gcc):
     source = mirrors.with_template (name='gcc', version='4.1.1', mirror=mirrors.gcc_41, format='bz2')
 
 class Not_used__Gcc__darwin (Gcc):
