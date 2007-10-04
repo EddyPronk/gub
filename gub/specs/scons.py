@@ -1,4 +1,5 @@
 from gub import toolsbuild
+from gub import misc
 from gub import mirrors
 
 class Scons (toolsbuild.ToolsBuild):
