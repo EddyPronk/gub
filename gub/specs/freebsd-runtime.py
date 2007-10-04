@@ -12,5 +12,5 @@ class Freebsd_runtime (build.BinaryBuild, build.SdkBuild):
     def patch (self):
         self.system ('rm -rf %(srcdir)s/usr/include/g++')
 
-class Freebsd_runtime__freebsd__64 (build.BinaryBuild, build.SdkBuild):
+class Freebsd_runtime__freebsd__64 (Freebsd_runtime):
     source = mirrors.with_template (name='freebsd-runtime', version='6.2-1.amd64', strip_components=0, mirror=mirrors.lilypondorg)
