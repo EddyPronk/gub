@@ -2,14 +2,7 @@ from gub.specs.cross import gcc
 from gub import mirrors
 
 class Gcc (gcc.Gcc):
-    def __init__ (self, settings, source):
-        #FIXME: separate-out: darwin-ppc/gcc.py / class Gcc__darwin__powerpc ()
-        gcc.Gcc.__init__ (self, settings, source)
-        if self.settings.target_architecture.startswith ("powerpc"):
-        source = mirrors.with_template (name='gcc', version='4.1.1', mirror=mirrors.gcc_41, format='bz2')
-        else:
-        source = mirrors.with_template (name='gcc', version='4.2-20070207', mirror=mirrors.gcc_snap,
-                       format='bz2')
+    source = mirrors.with_template (name='gcc', version='4.2-20070207', mirror=mirrors.gcc_snap, format='bz2')
     def patch (self):
         self.file_sub ([('/usr/bin/libtool', '%(cross_prefix)s/bin/%(target_architecture)s-libtool')],
                        '%(srcdir)s/gcc/config/darwin.h')
@@ -48,6 +41,9 @@ class Gcc (gcc.Gcc):
     def get_build_dependencies (self):
         return ['odcctools', 'cross/binutils']
     
+class Gcc__darwin__x86 (gcc.Gcc):
+    source = mirrors.with_template (name='gcc', version='4.1.1', mirror=mirrors.gcc_41, format='bz2')
+
 class Not_used__Gcc__darwin (Gcc):
     def configure (self):
         gcc.Gcc.configure (self)
