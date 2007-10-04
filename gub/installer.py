@@ -333,25 +333,6 @@ class Linux_installer (Installer):
         self.create_tarball (self.bundle_tarball)
         self.write_checksum ()
 
-def create_shar (orig_file, hello, head, target_shar):
-    length = os.stat (orig_file)[6]
-    base_orig_file = os.path.split (orig_file)[1]
-    script = open (head).read ()
-    header_length = 0
-    _z = misc.compression_flag (tarball)
-    header_length = len (script % locals ()) + 1
-    used_in_sharhead = '%(base_orig_file)s %(hello)s %(header_length)s %(_z)'
-    used_in_sharhead % locals ()
-    f = open (target_shar, 'w')
-    f.write (script % locals())
-    f.close ()
-    cmd = 'cat %(orig_file)s >> %(target_shar)s' % locals ()
-    print 'invoking ', cmd
-    stat = os.system (cmd)
-    if stat:
-        raise 'create_shar() failed'
-    os.chmod (target_shar, 0755)
-
 class Shar (Linux_installer):
     def create (self):
         Linux_installer.create (self)
@@ -359,9 +340,23 @@ class Shar (Linux_installer):
         head = self.expand ('%(sourcefiledir)s/sharhead.sh')
         tarball = self.expand (self.bundle_tarball)
         hello = self.expand ("version %(installer_version)s release %(installer_build)s")
-        create_shar (tarball, hello, head, target_shar)
-        system ('rm %(tarball)s' % locals ())
-        
+        self.create_shar (tarball, hello, head, target_shar)
+        self.system ('rm %(tarball)s' % locals ())
+    def create_shar (self, file, hello, head, shar):
+        length = os.stat (file)[6]
+        base_file = os.path.split (file)[1]
+        script = open (head).read ()
+        header_length = 0
+        _z = misc.compression_flag (file)
+        header_length = len (script % locals ()) + 1
+        used_in_sharhead = '%(base_file)s %(hello)s %(header_length)s %(_z)'
+        used_in_sharhead % locals ()
+        f = open (shar, 'w')
+        f.write (script % locals())
+        f.close ()
+        self.system ('cat %(file)s >> %(shar)s', locals ())
+        self.chmod (shar, 0755)
+
 def get_installer (settings, name):
 
     installer_class = {
