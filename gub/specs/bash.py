@@ -16,7 +16,7 @@ class Bash__mingw (Bash):
                             format='bz2', strip_components=2)
     def __init__ (self, settings, source):
         Bash.__init__ (self, settings, source)
-        print 'FIXME:', __file__, ': strip-components'
+        print 'FIXME: serialization: ', __file__, ': strip-components'
         source.strip_components = 2
 
     def patch (self):

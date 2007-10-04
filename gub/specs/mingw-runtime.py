@@ -5,7 +5,7 @@ class Mingw_runtime (build.BinaryBuild, build.SdkBuild):
     source = mirrors.with_template (name='mingw-runtime', version='3.9', strip_components=0, mirror=mirrors.mingw)
     def __init__ (self, settings, source):
         build.BinaryBuild.__init__ (self, settings, source)
-        print 'FIXME:', __file__, ': strip-components'
+        print 'FIXME: serialization:', __file__, ': strip-components'
         source.strip_components = 0
     def install (self):
         self.system ('''

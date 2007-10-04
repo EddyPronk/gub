@@ -7,7 +7,7 @@ class Dhcp (targetbuild.TargetBuild):
     source = mirrors.with_vc (repository.TarBall (self.settings.downloads, url, strip_components=2))
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
-        print 'FIXME:', __file__, ': strip-components'
+        print 'FIXME: serialization:', __file__, ': strip-components'
         source.strip_components = 2
     def get_subpackage_names (self):
         return ['']
