@@ -1,13 +1,17 @@
-DONE:
+STATUS:
    tools TESTED
    linux-64 (native...) + installer + doc  UNTESTED
    cygwin + installer + ghostscript-installer UNTESTED
    mingw cross-compilers UNTESTED
-   linux-x86 cross-compilers  UNTESTED
+   linux-x86 cross-compilers
+   darwin-ppc cross-compilers UNTESTED
 
 IN PROGRESS:
-   darwin-ppc (waiting for linux-x86 cross-compilers)
-   
+   freebsd-x86
+
+   make -f lilypond.make PLATFORMS="mingw linux-x86 darwin-ppc freebsd-x86 freebsd-64" bootstrap
+
+
 TODO:
 * find a clean way to pass strip_components to TarBall (See urw-fonts.py)
   (and similar repository-dependent settings that are not revision or
