@@ -364,6 +364,14 @@ tooldir=%(install_prefix)s
         self.map_locate (update, '%(builddir)s', 'libtool')
 
     def install (self):
+        '''Install package into %(install_root).
+
+Any overrides should follow this command, since it will erase the old
+install_root first.  FIXME: this is partly totally broken, some
+overrides need to be done BEFORE the rest of the install stage.  We
+need to figure out some clean way to plug something in between the
+automatic cleaning, and the rest of the install.'''
+        
         self.system ('''
 rm -rf %(install_root)s
 cd %(builddir)s && %(install_command)s
@@ -592,12 +600,7 @@ class BinaryBuild (UnixBuild):
     def stages (self):
         return ['download', 'untar', 'install', 'package', 'clean']
     def install (self):
-        
-        """Install package into %(install_root). Any overrides should
-        follow this command, since it will erase the old install_root first."""
-        
         self.system ('mkdir -p %(install_root)s')
-
         _v = self.os_interface.verbose_flag ()
         self.system ('tar -C %(srcdir)s -cf- . | tar -C %(install_root)s%(_v)s -p -xf-', env=locals ())
         self.libtool_installed_la_fixups ()
