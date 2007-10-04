@@ -8,6 +8,7 @@ def get_cross_build_dependencies (settings):
 def change_target_package (p):
     from gub import cross
     from gub import build
+    from gub import targetbuild
     cross.change_target_package (p)
     targetbuild.change_target_dict (p,
                     {
