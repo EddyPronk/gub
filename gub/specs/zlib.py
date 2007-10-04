@@ -30,12 +30,6 @@ class Zlib (targetbuild.TargetBuild):
         return '%(sourcefiledir)s/zlib.license'
 
 class Zlib__mingw (Zlib):
-    # FIXME: removeme, try zlib-1.2.3.patch
-    def x__init__ (self, settings, source):
-        Zlib.__init__ (self, settings, source)
-    source = mirrors.with_template (name='zlib', version='1.2.2',
-                   mirror='http://heanet.dl.sourceforge.net/sourceforge/libpng/zlib-1.2.2.tar.gz')
-
     def patch (self):
         Zlib.patch (self)
         self.file_sub ([("='/bin/true'", "='true'"),
