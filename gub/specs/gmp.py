@@ -5,7 +5,7 @@ from gub import sources
 from gub import targetbuild
 
 class Gmp (targetbuild.TargetBuild):
-    source = sources.join (gnu, 'gmp/gmp-4.2.1.tar.gz')
+    source = sources.join (sources.gnu, 'gmp/gmp-4.2.1.tar.gz')
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
         if not self.settings.platform.startswith ('darwin'):
