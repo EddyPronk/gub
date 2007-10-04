@@ -9,16 +9,8 @@ class Gcc (gcc.Gcc):
 
         self.file_sub ([('--strip-underscores', '--strip-underscore')],
                        "%(srcdir)s/libstdc++-v3/scripts/make_exports.pl")
-
-    def configure_command (self):
-        c = gcc.Gcc.configure_command (self)
-#                c = re.sub ('enable-shared', 'disable-shared', c)
-        return c
-    
-
     def configure (self):
         gcc.Gcc.configure (self)
-
     def rewire_gcc_libs (self):
 	import os
         skip_libs = ['libgcc_s']
