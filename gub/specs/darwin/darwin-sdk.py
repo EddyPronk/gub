@@ -1,18 +1,7 @@
 from gub import build
 
 class Darwin_sdk (build.SdkBuild):
-    def __init__ (self, settings, source):
-        build.SdkBuild.__init__ (self, settings, source)
-        # FIXME: move os_version check + var to settings,
-        # escape %%(darwin_os_version)s and handle as package_arch
-        # in build.py
-        os_version = 7
-        if settings.platform == 'darwin-x86':
-            os_version = 8
-        from gub import repository
-    source = mirrors.with_vc (repository.TarBall (settings.downloads,
-                                          url='http://lilypond.org/download/gub-sources/darwin%d-sdk-0.4.tar.gz' % os_version,
-                                          version='0.4'))
+    source = 'http://lilypond.org/download/gub-sources/darwin7-sdk-0.4.tar.gz'
     def patch (self):
         self.system ('''
 rm %(srcdir)s/usr/lib/libgcc*
@@ -29,7 +18,12 @@ rm -rf %(srcdir)s/usr/lib/gcc
 
         ## limits.h symlinks into GCC.
 
+        print 'FIXME: serialization: this should already be fixed generically by gup:libtool_la_fixup'
+        return
         import glob
         pat = self.expand ('%(srcdir)s/usr/lib/*.la')
         for a in glob.glob (pat):
             self.file_sub ([(r' (/usr/lib/.*\.la)', r'%(system_root)s\1')], a)
+
+class Darwin_sdk__darwin__x86 (Darwin_sdk):
+    source = 'http://lilypond.org/download/gub-sources/darwin8-sdk-0.4.tar.gz'
