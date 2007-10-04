@@ -17,6 +17,12 @@
   and check for these before running autoupdate and configure.
   remove specific code from lilypond.
 
+* junk arbitrary SdkBuild class, handle any build dependencies
+  through [module.py].build_dependencies.
+
+* use better names for freebsd-runtime, darwin-sdk, which probably
+  are in fact kernel-headers and libc+headers
+
 * use of member functions vs class variables/static functions:
    - need_source_tree
    - build_dependencies

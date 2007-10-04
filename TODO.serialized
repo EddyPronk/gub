@@ -1,11 +1,11 @@
 DONE:
-   tools
-   linux-64 (native...) + doc
-   cygwin
-   mingw cross-compilers
+   tools TESTED
+   linux-64 (native...) + installer + doc  UNTESTED
+   cygwin + installer + ghostscript-installer UNTESTED
+   mingw cross-compilers UNTESTED
+   linux-x86 cross-compilers  UNTESTED
 
 IN PROGRESS:
-   linux-x86 cross-compilers
    darwin-ppc (waiting for linux-x86 cross-compilers)
    
 TODO:
