@@ -609,6 +609,9 @@ class NullBuild (UnixBuild):
     """Placeholder for downloads """
     def stages (self):
         return ['download', 'patch', 'install', 'package', 'clean']
+    def patch (self):
+        # FIXME: urg, only for disabling autotooling
+        pass
     def get_subpackage_names (self):
         return ['']
     def install (self):
