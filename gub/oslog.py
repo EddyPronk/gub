@@ -589,24 +589,15 @@ commands.
     def shadow_tree (self, src, target):
         return self._execute (ShadowTree (src, target))
 
-    def download_url (self, url, dest_dir, fallback=None):
-        import misc
-        self.action ('downloading %(url)s -> %(dest_dir)s\n' % locals (),
-                     defer=False)
-
-        # FIXME: where to get settings, fallback should be a user-definable list
-	fallback = 'http://peder.xs4all.nl/gub-sources'
-
-	try:
-            misc._download_url (url, dest_dir, sys.stderr)
-        except Exception, e:
-	    if fallback:
-	        fallback_url = fallback + url[url.rfind ('/'):]
- 		self.action ('downloading %(fallback_url)s -> %(dest_dir)s\n'
-		             % locals ())
-	        misc._download_url (fallback_url, dest_dir, sys.stderr)
-	    else:
-	        raise e
+    def download_url (self, url, dest_dir):
+        # FIXME: read settings.rc, local, fallback should be a
+        # user-definable list
+        local = 'file:///home/%(USER)s/vc/gub/downloads' % os.environ
+	fallback = ['http://lilypond.org/downloads/gub-sources']
+        def log (message):
+            self.action (message, defer=False)
+        misc.download_url (url, dest_dir, local=local, fallback=fallback,
+                           log=log)
 
     def locate_files (self, directory, pattern,
                       include_dirs=True, include_files=True):

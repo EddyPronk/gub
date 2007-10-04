@@ -3,7 +3,7 @@ import os
 import re
 import string
 import sys
-import urllib
+import urllib2
  
 def join_lines (str):
     return str.replace ('\n', ' ')
@@ -34,11 +34,9 @@ def bind_method (func, obj):
 def read_pipe (cmd, ignore_errors=False):
     print 'Executing pipe %s' % cmd
     pipe = os.popen (cmd)
-
     val = pipe.read ()
     if pipe.close () and not ignore_errors:
-        raise SystemFailed ("Pipe failed: %s" % cmd)
-    
+        raise SystemFailed ('Pipe failed: %s' % cmd)
     return val
 
 def read_file (file):
@@ -83,7 +81,10 @@ def string_to_version (s):
     return tuple (map (atoi, (string.split (s, ' '))))
 
 def is_ball (s):
-    return re.match ('^(.*?)-([0-9].*(-[0-9]+)?)(\.[a-z]*)?(\.tar\.(bz2|gz)|\.gu[bp])$', s)
+    # FIXME: do this properly, by identifying different flavours:
+    # .deb, tar.gz, cygwin -[build].tar.bz2 etc and have simple
+    # named rules for them.
+    return re.match ('^(.*?)[-_]([0-9].*(-[0-9]+)?)([._][a-z]+[0-9]*)?(\.tar\.(bz2|gz)|\.gu[bp]|\.deb|\.tgz)$', s)
 
 def split_ball (s):
     p = s.rfind ('/')
@@ -161,52 +162,71 @@ def find_dirs (dir, pattern):
         return [os.path.join (root, d) for d in dirs if pattern.search (d)]
     return find (dir, test)
 
-# c&p oslog.py
-def download_url (url, dest_dir, fallback=None):
-    print 'Downloading', url
-    # FIXME: where to get settings, fallback should be a user-definable list
-    fallback = 'http://peder.xs4all.nl/gub-sources'
+def rewrite_url (url, mirror):
+    '''Return new url on MIRROR, using file name from URL.
+
+Assume that files are stored in a directory of their own base name, eg
+
+    lilypond/lilypond-1.2.3.tar.gz
+'''
+    file = os.path.basename (url)
+    base = split_ball (file)[0]
+    return os.path.join (mirror, base, file)
+
+# FIXME: read settings.rc, local, fallback should be a user-definable list
+def download_url (url, dest_dir,
+                  local='file://%(HOME)s/vc/gub/downloads' % os.environ,
+                  fallback=['http://lilypond.org/downloads/gub-sources'],
+                  log=sys.stderr.write):
+    for i in lst (local) + [url] + lst (fallback):
+        e = _download_url (rewrite_url (url, i), dest_dir, log)
+        if not e:
+            return
+    raise e
+
+def _download_url (url, dest_dir, log=sys.stderr.write):
     try:
-        _download_url (url, dest_dir, sys.stderr)
+        log ('downloading %(url)s -> %(dest_dir)s\n' % locals ())
+        size = __download_url (url, dest_dir, log)
+        log ('done (%(size)s)\n' % locals ())
     except Exception, e:
-	if fallback:
-	    fallback_url = fallback + url[url.rfind ('/'):]
-	    _download_url (fallback_url, dest_dir, sys.stderr)
-	else:
-	    raise e
-    
-def _download_url (url, dest_dir, stderr):
+        log ('download failed: ' + e.message)
+        return e
+    return None
+
+def __download_url (url, dest_dir, log=sys.stderr.write):
     if not os.path.isdir (dest_dir):
         raise Exception ("not a dir", dest_dir)
-
     bufsize = 1024 * 50
-    filename = os.path.split (urllib.splithost (url)[1])[1]
-
-    out_filename = dest_dir + '/' + filename
+    # what's this, just basename?
+    # filename = os.path.split (urllib.splithost (url)[1])[1]
+    file_name = os.path.basename (url)
+    size = 0
+    dest = os.path.join (dest_dir, file_name)
     try:
-        output = open (out_filename, 'w')
-        opener = urllib.URLopener ()
-        url_stream = opener.open (url)
+        output = open (dest, 'w')
+        url_stream = urllib2.urlopen (url)
         while True:
             contents = url_stream.read (bufsize)
+            size += bufsize
             output.write (contents)
-            stderr.write ('.')
-            stderr.flush ()
+            log ('.')
+            sys.stderr.flush ()
             if not contents:
                 break
-        stderr.write ('\n')
-    except:
-        os.unlink (out_filename)
-        raise
-    
+        log ('\n')
+    except Exception, e:
+        os.unlink (dest)
+        raise e
+    return size
+
 def forall (generator):
     v = True
     try:
         while v:
-            v = v and generator.next()
+            v = v and generator.next ()
     except StopIteration:
         pass
-
     return v
 
 def exception_string (exception=Exception ('no message')):
@@ -288,7 +308,7 @@ before MARKER.
     return s.split ('\n')[-lines:]
 
 class MethodOverrider:
-    """Override a object method with a function defined outside the
+    '''Override a object method with a function defined outside the
 class hierarchy.
     
     Usage:
@@ -301,7 +321,7 @@ class hierarchy.
     p.func = MethodOverrider (old,
                               new_func,
                               (arg1, arg2, .. ))
-    """
+    '''
     def __init__ (self, old_func, new_func, extra_args=()):
         self.new_func = new_func
         self.old_func = old_func
@@ -355,11 +375,6 @@ def dissect_url (url):
         return d
     return lst[0], dict (map (lambda x: x.split ('='), lst[1:]))
 
-def testme ():
-    print forall (x for x in [1, 1])
-    print dissect_url ('git://anongit.freedesktop.org/git/fontconfig?revision=1234')
-    print dissect_url ('http://lilypond.org/foo-123.tar.gz&patch=a&patch=b')
-
 def list_or_tuple (x):
     return type (x) == type (list ()) or type (x) == type (tuple ())
 
@@ -395,6 +410,12 @@ def get_from_parents (cls, key):
             return i.__dict__.get (key)
     return None
 
-if __name__ =='__main__':
-    testme ()
+def test ():
+    print forall (x for x in [1, 1])
+    print dissect_url ('git://anongit.freedesktop.org/git/fontconfig?revision=1234')
+    print dissect_url ('http://lilypond.org/foo-123.tar.gz&patch=a&patch=b')
+    print rewrite_url ('ftp://foo.com/pub/foo/foo-123.tar.gz',
+                       'http://lilypond.org/downloads')
 
+if __name__ =='__main__':
+    test ()
