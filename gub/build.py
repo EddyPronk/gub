@@ -616,7 +616,7 @@ class NullBuild (UnixBuild):
 
 class SdkBuild (NullBuild):
     def stages (self):
-        return ['download', 'patch', 'untar', 'install', 'package', 'clean']
+        return ['download', 'untar', 'patch', 'install', 'package', 'clean']
     def install_root (self):
         return self.srcdir ()
 
