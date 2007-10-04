@@ -7,12 +7,11 @@ STATUS:
    darwin-ppc cross-compilers UNTESTED
 
 IN PROGRESS:
-   freebsd-x86
-
-   make -f lilypond.make PLATFORMS="mingw linux-x86 darwin-ppc freebsd-x86 freebsd-64" bootstrap
-
+   make -f lilypond.make PLATFORMS="mingw linux-x86 darwin-ppc freebsd-x86 freebsd-64" all
 
 TODO:
+* darwin-x86 gcc compile problem, probably rewire/glob/locate_files related.
+
 * find a clean way to pass strip_components to TarBall (See urw-fonts.py)
   (and similar repository-dependent settings that are not revision or
    branch)
