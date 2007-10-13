@@ -56,7 +56,7 @@ def get_url_versions (url):
     return versions
 
 class VersionDataBase:
-    def __init__ (self, file_name)
+    def __init__ (self, file_name):
         self._db = {}
         self.file_name = file_name
         self.platforms = list ()
