@@ -19,7 +19,8 @@ rm -rf %(srcdir)s/usr/lib/gcc
         ## limits.h symlinks into GCC.
 
         # print 'FIXME: serialization: this should already be fixed generically by gup:libtool_la_fixup'
-        # probably not, this in is SRCDIR! urg
+        # probably not, this in is SRCDIR! urg.  See if code can be shared
+        # with gup.
         import glob
         pat = self.expand ('%(srcdir)s/usr/lib/*.la')
         for a in glob.glob (pat):
