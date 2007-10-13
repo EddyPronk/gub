@@ -35,15 +35,15 @@ def get_url_versions (url):
 
     versions = []
     def note_version (m):
-        name = m.group (1)
-        version = tuple (map (int,  m.group (2).split('.')))
+        name = m.group (2)
+        version = tuple (map (int,  m.group (3).split('.')))
         build = 0
-        build_url = url + re.sub ("HREF=", '', m.group (0))
+        build_url = url + re.sub ("(HREF|href)=", '', m.group (0))
         build_url = build_url.replace ('"', "")
         
         # disregard buildnumber for src tarball. 
-        if m.group(3):
-            build = int (m.group (4))
+        if m.group (4):
+            build = int (m.group (5))
             
         versions.append ((name, version, build, build_url))
         
@@ -51,7 +51,7 @@ def get_url_versions (url):
 
     # [^0-9] is to force that version no is not swalled by name. Check this for cygwin libfoo3  
     # packages
-    re.sub (r'HREF="(.*[^0-9])-([0-9.]+)(-([0-9]+))?\.[0-9a-z-]+\.[.0-9a-z-]+"', note_version, index)
+    re.sub (r'(HREF|href)="(.*[^0-9])-([0-9.]+)(-([0-9]+))?\.[0-9a-z-]+\.[.0-9a-z-]+"', note_version, index)
 
     return versions
 
