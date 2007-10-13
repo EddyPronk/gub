@@ -1,6 +1,6 @@
 .PHONY: lilypond mingit phone
 .PHONY: default compilers TAGS help tools download download-tools
-sources = GNUmakefile $(filter-out %~, $(wildcard *.make bin/* gub/*.py gub/*/*.py gub/*/*/*.py gub/*/*/*/*.py))
+sources = GNUmakefile $(filter-out %~, $(wildcard *.make bin/* gub/*.py gub/*/*.py gub/*/*/*.py gub/*/*/*/*.py test-lily/*.py))
 
 default: compilers
 
