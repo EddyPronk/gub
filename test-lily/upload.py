@@ -246,8 +246,7 @@ def get_repository (options):
     ## do here, because also used in website generation.
     from gub import repository
     dir = options.repo_dir.replace ('.git','')
-    repo = repository.Git (dir, 
-                                     branch=options.branch)
+    repo = repository.Git (dir, branch=options.branch)
     return repo
 
 def main ():
@@ -260,7 +259,7 @@ def main ():
 
     repo = get_repository (options)
 
-    version_dict = misc.grok_sh_variables_str (repo.get_file_content ('VERSION'))
+    version_dict = misc.grok_sh_variables_str (repo.read_file ('VERSION'))
     version_tup = tuple (map (version_dict.get, ('MAJOR_VERSION', 'MINOR_VERSION', 'PATCH_LEVEL')))
     version_tup = tuple (map (int, version_tup))
     
