@@ -143,7 +143,9 @@ class BuildRunner:
             or not checksum_ok):
             self.settings.os_interface.stage ('building package: %s\n'
                                               % spec_name)
-            spec.os_interface.defer_execution ()
+            todo_broken_for_defer = ['darwin-ppc', 'darwin-x86']
+            if not spec.settings.platform in todo_broken_for_defer:
+                spec.os_interface.defer_execution ()
             spec.build ()
             spec.os_interface.debug (spec.os_interface.checksum (), defer=False)
             ## spec.build_checksum = spec.os_interface.checksum ()
