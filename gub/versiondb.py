@@ -63,9 +63,6 @@ class VersionDataBase:
         if os.path.exists (file_name):
             self.read ()
 
-    def platforms (self):
-        return self._db.keys ()
-
     def get_sources_from_url (self, url):
 
         ## ugh: should follow urls in the index.
@@ -127,7 +124,6 @@ class VersionDataBase:
                       if v[:len (version_tuple)] == version_tuple]
         candidates.append ( ((0,0,0), 0, '/dev/null' ))
         candidates.sort ()
-
         return candidates[-1]
 
 def get_cli_parser ():
