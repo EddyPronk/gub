@@ -56,10 +56,10 @@ def get_url_versions (url):
     return versions
 
 class VersionDataBase:
-    def __init__ (self, file_name, platforms):
+    def __init__ (self, file_name)
         self._db = {}
         self.file_name = file_name
-        self.platforms = platforms
+        self.platforms = list ()
         if os.path.exists (file_name):
             self.read ()
 
@@ -189,7 +189,7 @@ def main ():
         sys.stderr.write ("need --platforms definition")
         barf
 
-    db = VersionDataBase (options.dbfile, options.platforms)
+    db = VersionDataBase (options.dbfile)
     db.platforms = options.platforms.split (' ')
 
     if options.test:
