@@ -2,7 +2,7 @@ from gub.specs.cross import gcc
 from gub import mirrors
 
 class Gcc (gcc.Gcc):
-    source = mirrors.with_template (name='gcc', version='4.2-20070207', mirror=mirrors.gcc_snap, format='bz2')
+    source = self.with_template (version='4.1.1', mirror=mirrors.gcc_41, format='bz2')
     def patch (self):
         self.file_sub ([('/usr/bin/libtool', '%(cross_prefix)s/bin/%(target_architecture)s-libtool')],
                        '%(srcdir)s/gcc/config/darwin.h')
@@ -34,7 +34,9 @@ class Gcc (gcc.Gcc):
         return ['odcctools', 'cross/binutils']
     
 class Gcc__darwin__x86 (Gcc):
-    source = mirrors.with_template (name='gcc', version='4.1.1', mirror=mirrors.gcc_41, format='bz2')
+    source = mirrors.with_template (version='4.2-20070207',
+                                    mirror=mirrors.gcc_snap,
+                                    format='bz2')
 
 class Not_used__Gcc__darwin (Gcc):
     def configure (self):
