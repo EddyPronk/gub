@@ -19,6 +19,10 @@ class Nsis (toolsbuild.ToolsBuild):
 
     def __init__ (self, settings, source):
         toolsbuild.ToolsBuild.__init__ (self, settings, source)
+
+        # UGH - this is severely broken.
+        # the construction and destruction order of buildspecs is undefined.
+        # this may affect several buildspecs besides nsis'
         self.save_path = os.environ['PATH']
         mingw_dir = settings.alltargetdir + '/mingw' + settings.root_dir
         os.environ['PATH'] = (mingw_dir
@@ -68,7 +72,7 @@ Export('defenv')
         return self.compile_command () + ' install'
 
     def clean (self):
-        if settings.build_architecture.startswith ('x86_64-linux'):
+        if self.settings.build_architecture.startswith ('x86_64-linux'):
             os.environ['PATH'] = self.save_path
             del os.environ['CC']
             del os.environ['CXX']
