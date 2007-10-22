@@ -76,7 +76,7 @@ beautiful sheet music from a high-level description file.'''
                                         'configure', 'autoupdate')
     def autoupdate (self):
         # FIXME: why do we need a specific lilypond kludge.  can't
-        # this be done more genericly?  shouldn't we check on
+        # this be done more generically?  shouldn't we check on
         # source.is_tracking?
         def must_autogen ():
             return (self.first_is_newer ('%(srcdir)s/configure.in',
