@@ -19,8 +19,8 @@ models.'''
     #source = 'svn:http://svn.ghostscript.com:8080/ghostscript/trunk/gs&revision=7881'
     # this does not yet work
     # source = 'svn:http://svn.ghostscript.com:8080/ghostscript&branch=trunk&module=gs&revision=7881'
-    #source = 'svn:http://svn.ghostscript.com:8080/ghostscript&branch=trunk/gs&revision=7881'
-    source = 'ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/ghostscript-8.60.tar.bz2'
+    source = 'svn:http://svn.ghostscript.com:8080/ghostscript&branch=trunk/gs&revision=7881'
+    #source = 'ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/ghostscript-8.60.tar.bz2'
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
 
@@ -254,21 +254,6 @@ include $(GLSRCDIR)/pcwin.mak
 
     def install (self):
         Ghostscript.install (self)
-        if self.settings.lilypond_branch == 'lilypond_2_6':
-            self.lily_26_kludge()
-
-    def lily_26_kludge (self):
-        gs_prefix = '%(prefix_dir)s/share/ghostscript/%(ghostscript_version)s'
-        fonts = ['c059013l', 'c059016l', 'c059033l', 'c059036l']
-        for i in self.read_pipe ('locate %s.pfb' % fonts[0]).split ('\n'):
-            dir = os.path.dirname (i)
-            if os.path.exists (dir + '/' + fonts[0] + '.afm'):
-                break
-        fonts_string = ','.join (fonts)
-        self.system ('''
-mkdir -p %(install_root)s/%(gs_prefix)s/fonts
-cp %(dir)s/{%(fonts_string)s}{.afm,.pfb} %(install_root)s/%(gs_prefix)s/fonts
-''', locals ())
 
 class Ghostscript__freebsd (Ghostscript):
     def get_dependency_dict (self):
