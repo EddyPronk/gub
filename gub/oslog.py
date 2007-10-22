@@ -593,7 +593,7 @@ commands.
         # FIXME: read settings.rc, local, fallback should be a
         # user-definable list
         local = 'file:///home/%(USER)s/vc/gub/downloads' % os.environ
-	fallback = ['http://lilypond.org/downloads/gub-sources']
+	fallback = ['http://lilypond.org/download/gub-sources']
         def log (message):
             self.action (message, defer=False)
         misc.download_url (url, dest_dir, local=local, fallback=fallback,

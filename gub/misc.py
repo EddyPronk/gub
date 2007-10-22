@@ -176,7 +176,7 @@ Assume that files are stored in a directory of their own base name, eg
 # FIXME: read settings.rc, local, fallback should be a user-definable list
 def download_url (url, dest_dir,
                   local='file://%(HOME)s/vc/gub/downloads' % os.environ,
-                  fallback=['http://lilypond.org/downloads/gub-sources'],
+                  fallback=['http://lilypond.org/download/gub-sources'],
                   log=sys.stderr.write):
     for i in lst (local) + [url] + lst (fallback):
         if not is_ball (os.path.basename (i)):

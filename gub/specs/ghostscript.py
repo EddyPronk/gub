@@ -19,7 +19,8 @@ models.'''
     #source = 'svn:http://svn.ghostscript.com:8080/ghostscript/trunk/gs&revision=7881'
     # this does not yet work
     # source = 'svn:http://svn.ghostscript.com:8080/ghostscript&branch=trunk&module=gs&revision=7881'
-    source = 'svn:http://svn.ghostscript.com:8080/ghostscript&branch=trunk/gs&revision=7881'
+    #source = 'svn:http://svn.ghostscript.com:8080/ghostscript&branch=trunk/gs&revision=7881'
+    source = 'ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/ghostscript-8.60.tar.bz2'
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
 
@@ -30,7 +31,8 @@ models.'''
             v = '%(GS_VERSION_MAJOR)s.%(GS_VERSION_MINOR)s' % d
             return v
 
-        if isinstance (source, repository.Repository):
+        if (isinstance (source, repository.Repository)
+            and not isinstance (source, repository.TarBall)):
             from new import instancemethod
             source.version = instancemethod (version_from_VERSION, source, type (source))
 
