@@ -5,8 +5,13 @@ from gub import mirrors
 from gub import misc
 from gub import targetbuild
 
+
+# FIXME: 
+# downloading ftp://ftp.uu.net/graphics/jpeg/jpegsrc.v6b.tar.gz/jpegsrc.v6b.tar.gz/jpegsrc.v6b.tar.gz -> /home/lilydev/vc/gub-serialize/downloads/libjpeg
+
 class Libjpeg (targetbuild.TargetBuild):
-    source = mirrors.with_template (name='libjpeg', version='v6b', mirror=mirrors.jpeg)
+    source = mirrors.with_template (name='libjpeg', version='v6b',
+                                    mirror=mirrors.jpeg)
 
     def name (self):
         return 'libjpeg'
