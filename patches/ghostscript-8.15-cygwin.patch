@@ -45,8 +45,8 @@ diff -purN -x CYGWIN-PATCHES -x'*~' -x 'cyg*' -xjpeg -x'*.orig' ../../ghostscrip
  CFLAGS_STANDARD=-O2
  CFLAGS_DEBUG=-g -O0
  CFLAGS_PROFILE=-pg -O2
--CFLAGS_SO=-fPIC
-+#CFLAGS_SO=-fPIC
+-CFLAGS_SO=-fPIC -shared
++#CFLAGS_SO=-fPIC -shared
  
  # Define the other compilation flags.  Add at most one of the following:
  #	-DBSD4_2 for 4.2bsd systems.
