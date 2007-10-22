@@ -355,7 +355,7 @@ class Shar (Linux_installer):
         f = open (shar, 'w')
         f.write (script % locals())
         f.close ()
-        self.system ('cat %(file)s >> %(shar)s', locals ())
+        self.system ('cat %(file)s >> %(shar)s' % locals ())
         self.chmod (shar, 0755)
 
 def get_installer (settings, name):
