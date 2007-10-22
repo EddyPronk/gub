@@ -125,12 +125,14 @@ diff -purN ../ghostscript-8.15/src/winint.mak ./src/winint.mak
  # Compile gsdll.c, the main program of the DLL.
  
  $(PSOBJ)gsdll.obj: $(PSSRC)gsdll.c $(AK) $(iapi_h) $(ghost_h)
---- ghostscript-8.60/src/winlib.mak~	2007-07-10 21:00:51.000000000 -0200
-+++ ./src/winlib.mak	2007-10-22 00:57:13.000000000 -0200
-@@ -138,62 +138,6 @@
+diff -purN ../ghostscript-8.15/src/winlib.mak ./src/winlib.mak
+--- ../ghostscript-8.15/src/winlib.mak	2005-01-19 05:08:41.000000000 +0100
++++ ./src/winlib.mak	2005-12-25 08:07:51.000000000 +0100
+@@ -136,63 +136,7 @@ $(gconfigv_h): $(TOP_MAKEFILES) $(ECHOGS
+ 	$(ECHOGS_XE) -a $(gconfigv_h) -x 23 define USE_FPU -x 2028 -q $(FPU_TYPE)-0 -x 29
  	$(ECHOGS_XE) -a $(gconfigv_h) -x 23 define EXTEND_NAMES 0$(EXTEND_NAMES)
  	$(ECHOGS_XE) -a $(gconfigv_h) -x 23 define SYSTEM_CONSTANTS_ARE_WRITABLE 0$(SYSTEM_CONSTANTS_ARE_WRITABLE)
- 
+-
 -# -------------------------------- Library -------------------------------- #
 -
 -# The Windows Win32 platform
@@ -186,8 +188,9 @@ diff -purN ../ghostscript-8.15/src/winint.mak ./src/winint.mak
 -	$(SETMOD) $(GLD)mspoll $(mspoll_)
 -
 -$(GLOBJ)gp_mspol.$(OBJ): $(GLSRC)gp_mspol.c $(AK)\
-- $(gx_h) $(gp_h) $(gpcheck_h)
+- $(gx_h) $(gp_h) $(gpcheck_h) $(iapi_h) $(iref_h) $(iminst_h) $(imain_h)
 -	$(GLCCWIN) $(GLO_)gp_mspol.$(OBJ) $(C_) $(GLSRC)gp_mspol.c
++	
 +!include $(PSSRCDIR)\win32.mak
  
  # end of winlib.mak
