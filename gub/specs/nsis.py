@@ -16,29 +16,9 @@ class Nsis (toolsbuild.ToolsBuild):
                              source=':pserver:anonymous@nsis.cvs.sourceforge.net:/cvsroot/nsis',
                              module='NSIS',
                              tag='HEAD')
-
     def __init__ (self, settings, source):
         toolsbuild.ToolsBuild.__init__ (self, settings, source)
-
-        # UGH - this is severely broken.
-        # the construction and destruction order of buildspecs is undefined.
-        # this may affect several buildspecs besides nsis'
-        self.save_path = os.environ['PATH']
-        mingw_dir = settings.alltargetdir + '/mingw' + settings.root_dir
-        os.environ['PATH'] = (mingw_dir
-                              + settings.prefix_dir + settings.cross_dir
-                              + '/bin' + ':' + os.environ['PATH'])
-        # nsis <= 2.30 does not build with 64 bit compiler
-        self.CPATH = ''
-        if settings.build_architecture.startswith ('x86_64-linux'):
-            from gub import cross
-            cross.setup_linux_x86 (self)
-            os.environ['PATH'] = self.PATH
-            os.environ['CC'] = self.CC
-            os.environ['CXX'] = self.CXX
-            # FIXME: need this to find windows.h on linux-64;
-            # how does this ever work on linux-x86?
-            self.CPATH = mingw_dir + settings.prefix_dir + '/include'
+        self.x64_hack = 'x86_64-linux' in settings.build_architecture
 
     def get_build_dependencies (self):
         return ['scons']
@@ -54,26 +34,49 @@ defenv['CXX'] = os.environ['CXX']
 Export('defenv')
 ''')],
                        '%(srcdir)s/SConstruct')
-        #self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/nsis-2.22-contrib-math.patch')
         
     def configure (self):
         pass
 
     def compile_command (self):
         ## no trailing / in paths!
-        return ('scons PREFIX=%(system_prefix)s'
+        s = ('scons PREFIX=%(system_prefix)s'
                 ' PREFIX_DEST=%(install_root)s'
-                ' CPATH=%(CPATH)s'
+#                ' CPATH=%(CPATH)s'
                 ' DEBUG=yes'
                 ' NSIS_CONFIG_LOG=yes'
                 ' SKIPPLUGINS=System')
+
+        return s
     
+    def get_compile_env (self):
+        env = {'PATH': '%(gubdir)s/target/mingw/root/usr/cross/bin:' + os.environ['PATH'] }
+#        env['CPATH'] = ''
+        if self.x64_hack:
+            x86_dir = package.settings.alltargetdir + '/linux-x86'
+            x86_cross = (x86_dir
+                         + package.settings.root_dir
+                         + package.settings.prefix_dir
+                         + package.settings.cross_dir)
+            x86_bindir = x86_cross + '/bin'
+            x86_cross_bin = x86_cross + '/i686-linux' + '/bin'
+
+            env['LIBRESTRICT_ALLOW'] = self.settings.targetdir
+            env['CC'] = x86_cross_bin + '/gcc'
+            env['CXX'] = x86_cross_bin + '/g++'
+            env['PATH'] = x86_cross_bin + ':' + env['PATH']
+#            env['CPATH'] = x86_cross_bin + ':' + env['PATH']
+
+        return env
+
+    def compile (self): 
+        self.system ('cd %(builddir)s/ && %(compile_command)s',
+                     self.get_compile_env ())
+
+    def install (self):
+        self.system ('cd %(builddir)s/ && %(compile_command)s install ',
+                     self.get_compile_env ())
+
     def install_command (self):
         return self.compile_command () + ' install'
 
-    def clean (self):
-        if self.settings.build_architecture.startswith ('x86_64-linux'):
-            os.environ['PATH'] = self.save_path
-            del os.environ['CC']
-            del os.environ['CXX']
-        toolsbuild.ToolsBuild.clean (self)
