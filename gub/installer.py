@@ -350,7 +350,7 @@ class Shar (Linux_installer):
         header_length = 0
         _z = misc.compression_flag (file)
         header_length = len (script % locals ()) + 1
-        used_in_sharhead = '%(base_file)s %(hello)s %(header_length)s %(_z)'
+        used_in_sharhead = '%(base_file)s %(hello)s %(header_length)s %(_z)s'
         used_in_sharhead % locals ()
         f = open (shar, 'w')
         f.write (script % locals())
