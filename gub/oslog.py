@@ -138,7 +138,7 @@ class Func (SerializedCommand):
     def checksum (self, hasher):
         hasher.append (self.__class__.__name__)
         hasher.append (inspect.getsource (self.func))
-        hasher.append (`self.args`)
+        hasher.append (repr (self.args))
     def execute (self, os_commands):
         return self.func (*self.args)
 
