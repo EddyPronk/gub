@@ -18,8 +18,7 @@ class Nsis (toolsbuild.ToolsBuild):
                              tag='HEAD')
     def __init__ (self, settings, source):
         toolsbuild.ToolsBuild.__init__ (self, settings, source)
-        self.x64_hack = 'x86_64-linux' in settings.build_architecture
-
+            
     def get_build_dependencies (self):
         return ['scons']
 
@@ -35,38 +34,31 @@ Export('defenv')
 ''')],
                        '%(srcdir)s/SConstruct')
         
-    def configure (self):
-        pass
+    #FIXME: should be automatic for scons build
+    def stages (self):
+        return misc.list_remove (build.SdkBuild.stages (self), ['configure'])
 
     def compile_command (self):
-        ## no trailing / in paths!
-        s = ('scons PREFIX=%(system_prefix)s'
+        # SCons barfs on trailing / on directory names
+        return ('scons PREFIX=%(system_prefix)s'
                 ' PREFIX_DEST=%(install_root)s'
-#                ' CPATH=%(CPATH)s'
                 ' DEBUG=yes'
                 ' NSIS_CONFIG_LOG=yes'
                 ' SKIPPLUGINS=System')
-
-        return s
     
     def get_compile_env (self):
-        env = {'PATH': '%(gubdir)s/target/mingw/root/usr/cross/bin:' + os.environ['PATH'] }
-#        env['CPATH'] = ''
-        if self.x64_hack:
-            x86_dir = package.settings.alltargetdir + '/linux-x86'
-            x86_cross = (x86_dir
-                         + package.settings.root_dir
-                         + package.settings.prefix_dir
-                         + package.settings.cross_dir)
-            x86_bindir = x86_cross + '/bin'
-            x86_cross_bin = x86_cross + '/i686-linux' + '/bin'
-
-            env['LIBRESTRICT_ALLOW'] = self.settings.targetdir
-            env['CC'] = x86_cross_bin + '/gcc'
-            env['CXX'] = x86_cross_bin + '/g++'
-            env['PATH'] = x86_cross_bin + ':' + env['PATH']
-#            env['CPATH'] = x86_cross_bin + ':' + env['PATH']
-
+        # Do not use 'root', 'usr', 'cross', rather use from settings,
+        # that enables changing system root, prefix, etc.
+        mingw_dir = (self.settings.alltargetdir + '/mingw'
+                     + self.settings.root_dir)
+        mingw_bin = (mingw_dir
+                     + self.settings.prefix_dir
+                     + self.settings.cross_dir
+                     + '/bin')
+        env = {'PATH': mingw_bin + ':' + os.environ['PATH'] }
+        if 'x86_64-linux' in self.settings.build_architecture:
+            from gub import cross
+            return cross.setup_linux_x86 (self, env)
         return env
 
     def compile (self): 

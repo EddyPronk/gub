@@ -87,7 +87,7 @@ def get_cross_checksum (platform):
         print 'No cross module found'
         return '0000'
 
-def setup_linux_x86 (package):
+def setup_linux_x86 (package, env):
     '''
 Hack for using 32 bit compiler on linux-64.
 
@@ -105,10 +105,10 @@ compatibility installed:
                  + package.settings.cross_dir)
     x86_bindir = x86_cross + '/bin'
     x86_cross_bin = x86_cross + '/i686-linux' + '/bin'
-    package.PATH = x86_cross_bin + ':' + os.environ['PATH']
-    package.LIBRESTRICT_ALLOW = package.settings.targetdir
-    package.CC = x86_cross_bin + '/gcc'
-    package.CXX = x86_cross_bin + '/g++'
+    env['PATH'] = x86_cross_bin + ':' + env['PATH']
+    env['LIBRESTRICT_ALLOW'] = package.settings.targetdir
+    env['CC'] = x86_cross_bin + '/gcc'
+    env['CXX'] = x86_cross_bin + '/g++'
 
     compiler = x86_bindir + '/i686-linux-gcc'
     if not os.path.exists (compiler):
@@ -121,17 +121,18 @@ compatibility installed:
                          % package.__class__)
     os.system ('rm -f 32bit 32bit.c')
 
-    def set_env (command):
-        return ('PATH=' + package.PATH + ' '
-                + 'LIBRESTRICT_ALLOW=' + package.LIBRESTRICT_ALLOW + ' '
-                + command)
+    if 0:
+        def set_env (command):
+            return ('PATH=' + env['PATH'] + ' '
+                    + 'LIBRESTRICT_ALLOW=' + env['LIBRESTRICT_ALLOW'] + ' '
+                    + command)
 
-    package.configure_command \
-        = misc.MethodOverrider (package.configure_command, set_env)
-    package.compile_command \
-        = misc.MethodOverrider (package.compile_command, set_env)
-    package.install_command \
-        = misc.MethodOverrider (package.install_command, set_env)
+        package.configure_command \
+            = misc.MethodOverrider (package.configure_command, set_env)
+        package.compile_command \
+            = misc.MethodOverrider (package.compile_command, set_env)
+        package.install_command \
+            = misc.MethodOverrider (package.install_command, set_env)
 
     def check_link (src, dest):
         dest = x86_cross_bin + '/' + dest
@@ -145,3 +146,5 @@ compatibility installed:
     check_link ('g++', 'c++')
     check_link ('gcc', 'gcc')
     check_link ('g++', 'g++')
+
+    return env
