@@ -1,3 +1,5 @@
+import os
+
 from gub import build
 from gub import misc
 from gub import context
@@ -87,7 +89,7 @@ def get_cross_checksum (platform):
         print 'No cross module found'
         return '0000'
 
-def setup_linux_x86 (package, env):
+def setup_linux_x86 (package, env={'PATH': os.environ['PATH']}):
     '''
 Hack for using 32 bit compiler on linux-64.
 
@@ -121,18 +123,24 @@ compatibility installed:
                          % package.__class__)
     os.system ('rm -f 32bit 32bit.c')
 
-    if 0:
-        def set_env (command):
-            return ('PATH=' + env['PATH'] + ' '
-                    + 'LIBRESTRICT_ALLOW=' + env['LIBRESTRICT_ALLOW'] + ' '
-                    + command)
-
-        package.configure_command \
-            = misc.MethodOverrider (package.configure_command, set_env)
-        package.compile_command \
-            = misc.MethodOverrider (package.compile_command, set_env)
-        package.install_command \
-            = misc.MethodOverrider (package.install_command, set_env)
+    def build_environment (e):
+        return env
+    
+    # FIXME: we could also add [, build_environment ()] by default
+    # to build.py's compile [and install?] functions
+    def configure (foo):
+        package.system ('mkdir -p %(builddir)s')
+        package.system ('cd %(builddir)s && %(configure_command)s', env)
+        
+    def compile (foo):
+        package.system ('cd %(builddir)s && %(compile_command)s', env)
+            
+    package.build_environment \
+        = misc.MethodOverrider (package.nop, build_environment)
+#        package.configure \
+#            = misc.MethodOverrider (package.nop, configure)
+    package.compile \
+        = misc.MethodOverrider (package.nop, compile)
 
     def check_link (src, dest):
         dest = x86_cross_bin + '/' + dest
@@ -146,5 +154,3 @@ compatibility installed:
     check_link ('g++', 'c++')
     check_link ('gcc', 'gcc')
     check_link ('g++', 'g++')
-
-    return env

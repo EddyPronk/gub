@@ -25,6 +25,8 @@ TODO: move all non configure-make-make install stuff from UnixBuild here
         self.verbose = settings.verbose
         self.settings = settings
         self.build_checksum = '0000' 
+    def nop (self):
+        pass
     def stages (self):
         return list ()
     def apply_patch (self, name):
