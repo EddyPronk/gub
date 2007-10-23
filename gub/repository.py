@@ -406,7 +406,6 @@ class NewTarBall (TarBall):
 
 class Git (Repository):
     vc_system = '.git'
-    patch_dateformat = '%a %b %d %H:%M:%S %Y %z'
 
     def __init__ (self, dir, source='', branch='', revision=''):
         Repository.__init__ (self, dir, source)
@@ -602,17 +601,9 @@ class Git (Repository):
         return self.git_pipe ('diff %(tag)s HEAD' % locals ())
 
     def last_patch_date (self):
-        # Whurg.  Because we use the complex non-standard and silly --git-dir
-        # option, we cannot use git log without supplying a branch, which
-        # is not documented in git log, btw.
-        # fatal: bad default revision 'HEAD'
-        # I'm not even sure if we need branch or local_branch... and why
-        # our branch names are so difficult master-git.sv.gnu.org-lilypond.git
         branch = self.branch
-        s = self.git_pipe ('log -1 %(branch)s' % locals ())
-        m = re.search  ('Date: *(.*)', s)
-        date = m.group (1)
-        return tztime.parse (date, self.patch_dateformat)
+        s = self.git_pipe ('log --pretty=format:%ai -1 %(branch)s' % locals ())
+        return tztime.parse (s, self.patch_dateformat)
 
     def tag (self, name):
         stamp = self.last_patch_date ()
