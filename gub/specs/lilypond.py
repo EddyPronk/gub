@@ -11,9 +11,7 @@ class LilyPond (targetbuild.TargetBuild):
     source = 'git://git.sv.gnu.org/lilypond.git'
     download_before_init = True
     need_source_tree = True
-    # Let's not add branch to url, so that it will be overridden by
-    # branch in settings.  Otherwise, the one in url would win.
-    branch = 'master:master-git.sv.gnu.org-lilypond.git'
+    branch = 'master'
 
     '''A program for printing sheet music
 LilyPond lets you create music notation.  It produces

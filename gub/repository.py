@@ -406,84 +406,39 @@ class NewTarBall (TarBall):
 
 class Git (Repository):
     vc_system = '.git'
-
     def __init__ (self, dir, source='', branch='', revision=''):
         Repository.__init__ (self, dir, source)
 
         self.checksums = {}
-        self.local_branch = ''
-        self.remote_branch = branch
+        self.source = source
+
+        source = re.sub('.*:', '', source)
+        (self.url_host, self.url_path) = urllib.splithost(source)
+
+        self.branch = branch
         self.revision = revision
 
-        self.repo_url_suffix = None
-        if source:
-            self.repo_url_suffix = re.sub ('.*://', '', source)
-
-        if self.repo_url_suffix:
-            # FIXME: logic copied foo times
-            fileified_suffix = re.sub ('/', '-', self.repo_url_suffix)
-            # FIXME: projection, where is this used?
-            self.repo_url_suffix = '-' + re.sub ('[:+]+', '-', fileified_suffix)
-        
-        # FIXME: handle outside Git
-        if ':' in branch:
-            (self.remote_branch,
-             self.local_branch) = tuple (branch.split (':'))
-
-            self.local_branch = self.local_branch.replace ('/', '--')
-            self.branch = self.local_branch
-        elif source:
-            self.branch = branch
-
-            if branch:
-                self.local_branch = branch + self.repo_url_suffix
-                self.branch = self.local_branch
-        else:
-            self.branch = branch
-            self.local_branch = branch
-
-        # Wow, 15 lines of branch juggling.., what's going on here?
-        # what if we just want to build a copy of
-        # `git://git.kernel.org/pub/scm/git/git'.  Let's try `HEAD'
-        if not self.local_branch:
-            self.local_branch = 'HEAD'
+        if self.revision == '' and self.branch == '':
+            # note that HEAD doesn't really exist as a branch name.
+            self.branch = 'master'
 
     def version (self):
         return self.revision
 
     def is_tracking (self):
-        return self.branch != ''
+        return self.revision == ''
     
     def __repr__ (self):
-        b = self.local_branch
-        if not b:
-            b = self.revision
+        b = self.branch
         return '#<GitRepository %s#%s>' % (self.dir, b)
 
     def get_revision_description (self):
-        return self.git_pipe ('log --max-count=1 %s' % self.local_branch)  
+        return self.git_pipe ('log --max-count=1 %s' % self.branch)  
 
     def read_file (self, file_name):
-        committish = self.git_pipe ('log --max-count=1 --pretty=oneline %(local_branch)s'
-                                    % self.__dict__).split (' ')[0]
-        m = re.search ('^tree ([0-9a-f]+)',
-                       self.git_pipe ('cat-file commit %(committish)s'
-                                      % locals ()))
-        treeish = m.group (1)
-        for f in self.git_pipe ('ls-tree -r %(treeish)s'
-                                % locals ()).split ('\n'):
-            (info, name) = f.split ('\t')
-            (mode, type, fileish) = info.split (' ')
-            if name == file_name:
-                return self.git_pipe ('cat-file blob %(fileish)s ' % locals ())
-
-        raise RepositoryException ('file not found')
-        
-    def get_branches (self):
-        branch_lines = self.read_pipe (self.git_command ()
-                                       + ' branch -l ').split ('\n')
-        branches =  [b[2:] for b in branch_lines]
-        return [b for b in branches if b]
+        ref = self.get_ref()            
+        contents = self.git_pipe ('show %(ref)s:%(file_name)s' % locals ())
+        return contents
 
     def git_command (self, dir, repo_dir):
         if repo_dir:
@@ -513,53 +468,35 @@ class Git (Repository):
         repo = self.dir
         source = self.source
         revision = self.revision
+        branch = self.branch
+        host = self.url_host
+        path = self.url_path
         
         if not self.is_downloaded ():
-            self.git ('--git-dir %(repo)s clone --bare -n %(source)s %(repo)s' % locals ())
+            self.git ('clone --bare %(source)s %(repo)s' % locals ())
 
-            for (root, dirs, files) in os.walk ('%(repo)s/refs/heads/' % locals ()):
-                for f in files:
-                    self.system ('mv %s %s%s' % (os.path.join (root, f),
-                                                 os.path.join (root, f),
-                                                 self.repo_url_suffix))
-
-
-                head = open ('%(repo)s/HEAD' % locals ()).read ()
-                head = head.strip ()
-                head += self.repo_url_suffix
-
-                open ('%(repo)s/HEAD' % locals (), 'w').write (head)
-
-            return
-
-        if revision:
-            contents = self.git_pipe ('ls-tree %(revision)s' % locals (),
-                                      ignore_errors=True)
-
-            if contents:
-                return
-            
-            self.git ('--git-dir %(repo)s http-fetch -v -c %(revision)s' % locals ())
-
-        refs = '%s:%s' % (self.remote_branch, self.branch)
-
-        # FIXME: if source == None (for user checkouts), how to ask
-        # git what parent url is?  `git info' does not work
-        self.git ('fetch --update-head-ok %(source)s %(refs)s ' % locals ())
+        if branch: 
+            self.git('fetch %(source)s %(branch)s:refs/heads/%(host)s/%(path)s/%(branch)s' % locals())
         self.checksums = {}
+
+    def get_ref (self):
+        ref = self.revision
+        if not ref:
+            ref = self.url_host + self.url_path + '/' + self.branch
+        return ref
 
     def checksum (self):
         if self.revision:
             return self.revision
         
-        branch = self.local_branch
+        branch = self.get_ref()
         if self.checksums.has_key (branch):
             return self.checksums[branch]
 
         repo_dir = self.dir
         if os.path.isdir (repo_dir):
             ## can't use describe: fails in absence of tags.
-            cs = self.git_pipe ('rev-list  --max-count=1 %(branch)s' % locals ())
+            cs = self.git_pipe ('rev-list --max-count=1 %(branch)s' % locals ())
             cs = cs.strip ()
             self.checksums[branch] = cs
             return cs
@@ -567,14 +504,13 @@ class Git (Repository):
             return 'invalid'
 
     def all_files (self):
-        branch = self.branch
+        branch = self.get_ref()
         str = self.git_pipe ('ls-tree --name-only -r %(branch)s' % locals ())
         return str.split ('\n')
 
     def update_workdir (self, destdir):
         repo_dir = self.dir
-        branch = self.local_branch
-        revision = self.revision
+        branch = self.get_ref()
         
         if os.path.isdir (os.path.join (destdir, self.vc_system)):
             if self.git_pipe ('diff'):
@@ -582,18 +518,12 @@ class Git (Repository):
             self.git ('pull %(repo_dir)s %(branch)s:' % locals (), dir=destdir)
         else:
             self.system ('git-clone -l -s %(repo_dir)s %(destdir)s' % locals ())
-            try:
-                ## We always want to use 'master' in the checkout,
-                ## Since the branch name of the clone is
-                ## unpredictable, we force it here.
-                os.unlink ('%(destdir)s/.git/refs/heads/master' % locals ())
-            except OSError:
-                pass
 
-            if not revision:
-                revision = 'origin/%(branch)s' % locals ()
+            revision = self.revision
+            if not self.revision:
+                revision = 'origin/' + self.get_ref()
             
-            self.git ('branch master %(revision)s' % locals (),
+            self.git ('update-ref master %(revision)s' % locals (),
                       dir=destdir)
             self.git ('checkout master', dir=destdir)
 
@@ -608,16 +538,14 @@ class Git (Repository):
     def tag (self, name):
         stamp = self.last_patch_date ()
         tag = name + '-' + tztime.format (stamp, self.tag_dateformat)
-        # See last_patch_date
-        # fatal: Failed to resolve 'HEAD' as a valid ref.
-        branch = self.branch
+        branch = self.get_ref()
         self.git ('tag %(tag)s %(branch)s' % locals ())
         return tag
 
     def tag_list (self, tag):
         return self.git_pipe ('tag -l %(tag)s*' % locals ()).split ('\n')
 
-#RepositoryProxy.register (Git)
+RepositoryProxy.register (Git)
 
 class CVS (Repository):
     vc_system = 'CVS'
@@ -1015,105 +943,6 @@ class Bazaar (SimpleRepo):
         return self.bzr_pipe ('log --verbose -r-1')
 
 RepositoryProxy.register (Bazaar)
-
-# class Git does not survive serialization and it is just too weird
-# and complex
-class SimpleGit (SimpleRepo):
-    vc_system = '.git'
-    patch_dateformat = '%a %b %d %H:%M:%S %Y %z'
-
-    def __init__ (self, dir, source='', branch='master', revision=''):
-        # FIXME: multi-branch repos not supported for now
-#        if not revision:
-#            revision = 'HEAD'
-        if not branch:
-            branch = 'master'
-        self.module = '.'
-
-        # FIXME: keep (silly?) local-branch-name-juggling for compat reasons
-        # FIXME: handle outside Git
-        self.local_branch = ''
-        if ':' in branch:
-            (branch,
-             self.local_branch) = tuple (branch.split (':'))
-            self.local_branch = self.local_branch.replace ('/', '--')
-
-        SimpleRepo.__init__ (self, dir, source, branch, revision)
-
-    def git_pipe (self, cmd):
-        dir = self._checkout_dir ()
-        return self.read_pipe ('cd %(dir)s && git %(cmd)s' % locals ())
-
-    def git_system (self, cmd):
-        dir = self._checkout_dir ()
-        return self.system ('cd %(dir)s && git %(cmd)s' % locals ())
-
-    def _source (self):
-        return 'TODO:read url from git info', self.branch
-
-    def _current_revision (self):
-        return self.revision
-
-    def _checkout (self):
-        dir = self.dir
-        source = self.source
-        base = self._checkout_dir ()
-        self.system ('cd %(dir)s && git clone %(source)s %(base)s' % locals ())
-        # FIXME: keep (silly?) local-branch-name-juggling for compat reasons
-        branch = self.branch
-        if self.revision:
-            branch = self.revision
-        elif self.local_branch:
-            self.git_system ('checkout %(branch)s' % locals ())
-            branch = self.local_branch
-            self.git_system ('branch %(branch)s' % locals ())
-        # end FIXME
-        self.git_system ('checkout %(branch)s' % locals ())
-
-    def _update (self, revision):
-        self.git_system ('pull')
-
-    def update_workdir (self, destdir):
-        # FIXME: keep (silly?) local-branch-name-juggling for compat reasons
-        branch = self.branch
-        if self.revision:
-            branch = self.revision
-        elif self.local_branch and self.local_branch != self.branch:
-            self.git_system ('checkout %(branch)s' % locals ())
-            branch = self.local_branch
-            self.git_system ('branch -f %(branch)s' % locals ())
-        # end FIXME
-        self.git_system ('checkout %(branch)s' % locals ())
-        SimpleRepo.update_workdir (self, destdir)
-
-    def get_revision_description (self):
-        return self.git_pipe ('log --verbose -1')
-
-    def get_diff_from_tag (self, tag):
-        return self.git_pipe ('diff %(tag)s' % locals ())
-
-    def last_patch_date (self):
-        s = self.git_pipe ('log -1' % locals ())
-        m = re.search  ('Date: *(.*)', s)
-        date = m.group (1)
-        return tztime.parse (date, self.patch_dateformat)
-
-    def tag (self, name):
-        stamp = self.last_patch_date ()
-        tag = name + '-' + tztime.format (stamp, self.tag_dateformat)
-        self.git_system ('tag %(tag)s' % locals ())
-        return tag
-
-    def tag_list (self, tag):
-        return self.git_pipe ('tag -l %(tag)s*' % locals ()).split ('\n')
-
-    def all_files (self):
-        branch = self.branch
-        str = self.git_pipe ('ls-tree --name-only -r %(branch)s' % locals ())
-        return str.split ('\n')
-
-Git = SimpleGit
-RepositoryProxy.register (Git)
 
 get_repository_proxy = RepositoryProxy.get_repository
 
