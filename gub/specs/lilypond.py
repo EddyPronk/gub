@@ -32,15 +32,12 @@ beautiful sheet music from a high-level description file.'''
             s = self.read_file ('VERSION')
             d = misc.grok_sh_variables_str (s)
             v = '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
+
             return v
 
         from new import instancemethod
         if isinstance (source, repository.Repository):
             source.version = instancemethod (version_from_VERSION, source, type (source))
-
-    def patch (self):
-        print 'FIXME: serialization: broken ChangeLog make rule'
-        self.system ('''touch %(srcdir)s/ChangeLog''')
 
     def get_dependency_dict (self):
         return {'': [
