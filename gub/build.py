@@ -25,7 +25,9 @@ class Build (context.Os_context_wrapper):
         self.source.set_oslog (self.os_interface)
         self.verbose = settings.verbose
         self.settings = settings
-        self.build_checksum = '0000'
+
+        # don't initialize self.build_checksum so we will catch an
+        # error if it was not defined at the time of writing the hdr.
 
     def set_build_checksum (self, checksum):
         self.__dict__['build_checksum'] = checksum
@@ -509,6 +511,13 @@ cp %(file)s %(install_root)s/license/%(name)s
             p = guppackage.GupPackage (self.os_interface)
             # FIXME: feature envy -> GupPackage constructor/factory
             p._file_specs = filespecs
+
+            # the build_checksum has to be treated specially: it is
+            # always based on a strings that are constructed *using*
+            # the substitution_dict.  Hence, it can't be part of the
+            # dict itself.
+            package_dict = self.get_substitution_dict ().copy ()
+            package_dict['build_checksum'] = self.build_checksum
             p.set_dict (self.get_substitution_dict (), sub)
 
             conflict_str = ';'.join (conflict_dict.get (sub, []))
