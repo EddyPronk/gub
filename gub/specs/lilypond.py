@@ -138,13 +138,6 @@ cp %(flex_include_dir)s/FlexLexer.h %(builddir)s
     def pretty_name (self):
         return 'LilyPond'
     
-    def build_number (self):
-        from gub import versiondb
-        db = versiondb.VersionDataBase (self.settings.lilypond_versions)
-        v = tuple (map (int, self.build_version ().split ('.')))
-        b = db.get_next_build_number (v)
-        return ('%d' % b)
-
     def install (self):
         targetbuild.TargetBuild.install (self)
         # FIXME: This should not be in generic package, for installers only.
@@ -284,12 +277,10 @@ LDFLAGS="%(LDFLAGS)s %(python_lib)s"
         # lilypond.make uses `python gub/versiondb.py --build-for=2.11.32'
         # which only looks at source ball build numbers, which are always `1'
         # This could be fixed, but for now just build one doc ball per release?
-        # installer_build = self.build_number ()
         installer_build = '1'
         installer_version = self.build_version ()
         docball = self.expand ('%(uploads)s/lilypond-%(installer_version)s-%(installer_build)s.documentation.tar.bz2', env=locals ())
         infomanball = self.expand ('%(uploads)s/lilypond-%(installer_version)s-%(installer_build)s.info-man.tar.bz2', env=locals ())
-
 
         if not os.path.exists (docball):
             ## can't run make, because we need the right variables (BRANCH, etc.)

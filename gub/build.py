@@ -601,13 +601,6 @@ mkdir -p %(install_prefix)s/share/doc/%(name)s
         # FIXME: ugly workaround needed for lilypond package...
         return '%(version)s'
 
-    def build_number (self):
-        # FIXME: actually need the packages' build number here...
-        build_number_file = '%(gubdir)s/buildnumber-%(lilypond_branch)s.make'
-        d = misc.grok_sh_variables (self.expand (build_number_file))
-        b = '%(INSTALLER_BUILD)s' % d
-        return b
-
 class BinaryBuild (UnixBuild):
     def stages (self):
         return ['download', 'untar', 'install', 'package', 'clean']
