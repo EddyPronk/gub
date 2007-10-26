@@ -53,18 +53,10 @@ class BuildRunner:
 
     # FIXME: move to gup.py or to build.py?
     def pkg_checksum_valid (self, spec, pkg):
-        return True
         name = pkg.name ()
         pkg_dict = self.manager.package_dict (name)
 
-        # FIXME: why this weird logic, always entering the loop and
-        # doing a full loop?  Try:
-        #    loop:
-        #       if false:
-        #           return false
-        #    return True
-
-        valid = (spec.spec_checksum == pkg_dict['spec_checksum']
+        valid = (spec.build_checksum == pkg_dict['build_checksum']
                  and spec.source_checksum () == pkg_dict['source_checksum'])
 
         hdr = pkg.expand ('%(split_hdr)s')
@@ -72,12 +64,12 @@ class BuildRunner:
         if valid:
             import pickle
             hdr_dict = pickle.load (open (hdr))
-            hdr_sum = hdr_dict['spec_checksum']
-            valid = valid and hdr_sum == spec.spec_checksum
+            hdr_sum = hdr_dict['build_checksum']
+            valid = valid and hdr_sum == spec.build_checksum
             valid = valid and spec.source_checksum () == hdr_dict['source_checksum']
 
-        ## let's be lenient for cross pkgs.
-        ## spec.cross_checksum == self.manager.package_dict(name)['cross_checksum'])
+        # we don't use cross package checksums, otherwise we have to
+        # rebuild everything for every cross package change.
         return valid
 
     # FIXME: move to gup.py or to build.py?
@@ -86,7 +78,6 @@ class BuildRunner:
         for pkg in spec.get_packages ():
             valid = valid and self.pkg_checksum_valid (spec, pkg)
         return valid
-
 
     # FIXME: this should be in gpkg/gup.py otherwise it's impossible
     # to install packages in a conflict situation manually
@@ -148,8 +139,7 @@ class BuildRunner:
                 spec.os_interface.defer_execution ()
             spec.build ()
             spec.os_interface.debug (spec.os_interface.checksum (), defer=False)
-            ## spec.build_checksum = spec.os_interface.checksum ()
-            ## SetAttrTooLate: ('build_checksum', <flex.Flex instance at 0x95be18>)
+            spec.set_build_checksum (spec.os_interface.checksum ())
             spec.os_interface.execute_deferred ()
 
         # FIXME, spec_install should be stage?

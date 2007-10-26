@@ -439,7 +439,7 @@ cd %(builddir)s && make -C scripts PYTHON=/usr/bin/python
             'urw-fonts',
             ] + ['gs']
 
-##
+
 class LilyPond__darwin (LilyPond):
     def get_dependency_dict (self):
         d = LilyPond.get_dependency_dict (self)

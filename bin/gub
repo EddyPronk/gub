@@ -29,9 +29,8 @@ def argv0_relocation ():
 argv0_relocation ()
 
 import sys
-#
+
 from gub import cross
-## fixme: double use of gub name.
 from gub import build
 import gub.settings
 from gub import misc
