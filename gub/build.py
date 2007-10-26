@@ -11,8 +11,9 @@ from gub import guppackage
 class Build (context.Os_context_wrapper):
     '''How to build a piece of software
 
-TODO: move all non configure-make-make install stuff from UnixBuild here
-'''
+    TODO: move all non configure-make-make install stuff from
+    UnixBuild here
+    '''
 
     need_source_tree = False
     source = ''
@@ -24,7 +25,11 @@ TODO: move all non configure-make-make install stuff from UnixBuild here
         self.source.set_oslog (self.os_interface)
         self.verbose = settings.verbose
         self.settings = settings
-        self.build_checksum = '0000' 
+        self.build_checksum = '0000'
+
+    def set_build_checksum (self, checksum):
+        self.__dict__['build_checksum'] = checksum
+        
     def nop (self):
         pass
     def stages (self):
@@ -45,7 +50,7 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/%(name)s
 
         stages = self.stages ()
 
-        if 'dowload' in stages and self.settings.options.offline:
+        if 'download' in stages and self.settings.options.offline:
             stages.remove ('download')
 
         if 'src_package' in stages and not self.settings.options.build_source:
@@ -220,7 +225,7 @@ tries to do everything including autotooling and libtool fooling.  '''
 
     @context.subst_method
     def vc_branch (self):
-        return self.source.canonical_branch ()
+        return self.source.full_branch_name ()
     
     @context.subst_method
     def vc_branch_suffix (self):
@@ -516,7 +521,7 @@ cp %(file)s %(install_root)s/license/%(name)s
                 dep_str = p._dict['dependencies_string'] + ';' + dep_str
             p._dict['dependencies_string'] = dep_str
 
-	    ## FIXME make generic: use cross.get_subpackage_dict_methods () or similar.
+	    # FIXME make generic: use cross.get_subpackage_dict_methods () or similar.
             desc_str = descr_dict.get (sub, '')
             p._dict['description'] = desc_str
 

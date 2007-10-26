@@ -147,7 +147,7 @@ class Repository:
         self.download_url = oslog.download_url
         self.info = oslog.info
 
-    def canonical_branch (self):
+    def full_branch_name (self):
         if self.is_tracking ():
             return self.branch.replace ('/', '-')
         return ''
@@ -427,6 +427,13 @@ class Git (Repository):
 
     def is_tracking (self):
         return self.revision == ''
+
+    def full_branch_name (self):
+        if self.is_tracking ():
+            b = '%s/%s/%s' % (self.url_host, self.url_path, self.branch)
+            b = b.replace ('/', '-')
+            return b
+        return ''
     
     def __repr__ (self):
         b = self.branch
@@ -511,19 +518,18 @@ class Git (Repository):
     def update_workdir (self, destdir):
         repo_dir = self.dir
         branch = self.get_ref()
-        
         if os.path.isdir (os.path.join (destdir, self.vc_system)):
             if self.git_pipe ('diff'):
                 self.git ('reset --hard HEAD' % locals (), dir=destdir)
             self.git ('pull %(repo_dir)s %(branch)s:' % locals (), dir=destdir)
         else:
-            self.system ('git-clone -l -s %(repo_dir)s %(destdir)s' % locals ())
+            self.system ('git clone -l -s %(repo_dir)s %(destdir)s' % locals ())
 
             revision = self.revision
             if not self.revision:
                 revision = 'origin/' + self.get_ref()
             
-            self.git ('update-ref master %(revision)s' % locals (),
+            self.git ('update-ref refs/heads/master %(revision)s' % locals (),
                       dir=destdir)
             self.git ('checkout master', dir=destdir)
 
