@@ -61,9 +61,9 @@ rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,
 
         ## we want native freetype-config flags here. 
         cflags = '-I%(srcdir)s -I%(srcdir)s/src ' \
-                 + self.read_pipe ('%(tools_prefix)s/bin/freetype-config --cflags')[:-1]
+                 + self.read_pipe ('%(tools_prefix)s/bin/freetype-config --cflags').strip()
 
-        libs = self.read_pipe ('%(tools_prefix)s/bin/freetype-config --libs')[:-1]
+        libs = self.read_pipe ('%(tools_prefix)s/bin/freetype-config --libs').strip()
         for i in ('fc-case', 'fc-lang', 'fc-glyphname', 'fc-arch'):
             self.system ('''
 cd %(builddir)s/%(i)s && make "CFLAGS=%(cflags)s" "LIBS=%(libs)s" CPPFLAGS= LDFLAGS= INCLUDES= 
