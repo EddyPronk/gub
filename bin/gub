@@ -250,7 +250,7 @@ def main ():
     logging.info ('platform: ' + settings.platform + '\n')
 
     if not files:
-        settings.os_interface.error ('error: nothing to do\n')
+        logging.error ('error: nothing to do\n')
         cli_parser.print_help ()
         sys.exit (2)
         
