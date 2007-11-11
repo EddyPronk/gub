@@ -60,7 +60,6 @@ class Cygwin_package (context.Os_context_wrapper):
 
         self.package_manager = gup.DependencyManager (
             self.installer_root,
-            settings.os_interface,
             dbdir=self.installer_db,
             clean=True)
 
@@ -97,7 +96,7 @@ class Cygwin_package (context.Os_context_wrapper):
     def re_ball (self, hdr):
         cyg_split = cygwin.gub_to_distro_dict.get (hdr['split_name'],
                                                    [hdr['split_name']])[0]
-        self.os_interface.info ('creating cygwin package: ' + cyg_split + '\n')
+        logging.info ('creating cygwin package: ' + cyg_split + '\n')
         main_p = hdr['name'] == hdr['split_name']
         subdir = ''
         if not main_p:
@@ -130,7 +129,7 @@ cp %(installer_root)s/license/%(name)s %(installer_root)s/usr/share/doc/%(name)s
         ball = (self.expand ('%(cygwin_uploads)s/%(name)s/') + '%(cyg_ball)s'
                 % locals ())
 
-        self.os_interface.info ('creating cygwin src package: ' + cyg_ball + '\n')
+        logging.info ('creating cygwin src package: ' + cyg_ball + '\n')
         #self._untar (dir, '%(src_package_ball)s')
         self._untar (dir, self.expand ('%(src_package_ball)s'))
         self._mv ('%(dir)s/%(gub_dir)s', '%(dir)s/%(cyg_dir)s', locals ())
@@ -265,7 +264,7 @@ category: %(local_category)s%(requires_line)s%(external_source_line)s
         return hint
 
     def _untar (self, dir, ball, env={}):
-        _v = self.os_interface.verbose_flag ()
+        _v = '' # self.os_interface.verbose_flag ()
         e = env.copy ()
         e.update (locals ())
         self.system ('''

@@ -103,7 +103,7 @@ build-all - build, strip, package
 
 def check_installer (installer, options, args):
     settings = installer.settings
-    install_manager = gup.PackageDictManager (settings.os_interface)
+    install_manager = gup.PackageDictManager ()
     install_manager.read_package_headers (settings.packages,
                                           settings.branch_dict)
     install_manager.read_package_headers (settings.cross_packages,
@@ -135,7 +135,6 @@ def build_installer (installer, args, options):
     settings = installer.settings
     
     install_manager = gup.DependencyManager (installer.installer_root,
-                                             settings.os_interface,
                                              dbdir=installer.installer_db,
                                              clean=True)
     
@@ -192,12 +191,11 @@ def run_installer_commands (commands, settings, args, options):
     installer_obj = installer.get_installer (settings, name)
 
     if check_installer (installer_obj, options, args):
-        settings.os_interface.info ('installer is up to date\n')
+        logging.info ('installer is up to date\n')
         return 
 
     for c in commands:
-        settings.os_interface.stage (' *** IStage: %s (%s)\n'
-                                     % (c, installer_obj.name))
+        logging.stage (' *** IStage: %s (%s)\n' % (c, installer_obj.name))
     
         if c == ('build'):
             build_installer (installer_obj, args, options)
@@ -216,7 +214,7 @@ def main ():
     for s in options.settings:
         (k, v) = tuple (s.split ('='))
         if settings.__dict__.has_key (k):
-            settings.os_interface.warn ('overwriting %s = %s with %s\n'
+            logging.warn ('overwriting %s = %s with %s\n'
                                         % (k, settings.__dict__[k], v))
         settings.__dict__[k] = v
     c = commands.pop (0)
@@ -231,13 +229,12 @@ def main ():
         run_installer_commands (cs, settings, commands, options)
     except locker.LockedError, e:
         if options.skip_if_locked:
-            settings.os_interface.error ('skipping build; install_root is locked\n')
+            logging.error ('skipping build; install_root is locked\n')
             sys.exit (0)
         raise e
-    settings.os_interface.stage ('done\n')
-    settings.os_interface.error ('build log written to: ' +
-                                 settings.os_interface.log_file_name
-                                 + '\n')
+    logging.stage ('done\n')
+    logging.error ('build log written to: %s\n'  % 'FIXME')
+    #settings.os_interface.log_file_name
 
 if __name__ == '__main__':
     main ()

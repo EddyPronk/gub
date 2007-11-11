@@ -186,7 +186,6 @@ class FileManager:
 
 class PackageDictManager:
     """
-
     A dict of PackageName ->  (Key->Value dict)
 
     which can be read off the disk.
@@ -275,8 +274,6 @@ class PackageDictManager:
 
 ## FIXME: MI
 class PackageManager (FileManager, PackageDictManager):
-
-
     """PackageManager is a FileManager, which also associates a
     key/value dict with each package.
 
