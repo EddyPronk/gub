@@ -1,6 +1,9 @@
 import pickle
 import os
 import re
+
+from new import classobj
+
 #
 from gub import misc
 from gub import repository
@@ -667,13 +670,13 @@ def get_build_module (settings, name):
 def get_build_without_module (flavour, name):
     '''Direct dependency build feature
 
-* gub http://ftp.gnu.org/pub/gnu/tar/tar-1.18.tar.gz
-WIP:
-* gub git://git.kernel.org/pub/scm/git/git
-* bzr:http://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr
-* must remove specs/git.py for now to get this to work
-* git.py overrides repository and branch settings'''
-    from new import classobj
+    * gub http://ftp.gnu.org/pub/gnu/tar/tar-1.18.tar.gz
+    WIP:
+    * gub git://git.kernel.org/pub/scm/git/git
+    * bzr:http://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr
+    * must remove specs/git.py for now to get this to work
+    * git.py overrides repository and branch settings'''
+    
     cls = classobj (name, (flavour,), {})
     cls.__module__ = name
     return cls

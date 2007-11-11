@@ -424,12 +424,11 @@ def get_base_package_name (name):
 def get_source_packages (settings, todo):
     """TODO is a list of (source) builds.
 
-Generate a list of UnixBuild needed to build TODO, in
-topological order
-    
-"""
+    Generate a list of UnixBuild needed to build TODO, in
+    topological order
+    """
 
-    ## don't confuse callers by not modifying argument
+    # don't confuse callers by not modifying argument
     todo = todo[:]
 
     cross_packages = cross.get_cross_packages (settings)
