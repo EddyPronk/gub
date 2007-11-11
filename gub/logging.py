@@ -68,14 +68,12 @@ class RealCommandLogger (CommandLogger):
         assert type(message_type) == type('')
         if not message:
             return 0
-
         message_level = name_to_loglevel_mapping[message_type]
         if message_level <= self.threshold:
             sys.stderr.write (message)
-
-            if self.log_file:
-                self.log_file.write (message)
-                self.log_file.flush ()
+        if self.log_file:
+            self.log_file.write (message)
+            self.log_file.flush ()
 
     def verbose_flag (self):
         if self.verbose >= name_to_loglevel_mapping['output']:
