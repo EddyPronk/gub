@@ -5,7 +5,7 @@ from gub import repository
 from gub import build
 from gub import misc
 from gub import targetbuild
-from gub import oslog
+from gub import commands
 
 class LilyPond (targetbuild.TargetBuild):
     source = 'git://git.sv.gnu.org/lilypond.git'
@@ -78,7 +78,7 @@ beautiful sheet music from a high-level description file.'''
                                          '%(builddir)s/config.make')
                     or self.first_is_newer ('%(srcdir)s/stepmake/aclocal.m4',
                                             '%(srcdir)s/configure'))
-        self.os_interface.pred_if_else (must_autogen, oslog.System (self.expand ('cd %(srcdir)s && bash autogen.sh --noconfigure')))
+        self.runner.pred_if_else (must_autogen, commands.System (self.expand ('cd %(srcdir)s && bash autogen.sh --noconfigure')))
 
     def configure_command (self):
         ## FIXME: pickup $target-guile-config
@@ -106,8 +106,8 @@ beautiful sheet music from a high-level description file.'''
                     ## need to reconfigure if dirs were added.
                     or (len (self.locate_files ('%(builddir)s', 'GNUmakefile'))
                         != len (self.locate_files ('%(srcdir)s', 'GNUmakefile')) + 1))
-        self.os_interface.pred_if_else (must_reconfigure,
-                                        oslog.Func (self.reconfigure))
+        self.runner.pred_if_else (must_reconfigure,
+                                  commands.Func (self.reconfigure))
 
     def reconfigure (self):
         if not os.path.exists (self.expand ('%(builddir)s/FlexLexer.h')):
@@ -132,7 +132,7 @@ cp %(flex_include_dir)s/FlexLexer.h %(builddir)s
     def build_version (self):
         d = misc.grok_sh_variables_str (self.source.read_file ('VERSION'))
         v = '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
-        self.os_interface.info ('LILYPOND-VERSION: %(v)s\n' % locals ())
+        self.runner.info ('LILYPOND-VERSION: %(v)s\n' % locals ())
         return v
 
     def pretty_name (self):

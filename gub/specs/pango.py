@@ -62,7 +62,7 @@ ModulesPath = $PANGO_PREFIX/lib/pango/%(pango_module_version)s/modules
 
         def check_pango_module_version ():
             assert (self.pango_module_version)
-        self.os_interface.func (check_pango_module_version)
+        self.runner.func (check_pango_module_version)
         self.copy ('%(sourcefiledir)s/pango.modules', etc)
 
     def install (self):

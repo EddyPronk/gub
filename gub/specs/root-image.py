@@ -1,5 +1,6 @@
 from gub import mirrors
 from gub import build
+import glob
 
 class Root_image (build.NullBuild):
     source = mirrors.with_vc (repository.Version ('1.0'))
@@ -50,8 +51,7 @@ class Root_image (build.NullBuild):
     def install_ipkg (self, i):
         fakeroot_cache = self.builddir () + '/fakeroot.cache'
         self.fakeroot (self.expand (self.settings.fakeroot, locals ()))
-        import glob
-        _v = self.os_interface.verbose_flag ()
+        _v = '' # self.os_interface.verbose_flag ()
         for f in glob.glob (self.expand ('%(downloads)s/ipk/%(i)s_*.ipk',
                                          locals ())):
             self.system ('''
