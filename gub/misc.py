@@ -4,7 +4,8 @@ import re
 import string
 import sys
 import urllib2
- 
+import stat
+
 def join_lines (str):
     return str.replace ('\n', ' ')
 
@@ -411,6 +412,38 @@ def get_from_parents (cls, key):
         if i.__dict__.get (key):
             return i.__dict__.get (key)
     return None
+
+
+def file_sub (re_pairs, name, must_succeed=False, use_re=True, to_name=None):
+    s = open (name).read ()
+    t = s
+    for frm, to in re_pairs:
+        new_text = ''
+        if use_re:
+            new_text = re.sub (re.compile (frm, re.MULTILINE), to, t)
+        else:
+            new_text = t.replace (frm, to)
+
+        if (t == new_text and must_succeed):
+            raise Exception ('nothing changed!')
+        t = new_text
+
+    if s != t or (to_name and name != to_name):
+        stat_info = os.stat (name)
+        mode = stat.S_IMODE (stat_info[stat.ST_MODE])
+
+        if not to_name:
+            try:
+                os.unlink (name + '~')
+            except OSError:
+                pass
+            os.rename (name, name + '~')
+            to_name = name
+        h = open (to_name, 'w')
+        h.write (t)
+        h.close ()
+        os.chmod (to_name, mode)
+
 
 def test ():
     print forall (x for x in [1, 1])

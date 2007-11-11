@@ -183,7 +183,7 @@ class Os_context_wrapper (Context):
             to_name = self.expand (to_name, env)
             
         return self.runner.file_sub (substs, self.expand (name, env), to_name=to_name,
-                                           must_succeed=must_succeed, use_re=use_re)
+                                     must_succeed=must_succeed, use_re=use_re)
     
     def fakeroot (self, s):
         self.runner.fakeroot (s)

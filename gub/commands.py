@@ -5,6 +5,8 @@ import inspect
 import subprocess
 import stat
 
+from gub import misc
+
 class SerializedCommand:
     def __init__ (self):
         self.instantiation_traceback = traceback.extract_stack ()
@@ -230,49 +232,13 @@ If TO_NAME is specified, the output is sent to there.
 
     def execute (self, runner):
         (re_pairs, name) = self.args
-        to_name = self.kwargs.get ('to_name')
-        must_succeed = self.kwargs.get ('must_succeed')
-#        use_re = self.kwargs.get ('use_re')
-        # FIXME: kwargs approach is fragile, must check other
-        # defaults.  use_re defaulted to True...
-        use_re = True
-        if self.kwargs.has_key ('use_re'):
-            use_re = self.kwargs.get ('use_re')
 
         runner.action ('substituting in %s\n' % name)
         runner.command (''.join (map (lambda x: "'%s' -> '%s'\n" % x,
-                                   re_pairs)))
+                                      re_pairs)))
 
-        s = open (name).read ()
-        t = s
-        for frm, to in re_pairs:
-            new_text = ''
-            if use_re:
-                new_text = re.sub (re.compile (frm, re.MULTILINE), to, t)
-            else:
-                new_text = t.replace (frm, to)
-
-            if (t == new_text and must_succeed):
-                raise Exception ('nothing changed!')
-            t = new_text
-
-        if s != t or (to_name and name != to_name):
-            stat_info = os.stat (name)
-            mode = stat.S_IMODE (stat_info[stat.ST_MODE])
-
-            if not to_name:
-                runner.action ('backing up: %(name)s\n' % locals ())
-                try:
-                    os.unlink (name + '~')
-                except OSError:
-                    pass
-                os.rename (name, name + '~')
-                to_name = name
-            h = open (to_name, 'w')
-            h.write (t)
-            h.close ()
-            os.chmod (to_name, mode)
-
+        misc.file_sub (re_pairs, name, **self.kwargs)
+        
 class Conditional (SerializedCommand):
     def __init__ (self, predicate, true, false=None):
         SerializedCommand.__init__ (self)

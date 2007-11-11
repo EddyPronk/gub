@@ -640,7 +640,7 @@ def get_build_from_file (settings, file_name, name):
 def get_build_class (settings, flavour, name):
     cls = get_build_from_module (settings, name)
     if not cls:
-        settings.os_interface.harmless ('making spec:  %(name)s\n' % locals ())
+        logging.harmless ('making spec:  %(name)s\n' % locals ())
         cls = get_build_without_module (flavour, name)
     return cls
 

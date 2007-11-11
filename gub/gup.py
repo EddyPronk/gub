@@ -115,9 +115,10 @@ class FileManager:
             file = file[2:]
         dir = os.path.dirname (file)
         misc.file_sub ([('^libdir=.*',
-                                      """libdir='%(root)s/%(dir)s'""" % locals ()
-                                      ),],
-                                    '%(root)s/%(file)s' % locals (),
+                         """libdir='%(root)s/%(dir)s'""" % locals ()
+                         ),],
+                       '%(root)s/%(file)s' % locals (),
+                       
         # FIXME: for tools libtool 1.5.20, libdir is already OK, so this
         # fails.  Would have been a nice assert.  Possibly for platforms
         # other than tools?  Hmm, let's try that.
