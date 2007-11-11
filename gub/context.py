@@ -157,7 +157,7 @@ class Context:
             raise v
         return e
 
-class Os_context_wrapper (Context):
+class RunnableContext (Context):
     def __init__ (self, *args):
         Context.__init__ (self, *args)
 

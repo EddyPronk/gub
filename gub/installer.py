@@ -16,9 +16,9 @@ pretty_names = {
     'git': 'Git',
     }
 
-class Installer (context.Os_context_wrapper):
+class Installer (context.RunnableContext):
     def __init__ (self, settings, name):
-        context.Os_context_wrapper.__init__ (self, settings)
+        context.RunnableContext.__init__ (self, settings)
         
         self.settings = settings
         self.strip_command \

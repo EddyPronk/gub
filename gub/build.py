@@ -12,7 +12,7 @@ from gub import guppackage
 from gub import logging
 from gub import commands
 
-class Build (context.Os_context_wrapper):
+class Build (context.RunnableContext):
     '''How to build a piece of software
 
     TODO: move all non configure-make-make install stuff from
@@ -24,7 +24,7 @@ class Build (context.Os_context_wrapper):
     branch = ''
 
     def __init__ (self, settings, source):
-        context.Os_context_wrapper.__init__ (self, settings)
+        context.RunnableContext.__init__ (self, settings)
         self.source = source
         self.settings = settings
 
@@ -147,7 +147,7 @@ class UnixBuild (Build):
             'LIBRARY_PATH': '/empty-means-cwd-in-feisty',
             }
         dict.update (env)
-        d = context.Os_context_wrapper.get_substitution_dict (self, dict).copy ()
+        d = context.RunnableContext.get_substitution_dict (self, dict).copy ()
         return d
           
     def class_invoke_version (self, klas, name):

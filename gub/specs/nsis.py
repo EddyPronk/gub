@@ -60,6 +60,9 @@ Export('defenv')
                 ' SKIPPLUGINS=System')
     def build_environment (self):
         pass
+        return {}
+
+    
     def install_command (self):
         return self.compile_command () + ' install'
     def install (self):

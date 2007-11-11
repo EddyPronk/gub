@@ -455,10 +455,8 @@ class LilyPond__darwin (LilyPond):
     def configure (self):
         LilyPond.configure (self)
         make = self.expand ('%(builddir)s/config.make')
-        if re.search ('GUILE_ELLIPSIS', open (make).read ()):
-            return
         self.file_sub ([('CONFIG_CXXFLAGS = ',
-                         'CONFIG_CXXFLAGS = -DGUILE_ELLIPSIS=... '),
+                         'CONFIG_CXXFLAGS =-DGUILE_ELLIPSIS=... '),
 ## optionally: switch off for debugging.
 #                                (' -O2 ', '')
                 ],
