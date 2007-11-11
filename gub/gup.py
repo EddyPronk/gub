@@ -6,21 +6,22 @@
 import gdbm as dbmodule
 #import dbhash as dbmodule
 
-import pickle
+import fcntl
+import glob
 import os
+import pickle
 import re
 import string
-import fcntl
 import sys
-import glob
 
 #
-from gub import cross
 from gub import build
+from gub import cross
+from gub import dependency
 from gub import locker
+from gub import logging
 from gub import misc
 from gub import targetbuild
-from gub import logging
 
 class GupException (Exception):
     pass
@@ -439,7 +440,7 @@ def get_source_packages (settings, todo):
         if spec_dict.has_key (name):
             spec = spec_dict[name]
         else:
-            spec = build.get_build_spec (settings, name)
+            spec = dependency.Dependency (settings, name).build ()
             spec_dict[name] = spec
         return map (get_base_package_name, spec.get_build_dependencies ())
 
@@ -448,7 +449,7 @@ def get_source_packages (settings, todo):
             spec = spec_dict[name]
         else:
             if name in todo or name not in distro_packages.keys ():
-                spec = build.get_build_spec (settings, name)
+                spec = dependency.Dependency (settings, name).build ()
             else:
                 spec = distro_packages[name]
             spec_dict[name] = spec
