@@ -512,12 +512,6 @@ cp %(file)s %(install_root)s/license/%(name)s
             # FIXME: feature envy -> GupPackage constructor/factory
             p._file_specs = filespecs
 
-            # the build_checksum has to be treated specially: it is
-            # always based on a strings that are constructed *using*
-            # the substitution_dict.  Hence, it can't be part of the
-            # dict itself.
-            package_dict = self.get_substitution_dict ().copy ()
-            package_dict['build_checksum'] = self.build_checksum
             p.set_dict (self.get_substitution_dict (), sub)
 
             conflict_str = ';'.join (conflict_dict.get (sub, []))
