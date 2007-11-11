@@ -154,20 +154,19 @@ class BuildRunner:
                                       for p in spec.get_packages ())
 
         # FIXME.
-        logger = logging.RealCommandLogger ('log/%s.log' % specname, 4)
+        logger = logging.RealCommandLogger ('log/%s.log' % specname, logging.default_logger.threshold)
 
+
+        # this is a bit dubious: we're doing the actual running
+        # undeferred. If the spec is written correctly (eg. no
+        # globs) this should not make a difference
         spec.connect_command_runner (runner.DirectCommandRunner(logger))
         if (self.settings.options.stage
             or not is_installable
             or not checksum_ok):
             spec.runner.stage ('building package: %s\n' % specname)
 
-            # this is a bit dubious: we're doing the actual running
-            # undeferred. If the spec is written correctly (eg. no
-            # globs) this should not make a difference
             spec.build ()
-
-            
 
         # FIXME, spec_install should be stage?
         if not self.settings.options.stage: # or options.stage == spec_install:
@@ -176,6 +175,7 @@ class BuildRunner:
                                      % ('pkg_install', spec.name (),
                                         self.settings.platform))
             self.spec_install (spec)
+            
         spec.disconnect_command_runner ()
 
     def uninstall_outdated_spec (self, spec_name):
