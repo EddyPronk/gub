@@ -1,6 +1,6 @@
 import os
 import re
-from gub import oslog
+
 from gub import distcc
 from gub import build
 from gub import context
@@ -47,7 +47,7 @@ def get_platform_from_dir (settings, dir):
     return None
 
 class Settings (context.Context):
-    def __init__ (self, options, os_interface=None):
+    def __init__ (self, options):
         context.Context.__init__ (self)
 
         # TODO: tools-prefix, target-prefix, cross-prefix?
@@ -150,7 +150,6 @@ class Settings (context.Context):
         if options.branches:
             self.set_branches (options.branches)
         self.options = options ##ugh
-        self.verbose = self.options.verbose
         self.os = re.sub ('[-0-9].*', '', self.platform)
 
         self.target_architecture = platforms[self.platform]
@@ -179,18 +178,10 @@ class Settings (context.Context):
 
         self.fakeroot_cache = '' # %(builddir)s/fakeroot.save'
         self.fakeroot = 'fakeroot -i%(fakeroot_cache)s -s%(fakeroot_cache)s '
-
-        if not os.path.isdir ('log'):
-            os.mkdir ('log')
-            
-        self.os_interface = os_interface
-        if not self.os_interface:
-            self.os_interface = oslog.Os_commands (('log/%(platform)s.log'
-                                                    % self.__dict__),
-                                                   self.options.verbose)
         self.create_dirs ()
-        self.build_architecture = self.os_interface.read_pipe ('gcc -dumpmachine',
-                                                               silent=True)[:-1]
+
+        # don't depend on osinterface just for this one call.
+        self.build_architecture = misc.read_pipe ('gcc -dumpmachine').strip()
 
         try:
             self.cpu_count_str = '%d' % os.sysconf ('SC_NPROCESSORS_ONLN')
@@ -221,11 +212,12 @@ class Settings (context.Context):
             'cross_allsrcdir',
             ):
             dir = self.__dict__[a]
-            if os.path.isdir (dir):
-                continue
+            if not os.path.isdir (dir):
+                os.makedirs(dir)
 
-            self.os_interface.system ('mkdir -p %s' % dir, defer=False)
-
+    def os_interface (self):
+        print 'foo'
+        
     def set_distcc_hosts (self, options):
         def hosts (xs):
             return reduce (lambda x,y: x+y,
@@ -243,6 +235,9 @@ class Settings (context.Context):
         for b in bs:
             (name, br) = tuple (b.split ('='))
             self.branch_dict[name] = br
+
+            # URG - should be set in each package separately?
+            # is there a cross package dependency for this?
             self.__dict__['%s_branch' % name] = br
 
     def dependency_url (self, string):
@@ -276,7 +271,6 @@ Print settings and directory layout.
                   default=[],
                   metavar='NAME=BRANCH',
                   help='select branch')
-    p.add_option ('-v', '--verbose', action='count', dest='verbose', default=0)
     return p
 
 def as_variables (settings):

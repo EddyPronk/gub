@@ -1,15 +1,18 @@
 import pickle
 import os
 import re
+import sys
+import inspect
 
 from new import classobj
 
 #
 from gub import misc
 from gub import repository
-from gub import oslog
 from gub import context
 from gub import guppackage
+from gub import logging
+from gub import commands
 
 class Build (context.Os_context_wrapper):
     '''How to build a piece of software
@@ -25,16 +28,16 @@ class Build (context.Os_context_wrapper):
     def __init__ (self, settings, source):
         context.Os_context_wrapper.__init__ (self, settings)
         self.source = source
-        self.source.set_oslog (self.os_interface)
-        self.verbose = settings.verbose
         self.settings = settings
 
         # don't initialize self.build_checksum so we will catch an
         # error if it was not defined at the time of writing the hdr.
 
-    def set_build_checksum (self, checksum):
-        self.__dict__['build_checksum'] = checksum
-        
+
+    @context.subst_method
+    def checksum_file (self):
+        return '%(packages)s/%(name)s%(vc_branch_suffix)s.checksum'
+    
     def nop (self):
         pass
     def stages (self):
@@ -44,10 +47,9 @@ class Build (context.Os_context_wrapper):
 cd %(srcdir)s && patch -p1 < %(patchdir)s/%(name)s
 ''', locals ())
     def build (self):
-        import inspect
         available = dict (inspect.getmembers (self, callable))
         if self.settings.options.stage:
-            self.os_interface.stage (' *** Stage: %s (%s, %s)\n'
+            self.runner.stage (' *** Stage: %s (%s, %s)\n'
                                      % (self.settings.options.stage, self.name (),
                                         self.settings.platform))
             (available[self.settings.options.stage]) ()
@@ -63,7 +65,7 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/%(name)s
 
         if self.settings.options.fresh:
             try:
-                self.os_interface.action ('Removing status file')
+                self.runner.action ('Removing status file')
                 os.unlink (self.get_stamp_file ())
             except OSError:
                 pass
@@ -80,12 +82,12 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/%(name)s
                 and self.settings.options.keep_build):
                 # defer unlink?
                 # os.unlink (self.get_stamp_file ())
-                self.os_interface.system ('rm ' + self.get_stamp_file ())
+                self.runner.system ('rm ' + self.get_stamp_file ())
                 continue
             
-            self.os_interface.stage (' *** Stage: %s (%s, %s)\n'
-                                     % (stage, self.name (),
-                                        self.settings.platform))
+            self.runner.stage (' *** Stage: %s (%s, %s)\n'
+                               % (stage, self.name (),
+                                  self.settings.platform))
 
             if (stage == 'package' and tainted
                 and not self.settings.options.force_package):
@@ -102,10 +104,9 @@ to force rebuild, or
 
 to skip this check.
 ''')
-                self.os_interface.error (msg, defer=False)
+                logging.error (msg)
                 #FIXME: throw exception.  this plays nice with
                 # buildrunner and with bin/gub, so check that.
-                import sys
                 sys.exit (1)
             try:
                 (available[stage]) ()
@@ -121,8 +122,9 @@ to skip this check.
 class UnixBuild (Build):
     '''Build a source package the traditional Unix way
 
-Based on the traditional configure; make; make install, this class
-tries to do everything including autotooling and libtool fooling.  '''
+    Based on the traditional configure; make; make install, this class
+    tries to do everything including autotooling and libtool fooling.  '''
+    
     def __init__ (self, settings, source):
         Build.__init__ (self, settings, source)
         self._dependencies = None
@@ -329,7 +331,7 @@ tries to do everything including autotooling and libtool fooling.  '''
         self.dump ('%(stage_number)d' % locals (), self.get_stamp_file (), 'w')
 
     def autoupdate (self):
-        self.os_interface._execute (oslog.AutogenMagic (self))
+        self.runner._execute (commands.AutogenMagic (self))
 
     def configure (self):
         self.system ('''
@@ -378,11 +380,11 @@ tooldir=%(install_prefix)s
     def install (self):
         '''Install package into %(install_root).
 
-Any overrides should follow this command, since it will erase the old
-install_root first.  FIXME: this is partly totally broken, some
-overrides need to be done BEFORE the rest of the install stage.  We
-need to figure out some clean way to plug something in between the
-automatic cleaning, and the rest of the install.'''
+        Any overrides should follow this command, since it will erase the old
+        install_root first.  FIXME: this is partly totally broken, some
+        overrides need to be done BEFORE the rest of the install stage.  We
+        need to figure out some clean way to plug something in between the
+        automatic cleaning, and the rest of the install.'''
         
         self.system ('''
 rm -rf %(install_root)s
@@ -441,7 +443,7 @@ cp %(file)s %(install_root)s/license/%(name)s
                 if s.startswith ('/') and self.settings.system_root not in s:
                     new_dest = os.path.join (self.settings.system_root, s[1:])
                     os.remove (file)
-                    self.os_interface.action ('changing absolute link %(file)s -> %(new_dest)s' % locals())
+                    self.runner.action ('changing absolute link %(file)s -> %(new_dest)s' % locals())
                     os.symlink (new_dest, file)
         self.map_locate (rewire, '%(install_root)s', '*')
 
@@ -511,7 +513,7 @@ cp %(file)s %(install_root)s/license/%(name)s
         for sub in self.get_subpackage_names ():
             filespecs = defs[sub]
             
-            p = guppackage.GupPackage (self.os_interface)
+            p = guppackage.GupPackage (self.runner)
             # FIXME: feature envy -> GupPackage constructor/factory
             p._file_specs = filespecs
 
@@ -544,7 +546,7 @@ cp %(file)s %(install_root)s/license/%(name)s
         # stage?
         dir_name = re.sub (self.expand ('%(allsrcdir)s/'), '',
                            self.expand ('%(srcdir)s'))
-        _v = self.os_interface.verbose_flag ()
+        _v = '' #self.os_interface.verbose_flag ()
         self.system ('''
 tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"%(_v)s -zcf %(src_package_ball)s %(dir_name)s
 ''',
@@ -558,16 +560,7 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"%(_v)s -zcf %(src_package_
         self.system ('''rm -rf %(srcdir)s %(builddir)s''', locals ())
 
     def untar (self):
-        if not self.source:
-            return False
-        if not self.source.is_tracking ():
-            self.system ('rm -rf %(srcdir)s %(builddir)s %(install_root)s')
-
-        if self.source:
-            self.source.update_workdir (self.expand ('%(srcdir)s'))
-            
-        if (os.path.isdir (self.expand ('%(srcdir)s'))):
-            self.system ('chmod -R +w %(srcdir)s', ignore_errors=True)
+        self.runner._execute (commands.UpdateSourceDir (self))
 
     def pre_install_smurf_exe (self):
         for i in self.locate_files ('%(builddir)s', '*.exe'):
@@ -603,7 +596,7 @@ class BinaryBuild (UnixBuild):
         return ['download', 'untar', 'install', 'package', 'clean']
     def install (self):
         self.system ('mkdir -p %(install_root)s')
-        _v = self.os_interface.verbose_flag ()
+        _v = '' #self.os_interface.verbose_flag ()
         self.system ('tar -C %(srcdir)s -cf- . | tar -C %(install_root)s%(_v)s -p -xf-', env=locals ())
         self.libtool_installed_la_fixups ()
     def get_subpackage_names (self):
@@ -631,7 +624,7 @@ class SdkBuild (NullBuild):
 
 def get_build_from_file (settings, file_name, name):
     gub_name = file_name.replace (os.getcwd () + '/', '')
-    settings.os_interface.info ('reading spec: %(gub_name)s\n' % locals ())
+    logging.info ('reading spec: %(gub_name)s\n' % locals ())
     module = misc.load_module (file_name, name)
     # cross/gcc.py:Gcc will be called: cross/Gcc.py,
     # to distinguish from specs/gcc.py:Gcc.py
@@ -641,7 +634,7 @@ def get_build_from_file (settings, file_name, name):
                   .replace ('++', '_xx_')
                   .replace ('+', '_x_')
                   + ('-' + settings.platform).replace ('-', '__'))
-    settings.os_interface.debug ('LOOKING FOR: %(class_name)s\n' % locals ())
+    logging.debug ('LOOKING FOR: %(class_name)s\n' % locals ())
     return misc.most_significant_in_dict (module.__dict__, class_name, '__')
 
 def get_build_class (settings, flavour, name):
@@ -706,7 +699,11 @@ class Dependency:
             self._cls = get_build_class (self.settings, self.flavour (),
                                          self.name ())
         return self._cls
+
     def flavour (self):
+
+        # FIXME - this is severely broken
+        # imports at top leads to circular import.
         if not self._flavour:
             from gub import targetbuild
             self._flavour = targetbuild.TargetBuild
@@ -714,17 +711,18 @@ class Dependency:
                 from gub import toolsbuild
                 self._flavour = toolsbuild.ToolsBuild
         return self._flavour
+    
     def _check_source_tree (self, source):
         if self.build_class ().need_source_tree and not source.is_downloaded ():
             if self.settings.options.offline:
                 raise 'Early download requested for %(_name)s in offline mode' % self.__dict__
-            self.settings.os_interface.info ('early download for: %(_name)s\n' % self.__dict__)
+	    logging.info ('early download for: %(_name)s\n' % self.__dict__)
             source.download ()
     def url (self):
         if not self._url:
             self._url = self.build_class ().source
         if not self._url:
-            self.settings.os_interface.warning ('no source specified in class:' + self.build_class ().__name__ + '\n')
+            logging.warning ('no source specified in class:' + self.build_class ().__name__ + '\n')
         if not self._url:
             self._url = self.settings.dependency_url (self.name ())
         if not self._url:
@@ -744,6 +742,8 @@ class Dependency:
     def build (self):
         b = self._create_build ()
         if not self.settings.platform == 'tools':
-            import cross
+
+            # broken: circular import if at top.
+            from gub import cross
             cross.get_cross_module (self.settings).change_target_package (b)
         return b

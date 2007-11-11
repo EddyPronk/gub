@@ -158,11 +158,18 @@ class Context:
         return e
 
 class Os_context_wrapper (Context):
-    def __init__ (self, settings):
-        Context.__init__ (self, settings)
-        self.os_interface = settings.os_interface
-        self.verbose = settings.options.verbose
+    def __init__ (self, *args):
+        Context.__init__ (self, *args)
+
+        # TODO: should use _runner ?
+        self.runner = None
         
+    def connect_command_runner (self, runner):
+        self.runner = runner
+
+    def disconnect_command_runner (self):
+        self.runner = None
+
     def file_sub (self, re_pairs, name, to_name=None, env={}, must_succeed=False, use_re=True):
         substs = []
         for (frm, to) in re_pairs:
@@ -175,32 +182,31 @@ class Os_context_wrapper (Context):
         if to_name:
             to_name = self.expand (to_name, env)
             
-        return self.os_interface.file_sub (substs, self.expand (name, env), to_name=to_name,
+        return self.runner.file_sub (substs, self.expand (name, env), to_name=to_name,
                                            must_succeed=must_succeed, use_re=use_re)
     
     def fakeroot (self, s):
-        self.os_interface.fakeroot (s)
+        self.runner.fakeroot (s)
         
     def command (self, str):
-        self.os_interface.command (str)
+        self.runner.command (str)
         
     def read_pipe (self, cmd, env={}, ignore_errors=False):
-        return self.os_interface.read_pipe (self.expand (cmd, env),
+        return self.runner.read_pipe (self.expand (cmd, env),
                                             ignore_errors=ignore_errors)
 
     def read_file (self, file, env={}):
-        return self.os_interface.read_file (self.expand (file, env))
+        return self.runner.read_file (self.expand (file, env))
 
     def system (self, cmd, env={}, ignore_errors=False):
         dict = self.get_substitution_dict (env)
         cmd = self.expand (cmd, env)
-        self.os_interface.system (cmd, env=dict, ignore_errors=ignore_errors,
-                                  verbose=self.verbose)
+        self.runner.system (cmd, env=dict, ignore_errors=ignore_errors)
 
     def shadow_tree (self, src, dest):
         src = self.expand (src)
         dest = self.expand (dest)
-        self.os_interface.shadow_tree (src, dest)
+        self.runner.shadow_tree (src, dest)
         
     def dump (self, str, name, mode='w', env={},
               expand_string=True, expand_name=True, permissions=0644):
@@ -208,32 +214,32 @@ class Os_context_wrapper (Context):
             name = self.expand (name, env)
         if expand_string:
             str = self.expand (str, env)
-        return self.os_interface.dump (str, name, mode=mode, permissions=permissions)
+        return self.runner.dump (str, name, mode=mode, permissions=permissions)
     
     def locate_files (self, directory, pattern,
                       include_dirs=True, include_files=True):
-        '''Return list of files under DIRECTORY using glob PATTERNs
+        '''Return list of files under DIRECTORY using glob PATTERNs.
 
-Results include DIRECTORY in the filenames.'''
+        Results include DIRECTORY in the filenames.'''
 
-        return self.os_interface.locate_files (self.expand (directory),
+        return self.runner.locate_files (self.expand (directory),
                                                pattern, include_dirs, include_files)
 
     def map_locate (self, func, directory, pattern):
-        return self.os_interface.map_locate (func, self.expand (directory),
+        return self.runner.map_locate (func, self.expand (directory),
                                              pattern)
 
     def copy (self, src, dest):
-        return self.os_interface.copy (self.expand (src), self.expand (dest))
+        return self.runner.copy (self.expand (src), self.expand (dest))
 
     def func (self, f, *args):
-        return self.os_interface.func (f, *args)
+        return self.runner.func (f, *args)
 
     def chmod (self, file, mode):
-        return self.os_interface.chmod (self.expand (file), mode)
+        return self.runner.chmod (self.expand (file), mode)
 
     def first_is_newer (self, first, second, env={}):
-        return self.os_interface.first_is_newer (self.expand (first, env),
+        return self.runner.first_is_newer (self.expand (first, env),
                                                  self.expand (second, env))
 
 #

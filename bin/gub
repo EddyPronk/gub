@@ -29,13 +29,15 @@ def argv0_relocation ():
 argv0_relocation ()
 
 import sys
+import os
 
 from gub import cross
 from gub import build
-import gub.settings
 from gub import misc
 from gub import locker
 from gub import gup
+from gub import logging
+import gub.settings   # otherwise naming conflict with settings local vars.
 
 def get_cli_parser ():
     import optparse
@@ -97,7 +99,7 @@ def get_cli_parser ():
                   dest='native_distcc_hosts', default=[],
                   help='Add another native distcc host')
 
-    p.add_option ('-v', '--verbose', action='count', dest='verbose', default=0)
+    p.add_option ('-v', '--verbose', action='count', dest='verbosity', default=0)
 
     p.add_option ('-q', '--quiet', action='count', dest='quiet', default=0)
 
@@ -160,9 +162,8 @@ def build (settings, files):
 
     # FIXME: why do we only use deps for download, not for build?
     deps = gup.topologically_sorted (files, {}, get_all_deps, None)
-    settings.os_interface.info ('deps:' + `deps` + '\n')
 
-    import os
+    logging.info ('deps:' + `deps` + '\n')
     PATH = os.environ['PATH']
     os.environ['PATH'] = settings.expand ('%(tools_prefix)s/bin:' + PATH)
 
@@ -184,13 +185,16 @@ def build (settings, files):
         manager = gup.get_target_manager (settings)
         ## Todo: have a readonly lock for tools platform
     except locker.LockedError:
-        settings.os_interface.error ('another build in progress.  Skipping.')
+        logging.error ('another build in progress.  Skipping.')
         if settings.options.skip_if_locked:
             sys.exit (0)
         raise
 
     from gub import buildrunner
     b = buildrunner.BuildRunner (manager, settings, specs)
+
+    # better in ctor?
+    b.calculate_checksums ()
     b.build_source_packages (names)
 
 def exceptional_build (settings, files):
@@ -207,20 +211,19 @@ def exceptional_build (settings, files):
         status = 1
         pass
 
-    # FIXME: print/barf if deferred_commands not empty?
-    settings.os_interface.defer_execution (False)
     if status:
-        if settings.options.verbose < settings.os_interface.level['output']:
-            print >>sys.stderr,\
-                ('\n\nTail of ' + settings.os_interface.log_file_name + ':\n'
-                 + '\n'.join (settings.os_interface.read_tail ()))
-            log_file = settings.os_interface.log_file_name
-        settings.os_interface.error (misc.exception_string (e))
+        # FIXME
+        if 0:
+            if  settings.options.verbosity < settings.os_interface.level['output']:
+                print >>sys.stderr,\
+                    ('\n\nTail of ' + settings.os_interface.log_file_name + ':\n'
+                     + '\n'.join (settings.os_interface.read_tail ()))
+                log_file = settings.os_interface.log_file_name
+            settings.os_interface.error (misc.exception_string (e))
+        print (misc.exception_string (e))
     else:
-        settings.os_interface.info ('done\n')
+        logging.info ('done\n')
         
-    log = settings.os_interface.log_file_name
-    settings.os_interface.error ('build log written to: %(log)s\n' % locals ())
     return status
 
 def urg_add_more_settings_for_gub (settings, options):
@@ -232,7 +235,9 @@ def urg_add_more_settings_for_gub (settings, options):
 def main ():
     cli_parser = get_cli_parser ()
     (options, files) = cli_parser.parse_args ()
-    options.verbose -= options.quiet
+    options.verbosity -= options.quiet
+
+    logging.default_logger.threshold = options.verbosity
 
     settings = gub.settings.Settings (options)
     urg_add_more_settings_for_gub (settings, options)
@@ -241,8 +246,8 @@ def main ():
         inspect (settings, files)
         sys.exit (0)
 
-    settings.os_interface.stage ('root: ' + settings.system_root + '\n')
-    settings.os_interface.info ('platform: ' + settings.platform + '\n')
+    logging.stage ('root: ' + settings.system_root + '\n')
+    logging.info ('platform: ' + settings.platform + '\n')
 
     if not files:
         settings.os_interface.error ('error: nothing to do\n')

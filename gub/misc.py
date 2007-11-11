@@ -32,7 +32,7 @@ def bind_method (func, obj):
     return lambda *args: func (obj, *args)
 
 def read_pipe (cmd, ignore_errors=False):
-    print 'Executing pipe %s' % cmd
+    sys.stderr.write ('Executing pipe %s' % cmd)
     pipe = os.popen (cmd)
     val = pipe.read ()
     if pipe.close () and not ignore_errors:

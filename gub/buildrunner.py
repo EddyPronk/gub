@@ -26,6 +26,8 @@ from gub import cross
 from gub import build
 from gub import misc
 from gub import gup
+from gub import logging
+from gub import runner
 
 # FIXME s/spec/build/, but we also have two definitions of package/pkg
 # here: sub packages and name of global package under build
@@ -36,7 +38,10 @@ class BuildRunner:
         self.manager = manager
         self.settings = settings
         self.specs = specs
-    
+
+        # spec name -> string
+        self.checksums = {}
+
         PATH = os.environ['PATH']
         ## cross_prefix is also necessary for building cross packages, such as GCC
         os.environ['PATH'] = self.settings.expand ('%(cross_prefix)s/bin:' + PATH,
@@ -51,12 +56,30 @@ class BuildRunner:
         extra_build_deps = [p.name () for p in sdk_pkgs + cross_pkgs]
         gup.add_packages_to_manager (self.manager, self.settings, self.specs)
 
+    def calculate_checksums (self):
+        logging.stage ('calcing checksums')
+        for (name, spec) in self.specs.items ():
+            logger = logging.NullCommandLogger ()
+
+            command_runner = runner.DeferredCommandRunner(logger)
+            spec.connect_command_runner(command_runner)
+            spec.build()
+            spec.disconnect_command_runner()
+
+            self.checksums[name] = command_runner.checksum()
+ 
     # FIXME: move to gup.py or to build.py?
     def pkg_checksum_valid (self, spec, pkg):
         name = pkg.name ()
         pkg_dict = self.manager.package_dict (name)
 
-        valid = (spec.build_checksum == pkg_dict['build_checksum']
+        try:
+            build_checksum_ondisk = open(pkg_dict['checksum_file']).read()
+        except IOError:
+            build_checksum_ondisk = '0000'
+
+	# fixme: spec.build_checksum() should be method.
+        valid = (self.checksums[spec.name()] == build_checksum_ondisk
                  and spec.source_checksum () == pkg_dict['source_checksum'])
 
         hdr = pkg.expand ('%(split_hdr)s')
@@ -64,8 +87,6 @@ class BuildRunner:
         if valid:
             import pickle
             hdr_dict = pickle.load (open (hdr))
-            hdr_sum = hdr_dict['build_checksum']
-            valid = valid and hdr_sum == spec.build_checksum
             valid = valid and spec.source_checksum () == hdr_dict['source_checksum']
 
         # we don't use cross package checksums, otherwise we have to
@@ -74,10 +95,10 @@ class BuildRunner:
 
     # FIXME: move to gup.py or to build.py?
     def spec_checksums_valid (self, spec):
-        valid = True
-        for pkg in spec.get_packages ():
-            valid = valid and self.pkg_checksum_valid (spec, pkg)
-        return valid
+        # need to read package header to read checksum_file.  since
+        # checksum is per buildspec, only need to inspect one package.
+        pkg = spec.get_packages ()[0]
+        return self.pkg_checksum_valid (spec, pkg)
 
     # FIXME: this should be in gpkg/gup.py otherwise it's impossible
     # to install packages in a conflict situation manually
@@ -116,39 +137,46 @@ class BuildRunner:
         for pkg in spec.get_packages ():
             self.pkg_install (spec, pkg)
 
-    def spec_build (self, spec_name):
-        spec = self.specs[spec_name]
+    def spec_build (self, specname):
+        spec = self.specs[specname]
+        
         all_installed = True
         for p in spec.get_packages ():
             all_installed = (all_installed
                              and self.manager.is_installed (p.name ()))
         if all_installed:
             return
+
         # ugh, dupe
         checksum_ok = (self.settings.options.lax_checksums
-                       or self.spec_checksums_valid (self.specs[spec_name]))
+                       or self.spec_checksums_valid (spec))
         is_installable = misc.forall (self.manager.is_installable (p.name ())
                                       for p in spec.get_packages ())
+
+        # FIXME.
+        logger = logging.RealCommandLogger ('log/%s.log' % specname, 4)
+
+        spec.connect_command_runner (runner.DirectCommandRunner(logger))
         if (self.settings.options.stage
             or not is_installable
             or not checksum_ok):
-            self.settings.os_interface.stage ('building package: %s\n'
-                                              % spec_name)
-            todo_broken_for_defer = ['darwin-ppc', 'darwin-x86']
-            if not spec.settings.platform in todo_broken_for_defer:
-                spec.os_interface.defer_execution ()
+            spec.runner.stage ('building package: %s\n' % specname)
+
+            # this is a bit dubious: we're doing the actual running
+            # undeferred. If the spec is written correctly (eg. no
+            # globs) this should not make a difference
             spec.build ()
-            spec.os_interface.debug (spec.os_interface.checksum (), defer=False)
-            spec.set_build_checksum (spec.os_interface.checksum ())
-            spec.os_interface.execute_deferred ()
+
+            
 
         # FIXME, spec_install should be stage?
         if not self.settings.options.stage: # or options.stage == spec_install:
             # FIXME, spec_install should be stage?
-            spec.os_interface.stage (' *** Stage: %s (%s, %s)\n'
+            spec.runner.stage (' *** Stage: %s (%s, %s)\n'
                                      % ('pkg_install', spec.name (),
                                         self.settings.platform))
             self.spec_install (spec)
+        spec.disconnect_command_runner ()
 
     def uninstall_outdated_spec (self, spec_name):
             spec = self.specs[spec_name]
@@ -162,10 +190,7 @@ class BuildRunner:
                     self.manager.uninstall_package (pkg.name ())
 
     def uninstall_outdated_specs (self, deps):
-        def reverse (lst):
-            list.reverse (lst)
-            return lst
-        for spec_name in reverse (deps[:]):
+        for spec_name in reversed (deps):
             self.uninstall_outdated_spec (spec_name)
 
     def build_source_packages (self, names):

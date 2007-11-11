@@ -28,7 +28,6 @@ import urllib
 from gub import misc
 from gub import locker
 from gub import mirrors
-from gub import oslog
 from gub import tztime
 
 class UnknownVcSystem (Exception):
@@ -130,22 +129,11 @@ class Repository:
                 self.dir = os.path.join (os.getcwd (), '.gub' + self.vc_system)
         self.source = source
 
-        self.oslog = None
-        # Fallbacks, this will go through oslog
         self.system = misc.system
         self._read_file = misc.read_file
         self.read_pipe = misc.read_pipe
         self.download_url = misc.download_url
         self.info = sys.stdout.write
-
-    def set_oslog (self, oslog):
-        # Fallbacks, this will go through oslog
-        self.oslog = oslog
-        self.system = oslog.system
-        self._read_file = oslog.read_file
-        self.read_pipe = oslog.read_pipe
-        self.download_url = oslog.download_url
-        self.info = oslog.info
 
     def full_branch_name (self):
         if self.is_tracking ():
@@ -232,8 +220,6 @@ class Version (Repository):
         return self._version
     def name (self):
         return self._name
-    def set_oslog (self, oslog):
-        pass
 
 #RepositoryProxy.register (Version)
 
@@ -299,8 +285,10 @@ class Darcs (Repository):
         dir = self.dir
         
         verbose = ''
-        if self.oslog and self.oslog.verbose >= self.oslog.commands:
-            verbose = 'v'
+
+        # FIXME
+        #if self.oslog and self.oslog.verbose >= self.oslog.commands:
+        #   verbose = 'v'
         vc_system = self.vc_system
         self.system ('rsync --exclude %(vc_system)s -a%(verbose)s %(dir)s/* %(destdir)s/' % locals())
 
@@ -369,8 +357,10 @@ class TarBall (Repository):
 
         tarball = self.dir + '/' + self._file_name ()
         strip_components = self.strip_components
-        self.system ('mkdir %s' % destdir)       
-        _v = self.oslog.verbose_flag ()
+        self.system ('mkdir %s' % destdir)
+
+        # fixme.
+        _v = ''   #     self.oslog.verbose_flag ()
         self.system ('ar p %(tarball)s data.tar.gz | tar -C %(destdir)s --strip-component=%(strip_components)d%(_v)s -zxf -' % locals ())
         
     def update_workdir_tarball (self, destdir):
@@ -380,8 +370,10 @@ class TarBall (Repository):
         self.system ('mkdir %s' % destdir)       
         strip_components = self.strip_components
         _v = ''
-        if self.oslog:  #urg, will be fixed when .source is mandatory
-            _v = self.oslog.verbose_flag ()
+
+        # fixme
+        #if self.oslog:  #urg, will be fixed when .source is mandatory
+        #    _v = self.oslog.verbose_flag ()
         _z = misc.compression_flag (tarball)
         self.system ('tar -C %(destdir)s --strip-component=%(strip_components)d %(_v)s%(_z)s -xf %(tarball)s' % locals ())
 
@@ -646,8 +638,8 @@ class CVS (Repository):
         dir = self._checkout_dir ()
         ## TODO: can we get deletes from vc?
         verbose = ''
-        if self.oslog and self.oslog.verbose >= oslog.level['command']:
-            verbose = 'v'
+#        if self.oslog and self.oslog.verbose >= oslog.level['command']:
+#            verbose = 'v'
         self.system ('rsync -a%(verbose)s --delete --exclude CVS %(dir)s/ %(destdir)s' % locals ())
         
     def is_downloaded (self):
@@ -747,8 +739,8 @@ class SimpleRepo (Repository):
         vc_system = self.vc_system
         verbose = ''
 
-        if self.oslog and self.oslog.verbose >= oslog.level['command']:
-            verbose = 'v'
+#        if self.oslog and self.oslog.verbose >= oslog.level['command']:
+#            verbose = 'v'
         self.system ('rsync -a%(verbose)s --exclude %(vc_system)s %(dir)s/ %(copy)s'
                      % locals ())
 

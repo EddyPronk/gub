@@ -1,8 +1,11 @@
 import os
+import md5
+import re
 
 from gub import build
 from gub import misc
 from gub import context
+from gub import logging
 
 class CrossToolsBuild (build.UnixBuild):
     """Package for cross compilers/linkers etc.
@@ -24,7 +27,7 @@ class CrossToolsBuild (build.UnixBuild):
     def get_subpackage_names (self):
         return ['doc', '']
     def install_license (self):
-        self.os_interface.harmless ('not installing license file for cross package: %(name)s' % self.get_substitution_dict ())
+        self.runner.harmless ('not installing license file for cross package: %(name)s' % self.get_substitution_dict ())
 
 def change_target_package (package):
     pass
@@ -58,18 +61,15 @@ def get_cross_module (settings):
     if cross_module_cache.has_key (platform):
         return cross_module_cache[platform]
 
-    import re
     base = re.sub ('[-0-9].*', '', platform)
     for name in platform, base:
         file_name = 'gub/%(name)s.py' % locals ()
-        import os
         if os.path.exists (file_name):
             break
-    settings.os_interface.info ('module-name: ' + file_name + '\n')
-    import misc
+
+    logging.info ('module-name: ' + file_name + '\n')
     module = misc.load_module (file_name, base)
 
-    import md5
     cross_module_checksums[platform] = md5.md5 (open (file_name).read ()).hexdigest ()
     cross_module_cache[platform] = module
     return module
@@ -90,16 +90,15 @@ def get_cross_checksum (platform):
         return '0000'
 
 def setup_linux_x86 (package, env={'PATH': os.environ['PATH']}):
-    '''
-Hack for using 32 bit compiler on linux-64.
+    '''Hack for using 32 bit compiler on linux-64.
 
-Use linux-x86 cross compiler to compile non-64-bit-clean packages such
-as nsis and odcctools.  A plain 32 bit compiler could also be used,
-but we do not have such a beast.  Make sure to have 32-bit
-compatibility installed:
-    apt-get install ia32-libs
-'''
-    import os
+    Use linux-x86 cross compiler to compile non-64-bit-clean packages such
+    as nsis and odcctools.  A plain 32 bit compiler could also be used,
+    but we do not have such a beast.  Make sure to have 32-bit
+    compatibility installed:
+        apt-get install ia32-libs
+    '''
+
     x86_dir = package.settings.alltargetdir + '/linux-x86'
     x86_cross = (x86_dir
                  + package.settings.root_dir
@@ -149,6 +148,7 @@ compatibility installed:
             #src = '../../bin/i686-linux-' + src
             src = x86_bindir + '/i686-linux-' + src
             os.link (src, dest)
+            
     check_link ('cpp', 'cpp')
     check_link ('gcc', 'cc')
     check_link ('g++', 'c++')
