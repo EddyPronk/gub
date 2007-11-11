@@ -264,7 +264,7 @@ if __name__=='__main__':
     p = TestClass ()
     from gub import settings
     s = settings.Settings ('debian-arm')
-    c = Os_context_wrapper (s)
+    c = RunnableContext (s)
 
     print c.locate_files ('/etc/', '*.conf')
     

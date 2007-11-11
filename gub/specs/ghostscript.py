@@ -273,7 +273,6 @@ class Ghostscript__cygwin (Ghostscript):
         #self.with_vc (repository.TarBall (self.settings.downloads, url))
         self.fonts_source = repository.TarBall (self.settings.downloads,
                                                 fonts_url)
-        self.fonts_source.set_oslog (self.os_interface)
     def download (self):
         Ghostscript.download (self)
         self.fonts_source.download ()

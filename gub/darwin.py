@@ -7,9 +7,9 @@ from gub import targetbuild
 
 darwin_sdk_version = '0.4'
 
-class Rewirer (context.Os_context_wrapper):
+class Rewirer (context.RunnableContext):
     def __init__ (self, settings):
-        context.Os_context_wrapper.__init__ (self,settings)
+        context.RunnableContext.__init__ (self,settings)
         self.ignore_libs = None
 
     def get_libaries (self, name):
