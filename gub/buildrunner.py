@@ -57,7 +57,7 @@ class BuildRunner:
         gup.add_packages_to_manager (self.manager, self.settings, self.specs)
 
     def calculate_checksums (self):
-        logging.stage ('calcing checksums')
+        logging.stage ('calculating checksums\n')
         for (name, spec) in self.specs.items ():
             logger = logging.NullCommandLogger ()
 
@@ -167,6 +167,8 @@ class BuildRunner:
             spec.runner.stage ('building package: %s\n' % specname)
 
             spec.build ()
+
+            file (spec.expand('%(checksum_file)s'), 'w').write (self.checksums[specname])
 
         # FIXME, spec_install should be stage?
         if not self.settings.options.stage: # or options.stage == spec_install:
