@@ -230,7 +230,7 @@ class PackageDictManager:
             if branch != d['vc_branch']:
                 suffix = d['vc_branch']
                 logging.error ('ignoring header: %(package_hdr)s\n'
-                                        % locals ())
+                               % locals ())
                 logging.error ('package of branch: %(suffix)s, expecting: %(branch)s\n' % locals ())
                 return
         elif d['vc_branch']:

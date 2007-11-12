@@ -26,8 +26,7 @@ class Installer (context.RunnableContext):
         self.no_binary_strip = []
         self.no_binary_strip_extensions = ['.la', '.py', '.def', '.scm', '.pyc']
         self.installer_uploads = settings.uploads
-        self.checksum = '0000'
-
+        self.checksum = '' 
         self.name = name
         self.pretty_name = pretty_names.get (name, name)
         self.package_branch = settings.branch_dict[name]
@@ -196,6 +195,13 @@ class DarwinRoot (Installer):
         self.strip_command += ' -S '
         self.rewirer = darwin.Rewirer (self.settings)
 
+    def connect_command_runner (self, runner):
+        Installer.connect_command_runner (self, runner)
+        self.rewirer.connect_command_runner (runner)
+    def disconnect_command_runner (self):
+        Installer.connect_command_runner (self)
+        self.rewirer.disconnect_command_runner ()
+        
     def use_install_root_manager (self, package_manager):
         tarball = package_manager.package_dict ('darwin-sdk')['split_ball']
         self.package_manager = package_manager

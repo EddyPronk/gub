@@ -28,6 +28,7 @@ def argv0_relocation ():
 
 argv0_relocation ()
 
+import md5
 import optparse
 import os
 import sys
@@ -36,7 +37,10 @@ import pickle
 from gub import gup
 from gub import installer
 import gub.settings
+
 from gub import locker
+from gub import logging
+from gub import runner
 from gub import versiondb
 
 def parse_command_line ():
@@ -89,7 +93,7 @@ build-all - build, strip, package
                   choices=gub.settings.platforms.keys ())
 
 
-    p.add_option ('-v', '--verbose', action='count', dest='verbose', default=0)
+    p.add_option ('-v', '--verbose', action='count', dest='verbosity', default=0)
 
     (options, args) = p.parse_args ()
     
@@ -101,6 +105,23 @@ build-all - build, strip, package
     
     return (options, args)
 
+def get_installer_checksum (package_dicts):
+    checksum_list = []
+
+    for dict in package_dicts:
+        package_checksum = file (dict['checksum_file']).read ()
+
+        package_checksum = md5.md5 (package_checksum).hexdigest ()
+        checksum_list.append ((dict['name'],        
+                               dict['source_checksum'],
+                               package_checksum))
+    
+    string = pickle.dumps (checksum_list)
+
+    # we take the hash to make sure that we do not get random strings
+    # (which may trigger substitutions) in the attributes of a Context
+    return md5.md5 (string).hexdigest ()
+
 def check_installer (installer, options, args):
     settings = installer.settings
     install_manager = gup.PackageDictManager ()
@@ -110,27 +131,15 @@ def check_installer (installer, options, args):
                                           settings.branch_dict)
 
     ## can't interrogate installer yet, because version is not known yet.
-    file = installer.installer_checksum_file
-    if not os.path.exists (file):
+    checksum_file = installer.installer_checksum_file
+    if not os.path.exists (checksum_file):
         return False
     
-    checksum = pickle.loads (open (file).read ())
-    ok = True
-    print 'FIXME: serialization checksum'
-    return True
-    # FIXME: why this weird logic, always doing a full loop?  Try:
-    #    loop:
-    #       if false:
-    #           return false
-    #    return True
-    for (p, source_hash, spec_hash) in checksum:
-        dict = install_manager.package_dict (p)
-        ok = (ok
-              and source_hash == dict['source_checksum']
-              and spec_hash == dict['spec_checksum'])
+    checksum = pickle.loads (open (checksum_file).read ())
+    return checksum == get_installer_checksum (
+        [install_manager.package_dict (p)
+         for p in install_manager.installed_packages ()])
 
-    return ok
-         
 def build_installer (installer, args, options):
     settings = installer.settings
     
@@ -166,18 +175,11 @@ def build_installer (installer, args, options):
     settings.installer_version = version
     settings.installer_build = buildnumber
 
-
     installer.use_install_root_manager (install_manager)
 
-    checksum_list = []
-    print 'FIXME: serialization checksum'
-    for p in (): ## install_manager.installed_packages ():
-        dict = install_manager.package_dict (p)
-        checksum_list.append ((p, 
-                               dict['source_checksum'],
-                               dict['spec_checksum']))
-    
-    installer.checksum = pickle.dumps (checksum_list)
+    installer.checksum = get_installer_checksum (
+        [install_manager.package_dict (p)
+         for p in install_manager.installed_packages ()])
 
 def strip_installer (obj):
     obj.command (' ** Stage: %s (%s installer)\n' % ('strip', obj.name))
@@ -194,6 +196,12 @@ def run_installer_commands (commands, settings, args, options):
         logging.info ('installer is up to date\n')
         return 
 
+
+    logger = logging.RealCommandLogger ('log/installer-%s.%s.log' %
+                                        (name, settings.platform),
+                                        options.verbosity)
+    
+    installer_obj.connect_command_runner (runner.DirectCommandRunner (logger))
     for c in commands:
         logging.stage (' *** IStage: %s (%s)\n' % (c, installer_obj.name))
     

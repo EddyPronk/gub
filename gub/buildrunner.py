@@ -154,8 +154,9 @@ class BuildRunner:
                                       for p in spec.get_packages ())
 
         # FIXME.
-        logger = logging.RealCommandLogger ('log/%s.log' % specname, logging.default_logger.threshold)
-
+        logname = 'log/%s.%s.log' % (specname, spec.settings.platform)
+        logging.info('Package build log to %s' % logname)
+        logger = logging.RealCommandLogger (logname, logging.default_logger.threshold)
 
         # this is a bit dubious: we're doing the actual running
         # undeferred. If the spec is written correctly (eg. no
