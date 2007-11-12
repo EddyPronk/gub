@@ -1,5 +1,6 @@
 import os
 import re
+import inspect
 
 from new import classobj
 from new import instancemethod
@@ -87,7 +88,6 @@ def change_target_package (package):
     from gub import cross
     cross.change_target_package (package)
 
-    import inspect
     available = dict (inspect.getmembers (package, callable))
 
     package.get_build_dependencies \
@@ -302,7 +302,7 @@ libtool_source = [
     'libtool1.5',
     ]
 
-## FIXME: c&p debian.py
+# FIXME: c&p debian.py
 class Dependency_resolver:
     def __init__ (self, settings):
         self.settings = settings

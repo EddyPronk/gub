@@ -4,6 +4,8 @@ import traceback
 import inspect
 import subprocess
 import stat
+import shutil
+import glob
 
 from gub import misc
 
@@ -93,7 +95,6 @@ class Copy (SerializedCommand):
         hasher.append (self.src)
         hasher.append (self.dest)
     def execute (self, runner):
-        import shutil
         shutil.copy2 (self.src, self.dest)
 
 class Chmod (SerializedCommand):
@@ -300,7 +301,6 @@ class PackageGlobs (SerializedCommand):
         suffix_dir = self.suffix_dir
         dest = self.dest
 
-        import glob
         globs = list ()
         for f in self.globs:
             f = re.sub ('/+', '/', f)

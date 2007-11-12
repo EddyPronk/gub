@@ -1,5 +1,6 @@
 import os
 import re
+import optparse
 
 from gub import distcc
 from gub import build
@@ -247,7 +248,6 @@ class Settings (context.Context):
         return misc.most_significant_in_dict (sources.__dict__, name, '__')
 
 def get_cli_parser ():
-    import optparse
     p = optparse.OptionParser ()
 
     p.usage = '''settings.py [OPTION]...

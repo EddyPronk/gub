@@ -1,3 +1,4 @@
+import os
 import re
 import string
 from new import classobj
@@ -138,7 +139,6 @@ class Dependency_resolver:
         file = '.'.join ((base, arch, branch))
 
         # FIXME: download/offline update
-        import os
         if not os.path.exists (file):
             misc.download_url (url, self.settings.downloads)
             os.system ('gunzip  %(base)s.gz' % locals ())
