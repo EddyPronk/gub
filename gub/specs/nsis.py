@@ -62,7 +62,7 @@ Export('defenv')
                 ' NSIS_CONFIG_LOG=yes'
                 ' SKIPPLUGINS=System')
 
-    # this does not do anything, but is overwritten for x86-64_linux
+    # this method is overwritten for x86-64_linux
     def build_environment (self):
         return self.add_mingw_env ()
     
