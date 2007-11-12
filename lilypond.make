@@ -47,6 +47,7 @@ LILYPOND_REPODIR=downloads/lilypond
 
 # for GIT
 LILYPOND_BRANCH=master
+LILYPOND_FULL_BRANCH=git.sv.gnu.org--lilypond.git-master
 # LILYPOND_BRANCH=stable/2.10
 
 MAKE += -f lilypond.make
@@ -64,7 +65,7 @@ GPKG_OPTIONS =\
 
 INSTALLER_BUILDER_OPTIONS =\
  $(if $(GUILE_LOCAL_BRANCH), --branch=guile=$(GUILE_LOCAL_BRANCH),)\
- --branch=lilypond=$(LILYPOND_BRANCH)
+ --branch=lilypond=$(LILYPOND_FULL_BRANCH)
 
 include gub.make
 
