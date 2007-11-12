@@ -94,6 +94,8 @@ class VersionDataBase:
             except IOError, x:
                 print 'problem loading', u
                 sys.path.insert ('gub')
+
+                # FIXME: do want to be inside gub framework or not?
                 import misc
                 print misc.exception_string (x)
                 continue

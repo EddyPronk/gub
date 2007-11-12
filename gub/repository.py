@@ -24,6 +24,9 @@ import re
 import sys
 import time
 import urllib
+import xml.dom.minidom
+
+import gdbm as dbmodule
 
 from gub import misc
 from gub import locker
@@ -193,7 +196,6 @@ It need not be unique over revisions.'''
 
 class TagDb:
     def __init__ (self, dir):
-        import gdbm as dbmodule
         self.db = dbmodule.open (os.path.join (dir, 'tag.db'), 'c')
     def tag (self, name, repo):
         stamp = repo.last_patch_date ()
@@ -267,7 +269,6 @@ class Darcs (Repository):
             return ''
 
     def checksum (self):
-        import xml.dom.minidom
         xml_string = self.darcs_pipe ('changes --xml ')
         dom = xml.dom.minidom.parseString(xml_string)
         patches = dom.documentElement.getElementsByTagName('patch')

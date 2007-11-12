@@ -1,3 +1,4 @@
+import re
 import string
 from new import classobj
 from new import instancemethod
@@ -71,7 +72,6 @@ def get_debian_package (settings, description):
                                  strip_components=0)
     package = package_class (settings, source)
     package.name_dependencies = []
-    import re
     if d.has_key ('Depends'):
         deps = map (string.strip,
                     re.sub ('\([^\)]*\)', '', d['Depends']).split (', '))

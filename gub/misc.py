@@ -5,21 +5,20 @@ import string
 import sys
 import urllib2
 import stat
+import imp
+import traceback
 
 def join_lines (str):
     return str.replace ('\n', ' ')
 
 def load_module (file_name, name=None):
     if not name:
-        import os
         name = os.path.split (os.path.basename (file_name))[0]
     file = open (file_name)
     desc = ('.py', 'U', 1)
-    import imp
     return imp.load_module (name, file, file_name, desc)
 
 def load_spec (spec_file_name):
-    import os
     # FIXME: should use settings.specdir
     specdir = os.getcwd () + '/gub/specs'
     return load_module ('%(specdir)s/%(spec_file_name)s.py' % locals ())
@@ -233,7 +232,6 @@ def forall (generator):
     return v
 
 def exception_string (exception=Exception ('no message')):
-    import traceback
     return traceback.format_exc (None)
 
 class SystemFailed (Exception):
@@ -248,7 +246,6 @@ def system (cmd, ignore_errors=False):
         raise SystemFailed ('Command failed (' + `stat/256` + '): ' + cmd)
 
 def file_mod_time (path):
-    import stat
     return os.stat (path)[stat.ST_MTIME]
 
 def binary_strip_p (filter_out=[], extension_filter_out=[]):
@@ -260,7 +257,6 @@ def binary_strip_p (filter_out=[], extension_filter_out=[]):
 
 # Move to Os_commands?
 def map_command_dir (os_commands, dir, command, predicate):
-    import os
     if not os.path.isdir (dir):
         raise ('warning: no such dir: %(dir)s' % locals ())
     (root, dirs, files) = os.walk (dir).next ()

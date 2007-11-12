@@ -17,7 +17,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 """
-
+import pickle
 import os
 import sys
 sys.path.insert (0, '.')
@@ -88,7 +88,6 @@ class BuildRunner:
         hdr = pkg.expand ('%(split_hdr)s')
         valid = valid and os.path.exists (hdr)
         if valid:
-            import pickle
             hdr_dict = pickle.load (open (hdr))
             valid = valid and spec.source_checksum () == hdr_dict['source_checksum']
 
