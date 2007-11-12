@@ -135,7 +135,7 @@ def check_installer (installer, options, args):
     if not os.path.exists (checksum_file):
         return False
     
-    checksum = pickle.loads (open (checksum_file).read ())
+    checksum = open (checksum_file).read ()
     return checksum == get_installer_checksum (
         [install_manager.package_dict (p)
          for p in install_manager.installed_packages ()])
