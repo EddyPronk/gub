@@ -4,7 +4,7 @@ from gub import mirrors
 class Texinfo(toolpackage.ToolBuildSpec):
     def __init__ (self, settings):
         toolpackage.ToolBuildSpec.__init__ (self, settings)
-        self.with_template (version="4.8",
+        self.with_template (version="4.11",
                    mirror=mirrors.gnu, format="bz2")
     def patch (self):
         toolpackage.ToolBuildSpec.patch (self)
