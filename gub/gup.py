@@ -119,15 +119,8 @@ class FileManager:
                          """libdir='%(root)s/%(dir)s'""" % locals ()
                          ),],
                        '%(root)s/%(file)s' % locals (),
-                       
-        # FIXME: for tools libtool 1.5.20, libdir is already OK, so this
-        # fails.  Would have been a nice assert.  Possibly for platforms
-        # other than tools?  Hmm, let's try that.
-        #                            must_succeed=True)
-#                                    must_succeed=self.settings.platform != 'tools'
-                                    # Whurg, we do not know the platform here...
-                                    must_succeed=('tools/root' not in self.root
-                                                  and 'cross' not in dir))
+                       must_succeed=('tools/root' not in self.root
+                                     and 'cross' not in dir))
 
     def pkgconfig_pc_fixup (self, root, file, prefix_dir):
         # avoid using libs from build platform, by adding

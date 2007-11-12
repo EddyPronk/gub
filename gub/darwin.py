@@ -48,8 +48,8 @@ class Rewirer (context.RunnableContext):
 
             # FIXME: I do not understand this comment
             ## ignore self.
-            self.os_interface.action (os.path.split (i)[1] + ' '
-                                      + os.path.split (name)[1] + '\n')
+            self.runner.action (os.path.split (i)[1] + ' '
+                                + os.path.split (name)[1] + '\n')
 
             if os.path.split (i)[1] == os.path.split (name)[1]:
                 continue

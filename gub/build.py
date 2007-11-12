@@ -379,9 +379,11 @@ tooldir=%(install_prefix)s
         '''Install package into %(install_root).
 
         Any overrides should follow this command, since it will erase the old
-        install_root first.  FIXME: this is partly totally broken, some
-        overrides need to be done BEFORE the rest of the install stage.  We
-        need to figure out some clean way to plug something in between the
+        install_root first.
+
+        FIXME: this is partly totally broken, some overrides need to
+        be done BEFORE the rest of the install stage.  We need to
+        figure out some clean way to plug something in between the
         automatic cleaning, and the rest of the install.'''
         
         self.system ('''
@@ -491,8 +493,8 @@ cp %(file)s %(install_root)s/license/%(name)s
     def get_subpackage_names (self):
         return ['devel', 'doc', '']
 
-    ## FIXME: when only patched in via MethodOverride, the real descr_dict,
-    ## category_dict are not pickled and cygwin packaging fails
+    # FIXME: when only patched in via MethodOverride, the real descr_dict,
+    # category_dict are not pickled and cygwin packaging fails
     def description_dict (self):
         return {}
     def category_dict (self):

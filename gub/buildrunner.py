@@ -69,7 +69,10 @@ class BuildRunner:
             self.checksums[name] = command_runner.checksum()
  
     # FIXME: move to gup.py or to build.py?
-    def pkg_checksum_valid (self, spec, pkg):
+    def spec_checksums_valid (self, spec):
+        # need to read package header to read checksum_file.  since
+        # checksum is per buildspec, only need to inspect one package.
+        pkg = spec.get_packages ()[0]    
         name = pkg.name ()
         pkg_dict = self.manager.package_dict (name)
 
@@ -92,13 +95,6 @@ class BuildRunner:
         # we don't use cross package checksums, otherwise we have to
         # rebuild everything for every cross package change.
         return valid
-
-    # FIXME: move to gup.py or to build.py?
-    def spec_checksums_valid (self, spec):
-        # need to read package header to read checksum_file.  since
-        # checksum is per buildspec, only need to inspect one package.
-        pkg = spec.get_packages ()[0]
-        return self.pkg_checksum_valid (spec, pkg)
 
     # FIXME: this should be in gpkg/gup.py otherwise it's impossible
     # to install packages in a conflict situation manually
@@ -153,9 +149,7 @@ class BuildRunner:
         is_installable = misc.forall (self.manager.is_installable (p.name ())
                                       for p in spec.get_packages ())
 
-        # FIXME.
-        logname = 'log/%s.%s.log' % (specname, spec.settings.platform)
-        logging.info('Package build log to %s' % logname)
+        logname = 'log/%s/%s.log' % (spec.settings.platform, specname)
         logger = logging.RealCommandLogger (logname, logging.default_logger.threshold)
 
         # this is a bit dubious: we're doing the actual running
@@ -173,7 +167,6 @@ class BuildRunner:
 
         # FIXME, spec_install should be stage?
         if not self.settings.options.stage: # or options.stage == spec_install:
-            # FIXME, spec_install should be stage?
             spec.runner.stage (' *** Stage: %s (%s, %s)\n'
                                      % ('pkg_install', spec.name (),
                                         self.settings.platform))

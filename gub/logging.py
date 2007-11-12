@@ -9,6 +9,10 @@ trace during a log call(), and have per .py file settings.
 
 
 """
+
+default_logger = None
+default_logger_interface = None
+
 name_to_loglevel_mapping = {'quiet': 0,
          'error': 0,
          'stage': 0,
@@ -48,6 +52,9 @@ class RealCommandLogger (CommandLogger):
         self.log_file_name = log_file_name
 
         if log_file_name:
+            if default_logger_interface:
+                default_logger_interface.info('Opening log file: %s\n' % log_file_name)
+            
             directory = os.path.split (log_file_name)[0]
             if not os.path.isdir (directory):
                 os.makedirs (directory)

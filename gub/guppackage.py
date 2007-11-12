@@ -5,7 +5,9 @@ from gub import commands
 
 class GupPackage:
     "How to package part of an install_root."
-    
+
+    # This package has its own little expand() function,
+    # based on self._dict.
     def __init__ (self, runner):
         self._dict = {}
         self._runner = runner
@@ -13,7 +15,6 @@ class GupPackage:
         self._dependencies = []
         self._conflicts = []
         
-    # FIXME: move _dict ---> .__dict__
     def set_dict (self, dict, sub_name):
         self._dict = dict.copy ()
         self._dict['sub_name'] = sub_name
