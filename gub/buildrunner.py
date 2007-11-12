@@ -17,6 +17,7 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 """
+
 import pickle
 import os
 import sys
@@ -174,15 +175,15 @@ class BuildRunner:
         spec.disconnect_command_runner ()
 
     def uninstall_outdated_spec (self, spec_name):
-            spec = self.specs[spec_name]
-            # ugh, dupe
-            checksum_ok = (self.settings.options.lax_checksums
-                           or self.spec_checksums_valid (self.specs[spec_name]))
-            for pkg in spec.get_packages ():
-                if (self.manager.is_installed (pkg.name ())
-                    and (not self.manager.is_installable (pkg.name ())
-                         or not checksum_ok)):
-                    self.manager.uninstall_package (pkg.name ())
+	spec = self.specs[spec_name]
+	# ugh, dupe
+	checksum_ok = (self.settings.options.lax_checksums
+		       or self.spec_checksums_valid (self.specs[spec_name]))
+	for pkg in spec.get_packages ():
+	    if (self.manager.is_installed (pkg.name ())
+		and (not self.manager.is_installable (pkg.name ())
+		     or not checksum_ok)):
+		self.manager.uninstall_package (pkg.name ())
 
     def uninstall_outdated_specs (self, deps):
         for spec_name in reversed (deps):
