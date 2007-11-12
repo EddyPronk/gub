@@ -4,6 +4,7 @@ from gub import mirrors
 from gub import misc
 from gub import repository
 from gub import toolsbuild
+from gub import cross
 
 class Nsis (toolsbuild.ToolsBuild):
     source = mirrors.with_template (name='nsis', version='2.24',
@@ -17,8 +18,8 @@ class Nsis (toolsbuild.ToolsBuild):
                              source=':pserver:anonymous@nsis.cvs.sourceforge.net:/cvsroot/nsis',
                              module='NSIS',
                              tag='HEAD')
-    def __init__ (self, settings, source):
-        toolsbuild.ToolsBuild.__init__ (self, settings, source)
+
+    def add_mingw_env (self):
         # Do not use 'root', 'usr', 'cross', rather use from settings,
         # that enables changing system root, prefix, etc.
         mingw_dir = (self.settings.alltargetdir + '/mingw'
@@ -27,11 +28,13 @@ class Nsis (toolsbuild.ToolsBuild):
                      + self.settings.prefix_dir
                      + self.settings.cross_dir
                      + '/bin')
-        env = {'PATH': mingw_bin + ':' + os.environ['PATH'] }
+        return {'PATH': mingw_bin + ':' + os.environ['PATH'] }
+        
+    def __init__ (self, settings, source):
+        toolsbuild.ToolsBuild.__init__ (self, settings, source)
         if 'x86_64-linux' in self.settings.build_architecture:
-            from gub import cross
-            cross.setup_linux_x86 (self, env)
-            
+            cross.setup_linux_x86 (self, self.add_mingw_env ())
+        
     def get_build_dependencies (self):
         return ['scons']
 
@@ -58,13 +61,18 @@ Export('defenv')
                 ' DEBUG=yes'
                 ' NSIS_CONFIG_LOG=yes'
                 ' SKIPPLUGINS=System')
-    def build_environment (self):
-        pass
-        return {}
 
+    # this does not do anything, but is overwritten for x86-64_linux
+    def build_environment (self):
+        return self.add_mingw_env ()
     
+    def compile (self):
+        self.system ('cd %(builddir)s/ && %(compile_command)s',
+                     self.build_environment ())
+
     def install_command (self):
         return self.compile_command () + ' install'
+    
     def install (self):
         self.system ('cd %(builddir)s && %(install_command)s ',
                      self.build_environment ())
