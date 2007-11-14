@@ -154,6 +154,7 @@ class CommandRunner:
         return self._execute (commands.ReadFile (file))
 
 
+# FIXME: merge with CommandRunner
 class DirectCommandRunner(CommandRunner):
     def _execute (self, command):
         return command.execute (self)
@@ -168,7 +169,9 @@ class DirectCommandRunner(CommandRunner):
         misc.download_url (url, dest_dir, local=local, fallback=fallback,
                            log=log)
 
-class DeferredCommandRunner(CommandRunner):
+# FIXME: rename to Deferred?  Then we have runner.Deferred, that's
+# clear enough?
+class DeferredCommandRunner (CommandRunner):
     def __init__ (self, *args):
         CommandRunner.__init__ (self, *args)
         self._deferred_commands = list ()
@@ -176,8 +179,9 @@ class DeferredCommandRunner(CommandRunner):
     def execute_deferred_commands (self):
         commands = self._deferred_commands
         self._deferred_commands = list ()
+        runner = DirectCommandRunner (self.logger)
         for cmd in commands:
-            cmd.execute (self)
+            cmd.execute (runner)
             if self._deferred_commands:
                 print 'Deferred CMD:', cmd
                 print 'Registers new deferred commands:', self.checksum ()
@@ -212,7 +216,6 @@ class DeferredCommandRunner(CommandRunner):
 
     def _execute (self, command):
         self._deferred_commands.append (command)
-
 
     def read_pipe (self, *args, **kwargs):
         CommandRunner.read_pipe(self, *args, **kwargs)
