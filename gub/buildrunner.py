@@ -62,7 +62,7 @@ class BuildRunner:
         for (name, spec) in self.specs.items ():
             logger = logging.NullCommandLogger ()
 
-            command_runner = runner.DeferredCommandRunner(logger)
+            command_runner = runner.DeferredRunner(logger)
             spec.connect_command_runner(command_runner)
             spec.build()
             spec.disconnect_command_runner()
@@ -154,9 +154,9 @@ class BuildRunner:
 
         todo_broken_for_defer = ['darwin-ppc', 'darwin-x86']
         if not spec.settings.platform in todo_broken_for_defer:
-            spec.connect_command_runner (runner.DeferredCommandRunner (logger))
+            spec.connect_command_runner (runner.DeferredRunner (logger))
         else:
-            spec.connect_command_runner (runner.DirectCommandRunner (logger))
+            spec.connect_command_runner (runner.CommandRunner (logger))
         if (self.settings.options.stage
             or not is_installable
             or not checksum_ok):
@@ -173,7 +173,6 @@ class BuildRunner:
                                      % ('pkg_install', spec.name (),
                                         self.settings.platform))
             self.spec_install (spec)
-            
         spec.disconnect_command_runner ()
 
     def uninstall_outdated_spec (self, spec_name):

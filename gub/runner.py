@@ -42,8 +42,18 @@ class CommandRunner:
         self.logger = logger
         self.fakeroot_cmd = False
 
-    def _execute (self):
-        raise 'not implemented'
+    def _execute (self, command):
+        return command.execute (self)
+
+    def download_url (self, url, dest_dir):
+        # FIXME: read settings.rc, local, fallback should be a
+        # user-definable list
+        local = 'file:///home/%(USER)s/vc/gub/downloads' % os.environ
+	fallback = ['http://lilypond.org/download/gub-sources']
+        def log (message):
+            self.action (message)
+        misc.download_url (url, dest_dir, local=local, fallback=fallback,
+                           log=log)
 
     # fixme: should be moved somewhere else.
     def fakeroot (self, s):
@@ -154,24 +164,7 @@ class CommandRunner:
         return self._execute (commands.ReadFile (file))
 
 
-# FIXME: merge with CommandRunner
-class DirectCommandRunner(CommandRunner):
-    def _execute (self, command):
-        return command.execute (self)
-
-    def download_url (self, url, dest_dir):
-        # FIXME: read settings.rc, local, fallback should be a
-        # user-definable list
-        local = 'file:///home/%(USER)s/vc/gub/downloads' % os.environ
-	fallback = ['http://lilypond.org/download/gub-sources']
-        def log (message):
-            self.action (message)
-        misc.download_url (url, dest_dir, local=local, fallback=fallback,
-                           log=log)
-
-# FIXME: rename to Deferred?  Then we have runner.Deferred, that's
-# clear enough?
-class DeferredCommandRunner (CommandRunner):
+class DeferredRunner (CommandRunner):
     def __init__ (self, *args):
         CommandRunner.__init__ (self, *args)
         self._deferred_commands = list ()
@@ -183,7 +176,7 @@ class DeferredCommandRunner (CommandRunner):
         save_runner = None
         if command_runner_owner:
             save_runner = command_runner_owner.runner
-            direct_runner = DirectCommandRunner (self.logger)
+            direct_runner = CommandRunner (self.logger)
             command_runner_owner.runner = direct_runner
         self._execute_deferred_commands ()
         if command_runner_owner:
@@ -192,7 +185,7 @@ class DeferredCommandRunner (CommandRunner):
     def _execute_deferred_commands (self):
         commands = self._deferred_commands
         self._deferred_commands = list ()
-        direct_runner = DirectCommandRunner (self.logger)
+        direct_runner = CommandRunner (self.logger)
         for cmd in commands:
             cmd.execute (direct_runner)
             # FIXME: remove debugging when everything works
