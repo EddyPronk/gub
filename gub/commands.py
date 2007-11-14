@@ -35,14 +35,15 @@ class UpdateSourceDir (SerializedCommand):
         if not buildspec.source:
             return False
         if not buildspec.source.is_tracking ():
-            buildspec.system ('rm -rf %(srcdir)s %(builddir)s %(install_root)s')
+            runner.system (buildspec.expand ('rm -rf %(srcdir)s %(builddir)s %(install_root)s'))
 
         if buildspec.source:
             buildspec.source.update_workdir (buildspec.expand ('%(srcdir)s'))
 
         # TODO: move this to Repository
         if (os.path.isdir (buildspec.expand ('%(srcdir)s'))):
-            buildspec.system ('chmod -R +w %(srcdir)s', ignore_errors=True)
+            runner.system (buildspec.expand ('chmod -R +w %(srcdir)s'),
+                           ignore_errors=True)
            
     def checksum (self, hasher):
         tracking = 'not tracking'
