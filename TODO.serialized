@@ -4,12 +4,10 @@
 * Printing/logging to console
 
 * IN PROGRESS:
-   gub -p $(bin/build-platform) libtool
+   gub -p $(bin/build-platform) lilypond
 
 * STATUS:
-   [Some] non-deferred builds [begin to] work.
-
-   Deferred builds are still broken
+   Deferred builds [begin to] work.
 
    tools ?
    linux-64 (native...) + installer + doc ?
