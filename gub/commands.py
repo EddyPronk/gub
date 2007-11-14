@@ -160,14 +160,12 @@ class ReadPipe (SerializedCommand):
         self.cmd = cmd
         self.ignore_errors = ignore_errors
         self.silent = silent
-    def execute (self, runner):
-        runner.action ('Reading %(file)s\n' % self.__dict__)
-        return file (self.file).read ()
     def checksum (self, hasher):
         hasher.append (self.__class__.__name__)
         hasher.append (self.cmd)
         hasher.append (str (self.ignore_errors))
     def execute (self, runner):
+        runner.action ('Reading %(cmd)s\n' % self.__dict__)
         pipe = os.popen (self.cmd, 'r')
         output = pipe.read ()
         status = pipe.close ()

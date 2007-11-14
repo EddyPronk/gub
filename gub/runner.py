@@ -225,10 +225,13 @@ class DeferredRunner (CommandRunner):
     def _execute (self, command):
         self._deferred_commands.append (command)
 
-    def read_pipe (self, *args, **kwargs):
-        CommandRunner.read_pipe (self, *args, **kwargs)
-        return ''
+    def read_pipe (self, cmd, ignore_errors=False, silent=False):
+        # Deferring read pipe does not work.
+        # return CommandRunner.read_pipe (self, *args, **kwargs)
+        return CommandRunner._execute (self, commands.ReadPipe (cmd, ignore_errors=ignore_errors,
+                                                                silent=silent))
     
     def read_file (self, file):
-        CommandRunner.read_file (self, file)
-        return ''
+        # Deferring read file does not work.
+        # return CommandRunner.read_file (self, file)
+        return CommandRunner._execute (self, commands.ReadFile (file))
