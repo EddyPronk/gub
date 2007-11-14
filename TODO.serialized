@@ -1,13 +1,23 @@
-STATUS:
-   tools TESTED
-   linux-64 (native...) + installer + doc  UNTESTED
-   cygwin + installer + ghostscript-installer UNTESTED
-   mingw cross-compilers UNTESTED
-   linux-x86 cross-compilers
-   darwin-ppc cross-compilers UNTESTED
+* Check everything
+ gpkg, gub-tester, cron-builder
 
-IN PROGRESS:
-   make -f lilypond.make PLATFORMS="mingw linux-x86 darwin-ppc freebsd-x86 freebsd-64" all
+* Printing/logging to console
+
+STATUS:
+   Non-deferred build: linux-64 libtool
+
+   Deferred
+   libtool broken
+   ...
+   tools ?
+   linux-64 (native...) + installer + doc ?
+   cygwin + installer + ghostscript-installer
+   mingw cross-compilers
+   linux-x86 cross-compilers
+   darwin-ppc cross-compilers
+
+//IN PROGRESS:
+//   make -f lilypond.make PLATFORMS="mingw linux-x86 darwin-ppc freebsd-x86 freebsd-64" all
 
 TODO:
 * darwin-x86 gcc compile problem, probably rewire/glob/locate_files related.
