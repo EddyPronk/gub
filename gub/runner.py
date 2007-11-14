@@ -178,6 +178,12 @@ class DeferredCommandRunner(CommandRunner):
         self._deferred_commands = list ()
         for cmd in commands:
             cmd.execute (self)
+            if self._deferred_commands:
+                print 'Deferred CMD:', cmd
+                print 'Registers new deferred commands:', self.checksum ()
+                print 'Registers new non-checksummed deferred commands:', self._deferred_commands
+                barf
+        print 'DEFERRED_COMMANDS:', self.checksum ()
         assert self._deferred_commands == list ()
 
     def flush_deferred_commands (self):
