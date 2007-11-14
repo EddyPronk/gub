@@ -173,7 +173,7 @@ class BuildRunner:
                                      % ('pkg_install', spec.name (),
                                         self.settings.platform))
             self.spec_install (spec)
-        spec.command_runner (None)
+        spec.connect_command_runner (None)
 
     def uninstall_outdated_spec (self, spec_name):
 	spec = self.specs[spec_name]
