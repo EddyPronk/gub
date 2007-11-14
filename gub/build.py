@@ -31,8 +31,8 @@ class Build (context.RunnableContext):
         # error if it was not defined at the time of writing the hdr.
 
     def connect_command_runner (self, runner):
-        context.RunnableContext.connect_command_runner (self, runner)
         self.source.connect_command_runner (runner)
+        return context.RunnableContext.connect_command_runner (self, runner)
 
     @context.subst_method
     def checksum_file (self):

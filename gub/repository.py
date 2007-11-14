@@ -133,19 +133,28 @@ class Repository:
                 self.dir = os.path.join (os.getcwd (), '.gub' + self.vc_system)
         self.source = source
 
+        self.connect_command_runner_misc ()
+
+    def connect_command_runner_misc (self):
+        self.runner = None
         self.system = misc.system
         self._read_file = misc.read_file
         self.read_pipe = misc.read_pipe
         self.download_url = misc.download_url
         self.info = sys.stdout.write
+        return None
 
     def connect_command_runner (self, runner):
+        if not runner:
+            return self.connect_command_runner_misc ()
+        previous = self.runner
         self.runner = runner
         self.system = runner.system
         self._read_file = runner.read_file
         self.read_pipe = runner.read_pipe
         self.download_url = runner.download_url
         self.info = runner.info
+        return previous
         
     def full_branch_name (self):
         if self.is_tracking ():
@@ -232,7 +241,7 @@ class Version (Repository):
     def name (self):
         return self._name
     def connect_command_runner (self, runner):
-        pass
+        return None
 
 #RepositoryProxy.register (Version)
 

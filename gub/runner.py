@@ -170,25 +170,22 @@ class DeferredRunner (CommandRunner):
         CommandRunner.__init__ (self, *args)
         self._deferred_commands = list ()
 
-    def execute_deferred_commands (self, command_runner_owner=None):
+    def execute_deferred_commands (self, owner=None):
         # Several deferred commands use secondary deferred commands.
         # Those must be executed directly (non-deferredly) when we are
-        # here.  Not a pretty sight.  FIXME.
+        # here.
         save_runner = None
-        if command_runner_owner:
-            save_runner = command_runner_owner.runner
-            direct_runner = CommandRunner (self.logger)
-            command_runner_owner.runner = direct_runner
+        if owner:
+            save_runner = owner.connect_command_runner (CommandRunner (self.logger))
         self._execute_deferred_commands ()
-        if command_runner_owner:
-            command_runner_owner.runner = save_runner
+        if owner:
+            owner.connect_command_runner (save_runner)
 
     def _execute_deferred_commands (self):
         commands = self._deferred_commands
         self._deferred_commands = list ()
-        direct_runner = CommandRunner (self.logger)
         for cmd in commands:
-            cmd.execute (direct_runner)
+            cmd.execute (CommandRunner (self.logger))
             # FIXME: remove debugging when everything works
             if self._deferred_commands:
                 print 'Deferred CMD:', cmd

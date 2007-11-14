@@ -196,11 +196,8 @@ class DarwinRoot (Installer):
         self.rewirer = darwin.Rewirer (self.settings)
 
     def connect_command_runner (self, runner):
-        Installer.connect_command_runner (self, runner)
         self.rewirer.connect_command_runner (runner)
-    def disconnect_command_runner (self):
-        Installer.connect_command_runner (self)
-        self.rewirer.disconnect_command_runner ()
+        return Installer.connect_command_runner (self, runner)
         
     def use_install_root_manager (self, package_manager):
         tarball = package_manager.package_dict ('darwin-sdk')['split_ball']

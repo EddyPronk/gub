@@ -165,10 +165,9 @@ class RunnableContext (Context):
         self.runner = None
         
     def connect_command_runner (self, runner):
+        previous = self.runner
         self.runner = runner
-
-    def disconnect_command_runner (self):
-        self.runner = None
+        return previous
 
     def file_sub (self, re_pairs, name, to_name=None, env={}, must_succeed=False, use_re=True):
         substs = []

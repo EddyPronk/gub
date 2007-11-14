@@ -65,7 +65,7 @@ class BuildRunner:
             command_runner = runner.DeferredRunner (logger)
             spec.connect_command_runner (command_runner)
             spec.build ()
-            spec.disconnect_command_runner ()
+            spec.connect_command_runner (None)
 
             self.checksums[name] = command_runner.checksum ()
  
@@ -173,7 +173,7 @@ class BuildRunner:
                                      % ('pkg_install', spec.name (),
                                         self.settings.platform))
             self.spec_install (spec)
-        spec.disconnect_command_runner ()
+        spec.command_runner (None)
 
     def uninstall_outdated_spec (self, spec_name):
 	spec = self.specs[spec_name]
