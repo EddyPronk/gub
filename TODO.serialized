@@ -1,5 +1,6 @@
 * Check everything
   broken: gpkg, gub-tester, cron-builder
+** FIXME: set_oslog is gone
 
 * Printing/logging to console
 ** Repository.py: FIXED (most, we still suffer from old bug: wanting
