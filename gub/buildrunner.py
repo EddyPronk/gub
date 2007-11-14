@@ -152,16 +152,18 @@ class BuildRunner:
         logname = 'log/%s/%s.log' % (spec.settings.platform, specname)
         logger = logging.RealCommandLogger (logname, logging.default_logger.threshold)
 
-        # this is a bit dubious: we're doing the actual running
-        # undeferred. If the spec is written correctly (eg. no
-        # globs) this should not make a difference
-        spec.connect_command_runner (runner.DirectCommandRunner(logger))
+        todo_broken_for_defer = ['darwin-ppc', 'darwin-x86']
+        if not spec.settings.platform in todo_broken_for_defer:
+            spec.connect_command_runner (runner.DeferredCommandRunner (logger))
+        else:
+            spec.connect_command_runner (runner.DirectCommandRunner (logger))
         if (self.settings.options.stage
             or not is_installable
             or not checksum_ok):
             spec.runner.stage ('building package: %s\n' % specname)
-
             spec.build ()
+            if not spec.settings.platform in todo_broken_for_defer:
+                spec.runner.execute_deferred_commands ()
 
             file (spec.expand('%(checksum_file)s'), 'w').write (self.checksums[specname])
 
