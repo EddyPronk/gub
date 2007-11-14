@@ -42,7 +42,7 @@ class TargetBuild (build.UnixBuild):
                 return
             dir = os.path.split (file)[0]
             suffix = '/.libs'
-            if re.search('\\.libs$', dir):
+            if re.search ('\\.libs$', dir):
                 suffix = ''
             self.file_sub ([
                 ("libdir='/usr/lib'", "libdir='%(dir)s%(suffix)s'"),
@@ -173,14 +173,14 @@ class Change_target_dict:
         return d
 
 def change_target_dict (package, add_dict):
-    """Override the get_substitution_dict() method of PACKAGE."""
+    """Override the get_substitution_dict () method of PACKAGE."""
     try:
         package.get_substitution_dict = Change_target_dict (package, add_dict).target_dict
     except AttributeError:
         pass
 
 def append_target_dict (package, add_dict):
-    """Override the get_substitution_dict() method of PACKAGE."""
+    """Override the get_substitution_dict () method of PACKAGE."""
     try:
         package.get_substitution_dict = Change_target_dict (package, add_dict).append_dict
     except AttributeError:

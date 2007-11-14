@@ -325,7 +325,7 @@ class Linux_installer (Installer):
 
         if self.building_root_image ():
             # ugh - consider postponing actions until after the ctor
-            # inside we can't use expand()
+            # inside we can't use expand ()
             self.fakeroot (self.settings.fakeroot % self.settings.__dict__)
         self.bundle_tarball = '%(installer_uploads)s/%(name)s-%(installer_version)s-%(installer_build)s.%(platform)s.tar.bz2'
 
@@ -359,7 +359,7 @@ class Shar (Linux_installer):
         used_in_sharhead = '%(base_file)s %(hello)s %(header_length)s %(_z)s'
         used_in_sharhead % locals ()
         f = open (shar, 'w')
-        f.write (script % locals())
+        f.write (script % locals ())
         f.close ()
         self.system ('cat %(file)s >> %(shar)s' % locals ())
         self.chmod (shar, 0755)

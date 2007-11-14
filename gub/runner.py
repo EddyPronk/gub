@@ -72,7 +72,8 @@ class CommandRunner:
             cmd = re.sub ('''(^ *|['"();|& ]*)(chown|rm|tar) ''',
                           '\\1%(fakeroot_cmd)s\\2 ' % self.__dict__, cmd)
         # '
-        return self._execute (commands.System (cmd, env=env, ignore_errors=ignore_errors))
+        return self._execute (commands.System (cmd, env=env,
+                                               ignore_errors=ignore_errors))
 
     def log (self, str, logtype):
         return self._execute (commands.Message (str, logtype))
@@ -108,7 +109,7 @@ class CommandRunner:
         call_env = os.environ.copy ()
         call_env.update (env)
 
-        self.logger.log_env(env)
+        self.logger.log_env (env)
         for i in cmd.split ('\n'):
             if i:
                 self.system_one (i, call_env, ignore_errors)
@@ -225,7 +226,7 @@ class DeferredRunner (CommandRunner):
         self._deferred_commands.append (command)
 
     def read_pipe (self, *args, **kwargs):
-        CommandRunner.read_pipe(self, *args, **kwargs)
+        CommandRunner.read_pipe (self, *args, **kwargs)
         return ''
     
     def read_file (self, file):

@@ -62,12 +62,12 @@ class BuildRunner:
         for (name, spec) in self.specs.items ():
             logger = logging.NullCommandLogger ()
 
-            command_runner = runner.DeferredRunner(logger)
-            spec.connect_command_runner(command_runner)
-            spec.build()
-            spec.disconnect_command_runner()
+            command_runner = runner.DeferredRunner (logger)
+            spec.connect_command_runner (command_runner)
+            spec.build ()
+            spec.disconnect_command_runner ()
 
-            self.checksums[name] = command_runner.checksum()
+            self.checksums[name] = command_runner.checksum ()
  
     # FIXME: move to gup.py or to build.py?
     def spec_checksums_valid (self, spec):
@@ -78,12 +78,12 @@ class BuildRunner:
         pkg_dict = self.manager.package_dict (name)
 
         try:
-            build_checksum_ondisk = open(pkg_dict['checksum_file']).read()
+            build_checksum_ondisk = open (pkg_dict['checksum_file']).read ()
         except IOError:
             build_checksum_ondisk = '0000'
 
-	# fixme: spec.build_checksum() should be method.
-        valid = (self.checksums[spec.name()] == build_checksum_ondisk
+	# fixme: spec.build_checksum () should be method.
+        valid = (self.checksums[spec.name ()] == build_checksum_ondisk
                  and spec.source_checksum () == pkg_dict['source_checksum'])
 
         hdr = pkg.expand ('%(split_hdr)s')
@@ -165,7 +165,7 @@ class BuildRunner:
             if not spec.settings.platform in todo_broken_for_defer:
                 spec.runner.execute_deferred_commands (spec)
 
-            file (spec.expand('%(checksum_file)s'), 'w').write (self.checksums[specname])
+            file (spec.expand ('%(checksum_file)s'), 'w').write (self.checksums[specname])
 
         # FIXME, spec_install should be stage?
         if not self.settings.options.stage: # or options.stage == spec_install:

@@ -77,7 +77,7 @@ class System (SerializedCommand):
 
         for line in proc.stdout:
             runner.log (line, 'output')
-        proc.wait()
+        proc.wait ()
         
         if proc.returncode:
             m = 'Command barfed: %(cmd)s\n' % locals ()
@@ -106,7 +106,7 @@ class Chmod (SerializedCommand):
     def checksum (self, hasher):
         hasher.append (self.__class__.__name__)
         hasher.append (self.file)
-        hasher.append (str(self.mode))
+        hasher.append (str (self.mode))
 
 class Func (SerializedCommand):
     def __init__ (self, func, *args):
@@ -125,7 +125,7 @@ class Message (SerializedCommand):
         self.message_type = message_type
 
     def execute (self, runner):
-        runner.logger.write_log(self.message, self.message_type)
+        runner.logger.write_log (self.message, self.message_type)
         
     def checksum (self, hasher):
         pass
@@ -254,7 +254,7 @@ class Conditional (SerializedCommand):
         if self.false:
             self.false.checksum (hasher)
     def execute (self, runner):
-        if self.predicate():
+        if self.predicate ():
             return self.true.execute (runner)
         elif self.false:
             return self.false.execute (runner)
@@ -312,7 +312,7 @@ class PackageGlobs (SerializedCommand):
             globs.append ('no-globs-for-%(dest)s' % locals ())
 
         _v = runner.verbose_flag ()
-        cmd = 'tar -C %(root)s/%(suffix_dir)s --ignore-failed --exclude="*~"%(_v)s -zcf %(dest)s ' % locals()
+        cmd = 'tar -C %(root)s/%(suffix_dir)s --ignore-failed --exclude="*~"%(_v)s -zcf %(dest)s ' % locals ()
         cmd += ' '.join (globs)
         System (cmd).execute (runner)
 

@@ -121,12 +121,12 @@ def strip_build_dep (old_val, what):
     for w in what:
         if w in deps:
             deps.remove (w)
-    deps.sort()
+    deps.sort ()
     return deps
 
 
 def strip_dependency_dict (old_val, what):
-    d = dict((k,[p for p in deps if p not in what])
+    d = dict ((k,[p for p in deps if p not in what])
              for (k, deps) in old_val.items ())
     return d
 
@@ -166,7 +166,7 @@ def get_darwin_sdk ():
     version = '0.4'
     darwin_version  = 8
 
-    dest = 'darwin%(darwin_version)d-sdk-%(version)s' % locals()
+    dest = 'darwin%(darwin_version)d-sdk-%(version)s' % locals ()
 
     system ('rm -rf %s' % dest)
     os.mkdir (dest)

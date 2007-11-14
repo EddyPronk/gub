@@ -64,7 +64,7 @@ class FileManager:
         name = self.__class__.__name__
         root = self.root
         distro =  self.is_distro
-        return '%(name)s: %(root)s, distro: %(distro)d'  % locals()
+        return '%(name)s: %(root)s, distro: %(distro)d'  % locals ()
 
     def make_dirs (self):
         if not os.path.isdir (self.config):

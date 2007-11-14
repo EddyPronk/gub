@@ -287,7 +287,7 @@ class UnixBuild (Build):
             ## distcc during configure.
             c = 'DISTCC_HOSTS="%s" %s' % (self.settings.native_distcc_hosts, c)
             c = 'PATH="%(native_distcc_bindir)s:$PATH" ' + c
-        elif (not self.force_sequential_build()
+        elif (not self.force_sequential_build ()
               and self.settings.cpu_count_str != '1'):
             job_spec += ' -j%s ' % self.settings.cpu_count_str
 
@@ -443,7 +443,7 @@ cp %(file)s %(install_root)s/license/%(name)s
                 if s.startswith ('/') and self.settings.system_root not in s:
                     new_dest = os.path.join (self.settings.system_root, s[1:])
                     os.remove (file)
-                    self.runner.action ('changing absolute link %(file)s -> %(new_dest)s' % locals())
+                    self.runner.action ('changing absolute link %(file)s -> %(new_dest)s' % locals ())
                     os.symlink (new_dest, file)
         self.map_locate (rewire, '%(install_root)s', '*')
 

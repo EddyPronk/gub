@@ -4,7 +4,7 @@ import re
 import traceback
 
 def subst_method (func):
-    """Decorator to match Context.get_substitution_dict()"""
+    """Decorator to match Context.get_substitution_dict ()"""
     
     func.substitute_me = True
     return func
@@ -24,12 +24,12 @@ def is_subst_method_in_class (method_name, klass):
 
 def typecheck_substitution_dict (d):
     for (k, v) in d.items ():
-        if type (v) != type(''):
+        if type (v) != type (''):
             raise Exception ('type', (k, v))
 
 def recurse_substitutions (d):
     for (k, v) in d.items ():
-        if type(v) != type(''):
+        if type (v) != type (''):
             del d[k]
             continue
 
@@ -115,7 +115,7 @@ class Context:
 
     def get_substitution_dict (self, env={}):
         if self._substitution_dict == None:
-            self._substitution_assignment_traceback = traceback.extract_stack()
+            self._substitution_assignment_traceback = traceback.extract_stack ()
             self._substitution_dict = self.get_constant_substitution_dict ()
 
             init_found = False
@@ -129,7 +129,7 @@ class Context:
             if init_found:
                 # if this happens derived classes cannot override settings
                 # from the baseclass.
-                print ' Cannot Context.expand() in __init__()'
+                print ' Cannot Context.expand () in __init__ ()'
                 raise ExpandInInit ()
             
         d = self._substitution_dict
@@ -174,7 +174,7 @@ class RunnableContext (Context):
         substs = []
         for (frm, to) in re_pairs:
             frm = self.expand (frm, env)
-            if type (to) ==type(''):
+            if type (to) ==type (''):
                 to = self.expand (to, env)
 
             substs.append ((frm, to))
@@ -246,17 +246,17 @@ class RunnableContext (Context):
 # Tests.
 #
 if __name__=='__main__':
-    class TestBase(Context):
+    class TestBase (Context):
         @subst_method
-        def bladir(self):
+        def bladir (self):
             return 'foo'
         
-    class TestClass(TestBase):
+    class TestClass (TestBase):
         @subst_method
-        def name(self):
+        def name (self):
             return self.__class__.__name__
         
-        def bladir(self):
+        def bladir (self):
             return 'derivedbladir'
     class S: 
         pass

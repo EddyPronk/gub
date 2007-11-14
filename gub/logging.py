@@ -5,7 +5,7 @@ import os
 """
 
 TODO: if we need more granularity, it's better to look at the stack
-trace during a log call(), and have per .py file settings.
+trace during a log call (), and have per .py file settings.
 
 
 """
@@ -53,7 +53,7 @@ class RealCommandLogger (CommandLogger):
 
         if log_file_name:
             if default_logger_interface:
-                default_logger_interface.info('Opening log file: %s\n' % log_file_name)
+                default_logger_interface.info ('Opening log file: %s\n' % log_file_name)
             
             directory = os.path.split (log_file_name)[0]
             if not os.path.isdir (directory):
@@ -71,8 +71,8 @@ class RealCommandLogger (CommandLogger):
         else:
             return '(no log)'
 
-    def write_log(self, message, message_type):
-        assert type(message_type) == type('')
+    def write_log (self, message, message_type):
+        assert type (message_type) == type ('')
         if not message:
             return 0
         message_level = name_to_loglevel_mapping[message_type]
@@ -90,7 +90,7 @@ class RealCommandLogger (CommandLogger):
     def log_env (self, env):
         if self.threshold >= name_to_loglevel_mapping['debug']:
             keys = env.keys ()
-            keys.sort()
+            keys.sort ()
             for k in keys:
                 self.write_log ('%s=%s\n' % (k, env[k]), 'debug')
             self.write_log ('export %s\n' % ' '.join (keys), 'debug')

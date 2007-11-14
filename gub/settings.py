@@ -183,7 +183,7 @@ class Settings (context.Context):
         self.create_dirs ()
 
         # don't depend on osinterface just for this one call.
-        self.build_architecture = misc.read_pipe ('gcc -dumpmachine').strip()
+        self.build_architecture = misc.read_pipe ('gcc -dumpmachine').strip ()
 
         try:
             self.cpu_count_str = '%d' % os.sysconf ('SC_NPROCESSORS_ONLN')
@@ -215,7 +215,7 @@ class Settings (context.Context):
             ):
             dir = self.__dict__[a]
             if not os.path.isdir (dir):
-                os.makedirs(dir)
+                os.makedirs (dir)
 
     def os_interface (self):
         print 'foo'

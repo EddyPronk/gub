@@ -11,7 +11,7 @@ def change_target_package (package):
 
 # FIXME: download from sane place; or rather download only kernel
 # headers and build full toolchain from source?
-def get_sdk():
+def get_sdk ():
     '''
 
 #FIXME: how to get libc+kernel headers package contents on freebsd?

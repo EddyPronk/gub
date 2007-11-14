@@ -118,7 +118,8 @@ class Repository:
         dir_vcs = self.dir + self.vc_system
         if not os.path.isdir (dir) and os.path.isdir (dir_vcs):
             # URG, Fixme, wtf?:
-            sys.stderr.write('appending %s to checkout dir %s\n' % (self.vc_system, self.dir))
+            sys.stderr.write ('appending %s to checkout dir %s\n'
+                              % (self.vc_system, self.dir))
             self.dir = dir_vcs
 
         if not dir or dir == '.':
@@ -270,8 +271,8 @@ class Darcs (Repository):
 
     def checksum (self):
         xml_string = self.darcs_pipe ('changes --xml ')
-        dom = xml.dom.minidom.parseString(xml_string)
-        patches = dom.documentElement.getElementsByTagName('patch')
+        dom = xml.dom.minidom.parseString (xml_string)
+        patches = dom.documentElement.getElementsByTagName ('patch')
         patches = [p for p in patches if not re.match ('^TAG', self.xml_patch_name (p))]
 
         patches.sort ()
@@ -291,7 +292,7 @@ class Darcs (Repository):
         #if self.oslog and self.oslog.verbose >= self.oslog.commands:
         #   verbose = 'v'
         vc_system = self.vc_system
-        self.system ('rsync --exclude %(vc_system)s -a%(verbose)s %(dir)s/* %(destdir)s/' % locals())
+        self.system ('rsync --exclude %(vc_system)s -a%(verbose)s %(dir)s/* %(destdir)s/' % locals ())
 
     def read_file (self, file):
         dir = self.dir
@@ -405,8 +406,8 @@ class Git (Repository):
         self.checksums = {}
         self.source = source
 
-        source = re.sub('.*:', '', source)
-        (self.url_host, self.url_path) = urllib.splithost(source)
+        source = re.sub ('.*:', '', source)
+        (self.url_host, self.url_path) = urllib.splithost (source)
 
         self.branch = branch
         self.revision = revision
@@ -436,7 +437,7 @@ class Git (Repository):
         return self.git_pipe ('log --max-count=1 %s' % self.branch)  
 
     def read_file (self, file_name):
-        ref = self.get_ref()            
+        ref = self.get_ref ()            
         contents = self.git_pipe ('show %(ref)s:%(file_name)s' % locals ())
         return contents
 
@@ -476,7 +477,7 @@ class Git (Repository):
             self.git ('clone --bare %(source)s %(repo)s' % locals ())
 
         if branch: 
-            self.git('fetch %(source)s %(branch)s:refs/heads/%(host)s/%(path)s/%(branch)s' % locals())
+            self.git ('fetch %(source)s %(branch)s:refs/heads/%(host)s/%(path)s/%(branch)s' % locals())
         self.checksums = {}
 
     def get_ref (self):
@@ -489,7 +490,7 @@ class Git (Repository):
         if self.revision:
             return self.revision
         
-        branch = self.get_ref()
+        branch = self.get_ref ()
         if self.checksums.has_key (branch):
             return self.checksums[branch]
 
@@ -504,13 +505,13 @@ class Git (Repository):
             return 'invalid'
 
     def all_files (self):
-        branch = self.get_ref()
+        branch = self.get_ref ()
         str = self.git_pipe ('ls-tree --name-only -r %(branch)s' % locals ())
         return str.split ('\n')
 
     def update_workdir (self, destdir):
         repo_dir = self.dir
-        branch = self.get_ref()
+        branch = self.get_ref ()
         if os.path.isdir (os.path.join (destdir, self.vc_system)):
             if self.git_pipe ('diff'):
                 self.git ('reset --hard HEAD' % locals (), dir=destdir)
@@ -520,7 +521,7 @@ class Git (Repository):
 
             revision = self.revision
             if not self.revision:
-                revision = 'origin/' + self.get_ref()
+                revision = 'origin/' + self.get_ref ()
             
             self.git ('update-ref refs/heads/master %(revision)s' % locals (),
                       dir=destdir)
@@ -537,7 +538,7 @@ class Git (Repository):
     def tag (self, name):
         stamp = self.last_patch_date ()
         tag = name + '-' + tztime.format (stamp, self.tag_dateformat)
-        branch = self.get_ref()
+        branch = self.get_ref ()
         self.git ('tag %(tag)s %(branch)s' % locals ())
         return tag
 
@@ -656,7 +657,7 @@ class CVS (Repository):
         module = self.module
         cmd = ''
         if self.is_downloaded ():
-            cmd += 'cd %(dir)s && cvs -q up -dCAP %(rev_opt)s' % locals()
+            cmd += 'cd %(dir)s && cvs -q up -dCAP %(rev_opt)s' % locals ()
         else:
             repo_dir = self.dir
             cmd += 'cd %(repo_dir)s/ && cvs -d %(source)s -q co -d %(suffix)s %(rev_opt)s %(module)s''' % locals ()

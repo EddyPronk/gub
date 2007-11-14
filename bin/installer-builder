@@ -200,7 +200,7 @@ def run_installer_commands (commands, settings, args, options):
     logger = logging.RealCommandLogger ('log/%s/installer.%s.log' %
                                         (settings.platform, name),
                                         options.verbosity)
-    installer_obj.connect_command_runner (runner.DirectCommandRunner (logger))
+    installer_obj.connect_command_runner (runner.CommandRunner (logger))
     for c in commands:
         logging.stage (' *** IStage: %s (%s)\n' % (c, installer_obj.name))
     

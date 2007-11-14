@@ -40,8 +40,8 @@ def set_cross_dependencies (package_object_dict):
                                         and not isinstance (p, build.SdkBuild)
                                         and not isinstance (p, build.BinaryBuild))]
     
-    sdk_names = [s.name() for s in sdk_packs]
-    cross_names = [s.name() for s in cross_packs]
+    sdk_names = [s.name () for s in sdk_packs]
+    cross_names = [s.name () for s in cross_packs]
     for p in other_packs:
         old_callback = p.get_build_dependencies
         p.get_build_dependencies = misc.MethodOverrider (old_callback,

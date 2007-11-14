@@ -6,7 +6,7 @@ from gub import commands
 class GupPackage:
     "How to package part of an install_root."
 
-    # This package has its own little expand() function,
+    # This package has its own little expand () function,
     # based on self._dict.
     def __init__ (self, runner):
         self._dict = {}
