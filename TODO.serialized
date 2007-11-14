@@ -10,13 +10,13 @@
 
 * IN PROGRESS:
    gub -p $(bin/build-platform) lilypond
+   @ glibc
 
 * STATUS:
    Deferred builds [begin to] work
 
-     libtool, linux-header, glibc-core, binutils, gcc-core
+     libtool, linux-header, glibc-core, binutils, gcc-core, gcc
 
-   currently broken: gcc...
 
    tools ?
    linux-64 (native...) + installer + doc ?
