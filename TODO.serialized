@@ -1,13 +1,21 @@
 * Check everything
-  gpkg, gub-tester, cron-builder
+  broken: gpkg, gub-tester, cron-builder
 
 * Printing/logging to console
+** Repository.py: FIXED (most, we still suffer from old bug: wanting
+   to know version of ghostscript, lilypond too soon).
+** settings.py: CHEATED
+
 
 * IN PROGRESS:
    gub -p $(bin/build-platform) lilypond
 
 * STATUS:
-   Deferred builds [begin to] work.
+   Deferred builds [begin to] work
+
+     libtool, linux-header, glibc-core, binutils, gcc-core
+
+   currently broken: gcc...
 
    tools ?
    linux-64 (native...) + installer + doc ?
