@@ -182,8 +182,11 @@ class Settings (context.Context):
         self.fakeroot = 'fakeroot -i%(fakeroot_cache)s -s%(fakeroot_cache)s '
         self.create_dirs ()
 
-        # don't depend on osinterface just for this one call.
-        self.build_architecture = misc.read_pipe ('gcc -dumpmachine').strip ()
+        # Cheating by not logging this call saves a dependency on os
+        # interface.  Not sure what cheating brings us here, why
+        # restrict use of the OS interface+logging facility?
+        self.build_architecture = misc.read_pipe ('gcc -dumpmachine',
+                                                  verbose=False).strip ()
 
         try:
             self.cpu_count_str = '%d' % os.sysconf ('SC_NPROCESSORS_ONLN')

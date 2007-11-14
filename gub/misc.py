@@ -31,12 +31,13 @@ def bind (function, arg1):
 def bind_method (func, obj):
     return lambda *args: func (obj, *args)
 
-def read_pipe (cmd, ignore_errors=False):
-    sys.stderr.write ('Executing pipe %s' % cmd)
+def read_pipe (cmd, ignore_errors=False, verbose=True):
+    if verbose:
+        sys.stderr.write ('Executing pipe %(cmd)s\n' % locals ())
     pipe = os.popen (cmd)
     val = pipe.read ()
     if pipe.close () and not ignore_errors:
-        raise SystemFailed ('Pipe failed: %s' % cmd)
+        raise SystemFailed ('Pipe failed: %(cmd)s' % locals ())
     return val
 
 def read_file (file):
