@@ -6,7 +6,6 @@ import inspect
 
 #
 from gub import misc
-from gub import repository
 from gub import context
 from gub import guppackage
 from gub import logging
