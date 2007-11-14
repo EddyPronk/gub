@@ -163,7 +163,7 @@ class BuildRunner:
             spec.runner.stage ('building package: %s\n' % specname)
             spec.build ()
             if not spec.settings.platform in todo_broken_for_defer:
-                spec.runner.execute_deferred_commands ()
+                spec.runner.execute_deferred_commands (spec)
 
             file (spec.expand('%(checksum_file)s'), 'w').write (self.checksums[specname])
 
