@@ -197,7 +197,7 @@ def run_installer_commands (commands, settings, args, options):
         return 
 
 
-    logger = logging.RealCommandLogger ('log/%s/installer.%s.log' %
+    logger = logging.CommandLogger ('log/%s/installer.%s.log' %
                                         (settings.platform, name),
                                         options.verbosity)
     installer_obj.connect_command_runner (runner.CommandRunner (logger))

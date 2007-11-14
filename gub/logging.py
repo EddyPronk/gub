@@ -28,7 +28,7 @@ def now ():
     return time.asctime (time.localtime ())
 
 
-class CommandLogger:
+class NullCommandLogger:
     def __init__ (self):
         pass
     def verbose_flag (self):
@@ -40,10 +40,7 @@ class CommandLogger:
     def log_env (self, env):
         pass
     
-class NullCommandLogger (CommandLogger):
-    pass
-
-class RealCommandLogger (CommandLogger):
+class CommandLogger (NullCommandLogger):
     def __init__ (self, log_file_name, threshold):
 
         # only print message under THRESHOLD.
@@ -95,6 +92,7 @@ class RealCommandLogger (CommandLogger):
                 self.write_log ('%s=%s\n' % (k, env[k]), 'debug')
             self.write_log ('export %s\n' % ' '.join (keys), 'debug')
 
+#FIXME: merge with NullCommandLogger
 class LoggerInterface:
     def __init__ (self, logger):
         self.logger = logger
@@ -126,7 +124,7 @@ class LoggerInterface:
     # end fixme
 
 
-default_logger = RealCommandLogger ('', 3)
+default_logger = CommandLogger ('', 3)
 default_logger_interface = LoggerInterface (default_logger)
 
 harmless = default_logger_interface.harmless

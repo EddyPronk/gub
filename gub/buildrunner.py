@@ -150,7 +150,7 @@ class BuildRunner:
                                       for p in spec.get_packages ())
 
         logname = 'log/%s/%s.log' % (spec.settings.platform, specname)
-        logger = logging.RealCommandLogger (logname, logging.default_logger.threshold)
+        logger = logging.CommandLogger (logname, logging.default_logger.threshold)
 
         todo_broken_for_defer = ['darwin-ppc', 'darwin-x86']
         if not spec.settings.platform in todo_broken_for_defer:
