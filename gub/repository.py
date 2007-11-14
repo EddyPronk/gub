@@ -139,6 +139,14 @@ class Repository:
         self.download_url = misc.download_url
         self.info = sys.stdout.write
 
+    def connect_command_runner (self, runner):
+        self.runner = runner
+        self.system = runner.system
+        self._read_file = runner.read_file
+        self.read_pipe = runner.read_pipe
+        self.download_url = runner.download_url
+        self.info = runner.info
+        
     def full_branch_name (self):
         if self.is_tracking ():
             return self.branch.replace ('/', '-')
@@ -223,6 +231,8 @@ class Version (Repository):
         return self._version
     def name (self):
         return self._name
+    def connect_command_runner (self, runner):
+        pass
 
 #RepositoryProxy.register (Version)
 
