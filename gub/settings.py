@@ -10,6 +10,7 @@ from gub import misc
 from gub import sources
 from gub import loggedos
 from gub import logging
+
 platforms = {
     'debian': 'i686-linux',
     'debian-arm': 'arm-linux',
@@ -101,10 +102,10 @@ class Settings (context.Context):
         self.nsisdir = self.gubdir + '/nsis'
 
         # workdir based; may be changed
-        self.logdir = self.workdir + '/log'
         self.downloads = self.workdir + '/downloads'
         self.alltargetdir = self.workdir + '/target'
         self.targetdir = self.alltargetdir + '/' + self.platform
+        self.logdir = self.targetdir + '/log'
 
         self.system_root = self.targetdir + self.root_dir
         if self.platform == 'tools' and GUB_TOOLS_PREFIX:
@@ -219,10 +220,7 @@ class Settings (context.Context):
             ):
             dir = self.__dict__[a]
             if not os.path.isdir (dir):
-                os.makedirs (dir)
-
-    def os_interface (self):
-        print 'foo'
+                loggedos.makedirs (logging.default_logger, dir)
         
     def set_distcc_hosts (self, options):
         def hosts (xs):

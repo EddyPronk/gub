@@ -341,7 +341,8 @@ def list_insert_before (lst, target, a):
 def most_significant_in_dict (d, name, sep):
     '''Return most significant variable from DICT
 
-NAME is less significant when it contains less bits sepated by SEP.'''
+    NAME is less significant when it contains less bits sepated by SEP.'''
+    
     v = None
     while name:
         if d.has_key (name):

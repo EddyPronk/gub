@@ -232,6 +232,17 @@ def urg_add_more_settings_for_gub (settings, options):
     settings.cpu_count = options.cpu_count
     settings.set_distcc_hosts (options)
 
+
+def logged_build (settings, files, verbosity):
+    logging.set_default_log (settings.expand ('%(logdir)s/build.log'),
+                             verbosity)
+    
+    logging.stage ('root: ' + settings.system_root + '\n')
+    logging.info ('platform: ' + settings.platform + '\n')
+
+    sys.exit (exceptional_build (settings, files))
+
+    
 def main ():
     cli_parser = get_cli_parser ()
     (options, files) = cli_parser.parse_args ()
@@ -246,15 +257,13 @@ def main ():
         inspect (settings, files)
         sys.exit (0)
 
-    logging.stage ('root: ' + settings.system_root + '\n')
-    logging.info ('platform: ' + settings.platform + '\n')
-
     if not files:
         logging.error ('error: nothing to do\n')
         cli_parser.print_help ()
         sys.exit (2)
         
-    sys.exit (exceptional_build (settings, files))
+    logged_build (settings, files, options.verbosity)
+
 
 if __name__ == '__main__':
     main ()
