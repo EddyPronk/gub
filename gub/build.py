@@ -376,7 +376,7 @@ tooldir=%(install_prefix)s
             cmd = self.expand ('cp %(new)s %(file)s', locals ())
             logger_interface.command (cmd)
             misc.system (cmd)
-            self.kill_libtool_installation_test (file)
+            self.kill_libtool_installation_test (logger_interface, file)
             cmd = self.expand ('chmod 755  %(file)s', locals ())
             logger_interface.command (cmd)
             misc.system (cmd)
