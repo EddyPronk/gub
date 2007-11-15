@@ -167,15 +167,9 @@ def build (settings, files):
     PATH = os.environ['PATH']
     os.environ['PATH'] = settings.expand ('%(tools_prefix)s/bin:' + PATH)
 
-    if settings.options.stage == 'download':
-        # FIXME: urg.  [only] For a real clean gub, with nothing in
-        # downloads/, we cannot go into build process, and let stage
-        # handle its own, as someone wants to create all spec
-        # substitution dicts, and that needs certain source trees to
-        # be already checked-out, eg ghostscript
-        for i in deps:
-            specs[i].download ()
-        sys.exit (0)
+    if not settings.options.offline:
+        for dep in deps:
+            specs[dep].download ()
 
     # FIXME: hw, why is this?  Doesn't this break 
     if settings.options.stage:
@@ -197,7 +191,7 @@ def build (settings, files):
     b.calculate_checksums ()
     b.build_source_packages (names)
 
-def exceptional_build (settings, files):
+def exceptional_build (settings, files, logger):
     status = 1
     try:
         build (settings, files)
@@ -212,17 +206,10 @@ def exceptional_build (settings, files):
         pass
 
     if status:
-        # FIXME
-        if 0:
-            if  settings.options.verbosity < settings.os_interface.level['output']:
-                print >>sys.stderr,\
-                    ('\n\nTail of ' + settings.os_interface.log_file_name + ':\n'
-                     + '\n'.join (settings.os_interface.read_tail ()))
-                log_file = settings.os_interface.log_file_name
-            settings.os_interface.error (misc.exception_string (e))
-        print (misc.exception_string (e))
+        logger.dump_tail (sys.stderr)
+        sys.stderr.write(misc.exception_string (e))
     else:
-        logging.info ('done\n')
+        logger.write_log ('done\n', 'info')
         
     return status
 
@@ -234,13 +221,13 @@ def urg_add_more_settings_for_gub (settings, options):
 
 
 def logged_build (settings, files, verbosity):
-    logging.set_default_log (settings.expand ('%(logdir)s/build.log'),
+    logger = logging.set_default_log (settings.expand ('%(logdir)s/build.log'),
                              verbosity)
     
-    logging.stage ('root: ' + settings.system_root + '\n')
-    logging.info ('platform: ' + settings.platform + '\n')
+    logger.write_log ('root: %s\n' % settings.system_root, 'info')
+    logger.write_log ('platform: %s\n' % settings.platform, 'info')
 
-    sys.exit (exceptional_build (settings, files))
+    sys.exit (exceptional_build (settings, files, logger))
 
     
 def main ():

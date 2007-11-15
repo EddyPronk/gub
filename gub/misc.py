@@ -173,26 +173,27 @@ def rewrite_url (url, mirror):
 def download_url (url, dest_dir,
                   local='file://%(HOME)s/vc/gub/downloads' % os.environ,
                   fallback=['http://lilypond.org/download/gub-sources'],
-                  log=sys.stderr.write):
+                  progress=sys.stderr.write):
     for i in lst (local) + [url] + lst (fallback):
         if not is_ball (os.path.basename (i)):
             i = rewrite_url (url, i)
-        e = _download_url (i, dest_dir, log)
+        e = _download_url (i, dest_dir, progress)
         if not e:
             return
     raise e
 
-def _download_url (url, dest_dir, log=sys.stderr.write):
+def _download_url (url, dest_dir, progress):
     try:
-        log ('downloading %(url)s -> %(dest_dir)s\n' % locals ())
-        size = __download_url (url, dest_dir, log)
-        log ('done (%(size)s)\n' % locals ())
+        progress ('downloading %(url)s -> %(dest_dir)s\n' % locals ())
+        size = __download_url (url, dest_dir, progress)
+        progress ('done (%(size)s)\n' % locals ())
     except Exception, e:
-        log ('download failed: ' + exception_string (e) + '\n')
+        progress ('download failed: ' + exception_string (e) + '\n')
         return e
+    
     return None
 
-def __download_url (url, dest_dir, log=sys.stderr.write):
+def __download_url (url, dest_dir, progress=None):
     if not os.path.isdir (dest_dir):
         raise Exception ("not a dir", dest_dir)
     bufsize = 1024 * 50
@@ -208,11 +209,13 @@ def __download_url (url, dest_dir, log=sys.stderr.write):
             contents = url_stream.read (bufsize)
             size += bufsize
             output.write (contents)
-            log ('.')
+            if progress:
+                progress ('.')
             sys.stderr.flush ()
             if not contents:
                 break
-        log ('\n')
+        if progress:
+            progress ('\n')
     except Exception, e:
         os.unlink (dest)
         raise e

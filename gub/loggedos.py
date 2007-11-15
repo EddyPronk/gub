@@ -33,7 +33,6 @@ def system (logger, cmd, **kwargs):
 ########
 # logged aliases to misc.py
 def logged_function(logger, function, *args, **kwargs):
-
     logger.write_multilevel_message(
         [('Running %s\n' % function.__name__, 'action'),
         ('Running %s: %s\n' % (function.__name__, repr(args)), 'command'),

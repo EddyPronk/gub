@@ -2,6 +2,8 @@ import time
 import sys
 import os
 
+from gub import misc
+
 """
 
 TODO: if we need more granularity, it's better to look at the stack
@@ -67,12 +69,15 @@ class CommandLogger (AbstractCommandLogger):
 
     # ugh: the following should not be in the base class.
     def read_tail (self, size=10240, lines=100):
-
         if self.log_file:
             return misc.read_tail (self.log_file_name, size, lines,
                                    self.start_marker)
         else:
             return '(no log)'
+
+    def dump_tail (self, output):
+        output.write ('\n\nTail of %s:\n%s' % (self.log_file_name,
+                                               '\n'.join (self.read_tail ())))
 
     def write_multilevel_message (self, message_types):
         """Given a set of messages display the one fitting with our

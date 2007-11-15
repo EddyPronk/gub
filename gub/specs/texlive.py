@@ -1,5 +1,7 @@
 from gub import repository
 from gub import targetbuild
+from gub import misc
+
 
 texlive_svn = 'svn://username@tug.org/texlive'
 license_url = 'http://tug.org/svn/texlive/trunk/Master/LICENSE.TL'
@@ -63,9 +65,9 @@ packages.'''
     def download (self):
         targetbuild.TargetBuild.download (self)
         self.texmf_repo.download ()
-        from gub import misc
-        misc.download_url (license_url,  self.source._checkout_dir ())
-#        self.dump ('MAJOR_VERSION=2006', self.source.dir + '/VERSION')
+        # ugh.
+        loggedos.download_url (logging.default_logger,
+                               license_url,  self.source._checkout_dir ())
                            
     def untar (self):
         targetbuild.TargetBuild.untar (self)

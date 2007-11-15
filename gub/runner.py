@@ -46,16 +46,6 @@ class CommandRunner:
     def _execute (self, command):
         return command.execute (self)
 
-    def download_url (self, url, dest_dir):
-        # FIXME: read settings.rc, local, fallback should be a
-        # user-definable list
-        local = 'file:///home/%(USER)s/vc/gub/downloads' % os.environ
-	fallback = ['http://lilypond.org/download/gub-sources']
-        def log (message):
-            self.action (message)
-        misc.download_url (url, dest_dir, local=local, fallback=fallback,
-                           log=log)
-
     # fixme: should be moved somewhere else.
     def fakeroot (self, s):
         self.fakeroot_cmd = s

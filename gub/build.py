@@ -56,10 +56,6 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/%(name)s
             return
 
         stages = self.stages ()
-
-        if 'download' in stages and self.settings.options.offline:
-            stages.remove ('download')
-
         if 'src_package' in stages and not self.settings.options.build_source:
             stages.remove ('src_package')
 
@@ -133,7 +129,7 @@ class UnixBuild (Build):
         self.so_version = '1'
 
     def stages (self):
-        return ['download', 'untar', 'patch',
+        return ['untar', 'patch',
                 'configure', 'compile', 'install',
                 'src_package', 'package', 'clean']
 
@@ -609,7 +605,7 @@ mkdir -p %(install_prefix)s/share/doc/%(name)s
 
 class BinaryBuild (UnixBuild):
     def stages (self):
-        return ['download', 'untar', 'install', 'package', 'clean']
+        return ['untar', 'install', 'package', 'clean']
     def install (self):
         self.system ('mkdir -p %(install_root)s')
         _v = '' #self.os_interface.verbose_flag ()
@@ -623,7 +619,7 @@ class BinaryBuild (UnixBuild):
 class NullBuild (UnixBuild):
     """Placeholder for downloads """
     def stages (self):
-        return ['download', 'patch', 'install', 'package', 'clean']
+        return ['patch', 'install', 'package', 'clean']
     def patch (self):
         # FIXME: urg, only for disabling autotooling
         pass
@@ -634,6 +630,6 @@ class NullBuild (UnixBuild):
 
 class SdkBuild (NullBuild):
     def stages (self):
-        return ['download', 'untar', 'patch', 'install', 'package', 'clean']
+        return ['untar', 'patch', 'install', 'package', 'clean']
     def install_root (self):
         return self.srcdir ()
