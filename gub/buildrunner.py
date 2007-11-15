@@ -149,30 +149,28 @@ class BuildRunner:
         is_installable = misc.forall (self.manager.is_installable (p.name ())
                                       for p in spec.get_packages ())
 
-        logname = 'log/%s/%s.log' % (spec.settings.platform, specname)
-        logger = logging.CommandLogger (logname, logging.default_logger.threshold)
+        logger = logging.default_logger
 
-        if not spec.settings.platform in todo_broken_for_defer:
-            spec.connect_command_runner (runner.DeferredRunner (logger))
-        else:
-            spec.connect_command_runner (runner.CommandRunner (logger))
         if (self.settings.options.stage
             or not is_installable
             or not checksum_ok):
+
+            deferred_runner = runner.DeferredRunner (logger)
+            spec.connect_command_runner (deferred_runner)
             spec.runner.stage ('building package: %s\n' % specname)
             spec.build ()
-            if not spec.settings.platform in todo_broken_for_defer:
-                spec.runner.execute_deferred_commands (spec)
+            spec.connect_command_runner (None)
+            
+            deferred_runner.execute_deferred_commands ()
 
             file (spec.expand ('%(checksum_file)s'), 'w').write (self.checksums[specname])
 
         # FIXME, spec_install should be stage?
         if not self.settings.options.stage: # or options.stage == spec_install:
-            spec.runner.stage (' *** Stage: %s (%s, %s)\n'
-                                     % ('pkg_install', spec.name (),
-                                        self.settings.platform))
+            logger.write_log (' *** Stage: %s (%s, %s)\n'
+                               % ('pkg_install', spec.name (),
+                                  self.settings.platform), 'stage')
             self.spec_install (spec)
-        spec.connect_command_runner (None)
 
     def uninstall_outdated_spec (self, spec_name):
 	spec = self.specs[spec_name]

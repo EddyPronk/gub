@@ -32,6 +32,7 @@ import inspect
 
 from gub import misc
 from gub import commands
+from gub import logging
 
 class CommandRunner:
     '''Encapsulate OS/File system commands
@@ -123,22 +124,8 @@ class CommandRunner:
     def shadow_tree (self, src, target):
         return self._execute (commands.ShadowTree (src, target))
 
-    def locate_files (self, directory, pattern,
-                      include_dirs=True, include_files=True):
-        if not directory or not pattern:
-            directory = os.path.dirname (directory + pattern)
-            pattern = os.path.basename (directory + pattern)
-        directory = re.sub ( "/*$", '/', directory)
-        results = list ()
-        for (root, dirs, files) in os.walk (directory):
-            relative_results = list ()
-            if include_dirs:
-                relative_results += dirs
-            if include_files:
-                relative_results += files
-            results += [os.path.join (root, f)
-                        for f in (fnmatch.filter (relative_results, pattern))]
-        return results
+    def locate_files (self, *args, **kwargs):
+        misc.locate_files(*args, **kwargs)
 
     def map_locate (self, func, directory, pattern):
         return self._execute (commands.MapLocate (func, directory, pattern))
@@ -170,29 +157,14 @@ class DeferredRunner (CommandRunner):
         CommandRunner.__init__ (self, *args)
         self._deferred_commands = list ()
 
-    def execute_deferred_commands (self, owner=None):
-        # Several deferred commands use secondary deferred commands.
-        # Those must be executed directly (non-deferredly) when we are
-        # here.
-        save_runner = None
-        if owner:
-            save_runner = owner.connect_command_runner (CommandRunner (self.logger))
-        self._execute_deferred_commands ()
-        if owner:
-            owner.connect_command_runner (save_runner)
-
-    def _execute_deferred_commands (self):
+    def execute_deferred_commands (self):
         commands = self._deferred_commands
-        self._deferred_commands = list ()
+        self._deferred_commands = []
         for cmd in commands:
-            cmd.execute (CommandRunner (self.logger))
-            # FIXME: remove debugging when everything works
-            if self._deferred_commands:
-                print 'Deferred CMD:', cmd
-                print 'Registers new deferred commands:', self.checksum ()
-                print 'Registers new non-checksummed deferred commands:', self._deferred_commands
-                barf
-        #print 'DEFERRED_COMMANDS:', self.checksum ()
+            cmd.execute(logging.LoggerInterface(self.logger))
+
+
+        print self._deferred_commands
         assert self._deferred_commands == list ()
 
     def flush_deferred_commands (self):

@@ -86,7 +86,7 @@ class CommandLogger (AbstractCommandLogger):
             self.log_file.flush ()
 
     def verbose_flag (self):
-        if self.verbose >= name_to_loglevel_mapping['output']:
+        if self.threshold >= name_to_loglevel_mapping['output']:
             return ' -v'
         return ''
 
@@ -128,6 +128,12 @@ class LoggerInterface:
 
     def harmless (self, str):
         self.logger.write_log (str, 'harmless')
+
+    def output (self, str):
+        self.logger.write_log (str, 'output')
+
+    def verbose_flag (self):
+        return self.logger.verbose_flag ()
     # end fixme
 
 

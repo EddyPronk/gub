@@ -20,14 +20,18 @@ class ToolsBuild (build.UnixBuild):
         self.wrap_executables ()
 
     def wrap_executables (self):
-        def wrap (file):
+        def wrap (logger_interface, file):
             dir = os.path.dirname (file)
             base = os.path.basename (file)
-            self.system ('mv %(file)s %(dir)s/.%(base)s', locals ())
-            self.dump ('''#!/bin/sh
+            cmd = self.expand ('mv %(file)s %(dir)s/.%(base)s', locals ())
+            logger_interface.command (cmd)
+            misc.system (cmd)
+            logger_interface.action ('dumping %s\n' % file)
+            misc.dump_file (self.expand('''#!/bin/sh
 LD_LIBRARY_PATH=%(system_prefix)s/lib
 %(system_prefix)s/bin/.%(base)s "$@"
-''', file, env=locals ())
+''', locals()), file)
+            
             os.chmod (file, 0755)
         self.map_locate (wrap, '%(install_prefix)s/bin', '*')
         self.map_locate (wrap, '%(install_root)s/%(tools_prefix)s/bin', '*')

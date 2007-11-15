@@ -360,20 +360,26 @@ sysconfdir=%(install_prefix)s/etc
 tooldir=%(install_prefix)s
 ''')
 
-    def kill_libtool_installation_test (self, file):
-        self.file_sub ([(r'if test "\$inst_prefix_dir" = "\$destdir"; then',
+    def kill_libtool_installation_test (self, logger, file):
+        logger.action ('killing libtool install test')
+        misc.file_sub ([(r'if test "\$inst_prefix_dir" = "\$destdir"; then',
                          'if false && test "$inst_prefix_dir" = "$destdir"; then')],
                        file, must_succeed=True)
         
     def update_libtool (self):
-        def update (file):
+        def update (logger_interface, file):
             new = self.expand ('%(system_prefix)s/bin/libtool')
             if not os.path.exists (new):
-                self.error ('Cannot update libtool: no such file: %(new)s' % locals ())
+                logger_interface.error ('Cannot update libtool: no such file: %(new)s' % locals ())
                 raise Exception ('barf')
-            self.system ('cp %(new)s %(file)s', locals ())
+
+            cmd = self.expand ('cp %(new)s %(file)s', locals ())
+            logger_interface.command (cmd)
+            misc.system (cmd)
             self.kill_libtool_installation_test (file)
-            self.system ('chmod 755  %(file)s', locals ())
+            cmd = self.expand ('chmod 755  %(file)s', locals ())
+            logger_interface.command (cmd)
+            misc.system (cmd)
         self.map_locate (update, '%(builddir)s', 'libtool')
 
     def install (self):
@@ -396,32 +402,39 @@ rm -f %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/share/info/dir %(in
         self.libtool_installed_la_fixups ()
 
     def install_license (self):
-        def install (lst):
+        def install (logger, lst):
             for file in lst:
                 if os.path.exists (file):
-                    self.system ('''
+                    cmd = self.expand ('''
 mkdir -p %(install_root)s/license
 cp %(file)s %(install_root)s/license/%(name)s
 ''', locals ())
+                    logger.command(cmd)
+                    misc.system (cmd)
                     return
+
         self.func (install, map (self.expand, misc.lst (self.license_file ())))
 
     def libtool_installed_la_fixups (self):
-        def installed_la_fixup (la):
+        def installed_la_fixup (logger_interface, la):
             (dir, base) = os.path.split (la)
             base = base[3:-3]
             dir = re.sub (r"^\./", "/", dir)
-            self.file_sub ([(''' *-L *[^\"\' ][^\"\' ]*''', ''),
-                    ('''( |=|\')(/[^ ]*usr/lib|%(targetdir)s.*)/lib([^ \'/]*)\.(a|la|so)[^ \']*''',
+
+            logger_interface.action('library dirs subst (libtool fixup)')
+            misc.file_sub ([(''' *-L *[^\"\' ][^\"\' ]*''', ''),
+                    (self.expand('''( |=|\')(/[^ ]*usr/lib|%(targetdir)s.*)/lib([^ \'/]*)\.(a|la|so)[^ \']*'''),
                     '\\1-l\\3 '),
                     ('^old_library=.*',
-                    """old_library='lib%(base)s.a'"""),
+                     self.expand("""old_library='lib%(base)s.a'""", env=locals())),
                     ],
-                   la, env=locals ())
+                   la)
             if self.settings.platform.startswith ('mingw'):
-                self.file_sub ([('library_names=.*',
-                                 "library_names='lib%(base)s.dll.a'")],
-                               la, env=locals ())
+                logger_interface.action('library_names subst (mingw)')
+                misc.file_sub ([('library_names=.*',
+                                 self.expand("library_names='lib%(base)s.dll.a'", env=locals()))],
+                               la)
+                
         self.map_locate (installed_la_fixup, '%(install_root)s', 'lib*.la')
 
     def compile (self):
@@ -438,14 +451,15 @@ cp %(file)s %(install_root)s/license/%(name)s
         self.autoupdate ()
 
     def rewire_symlinks (self):
-        def rewire (file):
+        def rewire (logger, file):
             if os.path.islink (file):
                 s = os.readlink (file)
                 if s.startswith ('/') and self.settings.system_root not in s:
                     new_dest = os.path.join (self.settings.system_root, s[1:])
                     os.remove (file)
-                    self.runner.action ('changing absolute link %(file)s -> %(new_dest)s' % locals ())
+                    logger.action ('changing absolute link %(file)s -> %(new_dest)s' % locals ())
                     os.symlink (new_dest, file)
+
         self.map_locate (rewire, '%(install_root)s', '*')
 
     def package (self):
@@ -577,14 +591,19 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"%(_v)s -zcf %(src_package_
                 self.system ('''mv %(i)s %(i)s.exe''', locals ())
 
     def install_readmes (self):
-        self.system ('''
+        cmd = self.system ('''
 mkdir -p %(install_prefix)s/share/doc/%(name)s
 ''')
-        def copy_readme (file):
+        
+        def copy_readme (logger_interface, file):
             if (os.path.isfile (file)
                 and not os.path.basename (file).startswith ('Makefile')
                 and not os.path.basename (file).startswith ('GNUmakefile')):
-                self.copy (file, '%(install_prefix)s/share/doc/%(name)s')
+
+                cmd = self.expand ('cp %(file)s %(install_prefix)s/share/doc/%(name)s')
+                logger.command (cmd)
+                misc.system (cmd)
+                
         self.map_locate (copy_readme, '%(srcdir)s', '[A-Z]*')
 
     def build_version (self):

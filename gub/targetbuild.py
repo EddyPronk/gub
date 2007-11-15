@@ -36,7 +36,7 @@ class TargetBuild (build.UnixBuild):
         ## system.  This seems to be problematic for libltdl.a and
         ## libgcc.a on MacOS.
         ##
-        def fixup (file):
+        def fixup (logger, file):
             file = file.strip ()
             if not file:
                 return
@@ -44,10 +44,12 @@ class TargetBuild (build.UnixBuild):
             suffix = '/.libs'
             if re.search ('\\.libs$', dir):
                 suffix = ''
-            self.file_sub ([
-                ("libdir='/usr/lib'", "libdir='%(dir)s%(suffix)s'"),
+
+            logger.action('preinstall libtool fixup in %s\n' % file)
+            misc.file_sub ([
+                ("libdir='/usr/lib'", self.expand("libdir='%(dir)s%(suffix)s'",env=locals())),
                 ],
-                   file, env=locals ())
+                   file)
         self.map_locate (fixup, '%(builddir)s', '*.la')
 
     ## UGH. only for cross!

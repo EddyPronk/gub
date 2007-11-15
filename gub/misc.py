@@ -7,6 +7,7 @@ import urllib2
 import stat
 import imp
 import traceback
+import fnmatch
 
 def join_lines (str):
     return str.replace ('\n', ' ')
@@ -441,6 +442,40 @@ def file_sub (re_pairs, name, must_succeed=False, use_re=True, to_name=None):
         h.close ()
         os.chmod (to_name, mode)
 
+def dump_file (str, name, mode='w', permissions=None):
+    if not type (mode) == type (''):
+        print 'MODE:', mode
+        print 'STR:', str
+        print 'NAME:', name
+        assert type (mode) == type ('')
+
+    dir = os.path.split (name)[0]
+    if not os.path.exists (dir):
+        os.makedirs (dir)
+
+    f = open (name, mode)
+    f.write (str)
+    f.close ()
+
+    if permissions:
+        os.chmod (name, permissions)
+
+def locate_files (directory, pattern,
+                  include_dirs=True, include_files=True):
+    if not directory or not pattern:
+        directory = os.path.dirname (directory + pattern)
+        pattern = os.path.basename (directory + pattern)
+    directory = re.sub ( "/*$", '/', directory)
+    results = list ()
+    for (root, dirs, files) in os.walk (directory):
+        relative_results = list ()
+        if include_dirs:
+            relative_results += dirs
+        if include_files:
+            relative_results += files
+        results += [os.path.join (root, f)
+                    for f in (fnmatch.filter (relative_results, pattern))]
+    return results
 
 def test ():
     print forall (x for x in [1, 1])

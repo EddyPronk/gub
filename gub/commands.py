@@ -12,25 +12,28 @@ from gub import misc
 class SerializedCommand:
     def __init__ (self):
         self.instantiation_traceback = traceback.extract_stack ()
-    def execute (self, runner):
+        self.is_checksummed = True
+        
+    def execute (self, logger):
         print 'Not implemented', self
     def print_source (self):
         print ''.join (traceback.format_list (self.instantiation_traceback))
     def checksum (self, hasher):
         hasher (self.__class__.__name__)
 
-
 class Nop (SerializedCommand):
+    def __init__ (self):
+        self.is_checksummed = False
     def execute (self):
         pass
     def checksum (self, hasher):
-        hasher (self.__class__.__name__)
+        pass
 
 class UpdateSourceDir (SerializedCommand):
     def __init__ (self, buildspec):
         self.buildspec = buildspec
 
-    def execute (self, runner):
+    def execute (self, logger_interface):
         buildspec = self.buildspec 
         if not buildspec.source:
             return False
@@ -41,7 +44,7 @@ class UpdateSourceDir (SerializedCommand):
             # executed would never match the checksum, which is
             # determined before doing Execute().
             command = buildspec.expand ('rm -rf %(srcdir)s %(builddir)s %(install_root)s')
-            logging.command (command)
+            logger_interface.command (command)
             misc.system (command)
 
         if buildspec.source:
@@ -49,8 +52,9 @@ class UpdateSourceDir (SerializedCommand):
 
         # TODO: move this to Repository
         if (os.path.isdir (buildspec.expand ('%(srcdir)s'))):
-            runner.system (buildspec.expand ('chmod -R +w %(srcdir)s'),
-                           ignore_errors=True)
+            cmd = buildspec.expand ('chmod -R +w %(srcdir)s')
+            logger_interface.command (cmd + '\n')
+            misc.system (cmd, ignore_errors=True)
            
     def checksum (self, hasher):
         tracking = 'not tracking'
@@ -72,10 +76,10 @@ class System (SerializedCommand):
         hasher (self.command)
         # TODO: use env too.
 
-    def execute (self, runner):
+    def execute (self, logger_interface):
         cmd = self.command
         ignore_errors = self.kwargs.get ('ignore_errors')
-        runner.log ('invoking %s\n' % cmd, 'command')
+        logger_interface.command ('invoking %s\n' % cmd)
 
         proc = subprocess.Popen (cmd,  bufsize=1, shell=True,
                                  env=self.kwargs.get ('env'),
@@ -84,13 +88,13 @@ class System (SerializedCommand):
                                  close_fds=True)
 
         for line in proc.stdout:
-            runner.log (line, 'output')
+            logger_interface.output (line)
         proc.wait ()
         
         if proc.returncode:
             m = 'Command barfed: %(cmd)s\n' % locals ()
             if not ignore_errors:
-                runner.error (m)
+                logger_interface.error (m)
                 raise misc.SystemFailed (m)
         return proc.returncode
 
@@ -102,14 +106,14 @@ class Copy (SerializedCommand):
         hasher (self.__class__.__name__)
         hasher (self.src)
         hasher (self.dest)
-    def execute (self, runner):
+    def execute (self, logger_interface):
         shutil.copy2 (self.src, self.dest)
 
 class Chmod (SerializedCommand):
     def __init__ (self, file, mode):
         self.file = file
         self.mode = mode
-    def execute (self, runner):
+    def execute (self, logger_interface):
         os.chmod (self.file, self.mode)
     def checksum (self, hasher):
         hasher (self.__class__.__name__)
@@ -124,16 +128,16 @@ class Func (SerializedCommand):
         hasher (self.__class__.__name__)
         hasher (inspect.getsource (self.func))
         hasher (repr (self.args))
-    def execute (self, runner):
-        return self.func (*self.args)
+    def execute (self, logger_interface):
+        return self.func (logger_interface, *self.args)
 
 class Message (SerializedCommand):
     def __init__ (self, message, message_type):
         self.message = message
         self.message_type = message_type
-
-    def execute (self, runner):
-        runner.logger.write_log (self.message, self.message_type)
+        self.is_checksummed = False
+    def execute (self, logger_interface):
+        logger_interface.logger.write_log (self.message, self.message_type)
         
     def checksum (self, hasher):
         pass
@@ -143,9 +147,9 @@ class MapLocate (SerializedCommand):
         self.func = func
         self.directory = directory
         self.pattern = pattern
-    def execute (self, runner):
-        return map (self.func,
-                    runner.locate_files (self.directory, self.pattern))
+    def execute (self, logger_interface):
+        for fname in misc.locate_files (self.directory, self.pattern):
+            self.func (logger_interface, fname)
 
     def checksum (self, hasher):
         hasher (self.__class__.__name__)
@@ -156,8 +160,8 @@ class MapLocate (SerializedCommand):
 class ReadFile (SerializedCommand):
     def __init__ (self, file):
         self.file = file
-    def execute (self, runner):
-        runner.action ('Reading %(file)s\n' % self.__dict__)
+    def execute (self, logger_interface):
+        logger_interface.action ('Reading %(file)s\n' % self.__dict__)
         return file (self.file).read ()
     def checksum (self, hasher):
         hasher (self.__class__.__name__)
@@ -172,8 +176,8 @@ class ReadPipe (SerializedCommand):
         hasher (self.__class__.__name__)
         hasher (self.cmd)
         hasher (str (self.ignore_errors))
-    def execute (self, runner):
-        runner.action ('Reading %(cmd)s\n' % self.__dict__)
+    def execute (self, logger_interface):
+        logger_interface.action ('Reading %(cmd)s\n' % self.__dict__)
         pipe = os.popen (self.cmd, 'r')
         output = pipe.read ()
         status = pipe.close ()
@@ -194,27 +198,18 @@ class Dump (SerializedCommand):
         hasher (self.__class__.__name__)
         hasher (name)
         hasher (str)
-    def execute (self, runner):
+    def execute (self, logger_interface):
         str, name = self.args
-        mode = self.kwargs.get ('mode', 'w')
-        if not type (mode) == type (''):
-            print 'MODE:', mode
-            print 'STR:', str
-            print 'NAME:', name
-            assert type (mode) == type ('')
 
-        dir = os.path.split (name)[0]
-        if not os.path.exists (dir):
-            os.makedirs (dir)
+        kwargs = self.kwargs
+        mode = 'w'
+        if 'mode' in self.kwargs:
+          mode = kwargs['mode']
+          del kwargs['mode']
+          
+        logger_interface.action ('Writing %s (%s)\n' % (name, mode))
+        misc.dump_file (str, name, mode, **kwargs)
 
-        runner.action ('Writing %s (%s)\n' % (name, mode))
-
-        f = open (name, mode)
-        f.write (str)
-        f.close ()
-
-        if 'permissions' in self.kwargs:
-            os.chmod (name, self.kwargs['permissions'])
 
 class Substitute (SerializedCommand):
     '''Substitute RE_PAIRS in file NAME.
@@ -237,11 +232,11 @@ If TO_NAME is specified, the output is sent to there.
             hasher (src)
             hasher (dst)
 
-    def execute (self, runner):
+    def execute (self, logger_interface):
         (re_pairs, name) = self.args
 
-        runner.action ('substituting in %s\n' % name)
-        runner.command (''.join (map (lambda x: "'%s' -> '%s'\n" % x,
+        logger_interface.action ('substituting in %s\n' % name)
+        logger_interface.command (''.join (map (lambda x: "'%s' -> '%s'\n" % x,
                                       re_pairs)))
 
         misc.file_sub (re_pairs, name, **self.kwargs)
@@ -259,34 +254,34 @@ class Conditional (SerializedCommand):
             self.true_command.checksum (hasher)
         if self.false_command:
             self.false_command.checksum (hasher)
-    def execute (self, runner):
+    def execute (self, logger_interface):
         if self.predicate ():
-            return self.true_command.execute (runner)
+            return self.true_command.execute (logger_interface)
         elif self.false_command:
-            return self.false_command.execute (runner)
+            return self.false_command.execute (logger_interface)
 
 class ShadowTree (SerializedCommand):
     def __init__ (self, src, dest):
         self.src = src
         self.dest = dest
-    def execute (self, runner):
+    def execute (self, logger_interface):
         '''Symlink files from SRC in TARGET recursively'''
-        self.shadow (self.src, self.dest, runner)
+        self.shadow (self.src, self.dest, logger_interface)
     def checksum (self, hasher):
         hasher (self.__class__.__name__)
         hasher (self.src)
         hasher (self.dest)
-    def shadow (self, src, target, runner):
+    def shadow (self, src, target, logger_interface):
         target = os.path.abspath (target)
         src = os.path.abspath (src)
-        runner.action ('Shadowing %s to %s\n' % (src, target))
+        logger_interface.action ('Shadowing %s to %s\n' % (src, target))
         os.makedirs (target)
         (root, dirs, files) = os.walk (src).next ()
         for f in files:
             os.symlink (os.path.join (root, f), os.path.join (target, f))
         for d in dirs:
             self.shadow (os.path.join (root, d), os.path.join (target, d),
-                         runner)
+                         logger_interface)
 
 class PackageGlobs (SerializedCommand):
     def __init__ (self, root, suffix_dir, globs, dest):
@@ -302,7 +297,7 @@ class PackageGlobs (SerializedCommand):
         hasher (self.suffix_dir)
         hasher (self.dest)
 
-    def execute (self, runner):
+    def execute (self, logger_interface):
         root = self.root
         suffix_dir = self.suffix_dir
         dest = self.dest
@@ -317,42 +312,42 @@ class PackageGlobs (SerializedCommand):
         if not globs:
             globs.append ('no-globs-for-%(dest)s' % locals ())
 
-        _v = runner.verbose_flag ()
+        _v = logger_interface.verbose_flag ()
         cmd = 'tar -C %(root)s/%(suffix_dir)s --ignore-failed --exclude="*~"%(_v)s -zcf %(dest)s ' % locals ()
         cmd += ' '.join (globs)
-        System (cmd).execute (runner)
+        System (cmd).execute (logger_interface)
 
 # FIXME
 class ForcedAutogenMagic (SerializedCommand):
     def __init__ (self, package):
         self.package = package
         SerializedCommand.__init__ (self)
-    def system (self, cmd, runner):
-        return System (cmd).execute (runner)
+    def system (self, cmd, logger_interface):
+        return System (cmd).execute (logger_interface)
     def checksum (self, hasher):
         hasher (self.__class__.__name__)
         hasher (inspect.getsource (ForcedAutogenMagic.execute))
-    def execute (self, runner):
+    def execute (self, logger_interface):
         package = self.package
         autodir = None
         if not autodir:
             autodir = package.srcdir ()
         if os.path.isdir (os.path.join (package.srcdir (), 'ltdl')):
             self.system (package.expand ('rm -rf %(autodir)s/libltdl && cd %(autodir)s && libtoolize --force --copy --automake --ltdl',
-                                         locals ()), runner)
+                                         locals ()), logger_interface)
         else:
             # fixme
             self.system (package.expand ('cd %(autodir)s && libtoolize --force --copy --automake',
-                                         locals ()), runner)
+                                         locals ()), logger_interface)
 
         if os.path.exists (os.path.join (autodir, 'bootstrap')):
-            self.system (package.expand ('cd %(autodir)s && ./bootstrap', locals ()), runner)
+            self.system (package.expand ('cd %(autodir)s && ./bootstrap', locals ()), logger_interface)
         elif os.path.exists (os.path.join (autodir, 'autogen.sh')):
 
             ## --noconfigure ??
             ## is --noconfigure standard for autogen?
             self.system (package.expand ('cd %(autodir)s && bash autogen.sh  --noconfigure',
-                                         locals ()), runner)
+                                         locals ()), logger_interface)
 
         else:
             aclocal_opt = ''
@@ -376,12 +371,12 @@ class ForcedAutogenMagic (SerializedCommand):
 cd %(autodir)s && aclocal %(aclocal_opt)s
 %(headcmd)s
 cd %(autodir)s && autoconf %(aclocal_opt)s
-''', locals ()), runner)
+''', locals ()), logger_interface)
             if os.path.exists (package.expand ('%(srcdir)s/Makefile.am')):
-                self.system (package.expand ('cd %(srcdir)s && automake --add-missing --foreign', locals ()), runner)
+                self.system (package.expand ('cd %(srcdir)s && automake --add-missing --foreign', locals ()), logger_interface)
 
 class AutogenMagic (ForcedAutogenMagic):
-    def execute (self, runner):
+    def execute (self, logger_interface):
         package = self.package
         if not os.path.exists (package.expand ('%(srcdir)s/configure')):
             if (os.path.exists (package.expand ('%(srcdir)s/configure.ac'))
@@ -389,5 +384,5 @@ class AutogenMagic (ForcedAutogenMagic):
                 or (not os.path.exists (packmessageage.expand ('%(srcdir)s/Makefile'))
                     and not os.path.exists (package.expand ('%(srcdir)s/makefile'))
                     and not os.path.exists (package.expand ('%(srcdir)s/SConstruct')))):
-                ForcedAutogenMagic.execute (self, runner)
+                ForcedAutogenMagic.execute (self, logger_interface)
 
