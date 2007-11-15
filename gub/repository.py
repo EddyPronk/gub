@@ -132,47 +132,27 @@ class Repository:
             else:
                 # Otherwise, check fresh repository out under .gub.VC_SYSTEM
                 self.dir = os.path.join (os.getcwd (), '.gub' + self.vc_system)
+                
         self.source = source
         self.logger = logging.default_logger
 
-        for (name, func) in {
-            'system': misc.system,
+        self.system = self.logged_indirection(loggedos.system)
+        self._read_file = self.logged_indirection(loggedos.read_file)
+        self.download_url = self.logged_indirection(loggedos.download_url)
+        self.read_pipe = self.logged_indirection(loggedos.read_pipe)
 
-            # ugh - why the gratuitious naming clash?
-            # why should this be logged anyway?
-            '_read_file': misc.read_file,
-            'read_pipe': misc.read_pipe,
-            'download_url': misc.download_url}.items():
-
-            self.__dict__[name] = self.logged_indirection(func)
-
-    def logged_indirection (self, func):
+    def logged_indirection (self, loggedos_func):
         def logged(*args, **kwargs):
-            return self.logged_operation (func, *args, **kwargs)
+            return loggedos_func(self.logger, *args, **kwargs)
         return logged
-
-    def info (self, message):
-        self.logger.write_log (message + '\n', 'info')
-
-    # this logging is rather primitive, buts lets postpone polish
-    # until everything works.
-    def logged_operation (self, function, *args, **kwargs):
-        assert self.logger
-        self.logger.write_log (repr((function.__name__, args, kwargs)), 'command')
-        return function(*args, **kwargs)
     
     def connect_logger (self, logger):
         assert logger
-        old = self.logger
         self.logger = logger
-        return old
-
-        self.system = self.logged_operation_indirection(misc.system)
-        self._read_file = self.logged_operation_indirection(misc.read_file)
-        self.download_url = self.logged_operation_indirection(misc.download_url)
-        self.read_pipe = self.logged_operation_indirection(misc.read_pipe)
-        self.info = lambda msg: self.logger.write_log (msg, 'info')
         
+    def info (self, message):
+        self.logger.write_log (message + '\n', 'info')
+
     def full_branch_name (self):
         if self.is_tracking ():
             return self.branch.replace ('/', '-')

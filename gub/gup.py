@@ -115,13 +115,14 @@ class FileManager:
         if file.startswith ('./'):
             file = file[2:]
         dir = os.path.dirname (file)
-        misc.file_sub ([('^libdir=.*',
-                         """libdir='%(root)s/%(dir)s'""" % locals ()
-                         ),],
-                       '%(root)s/%(file)s' % locals (),
-                       must_succeed=('tools/root' not in self.root
-                                     and 'cross' not in dir))
-
+        loggedos.file_sub (logging.default_logger,
+                           [('^libdir=.*',
+                             """libdir='%(root)s/%(dir)s'""" % locals ()
+                             ),],
+                           '%(root)s/%(file)s' % locals (),
+                           must_succeed=('tools/root' not in self.root
+                                         and 'cross' not in dir))
+        
     def pkgconfig_pc_fixup (self, root, file, prefix_dir):
         # avoid using libs from build platform, by adding
         # %(system_root)s
@@ -130,10 +131,11 @@ class FileManager:
         dir = os.path.dirname (file)
         if '%' in prefix_dir or not prefix_dir:
             barf
-        misc.file_sub ([('(-I|-L) */usr',
-                                      '''\\1%(root)s%(prefix_dir)s''' % locals ()
-                                      ),],
-                                    '%(root)s/%(file)s' % locals ())
+        loggedos.file_sub (logging.default_logger,
+                           [('(-I|-L) */usr',
+                             '''\\1%(root)s%(prefix_dir)s''' % locals ()
+                             ),],
+                           '%(root)s/%(file)s' % locals ())
 
     def uninstall_package (self, name):
         logging.action ('uninstalling package: %s\n' % name)

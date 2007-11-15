@@ -362,10 +362,10 @@ tooldir=%(install_prefix)s
 ''')
 
     def kill_libtool_installation_test (self, logger, file):
-        logger.action ('killing libtool install test')
-        misc.file_sub ([(r'if test "\$inst_prefix_dir" = "\$destdir"; then',
-                         'if false && test "$inst_prefix_dir" = "$destdir"; then')],
-                       file, must_succeed=True)
+        loggedos.file_sub (logger, [(r'if test "\$inst_prefix_dir" = "\$destdir"; then',
+
+                                     'if false && test "$inst_prefix_dir" = "$destdir"; then')],
+                           file, must_succeed=True)
         
     def update_libtool (self):
         def update (logger, file):
@@ -426,8 +426,8 @@ cp %(file)s %(install_root)s/license/%(name)s
                     ],
                    la)
             if self.settings.platform.startswith ('mingw'):
-                logger_interface.action('library_names subst (mingw)')
-                misc.file_sub ([('library_names=.*',
+                
+                loggedos.file_sub (logger, [('library_names=.*',
                                  self.expand("library_names='lib%(base)s.dll.a'", env=locals()))],
                                la)
                 

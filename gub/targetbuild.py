@@ -44,12 +44,12 @@ class TargetBuild (build.UnixBuild):
             suffix = '/.libs'
             if re.search ('\\.libs$', dir):
                 suffix = ''
-
-            logger.action('preinstall libtool fixup in %s\n' % file)
-            misc.file_sub ([
-                ("libdir='/usr/lib'", self.expand("libdir='%(dir)s%(suffix)s'",env=locals())),
-                ],
-                   file)
+            
+            loggedos.file_sub (loggedos,
+                               [("libdir='/usr/lib'",
+                                 self.expand("libdir='%(dir)s%(suffix)s'",
+                                             env=locals())),
+                                ], file)
         self.map_locate (fixup, '%(builddir)s', '*.la')
 
     ## UGH. only for cross!
