@@ -18,10 +18,10 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 """
 
+import difflib
 import pickle
 import os
 import sys
-sys.path.insert (0, '.')
 #
 from gub import cross
 from gub import build
@@ -29,6 +29,10 @@ from gub import misc
 from gub import gup
 from gub import logging
 from gub import runner
+
+def checksum_diff (a, b):
+    return '\n'.join(difflib.context_diff (a.split ('\n'),
+                                           b.split ('\n')))
 
 # FIXME s/spec/build/, but we also have two definitions of package/pkg
 # here: sub packages and name of global package under build
@@ -70,7 +74,7 @@ class BuildRunner:
             self.checksums[name] = command_runner.checksum ()
  
     # FIXME: move to gup.py or to build.py?
-    def spec_checksums_valid (self, spec):
+    def spec_checksums_fail_reason (self, spec):
         # need to read package header to read checksum_file.  since
         # checksum is per buildspec, only need to inspect one package.
         pkg = spec.get_packages ()[0]    
@@ -83,18 +87,25 @@ class BuildRunner:
             build_checksum_ondisk = '0000'
 
 	# fixme: spec.build_checksum () should be method.
-        valid = (self.checksums[spec.name ()] == build_checksum_ondisk
-                 and spec.source_checksum () == pkg_dict['source_checksum'])
+        reason = ''
+        if spec.source_checksum () != pkg_dict['source_checksum']:
+            reason = 'source %s -> %s (memory)' % (spec.source_checksum (), pkg_dict['source_checksum'])
+
+        if reason == '' and self.checksums[spec.name ()] != build_checksum_ondisk:
+            reason = 'build diff %s' % checksum_diff(self.checksums[spec.name ()], build_checksum_ondisk)
 
         hdr = pkg.expand ('%(split_hdr)s')
-        valid = valid and os.path.exists (hdr)
-        if valid:
+        if reason == '' and not os.path.exists (hdr):
+            reason = 'hdr missing'
+            
+        if reason == '':
             hdr_dict = pickle.load (open (hdr))
-            valid = valid and spec.source_checksum () == hdr_dict['source_checksum']
+            if spec.source_checksum () != hdr_dict['source_checksum']:
+                reason = 'source %s -> %s (disk)' % (spec.source_checksum (), hdr_dict['source_checksum'])
 
         # we don't use cross package checksums, otherwise we have to
         # rebuild everything for every cross package change.
-        return valid
+        return reason
 
     # FIXME: this should be in gpkg/gup.py otherwise it's impossible
     # to install packages in a conflict situation manually
@@ -144,8 +155,10 @@ class BuildRunner:
             return
 
         # ugh, dupe
-        checksum_ok = (self.settings.options.lax_checksums
-                       or self.spec_checksums_valid (spec))
+        checksum_fail_reason = ''
+        if not self.settings.options.lax_checksums:
+            checksum_fail_reason = self.spec_checksums_fail_reason (spec)
+            
         is_installable = misc.forall (self.manager.is_installable (p.name ())
                                       for p in spec.get_packages ())
 
@@ -153,7 +166,9 @@ class BuildRunner:
 
         if (self.settings.options.stage
             or not is_installable
-            or not checksum_ok):
+            or checksum_fail_reason):
+
+            logger.write_log (checksum_fail_reason, 'info')
 
             deferred_runner = runner.DeferredRunner (logger)
             spec.connect_command_runner (deferred_runner)
@@ -176,7 +191,7 @@ class BuildRunner:
 	spec = self.specs[spec_name]
 	# ugh, dupe
 	checksum_ok = (self.settings.options.lax_checksums
-		       or self.spec_checksums_valid (self.specs[spec_name]))
+		       or '' == self.spec_checksums_fail_reason (self.specs[spec_name]))
 	for pkg in spec.get_packages ():
 	    if (self.manager.is_installed (pkg.name ())
 		and (not self.manager.is_installable (pkg.name ())
