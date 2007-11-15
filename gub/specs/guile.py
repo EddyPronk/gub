@@ -17,7 +17,7 @@ class Guile (targetbuild.TargetBuild):
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
         if isinstance (source, repository.Repository):
-            source.version = source.version = lambda: '1.8.2'
+            source.version = lambda: '1.8.2'
         self.so_version = '17'
 
     def autogen_sh (self):
@@ -100,12 +100,7 @@ exec %(tools_prefix)s/bin/guile "$@"
         self.dump ("prependdir GUILE_LOAD_PATH=$INSTALLER_PREFIX/share/guile/%(majmin_version)s\n",
                    '%(install_prefix)s/etc/relocate/guile.reloc',
                    env=locals())
-        
-        if 0:
-            version = self.read_pipe ('''\
-GUILE_LOAD_PATH=%(install_prefix)s/share/guile/* guile -e main -s  %(install_prefix)s/bin/guile-config --version 2>&1\
-''').split ()[-1]
-        print 'FIXME: serialization: should defer read_pipe to get version?'
+ 
         version = self.expand ('%(version)s')
 	#FIXME: c&p linux.py
         self.dump ('''\
@@ -155,6 +150,7 @@ C_INCLUDE_PATH=
 CPPFLAGS=
 LIBRARY_PATH=
 LDFLAGS=
+PATH_SEPARATOR=\\;
 cc
 -I%(builddir)s
 -I%(srcdir)s
@@ -180,12 +176,6 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_prefix)s/lib"}
                    '%(srcdir)s/configure')
 
         Guile.configure (self)
-
-        ## probably not necessary, but just be sure.
-        for el in self.locate_files ('%(builddir)s', "Makefile"):
-            self.file_sub ([('PATH_SEPARATOR = .', 'PATH_SEPARATOR = ;'),
-                            ], el)
-            
         self.file_sub ([
             #('^(allow_undefined_flag=.*)unsupported', '\\1'),
             ('-mwindows', ''),
@@ -298,13 +288,6 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_prefix)s/lib"}
             self.file_sub ([('''^#(LIBOBJS=".*fileblocks.*)''', '\\1')],
                            '%(srcdir)s/configure')
         Guile.configure (self)
-
-        ## ugh code dup. 
-        ## probably not necessary, but just be sure.
-        for i in self.locate_files ('%(builddir)s', "Makefile"):
-            self.file_sub ([
-                ('PATH_SEPARATOR = .', 'PATH_SEPARATOR = ;'),
-                ], i)
 
         self.file_sub ([
             ('^(allow_undefined_flag=.*)unsupported', '\\1'),
