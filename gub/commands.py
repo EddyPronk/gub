@@ -17,14 +17,14 @@ class SerializedCommand:
     def print_source (self):
         print ''.join (traceback.format_list (self.instantiation_traceback))
     def checksum (self, hasher):
-        hasher.append (self.__class__.__name__)
+        hasher (self.__class__.__name__)
 
 
 class Nop (SerializedCommand):
     def execute (self):
         pass
     def checksum (self, hasher):
-        hasher.append (self.__class__.__name__)
+        hasher (self.__class__.__name__)
 
 class UpdateSourceDir (SerializedCommand):
     def __init__ (self, buildspec):
@@ -50,7 +50,7 @@ class UpdateSourceDir (SerializedCommand):
         if self.buildspec.source.is_tracking ():
             tracking  = 'tracking'
 
-        hasher.append ('UpdateSourceDir(%s)' % tracking)
+        hasher ('UpdateSourceDir(%s)' % tracking)
         
 class System (SerializedCommand):
     def __init__ (self, c, **kwargs):
@@ -62,7 +62,7 @@ class System (SerializedCommand):
         return 'System (%s)' % repr (self.command)
 
     def checksum (self, hasher):
-        hasher.append (self.command)
+        hasher (self.command)
         # TODO: use env too.
 
     def execute (self, runner):
@@ -92,9 +92,9 @@ class Copy (SerializedCommand):
         self.src = src
         self.dest = dest
     def checksum (self, hasher):
-        hasher.append (self.__class__.__name__)
-        hasher.append (self.src)
-        hasher.append (self.dest)
+        hasher (self.__class__.__name__)
+        hasher (self.src)
+        hasher (self.dest)
     def execute (self, runner):
         shutil.copy2 (self.src, self.dest)
 
@@ -105,18 +105,18 @@ class Chmod (SerializedCommand):
     def execute (self, runner):
         os.chmod (self.file, self.mode)
     def checksum (self, hasher):
-        hasher.append (self.__class__.__name__)
-        hasher.append (self.file)
-        hasher.append (str (self.mode))
+        hasher (self.__class__.__name__)
+        hasher (self.file)
+        hasher (str (self.mode))
 
 class Func (SerializedCommand):
     def __init__ (self, func, *args):
         self.func = func
         self.args = args
     def checksum (self, hasher):
-        hasher.append (self.__class__.__name__)
-        hasher.append (inspect.getsource (self.func))
-        hasher.append (repr (self.args))
+        hasher (self.__class__.__name__)
+        hasher (inspect.getsource (self.func))
+        hasher (repr (self.args))
     def execute (self, runner):
         return self.func (*self.args)
 
@@ -141,10 +141,10 @@ class MapLocate (SerializedCommand):
                     runner.locate_files (self.directory, self.pattern))
 
     def checksum (self, hasher):
-        hasher.append (self.__class__.__name__)
-        hasher.append (inspect.getsource (self.func))
-        hasher.append (self.directory)
-        hasher.append (self.pattern)
+        hasher (self.__class__.__name__)
+        hasher (inspect.getsource (self.func))
+        hasher (self.directory)
+        hasher (self.pattern)
 
 class ReadFile (SerializedCommand):
     def __init__ (self, file):
@@ -153,8 +153,8 @@ class ReadFile (SerializedCommand):
         runner.action ('Reading %(file)s\n' % self.__dict__)
         return file (self.file).read ()
     def checksum (self, hasher):
-        hasher.append (self.__class__.__name__)
-        hasher.append (self.file)
+        hasher (self.__class__.__name__)
+        hasher (self.file)
 
 class ReadPipe (SerializedCommand):
     def __init__ (self, cmd, ignore_errors=False, silent=False):
@@ -162,9 +162,9 @@ class ReadPipe (SerializedCommand):
         self.ignore_errors = ignore_errors
         self.silent = silent
     def checksum (self, hasher):
-        hasher.append (self.__class__.__name__)
-        hasher.append (self.cmd)
-        hasher.append (str (self.ignore_errors))
+        hasher (self.__class__.__name__)
+        hasher (self.cmd)
+        hasher (str (self.ignore_errors))
     def execute (self, runner):
         runner.action ('Reading %(cmd)s\n' % self.__dict__)
         pipe = os.popen (self.cmd, 'r')
@@ -184,9 +184,9 @@ class Dump (SerializedCommand):
         return 'Dump (%s)' % repr (self.args)
     def checksum (self, hasher):
         str, name = self.args
-        hasher.append (self.__class__.__name__)
-        hasher.append (name)
-        hasher.append (str)
+        hasher (self.__class__.__name__)
+        hasher (name)
+        hasher (str)
     def execute (self, runner):
         str, name = self.args
         mode = self.kwargs.get ('mode', 'w')
@@ -224,11 +224,11 @@ If TO_NAME is specified, the output is sent to there.
 
     def checksum (self, hasher):
         (re_pairs, name) = self.args
-        hasher.append (self.__class__.__name__)
-        hasher.append (name)
+        hasher (self.__class__.__name__)
+        hasher (name)
         for (src, dst) in re_pairs:
-            hasher.append (src)
-            hasher.append (dst)
+            hasher (src)
+            hasher (dst)
 
     def execute (self, runner):
         (re_pairs, name) = self.args
@@ -246,8 +246,8 @@ class Conditional (SerializedCommand):
         self.true_command = true_command
         self.false_command = false_command
     def checksum (self, hasher):
-        hasher.append (self.__class__.__name__)
-        hasher.append (inspect.getsource (self.predicate))
+        hasher (self.__class__.__name__)
+        hasher (inspect.getsource (self.predicate))
         if self.true_command:
             self.true_command.checksum (hasher)
         if self.false_command:
@@ -266,9 +266,9 @@ class ShadowTree (SerializedCommand):
         '''Symlink files from SRC in TARGET recursively'''
         self.shadow (self.src, self.dest, runner)
     def checksum (self, hasher):
-        hasher.append (self.__class__.__name__)
-        hasher.append (self.src)
-        hasher.append (self.dest)
+        hasher (self.__class__.__name__)
+        hasher (self.src)
+        hasher (self.dest)
     def shadow (self, src, target, runner):
         target = os.path.abspath (target)
         src = os.path.abspath (src)
@@ -289,11 +289,11 @@ class PackageGlobs (SerializedCommand):
         self.dest = dest
 
     def checksum (self, hasher):
-        hasher.append (self.__class__.__name__)
-        hasher.append (''.join (self.globs))
-        hasher.append (self.root)
-        hasher.append (self.suffix_dir)
-        hasher.append (self.dest)
+        hasher (self.__class__.__name__)
+        hasher (''.join (self.globs))
+        hasher (self.root)
+        hasher (self.suffix_dir)
+        hasher (self.dest)
 
     def execute (self, runner):
         root = self.root
@@ -323,8 +323,8 @@ class ForcedAutogenMagic (SerializedCommand):
     def system (self, cmd, runner):
         return System (cmd).execute (runner)
     def checksum (self, hasher):
-        hasher.append (self.__class__.__name__)
-        hasher.append (inspect.getsource (ForcedAutogenMagic.execute))
+        hasher (self.__class__.__name__)
+        hasher (inspect.getsource (ForcedAutogenMagic.execute))
     def execute (self, runner):
         package = self.package
         autodir = None

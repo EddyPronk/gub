@@ -205,9 +205,9 @@ class DeferredRunner (CommandRunner):
         # (eg. Conditional) have to be aware of the type to combine
         # results for their children.
 
-        hasher = list ()
-        map (lambda x: x.checksum (hasher), self._deferred_commands)
-        return '\n'.join (hasher)
+        result = []
+        map (lambda x: x.checksum (result.append), self._deferred_commands)
+        return '\n'.join (result)
 
     def _execute (self, command):
         self._deferred_commands.append (command)
