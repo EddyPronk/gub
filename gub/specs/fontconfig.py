@@ -4,6 +4,8 @@ from gub import misc
 from gub import targetbuild
 from gub import toolsbuild
 from gub import repository
+from gub import context
+from gub import logging
 
 version = "0596d7296c94b2bb9817338b8c1a76da91673fb9"
 
@@ -18,6 +20,23 @@ specified by applications.'''
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
         #self.with_vc (repository.Git (self.get_repodir (), source="git://anongit.freedesktop.org/git/fontconfig", revision=fc_version))
+
+
+
+    @context.subst_method
+    def freetype_cflags (self):
+        base_config_cmd = self.settings.expand('%(tools_prefix)s/bin/freetype-config')
+        cmd =  base_config_cmd + ' --cflags'
+        logging.command('pipe %s\n' % cmd)
+        return misc.read_pipe (cmd).strip()
+
+    @context.subst_method
+    def freetype_libs (self):
+        base_config_cmd = self.settings.expand('%(tools_prefix)s/bin/freetype-config')
+        cmd =  base_config_cmd + ' --libs'
+        logging.command('pipe %s\n' % cmd)
+        return misc.read_pipe (cmd).strip()
+
     def get_build_dependencies (self):
         return ['libtool', 'expat-devel', 'freetype-devel']
 
@@ -60,10 +79,9 @@ rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,
         # flags are wrong, set to the target's root
 
         ## we want native freetype-config flags here. 
-        cflags = '-I%(srcdir)s -I%(srcdir)s/src ' \
-                 + self.read_pipe ('%(tools_prefix)s/bin/freetype-config --cflags').strip()
+        cflags = '-I%(srcdir)s -I%(srcdir)s/src %(freetype_cflags)s' 
+        libs = '%(freetype_libs)s'
 
-        libs = self.read_pipe ('%(tools_prefix)s/bin/freetype-config --libs').strip()
         for i in ('fc-case', 'fc-lang', 'fc-glyphname', 'fc-arch'):
             self.system ('''
 cd %(builddir)s/%(i)s && make "CFLAGS=%(cflags)s" "LIBS=%(libs)s" CPPFLAGS= LDFLAGS= INCLUDES= 
