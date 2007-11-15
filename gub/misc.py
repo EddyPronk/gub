@@ -37,6 +37,7 @@ def read_pipe (cmd, ignore_errors=False):
     val = pipe.read ()
     if pipe.close () and not ignore_errors:
         raise SystemFailed ('Pipe failed: %(cmd)s' % locals ())
+
     return val
 
 def read_file (file):

@@ -37,11 +37,12 @@ def logged_function(logger, function, *args, **kwargs):
     logger.write_log ('Running %s: %s\n' % (function.__name__, repr(args)), 'command')
     logger.write_log ('Running %s %s\n  %s\n' % (function.__name__, repr(args), repr(kwargs)), 'debug')
 
-    function (*args, **kwargs)
+    return function (*args, **kwargs)
 
 currentmodule = sys.modules[__name__] #ugh
 for name, func in {'read_file': misc.read_file,
                    'file_sub': misc.file_sub,
+                   'download_url': misc.download_url,
                    'dump_file': misc.dump_file,
                    'shadow':misc.shadow,
                    'chmod': os.chmod,
@@ -49,7 +50,9 @@ for name, func in {'read_file': misc.read_file,
                    'read_pipe': misc.read_pipe}.items():
 
     def with_logging (func):
-        return lambda logger, *args, **kwargs: logged_function(logger, func, *args, **kwargs)
-
+        def func_with_logging (logger, *args, **kwargs):
+            val = logged_function(logger, func, *args, **kwargs)
+            return val
+        return func_with_logging
     currentmodule.__dict__[name] = with_logging (func)
 

@@ -8,7 +8,8 @@ from gub import context
 from gub import mirrors
 from gub import misc
 from gub import sources
-
+from gub import loggedos
+from gub import logging
 platforms = {
     'debian': 'i686-linux',
     'debian-arm': 'arm-linux',

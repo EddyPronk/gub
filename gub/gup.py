@@ -20,6 +20,7 @@ from gub import cross
 from gub import dependency
 from gub import locker
 from gub import logging
+from gub import loggedos
 from gub import misc
 from gub import targetbuild
 

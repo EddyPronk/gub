@@ -33,6 +33,7 @@ from gub import locker
 from gub import mirrors
 from gub import tztime
 from gub import logging
+from gub import loggedos
 
 class UnknownVcSystem (Exception):
     pass
