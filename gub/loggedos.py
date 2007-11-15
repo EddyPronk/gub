@@ -41,6 +41,7 @@ def logged_function(logger, function, *args, **kwargs):
 
 currentmodule = sys.modules[__name__] #ugh
 for name, func in {'read_file': misc.read_file,
+                   'file_sub': misc.file_sub,
              'dump_file': misc.dump_file,
              'shadow':misc.shadow,
              'chmod': os.chmod,
