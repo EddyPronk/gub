@@ -221,8 +221,10 @@ class RunnableContext (Context):
 
         Results include DIRECTORY in the filenames.'''
 
+        raise 'This command cannot be executed deferred.'
+        # to fix: use MapLocate.
         return self.runner.locate_files (self.expand (directory),
-                                               pattern, include_dirs, include_files)
+                                         pattern, include_dirs, include_files)
 
     def map_locate (self, func, directory, pattern):
         return self.runner.map_locate (func, self.expand (directory),
