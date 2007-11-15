@@ -185,8 +185,8 @@ class Settings (context.Context):
         # Cheating by not logging this call saves a dependency on os
         # interface.  Not sure what cheating brings us here, why
         # restrict use of the OS interface+logging facility?
-        self.build_architecture = misc.read_pipe ('gcc -dumpmachine',
-                                                  verbose=False).strip ()
+        self.build_architecture = loggedos.read_pipe (logging.default_logger,
+                                                      'gcc -dumpmachine').strip ()
 
         try:
             self.cpu_count_str = '%d' % os.sysconf ('SC_NPROCESSORS_ONLN')

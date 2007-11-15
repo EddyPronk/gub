@@ -84,8 +84,9 @@ class FileManager:
         _z = misc.compression_flag (ball)
         _v = '' # self.os_interface.verbose_flag ()
         root = self.root
-        lst = misc.read_pipe ('tar -t%(_z)s -f "%(ball)s"'
-                              % locals ()).split ('\n')
+        lst = loggedos.read_pipe (logging.default_logger,
+                                  'tar -t%(_z)s -f "%(ball)s"'
+                                  % locals ()).split ('\n')
         conflicts = False
         for f in lst:
             if (self._file_package_db.has_key (f)
