@@ -375,7 +375,7 @@ tooldir=%(install_prefix)s
                 raise Exception ('barf')
 
             loggedos.system (logger, 'cp %(new)s %(file)s' % locals())
-            self.kill_libtool_installation_test (logger_interface, file)
+            self.kill_libtool_installation_test (logger, file)
             loggedos.system (logger, 'chmod 755  %(file)s' %locals ())
 
         self.map_locate (update, '%(builddir)s', 'libtool')
