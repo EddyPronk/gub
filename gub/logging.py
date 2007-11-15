@@ -29,6 +29,9 @@ def now ():
 
 
 class AbstractCommandLogger:
+    """A logger takes care of the mechanics of storing and/or showing
+    messages when approppriate.
+    """
     def __init__ (self):
         pass
     def verbose_flag (self):
@@ -95,8 +98,9 @@ class CommandLogger (AbstractCommandLogger):
                 self.write_log ('%s=%s\n' % (k, env[k]), 'debug')
             self.write_log ('export %s\n' % ' '.join (keys), 'debug')
 
-#FIXME: merge with NullCommandLogger
 class LoggerInterface:
+    """LoggerInterface provides syntacic sugar for different types of messages."""
+    
     def __init__ (self, logger):
         self.logger = logger
         
