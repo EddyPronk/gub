@@ -28,7 +28,7 @@ def now ():
     return time.asctime (time.localtime ())
 
 
-class NullCommandLogger:
+class AbstractCommandLogger:
     def __init__ (self):
         pass
     def verbose_flag (self):
@@ -39,8 +39,11 @@ class NullCommandLogger:
         pass
     def log_env (self, env):
         pass
-    
-class CommandLogger (NullCommandLogger):
+
+class NullCommandLogger(AbstractCommandLogger):
+    pass
+
+class CommandLogger (AbstractCommandLogger):
     def __init__ (self, log_file_name, threshold):
 
         # only print message under THRESHOLD.
