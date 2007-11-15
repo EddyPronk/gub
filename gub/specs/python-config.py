@@ -1,3 +1,6 @@
+import sys
+import re
+
 from gub import build
 from gub import misc
 from gub import repository
@@ -9,16 +12,17 @@ class Python_config (build.SdkBuild):
                        ['download', 'untar', 'patch'])
     # FIXME: c&p python.py:install ()
     def install (self):
-        import re
+
         build.SdkBuild.install (self)
         self.system ('mkdir -p %(cross_prefix)s%(prefix_dir)s/bin')
-        s = self.read_file ('%(sourcefiledir)s/python-config.py.in')
-        s = re.sub ('@PYTHON_VERSION@', self.expand ('%(version)s'), s)
-        s = re.sub ('@PREFIX@', self.expand ('%(system_prefix)s/'), s)
-        import sys
-        s = re.sub ('@PYTHON_FOR_BUILD@', sys.executable, s)
-        self.dump (s, '%(install_prefix)s/cross/bin/python-config',
-                   expand_string=False, permissions=0755)
+        self.file_sub ([
+             ('@PYTHON_VERSION@', self.expand ('%(version)s')),
+             ('@PREFIX@', self.expand ('%(system_prefix)s/')),
+             ('@PYTHON_FOR_BUILD@', sys.executable)]
+
+            '%(sourcefiledir)s/python-config.py.in',
+            to_file='%(install_prefix)s/cross/bin/python-config')
+        self.system('chmod 755 %(install_prefix)s/cross/bin/python-config')
 
 class Python_config__cygwin (Python_config):
     source = repository.Version (name='python-config', version='2.5')

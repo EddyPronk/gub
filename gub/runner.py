@@ -142,13 +142,6 @@ class CommandRunner:
     def pred_if_else (self, predicate, true, false=None):
         return self._execute (commands.Conditional (predicate, true, false))
 
-    def read_pipe (self, cmd, ignore_errors=False, silent=False):
-        return self._execute (commands.ReadPipe (cmd, ignore_errors=ignore_errors,
-                                        silent=silent))
-    def read_file (self, file):
-        return self._execute (commands.ReadFile (file))
-
-
 class DeferredRunner (CommandRunner):
     def __init__ (self, *args):
         CommandRunner.__init__ (self, *args)
@@ -158,8 +151,7 @@ class DeferredRunner (CommandRunner):
         commands = self._deferred_commands
         self._deferred_commands = []
         for cmd in commands:
-            cmd.execute(logging.LoggerInterface(self.logger))
-
+            cmd.execute(self.logger)
 
         print self._deferred_commands
         assert self._deferred_commands == list ()
@@ -181,13 +173,4 @@ class DeferredRunner (CommandRunner):
     def _execute (self, command):
         self._deferred_commands.append (command)
 
-    def read_pipe (self, cmd, ignore_errors=False, silent=False):
-        # Deferring read pipe does not work.
-        # return CommandRunner.read_pipe (self, *args, **kwargs)
-        return CommandRunner._execute (self, commands.ReadPipe (cmd, ignore_errors=ignore_errors,
-                                                                silent=silent))
     
-    def read_file (self, file):
-        # Deferring read file does not work.
-        # return CommandRunner.read_file (self, file)
-        return CommandRunner._execute (self, commands.ReadFile (file))

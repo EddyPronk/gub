@@ -49,28 +49,22 @@ def grok_sh_variables_str (str):
     for i in str.split ('\n'):
         m = re.search ('^([^ =]+) *=\s*(.*)$', i)
         if m:
-            k = m.group (1)
-            s = m.group (2)
+            k, s  = m.groups ()
             dict[k] = s
     return dict
-
 
 def grok_sh_variables (file):
     return grok_sh_variables_str (open (file).read ())
 
-def itoa (x):
-    if type (x) == int:
-        return "%d" % x
-    return x
-
 def version_to_string (t):
-    return '%s-%s' % (string.join (map (itoa, t[:-1]), '.'), t[-1])
+    return '%s-%s' % (string.join (map (string, t[:-1]), '.'), t[-1])
 
 def split_version (s):
     m = re.match ('^(([0-9].*)-([0-9]+))$', s)
     if m:
         return m.group (2), m.group (3)
-    return s, '0'
+    
+    return (s, '0')
 
 def string_to_version (s):
     s = re.sub ('([^0-9][^0-9]*)', ' \\1 ', s)
@@ -167,10 +161,11 @@ def find_dirs (dir, pattern):
 def rewrite_url (url, mirror):
     '''Return new url on MIRROR, using file name from URL.
 
-Assume that files are stored in a directory of their own base name, eg
+    Assume that files are stored in a directory of their own base name, eg
 
     lilypond/lilypond-1.2.3.tar.gz
-'''
+    '''
+    
     file = os.path.basename (url)
     base = split_ball (file)[0]
     return os.path.join (mirror, base, file)
@@ -239,7 +234,6 @@ def exception_string (exception=Exception ('no message')):
 class SystemFailed (Exception):
     pass
 
-
 def system (cmd, ignore_errors=False):
     #URG, go through oslog
     print 'Executing command %s' % cmd
@@ -290,13 +284,12 @@ def get_interpreter (file):
     return None
 
 def read_tail (file, size=10240, lines=100, marker=None):
-    '''
-Efficiently read tail of a file, return list of full lines.
+    '''Efficiently read tail of a file, return list of full lines.
 
-Typical used for reading tail of a log file.  Read a maximum of
-SIZE, return a maximum line count of LINES, truncate everything
-before MARKER.
-'''
+    Typical used for reading tail of a log file.  Read a maximum of
+    SIZE, return a maximum line count of LINES, truncate everything
+    before MARKER.
+    '''
     f = open (file)
     f.seek (0, 2)
     length = f.tell ()
@@ -475,7 +468,18 @@ def locate_files (directory, pattern,
             relative_results += files
         results += [os.path.join (root, f)
                     for f in (fnmatch.filter (relative_results, pattern))]
+
     return results
+
+def shadow (src, target):
+    target = os.path.abspath (target)
+    src = os.path.abspath (src)
+    os.makedirs (target)
+    (root, dirs, files) = os.walk (src).next ()
+    for f in files:
+        os.symlink (os.path.join (root, f), os.path.join (target, f))
+    for d in dirs:
+        shadow (os.path.join (root, d), os.path.join (target, d))
 
 def test ():
     print forall (x for x in [1, 1])

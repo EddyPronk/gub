@@ -9,6 +9,7 @@ from gub import misc
 from gub import context
 from gub import guppackage
 from gub import logging
+from gub import loggedos
 from gub import commands
 
 class Build (context.RunnableContext):
@@ -367,19 +368,16 @@ tooldir=%(install_prefix)s
                        file, must_succeed=True)
         
     def update_libtool (self):
-        def update (logger_interface, file):
+        def update (logger, file):
             new = self.expand ('%(system_prefix)s/bin/libtool')
             if not os.path.exists (new):
-                logger_interface.error ('Cannot update libtool: no such file: %(new)s' % locals ())
+                logger.write_log ('Cannot update libtool: no such file: %(new)s' % locals (), 'error')
                 raise Exception ('barf')
 
-            cmd = self.expand ('cp %(new)s %(file)s', locals ())
-            logger_interface.command (cmd)
-            misc.system (cmd)
+            loggedos.system (logger, 'cp %(new)s %(file)s' % locals())
             self.kill_libtool_installation_test (logger_interface, file)
-            cmd = self.expand ('chmod 755  %(file)s', locals ())
-            logger_interface.command (cmd)
-            misc.system (cmd)
+            loggedos.system (logger, 'chmod 755  %(file)s' %locals ())
+
         self.map_locate (update, '%(builddir)s', 'libtool')
 
     def install (self):
@@ -409,20 +407,18 @@ rm -f %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/share/info/dir %(in
 mkdir -p %(install_root)s/license
 cp %(file)s %(install_root)s/license/%(name)s
 ''', locals ())
-                    logger.command(cmd)
-                    misc.system (cmd)
+                    loggedos.system(logger, cmd)
                     return
 
         self.func (install, map (self.expand, misc.lst (self.license_file ())))
 
     def libtool_installed_la_fixups (self):
-        def installed_la_fixup (logger_interface, la):
+        def installed_la_fixup (logger, la):
             (dir, base) = os.path.split (la)
             base = base[3:-3]
             dir = re.sub (r"^\./", "/", dir)
 
-            logger_interface.action('library dirs subst (libtool fixup)')
-            misc.file_sub ([(''' *-L *[^\"\' ][^\"\' ]*''', ''),
+            loggedos.file_sub (logger, [(''' *-L *[^\"\' ][^\"\' ]*''', ''),
                     (self.expand('''( |=|\')(/[^ ]*usr/lib|%(targetdir)s.*)/lib([^ \'/]*)\.(a|la|so)[^ \']*'''),
                     '\\1-l\\3 '),
                     ('^old_library=.*',
@@ -457,8 +453,7 @@ cp %(file)s %(install_root)s/license/%(name)s
                 if s.startswith ('/') and self.settings.system_root not in s:
                     new_dest = os.path.join (self.settings.system_root, s[1:])
                     os.remove (file)
-                    logger.action ('changing absolute link %(file)s -> %(new_dest)s' % locals ())
-                    os.symlink (new_dest, file)
+                    loggedos.symlink (logger, new_dest, file)
 
         self.map_locate (rewire, '%(install_root)s', '*')
 
@@ -577,6 +572,7 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"%(_v)s -zcf %(src_package_
     def untar (self):
         self.runner._execute (commands.UpdateSourceDir (self))
 
+    # used for cygwin. -- most probably broken due to deferred restructuring.
     def pre_install_smurf_exe (self):
         for i in self.locate_files ('%(builddir)s', '*.exe'):
             base = os.path.splitext (i)[0]
@@ -587,7 +583,7 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"%(_v)s -zcf %(src_package_
                   + self.locate_files ('%(install_prefix)s/bin', '*')):
             if (not os.path.islink (i)
                 and not os.path.splitext (i)[1]
-                and self.read_pipe ('file -b %(i)s', locals ()).startswith ('MS-DOS executable PE')):
+                and loggedos.read_pipe ('file -b %(i)s', locals ()).startswith ('MS-DOS executable PE')):
                 self.system ('''mv %(i)s %(i)s.exe''', locals ())
 
     def install_readmes (self):
@@ -595,14 +591,13 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"%(_v)s -zcf %(src_package_
 mkdir -p %(install_prefix)s/share/doc/%(name)s
 ''')
         
-        def copy_readme (logger_interface, file):
+        def copy_readme (logger, file):
             if (os.path.isfile (file)
                 and not os.path.basename (file).startswith ('Makefile')
                 and not os.path.basename (file).startswith ('GNUmakefile')):
 
                 cmd = self.expand ('cp %(file)s %(install_prefix)s/share/doc/%(name)s')
-                logger.command (cmd)
-                misc.system (cmd)
+                loggedos.command (logger, cmd)
                 
         self.map_locate (copy_readme, '%(srcdir)s', '[A-Z]*')
 

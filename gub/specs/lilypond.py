@@ -29,7 +29,7 @@ beautiful sheet music from a high-level description file.'''
 
         ## ugh: nested, with self shadow?
         def version_from_VERSION (self):
-            s = self.read_file ('VERSION')
+            s = self.source.read_file ('VERSION')
             d = misc.grok_sh_variables_str (s)
             v = '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
 

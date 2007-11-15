@@ -1,3 +1,6 @@
+import re
+import os
+
 from gub import build
 from gub import misc
 from gub import repository
@@ -21,14 +24,15 @@ class Freetype_config (build.SdkBuild):
         hardcode_libdir_flag_spec='${wl}--rpath ${wl}$libdir'
         LIBZ = '-lz'
 
-        import re
-        import os
-        s = self.read_file ('%(sourcefiledir)s/freetype-config.in')
-        s = re.sub (r'@(\w+?)@', r'%(\1)s', s)
-        s = s % locals ()
-        self.dump (s, '%(install_prefix)s/cross/bin/freetype-config',
-                   env=locals (),
-                   permissions=0755)
+        regexes = [('@%s@' % nm, self.expand('%(' + nm + ')s'))
+                   for nm in [ 'prefix', 'exec_prefix', 'includedir', 'libdir',
+                               'enable_shared', 'wl', 'hardcode_libdir_flag_spec']]
 
+        fname = '%(install_prefix)s/cross/bin/freetype-config'
+        self.file_sub (regexes,
+                       '%(sourcefiledir)s/freetype-config.in',
+                       to_file=fname, use_re=False)
+        self.system ('chmod 755 %s' % fname)
+        
 class Freetype_config__cygwin (Freetype_config):
     source = repository.Version (name='freetype-config', version='2.3.4')

@@ -190,13 +190,6 @@ class RunnableContext (Context):
     def command (self, str):
         self.runner.command (str)
         
-    def read_pipe (self, cmd, env={}, ignore_errors=False):
-        return self.runner.read_pipe (self.expand (cmd, env),
-                                            ignore_errors=ignore_errors)
-
-    def read_file (self, file, env={}):
-        return self.runner.read_file (self.expand (file, env))
-
     def system (self, cmd, env={}, ignore_errors=False):
         dict = self.get_substitution_dict (env)
         cmd = self.expand (cmd, env)
