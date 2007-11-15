@@ -22,9 +22,11 @@ specified by applications.'''
         #self.with_vc (repository.Git (self.get_repodir (), source="git://anongit.freedesktop.org/git/fontconfig", revision=fc_version))
 
 
-
     @context.subst_method
     def freetype_cflags (self):
+        # this is shady: we're using the flags from the tools version
+        # of freetype.
+        
         base_config_cmd = self.settings.expand('%(tools_prefix)s/bin/freetype-config')
         cmd =  base_config_cmd + ' --cflags'
         logging.command('pipe %s\n' % cmd)
