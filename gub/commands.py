@@ -240,23 +240,23 @@ If TO_NAME is specified, the output is sent to there.
         misc.file_sub (re_pairs, name, **self.kwargs)
         
 class Conditional (SerializedCommand):
-    def __init__ (self, predicate, true, false=None):
+    def __init__ (self, predicate, true_command, false_command=None):
         SerializedCommand.__init__ (self)
         self.predicate = predicate
-        self.true = true
-        self.false = false
+        self.true_command = true_command
+        self.false_command = false_command
     def checksum (self, hasher):
         hasher.append (self.__class__.__name__)
         hasher.append (inspect.getsource (self.predicate))
-        if self.true:
-            self.true.checksum (hasher)
-        if self.false:
-            self.false.checksum (hasher)
+        if self.true_command:
+            self.true_command.checksum (hasher)
+        if self.false_command:
+            self.false_command.checksum (hasher)
     def execute (self, runner):
         if self.predicate ():
-            return self.true.execute (runner)
-        elif self.false:
-            return self.false.execute (runner)
+            return self.true_command.execute (runner)
+        elif self.false_command:
+            return self.false_command.execute (runner)
 
 class ShadowTree (SerializedCommand):
     def __init__ (self, src, dest):
