@@ -37,7 +37,8 @@ def logged_function(logger, function, *args, **kwargs):
     logger.write_multilevel_message(
         [('Running %s\n' % function.__name__, 'action'),
         ('Running %s: %s\n' % (function.__name__, repr(args)), 'command'),
-        ('Running %s %s\n  %s\n' % (function.__name__, repr(args), repr(kwargs)), 'debug')])
+        ('Running %s\n  %s\n  %s\n'
+         % (function.__name__, repr(args), repr(kwargs)), 'debug')])
 
     return function (*args, **kwargs)
 
