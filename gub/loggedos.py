@@ -33,9 +33,11 @@ def system (logger, cmd, **kwargs):
 ########
 # logged aliases to misc.py
 def logged_function(logger, function, *args, **kwargs):
-    logger.write_log ('Running %s\n' % function.__name__, 'action')
-    logger.write_log ('Running %s: %s\n' % (function.__name__, repr(args)), 'command')
-    logger.write_log ('Running %s %s\n  %s\n' % (function.__name__, repr(args), repr(kwargs)), 'debug')
+
+    logger.write_multilevel_message(
+        [('Running %s\n' % function.__name__, 'action'),
+        ('Running %s: %s\n' % (function.__name__, repr(args)), 'command'),
+        ('Running %s %s\n  %s\n' % (function.__name__, repr(args), repr(kwargs)), 'debug')])
 
     return function (*args, **kwargs)
 
@@ -46,6 +48,7 @@ for name, func in {'read_file': misc.read_file,
                    'dump_file': misc.dump_file,
                    'shadow':misc.shadow,
                    'chmod': os.chmod,
+                   'makedirs': os.makedirs,
                    'copy2': shutil.copy2,
                    'read_pipe': misc.read_pipe}.items():
 

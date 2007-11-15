@@ -74,6 +74,25 @@ class CommandLogger (AbstractCommandLogger):
         else:
             return '(no log)'
 
+    def write_multilevel_message (self, message_types):
+        """Given a set of messages display the one fitting with our
+        log level."""
+        leveled = [(name_to_loglevel_mapping[type], message)
+                   for (message, type) in message_types]
+        leveled.sort()
+        leveled.reverse()
+        self.write_log_file(leveled[0][1])
+
+        leveled = [msg for (l, msg) in leveled
+                   if l <= self.threshold]
+        if leveled:
+            sys.stderr.write(leveled[0])
+            
+    def write_log_file (self, message):
+        if self.log_file:
+            self.log_file.write (message)
+            self.log_file.flush ()
+
     def write_log (self, message, message_type):
         assert type (message_type) == type ('')
         if not message:
@@ -81,9 +100,8 @@ class CommandLogger (AbstractCommandLogger):
         message_level = name_to_loglevel_mapping[message_type]
         if message_level <= self.threshold:
             sys.stderr.write (message)
-        if self.log_file:
-            self.log_file.write (message)
-            self.log_file.flush ()
+
+        self.write_log_file(message)
 
     def verbose_flag (self):
         if self.threshold >= name_to_loglevel_mapping['output']:
@@ -138,6 +156,13 @@ class LoggerInterface:
 
 
 default_logger = CommandLogger ('', 3)
+
+def set_default_log (name, level):
+    global default_logger
+    default_logger = CommandLogger (name, level)
+
+    return default_logger
+
 default_logger_interface = LoggerInterface (default_logger)
 
 harmless = default_logger_interface.harmless
