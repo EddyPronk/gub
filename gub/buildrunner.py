@@ -152,7 +152,6 @@ class BuildRunner:
         logname = 'log/%s/%s.log' % (spec.settings.platform, specname)
         logger = logging.CommandLogger (logname, logging.default_logger.threshold)
 
-        todo_broken_for_defer = ['darwin-ppc', 'darwin-x86']
         if not spec.settings.platform in todo_broken_for_defer:
             spec.connect_command_runner (runner.DeferredRunner (logger))
         else:
