@@ -199,21 +199,11 @@ class DeferredRunner (CommandRunner):
         self._deferred_commands = list ()
         
     def checksum (self):
-        # we use a visitor pattern, to shield SerializedCommand
-        # from the actual type of the checksum (md5 hasher, list, etc.)
-
-        # I understand that, but why such an ugly/high brow design pattern,
-        # when just have command return a string works even nicer?
-        #
-        #  DeferredCommand:
-        #     def checksum (self):
-        #          return "COMMAND-AS-STRING"
-        #
-        #  checksum string:
-        #     return '\n'.join (map x.checksum, self._deferred_commands)
-        #
-        #  md5:
-        #     return md5 ('\n'.join (map x.checksum, self._deferred_commands))
+        # we use a visitor pattern, to shield SerializedCommand from
+        # the actual type of the checksum (md5 hasher, list, etc.); If
+        # we use return values, composite SerializedCommand
+        # (eg. Conditional) have to be aware of the type to combine
+        # results for their children.
 
         hasher = list ()
         map (lambda x: x.checksum (hasher), self._deferred_commands)
