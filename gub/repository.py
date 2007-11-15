@@ -32,6 +32,7 @@ from gub import misc
 from gub import locker
 from gub import mirrors
 from gub import tztime
+from gub import logging
 
 class UnknownVcSystem (Exception):
     pass
@@ -138,7 +139,7 @@ class Repository:
             'system': misc.system,
 
             # ugh - why the gratuitious naming clash?
-            # why should this be logged?
+            # why should this be logged anyway?
             '_read_file': misc.read_file,
             'read_pipe': misc.read_pipe,
             'download_url': misc.download_url}.items():
@@ -151,8 +152,10 @@ class Repository:
         return logged
 
     def info (self, message):
-        self.logger.write_log (message, 'info')
+        self.logger.write_log (message + '\n', 'info')
 
+    # this logging is rather primitive, buts lets postpone polish
+    # until everything works.
     def logged_operation (self, function, *args, **kwargs):
         assert self.logger
         self.logger.write_log (repr((function.__name__, args, kwargs)), 'command')
