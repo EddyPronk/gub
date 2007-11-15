@@ -26,12 +26,11 @@ class Build (context.RunnableContext):
         context.RunnableContext.__init__ (self, settings)
         self.source = source
         self.settings = settings
-
-        # don't initialize self.build_checksum so we will catch an
-        # error if it was not defined at the time of writing the hdr.
-
+        self.source.connect_logger (logging.default_logger)
+        
     def connect_command_runner (self, runner):
-        self.source.connect_command_runner (runner)
+        if runner:
+            self.source.connect_logger (runner.logger)
         return context.RunnableContext.connect_command_runner (self, runner)
 
     @context.subst_method

@@ -132,29 +132,43 @@ class Repository:
                 # Otherwise, check fresh repository out under .gub.VC_SYSTEM
                 self.dir = os.path.join (os.getcwd (), '.gub' + self.vc_system)
         self.source = source
+        self.logger = logging.default_logger
 
-        self.connect_command_runner_misc ()
+        for (name, func) in {
+            'system': misc.system,
 
-    def connect_command_runner_misc (self):
-        self.runner = None
-        self.system = misc.system
-        self._read_file = misc.read_file
-        self.read_pipe = misc.read_pipe
-        self.download_url = misc.download_url
-        self.info = sys.stdout.write
-        return None
+            # ugh - why the gratuitious naming clash?
+            # why should this be logged?
+            '_read_file': misc.read_file,
+            'read_pipe': misc.read_pipe,
+            'download_url': misc.download_url}.items():
 
-    def connect_command_runner (self, runner):
-        if not runner:
-            return self.connect_command_runner_misc ()
-        previous = self.runner
-        self.runner = runner
-        self.system = runner.system
-        self._read_file = runner.read_file
-        self.read_pipe = runner.read_pipe
-        self.download_url = runner.download_url
-        self.info = runner.info
-        return previous
+            self.__dict__[name] = self.logged_indirection(func)
+
+    def logged_indirection (self, func):
+        def logged(*args, **kwargs):
+            return self.logged_operation (func, *args, **kwargs)
+        return logged
+
+    def info (self, message):
+        self.logger.write_log (message, 'info')
+
+    def logged_operation (self, function, *args, **kwargs):
+        assert self.logger
+        self.logger.write_log (repr((function.__name__, args, kwargs)), 'command')
+        return function(*args, **kwargs)
+    
+    def connect_logger (self, logger):
+        assert logger
+        old = self.logger
+        self.logger = logger
+        return old
+
+        self.system = self.logged_operation_indirection(misc.system)
+        self._read_file = self.logged_operation_indirection(misc.read_file)
+        self.download_url = self.logged_operation_indirection(misc.download_url)
+        self.read_pipe = self.logged_operation_indirection(misc.read_pipe)
+        self.info = lambda msg: self.logger.write_log (msg, 'info')
         
     def full_branch_name (self):
         if self.is_tracking ():
