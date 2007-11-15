@@ -95,6 +95,8 @@ beautiful sheet music from a high-level description file.'''
         # this be done more genericly?  shouldn't we check on
         # source.is_tracking?
         def must_reconfigure ():
+
+            print 'FIXME: lilypond reconfigure.'
             return (self.first_is_newer ('%(srcdir)s/config.make.in',
                                          '%(builddir)s/config.make')
                     or self.first_is_newer ('%(srcdir)s/GNUmakefile.in',
@@ -104,19 +106,12 @@ beautiful sheet music from a high-level description file.'''
                     or self.first_is_newer ('%(srcdir)s/configure',
                                             '%(builddir)s/config.make')
                     ## need to reconfigure if dirs were added.
-                    or (len (self.locate_files ('%(builddir)s', 'GNUmakefile'))
-                        != len (self.locate_files ('%(srcdir)s', 'GNUmakefile')) + 1))
+                    or True)
+
         self.runner.pred_if_else (must_reconfigure,
                                   commands.Func (self.reconfigure))
 
     def reconfigure (self):
-        if not os.path.exists (self.expand ('%(builddir)s/FlexLexer.h')):
-            flex = self.read_pipe ('which flex')
-            flex_include_dir = os.path.split (flex)[0] + '/../include'
-            self.system ('''
-mkdir -p %(builddir)s
-cp %(flex_include_dir)s/FlexLexer.h %(builddir)s
-''', locals ())
         self.config_cache ()
         targetbuild.TargetBuild.configure (self)
         self.system ('touch %(builddir)s/config.hh')
@@ -377,17 +372,25 @@ install -m755 %(builddir)s/lily/out/lilypond-console %(install_prefix)s/bin/lily
 cp %(install_prefix)s/lib/lilypond/*/python/* %(install_prefix)s/bin
 cp %(install_prefix)s/share/lilypond/*/python/* %(install_prefix)s/bin
 ''')
-        import glob
-        for i in glob.glob (self.expand ('%(install_prefix)s/bin/*')):
-            header = open (i).readline().strip ()
-            if header.endswith ('guile'):
-                self.system ('mv %(i)s %(i)s.scm', locals ())
-            elif header.endswith ('python') and not i.endswith ('.py'):
-                self.system ('mv %(i)s %(i)s.py', locals ())
 
-        for i in self.locate_files ('%(install_root)s', '*.ly'):
-            s = open (i).read ()
-            open (i, 'w').write (re.sub ('\r*\n', '\r\n', s))
+        def rename (logger, name):
+            header = open (name).readline().strip ()
+
+            # FIXME: loggedos.
+            logger.action('mv-ing aroung .ext exes')
+            if header.endswith ('guile'):
+                misc.system ('mv %(i)s %(i)s.scm', locals ())
+            elif header.endswith ('python') and not name.endswith ('.py'):
+                misc.system ('mv %(i)s %(i)s.py', locals ())
+
+        def asciify (logger, name):
+            logger.action('ascifying %s\n' % name)
+            s = open (name).read ()
+            open (name, 'w').write (re.sub ('\r*\n', '\r\n', s))
+            
+        self.map_locate (rename, self.expand ('%(install_prefix)s/bin/'), '*')
+        self.map_locate (asciify, self.expand('%(install_root)s'), '*.ly')
+            
 
         bat = r'''@echo off
 "@INSTDIR@\usr\bin\lilypond-windows.exe" -dgui %1 %2 %3 %4 %5 %6 %7 %8 %9
