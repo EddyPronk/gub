@@ -116,6 +116,8 @@ class MapLocate (SerializedCommand):
         self.pattern = pattern
     def execute (self, logger):
         for fname in misc.locate_files (self.directory, self.pattern):
+            logger.write_message ('Executing %s on %s' % (func.__name__,
+                                                          fname), 'info')
             self.func (logger, fname)
 
     def checksum (self, hasher):
@@ -204,6 +206,15 @@ class ShadowTree (SerializedCommand):
         hasher (self.__class__.__name__)
         hasher (self.src)
         hasher (self.dest)
+
+class Chmod (SerializedCommand):
+    def __init__ (self, *args):
+        self.args = args
+    def execute (self, logger):
+        loggedos.symlink (logger, *self.args)
+    def checksum (self, hasher):
+        hasher (self.__class__.__name__)
+        map (hasher, map (str, self.args))
 
 class PackageGlobs (SerializedCommand):
     def __init__ (self, root, suffix_dir, globs, dest):
