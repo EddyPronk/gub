@@ -46,7 +46,7 @@ class TargetBuild (build.UnixBuild):
             if re.search ('\\.libs$', dir):
                 suffix = ''
             
-            loggedos.file_sub (loggedos,
+            loggedos.file_sub (logger,
                                [("libdir='/usr/lib'",
                                  self.expand("libdir='%(dir)s%(suffix)s'",
                                              env=locals())),
