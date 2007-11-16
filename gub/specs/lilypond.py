@@ -27,9 +27,9 @@ beautiful sheet music from a high-level description file.'''
         self.target_gcc_flags = (settings.target_gcc_flags
                                  + ' -I%(builddir)s' % locals ())
 
-        ## ugh: nested, with self shadow?
+        # repository patched in method.
         def version_from_VERSION (self):
-            s = self.source.read_file ('VERSION')
+            s = self.read_file ('VERSION')
             d = misc.grok_sh_variables_str (s)
             v = '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
 

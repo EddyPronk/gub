@@ -26,7 +26,8 @@ models.'''
 
         ## ugh: nested, with self shadow?
         def version_from_VERSION (self):
-            s = self.source.read_file ('src/version.mak')
+            # ugh - self is a repository here
+            s = self.read_file ('src/version.mak')
             d = misc.grok_sh_variables_str (s)
             v = '%(GS_VERSION_MAJOR)s.%(GS_VERSION_MINOR)s' % d
             return v
