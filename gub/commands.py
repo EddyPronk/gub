@@ -116,8 +116,8 @@ class MapLocate (SerializedCommand):
         self.pattern = pattern
     def execute (self, logger):
         for fname in misc.locate_files (self.directory, self.pattern):
-            logger.write_message ('Executing %s on %s' % (func.__name__,
-                                                          fname), 'info')
+            logger.write_log ('Executing %s on %s' % (func.__name__,
+                                                      fname), 'info')
             self.func (logger, fname)
 
     def checksum (self, hasher):

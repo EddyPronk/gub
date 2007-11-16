@@ -475,6 +475,7 @@ def locate_files (directory, pattern,
     return results
 
 def shadow (src, target):
+    '''Symlink files from SRC in TARGET recursively'''
     target = os.path.abspath (target)
     src = os.path.abspath (src)
     os.makedirs (target)
