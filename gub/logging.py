@@ -44,7 +44,9 @@ class AbstractCommandLogger:
         pass
     def log_env (self, env):
         pass
-
+    def write_multilevel_message (self, message_types):
+        pass
+    
 class NullCommandLogger(AbstractCommandLogger):
     pass
 
