@@ -6,6 +6,7 @@ import subprocess
 import stat
 import shutil
 import glob
+import md5
 
 from gub import misc
 from gub import loggedos
@@ -39,11 +40,6 @@ class UpdateSourceDir (SerializedCommand):
         if not buildspec.source:
             return False
         if not buildspec.source.is_tracking ():
-            # We don't want to change sequence of executed
-            # SerializedCommand() depending whether we run execute or
-            # not. If we used runner.system, the sequence of commands
-            # executed would never match the checksum, which is
-            # determined before doing Execute().
             command = buildspec.expand ('rm -rf %(srcdir)s %(builddir)s %(install_root)s')
             loggedos.system(logger, command)
 
