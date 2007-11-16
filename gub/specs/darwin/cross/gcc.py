@@ -1,3 +1,5 @@
+import os
+
 from gub.specs.cross import gcc
 from gub import mirrors
 
@@ -12,19 +14,23 @@ class Gcc (gcc.Gcc):
     def configure (self):
         gcc.Gcc.configure (self)
     def rewire_gcc_libs (self):
-	import os
         skip_libs = ['libgcc_s']
-        for ell in self.locate_files ("%(install_prefix)s/lib/", '*.dylib'):
-            found_skips = [s for s in  skip_libs if ell.find (s) >= 0]
+
+        def rewire_one (logger, file):
+            found_skips = [s for s in skip_libs if file.find (s) >= 0]
             if found_skips:
-                continue
+                return
             
-            id = self.read_pipe ('%(toolchain_prefix)sotool -L %(ell)s', 
-		locals ()).split()[1]
+            id = loggedos.read_pipe (logger,
+                                     '%(toolchain_prefix)sotool -L %(file)s', 
+                                     locals ()).split()[1]
             id = os.path.split (id)[1]
-            self.system ('''
-%(toolchain_prefix)sinstall_name_tool -id /usr/lib/%(id)s %(ell)s
-''', locals ())
+            loggedos.system (
+                '%(toolchain_prefix)sinstall_name_tool -id /usr/lib/%(id)s %(file)s', locals ())
+            
+        self.map_locate (rewire_one,
+                         self.expand ("%(install_prefix)s/lib/"),
+                         '*.dylib')
         
     def install (self):
         gcc.Gcc.install (self)
