@@ -4,6 +4,7 @@ import re
 from gub import build
 from gub import context
 from gub import misc
+from gub import loggedos
 
 class TargetBuild (build.UnixBuild):
     def __init__ (self, settings, source):
