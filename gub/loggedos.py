@@ -24,7 +24,7 @@ def system (logger, cmd, **kwargs):
     if proc.returncode:
         m = 'Command barfed: %(cmd)s\n' % locals ()
         if not ignore_errors:
-            logger_interface.error (m)
+            logger.write_log (m, 'error')
             raise misc.SystemFailed (m)
         
     return proc.returncode
