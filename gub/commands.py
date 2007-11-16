@@ -139,7 +139,7 @@ class Dump (SerializedCommand):
         str, name = self.args
         hasher (self.__class__.__name__)
         hasher (name)
-        hasher (str)
+        hasher (md5.md5 (str).hexdigest ())
     def execute (self, logger):
         str, name = self.args
 
