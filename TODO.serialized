@@ -1,5 +1,6 @@
 * Check everything
   broken: gpkg, gub-tester, cron-builder
+  
 ** FIXME: set_oslog is gone
 
 * Printing/logging to console
@@ -29,6 +30,7 @@
 
 
 TODO:
+
 * darwin-x86 gcc compile problem, probably rewire/glob/locate_files related.
 
 * find a clean way to pass strip_components to TarBall (See urw-fonts.py)
@@ -37,30 +39,21 @@ TODO:
 
 * GIT (checkout + simplify)/SimpleGit (add local branch macramee ??)
 
-* Actual checksum checking
-  - of package
-  - of all dependencies/of cross build packages?
+* Smarter checksumming for functions: should add a dry-run to loggedos
+  so we can do dry-run on functions; then run dry-run on a dummy
+  argument.
 
 * Fix cutting of corners, marked by
    print 'FIXME: serialization ...
 
 * other platforms that linux-64
-* rewrite locate_files using map_locate
-
-* eradicate glob.glob (use map_locate)
-
-* [misc.]find_files
 
 NICE TO HAVE
 
 * autotools magic -> script
 
-* Junk Git for SimpleGit (or fix Git to handle serialization?)
-
 * replace *args, **kwargs with actual values?  In any case, have
   uniformity in SerializedCommand implementations.
-
-* naming of `oslog', `os_commands'
 
 * investigate flavours of libtool_la fixups:
    - gubb.libtool_installed_la_fixups ()
