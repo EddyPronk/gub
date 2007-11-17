@@ -63,8 +63,11 @@ unset CC CXX; bash %(srcdir)s/configure
 ''')
     def configure (self):
         targetbuild.TargetBuild.configure (self)
-        for i in misc.find_files (self.expand ('%(install_root)s'), 'Makefile'):
-            self.file_sub ([('-I/usr', '-I%(system_prefix)s')], i)
+        def dosub(logger, fname):
+            loggedos.file_sub (logger,
+                               [('-I/usr', self.expand ('-I%(system_prefix)s'))],
+                               fname)
+        self.map_locate (dosub, self.expand ('%(install_root)s'), 'Makefile')
     def install_command (self):
         return (targetbuild.TargetBuild.install_command (self)
                 + ' INSTALL_ROOT=%(install_root)s')

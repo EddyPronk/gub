@@ -231,14 +231,16 @@ cc
 class Guile__darwin (Guile):
     def install (self):
         Guile.install (self)
-        pat = self.expand ('%(install_prefix)s/lib/libguile-srfi*.dylib')
-        import glob
-        for f in glob.glob (pat):
-            directory = os.path.split (f)[0]
-            src = os.path.basename (f)
-            dst = os.path.splitext (os.path.basename (f))[0] + '.so'
 
-            self.system ('cd %(directory)s && ln -s %(src)s %(dst)s', locals())
+        def dylib_link (logger, fname):
+            directory = os.path.split (fname)[0]
+            src = os.path.basename (fname)
+            dst = os.path.splitext (os.path.basename (fname))[0] + '.so'
+            loggedos.symlink (src, os.path.join(directory, dst))
+                              
+        self.map_locate (dylib_link,
+                         self.expand ('%(install_prefix)s/lib/'),
+                         'libguile-srfi*.dylib')
  
 class Guile__darwin__x86 (Guile__darwin):
     def configure (self):

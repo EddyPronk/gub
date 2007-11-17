@@ -40,28 +40,27 @@ class Pango (targetbuild.TargetBuild):
         etc = self.expand ('%(install_root)s/%(prefix)s/etc/pango', locals ())
         self.system ('mkdir -p %(etc)s' , locals ())
 
-        self.map_locate (lambda x: self.file_sub ([('/%(prefix)s/',
-                                                    '$PANGO_PREFIX/')], x,
-                                                  locals ()), etc, '*')
+        def fix_prefix (logger, fname):
+            loggedos.file_sub (logger, [(self.expand('/%(prefix)s/'),
+                                         '$PANGO_PREFIX/')], fname)
+
+        self.map_locate (fix_prefix, etc, '*')
 
         self.pango_module_version = None
-        def write_pangorc (dir):
+        def write_pangorc (logger, dir):
             if self.pango_module_version:
                 return
             m = re.search ('([0-9.]+)', dir)
             if m:
-                #FIXME: circumvent SetAttrTooLate arg.
-                self.__dict__['pango_module_version'] = m.group (1)
-                open (etc + '/pangorc', 'w').write ('''[Pango]
+                pango_module_version = m.group (1)
+                loggedos.dump_file ('''[Pango]
 ModuleFiles = $PANGO_PREFIX/etc/pango/pango.modules
 ModulesPath = $PANGO_PREFIX/lib/pango/%(pango_module_version)s/modules
-''' % self.__dict__)
-        
-        self.map_locate (write_pangorc, '%%(install_root)s/%(prefix)s/lib/pango' % locals (), '*')
+''' % locals(),
+                                    etc + '/pangorc')
+                
+        self.map_locate (write_pangorc, '%%(install_root)s/%(prefix)s/lib/pango' % locals (), '*', must_happen=True)
 
-        def check_pango_module_version ():
-            assert (self.pango_module_version)
-        self.runner.func (check_pango_module_version)
         self.copy ('%(sourcefiledir)s/pango.modules', etc)
 
     def install (self):

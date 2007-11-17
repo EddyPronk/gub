@@ -1,4 +1,3 @@
-import glob
 import re
 import sys
 #
@@ -6,6 +5,7 @@ from gub import mirrors
 from gub import build
 from gub import targetbuild
 from gub import context
+from gub import toolsbuild
 
 class Python (targetbuild.TargetBuild):
     source = mirrors.with_template (name='python', version='2.4.2',
@@ -123,10 +123,13 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-winsock2.patch
 
     def install (self):
         Python.install (self)
-        for i in glob.glob ('%(install_prefix)s/lib/python%(python_version)s/lib-dynload/*.so*' \
-                  % self.get_substitution_dict ()):
-            dll = re.sub ('\.so*', '.dll', i)
-            self.system ('mv %(i)s %(dll)s', locals ())
+        def rename_so (logger, fname):
+            dll = re.sub ('\.so*', '.dll', fname)
+            loggedos.rename (logger, fname, dll)
+
+        self.map_locate (rename_so,
+                         self.expand ('%(install_prefix)s/lib/python%(python_version)s/lib-dynload/',
+                                      '*.so*'))
 
         ## UGH.
         self.system ('''
@@ -139,8 +142,6 @@ chmod 755 %(install_prefix)s/bin/*
 class Python__mingw (Python__mingw_cross):
     pass
 
-
-from gub import toolsbuild
 class Python__tools (toolsbuild.ToolsBuild, Python):
     source = Python.source
     def configure (self):

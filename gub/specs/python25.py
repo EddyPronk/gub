@@ -2,13 +2,11 @@ import re
 import sys
 #
 from gub import mirrors
-import glob
 from gub import build
 from gub import targetbuild
-
 from gub import context
 
-## WTF is this, a full c&p from python.py?
+# WIP of python2.5 with 2.5 X-compile patches.
 class Python (targetbuild.TargetBuild):
     source = mirrors.with_template (name='python25', version='2.5',
                    mirror=mirrors.python,
@@ -112,10 +110,9 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-winsock2.patch
 
     def install (self):
         Python.install (self)
-        for i in glob.glob ('%(install_prefix)s/lib/python%(python_version)s/lib-dynload/*.so*' \
-                  % self.get_substitution_dict ()):
-            dll = re.sub ('\.so*', '.dll', i)
-            self.system ('mv %(i)s %(dll)s', locals ())
+
+        # see python.py
+        raise 'FIXME'
 
         ## UGH.
         self.system ('''
