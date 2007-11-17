@@ -449,10 +449,11 @@ cp %(file)s %(install_root)s/license/%(name)s
                 s = os.readlink (file)
                 if s.startswith ('/') and self.settings.system_root not in s:
                     new_dest = os.path.join (self.settings.system_root, s[1:])
-                    os.remove (file)
+                    loggedos.remove (logger, file)
                     loggedos.symlink (logger, new_dest, file)
 
-        self.map_locate (rewire, '%(install_root)s', '*')
+        self.map_locate (rewire, '%(install_root)s', '*',
+                         silent=True)
 
     def package (self):
         self.rewire_symlinks ()

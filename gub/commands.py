@@ -84,7 +84,7 @@ class Copy (SerializedCommand):
         hasher (self.src)
         hasher (self.dest)
     def execute (self, logger):
-        loggedos.copy2 (self.src, self.dest)
+        loggedos.copy2 (logger, self.src, self.dest)
 
 
 class Func (SerializedCommand):
@@ -110,13 +110,28 @@ class Message (SerializedCommand):
         pass
 
 class MapLocate (SerializedCommand):
-    def __init__ (self, func, directory, pattern):
+    def __init__ (self, func, directory, pattern,
+                  must_happen=False, silent=False):
         self.func = func
         self.directory = directory
         self.pattern = pattern
+        self.must_happen = must_happen
+        self.silent = silent
     def execute (self, logger):
-        for fname in misc.locate_files (self.directory, self.pattern):
-            logger.write_log ('Executing %s on %s' % (self.func.__name__,
+        
+        files = misc.locate_files (self.directory, self.pattern)
+        if self.must_happen and files == []:
+            logger.write_log ('did not find files matching pattern')
+            raise 'MapLocate failed'
+
+        if self.silent:
+            logger.write_log ('Executing %s on %s/%s (%d files)\n'
+                              % (self.func.__name__, self.directory,
+                                 self.pattern, len(files)), 'info')
+            
+        for fname in files:
+            if not self.silent:
+                logger.write_log ('Executing %s on %s\n' % (self.func.__name__,
                                                       fname), 'info')
             self.func (logger, fname)
 
