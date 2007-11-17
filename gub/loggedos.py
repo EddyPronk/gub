@@ -50,7 +50,9 @@ for name, func in {'read_file': misc.read_file,
                    'chmod': os.chmod,
                    'makedirs': os.makedirs,
                    'copy2': shutil.copy2,
+                   'remove': os.remove,
                    'symlink': os.symlink,
+                   'rename': os.rename,
                    'read_pipe': misc.read_pipe}.items():
 
     def with_logging (func):

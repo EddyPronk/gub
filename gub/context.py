@@ -208,20 +208,9 @@ class RunnableContext (Context):
             str = self.expand (str, env)
         return self.runner.dump (str, name, mode=mode, permissions=permissions)
     
-    def locate_files (self, directory, pattern,
-                      include_dirs=True, include_files=True):
-        '''Return list of files under DIRECTORY using glob PATTERNs.
-
-        Results include DIRECTORY in the filenames.'''
-
-        raise 'This command cannot be executed deferred.'
-        # to fix: use MapLocate.
-        return self.runner.locate_files (self.expand (directory),
-                                         pattern, include_dirs, include_files)
-
-    def map_locate (self, func, directory, pattern):
+    def map_locate (self, func, directory, pattern, **kwargs):
         return self.runner.map_locate (func, self.expand (directory),
-                                             pattern)
+                                       pattern, **kwargs)
 
     def copy (self, src, dest):
         return self.runner.copy (self.expand (src), self.expand (dest))

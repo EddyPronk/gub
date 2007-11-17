@@ -114,8 +114,8 @@ class CommandRunner:
     def shadow_tree (self, src, target):
         return self._execute (commands.ShadowTree (src, target))
 
-    def map_locate (self, func, directory, pattern):
-        return self._execute (commands.MapLocate (func, directory, pattern))
+    def map_locate (self, func, directory, pattern, **kwargs):
+        return self._execute (commands.MapLocate (func, directory, pattern, **kwargs))
 
     def copy (self, src, dest):
         return self._execute (commands.Copy (src, dest))
