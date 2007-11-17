@@ -87,11 +87,6 @@ class Pic (targetbuild.TargetBuild):
                     + ' -I%(builddir)s' % locals ())
         self._downloader = self.cvs
 
-    def rsync_command (self):
-        c = targetbuild.TargetBuild.rsync_command (self)
-        c = c.replace ('rsync', 'rsync --delete') # --exclude configure')
-        return c
-
     def configure_command (self):
         return (targetbuild.TargetBuild.configure_command (self)
                 + misc.join_lines ('''

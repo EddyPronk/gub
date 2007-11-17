@@ -306,10 +306,6 @@ class UnixBuild (Build):
         return '%(statusdir)s/%(name)s-%(version)s-%(source_checksum)s'
 
     @context.subst_method
-    def rsync_command (self):
-        return "rsync --exclude .git --exclude _darcs --exclude .svn --exclude CVS -v -a %(downloads)s/%(name)s-%(version)s/ %(srcdir)s"
-
-    @context.subst_method
     def makeflags (self):
         return ''
     

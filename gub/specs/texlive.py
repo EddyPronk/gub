@@ -74,9 +74,6 @@ packages.'''
 #        self.texmf_repo.update_workdir (self.expand ('%(srcdir)s/texmf-dist'))
         self.texmf_repo.update_workdir (self.expand ('%(srcdir)s/texmf'))
 
-    def rsync_command (self):
-        return targetbuild.TargetBuild.rsync_command (self).replace ('rsync', 'rsync --exclude=.svn')
-
     def configure_command (self):
         from gub import misc
         #FIXME
