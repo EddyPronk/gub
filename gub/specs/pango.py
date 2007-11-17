@@ -4,6 +4,7 @@ import re
 from gub import mirrors
 from gub import misc
 from gub import targetbuild
+from gub import loggedos
 
 class Pango (targetbuild.TargetBuild):
     source = mirrors.with_template (name='pango', version='1.14.8',
@@ -53,7 +54,7 @@ class Pango (targetbuild.TargetBuild):
             m = re.search ('([0-9.]+)', dir)
             if m:
                 pango_module_version = m.group (1)
-                loggedos.dump_file ('''[Pango]
+                loggedos.dump_file (logger, '''[Pango]
 ModuleFiles = $PANGO_PREFIX/etc/pango/pango.modules
 ModulesPath = $PANGO_PREFIX/lib/pango/%(pango_module_version)s/modules
 ''' % locals(),
