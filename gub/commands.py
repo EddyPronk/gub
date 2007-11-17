@@ -226,7 +226,7 @@ class Chmod (SerializedCommand):
     def __init__ (self, *args):
         self.args = args
     def execute (self, logger):
-        loggedos.symlink (logger, *self.args)
+        loggedos.chmod (logger, *self.args)
     def checksum (self, hasher):
         hasher (self.__class__.__name__)
         map (hasher, map (str, self.args))

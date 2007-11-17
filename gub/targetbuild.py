@@ -11,7 +11,7 @@ class TargetBuild (build.UnixBuild):
         build.UnixBuild.__init__ (self, settings, source)
 
     def configure_command (self):
-        return misc.join_lines ('''%(srcdir)s/configure
+        return misc.join_lines ('''%(configure_binary)s
 --config-cache
 --enable-shared
 --disable-static

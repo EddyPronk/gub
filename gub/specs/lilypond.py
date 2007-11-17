@@ -1,5 +1,6 @@
 import os
 import re
+from new import instancemethod
 #
 from gub import repository
 from gub import build
@@ -35,7 +36,6 @@ beautiful sheet music from a high-level description file.'''
 
             return v
 
-        from new import instancemethod
         if isinstance (source, repository.Repository):
             source.version = instancemethod (version_from_VERSION, source, type (source))
 
@@ -62,24 +62,15 @@ beautiful sheet music from a high-level description file.'''
                 'python-devel',
                 'urw-fonts']
 
-    def rsync_command (self):
-        c = targetbuild.TargetBuild.rsync_command (self)
-        c = c.replace ('rsync', 'rsync --delete --exclude configure')
-        return c
     def stages (self):
         return misc.list_insert_before (targetbuild.TargetBuild.stages (self),
                                         'configure', 'autoupdate')
     def autoupdate (self):
-        # FIXME: why do we need a specific lilypond kludge.  can't
-        # this be done more generically?  shouldn't we check on
-        # source.is_tracking?
-        def must_autogen ():
-            return (self.first_is_newer ('%(srcdir)s/configure.in',
-                                         '%(builddir)s/config.make')
-                    or self.first_is_newer ('%(srcdir)s/stepmake/aclocal.m4',
-                                            '%(srcdir)s/configure'))
-        self.runner.pred_if_else (must_autogen, commands.System (self.expand ('cd %(srcdir)s && bash autogen.sh --noconfigure')))
+        self.system ('cd %(srcdir)s && ./smart-autogen.sh --noconfigure') 
 
+    def configure_binary (self):
+        return '%(srcdir)s/smart-configure.sh'
+    
     def configure_command (self):
         ## FIXME: pickup $target-guile-config
         return (targetbuild.TargetBuild.configure_command (self)
@@ -90,35 +81,7 @@ beautiful sheet music from a high-level description file.'''
 --with-ncsb-dir=%(system_prefix)s/share/fonts/default/Type1
 '''))
 
-    def configure (self):
-        # FIXME: why do we need a specific lilypond kludge.  can't
-        # this be done more genericly?  shouldn't we check on
-        # source.is_tracking?
-        def must_reconfigure ():
-
-            print 'FIXME: lilypond reconfigure.'
-            return (self.first_is_newer ('%(srcdir)s/config.make.in',
-                                         '%(builddir)s/config.make')
-                    or self.first_is_newer ('%(srcdir)s/GNUmakefile.in',
-                                            '%(builddir)s/GNUmakefile')
-                    or self.first_is_newer ('%(srcdir)s/config.hh.in',
-                                            '%(builddir)s/config.hh')
-                    or self.first_is_newer ('%(srcdir)s/configure',
-                                            '%(builddir)s/config.make')
-                    ## need to reconfigure if dirs were added.
-                    or True)
-
-        self.runner.pred_if_else (must_reconfigure,
-                                  commands.Func (self.reconfigure))
-
-    def reconfigure (self):
-        self.config_cache ()
-        targetbuild.TargetBuild.configure (self)
-        self.system ('touch %(builddir)s/config.hh')
-        self.file_sub ([(' -O2 ', ' -O2 -Werror ')], '%(builddir)s/config.make')
-
     def compile (self):
-        self.configure ()
         targetbuild.TargetBuild.compile (self)
 
     def name_version (self):
@@ -375,18 +338,15 @@ cp %(install_prefix)s/share/lilypond/*/python/* %(install_prefix)s/bin
 
         def rename (logger, name):
             header = open (name).readline().strip ()
-
-            # FIXME: loggedos.
-            logger.action('mv-ing aroung .ext exes')
             if header.endswith ('guile'):
-                misc.system ('mv %(i)s %(i)s.scm', locals ())
+                loggedos.system (logger, 'mv %(name)s %(name)s.scm', locals ())
             elif header.endswith ('python') and not name.endswith ('.py'):
-                misc.system ('mv %(i)s %(i)s.py', locals ())
+                loggedos.system (loggeer, 'mv %(name)s %(name)s.py' % locals ())
 
         def asciify (logger, name):
-            logger.action('ascifying %s\n' % name)
-            s = open (name).read ()
-            open (name, 'w').write (re.sub ('\r*\n', '\r\n', s))
+            loggedos.file_sub(logger,
+                              [('\r*\n', '\r\n')]
+                               name)
             
         self.map_locate (rename, self.expand ('%(install_prefix)s/bin/'), '*')
         self.map_locate (asciify, self.expand('%(install_root)s'), '*.ly')
@@ -457,7 +417,6 @@ class LilyPond__darwin (LilyPond):
 
     def configure (self):
         LilyPond.configure (self)
-        make = self.expand ('%(builddir)s/config.make')
         self.file_sub ([('CONFIG_CXXFLAGS = ',
                          'CONFIG_CXXFLAGS =-DGUILE_ELLIPSIS=... '),
 ## optionally: switch off for debugging.

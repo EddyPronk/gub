@@ -265,9 +265,13 @@ class UnixBuild (Build):
     def install_command (self):
         return '''make %(makeflags)s DESTDIR=%(install_root)s install'''
 
+    @context.subst_method
+    def configure_binary (self):
+        return '%(srcdir)s/configure'
+    
     @context.subst_method 
     def configure_command (self):
-        return '%(srcdir)s/configure --prefix=%(install_prefix)s'
+        return '%(configure_binary)s --prefix=%(install_prefix)s'
 
     @context.subst_method
     def compile_command (self):
