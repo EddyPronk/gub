@@ -152,7 +152,9 @@ class Dump (SerializedCommand):
         str, name = self.args
         hasher (self.__class__.__name__)
         hasher (name)
-        hasher (md5.md5 (str).hexdigest ())
+# this keeps builds log a lot smaller, but not handy for development.
+#        hasher (md5.md5 (str).hexdigest ())
+        hasher (str)
     def execute (self, logger):
         str, name = self.args
 
@@ -167,8 +169,9 @@ class Dump (SerializedCommand):
 
 class Substitute (SerializedCommand):
     '''Substitute RE_PAIRS in file NAME.
-If TO_NAME is specified, the output is sent to there.
-'''
+
+    If TO_NAME is specified, the output is sent to there.
+    '''
 
     def __init__ (self, *args, **kwargs):
         SerializedCommand.__init__ (self)

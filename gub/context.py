@@ -223,7 +223,7 @@ class RunnableContext (Context):
 
     def first_is_newer (self, first, second, env={}):
         return self.runner.first_is_newer (self.expand (first, env),
-                                                 self.expand (second, env))
+                                           self.expand (second, env))
 
 #
 # Tests.

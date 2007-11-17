@@ -344,9 +344,7 @@ cp %(install_prefix)s/share/lilypond/*/python/* %(install_prefix)s/bin
                 loggedos.system (loggeer, 'mv %(name)s %(name)s.py' % locals ())
 
         def asciify (logger, name):
-            loggedos.file_sub(logger,
-                              [('\r*\n', '\r\n')]
-                               name)
+            loggedos.file_sub(logger, [('\r*\n', '\r\n')], name)
             
         self.map_locate (rename, self.expand ('%(install_prefix)s/bin/'), '*')
         self.map_locate (asciify, self.expand('%(install_root)s'), '*.ly')
