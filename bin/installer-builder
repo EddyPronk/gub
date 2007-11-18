@@ -106,23 +106,6 @@ build-all - build, strip, package
     
     return (options, args)
 
-def get_installer_checksum (package_dicts):
-    checksum_list = []
-
-    for dict in package_dicts:
-        package_checksum = file (dict['checksum_file']).read ()
-
-        package_checksum = md5.md5 (package_checksum).hexdigest ()
-        checksum_list.append ((dict['name'],        
-                               dict['source_checksum'],
-                               package_checksum))
-    
-    string = pickle.dumps (checksum_list)
-
-    # we take the hash to make sure that we do not get random strings
-    # (which may trigger substitutions) in the attributes of a Context
-    return md5.md5 (string).hexdigest ()
-
 def check_installer (installer, options, args):
     settings = installer.settings
     install_manager = gup.PackageDictManager ()
@@ -152,11 +135,16 @@ def build_installer (installer_obj):
     available = dict (inspect.getmembers (installer_obj, callable))
     
     installer_obj.connect_command_runner (command_runner)
-    for s in installer_obj.stages ():
-        if s in available:
-            logger.write_log (' *** Stage: %s (installer, %s)\n' % (s, installer_obj.settings.platform),
-                              'stage')
-            available[s]()
+    try:
+        for s in installer_obj.stages ():
+            if s in available:
+                logger.write_log (' *** Stage: %s (installer, %s)\n' % (s, installer_obj.settings.platform),
+                                  'stage')
+                available[s]()
+    except installer.ChecksumShortCircuit:
+        logger.write_log (' *** Checksum matches: no action necessary\n',
+                          'info')
+
     installer_obj.connect_command_runner (None)
 
 def main ():

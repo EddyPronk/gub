@@ -2,6 +2,7 @@ import os
 import re
 import time
 import md5
+import pickle
 
 from gub import context
 from gub import darwin
@@ -19,6 +20,9 @@ pretty_names = {
     'git': 'Git',
     }
 
+class ChecksumShortCircuit (Exception):
+    pass
+
 class Installer (context.RunnableContext):
     def __init__ (self, settings, arguments, version_db, branch_dict):
         context.RunnableContext.__init__ (self, settings)
@@ -32,7 +36,7 @@ class Installer (context.RunnableContext):
         self.no_binary_strip = []
         self.no_binary_strip_extensions = ['.la', '.py', '.def', '.scm', '.pyc']
         self.installer_uploads = settings.uploads
-        self.checksum = '0000' # FIXME
+        self.checksum = ''
         self.name = name
         self.pretty_name = pretty_names.get (name, name)
 
@@ -70,12 +74,20 @@ class Installer (context.RunnableContext):
         install_manager.read_package_headers (self.settings.cross_packages,
                                               self.branch_dict)
 
+        self.package_manager = install_manager
+
         def get_dep (x):
             return install_manager.dependencies (x)
+
 
         package_names = gup.topologically_sorted (self.arguments, {},
                                                   get_dep,
                                                   None)
+        self.checksum_matches = False
+        checksum_file = self.installer_checksum_file
+        self.checksum = self.calculate_checksum (package_names)
+        if os.path.exists (checksum_file) and open (checksum_file).read () == self.checksum:
+            raise ChecksumShortCircuit
 
         for a in package_names:
             install_manager.install_package (a)
@@ -87,12 +99,11 @@ class Installer (context.RunnableContext):
 
         self.installer_version = version
         self.installer_build = buildnumber
-        self.use_install_root_manager (install_manager)
 
-
-    def calculate_checksum (self):
-        for p in install_manager.installed_packages ():
-            dict = install_manager.package_dict (p)
+    def calculate_checksum (self, names):
+        checksum_list = []
+        for name in sorted(names):
+            dict = self.package_manager.package_dict (name)
             package_checksum = file (dict['checksum_file']).read ()
 
             package_checksum = md5.md5 (package_checksum).hexdigest ()
@@ -107,7 +118,8 @@ class Installer (context.RunnableContext):
         return md5.md5 (string).hexdigest ()
 
     def stages (self):
-        return ['build', 'strip', 'create']
+        return ['build', 'shortcircuit_checksum', 'strip', 'create',
+                'write_checksum']
 
     def strip_prefixes (self):
         return ['', 'usr/']
@@ -235,16 +247,15 @@ class Installer (context.RunnableContext):
         self.strip_dir ('%(installer_prefix)s/bin')
         self.strip_dir ('%(installer_prefix)s/lib')
 
-    def use_install_root_manager (self, manager):
-        pass
-    
     def create (self):
         self.system ('mkdir -p %(installer_root)s/license')
         self.system ('cp %(sourcefiledir)s/gub.license %(installer_root)s/license/README', ignore_errors=True)
 
     def write_checksum (self):
-        open (self.expand ('%(installer_checksum_file)s'), 'w').write (self.checksum)
-
+        if self.checksum:
+            open (self.expand ('%(installer_checksum_file)s'), 'w').write (self.checksum)
+        else:
+            self.warning ('checksum is empty.')
 
 class DarwinRoot (Installer):
     def __init__ (self, settings, name):
@@ -256,9 +267,9 @@ class DarwinRoot (Installer):
         self.rewirer.connect_command_runner (runner)
         return Installer.connect_command_runner (self, runner)
         
-    def use_install_root_manager (self, package_manager):
-        tarball = package_manager.package_dict ('darwin-sdk')['split_ball']
-        self.package_manager = package_manager
+    def build (self):
+        Installer.build (self)
+        tarball = self.package_manager.package_dict ('darwin-sdk')['split_ball']
         self.rewirer.set_ignore_libs_from_tarball (tarball)
 
     def create (self):
@@ -320,7 +331,6 @@ cp -pR --link %(installer_root)s/license*/* %(darwin_bundle_dir)s/Contents/Resou
         self.system ('cd %(darwin_bundle_dir)s/../ && tar cjf %(bundle_zip)s LilyPond.app',
                      locals ())
         
-        self.write_checksum ()
         
 class MingwRoot (Installer):
     def __init__ (self, settings, name):
@@ -395,7 +405,6 @@ class Linux_installer (Installer):
     def create (self):
         Installer.create (self)
         self.create_tarball (self.bundle_tarball)
-        self.write_checksum ()
 
 class Shar (Linux_installer):
     def create (self):
