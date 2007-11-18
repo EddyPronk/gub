@@ -51,7 +51,7 @@ def get_platform_from_dir (settings, dir):
     return None
 
 class Settings (context.Context):
-    def __init__ (self, options):
+    def __init__ (self, platform):
         context.Context.__init__ (self)
 
         # TODO: tools-prefix, target-prefix, cross-prefix?
@@ -59,22 +59,8 @@ class Settings (context.Context):
         self.root_dir = '/root'
         self.cross_dir = '/cross'
 
-        if not options.platform:
-            if options.__dict__.has_key ('root') and options.root:
-                options.platform = get_platform_from_dir (self, options.root)
-                if not options.platform:
-                    self.error ('invalid root: %(root)s, no platform found'
-                                % options)
-                    raise UnknownPlatform (options.root)
-            else:
-                guess = get_platform_from_dir (self, os.getcwd ())
-                if guess in platforms.keys ():
-                    options.platforms = guess
-            
-        if not options.platform:
-            options.platform = 'tools'
 
-        self.platform = options.platform
+        self.platform = platform
         if self.platform not in platforms.keys ():
             raise UnknownPlatform (self.platform)
 
@@ -150,9 +136,6 @@ class Settings (context.Context):
         elif self.platform == 'mingw':
             self.target_gcc_flags = '-mwindows -mms-bitfields'
 
-        self.branches = dict ()
-        if options.branches:
-            self.set_branches (options.branches)
         self.options = options ##ugh
         self.os = re.sub ('[-0-9].*', '', self.platform)
 
@@ -230,19 +213,6 @@ class Settings (context.Context):
         self.cross_distcc_hosts = ' '.join (distcc.live_hosts (hosts (options.cross_distcc_hosts)))
 
         self.native_distcc_hosts = ' '.join (distcc.live_hosts (hosts (options.native_distcc_hosts), port=3634))
-
-
-    def set_branches (self, bs):
-        "set branches, takes a list of name=branch strings."
-
-        self.branch_dict = dict ()
-        for b in bs:
-            (name, br) = tuple (b.split ('='))
-            self.branch_dict[name] = br
-
-            # URG - should be set in each package separately?
-            # is there a cross package dependency for this?
-            self.__dict__['%s_branch' % name] = br
 
     def dependency_url (self, string):
         # FIXME: read from settings.rc, take platform into account

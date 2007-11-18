@@ -213,12 +213,6 @@ def exceptional_build (settings, files, logger):
         
     return status
 
-def urg_add_more_settings_for_gub (settings, options):
-    settings.build_source = options.build_source
-    settings.lilypond_versions = options.lilypond_versions
-    settings.cpu_count = options.cpu_count
-    settings.set_distcc_hosts (options)
-
 
 def logged_build (settings, files, verbosity):
     logger = logging.set_default_log (settings.expand ('%(logdir)s/build.log'),
@@ -237,8 +231,12 @@ def main ():
 
     logging.default_logger.threshold = options.verbosity
 
-    settings = gub.settings.Settings (options)
-    urg_add_more_settings_for_gub (settings, options)
+    if not options.platform:
+        logging.error ('Must specify platform')
+        sys.exit(2)
+        
+    settings = gub.settings.Settings (options.platform)
+
 
     if options.inspect_key:
         inspect (settings, files)
