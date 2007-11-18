@@ -13,4 +13,3 @@ mkdir -p %(install_prefix)s/share
 tar -C %(srcdir)s/ -cf - . | tar -C %(install_prefix)s -xf -
 mv %(install_prefix)s/doc %(install_root)s/share
 ''', locals ())
-

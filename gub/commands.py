@@ -332,11 +332,10 @@ class AutogenMagic (ForcedAutogenMagic):
         if not os.path.exists (package.expand ('%(srcdir)s/configure')):
             if (os.path.exists (package.expand ('%(srcdir)s/configure.ac'))
                 or os.path.exists (package.expand ('%(srcdir)s/configure.in'))
-                or (not os.path.exists (packmessageage.expand ('%(srcdir)s/Makefile'))
+                or (not os.path.exists (package.expand ('%(srcdir)s/Makefile'))
                     and not os.path.exists (package.expand ('%(srcdir)s/makefile'))
                     and not os.path.exists (package.expand ('%(srcdir)s/SConstruct')))):
                 ForcedAutogenMagic.execute (self, logger)
-
 
 class CreateShar (SerializedCommand):
     def __init__ (self, *args, **kwargs):

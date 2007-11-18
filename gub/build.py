@@ -49,7 +49,6 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/%(name)s
     def build (self):
         available = dict (inspect.getmembers (self, callable))
         stages = self.stages ()
-        
         tainted = False
         for stage in stages:
             if (not available.has_key (stage)):
@@ -108,7 +107,10 @@ class UnixBuild (Build):
     def stages (self):
         return ['untar', 'patch',
                 'configure', 'compile', 'install',
-                'src_package', 'package', 'clean']
+
+                # see bin/gub TODO
+                #'src_package',
+                'package', 'clean']
 
     @context.subst_method
     def LD_PRELOAD (self):

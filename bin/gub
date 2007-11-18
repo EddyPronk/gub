@@ -163,13 +163,27 @@ def build (settings, options, files):
 
     if options.fresh:
         try:
-            print specs
             for spec in specs.values():
                 logging.action ('Removing status file')
                 os.unlink (spec.get_stamp_file ())
         except OSError:
             pass
 
+    if False and not options.build_source:
+        pass
+        # TODO: figure out how to patch src_package from
+        # stages. Simpleminded solution does not work
+        # and causes mingw runtime to run autogenmagic
+        
+        for spec in specs.values():
+            orig_val =  spec.stages()
+            def patched():
+                print 'patched', orig_val
+                return [x for x in orig_val
+                        if x != 'src_package']
+
+            spec.stages = patched 
+        
     # TODO: patch out clean if --keep was specified.
 
     # TODO: move taint check in special stage, and patch out --force
