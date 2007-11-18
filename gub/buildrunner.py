@@ -99,7 +99,7 @@ class BuildRunner:
             reason = 'hdr missing'
             
         if reason == '':
-            hdr_dict = pickle.load (open (hdr))
+            hdr_dict = dict(pickle.load (open (hdr)))
             if spec.source_checksum () != hdr_dict['source_checksum']:
                 reason = 'source %s -> %s (disk)' % (spec.source_checksum (), hdr_dict['source_checksum'])
 

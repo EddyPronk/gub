@@ -203,7 +203,6 @@ class PackageDictManager:
             if self._packages[nm]['spec_checksum'] != d['spec_checksum']:
                 logging.info ('******** checksum of %s changed!\n\n' % nm)
 
-            ## UGH ; need to look at installed hdr.
             if self._packages[nm]['cross_checksum'] != d['cross_checksum']:
                 logging.info ('******** checksum of cross changed for %s\n' % nm)
             return
@@ -214,11 +213,11 @@ class PackageDictManager:
     def register_package_header (self, package_hdr, branch_dict):
         if self.verbose:
             logging.info ('reading package header: %s\n'
-                                           % `package_hdr`)
+                          % `package_hdr`)
 
         str = open (package_hdr).read ()
 
-        d = pickle.loads (str)
+        d = dict(pickle.loads (str))
 
         if branch_dict.has_key (d['basename']):
             branch = branch_dict[d['basename']]

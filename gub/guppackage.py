@@ -35,7 +35,10 @@ class GupPackage:
     
     def dump_header_file (self):
         hdr = self.expand ('%(split_hdr)s')
-        self._runner.dump (pickle.dumps (self._dict), hdr)
+
+        # For easier inspection: dump as sorted list
+        as_list = sorted(self._dict.items())
+        self._runner.dump (pickle.dumps (as_list), hdr)
         
     def clean (self):
         base = self.expand ('%(install_root)s')
