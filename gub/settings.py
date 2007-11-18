@@ -2,7 +2,6 @@ import os
 import re
 import optparse
 
-from gub import distcc
 from gub import build
 from gub import context
 from gub import mirrors
@@ -118,8 +117,6 @@ class Settings (context.Context):
         if GUB_TOOLS_PREFIX:
             self.tools_root = GUB_TOOLS_PREFIX
             self.tools_prefix = GUB_TOOLS_PREFIX
-        self.cross_distcc_bindir = self.alltargetdir + '/cross-distcc/bin'
-        self.native_distcc_bindir = self.alltargetdir + '/native-distcc/bin'
 
         self.cross_packages = self.packages + self.cross_dir
         self.cross_allsrcdir = self.allsrcdir + self.cross_dir
@@ -148,7 +145,6 @@ class Settings (context.Context):
 
         self.gtk_version = '2.8'
         self.toolchain_prefix = self.target_architecture + '-'
-        self.distcc_hosts = ''
         
 	if self.target_architecture.startswith ('x86_64'):
 	    self.package_arch = 'amd64'
