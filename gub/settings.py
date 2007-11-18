@@ -133,7 +133,6 @@ class Settings (context.Context):
         elif self.platform == 'mingw':
             self.target_gcc_flags = '-mwindows -mms-bitfields'
 
-        self.options = options ##ugh
         self.os = re.sub ('[-0-9].*', '', self.platform)
 
         self.target_architecture = platforms[self.platform]
@@ -246,7 +245,7 @@ def main ():
     if not options.platform or files:
         raise 'barf'
         sys.exit (2)
-    settings = Settings (options)
+    settings = Settings (options.platform)
     print '\n'.join (as_variables (settings))
 
 if __name__ == '__main__':

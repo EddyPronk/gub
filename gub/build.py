@@ -48,24 +48,8 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/%(name)s
 ''', locals ())
     def build (self):
         available = dict (inspect.getmembers (self, callable))
-        if self.settings.options.stage:
-            self.runner.stage (' *** Stage: %s (%s, %s)\n'
-                                     % (self.settings.options.stage, self.name (),
-                                        self.settings.platform))
-            (available[self.settings.options.stage]) ()
-            return
-
         stages = self.stages ()
-        if 'src_package' in stages and not self.settings.options.build_source:
-            stages.remove ('src_package')
-
-        if self.settings.options.fresh:
-            try:
-                self.runner.action ('Removing status file')
-                os.unlink (self.get_stamp_file ())
-            except OSError:
-                pass
-
+        
         tainted = False
         for stage in stages:
             if (not available.has_key (stage)):
@@ -74,19 +58,12 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/%(name)s
             if self.is_done (stage, stages.index (stage)):
                 tainted = True
                 continue
-            if (stage == 'clean'
-                and self.settings.options.keep_build):
-                # defer unlink?
-                # os.unlink (self.get_stamp_file ())
-                self.runner.system ('rm ' + self.get_stamp_file ())
-                continue
-            
+
             self.runner.stage (' *** Stage: %s (%s, %s)\n'
                                % (stage, self.name (),
                                   self.settings.platform))
 
-            if (stage == 'package' and tainted
-                and not self.settings.options.force_package):
+            if (stage == 'package' and tainted):
                 msg = self.expand ('''This compile has previously been interrupted.
 To ensure a repeatable build, this will not be packaged.
 

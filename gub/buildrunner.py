@@ -155,18 +155,14 @@ class BuildRunner:
             return
 
         # ugh, dupe
-        checksum_fail_reason = ''
-        if not self.settings.options.lax_checksums:
-            checksum_fail_reason = self.spec_checksums_fail_reason (spec)
+        checksum_fail_reason = self.spec_checksums_fail_reason (spec)
             
         is_installable = misc.forall (self.manager.is_installable (p.name ())
                                       for p in spec.get_packages ())
 
         logger = logging.default_logger
 
-        if (self.settings.options.stage
-            or not is_installable
-            or checksum_fail_reason):
+        if (not is_installable or checksum_fail_reason):
 
             logger.write_log (checksum_fail_reason, 'info')
 
@@ -180,18 +176,15 @@ class BuildRunner:
 
             file (spec.expand ('%(checksum_file)s'), 'w').write (self.checksums[specname])
 
-        # FIXME, spec_install should be stage?
-        if not self.settings.options.stage: # or options.stage == spec_install:
-            logger.write_log (' *** Stage: %s (%s, %s)\n'
-                               % ('pkg_install', spec.name (),
-                                  self.settings.platform), 'stage')
-            self.spec_install (spec)
+        logger.write_log (' *** Stage: %s (%s, %s)\n'
+                           % ('pkg_install', spec.name (),
+                              self.settings.platform), 'stage')
+        self.spec_install (spec)
 
     def uninstall_outdated_spec (self, spec_name):
 	spec = self.specs[spec_name]
 	# ugh, dupe
-	checksum_ok = (self.settings.options.lax_checksums
-		       or '' == self.spec_checksums_fail_reason (self.specs[spec_name]))
+	checksum_ok = '' == self.spec_checksums_fail_reason (self.specs[spec_name])
 	for pkg in spec.get_packages ():
 	    if (self.manager.is_installed (pkg.name ())
 		and (not self.manager.is_installable (pkg.name ())
@@ -205,9 +198,7 @@ class BuildRunner:
     def build_source_packages (self, names):
         deps = filter (self.specs.has_key, names)
 
-        if not self.settings.options.stage:
-            self.uninstall_outdated_specs (deps)
-
+        self.uninstall_outdated_specs (deps)
         for spec_name in deps:
             self.spec_build (spec_name)
 

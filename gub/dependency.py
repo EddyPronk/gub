@@ -95,8 +95,6 @@ class Dependency:
     
     def _check_source_tree (self, source):
         if self.build_class ().need_source_tree and not source.is_downloaded ():
-            if self.settings.options.offline:
-                raise 'Early download requested for %(_name)s in offline mode' % self.__dict__
 	    logging.info ('early download for: %(_name)s\n' % self.__dict__)
             source.download ()
     def url (self):

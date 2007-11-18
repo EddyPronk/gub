@@ -151,7 +151,7 @@ def inspect (settings, files):
             print v
 
 #FIXME: move to BuildRunner?
-def build (settings, files):
+def build (settings, options, files):
     (names, specs) = gup.get_source_packages (settings, files)
     def get_all_deps (name):
         package = specs[name]
@@ -160,6 +160,23 @@ def build (settings, files):
             deps = [gup.get_base_package_name (d) for d in deps]
         return deps
 
+
+    if options.fresh:
+        try:
+            print specs
+            for spec in specs.values():
+                logging.action ('Removing status file')
+                os.unlink (spec.get_stamp_file ())
+        except OSError:
+            pass
+
+    # TODO: patch out clean if --keep was specified.
+
+    # TODO: move taint check in special stage, and patch out --force
+    # was specified.
+
+    # TODO: patch out checksum comparison if --lax-checksum was specified.
+
     # FIXME: why do we only use deps for download, not for build?
     deps = gup.topologically_sorted (files, {}, get_all_deps, None)
 
@@ -167,12 +184,12 @@ def build (settings, files):
     PATH = os.environ['PATH']
     os.environ['PATH'] = settings.expand ('%(tools_prefix)s/bin:' + PATH)
 
-    if not settings.options.offline:
+    if not options.offline:
         for dep in deps:
             specs[dep].download ()
 
     # FIXME: hw, why is this?  Doesn't this break 
-    if settings.options.stage:
+    if options.stage:
         names = files
 
     try:
@@ -180,21 +197,22 @@ def build (settings, files):
         ## Todo: have a readonly lock for tools platform
     except locker.LockedError:
         logging.error ('another build in progress.  Skipping.')
-        if settings.options.skip_if_locked:
+        if options.skip_if_locked:
             sys.exit (0)
         raise
 
     from gub import buildrunner
     b = buildrunner.BuildRunner (manager, settings, specs)
 
+
     # better in ctor?
     b.calculate_checksums ()
     b.build_source_packages (names)
 
-def exceptional_build (settings, files, logger):
+def exceptional_build (settings, options, files, logger):
     status = 1
     try:
-        build (settings, files)
+        build (settings, options, files)
         status = 0
     except SystemExit, e:
         status = e.code
@@ -214,14 +232,14 @@ def exceptional_build (settings, files, logger):
     return status
 
 
-def logged_build (settings, files, verbosity):
+def logged_build (settings, options, files):
     logger = logging.set_default_log (settings.expand ('%(logdir)s/build.log'),
-                             verbosity)
+                                       options.verbosity)
     
     logger.write_log ('root: %s\n' % settings.system_root, 'info')
     logger.write_log ('platform: %s\n' % settings.platform, 'info')
 
-    sys.exit (exceptional_build (settings, files, logger))
+    sys.exit (exceptional_build (settings, options, files, logger))
 
     
 def main ():
@@ -247,7 +265,7 @@ def main ():
         cli_parser.print_help ()
         sys.exit (2)
         
-    logged_build (settings, files, options.verbosity)
+    logged_build (settings, options, files)
 
 
 if __name__ == '__main__':
