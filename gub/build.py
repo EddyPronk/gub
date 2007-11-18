@@ -304,7 +304,7 @@ class UnixBuild (Build):
 
     def configure (self):
         self.system ('''
-mkdir -p %(builddir)s
+mkdir -p %(builddir)s || true
 cd %(builddir)s && %(configure_command)s
 ''')
 

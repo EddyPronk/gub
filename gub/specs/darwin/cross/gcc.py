@@ -2,6 +2,7 @@ import os
 
 from gub.specs.cross import gcc
 from gub import mirrors
+from gub import loggedos
 
 class Gcc (gcc.Gcc):
     source = mirrors.with_template (version='4.1.1', mirror=mirrors.gcc_41, format='bz2')

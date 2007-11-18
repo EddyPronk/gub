@@ -2,6 +2,7 @@ from gub import cross
 from gub import misc
 from gub import mirrors
 from gub import context
+from gub import loggedos
 
 #FIXME: merge fully with specs/gcc
 class Gcc (cross.CrossToolsBuild):
@@ -19,7 +20,7 @@ class Gcc (cross.CrossToolsBuild):
         return ['doc', 'runtime', '']
 
     def languages (self):
-        return  ['c', 'c++']
+        return ['c', 'c++']
         
     def configure_command (self):
         cmd = cross.CrossToolsBuild.configure_command (self)
@@ -45,22 +46,14 @@ class Gcc (cross.CrossToolsBuild):
         return misc.join_lines (cmd)
 
     def move_target_libs (self, libdir):
-        import os
-        if not os.path.isdir (libdir):
-            return
+        self.system ('mkdir -p %(install_prefix)s/lib || true')
 
-        files = []
-
-        ## .so* because version numbers trail .so extension. 
+        ## .so* because version numbers trail .so extension.
         for suf in ['.la', '.so*', '.dylib']:
-            files += self.locate_files (libdir, 'lib*' + suf)
-            
-        for f in files:
-            (dir, file) = os.path.split (f)
-            target = self.expand ('%(install_prefix)s/%(dir)s', locals ())
-            if not os.path.isdir (target):
-                os.makedirs (target)
-            self.system ('mv %(f)s %(install_prefix)s/lib', locals ())
+            # todo: maplocate
+            self.system("""
+find %(libdir)s -name 'lib*%(suf)s' -exec mv '{}' %(install_prefix)s/lib ';'
+""", locals())
 
     def install (self):
         cross.CrossToolsBuild.install (self)
@@ -68,12 +61,6 @@ class Gcc (cross.CrossToolsBuild):
 
         self.move_target_libs (old_libs)
         self.move_target_libs (self.expand ('%(install_prefix)s/cross/lib'))
-        import os
-        if os.path.exists (self.expand ('cd %(install_prefix)s/lib/libgcc_s.so.1')):
-            # FIXME: .so senseless for darwin.
-            self.system ('''
-cd %(install_prefix)s/lib && ln -fs libgcc_s.so.1 libgcc_s.so
-''')
 
 class Gcc__from__source (Gcc):
     def get_build_dependencies (self):

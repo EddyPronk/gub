@@ -30,7 +30,7 @@ from gub import gup
 from gub import logging
 from gub import runner
 
-def checksum_diff (a, b):
+def checksum_diff (b, a):
     return '\n'.join(difflib.context_diff (a.split ('\n'),
                                            b.split ('\n')))
 

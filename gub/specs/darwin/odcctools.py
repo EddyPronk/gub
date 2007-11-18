@@ -3,6 +3,7 @@ import os
 from gub import cross
 from gub import mirrors
 
+# http://dev.gentoo.org/~grobian/distfiles/odcctools-20071104.tar.bz2
 class Odcctools (cross.CrossToolsBuild):
     source = mirrors.with_template (name='odcctools', version='20060413',
                    ####version='20060608',

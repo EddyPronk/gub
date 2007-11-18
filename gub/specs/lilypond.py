@@ -73,6 +73,7 @@ class LilyPond (targetbuild.TargetBuild):
         return '%(srcdir)s/smart-configure.sh'
 
     def configure (self):
+        self.system ('mkdir -p %(builddir)s || true')
         self.system ('cp %(tools_prefix)s/include/FlexLexer.h %(builddir)s')
         targetbuild.TargetBuild.configure (self)
     
@@ -272,7 +273,7 @@ class LilyPond__no_python (LilyPond):
         return d
 
     def configure (self):
-        self.system ('mkdir -p %(builddir)s', ignore_errors=True) 
+        self.system ('mkdir -p %(builddir)s || true') 
         self.system ('touch %(builddir)s/Python.h') 
         LilyPond.configure (self)
         self.dump ('''
