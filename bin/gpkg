@@ -37,7 +37,8 @@ import string
 import sys
 #
 from gub import gup
-from gub import oslog
+from gub import logging
+from gub.settings import Settings
 
 class Command:
     def __init__ (self, pm, options):
@@ -174,15 +175,15 @@ def parse_options ():
 def main ():
     options = parse_options ()
     options.verbose -= options.quiet
-    from gub.settings import Settings
-    osi = oslog.Os_commands ('/dev/null', options.verbose)
-    settings = Settings (options, osi)
+    settings = Settings (options.platform)
     options.root = settings.system_root
     options.platform = settings.platform
-    osi.stage ('root: ' + settings.system_root + '\n')
-    osi.info ('platform: ' + settings.platform + '\n')
+
+    logging.stage ('root: ' + settings.system_root + '\n')
+    logging.info ('platform: ' + settings.platform + '\n')
+
+    # TODO: hook log into target/PLAT/log/
     target_manager = gup.DependencyManager (options.root,
-                                            osi,
                                             dbdir=options.dbdir)
 
     if options.command == 'install':
