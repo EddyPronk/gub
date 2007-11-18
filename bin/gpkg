@@ -39,10 +39,6 @@ import sys
 from gub import gup
 from gub import oslog
 
-def sort (lst):
-    list.sort (lst)
-    return lst
-
 class Command:
     def __init__ (self, pm, options):
         self.pm = pm
@@ -50,7 +46,7 @@ class Command:
 
     def available (self):
         '''list available packages'''
-        print '\n'.join (sort (self.pm._packages.keys ()))
+        print '\n'.join (sorted (self.pm._packages.keys ()))
 
     def files (self):
         '''list installed files'''
@@ -68,7 +64,7 @@ class Command:
                 self.options.packagename)
         regexp = re.compile (regexp)
         hits = []
-        for p in sort (self.pm.installed_packages ()):
+        for p in sorted (self.pm.installed_packages ()):
             hits += ['%s: /%s' % (p, i)
                 for i in self.pm.installed_files (p)
                 if regexp.search ('/%s' % i)]
@@ -93,9 +89,9 @@ class Command:
     def list (self):
         '''installed packages'''
         if self.options.print_only_name:
-            print '\n'.join (sort (self.pm.installed_packages ()))
+            print '\n'.join (sorted (self.pm.installed_packages ()))
         else:
-            print '\n'.join (sort (['%(split_name)-20s%(version)s' % d for d in self.pm.installed_package_dicts()]))
+            print '\n'.join (sorted (['%(split_name)-20s%(version)s' % d for d in self.pm.installed_package_dicts()]))
 
     def remove_package (self, p):
         if not self.pm.is_installed (p):
