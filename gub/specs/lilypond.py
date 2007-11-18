@@ -70,6 +70,10 @@ beautiful sheet music from a high-level description file.'''
 
     def configure_binary (self):
         return '%(srcdir)s/smart-configure.sh'
+
+    def configure (self):
+        self.system ('cp %(tools_prefix)s/include/FlexLexer.h %(builddir)s')
+        targetbuild.TargetBuild.configure (self)
     
     def configure_command (self):
         ## FIXME: pickup $target-guile-config
@@ -301,8 +305,6 @@ LDFLAGS="%(LDFLAGS)s %(python_lib)s"
 '''% locals ()))
     
     def configure (self):
-        self.system ('cp %(tools_prefix)s/include/FlexLexer.h %(builddir)s')
-
         LilyPond.configure (self)
 
         ## huh, why ? --hwn

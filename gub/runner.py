@@ -44,7 +44,7 @@ class CommandRunner:
         self.fakeroot_cmd = False
 
     def _execute (self, command):
-        return command.execute (self)
+        return command.execute (self.logger)
 
     # fixme: should be moved somewhere else.
     def fakeroot (self, s):

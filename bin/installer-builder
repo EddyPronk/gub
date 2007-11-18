@@ -28,6 +28,7 @@ def argv0_relocation ():
 
 argv0_relocation ()
 
+import inspect
 import md5
 import optparse
 import os
@@ -140,100 +141,43 @@ def check_installer (installer, options, args):
         [install_manager.package_dict (p)
          for p in install_manager.installed_packages ()])
 
-def build_installer (installer, args, options):
-    settings = installer.settings
+def build_installer (installer_obj):
+
+    logger = logging.default_logger
+
+    # theoretically, we could run DeferredRunner but we would have to
+    # CommandRunner-ify PackageManager too. - that does not seem worth
+    # the effort.
+    command_runner = runner.CommandRunner (logger)
+    available = dict (inspect.getmembers (installer_obj, callable))
     
-    install_manager = gup.DependencyManager (installer.installer_root,
-                                             dbdir=installer.installer_db,
-                                             clean=True)
-    
-    install_manager.include_build_deps = False
-    install_manager.read_package_headers (settings.packages,
-                                          settings.branch_dict)
-    install_manager.read_package_headers (settings.cross_packages,
-                                          settings.branch_dict)
-
-    def get_dep (x):
-        return install_manager.dependencies (x)
-    
-    package_names = gup.topologically_sorted (args, {},
-                                              get_dep,
-                                              None)
-
-    # WTF is gcc-runtime?  Add to package dependencies, if necessary
-    if not settings.is_distro and not settings.platform == 'linux-arm-vfp':
-        package_names += ["cross/gcc-runtime"]
-
-    for a in package_names:
-        install_manager.install_package (a)
-
-    version = install_manager.package_dict (args[0])['version']
-    version_tup = tuple (map (int, version.split ('.')))
-    db = versiondb.VersionDataBase (options.version_db)
-    buildnumber = '%d' % db.get_next_build_number (version_tup)
-
-    settings.installer_version = version
-    settings.installer_build = buildnumber
-
-    installer.use_install_root_manager (install_manager)
-
-    installer.checksum = get_installer_checksum (
-        [install_manager.package_dict (p)
-         for p in install_manager.installed_packages ()])
-
-def strip_installer (obj):
-    obj.command (' ** Stage: %s (%s installer)\n' % ('strip', obj.name))
-    obj.strip ()
-
-def package_installer (installer):
-    installer.create ()
-        
-def run_installer_commands (commands, settings, args, options):
-    name = args[0]
-    installer_obj = installer.get_installer (settings, name)
-
-    if check_installer (installer_obj, options, args):
-        logging.info ('installer is up to date\n')
-        return 
-
-
-    logger = logging.CommandLogger ('log/%s/installer.%s.log' %
-                                        (settings.platform, name),
-                                        options.verbosity)
-    installer_obj.connect_command_runner (runner.CommandRunner (logger))
-    for c in commands:
-        logging.stage (' *** IStage: %s (%s)\n' % (c, installer_obj.name))
-    
-        if c == ('build'):
-            build_installer (installer_obj, args, options)
-        elif c == ('strip'):
-            strip_installer (installer_obj)
-        elif c == ('package'):
-            package_installer (installer_obj)
-        else:
-            raise Exception ('unknown installer command', c)
-
+    installer_obj.connect_command_runner (command_runner)
+    for s in installer_obj.stages ():
+        if s in available:
+            logger.write_log (' *** Stage: %s (installer, %s)\n' % (s, installer_obj.settings.platform),
+                              'stage')
+            available[s]()
+    installer_obj.connect_command_runner (None)
 
 def main ():
-    (options, commands) = parse_command_line ()
+    (options, args) = parse_command_line ()
 
-    settings = gub.settings.Settings (options)
+    settings = gub.settings.Settings (options.platform)
+
     for s in options.settings:
         (k, v) = tuple (s.split ('='))
         if settings.__dict__.has_key (k):
             logging.warn ('overwriting %s = %s with %s\n'
                                         % (k, settings.__dict__[k], v))
         settings.__dict__[k] = v
-    c = commands.pop (0)
 
-    cs = [c]
-    if c == 'build-all':
-        cs = ['build', 'strip', 'package']
-        if not options.do_strip:
-            cs.remove ('strip')
-        
+    db = versiondb.VersionDataBase (options.version_db)
+    branch_dict = dict([tuple (branch_setting.split ('='))
+                        for branch_setting in options.branches])
+    
+    installer_obj = installer.get_installer (settings, args, db, branch_dict)
     try:
-        run_installer_commands (cs, settings, commands, options)
+        build_installer (installer_obj)
     except locker.LockedError, e:
         if options.skip_if_locked:
             logging.error ('skipping build; install_root is locked\n')
