@@ -282,15 +282,9 @@ class UnixBuild (Build):
         c = 'make'
 
         job_spec = ' '
-        if self.settings.native_distcc_hosts:
-            job_spec = '-j%d ' % (2*len (self.settings.native_distcc_hosts.split (' ')))
+        if (not self.force_sequential_build ()
+            and self.settings.cpu_count_str != '1'):
 
-            ## do this a little complicated: we don't want a trace of
-            ## distcc during configure.
-            c = 'DISTCC_HOSTS="%s" %s' % (self.settings.native_distcc_hosts, c)
-            c = 'PATH="%(native_distcc_bindir)s:$PATH" ' + c
-        elif (not self.force_sequential_build ()
-              and self.settings.cpu_count_str != '1'):
             job_spec += ' -j%s ' % self.settings.cpu_count_str
 
         c += job_spec

@@ -205,15 +205,6 @@ class Settings (context.Context):
             if not os.path.isdir (dir):
                 loggedos.makedirs (logging.default_logger, dir)
         
-    def set_distcc_hosts (self, options):
-        def hosts (xs):
-            return reduce (lambda x,y: x+y,
-                           [ h.split (',') for h in xs], [])
-        
-        self.cross_distcc_hosts = ' '.join (distcc.live_hosts (hosts (options.cross_distcc_hosts)))
-
-        self.native_distcc_hosts = ' '.join (distcc.live_hosts (hosts (options.native_distcc_hosts), port=3634))
-
     def dependency_url (self, string):
         # FIXME: read from settings.rc, take platform into account
         name = string.replace ('-', '_')

@@ -74,20 +74,9 @@ class TargetBuild (build.UnixBuild):
 
     def compile_command (self):
         c = build.UnixBuild.compile_command (self)
-        if (self.settings.cross_distcc_hosts
-            and not self.force_sequential_build ()
-            and re.search (r'\bmake\b', c)):
-            
-            jobs = '-j%d ' % (2*len (self.settings.cross_distcc_hosts.split (' ')))
-            c = re.sub (r'\bmake\b', 'make ' + jobs, c)
-
-            ## do this a little complicated: we don't want a trace of
-            ## distcc during configure.
-            c = 'DISTCC_HOSTS="%s" %s' % (self.settings.cross_distcc_hosts , c)
-            c = 'PATH="%(cross_distcc_bindir)s:$PATH" ' + c
-        elif (not self.force_sequential_build ()
-              and self.settings.cpu_count_str):
-            c = re.sub (r'\bmake\b', 'make -j%s '% self.settings.cpu_count_str, c)
+        if (not self.force_sequential_build () and self.settings.cpu_count_str):
+            c = re.sub (r'\bmake\b',
+                        'make -j%s '% self.settings.cpu_count_str, c)
 
         return c
             
