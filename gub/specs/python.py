@@ -128,8 +128,8 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-winsock2.patch
             loggedos.rename (logger, fname, dll)
 
         self.map_locate (rename_so,
-                         self.expand ('%(install_prefix)s/lib/python%(python_version)s/lib-dynload/',
-                                      '*.so*'))
+                         self.expand ('%(install_prefix)s/lib/python%(python_version)s/lib-dynload/'),
+                                      '*.so*')
 
         ## UGH.
         self.system ('''

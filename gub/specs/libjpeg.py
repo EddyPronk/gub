@@ -43,8 +43,7 @@ cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh 
         guess = self.expand ('%(system_prefix)s/share/libtool/config.guess')
         sub = self.expand ('%(system_prefix)s/share/libtool/config.sub')
         for file in sub, guess:
-            if os.path.exists (file):
-                self.system ('cp -pv %(file)s %(srcdir)s',  locals ())
+            self.system ('cp -pv %(file)s %(srcdir)s',  locals ())
 
         targetbuild.TargetBuild.configure (self)
         self.update_libtool ()

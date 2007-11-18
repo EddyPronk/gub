@@ -240,10 +240,6 @@ LDFLAGS="%(LDFLAGS)s %(python_lib)s"
         docball = self.expand ('%(uploads)s/lilypond-%(installer_version)s-%(installer_build)s.documentation.tar.bz2', env=locals ())
         infomanball = self.expand ('%(uploads)s/lilypond-%(installer_version)s-%(installer_build)s.info-man.tar.bz2', env=locals ())
 
-        if not os.path.exists (docball):
-            ## can't run make, because we need the right variables (BRANCH, etc.)
-            raise Exception ('cannot find docball %s' % docball)
-            
         self.system ('''
 mkdir -p %(install_prefix)s/share/doc/lilypond
 tar -C %(install_prefix)s/share/doc/lilypond -jxf %(docball)s
@@ -305,6 +301,8 @@ LDFLAGS="%(LDFLAGS)s %(python_lib)s"
 '''% locals ()))
     
     def configure (self):
+        self.system ('cp %(tools_prefix)s/include/FlexLexer.h %(builddir)s')
+
         LilyPond.configure (self)
 
         ## huh, why ? --hwn
@@ -341,7 +339,7 @@ cp %(install_prefix)s/share/lilypond/*/python/* %(install_prefix)s/bin
             if header.endswith ('guile'):
                 loggedos.system (logger, 'mv %(name)s %(name)s.scm', locals ())
             elif header.endswith ('python') and not name.endswith ('.py'):
-                loggedos.system (loggeer, 'mv %(name)s %(name)s.py' % locals ())
+                loggedos.system (logger, 'mv %(name)s %(name)s.py' % locals ())
 
         def asciify (logger, name):
             loggedos.file_sub(logger, [('\r*\n', '\r\n')], name)

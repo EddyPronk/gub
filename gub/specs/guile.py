@@ -6,6 +6,7 @@ from gub import mirrors
 from gub import sources
 from gub import targetbuild
 from gub import repository
+from gub import loggedos
 
 class Guile (targetbuild.TargetBuild):
     source = 'http://lilypond.org/vc/guile.git'
@@ -182,12 +183,11 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_prefix)s/lib"}
             ],
                '%(builddir)s/libtool')
 
-        if os.path.exists (self.expand ('%(builddir)s/guile-readline/libtool')):
-            self.file_sub ([
-                #('^(allow_undefined_flag=.*)unsupported', '\\1'),
-                ('-mwindows', ''),
-                ],
-                           '%(builddir)s/guile-readline/libtool')
+        self.file_sub ([
+            #('^(allow_undefined_flag=.*)unsupported', '\\1'),
+            ('-mwindows', ''),
+            ],
+                       '%(builddir)s/guile-readline/libtool')
 
     def install (self):
         Guile.install (self)
@@ -236,7 +236,7 @@ class Guile__darwin (Guile):
             directory = os.path.split (fname)[0]
             src = os.path.basename (fname)
             dst = os.path.splitext (os.path.basename (fname))[0] + '.so'
-            loggedos.symlink (src, os.path.join(directory, dst))
+            loggedos.symlink (logger, src, os.path.join(directory, dst))
                               
         self.map_locate (dylib_link,
                          self.expand ('%(install_prefix)s/lib/'),
