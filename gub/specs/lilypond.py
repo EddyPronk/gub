@@ -7,6 +7,7 @@ from gub import build
 from gub import misc
 from gub import targetbuild
 from gub import commands
+from gub import loggedos
 
 class LilyPond (targetbuild.TargetBuild):
     source = 'git://git.sv.gnu.org/lilypond.git'
@@ -15,8 +16,8 @@ class LilyPond (targetbuild.TargetBuild):
     branch = 'master'
 
     '''A program for printing sheet music
-LilyPond lets you create music notation.  It produces
-beautiful sheet music from a high-level description file.'''
+    LilyPond lets you create music notation.  It produces
+    beautiful sheet music from a high-level description file.'''
 
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)

@@ -333,8 +333,8 @@ cp -pR --link %(installer_root)s/license*/* %(darwin_bundle_dir)s/Contents/Resou
         
         
 class MingwRoot (Installer):
-    def __init__ (self, settings, name):
-        Installer.__init__ (self, settings, name)
+    def __init__ (self, *args):
+        Installer.__init__ (self, *args)
         self.strip_command += ' -g '
     
 class Nsis (MingwRoot):
@@ -366,7 +366,7 @@ cp %(nsisdir)s/*.sh.in %(ns_dir)s''', locals ())
 
         root = self.expand ('%(installer_root)s')
         files = [f.replace (root, '').replace ('/', '\\')
-                 for f in self.locate_files (root, '*')]
+                 for f in misc.locate_files (root, '*')]
 
         self.dump ('\r\n'.join (files) + '\r\n',
                    '%(installer_root)s/files.txt',
