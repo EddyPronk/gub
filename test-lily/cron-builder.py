@@ -7,7 +7,9 @@ import optparse
 import sys
 
 sys.path.insert (0, os.path.split (sys.argv[0])[0] + '/..')
-from gub import oslog
+
+from gub import logging
+from gub import loggedos
 
 """
 run as
@@ -16,9 +18,6 @@ run as
   --test-options "--to me@mydomain.org --from me@mydomain.org --repository . --smtp smtp.xs4all.nl" [PLATFORM]...
 
 """
-
-dry_run = False
-log_file = None
 
 def parse_options ():
     p = optparse.OptionParser ()
@@ -89,12 +88,11 @@ def parse_options ():
                   default=False,
                   help="test self")
 
-    p.add_option ('-v', '--verbose', action='count', dest='verbose', default=0)
+    p.add_option ('-v', '--verbose', action='count', dest='verbosity',
+                  default=0)
 
     (options, args) = p.parse_args ()
     
-    global dry_run
-    dry_run = options.dry_run
     options.make_options += ' LILYPOND_BRANCH=%s' % options.branch
 
     if '--repository' not in options.test_options:
@@ -111,18 +109,19 @@ def main ():
 # FIXME: local/system; wow that's from two layout changes ago!
 #    os.environ['PATH']= os.getcwd () + '/target/local/system/usr/bin:' + os.environ['PATH']
 #    print os.environ['PATH']
-    global log_file
     
     os.system ('mkdir -p log')
     if options.dry_run:
-        options.verbose = oslog.level['command']
-    log_file = oslog.Os_commands ('log/cron-builder.log', options.verbose,
-                                  dry_run)
-    log_file.info (' *** Starting cron-builder:\n  %s ' % '\n  '.join (args)) 
+        options.verbosity = logging.get_numeric_loglevel('command')
+        
+    logging.set_default_log ('log/cron-builder.log', options.verbosity)
+    logger = logging.default_logger
+    
+    logging.info (' *** Starting cron-builder:\n  %s ' % '\n  '.join (args)) 
 
     if options.clean:
         # FIXME: what if user changes ~/.gubrc?  should use gubb.Settings!
-        log_file.system ('rm -rf log/ target/ uploads/ buildnumber-* downloads/lilypond-*')
+        loggedos.system (logger, 'rm -rf log/ target/ uploads/ buildnumber-* downloads/lilypond-*')
 
     make_cmd = 'make -f lilypond.make %s ' % options.make_options
     python_cmd = sys.executable  + ' '
@@ -131,9 +130,9 @@ def main ():
     ## can't have these in gub-tester, since these
     ## will always usually result in "release already tested"
     for a in args:
-        log_file.system (python_cmd + 'bin/gub --branch=lilypond=%s:%s --platform=%s --stage=download lilypond'
+        loggedos.system (logger, python_cmd + 'bin/gub --branch=lilypond=%s:%s --platform=%s --stage=download lilypond'
                 % (options.branch, options.local_branch, a))
-        log_file.system ('rm -f target/%s/status/lilypond-%s*' % (a, options.branch))
+        loggedos.system (logger, 'rm -f target/%s/status/lilypond-%s*' % (a, options.branch))
 
     test_cmds = []
     if 1:
@@ -158,7 +157,7 @@ def main ():
     if options.build_tarball:
         test_cmds += [make_cmd + 'dist-check']
 
-    log_file.system (python_cmd + 'bin/gub-tester %s %s '
+    loggedos.system (logger, python_cmd + 'bin/gub-tester %s %s '
             % (options.test_options, ' '.join (["'%s'" % c for c in test_cmds])))
 
 if __name__ == '__main__':
