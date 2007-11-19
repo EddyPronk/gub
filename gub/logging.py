@@ -164,6 +164,9 @@ class LoggerInterface:
 
 default_logger = CommandLogger ('', 3)
 
+def get_numeric_loglevel (name):
+    return name_to_loglevel_mapping[name]
+
 def set_default_log (name, level):
     global default_logger
     default_logger = CommandLogger (name, level)
