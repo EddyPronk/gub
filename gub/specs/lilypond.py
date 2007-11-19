@@ -74,7 +74,7 @@ class LilyPond (targetbuild.TargetBuild):
 
     def configure (self):
         self.system ('mkdir -p %(builddir)s || true')
-        self.system ('cp %(tools_prefix)s/include/FlexLexer.h %(builddir)s')
+        self.system ('cp %(tools_prefix)s/include/FlexLexer.h %(builddir)s/')
         targetbuild.TargetBuild.configure (self)
     
     def configure_command (self):
