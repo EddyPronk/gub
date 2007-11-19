@@ -24,7 +24,7 @@ class Freetype_config (build.SdkBuild):
         hardcode_libdir_flag_spec='${wl}--rpath ${wl}$libdir'
         LIBZ = '-lz'
 
-        regexes = [('@%s@' % nm, self.expand('%(' + nm + ')s'))
+        regexes = [('@%s@' % nm, self.expand ('%(' + nm + ')s', locals ()))
                    for nm in [ 'prefix', 'exec_prefix', 'includedir', 'libdir',
                                'enable_shared', 'wl', 'hardcode_libdir_flag_spec']]
 
