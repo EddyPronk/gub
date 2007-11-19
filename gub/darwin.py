@@ -4,6 +4,7 @@ import os
 #
 from gub import context
 from gub import targetbuild
+from gub import loggedos
 
 darwin_sdk_version = '0.4'
 
@@ -13,10 +14,11 @@ class Rewirer (context.RunnableContext):
         self.ignore_libs = None
 
     def get_libaries (self, name):
-        lib_str = self.read_pipe ('''
-%(cross_prefix)s/bin/%(target_architecture)s-otool -L %(name)s
-''',
-                                  locals (), ignore_errors=True)
+        lib_str = loggedos.read_pipe (
+            self.runner.logger,
+            self.expand ('%(cross_prefix)s/bin/%(target_architecture)s-otool -L %(name)s',
+                         locals ()),
+            ignore_errors=True)
 
         libs = []
         for i in lib_str.split ('\n'):
@@ -35,8 +37,8 @@ class Rewirer (context.RunnableContext):
             return
         changes = ' '.join (['-change %s %s' % (o, d)
                              for (o, d) in substitutions])
-        self.system ('''
-%(cross_prefix)s/bin/%(target_architecture)s-install_name_tool %(changes)s %(name)s ''',
+        self.system (
+            '%(cross_prefix)s/bin/%(target_architecture)s-install_name_tool %(changes)s %(name)s ',
               locals ())
 
     def rewire_mach_o_object_executable_path (self, name):
@@ -82,7 +84,8 @@ class Rewirer (context.RunnableContext):
                 self.rewire_mach_o_object_executable_path (f)
 
     def set_ignore_libs_from_tarball (self, tarball):
-        files = self.read_pipe ('tar -tzf %(tarball)s', locals ()).split ('\n')
+        files = loggedos.read_pipe (self.runner.logger,
+                                    'tar -tzf %(tarball)s', locals ()).split ('\n')
         self.set_ignore_libs_from_files (files)
 
     def set_ignore_libs_from_files (self, files):

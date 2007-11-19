@@ -258,8 +258,8 @@ class Installer (context.RunnableContext):
             self.warning ('checksum is empty.')
 
 class DarwinRoot (Installer):
-    def __init__ (self, settings, name):
-        Installer.__init__ (self, settings, name)
+    def __init__ (self, settings, *args):
+        Installer.__init__ (self, settings, *args)
         self.strip_command += ' -S '
         self.rewirer = darwin.Rewirer (self.settings)
 
@@ -278,8 +278,8 @@ class DarwinRoot (Installer):
         
     
 class DarwinBundle (DarwinRoot):
-    def __init__ (self, settings, name):
-        DarwinRoot.__init__ (self, settings, name)
+    def __init__ (self, *args):
+        DarwinRoot.__init__ (self, *args)
         self.darwin_bundle_dir = '%(targetdir)s/LilyPond.app'
         
     def create (self):
