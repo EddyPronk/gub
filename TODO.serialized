@@ -1,13 +1,12 @@
 * Check everything
-  broken: gpkg, gub-tester, cron-builder
+  broken: dryrun for cron-builder 
   
-** FIXME: set_oslog is gone
-
 * Printing/logging to console
+
 ** Repository.py: FIXED (most, we still suffer from old bug: wanting
    to know version of ghostscript, lilypond too soon).
-** settings.py: CHEATED
 
+** settings.py: CHEATED
 
 * IN PROGRESS:
    gub -p $(bin/build-platform) lilypond
