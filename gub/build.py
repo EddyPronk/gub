@@ -545,17 +545,19 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"%(_v)s -zcf %(src_package_
 
     # used for cygwin. -- most probably broken due to deferred restructuring.
     def pre_install_smurf_exe (self):
-        for i in self.locate_files ('%(builddir)s', '*.exe'):
-            base = os.path.splitext (i)[0]
-            self.system ('''mv %(i)s %(base)s''', locals ())
+        def un_exe (file):
+            base = os.path.splitext (file)[0]
+            loggedos.system ('mv %(file)s %(base)s', locals ())
+        self.map_locate (no_exe, '%(builddir)s', '*.exe')
 
     def post_install_smurf_exe (self):
-        for i in (self.locate_files ('%(install_root)s/bin', '*')
-                  + self.locate_files ('%(install_prefix)s/bin', '*')):
-            if (not os.path.islink (i)
-                and not os.path.splitext (i)[1]
+        def add_exe (file):
+            if (not os.path.islink (file)
+                and not os.path.splitext (file)[1]
                 and loggedos.read_pipe ('file -b %(i)s', locals ()).startswith ('MS-DOS executable PE')):
-                self.system ('''mv %(i)s %(i)s.exe''', locals ())
+                loggedos.system ('mv %(i)s %(file)s.exe', locals ())
+        self.map_locate (add_exe, '%(install_root)s/bin', '*')
+        self.map_locate (add_exe, '%(install_prefix)s/bin', '*')
 
     def install_readmes (self):
         cmd = self.system ('''
