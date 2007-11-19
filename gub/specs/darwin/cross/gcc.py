@@ -21,14 +21,16 @@ class Gcc (gcc.Gcc):
             found_skips = [s for s in skip_libs if file.find (s) >= 0]
             if found_skips:
                 return
-            
+
             id = loggedos.read_pipe (logger,
-                                     '%(toolchain_prefix)sotool -L %(file)s', 
-                                     locals ()).split()[1]
+                                     self.expand('%(toolchain_prefix)sotool -L %(file)s', 
+                                                 locals ())).split ()[1]
             id = os.path.split (id)[1]
             loggedos.system (
-                '%(toolchain_prefix)sinstall_name_tool -id /usr/lib/%(id)s %(file)s', locals ())
-            
+                logger, 
+                self.expand ('%(toolchain_prefix)sinstall_name_tool -id /usr/lib/%(id)s %(file)s',
+                             locals ()))
+
         self.map_locate (rewire_one,
                          self.expand ("%(install_prefix)s/lib/"),
                          '*.dylib')
