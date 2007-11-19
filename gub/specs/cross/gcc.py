@@ -47,13 +47,16 @@ class Gcc (cross.CrossToolsBuild):
 
     def move_target_libs (self, libdir):
         self.system ('mkdir -p %(install_prefix)s/lib || true')
-
+        
+        def move_target_lib (logger, fname):
+            loggedos.rename (logger, fname,
+                             self.expand ('%(install_prefix)s/lib'))
+                             
         ## .so* because version numbers trail .so extension.
         for suf in ['.la', '.so*', '.dylib']:
-            # todo: maplocate
-            self.system("""
-find %(libdir)s -name 'lib*%(suf)s' -exec mv '{}' %(install_prefix)s/lib ';'
-""", locals())
+            self.map_locate (move_target_lib,
+                             libdir,
+                             'lib*%s' % suf)
 
     def install (self):
         cross.CrossToolsBuild.install (self)
