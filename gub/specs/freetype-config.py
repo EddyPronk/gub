@@ -31,7 +31,7 @@ class Freetype_config (build.SdkBuild):
         fname = '%(install_prefix)s/cross/bin/freetype-config'
         self.file_sub (regexes,
                        '%(sourcefiledir)s/freetype-config.in',
-                       to_file=fname, use_re=False)
+                       to_name=fname, use_re=False)
         self.system ('chmod 755 %s' % fname)
         
 class Freetype_config__cygwin (Freetype_config):
