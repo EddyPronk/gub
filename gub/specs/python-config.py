@@ -20,7 +20,7 @@ class Python_config (build.SdkBuild):
              ('@PREFIX@', self.expand ('%(system_prefix)s/')),
              ('@PYTHON_FOR_BUILD@', sys.executable)],
             '%(sourcefiledir)s/python-config.py.in',
-            to_file='%(install_prefix)s/cross/bin/python-config')
+            to_name='%(install_prefix)s/cross/bin/python-config')
         self.system ('chmod 755 %(install_prefix)s/cross/bin/python-config')
 
 class Python_config__cygwin (Python_config):
