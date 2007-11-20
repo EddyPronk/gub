@@ -107,11 +107,11 @@ all: native dist-check doc-build test-output doc-export $(OTHER_PLATFORMS) print
 platforms: $(PLATFORMS)
 
 print-success:
-	python test-lily/upload.py --branch=$(LILYPOND_LOCAL_BRANCH)
+	python test-lily/upload.py --branch=$(LILYPOND_BRANCH) --url git://git.sv.gnu.org/lilypond.git
 	@echo ""
 	@echo "To upload, run "
 	@echo
-	@echo "        python test-lily/upload.py --branch=$(LILYPOND_LOCAL_BRANCH) --execute"
+	@echo "        	python test-lily/upload.py --branch=$(LILYPOND_BRANCH) --url git://git.sv.gnu.org/lilypond.git --execute "
 	@echo
 
 native: tools $(BUILD_PLATFORM)
