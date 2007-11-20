@@ -24,14 +24,14 @@ class Freetype_config (build.SdkBuild):
         hardcode_libdir_flag_spec='${wl}--rpath ${wl}$libdir'
         LIBZ = '-lz'
 
-        regexes = [('@%s@' % nm, self.expand('%(' + nm + ')s'))
+        regexes = [('@%s@' % nm, self.expand ('%(' + nm + ')s', locals ()))
                    for nm in [ 'prefix', 'exec_prefix', 'includedir', 'libdir',
                                'enable_shared', 'wl', 'hardcode_libdir_flag_spec']]
 
         fname = '%(install_prefix)s/cross/bin/freetype-config'
         self.file_sub (regexes,
                        '%(sourcefiledir)s/freetype-config.in',
-                       to_file=fname, use_re=False)
+                       to_name=fname, use_re=False)
         self.system ('chmod 755 %s' % fname)
         
 class Freetype_config__cygwin (Freetype_config):

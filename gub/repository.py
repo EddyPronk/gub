@@ -238,8 +238,8 @@ class Version (Repository):
         return self._version
     def name (self):
         return self._name
-    def connect_command_runner (self, runner):
-        return None
+    def connect_logger (self, logger):
+        pass
 
 #RepositoryProxy.register (Version)
 

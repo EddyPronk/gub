@@ -275,7 +275,7 @@ class Ghostscript__cygwin (Ghostscript):
         self.fonts_source = repository.TarBall (self.settings.downloads,
                                                 fonts_url)
     def connect_command_runner (self, runner):
-        self.fonts_source.connect_command_runner (runner)
+        self.fonts_source.connect_logger (runner.logger)
         return Ghostscript.connect_command_runner (self, runner)
     def download (self):
         Ghostscript.download (self)
