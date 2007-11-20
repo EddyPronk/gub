@@ -1,3 +1,5 @@
+import os
+
 from gub import cross
 from gub import misc
 from gub import mirrors
@@ -49,8 +51,10 @@ class Gcc (cross.CrossToolsBuild):
         self.system ('mkdir -p %(install_prefix)s/lib || true')
         
         def move_target_lib (logger, fname):
+            base = os.path.split (fname)[1]
             loggedos.rename (logger, fname,
-                             self.expand ('%(install_prefix)s/lib'))
+                             os.path.join (
+                self.expand ('%(install_prefix)s/lib'), base))
                              
         ## .so* because version numbers trail .so extension.
         for suf in ['.la', '.so*', '.dylib']:
