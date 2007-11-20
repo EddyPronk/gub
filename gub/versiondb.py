@@ -26,7 +26,8 @@ import string
 import pickle
 import optparse
 import os
-
+import sys
+import misc
 
 def get_url_versions (url):
     print url
@@ -93,10 +94,9 @@ class VersionDataBase:
                 self._db[p] = get_url_versions (u)
             except IOError, x:
                 print 'problem loading', u
-                sys.path.insert ('gub')
+                sys.path.insert (0, 'gub')
 
                 # FIXME: do want to be inside gub framework or not?
-                import misc
                 print misc.exception_string (x)
                 continue
 
