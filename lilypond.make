@@ -47,7 +47,11 @@ LILYPOND_REPODIR=downloads/lilypond
 
 # for GIT
 LILYPOND_BRANCH=master
-LILYPOND_FULL_BRANCH=git.sv.gnu.org--lilypond.git-master
+LILYPOND_REPO_URL=git://git.sv.gnu.org/lilypond.git
+
+# derived info
+LILYPOND_DIRRED_BRANCH=git.sv.gnu.org/lilypond.git/master
+LILYPOND_FLATTENED_BRANCH=git.sv.gnu.org--lilypond.git-master
 # LILYPOND_BRANCH=stable/2.10
 
 MAKE += -f lilypond.make
@@ -65,7 +69,7 @@ GPKG_OPTIONS =\
 
 INSTALLER_BUILDER_OPTIONS =\
  $(if $(GUILE_LOCAL_BRANCH), --branch=guile=$(GUILE_LOCAL_BRANCH),)\
- --branch=lilypond=$(LILYPOND_FULL_BRANCH)
+ --branch=lilypond=$(LILYPOND_FLATTENED_BRANCH)
 
 include gub.make
 
@@ -107,11 +111,11 @@ all: native dist-check doc-build test-output doc-export $(OTHER_PLATFORMS) print
 platforms: $(PLATFORMS)
 
 print-success:
-	python test-lily/upload.py --branch=$(LILYPOND_BRANCH) --url git://git.sv.gnu.org/lilypond.git
+	python test-lily/upload.py --branch=$(LILYPOND_BRANCH) --url  $(LILYPOND_REPO_URL)
 	@echo ""
 	@echo "To upload, run "
 	@echo
-	@echo "        	python test-lily/upload.py --branch=$(LILYPOND_BRANCH) --url git://git.sv.gnu.org/lilypond.git --execute "
+	@echo "        	python test-lily/upload.py --branch=$(LILYPOND_BRANCH) --url $(LILYPOND_REPO_URL) --execute "
 	@echo
 
 native: tools $(BUILD_PLATFORM)
@@ -176,7 +180,7 @@ cygwin-lilypond:
 	$(call INVOKE_GUB,cygwin) --build-source libtool guile fontconfig lilypond
 
 cygwin-lilypond-installer:
-	$(CYGWIN_PACKAGER) --branch=lilypond=$(LILYPOND_LOCAL_BRANCH) lilypond
+	$(CYGWIN_PACKAGER) --branch=lilypond=$(LILYPOND_FLATTENED_BRANCH) lilypond
 
 upload-setup-ini:
 	cd uploads/cygwin && ../../downloads/genini $$(find release -mindepth 1 -maxdepth 2 -type d) > setup.ini
@@ -287,15 +291,15 @@ endif
 ################################################################
 # docs
 
-NATIVE_ROOT=$(NATIVE_TARGET_DIR)/installer-lilypond-$(LILYPOND_LOCAL_BRANCH)
+NATIVE_ROOT=$(NATIVE_TARGET_DIR)/installer-lilypond-$(LILYPOND_FLATTENED_BRANCH)
 DOC_LOCK=$(NATIVE_ROOT).lock
 TEST_LOCK=$(NATIVE_ROOT).lock
 
-NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH)
-NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/src/lilypond-$(LILYPOND_LOCAL_BRANCH)
+NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_FLATTENED_BRANCH)
+NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/src/lilypond-$(LILYPOND_FLATTENED_BRANCH)
 # URG: try to guess at what repository will do.  should ask
 # repository.read_file(), I guess.
-NATIVE_BUILD_COMMITTISH=$(shell cat downloads/lilypond.git/refs/heads/$(LILYPOND_LOCAL_BRANCH))
+NATIVE_BUILD_COMMITTISH=$(shell cat downloads/lilypond.git/refs/heads/$(LILYPOND_FLATTENED_BRANCH))
 
 DIST_VERSION=$(shell cat $(NATIVE_LILY_BUILD)/out/VERSION)
 DOC_BUILDNUMBER=$(shell $(PYTHON) gub/versiondb.py --build-for=$(DIST_VERSION))
@@ -334,13 +338,13 @@ test-clean:
 	$(PYTHON) gub/with-lock.py --skip $(TEST_LOCK) $(MAKE) unlocked-test-clean
 
 unlocked-doc-clean:
-	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
+	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_FLATTENED_BRANCH) \
 		DOCUMENTATION=yes web-clean
 	rm -f $(call SIGNATURE_FUNCTION,cached-doc-build)
 	rm -f $(call SIGNATURE_FUNCTION,cached-doc-export)
 
 unlocked-test-clean:
-	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
+	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_FLATTENED_BRANCH) \
 		DOCUMENTATION=yes test-clean
 	rm -f $(call SIGNATURE_FUNCTION,cached-test-output)
 
@@ -363,11 +367,11 @@ update-lily:
 	$(GPKG) $(LOCAL_GPKG_OPIONS) --platform=$(BUILD_PLATFORM) remove lilypond
 
 	## force update of srcdir.
-	$(GUB) $(LOCAL_GUB_OPTIONS) --branch=lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH) \
+	$(GUB) $(LOCAL_GUB_OPTIONS) --branch=lilypond=$(LILYPOND_BRANCH):$(LILYPOND_FLATTENED_BRANCH) \
 		 --platform=$(BUILD_PLATFORM) --stage=untar lilypond
 
 	## after forced update, make sure that lilypond is up to date
-	$(GUB) $(LOCAL_GUB_OPTIONS) --branch=lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH) \
+	$(GUB) $(LOCAL_GUB_OPTIONS) --branch=lilypond=$(LILYPOND_BRANCH):$(LILYPOND_FLATTENED_BRANCH) \
 		 --platform=$(BUILD_PLATFORM) --offline --stage=compile lilypond
 
 unlocked-updated-doc-build:
@@ -437,7 +441,8 @@ test-export:
 unlocked-dist-check:
 	$(SET_LOCAL_PATH)\
 		$(PYTHON) test-lily/dist-check.py\
-		--branch=$(LILYPOND_LOCAL_BRANCH)\
+		--branch=$(LILYPOND_BRANCH) \
+		--url=$(LILYPOND_REPO_URL) \
 		--repository=$(LILYPOND_REPODIR) $(NATIVE_LILY_BUILD)
 	cp $(NATIVE_LILY_BUILD)/out/lilypond-$(DIST_VERSION).tar.gz uploads
 

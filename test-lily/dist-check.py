@@ -15,12 +15,17 @@ from gub import misc
 def parse_options ():
     p = optparse.OptionParser ()
     p.usage = "dist-check.py BUILD-DIR"
+
     p.add_option ('--repository',
 		  action="store",
 		  dest="repository",
                   default="",
 		  help="Repository of lilypond.")
-    
+    p.add_option ('--url', action='store',
+                  dest='url',
+                  default='file://localhost/git',
+                  help='select hostname/path for git branch')
+
     p.add_option ('--branch',
 		  action="store",
 		  dest="branch",
@@ -34,7 +39,6 @@ def parse_options ():
 
     
     o.repository = os.path.abspath (o.repository)
-    
     return (o, a)
 
 def check_cvs ():
@@ -109,15 +113,15 @@ def check_files (tarball, repo):
 def main ():
     (options, args) = parse_options ()
     
+    repo = repository.Git (options.repository,
+                           source=options.url,                           
+                           branch=options.branch)
+
     builddir = args[0]
     config = get_config_dict (builddir)
 
     system ('cd %(builddir)s/ && make DOCUMENTATION=yes dist' % locals ())
     tarball = '%(builddir)s/out/lilypond-%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s.tar.gz' % config
-
-
-    repo = repository.Git (options.repository,
-                                     branch=options.branch)
 
     check_files (tarball, repo)
 
