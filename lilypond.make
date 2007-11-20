@@ -98,7 +98,7 @@ update-versions:
 	$(PYTHON) gub/with-lock.py --skip $(LILYPOND_VERSIONS).lock $(MAKE) unlocked-update-versions
 
 download:
-	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB,$(p)) --online --stage=download lilypond && ) true
+	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB,$(p)) --download-only lilypond && ) true
 	$(MAKE) downloads/genini
 	rm -f target/*/status/lilypond*
 	rm -f log/lilypond-$(LILYPOND_VERSION)*.*.test.pdf
@@ -362,17 +362,6 @@ unlocked-test-output:
 # How about just always building info-man?
 unlocked-doc-build: unlocked-updated-doc-build
 unlocked-info-man-build: unlocked-updated-info-man-build
-
-update-lily:
-	$(GPKG) $(LOCAL_GPKG_OPIONS) --platform=$(BUILD_PLATFORM) remove lilypond
-
-	## force update of srcdir.
-	$(GUB) $(LOCAL_GUB_OPTIONS) --branch=lilypond=$(LILYPOND_BRANCH):$(LILYPOND_FLATTENED_BRANCH) \
-		 --platform=$(BUILD_PLATFORM) --stage=untar lilypond
-
-	## after forced update, make sure that lilypond is up to date
-	$(GUB) $(LOCAL_GUB_OPTIONS) --branch=lilypond=$(LILYPOND_BRANCH):$(LILYPOND_FLATTENED_BRANCH) \
-		 --platform=$(BUILD_PLATFORM) --offline --stage=compile lilypond
 
 unlocked-updated-doc-build:
 	unset LILYPONDPREFIX LILYPOND_DATADIR \

@@ -75,6 +75,11 @@ def get_cli_parser ():
                   default=None,
                   help='Where to write result of inspection')
 
+    p.add_option ('--download-only', action='store_true',
+                  dest='download_only',
+                  default=False,
+                  help='Exit after downloading.')
+
     p.add_option ('--offline', action='store_true',
                   dest='offline',
                   help='Do not attempt to download anything')
@@ -201,7 +206,9 @@ def build (settings, options, files):
     if not options.offline:
         for dep in deps:
             specs[dep].download ()
-
+    if options.download_only:
+        sys.exit(0)
+        
     # FIXME: hw, why is this?  Doesn't this break 
     if options.stage:
         names = files
