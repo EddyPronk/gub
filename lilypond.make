@@ -303,7 +303,8 @@ NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_FLATTENED_BRANC
 NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/src/lilypond-$(LILYPOND_FLATTENED_BRANCH)
 # URG: try to guess at what repository will do.  should ask
 # repository.read_file(), I guess.
-NATIVE_BUILD_COMMITTISH=$(shell cat downloads/lilypond.git/refs/heads/$(LILYPOND_FLATTENED_BRANCH))
+NATIVE_BUILD_COMMITTISH=$(shell cat downloads/lilypond/refs/heads/$(LILYPOND_DIRRED_BRANCH))
+
 
 DIST_VERSION=$(shell cat $(NATIVE_LILY_BUILD)/out/VERSION)
 DOC_BUILDNUMBER=$(shell $(PYTHON) gub/versiondb.py --platforms=$(PLATFORMS) --build-for=$(DIST_VERSION))

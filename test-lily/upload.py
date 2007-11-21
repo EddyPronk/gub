@@ -78,6 +78,7 @@ def upload_binaries (repo, version, version_db):
     
     version_str = '.'.join (['%d' % v for v in version])
     branch = repo.branch
+    flattened_branch = repo.full_branch_name()
 #    if (version[1] % 2) == 0:
 #        branch = 'lilypond_%d_%d' % (version[0], version[1])
 #    if (version[1] % 2) == 0:
@@ -86,7 +87,8 @@ def upload_binaries (repo, version, version_db):
     src_dests = []
     cmds = ['chgrp -R lilypond uploads/lilypond*',
             'chmod -R g+rw uploads/lilypond*',
-            'chmod 4775 `find uploads/cygwin/release -type d`']
+#            'chmod 4775 `find uploads/cygwin/release -type d`'
+            ]
 
 
     d = globals ().copy ()
@@ -94,8 +96,8 @@ def upload_binaries (repo, version, version_db):
 
     d['cwd'] = os.getcwd ()
     # FIXME: what if user changes ~/.gubrc?  should use gubb.Settings!
-    d['lilybuild'] = d['cwd'] + '/target/%(build_platform)s/build/lilypond-%(branch)s' % d
-    d['lilysrc'] = d['cwd'] + '/target/%(build_platform)s/src/lilypond-%(branch)s' % d 
+    d['lilybuild'] = d['cwd'] + '/target/%(build_platform)s/build/lilypond-%(flattened_branch)s' % d
+    d['lilysrc'] = d['cwd'] + '/target/%(build_platform)s/src/lilypond-%(flattened_branch)s' % d 
 
     commitishes = {}
     barf = False

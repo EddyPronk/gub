@@ -134,7 +134,9 @@ def compare_test_info (options):
     current_test_output = ''
     for f in outputs:
         m = re.search ('lilypond-([.0-9]+)-([0-9]+).test-output.tar.bz2', f)
-        assert m
+        if not m:
+            print f
+            assert 0
 
         version = map (int, m.group (1).split ('.'))
         build = int (m.group (2))
