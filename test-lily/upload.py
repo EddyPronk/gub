@@ -78,12 +78,9 @@ def upload_binaries (repo, version, version_db):
     
     version_str = '.'.join (['%d' % v for v in version])
     branch = repo.branch
-    flattened_branch = repo.full_branch_name()
-#    if (version[1] % 2) == 0:
-#        branch = 'lilypond_%d_%d' % (version[0], version[1])
-#    if (version[1] % 2) == 0:
-#        branch = 'stable-%d.%d' % (version[0], version[1])
-
+    flattened_branch = repo.full_branch_name ()
+    dirred_branch = repo.get_ref ()
+    
     src_dests = []
     cmds = ['chgrp -R lilypond uploads/lilypond*',
             'chmod -R g+rw uploads/lilypond*',
@@ -177,8 +174,8 @@ def upload_binaries (repo, version, version_db):
     description = repo.git_pipe ('describe --abbrev=39 %s' % repo.get_ref()).strip ()
     
     git_tag = 'release/%(version_str)s-%(build)d' % locals () 
-    git_tag_cmd = 'git --git-dir downloads/lilypond.git tag -m "" -a %(git_tag)s %(branch)s' % locals ()
-    git_push_cmd = 'git --git-dir downloads/lilypond.git push ssh+git://git.sv.gnu.org/srv/git/lilypond.git/ refs/tags/%(git_tag)s:refs/tags/%(git_tag)s' % locals ()
+    git_tag_cmd = 'git --git-dir downloads/lilypond tag -m "" -a %(git_tag)s %(dirred_branch)s' % locals ()
+    git_push_cmd = 'git --git-dir downloads/lilypond push ssh+git://git.sv.gnu.org/srv/git/lilypond.git/ refs/tags/%(git_tag)s:refs/tags/%(git_tag)s' % locals ()
     gub_tag_cmd = 'git tag "gub-release-lilypond-%(version_str)s-%(build)d" -m "release of lilypond %(description)s (%(version_str)s-%(build)d)" ' % locals()
 
     cmds.append (git_tag_cmd)
@@ -219,7 +216,7 @@ upload x.y.z      - upload packages
 
     p.add_option ('--repo-dir', action='store',
                   dest='repo_dir',
-                  default='downloads/lilypond.git',
+                  default='downloads/lilypond',
                   help='select repository directory')
 
     p.add_option ('--version-db', action='store',
