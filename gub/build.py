@@ -569,7 +569,7 @@ mkdir -p %(install_prefix)s/share/doc/%(name)s
                 and not os.path.basename (file).startswith ('Makefile')
                 and not os.path.basename (file).startswith ('GNUmakefile')):
 
-                cmd = self.expand ('cp %(file)s %(install_prefix)s/share/doc/%(name)s')
+                cmd = self.expand ('cp %(file)s %(install_prefix)s/share/doc/%(name)s', locals ())
                 loggedos.command (logger, cmd)
                 
         self.map_locate (copy_readme, '%(srcdir)s', '[A-Z]*')
