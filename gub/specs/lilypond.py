@@ -45,6 +45,9 @@ class LilyPond (targetbuild.TargetBuild):
             'fontconfig',
             'gettext', 
             'guile-runtime',
+
+            # we have some scripts that need GUILE.
+            'guile', 
             'pango',
             'python-runtime',
             'ghostscript'
