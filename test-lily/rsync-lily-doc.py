@@ -112,7 +112,7 @@ def create_local_web_dir (options, source):
 	      'examples.html',
 	      'Documentation/user/music-glossary/index.html',
 	      'Documentation/topdocs/NEWS.html',
-	      'Documentation/user/lilypond/Tutorial.html',
+	      'Documentation/user/lilypond-learning/Tutorial.html',
 #	      'input/test/collated-files.html',
 	      'input/regression/collated-files.html']:
         do_urchin (f)
