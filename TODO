@@ -1,3 +1,7 @@
+* literal use of /usr (again?) in code, use *_prefix)
+  [if all fails: %(prefix_dir)s]
+* literal use of /cross (again?) in code, use %(cross_dir)s
+
 * python 3k compatibility
   - junk print (replace by what?)
   - junk has_key (replace by what?)
