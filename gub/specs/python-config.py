@@ -14,14 +14,15 @@ class Python_config (build.SdkBuild):
     def install (self):
 
         build.SdkBuild.install (self)
-        self.system ('mkdir -p %(cross_prefix)s%(prefix_dir)s/bin')
+        self.system ('mkdir -p %(install_prefix)s%(cross_dir)s/bin')
+        python_config = self.expand ('%(install_prefix)s%(cross_dir)s/bin/python-config')
         self.file_sub ([
              ('@PYTHON_VERSION@', self.expand ('%(version)s')),
              ('@PREFIX@', self.expand ('%(system_prefix)s/')),
              ('@PYTHON_FOR_BUILD@', sys.executable)],
             '%(sourcefiledir)s/python-config.py.in',
-            to_name='%(install_prefix)s/cross/bin/python-config')
-        self.system ('chmod 755 %(install_prefix)s/cross/bin/python-config')
+            to_name=python_config)
+        self.chmod (python_config, 755)
 
 class Python_config__cygwin (Python_config):
     source = repository.Version (name='python-config', version='2.5')
