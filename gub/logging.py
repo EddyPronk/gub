@@ -123,6 +123,11 @@ class CommandLogger (AbstractCommandLogger):
                 self.write_log ('%s=%s\n' % (k, env[k]), 'debug')
             self.write_log ('export %s\n' % ' '.join (keys), 'debug')
 
+    def show_logfile (self):
+        if self.log_file_name:
+            sys.stdout.write ('Logfile: %s\n' % self.log_file_name)
+
+
 class LoggerInterface:
     """LoggerInterface provides syntacic sugar for different types of messages."""
     
