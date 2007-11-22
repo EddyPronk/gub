@@ -57,8 +57,6 @@ LILYPOND_FLATTENED_BRANCH=git.sv.gnu.org--lilypond.git-master
 MAKE += -f lilypond.make
 
 # FIXME: this is duplicated and must match actual info in guile.py
-GUILE_LOCAL_BRANCH=branch_release-1-8-lilypond.org-vc-guile.git
-GUILE_LOCAL_BRANCH=branch_release-1-8-repo.or.cz-guile.git
 
 GUB_OPTIONS =\
  --branch=lilypond=$(LILYPOND_BRANCH)
@@ -88,15 +86,14 @@ include compilers.make
 unlocked-update-versions:
 	python gub/versiondb.py --dbfile=$(LILYPOND_VERSIONS) --download  --platforms="$(PLATFORMS)"
 
-
+ifneq ($(find cygwin,$(PLATFORMS)),)
 # this is downloading the same info 5 times. Can we do this more efficiently?
-	python gub/versiondb.py --dbfile=uploads/freetype2.versions --download  --platforms="cygwin"
-	python gub/versiondb.py --dbfile=uploads/fontconfig.versions --download  --platforms="cygwin"
-	python gub/versiondb.py --dbfile=uploads/guile.versions --download --platforms="cygwin"
-	python gub/versiondb.py --dbfile=uploads/libtool.versions --download --platforms="cygwin"
-	python gub/versiondb.py --dbfile=uploads/noweb.versions --download --platforms="cygwin"
-#problem loading http://lilypond.org/download/binaries/cygwin/release/ghostscript/
-#	python gub/versiondb.py --dbfile=uploads/ghostscript.versions --download --platforms="cygwin"
+	python gub/versiondb.py --no-sources  --dbfile=uploads/freetype2.versions --download  --platforms="cygwin"
+	python gub/versiondb.py --no-sources --dbfile=uploads/fontconfig.versions --download  --platforms="cygwin"
+	python gub/versiondb.py --no-sources  --dbfile=uploads/guile.versions --download --platforms="cygwin"
+	python gub/versiondb.py --no-sources  --dbfile=uploads/libtool.versions --download --platforms="cygwin"
+	python gub/versiondb.py --no-sources  --dbfile=uploads/noweb.versions --download --platforms="cygwin"
+endif
 
 update-versions:
 	$(PYTHON) gub/with-lock.py --skip $(LILYPOND_VERSIONS).lock $(MAKE) unlocked-update-versions
