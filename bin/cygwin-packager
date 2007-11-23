@@ -39,9 +39,9 @@ import gub.settings
 from gub import misc
 from gub import cygwin
 
-class Cygwin_package (context.Os_context_wrapper):
+class Cygwin_package (context.RunnableContext):
     def __init__ (self, settings, name, branch):
-        context.Os_context_wrapper.__init__ (self, settings)
+        context.RunnableContext.__init__ (self, settings)
         self.settings = settings
         self._name = name
 
@@ -65,7 +65,7 @@ class Cygwin_package (context.Os_context_wrapper):
 
         self.package_manager.include_build_deps = False
         self.package_manager.read_package_headers (
-            settings.packages + '/' + name, settings.branch_dict)
+            settings.packages + '/' + name, settings.branches)
 
         p = self.package_manager.get_all_packages ()[0]
         if not self.settings.build:
@@ -360,20 +360,25 @@ def parse_command_line ():
 def main ():
     (options, commands) = parse_command_line ()
     options.platform = 'cygwin'
-    settings = gub.settings.Settings (options)
+    settings = gub.settings.Settings (options.platform)
     # We want to be able to specify a build number for cygwin packages
     # that are not distributed on lp.org
     settings.build = options.build
-    settings.set_branches (options.branches)
-
+    #settings.set_branches (options.branches)
+    # Ugh, c&p from installer-builder
+    branches = dict ([tuple (branch_setting.split ('='))
+                      for branch_setting in options.branches])
+    settings.branches = branches
+    
     # Barf
-    settings.__dict__['cross_distcc_hosts'] = []
-    settings.__dict__['native_distcc_hosts'] = []
+    #settings.__dict__['cross_distcc_hosts'] = []
+    #settings.__dict__['native_distcc_hosts'] = []
 
     PATH = os.environ['PATH']
     os.environ['PATH'] = settings.tools_prefix + '/bin:' + PATH
 
-    c = Cygwin_package (settings, commands[0], settings.branch_dict.get (commands[0], 'HEAD'))
+    c = Cygwin_package (settings, commands[0],
+                        branches.get (commands[0], 'HEAD'))
     c.create ()
     
 if __name__ == '__main__':
