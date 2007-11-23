@@ -545,17 +545,17 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"%(_v)s -zcf %(src_package_
 
     # used for cygwin. -- most probably broken due to deferred restructuring.
     def pre_install_smurf_exe (self):
-        def un_exe (file):
+        def un_exe (logger, file):
             base = os.path.splitext (file)[0]
-            loggedos.system ('mv %(file)s %(base)s', locals ())
+            loggedos.system (logger, 'mv %(file)s %(base)s', locals ())
         self.map_locate (no_exe, '%(builddir)s', '*.exe')
 
     def post_install_smurf_exe (self):
-        def add_exe (file):
+        def add_exe (logger, file):
             if (not os.path.islink (file)
                 and not os.path.splitext (file)[1]
-                and loggedos.read_pipe ('file -b %(i)s', locals ()).startswith ('MS-DOS executable PE')):
-                loggedos.system ('mv %(i)s %(file)s.exe', locals ())
+                and loggedos.read_pipe (logger, 'file -b %(i)s', locals ()).startswith ('MS-DOS executable PE')):
+                loggedos.system (logger, 'mv %(i)s %(file)s.exe', locals ())
         self.map_locate (add_exe, '%(install_root)s/bin', '*')
         self.map_locate (add_exe, '%(install_prefix)s/bin', '*')
 
