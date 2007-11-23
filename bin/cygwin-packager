@@ -34,10 +34,12 @@ import optparse
 import os
 #
 from gub import context
-from gub import gup
-import gub.settings
-from gub import misc
 from gub import cygwin
+from gub import gup
+from gub import logging
+from gub import misc
+from gub import runner
+import gub.settings
 
 class Cygwin_package (context.RunnableContext):
     def __init__ (self, settings, name, branch):
@@ -140,7 +142,7 @@ cp %(installer_root)s/license/%(name)s %(installer_root)s/usr/share/doc/%(name)s
         env = env.copy ()
         env.update (self.package_manager.get_all_packages ()[0])
         
-        d = context.Os_context_wrapper.get_substitution_dict (self, env=env)
+        d = context.RunnableContext.get_substitution_dict (self, env=env)
         return d
     
     @context.subst_method
@@ -274,7 +276,7 @@ tar -C %(dir)s%(_v)s -zxf %(ball)s''', e)
 
     def _tar (self, dir, ball, content, env={}):
         ball_dir = os.path.dirname (ball)
-        if not self.locate_files (dir, content):
+        if not misc.locate_files (dir, content):
             content = '.'
         e = env.copy ()
         e.update (locals ())
@@ -379,6 +381,8 @@ def main ():
 
     c = Cygwin_package (settings, commands[0],
                         branches.get (commands[0], 'HEAD'))
+    
+    c.connect_command_runner (runner.CommandRunner (logging.default_logger))
     c.create ()
     
 if __name__ == '__main__':
