@@ -5,10 +5,7 @@ import os
 import shutil
 
 def system (logger, cmd, env={}, ignore_errors=False):
-    """Can't go through misc.py, since we want the output of the process.
-    """
 
-    ignore_errors = kwargs.get ('ignore_errors')
     logger.write_log ('invoking %s\n' % cmd, 'command')
 
     proc = subprocess.Popen (cmd, bufsize=1, shell=True, env=env,
