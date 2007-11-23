@@ -366,7 +366,7 @@ cd %(install_prefix)s && rm -rf usr/X11R6/share
         print 'FIXME: deferred workaround'
 #        deferred_dump (self.font_source.update_workdir (fontdir))
         fontdir = self.expand ('%(install_prefix)s/share/ghostscript/fonts')
-        def defer ():
+        def defer (logger):
             self.fonts_source.update_workdir (fontdir)
         self.func (defer)
     def makeflags (self):
