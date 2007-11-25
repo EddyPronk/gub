@@ -28,6 +28,7 @@ def argv0_relocation ():
 
 argv0_relocation ()
 
+import optparse
 import sys
 import os
 
@@ -37,10 +38,11 @@ from gub import misc
 from gub import locker
 from gub import gup
 from gub import logging
+from gub import buildrunner
+
 import gub.settings   # otherwise naming conflict with settings local vars.
 
 def get_cli_parser ():
-    import optparse
     p = optparse.OptionParser ()
 
     p.usage='''gub [OPTION]... [PACKAGE]...'''
@@ -199,7 +201,6 @@ def build (settings, options, files):
             sys.exit (0)
         raise
 
-    from gub import buildrunner
     b = buildrunner.BuildRunner (manager, settings, specs)
 
 
