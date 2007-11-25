@@ -158,7 +158,6 @@ def inspect (settings, files):
 #FIXME: move to BuildRunner?
 def build (settings, options, files):
     (names, specs) = gup.get_source_packages (settings, files)
-    print specs
     if options.fresh:
         try:
             for spec in specs.values():
