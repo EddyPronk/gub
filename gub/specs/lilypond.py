@@ -45,7 +45,12 @@ class LilyPond (targetbuild.TargetBuild):
             # we have some scripts that need GUILE.
             'guile', 
             'pango',
+
+            # libs
             'python-runtime',
+
+            # interpreter.
+            'python',
             'ghostscript'
             ]}
     
