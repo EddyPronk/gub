@@ -73,7 +73,8 @@ include gub.make
 
 NATIVE_TARGET_DIR=$(CWD)/target/$(BUILD_PLATFORM)
 
-SET_LOCAL_PATH=PATH=$(CWD)/target/tools/usr/bin:$(PATH)
+#FIXME: yet another copy of gub/settings.py
+SET_LOCAL_PATH=PATH=$(CWD)/target/local/root/usr/bin:$(PATH)
 
 LILYPOND_VERSIONS = uploads/lilypond.versions
 
