@@ -158,14 +158,7 @@ def inspect (settings, files):
 #FIXME: move to BuildRunner?
 def build (settings, options, files):
     (names, specs) = gup.get_source_packages (settings, files)
-    def get_all_deps (name):
-        package = specs[name]
-        deps = package.get_build_dependencies ()
-        if not settings.is_distro:
-            deps = [gup.get_base_package_name (d) for d in deps]
-        return deps
-
-
+    print specs
     if options.fresh:
         try:
             for spec in specs.values():
@@ -174,20 +167,9 @@ def build (settings, options, files):
         except OSError:
             pass
 
-    if False and not options.build_source:
-        pass
-        # TODO: figure out how to patch src_package from
-        # stages. Simpleminded solution does not work
-        # and causes mingw runtime to run autogenmagic
-        
-        for spec in specs.values():
-            orig_val =  spec.stages()
-            def patched():
-                print 'patched', orig_val
-                return [x for x in orig_val
-                        if x != 'src_package']
-
-            spec.stages = patched 
+    # TODO: figure out how to patch src_package from
+    # stages. Simpleminded solution does not work
+    # and causes mingw runtime to run autogenmagic
         
     # TODO: patch out clean if --keep was specified.
 
@@ -196,16 +178,12 @@ def build (settings, options, files):
 
     # TODO: patch out checksum comparison if --lax-checksum was specified.
 
-    # FIXME: why do we only use deps for download, not for build?
-    deps = gup.topologically_sorted (files, {}, get_all_deps, None)
-
-    logging.info ('deps:' + `deps` + '\n')
     PATH = os.environ['PATH']
     os.environ['PATH'] = settings.expand ('%(tools_prefix)s/bin:' + PATH)
 
     if not options.offline:
-        for dep in deps:
-            specs[dep].download ()
+        for name in names:
+            specs[name].download ()
     if options.download_only:
         sys.exit(0)
         
@@ -275,7 +253,6 @@ def main ():
         sys.exit(2)
         
     settings = gub.settings.Settings (options.platform)
-
 
     if options.inspect_key:
         inspect (settings, files)

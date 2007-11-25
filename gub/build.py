@@ -19,7 +19,6 @@ class Build (context.RunnableContext):
     UnixBuild here
     '''
 
-    need_source_tree = False
     source = ''
     branch = ''
 

@@ -11,8 +11,6 @@ from gub import loggedos
 
 class LilyPond (targetbuild.TargetBuild):
     source = 'git://git.sv.gnu.org/lilypond.git'
-    download_before_init = True
-    need_source_tree = True
     branch = 'master'
 
     '''A program for printing sheet music
@@ -21,8 +19,6 @@ class LilyPond (targetbuild.TargetBuild):
 
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
-        if os.environ.has_key ('GUB_LILYPOND_SOURCE'):
-            raise 'Just use generic feature: bin/gub -p %(platform)s $GUB_LILYPOND_SOURCE' % settings.__dict__
 
         # FIXME: should add to C_INCLUDE_PATH
         builddir = self.builddir ()

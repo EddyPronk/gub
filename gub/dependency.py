@@ -78,7 +78,6 @@ class Dependency:
         source = self.url ()
         if not isinstance (source, repository.Repository):
             source = repository.get_repository_proxy (dir, source, branch, '')
-        self._check_source_tree (source)
         return self.build_class () (self.settings, source)
     def build_class (self):
         if not self._cls:
@@ -93,10 +92,6 @@ class Dependency:
                 self._flavour = toolsbuild.ToolsBuild
         return self._flavour
     
-    def _check_source_tree (self, source):
-        if self.build_class ().need_source_tree and not source.is_downloaded ():
-	    logging.info ('early download for: %(_name)s\n' % self.__dict__)
-            source.download ()
     def url (self):
         if not self._url:
             self._url = self.build_class ().source
