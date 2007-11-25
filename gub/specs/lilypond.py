@@ -403,6 +403,7 @@ class LilyPond__darwin (LilyPond):
         d = LilyPond.get_dependency_dict (self)
         deps = d['']
         deps.remove ('python-runtime')
+        deps.remove ('python')
         deps += [ 'fondu', 'osx-lilypad']
         d[''] = deps
         return d
