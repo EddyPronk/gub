@@ -29,7 +29,23 @@
   FIXED (hopefully): evil play of wrong invocation of loggedos.system and
     **kwargs usage.
 
+** printing of empty list to console:
 
+    *** Stage: clean (w32api-in-usr-lib, cygwin)
+   []
+    *** Stage: pkg_install (w32api-in-usr-lib, cygwin)
+
+** printing of tar command to console:
+
+    *** Stage: pkg_install (w32api-in-usr-lib, cygwin)
+Executing command tar -C /home/janneke/vc/gub-initrepo/target/cygwin/root -p -x -z -f /home/janneke/vc/gub-initrepo/target/cygwin/packages/w32api-in-usr-lib-1.0.cygwin.gup
+
+** strange errors
+   FileManager: no such file: /home/janneke/vc/gub-initrepo/target/cygwin/root/./usr/cross/lib/
+   FileManager: uninstall: freetype-config
+   FileManager: no such file: /home/janneke/vc/gub-initrepo/target/cygwin/root/./usr/cross/bin/
+   FileManager: uninstall: python-config
+   FileManager: no such file: /home/janneke/vc/gub-initrepo/target/cygwin/root/./usr/cross/bin/
 
 
 ** Repository.py: FIXED (most, we still suffer from old bug: wanting
