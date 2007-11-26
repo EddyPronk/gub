@@ -565,8 +565,8 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"%(_v)s -zcf %(src_package_
 #    and self.runner.read_pipe ('file -b %(i)s', locals ()).startswith ('MS-DOS executable PE')):
 #AttributeError: 'NoneType' object has no attribute 'read_pipe'
 # gur, Must manually expand and pass logger...
-                and loggedos.read_pipe (logger_why_already_in_self, self.expand ('file -b %(i)s', locals ())).startswith ('MS-DOS executable PE')):
-                loggedos.system (logger_why_already_in_self, self.expand ('mv %(i)s %(file)s.exe', locals ()))
+                and loggedos.read_pipe (logger_why_already_in_self, self.expand ('file -b %(file)s', locals ())).startswith ('MS-DOS executable PE')):
+                loggedos.system (logger_why_already_in_self, self.expand ('mv %(file)s %(file)s.exe', locals ()))
         self.map_locate (add_exe, '%(install_root)s/bin', '*')
         self.map_locate (add_exe, '%(install_prefix)s/bin', '*')
 
