@@ -1,41 +1,36 @@
 * Find/fix bug: verbosity gives now different behaviour in
 
-     make -f lilypond.make cygwin-ghostscript cygwin-ghostscript-installer
-
-  where it says
-
-   invoking rm -rf /home/janneke/vc/gub-initrepo/target/cygwin/src/cross/binutils-2.17 /home/janneke/vc/gub-initrepo/target/cygwin/build/cross/binutils-2.17 /home/janneke/vc/gub-initrepo/target/cygwin/install/cross/binutils-2.17-root
-   invoking mkdir /home/janneke/vc/gub-initrepo/target/cygwin/src/cross/binutils-2.17
-   mkdir: cannot create directory `/home/janneke/vc/gub-initrepo/target/cygwin/src/cross/binutils-2.17': File exists
-
-  However, running
-
-    make -f lilypond.make cygwin-ghostscript cygwin-ghostscript-installer LOCAL_GUB_OPTIONS='-vvv'
-
-  works:
-
-   invoking rm -rf /home/janneke/vc/gub-initrepo/target/cygwin/src/cross/binutils-2.17 /home/janneke/vc/gub-initrepo/target/cygwin/build/cross/binutils-2.17 /home/janneke/vc/gub-initrepo/target/cygwin/install/cross/binutils-2.17-root
-   invoking mkdir /home/janneke/vc/gub-initrepo/target/cygwin/src/cross/binutils-2.17
-   invoking tar -C /home/janneke/vc/gub-initrepo/target/cygwin/src/cross/binutils-2.17 --strip-component=1  -j -xf /home/janneke/vc/gub-initrepo/downloads/cross/binutils/binutils-2.17.tar.bz2
-
-   
+** FIXED: old code in loggedos.  if 0'd
   
 * Get rid of (all?), *args and **kwarg constructions, at least where
   they are now part of the user api.
+** done for (most important?) command.py:System, loggedos.system
 
 * Check everything
   broken: dryrun for cron-builder 
   
 * Printing/logging to console
 
+** oslog.verbose_flag for tar commands has been commented-out?  Old
+   behaviour is somewhat foo but better than no behaviour at all.  We
+   should *always* use -v but send that output to different pipe.  It
+   should *always* be in .log file, but printed to console only if
+   verbosity > 'command'.
+   
 ** error logging to console, not build log:
 
    *** Stage: install (ghostscript, cygwin)
    sh: Syntax error: "(" unexpected
    sh: Syntax error: "(" unexpected
 
-can't easily check whether ignore_errors=True was used.  What is
-happening, should system abort?
+   can't easily check whether ignore_errors=True was used.  What is
+   happening, should system abort?
+
+  FIXED (hopefully): evil play of wrong invocation of loggedos.system and
+    **kwargs usage.
+
+
+
 
 ** Repository.py: FIXED (most, we still suffer from old bug: wanting
    to know version of ghostscript, lilypond too soon).

@@ -23,34 +23,26 @@ import time
 # *that* is the place that received the kwargs and knows about them.
 # 
 def system (logger, cmd, env={}, ignore_errors=False):
-
-    if ignore_errors:
-        barf
-    if cmd.startswith ('mkdir /home/janneke/vc/gub-initrepo/target/cygwin/src/cross/binutils-2.17'):
-        print 'ignore_errors:', ignore_errors
-#        barf
     logger.write_log ('invoking %s\n' % cmd, 'command')
-
     proc = subprocess.Popen (cmd, bufsize=1, shell=True, env=env,
                              stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT,
                              close_fds=True)
 
-    if 0: # This looks nice but there is no progress on commands.
-        # If a command takes > 1hr to build, nothing is shown
-        # while compiling?
+    if 1:
         for line in proc.stdout:
             logger.write_log (line, 'output')
-            proc.wait ()
+        proc.wait ()
 
-            if proc.returncode:
-                m = 'Command barfed: %(cmd)s\n' % locals ()
-                if not ignore_errors:
-                    logger.write_log (m, 'error')
-                    raise misc.SystemFailed (m)
+        if proc.returncode:
+            m = 'Command barfed: %(cmd)s\n' % locals ()
+            if not ignore_errors:
+                logger.write_log (m, 'error')
+                raise misc.SystemFailed (m)
 
-                return proc.returncode
-    else: # Put back what we had before
+        return proc.returncode
+    else: # WTF, this oldcode exhibits weird verbosity problem
+        #different behaviour if run with -vvv?
         proc = subprocess.Popen (cmd, bufsize=1, shell=True, env=env,
                                  stdout=subprocess.PIPE,
                                  stderr=subprocess.STDOUT,
