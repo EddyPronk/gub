@@ -1,3 +1,28 @@
+* Find/fix bug: verbosity gives now different behaviour in
+
+     make -f lilypond.make cygwin-ghostscript cygwin-ghostscript-installer
+
+  where it says
+
+   invoking rm -rf /home/janneke/vc/gub-initrepo/target/cygwin/src/cross/binutils-2.17 /home/janneke/vc/gub-initrepo/target/cygwin/build/cross/binutils-2.17 /home/janneke/vc/gub-initrepo/target/cygwin/install/cross/binutils-2.17-root
+   invoking mkdir /home/janneke/vc/gub-initrepo/target/cygwin/src/cross/binutils-2.17
+   mkdir: cannot create directory `/home/janneke/vc/gub-initrepo/target/cygwin/src/cross/binutils-2.17': File exists
+
+  However, running
+
+    make -f lilypond.make cygwin-ghostscript cygwin-ghostscript-installer LOCAL_GUB_OPTIONS='-vvv'
+
+  works:
+
+   invoking rm -rf /home/janneke/vc/gub-initrepo/target/cygwin/src/cross/binutils-2.17 /home/janneke/vc/gub-initrepo/target/cygwin/build/cross/binutils-2.17 /home/janneke/vc/gub-initrepo/target/cygwin/install/cross/binutils-2.17-root
+   invoking mkdir /home/janneke/vc/gub-initrepo/target/cygwin/src/cross/binutils-2.17
+   invoking tar -C /home/janneke/vc/gub-initrepo/target/cygwin/src/cross/binutils-2.17 --strip-component=1  -j -xf /home/janneke/vc/gub-initrepo/downloads/cross/binutils/binutils-2.17.tar.bz2
+
+   
+  
+* Get rid of (all?), *args and **kwarg constructions, at least where
+  they are now part of the user api.
+
 * Check everything
   broken: dryrun for cron-builder 
   

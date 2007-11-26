@@ -1016,15 +1016,7 @@ def test ():
             repo = get_repository_proxy ('downloads/test/', 'git+ssh://git.sv.gnu.org/srv/git/lilypond.git', '', '')
             self.assertEqual (repo.__class__, Git)
             repo = get_repository_proxy ('downloads/test/', 'svn+ssh://gforge/svnroot/public/samco/trunk', '', '')
-            self.assertEqual (repo.__class__, Subversion)
-        def testGitTagAndDiff (self):
-            os.system ('mkdir -p downloads/test/git')
-            os.system ('cd downloads/test/git && git init')
-# # FIXME Git/SimpleGit mixup: git-dir vs checkout-dir
-# #           repo = Git (os.getcwd () + '/downloads/test/git/.git')
-            repo = Git (os.getcwd () + '/downloads/test/git/')
-            os.system ('cd downloads/test/git && echo one >> README')
-            os.system ('cd downloads/test/git && git add .')
+            self.
             os.system ('cd downloads/test/git && git commit -m "1"')
             time.sleep (1)
             repo.tag ('success-test')

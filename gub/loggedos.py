@@ -3,8 +3,32 @@ import subprocess
 import sys
 import os
 import shutil
+import time
 
+#FIXME:
+# using **kwargs is scary: when called from spec as replacement for old
+# self.system:
+#
+#   loggedos.system (logger, 'foo %(bar)s baz', locals ())
+#
+# this somehow silently fails: command is not expanded and no error is raised
+
+# We cannot, however use the more safe:
+#    def system (logger, cmd, env={}, ignore_errors=False):
+# because we are being called from commands.py as:
+#        return loggedos.system (logger, self.command,
+#                                **self.kwargs)
+# We *must* use kwargs.get here to get a sane ENV.  What to do?
+# Probably we should expand the kwargs in commands.py:System, because
+# *that* is the place that received the kwargs and knows about them.
+# 
 def system (logger, cmd, env={}, ignore_errors=False):
+
+    if ignore_errors:
+        barf
+    if cmd.startswith ('mkdir /home/janneke/vc/gub-initrepo/target/cygwin/src/cross/binutils-2.17'):
+        print 'ignore_errors:', ignore_errors
+#        barf
     logger.write_log ('invoking %s\n' % cmd, 'command')
 
     proc = subprocess.Popen (cmd, bufsize=1, shell=True, env=env,
@@ -12,7 +36,9 @@ def system (logger, cmd, env={}, ignore_errors=False):
                              stderr=subprocess.STDOUT,
                              close_fds=True)
 
-    if 1: # This looks nice but it is broken (fails test below)
+    if 0: # This looks nice but there is no progress on commands.
+        # If a command takes > 1hr to build, nothing is shown
+        # while compiling?
         for line in proc.stdout:
             logger.write_log (line, 'output')
             proc.wait ()

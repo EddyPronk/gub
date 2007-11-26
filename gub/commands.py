@@ -59,21 +59,20 @@ class UpdateSourceDir (SerializedCommand):
         hasher ('UpdateSourceDir(%s)' % tracking)
         
 class System (SerializedCommand):
-    def __init__ (self, c, **kwargs):
+    def __init__ (self, c, env={}, ignore_errors=False):
         SerializedCommand.__init__ (self)
         self.command = c
-        self.kwargs = kwargs
-
+        self.env = env
+        self.ignore_errors = ignore_errors
     def __repr__ (self):
         return 'System (%s)' % repr (self.command)
-
     def checksum (self, hasher):
         hasher (self.command)
         # TODO: use env too.
-
     def execute (self, logger):
-        return loggedos.system (logger, self.command,
-                                **self.kwargs)
+#        return loggedos.system (logger, self.command, **self.kwargs)
+        return loggedos.system (logger, self.command, env=self.env,
+                                ignore_errors=self.ignore_errors)
 
 class Copy (SerializedCommand):
     def __init__ (self, src, dest):
