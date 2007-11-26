@@ -179,6 +179,12 @@ def build (settings, options, files):
         # TODO: figure out how to patch src_package from
         # stages. Simpleminded solution does not work
         # and causes mingw runtime to run autogenmagic
+
+        # I always build with --src-package and I am not sure if we
+        # can patch out src_package at all: src_package is the only
+        # way we can be certain to distribute all sources of the
+        # binaries we ship.  We may even be in violation of some
+        # licenses that require this.
         
         for spec in specs.values():
             orig_val =  spec.stages()

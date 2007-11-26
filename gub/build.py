@@ -105,9 +105,14 @@ class UnixBuild (Build):
         self.so_version = '1'
 
     def stages (self):
+        if self.platform == 'cygwin':
+            return ['untar', 'patch',
+                    'configure', 'compile', 'install',
+                    # see bin/gub TODO
+                    'src_package',
+                    'package', 'clean']
         return ['untar', 'patch',
                 'configure', 'compile', 'install',
-
                 # see bin/gub TODO
                 #'src_package',
                 'package', 'clean']
