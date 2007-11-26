@@ -12,17 +12,43 @@ def system (logger, cmd, env={}, ignore_errors=False):
                              stderr=subprocess.STDOUT,
                              close_fds=True)
 
-    for line in proc.stdout:
-        logger.write_log (line, 'output')
-    proc.wait ()
+    if 1: # This looks nice but it is broken (fails test below)
+        for line in proc.stdout:
+            logger.write_log (line, 'output')
+            proc.wait ()
 
-    if proc.returncode:
-        m = 'Command barfed: %(cmd)s\n' % locals ()
-        if not ignore_errors:
+            if proc.returncode:
+                m = 'Command barfed: %(cmd)s\n' % locals ()
+                if not ignore_errors:
+                    logger.write_log (m, 'error')
+                    raise misc.SystemFailed (m)
+
+                return proc.returncode
+    else: # Put back what we had before
+        proc = subprocess.Popen (cmd, bufsize=1, shell=True, env=env,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.STDOUT,
+                                 close_fds=True)
+
+        while proc.poll () is None:
+            line = proc.stdout.readline ()
+            #self.log (line, level['output'], verbose)
+            logger.write_log (line, 'output')
+            # FIXME: how to yield time slice in python?
+            time.sleep (0.0001)
+
+        line = proc.stdout.readline ()
+        while line:
+            #self.log (line, level['output'], verbose)
+            logger.write_log (line, 'output')
+            line = proc.stdout.readline ()
+        if proc.returncode:
+            m = 'Command barfed: %(cmd)s\n' % locals ()
+            #self.error (m)
             logger.write_log (m, 'error')
-            raise misc.SystemFailed (m)
-        
-    return proc.returncode
+	    if not ignore_errors:
+        	raise misc.SystemFailed (m)
+        return proc.returncode
 
 
 ########
@@ -67,10 +93,13 @@ def test ():
     class Test_loggedos (unittest.TestCase):
         def setUp (self):
             # Urg: global??
-            self.logger = logging.set_default_log ('downloads/test/test.log', 0)
+            self.logger = logging.set_default_log ('downloads/test/test.log', 5)
+        def testDumpFile (self):
+            dump_file (self.logger, 'boe', 'downloads/test/a')
+            self.assert_ (os.path.exists ('downloads/test/a'))
         def testSystem (self):
-            self.assertRaises (misc.SystemFailed,
-                               system (self.logger, 'cp %(src)s %(dest)s'))
+            self.assertRaises (Exception,
+                               system, self.logger, 'cp %(src)s %(dest)s')
             
     suite = unittest.makeSuite (Test_loggedos)
     unittest.TextTestRunner (verbosity=2).run (suite)
