@@ -85,7 +85,7 @@ class Rewirer (context.RunnableContext):
 
     def set_ignore_libs_from_tarball (self, tarball):
         files = loggedos.read_pipe (self.runner.logger,
-                                    'tar -tzf %(tarball)s', locals ()).split ('\n')
+                                    'tar -tzf %s' % tarball).split ('\n')
         self.set_ignore_libs_from_files (files)
 
     def set_ignore_libs_from_files (self, files):

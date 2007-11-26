@@ -151,7 +151,6 @@ def main ():
     (options, args) = parse_command_line ()
 
     settings = gub.settings.Settings (options.platform)
-
     for s in options.settings:
         (k, v) = tuple (s.split ('='))
         if settings.__dict__.has_key (k):
@@ -162,6 +161,8 @@ def main ():
     db = versiondb.VersionDataBase (options.version_db)
     branch_dict = dict([tuple (branch_setting.split ('='))
                         for branch_setting in options.branches])
+    logging.set_default_log (settings.expand ('%(logdir)s/installer.log'),
+                             options.verbosity)
     
     installer_obj = installer.get_installer (settings, args, db, branch_dict)
     try:
@@ -172,8 +173,7 @@ def main ():
             sys.exit (0)
         raise e
     logging.stage ('done\n')
-    logging.error ('build log written to: %s\n'  % 'FIXME')
-    #settings.os_interface.log_file_name
+    logging.default_logger.show_logfile ()
 
 if __name__ == '__main__':
     main ()
