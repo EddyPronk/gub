@@ -5,7 +5,6 @@ import os
 import shutil
 
 def system (logger, cmd, env={}, ignore_errors=False):
-
     logger.write_log ('invoking %s\n' % cmd, 'command')
 
     proc = subprocess.Popen (cmd, bufsize=1, shell=True, env=env,
@@ -58,3 +57,23 @@ for name, func in {'read_file': misc.read_file,
         return func_with_logging
     currentmodule.__dict__[name] = with_logging (func)
 
+
+def test ():
+    import unittest
+    import logging
+
+    # This is not a unittest, it only serves as a smoke test
+
+    class Test_loggedos (unittest.TestCase):
+        def setUp (self):
+            # Urg: global??
+            self.logger = logging.set_default_log ('downloads/test/test.log', 0)
+        def testSystem (self):
+            self.assertRaises (misc.SystemFailed,
+                               system (self.logger, 'cp %(src)s %(dest)s'))
+            
+    suite = unittest.makeSuite (Test_loggedos)
+    unittest.TextTestRunner (verbosity=2).run (suite)
+
+if __name__ == '__main__':
+    test ()
