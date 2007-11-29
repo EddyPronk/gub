@@ -22,7 +22,7 @@ import time
 # Probably we should expand the kwargs in commands.py:System, because
 # *that* is the place that received the kwargs and knows about them.
 # 
-def system (logger, cmd, env={}, ignore_errors=False):
+def system (logger, cmd, env=os.environ, ignore_errors=False):
     logger.write_log ('invoking %s\n' % cmd, 'command')
     proc = subprocess.Popen (cmd, bufsize=1, shell=True, env=env,
                              stdout=subprocess.PIPE,
