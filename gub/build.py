@@ -104,9 +104,14 @@ class UnixBuild (Build):
         self.so_version = '1'
 
     def stages (self):
+        if self.settings.platform == 'cygwin':
+            return ['untar', 'patch',
+                    'configure', 'compile', 'install',
+                    # see bin/gub TODO
+                    'src_package',
+                    'package', 'clean']
         return ['untar', 'patch',
                 'configure', 'compile', 'install',
-
                 # see bin/gub TODO
                 #'src_package',
                 'package', 'clean']
@@ -544,17 +549,28 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"%(_v)s -zcf %(src_package_
 
     # used for cygwin. -- most probably broken due to deferred restructuring.
     def pre_install_smurf_exe (self):
-        def un_exe (file):
+        def un_exe (logger_why_already_in_self, file):
             base = os.path.splitext (file)[0]
-            loggedos.system ('mv %(file)s %(base)s', locals ())
+# Hmm, cannot (yet) use our nice Runner/logged os interface (again)?
+# This should have been fixed already?                
+# gur, Must manually expand and pass logger...
+#            self.runner.system ('mv %(file)s %(base)s', locals ())
+            loggedos.system (logger_why_already_in_self, self.expand ('mv %(file)s %(base)s', locals ()))
         self.map_locate (no_exe, '%(builddir)s', '*.exe')
 
     def post_install_smurf_exe (self):
-        def add_exe (file):
+        def add_exe (logger_why_already_in_self, file):
             if (not os.path.islink (file)
                 and not os.path.splitext (file)[1]
-                and loggedos.read_pipe ('file -b %(i)s', locals ()).startswith ('MS-DOS executable PE')):
-                loggedos.system ('mv %(i)s %(file)s.exe', locals ())
+# Hmm, cannot (yet) use our nice Runner/logged os interface (again)?
+# This should have been fixed already?                
+#                and self.runner.read_pipe ('file -b %(i)s', locals ()).startswith ('MS-DOS executable PE')):
+#                self.runner.system ('mv %(i)s %(file)s.exe', locals ())
+#    and self.runner.read_pipe ('file -b %(i)s', locals ()).startswith ('MS-DOS executable PE')):
+#AttributeError: 'NoneType' object has no attribute 'read_pipe'
+# gur, Must manually expand and pass logger...
+                and loggedos.read_pipe (logger_why_already_in_self, self.expand ('file -b %(file)s', locals ())).startswith ('MS-DOS executable PE')):
+                loggedos.system (logger_why_already_in_self, self.expand ('mv %(file)s %(file)s.exe', locals ()))
         self.map_locate (add_exe, '%(install_root)s/bin', '*')
         self.map_locate (add_exe, '%(install_prefix)s/bin', '*')
 
@@ -563,14 +579,16 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"%(_v)s -zcf %(src_package_
 mkdir -p %(install_prefix)s/share/doc/%(name)s
 ''')
         
-        def copy_readme (logger, file):
+        def copy_readme (logger_why_already_in_self, file):
             if (os.path.isfile (file)
                 and not os.path.basename (file).startswith ('Makefile')
                 and not os.path.basename (file).startswith ('GNUmakefile')):
+# Hmm, cannot (yet) use our nice Runner/logged os interface (again)?
+# This should have been fixed already?                
+#                self.runner.system ('cp %(file)s %(install_prefix)s/share/doc/%(name)s', locals ())
+# gur, Must manually expand and pass logger...
+                loggedos.system (logger_why_already_in_self, self.expand ('cp %(file)s %(install_prefix)s/share/doc/%(name)s', locals ()))
 
-                cmd = self.expand ('cp %(file)s %(install_prefix)s/share/doc/%(name)s')
-                loggedos.command (logger, cmd)
-                
         self.map_locate (copy_readme, '%(srcdir)s', '[A-Z]*')
 
     def build_version (self):

@@ -1,12 +1,68 @@
+* Find/fix bug: verbosity gives now different behaviour in
+
+** FIXED: old code in loggedos.  if 0'd
+  
+* Get rid of (all?), *args and **kwarg constructions, at least where
+  they are now part of the user api.
+** done for (most important?) command.py:System, loggedos.system
+
 * Check everything
   broken: dryrun for cron-builder 
   
 * Printing/logging to console
 
+** oslog.verbose_flag for tar commands has been commented-out?  Old
+   behaviour is somewhat foo but better than no behaviour at all.  We
+   should *always* use -v but send that output to different pipe.  It
+   should *always* be in .log file, but printed to console only if
+   verbosity > 'command'.
+   
+** error logging to console, not build log:
+
+   *** Stage: install (ghostscript, cygwin)
+   sh: Syntax error: "(" unexpected
+   sh: Syntax error: "(" unexpected
+
+   can't easily check whether ignore_errors=True was used.  What is
+   happening, should system abort?
+
+  FIXED (hopefully): evil play of wrong invocation of loggedos.system and
+    **kwargs usage.
+
+** printing of empty list to console:
+
+    *** Stage: clean (w32api-in-usr-lib, cygwin)
+   []
+    *** Stage: pkg_install (w32api-in-usr-lib, cygwin)
+
+** printing of tar command to console:
+
+    *** Stage: pkg_install (w32api-in-usr-lib, cygwin)
+Executing command tar -C /home/janneke/vc/gub-initrepo/target/cygwin/root -p -x -z -f /home/janneke/vc/gub-initrepo/target/cygwin/packages/w32api-in-usr-lib-1.0.cygwin.gup
+
+** strange errors
+   FileManager: no such file: /home/janneke/vc/gub-initrepo/target/cygwin/root/./usr/cross/lib/
+   FileManager: uninstall: freetype-config
+   FileManager: no such file: /home/janneke/vc/gub-initrepo/target/cygwin/root/./usr/cross/bin/
+   FileManager: uninstall: python-config
+   FileManager: no such file: /home/janneke/vc/gub-initrepo/target/cygwin/root/./usr/cross/bin/
+
+
 ** Repository.py: FIXED (most, we still suffer from old bug: wanting
    to know version of ghostscript, lilypond too soon).
 
 ** settings.py: CHEATED
+
+* source packages:
+ 
+  make -f lilypond.make cygwin-ghostscript cygwin-ghostscript-installer
+  ...
+  invoking tar -C /home/janneke/vc/gub-initrepo/target/cygwin/installer-ghostscript-src -zxf /home/janneke/vc/gub-initrepo/target/cygwin/packages/ghostscript-8.57-src.cygwin.tar.gz
+  tar: /home/janneke/vc/gub-initrepo/target/cygwin/packages/ghostscript-8.57-src.cygwin.tar.gz: Functie open() is mislukt: Bestand of map bestaat niet
+  tar: Fout is niet herstelbaar -- tar sluit nu af.
+  tar: Child returned status 2
+  tar: Uitgestelde afbreking na eerdere fouten
+   
 
 * IN PROGRESS:
    gub -p $(bin/build-platform) lilypond
@@ -26,7 +82,6 @@
    darwin-ppc cross-compilers
 
    make -f lilypond.make PLATFORMS="mingw linux-x86 darwin-ppc freebsd-x86 freebsd-64" all ?
-
 
 TODO:
 

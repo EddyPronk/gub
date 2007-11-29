@@ -3,31 +3,70 @@ import subprocess
 import sys
 import os
 import shutil
+import time
 
-def system (logger, cmd, **kwargs):
-    """Can't go through misc.py, since we want the output of the process.
-    """
+#FIXME:
+# using **kwargs is scary: when called from spec as replacement for old
+# self.system:
+#
+#   loggedos.system (logger, 'foo %(bar)s baz', locals ())
+#
+# this somehow silently fails: command is not expanded and no error is raised
 
-    ignore_errors = kwargs.get ('ignore_errors')
+# We cannot, however use the more safe:
+#    def system (logger, cmd, env={}, ignore_errors=False):
+# because we are being called from commands.py as:
+#        return loggedos.system (logger, self.command,
+#                                **self.kwargs)
+# We *must* use kwargs.get here to get a sane ENV.  What to do?
+# Probably we should expand the kwargs in commands.py:System, because
+# *that* is the place that received the kwargs and knows about them.
+# 
+def system (logger, cmd, env={}, ignore_errors=False):
     logger.write_log ('invoking %s\n' % cmd, 'command')
-
-    proc = subprocess.Popen (cmd,  bufsize=1, shell=True,
-                             env=kwargs.get ('env'),
+    proc = subprocess.Popen (cmd, bufsize=1, shell=True, env=env,
                              stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT,
                              close_fds=True)
 
-    for line in proc.stdout:
-        logger.write_log (line, 'output')
-    proc.wait ()
+    if 1:
+        for line in proc.stdout:
+            logger.write_log (line, 'output')
+        proc.wait ()
 
-    if proc.returncode:
-        m = 'Command barfed: %(cmd)s\n' % locals ()
-        if not ignore_errors:
+        if proc.returncode:
+            m = 'Command barfed: %(cmd)s\n' % locals ()
+            if not ignore_errors:
+                logger.write_log (m, 'error')
+                raise misc.SystemFailed (m)
+
+        return proc.returncode
+    else: # WTF, this oldcode exhibits weird verbosity problem
+        #different behaviour if run with -vvv?
+        proc = subprocess.Popen (cmd, bufsize=1, shell=True, env=env,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.STDOUT,
+                                 close_fds=True)
+
+        while proc.poll () is None:
+            line = proc.stdout.readline ()
+            #self.log (line, level['output'], verbose)
+            logger.write_log (line, 'output')
+            # FIXME: how to yield time slice in python?
+            time.sleep (0.0001)
+
+        line = proc.stdout.readline ()
+        while line:
+            #self.log (line, level['output'], verbose)
+            logger.write_log (line, 'output')
+            line = proc.stdout.readline ()
+        if proc.returncode:
+            m = 'Command barfed: %(cmd)s\n' % locals ()
+            #self.error (m)
             logger.write_log (m, 'error')
-            raise misc.SystemFailed (m)
-        
-    return proc.returncode
+	    if not ignore_errors:
+        	raise misc.SystemFailed (m)
+        return proc.returncode
 
 
 ########
@@ -62,3 +101,26 @@ for name, func in {'read_file': misc.read_file,
         return func_with_logging
     currentmodule.__dict__[name] = with_logging (func)
 
+
+def test ():
+    import unittest
+    import logging
+
+    # This is not a unittest, it only serves as a smoke test
+
+    class Test_loggedos (unittest.TestCase):
+        def setUp (self):
+            # Urg: global??
+            self.logger = logging.set_default_log ('downloads/test/test.log', 5)
+        def testDumpFile (self):
+            dump_file (self.logger, 'boe', 'downloads/test/a')
+            self.assert_ (os.path.exists ('downloads/test/a'))
+        def testSystem (self):
+            self.assertRaises (Exception,
+                               system, self.logger, 'cp %(src)s %(dest)s')
+            
+    suite = unittest.makeSuite (Test_loggedos)
+    unittest.TextTestRunner (verbosity=2).run (suite)
+
+if __name__ == '__main__':
+    test ()

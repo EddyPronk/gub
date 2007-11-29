@@ -275,7 +275,9 @@ class Ghostscript__cygwin (Ghostscript):
         self.fonts_source = repository.TarBall (self.settings.downloads,
                                                 fonts_url)
     def connect_command_runner (self, runner):
-        self.fonts_source.connect_logger (runner.logger)
+        print 'FIXME: deferred workaround'
+        if (runner):
+            self.fonts_source.connect_logger (runner.logger)
         return Ghostscript.connect_command_runner (self, runner)
     def download (self):
         Ghostscript.download (self)
@@ -361,8 +363,12 @@ cd %(builddir)s && %(install_command_x11)s
 cd %(install_prefix)s && rm -rf usr/X11R6/share
 ''')
     def install_fonts (self):
+        print 'FIXME: deferred workaround'
+#        deferred_dump (self.font_source.update_workdir (fontdir))
         fontdir = self.expand ('%(install_prefix)s/share/ghostscript/fonts')
-        self.fonts_source.update_workdir (fontdir)
+        def defer (logger):
+            self.fonts_source.update_workdir (fontdir)
+        self.func (defer)
     def makeflags (self):
         # Link to binmode to fix text mode mount problem
         # http://cygwin.com/ml/cygwin/2002-07/msg02302.html

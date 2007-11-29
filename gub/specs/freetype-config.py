@@ -12,8 +12,6 @@ class Freetype_config (build.SdkBuild):
                        ['download', 'untar', 'patch'])
     def install (self):
         build.SdkBuild.install (self)
-        self.system ('mkdir -p %(cross_prefix)s/usr/bin')
-        
         ft_version = self.version ()
         prefix = '%(system_prefix)s'
         exec_prefix = '${prefix}'
@@ -28,11 +26,13 @@ class Freetype_config (build.SdkBuild):
                    for nm in [ 'prefix', 'exec_prefix', 'includedir', 'libdir',
                                'enable_shared', 'wl', 'hardcode_libdir_flag_spec']]
 
-        fname = '%(install_prefix)s/cross/bin/freetype-config'
+        self.system ('mkdir -p %(install_prefix)s%(cross_dir)s/bin')
+        freetype_config = self.expand ('%(install_prefix)s%(cross_dir)s/bin/freetype-config')
         self.file_sub (regexes,
                        '%(sourcefiledir)s/freetype-config.in',
-                       to_name=fname, use_re=False)
-        self.system ('chmod 755 %s' % fname)
+                       to_name=freetype_config,
+                       use_re=False)
+        self.chmod (freetype_config, 755)
         
 class Freetype_config__cygwin (Freetype_config):
     source = repository.Version (name='freetype-config', version='2.3.4')

@@ -388,7 +388,7 @@ class TarBall (Repository):
             self.system ('rm -rf %s' % destdir)
         self.system ('mkdir %s' % destdir)       
         strip_components = self.strip_components
-        _v = ''
+        _v = '-v'
 
         # fixme
         #if self.oslog:  #urg, will be fixed when .source is mandatory

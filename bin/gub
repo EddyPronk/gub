@@ -170,8 +170,8 @@ def build (settings, options, files):
 
     # TODO: figure out how to patch src_package from
     # stages. Simpleminded solution does not work
-    # and causes mingw runtime to run autogenmagic
-        
+    # and causes mingw runtime to run autogenmagic       
+
     # TODO: patch out clean if --keep was specified.
 
     # TODO: move taint check in special stage, and patch out --force
