@@ -1,4 +1,10 @@
-* Find/fix bug: verbosity gives now different behaviour in
+* cron-builder: disable initial download:
+  --stage=download depends on tools to be built:
+   /usr/bin/python bin/gub --branch=lilypond=master:master-git.sv.gnu.org-lilypond.git --platform=linux-64 --stage=download lilypond
+  File "/home/janneke/vc/gub-test/gub/specs/fontconfig.py", line 33, in freetype_cflags
+    raise SystemFailed ('Pipe failed: %(cmd)s' % locals ())
+SystemFailed: Pipe failed: /home/janneke/vc/gub-test/target/tools/root/usr/bin/freetype-config --cflags
+
 
 ** FIXED: old code in loggedos.  if 0'd
   

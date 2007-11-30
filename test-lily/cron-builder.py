@@ -126,13 +126,17 @@ def main ():
     make_cmd = 'make -f lilypond.make %s ' % options.make_options
     python_cmd = sys.executable  + ' '
 
-    # FIXME: use gub-tester's download facility
-    ## can't have these in gub-tester, since these
-    ## will always usually result in "release already tested"
-    for a in args:
-        loggedos.system (logger, python_cmd + 'bin/gub --branch=lilypond=%s:%s --platform=%s --stage=download lilypond'
-                % (options.branch, options.local_branch, a))
-        loggedos.system (logger, 'rm -f target/%s/status/lilypond-%s*' % (a, options.branch))
+    if 0: # cannot do this, --stage=dowload of fontconfig depends on
+        # tools freetype-config
+        # must build bootstrap first
+        
+        # FIXME: use gub-tester's download facility
+        # can't have these in gub-tester, since these
+        # will always usually result in "release already tested"
+        for a in args:
+            loggedos.system (logger, python_cmd + 'bin/gub --branch=lilypond=%s:%s --platform=%s --stage=download lilypond'
+                             % (options.branch, options.local_branch, a))
+            loggedos.system (logger, 'rm -f target/%s/status/lilypond-%s*' % (a, options.branch))
 
     test_cmds = []
     if 1:
