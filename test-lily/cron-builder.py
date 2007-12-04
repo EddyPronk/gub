@@ -96,7 +96,7 @@ def parse_options ():
     options.make_options += ' LILYPOND_BRANCH=%s' % options.branch
 
     if '--repository' not in options.test_options:
-        options.test_options += ' --repository=downloads/lilypond.git '
+        options.test_options += ' --repository=downloads/lilypond.git'
 
     if '--branch' not in  options.test_options:
         branch = options.branch
@@ -134,18 +134,6 @@ def main ():
     make_cmd = 'make -f lilypond.make %s ' % options.make_options
     python_cmd = sys.executable  + ' '
 
-    if 0: # cannot do this, --stage=dowload of fontconfig depends on
-        # tools freetype-config
-        # must build bootstrap first
-        
-        # FIXME: use gub-tester's download facility
-        # can't have these in gub-tester, since these
-        # will always usually result in "release already tested"
-        for a in args:
-            loggedos.system (logger, python_cmd + 'bin/gub --branch=lilypond=%s:%s --platform=%s --stage=download lilypond'
-                             % (options.branch, options.local_branch, a))
-            loggedos.system (logger, 'rm -f target/%s/status/lilypond-%s*' % (a, options.branch))
-
     branch = options.branch
     local_branch = options.local_branch
     branch_sep = ':'
@@ -155,30 +143,45 @@ def main ():
         local_branch = ''
         branch_sep = ''
 
+    if 0: #FIXME: use if 1: when --stage download is fixed
+        # cannot do this now, --stage=dowload of fontconfig depends on
+        # tools freetype-config
+        # must build bootstrap first
+        
+        # FIXME: use gub-tester's download facility
+        # can't have these in gub-tester, since these
+        # will always usually result in "release already tested"
+        for platform in args:
+            loggedos.system (logger, python_cmd + 'bin/gub --branch=lilypond=%(local_branch)s%(branch_sep)s:%(branch)s --platform=%(platform)s --stage=download lilypond'
+                             % locals ())
+            loggedos.system (logger, 'rm -f target/%(platform)s/status/lilypond-%(branch)s*' % locals ())
+    else:
+        loggedos.system (logger, make_cmd + bootstrap)
+
     test_cmds = []
     if 1:
         test_cmds.append (make_cmd + 'bootstrap')
     if options.build_package:
-        test_cmds += [python_cmd + 'bin/gub --branch=lilypond=%(branch)s%(branch_sep)s%(local_branch)s --skip-if-locked --platform=%(platform)s lilypond '
+        test_cmds += [python_cmd + 'bin/gub --branch=lilypond=%(branch)s%(branch_sep)s%(local_branch)s --skip-if-locked --platform=%(platform)s lilypond'
                       % locals () for platform in args]
         
     if options.build_installer:
         version_options = '' 
             
         # installer-builder does not need remote-branch
-        test_cmds += [python_cmd + 'bin/installer-builder --skip-if-locked %(version_options)s --branch=lilypond=%(branch)s%(branch_sep)s%(local_branch)s --platform=%(platform)s build-all lilypond '
+        test_cmds += [python_cmd + 'bin/installer-builder --skip-if-locked %(version_options)s --branch=lilypond=%(branch)s%(branch_sep)s%(local_branch)s --platform=%(platform)s build-all lilypond'
                       % locals () for platform in args]
 
     if options.build_docs:
         test_cmds += [make_cmd + 'doc-build',
                       make_cmd + 'doc-export']
-        options.test_options += ' --dependent '
+        options.test_options += ' --dependent'
 
 
     if options.build_tarball:
         test_cmds += [make_cmd + 'dist-check']
 
-    loggedos.system (logger, python_cmd + 'bin/gub-tester %s %s '
+    loggedos.system (logger, python_cmd + 'bin/gub-tester %s %s'
             % (options.test_options, ' '.join (["'%s'" % c for c in test_cmds])))
 
 if __name__ == '__main__':
