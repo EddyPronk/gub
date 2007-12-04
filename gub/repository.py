@@ -153,13 +153,19 @@ class Repository:
         
     def info (self, message):
         self.logger.write_log (message + '\n', 'info')
-
+    def filter_branch_arg (self, branch):
+        if '=' in branch:
+            (name, branch) = tuple (branch.split ('='))
+            if name != self.file_name ():
+                branch = ''
+        return branch
     def full_branch_name (self):
         if self.is_tracking ():
             return self.branch.replace ('/', '-')
         return ''
     def file_name (self):
-#        return re.sub ('.*/([^/]+)', '\\1', self.source)
+        if not self.source:
+            return os.path.splitext (os.path.basename (self.dir))[0]
         return os.path.splitext (os.path.basename (self.source))[0]
     def download (self):
         pass
@@ -430,7 +436,7 @@ class Git (Repository):
             # repository proxy determined git vcs from dir
             print 'FIXME: get url from .git dir info'
 
-        self.branch = branch
+        self.branch = self.filter_branch_arg (branch)
         self.revision = revision
 
         if self.revision == '' and self.branch == '':
