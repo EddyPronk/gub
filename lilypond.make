@@ -47,12 +47,13 @@ LILYPOND_REPODIR=downloads/lilypond
 
 # for GIT
 LILYPOND_BRANCH=master
+# LILYPOND_BRANCH=stable/2.10
+
 LILYPOND_REPO_URL=git://git.sv.gnu.org/lilypond.git
 
 # derived info
-LILYPOND_DIRRED_BRANCH=git.sv.gnu.org/lilypond.git/master
-LILYPOND_FLATTENED_BRANCH=git.sv.gnu.org--lilypond.git-master
-# LILYPOND_BRANCH=stable/2.10
+LILYPOND_DIRRED_BRANCH=git.sv.gnu.org/lilypond.git/$(LILYPOND_BRANCH)
+LILYPOND_FLATTENED_BRANCH=git.sv.gnu.org--lilypond.git-$(LILYPOND_BRANCH)
 
 MAKE += -f lilypond.make
 
