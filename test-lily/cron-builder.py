@@ -138,19 +138,21 @@ def main ():
                              % (options.branch, options.local_branch, a))
             loggedos.system (logger, 'rm -f target/%s/status/lilypond-%s*' % (a, options.branch))
 
+    branch = options.branch
+    local_branch = options.local_branch
     test_cmds = []
     if 1:
         test_cmds.append (make_cmd + 'bootstrap')
     if options.build_package:
-        test_cmds += [python_cmd + 'bin/gub --branch=lilypond=%s:%s --skip-if-locked --platform=%s lilypond '
-                      % (options.branch, options.local_branch, p) for p in args]
+        test_cmds += [python_cmd + 'bin/gub --branch=lilypond=%(branch)s:%(local_branch)s --skip-if-locked --platform=%(platform)s lilypond '
+                      % locals () for platform in args]
         
     if options.build_installer:
         version_options = '' 
             
         # installer-builder does not need remote-branch
-        test_cmds += [python_cmd + 'bin/installer-builder --skip-if-locked %s --branch=lilypond=%s:%s --platform=%s build-all lilypond '
-                      % (version_options, options.branch, options.local_branch, p) for p in args]
+        test_cmds += [python_cmd + 'bin/installer-builder --skip-if-locked %(version_options)s --branch=lilypond=%(branch)s:%(local_branch)s --platform=%(platform)s build-all lilypond '
+                      % locals () for platform in args]
 
     if options.build_docs:
         test_cmds += [make_cmd + 'doc-build',
