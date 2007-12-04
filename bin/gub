@@ -90,8 +90,14 @@ def get_cli_parser ():
                   dest='offline',
                   help='Download as part of the build')
 
-    p.add_option ('--stage', action='store',
-                  dest='stage', default=None,
+    def set_stage (option, opt_str, value, parser):
+        if value == 'download':
+            parser.values.download_only = True
+        else:
+            parser.values.stage = value
+
+    p.add_option ('--stage', action='callback', callback=set_stage,
+                  dest='stage', type='string', default=None,
                   help='Force rebuild of stage')
 
     p.add_option ('--fresh', action='store_true',

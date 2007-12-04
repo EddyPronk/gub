@@ -86,7 +86,7 @@ include compilers.make
 ################
 
 unlocked-update-versions:
-	python gub/versiondb.py --dbfile=$(LILYPOND_VERSIONS) --download  --platforms="$(PLATFORMS)"
+	python gub/versiondb.py --dbfile=$(LILYPOND_VERSIONS) --download --platforms="$(PLATFORMS)"
 
 ifneq ($(find cygwin,$(PLATFORMS)),)
 # this is downloading the same info 5 times. Can we do this more efficiently?
