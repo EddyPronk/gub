@@ -423,8 +423,12 @@ class Git (Repository):
         self.checksums = {}
         self.source = source
 
-        source = re.sub ('.*:', '', source)
-        (self.url_host, self.url_path) = urllib.splithost (source)
+        if source:
+            source = re.sub ('.*:', '', source)
+            (self.url_host, self.url_path) = urllib.splithost (source)
+        else:
+            # repository proxy determined git vcs from dir
+            print 'FIXME: get url from .git dir info'
 
         self.branch = branch
         self.revision = revision
