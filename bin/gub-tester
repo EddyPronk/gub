@@ -323,7 +323,8 @@ def real_main (options, args, handle_result):
                                             options.url,
                                             options.branch,
                                             options.revision)
-    if (not repo.is_downloaded () or options.update or options.revision):
+    if ((not repo.is_downloaded () or options.update or options.revision)
+        and repo.source):
         repo.download ()
         repo.update_workdir ('.')
 
