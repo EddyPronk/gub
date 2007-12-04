@@ -99,8 +99,16 @@ def parse_options ():
         options.test_options += ' --repository=downloads/lilypond.git '
 
     if '--branch' not in  options.test_options:
-        options.test_options += (' --branch=lilypond=%s:%s'
-                              % (options.branch, options.local_branch))
+        branch = options.branch
+        local_branch = options.local_branch
+        branch_sep = ':'
+        
+        # FIXME: what happened to branch juggling?
+        if 1:
+            local_branch = ''
+            branch_sep = ''
+        options.test_options += (' --branch=lilypond=%(branch)s%(branch_sep)s%(local_branch)s'
+                              % locals ())
         
     return (options, args)
 
