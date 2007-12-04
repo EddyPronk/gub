@@ -140,18 +140,25 @@ def main ():
 
     branch = options.branch
     local_branch = options.local_branch
+    branch_sep = ':'
+
+    # FIXME: what happened to branch juggling?
+    if 1:
+        local_branch = ''
+        branch_sep = ''
+
     test_cmds = []
     if 1:
         test_cmds.append (make_cmd + 'bootstrap')
     if options.build_package:
-        test_cmds += [python_cmd + 'bin/gub --branch=lilypond=%(branch)s:%(local_branch)s --skip-if-locked --platform=%(platform)s lilypond '
+        test_cmds += [python_cmd + 'bin/gub --branch=lilypond=%(branch)s%(branch_sep)s%(local_branch)s --skip-if-locked --platform=%(platform)s lilypond '
                       % locals () for platform in args]
         
     if options.build_installer:
         version_options = '' 
             
         # installer-builder does not need remote-branch
-        test_cmds += [python_cmd + 'bin/installer-builder --skip-if-locked %(version_options)s --branch=lilypond=%(branch)s:%(local_branch)s --platform=%(platform)s build-all lilypond '
+        test_cmds += [python_cmd + 'bin/installer-builder --skip-if-locked %(version_options)s --branch=lilypond=%(branch)s%(branch_sep)s%(local_branch)s --platform=%(platform)s build-all lilypond '
                       % locals () for platform in args]
 
     if options.build_docs:
