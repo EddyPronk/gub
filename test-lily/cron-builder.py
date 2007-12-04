@@ -156,7 +156,7 @@ def main ():
                              % locals ())
             loggedos.system (logger, 'rm -f target/%(platform)s/status/lilypond-%(branch)s*' % locals ())
     else:
-        loggedos.system (logger, make_cmd + bootstrap)
+        loggedos.system (logger, make_cmd + 'bootstrap')
 
     test_cmds = []
     if 1:
