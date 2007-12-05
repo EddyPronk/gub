@@ -284,9 +284,8 @@ endif
 tools:
 	cd librestrict && make -f GNUmakefile
 	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools $(tools)
-ifeq ($(findstring mingw, $(PLATFORMS)),mingw)
-	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools nsis
-endif
+## Nsis is made in target tools-cross-tools, after cross compilers
+
 # tools-cross-tools depend on cross-compilers, see compilers.make.
 # We need linux-x86 and mingw before nsis can be build
 #	$(MAKE) tools-cross-tools
