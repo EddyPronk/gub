@@ -1,12 +1,9 @@
+import glob
+import inspect
 import os
 import re
 import traceback
-import inspect
-import subprocess
-import stat
-import shutil
-import glob
-import md5
+# import md5
 
 from gub import misc
 from gub import loggedos
