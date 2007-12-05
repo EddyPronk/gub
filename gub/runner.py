@@ -20,19 +20,11 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 """
 
-import fnmatch
 import os
 import re
-import stat
-import subprocess
-import sys
-import time
-import traceback
-import inspect
 
 from gub import misc
 from gub import commands
-from gub import logging
 
 class CommandRunner:
     '''Encapsulate OS/File system commands
