@@ -14,7 +14,7 @@ class Gcc (cross.CrossToolsBuild):
         return ['cross/binutils']
 
     @context.subst_method
-    def NM_FOR_TARGET(self):
+    def NM_FOR_TARGET (self):
          return '%(toolchain_prefix)snm'
 
     def get_subpackage_names (self):

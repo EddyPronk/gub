@@ -22,7 +22,7 @@ cd %(srcdir)s/tk/ && ./unix/configure --prefix=%(install_prefix)s
                      
     def patch (self):
         self.system ("cd %(srcdir)s/tcl/ && patch -p1 < %(patchdir)s/tcl-8.4.14-dde.patch")
-    def install(self):
+    def install (self):
         self.system ('cd %(builddir)s/tcl && make DESTDIR=%(install_root)s install')
         self.system ('cd %(builddir)s/tk && make DESTDIR=%(install_root)s install')
 
@@ -33,7 +33,7 @@ cd %(srcdir)s/tk/ && ./unix/configure --prefix=%(install_prefix)s
     
 class Tcltk__mingw (Tcltk):
     @context.subst_method
-    def RC(self):
+    def RC (self):
         return  '%(cross_prefix)s/bin/%(target_architecture)s-windres'
     
     def configure (self):

@@ -27,17 +27,17 @@ specified by applications.'''
         # this is shady: we're using the flags from the tools version
         # of freetype.
         
-        base_config_cmd = self.settings.expand('%(tools_prefix)s/bin/freetype-config')
+        base_config_cmd = self.settings.expand ('%(tools_prefix)s/bin/freetype-config')
         cmd =  base_config_cmd + ' --cflags'
-        logging.command('pipe %s\n' % cmd)
-        return misc.read_pipe (cmd).strip()
+        logging.command ('pipe %s\n' % cmd)
+        return misc.read_pipe (cmd).strip ()
 
     @context.subst_method
     def freetype_libs (self):
-        base_config_cmd = self.settings.expand('%(tools_prefix)s/bin/freetype-config')
+        base_config_cmd = self.settings.expand ('%(tools_prefix)s/bin/freetype-config')
         cmd =  base_config_cmd + ' --libs'
-        logging.command('pipe %s\n' % cmd)
-        return misc.read_pipe (cmd).strip()
+        logging.command ('pipe %s\n' % cmd)
+        return misc.read_pipe (cmd).strip ()
 
     def get_build_dependencies (self):
         return ['libtool', 'expat-devel', 'freetype-devel']

@@ -347,7 +347,7 @@ tooldir=%(install_prefix)s
                 logger.write_log ('Cannot update libtool: no such file: %(new)s' % locals (), 'error')
                 raise Exception ('barf')
 
-            loggedos.system (logger, 'cp %(new)s %(file)s' % locals())
+            loggedos.system (logger, 'cp %(new)s %(file)s' % locals ())
             self.kill_libtool_installation_test (logger, file)
             loggedos.system (logger, 'chmod 755  %(file)s' %locals ())
 
@@ -380,11 +380,11 @@ rm -f %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/share/info/dir %(in
 mkdir -p %(install_root)s/license
 cp %(file)s %(install_root)s/license/%(name)s
 ''', locals ())
-                    loggedos.system(logger, cmd)
+                    loggedos.system (logger, cmd)
                     return
 
         # wtf is misc.lst ?
-        self.func (install, map (self.expand, misc.lst(self.license_file ())))
+        self.func (install, map (self.expand, misc.lst (self.license_file ())))
 
     def libtool_installed_la_fixups (self):
         def installed_la_fixup (logger, la):
@@ -393,16 +393,16 @@ cp %(file)s %(install_root)s/license/%(name)s
             dir = re.sub (r"^\./", "/", dir)
 
             loggedos.file_sub (logger, [(''' *-L *[^\"\' ][^\"\' ]*''', ''),
-                    (self.expand('''( |=|\')(/[^ ]*usr/lib|%(targetdir)s.*)/lib([^ \'/]*)\.(a|la|so)[^ \']*'''),
+                    (self.expand ('''( |=|\')(/[^ ]*usr/lib|%(targetdir)s.*)/lib([^ \'/]*)\.(a|la|so)[^ \']*'''),
                     '\\1-l\\3 '),
                     ('^old_library=.*',
-                     self.expand("""old_library='lib%(base)s.a'""", env=locals())),
+                     self.expand ("""old_library='lib%(base)s.a'""", env=locals ())),
                     ],
                    la)
             if self.settings.platform.startswith ('mingw'):
                 
                 loggedos.file_sub (logger, [('library_names=.*',
-                                 self.expand("library_names='lib%(base)s.dll.a'", env=locals()))],
+                                 self.expand ("library_names='lib%(base)s.dll.a'", env=locals ()))],
                                la)
                 
         self.map_locate (installed_la_fixup, '%(install_root)s', 'lib*.la')

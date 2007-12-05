@@ -42,7 +42,7 @@ class Pango (targetbuild.TargetBuild):
         self.system ('mkdir -p %(etc)s' , locals ())
 
         def fix_prefix (logger, fname):
-            loggedos.file_sub (logger, [(self.expand('/%(prefix)s/'),
+            loggedos.file_sub (logger, [(self.expand ('/%(prefix)s/'),
                                          '$PANGO_PREFIX/')], fname)
 
         self.map_locate (fix_prefix, etc, '*')
@@ -57,7 +57,7 @@ class Pango (targetbuild.TargetBuild):
                 loggedos.dump_file (logger, '''[Pango]
 ModuleFiles = $PANGO_PREFIX/etc/pango/pango.modules
 ModulesPath = $PANGO_PREFIX/lib/pango/%(pango_module_version)s/modules
-''' % locals(),
+''' % locals (),
                                     etc + '/pangorc')
                 
         self.map_locate (write_pangorc, '%%(install_root)s/%(prefix)s/lib/pango' % locals (), '*', must_happen=True)
@@ -69,7 +69,7 @@ ModulesPath = $PANGO_PREFIX/lib/pango/%(pango_module_version)s/modules
         self.dump ("""
 setfile PANGO_RC_FILE=$INSTALLER_PREFIX/etc/pango/pangorc
 setdir PANGO_PREFIX=$INSTALLER_PREFIX/
-""", '%(install_prefix)s/etc/relocate/pango.reloc', env=locals())
+""", '%(install_prefix)s/etc/relocate/pango.reloc', env=locals ())
         self.fix_modules ()
 
 class Pango__linux (Pango):
@@ -97,4 +97,4 @@ class Pango__darwin (Pango):
         Pango.install (self)                
         self.dump ("""
 set PANGO_SO_EXTENSION=.so
-""", '%(install_prefix)s/etc/relocate/pango.reloc', env=locals(), mode="a")
+""", '%(install_prefix)s/etc/relocate/pango.reloc', env=locals (), mode="a")

@@ -118,9 +118,9 @@ def upload_binaries (repo, version, version_db):
             
         if (platform not in ('documentation', 'test-output')
              and os.path.exists (bin)):
-            branch = repo.full_branch_name()
+            branch = repo.full_branch_name ()
             # FIXME: what if user changes ~/.gubrc?  should use gubb.Settings!
-            hdr = dict(pickle.load (open ('target/%(platform)s/packages/lilypond-%(branch)s.%(platform)s.hdr' % locals ())))
+            hdr = dict (pickle.load (open ('target/%(platform)s/packages/lilypond-%(branch)s.%(platform)s.hdr' % locals ())))
             key = hdr['source_checksum']
             
             lst = commitishes.get (key, [])
@@ -156,7 +156,7 @@ def upload_binaries (repo, version, version_db):
   %(lilybuild)s/out-www/online-root/''' % d
     
     cmds.append (test_cmd)
-    if tuple(version[:2]) > (2,10):
+    if tuple (version[:2]) > (2,10):
         test_cmd = r'''python %(cwd)s/test-lily/rsync-test.py \
   --upload %(host_test_spec)s \
   --version-file %(lilybuild)s/out/VERSION \
@@ -171,12 +171,12 @@ def upload_binaries (repo, version, version_db):
     ##    cmds.append ('rsync -v --recursive --delay-updates --progress uploads/cygwin/release/ %(host_binaries_spec)s/cygwin/release/' % globals ())
 
     
-    description = repo.git_pipe ('describe --abbrev=39 %s' % repo.get_ref()).strip ()
+    description = repo.git_pipe ('describe --abbrev=39 %s' % repo.get_ref ()).strip ()
     
     git_tag = 'release/%(version_str)s-%(build)d' % locals () 
     git_tag_cmd = 'git --git-dir downloads/lilypond tag -m "" -a %(git_tag)s %(dirred_branch)s' % locals ()
     git_push_cmd = 'git --git-dir downloads/lilypond push ssh+git://git.sv.gnu.org/srv/git/lilypond.git/ refs/tags/%(git_tag)s:refs/tags/%(git_tag)s' % locals ()
-    gub_tag_cmd = 'git tag "gub-release-lilypond-%(version_str)s-%(build)d" -m "release of lilypond %(description)s (%(version_str)s-%(build)d)" ' % locals()
+    gub_tag_cmd = 'git tag "gub-release-lilypond-%(version_str)s-%(build)d" -m "release of lilypond %(description)s (%(version_str)s-%(build)d)" ' % locals ()
 
     cmds.append (git_tag_cmd)
     cmds.append (git_push_cmd)

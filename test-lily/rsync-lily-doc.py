@@ -54,13 +54,13 @@ def parse_options ():
         opts.output_distance_script = os.path.abspath (opts.output_distance_script)
 
     if not args:
-        p.print_help()
-        sys.exit(2)
+        p.print_help ()
+        sys.exit (2)
     
     return (opts, args)
 
 def do_urchin (filename):
-    s = open (filename).read()
+    s = open (filename).read ()
     if re.search ('UA-68969', s):
     	return
     
@@ -83,7 +83,7 @@ def system (cmd):
 
 def read_version (source):
     s = open (source).read ()
-    s = s.strip()
+    s = s.strip ()
     return tuple (s.split ('.'))
     
 def create_local_web_dir (options, source):
@@ -155,7 +155,7 @@ def compute_distances (options, source):
 
         base = os.path.split (d)[1]
 
-        html += '<li><a href="compare-%(base)s/index.html">results for %(base)s</a>' % locals()
+        html += '<li><a href="compare-%(base)s/index.html">results for %(base)s</a>' % locals ()
         system (cmd)
 
     if html:
@@ -176,7 +176,7 @@ Regression test results for %(version_str)s
 %(html)s
 </body>
 </html>
-''' % locals() 
+''' % locals () 
     
     open (cur_dir + '/test-results.html', 'w').write (html)
 

@@ -77,10 +77,10 @@ def test_build (bin):
     system ('scp %(test_file)s test-lily/%(test_platform_script)s '
             ' %(bin)s '
             ' %(uid)s@%(host)s:%(dir)s/'
-            % locals())
+            % locals ())
 
     system ('ssh %(uid)s@%(host)s sh %(dir)s/%(test_platform_script)s %(dir)s %(base)s %(base_test_file)s'
-            % locals())
+            % locals ())
     system ('scp %(uid)s@%(host)s:%(dir)s/%(base_test_file_stem)s.pdf %(logdir)s/%(base)s.test.pdf'
             % locals ())
     system ('%(viewer)s %(logdir)s/%(base)s.test.pdf'
@@ -96,4 +96,4 @@ for a in sys.argv[1:]:
     else:
         pids.append (pid)
 
-os.wait()
+os.wait ()

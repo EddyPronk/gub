@@ -48,8 +48,8 @@ class TargetBuild (build.UnixBuild):
             
             loggedos.file_sub (logger,
                                [("libdir='/usr/lib'",
-                                 self.expand("libdir='%(dir)s%(suffix)s'",
-                                             env=locals())),
+                                 self.expand ("libdir='%(dir)s%(suffix)s'",
+                                             env=locals ())),
                                 ], file)
         self.map_locate (fixup, '%(builddir)s', '*.la')
 

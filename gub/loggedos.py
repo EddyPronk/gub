@@ -57,12 +57,12 @@ def system (logger, cmd, env=os.environ, ignore_errors=False):
 
 ########
 # logged aliases to misc.py
-def logged_function(logger, function, *args, **kwargs):
-    logger.write_multilevel_message(
+def logged_function (logger, function, *args, **kwargs):
+    logger.write_multilevel_message (
         [('Running %s\n' % function.__name__, 'action'),
-        ('Running %s: %s\n' % (function.__name__, repr(args)), 'command'),
+        ('Running %s: %s\n' % (function.__name__, repr (args)), 'command'),
         ('Running %s\n  %s\n  %s\n'
-         % (function.__name__, repr(args), repr(kwargs)), 'debug')])
+         % (function.__name__, repr (args), repr (kwargs)), 'debug')])
 
     return function (*args, **kwargs)
 
@@ -78,11 +78,11 @@ for name, func in {'read_file': misc.read_file,
                    'remove': os.remove,
                    'symlink': os.symlink,
                    'rename': os.rename,
-                   'read_pipe': misc.read_pipe}.items():
+                   'read_pipe': misc.read_pipe}.items ():
 
     def with_logging (func):
         def func_with_logging (logger, *args, **kwargs):
-            val = logged_function(logger, func, *args, **kwargs)
+            val = logged_function (logger, func, *args, **kwargs)
             return val
         return func_with_logging
     currentmodule.__dict__[name] = with_logging (func)

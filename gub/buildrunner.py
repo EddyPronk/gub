@@ -31,7 +31,7 @@ from gub import logging
 from gub import runner
 
 def checksum_diff (b, a):
-    return '\n'.join(difflib.context_diff (a.split ('\n'),
+    return '\n'.join (difflib.context_diff (a.split ('\n'),
                                            b.split ('\n')))
 
 # FIXME s/spec/build/, but we also have two definitions of package/pkg
@@ -92,14 +92,14 @@ class BuildRunner:
             reason = 'source %s -> %s (memory)' % (spec.source_checksum (), pkg_dict['source_checksum'])
 
         if reason == '' and self.checksums[spec.name ()] != build_checksum_ondisk:
-            reason = 'build diff %s' % checksum_diff(self.checksums[spec.name ()], build_checksum_ondisk)
+            reason = 'build diff %s' % checksum_diff (self.checksums[spec.name ()], build_checksum_ondisk)
 
         hdr = pkg.expand ('%(split_hdr)s')
         if reason == '' and not os.path.exists (hdr):
             reason = 'hdr missing'
             
         if reason == '':
-            hdr_dict = dict(pickle.load (open (hdr)))
+            hdr_dict = dict (pickle.load (open (hdr)))
             if spec.source_checksum () != hdr_dict['source_checksum']:
                 reason = 'source %s -> %s (disk)' % (spec.source_checksum (), hdr_dict['source_checksum'])
 

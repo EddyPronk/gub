@@ -343,17 +343,17 @@ cp %(install_prefix)s/share/lilypond/*/python/* %(install_prefix)s/bin
 ''')
 
         def rename (logger, name):
-            header = open (name).readline().strip ()
+            header = open (name).readline ().strip ()
             if header.endswith ('guile'):
                 loggedos.system (logger, 'mv %(name)s %(name)s.scm', locals ())
             elif header.endswith ('python') and not name.endswith ('.py'):
                 loggedos.system (logger, 'mv %(name)s %(name)s.py' % locals ())
 
         def asciify (logger, name):
-            loggedos.file_sub(logger, [('\r*\n', '\r\n')], name)
+            loggedos.file_sub (logger, [('\r*\n', '\r\n')], name)
             
         self.map_locate (rename, self.expand ('%(install_prefix)s/bin/'), '*')
-        self.map_locate (asciify, self.expand('%(install_root)s'), '*.ly')
+        self.map_locate (asciify, self.expand ('%(install_root)s'), '*.ly')
             
 
         bat = r'''@echo off

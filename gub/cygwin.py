@@ -47,7 +47,8 @@ tar -C %(unpackdir)s %(flags)s %(downloads)s/%(file_name)s
                  locals ())
     tgz = 'tar.bz2'
 # WTF?  self.expand is broken here?
-#    if not os.path.exists (self.expand ('%s(unpackdir)s/%(second_tarball)s.%(tgz)s',
+# relax, try not making typos:
+#    if not os.path.exists (self.expand ('%(unpackdir)s/%(second_tarball)s.%(tgz)s',
 #                                        locals ())):
     if not os.path.exists (unpackdir + '/' + second_tarball + '.' + tgz):
         flags = '-zxf'
@@ -131,7 +132,7 @@ def change_target_package (package):
             if not full.get (i):
                 full[i] = full['']
         return full
-    
+
     package.category_dict = misc.MethodOverrider (package.category_dict,
                                                   category_dict)
 
@@ -156,11 +157,11 @@ def change_target_package (package):
                                                      description_dict)
 
     ## TODO : get_dependency_dict
-        
+
     # FIXME: why do cross packages get here too?
     if isinstance (package, cross.CrossToolsBuild):
         return package
-        
+
     targetbuild.change_target_dict (package, {
             'DLLTOOL': '%(toolchain_prefix)sdlltool',
             'DLLWRAP': '%(toolchain_prefix)sdllwrap',
@@ -310,7 +311,7 @@ class Dependency_resolver:
 #        self.source = fontconfig_source + freetype_source + guile_source + libtool_source
         self.source = fontconfig_source + ghostscript_source + guile_source + libtool_source
         self.load_packages ()
-        
+
     def grok_setup_ini (self, file, skip=[]):
         for p in get_cygwin_packages (self.settings, file, skip):
             self.packages[p.name ()] = p
@@ -342,7 +343,7 @@ class Dependency_resolver:
 
     def get_packages (self):
         return self.packages
-        
+
 dependency_resolver = None
 
 def init_dependency_resolver (settings):

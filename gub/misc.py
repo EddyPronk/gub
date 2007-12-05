@@ -318,7 +318,7 @@ class hierarchy.
                               new_func,
                               (arg1, arg2, .. ))
     '''
-    def __init__ (self, old_func, new_func, extra_args=()):
+    def __init__ (self, old_func, new_func, extra_args=tuple ()):
         self.new_func = new_func
         self.old_func = old_func
         self.args = extra_args

@@ -48,8 +48,8 @@ class Guile (targetbuild.TargetBuild):
         return '.'.join (self.ball_version.split ('.')[0:2])
 
     def patch (self):
-        targetbuild.TargetBuild.patch(self)
-        self.autogen_sh()
+        targetbuild.TargetBuild.patch (self)
+        self.autogen_sh ()
 
         ## Don't apply patch twice.
         self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/guile-reloc.patch')
@@ -100,7 +100,7 @@ exec %(tools_prefix)s/bin/guile "$@"
         
         self.dump ("prependdir GUILE_LOAD_PATH=$INSTALLER_PREFIX/share/guile/%(majmin_version)s\n",
                    '%(install_prefix)s/etc/relocate/guile.reloc',
-                   env=locals())
+                   env=locals ())
  
         version = self.expand ('%(version)s')
 	#FIXME: c&p linux.py
@@ -236,7 +236,7 @@ class Guile__darwin (Guile):
             directory = os.path.split (fname)[0]
             src = os.path.basename (fname)
             dst = os.path.splitext (os.path.basename (fname))[0] + '.so'
-            loggedos.symlink (logger, src, os.path.join(directory, dst))
+            loggedos.symlink (logger, src, os.path.join (directory, dst))
                               
         self.map_locate (dylib_link,
                          self.expand ('%(install_prefix)s/lib/'),

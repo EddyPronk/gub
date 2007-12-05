@@ -51,7 +51,7 @@ class Root_image (build.NullBuild):
         fakeroot_cache = self.builddir () + '/fakeroot.cache'
         self.fakeroot (self.expand (self.settings.fakeroot, locals ()))
         _v = '' # self.os_interface.verbose_flag ()
-        def do_one(logger, fname):
+        def do_one (logger, fname):
             loggedos.system (logger, self.expand ('''
 cd %(install_root)s && ar p %(fname)s data.tar.gz | tar%(_v)s -zxf -
 ''', locals ()))

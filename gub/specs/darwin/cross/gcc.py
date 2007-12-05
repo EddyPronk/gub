@@ -23,7 +23,7 @@ class Gcc (gcc.Gcc):
                 return
 
             id = loggedos.read_pipe (logger,
-                                     self.expand('%(toolchain_prefix)sotool -L %(file)s', 
+                                     self.expand ('%(toolchain_prefix)sotool -L %(file)s', 
                                                  locals ())).split ()[1]
             id = os.path.split (id)[1]
             loggedos.system (

@@ -137,14 +137,14 @@ class Repository:
         self.source = source
         self.logger = logging.default_logger
 
-        self.system = self.logged_indirection(loggedos.system)
-        self._read_file = self.logged_indirection(loggedos.read_file)
-        self.download_url = self.logged_indirection(loggedos.download_url)
-        self.read_pipe = self.logged_indirection(loggedos.read_pipe)
+        self.system = self.logged_indirection (loggedos.system)
+        self._read_file = self.logged_indirection (loggedos.read_file)
+        self.download_url = self.logged_indirection (loggedos.download_url)
+        self.read_pipe = self.logged_indirection (loggedos.read_pipe)
 
     def logged_indirection (self, loggedos_func):
-        def logged(*args, **kwargs):
-            return loggedos_func(self.logger, *args, **kwargs)
+        def logged (*args, **kwargs):
+            return loggedos_func (self.logger, *args, **kwargs)
         return logged
     
     def connect_logger (self, logger):
@@ -504,7 +504,7 @@ class Git (Repository):
             self.git ('clone --bare %(source)s %(repo)s' % locals ())
 
         if branch: 
-            self.git ('fetch %(source)s %(branch)s:refs/heads/%(host)s/%(path)s/%(branch)s' % locals())
+            self.git ('fetch %(source)s %(branch)s:refs/heads/%(host)s/%(path)s/%(branch)s' % locals ())
         self.checksums = {}
 
     def get_ref (self):
@@ -644,7 +644,7 @@ class CVS (Repository):
         return open (self._checkout_dir () + '/' + file_name).read ()
         
     def read_cvs_entries (self, dir):
-        checksum = md5.md5()
+        checksum = md5.md5 ()
 
         latest_stamp = 0
         for d in self.cvs_dirs (dir):

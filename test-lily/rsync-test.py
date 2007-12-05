@@ -59,7 +59,7 @@ def system (cmd):
     	raise 'fail'
 def read_version (source):
     s = open (source).read ()
-    s = s.strip()
+    s = s.strip ()
     return tuple (s.split ('.'))
 ## end C&P
     
@@ -70,17 +70,17 @@ def compare_test_tarballs (options, version_file_tuples):
                               '.'.join (map (str, version)),
                               build)
 
-    dest_dir = os.path.abspath(dest_dir)
+    dest_dir = os.path.abspath (dest_dir)
     if not os.path.isdir (dest_dir):
         os.makedirs (dest_dir)
 
     dirs = []
     version_strs = []
-    unpack_dir = os.path.abspath(dest_dir) + '-unpack'
+    unpack_dir = os.path.abspath (dest_dir) + '-unpack'
     
     for (tup, file) in version_file_tuples:
         version, build = tup
-        version_str = '%s-%d' % ('.'.join(map (str, version)), build)
+        version_str = '%s-%d' % ('.'.join (map (str, version)), build)
         version_strs.append (version_str)
         dir_str = 'v' + version_str
         dirs.append (dir_str)
@@ -97,8 +97,8 @@ def compare_test_tarballs (options, version_file_tuples):
                % (unpack_dir,
                   options.output_distance_script,
                   dest_dir, d, d, dirs[-1]))
-        html += '<li><a href="compare-%(d)s/index.html">results for %(d)s</a>' % locals()
-        system(cmd)
+        html += '<li><a href="compare-%(d)s/index.html">results for %(d)s</a>' % locals ()
+        system (cmd)
 
     if html:
         html = '<ul>%(html)s</ul>' % locals ()
@@ -118,14 +118,14 @@ Regression test results for %(version_str)s
 %(html)s
 </body>
 </html>
-''' % locals()
+''' % locals ()
 
     system ('rm -rf %(unpack_dir)s' % locals ())
     
     open (dest_dir + '/index.html', 'w').write (html)
 
 def compare_test_info (options):
-    outputs = glob.glob(options.upload_dir + '/lilypond-*.test-output*')
+    outputs = glob.glob (options.upload_dir + '/lilypond-*.test-output*')
 
     current_version = tuple (map (int, options.version))
     current_tuple = (current_version, options.build)
@@ -145,7 +145,7 @@ def compare_test_info (options):
         if tup <= current_tuple:
            versions_found.append ((tup, f))
 
-    versions_found.sort()
+    versions_found.sort ()
     compare_test_tarballs (options, versions_found[-3:])
 
 def upload (options):
@@ -153,7 +153,7 @@ def upload (options):
 
     target = 'v%s-%d' % ('.'.join (options.version),
                          options.build)
-    os.chdir(target)
+    os.chdir (target)
     
     system ('chmod -R g+w .')
     system ('chgrp -R lilypond .' )

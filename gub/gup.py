@@ -217,7 +217,7 @@ class PackageDictManager:
 
         str = open (package_hdr).read ()
 
-        d = dict(pickle.loads (str))
+        d = dict (pickle.loads (str))
 
         if branch_dict.has_key (d['basename']):
             branch = branch_dict[d['basename']]

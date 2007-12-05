@@ -185,7 +185,7 @@ def main ():
     options.platforms = re.sub ('[, ]+', ' ', options.platforms)
     if not options.platforms:
         sys.stderr.write ("need --platforms definition")
-        sys.exit(1)
+        sys.exit (1)
 
     db = VersionDataBase (options.dbfile)
     db.platforms = options.platforms.split (' ')

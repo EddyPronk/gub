@@ -85,7 +85,7 @@ class Glib__tools (toolsbuild.ToolsBuild):
                    format='bz2')
 
     def install (self):
-        toolsbuild.ToolsBuild.install(self)
+        toolsbuild.ToolsBuild.install (self)
         self.system ('rm %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/lib/charset.alias',
                          ignore_errors=True)
 

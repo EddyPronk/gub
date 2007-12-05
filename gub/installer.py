@@ -102,7 +102,7 @@ class Installer (context.RunnableContext):
 
     def calculate_checksum (self, names):
         checksum_list = []
-        for name in sorted(names):
+        for name in sorted (names):
             dict = self.package_manager.package_dict (name)
             package_checksum = file (dict['checksum_file']).read ()
 

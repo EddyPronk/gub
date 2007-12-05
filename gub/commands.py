@@ -38,7 +38,7 @@ class UpdateSourceDir (SerializedCommand):
             return False
         if not buildspec.source.is_tracking ():
             command = buildspec.expand ('rm -rf %(srcdir)s %(builddir)s %(install_root)s')
-            loggedos.system(logger, command)
+            loggedos.system (logger, command)
 
         if buildspec.source:
             buildspec.source.update_workdir (buildspec.expand ('%(srcdir)s'))
@@ -53,7 +53,7 @@ class UpdateSourceDir (SerializedCommand):
         if self.buildspec.source.is_tracking ():
             tracking  = 'tracking'
 
-        hasher ('UpdateSourceDir(%s)' % tracking)
+        hasher ('UpdateSourceDir(%(tracking)s)' % locals ())
         
 class System (SerializedCommand):
     def __init__ (self, c, env={}, ignore_errors=False):
@@ -123,7 +123,7 @@ class MapLocate (SerializedCommand):
         if self.silent:
             logger.write_log ('Executing %s on %s/%s (%d files)\n'
                               % (self.func.__name__, self.directory,
-                                 self.pattern, len(files)), 'info')
+                                 self.pattern, len (files)), 'info')
             
         for fname in files:
             if not self.silent:
@@ -338,7 +338,7 @@ class CreateShar (SerializedCommand):
         self.args = args
         self.kwargs = kwargs
     def checksum (self, hasher):
-        hasher (repr(('CreateShar', self.args, self.kwargs)))
+        hasher (repr (('CreateShar', self.args, self.kwargs)))
         
     def execute (self, logger):
         (file, hello, head, shar) = self.args
@@ -351,7 +351,7 @@ class CreateShar (SerializedCommand):
         header_length = len (script % locals ()) + 1
         used_in_sharhead = '%(base_file)s %(hello)s %(header_length)s %(_z)s'
         used_in_sharhead % locals ()
-        loggedos.dump_file(logger, script % locals (), shar)
+        loggedos.dump_file (logger, script % locals (), shar)
         loggedos.system (logger, 'cat %(file)s >> %(shar)s' % locals ())
         loggedos.chmod (logger, shar, 0755)
         loggedos.system (logger, 'rm %(file)s' % locals ())

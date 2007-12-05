@@ -47,7 +47,7 @@ class AbstractCommandLogger:
     def write_multilevel_message (self, message_types):
         pass
     
-class NullCommandLogger(AbstractCommandLogger):
+class NullCommandLogger (AbstractCommandLogger):
     pass
 
 class CommandLogger (AbstractCommandLogger):
@@ -86,14 +86,14 @@ class CommandLogger (AbstractCommandLogger):
         log level."""
         leveled = [(name_to_loglevel_mapping[type], message)
                    for (message, type) in message_types]
-        leveled.sort()
-        leveled.reverse()
-        self.write_log_file(leveled[0][1])
+        leveled.sort ()
+        leveled.reverse ()
+        self.write_log_file (leveled[0][1])
 
         leveled = [msg for (l, msg) in leveled
                    if l <= self.threshold]
         if leveled:
-            sys.stderr.write(leveled[0])
+            sys.stderr.write (leveled[0])
             
     def write_log_file (self, message):
         if self.log_file:
@@ -108,7 +108,7 @@ class CommandLogger (AbstractCommandLogger):
         if message_level <= self.threshold:
             sys.stderr.write (message)
 
-        self.write_log_file(message)
+        self.write_log_file (message)
 
     def verbose_flag (self):
         if self.threshold >= name_to_loglevel_mapping['output']:

@@ -23,7 +23,7 @@ class Libjpeg (targetbuild.TargetBuild):
         return ['devel', '']
     
     def srcdir (self):
-        return re.sub (r'src\.v', '-', targetbuild.TargetBuild.srcdir(self))
+        return re.sub (r'src\.v', '-', targetbuild.TargetBuild.srcdir (self))
 
     def configure_command (self):
         return (targetbuild.TargetBuild.configure_command (self)

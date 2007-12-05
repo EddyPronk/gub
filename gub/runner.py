@@ -133,7 +133,7 @@ class DeferredRunner (CommandRunner):
         commands = self._deferred_commands
         self._deferred_commands = []
         for cmd in commands:
-            cmd.execute(self.logger)
+            cmd.execute (self.logger)
 
         print self._deferred_commands
         assert self._deferred_commands == list ()

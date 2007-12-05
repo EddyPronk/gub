@@ -34,7 +34,7 @@ def parse_options ():
     
     (o,a) = p.parse_args ()
     if len (a) < 1:
-	p.print_help()
+	p.print_help ()
 	sys.exit (2)
 
     

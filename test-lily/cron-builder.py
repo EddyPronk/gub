@@ -120,7 +120,7 @@ def main ():
     
     os.system ('mkdir -p log')
     if options.dry_run:
-        options.verbosity = logging.get_numeric_loglevel('command')
+        options.verbosity = logging.get_numeric_loglevel ('command')
         
     logging.set_default_log ('log/cron-builder.log', options.verbosity)
     logger = logging.default_logger

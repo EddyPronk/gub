@@ -65,14 +65,14 @@ class Git (targetbuild.TargetBuild):
         self.file_sub ([('\.\./GIT-CFLAGS Makefile', 'Makefile')],
                         '%(srcdir)s/perl/Makefile')
 
-        self.system('cd %(srcdir)s && patch -p1 < %(patchdir)s/git-1.5.2-templatedir.patch')
+        self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/git-1.5.2-templatedir.patch')
         targetbuild.TargetBuild.patch (self)
         self.system ('rm -rf %(builddir)s')
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
         self.file_sub ([('git describe','true')],
                         '%(srcdir)s/GIT-VERSION-GEN')
-        self.system('cd %(srcdir)s && patch -p1 < %(patchdir)s/git-1.5-shell-anality.patch')
-        self.autoupdate()
+        self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/git-1.5-shell-anality.patch')
+        self.autoupdate ()
         
 class Git__mingw (Git):
     def __init__ (self, settings, source):
@@ -88,7 +88,7 @@ class Git__mingw (Git):
                          '-lwsock32'),
                         ],
                        '%(builddir)s/Makefile')
-        self.dump('%(version)s-GUB', '%(builddir)s/version')
+        self.dump ('%(version)s-GUB', '%(builddir)s/version')
 
     def makeflags (self):
         return (' uname_S=MINGW'
@@ -116,7 +116,7 @@ class Git__mingw (Git):
         return d
     
     def install (self):
-        Git.install(self)
+        Git.install (self)
         bat = r'''@echo off
 "@INSTDIR@\usr\bin\wish84.exe" "@INSTDIR@\usr\bin\gitk" %1 %2 %3 %4 %5 %6 %7 %8 %9
 '''.replace ('%','%%').replace ('\n','\r\n')

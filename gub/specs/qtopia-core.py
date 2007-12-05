@@ -63,7 +63,7 @@ unset CC CXX; bash %(srcdir)s/configure
 ''')
     def configure (self):
         targetbuild.TargetBuild.configure (self)
-        def dosub(logger, fname):
+        def dosub (logger, fname):
             loggedos.file_sub (logger,
                                [('-I/usr', self.expand ('-I%(system_prefix)s'))],
                                fname)

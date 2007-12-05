@@ -26,10 +26,10 @@ class ToolsBuild (build.UnixBuild):
             base = os.path.basename (file)
             cmd = self.expand ('mv %(file)s %(dir)s/.%(base)s', locals ())
             loggedos.system (logger, cmd)
-            loggedos.dump_file (logger, self.expand('''#!/bin/sh
+            loggedos.dump_file (logger, self.expand ('''#!/bin/sh
 LD_LIBRARY_PATH=%(system_prefix)s/lib
 %(system_prefix)s/bin/.%(base)s "$@"
-''', locals()), file)
+''', locals ()), file)
             loggedos.chmod (logger, file, 0755)
         self.map_locate (wrap, '%(install_prefix)s/bin', '*')
         self.map_locate (wrap, '%(install_root)s/%(tools_prefix)s/bin', '*')
