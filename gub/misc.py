@@ -207,13 +207,14 @@ def __download_url (url, dest_dir, progress=None):
         url_stream = urllib2.urlopen (url)
         while True:
             contents = url_stream.read (bufsize)
-            size += bufsize
+            if not contents:
+                break
+
+            size += len(contents)
             output.write (contents)
             if progress:
                 progress ('.')
             sys.stderr.flush ()
-            if not contents:
-                break
         if progress:
             progress ('\n')
     except Exception, e:
