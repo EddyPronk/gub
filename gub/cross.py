@@ -82,13 +82,6 @@ def get_build_dependencies (settings):
     mod = get_cross_module (settings)
     return mod.get_cross_build_dependencies (settings)
 
-def get_cross_checksum (platform):
-    try:
-        return cross_module_checksums[platform]
-    except KeyError:
-        print 'No cross module found'
-        return '0000'
-
 def setup_linux_x86 (package, env={'PATH': os.environ['PATH']}):
     '''Hack for using 32 bit compiler on linux-64.
 

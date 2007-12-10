@@ -68,8 +68,7 @@ class Rewirer (context.RunnableContext):
 
     def rewire_binary_dir (self, dir):
         if not os.path.isdir (dir):
-            print dir
-            raise 'Not a directory'
+            raise 'Not a directory', dir
 
         (root, dirs, files) = os.walk (dir).next ()
         files = [os.path.join (root, f) for f in files]

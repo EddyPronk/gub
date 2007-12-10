@@ -3,6 +3,7 @@ import os
 import re
 import traceback
 
+
 def subst_method (func):
     """Decorator to match Context.get_substitution_dict ()"""
     
@@ -50,8 +51,10 @@ class ConstantCall:
 
 class SetAttrTooLate (Exception):
     pass
+
 class ExpandInInit (Exception):
     pass
+
 class NonStringExpansion (Exception):
     pass
 
@@ -72,9 +75,12 @@ class Context:
     def __setattr__ (self, k, v):
         if (type (v) == type ('')
             and k != '_substitution_dict' and self._substitution_dict):
-            print 'was already set in'
-            print ''.join (traceback.format_list (self._substitution_assignment_traceback))
-            raise SetAttrTooLate ((k, self))
+
+            msg =  ('%s was already set in\n%s'
+                    % (k, 
+                       ''.join (traceback.format_list (self._substitution_assignment_traceback))))
+            
+            raise SetAttrTooLate (msg)
         self.__dict__[k] = v
         
     def get_constant_substitution_dict (self):
@@ -129,8 +135,8 @@ class Context:
             if init_found:
                 # if this happens derived classes cannot override settings
                 # from the baseclass.
-                print ' Cannot Context.expand () in __init__ ()'
-                raise ExpandInInit ()
+                msg = 'Cannot Context.expand () in __init__ ()'
+                raise ExpandInInit (msg)
             
         d = self._substitution_dict
         if env:
@@ -140,9 +146,9 @@ class Context:
                     if type (v) == type (''):
                         d.update ({k: v % d})
                 except:
-                    print 'error substituting in', v
-                    print 'with', k
-                    raise 
+                    msg = 'Error substituting in %s with %s' % (repr(v),
+                                                                repr(k))
+                    raise NonStringExpansion(msg)
         return d
     
     def expand (self, s, env={}):

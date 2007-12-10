@@ -14,9 +14,11 @@ class SerializedCommand:
         self.is_checksummed = True
         
     def execute (self, logger):
-        print 'Not implemented', self
-    def print_source (self):
-        print ''.join (traceback.format_list (self.instantiation_traceback))
+        raise NotImplemented
+    
+    def get_source (self):
+        return ''.join (traceback.format_list (self.instantiation_traceback))
+
     def checksum (self, hasher):
         hasher (self.__class__.__name__)
 
