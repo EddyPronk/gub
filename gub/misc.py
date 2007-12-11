@@ -215,7 +215,6 @@ def __download_url (url, dest_dir, progress=None):
         raise
         
     # open output after URL, otherwise we get 0-byte downloads everywhere.
-    # this sucks
 
     # ugh - race condition if we have 2 gubs running
     tmpfile = dest_dir + '/.downloadtmp'
