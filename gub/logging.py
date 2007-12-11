@@ -101,7 +101,7 @@ class CommandLogger (AbstractCommandLogger):
             self.log_file.flush ()
 
     def write_log (self, message, message_type):
-        assert type (message_type) == type ('')
+        assert type (message_type) == str
         if not message:
             return 0
         message_level = name_to_loglevel_mapping[message_type]

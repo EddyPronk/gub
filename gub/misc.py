@@ -139,7 +139,7 @@ def find_files (dir, pattern):
     '''
     Return list of files under DIR matching the regex pattern.
     '''
-    if type ('') == type (pattern):
+    if type (pattern) == str:
         pattern = re.compile (pattern)
     def test (root, dirs, files):
         #HMM?
@@ -151,7 +151,7 @@ def find_dirs (dir, pattern):
     '''
     Return list of dirs under DIR matching the regex pattern.
     '''
-    if type ('') == type (pattern):
+    if str == type (pattern):
         pattern = re.compile (pattern)
     def test (root, dirs, files):
         return [os.path.join (root, d) for d in dirs if pattern.search (d)]
@@ -378,7 +378,7 @@ def dissect_url (url):
             if not k in d.keys ():
                 d[k] = v
             else:
-                if type (d[k]) == type (''):
+                if type (d[k]) == str:
                     # FIXME: list constructor barfs for strings?
                     # d[k] = list (d[k])
                     d[k] = [d[k]]
@@ -433,11 +433,11 @@ def file_sub (re_pairs, name, must_succeed=False, use_re=True, to_name=None):
         os.chmod (to_name, mode)
 
 def dump_file (str, name, mode='w', permissions=None):
-    if not type (mode) == type (''):
+    if not type (mode) == str:
         print 'MODE:', mode
         print 'STR:', str
         print 'NAME:', name
-        assert type (mode) == type ('')
+        assert type (mode) == str
 
     dir = os.path.split (name)[0]
     if not os.path.exists (dir):

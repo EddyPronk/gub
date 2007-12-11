@@ -25,12 +25,12 @@ def is_subst_method_in_class (method_name, klass):
 
 def typecheck_substitution_dict (d):
     for (k, v) in d.items ():
-        if type (v) != type (''):
+        if type (v) != str:
             raise Exception ('type', (k, v))
 
 def recurse_substitutions (d):
     for (k, v) in d.items ():
-        if type (v) != type (''):
+        if type (v) != str:
             del d[k]
             continue
 
@@ -73,7 +73,7 @@ class Context:
         self._substitution_assignment_traceback = None
 
     def __setattr__ (self, k, v):
-        if (type (v) == type ('')
+        if (type (v) == str
             and k != '_substitution_dict' and self._substitution_dict):
 
             msg =  ('%s was already set in\n%s'
@@ -90,7 +90,7 @@ class Context:
             d = d.copy ()
             
         ms = inspect.getmembers (self)
-        vars = dict ((k, v) for (k, v) in ms if type (v) == type (''))
+        vars = dict ((k, v) for (k, v) in ms if type (v) == str)
 
         member_substs = {}
         for (name, method) in ms:
@@ -109,7 +109,7 @@ class Context:
 
                 member_substs[name] = val
 
-                if type (val) != type (''):
+                if type (val) != str:
                     print 'non string value ', val, 'for subst_method', name
                     raise NonStringExpansion
         
@@ -143,7 +143,7 @@ class Context:
             d = d.copy ()
             for (k, v) in env.items ():
                 try:
-                    if type (v) == type (''):
+                    if type (v) == str:
                         d.update ({k: v % d})
                 except:
                     msg = 'Error substituting in %s with %s' % (repr(v),
@@ -179,7 +179,7 @@ class RunnableContext (Context):
         substs = []
         for (frm, to) in re_pairs:
             frm = self.expand (frm, env)
-            if type (to) ==type (''):
+            if type (to) == str:
                 to = self.expand (to, env)
 
             substs.append ((frm, to))

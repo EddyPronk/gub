@@ -318,9 +318,6 @@ class PackageManager (FileManager, PackageDictManager):
         return self._packages [name]['source_name']
 
     
-def is_string (x):
-    return type (x) == type ('')
-
 class DependencyManager (PackageManager):
 
     """Manage packages that have dependencies and
@@ -331,7 +328,7 @@ class DependencyManager (PackageManager):
         self.include_build_deps = True
 
     def dependencies (self, name):
-        assert is_string (name)
+        assert type(name) == str
         try:
             return self.dict_dependencies (self._packages[name])
         except KeyError:
