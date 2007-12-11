@@ -171,55 +171,70 @@ def rewrite_url (url, mirror):
 
 # FIXME: read settings.rc, local, fallback should be a user-definable list
 def download_url (url, dest_dir,
-                  local='file://%(HOME)s/vc/gub/downloads' % os.environ,
+                  ## wtf is this? Hardcoded devel paths? --hwn
+                  local=['file://%(HOME)s/vc/gub/downloads' % os.environ],
                   fallback=['http://lilypond.org/download/gub-sources'],
                   progress=sys.stderr.write):
-    for i in lst (local) + [url] + lst (fallback):
+
+    assert type(local) == list
+    assert type(fallback) == list
+
+    for i in local + [url] + fallback:
         if not is_ball (os.path.basename (i)):
             i = rewrite_url (url, i)
-        e = _download_url (i, dest_dir, progress)
-        if not e:
+        size = _download_url (i, dest_dir, progress)
+        if size:
             return
-    raise e
 
 def _download_url (url, dest_dir, progress):
-    try:
-        progress ('downloading %(url)s -> %(dest_dir)s\n' % locals ())
-        size = __download_url (url, dest_dir, progress)
+    progress ('downloading %(url)s -> %(dest_dir)s\n' % locals ())
+    size = __download_url (url, dest_dir, progress)
+    if size:
         progress ('done (%(size)s)\n' % locals ())
-    except Exception, e:
-        progress ('download failed: ' + exception_string (e) + '\n')
-        return e
-    
-    return None
+    else:
+        progress ('failed\n')
+    return size
 
 def __download_url (url, dest_dir, progress=None):
     if not os.path.isdir (dest_dir):
         raise Exception ("not a dir", dest_dir)
+
     bufsize = 1024 * 50
     # what's this, just basename?
     # filename = os.path.split (urllib.splithost (url)[1])[1]
-    file_name = os.path.basename (url)
     size = 0
-    dest = os.path.join (dest_dir, file_name)
     try:
-        output = open (dest, 'w')
         url_stream = urllib2.urlopen (url)
-        while True:
-            contents = url_stream.read (bufsize)
-            if not contents:
-                break
+    except OSError:
+        if not url.startswith('file:'):
+            raise
+        
+        return 0
+    
+    # open output after URL, otherwise we get 0-byte downloads everywhere.
+    # this sucks
 
-            size += len(contents)
-            output.write (contents)
-            if progress:
-                progress ('.')
-            sys.stderr.flush ()
+    # ugh - race condition if we have 2 gubs running
+    tmpfile = dest_dir + '/.downloadtmp'
+    
+    output = open (tmpfile, 'w')
+    while True:
+        contents = url_stream.read (bufsize)
+        if not contents:
+            break
+
+        size += len(contents)
+        output.write (contents)
         if progress:
-            progress ('\n')
-    except Exception, e:
-        os.unlink (dest)
-        raise e
+            progress ('.')
+        sys.stderr.flush ()
+
+    if progress:
+        progress ('\n')
+
+    file_name = os.path.basename (url)
+    os.rename(tmpfile, os.path.join (dest_dir, file_name))
+
     return size
 
 def forall (generator):
