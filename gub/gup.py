@@ -49,7 +49,8 @@ class FileManager:
             self.lock_file = self.root + '/.gub.lock'
         self.lock = locker.Locker (self.lock_file)
         if clean:
-            misc.system ('rm -fr %s' % self.config)
+            loggedos.system (logging.default_logger,
+                             'rm -fr %s' % self.config)
             
         self.make_dirs ()
         files_db = self.config + '/files.db'
@@ -69,9 +70,11 @@ class FileManager:
 
     def make_dirs (self):
         if not os.path.isdir (self.config):
-            misc.system ('mkdir -p %s' % self.config)
+            loggedos.system (logging.default_logger,
+                             'mkdir -p %s' % self.config)
         if not os.path.isdir (self.root):
-            misc.system ('mkdir -p %s' % self.root)
+            loggedos.system (logging.default_logger,
+                             'mkdir -p %s' % self.root)
         
     def installed_files (self, package):
         return self._package_file_db[package].split ('\n')
@@ -98,8 +101,9 @@ class FileManager:
         if conflicts and not self.is_distro:
             raise Exception ('abort')
 
-        misc.system ('tar -C %(root)s -p -x%(_z)s%(_v)s -f %(ball)s'
-                                  % locals ())
+        loggedos.system (logging.default_logger,
+                         'tar -C %(root)s -p -x%(_z)s%(_v)s -f %(ball)s'
+                         % locals ())
 
         self._package_file_db[name] = '\n'.join (lst)
         for f in lst:

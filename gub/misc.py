@@ -111,9 +111,6 @@ def uniq (list):
 
     return u
 
-def intersect (l1, l2):
-    return [l for l in l1 if l in l2]
-
 def compression_flag (ball):
     if (ball.endswith ('gub')
         or ball.endswith ('gup')
@@ -127,13 +124,6 @@ def compression_flag (ball):
 def first_is_newer (f1, f2):
     return (not os.path.exists (f2)
         or os.stat (f1).st_mtime > os.stat (f2).st_mtime)
-
-def find (dir, test):
-    dir = re.sub ( "/*$", '/', dir)
-    result = []
-    for (root, dirs, files) in os.walk (dir):
-        result += test (root, dirs, files)
-    return result
 
 def find_files (dir, pattern):
     '''
@@ -186,16 +176,8 @@ def download_url (url, dest_dir,
         if size:
             return
 
-def _download_url (url, dest_dir, progress):
+def _download_url (url, dest_dir, progress=None):
     progress ('downloading %(url)s -> %(dest_dir)s\n' % locals ())
-    size = __download_url (url, dest_dir, progress)
-    if size:
-        progress ('done (%(size)s)\n' % locals ())
-    else:
-        progress ('failed\n')
-    return size
-
-def __download_url (url, dest_dir, progress=None):
     if not os.path.isdir (dest_dir):
         raise Exception ("not a dir", dest_dir)
 
@@ -237,6 +219,12 @@ def __download_url (url, dest_dir, progress=None):
     file_name = os.path.basename (url)
     os.rename(tmpfile, os.path.join (dest_dir, file_name))
 
+    if progress:
+        if size:
+            progress ('done (%(size)s)\n' % locals ())
+        else:
+            progress ('failed\n')
+
     return size
 
 def forall (generator):
@@ -253,13 +241,6 @@ def exception_string (exception=Exception ('no message')):
 
 class SystemFailed (Exception):
     pass
-
-def system (cmd, ignore_errors=False):
-    #URG, go through oslog
-    print 'Executing command %s' % cmd
-    stat = os.system (cmd)
-    if stat and not ignore_errors:
-        raise SystemFailed ('Command failed (' + `stat/256` + '): ' + cmd)
 
 def file_mod_time (path):
     return os.stat (path)[stat.ST_MTIME]
