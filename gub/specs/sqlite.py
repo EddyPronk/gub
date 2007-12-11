@@ -12,5 +12,5 @@ class Sqlite (targetbuild.TargetBuild):
 Sqlite has no license, it is in the public domain.
 See http://www.sqlite.org/copyright.html .
 ''')
-    def license_file (self):
-        return '%(srcdir)s/PUBLIC-DOMAIN'
+    def license_files (self):
+        return ['%(srcdir)s/PUBLIC-DOMAIN']

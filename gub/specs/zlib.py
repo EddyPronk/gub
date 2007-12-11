@@ -26,8 +26,8 @@ class Zlib (targetbuild.TargetBuild):
 
     def install_command (self):
         return targetbuild.TargetBuild.broken_install_command (self)
-    def license_file (self):
-        return '%(sourcefiledir)s/zlib.license'
+    def license_files (self):
+        return ['%(sourcefiledir)s/zlib.license']
 
 class Zlib__mingw (Zlib):
     def patch (self):
@@ -54,5 +54,5 @@ class Zlib__tools (toolsbuild.ToolsBuild, Zlib):
         self.system ('cd %(install_root)s && mkdir -p ./%(tools_prefix)s && cp -av usr/* ./%(tools_prefix)s && rm -rf usr')
     def configure_command (self):
         return Zlib.configure_command (self)
-    def license_file (self):
-        return '%(sourcefiledir)s/zlib.license'
+    def license_files (self):
+        return ['%(sourcefiledir)s/zlib.license']

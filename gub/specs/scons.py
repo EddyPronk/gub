@@ -16,5 +16,5 @@ class Scons (toolsbuild.ToolsBuild):
         self.system ('mkdir -p %(builddir)s')
     def install_command (self):
         return 'python %(srcdir)s/setup.py install --prefix=%(tools_prefix)s --root=%(install_root)s'
-    def license_file (self):
-        return '%(srcdir)s/LICENSE.txt' 
+    def license_files (self):
+        return ['%(srcdir)s/LICENSE.txt']

@@ -71,8 +71,8 @@ unset CC CXX; bash %(srcdir)s/configure
     def install_command (self):
         return (targetbuild.TargetBuild.install_command (self)
                 + ' INSTALL_ROOT=%(install_root)s')
-    def license_file (self):
-        return '%(srcdir)s/LICENSE.GPL'
+    def license_files (self):
+        return ['%(srcdir)s/LICENSE.GPL']
     def install (self):
         targetbuild.TargetBuild.install (self)
         self.system ('mkdir -p %(install_prefix)s/lib/pkgconfig')

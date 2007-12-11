@@ -176,7 +176,7 @@ class UnixBuild (Build):
     def source_checksum (self):
         return self.source.checksum ()
 
-    def license_file (self):
+    def license_files (self):
         return ['%(srcdir)s/COPYING',
                 '%(srcdir)s/COPYING.LIB',
                 '%(srcdir)s/LICENSE',
@@ -383,8 +383,7 @@ cp %(file)s %(install_root)s/license/%(name)s
                     loggedos.system (logger, cmd)
                     return
 
-        # wtf is misc.lst ?
-        self.func (install, map (self.expand, misc.lst (self.license_file ())))
+        self.func (install, map (self.expand, self.license_file ()))
 
     def libtool_installed_la_fixups (self):
         def installed_la_fixup (logger, la):

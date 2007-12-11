@@ -13,8 +13,8 @@ tools, and many other products as well.'''
 
     source = mirrors.with_template (name='freetype', version='2.1.10', mirror=mirrors.nongnu_savannah)
 
-    def license_file (self):
-        return '%(srcdir)s/docs/LICENSE.TXT'
+    def license_files (self):
+        return ['%(srcdir)s/docs/LICENSE.TXT']
 
     def get_build_dependencies (self):
         return ['libtool-devel', 'zlib-devel']
@@ -114,8 +114,8 @@ class Freetype__tools (toolsbuild.ToolsBuild, Freetype):
         #return ['libtool-devel']
         return ['libtool']
     # FIXME, mi-urg?
-    def license_file (self):
-        return Freetype.license_file (self)
+    def license_files (self):
+        return Freetype.license_files (self)
     def install (self):
         toolsbuild.ToolsBuild.install (self)
         self.munge_ft_config ('%(install_root)s/%(tools_prefix)s/bin/.freetype-config')

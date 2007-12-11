@@ -36,5 +36,5 @@ mkdir -p %(install_prefix)s/share/man/man8 &&
 cd %(builddir)s/src && fakeroot make install %(makeflags)s &&
 find %(install_root)s/bin %(install_root)s/sbin %(install_prefix)s/bin -type f -o -type l | grep -Ev 'sbin/(tel|)init$' | xargs -I'{}' mv '{}' '{}'.sysvinit
 ''')
-    def license_file (self):
-        return '%(srcdir)s/doc/Install'
+    def license_files (self):
+        return ['%(srcdir)s/doc/Install']

@@ -36,8 +36,8 @@ cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh 
         
         targetbuild.TargetBuild.update_libtool (self)
 
-    def license_file (self):
-        return '%(sourcefiledir)s/jpeg.license'
+    def license_files (self):
+        return ['%(sourcefiledir)s/jpeg.license']
 
     def configure (self):
         guess = self.expand ('%(system_prefix)s/share/libtool/config.guess')

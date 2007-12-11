@@ -32,5 +32,5 @@ simplicity, extensibility, and language-independence.
 mkdir -p %(install_prefix)s/bin %(install_prefix)s/lib %(install_prefix)s/share/man/man1 %(install_prefix)s/share/tex/inputs
 && make %(makeflags)s DESTDIR=%(install_root)s install
 ''')
-    def license_file (self):
-        return '%(srcdir)s/src/COPYRIGHT'
+    def license_files (self):
+        return ['%(srcdir)s/src/COPYRIGHT']

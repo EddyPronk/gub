@@ -131,8 +131,8 @@ packages.'''
 rsync -v -a %(srcdir)s/texmf/* %(install_prefix)s/share/texmf/
 ''')
 
-    def license_file (self):
-        return '%(srcdir)s/LICENSE.TL'
+    def license_files (self):
+        return ['%(srcdir)s/LICENSE.TL']
 
     # FIXME: shared for all vc packages
     def srcdir (self):

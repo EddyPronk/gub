@@ -32,7 +32,8 @@ INSTALL_PROGRAM=%(srcdir)s/install-sh
     def install_command (self):
         return (targetbuild.TargetBuild.broken_install_command (self)
            + self.makeflags ())
-    def license_file (self):
-        return ''
+
+    def license_files (self):
+        return ['']
 
 Lilypad = LilyPad

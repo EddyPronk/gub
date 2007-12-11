@@ -7,8 +7,9 @@ class Tcltk (targetbuild.TargetBuild):
     source = mirrors.with_template (name='tcltk', 
             mirrors.lilypondorg,
             version='8.4.14')
-    def license_file (self):
-        return "%(srcdir)s/tcl/license.terms"
+    def license_files (self):
+        return ['%(srcdir)s/tcl/license.terms']
+    
     def force_sequential_build (self):
         return True
     def configure (self):

@@ -45,15 +45,5 @@ rm -rf %(install_prefix)s/config_template
     def packaging_suffix_dir (self):
         return ''
 
-    def license_file (self):
+    def license_files (self):
         return '%(srcdir)s/README'
-    
-        foo = '''
-        X11LIB=%{_libdir}/libX11.so \
-        JPEGINC_DIR=%{_includedir} \
-        PNGINC_DIR=%{_includedir} \
-        TIFFINC_DIR=%{_includedir} \
-        JPEGLIB_DIR=%{_libdir} \
-        PNGLIB_DIR=%{_libdir} \
-        TIFFLIB_DIR=%{_libdir} \
-        '''

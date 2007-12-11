@@ -63,8 +63,8 @@ class Boost (BjamBuild):
         dict = BjamBuild.get_substitution_dict (self, env)
         dict['CFLAGS'] = '-DBOOST_PLATFORM_CONFIG=\\"boost/config/platform/linux.hpp\\"'
         return dict
-    def license_file (self):
-        return '%(srcdir)s/LICENSE_1_0.txt'
+    def license_files (self):
+        return ['%(srcdir)s/LICENSE_1_0.txt']
     def install (self):
         BjamBuild.install (self)
         # Bjam `installs' header files by using symlinks to the source dir?

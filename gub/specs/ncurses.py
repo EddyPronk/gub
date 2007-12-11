@@ -3,5 +3,5 @@ from gub import mirrors
 
 class Ncurses (targetbuild.TargetBuild):
     source = mirrors.with_template (name='ncurses', mirror=mirrors.gnu, version='5.5')
-    def license_file (self):
+    def license_files (self):
         return '%(srcdir)s/README'
