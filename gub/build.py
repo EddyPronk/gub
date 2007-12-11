@@ -411,7 +411,8 @@ cp %(file)s %(install_root)s/license/%(name)s
 
     def patch (self):
         if self.__class__.__dict__.get ('patches'):
-            misc.appy_or_map (self.apply_patch, self.__class__.patches)
+            map (self.apply_patch, self.__class__.patches)
+            
         # FIXME: should not misuse patch for auto stuff
 
         # We cannot easily move this to 'autoupdate' stage now,

@@ -389,16 +389,6 @@ def dissect_url (url):
 def list_or_tuple (x):
     return type (x) == type (list ()) or type (x) == type (tuple ())
 
-def appy_or_map (f, x):
-    if list_or_tuple (x):
-        return map (f, x)
-    return [f (x)]
-
-def lst (x):
-    if not list_or_tuple (x):
-        return [x]
-    return x
-
 def list_remove (lst, x):
     if not list_or_tuple (x):
         lst.remove (x)
