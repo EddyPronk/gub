@@ -431,19 +431,16 @@ def file_sub (re_pairs, name, must_succeed=False, use_re=True, to_name=None):
         h.close ()
         os.chmod (to_name, mode)
 
-def dump_file (str, name, mode='w', permissions=None):
-    if not type (mode) == str:
-        print 'MODE:', mode
-        print 'STR:', str
-        print 'NAME:', name
-        assert type (mode) == str
+def dump_file (content, name, mode='w', permissions=None):
+    assert type (mode) == str
+    assert type (content) == str
 
     dir = os.path.split (name)[0]
     if not os.path.exists (dir):
         os.makedirs (dir)
 
     f = open (name, mode)
-    f.write (str)
+    f.write (content)
     f.close ()
 
     if permissions:
