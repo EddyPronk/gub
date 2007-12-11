@@ -188,6 +188,9 @@ def build (settings, options, files):
     PATH = os.environ['PATH']
     os.environ['PATH'] = settings.expand ('%(tools_prefix)s/bin:' + PATH)
 
+    if options.download_only:
+        options.offline = False
+        
     if not options.offline:
         for name in names:
             specs[name].download ()
