@@ -206,11 +206,14 @@ def __download_url (url, dest_dir, progress=None):
     try:
         url_stream = urllib2.urlopen (url)
     except OSError:
-        if not url.startswith('file:'):
-            raise
+        if url.startswith('file:'):
+            return 0
+        raise
+    except IOError:
+        if url.startswith('ftp:'):
+            return 0
+        raise
         
-        return 0
-    
     # open output after URL, otherwise we get 0-byte downloads everywhere.
     # this sucks
 
