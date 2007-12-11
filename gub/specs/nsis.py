@@ -52,8 +52,8 @@ Export('defenv')
         
     #FIXME: should be automatic for scons build
     def stages (self):
-        return misc.list_remove (toolsbuild.ToolsBuild.stages (self),
-                                 ['configure'])
+        return [s for s in toolsbuild.ToolsBuild.stages (self)
+                if s != 'configure']
     def compile_command (self):
         # SCons barfs on trailing / on directory names
         return ('scons PREFIX=%(system_prefix)s'

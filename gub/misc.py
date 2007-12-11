@@ -386,16 +386,6 @@ def dissect_url (url):
         return d
     return lst[0], dict (map (lambda x: x.split ('='), lst[1:]))
 
-def list_or_tuple (x):
-    return type (x) == type (list ()) or type (x) == type (tuple ())
-
-def list_remove (lst, x):
-    if not list_or_tuple (x):
-        lst.remove (x)
-    else:
-        lst = filter (lambda i: i not in x, lst)
-    return lst
-
 def get_from_parents (cls, key):
     base = cls.__name__
     p = base.find ('__')

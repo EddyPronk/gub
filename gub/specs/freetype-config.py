@@ -8,8 +8,8 @@ from gub import repository
 class Freetype_config (build.SdkBuild):
     source = repository.Version (name='freetype-config', version='2.1.9')
     def stages (self):
-        return misc.list_remove (build.SdkBuild.stages (self),
-                       ['download', 'untar', 'patch'])
+        return [x for x in build.SdkBuild.stages (self)
+                if x not in ['untar', 'patch']]
     def install (self):
         build.SdkBuild.install (self)
         ft_version = self.version ()

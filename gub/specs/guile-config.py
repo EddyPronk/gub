@@ -5,8 +5,8 @@ from gub import repository
 class Guile_config (build.SdkBuild):
     source = repository.Version (name='guile-config', version='1.8.0')
     def stages (self):
-        return misc.list_remove (build.SdkBuild.stages (self),
-                       ['download', 'untar', 'patch'])
+        return [s for s in build.SdkBuild.stages (self)
+                if s not in ['untar', 'patch']]
     def install (self):
         build.SdkBuild.install (self)
         self.system ('mkdir -p %(cross_prefix)s%(prefix_dir)s/bin')

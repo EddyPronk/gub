@@ -7,8 +7,8 @@ class Scons (toolsbuild.ToolsBuild):
                    format='gz',
                    mirror=mirrors.sf)
     def stages (self):
-        return misc.list_remove (toolsbuild.ToolsBuild.stages (self),
-                       ['compile'])
+        return [s for s in toolsbuild.ToolsBuild.stages (self)
+                if s != 'compile']
     def patch (self):
         # FIXME: no autotools
         pass

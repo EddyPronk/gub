@@ -8,8 +8,8 @@ from gub import repository
 class Python_config (build.SdkBuild):
     source = repository.Version (name='python-config', version='2.4.1')
     def stages (self):
-        return misc.list_remove (build.SdkBuild.stages (self),
-                       ['download', 'untar', 'patch'])
+        return [s for s in build.SdkBuild.stages (self)
+                if s not in ['untar', 'patch']]
     # FIXME: c&p python.py:install ()
     def install (self):
 
