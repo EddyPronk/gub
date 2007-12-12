@@ -8,7 +8,7 @@ from gub import loggedos
 class ToolsBuild (build.UnixBuild):
     def configure_command (self):
         return (build.UnixBuild.configure_command (self)
-                + '--prefix=%(tools_prefix)s')
+                + ' --prefix=%(tools_prefix)s')
 
     ## ugh: prefix= will trigger libtool relinks.
     def install_command (self):
