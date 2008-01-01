@@ -43,7 +43,12 @@ def parse_options ():
 		  dest='upload_dir',
 		  default='uploads/',
 		  help='Where to find test-output tarballs')
-
+    p.add_option ('--keep',
+		  dest='keep',
+                  action='store_true',
+		  default=False,
+		  help='Do not remove unpack dir')
+ 
     (options, args) = p.parse_args ()
 
     if options.output_distance_script:
@@ -120,7 +125,8 @@ Regression test results for %(version_str)s
 </html>
 ''' % locals ()
 
-    system ('rm -rf %(unpack_dir)s' % locals ())
+    if not options.keep:
+        system ('rm -rf %(unpack_dir)s' % locals ())
     
     open (dest_dir + '/index.html', 'w').write (html)
 
