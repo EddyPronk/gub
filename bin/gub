@@ -136,6 +136,11 @@ def get_cli_parser ():
                   dest='lax_checksums',
                   help="do not rebuild packages with failing checksums")
 
+    p.add_option ('--dry-run',
+                  action='store_true',
+                  default=False,
+                  help='Print action, do not run.')
+
     p.add_option ('-l', '--skip-if-locked',
                   default=False,
                   dest="skip_if_locked",
@@ -212,9 +217,13 @@ def build (settings, options, files):
 
     b = buildrunner.BuildRunner (manager, settings, specs)
 
-
     # better in ctor?
     b.calculate_checksums ()
+    if options.dry_run:
+        for name in sorted (b.checksums):
+            print b.checksums[name]
+        sys.exit(0)
+        
     b.build_source_packages (names)
 
 def exceptional_build (settings, options, files, logger):
