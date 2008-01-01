@@ -60,36 +60,38 @@ class RepositoryProxy:
             strip_components = parameters.get ('strip_components', 1)
             #patch = parameters.get ('patch')
 
-        for i in RepositoryProxy.repositories:
-            if i.check_url (i, url):
-                return i.create (i, dir, url, branch, revision)
-        file_p = 'file://'
-        if url and url.startswith (file_p):
-            url_dir = url[len (file_p):]
-            for i in RepositoryProxy.repositories:
-                if i.check_dir (i, url_dir):
-                    # Duh, git says: fatal: I don't handle protocol 'file'
-                    # return i.create (i, dir, url, branch, revision)
-                    return i.create (i, dir, url_dir, branch, revision)
-        for i in RepositoryProxy.repositories:
-            if i.check_dir (i, dir):
-                return i.create (i, dir, url, branch, revision)
-        for i in RepositoryProxy.repositories:
-            if i.check_suffix (i, url):
-                return i.create (i, dir, url, branch, revision)
-        for i in RepositoryProxy.repositories:
-            if os.path.isdir (os.path.join (dir, '.gub' + i.vc_system)):
-                d = misc.find_dirs (dir, '^' + i.vc_system)
-                if d and i.check_dir (i, os.path.dirname (d[0])):
-                    return i.create (i, dir, url, branch, revision)
-        for i in RepositoryProxy.repositories:
+        for proxy in RepositoryProxy.repositories:
+            if proxy.check_url (proxy, url):
+                return proxy.create (proxy, dir, url, branch, revision)
+            
+        if url and url.startswith ('file://'):
+            proto, rest = urllib.splittype (url)
+            host, url_dir = urllib.splithost (rest)
+            if host == '':
+                host = 'localhost'
+            for proxy in RepositoryProxy.repositories:
+                if proxy.check_dir (proxy, url_dir):
+                    return proxy.create (proxy, dir, url, branch, revision)
+                
+        for proxy in RepositoryProxy.repositories:
+            if proxy.check_dir (proxy, dir):
+                return proxy.create (proxy, dir, url, branch, revision)
+        for proxy in RepositoryProxy.repositories:
+            if proxy.check_suffix (proxy, url):
+                return proxy.create (proxy, dir, url, branch, revision)
+        for proxy in RepositoryProxy.repositories:
+            if os.path.isdir (os.path.join (dir, '.gub' + proxy.vc_system)):
+                d = misc.find_dirs (dir, '^' + proxy.vc_system)
+                if d and proxy.check_dir (proxy, os.path.dirname (d[0])):
+                    return proxy.create (proxy, dir, url, branch, revision)
+        for proxy in RepositoryProxy.repositories:
             # FIXME: this is currently used to determine flavour of
             # downloads/lilypond.git.  But is is ugly and fragile;
             # what if I do brz branch foo foo.git?
-            if i.check_suffix (i, dir):
-                return i.create (i, dir, url, branch, revision)
+            if proxy.check_suffix (proxy, dir):
+                return proxy.create (proxy, dir, url, branch, revision)
         raise UnknownVcSystem ('Cannot determine source: url=%(url)s, dir=%(dir)s'
-                           % locals ())
+                               % locals ())
     get_repository = staticmethod (get_repository)
 
 ## Rename to Source/source.py?
@@ -97,23 +99,22 @@ class Repository:
     vc_system = None
     tag_dateformat = '%Y-%m-%d_%H-%M-%S%z'
 
+    @staticmethod
     def check_dir (rety, dir):
         return os.path.isdir (os.path.join (dir, rety.vc_system))
-    check_dir = staticmethod (check_dir)
 
+    @staticmethod
     def check_url (rety, url):
         vcs = rety.vc_system.replace ('_', '',).replace ('.', '').lower ()
         return url and (url.startswith (vcs + ':')
                         or url.startswith (vcs + '+'))
-    check_url = staticmethod (check_url)
-
+    @staticmethod
     def check_suffix (rety, url):
         return url and url.endswith (rety.vc_system)
-    check_suffix = staticmethod (check_suffix)
 
+    @staticmethod
     def create (rety, dir, source, branch='', revision=''):
         return rety (dir, source, branch, revision)
-    create = staticmethod (create)
 
     def __init__ (self, dir, source):
         self.dir = os.path.normpath (dir)
@@ -252,9 +253,9 @@ class Version (Repository):
 class Darcs (Repository):
     vc_system = '_darcs'
 
+    @staticmethod
     def create (rety, dir, source, branch='', revision=''):
         return Darcs (dir, source)
-    create = staticmethod (create)
  
     def __init__ (self, dir, source=''):
         Repository.__init__ (self, dir, source)
@@ -326,10 +327,11 @@ RepositoryProxy.register (Darcs)
 class TarBall (Repository):
     vc_system = '.tar'
 
+    @staticmethod
     def create (rety, dir, source, branch='', revision=''):
         return TarBall (dir, source)
-    create = staticmethod (create)
 
+    @staticmethod
     def check_suffix (rety, url):
          return url and (url.endswith (rety.vc_system)
                          or url.endswith (rety.vc_system + '.gz')
@@ -338,7 +340,6 @@ class TarBall (Repository):
                          # FIXME: DebianPackage should derive from TarBall,
                          # rather than extending it in place
                          or url.endswith ('.deb'))
-    check_suffix = staticmethod (check_suffix)
 
     # TODO: s/url/source
     def __init__ (self, dir, url, version=None, strip_components=1):
@@ -423,6 +424,7 @@ class NewTarBall (TarBall):
 
 class Git (Repository):
     vc_system = '.git'
+
     def __init__ (self, dir, source='', branch='', revision=''):
         Repository.__init__ (self, dir, source)
 
@@ -435,7 +437,7 @@ class Git (Repository):
         else:
             # repository proxy determined git vcs from dir
             print 'FIXME: get url from .git dir info'
-
+            assert False
         self.branch = self.filter_branch_arg (branch)
         self.revision = revision
 
@@ -443,6 +445,8 @@ class Git (Repository):
             # note that HEAD doesn't really exist as a branch name.
             self.branch = 'master'
 
+        assert self.url_host
+        assert self.url_path
     def version (self):
         return self.revision
 
@@ -578,13 +582,13 @@ class CVS (Repository):
     vc_system = 'CVS'
     cvs_entries_line = re.compile ('^/([^/]*)/([^/]*)/([^/]*)/([^/]*)/')
 
+    @staticmethod
     def create (rety, dir, source, branch='', revision=''):
         if not branch:
             branch='HEAD'
         source = source.replace ('cvs::pserver', ':pserver')
         p = source.rfind ('/')
         return CVS (dir, source=source, module=source[p+1:], tag=branch)
-    create = staticmethod (create)
 
     def __init__ (self, dir, source='', module='', tag='HEAD'):
         Repository.__init__ (self, dir, source)
@@ -801,6 +805,7 @@ class Subversion (SimpleRepo):
     diff_xmldateformat = '%Y-%m-%d %H:%M:%S.999999'
     patch_xmldateformat = '%Y-%m-%dT%H:%M:%S'
 
+    @staticmethod
     def create (rety, dir, source, branch, revision='HEAD'):
         source = source.replace ('svn:http://', 'http://')
         if not branch:
@@ -809,7 +814,6 @@ class Subversion (SimpleRepo):
             revision = 'HEAD'
         return Subversion (dir, source=source, branch=branch,
                            module='.', revision=revision)
-    create = staticmethod (create)
 
     def __init__ (self, dir, source=None, branch='.', module='.', revision='HEAD'):
         if not revision:
@@ -921,9 +925,9 @@ RepositoryProxy.register (Subversion)
 class Bazaar (SimpleRepo):
     vc_system = '.bzr'
 
+    @staticmethod
     def create (rety, dir, source, branch='', revision=''):
         return Bazaar (dir, source=source, revision=revision)
-    create = staticmethod (create)
 
     def __init__ (self, dir, source, revision='HEAD'):
         # FIXME: multi-branch repos not supported for now
@@ -976,8 +980,8 @@ get_repository_proxy = RepositoryProxy.get_repository
 def test ():
     import unittest
 
-    for i in RepositoryProxy.repositories:
-        print i, i.vc_system
+    for proxy in RepositoryProxy.repositories:
+        print proxy, proxy.vc_system
 
     # This is not a unittest, it only serves as a smoke test mainly as
     # an aid to get rid safely of the global non-oo repository_proxy

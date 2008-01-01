@@ -5,7 +5,7 @@ from gub import repository
 
 class Git__tools (toolsbuild.ToolsBuild):
     source = mirrors.with_template (name='git', mirror='http://kernel.org/pub/software/scm/git/git-%(version)s.tar.bz2',
-                   version='1.5.1.4')
+                   version='1.5.3.6')
     def configure (self):
         self.dump ('prefix=%(system_prefix)s', '%(builddir)s/config.mak')
 

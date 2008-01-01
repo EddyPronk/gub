@@ -432,13 +432,26 @@ def get_source_packages (settings, todo):
     else:
         todo += cross.get_build_dependencies (settings)
 
-    def name_to_dependencies_via_gub (name):
-        name = get_base_package_name (name)
+    def name_to_dependencies_via_gub (url):
+        # ugh ugh ugh
+        
+        if ':' in url:
+            base, unused_parameters = misc.dissect_url(url)
+            name = os.path.basename(base)
+            key = url
+        else:
+            # ugh.
+            name = url
+            url = None
+            name = get_base_package_name (name)
+            key = name
+            
         if spec_dict.has_key (name):
             spec = spec_dict[name]
         else:
-            spec = dependency.Dependency (settings, name).build ()
-            spec_dict[name] = spec
+            spec = dependency.Dependency (settings, name, url).build ()
+            spec_dict[key] = spec
+            
         return map (get_base_package_name, spec.get_build_dependencies ())
 
     def name_to_dependencies_via_distro (distro_packages, name):
@@ -473,7 +486,8 @@ def get_source_packages (settings, todo):
 
     # Fixup for build from url: spec_dict key is full url,
     # change to base name
-    for name in spec_dict.keys ():
+    # must use list(dict.keys()), since dict changes during iteration.
+    for name in list (spec_dict.keys ()):
         spec = spec_dict[name]
         if name != spec.name ():
             spec_dict[spec.name ()] = spec

@@ -65,12 +65,20 @@ def get_build_spec (settings, dependency):
     return Dependency (settings, dependency).build ()
 
 class Dependency:
-    def __init__ (self, settings, string):
+    def __init__ (self, settings, name, url=None):
+
+        # FIXME: document what is accepted here, and what not.
+        
         self.settings = settings
-        self._name = string
-        if ':' in string or misc.is_ball (string):
-            self._name = misc.name_from_url (string)
-        self._cls = self._flavour = self._url = None
+        self._name = name
+
+        if misc.is_ball (name):
+            # huh ? name_from_url vs. name_from_ball?
+            self._name = misc.name_from_url (name)
+            
+        self._cls = self._flavour = None
+        self._url = url
+
     def _create_build (self):
         dir = os.path.join (self.settings.downloads, self.name ())
         branch = self.settings.__dict__.get ('%(_name)s_branch' % self.__dict__,
@@ -79,6 +87,7 @@ class Dependency:
         if not isinstance (source, repository.Repository):
             source = repository.get_repository_proxy (dir, source, branch, '')
         return self.build_class () (self.settings, source)
+
     def build_class (self):
         if not self._cls:
             self._cls = get_build_class (self.settings, self.flavour (),
