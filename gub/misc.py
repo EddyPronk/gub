@@ -350,21 +350,19 @@ def most_significant_in_dict (d, name, sep):
     return v
 
 def dissect_url (url):
+    """Strip and parse query part of a URL.
+
+    Returns (stripped url, query-dict).  The values of the query-dict
+    are lists of strings."""
+    
     s = url.replace ('?', '&')
     lst = s.split ('&')
     def dict (tuple_lst):
-        '''allow multiple values to be appended into a list'''
         d = {}
         for k, v in tuple_lst:
-            if not k in d.keys ():
-                d[k] = v
-            else:
-                if type (d[k]) == str:
-                    # FIXME: list constructor barfs for strings?
-                    # d[k] = list (d[k])
-                    d[k] = [d[k]]
-                d[k].append (v)
+            d[k] = d.get (k, []) + [v]
         return d
+    
     return lst[0], dict (map (lambda x: x.split ('='), lst[1:]))
 
 def get_from_parents (cls, key):

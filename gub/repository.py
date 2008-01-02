@@ -51,14 +51,13 @@ class RepositoryProxy:
         parameters = dict ()
         if url:
             url, parameters = misc.dissect_url (url)
-            branch = parameters.get ('branch', branch)
-            revision = parameters.get ('revision', revision)
+            branch = parameters.get ('branch', [branch])[0]
+            revision = parameters.get ('revision', [revision])[0]
 
             # FIXME/TODO: pass these nicely to create ()
             # possibly do dir,url,branch,revision also as dict or kwargs?
-            module = parameters.get ('module', '')
-            strip_components = parameters.get ('strip_components', 1)
-            #patch = parameters.get ('patch')
+            module = parameters.get ('module', [''])[0]
+            strip_components = parameters.get ('strip_components', [1])[0]
 
         for proxy in RepositoryProxy.repositories:
             if proxy.check_url (proxy, url):
