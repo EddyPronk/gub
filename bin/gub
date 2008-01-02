@@ -49,12 +49,6 @@ def get_cli_parser ():
 
     p.description='Grand Unified Builder.'
 
-    p.add_option ('-B', '--branch', action='append',
-                  dest='branches',
-                  default=[],
-                  metavar='NAME=BRANCH',
-                  help='select branch')
-
     p.add_option ('-k', '--keep', action='store_true',
                   dest='keep_build',
                   default=None,
