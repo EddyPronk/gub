@@ -38,8 +38,9 @@ INVOKE_INSTALLER_BUILDER=$(INSTALLER_BUILDER)\
  $(INSTALLER_BUILDER_OPTIONS)\
  $(LOCAL_INSTALLER_BUILDER_OPTIONS)
 
+# BUILD platform build-package-name install-package-name
 BUILD=$(call INVOKE_GUB,$(1)) $(2)\
-  && $(call INVOKE_INSTALLER_BUILDER,$(1)) $(PACKAGE)
+  && $(call INVOKE_INSTALLER_BUILDER,$(1)) $(3)
 
 BUILD_PLATFORM = $(shell $(PYTHON) bin/build-platform)
 OTHER_PLATFORMS=$(filter-out $(BUILD_PLATFORM), $(PLATFORMS))

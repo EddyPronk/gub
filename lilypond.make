@@ -17,8 +17,6 @@
 
 default: all
 
-PACKAGE = lilypond
-
 ALL_PLATFORMS=linux-x86 darwin-ppc darwin-x86 debian debian-arm freebsd-64 freebsd-x86 linux-64 mingw debian-mipsel linux-ppc
 PLATFORMS=linux-x86 linux-64 linux-ppc freebsd-x86 freebsd-64
 
@@ -55,12 +53,14 @@ LILYPOND_REPO_URL=git://git.sv.gnu.org/lilypond.git
 LILYPOND_DIRRED_BRANCH=git.sv.gnu.org/lilypond.git/$(LILYPOND_BRANCH)
 LILYPOND_FLATTENED_BRANCH=git.sv.gnu.org--lilypond.git-$(LILYPOND_BRANCH)
 
+BUILD_PACKAGE='$(LILYPOND_REPO_URL)?branch=$(LILYPOND_BRANCH)'
+INSTALL_PACKAGE = lilypond
+
 MAKE += -f lilypond.make
 
 # FIXME: this is duplicated and must match actual info in guile.py
 
-GUB_OPTIONS =\
- --branch=lilypond=$(LILYPOND_BRANCH)
+GUB_OPTIONS =
 
 GPKG_OPTIONS =\
  $(if $(GUILE_LOCAL_BRANCH), --branch=guile=$(GUILE_LOCAL_BRANCH),)\
@@ -193,47 +193,43 @@ downloads/genini:
 	chmod +x $@
 
 darwin-ppc:
-	$(call BUILD,$@,lilypond)
+	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
 
 darwin-x86:
-	$(call BUILD,$@,lilypond)
+	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
 
 debian:
-	$(call BUILD,$@,lilypond)
+	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
 
 freebsd4-x86:
-	$(call BUILD,$@,lilypond)
+	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
 
 freebsd6-x86:
-	$(call BUILD,$@,lilypond)
+	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
 
 freebsd-x86:
-	$(call BUILD,$@,lilypond)
+	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
 
 freebsd-64:
-	$(call BUILD,$@,lilypond)
+	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
 
 linux-x86:
-	$(call BUILD,$@,lilypond)
+	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
 
 linux-ppc:
-	$(call BUILD,$@,lilypond)
+	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
 
 linux-64:
-	$(call BUILD,$@,lilypond)
+	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
 
 mingw:
-	$(call BUILD,$@,lilypond)
-
-mipsel:
-	$(call BUILD,$@,lilypond)
+	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
 
 clean:
 	rm -rf $(foreach p, $(PLATFORMS), target/*$(p)* )
 
 realclean:
 	rm -rf $(foreach p, $(PLATFORMS), uploads/$(p)/* uploads/$(p)-cross/* target/*$(p)* )
-
 
 ################################################################
 # compilers and tools
