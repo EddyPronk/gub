@@ -41,9 +41,6 @@ def parse_options ():
     o.repository = os.path.abspath (o.repository)
     return (o, a)
 
-def check_cvs ():
-    pass
-
 def system (s):
     print s
     if os.system (s):
@@ -102,8 +99,8 @@ def check_files (tarball, repo):
             continue
 
         filename = os.path.join (tarball_dirname, filename)
-        if not file_dict.has_key (filename):
-            print ('file from CVS not distributed: %s' % filename)
+        if filename not in file_dict:
+            print ('file from VC not distributed: %s' % filename)
             error_found = True
 
     system ('rm -rf %(dir)s' % locals ())
