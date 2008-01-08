@@ -556,6 +556,7 @@ class Git (Repository):
             self.git ('update-ref refs/heads/master %(revision)s' % locals (),
                       dir=destdir)
             self.git ('checkout master', dir=destdir)
+            self.git ('reset --hard', dir=destdir)
 
     def get_diff_from_tag (self, tag):
         return self.git_pipe ('diff %(tag)s HEAD' % locals ())
