@@ -27,12 +27,12 @@ class Netpbm (toolsbuild.ToolsBuild):
         LDFLAGS="-L%(builddir)s/pbm -L%(builddir)s/pgm -L%(builddir)s/pnm -L%(builddir)s/ppm" \
         LADD="-lm" \
         LINUXSVGALIB="NONE" \
-        XML2LIBS="NONE"
-
+        XML2LIBS="NONE" \
+        X11LIB="NONE"
 ''')
     def install (self):
         self.system ('mkdir -p %(install_root)s/')
-        self.system ('cd %(builddir)s && make package pkgdir=%(install_prefix)s LINUXSVGALIB="NONE" XML2LIBS="NONE"')
+        self.system ('cd %(builddir)s && make package pkgdir=%(install_prefix)s LINUXSVGALIB="NONE" XML2LIBS="NONE" X11LIB="NONE"')
         self.system ('''rm -rf %(install_prefix)s/misc 
 rm -rf %(install_prefix)s/README
 rm -rf %(install_prefix)s/VERSION
