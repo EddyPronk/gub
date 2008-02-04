@@ -24,7 +24,7 @@ class Freetype_config (build.SdkBuild):
 
         regexes = [('@%s@' % nm, self.expand ('%(' + nm + ')s', locals ()))
                    for nm in [ 'prefix', 'exec_prefix', 'includedir', 'libdir',
-                               'enable_shared', 'wl', 'hardcode_libdir_flag_spec']]
+                               'enable_shared', 'wl', 'hardcode_libdir_flag_spec', 'LIBZ']]
 
         self.system ('mkdir -p %(install_prefix)s%(cross_dir)s/bin')
         freetype_config = self.expand ('%(install_prefix)s%(cross_dir)s/bin/freetype-config')
@@ -32,7 +32,8 @@ class Freetype_config (build.SdkBuild):
                        '%(sourcefiledir)s/freetype-config.in',
                        to_name=freetype_config,
                        use_re=False)
-        self.chmod (freetype_config, 755)
+        self.system ('find %(install_prefix)s')
+        self.chmod (freetype_config, 0755)
         
 class Freetype_config__cygwin (Freetype_config):
     source = repository.Version (name='freetype-config', version='2.3.4')
