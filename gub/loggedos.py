@@ -11,8 +11,11 @@ def system (logger, cmd, env=os.environ, ignore_errors=False):
                              stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT,
                              close_fds=True)
+    
+    # TODO: diagnose these problems; both variants are problematic, or
+    # so it seems.
+    if 1:
 
-    if 0:
         # Although this looks nice, it still delays or eats log entries.
         # Output (from stdout?) is not immediately available, in case of
         # cron-builder's make bootstrap eg, we see in log/cron-builder.log
