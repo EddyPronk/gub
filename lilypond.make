@@ -101,7 +101,7 @@ update-versions:
 	$(PYTHON) gub/with-lock.py --skip $(LILYPOND_VERSIONS).lock $(MAKE) unlocked-update-versions
 
 download:
-	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB,$(p)) --online --download-only lilypond && ) true
+	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB,$(p)) --online --download-only $(BUILD_PACKAGE) && ) true
 	$(MAKE) downloads/genini
 	rm -f target/*/status/lilypond*
 	rm -f log/lilypond-$(LILYPOND_VERSION)*.*.test.pdf
@@ -109,7 +109,7 @@ download:
 ## should be last, to incorporate changed VERSION file.
 	$(MAKE) update-versions
 
-all: native dist-check doc-build test-output doc-export $(OTHER_PLATFORMS) print-success
+all: native dist-check doc-build test-output test-export doc-export $(OTHER_PLATFORMS) print-success
 
 platforms: $(PLATFORMS)
 
