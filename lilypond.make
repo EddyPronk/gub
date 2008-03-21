@@ -88,7 +88,7 @@ include compilers.make
 unlocked-update-versions:
 	python gub/versiondb.py --dbfile=$(LILYPOND_VERSIONS) --download --platforms="$(PLATFORMS)"
 
-ifneq ($(find cygwin,$(PLATFORMS)),)
+ifneq ($(findstring cygwin,$(PLATFORMS)),)
 # this is downloading the same info 5 times. Can we do this more efficiently?
 	python gub/versiondb.py --no-sources  --dbfile=uploads/freetype2.versions --download  --platforms="cygwin"
 	python gub/versiondb.py --no-sources --dbfile=uploads/fontconfig.versions --download  --platforms="cygwin"

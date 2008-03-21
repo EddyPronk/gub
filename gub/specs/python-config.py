@@ -22,7 +22,7 @@ class Python_config (build.SdkBuild):
              ('@PYTHON_FOR_BUILD@', sys.executable)],
             '%(sourcefiledir)s/python-config.py.in',
             to_name=python_config)
-        self.chmod (python_config, 755)
+        self.chmod (python_config, 0755)
 
 class Python_config__cygwin (Python_config):
     source = repository.Version (name='python-config', version='2.5')

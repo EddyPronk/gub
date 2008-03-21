@@ -556,7 +556,7 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"%(_v)s -zcf %(src_package_
 # gur, Must manually expand and pass logger...
 #            self.runner.system ('mv %(file)s %(base)s', locals ())
             loggedos.system (logger_why_already_in_self, self.expand ('mv %(file)s %(base)s', locals ()))
-        self.map_locate (no_exe, '%(builddir)s', '*.exe')
+        self.map_locate (un_exe, '%(builddir)s', '*.exe')
 
     def post_install_smurf_exe (self):
         def add_exe (logger_why_already_in_self, file):

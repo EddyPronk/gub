@@ -112,7 +112,8 @@ class Gcc__mingw (Gcc):
                             ('/mingw/lib','%(prefix_dir)s/lib'),
                             ], f)
 
-class Gcc__cygwin (Gcc__mingw):
+# http://gcc.gnu.org/PR24196            
+class this_works_but_has_string_exception_across_dll_bug_Gcc__cygwin (Gcc__mingw):
     def get_build_dependencies (self):
         return (Gcc__mingw.get_build_dependencies (self)
                 + ['cygwin', 'w32api-in-usr-lib'])
@@ -136,23 +137,28 @@ gcc_tooldir="%(cross_prefix)s/%(target_architecture)s"
 
 from gub import cygwin
 
-class use_cygwin_sources_Gcc__cygwin (Gcc):
+# Cygwin sources Gcc
+# Hmm, download is broken.  How is download of gcc-g++ supposed to work anyway?
+# wget http://mirrors.kernel.org/sourceware/cygwin/release/gcc/gcc-core/gcc-core-3.4.4-3-src.tar.bz2 
+# wget http://mirrors.kernel.org/sourceware/cygwin/release/gcc/gcc-g++/gcc-g++-3.4.4-3-src.tar.bz2
+
+# Untar stage is gone, use plain gcc + cygwin patch
+#class Gcc__cygwin (Gcc):
+class Gcc__cygwin (Gcc):
     def __init__ (self, settings, source):
         Gcc.__init__ (self, settings, source)
-    source = mirrors.with_tarball (mirror=mirrors.cygwin, version='3.4.4-3', format='bz2', name='gcc')
-    def name (self):
-        return 'cross/gcc-core'
-    def untar (self):
-        #gxx_file_name = re.sub ('-core', '-g++',
-        #                        self.expand (self.file_name ()))
-#        ball = 'cross/' + self.source._file_name ().replace ('gcc', 'gcc-core')
+    #source = mirrors.with_tarball (mirror=mirrors.cygwin, version='3.4.4-3', format='bz2', name='gcc')
+    source = mirrors.with_tarball (mirror=mirrors.gcc, version='3.4.4', format='bz2', name='gcc')
+    patches = ['gcc-3.4.4-cygwin-3.patch']
+    def xuntar (self):
         ball = self.source._file_name ()
         cygwin.untar_cygwin_src_package_variant2 (self, ball.replace ('-core', '-g++'),
                                                   split=True)
         cygwin.untar_cygwin_src_package_variant2 (self, ball)
     def get_build_dependencies (self):
         return (Gcc.get_build_dependencies (self)
-                + ['cygwin', 'w32api-in-usr-lib', 'cross/gcc-g++'])
+#                + ['cygwin', 'w32api-in-usr-lib', 'cross/gcc-g++'])
+                + ['cygwin', 'w32api-in-usr-lib'])
     def makeflags (self):
         return misc.join_lines ('''
 tooldir="%(cross_prefix)s/%(target_architecture)s"
