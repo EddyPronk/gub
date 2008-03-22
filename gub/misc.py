@@ -161,19 +161,22 @@ def rewrite_url (url, mirror):
     return os.path.join (mirror, base, file)
 
 # FIXME: read settings.rc, local, fallback should be a user-definable list
-def download_url (url, dest_dir,
-                  ## wtf is this? Hardcoded devel paths? --hwn
-                  local=['file://%(HOME)s/vc/gub/downloads' % os.environ],
+def download_url (original_url, dest_dir,
+                  local=[],
                   fallback=['http://lilypond.org/download/gub-sources'],
                   progress=sys.stderr.write):
 
     assert type(local) == list
     assert type(fallback) == list
 
-    for i in local + [url] + fallback:
-        if not is_ball (os.path.basename (i)):
-            i = rewrite_url (url, i)
-        size = _download_url (i, dest_dir, progress)
+    candidate_urls = []
+    for url in local + [original_url] + fallback:
+        candidate_urls.append(url)
+        if not is_ball (os.path.basename (url)):
+            candidate_urls.append(rewrite_url (original_url, url))
+
+    for url in candidate_urls:
+        size = _download_url (url, dest_dir, progress)
         if size:
             return
 
@@ -196,7 +199,7 @@ def _download_url (url, dest_dir, progress=None):
         if url.startswith('ftp:'):
             return 0
         raise
-        
+
     # open output after URL, otherwise we get 0-byte downloads everywhere.
 
     # ugh - race condition if we have 2 gubs running

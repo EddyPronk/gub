@@ -139,7 +139,9 @@ class Dependency_resolver:
 
         # FIXME: download/offline update
         if not os.path.exists (file):
-            misc.download_url (url, self.settings.downloads)
+            misc.download_url (url, self.settings.downloads,
+                               local=['file://%s' % self.settings.downloads],
+                               )
             os.system ('gunzip  %(base)s.gz' % locals ())
             os.system ('mv %(base)s %(file)s' % locals ())
         self.grok_packages_file (file)

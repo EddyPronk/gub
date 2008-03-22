@@ -315,14 +315,16 @@ class Dependency_resolver:
     def grok_setup_ini (self, file, skip=[]):
         for p in get_cygwin_packages (self.settings, file, skip):
             self.packages[p.name ()] = p
-
     def load_packages (self):
         url = mirror + '/setup.ini'
 
         # FIXME: download/offline update
         file = self.settings.downloads + '/setup.ini'
         if not os.path.exists (file):
-            misc.download_url (url, self.settings.downloads)
+            misc.download_url (url, self.settings.downloads,
+                               local=['file://%s' % self.settings.downloads],
+
+                               )
             # arg
             # self.file_sub ([('\':"', "':'")], file)
             s = open (file).read ()
