@@ -414,7 +414,7 @@ class TarBall (Repository):
 
 RepositoryProxy.register (TarBall)
 
-# JUNKME
+# JUNKME.
 class NewTarBall (TarBall):
     def __init__ (self, dir, mirror, name, ball_version, format='gz',
                   strip_components=1):
