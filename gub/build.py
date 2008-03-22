@@ -41,9 +41,10 @@ class Build (context.RunnableContext):
         pass
     def stages (self):
         return list ()
-    def apply_patch (self, name):
+    def apply_patch (self, name, strip_component=1):
+        patch_strip_component = str(strip_component)
         self.system ('''
-cd %(srcdir)s && patch -p1 < %(patchdir)s/%(name)s
+cd %(srcdir)s && patch -p%(patch_strip_component)s < %(patchdir)s/%(name)s
 ''', locals ())
     def build (self):
         available = dict (inspect.getmembers (self, callable))

@@ -22,7 +22,7 @@ class Python (targetbuild.TargetBuild):
         return 'ac_cv_printf_zd_format=yes ' + targetbuild.TargetBuild.configure_command (self)
 
     def patch (self):
-        self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.5.patch')
+        self.apply_patch ('python-2.5.patch')
 
         self.file_sub ([(r"'/usr/include'",
                          r"'%(system_prefix)s/include'")],
@@ -85,10 +85,8 @@ class Python__mingw (Python):
     def patch (self):
         Python.patch (self)
         if 0:
-            self.system ('''
-cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-winsock2.patch
-''')
-        self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-2.4.2-setup.py-selectmodule.patch')
+            self.apply_patch ('python-2.4.2-winsock2.patch')
+        self.apply_patch ('python-2.4.2-setup.py-selectmodule.patch')
     def compile (self):
         Python.compile (self)
 

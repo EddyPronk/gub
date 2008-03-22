@@ -31,12 +31,12 @@ class Python (targetbuild.TargetBuild):
 
     def patch (self):
         targetbuild.TargetBuild.patch (self)
-        self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-1.patch')
-        self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-configure.in-posix.patch')
-        self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-configure.in-sysname.patch')
-        self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-configure.in-sysrelease.patch')
-        self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-2.4.2-setup.py-import.patch')
-        self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-2.4.2-setup.py-cross_root.patch')
+        self.apply_patch ('python-2.4.2-1.patch')
+        self.apply_patch ('python-configure.in-posix.patch', strip_component=0)
+        self.apply_patch ('python-configure.in-sysname.patch', strip_component=0)
+        self.apply_patch ('python-2.4.2-configure.in-sysrelease.patch')
+        self.apply_patch ('python-2.4.2-setup.py-import.patch', strip_component=0)
+        self.apply_patch ('python-2.4.2-setup.py-cross_root.patch', strip_component=0)
         self.file_sub ([('@CC@', '@CC@ -I$(shell pwd)')],
                         '%(srcdir)s/Makefile.pre.in')
 
@@ -102,10 +102,8 @@ class Python__mingw_cross (Python):
     # 2.4.2 and combined in one patch; move to cross-Python?
     def patch (self):
         Python.patch (self)
-        self.system ('''
-cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-winsock2.patch
-''')
-        self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-2.4.2-setup.py-selectmodule.patch')
+        self.apply_patch ('python-2.4.2-winsock2.patch')
+        self.apply_patch ('python-2.4.2-setup.py-selectmodule.patch')
 
         ## to make subprocess.py work.
         self.file_sub ([
