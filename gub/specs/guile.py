@@ -52,8 +52,8 @@ class Guile (targetbuild.TargetBuild):
         self.autogen_sh ()
 
         ## Don't apply patch twice.
-        self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/guile-reloc.patch')
-        self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/guile-cexp.patch')
+        self.apply_patch ('guile-reloc.patch')
+        self.apply_patch ('guile-cexp.patch')
         self.dump ('''#!/bin/sh
 exec %(tools_prefix)s/bin/guile "$@"
 ''', "%(srcdir)s/pre-inst-guile.in")
