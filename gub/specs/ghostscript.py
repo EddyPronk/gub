@@ -21,6 +21,12 @@ models.'''
     # source = 'svn:http://svn.ghostscript.com:8080/ghostscript&branch=trunk&module=gs&revision=7881'
     source = 'svn:http://svn.ghostscript.com:8080/ghostscript&branch=trunk/gs&revision=7881'
     #source = 'ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/ghostscript-8.60.tar.bz2'
+
+    ## We prefer git: downloading is faster and atomic.
+    # T42 fix for lilypond
+    revision = '00789a94804e9bcc22205ef7ea3bba32942b4e79'
+    source = 'git://git.infradead.org/ghostscript.git?revision=' + revision
+
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
 
