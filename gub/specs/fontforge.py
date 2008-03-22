@@ -3,27 +3,22 @@ from gub import toolsbuild
 from gub import mirrors
 
 class Fontforge (toolsbuild.ToolsBuild):
-    source = 'http://lilypond.org/download/gub-sources/fontforge_full-20071210.tar.bz2'
+    #source = 'http://lilypond.org/download/gub-sources/fontforge_full-20071210.tar.bz2'
 
-    auto_source = mirrors.with_template (name='fontforge', mirror='http://lilypond.org/download/gub-sources/fontforge_full-%(version)s.tar.bz2',
-                   version='20070607')
+    source = mirrors.with_template (name='fontforge', mirror='http://lilypond.org/download/gub-sources/fontforge_full-%(version)s.tar.bz2',
+                   version='20080309')
 
     # build settings
     def configure_command (self):
         return (toolsbuild.ToolsBuild.configure_command (self)
                 + ' --without-freetype-src'
-
-                # urgh - I just love libtool relinking.
-                + ' --enable-static --disable-shared'
+                + ' --disable-libff '
                 # let's ignore python (and its dynamic link intracies
                 # for now).
                 + ' --without-python')
 
     def get_build_dependencies (self):
         return ['freetype']
-
-    def install_command (self):
-        return self.broken_install_command ()
 
     def packaging_suffix_dir (self):
         return ''
