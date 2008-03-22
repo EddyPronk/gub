@@ -20,11 +20,9 @@ class Fontforge (toolsbuild.ToolsBuild):
     def get_build_dependencies (self):
         return ['freetype']
 
-    def packaging_suffix_dir (self):
-        return ''
-
     def srcdir (self):
         return toolsbuild.ToolsBuild.srcdir (self).replace ('_full', '')
+
     def force_sequential_build (self):
         return True
     
