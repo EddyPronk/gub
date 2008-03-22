@@ -67,9 +67,7 @@ class Gmp__darwin__x86 (Gmp__darwin):
 class Gmp__cygwin (Gmp):
     source = mirrors.with_template (name='gmp', version='4.1.4')
     def patch (self):
-        self.system ('''
-cd %(srcdir)s && patch -p1 < %(patchdir)s/gmp-4.1.4-1.patch
-''')
+        self.apply_patch ('gmp-4.1.4-1.patch')
 
 class Gmp__mingw (Gmp):
     def __init__ (self, settings, source):
@@ -78,9 +76,7 @@ class Gmp__mingw (Gmp):
         self.target_gcc_flags = '-mms-bitfields'
         
     def patch (self):
-        self.system ('''
-cd %(srcdir)s && patch -p1 < %(patchdir)s/gmp-4.1.4-1.patch
-''')
+        self.apply_patch ('gmp-4.1.4-1.patch')
 
     def configure (self):
         Gmp.configure (self)

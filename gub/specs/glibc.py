@@ -19,9 +19,7 @@ class Glibc (targetbuild.TargetBuild, cross.CrossToolsBuild):
     def get_conflict_dict (self):
         return {'': ['glibc-core'], 'devel': ['glibc-core'], 'doc': ['glibc-core'], 'runtime': ['glibc-core']}
     def patch (self):
-        self.system ('''
-cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3-powerpc-initfini.patch
-''')
+        self.apply_patch ('glibc-2.3-powerpc-initfini.patch')
     def get_add_ons (self):
         return ('linuxthreads', 'nptl')
     def configure_command (self):    

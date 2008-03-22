@@ -72,7 +72,7 @@ class XFreetype__cygwin (Freetype):
 
     def patch (self):
         Freetype.patch (self)
-        self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/freetype-libtool-no-version.patch')
+        self.apply_patch ('freetype-libtool-no-version.patch')
 
     def get_subpackage_definitions (self):
         d = dict (Freetype.get_subpackage_definitions (self))

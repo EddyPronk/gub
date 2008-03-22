@@ -11,7 +11,7 @@ class Expat (targetbuild.TargetBuild):
 
     def patch (self):
         self.system ("rm %(srcdir)s/configure")
-        self.system ("cd %(srcdir)s && patch -p1 < %(patchdir)s/expat-1.95.8-mingw.patch")
+        self.apply_patch ('expat-1.95.8-mingw.patch')
         self.system ("touch %(srcdir)s/tests/xmltest.sh.in")
         targetbuild.TargetBuild.patch (self)
 

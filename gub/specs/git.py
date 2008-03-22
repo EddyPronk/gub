@@ -65,13 +65,13 @@ class Git (targetbuild.TargetBuild):
         self.file_sub ([('\.\./GIT-CFLAGS Makefile', 'Makefile')],
                         '%(srcdir)s/perl/Makefile')
 
-        self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/git-1.5.2-templatedir.patch')
+        self.apply_patch('git-1.5.2-templatedir.patch')
         targetbuild.TargetBuild.patch (self)
         self.system ('rm -rf %(builddir)s')
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
         self.file_sub ([('git describe','true')],
                         '%(srcdir)s/GIT-VERSION-GEN')
-        self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/git-1.5-shell-anality.patch')
+        self.apply_patch ('git-1.5-shell-anality.patch')
         self.autoupdate ()
         
 class Git__mingw (Git):

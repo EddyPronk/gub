@@ -20,9 +20,7 @@ class Glibc_core (glibc.Glibc):
         return {'': ['glibc', 'glibc-devel', 'glibc-doc', 'glibc-runtime']}
     def patch (self):
         glibc.Glibc.patch (self)
-        self.system ('''
-cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3-core-install.patch
-''')
+        self.apply_patch ('glibc-2.3-core-install.patch')
     def get_add_ons (self):
         return ('linuxthreads',)
     def configure_command (self):

@@ -73,9 +73,7 @@ class Glib__freebsd__64 (Glib__freebsd):
     source = mirrors.with_template (name='glib', version='2.12.12', mirror=gnome_2183,
                    format='bz2')
     def patch (self):
-        self.system ('''
-cd %(srcdir)s && patch -p1 < %(patchdir)s/glib-2.12.12-disable-threads.patch
-''')
+        self.apply_patch ('glib-2.12.12-disable-threads.patch')
     def configure_command (self):
         return Glib.configure_command (self) + ' --disable-threads --disable-timeloop'
 
