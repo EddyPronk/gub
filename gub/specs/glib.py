@@ -9,9 +9,9 @@ class Glib (targetbuild.TargetBuild):
 
         ## 2.12.4 : see bug  http://bugzilla.gnome.org/show_bug.cgi?id=362918
     source = mirrors.with_template (name='glib', #version='2.12.4',   mirror=mirrors.gnome_216,
-            version='2.10.3',
-		   mirror=mirrors.gnome_214,
-		   format='bz2')
+                                    version='2.16.1',
+                                    mirror=mirrors.gnome_222,
+                                    format='bz2')
 
     def get_build_dependencies (self):
         return ['gettext-devel', 'libtool']

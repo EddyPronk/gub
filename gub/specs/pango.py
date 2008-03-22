@@ -7,8 +7,8 @@ from gub import targetbuild
 from gub import loggedos
 
 class Pango (targetbuild.TargetBuild):
-    source = mirrors.with_template (name='pango', version='1.14.8',
-                   mirror=mirrors.gnome_216,
+    source = mirrors.with_template (name='pango', version='1.20.0',
+                   mirror=mirrors.gnome_222,
                    format='bz2')
 
     def get_build_dependencies (self):
