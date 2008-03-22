@@ -7,7 +7,11 @@ from gub import repository
 from gub import context
 from gub import logging
 
-version = "0596d7296c94b2bb9817338b8c1a76da91673fb9"
+#"0596d7296c94b2bb9817338b8c1a76da91673fb9"
+
+# v2.5.91 - there was a late 2007 windows fix. Let's try to see if it
+# fixes caching problems on vista.
+version = '0dffe625d43c1165f8b84f97e8ba098793e2cf7b'
 
 class Fontconfig (targetbuild.TargetBuild):
     '''Generic font configuration library 
