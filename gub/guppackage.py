@@ -51,9 +51,9 @@ class GupPackage:
         suffix = self.expand ('%(packaging_suffix_dir)s')
         split_ball = self.expand ('%(split_ball)s')
         self._runner._execute (commands.PackageGlobs (path,
-                                                         suffix,
-                                                         self._file_specs,
-                                                         split_ball))
+                                                      suffix,
+                                                      self._file_specs,
+                                                      split_ball))
     def dict (self):
         return self._dict
 
