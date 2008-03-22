@@ -35,7 +35,7 @@ class Pango (targetbuild.TargetBuild):
 
     def patch (self):
         targetbuild.TargetBuild.patch (self)
-        self.system ('cd %(srcdir)s && patch --force -p1 < %(patchdir)s/pango-substitute-env.patch')
+        self.apply_patch ('pango-1.20-substitute-env.patch')
 
     def fix_modules (self, prefix='/usr'):
         etc = self.expand ('%(install_root)s/%(prefix)s/etc/pango', locals ())
