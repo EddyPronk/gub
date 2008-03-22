@@ -438,6 +438,7 @@ def get_source_packages (settings, todo):
         if ':' in url:
             base, unused_parameters = misc.dissect_url(url)
             name = os.path.basename(base)
+            name = re.sub('\..*', '', name)
             key = url
         else:
             # ugh.
