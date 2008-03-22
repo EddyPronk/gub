@@ -20,7 +20,7 @@ does not depend on the X Window System.  It is designed to locate
 fonts within the system and select them according to requirements
 specified by applications.'''
 
-    source = 'git://anongit.freedesktop.org/git/fontconfig?revision=' + version
+    source = 'git://anongit.freedesktop.org/git/fontconfig?branch=master&revision=' + version
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
         #self.with_vc (repository.Git (self.get_repodir (), source="git://anongit.freedesktop.org/git/fontconfig", revision=fc_version))

@@ -446,6 +446,7 @@ class Git (Repository):
 
         assert self.url_host
         assert self.url_path
+        
     def version (self):
         return self.revision
 
@@ -490,11 +491,19 @@ class Git (Repository):
         if repo_dir == '' and dir == '':
             repo_dir = self.dir
         gc = self.git_command (dir, repo_dir)
-        return self.read_pipe ('%(gc)s %(cmd)s' % locals ())
+        return self.read_pipe ('%(gc)s %(cmd)s' % locals (),
+                               ignore_errors=ignore_errors)
         
     def is_downloaded (self):
-        return os.path.isdir (self.dir)
-
+        if not os.path.isdir (self.dir):
+            return False
+        if self.revision:
+            result = self.git_pipe('cat-file commit %s' % self.revision,
+                                   ignore_errors=True)
+        
+            return bool(result)
+        return True
+    
     def download (self):
         repo = self.dir
         source = self.source
@@ -502,12 +511,14 @@ class Git (Repository):
         branch = self.branch
         host = self.url_host
         path = self.url_path
-        
-        if not self.is_downloaded ():
+
+        if not os.path.isdir(self.dir):
             self.git ('clone --bare %(source)s %(repo)s' % locals ())
 
         if branch: 
-            self.git ('fetch %(source)s %(branch)s:refs/heads/%(host)s/%(path)s/%(branch)s' % locals ())
+            if not (revision and self.is_downloaded()):
+                self.git ('fetch %(source)s %(branch)s:refs/heads/%(host)s/%(path)s/%(branch)s' % locals ())
+
         self.checksums = {}
 
     def get_ref (self):

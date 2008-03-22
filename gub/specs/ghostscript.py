@@ -15,17 +15,12 @@ PostScript files as graphics to be printed on non-PostScript printers.
 Supported printers include common dot-matrix, inkjet and laser
 models.'''
 
-    #subversion is broken, this also works but gives less nice results
-    #source = 'svn:http://svn.ghostscript.com:8080/ghostscript/trunk/gs&revision=7881'
-    # this does not yet work
-    # source = 'svn:http://svn.ghostscript.com:8080/ghostscript&branch=trunk&module=gs&revision=7881'
-    source = 'svn:http://svn.ghostscript.com:8080/ghostscript&branch=trunk/gs&revision=7881'
-    #source = 'ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/ghostscript-8.60.tar.bz2'
+    #source = 'svn:http://svn.ghostscript.com:8080/ghostscript&branch=trunk/gs&revision=7881'
 
     ## We prefer git: downloading is faster and atomic.
     # T42 fix for lilypond
     revision = '00789a94804e9bcc22205ef7ea3bba32942b4e79'
-    source = 'git://git.infradead.org/ghostscript.git?revision=' + revision
+    source = 'git://git.infradead.org/ghostscript.git?branch=git-svn&revision=' + revision
 
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
@@ -297,6 +292,7 @@ cd %(srcdir)s && cp Makefile.in Makefile-x11.in
         
     def category_dict (self):
         return {'': 'Graphics'}
+    
     def get_build_dependencies (self):
         return ['jpeg', 'libpng12-devel', 'xorg-x11-devel', 'zlib']
     def get_dependency_dict (self):
