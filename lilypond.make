@@ -245,10 +245,8 @@ tools =\
  git\
  guile\
  icoutils\
- mftrace\
  netpbm\
  pkg-config\
- potrace\
  python\
  imagemagick \
  texinfo
@@ -258,7 +256,6 @@ tools =\
 
 # -guile: bootstrap guile
 # -gettext: AM_GNU_GETTEXT
-# -mftrace, fontforge, potrace: lilypond
 # -texinfo: need 4.8 for lily
 # -automake: prevent version confusion
 # -pkg-config: nonstandard (eg. MacOS)
