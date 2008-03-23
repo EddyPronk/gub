@@ -59,6 +59,9 @@ class Glib__freebsd (Glib):
     
     def get_build_dependencies (self):
         return Glib.get_build_dependencies (self) + ['libiconv-devel']
+
+    def patch (self):
+        self.apply_patch ('glib-2.12.12-disable-threads.patch')
     
     def configure_command (self):
         return Glib.configure_command (self) + ' --disable-threads'
@@ -74,6 +77,7 @@ class Glib__freebsd__64 (Glib__freebsd):
                    format='bz2')
     def patch (self):
         self.apply_patch ('glib-2.12.12-disable-threads.patch')
+
     def configure_command (self):
         return Glib.configure_command (self) + ' --disable-threads --disable-timeloop'
 
