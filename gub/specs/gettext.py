@@ -37,7 +37,7 @@ class Gettext__freebsd (Gettext):
 class Gettext__mingw (Gettext):
     def __init__ (self, settings, source):
         Gettext.__init__ (self, settings, source)
-    source = mirrors.with_template (name='gettext', version='0.15', mirror=mirrors.gnu, format='gz')
+    source = mirrors.with_template (name='gettext', version='0.17', mirror=mirrors.gnu, format='gz')
 
     def config_cache_overrides (self, str):
         return (re.sub ('ac_cv_func_select=yes', 'ac_cv_func_select=no',

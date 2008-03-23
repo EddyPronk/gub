@@ -105,6 +105,7 @@ set FONTCONFIG_PATH=$INSTALLER_PREFIX/etc/fonts
         
 class Fontconfig__mingw (Fontconfig):
     def patch (self):
+        self.apply_patch ('fontconfig-2.5.91-public_ft_files.patch')
         Fontconfig.patch (self)
         self.file_sub ([('<cachedir>@FC_CACHEDIR@</cachedir>', '')],
                        '%(srcdir)s/fonts.conf.in')
