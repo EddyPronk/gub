@@ -41,6 +41,16 @@ class Glib__darwin (Glib):
         Glib.configure (self)
         self.file_sub ([('nmedit', '%(target_architecture)s-nmedit')],
                        '%(builddir)s/libtool')
+class Glib__darwin__x86 (Glib__darwin):
+    def patch (self):
+        Glib__darwin.patch (self)
+    def compile (self):
+        self.file_sub ([('(SUBDIRS = .*) tests', r'\1'),
+                        (r'GTESTER = \$.*', ''),
+                        ('am__EXEEXT_2 = gtester.*', ''),
+                        ('am__append_. *= *gtester', '')],
+                       '%(builddir)s/glib/Makefile', must_succeed=True)
+        Glib__darwin.compile (self)
         
 class Glib__mingw (Glib):
     def get_dependency_dict (self):
