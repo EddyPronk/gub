@@ -8,7 +8,11 @@ from gub import loggedos
 
 #FIXME: merge fully with specs/gcc
 class Gcc (cross.CrossToolsBuild):
-    source = mirrors.with_tarball (mirror=mirrors.gcc, version='4.1.1', format='bz2', name='gcc')
+    source = mirrors.with_tarball (
+        #/usr/lib/libstdc++.so.6: version `GLIBCXX_3.4.9' not found
+        #(required by /../usr/bin/lilypond
+        #mirror=mirrors.gcc, version='4.2.3', format='bz2', name='gcc')
+        mirror=mirrors.gcc, version='4.1.2', format='bz2', name='gcc')
 
     def get_build_dependencies (self):
         return ['cross/binutils']
@@ -191,15 +195,13 @@ class Gcc__darwin (Gcc):
     #FIXME: what about apply_all (%(patchdir)s/%(version)s)?
     def patch (self):
         if self.source._version == '4.1.1':
-            self.system ('''
-cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-4.1.1-ppc-unwind.patch
-''')
+            self.apply_patch ('gcc-4.1.1-ppc-unwind.patch')
 
 class Gcc__freebsd (Gcc):
     #REMOVEME
     def __init__ (self, settings, source):
         Gcc.__init__ (self, settings, source)
-    source = mirrors.with_tarball (name='gcc', mirror=mirrors.gnu, version='4.1.1', format='bz2')
+    source = mirrors.with_tarball (name='gcc', mirror=mirrors.gnu, version='4.1.2', format='bz2')
     def get_build_dependencies (self):
         return (Gcc.get_build_dependencies (self)
                 + ['freebsd-runtime'])
