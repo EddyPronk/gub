@@ -42,6 +42,16 @@ class Pango (targetbuild.TargetBuild):
         targetbuild.TargetBuild.patch (self)
         self.apply_patch ('pango-1.20-substitute-env.patch')
 
+    def module_version (self):
+        result = None
+        version = self.version()
+        for regex, candidate in pango_module_version_regexes:
+            if re.match(regex, version):
+                result = candidate
+                break
+        assert result
+        return result
+    
     def fix_modules (self, prefix='/usr'):
         etc = self.expand ('%(install_root)s/%(prefix)s/etc/pango', locals ())
         self.system ('mkdir -p %(etc)s' , locals ())
@@ -49,14 +59,8 @@ class Pango (targetbuild.TargetBuild):
         def fix_prefix (logger, fname):
             loggedos.file_sub (logger, [(self.expand ('/%(prefix)s/'),
                                          '$PANGO_PREFIX/')], fname)
-        version = self.version()
-        pango_module_version = None
-        for regex, candidate in pango_module_version_regexes:
-            if re.match(regex, version):
-                pango_module_version = candidate
-                break
+        pango_module_version = self.module_version()
             
-        assert pango_module_version
         self.map_locate (fix_prefix, etc, '*')
         self.dump ('''[Pango]
 ModuleFiles = $PANGO_PREFIX/etc/pango/pango.modules
@@ -65,10 +69,12 @@ ModulesPath = $PANGO_PREFIX/lib/pango/%(pango_module_version)s/modules
         self.copy ('%(sourcefiledir)s/pango.modules', etc)
 
     def install (self):
-        targetbuild.TargetBuild.install (self)                
+        targetbuild.TargetBuild.install (self)
+        mod_version = self.module_version ()
         self.dump ("""
 setfile PANGO_RC_FILE=$INSTALLER_PREFIX/etc/pango/pangorc
 setdir PANGO_PREFIX=$INSTALLER_PREFIX/
+set PANGO_MODULE_VERSION=%(mod_version)s
 """, '%(install_prefix)s/etc/relocate/pango.reloc', env=locals ())
         self.fix_modules ()
 
