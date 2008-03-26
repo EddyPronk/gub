@@ -6,6 +6,11 @@ from gub import misc
 from gub import targetbuild
 from gub import loggedos
 
+pango_module_version_regexes = [
+    (r'^1\.14', '1.5.0'),
+    (r'^1\.20', '1.6.0')
+    ]
+
 class Pango (targetbuild.TargetBuild):
     source = mirrors.with_template (name='pango', version='1.20.0',
                    mirror=mirrors.gnome_222,
@@ -44,24 +49,19 @@ class Pango (targetbuild.TargetBuild):
         def fix_prefix (logger, fname):
             loggedos.file_sub (logger, [(self.expand ('/%(prefix)s/'),
                                          '$PANGO_PREFIX/')], fname)
-
+        version = self.version()
+        pango_module_version = None
+        for regex, candidate in pango_module_version_regexes:
+            if re.match(regex, version):
+                pango_module_version = candidate
+                break
+            
+        assert pango_module_version
         self.map_locate (fix_prefix, etc, '*')
-
-        self.pango_module_version = None
-        def write_pangorc (logger, dir):
-            if self.pango_module_version:
-                return
-            m = re.search ('([0-9.]+)', dir)
-            if m:
-                pango_module_version = m.group (1)
-                loggedos.dump_file (logger, '''[Pango]
+        self.dump ('''[Pango]
 ModuleFiles = $PANGO_PREFIX/etc/pango/pango.modules
 ModulesPath = $PANGO_PREFIX/lib/pango/%(pango_module_version)s/modules
-''' % locals (),
-                                    etc + '/pangorc')
-                
-        self.map_locate (write_pangorc, '%%(install_root)s/%(prefix)s/lib/pango' % locals (), '*', must_happen=True)
-
+''' % locals (), etc + '/pangorc')
         self.copy ('%(sourcefiledir)s/pango.modules', etc)
 
     def install (self):
