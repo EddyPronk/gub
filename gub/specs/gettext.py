@@ -3,7 +3,10 @@ from gub import targetbuild
 from gub import toolsbuild
 
 class Gettext (targetbuild.TargetBuild):
-    source = mirrors.with_template (name='gettext', version='0.15', mirror=mirrors.gnu, format='gz')
+    source = mirrors.with_template (
+        # 0.16.1 makes gcc barf on ICE.
+        # name='gettext', version='0.16.1', mirror=mirrors.gnu, format='gz')
+        name='gettext', version='0.15', mirror=mirrors.gnu, format='gz')
 
     def get_build_dependencies (self):
         return ['libtool']
@@ -37,8 +40,9 @@ class Gettext__freebsd (Gettext):
 class Gettext__mingw (Gettext):
     def __init__ (self, settings, source):
         Gettext.__init__ (self, settings, source)
-    source = mirrors.with_template (name='gettext', version='0.17', mirror=mirrors.gnu, format='gz')
 
+    source = mirrors.with_template (name='gettext', version='0.17', mirror=mirrors.gnu, format='gz')
+ 
     def config_cache_overrides (self, str):
         return (re.sub ('ac_cv_func_select=yes', 'ac_cv_func_select=no',
                str)
