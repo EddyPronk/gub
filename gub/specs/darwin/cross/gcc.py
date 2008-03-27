@@ -43,7 +43,7 @@ class Gcc (gcc.Gcc):
         return ['odcctools', 'cross/binutils']
     
 class Gcc__darwin__x86 (Gcc):
-    source = mirrors.with_template (version='4.2-20070207', mirror=mirrors.gcc_snap, format='bz2')
+    source = mirrors.with_template (version='4.2.3', mirror=mirrors.gcc_snap, format='bz2')
 
 class Not_used__Gcc__darwin (Gcc):
     def configure (self):
