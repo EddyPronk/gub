@@ -197,7 +197,7 @@ class UnixBuild (Build):
 
     @context.subst_method
     def build_dependencies_string (self):
-        deps = sorted (self.get_build_dependencies ())
+        deps = sorted (set (self.get_build_dependencies ()))
         return ';'.join (deps)
 
     # FIXME: move version/branch/tracking macramee to Repository
