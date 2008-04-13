@@ -336,6 +336,7 @@ test-clean:
 unlocked-doc-clean:
 	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_FLATTENED_BRANCH) \
 		DOCUMENTATION=yes web-clean
+	rm -rf $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_FLATTENED_BRANCH)/out/lybook-db
 	rm -f $(call SIGNATURE_FUNCTION,cached-doc-build)
 	rm -f $(call SIGNATURE_FUNCTION,cached-doc-export)
 
@@ -349,6 +350,7 @@ cached-test-output cached-doc-build cached-dist-check cached-doc-export cached-i
 	if test ! -f  $(call SIGNATURE_FUNCTION,$@) ; then \
 		$(MAKE) $(subst cached,unlocked,$@) \
 		&& touch $(call SIGNATURE_FUNCTION,$@) ; fi
+
 unlocked-test-output:
 	cd $(NATIVE_LILY_BUILD) && $(DOC_RELOCATION) \
 		make CPU_COUNT=$(LILYPOND_WEB_CPU_COUNT)  test
