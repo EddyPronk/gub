@@ -9,12 +9,8 @@ from gub import repository
 from gub import loggedos
 
 class Guile (targetbuild.TargetBuild):
-    source = 'http://lilypond.org/vc/guile.git'
-    source = 'git://repo.or.cz/guile.git'
-    #--branch=guile=branch_release-1-8-repo.or.cz-guile.git
-    branch = 'branch_release-1-8-repo.or.cz-guile.git'
-    branch = 'branch_release-1-8', 
-    source = sources.join (sources.gnu, 'guile/guile-1.8.2.tar.gz')
+    source = 'git://git.sv.gnu.org/guile.git&branch=branch_release-1-8&revision=release_1-8-4'
+    
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
         if isinstance (source, repository.Repository):
@@ -48,9 +44,6 @@ class Guile (targetbuild.TargetBuild):
         return '.'.join (self.ball_version.split ('.')[0:2])
 
     def patch (self):
-        targetbuild.TargetBuild.patch (self)
-        self.autogen_sh ()
-
         ## Don't apply patch twice.
         self.apply_patch ('guile-reloc.patch')
         self.apply_patch ('guile-cexp.patch')
@@ -58,6 +51,8 @@ class Guile (targetbuild.TargetBuild):
 exec %(tools_prefix)s/bin/guile "$@"
 ''', "%(srcdir)s/pre-inst-guile.in")
             
+        self.autogen_sh ()
+        targetbuild.TargetBuild.patch (self)
         self.autoupdate ()
 
     def configure_flags (self):
