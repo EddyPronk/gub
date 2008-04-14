@@ -178,11 +178,13 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_prefix)s/lib"}
             ],
                '%(builddir)s/libtool')
 
-        self.file_sub ([
-            #('^(allow_undefined_flag=.*)unsupported', '\\1'),
-            ('-mwindows', ''),
-            ],
-                       '%(builddir)s/guile-readline/libtool')
+        if 0:
+            # we have patched out readline.
+            self.file_sub ([
+                #('^(allow_undefined_flag=.*)unsupported', '\\1'),
+                ('-mwindows', ''),
+                ],
+                           '%(builddir)s/guile-readline/libtool')
 
     def install (self):
         Guile.install (self)
