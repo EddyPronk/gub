@@ -360,7 +360,7 @@ cp %(install_prefix)s/share/lilypond/*/python/* %(install_prefix)s/bin
 "@INSTDIR@\usr\bin\lilypond-windows.exe" -dgui %1 %2 %3 %4 %5 %6 %7 %8 %9
 '''.replace ('%', '%%').replace ('\n', '\r\n')
             
-        self.dump (bat, '%(install_prefix)s/bin/lilypond-windows.bat.in')
+        self.dump ('%(install_prefix)s/bin/lilypond-windows.bat.in', bat)
 
 ## please document exactly why if this is switched back.
 #        self.file_sub ([(r'gs-font-load\s+#f', 'gs-font-load #t')],
@@ -422,12 +422,8 @@ class LilyPond__darwin (LilyPond):
 
     def configure (self):
         LilyPond.configure (self)
-        self.file_sub ([('CONFIG_CXXFLAGS = ',
-                         'CONFIG_CXXFLAGS =-DGUILE_ELLIPSIS=... '),
-## optionally: switch off for debugging.
-#                                (' -O2 ', '')
-                ],
-               '%(builddir)s/config.make')
+        self.dump ('CXXFLAGS += -DGUILE_ELLIPSIS=...',
+                   '%(builddir)s/local.make')
 
 #Hmm
 Lilypond = LilyPond
