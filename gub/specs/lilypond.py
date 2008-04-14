@@ -360,7 +360,7 @@ cp %(install_prefix)s/share/lilypond/*/python/* %(install_prefix)s/bin
 "@INSTDIR@\usr\bin\lilypond-windows.exe" -dgui %1 %2 %3 %4 %5 %6 %7 %8 %9
 '''.replace ('%', '%%').replace ('\n', '\r\n')
             
-        self.dump ('%(install_prefix)s/bin/lilypond-windows.bat.in', bat)
+        self.dump (bat, '%(install_prefix)s/bin/lilypond-windows.bat.in')
 
 ## please document exactly why if this is switched back.
 #        self.file_sub ([(r'gs-font-load\s+#f', 'gs-font-load #t')],
