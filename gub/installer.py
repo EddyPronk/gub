@@ -297,14 +297,18 @@ class DarwinBundle (DarwinRoot):
 rm -f %(bundle_zip)s 
 rm -rf %(darwin_bundle_dir)s
 # FIXME: ask TarBall where source lives
-tar -C %(targetdir)s -zxf %(downloads)s/osx-lilypad/osx-lilypad-%(cpu_type)s-%(osx_lilypad_version)s.tar.gz
-cp %(darwin_bundle_dir)s/Contents/Resources/subprocess.py %(installer_prefix)s/share/lilypond/current/python/
+tar -C %(targetdir)s -zxf %(downloads)s/osx-lilypad/osx-lilypad-universal-%(osx_lilypad_version)s.tar.gz
 cp -pR --link %(installer_prefix)s/* %(darwin_bundle_dir)s/Contents/Resources/
 mkdir -p %(darwin_bundle_dir)s/Contents/Resources/license
 cp -pR --link %(installer_root)s/license*/* %(darwin_bundle_dir)s/Contents/Resources/license/
 ''', locals ())
         self.file_sub (
-            [('2.[0-9]+.[0-9]+-[0-9]',
+            [('''PACKAGE_NAME=LilyPond
+MAJOR_VERSION=2
+MINOR_VERSION=11
+PATCH_LEVEL=41
+MY_PATCH_LEVEL=
+''',
              '%(installer_version)s-%(installer_build)s'),
             ('Build from .*',
              'Build from %s' % time.asctime ()),
