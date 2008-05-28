@@ -7,7 +7,7 @@ from gub import toolsbuild
 from gub import cross
 
 class Nsis (toolsbuild.ToolsBuild):
-    source = mirrors.with_template (name='nsis', version='2.24',
+    source = mirrors.with_template (name='nsis', version='2.37',
                                     # wx-windows, does not compile
                                     # version='2.30',
                                     # bzip2 install problem
@@ -54,12 +54,14 @@ Export('defenv')
     def stages (self):
         return [s for s in toolsbuild.ToolsBuild.stages (self)
                 if s != 'configure']
+
     def compile_command (self):
         # SCons barfs on trailing / on directory names
         return ('scons PREFIX=%(system_prefix)s'
                 ' PREFIX_DEST=%(install_root)s'
                 ' DEBUG=yes'
                 ' NSIS_CONFIG_LOG=yes'
+                ' SKIPUTILS="NSIS Menu"'
                 ' SKIPPLUGINS=System')
 
     # this method is overwritten for x86-64_linux

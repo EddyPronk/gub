@@ -3,7 +3,7 @@ from gub import misc
 from gub import mirrors
 
 class Scons (toolsbuild.ToolsBuild):
-    source = mirrors.with_template (name='scons', version='0.96.93',
+    source = mirrors.with_template (name='scons', version='0.98.4',
                    format='gz',
                    mirror=mirrors.sf)
     def stages (self):
