@@ -21,8 +21,6 @@ help:
 $(MAKE_BASES):
 	$(MAKE) -f $@.make
 
-download-tools:
-
 download:
 	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB,$(p)) --online --stage=download $(call gcc_or_glibc,$(p)) && ) true
 
