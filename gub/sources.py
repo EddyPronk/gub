@@ -45,6 +45,6 @@ netpbm = join (gub, 'netpbm-patched-10.35.tar.bz2')
 pkg_config = 'http://pkg-config' + join (freedesktop, 'pkg-config-0.20.tar.gz')
 potrace = join (sf, 'potrace/potrace-1.7.tar.gz')
 python = 'http://python.org/ftp/python/%(version)s/Python-2.4.2.tar.bz2'
-imagemagick = 'ftp://ftp.nluug.nl/pub/ImageMagick/ImageMagick-6.3.1-1.tar.bz2'
+imagemagick = 'ftp://ftp.nluug.nl/pub/ImageMagick/ImageMagick-6.4.1-3.tar.bz2'
 texinfo = join (gnu, 'texinfo/texinfo-4.8.tar.bz2')
 ghostscript  = 'ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/ghostscript-8.60.tar.bz2'

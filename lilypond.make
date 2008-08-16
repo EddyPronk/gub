@@ -109,7 +109,7 @@ download:
 ## should be last, to incorporate changed VERSION file.
 	$(MAKE) update-versions
 
-all: native dist-check doc-build test-output test-export doc-export $(OTHER_PLATFORMS) print-success
+all: native dist-check test-output test-export doc-build doc-export $(OTHER_PLATFORMS) print-success
 
 platforms: $(PLATFORMS)
 
@@ -248,7 +248,6 @@ tools =\
  netpbm\
  pkg-config\
  python\
- imagemagick \
  texinfo
 
 ###
@@ -262,10 +261,14 @@ tools =\
 # -icoutils: lilypond mingw icons
 # -distcc: nonstandard (eg. MacOS)
 # -freetype: for bootstrapping fontconfig
-# -imagemagick: for lilypond web site
 # -netpbm: website
 # -python: bootstrap for python x-compile
 # -icoutils: icon build for mingw
+
+# TODO:
+# -imagemagick: for lilypond web site
+#x imagemagick \
+
 download-tools:
 ifneq ($(BUILD_PLATFORM),linux-64)
 	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools --stage=download $(tools) nsis
