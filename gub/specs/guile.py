@@ -9,15 +9,17 @@ from gub import repository
 from gub import loggedos
 
 class Guile (targetbuild.TargetBuild):
-    source = 'git://git.sv.gnu.org/guile.git&branch=branch_release-1-8&revision=release_1-8-4'
-    
+    source = 'git://git.sv.gnu.org/guile.git&branch=branch_release-1-8&revision=release_1-8-5'
+    source = 'git://git.sv.gnu.org/guile.git&branch=master&revision=4b7513463d20acca02ed233583fef958352f2c71'
+
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
         if isinstance (source, repository.Repository):
-            source.version = lambda: '1.8.2'
+            source.version = lambda: '1.9.git'
         self.so_version = '17'
 
     def autogen_sh (self):
+        self.system ('cd %(srcdir)s && autoreconf -i --force --verbose')
         self.file_sub ([(r'AC_CONFIG_SUBDIRS\(guile-readline\)', '')],
                        '%(srcdir)s/configure.in')
         self.file_sub ([(r'guile-readline', '')],
@@ -46,7 +48,6 @@ class Guile (targetbuild.TargetBuild):
     def patch (self):
         ## Don't apply patch twice.
         self.apply_patch ('guile-reloc.patch')
-        self.apply_patch ('guile-cexp.patch')
         self.dump ('''#!/bin/sh
 exec %(tools_prefix)s/bin/guile "$@"
 ''', "%(srcdir)s/pre-inst-guile.in")
@@ -57,10 +58,10 @@ exec %(tools_prefix)s/bin/guile "$@"
 
     def configure_flags (self):
         return misc.join_lines ('''
---without-threads
 --with-gnu-ld
 --enable-deprecated
 --enable-discouraged
+--without-threads
 --disable-error-on-warning
 --enable-relocation
 --disable-rpath
@@ -118,7 +119,6 @@ class Guile__mingw (Guile):
         Guile.__init__ (self, settings, source)
         # Configure (compile) without -mwindows for console
         self.target_gcc_flags = '-mms-bitfields'
-
 
     def get_build_dependencies (self):
         return Guile.get_build_dependencies (self) +  ['regex-devel']
