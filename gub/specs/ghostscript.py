@@ -71,7 +71,7 @@ models.'''
                                    'deskjet', 'djet500', 'bmp', 'pbm',
                                    'bjc200', 'cdeskjet', 'faxg3', 'cljet5']))
         ## generate Makefile.in
-        self.system ('cd %(srcdir)s && ./autogen.sh --help')
+        self.system ('cd %(srcdir)s && sh ./autogen.sh --help')
         self.file_sub ([(disable_re, r'#\1= -DISABLED- \2 ')],
                        '%(srcdir)s/Makefile.in')
         
@@ -284,7 +284,7 @@ class Ghostscript__cygwin (Ghostscript):
         from gub import cygwin
         cygwin.libpng12_fixup (self)
         self.system ('''
-cd %(srcdir)s && ./autogen.sh --help
+cd %(srcdir)s && sh ./autogen.sh --help
 cd %(srcdir)s && cp Makefile.in Makefile-x11.in
 ''')
         self.apply_patch ('ghostscript-8.15-windows-wb.patch')

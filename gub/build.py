@@ -310,7 +310,7 @@ class UnixBuild (Build):
     def configure (self):
         self.system ('''
 mkdir -p %(builddir)s || true
-cd %(builddir)s && %(configure_command)s
+cd %(builddir)s && chmod +x %(configure_binary)s && %(configure_command)s
 ''')
 
     def broken_install_command (self):
