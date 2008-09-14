@@ -8,8 +8,6 @@ from gub import misc
 
 TODO: if we need more granularity, it's better to look at the stack
 trace during a log call (), and have per .py file settings.
-
-
 """
 
 default_logger = None
