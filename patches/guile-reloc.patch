@@ -1,20 +1,43 @@
-From b6df1fd21f15d1722b3fe127d2ae979b1257a043 Mon Sep 17 00:00:00 2001
-From: Han-Wen Nienhuys <hanwen@lilypond.org>
-Date: Fri, 22 Aug 2008 02:17:59 -0300
-Subject: [PATCH] Argv0 relocation, for guile 1.9 git.
+From 73b081531e9191876105c1e16d62868eb1c43b8a Mon Sep 17 00:00:00 2001
+From: Han-Wen Nienhuys <hanwen@xs4all.nl>
+Date: Sat, 22 Mar 2008 17:43:04 -0300
+Subject: [PATCH] Relocate patch
+
+
+ 
+2005-06-08  Jan Nieuwenhuizen  <janneke@gnu.org>
+
+	* configure.in: Add --enable-relocation option.  Default off.
+
+libguile/ ChangeLog
+
+2005-06-09  Jan Nieuwenhuizen  <janneke@gnu.org>
+
+	Experimental relocation patch.
+
+	* load.c (scm_init_argv0_relocation)[ARGV0_RELOCATION]: New
+	function.
+	
+	(scm_init_load_path)[ARGV0_RELOCATION]: Use it.
+
+	* load.c (scm_c_argv0_relocation)[ARGV0_RELOCATION]:
+	
+	* guile.c (main)[ARGV0_RELOCATION]: Use it to append from
+	executable location derived scm library directory.
+	[__MINGW32__|__CYGWIN__]: Append directory of executable to PATH.
 
 ---
  configure.in     |   12 +++++++++++
  libguile/guile.c |    5 ++++
  libguile/load.c  |   58 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
- libguile/load.h  |    5 ++++
- 4 files changed, 80 insertions(+), 0 deletions(-)
+ libguile/load.h  |    4 +++
+ 4 files changed, 79 insertions(+), 0 deletions(-)
 
 diff --git a/configure.in b/configure.in
-index ede0d15..71e811c 100644
+index dd0628f..41c5c96 100644
 --- a/configure.in
 +++ b/configure.in
-@@ -1366,6 +1366,18 @@ AC_MSG_RESULT($works)
+@@ -1196,6 +1196,18 @@ AC_MSG_RESULT($works)
  fi # with_threads=pthreads
  
  
@@ -126,21 +149,20 @@ index 3e702c4..2341daf 100644
  }
  
 diff --git a/libguile/load.h b/libguile/load.h
-index 57cc7e8..1ecda68 100644
+index 9b45d40..4030cb4 100644
 --- a/libguile/load.h
 +++ b/libguile/load.h
-@@ -24,6 +24,11 @@
+@@ -26,6 +26,10 @@
  
- #include "libguile/__scm.h"
- 
-+
+ 
+ SCM_API SCM scm_parse_path (SCM path, SCM tail);
 +#if ARGV0_RELOCATION
 +SCM_API void scm_c_argv0_relocation (char const *argv0);
 +SCM_API SCM scm_init_argv0_relocation (char const* argv0);
 +#endif
- 
- SCM_API SCM scm_parse_path (SCM path, SCM tail);
+ SCM_API void scm_init_load_path (void);
  SCM_API SCM scm_primitive_load (SCM filename);
+ SCM_API SCM scm_c_primitive_load (const char *filename);
 -- 
-1.5.5.1
+1.5.4.1
 
