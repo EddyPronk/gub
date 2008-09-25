@@ -248,7 +248,8 @@ tools =\
  netpbm\
  pkg-config\
  python\
- texinfo
+ texinfo\
+ texi2html
 
 ###
 # document why this is in the bootstrap
