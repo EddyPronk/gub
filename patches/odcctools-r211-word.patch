@@ -1,0 +1,26 @@
+From 6766a5e28693b5911987a5f796287a16e2f6bd64 Mon Sep 17 00:00:00 2001
+From: Han-Wen Nienhuys <hanwen@lilypond.org>
+Date: Mon, 29 Sep 2008 00:04:34 -0300
+Subject: [PATCH] Comment out "word" from r211.
+
+See http://code.google.com/p/iphone-dev/issues/detail?id=143
+---
+ as/read.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/as/read.c b/as/read.c
+index 38dcb67..a59b8a2 100644
+--- a/as/read.c
++++ b/as/read.c
+@@ -488,7 +488,7 @@ static const pseudo_typeS pseudo_table[] = {
+   { "lcomm",	s_lcomm,	0	},
+   { "line",	s_line,		0	},
+   { "long",	cons,		4	},
+-  { "word",	cons,		4	},
++  //  { "word",	cons,		4	},
+   { "quad",	cons,		8	},
+   { "lsym",	s_lsym,		0	},
+   { "section",	s_section,	0	},
+-- 
+1.5.5.1
+
