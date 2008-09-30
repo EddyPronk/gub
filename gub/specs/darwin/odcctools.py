@@ -5,7 +5,7 @@ from gub import mirrors
 
 class Odcctools (cross.CrossToolsBuild):
     source = ('svn:http://iphone-dev.googlecode.com/svn/trunk/odcctools'
-              '&revision=278'
+              '&revision=278')
     def __init__ (self, settings, source):
         cross.CrossToolsBuild.__init__ (self, settings, source)
         if 'x86_64-linux' in self.settings.build_architecture:
