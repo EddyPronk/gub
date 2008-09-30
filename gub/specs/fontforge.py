@@ -3,10 +3,10 @@ from gub import toolsbuild
 from gub import mirrors
 
 class Fontforge (toolsbuild.ToolsBuild):
-    #source = 'http://lilypond.org/download/gub-sources/fontforge_full-20071210.tar.bz2'
-
-    source = mirrors.with_template (name='fontforge', mirror='http://lilypond.org/download/gub-sources/fontforge_full-%(version)s.tar.bz2',
-                   version='20080309')
+    source = mirrors.with_template (
+        name='fontforge',
+        mirror='http://lilypond.org/download/gub-sources/fontforge_full-%(version)s.tar.bz2',
+        version='20080927')
 
     # build settings
     def configure_command (self):
