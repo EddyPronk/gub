@@ -1,0 +1,164 @@
+gcc -DHAVE_CONFIG_H -I. -I/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/gas -I. -D_GNU_SOURCE -I. -I/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/gas -I../bfd -I/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/gas/config -I/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/gas/../include -I/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/gas/.. -I/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/gas/../bfd -DLOCALEDIR="\"/home/janneke/vc/gub/target/mingw/root/usr/cross/share/locale\""   -W -Wall -Wstrict-prototypes -Wmissing-prototypes -Werror -g -O2 -c /home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/gas/remap.c
+cc1: warnings being treated as errors
+/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/gas/read.c: In function ‘do_s_func’:
+/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/gas/read.c:5631: error: ignoring return value of ‘asprintf’, declared with attribute warn_unused_result
+/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/gas/read.c:5638: error: ignoring return value of ‘asprintf’, declared with attribute warn_unused_result
+make[5]: *** [read.o] Fout 1
+
+gcc -DHAVE_CONFIG_H -I. -I/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/gas -I. -D_GNU_SOURCE -I. -I/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/gas -I../bfd -I/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/gas/config -I/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/gas/../include -I/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/gas/.. -I/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/gas/../bfd -DLOCALEDIR="\"/home/janneke/vc/gub/target/mingw/root/usr/cross/share/locale\""   -W -Wall -Wstrict-prototypes -Wmissing-prototypes -Werror -g -O2 -c /home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/gas/stabs.c
+cc1: warnings being treated as errors
+/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/gas/stabs.c: In function ‘stabs_generate_asm_func’:
+/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/gas/stabs.c:670: error: ignoring return value of ‘asprintf’, declared with attribute warn_unused_result
+/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/gas/stabs.c: In function ‘stabs_generate_asm_endfunc’:
+/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/gas/stabs.c:696: error: ignoring return value of ‘asprintf’, declared with attribute warn_unused_result
+make[2]: *** [stabs.o] Fout 1
+make[2]: Map '/home/janneke/vc/gub/target/mingw/build/cross/binutils-2.18/gas' wordt verlaten
+make[1]: *** [all-recursive] Fout 1
+make[1]: Map '/home/janneke/vc/gub/target/mingw/build/cross/binutils-2.18/gas' wordt verlaten
+make: *** [all] Fout 2
+[2]12:09:09 janneke@peder:~/vc/gub/target/mingw/build/cross/binutils-2.18/gas
+
+gcc -DHAVE_CONFIG_H -I. -I/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/gas -I. -D_GNU_SOURCE -I. -I/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/gas -I../bfd -I/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/gas/config -I/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/gas/../include -I/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/gas/.. -I/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/gas/../bfd -DLOCALEDIR="\"/home/janneke/vc/gub/target/mingw/root/usr/cross/share/locale\""   -W -Wall -Wstrict-prototypes -Wmissing-prototypes -Werror -g -O2 -c /home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/gas/atof-generic.c
+cc1: warnings being treated as errors
+/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/binutils/objdump.c: In function ‘print_line’:
+/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/binutils/objdump.c:1138: error: ignoring return value of ‘fwrite’, declared with attribute warn_unused_result
+
+gcc -DHAVE_CONFIG_H -I. -I/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/binutils -I. -D_GNU_SOURCE -I. -I/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/binutils -I../bfd -I/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/binutils/../bfd -I/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/binutils/../include -DLOCALEDIR="\"/home/janneke/vc/gub/target/mingw/root/usr/cross/share/locale\"" -Dbin_dummy_emulation=bin_vanilla_emulation   -W -Wall -Wstrict-prototypes -Wmissing-prototypes -Werror -g -O2 -c -DDLLTOOL_I386 -DDLLTOOL_DEFAULT_I386 /home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/binutils/dlltool.c
+cc1: warnings being treated as errors
+/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/binutils/dlltool.c: In function ‘run’:
+/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/binutils/dlltool.c:1209: error: format not a string literal and no format arguments
+/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/binutils/dlltool.c: In function ‘gen_exp_file’:
+/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/binutils/dlltool.c:1995: error: ignoring return value of ‘fread’, declared with attribute warn_unused_result
+make[2]: *** [dlltool.o] Fout 1
+make[2]: Map '/home/janneke/vc/gub/target/mingw/build/cross/binutils-2.18/binutils' wordt verlaten
+make[1]: *** [all-recursive] Fout 1
+make[1]: Map '/home/janneke/vc/gub/target/mingw/build/cross/binutils-2.18/binutils' wordt verlaten
+make: *** [all] Fout 2
+[2]12:22:01 janneke@peder:~/vc/gub/target/mingw/build/cross/binutils-2.18/binutils
+$
+
+
+gcc -DHAVE_CONFIG_H -I. -I/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/binutils -I. -D_GNU_SOURCE -I. -I/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/binutils -I../bfd -I/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/binutils/../bfd -I/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/binutils/../include -DLOCALEDIR="\"/home/janneke/vc/gub/target/mingw/root/usr/cross/share/locale\"" -Dbin_dummy_emulation=bin_vanilla_emulation   -W -Wall -Wstrict-prototypes -Wmissing-prototypes -Werror -g -O2 -c /home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/binutils/windmc.c
+cc1: warnings being treated as errors
+/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/binutils/windmc.c: In function ‘main’:
+/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/binutils/windmc.c:1150: error: ignoring return value of ‘fread’, declared with attribute warn_unused_result
+make[2]: *** [windmc.o] Fout 1
+make[2]: Map '/home/janneke/vc/gub/target/mingw/build/cross/binutils-2.18/binutils' wordt verlaten
+make[1]: *** [all-recursive] Fout 1
+make[1]: Map '/home/janneke/vc/gub/target/mingw/build/cross/binutils-2.18/binutils' wordt verlaten
+make: *** [all] Fout 2
+[2]12:24:49 janneke@peder:~/vc/gub/target/mingw/build/cross/binutils-2.18/binutils
+
+
+gcc -DHAVE_CONFIG_H -I. -I/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/binutils -I. -D_GNU_SOURCE -I. -I/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/binutils -I../bfd -I/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/binutils/../bfd -I/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/binutils/../include -DLOCALEDIR="\"/home/janneke/vc/gub/target/mingw/root/usr/cross/share/locale\"" -Dbin_dummy_emulation=bin_vanilla_emulation   -W -Wall -Wstrict-prototypes -Wmissing-prototypes -Werror -g -O2 -c /home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/binutils/cxxfilt.c
+cc1: warnings being treated as errors
+/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/binutils/cxxfilt.c: In function ‘demangle_it’:
+/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/binutils/cxxfilt.c:66: error: format not a string literal and no format arguments
+/home/janneke/vc/gub/target/mingw/src/cross/binutils-2.18/binutils/cxxfilt.c:71: error: format not a string literal and no format arguments
+make[2]: *** [cxxfilt.o] Fout 1
+make[2]: Map '/home/janneke/vc/gub/target/mingw/build/cross/binutils-2.18/binutils' wordt verlaten
+make[1]: *** [all-recursive] Fout 1
+make[1]: Map '/home/janneke/vc/gub/target/mingw/build/cross/binutils-2.18/binutils' wordt verlaten
+make: *** [all] Fout 2
+[2]12:26:08 janneke@peder:~/vc/gub/target/mingw/build/cross/binutils-2.18/binutils
+
+--- binutils-2.18/gas/read.c.orig	2008-10-15 12:06:50.000000000 +0200
++++ binutils-2.18/gas/read.c	2008-10-15 12:09:05.000000000 +0200
+@@ -5628,14 +5628,14 @@
+       if (*input_line_pointer != ',')
+ 	{
+ 	  if (default_prefix)
+-	    asprintf (&label, "%s%s", default_prefix, name);
++	    errno = asprintf (&label, "%s%s", default_prefix, name);
+ 	  else
+ 	    {
+ 	      char leading_char = bfd_get_symbol_leading_char (stdoutput);
+ 	      /* Missing entry point, use function's name with the leading
+ 		 char prepended.  */
+ 	      if (leading_char)
+-		asprintf (&label, "%c%s", leading_char, name);
++		errno = asprintf (&label, "%c%s", leading_char, name);
+ 	      else
+ 		label = name;
+ 	    }
+--- binutils-2.18/gas/stabs.c.orig	2008-10-15 12:13:01.000000000 +0200
++++ binutils-2.18/gas/stabs.c	2008-10-15 12:13:24.000000000 +0200
+@@ -667,8 +667,8 @@
+     }
+ 
+   as_where (&file, &lineno);
+-  asprintf (&buf, "\"%s:F1\",%d,0,%d,%s",
+-	    funcname, N_FUN, lineno + 1, startlabname);
++  errno = asprintf (&buf, "\"%s:F1\",%d,0,%d,%s",
++		    funcname, N_FUN, lineno + 1, startlabname);
+   input_line_pointer = buf;
+   s_stab ('s');
+   free (buf);
+@@ -693,7 +693,7 @@
+   ++label_count;
+   colon (sym);
+ 
+-  asprintf (&buf, "\"\",%d,0,0,%s-%s", N_FUN, sym, startlabname);
++  errno = asprintf (&buf, "\"\",%d,0,0,%s-%s", N_FUN, sym, startlabname);
+   input_line_pointer = buf;
+   s_stab ('s');
+   free (buf);
+--- binutils-2.18/binutils/objdump.c.orig	2008-10-15 12:20:05.000000000 +0200
++++ binutils-2.18/binutils/objdump.c	2008-10-15 12:20:22.000000000 +0200
+@@ -1135,7 +1135,7 @@
+   if (line >= p->maxline)
+     return;
+   l = p->linemap [line];
+-  fwrite (l, 1, strcspn (l, "\n\r"), stdout);
++  errno = fwrite (l, 1, strcspn (l, "\n\r"), stdout);
+   putchar ('\n');
+ } 
+ 
+--- binutils-2.18/binutils/dlltool.c.orig	2008-10-15 12:23:35.000000000 +0200
++++ binutils-2.18/binutils/dlltool.c	2008-10-15 12:24:35.000000000 +0200
+@@ -1206,7 +1206,7 @@
+ 
+   if (pid == -1)
+     {
+-      inform (strerror (errno));
++      inform ("%s", strerror (errno));
+ 
+       fatal (errmsg_fmt, errmsg_arg);
+     }
+@@ -1992,7 +1992,7 @@
+       numbytes = ftell (base_file);
+       fseek (base_file, 0, SEEK_SET);
+       copy = xmalloc (numbytes);
+-      fread (copy, 1, numbytes, base_file);
++      errno = fread (copy, 1, numbytes, base_file);
+       num_entries = numbytes / sizeof (long);
+ 
+ 
+--- binutils-2.18/binutils/windmc.c.orig	2008-10-15 12:25:30.000000000 +0200
++++ binutils-2.18/binutils/windmc.c	2008-10-15 12:25:37.000000000 +0200
+@@ -1147,7 +1147,7 @@
+     fseek (fp, 0, SEEK_SET);
+     buff = malloc (flen + 3);
+     memset (buff, 0, flen + 3);
+-    fread (buff, 1, flen, fp);
++    errno = fread (buff, 1, flen, fp);
+     fclose (fp);
+     if (mcset_text_in_is_unicode != 1)
+       {
+--- binutils-2.18/binutils/cxxfilt.c.orig	2008-10-15 12:26:28.000000000 +0200
++++ binutils-2.18/binutils/cxxfilt.c	2008-10-15 12:26:45.000000000 +0200
+@@ -63,12 +63,12 @@
+   result = cplus_demangle (mangled_name + skip_first, flags);
+ 
+   if (result == NULL)
+-    printf (mangled_name);
++    printf ("%s", mangled_name);
+   else
+     {
+       if (mangled_name[0] == '.')
+ 	putchar ('.');
+-      printf (result);
++      printf ("%s", result);
+       free (result);
+     }
+ }
