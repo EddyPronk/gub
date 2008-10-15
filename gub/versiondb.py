@@ -26,7 +26,8 @@ import string
 import pickle
 import optparse
 import os
-
+import sys
+import misc
 
 def get_url_versions (url):
     print url
@@ -35,23 +36,23 @@ def get_url_versions (url):
 
     versions = []
     def note_version (m):
-        name = m.group (1)
-        version = tuple (map (int,  m.group (2).split('.')))
+        name = m.group (2)
+        version = tuple (map (int,  m.group (3).split ('.')))
         build = 0
-        build_url = url + re.sub ("HREF=", '', m.group (0))
+        build_url = url + re.sub ("(HREF|href)=", '', m.group (0))
         build_url = build_url.replace ('"', "")
-        
-        # disregard buildnumber for src tarball. 
-        if m.group(3):
-            build = int (m.group (4))
-            
+
+        # disregard buildnumber for src tarball.
+        if m.group (4):
+            build = int (m.group (5))
+
         versions.append ((name, version, build, build_url))
-        
+
         return ''
 
-    # [^0-9] is to force that version no is not swalled by name. Check this for cygwin libfoo3  
+    # [^0-9] is to force that version no is not swalled by name. Check this for cygwin libfoo3
     # packages
-    re.sub (r'HREF="(.*[^0-9])-([0-9.]+)(-([0-9]+))?\.[0-9a-z-]+\.[.0-9a-z-]+"', note_version, index)
+    re.sub (r'(HREF|href)="(.*[^0-9])-([0-9.]+)(-([0-9]+))?\.[0-9a-z-]+\.[.0-9a-z-]+"', note_version, index)
 
     return versions
 
@@ -59,13 +60,10 @@ class VersionDataBase:
     def __init__ (self, file_name):
         self._db = {}
         self.file_name = file_name
-        self.platforms = []
+        self.platforms = list ()
         if os.path.exists (file_name):
             self.read ()
-            
-    def platforms (self):
-        return self._db.keys ()
-    
+
     def get_sources_from_url (self, url):
 
         ## ugh: should follow urls in the index.
@@ -76,20 +74,19 @@ class VersionDataBase:
 
         sources = []
         for d in directories:
+            # FIXME: this / is necessary to prevent 301 redirection
             u = '%(url)ssources/%(d)s/' % locals ()
             sources += get_url_versions (u)
-            
         self._db['source'] = sources
-
 
     def get_binaries_from_url (self, url):
         package = os.path.basename (os.path.splitext (self.file_name)[0])
         for p in self.platforms:
             if p == 'source':
                 continue
-            
+
             u = '%(url)sbinaries/%(p)s/' % locals ()
-            
+
             if p == 'cygwin':
                 u += 'release/%(package)s/' % locals ()
 
@@ -97,10 +94,12 @@ class VersionDataBase:
                 self._db[p] = get_url_versions (u)
             except IOError, x:
                 print 'problem loading', u
-                from gub import misc
+                sys.path.insert (0, 'gub')
+
+                # FIXME: do want to be inside gub framework or not?
                 print misc.exception_string (x)
                 continue
-            
+
     def write (self):
         open (self.file_name,'w').write (pickle.dumps ((self.platforms,
                                                         self._db)))
@@ -108,7 +107,6 @@ class VersionDataBase:
     def read (self):
         (self.platforms,
          self._db) = pickle.loads (open (self.file_name).read ())
-
 
     ## UI functions:
     def get_next_build_number (self, version_tuple):
@@ -121,14 +119,13 @@ class VersionDataBase:
                                     for (name, version, buildnum, url)
                                     in self._db[platform]
                                     if version == version_tuple]
-        return max (max (bs + [0]) for (p, bs) in sub_db.items ()) + 1
+        return max ([max (bs + [0]) for (p, bs) in sub_db.items ()] + [-1]) + 1
 
     def get_last_release (self, platform, version_tuple):
         candidates = [(v, b, url) for (name, v, b, url) in  self._db[platform]
                       if v[:len (version_tuple)] == version_tuple]
         candidates.append ( ((0,0,0), 0, '/dev/null' ))
         candidates.sort ()
-        
         return candidates[-1]
 
 def get_cli_parser ():
@@ -145,7 +142,7 @@ Inspect lilypond.org download area, and write pickle of all version numbers.
                   dest='dbfile',
                   help='Pickle of version dict',
                   default='uploads/lilypond.versions')
-                  
+
     p.add_option ('--url', action='store',
                   dest='url',
                   default='http://lilypond.org/download/',
@@ -155,7 +152,6 @@ Inspect lilypond.org download area, and write pickle of all version numbers.
                   dest='download',
                   default=False,
                   help='download new versions')
-
 
     p.add_option ('--no-sources', action='store_false',
                   dest='do_sources',
@@ -176,7 +172,7 @@ Inspect lilypond.org download area, and write pickle of all version numbers.
                   dest='platforms',
                   default='',
                   help='platforms to inspect; space separated')
-    
+
     return p
 
 def main ():
@@ -186,20 +182,21 @@ def main ():
     if options.url and not options.url.endswith ('/'):
         options.url += "/"
 
-    db = VersionDataBase (options.dbfile)
     options.platforms = re.sub ('[, ]+', ' ', options.platforms)
+    if not options.platforms:
+        sys.stderr.write ("need --platforms definition")
+        sys.exit (1)
+
+    db = VersionDataBase (options.dbfile)
     db.platforms = options.platforms.split (' ')
 
-    if db.platforms == []:
-        sys.stderr.write ("need --platforms definition")
-        
     if options.test:
         print '2.9.28:', db.get_next_build_number ((2,9,28))
         print '2.8.2:', db.get_next_build_number ((2,8,2))
         print '2.9.28:', db.get_next_build_number ((2,9,28))
         print '2.8.2:', db.get_next_build_number ((2,8,2))
         print '2.10.0 next:', db.get_next_build_number ((2,10,0))
-        
+
         print 'last mingw 2.9.26:', db.get_last_release ('mingw', (2,9,26))
         print 'last mingw 2.9:', db.get_last_release ('mingw', (2,9))
         print 'last mingw 2.9:', db.get_last_release ('mingw', (2,))
@@ -207,18 +204,18 @@ def main ():
         return
 
     if options.download:
-        
+
         ##ugh
-        if options.do_sources: 
+        if options.do_sources:
             db.get_sources_from_url (options.url)
-            
+
         db.get_binaries_from_url (options.url)
         db.write ()
 
     if options.version:
         v = tuple (map (int, options.version.split ('.')))
         print db.get_next_build_number (v)
-    
-    
+
+
 if __name__ == '__main__':
     main ()

@@ -1,14 +1,14 @@
-from gub import gubb
+from gub import build
+from gub import mirrors
 
 url='ftp://ftp.nl.debian.org/debian/pool/main/b/base-files/base-files_4.0.0.tar.gz'
 
-class Base_files (gubb.BinarySpec):
-    def __init__ (self, settings):
-        gubb.BinarySpec.__init__ (self, settings)
+class Base_files (build.BinaryBuild):
+    def __init__ (self, settings, source):
+        build.BinaryBuild.__init__ (self, settings, source)
         from gub import repository
         # FIXME: cannot parse debian balls
-        self.ball_version = '4.0.0'
-        self.with_tarball (mirror=url, version='')
+    source = mirrors.with_tarball (name='base-files', mirror=url, version='', ball_version='4.0.0')
     def get_subpackage_names (self):
         return ['']
     def patch (self):

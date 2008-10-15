@@ -1,13 +1,6 @@
-from gub import toolpackage
 from gub import mirrors
+from gub import toolsbuild
 
-class Texinfo(toolpackage.ToolBuildSpec):
-    def __init__ (self, settings):
-        toolpackage.ToolBuildSpec.__init__ (self, settings)
-        self.with_template (version="4.8",
-                   mirror=mirrors.gnu, format="bz2")
-    def patch (self):
-        toolpackage.ToolBuildSpec.patch (self)
-        self.system ('cd %(srcdir)s && patch -p1 <  %(patchdir)s/texinfo-4.8.patch')
-
-    ## TODO: should patch out info reader completely.
+class Texinfo (toolsbuild.ToolsBuild):
+    source = mirrors.with_template (name='texinfo', version="4.11",
+                                    mirror=mirrors.gnu, format="bz2")

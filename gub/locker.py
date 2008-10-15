@@ -46,7 +46,7 @@ class Locker:
             os.remove (self.lock_file_name)
             
         if self.lock_file:
-            fcntl.flock (self.lock_file.fileno(), fcntl.LOCK_UN)
+            fcntl.flock (self.lock_file.fileno (), fcntl.LOCK_UN)
 	
     def __del__ (self):
 	self.unlock ()

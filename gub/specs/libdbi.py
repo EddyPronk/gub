@@ -1,13 +1,11 @@
 from gub import mirrors
-from gub import targetpackage
+from gub import targetbuild
 
-class Libdbi (targetpackage.TargetBuildSpec):
-    def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with_template (version='0.8.1', mirror=mirrors.sf, format='gz')
+class Libdbi (targetbuild.TargetBuild):
+    source = mirrors.with_template (name='libdbi', version='0.8.1', mirror=mirrors.sf, format='gz')
 
     def patch (self):
-        targetpackage.TargetBuildSpec.patch (self)
+        targetbuild.TargetBuild.patch (self)
         self.file_sub ([('SUBDIRS *=.*', 'SUBDIRS = src include')],
                        '%(srcdir)s/Makefile.in')
 

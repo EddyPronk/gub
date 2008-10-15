@@ -24,12 +24,16 @@ import re
 import sys
 import time
 import urllib
+import xml.dom.minidom
+
+import gdbm as dbmodule
 
 from gub import misc
 from gub import locker
 from gub import mirrors
-from gub import oslog
 from gub import tztime
+from gub import logging
+from gub import loggedos
 
 class UnknownVcSystem (Exception):
     pass
@@ -44,36 +48,49 @@ class RepositoryProxy:
     register = staticmethod (register)
 
     def get_repository (dir, url, branch, revision):
-        for i in RepositoryProxy.repositories:
-            if i.check_url (i, url):
-                return i.create (i, dir, url, branch, revision)
-        file_p = 'file://'
-        if url and url.startswith (file_p):
-            url_dir = url[len (file_p):]
-            for i in RepositoryProxy.repositories:
-                if i.check_dir (i, url_dir):
-                    # Duh, git says: fatal: I don't handle protocol 'file'
-                    # return i.create (i, dir, url, branch, revision)
-                    return i.create (i, dir, url_dir, branch, revision)
-        for i in RepositoryProxy.repositories:
-            if i.check_dir (i, dir):
-                return i.create (i, dir, url, branch, revision)
-        for i in RepositoryProxy.repositories:
-            if i.check_suffix (i, url):
-                return i.create (i, dir, url, branch, revision)
-        for i in RepositoryProxy.repositories:
-            if os.path.isdir (os.path.join (dir, '.gub' + i.vc_system)):
-                d = misc.find_dirs (dir, '^' + i.vc_system)
-                if d and i.check_dir (i, os.path.dirname (d[0])):
-                    return i.create (i, dir, url, branch, revision)
-        for i in RepositoryProxy.repositories:
+        parameters = dict ()
+        if url:
+            url, parameters = misc.dissect_url (url)
+            branch = parameters.get ('branch', [branch])[0]
+            revision = parameters.get ('revision', [revision])[0]
+
+            # FIXME/TODO: pass these nicely to create ()
+            # possibly do dir,url,branch,revision also as dict or kwargs?
+            module = parameters.get ('module', [''])[0]
+            strip_components = parameters.get ('strip_components', [1])[0]
+
+        for proxy in RepositoryProxy.repositories:
+            if proxy.check_url (proxy, url):
+                return proxy.create (proxy, dir, url, branch, revision)
+            
+        if url and url.startswith ('file://'):
+            proto, rest = urllib.splittype (url)
+            host, url_dir = urllib.splithost (rest)
+            if host == '':
+                host = 'localhost'
+            for proxy in RepositoryProxy.repositories:
+                if proxy.check_dir (proxy, url_dir):
+                    return proxy.create (proxy, dir, url, branch, revision)
+                
+        for proxy in RepositoryProxy.repositories:
+            if proxy.check_dir (proxy, dir):
+                return proxy.create (proxy, dir, url, branch, revision)
+        for proxy in RepositoryProxy.repositories:
+            if proxy.check_suffix (proxy, url):
+                return proxy.create (proxy, dir, url, branch, revision)
+        for proxy in RepositoryProxy.repositories:
+            if os.path.isdir (os.path.join (dir, '.gub' + proxy.vc_system)):
+                d = misc.find_dirs (dir, '^' + proxy.vc_system)
+                if d and proxy.check_dir (proxy, os.path.dirname (d[0])):
+                    return proxy.create (proxy, dir, url, branch, revision)
+        for proxy in RepositoryProxy.repositories:
             # FIXME: this is currently used to determine flavour of
             # downloads/lilypond.git.  But is is ugly and fragile;
             # what if I do brz branch foo foo.git?
-            if i.check_suffix (i, dir):
-                return i.create (i, dir, url, branch, revision)
-        raise UnknownVcSystem ('Cannot determine vc_system type: url=%(url)s, dir=%(dir)s'
-                           % locals ())
+            if proxy.check_suffix (proxy, dir):
+                return proxy.create (proxy, dir, url, branch, revision)
+        raise UnknownVcSystem ('Cannot determine source: url=%(url)s, dir=%(dir)s'
+                               % locals ())
     get_repository = staticmethod (get_repository)
 
 ## Rename to Source/source.py?
@@ -81,30 +98,30 @@ class Repository:
     vc_system = None
     tag_dateformat = '%Y-%m-%d_%H-%M-%S%z'
 
+    @staticmethod
     def check_dir (rety, dir):
         return os.path.isdir (os.path.join (dir, rety.vc_system))
-    check_dir = staticmethod (check_dir)
 
+    @staticmethod
     def check_url (rety, url):
         vcs = rety.vc_system.replace ('_', '',).replace ('.', '').lower ()
         return url and (url.startswith (vcs + ':')
                         or url.startswith (vcs + '+'))
-    check_url = staticmethod (check_url)
-
+    @staticmethod
     def check_suffix (rety, url):
         return url and url.endswith (rety.vc_system)
-    check_suffix = staticmethod (check_suffix)
 
+    @staticmethod
     def create (rety, dir, source, branch='', revision=''):
         return rety (dir, source, branch, revision)
-    create = staticmethod (create)
 
     def __init__ (self, dir, source):
         self.dir = os.path.normpath (dir)
         dir_vcs = self.dir + self.vc_system
         if not os.path.isdir (dir) and os.path.isdir (dir_vcs):
             # URG, Fixme, wtf?:
-            print 'WARNING, appending ' + self.vc_system + ' to checkout dir'
+            sys.stderr.write ('appending %s to checkout dir %s\n'
+                              % (self.vc_system, self.dir))
             self.dir = dir_vcs
 
         if not dir or dir == '.':
@@ -116,48 +133,58 @@ class Repository:
             else:
                 # Otherwise, check fresh repository out under .gub.VC_SYSTEM
                 self.dir = os.path.join (os.getcwd (), '.gub' + self.vc_system)
+                
         self.source = source
+        self.logger = logging.default_logger
 
-        self.oslog = None
-        # Fallbacks, this will go through oslog
-        self.system = misc.system
-        self.read_pipe = misc.read_pipe
-        self.download_url = misc.download_url
-        self.info = sys.stdout.write
+        self.system = self.logged_indirection (loggedos.system)
+        self._read_file = self.logged_indirection (loggedos.read_file)
+        self.download_url = self.logged_indirection (loggedos.download_url)
+        self.read_pipe = self.logged_indirection (loggedos.read_pipe)
 
-    def set_oslog (self, oslog):
-        # Fallbacks, this will go through oslog
-        self.oslog = oslog
-        self.system = oslog.system
-        self.read_pipe = oslog.read_pipe
-        self.download_url = oslog.download_url
-        self.info = oslog.info
-
+    def logged_indirection (self, loggedos_func):
+        def logged (*args, **kwargs):
+            return loggedos_func (self.logger, *args, **kwargs)
+        return logged
+    
+    def connect_logger (self, logger):
+        assert logger
+        self.logger = logger
+        
+    def info (self, message):
+        self.logger.write_log (message + '\n', 'info')
+    def filter_branch_arg (self, branch):
+        if '=' in branch:
+            (name, branch) = tuple (branch.split ('='))
+            if name != self.file_name ():
+                branch = ''
+        return branch
+    def full_branch_name (self):
+        if self.is_tracking ():
+            return self.branch.replace ('/', '-')
+        return ''
+    def file_name (self):
+        if not self.source:
+            return os.path.splitext (os.path.basename (self.dir))[0]
+        return os.path.splitext (os.path.basename (self.source))[0]
     def download (self):
         pass
-
-    def get_checksum (self):
+    def checksum (self):
         '''A checksum that characterizes the entire repository.
 
 Typically a hash of all source files.'''
-
-        return '0'
-
-    def get_file_content (self, file_name):
+        return self.version ()
+    def read_file (self, file_name):
         return ''
-
     def is_distributed (self):
         '''Whether repository is central or uses distributed repositories'''
         return True
-    
     def is_tracking (self):
         '''Whether download will fetch newer versions if available'''
         return False
-    
     def is_downloaded (self):
         '''Whether repository is available'''
         return False
-    
     def update_workdir (self, destdir):
         '''Populate DESTDIR with sources of specified version/branch
 
@@ -178,11 +205,9 @@ It need not be unique over revisions.'''
     def read_last_patch (self):
         '''Return a dict with info about the last patch'''
         return {'date': None, 'patch': None}
-
     def get_diff_from_tag (self, name):
         '''Return diff wrt to tag NAME'''
         None
-
     def get_diff_from_tag_base (self, name):
         '''Return diff wrt to last tag that starts with NAME'''
         tags = self.tag_list (name)
@@ -193,7 +218,6 @@ It need not be unique over revisions.'''
 
 class TagDb:
     def __init__ (self, dir):
-        import gdbm as dbmodule
         self.db = dbmodule.open (os.path.join (dir, 'tag.db'), 'c')
     def tag (self, name, repo):
         stamp = repo.last_patch_date ()
@@ -210,27 +234,17 @@ class TagDb:
             return repo.get_diff_from_date (tztime.parse (tags[-1]))
         return None
 
-class Version:
-    def __init__ (self, version):
+class Version (Repository):
+    def __init__ (self, name, version):
         self.dir = None
+        self._name = name
+        self.source = name + '-' + version
         self._version = version
-
-    def download (self):
-        pass
-
-    def get_checksum (self):
-        return self.version ()
-
-    def is_tracking (self):
-        return False
-
-    def update_workdir (self, destdir):
-        pass
-
     def version (self):
         return self._version
-
-    def set_oslog (self, oslog):
+    def name (self):
+        return self._name
+    def connect_logger (self, logger):
         pass
 
 #RepositoryProxy.register (Version)
@@ -238,9 +252,9 @@ class Version:
 class Darcs (Repository):
     vc_system = '_darcs'
 
+    @staticmethod
     def create (rety, dir, source, branch='', revision=''):
         return Darcs (dir, source)
-    create = staticmethod (create)
  
     def __init__ (self, dir, source=''):
         Repository.__init__ (self, dir, source)
@@ -278,11 +292,10 @@ class Darcs (Repository):
         except IndexError:
             return ''
 
-    def get_checksum (self):
-        import xml.dom.minidom
+    def checksum (self):
         xml_string = self.darcs_pipe ('changes --xml ')
-        dom = xml.dom.minidom.parseString(xml_string)
-        patches = dom.documentElement.getElementsByTagName('patch')
+        dom = xml.dom.minidom.parseString (xml_string)
+        patches = dom.documentElement.getElementsByTagName ('patch')
         patches = [p for p in patches if not re.match ('^TAG', self.xml_patch_name (p))]
 
         patches.sort ()
@@ -297,29 +310,35 @@ class Darcs (Repository):
         dir = self.dir
         
         verbose = ''
-        if self.oslog and self.oslog.verbose >= self.oslog.commands:
-            verbose = 'v'
-        vc_system = self.vc_system
-        self.system ('rsync --exclude %(vc_system)s -a%(verbose)s %(dir)s/* %(destdir)s/' % locals())
 
-    def get_file_content (self, file):
+        # FIXME
+        #if self.oslog and self.oslog.verbose >= self.oslog.commands:
+        #   verbose = 'v'
+        vc_system = self.vc_system
+        self.system ('rsync --exclude %(vc_system)s -a%(verbose)s %(dir)s/* %(destdir)s/' % locals ())
+
+    def read_file (self, file):
         dir = self.dir
-        return open ('%(dir)s/%(file)s' % locals ()).read ()
+        return self._read_file ('%(dir)s/%(file)s' % locals ())
 
 RepositoryProxy.register (Darcs)
     
 class TarBall (Repository):
     vc_system = '.tar'
 
+    @staticmethod
     def create (rety, dir, source, branch='', revision=''):
         return TarBall (dir, source)
-    create = staticmethod (create)
 
+    @staticmethod
     def check_suffix (rety, url):
          return url and (url.endswith (rety.vc_system)
                          or url.endswith (rety.vc_system + '.gz')
-                         or url.endswith (rety.vc_system + '.bz2'))
-    check_suffix = staticmethod (check_suffix)
+                         or url.endswith ('.tgz')
+                         or url.endswith (rety.vc_system + '.bz2')
+                         # FIXME: DebianPackage should derive from TarBall,
+                         # rather than extending it in place
+                         or url.endswith ('.deb'))
 
     # TODO: s/url/source
     def __init__ (self, dir, url, version=None, strip_components=1):
@@ -353,7 +372,7 @@ class TarBall (Repository):
             return
         self.download_url (self.source, self.dir)
 
-    def get_checksum (self):
+    def checksum (self):
         from gub import misc
         return misc.ball_basename (self._file_name ())
     
@@ -363,20 +382,25 @@ class TarBall (Repository):
 
         tarball = self.dir + '/' + self._file_name ()
         strip_components = self.strip_components
-        self.system ('mkdir %s' % destdir)       
-        self.system ('ar p %(tarball)s data.tar.gz | tar -C %(destdir)s --strip-component=%(strip_components)d -zxf -' % locals ())
+        self.system ('mkdir %s' % destdir)
+
+        # fixme.
+        _v = ''   #     self.oslog.verbose_flag ()
+        self.system ('ar p %(tarball)s data.tar.gz | tar -C %(destdir)s --strip-component=%(strip_components)d%(_v)s -zxf -' % locals ())
         
     def update_workdir_tarball (self, destdir):
-        
         tarball = self.dir + '/' + self._file_name ()
-        flags = mirrors.untar_flags (tarball)
-
         if os.path.isdir (destdir):
             self.system ('rm -rf %s' % destdir)
-
         self.system ('mkdir %s' % destdir)       
         strip_components = self.strip_components
-        self.system ('tar -C %(destdir)s --strip-component=%(strip_components)d %(flags)s %(tarball)s' % locals ())
+        _v = '-v'
+
+        # fixme
+        #if self.oslog:  #urg, will be fixed when .source is mandatory
+        #    _v = self.oslog.verbose_flag ()
+        _z = misc.compression_flag (tarball)
+        self.system ('tar -C %(destdir)s --strip-component=%(strip_components)d %(_v)s%(_z)s -xf %(tarball)s' % locals ())
 
     def update_workdir (self, destdir):
         if '.deb' in self._file_name () :
@@ -390,6 +414,7 @@ class TarBall (Repository):
 
 RepositoryProxy.register (TarBall)
 
+# JUNKME.
 class NewTarBall (TarBall):
     def __init__ (self, dir, mirror, name, ball_version, format='gz',
                   strip_components=1):
@@ -398,85 +423,54 @@ class NewTarBall (TarBall):
 
 class Git (Repository):
     vc_system = '.git'
-    patch_dateformat = '%a %b %d %H:%M:%S %Y %z'
 
     def __init__ (self, dir, source='', branch='', revision=''):
         Repository.__init__ (self, dir, source)
 
         self.checksums = {}
-        self.local_branch = ''
-        self.remote_branch = branch
+        self.source = source
+
+        if source:
+            source = re.sub ('.*:', '', source)
+            (self.url_host, self.url_path) = urllib.splithost (source)
+        else:
+            # repository proxy determined git vcs from dir
+            print 'FIXME: get url from .git dir info'
+            assert False
+        self.branch = self.filter_branch_arg (branch)
         self.revision = revision
 
-        self.repo_url_suffix = None
-        if source:
-            self.repo_url_suffix = re.sub ('.*://', '', source)
+        if self.revision == '' and self.branch == '':
+            # note that HEAD doesn't really exist as a branch name.
+            self.branch = 'master'
 
-        if self.repo_url_suffix:
-            # FIXME: logic copied foo times
-            fileified_suffix = re.sub ('/', '-', self.repo_url_suffix)
-            # FIXME: projection, where is this used?
-            self.repo_url_suffix = '-' + re.sub ('[:+]+', '-', fileified_suffix)
+        assert self.url_host
+        assert self.url_path
         
-        # FIXME: handle outside Git
-        if ':' in branch:
-            (self.remote_branch,
-             self.local_branch) = tuple (branch.split (':'))
-
-            self.local_branch = self.local_branch.replace ('/', '--')
-            self.branch = self.local_branch
-        elif source:
-            self.branch = branch
-
-            if branch:
-                self.local_branch = branch + self.repo_url_suffix
-                self.branch = self.local_branch
-        else:
-            self.branch = branch
-            self.local_branch = branch
-
-        # Wow, 15 lines of branch juggling.., what's going on here?
-        # what if we just want to build a copy of
-        # `git://git.kernel.org/pub/scm/git/git'.  Let's try `HEAD'
-        if not self.local_branch:
-            self.local_branch = 'HEAD'
-
     def version (self):
         return self.revision
 
     def is_tracking (self):
-        return self.branch != ''
+        return self.revision == ''
+
+    def full_branch_name (self):
+        if self.is_tracking ():
+            b = '%s/%s/%s' % (self.url_host, self.url_path, self.branch)
+            b = b.replace ('/', '-')
+            return b
+        return ''
     
     def __repr__ (self):
-        b = self.local_branch
-        if not b:
-            b = self.revision
+        b = self.branch
         return '#<GitRepository %s#%s>' % (self.dir, b)
 
     def get_revision_description (self):
-        return self.git_pipe ('log --max-count=1 %s' % self.local_branch)  
+        return self.git_pipe ('log --max-count=1 %s' % self.branch)  
 
-    def get_file_content (self, file_name):
-        committish = self.git_pipe ('log --max-count=1 --pretty=oneline %(local_branch)s'
-                                    % self.__dict__).split (' ')[0]
-        m = re.search ('^tree ([0-9a-f]+)',
-                       self.git_pipe ('cat-file commit %(committish)s'
-                                      % locals ()))
-        treeish = m.group (1)
-        for f in self.git_pipe ('ls-tree -r %(treeish)s'
-                                % locals ()).split ('\n'):
-            (info, name) = f.split ('\t')
-            (mode, type, fileish) = info.split (' ')
-            if name == file_name:
-                return self.git_pipe ('cat-file blob %(fileish)s ' % locals ())
-
-        raise RepositoryException ('file not found')
-        
-    def get_branches (self):
-        branch_lines = self.read_pipe (self.git_command ()
-                                       + ' branch -l ').split ('\n')
-        branches =  [b[2:] for b in branch_lines]
-        return [b for b in branches if b]
+    def read_file (self, file_name):
+        ref = self.get_ref ()            
+        contents = self.git_pipe ('show %(ref)s:%(file_name)s' % locals ())
+        return contents
 
     def git_command (self, dir, repo_dir):
         if repo_dir:
@@ -497,62 +491,54 @@ class Git (Repository):
         if repo_dir == '' and dir == '':
             repo_dir = self.dir
         gc = self.git_command (dir, repo_dir)
-        return self.read_pipe ('%(gc)s %(cmd)s' % locals ())
+        return self.read_pipe ('%(gc)s %(cmd)s' % locals (),
+                               ignore_errors=ignore_errors)
         
     def is_downloaded (self):
-        return os.path.isdir (self.dir)
-
+        if not os.path.isdir (self.dir):
+            return False
+        if self.revision:
+            result = self.git_pipe('cat-file commit %s' % self.revision,
+                                   ignore_errors=True)
+        
+            return bool(result)
+        return True
+    
     def download (self):
         repo = self.dir
         source = self.source
         revision = self.revision
-        
-        if not self.is_downloaded ():
-            self.git ('--git-dir %(repo)s clone --bare -n %(source)s %(repo)s' % locals ())
+        branch = self.branch
+        host = self.url_host
+        path = self.url_path
 
-            for (root, dirs, files) in os.walk ('%(repo)s/refs/heads/' % locals ()):
-                for f in files:
-                    self.system ('mv %s %s%s' % (os.path.join (root, f),
-                                                 os.path.join (root, f),
-                                                 self.repo_url_suffix))
+        if not os.path.isdir(self.dir):
+            self.git ('clone --bare %(source)s %(repo)s' % locals ())
 
+        if branch: 
+            if not (revision and self.is_downloaded()):
+                self.git ('fetch %(source)s %(branch)s:refs/heads/%(host)s/%(path)s/%(branch)s' % locals ())
 
-                head = open ('%(repo)s/HEAD' % locals ()).read ()
-                head = head.strip ()
-                head += self.repo_url_suffix
-
-                open ('%(repo)s/HEAD' % locals (), 'w').write (head)
-
-            return
-
-        if revision:
-            contents = self.git_pipe ('ls-tree %(revision)s' % locals (),
-                                      ignore_errors=True)
-
-            if contents:
-                return
-            
-            self.git ('--git-dir %(repo)s http-fetch -v -c %(revision)s' % locals ())
-
-        refs = '%s:%s' % (self.remote_branch, self.branch)
-
-        # FIXME: if source == None (for user checkouts), how to ask
-        # git what parent url is?  `git info' does not work
-        self.git ('fetch --update-head-ok %(source)s %(refs)s ' % locals ())
         self.checksums = {}
 
-    def get_checksum (self):
+    def get_ref (self):
+        ref = self.revision
+        if not ref:
+            ref = self.url_host + self.url_path + '/' + self.branch
+        return ref
+
+    def checksum (self):
         if self.revision:
             return self.revision
         
-        branch = self.local_branch
+        branch = self.get_ref ()
         if self.checksums.has_key (branch):
             return self.checksums[branch]
 
         repo_dir = self.dir
         if os.path.isdir (repo_dir):
             ## can't use describe: fails in absence of tags.
-            cs = self.git_pipe ('rev-list  --max-count=1 %(branch)s' % locals ())
+            cs = self.git_pipe ('rev-list --max-count=1 %(branch)s' % locals ())
             cs = cs.strip ()
             self.checksums[branch] = cs
             return cs
@@ -560,57 +546,41 @@ class Git (Repository):
             return 'invalid'
 
     def all_files (self):
-        branch = self.branch
+        branch = self.get_ref ()
         str = self.git_pipe ('ls-tree --name-only -r %(branch)s' % locals ())
         return str.split ('\n')
 
     def update_workdir (self, destdir):
         repo_dir = self.dir
-        branch = self.local_branch
-        revision = self.revision
-        
+        branch = self.get_ref ()
         if os.path.isdir (os.path.join (destdir, self.vc_system)):
-            self.git ('reset --hard HEAD' % locals (), dir=destdir)
+            if self.git_pipe ('diff'):
+                self.git ('reset --hard HEAD' % locals (), dir=destdir)
             self.git ('pull %(repo_dir)s %(branch)s:' % locals (), dir=destdir)
         else:
-            self.system ('git-clone -l -s %(repo_dir)s %(destdir)s' % locals ())
-            try:
-                ## We always want to use 'master' in the checkout,
-                ## Since the branch name of the clone is
-                ## unpredictable, we force it here.
-                os.unlink ('%(destdir)s/.git/refs/heads/master' % locals ())
-            except OSError:
-                pass
+            self.system ('git clone -l -s %(repo_dir)s %(destdir)s' % locals ())
 
-            if not revision:
-                revision = 'origin/%(branch)s' % locals ()
+            revision = self.revision
+            if not self.revision:
+                revision = 'origin/' + self.get_ref ()
             
-            self.git ('branch master %(revision)s' % locals (),
+            self.git ('update-ref refs/heads/master %(revision)s' % locals (),
                       dir=destdir)
             self.git ('checkout master', dir=destdir)
+            self.git ('reset --hard', dir=destdir)
 
     def get_diff_from_tag (self, tag):
         return self.git_pipe ('diff %(tag)s HEAD' % locals ())
 
     def last_patch_date (self):
-        # Whurg.  Because we use the complex non-standard and silly --git-dir
-        # option, we cannot use git log without supplying a branch, which
-        # is not documented in git log, btw.
-        # fatal: bad default revision 'HEAD'
-        # I'm not even sure if we need branch or local_branch... and why
-        # our branch names are so difficult master-git.sv.gnu.org-lilypond.git
         branch = self.branch
-        s = self.git_pipe ('log -1 %(branch)s' % locals ())
-        m = re.search  ('Date: *(.*)', s)
-        date = m.group (1)
-        return tztime.parse (date, self.patch_dateformat)
+        s = self.git_pipe ('log --pretty=format:%ai -1 %(branch)s' % locals ())
+        return tztime.parse (s, self.patch_dateformat)
 
     def tag (self, name):
         stamp = self.last_patch_date ()
         tag = name + '-' + tztime.format (stamp, self.tag_dateformat)
-        # See last_patch_date
-        # fatal: Failed to resolve 'HEAD' as a valid ref.
-        branch = self.branch
+        branch = self.get_ref ()
         self.git ('tag %(tag)s %(branch)s' % locals ())
         return tag
 
@@ -623,13 +593,13 @@ class CVS (Repository):
     vc_system = 'CVS'
     cvs_entries_line = re.compile ('^/([^/]*)/([^/]*)/([^/]*)/([^/]*)/')
 
+    @staticmethod
     def create (rety, dir, source, branch='', revision=''):
         if not branch:
             branch='HEAD'
         source = source.replace ('cvs::pserver', ':pserver')
         p = source.rfind ('/')
         return CVS (dir, source=source, module=source[p+1:], tag=branch)
-    create = staticmethod (create)
 
     def __init__ (self, dir, source='', module='', tag='HEAD'):
         Repository.__init__ (self, dir, source)
@@ -654,7 +624,7 @@ class CVS (Repository):
 
     def get_revision_description (self):
         try:
-            contents = get_file_content ('ChangeLog')
+            contents = read_file ('ChangeLog')
             entry_regex = re.compile ('\n([0-9])')
             entries = entry_regex.split (contents)
             descr = entries[0]
@@ -672,7 +642,7 @@ class CVS (Repository):
         except IOError:
             return ''
 
-    def get_checksum (self):
+    def checksum (self):
         if self.checksums.has_key (self.tag):
             return self.checksums[self.tag]
         
@@ -685,11 +655,11 @@ class CVS (Repository):
         else:
             return '0'
         
-    def get_file_content (self, file_name):
+    def read_file (self, file_name):
         return open (self._checkout_dir () + '/' + file_name).read ()
         
     def read_cvs_entries (self, dir):
-        checksum = md5.md5()
+        checksum = md5.md5 ()
 
         latest_stamp = 0
         for d in self.cvs_dirs (dir):
@@ -712,8 +682,8 @@ class CVS (Repository):
         dir = self._checkout_dir ()
         ## TODO: can we get deletes from vc?
         verbose = ''
-        if self.oslog and self.oslog.verbose >= oslog.level['command']:
-            verbose = 'v'
+#        if self.oslog and self.oslog.verbose >= oslog.level['command']:
+#            verbose = 'v'
         self.system ('rsync -a%(verbose)s --delete --exclude CVS %(dir)s/ %(destdir)s' % locals ())
         
     def is_downloaded (self):
@@ -729,7 +699,7 @@ class CVS (Repository):
         module = self.module
         cmd = ''
         if self.is_downloaded ():
-            cmd += 'cd %(dir)s && cvs -q up -dCAP %(rev_opt)s' % locals()
+            cmd += 'cd %(dir)s && cvs -q up -dCAP %(rev_opt)s' % locals ()
         else:
             repo_dir = self.dir
             cmd += 'cd %(repo_dir)s/ && cvs -d %(source)s -q co -d %(suffix)s %(rev_opt)s %(module)s''' % locals ()
@@ -805,7 +775,7 @@ class SimpleRepo (Repository):
     def download (self):
         if not self.is_downloaded ():
             self._checkout ()
-        if self._current_revision () != self.revision:
+        elif self._current_revision () != self.revision:
             self._update (self.revision)
         self.info ('downloaded version: ' + self.version () + '\n')
 
@@ -813,8 +783,8 @@ class SimpleRepo (Repository):
         vc_system = self.vc_system
         verbose = ''
 
-        if self.oslog and self.oslog.verbose >= oslog.level['command']:
-            verbose = 'v'
+#        if self.oslog and self.oslog.verbose >= oslog.level['command']:
+#            verbose = 'v'
         self.system ('rsync -a%(verbose)s --exclude %(vc_system)s %(dir)s/ %(copy)s'
                      % locals ())
 
@@ -828,10 +798,10 @@ class SimpleRepo (Repository):
         revision = self.revision
         return '%(dir)s/%(branch)s/%(module)s/%(revision)s' % locals ()
 
-    def get_file_content (self, file_name):
-        return open (self._checkout_dir () + '/' + file_name).read ()
+    def read_file (self, file_name):
+        return self._read_file (self._checkout_dir () + '/' + file_name)
 
-    def get_checksum (self):
+    def checksum (self):
         return self._current_revision ()
 
     def version (self):
@@ -846,14 +816,15 @@ class Subversion (SimpleRepo):
     diff_xmldateformat = '%Y-%m-%d %H:%M:%S.999999'
     patch_xmldateformat = '%Y-%m-%dT%H:%M:%S'
 
+    @staticmethod
     def create (rety, dir, source, branch, revision='HEAD'):
+        source = source.replace ('svn:http://', 'http://')
         if not branch:
             branch = '.'
         if not revision:
             revision = 'HEAD'
         return Subversion (dir, source=source, branch=branch,
                            module='.', revision=revision)
-    create = staticmethod (create)
 
     def __init__ (self, dir, source=None, branch='.', module='.', revision='HEAD'):
         if not revision:
@@ -965,9 +936,9 @@ RepositoryProxy.register (Subversion)
 class Bazaar (SimpleRepo):
     vc_system = '.bzr'
 
+    @staticmethod
     def create (rety, dir, source, branch='', revision=''):
         return Bazaar (dir, source=source, revision=revision)
-    create = staticmethod (create)
 
     def __init__ (self, dir, source, revision='HEAD'):
         # FIXME: multi-branch repos not supported for now
@@ -1020,8 +991,8 @@ get_repository_proxy = RepositoryProxy.get_repository
 def test ():
     import unittest
 
-    for i in RepositoryProxy.repositories:
-        print i, i.vc_system
+    for proxy in RepositoryProxy.repositories:
+        print proxy, proxy.vc_system
 
     # This is not a unittest, it only serves as a smoke test mainly as
     # an aid to get rid safely of the global non-oo repository_proxy
@@ -1059,8 +1030,11 @@ def test ():
             # FIXME: this is currently used to determine flavour of
             # downloads/lilypond.git.  But is is ugly and fragile;
             # what if I do brz branch foo foo.git?
-            repo = get_repository_proxy ('/foo/bar/barf/i-do-not-exist-or-possibly-am-of-bzr-flavour.git', '', '', '')
-            self.assertEqual (repo.__class__, Git)
+
+            # This is now broken, with SimpleGit; good riddance
+            pass
+# #            repo = get_repository_proxy ('/foo/bar/barf/i-do-not-exist-or-possibly-am-of-bzr-flavour.git', '', '', '')
+# #            self.assertEqual (repo.__class__, Git)
         def testPlusSsh (self):
             repo = get_repository_proxy ('downloads/test/', 'bzr+ssh://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr', '', '')
             self.assertEqual (repo.__class__, Bazaar)
@@ -1071,7 +1045,9 @@ def test ():
         def testGitTagAndDiff (self):
             os.system ('mkdir -p downloads/test/git')
             os.system ('cd downloads/test/git && git init')
-            repo = Git (os.getcwd () + '/downloads/test/git/.git')
+# # FIXME Git/SimpleGit mixup: git-dir vs checkout-dir
+# #           repo = Git (os.getcwd () + '/downloads/test/git/.git')
+            repo = Git (os.getcwd () + '/downloads/test/git/')
             os.system ('cd downloads/test/git && echo one >> README')
             os.system ('cd downloads/test/git && git add .')
             os.system ('cd downloads/test/git && git commit -m "1"')

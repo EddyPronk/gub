@@ -1,9 +1,7 @@
-from gub import targetpackage
+from gub import targetbuild
 from gub import mirrors
 
-class Ncurses (targetpackage.TargetBuildSpec):
-    def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with_template (mirror=mirrors.gnu, version='5.5')
-    def license_file (self):
+class Ncurses (targetbuild.TargetBuild):
+    source = mirrors.with_template (name='ncurses', mirror=mirrors.gnu, version='5.5')
+    def license_files (self):
         return '%(srcdir)s/README'

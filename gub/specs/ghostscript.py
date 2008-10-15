@@ -4,10 +4,10 @@ import re
 from gub import mirrors
 from gub import repository
 from gub import misc
-from gub import targetpackage
+from gub import targetbuild
 from gub import context
 
-class Ghostscript (targetpackage.TargetBuildSpec):
+class Ghostscript (targetbuild.TargetBuild):
     '''The GPL Ghostscript PostScript interpreter
 Ghostscript is used for PostScript preview and printing.  It can
 display PostScript documents in an X11 environment.  It can render
@@ -15,30 +15,28 @@ PostScript files as graphics to be printed on non-PostScript printers.
 Supported printers include common dot-matrix, inkjet and laser
 models.'''
 
-    def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
-        repo = repository.Subversion (
-            dir=self.get_repodir (),
-            source='http://svn.ghostscript.com:8080/ghostscript',
-            branch='trunk',
-            module='gs',
-            ## 8.56
-            revision='7881')
+    #source = 'svn:http://svn.ghostscript.com:8080/ghostscript&branch=trunk/gs&revision=7881'
+
+    ## We prefer git: downloading is faster and atomic.
+    # T42 fix for lilypond
+    revision = '00789a94804e9bcc22205ef7ea3bba32942b4e79'
+    source = 'git://git.infradead.org/ghostscript.git?branch=git-svn&revision=' + revision
+
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
 
         ## ugh: nested, with self shadow?
         def version_from_VERSION (self):
-            s = self.get_file_content ('src/version.mak')
+            # ugh - self is a repository here
+            s = self.read_file ('src/version.mak')
             d = misc.grok_sh_variables_str (s)
             v = '%(GS_VERSION_MAJOR)s.%(GS_VERSION_MINOR)s' % d
             return v
 
-        from new import instancemethod
-        repo.version = instancemethod (version_from_VERSION, repo, type (repo))
-
-        self.with_vc (repo)
-
-    def license_file (self):
-        return '%(srcdir)s/LICENSE' 
+        if (isinstance (source, repository.Repository)
+            and not isinstance (source, repository.TarBall)):
+            from new import instancemethod
+            source.version = instancemethod (version_from_VERSION, source, type (source))
 
     def force_sequential_build (self):
         return True
@@ -54,11 +52,11 @@ models.'''
     
     def srcdir (self):
         return re.sub ('-source', '',
-                       targetpackage.TargetBuildSpec.srcdir (self))
+                       targetbuild.TargetBuild.srcdir (self))
 
     def builddir (self):
         return re.sub ('-source', '',
-                       targetpackage.TargetBuildSpec.builddir (self))
+                       targetbuild.TargetBuild.builddir (self))
 
     def name (self):
         return 'ghostscript'
@@ -73,7 +71,7 @@ models.'''
                                    'deskjet', 'djet500', 'bmp', 'pbm',
                                    'bjc200', 'cdeskjet', 'faxg3', 'cljet5']))
         ## generate Makefile.in
-        self.system ('cd %(srcdir)s && ./autogen.sh --help')
+        self.system ('cd %(srcdir)s && sh ./autogen.sh --help')
         self.file_sub ([(disable_re, r'#\1= -DISABLED- \2 ')],
                        '%(srcdir)s/Makefile.in')
         
@@ -124,7 +122,7 @@ models.'''
              ], '%(builddir)s/obj/arch.h')
 
     def compile_command (self):
-        return (targetpackage.TargetBuildSpec.compile_command (self)
+        return (targetbuild.TargetBuild.compile_command (self)
                 + ' INCLUDE=%(system_prefix)s/include'
                 + ' PSDOCDIR=%(prefix_dir)s/share/doc'
                 + ' PSMANDIR=%(prefix_dir)s/share/man')
@@ -135,10 +133,10 @@ cd %(builddir)s && mkdir -p obj
 cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS= LIBRARY_PATH= obj/genconf obj/echogs obj/genarch obj/arch.h
 ''')
         self.fixup_arch ()
-        targetpackage.TargetBuildSpec.compile (self)
+        targetbuild.TargetBuild.compile (self)
         
     def configure_command (self):
-        return (targetpackage.TargetBuildSpec.configure_command (self)
+        return (targetbuild.TargetBuild.configure_command (self)
             + misc.join_lines ('''
 --enable-debug
 --with-drivers=FILES
@@ -151,7 +149,7 @@ cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS
 '''))
 
     def configure (self):
-        targetpackage.TargetBuildSpec.configure (self)
+        targetbuild.TargetBuild.configure (self)
         self.makefile_fixup ('%(builddir)s/Makefile')
 
     def makefile_fixup (self, file):
@@ -179,7 +177,7 @@ cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS
                file)
 
     def install_command (self):
-        return (targetpackage.TargetBuildSpec.install_command (self)
+        return (targetbuild.TargetBuild.install_command (self)
                 + ' install_prefix=%(install_root)s'
                 + ' mandir=%(prefix_dir)s/share/man/ '
                 + ' docdir=%(prefix_dir)s/share/doc/ghostscript/doc '
@@ -187,7 +185,7 @@ cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS
                 )
 
     def install (self):
-        targetpackage.TargetBuildSpec.install (self)
+        targetbuild.TargetBuild.install (self)
         self.system ('mkdir -p %(install_prefix)s/etc/relocate/')
         self.dump ('''
 
@@ -199,26 +197,23 @@ prependdir GS_LIB=$INSTALLER_PREFIX/share/ghostscript/%(version)s/lib
 ''', '%(install_prefix)s/etc/relocate/gs.reloc')
 
 class Ghostscript__mingw (Ghostscript):
-    def __init__ (self, settings):
-        Ghostscript.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        Ghostscript.__init__ (self, settings, source)
         # Configure (compile) without -mwindows for console
         # FIXME: should add to CPPFLAGS...
         self.target_gcc_flags = '-mms-bitfields -D_Windows -D__WINDOWS__'
 
     def patch (self):
         Ghostscript.patch (self)
-        self.system ('''
-#checkme, seems obsolete, is this still necessary?
-cd %(srcdir)s/ && patch -p1 < %(patchdir)s/ghostscript-8.15-cygwin.patch
-cd %(srcdir)s/ && patch -p1 < %(patchdir)s/ghostscript-8.15-windows-wb.patch
-cd %(srcdir)s/ && patch -p1 < %(patchdir)s/ghostscript-8.50-make.patch
-cd %(srcdir)s/ && patch -p1 < %(patchdir)s/ghostscript-8.50-gs_dll.h.patch
-''')
+        #checkme, seems obsolete, is this still necessary?
+        self.apply_patch ('ghostscript-8.15-cygwin.patch')
+        self.apply_patch ('ghostscript-8.15-windows-wb.patch')        
+        self.apply_patch ('ghostscript-8.50-make.patch')
+        self.apply_patch ('ghostscript-8.50-gs_dll.h.patch')
         self.file_sub ([('unix__=$(GLOBJ)gp_getnv.$(OBJ) $(GLOBJ)gp_unix.$(OBJ) $(GLOBJ)gp_unifs.$(OBJ) $(GLOBJ)gp_unifn.$(OBJ) $(GLOBJ)gp_stdia.$(OBJ) $(GLOBJ)gp_unix_cache.$(OBJ)',
                          'unix__= $(GLOBJ)gp_mswin.$(OBJ) $(GLOBJ)gp_wgetv.$(OBJ) $(GLOBJ)gp_stdia.$(OBJ) $(GLOBJ)gsdll.$(OBJ) $(GLOBJ)gp_ntfs.$(OBJ) $(GLOBJ)gp_win32.$(OBJ)')],
                        '%(srcdir)s/src/unix-aux.mak',
                        use_re=False, must_succeed=True)
-#        self.system ('cd %(srcdir)s/ && patch --force -p1 < %(patchdir)s/ghostscript-8.50-unix-aux.mak.patch')
 
     def configure (self):
         Ghostscript.configure (self)
@@ -258,21 +253,6 @@ include $(GLSRCDIR)/pcwin.mak
 
     def install (self):
         Ghostscript.install (self)
-        if self.settings.lilypond_branch == 'lilypond_2_6':
-            self.lily_26_kludge()
-
-    def lily_26_kludge (self):
-        gs_prefix = '%(prefix_dir)s/share/ghostscript/%(ghostscript_version)s'
-        fonts = ['c059013l', 'c059016l', 'c059033l', 'c059036l']
-        for i in self.read_pipe ('locate %s.pfb' % fonts[0]).split ('\n'):
-            dir = os.path.dirname (i)
-            if os.path.exists (dir + '/' + fonts[0] + '.afm'):
-                break
-        fonts_string = ','.join (fonts)
-        self.system ('''
-mkdir -p %(install_root)s/%(gs_prefix)s/fonts
-cp %(dir)s/{%(fonts_string)s}{.afm,.pfb} %(install_root)s/%(gs_prefix)s/fonts
-''', locals ())
 
 class Ghostscript__freebsd (Ghostscript):
     def get_dependency_dict (self):
@@ -285,13 +265,18 @@ url='http://mirror3.cs.wisc.edu/pub/mirrors/ghost/GPL/gs850/ghostscript-8.50-gpl
 #8250
 fonts_url = 'http://mirror2.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/ghostscript-fonts-std-8.11.tar.gz'
 class Ghostscript__cygwin (Ghostscript):
-    def __init__ (self, settings):
-        Ghostscript.__init__ (self, settings)
-        #self.vc_repository.revision = '8250'
-        #targetpackage.TargetBuildSpec.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        Ghostscript.__init__ (self, settings, source)
+        #self.source.revision = '8250'
+        #targetbuild.TargetBuild.__init__ (self, settings, source)
         #self.with_vc (repository.TarBall (self.settings.downloads, url))
         self.fonts_source = repository.TarBall (self.settings.downloads,
                                                 fonts_url)
+    def connect_command_runner (self, runner):
+        print 'FIXME: deferred workaround'
+        if (runner):
+            self.fonts_source.connect_logger (runner.logger)
+        return Ghostscript.connect_command_runner (self, runner)
     def download (self):
         Ghostscript.download (self)
         self.fonts_source.download ()
@@ -299,13 +284,15 @@ class Ghostscript__cygwin (Ghostscript):
         from gub import cygwin
         cygwin.libpng12_fixup (self)
         self.system ('''
-cd %(srcdir)s && ./autogen.sh --help
+cd %(srcdir)s && sh ./autogen.sh --help
 cd %(srcdir)s && cp Makefile.in Makefile-x11.in
-cd %(srcdir)s/ && patch -p1 < %(patchdir)s/ghostscript-8.15-windows-wb.patch
-cd %(srcdir)s/ && patch -p1 < %(patchdir)s/ghostscript-8.57-cygwin-esp.patch
 ''')
+        self.apply_patch ('ghostscript-8.15-windows-wb.patch')
+        self.apply_patch ('ghostscript-8.57-cygwin-esp.patch')
+        
     def category_dict (self):
         return {'': 'Graphics'}
+    
     def get_build_dependencies (self):
         return ['jpeg', 'libpng12-devel', 'xorg-x11-devel', 'zlib']
     def get_dependency_dict (self):
@@ -334,10 +321,10 @@ cd %(builddir)s && rm -f obj/*.tr
         Ghostscript.compile (self)
 # X11 stuff
     def stages (self):
-        lst = Ghostscript.stages (self)
-        return misc.list_insert (lst, misc.list_find (lst, 'install') + 1,
-                                 ['configure_x11', 'compile_x11', 'install_x11',
-                                  'install_fonts'])
+        return misc.list_insert_before (Ghostscript.stages (self),
+                                        'package',
+                                        ['configure_x11', 'compile_x11',
+                                         'install_x11', 'install_fonts'])
     def config_cache (self):
         Ghostscript.config_cache (self)
         self.system ('cd %(builddir)s && cp -p config.cache config-x11.cache')
@@ -376,8 +363,12 @@ cd %(builddir)s && %(install_command_x11)s
 cd %(install_prefix)s && rm -rf usr/X11R6/share
 ''')
     def install_fonts (self):
+        print 'FIXME: deferred workaround'
+#        deferred_dump (self.font_source.update_workdir (fontdir))
         fontdir = self.expand ('%(install_prefix)s/share/ghostscript/fonts')
-        self.fonts_source.update_workdir (fontdir)
+        def defer (logger):
+            self.fonts_source.update_workdir (fontdir)
+        self.func (defer)
     def makeflags (self):
         # Link to binmode to fix text mode mount problem
         # http://cygwin.com/ml/cygwin/2002-07/msg02302.html

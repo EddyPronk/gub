@@ -65,8 +65,8 @@ Use --help for help
 EOF
 
 if test "$extract" = "yes"; then
-  echo "extracting %(base_orig_file)s"
-  tail -c+%(header_length)012d $0 > %(base_orig_file)s
+  echo "extracting %(base_file)s"
+  tail -c+%(header_length)012d $0 > %(base_file)s
   exit 0
 fi
 
@@ -209,7 +209,7 @@ chmod +x $uninstall_script
 ##
 ##  lilypond-invoke-editor
 echo Untarring "$me"
-tail -c+%(header_length)012d "$0" | tar -C "$lilydir" -x%(tarflag)sf -
+tail -c+%(header_length)012d "$0" | tar -C "$lilydir"%(_z)s -xf -
 
 cat <<EOF
 To uninstall lilypond, run 

@@ -1,0 +1,26 @@
+From 2297e67b65918aaaf3c115a882ca41fef237972c Mon Sep 17 00:00:00 2001
+From: Han-Wen Nienhuys <hanwen@lilypond.org>
+Date: Sun, 23 Mar 2008 18:08:50 -0300
+Subject: [PATCH] Include PUBLIC_FT_FILES in .def definition for windows too.
+
+This fixes Pango-1.20 compile, which uses FcFreeTypeCharIndex.
+---
+ src/Makefile.am |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/src/Makefile.am b/src/Makefile.am
+index c2282af..3bc2d5d 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -145,7 +145,7 @@ CLEANFILES := $(ALIAS_FILES)
+ fontconfig.def: $(PUBLIC_FILES)
+ 	echo Generating $@
+ 	(echo EXPORTS; \
+-	(cat $(PUBLIC_FILES) || echo 'FcERROR ()' ) | \
++	(cat $(PUBLIC_FT_FILES) $(PUBLIC_FILES) || echo 'FcERROR ()' ) | \
+  	grep '^Fc[^ ]* *(' | sed -e 's/ *(.*$$//' -e 's/^/	/' | \
+ 	sort; \
+ 	echo LIBRARY libfontconfig-@LT_CURRENT_MINUS_AGE@.dll; \
+-- 
+1.5.4.1
+

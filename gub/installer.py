@@ -1,14 +1,17 @@
 import os
 import re
 import time
+import md5
+import pickle
 
 from gub import context
 from gub import darwin
 from gub import gup
-from gub import targetpackage
-
-from context import subst_method
-from misc import *
+from gub import targetbuild
+from gub import context
+from gub import misc
+from gub import versiondb
+from gub import commands
 
 # UGH -  we don't have the package dicts yet.
 # barf, this should be in config file, not in code
@@ -17,21 +20,28 @@ pretty_names = {
     'git': 'Git',
     }
 
-class Installer (context.Os_context_wrapper):
-    def __init__ (self, settings, name):
-        context.Os_context_wrapper.__init__ (self, settings)
-        
+class ChecksumShortCircuit (Exception):
+    pass
+
+class Installer (context.RunnableContext):
+    def __init__ (self, settings, arguments, version_db, branch_dict):
+        context.RunnableContext.__init__ (self, settings)
+
+        self.arguments = arguments
+        name = arguments[0]
         self.settings = settings
+        self.version_db = version_db
         self.strip_command \
             = '%(cross_prefix)s/bin/%(target_architecture)s-strip' 
         self.no_binary_strip = []
         self.no_binary_strip_extensions = ['.la', '.py', '.def', '.scm', '.pyc']
         self.installer_uploads = settings.uploads
-        self.checksum = '0000'
-
+        self.checksum = ''
         self.name = name
         self.pretty_name = pretty_names.get (name, name)
-        self.package_branch = settings.branch_dict[name]
+
+        self.branch_dict = branch_dict
+        self.package_branch = self.branch_dict[name]
         if ':' in self.package_branch:
             (self.remote_package_branch,
              self.package_branch) = tuple (self.package_branch.split (':'))
@@ -43,7 +53,6 @@ class Installer (context.Os_context_wrapper):
         self.installer_checksum_file = self.installer_root + '.checksum'
         self.installer_db = self.installer_root + '-dbdir'
 
-
     def building_root_image (self):
         # FIXME: why are we removing these, we need these in a root image.
         # How to make a better check here?
@@ -52,7 +61,65 @@ class Installer (context.Os_context_wrapper):
 
     @context.subst_method
     def version (self):
-        return self.settings.installer_version
+        return self.installer_version
+
+    def build (self):
+        install_manager = gup.DependencyManager (self.installer_root,
+                                                 dbdir=self.installer_db,
+                                                 clean=True)
+
+        install_manager.include_build_deps = False
+        install_manager.read_package_headers (self.settings.packages,
+                                              self.branch_dict)
+        install_manager.read_package_headers (self.settings.cross_packages,
+                                              self.branch_dict)
+
+        self.package_manager = install_manager
+
+        def get_dep (x):
+            return install_manager.dependencies (x)
+
+
+        package_names = gup.topologically_sorted (self.arguments, {},
+                                                  get_dep,
+                                                  None)
+        self.checksum_matches = False
+        checksum_file = self.installer_checksum_file
+        self.checksum = self.calculate_checksum (package_names)
+        if os.path.exists (checksum_file) and open (checksum_file).read () == self.checksum:
+            raise ChecksumShortCircuit
+
+        for a in package_names:
+            install_manager.install_package (a)
+
+        version = install_manager.package_dict (self.name)['version']
+        version_tup = tuple (map (int, version.split ('.')))
+
+        buildnumber = '%d' % self.version_db.get_next_build_number (version_tup)
+
+        self.installer_version = version
+        self.installer_build = buildnumber
+
+    def calculate_checksum (self, names):
+        checksum_list = []
+        for name in sorted (names):
+            dict = self.package_manager.package_dict (name)
+            package_checksum = file (dict['checksum_file']).read ()
+
+            package_checksum = md5.md5 (package_checksum).hexdigest ()
+            checksum_list.append ((dict['name'],        
+                                   dict['source_checksum'],
+                                   package_checksum))
+
+        string = pickle.dumps (checksum_list)
+
+        # we take the hash to make sure that we do not get random strings
+        # (which may trigger substitutions) in the attributes of a Context
+        return md5.md5 (string).hexdigest ()
+
+    def stages (self):
+        return ['build', 'shortcircuit_checksum', 'strip', 'create',
+                'write_checksum']
 
     def strip_prefixes (self):
         return ['', 'usr/']
@@ -169,7 +236,6 @@ class Installer (context.Os_context_wrapper):
             self.system ("cd %(installer_root)s && bash -c 'rm -rf " + delete_me + "'", {'i': i }, locals ())
 
     def strip_dir (self, dir):
-        from gub import misc
         misc.map_command_dir (self,
                               self.expand (dir),
                               self.expand ('%(strip_command)s'),
@@ -181,26 +247,29 @@ class Installer (context.Os_context_wrapper):
         self.strip_dir ('%(installer_prefix)s/bin')
         self.strip_dir ('%(installer_prefix)s/lib')
 
-    def use_install_root_manager (self, manager):
-        pass
-    
     def create (self):
         self.system ('mkdir -p %(installer_root)s/license')
         self.system ('cp %(sourcefiledir)s/gub.license %(installer_root)s/license/README', ignore_errors=True)
 
     def write_checksum (self):
-        open (self.expand ('%(installer_checksum_file)s'), 'w').write (self.checksum)
-
+        if self.checksum:
+            open (self.expand ('%(installer_checksum_file)s'), 'w').write (self.checksum)
+        else:
+            self.warning ('checksum is empty.')
 
 class DarwinRoot (Installer):
-    def __init__ (self, settings, name):
-        Installer.__init__ (self, settings, name)
+    def __init__ (self, settings, *args):
+        Installer.__init__ (self, settings, *args)
         self.strip_command += ' -S '
         self.rewirer = darwin.Rewirer (self.settings)
 
-    def use_install_root_manager (self, package_manager):
-        tarball = package_manager.package_dict ('darwin-sdk')['split_ball']
-        self.package_manager = package_manager
+    def connect_command_runner (self, runner):
+        self.rewirer.connect_command_runner (runner)
+        return Installer.connect_command_runner (self, runner)
+        
+    def build (self):
+        Installer.build (self)
+        tarball = self.package_manager.package_dict ('darwin-sdk')['split_ball']
         self.rewirer.set_ignore_libs_from_tarball (tarball)
 
     def create (self):
@@ -209,8 +278,8 @@ class DarwinRoot (Installer):
         
     
 class DarwinBundle (DarwinRoot):
-    def __init__ (self, settings, name):
-        DarwinRoot.__init__ (self, settings, name)
+    def __init__ (self, *args):
+        DarwinRoot.__init__ (self, *args)
         self.darwin_bundle_dir = '%(targetdir)s/LilyPond.app'
         
     def create (self):
@@ -220,28 +289,31 @@ class DarwinBundle (DarwinRoot):
 
         ## cpu_type = self.expand ('%(platform)s').replace ('darwin-', '')
         cpu_type = 'ppc'
-        installer_version = self.settings.installer_version
-        installer_build = self.settings.installer_build
+        installer_version = self.installer_version
+        installer_build = self.installer_build
         
         bundle_zip = self.expand ('%(uploads)s/lilypond-%(installer_version)s-%(installer_build)s.%(platform)s.tar.bz2', locals ())
         self.system ('''
 rm -f %(bundle_zip)s 
 rm -rf %(darwin_bundle_dir)s
-tar -C %(targetdir)s -zxf %(downloads)s/osx-lilypad-%(cpu_type)s-%(osx_lilypad_version)s.tar.gz
-cp %(darwin_bundle_dir)s/Contents/Resources/subprocess.py %(installer_prefix)s/share/lilypond/current/python/
+# FIXME: ask TarBall where source lives
+tar -C %(targetdir)s -zxf %(downloads)s/osx-lilypad/osx-lilypad-ppc-%(osx_lilypad_version)s.tar.gz
 cp -pR --link %(installer_prefix)s/* %(darwin_bundle_dir)s/Contents/Resources/
 mkdir -p %(darwin_bundle_dir)s/Contents/Resources/license
 cp -pR --link %(installer_root)s/license*/* %(darwin_bundle_dir)s/Contents/Resources/license/
 ''', locals ())
-        self.file_sub (
-            [('2.[0-9]+.[0-9]+-[0-9]',
-             '%(installer_version)s-%(installer_build)s'),
-            ('Build from .*',
-             'Build from %s' % time.asctime()),
-            ],
+        self.file_sub ([('''PACKAGE_NAME=LilyPond
+MAJOR_VERSION=2
+MINOR_VERSION=11
+PATCH_LEVEL=41
+MY_PATCH_LEVEL=
+''', '%(installer_version)s-%(installer_build)s'),
+                        ('2.[0-9]+.[0-9]+-[0-9]', '%(installer_version)s-%(installer_build)s'),
+                        ('Build from .*',
+                         'Build from %s' % time.asctime ()),
+                        ],
             '%(darwin_bundle_dir)s/Contents/Info.plist',
-            env=locals (),
-            must_succeed=True)
+            env=locals ())
 
         majmin = '.'.join (installer_version.split ('.')[:2])
         self.file_sub (
@@ -261,11 +333,10 @@ cp -pR --link %(installer_root)s/license*/* %(darwin_bundle_dir)s/Contents/Resou
         self.system ('cd %(darwin_bundle_dir)s/../ && tar cjf %(bundle_zip)s LilyPond.app',
                      locals ())
         
-        self.write_checksum ()
         
 class MingwRoot (Installer):
-    def __init__ (self, settings, name):
-        Installer.__init__ (self, settings, name)
+    def __init__ (self, *args):
+        Installer.__init__ (self, *args)
         self.strip_command += ' -g '
     
 class Nsis (MingwRoot):
@@ -297,14 +368,14 @@ cp %(nsisdir)s/*.sh.in %(ns_dir)s''', locals ())
 
         root = self.expand ('%(installer_root)s')
         files = [f.replace (root, '').replace ('/', '\\')
-                 for f in self.locate_files (root, '*')]
+                 for f in misc.locate_files (root, '*')]
 
         self.dump ('\r\n'.join (files) + '\r\n',
                    '%(installer_root)s/files.txt',
                    expand_string=False)
 
         PATH = os.environ['PATH']
-        PATH = '%(local_prefix)s/bin:' + PATH
+        PATH = '%(tools_prefix)s/bin:' + PATH
         
         self.system ('cd %(targetdir)s && makensis -NOCD %(ns_dir)s/definitions.nsh %(ns_dir)s/%(name)s.nsi', locals ())
 
@@ -313,15 +384,9 @@ cp %(nsisdir)s/*.sh.in %(ns_dir)s''', locals ())
 
 
 class Linux_installer (Installer):
-    def __init__ (self, settings, name):
-        Installer.__init__ (self, settings, name)
-        self.settings.fakeroot_cache = ('%(installer_root)s/fakeroot.save'
-                                        % self.__dict__)
+    def __init__ (self, *args):
+        Installer.__init__ (self, *args)
 
-        if self.building_root_image ():
-            # ugh - consider postponing actions until after the ctor
-            # inside we can't use expand()
-            self.fakeroot (self.settings.fakeroot % self.settings.__dict__)
         self.bundle_tarball = '%(installer_uploads)s/%(name)s-%(installer_version)s-%(installer_build)s.%(platform)s.tar.bz2'
 
     def strip_prefixes (self):
@@ -333,28 +398,6 @@ class Linux_installer (Installer):
     def create (self):
         Installer.create (self)
         self.create_tarball (self.bundle_tarball)
-        self.write_checksum ()
-
-def create_shar (orig_file, hello, head, target_shar):
-    length = os.stat (orig_file)[6]
-
-    tarflag = tar_compression_flag (orig_file)
-
-    base_orig_file = os.path.split (orig_file)[1]
-    script = open (head).read ()
-
-    header_length = 0
-    header_length = len (script % locals ()) + 1
-
-    f = open (target_shar, 'w')
-    f.write (script % locals())
-    f.close ()
-    cmd = 'cat %(orig_file)s >> %(target_shar)s' % locals ()
-    print 'invoking ', cmd
-    stat = os.system (cmd)
-    if stat:
-        raise 'create_shar() failed'
-    os.chmod (target_shar, 0755)
 
 class Shar (Linux_installer):
     def create (self):
@@ -363,10 +406,10 @@ class Shar (Linux_installer):
         head = self.expand ('%(sourcefiledir)s/sharhead.sh')
         tarball = self.expand (self.bundle_tarball)
         hello = self.expand ("version %(installer_version)s release %(installer_build)s")
-        create_shar (tarball, hello, head, target_shar)
-        system ('rm %(tarball)s' % locals ())
-        
-def get_installer (settings, name):
+
+        self.runner._execute (commands.CreateShar (tarball, hello, head, target_shar))
+
+def get_installer (settings, *arguments):
 
     installer_class = {
         # TODO: ipkg/dpkg
@@ -391,5 +434,5 @@ def get_installer (settings, name):
 
     ctor = installer_class[settings.platform]
     print 'Installer:', ctor
-    installer = ctor (settings, name)
+    installer = ctor (settings, *arguments)
     return installer

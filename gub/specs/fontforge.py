@@ -1,33 +1,45 @@
-from gub import toolpackage 
-import re
+from gub import commands 
+from gub import toolsbuild 
+from gub import mirrors
 
-class Fontforge (toolpackage.ToolBuildSpec):
-    def __init__ (self, settings):
-        toolpackage.ToolBuildSpec.__init__ (self, settings)
-        self.with_template (mirror='http://lilypond.org/download/gub-sources/fontforge_full-%(version)s.tar.bz2',
-                   version="20060501")
+class Fontforge (toolsbuild.ToolsBuild):
+    source = mirrors.with_template (
+        name='fontforge',
+        mirror='http://lilypond.org/download/gub-sources/fontforge_full-%(version)s.tar.bz2',
+        version='20080927')
 
+    # build settings
+    def configure_command (self):
+        return (toolsbuild.ToolsBuild.configure_command (self)
+                + ' --without-freetype-src'
+                + ' --disable-libff '
+                # let's ignore python (and its dynamic link intracies
+                # for now).
+                + ' --without-python')
 
     def get_build_dependencies (self):
         return ['freetype']
 
-    def patch (self):
-        toolpackage.ToolBuildSpec.patch (self)
-        self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/fontforge-20060501-srcdir.patch')
-        self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/fontforge-20060501-execprefix.patch')
-
-    def configure_command (self):
-        return (toolpackage.ToolBuildSpec.configure_command (self)
-                + ' --without-freetype-src ')
-
     def srcdir (self):
-        return re.sub ('_full', '', toolpackage.ToolBuildSpec.srcdir (self))
+        return toolsbuild.ToolsBuild.srcdir (self).replace ('_full', '')
 
-    def license_file (self):
-        return '%(srcdir)s/LICENSE' 
-        
-    def install_command (self):
-        return self.broken_install_command ()
-
-    def packaging_suffix_dir (self):
-        return ''
+    def force_sequential_build (self):
+        return True
+    
+    # actions.
+    def patch (self):
+        toolsbuild.ToolsBuild.patch (self)
+        for name in ['%(srcdir)s/fontforge/Makefile.dynamic.in',
+             '%(srcdir)s/fontforge/Makefile.static.in',
+             '%(srcdir)s/gdraw/Makefile.dynamic.in',
+             '%(srcdir)s/gdraw/Makefile.static.in',
+             '%(srcdir)s/gutils/Makefile.dynamic.in',
+             '%(srcdir)s/gutils/Makefile.static.in',
+             '%(srcdir)s/Unicode/Makefile.dynamic.in',
+             '%(srcdir)s/Unicode/Makefile.static.in']:
+            self.file_sub (
+                [(' -I$(top_srcdir)/inc',
+                  ' -I$(top_srcdir)/inc -I$(top_builddir)/inc')],
+                name, use_re=False)
+                    
+        self.shadow_tree ('%(srcdir)s', '%(builddir)s')

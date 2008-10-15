@@ -1,23 +1,9 @@
 from gub import misc
 from gub import repository
-from gub import targetpackage
+from gub import targetbuild
 
-class Ffmpeg (targetpackage.TargetBuildSpec):
-    def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
-        # FIXME: fixed version for svn, what a mess
-        self.revision = '6017'
-        repo = repository.Subversion (
-            dir=self.get_repodir (),
-            source='svn://svn.mplayerhq.hu/ffmpeg',
-            branch='trunk',
-            module='.',
-            revision=self.revision)
-        def fixed_version (self):
-            return self.revision
-        from new import instancemethod
-        repo.version = instancemethod (fixed_version, repo, type (repo))
-        self.with_vc (repo)
+class Ffmpeg (targetbuild.TargetBuild):
+    source='svn://svn.mplayerhq.hu/ffmpeg&branch=trunk&revision=6017',
     def version (self):
         return self.revision
     def _get_build_dependencies (self):
@@ -28,11 +14,11 @@ class Ffmpeg (targetpackage.TargetBuildSpec):
         return {'': self._get_build_dependencies ()}
     def configure_command (self):
         #FIXME: this is autoconf
-        #targetpackage.TargetBuildSpec.configure_command (self)
+        #targetbuild.TargetBuild.configure_command (self)
         return misc.join_lines ('''
-CC=%(tool_prefix)sgcc CFLAGS=-fPIC %(srcdir)s/configure
+CC=%(toolchain_prefix)sgcc CFLAGS=-fPIC %(srcdir)s/configure
 --prefix=%(prefix_dir)s
---cross-prefix=%(cross_prefix)s/bin/%(tool_prefix)s
+--cross-prefix=%(cross_prefix)s/bin/%(toolchain_prefix)s
 --cpu=%(cpu)s
 --enable-faad
 --enable-a52
@@ -50,5 +36,5 @@ CC=%(tool_prefix)sgcc CFLAGS=-fPIC %(srcdir)s/configure
 --disable-opts
 ''')
     def install_command (self):
-        return (targetpackage.TargetBuildSpec.install_command (self)
+        return (targetbuild.TargetBuild.install_command (self)
                 + ' INSTALLSTRIP=')

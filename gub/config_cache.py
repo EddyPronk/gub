@@ -1,5 +1,5 @@
 config_cache = {
-    'local': '',
+    'tools': '',
     'all': '''
 
 # FIXME: 32 bit only
@@ -53,6 +53,7 @@ lt_cv_dlopen=${lt_cv_dlopen="dlopen"}
 ''',
     'arm' : '''
 ac_cv_func_posix_getpwuid_r=${ac_cv_func_posix_getpwuid_r=yes}
+ac_cv_func_posix_getgrgid_r=${ac_cv_func_posix_getgrgid_r=yes}
 ac_cv_lib_dl_dlopen=${ac_cv_lib_dl_dlopen=yes}
 
 glib_cv_uscore=${glib_cv_uscore=no}
@@ -64,6 +65,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_prefix)s/lib
 ''',
     'mipsel' : '''
 ac_cv_func_posix_getpwuid_r=${ac_cv_func_posix_getpwuid_r=yes}
+ac_cv_func_posix_getgrgid_r=${ac_cv_func_posix_getgrgid_r=yes}
 ac_cv_lib_dl_dlopen=${ac_cv_lib_dl_dlopen=yes}
 
 glib_cv_uscore=${glib_cv_uscore=no}
@@ -75,6 +77,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="'"%(system_prefix)s/lib
 ''',
     'freebsd6-x86' : '''
 ac_cv_func_posix_getpwuid_r=${ac_cv_func_posix_getpwuid_r=no}
+ac_cv_func_posix_getgrgid_r=${ac_cv_func_posix_getgrgid_r=no}
 ac_cv_lib_dl_dlopen=${ac_cv_lib_dl_dlopen=no}
 
 glib_cv_uscore=${glib_cv_uscore=no}
@@ -95,6 +98,7 @@ libc_cv_c_cleanup=${libc_cv_c_cleanup=yes}
 ''',
     'linux-x86' : '''
 ac_cv_func_posix_getpwuid_r=${ac_cv_func_posix_getpwuid_r=yes}
+ac_cv_func_posix_getgrgid_r=${ac_cv_func_posix_getgrgid_r=yes}
 ac_cv_lib_dl_dlopen=${ac_cv_lib_dl_dlopen=yes}
 
 glib_cv_uscore=${glib_cv_uscore=no}
@@ -172,6 +176,7 @@ ac_cv_sizeof_unsigned_short=${ac_cv_sizeof_unsigned_short=2}
 ac_cv_sizeof_void_p=${ac_cv_sizeof_void_p=8}
 
 ac_cv_func_posix_getpwuid_r=${ac_cv_func_posix_getpwuid_r=yes}
+ac_cv_func_posix_getgrgid_r=${ac_cv_func_posix_getgrgid_r=yes}
 ac_cv_lib_dl_dlopen=${ac_cv_lib_dl_dlopen=yes}
 
 glib_cv_uscore=${glib_cv_uscore=no}
@@ -188,6 +193,7 @@ ac_cv_file__dev_ptc=${ac_cv_file__dev_ptc=no}
     'darwin-ppc' : '''
 ac_cv_c_bigendian=${ac_cv_c_bigendian=yes}
 ac_cv_func_posix_getpwuid_r=${ac_cv_func_posix_getpwuid_r=yes}
+ac_cv_func_posix_getgrgid_r=${ac_cv_func_posix_getgrgid_r=yes}
 ac_cv_type_socklen_t=${ac_cv_type_socklen_t=yes}
 
 glib_cv_uscore=${glib_cv_uscore=no}
@@ -202,6 +208,7 @@ ac_cv_file__dev_ptmx=${ac_cv_file__dev_ptmx=no}
 ''',
     'linux-ppc' : '''
 ac_cv_func_posix_getpwuid_r=${ac_cv_func_posix_getpwuid_r=yes}
+ac_cv_func_posix_getgrgid_r=${ac_cv_func_posix_getgrgid_r=yes}
 ac_cv_lib_dl_dlopen=${ac_cv_lib_dl_dlopen=yes}
 
 glib_cv_uscore=${glib_cv_uscore=no}
@@ -220,6 +227,7 @@ ac_cv_file__dev_ptc=${ac_cv_file__dev_ptc=no}
     'darwin-x86' : '''
 ac_cv_c_bigendian=${ac_cv_c_bigendian=no}
 ac_cv_func_posix_getpwuid_r=${ac_cv_func_posix_getpwuid_r=yes}
+ac_cv_func_posix_getgrgid_r=${ac_cv_func_posix_getgrgid_r=yes}
 ac_cv_type_socklen_t=${ac_cv_type_socklen_t=yes}
 
 glib_cv_uscore=${glib_cv_uscore=no}

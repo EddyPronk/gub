@@ -1,9 +1,8 @@
-from gub import gubb
+from gub import build
+from gub import repository
 
-class W32api_in_usr_lib (gubb.BinarySpec, gubb.SdkBuildSpec):
-    def __init__ (self, settings):
-        gubb.BinarySpec.__init__ (self, settings)
-        self.with_template (version='1.0',  strip_components=0)
+class W32api_in_usr_lib (build.BinaryBuild, build.SdkBuild):
+    source = repository.Version (name='w32api-in-usr-lib', version='1.0')
     def get_build_dependencies (self):
         return ['w32api']
     def install (self):

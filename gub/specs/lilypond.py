@@ -1,57 +1,56 @@
 import os
 import re
+from new import instancemethod
 #
 from gub import repository
-from gub import gubb
+from gub import build
 from gub import misc
-from gub import targetpackage
-from gub import context
+from gub import targetbuild
+from gub import commands
+from gub import loggedos
 
-class LilyPond (targetpackage.TargetBuildSpec):
+class LilyPond (targetbuild.TargetBuild):
+    source = 'git://git.sv.gnu.org/lilypond.git'
+    branch = 'master'
+
     '''A program for printing sheet music
-LilyPond lets you create music notation.  It produces
-beautiful sheet music from a high-level description file.'''
+    LilyPond lets you create music notation.  It produces
+    beautiful sheet music from a high-level description file.'''
 
-    def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
-        try:
-            source = os.environ['GUB_LILYPOND_SOURCE']
-        except KeyError:         
-            source = 'git://git.sv.gnu.org/lilypond.git'
-
-	# --branch=lilypond=master:master-git.sv.gnu.org-lilypond.git
-        branch = 'master:master-git.sv.gnu.org-lilypond.git'
-        if (settings.__dict__.has_key ('lilypond_branch')
-            and settings.lilypond_branch):
-            branch = settings.lilypond_branch
-	repo = repository.Git (self.get_repodir (),
-                               branch=branch,
-                               source=source)
-
-        ## ugh: nested, with self shadow?
-        def version_from_VERSION (self):
-            s = self.get_file_content ('VERSION')
-            d = misc.grok_sh_variables_str (s)
-            v = '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
-            return v
-
-        from new import instancemethod
-        repo.version = instancemethod (version_from_VERSION, repo, type (repo))
-
-        self.with_vc (repo)
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
 
         # FIXME: should add to C_INCLUDE_PATH
         builddir = self.builddir ()
         self.target_gcc_flags = (settings.target_gcc_flags
                                  + ' -I%(builddir)s' % locals ())
 
+        # repository patched in method.
+        def version_from_VERSION (self):
+            s = self.read_file ('VERSION')
+            d = misc.grok_sh_variables_str (s)
+            v = '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
+
+            return v
+
+        if isinstance (source, repository.Repository):
+            source.version = instancemethod (version_from_VERSION, source, type (source))
+
     def get_dependency_dict (self):
         return {'': [
             'fontconfig',
             'gettext', 
             'guile-runtime',
+
+            # we have some scripts that need GUILE.
+            'guile', 
             'pango',
+
+            # libs
             'python-runtime',
+
+            # interpreter.
+            'python',
             'ghostscript'
             ]}
     
@@ -68,14 +67,23 @@ beautiful sheet music from a high-level description file.'''
                 'python-devel',
                 'urw-fonts']
 
-    def rsync_command (self):
-        c = targetpackage.TargetBuildSpec.rsync_command (self)
-        c = c.replace ('rsync', 'rsync --delete --exclude configure')
-        return c
+    def stages (self):
+        return misc.list_insert_before (targetbuild.TargetBuild.stages (self),
+                                        'configure', 'autoupdate')
+    def autoupdate (self):
+        self.system ('cd %(srcdir)s && ./smart-autogen.sh --noconfigure') 
 
+    def configure_binary (self):
+        return '%(srcdir)s/smart-configure.sh'
+
+    def configure (self):
+        self.system ('mkdir -p %(builddir)s || true')
+        self.system ('cp %(tools_prefix)s/include/FlexLexer.h %(builddir)s/')
+        targetbuild.TargetBuild.configure (self)
+    
     def configure_command (self):
         ## FIXME: pickup $target-guile-config
-        return (targetpackage.TargetBuildSpec.configure_command (self)
+        return (targetbuild.TargetBuild.configure_command (self)
                 + misc.join_lines ('''
 --enable-relocation
 --disable-documentation
@@ -83,71 +91,23 @@ beautiful sheet music from a high-level description file.'''
 --with-ncsb-dir=%(system_prefix)s/share/fonts/default/Type1
 '''))
 
-    def configure (self):
-        self.autoupdate ()
-
-    def do_configure (self):
-        if not os.path.exists (self.expand ('%(builddir)s/FlexLexer.h')):
-            flex = self.read_pipe ('which flex')
-            flex_include_dir = os.path.split (flex)[0] + "/../include"
-            self.system ('''
-mkdir -p %(builddir)s
-cp %(flex_include_dir)s/FlexLexer.h %(builddir)s/
-''', locals ())
-            
-        self.config_cache ()
-        self.system ('''
-mkdir -p %(builddir)s 
-cd %(builddir)s && %(configure_command)s''')
-        self.file_sub ([(' -O2 ', ' -O2 -Werror ')],
-                       '%(builddir)s/config.make')
-
     def compile (self):
-        d = self.get_substitution_dict ()
-        if (misc.file_is_newer ('%(srcdir)s/config.make.in' % d,
-                                '%(builddir)s/config.make' % d)
-            or misc.file_is_newer ('%(srcdir)s/GNUmakefile.in' % d,
-                                   '%(builddir)s/GNUmakefile' % d)
-            or misc.file_is_newer ('%(srcdir)s/config.hh.in' % d,
-                                   '%(builddir)s/config.hh' % d)
-            or misc.file_is_newer ('%(srcdir)s/configure' % d,
-                                   '%(builddir)s/config.make' % d)
-
-            ## need to reconfigure if dirs were added.
-            or (len (self.locate_files ('%(builddir)s', 'GNUmakefile'))
-                != len (self.locate_files ('%(srcdir)s', 'GNUmakefile')) + 1)):
-
-            self.do_configure ()
-            self.system ('touch %(builddir)s/config.hh')
-            
-        targetpackage.TargetBuildSpec.compile (self)
+        targetbuild.TargetBuild.compile (self)
 
     def name_version (self):
-        # FIXME: make use of branch for version explicit, use
-        # name-branch for src /build dir, use name-version for
-        # packaging.
-        try:
-            return self.build_version ()
-        except:
-            return targetpackage.TargetBuildSpec.name_version (self)
+        return targetbuild.TargetBuild.name_version (self)
 
     def build_version (self):
-        d = misc.grok_sh_variables (self.expand ('%(srcdir)s/VERSION'))
+        d = misc.grok_sh_variables_str (self.source.read_file ('VERSION'))
         v = '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
+        self.runner.info ('LILYPOND-VERSION: %(v)s\n' % locals ())
         return v
 
     def pretty_name (self):
         return 'LilyPond'
     
-    def build_number (self):
-        from gub import versiondb
-        db = versiondb.VersionDataBase (self.settings.lilypond_versions)
-        v = tuple (map (int, self.build_version ().split ('.')))
-        b = db.get_next_build_number (v)
-        return ('%d' % b)
-
     def install (self):
-        targetpackage.TargetBuildSpec.install (self)
+        targetbuild.TargetBuild.install (self)
         # FIXME: This should not be in generic package, for installers only.
         self.installer_install_stuff ()
 
@@ -163,8 +123,7 @@ cd %(builddir)s && %(configure_command)s''')
                      locals ())
 
         self.system ('mkdir -p %(install_prefix)s/etc/fonts/')
-        fc_conf_file = open (self.expand ('%(install_prefix)s/etc/fonts/local.conf'), 'w')
-        fc_conf_file.write ('''
+        self.dump ('''
 <fontconfig>
 <selectfont>
  <rejectfont>
@@ -176,24 +135,12 @@ cd %(builddir)s && %(configure_command)s''')
 
 <cachedir>~/.lilypond-fonts.cache-2</cachedir>
 </fontconfig>
-''' % locals ())
+''', '%(install_prefix)s/etc/fonts/local.conf', 'w', locals ())
 
     def gub_name (self):
         nv = self.name_version ()
         p = self.settings.platform
         return '%(nv)s.%(p)s.gub' % locals ()
-
-    def autoupdate (self, autodir=0):
-        autodir = self.srcdir ()
-
-        if (misc.file_is_newer (self.expand ('%(autodir)s/configure.in', locals ()),
-                                self.expand ('%(builddir)s/config.make',locals ()))
-            or misc.file_is_newer (self.expand ('%(autodir)s/stepmake/aclocal.m4', locals ()),
-                                   self.expand ('%(autodir)s/configure', locals ()))):
-            self.system ('''
-            cd %(autodir)s && bash autogen.sh --noconfigure
-            ''', locals ())
-            self.do_configure ()
 
 class LilyPond__cygwin (LilyPond):
 
@@ -266,12 +213,12 @@ class LilyPond__cygwin (LilyPond):
             ]
 
     def configure_command (self):
-        return LilyPond.configure_command (self).replace ('--enable-relocation',
-                                                          '--disable-relocation')
+        return (LilyPond.configure_command (self)
+                .replace ('--enable-relocation', '--disable-relocation'))
 
     def compile (self):
 	# Because of relocation script, python must be built before scripts
-        # PYTHON= is replaces the detected python interpreter in local.
+        # PYTHON= is replaces the detected python interpreter in tools.
         self.system ('''
 cd %(builddir)s && make -C python LDFLAGS=%(system_prefix)s/bin/libpython*.dll
 cd %(builddir)s && make -C scripts PYTHON=/usr/bin/python
@@ -291,24 +238,18 @@ LDFLAGS="%(LDFLAGS)s %(python_lib)s"
 
     def install (self):
         ##LilyPond.install (self)
-        targetpackage.TargetBuildSpec.install (self)
+        targetbuild.TargetBuild.install (self)
         self.install_doc ()
 
     def install_doc (self):
         # lilypond.make uses `python gub/versiondb.py --build-for=2.11.32'
         # which only looks at source ball build numbers, which are always `1'
         # This could be fixed, but for now just build one doc ball per release?
-        # installer_build = self.build_number ()
         installer_build = '1'
         installer_version = self.build_version ()
         docball = self.expand ('%(uploads)s/lilypond-%(installer_version)s-%(installer_build)s.documentation.tar.bz2', env=locals ())
         infomanball = self.expand ('%(uploads)s/lilypond-%(installer_version)s-%(installer_build)s.info-man.tar.bz2', env=locals ())
 
-
-        if not os.path.exists (docball):
-            ## can't run make, because we need the right variables (BRANCH, etc.)
-            raise Exception ('cannot find docball %s' % docball)
-            
         self.system ('''
 mkdir -p %(install_prefix)s/share/doc/lilypond
 tar -C %(install_prefix)s/share/doc/lilypond -jxf %(docball)s
@@ -335,10 +276,10 @@ class LilyPond__no_python (LilyPond):
         d[''].remove ('python-runtime')
         return d
 
-    def do_configure (self):
-        self.system ('mkdir -p %(builddir)s', ignore_errors=True) 
+    def configure (self):
+        self.system ('mkdir -p %(builddir)s || true') 
         self.system ('touch %(builddir)s/Python.h') 
-        LilyPond.do_configure (self)
+        LilyPond.configure (self)
         self.dump ('''
 all:
 	true
@@ -369,8 +310,8 @@ class LilyPond__mingw (LilyPond):
 LDFLAGS="%(LDFLAGS)s %(python_lib)s"
 '''% locals ()))
     
-    def do_configure (self):
-        LilyPond.do_configure (self)
+    def configure (self):
+        LilyPond.configure (self)
 
         ## huh, why ? --hwn
         self.config_cache ()
@@ -400,17 +341,20 @@ install -m755 %(builddir)s/lily/out/lilypond-console %(install_prefix)s/bin/lily
 cp %(install_prefix)s/lib/lilypond/*/python/* %(install_prefix)s/bin
 cp %(install_prefix)s/share/lilypond/*/python/* %(install_prefix)s/bin
 ''')
-        import glob
-        for i in glob.glob (self.expand ('%(install_prefix)s/bin/*')):
-            header = open (i).readline().strip ()
-            if header.endswith ('guile'):
-                self.system ('mv %(i)s %(i)s.scm', locals ())
-            elif header.endswith ('python') and not i.endswith ('.py'):
-                self.system ('mv %(i)s %(i)s.py', locals ())
 
-        for i in self.locate_files ('%(install_root)s', '*.ly'):
-            s = open (i).read ()
-            open (i, 'w').write (re.sub ('\r*\n', '\r\n', s))
+        def rename (logger, name):
+            header = open (name).readline ().strip ()
+            if header.endswith ('guile'):
+                loggedos.system (logger, 'mv %(name)s %(name)s.scm', locals ())
+            elif header.endswith ('python') and not name.endswith ('.py'):
+                loggedos.system (logger, 'mv %(name)s %(name)s.py' % locals ())
+
+        def asciify (logger, name):
+            loggedos.file_sub (logger, [('\r*\n', '\r\n')], name)
+            
+        self.map_locate (rename, self.expand ('%(install_prefix)s/bin/'), '*')
+        self.map_locate (asciify, self.expand ('%(install_root)s'), '*.ly')
+            
 
         bat = r'''@echo off
 "@INSTDIR@\usr\bin\lilypond-windows.exe" -dgui %1 %2 %3 %4 %5 %6 %7 %8 %9
@@ -437,7 +381,7 @@ cd %(builddir)s && make -C scripts PYTHON=/usr/bin/python
         LilyPond.compile (self)
 
     def install (self):
-        targetpackage.TargetBuildSpec.install (self)
+        targetbuild.TargetBuild.install (self)
 
     def get_build_dependencies (self):
         #FIXME: aargh, MUST specify gs,  etc here too.
@@ -453,12 +397,13 @@ cd %(builddir)s && make -C scripts PYTHON=/usr/bin/python
             'urw-fonts',
             ] + ['gs']
 
-##
+
 class LilyPond__darwin (LilyPond):
     def get_dependency_dict (self):
         d = LilyPond.get_dependency_dict (self)
         deps = d['']
         deps.remove ('python-runtime')
+        deps.remove ('python')
         deps += [ 'fondu', 'osx-lilypad']
         d[''] = deps
         return d
@@ -475,17 +420,10 @@ class LilyPond__darwin (LilyPond):
         return (LilyPond.configure_command (self)
                 + ' --enable-static-gxx')
 
-    def do_configure (self):
-        LilyPond.do_configure (self)
-        make = self.expand ('%(builddir)s/config.make')
-        if re.search ('GUILE_ELLIPSIS', open (make).read ()):
-            return
-        self.file_sub ([('CONFIG_CXXFLAGS = ',
-                         'CONFIG_CXXFLAGS = -DGUILE_ELLIPSIS=... '),
-## optionally: switch off for debugging.
-#                                (' -O2 ', '')
-                ],
-               '%(builddir)s/config.make')
+    def configure (self):
+        LilyPond.configure (self)
+        self.dump ('CXXFLAGS += -DGUILE_ELLIPSIS=...',
+                   '%(builddir)s/local.make')
 
 #Hmm
 Lilypond = LilyPond
@@ -496,5 +434,3 @@ Lilypond__mingw = LilyPond__mingw
 Lilypond__freebsd = LilyPond
 Lilypond__debian_arm = LilyPond__debian
 Lilypond__mipsel = LilyPond__debian
-
-

@@ -1,12 +1,8 @@
-from gub import mirrors
-from gub import toolpackage
+from gub import toolsbuild
 
-class Pkg_config (toolpackage.ToolBuildSpec):
-    def __init__ (self, settings):
-        toolpackage.ToolBuildSpec.__init__ (self, settings)
-        self.with_template (version="0.20",
-                   mirror=mirrors.freedesktop),
-
+class Pkg_config (toolsbuild.ToolsBuild):
+    def get_build_dependencies (self):
+        return ['libtool']
     def configure (self):
-        toolpackage.ToolBuildSpec.configure (self)
+        toolsbuild.ToolsBuild.configure (self)
         self.update_libtool ()

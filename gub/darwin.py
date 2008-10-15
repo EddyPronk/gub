@@ -3,19 +3,22 @@ import re
 import os
 #
 from gub import context
+from gub import targetbuild
+from gub import loggedos
 
 darwin_sdk_version = '0.4'
 
-class Rewirer (context.Os_context_wrapper):
+class Rewirer (context.RunnableContext):
     def __init__ (self, settings):
-        context.Os_context_wrapper.__init__ (self,settings)
+        context.RunnableContext.__init__ (self,settings)
         self.ignore_libs = None
 
     def get_libaries (self, name):
-        lib_str = self.read_pipe ('''
-%(cross_prefix)s/bin/%(target_architecture)s-otool -L %(name)s
-''',
-                                  locals (), ignore_errors=True)
+        lib_str = loggedos.read_pipe (
+            self.runner.logger,
+            self.expand ('%(cross_prefix)s/bin/%(target_architecture)s-otool -L %(name)s',
+                         locals ()),
+            ignore_errors=True)
 
         libs = []
         for i in lib_str.split ('\n'):
@@ -34,8 +37,8 @@ class Rewirer (context.Os_context_wrapper):
             return
         changes = ' '.join (['-change %s %s' % (o, d)
                              for (o, d) in substitutions])
-        self.system ('''
-%(cross_prefix)s/bin/%(target_architecture)s-install_name_tool %(changes)s %(name)s ''',
+        self.system (
+            '%(cross_prefix)s/bin/%(target_architecture)s-install_name_tool %(changes)s %(name)s ',
               locals ())
 
     def rewire_mach_o_object_executable_path (self, name):
@@ -47,8 +50,8 @@ class Rewirer (context.Os_context_wrapper):
 
             # FIXME: I do not understand this comment
             ## ignore self.
-            self.os_interface.action (os.path.split (i)[1] + ' '
-                                      + os.path.split (name)[1] + '\n')
+            self.runner.action (os.path.split (i)[1] + ' '
+                                + os.path.split (name)[1] + '\n')
 
             if os.path.split (i)[1] == os.path.split (name)[1]:
                 continue
@@ -65,8 +68,7 @@ class Rewirer (context.Os_context_wrapper):
 
     def rewire_binary_dir (self, dir):
         if not os.path.isdir (dir):
-            print dir
-            raise 'Not a directory'
+            raise 'Not a directory', dir
 
         (root, dirs, files) = os.walk (dir).next ()
         files = [os.path.join (root, f) for f in files]
@@ -81,8 +83,8 @@ class Rewirer (context.Os_context_wrapper):
                 self.rewire_mach_o_object_executable_path (f)
 
     def set_ignore_libs_from_tarball (self, tarball):
-        file_str = self.read_pipe ('tar tzf %(tarball)s', locals())
-        files = file_str.split ('\n')
+        files = loggedos.read_pipe (self.runner.logger,
+                                    'tar -tzf %s' % tarball).split ('\n')
         self.set_ignore_libs_from_files (files)
 
     def set_ignore_libs_from_files (self, files):
@@ -121,19 +123,19 @@ def strip_build_dep (old_val, what):
     for w in what:
         if w in deps:
             deps.remove (w)
-    deps.sort()
+    deps.sort ()
     return deps
 
 
 def strip_dependency_dict (old_val, what):
-    d = dict((k,[p for p in deps if p not in what])
+    d = dict ((k,[p for p in deps if p not in what])
              for (k, deps) in old_val.items ())
     return d
 
 def change_target_package (p):
     from gub import misc
     from gub import cross
-    from gub import gubb
+    from gub import build
     cross.change_target_package (p)
     p.get_build_dependencies = misc.MethodOverrider (p.get_build_dependencies,
                                                      strip_build_dep,
@@ -141,7 +143,7 @@ def change_target_package (p):
     p.get_dependency_dict = misc.MethodOverrider (p.get_dependency_dict,
                                                   strip_dependency_dict,
                                                   (['zlib', 'zlib-devel'],))
-    gubb.change_target_dict (p, {
+    targetbuild.change_target_dict (p, {
 
             ## We get a lot of /usr/lib/ -> @executable_path/../lib/
             ## we need enough space in the header to do these relocs.
@@ -166,7 +168,7 @@ def get_darwin_sdk ():
     version = '0.4'
     darwin_version  = 8
 
-    dest = 'darwin%(darwin_version)d-sdk-%(version)s' % locals()
+    dest = 'darwin%(darwin_version)d-sdk-%(version)s' % locals ()
 
     system ('rm -rf %s' % dest)
     os.mkdir (dest)

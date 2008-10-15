@@ -38,12 +38,12 @@ def parse_options ():
 		  dest="skip",
 		  help="return 0 if couldn't get lock.")
 
-    p.disable_interspersed_args()
+    p.disable_interspersed_args ()
 
 
     (o,a) = p.parse_args ()
     if len (a) < 2:
-	p.print_help()
+	p.print_help ()
 	sys.exit (2)
 	
     return o,a

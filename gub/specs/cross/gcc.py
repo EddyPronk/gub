@@ -1,30 +1,35 @@
+import os
+
 from gub import cross
 from gub import misc
 from gub import mirrors
 from gub import context
+from gub import loggedos
 
 #FIXME: merge fully with specs/gcc
-class Gcc (cross.CrossToolSpec):
-    def __init__ (self, settings):
-        cross.CrossToolSpec.__init__ (self, settings)
-        self.with_tarball (mirror=mirrors.gcc, version='4.1.1', format='bz2')
+class Gcc (cross.CrossToolsBuild):
+    source = mirrors.with_tarball (
+        #/usr/lib/libstdc++.so.6: version `GLIBCXX_3.4.9' not found
+        #(required by /../usr/bin/lilypond
+        #mirror=mirrors.gcc, version='4.2.3', format='bz2', name='gcc')
+        mirror=mirrors.gcc, version='4.1.2', format='bz2', name='gcc')
 
     def get_build_dependencies (self):
         return ['cross/binutils']
 
     @context.subst_method
-    def NM_FOR_TARGET(self):
-         return '%(tool_prefix)snm'
+    def NM_FOR_TARGET (self):
+         return '%(toolchain_prefix)snm'
 
     def get_subpackage_names (self):
         # FIXME: why no -devel package?
         return ['doc', 'runtime', '']
 
     def languages (self):
-        return  ['c', 'c++']
+        return ['c', 'c++']
         
     def configure_command (self):
-        cmd = cross.CrossToolSpec.configure_command (self)
+        cmd = cross.CrossToolsBuild.configure_command (self)
         # FIXME: using --prefix=%(tooldir)s makes this
         # uninstallable as a normal system package in
         # /usr/i686-mingw/
@@ -47,37 +52,28 @@ class Gcc (cross.CrossToolSpec):
         return misc.join_lines (cmd)
 
     def move_target_libs (self, libdir):
-        import os
-        if not os.path.isdir (libdir):
-            return
-
-        files = []
-
-        ## .so* because version numbers trail .so extension. 
+        self.system ('mkdir -p %(install_prefix)s/lib || true')
+        
+        def move_target_lib (logger, fname):
+            base = os.path.split (fname)[1]
+            loggedos.rename (logger, fname,
+                             os.path.join (
+                self.expand ('%(install_prefix)s/lib'), base))
+                             
+        ## .so* because version numbers trail .so extension.
         for suf in ['.la', '.so*', '.dylib']:
-            files += self.locate_files (libdir, 'lib*' + suf)
-            
-        for f in files:
-            (dir, file) = os.path.split (f)
-            target = self.expand ('%(install_prefix)s/%(dir)s', locals ())
-            if not os.path.isdir (target):
-                os.makedirs (target)
-            self.system ('mv %(f)s %(install_prefix)s/lib', locals ())
+            self.map_locate (move_target_lib,
+                             libdir,
+                             'lib*%s' % suf)
 
     def install (self):
-        cross.CrossToolSpec.install (self)
+        cross.CrossToolsBuild.install (self)
         old_libs = self.expand ('%(install_prefix)s/cross/%(target_architecture)s')
 
         self.move_target_libs (old_libs)
         self.move_target_libs (self.expand ('%(install_prefix)s/cross/lib'))
-        import os
-        if os.path.exists (self.expand ('cd %(install_prefix)s/lib/libgcc_s.so.1')):
-            # FIXME: .so senseless for darwin.
-            self.system ('''
-cd %(install_prefix)s/lib && ln -fs libgcc_s.so.1 libgcc_s.so
-''')
 
-class Gcc_from_source (Gcc):
+class Gcc__from__source (Gcc):
     def get_build_dependencies (self):
         return (Gcc.get_build_dependencies (self)
                 + ['cross/gcc-core', 'glibc-core'])
@@ -103,13 +99,13 @@ class Gcc_from_source (Gcc):
 mv %(install_prefix)s/cross/lib/gcc/%(target_architecture)s/%(version)s/libgcc_eh.a %(install_prefix)s/lib
 ''')
 
-Gcc__linux = Gcc_from_source
+Gcc__linux = Gcc__from__source
 
 class Gcc__mingw (Gcc):
     #REMOVEME
-    def __init__ (self, settings):
-        Gcc.__init__ (self, settings)
-        self.with_tarball (mirror=mirrors.gnu, version='4.1.1', format='bz2')
+    def __init__ (self, settings, source):
+        Gcc.__init__ (self, settings, source)
+    source = mirrors.with_tarball (name='gcc', mirror=mirrors.gnu, version='4.1.1', format='bz2')
     def get_build_dependencies (self):
         return (Gcc.get_build_dependencies (self)
                 + ['mingw-runtime', 'w32api'])
@@ -120,7 +116,8 @@ class Gcc__mingw (Gcc):
                             ('/mingw/lib','%(prefix_dir)s/lib'),
                             ], f)
 
-class Gcc__cygwin (Gcc__mingw):
+# http://gcc.gnu.org/PR24196            
+class this_works_but_has_string_exception_across_dll_bug_Gcc__cygwin (Gcc__mingw):
     def get_build_dependencies (self):
         return (Gcc__mingw.get_build_dependencies (self)
                 + ['cygwin', 'w32api-in-usr-lib'])
@@ -144,23 +141,28 @@ gcc_tooldir="%(cross_prefix)s/%(target_architecture)s"
 
 from gub import cygwin
 
-class use_cygwin_sources_Gcc__cygwin (Gcc):
-    def __init__ (self, settings):
-        Gcc.__init__ (self, settings)
-        self.with_tarball (mirror=mirrors.cygwin, version='3.4.4-3', format='bz2', name='cross/gcc-core')
-    def name (self):
-        return 'cross/gcc-core'
-    def untar (self):
-        #gxx_file_name = re.sub ('-core', '-g++',
-        #                        self.expand (self.file_name ()))
-#        ball = 'cross/' + self.vc_repository._file_name ().replace ('gcc', 'gcc-core')
-        ball = self.vc_repository._file_name ()
+# Cygwin sources Gcc
+# Hmm, download is broken.  How is download of gcc-g++ supposed to work anyway?
+# wget http://mirrors.kernel.org/sourceware/cygwin/release/gcc/gcc-core/gcc-core-3.4.4-3-src.tar.bz2 
+# wget http://mirrors.kernel.org/sourceware/cygwin/release/gcc/gcc-g++/gcc-g++-3.4.4-3-src.tar.bz2
+
+# Untar stage is gone, use plain gcc + cygwin patch
+#class Gcc__cygwin (Gcc):
+class Gcc__cygwin (Gcc):
+    def __init__ (self, settings, source):
+        Gcc.__init__ (self, settings, source)
+    #source = mirrors.with_tarball (mirror=mirrors.cygwin, version='3.4.4-3', format='bz2', name='gcc')
+    source = mirrors.with_tarball (mirror=mirrors.gcc, version='3.4.4', format='bz2', name='gcc')
+    patches = ['gcc-3.4.4-cygwin-3.patch']
+    def xuntar (self):
+        ball = self.source._file_name ()
         cygwin.untar_cygwin_src_package_variant2 (self, ball.replace ('-core', '-g++'),
                                                   split=True)
         cygwin.untar_cygwin_src_package_variant2 (self, ball)
     def get_build_dependencies (self):
         return (Gcc.get_build_dependencies (self)
-                + ['cygwin', 'w32api-in-usr-lib', 'cross/gcc-g++'])
+#                + ['cygwin', 'w32api-in-usr-lib', 'cross/gcc-g++'])
+                + ['cygwin', 'w32api-in-usr-lib'])
     def makeflags (self):
         return misc.join_lines ('''
 tooldir="%(cross_prefix)s/%(target_architecture)s"
@@ -192,16 +194,14 @@ gcc_tooldir="%(cross_prefix)s/%(target_architecture)s"
 class Gcc__darwin (Gcc):
     #FIXME: what about apply_all (%(patchdir)s/%(version)s)?
     def patch (self):
-        if self.vc_repository._version == '4.1.1':
-            self.system ('''
-cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-4.1.1-ppc-unwind.patch
-''')
+        if self.source._version == '4.1.1':
+            self.apply_patch ('gcc-4.1.1-ppc-unwind.patch')
 
 class Gcc__freebsd (Gcc):
     #REMOVEME
-    def __init__ (self, settings):
-        Gcc.__init__ (self, settings)
-        self.with_tarball (mirror=mirrors.gnu, version='4.1.1', format='bz2')
+    def __init__ (self, settings, source):
+        Gcc.__init__ (self, settings, source)
+    source = mirrors.with_tarball (name='gcc', mirror=mirrors.gnu, version='4.1.2', format='bz2')
     def get_build_dependencies (self):
         return (Gcc.get_build_dependencies (self)
                 + ['freebsd-runtime'])
@@ -210,5 +210,5 @@ class Gcc__freebsd (Gcc):
         # i686-freebsd-FOO iso i686-freebsd4-FOO.
         return (Gcc.configure_command (self)
             + misc.join_lines ('''
---program-prefix=%(tool_prefix)s
+--program-prefix=%(toolchain_prefix)s
 '''))

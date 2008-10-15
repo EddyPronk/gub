@@ -1,21 +1,22 @@
 from gub import mirrors
-from gub import targetpackage
-from gub import toolpackage
+from gub import targetbuild
+from gub import toolsbuild
 
-class Gettext (targetpackage.TargetBuildSpec):
-    def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with_template (version='0.15', mirror=mirrors.gnu, format='gz')
+class Gettext (targetbuild.TargetBuild):
+    source = mirrors.with_template (
+        # 0.16.1 makes gcc barf on ICE.
+        # name='gettext', version='0.16.1', mirror=mirrors.gnu, format='gz')
+        name='gettext', version='0.15', mirror=mirrors.gnu, format='gz')
 
     def get_build_dependencies (self):
         return ['libtool']
 
     def configure_command (self):
-        return (targetpackage.TargetBuildSpec.configure_command (self)
+        return (targetbuild.TargetBuild.configure_command (self)
                 + ' --disable-threads --disable-csharp --disable-java ')
 
     def configure (self):
-        targetpackage.TargetBuildSpec.configure (self)
+        targetbuild.TargetBuild.configure (self)
 
         ## FIXME: libtool too old for cross compile
         self.update_libtool ()
@@ -37,10 +38,11 @@ class Gettext__freebsd (Gettext):
         return Gettext.get_build_dependencies (self)
 
 class Gettext__mingw (Gettext):
-    def __init__ (self, settings):
-        Gettext.__init__ (self, settings)
-        self.with_template (version='0.15', mirror=mirrors.gnu, format='gz')
+    def __init__ (self, settings, source):
+        Gettext.__init__ (self, settings, source)
 
+    source = mirrors.with_template (name='gettext', version='0.17', mirror=mirrors.gnu, format='gz')
+ 
     def config_cache_overrides (self, str):
         return (re.sub ('ac_cv_func_select=yes', 'ac_cv_func_select=no',
                str)
@@ -63,16 +65,11 @@ jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
         self.update_libtool ()
         Gettext.install (self)
 
-class Gettext__local (toolpackage.ToolBuildSpec):
-    def __init__ (self, settings):
-        toolpackage.ToolBuildSpec.__init__(self,settings)
-        self.with_template (version='0.15', mirror=mirrors.gnu, format='gz')
-
+class Gettext__tools (toolsbuild.ToolsBuild):
     def get_build_dependencies (self):
         return ['libtool']
-
     def configure (self):
-        toolpackage.ToolBuildSpec.configure (self)
+        toolsbuild.ToolsBuild.configure (self)
         self.file_sub ([
                 ('(SUBDIRS *=.*)examples', r'\1 '),
                 ],

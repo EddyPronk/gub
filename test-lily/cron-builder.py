@@ -7,7 +7,9 @@ import optparse
 import sys
 
 sys.path.insert (0, os.path.split (sys.argv[0])[0] + '/..')
-from gub import oslog
+
+from gub import logging
+from gub import loggedos
 
 """
 run as
@@ -16,9 +18,6 @@ run as
   --test-options "--to me@mydomain.org --from me@mydomain.org --repository . --smtp smtp.xs4all.nl" [PLATFORM]...
 
 """
-
-dry_run = False
-log_file = None
 
 def parse_options ():
     p = optparse.OptionParser ()
@@ -89,20 +88,27 @@ def parse_options ():
                   default=False,
                   help="test self")
 
-    p.add_option ('-v', '--verbose', action='count', dest='verbose', default=0)
+    p.add_option ('-v', '--verbose', action='count', dest='verbosity',
+                  default=0)
 
     (options, args) = p.parse_args ()
     
-    global dry_run
-    dry_run = options.dry_run
     options.make_options += ' LILYPOND_BRANCH=%s' % options.branch
 
     if '--repository' not in options.test_options:
-        options.test_options += ' --repository=downloads/lilypond.git '
+        options.test_options += ' --repository=downloads/lilypond.git'
 
     if '--branch' not in  options.test_options:
-        options.test_options += (' --branch=lilypond=%s:%s'
-                              % (options.branch, options.local_branch))
+        branch = options.branch
+        local_branch = options.local_branch
+        branch_sep = ':'
+        
+        # FIXME: what happened to branch juggling?
+        if 1:
+            local_branch = ''
+            branch_sep = ''
+        options.test_options += (' --branch=lilypond=%(branch)s%(branch_sep)s%(local_branch)s'
+                              % locals ())
         
     return (options, args)
 
@@ -111,54 +117,71 @@ def main ():
 # FIXME: local/system; wow that's from two layout changes ago!
 #    os.environ['PATH']= os.getcwd () + '/target/local/system/usr/bin:' + os.environ['PATH']
 #    print os.environ['PATH']
-    global log_file
     
     os.system ('mkdir -p log')
     if options.dry_run:
-        options.verbose = oslog.level['command']
-    log_file = oslog.Os_commands ('log/cron-builder.log', options.verbose,
-                                  dry_run)
-    log_file.info (' *** Starting cron-builder:\n  %s ' % '\n  '.join (args)) 
+        options.verbosity = logging.get_numeric_loglevel ('command')
+        
+    logging.set_default_log ('log/cron-builder.log', options.verbosity)
+    logger = logging.default_logger
+    
+    logging.info (' *** Starting cron-builder:\n  %s ' % '\n  '.join (args)) 
 
     if options.clean:
         # FIXME: what if user changes ~/.gubrc?  should use gubb.Settings!
-        log_file.system ('rm -rf log/ target/ uploads/ buildnumber-* downloads/lilypond-*')
+        loggedos.system (logger, 'rm -rf log/ target/ uploads/ buildnumber-* downloads/lilypond-*')
 
     make_cmd = 'make -f lilypond.make %s ' % options.make_options
     python_cmd = sys.executable  + ' '
 
-    # FIXME: use gub-tester's download facility
-    ## can't have these in gub-tester, since these
-    ## will always usually result in "release already tested"
-    for a in args:
-        log_file.system (python_cmd + 'bin/gub --branch=lilypond=%s:%s --platform=%s --stage=download lilypond'
-                % (options.branch, options.local_branch, a))
-        log_file.system ('rm -f target/%s/status/lilypond-%s*' % (a, options.branch))
+    branch = options.branch
+    local_branch = options.local_branch
+    branch_sep = ':'
+
+    # FIXME: what happened to branch juggling?
+    if 1:
+        local_branch = ''
+        branch_sep = ''
+
+    if 0: #FIXME: use if 1: when --stage download is fixed
+        # cannot do this now, --stage=dowload of fontconfig depends on
+        # tools freetype-config
+        # must build bootstrap first
+        
+        # FIXME: use gub-tester's download facility
+        # can't have these in gub-tester, since these
+        # will always usually result in "release already tested"
+        for platform in args:
+            loggedos.system (logger, python_cmd + 'bin/gub --branch=lilypond=%(local_branch)s%(branch_sep)s:%(branch)s --platform=%(platform)s --stage=download lilypond'
+                             % locals ())
+            loggedos.system (logger, 'rm -f target/%(platform)s/status/lilypond-%(branch)s*' % locals ())
+    else:
+        loggedos.system (logger, make_cmd + 'bootstrap')
 
     test_cmds = []
     if 1:
         test_cmds.append (make_cmd + 'bootstrap')
     if options.build_package:
-        test_cmds += [python_cmd + 'bin/gub --branch=lilypond=%s:%s --skip-if-locked --platform=%s lilypond '
-                      % (options.branch, options.local_branch, p) for p in args]
+        test_cmds += [python_cmd + 'bin/gub --branch=lilypond=%(branch)s%(branch_sep)s%(local_branch)s --skip-if-locked --platform=%(platform)s lilypond'
+                      % locals () for platform in args]
         
     if options.build_installer:
         version_options = '' 
             
         # installer-builder does not need remote-branch
-        test_cmds += [python_cmd + 'bin/installer-builder --skip-if-locked %s --branch=lilypond=%s:%s --platform=%s build-all lilypond '
-                      % (version_options, options.branch, options.local_branch, p) for p in args]
+        test_cmds += [python_cmd + 'bin/installer-builder --skip-if-locked %(version_options)s --branch=lilypond=%(branch)s%(branch_sep)s%(local_branch)s --platform=%(platform)s build-all lilypond'
+                      % locals () for platform in args]
 
     if options.build_docs:
         test_cmds += [make_cmd + 'doc-build',
                       make_cmd + 'doc-export']
-        options.test_options += ' --dependent '
+        options.test_options += ' --dependent'
 
 
     if options.build_tarball:
         test_cmds += [make_cmd + 'dist-check']
 
-    log_file.system (python_cmd + 'bin/gub-tester %s %s '
+    loggedos.system (logger, python_cmd + 'bin/gub-tester %s %s'
             % (options.test_options, ' '.join (["'%s'" % c for c in test_cmds])))
 
 if __name__ == '__main__':

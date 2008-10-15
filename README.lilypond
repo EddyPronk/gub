@@ -9,7 +9,8 @@ in addition to the requirements for GUB, you need:
     * ImageMagick (the program 'convert')
     * pngtopnm
     * t1utils
-
+    * perl-ExtUtils-MakeMaker (imagemagick dep.)
+    
 * Prepare build environment
 
   make -f lilypond.make bootstrap

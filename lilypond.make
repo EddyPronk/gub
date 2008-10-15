@@ -5,8 +5,8 @@
 .PHONY: bootstrap-download bootstrap
 .PHONY: unlocked-update-versions update-versions download print-success
 .PHONY: debian linux-ppc mingw mipsel clean realclean clean-distccd
-.PHONY: local-distcc cross-compilers cross-distccd native-distccd
-.PHONY: bootstrap-git download-local local local-cross-tools doc-clean
+.PHONY: tools-distcc cross-compilers cross-distccd native-distccd
+.PHONY: bootstrap-git download-tools tools tools-cross-tools doc-clean
 .PHONY: unlocked-doc-clean unlocked-doc-build unlocked-info-man-build
 .PHONY: unlocked-doc-export doc-export unlocked-dist-check dist-check
 
@@ -16,8 +16,6 @@
 .PHONY: cygwin-lilypond cygwin-lilypond-installer upload-setup-ini darwin-ppc
 
 default: all
-
-PACKAGE = lilypond
 
 ALL_PLATFORMS=linux-x86 darwin-ppc darwin-x86 debian debian-arm freebsd-64 freebsd-x86 linux-64 mingw debian-mipsel linux-ppc
 PLATFORMS=linux-x86 linux-64 linux-ppc freebsd-x86 freebsd-64
@@ -49,31 +47,35 @@ LILYPOND_REPODIR=downloads/lilypond
 LILYPOND_BRANCH=master
 # LILYPOND_BRANCH=stable/2.10
 
-MAKE += -f lilypond.make
-LILYPOND_BRANCH_FILEIFIED=$(subst /,--,$(LILYPOND_BRANCH))
+LILYPOND_REPO_URL=git://git.sv.gnu.org/lilypond.git
 
-LILYPOND_LOCAL_BRANCH=$(LILYPOND_BRANCH_FILEIFIED)-git.sv.gnu.org-lilypond.git
+# derived info
+LILYPOND_DIRRED_BRANCH=git.sv.gnu.org/lilypond.git/$(LILYPOND_BRANCH)
+LILYPOND_FLATTENED_BRANCH=git.sv.gnu.org--lilypond.git-$(LILYPOND_BRANCH)
+
+BUILD_PACKAGE='$(LILYPOND_REPO_URL)?branch=$(LILYPOND_BRANCH)'
+INSTALL_PACKAGE = lilypond
+
+MAKE += -f lilypond.make
 
 # FIXME: this is duplicated and must match actual info in guile.py
-GUILE_LOCAL_BRANCH=branch_release-1-8-lilypond.org-vc-guile.git
-GUILE_LOCAL_BRANCH=branch_release-1-8-repo.or.cz-guile.git
 
-GUB_OPTIONS =\
- --branch=lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH)
+GUB_OPTIONS =
 
 GPKG_OPTIONS =\
  $(if $(GUILE_LOCAL_BRANCH), --branch=guile=$(GUILE_LOCAL_BRANCH),)\
- --branch=lilypond=$(LILYPOND_LOCAL_BRANCH)
+ --branch=lilypond=$(LILYPOND_BRANCH)
 
 INSTALLER_BUILDER_OPTIONS =\
  $(if $(GUILE_LOCAL_BRANCH), --branch=guile=$(GUILE_LOCAL_BRANCH),)\
- --branch=lilypond=$(LILYPOND_LOCAL_BRANCH)
+ --branch=lilypond=$(LILYPOND_FLATTENED_BRANCH)
 
 include gub.make
 
 NATIVE_TARGET_DIR=$(CWD)/target/$(BUILD_PLATFORM)
 
-SET_LOCAL_PATH=PATH=$(CWD)/target/local/usr/bin:$(PATH)
+#FIXME: yet another copy of gub/settings.py
+SET_LOCAL_PATH=PATH=$(CWD)/target/local/root/usr/bin:$(PATH)
 
 LILYPOND_VERSIONS = uploads/lilypond.versions
 
@@ -84,19 +86,22 @@ include compilers.make
 ################
 
 unlocked-update-versions:
-	python gub/versiondb.py --dbfile=$(LILYPOND_VERSIONS) --download  --platforms="$(PLATFORMS)"
-	python gub/versiondb.py --dbfile=uploads/freetype2.versions --download  --platforms="cygwin"
-	python gub/versiondb.py --dbfile=uploads/fontconfig.versions --download  --platforms="cygwin"
-	python gub/versiondb.py --dbfile=uploads/guile.versions --download --platforms="cygwin"
-	python gub/versiondb.py --dbfile=uploads/libtool.versions --download --platforms="cygwin"
-	python gub/versiondb.py --dbfile=uploads/noweb.versions --download --platforms="cygwin"
-	python gub/versiondb.py --dbfile=uploads/ghostscript.versions --download --platforms="cygwin"
+	python gub/versiondb.py --dbfile=$(LILYPOND_VERSIONS) --download --platforms="$(PLATFORMS)"
+
+ifneq ($(findstring cygwin,$(PLATFORMS)),)
+# this is downloading the same info 5 times. Can we do this more efficiently?
+	python gub/versiondb.py --no-sources  --dbfile=uploads/freetype2.versions --download  --platforms="cygwin"
+	python gub/versiondb.py --no-sources --dbfile=uploads/fontconfig.versions --download  --platforms="cygwin"
+	python gub/versiondb.py --no-sources  --dbfile=uploads/guile.versions --download --platforms="cygwin"
+	python gub/versiondb.py --no-sources  --dbfile=uploads/libtool.versions --download --platforms="cygwin"
+	python gub/versiondb.py --no-sources  --dbfile=uploads/noweb.versions --download --platforms="cygwin"
+endif
 
 update-versions:
 	$(PYTHON) gub/with-lock.py --skip $(LILYPOND_VERSIONS).lock $(MAKE) unlocked-update-versions
 
 download:
-	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB,$(p)) --online --stage=download lilypond && ) true
+	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB,$(p)) --online --download-only $(BUILD_PACKAGE) && ) true
 	$(MAKE) downloads/genini
 	rm -f target/*/status/lilypond*
 	rm -f log/lilypond-$(LILYPOND_VERSION)*.*.test.pdf
@@ -104,19 +109,19 @@ download:
 ## should be last, to incorporate changed VERSION file.
 	$(MAKE) update-versions
 
-all: native dist-check doc-build test-output doc-export $(OTHER_PLATFORMS) print-success
+all: native dist-check test-output test-export doc-build doc-export $(OTHER_PLATFORMS) print-success
 
 platforms: $(PLATFORMS)
 
 print-success:
-	python test-lily/upload.py --branch=$(LILYPOND_LOCAL_BRANCH)
+	python test-lily/upload.py --branch=$(LILYPOND_BRANCH) --url  $(LILYPOND_REPO_URL)
 	@echo ""
 	@echo "To upload, run "
 	@echo
-	@echo "        python test-lily/upload.py --branch=$(LILYPOND_LOCAL_BRANCH) --execute"
+	@echo "        	python test-lily/upload.py --branch=$(LILYPOND_BRANCH) --url $(LILYPOND_REPO_URL) --execute "
 	@echo
 
-native: local $(BUILD_PLATFORM)
+native: tools $(BUILD_PLATFORM)
 
 debian-arm:
 	$(call BUILD,$@,lilypond)
@@ -178,7 +183,7 @@ cygwin-lilypond:
 	$(call INVOKE_GUB,cygwin) --build-source libtool guile fontconfig lilypond
 
 cygwin-lilypond-installer:
-	$(CYGWIN_PACKAGER) --branch=lilypond=$(LILYPOND_LOCAL_BRANCH) lilypond
+	$(CYGWIN_PACKAGER) --branch=lilypond=$(LILYPOND_FLATTENED_BRANCH) lilypond
 
 upload-setup-ini:
 	cd uploads/cygwin && ../../downloads/genini $$(find release -mindepth 1 -maxdepth 2 -type d) > setup.ini
@@ -188,40 +193,37 @@ downloads/genini:
 	chmod +x $@
 
 darwin-ppc:
-	$(call BUILD,$@,lilypond)
+	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
 
 darwin-x86:
-	$(call BUILD,$@,lilypond)
+	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
 
 debian:
-	$(call BUILD,$@,lilypond)
+	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
 
 freebsd4-x86:
-	$(call BUILD,$@,lilypond)
+	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
 
 freebsd6-x86:
-	$(call BUILD,$@,lilypond)
+	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
 
 freebsd-x86:
-	$(call BUILD,$@,lilypond)
+	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
 
 freebsd-64:
-	$(call BUILD,$@,lilypond)
+	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
 
 linux-x86:
-	$(call BUILD,$@,lilypond)
+	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
 
 linux-ppc:
-	$(call BUILD,$@,lilypond)
+	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
 
 linux-64:
-	$(call BUILD,$@,lilypond)
+	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
 
 mingw:
-	$(call BUILD,$@,lilypond)
-
-mipsel:
-	$(call BUILD,$@,lilypond)
+	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
 
 clean:
 	rm -rf $(foreach p, $(PLATFORMS), target/*$(p)* )
@@ -229,11 +231,10 @@ clean:
 realclean:
 	rm -rf $(foreach p, $(PLATFORMS), uploads/$(p)/* uploads/$(p)-cross/* target/*$(p)* )
 
-
 ################################################################
 # compilers and tools
 
-locals =\
+tools =\
  automake\
  distcc\
  expat\
@@ -244,74 +245,80 @@ locals =\
  git\
  guile\
  icoutils\
- mftrace\
  netpbm\
  pkg-config\
- potrace\
  python\
- imagemagick \
- texinfo
+ texinfo\
+ texi2html
 
 ###
 # document why this is in the bootstrap
 
 # -guile: bootstrap guile
 # -gettext: AM_GNU_GETTEXT
-# -mftrace, fontforge, potrace: lilypond
 # -texinfo: need 4.8 for lily
 # -automake: prevent version confusion
 # -pkg-config: nonstandard (eg. MacOS)
 # -icoutils: lilypond mingw icons
 # -distcc: nonstandard (eg. MacOS)
 # -freetype: for bootstrapping fontconfig
-# -imagemagick: for lilypond web site
 # -netpbm: website
 # -python: bootstrap for python x-compile
 # -icoutils: icon build for mingw
-download-local:
+
+# TODO:
+# -imagemagick: for lilypond web site
+#x imagemagick \
+
+download-tools:
 ifneq ($(BUILD_PLATFORM),linux-64)
-	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=local --stage=download $(locals) nsis
+	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools --stage=download $(tools) nsis
 else
 # ugh, can only download nsis after cross-compilers...
-	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=local --stage=download $(locals)
+	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools --stage=download $(tools)
 endif
 
-local:
+tools:
 	cd librestrict && make -f GNUmakefile
-	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=local $(locals)
-# local-cross-tools depend on cross-compilers, see compilers.make.
+	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools $(tools)
+## Nsis is made in target tools-cross-tools, after cross compilers
+
+# tools-cross-tools depend on cross-compilers, see compilers.make.
 # We need linux-x86 and mingw before nsis can be build
-#	$(MAKE) local-cross-tools
+#	$(MAKE) tools-cross-tools
 
 ################################################################
 # docs
 
-NATIVE_ROOT=$(NATIVE_TARGET_DIR)/installer-lilypond-$(LILYPOND_LOCAL_BRANCH)
+NATIVE_ROOT=$(NATIVE_TARGET_DIR)/installer-lilypond-$(LILYPOND_FLATTENED_BRANCH)
 DOC_LOCK=$(NATIVE_ROOT).lock
 TEST_LOCK=$(NATIVE_ROOT).lock
 
-NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH)
-NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/src/lilypond-$(LILYPOND_LOCAL_BRANCH)
-NATIVE_BUILD_COMMITTISH=$(shell cat downloads/lilypond.git/refs/heads/$(LILYPOND_LOCAL_BRANCH))
+NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_FLATTENED_BRANCH)
+NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/src/lilypond-$(LILYPOND_FLATTENED_BRANCH)
+# URG: try to guess at what repository will do.  should ask
+# repository.read_file(), I guess.
+NATIVE_BUILD_COMMITTISH=$(shell cat downloads/lilypond/refs/heads/$(LILYPOND_DIRRED_BRANCH))
+
 
 DIST_VERSION=$(shell cat $(NATIVE_LILY_BUILD)/out/VERSION)
-DOC_BUILDNUMBER=$(shell $(PYTHON) gub/versiondb.py --build-for=$(DIST_VERSION))
+DOC_BUILDNUMBER=$(shell $(PYTHON) gub/versiondb.py --platforms=$(PLATFORMS) --build-for=$(DIST_VERSION))
 
-# lilypond-invoke-editor: We are trying to run guile from local using
+# lilypond-invoke-editor: We are trying to run guile from tools using
 # guile from native, which fails: ERROR: In procedure dynamic-link:
 # ERROR: file: "libguile-srfi-srfi-1-v-4", message:
 # "libguile-srfi-srfi-1-v-4.so: cannot open shared object file: No
 # such file or directory"
-# Must use local's lib prior to native's for ld-library-path and use
-# system's LD_LIBRARY_PATH, because that's what local is being built with.
+# Must use tools's lib prior to native's for ld-library-path and use
+# system's LD_LIBRARY_PATH, because that's what tools is being built with.
 # We cannot use a SH wrapper for guile, as that breaks using guile for
 # scripts.
 DOC_RELOCATION = \
     LILYPOND_EXTERNAL_BINARY="$(NATIVE_ROOT)/usr/bin/lilypond" \
-    PATH=$(CWD)/target/local/root/usr/bin:$(NATIVE_ROOT)/usr/bin:$$PATH \
+    PATH=$(CWD)/target/tools/root/usr/bin:$(NATIVE_ROOT)/usr/bin:$$PATH \
     GS_LIB=$(wildcard $(NATIVE_ROOT)/usr/share/ghostscript/*/lib) \
     MALLOC_CHECK_=2 \
-    LD_LIBRARY_PATH=$(CWD)/target/local/root/usr/lib:$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH)
+    LD_LIBRARY_PATH=$(CWD)/target/tools/root/usr/lib:$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH)
 
 SIGNATURE_FUNCTION=uploads/signatures/$(1).$(NATIVE_BUILD_COMMITTISH)
 
@@ -331,21 +338,23 @@ test-clean:
 	$(PYTHON) gub/with-lock.py --skip $(TEST_LOCK) $(MAKE) unlocked-test-clean
 
 unlocked-doc-clean:
-	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
+	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_FLATTENED_BRANCH) \
 		DOCUMENTATION=yes web-clean
+	rm -rf $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_FLATTENED_BRANCH)/out/lybook-db
 	rm -f $(call SIGNATURE_FUNCTION,cached-doc-build)
 	rm -f $(call SIGNATURE_FUNCTION,cached-doc-export)
 
 unlocked-test-clean:
-	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_LOCAL_BRANCH) \
+	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_FLATTENED_BRANCH) \
 		DOCUMENTATION=yes test-clean
 	rm -f $(call SIGNATURE_FUNCTION,cached-test-output)
 
 cached-test-output cached-doc-build cached-dist-check cached-doc-export cached-info-man-build cached-test-export:
-	-mkdir uploads/signatures/
+	-mkdir uploads/signatures
 	if test ! -f  $(call SIGNATURE_FUNCTION,$@) ; then \
 		$(MAKE) $(subst cached,unlocked,$@) \
 		&& touch $(call SIGNATURE_FUNCTION,$@) ; fi
+
 unlocked-test-output:
 	cd $(NATIVE_LILY_BUILD) && $(DOC_RELOCATION) \
 		make CPU_COUNT=$(LILYPOND_WEB_CPU_COUNT)  test
@@ -353,19 +362,8 @@ unlocked-test-output:
 	    -cjf $(CWD)/uploads/lilypond-$(DIST_VERSION)-$(DOC_BUILDNUMBER).test-output.tar.bz2 input/regression/out-test/
 
 # How about just always building info-man?
-unlocked-doc-build: update-lily unlocked-updated-doc-build
-unlocked-info-man-build: update-lily unlocked-updated-info-man-build
-
-update-lily:
-	$(GPKG) $(LOCAL_GPKG_OPIONS) --platform=$(BUILD_PLATFORM) remove lilypond
-
-	## force update of srcdir.
-	$(GUB) $(LOCAL_GUB_OPTIONS) --branch=lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH) \
-		 --platform=$(BUILD_PLATFORM) --stage=untar lilypond
-
-	## after forced update, make sure that lilypond is up to date
-	$(GUB) $(LOCAL_GUB_OPTIONS) --branch=lilypond=$(LILYPOND_BRANCH):$(LILYPOND_LOCAL_BRANCH) \
-		 --platform=$(BUILD_PLATFORM) --offline --stage=compile lilypond
+unlocked-doc-build: unlocked-updated-doc-build
+unlocked-info-man-build: unlocked-updated-info-man-build
 
 unlocked-updated-doc-build:
 	unset LILYPONDPREFIX LILYPOND_DATADIR \
@@ -434,7 +432,8 @@ test-export:
 unlocked-dist-check:
 	$(SET_LOCAL_PATH)\
 		$(PYTHON) test-lily/dist-check.py\
-		--branch=$(LILYPOND_LOCAL_BRANCH)\
+		--branch=$(LILYPOND_BRANCH) \
+		--url=$(LILYPOND_REPO_URL) \
 		--repository=$(LILYPOND_REPODIR) $(NATIVE_LILY_BUILD)
 	cp $(NATIVE_LILY_BUILD)/out/lilypond-$(DIST_VERSION).tar.gz uploads
 

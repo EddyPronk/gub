@@ -3,12 +3,11 @@ import os
 
 from gub import mirrors
 from gub import misc
-from gub import targetpackage
+from gub import targetbuild
 
-class Libjpeg (targetpackage.TargetBuildSpec):
-    def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with_template (version='v6b', mirror=mirrors.jpeg)
+class Libjpeg (targetbuild.TargetBuild):
+    source = mirrors.with_template (name='libjpeg', version='v6b',
+                                    mirror=mirrors.jpeg)
 
     def name (self):
         return 'libjpeg'
@@ -20,10 +19,10 @@ class Libjpeg (targetpackage.TargetBuildSpec):
         return ['devel', '']
     
     def srcdir (self):
-        return re.sub (r'src\.v', '-', targetpackage.TargetBuildSpec.srcdir(self))
+        return re.sub (r'src\.v', '-', targetbuild.TargetBuild.srcdir (self))
 
     def configure_command (self):
-        return (targetpackage.TargetBuildSpec.configure_command (self)
+        return (targetbuild.TargetBuild.configure_command (self)
                 .replace ('--config-cache', '--cache-file=config.cache'))
     
     def update_libtool (self):
@@ -31,19 +30,18 @@ class Libjpeg (targetpackage.TargetBuildSpec):
 cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh %(target_architecture)s'''
               , locals ())
         
-        targetpackage.TargetBuildSpec.update_libtool (self)
+        targetbuild.TargetBuild.update_libtool (self)
 
-    def patch (self):
-        self.system ('cp %(sourcefiledir)s/jpeg.license %(license_file)s')
+    def license_files (self):
+        return ['%(sourcefiledir)s/jpeg.license']
 
     def configure (self):
         guess = self.expand ('%(system_prefix)s/share/libtool/config.guess')
         sub = self.expand ('%(system_prefix)s/share/libtool/config.sub')
         for file in sub, guess:
-            if os.path.exists (file):
-                self.system ('cp -pv %(file)s %(srcdir)s',  locals ())
+            self.system ('cp -pv %(file)s %(srcdir)s',  locals ())
 
-        targetpackage.TargetBuildSpec.configure (self)
+        targetbuild.TargetBuild.configure (self)
         self.update_libtool ()
         self.file_sub (
             [
@@ -64,7 +62,7 @@ class Libjpeg__darwin (Libjpeg):
         self.system ('''
 cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh %(arch)s
 ''', locals ())
-        targetpackage.TargetBuildSpec.update_libtool (self)
+        targetbuild.TargetBuild.update_libtool (self)
 
 class Libjpeg__mingw (Libjpeg):
     def configure (self):
@@ -82,4 +80,3 @@ class Libjpeg__linux (Libjpeg):
 #define \\1
 #endif''')],
                '%(builddir)s/jconfig.h')
-

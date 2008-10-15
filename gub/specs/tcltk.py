@@ -1,16 +1,15 @@
 from gub import mirrors
 from gub import misc
-from gub import targetpackage
+from gub import targetbuild
 from gub import context
  
-class Tcltk (targetpackage.TargetBuildSpec):
-    def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with_template (
+class Tcltk (targetbuild.TargetBuild):
+    source = mirrors.with_template (name='tcltk', 
             mirrors.lilypondorg,
             version='8.4.14')
-    def license_file (self):
-        return "%(srcdir)s/tcl/license.terms"
+    def license_files (self):
+        return ['%(srcdir)s/tcl/license.terms']
+    
     def force_sequential_build (self):
         return True
     def configure (self):
@@ -24,18 +23,18 @@ cd %(srcdir)s/tk/ && ./unix/configure --prefix=%(install_prefix)s
                      
     def patch (self):
         self.system ("cd %(srcdir)s/tcl/ && patch -p1 < %(patchdir)s/tcl-8.4.14-dde.patch")
-    def install(self):
+    def install (self):
         self.system ('cd %(builddir)s/tcl && make DESTDIR=%(install_root)s install')
         self.system ('cd %(builddir)s/tk && make DESTDIR=%(install_root)s install')
 
     def get_subpackage_definitions (self):
-        s = targetpackage.TargetBuildSpec.get_subpackage_definitions (self)
+        s = targetbuild.TargetBuild.get_subpackage_definitions (self)
         s['doc'].append (self.settings.prefix_dir + '/lib/tk8.4/demos')
         return s
     
 class Tcltk__mingw (Tcltk):
     @context.subst_method
-    def RC(self):
+    def RC (self):
         return  '%(cross_prefix)s/bin/%(target_architecture)s-windres'
     
     def configure (self):

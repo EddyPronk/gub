@@ -1,10 +1,10 @@
-from gub import toolpackage
+from gub import toolsbuild
+from gub import sources
 from gub import mirrors
 
-class Flex (toolpackage.ToolBuildSpec):
-    def __init__ (self, settings):
-        toolpackage.ToolBuildSpec.__init__ (self, settings)
-        self.with_template (version="2.5.4a",
+class Flex (toolsbuild.ToolsBuild):
+    source = sources.join (sources.sf, 'flex/flex-2.5.33.tar.gz')
+    auto_source = mirrors.with_template (name='flex', version="2.5.4a",
                    mirror=mirrors.sf, format='gz'),
     def srcdir (self):
         return '%(allsrcdir)s/flex-2.5.4'
@@ -12,5 +12,5 @@ class Flex (toolpackage.ToolBuildSpec):
         return self.broken_install_command ()
     def packaging_suffix_dir (self):
         return ''
-    def patch (self):
-        self.system ("cd %(srcdir)s && patch -p1 < %(patchdir)s/flex-2.5.4a-FC4.patch")
+    def apply_patch (self):
+        self.system ('flex-2.5.4a-FC4.patch')

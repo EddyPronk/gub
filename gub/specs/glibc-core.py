@@ -1,16 +1,16 @@
 from gub import mirrors
 from gub import misc
 from gub import repository
-from gub import targetpackage
+from gub import targetbuild
 from gub.specs import glibc
 
-# Hmm? TARGET_CFLAGS=-O --> targetpackage.py
+# Hmm? TARGET_CFLAGS=-O --> targetbuild.py
 
 class Glibc_core (glibc.Glibc):
-    def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
         #self.with_tarball (mirror=mirrors.gnu, version='2.3.6')
-        self.with_tarball (mirror=mirrors.lilypondorg,
+    source = mirrors.with_tarball (mirror=mirrors.lilypondorg,
                            version='2.3-20070416', format='bz2', name='glibc')
     def get_build_dependencies (self):
         return ['cross/gcc-core']
@@ -20,9 +20,7 @@ class Glibc_core (glibc.Glibc):
         return {'': ['glibc', 'glibc-devel', 'glibc-doc', 'glibc-runtime']}
     def patch (self):
         glibc.Glibc.patch (self)
-        self.system ('''
-cd %(srcdir)s && patch -p1 < %(patchdir)s/glibc-2.3-core-install.patch
-''')
+        self.apply_patch ('glibc-2.3-core-install.patch')
     def get_add_ons (self):
         return ('linuxthreads',)
     def configure_command (self):

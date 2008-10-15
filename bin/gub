@@ -28,29 +28,26 @@ def argv0_relocation ():
 
 argv0_relocation ()
 
+import optparse
 import sys
-#
+import os
+
 from gub import cross
-## fixme: double use of gub name.
-from gub import gubb
-import gub.settings
+from gub import build
 from gub import misc
 from gub import locker
 from gub import gup
+from gub import logging
+from gub import buildrunner
+
+import gub.settings   # otherwise naming conflict with settings local vars.
 
 def get_cli_parser ():
-    import optparse
     p = optparse.OptionParser ()
 
     p.usage='''gub [OPTION]... [PACKAGE]...'''
 
     p.description='Grand Unified Builder.'
-
-    p.add_option ('-B', '--branch', action='append',
-                  dest='branches',
-                  default=[],
-                  metavar='NAME=BRANCH',
-                  help='select branch')
 
     p.add_option ('-k', '--keep', action='store_true',
                   dest='keep_build',
@@ -74,6 +71,11 @@ def get_cli_parser ():
                   default=None,
                   help='Where to write result of inspection')
 
+    p.add_option ('--download-only', action='store_true',
+                  dest='download_only',
+                  default=False,
+                  help='Exit after downloading.')
+
     p.add_option ('--offline', action='store_true',
                   dest='offline',
                   help='Do not attempt to download anything')
@@ -82,8 +84,14 @@ def get_cli_parser ():
                   dest='offline',
                   help='Download as part of the build')
 
-    p.add_option ('--stage', action='store',
-                  dest='stage', default=None,
+    def set_stage (option, opt_str, value, parser):
+        if value == 'download':
+            parser.values.download_only = True
+        else:
+            parser.values.stage = value
+
+    p.add_option ('--stage', action='callback', callback=set_stage,
+                  dest='stage', type='string', default=None,
                   help='Force rebuild of stage')
 
     p.add_option ('--fresh', action='store_true',
@@ -98,7 +106,7 @@ def get_cli_parser ():
                   dest='native_distcc_hosts', default=[],
                   help='Add another native distcc host')
 
-    p.add_option ('-v', '--verbose', action='count', dest='verbose', default=0)
+    p.add_option ('-v', '--verbose', action='count', dest='verbosity', default=0)
 
     p.add_option ('-q', '--quiet', action='count', dest='quiet', default=0)
 
@@ -122,6 +130,11 @@ def get_cli_parser ():
                   dest='lax_checksums',
                   help="do not rebuild packages with failing checksums")
 
+    p.add_option ('--dry-run',
+                  action='store_true',
+                  default=False,
+                  help='Print action, do not run.')
+
     p.add_option ('-l', '--skip-if-locked',
                   default=False,
                   dest="skip_if_locked",
@@ -135,7 +148,7 @@ def get_cli_parser ():
 
     return p
 
-#FIXME: move to Builder?
+#FIXME: move to BuildRunner?
 def inspect (settings, files):
     (names, specs) = gup.get_source_packages (settings, files)
     pm = gup.get_target_manager (settings)
@@ -149,55 +162,68 @@ def inspect (settings, files):
         else:
             print v
 
-#FIXME: move to Builder?
-def build (settings, files):
+#FIXME: move to BuildRunner?
+def build (settings, options, files):
     (names, specs) = gup.get_source_packages (settings, files)
-    def get_all_deps (name):
-        package = specs[name]
-        deps = package.get_build_dependencies ()
-        if not settings.is_distro:
-            deps = [gup.get_base_package_name (d) for d in deps]
-        return deps
+    if options.fresh:
+        try:
+            for spec in specs.values():
+                logging.action ('Removing status file')
+                os.unlink (spec.get_stamp_file ())
+        except OSError:
+            pass
 
-    # FIXME: why do we only use deps for download, not for build?
-    deps = gup.topologically_sorted (files, {}, get_all_deps, None)
-    settings.os_interface.info ('deps:' + `deps` + '\n')
+    # TODO: figure out how to patch src_package from
+    # stages. Simpleminded solution does not work
+    # and causes mingw runtime to run autogenmagic       
 
-    import os
+    # TODO: patch out clean if --keep was specified.
+
+    # TODO: move taint check in special stage, and patch out --force
+    # was specified.
+
+    # TODO: patch out checksum comparison if --lax-checksum was specified.
+
     PATH = os.environ['PATH']
-    os.environ['PATH'] = settings.expand ('%(local_prefix)s/bin:' + PATH)
+    os.environ['PATH'] = settings.expand ('%(tools_prefix)s/bin:' + PATH)
 
-    if settings.options.stage == 'download':
-        # FIXME: urg.  [only] For a real clean gub, with nothing in
-        # downloads/, we cannot go into build process, and let stage
-        # handle its own, as someone wants to create all spec
-        # substitution dicts, and that needs certain source trees to
-        # be already checked-out, eg ghostscript
-        for i in deps:
-            specs[i].download ()
-        sys.exit (0)
-
+    if options.download_only:
+        options.offline = False
+        
+    if not options.offline:
+        for name in names:
+            specs[name].download ()
+    if options.download_only:
+        sys.exit(0)
+        
     # FIXME: hw, why is this?  Doesn't this break 
-    if settings.options.stage:
+    if options.stage:
         names = files
 
     try:
         manager = gup.get_target_manager (settings)
-        ## Todo: have a readonly lock for local platform
+        ## Todo: have a readonly lock for tools platform
     except locker.LockedError:
-        settings.os_interface.error ('another build in progress.  Skipping.')
-        if settings.options.skip_if_locked:
+        logging.error ('another build in progress.  Skipping.')
+        if options.skip_if_locked:
             sys.exit (0)
         raise
 
-    from gub import builder
-    b = builder.Builder (manager, settings, specs)
+    b = buildrunner.BuildRunner (manager, settings, specs)
+
+    # better in ctor?
+    b.calculate_checksums ()
+    if options.dry_run:
+        for name in sorted (b.checksums):
+            print b.checksums[name]
+        sys.exit(0)
+        
     b.build_source_packages (names)
 
-def exceptional_build (settings, files):
+def exceptional_build (settings, options, files, logger):
     status = 1
     try:
-        build (settings, files)
+        build (settings, options, files)
         status = 0
     except SystemExit, e:
         status = e.code
@@ -205,50 +231,52 @@ def exceptional_build (settings, files):
     except KeyboardInterrupt, e:
         pass
     except Exception, e:
+        status = 1
         pass
 
     if status:
-        if settings.options.verbose < settings.os_interface.level['output']:
-            print >>sys.stderr,\
-                ('\n\nTail of ' + settings.os_interface.log_file_name + ':\n'
-                 + '\n'.join (settings.os_interface.read_tail ()))
-            log_file = settings.os_interface.log_file_name
-        settings.os_interface.error (misc.exception_string (e))
+        logger.dump_tail (sys.stderr)
+        sys.stderr.write(misc.exception_string (e))
     else:
-        settings.os_interface.info ('done\n')
+        logger.write_log ('done\n', 'info')
         
-    settings.os_interface.error ('build log written to: ' +
-                                 settings.os_interface.log_file_name
-                                 + '\n')
     return status
 
-def urg_add_more_settings_for_gub (settings, options):
-    settings.build_source = options.build_source
-    settings.lilypond_versions = options.lilypond_versions
-    settings.cpu_count = options.cpu_count
-    settings.set_distcc_hosts (options)
 
+def logged_build (settings, options, files):
+    logger = logging.set_default_log (settings.expand ('%(logdir)s/build.log'),
+                                       options.verbosity)
+    
+    logger.write_log ('root: %s\n' % settings.system_root, 'info')
+    logger.write_log ('platform: %s\n' % settings.platform, 'info')
+
+    sys.exit (exceptional_build (settings, options, files, logger))
+
+    
 def main ():
     cli_parser = get_cli_parser ()
     (options, files) = cli_parser.parse_args ()
-    options.verbose -= options.quiet
+    options.verbosity -= options.quiet
 
-    settings = gub.settings.Settings (options)
-    urg_add_more_settings_for_gub (settings, options)
+    logging.default_logger.threshold = options.verbosity
+
+    if not options.platform:
+        logging.error ('Must specify platform')
+        sys.exit(2)
+        
+    settings = gub.settings.Settings (options.platform)
 
     if options.inspect_key:
         inspect (settings, files)
         sys.exit (0)
 
-    settings.os_interface.stage ('root: ' + settings.system_root + '\n')
-    settings.os_interface.info ('platform: ' + settings.platform + '\n')
-
     if not files:
-        settings.os_interface.error ('error: nothing to do\n')
+        logging.error ('error: nothing to do\n')
         cli_parser.print_help ()
         sys.exit (2)
         
-    sys.exit (exceptional_build (settings, files))
+    logged_build (settings, options, files)
+
 
 if __name__ == '__main__':
     main ()

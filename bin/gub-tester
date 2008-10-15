@@ -20,7 +20,7 @@ import time
 import dbhash
 
 from gub import repository
-from gub import oslog
+from gub import logging
 
 def canonicalize_string (target):
     canonicalize = re.sub ('[ \t\n]', '_', target)
@@ -32,8 +32,6 @@ CACHED_FAIL = 'CACHED-FAIL'
 CACHED_SUCCESS = 'CACHED-SUCCESS'
 FAIL = 'FAIL'
 SUCCESS = 'SUCCESS'
-
-main_log = None
 
 def result_message (parts, subject='') :
     """Concatenate PARTS to a Message object."""
@@ -66,7 +64,7 @@ def opt_parser ():
     p = optparse.OptionParser (usage='gub-tester [options] command command ... ')
     p.address = [address]
     
-    examples = '''Examples:
+    examples = """Examples:
 gub-tester --repository=downloads/lilypond.git \\
     gub --branch=lilypond:master lilypond
 
@@ -79,11 +77,11 @@ cd yaffut.bzr && gub-tester 'make all check'
 In a previously git-tester'ed directory:
 gub-tester --update 'make all check'
 
-'''
+"""
 
     def format_examples (self):
         return examples
-    if p.__dict__.has_key ('epilog'):
+    if 'epilog'  in  p.__dict__:
         p.formatter.format_epilog = format_examples
         p.epilog = examples
     else:
@@ -202,7 +200,7 @@ gub-tester --update 'make all check'
                   help='Where to store databases test results',
                   default='log')
                   
-    p.add_option ('-v', '--verbose', action='count', dest='verbose', default=0)
+    p.add_option ('-v', '--verbose', action='count', dest='verbosity', default=0)
 
     return p
 
@@ -223,7 +221,7 @@ def test_target (repo, options, target, last_patch):
     tag_db = repository.TagDb (options.result_dir)
     recheck = ''
     if done_db.has_key (release_hash):
-        main_log.info ('release %(release_hash)s has already been checked\n'
+        logging.info ('release %(release_hash)s has already been checked\n'
                       % locals ())
         if not options.force:
             RESULT = CACHED_SUCCESS
@@ -231,20 +229,21 @@ def test_target (repo, options, target, last_patch):
                 RESULT = CACHED_FAIL
             return RESULT, ['cached %(RESULT)s of %(release_hash)s' % locals ()]
         recheck = ' (forced recheck of %(release_hash)s)' % locals ()
-        main_log.info ('recheck forced\n' % locals ())
+        logging.info ('recheck forced\n' % locals ())
     
     log = 'test-%(canonicalize)s.log' %  locals ()
     log = os.path.join (options.result_dir, log)
     
     cmd = 'nice time sh -c "(%(target)s)"' % locals ()
-    main_log.command (cmd + '\n')
-    main_log.error ('Logging test output to %(log)s\n' % locals ())
+    logging.command (cmd + '\n')
+    logging.error ('Logging test output to %(log)s\n' % locals ())
 
     if options.dry_run:
         return (SUCCESS, ['dryrun'])
-        
-    test_log = oslog.Os_commands (log, options.verbose)
-    stat = test_log.system (cmd, ignore_errors=True)
+
+    logging.set_default_log (log, options.verbosity)
+    logger = logging.default_logger
+    stat = loggedos.system (logger, cmd, ignore_errors=True)
     base_tag = 'success-%(canonicalize)s-' % locals ()
     result = 'unknown'
     attachments = []
@@ -266,7 +265,7 @@ def test_target (repo, options, target, last_patch):
         tag_db.tag (base_tag, repo)
         if repo.is_distributed ():
             tag = repo.tag (base_tag)
-            main_log.action ('tagging with %(tag)s\n' % locals ())
+            logging.action ('tagging with %(tag)s\n' % locals ())
             if options.tag_repo:
                 repo.push (tag, options.tag_repo)
 
@@ -280,13 +279,13 @@ def test_target (repo, options, target, last_patch):
     attachments = [message % locals ()]
     if diff:
         attachments.append (diff)
-    main_log.info ('%(target)s: %(RESULT)s\n' % locals ())
+    logging.info ('%(target)s: %(RESULT)s\n' % locals ())
     done_db[release_hash] = time.ctime () + ' ' + RESULT
     return (RESULT, attachments)
     
 def send_message (options, msg):
     if not options.address:
-        main_log.info ('No recipients for result mail\n')
+        logging.info ('No recipients for result mail\n')
         # FIXME: what about env[EMAIL]?
         return False
     
@@ -312,27 +311,24 @@ def print_results (options, parts, subject='Autotester result'):
     print 'END RESULT\n==='
 
 def real_main (options, args, handle_result):
-    global main_log
-
     log = os.path.join (options.result_dir, 'gub-tester.log')
     if options.dry_run:
         log = '/dev/stdout'
 
-    main_log = oslog.Os_commands (log, options.verbose)
-    
-    main_log.info (' *** %s\n' % time.ctime ())
-    main_log.info (' *** Starting tests:\n %s\n' % '\n  '.join (args))
+    logging.set_default_log (log, options.verbosity)
+    logging.info (' *** %s\n' % time.ctime ())
+    logging.info (' *** Starting tests:\n %s\n' % '\n  '.join (args))
 
     repo = repository.get_repository_proxy (options.repository,
                                             options.url,
                                             options.branch,
                                             options.revision)
-    repo.set_oslog (main_log)
-    if (not repo.is_downloaded () or options.update or options.revision):
+    if ((not repo.is_downloaded () or options.update or options.revision)
+        and repo.source):
         repo.download ()
         repo.update_workdir ('.')
 
-    main_log.info ('Repository %s\n' % str (repo))
+    logging.info ('Repository %s\n' % str (repo))
     
     last_patch = repo.get_revision_description ()
     release_hash = repo.get_checksum ()

@@ -1,10 +1,11 @@
+import os
+import re
 import string
-#
-from gub import gubb
-from gub import misc
-
 from new import classobj
 from new import instancemethod
+#
+from gub import build
+from gub import misc
 
 mirror = 'http://ftp.de.debian.org/debian'
 
@@ -34,8 +35,7 @@ def change_target_package (p):
     cross.change_target_package (p)
 
 def get_debian_packages (settings, package_file):
-    if settings.verbose:
-        print ('parsing: %s...' % package_file)
+    print ('parsing: %s...' % package_file)
     return map (lambda j: get_debian_package (settings, j),
           open (package_file).read ().split ('\n\n')[:-1])
 
@@ -64,14 +64,17 @@ def get_debian_package (settings, description):
         ]
     if d['Package'] in blacklist:
         d['Package'] += '::blacklisted'
-    package_class = classobj (d['Package'], (gubb.BinarySpec,), {})
-    package = package_class (settings)
+    package_class = classobj (d['Package'], (build.BinaryBuild,), {})
+    from gub import repository
+    source = repository.TarBall (settings.downloads,
+                                 os.path.join (mirror, d['Filename']),
+                                 d['Version'],
+                                 strip_components=0)
+    package = package_class (settings, source)
     package.name_dependencies = []
-    import re
     if d.has_key ('Depends'):
         deps = map (string.strip,
-              re.sub ('\([^\)]*\)', '',
-                  d['Depends']).split (', '))
+                    re.sub ('\([^\)]*\)', '', d['Depends']).split (', '))
         # FIXME: BARF, ignore choices
         deps = filter (lambda x: x.find ('|') == -1, deps)
         # FIXME: how to handle Provides: ?
@@ -87,21 +90,10 @@ def get_debian_package (settings, description):
         return self.name_dependencies
     package.get_build_dependencies = instancemethod (get_build_dependencies,
                                                      package, package_class)
-    package.ball_version = d['Version']
-    package.url = mirror + '/' + d['Filename']
-    package.format = 'deb'
-
     pkg_name = d['Package']
     def name (self):
         return pkg_name
     package.name = instancemethod (name, package, package_class)
-
-    package.ball_version = d['Version']
-    from gub import repository
-    package.vc_repository = repository.TarBall (settings.downloads,
-                                                package.url,
-                                                package.ball_version,
-                                                strip_components=0)
     return package
 
 ## FIXME: c&p cygwin.py
@@ -119,7 +111,7 @@ class Dependency_resolver:
     def package_fixups (self, package):
         if package.name () == 'libqt4-dev':
             def untar (whatsthis):
-                gubb.BinarySpec.untar (package)
+                build.BinaryBuild.untar (package)
                 for i in ('QtCore.pc', 'QtGui.pc', 'QtNetwork.pc'):
                     package.file_sub ([
                             ('includedir', 'deepqtincludedir'),
@@ -146,9 +138,10 @@ class Dependency_resolver:
         file = '.'.join ((base, arch, branch))
 
         # FIXME: download/offline update
-        import os
         if not os.path.exists (file):
-            misc.download_url (url, self.settings.downloads)
+            misc.download_url (url, self.settings.downloads,
+                               local=['file://%s' % self.settings.downloads],
+                               )
             os.system ('gunzip  %(base)s.gz' % locals ())
             os.system ('mv %(base)s %(file)s' % locals ())
         self.grok_packages_file (file)

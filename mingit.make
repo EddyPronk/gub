@@ -20,9 +20,9 @@ GUB_OPTIONS=\
  --branch git=$(MINGIT_BRANCH):$(MINGIT_LOCAL_BRANCH)
 
 INSTALLER_BUILDER_OPTIONS=\
-  -v -v -v \
-  --branch git=$(MINGIT_LOCAL_BRANCH)\
-  --version-db uploads/git.versions \
+  -vvv\
+  --branch=git=$(MINGIT_LOCAL_BRANCH)\
+  --version-db=uploads/git.versions \
 
 all: $(PLATFORMS)
 
@@ -32,14 +32,14 @@ download:
 
 bootstrap: download
 
-download-local:
-	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=local\
+download-tools:
+	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools\
 		--stage=download \
 		git pkg-config nsis icoutils 
 
-local:
+tools:
 	cd librestrict && make -f GNUmakefile
-	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=local git 
+	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools git 
 
 
 mingw:

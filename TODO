@@ -1,3 +1,38 @@
+* literal use of /usr (again?) in code, use *_prefix)
+  [if all fails: %(prefix_dir)s]
+* literal use of /cross (again?) in code, use %(cross_dir)s
+
+* python 3k compatibility
+  - junk print (replace by what?)
+  - junk has_key (replace by what?)
+  - move to new style classes: class Foo -> class Foo (object).
+    This means that all sorts of
+      if type (foo) == type (bar)
+    constructions barf
+  - junk ` ` constucts (replace by what?)
+
+*  we moeten env ook nog ergens losknippen. We zetten nu onze
+   eigen variabelen over de user zijn env heen, maar dan kan er dus (niet
+   gechecksumde) info uit de user environment lekken.
+
+* add stage: autoupdate, move autoupdate kludges from patch stage
+
+* add functions: must_autoupdate, must_configure that return TRUE.
+  and check for these before running autoupdate and configure.
+  remove specific code from lilypond.
+
+* junk arbitrary SdkBuild class, handle any build dependencies
+  through [module.py].build_dependencies.
+
+* use better names for freebsd-runtime, darwin-sdk, which probably
+  are in fact kernel-headers and libc+headers
+
+* use of member functions vs class variables/static functions:
+   - need_source_tree
+   - build_dependencies
+   - dependencies
+   - force_sequential_build
+
 * Fix --branch mess:
 
   -gub: --branch=<PACKAGE>=<BRANCH>:<LOCAL_BRANCH>, eg
@@ -21,11 +56,15 @@
      1. toevoegen aan platforms in makefile
      2. toevoegen aan platform lijst, die in test-lily/upload wordt gebruikt.
 
+RENAMES
+
+* repository -> source
+* ./gub -> gublib ?
+* ./gub/specs -> gub/builds?
+
 * Robustification against ^C, esp. in in repository.download ()
 
 * Use names of stage iso number in status/stamp file.
-
-* Move classes to classname.py:ClassName iso targetpackage.TargetBuildSpec etc.
 
 * move Scons, Bjam recipes to gub lib.
 

@@ -1,14 +1,13 @@
 import re
 
 from gub import mirrors
-from gub import targetpackage
+from gub import sources
+from gub import targetbuild
 
-class Gmp (targetpackage.TargetBuildSpec):
-    def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with_template (version='4.2.1',
-                   mirror="http://ftp.sunet.se/pub/gnu/gmp/gmp-%(version)s.tar.bz2",
-                   format="bz2")
+class Gmp (targetbuild.TargetBuild):
+    source = sources.join (sources.gnu, 'gmp/gmp-4.2.1.tar.gz')
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
         if not self.settings.platform.startswith ('darwin'):
             self.target_architecture = re.sub ('i[0-9]86-', 'i386-', settings.target_architecture)
 
@@ -21,13 +20,13 @@ class Gmp (targetpackage.TargetBuildSpec):
         return ['libtool']
 
     def configure_command (self):
-        c = targetpackage.TargetBuildSpec.configure_command (self)
+        c = targetbuild.TargetBuild.configure_command (self)
 
         c += ' --disable-cxx '
         return c
 
     def configure (self):
-        targetpackage.TargetBuildSpec.configure (self)
+        targetbuild.TargetBuild.configure (self)
         # # FIXME: libtool too old for cross compile
         self.update_libtool ()
         # automake's Makefile.in's too old for new libtool,
@@ -66,26 +65,18 @@ class Gmp__darwin__x86 (Gmp__darwin):
         return c
 
 class Gmp__cygwin (Gmp):
-    def __init__ (self,settings):
-        Gmp.__init__ (self, settings)
-        self.with_template (version='4.1.4')
-
+    source = mirrors.with_template (name='gmp', version='4.1.4')
     def patch (self):
-        self.system ('''
-cd %(srcdir)s && patch -p1 < %(patchdir)s/gmp-4.1.4-1.patch
-''')
+        self.apply_patch ('gmp-4.1.4-1.patch')
 
 class Gmp__mingw (Gmp):
-    def __init__ (self,settings):
-        Gmp.__init__ (self, settings)
-        
+    def __init__ (self, settings, source):
+        Gmp.__init__ (self, settings, source)
         # Configure (compile) without -mwindows for console
         self.target_gcc_flags = '-mms-bitfields'
         
     def patch (self):
-        self.system ('''
-cd %(srcdir)s && patch -p1 < %(patchdir)s/gmp-4.1.4-1.patch
-''')
+        self.apply_patch ('gmp-4.1.4-1.patch')
 
     def configure (self):
         Gmp.configure (self)
@@ -96,13 +87,8 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/gmp-4.1.4-1.patch
 mv %(install_prefix)s/lib/*dll %(install_prefix)s/bin || true
 ''')
 
-from gub import toolpackage
-class Gmp__local (toolpackage.ToolBuildSpec):
-    def __init__ (self, s):
-        toolpackage.ToolBuildSpec.__init__ (self, s)
-        self.with_template (version='4.2.1',
-                   mirror="ftp://ftp.gnu.org/gnu/gmp/gmp-%(version)s.tar.bz2")
-
+from gub import toolsbuild
+class Gmp__tools (toolsbuild.ToolsBuild, Gmp):
+    source = Gmp.source
     def get_build_dependencies (self):
         return ['libtool']            
-

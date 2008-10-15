@@ -3,46 +3,28 @@ import os
 #
 from gub import misc
 from gub import mirrors
-from gub import targetpackage
+from gub import sources
+from gub import targetbuild
 from gub import repository
+from gub import loggedos
 
-class Guile (targetpackage.TargetBuildSpec):
-    def set_vc_mirror (self):
-        source = 'http://lilypond.org/vc/guile.git'
-        source = 'git://repo.or.cz/guile.git'
-
-	#--branch=guile=branch_release-1-8-repo.or.cz-guile.git
-        # branch = 'branch_release-1-8-repo.or.cz-guile.git'
-        
-        branch = 'branch_release-1-8', 
-        if settings.__dict__.has_key ('guile_branch') and settings.guile_branch:
-            branch = settings.guile_branch
-        repo = repository.Git (self.get_repodir (),
-                               branch=branch,
-                               source=source)
-        repo.version = lambda: '1.8.2'
-        self.with_vc (repo)
+class Guile (targetbuild.TargetBuild):
+    source = 'git://git.sv.gnu.org/guile.git&branch=branch_release-1-8&revision=release_1-8-4'
+    
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
+        if isinstance (source, repository.Repository):
+            source.version = lambda: '1.8.2'
         self.so_version = '17'
 
-    def set_tarball_mirror (self):
-        self.with_template (mirror=mirrors.gnu, version='1.8.2',
-                            format='gz')
-        self.so_version = '17'
-    def set_mirror(self):
-        self.set_tarball_mirror()
     def autogen_sh (self):
         self.file_sub ([(r'AC_CONFIG_SUBDIRS\(guile-readline\)', '')],
                        '%(srcdir)s/configure.in')
         self.file_sub ([(r'guile-readline', '')],
                        '%(srcdir)s/Makefile.am')
-        self.dump ('',
-                   '%(srcdir)s/doc/ref/version.texi')
-        self.dump ('',
-                   '%(srcdir)s/doc/tutorial/version.texi')
-        
-    def license_file (self):
-        return '%(srcdir)s/COPYING.LIB' 
- 
+        self.dump ('', '%(srcdir)s/doc/ref/version.texi')
+        self.dump ('', '%(srcdir)s/doc/tutorial/version.texi')
+
     def get_subpackage_names (self):
         return ['doc', 'devel', 'runtime', '']
 
@@ -57,25 +39,20 @@ class Guile (targetpackage.TargetBuildSpec):
     def get_build_dependencies (self):
         return ['gettext-devel', 'gmp-devel', 'libtool']
         
-    def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.set_mirror ()
-
     # FIXME: C&P.
     def guile_version (self):
         return '.'.join (self.ball_version.split ('.')[0:2])
 
     def patch (self):
-        targetpackage.TargetBuildSpec.patch(self)
-        self.autogen_sh()
-
         ## Don't apply patch twice.
-        self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/guile-reloc.patch')
-        self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/guile-cexp.patch')
+        self.apply_patch ('guile-reloc.patch')
+        self.apply_patch ('guile-cexp.patch')
         self.dump ('''#!/bin/sh
-exec %(local_prefix)s/bin/guile "$@"
+exec %(tools_prefix)s/bin/guile "$@"
 ''', "%(srcdir)s/pre-inst-guile.in")
             
+        self.autogen_sh ()
+        targetbuild.TargetBuild.patch (self)
         self.autoupdate ()
 
     def configure_flags (self):
@@ -90,13 +67,13 @@ exec %(local_prefix)s/bin/guile "$@"
 ''')
         
     def configure_command (self):
-        return ('GUILE_FOR_BUILD=%(local_prefix)s/bin/guile '
-                + targetpackage.TargetBuildSpec.configure_command (self)
+        return ('GUILE_FOR_BUILD=%(tools_prefix)s/bin/guile '
+                + targetbuild.TargetBuild.configure_command (self)
                 + self.configure_flags ())
 
     def compile_command (self):
-        return ('preinstguile=%(local_prefix)s/bin/guile ' +
-                targetpackage.TargetBuildSpec.compile_command (self))
+        return ('preinstguile=%(tools_prefix)s/bin/guile ' +
+                targetbuild.TargetBuild.compile_command (self))
     
     def compile (self):
 
@@ -106,24 +83,21 @@ exec %(local_prefix)s/bin/guile "$@"
         self.system ('cd %(builddir)s/libguile && make libpath.h')
         self.file_sub ([('''-L *%(system_root)s''', '-L')],
                        '%(builddir)s/libguile/libpath.h')
-        targetpackage.TargetBuildSpec.compile (self)
+        targetbuild.TargetBuild.compile (self)
 
     def configure (self):
-        targetpackage.TargetBuildSpec.configure (self)
+        targetbuild.TargetBuild.configure (self)
         self.update_libtool ()
 
     def install (self):
-        targetpackage.TargetBuildSpec.install (self)
+        targetbuild.TargetBuild.install (self)
         majmin_version = '.'.join (self.expand ('%(version)s').split ('.')[0:2])
         
         self.dump ("prependdir GUILE_LOAD_PATH=$INSTALLER_PREFIX/share/guile/%(majmin_version)s\n",
                    '%(install_prefix)s/etc/relocate/guile.reloc',
-                   env=locals())
-        
-        ## can't assume that /usr/bin/guile is the right one.
-        version = self.read_pipe ('''\
-GUILE_LOAD_PATH=%(install_prefix)s/share/guile/* guile -e main -s  %(install_prefix)s/bin/guile-config --version 2>&1\
-''').split ()[-1]
+                   env=locals ())
+ 
+        version = self.expand ('%(version)s')
 	#FIXME: c&p linux.py
         self.dump ('''\
 #! /bin/sh
@@ -137,13 +111,11 @@ test "$1" = "link" && echo "-L$prefix/lib -lguile -lgmp"
 exit 0
 ''',
              '%(install_prefix)s/cross/bin/%(target_architecture)s-guile-config')
-        os.chmod ('%(install_prefix)s/cross/bin/%(target_architecture)s-guile-config' % self.get_substitution_dict (), 0755)
+        self.chmod ('%(install_prefix)s/cross/bin/%(target_architecture)s-guile-config', 0755)
 
-
-    
 class Guile__mingw (Guile):
-    def __init__ (self, settings):
-        Guile.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        Guile.__init__ (self, settings, source)
         # Configure (compile) without -mwindows for console
         self.target_gcc_flags = '-mms-bitfields'
 
@@ -163,7 +135,7 @@ class Guile__mingw (Guile):
         srcdir = self.srcdir ()
 
 
-# don't set PATH_SEPARATOR; it will fuckup tool searching for the
+# don't set PATH_SEPARATOR; it will fuckup tools searching for the
 # build platform.
 
         return (Guile.configure_command (self)
@@ -174,6 +146,7 @@ C_INCLUDE_PATH=
 CPPFLAGS=
 LIBRARY_PATH=
 LDFLAGS=
+PATH_SEPARATOR=\\;
 cc
 -I%(builddir)s
 -I%(srcdir)s
@@ -191,7 +164,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_prefix)s/lib"}
 
     def configure (self):
         if 0: # using patch
-            targetpackage.TargetBuildSpec.autoupdate (self)
+            targetbuild.TargetBuild.autoupdate (self)
 
         if 1:
             self.file_sub ([('''^#(LIBOBJS=".*fileblocks.*)''',
@@ -199,19 +172,14 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_prefix)s/lib"}
                    '%(srcdir)s/configure')
 
         Guile.configure (self)
-
-        ## probably not necessary, but just be sure.
-        for el in self.locate_files ('%(builddir)s', "Makefile"):
-            self.file_sub ([('PATH_SEPARATOR = .', 'PATH_SEPARATOR = ;'),
-                            ], el)
-            
         self.file_sub ([
             #('^(allow_undefined_flag=.*)unsupported', '\\1'),
             ('-mwindows', ''),
             ],
                '%(builddir)s/libtool')
 
-        if os.path.exists (self.expand ('%(builddir)s/guile-readline/libtool')):
+        if 0:
+            # we have patched out readline.
             self.file_sub ([
                 #('^(allow_undefined_flag=.*)unsupported', '\\1'),
                 ('-mwindows', ''),
@@ -260,14 +228,16 @@ cc
 class Guile__darwin (Guile):
     def install (self):
         Guile.install (self)
-        pat = self.expand ('%(install_prefix)s/lib/libguile-srfi*.dylib')
-        import glob
-        for f in glob.glob (pat):
-            directory = os.path.split (f)[0]
-            src = os.path.basename (f)
-            dst = os.path.splitext (os.path.basename (f))[0] + '.so'
 
-            self.system ('cd %(directory)s && ln -s %(src)s %(dst)s', locals())
+        def dylib_link (logger, fname):
+            directory = os.path.split (fname)[0]
+            src = os.path.basename (fname)
+            dst = os.path.splitext (os.path.basename (fname))[0] + '.so'
+            loggedos.symlink (logger, src, os.path.join (directory, dst))
+                              
+        self.map_locate (dylib_link,
+                         self.expand ('%(install_prefix)s/lib/'),
+                         'libguile-srfi*.dylib')
  
 class Guile__darwin__x86 (Guile__darwin):
     def configure (self):
@@ -318,13 +288,6 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_prefix)s/lib"}
                            '%(srcdir)s/configure')
         Guile.configure (self)
 
-        ## ugh code dup. 
-        ## probably not necessary, but just be sure.
-        for i in self.locate_files ('%(builddir)s', "Makefile"):
-            self.file_sub ([
-                ('PATH_SEPARATOR = .', 'PATH_SEPARATOR = ;'),
-                ], i)
-
         self.file_sub ([
             ('^(allow_undefined_flag=.*)unsupported', '\\1'),
             ],
@@ -361,15 +324,12 @@ guile-tut').
 """,
     }
 
-from gub import toolpackage
-from gub import gubb
-class Guile__local (toolpackage.ToolBuildSpec, Guile):
-    def __init__ (self, settings):
-        toolpackage.ToolBuildSpec.__init__ (self, settings)
-        self.set_mirror ()
-
+from gub import toolsbuild
+from gub import build
+class Guile__tools (toolsbuild.ToolsBuild, Guile):
+    source = Guile.source
     def get_build_dependencies (self):
-        return (toolpackage.ToolBuildSpec.get_build_dependencies (self)
+        return (toolsbuild.ToolsBuild.get_build_dependencies (self)
                 + Guile.get_build_dependencies (self)
                 + ['automake'])
 
@@ -378,18 +338,18 @@ class Guile__local (toolpackage.ToolBuildSpec, Guile):
         self.autoupdate ()
 
     def configure_command (self):
-        return (toolpackage.ToolBuildSpec.configure_command (self)
+        return (toolsbuild.ToolsBuild.configure_command (self)
                 + self.configure_flags ())
 
     def configure (self):
-        toolpackage.ToolBuildSpec.configure (self)
+        toolsbuild.ToolsBuild.configure (self)
         self.update_libtool ()
 
     def install (self):
         ## guile runs fine without wrapper (if it doesn't, use the
         ## relocation patch), while a sh wrapper breaks executable
-        ## scripts toolpackage.ToolBuildSpec.install (self)
-        gubb.BuildSpec.install (self)
+        ## scripts toolsbuild.ToolsBuild.install (self)
+        build.UnixBuild.install (self)
 
-        ## don't want local GUILE headers to interfere with compile.
+        ## don't want tools GUILE headers to interfere with compile.
         self.system ("rm -rf %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/include/ %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/bin/guile-config ")

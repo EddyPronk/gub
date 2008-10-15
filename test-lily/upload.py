@@ -40,9 +40,6 @@ build_platform = {
 	'linux2': 'linux-x86',
 }[sys.platform]
 
-base_url = 'http://lilypond.org/download'
-
-
 host_spec = 'hanwen@lilypond.org:/var/www/lilypond'
 host_source_spec = host_spec + '/download'
 host_binaries_spec = host_spec + '/download/binaries'
@@ -81,15 +78,14 @@ def upload_binaries (repo, version, version_db):
     
     version_str = '.'.join (['%d' % v for v in version])
     branch = repo.branch
-#    if (version[1] % 2) == 0:
-#        branch = 'lilypond_%d_%d' % (version[0], version[1])
-#    if (version[1] % 2) == 0:
-#        branch = 'stable-%d.%d' % (version[0], version[1])
-
+    flattened_branch = repo.full_branch_name ()
+    dirred_branch = repo.get_ref ()
+    
     src_dests = []
     cmds = ['chgrp -R lilypond uploads/lilypond*',
             'chmod -R g+rw uploads/lilypond*',
-            'chmod 4775 `find uploads/cygwin/release -type d`']
+#            'chmod 4775 `find uploads/cygwin/release -type d`'
+            ]
 
 
     d = globals ().copy ()
@@ -97,13 +93,9 @@ def upload_binaries (repo, version, version_db):
 
     d['cwd'] = os.getcwd ()
     # FIXME: what if user changes ~/.gubrc?  should use gubb.Settings!
-    d['lilybuild'] = d['cwd'] + '/target/%(build_platform)s/build/lilypond-%(branch)s' % d
-    d['lilysrc'] = d['cwd'] + '/target/%(build_platform)s/src/lilypond-%(branch)s' % d 
+    d['lilybuild'] = d['cwd'] + '/target/%(build_platform)s/build/lilypond-%(flattened_branch)s' % d
+    d['lilysrc'] = d['cwd'] + '/target/%(build_platform)s/src/lilypond-%(flattened_branch)s' % d 
 
-    ## ugh: 24 is hardcoded in repository.py
-    committish = repo.git_pipe ('describe --abbrev=24 %(branch)s' % locals ()).strip ()
-    regularized_committish = committish.replace ('/', '-')
-    
     commitishes = {}
     barf = False
     for platform in platforms:
@@ -126,9 +118,9 @@ def upload_binaries (repo, version, version_db):
             
         if (platform not in ('documentation', 'test-output')
              and os.path.exists (bin)):
-            branch = repo.branch
+            branch = repo.full_branch_name ()
             # FIXME: what if user changes ~/.gubrc?  should use gubb.Settings!
-            hdr = pickle.load (open ('target/%(platform)s/packages/lilypond-%(branch)s.%(platform)s.hdr' % locals ()))
+            hdr = dict (pickle.load (open ('target/%(platform)s/packages/lilypond-%(branch)s.%(platform)s.hdr' % locals ())))
             key = hdr['source_checksum']
             
             lst = commitishes.get (key, [])
@@ -143,12 +135,9 @@ def upload_binaries (repo, version, version_db):
                          % os.path.abspath (bin))
             barf = 1
 
-    if (len (commitishes) > 1
-        or (len (commitishes) == 1
-            and commitishes.keys ()[0] != regularized_committish)):
+    if len (commitishes) > 1:
         print 'uploading multiple versions'
         print '\n'.join (`x` for x in commitishes.items ())
-        print 'repo:', `regularized_committish`
         
     src_tarball = 'uploads/lilypond-%(version_str)s.tar.gz' % locals ()
     src_tarball = os.path.abspath (src_tarball)
@@ -167,7 +156,7 @@ def upload_binaries (repo, version, version_db):
   %(lilybuild)s/out-www/online-root/''' % d
     
     cmds.append (test_cmd)
-    if tuple(version[:2]) > (2,10):
+    if tuple (version[:2]) > (2,10):
         test_cmd = r'''python %(cwd)s/test-lily/rsync-test.py \
   --upload %(host_test_spec)s \
   --version-file %(lilybuild)s/out/VERSION \
@@ -181,14 +170,13 @@ def upload_binaries (repo, version, version_db):
     ## don't do cygwin .
     ##    cmds.append ('rsync -v --recursive --delay-updates --progress uploads/cygwin/release/ %(host_binaries_spec)s/cygwin/release/' % globals ())
 
-
-
-    description = repo.git_pipe ('describe --abbrev=39 %(branch)s' % locals()).strip ()
+    
+    description = repo.git_pipe ('describe --abbrev=39 %s' % repo.get_ref ()).strip ()
     
     git_tag = 'release/%(version_str)s-%(build)d' % locals () 
-    git_tag_cmd = 'git --git-dir downloads/lilypond.git tag -m "" -a %(git_tag)s %(branch)s' % locals ()
-    git_push_cmd = 'git --git-dir downloads/lilypond.git push ssh+git://git.sv.gnu.org/srv/git/lilypond.git/ refs/tags/%(git_tag)s:refs/tags/%(git_tag)s' % locals ()
-    gub_tag_cmd = 'git tag "gub-release-lilypond-%(version_str)s-%(build)d" -m "release of lilypond %(description)s (%(version_str)s-%(build)d)" ' % locals()
+    git_tag_cmd = 'git --git-dir downloads/lilypond tag -m "" -a %(git_tag)s %(dirred_branch)s' % locals ()
+    git_push_cmd = 'git --git-dir downloads/lilypond push ssh+git://git.sv.gnu.org/srv/git/lilypond.git/ refs/tags/%(git_tag)s:refs/tags/%(git_tag)s' % locals ()
+    gub_tag_cmd = 'git tag -m "release of lilypond %(description)s (%(version_str)s-%(build)d)"  "gub-release-lilypond-%(version_str)s-%(build)d"' % locals ()
 
     cmds.append (git_tag_cmd)
     cmds.append (git_push_cmd)
@@ -211,15 +199,15 @@ upload x.y.z      - upload packages
     
     p.description = 'look around on lilypond.org'
 
-    p.add_option ('--url', action='store',
-                  dest='url',
-                  default=base_url,
-                  help='select base url')
-
     p.add_option ('--branch', action='store',
                   dest='branch',
                   default='master',
                   help='select upload directory')
+
+    p.add_option ('--url', action='store',
+                  dest='url',
+                  default='localhost/git',
+                  help='select hostname/path for git branch')
 
     p.add_option ('--execute', action='store_true',
                   dest='execute',
@@ -228,7 +216,7 @@ upload x.y.z      - upload packages
 
     p.add_option ('--repo-dir', action='store',
                   dest='repo_dir',
-                  default='downloads/lilypond.git',
+                  default='downloads/lilypond',
                   help='select repository directory')
 
     p.add_option ('--version-db', action='store',
@@ -246,21 +234,19 @@ def get_repository (options):
     ## do here, because also used in website generation.
     from gub import repository
     dir = options.repo_dir.replace ('.git','')
-    repo = repository.Git (dir, 
-                                     branch=options.branch)
+    repo = repository.Git (dir, source=options.url, branch=options.branch)
     return repo
 
 def main ():
     cli_parser = get_cli_parser ()
     (options, commands)  = cli_parser.parse_args ()
 
-    global base_url, host_spec
-    base_url = options.url
+    global host_spec
     host_spec = options.upload_host
 
     repo = get_repository (options)
 
-    version_dict = misc.grok_sh_variables_str (repo.get_file_content ('VERSION'))
+    version_dict = misc.grok_sh_variables_str (repo.read_file ('VERSION'))
     version_tup = tuple (map (version_dict.get, ('MAJOR_VERSION', 'MINOR_VERSION', 'PATCH_LEVEL')))
     version_tup = tuple (map (int, version_tup))
     

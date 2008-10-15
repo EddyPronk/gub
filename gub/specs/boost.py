@@ -1,18 +1,18 @@
 from gub import mirrors
-from gub import gubb
+from gub import build
 from gub import misc
-from gub import targetpackage
+from gub import targetbuild
 #
 import os
 
 # TODO: AutoToolSpec
-class BjamBuildSpec (targetpackage.TargetBuildSpec):
-    def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
-        gubb.append_target_dict (self, {'CFLAGS': ''})
+class BjamBuild (targetbuild.TargetBuild):
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
+        build.append_target_dict (self, {'CFLAGS': ''})
     def get_substitution_dict (self, env={}):
         # FIXME: how to add settings to dict?
-        dict = targetpackage.TargetBuildSpec.get_substitution_dict (self, env)
+        dict = targetbuild.TargetBuild.get_substitution_dict (self, env)
         dict['CFLAGS'] = ''
         return dict
     def patch (self):
@@ -26,14 +26,14 @@ class BjamBuildSpec (targetpackage.TargetBuildSpec):
 # --without-test because is only available as shared lib
 
 # FIXME: how to add settings to dict?
-#'-sGCC=%(tool_prefix)sgcc %(CFLAGS)s
-#'-sGXX=%(tool_prefix)sg++ %(CFLAGS)s
+#'-sGCC=%(toolchain_prefix)sgcc %(CFLAGS)s
+#'-sGXX=%(toolchain_prefix)sg++ %(CFLAGS)s
 
         return misc.join_lines ('''
 bjam
 '-sTOOLS=gcc'
-'-sGCC=%(tool_prefix)sgcc -fPIC -DBOOST_PLATFORM_CONFIG=\\"boost/config/platform/linux.hpp\\"'
-'-sGXX=%(tool_prefix)sg++ -fPIC -DBOOST_PLATFORM_CONFIG=\\"boost/config/platform/linux.hpp\\"'
+'-sGCC=%(toolchain_prefix)sgcc -fPIC -DBOOST_PLATFORM_CONFIG=\\"boost/config/platform/linux.hpp\\"'
+'-sGXX=%(toolchain_prefix)sg++ -fPIC -DBOOST_PLATFORM_CONFIG=\\"boost/config/platform/linux.hpp\\"'
 '-sNO_BZIP2=1'
 '-sNO_ZLIB=1'
 '-sBUILD=release <optimization>space <inlining>on <debug-symbols>off <runtime-link>static'
@@ -54,19 +54,19 @@ bjam
         return (self.compile_command ()
                 + ' install').replace ('=%(prefix_dir)s', '=%(install_prefix)s')
 
-class Boost (BjamBuildSpec):
-    def __init__ (self,settings):
-        BjamBuildSpec.__init__ (self, settings)
-        self.with_template (version='1.33.1', mirror=mirrors.boost_1_33_1, format='bz2')
-        gubb.change_target_dict (self, {'CFLAGS': '-DBOOST_PLATFORM_CONFIG=\\"boost/config/platform/linux.hpp\\"'})
+class Boost (BjamBuild):
+    source = mirrors.with_template (name='boost', version='1.33.1', mirror=mirrors.boost_1_33_1, format='bz2')
+    def __init__ (self, settings, source):
+        BjamBuild.__init__ (self, settings, source)
+        build.change_target_dict (self, {'CFLAGS': '-DBOOST_PLATFORM_CONFIG=\\"boost/config/platform/linux.hpp\\"'})
     def get_substitution_dict (self, env={}):
-        dict = BjamBuildSpec.get_substitution_dict (self, env)
+        dict = BjamBuild.get_substitution_dict (self, env)
         dict['CFLAGS'] = '-DBOOST_PLATFORM_CONFIG=\\"boost/config/platform/linux.hpp\\"'
         return dict
-    def license_file (self):
-        return '%(srcdir)s/LICENSE_1_0.txt'
+    def license_files (self):
+        return ['%(srcdir)s/LICENSE_1_0.txt']
     def install (self):
-        BjamBuildSpec.install (self)
+        BjamBuild.install (self)
         # Bjam `installs' header files by using symlinks to the source dir?
         for i in self.locate_files ('%(install_prefix)s/include/boost',
                                     '*'):
@@ -84,7 +84,7 @@ cp %(s)s %(i)s
             os.symlink (f, f.replace ('-s.a', '.a'))
         os.chdir (cwd)
         
-class Boost__linux_arm_softfloat (BjamBuildSpec):
+class Boost__linux_arm_softfloat (BjamBuild):
     def configure_command (self):
         self.system ('''
 cp -f boost/config/platform/linux.hpp boost/config/platform/linux-gnueabi.hpp

@@ -1,11 +1,11 @@
-from gub import gubb
+from gub import build
 from gub import debian
 from gub import mirrors
 
-class Libc6 (gubb.BinarySpec, gubb.SdkBuildSpec):
-    def __init__ (self, settings):
-        gubb.BinarySpec.__init__ (self, settings)
-        self.with_template (version=debian.get_packages ()['libc6'].version (),
+class Libc6 (build.BinaryBuild, build.SdkBuild):
+    def __init__ (self, settings, source):
+        build.BinaryBuild.__init__ (self, settings, source)
+    source = mirrors.with_template (name='libc6', version=debian.get_packages ()['libc6'].version (),
                    strip_components=0,
                    mirror=mirrors.glibc_deb,
 # FIXME: we do not mirror all 12 debian arch's,
@@ -14,7 +14,7 @@ class Libc6 (gubb.BinarySpec, gubb.SdkBuildSpec):
     def patch (self):
         self.system ('cd %(srcdir)s && rm -rf usr/sbin/ sbin/ bin/ usr/bin')
     def untar (self):
-        gubb.BinarySpec.untar (self)
+        build.BinaryBuild.untar (self)
         # Ugh, rewire absolute names and symlinks.
         i = self.expand ('%(srcdir)s/lib64')
         import os

@@ -1,10 +1,8 @@
-from gub import gubb
+from gub import mirrors
+from gub import build
 
-class Root_image (gubb.NullBuildSpec):
-    def __init__ (self, settings):
-        gubb.NullBuildSpec.__init__ (self, settings)
-        from gub import repository
-        self.with_vc (repository.Version ('1.0'))
+class Root_image (build.NullBuild):
+    source = mirrors.with_vc (repository.Version ('1.0'))
     def _get_build_dependencies (self):
         busybox = [
             'dhcp',
@@ -52,17 +50,17 @@ class Root_image (gubb.NullBuildSpec):
     def install_ipkg (self, i):
         fakeroot_cache = self.builddir () + '/fakeroot.cache'
         self.fakeroot (self.expand (self.settings.fakeroot, locals ()))
-        import glob
-        for f in glob.glob (self.expand ('%(downloads)s/ipk/%(i)s_*.ipk',
-                                         locals ())):
-            v = ''
-            if self.verbose >= self.os_interface.level['command']:
-                v = 'v'
-            self.system ('''
-cd %(install_root)s && ar p %(f)s data.tar.gz | tar -zx%(v)sf -
-''', locals ())
+        _v = '' # self.os_interface.verbose_flag ()
+        def do_one (logger, fname):
+            loggedos.system (logger, self.expand ('''
+cd %(install_root)s && ar p %(fname)s data.tar.gz | tar%(_v)s -zxf -
+''', locals ()))
+        self.map_locate (do_one,
+                         self.expand ('%(downloads)s/ipk/'),
+                         i + '*.ipk')
+        
     def install (self):
-        gubb.NullBuildSpec.install (self)
+        build.NullBuild.install (self)
         for i in self.get_ipkg_dependencies ():
             self.install_ipkg (i)
 

@@ -3,22 +3,23 @@ import os
 import re
 import string
 import sys
-import urllib
- 
+import urllib2
+import stat
+import imp
+import traceback
+import fnmatch
+
 def join_lines (str):
     return str.replace ('\n', ' ')
 
 def load_module (file_name, name=None):
     if not name:
-        import os
         name = os.path.split (os.path.basename (file_name))[0]
     file = open (file_name)
     desc = ('.py', 'U', 1)
-    import imp
     return imp.load_module (name, file, file_name, desc)
 
 def load_spec (spec_file_name):
-    import os
     # FIXME: should use settings.specdir
     specdir = os.getcwd () + '/gub/specs'
     return load_module ('%(specdir)s/%(spec_file_name)s.py' % locals ())
@@ -32,42 +33,37 @@ def bind_method (func, obj):
     return lambda *args: func (obj, *args)
 
 def read_pipe (cmd, ignore_errors=False):
-    print 'Executing pipe %s' % cmd
     pipe = os.popen (cmd)
-
     val = pipe.read ()
     if pipe.close () and not ignore_errors:
-        raise SystemFailed ("Pipe failed: %s" % cmd)
-    
+        raise SystemFailed ('Pipe failed: %(cmd)s' % locals ())
+
     return val
+
+def read_file (file):
+    return open (file).read ()
 
 def grok_sh_variables_str (str):
     dict = {}
     for i in str.split ('\n'):
         m = re.search ('^([^ =]+) *=\s*(.*)$', i)
         if m:
-            k = m.group (1)
-            s = m.group (2)
+            k, s  = m.groups ()
             dict[k] = s
     return dict
-
 
 def grok_sh_variables (file):
     return grok_sh_variables_str (open (file).read ())
 
-def itoa (x):
-    if type (x) == int:
-        return "%d" % x
-    return x
-
 def version_to_string (t):
-    return '%s-%s' % (string.join (map (itoa, t[:-1]), '.'), t[-1])
+    return '%s-%s' % (string.join (map (string, t[:-1]), '.'), t[-1])
 
 def split_version (s):
     m = re.match ('^(([0-9].*)-([0-9]+))$', s)
     if m:
         return m.group (2), m.group (3)
-    return s, '0'
+    
+    return (s, '0')
 
 def string_to_version (s):
     s = re.sub ('([^0-9][^0-9]*)', ' \\1 ', s)
@@ -80,13 +76,26 @@ def string_to_version (s):
     return tuple (map (atoi, (string.split (s, ' '))))
 
 def is_ball (s):
+    # FIXME: do this properly, by identifying different flavours:
+    # .deb, tar.gz, cygwin -[build].tar.bz2 etc and have simple
+    # named rules for them.
     return re.match ('^(.*?)[-_]([0-9].*(-[0-9]+)?)([._][a-z]+[0-9]*)?(\.tar\.(bz2|gz)|\.gu[bp]|\.deb|\.tgz)$', s)
 
 def split_ball (s):
+    p = s.rfind ('/')
+    if p >= 0:
+        s = s[p+1:]
     m = is_ball (s)
     if not m:
         return (s, (0, 0), '')
     return (m.group (1), string_to_version (string.join (split_version (m.group (2)), '-')), m.group (6))
+
+def name_from_url (url):
+    url, params = misc.dissect_url (url)
+    name = os.path.basename (url)
+    if is_ball (name):
+        name, version_tuple, format = split_ball (name)
+    return name
 
 def list_append (lists):
     return reduce (lambda x,y: x+y, lists, [])
@@ -103,40 +112,25 @@ def uniq (list):
 
     return u
 
-
-
-def intersect (l1, l2):
-    return [l for l in l1 if l in l2]
-
-def tar_compression_flag (ball):
-    compression_flag = ''
-    if ball.endswith ('gub'):
-        compression_flag = 'z'
-    elif ball.endswith ('gup'):
-        compression_flag = 'z'
+def compression_flag (ball):
+    if (ball.endswith ('gub')
+        or ball.endswith ('gup')
+        or ball.endswith ('gz')
+        or ball.endswith ('tgz')):
+        return ' -z'
     elif ball.endswith ('bz2'):
-        compression_flag = 'j'
-    elif ball.endswith ('gz'):
-        compression_flag = 'z'
-    return compression_flag
+        return ' -j'
+    return ''
 
-
-def file_is_newer (f1, f2):
+def first_is_newer (f1, f2):
     return (not os.path.exists (f2)
         or os.stat (f1).st_mtime > os.stat (f2).st_mtime)
-
-def find (dir, test):
-    dir = re.sub ( "/*$", '/', dir)
-    result = []
-    for (root, dirs, files) in os.walk (dir):
-        result += test (root, dirs, files)
-    return result
 
 def find_files (dir, pattern):
     '''
     Return list of files under DIR matching the regex pattern.
     '''
-    if type ('') == type (pattern):
+    if type (pattern) == str:
         pattern = re.compile (pattern)
     def test (root, dirs, files):
         #HMM?
@@ -148,77 +142,111 @@ def find_dirs (dir, pattern):
     '''
     Return list of dirs under DIR matching the regex pattern.
     '''
-    if type ('') == type (pattern):
+    if str == type (pattern):
         pattern = re.compile (pattern)
     def test (root, dirs, files):
         return [os.path.join (root, d) for d in dirs if pattern.search (d)]
     return find (dir, test)
 
-# c&p oslog.py
-def download_url (url, dest_dir, fallback=None):
-    print 'Downloading', url
-    # FIXME: where to get settings, fallback should be a user-definable list
-    fallback = 'http://peder.xs4all.nl/gub-sources'
-    try:
-        _download_url (url, dest_dir, sys.stderr)
-    except Exception, e:
-	if fallback:
-	    fallback_url = fallback + url[url.rfind ('/'):]
-	    _download_url (fallback_url, dest_dir, sys.stderr)
-	else:
-	    raise e
+def rewrite_url (url, mirror):
+    '''Return new url on MIRROR, using file name from URL.
+
+    Assume that files are stored in a directory of their own base name, eg
+
+    lilypond/lilypond-1.2.3.tar.gz
+    '''
     
-def _download_url (url, dest_dir, stderr):
+    file = os.path.basename (url)
+    base = split_ball (file)[0]
+    return os.path.join (mirror, base, file)
+
+# FIXME: read settings.rc, local, fallback should be a user-definable list
+def download_url (original_url, dest_dir,
+                  local=[],
+                  fallback=['http://lilypond.org/download/gub-sources'],
+                  progress=sys.stderr.write):
+
+    assert type(local) == list
+    assert type(fallback) == list
+
+    candidate_urls = []
+    for url in local + [original_url] + fallback:
+        candidate_urls.append(url)
+        if not is_ball (os.path.basename (url)):
+            candidate_urls.append(rewrite_url (original_url, url))
+
+    for url in candidate_urls:
+        size = _download_url (url, dest_dir, progress)
+        if size:
+            return
+
+def _download_url (url, dest_dir, progress=None):
+    progress ('downloading %(url)s -> %(dest_dir)s\n' % locals ())
     if not os.path.isdir (dest_dir):
         raise Exception ("not a dir", dest_dir)
 
     bufsize = 1024 * 50
-    filename = os.path.split (urllib.splithost (url)[1])[1]
-
-    out_filename = dest_dir + '/' + filename
+    # what's this, just basename?
+    # filename = os.path.split (urllib.splithost (url)[1])[1]
+    size = 0
     try:
-        output = open (out_filename, 'w')
-        opener = urllib.URLopener ()
-        url_stream = opener.open (url)
-        while True:
-            contents = url_stream.read (bufsize)
-            output.write (contents)
-            stderr.write ('.')
-            stderr.flush ()
-            if not contents:
-                break
-        stderr.write ('\n')
-    except:
-        os.unlink (out_filename)
+        url_stream = urllib2.urlopen (url)
+    except OSError:
+        if url.startswith('file:'):
+            return 0
         raise
+    except IOError:
+        if url.startswith('ftp:'):
+            return 0
+        raise
+
+    # open output after URL, otherwise we get 0-byte downloads everywhere.
+
+    # ugh - race condition if we have 2 gubs running
+    tmpfile = dest_dir + '/.downloadtmp'
     
+    output = open (tmpfile, 'w')
+    while True:
+        contents = url_stream.read (bufsize)
+        if not contents:
+            break
+
+        size += len(contents)
+        output.write (contents)
+        if progress:
+            progress ('.')
+        sys.stderr.flush ()
+
+    if progress:
+        progress ('\n')
+
+    file_name = os.path.basename (url)
+    os.rename(tmpfile, os.path.join (dest_dir, file_name))
+
+    if progress:
+        if size:
+            progress ('done (%(size)s)\n' % locals ())
+        else:
+            progress ('failed\n')
+
+    return size
+
 def forall (generator):
     v = True
     try:
         while v:
-            v = v and generator.next()
+            v = v and generator.next ()
     except StopIteration:
         pass
-
     return v
 
 def exception_string (exception=Exception ('no message')):
-    import traceback
     return traceback.format_exc (None)
 
 class SystemFailed (Exception):
     pass
 
-
-def system (cmd, ignore_errors=False):
-    #URG, go through oslog
-    print 'Executing command %s' % cmd
-    stat = os.system (cmd)
-    if stat and not ignore_errors:
-        raise SystemFailed ('Command failed (' + `stat/256` + '): ' + cmd)
-
 def file_mod_time (path):
-    import stat
     return os.stat (path)[stat.ST_MTIME]
 
 def binary_strip_p (filter_out=[], extension_filter_out=[]):
@@ -230,7 +258,6 @@ def binary_strip_p (filter_out=[], extension_filter_out=[]):
 
 # Move to Os_commands?
 def map_command_dir (os_commands, dir, command, predicate):
-    import os
     if not os.path.isdir (dir):
         raise ('warning: no such dir: %(dir)s' % locals ())
     (root, dirs, files) = os.walk (dir).next ()
@@ -262,13 +289,12 @@ def get_interpreter (file):
     return None
 
 def read_tail (file, size=10240, lines=100, marker=None):
-    '''
-Efficiently read tail of a file, return list of full lines.
+    '''Efficiently read tail of a file, return list of full lines.
 
-Typical used for reading tail of a log file.  Read a maximum of
-SIZE, return a maximum line count of LINES, truncate everything
-before MARKER.
-'''
+    Typical used for reading tail of a log file.  Read a maximum of
+    SIZE, return a maximum line count of LINES, truncate everything
+    before MARKER.
+    '''
     f = open (file)
     f.seek (0, 2)
     length = f.tell ()
@@ -281,7 +307,7 @@ before MARKER.
     return s.split ('\n')[-lines:]
 
 class MethodOverrider:
-    """Override a object method with a function defined outside the
+    '''Override a object method with a function defined outside the
 class hierarchy.
     
     Usage:
@@ -294,19 +320,14 @@ class hierarchy.
     p.func = MethodOverrider (old,
                               new_func,
                               (arg1, arg2, .. ))
-    """
-    def __init__ (self, old_func, new_func, extra_args=()):
+    '''
+    def __init__ (self, old_func, new_func, extra_args=tuple ()):
         self.new_func = new_func
         self.old_func = old_func
         self.args = extra_args
     def __call__ (self):
         all_args = (self.old_func (),) + self.args  
         return apply (self.new_func, all_args)
-
-def list_find (lst, a):
-    if a in lst:
-        return lst.index (a)
-    return -1
 
 def list_insert (lst, idx, a):
     if type (a) == type (list ()):
@@ -315,9 +336,134 @@ def list_insert (lst, idx, a):
         lst.insert (idx, a)
     return lst
 
-def testme ():
-    print forall (x for x in [1, 1])
-    
-if __name__ =='__main__':
-    testme ()
+def list_insert_before (lst, target, a):
+    return list_insert (lst, lst.index(target), a)
 
+def most_significant_in_dict (d, name, sep):
+    '''Return most significant variable from DICT
+
+    NAME is less significant when it contains less bits sepated by SEP.'''
+    
+    v = None
+    while name:
+        if d.has_key (name):
+            v = d[name]
+            break
+        name = name[:max (name.rfind (sep), 0)]
+    return v
+
+def dissect_url (url):
+    """Strip and parse query part of a URL.
+
+    Returns (stripped url, query-dict).  The values of the query-dict
+    are lists of strings."""
+    
+    s = url.replace ('?', '&')
+    lst = s.split ('&')
+    def dict (tuple_lst):
+        d = {}
+        for k, v in tuple_lst:
+            d[k] = d.get (k, []) + [v]
+        return d
+    
+    return lst[0], dict (map (lambda x: x.split ('='), lst[1:]))
+
+def get_from_parents (cls, key):
+    base = cls.__name__
+    p = base.find ('__')
+    if p >= 0:
+        base = base[:p]
+    for i in cls.__bases__:
+        if not base in i.__name__:
+            # multiple inheritance, a base class like UnixBuild
+            # can come earlier that Python without __tools,
+            # so continue rather than break
+            continue
+        if i.__dict__.get (key):
+            return i.__dict__.get (key)
+    return None
+
+
+def file_sub (re_pairs, name, must_succeed=False, use_re=True, to_name=None):
+    s = open (name).read ()
+    t = s
+    for frm, to in re_pairs:
+        new_text = ''
+        if use_re:
+            new_text = re.sub (re.compile (frm, re.MULTILINE), to, t)
+        else:
+            new_text = t.replace (frm, to)
+
+        if (t == new_text and must_succeed):
+            raise Exception ('nothing changed!')
+        t = new_text
+
+    if s != t or (to_name and name != to_name):
+        stat_info = os.stat (name)
+        mode = stat.S_IMODE (stat_info[stat.ST_MODE])
+
+        if not to_name:
+            try:
+                os.unlink (name + '~')
+            except OSError:
+                pass
+            os.rename (name, name + '~')
+            to_name = name
+        h = open (to_name, 'w')
+        h.write (t)
+        h.close ()
+        os.chmod (to_name, mode)
+
+def dump_file (content, name, mode='w', permissions=None):
+    assert type (mode) == str
+    assert type (content) == str
+
+    dir = os.path.split (name)[0]
+    if not os.path.exists (dir):
+        os.makedirs (dir)
+
+    f = open (name, mode)
+    f.write (content)
+    f.close ()
+
+    if permissions:
+        os.chmod (name, permissions)
+
+def locate_files (directory, pattern,
+                  include_dirs=True, include_files=True):
+    if not directory or not pattern:
+        directory = os.path.dirname (directory + pattern)
+        pattern = os.path.basename (directory + pattern)
+    directory = re.sub ( "/*$", '/', directory)
+    results = list ()
+    for (root, dirs, files) in os.walk (directory):
+        relative_results = list ()
+        if include_dirs:
+            relative_results += dirs
+        if include_files:
+            relative_results += files
+        results += [os.path.join (root, f)
+                    for f in (fnmatch.filter (relative_results, pattern))]
+
+    return results
+
+def shadow (src, target):
+    '''Symlink files from SRC in TARGET recursively'''
+    target = os.path.abspath (target)
+    src = os.path.abspath (src)
+    os.makedirs (target)
+    (root, dirs, files) = os.walk (src).next ()
+    for f in files:
+        os.symlink (os.path.join (root, f), os.path.join (target, f))
+    for d in dirs:
+        shadow (os.path.join (root, d), os.path.join (target, d))
+
+def test ():
+    print forall (x for x in [1, 1])
+    print dissect_url ('git://anongit.freedesktop.org/git/fontconfig?revision=1234')
+    print dissect_url ('http://lilypond.org/foo-123.tar.gz&patch=a&patch=b')
+    print rewrite_url ('ftp://foo.com/pub/foo/foo-123.tar.gz',
+                       'http://lilypond.org/downloads')
+
+if __name__ =='__main__':
+    test ()

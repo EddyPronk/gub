@@ -1,12 +1,11 @@
-from gub import targetpackage
+from gub import mirrors
+from gub import targetbuild
 from gub import repository
 
 url = 'ftp://ftp.cistron.nl/pub/people/miquels/sysvinit/sysvinit-2.86.tar.gz'
 
-class Sysvinit (targetpackage.TargetBuildSpec):
-    def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with_vc (repository.TarBall (self.settings.downloads, url))
+class Sysvinit (targetbuild.TargetBuild):
+    source = mirrors.with_vc (repository.TarBall (self.settings.downloads, url))
     def get_subpackage_names (self):
         return ['']
     def patch (self):
@@ -14,13 +13,13 @@ class Sysvinit (targetpackage.TargetBuildSpec):
     def configure_command (self):
         return 'true'
     def makeflags (self):
-        return 'CC=%(tool_prefix)sgcc ROOT=%(install_root)s'
+        return 'CC=%(toolchain_prefix)sgcc ROOT=%(install_root)s'
     def compile_command (self):
         return 'cd %(builddir)s/src && make %(makeflags)s'
     def install (self):
         fakeroot_cache = self.builddir () + '/fakeroot.cache'
         self.fakeroot (self.expand (self.settings.fakeroot, locals ()))
-        targetpackage.TargetBuildSpec.install (self)
+        targetbuild.TargetBuild.install (self)
     def install_command (self):
         from gub import misc
         # FIXME: cannot do these as self.system () in install () as
@@ -37,5 +36,5 @@ mkdir -p %(install_prefix)s/share/man/man8 &&
 cd %(builddir)s/src && fakeroot make install %(makeflags)s &&
 find %(install_root)s/bin %(install_root)s/sbin %(install_prefix)s/bin -type f -o -type l | grep -Ev 'sbin/(tel|)init$' | xargs -I'{}' mv '{}' '{}'.sysvinit
 ''')
-    def license_file (self):
-        return '%(srcdir)s/doc/Install'
+    def license_files (self):
+        return ['%(srcdir)s/doc/Install']

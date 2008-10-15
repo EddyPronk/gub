@@ -1,10 +1,12 @@
 from gub import repository
-from gub import targetpackage
+from gub import targetbuild
+from gub import misc
+
 
 texlive_svn = 'svn://username@tug.org/texlive'
 license_url = 'http://tug.org/svn/texlive/trunk/Master/LICENSE.TL'
 
-class Texlive (targetpackage.TargetBuildSpec):
+class Texlive (targetbuild.TargetBuild):
     '''The TeX Live text formatting system
 The TeX Live software distribution offers a complete TeX system.
 It  encompasses programs for editing, typesetting, previewing and printing
@@ -15,27 +17,23 @@ The distribution also includes extensive general documentation about
 TeX, as well as the documentation accompanying the included software
 packages.'''
 
-    def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
-        repo = repository.Subversion (
-            dir=self.get_repodir (),
-            source=texlive_svn,
-            branch='trunk',
-            module='Build/source',
-            revision='HEAD')
+    source = mirrors.with_vc (repository.Subversion (None,
+                                                     source=texlive_svn,
+                                                     branch='trunk',
+                                                     module='UnixBuild/source',
+                                                     revision='HEAD'))
 
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
         def fixed_version (self):
             return '2006'
-
         from new import instancemethod
-        repo.version = instancemethod (fixed_version, repo, type (repo))
-
-        self.with_vc (repo)
+        source.version = instancemethod (fixed_version, source, type (source))
 
         self.texmf_repo = repository.Subversion (
 # FIXME: module should be used in checkout dir name.            
             dir=self.get_repodir () + '-texmf',
-#            dir=self.get_repodir () + 'vc_repository._checkout_dir (),
+#            dir=self.get_repodir () + 'source._checkout_dir (),
             source=texlive_svn,
             branch='trunk',
             module='Master/texmf',
@@ -44,7 +42,7 @@ packages.'''
         self.texmf_dist_repo = repository.Subversion (
 # FIXME: module should be used in checkout dir name.            
             dir=self.get_repodir () + '-texmf-dist',
-#            dir=self.get_repodir () + 'vc_repository._checkout_dir (),
+#            dir=self.get_repodir () + 'source._checkout_dir (),
             source=texlive_svn,
             branch='trunk',
             module='Master/texmf-dist',
@@ -57,7 +55,7 @@ packages.'''
         return ['doc', 'devel', 'base', 'runtime', 'bin', '']
 
     def get_subpackage_definitions (self):
-        d = targetpackage.TargetBuildSpec.get_subpackage_definitions (self)
+        d = targetbuild.TargetBuild.get_subpackage_definitions (self)
         d['doc'] += [self.settings.prefix_dir + '/share/texmf/doc']
         d['base'] = [self.settings.prefix_dir + '/share/texmf']
 #        d['bin'] = ['/']
@@ -65,26 +63,23 @@ packages.'''
         return d
 
     def download (self):
-        targetpackage.TargetBuildSpec.download (self)
+        targetbuild.TargetBuild.download (self)
         self.texmf_repo.download ()
-        from gub import misc
-        misc.download_url (license_url,  self.vc_repository._checkout_dir ())
-#        self.dump ('MAJOR_VERSION=2006', self.vc_repository.dir + '/VERSION')
+        # ugh.
+        loggedos.download_url (logging.default_logger,
+                               license_url,  self.source._checkout_dir ())
                            
     def untar (self):
-        targetpackage.TargetBuildSpec.untar (self)
+        targetbuild.TargetBuild.untar (self)
 #        self.texmf_repo.update_workdir (self.expand ('%(srcdir)s/texmf-dist'))
         self.texmf_repo.update_workdir (self.expand ('%(srcdir)s/texmf'))
-
-    def rsync_command (self):
-        return targetpackage.TargetBuildSpec.rsync_command (self).replace ('rsync', 'rsync --exclude=.svn')
 
     def configure_command (self):
         from gub import misc
         #FIXME
         return ('export TEXMFMAIN=%(srcdir)s/texmf;'
                 + 'bash '
-                + targetpackage.TargetBuildSpec.configure_command (self).replace ('--config-cache', '--cache-file=config.cache')
+                + targetbuild.TargetBuild.configure_command (self).replace ('--config-cache', '--cache-file=config.cache')
                 + misc.join_lines ('''
 --disable-multiplatform
 --enable-ipc
@@ -130,14 +125,14 @@ packages.'''
         return self.broken_install_command ()
 
     def install (self):
-    	targetpackage.TargetBuildSpec.install (self)
+    	targetbuild.TargetBuild.install (self)
         self.system ('''
 #rsync -v -a %(srcdir)s/texmf-dist/* %(install_prefix)s/share/texmf-dist
 rsync -v -a %(srcdir)s/texmf/* %(install_prefix)s/share/texmf/
 ''')
 
-    def license_file (self):
-        return '%(srcdir)s/LICENSE.TL'
+    def license_files (self):
+        return ['%(srcdir)s/LICENSE.TL']
 
     # FIXME: shared for all vc packages
     def srcdir (self):
@@ -156,8 +151,8 @@ rsync -v -a %(srcdir)s/texmf/* %(install_prefix)s/share/texmf/
         return 'texlive-3.0'
 
 class Texlive__cygwin (Texlive):
-    def __init__ (self, settings):
-        Texlive.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        Texlive.__init__ (self, settings, source)
 
     # FIXME: uses mixed gub/distro dependencies
     def get_dependency_dict (self):

@@ -2,36 +2,32 @@ import re
 import sys
 #
 from gub import mirrors
-import glob
-from gub import gubb
-from gub import targetpackage
-
+from gub import build
+from gub import targetbuild
 from gub import context
 
-
-class Python (targetpackage.TargetBuildSpec):
-    def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
-        
-        ## don't from gub import settings from build system.
-	self.BASECFLAGS=''
-        self.with_template (version='2.5',
+# WIP of python2.5 with 2.5 X-compile patches.
+class Python (targetbuild.TargetBuild):
+    source = mirrors.with_template (name='python25', version='2.5',
                    mirror=mirrors.python,
                    format='bz2')
 
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
+        
+        ## don't from gub import settings from build system.
+	self.BASECFLAGS=''
+
     def configure_command (self):
-        return 'ac_cv_printf_zd_format=yes ' + targetpackage.TargetBuildSpec.configure_command (self)
+        return 'ac_cv_printf_zd_format=yes ' + targetbuild.TargetBuild.configure_command (self)
 
     def patch (self):
-        self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.5.patch')
+        self.apply_patch ('python-2.5.patch')
 
         self.file_sub ([(r"'/usr/include'",
                          r"'%(system_prefix)s/include'")],
                        "%(srcdir)s/setup.py", must_succeed=True)
                         
-    def license_file (self):
-        return '%(srcdir)s/LICENSE'
-
     def get_subpackage_names (self):
         return ['doc', 'devel', 'runtime', '']
 
@@ -46,25 +42,25 @@ class Python (targetpackage.TargetBuildSpec):
     def configure (self):
         self.system ('''cd %(srcdir)s && autoconf''')
         self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
-        targetpackage.TargetBuildSpec.configure (self)
+        targetbuild.TargetBuild.configure (self)
 
     def compile_command (self):
         ##
         ## UGH.: darwin Python vs python (case insensitive FS)
-        c = targetpackage.TargetBuildSpec.compile_command (self)
+        c = targetbuild.TargetBuild.compile_command (self)
         c += ' BUILDPYTHON=python-bin '
         return c
 
     def install_command (self):
         ##
         ## UGH.: darwin Python vs python (case insensitive FS)
-        c = targetpackage.TargetBuildSpec.install_command (self)
+        c = targetbuild.TargetBuild.install_command (self)
         c += ' BUILDPYTHON=python-bin '
         return c
 
     # FIXME: c&p linux.py:install ()
     def install (self):
-        targetpackage.TargetBuildSpec.install (self)
+        targetbuild.TargetBuild.install (self)
         cfg = open (self.expand ('%(sourcefiledir)s/python-config.py.in')).read ()
         cfg = re.sub ('@PYTHON_VERSION@', self.expand ('%(version)s'), cfg)
         cfg = re.sub ('@PREFIX@', self.expand ('%(system_prefix)s/'), cfg)
@@ -80,8 +76,8 @@ class Python (targetpackage.TargetBuildSpec):
         return '.'.join (self.ball_version.split ('.')[0:2])
 
 class Python__mingw (Python):
-    def __init__ (self, settings):
-        Python.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        Python.__init__ (self, settings, source)
         self.target_gcc_flags = '-DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I%(system_prefix)s/include' % self.settings.__dict__
 
     # FIXME: first is cross compile + mingw patch, backported to
@@ -89,10 +85,8 @@ class Python__mingw (Python):
     def patch (self):
         Python.patch (self)
         if 0:
-            self.system ('''
-cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-winsock2.patch
-''')
-        self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/python-2.4.2-setup.py-selectmodule.patch')
+            self.apply_patch ('python-2.4.2-winsock2.patch')
+        self.apply_patch ('python-2.4.2-setup.py-selectmodule.patch')
     def compile (self):
         Python.compile (self)
 
@@ -114,10 +108,9 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/python-2.4.2-winsock2.patch
 
     def install (self):
         Python.install (self)
-        for i in glob.glob ('%(install_prefix)s/lib/python%(python_version)s/lib-dynload/*.so*' \
-                  % self.get_substitution_dict ()):
-            dll = re.sub ('\.so*', '.dll', i)
-            self.system ('mv %(i)s %(dll)s', locals ())
+
+        # see python.py
+        raise 'FIXME'
 
         ## UGH.
         self.system ('''
@@ -127,24 +120,14 @@ cp %(install_prefix)s/lib/python%(python_version)s/lib-dynload/* %(install_prefi
 chmod 755 %(install_prefix)s/bin/*
 ''')
 
-from gub import toolpackage
-class Python__local (toolpackage.ToolBuildSpec, Python):
-    def __init__ (self, settings):
-        toolpackage.ToolBuildSpec.__init__ (self, settings)
-        self.with_template (version='2.5',
-                   mirror=mirrors.python,
-                   format='bz2')
-
+from gub import toolsbuild
+class Python__tools (toolsbuild.ToolsBuild, Python):
+    source = Python.source
     def configure (self):
         self.system ('''cd %(srcdir)s && autoconf''')
         self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
-        targetpackage.TargetBuildSpec.configure (self)
+        targetbuild.TargetBuild.configure (self)
     def install (self):
-        toolpackage.ToolBuildSpec.install (self)
-
-
-    def license_file (self):
-        return '%(srcdir)s/LICENSE'
-
+        toolsbuild.ToolsBuild.install (self)
     def wrap_executables (self):
         pass

@@ -1,11 +1,13 @@
 import os
 import re
+import inspect
 
 from new import classobj
 from new import instancemethod
 #
-from gub import gubb
+from gub import build
 from gub import misc
+from gub import targetbuild
 
 def untar_cygwin_src_package_variant2 (self, file_name, split=False):
     '''Unpack this unbelievably broken version of Cygwin source packages.
@@ -45,7 +47,8 @@ tar -C %(unpackdir)s %(flags)s %(downloads)s/%(file_name)s
                  locals ())
     tgz = 'tar.bz2'
 # WTF?  self.expand is broken here?
-#    if not os.path.exists (self.expand ('%s(unpackdir)s/%(second_tarball)s.%(tgz)s',
+# relax, try not making typos:
+#    if not os.path.exists (self.expand ('%(unpackdir)s/%(second_tarball)s.%(tgz)s',
 #                                        locals ())):
     if not os.path.exists (unpackdir + '/' + second_tarball + '.' + tgz):
         flags = '-zxf'
@@ -86,7 +89,6 @@ def change_target_package (package):
     from gub import cross
     cross.change_target_package (package)
 
-    import inspect
     available = dict (inspect.getmembers (package, callable))
 
     package.get_build_dependencies \
@@ -130,7 +132,7 @@ def change_target_package (package):
             if not full.get (i):
                 full[i] = full['']
         return full
-    
+
     package.category_dict = misc.MethodOverrider (package.category_dict,
                                                   category_dict)
 
@@ -141,16 +143,7 @@ def change_target_package (package):
             flavor = package.category_dict ()[split]
             doc = package.__class__.__doc__
             if not doc:
-                base = package.__class__.__name__
-                p = package.__class__.__name__.find ('__')
-                if p >= 0:
-                    base = base[:p]
-                for i in package.__class__.__bases__:
-                    if not base in i.__name__:
-                        break
-                    if i.__doc__:
-                        doc = i.__doc__
-                        break
+                doc = misc.get_from_parents (package.__class__, '__doc__')
             if not doc:
                 doc = '\n'
             return (doc.replace ('\n', ' - %(flavor)s\n', 1) % locals ())
@@ -164,14 +157,14 @@ def change_target_package (package):
                                                      description_dict)
 
     ## TODO : get_dependency_dict
-        
+
     # FIXME: why do cross packages get here too?
-    if isinstance (package, cross.CrossToolSpec):
+    if isinstance (package, cross.CrossToolsBuild):
         return package
-        
-    gubb.change_target_dict (package, {
-            'DLLTOOL': '%(tool_prefix)sdlltool',
-            'DLLWRAP': '%(tool_prefix)sdllwrap',
+
+    targetbuild.change_target_dict (package, {
+            'DLLTOOL': '%(toolchain_prefix)sdlltool',
+            'DLLWRAP': '%(toolchain_prefix)sdllwrap',
             'LDFLAGS': '-L%(system_prefix)s/lib -L%(system_prefix)s/bin -L%(system_prefix)s/lib/w32api',
             })
 
@@ -204,8 +197,14 @@ def get_cygwin_package (settings, name, dict, skip):
     blacklist = cross + cycle + skip + unneeded
     if name in blacklist:
         name += '::blacklisted'
-    package_class = classobj (name, (gubb.BinarySpec,), {})
-    package = package_class (settings)
+    package_class = classobj (name, (build.BinaryBuild,), {})
+    from gub import repository
+    source = repository.TarBall (settings.downloads,
+                                 os.path.join (mirror,
+                                               dict['install'].split ()[0]),
+                                 dict['version'],
+                                 strip_components=0)
+    package = package_class (settings, source)
     package.name_dependencies = []
     if dict.has_key ('requires'):
         deps = re.sub ('\([^\)]*\)', '', dict['requires']).split ()
@@ -222,15 +221,6 @@ def get_cygwin_package (settings, name, dict, skip):
     def name (self):
         return pkg_name
     package.name = instancemethod (name, package, package_class)
-
-    package.ball_version = dict['version']
-    package.url = (mirror + '/' + dict['install'].split ()[0])
-    package.format = 'bz2'
-    from gub import repository
-    package.vc_repository = repository.TarBall (settings.downloads,
-                                                package.url,
-                                                package.ball_version,
-                                                strip_components=0)
     return package
 
 ## UGH.   should split into parsing  package_file and generating gub specs.
@@ -313,7 +303,7 @@ libtool_source = [
     'libtool1.5',
     ]
 
-## FIXME: c&p debian.py
+# FIXME: c&p debian.py
 class Dependency_resolver:
     def __init__ (self, settings):
         self.settings = settings
@@ -321,25 +311,27 @@ class Dependency_resolver:
 #        self.source = fontconfig_source + freetype_source + guile_source + libtool_source
         self.source = fontconfig_source + ghostscript_source + guile_source + libtool_source
         self.load_packages ()
-        
+
     def grok_setup_ini (self, file, skip=[]):
         for p in get_cygwin_packages (self.settings, file, skip):
             self.packages[p.name ()] = p
-
     def load_packages (self):
         url = mirror + '/setup.ini'
 
         # FIXME: download/offline update
         file = self.settings.downloads + '/setup.ini'
         if not os.path.exists (file):
-            misc.download_url (url, self.settings.downloads)
+            misc.download_url (url, self.settings.downloads,
+                               local=['file://%s' % self.settings.downloads],
+
+                               )
             # arg
             # self.file_sub ([('\':"', "':'")], file)
             s = open (file).read ()
             open (file, 'w').write (s.replace ('\':"', "':'"))
         self.grok_setup_ini (file, self.source)
 
-        # support one extra local setup.ini, that overrides the default
+        # support one extra tools setup.ini, that overrides the default
         local_file = self.settings.uploads + '/cygwin/setup.ini'
         if os.path.exists (local_file):
             ## FIXME: using the generated setup.ini to install the
@@ -353,7 +345,7 @@ class Dependency_resolver:
 
     def get_packages (self):
         return self.packages
-        
+
 dependency_resolver = None
 
 def init_dependency_resolver (settings):

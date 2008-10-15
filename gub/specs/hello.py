@@ -1,7 +1,5 @@
 from gub import mirrors
-from gub import targetpackage
+from gub import targetbuild
 
-class Hello (targetpackage.TargetBuildSpec):
-    def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with_tarball (mirror=mirrors.lilypondorg, version='1.0')
+class Hello (targetbuild.TargetBuild):
+    source = mirrors.with_tarball (name='hello', mirror=mirrors.lilypondorg, version='1.0')

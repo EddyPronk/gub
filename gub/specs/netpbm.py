@@ -1,10 +1,10 @@
 from gub import mirrors
-from gub import toolpackage
+from gub import toolsbuild
 from gub import repository
 
-class Netpbm (toolpackage.ToolBuildSpec):
-    def __init__ (self, settings):
-        toolpackage.ToolBuildSpec.__init__ (self, settings)
+class Netpbm (toolsbuild.ToolsBuild):
+    def __init__ (self, settings, source):
+        toolsbuild.ToolsBuild.__init__ (self, settings, source)
 
         # https://svn.sourceforge.net/svnroot/netpbm/advanced netpbm
 
@@ -14,11 +14,6 @@ class Netpbm (toolpackage.ToolBuildSpec):
             branch='netpbm',
             module='stable',
             revision="172")
-
-        
-        # self.with_vc (repo)
-        self.with_template (mirror='http://lilypond.org/download/gub-sources/netpbm-patched-10.35.tar.bz2',
-                   version='10.35')
 
     def configure (self):
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
@@ -32,12 +27,12 @@ class Netpbm (toolpackage.ToolBuildSpec):
         LDFLAGS="-L%(builddir)s/pbm -L%(builddir)s/pgm -L%(builddir)s/pnm -L%(builddir)s/ppm" \
         LADD="-lm" \
         LINUXSVGALIB="NONE" \
-        XML2LIBS="NONE"
-
+        XML2LIBS="NONE" \
+        X11LIB="NONE"
 ''')
     def install (self):
         self.system ('mkdir -p %(install_root)s/')
-        self.system ('cd %(builddir)s && make package pkgdir=%(install_prefix)s LINUXSVGALIB="NONE" XML2LIBS="NONE"')
+        self.system ('cd %(builddir)s && make package pkgdir=%(install_prefix)s LINUXSVGALIB="NONE" XML2LIBS="NONE" X11LIB="NONE"')
         self.system ('''rm -rf %(install_prefix)s/misc 
 rm -rf %(install_prefix)s/README
 rm -rf %(install_prefix)s/VERSION
@@ -50,15 +45,5 @@ rm -rf %(install_prefix)s/config_template
     def packaging_suffix_dir (self):
         return ''
 
-    def license_file (self):
+    def license_files (self):
         return '%(srcdir)s/README'
-    
-        foo = '''
-        X11LIB=%{_libdir}/libX11.so \
-        JPEGINC_DIR=%{_includedir} \
-        PNGINC_DIR=%{_includedir} \
-        TIFFINC_DIR=%{_includedir} \
-        JPEGLIB_DIR=%{_libdir} \
-        PNGLIB_DIR=%{_libdir} \
-        TIFFLIB_DIR=%{_libdir} \
-        '''

@@ -1,9 +1,9 @@
 from gub import mirrors
-from gub import gubb
-from gub import targetpackage
-from gub import toolpackage
+from gub import build
+from gub import targetbuild
+from gub import toolsbuild
 
-class Freetype (targetpackage.TargetBuildSpec):
+class Freetype (targetbuild.TargetBuild):
     '''Software font engine
 FreeType is a software font engine that is designed to be small,
 efficient, highly customizable and portable while capable of producing
@@ -11,12 +11,10 @@ high-quality output (glyph images). It can be used in graphics
 libraries, display servers, font conversion tools, text image generation
 tools, and many other products as well.'''
 
-    def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with_template (version='2.1.10', mirror=mirrors.nongnu_savannah)
+    source = mirrors.with_template (name='freetype', version='2.1.10', mirror=mirrors.nongnu_savannah)
 
-    def license_file (self):
-        return '%(srcdir)s/docs/LICENSE.TXT'
+    def license_files (self):
+        return ['%(srcdir)s/docs/LICENSE.TXT']
 
     def get_build_dependencies (self):
         return ['libtool-devel', 'zlib-devel']
@@ -34,7 +32,7 @@ tools, and many other products as well.'''
         self.system ('''
         rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
 ''')
-        targetpackage.TargetBuildSpec.configure (self)
+        targetbuild.TargetBuild.configure (self)
 
         ## FIXME: libtool too old for cross compile
         self.update_libtool ()
@@ -47,7 +45,7 @@ tools, and many other products as well.'''
                        file, must_succeed=True)
 
     def install (self):
-        targetpackage.TargetBuildSpec.install (self)
+        targetbuild.TargetBuild.install (self)
         # FIXME: this is broken.  for a sane target development package,
         # we want /usr/bin/freetype-config must survive.
         # While cross building, we create an  <toolprefix>-freetype-config
@@ -67,14 +65,14 @@ LDFLAGS:=$(LDFLAGS) -no-undefined
              mode='a')
 
 class XFreetype__cygwin (Freetype):
-    def __init__ (self, settings):
-        Freetype.__init__ (self, settings)
-        self.with_template (version='2.1.10', mirror=mirrors.nongnu_savannah)
+    source = mirrors.with_template (name='freetype', version='2.1.10', mirror=mirrors.nongnu_savannah)
+    def __init__ (self, settings, source):
+        Freetype.__init__ (self, settings, source)
         self.so_version = '6'
 
     def patch (self):
         Freetype.patch (self)
-        self.system ('cd %(srcdir)s && patch -p1 < %(patchdir)s/freetype-libtool-no-version.patch')
+        self.apply_patch ('freetype-libtool-no-version.patch')
 
     def get_subpackage_definitions (self):
         d = dict (Freetype.get_subpackage_definitions (self))
@@ -106,23 +104,18 @@ class XFreetype__cygwin (Freetype):
                 + ' --sysconfdir=/etc --localstatedir=/var')
 
     def install (self):
-        targetpackage.TargetBuildSpec.install (self)
+        targetbuild.TargetBuild.install (self)
         self.pre_install_smurf_exe ()
 
-class Freetype__local (toolpackage.ToolBuildSpec, Freetype):
-    def __init__ (self, settings):
-        toolpackage.ToolBuildSpec.__init__ (self, settings)
-        self.with_template (version='2.1.10', mirror=mirrors.nongnu_savannah)
-
+class Freetype__tools (toolsbuild.ToolsBuild, Freetype):
+    source = Freetype.source
     def get_build_dependencies (self):
-        # local is not split
+        # tools is not split
         #return ['libtool-devel']
         return ['libtool']
-
     # FIXME, mi-urg?
-    def license_file (self):
-        return Freetype.license_file (self)
-
+    def license_files (self):
+        return Freetype.license_files (self)
     def install (self):
-        toolpackage.ToolBuildSpec.install (self)
-        self.munge_ft_config ('%(install_root)s/%(local_prefix)s/bin/.freetype-config')
+        toolsbuild.ToolsBuild.install (self)
+        self.munge_ft_config ('%(install_root)s/%(tools_prefix)s/bin/.freetype-config')

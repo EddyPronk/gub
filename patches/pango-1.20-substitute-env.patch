@@ -1,0 +1,153 @@
+From abeddd7a12b1493f2db7ea4b60f0a198991d18a4 Mon Sep 17 00:00:00 2001
+From: Han-Wen Nienhuys <hanwen@lilypond.org>
+Date: Sat, 22 Mar 2008 17:27:52 -0300
+Subject: [PATCH] Pango 1.20 patch for subst env.
+
+---
+ pango/pango-utils.c |  102 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 102 insertions(+), 0 deletions(-)
+
+diff --git a/pango/pango-utils.c b/pango/pango-utils.c
+index d2e4992..c2c49d5 100644
+--- a/pango/pango-utils.c
++++ b/pango/pango-utils.c
+@@ -25,6 +25,7 @@
+ #include <stdlib.h>
+ #include <math.h>
+ #include <locale.h>
++#include <ctype.h>
+ 
+ #include "pango-font.h"
+ #include "pango-features.h"
+@@ -171,6 +172,89 @@ pango_trim_string (const char *str)
+   return g_strndup (str, len);
+ }
+ 
++
++/** 
++  g_string_substitute_environment()
++  @orig: a string
++
++  Replaces environment variables of the form ${FOO} or $FOO.
++
++  Return value: A newly-allocated string, that must be freed with
++  g_string_free()
++ */
++GString *
++g_string_substitute_environment (GString *orig)
++{
++  GString * out = g_string_new ("");
++  char *ptr = NULL;
++  
++  ptr = orig->str;
++  while (ptr  < orig->str + orig->len)
++    {
++      char *dollar = strchr (ptr, '$');
++      
++      if (dollar != NULL)
++	{
++	  char *start_var = dollar + 1;
++	  char *end_var = start_var;
++	  char *start_next = end_var;
++	  
++	  g_string_append_len (out, ptr, dollar - ptr);
++	  ptr = dollar;
++
++	  if (*start_var == '{')
++	    {
++	      start_var ++;
++	      
++	      end_var = strchr (start_var, '}');
++	      
++	      if (end_var == NULL)
++		{
++		  end_var = orig->str + orig->len;
++		  start_next = end_var;
++		}
++	      else
++		{
++		  start_next = end_var + 1; 
++		}
++	    }
++	  else 
++	    {
++	      /*
++		Hmm. what to do for $1 , $~ etc.?
++	       */
++	      do
++		{
++		  end_var ++;
++		}
++	      while (isalnum (*end_var) || *end_var == '_');
++	      start_next = end_var;
++	    }
++
++	  if (start_var < end_var)
++	    {
++	      GString *var_name = g_string_new_len (start_var, end_var - start_var);
++	      const char *value = g_getenv (var_name->str);
++	      if (value != NULL)
++		g_string_append (out, value);
++	      g_string_free (var_name, TRUE);
++
++
++	      ptr = start_next;
++	    }
++	}
++      else
++	break;
++
++    }
++
++  g_string_append (out, ptr);
++
++  return out;
++}
++
++
++
+ /**
+  * pango_split_file_list:
+  * @str: a %G_SEARCHPATH_SEPARATOR separated list of filenames
+@@ -225,6 +309,16 @@ pango_split_file_list (const char *str)
+ 	  file = g_strdup (g_get_home_dir());
+ 	}
+ #endif
++
++      {
++	GString *file_as_gs = g_string_new (file);
++	GString *substituted = g_string_substitute_environment (file_as_gs);
++	g_free (file);
++	file = substituted->str;
++	g_string_free (substituted, FALSE);
++	g_string_free (file_as_gs, TRUE);
++      }
++      
+       g_free (files[i]);
+       files[i] = file;
+ 
+@@ -407,6 +501,7 @@ pango_scan_word (const char **pos, GString *out)
+   return TRUE;
+ }
+ 
++
+ /**
+  * pango_scan_string:
+  * @pos: in/out string position
+@@ -492,6 +587,13 @@ pango_scan_string (const char **pos, GString *out)
+ 	}
+     }
+ 
++
++  {
++    GString *subbed = g_string_substitute_environment (out);
++    g_string_assign (out, subbed->str);
++    g_string_free (subbed, TRUE);
++  }
++  
+   *pos = p;
+ 
+   return TRUE;
+-- 
+1.5.4.1
+

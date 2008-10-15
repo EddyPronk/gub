@@ -1,16 +1,14 @@
-from gub import gubb
+from gub import build
+from gub import misc
+from gub import repository
 
-class Guile_config (gubb.SdkBuildSpec):
-    def __init__ (self, settings):
-        gubb.SdkBuildSpec.__init__ (self, settings)
-        self.has_source = False
-        self.with_template (version='1.8.0')
-
-    def untar (self):
-        pass
-
+class Guile_config (build.SdkBuild):
+    source = repository.Version (name='guile-config', version='1.8.0')
+    def stages (self):
+        return [s for s in build.SdkBuild.stages (self)
+                if s not in ['untar', 'patch']]
     def install (self):
-        gubb.SdkBuildSpec.install (self)
+        build.SdkBuild.install (self)
         self.system ('mkdir -p %(cross_prefix)s%(prefix_dir)s/bin')
         
         import os
@@ -27,6 +25,5 @@ test "$1" = "compile" && echo "-I$prefix/include"
 test "$1" = "link" && echo "-L$prefix/lib -lguile -lguile-ltdl  -ldl -lcrypt -lm"
 exit 0
 ''',
-             '%(install_prefix)s/cross/bin/%(target_architecture)s-guile-config')
-        os.chmod ('%(install_prefix)s/cross/bin/%(target_architecture)s-guile-config'
-                  % self.get_substitution_dict (), 0755)
+             '%(install_prefix)s/cross/bin/%(target_architecture)s-guile-config',
+                   permissions=0755)

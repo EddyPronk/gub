@@ -1,17 +1,17 @@
-from gub import targetpackage
+from gub import targetbuild
 from gub import repository
 
 url = 'http://www.eecs.harvard.edu/~nr/noweb/dist/noweb-2.11b.tgz'
 
-class Noweb (targetpackage.TargetBuildSpec):
+class Noweb (targetbuild.TargetBuild):
     '''A WEB-like literate-programming tool
 Noweb is designed to meet the needs of literate programmers while
 remaining as simple as possible.  Its primary advantages are
 simplicity, extensibility, and language-independence.
 '''
-    def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with_vc (repository.TarBall (self.settings.downloads, url, version='2.11b'))
+    source = mirrors.with_vc (repository.TarBall (self.settings.downloads, url, version='2.11b'))
+    def __init__ (self, settings, source):
+        targetbuild.TarBall.__init__ (self, settings, source)
         self.BIN='%(install_prefix)s/bin'
         self.LIB='%(install_prefix)s/lib'
         self.MAN='%(install_prefix)s/share/man'
@@ -32,5 +32,5 @@ simplicity, extensibility, and language-independence.
 mkdir -p %(install_prefix)s/bin %(install_prefix)s/lib %(install_prefix)s/share/man/man1 %(install_prefix)s/share/tex/inputs
 && make %(makeflags)s DESTDIR=%(install_root)s install
 ''')
-    def license_file (self):
-        return '%(srcdir)s/src/COPYRIGHT'
+    def license_files (self):
+        return ['%(srcdir)s/src/COPYRIGHT']

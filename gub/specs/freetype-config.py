@@ -1,16 +1,17 @@
-from gub import gubb
+import re
+import os
 
-class Freetype_config (gubb.SdkBuildSpec):
-    def __init__ (self, settings):
-        gubb.SdkBuildSpec.__init__ (self, settings)
-        self.has_source = False
-        self.with_template (version='2.1.9')
-    def untar (self):
-        pass
+from gub import build
+from gub import misc
+from gub import repository
+
+class Freetype_config (build.SdkBuild):
+    source = repository.Version (name='freetype-config', version='2.1.9')
+    def stages (self):
+        return [x for x in build.SdkBuild.stages (self)
+                if x not in ['untar', 'patch']]
     def install (self):
-        gubb.SdkBuildSpec.install (self)
-        self.system ('mkdir -p %(cross_prefix)s/usr/bin')
-        
+        build.SdkBuild.install (self)
         ft_version = self.version ()
         prefix = '%(system_prefix)s'
         exec_prefix = '${prefix}'
@@ -21,17 +22,18 @@ class Freetype_config (gubb.SdkBuildSpec):
         hardcode_libdir_flag_spec='${wl}--rpath ${wl}$libdir'
         LIBZ = '-lz'
 
-        import re
-        import os
-        s = open (self.expand ('%(sourcefiledir)s/freetype-config.in')).read ()
-        s = re.sub (r'@(\w+?)@', r'%(\1)s', s)
-        s = s % locals ()
-        file = self.expand ('%(install_prefix)s/cross/bin/freetype-config')
-        self.dump (s, file)
-        os.chmod (file, 0755)
+        regexes = [('@%s@' % nm, self.expand ('%(' + nm + ')s', locals ()))
+                   for nm in [ 'prefix', 'exec_prefix', 'includedir', 'libdir',
+                               'enable_shared', 'wl', 'hardcode_libdir_flag_spec', 'LIBZ']]
 
-class Freetype_config__cygwin (Freetype_config):
-    def __init__ (self, settings):
-        Freetype_config.__init__ (self, settings)
-        self.with_template (version='2.3.4')
+        self.system ('mkdir -p %(install_prefix)s%(cross_dir)s/bin')
+        freetype_config = self.expand ('%(install_prefix)s%(cross_dir)s/bin/freetype-config')
+        self.file_sub (regexes,
+                       '%(sourcefiledir)s/freetype-config.in',
+                       to_name=freetype_config,
+                       use_re=False)
+        self.system ('find %(install_prefix)s')
+        self.chmod (freetype_config, 0755)
         
+class Freetype_config__cygwin (Freetype_config):
+    source = repository.Version (name='freetype-config', version='2.3.4')

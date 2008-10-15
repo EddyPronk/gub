@@ -3,10 +3,10 @@ from gub.specs.cross import gcc
 from gub import mirrors
 from gub import misc
         
-class Gcc_core (gcc.Gcc_from_source):
-    def __init__ (self, settings):
-        gcc.Gcc_from_source.__init__ (self, settings)
-        self.with_tarball (mirror=mirrors.gcc,
+class Gcc_core (gcc.Gcc__from__source):
+    def __init__ (self, settings, source):
+        gcc.Gcc__from__source.__init__ (self, settings, source)
+    source = mirrors.with_tarball (mirror=mirrors.gcc,
                            version='4.1.1', format='bz2', name='gcc')
     def get_build_dependencies (self):
         return gcc.Gcc.get_build_dependencies (self)
@@ -19,7 +19,7 @@ class Gcc_core (gcc.Gcc_from_source):
     def get_conflict_dict (self):
         return {'': ['cross/gcc', 'cross/gcc-devel', 'cross/gcc-doc', 'cross/gcc-runtime']}
     def configure_command (self):
-        return (misc.join_lines (gcc.Gcc_from_source.configure_command (self)
+        return (misc.join_lines (gcc.Gcc__from__source.configure_command (self)
                                  + '''
 --prefix=%(cross_prefix)s
 --prefix=%(prefix_dir)s
@@ -43,7 +43,7 @@ class Gcc_core (gcc.Gcc_from_source):
     def install (self):
         # Gcc moves libs into system lib places, which will
         # make gcc-core conflict with gcc.
-        cross.CrossToolSpec.install (self)
+        cross.CrossToolsBuild.install (self)
     def languages (self):
         return  ['c']
 

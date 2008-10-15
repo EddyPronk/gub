@@ -1,14 +1,8 @@
 from gub import mirrors
-from gub import targetpackage
+from gub import targetbuild
 
-class Libpng (targetpackage.TargetBuildSpec):
-    def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with_template (version='1.2.8', mirror=mirrors.libpng)
-
-    def license_file (self):
-        return '%(srcdir)s/LICENSE' 
-
+class Libpng (targetbuild.TargetBuild):
+    source = mirrors.with_template (name='libpng', version='1.2.8', mirror=mirrors.libpng)
     def get_dependency_dict (self):
         return {'':['zlib']}
     
@@ -27,12 +21,12 @@ class Libpng (targetpackage.TargetBuildSpec):
                '%(srcdir)s/Makefile.am')
 
     def configure (self):
-        targetpackage.TargetBuildSpec.configure (self)
+        targetbuild.TargetBuild.configure (self)
         # # FIXME: libtool too old for cross compile
         self.update_libtool ()
 
     def compile_command (self):
-        c = targetpackage.TargetBuildSpec.compile_command (self)
+        c = targetbuild.TargetBuild.compile_command (self)
         ## need to call twice, first one triggers spurious Automake stuff.                
         return '(%s) || (%s)' % (c,c)
     
@@ -46,20 +40,11 @@ class Libpng__mingw (Libpng):
         self.autoupdate ()
         Libpng.configure (self)
 
-from gub import toolpackage 
+from gub import toolsbuild 
 
-class Libpng__local (toolpackage.ToolBuildSpec, Libpng):
-    def __init__ (self, settings):
-        toolpackage.ToolBuildSpec.__init__ (self, settings)
-        self.with_template (version='1.2.8', mirror=mirrors.libpng)
-
+class Libpng__tools (toolsbuild.ToolsBuild, Libpng):
+    source = Libpng.source
     def get_build_dependencies (self):
         return ['libtool']
-
     def patch (self):
         Libpng.patch (self)
-
-    # FIXME, mi-urg?
-    def license_file (self):
-        return Libpng.license_file (self)
-

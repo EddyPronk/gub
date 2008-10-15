@@ -1,9 +1,14 @@
 import os
 import re
-from gub import oslog
-from gub import distcc
-from gub import gubb
+import optparse
+
+from gub import build
 from gub import context
+from gub import mirrors
+from gub import misc
+from gub import sources
+from gub import loggedos
+from gub import logging
 
 platforms = {
     'debian': 'i686-linux',
@@ -29,7 +34,7 @@ platforms = {
     'linux-x86': 'i686-linux',
     'linux-64': 'x86_64-linux',
     'linux-ppc': 'powerpc-linux',
-    'local': 'local',
+    'tools': 'tools',
     'mingw': 'i686-mingw32',
 }
 
@@ -45,38 +50,24 @@ def get_platform_from_dir (settings, dir):
     return None
 
 class Settings (context.Context):
-    def __init__ (self, options):
+    def __init__ (self, platform):
         context.Context.__init__ (self)
 
-        # TODO: local-prefix, target-prefix, cross-prefix?
+        # TODO: tools-prefix, target-prefix, cross-prefix?
         self.prefix_dir = '/usr'
         self.root_dir = '/root'
         self.cross_dir = '/cross'
 
-        if not options.platform:
-            if options.__dict__.has_key ('root') and options.root:
-                options.platform = get_platform_from_dir (self, options.root)
-                if not options.platform:
-                    self.error ('invalid root: %(root)s, no platform found'
-                                % options)
-                    raise UnknownPlatform (options.root)
-            else:
-                guess = get_platform_from_dir (self, os.getcwd ())
-                if guess in platforms.keys ():
-                    options.platforms = guess
-            
-        if not options.platform:
-            options.platform = 'local'
 
-        self.platform = options.platform
+        self.platform = platform
         if self.platform not in platforms.keys ():
             raise UnknownPlatform (self.platform)
 
-        GUB_LOCAL_PREFIX = os.environ.get ('GUB_LOCAL_PREFIX')
+        GUB_TOOLS_PREFIX = os.environ.get ('GUB_TOOLS_PREFIX')
         
         # config dirs
 
-        if self.platform == 'local' and GUB_LOCAL_PREFIX:
+        if self.platform == 'tools' and GUB_TOOLS_PREFIX:
             self.prefix_dir = ''
 
         # gubdir is top of `installed' gub repository
@@ -96,14 +87,14 @@ class Settings (context.Context):
         self.nsisdir = self.gubdir + '/nsis'
 
         # workdir based; may be changed
-        self.logdir = self.workdir + '/log'
         self.downloads = self.workdir + '/downloads'
         self.alltargetdir = self.workdir + '/target'
         self.targetdir = self.alltargetdir + '/' + self.platform
+        self.logdir = self.targetdir + '/log'
 
         self.system_root = self.targetdir + self.root_dir
-        if self.platform == 'local' and GUB_LOCAL_PREFIX:
-            self.system_root = GUB_LOCAL_PREFIX
+        if self.platform == 'tools' and GUB_TOOLS_PREFIX:
+            self.system_root = GUB_TOOLS_PREFIX
         self.system_prefix = self.system_root + self.prefix_dir
 
         ## Patches are architecture dependent, 
@@ -121,13 +112,11 @@ class Settings (context.Context):
         ##self.cross_prefix = self.system_prefix + self.cross_dir
         self.cross_prefix = self.targetdir + self.root_dir + self.prefix_dir + self.cross_dir
         self.installdir = self.targetdir + '/install'
-        self.local_root = self.alltargetdir + '/local' + self.root_dir
-        self.local_prefix = self.local_root + self.prefix_dir
-        if GUB_LOCAL_PREFIX:
-            self.local_root = GUB_LOCAL_PREFIX
-            self.local_prefix = GUB_LOCAL_PREFIX
-        self.cross_distcc_bindir = self.alltargetdir + '/cross-distcc/bin'
-        self.native_distcc_bindir = self.alltargetdir + '/native-distcc/bin'
+        self.tools_root = self.alltargetdir + '/tools' + self.root_dir
+        self.tools_prefix = self.tools_root + self.prefix_dir
+        if GUB_TOOLS_PREFIX:
+            self.tools_root = GUB_TOOLS_PREFIX
+            self.tools_prefix = GUB_TOOLS_PREFIX
 
         self.cross_packages = self.packages + self.cross_dir
         self.cross_allsrcdir = self.allsrcdir + self.cross_dir
@@ -144,10 +133,6 @@ class Settings (context.Context):
         elif self.platform == 'mingw':
             self.target_gcc_flags = '-mwindows -mms-bitfields'
 
-        if options.branches:
-            self.set_branches (options.branches)
-        self.options = options ##ugh
-        self.verbose = self.options.verbose
         self.os = re.sub ('[-0-9].*', '', self.platform)
 
         self.target_architecture = platforms[self.platform]
@@ -158,8 +143,7 @@ class Settings (context.Context):
 
 
         self.gtk_version = '2.8'
-        self.tool_prefix = self.target_architecture + '-'
-        self.distcc_hosts = ''
+        self.toolchain_prefix = self.target_architecture + '-'
         
 	if self.target_architecture.startswith ('x86_64'):
 	    self.package_arch = 'amd64'
@@ -176,16 +160,13 @@ class Settings (context.Context):
 
         self.fakeroot_cache = '' # %(builddir)s/fakeroot.save'
         self.fakeroot = 'fakeroot -i%(fakeroot_cache)s -s%(fakeroot_cache)s '
-
-        if not os.path.isdir ('log'):
-            os.mkdir ('log')
-            
-        self.os_interface = oslog.Os_commands (('log/%(platform)s.log'
-                                                % self.__dict__),
-                                               self.options.verbose)
         self.create_dirs ()
-        self.build_architecture = self.os_interface.read_pipe ('gcc -dumpmachine',
-                                                               silent=True)[:-1]
+
+        # Cheating by not logging this call saves a dependency on os
+        # interface.  Not sure what cheating brings us here, why
+        # restrict use of the OS interface+logging facility?
+        self.build_architecture = loggedos.read_pipe (logging.default_logger,
+                                                      'gcc -dumpmachine').strip ()
 
         try:
             self.cpu_count_str = '%d' % os.sysconf ('SC_NPROCESSORS_ONLN')
@@ -202,7 +183,7 @@ class Settings (context.Context):
             'cross_prefix',
             'downloads',
             'gubdir',
-            'local_prefix',
+            'tools_prefix',
             'logdir',
             'packages',
             'specdir',
@@ -216,32 +197,15 @@ class Settings (context.Context):
             'cross_allsrcdir',
             ):
             dir = self.__dict__[a]
-            if os.path.isdir (dir):
-                continue
-
-            self.os_interface.system ('mkdir -p %s' % dir)
-
-    def set_distcc_hosts (self, options):
-        def hosts (xs):
-            return reduce (lambda x,y: x+y,
-                           [ h.split (',') for h in xs], [])
+            if not os.path.isdir (dir):
+                loggedos.makedirs (logging.default_logger, dir)
         
-        self.cross_distcc_hosts = ' '.join (distcc.live_hosts (hosts (options.cross_distcc_hosts)))
-
-        self.native_distcc_hosts = ' '.join (distcc.live_hosts (hosts (options.native_distcc_hosts), port=3634))
-
-
-    def set_branches (self, bs):
-        "set branches, takes a list of name=branch strings."
-
-        self.branch_dict = dict ()
-        for b in bs:
-            (name, br) = tuple (b.split ('='))
-            self.branch_dict[name] = br
-            self.__dict__['%s_branch' % name] = br
+    def dependency_url (self, string):
+        # FIXME: read from settings.rc, take platform into account
+        name = string.replace ('-', '_')
+        return misc.most_significant_in_dict (sources.__dict__, name, '__')
 
 def get_cli_parser ():
-    import optparse
     p = optparse.OptionParser ()
 
     p.usage = '''settings.py [OPTION]...
@@ -265,7 +229,6 @@ Print settings and directory layout.
                   default=[],
                   metavar='NAME=BRANCH',
                   help='select branch')
-    p.add_option ('-v', '--verbose', action='count', dest='verbose', default=0)
     return p
 
 def as_variables (settings):
@@ -282,7 +245,7 @@ def main ():
     if not options.platform or files:
         raise 'barf'
         sys.exit (2)
-    settings = Settings (options)
+    settings = Settings (options.platform)
     print '\n'.join (as_variables (settings))
 
 if __name__ == '__main__':

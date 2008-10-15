@@ -1,5 +1,4 @@
-#!/usr/bin/python
-
+#! /usr/bin/python
 
 """
     gpkg - GUB package manager
@@ -38,11 +37,8 @@ import string
 import sys
 #
 from gub import gup
-from gub import oslog
-
-def sort (lst):
-    list.sort (lst)
-    return lst
+from gub import logging
+from gub.settings import Settings
 
 class Command:
     def __init__ (self, pm, options):
@@ -51,7 +47,7 @@ class Command:
 
     def available (self):
         '''list available packages'''
-        print '\n'.join (self.pm._packages.keys ())
+        print '\n'.join (sorted (self.pm._packages.keys ()))
 
     def files (self):
         '''list installed files'''
@@ -69,7 +65,7 @@ class Command:
                 self.options.packagename)
         regexp = re.compile (regexp)
         hits = []
-        for p in sort (self.pm.installed_packages ()):
+        for p in sorted (self.pm.installed_packages ()):
             hits += ['%s: /%s' % (p, i)
                 for i in self.pm.installed_files (p)
                 if regexp.search ('/%s' % i)]
@@ -84,16 +80,19 @@ class Command:
             else:
                 packs.append (p)
 
-        packs = gup.topologically_sorted (packs, {}, self.pm.dependencies)
+        dependency_getter = self.pm.dependencies
+        if self.options.no_deps:
+            dependency_getter = lambda x: list ()
+        packs = gup.topologically_sorted (packs, {}, dependency_getter)
         for p in packs:
             self.pm.install_package (p)
 
     def list (self):
         '''installed packages'''
         if self.options.print_only_name:
-            print '\n'.join (sort (self.pm.installed_packages ()))
+            print '\n'.join (sorted (self.pm.installed_packages ()))
         else:
-            print '\n'.join (sort (['%(split_name)-20s%(version)s' % d for d in self.pm.installed_package_dicts()]))
+            print '\n'.join (sorted (['%(split_name)-20s%(version)s' % d for d in self.pm.installed_package_dicts()]))
 
     def remove_package (self, p):
         if not self.pm.is_installed (p):
@@ -148,13 +147,12 @@ def get_cli_parser ():
                   action='store')
     p.add_option ('-x', '--no-deps',
                   help='ignore dependencies',
-                  action='store',
+                  action='store_true',
                   dest='no_deps')
     p.add_option ('','--dbdir',
                   action='store',
                   dest='dbdir',
                   help='set db directory')
-    
     p.add_option ('-v', '--verbose', action='count', dest='verbose', default=1)
     p.add_option ('-q', '--quiet', action='count', dest='quiet', default=0)
     return p
@@ -177,15 +175,15 @@ def parse_options ():
 def main ():
     options = parse_options ()
     options.verbose -= options.quiet
-    from gub.settings import Settings
-    settings = Settings (options)
+    settings = Settings (options.platform)
     options.root = settings.system_root
     options.platform = settings.platform
-    osi = oslog.Os_commands ('/dev/null', oslog.level['error'])
-    osi.stage ('root: ' + settings.system_root + '\n')
-    osi.info ('platform: ' + settings.platform + '\n')
+
+    logging.stage ('root: ' + settings.system_root + '\n')
+    logging.info ('platform: ' + settings.platform + '\n')
+
+    # TODO: hook log into target/PLAT/log/
     target_manager = gup.DependencyManager (options.root,
-                                            osi,
                                             dbdir=options.dbdir)
 
     if options.command == 'install':

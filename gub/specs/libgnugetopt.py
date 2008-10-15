@@ -1,10 +1,8 @@
 from gub import mirrors
-from gub import targetpackage
+from gub import targetbuild
 
-class Libgnugetopt (targetpackage.TargetBuildSpec):
-    def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with_template (version='1.3', format='bz2', mirror=mirrors.freebsd_ports)
+class Libgnugetopt (targetbuild.TargetBuild):
+    source = mirrors.with_template (name='libgnugetopt', version='1.3', format='bz2', mirror=mirrors.freebsd_ports)
 
     def patch (self):
         self.dump ('''
@@ -22,7 +20,7 @@ install: all
     def configure (self):
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
 
-    def license_file (self):
+    def license_files (self):
 
         ## is (L)GPL, but doesn't distribute license file.
-        return '' 
+        return ['']

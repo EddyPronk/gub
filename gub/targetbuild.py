@@ -1,16 +1,17 @@
 import os
-from gub import gubb
-from gub import misc
 import re
-import imp
-import md5
-from gub import cross
 
-from context import subst_method
+from gub import build
+from gub import context
+from gub import misc
+from gub import loggedos
 
-class TargetBuildSpec (gubb.BuildSpec):
+class TargetBuild (build.UnixBuild):
+    def __init__ (self, settings, source):
+        build.UnixBuild.__init__ (self, settings, source)
+
     def configure_command (self):
-        return misc.join_lines ('''%(srcdir)s/configure
+        return misc.join_lines ('''%(configure_binary)s
 --config-cache
 --enable-shared
 --disable-static
@@ -25,12 +26,9 @@ class TargetBuildSpec (gubb.BuildSpec):
 --libdir=%(prefix_dir)s/lib
 ''')
 
-    def __init__ (self, settings):
-        gubb.BuildSpec.__init__ (self, settings)
-
     def install (self):
         self.pre_install_libtool_fixup ()
-        gubb.BuildSpec.install (self)
+        build.UnixBuild.install (self)
 
     def pre_install_libtool_fixup (self):
         ## Workaround for libtool bug.  libtool inserts -L/usr/lib
@@ -39,19 +37,21 @@ class TargetBuildSpec (gubb.BuildSpec):
         ## system.  This seems to be problematic for libltdl.a and
         ## libgcc.a on MacOS.
         ##
-        for lt in self.locate_files ("%(builddir)s", '*.la'):
-            lt = lt.strip()
-            if not lt:
-                continue
-
-            dir = os.path.split (lt)[0]
-            suffix = "/.libs"
-            if re.search("\\.libs$", dir):
+        def fixup (logger, file):
+            file = file.strip ()
+            if not file:
+                return
+            dir = os.path.split (file)[0]
+            suffix = '/.libs'
+            if re.search ('\\.libs$', dir):
                 suffix = ''
-            self.file_sub ([
-                ("libdir='/usr/lib'", "libdir='%(dir)s%(suffix)s'"),
-                ],
-                   lt, env=locals ())
+            
+            loggedos.file_sub (logger,
+                               [("libdir='/usr/lib'",
+                                 self.expand ("libdir='%(dir)s%(suffix)s'",
+                                             env=locals ())),
+                                ], file)
+        self.map_locate (fixup, '%(builddir)s', '*.la')
 
     ## UGH. only for cross!
     def config_cache_overrides (self, str):
@@ -63,10 +63,9 @@ class TargetBuildSpec (gubb.BuildSpec):
     def config_cache (self):
         str = self.config_cache_settings ()
         if str:
-            self.system ('mkdir -p %(builddir)s')
+            self.system ('mkdir -p %(builddir)s || true')
             cache_file = '%(builddir)s/config.cache'
-            self.dump (self.config_cache_settings (), cache_file)
-            os.chmod (self.expand (cache_file), 0755)
+            self.dump (self.config_cache_settings (), cache_file, permissions=0755)
 
     def config_cache_settings (self):
         from gub import config_cache
@@ -74,35 +73,24 @@ class TargetBuildSpec (gubb.BuildSpec):
                                             + config_cache.config_cache[self.settings.platform])
 
     def compile_command (self):
-        c = gubb.BuildSpec.compile_command (self)
-        if (self.settings.cross_distcc_hosts
-            and not self.force_sequential_build ()
-            and re.search (r'\bmake\b', c)):
-            
-            jobs = '-j%d ' % (2*len (self.settings.cross_distcc_hosts.split (' ')))
-            c = re.sub (r'\bmake\b', 'make ' + jobs, c)
-
-            ## do this a little complicated: we don't want a trace of
-            ## distcc during configure.
-            c = 'DISTCC_HOSTS="%s" %s' % (self.settings.cross_distcc_hosts , c)
-            c = 'PATH="%(cross_distcc_bindir)s:$PATH" ' + c
-        elif (not self.force_sequential_build ()
-              and self.settings.cpu_count_str):
-            c = re.sub (r'\bmake\b', 'make -j%s '% self.settings.cpu_count_str, c)
+        c = build.UnixBuild.compile_command (self)
+        if (not self.force_sequential_build () and self.settings.cpu_count_str):
+            c = re.sub (r'\bmake\b',
+                        'make -j%s '% self.settings.cpu_count_str, c)
 
         return c
             
     def configure (self):
         self.config_cache ()
-        gubb.BuildSpec.configure (self)
+        build.UnixBuild.configure (self)
 
     ## FIXME: this should move elsewhere , as it's not
     ## package specific
     def get_substitution_dict (self, env={}):
         dict = {
-            'AR': '%(tool_prefix)sar',
-            'AS': '%(tool_prefix)sas',
-            'CC': '%(tool_prefix)sgcc %(target_gcc_flags)s',
+            'AR': '%(toolchain_prefix)sar',
+            'AS': '%(toolchain_prefix)sas',
+            'CC': '%(toolchain_prefix)sgcc %(target_gcc_flags)s',
             'CC_FOR_BUILD': 'C_INCLUDE_PATH= CPATH= CPPFLAGS= LIBRARY_PATH= cc',
             'CCLD_FOR_BUILD': 'C_INCLUDE_PATH= CPATH= CPPFLAGS= LIBRARY_PATH= cc',
 
@@ -112,14 +100,14 @@ class TargetBuildSpec (gubb.BuildSpec):
             ## note that overrides some headers in sysroot/usr/include,
             ## which is why setting C_INCLUDE_PATH breaks on FreeBSD. 
             ## 
-            ## no %(local_prefix)s/usr/include, as this will interfere
+            ## no %(toolchain_prefix)s/usr/include, as this will interfere
             ## with target headers.
             ## The flex header has to be copied into the target compile manually.
             ##
             'C_INCLUDE_PATH': '',
             'CPATH': '',
             'CPLUS_INCLUDE_PATH': '',
-            'CXX':'%(tool_prefix)sg++ %(target_gcc_flags)s',
+            'CXX':'%(toolchain_prefix)sg++ %(target_gcc_flags)s',
 
 #--urg-broken-if-set-exec-prefix=%(system_prefix)s \
 ## ugh, creeping -L/usr/lib problem
@@ -129,16 +117,16 @@ class TargetBuildSpec (gubb.BuildSpec):
 # FIXME: usr/bin and w32api belongs to mingw/cygwin; but overriding is broken
 #            'LDFLAGS': '-L%(system_prefix)s/lib -L%(system_prefix)s/bin -L%(system_prefix)s/lib/w32api',
             'LDFLAGS': '',
-            'LD': '%(tool_prefix)sld',
-            'NM': '%(tool_prefix)snm',
+            'LD': '%(toolchain_prefix)sld',
+            'NM': '%(toolchain_prefix)snm',
             'PKG_CONFIG_PATH': '%(system_prefix)s/lib/pkgconfig',
-            'PATH': '%(cross_prefix)s/bin:%(local_prefix)s/bin:' + os.environ['PATH'],
+            'PATH': '%(cross_prefix)s/bin:%(toolchain_prefix)s/bin:' + os.environ['PATH'],
             'PKG_CONFIG': '''pkg-config \
 --define-variable prefix=%(system_prefix)s \
 --define-variable includedir=%(system_prefix)s/include \
 --define-variable libdir=%(system_prefix)s/lib \
 ''',
-            'RANLIB': '%(tool_prefix)sranlib',
+            'RANLIB': '%(toolchain_prefix)sranlib',
             'SED': 'sed', # libtool (expat mingw) fixup
             }
 
@@ -154,19 +142,39 @@ class TargetBuildSpec (gubb.BuildSpec):
             dict['CFLAGS'] = '-O'
 
         dict.update (env)
-        d = gubb.BuildSpec.get_substitution_dict (self, dict).copy ()
+        d = build.UnixBuild.get_substitution_dict (self, dict).copy ()
         return d
 
-def get_build_spec (settings, url):
-    """
-    Return TargetBuildSpec instance to build package from URL.
+class Change_target_dict:
+    def __init__ (self, package, override):
+        self._target_dict_method = package.get_substitution_dict
+        self._add_dict = override
 
-    URL can be partly specified (eg: only a name, `lilypond'),
-    defaults are taken from the spec file.
-    """
+    def target_dict (self, env={}):
+        env_copy = env.copy ()
+        env_copy.update (self._add_dict)
+        d = self._target_dict_method (env_copy)
+        return d
 
-    package = gubb.get_build_spec (TargetBuildSpec, settings, url)
-    crossmod = cross.get_cross_module (settings)
-    crossmod.change_target_package (package)
-    return package
-    
+    def append_dict (self, env={}):
+        d = self._target_dict_method ()
+        for (k, v) in self._add_dict.items ():
+            d[k] += v
+        d.update (env)
+        d = context.recurse_substitutions (d)
+        return d
+
+def change_target_dict (package, add_dict):
+    """Override the get_substitution_dict () method of PACKAGE."""
+    try:
+        package.get_substitution_dict = Change_target_dict (package, add_dict).target_dict
+    except AttributeError:
+        pass
+
+def append_target_dict (package, add_dict):
+    """Override the get_substitution_dict () method of PACKAGE."""
+    try:
+        package.get_substitution_dict = Change_target_dict (package, add_dict).append_dict
+    except AttributeError:
+        pass
+

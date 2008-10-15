@@ -20,9 +20,10 @@ $(warning LOCAL_GUB_BUILDER_OPTIONS is deprecated, use LOCAL_GUB_OPTIONS)
 LOCAL_GUB_OPTIONS += $(LOCAL_GUB_BUILDER_OPTIONS)
 endif
 
+LOCAL_GUB_OPTIONS += $(GUB_ONLINE_OPTION)
+
 INVOKE_GUB=$(GUB)\
  --platform=$(1)\
- $(GUB_ONLINE_OPTION)\
 $(foreach h,$(GUB_NATIVE_DISTCC_HOSTS), --native-distcc-host=$(h))\
 $(foreach h,$(GUB_CROSS_DISTCC_HOSTS), --cross-distcc-host=$(h))\
  $(GUB_OPTIONS)\
@@ -38,8 +39,9 @@ INVOKE_INSTALLER_BUILDER=$(INSTALLER_BUILDER)\
  $(INSTALLER_BUILDER_OPTIONS)\
  $(LOCAL_INSTALLER_BUILDER_OPTIONS)
 
+# BUILD platform build-package-name install-package-name
 BUILD=$(call INVOKE_GUB,$(1)) $(2)\
-  && $(call INVOKE_INSTALLER_BUILDER,$(1)) build-all $(PACKAGE)
+  && $(call INVOKE_INSTALLER_BUILDER,$(1)) $(3)
 
 BUILD_PLATFORM = $(shell $(PYTHON) bin/build-platform)
 OTHER_PLATFORMS=$(filter-out $(BUILD_PLATFORM), $(PLATFORMS))

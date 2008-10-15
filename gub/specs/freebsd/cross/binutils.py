@@ -7,5 +7,5 @@ class Binutils__freebsd (binutils.Binutils):
         from gub import misc
         return (binutils.Binutils.configure_command (self)
             + misc.join_lines ('''
---program-prefix=%(tool_prefix)s
+--program-prefix=%(toolchain_prefix)s
 '''))

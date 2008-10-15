@@ -1,27 +1,23 @@
-from gub import targetpackage
+from gub import targetbuild
 from gub import repository
 
 
 ### BROKEN
-class Msys(targetpackage.TargetBuildSpec):
-    def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
-        repo = repository.CVS (self.get_repodir(),
+class Msys (targetbuild.TargetBuild):
+    source = mirrors.with_vc (repository.CVS ('downloads/msys',
                                source=':pserver:anonymous@mingw.cvs.sourceforge.net:/cvsroot/mingw',
-                               module='msys/rt/src'
-                               )
-        self.with_vc(repo)
+                               module='msys/rt/src'))
 
-    def patch(self):
+    def patch (self):
         self.system ('cd %(srcdir)s && dos2unix `find -type f`')
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
         
-    def configure(self):
+    def configure (self):
         c = self.expand ('%(configure_command)s')
 
         c = c.replace ('--config-cache', '')
         self.system ('mkdir %(builddir)s ', ignore_errors=True)
-        self.system ('cd  %(builddir)s && %(c)s', locals())
+        self.system ('cd  %(builddir)s && %(c)s', locals ())
         
         return c
     

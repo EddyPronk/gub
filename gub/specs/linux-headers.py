@@ -1,11 +1,16 @@
-from gub import gubb
+from gub import build
 from gub import mirrors
 
-class Linux_headers (gubb.BinarySpec, gubb.SdkBuildSpec):
-    def __init__ (self, settings):
-        gubb.BinarySpec.__init__ (self, settings)
-        self.with_tarball (mirror=mirrors.linux_2_4,
-                           version='2.4.34', format='bz2')
+class Linux_headers (build.BinaryBuild, build.SdkBuild):
+    source = mirrors.with_tarball (name='linux-headers',
+                                   mirror=mirrors.linux_2_4,
+                                   version='2.4.34', format='bz2')
+    # HMm, is this more handy than patch ():pass in BinaryBuild?
+    # possibly we should simply override install (), but that is
+    # always a problem because install ()
+    def stages (self):
+        return misc.list_insert_before (build.BinaryBuild.stages (self),
+                                        'install', 'patch')
     def get_subpackage_names (self):
         return ['']
     def patch (self):
@@ -28,12 +33,11 @@ from gub import misc
 linux_kernel_headers = misc.load_spec ('debian/linux-kernel-headers')
 
 class Linux_headers__debian (linux_kernel_headers.Linux_kernel_headers):
-    def __init__ (self, settings):
-        linux_kernel_headers.Linux_kernel_headers.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        linux_kernel_headers.Linux_kernel_headers.__init__ (self, settings, source)
         from gub import debian
 #        debian.init_dependency_resolver (settings)
-        self.with_template (
-            name='linux-kernel-headers',
+    source = mirrors.with_template (name='linux-kernel-headers',
 # FIXME: we do not mirror all 12 debian arch's,
 #           version=debian.get_packages ()['linux-kernel-headers'].version (),
 #           mirror=mirrors.lilypondorg_deb,
@@ -50,6 +54,11 @@ Linux_headers__linux__arm__vfp = Linux_headers__debian
 Linux_headers__linux__mipsel = Linux_headers__debian
 
 class Linux_headers__linux__64 (Linux_headers__debian):
-    def __init__ (self, settings):
-        Linux_headers__debian.__init__ (self, settings)
-        self.with_template (version='2.6.18-7', name='linux-kernel-headers')
+    source = mirrors.with_template (name='linux-kernel-headers',
+# FIXME: we do not mirror all 12 debian arch's,
+#           version=debian.get_packages ()['linux-kernel-headers'].version (),
+#           mirror=mirrors.lilypondorg_deb,
+            version='2.6.18-7',
+            mirror=mirrors.lkh_deb,
+            strip_components=0,
+            format='deb')

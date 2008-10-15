@@ -1,13 +1,11 @@
 from gub import mirrors
-from gub import targetpackage
+from gub import targetbuild
 
 http://www.eecs.harvard.edu/~nr/noweb/dist/noweb-2.11b.tgz
 
 
-class E2fsprogs (targetpackage.TargetBuildSpec):
-    def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with_tarball (mirror=mirrors.sf, version='1.38')
+class E2fsprogs (targetbuild.TargetBuild):
+    source = mirrors.with_tarball (name='e2fsprogs', mirror=mirrors.sf, version='1.38')
     def install_command (self):
-        return (targetpackage.TargetBuildSpec.install_command (self)
+        return (targetbuild.TargetBuild.install_command (self)
                 + ' install-libs')

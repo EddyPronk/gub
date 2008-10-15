@@ -1,24 +1,47 @@
 from gub import mirrors
-from gub import gubb
+from gub import build
 from gub import misc
-from gub import targetpackage
-from gub import toolpackage
+from gub import targetbuild
+from gub import toolsbuild
 from gub import repository
+from gub import context
+from gub import logging
 
-fc_version = "0596d7296c94b2bb9817338b8c1a76da91673fb9"
+#"0596d7296c94b2bb9817338b8c1a76da91673fb9"
 
-class Fontconfig (targetpackage.TargetBuildSpec):
+# v2.5.91 - there was a late 2007 windows fix. Let's try to see if it
+# fixes caching problems on vista.
+version = '0dffe625d43c1165f8b84f97e8ba098793e2cf7b'
+
+class Fontconfig (targetbuild.TargetBuild):
     '''Generic font configuration library 
 Fontconfig is a font configuration and customization library, which
 does not depend on the X Window System.  It is designed to locate
 fonts within the system and select them according to requirements
 specified by applications.'''
 
-    def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
-        self.with_vc (repository.Git (self.get_repodir (),
-                                      source="git://anongit.freedesktop.org/git/fontconfig",
-                                      revision=fc_version))
+    source = 'git://anongit.freedesktop.org/git/fontconfig?branch=master&revision=' + version
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
+        #self.with_vc (repository.Git (self.get_repodir (), source="git://anongit.freedesktop.org/git/fontconfig", revision=fc_version))
+
+
+    @context.subst_method
+    def freetype_cflags (self):
+        # this is shady: we're using the flags from the tools version
+        # of freetype.
+        
+        base_config_cmd = self.settings.expand ('%(tools_prefix)s/bin/freetype-config')
+        cmd =  base_config_cmd + ' --cflags'
+        logging.command ('pipe %s\n' % cmd)
+        return misc.read_pipe (cmd).strip ()
+
+    @context.subst_method
+    def freetype_libs (self):
+        base_config_cmd = self.settings.expand ('%(tools_prefix)s/bin/freetype-config')
+        cmd =  base_config_cmd + ' --libs'
+        logging.command ('pipe %s\n' % cmd)
+        return misc.read_pipe (cmd).strip ()
 
     def get_build_dependencies (self):
         return ['libtool', 'expat-devel', 'freetype-devel']
@@ -38,7 +61,7 @@ specified by applications.'''
         # While cross building, we create an  <toolprefix>-fontconfig-config
         # and prefer that.
 
-        return (targetpackage.TargetBuildSpec.configure_command (self) 
+        return (targetbuild.TargetBuild.configure_command (self) 
                 + misc.join_lines ('''
 --with-arch=%(target_architecture)s
 --with-freetype-config="%(system_prefix)s/cross/bin/freetype-config
@@ -49,8 +72,7 @@ specified by applications.'''
         self.system ('''
 rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
 ''')
-
-        targetpackage.TargetBuildSpec.configure (self)
+        targetbuild.TargetBuild.configure (self)
 
         ## FIXME: libtool too old for cross compile
         self.update_libtool ()
@@ -63,19 +85,18 @@ rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,
         # flags are wrong, set to the target's root
 
         ## we want native freetype-config flags here. 
-        cflags = '-I%(srcdir)s -I%(srcdir)s/src ' \
-                 + self.read_pipe ('%(local_prefix)s/bin/freetype-config --cflags')[:-1]
+        cflags = '-I%(srcdir)s -I%(srcdir)s/src %(freetype_cflags)s' 
+        libs = '%(freetype_libs)s'
 
-        libs = self.read_pipe ('%(local_prefix)s/bin/freetype-config --libs')[:-1]
         for i in ('fc-case', 'fc-lang', 'fc-glyphname', 'fc-arch'):
             self.system ('''
 cd %(builddir)s/%(i)s && make "CFLAGS=%(cflags)s" "LIBS=%(libs)s" CPPFLAGS= LDFLAGS= INCLUDES= 
 ''', locals ())
 
-        targetpackage.TargetBuildSpec.compile (self)
+        targetbuild.TargetBuild.compile (self)
         
     def install (self):
-        targetpackage.TargetBuildSpec.install (self)
+        targetbuild.TargetBuild.install (self)
         self.dump ('''set FONTCONFIG_FILE=$INSTALLER_PREFIX/etc/fonts/fonts.conf
 set FONTCONFIG_PATH=$INSTALLER_PREFIX/etc/fonts
 ''', 
@@ -84,6 +105,7 @@ set FONTCONFIG_PATH=$INSTALLER_PREFIX/etc/fonts
         
 class Fontconfig__mingw (Fontconfig):
     def patch (self):
+        self.apply_patch ('fontconfig-2.5.91-public_ft_files.patch')
         Fontconfig.patch (self)
         self.file_sub ([('<cachedir>@FC_CACHEDIR@</cachedir>', '')],
                        '%(srcdir)s/fonts.conf.in')
@@ -123,27 +145,25 @@ class Fontconfig__linux (Fontconfig):
 class Fontconfig__freebsd (Fontconfig__linux):
     pass
 
-class Fontconfig__local (toolpackage.ToolBuildSpec):
-    def __init__ (self, settings):
-        toolpackage.ToolBuildSpec.__init__ (self, settings)
-        self.with_template (mirror="git://anongit.freedesktop.org/git/fontconfig",
-                   version=fc_version)
-        
+class Fontconfig__tools (toolsbuild.ToolsBuild):
+    # FIXME: use mi to get to source?
+    source = 'git://anongit.freedesktop.org/git/fontconfig?revision=' + version
+    
     def get_build_dependencies (self):
         return ['libtool', 'freetype', 'expat']
 
     def compile_command (self):
-        return (toolpackage.ToolBuildSpec.compile_command (self)
+        return (toolsbuild.ToolsBuild.compile_command (self)
                 + ' DOCSRC="" ')
 
     def install_command (self):
-        return (toolpackage.ToolBuildSpec.install_command (self)
+        return (toolsbuild.ToolsBuild.install_command (self)
                 + ' DOCSRC="" ')
 
 class Fontconfig__cygwin (Fontconfig):
-    def __init__ (self, settings):
-        Fontconfig.__init__ (self, settings)
-        self.with_template (mirror=mirrors.fontconfig, version='2.4.1')
+    source = mirrors.with_template (name='fontconfig', mirror=mirrors.fontconfig, version='2.4.1')
+    def __init__ (self, settings, source):
+        Fontconfig.__init__ (self, settings, source)
         self.so_version = '1'
 
     def get_subpackage_definitions (self):

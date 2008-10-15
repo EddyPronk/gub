@@ -1,37 +1,42 @@
-from gub import toolpackage
-from gub import targetpackage
+from gub import mirrors
+from gub import toolsbuild
+from gub import targetbuild
 from gub import repository
 
-class Git__local (toolpackage.ToolBuildSpec):
-    def __init__ (self, settings):
-        toolpackage.ToolBuildSpec.__init__ (self, settings)
-        self.with_template (mirror='http://kernel.org/pub/software/scm/git/git-%(version)s.tar.bz2',
-                   version='1.5.1.4')
-    def patch (self):
-        self.shadow_tree ('%(srcdir)s', '%(builddir)s')
-        self.file_sub ([('git describe','true')],
-                       '%(srcdir)s/GIT-VERSION-GEN')
-        
+class Git__tools (toolsbuild.ToolsBuild):
+    source = mirrors.with_template (name='git', mirror='http://kernel.org/pub/software/scm/git/git-%(version)s.tar.bz2',
+                   version='1.5.3.6')
     def configure (self):
         self.dump ('prefix=%(system_prefix)s', '%(builddir)s/config.mak')
 
+    def patch (self):
+        toolsbuild.ToolsBuild.patch (self)
+        self.shadow_tree ('%(srcdir)s', '%(builddir)s')
+        self.file_sub ([('git describe','true')],
+                       '%(srcdir)s/GIT-VERSION-GEN')
+        # kill perl.
+        self.dump ('''
+install:
+\ttrue
+''', '%(srcdir)s/perl/Makefile')
+
+        self.file_sub ([('\t\\$\\(QUIET_SUBDIR0\\)perl[^\n]+\n', ''),
+                        ('SCRIPT_PERL = ', 'SCRIPT_PERL_X = ')],
+                       '%(srcdir)s/Makefile')
+  
     def wrap_executables (self):
         # GIT executables use ancient unix style smart name-based
-        # functionality switching.  Did Linus not read or understand
-        # Standards.texi?
+        # functionality switching.  
         pass
 
-class Git (targetpackage.TargetBuildSpec):
-    def __init__ (self, settings):
-        targetpackage.TargetBuildSpec.__init__ (self, settings)
-        source = 'git://repo.or.cz/git/mingw.git'
-        repo = repository.Git (self.get_repodir (),
-                               branch=settings.git_branch,
-                               source=source)
-        self.with_vc (repo)
+    def makeflags (self):
+        return ' SCRIPT_PERL= '
+                
+class Git (targetbuild.TargetBuild):
 
-        ## strip -mwindows.
-        self.target_gcc_flags = ' -mms-bitfields '
+    # TODO: where should this go?
+    ## strip -mwindows.
+    #self.target_gcc_flags = ' -mms-bitfields '
 
     def version (self):
         return '1.5.3.rc2'
@@ -53,28 +58,29 @@ class Git (targetpackage.TargetBuildSpec):
                 ]
 
     def patch (self):
-        self.file_sub ([('GIT-CFLAGS','$(GIT_CFLAGS_FILE)')],
+        self.file_sub ([('GIT-CFLAGS','$(GIT_CFLAGS_FILE)'),
+                        ('\t\\$\\(MAKE\\) -C perl[^\n]\n', '')
+                        ],
                         '%(srcdir)s/Makefile')
         self.file_sub ([('\.\./GIT-CFLAGS Makefile', 'Makefile')],
                         '%(srcdir)s/perl/Makefile')
 
-        
-        self.system('cd %(srcdir)s && patch -p1 < %(patchdir)s/git-1.5.2-templatedir.patch')
-        targetpackage.TargetBuildSpec.patch (self)
+        self.apply_patch('git-1.5.2-templatedir.patch')
+        targetbuild.TargetBuild.patch (self)
         self.system ('rm -rf %(builddir)s')
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
         self.file_sub ([('git describe','true')],
                         '%(srcdir)s/GIT-VERSION-GEN')
-        self.system('cd %(srcdir)s && patch -p1 < %(patchdir)s/git-1.5-shell-anality.patch')
-        self.autoupdate()
+        self.apply_patch ('git-1.5-shell-anality.patch')
+        self.autoupdate ()
         
 class Git__mingw (Git):
-    def __init__ (self, settings):
-        Git.__init__ (self, settings)
+    def __init__ (self, settings, source):
+        Git.__init__ (self, settings, source)
         self.target_gcc_flags = ' -mms-bitfields '
 
     def configure (self):
-        targetpackage.TargetBuildSpec.configure (self)
+        targetbuild.TargetBuild.configure (self)
         self.file_sub ([('CFLAGS = -g',
                          'CFLAGS = -I compat/ -g')],
                        '%(builddir)s/config.mak.autogen')
@@ -82,7 +88,7 @@ class Git__mingw (Git):
                          '-lwsock32'),
                         ],
                        '%(builddir)s/Makefile')
-        self.dump('%(version)s-GUB', '%(builddir)s/version')
+        self.dump ('%(version)s-GUB', '%(builddir)s/version')
 
     def makeflags (self):
         return (' uname_S=MINGW'
@@ -110,7 +116,7 @@ class Git__mingw (Git):
         return d
     
     def install (self):
-        Git.install(self)
+        Git.install (self)
         bat = r'''@echo off
 "@INSTDIR@\usr\bin\wish84.exe" "@INSTDIR@\usr\bin\gitk" %1 %2 %3 %4 %5 %6 %7 %8 %9
 '''.replace ('%','%%').replace ('\n','\r\n')

@@ -1,44 +1,40 @@
 import os
 
+from gub import mirrors
+from gub import misc
 from gub import repository
-from gub import toolpackage
+from gub import toolsbuild
+from gub import cross
 
-class Nsis (toolpackage.ToolBuildSpec):
-    def __init__ (self, settings):
-        toolpackage.ToolBuildSpec.__init__ (self, settings)
-        self.save_path = os.environ['PATH']
-        mingw_dir = settings.alltargetdir + '/mingw' + settings.root_dir
-        os.environ['PATH'] = (mingw_dir
-                              + settings.prefix_dir + settings.cross_dir
-                              + '/bin' + ':' + os.environ['PATH'])
-        # nsis <= 2.30 does not build with 64 bit compiler
-        self.CPATH = ''
-        if settings.build_architecture.startswith ('x86_64-linux'):
-            from gub import cross
-            cross.setup_linux_x86 (self)
-            os.environ['PATH'] = self.PATH
-            os.environ['CC'] = self.CC
-            os.environ['CXX'] = self.CXX
-            # FIXME: need this to find windows.h on linux-64;
-            # how does this ever work on linux-x86?
-            self.CPATH = mingw_dir + settings.prefix_dir + '/include'
+class Nsis (toolsbuild.ToolsBuild):
+    source = mirrors.with_template (name='nsis', version='2.37',
+                                    # wx-windows, does not compile
+                                    # version='2.30',
+                                    # bzip2 install problem
+                                    # version='2.23',
+                                    mirror='http://surfnet.dl.sourceforge.net/sourceforge/%(name)s/%(name)s-%(version)s-src.tar.%(format)s',
+                                    format='bz2')
+    FOOsource = repository.CVS ('downloads/nsis',
+                             source=':pserver:anonymous@nsis.cvs.sourceforge.net:/cvsroot/nsis',
+                             module='NSIS',
+                             tag='HEAD')
 
-        if 1:
-            self.with_template (version='2.24',
-                # wx-windows, does not compile
-                # version='2.30',
-                # bzip2 install problem
-                # version='2.23',
-                       mirror='http://surfnet.dl.sourceforge.net/sourceforge/%(name)s/%(name)s-%(version)s-src.tar.%(format)s',
-                       format='bz2')
-        else:
-            repo = repository.CVS (
-                self.get_repodir (),
-                source=':pserver:anonymous@nsis.cvs.sourceforge.net:/cvsroot/nsis',
-                module='NSIS',
-                tag='HEAD')
-            self.with_vc (repo)
-
+    def add_mingw_env (self):
+        # Do not use 'root', 'usr', 'cross', rather use from settings,
+        # that enables changing system root, prefix, etc.
+        mingw_dir = (self.settings.alltargetdir + '/mingw'
+                     + self.settings.root_dir)
+        mingw_bin = (mingw_dir
+                     + self.settings.prefix_dir
+                     + self.settings.cross_dir
+                     + '/bin')
+        return {'PATH': mingw_bin + ':' + os.environ['PATH'] }
+        
+    def __init__ (self, settings, source):
+        toolsbuild.ToolsBuild.__init__ (self, settings, source)
+        if 'x86_64-linux' in self.settings.build_architecture:
+            cross.setup_linux_x86 (self, self.add_mingw_env ())
+        
     def get_build_dependencies (self):
         return ['scons']
 
@@ -53,26 +49,33 @@ defenv['CXX'] = os.environ['CXX']
 Export('defenv')
 ''')],
                        '%(srcdir)s/SConstruct')
-        #self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/nsis-2.22-contrib-math.patch')
         
-    def configure (self):
-        pass
+    #FIXME: should be automatic for scons build
+    def stages (self):
+        return [s for s in toolsbuild.ToolsBuild.stages (self)
+                if s != 'configure']
 
     def compile_command (self):
-        ## no trailing / in paths!
+        # SCons barfs on trailing / on directory names
         return ('scons PREFIX=%(system_prefix)s'
                 ' PREFIX_DEST=%(install_root)s'
-                ' CPATH=%(CPATH)s'
                 ' DEBUG=yes'
                 ' NSIS_CONFIG_LOG=yes'
+                ' SKIPUTILS="NSIS Menu"'
                 ' SKIPPLUGINS=System')
+
+    # this method is overwritten for x86-64_linux
+    def build_environment (self):
+        return self.add_mingw_env ()
     
+    def compile (self):
+        self.system ('cd %(builddir)s/ && %(compile_command)s',
+                     self.build_environment ())
+
     def install_command (self):
         return self.compile_command () + ' install'
+    
+    def install (self):
+        self.system ('cd %(builddir)s && %(install_command)s ',
+                     self.build_environment ())
 
-    def clean (self):
-        if settings.build_architecture.startswith ('x86_64-linux'):
-            os.environ['PATH'] = self.save_path
-            del os.environ['CC']
-            del os.environ['CXX']
-        toolpackage.ToolBuildSpec.clean (self)

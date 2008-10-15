@@ -1,20 +1,14 @@
-from gub import gubb
+from gub import build
+from gub import repository
 
 ## change to sdk package
-class Python (gubb.SdkBuildSpec):
-    def __init__ (self, settings):
-        gubb.NullBuildSpec.__init__ (self, settings)
-        self.version = (lambda: '2.3')
-        self.vc_branch = ''
-        self.format = ''
-        self.has_source = False
+class Python (build.SdkBuild):
+    source = repository.Version (name='python', version='2.3')
 
     def srcdir (self):
         return '%(allsrcdir)s/python-darwin'
-
     def package (self):
-        gubb.BuildSpec.package (self)
-        
+        build.UnixBuild.package (self)
     def install (self):
         self.system ('mkdir -p %(install_prefix)s%(cross_dir)s/bin')
         self.dump ('''#! /bin/sh
