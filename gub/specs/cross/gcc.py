@@ -105,7 +105,7 @@ class Gcc__mingw (Gcc):
     #REMOVEME
     def __init__ (self, settings, source):
         Gcc.__init__ (self, settings, source)
-    source = mirrors.with_tarball (name='gcc', mirror=mirrors.gnu, version='4.1.1', format='bz2')
+    source = mirrors.with_tarball (name='gcc', mirror=mirrors.gcc, version='4.1.1', format='bz2')
     def get_build_dependencies (self):
         return (Gcc.get_build_dependencies (self)
                 + ['mingw-runtime', 'w32api'])
@@ -201,7 +201,7 @@ class Gcc__freebsd (Gcc):
     #REMOVEME
     def __init__ (self, settings, source):
         Gcc.__init__ (self, settings, source)
-    source = mirrors.with_tarball (name='gcc', mirror=mirrors.gnu, version='4.1.2', format='bz2')
+    source = mirrors.with_tarball (name='gcc', mirror=mirrors.gcc, version='4.1.2', format='bz2')
     def get_build_dependencies (self):
         return (Gcc.get_build_dependencies (self)
                 + ['freebsd-runtime'])
