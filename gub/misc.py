@@ -210,8 +210,7 @@ def _download_url (url, dest_dir, progress=None):
         contents = url_stream.read (bufsize)
         if not contents:
             break
-
-        size += len(contents)
+        size += len (contents)
         output.write (contents)
         if progress:
             progress ('.')
@@ -221,12 +220,13 @@ def _download_url (url, dest_dir, progress=None):
         progress ('\n')
 
     file_name = os.path.basename (url)
-    os.rename(tmpfile, os.path.join (dest_dir, file_name))
-
-    if progress:
-        if size:
+    if size:
+        os.rename (tmpfile, os.path.join (dest_dir, file_name))
+        if progress:
             progress ('done (%(size)s)\n' % locals ())
-        else:
+    else:
+        os.unlink (tmpfile)
+        if progress:
             progress ('failed\n')
 
     return size
