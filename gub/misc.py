@@ -80,7 +80,7 @@ def string_to_version (s):
     return tuple (map (atoi, (string.split (s, ' '))))
 
 def is_ball (s):
-    return re.match ('^(.*?)-([0-9].*(-[0-9]+)?)(\.[a-z]*)?(\.tar\.(bz2|gz)|\.gu[bp])$', s)
+    return re.match ('^(.*?)[-_]([0-9].*(-[0-9]+)?)([._][a-z]+[0-9]*)?(\.tar\.(bz2|gz)|\.gu[bp]|\.deb|\.tgz)$', s)
 
 def split_ball (s):
     m = is_ball (s)
