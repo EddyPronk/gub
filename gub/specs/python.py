@@ -8,10 +8,7 @@ from gub import context
 from gub import toolsbuild
 
 class Python (targetbuild.TargetBuild):
-    source = mirrors.with_template (name='python', version='2.4.2',
-                   mirror=mirrors.python,
-                   format='bz2')
-
+    source = 'http://python.org/ftp/python/2.4.5/Python-2.4.5.tar.bz2'
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
         ## don't from gub import settings from build system.
