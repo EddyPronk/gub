@@ -1,4 +1,4 @@
-from gub import mirrors
+from gub import loggedos
 from gub import misc
 from gub import targetbuild
 #
@@ -54,7 +54,7 @@ bjam
                 + ' install').replace ('=%(prefix_dir)s', '=%(install_prefix)s')
 
 class Boost (BjamBuild):
-    source = mirrors.with_template (name='boost', version='1.33.1', mirror=mirrors.boost_1_33_1, format='bz2')
+    source = 'http://surfnet.dl.sourceforge.net/sourceforge/boost/boost_1_33_1.tar.bz2'
     def __init__ (self, settings, source):
         BjamBuild.__init__ (self, settings, source)
         targetbuild.change_target_dict (self, {'CFLAGS': '-DBOOST_PLATFORM_CONFIG=\\"boost/config/platform/linux.hpp\\"'})
@@ -89,5 +89,5 @@ cp -f boost/config/platform/linux.hpp boost/config/platform/linux-gnueabi.hpp
 
 class Boost__mingw (Boost):
     def compile_command (self):
-        return (Boost.configure_command (self)
+        return (Boost.compile_command (self)
                 .replace ('linux.hpp', 'win32.hpp'))
