@@ -94,7 +94,8 @@ glibc_2_3_snapshots = lilypondorg
 
 berlios = 'http://download.berlios.de/%(name)s/%(name)s-%(version)s.tar.%(format)s'
 
-xerces_c = 'http://apache.cs.uu.nl/dist/xml/%(name)s/source/%(name)s-src_%(version)s.tar.%(format)s'
+xerces_c_2 = 'http://www.apache.org/dist/xerces/c/2/sources/%(name)s-src_%(version)s.tar.%(format)s'
+xerces_c_3 = 'http://www.apache.org/dist/xerces/c/3/sources/%(name)s-src_%(version)s.tar.%(format)s'
 
 
 def with_template (
