@@ -8,7 +8,7 @@ from gub import context
 from gub import toolsbuild
 
 class Python (targetbuild.TargetBuild):
-    source = 'http://python.org/ftp/python/2.4.5/Python-2.4.5.tar.bz2'
+    source = 'http://python.org/ftp/python/2.4.2/Python-2.4.2.tar.bz2'
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
         ## don't from gub import settings from build system.
@@ -138,7 +138,7 @@ class Python__mingw (Python__mingw_cross):
     pass
 
 class Python__tools (toolsbuild.ToolsBuild, Python):
-    source = Python.source
+    source = 'http://python.org/ftp/python/2.4.5/Python-2.4.5.tar.bz2'
     def configure (self):
         self.system ('''cd %(srcdir)s && autoconf''')
         self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
