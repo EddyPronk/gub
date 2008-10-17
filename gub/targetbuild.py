@@ -60,11 +60,16 @@ class TargetBuild (build.UnixBuild):
     def config_cache_settings (self):
         return self.config_cache_overrides (self, '')
 
+    @context.subst_method
+    def cache_file (self):
+        return '%(builddir)s/config.cache'
+
     def config_cache (self):
         str = self.config_cache_settings ()
         if str:
             self.system ('mkdir -p %(builddir)s || true')
             cache_file = '%(builddir)s/config.cache'
+#            self.dump (self.config_cache_settings (), self.cache_file (), permissions=0755)
             self.dump (self.config_cache_settings (), cache_file, permissions=0755)
 
     def config_cache_settings (self):
