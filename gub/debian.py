@@ -66,10 +66,9 @@ def get_debian_package (settings, description):
         d['Package'] += '::blacklisted'
     package_class = classobj (d['Package'], (build.BinaryBuild,), {})
     from gub import repository
-    source = repository.TarBall (settings.downloads,
-                                 os.path.join (mirror, d['Filename']),
-                                 d['Version'],
-                                 strip_components=0)
+    source = repository.DebianPackage (settings.downloads,
+                                       os.path.join (mirror, d['Filename']),
+                                       d['Version'])
     package = package_class (settings, source)
     package.name_dependencies = []
     if d.has_key ('Depends'):

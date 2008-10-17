@@ -335,10 +335,7 @@ class TarBall (Repository):
          return url and (url.endswith (rety.vc_system)
                          or url.endswith (rety.vc_system + '.gz')
                          or url.endswith ('.tgz')
-                         or url.endswith (rety.vc_system + '.bz2')
-                         # FIXME: DebianPackage should derive from TarBall,
-                         # rather than extending it in place
-                         or url.endswith ('.deb'))
+                         or url.endswith (rety.vc_system + '.bz2'))
 
     # TODO: s/url/source
     def __init__ (self, dir, url, version=None, strip_components=1):
@@ -376,43 +373,77 @@ class TarBall (Repository):
         from gub import misc
         return misc.ball_basename (self._file_name ())
     
-    def update_workdir_deb (self, destdir):
+    def update_workdir (self, destdir):
+        tarball = self.dir + '/' + self._file_name ()
         if os.path.isdir (destdir):
             self.system ('rm -rf %s' % destdir)
-
-        tarball = self.dir + '/' + self._file_name ()
-        strip_components = self.strip_components
         self.system ('mkdir %s' % destdir)
+        self._unpack (destdir, tarball)
 
-        # fixme.
-        _v = ''   #     self.oslog.verbose_flag ()
-        self.system ('ar p %(tarball)s data.tar.gz | tar -C %(destdir)s --strip-component=%(strip_components)d%(_v)s -zxf -' % locals ())
-        
-    def update_workdir_tarball (self, destdir):
-        tarball = self.dir + '/' + self._file_name ()
-        if os.path.isdir (destdir):
-            self.system ('rm -rf %s' % destdir)
-        self.system ('mkdir %s' % destdir)       
+    def _unpack (self, destdir, tarball):
         strip_components = self.strip_components
         _v = '-v'
-
         # fixme
         #if self.oslog:  #urg, will be fixed when .source is mandatory
         #    _v = self.oslog.verbose_flag ()
         _z = misc.compression_flag (tarball)
         self.system ('tar -C %(destdir)s --strip-component=%(strip_components)d %(_v)s%(_z)s -xf %(tarball)s' % locals ())
 
-    def update_workdir (self, destdir):
-        if '.deb' in self._file_name () :
-            self.update_workdir_deb (destdir)
-        else:
-            self.update_workdir_tarball (destdir)
-
     def version (self):
         from gub import misc
         return self._version
 
 RepositoryProxy.register (TarBall)
+
+class DebianPackage (TarBall):
+    vc_system = '.deb'
+
+    @staticmethod
+    def create (rety, dir, source, branch='', revision=''):
+        return DebianPackage (dir, source)
+
+    @staticmethod
+    def check_suffix (rety, url):
+         return url and url.endswith (rety.vc_system)
+
+    # TODO: s/url/source
+    def __init__ (self, dir, url, version=None, strip_components=0):
+        TarBall.__init__ (self, dir, url, version, strip_components)
+
+    def _unpack (self, destdir, tarball):
+        strip_components = self.strip_components
+        # fixme
+        #if self.oslog:  #urg, will be fixed when .source is mandatory
+        #    _v = self.oslog.verbose_flag ()
+        _v = ''   #     self.oslog.verbose_flag ()
+        self.system ('ar p %(tarball)s data.tar.gz | tar -C %(destdir)s --strip-component=%(strip_components)d%(_v)s -zxf -' % locals ())
+
+RepositoryProxy.register (DebianPackage)
+
+class ZipFile (TarBall):
+    vc_system = '.zip'
+
+    @staticmethod
+    def create (rety, dir, source, branch='', revision=''):
+        return ZipFile (dir, source)
+
+    @staticmethod
+    def check_suffix (rety, url):
+         return url and url.endswith (rety.vc_system)
+
+    # TODO: s/url/source
+    def __init__ (self, dir, url, version=None, strip_components=0):
+        TarBall.__init__ (self, dir, url, version, strip_components)
+
+    def _unpack (self, destdir, tarball):
+        strip_components = self.strip_components
+        # fixme
+        #if self.oslog:  #urg, will be fixed when .source is mandatory
+        #    _v = self.oslog.verbose_flag ()
+        _v = ''   #     self.oslog.verbose_flag ()
+        self.system ('unzip %(_v)s %(tarball)s -d %(destdir)s' % locals ())
+
+RepositoryProxy.register (ZipFile)
 
 # JUNKME.
 class NewTarBall (TarBall):
