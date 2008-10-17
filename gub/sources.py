@@ -48,5 +48,3 @@ python = 'http://python.org/ftp/python/%(version)s/Python-2.4.2.tar.bz2'
 imagemagick = 'ftp://ftp.nluug.nl/pub/ImageMagick/ImageMagick-6.4.1-3.tar.bz2'
 texinfo = join (gnu, 'texinfo/texinfo-4.8.tar.bz2')
 ghostscript  = 'ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/ghostscript-8.60.tar.bz2'
-curl = 'http://curl.haxx.se/download/curl-7.19.0.tar.gz'
-
