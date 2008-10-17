@@ -42,7 +42,7 @@ class Build (context.RunnableContext):
     def stages (self):
         return list ()
     def apply_patch (self, name, strip_component=1):
-        patch_strip_component = str(strip_component)
+        patch_strip_component = str (strip_component)
         self.system ('''
 cd %(srcdir)s && patch -p%(patch_strip_component)s < %(patchdir)s/%(name)s
 ''', locals ())
