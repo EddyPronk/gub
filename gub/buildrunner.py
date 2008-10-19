@@ -31,8 +31,8 @@ from gub import logging
 from gub import runner
 
 def checksum_diff (b, a):
-    return '\n'.join (difflib.context_diff (a.split ('\n'),
-                                           b.split ('\n')))
+    return '\n'.join (difflib.unified_diff (a.split ('\n'),
+                                            b.split ('\n')))
 
 # FIXME s/spec/build/, but we also have two definitions of package/pkg
 # here: sub packages and name of global package under build
@@ -164,7 +164,9 @@ class BuildRunner:
 
         if (not is_installable or checksum_fail_reason):
 
-            logger.write_log (checksum_fail_reason, 'info')
+            if logging.get_numeric_loglevel ('command') > logger.threshold:
+                logger.write_log ('\n'.join (checksum_fail_reason.split ('\n')[:10]), 'command')
+            logger.write_log (checksum_fail_reason, 'output')
 
             deferred_runner = runner.DeferredRunner (logger)
             spec.connect_command_runner (deferred_runner)
