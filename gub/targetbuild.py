@@ -10,6 +10,10 @@ class TargetBuild (build.UnixBuild):
     def __init__ (self, settings, source):
         build.UnixBuild.__init__ (self, settings, source)
 
+    @context.subst_method
+    def configure_command_native (self):
+        return build.UnixBuild.configure_command (self)
+
     def configure_command (self):
         return misc.join_lines ('''%(configure_binary)s
 --config-cache
@@ -75,6 +79,14 @@ class TargetBuild (build.UnixBuild):
         return self.config_cache_overrides (config_cache.config_cache['all']
                                             + config_cache.config_cache[self.settings.platform])
 
+    @context.subst_method
+    def compile_command_native (self):
+        return 'make %(makeflags_native)s '
+
+    @context.subst_method
+    def makeflags_native (self):
+        return ''
+
     def compile_command (self):
         c = build.UnixBuild.compile_command (self)
         if (not self.force_sequential_build () and self.settings.cpu_count_str):
@@ -86,6 +98,27 @@ class TargetBuild (build.UnixBuild):
     def configure (self):
         self.config_cache ()
         build.UnixBuild.configure (self)
+
+    def get_substitution_dict_native (self):
+        return build.UnixBuild.get_substitution_dict
+
+    def set_substitution_dict_native (self):
+        save = self.get_substitution_dict
+        self.get_substitution_dict = misc.bind_method (self.get_substitution_dict_native (), self)
+        return save
+
+    def configure_native (self):
+        save = self.set_substitution_dict_native ()
+        self.system ('''
+mkdir -p %(builddir)s || true
+cd %(builddir)s && chmod +x %(configure_binary)s && %(configure_command_native)s
+''')
+        self.get_substitution_dict = save
+
+    def compile_native (self):
+        save = self.set_substitution_dict_native ()
+        self.system ('cd %(builddir)s && %(compile_command_native)s')
+        self.get_substitution_dict = save
 
     ## FIXME: this should move elsewhere , as it's not
     ## package specific
