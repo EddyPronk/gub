@@ -27,7 +27,7 @@ class Build (context.RunnableContext):
         self.source = source
         self.settings = settings
         self.source.connect_logger (logging.default_logger)
-        
+
     def connect_command_runner (self, runner):
         if runner:
             self.source.connect_logger (runner.logger)
@@ -36,7 +36,7 @@ class Build (context.RunnableContext):
     @context.subst_method
     def checksum_file (self):
         return '%(packages)s/%(name)s%(vc_branch_suffix)s.checksum'
-    
+
     def nop (self):
         pass
     def stages (self):
@@ -96,7 +96,7 @@ class UnixBuild (Build):
 
     Based on the traditional configure; make; make install, this class
     tries to do everything including autotooling and libtool fooling.  '''
-    
+
     def __init__ (self, settings, source):
         Build.__init__ (self, settings, source)
         self._dependencies = None
@@ -120,7 +120,7 @@ class UnixBuild (Build):
     @context.subst_method
     def LD_PRELOAD (self):
         return '%(gubdir)s/librestrict/librestrict.so'
-    
+
     def get_substitution_dict (self, env={}):
         dict = {
             'CPATH': '',
@@ -131,7 +131,7 @@ class UnixBuild (Build):
         dict.update (env)
         d = context.RunnableContext.get_substitution_dict (self, dict).copy ()
         return d
-          
+
     def class_invoke_version (self, klas, name):
         name_version = name + '_' + self.version ().replace ('.', '_')
         if klas.__dict__.has_key (name_version):
@@ -142,20 +142,20 @@ class UnixBuild (Build):
 
     def get_repodir (self):
         return self.settings.downloads + '/' + self.name ()
-    
+
     def get_conflict_dict (self):
         """subpackage -> list of confict dict."""
         return {'': [], 'devel': [], 'doc': [], 'runtime': []}
-  
+
     def get_dependency_dict (self):
         """subpackage -> list of dependency dict."""
         # FIMXE: '' always depends on runtime?
         return {'': [], 'devel': [], 'doc': [], 'runtime': [], 'x11': []}
-  
+
     def force_sequential_build (self):
         """Set to true if package can't handle make -jX """
         return False
-    
+
     @context.subst_method
     def name (self):
         file = self.__class__.__module__
@@ -168,7 +168,7 @@ class UnixBuild (Build):
         name = self.__class__.__name__
         name = re.sub ('__.*', '', name)
         return name
-    
+
     @context.subst_method
     def file_name (self):
         return self.source.file_name ()
@@ -182,7 +182,7 @@ class UnixBuild (Build):
                 '%(srcdir)s/COPYING.LIB',
                 '%(srcdir)s/LICENSE',
                 '%(srcdir)s/LICENCE',]
-    
+
     @context.subst_method
     def basename (self):
         return misc.ball_basename (self.file_name ())
@@ -213,14 +213,14 @@ class UnixBuild (Build):
     @context.subst_method
     def vc_branch (self):
         return self.source.full_branch_name ()
-    
+
     @context.subst_method
     def vc_branch_suffix (self):
         b = self.vc_branch ()
         if b:
             b = '-' + b
         return b
-        
+
     @context.subst_method
     def version (self):
         return self.source.version ()
@@ -252,8 +252,8 @@ class UnixBuild (Build):
     @context.subst_method
     def configure_binary (self):
         return '%(srcdir)s/configure'
-    
-    @context.subst_method 
+
+    @context.subst_method
     def configure_command (self):
         return '%(configure_binary)s --prefix=%(install_prefix)s'
 
@@ -261,6 +261,9 @@ class UnixBuild (Build):
     def compile_command (self):
         return 'make %(makeflags)s '
 
+    # what the heck is this?  Why would we not want to use
+    # -j x with multiple cpu's (compiling is often io bound)
+    # and why not when cross compiling (think icecc?).
     @context.subst_method
     def native_compile_command (self):
         c = 'make'
@@ -290,7 +293,7 @@ class UnixBuild (Build):
     @context.subst_method
     def makeflags (self):
         return ''
-    
+
     def get_stamp_file (self):
         stamp = self.expand ('%(stamp_file)s')
         return stamp
@@ -340,7 +343,7 @@ tooldir=%(install_prefix)s
 
                                      'if false && test "$inst_prefix_dir" = "$destdir"; then')],
                            file, must_succeed=True)
-        
+
     def update_libtool (self):
         def update (logger, file):
             new = self.expand ('%(system_prefix)s/bin/libtool')
@@ -364,7 +367,7 @@ tooldir=%(install_prefix)s
         be done BEFORE the rest of the install stage.  We need to
         figure out some clean way to plug something in between the
         automatic cleaning, and the rest of the install.'''
-        
+
         self.system ('''
 rm -rf %(install_root)s
 cd %(builddir)s && %(install_command)s
@@ -400,11 +403,11 @@ cp %(file)s %(install_root)s/license/%(name)s
                     ],
                    la)
             if self.settings.platform.startswith ('mingw'):
-                
+
                 loggedos.file_sub (logger, [('library_names=.*',
                                  self.expand ("library_names='lib%(base)s.dll.a'", env=locals ()))],
                                la)
-                
+
         self.map_locate (installed_la_fixup, '%(install_root)s', 'lib*.la')
 
     def compile (self):
@@ -413,7 +416,7 @@ cp %(file)s %(install_root)s/license/%(name)s
     def patch (self):
         if self.__class__.__dict__.get ('patches'):
             map (self.apply_patch, self.__class__.patches)
-            
+
         # FIXME: should not misuse patch for auto stuff
 
         # We cannot easily move this to 'autoupdate' stage now,
@@ -441,7 +444,7 @@ cp %(file)s %(install_root)s/license/%(name)s
             p.dump_header_file ()
             p.clean ()
         self.system ('rm -rf %(install_root)s')
-        
+
     def get_build_dependencies (self):
         return []
 
@@ -475,7 +478,7 @@ cp %(file)s %(install_root)s/license/%(name)s
             '' : ['/'],
             }
         return d
-    
+
     def get_subpackage_names (self):
         return ['devel', 'doc', '']
 
@@ -495,10 +498,10 @@ cp %(file)s %(install_root)s/license/%(name)s
         dep_dict = self.get_dependency_dict ()
         descr_dict = self.description_dict ()
         category_dict = self.category_dict ()
-        
+
         for sub in self.get_subpackage_names ():
             filespecs = defs[sub]
-            
+
             p = guppackage.GupPackage (self.runner)
             # FIXME: feature envy -> GupPackage constructor/factory
             p._file_specs = filespecs
@@ -521,11 +524,11 @@ cp %(file)s %(install_root)s/license/%(name)s
 
             cat_str = category_dict.get (sub, '')
             p._dict['category'] = cat_str
-            
+
             ps.append (p)
 
         return ps
-    
+
     def src_package (self):
         # URG: basename may not be source dir name, eg,
         # package libjpeg uses jpeg-6b.  Better fix at untar
@@ -553,7 +556,7 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"%(_v)s -zcf %(src_package_
         def un_exe (logger_why_already_in_self, file):
             base = os.path.splitext (file)[0]
 # Hmm, cannot (yet) use our nice Runner/logged os interface (again)?
-# This should have been fixed already?                
+# This should have been fixed already?
 # gur, Must manually expand and pass logger...
 #            self.runner.system ('mv %(file)s %(base)s', locals ())
             loggedos.system (logger_why_already_in_self, self.expand ('mv %(file)s %(base)s', locals ()))
@@ -564,7 +567,7 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"%(_v)s -zcf %(src_package_
             if (not os.path.islink (file)
                 and not os.path.splitext (file)[1]
 # Hmm, cannot (yet) use our nice Runner/logged os interface (again)?
-# This should have been fixed already?                
+# This should have been fixed already?
 #                and self.runner.read_pipe ('file -b %(i)s', locals ()).startswith ('MS-DOS executable PE')):
 #                self.runner.system ('mv %(i)s %(file)s.exe', locals ())
 #    and self.runner.read_pipe ('file -b %(i)s', locals ()).startswith ('MS-DOS executable PE')):
@@ -579,13 +582,13 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"%(_v)s -zcf %(src_package_
         cmd = self.system ('''
 mkdir -p %(install_prefix)s/share/doc/%(name)s
 ''')
-        
+
         def copy_readme (logger_why_already_in_self, file):
             if (os.path.isfile (file)
                 and not os.path.basename (file).startswith ('Makefile')
                 and not os.path.basename (file).startswith ('GNUmakefile')):
 # Hmm, cannot (yet) use our nice Runner/logged os interface (again)?
-# This should have been fixed already?                
+# This should have been fixed already?
 #                self.runner.system ('cp %(file)s %(install_prefix)s/share/doc/%(name)s', locals ())
 # gur, Must manually expand and pass logger...
                 loggedos.system (logger_why_already_in_self, self.expand ('cp %(file)s %(install_prefix)s/share/doc/%(name)s', locals ()))
