@@ -850,14 +850,22 @@ class Subversion (SimpleRepo):
     @staticmethod
     def create (rety, dir, source, branch, revision='HEAD'):
         source = source.replace ('svn:http://', 'http://')
-        if not branch:
-            branch = '.'
+        if not branch and source:
+            if source.endswith ('/'):
+                source = source[:-1]
+            branch = source[source.rindex ('/')+1:]
+            source = source[:source.rindex ('/')]
         if not revision:
             revision = 'HEAD'
         return Subversion (dir, source=source, branch=branch,
                            module='.', revision=revision)
 
-    def __init__ (self, dir, source=None, branch='.', module='.', revision='HEAD'):
+    def __init__ (self, dir, source=None, branch='', module='.', revision='HEAD'):
+        if not branch and source:
+            if source.endswith ('/'):
+                source = source[:-1]
+            branch = source[source.rindex ('/')+1:]
+            source = source[:source.rindex ('/')]
         if not revision:
             revision = 'HEAD'
         self.module = module
@@ -1071,7 +1079,7 @@ def test ():
             self.assertEqual (repo.__class__, Bazaar)
             repo = get_repository_proxy ('downloads/test/', 'git+ssh://git.sv.gnu.org/srv/git/lilypond.git', '', '')
             self.assertEqual (repo.__class__, Git)
-            repo = get_repository_proxy ('downloads/test/', 'svn+ssh://gforge/svnroot/public/samco/trunk', '', '')
+            repo = get_repository_proxy ('downloads/test/', 'svn+ssh://svn.gnome.org/svn/gnome-hello', 'trunk', '')
             self.assertEqual (repo.__class__, Subversion)
         def testGitTagAndDiff (self):
             os.system ('mkdir -p downloads/test/git')

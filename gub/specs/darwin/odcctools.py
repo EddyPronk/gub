@@ -4,7 +4,8 @@ from gub import cross
 from gub import mirrors
 
 class Odcctools (cross.CrossToolsBuild):
-    source = ('svn:http://iphone-dev.googlecode.com/svn/trunk/odcctools'
+    source = ('svn:http://iphone-dev.googlecode.com/svn&branch=trunk'
+              '&module=odcctools'
               '&revision=278')
     def __init__ (self, settings, source):
         cross.CrossToolsBuild.__init__ (self, settings, source)
