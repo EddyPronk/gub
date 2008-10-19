@@ -17,7 +17,7 @@ def change_target_package (package):
             'DLLTOOL': '%(toolchain_prefix)sdlltool',
             'DLLWRAP': '%(toolchain_prefix)sdllwrap',
             })
-    return
+
     def install (whatsthis):
         package.post_install_smurf_exe ()
 
