@@ -1,0 +1,10 @@
+--- libicu-3.8.1/source/common/unicode/utypes.h.orig	2008-10-18 09:53:00.000000000 +0200
++++ libicu-3.8.1/source/common/unicode/utypes.h	2008-10-18 09:54:06.000000000 +0200
+@@ -32,6 +32,7 @@
+ #ifndef UTYPES_H
+ #define UTYPES_H
+ 
++#include <inttypes.h>
+ 
+ #include "unicode/umachine.h"
+ #include "unicode/utf.h"

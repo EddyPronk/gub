@@ -1,0 +1,309 @@
+--- libicu-3.8.1/source/Makefile.in.orig	2008-10-18 21:03:02.000000000 +0200
++++ libicu-3.8.1/source/Makefile.in	2007-12-12 19:58:06.000000000 +0100
+@@ -90,11 +90,11 @@ endif
+ LOCAL_SUBDIRS = $(SUBDIRS)
+ CLEAN_FIRST_SUBDIRS = tools
+ 
+-$(LIBDIR) $(BINDIR):
++$(LIBDIR) $(BINDIR) $(LIBDIR_FOR_BUILD) $(BINDIR_FOR_BUILD):
+ 	-$(MKINSTALLDIRS) $@
+ 
+ ## Recursive targets
+-all-recursive install-recursive clean-recursive distclean-recursive dist-recursive check-recursive: $(LIBDIR) $(BINDIR)
++all-recursive install-recursive clean-recursive distclean-recursive dist-recursive check-recursive: $(LIBDIR) $(BINDIR) $(LIBDIR_FOR_BUILD) $(BINDIR_FOR_BUILD)
+ 	@dot_seen=no; \
+ 	target=`echo $@ | sed s/-recursive//`; \
+ 	list='$(LOCAL_SUBDIRS)'; for subdir in $$list; do \
+@@ -158,7 +158,7 @@ clean-local:
+ distclean-local: clean-local
+ 	$(RMV) $(top_builddir)/config/Makefile.inc $(top_builddir)/config/icu-config
+ 	$(RMV) config.cache config.log config.status
+-	$(RMV) Makefile config/Makefile icudefs.mk $(LIBDIR) $(BINDIR)
++	$(RMV) Makefile config/Makefile icudefs.mk $(LIBDIR) $(BINDIR) $(LIBDIR_FOR_BUILD) $(BINDIR_FOR_BUILD)
+ 
+ check-local:
+ 
+--- libicu-3.8.1/source/data/Makefile.in.orig	2008-10-18 21:06:51.000000000 +0200
++++ libicu-3.8.1/source/data/Makefile.in	2008-10-18 21:06:10.000000000 +0200
+@@ -36,7 +36,7 @@ ICUPKGDATA_OUTDIR = $(OUTDIR)
+ endif
+ 
+ CURDIR:=$(CURR_FULL_DIR)
+-PKGDATA = $(BINDIR)/pkgdata $(PKGDATA_OPTS) -q -c -s $(CURDIR)/out/build/$(ICUDATA_PLATFORM_NAME) -d $(ICUPKGDATA_OUTDIR) -M'PKGDATA_LDFLAGS="$(LDFLAGSICUDT)"'
++PKGDATA = $(BINDIR_FOR_BUILD)/pkgdata $(PKGDATA_OPTS) -q -c -s $(CURDIR)/out/build/$(ICUDATA_PLATFORM_NAME) -d $(ICUPKGDATA_OUTDIR) -M'PKGDATA_LDFLAGS="$(LDFLAGSICUDT)"'
+ 
+ ifeq ($(OS390_STUBDATA),1)
+ OS390PKG=package390
+@@ -133,7 +133,7 @@ ICUDATA_ARCHIVE = $(firstword $(wildcard
+ ifneq ($(ICUDATA_ARCHIVE),)
+ ICUDATA_SOURCE_ARCHIVE = $(OUTDIR)/$(ICUDATA_PLATFORM_NAME).dat
+ $(ICUDATA_SOURCE_ARCHIVE): $(ICUDATA_ARCHIVE) $(OUTDIR)
+-	$(INVOKE) $(BINDIR)/icupkg -t$(ICUDATA_CHAR) $(ICUDATA_ARCHIVE) $(ICUDATA_SOURCE_ARCHIVE)
++	$(INVOKE) $(BINDIR_FOR_BUILD)/icupkg -t$(ICUDATA_CHAR) $(ICUDATA_ARCHIVE) $(ICUDATA_SOURCE_ARCHIVE)
+ endif
+ else
+ ifneq ($(ENABLE_STATIC),YES)
+@@ -349,7 +349,7 @@ $(PKGDATA_LIST): $(SRCLISTDEPS) $(ICUDAT
+ ifneq ($(ICUDATA_SOURCE_IS_NATIVE_TARGET),YES)
+ 	@echo "Unpacking $(ICUDATA_SOURCE_ARCHIVE) and generating $@ (list of data files)"
+ 	@-$(RMV) $@
+-	$(INVOKE) $(BINDIR)/icupkg -d $(BUILDDIR) --list -x \* $(ICUDATA_SOURCE_ARCHIVE) > $@
++	$(INVOKE) $(BINDIR_FOR_BUILD)/icupkg -d $(BUILDDIR) --list -x \* $(ICUDATA_SOURCE_ARCHIVE) > $@
+ else
+ 	@echo "$@" > $@
+ endif
+@@ -378,45 +378,45 @@ endif
+ 
+ # uprops.icu
+ $(BUILDDIR)/uprops.icu: $(UNICODEDATADIR)/UnicodeData.txt $(UNICODEDATADIR)/BidiMirroring.txt $(BINDIR)/genprops$(EXEEXT) $(BUILDDIR)/$(ICUDT)pnames.icu
+-	$(INVOKE) $(BINDIR)/genprops -s $(UNICODEDATADIR) -i $(BUILDDIR) -d $(BUILDDIR) -u $(UNICODE_VERSION)
+-	$(INVOKE) $(BINDIR)/genprops --csource -s $(UNICODEDATADIR) -i $(BUILDDIR) -d $(OUTTMPDIR) -u $(UNICODE_VERSION)
++	$(INVOKE) $(BINDIR_FOR_BUILD)/genprops -s $(UNICODEDATADIR) -i $(BUILDDIR) -d $(BUILDDIR) -u $(UNICODE_VERSION)
++	$(INVOKE) $(BINDIR_FOR_BUILD)/genprops --csource -s $(UNICODEDATADIR) -i $(BUILDDIR) -d $(OUTTMPDIR) -u $(UNICODE_VERSION)
+ 
+ # ubidi.icu
+ $(BUILDDIR)/ubidi.icu: $(UNICODEDATADIR)/UnicodeData.txt $(BINDIR)/genbidi$(EXEEXT)
+-	$(INVOKE) $(BINDIR)/genbidi -s $(UNICODEDATADIR) -i $(BUILDDIR) -d $(BUILDDIR) -u $(UNICODE_VERSION)
+-	$(INVOKE) $(BINDIR)/genbidi --csource -s $(UNICODEDATADIR) -i $(BUILDDIR) -d $(OUTTMPDIR) -u $(UNICODE_VERSION)
++	$(INVOKE) $(BINDIR_FOR_BUILD)/genbidi -s $(UNICODEDATADIR) -i $(BUILDDIR) -d $(BUILDDIR) -u $(UNICODE_VERSION)
++	$(INVOKE) $(BINDIR_FOR_BUILD)/genbidi --csource -s $(UNICODEDATADIR) -i $(BUILDDIR) -d $(OUTTMPDIR) -u $(UNICODE_VERSION)
+ 
+ # ucase.icu
+ $(BUILDDIR)/ucase.icu: $(UNICODEDATADIR)/UnicodeData.txt $(BINDIR)/gencase$(EXEEXT)
+-	$(INVOKE) $(BINDIR)/gencase -s $(UNICODEDATADIR) -i $(BUILDDIR) -d $(BUILDDIR) -u $(UNICODE_VERSION)
+-	$(INVOKE) $(BINDIR)/gencase --csource -s $(UNICODEDATADIR) -i $(BUILDDIR) -d $(OUTTMPDIR) -u $(UNICODE_VERSION)
++	$(INVOKE) $(BINDIR_FOR_BUILD)/gencase -s $(UNICODEDATADIR) -i $(BUILDDIR) -d $(BUILDDIR) -u $(UNICODE_VERSION)
++	$(INVOKE) $(BINDIR_FOR_BUILD)/gencase --csource -s $(UNICODEDATADIR) -i $(BUILDDIR) -d $(OUTTMPDIR) -u $(UNICODE_VERSION)
+ 
+ # pnames.icu
+ $(BUILDDIR)/pnames.icu: $(UNICODEDATADIR)/PropertyAliases.txt $(UNICODEDATADIR)/PropertyValueAliases.txt $(UNICODEDATADIR)/Blocks.txt $(COMINCDIR)/uscript.h $(COMINCDIR)/uchar.h $(BINDIR)/genpname$(EXEEXT)
+-	$(INVOKE) $(BINDIR)/genpname -d $(BUILDDIR)
++	$(INVOKE) $(BINDIR_FOR_BUILD)/genpname -d $(BUILDDIR)
+ 
+ # unorm.icu
+ $(BUILDDIR)/unorm.icu: $(UNICODEDATADIR)/UnicodeData.txt $(UNICODEDATADIR)/DerivedNormalizationProps.txt $(UNICODEDATADIR)/BidiMirroring.txt $(BINDIR)/gennorm$(EXEEXT) $(BUILDDIR)/$(ICUDT)pnames.icu $(BUILDDIR)/$(ICUDT)uprops.icu $(BUILDDIR)/$(ICUDT)ucase.icu
+-	$(INVOKE) $(BINDIR)/gennorm -s $(UNICODEDATADIR) -i $(BUILDDIR) -d $(BUILDDIR) -u $(UNICODE_VERSION)
+-	$(INVOKE) $(BINDIR)/gennorm --csource -s $(UNICODEDATADIR) -i $(BUILDDIR) -d $(OUTTMPDIR) -u $(UNICODE_VERSION)
++	$(INVOKE) $(BINDIR_FOR_BUILD)/gennorm -s $(UNICODEDATADIR) -i $(BUILDDIR) -d $(BUILDDIR) -u $(UNICODE_VERSION)
++	$(INVOKE) $(BINDIR_FOR_BUILD)/gennorm --csource -s $(UNICODEDATADIR) -i $(BUILDDIR) -d $(OUTTMPDIR) -u $(UNICODE_VERSION)
+ 
+ # ucadata.icu
+ # used to depend on $(BUILDDIR)/$(ICUDT)unorm.icu $(BUILDDIR)/$(ICUDT)ucase.icu
+ # see Jitterbug 4497
+ $(BUILDDIR)/ucadata.icu $(BUILDDIR)/$(ICUDT)invuca.icu: $(UNICODEDATADIR)/FractionalUCA.txt $(BINDIR)/genuca$(EXEEXT)
+-	$(INVOKE) $(BINDIR)/genuca -s $(UNICODEDATADIR) -d $(BUILDDIR) -i $(BUILDDIR) 
++	$(INVOKE) $(BINDIR_FOR_BUILD)/genuca -s $(UNICODEDATADIR) -d $(BUILDDIR) -i $(BUILDDIR) 
+ 
+ # unames.icu
+ $(BUILDDIR)/unames.icu: $(UNICODEDATADIR)/UnicodeData.txt $(BINDIR)/gennames$(EXEEXT)
+-	$(INVOKE) $(BINDIR)/gennames -1 -d $(BUILDDIR) $(UNICODEDATADIR)/UnicodeData.txt -u $(UNICODE_VERSION)
++	$(INVOKE) $(BINDIR_FOR_BUILD)/gennames -1 -d $(BUILDDIR) $(UNICODEDATADIR)/UnicodeData.txt -u $(UNICODE_VERSION)
+ 
+ # cnvalias.icu
+ $(BUILDDIR)/cnvalias.icu: $(UCMSRCDIR)/convrtrs.txt $(BINDIR)/gencnval$(EXEEXT)
+-	$(INVOKE) $(BINDIR)/gencnval -d $(BUILDDIR) $(UCMSRCDIR)/convrtrs.txt
++	$(INVOKE) $(BINDIR_FOR_BUILD)/gencnval -d $(BUILDDIR) $(UCMSRCDIR)/convrtrs.txt
+ 
+ # uidna.spp
+ $(BUILDDIR)/uidna.spp: $(MISCSRCDIR)/NamePrepProfile.txt $(BINDIR)/gensprep$(EXEEXT) $(BUILDDIR)/unames.icu $(BUILDDIR)/pnames.icu
+-	$(INVOKE) $(BINDIR)/gensprep -d $(BUILDDIR) -i $(BUILDDIR) -s $(MISCSRCDIR) -b uidna -n $(UNICODEDATADIR) -u 3.2.0 -k NamePrepProfile.txt
++	$(INVOKE) $(BINDIR_FOR_BUILD)/gensprep -d $(BUILDDIR) -i $(BUILDDIR) -s $(MISCSRCDIR) -b uidna -n $(UNICODEDATADIR) -u 3.2.0 -k NamePrepProfile.txt
+ 
+ ####################################################    BRK
+ # BRK FILES
+@@ -425,28 +425,28 @@ $(BUILDDIR)/uidna.spp: $(MISCSRCDIR)/Nam
+ #	$(RMV) $@ && ln -s $(BUILDDIR) $@
+ 
+ $(BRKBLDDIR)/%.brk: $(BRKSRCDIR)/%.txt $(BINDIR)/genbrk$(EXEEXT) $(DAT_FILES)
+-	$(INVOKE) $(BINDIR)/genbrk -c -i $(BUILDDIR) -r $< -o $@
++	$(INVOKE) $(BINDIR_FOR_BUILD)/genbrk -c -i $(BUILDDIR) -r $< -o $@
+ 
+ ####################################################    CTD
+ # CTD FILES
+ 
+ $(BRKBLDDIR)/%.ctd: $(BRKSRCDIR)/%.txt $(BINDIR)/genctd$(EXEEXT) $(DAT_FILES)
+-	$(INVOKE) $(BINDIR)/genctd -c -i $(BUILDDIR) -o $@ $<
++	$(INVOKE) $(BINDIR_FOR_BUILD)/genctd -c -i $(BUILDDIR) -o $@ $<
+ 
+ ####################################################    CNV
+ # CNV FILES
+ $(BUILDDIR)/%.cnv: $(UCMSRCDIR)/%.ucm $(BINDIR)/makeconv$(EXEEXT)
+-	$(INVOKE) $(BINDIR)/makeconv -c -d $(BUILDDIR) $(UCMSRCDIR)/$(<F)
++	$(INVOKE) $(BINDIR_FOR_BUILD)/makeconv -c -d $(BUILDDIR) $(UCMSRCDIR)/$(<F)
+ 
+ ####################################################    RES
+ # RES FILES
+ 
+ ### collation res
+ $(COLBLDDIR)/%.res: $(COLSRCDIR)/%.txt  $(BINDIR)/genrb$(EXEEXT) $(DAT_FILES)
+-	$(INVOKE) $(BINDIR)/genrb $(GENRBOPTS) -i $(BUILDDIR) -s $(COLSRCDIR) -d $(COLBLDDIR) $(<F)
++	$(INVOKE) $(BINDIR_FOR_BUILD)/genrb $(GENRBOPTS) -i $(BUILDDIR) -s $(COLSRCDIR) -d $(COLBLDDIR) $(<F)
+ 
+ $(COLBLDDIR)/$(INDEX_NAME).res: $(OUTTMPDIR)/$(COLLATION_TREE)/$(INDEX_NAME).txt $(BINDIR)/genrb$(EXEEXT)
+-	$(INVOKE) $(BINDIR)/genrb $(GENRBOPTS) -i $(BUILDDIR) -s $(OUTTMPDIR)/$(COLLATION_TREE) -d $(COLBLDDIR) $(INDEX_NAME).txt
++	$(INVOKE) $(BINDIR_FOR_BUILD)/genrb $(GENRBOPTS) -i $(BUILDDIR) -s $(OUTTMPDIR)/$(COLLATION_TREE) -d $(COLBLDDIR) $(INDEX_NAME).txt
+ 
+ $(COLLATION_INDEX_FILE): $(SRCLISTDEPS)
+ 	@echo "generating $@ (list of installed collation locales)"; \
+@@ -462,10 +462,10 @@ $(COLLATION_INDEX_FILE): $(SRCLISTDEPS)
+ 
+ ### brk res
+ $(BRKBLDDIR)/%.res: $(BRKSRCDIR)/%.txt $(BINDIR)/genrb$(EXEEXT) $(BRK_FILES) $(DAT_FILES)
+-	$(INVOKE) $(BINDIR)/genrb $(GENRBOPTS) -i $(BUILDDIR) -s $(BRKSRCDIR) -d $(BRKBLDDIR) $(<F)
++	$(INVOKE) $(BINDIR_FOR_BUILD)/genrb $(GENRBOPTS) -i $(BUILDDIR) -s $(BRKSRCDIR) -d $(BRKBLDDIR) $(<F)
+ 
+ $(BRKBLDDIR)/$(INDEX_NAME).res: $(OUTTMPDIR)/$(BREAK_TREE)/$(INDEX_NAME).txt $(BINDIR)/genrb$(EXEEXT)
+-	$(INVOKE) $(BINDIR)/genrb $(GENRBOPTS) -i $(BUILDDIR) -s $(OUTTMPDIR)/$(BREAK_TREE) -d $(BRKBLDDIR) $(INDEX_NAME).txt
++	$(INVOKE) $(BINDIR_FOR_BUILD)/genrb $(GENRBOPTS) -i $(BUILDDIR) -s $(OUTTMPDIR)/$(BREAK_TREE) -d $(BRKBLDDIR) $(INDEX_NAME).txt
+ 
+ $(BRK_RES_INDEX_FILE): $(SRCLISTDEPS)
+ 	@echo "generating $@ (list of installed break locales)"; \
+@@ -481,10 +481,10 @@ $(BRK_RES_INDEX_FILE): $(SRCLISTDEPS)
+ 
+ ### RBNF res
+ $(RBNFBLDDIR)/%.res: $(RBNFSRCDIR)/%.txt  $(BINDIR)/genrb$(EXEEXT) $(DAT_FILES)
+-	$(INVOKE) $(BINDIR)/genrb $(GENRBOPTS) -i $(BUILDDIR) -s $(RBNFSRCDIR) -d $(RBNFBLDDIR) $(<F)
++	$(INVOKE) $(BINDIR_FOR_BUILD)/genrb $(GENRBOPTS) -i $(BUILDDIR) -s $(RBNFSRCDIR) -d $(RBNFBLDDIR) $(<F)
+ 
+ $(RBNFBLDDIR)/$(INDEX_NAME).res: $(OUTTMPDIR)/$(RBNF_TREE)/$(INDEX_NAME).txt $(BINDIR)/genrb$(EXEEXT)
+-	$(INVOKE) $(BINDIR)/genrb $(GENRBOPTS) -i $(BUILDDIR) -s $(OUTTMPDIR)/$(RBNF_TREE) -d $(RBNFBLDDIR) $(INDEX_NAME).txt
++	$(INVOKE) $(BINDIR_FOR_BUILD)/genrb $(GENRBOPTS) -i $(BUILDDIR) -s $(OUTTMPDIR)/$(RBNF_TREE) -d $(RBNFBLDDIR) $(INDEX_NAME).txt
+ 
+ $(RBNF_INDEX_FILE): $(SRCLISTDEPS)
+ 	@echo "generating $@ (list of installed RBNF locales)"; \
+@@ -500,13 +500,13 @@ $(RBNF_INDEX_FILE): $(SRCLISTDEPS)
+ 
+ ### TRANSLIT res
+ $(TRANSLITBLDDIR)/%.res: $(TRANSLITSRCDIR)/%.txt  $(BINDIR)/genrb$(EXEEXT) $(DAT_FILES)
+-	$(INVOKE) $(BINDIR)/genrb $(GENRBOPTS) -i $(BUILDDIR) -s $(TRANSLITSRCDIR) -d $(TRANSLITBLDDIR) $(<F)
++	$(INVOKE) $(BINDIR_FOR_BUILD)/genrb $(GENRBOPTS) -i $(BUILDDIR) -s $(TRANSLITSRCDIR) -d $(TRANSLITBLDDIR) $(<F)
+   
+ ### normal (locale) res
+ all-RES:  $(RES_FILES)
+ 
+ $(BUILDDIR)/%.res: $(LOCSRCDIR)/%.txt $(BINDIR)/genrb$(EXEEXT) $(DAT_FILES)
+-	$(INVOKE) $(BINDIR)/genrb $(GENRBOPTS) -i $(BUILDDIR) -s $(LOCSRCDIR) -d $(BUILDDIR) $(<F)
++	$(INVOKE) $(BINDIR_FOR_BUILD)/genrb $(GENRBOPTS) -i $(BUILDDIR) -s $(LOCSRCDIR) -d $(BUILDDIR) $(<F)
+ 
+ # if the tzcode directory contains a new tzdata*.tar.gz file, use it for zoneinfo.txt
+ TZDATA = $(firstword $(wildcard $(top_builddir)/tools/tzcode/tzdata*.tar.gz) $(wildcard $(top_srcdir)/tools/tzcode/tzdata*.tar.gz))
+@@ -520,7 +520,7 @@ ZONEINFO=$(TZCODE_DIR)/zoneinfo.txt
+ # icu/source/tools/tzcode/zoneinfo.txt
+ $(BUILDDIR)/zoneinfo.res: $(ZONEINFO) $(BINDIR)/genrb$(EXEEXT)
+ 	@echo Note: $(MISCSRCDIR)/zoneinfo.txt is IGNORED because $(TZDATA) is present.
+-	$(INVOKE) $(BINDIR)/genrb $(GENRBOPTS) -q -i $(BUILDDIR) -d $(BUILDDIR) $(ZONEINFO)
++	$(INVOKE) $(BINDIR_FOR_BUILD)/genrb $(GENRBOPTS) -q -i $(BUILDDIR) -d $(BUILDDIR) $(ZONEINFO)
+ 
+ # Create the tzcode tool and zoneinfo.txt as needed.
+ $(ZONEINFO): $(TZDATA)
+@@ -532,7 +532,7 @@ endif
+ 
+ # zoneinfo has some issues. Ignore some warnings with -q
+ $(BUILDDIR)/%.res: $(MISCSRCDIR)/%.txt $(BINDIR)/genrb$(EXEEXT)
+-	$(INVOKE) $(BINDIR)/genrb $(GENRBOPTS) -q -i $(BUILDDIR) -s $(MISCSRCDIR) -d $(BUILDDIR) $(<F)
++	$(INVOKE) $(BINDIR_FOR_BUILD)/genrb $(GENRBOPTS) -q -i $(BUILDDIR) -s $(MISCSRCDIR) -d $(BUILDDIR) $(<F)
+ 
+ 
+ 
+@@ -553,7 +553,7 @@ clean-resindex:
+ 	-$(RMV) $(BUILDDIR)/$(INDEX_NAME).txt $(PKGDATA_LIST)
+ 
+ $(INDEX_RES_FILE): $(INDEX_FILE) $(BINDIR)/genrb$(EXEEXT)
+-	$(INVOKE) $(BINDIR)/genrb $(GENRBOPTS) -i $(BUILDDIR) -d $(BUILDDIR) $(INDEX_FILE)
++	$(INVOKE) $(BINDIR_FOR_BUILD)/genrb $(GENRBOPTS) -i $(BUILDDIR) -d $(BUILDDIR) $(INDEX_FILE)
+ 
+ # Starting with ICU4C 3.4, the core Unicode properties files (uprops.icu, ucase.icu, ubidi.icu, unorm.icu)
+ # are hardcoded in the common DLL and therefore not included in the data package any more.
+--- libicu-3.8.1/source/extra/uconv/Makefile.in.orig	2008-10-19 10:56:39.000000000 +0200
++++ libicu-3.8.1/source/extra/uconv/Makefile.in	2008-10-19 10:54:57.000000000 +0200
+@@ -106,7 +106,7 @@
+ 	$(RMV) $(OBJECTS) $(TARGET)
+ 
+ resclean:
+-	@#-$(INVOKE) $(BINDIR)/pkgdata --clean -p $(RESDIR) -O pkgdata.inc -m $(PKGMODE) -d $(RESDIR) -T $(RESDIR) $(RESDIR)/$(RESDIR).lst
++	@#-$(INVOKE) $(BINDIR_FOR_BUILD)/pkgdata --clean -p $(RESDIR) -O pkgdata.inc -m $(PKGMODE) -d $(RESDIR) -T $(RESDIR) $(RESDIR)/$(RESDIR).lst
+ 	$(RMV) pkgdata.inc $(RESDIR)
+ 
+ distclean-local: clean-local
+@@ -138,7 +138,7 @@
+ 
+ 
+ package-resfiles: $(RESDIR)/$(RESDIR).lst pkgdata.inc
+-	$(INVOKE) $(PKGDATA_INVOKE_OPTS) $(BINDIR)/pkgdata -p $(MSGNAME) $(PKGDATA_OPTS) -m $(PKGMODE) -s $(RESDIR) -d $(RESDIR) -T $(RESDIR) $(RESDIR)/$(RESDIR).lst
++	$(INVOKE) $(PKGDATA_INVOKE_OPTS) $(BINDIR_FOR_BUILD)/pkgdata -p $(MSGNAME) $(PKGDATA_OPTS) -m $(PKGMODE) -s $(RESDIR) -d $(RESDIR) -T $(RESDIR) $(RESDIR)/$(RESDIR).lst
+ 
+ $(RESDIR)/$(RESDIR).lst: Makefile $(srcdir)/resfiles.mk
+ 	@$(MKINSTALLDIRS) $(RESDIR)
+@@ -151,7 +151,7 @@
+ ifneq ($(UCONVMSG_MODE),static)
+ install-resfiles: $(RESFILES)
+ 	$(MKINSTALLDIRS) $(DESTDIR)$(ICUDATA_DIR)
+-	$(INVOKE) $(BINDIR)/pkgdata -p $(RESDIR) -O pkgdata.inc -m $(PKGMODE) -d $(RESDIR) -I $(INSTALLTO) -T $(RESDIR) $(RESDIR)/$(RESDIR).lst
++	$(INVOKE) $(BINDIR_FOR_BUILD)/pkgdata -p $(RESDIR) -O pkgdata.inc -m $(PKGMODE) -d $(RESDIR) -I $(INSTALLTO) -T $(RESDIR) $(RESDIR)/$(RESDIR).lst
+ else
+ install-resfiles:
+ endif
+@@ -161,7 +161,7 @@
+ 
+ $(MSGNAME)/%.res: $(srcdir)/$(RESOURCESDIR)/%.txt
+ 	$(MKINSTALLDIRS) $(@D)
+-	$(INVOKE) $(BINDIR)/genrb -e UTF-8 -s $(^D) -d $(@D) $(^F)
++	$(INVOKE) $(BINDIR_FOR_BUILD)/genrb -e UTF-8 -s $(^D) -d $(@D) $(^F)
+ 
+ install-man: $(ALL_MAN_FILES)
+ 	$(MKINSTALLDIRS) $(DESTDIR)$(mandir)/man$(SECTION)
+--- libicu-3.8.1/source/icudefs.mk.in.orig	2008-10-18 21:12:56.000000000 +0200
++++ libicu-3.8.1/source/icudefs.mk.in	2008-10-18 21:12:25.000000000 +0200
+@@ -195,9 +195,15 @@ INSTALL-L = $(INSTALL_DATA)
+ 
+ # Location of the libraries before "make install" is used
+ LIBDIR=$(top_builddir)/lib
++# Location of the native libraries before "make install" is used
++#  = $(LIBDIR) unless cross compiling
++LIBDIR_FOR_BUILD=$(LIBDIR)
+ 
+ # Location of the executables before "make install" is used
+ BINDIR=$(top_builddir)/bin
++# Location of the native executables before "make install" is used
++#  = $(BINDIR) unless cross compiling
++BINDIR_FOR_BUILD=$(BINDIR)
+ 
+ # Current full path directory.
+ CURR_FULL_DIR=$(shell pwd)
+@@ -226,7 +232,7 @@ LIBICUTOOLUTIL= -L$(LIBDIR) -l$(STATIC_P
+ LIBICUIO=       -L$(LIBDIR) -l$(STATIC_PREFIX_WHEN_USED)$(ICUPREFIX)$(IO_STUBNAME)$(ICULIBSUFFIX)$(SO_TARGET_VERSION_SUFFIX)
+ 
+ # Invoke, set library path for all ICU libraries.
+-INVOKE = $(LDLIBRARYPATH_ENVVAR)=$(LIBRARY_PATH_PREFIX)$(LIBDIR):$(top_builddir)/stubdata:$(top_builddir)/tools/ctestfw:$$$(LDLIBRARYPATH_ENVVAR) $(LEAK_CHECKER)
++INVOKE = $(LDLIBRARYPATH_ENVVAR)=$(LIBRARY_PATH_PREFIX)$(LIBDIR_FOR_BUILD):$(top_builddir)/stubdata:$(top_builddir)/tools/ctestfw:$$$(LDLIBRARYPATH_ENVVAR) $(LEAK_CHECKER)
+ 
+ # Platform-specific setup
+ include @platform_make_fragment@
+--- libicu-3.8.1/source/data/icupkg.inc.in.orig	2008-10-18 22:39:36.000000000 +0200
++++ libicu-3.8.1/source/data/icupkg.inc.in	2008-10-18 22:39:19.000000000 +0200
+@@ -49,8 +49,8 @@ U_IS_BIG_ENDIAN=@U_IS_BIG_ENDIAN@
+ 
+ ##### Add the following to source/config/Makefile.in
+ 
+-GENCCODE=$(BINDIR)/genccode
+-GENCMN=$(BINDIR)/gencmn
+-ICUPKG=$(BINDIR)/icupkg
++GENCCODE=$(BINDIR_FOR_BUILD)/genccode
++GENCMN=$(BINDIR_FOR_BUILD)/gencmn
++ICUPKG=$(BINDIR_FOR_BUILD)/icupkg
+ 
+ 
+--- libicu-3.8.1/source/extra/uconv/pkgdata.inc.in.orig	2008-10-19 10:37:49.000000000 +0200
++++ libicu-3.8.1/source/extra/uconv/pkgdata.inc.in	2008-10-19 10:38:04.000000000 +0200
+@@ -55,8 +55,8 @@ platform=@platform@
+ 
+ ##### Add the following to source/config/Makefile.in
+ 
+-GENCCODE=$(BINDIR)/genccode
+-GENCMN=$(BINDIR)/gencmn
+-ICUPKG=$(BINDIR)/icupkg
++GENCCODE=$(BINDIR_FOR_BUILD)/genccode
++GENCMN=$(BINDIR_FOR_BUILD)/gencmn
++ICUPKG=$(BINDIR_FOR_BUILD)/icupkg
+ 
+ 

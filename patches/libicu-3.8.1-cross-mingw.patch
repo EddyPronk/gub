@@ -1,0 +1,30 @@
+--- libicu-3.8.1/source/config/mh-mingw.orig	2008-10-19 11:55:51.000000000 +0200
++++ libicu-3.8.1/source/config/mh-mingw	2008-10-19 11:53:41.000000000 +0200
+@@ -56,12 +56,12 @@ SO_TARGET_VERSION_SUFFIX = $(SO_TARGET_V
+ 
+ # Static library prefix and file extension
+ LIBSICU = $(STATIC_PREFIX)$(ICUPREFIX)
+-A = lib
++A = a
+ 
+ ## An import library is needed for z/OS and MSVC
+ #IMPORT_LIB_EXT = .lib
+ 
+-LIBPREFIX=
++LIBPREFIX= lib
+ 
+ # Change the stubnames so that poorly working FAT disks and installation programs can work.
+ # This is also for backwards compatibility.
+@@ -72,10 +72,10 @@ LIBICU = $(STATIC_PREFIX_WHEN_USED)$(ICU
+ # The #M# is used to delete lines for icu-config
+ # Current full path directory.
+ #CURR_FULL_DIR=$(shell pwd -W)#M# for MSYS
+-CURR_FULL_DIR=$(subst \,/,$(shell cmd /c cd | tail --bytes=+3))#M# for Cygwin shell
++CURR_FULL_DIR=$(shell pwd)
+ # Current full path directory for use in source code in a -D compiler option.
+ #CURR_SRCCODE_FULL_DIR=$(subst /,\\\\,$(shell pwd -W))#M# for MSYS
+-CURR_SRCCODE_FULL_DIR=$(subst \,/,$(shell cmd /c cd | tail --bytes=+3))#M# for Cygwin shell
++CURR_SRCCODE_FULL_DIR=$(shell pwd)
+ 
+ ## Compilation rules
+ %.$(STATIC_O): $(srcdir)/%.c
