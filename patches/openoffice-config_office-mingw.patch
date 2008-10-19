@@ -1,0 +1,11 @@
+--- config_office/configure.in.orig	2008-10-19 22:03:22.000000000 +0200
++++ config_office/configure.in	2008-10-19 22:17:08.000000000 +0200
+@@ -4265,7 +4262,7 @@ elif test "$_os" = "OS2" ; then
+    echo "Do Nothing for _os = OS2. Don't check for X11."
+    dnl OS/2 uses native graphics. Don't check for X11.
+    :
+-elif test "$_os" != "WINNT" ; then
++elif test "$_os" != "WINNT" -a "$target_os" != "mingw32" ; then
+    AC_PATH_X
+    AC_PATH_XTRA
+    CPPFLAGS="$CPPFLAGS $X_CFLAGS"

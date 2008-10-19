@@ -1,0 +1,82 @@
+--- config_office/configure.in.orig	2008-10-19 21:05:46.000000000 +0200
++++ config_office/configure.in	2008-10-19 21:27:16.000000000 +0200
+@@ -3735,14 +3740,11 @@ if test -n "$with_system_python" -o -n "
+    AC_MSG_RESULT([external])
+    AM_PATH_PYTHON([2.2])
+ 
+-   python_include=`$PYTHON -c "import distutils.sysconfig; print distutils.sysconfig.get_config_var('INCLUDEPY');"`
+-   python_version=`$PYTHON -c "import distutils.sysconfig; print distutils.sysconfig.get_config_var('VERSION');"`
+-   PYTHON_CFLAGS="-I$python_include"
++   PYTHON_CFLAGS=`python-config --cflags`
++   PYTHON_LIBS=`python-config --libs`
+ 
+    if test "$_os" = "Darwin"; then
+       PYTHON_LIBS="-framework Python"
+-   else
+-      PYTHON_LIBS="-lpython$python_version"
+    fi
+    
+    dnl check if the headers really work:
+@@ -3798,7 +3800,7 @@ int main(int argc, char **argv) {
+        if(DB_VERSION_MAJOR == 4 && DB_VERSION_MINOR == $v) return 0;
+        else return 1;
+ }
+-       ], [DB_VERSION_MINOR=$v], [])
++       ], [DB_VERSION_MINOR=$v], [], [DB_VERSION_MINOR=$ac_cv_db_version_minor])
+     done
+     if test "$DB_VERSION_MINOR" -gt "1"; then
+        AC_MSG_RESULT([OK])
+@@ -4396,7 +4398,7 @@ int main(int argc, char **argv) {
+       else
+         return 0;
+ }
+-      ], [AC_MSG_RESULT(OK)], [AC_MSG_ERROR([not suitable, only >= 3.6 supported currently])])
++      ], [AC_MSG_RESULT(OK)], [AC_MSG_ERROR([not suitable, only >= 3.6 supported currently])], [AC_MSG_RESULT($ac_cv_icu_version)])
+       AC_LANG_POP([C++])
+ else
+     AC_MSG_RESULT([internal])
+@@ -4519,7 +4521,7 @@ int main(int argc, char **argv) {
+ 	if(FC_MAJOR > 2 || (FC_MAJOR == 2 && FC_MINOR >= 2)) return 0;
+ 	else return 1;
+ }
+-], [AC_MSG_RESULT([yes])], [AC_MSG_ERROR([no, fontconfig >= 2.2.0 needed])])
++], [AC_MSG_RESULT([yes])], [AC_MSG_ERROR([no, fontconfig >= 2.2.0 needed])], [AC_MSG_RESULT(possibly - should use pkg-config instead of home-brew checks)])
+ fi
+ 
+ dnl ===================================================================
+@@ -4638,7 +4638,7 @@ AC_SUBST(SYSTEM_LPSOLVE)
+ dnl ***************************************
+ dnl testing libc version for Linux...
+ dnl ***************************************
+-if test "$_os" = "Linux"; then
++if test "$_os" = "Linux" -a "$cross_compiling" = "no"; then
+    AC_MSG_CHECKING([whether libc is >= 2.1.1])
+    exec 6>/dev/null # no output
+    AC_CHECK_LIB(c, gnu_get_libc_version, HAVE_LIBC=yes; export HAVE_LIBC)
+--- config_office/acinclude.m4.orig	2008-10-19 21:29:43.000000000 +0200
++++ config_office/acinclude.m4	2008-10-19 21:29:51.000000000 +0200
+@@ -136,3 +136,24 @@ AC_DEFUN([PKG_CHECK_MODULES_MACHACK],
+    PKG_CHECK_MODULES($1, $3, $4, $5, $6)
+  fi
+ ])
++
++## ------------------------------------- ##
++## Checking for the existence of files.  ##
++## ------------------------------------- ##
++
++# AC_CHECK_FILE_CROSS(FILE, [ACTION-IF-FOUND], [ACTION-IF-NOT-FOUND])
++# -------------------------------------------------------------
++#
++# Check for the existence of FILE; remove assertion on not cross-compiliing
++AC_DEFUN([AC_CHECK_FILE_CROSS],
++[
++AS_VAR_PUSHDEF([ac_File], [ac_cv_file_$1])dnl
++AC_CACHE_CHECK([for $1], [ac_File],
++if test -r "$1"; then
++  AS_VAR_SET([ac_File], [yes])
++else
++  AS_VAR_SET([ac_File], [no])
++fi)
++AS_IF([test AS_VAR_GET([ac_File]) = yes], [$2], [$3])[]dnl
++AS_VAR_POPDEF([ac_File])dnl
++])# AC_CHECK_FILE_CROSS

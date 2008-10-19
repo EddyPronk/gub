@@ -1,0 +1,17 @@
+--- config_office/configure.in.orig	2008-10-19 21:05:46.000000000 +0200
++++ config_office/configure.in	2008-10-19 21:27:16.000000000 +0200
+@@ -1503,9 +1506,11 @@ for a in "$MAKE" $GNUMAKE make gmake gnu
+            break
+       fi
+ done
+-$GNUMAKE --version 2> /dev/null | grep ' 3.81'  2>&1 > /dev/null
+-if test $? -eq 0;  then
+-  AC_MSG_ERROR("gmake 3.81 cannot build mozilla - please use 3.80")
++if -n "$enable_mozilla$enable_build_mozilla" = "yesyes"; then
++    $GNUMAKE --version 2> /dev/null | grep ' 3.81'  2>&1 > /dev/null
++    if test $? -eq 0;  then
++        AC_MSG_ERROR("gmake 3.81 cannot build mozilla - please use 3.80")
++    fi
+ fi
+ AC_MSG_RESULT($GNUMAKE)
+ 

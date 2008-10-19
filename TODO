@@ -109,8 +109,6 @@ LOWER PRIORITY
 - replace os. calls with os.context wrapper ones (make a real
   dry-run to quick-test all .py scripts?)
 
-- better name for gubb.py
-
 - name for gub-tester (test-repo, repo-builder?)
 
 - Split gub/*py into packager, builder, platform
