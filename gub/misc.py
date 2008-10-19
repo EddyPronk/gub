@@ -126,28 +126,56 @@ def first_is_newer (f1, f2):
     return (not os.path.exists (f2)
         or os.stat (f1).st_mtime > os.stat (f2).st_mtime)
 
-def find_files (dir, pattern):
+def delinkify (file_name):
+    first = True
+    for component in file_name.split ('/'):
+        if first:
+            file_name = ''
+            first = False
+        file_name += '/' + component
+        while os.path.islink (file_name):
+            file_name = os.readlink (file_name)
+    return file_name
+
+def _find (dir, test_root_dir_files):
+    dir = re.sub ( "/*$", '/', dir)
+    result = []
+    for (root, dirs, files) in os.walk (dir):
+        result += test_root_dir_files (root, dirs, files)
+    return result
+
+def find (dir, test):
     '''
-    Return list of files under DIR matching the regex pattern.
+    Return list of files and directories under DIR with TEST (FILE) == TRUE
     '''
-    if type (pattern) == str:
-        pattern = re.compile (pattern)
-    def test (root, dirs, files):
-        #HMM?
-        root = root.replace (dir, '')
-        return [os.path.join (root, f) for f in files if pattern.search (f)]
+    def test_root_dir_files (root, dirs, files):
+        return ([os.path.join (root, d) for d in dirs if test (d)]
+                + [os.path.join (root, f) for f in files if test (f)])
+    return _find (dir, test_root_dir_files)
+
+def find_only_files_or_dirs (dir, file_test, file_or_dir_test):
+    if type (file_test) == type (''):
+        file_test = re.compile (file_test)
+    def match (f):
+        return test.search (f)
+    if type (file_test) != type (match):
+        match = file_test
+    def test (f):
+        return file_test (f) and file_or_dir_test (f)
     return find (dir, test)
         
-def find_dirs (dir, pattern):
+def find_files (dir, file_test='.*'):
+    ''' Return list of files under DIR matching the regex FILE_TEST
+    or for which FILE_TEST (f) == TRUE
     '''
-    Return list of dirs under DIR matching the regex pattern.
-    '''
-    if str == type (pattern):
-        pattern = re.compile (pattern)
-    def test (root, dirs, files):
-        return [os.path.join (root, d) for d in dirs if pattern.search (d)]
-    return find (dir, test)
+    return find_only_files_or_dirs (dir, test, lambda x: not os.path.isdir (x))
 
+def find_dirs (dir, file_test='.*'):
+    ''' Return list of dirs under DIR matching the regex FILE_TEST
+    or for which FILE_TEST (f) == TRUE
+    '''
+    return find_only_files_or_dirs (dir, test, lambda x: os.path.isdir (x))
+        
 def rewrite_url (url, mirror):
     '''Return new url on MIRROR, using file name from URL.
 
