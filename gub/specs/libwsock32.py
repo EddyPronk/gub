@@ -1,11 +1,28 @@
 from gub import build
 
+'''
+Make import lib
+
+wget 'http://ftp.debian.org/debian/pool/main/w/wine/wine_0.9.25-2.1_i386.deb'
+mkdir bin lib
+cp /usr/share/wine/skel/c/windows/system32/wsock32.dll bin/libwsock32.dll
+echo EXPORTS > lib/libwsock32.a.def
+target/mingw/root/usr/cross/bin/i686-mingw32-nm target/mingw/usr/libwsock32.a | grep ' T _' | sed -e 's/.* T _//' -e 's/@.*//' >> lib/libwsock32.a.def
+target/mingw/root/usr/cross/bin/i686-mingw32-dlltool --def lib/libwsock32.a.def --dllname bin/libwsock32.dll --output-lib lib/libwsock32.dll.a
+# manually create lib/libwsock32.la
+'''
+
 class Libwsock32 (build.BinaryBuild):
+# newer WINEs come with a dll.so that's not usable in Windows :-(
 #    source = 'http://ftp.debian.org/debian/pool/main/w/wine/wine_0.9.25-2.1_i386.deb'
-#    source = 'http://lilypond.org/download/gub-sources/libwsock32-0.9.24-2.1.tar.gz'
-    source = 'http://lilypond.org/download/gub-sources/libwsock32-1.0.tar.gz'
+    source = 'http://lilypond.org/download/gub-sources/libwsock32-0.9.25.tar.gz'
     def __init__ (self, settings, source):
         build.BinaryBuild.__init__ (self, settings, source)
         print 'FIXME: serialization:', __file__, ': version'
-#        source._version = '0.9.25-2.1'
-        source._version = '1.0'
+        source._version = '0.9.25'
+        source.strip_components = 0
+    def untar (self):
+        build.BinaryBuild.untar (self)
+        self.system ('''
+cd  %(srcdir)s && mkdir usr && mv bin lib usr
+''')
