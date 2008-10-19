@@ -345,7 +345,7 @@ cp %(install_prefix)s/share/lilypond/*/python/* %(install_prefix)s/bin
         def rename (logger, name):
             header = open (name).readline ().strip ()
             if header.endswith ('guile'):
-                loggedos.system (logger, 'mv %(name)s %(name)s.scm', locals ())
+                loggedos.system (logger, 'mv %(name)s %(name)s.scm' % locals ())
             elif header.endswith ('python') and not name.endswith ('.py'):
                 loggedos.system (logger, 'mv %(name)s %(name)s.py' % locals ())
 
