@@ -68,9 +68,7 @@ class TargetBuild (build.UnixBuild):
         str = self.config_cache_settings ()
         if str:
             self.system ('mkdir -p %(builddir)s || true')
-            cache_file = '%(builddir)s/config.cache'
-#            self.dump (self.config_cache_settings (), self.cache_file (), permissions=0755)
-            self.dump (self.config_cache_settings (), cache_file, permissions=0755)
+            self.dump (self.config_cache_settings (), self.cache_file (), permissions=0755)
 
     def config_cache_settings (self):
         from gub import config_cache
