@@ -1,0 +1,230 @@
+--- openoffice-./configure.in.orig	2008-10-16 15:52:39.000000000 +0200
++++ openoffice-./configure.in	2008-10-16 20:05:31.000000000 +0200
+@@ -405,8 +405,8 @@ AM_MAINTAINER_MODE
+ dnl
+ dnl Setup the misc. tweaks we need.
+ dnl
+-BASEDIR=`pwd`
+-TOOLSDIR=$BASEDIR
++TOP_BUILDDIR=`pwd`
++TOOLSDIR=$(cd $srcdir && pwd)
+ 
+ # it will be modified by the --with-additional-sections but it might 
+ # modified also by other options
+@@ -515,7 +515,7 @@ warn_use_download="	./download
+ "
+ AC_MSG_CHECKING( for directory where to download sources )
+ if test "z$with_srcdir" = "z"; then
+-    SRCDIR=$BASEDIR/src
++    SRCDIR=$TOP_BUILDDIR/src
+ elif (echo "${with_srcdir}" | $GREP -v -q "^/"); then
+     AC_MSG_ERROR([--with-srcdir= must be an absolute path]);
+ else
+@@ -523,7 +523,7 @@ else
+ fi
+ AC_MSG_RESULT([$SRCDIR])
+ 
+-BUILDDIR=$BASEDIR/build
++BUILDDIR=$TOP_BUILDDIR/build
+ if test "z$with_ooo_builddir" = "z"; then
+    OOBUILDDIR=$BUILDDIR/$CVSTAG
+ else
+@@ -541,9 +541,10 @@ if test "z`uname -s`" != "zSunOS" -a "z$
+     AC_MSG_RESULT([yes])
+ fi
+ 
+-rm -f $BASEDIR/stamp/patch.apply
++rm -f $TOP_BUILDDIR/stamp/patch.apply
+ 
+ AC_SUBST(SRCDIR)
++AC_SUBST(TOP_BUILDDIR)
+ AC_SUBST(BUILDDIR)
+ AC_SUBST(TOOLSDIR)
+ AC_SUBST(OOBUILDDIR)
+--- openoffice-./Makefile.shared.orig	2008-10-16 15:46:41.000000000 +0200
++++ openoffice-./Makefile.shared	2008-10-16 20:18:36.000000000 +0200
+@@ -13,10 +13,10 @@ $(OOBUILDDIR)/unpack :
+ 	$(TOOLSDIR)/bin/transform --revert $(TOOLSDIR) $(OOBUILDDIR)
+ 	test -n "$(OOO_GIT)" && $(TOOLSDIR)/bin/gob --build-dir=$(OOBUILDDIR) prepare || true
+ 	if test -d $(OOBUILDDIR)/applied_patches ; then \
+-		FLAGS=`$(TOOLSDIR)/bin/applyflags $(TOOLSDIR)/bin` ; \
+-		chmod +x $(TOOLSDIR)/patches/apply.pl && $(TOOLSDIR)/patches/apply.pl $(APPLY_DIR) $(OOBUILDDIR) $$FLAGS -f -R ; \
++		FLAGS=`$(TOOLSDIR)/bin/applyflags $(TOP_BUILDDIR)/bin` ; \
++		chmod +x $(TOP_BUILDDIR)/patches/apply.pl && $(TOP_BUILDDIR)/patches/apply.pl $(APPLY_DIR) $(OOBUILDDIR) $$FLAGS -f -R ; \
+ 	fi
+-	cd $(top_srcdir)/bin ; ./unpack
++	cd $(top_srcdir)/bin ; TOP_BUILDDIR=$(TOP_BUILDDIR) ./unpack
+ 	test -n "$(OOO_GIT)" && $(TOOLSDIR)/bin/gob --build-dir=$(OOBUILDDIR) postpare || true
+ 	rm -f $(STAMP_DIR)/build $(STAMP_DIR)/patch.apply \
+ 	      $(STAMP_DIR)/artwork.install
+@@ -31,7 +31,7 @@ $(STAMP_DIR)/artwork.install : $(OOBUILD
+ 	touch $@
+ 
+ patch.apply: $(OOBUILDDIR)/unpack $(STAMP_DIR)/patch.apply 
+-$(STAMP_DIR)/patch.apply : $(top_srcdir)/patches/apply.pl \
++$(STAMP_DIR)/patch.apply : $(TOP_BUILDDIR)/patches/apply.pl \
+ 			   $(top_srcdir)/patches/*/*.diff \
+ 			   $(APPLY_DIR)/apply
+ 	if test "z$(BUILD_WIN32)" != "z"; then \
+@@ -47,8 +47,8 @@ $(STAMP_DIR)/patch.apply : $(top_srcdir)
+ 
+ 	$(TOOLSDIR)/bin/transform --revert $(TOOLSDIR) $(OOBUILDDIR)
+ 	test -n "$(OOO_GIT)" && $(TOOLSDIR)/bin/gob --build-dir=$(OOBUILDDIR) prepare || true
+-	FLAGS=`$(TOOLSDIR)/bin/applyflags $(TOOLSDIR)/bin` ; \
+-	chmod +x $(TOOLSDIR)/patches/apply.pl && $(TOOLSDIR)/patches/apply.pl $(APPLY_DIR) $(OOBUILDDIR) $$FLAGS --tag=$(CVSTAG) ;
++	FLAGS=`$(TOOLSDIR)/bin/applyflags $(TOP_BUILDDIR)/bin` ; \
++	chmod +x $(TOP_BUILDDIR)/patches/apply.pl && $(TOP_BUILDDIR)/patches/apply.pl $(APPLY_DIR) $(OOBUILDDIR) $$FLAGS --tag=$(CVSTAG) ;
+ 	test -n "$(OOO_GIT)" && $(TOOLSDIR)/bin/gob --build-dir=$(OOBUILDDIR) postpare || true
+ 	$(TOOLSDIR)/bin/transform --apply $(TOOLSDIR) $(OOBUILDDIR)
+ 	test -n "$(OOO_GIT)" && cd $(OOBUILDDIR) && git-commit -am 'Font munging.' || true
+@@ -58,8 +58,8 @@ $(STAMP_DIR)/patch.apply : $(top_srcdir)
+ 
+ patch.unapply:
+ 	$(TOOLSDIR)/bin/transform --revert $(TOOLSDIR) $(OOBUILDDIR)
+-	FLAGS=`$(TOOLSDIR)/bin/applyflags $(TOOLSDIR)/bin` ; \
+-	chmod +x $(TOOLSDIR)/patches/apply.pl && $(TOOLSDIR)/patches/apply.pl $(APPLY_DIR) $(OOBUILDDIR) $$FLAGS -R ;
++	FLAGS=`$(TOOLSDIR)/bin/applyflags $(TOP_BUILDDIR)/bin` ; \
++	chmod +x $(TOP_BUILDDIR)/patches/apply.pl && $(TOP_BUILDDIR)/patches/apply.pl $(APPLY_DIR) $(OOBUILDDIR) $$FLAGS -R ;
+ 	rm -f $(STAMP_DIR)/patch.apply
+ 
+ # Build bits:
+@@ -81,7 +81,7 @@ $(STAMP_DIR)/prebuild : $(OOBUILDDIR)/un
+ 
+ build.tools : $(STAMP_DIR)/build.tools
+ $(STAMP_DIR)/build.tools : $(STAMP_DIR)/prebuild
+-	cd $(top_srcdir)/bin ; ./build-tools
++	cd $(top_srcdir)/bin ; TOP_BUILDDIR=$(TOP_BUILDDIR) ./build-tools
+ 	touch $@
+ 
+ build : $(STAMP_DIR)/build
+@@ -90,7 +90,7 @@ $(STAMP_DIR)/build : $(OOBUILDDIR)/unpac
+ 		     $(STAMP_DIR)/artwork.install \
+ 		     $(STAMP_DIR)/build.tools \
+ 		     $(STAMP_DIR)/prebuild
+-	cd $(top_srcdir)/bin ; ./build-ooo
++	cd $(top_srcdir)/bin ; TOP_BUILDDIR=$(TOP_BUILDDIR) ./build-ooo
+ 	touch $@
+ 
+ all: build
+--- openoffice-./bin/unpack.orig	2008-10-16 15:47:43.000000000 +0200
++++ openoffice-./bin/unpack	2008-10-16 20:05:31.000000000 +0200
+@@ -3,7 +3,7 @@
+ #
+ # See setup for user tweakables.
+ #
+-. ./setup
++. $TOP_BUILDDIR/bin/setup
+ 
+ if (echo "testing\c"; echo 1,2,3) | grep c >/dev/null; then
+     if (echo -n testing; echo 1,2,3) | sed s/-n/xn/ | grep xn >/dev/null; then
+--- openoffice-./bin/setup.in.orig	2008-10-16 16:12:25.000000000 +0200
++++ openoffice-./bin/setup.in	2008-10-16 20:05:31.000000000 +0200
+@@ -35,6 +35,7 @@ SPLIT_APP_MODULES='@SPLIT_APP_MODULES@'
+ SPLIT_OPT_FEATURES='@SPLIT_OPT_FEATURES@'
+ RUN_POST_INSTALL_SCRIPTS='@RUN_POST_INSTALL_SCRIPTS@'
+ TOOLSDIR='@TOOLSDIR@'
++TOP_BUILDDIR='@TOP_BUILDDIR@'
+ ENABLE_ODK='@ENABLE_ODK@'
+ USE_PREBUILD_UNOWINREG_DLL='@USE_PREBUILD_UNOWINREG_DLL@'
+ ENABLE_MONO='@ENABLE_MONO@'
+@@ -60,39 +61,39 @@ GNUPATCH=@GNUPATCH@
+ GNUTAR=@GNUTAR@
+ DRINK="@DRINK@"
+ 
+-if test -f "$TOOLSDIR/distro-configs/Common.conf" ; then
+-    COMMON_OPTIONS="`cat $TOOLSDIR/distro-configs/Common.conf | xargs`";
++if test -f "$TOP_BUILDDIR/distro-configs/Common.conf" ; then
++    COMMON_OPTIONS="`cat $TOP_BUILDDIR/distro-configs/Common.conf | xargs`";
+ else
+-    echo "Warning: $TOOLSDIR/distro-configs/Common.conf not found."
++    echo "Warning: $TOP_BUILDDIR/distro-configs/Common.conf not found."
+ fi
+ 
+ if test "z$BUILD_WIN32" != "z"; then
+-    if test -f "$TOOLSDIR/distro-configs/CommonWin32.conf" ; then
+-        PLATFORM_OPTIONS="`cat $TOOLSDIR/distro-configs/CommonWin32.conf | xargs`";
++    if test -f "$TOP_BUILDDIR/distro-configs/CommonWin32.conf" ; then
++        PLATFORM_OPTIONS="`cat $TOP_BUILDDIR/distro-configs/CommonWin32.conf | xargs`";
+     else
+-        echo "Warning: $TOOLSDIR/distro-configs/CommonWin32.conf not found."
++        echo "Warning: $TOP_BUILDDIR/distro-configs/CommonWin32.conf not found."
+     fi
+ else if test "z`uname -s`" = "zDarwin"; then
+-    if test -f "$TOOLSDIR/distro-configs/CommonMac.conf" ; then
+-        PLATFORM_OPTIONS="`cat $TOOLSDIR/distro-configs/CommonMac.conf | xargs`";
++    if test -f "$TOP_BUILDDIR/distro-configs/CommonMac.conf" ; then
++        PLATFORM_OPTIONS="`cat $TOP_BUILDDIR/distro-configs/CommonMac.conf | xargs`";
+     else
+-        echo "Warning: $TOOLSDIR/distro-configs/CommonMac.conf not found."
++        echo "Warning: $TOP_BUILDDIR/distro-configs/CommonMac.conf not found."
+     fi
+ else
+-    if test -f "$TOOLSDIR/distro-configs/CommonLinux.conf" ; then
+-        PLATFORM_OPTIONS="`cat $TOOLSDIR/distro-configs/CommonLinux.conf | xargs`";
++    if test -f "$TOP_BUILDDIR/distro-configs/CommonLinux.conf" ; then
++        PLATFORM_OPTIONS="`cat $TOP_BUILDDIR/distro-configs/CommonLinux.conf | xargs`";
+     else
+-        echo "Warning: $TOOLSDIR/distro-configs/CommonLinux.conf not found."
++        echo "Warning: $TOP_BUILDDIR/distro-configs/CommonLinux.conf not found."
+     fi
+ fi
+ fi
+ 
+-if test "z$DISTRO" != "z" -a -f "$TOOLSDIR/distro-configs/$DISTRO.conf"; then
+-    CONFIGURE_OPTIONS="$COMMON_OPTIONS $PLATFORM_OPTIONS $OOO_WIDGET_FLAGS `cat $TOOLSDIR/distro-configs/$DISTRO.conf | xargs`";
++if test "z$DISTRO" != "z" -a -f "$TOP_BUILDDIR/distro-configs/$DISTRO.conf"; then
++    CONFIGURE_OPTIONS="$COMMON_OPTIONS $PLATFORM_OPTIONS $OOO_WIDGET_FLAGS `cat $TOP_BUILDDIR/distro-configs/$DISTRO.conf | xargs`";
+ else
+     echo "ERROR: Could not find the distribution specific configure options"
+-    echo "    file in $TOOLSDIR/distro-configs/."
+-    echo "    $TOOLSDIR/distro-configs/$DISTRO.conf is probably missing."
++    echo "    file in $TOP_BUILDDIR/distro-configs/."
++    echo "    $TOP_BUILDDIR/distro-configs/$DISTRO.conf is probably missing."
+ fi
+ 
+ # Misc. internal
+--- openoffice-./bin/build-tools.orig	2008-10-16 19:53:55.000000000 +0200
++++ openoffice-./bin/build-tools	2008-10-16 20:05:31.000000000 +0200
+@@ -3,7 +3,7 @@
+ #
+ # See setup for user tweakables.
+ #
+-. ./setup
++. $TOP_BUILDDIR/bin/setup
+ 
+ if test "z$SYSTEM_GCC" != "z"; then
+     echo "Not building gcc / binutils";
+--- openoffice-./bin/localize-ooo.orig	2008-10-16 19:56:25.000000000 +0200
++++ openoffice-./bin/localize-ooo	2008-10-16 20:05:31.000000000 +0200
+@@ -3,9 +3,9 @@
+ #
+ # See setup for user tweakables.
+ #
+-. ./setup
++. $TOP_BUILDDIR/bin/setup
+ . $OOBUILDDIR/*.[sS]et.sh
+-. ./setup
++. $TOP_BUILDDIR/bin/setup
+ 
+ export LC_ALL='C';
+ 
+--- openoffice-./bin/build-ooo.orig	2008-10-16 20:17:56.000000000 +0200
++++ openoffice-./bin/build-ooo	2008-10-16 20:17:28.000000000 +0200
+@@ -3,7 +3,7 @@
+ #
+ # See setup for user tweakables.
+ #
+-. ./setup
++. $TOP_BUILDDIR/bin/setup
+ 
+ if test "z$BUILD_WIN32" = "z" -a "z`uname -s`" != "zSunOS" -a "z`uname -s`" != "zDarwin"; then
+     if ! test -f /proc/cpuinfo; then
+@@ -133,7 +133,7 @@ fi
+ 
+ if test "z$PIECE" != "z"; then
+ 	echo "Build $PIECE"
+-	. $TOOLSDIR/bin/piece/build-$PIECE
++	. $TOP_BUILDDIR/bin/piece/build-$PIECE
+ else
+ 
+ # update localizations from external sources
