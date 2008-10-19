@@ -2,6 +2,8 @@ from gub import targetbuild
 
 class Db (targetbuild.TargetBuild):
     source = "http://download.oracle.com/berkeley-db/db-4.7.25.tar.gz"
+    def get_build_dependencies (self):
+        return ['libwsock32']
     def patch (self):
         self.shadow_tree ('%(srcdir)s', targetbuild.TargetBuild.builddir (self))
     def configure_binary (self):
