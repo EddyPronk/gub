@@ -13,7 +13,19 @@ p.add_option ('', '--ldflags',
               action="store_true",
               help="show ldflags")
 
+p.add_option ('', '--libs',
+              default='',
+              dest="ldflags",
+              action="store_true",
+              help="show ldflags")
+
 p.add_option ('', '--cflags',
+              default=None,
+              action="store_true",
+              dest="cflags",
+              help="show cflags")
+
+p.add_option ('', '--includes',
               default=None,
               action="store_true",
               dest="cflags",
