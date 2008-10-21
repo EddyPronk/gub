@@ -5,7 +5,32 @@
     dnl OS/2 uses native graphics. Don't check for X11.
     :
 -elif test "$_os" != "WINNT" ; then
-+elif test "$_os" != "WINNT" -a "$target_os" != "mingw32" ; then
++elif test "$_os" != "WINNT" -a "$t_os" != "MinGW" ; then
     AC_PATH_X
     AC_PATH_XTRA
     CPPFLAGS="$CPPFLAGS $X_CFLAGS"
+--- config_office/set_soenv.in.orig	2008-10-20 19:52:27.000000000 +0200
++++ config_office/set_soenv.in	2008-10-20 20:22:58.000000000 +0200
+@@ -593,6 +593,22 @@ elsif ( $platform =~ m/linux/ ) 
+       $JREEXTRALIBDIR = '$JAVA_HOME'.$ds."lib".$ds.$ARCH.$ds."xawt";
+    }
+ 
++   if ( "@TARGET_OS@" == "MinGW" )
++   {
++       print "Setting build=Linux -> target,host=MinGW specific values... ";
++       $COM            = "GCC";
++       $CVER           = "C341";
++       $OUTPATH        = "wntgcci";
++       $CPUNAME        = "INTEL";
++       $CPU            = "I";
++       $GUI            = "WNT";
++       $GUIBASE        = "WIN";
++       $GVER           = "NT351";
++       $OS             = "WNT";
++       $DYNAMIC_CRT    = "TRUE";
++       $SET_EXCEPTIONS = "TRUE";
++       $use_shl_versions = "TRUE";
++   }
+ 
+    $INPATH         = $OUTPATH.$PROEXT;
+ }
