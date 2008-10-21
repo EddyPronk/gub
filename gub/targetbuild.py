@@ -129,7 +129,9 @@ cd %(builddir)s && chmod +x %(configure_binary)s && %(configure_command_native)s
             'CC': '%(toolchain_prefix)sgcc %(target_gcc_flags)s',
             'CC_FOR_BUILD': 'C_INCLUDE_PATH= CPATH= CPPFLAGS= LIBRARY_PATH= cc',
             'CCLD_FOR_BUILD': 'C_INCLUDE_PATH= CPATH= CPPFLAGS= LIBRARY_PATH= cc',
-
+#preliminary
+#            'LDFLAGS_FOR_BUILD': '',
+            
 
             ## %(system_prefix)s/include is already done by
             ## GCC --with-sysroot config, but we  have to be sure
