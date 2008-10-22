@@ -68,6 +68,10 @@ class Boost (BjamBuild):
         BjamBuild.install (self)
         # Bjam `installs' header files by using symlinks to the source dir?
 
+        def add_plain_lib_names (logger, file):
+            os.symlink (file, file.replace ('-s.a', '.a'))
+        self.map_locate (add_plain_lib_names, '%(install_prefix)s/lib', 'libboost_*-s.a')
+
         def replace_links (logger, file):
             if os.path.islink (file):
                 link = os.readlink (file)
@@ -76,10 +80,6 @@ rm %(file)s
 cp %(link)s %(file)s
 ''' % locals ())
         self.map_locate (replace_links, '%(install_prefix)s/include/boost', '*')
-
-        def add_plain_lib_names (logger, file):
-            os.symlink (file, file.replace ('-s.a', '.a'))
-        self.map_locate (add_plain_lib_names, '%(install_prefix)s/lib', 'libboost_*-s.a')
         
 class Boost__linux_arm_softfloat (BjamBuild):
     def configure_command (self):
