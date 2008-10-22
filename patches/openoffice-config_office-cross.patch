@@ -34,7 +34,7 @@
  dnl ===================================================================
  dnl Set the ENABLE_CRASHDUMP variable.
  dnl ===================================================================
-@@ -1649,6 +1651,26 @@ if test "$_os" = "OSF1"; then
+@@ -1649,6 +1651,27 @@ if test "$_os" = "OSF1"; then
     fi
  fi
  
@@ -44,6 +44,7 @@
 +AC_CHECK_TOOL([LD], [ld], [:])
 +AC_CHECK_TOOL([NM], [nm], [:])
 +AC_CHECK_TOOL([RANLIB], [ranlib], [:])
++AC_CHECK_TOOL([WINDRES], [windres], [:])
 +
 +BUILD_OS=$_os
 +TARGET_OS=$t_os
@@ -192,7 +193,7 @@
                          $ps.'$SOLARENV'.$BIN;
  
     if ($platform =~ m/solaris/) {
-@@ -1847,6 +1847,19 @@ ToFile( "SOLAR_JAVA",        $SOLAR_JAVA
+@@ -1847,6 +1847,20 @@ ToFile( "SOLAR_JAVA",        $SOLAR_JAVA
  ToFile( "BIG_SVX",           $BIG_SVX,           "e" );
  ToFile( "COM",               $COM,               "e" );
  ToFile( "COMPATH",           $COMPATH,           "e" );
@@ -206,8 +207,9 @@
 +ToFile( "AS",                "@AS@",             "e" );
 +ToFile( "DLLTOOL",           "@DLLTOOL@",        "e" );
 +ToFile( "LD",                "@LD@",             "e" );
-+ToFile( "RANLIB",            "@RANLIB@",         "e" );
 +ToFile( "NM",                "@NM@",             "e" );
++ToFile( "RANLIB",            "@RANLIB@",         "e" );
++ToFile( "WINDRES",           "@WINDRES@",         "e" );
 +ToFile( "TOOLS_DIR",         "@TOOLS_DIR@",      "e" );
  ToFile( "CPU",               $CPU,               "e" );
  ToFile( "CPUNAME",           $CPUNAME,           "e" );

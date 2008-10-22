@@ -1,4 +1,6 @@
+import operator
 import os
+import re
 #
 from gub import context
 from gub import misc
@@ -12,16 +14,19 @@ from gub import targetbuild
    5069:Module 'external' delivered successfully. 3 files copied, 27 files unchanged
    6288:Module 'libwpd' delivered successfully. 12 files copied, 0 files unchanged
    6397:Module 'xml2cmp' delivered successfully. 3 files copied, 2 files unchanged
+   Module 'sal' delivered successfully. 109 files copied, 1 files unchanged
+Module 'vos' delivered successfully. 30 files copied, 1 files unchanged
 '''
 
 class Openoffice (targetbuild.TargetBuild):
 #    source = 'svn://gsvn.gnome.org/svn/ooo-build&branch=trunk&revision=14327'
     source = 'svn://svn.gnome.org/svn/ooo-build&branch=trunk'
     patches = ['openoffice-srcdir-build.patch']
-    upstream_patches = ['openoffice-config_office-cross.patch', 'openoffice-config_office-gnu-make.patch', 'openoffice-config_office-mingw.patch', 'openoffice-solenv-cross.patch', 'openoffice-solenv.patch', 'openoffice-sal-cross.patch', 'openoffice-soltools-cross.patch', 'openoffice-soltools-mingw.patch']
-#    upstream_patches = ['openoffice-config_office-cross.patch', 'openoffice-config_office-mingw.patch']
+#    upstream_patches = ['openoffice-config_office-cross.patch', 'openoffice-config_office-gnu-make.patch', 'openoffice-config_office-mingw.patch', 'openoffice-solenv-cross.patch', 'openoffice-solenv.patch', 'openoffice-sal-cross.patch', 'openoffice-soltools-cross.patch', 'openoffice-soltools-mingw.patch', 'openoffice-sal-mingw.patch', 'openoffice-external-mingwheaders.patch']
+    upstream_patches = ['openoffice-config_office-cross.patch', 'openoffice-config_office-gnu-make.patch', 'openoffice-solenv-cross.patch', 'openoffice-solenv.patch', 'openoffice-sal-cross.patch', 'openoffice-soltools-cross.patch']
     def get_build_dependencies (self):
-        return ['boost-devel', 'curl', 'db-devel', 'expat', 'fontconfig-devel', 'libjpeg-devel', 'libpng-devel', 'python', 'saxon-java', 'xerces-c', 'zlib-devel']
+        # redland-devel
+        return ['boost-devel', 'curl', 'cppunit-devel', 'db-devel', 'expat-devel', 'fontconfig-devel', 'libjpeg-devel', 'libpng-devel', 'python', 'saxon-java', 'xerces-c', 'zlib-devel']
     def stages (self):
         return misc.list_insert_before (targetbuild.TargetBuild.stages (self),
                                         'compile',
@@ -103,6 +108,7 @@ ac_cv_icu_version_minor=${ac_cv_icu_version_minor=3.81}
 --disable-vba
 --disable-vba 
 --disable-xrender-link
+--disable-atl
 
 --enable-fontconfig
 --enable-verbose
@@ -153,24 +159,22 @@ ac_cv_icu_version_minor=${ac_cv_icu_version_minor=3.81}
         self.system ('''
 cd %(builddir)s/build/%(cvs_tag)s && patch -p%(patch_strip_component)s < %(patchdir)s/%(name)s
 ''', locals ())
-    def patch_upstream (self):
-        base = '%(builddir)s/build/%(cvs_tag)s'
+    def upstream_patched_files (self):
+        def files_in_patch (patch):
+            string = file (self.expand ('%(patchdir)s/%(patch)s', locals ())).read ()
+            def file_name (chunk):
+                if chunk.find ('\n+++ ') >= 0:
+                    return re.search ('\n[+]{3}\s+([.]/)?([^\s]+)', chunk).group (2)
+                return ''
+            return map (file_name, ('\n' + string).split ('\n---')[1:])
+        files_with_patches = map (files_in_patch, self.upstream_patches)
+        return reduce (operator.__add__, files_with_patches)
+    def upstream_patch_reset (self):
         upstream_dir = self.upstream_dir ()
-        for file in (
-            'config_office/acinclude.m4',
-            'config_office/configure.in',
-            'config_office/bootstrap.1',
-            'config_office/set_soenv.in',
-            'solenv/inc/startup/startup.mk',
-            'solenv/inc/wntgcci6.mk',
-            'solenv/inc/unitools.mk',
-            'solenv/bin/build.pl',
-            'solenv/bin/deliver.pl',
-            'soltools/util/makefile.pmk',
-            'soltools/mkdepend/collectdircontent.cxx',
-            'sal/rtl/source/makefile.mk',
-            ):
-            self.system ('cp -p %(upstream_dir)s/%(file)s.pristine %(upstream_dir)s/%(file)s || cp -p %(upstream_dir)s/%(file)s %(upstream_dir)s/%(file)s.pristine' % locals ())
+        for f in self.upstream_patched_files ():
+            self.system ('cp -p %(upstream_dir)s/%(f)s.pristine %(upstream_dir)s/%(f)s || cp -p %(upstream_dir)s/%(f)s %(upstream_dir)s/%(f)s.pristine' % locals ())
+    def patch_upstream (self):
+        self.upstream_patch_reset ()
         map (self.apply_upstream_patch, self.__class__.upstream_patches)
 
         # FIXME: neutralize silly GNU make check
@@ -184,9 +188,6 @@ cd %(builddir)s/build/%(cvs_tag)s && patch -p%(patch_strip_component)s < %(patch
         # http://www.mail-archive.com/autoconf@gnu.org/msg02857.html
         self.system ('sed -i -e "s@AC_CHECK_FILE(@AC_CHECK_FILE_CROSS(@" %(upstream_dir)s/config_office/configure.in')
 
-        # avoid juggling of names for windows-nt
-        self.system ('sed -i -e "s@WINNT@WNT@" %(upstream_dir)s/config_office/configure.in')
-
         # TODO: ASM is handled in individual solenv/inc/*mk
         self.system (misc.join_lines ('''sed -i.guborig
 -e 's@\<ar\>@$(AR)@g'
@@ -194,9 +195,20 @@ cd %(builddir)s/build/%(cvs_tag)s && patch -p%(patch_strip_component)s < %(patch
 -e 's@\<ld\>\([^-]\|$\)@$(LD)\\1@g'
 -e 's@\<nm\>@$(NM)@g'
 -e 's@\<ranlib\>@$(RANLIB)@g'
+-e 's@\<windres\>@$(WINDRES)@g'
 %(upstream_dir)s/solenv/inc/*mk'''))
 
         self.system ('chmod +x %(upstream_dir)s/solenv/bin/build.pl %(upstream_dir)s/solenv/bin/deliver.pl')
+
+        self.system ('sed -i -e "s@[ \t]all@ i@g" %(upstream_dir)s/redland/prj/build.lst')
+
+        # java go away
+        self.system ('sed -i -e "s@[ \t]all@ i@g" %(upstream_dir)s/sandbox/prj/build.lst')
+
+
+        # OO.o's included cppunit has build problems, but there's no --with-system-cppunit
+        # self.system ('sed -i -e "s@[ \t]\(all\|n\)[ \t]@ i @g" %(upstream_dir)s/cppunit/prj/build.lst')
+
     def makeflags (self):
         return misc.join_lines ('''
 CC_FOR_BUILD=cc
@@ -205,13 +217,49 @@ LDFLAGS_FOR_BUILD=
 C_INCLUDE_PATH=
 LIBRARY_PATH=
 EXECPOST=
+SOLAR_JAVA=TRUE
 ''')
 ##main configure barfs
 ##CPPFLAGS=
                 
 class Openoffice__mingw (Openoffice):
+    Openoffice.upstream_patches += ['openoffice-config_office-mingw.patch', 'openoffice-soltools-mingw.patch', 'openoffice-sal-mingw.patch', 'openoffice-external-mingwheaders.patch']
+    # external/mingwheaders seems a badly misguided effort.  It
+    # patches header files and is thus strictly tied to a gcc version;
+    # that can never build.  How can patching header files ever work,
+    # when not patching the corresponding libraries?  Some patches
+    # remove #ifdef checks that can be enabled by setting a #define.
+    # Other patches only affect OO.o client code already inside
+    # __MINGW32__ defines.  Why not fix OO.o makefiles and client
+    # code?
+    Openoffice.upstream_patches += ['openoffice-sal-mingw-c.patch']
+    def get_build_dependencies (self):
+        return Openoffice.get_build_dependencies (self) + ['libunicows-devel']
     def configure_command (self):
         return (Openoffice.configure_command (self)
                 .replace ('--with-system-xrender-headers', '')
                 + ' --disable-xrender-link'
                 + ' --with-distro=Win32')
+    def patch_upstream (self):
+        Openoffice.patch_upstream (self)
+        # avoid juggling of names for windows-nt
+        self.system ('sed -i -e "s@WINNT@WNT@" %(upstream_dir)s/config_office/configure.in')
+
+        self.system ('chmod +x %(upstream_dir)s/solenv/bin/addsym-mingw.sh')
+        
+        self.system ('cp -f %(upstream_dir)s/sal/osl/w32/MAKEFILE.MK %(upstream_dir)s/sal/osl/w32/makefile.mk')
+
+        self.dump ('''\
+#! /bin/sh
+set -e
+in=$(eval echo '$'$#)
+dir=$(dirname $in)
+/usr/bin/wrc "$@"
+if test "$dir" != "."; then
+    mv $(basename $in .rc).res $dir
+fi
+''',
+             '%(upstream_dir)s/solenv/bin/wrc',
+                   permissions=0755)
+
+        self.system ('cp -pv %(sourcefiledir)s/sehandler.h %(upstream_dir)s/solver/300/wntgcci.pro/inc')

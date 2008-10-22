@@ -1,0 +1,64 @@
+--- sal/osl/w32/conditn.c.~1.7.46.1.~	2008-08-21 17:30:55.000000000 +0200
++++ sal/osl/w32/conditn.c	2008-10-21 20:51:52.000000000 +0200
+@@ -108,7 +108,11 @@
+ 	{
+ 		/* Only wake up if a SendMessage call to the threads message loop is detected */
+ 
++#ifndef __MINGW32__
+ 		switch( MsgWaitForMultipleObjects( 1, &(HANDLE)Condition, FALSE, timeout, QS_SENDMESSAGE ) )
++#else /* __MINGW32__ */
++		switch( MsgWaitForMultipleObjects( 1, (HANDLE)Condition, FALSE, timeout, QS_SENDMESSAGE ) )
++#endif /* __MINGW32__ */
+ 		{
+ 			case WAIT_OBJECT_0 + 1:
+ 				{
+--- sal/osl/w32/dllentry.c.~1.34.~	2008-04-10 13:17:16.000000000 +0200
++++ sal/osl/w32/dllentry.c	2008-10-21 20:56:07.000000000 +0200
+@@ -216,7 +216,9 @@
+         
+                 //We disable floating point exceptions. This is the usual state at program startup
+                 //but on Windows 98 and ME this is not always the case.
++#ifndef __MINGW32__
+                 _control87(_MCW_EM, _MCW_EM);
++#endif
+ #ifdef __MINGW32__
+ 		atexit(do_cleanup);
+ }
+--- sal/systools/win32/uwinapi/ResolveUnicows.cpp.~1.4.~	2008-06-06 19:02:43.000000000 +0200
++++ sal/systools/win32/uwinapi/ResolveUnicows.cpp	2008-10-21 21:53:19.000000000 +0200
+@@ -227,8 +226,8 @@
+ DEFINE_UNICOWS_THUNK( kernel32, BOOL, WINAPI, GetFileAttributesExW, (LPCWSTR,GET_FILEEX_INFO_LEVELS,PVOID) )
+ DEFINE_UNICOWS_THUNK( kernel32, DWORD, WINAPI, GetFileAttributesW, (LPCWSTR) )
+ DEFINE_UNICOWS_THUNK( comdlg32, short, WINAPI, GetFileTitleW, (LPCWSTR,LPWSTR,WORD) )
+-DEFINE_UNICOWS_THUNK( version, DWORD, WINAPI, GetFileVersionInfoSizeW, (LPWSTR,PDWORD) )
+-DEFINE_UNICOWS_THUNK( version, BOOL, WINAPI, GetFileVersionInfoW, (LPWSTR,DWORD,DWORD,PVOID) )
++DEFINE_UNICOWS_THUNK( version, DWORD, WINAPI, GetFileVersionInfoSizeW, (const WCHAR*,DWORD*) )
++DEFINE_UNICOWS_THUNK( version, BOOL, WINAPI, GetFileVersionInfoW, (const WCHAR*,DWORD,DWORD,PVOID) )
+ DEFINE_UNICOWS_THUNK( kernel32, DWORD, WINAPI, GetFullPathNameW, (LPCWSTR,DWORD,LPWSTR,LPWSTR*) )
+ DEFINE_UNICOWS_THUNK( gdi32, DWORD, WINAPI, GetGlyphOutlineW, (HDC,UINT,UINT,LPGLYPHMETRICS,DWORD,PVOID,const MAT2*) )
+ DEFINE_UNICOWS_THUNK( gdi32, BOOL, WINAPI, GetICMProfileW, (HDC,LPDWORD,LPWSTR) )
+@@ -456,7 +455,7 @@
+ DEFINE_UNICOWS_THUNK( gdi32, BOOL, WINAPI, TextOutW, (HDC,int,int,LPCWSTR,int) )
+ DEFINE_UNICOWS_THUNK( user32, int, WINAPI, TranslateAcceleratorW, (HWND,HACCEL,LPMSG) )
+ DEFINE_UNICOWS_THUNK( user32, BOOL, WINAPI, UnregisterClassW, (LPCWSTR,HINSTANCE) )
+-DEFINE_UNICOWS_THUNK( gdi32, BOOL, WINAPI, UpdateICMRegKeyW, (DWORD,LPWSTR,LPWSTR,UINT) )
++DEFINE_UNICOWS_THUNK( gdi32, BOOL, WINAPI, UpdateICMRegKeyW, (DWORD,DWORD,LPWSTR,UINT) )
+ DEFINE_UNICOWS_THUNK( kernel32, BOOL, WINAPI, UpdateResourceW, (HANDLE,LPCWSTR,LPCWSTR,WORD,PVOID,DWORD) )
+ DEFINE_UNICOWS_THUNK( version, DWORD, WINAPI, VerFindFileW, (DWORD,LPWSTR,LPWSTR,LPWSTR,LPWSTR,PUINT,LPWSTR,PUINT) )
+ DEFINE_UNICOWS_THUNK( version, DWORD, WINAPI, VerInstallFileW, (DWORD,LPWSTR,LPWSTR,LPWSTR,LPWSTR,LPWSTR,LPWSTR,PUINT) )
+--- onlinecheck.cxx	10 apr 2008 14:11:15 +0200	1.8
++++ sal/systools/win32/onlineupdate/onlinecheck.cxx	22 okt 2008 10:56:53 +0200	
+@@ -45,8 +45,11 @@
+ #endif
+ #include <tchar.h>
+ #ifdef __MINGW32__
+-#include <excpt.h>
+-#endif
++#include <sehandler.h>
++// not implemented in mingw, only in wine...
++//BOOL WINAPI InternetGetConnectedStateEx(LPDWORD,LPTSTR,DWORD,DWORD);
++#define InternetGetConnectedStateEx(a,b,c,d) InternetGetConnectedState(a,c)
++#endif /* __MINGW32__ */
+ 
+ #define elementsof(a) (sizeof(a)/sizeof((a)[0]))
+ 
