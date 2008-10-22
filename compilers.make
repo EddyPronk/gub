@@ -100,10 +100,12 @@ else
 endif
 
 tools-cross-tools:
-ifeq ($(findstring mingw, $(PLATFORMS)),mingw)
-ifneq ($(XBUILD_PLATFORM),linux-64)
-	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools nsis 
+ifeq ($(findstring nsis, $(tools)),nsis)
+ifeq ($(BUILD_PLATFORM),linux-64)
+# we need 32 bit compiler for nsis
+	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=linux-86 glibc
 endif
+	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools nsis
 endif
 
 download:
