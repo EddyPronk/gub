@@ -282,11 +282,14 @@ class ForcedAutogenMagic (SerializedCommand):
         if not autodir:
             autodir = package.expand ('%(srcdir)s')
         if os.path.isdir (os.path.join (package.srcdir (), 'ltdl')):
-            self.system (package.expand ('rm -rf %(autodir)s/libltdl && cd %(autodir)s && libtoolize --install --copy --force --automake --ltdl',
+            # --install is mandatory for libtool-2.2.x, but breaks with libtool-1.5.2
+            libtoolize = 'libtoolize --copy --force --automake --ltdl'
+            self.system (package.expand ('rm -rf %(autodir)s/libltdl && (cd %(autodir)s && %(libtoolize)s --install || %(libtoolize)s)',
                                          locals ()), logger)
         else:
-            # fixme
-            self.system (package.expand ('cd %(autodir)s && libtoolize --install --copy --force --automake',
+            # --install is mandatory for libtool-2.2.x, but breaks with libtool-1.5.2
+            libtoolize = 'libtoolize --copy --force --automake'
+            self.system (package.expand ('cd %(autodir)s && (%(libtoolize)s --install || %(libtoolize)s)',
                                          locals ()), logger)
 
         if os.path.exists (os.path.join (autodir, 'bootstrap')):
@@ -294,7 +297,7 @@ class ForcedAutogenMagic (SerializedCommand):
         elif os.path.exists (os.path.join (autodir, 'bootstrap.sh')):
             self.system (package.expand ('cd %(autodir)s && ./bootstrap.sh', locals ()), logger)
         elif os.path.exists (os.path.join (autodir, 'autogen.sh')):
-            s = file (package.expand ('%(autodir)s/autogen.sh')).read ()
+            s = file (package.expand ('%(autodir)s/autogen.sh', locals ())).read ()
             noconfigure = ' --help'
             if s.find ('--noconfigure'):
                 noconfigure = ' --noconfigure' + noconfigure
@@ -308,11 +311,11 @@ class ForcedAutogenMagic (SerializedCommand):
             headcmd = ''
             for c in ('configure.in','configure.ac'):
                 try:
-                    str = open (package.expand ('%(autodir)s/' + c)).read ()
+                    str = open (package.expand ('%(autodir)s/' + c, locals ())).read ()
                     m = re.search ('A[CM]_CONFIG_HEADER', str)
                     str = 0   ## don't want to expand str
                     if m:
-                        headcmd = package.expand ('cd %(autodir)s && autoheader %(aclocal_opt)s', env=locals ())
+                        headcmd = package.expand ('cd %(autodir)s && autoheader %(aclocal_opt)s', locals ())
                         break
 
                 except IOError:
