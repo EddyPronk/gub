@@ -1,4 +1,3 @@
-
 # local.make may set the following variables:
 #
 #  BUILD_PLATFORM  - override the platform used for building,
@@ -12,6 +11,8 @@
 #  LOCAL_GUB_OPTIONS - esp.: --verbose, --keep [--force-package]
 #  LOCAL_GUB_BUILDER_OPTIONS - deprecated
 
+.PHONY: bootstrap bootstrap-git compilers cross-compilers download download-tools restrict tools tools-cross-tools
+
 ifeq ($(CWD),)
 $(error Must set CWD)
 endif
@@ -23,6 +24,10 @@ $(error Must set BUILD_PLATFORM)
 endif
 
 DISTCC_DIRS=target/cross-distcc/bin target/cross-distccd/bin target/native-distcc/bin 
+
+tools = texinfo
+
+# -texinfo: for binutils-2.18
 
 compilers: cross-compilers
 
@@ -75,12 +80,24 @@ native-distccd:
 		--port 3634 --pid-file $(CWD)/log/$@.pid \
 		--log-file $(CWD)/log/$@.log  --log-level info
 
-bootstrap: bootstrap-git download-tools tools cross-compilers tools-cross-tools download
-
-download:
+bootstrap: bootstrap-git download-tools restrict tools cross-compilers tools-cross-tools download
 
 bootstrap-git:
 	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools git
+
+restrict:
+	cd librestrict && $(MAKE) -f GNUmakefile
+
+tools:
+	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools $(tools)
+
+download-tools:
+ifneq ($(BUILD_PLATFORM),linux-64)
+	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools --stage=download $(tools) nsis
+else
+# ugh, can only download nsis after cross-compilers...
+	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools --stage=download $(tools)
+endif
 
 tools-cross-tools:
 ifeq ($(findstring mingw, $(PLATFORMS)),mingw)
@@ -88,3 +105,5 @@ ifneq ($(XBUILD_PLATFORM),linux-64)
 	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools nsis 
 endif
 endif
+
+download:

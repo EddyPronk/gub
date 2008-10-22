@@ -24,23 +24,14 @@ INSTALLER_BUILDER_OPTIONS=\
   --branch=git=$(MINGIT_LOCAL_BRANCH)\
   --version-db=uploads/git.versions \
 
+tools += git pkg-config nsis icoutils
+
 all: $(PLATFORMS)
 
-download:
-	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB,$(p)) --online --stage=download  git && ) true
+download: download-mingit
+
+download-mingit:
 	$(MAKE) -f mingit.make update-versions
-
-bootstrap: download
-
-download-tools:
-	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools\
-		--stage=download \
-		git pkg-config nsis icoutils 
-
-tools:
-	cd librestrict && make -f GNUmakefile
-	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools git 
-
 
 mingw:
 	$(call BUILD,$@,git)

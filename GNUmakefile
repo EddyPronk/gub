@@ -1,5 +1,5 @@
 .PHONY: lilypond mingit phone
-.PHONY: default compilers TAGS help tools download download-tools
+.PHONY: default compilers TAGS help
 sources = GNUmakefile $(filter-out %~, $(wildcard *.make bin/* gub/*.py gub/*/*.py gub/*/*/*.py gub/*/*/*/*.py test-lily/*.py))
 
 default: compilers
@@ -20,9 +20,6 @@ help:
 
 $(MAKE_BASES):
 	$(MAKE) -f $@.make
-
-download:
-	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB,$(p)) --online --stage=download $(call gcc_or_glibc,$(p)) && ) true
 
 test:
 	rm -rf target

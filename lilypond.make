@@ -100,8 +100,9 @@ endif
 update-versions:
 	$(PYTHON) gub/with-lock.py --skip $(LILYPOND_VERSIONS).lock $(MAKE) unlocked-update-versions
 
-download:
-	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB,$(p)) --online --download-only $(BUILD_PACKAGE) && ) true
+download: download-cygwin
+
+download-cygwin:
 	$(MAKE) downloads/genini
 	rm -f target/*/status/lilypond*
 	rm -f log/lilypond-$(LILYPOND_VERSION)*.*.test.pdf
@@ -234,7 +235,7 @@ realclean:
 ################################################################
 # compilers and tools
 
-tools =\
+tools +=\
  automake\
  distcc\
  expat\
@@ -248,7 +249,6 @@ tools =\
  netpbm\
  pkg-config\
  python\
- texinfo\
  texi2html
 
 ###
@@ -270,17 +270,6 @@ tools =\
 # -imagemagick: for lilypond web site
 #x imagemagick \
 
-download-tools:
-ifneq ($(BUILD_PLATFORM),linux-64)
-	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools --stage=download $(tools) nsis
-else
-# ugh, can only download nsis after cross-compilers...
-	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools --stage=download $(tools)
-endif
-
-tools:
-	cd librestrict && make -f GNUmakefile
-	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools $(tools)
 ## Nsis is made in target tools-cross-tools, after cross compilers
 
 # tools-cross-tools depend on cross-compilers, see compilers.make.
