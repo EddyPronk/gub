@@ -1,0 +1,13 @@
+--- db-4.7.25/os/os_yield.c.orig	2008-10-22 12:32:29.000000000 +0200
++++ db-4.7.25/os/os_yield.c	2008-10-22 12:35:05.000000000 +0200
+@@ -6,6 +6,10 @@
+  * $Id: os_yield.c,v 12.19 2008/01/08 20:58:43 bostic Exp $
+  */
+ 
++#ifdef __MINGW32__
++#include <winsock2.h>
++#endif /* __MINGW32__ */
++
+ #include "db_config.h"
+ 
+ #define	__INCLUDE_SELECT_H	1
