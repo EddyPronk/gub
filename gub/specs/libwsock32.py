@@ -15,6 +15,8 @@ target/mingw/root/usr/cross/bin/i686-mingw32-dlltool --def lib/libwsock32.a.def 
 class Libwsock32 (build.BinaryBuild):
 # newer WINEs come with a dll.so that's not usable in Windows :-(
 #    source = 'http://ftp.debian.org/debian/pool/main/w/wine/wine_0.9.25-2.1_i386.deb'
+# ugh, turns out this libwsock32.dll from wine is empty
+# which somehow means that linking works until you create an executable
     source = 'http://lilypond.org/download/gub-sources/libwsock32-0.9.25.tar.gz'
     def __init__ (self, settings, source):
         build.BinaryBuild.__init__ (self, settings, source)
