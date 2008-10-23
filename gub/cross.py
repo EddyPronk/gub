@@ -108,15 +108,17 @@ def setup_linux_x86 (package, env={'PATH': os.environ['PATH']}):
     env['CXX'] = x86_cross_bin + '/g++'
 
     compiler = x86_bindir + '/i686-linux-gcc'
-    if not os.path.exists (compiler):
-        print 'error: cannot find 32 bit compiler: %(compiler)s\n' % locals ()
-        raise Exception ('Package %s depends on target/linux-x86.'
-                         % package.__class__)
-    if os.system ('''echo 'int main () { return 0; }' > 32bit.c && %(compiler)s -o 32bit 32bit.c && ./32bit''' % locals ()):
-        print 'error: cannot run 32 bit executable: 32bit\n'
-        raise Exception ('Package %s depends on 32 bit libraries'''
-                         % package.__class__)
-    os.system ('rm -f 32bit 32bit.c')
+    def defer_compiler_checks (logger):
+        if not os.path.exists (compiler):
+            print 'error: cannot find 32 bit compiler: %(compiler)s\n' % locals ()
+            raise Exception ('Package %s depends on target/linux-x86.'
+                             % package.__class__)
+        if os.system ('''echo 'int main () { return 0; }' > 32bit.c && %(compiler)s -o 32bit 32bit.c && ./32bit''' % locals ()):
+            print 'error: cannot run 32 bit executable: 32bit\n'
+            raise Exception ('Package %s depends on 32 bit libraries'''
+                             % package.__class__)
+        os.system ('rm -f 32bit 32bit.c')
+    package.func (defer_compiler_checks)
 
     def build_environment (e):
         return env
@@ -144,9 +146,11 @@ def setup_linux_x86 (package, env={'PATH': os.environ['PATH']}):
             #src = '../../bin/i686-linux-' + src
             src = x86_bindir + '/i686-linux-' + src
             os.link (src, dest)
-            
-    check_link ('cpp', 'cpp')
-    check_link ('gcc', 'cc')
-    check_link ('g++', 'c++')
-    check_link ('gcc', 'gcc')
-    check_link ('g++', 'g++')
+
+    def defer_link_checks (logger):
+        check_link ('cpp', 'cpp')
+        check_link ('gcc', 'cc')
+        check_link ('g++', 'c++')
+        check_link ('gcc', 'gcc')
+        check_link ('g++', 'g++')
+    self.func (defer_link_checks)
