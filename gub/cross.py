@@ -153,4 +153,4 @@ def setup_linux_x86 (package, env={'PATH': os.environ['PATH']}):
         check_link ('g++', 'c++')
         check_link ('gcc', 'gcc')
         check_link ('g++', 'g++')
-    self.func (defer_link_checks)
+    package.func (defer_link_checks)
