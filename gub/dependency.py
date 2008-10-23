@@ -23,8 +23,8 @@ def get_build_from_file (platform, file_name, name):
     logging.debug ('LOOKING FOR: %(class_name)s\n' % locals ())
     return misc.most_significant_in_dict (module.__dict__, class_name, '__')
 
-def get_build_class (platform, flavour, name):
-    cls = get_build_from_module (platform, name)
+def get_build_class (settings, flavour, name):
+    cls = get_build_from_module (settings, name)
     if not cls:
         logging.harmless ('making spec:  %(name)s\n' % locals ())
         cls = get_build_without_module (flavour, name)
