@@ -2,6 +2,7 @@ import os
 import pickle
 
 from gub import commands
+from gub import misc
 
 class GupPackage:
     "How to package part of an install_root."
@@ -15,6 +16,12 @@ class GupPackage:
         self._dependencies = []
         self._conflicts = []
         
+    def __repr__ (self):
+        cls = self.__class__.__name__
+        name = self.name ()
+        platform = self.platform ()
+        return '<%(cls)s: %(name)s %(platform)s>' % locals ()
+
     def set_dict (self, dict, sub_name):
         self._dict = dict.copy ()
         self._dict['sub_name'] = sub_name
@@ -59,3 +66,9 @@ class GupPackage:
 
     def name (self):
         return '%(split_name)s' % self._dict
+
+    def platform (self):
+        return self._dict['platform']
+
+    def platform_name (self):
+        return misc.with_platform ('%(split_name)s' % self._dict, self.platform ())

@@ -137,6 +137,13 @@ def delinkify (file_name):
             file_name = os.readlink (file_name)
     return file_name
 
+def path_find (path, name):
+    for dir in path:
+        file_name = os.path.join (dir, name)
+        if os.path.isfile (file_name):
+            return file_name
+    return None
+
 def _find (dir, test_root_dir_files):
     dir = re.sub ( "/*$", '/', dir)
     result = []
@@ -485,6 +492,21 @@ def shadow (src, target):
         os.symlink (os.path.join (root, f), os.path.join (target, f))
     for d in dirs:
         shadow (os.path.join (root, d), os.path.join (target, d))
+
+def with_platform (s, platform):
+    if '::' in s:
+        return s
+    return platform + '::' + s
+
+def platform_adder (platform):
+    def f (name):
+        return with_platform (name, platform)
+    return f
+
+def split_platform (u, platform=None):
+    if '::' in u:
+        return u.split ('::')
+    return platform, u
 
 def test ():
     print forall (x for x in [1, 1])

@@ -201,7 +201,7 @@ def build (settings, options, files):
         names = files
 
     try:
-        manager = gup.get_target_manager (settings)
+        manager = gup.DependencyManager (settings.system_root)
         ## Todo: have a readonly lock for tools platform
     except locker.LockedError:
         logging.error ('another build in progress.  Skipping.')
@@ -260,10 +260,14 @@ def main ():
 
     logging.default_logger.threshold = options.verbosity
 
+    if not options.platform and len (files) == 1:
+        options.platform, x = misc.split_platform (files[1])
+
     if not options.platform:
-        logging.error ('Must specify platform')
-        sys.exit(2)
-        
+        logging.error ('errror: platform not specied\n')
+        cli_parser.print_help ()
+        sys.exit (2)
+
     settings = gub.settings.Settings (options.platform)
 
     if options.inspect_key:

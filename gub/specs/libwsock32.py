@@ -20,7 +20,6 @@ class Libwsock32 (build.BinaryBuild):
     source = 'http://lilypond.org/download/gub-sources/libwsock32-0.9.25.tar.gz'
     def __init__ (self, settings, source):
         build.BinaryBuild.__init__ (self, settings, source)
-        print 'FIXME: serialization:', __file__, ': version'
         source._version = '0.9.25'
         source.strip_components = 0
     def untar (self):

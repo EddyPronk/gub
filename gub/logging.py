@@ -65,7 +65,7 @@ class CommandLogger (AbstractCommandLogger):
                 os.makedirs (directory)
             self.log_file = open (self.log_file_name, 'a')
         self.start_marker = ' * Starting build: %s\n' %  now ()
-        self.write_log ('\n\n' + self.start_marker, 'info')
+        self.write_log_file ('\n\n' + self.start_marker)
 
     # ugh: the following should not be in the base class.
     def read_tail (self, size=10240, lines=100):
@@ -104,6 +104,8 @@ class CommandLogger (AbstractCommandLogger):
             return 0
         message_level = name_to_loglevel_mapping[message_type]
         if message_level <= self.threshold:
+            if '[]' in message:
+                barf
             sys.stderr.write (message)
 
         self.write_log_file (message)

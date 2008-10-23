@@ -25,7 +25,7 @@ endif
 
 DISTCC_DIRS=target/cross-distcc/bin target/cross-distccd/bin target/native-distcc/bin 
 
-tools = texinfo
+tools = automake autoconf libtool texinfo
 
 # -texinfo: for binutils-2.18
 

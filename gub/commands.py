@@ -281,17 +281,6 @@ class ForcedAutogenMagic (SerializedCommand):
         autodir = None
         if not autodir:
             autodir = package.expand ('%(srcdir)s')
-        if os.path.isdir (os.path.join (package.srcdir (), 'ltdl')):
-            # --install is mandatory for libtool-2.2.x, but breaks with libtool-1.5.2
-            libtoolize = 'libtoolize --copy --force --automake --ltdl'
-            self.system (package.expand ('rm -rf %(autodir)s/libltdl && (cd %(autodir)s && %(libtoolize)s --install || %(libtoolize)s)',
-                                         locals ()), logger)
-        else:
-            # --install is mandatory for libtool-2.2.x, but breaks with libtool-1.5.2
-            libtoolize = 'libtoolize --copy --force --automake'
-            self.system (package.expand ('cd %(autodir)s && (%(libtoolize)s --install || %(libtoolize)s)',
-                                         locals ()), logger)
-
         if os.path.exists (os.path.join (autodir, 'bootstrap')):
             self.system (package.expand ('cd %(autodir)s && ./bootstrap', locals ()), logger)
         elif os.path.exists (os.path.join (autodir, 'bootstrap.sh')):
@@ -299,11 +288,23 @@ class ForcedAutogenMagic (SerializedCommand):
         elif os.path.exists (os.path.join (autodir, 'autogen.sh')):
             s = file (package.expand ('%(autodir)s/autogen.sh', locals ())).read ()
             noconfigure = ' --help'
-            if s.find ('--noconfigure'):
+            if '--noconfigure' in s:
                 noconfigure = ' --noconfigure' + noconfigure
             self.system (package.expand ('cd %(autodir)s && NOCONFIGURE=1 bash autogen.sh %(noconfigure)s',
                                          locals ()), logger)
         else:
+            libtoolize = misc.path_find (os.environ['PATH'], 'libtoolize')
+            if libtoolize:
+                s = file (libtoolize).read ()
+                libtoolize = 'libtoolize --copy --force --automake'
+                # --install is mandatory for libtool-2.2.x, but breaks with libtool-1.5.2x
+                if '--install' in s:
+                    libtoolize += ' --install'
+                if (os.path.isdir (os.path.join (autodir, 'ltdl'))
+                    or os.path.isdir (os.path.join (autodir, 'libltdl'))):
+                    libtoolize += ' --ltdl'
+                self.system (package.expand ('rm -rf %(autodir)s/libltdl %(autodir)s/ltdl && (cd %(autodir)s && %(libtoolize)s',
+                                             locals ()), logger)
             aclocal_opt = ''
             if os.path.exists (package.expand ('%(system_prefix)s/share/aclocal')):
                 aclocal_opt = '-I %(system_prefix)s/share/aclocal'

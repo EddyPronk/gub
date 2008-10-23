@@ -29,6 +29,8 @@ from gub import misc
 from gub import gup
 from gub import logging
 from gub import runner
+import gub.settings   # otherwise naming conflict with settings local vars.
+
 
 def checksum_diff (b, a):
     return '\n'.join (difflib.unified_diff (a.split ('\n'),
@@ -40,7 +42,7 @@ def checksum_diff (b, a):
 #FIXME: split spec_* into SpecBuiler?
 class BuildRunner:
     def __init__ (self, manager, settings, specs):
-        self.manager = manager
+        self.managers = {settings.platform : manager }
         self.settings = settings
         self.specs = specs
 
@@ -48,18 +50,23 @@ class BuildRunner:
         self.checksums = {}
 
         PATH = os.environ['PATH']
-        ## cross_prefix is also necessary for building cross packages, such as GCC
+        # cross_prefix is also necessary for building cross packages, such as GCC
         os.environ['PATH'] = self.settings.expand ('%(cross_prefix)s/bin:' + PATH,
                                                    locals ())
+        self.add_packages_to_manager (self.specs)
 
-        ## UGH -> double work, see cross.change_target_packages () ?
-        sdk_pkgs = [p for p in self.specs.values ()
-                    if isinstance (p, build.SdkBuild)]
-        cross_pkgs = [p for p in self.specs.values ()
-                      if isinstance (p, cross.CrossToolsBuild)]
-
-        extra_build_deps = [p.name () for p in sdk_pkgs + cross_pkgs]
-        gup.add_packages_to_manager (self.manager, self.settings, self.specs)
+    def manager (self, platform):
+        if not self.managers.has_key (platform):
+            settings = gub.settings.Settings (platform)
+            self.managers[platform] = gup.DependencyManager (settings.system_root)
+        return self.managers[platform]
+        
+    def add_packages_to_manager (self, package_object_dict):
+        ## Ugh, this sucks: we now have to have all packages
+        ## registered at the same time.
+        for spec in package_object_dict.values ():
+            for package in spec.get_packages ():
+                self.manager (package.platform ()).register_package_dict (package.dict ())
 
     def calculate_checksums (self):
         logging.stage ('calculating checksums\n')
@@ -79,7 +86,7 @@ class BuildRunner:
         # checksum is per buildspec, only need to inspect one package.
         pkg = spec.get_packages ()[0]    
         name = pkg.name ()
-        pkg_dict = self.manager.package_dict (name)
+        pkg_dict = self.manager (pkg.platform ()).package_dict (name)
 
         try:
             build_checksum_ondisk = open (pkg_dict['checksum_file']).read ()
@@ -91,8 +98,8 @@ class BuildRunner:
         if spec.source_checksum () != pkg_dict['source_checksum']:
             reason = 'source %s -> %s (memory)' % (spec.source_checksum (), pkg_dict['source_checksum'])
 
-        if reason == '' and self.checksums[spec.name ()] != build_checksum_ondisk:
-            reason = 'build diff %s' % checksum_diff (self.checksums[spec.name ()], build_checksum_ondisk)
+        if reason == '' and self.checksums[spec.platform_name ()] != build_checksum_ondisk:
+            reason = 'build diff %s' % checksum_diff (self.checksums[spec.platform_name ()], build_checksum_ondisk)
 
         hdr = pkg.expand ('%(split_hdr)s')
         if reason == '' and not os.path.exists (hdr):
@@ -115,11 +122,12 @@ class BuildRunner:
         subname = ''
         if spec.name () != pkg_name:
             subname = pkg_name.split ('-')[-1]
+        manager = self.manager (spec.platform ())
         if spec.get_conflict_dict ().has_key (subname):
             for c in spec.get_conflict_dict ()[subname]:
-                if self.manager.is_installed (c):
+                if manager.is_installed (c):
                     print '%(c)s conflicts with %(pkg_name)s' % locals ()
-                    conflict_source = self.manager.source_name (c)
+                    conflict_source = manager.source_name (c)
                     # FIXME: implicit provides: foo-* provides foo-core,
                     # should implement explicit provides
                     if conflict_source + '-core' == pkg_name:
@@ -129,69 +137,76 @@ class BuildRunner:
                                % locals ())
                         install_candidate = None
                         continue
-                    self.manager.uninstall_package (c)
+                    manager.uninstall_package (c)
         return install_candidate
 
     def pkg_install (self, spec, pkg):
-        if not self.manager.is_installed (pkg.name ()):
+        manager = self.manager (spec.platform ())
+        if not manager.is_installed (pkg.name ()):
             install_candidate = self.spec_conflict_resolution (spec, pkg)
             if install_candidate:
-                self.manager.unregister_package_dict (install_candidate.name ())
-                self.manager.register_package_dict (install_candidate.dict ())
-                self.manager.install_package (install_candidate.name ())
+                manager.unregister_package_dict (install_candidate.name ())
+                manager.register_package_dict (install_candidate.dict ())
+                manager.install_package (install_candidate.name ())
 
     def spec_install (self, spec):
         for pkg in spec.get_packages ():
             self.pkg_install (spec, pkg)
 
-    def spec_build (self, specname):
-        spec = self.specs[specname]
+    def spec_build (self, spec_name):
+        spec = self.specs[spec_name]
         
         all_installed = True
         for p in spec.get_packages ():
             all_installed = (all_installed
-                             and self.manager.is_installed (p.name ()))
+                             and self.manager (p.platform ()).is_installed (p.name ()))
         if all_installed:
             return
 
         # ugh, dupe
         checksum_fail_reason = self.spec_checksums_fail_reason (spec)
-            
-        is_installable = misc.forall (self.manager.is_installable (p.name ())
+
+        is_installable = misc.forall (self.manager (p.platform ()).is_installable (p.name ())
                                       for p in spec.get_packages ())
 
+	# ugh, dupe
         logger = logging.default_logger
+        if checksum_fail_reason:
+            logger.write_log ('checkum failed: %(spec_name)s\n' % locals (), 'stage')
+        else:
+            logger.write_log ('checkum ok: %(spec_name)s\n' % locals (), 'harmless')
+
+        if logging.get_numeric_loglevel ('command') > logger.threshold:
+            logger.write_log ('\n'.join (checksum_fail_reason.split ('\n')[:10]), 'command')
+        logger.write_log (checksum_fail_reason, 'output')
 
         if (not is_installable or checksum_fail_reason):
 
-            if logging.get_numeric_loglevel ('command') > logger.threshold:
-                logger.write_log ('\n'.join (checksum_fail_reason.split ('\n')[:10]), 'command')
-            logger.write_log (checksum_fail_reason, 'output')
-
             deferred_runner = runner.DeferredRunner (logger)
             spec.connect_command_runner (deferred_runner)
-            spec.runner.stage ('building package: %s\n' % specname)
+            spec.runner.stage ('building package: %s\n' % spec_name)
             spec.build ()
             spec.connect_command_runner (None)
             
             deferred_runner.execute_deferred_commands ()
 
-            file (spec.expand ('%(checksum_file)s'), 'w').write (self.checksums[specname])
+            file (spec.expand ('%(checksum_file)s'), 'w').write (self.checksums[spec_name])
 
         logger.write_log (' *** Stage: %s (%s, %s)\n'
                            % ('pkg_install', spec.name (),
-                              self.settings.platform), 'stage')
+                              spec.platform ()), 'stage')
         self.spec_install (spec)
+        logging.default_logger.write_log ('\n', 'stage')
 
     def uninstall_outdated_spec (self, spec_name):
 	spec = self.specs[spec_name]
-	# ugh, dupe
-	checksum_ok = '' == self.spec_checksums_fail_reason (self.specs[spec_name])
+        checksum_fail_reason = self.spec_checksums_fail_reason (self.specs[spec_name])
+	checksum_ok = '' == checksum_fail_reason
 	for pkg in spec.get_packages ():
-	    if (self.manager.is_installed (pkg.name ())
-		and (not self.manager.is_installable (pkg.name ())
+	    if (self.manager (pkg.platform ()).is_installed (pkg.name ())
+		and (not self.manager (pkg.platform ()).is_installable (pkg.name ())
 		     or not checksum_ok)):
-		self.manager.uninstall_package (pkg.name ())
+		self.manager (pkg.platform ()).uninstall_package (pkg.name ())
 
     def uninstall_outdated_specs (self, deps):
         for spec_name in reversed (deps):

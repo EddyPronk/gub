@@ -1,16 +1,15 @@
-import pickle
+import inspect
 import os
+import pickle
 import re
 import sys
-import inspect
-
 #
-from gub import misc
+from gub import commands
 from gub import context
 from gub import guppackage
-from gub import logging
 from gub import loggedos
-from gub import commands
+from gub import logging
+from gub import misc
 
 class Build (context.RunnableContext):
     '''How to build a piece of software
@@ -448,6 +447,18 @@ cp %(file)s %(install_root)s/license/%(name)s
     def get_build_dependencies (self):
         return []
 
+    def with_platform (self, name):
+        return misc.with_platform (name, self.settings.platform)
+
+    def get_platform_build_dependencies (self):
+        return [self.with_platform (n) for n in self.get_build_dependencies ()]
+
+    def platform_name (self):
+        return self.with_platform (self.name ())
+
+    def platform (self):
+        return self.settings.platform
+
     def get_subpackage_definitions (self):
 	prefix_dir = self.settings.prefix_dir
         d = {
@@ -513,6 +524,7 @@ cp %(file)s %(install_root)s/license/%(name)s
                 conflict_str = p._dict['conflicts_string'] + ';' + conflict_str
             p._dict['conflicts_string'] = conflict_str
 
+            dep_str = ';'.join (map (self.with_platform, dep_dict.get (sub, [])))
             dep_str = ';'.join (dep_dict.get (sub, []))
             if p._dict.has_key ('dependencies_string'):
                 dep_str = p._dict['dependencies_string'] + ';' + dep_str

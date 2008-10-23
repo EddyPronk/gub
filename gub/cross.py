@@ -1,11 +1,12 @@
-import os
 import md5
+import os
 import re
-
+#
 from gub import build
-from gub import misc
 from gub import context
 from gub import logging
+from gub import misc
+from gub import toolsbuild
 
 class CrossToolsBuild (build.UnixBuild):
     """Package for cross compilers/linkers etc.
@@ -36,12 +37,14 @@ def set_cross_dependencies (package_object_dict):
     packs = package_object_dict.values ()
     cross_packs = [p for p in packs if isinstance (p, CrossToolsBuild)]
     sdk_packs = [p for p in packs if isinstance (p, build.SdkBuild)]
+    tools_packs = [p for p in packs if isinstance (p, toolsbuild.ToolsBuild)]
     other_packs = [p for p in packs if (not isinstance (p, CrossToolsBuild)
                                         and not isinstance (p, build.SdkBuild)
-                                        and not isinstance (p, build.BinaryBuild))]
+                                        and not isinstance (p, build.BinaryBuild)
+                                        and not isinstance (p, toolsbuild.ToolsBuild))]
     
-    sdk_names = [s.name () for s in sdk_packs]
-    cross_names = [s.name () for s in cross_packs]
+    sdk_names = [s.platform_name () for s in sdk_packs]
+    cross_names = [s.platform_name () for s in cross_packs]
     for p in other_packs:
         old_callback = p.get_build_dependencies
         p.get_build_dependencies = misc.MethodOverrider (old_callback,
@@ -80,7 +83,7 @@ def get_cross_packages (settings):
 
 def get_build_dependencies (settings):
     mod = get_cross_module (settings)
-    return mod.get_cross_build_dependencies (settings)
+    return [misc.with_platform (n, settings.platform) for n in mod.get_cross_build_dependencies (settings)]
 
 def setup_linux_x86 (package, env={'PATH': os.environ['PATH']}):
     '''Hack for using 32 bit compiler on linux-64.

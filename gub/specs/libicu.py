@@ -10,7 +10,6 @@ class Libicu (targetbuild.TargetBuild):
     patches = ['libicu-3.8.1-cross.patch']
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
-        print 'FIXME: serialization:', __file__, ': version'
         source._version = '3.8.1'
     def stages (self):
         return misc.list_insert_before (targetbuild.TargetBuild.stages (self),

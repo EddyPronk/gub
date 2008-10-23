@@ -8,7 +8,7 @@ from gub import repository
 from gub import targetbuild
 from gub import toolsbuild
 
-def get_build_from_file (settings, file_name, name):
+def get_build_from_file (platform, file_name, name):
     gub_name = file_name.replace (os.getcwd () + '/', '')
     logging.info ('reading spec: %(gub_name)s\n' % locals ())
     module = misc.load_module (file_name, name)
@@ -19,12 +19,12 @@ def get_build_from_file (settings, file_name, name):
                   .replace ('-', '_')
                   .replace ('++', '_xx_')
                   .replace ('+', '_x_')
-                  + ('-' + settings.platform).replace ('-', '__'))
+                  + ('-' + platform).replace ('-', '__'))
     logging.debug ('LOOKING FOR: %(class_name)s\n' % locals ())
     return misc.most_significant_in_dict (module.__dict__, class_name, '__')
 
-def get_build_class (settings, flavour, name):
-    cls = get_build_from_module (settings, name)
+def get_build_class (platform, flavour, name):
+    cls = get_build_from_module (platform, name)
     if not cls:
         logging.harmless ('making spec:  %(name)s\n' % locals ())
         cls = get_build_without_module (flavour, name)
@@ -33,7 +33,7 @@ def get_build_class (settings, flavour, name):
 def get_build_from_module (settings, name):
     file = get_build_module (settings, name)
     if file:
-        return get_build_from_file (settings, file, name)
+        return get_build_from_file (settings.platform, file, name)
     return None
 
 def get_build_module (settings, name):

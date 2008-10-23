@@ -25,6 +25,9 @@ specified by applications.'''
         targetbuild.TargetBuild.__init__ (self, settings, source)
         #self.with_vc (repository.Git (self.get_repodir (), source="git://anongit.freedesktop.org/git/fontconfig", revision=fc_version))
 
+    def patch (self):
+        self.dump ('\nAC_SUBST(LT_AGE)', '%(srcdir)s/configure.in', mode='a', permissions=0755)
+        targetbuild.TargetBuild.patch (self)
 
     @context.subst_method
     def freetype_cflags (self):

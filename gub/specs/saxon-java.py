@@ -4,7 +4,6 @@ class Saxon_java (build.BinaryBuild):
     source = 'http://surfnet.dl.sourceforge.net/sourceforge/saxon/saxonb9-1-0-2j.zip'
     def __init__ (self, settings, source):
         build.BinaryBuild.__init__ (self, settings, source)
-        print 'FIXME: serialization:', __file__, ': strip-components'
         source._version = '9.1.0.2j'
     def untar (self):
         build.BinaryBuild.untar (self)

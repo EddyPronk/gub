@@ -22,6 +22,7 @@ from gub import locker
 from gub import logging
 from gub import loggedos
 from gub import misc
+import gub.settings
 from gub import targetbuild
 
 class GupException (Exception):
@@ -261,7 +262,8 @@ class PackageDictManager:
         return self._packages.values ()
 
     def is_installable (self, name):
-        d = self._packages[name]
+        #d = self._packages[name]
+        d = self.package_dict (name)
         ball = '%(split_ball)s' % d
         hdr = '%(split_hdr)s' % d
         return os.path.exists (ball) and os.path.exists (hdr)
@@ -413,15 +415,15 @@ def get_base_package_name (name):
     name = re.sub ('-doc$', '', name)
     return name
 
-def get_source_packages (settings, todo):
+def get_source_packages (settings, const_todo):
     """TODO is a list of (source) builds.
 
     Generate a list of UnixBuild needed to build TODO, in
     topological order
     """
 
-    # don't confuse callers by not modifying argument
-    todo = todo[:]
+    # Do not confuse caller, do not modify caller's todo
+    todo = const_todo[:]
 
     cross_packages = cross.get_cross_packages (settings)
     spec_dict = dict ((p.name (), p) for p in cross_packages)
@@ -432,28 +434,36 @@ def get_source_packages (settings, todo):
     else:
         todo += cross.get_build_dependencies (settings)
 
+    sets = {settings.platform: settings}
+
+    def with_platform (s, platform=settings.platform):
+        return misc.with_platform (s, platform)
+
+    def split_platform (u):
+        return misc.split_platform (u, settings.platform)
+
     def name_to_dependencies_via_gub (url):
-        # ugh ugh ugh
-        
+        platform, url = split_platform (url)
         if ':' in url:
-            base, unused_parameters = misc.dissect_url(url)
-            name = os.path.basename(base)
-            name = re.sub('\..*', '', name)
+            base, unused_parameters = misc.dissect_url (url)
+            name = os.path.basename (base)
+            name = re.sub ('\..*', '', name)
             key = url
         else:
-            # ugh.
-            name = url
+            name = get_base_package_name (url)
             url = None
-            name = get_base_package_name (name)
             key = name
             
-        if spec_dict.has_key (name):
-            spec = spec_dict[name]
+        key = with_platform (key, platform)
+        if spec_dict.has_key (key):
+            spec = spec_dict[key]
         else:
-            spec = dependency.Dependency (settings, name, url).build ()
+            if not sets.has_key (platform):
+                sets[platform] = gub.settings.Settings (platform)
+            spec = dependency.Dependency (sets[platform], name, url).build ()
             spec_dict[key] = spec
             
-        return map (get_base_package_name, spec.get_build_dependencies ())
+        return map (get_base_package_name, spec.get_platform_build_dependencies ())
 
     def name_to_dependencies_via_distro (distro_packages, name):
         if spec_dict.has_key (name):
@@ -464,7 +474,7 @@ def get_source_packages (settings, todo):
             else:
                 spec = distro_packages[name]
             spec_dict[name] = spec
-        return spec.get_build_dependencies ()
+        return spec.get_platform_build_dependencies ()
 
     def name_to_dependencies_via_cygwin (name):
         return name_to_dependencies_via_distro (cygwin.get_packages (), name)
@@ -483,44 +493,31 @@ def get_source_packages (settings, todo):
         name_to_deps = name_to_dependencies_via_debian
 
     spec_names = topologically_sorted (todo, {}, name_to_deps)
-    spec_dict = dict ((n, spec_dict[n]) for n in spec_names)
+    plain_spec_dict = dict ((n, spec_dict.get (n, with_platform (n))) for n in spec_names)
+#    spec_dict = plain_spec_dict
 
     # Fixup for build from url: spec_dict key is full url,
     # change to base name
     # must use list(dict.keys()), since dict changes during iteration.
-    for name in list (spec_dict.keys ()):
+    for name in (): #list (spec_dict.keys ()):
         spec = spec_dict[name]
-        if name != spec.name ():
+        ps = with_platform (spec.name ())
+        if name != spec.name:
             spec_dict[spec.name ()] = spec
 
     cross.set_cross_dependencies (spec_dict)
 
     if settings.is_distro:
         def obj_to_dependency_objects (obj):
-            return [spec_dict[n] for n in obj.get_build_dependencies ()]
+            return [spec_dict[n] for n in obj.get_platform_build_dependencies ()]
     else:
         def obj_to_dependency_objects (obj):
             return [spec_dict[get_base_package_name (n)]
-                    for n in obj.get_build_dependencies ()]
+                    for n in obj.get_platform_build_dependencies ()]
 
     sorted_specs = topologically_sorted (spec_dict.values (), {},
                                          obj_to_dependency_objects)
 
     # Make sure we build dependencies in order
-    sorted_names = [o.name () for o in sorted_specs]
+    sorted_names = [o.platform_name () for o in sorted_specs]
     return (sorted_names, spec_dict)
-
-def get_target_manager (settings):
-    target_manager = DependencyManager (settings.system_root)
-    return target_manager
-
-def add_packages_to_manager (target_manager, settings, package_object_dict):
-    
-    ## Ugh, this sucks: we now have to have all packages
-    ## registered at the same time.
-    
-    for spec in package_object_dict.values ():
-        for package in spec.get_packages ():
-            target_manager.register_package_dict (package.dict ())
-
-    return target_manager

@@ -236,7 +236,6 @@ realclean:
 # compilers and tools
 
 tools +=\
- automake\
  distcc\
  expat\
  flex\
