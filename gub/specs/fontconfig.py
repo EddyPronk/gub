@@ -33,21 +33,28 @@ specified by applications.'''
     def freetype_cflags (self):
         # this is shady: we're using the flags from the tools version
         # of freetype.
-        
+
         base_config_cmd = self.settings.expand ('%(tools_prefix)s/bin/freetype-config')
         cmd =  base_config_cmd + ' --cflags'
         logging.command ('pipe %s\n' % cmd)
-        return misc.read_pipe (cmd).strip ()
+
+        # ugh, this is utterly broken.  we're reading from the
+        # filesystem init time, when freetype-config does not exist
+        # yet.
+        
+        # return misc.read_pipe (cmd).strip ()
+        return '-I%(system_prefix)s/usr/include/freetype2'
 
     @context.subst_method
     def freetype_libs (self):
         base_config_cmd = self.settings.expand ('%(tools_prefix)s/bin/freetype-config')
         cmd =  base_config_cmd + ' --libs'
         logging.command ('pipe %s\n' % cmd)
-        return misc.read_pipe (cmd).strip ()
+        # return misc.read_pipe (cmd).strip ()
+        return '-lfreetype -lz'
 
     def get_build_dependencies (self):
-        return ['libtool', 'expat-devel', 'freetype-devel']
+        return ['libtool', 'expat-devel', 'freetype-devel', 'tools::freetype', 'tools::git']
 
     def get_dependency_dict (self):
         return {'': ['expat', 'freetype', 'libtool']}
@@ -148,21 +155,6 @@ class Fontconfig__linux (Fontconfig):
 class Fontconfig__freebsd (Fontconfig__linux):
     pass
 
-class Fontconfig__tools (toolsbuild.ToolsBuild):
-    # FIXME: use mi to get to source?
-    source = 'git://anongit.freedesktop.org/git/fontconfig?revision=' + version
-    
-    def get_build_dependencies (self):
-        return ['libtool', 'freetype', 'expat']
-
-    def compile_command (self):
-        return (toolsbuild.ToolsBuild.compile_command (self)
-                + ' DOCSRC="" ')
-
-    def install_command (self):
-        return (toolsbuild.ToolsBuild.install_command (self)
-                + ' DOCSRC="" ')
-
 class Fontconfig__cygwin (Fontconfig):
     source = mirrors.with_template (name='fontconfig', mirror=mirrors.fontconfig, version='2.4.1')
     def __init__ (self, settings, source):
@@ -209,3 +201,18 @@ rm -f /usr/X11R6/bin/fontconfig-config
         self.dump (postinstall,
                    '%(install_root)s/etc/postinstall/%(name)s',
                    env=locals ())
+
+class Fontconfig__tools (toolsbuild.ToolsBuild):
+    # FIXME: use mi to get to source?
+    source = 'git://anongit.freedesktop.org/git/fontconfig?revision=' + version
+    
+    def get_build_dependencies (self):
+        return ['libtool', 'freetype', 'expat']
+
+    def compile_command (self):
+        return (toolsbuild.ToolsBuild.compile_command (self)
+                + ' DOCSRC="" ')
+
+    def install_command (self):
+        return (toolsbuild.ToolsBuild.install_command (self)
+                + ' DOCSRC="" ')
