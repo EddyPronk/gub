@@ -32,7 +32,13 @@ class Nsis (toolsbuild.ToolsBuild):
         
     def __init__ (self, settings, source):
         toolsbuild.ToolsBuild.__init__ (self, settings, source)
-        if 'x86_64-linux' in self.settings.build_architecture:
+# ugh, no object yet?
+#  File "gub/cross.py", line 121, in setup_linux_x86
+#    package.func (defer_compiler_checks)
+#  File "gub/context.py", line 228, in func
+#    return self.runner.func (f, *args)
+#AttributeError: 'NoneType' object has no attribute 'func'
+        if False and 'x86_64-linux' in self.settings.build_architecture:
             cross.setup_linux_x86 (self, self.add_mingw_env ())
         
     def get_build_dependencies (self):
@@ -69,6 +75,8 @@ Export('defenv')
         return self.add_mingw_env ()
     
     def compile (self):
+        if 'x86_64-linux' in self.settings.build_architecture:
+            cross.setup_linux_x86 (self, self.add_mingw_env ())
         self.system ('cd %(builddir)s/ && %(compile_command)s',
                      self.build_environment ())
 
