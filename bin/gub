@@ -261,7 +261,7 @@ def main ():
     logging.default_logger.threshold = options.verbosity
 
     if not options.platform and len (files) == 1:
-        options.platform, x = misc.split_platform (files[1])
+        options.platform, x = misc.split_platform (files[0])
 
     if not options.platform:
         logging.error ('errror: platform not specied\n')
