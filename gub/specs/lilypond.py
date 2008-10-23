@@ -65,7 +65,18 @@ class LilyPond (targetbuild.TargetBuild):
                 'guile-devel',
                 'pango-devel',
                 'python-devel',
-                'urw-fonts']
+                'urw-fonts',
+                'tools::autoconf',
+                'tools::flex',
+                'tools::bison',
+                'tools::texinfo', # nonstandard
+                'tools::fontforge',
+                'tools::pkg-config', # nonstandard (MacOS)
+                'tools::netpbm', # website
+                'tools::gettext', # AM_GNU_GETTEXT
+                'tools::git' # possibly too old.  Automate this, by
+                             # looking at self.source.[Git]?
+                ]
 
     def stages (self):
         return misc.list_insert_before (targetbuild.TargetBuild.stages (self),
@@ -295,7 +306,7 @@ class LilyPond__mingw (LilyPond):
         return d
 
     def get_build_dependencies (self):
-        return LilyPond.get_build_dependencies (self) + ['lilypad']
+        return LilyPond.get_build_dependencies (self) + ['lilypad', 'tools::icoutils', 'tools::nsis']
 
     ## ugh c&p
     def compile_command (self):
