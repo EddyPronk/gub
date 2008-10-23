@@ -286,6 +286,7 @@ class ForcedAutogenMagic (SerializedCommand):
         elif os.path.exists (os.path.join (autodir, 'bootstrap.sh')):
             self.system (package.expand ('cd %(autodir)s && ./bootstrap.sh', locals ()), logger)
         elif os.path.exists (os.path.join (autodir, 'autogen.sh')):
+            s = ''
             s = file (package.expand ('%(autodir)s/autogen.sh', locals ())).read ()
             noconfigure = ' --help'
             if '--noconfigure' in s:

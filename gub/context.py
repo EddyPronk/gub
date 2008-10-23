@@ -146,9 +146,12 @@ class Context:
                     if type (v) == str:
                         d.update ({k: v % d})
                 except:
-                    msg = 'Error substituting in %s with %s' % (repr(v),
-                                                                repr(k))
-                    raise NonStringExpansion(msg)
+                    repr_v = repr (v)
+                    repr_k = repr (k)
+                    type_v = type (v)
+                    type_k = type (k)
+                    msg = 'Error substituting in %(repr_v)s(%(type_v)s) with %(repr_k)s(%(type_k)s)' % locals ()
+                    raise NonStringExpansion (msg)
         return d
     
     def expand (self, s, env={}):
