@@ -43,7 +43,6 @@ class Expat__linux__arm__vfp (Expat):
         targetbuild.TargetBuild.patch (self)
 
 class Expat__tools (toolsbuild.ToolsBuild):
-    def patch (self):
-        self.apply_patch ('expat-1.95.8-mingw.patch')
+    patches = ['expat-1.95.8-mingw.patch']
     def get_build_dependencies (self):
         return ['libtool']
