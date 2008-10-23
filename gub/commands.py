@@ -282,17 +282,16 @@ class ForcedAutogenMagic (SerializedCommand):
         if not autodir:
             autodir = package.expand ('%(srcdir)s')
         if os.path.exists (os.path.join (autodir, 'bootstrap')):
-            self.system (package.expand ('cd %(autodir)s && ./bootstrap', locals ()), logger)
+            self.system ('cd %(autodir)s && ./bootstrap' % locals (), logger)
         elif os.path.exists (os.path.join (autodir, 'bootstrap.sh')):
-            self.system (package.expand ('cd %(autodir)s && ./bootstrap.sh', locals ()), logger)
+            self.system ('cd %(autodir)s && ./bootstrap.sh' % locals (), logger)
         elif os.path.exists (os.path.join (autodir, 'autogen.sh')):
-            s = ''
-            s = file (package.expand ('%(autodir)s/autogen.sh', locals ())).read ()
+            s = file ('%(autodir)s/autogen.sh' % locals ()).read ()
             noconfigure = ' --help'
             if '--noconfigure' in s:
                 noconfigure = ' --noconfigure' + noconfigure
-            self.system (package.expand ('cd %(autodir)s && NOCONFIGURE=1 bash autogen.sh %(noconfigure)s',
-                                         locals ()), logger)
+            self.system ('cd %(autodir)s && NOCONFIGURE=1 bash autogen.sh %(noconfigure)s' % locals (),
+                         logger)
         else:
             libtoolize = misc.path_find (os.environ['PATH'], 'libtoolize')
             if libtoolize:
@@ -304,8 +303,8 @@ class ForcedAutogenMagic (SerializedCommand):
                 if (os.path.isdir (os.path.join (autodir, 'ltdl'))
                     or os.path.isdir (os.path.join (autodir, 'libltdl'))):
                     libtoolize += ' --ltdl'
-                self.system (package.expand ('rm -rf %(autodir)s/libltdl %(autodir)s/ltdl && (cd %(autodir)s && %(libtoolize)s',
-                                             locals ()), logger)
+                self.system ('rm -rf %(autodir)s/libltdl %(autodir)s/ltdl && (cd %(autodir)s && %(libtoolize)s'
+                             % locals (), logger)
             aclocal_opt = ''
             if os.path.exists (package.expand ('%(system_prefix)s/share/aclocal')):
                 aclocal_opt = '-I %(system_prefix)s/share/aclocal'
@@ -313,23 +312,23 @@ class ForcedAutogenMagic (SerializedCommand):
             headcmd = ''
             for c in ('configure.in','configure.ac'):
                 try:
-                    str = open (package.expand ('%(autodir)s/' + c, locals ())).read ()
+                    str = file ('%(autodir)s/%(c)s' % locals ()).read ()
                     m = re.search ('A[CM]_CONFIG_HEADER', str)
                     str = 0   ## don't want to expand str
                     if m:
-                        headcmd = package.expand ('cd %(autodir)s && autoheader %(aclocal_opt)s', locals ())
+                        headcmd = 'cd %(autodir)s && autoheader %(aclocal_opt)s' % locals ()
                         break
 
                 except IOError:
                     pass
 
-            self.system (package.expand ('''
+            self.system ('''
 cd %(autodir)s && aclocal %(aclocal_opt)s
 %(headcmd)s
 cd %(autodir)s && autoconf %(aclocal_opt)s
-''', locals ()), logger)
-            if os.path.exists (package.expand ('%(srcdir)s/Makefile.am')):
-                self.system (package.expand ('cd %(srcdir)s && automake --add-missing --copy --foreign', locals ()), logger)
+''' % locals (), logger)
+            if os.path.exists ('%(autodir)s/Makefile.am' % locals ()):
+                self.system ('cd %(autodir)s && automake --add-missing --copy --foreign' % locals (), logger)
 
 class AutogenMagic (ForcedAutogenMagic):
     def execute (self, logger):
