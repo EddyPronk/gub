@@ -307,7 +307,7 @@ class ForcedAutogenMagic (SerializedCommand):
                              % locals (), logger)
             aclocal_opt = ''
             if os.path.exists (package.expand ('%(system_prefix)s/share/aclocal')):
-                aclocal_opt = '-I %(system_prefix)s/share/aclocal'
+                aclocal_opt = package.expand ('-I %(system_prefix)s/share/aclocal')
 
             headcmd = ''
             for c in ('configure.in','configure.ac'):
