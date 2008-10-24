@@ -132,7 +132,7 @@ class MapLocate (SerializedCommand):
             
         for file_name in files:
             if not self.silent:
-                logger.write_log ('Applying %(func)s () to %(file_name)s\n', 'action')
+                logger.write_log ('Applying %(func)s () to %(file_name)s\n' % locals (), 'action')
             self.func (logger, file_name)
 
     def checksum (self, hasher):
