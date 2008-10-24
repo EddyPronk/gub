@@ -32,8 +32,9 @@ install:
         pass
 
     def makeflags (self):
-        return ' SCRIPT_PERL= '
-                
+        # FIXME: why are C_INCLUDE_PATH, LIBRARY_PATH not in env dict?
+        return 'V=1 SCRIPT_PERL= C_INCLUDE_PATH=%(system_prefix)s/include LIBRARY_PATH=%(system_prefix)s/lib'
+
 class Git (targetbuild.TargetBuild):
 
     # TODO: where should this go?
