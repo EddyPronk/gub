@@ -7,8 +7,15 @@ from gub import loggedos
 
 class ToolsBuild (build.UnixBuild):
     def configure_command (self):
+        # FIXME: why is C_INCLUDE_PATH and LIBRARY_PATH from dict not
+        # working, or not being picked-up by configure?
         return (build.UnixBuild.configure_command (self)
-                + ' --prefix=%(tools_prefix)s')
+                + misc.join_lines ('''
+--prefix=%(tools_prefix)s
+CFLAGS=-I%(system_prefix)s/include
+LDFLAGS=-L%(system_prefix)s/lib
+LD_LIBRARY_PATH=%(system_prefix)s/lib
+'''))
 
     ## ugh: prefix= will trigger libtool relinks.
     def install_command (self):
