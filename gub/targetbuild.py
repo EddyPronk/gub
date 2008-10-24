@@ -156,6 +156,7 @@ cd %(builddir)s && chmod +x %(configure_binary)s && %(configure_command_native)s
 #            'LDFLAGS': '-L%(system_prefix)s/lib -L%(system_prefix)s/bin -L%(system_prefix)s/lib/w32api',
             'LDFLAGS': '',
             'LD': '%(toolchain_prefix)sld',
+            'LD_LIBRARY_PATH': '%(tools_prefix)s/lib', # prepend to os.environ[]?
             'NM': '%(toolchain_prefix)snm',
             'PKG_CONFIG_PATH': '%(system_prefix)s/lib/pkgconfig',
             'PATH': '%(cross_prefix)s/bin:%(toolchain_prefix)s/bin:' + os.environ['PATH'],
