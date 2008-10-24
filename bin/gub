@@ -211,6 +211,12 @@ def build (settings, options, files):
             sys.exit (0)
         raise
 
+    if options.force_package:
+        for spec in specs.values ():
+            status = spec.expand ('%(stamp_file)s')
+            if os.path.exists (status):
+                os.unlink (status)
+
     b = buildrunner.BuildRunner (manager, settings, specs)
 
     # better in ctor?
@@ -240,17 +246,17 @@ def exceptional_build (settings, options, files, logger):
         logger.dump_tail (sys.stderr)
         sys.stderr.write(misc.exception_string (e))
     else:
-        logger.write_log ('done\n', 'info')
+        logger.write_log ('done\n', 'stage')
         
     return status
 
 
 def logged_build (settings, options, files):
     logger = logging.set_default_log (settings.expand ('%(logdir)s/build.log'),
-                                       options.verbosity)
+                                      options.verbosity)
     
-    logger.write_log ('root: %s\n' % settings.system_root, 'info')
-    logger.write_log ('platform: %s\n' % settings.platform, 'info')
+    logger.write_log ('root: %s\n' % settings.system_root, 'verbose')
+    logger.write_log ('platform: %s\n' % settings.platform, 'verbose')
 
     sys.exit (exceptional_build (settings, options, files, logger))
 
