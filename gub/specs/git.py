@@ -56,7 +56,8 @@ class Git (targetbuild.TargetBuild):
     def get_build_dependencies (self):
         return ['zlib-devel',
                 'regex-devel',
-                'libiconv-devel'
+                'libiconv-devel',
+                'tools::autoconf',
                 ]
 
     def patch (self):
