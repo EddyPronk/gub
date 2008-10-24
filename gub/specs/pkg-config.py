@@ -1,6 +1,6 @@
 from gub import toolsbuild
 
-class Pkg_config (toolsbuild.ToolsBuild):
+class Pkg_config__tools (toolsbuild.ToolsBuild):
     def get_build_dependencies (self):
         return ['libtool']
     def configure (self):
