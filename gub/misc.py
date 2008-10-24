@@ -206,14 +206,15 @@ def download_url (original_url, dest_dir,
                   fallback=['http://lilypond.org/download/gub-sources'],
                   progress=sys.stderr.write):
 
-    assert type(local) == list
-    assert type(fallback) == list
+    assert type (local) == list
+    assert type (fallback) == list
 
     candidate_urls = []
     for url in local + [original_url] + fallback:
-        candidate_urls.append(url)
+        if url and not url.endswith ('gub-sources'):
+            candidate_urls.append (url)
         if not is_ball (os.path.basename (url)):
-            candidate_urls.append(rewrite_url (original_url, url))
+            candidate_urls.append (rewrite_url (original_url, url))
 
     for url in candidate_urls:
         size = _download_url (url, dest_dir, progress)
