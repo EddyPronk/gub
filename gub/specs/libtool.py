@@ -19,8 +19,8 @@ collect2: ld returned 1 exit status
 '''
 
 class Libtool (targetbuild.TargetBuild):
-    #source = 'ftp://ftp.gnu.org/pub/gnu/libtool/libtool-1.5.22.tar.gz'
-    source = 'ftp://ftp.gnu.org/pub/gnu/libtool/libtool-1.5.26.tar.gz'
+    source = 'ftp://ftp.gnu.org/pub/gnu/libtool/libtool-1.5.22.tar.gz'
+    #source = 'ftp://ftp.gnu.org/pub/gnu/libtool/libtool-1.5.26.tar.gz'
     #source = 'ftp://ftp.gnu.org/pub/gnu/libtool/libtool-2.2.6a.tar.gz'
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
@@ -71,6 +71,13 @@ class Libtool__tools (toolsbuild.ToolsBuild):
         Libtool.set_sover (self)
     def configure (self):
         build.UnixBuild.configure (self)
+    def install (self):
+        toolsbuild.ToolsBuild.install (self)
+        # FIXME: urg.  Are we doing something wrong?  Why does libtool
+        # ignore [have /usr prevail over] --prefix ?
+        self.file_sub ([(' (/usr/lib/*[" ])', r' %(system_prefix)s/lib \1'),
+                        ('((-L| )/usr/lib/../lib/* )', r'\2%(system_prefix)s/lib \1')],
+                       '%(install_root)s/%(system_prefix)s/bin/libtool')
     def wrap_executables (self):
         # The libtool script calls the cross compilers, and moreover,
         # it is copied.  Two reasons why it cannot be wrapped.
