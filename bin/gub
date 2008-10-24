@@ -24,6 +24,8 @@ def argv0_relocation ():
     import os, sys
     bindir = os.path.dirname (sys.argv[0])
     prefix = os.path.dirname (bindir)
+    if not prefix:
+        prefix = '../'
     sys.path.insert (0, prefix)
 
 argv0_relocation ()
@@ -254,6 +256,12 @@ def logged_build (settings, options, files):
 
     
 def main ():
+    # FIXME: pydb hack.  TODO: make gub run not from srcdir
+    bindir = os.path.dirname (sys.argv[0])
+    gubdir = os.path.dirname (bindir)
+    if gubdir:
+        os.chdir (gubdir)
+
     cli_parser = get_cli_parser ()
     (options, files) = cli_parser.parse_args ()
     options.verbosity -= options.quiet

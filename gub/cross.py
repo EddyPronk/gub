@@ -65,12 +65,13 @@ def get_cross_module (settings):
         return cross_module_cache[platform]
 
     base = re.sub ('[-0-9].*', '', platform)
+    gubdir = settings.gubdir
     for name in platform, base:
-        file_name = 'gub/%(name)s.py' % locals ()
+        file_name = '%(gubdir)s/gub/%(name)s.py' % locals ()
         if os.path.exists (file_name):
             break
 
-    logging.info ('module-name: ' + file_name + '\n')
+    logging.info ('module name: ' + name + '\n')
     module = misc.load_module (file_name, base)
 
     cross_module_checksums[platform] = md5.md5 (open (file_name).read ()).hexdigest ()
