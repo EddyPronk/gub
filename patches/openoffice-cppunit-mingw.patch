@@ -1,0 +1,20 @@
+--- cppunit/source/win32/makefile.mk.pristine	2008-10-24 17:35:48.000000000 +0200
++++ cppunit/source/win32/makefile.mk	2008-10-24 17:35:59.000000000 +0200
+@@ -47,6 +47,7 @@ SLOFILES = \
+ #-------------------------------------------------------------------------------
+ # This is a static lib
+ LIB1TARGET= $(LB)$/$(TARGET).lib
++LIB1ARCHIV= $(LB)$/lib$(TARGET)$(DLLPOSTFIX).a
+ LIB1OBJFILES= \
+ 	$(SLOFILES)
+ 
+--- cppunit/source/win32/winstuff.cxx.pristine	2008-10-23 08:56:35.000000000 +0200
++++ cppunit/source/win32/winstuff.cxx	2008-10-24 17:37:53.000000000 +0200
+@@ -40,7 +40,6 @@
+ #if defined _MSC_VER
+ #pragma warning(pop)
+ #endif 
+-#include <MAPIWin.h>
+ 
+ void WinDebugBreak()
+ {

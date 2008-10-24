@@ -205,10 +205,6 @@ cd %(builddir)s/build/%(cvs_tag)s && patch -p%(patch_strip_component)s < %(patch
         # java go away
         self.system ('sed -i -e "s@[ \t]all@ i@g" %(upstream_dir)s/sandbox/prj/build.lst')
 
-
-        # OO.o's included cppunit has build problems, but there's no --with-system-cppunit
-        # self.system ('sed -i -e "s@[ \t]\(all\|n\)[ \t]@ i @g" %(upstream_dir)s/cppunit/prj/build.lst')
-
     def makeflags (self):
         return misc.join_lines ('''
 CC_FOR_BUILD=cc
@@ -223,7 +219,7 @@ SOLAR_JAVA=TRUE
 ##CPPFLAGS=
                 
 class Openoffice__mingw (Openoffice):
-    Openoffice.upstream_patches += ['openoffice-config_office-mingw.patch', 'openoffice-soltools-mingw.patch', 'openoffice-sal-mingw.patch', 'openoffice-external-mingwheaders.patch']
+    Openoffice.upstream_patches += ['openoffice-config_office-mingw.patch', 'openoffice-soltools-mingw.patch', 'openoffice-sal-mingw.patch', 'openoffice-external-mingwheaders.patch', 'openoffice-cppunit-mingw.patch']
     # external/mingwheaders seems a badly misguided effort.  It
     # patches header files and is thus strictly tied to a gcc version;
     # that can never build.  How can patching header files ever work,
