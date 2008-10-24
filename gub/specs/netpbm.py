@@ -15,6 +15,9 @@ class Netpbm (toolsbuild.ToolsBuild):
             module='stable',
             revision="172")
 
+    def get_build_dependencies (self):
+        return ['libjpeg'] # libtiff-dev libx11-dev
+
     def configure (self):
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
         self.dump ('\n'*3 + 'static\n' + '\n'*18, '%(builddir)s/answers')

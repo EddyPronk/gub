@@ -1,13 +1,9 @@
 from gub import toolsbuild
-from gub import sources
-from gub import mirrors
 
-class Flex (toolsbuild.ToolsBuild):
-    source = sources.join (sources.sf, 'flex/flex-2.5.33.tar.gz')
-    auto_source = mirrors.with_template (name='flex', version="2.5.4a",
-                   mirror=mirrors.sf, format='gz'),
-    def srcdir (self):
-        return '%(allsrcdir)s/flex-2.5.4'
+class Flex__tools (toolsbuild.ToolsBuild):
+    source = 'http://surfnet.dl.sourceforge.net/sourceforge/flex/flex-2.5.33.tar.gz'
+    def get_build_dependencies (self):
+        return ['bison']
     def install_command (self):
         return self.broken_install_command ()
     def packaging_suffix_dir (self):

@@ -7,7 +7,7 @@ class Expat (targetbuild.TargetBuild):
     source = mirrors.with_template (name='expat', version='1.95.8', mirror=mirrors.sf, format='gz')
 
     def get_build_dependencies (self):
-        return ['libtool']
+        return ['libtool', 'tools::expat']
 
     def patch (self):
         self.system ("rm %(srcdir)s/configure")
