@@ -12,12 +12,17 @@ import fnmatch
 def join_lines (str):
     return str.replace ('\n', ' ')
 
+modules = {}
+
 def load_module (file_name, name=None):
     if not name:
         name = os.path.split (os.path.basename (file_name))[0]
-    file = open (file_name)
-    desc = ('.py', 'U', 1)
-    return imp.load_module (name, file, file_name, desc)
+    key = name + '::' + file_name
+    if not modules.has_key (key):
+        file = open (file_name)
+        desc = ('.py', 'U', 1)
+        modules[key] = imp.load_module (name, file, file_name, desc)
+    return modules[key]
 
 def load_spec (spec_file_name):
     # FIXME: should use settings.specdir
