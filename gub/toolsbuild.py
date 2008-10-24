@@ -1,8 +1,8 @@
-from gub import misc
 import os
 import re
-
+#
 from gub import build
+from gub import misc
 from gub import loggedos
 
 class ToolsBuild (build.UnixBuild):
@@ -55,10 +55,15 @@ LD_LIBRARY_PATH=%(system_prefix)s/lib
 
     def get_substitution_dict (self, env={}):
         dict = {
-            'C_INCLUDE_PATH': '%(toolchain_prefix)s/include',
-            'LIBRARY_PATH': '%(toolchain_prefix)s/lib',
-            'CPLUS_INCLUDE_PATH': '%(toolchain_prefix)s/include',
-            'LD_LIBRARY_PATH': '%(toolchain_prefix)s/lib',
+            'C_INCLUDE_PATH': '%(system_prefix)s/include'
+            + misc.append_path (os.environ.get ('C_INCLUDE_PATH', '')),
+            'LIBRARY_PATH': '%(system_prefix)s/lib'
+            + misc.append_path (os.environ.get ('LIBRARY_PATH', '')),
+            'CPLUS_INCLUDE_PATH': '%(system_prefix)s/include'
+            + misc.append_path (os.environ.get ('CPLUS_INCLUDE_PATH', '')),
+            'LD_LIBRARY_PATH': '%(system_prefix)s/lib'
+            + misc.append_path (os.environ.get ('LD_LIBRARY_PATH', '')),
+            'PATH': '%(system_prefix)s/bin:' + os.environ['PATH'],
         }
         dict.update (env)
         d = build.UnixBuild.get_substitution_dict (self, dict).copy ()

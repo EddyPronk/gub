@@ -514,6 +514,11 @@ def split_platform (u, platform=None):
         return u.split ('::')
     return platform, u
 
+def append_path (elt):
+    if elt:
+        return ':' + elt
+    return ''
+
 def test ():
     print forall (x for x in [1, 1])
     print dissect_url ('git://anongit.freedesktop.org/git/fontconfig?revision=1234')
