@@ -12,7 +12,7 @@ class ToolsBuild (build.UnixBuild):
 
     ## ugh: prefix= will trigger libtool relinks.
     def install_command (self):
-        return '''make DESTDIR=%(install_root)s install'''
+        return '''make %(makeflags)s DESTDIR=%(install_root)s install'''
 
     def install (self):
         build.UnixBuild.install (self)
@@ -33,7 +33,7 @@ LD_LIBRARY_PATH=%(system_prefix)s/lib
         self.map_locate (wrap, '%(install_root)s/%(tools_prefix)s/bin', '*')
 
     def compile_command (self):
-        return self.native_compile_command ()
+        return self.native_compile_command () + ' %(makeflags)s'
 
     ## we need to tar up %(install_root)/%(prefix)
     def packaging_suffix_dir (self):
