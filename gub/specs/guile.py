@@ -330,7 +330,7 @@ class Guile__tools (toolsbuild.ToolsBuild, Guile):
     def get_build_dependencies (self):
         return (toolsbuild.ToolsBuild.get_build_dependencies (self)
                 + Guile.get_build_dependencies (self)
-                + ['autoconf', 'automake', 'gettext', 'libtool'])
+                + ['autoconf', 'automake', 'gettext', 'libtool', 'git'])
 
     def patch (self):
         self.autogen_sh ()
