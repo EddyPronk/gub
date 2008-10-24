@@ -18,8 +18,9 @@ class Db (targetbuild.TargetBuild):
     def configure (self):
         self.system ('mkdir -p %(builddir)s/build_unix')
         targetbuild.TargetBuild.configure (self)
-        self.system ('sed -i -e "s@/(prefix)docs@/(prefix)/share/doc/gb@" %(builddir)s/build_unix/Makefile')
-        self.system ('sed -i -e "s/^	@/	/" %(builddir)s/build_unix/Makefile')
+        self.file_sub ([('\(prefix\)docs', '\(prefix\)/share/doc/db'),
+                        ('^	@', '	/')],
+                        '%(builddir)s/build_unix/Makefile')
     def install (self):
         targetbuild.TargetBuild.install (self)
         self.system ('rm -f %(install_prefix)s/lib/libdb.{a,so{,.a},la}')
@@ -42,13 +43,14 @@ touch %(builddir)s/build_unix/netinet/in.h
 touch %(builddir)s/build_unix/netdb.h
 touch %(builddir)s/build_unix/arpa/inet.h
 ''')
-        self.system ('sed -i -e s@HAVE_VXWORKS@__MINGW32__@ %(builddir)s/build_unix/../os/os_mkdir.c')
-        self.system ('sed -i -e s@dbenv@env@ %(builddir)s/os/os_yield.c')
+        self.file_sub ([('HAVE_VXWORKS', '__MINGW32__')],
+                       '%(builddir)s/build_unix/../os/os_mkdir.c')
+        self.file_sub ([('dbenv', 'env')], '%(builddir)s/os/os_yield.c')
     def configure (self):
         Db.configure (self)
         self.system ('echo "#undef fsync" >> %(builddir)s/build_unix/db_config.h')
         self.system ('echo "#define fsync _commit" >> %(builddir)s/build_unix/db_config.h')
-        self.system ('sed -i -e "s@[.]exe@@g" %(builddir)s/build_unix/Makefile')
+        self.file_sub ([('[.]exe', '')], '%(builddir)s/build_unix/Makefile')
     def configure_command (self):
         return (Db.configure_command (self)
                 + ' LDFLAGS=-lwsock32')
