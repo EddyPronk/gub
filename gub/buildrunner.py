@@ -69,7 +69,7 @@ class BuildRunner:
                 self.manager (package.platform ()).register_package_dict (package.dict ())
 
     def calculate_checksums (self):
-        logging.stage ('calculating checksums\n')
+        logging.verbose ('calculating checksums\n')
         for (name, spec) in self.specs.items ():
             logger = logging.NullCommandLogger ()
 
@@ -174,7 +174,7 @@ class BuildRunner:
         if checksum_fail_reason:
             logger.write_log ('checkum failed: %(spec_name)s\n' % locals (), 'stage')
         else:
-            logger.write_log ('checkum ok: %(spec_name)s\n' % locals (), 'harmless')
+            logger.write_log ('checkum ok: %(spec_name)s\n' % locals (), 'verbose')
 
         if logging.get_numeric_loglevel ('command') > logger.threshold:
             logger.write_log ('\n'.join (checksum_fail_reason.split ('\n')[:10]), 'command')
@@ -214,7 +214,6 @@ class BuildRunner:
 
     def build_source_packages (self, names):
         deps = filter (self.specs.has_key, names)
-
         self.uninstall_outdated_specs (deps)
         for spec_name in deps:
             self.spec_build (spec_name)

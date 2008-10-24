@@ -171,8 +171,7 @@ class FileManager:
             try:
                 os.rmdir (d)
             except OSError:
-                logging.harmless ('warning: %(d)s not empty\n'
-                                            % locals ())
+                logging.verbose ('warning: %(d)s not empty\n' % locals ())
         for f in lst:
             ## fixme (?)  -- when is f == ''
             if not f or f.endswith ('/'):
@@ -520,4 +519,7 @@ def get_source_packages (settings, const_todo):
 
     # Make sure we build dependencies in order
     sorted_names = [o.platform_name () for o in sorted_specs]
+    dep_str = ' '.join (sorted_names).replace (with_platform (''), '')
+    platform = settings.platform
+    logging.info ('dependencies[%(platform)s]: %(dep_str)s\n' % locals ())
     return (sorted_names, spec_dict)

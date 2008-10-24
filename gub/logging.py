@@ -18,11 +18,12 @@ name_to_loglevel_mapping = {'quiet': 0,
          'stage': 0,
          'info': 1,
          'harmless': 2,
+         'verbose': 2,
          'warning': 1,
-         'command': 2,
+         'command': 3,
          'action': 2,
-         'output': 3,
-         'debug': 4}
+         'output': 4,
+         'debug': 5}
 
 def now ():
     return time.asctime (time.localtime ())
@@ -58,7 +59,8 @@ class CommandLogger (AbstractCommandLogger):
 
         if log_file_name:
             if default_logger_interface:
-                default_logger_interface.info ('Opening log file: %s\n' % log_file_name)
+                relative_log_name = log_file_name.replace (os.getcwd () + '/', '')
+                default_logger_interface.info ('Log file: %(relative_log_name)s\n' % locals ())
             
             directory = os.path.split (log_file_name)[0]
             if not os.path.isdir (directory):
@@ -159,6 +161,9 @@ class LoggerInterface:
     def harmless (self, str):
         self.logger.write_log (str, 'harmless')
 
+    def verbose (self, str):
+        self.logger.write_log (str, 'verbose')
+
     def output (self, str):
         self.logger.write_log (str, 'output')
 
@@ -181,6 +186,7 @@ def set_default_log (name, level):
 default_logger_interface = LoggerInterface (default_logger)
 
 harmless = default_logger_interface.harmless
+verbose = default_logger_interface.verbose
 stage = default_logger_interface.stage
 action = default_logger_interface.action
 error = default_logger_interface.error

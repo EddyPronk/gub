@@ -10,7 +10,7 @@ from gub import toolsbuild
 
 def get_build_from_file (platform, file_name, name):
     gub_name = file_name.replace (os.getcwd () + '/', '')
-    logging.info ('reading spec: %(gub_name)s\n' % locals ())
+    logging.verbose ('reading spec: %(gub_name)s\n' % locals ())
     module = misc.load_module (file_name, name)
     # cross/gcc.py:Gcc will be called: cross/Gcc.py,
     # to distinguish from specs/gcc.py:Gcc.py
@@ -26,7 +26,7 @@ def get_build_from_file (platform, file_name, name):
 def get_build_class (settings, flavour, name):
     cls = get_build_from_module (settings, name)
     if not cls:
-        logging.harmless ('making spec:  %(name)s\n' % locals ())
+        logging.verbose ('making spec:  %(name)s\n' % locals ())
         cls = get_build_without_module (flavour, name)
     return cls
 

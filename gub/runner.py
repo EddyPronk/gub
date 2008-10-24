@@ -35,6 +35,9 @@ class CommandRunner:
         self.logger = logger
         self.fakeroot_cmd = False
 
+    def is_deferred (self):
+        return False
+
     def _execute (self, command):
         return command.execute (self.logger)
 
@@ -85,6 +88,9 @@ class CommandRunner:
 
     def harmless (self, str):
         self.log (str, 'harmless')
+
+    def verbose (self, str):
+        self.log (str, 'verbose')
     # end fixme
 
     def system (self, cmd, env={}, ignore_errors=False):
@@ -129,13 +135,17 @@ class DeferredRunner (CommandRunner):
         CommandRunner.__init__ (self, *args)
         self._deferred_commands = list ()
 
+    def is_deferred (self):
+        return True
+
     def execute_deferred_commands (self):
         commands = self._deferred_commands
         self._deferred_commands = []
         for cmd in commands:
             cmd.execute (self.logger)
 
-        print self._deferred_commands
+        if self._deferred_commands:
+            print '*** deferred leftovers:', self._deferred_commands
         assert self._deferred_commands == list ()
 
     def flush_deferred_commands (self):
@@ -154,5 +164,3 @@ class DeferredRunner (CommandRunner):
 
     def _execute (self, command):
         self._deferred_commands.append (command)
-
-    
