@@ -37,7 +37,7 @@ class Guile (targetbuild.TargetBuild):
             }
 
     def get_build_dependencies (self):
-        return ['gettext-devel', 'gmp-devel', 'libtool']
+        return ['gettext-devel', 'gmp-devel', 'libtool', 'tools::guile']
         
     # FIXME: C&P.
     def guile_version (self):
@@ -118,7 +118,6 @@ class Guile__mingw (Guile):
         Guile.__init__ (self, settings, source)
         # Configure (compile) without -mwindows for console
         self.target_gcc_flags = '-mms-bitfields'
-
 
     def get_build_dependencies (self):
         return Guile.get_build_dependencies (self) +  ['regex-devel']
@@ -331,7 +330,7 @@ class Guile__tools (toolsbuild.ToolsBuild, Guile):
     def get_build_dependencies (self):
         return (toolsbuild.ToolsBuild.get_build_dependencies (self)
                 + Guile.get_build_dependencies (self)
-                + ['automake'])
+                + ['autoconf', 'automake', 'gettext', 'libtool'])
 
     def patch (self):
         self.autogen_sh ()
