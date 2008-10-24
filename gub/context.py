@@ -159,10 +159,12 @@ class Context:
         try:
             e = s % d
         except KeyError, v:
-            print 'format-string =', s
+            print 'format string: >>>' + s + '<<<'
+            print 'self:', self
             raise v
         except ValueError, v:
-            print 'format-string =', s
+            print 'format string: >>>' + s + '<<<'
+            print 'self:', self
             raise v
         return e
 
