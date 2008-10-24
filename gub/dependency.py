@@ -60,10 +60,6 @@ def get_build_without_module (flavour, name):
     cls.__module__ = name
     return cls
 
-# JUNKME
-def get_build_spec (settings, dependency):
-    return Dependency (settings, dependency).build ()
-
 class Dependency:
     def __init__ (self, settings, name, url=None):
 
