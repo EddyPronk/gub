@@ -7,14 +7,8 @@ class Curl (targetbuild.TargetBuild):
         targetbuild.TargetBuild.install (self)
         self.system ('mkdir -p %(install_prefix)s%(cross_dir)s/bin')
         self.system ('cp %(install_prefix)s/bin/curl-config %(install_prefix)s%(cross_dir)s/bin/curl-config')
-        config_fixup (self)
-    @staticmethod
-    def config_fixup (self):
         self.file_sub ([('%(system_prefix)s', '%(prefix_dir)s@g')]
                        , '%(install_prefix)s/bin/curl-config')
 
 class Curl__tools (toolsbuild.ToolsBuild):
     source = Curl.source
-    def install (self):
-        toolsbuild.ToolsBuild.install (self)
-        Curl.config_fixup (self)
