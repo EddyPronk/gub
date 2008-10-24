@@ -7,6 +7,8 @@ class Raptor (targetbuild.TargetBuild):
     def get_build_dependencies (self):
         return ['expat-devel', 'libxml2-devel']
     def autoupdate (self):
+        self.file_sub ([('( |-I|-L)/usr', r'\1%(system_prefix)s')]
+                       , '%(srcdir)s/configure.ac')
         self.runner._execute (commands.ForcedAutogenMagic (self))
         return
 #        self.system ('cd %(srcdir)s && bash ./autogen.sh --help')
