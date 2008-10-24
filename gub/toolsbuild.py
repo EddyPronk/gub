@@ -11,7 +11,7 @@ class ToolsBuild (build.UnixBuild):
         # working, or not being picked-up by configure?
         return (build.UnixBuild.configure_command (self)
                 + misc.join_lines ('''
---prefix=%(tools_prefix)s
+--prefix=%(system_prefix)s
 CFLAGS=-I%(system_prefix)s/include
 LDFLAGS=-L%(system_prefix)s/lib
 LD_LIBRARY_PATH=%(system_prefix)s/lib
