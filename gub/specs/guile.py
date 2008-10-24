@@ -342,7 +342,7 @@ class Guile__tools (toolsbuild.ToolsBuild, Guile):
 
     def configure (self):
         toolsbuild.ToolsBuild.configure (self)
-        self.update_libtool ()
+#        self.update_libtool ()
 
     def install (self):
         ## guile runs fine without wrapper (if it doesn't, use the
