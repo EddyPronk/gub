@@ -54,7 +54,7 @@ specified by applications.'''
         return '-lfreetype -lz'
 
     def get_build_dependencies (self):
-        return ['libtool', 'expat-devel', 'freetype-devel', 'tools::freetype', 'tools::git']
+        return ['libtool', 'expat-devel', 'freetype-devel', 'tools::freetype', 'tools::git', 'tools::pkg-config']
 
     def get_dependency_dict (self):
         return {'': ['expat', 'freetype', 'libtool']}
