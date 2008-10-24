@@ -153,7 +153,7 @@ def get_cli_parser ():
                   action='store',
                   dest='dbdir',
                   help='set db directory')
-    p.add_option ('-v', '--verbose', action='count', dest='verbose', default=1)
+    p.add_option ('-v', '--verbose', action='count', dest='verbose', default=0)
     p.add_option ('-q', '--quiet', action='count', dest='quiet', default=0)
     return p
 
@@ -179,8 +179,8 @@ def main ():
     options.root = settings.system_root
     options.platform = settings.platform
 
-    logging.stage ('root: ' + settings.system_root + '\n')
-    logging.info ('platform: ' + settings.platform + '\n')
+    logging.verbose ('root: ' + settings.system_root + '\n')
+    logging.verbose ('platform: ' + settings.platform + '\n')
 
     # TODO: hook log into target/PLAT/log/
     target_manager = gup.DependencyManager (options.root,
