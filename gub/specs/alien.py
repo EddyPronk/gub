@@ -11,7 +11,6 @@ class Alien (ToolsBuild):
         return '%(allsrcdir)s/alien'
     def patch (self):
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
-
     def configure (self):
         ToolsBuild.configure (self)
         self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/alien.patch')
