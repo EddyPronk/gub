@@ -1,13 +1,16 @@
-import re
 import os
-
-from gub import mirrors
+import re
+#
+from gub import commands
 from gub import misc
 from gub import targetbuild
+from gub import toolsbuild
 
 class Libjpeg (targetbuild.TargetBuild):
-    source = mirrors.with_template (name='libjpeg', version='v6b',
-                                    mirror=mirrors.jpeg)
+    source = 'ftp://ftp.uu.net/graphics/jpeg/jpegsrc.v6b.tar.gz'
+    def __init__ (self, settings, source):
+        targetbuild.TargetBuild.__init__ (self, settings, source)
+        source._version = 'v6b'
 
     def name (self):
         return 'libjpeg'
@@ -29,7 +32,6 @@ class Libjpeg (targetbuild.TargetBuild):
         self.system ('''
 cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh %(target_architecture)s'''
               , locals ())
-        
         targetbuild.TargetBuild.update_libtool (self)
 
     def license_files (self):
@@ -80,3 +82,29 @@ class Libjpeg__linux (Libjpeg):
 #define \\1
 #endif''')],
                '%(builddir)s/jconfig.h')
+
+class Libjpeg__tools (toolsbuild.ToolsBuild):
+    source = Libjpeg.source
+    def __init__ (self, settings, source):
+        toolsbuild.ToolsBuild.__init__ (self, settings, source)
+        source._version = 'v6b'
+    def get_build_dependencies (self):
+        return ['libtool']
+    def srcdir (self):
+        return re.sub (r'src\.v', '-', toolsbuild.ToolsBuild.srcdir (self))
+    def autoupdate (self):
+        self.runner._execute (commands.ForcedAutogenMagic (self))
+    def configure (self):
+        toolsbuild.ToolsBuild.configure (self)
+        self.update_libtool ()
+        self.file_sub (
+            [
+                (r'(\(INSTALL_[A-Z]+\).*) (\$[^ ]+)$',
+                 r'\1 $(DESTDIR)\2'),
+                ],
+            '%(builddir)s/Makefile')
+    def install_command (self):
+        return misc.join_lines ('''
+mkdir -p %(install_root)s/%(system_prefix)s/bin %(install_root)s/%(system_prefix)s/include %(install_root)s/%(system_prefix)s/lib 
+&& make DESTDIR=%(install_root)s install-headers install-lib
+''')
