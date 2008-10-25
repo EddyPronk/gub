@@ -116,6 +116,12 @@ class Gcc__mingw (Gcc):
             self.file_sub ([('/mingw/include','%(prefix_dir)s/include'),
                             ('/mingw/lib','%(prefix_dir)s/lib'),
                             ], f)
+    def install (self):
+        Gcc.install (self)
+        # libtool barfs: no libstdc++.dll.a file
+        self.system ('''
+mv %(install_prefix)s/lib/libstdc++.la %(install_prefix)s/lib/libstdc++.la-
+''')
 
 # http://gcc.gnu.org/PR24196            
 class this_works_but_has_string_exception_across_dll_bug_Gcc__cygwin (Gcc__mingw):
