@@ -212,7 +212,9 @@ def download_url (original_url, dest_dir,
 
     candidate_urls = []
     for url in local + cache + [original_url] + fallback:
-        if url and os.path.exists (url):
+        if not url:
+            continue
+        if os.path.exists (url):
             url = 'file://' + url
         if url == original_url:
             candidate_urls.append (url)
@@ -440,6 +442,9 @@ def file_sub (re_pairs, name, must_succeed=False, use_re=True, to_name=None):
 
         if (t == new_text and must_succeed):
             raise Exception ('nothing changed!')
+        else:
+            if must_succeed and type (must_succeed) == type (0):
+                must_succeed -= 1
         t = new_text
 
     if s != t or (to_name and name != to_name):
