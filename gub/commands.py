@@ -312,19 +312,20 @@ class ForcedAutogenMagic (SerializedCommand):
                 aclocal_opt = package.expand ('-I %(system_prefix)s/share/aclocal')
 
             headcmd = ''
+            configure = ''
             for c in ('configure.in','configure.ac'):
                 try:
                     str = file ('%(autodir)s/%(c)s' % locals ()).read ()
+                    configure = c
                     m = re.search ('A[CM]_CONFIG_HEADER', str)
                     str = 0   ## don't want to expand str
                     if m:
                         headcmd = 'cd %(autodir)s && autoheader %(aclocal_opt)s' % locals ()
                         break
-
                 except IOError:
                     pass
-
-            self.system ('''
+            if configure:
+                self.system ('''
 cd %(autodir)s && aclocal %(aclocal_opt)s
 %(headcmd)s
 cd %(autodir)s && autoconf %(aclocal_opt)s
