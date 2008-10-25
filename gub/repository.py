@@ -850,6 +850,7 @@ class Subversion (SimpleRepo):
     @staticmethod
     def create (rety, dir, source, branch, revision='HEAD'):
         source = source.replace ('svn:http://', 'http://')
+        source = source.replace ('svn:https://', 'https://')
         if not branch and source:
             if source.endswith ('/'):
                 source = source[:-1]
