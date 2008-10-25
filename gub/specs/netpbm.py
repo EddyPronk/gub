@@ -1,19 +1,8 @@
-from gub import mirrors
 from gub import toolsbuild
-from gub import repository
 
-class Netpbm (toolsbuild.ToolsBuild):
-    def __init__ (self, settings, source):
-        toolsbuild.ToolsBuild.__init__ (self, settings, source)
-
-        # https://svn.sourceforge.net/svnroot/netpbm/advanced netpbm
-
-        repo = repository.Subversion (
-            dir=self.get_repodir (),
-            source='https://svn.sourceforge.net/svnroot/',
-            branch='netpbm',
-            module='stable',
-            revision="172")
+class Netpbm__tools (toolsbuild.ToolsBuild):
+    # source='svn:https://svn.sourceforge.net/svnroot/netpbm/stable&revision=172'
+    source='http://lilypond.org/download/gub-sources/netpbm-patched-10.35.tar.bz2'
 
     def get_build_dependencies (self):
         return ['libjpeg'] # libtiff-dev libx11-dev
