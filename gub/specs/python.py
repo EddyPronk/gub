@@ -19,7 +19,7 @@ class Python (targetbuild.TargetBuild):
         return ['doc', 'devel', 'runtime', '']
 
     def get_build_dependencies (self):
-        return ['expat-devel', 'zlib-devel']
+        return ['expat-devel', 'zlib-devel', 'tools::python']
 
     def get_dependency_dict (self):
         return { '': ['expat', 'python-runtime', 'zlib'],
@@ -139,6 +139,8 @@ class Python__mingw (Python__mingw_cross):
 
 class Python__tools (toolsbuild.ToolsBuild, Python):
     source = 'http://python.org/ftp/python/2.4.5/Python-2.4.5.tar.bz2'
+    def get_build_dependencies (self):
+        return ['autoconf', 'libtool']
     def configure (self):
         self.system ('''cd %(srcdir)s && autoconf''')
         self.system ('''cd %(srcdir)s && libtoolize --copy --force''')

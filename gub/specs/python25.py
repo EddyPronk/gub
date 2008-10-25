@@ -32,7 +32,7 @@ class Python (targetbuild.TargetBuild):
         return ['doc', 'devel', 'runtime', '']
 
     def get_build_dependencies (self):
-        return ['expat-devel', 'zlib-devel']
+        return ['expat-devel', 'zlib-devel', 'tools::python2.5']
 
     def get_dependency_dict (self):
         return { '': ['expat', 'python-runtime', 'zlib'],
@@ -123,6 +123,8 @@ chmod 755 %(install_prefix)s/bin/*
 from gub import toolsbuild
 class Python__tools (toolsbuild.ToolsBuild, Python):
     source = Python.source
+    def get_build_dependencies (self):
+        return ['autoconf', 'libtool']
     def configure (self):
         self.system ('''cd %(srcdir)s && autoconf''')
         self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
