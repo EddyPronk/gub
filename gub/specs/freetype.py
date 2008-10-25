@@ -17,7 +17,7 @@ tools, and many other products as well.'''
         return ['%(srcdir)s/docs/LICENSE.TXT']
 
     def get_build_dependencies (self):
-        return ['libtool-devel', 'zlib-devel']
+        return ['libtool-devel', 'zlib-devel', 'tools::autoconf']
 
     def get_subpackage_names (self):
         return ['devel', '']

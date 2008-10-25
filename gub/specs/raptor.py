@@ -5,7 +5,7 @@ class Raptor (targetbuild.TargetBuild):
     source = 'http://download.librdf.org/source/raptor-1.4.18.tar.gz'
     patches = ['raptor-1.4.18-cross.patch']
     def get_build_dependencies (self):
-        return ['expat-devel', 'libxml2-devel']
+        return ['expat-devel', 'libxml2-devel', 'tools::autoconf', 'tools::automake', 'tools::libtool']
     def autoupdate (self):
         self.file_sub ([('( |-I|-L)/usr', r'\1%(system_prefix)s')]
                        , '%(srcdir)s/configure.ac')

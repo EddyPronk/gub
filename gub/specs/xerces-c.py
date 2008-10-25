@@ -4,6 +4,8 @@ from gub import targetbuild
 
 class Xerces_c (targetbuild.TargetBuild):
     source = mirrors.with_tarball (name='xerces-c', mirror=mirrors.xerces_c_2, version='2_8_0')
+    def get_build_dependencies (self):
+        return ['tools::autoconf']
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
         self.compile_dict = {

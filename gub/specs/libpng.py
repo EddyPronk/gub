@@ -7,7 +7,7 @@ class Libpng (targetbuild.TargetBuild):
         return {'':['zlib']}
     
     def get_build_dependencies (self):
-        return ['zlib-devel']
+        return ['zlib-devel', 'tools::autoconf', 'tools::automake', 'tools::libtool']
 
     def name (self):
         return 'libpng'

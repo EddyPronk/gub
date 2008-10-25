@@ -17,7 +17,7 @@ class Gmp (targetbuild.TargetBuild):
                  'doc' : [], }
 
     def get_build_dependencies (self):
-        return ['libtool']
+        return ['libtool', 'tools::autoconf', 'tools::automake', 'tools::libtool']
 
     def configure_command (self):
         c = targetbuild.TargetBuild.configure_command (self)

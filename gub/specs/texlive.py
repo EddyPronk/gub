@@ -23,6 +23,9 @@ packages.'''
                                                      module='UnixBuild/source',
                                                      revision='HEAD'))
 
+    def get_build_dependencies (self):
+        return ['tools::autoconf', 'tools::automake', 'tools::libtool']
+
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
         def fixed_version (self):
