@@ -202,7 +202,8 @@ def rewrite_url (url, mirror):
 
 # FIXME: read settings.rc, local, fallback should be a user-definable list
 def download_url (original_url, dest_dir,
-                  local=os.environ.get ('GUB_DOWNLOAD_CACHE', '').split (':'),
+                  local=[],
+                  cache=[os.environ.get ('GUB_DOWNLOAD_CACHE', '')],
                   fallback=['http://lilypond.org/download/gub-sources'],
                   progress=sys.stderr.write):
 
@@ -210,8 +211,10 @@ def download_url (original_url, dest_dir,
     assert type (fallback) == list
 
     candidate_urls = []
-    for url in local + [original_url] + fallback:
-        if url and not url.endswith ('gub-sources'):
+    for url in local + cache + [original_url] + fallback:
+        if url and os.path.exists (url):
+            url = 'file://' + url
+        if url == original_url:
             candidate_urls.append (url)
         if not is_ball (os.path.basename (url)):
             candidate_urls.append (rewrite_url (original_url, url))
