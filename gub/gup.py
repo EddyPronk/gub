@@ -423,8 +423,6 @@ def get_source_packages (settings, const_todo):
 
     # Do not confuse caller, do not modify caller's todo
     todo = const_todo[:]
-    if settings.platform != 'tools':
-        todo += ['tools::librestrict']
     todo += cross.get_build_dependencies (settings)
 
     spec_dict = dict ()

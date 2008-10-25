@@ -1,7 +1,6 @@
 from gub import toolsbuild
-from gub import build
 
-class Librestrict__tools (toolsbuild.ToolsBuild, build.SdkBuild):
+class Librestrict__tools (toolsbuild.ToolsBuild):
     source = 'http://lily/librestrict-1.0.tar.gz'
     def stages (self):
         return [x for x in toolsbuild.ToolsBuild.stages (self)

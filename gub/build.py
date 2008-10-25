@@ -116,6 +116,10 @@ class UnixBuild (Build):
                 #'src_package',
                 'package', 'clean']
 
+    @context.subst_method
+    def LD_PRELOAD (self):
+        return '%(tools_prefix)s/lib/librestrict.so'
+
     def get_substitution_dict (self, env={}):
         dict = {
             'CPATH': '',

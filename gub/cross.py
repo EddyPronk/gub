@@ -33,15 +33,18 @@ class CrossToolsBuild (build.UnixBuild):
 def change_target_package (package):
     pass
 
+bootstrap_names = ['tools::librestrict']
 def set_cross_dependencies (package_object_dict):
     packs = package_object_dict.values ()
+
     cross_packs = [p for p in packs if isinstance (p, CrossToolsBuild)]
     sdk_packs = [p for p in packs if isinstance (p, build.SdkBuild)]
     tools_packs = [p for p in packs if isinstance (p, toolsbuild.ToolsBuild)]
     other_packs = [p for p in packs if (not isinstance (p, CrossToolsBuild)
                                         and not isinstance (p, build.SdkBuild)
                                         and not isinstance (p, build.BinaryBuild)
-                                        and not isinstance (p, toolsbuild.ToolsBuild))]
+                                        and not isinstance (p, toolsbuild.ToolsBuild)
+                                        and not p.platform_name () in bootstrap_names)]
     
     sdk_names = [s.platform_name () for s in sdk_packs]
     cross_names = [s.platform_name () for s in cross_packs]
@@ -49,12 +52,14 @@ def set_cross_dependencies (package_object_dict):
         old_callback = p.get_build_dependencies
         p.get_build_dependencies = misc.MethodOverrider (old_callback,
                                                          lambda x,y: x+y, (cross_names,))
-
     for p in other_packs + cross_packs:
         old_callback = p.get_build_dependencies
         p.get_build_dependencies = misc.MethodOverrider (old_callback,
                                                          lambda x,y: x+y, (sdk_names,))
-
+    for p in other_packs + cross_packs + tools_packs:
+        old_callback = p.get_build_dependencies
+        p.get_build_dependencies = misc.MethodOverrider (old_callback,
+                                                         lambda x,y: x+y, (bootstrap_names,))
     return packs
 
 cross_module_checksums = {}
@@ -80,7 +85,7 @@ def get_cross_module (settings):
 
 def get_build_dependencies (settings):
     mod = get_cross_module (settings)
-    return [misc.with_platform (n, settings.platform) for n in mod.get_cross_build_dependencies (settings)]
+    return bootstrap_names + [misc.with_platform (n, settings.platform) for n in mod.get_cross_build_dependencies (settings)]
 
 def setup_linux_x86 (package, env={'PATH': os.environ['PATH']}):
     '''Hack for using 32 bit compiler on linux-64.

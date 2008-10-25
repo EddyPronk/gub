@@ -120,10 +120,6 @@ cd %(builddir)s && chmod +x %(configure_binary)s && %(configure_command_native)s
         self.system ('cd %(builddir)s && %(compile_command_native)s')
         self.get_substitution_dict = save
 
-    @context.subst_method
-    def LD_PRELOAD (self):
-        return '%(tools_prefix)s/lib/librestrict.so'
-
     ## FIXME: this should move elsewhere , as it's not
     ## package specific
     def get_substitution_dict (self, env={}):
