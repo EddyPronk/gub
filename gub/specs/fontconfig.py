@@ -89,6 +89,9 @@ rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,
         self.file_sub ([('DOCSRC *=.*', 'DOCSRC=')],
                        '%(builddir)s/Makefile')
 
+    def makeflags (self):
+        return 'man_MANS=' # either this, or add something like tools::docbook-utils
+
     def compile (self):
 
         # help fontconfig cross compiling a bit, all CC/LD
