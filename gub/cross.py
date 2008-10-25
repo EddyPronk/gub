@@ -78,10 +78,6 @@ def get_cross_module (settings):
     cross_module_cache[platform] = module
     return module
 
-def get_cross_packages (settings):
-    mod = get_cross_module (settings)
-    return mod.get_cross_packages (settings)
-
 def get_build_dependencies (settings):
     mod = get_cross_module (settings)
     return [misc.with_platform (n, settings.platform) for n in mod.get_cross_build_dependencies (settings)]

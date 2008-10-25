@@ -78,10 +78,6 @@ def libpng12_fixup (self):
 
 mirror = 'http://mirrors.kernel.org/sourceware/cygwin'
 
-def get_cross_packages (settings):
-    # obsolete
-    return []
-
 def get_cross_build_dependencies (settings):
     return ['cross/gcc', 'freetype-config', 'python-config']
 

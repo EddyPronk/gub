@@ -110,10 +110,6 @@ class Package_rewirer:
     def rewire (self):
         self.rewirer.rewire_root (self.package.install_root ())
 
-def get_cross_packages (settings):
-    # obsolete
-    return []
-
 def get_cross_build_dependencies (settings):
     return ['cross/gcc']
 

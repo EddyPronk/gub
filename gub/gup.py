@@ -423,16 +423,11 @@ def get_source_packages (settings, const_todo):
 
     # Do not confuse caller, do not modify caller's todo
     todo = const_todo[:]
+    if settings.platform != 'tools':
+        todo += ['tools::librestrict']
+    todo += cross.get_build_dependencies (settings)
 
-    cross_packages = cross.get_cross_packages (settings)
-    spec_dict = dict ((p.name (), p) for p in cross_packages)
-    todo += spec_dict.keys ()
-    if cross_packages:
-        # see linux.py
-        print 'get_cross_packages is deprecated, update to get_build_dependencies.'
-    else:
-        todo += cross.get_build_dependencies (settings)
-
+    spec_dict = dict ()
     sets = {settings.platform: settings}
 
     def with_platform (s, platform=settings.platform):

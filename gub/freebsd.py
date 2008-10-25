@@ -1,12 +1,9 @@
-def get_cross_packages (settings):
-    # obsolete
-    return []
+from gub import cross
 
 def get_cross_build_dependencies (settings):
     return ['cross/gcc']
 
 def change_target_package (package):
-    from gub import cross
     cross.change_target_package (package)
 
 # FIXME: download from sane place; or rather download only kernel

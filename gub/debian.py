@@ -11,10 +11,6 @@ mirror = 'http://ftp.de.debian.org/debian'
 
 # http://ftp.de.debian.org/debian/pool/main/l/linux-kernel-headers/
 
-def get_cross_packages (settings):
-    # obsolete
-    return []
-
 gcc_version = '4.1.1'
 glibc_version='2.3.2.ds1-22sarge4'
 linux_version = '2.5.999-test7-bk-17'

@@ -10,10 +10,6 @@ def change_target_package (package):
                                  {'LDFLAGS': ' -Wl,--as-needed ' })
     return package
 
-def get_cross_packages (settings):
-    # obsolete
-    return []
-
 def get_cross_build_dependencies (settings):
     return ['linux-headers', 'glibc']
     
