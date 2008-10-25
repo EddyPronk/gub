@@ -33,6 +33,23 @@ class TargetBuild (build.UnixBuild):
     def install (self):
         self.pre_install_libtool_fixup ()
         build.UnixBuild.install (self)
+        if self.config_script ():
+            self.install_config_script ()
+
+    @context.subst_method
+    def config_script (self):
+        return ''
+
+    def install_config_script (self):
+        self.system ('mkdir -p %(install_prefix)s%(cross_dir)s/bin')
+        self.system ('cp %(install_prefix)s/bin/%(config_script)s %(install_prefix)s%(cross_dir)s/bin/%(config_script)s')
+        self.file_sub ([('^prefix=/usr/*\s*$', 'prefix=%(system_prefix)s'),
+                        ('( |-I)/usr/include', r'\1%(system_prefix)s/include'),
+                        ('( |-L)/usr/lib/* ', r'\1%(system_prefix)s/lib'),
+                        ('^includedir=/usr/include/*\s*$', 'includedir=%(system_prefix)s/include'),
+                        ('^libdir=/usr/lib/*\s*$', 'libdir=%(system_prefix)s/lib'),],
+                       '%(install_prefix)s%(cross_dir)s/bin/%(config_script)s',
+                       must_succeed=1)
 
     def pre_install_libtool_fixup (self):
         ## Workaround for libtool bug.  libtool inserts -L/usr/lib
