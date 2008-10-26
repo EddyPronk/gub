@@ -1,3 +1,4 @@
+from gub import build
 from gub import cross
 from gub import loggedos
 from gub import misc
@@ -8,14 +9,11 @@ def change_target_package (package):
     def configure (whatsthis):
         def libtool_fix_allow_undefined (logger, file):
             '''libtool: link: warning: undefined symbols not allowed in i686-pc-mingw32 shared  libraries'''
-            loggedos.file_sub (logger, [('^(allow_undefined_flag=.*)unsupported', '\\1')], file)
-
-        def libtool_fix_install_not_into_dot_libs (logger, file):
-            '''libtool: install: error: cannot install `libexslt.la' to a directory not ending in /home/janneke/vc/gub/target/mingw/build/libxslt-1.1.24/libexslt/.libs'''
-            loggedos.file_sub (logger, [(r'if test "\$inst_prefix_dir" = "\$destdir";', 'if false;')], file)
-
+            loggedos.file_sub (logger, [('^(allow_undefined_flag=.*)unsupported', r'\1')],
+                               must_succeed=True, file)
         package.map_locate (libtool_fix_allow_undefined, '%(builddir)s', 'libtool')
-        package.map_locate (libtool_fix_install_not_into_dot_libs, '%(builddir)s', 'libtool')
+        # already in build.py
+        # package.map_locate (build.UnixBuild.libtool_disable_install_not_into_dot_libs_test, '%(builddir)s', 'libtool')
 
     package.configure = misc.MethodOverrider (package.configure, configure)
 

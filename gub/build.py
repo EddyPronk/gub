@@ -314,6 +314,7 @@ class UnixBuild (Build):
 mkdir -p %(builddir)s || true
 cd %(builddir)s && chmod +x %(configure_binary)s && %(configure_command)s
 ''')
+        self.map_locate (UnixBuild.libtool_disable_install_not_into_dot_libs_test, '%(builddir)s', 'libtool')
 
     def broken_install_command (self):
         """For packages that do not honor DESTDIR.
@@ -337,9 +338,10 @@ sysconfdir=%(install_prefix)s/etc
 tooldir=%(install_prefix)s
 ''')
 
-    def kill_libtool_installation_test (self, logger, file):
+    @staticmethod
+    def libtool_fix_install_not_into_dot_libs (logger, file):
+        '''libtool: install: error: cannot install `libexslt.la' to a directory not ending in /home/janneke/vc/gub/target/mingw/build/libxslt-1.1.24/libexslt/.libs'''
         loggedos.file_sub (logger, [(r'if test "\$inst_prefix_dir" = "\$destdir"; then',
-
                                      'if false && test "$inst_prefix_dir" = "$destdir"; then')],
                            file, must_succeed=True)
 
@@ -349,11 +351,9 @@ tooldir=%(install_prefix)s
             if not os.path.exists (new):
                 logger.write_log ('Cannot update libtool: no such file: %(new)s' % locals (), 'error')
                 raise Exception ('barf')
-
             loggedos.system (logger, 'cp %(new)s %(file)s' % locals ())
             self.kill_libtool_installation_test (logger, file)
             loggedos.system (logger, 'chmod 755  %(file)s' %locals ())
-
         self.map_locate (update, '%(builddir)s', 'libtool')
 
     def install (self):
