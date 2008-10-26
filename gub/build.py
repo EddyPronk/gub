@@ -339,7 +339,7 @@ tooldir=%(install_prefix)s
 ''')
 
     @staticmethod
-    def libtool_fix_install_not_into_dot_libs (logger, file):
+    def libtool_disable_install_not_into_dot_libs_test (logger, file):
         '''libtool: install: error: cannot install `libexslt.la' to a directory not ending in /home/janneke/vc/gub/target/mingw/build/libxslt-1.1.24/libexslt/.libs'''
         loggedos.file_sub (logger, [(r'if test "\$inst_prefix_dir" = "\$destdir"; then',
                                      'if false && test "$inst_prefix_dir" = "$destdir"; then')],
