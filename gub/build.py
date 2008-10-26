@@ -330,7 +330,7 @@ class UnixBuild (Build):
         return str
 
     def config_cache_settings (self):
-        return self.config_cache_overrides (self, '')
+        return self.config_cache_overrides ('')
 
     def config_cache (self):
         str = self.config_cache_settings ()
