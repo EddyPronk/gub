@@ -2,6 +2,7 @@ import os
 import re
 #
 from gub import build
+from gub import config_cache
 from gub import context
 from gub import misc
 from gub import loggedos
@@ -74,25 +75,7 @@ class TargetBuild (build.UnixBuild):
                                 ], file)
         self.map_locate (fixup, '%(builddir)s', '*.la')
 
-    ## UGH. only for cross!
-    def config_cache_overrides (self, str):
-        return str
-
     def config_cache_settings (self):
-        return self.config_cache_overrides (self, '')
-
-    @context.subst_method
-    def cache_file (self):
-        return '%(builddir)s/config.cache'
-
-    def config_cache (self):
-        str = self.config_cache_settings ()
-        if str:
-            self.system ('mkdir -p %(builddir)s || true')
-            self.dump (self.config_cache_settings (), self.cache_file (), permissions=0755)
-
-    def config_cache_settings (self):
-        from gub import config_cache
         return self.config_cache_overrides (config_cache.config_cache['all']
                                             + config_cache.config_cache[self.settings.platform])
 
@@ -109,13 +92,8 @@ class TargetBuild (build.UnixBuild):
         if (not self.force_sequential_build () and self.settings.cpu_count_str):
             c = re.sub (r'\bmake\b',
                         'make -j%s '% self.settings.cpu_count_str, c)
-
         return c
             
-    def configure (self):
-        self.config_cache ()
-        build.UnixBuild.configure (self)
-
     def get_substitution_dict_native (self):
         return build.UnixBuild.get_substitution_dict
 

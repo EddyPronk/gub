@@ -232,10 +232,6 @@ class RunnableContext (Context):
     def chmod (self, file, mode):
         return self.runner.chmod (self.expand (file), mode)
 
-    def first_is_newer (self, first, second, env={}):
-        return self.runner.first_is_newer (self.expand (first, env),
-                                           self.expand (second, env))
-
 #
 # Tests.
 #

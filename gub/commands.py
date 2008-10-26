@@ -280,9 +280,7 @@ class ForcedAutogenMagic (SerializedCommand):
         hasher (inspect.getsource (ForcedAutogenMagic.execute))
     def execute (self, logger):
         package = self.package
-        autodir = None
-        if not autodir:
-            autodir = package.expand ('%(srcdir)s')
+        autodir = package.expand ('%(autodir)s')
         if os.path.exists (os.path.join (autodir, 'bootstrap')):
             self.system ('cd %(autodir)s && ./bootstrap' % locals (), logger)
         elif os.path.exists (os.path.join (autodir, 'bootstrap.sh')):
@@ -336,10 +334,15 @@ cd %(autodir)s && autoconf %(aclocal_opt)s
 class AutogenMagic (ForcedAutogenMagic):
     def execute (self, logger):
         package = self.package
-        if not os.path.exists (package.expand ('%(srcdir)s/configure')):
-            if (os.path.exists (package.expand ('%(srcdir)s/configure.ac'))
-                or os.path.exists (package.expand ('%(srcdir)s/configure.in'))
-                or (not os.path.exists (package.expand ('%(srcdir)s/Makefile'))
+        if not os.path.exists (package.expand ('%(autodir)s/configure')):
+            if (os.path.exists (package.expand ('%(autodir)s/configure.ac'))
+                or os.path.exists (package.expand ('%(autodir)s/configure.in'))
+                or (not os.path.exists (package.expand ('%(autodir)s/Makefile'))
+                    and not os.path.exists (package.expand ('%(srcdir)s/Makefile'))
+                    and not os.path.exists (package.expand ('%(builddir)s/Makefile'))
+                    and not os.path.exists (package.expand ('%(autodir)s/makefile'))
+                    and not os.path.exists (package.expand ('%(srcdir)s/makefile'))
+                    and not os.path.exists (package.expand ('%(builddir)s/makefile'))
                     and not os.path.exists (package.expand ('%(srcdir)s/makefile'))
                     and not os.path.exists (package.expand ('%(srcdir)s/SConstruct')))):
                 ForcedAutogenMagic.execute (self, logger)

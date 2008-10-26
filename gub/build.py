@@ -110,7 +110,7 @@ class UnixBuild (Build):
                     # see bin/gub TODO
                     'src_package',
                     'package', 'clean']
-        return ['untar', 'patch',
+        return ['untar', 'patch', 'autoupdate',
                 'configure', 'compile', 'install',
                 # see bin/gub TODO
                 #'src_package',
@@ -249,8 +249,12 @@ class UnixBuild (Build):
         return '''make %(makeflags)s DESTDIR=%(install_root)s install'''
 
     @context.subst_method
+    def autodir (self):
+        return '%(srcdir)s'
+
+    @context.subst_method
     def configure_binary (self):
-        return '%(srcdir)s/configure'
+        return '%(autodir)s/configure'
 
     @context.subst_method
     def configure_command (self):
@@ -276,7 +280,6 @@ class UnixBuild (Build):
         c += job_spec
         return c
 
-
     @context.subst_method
     def src_package_ball (self):
         return '%(src_package_uploads)s/%(name)s%(ball_suffix)s-src.%(platform)s.tar.gz'
@@ -293,6 +296,10 @@ class UnixBuild (Build):
     def makeflags (self):
         return ''
 
+    @context.subst_method
+    def cache_file (self):
+        return '%(builddir)s/config.cache'
+
     def get_stamp_file (self):
         stamp = self.expand ('%(stamp_file)s')
         return stamp
@@ -306,15 +313,43 @@ class UnixBuild (Build):
     def set_done (self, stage, stage_number):
         self.dump ('%(stage_number)d' % locals (), self.get_stamp_file (), 'w')
 
+    def patch (self):
+        if self.__class__.__dict__.get ('patches'):
+            map (self.apply_patch, self.__class__.patches)
+
+    def force_autoupdate (self):
+        return False
+
     def autoupdate (self):
-        self.runner._execute (commands.AutogenMagic (self))
+        if self.force_autoupdate ():
+            self.runner._execute (commands.ForcedAutogenMagic (self))
+        else:
+            self.runner._execute (commands.AutogenMagic (self))
+
+    def config_cache_overrides (self, str):
+        return str
+
+    def config_cache_settings (self):
+        return self.config_cache_overrides (self, '')
+
+    def config_cache (self):
+        str = self.config_cache_settings ()
+        if str:
+            self.system ('mkdir -p %(builddir)s || true')
+            self.dump (str, self.cache_file (), permissions=0755)
 
     def configure (self):
+        self.config_cache ()
         self.system ('''
 mkdir -p %(builddir)s || true
 cd %(builddir)s && chmod +x %(configure_binary)s && %(configure_command)s
 ''')
-        self.map_locate (UnixBuild.libtool_disable_install_not_into_dot_libs_test, '%(builddir)s', 'libtool')
+
+    def shadow_builddir (self):
+        shadow_tree ('%(srcdir)s', '%(builddir)s')
+
+    def compile (self):
+        self.system ('cd %(builddir)s && %(compile_command)s')
 
     def broken_install_command (self):
         """For packages that do not honor DESTDIR.
@@ -385,7 +420,6 @@ cp %(file)s %(install_root)s/license/%(name)s
 ''', locals ())
                     loggedos.system (logger, cmd)
                     return
-
         self.func (install, map (self.expand, self.license_files ()))
 
     def libtool_installed_la_fixups (self):
@@ -408,20 +442,6 @@ cp %(file)s %(install_root)s/license/%(name)s
                                la)
 
         self.map_locate (installed_la_fixup, '%(install_root)s', 'lib*.la')
-
-    def compile (self):
-        self.system ('cd %(builddir)s && %(compile_command)s')
-
-    def patch (self):
-        if self.__class__.__dict__.get ('patches'):
-            map (self.apply_patch, self.__class__.patches)
-
-        # FIXME: should not misuse patch for auto stuff
-
-        # We cannot easily move this to 'autoupdate' stage now,
-        # because some packages depend on this brokennes by redefining
-        # patch () to avoid auto-updating.
-        self.autoupdate ()
 
     def rewire_symlinks (self):
         def rewire (logger, file):

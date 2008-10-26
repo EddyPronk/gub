@@ -92,8 +92,8 @@ class Libjpeg__tools (toolsbuild.ToolsBuild):
         return ['libtool']
     def srcdir (self):
         return re.sub (r'src\.v', '-', toolsbuild.ToolsBuild.srcdir (self))
-    def autoupdate (self):
-        self.runner._execute (commands.ForcedAutogenMagic (self))
+    def force_autoupdate (self):
+        return True
     def configure (self):
         toolsbuild.ToolsBuild.configure (self)
         self.update_libtool ()

@@ -20,9 +20,8 @@ class Libxslt (targetbuild.TargetBuild):
         return 'xslt-config'
 
 class Libxslt__mingw (Libxslt):
-    def autoconf (self):
-        #update libtool so that it will install a dll
-        self.runner._execute (commands.ForcedAutogenMagic (self))
+    def force_autoupdate (self):
+        return True
     def xxconfigure (self):
         Libxslt.configure (self)
         def libtool_fix_allow_undefined (logger, file):
