@@ -1,0 +1,11 @@
+--- rasqal-0.9.16/src/win32_rasqal_config.h.orig	2008-10-25 23:36:24.000000000 +0200
++++ rasqal-0.9.16/src/win32_rasqal_config.h	2008-10-25 23:36:17.000000000 +0200
+@@ -85,6 +85,8 @@ extern "C" {
+ #include <io.h>
+ #include <memory.h>
+ 
++#undef DELETE
++
+ /* This is a SPARQL token define */
+ #ifdef OPTIONAL
+ #undef OPTIONAL
