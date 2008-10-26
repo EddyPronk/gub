@@ -57,9 +57,8 @@ Export('defenv')
                        '%(srcdir)s/SConstruct')
         
     #FIXME: should be automatic for scons build
-    def stages (self):
-        return [s for s in toolsbuild.ToolsBuild.stages (self)
-                if s != 'configure']
+    def configure (self):
+        pass
 
     def compile_command (self):
         # SCons barfs on trailing / on directory names

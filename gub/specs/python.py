@@ -37,7 +37,10 @@ class Python (targetbuild.TargetBuild):
         self.file_sub ([('@CC@', '@CC@ -I$(shell pwd)')],
                         '%(srcdir)s/Makefile.pre.in')
 
-    def configure (self):
+    def force_autoupdate (self):
+        return True
+
+    def xxconfigure (self):
         self.system ('''cd %(srcdir)s && autoconf''')
         self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
         targetbuild.TargetBuild.configure (self)
@@ -141,10 +144,12 @@ class Python__tools (toolsbuild.ToolsBuild, Python):
     source = 'http://python.org/ftp/python/2.4.5/Python-2.4.5.tar.bz2'
     def get_build_dependencies (self):
         return ['autoconf', 'libtool']
-    def configure (self):
+    def xxconfigure (self):
         self.system ('''cd %(srcdir)s && autoconf''')
         self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
         targetbuild.TargetBuild.configure (self)
+    def force_autoupdate (self):
+        return True
     def install (self):
         toolsbuild.ToolsBuild.install (self)
     def wrap_executables (self):

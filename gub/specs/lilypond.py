@@ -78,9 +78,6 @@ class LilyPond (targetbuild.TargetBuild):
                              # looking at self.source.[Git]?
                 ]
 
-    def stages (self):
-        return misc.list_insert_before (targetbuild.TargetBuild.stages (self),
-                                        'configure', 'autoupdate')
     def autoupdate (self):
         self.system ('cd %(srcdir)s && ./smart-autogen.sh --noconfigure') 
 

@@ -75,7 +75,6 @@ class Git (targetbuild.TargetBuild):
         self.file_sub ([('git describe','true')],
                         '%(srcdir)s/GIT-VERSION-GEN')
         self.apply_patch ('git-1.5-shell-anality.patch')
-        self.autoupdate ()
         
 class Git__mingw (Git):
     def __init__ (self, settings, source):

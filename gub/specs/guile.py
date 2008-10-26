@@ -53,7 +53,6 @@ exec %(tools_prefix)s/bin/guile "$@"
             
         self.autogen_sh ()
         targetbuild.TargetBuild.patch (self)
-        self.autoupdate ()
 
     def configure_flags (self):
         return misc.join_lines ('''
@@ -334,7 +333,6 @@ class Guile__tools (toolsbuild.ToolsBuild, Guile):
 
     def patch (self):
         self.autogen_sh ()
-        self.autoupdate ()
 
     def configure_command (self):
         return (toolsbuild.ToolsBuild.configure_command (self)

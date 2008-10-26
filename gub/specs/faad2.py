@@ -12,5 +12,4 @@ class Faad2 (targetbuild.TargetBuild):
 cd %(srcdir)s && patch -p0 < %(patchdir)s/faad2-2.5.patch
 mkdir %(srcdir)s/plugins/bmp
 ''')        
-        self.autoupdate ()
 

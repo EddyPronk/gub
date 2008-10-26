@@ -5,8 +5,6 @@ class Db (targetbuild.TargetBuild):
     def patch (self):
         targetbuild.TargetBuild.patch (self)
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
-    def autoupdate (self):
-        pass
     def cache_file (self):
         return '%(builddir)s/build_unix/config.cache'
     def configure_command (self):
