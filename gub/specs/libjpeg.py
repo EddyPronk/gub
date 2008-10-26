@@ -67,7 +67,7 @@ cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh 
         targetbuild.TargetBuild.update_libtool (self)
 
 class Libjpeg__mingw (Libjpeg):
-    def configure (self):
+    def xxconfigure (self):
         Libjpeg.configure (self)
         # libtool will not build dll if -no-undefined flag is
         # not present

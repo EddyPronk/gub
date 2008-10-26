@@ -23,9 +23,9 @@ class Libxslt__mingw (Libxslt):
     def autoconf (self):
         #update libtool so that it will install a dll
         self.runner._execute (commands.ForcedAutogenMagic (self))
-    def configure (self):
+    def xxconfigure (self):
         Libxslt.configure (self)
-        def fix_allow_undefined (logger, file):
+        def libtool_fix_allow_undefined (logger, file):
             loggedos.file_sub (logger,
                                [
                     # libtool: link: warning: undefined symbols not allowed in i686-pc-mingw32 shared  libraries

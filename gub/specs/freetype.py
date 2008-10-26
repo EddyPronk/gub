@@ -55,7 +55,7 @@ tools, and many other products as well.'''
         self.munge_ft_config ('%(install_prefix)s/cross/bin/freetype-config')
 
 class Freetype__mingw (Freetype):
-    def configure (self):
+    def xxconfigure (self):
         Freetype.configure (self)
         self.dump ('''
 # libtool will not build dll if -no-undefined flag is not present

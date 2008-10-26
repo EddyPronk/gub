@@ -1,13 +1,16 @@
 import os
 import re
 import inspect
-
+#
 from new import classobj
 from new import instancemethod
 #
 from gub import build
+from gub import cross
 from gub import misc
+from gub import repository
 from gub import targetbuild
+from gub import w32
 
 def untar_cygwin_src_package_variant2 (self, file_name, split=False):
     '''Unpack this unbelievably broken version of Cygwin source packages.
@@ -21,7 +24,6 @@ complain about missing files.'''
 
     file_name = self.expand (file_name)
     unpackdir = os.path.dirname (self.expand (self.srcdir ()))
-    from gub import misc
     t = misc.split_ball (file_name)
     print 'split: ' + `t`
     no_src = re.sub ('-src', '', file_name)
@@ -82,8 +84,8 @@ def get_cross_build_dependencies (settings):
     return ['cross/gcc', 'freetype-config', 'python-config']
 
 def change_target_package (package):
-    from gub import cross
     cross.change_target_package (package)
+    w32.change_target_package (package)
 
     available = dict (inspect.getmembers (package, callable))
 
@@ -109,7 +111,6 @@ def change_target_package (package):
         = misc.MethodOverrider (package.configure_command, enable_static)
 
     def install (whatsthis):
-        package.post_install_smurf_exe ()
         package.install_readmes ()
 
     package.install = misc.MethodOverrider (package.install, install)
@@ -152,18 +153,6 @@ def change_target_package (package):
     package.description_dict = misc.MethodOverrider (package.description_dict,
                                                      description_dict)
 
-    ## TODO : get_dependency_dict
-
-    # FIXME: why do cross packages get here too?
-    if isinstance (package, cross.CrossToolsBuild):
-        return package
-
-    targetbuild.change_target_dict (package, {
-            'DLLTOOL': '%(toolchain_prefix)sdlltool',
-            'DLLWRAP': '%(toolchain_prefix)sdllwrap',
-            'LDFLAGS': '-L%(system_prefix)s/lib -L%(system_prefix)s/bin -L%(system_prefix)s/lib/w32api',
-            })
-
 def get_cygwin_package (settings, name, dict, skip):
     cross = [
         'base-passwd', 'bintutils',
@@ -194,7 +183,6 @@ def get_cygwin_package (settings, name, dict, skip):
     if name in blacklist:
         name += '::blacklisted'
     package_class = classobj (name, (build.BinaryBuild,), {})
-    from gub import repository
     source = repository.TarBall (settings.downloads,
                                  os.path.join (mirror,
                                                dict['install'].split ()[0]),

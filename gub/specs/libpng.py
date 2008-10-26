@@ -31,7 +31,7 @@ class Libpng (targetbuild.TargetBuild):
         return '(%s) || (%s)' % (c,c)
     
 class Libpng__mingw (Libpng):
-    def configure (self):
+    def xxconfigure (self):
         # libtool will not build dll if -no-undefined flag is
         # not present
         self.file_sub ([('-version-info',

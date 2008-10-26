@@ -1,20 +1,9 @@
-from gub import misc
+from gub import cross
+from gub import w32
 
 def get_cross_build_dependencies (settings):
     return ['cross/gcc']
     
 def change_target_package (package):
-    from gub import cross
-    from gub import build
-    from gub import targetbuild
     cross.change_target_package (package)
-    targetbuild.change_target_dict (package,
-                    {
-            'DLLTOOL': '%(toolchain_prefix)sdlltool',
-            'DLLWRAP': '%(toolchain_prefix)sdllwrap',
-            })
-
-    def install (whatsthis):
-        package.post_install_smurf_exe ()
-
-    package.install = misc.MethodOverrider (package.install, install)
+    w32.change_target_package (package)
