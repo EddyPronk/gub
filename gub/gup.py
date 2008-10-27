@@ -448,7 +448,6 @@ def get_source_packages (settings, const_todo):
             key = name
             
         key = with_platform (key, platform)
-        print 'KEY:', key
         if spec_dict.has_key (key):
             spec = spec_dict[key]
         else:
