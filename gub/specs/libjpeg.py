@@ -96,7 +96,7 @@ cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh 
               , locals ())
         targetbuild.AutoBuild.update_libtool (self)
     def configure (self):
-        Libtool.update_config_guess_config_sub (self)
+        Libjpeg.update_config_guess_config_sub (self)
         toolsbuild.AutoBuild.configure (self)
         self.update_libtool ()
         self.file_sub (
