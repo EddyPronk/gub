@@ -7,7 +7,6 @@ from gub import misc
 from gub import targetbuild
 
 '''
-Module 'cppunit' delivered successfully. 9 files copied, 61 files unchanged
 Module 'solenv' delivered successfully. 0 files copied, 1 files unchanged
 Module 'stlport' delivered successfully. 0 files copied, 8 files unchanged
 Module 'soltools' delivered successfully. 1 files copied, 13 files unchanged
@@ -21,10 +20,20 @@ Module 'sandbox' delivered successfully. 1 files copied, 1 files unchanged
 Module 'afms' delivered successfully. 0 files copied, 2 files unchanged
 Module 'beanshell' delivered successfully. 0 files copied, 2 files unchanged
 Module 'cppunit' delivered successfully. 4 files copied, 66 files unchanged
-Module 'testshl2' delivered successfully. 2 files copied, 10 files unchanged
-Module 'salhelper' delivered successfully. 12 files copied, 0 files unchanged
-Module 'extras' delivered successfully. 70 files copied, 0 files unchanged
-Module 'fondu' delivered successfully. 1 files copied, 1 files unchanged
+Module 'testshl2' delivered successfully. 1 files copied, 11 files unchanged
+Module 'salhelper' delivered successfully. 0 files copied, 12 files unchanged
+Module 'extras' delivered successfully. 0 files copied, 70 files unchanged
+Module 'fondu' delivered successfully. 0 files copied, 2 files unchanged
+Module 'hsqldb' delivered successfully. 1 files copied, 1 files unchanged
+Module 'hunspell' delivered successfully. 0 files copied, 15 files unchanged
+Module 'hyphen' delivered successfully. 0 files copied, 5 files unchanged
+Module 'icc' delivered successfully. 1 files copied, 1 files unchanged
+Module 'libtextcat' delivered successfully. 81 files copied, 0 files unchanged
+Module 'libwpg' delivered successfully. 16 files copied, 0 files unchanged
+Module 'libwps' delivered successfully. 6 files copied, 0 files unchanged
+Module 'libxmlsec' delivered successfully. 1 files copied, 0 files unchanged
+
+25 modules
 '''
 
 class Openoffice (targetbuild.AutoBuild):
@@ -34,7 +43,7 @@ class Openoffice (targetbuild.AutoBuild):
     # fresh try.  wait for mingw dupes
     source = 'svn://svn.gnome.org/svn/ooo-build&branch=trunk&revision=14412'
     patches = ['openoffice-srcdir-build.patch']
-    upstream_patches = ['openoffice-config_office-cross.patch', 'openoffice-config_office-gnu-make.patch', 'openoffice-solenv-cross.patch', 'openoffice-solenv.patch', 'openoffice-sal-cross.patch', 'openoffice-soltools-cross.patch']
+    upstream_patches = ['openoffice-config_office-cross.patch', 'openoffice-config_office-gnu-make.patch', 'openoffice-solenv-cross.patch', 'openoffice-solenv.patch', 'openoffice-sal-cross.patch', 'openoffice-soltools-cross.patch', 'openoffice-icc-cross.patch']
     def __init__ (self, settings, source):
         targetbuild.AutoBuild.__init__ (self, settings, source)
         # let's keep source tree around
@@ -75,6 +84,9 @@ ac_cv_file__usr_share_java_saxon_jar=${ac_cv_file__usr_share_java_saxon_jar=yes}
 ac_cv_db_version_minor=${ac_cv_db_version_minor=7}
 ac_cv_icu_version_minor=${ac_cv_icu_version_minor=3.81}
 '''
+#    @context.subst_method
+#    def ANT (self):
+#        return 'ant'
     def configure_command (self):
         return (targetbuild.AutoBuild.configure_command (self)
                 + misc.join_lines ('''
@@ -157,6 +169,7 @@ ac_cv_icu_version_minor=${ac_cv_icu_version_minor=3.81}
 
 --cache-file=%(builddir)s/config.cache
 
+--with-ant-home=/usr/share/ant
 --with-tools-dir=%(OOO_TOOLS_DIR)s
 
 '''))
@@ -216,7 +229,7 @@ cd %(builddir)s/build/%(cvs_tag)s && patch -p%(patch_strip_component)s < %(patch
 
         self.system ('chmod +x %(upstream_dir)s/solenv/bin/build.pl %(upstream_dir)s/solenv/bin/deliver.pl')
 
-        disable_modules = ['sandbox', 'testshl2', 'external']
+        disable_modules = ['sandbox', 'testshl2', 'hsqldb', 'lpsolve']
         for module in disable_modules:
             self.system ('sed -i -e "s@[ \t]all@ i@g" %(upstream_dir)s/%(module)s/prj/build.lst', locals ())
 
@@ -231,7 +244,7 @@ LDFLAGS_FOR_BUILD=
 C_INCLUDE_PATH=
 LIBRARY_PATH=
 EXECPOST=
-SOLAR_JAVA=TRUE
+SOLAR_JAVA=
 ''')
 ##main configure barfs
 ##CPPFLAGS=
