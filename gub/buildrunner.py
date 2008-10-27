@@ -50,10 +50,12 @@ class BuildRunner:
         self.checksums = dict ()
         self.failed_checksums = dict ()
 
-        PATH = os.environ['PATH']
+        # PATH = os.environ['PATH']
         # cross_prefix is also necessary for building cross packages, such as GCC
-        os.environ['PATH'] = self.settings.expand ('%(cross_prefix)s/bin:' + PATH,
-                                                   locals ())
+        # yes, so we set that in cross.AutoBuild.get_substitution_dict ()
+        # we cannot do it here, as this will break all tools::* checksums
+        # going from mingw::libtool to darwin-x86::libtool
+        # os.environ['PATH'] = self.settings.expand ('%(cross_prefix)s/bin:' + PATH, locals ())
         self.add_packages_to_manager (self.specs)
 
     def manager (self, platform):
