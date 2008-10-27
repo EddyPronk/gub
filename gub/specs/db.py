@@ -15,7 +15,7 @@ class Db (targetbuild.AutoBuild):
         self.system ('mkdir -p %(builddir)s/build_unix')
         targetbuild.AutoBuild.configure (self)
         self.file_sub ([('\(prefix\)docs', '\(prefix\)/share/doc/db'),
-                        ('^	@', '	/')],
+                        ('^	@', '	')],
                         '%(builddir)s/build_unix/Makefile')
     def install (self):
         targetbuild.AutoBuild.install (self)
