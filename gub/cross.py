@@ -156,7 +156,7 @@ def setup_linux_x86 (logger, package, env):
     check_link ('g++', 'g++')
 
 
-def change_target_package_x86 (package, env): ##env={'PATH': os.environ['PATH']}):
+def change_target_package_x86 (package, env={'PATH': os.environ['PATH']}):
 
     x86_dir = package.settings.alltargetdir + '/linux-x86'
     x86_cross = (x86_dir
