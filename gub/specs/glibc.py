@@ -15,7 +15,7 @@ class Glibc (targetbuild.AutoBuild, cross.AutoBuild):
     source = mirrors.with_tarball (name='glibc', mirror=mirrors.lilypondorg, version='2.3-20070416',
                            format='bz2')
     def get_build_dependencies (self):
-        return ['cross/gcc', 'glibc-core']
+        return ['cross/gcc', 'glibc-core', 'linux-headers']
     def get_conflict_dict (self):
         return {'': ['glibc-core'], 'devel': ['glibc-core'], 'doc': ['glibc-core'], 'runtime': ['glibc-core']}
     def patch (self):

@@ -13,7 +13,7 @@ class Glibc_core (glibc.Glibc):
     source = mirrors.with_tarball (mirror=mirrors.lilypondorg,
                            version='2.3-20070416', format='bz2', name='glibc')
     def get_build_dependencies (self):
-        return ['cross/gcc-core']
+        return ['cross/gcc-core', 'linux-headers']
     def get_subpackage_names (self):
         return ['']
     def get_conflict_dict (self):
