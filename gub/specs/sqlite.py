@@ -1,16 +1,23 @@
+from gub import misc
 from gub import targetbuild
 
-sqlite = 'http://www.sqlite.org/sqlite-%(ball_version)s.tar.%(format)s'
-
 class Sqlite (targetbuild.AutoBuild):
-    source = mirrors.with_tarball (name='sqlite', mirror=sqlite, version='3.3.16')
+    source = 'http://www.sqlite.org/sqlite-3.5.9.tar.gz' # 3.3.16
     def configure_command (self):
         return (targetbuild.AutoBuild.configure_command (self)
-                + ' --disable-tcl --enable-threadsafe')
+                + misc.join_lines ('''
+--disable-tcl
+--enable-threadsafe
+'''))
     def patch (self):
-        open (self.expand ('%(srcdir)s/PUBLIC-DOMAIN'), 'w').write ('''
+        self.dump ('''
 Sqlite has no license, it is in the public domain.
 See http://www.sqlite.org/copyright.html .
-''')
+''',
+            '%(srcdir)s/PUBLIC-DOMAIN')
     def license_files (self):
         return ['%(srcdir)s/PUBLIC-DOMAIN']
+
+class Sqlite__mingw (Sqlite):
+    def configure_command (self):
+        return Sqlite.configure_command (self).replace ('--enable-threadsafe', '--disable-threadsafe')
