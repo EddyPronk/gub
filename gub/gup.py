@@ -484,9 +484,9 @@ def get_source_packages (settings, const_todo):
         debian.init_dependency_resolver (settings)
         name_to_deps = name_to_dependencies_via_debian
 
-    spec_names = topologically_sorted (todo, {}, name_to_deps)
-    plain_spec_dict = dict ((n, spec_dict.get (n, with_platform (n))) for n in spec_names)
-#    spec_dict = plain_spec_dict
+    topologically_sorted (todo, {}, name_to_deps)
+    todo += cross.set_cross_dependencies (spec_dict)
+    topologically_sorted (todo, {}, name_to_deps)
 
     # Fixup for build from url: spec_dict key is full url,
     # change to base name
@@ -496,8 +496,6 @@ def get_source_packages (settings, const_todo):
         ps = with_platform (spec.name ())
         if name != spec.name:
             spec_dict[spec.name ()] = spec
-
-    cross.set_cross_dependencies (spec_dict)
 
     if settings.is_distro:
         def obj_to_dependency_objects (obj):

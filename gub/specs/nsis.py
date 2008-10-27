@@ -47,12 +47,13 @@ Export('defenv')
                        '%(srcdir)s/SConstruct')
         
     def compile_command (self):
-        return toolsbuild.SConsBuild + misc.join_lines ('''
+        return (toolsbuild.SConsBuild.compile_command (self)
+                + misc.join_lines ('''
 DEBUG=yes
 NSIS_CONFIG_LOG=yes
 SKIPUTILS="NSIS Menu"
 SKIPPLUGINS=System
-''')
+'''))
 
     # this method is overwritten for x86-64_linux
     def build_environment (self):

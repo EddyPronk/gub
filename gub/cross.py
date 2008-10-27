@@ -50,7 +50,12 @@ def set_cross_dependencies (package_object_dict):
                                          or isinstance (p, targetbuild.PythonBuild))]
     scons_packs = [p for p in packs if (isinstance (p, toolsbuild.SConsBuild)
                                         or isinstance (p, targetbuild.SConsBuild))]
-    
+    extra_names = []
+    if python_packs or scons_packs:
+        extra_names += ['tools::python']
+    if scons_packs:
+        extra_names += ['tools::scons']
+
     sdk_names = [s.platform_name () for s in sdk_packs]
     cross_names = [s.platform_name () for s in cross_packs]
     for p in other_packs:
@@ -73,7 +78,7 @@ def set_cross_dependencies (package_object_dict):
         old_callback = p.get_build_dependencies
         p.get_build_dependencies = misc.MethodOverrider (old_callback,
                                                          lambda x,y: x+y, (['tools::scons'],))
-    return packs
+    return extra_names
 
 cross_module_checksums = {}
 cross_module_cache = {}
