@@ -112,7 +112,7 @@ def get_build_dependencies (settings):
     mod = get_cross_module (settings)
     return bootstrap_names + [misc.with_platform (n, settings.platform) for n in mod.get_cross_build_dependencies (settings)]
 
-def setup_linux_x86 (package, env={'PATH': os.environ['PATH']}):
+def setup_linux_x86 (logger, package, env):
     '''Hack for using 32 bit compiler on linux-64.
 
     Use linux-x86 cross compiler to compile non-64-bit-clean packages such
@@ -129,27 +129,53 @@ def setup_linux_x86 (package, env={'PATH': os.environ['PATH']}):
                  + package.settings.cross_dir)
     x86_bindir = x86_cross + '/bin'
     x86_cross_bin = x86_cross + '/i686-linux' + '/bin'
+
+    compiler = x86_bindir + '/i686-linux-gcc'
+    if not os.path.exists (compiler):
+        print 'error: cannot find 32 bit compiler: %(compiler)s\n' % locals ()
+        raise Exception ('Package %s depends on target/linux-x86.'
+                         % package.__class__)
+    if os.system ('''echo 'int main () { return 0; }' > 32bit.c && %(compiler)s -o 32bit 32bit.c && ./32bit''' % locals ()):
+        print 'error: cannot run 32 bit executable: 32bit\n'
+        raise Exception ('Package %s depends on 32 bit libraries'''
+                         % package.__class__)
+    os.system ('rm -f 32bit 32bit.c')
+
+    def check_link (src, dest):
+        dest = x86_cross_bin + '/' + dest
+        if not os.path.exists (dest):
+            # duh, must chdir for relative link
+            #src = '../../bin/i686-linux-' + src
+            src = x86_bindir + '/i686-linux-' + src
+            os.link (src, dest)
+
+    check_link ('cpp', 'cpp')
+    check_link ('gcc', 'cc')
+    check_link ('g++', 'c++')
+    check_link ('gcc', 'gcc')
+    check_link ('g++', 'g++')
+
+
+def change_target_package_x86 (package, env): ##env={'PATH': os.environ['PATH']}):
+
+    x86_dir = package.settings.alltargetdir + '/linux-x86'
+    x86_cross = (x86_dir
+                 + package.settings.root_dir
+                 + package.settings.prefix_dir
+                 + package.settings.cross_dir)
+    x86_bindir = x86_cross + '/bin'
+    x86_cross_bin = x86_cross + '/i686-linux' + '/bin'
     env['PATH'] = x86_cross_bin + ':' + env['PATH']
     env['LIBRESTRICT_ALLOW'] = package.settings.targetdir
     env['CC'] = x86_cross_bin + '/gcc'
     env['CXX'] = x86_cross_bin + '/g++'
 
-    compiler = x86_bindir + '/i686-linux-gcc'
-    def defer_compiler_checks (logger):
-        if not os.path.exists (compiler):
-            print 'error: cannot find 32 bit compiler: %(compiler)s\n' % locals ()
-            raise Exception ('Package %s depends on target/linux-x86.'
-                             % package.__class__)
-        if os.system ('''echo 'int main () { return 0; }' > 32bit.c && %(compiler)s -o 32bit 32bit.c && ./32bit''' % locals ()):
-            print 'error: cannot run 32 bit executable: 32bit\n'
-            raise Exception ('Package %s depends on 32 bit libraries'''
-                             % package.__class__)
-        os.system ('rm -f 32bit 32bit.c')
-    package.func (defer_compiler_checks)
-
     def build_environment (e):
         return env
     
+    def patch (foo):
+        package.func (setup_linux_x86, package, env)
+
     # FIXME: we could also add [, build_environment ()] by default
     # to build.py's compile [and install?] functions
     def configure (foo):
@@ -161,23 +187,9 @@ def setup_linux_x86 (package, env={'PATH': os.environ['PATH']}):
             
     package.build_environment \
         = misc.MethodOverrider (package.nop, build_environment)
+    package.patch \
+        = misc.MethodOverrider (package.patch, patch)
 #        package.configure \
 #            = misc.MethodOverrider (package.nop, configure)
     package.compile \
         = misc.MethodOverrider (package.nop, compile)
-
-    def check_link (src, dest):
-        dest = x86_cross_bin + '/' + dest
-        if not os.path.exists (dest):
-            # duh, must chdir for relative link
-            #src = '../../bin/i686-linux-' + src
-            src = x86_bindir + '/i686-linux-' + src
-            os.link (src, dest)
-
-    def defer_link_checks (logger):
-        check_link ('cpp', 'cpp')
-        check_link ('gcc', 'cc')
-        check_link ('g++', 'c++')
-        check_link ('gcc', 'gcc')
-        check_link ('g++', 'g++')
-    package.func (defer_link_checks)

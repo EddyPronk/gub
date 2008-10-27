@@ -12,6 +12,17 @@ class Nsis (toolsbuild.SConsBuild):
                              source=':pserver:anonymous@nsis.cvs.sourceforge.net:/cvsroot/nsis',
                              module='NSIS',
                              tag='HEAD')
+    def __init__ (self, settings, source):
+        toolsbuild.AutoBuild.__init__ (self, settings, source)
+# ugh, no object yet?
+#  File "gub/cross.py", line 121, in setup_linux_x86
+#    package.func (defer_compiler_checks)
+#  File "gub/context.py", line 228, in func
+#    return self.runner.func (f, *args)
+#AttributeError: 'NoneType' object has no attribute 'func'
+        if 'x86_64-linux' in self.settings.build_architecture:
+            cross.change_target_package_x86 (self, self.add_mingw_env ())
+        
     def add_mingw_env (self):
         # Do not use 'root', 'usr', 'cross', rather use from settings,
         # that enables changing system root, prefix, etc.
@@ -21,18 +32,13 @@ class Nsis (toolsbuild.SConsBuild):
                      + self.settings.prefix_dir
                      + self.settings.cross_dir
                      + '/bin')
-        return {'PATH': mingw_bin + ':' + os.environ['PATH'] }
-        
-    def __init__ (self, settings, source):
-        toolsbuild.AutoBuild.__init__ (self, settings, source)
-# ugh, no object yet?
-#  File "gub/cross.py", line 121, in setup_linux_x86
-#    package.func (defer_compiler_checks)
-#  File "gub/context.py", line 228, in func
-#    return self.runner.func (f, *args)
-#AttributeError: 'NoneType' object has no attribute 'func'
-        if False and 'x86_64-linux' in self.settings.build_architecture:
-            cross.setup_linux_x86 (self, self.add_mingw_env ())
+        tools_dir = (self.settings.alltargetdir + '/tools'
+                     + self.settings.root_dir)
+        tools_bin = (tools_dir
+                     + self.settings.prefix_dir
+                     + '/bin')
+        return {'PATH': mingw_bin + ':' + tools_bin + ':' + os.environ['PATH'] }
+
         
     def get_build_dependencies (self):
         if 'x86_64-linux' in self.settings.build_architecture:
@@ -42,7 +48,7 @@ class Nsis (toolsbuild.SConsBuild):
     def patch (self):
         self.system ('mkdir -p %(allbuilddir)s', ignore_errors=True)
         self.system ('ln -s %(srcdir)s %(builddir)s')
-        if self.settings.build_architecture.startswith ('x86_64-linux'):
+        if 'x86_64-linux' in self.settings.build_architecture:
             self.file_sub ([('''^Export\('defenv'\)''', '''
 import os
 defenv['CC'] = os.environ['CC']
@@ -65,8 +71,6 @@ SKIPPLUGINS=System
         return self.add_mingw_env ()
     
     def compile (self):
-        if 'x86_64-linux' in self.settings.build_architecture:
-            cross.setup_linux_x86 (self, self.add_mingw_env ())
         self.system ('cd %(builddir)s && %(compile_command)s',
                      self.build_environment ())
 

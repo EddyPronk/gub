@@ -94,6 +94,8 @@ class Func (SerializedCommand):
         hasher (inspect.getsource (self.func))
         hasher (repr (self.args))
     def execute (self, logger):
+# TODO: logme
+# logger.write_log ('invoking %(func)s ()'\n' % locals (), 'action')
         return self.func (logger, *self.args)
 
 class Message (SerializedCommand):
