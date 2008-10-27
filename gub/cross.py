@@ -12,6 +12,13 @@ from gub import toolsbuild
 class AutoBuild (build.AutoBuild):
     """Package for cross compilers/linkers etc.
     """
+    def get_substitution_dict (self, env={}):
+        dict = {
+            'PATH': '%(cross_prefix)s/bin:%(tools_prefix)s/bin:' + os.environ['PATH'],
+        }
+        dict.update (env)
+        d = build.AutoBuild.get_substitution_dict (self, dict).copy ()
+        return d
     def configure_command (self):
         return (build.AutoBuild.configure_command (self)
             + misc.join_lines ('''

@@ -42,6 +42,7 @@ class Gcc (cross.AutoBuild):
         cmd += '''
 --with-as=%(cross_prefix)s/bin/%(target_architecture)s-as
 --with-ld=%(cross_prefix)s/bin/%(target_architecture)s-ld
+--with-nm=%(cross_prefix)s/bin/%(target_architecture)s-nm
 --enable-static
 --enable-shared '''
 

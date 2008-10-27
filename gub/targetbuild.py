@@ -155,7 +155,7 @@ cd %(builddir)s && chmod +x %(configure_binary)s && %(configure_command_native)s
             + misc.append_path (os.environ.get ('LD_LIBRARY_PATH', '')),
             'NM': '%(toolchain_prefix)snm',
             'PKG_CONFIG_PATH': '%(system_prefix)s/lib/pkgconfig',
-            'PATH': '%(cross_prefix)s/bin:%(toolchain_prefix)s/bin:' + os.environ['PATH'],
+            'PATH': '%(cross_prefix)s/bin:%(tools_prefix)s/bin:' + os.environ['PATH'],
             'PKG_CONFIG': '''pkg-config \
 --define-variable prefix=%(system_prefix)s \
 --define-variable includedir=%(system_prefix)s/include \
