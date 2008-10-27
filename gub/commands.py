@@ -84,6 +84,56 @@ class Copy (SerializedCommand):
     def execute (self, logger):
         loggedos.copy2 (logger, self.src, self.dest)
 
+class Symlink (SerializedCommand):
+    def __init__ (self, src, dest):
+        self.src = src
+        self.dest = dest
+    def checksum (self, hasher):
+        hasher (self.__class__.__name__)
+        hasher (self.src)
+        hasher (self.dest)
+    def execute (self, logger):
+        loggedos.symlink (logger, self.src, self.dest)
+
+class Rename (SerializedCommand):
+    def __init__ (self, src, dest):
+        self.src = src
+        self.dest = dest
+    def checksum (self, hasher):
+        hasher (self.__class__.__name__)
+        hasher (self.src)
+        hasher (self.dest)
+    def execute (self, logger):
+        loggedos.rename (logger, self.src, self.dest)
+
+class Mkdir (SerializedCommand):
+    def __init__ (self, dir):
+        self.dir = dir
+    def checksum (self, hasher):
+        hasher (self.__class__.__name__)
+        hasher (self.dir)
+    def execute (self, logger):
+        loggedos.makedirs (logger, self.dir)
+
+class Chmod (SerializedCommand):
+    def __init__ (self, file, mode):
+        self.file = file
+        self.mode = mode
+    def checksum (self, hasher):
+        hasher (self.__class__.__name__)
+        hasher (self.file)
+        hasher (self.mode)
+    def execute (self, logger):
+        loggedos.chmod (logger, self.file, self.mode)
+
+class Remove (SerializedCommand):
+    def __init__ (self, file):
+        self.file = file
+    def checksum (self, hasher):
+        hasher (self.__class__.__name__)
+        hasher (self.file)
+    def execute (self, logger):
+        loggedos.remove (logger, self.file)
 
 class Func (SerializedCommand):
     def __init__ (self, func, *args):
@@ -94,8 +144,8 @@ class Func (SerializedCommand):
         hasher (inspect.getsource (self.func))
         hasher (repr (self.args))
     def execute (self, logger):
-# TODO: logme
-# logger.write_log ('invoking %(func)s ()'\n' % locals (), 'action')
+        func = self.func.__name__
+        logger.write_log ('invoking %(func)s ()\n' % locals (), 'command')
         return self.func (logger, *self.args)
 
 class Message (SerializedCommand):
@@ -105,7 +155,6 @@ class Message (SerializedCommand):
         self.is_checksummed = False
     def execute (self, logger):
         logger.write_log (self.message, self.message_type)
-        
     def checksum (self, hasher):
         pass
 

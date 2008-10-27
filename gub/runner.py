@@ -118,12 +118,24 @@ class CommandRunner:
     def copy (self, src, dest):
         return self._execute (commands.Copy (src, dest))
 
+    def symlink (self, src, dest):
+        return self._execute (commands.Symlink (src, dest))
+
+    def rename (self, src, dest):
+        return self._execute (commands.Rename (src, dest))
+
     def func (self, f, *args):
         return self._execute (commands.Func (f, *args))
+
+    def mkdir (self, dir):
+        return self._execute (commands.Mkdir (dir))
 
     def chmod (self, file, mode):
         return self._execute (commands.Chmod (file, mode))
     
+    def remove (self, file):
+        return self._execute (commands.Remove (file))
+
     def first_is_newer (self, first, second):
         return misc.first_is_newer (first, second)
 

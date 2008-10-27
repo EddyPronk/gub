@@ -232,6 +232,18 @@ class RunnableContext (Context):
     def chmod (self, file, mode):
         return self.runner.chmod (self.expand (file), mode)
 
+    def symlink (self, src, dest):
+        return self.runner.symlink (self.expand (src), self.expand (dest))
+
+    def rename (self, src, dest):
+        return self.runner.rename (self.expand (src), self.expand (dest))
+
+    def mkdir (self, dir):
+        return self.runner.mkdir (self.expand (dir))
+
+    def remove (self, file):
+        return self.runner.remove (self.expand (file))
+
 #
 # Tests.
 #

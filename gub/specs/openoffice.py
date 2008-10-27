@@ -27,13 +27,23 @@ Module 'fondu' delivered successfully. 0 files copied, 2 files unchanged
 Module 'hsqldb' delivered successfully. 1 files copied, 1 files unchanged
 Module 'hunspell' delivered successfully. 0 files copied, 15 files unchanged
 Module 'hyphen' delivered successfully. 0 files copied, 5 files unchanged
-Module 'icc' delivered successfully. 1 files copied, 1 files unchanged
-Module 'libtextcat' delivered successfully. 81 files copied, 0 files unchanged
-Module 'libwpg' delivered successfully. 16 files copied, 0 files unchanged
-Module 'libwps' delivered successfully. 6 files copied, 0 files unchanged
-Module 'libxmlsec' delivered successfully. 1 files copied, 0 files unchanged
+Module 'icc' delivered successfully. 0 files copied, 2 files unchanged
+Module 'libtextcat' delivered successfully. 0 files copied, 81 files unchanged
+Module 'libwpg' delivered successfully. 0 files copied, 16 files unchanged
+Module 'libwps' delivered successfully. 0 files copied, 6 files unchanged
+Module 'libxmlsec' delivered successfully. 0 files copied, 1 files unchanged
+Module 'lpsolve' delivered successfully. 1 files copied, 4 files unchanged
+Module 'lucene' delivered successfully. 1 files copied, 0 files unchanged
+Module 'np_sdk' delivered successfully. 0 files copied, 9 files unchanged
+Module 'o3tl' delivered successfully. 0 files copied, 5 files unchanged
+Module 'psprint_config' delivered successfully. 0 files copied, 1 files unchanged
+Module 'rhino' delivered successfully. 0 files copied, 2 files unchanged
+Module 'sane' delivered successfully. 0 files copied, 2 files unchanged
+Module 'store' delivered successfully. 0 files copied, 8 files unchanged
+Module 'registry' delivered successfully. 0 files copied, 23 files unchanged
+Module 'idlc' delivered successfully. 0 files copied, 7 files unchanged
 
-25 modules
+35 modules
 '''
 
 class Openoffice (targetbuild.AutoBuild):
