@@ -96,7 +96,7 @@ def split_ball (s):
     return (m.group (1), string_to_version (string.join (split_version (m.group (2)), '-')), m.group (6))
 
 def name_from_url (url):
-    url, params = misc.dissect_url (url)
+    url, params = dissect_url (url)
     name = os.path.basename (url)
     if is_ball (name):
         name, version_tuple, format = split_ball (name)
