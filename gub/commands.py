@@ -135,6 +135,17 @@ class Remove (SerializedCommand):
     def execute (self, logger):
         loggedos.remove (logger, self.file)
 
+class Rmtree (SerializedCommand):
+    def __init__ (self, file, ignore_errors=False):
+        self.file = file
+        self.ignore_errors = ignore_errors
+    def checksum (self, hasher):
+        hasher (self.__class__.__name__)
+        hasher (self.file)
+        hasher (self.ignore_errors)
+    def execute (self, logger):
+        loggedos.rmtree (logger, self.file, self.ignore_errors)
+
 class Func (SerializedCommand):
     def __init__ (self, func, *args):
         self.func = func

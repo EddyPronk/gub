@@ -136,6 +136,9 @@ class CommandRunner:
     def remove (self, file):
         return self._execute (commands.Remove (file))
 
+    def rmtree (self, file, ignore_errors=False):
+        return self._execute (commands.Rmtree (file, ignore_errors))
+
     def first_is_newer (self, first, second):
         return misc.first_is_newer (first, second)
 

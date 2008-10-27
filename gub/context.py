@@ -244,6 +244,9 @@ class RunnableContext (Context):
     def remove (self, file):
         return self.runner.remove (self.expand (file))
 
+    def rmtree (self, file):
+        return self.runner.rmtree (self.expand (file))
+
 #
 # Tests.
 #
