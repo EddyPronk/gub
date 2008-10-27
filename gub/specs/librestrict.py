@@ -1,15 +1,11 @@
 from gub import toolsbuild
 
 class Librestrict__tools (toolsbuild.ToolsBuild):
-    source = 'http://lily/librestrict-1.0.tar.gz'
-    def stages (self):
-        return [x for x in toolsbuild.ToolsBuild.stages (self)
-                if x not in ['download', 'patch', 'autoupdate', 'configure']]
+    source = 'url://host/librestrict-1.0.tar.gz'
     # ugh, download is not a true stage [yet]
-    def download (self):
-        pass
     def untar (self):
         self.system ('rm -rf %(builddir)s')
+    def configure (self):
         self.shadow_tree ('%(gubdir)s/librestrict', '%(builddir)s')
     def makeflags (self):
         return 'prefix=%(system_prefix)s'

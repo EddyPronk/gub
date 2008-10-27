@@ -1,9 +1,7 @@
-from gub import mirrors
 from gub import targetbuild
 
-class Libgnugetopt (targetbuild.TargetBuild):
-    source = mirrors.with_template (name='libgnugetopt', version='1.3', format='bz2', mirror=mirrors.freebsd_ports)
-
+class Libgnugetopt (targetbuild.MakeBuild):
+    source = 'ftp://ftp.uk.freebsd.org/pub/FreeBSD/ports/local-distfiles/lioux/libgnugetopt-1.3.tar.bz2'
     def patch (self):
         self.dump ('''
 prefix = %(prefix_dir)s
@@ -16,11 +14,6 @@ install: all
 \tinstall -m 644 getopt.h $(DESTDIR)/$(includedir)/
 ''',
              '%(srcdir)s/Makefile', mode='a')
-
-    def configure (self):
-        self.shadow_tree ('%(srcdir)s', '%(builddir)s')
-
     def license_files (self):
-
         ## is (L)GPL, but doesn't distribute license file.
         return ['']

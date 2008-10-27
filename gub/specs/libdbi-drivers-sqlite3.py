@@ -1,10 +1,8 @@
-from gub import mirrors
 from gub import misc
-from gub import repository
 from gub import targetbuild
 
 class Libdbi_drivers_sqlite3 (targetbuild.TargetBuild):
-    source = mirrors.with_vc (repository.NewTarBall (self.settings.downloads, mirrors.sf, 'libdbi-drivers', '0.8.2'))
+    source = 'http://surfnet.dl.sourceforge.net/sourceforge/libdbi-drivers/libdbi-drivers-0.8.2.tar.gz'
 
     def _get_build_dependencies (self):
         return ['sqlite', 'libdbi', 'libtool']

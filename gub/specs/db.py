@@ -2,9 +2,6 @@ from gub import targetbuild
 
 class Db (targetbuild.TargetBuild):
     source = "http://download.oracle.com/berkeley-db/db-4.7.25.tar.gz"
-    def patch (self):
-        targetbuild.TargetBuild.patch (self)
-        self.shadow_tree ('%(srcdir)s', '%(builddir)s')
     def cache_file (self):
         return '%(builddir)s/build_unix/config.cache'
     def configure_command (self):
@@ -14,6 +11,7 @@ class Db (targetbuild.TargetBuild):
     def makeflags (self):
         return '-C build_unix'
     def configure (self):
+        self.shadow ()
         self.system ('mkdir -p %(builddir)s/build_unix')
         targetbuild.TargetBuild.configure (self)
         self.file_sub ([('\(prefix\)docs', '\(prefix\)/share/doc/db'),

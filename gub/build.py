@@ -104,17 +104,18 @@ class UnixBuild (Build):
         self.so_version = '1'
 
     def stages (self):
-        if self.settings.platform == 'cygwin':
-            return ['untar', 'patch',
-                    'configure', 'compile', 'install',
-                    # see bin/gub TODO
-                    'src_package',
-                    'package', 'clean']
-        return ['untar', 'patch', 'autoupdate',
-                'configure', 'compile', 'install',
-                # see bin/gub TODO
-                #'src_package',
-                'package', 'clean']
+        lst = ['untar', 'patch', 'autoupdate', 'shadow'
+               'configure', 'compile', 'install',
+               'src_package', 'package', 'clean']
+        # see bin/gub TODO 'src_package',
+        if self.settings.platform != 'cygwin':
+            lst = [s for s in lst if s != 'src_pkg']
+        if not self.srcdir_build_broken ():
+            lst = [s for s in lst if s != 'shadow']
+        return lst
+
+    def configure_prepares_builddir (self):
+        return True
 
     @context.subst_method
     def LD_PRELOAD (self):
@@ -321,6 +322,7 @@ class UnixBuild (Build):
         return False
 
     def autoupdate (self):
+        # FIMXE: can we do this smarter?
         if self.force_autoupdate ():
             self.runner._execute (commands.ForcedAutogenMagic (self))
         else:
@@ -346,7 +348,7 @@ cd %(builddir)s && chmod +x %(configure_binary)s && %(configure_command)s
 ''')
         self.map_locate (UnixBuild.libtool_disable_install_not_into_dot_libs_test, '%(builddir)s', 'libtool')
 
-    def shadow_builddir (self):
+    def shadow (self):
         shadow_tree ('%(srcdir)s', '%(builddir)s')
 
     def compile (self):
@@ -379,7 +381,7 @@ tooldir=%(install_prefix)s
         '''libtool: install: error: cannot install `libexslt.la' to a directory not ending in /home/janneke/vc/gub/target/mingw/build/libxslt-1.1.24/libexslt/.libs'''
         loggedos.file_sub (logger, [(r'if test "\$inst_prefix_dir" = "\$destdir"; then',
                                      'if false && test "$inst_prefix_dir" = "$destdir"; then')],
-                           file, must_succeed=True)
+                           file)
 
     def update_libtool (self):
         def update (logger, file):

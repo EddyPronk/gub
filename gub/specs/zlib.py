@@ -6,12 +6,12 @@ from gub import toolsbuild
 class Zlib (targetbuild.TargetBuild):
     source = mirrors.with_template (name='zlib', version='1.2.3',
                    mirror='http://heanet.dl.sourceforge.net/sourceforge/libpng/zlib-1.2.3.tar.gz')
+    patches = ['zlib-1.2.3.patch']
     def get_build_dependencies (self):
         return ['tools::autoconf']
-    def patch (self):
-        targetbuild.TargetBuild.patch (self)
-        self.apply_patch ('zlib-1.2.3.patch')
-        self.shadow_tree ('%(srcdir)s', '%(builddir)s')
+    def configure (self):
+        self.shadow ()
+        targetbuild.TargetBuild.configure (self)
     def compile_command (self):
         return targetbuild.TargetBuild.compile_command (self) + ' ARFLAGS=r '
     def configure_command (self):
@@ -29,6 +29,7 @@ class Zlib (targetbuild.TargetBuild):
         return ['%(sourcefiledir)s/zlib.license']
 
 class Zlib__mingw (Zlib):
+    patches = Zlib.patches
     def patch (self):
         Zlib.patch (self)
         self.file_sub ([("='/bin/true'", "='true'"),
@@ -41,12 +42,12 @@ class Zlib__mingw (Zlib):
 
 class Zlib__tools (toolsbuild.ToolsBuild, Zlib):
     source = Zlib.source
+    patches = Zlib.patches
     def get_build_dependencies (self):
         return ['autoconf']
-    def patch (self):
-        toolsbuild.ToolsBuild.patch (self)
-        self.apply_patch ('zlib-1.2.3.patch')
-        self.shadow_tree ('%(srcdir)s', '%(builddir)s')
+    def configure (self):
+        self.shadow ()
+        toolsbuild.ToolsBuild.configure (self)
     def install_command (self):
         return toolsbuild.ToolsBuild.broken_install_command (self)
     def install (self):

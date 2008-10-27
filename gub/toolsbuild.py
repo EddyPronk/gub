@@ -68,3 +68,26 @@ LD_LIBRARY_PATH=%(system_prefix)s/lib
         dict.update (env)
         d = build.UnixBuild.get_substitution_dict (self, dict).copy ()
         return d
+
+class MakeBuild (ToolsBuild):
+    def stages (self):
+        return ['shadow' for s in [s for s in ToolsBuild.stages () if s not in ['autoupdate']]
+                if s == 'configure']
+
+class PythonBuild (ToolsBuild):
+    def stages (self):
+        return [s for s in TargetBuild.stages () if s not in ['autoupdate', 'configure']]
+    def compile (self):
+        self.system ('mkdir -p %(builddir)s')
+    def install_command (self):
+        return 'python %(srcdir)s/setup.py install --prefix=%(tools_prefix)s --root=%(install_root)s'
+
+class SConsBuild (ToolsBuild):
+    def stages (self):
+        return [s for s in TargetBuild.stages () if s not in ['autoupdate', 'configure']]
+    def compile_command (self):
+        # SCons barfs on trailing / on directory names
+        return ('scons PREFIX=%(system_prefix)s'
+                ' PREFIX_DEST=%(install_root)s')
+    def install_command (self):
+        return self.compile_command () + ' install'

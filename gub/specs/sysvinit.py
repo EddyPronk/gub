@@ -1,17 +1,9 @@
-from gub import mirrors
 from gub import targetbuild
-from gub import repository
 
-url = 'ftp://ftp.cistron.nl/pub/people/miquels/sysvinit/sysvinit-2.86.tar.gz'
-
-class Sysvinit (targetbuild.TargetBuild):
-    source = mirrors.with_vc (repository.TarBall (self.settings.downloads, url))
+class Sysvinit (targetbuild.MakeBuild):
+    source = 'ftp://ftp.cistron.nl/pub/people/miquels/sysvinit/sysvinit-2.86.tar.gz'
     def get_subpackage_names (self):
         return ['']
-    def patch (self):
-        self.shadow_tree ('%(srcdir)s', '%(builddir)s')
-    def configure_command (self):
-        return 'true'
     def makeflags (self):
         return 'CC=%(toolchain_prefix)sgcc ROOT=%(install_root)s'
     def compile_command (self):

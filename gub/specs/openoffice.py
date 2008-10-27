@@ -26,7 +26,7 @@ class Openoffice (targetbuild.TargetBuild):
     upstream_patches = ['openoffice-config_office-cross.patch', 'openoffice-config_office-gnu-make.patch', 'openoffice-solenv-cross.patch', 'openoffice-solenv.patch', 'openoffice-sal-cross.patch', 'openoffice-soltools-cross.patch']
     def get_build_dependencies (self):
         # redland-devel
-        return ['tools::autoconf', 'boost-devel', 'curl', 'cppunit-devel', 'db-devel', 'expat-devel', 'fontconfig-devel', 'libjpeg-devel', 'libpng-devel', 'python', 'saxon-java', 'xerces-c', 'zlib-devel']
+        return ['tools::autoconf', 'boost-devel', 'curl', 'cppunit-devel', 'db-devel', 'expat-devel', 'fontconfig-devel', 'libicu-devel', 'libjpeg-devel', 'libpng-devel', 'python', 'saxon-java', 'xerces-c', 'zlib-devel']
     def stages (self):
         return misc.list_insert_before (targetbuild.TargetBuild.stages (self),
                                         'compile',

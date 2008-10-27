@@ -8,12 +8,13 @@ class Git__tools (toolsbuild.ToolsBuild):
                    version='1.5.3.6')
     def get_build_dependencies (self):
         return ['curl', 'expat']
+
     def configure (self):
+        self.shadow ()
         self.dump ('prefix=%(system_prefix)s', '%(builddir)s/config.mak')
 
     def patch (self):
         toolsbuild.ToolsBuild.patch (self)
-        self.shadow_tree ('%(srcdir)s', '%(builddir)s')
         self.file_sub ([('git describe','true')],
                        '%(srcdir)s/GIT-VERSION-GEN')
         # kill perl.
@@ -43,6 +44,10 @@ class Git (targetbuild.TargetBuild):
     def version (self):
         return '1.5.3.rc2'
 
+    def configure (self):
+        self.shadow ()
+        targetbuild.TargetBuild.configure (self):
+
     def get_dependency_dict (self):
         return {'': [
             'zlib',
@@ -71,7 +76,6 @@ class Git (targetbuild.TargetBuild):
         self.apply_patch('git-1.5.2-templatedir.patch')
         targetbuild.TargetBuild.patch (self)
         self.system ('rm -rf %(builddir)s')
-        self.shadow_tree ('%(srcdir)s', '%(builddir)s')
         self.file_sub ([('git describe','true')],
                         '%(srcdir)s/GIT-VERSION-GEN')
         self.apply_patch ('git-1.5-shell-anality.patch')

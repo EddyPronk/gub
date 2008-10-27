@@ -445,13 +445,6 @@ class ZipFile (TarBall):
 
 RepositoryProxy.register (ZipFile)
 
-# JUNKME.
-class NewTarBall (TarBall):
-    def __init__ (self, dir, mirror, name, ball_version, format='gz',
-                  strip_components=1):
-        TarBall.__init__ (self, dir, mirror % locals (), ball_version,
-                          strip_components)
-
 class Git (Repository):
     vc_system = '.git'
 

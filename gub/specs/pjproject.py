@@ -12,11 +12,10 @@ class Pjproject (targetbuild.TargetBuild):
     def patch (self):
         self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/pjproject-install.patch')
     def configure_command (self):
-#        return targetbuild.TargetBuild.configure_command (self).replace ('/configure', '/aconfigure')
         return (targetbuild.TargetBuild.configure_command (self).replace ('%(srcdir)s/configure', './aconfigure')
                 + ' --disable-sound')
     def configure (self):
-        self.shadow_tree ('%(srcdir)s', '%(builddir)s')
+        self.shadow ()
         targetbuild.TargetBuild.configure (self)
     def install_command (self):
         return (targetbuild.TargetBuild.install_command (self)

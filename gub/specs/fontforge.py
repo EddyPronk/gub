@@ -1,14 +1,8 @@
-from gub import commands 
 from gub import toolsbuild 
-from gub import mirrors
 
-class Fontforge (toolsbuild.ToolsBuild):
-    source = mirrors.with_template (
-        name='fontforge',
-        mirror='http://lilypond.org/download/gub-sources/fontforge_full-%(version)s.tar.bz2',
-        version='20080927')
+class Fontforge_tools (toolsbuild.ToolsBuild):
+    source = 'http://lilypond.org/download/gub-sources/fontforge_full-20080927.tar.bz2'
 
-    # build settings
     def configure_command (self):
         return (toolsbuild.ToolsBuild.configure_command (self)
                 + ' --without-freetype-src'
@@ -16,6 +10,10 @@ class Fontforge (toolsbuild.ToolsBuild):
                 # let's ignore python (and its dynamic link intracies
                 # for now).
                 + ' --without-python')
+
+    def configure (self):
+        self.shadow ()
+        toolsbuild.ToolsBuild.configure (self)
 
     def get_build_dependencies (self):
         return ['freetype']
@@ -41,5 +39,3 @@ class Fontforge (toolsbuild.ToolsBuild):
                 [(' -I$(top_srcdir)/inc',
                   ' -I$(top_srcdir)/inc -I$(top_builddir)/inc')],
                 name, use_re=False)
-                    
-        self.shadow_tree ('%(srcdir)s', '%(builddir)s')

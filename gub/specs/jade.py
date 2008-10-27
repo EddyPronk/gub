@@ -11,7 +11,6 @@ class Jade__tools (toolsbuild.ToolsBuild):
         self.system ('cd %(srcdir)s && cp -f config/configure.in .')
         self.system ('cd %(srcdir)s && libtoolize --force --copy || :')
         self.runner._execute (commands.ForcedAutogenMagic (self))
-        self.shadow_tree ('%(srcdir)s', '%(builddir)s')
     def configure_command (self):
         return (build.UnixBuild.configure_command (self)
                 + misc.join_lines ('''
@@ -22,6 +21,7 @@ LD_LIBRARY_PATH=%(system_prefix)s/lib
     def configure_binary (self):
         return '%(builddir)s/configure'
     def configure (self):
+        self.shadow ()
         toolsbuild.ToolsBuild.configure (self)
         self.system ('cd %(builddir)s; for i in $(ls -1dF * |grep /); do make -C $i -f ../Makefile.lib Makefile.lt; done || :')
     def makeflags (self):

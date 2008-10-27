@@ -11,15 +11,13 @@ class Busybox (targetbuild.TargetBuild):
     source = mirrors.with_vc (repository.TarBall (self.settings.downloads, url))
     def get_subpackage_names (self):
         return ['']
-    def patch (self):
-        self.shadow_tree ('%(srcdir)s', '%(builddir)s')
-        pass # FIXME: no ./configure, but do not run autoupdate
     def configure_command (self):
         return 'make -f %(srcdir)s/Makefile defconfig'
     @context.subst_method
     def autoconf_h (self):
         return 'autoconf.h'
     def configure (self):
+        self.shadow ()
         targetbuild.TargetBuild.configure (self)
         self.file_sub ([('^# CONFIG_FEATURE_SH_IS_ASH is not set', 'CONFIG_FEATURE_SH_IS_ASH=y'),
                         ('^CONFIG_FEATURE_SH_IS_NONE=y', '# CONFIG_FEATURE_SH_IS_NONE is not set'),

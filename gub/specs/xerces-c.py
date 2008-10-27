@@ -23,8 +23,6 @@ class Xerces_c (targetbuild.TargetBuild):
         targetbuild.change_target_dict (self, self.compile_dict)
     def force_sequential_build (self):
         return True
-    def patch (self):
-        self.shadow_tree ('%(srcdir)s', '%(builddir)s')
     def configure_binary (self):
         return '%(srcdir)s/src/xercesc/configure'
     def configure_command (self):
@@ -40,13 +38,6 @@ class Xerces_c (targetbuild.TargetBuild):
         for i in self.compile_dict.keys ():
             s += ' ' + i + '="' + self.compile_dict[i] + '"'
         return s
-    def xcompile_command (self):
-        return (targetbuild.TargetBuild.compile_command (self)
-                + self.makeflags ()
-                + ';' + targetbuild.TargetBuild.compile_command (self)
-                + self.makeflags ()
-                + ';' + targetbuild.TargetBuild.compile_command (self)
-                + self.makeflags ())
     def compile_command (self):
         return (targetbuild.TargetBuild.compile_command (self)
                 + self.makeflags ())
@@ -54,6 +45,7 @@ class Xerces_c (targetbuild.TargetBuild):
         return (targetbuild.TargetBuild.install_command (self)
                 + self.makeflags ())
     def configure (self):
+        self.shadow ()
         self.config_cache ()
         self.system ('cd %(builddir)s/src/xercesc && %(configure_command)s')
     def compile (self):

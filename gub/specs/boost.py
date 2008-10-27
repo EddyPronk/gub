@@ -5,7 +5,7 @@ from gub import targetbuild
 import os
 
 # TODO: AutoToolSpec
-class BjamBuild (targetbuild.TargetBuild):
+class BjamBuild (targetbuild.MakeBuild)
     def __init__ (self, settings, source):
         targetbuild.TargetBuild.__init__ (self, settings, source)
         targetbuild.append_target_dict (self, {'CFLAGS': ''})
@@ -14,10 +14,6 @@ class BjamBuild (targetbuild.TargetBuild):
         dict = targetbuild.TargetBuild.get_substitution_dict (self, env)
         dict['CFLAGS'] = ''
         return dict
-    def patch (self):
-        self.shadow_tree ('%(srcdir)s', '%(builddir)s')
-    def configure_command (self):
-        return 'true'
     def compile_command (self):
 # FIXME: WTF, where has python_version gone?
 # only static because dynamic libs fail on linux-64..?
@@ -82,7 +78,8 @@ cp %(link)s %(file)s
         self.map_locate (replace_links, '%(install_prefix)s/include/boost', '*')
         
 class Boost__linux_arm_softfloat (BjamBuild):
-    def configure_command (self):
+    def shadow (self):
+        BjamBuild.shadow (self)
         self.system ('''
 cp -f boost/config/platform/linux.hpp boost/config/platform/linux-gnueabi.hpp
 ''')

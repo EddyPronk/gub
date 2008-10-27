@@ -46,12 +46,8 @@ class Glibc (targetbuild.TargetBuild, cross.CrossToolsBuild):
         d['SHELL'] = '/bin/bash'
         return d
     def linuxthreads (self):
-        return repository.NewTarBall (dir=self.settings.downloads,
-                                      mirror=mirrors.glibc,
-                                      name='glibc-linuxthreads',
-                                      ball_version=self.version (),
-                                      format='bz2',
-                                      strip_components=0)
+        return repository.get_repository_proxy (self.settings.downloads,
+                                                self.expand ('ftp://ftp.gnu.org/pub/gnu/glibc/glibc-linuxthreads-%(version)s.tar.bz2&strip_components=0'))
     def download (self):
         targetbuild.TargetBuild.download (self)
         if self.version () == '2.3.6':

@@ -6,6 +6,7 @@ from gub import build
 from gub import context
 from gub import logging
 from gub import misc
+from gub import targetbuild
 from gub import toolsbuild
 
 class CrossToolsBuild (build.UnixBuild):
@@ -45,6 +46,10 @@ def set_cross_dependencies (package_object_dict):
                                         and not isinstance (p, build.BinaryBuild)
                                         and not isinstance (p, toolsbuild.ToolsBuild)
                                         and not p.platform_name () in bootstrap_names)]
+    python_packs = [p for p in packs if (isinstance (p, toolsbuild.PythonBuild)
+                                         or isinstance (p, targetbuild.PythonBuild))]
+    scons_packs = [p for p in packs if (isinstance (p, toolsbuild.SConsBuild)
+                                        or isinstance (p, targetbuild.SConsBuild))]
     
     sdk_names = [s.platform_name () for s in sdk_packs]
     cross_names = [s.platform_name () for s in cross_packs]
@@ -60,6 +65,14 @@ def set_cross_dependencies (package_object_dict):
         old_callback = p.get_build_dependencies
         p.get_build_dependencies = misc.MethodOverrider (old_callback,
                                                          lambda x,y: x+y, (bootstrap_names,))
+    for p in python_packs:
+        old_callback = p.get_build_dependencies
+        p.get_build_dependencies = misc.MethodOverrider (old_callback,
+                                                         lambda x,y: x+y, (['tools::python'],))
+    for p in scons_packs:
+        old_callback = p.get_build_dependencies
+        p.get_build_dependencies = misc.MethodOverrider (old_callback,
+                                                         lambda x,y: x+y, (['tools::scons'],))
     return packs
 
 cross_module_checksums = {}

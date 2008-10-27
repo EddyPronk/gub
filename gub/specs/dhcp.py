@@ -10,10 +10,11 @@ class Dhcp (targetbuild.TargetBuild):
         source.strip_components = 2
     def get_subpackage_names (self):
         return ['']
-    def patch (self):
-        self.shadow_tree ('%(srcdir)s', '%(builddir)s')
     def configure_command (self):
         return '%(srcdir)s/configure linux-2.2'
+    def configure (self):
+        self.shadow ()
+        targetbuild.TargetBuild.configure (self)
     def makeflags (self):
         from gub import misc
         return misc.join_lines ('''

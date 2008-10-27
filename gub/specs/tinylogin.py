@@ -4,12 +4,8 @@ from gub import targetbuild
 
 url = 'http://tinylogin.busybox.net/downloads/tinylogin-1.4.tar.gz'
 
-class Tinylogin (targetbuild.TargetBuild):
+class Tinylogin (targetbuild.MakeBuild):
     source = mirrors.with_vc (repository.TarBall (self.settings.downloads, url))
-    def patch (self):
-        self.shadow_tree ('%(srcdir)s', '%(builddir)s')
-    def configure_command (self):
-        return 'true'
     def makeflags (self):
         return 'CROSS=%(toolchain_prefix)s PREFIX=%(install_root)s'
     def install (self):

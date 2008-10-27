@@ -8,9 +8,8 @@ class Netpbm__tools (toolsbuild.ToolsBuild):
         return ['libjpeg'] # libtiff-dev libx11-dev
 
     def configure (self):
-        self.shadow_tree ('%(srcdir)s', '%(builddir)s')
+        self.shadow ()
         self.dump ('\n'*3 + 'static\n' + '\n'*18, '%(builddir)s/answers')
-
         self.system ('cd %(builddir)s && %(srcdir)s/configure < answers')
 
     def compile (self):
