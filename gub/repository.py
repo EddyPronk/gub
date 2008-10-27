@@ -235,11 +235,18 @@ class TagDb:
         return None
 
 class Version (Repository):
-    def __init__ (self, name, version):
+    vc_system = 'url'
+    @staticmethod
+    def create (rety, dir, source, branch='', revision=''):
+        return Version (source, revision)
+    def __init__ (self, name, version=''):
         self.dir = None
         self._name = name
         self.source = name + '-' + version
         self._version = version
+        if not version:
+            x, v, f = misc.split_ball (name)
+            self._version = '.'.join (map (str, v[:-1]))
     def version (self):
         return self._version
     def name (self):
@@ -247,7 +254,7 @@ class Version (Repository):
     def connect_logger (self, logger):
         pass
 
-#RepositoryProxy.register (Version)
+RepositoryProxy.register (Version)
 
 class Darcs (Repository):
     vc_system = '_darcs'
