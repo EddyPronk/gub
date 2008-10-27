@@ -47,7 +47,8 @@ class BuildRunner:
         self.specs = specs
 
         # spec name -> string
-        self.checksums = {}
+        self.checksums = dict ()
+        self.failed_checksums = dict ()
 
         PATH = os.environ['PATH']
         # cross_prefix is also necessary for building cross packages, such as GCC
@@ -79,7 +80,10 @@ class BuildRunner:
             spec.connect_command_runner (None)
 
             self.checksums[name] = command_runner.checksum ()
- 
+            reason = self.spec_checksums_fail_reason (spec)
+            if reason:
+                self.failed_checksums[name] = reason
+
     # FIXME: move to gup.py or to build.py?
     def spec_checksums_fail_reason (self, spec):
         # need to read package header to read checksum_file.  since
@@ -163,11 +167,7 @@ class BuildRunner:
         if all_installed:
             return
 
-        checksum_fail_reason = self.spec_checksums_fail_reason (spec)
-
-        is_installable = misc.forall (self.manager (p.platform ()).is_installable (p.name ())
-                                      for p in spec.get_packages ())
-
+        checksum_fail_reason = self.failed_checksums.get (spec_name, '')
         logger = logging.default_logger
         if checksum_fail_reason:
             logger.write_log ('checkum failed: %(spec_name)s\n' % locals (), 'stage')
@@ -178,6 +178,8 @@ class BuildRunner:
             logger.write_log ('\n'.join (checksum_fail_reason.split ('\n')[:10]), 'verbose')
         logger.write_log (checksum_fail_reason, 'output')
 
+        is_installable = misc.forall (self.manager (p.platform ()).is_installable (p.name ())
+                                      for p in spec.get_packages ())
         if (not is_installable or checksum_fail_reason):
 
             deferred_runner = runner.DeferredRunner (logger)
@@ -198,7 +200,7 @@ class BuildRunner:
 
     def uninstall_outdated_spec (self, spec_name):
 	spec = self.specs[spec_name]
-        checksum_fail_reason = self.spec_checksums_fail_reason (self.specs[spec_name])
+        checksum_fail_reason = self.failed_checksums.get (spec_name, '')
 	checksum_ok = '' == checksum_fail_reason
 	for pkg in spec.get_packages ():
 	    if (self.manager (pkg.platform ()).is_installed (pkg.name ())
@@ -212,6 +214,9 @@ class BuildRunner:
 
     def build_source_packages (self, names):
         deps = filter (self.specs.has_key, names)
+        platform = self.settings.platform
+        fail_str = ' '.join (self.failed_checksums.keys ()).replace (misc.with_platform ('', platform), '')
+        logging.default_logger.write_log ('must rebuild[%(platform)s]: %(fail_str)s\n' % locals (), 'stage')
         self.uninstall_outdated_specs (deps)
         for spec_name in deps:
             self.spec_build (spec_name)
