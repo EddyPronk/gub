@@ -6,6 +6,8 @@ class Db (targetbuild.AutoBuild):
         return '%(builddir)s/build_unix/config.cache'
     def configure_command (self):
         return 'cd build_unix && ../' + targetbuild.AutoBuild.configure_command (self)
+    def autodir (self):
+        return '%(srcdir)s/dist'
     def configure_binary (self):
         return 'dist/configure'
     def makeflags (self):
