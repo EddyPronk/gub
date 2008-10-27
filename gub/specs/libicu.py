@@ -17,8 +17,6 @@ class Libicu (targetbuild.AutoBuild):
                                         ['configure_native', 'compile_native'])
     def autodir (self):
         return '%(srcdir)s/source'
-    def configure_binary (self):
-        return '%(srcdir)s/source/configure'
     def makeflags (self):
         return misc.join_lines ('''
 BINDIR_FOR_BUILD='$(BINDIR)-native'

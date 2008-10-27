@@ -23,8 +23,8 @@ class Xerces_c (targetbuild.AutoBuild):
         targetbuild.change_target_dict (self, self.compile_dict)
     def force_sequential_build (self):
         return True
-    def configure_binary (self):
-        return '%(srcdir)s/src/xercesc/configure'
+    def autodir (self):
+        return '%(srcdir)s/src/xercesc'
     def configure_command (self):
         # We really did not understand autotools, so we cd and ENV
         # around it until it breaks.  And see, our webserver is soo
