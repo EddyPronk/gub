@@ -69,7 +69,6 @@ class Dependency:
         self._name = name
 
         if misc.is_ball (name):
-            # huh ? name_from_url vs. name_from_ball?
             self._name = misc.name_from_url (name)
             
         self._cls = self._flavour = None

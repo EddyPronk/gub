@@ -439,7 +439,8 @@ def get_source_packages (settings, const_todo):
         if ':' in url:
             base, unused_parameters = misc.dissect_url (url)
             name = os.path.basename (base)
-            name = re.sub ('\..*', '', name)
+            ##DOCME or JUNKME
+            ##name = re.sub ('\..*', '', name)
             key = url
         else:
             name = get_base_package_name (url)
@@ -447,6 +448,7 @@ def get_source_packages (settings, const_todo):
             key = name
             
         key = with_platform (key, platform)
+        print 'KEY:', key
         if spec_dict.has_key (key):
             spec = spec_dict[key]
         else:
@@ -488,14 +490,13 @@ def get_source_packages (settings, const_todo):
     todo += cross.set_cross_dependencies (spec_dict)
     topologically_sorted (todo, {}, name_to_deps)
 
-    # Fixup for build from url: spec_dict key is full url,
-    # change to base name
-    # must use list(dict.keys()), since dict changes during iteration.
-    for name in (): #list (spec_dict.keys ()):
+    # Fixup for build from url: spec_dict key is full url, change to
+    # base name.  Must use list(dict.keys()), since dict changes during
+    # iteration.
+    for name in list (spec_dict.keys ()):
         spec = spec_dict[name]
-        ps = with_platform (spec.name ())
-        if name != spec.name:
-            spec_dict[spec.name ()] = spec
+        if name != spec.platform_name ():
+            spec_dict[spec.platform_name ()] = spec
 
     if settings.is_distro:
         def obj_to_dependency_objects (obj):
