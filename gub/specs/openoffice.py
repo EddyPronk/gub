@@ -73,6 +73,9 @@ class Openoffice (targetbuild.AutoBuild):
         # self-hosting or compile them as Openoffice__tools package...
         # Shortcut: use precompiled tools from user's system
         return os.environ['OOO_TOOLS_DIR']
+    @context.subst_method
+    def LD_LIBRARY_PATH (self):
+        return '%(OOO_TOOLS_DIR)s/../lib' + misc.append_path (os.environ.get ('LD_LIBRARY_PATH', ''))
     def autoupdate (self):
         # Why is build.py:Build:patch() not doing this?
         map (self.apply_patch, self.__class__.patches)
@@ -229,7 +232,7 @@ cd %(builddir)s/build/%(cvs_tag)s && patch -p%(patch_strip_component)s < %(patch
 
         self.system ('chmod +x %(upstream_dir)s/solenv/bin/build.pl %(upstream_dir)s/solenv/bin/deliver.pl')
 
-        disable_modules = ['sandbox', 'testshl2', 'hsqldb', 'lpsolve']
+        disable_modules = ['sandbox', 'testshl2', 'hsqldb', 'lpsolve', 'lucene']
         for module in disable_modules:
             self.system ('sed -i -e "s@[ \t]all@ i@g" %(upstream_dir)s/%(module)s/prj/build.lst', locals ())
 
@@ -245,6 +248,7 @@ C_INCLUDE_PATH=
 LIBRARY_PATH=
 EXECPOST=
 SOLAR_JAVA=
+LD_LIBRARY_PATH=%(LD_LIBRARY_PATH)s
 ''')
 ##main configure barfs
 ##CPPFLAGS=
