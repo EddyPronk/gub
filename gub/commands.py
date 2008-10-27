@@ -293,7 +293,7 @@ class ForcedAutogenMagic (SerializedCommand):
             self.system ('cd %(autodir)s && NOCONFIGURE=1 bash autogen.sh %(noconfigure)s' % locals (),
                          logger)
         else:
-            libtoolize = misc.path_find (package.expand ('%(PATH)s', 'libtoolize')
+            libtoolize = misc.path_find (package.expand ('%(PATH)s', 'libtoolize'))
             if libtoolize:
                 s = file (libtoolize).read ()
                 libtoolize = 'libtoolize --copy --force'
