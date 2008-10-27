@@ -74,8 +74,9 @@ class LilyPond (targetbuild.AutoBuild):
                 'tools::pkg-config', # nonstandard (MacOS)
                 'tools::netpbm', # website
                 'tools::gettext', # AM_GNU_GETTEXT
-                'tools::git' # possibly too old.  Automate this, by
-                             # looking at self.source.[Git]?
+                'tools::git', # possibly too old or too new.  Automate this, by looking at self.source.[Git]?
+                'tools::t1utils',
+                #'tools::texlive', mpost ... *grin*
                 ]
 
     def autoupdate (self):
