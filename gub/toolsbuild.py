@@ -71,8 +71,7 @@ LD_LIBRARY_PATH=%(system_prefix)s/lib
 
 class MakeBuild (AutoBuild):
     def stages (self):
-        return ['shadow' for s in [s for s in AutoBuild.stages (self) if s not in ['autoupdate']]
-                if s == 'configure']
+        return [s.replace ('configure', 'shadow') for s in AutoBuild.stages (self) if s not in ['autoupdate']]
 
 class PythonBuild (AutoBuild):
     def stages (self):
