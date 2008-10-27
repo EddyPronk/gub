@@ -71,12 +71,12 @@ LD_LIBRARY_PATH=%(system_prefix)s/lib
 
 class MakeBuild (AutoBuild):
     def stages (self):
-        return ['shadow' for s in [s for s in AutoBuild.stages () if s not in ['autoupdate']]
+        return ['shadow' for s in [s for s in AutoBuild.stages (self) if s not in ['autoupdate']]
                 if s == 'configure']
 
 class PythonBuild (AutoBuild):
     def stages (self):
-        return [s for s in AutoBuild.stages () if s not in ['autoupdate', 'configure']]
+        return [s for s in AutoBuild.stages (self) if s not in ['autoupdate', 'configure']]
     def compile (self):
         self.system ('mkdir -p %(builddir)s')
     def install_command (self):
@@ -84,7 +84,7 @@ class PythonBuild (AutoBuild):
 
 class SConsBuild (AutoBuild):
     def stages (self):
-        return [s for s in AutoBuild.stages () if s not in ['autoupdate', 'configure']]
+        return [s for s in AutoBuild.stages (self) if s not in ['autoupdate', 'configure']]
     def compile_command (self):
         # SCons barfs on trailing / on directory names
         return ('scons PREFIX=%(system_prefix)s'
