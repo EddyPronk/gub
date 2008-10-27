@@ -104,14 +104,12 @@ class AutoBuild (Build):
         self.so_version = '1'
 
     def stages (self):
-        lst = ['untar', 'patch', 'autoupdate', 'shadow'
+        lst = ['untar', 'patch', 'autoupdate',
                'configure', 'compile', 'install',
                'src_package', 'package', 'clean']
         # see bin/gub TODO 'src_package',
         if self.settings.platform != 'cygwin':
-            lst = [s for s in lst if s != 'src_pkg']
-        if not self.srcdir_build_broken ():
-            lst = [s for s in lst if s != 'shadow']
+            lst = [s for s in lst if s != 'src_package']
         return lst
 
     def configure_prepares_builddir (self):
@@ -349,7 +347,7 @@ cd %(builddir)s && chmod +x %(configure_binary)s && %(configure_command)s
         self.map_locate (AutoBuild.libtool_disable_install_not_into_dot_libs_test, '%(builddir)s', 'libtool')
 
     def shadow (self):
-        shadow_tree ('%(srcdir)s', '%(builddir)s')
+        self.shadow_tree ('%(srcdir)s', '%(builddir)s')
 
     def compile (self):
         self.system ('cd %(builddir)s && %(compile_command)s')
