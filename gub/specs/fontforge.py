@@ -1,6 +1,6 @@
 from gub import toolsbuild 
 
-class Fontforge_tools (toolsbuild.AutoBuild):
+class Fontforge__tools (toolsbuild.AutoBuild):
     source = 'http://lilypond.org/download/gub-sources/fontforge_full-20080927.tar.bz2'
 
     def configure_command (self):

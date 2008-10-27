@@ -32,7 +32,6 @@ distcc = 'http://distcc.samba.org/ftp/distcc/distcc-2.18.3.tar.bz2'
 expat = join (sf, 'expat/expat-1.95.8.tar.gz')
 #flex = join (sf, 'flex/flex-2.5.4a.tar.gz')
 flex = join (sf, 'bex/flex-2.5.4a.tar.gz')
-fontforge = join (gub, 'fontforge_full-20060501.tar.bz2')
 freetype = join (nongnu, 'freetype/freetype-2.1.10.tar.gz')
 gettext = join (gnu, 'gettext/gettext-0.15.tar.gz')
 git = 'http://kernel.org/pub/software/scm/git/git-1.5.1.4.tar.bz2'
