@@ -163,21 +163,19 @@ class BuildRunner:
         if all_installed:
             return
 
-        # ugh, dupe
         checksum_fail_reason = self.spec_checksums_fail_reason (spec)
 
         is_installable = misc.forall (self.manager (p.platform ()).is_installable (p.name ())
                                       for p in spec.get_packages ())
 
-	# ugh, dupe
         logger = logging.default_logger
         if checksum_fail_reason:
             logger.write_log ('checkum failed: %(spec_name)s\n' % locals (), 'stage')
         else:
             logger.write_log ('checkum ok: %(spec_name)s\n' % locals (), 'verbose')
 
-        if logging.get_numeric_loglevel ('command') > logger.threshold:
-            logger.write_log ('\n'.join (checksum_fail_reason.split ('\n')[:10]), 'command')
+        if logging.get_numeric_loglevel ('verbose') > logger.threshold:
+            logger.write_log ('\n'.join (checksum_fail_reason.split ('\n')[:10]), 'verbose')
         logger.write_log (checksum_fail_reason, 'output')
 
         if (not is_installable or checksum_fail_reason):
