@@ -15,6 +15,8 @@ class Libicu (targetbuild.AutoBuild):
         return misc.list_insert_before (targetbuild.AutoBuild.stages (self),
                                         'configure',
                                         ['configure_native', 'compile_native'])
+    def autodir (self):
+        return '%(srcdir)s/source'
     def configure_binary (self):
         return '%(srcdir)s/source/configure'
     def makeflags (self):
