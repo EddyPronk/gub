@@ -14,12 +14,6 @@ class Nsis (toolsbuild.SConsBuild):
                              tag='HEAD')
     def __init__ (self, settings, source):
         toolsbuild.AutoBuild.__init__ (self, settings, source)
-# ugh, no object yet?
-#  File "gub/cross.py", line 121, in setup_linux_x86
-#    package.func (defer_compiler_checks)
-#  File "gub/context.py", line 228, in func
-#    return self.runner.func (f, *args)
-#AttributeError: 'NoneType' object has no attribute 'func'
         if 'x86_64-linux' in self.settings.build_architecture:
             cross.change_target_package_x86 (self, self.add_mingw_env ())
         
