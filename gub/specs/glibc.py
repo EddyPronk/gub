@@ -8,7 +8,7 @@ import os
 
 # Hmm? TARGET_CFLAGS=-O --> targetbuild.py
 
-class Glibc (targetbuild.AutoBuild, cross.CrossAutoBuild):
+class Glibc (targetbuild.AutoBuild, cross.AutoBuild):
     def __init__ (self, settings, source):
         targetbuild.AutoBuild.__init__ (self, settings, source)
         #self.with_tarball (mirror=mirrors.gnu, version='2.3.6')

@@ -22,7 +22,7 @@ def change_target_package (package):
     package.install = misc.MethodOverrider (package.install, install)
 
     # FIXME (cygwin): [why] do cross packages get here too?
-    if isinstance (package, cross.CrossAutoBuild):
+    if isinstance (package, cross.AutoBuild):
         return
 
     targetbuild.change_target_dict (package, {

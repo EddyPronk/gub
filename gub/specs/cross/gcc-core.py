@@ -43,7 +43,7 @@ class Gcc_core (gcc.Gcc__from__source):
     def install (self):
         # Gcc moves libs into system lib places, which will
         # make gcc-core conflict with gcc.
-        cross.CrossAutoBuild.install (self)
+        cross.AutoBuild.install (self)
     def languages (self):
         return  ['c']
 

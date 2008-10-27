@@ -7,7 +7,7 @@ from gub import context
 from gub import loggedos
 
 #FIXME: merge fully with specs/gcc
-class Gcc (cross.CrossAutoBuild):
+class Gcc (cross.AutoBuild):
     source = mirrors.with_tarball (
         #/usr/lib/libstdc++.so.6: version `GLIBCXX_3.4.9' not found
         #(required by /../usr/bin/lilypond
@@ -29,7 +29,7 @@ class Gcc (cross.CrossAutoBuild):
         return ['c', 'c++']
         
     def configure_command (self):
-        cmd = cross.CrossAutoBuild.configure_command (self)
+        cmd = cross.AutoBuild.configure_command (self)
         # FIXME: using --prefix=%(tooldir)s makes this
         # uninstallable as a normal system package in
         # /usr/i686-mingw/
@@ -67,7 +67,7 @@ class Gcc (cross.CrossAutoBuild):
                              'lib*%s' % suf)
 
     def install (self):
-        cross.CrossAutoBuild.install (self)
+        cross.AutoBuild.install (self)
         old_libs = self.expand ('%(install_prefix)s/cross/%(target_architecture)s')
 
         self.move_target_libs (old_libs)

@@ -9,7 +9,7 @@ from gub import misc
 from gub import targetbuild
 from gub import toolsbuild
 
-class CrossAutoBuild (build.AutoBuild):
+class AutoBuild (build.AutoBuild):
     """Package for cross compilers/linkers etc.
     """
     def configure_command (self):
@@ -38,10 +38,10 @@ bootstrap_names = ['tools::librestrict']
 def set_cross_dependencies (package_object_dict):
     packs = package_object_dict.values ()
 
-    cross_packs = [p for p in packs if isinstance (p, CrossAutoBuild)]
+    cross_packs = [p for p in packs if isinstance (p, AutoBuild)]
     sdk_packs = [p for p in packs if isinstance (p, build.SdkBuild)]
     tools_packs = [p for p in packs if isinstance (p, toolsbuild.AutoBuild)]
-    other_packs = [p for p in packs if (not isinstance (p, CrossAutoBuild)
+    other_packs = [p for p in packs if (not isinstance (p, AutoBuild)
                                         and not isinstance (p, build.SdkBuild)
                                         and not isinstance (p, build.BinaryBuild)
                                         and not isinstance (p, toolsbuild.AutoBuild)
