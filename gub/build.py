@@ -347,6 +347,7 @@ cd %(builddir)s && chmod +x %(configure_binary)s && %(configure_command)s
         self.map_locate (AutoBuild.libtool_disable_install_not_into_dot_libs_test, '%(builddir)s', 'libtool')
 
     def shadow (self):
+        self.system ('rm -rf %(builddir)s')
         self.shadow_tree ('%(srcdir)s', '%(builddir)s')
 
     def compile (self):
