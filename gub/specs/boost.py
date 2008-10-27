@@ -5,7 +5,7 @@ from gub import targetbuild
 import os
 
 # TODO: AutoToolSpec
-class BjamBuild (targetbuild.MakeBuild)
+class BjamBuild (targetbuild.MakeBuild):
     def __init__ (self, settings, source):
         targetbuild.AutoBuild.__init__ (self, settings, source)
         targetbuild.append_target_dict (self, {'CFLAGS': ''})
