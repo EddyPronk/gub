@@ -6,7 +6,7 @@ from gub import misc
 texlive_svn = 'svn://username@tug.org/texlive'
 license_url = 'http://tug.org/svn/texlive/trunk/Master/LICENSE.TL'
 
-class Texlive (targetbuild.TargetBuild):
+class Texlive (targetbuild.AutoBuild):
     '''The TeX Live text formatting system
 The TeX Live software distribution offers a complete TeX system.
 It  encompasses programs for editing, typesetting, previewing and printing
@@ -20,14 +20,14 @@ packages.'''
     source = mirrors.with_vc (repository.Subversion (None,
                                                      source=texlive_svn,
                                                      branch='trunk',
-                                                     module='UnixBuild/source',
+                                                     module='AutoBuild/source',
                                                      revision='HEAD'))
 
     def get_build_dependencies (self):
         return ['tools::autoconf', 'tools::automake', 'tools::libtool']
 
     def __init__ (self, settings, source):
-        targetbuild.TargetBuild.__init__ (self, settings, source)
+        targetbuild.AutoBuild.__init__ (self, settings, source)
         def fixed_version (self):
             return '2006'
         from new import instancemethod
@@ -58,7 +58,7 @@ packages.'''
         return ['doc', 'devel', 'base', 'runtime', 'bin', '']
 
     def get_subpackage_definitions (self):
-        d = targetbuild.TargetBuild.get_subpackage_definitions (self)
+        d = targetbuild.AutoBuild.get_subpackage_definitions (self)
         d['doc'] += [self.settings.prefix_dir + '/share/texmf/doc']
         d['base'] = [self.settings.prefix_dir + '/share/texmf']
 #        d['bin'] = ['/']
@@ -66,14 +66,14 @@ packages.'''
         return d
 
     def download (self):
-        targetbuild.TargetBuild.download (self)
+        targetbuild.AutoBuild.download (self)
         self.texmf_repo.download ()
         # ugh.
         loggedos.download_url (logging.default_logger,
                                license_url,  self.source._checkout_dir ())
                            
     def untar (self):
-        targetbuild.TargetBuild.untar (self)
+        targetbuild.AutoBuild.untar (self)
 #        self.texmf_repo.update_workdir (self.expand ('%(srcdir)s/texmf-dist'))
         self.texmf_repo.update_workdir (self.expand ('%(srcdir)s/texmf'))
 
@@ -82,7 +82,7 @@ packages.'''
         #FIXME
         return ('export TEXMFMAIN=%(srcdir)s/texmf;'
                 + 'bash '
-                + targetbuild.TargetBuild.configure_command (self).replace ('--config-cache', '--cache-file=config.cache')
+                + targetbuild.AutoBuild.configure_command (self).replace ('--config-cache', '--cache-file=config.cache')
                 + misc.join_lines ('''
 --disable-multiplatform
 --enable-ipc
@@ -128,7 +128,7 @@ packages.'''
         return self.broken_install_command ()
 
     def install (self):
-    	targetbuild.TargetBuild.install (self)
+    	targetbuild.AutoBuild.install (self)
         self.system ('''
 #rsync -v -a %(srcdir)s/texmf-dist/* %(install_prefix)s/share/texmf-dist
 rsync -v -a %(srcdir)s/texmf/* %(install_prefix)s/share/texmf/

@@ -1,6 +1,6 @@
 from gub import toolsbuild
 
-class Librestrict__tools (toolsbuild.ToolsBuild):
+class Librestrict__tools (toolsbuild.AutoBuild):
     source = 'url://host/librestrict-1.0.tar.gz'
     # ugh, download is not a true stage [yet]
     def untar (self):

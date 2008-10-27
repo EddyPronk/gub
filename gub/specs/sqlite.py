@@ -2,10 +2,10 @@ from gub import targetbuild
 
 sqlite = 'http://www.sqlite.org/sqlite-%(ball_version)s.tar.%(format)s'
 
-class Sqlite (targetbuild.TargetBuild):
+class Sqlite (targetbuild.AutoBuild):
     source = mirrors.with_tarball (name='sqlite', mirror=sqlite, version='3.3.16')
     def configure_command (self):
-        return (targetbuild.TargetBuild.configure_command (self)
+        return (targetbuild.AutoBuild.configure_command (self)
                 + ' --disable-tcl --enable-threadsafe')
     def patch (self):
         open (self.expand ('%(srcdir)s/PUBLIC-DOMAIN'), 'w').write ('''

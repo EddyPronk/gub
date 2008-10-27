@@ -6,12 +6,12 @@ if 0:
            format="gz"),
 
 
-class Alien (ToolsBuild):
+class Alien (AutoBuild):
     def srcdir (self):
         return '%(allsrcdir)s/alien'
     def configure (self):
         self.shadow ()
-        ToolsBuild.configure (self)
+        AutoBuild.configure (self)
         self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/alien.patch')
     def configure_command (self):
         return 'perl Makefile.PL'

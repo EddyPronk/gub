@@ -2,12 +2,12 @@ from gub import mirrors
 from gub import misc
 from gub import targetbuild
 
-class Xerces_c (targetbuild.TargetBuild):
+class Xerces_c (targetbuild.AutoBuild):
     source = mirrors.with_tarball (name='xerces-c', mirror=mirrors.xerces_c_2, version='2_8_0')
     def get_build_dependencies (self):
         return ['tools::autoconf']
     def __init__ (self, settings, source):
-        targetbuild.TargetBuild.__init__ (self, settings, source)
+        targetbuild.AutoBuild.__init__ (self, settings, source)
         self.compile_dict = {
             'XERCESCROOT': '%(builddir)s',
             'TRANSCODER': 'NATIVE',
@@ -31,7 +31,7 @@ class Xerces_c (targetbuild.TargetBuild):
         # cool, it can serve the INSTALL file!  Let's remove it from
         # the tarball!
         return (self.makeflags () + ' '
-                + targetbuild.TargetBuild.configure_command (self)
+                + targetbuild.AutoBuild.configure_command (self)
                 .replace ('--config-cache', '--cache-file=%(builddir)s/config.cache'))
     def makeflags (self):
         s = ''
@@ -39,10 +39,10 @@ class Xerces_c (targetbuild.TargetBuild):
             s += ' ' + i + '="' + self.compile_dict[i] + '"'
         return s
     def compile_command (self):
-        return (targetbuild.TargetBuild.compile_command (self)
+        return (targetbuild.AutoBuild.compile_command (self)
                 + self.makeflags ())
     def install_command (self):
-        return (targetbuild.TargetBuild.install_command (self)
+        return (targetbuild.AutoBuild.install_command (self)
                 + self.makeflags ())
     def configure (self):
         self.shadow ()

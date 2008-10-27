@@ -7,13 +7,13 @@ from gub import context
 from gub import misc
 from gub import loggedos
 
-class TargetBuild (build.UnixBuild):
+class AutoBuild (build.AutoBuild):
     def __init__ (self, settings, source):
-        build.UnixBuild.__init__ (self, settings, source)
+        build.AutoBuild.__init__ (self, settings, source)
 
     @context.subst_method
     def configure_command_native (self):
-        return build.UnixBuild.configure_command (self)
+        return build.AutoBuild.configure_command (self)
 
     def configure_command (self):
         return misc.join_lines ('''%(configure_binary)s
@@ -33,7 +33,7 @@ class TargetBuild (build.UnixBuild):
 
     def install (self):
         self.pre_install_libtool_fixup ()
-        build.UnixBuild.install (self)
+        build.AutoBuild.install (self)
         if self.config_script ():
             self.install_config_script ()
 
@@ -88,14 +88,14 @@ class TargetBuild (build.UnixBuild):
         return ''
 
     def compile_command (self):
-        c = build.UnixBuild.compile_command (self)
+        c = build.AutoBuild.compile_command (self)
         if (not self.force_sequential_build () and self.settings.cpu_count_str):
             c = re.sub (r'\bmake\b',
                         'make -j%s '% self.settings.cpu_count_str, c)
         return c
             
     def get_substitution_dict_native (self):
-        return build.UnixBuild.get_substitution_dict
+        return build.AutoBuild.get_substitution_dict
 
     def set_substitution_dict_native (self):
         save = self.get_substitution_dict
@@ -177,25 +177,25 @@ cd %(builddir)s && chmod +x %(configure_binary)s && %(configure_command_native)s
             dict['CFLAGS'] = '-O'
 
         dict.update (env)
-        d = build.UnixBuild.get_substitution_dict (self, dict).copy ()
+        d = build.AutoBuild.get_substitution_dict (self, dict).copy ()
         return d
 
-class MakeBuild (TargetBuild):
+class MakeBuild (AutoBuild):
     def stages (self):
-        return ['shadow' for s in [s for s in ToolsBuild.stages () if s not in ['autoupdate']]
+        return ['shadow' for s in [s for s in AutoBuild.stages () if s not in ['autoupdate']]
                 if s == 'configure']
 
-class PythonBuild (TargetBuild):
+class PythonBuild (AutoBuild):
     def stages (self):
-        return [s for s in TargetBuild.stages () if s not in ['autoupdate', 'configure']]
+        return [s for s in AutoBuild.stages () if s not in ['autoupdate', 'configure']]
     def compile (self):
         self.system ('mkdir -p %(builddir)s')
     def install_command (self):
         return 'python %(srcdir)s/setup.py install --prefix=%(tools_prefix)s --root=%(install_root)s'
 
-class SConsBuild (TargetBuild):
+class SConsBuild (AutoBuild):
     def stages (self):
-        return [s for s in TargetBuild.stages () if s not in ['autoupdate', 'configure']]
+        return [s for s in AutoBuild.stages () if s not in ['autoupdate', 'configure']]
     def compile_command (self):
         # SCons barfs on trailing / on directory names
         return ('scons PREFIX=%(system_prefix)s'

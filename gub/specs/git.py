@@ -3,7 +3,7 @@ from gub import toolsbuild
 from gub import targetbuild
 from gub import repository
 
-class Git__tools (toolsbuild.ToolsBuild):
+class Git__tools (toolsbuild.AutoBuild):
     source = mirrors.with_template (name='git', mirror='http://kernel.org/pub/software/scm/git/git-%(version)s.tar.bz2',
                    version='1.5.3.6')
     def get_build_dependencies (self):
@@ -14,7 +14,7 @@ class Git__tools (toolsbuild.ToolsBuild):
         self.dump ('prefix=%(system_prefix)s', '%(builddir)s/config.mak')
 
     def patch (self):
-        toolsbuild.ToolsBuild.patch (self)
+        toolsbuild.AutoBuild.patch (self)
         self.file_sub ([('git describe','true')],
                        '%(srcdir)s/GIT-VERSION-GEN')
         # kill perl.
@@ -35,7 +35,7 @@ install:
     def makeflags (self):
         return 'V=1 SCRIPT_PERL='
 
-class Git (targetbuild.TargetBuild):
+class Git (targetbuild.AutoBuild):
 
     # TODO: where should this go?
     ## strip -mwindows.
@@ -46,7 +46,7 @@ class Git (targetbuild.TargetBuild):
 
     def configure (self):
         self.shadow ()
-        targetbuild.TargetBuild.configure (self):
+        targetbuild.AutoBuild.configure (self):
 
     def get_dependency_dict (self):
         return {'': [
@@ -74,7 +74,7 @@ class Git (targetbuild.TargetBuild):
                         '%(srcdir)s/perl/Makefile')
 
         self.apply_patch('git-1.5.2-templatedir.patch')
-        targetbuild.TargetBuild.patch (self)
+        targetbuild.AutoBuild.patch (self)
         self.system ('rm -rf %(builddir)s')
         self.file_sub ([('git describe','true')],
                         '%(srcdir)s/GIT-VERSION-GEN')
@@ -86,7 +86,7 @@ class Git__mingw (Git):
         self.target_gcc_flags = ' -mms-bitfields '
 
     def configure (self):
-        targetbuild.TargetBuild.configure (self)
+        targetbuild.AutoBuild.configure (self)
         self.file_sub ([('CFLAGS = -g',
                          'CFLAGS = -I compat/ -g')],
                        '%(builddir)s/config.mak.autogen')

@@ -1,6 +1,6 @@
 from gub import toolsbuild
 
-class Netpbm__tools (toolsbuild.ToolsBuild):
+class Netpbm__tools (toolsbuild.AutoBuild):
     # source='svn:https://svn.sourceforge.net/svnroot/netpbm/stable&revision=172'
     source='http://lilypond.org/download/gub-sources/netpbm-patched-10.35.tar.bz2'
 

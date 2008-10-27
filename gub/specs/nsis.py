@@ -24,7 +24,7 @@ class Nsis (toolsbuild.SConsBuild):
         return {'PATH': mingw_bin + ':' + os.environ['PATH'] }
         
     def __init__ (self, settings, source):
-        toolsbuild.ToolsBuild.__init__ (self, settings, source)
+        toolsbuild.AutoBuild.__init__ (self, settings, source)
 # ugh, no object yet?
 #  File "gub/cross.py", line 121, in setup_linux_x86
 #    package.func (defer_compiler_checks)

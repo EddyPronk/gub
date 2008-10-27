@@ -1,6 +1,6 @@
 from gub import toolsbuild
 
-class Texinfo__tools (toolsbuild.ToolsBuild):
+class Texinfo__tools (toolsbuild.AutoBuild):
     source = 'ftp://ftp.gnu.org/pub/gnu/texinfo/texinfo-4.11.tar.bz2'
     def patch (self):
         # for 4.11

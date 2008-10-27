@@ -1,7 +1,7 @@
 from gub import mirrors
 from gub import targetbuild
 
-class Libpng (targetbuild.TargetBuild):
+class Libpng (targetbuild.AutoBuild):
     source = mirrors.with_template (name='libpng', version='1.2.8', mirror=mirrors.libpng)
     def get_dependency_dict (self):
         return {'':['zlib']}
@@ -21,12 +21,12 @@ class Libpng (targetbuild.TargetBuild):
                '%(srcdir)s/Makefile.am')
 
     def configure (self):
-        targetbuild.TargetBuild.configure (self)
+        targetbuild.AutoBuild.configure (self)
         # # FIXME: libtool too old for cross compile
         self.update_libtool ()
 
     def compile_command (self):
-        c = targetbuild.TargetBuild.compile_command (self)
+        c = targetbuild.AutoBuild.compile_command (self)
         ## need to call twice, first one triggers spurious Automake stuff.                
         return '(%s) || (%s)' % (c,c)
     
@@ -42,7 +42,7 @@ class Libpng__mingw (Libpng):
 
 from gub import toolsbuild 
 
-class Libpng__tools (toolsbuild.ToolsBuild, Libpng):
+class Libpng__tools (toolsbuild.AutoBuild, Libpng):
     source = Libpng.source
     def get_build_dependencies (self):
         return ['libtool']

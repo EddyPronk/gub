@@ -3,7 +3,7 @@ def change_target_package (package):
     from gub import build
     from gub import targetbuild
     cross.change_target_package (package)
-    if isinstance (package, targetbuild.TargetBuild):
+    if isinstance (package, targetbuild.AutoBuild):
         targetbuild.change_target_dict (package,
                                  {'LD': '%(target_architecture)s-ld --as-needed ',})
         targetbuild.append_target_dict (package,

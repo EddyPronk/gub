@@ -11,7 +11,7 @@ class Sysvinit (targetbuild.MakeBuild):
     def install (self):
         fakeroot_cache = self.builddir () + '/fakeroot.cache'
         self.fakeroot (self.expand (self.settings.fakeroot, locals ()))
-        targetbuild.TargetBuild.install (self)
+        targetbuild.AutoBuild.install (self)
     def install_command (self):
         from gub import misc
         # FIXME: cannot do these as self.system () in install () as

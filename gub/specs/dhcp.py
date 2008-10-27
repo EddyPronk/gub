@@ -3,10 +3,10 @@ from gub import repository
 
 url = 'http://ftp.isc.org/isc/dhcp/dhcp-3.0.6.tar.gz'
 
-class Dhcp (targetbuild.TargetBuild):
+class Dhcp (targetbuild.AutoBuild):
     source = mirrors.with_vc (repository.TarBall (self.settings.downloads, url, strip_components=2))
     def __init__ (self, settings, source):
-        targetbuild.TargetBuild.__init__ (self, settings, source)
+        targetbuild.AutoBuild.__init__ (self, settings, source)
         source.strip_components = 2
     def get_subpackage_names (self):
         return ['']
@@ -14,7 +14,7 @@ class Dhcp (targetbuild.TargetBuild):
         return '%(srcdir)s/configure linux-2.2'
     def configure (self):
         self.shadow ()
-        targetbuild.TargetBuild.configure (self)
+        targetbuild.AutoBuild.configure (self)
     def makeflags (self):
         from gub import misc
         return misc.join_lines ('''

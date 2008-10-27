@@ -1,7 +1,7 @@
 from gub import misc
 from gub import targetbuild
 
-class Libdbi_drivers_sqlite3 (targetbuild.TargetBuild):
+class Libdbi_drivers_sqlite3 (targetbuild.AutoBuild):
     source = 'http://surfnet.dl.sourceforge.net/sourceforge/libdbi-drivers/libdbi-drivers-0.8.2.tar.gz'
 
     def _get_build_dependencies (self):
@@ -12,7 +12,7 @@ class Libdbi_drivers_sqlite3 (targetbuild.TargetBuild):
         return {'': self._get_build_dependencies ()}
 
     def configure_command (self):
-        return (targetbuild.TargetBuild.configure_command (self)
+        return (targetbuild.AutoBuild.configure_command (self)
                 + misc.join_lines ('''
 --disable-docs
 --with-dbi-incdir=%(system_prefix)s/include
@@ -26,18 +26,18 @@ class Libdbi_drivers_sqlite3 (targetbuild.TargetBuild):
 mkdir -p %(builddir)s/doc/include
 cd %(builddir)s && touch doc/Makefile.in doc/include/Makefile.in
 ''')
-        targetbuild.TargetBuild.configure (self)
+        targetbuild.AutoBuild.configure (self)
         self.update_libtool ()
 
     def makeflags (self):
         return ' doc_DATA= html_DATA='
 
     def compile_command (self):
-        return (targetbuild.TargetBuild.compile_command (self)
+        return (targetbuild.AutoBuild.compile_command (self)
                 + self.makeflags ())
 
     def install_command (self):
-        return (targetbuild.TargetBuild.install_command (self)
+        return (targetbuild.AutoBuild.install_command (self)
                 + self.makeflags ())
 
 class Libdbi_drivers_sqlite3__debian__arm (Libdbi_drivers_sqlite3):

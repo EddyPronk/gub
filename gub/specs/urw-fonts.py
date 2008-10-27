@@ -15,7 +15,7 @@ class Urw_fonts (build.BinaryBuild):
         self.system ('mkdir -p %(install_prefix)s/share/fonts/default/Type1')
         self.system ('cp %(srcdir)s/* %(install_prefix)s/share/fonts/default/Type1/')
     def package (self):
-        build.UnixBuild.package (self)
+        build.AutoBuild.package (self)
     def get_subpackage_names (self):
         return ['']
 

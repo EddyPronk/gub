@@ -3,7 +3,7 @@ from gub import repository
 
 
 ### BROKEN
-class Msys (targetbuild.TargetBuild):
+class Msys (targetbuild.AutoBuild):
     source = mirrors.with_vc (repository.CVS ('downloads/msys',
                                source=':pserver:anonymous@mingw.cvs.sourceforge.net:/cvsroot/mingw',
                                module='msys/rt/src'))

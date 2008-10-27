@@ -7,10 +7,10 @@ from gub import targetbuild
 from gub import context
 from gub import toolsbuild
 
-class Python (targetbuild.TargetBuild):
+class Python (targetbuild.AutoBuild):
     source = 'http://python.org/ftp/python/2.4.2/Python-2.4.2.tar.bz2'
     def __init__ (self, settings, source):
-        targetbuild.TargetBuild.__init__ (self, settings, source)
+        targetbuild.AutoBuild.__init__ (self, settings, source)
         ## don't from gub import settings from build system.
 	self.BASECFLAGS = ''
         self.CROSS_ROOT = '%(targetdir)s'
@@ -27,7 +27,7 @@ class Python (targetbuild.TargetBuild):
                  'runtime': [], }
 
     def patch (self):
-        targetbuild.TargetBuild.patch (self)
+        targetbuild.AutoBuild.patch (self)
         self.apply_patch ('python-2.4.2-1.patch')
         self.apply_patch ('python-configure.in-posix.patch', strip_component=0)
         self.apply_patch ('python-configure.in-sysname.patch', strip_component=0)
@@ -43,25 +43,25 @@ class Python (targetbuild.TargetBuild):
     def xxconfigure (self):
         self.system ('''cd %(srcdir)s && autoconf''')
         self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
-        targetbuild.TargetBuild.configure (self)
+        targetbuild.AutoBuild.configure (self)
 
     def compile_command (self):
         ##
         ## UGH.: darwin Python vs python (case insensitive FS)
-        c = targetbuild.TargetBuild.compile_command (self)
+        c = targetbuild.AutoBuild.compile_command (self)
         c += ' BUILDPYTHON=python-bin '
         return c
 
     def install_command (self):
         ##
         ## UGH.: darwin Python vs python (case insensitive FS)
-        c = targetbuild.TargetBuild.install_command (self)
+        c = targetbuild.AutoBuild.install_command (self)
         c += ' BUILDPYTHON=python-bin '
         return c
 
     # FIXME: c&p linux.py:install ()
     def install (self):
-        targetbuild.TargetBuild.install (self)
+        targetbuild.AutoBuild.install (self)
         cfg = open (self.expand ('%(sourcefiledir)s/python-config.py.in')).read ()
         cfg = re.sub ('@PYTHON_VERSION@', self.expand ('%(version)s'), cfg)
         cfg = re.sub ('@PREFIX@', self.expand ('%(system_prefix)s/'), cfg)
@@ -140,17 +140,17 @@ chmod 755 %(install_prefix)s/bin/*
 class Python__mingw (Python__mingw_cross):
     pass
 
-class Python__tools (toolsbuild.ToolsBuild, Python):
+class Python__tools (toolsbuild.AutoBuild, Python):
     source = 'http://python.org/ftp/python/2.4.5/Python-2.4.5.tar.bz2'
     def get_build_dependencies (self):
         return ['autoconf', 'libtool']
     def xxconfigure (self):
         self.system ('''cd %(srcdir)s && autoconf''')
         self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
-        targetbuild.TargetBuild.configure (self)
+        targetbuild.AutoBuild.configure (self)
     def force_autoupdate (self):
         return True
     def install (self):
-        toolsbuild.ToolsBuild.install (self)
+        toolsbuild.AutoBuild.install (self)
     def wrap_executables (self):
         pass

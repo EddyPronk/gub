@@ -3,7 +3,7 @@ from gub import repository
 
 url = 'http://www.eecs.harvard.edu/~nr/noweb/dist/noweb-2.11b.tgz'
 
-class Noweb (targetbuild.TargetBuild):
+class Noweb (targetbuild.AutoBuild):
     '''A WEB-like literate-programming tool
 Noweb is designed to meet the needs of literate programmers while
 remaining as simple as possible.  Its primary advantages are

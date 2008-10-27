@@ -5,11 +5,11 @@ from gub import build
 from gub import misc
 from gub import loggedos
 
-class ToolsBuild (build.UnixBuild):
+class AutoBuild (build.AutoBuild):
     def configure_command (self):
         # FIXME: why is C_INCLUDE_PATH and LIBRARY_PATH from dict not
         # working, or not being picked-up by configure?
-        return (build.UnixBuild.configure_command (self)
+        return (build.AutoBuild.configure_command (self)
                 + misc.join_lines ('''
 --prefix=%(system_prefix)s
 CFLAGS=-I%(system_prefix)s/include
@@ -22,7 +22,7 @@ LD_LIBRARY_PATH=%(system_prefix)s/lib
         return '''make %(makeflags)s DESTDIR=%(install_root)s install'''
 
     def install (self):
-        build.UnixBuild.install (self)
+        build.AutoBuild.install (self)
         self.wrap_executables ()
 
     def wrap_executables (self):
@@ -50,7 +50,7 @@ LD_LIBRARY_PATH=%(system_prefix)s/lib
         return ['']
 
     def configure (self):
-        build.UnixBuild.configure (self)
+        build.AutoBuild.configure (self)
         self.update_libtool ()
 
     def get_substitution_dict (self, env={}):
@@ -66,25 +66,25 @@ LD_LIBRARY_PATH=%(system_prefix)s/lib
             'PATH': '%(system_prefix)s/bin:' + os.environ['PATH'],
         }
         dict.update (env)
-        d = build.UnixBuild.get_substitution_dict (self, dict).copy ()
+        d = build.AutoBuild.get_substitution_dict (self, dict).copy ()
         return d
 
-class MakeBuild (ToolsBuild):
+class MakeBuild (AutoBuild):
     def stages (self):
-        return ['shadow' for s in [s for s in ToolsBuild.stages () if s not in ['autoupdate']]
+        return ['shadow' for s in [s for s in AutoBuild.stages () if s not in ['autoupdate']]
                 if s == 'configure']
 
-class PythonBuild (ToolsBuild):
+class PythonBuild (AutoBuild):
     def stages (self):
-        return [s for s in TargetBuild.stages () if s not in ['autoupdate', 'configure']]
+        return [s for s in AutoBuild.stages () if s not in ['autoupdate', 'configure']]
     def compile (self):
         self.system ('mkdir -p %(builddir)s')
     def install_command (self):
         return 'python %(srcdir)s/setup.py install --prefix=%(tools_prefix)s --root=%(install_root)s'
 
-class SConsBuild (ToolsBuild):
+class SConsBuild (AutoBuild):
     def stages (self):
-        return [s for s in TargetBuild.stages () if s not in ['autoupdate', 'configure']]
+        return [s for s in AutoBuild.stages () if s not in ['autoupdate', 'configure']]
     def compile_command (self):
         # SCons barfs on trailing / on directory names
         return ('scons PREFIX=%(system_prefix)s'

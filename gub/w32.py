@@ -13,7 +13,7 @@ def change_target_package (package):
                                file, must_succeed=True)
         package.map_locate (libtool_fix_allow_undefined, '%(builddir)s', 'libtool')
         # already in build.py
-        # package.map_locate (build.UnixBuild.libtool_disable_install_not_into_dot_libs_test, '%(builddir)s', 'libtool')
+        # package.map_locate (build.AutoBuild.libtool_disable_install_not_into_dot_libs_test, '%(builddir)s', 'libtool')
 
     package.configure = misc.MethodOverrider (package.configure, configure)
 
@@ -23,7 +23,7 @@ def change_target_package (package):
     package.install = misc.MethodOverrider (package.install, install)
 
     # FIXME (cygwin): [why] do cross packages get here too?
-    if isinstance (package, cross.CrossToolsBuild):
+    if isinstance (package, cross.CrossAutoBuild):
         return
 
     targetbuild.change_target_dict (package, {

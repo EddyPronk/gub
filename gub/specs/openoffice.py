@@ -18,7 +18,7 @@ from gub import targetbuild
 Module 'vos' delivered successfully. 30 files copied, 1 files unchanged
 '''
 
-class Openoffice (targetbuild.TargetBuild):
+class Openoffice (targetbuild.AutoBuild):
 #    source = 'svn://gsvn.gnome.org/svn/ooo-build&branch=trunk&revision=14327'
     source = 'svn://svn.gnome.org/svn/ooo-build&branch=trunk'
     patches = ['openoffice-srcdir-build.patch']
@@ -28,7 +28,7 @@ class Openoffice (targetbuild.TargetBuild):
         # redland-devel
         return ['tools::autoconf', 'boost-devel', 'curl', 'cppunit-devel', 'db-devel', 'expat-devel', 'fontconfig-devel', 'libicu-devel', 'libjpeg-devel', 'libpng-devel', 'python', 'saxon-java', 'xerces-c', 'zlib-devel']
     def stages (self):
-        return misc.list_insert_before (targetbuild.TargetBuild.stages (self),
+        return misc.list_insert_before (targetbuild.AutoBuild.stages (self),
                                         'compile',
                                         ['dot_download', 'make_unpack', 'patch_upstream'])
     def dot_download (self):
@@ -60,7 +60,7 @@ ac_cv_db_version_minor=${ac_cv_db_version_minor=7}
 ac_cv_icu_version_minor=${ac_cv_icu_version_minor=3.81}
 '''
     def configure_command (self):
-        return (targetbuild.TargetBuild.configure_command (self)
+        return (targetbuild.AutoBuild.configure_command (self)
                 + misc.join_lines ('''
 --with-vendor=\"GUB -- LilyPond.org\"
 --disable-Xaw

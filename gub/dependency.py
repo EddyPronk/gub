@@ -92,9 +92,9 @@ class Dependency:
 
     def flavour (self):
         if not self._flavour:
-            self._flavour = targetbuild.TargetBuild
+            self._flavour = targetbuild.AutoBuild
             if self.settings.platform == 'tools':
-                self._flavour = toolsbuild.ToolsBuild
+                self._flavour = toolsbuild.AutoBuild
         return self._flavour
     
     def url (self):

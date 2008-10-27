@@ -1,6 +1,6 @@
 from gub import toolsbuild
 
-class Flex__tools (toolsbuild.ToolsBuild):
+class Flex__tools (toolsbuild.AutoBuild):
     source = 'http://surfnet.dl.sourceforge.net/sourceforge/flex/flex-2.5.33.tar.gz'
     def get_build_dependencies (self):
         return ['bison']

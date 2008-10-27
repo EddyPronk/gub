@@ -1,11 +1,11 @@
 from gub import targetbuild
 
-class Db (targetbuild.TargetBuild):
+class Db (targetbuild.AutoBuild):
     source = "http://download.oracle.com/berkeley-db/db-4.7.25.tar.gz"
     def cache_file (self):
         return '%(builddir)s/build_unix/config.cache'
     def configure_command (self):
-        return 'cd build_unix && ../' + targetbuild.TargetBuild.configure_command (self)
+        return 'cd build_unix && ../' + targetbuild.AutoBuild.configure_command (self)
     def configure_binary (self):
         return 'dist/configure'
     def makeflags (self):
@@ -13,12 +13,12 @@ class Db (targetbuild.TargetBuild):
     def configure (self):
         self.shadow ()
         self.system ('mkdir -p %(builddir)s/build_unix')
-        targetbuild.TargetBuild.configure (self)
+        targetbuild.AutoBuild.configure (self)
         self.file_sub ([('\(prefix\)docs', '\(prefix\)/share/doc/db'),
                         ('^	@', '	/')],
                         '%(builddir)s/build_unix/Makefile')
     def install (self):
-        targetbuild.TargetBuild.install (self)
+        targetbuild.AutoBuild.install (self)
         self.system ('rm -f %(install_prefix)s/lib/libdb.{a,so{,.a},la}')
         self.system ('cd %(install_prefix)s/lib && ln -s libdb-*.a libdb.a')
         self.system ('cd %(install_prefix)s/lib && ln -s libdb-*.la libdb.la')
@@ -51,7 +51,7 @@ touch %(builddir)s/build_unix/arpa/inet.h
         return (Db.configure_command (self)
                 + ' LDFLAGS=-lwsock32')
     def install (self):
-        targetbuild.TargetBuild.install (self)
+        targetbuild.AutoBuild.install (self)
         self.system ('rm -f %(install_prefix)s/{bin,lib}/libdb.{{,so,dll}{,.a},la}')
         self.system ('cd %(install_prefix)s/lib && cp libdb-*.a libdb.a')
         self.system ('cd %(install_prefix)s/lib && cp libdb-*.la libdb.la')

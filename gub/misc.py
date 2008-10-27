@@ -421,7 +421,7 @@ def get_from_parents (cls, key):
         base = base[:p]
     for i in cls.__bases__:
         if not base in i.__name__:
-            # multiple inheritance, a base class like UnixBuild
+            # multiple inheritance, a base class like AutoBuild
             # can come earlier that Python without __tools,
             # so continue rather than break
             continue

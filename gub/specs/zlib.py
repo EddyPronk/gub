@@ -3,7 +3,7 @@ from gub import build
 from gub import mirrors
 from gub import toolsbuild
 
-class Zlib (targetbuild.TargetBuild):
+class Zlib (targetbuild.AutoBuild):
     source = mirrors.with_template (name='zlib', version='1.2.3',
                    mirror='http://heanet.dl.sourceforge.net/sourceforge/libpng/zlib-1.2.3.tar.gz')
     patches = ['zlib-1.2.3.patch']
@@ -11,9 +11,9 @@ class Zlib (targetbuild.TargetBuild):
         return ['tools::autoconf']
     def configure (self):
         self.shadow ()
-        targetbuild.TargetBuild.configure (self)
+        targetbuild.AutoBuild.configure (self)
     def compile_command (self):
-        return targetbuild.TargetBuild.compile_command (self) + ' ARFLAGS=r '
+        return targetbuild.AutoBuild.compile_command (self) + ' ARFLAGS=r '
     def configure_command (self):
         import re
         stripped_platform = self.settings.expand ('%(platform)s')
@@ -24,7 +24,7 @@ class Zlib (targetbuild.TargetBuild):
         ## doesn't use autoconf configure.
         return zlib_is_broken + ' %(srcdir)s/configure --shared '
     def install_command (self):
-        return targetbuild.TargetBuild.broken_install_command (self)
+        return targetbuild.AutoBuild.broken_install_command (self)
     def license_files (self):
         return ['%(sourcefiledir)s/zlib.license']
 
@@ -40,18 +40,18 @@ class Zlib__mingw (Zlib):
         zlib_is_broken = 'target=mingw'
         return zlib_is_broken + ' %(srcdir)s/configure --shared '
 
-class Zlib__tools (toolsbuild.ToolsBuild, Zlib):
+class Zlib__tools (toolsbuild.AutoBuild, Zlib):
     source = Zlib.source
     patches = Zlib.patches
     def get_build_dependencies (self):
         return ['autoconf']
     def configure (self):
         self.shadow ()
-        toolsbuild.ToolsBuild.configure (self)
+        toolsbuild.AutoBuild.configure (self)
     def install_command (self):
-        return toolsbuild.ToolsBuild.broken_install_command (self)
+        return toolsbuild.AutoBuild.broken_install_command (self)
     def install (self):
-        toolsbuild.ToolsBuild.install (self)
+        toolsbuild.AutoBuild.install (self)
         self.system ('cd %(install_root)s && mkdir -p ./%(tools_prefix)s && cp -av usr/* ./%(tools_prefix)s && rm -rf usr')
     def configure_command (self):
         return Zlib.configure_command (self)

@@ -8,7 +8,7 @@ class Python (build.SdkBuild):
     def srcdir (self):
         return '%(allsrcdir)s/python-darwin'
     def package (self):
-        build.UnixBuild.package (self)
+        build.AutoBuild.package (self)
     def install (self):
         self.system ('mkdir -p %(install_prefix)s%(cross_dir)s/bin')
         self.dump ('''#! /bin/sh

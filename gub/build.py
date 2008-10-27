@@ -15,7 +15,7 @@ class Build (context.RunnableContext):
     '''How to build a piece of software
 
     TODO: move all non configure-make-make install stuff from
-    UnixBuild here
+    AutoBuild here
     '''
 
     source = ''
@@ -90,7 +90,7 @@ to skip this check.
             if stage != 'clean':
                 self.set_done (stage, stages.index (stage))
 
-class UnixBuild (Build):
+class AutoBuild (Build):
     '''Build a source package the traditional Unix way
 
     Based on the traditional configure; make; make install, this class
@@ -346,7 +346,7 @@ class UnixBuild (Build):
 mkdir -p %(builddir)s || true
 cd %(builddir)s && chmod +x %(configure_binary)s && %(configure_command)s
 ''')
-        self.map_locate (UnixBuild.libtool_disable_install_not_into_dot_libs_test, '%(builddir)s', 'libtool')
+        self.map_locate (AutoBuild.libtool_disable_install_not_into_dot_libs_test, '%(builddir)s', 'libtool')
 
     def shadow (self):
         shadow_tree ('%(srcdir)s', '%(builddir)s')
@@ -390,7 +390,7 @@ tooldir=%(install_prefix)s
                 logger.write_log ('Cannot update libtool: no such file: %(new)s' % locals (), 'error')
                 raise Exception ('barf')
             loggedos.system (logger, 'cp %(new)s %(file)s' % locals ())
-            UnixBuild.libtool_disable_install_not_into_dot_libs_test (logger, file)
+            AutoBuild.libtool_disable_install_not_into_dot_libs_test (logger, file)
             loggedos.system (logger, 'chmod 755  %(file)s' %locals ())
         self.map_locate (update, '%(builddir)s', 'libtool')
 
@@ -635,7 +635,7 @@ mkdir -p %(install_prefix)s/share/doc/%(name)s
         # FIXME: ugly workaround needed for lilypond package...
         return '%(version)s'
 
-class BinaryBuild (UnixBuild):
+class BinaryBuild (AutoBuild):
     def stages (self):
         return ['untar', 'install', 'package', 'clean']
     def install (self):
@@ -648,7 +648,7 @@ class BinaryBuild (UnixBuild):
         # gets overwritten by cygwin's gettext-devel + '' base package
         return ['']
 
-class NullBuild (UnixBuild):
+class NullBuild (AutoBuild):
     """Placeholder for downloads """
     def stages (self):
         return ['patch', 'install', 'package', 'clean']

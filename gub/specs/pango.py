@@ -11,7 +11,7 @@ pango_module_version_regexes = [
     (r'^1\.20', '1.6.0')
     ]
 
-class Pango (targetbuild.TargetBuild):
+class Pango (targetbuild.AutoBuild):
     source = mirrors.with_template (name='pango', version='1.20.0',
                    mirror=mirrors.gnome_222,
                    format='bz2')
@@ -31,15 +31,15 @@ class Pango (targetbuild.TargetBuild):
 ''')
 
     def configure_command (self):
-        return (targetbuild.TargetBuild.configure_command (self)
+        return (targetbuild.AutoBuild.configure_command (self)
                 + self.configure_flags ())
 
     def configure (self):
-        targetbuild.TargetBuild.configure (self)                
+        targetbuild.AutoBuild.configure (self)                
         self.update_libtool ()
 
     def patch (self):
-        targetbuild.TargetBuild.patch (self)
+        targetbuild.AutoBuild.patch (self)
         self.apply_patch ('pango-1.20-substitute-env.patch')
 
     def module_version (self):
@@ -69,7 +69,7 @@ ModulesPath = $PANGO_PREFIX/lib/pango/%(pango_module_version)s/modules
         self.copy ('%(sourcefiledir)s/pango.modules', etc)
 
     def install (self):
-        targetbuild.TargetBuild.install (self)
+        targetbuild.AutoBuild.install (self)
         mod_version = self.module_version ()
         self.dump ("""
 setfile PANGO_RC_FILE=$INSTALLER_PREFIX/etc/pango/pangorc

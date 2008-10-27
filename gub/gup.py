@@ -371,8 +371,8 @@ def topologically_sorted_one (todo, done, dependency_getter,
             print type (d), '!=', type (todo)
             assert type (d) == type (todo)
         # New style class attempt...
-        if (not ((isinstance (d, build.UnixBuild)
-                  and isinstance (d, build.UnixBuild))
+        if (not ((isinstance (d, build.AutoBuild)
+                  and isinstance (d, build.AutoBuild))
                  or (type (d) == type (todo)))):
             print type (d), '!=', type (todo)
             assert type (d) == type (todo)
@@ -417,7 +417,7 @@ def get_base_package_name (name):
 def get_source_packages (settings, const_todo):
     """TODO is a list of (source) builds.
 
-    Generate a list of UnixBuild needed to build TODO, in
+    Generate a list of AutoBuild needed to build TODO, in
     topological order
     """
 

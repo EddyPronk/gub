@@ -7,11 +7,11 @@ import os
 # TODO: AutoToolSpec
 class BjamBuild (targetbuild.MakeBuild)
     def __init__ (self, settings, source):
-        targetbuild.TargetBuild.__init__ (self, settings, source)
+        targetbuild.AutoBuild.__init__ (self, settings, source)
         targetbuild.append_target_dict (self, {'CFLAGS': ''})
     def get_substitution_dict (self, env={}):
         # FIXME: how to add settings to dict?
-        dict = targetbuild.TargetBuild.get_substitution_dict (self, env)
+        dict = targetbuild.AutoBuild.get_substitution_dict (self, env)
         dict['CFLAGS'] = ''
         return dict
     def compile_command (self):

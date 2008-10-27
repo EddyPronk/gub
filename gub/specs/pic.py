@@ -8,7 +8,7 @@ from gub import targetbuild
 
 pic_cvs = ':pserver:anonymous@gforge.natlab.research.philips.com:/cvsroot/pfgpsc'
 
-class Pic (targetbuild.TargetBuild):
+class Pic (targetbuild.AutoBuild):
     def get_dependency_dict (self):
         return {'': []}
 
@@ -76,7 +76,7 @@ class Pic (targetbuild.TargetBuild):
                 ]
 
     def __init__ (self, settings, source):
-        targetbuild.TargetBuild.__init__ (self, settings, source)
+        targetbuild.AutoBuild.__init__ (self, settings, source)
         # FIXME: lilypond_branch
     source = mirrors.with_template (name='pic', version=settings.lilypond_branch, mirror=pic_cvs,
                    vc_type='cvs')
@@ -88,7 +88,7 @@ class Pic (targetbuild.TargetBuild):
         self._downloader = self.cvs
 
     def configure_command (self):
-        return (targetbuild.TargetBuild.configure_command (self)
+        return (targetbuild.AutoBuild.configure_command (self)
                 + misc.join_lines ('''
 --enable-media-server
 --disable-decui
@@ -103,14 +103,14 @@ sed -i 's/gphoto2_port/gphoto2_port dl/' %(srcdir)s/comps/mtmUsb/CMakeLists.txt
 ''')
 
     def configure (self):
-        targetbuild.TargetBuild.configure (self)
+        targetbuild.AutoBuild.configure (self)
         self.system ('''
 echo '#define HAVE_OBEXFTP_CLIENT_BODY_CONTENT 1' >> %(builddir)s/build/config.h
 ''')
 #'
 
     def compile_command (self):
-        return (targetbuild.TargetBuild.compile_command (self)
+        return (targetbuild.AutoBuild.compile_command (self)
             + ' mediaServer')
 
     def install_command (self):
@@ -129,11 +129,11 @@ echo '#define HAVE_OBEXFTP_CLIENT_BODY_CONTENT 1' >> %(builddir)s/build/config.h
         if os.path.exists (self.srcdir ()):
             d = misc.grok_sh_variables (self.expand ('%(srcdir)s/VERSION'))
             return 'pic-%(VERSION)s' % d
-        #return targetbuild.TargetBuild.name_version (self)
+        #return targetbuild.AutoBuild.name_version (self)
         return 'pic-1.67'
 
     def install (self):
-        targetbuild.TargetBuild.install (self)
+        targetbuild.AutoBuild.install (self)
 
     def gub_name (self):
         nv = self.name_version ()

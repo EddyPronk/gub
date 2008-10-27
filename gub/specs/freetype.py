@@ -3,7 +3,7 @@ from gub import build
 from gub import targetbuild
 from gub import toolsbuild
 
-class Freetype (targetbuild.TargetBuild):
+class Freetype (targetbuild.AutoBuild):
     '''Software font engine
 FreeType is a software font engine that is designed to be small,
 efficient, highly customizable and portable while capable of producing
@@ -32,7 +32,7 @@ tools, and many other products as well.'''
         self.system ('''
         rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
 ''')
-        targetbuild.TargetBuild.configure (self)
+        targetbuild.AutoBuild.configure (self)
 
         ## FIXME: libtool too old for cross compile
         self.update_libtool ()
@@ -45,7 +45,7 @@ tools, and many other products as well.'''
                        file, must_succeed=True)
 
     def install (self):
-        targetbuild.TargetBuild.install (self)
+        targetbuild.AutoBuild.install (self)
         # FIXME: this is broken.  for a sane target development package,
         # we want /usr/bin/freetype-config must survive.
         # While cross building, we create an  <toolprefix>-freetype-config
@@ -104,10 +104,10 @@ class XFreetype__cygwin (Freetype):
                 + ' --sysconfdir=/etc --localstatedir=/var')
 
     def install (self):
-        targetbuild.TargetBuild.install (self)
+        targetbuild.AutoBuild.install (self)
         self.pre_install_smurf_exe ()
 
-class Freetype__tools (toolsbuild.ToolsBuild, Freetype):
+class Freetype__tools (toolsbuild.AutoBuild, Freetype):
     source = Freetype.source
     def get_build_dependencies (self):
         # tools is not split
@@ -117,5 +117,5 @@ class Freetype__tools (toolsbuild.ToolsBuild, Freetype):
     def license_files (self):
         return Freetype.license_files (self)
     def install (self):
-        toolsbuild.ToolsBuild.install (self)
+        toolsbuild.AutoBuild.install (self)
         self.munge_ft_config ('%(install_root)s/%(tools_prefix)s/bin/.freetype-config')

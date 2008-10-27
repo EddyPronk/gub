@@ -18,12 +18,12 @@ libltdl/.libs/libltdl.lax/dlopen.a/dlopen.o: In function `vm_open':
 collect2: ld returned 1 exit status
 '''
 
-class Libtool (targetbuild.TargetBuild):
+class Libtool (targetbuild.AutoBuild):
     source = 'ftp://ftp.gnu.org/pub/gnu/libtool/libtool-1.5.22.tar.gz'
     #source = 'ftp://ftp.gnu.org/pub/gnu/libtool/libtool-1.5.26.tar.gz'
     #source = 'ftp://ftp.gnu.org/pub/gnu/libtool/libtool-2.2.6a.tar.gz'
     def __init__ (self, settings, source):
-        targetbuild.TargetBuild.__init__ (self, settings, source)
+        targetbuild.AutoBuild.__init__ (self, settings, source)
         Libtool.set_sover (self)
     def get_build_dependencies (self):
         return ['tools::libtool']
@@ -41,7 +41,7 @@ class Libtool (targetbuild.TargetBuild):
                  'doc' : [],
                  'runtime': [],}
     def get_subpackage_definitions (self):
-        d = targetbuild.TargetBuild.get_subpackage_definitions (self)
+        d = targetbuild.AutoBuild.get_subpackage_definitions (self)
         d['devel'].append (self.settings.prefix_dir + '/bin/libtool*')
         d['devel'].append (self.settings.prefix_dir + '/share/libltdl')
         return d
@@ -64,15 +64,15 @@ class Libtool__cygwin (Libtool):
     def category_dict (self):
         return {'': 'Devel'}
 
-class Libtool__tools (toolsbuild.ToolsBuild):
+class Libtool__tools (toolsbuild.AutoBuild):
     source = Libtool.source
     def __init__ (self, settings, source):
-        toolsbuild.ToolsBuild.__init__ (self, settings, source)
+        toolsbuild.AutoBuild.__init__ (self, settings, source)
         Libtool.set_sover (self)
     def configure (self):
-        build.UnixBuild.configure (self)
+        build.AutoBuild.configure (self)
     def install (self):
-        toolsbuild.ToolsBuild.install (self)
+        toolsbuild.AutoBuild.install (self)
         # FIXME: urg.  Are we doing something wrong?  Why does libtool
         # ignore [have /usr prevail over] --prefix ?
         self.file_sub ([(' (/usr/lib/*[" ])', r' %(system_prefix)s/lib \1'),

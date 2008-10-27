@@ -8,11 +8,11 @@ from gub import targetbuild
 from gub import repository
 from gub import loggedos
 
-class Guile (targetbuild.TargetBuild):
+class Guile (targetbuild.AutoBuild):
     source = 'git://git.sv.gnu.org/guile.git&branch=branch_release-1-8&revision=release_1-8-4'
     
     def __init__ (self, settings, source):
-        targetbuild.TargetBuild.__init__ (self, settings, source)
+        targetbuild.AutoBuild.__init__ (self, settings, source)
         if isinstance (source, repository.Repository):
             source.version = lambda: '1.8.2'
         self.so_version = '17'
@@ -52,7 +52,7 @@ exec %(tools_prefix)s/bin/guile "$@"
 ''', "%(srcdir)s/pre-inst-guile.in")
             
         self.autogen_sh ()
-        targetbuild.TargetBuild.patch (self)
+        targetbuild.AutoBuild.patch (self)
 
     def configure_flags (self):
         return misc.join_lines ('''
@@ -67,12 +67,12 @@ exec %(tools_prefix)s/bin/guile "$@"
         
     def configure_command (self):
         return ('GUILE_FOR_BUILD=%(tools_prefix)s/bin/guile '
-                + targetbuild.TargetBuild.configure_command (self)
+                + targetbuild.AutoBuild.configure_command (self)
                 + self.configure_flags ())
 
     def compile_command (self):
         return ('preinstguile=%(tools_prefix)s/bin/guile ' +
-                targetbuild.TargetBuild.compile_command (self))
+                targetbuild.AutoBuild.compile_command (self))
     
     def compile (self):
 
@@ -82,14 +82,14 @@ exec %(tools_prefix)s/bin/guile "$@"
         self.system ('cd %(builddir)s/libguile && make libpath.h')
         self.file_sub ([('''-L *%(system_root)s''', '-L')],
                        '%(builddir)s/libguile/libpath.h')
-        targetbuild.TargetBuild.compile (self)
+        targetbuild.AutoBuild.compile (self)
 
     def configure (self):
-        targetbuild.TargetBuild.configure (self)
+        targetbuild.AutoBuild.configure (self)
         self.update_libtool ()
 
     def install (self):
-        targetbuild.TargetBuild.install (self)
+        targetbuild.AutoBuild.install (self)
         majmin_version = '.'.join (self.expand ('%(version)s').split ('.')[0:2])
         
         self.dump ("prependdir GUILE_LOAD_PATH=$INSTALLER_PREFIX/share/guile/%(majmin_version)s\n",
@@ -162,7 +162,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_prefix)s/lib"}
 
     def configure (self):
         if 0: # using patch
-            targetbuild.TargetBuild.autoupdate (self)
+            targetbuild.AutoBuild.autoupdate (self)
 
         if 1:
             self.file_sub ([('''^#(LIBOBJS=".*fileblocks.*)''',
@@ -324,10 +324,10 @@ guile-tut').
 
 from gub import toolsbuild
 from gub import build
-class Guile__tools (toolsbuild.ToolsBuild, Guile):
+class Guile__tools (toolsbuild.AutoBuild, Guile):
     source = Guile.source
     def get_build_dependencies (self):
-        return (toolsbuild.ToolsBuild.get_build_dependencies (self)
+        return (toolsbuild.AutoBuild.get_build_dependencies (self)
                 + Guile.get_build_dependencies (self)
                 + ['autoconf', 'automake', 'gettext', 'libtool', 'git'])
 
@@ -335,18 +335,18 @@ class Guile__tools (toolsbuild.ToolsBuild, Guile):
         self.autogen_sh ()
 
     def configure_command (self):
-        return (toolsbuild.ToolsBuild.configure_command (self)
+        return (toolsbuild.AutoBuild.configure_command (self)
                 + self.configure_flags ())
 
     def configure (self):
-        toolsbuild.ToolsBuild.configure (self)
+        toolsbuild.AutoBuild.configure (self)
 #        self.update_libtool ()
 
     def install (self):
         ## guile runs fine without wrapper (if it doesn't, use the
         ## relocation patch), while a sh wrapper breaks executable
-        ## scripts toolsbuild.ToolsBuild.install (self)
-        build.UnixBuild.install (self)
+        ## scripts toolsbuild.AutoBuild.install (self)
+        build.AutoBuild.install (self)
 
         ## don't want tools GUILE headers to interfere with compile.
         self.system ("rm -rf %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/include/ %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/bin/guile-config ")

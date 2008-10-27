@@ -8,7 +8,7 @@ trolltech = 'ftp://ftp.trolltech.com/qt/source/%(name)s-opensource-src-%(ball_ve
 # TODO: base class Qmake build.
 #       sort-out what exactly is Qmake build, qt, and qtopia-core specific
 
-class Qtopia_core (targetbuild.TargetBuild):
+class Qtopia_core (targetbuild.AutoBuild):
     source = mirrors.with_tarball (name='qtopia-core', mirror=trolltech, version='4.2.2')
         dict = {
             'CC': 'gcc',
@@ -62,19 +62,19 @@ unset CC CXX; bash %(srcdir)s/configure
 -verbose
 ''')
     def configure (self):
-        targetbuild.TargetBuild.configure (self)
+        targetbuild.AutoBuild.configure (self)
         def dosub (logger, fname):
             loggedos.file_sub (logger,
                                [('-I/usr', self.expand ('-I%(system_prefix)s'))],
                                fname)
         self.map_locate (dosub, self.expand ('%(install_root)s'), 'Makefile')
     def install_command (self):
-        return (targetbuild.TargetBuild.install_command (self)
+        return (targetbuild.AutoBuild.install_command (self)
                 + ' INSTALL_ROOT=%(install_root)s')
     def license_files (self):
         return ['%(srcdir)s/LICENSE.GPL']
     def install (self):
-        targetbuild.TargetBuild.install (self)
+        targetbuild.AutoBuild.install (self)
         self.system ('mkdir -p %(install_prefix)s/lib/pkgconfig')
         for i in ('QtCore.pc', 'QtGui.pc', 'QtNetwork.pc'):
             self.system ('''

@@ -7,19 +7,19 @@ from gub import targetbuild
 from gub import context
 
 # WIP of python2.5 with 2.5 X-compile patches.
-class Python (targetbuild.TargetBuild):
+class Python (targetbuild.AutoBuild):
     source = mirrors.with_template (name='python25', version='2.5',
                    mirror=mirrors.python,
                    format='bz2')
 
     def __init__ (self, settings, source):
-        targetbuild.TargetBuild.__init__ (self, settings, source)
+        targetbuild.AutoBuild.__init__ (self, settings, source)
         
         ## don't from gub import settings from build system.
 	self.BASECFLAGS=''
 
     def configure_command (self):
-        return 'ac_cv_printf_zd_format=yes ' + targetbuild.TargetBuild.configure_command (self)
+        return 'ac_cv_printf_zd_format=yes ' + targetbuild.AutoBuild.configure_command (self)
 
     def patch (self):
         self.apply_patch ('python-2.5.patch')
@@ -42,7 +42,7 @@ class Python (targetbuild.TargetBuild):
     def xxconfigure (self):
         self.system ('''cd %(srcdir)s && autoconf''')
         self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
-        targetbuild.TargetBuild.configure (self)
+        targetbuild.AutoBuild.configure (self)
 
     def force_autoupdate (self):
         return True
@@ -50,20 +50,20 @@ class Python (targetbuild.TargetBuild):
     def compile_command (self):
         ##
         ## UGH.: darwin Python vs python (case insensitive FS)
-        c = targetbuild.TargetBuild.compile_command (self)
+        c = targetbuild.AutoBuild.compile_command (self)
         c += ' BUILDPYTHON=python-bin '
         return c
 
     def install_command (self):
         ##
         ## UGH.: darwin Python vs python (case insensitive FS)
-        c = targetbuild.TargetBuild.install_command (self)
+        c = targetbuild.AutoBuild.install_command (self)
         c += ' BUILDPYTHON=python-bin '
         return c
 
     # FIXME: c&p linux.py:install ()
     def install (self):
-        targetbuild.TargetBuild.install (self)
+        targetbuild.AutoBuild.install (self)
         cfg = open (self.expand ('%(sourcefiledir)s/python-config.py.in')).read ()
         cfg = re.sub ('@PYTHON_VERSION@', self.expand ('%(version)s'), cfg)
         cfg = re.sub ('@PREFIX@', self.expand ('%(system_prefix)s/'), cfg)
@@ -124,17 +124,17 @@ chmod 755 %(install_prefix)s/bin/*
 ''')
 
 from gub import toolsbuild
-class Python__tools (toolsbuild.ToolsBuild, Python):
+class Python__tools (toolsbuild.AutoBuild, Python):
     source = Python.source
     def get_build_dependencies (self):
         return ['autoconf', 'libtool']
     def xxconfigure (self):
         self.system ('''cd %(srcdir)s && autoconf''')
         self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
-        targetbuild.TargetBuild.configure (self)
+        targetbuild.AutoBuild.configure (self)
     def force_autoupdate (self):
         return True
     def install (self):
-        toolsbuild.ToolsBuild.install (self)
+        toolsbuild.AutoBuild.install (self)
     def wrap_executables (self):
         pass
