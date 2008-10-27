@@ -45,8 +45,8 @@ class AutoBuild (build.AutoBuild):
         self.system ('mkdir -p %(install_prefix)s%(cross_dir)s/bin')
         self.system ('cp %(install_prefix)s/bin/%(config_script)s %(install_prefix)s%(cross_dir)s/bin/%(config_script)s')
         self.file_sub ([('^prefix=/usr/*\s*$', 'prefix=%(system_prefix)s'),
-                        ('( |-I)/usr/include', r'\1%(system_prefix)s/include'),
-                        ('( |-L)/usr/lib/* ', r'\1%(system_prefix)s/lib '),
+                        ('( |-I) */usr/include', r'\1%(system_prefix)s/include'),
+                        ('( |-L) */usr/lib/* ', r'\1%(system_prefix)s/lib '),
                         ('^includedir=/usr/include/*\s*$', 'includedir=%(system_prefix)s/include'),
                         ('^libdir=/usr/lib/*\s*$', 'libdir=%(system_prefix)s/lib'),],
                        '%(install_prefix)s%(cross_dir)s/bin/%(config_script)s',
