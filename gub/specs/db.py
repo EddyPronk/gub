@@ -30,8 +30,11 @@ class Db__mingw (Db):
     # cannot find a free and functional libwsock.dll, though
     def xxget_build_dependencies (self):
         return ['libwsock32']
-    def patch (self):
-        Db.patch (self)
+    def configure (self):
+        Db.configure (self)
+        self.system ('echo "#undef fsync" >> %(builddir)s/build_unix/db_config.h')
+        self.system ('echo "#define fsync _commit" >> %(builddir)s/build_unix/db_config.h')
+        self.file_sub ([('[.]exe', '')], '%(builddir)s/build_unix/Makefile')
         self.system ('''mkdir -p %(builddir)s/build_unix/arpa %(builddir)s/build_unix/net %(builddir)s/build_unix/netinet %(builddir)s/build_unix/sys
 touch %(builddir)s/build_unix/net/uio.h
 touch %(builddir)s/build_unix/sys/uio.h
@@ -42,11 +45,6 @@ touch %(builddir)s/build_unix/arpa/inet.h
         self.file_sub ([('HAVE_VXWORKS', '__MINGW32__')],
                        '%(builddir)s/build_unix/../os/os_mkdir.c')
         self.file_sub ([('dbenv', 'env')], '%(builddir)s/os/os_yield.c')
-    def configure (self):
-        Db.configure (self)
-        self.system ('echo "#undef fsync" >> %(builddir)s/build_unix/db_config.h')
-        self.system ('echo "#define fsync _commit" >> %(builddir)s/build_unix/db_config.h')
-        self.file_sub ([('[.]exe', '')], '%(builddir)s/build_unix/Makefile')
     def configure_command (self):
         return (Db.configure_command (self)
                 + ' LDFLAGS=-lwsock32')
