@@ -65,3 +65,14 @@
  .ENDIF
  
  .INCLUDE : target.mk
+--- sal/systools/win32/uwinapi/macros.h.pristine	2008-10-27 17:30:38.000000000 +0100
++++ sal/systools/win32/uwinapi/macros.h	2008-10-27 17:30:49.000000000 +0100
+@@ -43,7 +43,7 @@
+ #	ifdef UNICODE
+ #		define _UNICODE
+ #	endif
+-#	include <TCHAR.H>
++#	include <tchar.h>
+ #endif
+ 
+ // Globally disable "warning C4100: unreferenced formal parameter" caused by

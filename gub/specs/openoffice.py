@@ -7,26 +7,42 @@ from gub import misc
 from gub import targetbuild
 
 '''
-7 matches for "delivered successfully" in buffer: *shell*
-   4642:Module 'solenv' delivered successfully. 0 files copied, 1 files unchanged
-   4655:Module 'stlport' delivered successfully. 0 files copied, 8 files unchanged
-   4995:Module 'soltools' delivered successfully. 7 files copied, 7 files unchanged
-   5069:Module 'external' delivered successfully. 3 files copied, 27 files unchanged
-   6288:Module 'libwpd' delivered successfully. 12 files copied, 0 files unchanged
-   6397:Module 'xml2cmp' delivered successfully. 3 files copied, 2 files unchanged
-   Module 'sal' delivered successfully. 109 files copied, 1 files unchanged
-Module 'vos' delivered successfully. 30 files copied, 1 files unchanged
+Module 'cppunit' delivered successfully. 9 files copied, 61 files unchanged
+Module 'solenv' delivered successfully. 0 files copied, 1 files unchanged
+Module 'stlport' delivered successfully. 0 files copied, 8 files unchanged
+Module 'soltools' delivered successfully. 1 files copied, 13 files unchanged
+Module 'external' delivered successfully. 0 files copied, 66 files unchanged
+Module 'libwpd' delivered successfully. 0 files copied, 12 files unchanged
+Module 'xml2cmp' delivered successfully. 0 files copied, 5 files unchanged
+Module 'sal' delivered successfully. 11 files copied, 99 files unchanged
+Module 'vos' delivered successfully. 0 files copied, 31 files unchanged
+Module 'redland' delivered successfully. 0 files copied, 2 files unchanged
+Module 'sandbox' delivered successfully. 1 files copied, 1 files unchanged
+Module 'afms' delivered successfully. 0 files copied, 2 files unchanged
+Module 'beanshell' delivered successfully. 0 files copied, 2 files unchanged
+Module 'cppunit' delivered successfully. 4 files copied, 66 files unchanged
+Module 'testshl2' delivered successfully. 2 files copied, 10 files unchanged
+Module 'salhelper' delivered successfully. 12 files copied, 0 files unchanged
+Module 'extras' delivered successfully. 70 files copied, 0 files unchanged
+Module 'fondu' delivered successfully. 1 files copied, 1 files unchanged
 '''
 
 class Openoffice (targetbuild.AutoBuild):
-#    source = 'svn://gsvn.gnome.org/svn/ooo-build&branch=trunk&revision=14327'
-    source = 'svn://svn.gnome.org/svn/ooo-build&branch=trunk'
+#    source = 'svn://svn.gnome.org/svn/ooo-build&branch=trunk&revision=14327'
+#    source = 'svn://svn.gnome.org/svn/ooo-build&branch=trunk'
+
+    # fresh try.  wait for mingw dupes
+    source = 'svn://svn.gnome.org/svn/ooo-build&branch=trunk&revision=14412'
     patches = ['openoffice-srcdir-build.patch']
-#    upstream_patches = ['openoffice-config_office-cross.patch', 'openoffice-config_office-gnu-make.patch', 'openoffice-config_office-mingw.patch', 'openoffice-solenv-cross.patch', 'openoffice-solenv.patch', 'openoffice-sal-cross.patch', 'openoffice-soltools-cross.patch', 'openoffice-soltools-mingw.patch', 'openoffice-sal-mingw.patch', 'openoffice-external-mingwheaders.patch']
     upstream_patches = ['openoffice-config_office-cross.patch', 'openoffice-config_office-gnu-make.patch', 'openoffice-solenv-cross.patch', 'openoffice-solenv.patch', 'openoffice-sal-cross.patch', 'openoffice-soltools-cross.patch']
+    def __init__ (self, settings, source):
+        targetbuild.AutoBuild.__init__ (self, settings, source)
+        # let's keep source tree around
+        def tracking (self):
+            return True
+        self.source.is_tracking = misc.bind_method (tracking, self.source)
     def get_build_dependencies (self):
-        # redland-devel
-        return ['tools::autoconf', 'boost-devel', 'curl', 'cppunit-devel', 'db-devel', 'expat-devel', 'fontconfig-devel', 'libicu-devel', 'libjpeg-devel', 'libpng-devel', 'python', 'saxon-java', 'xerces-c', 'zlib-devel']
+        return ['tools::autoconf', 'boost-devel', 'curl-devel', 'cppunit-devel', 'db-devel', 'expat-devel', 'fontconfig-devel', 'libicu-devel', 'libjpeg-devel', 'libpng-devel', 'python-devel', 'redland-devel', 'saxon-java', 'xerces-c', 'zlib-devel']
     def stages (self):
         return misc.list_insert_before (targetbuild.AutoBuild.stages (self),
                                         'compile',
@@ -200,10 +216,12 @@ cd %(builddir)s/build/%(cvs_tag)s && patch -p%(patch_strip_component)s < %(patch
 
         self.system ('chmod +x %(upstream_dir)s/solenv/bin/build.pl %(upstream_dir)s/solenv/bin/deliver.pl')
 
-        self.system ('sed -i -e "s@[ \t]all@ i@g" %(upstream_dir)s/redland/prj/build.lst')
+        disable_modules = ['sandbox', 'testshl2']
+        for module in disable_modules:
+            self.system ('sed -i -e "s@[ \t]all@ i@g" %(upstream_dir)s/%(module)s/prj/build.lst', locals ())
 
         # java go away
-        self.system ('sed -i -e "s@[ \t]all@ i@g" %(upstream_dir)s/sandbox/prj/build.lst')
+        # self.system ('sed -i -e "s@[ \t]all@ i@g" %(upstream_dir)s/sandbox/prj/build.lst')
 
     def makeflags (self):
         return misc.join_lines ('''
@@ -258,4 +276,5 @@ fi
              '%(upstream_dir)s/solenv/bin/wrc',
                    permissions=0755)
 
+        self.system ('mkdir -p %(upstream_dir)s/solver/300/wntgcci.pro/inc')
         self.system ('cp -pv %(sourcefiledir)s/sehandler.h %(upstream_dir)s/solver/300/wntgcci.pro/inc')
