@@ -12,9 +12,13 @@ class Netpbm__tools (toolsbuild.AutoBuild):
         self.dump ('\n'*3 + 'static\n' + '\n'*18, '%(builddir)s/answers')
         self.system ('cd %(builddir)s && %(srcdir)s/configure < answers')
 
+        '''
+libpbm3.c:116: note: use -flax-vector-conversions to permit conversions between vectors with differing element types or numbers of subparts
+libpbm3.c:116: fout: incompatible type for argument 1 of __builtin_ia32_pcmpeqb
+'''
     def compile (self):
         self.system ('''cd %(builddir)s && make CC=gcc \
-        CFLAGS="-O2 -fPIC"  \
+        CFLAGS="-O2 -fPIC -flax-vector-conversions"  \
         LDFLAGS="-L%(builddir)s/pbm -L%(builddir)s/pgm -L%(builddir)s/pnm -L%(builddir)s/ppm" \
         LADD="-lm" \
         LINUXSVGALIB="NONE" \
