@@ -2,7 +2,7 @@ from gub import misc
 from gub import targetbuild
 
 class Sqlite (targetbuild.AutoBuild):
-    source = 'http://www.sqlite.org/sqlite-3.5.9.tar.gz' # 3.3.16
+    source = 'http://www.sqlite.org/sqlite-3.6.4.tar.gz' # 3.3.16
     def configure_command (self):
         return (targetbuild.AutoBuild.configure_command (self)
                 + misc.join_lines ('''
@@ -20,4 +20,5 @@ See http://www.sqlite.org/copyright.html .
 
 class Sqlite__mingw (Sqlite):
     def configure_command (self):
-        return Sqlite.configure_command (self).replace ('--enable-threadsafe', '--disable-threadsafe')
+        return ('config_TARGET_EXEEXT=.exe '
+                + Sqlite.configure_command (self).replace ('--enable-threadsafe', '--disable-threadsafe'))
