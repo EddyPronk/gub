@@ -143,6 +143,8 @@ def delinkify (file_name):
     return file_name
 
 def path_find (path, name):
+    if type (path) == type (''):
+        path = path.split (':')
     for dir in path:
         file_name = os.path.join (dir, name)
         if os.path.isfile (file_name):
