@@ -90,14 +90,10 @@ class Libjpeg__tools (toolsbuild.AutoBuild):
     def force_autoupdate (self):
         '''libtoolize: `configure.ac' does not exist'''
         return False
-    def update_libtool (self):
-        self.system ('''
-cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh %(target_architecture)s'''
-              , locals ())
-        targetbuild.AutoBuild.update_libtool (self)
     def configure (self):
         Libjpeg.update_config_guess_config_sub (self)
         toolsbuild.AutoBuild.configure (self)
+        toolsbuild.AutoBuild.update_libtool (self)
         self.update_libtool ()
         self.file_sub (
             [
