@@ -344,6 +344,7 @@ class UnixBuild (Build):
 mkdir -p %(builddir)s || true
 cd %(builddir)s && chmod +x %(configure_binary)s && %(configure_command)s
 ''')
+        self.map_locate (UnixBuild.libtool_disable_install_not_into_dot_libs_test, '%(builddir)s', 'libtool')
 
     def shadow_builddir (self):
         shadow_tree ('%(srcdir)s', '%(builddir)s')
@@ -387,7 +388,7 @@ tooldir=%(install_prefix)s
                 logger.write_log ('Cannot update libtool: no such file: %(new)s' % locals (), 'error')
                 raise Exception ('barf')
             loggedos.system (logger, 'cp %(new)s %(file)s' % locals ())
-            self.kill_libtool_installation_test (logger, file)
+            UnixBuild.libtool_disable_install_not_into_dot_libs_test (logger, file)
             loggedos.system (logger, 'chmod 755  %(file)s' %locals ())
         self.map_locate (update, '%(builddir)s', 'libtool')
 
