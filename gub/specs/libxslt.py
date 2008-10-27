@@ -20,19 +20,6 @@ class Libxslt (targetbuild.AutoBuild):
         return 'xslt-config'
 
 class Libxslt__mingw (Libxslt):
-    def force_autoupdate (self):
-        return True
-    def xxconfigure (self):
-        Libxslt.configure (self)
-        def libtool_fix_allow_undefined (logger, file):
-            loggedos.file_sub (logger,
-                               [
-                    # libtool: link: warning: undefined symbols not allowed in i686-pc-mingw32 shared  libraries
-                    ('^(allow_undefined_flag=.*)unsupported', '\\1'),
-                    # libtool: install: error: cannot install `libexslt.la' to a directory not ending in /home/janneke/vc/gub/target/mingw/build/libxslt-1.1.24/libexslt/.libs
-                    (r'if test "\$inst_prefix_dir" = "\$destdir";', 'if false;'),],
-                               file)
-        self.map_locate (fix_allow_undefined, '%(builddir)s', 'libtool')
     def configure_command (self):
         return (Libxslt.configure_command (self)
                 + misc.join_lines ('''
