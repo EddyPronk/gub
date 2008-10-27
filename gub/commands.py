@@ -278,6 +278,7 @@ class ForcedAutogenMagic (SerializedCommand):
     def checksum (self, hasher):
         hasher (self.__class__.__name__)
         hasher (inspect.getsource (ForcedAutogenMagic.execute))
+        hasher (inspect.getsource (misc.path_find))
     def execute (self, logger):
         package = self.package
         autodir = package.expand ('%(autodir)s')
@@ -308,7 +309,7 @@ class ForcedAutogenMagic (SerializedCommand):
                 if (os.path.isdir (os.path.join (autodir, 'ltdl'))
                     or os.path.isdir (os.path.join (autodir, 'libltdl'))):
                     libtoolize += ' --ltdl'
-                self.system ('rm -rf %(autodir)s/libltdl %(autodir)s/ltdl && (cd %(autodir)s && %(libtoolize)s'
+                self.system ('rm -rf %(autodir)s/libltdl %(autodir)s/ltdl && cd %(autodir)s && %(libtoolize)s'
                              % locals (), logger)
             aclocal_opt = ''
             if os.path.exists (package.expand ('%(system_prefix)s/share/aclocal')):
