@@ -1,5 +1,4 @@
 from gub import commands
-from gub import context
 from gub import misc
 from gub import targetbuild
 
@@ -24,7 +23,6 @@ ac_cv_expat_initial_utf8_bom=yes
                 + misc.join_lines ('''
 --enable-maintainer-mode
 '''))
-    @context.subst_method
     def config_script (self):
         return 'raptor-config'
 
