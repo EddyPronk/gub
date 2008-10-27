@@ -196,12 +196,6 @@ lt_cv_cc_dll_switch=${lt_cv_cc_dll_switch="-Wl,--dll -nostartfiles"}
         self.file_sub ([('^(/\* kpsewhich --)', '#undef KPSE_DLL\n\\1')],
                        '%(srcdir)s/texk/kpathsea/kpsewhich.c')
 
-    def xxconfigure (self):
-        Texlive.configure (self)
-        self.update_libtool ()
-        self.file_sub ([('(-version-info 4:0:0)', '\\1 -no-undefined')],
-                       '%(builddir)s/texk/kpathsea/Makefile')
-
     def makeflags (self):
         from gub import misc
         return misc.join_lines ('''

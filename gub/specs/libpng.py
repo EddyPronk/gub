@@ -1,8 +1,9 @@
-from gub import mirrors
 from gub import targetbuild
+from gub import toolsbuild 
 
 class Libpng (targetbuild.AutoBuild):
-    source = mirrors.with_template (name='libpng', version='1.2.8', mirror=mirrors.libpng)
+    source = 'http://surfnet.dl.sourceforge.net/sourceforge/libpng/libpng-1.2.8-config.tar.gz'
+
     def get_dependency_dict (self):
         return {'':['zlib']}
     
@@ -30,18 +31,6 @@ class Libpng (targetbuild.AutoBuild):
         ## need to call twice, first one triggers spurious Automake stuff.                
         return '(%s) || (%s)' % (c,c)
     
-class Libpng__mingw (Libpng):
-    def xxconfigure (self):
-        # libtool will not build dll if -no-undefined flag is
-        # not present
-        self.file_sub ([('-version-info',
-                '-no-undefined -version-info')],
-             '%(srcdir)s/Makefile.am')
-        self.autoupdate ()
-        Libpng.configure (self)
-
-from gub import toolsbuild 
-
 class Libpng__tools (toolsbuild.AutoBuild, Libpng):
     source = Libpng.source
     def get_build_dependencies (self):

@@ -40,11 +40,6 @@ class Python (targetbuild.AutoBuild):
     def force_autoupdate (self):
         return True
 
-    def xxconfigure (self):
-        self.system ('''cd %(srcdir)s && autoconf''')
-        self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
-        targetbuild.AutoBuild.configure (self)
-
     def compile_command (self):
         ##
         ## UGH.: darwin Python vs python (case insensitive FS)
@@ -144,10 +139,6 @@ class Python__tools (toolsbuild.AutoBuild, Python):
     source = 'http://python.org/ftp/python/2.4.5/Python-2.4.5.tar.bz2'
     def get_build_dependencies (self):
         return ['autoconf', 'libtool']
-    def xxconfigure (self):
-        self.system ('''cd %(srcdir)s && autoconf''')
-        self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
-        targetbuild.AutoBuild.configure (self)
     def force_autoupdate (self):
         return True
     def install (self):

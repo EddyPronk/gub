@@ -66,15 +66,6 @@ cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh 
 ''', locals ())
         targetbuild.AutoBuild.update_libtool (self)
 
-class Libjpeg__mingw (Libjpeg):
-    def xxconfigure (self):
-        Libjpeg.configure (self)
-        # libtool will not build dll if -no-undefined flag is
-        # not present
-        self.file_sub ([('-version-info',
-                '-no-undefined -version-info')],
-             '%(builddir)s/Makefile')
-
 class Libjpeg__linux (Libjpeg):
     def compile (self):
         Libjpeg.compile (self)

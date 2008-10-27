@@ -39,11 +39,6 @@ class Python (targetbuild.AutoBuild):
                  'devel' : ['libtool', 'python-devel'],
                  'runtime': [], }
 
-    def xxconfigure (self):
-        self.system ('''cd %(srcdir)s && autoconf''')
-        self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
-        targetbuild.AutoBuild.configure (self)
-
     def force_autoupdate (self):
         return True
 
@@ -128,10 +123,6 @@ class Python__tools (toolsbuild.AutoBuild, Python):
     source = Python.source
     def get_build_dependencies (self):
         return ['autoconf', 'libtool']
-    def xxconfigure (self):
-        self.system ('''cd %(srcdir)s && autoconf''')
-        self.system ('''cd %(srcdir)s && libtoolize --copy --force''')
-        targetbuild.AutoBuild.configure (self)
     def force_autoupdate (self):
         return True
     def install (self):
