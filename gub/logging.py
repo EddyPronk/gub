@@ -106,8 +106,6 @@ class CommandLogger (AbstractCommandLogger):
             return 0
         message_level = name_to_loglevel_mapping[message_type]
         if message_level <= self.threshold:
-            if '[]' in message:
-                barf
             sys.stderr.write (message)
 
         self.write_log_file (message)
