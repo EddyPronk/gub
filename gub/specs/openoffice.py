@@ -216,7 +216,7 @@ cd %(builddir)s/build/%(cvs_tag)s && patch -p%(patch_strip_component)s < %(patch
 
         self.system ('chmod +x %(upstream_dir)s/solenv/bin/build.pl %(upstream_dir)s/solenv/bin/deliver.pl')
 
-        disable_modules = ['sandbox', 'testshl2']
+        disable_modules = ['sandbox', 'testshl2', 'external']
         for module in disable_modules:
             self.system ('sed -i -e "s@[ \t]all@ i@g" %(upstream_dir)s/%(module)s/prj/build.lst', locals ())
 
