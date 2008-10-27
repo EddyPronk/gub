@@ -46,7 +46,7 @@ class Git (targetbuild.AutoBuild):
 
     def configure (self):
         self.shadow ()
-        targetbuild.AutoBuild.configure (self):
+        targetbuild.AutoBuild.configure (self)
 
     def get_dependency_dict (self):
         return {'': [
