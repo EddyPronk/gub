@@ -34,6 +34,11 @@ class Nsis (toolsbuild.SConsBuild):
         if False and 'x86_64-linux' in self.settings.build_architecture:
             cross.setup_linux_x86 (self, self.add_mingw_env ())
         
+    def get_build_dependencies (self):
+        if 'x86_64-linux' in self.settings.build_architecture:
+            return ['linux-x86::glibc']
+        return []
+
     def patch (self):
         self.system ('mkdir -p %(allbuilddir)s', ignore_errors=True)
         self.system ('ln -s %(srcdir)s %(builddir)s')
