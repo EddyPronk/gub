@@ -7,6 +7,12 @@ class Git__tools (toolsbuild.AutoBuild):
     def get_build_dependencies (self):
         return ['curl', 'expat']
 
+    def get_dependency_dict (self):
+        return {'': [
+            'curl',
+            'expat',
+            ]}
+
     def configure (self):
         self.shadow ()
         self.dump ('prefix=%(system_prefix)s', '%(builddir)s/config.mak')
