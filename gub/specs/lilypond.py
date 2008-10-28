@@ -427,11 +427,6 @@ class LilyPond__darwin (LilyPond):
         return (LilyPond.configure_command (self)
                 + ' --enable-static-gxx')
 
-    def configure (self):
-        LilyPond.configure (self)
-        self.dump ('CXXFLAGS += -DGUILE_ELLIPSIS=...',
-                   '%(builddir)s/local.make')
-
 #Hmm
 Lilypond = LilyPond
 Lilypond__cygwin = LilyPond__cygwin
