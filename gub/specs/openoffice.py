@@ -7,6 +7,7 @@ from gub import misc
 from gub import targetbuild
 
 '''
+$ grep 'delivered' target/mingw/log/build.log 
 Module 'solenv' delivered successfully. 0 files copied, 1 files unchanged
 Module 'stlport' delivered successfully. 0 files copied, 8 files unchanged
 Module 'soltools' delivered successfully. 1 files copied, 13 files unchanged
@@ -42,8 +43,21 @@ Module 'sane' delivered successfully. 0 files copied, 2 files unchanged
 Module 'store' delivered successfully. 0 files copied, 8 files unchanged
 Module 'registry' delivered successfully. 0 files copied, 23 files unchanged
 Module 'idlc' delivered successfully. 0 files copied, 7 files unchanged
+Module 'udkapi' delivered successfully. 1 files copied, 417 files unchanged
+Module 'offapi' delivered successfully. 1 files copied, 3520 files unchanged
+Module 'codemaker' delivered successfully. 0 files copied, 23 files unchanged
+Module 'offuh' delivered successfully. 0 files copied, 5518 files unchanged
+Module 'cppu' delivered successfully. 0 files copied, 47 files unchanged
+Module 'cppuhelper' delivered successfully. 0 files copied, 65 files unchanged
+Module 'rdbmaker' delivered successfully. 0 files copied, 4 files unchanged
+Module 'ucbhelper' delivered successfully. 0 files copied, 35 files unchanged
+Module 'comphelper' delivered successfully. 0 files copied, 107 files unchanged
+Module 'basegfx' delivered successfully. 0 files copied, 69 files unchanged
+Module 'ridljar' delivered successfully. 0 files copied, 5 files unchanged
+Module 'jurt' delivered successfully. 2 files copied, 2 files unchanged
+Module 'jvmaccess' delivered successfully. 6 files copied, 0 files unchanged
 
-35 modules
+48 modules
 '''
 
 class Openoffice (targetbuild.AutoBuild):
@@ -247,7 +261,7 @@ cd %(builddir)s/build/%(cvs_tag)s && patch -p%(patch_strip_component)s < %(patch
 
         self.system ('chmod +x %(upstream_dir)s/solenv/bin/build.pl %(upstream_dir)s/solenv/bin/deliver.pl')
 
-        disable_modules = ['sandbox', 'testshl2', 'hsqldb', 'lpsolve', 'lucene']
+        disable_modules = ['sandbox', 'testshl2', 'hsqldb', 'lpsolve', 'lucene', 'bean']
         for module in disable_modules:
             self.system ('sed -i -e "s@[ \t]all@ i@g" %(upstream_dir)s/%(module)s/prj/build.lst', locals ())
 
@@ -256,6 +270,7 @@ cd %(builddir)s/build/%(cvs_tag)s && patch -p%(patch_strip_component)s < %(patch
 
     def makeflags (self):
         return misc.join_lines ('''
+NASM=nasm
 CC_FOR_BUILD=cc
 CXX_FOR_BUILD=c++
 LDFLAGS_FOR_BUILD=
@@ -290,6 +305,11 @@ class Openoffice__mingw (Openoffice):
         Openoffice.patch_upstream (self)
         # avoid juggling of names for windows-nt
         self.system ('sed -i -e "s@WINNT@WNT@" %(upstream_dir)s/config_office/configure.in')
+        self.file_sub ([
+                ('( [.](type|size))', r'//\1'),
+                ('( [.]note.*)', ''),
+                ('(,@.*)', '')],
+                       '%(upstream_dir)s/bridges/source/cpp_uno/mingw_intel/call.s')
 
         self.system ('chmod +x %(upstream_dir)s/solenv/bin/addsym-mingw.sh')
         

@@ -15,7 +15,7 @@
  ASM=ml
  AFLAGS=/c /Cp /coff
 +.ELSE # "$(CROSS_COMPILING)" == "yes"
-+ASM=$(AS)
++ASM=$(NASM)
 +.ENDIF # "$(CROSS_COMPILING)" == "yes"
  
  # architecture dependent flags for the C and C++ compiler that can be changed by
