@@ -82,6 +82,11 @@ class Openoffice (targetbuild.AutoBuild):
         # TODO: either make all ooo-tools (soltools: makedepend..., transex3: transex3 ...)
         # self-hosting or compile them as Openoffice__tools package...
         # Shortcut: use precompiled tools from user's system
+        if not os.environ.has_key ('OOO_TOOLS_DIR'):
+            print '''Set OOO_TOOLS_DIR to a recent pre-compiled native solver, I do
+export OOO_TOOLS_DIR=/suse/home/janneke/vc/ooo300-m7/build/ooo300-m7/solver/300/unxlngx6.pro/bin
+'''
+            raise Exception ('OOO_TOOLS_DIR not set')
         return os.environ['OOO_TOOLS_DIR']
     @context.subst_method
     def LD_LIBRARY_PATH (self):
@@ -264,7 +269,7 @@ LD_LIBRARY_PATH=%(LD_LIBRARY_PATH)s
 ##CPPFLAGS=
                 
 class Openoffice__mingw (Openoffice):
-    Openoffice.upstream_patches += ['openoffice-config_office-mingw.patch', 'openoffice-soltools-mingw.patch', 'openoffice-sal-mingw.patch', 'openoffice-external-mingwheaders.patch', 'openoffice-cppunit-mingw.patch']
+    Openoffice.upstream_patches += ['openoffice-config_office-mingw.patch', 'openoffice-solenv-mingw.patch', 'openoffice-soltools-mingw.patch', 'openoffice-sal-mingw.patch', 'openoffice-external-mingwheaders.patch', 'openoffice-cppunit-mingw.patch']
     # external/mingwheaders seems a badly misguided effort.  It
     # patches header files and is thus strictly tied to a gcc version;
     # that can never build.  How can patching header files ever work,
