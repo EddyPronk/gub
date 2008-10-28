@@ -135,7 +135,6 @@ class Repository:
                 # Otherwise, check fresh repository out under .gub.VC_SYSTEM
                 self.dir = os.path.join (os.getcwd (), '.gub' + self.vc_system)
                 
-        self.package = None
         self.settings = None
         self.source = source
         self.logger = logging.default_logger
@@ -147,8 +146,10 @@ class Repository:
 
     def get_env (self):
         env = os.environ
-#        if self.package:
-#            env = self.package.get_substitution_dict ()
+        # Hmm, Repository.system and .read_pipe are used in
+        # build.Build.__init__ () [read: GIT] when no
+        # get_substitution_dict expansion is allowed.  Use settings to
+        # sneak in correct paths.
         if self.settings:
             tools_dir = (self.settings.alltargetdir + '/tools'
                          + self.settings.root_dir)
