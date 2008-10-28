@@ -22,12 +22,13 @@ class Gcc (gcc.Gcc):
                 return
             id = loggedos.read_pipe (logger,
                                      self.expand ('%(toolchain_prefix)sotool -L %(file)s', 
-                                                 locals ())).split ()[1]
+                                                 locals ()),
+                                     env=self.get_substitution_dict ()).split ()[1]
             id = os.path.split (id)[1]
-            loggedos.system (
-                logger, 
-                self.expand ('%(toolchain_prefix)sinstall_name_tool -id /usr/lib/%(id)s %(file)s',
-                             locals ()))
+            loggedos.system (logger, 
+                             self.expand ('%(toolchain_prefix)sinstall_name_tool -id /usr/lib/%(id)s %(file)s',
+                                          locals ()),
+                             env=self.get_substitution_dict ())
         self.map_locate (rewire_one,
                          self.expand ('%(install_prefix)s/lib/'),
                          '*.dylib')
