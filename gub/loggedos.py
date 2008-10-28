@@ -12,8 +12,6 @@ def system (logger, cmd, env=os.environ, ignore_errors=False):
                              stderr=subprocess.STDOUT,
                              close_fds=True)
     
-    # TODO: diagnose these problems; both variants are problematic, or
-    # so it seems.
     line = proc.stdout.readline ()
     while line:
 	logger.write_log (line, 'output')

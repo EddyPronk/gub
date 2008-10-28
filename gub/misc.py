@@ -1,13 +1,14 @@
 # misc utils
+import fnmatch
+import imp
 import os
 import re
-import string
-import sys
-import urllib2
 import stat
-import imp
+import string
+import subprocess
+import sys
 import traceback
-import fnmatch
+import urllib2
 
 def join_lines (str):
     return str.replace ('\n', ' ')
@@ -37,13 +38,31 @@ def bind (function, arg1):
 def bind_method (func, obj):
     return lambda *args: func (obj, *args)
 
-def read_pipe (cmd, ignore_errors=False):
+def xread_pipe (cmd, ignore_errors=False):
     pipe = os.popen (cmd)
     val = pipe.read ()
     if pipe.close () and not ignore_errors:
         raise SystemFailed ('Pipe failed: %(cmd)s' % locals ())
-
     return val
+
+def read_pipe (cmd, ignore_errors=False, env=os.environ, logger=sys.stderr):
+    proc = subprocess.Popen (cmd, bufsize=0, shell=True, env=env,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT,
+                             close_fds=True)
+    
+    line = proc.stdout.readline ()
+    result = line
+    while line:
+	line = proc.stdout.readline ()
+        result += '\n' + line
+
+    if proc.returncode:
+	m = 'read_pipe failed: %(cmd)s\n' % locals ()
+        logger.write (m)
+	if not ignore_errors:
+	    raise misc.SystemFailed (m)
+    return result
 
 def read_file (file):
     return open (file).read ()

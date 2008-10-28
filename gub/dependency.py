@@ -119,6 +119,6 @@ class Dependency:
         return self._name
     def build (self):
         b = self._create_build ()
-        if not self.settings.platform == 'tools':
-            cross.get_cross_module (self.settings).change_target_package (b)
+        cross.get_cross_module (self.settings).change_target_package (b)
+        b.source.settings = self.settings
         return b

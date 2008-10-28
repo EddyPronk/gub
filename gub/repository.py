@@ -135,6 +135,8 @@ class Repository:
                 # Otherwise, check fresh repository out under .gub.VC_SYSTEM
                 self.dir = os.path.join (os.getcwd (), '.gub' + self.vc_system)
                 
+        self.package = None
+        self.settings = None
         self.source = source
         self.logger = logging.default_logger
 
@@ -142,6 +144,26 @@ class Repository:
         self._read_file = self.logged_indirection (loggedos.read_file)
         self.download_url = self.logged_indirection (loggedos.download_url)
         self.read_pipe = self.logged_indirection (loggedos.read_pipe)
+
+    def get_env (self):
+        env = os.environ
+#        if self.package:
+#            env = self.package.get_substitution_dict ()
+        if self.settings:
+            tools_dir = (self.settings.alltargetdir + '/tools'
+                         + self.settings.root_dir)
+            tools_bin = (tools_dir
+                         + self.settings.prefix_dir
+                         + '/bin')
+            tools_lib = (tools_dir
+                         + self.settings.prefix_dir
+                         + '/lib')
+            return {
+                'PATH': tools_bin + ':' + os.environ['PATH'],
+                'LD_LIBRARY_PATH': tools_lib
+                + misc.append_path (os.environ.get ('LD_LIBRARY_PATH', '')),
+                }
+        return os.environ
 
     def logged_indirection (self, loggedos_func):
         def logged (*args, **kwargs):
@@ -517,14 +539,15 @@ class Git (Repository):
             repo_dir = self.dir
         gc = self.git_command (dir, repo_dir)
         cmd = '%(gc)s %(cmd)s' % locals ()
-        self.system (cmd, ignore_errors=ignore_errors)
+        self.system (cmd, ignore_errors=ignore_errors, env=self.get_env ())
 
     def git_pipe (self, cmd, ignore_errors=False, dir='', repo_dir=''):
         if repo_dir == '' and dir == '':
             repo_dir = self.dir
         gc = self.git_command (dir, repo_dir)
         return self.read_pipe ('%(gc)s %(cmd)s' % locals (),
-                               ignore_errors=ignore_errors)
+                               ignore_errors=ignore_errors,
+                               env=self.get_env ())
         
     def is_downloaded (self):
         if not os.path.isdir (self.dir):
@@ -544,7 +567,7 @@ class Git (Repository):
         host = self.url_host
         path = self.url_path
 
-        if not os.path.isdir(self.dir):
+        if not os.path.isdir (self.dir):
             self.git ('clone --bare %(source)s %(repo)s' % locals ())
 
         if branch: 
