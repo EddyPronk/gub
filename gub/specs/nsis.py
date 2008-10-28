@@ -11,7 +11,6 @@ class Nsis (toolsbuild.SConsBuild):
         toolsbuild.AutoBuild.__init__ (self, settings, source)
         if 'x86_64-linux' in self.settings.build_architecture:
             cross.change_target_package_x86 (self, self.add_mingw_env ())
-        
     def add_mingw_env (self):
         # Do not use 'root', 'usr', 'cross', rather use from settings,
         # that enables changing system root, prefix, etc.
@@ -27,12 +26,11 @@ class Nsis (toolsbuild.SConsBuild):
                      + self.settings.prefix_dir
                      + '/bin')
         return {'PATH': mingw_bin + ':' + tools_bin + ':' + os.environ['PATH'] }
-        
     def get_build_dependencies (self):
+        lst = ['mingw::cross/gcc']
         if 'x86_64-linux' in self.settings.build_architecture:
-            return ['linux-x86::glibc']
-        return []
-
+            lst += ['linux-x86::glibc']
+        return lst
     def patch (self):
         self.system ('mkdir -p %(allbuilddir)s', ignore_errors=True)
         self.system ('ln -s %(srcdir)s %(builddir)s')
@@ -44,7 +42,6 @@ defenv['CXX'] = os.environ['CXX']
 Export('defenv')
 ''')],
                        '%(srcdir)s/SConstruct')
-        
     def compile_command (self):
         return (toolsbuild.SConsBuild.compile_command (self)
                 + misc.join_lines ('''
@@ -63,4 +60,3 @@ SKIPPLUGINS=System
     def install (self):
         self.system ('cd %(builddir)s && %(install_command)s ',
                      self.build_environment ())
-
