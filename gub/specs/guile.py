@@ -11,7 +11,7 @@ class Guile (targetbuild.AutoBuild):
     def __init__ (self, settings, source):
         targetbuild.AutoBuild.__init__ (self, settings, source)
         if isinstance (source, repository.Repository):
-            source.version = lambda: '1.8.2'
+            source.version = lambda: '1.8.4'
         self.so_version = '17'
 
     def autogen_sh (self):
@@ -110,6 +110,8 @@ exit 0
         self.chmod ('%(install_prefix)s/cross/bin/%(target_architecture)s-guile-config', 0755)
 
 class Guile__mingw (Guile):
+    source = 'git://git.sv.gnu.org/guile.git&branch=branch_release-1-8&revision=release_1-8-4'
+
     def __init__ (self, settings, source):
         Guile.__init__ (self, settings, source)
         # Configure (compile) without -mwindows for console
@@ -221,6 +223,8 @@ cc
 '''))
 
 class Guile__darwin (Guile):
+    source = 'git://git.sv.gnu.org/guile.git&branch=branch_release-1-8&revision=release_1-8-4'
+
     def install (self):
         Guile.install (self)
 
@@ -235,6 +239,8 @@ class Guile__darwin (Guile):
                          'libguile-srfi*.dylib')
  
 class Guile__darwin__x86 (Guile__darwin):
+    source = 'git://git.sv.gnu.org/guile.git&branch=branch_release-1-8&revision=release_1-8-4'
+
     def configure (self):
         Guile__darwin.configure (self)
         self.file_sub ([('guile-readline', '')],
