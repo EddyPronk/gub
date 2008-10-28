@@ -73,6 +73,7 @@ class LilyPond (targetbuild.AutoBuild):
                 'tools::gettext', # AM_GNU_GETTEXT
                 'tools::git', # possibly too old or too new.  Automate this, by looking at self.source.[Git]?
                 'tools::t1utils',
+                'tools::texi2html',
                 #'tools::texlive', mpost ... *grin*
                 ]
 
