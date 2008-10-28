@@ -39,6 +39,8 @@ class Gcc (gcc.Gcc):
     
 class Gcc__darwin__x86 (Gcc):
     source = 'ftp://ftp.fu-berlin.de/unix/languages/gcc/releases/gcc-4.3.2/gcc-4.3.2.tar.bz2'
+    def get_build_dependencies (self):
+        return ['tools::mpfr']
 
 class Not_used__Gcc__darwin (Gcc):
     def configure (self):
