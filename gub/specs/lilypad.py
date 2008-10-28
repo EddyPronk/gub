@@ -20,6 +20,8 @@ LIBPORT=
 MKINSTALLDIRS=%(srcdir)s/mkinstalldirs
 INSTALL_PROGRAM=%(srcdir)s/install-sh
 ''')
+    def install_command (self):
+        return targetbuild.AutoBuild.broken_install_command (self)
     def license_files (self):
         return ['']
 
