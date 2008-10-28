@@ -55,7 +55,7 @@ def read_pipe (cmd, ignore_errors=False, env=os.environ, logger=sys.stderr):
     result = line
     while line:
 	line = proc.stdout.readline ()
-        result += '\n' + line
+        result += line
 
     if proc.returncode:
 	m = 'read_pipe failed: %(cmd)s\n' % locals ()
