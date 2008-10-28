@@ -1,10 +1,9 @@
-from gub import mirrors
 from gub import misc
 from gub import targetbuild
 from gub import toolsbuild
 
 class Expat (targetbuild.AutoBuild):
-    source = mirrors.with_template (name='expat', version='1.95.8', mirror=mirrors.sf, format='gz')
+    source = 'http://surfnet.dl.sourceforge.net/sourceforge/expat/expat-1.95.8.tar.gz'
 
     def get_build_dependencies (self):
         return ['libtool', 'tools::expat']
@@ -35,9 +34,7 @@ RUN_FC_CACHE_TEST=false
                 + self.makeflags ())
 
 class Expat__linux__arm__vfp (Expat):
-    def __init__ (self, settings, source):
-        Expat.__init__ (self, settings, source)
-    source = mirrors.with_template (name='expat', version='2.0.0')
+    source = 'http://surfnet.dl.sourceforge.net/sourceforge/expat/expat-2.0.0.tar.gz'
     def patch (self):
         self.system ("touch %(srcdir)s/tests/xmltest.sh.in")
         targetbuild.AutoBuild.patch (self)

@@ -1,15 +1,12 @@
 from gub import context
-from gub import build
 from gub import misc
 from gub import targetbuild
-
-trolltech = 'ftp://ftp.trolltech.com/qt/source/%(name)s-opensource-src-%(ball_version)s.tar.%(format)s'
 
 # TODO: base class Qmake build.
 #       sort-out what exactly is Qmake build, qt, and qtopia-core specific
 
 class Qtopia_core (targetbuild.AutoBuild):
-    source = mirrors.with_tarball (name='qtopia-core', mirror=trolltech, version='4.2.2')
+    source = 'ftp://ftp.trolltech.com/qt/source/qtopia-core-opensource-src-4.2.2.tar.gz'
         dict = {
             'CC': 'gcc',
             'CXX': 'g++',

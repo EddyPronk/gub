@@ -1,11 +1,9 @@
-import os
 import re
-
-from gub import mirrors
-from gub import repository
-from gub import misc
-from gub import targetbuild
+#
 from gub import context
+from gub import misc
+from gub import repository
+from gub import targetbuild
 
 class Ghostscript (targetbuild.AutoBuild):
     '''The GPL Ghostscript PostScript interpreter
@@ -263,15 +261,10 @@ class Ghostscript__freebsd (Ghostscript):
 url='http://mirror3.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/ghostscript-8.60.tar.gz'
 url='http://mirror3.cs.wisc.edu/pub/mirrors/ghost/GPL/gs850/ghostscript-8.50-gpl.tar.gz'
 #8250
-fonts_url = 'http://mirror2.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/ghostscript-fonts-std-8.11.tar.gz'
 class Ghostscript__cygwin (Ghostscript):
     def __init__ (self, settings, source):
         Ghostscript.__init__ (self, settings, source)
-        #self.source.revision = '8250'
-        #targetbuild.AutoBuild.__init__ (self, settings, source)
-        #self.with_vc (repository.TarBall (self.settings.downloads, url))
-        self.fonts_source = repository.TarBall (self.settings.downloads,
-                                                fonts_url)
+        self.fonts_source = repository.get_repository_proxy (self.settings.downloads, 'http://mirror2.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/ghostscript-fonts-std-8.11.tar.gz')
     def connect_command_runner (self, runner):
         print 'FIXME: deferred workaround'
         if (runner):

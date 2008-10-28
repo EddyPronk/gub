@@ -1,8 +1,7 @@
 from gub import build
-from gub import repository
 
 class W32api_in_usr_lib (build.BinaryBuild, build.SdkBuild):
-    source = repository.Version (name='w32api-in-usr-lib', version='1.0')
+    source = 'url://host/w32api-in-usr-lib-1.0.tar.gz'
     def get_build_dependencies (self):
         return ['w32api']
     def install (self):

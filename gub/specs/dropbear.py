@@ -1,11 +1,7 @@
-from gub import mirrors
 from gub import targetbuild
-from gub import repository
-
-url = 'http://matt.ucc.asn.au/dropbear/releases/dropbear-0.49.tar.gz'
 
 class Dropbear (targetbuild.AutoBuild):
-    source = mirrors.with_vc (repository.TarBall (self.settings.downloads, url))
+    source = 'http://matt.ucc.asn.au/dropbear/releases/dropbear-0.49.tar.gz'
     def get_subpackage_names (self):
         return ['']
     def get_build_dependencies (self):

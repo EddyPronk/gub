@@ -1,10 +1,7 @@
 from gub import build
-from gub import mirrors
 
 class Linux_headers (build.BinaryBuild, build.SdkBuild):
-    source = mirrors.with_tarball (name='linux-headers',
-                                   mirror=mirrors.linux_2_4,
-                                   version='2.4.34', format='bz2')
+    source = 'http://www.nl.kernel.org/pub/linux/kernel/v2.4/linux-2.4.34.tar.bz2&name=linux-headers'
     # HMm, is this more handy than patch ():pass in BinaryBuild?
     # possibly we should simply override install (), but that is
     # always a problem because install ()
@@ -33,18 +30,9 @@ from gub import misc
 linux_kernel_headers = misc.load_spec ('debian/linux-kernel-headers')
 
 class Linux_headers__debian (linux_kernel_headers.Linux_kernel_headers):
-    def __init__ (self, settings, source):
-        linux_kernel_headers.Linux_kernel_headers.__init__ (self, settings, source)
-        from gub import debian
 #        debian.init_dependency_resolver (settings)
-    source = mirrors.with_template (name='linux-kernel-headers',
 # FIXME: we do not mirror all 12 debian arch's,
-#           version=debian.get_packages ()['linux-kernel-headers'].version (),
-#           mirror=mirrors.lilypondorg_deb,
-            version='2.5.999-test7-bk-17',
-            mirror=mirrors.lkh_deb,
-            strip_components=0,
-            format='deb')
+    source = 'http://ftp.debian.org/debian/pool/main/l/linux-kernel-headers/linux-kernel-headers_2.5.999-test7-bk-17_%%(package_arch)s.deb&strip=0' 
 
 Linux_headers__linux__ppc = Linux_headers__debian
 #Linux_headers__linux__64 = Linux_headers__debian
@@ -54,11 +42,5 @@ Linux_headers__linux__arm__vfp = Linux_headers__debian
 Linux_headers__linux__mipsel = Linux_headers__debian
 
 class Linux_headers__linux__64 (Linux_headers__debian):
-    source = mirrors.with_template (name='linux-kernel-headers',
 # FIXME: we do not mirror all 12 debian arch's,
-#           version=debian.get_packages ()['linux-kernel-headers'].version (),
-#           mirror=mirrors.lilypondorg_deb,
-            version='2.6.18-7',
-            mirror=mirrors.lkh_deb,
-            strip_components=0,
-            format='deb')
+    source = 'http://ftp.debian.org/debian/pool/main/l/linux-kernel-headers/linux-kernel-headers_2.6.18-7_%%(package_arch)s.deb&strip=0' 

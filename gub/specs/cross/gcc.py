@@ -1,18 +1,13 @@
 import os
-
+#
 from gub import cross
 from gub import misc
-from gub import mirrors
 from gub import context
 from gub import loggedos
 
 #FIXME: merge fully with specs/gcc
 class Gcc (cross.AutoBuild):
-    source = mirrors.with_tarball (
-        #/usr/lib/libstdc++.so.6: version `GLIBCXX_3.4.9' not found
-        #(required by /../usr/bin/lilypond
-        #mirror=mirrors.gcc, version='4.2.3', format='bz2', name='gcc')
-        mirror=mirrors.gcc, version='4.1.2', format='bz2', name='gcc')
+    source = 'ftp://ftp.gnu.org/pub/gnu/gcc/gcc-4.1.2/gcc-4.1.2.tar.bz2'
 
     def get_build_dependencies (self):
         return ['cross/binutils']
@@ -103,11 +98,8 @@ mv %(install_prefix)s/cross/lib/gcc/%(target_architecture)s/%(version)s/libgcc_e
 Gcc__linux = Gcc__from__source
 
 class Gcc__mingw (Gcc):
-    #REMOVEME
-    def __init__ (self, settings, source):
-        Gcc.__init__ (self, settings, source)
-    source = mirrors.with_tarball (name='gcc', mirror=mirrors.gcc, version='4.1.1', format='bz2')
-    ##source = mirrors.with_tarball (name='gcc', mirror=mirrors.gcc, version='4.3.2', format='bz2')
+    source = 'ftp://ftp.gnu.org/pub/gnu/gcc/gcc-4.1.1/gcc-4.1.1.tar.bz2'
+
     def get_build_dependencies (self):
         return (Gcc.get_build_dependencies (self)
                 + ['mingw-runtime', 'w32api'])
@@ -157,10 +149,7 @@ from gub import cygwin
 # Untar stage is gone, use plain gcc + cygwin patch
 #class Gcc__cygwin (Gcc):
 class Gcc__cygwin (Gcc):
-    def __init__ (self, settings, source):
-        Gcc.__init__ (self, settings, source)
-    #source = mirrors.with_tarball (mirror=mirrors.cygwin, version='3.4.4-3', format='bz2', name='gcc')
-    source = mirrors.with_tarball (mirror=mirrors.gcc, version='3.4.4', format='bz2', name='gcc')
+    source = 'ftp://ftp.gnu.org/pub/gnu/gcc/gcc-3.4.4/gcc-3.4.4.tar.bz2'
     patches = ['gcc-3.4.4-cygwin-3.patch']
     def xuntar (self):
         ball = self.source._file_name ()
@@ -206,10 +195,7 @@ class Gcc__darwin (Gcc):
             self.apply_patch ('gcc-4.1.1-ppc-unwind.patch')
 
 class Gcc__freebsd (Gcc):
-    #REMOVEME
-    def __init__ (self, settings, source):
-        Gcc.__init__ (self, settings, source)
-    source = mirrors.with_tarball (name='gcc', mirror=mirrors.gcc, version='4.1.2', format='bz2')
+    source = 'ftp://ftp.gnu.org/pub/gnu/gcc/gcc-4.1.2/gcc-4.1.2.tar.bz2'
     def get_build_dependencies (self):
         return (Gcc.get_build_dependencies (self)
                 + ['freebsd-runtime'])

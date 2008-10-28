@@ -96,25 +96,3 @@ berlios = 'http://download.berlios.de/%(name)s/%(name)s-%(version)s.tar.%(format
 
 xerces_c_2 = 'http://www.apache.org/dist/xerces/c/2/sources/%(name)s-src_%(version)s.tar.%(format)s'
 xerces_c_3 = 'http://www.apache.org/dist/xerces/c/3/sources/%(name)s-src_%(version)s.tar.%(format)s'
-
-
-def with_template (
-    mirror=gnu,
-    version='',
-    strip_components=1,
-    format='gz',
-    name='',
-    ball_version=''):
-    if not ball_version and version:
-        ball_version = version
-    if strip_components != 1:
-        mirror += '&strip_components=%(strip_components)s'
-    url = mirror % locals ()
-    # update helper
-    # print "%(name)s.py:\n    source = '%(url)s'" % locals ()
-    return url
-
-with_tarball = with_template
-
-def with_vc (x):
-    return x

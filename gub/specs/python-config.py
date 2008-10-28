@@ -1,15 +1,9 @@
 import sys
-import re
-
+#
 from gub import build
-from gub import misc
-from gub import repository
 
 class Python_config (build.SdkBuild):
-    source = repository.Version (name='python-config', version='2.4.1')
-    def stages (self):
-        return [s for s in build.SdkBuild.stages (self)
-                if s not in ['untar', 'patch']]
+    source = 'url://host/python-config-2.4.1.tar.gz'
     # FIXME: c&p python.py:install ()
     def install (self):
 
@@ -25,4 +19,4 @@ class Python_config (build.SdkBuild):
         self.chmod (python_config, 0755)
 
 class Python_config__cygwin (Python_config):
-    source = repository.Version (name='python-config', version='2.5')
+    source = 'url://host/python-config-2.5.tar.gz'

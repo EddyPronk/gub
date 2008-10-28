@@ -1,8 +1,7 @@
-from gub import mirrors
 from gub import build
 
 class Root_image (build.NullBuild):
-    source = mirrors.with_vc (repository.Version ('1.0'))
+    source = 'url://host/root-image-1.0.tar.gz'
     def _get_build_dependencies (self):
         busybox = [
             'dhcp',

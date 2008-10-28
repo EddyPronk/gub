@@ -1,15 +1,11 @@
 from gub import build
-from gub import mirrors
 
 class Freebsd_runtime (build.BinaryBuild, build.SdkBuild):
-    source = mirrors.with_template (name='freebsd-runtime', version='4.10-2', strip_components=0, mirror=mirrors.lilypondorg)
-    def __init__ (self, settings, source):
-        build.BinaryBuild.__init__ (self, settings, source)
-        source.strip_components = 0
+    source = 'http://lilypond.org/download/gub-sources/freebsd-runtime-4.10-2.tar.gz&strip=0'
     def untar (self):
         build.BinaryBuild.untar (self)
     def patch (self):
         self.system ('rm -rf %(srcdir)s/usr/include/g++')
 
 class Freebsd_runtime__freebsd__64 (Freebsd_runtime):
-    source = mirrors.with_template (name='freebsd-runtime', version='6.2-1.amd64', strip_components=0, mirror=mirrors.lilypondorg)
+    source = 'http://lilypond.org/download/gub-sources/freebsd-runtime-6.2-1.amd64.tar.gz&strip=0'

@@ -1,12 +1,7 @@
-from gub import mirrors
-from gub import repository
 from gub import targetbuild
 
 class Pjproject (targetbuild.AutoBuild):
-    source = mirrors.with_vc (repository.TarBall (self.settings.downloads,
-                                          url='http://www.pjsip.org/release/0.5.10.1/pjproject-0.5.10.1.tar.gz',
-                                          version='0.5.10.1',
-                                          strip_components=True))
+    source = 'http://www.pjsip.org/release/0.5.10.1/pjproject-0.5.10.1.tar.gz'
     def force_sequential_build (self):
         return True
     def patch (self):

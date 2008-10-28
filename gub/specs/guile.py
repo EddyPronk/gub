@@ -1,12 +1,9 @@
-import re
 import os
 #
 from gub import misc
-from gub import mirrors
-from gub import sources
-from gub import targetbuild
-from gub import repository
 from gub import loggedos
+from gub import repository
+from gub import targetbuild
 
 class Guile (targetbuild.AutoBuild):
     source = 'git://git.sv.gnu.org/guile.git&branch=branch_release-1-8&revision=release_1-8-4'

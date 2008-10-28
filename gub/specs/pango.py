@@ -1,10 +1,8 @@
-import os
 import re
-
-from gub import mirrors
+#
 from gub import misc
-from gub import targetbuild
 from gub import loggedos
+from gub import targetbuild
 
 pango_module_version_regexes = [
     (r'^1\.14', '1.5.0'),
@@ -12,24 +10,19 @@ pango_module_version_regexes = [
     ]
 
 class Pango (targetbuild.AutoBuild):
-    source = mirrors.with_template (name='pango', version='1.20.0',
-                   mirror=mirrors.gnome_222,
-                   format='bz2')
-
+    source = 'http://ftp.gnome.org/pub/GNOME/platform/2.22/2.22.0/sources/pango-1.20.0.tar.bz2'
+    patches = ['pango-1.20-substitute-env.patch']
     def get_build_dependencies (self):
-        return ['freetype-devel', 'fontconfig-devel', 'glib-devel',
-                'libtool']
-
+        return ['freetype-devel', 'fontconfig-devel', 'glib-devel', 'libtool']
     def get_dependency_dict (self):
         return {'': ['freetype', 'fontconfig', 'glib', 'libtool-runtime']}
-
-
+    #FIXME: promoteme to build.py
     def configure_flags (self):
         return misc.join_lines ('''
 --without-x
 --without-cairo
 ''')
-
+    #FIXME: promoteme to build.py
     def configure_command (self):
         return (targetbuild.AutoBuild.configure_command (self)
                 + self.configure_flags ())
@@ -37,10 +30,6 @@ class Pango (targetbuild.AutoBuild):
     def configure (self):
         targetbuild.AutoBuild.configure (self)                
         self.update_libtool ()
-
-    def patch (self):
-        targetbuild.AutoBuild.patch (self)
-        self.apply_patch ('pango-1.20-substitute-env.patch')
 
     def module_version (self):
         result = None
@@ -79,6 +68,8 @@ set PANGO_MODULE_VERSION=%(mod_version)s
         self.fix_modules ()
 
 class Pango__linux (Pango):
+    source = 'http://ftp.gnome.org/pub/GNOME/platform/2.22/2.22.0/sources/pango-1.20.0.tar.bz2'
+    patches = ['pango-1.20-substitute-env.patch']
     def untar (self):
         Pango.untar (self)
         # FIXME: --without-cairo switch is removed in 1.10.1,
@@ -89,11 +80,14 @@ class Pango__linux (Pango):
                        '%(srcdir)s/configure')
 
 class Pango__freebsd (Pango__linux):
+    source = 'http://ftp.gnome.org/pub/GNOME/platform/2.22/2.22.0/sources/pango-1.20.0.tar.bz2'
+    patches = ['pango-1.20-substitute-env.patch']
     def get_build_dependencies (self):
         return Pango__linux.get_build_dependencies (self) + ['libiconv-devel']
-            
 
 class Pango__darwin (Pango):
+    source = 'http://ftp.gnome.org/pub/GNOME/platform/2.22/2.22.0/sources/pango-1.20.0.tar.bz2'
+    patches = ['pango-1.20-substitute-env.patch']
     def configure (self):
         Pango.configure (self)
         self.file_sub ([('nmedit', '%(target_architecture)s-nmedit')],

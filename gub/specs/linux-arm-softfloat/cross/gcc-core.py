@@ -1,12 +1,8 @@
-from gub import mirrors
 from gub import misc
 gcc = misc.load_spec ('cross/gcc-core')
 
 class Gcc_core (gcc.Gcc_core):
-    def __init__ (self, settings, source):
-        gcc.Gcc_core.__init__ (self, settings, source)
-    source = mirrors.with_tarball (name='gcc-core', mirror=mirrors.gnu, version='3.4.6', format='bz2',
-                           name='gcc')
+    source = 'ftp://ftp.gnu.org/pub/gnu/gcc/gcc-3.4.6/gcc-3.4.6.tar.bz2'
     def patch (self):
         gcc.Gcc_core.patch (self)
         self.system ('''

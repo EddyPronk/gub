@@ -1,13 +1,8 @@
 from gub import targetbuild
-from gub import repository
-
-url = 'http://ftp.isc.org/isc/dhcp/dhcp-3.0.6.tar.gz'
 
 class Dhcp (targetbuild.AutoBuild):
-    source = mirrors.with_vc (repository.TarBall (self.settings.downloads, url, strip_components=2))
-    def __init__ (self, settings, source):
-        targetbuild.AutoBuild.__init__ (self, settings, source)
-        source.strip_components = 2
+    #source = 'http://ftp.isc.org/isc/dhcp/dhcp-4.1.0a2.tar.gz'
+    source = 'http://ftp.isc.org/isc/dhcp/dhcp-3.0.7.tar.gz&strip=2'
     def get_subpackage_names (self):
         return ['']
     def configure_command (self):

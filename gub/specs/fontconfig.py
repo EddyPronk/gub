@@ -1,9 +1,7 @@
-from gub import mirrors
 from gub import build
 from gub import misc
 from gub import targetbuild
 from gub import toolsbuild
-from gub import repository
 from gub import context
 from gub import logging
 
@@ -21,9 +19,6 @@ fonts within the system and select them according to requirements
 specified by applications.'''
 
     source = 'git://anongit.freedesktop.org/git/fontconfig?branch=master&revision=' + version
-    def __init__ (self, settings, source):
-        targetbuild.AutoBuild.__init__ (self, settings, source)
-        #self.with_vc (repository.Git (self.get_repodir (), source="git://anongit.freedesktop.org/git/fontconfig", revision=fc_version))
 
     def patch (self):
         self.dump ('\nAC_SUBST(LT_AGE)', '%(srcdir)s/configure.in', mode='a', permissions=0755)
@@ -159,7 +154,7 @@ class Fontconfig__freebsd (Fontconfig__linux):
     pass
 
 class Fontconfig__cygwin (Fontconfig):
-    source = mirrors.with_template (name='fontconfig', mirror=mirrors.fontconfig, version='2.4.1')
+    source = 'http://www.fontconfig.org/release/fontconfig-2.4.1.tar.gz'
     def __init__ (self, settings, source):
         Fontconfig.__init__ (self, settings, source)
         self.so_version = '1'

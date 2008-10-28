@@ -1,9 +1,8 @@
-from gub import mirrors
 from gub import misc
 from gub import targetbuild
 
 class Xerces_c (targetbuild.AutoBuild):
-    source = mirrors.with_tarball (name='xerces-c', mirror=mirrors.xerces_c_2, version='2_8_0')
+    source = 'http://www.apache.org/dist/xerces/c/2/sources/xerces-c-src_2_8_0.tar.gz'
     def get_build_dependencies (self):
         return ['tools::autoconf']
     def __init__ (self, settings, source):
@@ -54,12 +53,10 @@ class Xerces_c (targetbuild.AutoBuild):
         self.system ('cd %(builddir)s/src/xercesc && %(install_command)s')
 
 class Xerces_c__linux__arm__vfp (Xerces_c):
-    def __init__ (self, settings, source):
-        Xerces_c.__init__ (self, settings, source)
-    source = mirrors.with_template (name='xerces-c', version='2_6_0',
-                            mirror='http://archive.apache.org/dist/xml/xerces-c/Xerces-C_%(ball_version)s/%(name)s-src_%(ball_version)s.tar.%(format)s')
+    source = 'http://www.apache.org/dist/xerces/c/2/sources/xerces-c-src_2_6_0.tar.gz'
 
 class Xerces_c__mingw (Xerces_c):
+    source = 'http://www.apache.org/dist/xerces/c/2/sources/xerces-c-src_2_8_0.tar.gz'
     def __init__ (self, settings, source):
         Xerces_c.__init__ (self, settings, source)
         self.compile_dict.update ({

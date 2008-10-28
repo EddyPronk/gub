@@ -1,11 +1,9 @@
-from gub import targetbuild
 from gub import build
-from gub import mirrors
+from gub import targetbuild
 from gub import toolsbuild
 
 class Zlib (targetbuild.AutoBuild):
-    source = mirrors.with_template (name='zlib', version='1.2.3',
-                   mirror='http://heanet.dl.sourceforge.net/sourceforge/libpng/zlib-1.2.3.tar.gz')
+    source = 'http://heanet.dl.sourceforge.net/sourceforge/libpng/zlib-1.2.3.tar.gz'
     patches = ['zlib-1.2.3.patch']
     def get_build_dependencies (self):
         return ['tools::autoconf']

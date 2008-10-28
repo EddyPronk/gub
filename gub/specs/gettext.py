@@ -1,4 +1,3 @@
-from gub import mirrors
 from gub import targetbuild
 from gub import toolsbuild
 
@@ -53,7 +52,6 @@ sed: expressie #1, teken 39: onbekende opdracht: '\'
 
 class Gettext__mingw (Gettext):
 
-    #source = mirrors.with_template (name='gettext', version='0.17', mirror=mirrors.gnu, format='gz')
     source = Gettext.source
     patches = ['gettext-0.15-mingw.patch']
  

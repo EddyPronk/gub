@@ -1,12 +1,8 @@
-from gub import mirrors
-from gub import targetbuild
 from gub import misc
+from gub import targetbuild
 
 class LilyPad (targetbuild.AutoBuild):
-    source = mirrors.with_template (name='lilypad', version='0.0.7-1',
-                   mirror='http://lilypond.org/download/gub-sources/lilypad-0.0.7-1-src.tar.bz2',
-                   format='bz2')
-
+    source = 'http://lilypond.org/download/gub-sources/lilypad-0.0.7-1-src.tar.bz2'
     def patch (self):
         ## windres doesn't handle --nostdinc
         self.file_sub ([('--nostdinc',' '),
@@ -24,15 +20,6 @@ LIBPORT=
 MKINSTALLDIRS=%(srcdir)s/mkinstalldirs
 INSTALL_PROGRAM=%(srcdir)s/install-sh
 ''')
-
-    def compile_command (self):
-        return (targetbuild.AutoBuild.compile_command (self)
-           + self.makeflags ())
-
-    def install_command (self):
-        return (targetbuild.AutoBuild.broken_install_command (self)
-           + self.makeflags ())
-
     def license_files (self):
         return ['']
 

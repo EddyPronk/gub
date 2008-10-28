@@ -30,7 +30,6 @@ import gdbm as dbmodule
 
 from gub import misc
 from gub import locker
-from gub import mirrors
 from gub import tztime
 from gub import logging
 from gub import loggedos
@@ -47,7 +46,8 @@ class RepositoryProxy:
         RepositoryProxy.repositories.append (repository)
     register = staticmethod (register)
 
-    def get_repository (dir, url, branch, revision):
+    @staticmethod
+    def get_repository (dir, url, branch='', module='', revision=''):
         parameters = dict ()
         if url:
             url, parameters = misc.dissect_url (url)
@@ -56,12 +56,14 @@ class RepositoryProxy:
 
             # FIXME/TODO: pass these nicely to create ()
             # possibly do dir,url,branch,revision also as dict or kwargs?
-            module = parameters.get ('module', [''])[0]
-            strip_components = parameters.get ('strip_components', [1])[0]
+            name = parameters.get ('name', [''])[0]
+            module = parameters.get ('module', [module])[0]
+            strip = parameters.get ('strip', [1])[0]
+            strip_components = parameters.get ('strip_components', [strip])[0]
 
         for proxy in RepositoryProxy.repositories:
             if proxy.check_url (proxy, url):
-                return proxy.create (proxy, dir, url, branch, revision)
+                return proxy.create (proxy, dir, url, branch, module, revision)
             
         if url and url.startswith ('file://'):
             proto, rest = urllib.splittype (url)
@@ -70,28 +72,27 @@ class RepositoryProxy:
                 host = 'localhost'
             for proxy in RepositoryProxy.repositories:
                 if proxy.check_dir (proxy, url_dir):
-                    return proxy.create (proxy, dir, url, branch, revision)
+                    return proxy.create (proxy, dir, url, branch, module, revision)
                 
         for proxy in RepositoryProxy.repositories:
             if proxy.check_dir (proxy, dir):
-                return proxy.create (proxy, dir, url, branch, revision)
+                return proxy.create (proxy, dir, url, branch, module, revision)
         for proxy in RepositoryProxy.repositories:
             if proxy.check_suffix (proxy, url):
-                return proxy.create (proxy, dir, url, branch, revision)
+                return proxy.create (proxy, dir, url, branch, module, revision)
         for proxy in RepositoryProxy.repositories:
             if os.path.isdir (os.path.join (dir, '.gub' + proxy.vc_system)):
                 d = misc.find_dirs (dir, '^' + proxy.vc_system)
                 if d and proxy.check_dir (proxy, os.path.dirname (d[0])):
-                    return proxy.create (proxy, dir, url, branch, revision)
+                    return proxy.create (proxy, dir, url, branch, module, revision)
         for proxy in RepositoryProxy.repositories:
             # FIXME: this is currently used to determine flavour of
             # downloads/lilypond.git.  But is is ugly and fragile;
             # what if I do brz branch foo foo.git?
             if proxy.check_suffix (proxy, dir):
-                return proxy.create (proxy, dir, url, branch, revision)
+                return proxy.create (proxy, dir, url, branch, module, revision)
         raise UnknownVcSystem ('Cannot determine source: url=%(url)s, dir=%(dir)s'
                                % locals ())
-    get_repository = staticmethod (get_repository)
 
 ## Rename to Source/source.py?
 class Repository: 
@@ -112,8 +113,8 @@ class Repository:
         return url and url.endswith (rety.vc_system)
 
     @staticmethod
-    def create (rety, dir, source, branch='', revision=''):
-        return rety (dir, source, branch, revision)
+    def create (rety, dir, source, branch='', module='', revision=''):
+        return rety (dir, source, branch, module, revision)
 
     def __init__ (self, dir, source):
         self.dir = os.path.normpath (dir)
@@ -237,7 +238,7 @@ class TagDb:
 class Version (Repository):
     vc_system = 'url'
     @staticmethod
-    def create (rety, dir, source, branch='', revision=''):
+    def create (rety, dir, source, branch='', module='', revision=''):
         return Version (source, revision)
     def __init__ (self, name, version=''):
         self.dir = None
@@ -260,7 +261,7 @@ class Darcs (Repository):
     vc_system = '_darcs'
 
     @staticmethod
-    def create (rety, dir, source, branch='', revision=''):
+    def create (rety, dir, source, branch='', module='', revision=''):
         return Darcs (dir, source)
  
     def __init__ (self, dir, source=''):
@@ -334,7 +335,7 @@ class TarBall (Repository):
     vc_system = '.tar'
 
     @staticmethod
-    def create (rety, dir, source, branch='', revision=''):
+    def create (rety, dir, source, branch='', module='', revision=''):
         return TarBall (dir, source)
 
     @staticmethod
@@ -406,7 +407,7 @@ class DebianPackage (TarBall):
     vc_system = '.deb'
 
     @staticmethod
-    def create (rety, dir, source, branch='', revision=''):
+    def create (rety, dir, source, branch='', module='', revision=''):
         return DebianPackage (dir, source)
 
     @staticmethod
@@ -431,7 +432,7 @@ class ZipFile (TarBall):
     vc_system = '.zip'
 
     @staticmethod
-    def create (rety, dir, source, branch='', revision=''):
+    def create (rety, dir, source, branch='', module='', revision=''):
         return ZipFile (dir, source)
 
     @staticmethod
@@ -625,12 +626,14 @@ class CVS (Repository):
     cvs_entries_line = re.compile ('^/([^/]*)/([^/]*)/([^/]*)/([^/]*)/')
 
     @staticmethod
-    def create (rety, dir, source, branch='', revision=''):
+    def create (rety, dir, source, branch='', module='', revision=''):
         if not branch:
             branch='HEAD'
         source = source.replace ('cvs::pserver', ':pserver')
         p = source.rfind ('/')
-        return CVS (dir, source=source, module=source[p+1:], tag=branch)
+        if not module or module == '.':
+            module=source[p+1:]
+        return CVS (dir, source=source, module=module, tag=branch)
 
     def __init__ (self, dir, source='', module='', tag='HEAD'):
         Repository.__init__ (self, dir, source)
@@ -781,11 +784,12 @@ RepositoryProxy.register (CVS)
 
 # FIXME: why are cvs, darcs, git so complicated?
 class SimpleRepo (Repository):
-    def __init__ (self, dir, source, branch, revision='HEAD'):
+    def __init__ (self, dir, source, branch, module='', revision='HEAD'):
         Repository.__init__ (self, dir, source)
         self.source = source
         self.revision = revision
         self.branch = branch
+        self.module = module
         if not os.path.isdir (self.dir):
             self.system ('mkdir -p %(dir)s' % self.__dict__)
         if not source:
@@ -848,7 +852,7 @@ class Subversion (SimpleRepo):
     patch_xmldateformat = '%Y-%m-%dT%H:%M:%S'
 
     @staticmethod
-    def create (rety, dir, source, branch, revision='HEAD'):
+    def create (rety, dir, source, branch, module='.', revision='HEAD'):
         source = source.replace ('svn:http://', 'http://')
         source = source.replace ('svn:https://', 'https://')
         if not branch and source:
@@ -856,10 +860,13 @@ class Subversion (SimpleRepo):
                 source = source[:-1]
             branch = source[source.rindex ('/')+1:]
             source = source[:source.rindex ('/')]
+        if not module or module == '.' and '/' in branch:
+            module = branch[branch.rindex ('/')+1:]
+            branch = branch[:branch.rindex ('/')]
         if not revision:
             revision = 'HEAD'
         return Subversion (dir, source=source, branch=branch,
-                           module='.', revision=revision)
+                           module=module, revision=revision)
 
     def __init__ (self, dir, source=None, branch='', module='.', revision='HEAD'):
         if not branch and source:
@@ -869,8 +876,7 @@ class Subversion (SimpleRepo):
             source = source[:source.rindex ('/')]
         if not revision:
             revision = 'HEAD'
-        self.module = module
-        SimpleRepo.__init__ (self, dir, source, branch, revision)
+        SimpleRepo.__init__ (self, dir, source, branch, module, revision)
 
     def is_distributed (self):
         return False
@@ -977,15 +983,14 @@ class Bazaar (SimpleRepo):
     vc_system = '.bzr'
 
     @staticmethod
-    def create (rety, dir, source, branch='', revision=''):
-        return Bazaar (dir, source=source, revision=revision)
+    def create (rety, dir, source, branch='', module='.', revision=''):
+        return Bazaar (dir, source=source, module='', revision=revision)
 
-    def __init__ (self, dir, source, revision='HEAD'):
+    def __init__ (self, dir, source, module='.', revision='HEAD'):
         # FIXME: multi-branch repos not supported for now
         if not revision:
             revision = '0'
-        self.module = '.'
-        SimpleRepo.__init__ (self, dir, source, '.', revision)
+        SimpleRepo.__init__ (self, dir, source, module, revision)
 
     def _current_revision (self):
         try:
@@ -1043,27 +1048,27 @@ def test ():
         def setUp (self):
             os.system ('rm -rf downloads/test')
         def testCVS (self):
-            repo = get_repository_proxy ('downloads/test/', 'cvs::pserver:anonymous@cvs.savannah.gnu.org:/sources/emacs', '', '')
+            repo = get_repository_proxy ('downloads/test/', 'cvs::pserver:anonymous@cvs.savannah.gnu.org:/sources/emacs')
             self.assertEqual (repo.__class__, CVS)
         def testTarBall (self):
-            repo = get_repository_proxy ('downloads/test/', 'http://ftp.gnu.org/pub/gnu/hello/hello-2.3.tar.gz', '', '')
+            repo = get_repository_proxy ('downloads/test/', 'http://ftp.gnu.org/pub/gnu/hello/hello-2.3.tar.gz')
             self.assertEqual (repo.__class__, TarBall)
         def testGit (self):
-            repo = get_repository_proxy ('downloads/test/', 'git://git.kernel.org/pub/scm/git/git', '', '')
+            repo = get_repository_proxy ('downloads/test/', 'git://git.kernel.org/pub/scm/git/git')
             self.assertEqual (repo.__class__, Git)
         def testLocalGit (self):
             os.system ('mkdir -p downloads/test/git')
             os.system ('cd downloads/test/git && git init')
-            repo = get_repository_proxy ('downloads/test/', 'file://' + os.getcwd () + '/downloads/test/git', '', '')
+            repo = get_repository_proxy ('downloads/test/', 'file://' + os.getcwd () + '/downloads/test/git')
             self.assertEqual (repo.__class__, Git)
         def testBazaar (self):
-            repo = get_repository_proxy ('downloads/test/', 'bzr:http://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr', '', '')
+            repo = get_repository_proxy ('downloads/test/', 'bzr:http://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr')
             self.assertEqual (repo.__class__, Bazaar)
         def testBazaarGub (self):
             os.system ('mkdir -p downloads/test/bzr')
             cwd = os.getcwd ()
             os.chdir ('downloads/test/bzr')
-            repo = get_repository_proxy ('.', 'bzr:http://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr', '', '')
+            repo = get_repository_proxy ('.', 'bzr:http://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr')
             self.assert_ (os.path.isdir ('.gub.bzr'))
             os.chdir (cwd)
         def testGitSuffix (self):
@@ -1073,12 +1078,12 @@ def test ():
 
             # This is now broken, with SimpleGit; good riddance
             pass
-# #            repo = get_repository_proxy ('/foo/bar/barf/i-do-not-exist-or-possibly-am-of-bzr-flavour.git', '', '', '')
+# #            repo = get_repository_proxy ('/foo/bar/barf/i-do-not-exist-or-possibly-am-of-bzr-flavour.git', '')
 # #            self.assertEqual (repo.__class__, Git)
         def testPlusSsh (self):
-            repo = get_repository_proxy ('downloads/test/', 'bzr+ssh://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr', '', '')
+            repo = get_repository_proxy ('downloads/test/', 'bzr+ssh://bazaar.launchpad.net/~yaffut/yaffut/yaffut.bzr')
             self.assertEqual (repo.__class__, Bazaar)
-            repo = get_repository_proxy ('downloads/test/', 'git+ssh://git.sv.gnu.org/srv/git/lilypond.git', '', '')
+            repo = get_repository_proxy ('downloads/test/', 'git+ssh://git.sv.gnu.org/srv/git/lilypond.git')
             self.assertEqual (repo.__class__, Git)
             repo = get_repository_proxy ('downloads/test/', 'svn+ssh://svn.gnome.org/svn/gnome-hello', 'trunk', '')
             self.assertEqual (repo.__class__, Subversion)

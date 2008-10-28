@@ -1,15 +1,7 @@
-import re
-import os
-
 from gub import build
-from gub import misc
-from gub import repository
 
 class Freetype_config (build.SdkBuild):
-    source = repository.Version (name='freetype-config', version='2.1.9')
-    def stages (self):
-        return [x for x in build.SdkBuild.stages (self)
-                if x not in ['untar', 'patch']]
+    source = 'url://host/freetype-config-2.1.9.tar.gz'
     def install (self):
         build.SdkBuild.install (self)
         ft_version = self.version ()
@@ -36,4 +28,4 @@ class Freetype_config (build.SdkBuild):
         self.chmod (freetype_config, 0755)
         
 class Freetype_config__cygwin (Freetype_config):
-    source = repository.Version (name='freetype-config', version='2.3.4')
+    source = 'url://host/freetype-config-2.3.4.tar.gz'

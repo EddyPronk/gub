@@ -4,7 +4,6 @@ import optparse
 
 from gub import build
 from gub import context
-from gub import mirrors
 from gub import misc
 from gub import sources
 from gub import loggedos

@@ -1,9 +1,8 @@
 from gub import misc
-from gub import repository
 from gub import targetbuild
 
 class Ffmpeg (targetbuild.AutoBuild):
-    source='svn://svn.mplayerhq.hu/ffmpeg&branch=trunk&revision=6017',
+    source='svn://svn.mplayerhq.hu/ffmpeg&branch=trunk&revision=6017'
     def version (self):
         return self.revision
     def _get_build_dependencies (self):

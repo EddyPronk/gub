@@ -1,14 +1,11 @@
-from gub import mirrors
-from gub import targetbuild
-from gub import repository
 from gub import context
+from gub import targetbuild
 
-url = 'http://busybox.net/downloads/busybox-1.5.1.tar.bz2'
 # miscutils/taskset.c:18: warning: function declaration isn't a prototype
 # cpu_set_t
 
 class Busybox (targetbuild.AutoBuild):
-    source = mirrors.with_vc (repository.TarBall (self.settings.downloads, url))
+    source = 'http://busybox.net/downloads/busybox-1.5.1.tar.bz2'
     def get_subpackage_names (self):
         return ['']
     def configure_command (self):
@@ -35,10 +32,7 @@ cd %(install_root)s && mv sbin/init sbin/init.busybox
 
 # 1.5 is too new for glibc on vfp
 class Busybox__linux__arm__vfp (Busybox):
-    def __init__ (self, settings, source):
-        targetbuild.AutoBuild.__init__ (self, settings, source)
-        url = 'http://busybox.net/downloads/busybox-1.2.2.1.tar.bz2'
-    source = mirrors.with_vc (repository.TarBall (self.settings.downloads, url))
+    source = 'http://busybox.net/downloads/busybox-1.2.2.1.tar.bz2'
     def patch (self):
         self.system ('''
 cd %(srcdir)s && patch -p1 < %(patchdir)s/busybox-mkconfigs.patch

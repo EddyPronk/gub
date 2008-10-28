@@ -1,10 +1,9 @@
 import re
 import sys
 #
-from gub import mirrors
 from gub import build
-from gub import targetbuild
 from gub import context
+from gub import targetbuild
 from gub import toolsbuild
 
 class Python (targetbuild.AutoBuild):
@@ -72,10 +71,7 @@ class Python (targetbuild.AutoBuild):
         return '.'.join (self.version ().split ('.')[0:2])
 
 class Python__mingw_binary (build.BinaryBuild):
-    def __init__ (self, settings, source):
-        build.BinaryBuild.__init__ (self, settings, source)
-    source = mirrors.with_template (name='python', mirror="http://lilypond.org/~hanwen/python-2.4.2-windows.tar.gz",
-                   version='2.4.2')
+    source = 'http://lilypond.org/~hanwen/python-2.4.2-windows.tar.gz'
 
     def python_version (self):
         return '2.4'

@@ -1,8 +1,7 @@
 from gub import targetbuild
-from gub import mirrors
 
 class Psmisc (targetbuild.AutoBuild):
-    source = mirrors.with_template (name='psmisc', mirror=mirrors.sf, version='22.2')
+    source = 'http://surfnet.dl.sourceforge.net/sourceforge/psmisc/psmisc-22.2.tar.gz'
     def get_subpackage_names (self):
         return ['']
     def get_build_dependencies (self):

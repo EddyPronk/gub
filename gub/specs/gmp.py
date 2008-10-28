@@ -1,11 +1,10 @@
 import re
-
-from gub import mirrors
-from gub import sources
+#
 from gub import targetbuild
 
 class Gmp (targetbuild.AutoBuild):
-    source = sources.join (sources.gnu, 'gmp/gmp-4.2.1.tar.gz')
+    source = 'ftp://ftp.gnu.org/pub/gnu/gmp/gmp-4.2.1.tar.gz'
+
     def __init__ (self, settings, source):
         targetbuild.AutoBuild.__init__ (self, settings, source)
         if not self.settings.platform.startswith ('darwin'):
@@ -65,12 +64,11 @@ class Gmp__darwin__x86 (Gmp__darwin):
         return c
 
 class Gmp__cygwin (Gmp):
-    source = mirrors.with_template (name='gmp', version='4.1.4')
-    def patch (self):
-        self.apply_patch ('gmp-4.1.4-1.patch')
+    source = 'ftp://ftp.gnu.org/pub/gnu/gmp/gmp-4.1.4.tar.gz'
+    patches = ['gmp-4.1.4-1.patch']
 
 class Gmp__mingw (Gmp):
-    def __init__ (self, settings, source):
+    def_ _init__ (self, settings, source):
         Gmp.__init__ (self, settings, source)
         # Configure (compile) without -mwindows for console
         self.target_gcc_flags = '-mms-bitfields'

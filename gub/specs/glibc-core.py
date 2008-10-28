@@ -1,17 +1,11 @@
-from gub import mirrors
 from gub import misc
-from gub import repository
 from gub import targetbuild
 from gub.specs import glibc
 
 # Hmm? TARGET_CFLAGS=-O --> targetbuild.py
 
 class Glibc_core (glibc.Glibc):
-    def __init__ (self, settings, source):
-        targetbuild.AutoBuild.__init__ (self, settings, source)
-        #self.with_tarball (mirror=mirrors.gnu, version='2.3.6')
-    source = mirrors.with_tarball (mirror=mirrors.lilypondorg,
-                           version='2.3-20070416', format='bz2', name='glibc')
+    source = 'http://lilypond.org/download/gub-sources/glibc-2.3-20070416.tar.bz2'
     def get_build_dependencies (self):
         return ['cross/gcc-core', 'linux-headers']
     def get_subpackage_names (self):

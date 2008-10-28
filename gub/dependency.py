@@ -80,7 +80,7 @@ class Dependency:
                                              self.build_class ().branch)
         source = self.url ()
         if not isinstance (source, repository.Repository):
-            source = repository.get_repository_proxy (dir, source, branch, '')
+            source = repository.get_repository_proxy (dir, source, branch)
         return self.build_class () (self.settings, source)
 
     def build_class (self):

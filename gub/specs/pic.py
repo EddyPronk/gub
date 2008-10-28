@@ -1,7 +1,5 @@
 import os
-import re
-import shutil
-import cvs
+#
 from gub import build
 from gub import misc
 from gub import targetbuild
@@ -75,12 +73,9 @@ class Pic (targetbuild.AutoBuild):
                 'uuid-dev',
                 ]
 
+    source = pic_cvs
     def __init__ (self, settings, source):
         targetbuild.AutoBuild.__init__ (self, settings, source)
-        # FIXME: lilypond_branch
-    source = mirrors.with_template (name='pic', version=settings.lilypond_branch, mirror=pic_cvs,
-                   vc_type='cvs')
-
         # FIXME: should add to C_INCLUDE_PATH
         builddir = self.builddir ()
         self.target_gcc_flags = (settings.target_gcc_flags

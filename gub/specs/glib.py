@@ -1,17 +1,9 @@
-from gub import mirrors
 from gub import toolsbuild
 from gub import targetbuild
 
 class Glib (targetbuild.AutoBuild):
-    def __init__ (self, settings, source):
-        targetbuild.AutoBuild.__init__ (self, settings, source)
-
-
     ## 2.12.4 : see bug  http://bugzilla.gnome.org/show_bug.cgi?id=362918
-    source = mirrors.with_template (name='glib', #version='2.12.4',   mirror=mirrors.gnome_216,
-                                    version='2.16.1',
-                                    mirror=mirrors.gnome_222,
-                                    format='bz2')
+    source = 'http://ftp.gnome.org/pub/GNOME/platform/2.22/2.22.0/sources/glib-2.16.1.tar.bz2'
 
     def get_build_dependencies (self):
         return ['gettext-devel', 'libtool']
@@ -77,22 +69,14 @@ class Glib__freebsd (Glib):
         return Glib.configure_command (self) + ' --disable-threads'
         
 class Glib__freebsd__64 (Glib__freebsd):
-    def __init__ (self, settings, source):
-        Glib__freebsd.__init__ (self, settings, source)
-
     def configure_command (self):
         return Glib.configure_command (self) + ' --disable-threads --disable-timeloop'
 
 class Glib__tools (toolsbuild.AutoBuild):
-    source = mirrors.with_template (name='glib', 
-                                    version='2.16.1',
-                                    mirror=mirrors.gnome_222,
-                                    format='bz2')
-
+    source = 'http://ftp.gnome.org/pub/GNOME/platform/2.22/2.22.0/sources/glib-2.16.1.tar.bz2'
     def install (self):
         toolsbuild.AutoBuild.install (self)
         self.system ('rm %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/lib/charset.alias',
                          ignore_errors=True)
-
     def get_build_dependencies (self):
         return ['gettext-devel', 'libtool']            

@@ -1,7 +1,6 @@
+from gub import misc
 from gub import repository
 from gub import targetbuild
-from gub import misc
-
 
 texlive_svn = 'svn://username@tug.org/texlive'
 license_url = 'http://tug.org/svn/texlive/trunk/Master/LICENSE.TL'
@@ -17,11 +16,7 @@ The distribution also includes extensive general documentation about
 TeX, as well as the documentation accompanying the included software
 packages.'''
 
-    source = mirrors.with_vc (repository.Subversion (None,
-                                                     source=texlive_svn,
-                                                     branch='trunk',
-                                                     module='AutoBuild/source',
-                                                     revision='HEAD'))
+    source = texlive_svn + '&branch=trunk&module=AutoBuild/source&revision=HEAD'
 
     def get_build_dependencies (self):
         return ['tools::autoconf', 'tools::automake', 'tools::libtool']
@@ -78,7 +73,6 @@ packages.'''
         self.texmf_repo.update_workdir (self.expand ('%(srcdir)s/texmf'))
 
     def configure_command (self):
-        from gub import misc
         #FIXME
         return ('export TEXMFMAIN=%(srcdir)s/texmf;'
                 + 'bash '
@@ -154,8 +148,6 @@ rsync -v -a %(srcdir)s/texmf/* %(install_prefix)s/share/texmf/
         return 'texlive-3.0'
 
 class Texlive__cygwin (Texlive):
-    def __init__ (self, settings, source):
-        Texlive.__init__ (self, settings, source)
 
     # FIXME: uses mixed gub/distro dependencies
     def get_dependency_dict (self):
@@ -197,7 +189,6 @@ lt_cv_cc_dll_switch=${lt_cv_cc_dll_switch="-Wl,--dll -nostartfiles"}
                        '%(srcdir)s/texk/kpathsea/kpsewhich.c')
 
     def makeflags (self):
-        from gub import misc
         return misc.join_lines ('''
 CFLAGS="-O2 -g -DKPSE_DLL"
 ''')

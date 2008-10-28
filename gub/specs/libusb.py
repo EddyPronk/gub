@@ -1,8 +1,7 @@
 from gub import targetbuild
-from gub import mirrors
 
 class Libusb (targetbuild.AutoBuild):
-    source = mirrors.with_template (name='libusb', version="0.1.12", mirror=mirrors.sf)
+    source = 'http://surfnet.dl.sourceforge.net/sourceforge/libusb-0.1.12.tar.gz'
     def configure (self):
         targetbuild.AutoBuild.configure (self)
         # # FIXME: libtool too old for cross compile

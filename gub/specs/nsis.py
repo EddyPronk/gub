@@ -1,17 +1,12 @@
 import os
-
-from gub import mirrors
-from gub import misc
-from gub import repository
-from gub import toolsbuild
+#
 from gub import cross
+from gub import misc
+from gub import toolsbuild
 
 class Nsis (toolsbuild.SConsBuild):
     source = 'http://surfnet.dl.sourceforge.net/sourceforge/nsis/nsis-2.37-src.tar.bz2'
-    FOOsource = repository.CVS ('downloads/nsis',
-                             source=':pserver:anonymous@nsis.cvs.sourceforge.net:/cvsroot/nsis',
-                             module='NSIS',
-                             tag='HEAD')
+    #ource = ':pserver:anonymous@nsis.cvs.sourceforge.net:/cvsroot/nsis&module=NSIS&tag=HEAD'
     def __init__ (self, settings, source):
         toolsbuild.AutoBuild.__init__ (self, settings, source)
         if 'x86_64-linux' in self.settings.build_architecture:
@@ -32,7 +27,6 @@ class Nsis (toolsbuild.SConsBuild):
                      + self.settings.prefix_dir
                      + '/bin')
         return {'PATH': mingw_bin + ':' + tools_bin + ':' + os.environ['PATH'] }
-
         
     def get_build_dependencies (self):
         if 'x86_64-linux' in self.settings.build_architecture:
@@ -63,11 +57,9 @@ SKIPPLUGINS=System
     # this method is overwritten for x86-64_linux
     def build_environment (self):
         return self.add_mingw_env ()
-    
     def compile (self):
         self.system ('cd %(builddir)s && %(compile_command)s',
                      self.build_environment ())
-
     def install (self):
         self.system ('cd %(builddir)s && %(install_command)s ',
                      self.build_environment ())

@@ -1,17 +1,10 @@
 from gub import build
-from gub import misc
-from gub import repository
 
 class Guile_config (build.SdkBuild):
-    source = repository.Version (name='guile-config', version='1.8.0')
-    def stages (self):
-        return [s for s in build.SdkBuild.stages (self)
-                if s not in ['untar', 'patch']]
+    source = 'url://host/guile-config-1.8.0.tar.gz'
     def install (self):
         build.SdkBuild.install (self)
         self.system ('mkdir -p %(cross_prefix)s%(prefix_dir)s/bin')
-        
-        import os
         version = self.version ()
 	#FIXME: c&p guile.py
         self.dump ('''\

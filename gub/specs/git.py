@@ -1,11 +1,9 @@
-from gub import mirrors
 from gub import toolsbuild
 from gub import targetbuild
-from gub import repository
 
 class Git__tools (toolsbuild.AutoBuild):
-    source = mirrors.with_template (name='git', mirror='http://kernel.org/pub/software/scm/git/git-%(version)s.tar.bz2',
-                   version='1.5.3.6')
+    source = 'http://kernel.org/pub/software/scm/git/git-1.5.3.6.tar.bz2'
+
     def get_build_dependencies (self):
         return ['curl', 'expat']
 

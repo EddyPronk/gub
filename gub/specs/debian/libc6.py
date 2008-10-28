@@ -1,16 +1,8 @@
 from gub import build
 from gub import debian
-from gub import mirrors
 
 class Libc6 (build.BinaryBuild, build.SdkBuild):
-    def __init__ (self, settings, source):
-        build.BinaryBuild.__init__ (self, settings, source)
-    source = mirrors.with_template (name='libc6', version=debian.get_packages ()['libc6'].version (),
-                   strip_components=0,
-                   mirror=mirrors.glibc_deb,
-# FIXME: we do not mirror all 12 debian arch's,
-#                   mirror=mirrors.lilypondorg_deb,
-                   format='deb')
+    source = 'http://ftp.debian.org/debian/pool/main/g/glibc/libc6__' + debian.get_packages ()['libc6'].version () + '_%%(package_arch)s.deb&strip=0'
     def patch (self):
         self.system ('cd %(srcdir)s && rm -rf usr/sbin/ sbin/ bin/ usr/bin')
     def untar (self):

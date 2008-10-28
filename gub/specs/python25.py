@@ -1,16 +1,13 @@
 import re
 import sys
 #
-from gub import mirrors
+from gub import context
 from gub import build
 from gub import targetbuild
-from gub import context
 
 # WIP of python2.5 with 2.5 X-compile patches.
 class Python (targetbuild.AutoBuild):
-    source = mirrors.with_template (name='python25', version='2.5',
-                   mirror=mirrors.python,
-                   format='bz2')
+    source = 'http://python.org/ftp/python/2.5/Python-2.5.tar.bz2'
 
     def __init__ (self, settings, source):
         targetbuild.AutoBuild.__init__ (self, settings, source)

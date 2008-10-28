@@ -1,13 +1,10 @@
-import os
-import re
 from new import instancemethod
 #
-from gub import repository
 from gub import build
-from gub import misc
-from gub import targetbuild
-from gub import commands
 from gub import loggedos
+from gub import misc
+from gub import repository
+from gub import targetbuild
 
 class LilyPond (targetbuild.AutoBuild):
     source = 'git://git.sv.gnu.org/lilypond.git'

@@ -1,8 +1,7 @@
 from gub import cross
-from gub import mirrors
 
 class Binutils (cross.AutoBuild):
-    source = mirrors.with_tarball (name='binutils', mirror=mirrors.gnu, version='2.18', format='bz2')
+    source = 'ftp://ftp.gnu.org/pub/gnu/binutils/binutils-2.18.tar.bz2'
     patches = ['binutils-2.18-makeinfo-version.patch', 'binutils-2.18-werror.patch' ]
     def get_build_dependencies (self):
         return ['tools::texinfo']

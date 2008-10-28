@@ -1,11 +1,7 @@
 from gub import build
-from gub import mirrors
 
 class Mingw_runtime (build.BinaryBuild, build.SdkBuild):
-    source = mirrors.with_template (name='mingw-runtime', version='3.14', strip_components=0, mirror=mirrors.mingw)
-    def __init__ (self, settings, source):
-        build.BinaryBuild.__init__ (self, settings, source)
-        source.strip_components = 0
+    source = 'http://surfnet.dl.sourceforge.net/sourceforge/mingw/mingw-runtime-3.14.tar.gz&strip=0'
     def install (self):
         self.system ('''
 mkdir -p %(install_prefix)s/share

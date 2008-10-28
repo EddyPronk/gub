@@ -17,11 +17,10 @@ class Libwsock32 (build.BinaryBuild):
 #    source = 'http://ftp.debian.org/debian/pool/main/w/wine/wine_0.9.25-2.1_i386.deb'
 # ugh, turns out this libwsock32.dll from wine is empty
 # which somehow means that linking works until you create an executable
-    source = 'http://lilypond.org/download/gub-sources/libwsock32-0.9.25.tar.gz'
+    source = 'http://lilypond.org/download/gub-sources/libwsock32-0.9.25.tar.gz&strip=0'
     def __init__ (self, settings, source):
         build.BinaryBuild.__init__ (self, settings, source)
         source._version = '0.9.25'
-        source.strip_components = 0
     def untar (self):
         build.BinaryBuild.untar (self)
         self.system ('''
