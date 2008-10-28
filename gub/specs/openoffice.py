@@ -6,8 +6,10 @@ from gub import context
 from gub import misc
 from gub import targetbuild
 
+# http://baseutils.googlecode.com/svn/trunk/str_strsafe.h
+
 '''
-$ grep 'delivered' target/mingw/log/build.log 
+$ grep 'delivered' target/mingw/log/build.log
 Module 'solenv' delivered successfully. 0 files copied, 1 files unchanged
 Module 'stlport' delivered successfully. 0 files copied, 8 files unchanged
 Module 'soltools' delivered successfully. 1 files copied, 13 files unchanged
@@ -54,10 +56,40 @@ Module 'ucbhelper' delivered successfully. 0 files copied, 35 files unchanged
 Module 'comphelper' delivered successfully. 0 files copied, 107 files unchanged
 Module 'basegfx' delivered successfully. 0 files copied, 69 files unchanged
 Module 'ridljar' delivered successfully. 0 files copied, 5 files unchanged
-Module 'jurt' delivered successfully. 2 files copied, 2 files unchanged
-Module 'jvmaccess' delivered successfully. 6 files copied, 0 files unchanged
-
-48 modules
+Module 'jurt' delivered successfully. 0 files copied, 4 files unchanged
+Module 'jvmaccess' delivered successfully. 0 files copied, 6 files unchanged
+Module 'bridges' delivered successfully. 1 files copied, 9 files unchanged
+Module 'jvmfwk' delivered successfully. 0 files copied, 15 files unchanged
+Module 'stoc' delivered successfully. 0 files copied, 28 files unchanged
+Module 'cli_ure' delivered successfully. 0 files copied, 6 files unchanged
+Module 'unoil' delivered successfully. 0 files copied, 5 files unchanged
+Module 'javaunohelper' delivered successfully. 0 files copied, 3 files unchanged
+Module 'cpputools' delivered successfully. 0 files copied, 13 files unchanged
+Module 'oovbaapi' delivered successfully. 0 files copied, 2 files unchanged
+Module 'sax' delivered successfully. 0 files copied, 9 files unchanged
+Module 'animations' delivered successfully. 0 files copied, 5 files unchanged
+Module 'i18nutil' delivered successfully. 0 files copied, 8 files unchanged
+Module 'io' delivered successfully. 0 files copied, 12 files unchanged
+Module 'jut' delivered successfully. 0 files copied, 3 files unchanged
+Module 'remotebridges' delivered successfully. 0 files copied, 17 files unchanged
+Module 'bean' delivered successfully. 1 files copied, 3 files unchanged
+Module 'embedserv' delivered successfully. 1 files copied, 0 files unchanged
+Module 'eventattacher' delivered successfully. 0 files copied, 2 files unchanged
+Module 'hwpfilter' delivered successfully. 0 files copied, 4 files unchanged
+Module 'package' delivered successfully. 0 files copied, 6 files unchanged
+Module 'regexp' delivered successfully. 0 files copied, 4 files unchanged
+Module 'i18npool' delivered successfully. 1 files copied, 40 files unchanged
+Module 'tools' delivered successfully. 5 files copied, 101 files unchanged
+Module 'unotools' delivered successfully. 0 files copied, 47 files unchanged
+Module 'transex3' delivered successfully. 2 files copied, 31 files unchanged
+Module 'sot' delivered successfully. 0 files copied, 21 files unchanged
+Module 'fileaccess' delivered successfully. 0 files copied, 4 files unchanged
+Module 'officecfg' delivered successfully. 1 files copied, 224 files unchanged
+Module 'setup_native' delivered successfully. 43 files copied, 15 files unchanged
+Module 'rsc' delivered successfully. 5 files copied, 3 files unchanged
+21:30:23 janneke@peder:~/vc/gub
+$ grep 'delivered' target/mingw/log/build.log | wc -l
+77 modules
 '''
 
 class Openoffice (targetbuild.AutoBuild):
@@ -67,7 +99,7 @@ class Openoffice (targetbuild.AutoBuild):
     # fresh try.  wait for mingw dupes
     source = 'svn://svn.gnome.org/svn/ooo-build&branch=trunk&revision=14412'
     patches = ['openoffice-srcdir-build.patch']
-    upstream_patches = ['openoffice-config_office-cross.patch', 'openoffice-config_office-gnu-make.patch', 'openoffice-solenv-cross.patch', 'openoffice-solenv.patch', 'openoffice-sal-cross.patch', 'openoffice-soltools-cross.patch', 'openoffice-icc-cross.patch']
+    upstream_patches = ['openoffice-config_office-cross.patch', 'openoffice-config_office-gnu-make.patch', 'openoffice-solenv-cross.patch', 'openoffice-solenv.patch', 'openoffice-sal-cross.patch', 'openoffice-soltools-cross.patch', 'openoffice-icc-cross.patch', 'openoffice-i18npool-cross.patch']
     def __init__ (self, settings, source):
         targetbuild.AutoBuild.__init__ (self, settings, source)
         # let's keep source tree around
@@ -79,8 +111,8 @@ class Openoffice (targetbuild.AutoBuild):
     def stages (self):
         return misc.list_insert_before (targetbuild.AutoBuild.stages (self),
                                         'compile',
-                                        ['dot_download', 'make_unpack', 'patch_upstream'])
-    def dot_download (self):
+                                        ['dotslash_download', 'make_unpack', 'patch_upstream'])
+    def dotslash_download (self):
         self.system ('mkdir -p %(downloads)s/openoffice-src')
         self.system ('cd %(builddir)s && ln %(downloads)s/openoffice-src/* src || :')
         self.system ('cd %(builddir)s && ./download')
@@ -261,9 +293,20 @@ cd %(builddir)s/build/%(cvs_tag)s && patch -p%(patch_strip_component)s < %(patch
 
         self.system ('chmod +x %(upstream_dir)s/solenv/bin/build.pl %(upstream_dir)s/solenv/bin/deliver.pl')
 
-        disable_modules = ['sandbox', 'testshl2', 'hsqldb', 'lpsolve', 'lucene', 'bean']
+        disable_modules = ['sandbox', # java
+                           'testshl2',
+                           'hsqldb', # java
+                           'lpsolve', # broken ccc.* script
+                           'lucene',
+                           'bean', # java
+                           'embedserv', # uses atl http://article.gmane.org/gmane.comp.gnu.mingw.user/18483
+                           ]
         for module in disable_modules:
-            self.system ('sed -i -e "s@[ \t]all@ i@g" %(upstream_dir)s/%(module)s/prj/build.lst', locals ())
+            #self.system ('sed -i -e "s@[ \t]\(all\|n\|w\)[ \t]@ i @g" %(upstream_dir)s/%(module)s/prj/build.lst', locals ())
+            self.system ('sed -i -e "s@\(^.*[ \t]\(all\|n\|w\)[ \t]\)@#\\1@g" %(upstream_dir)s/%(module)s/prj/build.lst', locals ())
+
+        module = 'setup_native'
+        self.system ('sed -i -e "s@\(^pk.*customactions\)@#\\1@" %(upstream_dir)s/%(module)s/prj/build.lst', locals ())
 
         # java go away
         # self.system ('sed -i -e "s@[ \t]all@ i@g" %(upstream_dir)s/sandbox/prj/build.lst')
@@ -284,7 +327,7 @@ LD_LIBRARY_PATH=%(LD_LIBRARY_PATH)s
 ##CPPFLAGS=
                 
 class Openoffice__mingw (Openoffice):
-    Openoffice.upstream_patches += ['openoffice-config_office-mingw.patch', 'openoffice-solenv-mingw.patch', 'openoffice-soltools-mingw.patch', 'openoffice-sal-mingw.patch', 'openoffice-external-mingwheaders.patch', 'openoffice-cppunit-mingw.patch']
+    Openoffice.upstream_patches += ['openoffice-config_office-mingw.patch', 'openoffice-solenv-mingw.patch', 'openoffice-soltools-mingw.patch', 'openoffice-sal-mingw.patch', 'openoffice-external-mingwheaders.patch', 'openoffice-cppunit-mingw.patch', 'openoffice-i18npool-mingw.patch', 'openoffice-tools-mingw.patch', 'openoffice-transex3-mingw.patch', 'openoffice-setup_native-mingw.patch']
     # external/mingwheaders seems a badly misguided effort.  It
     # patches header files and is thus strictly tied to a gcc version;
     # that can never build.  How can patching header files ever work,
@@ -330,3 +373,4 @@ fi
 
         self.system ('mkdir -p %(upstream_dir)s/solver/300/wntgcci.pro/inc')
         self.system ('cp -pv %(sourcefiledir)s/sehandler.h %(upstream_dir)s/solver/300/wntgcci.pro/inc')
+        self.system ('cp -pv %(sourcefiledir)s/strsafe.h %(upstream_dir)s/solver/300/wntgcci.pro/inc')

@@ -145,3 +145,14 @@
  OLDNAMESLIB=-lmoldname
 -MSIMG32LIB=$(PSDK_HOME)$/lib$/msimg32.lib
 +MSIMG32LIB=$(LINK_PSDK_LIB)msimg32$(PSDK_DOT_LIB)
+--- solenv/inc/settings.mk.pristine	2008-10-21 11:31:04.000000000 +0200
++++ solenv/inc/settings.mk	2008-10-28 20:16:46.000000000 +0100
+@@ -752,7 +752,7 @@ COMMONBIN=$(LOCAL_COMMON_OUT)$/bin
+ INC=$(PRJ)$/inc
+ INCPCH=$(PRJ)$/inc$/pch
+ INCLOCAL=..$/inc
+-INCGUI=$(PRJ)$/$(GUIBASE)$/inc
++INCGUI=$(PRJ)$/$(GUIBASE:l)$/inc
+ INCCOM=$(OUT)$/inc
+ INCCOMX=$(OUT)$/inc
+ INCUNOIDL=$(INCCOM)$/$(PRJNAME)

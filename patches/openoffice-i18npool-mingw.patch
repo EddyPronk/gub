@@ -1,0 +1,76 @@
+i18npool/source/collator/collator_unicode.cxx
+--- i18npool/source/collator/collator_unicode.cxx.~1.20.~	2008-04-10 10:57:26.000000000 +0200
++++ i18npool/source/collator/collator_unicode.cxx	2008-10-28 16:31:43.000000000 +0100
+@@ -65,13 +65,13 @@ sal_Int32 SAL_CALL
+ Collator_Unicode::compareSubstring( const OUString& str1, sal_Int32 off1, sal_Int32 len1,
+ 	const OUString& str2, sal_Int32 off2, sal_Int32 len2) throw(RuntimeException)
+ {
+-    return collator->compare(str1.getStr() + off1, len1, str2.getStr() + off2, len2);
++    return collator->compare((UChar const*)str1.getStr() + off1, len1, (UChar const*)str2.getStr() + off2, len2);
+ }
+ 
+ sal_Int32 SAL_CALL
+ Collator_Unicode::compareString( const OUString& str1, const OUString& str2) throw(RuntimeException)
+ {
+-    return collator->compare(str1.getStr(), str2.getStr());
++    return collator->compare((UChar const*)str1.getStr(), (UChar const*)str2.getStr());
+ }
+ 
+ extern "C" { static void SAL_CALL thisModule() {} }
+@@ -84,7 +84,7 @@ Collator_Unicode::loadCollatorAlgorithm(
+         UErrorCode status = U_ZERO_ERROR;
+         OUString rule = LocaleData().getCollatorRuleByAlgorithm(rLocale, rAlgorithm);
+         if (rule.getLength() > 0) {
+-            collator = new RuleBasedCollator(rule.getStr(), status);
++            collator = new RuleBasedCollator((UChar const*)rule.getStr(), status);
+ 			if (! U_SUCCESS(status)) throw RuntimeException();
+ 		}
+ 		if (!collator && OUString::createFromAscii(LOCAL_RULE_LANGS).indexOf(rLocale.Language) >= 0) {
+@@ -120,7 +120,7 @@ Collator_Unicode::loadCollatorAlgorithm(
+ 				}
+ 				if (func) {
+ 					const sal_uInt8* ruleImage=func();
+-					uca_base = new RuleBasedCollator((sal_Unicode*)NULL, status);
++					uca_base = new RuleBasedCollator((UChar const*)(sal_Unicode*)NULL, status);
+ 					if (! U_SUCCESS(status)) throw RuntimeException();
+ 					collator = new RuleBasedCollator(reinterpret_cast<const uint8_t*>(ruleImage), -1, uca_base, status);
+ 					if (! U_SUCCESS(status)) throw RuntimeException();
+@@ -135,9 +135,9 @@ Collator_Unicode::loadCollatorAlgorithm(
+ 				uppercase itself, so we don't have to bother with that.
+ 			*/
+ 			icu::Locale icuLocale(
+-				   OUStringToOString(rLocale.Language, RTL_TEXTENCODING_ASCII_US).getStr(),
+-				   OUStringToOString(rLocale.Country, RTL_TEXTENCODING_ASCII_US).getStr(),
+-				   OUStringToOString(rAlgorithm, RTL_TEXTENCODING_ASCII_US).getStr());
++				   (char const*)OUStringToOString(rLocale.Language, RTL_TEXTENCODING_ASCII_US).getStr(),
++				   (char const*)OUStringToOString(rLocale.Country, RTL_TEXTENCODING_ASCII_US).getStr(),
++				   (char const*)OUStringToOString(rAlgorithm, RTL_TEXTENCODING_ASCII_US).getStr());
+ 			// load ICU collator
+ 			collator = (RuleBasedCollator*) icu::Collator::createInstance(icuLocale, status);
+ 			if (! U_SUCCESS(status)) throw RuntimeException();
+i18npool/source/collator/gencoll_rule.cxx
+--- i18npool/source/collator/gencoll_rule.cxx.~1.12.~	2008-04-10 10:57:41.000000000 +0200
++++ i18npool/source/collator/gencoll_rule.cxx	2008-10-28 16:32:05.000000000 +0100
+@@ -118,7 +118,7 @@ SAL_IMPLEMENT_MAIN_WITH_ARGS(argc, argv)
+     //UCollator *coll = ucol_openRules(Obuf.getStr(), Obuf.getLength(), UCOL_OFF, 
+     //        UCOL_DEFAULT_STRENGTH, &parseError, &status);
+ 
+-    RuleBasedCollator *coll = new RuleBasedCollator(Obuf.getStr(), status);
++    RuleBasedCollator *coll = new RuleBasedCollator((UChar const*)Obuf.getStr(), status);
+ 
+     if (U_SUCCESS(status)) {
+ 
+i18npool/source/breakiterator/breakiterator_unicode.cxx
+--- i18npool/source/breakiterator/breakiterator_unicode.cxx.~1.36.~	2008-07-02 10:52:07.000000000 +0200
++++ i18npool/source/breakiterator/breakiterator_unicode.cxx	2008-10-28 15:56:35.000000000 +0100
+@@ -197,8 +197,8 @@ void SAL_CALL BreakIterator_Unicode::loa
+         }
+     }
+ 
+-    if (newBreak || icuBI->aICUText.compare(UnicodeString(rText.getStr(), rText.getLength()))) {
+-        icuBI->aICUText=UnicodeString(rText.getStr(), rText.getLength());
++    if (newBreak || icuBI->aICUText.compare(UnicodeString((UChar const*)rText.getStr(), rText.getLength()))) {
++        icuBI->aICUText=UnicodeString((UChar const*)rText.getStr(), rText.getLength());
+         icuBI->aBreakIterator->setText(icuBI->aICUText);
+     }
+ }

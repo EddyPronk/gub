@@ -1,0 +1,13 @@
+--- tools/source/fsys/wntmsc.hxx.pristine	2008-10-28 19:13:52.000000000 +0100
++++ tools/source/fsys/wntmsc.hxx	2008-10-28 19:13:59.000000000 +0100
+@@ -36,8 +36,8 @@
+ #ifndef ICC
+ #include <io.h>
+ #endif
+-#include <sys\types.h>
+-#include <sys\stat.h>
++#include <sys/types.h>
++#include <sys/stat.h>
+ #include <direct.h>
+ 
+ #include <tools/svwin.h>
