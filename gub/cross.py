@@ -14,6 +14,14 @@ class AutoBuild (build.AutoBuild):
     """
     def get_substitution_dict (self, env={}):
         dict = {
+            'C_INCLUDE_PATH': '%(tools_prefix)s/include'
+            + misc.append_path (os.environ.get ('C_INCLUDE_PATH', '')),
+            'LIBRARY_PATH': '%(tools_prefix)s/lib'
+            + misc.append_path (os.environ.get ('LIBRARY_PATH', '')),
+            'CPLUS_INCLUDE_PATH': '%(tools_prefix)s/include'
+            + misc.append_path (os.environ.get ('CPLUS_INCLUDE_PATH', '')),
+            'LD_LIBRARY_PATH': '%(tools_prefix)s/lib'
+            + misc.append_path (os.environ.get ('LD_LIBRARY_PATH', '')),
             'PATH': '%(cross_prefix)s/bin:%(tools_prefix)s/bin:' + os.environ['PATH'],
         }
         dict.update (env)
@@ -29,6 +37,11 @@ class AutoBuild (build.AutoBuild):
 --with-sysroot=%(system_root)s
 --disable-multilib
 '''))
+# These should only be necessary for badly behaved packages
+# let's hope our cross packages play nice.
+#CFLAGS=-I%(tools_prefix)s/include
+#LDFLAGS=-L%(tools_prefix)s/lib
+#LD_LIBRARY_PATH=%(tools_prefix)s/lib
     def compile_command (self):
         return self.native_compile_command ()
     def install_command (self):
