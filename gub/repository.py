@@ -456,7 +456,7 @@ RepositoryProxy.register (ZipFile)
 class Git (Repository):
     vc_system = '.git'
 
-    def __init__ (self, dir, source='', branch='', revision=''):
+    def __init__ (self, dir, source='', branch='', module='', revision=''):
         Repository.__init__ (self, dir, source)
 
         self.checksums = {}
@@ -860,7 +860,7 @@ class Subversion (SimpleRepo):
                 source = source[:-1]
             branch = source[source.rindex ('/')+1:]
             source = source[:source.rindex ('/')]
-        if not module or module == '.' and '/' in branch:
+        if (not module or module == '.') and '/' in branch:
             module = branch[branch.rindex ('/')+1:]
             branch = branch[:branch.rindex ('/')]
         if not revision:
@@ -984,13 +984,13 @@ class Bazaar (SimpleRepo):
 
     @staticmethod
     def create (rety, dir, source, branch='', module='.', revision=''):
-        return Bazaar (dir, source=source, module='', revision=revision)
+        return Bazaar (dir, source, branch, module, revision)
 
-    def __init__ (self, dir, source, module='.', revision='HEAD'):
+    def __init__ (self, dir, source, branch='', module='.', revision='HEAD'):
         # FIXME: multi-branch repos not supported for now
         if not revision:
             revision = '0'
-        SimpleRepo.__init__ (self, dir, source, module, revision)
+        SimpleRepo.__init__ (self, dir, source, branch, module, revision)
 
     def _current_revision (self):
         try:
