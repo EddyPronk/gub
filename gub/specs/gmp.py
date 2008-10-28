@@ -1,6 +1,7 @@
 import re
 #
 from gub import targetbuild
+from gub import toolsbuild
 
 class Gmp (targetbuild.AutoBuild):
     source = 'ftp://ftp.gnu.org/pub/gnu/gmp/gmp-4.2.1.tar.gz'
@@ -85,7 +86,6 @@ class Gmp__mingw (Gmp):
 mv %(install_prefix)s/lib/*dll %(install_prefix)s/bin || true
 ''')
 
-from gub import toolsbuild
 class Gmp__tools (toolsbuild.AutoBuild, Gmp):
     source = Gmp.source
     def get_build_dependencies (self):
