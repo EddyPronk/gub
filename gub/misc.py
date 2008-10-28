@@ -385,7 +385,7 @@ def list_insert (lst, idx, a):
     return lst
 
 def list_insert_before (lst, target, a):
-    return list_insert (lst, lst.index(target), a)
+    return list_insert (lst, lst.index (target), a)
 
 def most_significant_in_dict (d, name, sep):
     '''Return most significant variable from DICT

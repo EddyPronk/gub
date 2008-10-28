@@ -1,6 +1,7 @@
 import os
 #
 from gub import cross
+from gub import misc
 
 class Odcctools (cross.AutoBuild):
     source = ('svn:http://iphone-dev.googlecode.com/svn&branch=trunk'
@@ -12,6 +13,9 @@ class Odcctools (cross.AutoBuild):
         if 'x86_64-linux' in self.settings.build_architecture:
             # odcctools does not build with 64 bit compiler
             cross.change_target_package_x86 (self, self.add_linux_x86_env ())
+    def stages (self):
+        return misc.list_insert_before (cross.AutoBuild.stages (self),
+                                        'compile', ['patch_configure'])
     def add_linux_x86_env (self):
         # Do not use 'root', 'usr', 'cross', rather use from settings,
         # that enables changing system root, prefix, etc.
@@ -37,15 +41,8 @@ class Odcctools (cross.AutoBuild):
         if 'x86_64-linux' in self.settings.build_architecture:
             lst += ['linux-x86::glibc']
         return lst
-    def configure (self):
-        cross.AutoBuild.configure (self)
+    def patch_configure (self):
         ## remove LD64 support.
         self.file_sub ([('ld64','')], self.builddir () + '/Makefile')
     def build_environment (self):
         return self.add_linux_x86_env ()
-    def compile (self):
-        self.system ('cd %(builddir)s && %(compile_command)s',
-                     self.build_environment ())
-    def install (self):
-        self.system ('cd %(builddir)s && %(install_command)s ',
-                     self.build_environment ())

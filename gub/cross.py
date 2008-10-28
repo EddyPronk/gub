@@ -189,7 +189,7 @@ def change_target_package_x86 (package, env={'PATH': os.environ['PATH']}):
         = misc.MethodOverrider (package.nop, build_environment)
     package.patch \
         = misc.MethodOverrider (package.patch, patch)
-#        package.configure \
-#            = misc.MethodOverrider (package.nop, configure)
+    package.configure \
+            = misc.MethodOverrider (package.nop, configure)
     package.compile \
         = misc.MethodOverrider (package.nop, compile)
