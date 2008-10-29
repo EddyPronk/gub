@@ -1,12 +1,21 @@
-GUB -- Grand Unified Builder
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <link rel="stylesheet" type="text/css" href="blog.css">
+    <title>GUB -- Grand Unified Builder</title>
+  </head>
+  <body>
+<h1>GUB -- Grand Unified Builder</h1>
 
-WHAT IS GUB
+<h2>WHAT IS GUB</h2>
 
-Grand Unified Builder (GUB) is the mini packaging system that we developed for
-building LilyPond binaries. It cross-compiles several packages and assembles
-them into a single package. At the moment it supports the following target
-platforms
+Grand Unified Builder (GUB) is the mini packaging system that we
+developed for building LilyPond binaries.  It cross-compiles several
+packages and assembles them into a single package.  At the moment it
+supports the following target platforms
 
+<pre>
 darwin-ppc
    tar.bz2 file for Darwin 7 (MacOS 10.3)/PowerPC
 
@@ -32,32 +41,39 @@ freebsd-64
    shar archive for FreeBSD 6/x86_64
 
 cygwin
-   .tar.bz2 packages for Cygwin/Windows32
+   .tar.bz2 packages for Cygwin/Windows32 
 
 arm
    shar archive for Linux/ARM (largely untested)
 
 debian
    shar archive for Debian (largely untested)
+</pre>
 
-LICENSE
+<h2>LICENSE</h2>
 
-Gub is distributed under the terms of the GNU General Public License, version 2
-or later. Gub comes with NO WARRANTY.
+Gub is distributed under the terms of the GNU General Public License,
+version 2 or later.   Gub comes with NO WARRANTY.
 
-ACQUIRING
 
-The Git repository is at
+<h2>ACQUIRING</h2>
 
+The Git repository is at 
+
+<pre>
   http://github.com/janneke/gub
+</pre>
 
-You can get it by doing
+You can get it by doing 
 
+<pre>
   git clone git://github.com/janneke/gub.git
+</pre>
 
-INSTALLING
+<h2>INSTALLING</h2>
 
-* You need
+<pre>
+* You need 
 
   - about 9 GB of free space (for all platforms.)
 
@@ -74,23 +90,25 @@ TODO:* Prepare build environment
 TODO:
 TODO:  bin/gub darwin-x86::cross/gcc
 TODO:
-TODO:* Build everything
+TODO:* Build everything 
 TODO:
-TODO:  make -f .make all
+TODO:  make -f <package>.make all
 TODO:
 TODO:this should leave installers and documentation in
 TODO:
 TODO:  uploads/
 
+</pre>
 
-USAGE
+<h2>USAGE</h2>
 
 Run these programs with --help argument for instructions
 
-  bin/gpkg              - package manager
+<pre>
+  bin/gpkg              - package manager 
   bin/gub               - build packages
   bin/installer-builder - build (platform dependent) installers
   bin/gub-tester        - build tester; integrates with
-                             Bazaar,CVS,Darcs,Git,SVN and gub
+  			     Bazaar,CVS,Darcs,Git,SVN and gub
   bin/cygwin-packager   - roll cygwin package
-
+</pre>

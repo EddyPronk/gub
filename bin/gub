@@ -51,6 +51,26 @@ def get_cli_parser ():
 
     p.description='Grand Unified Builder.'
 
+    
+    examples = '''
+Examples:
+
+  gub darwin-x86::lilypond
+
+  gub freebsd-64::ftp://ftp.gnu.org/pub/gnu/bison/bison-2.3.tar.gz
+
+  gub mingw::openoffice [WIP]
+'''
+
+    def format_examples (self):
+        return examples
+    if 'epilog'  in  p.__dict__:
+        p.formatter.format_epilog = format_examples
+        p.epilog = examples
+    else:
+        p.formatter.format_description = format_examples
+        p.description = examples
+
     p.add_option ('-k', '--keep', action='store_true',
                   dest='keep_build',
                   default=None,

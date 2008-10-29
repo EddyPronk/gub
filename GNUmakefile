@@ -25,3 +25,6 @@ test:
 	rm -rf target
 	make -f lilypond.make tools LOCAL_GUB_OPTIONS=-vvv
 	bin/gub -p $(BUILD_PLATFORM) --branch=lilypond=master:master lilypond -vvv
+
+README: web/index.html
+	w3m -dump $< > $@
