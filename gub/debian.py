@@ -62,7 +62,7 @@ def get_debian_package (settings, description):
         d['Package'] += '::blacklisted'
     package_class = classobj (d['Package'], (build.BinaryBuild,), {})
     from gub import repository
-    source = repository.DebianPackage (settings.downloads,
+    source = repository.DebianPackage (settings.downloads + '/Debian/' + settings.debian_branch,
                                        os.path.join (mirror, d['Filename']),
                                        d['Version'])
     package = package_class (settings, source)
@@ -119,8 +119,7 @@ class Dependency_resolver:
 
     def load_packages (self):
         from gub import gup
-        p = gup.DependencyManager (self.settings.system_root,
-                                   self.settings.os_interface)
+        p = gup.DependencyManager (self.settings.system_root)
 #        arch = settings.platform
 #        if settings.platform == 'debian':
 #            arch = 'i386'
@@ -129,12 +128,14 @@ class Dependency_resolver:
         packages_path = '/dists/%(branch)s/main/binary-%(arch)s/Packages.gz' \
                         % locals ()
         url = mirror + packages_path
-        base = self.settings.downloads + '/Packages'
+        dir = self.settings.downloads + '/Debian'
+        os.system ('mkdir -p %(dir)s' % locals ())
+        base = dir + '/Packages'
         file = '.'.join ((base, arch, branch))
 
         # FIXME: download/offline update
         if not os.path.exists (file):
-            misc.download_url (url, self.settings.downloads,
+            misc.download_url (url, dir,
                                local=['file://%s' % self.settings.downloads],
                                )
             os.system ('gunzip  %(base)s.gz' % locals ())
@@ -167,7 +168,8 @@ gub_to_distro_dict = {
     'gmp-devel': ['libgmp3-dev'],
     'gmp-runtime': ['libgmp3'],
     'ghostscript': ['gs'],
-    'guile-runtime' : ['guile-1.6-libs'],
+    'guile-devel' : ['guile-1.8-dev'],
+    'guile-runtime' : ['guile-1.8-libs'],
     'libtool-runtime': ['libltdl3'],
     'libiconv-devel': ['libiconv2'],
     'pango': ['libpango1.0-0'],

@@ -394,7 +394,7 @@ cd %(builddir)s && make -C scripts PYTHON=/usr/bin/python
         #FIXME: aargh, MUST specify gs,  etc here too.
         return [
             'gettext',
-            'guile-1.6-dev',
+            'guile-1.8-dev',
             'libfontconfig1-dev',
             'libfreetype6-dev',
             'libglib2.0-dev',

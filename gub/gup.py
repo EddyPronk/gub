@@ -459,14 +459,18 @@ def get_source_packages (settings, const_todo):
         return map (get_base_package_name, spec.get_platform_build_dependencies ())
 
     def name_to_dependencies_via_distro (distro_packages, name):
-        if spec_dict.has_key (name):
-            spec = spec_dict[name]
+        platform, name = split_platform (name)
+        key = with_platform (name, platform)
+        if spec_dict.has_key (key):
+            spec = spec_dict[key]
         else:
             if name in todo or name not in distro_packages.keys ():
-                spec = dependency.Dependency (settings, name).build ()
+                if not sets.has_key (platform):
+                    sets[platform] = gub.settings.Settings (platform)
+                spec = dependency.Dependency (sets[platform], name).build ()
             else:
                 spec = distro_packages[name]
-            spec_dict[name] = spec
+            spec_dict[key] = spec
         return spec.get_platform_build_dependencies ()
 
     def name_to_dependencies_via_cygwin (name):
