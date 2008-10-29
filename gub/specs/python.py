@@ -3,6 +3,7 @@ import sys
 #
 from gub import build
 from gub import context
+from gub import misc
 from gub import targetbuild
 from gub import toolsbuild
 
@@ -84,10 +85,14 @@ class Python__mingw_binary (build.BinaryBuild):
         self.system ("rmdir %(install_root)s/Python24/")
 
 
-class Python__mingw_cross (Python):
+class Python__mingw (Python):
+
     def __init__ (self, settings, source):
         Python.__init__ (self, settings, source)
         self.target_gcc_flags = '-DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I%(system_prefix)s/include' % self.settings.__dict__
+
+    def get_build_dependencies (self):
+        return Python.get_build_dependencies (self) + ['pthreads-w32-devel']
 
     # FIXME: first is cross compile + mingw patch, backported to
     # 2.4.2 and combined in one patch; move to cross-Python?
@@ -107,11 +112,17 @@ class Python__mingw_cross (Python):
         # someone manages to get -lwsock32 on the
         # sharedmodules link command line, *after*
         # timesmodule.o, this can go away.
-        return re.sub ('ac_cv_func_select=yes', 'ac_cv_func_select=no',
-               str)
-
+        return (str.replace ('ac_cv_func_select=yes', 'ac_cv_func_select=no')
+                + '''
+ac_cv_pthread_system_supported=yes,
+ac_cv_sizeof_pthread_t=12
+''')
+##$(eval echo $((echo $ac_cv_sizeof_int + $ac_cv_sizeof_void_p)))
     def install (self):
         Python.install (self)
+        self.file_sub ([('extra = ""', 'extra = "-lpython2.4 -lpthread"')],
+                       '%(install_prefix)s/cross/bin/python-config')
+
         def rename_so (logger, fname):
             dll = re.sub ('\.so*', '.dll', fname)
             loggedos.rename (logger, fname, dll)
@@ -119,7 +130,6 @@ class Python__mingw_cross (Python):
         self.map_locate (rename_so,
                          self.expand ('%(install_prefix)s/lib/python%(python_version)s/lib-dynload/'),
                                       '*.so*')
-
         ## UGH.
         self.system ('''
 cp %(install_prefix)s/lib/python%(python_version)s/lib-dynload/* %(install_prefix)s/bin
@@ -127,9 +137,18 @@ cp %(install_prefix)s/lib/python%(python_version)s/lib-dynload/* %(install_prefi
         self.system ('''
 chmod 755 %(install_prefix)s/bin/*
 ''')
-
-class Python__mingw (Python__mingw_cross):
-    pass
+        self.system (misc.join_lines ('''
+cd %(install_prefix)s
+&& echo EXPORTS > lib/libpython2.4.a.def
+&& %(toolchain_prefix)snm bin/libpython2.4.dll | grep ' T _' | sed -e 's/.* T _//' -e 's/@.*//' >> lib/libpython2.4.a.def
+&& %(toolchain_prefix)sdlltool --def lib/libpython2.4.a.def --dllname bin/libpython2.4.dll --output-lib lib/libpython2.4.dll.a
+'''))
+        self.copy ('%(sourcefiledir)s/libtool.la', '%(install_prefix)s/lib/libpython2.4.la')
+        self.file_sub ([('LIBRARY', 'python2.4'),
+                        ('STATICLIB', ''),
+                        ('DEPEND', ' -lpthread'),
+                        ('LIBDIR', '%(prefix_dir)s/lib')],
+                       '%(install_prefix)s/lib/libpython2.4.la')
 
 class Python__tools (toolsbuild.AutoBuild, Python):
     source = 'http://python.org/ftp/python/2.4.5/Python-2.4.5.tar.bz2'
