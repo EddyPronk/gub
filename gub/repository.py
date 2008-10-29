@@ -46,6 +46,7 @@ class RepositoryProxy:
         RepositoryProxy.repositories.append (repository)
     register = staticmethod (register)
 
+    # FIXME: drop branch, module, revision and pass as parameters
     @staticmethod
     def get_repository (dir, url, branch='', module='', revision=''):
         parameters = dict ()
@@ -53,17 +54,15 @@ class RepositoryProxy:
             url, parameters = misc.dissect_url (url)
             branch = parameters.get ('branch', [branch])[0]
             revision = parameters.get ('revision', [revision])[0]
-
             # FIXME/TODO: pass these nicely to create ()
             # possibly do dir,url,branch,revision also as dict or kwargs?
             name = parameters.get ('name', [''])[0]
             module = parameters.get ('module', [module])[0]
-            strip = parameters.get ('strip', [1])[0]
-            strip_components = parameters.get ('strip_components', [strip])[0]
 
         for proxy in RepositoryProxy.repositories:
             if proxy.check_url (proxy, url):
-                return proxy.create (proxy, dir, url, branch, module, revision)
+                # FIXME: drop branch, module, revision and pass as parameters
+                return proxy.create (proxy, dir, url, branch, module, revision, parameters)
             
         if url and url.startswith ('file://'):
             proto, rest = urllib.splittype (url)
@@ -72,25 +71,25 @@ class RepositoryProxy:
                 host = 'localhost'
             for proxy in RepositoryProxy.repositories:
                 if proxy.check_dir (proxy, url_dir):
-                    return proxy.create (proxy, dir, url, branch, module, revision)
+                    return proxy.create (proxy, dir, url, branch, module, revision, parameters)
                 
         for proxy in RepositoryProxy.repositories:
             if proxy.check_dir (proxy, dir):
-                return proxy.create (proxy, dir, url, branch, module, revision)
+                return proxy.create (proxy, dir, url, branch, module, revision, parameters)
         for proxy in RepositoryProxy.repositories:
             if proxy.check_suffix (proxy, url):
-                return proxy.create (proxy, dir, url, branch, module, revision)
+                return proxy.create (proxy, dir, url, branch, module, revision, parameters)
         for proxy in RepositoryProxy.repositories:
             if os.path.isdir (os.path.join (dir, '.gub' + proxy.vc_system)):
                 d = misc.find_dirs (dir, '^' + proxy.vc_system)
                 if d and proxy.check_dir (proxy, os.path.dirname (d[0])):
-                    return proxy.create (proxy, dir, url, branch, module, revision)
+                    return proxy.create (proxy, dir, url, branch, module, revision, parameters)
         for proxy in RepositoryProxy.repositories:
             # FIXME: this is currently used to determine flavour of
             # downloads/lilypond.git.  But is is ugly and fragile;
             # what if I do brz branch foo foo.git?
             if proxy.check_suffix (proxy, dir):
-                return proxy.create (proxy, dir, url, branch, module, revision)
+                return proxy.create (proxy, dir, url, branch, module, revision, parameters)
         raise UnknownVcSystem ('Cannot determine source: url=%(url)s, dir=%(dir)s'
                                % locals ())
 
@@ -113,7 +112,7 @@ class Repository:
         return url and url.endswith (rety.vc_system)
 
     @staticmethod
-    def create (rety, dir, source, branch='', module='', revision=''):
+    def create (rety, dir, source, branch='', module='', revision='', parameters=list ()):
         return rety (dir, source, branch, module, revision)
 
     def __init__ (self, dir, source):
@@ -261,7 +260,7 @@ class TagDb:
 class Version (Repository):
     vc_system = 'url'
     @staticmethod
-    def create (rety, dir, source, branch='', module='', revision=''):
+    def create (rety, dir, source, branch='', module='', revision='', parameters=list ()):
         return Version (source, revision)
     def __init__ (self, name, version=''):
         self.dir = None
@@ -284,7 +283,7 @@ class Darcs (Repository):
     vc_system = '_darcs'
 
     @staticmethod
-    def create (rety, dir, source, branch='', module='', revision=''):
+    def create (rety, dir, source, branch='', module='', revision='', parameters=list ()):
         return Darcs (dir, source)
  
     def __init__ (self, dir, source=''):
@@ -358,8 +357,12 @@ class TarBall (Repository):
     vc_system = '.tar'
 
     @staticmethod
-    def create (rety, dir, source, branch='', module='', revision=''):
-        return TarBall (dir, source)
+    def create (rety, dir, source, branch='', module='', revision='', parameters=list ()):
+        name = parameters.get ('name', [''])[0]
+        version = parameters.get ('version', [''])[0]
+        strip = parameters.get ('strip', [1])[0]
+        strip_components = parameters.get ('strip_components', [strip])[0]
+        return TarBall (dir, source, version, int (strip))
 
     @staticmethod
     def check_suffix (rety, url):
@@ -430,7 +433,7 @@ class DebianPackage (TarBall):
     vc_system = '.deb'
 
     @staticmethod
-    def create (rety, dir, source, branch='', module='', revision=''):
+    def create (rety, dir, source, branch='', module='', revision='', parameters=list ()):
         return DebianPackage (dir, source)
 
     @staticmethod
@@ -455,7 +458,7 @@ class ZipFile (TarBall):
     vc_system = '.zip'
 
     @staticmethod
-    def create (rety, dir, source, branch='', module='', revision=''):
+    def create (rety, dir, source, branch='', module='', revision='', parameters=list ()):
         return ZipFile (dir, source)
 
     @staticmethod
@@ -650,7 +653,7 @@ class CVS (Repository):
     cvs_entries_line = re.compile ('^/([^/]*)/([^/]*)/([^/]*)/([^/]*)/')
 
     @staticmethod
-    def create (rety, dir, source, branch='', module='', revision=''):
+    def create (rety, dir, source, branch='', module='', revision='', parameters=list ()):
         if not branch:
             branch='HEAD'
         source = source.replace ('cvs::pserver', ':pserver')
@@ -876,7 +879,7 @@ class Subversion (SimpleRepo):
     patch_xmldateformat = '%Y-%m-%dT%H:%M:%S'
 
     @staticmethod
-    def create (rety, dir, source, branch, module='.', revision='HEAD'):
+    def create (rety, dir, source, branch, module='.', revision='HEAD', parameters=list ()):
         source = source.replace ('svn:http://', 'http://')
         source = source.replace ('svn:https://', 'https://')
         if not branch and source:
@@ -1007,7 +1010,7 @@ class Bazaar (SimpleRepo):
     vc_system = '.bzr'
 
     @staticmethod
-    def create (rety, dir, source, branch='', module='.', revision=''):
+    def create (rety, dir, source, branch='', module='.', revision='', parameters=list ()):
         return Bazaar (dir, source, branch, module, revision)
 
     def __init__ (self, dir, source, branch='', module='.', revision='HEAD'):
