@@ -76,3 +76,14 @@
  #endif
  
  // Globally disable "warning C4100: unreferenced formal parameter" caused by
+--- sal/osl/w32/file.cxx.orig	2008-08-06 17:36:23.000000000 +0200
++++ sal/osl/w32/file.cxx	2008-10-21 20:53:48.000000000 +0200
+@@ -34,7 +34,7 @@
+ #define UNICODE
+ #define _UNICODE
+ #define _WIN32_WINNT 0x0500
+-#include "systools\win32\uwinapi.h"
++#include "systools/win32/uwinapi.h"
+ 
+ #include "path_helper.hxx"
+ 

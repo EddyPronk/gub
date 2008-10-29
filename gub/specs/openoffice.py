@@ -9,20 +9,18 @@ from gub import targetbuild
 # http://baseutils.googlecode.com/svn/trunk/str_strsafe.h
 
 '''
-$ grep 'delivered' target/mingw/log/build.log
 Module 'solenv' delivered successfully. 0 files copied, 1 files unchanged
 Module 'stlport' delivered successfully. 0 files copied, 8 files unchanged
-Module 'soltools' delivered successfully. 1 files copied, 13 files unchanged
-Module 'external' delivered successfully. 0 files copied, 66 files unchanged
+Module 'soltools' delivered successfully. 0 files copied, 14 files unchanged
+Module 'external' delivered successfully. 0 files copied, 30 files unchanged
 Module 'libwpd' delivered successfully. 0 files copied, 12 files unchanged
 Module 'xml2cmp' delivered successfully. 0 files copied, 5 files unchanged
-Module 'sal' delivered successfully. 11 files copied, 99 files unchanged
+Module 'sal' delivered successfully. 10 files copied, 100 files unchanged
 Module 'vos' delivered successfully. 0 files copied, 31 files unchanged
-Module 'redland' delivered successfully. 0 files copied, 2 files unchanged
 Module 'sandbox' delivered successfully. 1 files copied, 1 files unchanged
 Module 'afms' delivered successfully. 0 files copied, 2 files unchanged
 Module 'beanshell' delivered successfully. 0 files copied, 2 files unchanged
-Module 'cppunit' delivered successfully. 4 files copied, 66 files unchanged
+Module 'cppunit' delivered successfully. 4 files copied, 65 files unchanged
 Module 'testshl2' delivered successfully. 1 files copied, 11 files unchanged
 Module 'salhelper' delivered successfully. 0 files copied, 12 files unchanged
 Module 'extras' delivered successfully. 0 files copied, 70 files unchanged
@@ -46,7 +44,7 @@ Module 'store' delivered successfully. 0 files copied, 8 files unchanged
 Module 'registry' delivered successfully. 0 files copied, 23 files unchanged
 Module 'idlc' delivered successfully. 0 files copied, 7 files unchanged
 Module 'udkapi' delivered successfully. 1 files copied, 417 files unchanged
-Module 'offapi' delivered successfully. 1 files copied, 3520 files unchanged
+Module 'offapi' delivered successfully. 3 files copied, 3518 files unchanged
 Module 'codemaker' delivered successfully. 0 files copied, 23 files unchanged
 Module 'offuh' delivered successfully. 0 files copied, 5518 files unchanged
 Module 'cppu' delivered successfully. 0 files copied, 47 files unchanged
@@ -81,15 +79,16 @@ Module 'regexp' delivered successfully. 0 files copied, 4 files unchanged
 Module 'i18npool' delivered successfully. 1 files copied, 40 files unchanged
 Module 'tools' delivered successfully. 5 files copied, 101 files unchanged
 Module 'unotools' delivered successfully. 0 files copied, 47 files unchanged
-Module 'transex3' delivered successfully. 2 files copied, 31 files unchanged
+Module 'transex3' delivered successfully. 0 files copied, 33 files unchanged
 Module 'sot' delivered successfully. 0 files copied, 21 files unchanged
 Module 'fileaccess' delivered successfully. 0 files copied, 4 files unchanged
 Module 'officecfg' delivered successfully. 1 files copied, 224 files unchanged
-Module 'setup_native' delivered successfully. 43 files copied, 15 files unchanged
-Module 'rsc' delivered successfully. 5 files copied, 3 files unchanged
-21:30:23 janneke@peder:~/vc/gub
-$ grep 'delivered' target/mingw/log/build.log | wc -l
-77 modules
+Module 'setup_native' delivered successfully. 2 files copied, 56 files unchanged
+Module 'rsc' delivered successfully. 0 files copied, 8 files unchanged
+Module 'oox' delivered successfully. 0 files copied, 9 files unchanged
+Module 'psprint' delivered successfully. 0 files copied, 14 files unchanged
+Module 'pyuno' delivered successfully. 8 files copied, 13 files unchanged
+79 modules
 '''
 
 class Openoffice (targetbuild.AutoBuild):
@@ -154,7 +153,8 @@ ac_cv_icu_version_minor=${ac_cv_icu_version_minor=3.81}
     def configure_command (self):
         return (targetbuild.AutoBuild.configure_command (self)
                 + misc.join_lines ('''
---with-vendor=\"GUB -- LilyPond.org\"
+--with-additional-sections=MinGW
+--with-vendor=\"GUB -- http://lilypond.org/gub\"
 --disable-Xaw
 --disable-access
 --disable-activex
@@ -221,6 +221,7 @@ ac_cv_icu_version_minor=${ac_cv_icu_version_minor=3.81}
 --with-system-neon
 --with-system-odbc-headers
 --with-system-portaudio
+--with-system-redland
 --with-system-sablot
 --with-system-saxon
 --with-system-sndfile
@@ -327,7 +328,7 @@ LD_LIBRARY_PATH=%(LD_LIBRARY_PATH)s
 ##CPPFLAGS=
                 
 class Openoffice__mingw (Openoffice):
-    Openoffice.upstream_patches += ['openoffice-config_office-mingw.patch', 'openoffice-solenv-mingw.patch', 'openoffice-soltools-mingw.patch', 'openoffice-sal-mingw.patch', 'openoffice-external-mingwheaders.patch', 'openoffice-cppunit-mingw.patch', 'openoffice-i18npool-mingw.patch', 'openoffice-tools-mingw.patch', 'openoffice-transex3-mingw.patch', 'openoffice-setup_native-mingw.patch']
+    Openoffice.upstream_patches += ['openoffice-config_office-mingw.patch', 'openoffice-solenv-mingw.patch', 'openoffice-sal-mingw.patch', 'openoffice-external-mingwheaders.patch', 'openoffice-cppunit-mingw.patch', 'openoffice-i18npool-mingw.patch', 'openoffice-tools-mingw.patch', 'openoffice-setup_native-mingw.patch', 'openoffice-pyuno-mingw.patch']
     # external/mingwheaders seems a badly misguided effort.  It
     # patches header files and is thus strictly tied to a gcc version;
     # that can never build.  How can patching header files ever work,
@@ -337,8 +338,15 @@ class Openoffice__mingw (Openoffice):
     # __MINGW32__ defines.  Why not fix OO.o makefiles and client
     # code?
     Openoffice.upstream_patches += ['openoffice-sal-mingw-c.patch']
+    # Kendy's MinGW patches are already applied
+    kendy = ['openoffice-transex3-mingw.patch', 'openoffice-soltools-mingw.patch']
     def get_build_dependencies (self):
         return Openoffice.get_build_dependencies (self) + ['libunicows-devel']
+    def patch (self):
+        Openoffice.patch (self)
+        # disable Kendy's patch for Cygwin version of mingw
+        self.file_sub ([('^(mingw-build-without-stlport-stlport.diff)', r'#\1')],
+                       '%(srcdir)s/patches/dev300/apply')
     def configure_command (self):
         return (Openoffice.configure_command (self)
                 .replace ('--with-system-xrender-headers', '')

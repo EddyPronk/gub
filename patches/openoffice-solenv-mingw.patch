@@ -1,5 +1,5 @@
---- solenv/inc/wntgcci6.mk.pristine	2008-10-21 13:20:04.000000000 +0200
-+++ solenv/inc/wntgcci6.mk	2008-10-28 11:05:46.000000000 +0100
+--- solenv/inc/wntgcci6.mk.pristine	2008-10-29 08:42:22.000000000 +0100
++++ solenv/inc/wntgcci6.mk	2008-10-29 08:49:44.000000000 +0100
 @@ -31,14 +31,18 @@
  
  # mk file for wntgcci6
@@ -32,10 +32,11 @@
  ###
  CFLAGSCC=-pipe $(ARCH_FLAGS)
  CFLAGSCXX=-pipe $(ARCH_FLAGS)
-@@ -108,17 +115,37 @@ STATIC= -static
- DYNAMIC= -dynamic
+@@ -109,18 +116,37 @@ DYNAMIC= -dynamic
  
- LINK*=$(CC)
+ LINK*=$(CXX)
+ LINKC*=$(CC)
+-
 -CYGLIB=$(LIB:s/;/ -L/)
 -LINKFLAGS=-nostdlib -Wl,--enable-stdcall-fixup,--enable-runtime-pseudo-reloc -L$(CYGLIB)
 +# FIXME: better way to strip trailing semicolon from $(LIB) to avoid
@@ -76,7 +77,7 @@
  LINKFLAGSTACK=
  LINKFLAGSPROF=
  LINKFLAGSDEBUG=-g
-@@ -150,16 +177,20 @@ STDSHLCUIMT+=-lmingw32 -lmoldname -lming
+@@ -152,16 +178,20 @@ STDSHLCUIMT+=-lmingw32 -lmoldname -lming
  LIBSTLPORT=-lstlport_gcc
  LIBSTLPORTST=-lstlport_gcc_static
  
@@ -99,7 +100,7 @@
  RCFLAGS=-D__MINGW32__ -DWIN32 -D_WIN32_IE=0x400 -fo$@ $(RCFILES)
  RCLINK=
  RCLINKFLAGS=
-@@ -168,12 +199,20 @@ RCSETVERSION=
+@@ -170,12 +200,20 @@ RCSETVERSION=
  DLLPOSTFIX=gi
  PCHPOST=.gch
  
@@ -121,7 +122,7 @@
  WINSPOOLLIB=-lwinspool
  IMM32LIB=-limm32
  PSPLIB=-lpsp
-@@ -187,14 +226,14 @@ USER32LIB=-luser32
+@@ -189,14 +227,14 @@ USER32LIB=-luser32
  LIBCMT=-lmsvcrt
  COMDLG32LIB=-lcomdlg32
  COMCTL32LIB=-lcomctl32
@@ -145,14 +146,27 @@
  OLDNAMESLIB=-lmoldname
 -MSIMG32LIB=$(PSDK_HOME)$/lib$/msimg32.lib
 +MSIMG32LIB=$(LINK_PSDK_LIB)msimg32$(PSDK_DOT_LIB)
---- solenv/inc/settings.mk.pristine	2008-10-21 11:31:04.000000000 +0200
-+++ solenv/inc/settings.mk	2008-10-28 20:16:46.000000000 +0100
-@@ -752,7 +752,7 @@ COMMONBIN=$(LOCAL_COMMON_OUT)$/bin
- INC=$(PRJ)$/inc
- INCPCH=$(PRJ)$/inc$/pch
- INCLOCAL=..$/inc
--INCGUI=$(PRJ)$/$(GUIBASE)$/inc
-+INCGUI=$(PRJ)$/$(GUIBASE:l)$/inc
- INCCOM=$(OUT)$/inc
- INCCOMX=$(OUT)$/inc
- INCUNOIDL=$(INCCOM)$/$(PRJNAME)
+--- solenv/inc/shlinfo.rc.pristine	2008-10-29 09:33:25.000000000 +0100
++++ solenv/inc/shlinfo.rc	2008-10-29 09:33:33.000000000 +0100
+@@ -29,7 +29,9 @@
+  ************************************************************************/
+ 
+ #define VERSION			3
++#ifndef CROSS_COMPILING
+ #define SUBVERSION		0
++#endif
+ #define VERVARIANT		0
+ 
+ // .0 + VER_CONCEPT
+@@ -159,7 +161,11 @@ VS_VERSION_INFO versioninfo
+ VS_VERSION_INFO rcdata
+ {
+ 	0xF0, "sw", 0x0F, VER_YEAR, VER_MONTH, VER_DAY,
++#ifndef CROSS_COMPILING
+ 	VERSION, VERVARIANT, VER_COUNT
++#else
++	VERSION
++#endif
+ };
+ 
+ #endif // OS2
