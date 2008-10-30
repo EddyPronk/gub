@@ -1,8 +1,8 @@
-#ifndef EXCPT_H
-#define EXCPT_H
+#ifndef OOO_FIXUP_EXCPT_H
+#define OOO_FIXUP_EXCPT_H
 
 /* FIXME: external/mingwheaders effort compatibility */
 #include <mingw-excpt.h>
 #include <sehandler.h>
 
-#endif /* EXCPT_H */
+#endif /* OOO_FIXUP_EXCPT_H */

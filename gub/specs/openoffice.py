@@ -106,7 +106,7 @@ class Openoffice (targetbuild.AutoBuild):
             return True
         self.source.is_tracking = misc.bind_method (tracking, self.source)
     def get_build_dependencies (self):
-        return ['tools::autoconf', 'boost-devel', 'curl-devel', 'cppunit-devel', 'db-devel', 'expat-devel', 'fontconfig-devel', 'libicu-devel', 'libjpeg-devel', 'libpng-devel', 'python-devel', 'redland-devel', 'saxon-java', 'xerces-c', 'zlib-devel']
+        return ['tools::autoconf', 'boost-devel', 'curl-devel', 'cppunit-devel', 'db-devel', 'expat-devel', 'fontconfig-devel', 'libicu-devel', 'libjpeg-devel', 'libpng-devel', 'liblpsolve-devel', 'python-devel', 'redland-devel', 'saxon-java', 'xerces-c', 'zlib-devel']
     def stages (self):
         return misc.list_insert_before (targetbuild.AutoBuild.stages (self),
                                         'compile',
@@ -218,6 +218,7 @@ ac_cv_icu_version_minor=${ac_cv_icu_version_minor=3.81}
 --with-system-icu
 --with-system-jpeg
 --with-system-libxslt
+--with-system-lpsolve
 --with-system-neon
 --with-system-odbc-headers
 --with-system-portaudio
@@ -294,23 +295,16 @@ cd %(builddir)s/build/%(cvs_tag)s && patch -p%(patch_strip_component)s < %(patch
 
         self.system ('chmod +x %(upstream_dir)s/solenv/bin/build.pl %(upstream_dir)s/solenv/bin/deliver.pl')
 
-        disable_modules = ['sandbox', # java
-                           'testshl2',
-                           'hsqldb', # java
-                           'lpsolve', # broken ccc.* script
-                           'lucene',
-                           'bean', # java
-                           'embedserv', # uses atl http://article.gmane.org/gmane.comp.gnu.mingw.user/18483
-                           ]
+        disable_modules = [
+            'bean', # com_sun_star_comp_beans_LocalOfficeWindow.c:39:18: error: jawt.h: No such file or directory
+            'embedserv', # uses ATL http://article.gmane.org/gmane.comp.gnu.mingw.user/18483
+            'testtools', # Thread:      1 :Error osl_loadModule: libstocservices.uno.dll.so: cannot open shared object file: No such file or directory    
+        ]
         for module in disable_modules:
-            #self.system ('sed -i -e "s@[ \t]\(all\|n\|w\)[ \t]@ i @g" %(upstream_dir)s/%(module)s/prj/build.lst', locals ())
-            self.system ('sed -i -e "s@\(^.*[ \t]\(all\|n\|w\)[ \t]\)@#\\1@g" %(upstream_dir)s/%(module)s/prj/build.lst', locals ())
+            self.system ('sed -i -e "s@\(^[^#].*[ \t]\(all\|n\|w\|w,vc[0-9]\)[ \t]\)@#\\1@g" %(upstream_dir)s/%(module)s/prj/build.lst', locals ())
 
         module = 'setup_native'
         self.system ('sed -i -e "s@\(^pk.*customactions\)@#\\1@" %(upstream_dir)s/%(module)s/prj/build.lst', locals ())
-
-        # java go away
-        # self.system ('sed -i -e "s@[ \t]all@ i@g" %(upstream_dir)s/sandbox/prj/build.lst')
 
     def makeflags (self):
         return misc.join_lines ('''
@@ -321,14 +315,13 @@ LDFLAGS_FOR_BUILD=
 C_INCLUDE_PATH=
 LIBRARY_PATH=
 EXECPOST=
-SOLAR_JAVA=
 LD_LIBRARY_PATH=%(LD_LIBRARY_PATH)s
 ''')
 ##main configure barfs
 ##CPPFLAGS=
                 
 class Openoffice__mingw (Openoffice):
-    Openoffice.upstream_patches += ['openoffice-config_office-mingw.patch', 'openoffice-solenv-mingw.patch', 'openoffice-sal-mingw.patch', 'openoffice-external-mingwheaders.patch', 'openoffice-cppunit-mingw.patch', 'openoffice-i18npool-mingw.patch', 'openoffice-tools-mingw.patch', 'openoffice-setup_native-mingw.patch', 'openoffice-pyuno-mingw.patch']
+    Openoffice.upstream_patches += ['openoffice-config_office-mingw.patch', 'openoffice-solenv-mingw.patch', 'openoffice-sal-mingw.patch', 'openoffice-external-mingwheaders.patch', 'openoffice-cppunit-mingw.patch', 'openoffice-i18npool-mingw.patch', 'openoffice-tools-mingw.patch', 'openoffice-setup_native-mingw.patch', 'openoffice-pyuno-mingw.patch', 'openoffice-sysui-mingw.patch', 'openoffice-dtrans-mingw.patch', 'openoffice-fpicker-mingw.patch', 'openoffice-sccomp-mingw.patch', 'openoffice-vcl-mingw.patch']
     # external/mingwheaders seems a badly misguided effort.  It
     # patches header files and is thus strictly tied to a gcc version;
     # that can never build.  How can patching header files ever work,
@@ -353,6 +346,7 @@ class Openoffice__mingw (Openoffice):
                 + ' --disable-xrender-link'
                 + ' --with-distro=Win32')
     def patch_upstream (self):
+        self.system ('chmod -R ugo+w %(upstream_dir)s/dtrans %(upstream_dir)s/fpicker')
         Openoffice.patch_upstream (self)
         # avoid juggling of names for windows-nt
         self.system ('sed -i -e "s@WINNT@WNT@" %(upstream_dir)s/config_office/configure.in')

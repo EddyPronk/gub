@@ -4,6 +4,10 @@
 #include <excpt.h>
 #include <setjmp.h>
 
+// not implemented in mingw, only in wine...
+//BOOL WINAPI InternetGetConnectedStateEx(LPDWORD,LPTSTR,DWORD,DWORD);
+#define InternetGetConnectedStateEx(a,b,c,d) InternetGetConnectedState(a,c)
+
 WINBASEAPI
 VOID
 WINAPI

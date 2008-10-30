@@ -1,0 +1,403 @@
+--- vcl/win/source/app/saltimer.cxx.pristine	2008-10-30 13:15:44.000000000 +0100
++++ vcl/win/source/app/saltimer.cxx	2008-10-30 13:13:16.000000000 +0100
+@@ -32,7 +32,7 @@
+ #include "precompiled_vcl.hxx"
+ #include <tools/svwin.h>
+ #ifdef __MINGW32__
+-#include <excpt.h>
++#include <sehandler.h>
+ #endif
+ #include <saldata.hxx>
+ #include <saltimer.h>
+--- vcl/win/source/app/salinst.cxx.pristine	2008-10-30 13:15:44.000000000 +0100
++++ vcl/win/source/app/salinst.cxx	2008-10-30 13:13:24.000000000 +0100
+@@ -37,7 +37,7 @@
+ #include <process.h>
+ #endif
+ #ifdef __MINGW32__
+-#include <excpt.h>
++#include <sehandler.h>
+ #endif
+ 
+ #include <vos/mutex.hxx>
+--- vcl/win/source/src/salsrc.rc.pristine	2008-10-30 13:51:23.000000000 +0100
++++ vcl/win/source/src/salsrc.rc	2008-10-30 13:53:31.000000000 +0100
+@@ -35,90 +35,90 @@
+ #include <salids.hrc>
+ #endif
+ 
+-SAL_RESID_POINTER_NULL				CURSOR		NULLPTR.CUR
++SAL_RESID_POINTER_NULL				CURSOR		nullptr.cur
+ #if ( WINVER < 0x0400 )
+-SAL_RESID_POINTER_HELP				CURSOR		HELP.CUR
++SAL_RESID_POINTER_HELP				CURSOR		help.cur
+ #endif
+ #ifndef WNT
+-SAL_RESID_POINTER_HSIZE 			CURSOR		HSIZE.CUR
+-SAL_RESID_POINTER_VSIZE 			CURSOR		VSIZE.CUR
+-SAL_RESID_POINTER_NESWSIZE			CURSOR		NESWSIZE.CUR
+-SAL_RESID_POINTER_NWSESIZE			CURSOR		NWSESIZE.CUR
++SAL_RESID_POINTER_HSIZE 			CURSOR		hsize.cur
++SAL_RESID_POINTER_VSIZE 			CURSOR		vsize.cur
++SAL_RESID_POINTER_NESWSIZE			CURSOR		neswsize.cur
++SAL_RESID_POINTER_NWSESIZE			CURSOR		nwsesize.cur
+ #endif
+-SAL_RESID_POINTER_CROSS 			CURSOR		CROSS.CUR
+-SAL_RESID_POINTER_MOVE				CURSOR		MOVE.CUR
+-SAL_RESID_POINTER_HSPLIT			CURSOR		HSPLIT.CUR
+-SAL_RESID_POINTER_VSPLIT			CURSOR		VSPLIT.CUR
+-SAL_RESID_POINTER_HSIZEBAR			CURSOR		HSIZEBAR.CUR
+-SAL_RESID_POINTER_VSIZEBAR			CURSOR		VSIZEBAR.CUR
+-SAL_RESID_POINTER_HAND				CURSOR		HAND.CUR
+-SAL_RESID_POINTER_REFHAND			CURSOR		REFHAND.CUR
+-SAL_RESID_POINTER_PEN				CURSOR		PEN.CUR
+-SAL_RESID_POINTER_MAGNIFY			CURSOR		MAGNIFY.CUR
+-SAL_RESID_POINTER_FILL				CURSOR		FILL.CUR
+-SAL_RESID_POINTER_ROTATE			CURSOR		ROTATE.CUR
+-SAL_RESID_POINTER_HSHEAR			CURSOR		HSHEAR.CUR
+-SAL_RESID_POINTER_VSHEAR			CURSOR		VSHEAR.CUR
+-SAL_RESID_POINTER_MIRROR			CURSOR		MIRROR.CUR
+-SAL_RESID_POINTER_CROOK 			CURSOR		CROOK.CUR
+-SAL_RESID_POINTER_CROP				CURSOR		CROP.CUR
+-SAL_RESID_POINTER_MOVEPOINT 		CURSOR		MOVEPT.CUR
+-SAL_RESID_POINTER_MOVEBEZIERWEIGHT	CURSOR		MOVEBW.CUR
+-SAL_RESID_POINTER_MOVEDATA			CURSOR		MOVEDATA.CUR
+-SAL_RESID_POINTER_COPYDATA			CURSOR		COPYDATA.CUR
+-SAL_RESID_POINTER_LINKDATA			CURSOR		LINKDATA.CUR
+-SAL_RESID_POINTER_MOVEDATALINK		CURSOR		MOVEDLNK.CUR
+-SAL_RESID_POINTER_COPYDATALINK		CURSOR		COPYDLNK.CUR
+-SAL_RESID_POINTER_MOVEFILE			CURSOR		MOVEF.CUR
+-SAL_RESID_POINTER_COPYFILE			CURSOR		COPYF.CUR
+-SAL_RESID_POINTER_LINKFILE			CURSOR		LINKF.CUR
+-SAL_RESID_POINTER_MOVEFILELINK		CURSOR		MOVEFLNK.CUR
+-SAL_RESID_POINTER_COPYFILELINK		CURSOR		COPYFLNK.CUR
+-SAL_RESID_POINTER_MOVEFILES 		CURSOR		MOVEF2.CUR
+-SAL_RESID_POINTER_COPYFILES 		CURSOR		COPYF2.CUR
+-SAL_RESID_POINTER_NOTALLOWED		CURSOR		NOTALLOW.CUR
+-SAL_RESID_POINTER_DRAW_LINE 		CURSOR		DLINE.CUR
+-SAL_RESID_POINTER_DRAW_RECT 		CURSOR		DRECT.CUR
+-SAL_RESID_POINTER_DRAW_POLYGON		CURSOR		DPOLYGON.CUR
+-SAL_RESID_POINTER_DRAW_BEZIER		CURSOR		DBEZIER.CUR
+-SAL_RESID_POINTER_DRAW_ARC			CURSOR		DARC.CUR
+-SAL_RESID_POINTER_DRAW_PIE			CURSOR		DPIE.CUR
+-SAL_RESID_POINTER_DRAW_CIRCLECUT	CURSOR		DCIRCCUT.CUR
+-SAL_RESID_POINTER_DRAW_ELLIPSE		CURSOR		DELLIPSE.CUR
+-SAL_RESID_POINTER_DRAW_FREEHAND 	CURSOR		DFREE.CUR
+-SAL_RESID_POINTER_DRAW_CONNECT		CURSOR		DCONNECT.CUR
+-SAL_RESID_POINTER_DRAW_TEXT 		CURSOR		DTEXT.CUR
+-SAL_RESID_POINTER_DRAW_CAPTION		CURSOR		DCAPT.CUR
+-SAL_RESID_POINTER_CHART 			CURSOR		CHART.CUR
+-SAL_RESID_POINTER_DETECTIVE 		CURSOR		DETECTIV.CUR
+-SAL_RESID_POINTER_PIVOT_COL 		CURSOR		PIVOTCOL.CUR
+-SAL_RESID_POINTER_PIVOT_ROW 		CURSOR		PIVOTROW.CUR
+-SAL_RESID_POINTER_PIVOT_FIELD		CURSOR		PIVOTFLD.CUR
+-SAL_RESID_POINTER_PIVOT_DELETE		CURSOR		PIVOTDEL.CUR
+-SAL_RESID_POINTER_CHAIN 			CURSOR		CHAIN.CUR
+-SAL_RESID_POINTER_CHAIN_NOTALLOWED	CURSOR		CHAINNOT.CUR
+-SAL_RESID_POINTER_TIMEEVENT_MOVE	CURSOR		TIMEMOVE.CUR
+-SAL_RESID_POINTER_TIMEEVENT_SIZE	CURSOR		TIMESIZE.CUR
+-SAL_RESID_POINTER_AUTOSCROLL_N		CURSOR		ASN.CUR
+-SAL_RESID_POINTER_AUTOSCROLL_S		CURSOR		ASS.CUR
+-SAL_RESID_POINTER_AUTOSCROLL_W		CURSOR		ASW.CUR
+-SAL_RESID_POINTER_AUTOSCROLL_E		CURSOR		ASE.CUR
+-SAL_RESID_POINTER_AUTOSCROLL_NW 	CURSOR		ASNW.CUR
+-SAL_RESID_POINTER_AUTOSCROLL_NE 	CURSOR		ASNE.CUR
+-SAL_RESID_POINTER_AUTOSCROLL_SW 	CURSOR		ASSW.CUR
+-SAL_RESID_POINTER_AUTOSCROLL_SE 	CURSOR		ASSE.CUR
+-SAL_RESID_POINTER_AUTOSCROLL_NS 	CURSOR		ASNS.CUR
+-SAL_RESID_POINTER_AUTOSCROLL_WE 	CURSOR		ASWE.CUR
+-SAL_RESID_POINTER_AUTOSCROLL_NSWE	CURSOR		ASNSWE.CUR
+-SAL_RESID_POINTER_AIRBRUSH              CURSOR          AIRBRUSH.CUR
+-SAL_RESID_POINTER_TEXT_VERTICAL 	CURSOR		VTEXT.CUR
+-SAL_RESID_POINTER_TAB_SELECT_S          CURSOR          TBLSELS.CUR
+-SAL_RESID_POINTER_TAB_SELECT_E          CURSOR          TBLSELE.CUR
+-SAL_RESID_POINTER_TAB_SELECT_SE         CURSOR          TBLSELSE.CUR
+-SAL_RESID_POINTER_TAB_SELECT_W          CURSOR          TBLSELW.CUR
+-SAL_RESID_POINTER_TAB_SELECT_SW         CURSOR          TBLSELSW.CUR
+-SAL_RESID_POINTER_PAINTBRUSH            CURSOR          PNTBRSH.CUR
++SAL_RESID_POINTER_CROSS 			CURSOR		cross.cur
++SAL_RESID_POINTER_MOVE				CURSOR		move.cur
++SAL_RESID_POINTER_HSPLIT			CURSOR		hsplit.cur
++SAL_RESID_POINTER_VSPLIT			CURSOR		vsplit.cur
++SAL_RESID_POINTER_HSIZEBAR			CURSOR		hsizebar.cur
++SAL_RESID_POINTER_VSIZEBAR			CURSOR		vsizebar.cur
++SAL_RESID_POINTER_HAND				CURSOR		hand.cur
++SAL_RESID_POINTER_REFHAND			CURSOR		refhand.cur
++SAL_RESID_POINTER_PEN				CURSOR		pen.cur
++SAL_RESID_POINTER_MAGNIFY			CURSOR		magnify.cur
++SAL_RESID_POINTER_FILL				CURSOR		fill.cur
++SAL_RESID_POINTER_ROTATE			CURSOR		rotate.cur
++SAL_RESID_POINTER_HSHEAR			CURSOR		hshear.cur
++SAL_RESID_POINTER_VSHEAR			CURSOR		vshear.cur
++SAL_RESID_POINTER_MIRROR			CURSOR		mirror.cur
++SAL_RESID_POINTER_CROOK 			CURSOR		crook.cur
++SAL_RESID_POINTER_CROP				CURSOR		crop.cur
++SAL_RESID_POINTER_MOVEPOINT 		CURSOR		movept.cur
++SAL_RESID_POINTER_MOVEBEZIERWEIGHT	CURSOR		movebw.cur
++SAL_RESID_POINTER_MOVEDATA			CURSOR		movedata.cur
++SAL_RESID_POINTER_COPYDATA			CURSOR		copydata.cur
++SAL_RESID_POINTER_LINKDATA			CURSOR		linkdata.cur
++SAL_RESID_POINTER_MOVEDATALINK		CURSOR		movedlnk.cur
++SAL_RESID_POINTER_COPYDATALINK		CURSOR		copydlnk.cur
++SAL_RESID_POINTER_MOVEFILE			CURSOR		movef.cur
++SAL_RESID_POINTER_COPYFILE			CURSOR		copyf.cur
++SAL_RESID_POINTER_LINKFILE			CURSOR		linkf.cur
++SAL_RESID_POINTER_MOVEFILELINK		CURSOR		moveflnk.cur
++SAL_RESID_POINTER_COPYFILELINK		CURSOR		copyflnk.cur
++SAL_RESID_POINTER_MOVEFILES 		CURSOR		movef2.cur
++SAL_RESID_POINTER_COPYFILES 		CURSOR		copyf2.cur
++SAL_RESID_POINTER_NOTALLOWED		CURSOR		notallow.cur
++SAL_RESID_POINTER_DRAW_LINE 		CURSOR		dline.cur
++SAL_RESID_POINTER_DRAW_RECT 		CURSOR		drect.cur
++SAL_RESID_POINTER_DRAW_POLYGON		CURSOR		dpolygon.cur
++SAL_RESID_POINTER_DRAW_BEZIER		CURSOR		dbezier.cur
++SAL_RESID_POINTER_DRAW_ARC			CURSOR		darc.cur
++SAL_RESID_POINTER_DRAW_PIE			CURSOR		dpie.cur
++SAL_RESID_POINTER_DRAW_CIRCLECUT	CURSOR		dcirccut.cur
++SAL_RESID_POINTER_DRAW_ELLIPSE		CURSOR		dellipse.cur
++SAL_RESID_POINTER_DRAW_FREEHAND 	CURSOR		dfree.cur
++SAL_RESID_POINTER_DRAW_CONNECT		CURSOR		dconnect.cur
++SAL_RESID_POINTER_DRAW_TEXT 		CURSOR		dtext.cur
++SAL_RESID_POINTER_DRAW_CAPTION		CURSOR		dcapt.cur
++SAL_RESID_POINTER_CHART 			CURSOR		chart.cur
++SAL_RESID_POINTER_DETECTIVE 		CURSOR		detectiv.cur
++SAL_RESID_POINTER_PIVOT_COL 		CURSOR		pivotcol.cur
++SAL_RESID_POINTER_PIVOT_ROW 		CURSOR		pivotrow.cur
++SAL_RESID_POINTER_PIVOT_FIELD		CURSOR		pivotfld.cur
++SAL_RESID_POINTER_PIVOT_DELETE		CURSOR		pivotdel.cur
++SAL_RESID_POINTER_CHAIN 			CURSOR		chain.cur
++SAL_RESID_POINTER_CHAIN_NOTALLOWED	CURSOR		chainnot.cur
++SAL_RESID_POINTER_TIMEEVENT_MOVE	CURSOR		timemove.cur
++SAL_RESID_POINTER_TIMEEVENT_SIZE	CURSOR		timesize.cur
++SAL_RESID_POINTER_AUTOSCROLL_N		CURSOR		asn.cur
++SAL_RESID_POINTER_AUTOSCROLL_S		CURSOR		ass.cur
++SAL_RESID_POINTER_AUTOSCROLL_W		CURSOR		asw.cur
++SAL_RESID_POINTER_AUTOSCROLL_E		CURSOR		ase.cur
++SAL_RESID_POINTER_AUTOSCROLL_NW 	CURSOR		asnw.cur
++SAL_RESID_POINTER_AUTOSCROLL_NE 	CURSOR		asne.cur
++SAL_RESID_POINTER_AUTOSCROLL_SW 	CURSOR		assw.cur
++SAL_RESID_POINTER_AUTOSCROLL_SE 	CURSOR		asse.cur
++SAL_RESID_POINTER_AUTOSCROLL_NS 	CURSOR		asns.cur
++SAL_RESID_POINTER_AUTOSCROLL_WE 	CURSOR		aswe.cur
++SAL_RESID_POINTER_AUTOSCROLL_NSWE	CURSOR		asnswe.cur
++SAL_RESID_POINTER_AIRBRUSH              CURSOR          airbrush.cur
++SAL_RESID_POINTER_TEXT_VERTICAL 	CURSOR		vtext.cur
++SAL_RESID_POINTER_TAB_SELECT_S          CURSOR          tblsels.cur
++SAL_RESID_POINTER_TAB_SELECT_E          CURSOR          tblsele.cur
++SAL_RESID_POINTER_TAB_SELECT_SE         CURSOR          tblselse.cur
++SAL_RESID_POINTER_TAB_SELECT_W          CURSOR          tblselw.cur
++SAL_RESID_POINTER_TAB_SELECT_SW         CURSOR          tblselsw.cur
++SAL_RESID_POINTER_PAINTBRUSH            CURSOR          pntbrsh.cur
+ 
+-SAL_RESID_BITMAP_50                             BITMAP          50.BMP
++SAL_RESID_BITMAP_50                             BITMAP          50.bmp
+ 
+-SAL_RESID_ICON_DEFAULT				ICON		SD.ICO
++SAL_RESID_ICON_DEFAULT				ICON		sd.ico
+--- vcl/win/source/gdi/salnativewidgets-luna.cxx.pristine	2008-10-30 13:50:29.000000000 +0100
++++ vcl/win/source/gdi/salnativewidgets-luna.cxx	2008-10-30 13:49:24.000000000 +0100
+@@ -31,6 +31,11 @@
+ // MARKER(update_precomp.py): autogen include statement, do not remove
+ #include "precompiled_vcl.hxx"
+ 
++#ifdef __MINGW32__
++#undef WINVER
++#define WINVER 0x0501
++#endif /* __MINGW32__ */
++
+ #define _SV_SALNATIVEWIDGETS_CXX
+ 
+ #include "svsys.h"
+--- vcl/win/source/gdi/winlayout.cxx.pristine	2008-10-30 13:43:54.000000000 +0100
++++ vcl/win/source/gdi/winlayout.cxx	2008-10-30 13:43:46.000000000 +0100
+@@ -55,8 +55,8 @@
+ #include <vcl/svapp.hxx>
+ 
+ #ifdef USE_UNISCRIBE
+-#include <Usp10.h>
+-#include <ShLwApi.h>
++#include <usp10.h>
++#include <shlwapi.h>
+ #include <winver.h>
+ #endif // USE_UNISCRIBE
+ 
+--- vcl/win/source/gdi/salprn.cxx.pristine	2008-10-30 13:15:44.000000000 +0100
++++ vcl/win/source/gdi/salprn.cxx	2008-10-30 13:42:47.000000000 +0100
+@@ -35,8 +35,11 @@
+ #include <tools/svwin.h>
+ 
+ #ifdef __MINGW32__
+-#include <excpt.h>
+-#endif
++#undef WINVER
++#define WINVER 0x500
++#include <sehandler.h>
++#define DC_COLLATE 23
++#endif /* __MINGW32__ */
+ 
+ #ifndef _OSL_MODULE_H
+ #include <osl/module.h>
+--- vcl/win/source/gdi/salgdi2.cxx.pristine	2008-10-30 13:44:20.000000000 +0100
++++ vcl/win/source/gdi/salgdi2.cxx	2008-10-30 13:36:43.000000000 +0100
+@@ -31,8 +31,14 @@
+ // MARKER(update_precomp.py): autogen include statement, do not remove
+ #include "precompiled_vcl.hxx"
+ 
++#ifdef __MINGW32__
++#undef WINVER
++#define WINVER 0x410
++#endif /* __MINGW32__ */
++
+ #include <string.h>
+ #include <stdlib.h>
++
+ #include <tools/svwin.h>
+ #include <tools/debug.hxx>
+ #include <wincomp.hxx>
+@@ -44,6 +50,7 @@
+ #include <salgdi.h>
+ #include <salframe.h>
+ 
++
+ bool WinSalGraphics::supportsOperation( OutDevSupportType eType ) const
+ {
+     bool bRet = false;
+--- vcl/win/source/gdi/salgdi3.cxx.pristine	2008-10-30 13:44:13.000000000 +0100
++++ vcl/win/source/gdi/salgdi3.cxx	2008-10-30 13:37:53.000000000 +0100
+@@ -31,6 +31,11 @@
+ // MARKER(update_precomp.py): autogen include statement, do not remove
+ #include "precompiled_vcl.hxx"
+ 
++#ifdef __MINGW32__
++#undef WINVER
++#define WINVER 0x500
++#endif /* __MINGW32__ */
++
+ #include <string.h>
+ #include <malloc.h>
+ #include <tools/svwin.h>
+--- vcl/win/source/window/salframe.cxx.pristine	2008-10-30 13:58:42.000000000 +0100
++++ vcl/win/source/window/salframe.cxx	2008-10-30 14:01:46.000000000 +0100
+@@ -45,7 +45,7 @@
+ #include <tools/svwin.h>
+ #endif
+ #ifdef __MINGW32__
+-#include <excpt.h>
++#include <sehandler.h>
+ #endif
+ #include <rtl/string.h>
+ #include <rtl/ustring.h>
+@@ -86,8 +86,10 @@
+ #ifndef _VCL_IMPDEL_HXX
+ #include <impdel.hxx>
+ #endif
++#ifndef __MINGW32__
+ #define COMPILE_MULTIMON_STUBS
+ #include <multimon.h>
++#endif /* __MINGW32__ */
+ #include <vector>
+ 
+ #include <com/sun/star/uno/Exception.hdl>
+@@ -873,6 +875,7 @@ static void ImplSalCalcFullScreenSize( c
+     else
+         nCaptionY = 0;
+ 
++#ifndef __MINGW32__
+ 	try
+ 	{
+         Reference< XMultiServiceFactory > xFactory( ::comphelper::getProcessServiceFactory(), UNO_QUERY_THROW );
+@@ -900,7 +903,7 @@ static void ImplSalCalcFullScreenSize( c
+ 	catch( Exception& )
+ 	{
+ 	}
+-
++#endif /* __MINGW32__ */
+ 	if( !nScreenDX || !nScreenDY )
+ 	{
+ 	    nScreenDX   = GetSystemMetrics( SM_CXSCREEN );
+@@ -3179,6 +3182,41 @@ SalFrame::SalPointerState WinSalFrame::G
+ 
+ // -----------------------------------------------------------------------
+ 
++SalFrame::SalIndicatorState WinSalFrame::GetIndicatorState()
++{
++    SalIndicatorState aState;
++    aState.mnState = 0;
++    if (::GetKeyState(VK_CAPITAL))
++        aState.mnState |= INDICATOR_CAPSLOCK;
++
++    if (::GetKeyState(VK_NUMLOCK))
++        aState.mnState |= INDICATOR_NUMLOCK;
++
++    if (::GetKeyState(VK_SCROLL))
++        aState.mnState |= INDICATOR_SCROLLLOCK;
++
++    return aState;
++}
++
++void WinSalFrame::SimulateKeyPress( USHORT nKeyCode )
++{
++    BYTE nVKey = 0;
++    switch (nKeyCode)
++    {
++        case KEY_CAPSLOCK:
++            nVKey = VK_CAPITAL;
++        break;
++    }
++
++    if (nVKey > 0 && nVKey < 255)
++    {
++        ::keybd_event(nVKey, 0x45, KEYEVENTF_EXTENDEDKEY, 0);
++        ::keybd_event(nVKey, 0x45, KEYEVENTF_EXTENDEDKEY|KEYEVENTF_KEYUP, 0);
++    }
++}
++
++// -----------------------------------------------------------------------
++
+ void WinSalFrame::SetBackgroundBitmap( SalBitmap* )
+ {
+ }
+@@ -5592,6 +5630,7 @@ static BOOL ImplHandleIMEEndComposition(
+ static void ImplHandleAppCommand( HWND hWnd, LPARAM lParam )
+ {
+ 	sal_Int16 nCommand = 0;
++#ifndef __MINGW32__
+ 	switch( GET_APPCOMMAND_LPARAM(lParam) )
+ 	{
+ 	case APPCOMMAND_MEDIA_CHANNEL_DOWN:			nCommand = MEDIA_COMMAND_CHANNEL_DOWN; break;
+@@ -5615,7 +5654,7 @@ static void ImplHandleAppCommand( HWND h
+ 	default:
+ 		return;
+ 	}
+-
++#endif /* __MINGW32__ */
+     WinSalFrame* pFrame = GetWindowPtr( hWnd );
+ 	Window *pWindow = pFrame ? pFrame->GetWindow() : NULL;
+ 
+@@ -6100,10 +6139,11 @@ LRESULT CALLBACK SalFrameWndProc( HWND h
+         case WM_IME_NOTIFY:
+             ImplHandleIMENotify( hWnd, wParam );
+             break;
+-
++#ifndef __MINGW32__
+ 		case WM_APPCOMMAND:
+ 			ImplHandleAppCommand( hWnd, lParam );
+ 			break;
++#endif /* __MINGW32__ */
+     }
+ 
+     // WheelMouse-Message abfangen
+--- vcl/source/gdi/sallayout.cxx.pristine	2008-10-30 13:15:44.000000000 +0100
++++ vcl/source/gdi/sallayout.cxx	2008-10-30 13:30:19.000000000 +0100
+@@ -35,7 +35,10 @@
+ 
+ #define _USE_MATH_DEFINES
+ #include <math.h>
+-#include <sal/alloca.h>
++#ifdef __MINGW32__
++#include <malloc.h>
++#endif /* __MINGW32__ */
++#include <sal/types.h>
+ 
+ #ifndef _SV_SVSYS_HXX
+ #include <svsys.h>

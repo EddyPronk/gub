@@ -183,3 +183,26 @@
  
  SCP_CHECK_TOOL:=checkscp$E
  
+--- solenv/inc/settings.mk.pristine	2008-10-29 08:42:08.000000000 +0100
++++ solenv/inc/settings.mk	2008-10-30 10:01:59.000000000 +0100
+@@ -752,7 +752,7 @@ COMMONBIN=$(LOCAL_COMMON_OUT)$/bin
+ INC=$(PRJ)$/inc
+ INCPCH=$(PRJ)$/inc$/pch
+ INCLOCAL=..$/inc
+-INCGUI=$(PRJ)$/$(GUIBASE)$/inc
++INCGUI=$(PRJ)$/$(GUIBASE:l)$/inc
+ INCCOM=$(OUT)$/inc
+ INCCOMX=$(OUT)$/inc
+ INCUNOIDL=$(INCCOM)$/$(PRJNAME)
+@@ -1050,7 +1050,11 @@ JAVA*:=$(JAVAINTERPRETER)
+ SCPCOMP=$(PERL) $(SOLARENV)$/bin$/pre2par.pl
+ SCPLINK=$(PERL) $(SOLARENV)$/bin$/par2script.pl
+ LZIP*=lzip
++.IF "$(GUI)" == "UNX" || "$(BUILD_OS)" != "WNT"
++CPPLCC*=cpp.lcc
++.ELSE
+ CPPLCC*=cpplcc
++.ENDIF
+ 
+ .IF "$(DISABLE_ENHANCED_COMID)"==""
+ .INCLUDE : tg_compv.mk

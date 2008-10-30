@@ -48,16 +48,13 @@
  DEFINE_UNICOWS_THUNK( version, DWORD, WINAPI, VerInstallFileW, (DWORD,LPWSTR,LPWSTR,LPWSTR,LPWSTR,LPWSTR,LPWSTR,PUINT) )
 --- onlinecheck.cxx	10 apr 2008 14:11:15 +0200	1.8
 +++ sal/systools/win32/onlineupdate/onlinecheck.cxx	22 okt 2008 10:56:53 +0200	
-@@ -45,8 +45,11 @@
+@@ -45,8 +45,8 @@
  #endif
  #include <tchar.h>
  #ifdef __MINGW32__
 -#include <excpt.h>
 -#endif
 +#include <sehandler.h>
-+// not implemented in mingw, only in wine...
-+//BOOL WINAPI InternetGetConnectedStateEx(LPDWORD,LPTSTR,DWORD,DWORD);
-+#define InternetGetConnectedStateEx(a,b,c,d) InternetGetConnectedState(a,c)
 +#endif /* __MINGW32__ */
  
  #define elementsof(a) (sizeof(a)/sizeof((a)[0]))

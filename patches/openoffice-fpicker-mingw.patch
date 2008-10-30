@@ -1,0 +1,121 @@
+--- fpicker/source/win32/folderpicker/MtaFop.hxx.pristine	2008-10-29 21:13:36.000000000 +0100
++++ fpicker/source/win32/folderpicker/MtaFop.hxx	2008-10-29 21:13:55.000000000 +0100
+@@ -48,7 +48,7 @@
+ #if defined _MSC_VER
+ #pragma warning(pop)
+ #endif
+-#include "..\misc\WinImplHelper.hxx"
++#include "../misc/WinImplHelper.hxx"
+ 
+ //----------------------------------------------------------------
+ // a simple helper class used to provide a buffer for different
+--- fpicker/source/win32/folderpicker/workbench/Test_fops.cxx.pristine	2008-10-29 21:13:36.000000000 +0100
++++ fpicker/source/win32/folderpicker/workbench/Test_fops.cxx	2008-10-29 21:13:36.000000000 +0100
+@@ -62,7 +62,7 @@
+ #include <stdio.h>
+ 
+ #ifndef _FPSERVICEINFO_HXX_
+-#include "..\FOPServiceInfo.hxx"
++#include "../FOPServiceInfo.hxx"
+ #endif
+ 
+ #include <osl/file.hxx>
+--- fpicker/source/win32/folderpicker/MtaFop.cxx.pristine	2008-10-29 21:13:36.000000000 +0100
++++ fpicker/source/win32/folderpicker/MtaFop.cxx	2008-10-29 21:13:56.000000000 +0100
+@@ -36,7 +36,7 @@
+ #include "MtaFop.hxx"
+ #include <wchar.h>
+ #include <process.h>
+-#include "..\misc\resourceprovider.hxx"
++#include "../misc/resourceprovider.hxx"
+ 
+ #include <systools/win32/comtools.hxx>
+ 
+--- fpicker/source/win32/filepicker/FilePicker.cxx.pristine	2008-10-29 21:13:36.000000000 +0100
++++ fpicker/source/win32/filepicker/FilePicker.cxx	2008-10-29 21:13:56.000000000 +0100
+@@ -46,7 +46,7 @@
+ #include "WinFileOpenImpl.hxx"
+ 
+ #include "FPServiceInfo.hxx"
+-#include "..\misc\WinImplHelper.hxx"
++#include "../misc/WinImplHelper.hxx"
+ #include <com/sun/star/ui/dialogs/TemplateDescription.hpp>
+ #include "filepickereventnotification.hxx"
+ 
+--- fpicker/source/win32/filepicker/VistaFilePicker.cxx.pristine	2008-10-29 21:13:36.000000000 +0100
++++ fpicker/source/win32/filepicker/VistaFilePicker.cxx	2008-10-29 21:13:57.000000000 +0100
+@@ -41,7 +41,7 @@
+ 
+ #include "VistaFilePicker.hxx"
+ #include "WinFileOpenImpl.hxx"
+-#include "..\misc\WinImplHelper.hxx"
++#include "../misc/WinImplHelper.hxx"
+ #include "shared.hxx"
+ 
+ #include <com/sun/star/lang/DisposedException.hpp>
+--- fpicker/source/win32/filepicker/controlaccess.cxx.pristine	2008-10-29 21:13:36.000000000 +0100
++++ fpicker/source/win32/filepicker/controlaccess.cxx	2008-10-29 21:13:57.000000000 +0100
+@@ -38,7 +38,7 @@
+ #include <tchar.h>
+ #include <osl/diagnose.h>
+ #include "controlaccess.hxx"
+-#include "..\misc\WinImplHelper.hxx"
++#include "../misc/WinImplHelper.hxx"
+ 
+ //------------------------------------------------------------
+ // we are using a table based algorithm to dispatch control 
+--- fpicker/source/win32/filepicker/WinFileOpenImpl.hxx.pristine	2008-10-29 21:13:36.000000000 +0100
++++ fpicker/source/win32/filepicker/WinFileOpenImpl.hxx	2008-10-29 21:13:56.000000000 +0100
+@@ -47,7 +47,7 @@
+ #include "helppopupwindow.hxx"
+ #include "customcontrol.hxx"
+ #include "customcontrolfactory.hxx"
+-#include "..\misc\resourceprovider.hxx"
++#include "../misc/resourceprovider.hxx"
+ 
+ #include <utility>
+ #include <memory>
+--- fpicker/source/win32/filepicker/WinFileOpenImpl.cxx.pristine	2008-10-29 21:13:36.000000000 +0100
++++ fpicker/source/win32/filepicker/WinFileOpenImpl.cxx	2008-10-29 21:13:57.000000000 +0100
+@@ -45,7 +45,7 @@
+ #include <com/sun/star/ui/dialogs/CommonFilePickerElementIds.hpp>
+ #include <com/sun/star/ui/dialogs/FilePreviewImageFormats.hpp>
+ #include <com/sun/star/ui/dialogs/ListBoxControlActions.hpp>
+-#include "..\misc\WinImplHelper.hxx"
++#include "../misc/WinImplHelper.hxx"
+ 
+ #ifndef _FILEPICKER_HXX_
+ #include "filepicker.hxx"
+--- fpicker/source/win32/filepicker/workbench/Test_fps.cxx.pristine	2008-10-29 21:13:36.000000000 +0100
++++ fpicker/source/win32/filepicker/workbench/Test_fps.cxx	2008-10-29 21:13:36.000000000 +0100
+@@ -70,7 +70,7 @@
+ #include <stdio.h>
+ #include <windows.h>
+ 
+-#include "..\FPServiceInfo.hxx"
++#include "../FPServiceInfo.hxx"
+ 
+ //
+ //	namesapces
+--- fpicker/source/win32/filepicker/filepickerstate.cxx.pristine	2008-10-29 21:13:36.000000000 +0100
++++ fpicker/source/win32/filepicker/filepickerstate.cxx	2008-10-29 21:13:57.000000000 +0100
+@@ -49,7 +49,7 @@
+ #include "FileOpenDlg.hxx"
+ 
+ #include <memory>
+-#include "..\misc\WinImplHelper.hxx"
++#include "../misc/WinImplHelper.hxx"
+ //---------------------------------------------
+ //
+ //---------------------------------------------
+--- fpicker/source/win32/filepicker/FPentry.cxx.pristine	2008-10-29 21:13:36.000000000 +0100
++++ fpicker/source/win32/filepicker/FPentry.cxx	2008-10-29 21:13:56.000000000 +0100
+@@ -42,7 +42,7 @@
+ 
+ #pragma warning (disable:4917)
+ #include "VistaFilePicker.hxx"
+-#include "..\misc\WinImplHelper.hxx"
++#include "../misc/WinImplHelper.hxx"
+ #include <stdio.h>
+ 
+ //-----------------------------------------------
