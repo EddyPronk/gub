@@ -86,6 +86,9 @@ class Gmp__mingw (Gmp):
 mv %(install_prefix)s/lib/*dll %(install_prefix)s/bin || true
 ''')
 
+class Gmp__freebsd (Gmp):
+    source = 'ftp://ftp.gnu.org/pub/gnu/gmp/gmp-4.2.4.tar.gz'
+
 class Gmp__tools (tools.AutoBuild, Gmp):
     source = Gmp.source
     def get_build_dependencies (self):
