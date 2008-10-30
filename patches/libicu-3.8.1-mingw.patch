@@ -1,0 +1,11 @@
+--- libicu-3.8.1/source/common/unicode/umachine.h~	2008-10-28 16:26:27.000000000 +0100
++++ libicu-3.8.1/source/common/unicode/umachine.h	2008-10-30 12:01:08.000000000 +0100
+@@ -43,7 +43,7 @@
+ 
+ #if defined(U_PALMOS)
+ #   include "unicode/ppalmos.h"
+-#elif defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
++#elif (defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)) && ! defined(__MINGW32__)
+ #   include "unicode/pwin32.h"
+ #else
+ #   include "unicode/platform.h"
