@@ -634,6 +634,24 @@ mkdir -p %(install_prefix)s/share/doc/%(name)s
         # FIXME: ugly workaround needed for lilypond package...
         return '%(version)s'
 
+    # Used in mingw python and liblpsolve.  Better replace this by
+    # fixing the gcc linking command?
+    def generate_dll_a_and_la (self, libname, depend=''):
+        # ugh, atexit, _onexit mutliply defined in crt2.o
+        self.system (misc.join_lines ('''
+cd %(install_prefix)s
+&& echo EXPORTS > lib/lib%(libname)s.a.def
+&& %(toolchain_prefix)snm bin/lib%(libname)s.dll | grep ' T _' | sed -e 's/.* T _//' | grep -Ev '^(atexit|_onexit)$' >> lib/lib%(libname)s.a.def
+&& (grep '@' lib/lib%(libname)s.a.def | sed -e 's/@.*//' >> lib/lib%(libname)s.a.def || :)
+&& %(toolchain_prefix)sdlltool --def lib/lib%(libname)s.a.def --dllname bin/lib%(libname)s.dll --output-lib lib/lib%(libname)s.dll.a
+'''), locals ())
+        self.file_sub ([('LIBRARY', '%(libname)s'),
+                        ('STATICLIB', ''),
+                        ('DEPEND', ' %(depend)s'),
+                        ('LIBDIR', '%(prefix_dir)s/lib')],
+                       '%(sourcefiledir)s/libtool.la',
+                       '%(install_prefix)s/lib/lib%(libname)s.la', env=locals ())
+
 class BinaryBuild (AutoBuild):
     def stages (self):
         return ['untar', 'install', 'package', 'clean']
