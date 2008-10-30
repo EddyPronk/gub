@@ -137,18 +137,24 @@ cp %(install_prefix)s/lib/python%(python_version)s/lib-dynload/* %(install_prefi
         self.system ('''
 chmod 755 %(install_prefix)s/bin/*
 ''')
+        self.generate_dll_a_and_la ('python2.4', '-lpthread')
+
+    #FIXME: promoteme to build.py copies in python.py and lpsolve.py
+    def generate_dll_a_and_la (self, libname, depend=''):
+        # ugh, atexit, _onexit mutliply defined in crt2.o
+###&& %(toolchain_prefix)snm bin/lib%(libname)s.dll | grep ' T _' | sed -e 's/.* T _//' | grep -Ev '^(atexit|_onexit)@*.*' >> lib/lib%(libname)s.a.def
         self.system (misc.join_lines ('''
 cd %(install_prefix)s
-&& echo EXPORTS > lib/libpython2.4.a.def
-&& %(toolchain_prefix)snm bin/libpython2.4.dll | grep ' T _' | sed -e 's/.* T _//' -e 's/@.*//' >> lib/libpython2.4.a.def
-&& %(toolchain_prefix)sdlltool --def lib/libpython2.4.a.def --dllname bin/libpython2.4.dll --output-lib lib/libpython2.4.dll.a
-'''))
-        self.copy ('%(sourcefiledir)s/libtool.la', '%(install_prefix)s/lib/libpython2.4.la')
-        self.file_sub ([('LIBRARY', 'python2.4'),
+&& echo EXPORTS > lib/lib%(libname)s.a.def
+&& %(toolchain_prefix)snm bin/lib%(libname)s.dll | grep ' T _' | sed -e 's/.* T _//' -e 's/@.*//' | grep -Ev '^(atexit|_onexit)$' >> lib/lib%(libname)s.a.def
+&& %(toolchain_prefix)sdlltool --def lib/lib%(libname)s.a.def --dllname bin/lib%(libname)s.dll --output-lib lib/lib%(libname)s.dll.a
+'''), locals ())
+        self.file_sub ([('LIBRARY', '%(libname)s'),
                         ('STATICLIB', ''),
-                        ('DEPEND', ' -lpthread'),
+                        ('DEPEND', ' %(depend)s'),
                         ('LIBDIR', '%(prefix_dir)s/lib')],
-                       '%(install_prefix)s/lib/libpython2.4.la')
+                       '%(sourcefiledir)s/libtool.la',
+                       '%(install_prefix)s/lib/lib%(libname)s.la', env=locals ())
 
 class Python__tools (toolsbuild.AutoBuild, Python):
     source = 'http://python.org/ftp/python/2.4.5/Python-2.4.5.tar.bz2'
