@@ -42,6 +42,18 @@ PKGDATA_INVOKE_OPTS="BINDIR='\$\$(top_builddir)/bin-native' LIBDIR='\$\$(top_bui
 
 class Libicu__mingw (Libicu):
     patches = Libicu.patches + ['libicu-3.8.1-uintptr-t.patch', 'libicu-3.8.1-cross-mingw.patch', 'libicu-3.8.1-mingw.patch']
+    def configure_command (self):
+        return (Libicu.configure_command (self)
+                + misc.join_lines ('''
+--disable-threads
+'''))
+    def configure (self):
+        Libicu.configure (self)
+        self.dump ('''
+#define S_IROTH S_IREAD
+#define S_IXOTH S_IXUSR
+''',
+                   '%(builddir)s/common/unicode/platform.h', mode='a')
     def compile_native (self):
         Libicu.compile_native (self)
         self.system ('cd %(builddir)s/bin-native && mv pkgdata pkgdata.bin')
@@ -55,10 +67,3 @@ $dir/$(basename $0).bin "$@" | sed -e 's/lib$(LIBNAME).so/$(LIBNAME).dll/g'
 ''',
              '%(builddir)s/bin-native/pkgdata',
                    permissions=0755)
-    def configure (self):
-        Libicu.configure (self)
-        self.dump ('''
-#define S_IROTH S_IREAD
-#define S_IXOTH S_IXUSR
-''',
-                   '%(builddir)s/common/unicode/platform.h', mode='a')

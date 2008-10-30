@@ -14,6 +14,11 @@ class Libxml2 (target.AutoBuild):
         return 'xml2-config'
 
 class Libxml2__mingw (Libxml2):
+    def configure_command (self):
+        return (Libxml2.configure_command (self)
+                + misc.join_lines ('''
+--without-threads
+'''))
     def install (self):
         Libxml2.install (self)
         self.copy ('%(install_prefix)s/lib/libxml2.la', '%(install_prefix)s/lib/libxml2-2.la')

@@ -1,3 +1,4 @@
+from gub import misc
 from gub import target
 
 class Db (target.AutoBuild):
@@ -49,7 +50,12 @@ touch %(builddir)s/build_unix/arpa/inet.h
         self.file_sub ([('dbenv', 'env')], '%(builddir)s/os/os_yield.c')
     def configure_command (self):
         return (Db.configure_command (self)
-                + ' LDFLAGS=-lwsock32')
+                + misc.join_lines ('''
+--disable-posixmutexes
+--disable-mutexsupport
+--disable-pthread_api
+LDFLAGS=-lwsock32
+'''))
     def install (self):
         target.AutoBuild.install (self)
         self.system ('rm -f %(install_prefix)s/{bin,lib}/libdb.{{,so,dll}{,.a},la}')
