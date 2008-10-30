@@ -1,7 +1,7 @@
 from gub import misc
-from gub import targetbuild
+from gub import target
 
-class Pthreads_w32 (targetbuild.MakeBuild):
+class Pthreads_w32 (target.MakeBuild):
     source = 'ftp://sourceware.org/pub/pthreads-win32/pthreads-w32-2-8-0-release.tar.gz'
     def makeflags (self):
         return 'GC CROSS=%(toolchain_prefix)s'

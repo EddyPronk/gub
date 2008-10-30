@@ -1,12 +1,12 @@
 from gub import misc
-from gub import targetbuild
+from gub import target
 
-class Redland (targetbuild.AutoBuild):
+class Redland (target.AutoBuild):
     source = 'http://download.librdf.org/source/redland-1.0.8.tar.gz'
     def get_build_dependencies (self):
         return ['rasqal-devel', 'sqlite-devel']
     def configure_command (self):
-        return (targetbuild.AutoBuild.configure_command (self)
+        return (target.AutoBuild.configure_command (self)
                 + misc.join_lines ('''
  --without-mysql
  --without-postgresql

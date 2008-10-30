@@ -1,17 +1,17 @@
 from gub import loggedos
 from gub import misc
-from gub import targetbuild
+from gub import target
 #
 import os
 
 # TODO: AutoToolSpec
-class BjamBuild (targetbuild.MakeBuild):
+class BjamBuild (target.MakeBuild):
     def __init__ (self, settings, source):
-        targetbuild.AutoBuild.__init__ (self, settings, source)
-        targetbuild.append_target_dict (self, {'CFLAGS': ''})
+        target.AutoBuild.__init__ (self, settings, source)
+        target.append_target_dict (self, {'CFLAGS': ''})
     def get_substitution_dict (self, env={}):
         # FIXME: how to add settings to dict?
-        dict = targetbuild.AutoBuild.get_substitution_dict (self, env)
+        dict = target.AutoBuild.get_substitution_dict (self, env)
         dict['CFLAGS'] = ''
         return dict
     def compile_command (self):
@@ -53,7 +53,7 @@ class Boost (BjamBuild):
     source = 'http://surfnet.dl.sourceforge.net/sourceforge/boost/boost_1_33_1.tar.bz2'
     def __init__ (self, settings, source):
         BjamBuild.__init__ (self, settings, source)
-        targetbuild.change_target_dict (self, {'CFLAGS': '-DBOOST_PLATFORM_CONFIG=\\"boost/config/platform/linux.hpp\\"'})
+        target.change_target_dict (self, {'CFLAGS': '-DBOOST_PLATFORM_CONFIG=\\"boost/config/platform/linux.hpp\\"'})
     def get_substitution_dict (self, env={}):
         dict = BjamBuild.get_substitution_dict (self, env)
         dict['CFLAGS'] = '-DBOOST_PLATFORM_CONFIG=\\"boost/config/platform/linux.hpp\\"'

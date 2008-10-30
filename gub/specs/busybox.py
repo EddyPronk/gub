@@ -1,10 +1,10 @@
 from gub import context
-from gub import targetbuild
+from gub import target
 
 # miscutils/taskset.c:18: warning: function declaration isn't a prototype
 # cpu_set_t
 
-class Busybox (targetbuild.AutoBuild):
+class Busybox (target.AutoBuild):
     source = 'http://busybox.net/downloads/busybox-1.5.1.tar.bz2'
     def get_subpackage_names (self):
         return ['']
@@ -15,7 +15,7 @@ class Busybox (targetbuild.AutoBuild):
         return 'autoconf.h'
     def configure (self):
         self.shadow ()
-        targetbuild.AutoBuild.configure (self)
+        target.AutoBuild.configure (self)
         self.file_sub ([('^# CONFIG_FEATURE_SH_IS_ASH is not set', 'CONFIG_FEATURE_SH_IS_ASH=y'),
                         ('^CONFIG_FEATURE_SH_IS_NONE=y', '# CONFIG_FEATURE_SH_IS_NONE is not set'),
                         ('^CONFIG_FEATURE_SH_STANDALONE_SHELL=y', '# CONFIG_FEATURE_SH_STANDALONE_SHELL is not set')],
@@ -25,7 +25,7 @@ cd %(builddir)s && make include/%(autoconf_h)s > /dev/null 2>&1''')
     def makeflags (self):
         return ' CROSS_COMPILE=%(toolchain_prefix)s CONFIG_PREFIX=%(install_root)s'
     def install (self):
-        targetbuild.AutoBuild.install (self)
+        target.AutoBuild.install (self)
         self.system ('''
 cd %(install_root)s && mv sbin/init sbin/init.busybox
 ''')

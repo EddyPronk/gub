@@ -2,13 +2,13 @@ import os
 #
 from gub import cross
 from gub import misc
-from gub import toolsbuild
+from gub import tools
 
-class Nsis (toolsbuild.SConsBuild):
+class Nsis (tools.SConsBuild):
     source = 'http://surfnet.dl.sourceforge.net/sourceforge/nsis/nsis-2.37-src.tar.bz2'
     #ource = ':pserver:anonymous@nsis.cvs.sourceforge.net:/cvsroot/nsis&module=NSIS&tag=HEAD'
     def __init__ (self, settings, source):
-        toolsbuild.AutoBuild.__init__ (self, settings, source)
+        tools.AutoBuild.__init__ (self, settings, source)
         if 'x86_64-linux' in self.settings.build_architecture:
             cross.change_target_package_x86 (self, self.add_mingw_env ())
     def add_mingw_env (self):
@@ -43,7 +43,7 @@ Export('defenv')
 ''')],
                        '%(srcdir)s/SConstruct')
     def compile_command (self):
-        return (toolsbuild.SConsBuild.compile_command (self)
+        return (tools.SConsBuild.compile_command (self)
                 + misc.join_lines ('''
 DEBUG=yes
 NSIS_CONFIG_LOG=yes

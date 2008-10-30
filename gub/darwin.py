@@ -3,7 +3,7 @@ import re
 import os
 #
 from gub import context
-from gub import targetbuild
+from gub import target
 from gub import loggedos
 
 darwin_sdk_version = '0.4'
@@ -139,7 +139,7 @@ def change_target_package (p):
     p.get_dependency_dict = misc.MethodOverrider (p.get_dependency_dict,
                                                   strip_dependency_dict,
                                                   (['zlib', 'zlib-devel'],))
-    targetbuild.change_target_dict (p, {
+    target.change_target_dict (p, {
 
             ## We get a lot of /usr/lib/ -> @executable_path/../lib/
             ## we need enough space in the header to do these relocs.

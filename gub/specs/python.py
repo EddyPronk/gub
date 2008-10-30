@@ -4,13 +4,13 @@ import sys
 from gub import build
 from gub import context
 from gub import misc
-from gub import targetbuild
-from gub import toolsbuild
+from gub import target
+from gub import tools
 
-class Python (targetbuild.AutoBuild):
+class Python (target.AutoBuild):
     source = 'http://python.org/ftp/python/2.4.2/Python-2.4.2.tar.bz2'
     def __init__ (self, settings, source):
-        targetbuild.AutoBuild.__init__ (self, settings, source)
+        target.AutoBuild.__init__ (self, settings, source)
         ## don't from gub import settings from build system.
 	self.BASECFLAGS = ''
         self.CROSS_ROOT = '%(targetdir)s'
@@ -27,7 +27,7 @@ class Python (targetbuild.AutoBuild):
                  'runtime': [], }
 
     def patch (self):
-        targetbuild.AutoBuild.patch (self)
+        target.AutoBuild.patch (self)
         self.apply_patch ('python-2.4.2-1.patch')
         self.apply_patch ('python-configure.in-posix.patch', strip_component=0)
         self.apply_patch ('python-configure.in-sysname.patch', strip_component=0)
@@ -43,20 +43,20 @@ class Python (targetbuild.AutoBuild):
     def compile_command (self):
         ##
         ## UGH.: darwin Python vs python (case insensitive FS)
-        c = targetbuild.AutoBuild.compile_command (self)
+        c = target.AutoBuild.compile_command (self)
         c += ' BUILDPYTHON=python-bin '
         return c
 
     def install_command (self):
         ##
         ## UGH.: darwin Python vs python (case insensitive FS)
-        c = targetbuild.AutoBuild.install_command (self)
+        c = target.AutoBuild.install_command (self)
         c += ' BUILDPYTHON=python-bin '
         return c
 
     # FIXME: c&p linux.py:install ()
     def install (self):
-        targetbuild.AutoBuild.install (self)
+        target.AutoBuild.install (self)
         cfg = open (self.expand ('%(sourcefiledir)s/python-config.py.in')).read ()
         cfg = re.sub ('@PYTHON_VERSION@', self.expand ('%(version)s'), cfg)
         cfg = re.sub ('@PREFIX@', self.expand ('%(system_prefix)s/'), cfg)
@@ -156,13 +156,13 @@ cd %(install_prefix)s
                        '%(sourcefiledir)s/libtool.la',
                        '%(install_prefix)s/lib/lib%(libname)s.la', env=locals ())
 
-class Python__tools (toolsbuild.AutoBuild, Python):
+class Python__tools (tools.AutoBuild, Python):
     source = 'http://python.org/ftp/python/2.4.5/Python-2.4.5.tar.bz2'
     def get_build_dependencies (self):
         return ['autoconf', 'libtool']
     def force_autoupdate (self):
         return True
     def install (self):
-        toolsbuild.AutoBuild.install (self)
+        tools.AutoBuild.install (self)
     def wrap_executables (self):
         pass

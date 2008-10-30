@@ -1,6 +1,6 @@
-from gub import targetbuild
+from gub import target
 
-class Dhcp (targetbuild.AutoBuild):
+class Dhcp (target.AutoBuild):
     #source = 'http://ftp.isc.org/isc/dhcp/dhcp-4.1.0a2.tar.gz'
     source = 'http://ftp.isc.org/isc/dhcp/dhcp-3.0.7.tar.gz&strip=2'
     def get_subpackage_names (self):
@@ -9,7 +9,7 @@ class Dhcp (targetbuild.AutoBuild):
         return '%(srcdir)s/configure linux-2.2'
     def configure (self):
         self.shadow ()
-        targetbuild.AutoBuild.configure (self)
+        target.AutoBuild.configure (self)
     def makeflags (self):
         from gub import misc
         return misc.join_lines ('''

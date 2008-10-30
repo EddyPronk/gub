@@ -1,7 +1,7 @@
 from gub import misc
-from gub import targetbuild
+from gub import target
 
-class Ffmpeg (targetbuild.AutoBuild):
+class Ffmpeg (target.AutoBuild):
     source='svn://svn.mplayerhq.hu/ffmpeg&branch=trunk&revision=6017'
     def version (self):
         return self.revision
@@ -13,7 +13,7 @@ class Ffmpeg (targetbuild.AutoBuild):
         return {'': self._get_build_dependencies ()}
     def configure_command (self):
         #FIXME: this is autoconf
-        #targetbuild.AutoBuild.configure_command (self)
+        #target.AutoBuild.configure_command (self)
         return misc.join_lines ('''
 CC=%(toolchain_prefix)sgcc CFLAGS=-fPIC %(srcdir)s/configure
 --prefix=%(prefix_dir)s
@@ -35,5 +35,5 @@ CC=%(toolchain_prefix)sgcc CFLAGS=-fPIC %(srcdir)s/configure
 --disable-opts
 ''')
     def install_command (self):
-        return (targetbuild.AutoBuild.install_command (self)
+        return (target.AutoBuild.install_command (self)
                 + ' INSTALLSTRIP=')

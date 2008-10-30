@@ -7,7 +7,7 @@ import pickle
 from gub import context
 from gub import darwin
 from gub import gup
-from gub import targetbuild
+from gub import target
 from gub import context
 from gub import misc
 from gub import versiondb

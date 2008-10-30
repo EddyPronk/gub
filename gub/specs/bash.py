@@ -1,6 +1,6 @@
-from gub import targetbuild
+from gub import target
 
-class Bash (targetbuild.AutoBuild):
+class Bash (target.AutoBuild):
     source = 'ftp://ftp.cwru.edu/pub/bash/bash-3.2.tar.gz'
     def get_build_dependencies (self):
         return ['libtool', 'gettext-devel']

@@ -1,6 +1,6 @@
-from gub import toolsbuild
+from gub import tools
 
-class Librestrict__tools (toolsbuild.MakeBuild):
+class Librestrict__tools (tools.MakeBuild):
     source = 'url://host/librestrict-1.0.tar.gz'
     def shadow (self):
         self.system ('rm -rf %(builddir)s')

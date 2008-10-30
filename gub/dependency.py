@@ -5,8 +5,8 @@ from gub import cross
 from gub import logging
 from gub import misc
 from gub import repository
-from gub import targetbuild
-from gub import toolsbuild
+from gub import target
+from gub import tools
 
 def get_build_from_file (platform, file_name, name):
     gub_name = file_name.replace (os.getcwd () + '/', '')
@@ -91,9 +91,9 @@ class Dependency:
 
     def flavour (self):
         if not self._flavour:
-            self._flavour = targetbuild.AutoBuild
+            self._flavour = target.AutoBuild
             if self.settings.platform == 'tools':
-                self._flavour = toolsbuild.AutoBuild
+                self._flavour = tools.AutoBuild
         return self._flavour
     
     def url (self):

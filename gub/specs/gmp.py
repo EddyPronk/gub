@@ -1,13 +1,13 @@
 import re
 #
-from gub import targetbuild
-from gub import toolsbuild
+from gub import target
+from gub import tools
 
-class Gmp (targetbuild.AutoBuild):
+class Gmp (target.AutoBuild):
     source = 'ftp://ftp.gnu.org/pub/gnu/gmp/gmp-4.2.1.tar.gz'
 
     def __init__ (self, settings, source):
-        targetbuild.AutoBuild.__init__ (self, settings, source)
+        target.AutoBuild.__init__ (self, settings, source)
         if not self.settings.platform.startswith ('darwin'):
             self.target_architecture = re.sub ('i[0-9]86-', 'i386-', settings.target_architecture)
 
@@ -20,13 +20,13 @@ class Gmp (targetbuild.AutoBuild):
         return ['libtool', 'tools::autoconf', 'tools::automake', 'tools::libtool']
 
     def configure_command (self):
-        c = targetbuild.AutoBuild.configure_command (self)
+        c = target.AutoBuild.configure_command (self)
 
         c += ' --disable-cxx '
         return c
 
     def configure (self):
-        targetbuild.AutoBuild.configure (self)
+        target.AutoBuild.configure (self)
         # # FIXME: libtool too old for cross compile
         self.update_libtool ()
         # automake's Makefile.in's too old for new libtool,
@@ -86,7 +86,7 @@ class Gmp__mingw (Gmp):
 mv %(install_prefix)s/lib/*dll %(install_prefix)s/bin || true
 ''')
 
-class Gmp__tools (toolsbuild.AutoBuild, Gmp):
+class Gmp__tools (tools.AutoBuild, Gmp):
     source = Gmp.source
     def get_build_dependencies (self):
         return ['libtool']            

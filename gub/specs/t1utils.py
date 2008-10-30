@@ -1,5 +1,5 @@
-from gub import toolsbuild
+from gub import tools
 
-class T1utils__tools (toolsbuild.AutoBuild):
+class T1utils__tools (tools.AutoBuild):
     source = 'http://www.lcdf.org/type/t1utils-1.33.tar.gz'
 

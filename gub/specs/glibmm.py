@@ -1,6 +1,6 @@
-from gub import targetbuild
+from gub import target
 
-class Glibmm (targetbuild.AutoBuild):
+class Glibmm (target.AutoBuild):
     source = 'http://ftp.gnome.org/pub/GNOME/sources/glibmm/2.12/glibmm-2.12.10.tar.gz'
     def _get_build_dependencies (self):
         return ['glib', 'libsig++']

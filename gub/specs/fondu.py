@@ -1,11 +1,11 @@
-from gub import targetbuild
+from gub import target
 
-class Fondu (targetbuild.AutoBuild):
+class Fondu (target.AutoBuild):
     source = 'http://fondu.sourceforge.net/fondu_src-060102.tgz'
     def srcdir (self):
         return '%(allsrcdir)s/' + ('fondu-%s' % self.version ())
     def patch (self):
-        targetbuild.AutoBuild.patch (self)
+        target.AutoBuild.patch (self)
         self.file_sub ([('wilprefix', 'prefix')],
                        '%(srcdir)s/Makefile.in')
         

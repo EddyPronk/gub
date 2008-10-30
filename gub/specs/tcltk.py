@@ -1,7 +1,7 @@
 from gub import context
-from gub import targetbuild
+from gub import target
  
-class Tcltk (targetbuild.AutoBuild):
+class Tcltk (target.AutoBuild):
     source = 'http://lilypond.org/download/gub-sources/tcltk-8.4.14.tar.gz'
     def license_files (self):
         return ['%(srcdir)s/tcl/license.terms']
@@ -20,7 +20,7 @@ cd %(srcdir)s/tk/ && ./unix/configure --prefix=%(install_prefix)s
         self.system ('cd %(builddir)s/tcl && make DESTDIR=%(install_root)s install')
         self.system ('cd %(builddir)s/tk && make DESTDIR=%(install_root)s install')
     def get_subpackage_definitions (self):
-        s = targetbuild.AutoBuild.get_subpackage_definitions (self)
+        s = target.AutoBuild.get_subpackage_definitions (self)
         s['doc'].append (self.settings.prefix_dir + '/lib/tk8.4/demos')
         return s
     

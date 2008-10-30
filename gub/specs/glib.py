@@ -1,7 +1,7 @@
-from gub import toolsbuild
-from gub import targetbuild
+from gub import tools
+from gub import target
 
-class Glib (targetbuild.AutoBuild):
+class Glib (target.AutoBuild):
     ## 2.12.4 : see bug  http://bugzilla.gnome.org/show_bug.cgi?id=362918
     source = 'http://ftp.gnome.org/pub/GNOME/platform/2.22/2.22.0/sources/glib-2.16.1.tar.bz2'
 
@@ -9,7 +9,7 @@ class Glib (targetbuild.AutoBuild):
         return ['gettext-devel', 'libtool']
 
     def get_dependency_dict (self):
-        d = targetbuild.AutoBuild.get_dependency_dict (self)
+        d = target.AutoBuild.get_dependency_dict (self)
         d[''].append ('gettext')
         return d
     
@@ -18,13 +18,13 @@ class Glib (targetbuild.AutoBuild):
 glib_cv_stack_grows=${glib_cv_stack_grows=no}
 '''
     def configure (self):
-        targetbuild.AutoBuild.configure (self)
+        target.AutoBuild.configure (self)
 
         ## FIXME: libtool too old for cross compile
         self.update_libtool ()
         
     def install (self):
-        targetbuild.AutoBuild.install (self)
+        target.AutoBuild.install (self)
         self.system ('rm %(install_prefix)s/lib/charset.alias',
                      ignore_errors=True)
         
@@ -72,10 +72,10 @@ class Glib__freebsd__64 (Glib__freebsd):
     def configure_command (self):
         return Glib.configure_command (self) + ' --disable-threads --disable-timeloop'
 
-class Glib__tools (toolsbuild.AutoBuild):
+class Glib__tools (tools.AutoBuild):
     source = 'http://ftp.gnome.org/pub/GNOME/platform/2.22/2.22.0/sources/glib-2.16.1.tar.bz2'
     def install (self):
-        toolsbuild.AutoBuild.install (self)
+        tools.AutoBuild.install (self)
         self.system ('rm %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/lib/charset.alias',
                          ignore_errors=True)
     def get_build_dependencies (self):

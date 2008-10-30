@@ -1,8 +1,8 @@
-from gub import targetbuild
+from gub import target
 sf = 'http://surfnet.dl.sourceforge.net/sourceforge/%(name)s/%(name)s-%(ball_version)s.tar.%(format)s'
 sf_gphoto = 'http://surfnet.dl.sourceforge.net/sourceforge/gphoto/%(name)s-%(ball_version)s.tar.%(format)s'
 
-class Libgphoto2 (targetbuild.AutoBuild):
+class Libgphoto2 (target.AutoBuild):
 # -lltdl build problem
 #    source = mirrors.with_template (name='libgphoto2', version='2.3.0', mirror=sf_gphoto)
 # needs libexif >= 0.6.13, which we currently cannot compile/install
@@ -38,9 +38,9 @@ class Libgphoto2 (targetbuild.AutoBuild):
         self.wrap_libusb_config ()
     def configure_command (self):
         return ('PATH=%(srcdir)s:$PATH '
-                + targetbuild.AutoBuild.configure_command (self))
+                + target.AutoBuild.configure_command (self))
     def configure (self):
-        targetbuild.AutoBuild.configure (self)
+        target.AutoBuild.configure (self)
         # # FIXME: libtool too old for cross compile
         self.update_libtool ()
     def makeflags (self):

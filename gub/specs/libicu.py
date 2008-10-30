@@ -2,17 +2,17 @@ from gub import build
 from gub import context
 from gub import loggedos
 from gub import misc
-from gub import targetbuild
+from gub import target
 
-class Libicu (targetbuild.AutoBuild):
+class Libicu (target.AutoBuild):
     source = 'http://download.icu-project.org/files/icu4c/3.8.1/icu4c-3_8_1-src.tgz'
     #http://download.icu-project.org/files/icu4c/4.0/icu4c-4_0-src.tgz
     patches = ['libicu-3.8.1-cross.patch']
     def __init__ (self, settings, source):
-        targetbuild.AutoBuild.__init__ (self, settings, source)
+        target.AutoBuild.__init__ (self, settings, source)
         source._version = '3.8.1'
     def stages (self):
-        return misc.list_insert_before (targetbuild.AutoBuild.stages (self),
+        return misc.list_insert_before (target.AutoBuild.stages (self),
                                         'configure',
                                         ['configure_native', 'compile_native'])
     def autodir (self):
@@ -31,14 +31,14 @@ LIBDIR='$(top_builddir)/lib-native'
 PKGDATA_INVOKE_OPTS="BINDIR='\$\$(top_builddir)/bin-native' LIBDIR='\$\$(top_builddir)/lib-native'"
 ''')
     def compile_native (self):
-        targetbuild.AutoBuild.compile_native (self)
+        target.AutoBuild.compile_native (self)
         def rm (logger, file):
             loggedos.system (logger, 'rm -f %(file)s' % locals ())
         # ugh, should add misc.find () as map_find () to context interface
         # self.map_locate (rm, '%(builddir)s', '*.so.*')
         # self.map_locate (rm, '%(builddir)s', '*.so')
         self.map_locate (rm, '%(builddir)s', '*.o')
-        self.get_substitution_dict = misc.bind_method (targetbuild.AutoBuild.get_substitution_dict, self)
+        self.get_substitution_dict = misc.bind_method (target.AutoBuild.get_substitution_dict, self)
 
 class Libicu__mingw (Libicu):
     patches = Libicu.patches + ['libicu-3.8.1-uintptr-t.patch', 'libicu-3.8.1-cross-mingw.patch', 'libicu-3.8.1-mingw.patch']

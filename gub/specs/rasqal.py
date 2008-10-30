@@ -1,6 +1,6 @@
-from gub import targetbuild
+from gub import target
 
-class Rasqal (targetbuild.AutoBuild):
+class Rasqal (target.AutoBuild):
     source = 'http://download.librdf.org/source/rasqal-0.9.16.tar.gz'
     def get_build_dependencies (self):
         return ['raptor-devel', 'libpcre-devel']

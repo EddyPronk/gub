@@ -1,7 +1,7 @@
-from gub import targetbuild
+from gub import target
 
 ### BROKEN
-class Msys (targetbuild.AutoBuild):
+class Msys (target.AutoBuild):
     source = ':pserver:anonymous@mingw.cvs.sourceforge.net:/cvsroot/mingw&modulemsys/rt/src'
     def patch (self):
         self.system ('cd %(srcdir)s && dos2unix `find -type f`')

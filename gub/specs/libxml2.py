@@ -1,11 +1,11 @@
 from gub import context
 from gub import misc
-from gub import targetbuild
+from gub import target
 
-class Libxml2 (targetbuild.AutoBuild):
+class Libxml2 (target.AutoBuild):
     source = 'http://ftp.gnome.org/pub/GNOME/platform/2.18/2.18.1/sources/libxml2-2.6.27.tar.gz'
     def configure_command (self):
-        return (targetbuild.AutoBuild.configure_command (self)
+        return (target.AutoBuild.configure_command (self)
                 + misc.join_lines ('''
 --without-python
 '''))

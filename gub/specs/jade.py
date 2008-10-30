@@ -1,9 +1,9 @@
 from gub import build
 from gub import commands
 from gub import misc
-from gub import toolsbuild
+from gub import tools
 
-class Jade__tools (toolsbuild.AutoBuild):
+class Jade__tools (tools.AutoBuild):
     source = 'ftp://ftp.jclark.com/pub/jade/jade-1.2.1.tar.gz'
     def get_build_dependencies (self):
         return ['tools::autoconf', 'tools::libtool']
@@ -22,7 +22,7 @@ LD_LIBRARY_PATH=%(system_prefix)s/lib
         return '%(builddir)s/configure'
     def configure (self):
         self.shadow ()
-        toolsbuild.AutoBuild.configure (self)
+        tools.AutoBuild.configure (self)
         self.system ('cd %(builddir)s; for i in $(ls -1dF * |grep /); do make -C $i -f ../Makefile.lib Makefile.lt; done || :')
     def makeflags (self):
         return 'top_builddir=%(builddir)s'

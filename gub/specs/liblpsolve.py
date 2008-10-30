@@ -1,7 +1,7 @@
 from gub import misc
-from gub import targetbuild
+from gub import target
 
-class Liblpsolve (targetbuild.AutoBuild):
+class Liblpsolve (target.AutoBuild):
     source = 'http://surfnet.dl.sourceforge.net/lpsolve/lp_solve_5.5.0.13_source.tar.gz'
     def force_sequential_build (self):
         return True

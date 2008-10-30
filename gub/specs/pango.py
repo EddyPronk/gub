@@ -2,14 +2,14 @@ import re
 #
 from gub import misc
 from gub import loggedos
-from gub import targetbuild
+from gub import target
 
 pango_module_version_regexes = [
     (r'^1\.14', '1.5.0'),
     (r'^1\.20', '1.6.0')
     ]
 
-class Pango (targetbuild.AutoBuild):
+class Pango (target.AutoBuild):
     source = 'http://ftp.gnome.org/pub/GNOME/platform/2.22/2.22.0/sources/pango-1.20.0.tar.bz2'
     patches = ['pango-1.20-substitute-env.patch']
     def get_build_dependencies (self):
@@ -24,11 +24,11 @@ class Pango (targetbuild.AutoBuild):
 ''')
     #FIXME: promoteme to build.py
     def configure_command (self):
-        return (targetbuild.AutoBuild.configure_command (self)
+        return (target.AutoBuild.configure_command (self)
                 + self.configure_flags ())
 
     def configure (self):
-        targetbuild.AutoBuild.configure (self)                
+        target.AutoBuild.configure (self)                
         self.update_libtool ()
 
     def module_version (self):
@@ -58,7 +58,7 @@ ModulesPath = $PANGO_PREFIX/lib/pango/%(pango_module_version)s/modules
         self.copy ('%(sourcefiledir)s/pango.modules', etc)
 
     def install (self):
-        targetbuild.AutoBuild.install (self)
+        target.AutoBuild.install (self)
         mod_version = self.module_version ()
         self.dump ("""
 setfile PANGO_RC_FILE=$INSTALLER_PREFIX/etc/pango/pangorc

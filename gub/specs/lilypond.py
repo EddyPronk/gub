@@ -4,9 +4,9 @@ from gub import build
 from gub import loggedos
 from gub import misc
 from gub import repository
-from gub import targetbuild
+from gub import target
 
-class LilyPond (targetbuild.AutoBuild):
+class LilyPond (target.AutoBuild):
     source = 'git://git.sv.gnu.org/lilypond.git'
     branch = 'master'
 
@@ -15,7 +15,7 @@ class LilyPond (targetbuild.AutoBuild):
     beautiful sheet music from a high-level description file.'''
 
     def __init__ (self, settings, source):
-        targetbuild.AutoBuild.__init__ (self, settings, source)
+        target.AutoBuild.__init__ (self, settings, source)
 
         # FIXME: should add to C_INCLUDE_PATH
         builddir = self.builddir ()
@@ -86,11 +86,11 @@ class LilyPond (targetbuild.AutoBuild):
     def configure (self):
         self.system ('mkdir -p %(builddir)s || true')
         self.system ('cp %(tools_prefix)s/include/FlexLexer.h %(builddir)s/')
-        targetbuild.AutoBuild.configure (self)
+        target.AutoBuild.configure (self)
     
     def configure_command (self):
         ## FIXME: pickup $target-guile-config
-        return (targetbuild.AutoBuild.configure_command (self)
+        return (target.AutoBuild.configure_command (self)
                 + misc.join_lines ('''
 --enable-relocation
 --disable-documentation
@@ -99,10 +99,10 @@ class LilyPond (targetbuild.AutoBuild):
 '''))
 
     def compile (self):
-        targetbuild.AutoBuild.compile (self)
+        target.AutoBuild.compile (self)
 
     def name_version (self):
-        return targetbuild.AutoBuild.name_version (self)
+        return target.AutoBuild.name_version (self)
 
     def build_version (self):
         d = misc.grok_sh_variables_str (self.source.read_file ('VERSION'))
@@ -114,7 +114,7 @@ class LilyPond (targetbuild.AutoBuild):
         return 'LilyPond'
     
     def install (self):
-        targetbuild.AutoBuild.install (self)
+        target.AutoBuild.install (self)
         # FIXME: This should not be in generic package, for installers only.
         self.installer_install_stuff ()
 
@@ -245,7 +245,7 @@ LDFLAGS="%(LDFLAGS)s %(python_lib)s"
 
     def install (self):
         ##LilyPond.install (self)
-        targetbuild.AutoBuild.install (self)
+        target.AutoBuild.install (self)
         self.install_doc ()
 
     def install_doc (self):
@@ -388,7 +388,7 @@ cd %(builddir)s && make -C scripts PYTHON=/usr/bin/python
         LilyPond.compile (self)
 
     def install (self):
-        targetbuild.AutoBuild.install (self)
+        target.AutoBuild.install (self)
 
     def get_build_dependencies (self):
         #FIXME: aargh, MUST specify gs,  etc here too.

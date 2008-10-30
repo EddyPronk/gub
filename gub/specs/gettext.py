@@ -1,7 +1,7 @@
-from gub import targetbuild
-from gub import toolsbuild
+from gub import target
+from gub import tools
 
-class Gettext (targetbuild.AutoBuild):
+class Gettext (target.AutoBuild):
     # 0.16.1 makes gcc barf on ICE.
     source = 'ftp://ftp.gnu.org/pub/gnu/gettext/gettext-0.15.tar.gz'
 
@@ -9,11 +9,11 @@ class Gettext (targetbuild.AutoBuild):
         return ['libtool']
 
     def configure_command (self):
-        return (targetbuild.AutoBuild.configure_command (self)
+        return (target.AutoBuild.configure_command (self)
                 + ' --disable-threads --disable-csharp --disable-java ')
 
     def configure (self):
-        targetbuild.AutoBuild.configure (self)
+        target.AutoBuild.configure (self)
 
         ## FIXME: libtool too old for cross compile
         self.update_libtool ()
@@ -77,11 +77,11 @@ jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
         self.update_libtool ()
         Gettext.install (self)
 
-class Gettext__tools (toolsbuild.AutoBuild):
+class Gettext__tools (tools.AutoBuild):
     def get_build_dependencies (self):
         return ['libtool']
     def configure (self):
-        toolsbuild.AutoBuild.configure (self)
+        tools.AutoBuild.configure (self)
         self.file_sub ([
                 ('(SUBDIRS *=.*)examples', r'\1 '),
                 ],

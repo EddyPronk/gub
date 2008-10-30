@@ -9,7 +9,7 @@ from gub import build
 from gub import cross
 from gub import misc
 from gub import repository
-from gub import targetbuild
+from gub import target
 from gub import w32
 
 def untar_cygwin_src_package_variant2 (self, file_name, split=False):

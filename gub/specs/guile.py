@@ -3,13 +3,13 @@ import os
 from gub import misc
 from gub import loggedos
 from gub import repository
-from gub import targetbuild
+from gub import target
 
-class Guile (targetbuild.AutoBuild):
+class Guile (target.AutoBuild):
     source = 'git://git.sv.gnu.org/guile.git&branch=branch_release-1-8&revision=release_1-8-4'
     
     def __init__ (self, settings, source):
-        targetbuild.AutoBuild.__init__ (self, settings, source)
+        target.AutoBuild.__init__ (self, settings, source)
         if isinstance (source, repository.Repository):
             source.version = lambda: '1.8.4'
         self.so_version = '17'
@@ -49,7 +49,7 @@ exec %(tools_prefix)s/bin/guile "$@"
 ''', "%(srcdir)s/pre-inst-guile.in")
             
         self.autogen_sh ()
-        targetbuild.AutoBuild.patch (self)
+        target.AutoBuild.patch (self)
 
     def configure_flags (self):
         return misc.join_lines ('''
@@ -64,12 +64,12 @@ exec %(tools_prefix)s/bin/guile "$@"
         
     def configure_command (self):
         return ('GUILE_FOR_BUILD=%(tools_prefix)s/bin/guile '
-                + targetbuild.AutoBuild.configure_command (self)
+                + target.AutoBuild.configure_command (self)
                 + self.configure_flags ())
 
     def compile_command (self):
         return ('preinstguile=%(tools_prefix)s/bin/guile ' +
-                targetbuild.AutoBuild.compile_command (self))
+                target.AutoBuild.compile_command (self))
     
     def compile (self):
 
@@ -79,14 +79,14 @@ exec %(tools_prefix)s/bin/guile "$@"
         self.system ('cd %(builddir)s/libguile && make libpath.h')
         self.file_sub ([('''-L *%(system_root)s''', '-L')],
                        '%(builddir)s/libguile/libpath.h')
-        targetbuild.AutoBuild.compile (self)
+        target.AutoBuild.compile (self)
 
     def configure (self):
-        targetbuild.AutoBuild.configure (self)
+        target.AutoBuild.configure (self)
         self.update_libtool ()
 
     def install (self):
-        targetbuild.AutoBuild.install (self)
+        target.AutoBuild.install (self)
         majmin_version = '.'.join (self.expand ('%(version)s').split ('.')[0:2])
         
         self.dump ("prependdir GUILE_LOAD_PATH=$INSTALLER_PREFIX/share/guile/%(majmin_version)s\n",
@@ -161,7 +161,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_prefix)s/lib"}
 
     def configure (self):
         if 0: # using patch
-            targetbuild.AutoBuild.autoupdate (self)
+            target.AutoBuild.autoupdate (self)
 
         if 1:
             self.file_sub ([('''^#(LIBOBJS=".*fileblocks.*)''',
@@ -325,12 +325,12 @@ guile-tut').
 """,
     }
 
-from gub import toolsbuild
+from gub import tools
 from gub import build
-class Guile__tools (toolsbuild.AutoBuild, Guile):
+class Guile__tools (tools.AutoBuild, Guile):
     source = Guile.source
     def get_build_dependencies (self):
-        return (toolsbuild.AutoBuild.get_build_dependencies (self)
+        return (tools.AutoBuild.get_build_dependencies (self)
                 + Guile.get_build_dependencies (self)
                 + ['autoconf', 'automake', 'gettext', 'libtool', 'git'])
 
@@ -338,17 +338,17 @@ class Guile__tools (toolsbuild.AutoBuild, Guile):
         self.autogen_sh ()
 
     def configure_command (self):
-        return (toolsbuild.AutoBuild.configure_command (self)
+        return (tools.AutoBuild.configure_command (self)
                 + self.configure_flags ())
 
     def configure (self):
-        toolsbuild.AutoBuild.configure (self)
+        tools.AutoBuild.configure (self)
 #        self.update_libtool ()
 
     def install (self):
         ## guile runs fine without wrapper (if it doesn't, use the
         ## relocation patch), while a sh wrapper breaks executable
-        ## scripts toolsbuild.AutoBuild.install (self)
+        ## scripts tools.AutoBuild.install (self)
         build.AutoBuild.install (self)
 
         ## don't want tools GUILE headers to interfere with compile.

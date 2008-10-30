@@ -1,8 +1,8 @@
 from gub import misc
-from gub import targetbuild
+from gub import target
 from gub.specs import glibc
 
-# Hmm? TARGET_CFLAGS=-O --> targetbuild.py
+# Hmm? TARGET_CFLAGS=-O --> target.py
 
 class Glibc_core (glibc.Glibc):
     source = 'http://lilypond.org/download/gub-sources/glibc-2.3-20070416.tar.bz2'

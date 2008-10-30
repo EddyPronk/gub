@@ -23,7 +23,7 @@ from gub import logging
 from gub import loggedos
 from gub import misc
 import gub.settings
-from gub import targetbuild
+from gub import target
 
 class GupException (Exception):
     pass
@@ -122,9 +122,6 @@ class FileManager:
         if file.startswith ('./'):
             file = file[2:]
         dir = os.path.dirname (file)
-        print 'must_succeed=', ('tools/root' not in self.root
-                                         and 'cross' not in dir)
-        print 'ROET:', self.root
         loggedos.file_sub (logging.default_logger,
                            [('^libdir=.*',
                              """libdir='%(root)s/%(dir)s'""" % locals ()

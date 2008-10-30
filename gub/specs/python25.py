@@ -3,20 +3,20 @@ import sys
 #
 from gub import context
 from gub import build
-from gub import targetbuild
+from gub import target
 
 # WIP of python2.5 with 2.5 X-compile patches.
-class Python (targetbuild.AutoBuild):
+class Python (target.AutoBuild):
     source = 'http://python.org/ftp/python/2.5/Python-2.5.tar.bz2'
 
     def __init__ (self, settings, source):
-        targetbuild.AutoBuild.__init__ (self, settings, source)
+        target.AutoBuild.__init__ (self, settings, source)
         
         ## don't from gub import settings from build system.
 	self.BASECFLAGS=''
 
     def configure_command (self):
-        return 'ac_cv_printf_zd_format=yes ' + targetbuild.AutoBuild.configure_command (self)
+        return 'ac_cv_printf_zd_format=yes ' + target.AutoBuild.configure_command (self)
 
     def patch (self):
         self.apply_patch ('python-2.5.patch')
@@ -42,20 +42,20 @@ class Python (targetbuild.AutoBuild):
     def compile_command (self):
         ##
         ## UGH.: darwin Python vs python (case insensitive FS)
-        c = targetbuild.AutoBuild.compile_command (self)
+        c = target.AutoBuild.compile_command (self)
         c += ' BUILDPYTHON=python-bin '
         return c
 
     def install_command (self):
         ##
         ## UGH.: darwin Python vs python (case insensitive FS)
-        c = targetbuild.AutoBuild.install_command (self)
+        c = target.AutoBuild.install_command (self)
         c += ' BUILDPYTHON=python-bin '
         return c
 
     # FIXME: c&p linux.py:install ()
     def install (self):
-        targetbuild.AutoBuild.install (self)
+        target.AutoBuild.install (self)
         cfg = open (self.expand ('%(sourcefiledir)s/python-config.py.in')).read ()
         cfg = re.sub ('@PYTHON_VERSION@', self.expand ('%(version)s'), cfg)
         cfg = re.sub ('@PREFIX@', self.expand ('%(system_prefix)s/'), cfg)
@@ -115,14 +115,14 @@ cp %(install_prefix)s/lib/python%(python_version)s/lib-dynload/* %(install_prefi
 chmod 755 %(install_prefix)s/bin/*
 ''')
 
-from gub import toolsbuild
-class Python__tools (toolsbuild.AutoBuild, Python):
+from gub import tools
+class Python__tools (tools.AutoBuild, Python):
     source = Python.source
     def get_build_dependencies (self):
         return ['autoconf', 'libtool']
     def force_autoupdate (self):
         return True
     def install (self):
-        toolsbuild.AutoBuild.install (self)
+        tools.AutoBuild.install (self)
     def wrap_executables (self):
         pass

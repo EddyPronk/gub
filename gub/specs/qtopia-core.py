@@ -1,11 +1,11 @@
 from gub import context
 from gub import misc
-from gub import targetbuild
+from gub import target
 
 # TODO: base class Qmake build.
 #       sort-out what exactly is Qmake build, qt, and qtopia-core specific
 
-class Qtopia_core (targetbuild.AutoBuild):
+class Qtopia_core (target.AutoBuild):
     source = 'ftp://ftp.trolltech.com/qt/source/qtopia-core-opensource-src-4.2.2.tar.gz'
         dict = {
             'CC': 'gcc',
@@ -59,19 +59,19 @@ unset CC CXX; bash %(srcdir)s/configure
 -verbose
 ''')
     def configure (self):
-        targetbuild.AutoBuild.configure (self)
+        target.AutoBuild.configure (self)
         def dosub (logger, fname):
             loggedos.file_sub (logger,
                                [('-I/usr', self.expand ('-I%(system_prefix)s'))],
                                fname)
         self.map_locate (dosub, self.expand ('%(install_root)s'), 'Makefile')
     def install_command (self):
-        return (targetbuild.AutoBuild.install_command (self)
+        return (target.AutoBuild.install_command (self)
                 + ' INSTALL_ROOT=%(install_root)s')
     def license_files (self):
         return ['%(srcdir)s/LICENSE.GPL']
     def install (self):
-        targetbuild.AutoBuild.install (self)
+        target.AutoBuild.install (self)
         self.system ('mkdir -p %(install_prefix)s/lib/pkgconfig')
         for i in ('QtCore.pc', 'QtGui.pc', 'QtNetwork.pc'):
             self.system ('''

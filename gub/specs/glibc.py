@@ -1,11 +1,11 @@
 from gub import cross
 from gub import misc
 from gub import repository
-from gub import targetbuild
+from gub import target
 
-# Hmm? TARGET_CFLAGS=-O --> targetbuild.py
+# Hmm? TARGET_CFLAGS=-O --> target.py
 
-class Glibc (targetbuild.AutoBuild, cross.AutoBuild):
+class Glibc (target.AutoBuild, cross.AutoBuild):
     source = 'http://lilypond.org/download/gub-sources/glibc-2.3-20070416.tar.bz2'
     def get_build_dependencies (self):
         return ['cross/gcc', 'glibc-core', 'linux-headers']
@@ -25,7 +25,7 @@ class Glibc (targetbuild.AutoBuild, cross.AutoBuild):
             if 1: #self.version () != '2.4':
                 add_ons += ' --enable-add-ons=' + i
         return ('BUILD_CC=gcc '
-                + misc.join_lines (targetbuild.AutoBuild.configure_command (self) + '''
+                + misc.join_lines (target.AutoBuild.configure_command (self) + '''
 --disable-profile
 --disable-debug
 --without-cvs
@@ -35,26 +35,26 @@ class Glibc (targetbuild.AutoBuild, cross.AutoBuild):
 #--without-__thread
                 + add_ons)
     def FIXME_DOES_NOT_WORK_get_substitution_dict (self, env={}):
-        d = targetbuild.AutoBuild.get_substitution_dict (self, env)
+        d = target.AutoBuild.get_substitution_dict (self, env)
         d['SHELL'] = '/bin/bash'
         return d
     def linuxthreads (self):
         return repository.get_repository_proxy (self.settings.downloads,
                                                 self.expand ('ftp://ftp.gnu.org/pub/gnu/glibc/glibc-linuxthreads-%(version)s.tar.bz2&strip_components=0'))
     def download (self):
-        targetbuild.AutoBuild.download (self)
+        target.AutoBuild.download (self)
         if self.version () == '2.3.6':
             self.linuxthreads ().download ()
     def untar (self):
-        targetbuild.AutoBuild.untar (self)
+        target.AutoBuild.untar (self)
         if self.version () == '2.3.6':
             self.linuxthreads ().update_workdir (self.expand ('%(srcdir)s/urg-do-not-mkdir-or-rm-me'))
             self.system ('mv %(srcdir)s/urg-do-not-mkdir-or-rm-me/* %(srcdir)s')
     def configure (self):
-        targetbuild.AutoBuild.configure (self)
+        target.AutoBuild.configure (self)
     def compile_command (self):
-        return (targetbuild.AutoBuild.compile_command (self)
+        return (target.AutoBuild.compile_command (self)
                 + ' SHELL=/bin/bash')
     def install_command (self):
-        return (targetbuild.AutoBuild.install_command (self)
+        return (target.AutoBuild.install_command (self)
                 + ' install_root=%(install_root)s')

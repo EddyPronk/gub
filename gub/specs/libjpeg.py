@@ -3,13 +3,13 @@ import re
 #
 from gub import commands
 from gub import misc
-from gub import targetbuild
-from gub import toolsbuild
+from gub import target
+from gub import tools
 
-class Libjpeg (targetbuild.AutoBuild):
+class Libjpeg (target.AutoBuild):
     source = 'ftp://ftp.uu.net/graphics/jpeg/jpegsrc.v6b.tar.gz'
     def __init__ (self, settings, source):
-        targetbuild.AutoBuild.__init__ (self, settings, source)
+        target.AutoBuild.__init__ (self, settings, source)
         source._version = 'v6b'
 
     def name (self):
@@ -22,17 +22,17 @@ class Libjpeg (targetbuild.AutoBuild):
         return ['devel', '']
     
     def srcdir (self):
-        return re.sub (r'src\.v', '-', targetbuild.AutoBuild.srcdir (self))
+        return re.sub (r'src\.v', '-', target.AutoBuild.srcdir (self))
 
     def configure_command (self):
-        return (targetbuild.AutoBuild.configure_command (self)
+        return (target.AutoBuild.configure_command (self)
                 .replace ('--config-cache', '--cache-file=config.cache'))
     
     def update_libtool (self):
         self.system ('''
 cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh %(target_architecture)s'''
               , locals ())
-        targetbuild.AutoBuild.update_libtool (self)
+        target.AutoBuild.update_libtool (self)
 
     def license_files (self):
         return ['%(sourcefiledir)s/jpeg.license']
@@ -47,7 +47,7 @@ cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh 
 
     def configure (self):
         Libjpeg.update_config_guess_config_sub (self)
-        targetbuild.AutoBuild.configure (self)
+        target.AutoBuild.configure (self)
         self.update_libtool ()
         self.file_sub (
             [
@@ -68,7 +68,7 @@ class Libjpeg__darwin (Libjpeg):
         self.system ('''
 cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh %(arch)s
 ''', locals ())
-        targetbuild.AutoBuild.update_libtool (self)
+        target.AutoBuild.update_libtool (self)
 
 class Libjpeg__linux (Libjpeg):
     def compile (self):
@@ -78,22 +78,22 @@ class Libjpeg__linux (Libjpeg):
 #endif''')],
                '%(builddir)s/jconfig.h')
 
-class Libjpeg__tools (toolsbuild.AutoBuild):
+class Libjpeg__tools (tools.AutoBuild):
     source = Libjpeg.source
     def __init__ (self, settings, source):
-        toolsbuild.AutoBuild.__init__ (self, settings, source)
+        tools.AutoBuild.__init__ (self, settings, source)
         source._version = 'v6b'
     def get_build_dependencies (self):
         return ['libtool']
     def srcdir (self):
-        return re.sub (r'src\.v', '-', toolsbuild.AutoBuild.srcdir (self))
+        return re.sub (r'src\.v', '-', tools.AutoBuild.srcdir (self))
     def force_autoupdate (self):
         '''libtoolize: `configure.ac' does not exist'''
         return False
     def configure (self):
         Libjpeg.update_config_guess_config_sub (self)
-        toolsbuild.AutoBuild.configure (self)
-        toolsbuild.AutoBuild.update_libtool (self)
+        tools.AutoBuild.configure (self)
+        tools.AutoBuild.update_libtool (self)
         self.update_libtool ()
         self.file_sub (
             [

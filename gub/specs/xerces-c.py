@@ -1,12 +1,12 @@
 from gub import misc
-from gub import targetbuild
+from gub import target
 
-class Xerces_c (targetbuild.AutoBuild):
+class Xerces_c (target.AutoBuild):
     source = 'http://www.apache.org/dist/xerces/c/2/sources/xerces-c-src_2_8_0.tar.gz'
     def get_build_dependencies (self):
         return ['tools::autoconf']
     def __init__ (self, settings, source):
-        targetbuild.AutoBuild.__init__ (self, settings, source)
+        target.AutoBuild.__init__ (self, settings, source)
         self.compile_dict = {
             'XERCESCROOT': '%(builddir)s',
             'TRANSCODER': 'NATIVE',
@@ -19,7 +19,7 @@ class Xerces_c (targetbuild.AutoBuild):
             'CFLAGS': ' -DPROJ_XMLPARSER -DPROJ_XMLUTIL -DPROJ_PARSERS -DPROJ_SAX4C -DPROJ_SAX2 -DPROJ_DOM -DPROJ_DEPRECATED_DOM -DPROJ_VALIDATORS -DXML_USE_NATIVE_TRANSCODER -DXML_USE_INMEM_MESSAGELOADER -DXML_USE_PTHREADS -DXML_USE_NETACCESSOR_SOCKET ',
             'CXXFLAGS': ' -DPROJ_XMLPARSER -DPROJ_XMLUTIL -DPROJ_PARSERS -DPROJ_SAX4C -DPROJ_SAX2 -DPROJ_DOM -DPROJ_DEPRECATED_DOM -DPROJ_VALIDATORS -DXML_USE_NATIVE_TRANSCODER -DXML_USE_INMEM_MESSAGELOADER -DXML_USE_PTHREADS -DXML_USE_NETACCESSOR_SOCKET ',
             }
-        targetbuild.change_target_dict (self, self.compile_dict)
+        target.change_target_dict (self, self.compile_dict)
     def force_sequential_build (self):
         return True
     def autodir (self):
@@ -30,7 +30,7 @@ class Xerces_c (targetbuild.AutoBuild):
         # cool, it can serve the INSTALL file!  Let's remove it from
         # the tarball!
         return (self.makeflags () + ' '
-                + targetbuild.AutoBuild.configure_command (self)
+                + target.AutoBuild.configure_command (self)
                 .replace ('--config-cache', '--cache-file=%(builddir)s/config.cache'))
     def makeflags (self):
         s = ''
@@ -38,10 +38,10 @@ class Xerces_c (targetbuild.AutoBuild):
             s += ' ' + i + '="' + self.compile_dict[i] + '"'
         return s
     def compile_command (self):
-        return (targetbuild.AutoBuild.compile_command (self)
+        return (target.AutoBuild.compile_command (self)
                 + self.makeflags ())
     def install_command (self):
-        return (targetbuild.AutoBuild.install_command (self)
+        return (target.AutoBuild.install_command (self)
                 + self.makeflags ())
     def configure (self):
         self.shadow ()
@@ -63,4 +63,4 @@ class Xerces_c__mingw (Xerces_c):
             'THREADS' : 'mthreads',
             'LIBS': '',
             })
-        targetbuild.change_target_dict (self, self.compile_dict)
+        target.change_target_dict (self, self.compile_dict)

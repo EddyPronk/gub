@@ -4,7 +4,7 @@ import re
 #
 from gub import context
 from gub import misc
-from gub import targetbuild
+from gub import target
 
 # http://baseutils.googlecode.com/svn/trunk/str_strsafe.h
 
@@ -91,7 +91,7 @@ Module 'pyuno' delivered successfully. 8 files copied, 13 files unchanged
 79 modules
 '''
 
-class Openoffice (targetbuild.AutoBuild):
+class Openoffice (target.AutoBuild):
 #    source = 'svn://svn.gnome.org/svn/ooo-build&branch=trunk&revision=14327'
 #    source = 'svn://svn.gnome.org/svn/ooo-build&branch=trunk'
 
@@ -100,7 +100,7 @@ class Openoffice (targetbuild.AutoBuild):
     patches = ['openoffice-srcdir-build.patch']
     upstream_patches = ['openoffice-config_office-cross.patch', 'openoffice-config_office-gnu-make.patch', 'openoffice-solenv-cross.patch', 'openoffice-solenv.patch', 'openoffice-sal-cross.patch', 'openoffice-soltools-cross.patch', 'openoffice-icc-cross.patch', 'openoffice-i18npool-cross.patch']
     def __init__ (self, settings, source):
-        targetbuild.AutoBuild.__init__ (self, settings, source)
+        target.AutoBuild.__init__ (self, settings, source)
         # let's keep source tree around
         def tracking (self):
             return True
@@ -108,7 +108,7 @@ class Openoffice (targetbuild.AutoBuild):
     def get_build_dependencies (self):
         return ['tools::autoconf', 'boost-devel', 'curl-devel', 'cppunit-devel', 'db-devel', 'expat-devel', 'fontconfig-devel', 'libicu-devel', 'libjpeg-devel', 'libpng-devel', 'liblpsolve-devel', 'python-devel', 'redland-devel', 'saxon-java', 'xerces-c', 'zlib-devel']
     def stages (self):
-        return misc.list_insert_before (targetbuild.AutoBuild.stages (self),
+        return misc.list_insert_before (target.AutoBuild.stages (self),
                                         'compile',
                                         ['dotslash_download', 'make_unpack', 'patch_upstream'])
     def dotslash_download (self):
@@ -151,7 +151,7 @@ ac_cv_icu_version_minor=${ac_cv_icu_version_minor=3.81}
 #    def ANT (self):
 #        return 'ant'
     def configure_command (self):
-        return (targetbuild.AutoBuild.configure_command (self)
+        return (target.AutoBuild.configure_command (self)
                 + misc.join_lines ('''
 --with-additional-sections=MinGW
 --with-vendor=\"GUB -- http://lilypond.org/gub\"

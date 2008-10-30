@@ -1,10 +1,10 @@
 from gub import misc
-from gub import targetbuild
+from gub import target
 
-class Sqlite (targetbuild.AutoBuild):
+class Sqlite (target.AutoBuild):
     source = 'http://www.sqlite.org/sqlite-3.6.4.tar.gz' # 3.3.16
     def configure_command (self):
-        return (targetbuild.AutoBuild.configure_command (self)
+        return (target.AutoBuild.configure_command (self)
                 + misc.join_lines ('''
 --disable-tcl
 --enable-threadsafe

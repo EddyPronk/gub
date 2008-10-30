@@ -1,7 +1,7 @@
 from gub import misc
-from gub import targetbuild
+from gub import target
 
-class Libunicows (targetbuild.MakeBuild):
+class Libunicows (target.MakeBuild):
     source = 'http://surfnet.dl.sourceforge.net/libunicows/libunicows-1.1.2-src.tar.gz'
     def install (self):
         self.system ('mkdir -p %(install_prefix)s/lib %(install_prefix)s/bin')

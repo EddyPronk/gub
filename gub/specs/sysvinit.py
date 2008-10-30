@@ -1,6 +1,6 @@
-from gub import targetbuild
+from gub import target
 
-class Sysvinit (targetbuild.MakeBuild):
+class Sysvinit (target.MakeBuild):
     source = 'ftp://ftp.cistron.nl/pub/people/miquels/sysvinit/sysvinit-2.86.tar.gz'
     def get_subpackage_names (self):
         return ['']
@@ -11,7 +11,7 @@ class Sysvinit (targetbuild.MakeBuild):
     def install (self):
         fakeroot_cache = self.builddir () + '/fakeroot.cache'
         self.fakeroot (self.expand (self.settings.fakeroot, locals ()))
-        targetbuild.AutoBuild.install (self)
+        target.AutoBuild.install (self)
     def install_command (self):
         from gub import misc
         # FIXME: cannot do these as self.system () in install () as

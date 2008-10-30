@@ -1,10 +1,10 @@
-from gub import toolsbuild 
+from gub import tools 
 
-class Fontforge__tools (toolsbuild.AutoBuild):
+class Fontforge__tools (tools.AutoBuild):
     source = 'http://lilypond.org/download/gub-sources/fontforge_full-20080927.tar.bz2'
 
     def configure_command (self):
-        return (toolsbuild.AutoBuild.configure_command (self)
+        return (tools.AutoBuild.configure_command (self)
                 + ' --without-freetype-src'
                 + ' --disable-libff '
                 # let's ignore python (and its dynamic link intracies
@@ -13,20 +13,20 @@ class Fontforge__tools (toolsbuild.AutoBuild):
 
     def configure (self):
         self.shadow ()
-        toolsbuild.AutoBuild.configure (self)
+        tools.AutoBuild.configure (self)
 
     def get_build_dependencies (self):
         return ['freetype']
 
     def srcdir (self):
-        return toolsbuild.AutoBuild.srcdir (self).replace ('_full', '')
+        return tools.AutoBuild.srcdir (self).replace ('_full', '')
 
     def force_sequential_build (self):
         return True
     
     # actions.
     def patch (self):
-        toolsbuild.AutoBuild.patch (self)
+        tools.AutoBuild.patch (self)
         for name in ['%(srcdir)s/fontforge/Makefile.dynamic.in',
              '%(srcdir)s/fontforge/Makefile.static.in',
              '%(srcdir)s/gdraw/Makefile.dynamic.in',

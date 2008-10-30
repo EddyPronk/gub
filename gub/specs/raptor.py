@@ -1,8 +1,8 @@
 from gub import commands
 from gub import misc
-from gub import targetbuild
+from gub import target
 
-class Raptor (targetbuild.AutoBuild):
+class Raptor (target.AutoBuild):
     source = 'http://download.librdf.org/source/raptor-1.4.18.tar.gz'
     patches = ['raptor-1.4.18-cross.patch']
     def get_build_dependencies (self):
@@ -19,7 +19,7 @@ ac_cv_expat_xml_parsercreate=yes
 ac_cv_expat_initial_utf8_bom=yes
 '''
     def configure_command (self):
-        return (targetbuild.AutoBuild.configure_command (self)
+        return (target.AutoBuild.configure_command (self)
                 + misc.join_lines ('''
 --enable-maintainer-mode
 '''))
@@ -32,7 +32,7 @@ class Raptor__mingw (Raptor):
 #        return '''CFLAGS='-Dstrtok_r\(s,d,p\)=strtok\(s,d\)' '''
         return '''CFLAGS="-D'strtok_r(s,d,p)=strtok(s,d)'" '''
     def configure_command (self):
-        return (targetbuild.AutoBuild.configure_command (self)
+        return (target.AutoBuild.configure_command (self)
                 + misc.join_lines ('''
 --enable-maintainer-mode
 --enable-parsers="grddl rdfxml ntriples turtle trig guess rss-tag-soup rdfa n3"

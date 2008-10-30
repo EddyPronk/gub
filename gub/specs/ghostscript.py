@@ -3,9 +3,9 @@ import re
 from gub import context
 from gub import misc
 from gub import repository
-from gub import targetbuild
+from gub import target
 
-class Ghostscript (targetbuild.AutoBuild):
+class Ghostscript (target.AutoBuild):
     '''The GPL Ghostscript PostScript interpreter
 Ghostscript is used for PostScript preview and printing.  It can
 display PostScript documents in an X11 environment.  It can render
@@ -21,7 +21,7 @@ models.'''
     source = 'git://git.infradead.org/ghostscript.git?branch=git-svn&revision=' + revision
 
     def __init__ (self, settings, source):
-        targetbuild.AutoBuild.__init__ (self, settings, source)
+        target.AutoBuild.__init__ (self, settings, source)
 
         ## ugh: nested, with self shadow?
         def version_from_VERSION (self):
@@ -50,11 +50,11 @@ models.'''
     
     def srcdir (self):
         return re.sub ('-source', '',
-                       targetbuild.AutoBuild.srcdir (self))
+                       target.AutoBuild.srcdir (self))
 
     def builddir (self):
         return re.sub ('-source', '',
-                       targetbuild.AutoBuild.builddir (self))
+                       target.AutoBuild.builddir (self))
 
     def name (self):
         return 'ghostscript'
@@ -120,7 +120,7 @@ models.'''
              ], '%(builddir)s/obj/arch.h')
 
     def compile_command (self):
-        return (targetbuild.AutoBuild.compile_command (self)
+        return (target.AutoBuild.compile_command (self)
                 + ' INCLUDE=%(system_prefix)s/include'
                 + ' PSDOCDIR=%(prefix_dir)s/share/doc'
                 + ' PSMANDIR=%(prefix_dir)s/share/man')
@@ -131,10 +131,10 @@ cd %(builddir)s && mkdir -p obj
 cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS= LIBRARY_PATH= obj/genconf obj/echogs obj/genarch obj/arch.h
 ''')
         self.fixup_arch ()
-        targetbuild.AutoBuild.compile (self)
+        target.AutoBuild.compile (self)
         
     def configure_command (self):
-        return (targetbuild.AutoBuild.configure_command (self)
+        return (target.AutoBuild.configure_command (self)
             + misc.join_lines ('''
 --enable-debug
 --with-drivers=FILES
@@ -147,7 +147,7 @@ cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS
 '''))
 
     def configure (self):
-        targetbuild.AutoBuild.configure (self)
+        target.AutoBuild.configure (self)
         self.makefile_fixup ('%(builddir)s/Makefile')
 
     def makefile_fixup (self, file):
@@ -175,7 +175,7 @@ cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS
                file)
 
     def install_command (self):
-        return (targetbuild.AutoBuild.install_command (self)
+        return (target.AutoBuild.install_command (self)
                 + ' install_prefix=%(install_root)s'
                 + ' mandir=%(prefix_dir)s/share/man/ '
                 + ' docdir=%(prefix_dir)s/share/doc/ghostscript/doc '
@@ -183,7 +183,7 @@ cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS
                 )
 
     def install (self):
-        targetbuild.AutoBuild.install (self)
+        target.AutoBuild.install (self)
         self.system ('mkdir -p %(install_prefix)s/etc/relocate/')
         self.dump ('''
 

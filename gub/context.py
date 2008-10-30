@@ -220,7 +220,7 @@ class RunnableContext (Context):
         return self.runner.dump (str, name, mode=mode, permissions=permissions)
     
     def map_locate (self, func, directory, pattern, **kwargs):
-        return self.runner.map_locate (func, self.expand (directory, env=env),
+        return self.runner.map_locate (func, self.expand (directory),
                                        pattern, **kwargs)
 
     def copy (self, src, dest, env={}):

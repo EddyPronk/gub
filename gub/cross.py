@@ -6,8 +6,8 @@ from gub import build
 from gub import context
 from gub import logging
 from gub import misc
-from gub import targetbuild
-from gub import toolsbuild
+from gub import target
+from gub import tools
 
 class AutoBuild (build.AutoBuild):
     """Package for cross compilers/linkers etc.
@@ -65,16 +65,16 @@ def set_cross_dependencies (package_object_dict):
 
     cross_packs = [p for p in packs if isinstance (p, AutoBuild)]
     sdk_packs = [p for p in packs if isinstance (p, build.SdkBuild)]
-    tools_packs = [p for p in packs if isinstance (p, toolsbuild.AutoBuild)]
+    tools_packs = [p for p in packs if isinstance (p, tools.AutoBuild)]
     other_packs = [p for p in packs if (not isinstance (p, AutoBuild)
                                         and not isinstance (p, build.SdkBuild)
                                         and not isinstance (p, build.BinaryBuild)
-                                        and not isinstance (p, toolsbuild.AutoBuild)
+                                        and not isinstance (p, tools.AutoBuild)
                                         and not p.platform_name () in bootstrap_names)]
-    python_packs = [p for p in packs if (isinstance (p, toolsbuild.PythonBuild)
-                                         or isinstance (p, targetbuild.PythonBuild))]
-    scons_packs = [p for p in packs if (isinstance (p, toolsbuild.SConsBuild)
-                                        or isinstance (p, targetbuild.SConsBuild))]
+    python_packs = [p for p in packs if (isinstance (p, tools.PythonBuild)
+                                         or isinstance (p, target.PythonBuild))]
+    scons_packs = [p for p in packs if (isinstance (p, tools.SConsBuild)
+                                        or isinstance (p, target.SConsBuild))]
     extra_names = []
     if python_packs or scons_packs:
         extra_names += ['tools::python']

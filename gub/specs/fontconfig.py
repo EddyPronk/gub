@@ -1,7 +1,7 @@
 from gub import build
 from gub import misc
-from gub import targetbuild
-from gub import toolsbuild
+from gub import target
+from gub import tools
 from gub import context
 from gub import logging
 
@@ -11,7 +11,7 @@ from gub import logging
 # fixes caching problems on vista.
 version = '0dffe625d43c1165f8b84f97e8ba098793e2cf7b'
 
-class Fontconfig (targetbuild.AutoBuild):
+class Fontconfig (target.AutoBuild):
     '''Generic font configuration library 
 Fontconfig is a font configuration and customization library, which
 does not depend on the X Window System.  It is designed to locate
@@ -22,7 +22,7 @@ specified by applications.'''
 
     def patch (self):
         self.dump ('\nAC_SUBST(LT_AGE)', '%(srcdir)s/configure.in', mode='a', permissions=0755)
-        targetbuild.AutoBuild.patch (self)
+        target.AutoBuild.patch (self)
 
     @context.subst_method
     def freetype_cflags (self):
@@ -66,7 +66,7 @@ specified by applications.'''
         # While cross building, we create an  <toolprefix>-fontconfig-config
         # and prefer that.
 
-        return (targetbuild.AutoBuild.configure_command (self) 
+        return (target.AutoBuild.configure_command (self) 
                 + misc.join_lines ('''
 --with-arch=%(target_architecture)s
 --with-freetype-config="%(system_prefix)s/cross/bin/freetype-config
@@ -77,7 +77,7 @@ specified by applications.'''
         self.system ('''
 rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
 ''')
-        targetbuild.AutoBuild.configure (self)
+        target.AutoBuild.configure (self)
 
         ## FIXME: libtool too old for cross compile
         self.update_libtool ()
@@ -101,10 +101,10 @@ rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,
 cd %(builddir)s/%(i)s && make "CFLAGS=%(cflags)s" "LIBS=%(libs)s" CPPFLAGS= LDFLAGS= INCLUDES= 
 ''', locals ())
 
-        targetbuild.AutoBuild.compile (self)
+        target.AutoBuild.compile (self)
         
     def install (self):
-        targetbuild.AutoBuild.install (self)
+        target.AutoBuild.install (self)
         self.dump ('''set FONTCONFIG_FILE=$INSTALLER_PREFIX/etc/fonts/fonts.conf
 set FONTCONFIG_PATH=$INSTALLER_PREFIX/etc/fonts
 ''', 
@@ -200,7 +200,7 @@ rm -f /usr/X11R6/bin/fontconfig-config
                    '%(install_root)s/etc/postinstall/%(name)s',
                    env=locals ())
 
-class Fontconfig__tools (toolsbuild.AutoBuild):
+class Fontconfig__tools (tools.AutoBuild):
     # FIXME: use mi to get to source?
     source = 'git://anongit.freedesktop.org/git/fontconfig?revision=' + version
     
@@ -208,9 +208,9 @@ class Fontconfig__tools (toolsbuild.AutoBuild):
         return ['libtool', 'freetype', 'expat']
 
     def compile_command (self):
-        return (toolsbuild.AutoBuild.compile_command (self)
+        return (tools.AutoBuild.compile_command (self)
                 + ' DOCSRC="" ')
 
     def install_command (self):
-        return (toolsbuild.AutoBuild.install_command (self)
+        return (tools.AutoBuild.install_command (self)
                 + ' DOCSRC="" ')

@@ -1,6 +1,6 @@
-from gub import targetbuild
+from gub import target
 
-class Libexif (targetbuild.AutoBuild):
+class Libexif (target.AutoBuild):
 # incompatible with gphoto?
 #    source = mirrors.with_template (name='libexif', version="0.6.9", mirror=mirrors.sf)
 # does not install

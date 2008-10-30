@@ -2,7 +2,7 @@ from gub import build
 from gub import cross
 from gub import loggedos
 from gub import misc
-from gub import targetbuild
+from gub import target
 
 def change_target_package (package):
 
@@ -25,7 +25,7 @@ def change_target_package (package):
     if isinstance (package, cross.AutoBuild):
         return
 
-    targetbuild.change_target_dict (package, {
+    target.change_target_dict (package, {
             'DLLTOOL': '%(toolchain_prefix)sdlltool',
             'DLLWRAP': '%(toolchain_prefix)sdllwrap',
             # note: this was cygwin only: ...
