@@ -37,6 +37,7 @@ ac_cv_sizeof_unsigned_long=${ac_cv_sizeof_unsigned_long=4}
 ac_cv_sizeof_unsigned_long_long=${ac_cv_sizeof_unsigned_long_long=8}
 ac_cv_sizeof_unsigned_short=${ac_cv_sizeof_unsigned_short=2}
 ac_cv_sizeof_void_p=${ac_cv_sizeof_void_p=4}
+ac_cv_sizeof_wchar_t=4
 ac_cv_spinlocks=${ac_cv_spinlocks=no}
 ac_cv_sprintf_count=${ac_cv_sprintf_count=yes}
 ac_cv_sys_restartable_syscalls=${ac_cv_sys_restartable_syscalls=yes}
