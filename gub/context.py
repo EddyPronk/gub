@@ -195,8 +195,8 @@ class RunnableContext (Context):
         return self.runner.file_sub (substs, self.expand (name, env), to_name=to_name,
                                      must_succeed=must_succeed, use_re=use_re)
     
-    def fakeroot (self, s):
-        self.runner.fakeroot (s)
+    def fakeroot (self, s, env={}):
+        self.runner.fakeroot (self.expand (s, env=env))
         
     def command (self, str):
         self.runner.command (str)
@@ -206,9 +206,9 @@ class RunnableContext (Context):
         cmd = self.expand (cmd, env)
         self.runner.system (cmd, env=dict, ignore_errors=ignore_errors)
 
-    def shadow_tree (self, src, dest):
-        src = self.expand (src)
-        dest = self.expand (dest)
+    def shadow_tree (self, src, dest, env={}):
+        src = self.expand (src, env=env)
+        dest = self.expand (dest, env=env)
         self.runner.shadow_tree (src, dest)
         
     def dump (self, str, name, mode='w', env={},
@@ -220,32 +220,32 @@ class RunnableContext (Context):
         return self.runner.dump (str, name, mode=mode, permissions=permissions)
     
     def map_locate (self, func, directory, pattern, **kwargs):
-        return self.runner.map_locate (func, self.expand (directory),
+        return self.runner.map_locate (func, self.expand (directory, env=env),
                                        pattern, **kwargs)
 
-    def copy (self, src, dest):
-        return self.runner.copy (self.expand (src), self.expand (dest))
+    def copy (self, src, dest, env={}):
+        return self.runner.copy (self.expand (src, env=env), self.expand (dest, env=env))
 
     def func (self, f, *args):
         return self.runner.func (f, *args)
 
-    def chmod (self, file, mode):
-        return self.runner.chmod (self.expand (file), mode)
+    def chmod (self, file, mode, env={}):
+        return self.runner.chmod (self.expand (file, env=env), mode)
 
-    def symlink (self, src, dest):
-        return self.runner.symlink (self.expand (src), self.expand (dest))
+    def symlink (self, src, dest, env={}):
+        return self.runner.symlink (self.expand (src, env=env), self.expand (dest, env=env))
 
-    def rename (self, src, dest):
-        return self.runner.rename (self.expand (src), self.expand (dest))
+    def rename (self, src, dest, env={}):
+        return self.runner.rename (self.expand (src, env=env), self.expand (dest, env=env))
 
-    def mkdir (self, dir):
-        return self.runner.mkdir (self.expand (dir))
+    def mkdir (self, dir, env={}):
+        return self.runner.mkdir (self.expand (dir, env=env))
 
-    def remove (self, file):
-        return self.runner.remove (self.expand (file))
+    def remove (self, file, env={}):
+        return self.runner.remove (self.expand (file, env=env))
 
-    def rmtree (self, file):
-        return self.runner.rmtree (self.expand (file))
+    def rmtree (self, file, env={}):
+        return self.runner.rmtree (self.expand (file, env=env))
 
 #
 # Tests.
