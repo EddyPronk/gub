@@ -127,6 +127,8 @@ class Openoffice (target.AutoBuild):
         # TODO: either make all ooo-tools (soltools: makedepend..., transex3: transex3 ...)
         # self-hosting or compile them as Openoffice__tools package...
         # Shortcut: use precompiled tools from user's system
+
+        # There's possibly another shortcut: use wine, works for regcomp.
         if not os.environ.has_key ('OOO_TOOLS_DIR'):
             print '''Set OOO_TOOLS_DIR to a recent pre-compiled native solver, I do
 export OOO_TOOLS_DIR=/suse/home/janneke/vc/ooo300-m7/build/ooo300-m7/solver/300/unxlngx6.pro/bin
@@ -295,11 +297,21 @@ cd %(builddir)s/build/%(cvs_tag)s && patch -p%(patch_strip_component)s < %(patch
 
         self.system ('chmod +x %(upstream_dir)s/solenv/bin/build.pl %(upstream_dir)s/solenv/bin/deliver.pl')
 
+        have_wine = True
         disable_modules = [
             'bean', # com_sun_star_comp_beans_LocalOfficeWindow.c:39:18: error: jawt.h: No such file or directory
             'embedserv', # uses ATL http://article.gmane.org/gmane.comp.gnu.mingw.user/18483
-            'testtools', # Thread:      1 :Error osl_loadModule: libstocservices.uno.dll.so: cannot open shared object file: No such file or directory    
+            ]
+
+        # ~/.wine/system.reg
+        # "PATH"=str(2):"C:/windows/system32;C:/windows;z:/home/janneke/vc/gub/target/mingw/build/openoffice-trunk/build/ooo300-m9/solver/300/bin/wntgcci.pro/bin;z:/home/janneke/vc/gub/target/mingw/root/usr/bin;z:/home/janneke/vc/gub/target/mingw/root/usr/lib;"
+        wine_modules = [
+            'testtools',
+            'goodies',
+            # Hmmm
+            # wine   ../../../solver/300/wntgcci.pro/bin/regcomp.exe -register -r applicat.rdb -c i18npool.uno.dll
         ]
+
         for module in disable_modules:
             self.system ('sed -i -e "s@\(^[^#].*[ \t]\(all\|n\|w\|w,vc[0-9]\)[ \t]\)@#\\1@g" %(upstream_dir)s/%(module)s/prj/build.lst', locals ())
 

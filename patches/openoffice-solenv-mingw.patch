@@ -1,6 +1,6 @@
 --- solenv/inc/wntgcci6.mk.pristine	2008-10-29 08:42:22.000000000 +0100
 +++ solenv/inc/wntgcci6.mk	2008-10-30 14:11:42.000000000 +0100
-@@ -31,14 +31,18 @@
+@@ -31,14 +31,19 @@
  
  # mk file for wntgcci6
  
@@ -16,6 +16,7 @@
  AFLAGS=/c /Cp /coff
 +.ELSE # "$(CROSS_COMPILING)" == "yes"
 +ASM=$(NASM)
++REGCOMP:=wine $(SOLARBINDIR)/regcomp
 +.ENDIF # "$(CROSS_COMPILING)" == "yes"
  
  # architecture dependent flags for the C and C++ compiler that can be changed by
