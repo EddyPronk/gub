@@ -1,7 +1,7 @@
 from gub import cross
 
 def get_cross_build_dependencies (settings):
-    return ['cross/gcc']
+    return ['cross/gcc', 'freebsd-runtime']
 
 def change_target_package (package):
     cross.change_target_package (package)
@@ -10,12 +10,30 @@ def change_target_package (package):
 # headers and build full toolchain from source?
 def get_sdk ():
     '''
+#! /bin/sh
 
-#FIXME: how to get libc+kernel headers package contents on freebsd?
-# * remove zlib.h, zconf.h or include libz and remove Zlib from src packages?
-# * remove gmp.h, or include libgmp and remove Gmp from src packages?
-# bumb version number by hand, sync with freebsd.py
-freebsd-runtime:
-	ssh xs4all.nl tar -C / --exclude=zlib.h --exclude=zconf.h --exclude=gmp.h -czf public_html/freebsd-runtime-4.10-2.tar.gz /usr/lib/{lib{c,c_r,m}{.a,.so{,.*}},crt{i,n,1}.o} /usr/include
+if test $# != '3'; then
+    cat <<EOF
+Usage: get-freebsd ARCH VERSION BUILD
 
-    '''
+Example:
+  get-freebsd i386 4.11 1
+  get-freebsd amd64 6.2 2
+EOF
+    exit 2
+fi
+
+arch=$1
+version=$2
+build=$3
+
+tmp=tmp-freebsd-$arch-$version-$build
+mkdir -p $tmp && cd $tmp
+wget ftp://ftp.surfnet.nl/pub/os/FreeBSD/releases/$arch/$version-RELEASE/base/base.??
+wget ftp://ftp-archive.freebsd.org/pub/FreeBSD-Archive/old-releases/$arch/$version-RELEASE/bin/bin.??
+rm -rf root
+mkdir -p root
+cat base.?? bin.?? | tar --unlink -xpzf - -C root
+cd root && tar --exclude=zlib.h --exclude=zconf.h --exclude=gmp.h --exclude=curses.h --exclude=ncurses.h --exclude=c++ --exclude=g++ -czf ../../downloads/freebsd-runtime/freebsd-runtime-$version-$build.$arch.tar.gz {,usr/}lib/{lib{c,c_r,m,pthread}{.a,.so{,.*}},crt{i,n,1}.o} usr/include
+#rm -rf $tmp
+'''

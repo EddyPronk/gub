@@ -54,6 +54,11 @@ class AutoBuild (build.AutoBuild):
 def change_target_package (package):
     pass
 
+# GUB compatibility problems:
+# GIT: to dowload gub
+# make
+# tar --strip-component
+# /usr/bin/install: coreutils
 bootstrap_names = ['tools::librestrict']
 def set_cross_dependencies (package_object_dict):
     packs = package_object_dict.values ()

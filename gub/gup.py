@@ -122,6 +122,9 @@ class FileManager:
         if file.startswith ('./'):
             file = file[2:]
         dir = os.path.dirname (file)
+        print 'must_succeed=', ('tools/root' not in self.root
+                                         and 'cross' not in dir)
+        print 'ROET:', self.root
         loggedos.file_sub (logging.default_logger,
                            [('^libdir=.*',
                              """libdir='%(root)s/%(dir)s'""" % locals ()

@@ -38,6 +38,13 @@ class Zlib__mingw (Zlib):
         zlib_is_broken = 'target=mingw'
         return zlib_is_broken + ' %(srcdir)s/configure --shared '
 
+class Zlib__freebsd__64 (Zlib):
+    pass
+'''
+no shared lib: gcc-4.2.1 says
+./home/janneke/tmp/python-mingw/target/freebsd-64/root/usr/cross/bin/x86_64-freebsd6-ld: error in /home/janneke/tmp/python-mingw/target/freebsd-64/root/usr/cross/lib/gcc/x86_64-freebsd6/4.1.2/crtendS.o(.eh_frame); no .eh_frame_hdr table will be created..
+'''
+
 class Zlib__tools (toolsbuild.AutoBuild, Zlib):
     source = Zlib.source
     patches = Zlib.patches
