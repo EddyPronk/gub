@@ -8,6 +8,9 @@
 //BOOL WINAPI InternetGetConnectedStateEx(LPDWORD,LPTSTR,DWORD,DWORD);
 #define InternetGetConnectedStateEx(a,b,c,d) InternetGetConnectedState(a,c)
 
+#undef OPTIONAL
+#define OPTIONAL
+
 WINBASEAPI
 VOID
 WINAPI
@@ -125,5 +128,7 @@ __set_label:
   PF m_filter;
   jmp_buf m_jmpbuf;
 };
+
+#undef OPTIONAL
 
 #endif /* SE_HANDLER_H */
