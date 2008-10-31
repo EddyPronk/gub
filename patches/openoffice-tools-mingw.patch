@@ -1,3 +1,4 @@
+--- tools/source/fsys/wntmsc.hxx.pristine	2008-10-29 23:44:36.000000000 +0100
 +++ tools/source/fsys/wntmsc.hxx	2008-10-28 19:13:59.000000000 +0100
 @@ -36,8 +36,8 @@
  #ifndef ICC
@@ -11,8 +12,8 @@
  
  #include <tools/svwin.h>
 --- tools/inc/tools/solar.h.pristine	2008-10-29 23:44:36.000000000 +0100
-+++ tools/inc/tools/solar.h	2008-10-31 11:39:06.000000000 +0100
-@@ -57,3 +57,8 @@
++++ tools/inc/tools/solar.h	2008-10-31 12:54:34.000000000 +0100
+@@ -57,6 +57,12 @@
  /*   Previous typedefs from before sal convergence are in comments */
  /*   to the right of the new types.                                */
  
@@ -21,15 +22,7 @@
 +#undef INT32
 +#undef UINT32
 +#endif /* __MINGW32__ */
-
++
  typedef sal_Bool		BOOL;	/* typedef unsigned char   BOOL; */
  typedef sal_uInt8		BYTE;	/* typedef unsigned char   BYTE; */
  typedef sal_uInt16		USHORT;	/* typedef unsigned short  USHORT; */
-@@ -81,7 +82,7 @@ typedef sal_uInt8			UINT8;	/* typedef un
- /* types with exact defined size (not just the minimum size) */
- typedef sal_Int64			INT64;	/* typedef long            INT64;  previously "void" on Windows */
- typedef sal_uInt64			UINT64;	/* typedef unsigned long   UINT64; previously "void" on Windows */
- typedef sal_Int32			INT32;	/* typedef int             INT32;  previously "long" on Windows */
- typedef sal_uInt32			UINT32;	/* typedef unsigned int    UINT32; previously "unsigned long" on Windows */
- #endif /* _SOLAR_NOUINT */
- #endif
