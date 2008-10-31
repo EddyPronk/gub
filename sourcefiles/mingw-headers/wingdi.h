@@ -11,7 +11,7 @@
 
 #include <../include/wingdi.h>
 
-#ifdef __MINGW32__
+#if 0 //def __MINGW32__
 #undef ABSOLUTE
 #undef ERROR
 #undef RELATIVE
