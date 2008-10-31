@@ -311,10 +311,10 @@ cd %(builddir)s/build/%(cvs_tag)s && patch -p%(patch_strip_component)s < %(patch
         ]
 
         for module in disable_modules:
-            self.file_sub ([('(^[^#].*[ \t](all|n|w|w,vc[0-9])[ \t])', r'#\1')], '%(upstream_dir)s/%(module)s/prj/build.lst', locals ())
+            self.file_sub ([('(^[^#].*[ \t](all|n|w|w,vc[0-9])[ \t])', r'#\1')], '%(upstream_dir)s/%(module)s/prj/build.lst', env=locals ())
 
         module = 'setup_native'
-        self.file_sub ([('^([^#]pk.*customactions)', '#\1')], '%(upstream_dir)s/%(module)s/prj/build.lst', locals ())
+        self.file_sub ([('^([^#]pk.*customactions)', '#\1')], '%(upstream_dir)s/%(module)s/prj/build.lst', env=locals ())
 
         # uses oledb.h from psdk 
         module = 'connectivity'
