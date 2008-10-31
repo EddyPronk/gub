@@ -6,8 +6,6 @@ from gub import context
 from gub import misc
 from gub import target
 
-# http://baseutils.googlecode.com/svn/trunk/str_strsafe.h
-
 '''
 Module 'solenv' delivered successfully. 0 files copied, 1 files unchanged
 Module 'stlport' delivered successfully. 0 files copied, 8 files unchanged
@@ -313,10 +311,14 @@ cd %(builddir)s/build/%(cvs_tag)s && patch -p%(patch_strip_component)s < %(patch
         ]
 
         for module in disable_modules:
-            self.system ('sed -i -e "s@\(^[^#].*[ \t]\(all\|n\|w\|w,vc[0-9]\)[ \t]\)@#\\1@g" %(upstream_dir)s/%(module)s/prj/build.lst', locals ())
+            self.file_sub ([('(^[^#].*[ \t](all|n|w|w,vc[0-9])[ \t])', r'#\1')], '%(upstream_dir)s/%(module)s/prj/build.lst', locals ())
 
         module = 'setup_native'
-        self.system ('sed -i -e "s@\(^pk.*customactions\)@#\\1@" %(upstream_dir)s/%(module)s/prj/build.lst', locals ())
+        self.file_sub ([('^([^#]pk.*customactions)', '#\1')], '%(upstream_dir)s/%(module)s/prj/build.lst', locals ())
+
+        # uses oledb.h from psdk 
+        module = 'connectivity'
+        self.file_sub ([(r'^([^#].*drivers.ado.*[ \t]w[ \t])', '#\1')], '%(upstream_dir)s/%(module)s/prj/build.lst', env=locals ())
 
     def makeflags (self):
         return misc.join_lines ('''
@@ -333,7 +335,7 @@ LD_LIBRARY_PATH=%(LD_LIBRARY_PATH)s
 ##CPPFLAGS=
                 
 class Openoffice__mingw (Openoffice):
-    Openoffice.upstream_patches += ['openoffice-config_office-mingw.patch', 'openoffice-solenv-mingw.patch', 'openoffice-sal-mingw.patch', 'openoffice-external-mingwheaders.patch', 'openoffice-cppunit-mingw.patch', 'openoffice-i18npool-mingw.patch', 'openoffice-tools-mingw.patch', 'openoffice-setup_native-mingw.patch', 'openoffice-pyuno-mingw.patch', 'openoffice-sysui-mingw.patch', 'openoffice-dtrans-mingw.patch', 'openoffice-fpicker-mingw.patch', 'openoffice-sccomp-mingw.patch', 'openoffice-vcl-mingw.patch']
+    Openoffice.upstream_patches += ['openoffice-config_office-mingw.patch', 'openoffice-solenv-mingw.patch', 'openoffice-sal-mingw.patch', 'openoffice-external-mingwheaders.patch', 'openoffice-cppunit-mingw.patch', 'openoffice-i18npool-mingw.patch', 'openoffice-tools-mingw.patch', 'openoffice-setup_native-mingw.patch', 'openoffice-pyuno-mingw.patch', 'openoffice-sysui-mingw.patch', 'openoffice-dtrans-mingw.patch', 'openoffice-fpicker-mingw.patch', 'openoffice-sccomp-mingw.patch', 'openoffice-vcl-mingw.patch', 'openoffice-connectivity-mingw.patch']
     # external/mingwheaders seems a badly misguided effort.  It
     # patches header files and is thus strictly tied to a gcc version;
     # that can never build.  How can patching header files ever work,
@@ -386,5 +388,4 @@ fi
                    permissions=0755)
 
         self.system ('mkdir -p %(upstream_dir)s/solver/300/wntgcci.pro/inc')
-        self.system ('cp -pv %(sourcefiledir)s/sehandler.h %(upstream_dir)s/solver/300/wntgcci.pro/inc')
-        self.system ('cp -pv %(sourcefiledir)s/strsafe.h %(upstream_dir)s/solver/300/wntgcci.pro/inc')
+        self.system ('cp -pv %(sourcefiledir)s/mingw-headers/*.h %(upstream_dir)s/solver/300/wntgcci.pro/inc')

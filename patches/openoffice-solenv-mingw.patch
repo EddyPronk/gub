@@ -135,7 +135,7 @@
  WINSPOOLLIB=-lwinspool
  IMM32LIB=-limm32
  PSPLIB=-lpsp
-@@ -189,14 +227,14 @@ USER32LIB=-luser32
+@@ -189,14 +228,18 @@ USER32LIB=-luser32
  LIBCMT=-lmsvcrt
  COMDLG32LIB=-lcomdlg32
  COMCTL32LIB=-lcomctl32
@@ -159,6 +159,10 @@
  OLDNAMESLIB=-lmoldname
 -MSIMG32LIB=$(PSDK_HOME)$/lib$/msimg32.lib
 +MSIMG32LIB=$(LINK_PSDK_LIB)msimg32$(PSDK_DOT_LIB)
++
++.IF "$(CROSS_COMPILING)" == "yes"
++CURLLIB=-lcurl
++.ENDIF
 --- solenv/inc/shlinfo.rc.pristine	2008-10-29 09:33:25.000000000 +0100
 +++ solenv/inc/shlinfo.rc	2008-10-29 09:33:33.000000000 +0100
 @@ -29,7 +29,9 @@
