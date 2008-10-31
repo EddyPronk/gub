@@ -52,7 +52,6 @@ class FileManager:
         if clean:
             loggedos.system (logging.default_logger,
                              'rm -fr %s' % self.config)
-            
         self.make_dirs ()
         files_db = self.config + '/files.db'
         packages_db = self.config + '/packages.db'
@@ -220,21 +219,23 @@ class PackageDictManager:
                           % `package_hdr`)
 
         str = open (package_hdr).read ()
-
+        header_name = os.path.basename (package_hdr)
         d = dict (pickle.loads (str))
+        name = d['basename']
+        vc_branch = d.get ('vc_branch', '')
 
-        if branch_dict.has_key (d['basename']):
-            branch = branch_dict[d['basename']]
+        if branch_dict.has_key (name):
+            branch = branch_dict[name]
             if ':' in branch:
                 (remote_branch, branch) = tuple (branch.split (':'))
-            if branch != d['vc_branch']:
-                suffix = d['vc_branch']
-                logging.error ('ignoring header: %(package_hdr)s\n'
-                               % locals ())
-                logging.error ('package of branch: %(suffix)s, expecting: %(branch)s\n' % locals ())
+            if branch != vc_branch:
+                logging.error ('package of branch: %(vc_branch)s, expecting: %(branch)s\n' % locals ())
+                logging.error ('ignoring header: %(header_name)s\n' % locals ())
                 return
         elif d['vc_branch']:
-            sys.stdout.write ('No branch for package %s, ignoring header: %s\n' % (d['basename'], package_hdr))
+            logging.error ('no branch for package: %(name)s\n' % locals ())
+            logging.error ('ignoring header: %(header_name)s\n' % locals ())
+            logging.error ('available branch: %(vc_branch)s\n' % locals ())
             return
         
         name = d['split_name']
@@ -251,11 +252,14 @@ class PackageDictManager:
     def unregister_package_dict (self, name):
         del self._packages[name]
 
-    def is_registered (self, package):
-        return self._packages.has_key (package)
+    def is_registered (self, name):
+        return self._packages.has_key (name)
 
-    def package_dict (self, package_name):
-        return self._packages[package_name]
+    def package_dict (self, name):
+        return self._packages.get (name, dict ())
+
+    def available_packages (self):
+        return self._packages.keys ()
 
     def get_all_packages (self):
         return self._packages.values ()

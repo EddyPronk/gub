@@ -47,21 +47,28 @@ from gub import versiondb
 def parse_command_line ():
     p = optparse.OptionParser ()
 
-    p.usage='''installer-builder.py [OPTION]... COMMAND [PACKAGE]
-
-Commands:
-
-build     - build installer root
-strip     - strip installer root
-package   - package installer binary
-build-all - build, strip, package
-
+    p.usage='''gib [OPTION]... PACKAGE...
 '''
-    p.description='Grand Unified Builder - collect in platform dependent package format'
+    p.description='''Gub's Installer Builder  - collect in platform dependent package format'''
+
+    examples = '''
+Examples:
+
+  gib -p mingw lilypond
+'''
+
+    def format_examples (self):
+        return examples
+    if 'epilog'  in  p.__dict__:
+        p.formatter.format_epilog = format_examples
+        p.epilog = examples
+    else:
+        p.formatter.format_description = format_examples
+        p.description = examples
 
     p.add_option ('-B', '--branch', 
                   dest='branches',
-                  default=[],
+                  default=['*=*'],
                   action='append',
                   help='set branch for package')
 
@@ -140,10 +147,13 @@ def build_installer (installer_obj):
             if s in available:
                 logger.write_log (' *** Stage: %s (installer, %s)\n' % (s, installer_obj.settings.platform),
                                   'stage')
-                available[s]()
-    except installer.ChecksumShortCircuit:
-        logger.write_log (' *** Checksum matches: no action necessary\n',
-                          'info')
+                available[s] ()
+        installer_file = installer_obj.installer_file ().replace (os.getcwd () + '/', '')
+        logger.write_log ('installer left in: %(installer_file)s\n' % locals (), 'info')
+    except installer.ChecksumShortCircuit, c:
+        logger.write_log ('*** checksum matches: no rebuild necessary\n', 'stage')
+        checksum_file = c.file
+        logger.write_log ('checksum file: %(checksum_file)s\n' % locals (), 'info')
 
     installer_obj.connect_command_runner (None)
 
@@ -159,11 +169,11 @@ def main ():
         settings.__dict__[k] = v
 
     db = versiondb.VersionDataBase (options.version_db)
-    branch_dict = dict([tuple (branch_setting.split ('='))
-                        for branch_setting in options.branches])
-    logging.set_default_log (settings.expand ('%(logdir)s/installer.log'),
-                             options.verbosity)
-    
+    branch_dict = dict ([tuple (branch_setting.split ('='))
+                         for branch_setting in options.branches])
+    log = logging.set_default_log (settings.expand ('%(logdir)s/installer.log'),
+                                   options.verbosity)
+
     installer_obj = installer.get_installer (settings, args, db, branch_dict)
     try:
         build_installer (installer_obj)

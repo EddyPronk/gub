@@ -51,7 +51,6 @@ def get_cli_parser ():
 
     p.description='Grand Unified Builder.'
 
-    
     examples = '''
 Examples:
 

@@ -169,28 +169,36 @@ class LoggerInterface:
         return self.logger.verbose_flag ()
     # end fixme
 
-
-default_logger = CommandLogger ('', 3)
-
 def get_numeric_loglevel (name):
     return name_to_loglevel_mapping[name]
 
-def set_default_log (name, level):
-    global default_logger
-    default_logger = CommandLogger (name, level)
+default_logger = None
+default_logger_interface = None
+action = None
+command = None
+debug = None
+error = None
+harmless = None
+info = None
+stage = None
+verbose = None
+warning = None
 
+def set_default_log (name, level):
+    global default_logger, default_logger_interface
+    global action, command, debug, error, harmless, info, stage, verbose, warning
+    default_logger = CommandLogger (name, level)
+    default_logger_interface = LoggerInterface (default_logger)
+    action = default_logger_interface.action
+    command = default_logger_interface.command
+    debug = default_logger_interface.debug
+    error = default_logger_interface.error
+    harmless = default_logger_interface.harmless
+    info = default_logger_interface.info
+    stage = default_logger_interface.stage
+    verbose = default_logger_interface.verbose
+    warning = default_logger_interface.warning
     return default_logger
 
-default_logger_interface = LoggerInterface (default_logger)
-
-harmless = default_logger_interface.harmless
-verbose = default_logger_interface.verbose
-stage = default_logger_interface.stage
-action = default_logger_interface.action
-error = default_logger_interface.error
-info = default_logger_interface.info
-command = default_logger_interface.command
-debug = default_logger_interface.debug
-warning = default_logger_interface.warning
-harmless = default_logger_interface.harmless
-
+# ugh, makeme optional?
+set_default_log ('', 0)

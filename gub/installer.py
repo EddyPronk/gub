@@ -21,7 +21,9 @@ pretty_names = {
     }
 
 class ChecksumShortCircuit (Exception):
-    pass
+    def __init__ (self, file):
+        Exception.__init__ (self)
+        self.file = file
 
 class Installer (context.RunnableContext):
     def __init__ (self, settings, arguments, version_db, branch_dict):
@@ -41,7 +43,7 @@ class Installer (context.RunnableContext):
         self.pretty_name = pretty_names.get (name, name)
 
         self.branch_dict = branch_dict
-        self.package_branch = self.branch_dict[name]
+        self.package_branch = self.branch_dict.get (name, '')
         if ':' in self.package_branch:
             (self.remote_package_branch,
              self.package_branch) = tuple (self.package_branch.split (':'))
@@ -87,7 +89,7 @@ class Installer (context.RunnableContext):
         checksum_file = self.installer_checksum_file
         self.checksum = self.calculate_checksum (package_names)
         if os.path.exists (checksum_file) and open (checksum_file).read () == self.checksum:
-            raise ChecksumShortCircuit
+            raise ChecksumShortCircuit (checksum_file)
 
         for a in package_names:
             install_manager.install_package (a)
@@ -104,17 +106,19 @@ class Installer (context.RunnableContext):
         checksum_list = []
         for name in sorted (names):
             dict = self.package_manager.package_dict (name)
+            if not dict:
+                m = 'no such package: %(name)s\n' % locals ()
+                self.runner.error (m)
+                raise Exception (m)
             package_checksum = file (dict['checksum_file']).read ()
-
             package_checksum = md5.md5 (package_checksum).hexdigest ()
             checksum_list.append ((dict['name'],        
                                    dict['source_checksum'],
                                    package_checksum))
-
         string = pickle.dumps (checksum_list)
-
-        # we take the hash to make sure that we do not get random strings
-        # (which may trigger substitutions) in the attributes of a Context
+        # Take the hash to make sure that there are no random strings
+        # (which may trigger substitutions) in the attributes of a
+        # Context
         return md5.md5 (string).hexdigest ()
 
     def stages (self):
@@ -255,7 +259,7 @@ class Installer (context.RunnableContext):
         if self.checksum:
             open (self.expand ('%(installer_checksum_file)s'), 'w').write (self.checksum)
         else:
-            self.warning ('checksum is empty.')
+            self.runner.warning ('checksum is empty.')
 
 class DarwinRoot (Installer):
     def __init__ (self, settings, *args):
@@ -402,13 +406,16 @@ class Linux_installer (Installer):
 class Shar (Linux_installer):
     def create (self):
         Linux_installer.create (self)
-        target_shar = self.expand ('%(installer_uploads)s/%(name)s-%(installer_version)s-%(installer_build)s.%(platform)s.sh')
+        target_shar = self.installer_file ()
         head = self.expand ('%(sourcefiledir)s/sharhead.sh')
         tarball = self.expand (self.bundle_tarball)
         hello = self.expand ("version %(installer_version)s release %(installer_build)s")
-
         self.runner._execute (commands.CreateShar (tarball, hello, head, target_shar))
-
+# hmm?
+#    @context.subst_method
+    def installer_file (self):
+        return self.expand ('%(installer_uploads)s/%(name)s-%(installer_version)s-%(installer_build)s.%(platform)s.sh')
+        
 def get_installer (settings, *arguments):
 
     installer_class = {

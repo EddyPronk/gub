@@ -154,7 +154,7 @@ def get_cli_parser ():
                   action='store',
                   dest='dbdir',
                   help='set db directory')
-    p.add_option ('-v', '--verbose', action='count', dest='verbose', default=0)
+    p.add_option ('-v', '--verbose', action='count', dest='verbosity', default=0)
     p.add_option ('-q', '--quiet', action='count', dest='quiet', default=0)
     return p
 
@@ -175,7 +175,7 @@ def parse_options ():
 
 def main ():
     options = parse_options ()
-    options.verbose -= options.quiet
+    options.verbosity -= options.quiet
     if not options.platform and len (options.arguments) == 1:
         options.platform, x = misc.split_platform (options.arguments[0])
 
@@ -183,6 +183,7 @@ def main ():
     options.root = settings.system_root
     options.platform = settings.platform
 
+    logging.default_logger.threshold = options.verbosity
     logging.verbose ('root: ' + settings.system_root + '\n')
     logging.verbose ('platform: ' + settings.platform + '\n')
 
