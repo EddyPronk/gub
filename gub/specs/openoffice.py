@@ -362,7 +362,7 @@ class Openoffice__mingw (Openoffice):
 [Environment]
 "PATH"="%(upstream_dir)s/solver/300/wntgcci.pro/bin;%(system_prefix)s/bin;%(system_prefix)s/lib;"
 ''',
-                   '%(HOME)s/.wine/userdef.reg', mode='a')
+                   wine_userdef, mode='a')
     def configure_command (self):
         return (Openoffice.configure_command (self)
                 .replace ('--with-system-xrender-headers', '')
