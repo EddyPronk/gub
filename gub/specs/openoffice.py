@@ -354,6 +354,15 @@ class Openoffice__mingw (Openoffice):
         # disable Kendy's patch for Cygwin version of mingw
         self.file_sub ([('^(mingw-build-without-stlport-stlport.diff)', r'#\1')],
                        '%(srcdir)s/patches/dev300/apply')
+        # setup wine hack
+        wine_userdef = os.path.join (os.environ['HOME'], '.wine/user.reg')
+        s = file (wine_userdef).read ()
+        if not self.expand ('%(upstream_dir)s') in s:
+            self.dump ('''
+[Environment]
+"PATH"="%(upstream_dir)s/solver/300/wntgcci.pro/bin;%(system_prefix)s/bin;%(system_prefix)s/lib;"
+''',
+                   '%(HOME)s/.wine/userdef.reg', mode='a')
     def configure_command (self):
         return (Openoffice.configure_command (self)
                 .replace ('--with-system-xrender-headers', '')
