@@ -3,9 +3,6 @@
 #  File "bsddb/dbutils.py", line 62, in DeadlockWrap
 #  DBPageNotFoundError: (-30987, 'DB_PAGE_NOTFOUND: Requested page not found')
 
-import gdbm as dbmodule
-#import dbhash as dbmodule
-
 import fcntl
 import glob
 import os
@@ -17,6 +14,7 @@ import sys
 #
 from gub import build
 from gub import cross
+from gub.db import db
 from gub import dependency
 from gub import locker
 from gub import logging
@@ -55,8 +53,8 @@ class FileManager:
         self.make_dirs ()
         files_db = self.config + '/files.db'
         packages_db = self.config + '/packages.db'
-        self._file_package_db = dbmodule.open (files_db, 'c')
-        self._package_file_db = dbmodule.open (packages_db, 'c')
+        self._file_package_db = db.open (files_db, 'c')
+        self._package_file_db = db.open (packages_db, 'c')
         #except DBInvalidArgError:
         # import gdmb
         # file_db = gdbm.open (file_db, 'c')
@@ -298,7 +296,7 @@ class PackageManager (FileManager, PackageDictManager):
         PackageDictManager.__init__ (self)
         
         dicts_db = self.config + '/dicts.db'
-        self._package_dict_db = dbmodule.open (dicts_db, 'c')
+        self._package_dict_db = db.open (dicts_db, 'c')
         for k in self._package_dict_db.keys ():
             v = self._package_dict_db[k]
             self.register_package_dict (pickle.loads (v))

@@ -1,5 +1,5 @@
 """
-    Copyright (c) 2005--2007
+    Copyright (c) 2005--2008
     Jan Nieuwenhuizen <janneke@gnu.org>
     Han-Wen Nienhuys <hanwen@xs4all.nl>
 
@@ -25,9 +25,8 @@ import sys
 import time
 import urllib
 import xml.dom.minidom
-
-import gdbm as dbmodule
-
+#
+from gub.db import db
 from gub import misc
 from gub import locker
 from gub import tztime
@@ -241,7 +240,7 @@ It need not be unique over revisions.'''
 
 class TagDb:
     def __init__ (self, dir):
-        self.db = dbmodule.open (os.path.join (dir, 'tag.db'), 'c')
+        self.db = db.open (os.path.join (dir, 'tag.db'), 'c')
     def tag (self, name, repo):
         stamp = repo.last_patch_date ()
         if stamp:
