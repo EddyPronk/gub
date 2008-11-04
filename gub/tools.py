@@ -1,6 +1,7 @@
 import os
 #
 from gub import build
+from gub import context
 from gub import misc
 from gub import loggedos
 
@@ -12,19 +13,44 @@ def change_target_package (bla):
 
 class AutoBuild (build.AutoBuild):
     def configure_command (self):
-        # FIXME: why is C_INCLUDE_PATH and LIBRARY_PATH from dict not
-        # working, or not being picked-up by configure?
         return (build.AutoBuild.configure_command (self)
-                + misc.join_lines ('''
+                + self.configure_flags ()
+                + self.configure_variables ())
+    # FIXME: promoteme to build.py?  Most Fragile operation...
+    def configure_flags (self):
+        return misc.join_lines ('''
 --prefix=%(system_prefix)s
+''')
+    # FIXME: promoteme to build.py?  Most Fragile operation...
+    def configure_variables (self):
+        return misc.join_lines ('''
 CFLAGS=-I%(system_prefix)s/include
 LDFLAGS=-L%(system_prefix)s/lib
 LD_LIBRARY_PATH=%(system_prefix)s/lib
-'''))
+''')
 
     ## ugh: prefix= will trigger libtool relinks.
     def install_command (self):
         return '''make %(makeflags)s DESTDIR=%(install_root)s install'''
+
+    def broken_install_command (self):
+        # FIXME: use sysconfdir=%(install_PREFIX)s/etc?  If
+        # so, must also ./configure that way
+        return misc.join_lines ('''make %(makeflags)s install
+bindir=%(install_root)s/%(system_prefix)s/bin
+aclocaldir=%(install_root)s/%(system_prefix)s/share/aclocal
+datadir=%(install_root)s/%(system_prefix)s/share
+exec_prefix=%(install_root)s/%(system_prefix)s
+gcc_tooldir=%(install_root)s/%(system_prefix)s
+includedir=%(install_root)s/%(system_prefix)s/include
+infodir=%(install_root)s/%(system_prefix)s/share/info
+libdir=%(install_root)s/%(system_prefix)s/lib
+libexecdir=%(install_root)s/%(system_prefix)s/lib
+mandir=%(install_root)s/%(system_prefix)s/share/man
+prefix=%(install_root)s/%(system_prefix)s
+sysconfdir=%(install_root)s/%(system_prefix)s/etc
+tooldir=%(install_root)s/%(system_prefix)s
+''')
 
     def install (self):
         build.AutoBuild.install (self)

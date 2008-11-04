@@ -55,9 +55,6 @@ class Zlib__tools (tools.AutoBuild, Zlib):
         tools.AutoBuild.configure (self)
     def install_command (self):
         return tools.AutoBuild.broken_install_command (self)
-    def install (self):
-        tools.AutoBuild.install (self)
-        self.system ('cd %(install_root)s && mkdir -p ./%(tools_prefix)s && cp -av usr/* ./%(tools_prefix)s && rm -rf usr')
     def configure_command (self):
         return Zlib.configure_command (self)
     def license_files (self):
