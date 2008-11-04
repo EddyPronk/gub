@@ -442,7 +442,8 @@ def get_source_packages (settings, const_todo):
         platform, url = split_platform (url)
         if ':' in url:
             base, unused_parameters = misc.dissect_url (url)
-            name = os.path.basename (base)
+            name = (os.path.basename (base)
+                    .replace ('.git', ''))
             ##DOCME or JUNKME
             ##name = re.sub ('\..*', '', name)
             key = url
@@ -518,7 +519,4 @@ def get_source_packages (settings, const_todo):
 
     # Make sure we build dependencies in order
     sorted_names = [o.platform_name () for o in sorted_specs]
-    dep_str = ' '.join (sorted_names).replace (with_platform (''), '')
-    platform = settings.platform
-    logging.info ('dependencies[%(platform)s]: %(dep_str)s\n' % locals ())
     return (sorted_names, spec_dict)
