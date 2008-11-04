@@ -15,15 +15,15 @@ Module 'libwpd' delivered successfully. 0 files copied, 12 files unchanged
 Module 'xml2cmp' delivered successfully. 0 files copied, 5 files unchanged
 Module 'sal' delivered successfully. 10 files copied, 100 files unchanged
 Module 'vos' delivered successfully. 0 files copied, 31 files unchanged
-Module 'sandbox' delivered successfully. 1 files copied, 1 files unchanged
+Module 'sandbox' delivered successfully. 0 files copied, 2 files unchanged
 Module 'afms' delivered successfully. 0 files copied, 2 files unchanged
 Module 'beanshell' delivered successfully. 0 files copied, 2 files unchanged
 Module 'cppunit' delivered successfully. 4 files copied, 65 files unchanged
-Module 'testshl2' delivered successfully. 1 files copied, 11 files unchanged
+Module 'testshl2' delivered successfully. 0 files copied, 12 files unchanged
 Module 'salhelper' delivered successfully. 0 files copied, 12 files unchanged
 Module 'extras' delivered successfully. 0 files copied, 70 files unchanged
 Module 'fondu' delivered successfully. 0 files copied, 2 files unchanged
-Module 'hsqldb' delivered successfully. 1 files copied, 1 files unchanged
+Module 'hsqldb' delivered successfully. 0 files copied, 2 files unchanged
 Module 'hunspell' delivered successfully. 0 files copied, 15 files unchanged
 Module 'hyphen' delivered successfully. 0 files copied, 5 files unchanged
 Module 'icc' delivered successfully. 0 files copied, 2 files unchanged
@@ -31,8 +31,7 @@ Module 'libtextcat' delivered successfully. 0 files copied, 81 files unchanged
 Module 'libwpg' delivered successfully. 0 files copied, 16 files unchanged
 Module 'libwps' delivered successfully. 0 files copied, 6 files unchanged
 Module 'libxmlsec' delivered successfully. 0 files copied, 1 files unchanged
-Module 'lpsolve' delivered successfully. 1 files copied, 4 files unchanged
-Module 'lucene' delivered successfully. 1 files copied, 0 files unchanged
+Module 'lucene' delivered successfully. 0 files copied, 1 files unchanged
 Module 'np_sdk' delivered successfully. 0 files copied, 9 files unchanged
 Module 'o3tl' delivered successfully. 0 files copied, 5 files unchanged
 Module 'psprint_config' delivered successfully. 0 files copied, 1 files unchanged
@@ -68,25 +67,68 @@ Module 'i18nutil' delivered successfully. 0 files copied, 8 files unchanged
 Module 'io' delivered successfully. 0 files copied, 12 files unchanged
 Module 'jut' delivered successfully. 0 files copied, 3 files unchanged
 Module 'remotebridges' delivered successfully. 0 files copied, 17 files unchanged
-Module 'bean' delivered successfully. 1 files copied, 3 files unchanged
-Module 'embedserv' delivered successfully. 1 files copied, 0 files unchanged
+Module 'bean' delivered successfully. 0 files copied, 4 files unchanged
+Module 'embedserv' delivered successfully. 0 files copied, 1 files unchanged
 Module 'eventattacher' delivered successfully. 0 files copied, 2 files unchanged
 Module 'hwpfilter' delivered successfully. 0 files copied, 4 files unchanged
 Module 'package' delivered successfully. 0 files copied, 6 files unchanged
 Module 'regexp' delivered successfully. 0 files copied, 4 files unchanged
 Module 'i18npool' delivered successfully. 1 files copied, 40 files unchanged
-Module 'tools' delivered successfully. 5 files copied, 101 files unchanged
-Module 'unotools' delivered successfully. 0 files copied, 47 files unchanged
-Module 'transex3' delivered successfully. 0 files copied, 33 files unchanged
-Module 'sot' delivered successfully. 0 files copied, 21 files unchanged
-Module 'fileaccess' delivered successfully. 0 files copied, 4 files unchanged
+Module 'tools' delivered successfully. 14 files copied, 92 files unchanged
+Module 'unotools' delivered successfully. 3 files copied, 44 files unchanged
+Module 'transex3' delivered successfully. 11 files copied, 22 files unchanged
+Module 'sot' delivered successfully. 4 files copied, 17 files unchanged
+Module 'fileaccess' delivered successfully. 1 files copied, 3 files unchanged
 Module 'officecfg' delivered successfully. 1 files copied, 224 files unchanged
-Module 'setup_native' delivered successfully. 2 files copied, 56 files unchanged
-Module 'rsc' delivered successfully. 0 files copied, 8 files unchanged
-Module 'oox' delivered successfully. 0 files copied, 9 files unchanged
+Module 'setup_native' delivered successfully. 1 files copied, 57 files unchanged
+Module 'rsc' delivered successfully. 2 files copied, 6 files unchanged
+Module 'oox' delivered successfully. 1 files copied, 8 files unchanged
 Module 'psprint' delivered successfully. 0 files copied, 14 files unchanged
-Module 'pyuno' delivered successfully. 8 files copied, 13 files unchanged
-79 modules
+Module 'pyuno' delivered successfully. 0 files copied, 21 files unchanged
+Module 'sysui' delivered successfully. 4 files copied, 128 files unchanged
+Module 'UnoControls' delivered successfully. 1 files copied, 1 files unchanged
+Module 'dtrans' delivered successfully. 3 files copied, 9 files unchanged
+Module 'idl' delivered successfully. 1 files copied, 2 files unchanged
+Module 'readlicense_oo' delivered successfully. 0 files copied, 12 files unchanged
+Module 'sccomp' delivered successfully. 1 files copied, 3 files unchanged
+Module 'scp2' delivered successfully. 9 files copied, 82 files unchanged
+Module 'testtools' delivered successfully. 0 files copied, 1 files unchanged
+Module 'unodevtools' delivered successfully. 0 files copied, 4 files unchanged
+Module 'unoxml' delivered successfully. 0 files copied, 3 files unchanged
+Module 'ure' delivered successfully. 0 files copied, 9 files unchanged
+Module 'vigra' delivered successfully. 0 files copied, 83 files unchanged
+Module 'basebmp' delivered successfully. 0 files copied, 37 files unchanged
+Module 'wizards' delivered successfully. 0 files copied, 27 files unchanged
+Module 'x11_extensions' delivered successfully. 0 files copied, 7 files unchanged
+Module 'vcl' delivered successfully. 3 files copied, 140 files unchanged
+Module 'toolkit' delivered successfully. 2 files copied, 55 files unchanged
+Module 'svtools' delivered successfully. 15 files copied, 300 files unchanged
+Module 'uui' delivered successfully. 2 files copied, 4 files unchanged
+Module 'goodies' delivered successfully. 27 files copied, 62 files unchanged
+Module 'xmloff' delivered successfully. 3 files copied, 124 files unchanged
+Module 'ucb' delivered successfully. 0 files copied, 35 files unchanged
+Module 'canvas' delivered successfully. 3 files copied, 41 files unchanged
+Module 'configmgr' delivered successfully. 0 files copied, 9 files unchanged
+Module 'connectivity' delivered successfully. 11 files copied, 71 files unchanged
+Module 'xmlscript' delivered successfully. 0 files copied, 12 files unchanged
+Module 'fpicker' delivered successfully. 5 files copied, 7 files unchanged
+Module 'framework' delivered successfully. 6 files copied, 35 files unchanged
+Module 'xmlhelp' delivered successfully. 0 files copied, 10 files unchanged
+Module 'accessibility' delivered successfully. 1 files copied, 5 files unchanged
+Module 'cppcanvas' delivered successfully. 2 files copied, 15 files unchanged
+Module 'embeddedobj' delivered successfully. 1 files copied, 4 files unchanged
+Module 'helpcontent2' delivered successfully. 1 files copied, 12 files unchanged
+Module 'padmin' delivered successfully. 0 files copied, 4 files unchanged
+Module 'scaddins' delivered successfully. 2 files copied, 5 files unchanged
+Module 'shell' delivered successfully. 4 files copied, 24 files unchanged
+Module 'sj2' delivered successfully. 3 files copied, 3 files unchanged
+Module 'basic' delivered successfully. 7 files copied, 45 files unchanged
+Module 'sfx2' delivered successfully. 4 files copied, 119 files unchanged
+Module 'avmedia' delivered successfully. 2 files copied, 9 files unchanged
+Module 'linguistic' delivered successfully. 2 files copied, 11 files unchanged
+Module 'svx' delivered successfully. 640 files copied, 2 files unchanged
+
+120 modules
 '''
 
 class Openoffice (target.AutoBuild):
@@ -335,7 +377,7 @@ LD_LIBRARY_PATH=%(LD_LIBRARY_PATH)s
 ##CPPFLAGS=
                 
 class Openoffice__mingw (Openoffice):
-    Openoffice.upstream_patches += ['openoffice-config_office-mingw.patch', 'openoffice-solenv-mingw.patch', 'openoffice-sal-mingw.patch', 'openoffice-external-mingwheaders.patch', 'openoffice-cppunit-mingw.patch', 'openoffice-i18npool-mingw.patch', 'openoffice-tools-mingw.patch', 'openoffice-setup_native-mingw.patch', 'openoffice-pyuno-mingw.patch', 'openoffice-sysui-mingw.patch', 'openoffice-dtrans-mingw.patch', 'openoffice-fpicker-mingw.patch', 'openoffice-sccomp-mingw.patch', 'openoffice-vcl-mingw.patch', 'openoffice-connectivity-mingw.patch', 'openoffice-unotools-mingw.patch']
+    Openoffice.upstream_patches += ['openoffice-config_office-mingw.patch', 'openoffice-solenv-mingw.patch', 'openoffice-sal-mingw.patch', 'openoffice-external-mingwheaders.patch', 'openoffice-cppunit-mingw.patch', 'openoffice-i18npool-mingw.patch', 'openoffice-tools-mingw.patch', 'openoffice-setup_native-mingw.patch', 'openoffice-pyuno-mingw.patch', 'openoffice-sysui-mingw.patch', 'openoffice-dtrans-mingw.patch', 'openoffice-fpicker-mingw.patch', 'openoffice-sccomp-mingw.patch', 'openoffice-vcl-mingw.patch', 'openoffice-connectivity-mingw.patch', 'openoffice-unotools-mingw.patch', 'openoffice-embeddedobj-mingw.patch', 'openoffice-shell-mingw.patch', 'openoffice-svx-mingw.patch']
     # external/mingwheaders seems a badly misguided effort.  It
     # patches header files and is thus strictly tied to a gcc version;
     # that can never build.  How can patching header files ever work,
@@ -389,7 +431,7 @@ set -e
 in=$(eval echo '$'$#)
 dir=$(dirname $in)
 /usr/bin/wrc "$@"
-if test "$dir" != "."; then
+if test "$dir" != "." -a -e $(basename $in .rc).res; then
     mv $(basename $in .rc).res $dir
 fi
 ''',
