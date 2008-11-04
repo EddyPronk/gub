@@ -422,6 +422,15 @@ class TarBall (Repository):
         _z = misc.compression_flag (tarball)
         self.system ('tar -C %(destdir)s --strip-component=%(strip_components)d %(_v)s%(_z)s -xf %(tarball)s' % locals ())
 
+    def _unpack_promise_well_behaved (self, destdir, tarball):
+        assert (self.strip_components == 1)
+        _v = '-v'
+        # fixme
+        #if self.oslog:  #urg, will be fixed when .source is mandatory
+        #    _v = self.oslog.verbose_flag ()
+        _z = misc.compression_flag (tarball)
+        self.system ('tar -C %(destdir)s/.. %(_v)s%(_z)s -xf %(tarball)s' % locals ())
+
     def version (self):
         from gub import misc
         return self._version
