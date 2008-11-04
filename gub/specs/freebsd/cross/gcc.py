@@ -1,6 +1,6 @@
 from gub.specs.cross import gcc
 
-class Gcc (gcc.Gcc):
+class Gcc__freebsd (gcc.Gcc):
     #source = 'ftp://ftp.gnu.org/pub/gnu/gcc/gcc-4.1.2/gcc-4.1.2.tar.bz2'
     #source = 'ftp://ftp.gnu.org/pub/gnu/gcc/gcc-4.1.1/gcc-4.1.1.tar.bz2'
     source = 'ftp://ftp.gnu.org/pub/gnu/gcc/gcc-4.3.2/gcc-4.3.2.tar.bz2'

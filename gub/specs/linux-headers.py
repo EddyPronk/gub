@@ -32,7 +32,7 @@ linux_kernel_headers = misc.load_spec ('debian/linux-kernel-headers')
 class Linux_headers__debian (linux_kernel_headers.Linux_kernel_headers):
 #        debian.init_dependency_resolver (settings)
 # FIXME: we do not mirror all 12 debian arch's,
-    source = 'http://ftp.debian.org/debian/pool/main/l/linux-kernel-headers/linux-kernel-headers_2.5.999-test7-bk-17_%%(package_arch)s.deb&strip=0' 
+    source = 'http://ftp.debian.org/debian/pool/main/l/linux-kernel-headers/linux-kernel-headers_2.5.999-test7-bk-17_%(package_arch)s.deb&strip=0' 
 
 Linux_headers__linux__ppc = Linux_headers__debian
 #Linux_headers__linux__64 = Linux_headers__debian
@@ -43,4 +43,4 @@ Linux_headers__linux__mipsel = Linux_headers__debian
 
 class Linux_headers__linux__64 (Linux_headers__debian):
 # FIXME: we do not mirror all 12 debian arch's,
-    source = 'http://ftp.debian.org/debian/pool/main/l/linux-kernel-headers/linux-kernel-headers_2.6.18-7_%%(package_arch)s.deb&strip=0' 
+    source = 'http://ftp.debian.org/debian/pool/main/l/linux-kernel-headers/linux-kernel-headers_2.6.18-7_%(package_arch)s.deb&strip=0' 

@@ -1,7 +1,7 @@
 from gub import build
 
 ## change to sdk package
-class Python (build.SdkBuild):
+class Python__darwin (build.SdkBuild):
     source = 'url://host/python-2.3.tar.gz'
     def srcdir (self):
         return '%(allsrcdir)s/python-darwin'

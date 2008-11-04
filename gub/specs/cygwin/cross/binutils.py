@@ -3,7 +3,7 @@ from gub import cygwin
 
 # FIXME: setting binutil's tooldir and/or gcc's gcc_tooldir may fix
 # -luser32 (ie -L .../w32api/) problem without having to set LDFLAGS.
-class Binutils (binutils.Binutils):
+class Binutils__cygwin (binutils.Binutils):
     source = 'ftp://ftp.gnu.org/pub/gnu/binutils/binutils-2.17.tar.bz2'
     def makeflags (self):
         from gub import misc

@@ -11,6 +11,11 @@ from gub import tools
 def get_build_from_file (platform, file_name, name):
     gub_name = file_name.replace (os.getcwd () + '/', '')
     logging.verbose ('reading spec: %(gub_name)s\n' % locals ())
+    # Ugh, FIXME
+    # This loads gub/specs/darwin/python.py in PYTHON. namespace,
+    # overwriting the PYTHON. namespace from gub/specs/python.py
+    # Current workaround: always/also use __darwin etc. postfixing
+    # of class names, also in specs/darwin/ etc.
     module = misc.load_module (file_name, name)
     # cross/gcc.py:Gcc will be called: cross/Gcc.py,
     # to distinguish from specs/gcc.py:Gcc.py

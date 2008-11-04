@@ -2,7 +2,7 @@ from gub import build
 from gub import debian
 
 class Libc6_dev (build.BinaryBuild, build.SdkBuild):
-    source = 'http://ftp.debian.org/debian/pool/main/g/glibc/libc6-dev_' + debian.get_packages ()['libc6-dev'].version () + '_%%(package_arch)s.deb&strip=0'
+    source = 'http://ftp.debian.org/debian/pool/main/g/glibc/libc6-dev_' + debian.get_packages ()['libc6-dev'].version () + '_%(package_arch)s.deb&strip=0'
     def untar (self):
         build.BinaryBuild.untar (self)
         # FIXME: this rewiring breaks ld badly, it says

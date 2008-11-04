@@ -3,7 +3,7 @@ import os
 from gub.specs.cross import gcc
 from gub import loggedos
 
-class Gcc (gcc.Gcc):
+class Gcc__darwin (gcc.Gcc):
     source = 'ftp://ftp.fu-berlin.de/unix/languages/gcc/releases/gcc-4.1.1/gcc-4.1.1.tar.bz2'
     def patch (self):
         self.file_sub ([('/usr/bin/libtool', '%(cross_prefix)s/bin/%(target_architecture)s-libtool')],
@@ -38,15 +38,14 @@ class Gcc (gcc.Gcc):
     def get_build_dependencies (self):
         return ['odcctools', 'cross/binutils']
     
-class Gcc__darwin__x86 (Gcc):
+class Gcc__darwin__x86 (Gcc__darwin):
     source = 'ftp://ftp.fu-berlin.de/unix/languages/gcc/releases/gcc-4.3.2/gcc-4.3.2.tar.bz2'
     def get_build_dependencies (self):
-        return Gcc.get_build_dependencies (self) + ['tools::mpfr']
+        return Gcc__darwin.get_build_dependencies (self) + ['tools::mpfr']
 
-class Not_used__Gcc__darwin (Gcc):
+class Not_used__Gcc__darwin (Gcc__darwin):
     def configure (self):
         gcc.Gcc.configure (self)
     def install (self):
         gcc.Gcc.install (self)
         self.rewire_gcc_libs ()
-        
