@@ -24,6 +24,12 @@ static struct allow_path {
 static int allowed_len;
 static int allowed_count;
 
+#if defined (__FreeBSD__)
+char const *SELF = "/proc/curproc/file";
+#else
+char const *SELF = "/proc/self/exe";
+#endif
+
 static void
 add_allowed (char const *p)
 {
@@ -64,11 +70,13 @@ expand_path (char const *p)
 static int
 is_allowed (char const *fn, char const *call)
 {
+  int i;
+  char const *fullpath;
+
   if (allowed_count == 0)
     return 1;
 
-  char const *fullpath = expand_path (fn);
-  int i = 0;
+  fullpath = expand_path (fn);
   for (i = 0; i < allowed_count; i++)
     if (0 == strncmp (fullpath, allowed[i].prefix, allowed[i].prefix_len))
       return 1;
@@ -87,10 +95,10 @@ get_executable_name (void)
 {
   int const MAXLEN = 1024;
   char s[MAXLEN+1];
-  ssize_t ss = readlink ("/proc/self/exe", s, MAXLEN);
+  ssize_t ss = readlink (SELF, s, MAXLEN);
   if (ss < 0)
     {
-      fprintf(stderr, "restrict.c: failed reading /proc/self/exe");
+      fprintf (stderr, "restrict.c: failed reading: %s\n", SELF);
       abort ();
     }
   s[ss] = '\0';
@@ -103,6 +111,7 @@ strrstr (char const *haystack, char const *needle)
 {
   char const *p = haystack;
   char const *last_match = NULL;
+
   while ((p = strstr (p, needle)) != NULL)
     {
       last_match = p;
@@ -118,12 +127,14 @@ get_allowed_prefix (char const *exe_name)
   // can't add bin/ due to libexec.
   char *cross_suffix = "/root/usr/cross/";
   char const *last_found = strrstr (exe_name, cross_suffix);
+  int prefix_len;
+  char *allowed_prefix;
 
   if (last_found == NULL)
     return NULL;
 
-  int prefix_len = last_found - exe_name;
-  char *allowed_prefix = malloc (sizeof (char) * (prefix_len + 1));
+  prefix_len = last_found - exe_name;
+  allowed_prefix = malloc (sizeof (char) * (prefix_len + 1));
 
   strncpy (allowed_prefix, exe_name, prefix_len);
   allowed_prefix[prefix_len] = '\0';
@@ -136,12 +147,15 @@ static void initialize (void) __attribute__ ((constructor));
 static
 void initialize (void)
 {
+  char *restrict;
+
   executable_name = get_executable_name ();
-  char *restrict = get_allowed_prefix (executable_name);
+  restrict = get_allowed_prefix (executable_name);
   if (restrict)
     {
-      add_allowed (restrict);
       char *allow = getenv ("LIBRESTRICT_ALLOW");
+
+      add_allowed (restrict);
       if (allow)
 	add_allowed (allow);
       add_allowed ("/tmp");
@@ -159,6 +173,7 @@ real_open (const char *fn, int flags, int mode)
 int
 __open (const char *fn, int flags, ...)
 {
+  int rv;
   va_list p;
   va_start (p,flags);
 
@@ -168,7 +183,7 @@ __open (const char *fn, int flags, ...)
       return -1;
     }
 
-  int rv = real_open (fn, flags, va_arg (p, int));
+  rv = real_open (fn, flags, va_arg (p, int));
 
   return rv;
 }
