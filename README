@@ -55,7 +55,11 @@ You can get it by doing
 
   git clone git://github.com/janneke/gub.git
 
-a simple home page lives at
+or download the latest tarball doing
+
+  wget http://github.com/janneke/gub/tarball/master
+
+GUB home page
 
   http://lilypond.org/gub
 
