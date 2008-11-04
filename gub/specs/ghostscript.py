@@ -27,6 +27,8 @@ models.'''
         def version_from_VERSION (self):
             # ugh - self is a repository here
             s = self.read_file ('src/version.mak')
+            if not 'GS_VERSION_MAJOR' in s:
+                return '0.0'
             d = misc.grok_sh_variables_str (s)
             v = '%(GS_VERSION_MAJOR)s.%(GS_VERSION_MINOR)s' % d
             return v
