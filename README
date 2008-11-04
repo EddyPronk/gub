@@ -2,10 +2,10 @@ GUB -- Grand Unified Builder
 
 WHAT IS GUB
 
-Grand Unified Builder (GUB) is the mini packaging system that we developed for
-building LilyPond binaries. It cross-compiles several packages and assembles
-them into a single package. At the moment it supports the following target
-platforms
+Grand Unified Builder (GUB, http://lilypond.org/gub) is a mini packaging system
+originally developed for building LilyPond binaries. It cross-compiles several
+packages and assembles them into a single package. At the moment it supports
+the following target platforms
 
 darwin-ppc
    tar.bz2 file for Darwin 7 (MacOS 10.3)/PowerPC
@@ -54,6 +54,10 @@ The Git repository is at
 You can get it by doing
 
   git clone git://github.com/janneke/gub.git
+
+a simple home page lives at
+
+  http://lilypond.org/gub
 
 INSTALLING
 
