@@ -25,9 +25,10 @@ class LilyPond (target.AutoBuild):
         # repository patched in method.
         def version_from_VERSION (self):
             s = self.read_file ('VERSION')
+            if not 'MAJOR_VERSION' in s:
+                return '0.0.0'
             d = misc.grok_sh_variables_str (s)
             v = '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
-
             return v
 
         if isinstance (source, repository.Repository):
@@ -71,7 +72,6 @@ class LilyPond (target.AutoBuild):
                 'tools::pkg-config', # nonstandard (MacOS)
                 'tools::netpbm', # website
                 'tools::gettext', # AM_GNU_GETTEXT
-                'tools::git', # possibly too old or too new.  Automate this, by looking at self.source.[Git]?
                 'tools::t1utils',
                 'tools::texi2html',
                 #'tools::texlive', mpost ... *grin*
@@ -105,8 +105,7 @@ class LilyPond (target.AutoBuild):
         return target.AutoBuild.name_version (self)
 
     def build_version (self):
-        d = misc.grok_sh_variables_str (self.source.read_file ('VERSION'))
-        v = '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
+        v = self.source.version ()
         self.runner.info ('LILYPOND-VERSION: %(v)s\n' % locals ())
         return v
 

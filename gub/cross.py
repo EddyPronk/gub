@@ -6,6 +6,7 @@ from gub import build
 from gub import context
 from gub import logging
 from gub import misc
+from gub import repository
 from gub import target
 from gub import tools
 
@@ -55,11 +56,10 @@ def change_target_package (package):
     pass
 
 # GUB compatibility problems:
-# GIT: to dowload gub
-# make
 # tar --strip-component
 # /usr/bin/install: coreutils
-bootstrap_names = ['tools::librestrict']
+# SVN
+bootstrap_names = ['tools::librestrict', 'tools::make']
 def set_cross_dependencies (package_object_dict):
     packs = package_object_dict.values ()
 
@@ -71,11 +71,22 @@ def set_cross_dependencies (package_object_dict):
                                         and not isinstance (p, build.BinaryBuild)
                                         and not isinstance (p, tools.AutoBuild)
                                         and not p.platform_name () in bootstrap_names)]
+
+    # Run something like lilypond/SConscript's configure
+    # to figure-out if we need a new, Git, Make, Patch, Python, etc?
+    # Building make & patch is cheap and dependable.
+    git_packs = [p for p in packs if isinstance (p.source, repository.Git)]
+    patch_packs = [p for p in packs if p.__class__.__dict__.get ('patches', None)]
     python_packs = [p for p in packs if (isinstance (p, tools.PythonBuild)
                                          or isinstance (p, target.PythonBuild))]
     scons_packs = [p for p in packs if (isinstance (p, tools.SConsBuild)
                                         or isinstance (p, target.SConsBuild))]
+    
     extra_names = []
+    if git_packs:
+        extra_names += ['tools::git']
+    if patch_packs:
+        extra_names += ['tools::patch']
     if python_packs or scons_packs:
         extra_names += ['tools::python']
     if scons_packs:
@@ -95,6 +106,14 @@ def set_cross_dependencies (package_object_dict):
         old_callback = p.get_build_dependencies
         p.get_build_dependencies = misc.MethodOverrider (old_callback,
                                                          lambda x,y: x+y, (bootstrap_names,))
+    for p in git_packs:
+        old_callback = p.get_build_dependencies
+        p.get_build_dependencies = misc.MethodOverrider (old_callback,
+                                                         lambda x,y: x+y, (['tools::git'],))
+    for p in patch_packs:
+        old_callback = p.get_build_dependencies
+        p.get_build_dependencies = misc.MethodOverrider (old_callback,
+                                                         lambda x,y: x+y, (['tools::patch'],))
     for p in python_packs:
         old_callback = p.get_build_dependencies
         p.get_build_dependencies = misc.MethodOverrider (old_callback,
