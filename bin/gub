@@ -156,6 +156,11 @@ Examples:
                   default=False,
                   help='Print action, do not run.')
 
+    p.add_option ('--dependencies',
+                  action='store_true',
+                  default=False,
+                  help='Print action, do not run.')
+
     p.add_option ('-l', '--skip-if-locked',
                   default=False,
                   dest="skip_if_locked",
@@ -186,6 +191,15 @@ def inspect (settings, files):
 #FIXME: move to BuildRunner?
 def build (settings, options, files):
     (names, specs) = gup.get_source_packages (settings, files)
+
+    platform = settings.platform
+    dep_str = ' '.join (names)
+    if options.dependencies:
+        logging.stage ('dependencies[%(platform)s]: %(dep_str)s\n' % locals ())
+        sys.exit (0)
+    dep_str.replace (misc.with_platform ('', platform), '')
+    logging.info ('dependencies[%(platform)s]: %(dep_str)s\n' % locals ())
+
     if options.fresh:
         try:
             for spec in specs.values():
@@ -238,12 +252,14 @@ def build (settings, options, files):
 
     b = buildrunner.BuildRunner (manager, settings, specs)
 
-    # better in ctor?
+    if options.dependencies:
+        sys.exit (0)
+
     b.calculate_checksums ()
     if options.dry_run:
         for name in sorted (b.checksums):
             print b.checksums[name]
-        sys.exit(0)
+        sys.exit (0)
         
     b.build_source_packages (names)
 
@@ -293,7 +309,7 @@ def main ():
 
     logging.default_logger.threshold = options.verbosity
 
-    if not options.platform and len (files) == 1:
+    if not options.platform and len (files):
         options.platform, x = misc.split_platform (files[0])
 
     if not options.platform:
