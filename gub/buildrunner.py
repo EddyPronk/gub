@@ -73,7 +73,8 @@ class BuildRunner:
 
     def calculate_checksums (self):
         logging.verbose ('calculating checksums\n')
-        for (name, spec) in self.specs.items ():
+        for spec in self.specs.values ():
+            name = spec.platform_name ()
             logger = logging.NullCommandLogger ()
 
             command_runner = runner.DeferredRunner (logger)
