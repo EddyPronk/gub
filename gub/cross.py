@@ -56,7 +56,11 @@ def change_target_package (package):
     pass
 
 # GUB compatibility problems:
-# tar --strip-component
+# python: 2.4, import *dbm
+# git: wget http://github.com/janneke/gub/tarball/master
+# librestrict
+# GNU make
+# GNU tar --strip-component
 # /usr/bin/install: coreutils
 # SVN
 bootstrap_names = ['tools::librestrict', 'tools::make']
@@ -82,7 +86,12 @@ def set_cross_dependencies (package_object_dict):
     scons_packs = [p for p in packs if (isinstance (p, tools.SConsBuild)
                                         or isinstance (p, target.SConsBuild))]
     
+    tar_packs = [p for p in packs if (isinstance (p.source, repository.TarBall)
+                                      and p.platform_name () not in (bootstrap_names + ['tools::tar']))]
+
     extra_names = []
+    if tar_packs:
+        extra_names += ['tools::tar']
     if git_packs:
         extra_names += ['tools::git']
     if patch_packs:
@@ -106,6 +115,10 @@ def set_cross_dependencies (package_object_dict):
         old_callback = p.get_build_dependencies
         p.get_build_dependencies = misc.MethodOverrider (old_callback,
                                                          lambda x,y: x+y, (bootstrap_names,))
+    for p in tar_packs:
+        old_callback = p.get_build_dependencies
+        p.get_build_dependencies = misc.MethodOverrider (old_callback,
+                                                         lambda x,y: x+y, (['tools::tar'],))
     for p in git_packs:
         old_callback = p.get_build_dependencies
         p.get_build_dependencies = misc.MethodOverrider (old_callback,
