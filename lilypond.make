@@ -20,23 +20,15 @@ default: all
 ALL_PLATFORMS=linux-x86 darwin-ppc darwin-x86 debian debian-arm freebsd-64 freebsd-x86 linux-64 mingw debian-mipsel linux-ppc
 PLATFORMS=linux-x86 linux-64 linux-ppc freebsd-x86 freebsd-64
 
-# XBUILD_PLATFORM: leave checks in place for now:
-# we need 32 bit compatibility libs and linux-x86 built for this to work
-
-ifneq ($(XBUILD_PLATFORM),linux-64)
 # odcctools do not build with 64 bit compiler
 PLATFORMS+=darwin-ppc darwin-x86
-endif
 
-ifneq ($(XBUILD_PLATFORM),linux-64)
 # nsis does not build with 64 bit compiler
 PLATFORMS+=mingw
-endif
-
 
 ## want cygwin to be the last, because it is not a core lilypond platform. 
 ALL_PLATFORMS += cygwin
-PLATFORMS += cygwin
+##PLATFORMS += cygwin
 
 
 LILYPOND_CVS_REPODIR=downloads/lilypond.cvs
@@ -235,45 +227,12 @@ realclean:
 ################################################################
 # compilers and tools
 
-tools +=\
- distcc\
- expat\
- flex\
- fontforge\
- freetype\
- gettext\
- git\
- guile\
- icoutils\
- netpbm\
- pkg-config\
- python\
- texi2html
+tools := $(shell $(GUB) --dependencies $(foreach p, $(PLATFORMS), $(p)::lilypond) 2>&1 | grep ^dependencies | tr ' ' '\n' | grep 'tools::')
 
-###
-# document why this is in the bootstrap
-
-# -guile: bootstrap guile
-# -gettext: AM_GNU_GETTEXT
-# -texinfo: need 4.8 for lily
-# -automake: prevent version confusion
-# -pkg-config: nonstandard (eg. MacOS)
-# -icoutils: lilypond mingw icons
-# -distcc: nonstandard (eg. MacOS)
-# -freetype: for bootstrapping fontconfig
-# -netpbm: website
-# -python: bootstrap for python x-compile
-# -icoutils: icon build for mingw
-
+#
 # TODO:
 # -imagemagick: for lilypond web site
 #x imagemagick \
-
-## Nsis is made in target tools-cross-tools, after cross compilers
-
-# tools-cross-tools depend on cross-compilers, see compilers.make.
-# We need linux-x86 and mingw before nsis can be build
-#	$(MAKE) tools-cross-tools
 
 ################################################################
 # docs

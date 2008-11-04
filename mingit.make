@@ -16,15 +16,11 @@ include compilers.make
 GPKG_OPTIONS=--branch git=$(MINGIT_LOCAL_BRANCH)
 
 GUB_OPTIONS=\
- -v -v -v \
  --branch git=$(MINGIT_BRANCH):$(MINGIT_LOCAL_BRANCH)
 
 INSTALLER_BUILDER_OPTIONS=\
-  -vvv\
   --branch=git=$(MINGIT_LOCAL_BRANCH)\
   --version-db=uploads/git.versions \
-
-tools += git pkg-config nsis icoutils
 
 all: $(PLATFORMS)
 

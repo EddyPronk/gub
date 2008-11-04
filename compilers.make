@@ -11,7 +11,7 @@
 #  LOCAL_GUB_OPTIONS - esp.: --verbose, --keep [--force-package]
 #  LOCAL_GUB_BUILDER_OPTIONS - deprecated
 
-.PHONY: bootstrap bootstrap-git compilers cross-compilers download download-tools restrict tools tools-cross-tools
+.PHONY: bootstrap bootstrap-git compilers cross-compilers download download-tools tools tools-cross-tools
 
 ifeq ($(CWD),)
 $(error Must set CWD)
@@ -25,9 +25,11 @@ endif
 
 DISTCC_DIRS=target/cross-distcc/bin target/cross-distccd/bin target/native-distcc/bin 
 
-tools = automake autoconf libtool texinfo
+# Find out if we need cross/gcc or glibc as topmost cross compile target
+#gcc_or_glibc = $(shell $(GUB) -p $(1) --inspect=version glibc > /dev/null 2>/dev/null && echo glibc || echo cross/gcc)
+gcc_or_glibc = $(shell if echo $(1) | grep linux > /dev/null 2>/dev/null; then echo glibc; else echo cross/gcc; fi)
 
-# -texinfo: for binutils-2.18
+tools = $(shell $(GUB) --dependencies $(foreach p, $(PLATFORMS), $(p)::$(call gcc_or_glibc,$(p))) 2>&1 | grep ^dependencies | tr ' ' '\n' | grep 'tools::')
 
 compilers: cross-compilers
 
@@ -49,12 +51,6 @@ tools-distcc:
 		ln -s $(CWD)/gub/distcc.py target/cross-distcc/bin/$(notdir $(binary)) && ) true
 	$(foreach binary, gcc g++, \
 		ln -s $(CWD)/gub/distcc.py target/native-distcc/bin/$(notdir $(binary)) && ) true
-
-# Find out if we need cross/gcc or glibc as topmost cross compile target
-#gcc_or_glibc = $(shell $(GUB) -p $(1) --inspect=version glibc > /dev/null 2>/dev/null && echo glibc || echo cross/gcc)
-
-# URG
-gcc_or_glibc = $(shell if echo $(1) | grep linux > /dev/null 2>/dev/null; then echo glibc; else echo cross/gcc; fi)
 
 cross-compilers:
 	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB,$(p)) $(call gcc_or_glibc,$(p)) && ) true
@@ -80,31 +76,19 @@ native-distccd:
 		--port 3634 --pid-file $(CWD)/log/$@.pid \
 		--log-file $(CWD)/log/$@.log  --log-level info
 
-bootstrap: bootstrap-git download-tools restrict tools cross-compilers tools-cross-tools download
+bootstrap: bootstrap-git download-tools tools cross-compilers tools-cross-tools download
 
 bootstrap-git:
 	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools git
-
-restrict:
-	cd librestrict && $(MAKE) -f GNUmakefile
 
 tools:
 	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools $(tools)
 
 download-tools:
-ifneq ($(BUILD_PLATFORM),linux-64)
 	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools --stage=download $(tools) nsis
-else
-# ugh, can only download nsis after cross-compilers...
-	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools --stage=download $(tools)
-endif
 
 tools-cross-tools:
 ifeq ($(findstring nsis, $(tools)),nsis)
-ifeq ($(BUILD_PLATFORM),linux-64)
-# we need 32 bit compiler for nsis
-	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=linux-86 glibc
-endif
 	$(GUB) $(LOCAL_GUB_OPTIONS) --platform=tools nsis
 endif
 
