@@ -1,3 +1,5 @@
+import re
+#
 from gub import build
 from gub import target
 from gub import tools
@@ -13,7 +15,6 @@ class Zlib (target.AutoBuild):
     def compile_command (self):
         return target.AutoBuild.compile_command (self) + ' ARFLAGS=r '
     def configure_command (self):
-        import re
         stripped_platform = self.settings.expand ('%(platform)s')
         stripped_platform = re.sub ('-.*', '', stripped_platform)
         stripped_platform = stripped_platform.replace ('darwin', 'Darwin')
@@ -26,7 +27,7 @@ class Zlib (target.AutoBuild):
     def license_files (self):
         return ['%(sourcefiledir)s/zlib.license']
 
-class Zlib__mingw (Zlib):
+class Zlib_plain__mingw (Zlib):
     patches = Zlib.patches
     def patch (self):
         Zlib.patch (self)
@@ -37,6 +38,24 @@ class Zlib__mingw (Zlib):
     def configure_command (self):
         zlib_is_broken = 'target=mingw'
         return zlib_is_broken + ' %(srcdir)s/configure --shared '
+
+class Zlib_minizip__mingw (Zlib_plain__mingw):
+    patches = Zlib_plain__mingw.patches
+    def patch_include_minizip (self):
+        self.file_sub ([('(inffast.o)$', r'\1 ioapi.o iowin32.o mztools.o unzip.o zip.o\nVPATH= contrib/minizip\n')],
+                   '%(srcdir)s/Makefile.in')
+    def install_include_minizip (self):
+        self.system ('cd %(srcdir)s/contrib/minizip && cp ioapi.h iowin32.h mztools.h unzip.h zip.h %(install_prefix)s/include')
+    def patch (self):
+        Zlib_plain__mingw.patch (self)
+        self.patch_include_minizip ()
+    def configure_command (self):
+        return ''' CFLAGS='-I. -O3' ''' + Zlib_plain__mingw.configure_command (self)
+    def install (self):
+        Zlib_plain__mingw.install (self)
+        self.install_include_minizip ()
+
+Zlib__mingw = Zlib_minizip__mingw
 
 class Zlib__freebsd__64 (Zlib):
     pass
