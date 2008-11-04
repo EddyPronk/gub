@@ -77,28 +77,33 @@ You can get it by doing
 
   - about 9 GB of free space (for all platforms.)
 
-  - A standard unix development environment with GCC and G++
-  GNU Make
+  - standard unix shell utilities: cat, cp, install, mv, rm, sed, ...
+
+  - a standard unix development environment with GCC and G++ and GNU Make
 
   - Python 2.4
+
+  - Perl
+
+  - patch
 
 * Try
 
   bin/gub --help
 
-TODO:* Prepare build environment
-TODO:
-TODO:  bin/gub darwin-x86::cross/gcc
-TODO:
-TODO:* Build everything 
-TODO:
-TODO:  make -f <package>.make all
-TODO:
-TODO:this should leave installers and documentation in
-TODO:
-TODO:  uploads/
+  make help
 
+* Prepare a cross build environment
+
+  bin/gub darwin-x86::cross/gcc
+
+* Build all lilypond
+
+  make lilypond
+this should leave installers and documentation in
+uploads/
 </pre>
+see also <a href="lilypond.html">lilypond</a>
 
 <h2>USAGE</h2>
 
@@ -112,3 +117,7 @@ Run these programs with --help argument for instructions
   			     Bazaar,CVS,Darcs,Git,SVN and gub
   bin/cygwin-packager   - roll cygwin package
 </pre>
+
+</div>
+</body>
+</html>

@@ -1,37 +1,51 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <link rel="stylesheet" type="text/css" href="blog.css">
+    <title>GUB -- LilyPond</title>
+  </head>
+  <body>
+<h1>GUB -- LilyPond</h1>
 
-INSTALLING
-**********
+<h2>INSTALLING</h2>
 
-in addition to the requirements for GUB, you need:
+In addition to the requirements for GUB, you need
 
-    * A working TeX installation, ncurses, libcurl, libssl
-    * A subversion client
-    * ImageMagick (the program 'convert')
-    * pngtopnm
-    * t1utils
-    * perl-ExtUtils-MakeMaker (imagemagick dep.)
-    
-* Prepare build environment
+<ul>
+    <li>A TeX installation</li>
+    <li>A subversion client</li>
+    <li>ImageMagick (the program 'convert')</li>
+    <li>perl-ExtUtils-MakeMaker (imagemagick dep.)</li>
+</ul>
 
+<h3>Optional: Prepare build environment</h3>
+
+<pre>
   make -f lilypond.make bootstrap
+</pre>
 
-* Build everything 
+<h3>Build everything</h3>
 
-  make -f lilypond.make all
+<pre>
+  make lilypond
+</pre>
 
 this should leave an installer and documentation in
 
+<pre>
   uploads/PACKAGE-VERSION-RELEASE.linux-x86.shar
   uploads/PACKAGE-VERSION-RELEASE.documentation.tar.bz2
-  uploads/webdoc/VERSION/
+  uploads/webdoc/VERSION
+</pre>
 
 
-TESTING
-*******
+<h2>TESTING</h2>
 
 The test-lily directory contains scripts for running various
 tests. Run without arguments for instructions
 
+<pre>
   cron-builder.py - entry point from continuous crontab testing
   test-binary.py  - test binary builds
   with-lock.py    - run a command with a lockfile
@@ -40,39 +54,53 @@ tests. Run without arguments for instructions
   dist-check.py   - check tarball for anomalies
   cygwin-packager.py
                   - repackage GUB packages into Cygwin tarballs.
+</pre>
 
-
-
-CRON usage
-**********
+<h2>CRON USAGE</h2>
 
 I have the following in my crontab
 
+<ul>
 
-* Hourly build of LilyPond subpackage for all platforms except native
+<li>
+  Hourly build of LilyPond subpackage for all platforms except native
   (native is darwin-pcc?)
-
+</li>
+<pre>
 test-lily/cron-builder.py --package\
   --test-options "--to lilypond-cvs@gnu.org --quiet --from hanwen@lilypond.org
                   --smtp smtp.xs4all.nl --repository downloads/lilypond.git"\
   darwin-x86 freebsd-x86 freebsd-64 mingw linux-x86 linux-64
+</pre>
+
+</li>
+<li>
+  Hourly build of native installer, to run documentation and dist check.
   
-* Hourly build of native installer, to run documentation and dist check.
-  
+<pre>
 test-lily/cron-builder.py\
   --package --installer --tarball --docs\
   --test-options "--to lilypond-cvs@gnu.org --dependent --quiet\
                   --from hanwen@lilypond.org --smtp smtp.xs4all.nl --repository downloads/lilypond.git"\
   --unversioned\
   darwin-ppc
+</pre>
 
-
-* Nightly build of all installers, to be ready for shipping binaries
+</li>
+<li>
+  Nightly build of all installers, to be ready for shipping binaries
   in the morning.
   
+<pre>
 test-lily/cron-builder.py\
   --installer\
   --test-options "--to lilypond-cvs@gnu.org --quiet --from hanwen@lilypond.org\
                   --smtp smtp.xs4all.nl --repository downloads/lilypond.git"\
   darwin-x86 freebsd-x86 freebsd-64 mingw linux-x86 linux-64 darwin-ppc
+</pre>
+</li>
+</ul>
 
+</div>
+</body>
+</html>
