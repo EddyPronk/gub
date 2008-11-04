@@ -33,5 +33,5 @@ test:
 README: web/index.html web/lilypond.html
 	w3m -dump $^ > $@
 
-web:
+web: README
 	scp -p web/*html lilypond.org:/var/www/lilypond/gub
