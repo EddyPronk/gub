@@ -21,7 +21,7 @@
  
  # architecture dependent flags for the C and C++ compiler that can be changed by
  # exporting the variable ARCH_FLAGS="..." in the shell, which is used to start build
-@@ -50,7 +54,10 @@ CXX*=gcc
+@@ -50,7 +54,12 @@ CXX*=gcc
  #CFLAGS=-c -Wall -I$(INCLUDE) $(OLE2DEF)
  # new:
  #CYGINC=$(INCLUDE:s/-I /-I/:+"  ":s/;/ -I/:s/-I  //:s/   / /)
@@ -29,7 +29,9 @@
 +CFLAGS=-fmessage-length=0 -c -fpcc-struct-return $(OLE2DEF)
 +.IF "$(CROSS_COMPILING)" == "no"
 +CFLAGS += -nostdinc
-+.ENDIF # "$(CROSS_COMPILING)" == "no"
++.ELSE # "$(CROSS_COMPILING)" == "yes"
++CFLAGS += -D__CROSS__
++.ENDIF # "$(CROSS_COMPILING)" == "yes"
  ###
  CFLAGSCC=-pipe $(ARCH_FLAGS)
  CFLAGSCXX=-pipe $(ARCH_FLAGS)
@@ -108,7 +110,7 @@
 +.IF "$(CROSS_COMPILING)" == "no"
  RC=rc
 +.ELSE # "$(CROSS_COMPILING)" == "yes"
-+RC=wrc --nostdinc -I $(COMPATH)/../../include -DCROSS_COMPILING=1
++RC=wrc --nostdinc -I $(COMPATH)/../../include -I/ -DCROSS_COMPILING=1
 +.ENDIF # "$(CROSS_COMPILING)" == "yes"
  RCFLAGS=-D__MINGW32__ -DWIN32 -D_WIN32_IE=0x400 -fo$@ $(RCFILES)
  RCLINK=
@@ -135,7 +137,7 @@
  WINSPOOLLIB=-lwinspool
  IMM32LIB=-limm32
  PSPLIB=-lpsp
-@@ -189,14 +228,18 @@ USER32LIB=-luser32
+@@ -189,14 +228,21 @@ USER32LIB=-luser32
  LIBCMT=-lmsvcrt
  COMDLG32LIB=-lcomdlg32
  COMCTL32LIB=-lcomctl32
@@ -162,6 +164,9 @@
 +
 +.IF "$(CROSS_COMPILING)" == "yes"
 +CURLLIB=-lcurl
++BERKELEYLIB=-ldb -lwsock32
++XSLTLIB=-lxslt -lxml2
++LIBXML2LIB=-lxml2
 +.ENDIF
 --- solenv/inc/shlinfo.rc.pristine	2008-10-29 09:33:25.000000000 +0100
 +++ solenv/inc/shlinfo.rc	2008-10-29 09:33:33.000000000 +0100

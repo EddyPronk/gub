@@ -21,8 +21,19 @@
   compatible. The strsafe functions return an error code and the standard C
   functions return a character count */
   #define	StringCchVPrintfA			vsnprintf
-  #define	StringCchPrintfA			snprintf
+  #define	StringCchVPrintfW			vsnprintf
+  #define	StringCchVPrintf			vsnprintf
   
+  #define StringCchPrintfA(str, n, format, ...) snprintf ((char*)str, n, (char const*)format, __VA_ARGS__)
+  #define StringCchPrintfW(str, n, format, ...) snprintf ((char*)str, n, (char const*)format, __VA_ARGS__)
+  #define StringCchPrintf(str, n, format, ...) snprintf ((char*)str, n, (char const*)format, __VA_ARGS__)
+  
+  #define StringCchCopy(dest, n, src) strncpy ((char*)dest, (char const*)src, n)
+  #define StringCchCopyN(dest, n1, src, n2) strncpy ((char*)dest, (char const*)src, min (n1, n2))
+  #define StringCchCat(dest, n, src) strncat ((char*)dest, (char const*)src, n)
+
+  #define STRSAFE_MAX_CCH 0x7FFFFFFF
+
   #define	_stricmp					strcasecmp
   #define	_strnicmp					strncasecmp
 #endif

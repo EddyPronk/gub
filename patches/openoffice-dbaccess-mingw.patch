@@ -1,0 +1,41 @@
+--- dbaccess/source/ui/dlg/makefile.mk.~1~	2008-11-04 20:34:29.000000000 +0100
++++ dbaccess/source/ui/dlg/makefile.mk	2008-11-05 10:01:44.000000000 +0100
+@@ -133,7 +133,9 @@ SLOFILES=								\
+ 
+ .IF ("$(WINDOWS_VISTA_PSDK)"!="" && "$(PROF_EDITION)"=="") || "$(CROSS_COMPILING)" == "yes"
+ DISABLE_ADO=TRUE
+-.ENDIF # "$(WINDOWS_VISTA_PSDK)"!="" && "$(PROF_EDITION)"==""
++.ELSE
++CFLAGS += -D_ADO_DATALINK_BROWSE_
++.ENDIF
+ 
+ .IF "$(GUI)"=="WNT" && "$(DISABLE_ADO)"==""
+ SLOFILES+=		$(SLO)$/adodatalinks.obj
+--- dbaccess/source/ui/dlg/odbcconfig.cxx.~2~	2008-11-05 10:14:38.000000000 +0100
++++ dbaccess/source/ui/dlg/odbcconfig.cxx	2008-11-04 17:22:07.000000000 +0100
+@@ -31,6 +31,15 @@
+ // MARKER(update_precomp.py): autogen include statement, do not remove
+ #include "precompiled_dbaccess.hxx"
+ 
++#ifdef __MINGW32__
++#define Rectangle W32_Rectangle
++#include <windows.h>
++#define SDB_ODBC_CHAR SQLCHAR
++#include <odbcinst.h>
++#include <sqlext.h>
++#undef Yield
++#endif /* __MINGW32__ */
++
+ #ifndef _DBAUI_ODBC_CONFIG_HXX_
+ #include "odbcconfig.hxx"
+ #endif
+@@ -52,6 +61,9 @@
+ #ifndef _TOOLS_DEBUG_HXX
+ #include <tools/debug.hxx>
+ #endif
++#ifdef __MINGW32__
++#undef Rectangle 
++#endif /* __MINGW32__ */
+ #ifndef _SV_SVAPP_HXX
+ #include <vcl/svapp.hxx>
+ #endif
