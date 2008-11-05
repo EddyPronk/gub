@@ -5,6 +5,32 @@ from gub import target
 
 # Hmm? TARGET_CFLAGS=-O --> target.py
 
+'''
+URG glibc-2.3 has this beauty
+in sysdeps/unix/sysv/linux/configure.in
+  
+# The Linux kernel headers can be found in
+#   /lib/modules/$(uname -r)/build/include
+# Check whether this directory is available.
+if test -z "$sysheaders" &&
+   test "x$cross_compiling" = xno &&
+   test -d /lib/modules/`uname -r`/build/include; then
+  sysheaders="/lib/modules/`uname -r`/build/include"
+  ccheaders=`$CC -print-file-name=include`
+  dnl We don't have to use -nostdinc.  We just want one more directory
+  dnl to be used.
+  SYSINCLUDES="-I $sysheaders"
+fi
+
+Which makes, that when we're not cross compiling, eg: target/linux-64
+on a x86_64, we'll try to include /lib/modules/.../build/include,
+and LD_PRELOAD will make us barf.
+
+We should be able to silence this using --with-headers.  So,
+while --with-headers adds no new include path, it tells configure
+to *not* look in /.
+'''
+
 class Glibc (target.AutoBuild, cross.AutoBuild):
     source = 'http://lilypond.org/download/gub-sources/glibc-2.3-20070416.tar.bz2'
     def get_build_dependencies (self):
@@ -30,6 +56,7 @@ class Glibc (target.AutoBuild, cross.AutoBuild):
 --disable-debug
 --without-cvs
 --without-gd
+--with-headers=%(system_prefix)s/include
 ''')
 #--without-tls
 #--without-__thread
