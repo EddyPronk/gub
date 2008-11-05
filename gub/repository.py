@@ -403,7 +403,6 @@ class TarBall (Repository):
         self.download_url (self.source, self.dir)
 
     def checksum (self):
-        from gub import misc
         return misc.ball_basename (self._file_name ())
     
     def update_workdir (self, destdir):
@@ -432,7 +431,6 @@ class TarBall (Repository):
         self.system ('tar -C %(destdir)s/.. %(_v)s%(_z)s -xf %(tarball)s' % locals ())
 
     def version (self):
-        from gub import misc
         return self._version
 
 RepositoryProxy.register (TarBall)
