@@ -6,7 +6,7 @@ from gub import tools
 
 class Nsis (tools.SConsBuild):
     source = 'http://surfnet.dl.sourceforge.net/sourceforge/nsis/nsis-2.37-src.tar.bz2'
-    #ource = ':pserver:anonymous@nsis.cvs.sourceforge.net:/cvsroot/nsis&module=NSIS&tag=HEAD'
+    #source = ':pserver:anonymous@nsis.cvs.sourceforge.net:/cvsroot/nsis&module=NSIS&tag=HEAD'
     def __init__ (self, settings, source):
         tools.AutoBuild.__init__ (self, settings, source)
         if 'x86_64-linux' in self.settings.build_architecture:
@@ -39,6 +39,9 @@ class Nsis (tools.SConsBuild):
 import os
 defenv['CC'] = os.environ['CC']
 defenv['CXX'] = os.environ['CXX']
+defenv['C_INCLUDE_PATH'] = ''
+defenv['CPLUS_INCLUDE_PATH'] = ''
+defenv['CFLAGS'] = ''
 Export('defenv')
 ''')],
                        '%(srcdir)s/SConstruct')
