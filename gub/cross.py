@@ -166,7 +166,7 @@ def get_build_dependencies (settings):
     mod = get_cross_module (settings)
     return bootstrap_names + [misc.with_platform (n, settings.platform) for n in mod.get_cross_build_dependencies (settings)]
 
-def setup_linux_x86 (logger, cls, settings, env):
+def setup_linux_x86 (logger, name, settings, env):
     '''Hack for using 32 bit compiler on linux-64.
 
     Use linux-x86 cross compiler to compile non-64-bit-clean packages such
@@ -187,10 +187,10 @@ def setup_linux_x86 (logger, cls, settings, env):
     compiler = x86_bindir + '/i686-linux-gcc'
     if not os.path.exists (compiler):
         print 'error: cannot find 32 bit compiler: %(compiler)s\n' % locals ()
-        raise Exception ('Package %(cls)s depends on target/linux-x86.' % locals ())
+        raise Exception ('Package %(name)s depends on target/linux-x86.' % locals ())
     if os.system ('''echo 'int main () { return 0; }' > 32bit.c && %(compiler)s -o 32bit 32bit.c && ./32bit''' % locals ()):
         print 'error: cannot run 32 bit executable: 32bit\n'
-        raise Exception ('Package %(cls)s depends on 32 bit libraries''' % locals ())
+        raise Exception ('Package %(name)s depends on 32 bit libraries''' % locals ())
     os.system ('rm -f 32bit 32bit.c')
 
     def check_link (src, dest):
@@ -226,7 +226,7 @@ def change_target_package_x86 (package, env={'PATH': os.environ['PATH']}):
         return env
     
     def patch (foo):
-        package.func (setup_linux_x86, package.__class__, package.settings, env)
+        package.func (setup_linux_x86, package.__class__.__name__, package.settings, env)
 
     # FIXME: we could also add [, build_environment ()] by default
     # to build.py's compile [and install?] functions
