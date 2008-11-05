@@ -3,6 +3,7 @@ import re
 import optparse
 
 from gub import build
+from gub import build_platform
 from gub import context
 from gub import misc
 from gub import sources
@@ -164,8 +165,7 @@ class Settings (context.Context):
         # Cheating by not logging this call saves a dependency on os
         # interface.  Not sure what cheating brings us here, why
         # restrict use of the OS interface+logging facility?
-        self.build_architecture = loggedos.read_pipe (logging.default_logger,
-                                                      'gcc -dumpmachine').strip ()
+        self.build_architecture = build_platform.machine ().strip ()
 
         try:
             self.cpu_count_str = '%d' % os.sysconf ('SC_NPROCESSORS_ONLN')
