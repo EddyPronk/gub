@@ -31,16 +31,15 @@ def argv0_relocation ():
 argv0_relocation ()
 
 import optparse
-import sys
 import os
-
-from gub import cross
-from gub import build
-from gub import misc
-from gub import locker
-from gub import gup
-from gub import logging
+import sys
+#
 from gub import buildrunner
+from gub import gup
+from gub import locker
+from gub import logging
+from gub import misc
+from gub import repository
 
 import gub.settings   # otherwise naming conflict with settings local vars.
 
@@ -229,7 +228,7 @@ def build (settings, options, files):
         for name in names:
             specs[name].download ()
     if options.download_only:
-        sys.exit(0)
+        sys.exit (0)
         
     # FIXME: hw, why is this?  Doesn't this break 
     if options.stage:
