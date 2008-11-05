@@ -37,7 +37,10 @@ install:
         pass
 
     def makeflags (self):
-        return 'V=1 SCRIPT_PERL='
+        flags = 'V=1 SCRIPT_PERL='
+        if 'freebsd' in self.settings.build_architecture:
+            flags += ' CFLAGS="-O2 -Duintmax_t=unsigned -Dstrtoumax=strtoul"'
+        return flags
 
 class Git (target.AutoBuild):
 
