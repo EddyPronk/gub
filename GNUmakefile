@@ -3,7 +3,8 @@
 sources = GNUmakefile $(filter-out %~, $(wildcard *.make bin/* gub/*.py gub/*/*.py gub/*/*/*.py gub/*/*/*/*.py test-lily/*.py))
 
 ifeq ($(PLATFORMS),)
-PLATFORMS=linux-x86 linux-64 linux-ppc freebsd-x86 freebsd-64 darwin-ppc darwin-x86 mingw
+#PLATFORMS=linux-x86 linux-64 linux-ppc freebsd-x86 freebsd-64 darwin-ppc darwin-x86 mingw
+PLATFORMS=linux-x86 linux-64 freebsd-x86 freebsd-64 darwin-ppc darwin-x86 mingw
 endif
 
 default: compilers
