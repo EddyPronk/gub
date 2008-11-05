@@ -5,6 +5,7 @@ from new import classobj
 from new import instancemethod
 #
 from gub import build
+from gub import cross
 from gub import misc
 
 mirror = 'http://ftp.de.debian.org/debian'
@@ -27,7 +28,6 @@ def get_cross_build_dependencies (settings):
     return ['cross/gcc', 'guile-config', 'python-config']
 
 def change_target_package (p):
-    from gub import cross
     cross.change_target_package (p)
 
 def get_debian_packages (settings, package_file):
