@@ -1,4 +1,5 @@
 from gub import build
+from gub import cross
 
 code_sourcery = 'http://www.codesourcery.com/public/gnu_toolchain/%(name)s/arm-%(ball_version)s-%(name)s.src.tar.%(format)s'
 
@@ -13,6 +14,5 @@ def get_cross_build_dependencies (settings):
     return ['linux-headers', 'glibc']
 
 def change_target_package (p):
-    from gub import cross
     cross.change_target_package (p)
     return p
