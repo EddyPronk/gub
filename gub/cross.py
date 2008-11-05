@@ -103,14 +103,18 @@ def set_cross_dependencies (package_object_dict):
 
     sdk_names = [s.platform_name () for s in sdk_packs]
     cross_names = [s.platform_name () for s in cross_packs]
+    # No implicit dependencies on other platform's cross_names or sdk_names
+    # try:
+    # bin/gub -p tools linux-x86::cross/gcc mingw::cross/gcc
+    # bin/gub -p tools linux-x86::cross/gcc
     for p in other_packs:
         old_callback = p.get_build_dependencies
         p.get_build_dependencies = misc.MethodOverrider (old_callback,
-                                                         lambda x,y: x+y, (cross_names,))
+                                                         lambda x,y: x+y, ([n for n in cross_names if p.settings.platform in n],))
     for p in other_packs + cross_packs:
         old_callback = p.get_build_dependencies
         p.get_build_dependencies = misc.MethodOverrider (old_callback,
-                                                         lambda x,y: x+y, (sdk_names,))
+                                                         lambda x,y: x+y, ([n for n in sdk_names if p.settings.platform in n],))
     for p in other_packs + cross_packs + tools_packs:
         old_callback = p.get_build_dependencies
         p.get_build_dependencies = misc.MethodOverrider (old_callback,
