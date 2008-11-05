@@ -173,9 +173,9 @@ class BuildRunner:
         checksum_fail_reason = self.failed_checksums.get (spec_name, '')
         logger = logging.default_logger
         if checksum_fail_reason:
-            logger.write_log ('checkum failed: %(spec_name)s\n' % locals (), 'stage')
+            logger.write_log ('checksum failed: %(spec_name)s\n' % locals (), 'stage')
         else:
-            logger.write_log ('checkum ok: %(spec_name)s\n' % locals (), 'verbose')
+            logger.write_log ('checksum ok: %(spec_name)s\n' % locals (), 'verbose')
 
         if logging.get_numeric_loglevel ('verbose') > logger.threshold:
             logger.write_log ('\n'.join (checksum_fail_reason.split ('\n')[:10]), 'verbose')
