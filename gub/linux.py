@@ -1,7 +1,8 @@
+from gub import build
+from gub import cross
+from gub import target
+
 def change_target_package (package):
-    from gub import cross
-    from gub import build
-    from gub import target
     cross.change_target_package (package)
     if isinstance (package, target.AutoBuild):
         target.change_target_dict (package,
