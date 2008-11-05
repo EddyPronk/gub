@@ -20,25 +20,24 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 """
 
+def argv0_relocation ():
+    import os, sys
+    bindir = os.path.dirname (sys.argv[0])
+    prefix = os.path.dirname (bindir)
+    if not prefix:
+        prefix = '../'
+    sys.path.insert (0, prefix)
 
-def gcc_machine ():
-        import os
-        machine = os.popen ('gcc -dumpmachine 2>/dev/null').read ().strip ()
-        lst = machine.split ('-')
-        cpu = lst[0]
-        if cpu in ('i386', 'i486', 'i586', 'i686'):
-            cpu = 'x86'
-        elif cpu == 'x86_64':
-            cpu = '64'
-        for os in lst[1:]:
-            if os in ('linux', 'freebsd', 'darwin', 'cygwin'):
-                return '%(os)s-%(cpu)s' % locals ()
-        raise 'UnknownOs'
+argv0_relocation ()
+
+from gub import build_platform
 
 def main ():
-    try:
-        print gcc_machine ()
-    except:
+    #try:
+    if 1:
+        print build_platform.machine ()
+    #except:
+    if 1:
         # On failure print empty line for use in makefile's $(shell ).
         print
 
