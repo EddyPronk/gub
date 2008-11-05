@@ -1,0 +1,37 @@
+--- binutils-2.18/gas/config/tc-ppc.c~	2007-08-06 22:00:03.000000000 +0200
++++ binutils-2.18/gas/config/tc-ppc.c	2008-11-05 14:49:50.000000000 +0100
+@@ -1548,7 +1548,7 @@ ppc_insert_operand (unsigned long insn,
+       errmsg = NULL;
+       insn = (*operand->insert) (insn, (long) val, ppc_cpu, &errmsg);
+       if (errmsg != (const char *) NULL)
+-	as_bad_where (file, line, errmsg);
++	as_bad_where (file, line, "%s", errmsg);
+     }
+   else
+     insn |= ((long) val & operand->bitm) << operand->shift;
+@@ -1950,6 +1950,7 @@ ppc_elf_validate_fix (fixS *fixp, segT s
+ 	      || fixp->fx_r_type != BFD_RELOC_CTOR)
+ 	    {
+ 	      as_bad_where (fixp->fx_file, fixp->fx_line,
++			    "%s",
+ 			    _("Relocation cannot be done when using -mrelocatable"));
+ 	    }
+ 	}
+@@ -2279,7 +2280,7 @@ md_assemble (char *str)
+ 	{
+ 	  insn = (*operand->insert) (insn, 0L, ppc_cpu, &errmsg);
+ 	  if (errmsg != (const char *) NULL)
+-	    as_bad (errmsg);
++	    as_bad ("%s", errmsg);
+ 	  continue;
+ 	}
+ 
+@@ -2292,7 +2293,7 @@ md_assemble (char *str)
+ 	    {
+ 	      insn = (*operand->insert) (insn, 0L, ppc_cpu, &errmsg);
+ 	      if (errmsg != (const char *) NULL)
+-		as_bad (errmsg);
++		as_bad ("%s", errmsg);
+ 	    }
+ 	  if ((operand->flags & PPC_OPERAND_NEXT) != 0)
+ 	    next_opindex = *opindex_ptr + 1;
