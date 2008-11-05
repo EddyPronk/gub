@@ -166,7 +166,7 @@ def get_build_dependencies (settings):
     mod = get_cross_module (settings)
     return bootstrap_names + [misc.with_platform (n, settings.platform) for n in mod.get_cross_build_dependencies (settings)]
 
-def setup_linux_x86 (logger, name, settings, env):
+def setup_linux_x86 (logger, name, x86_bindir):
     '''Hack for using 32 bit compiler on linux-64.
 
     Use linux-x86 cross compiler to compile non-64-bit-clean packages such
@@ -176,12 +176,6 @@ def setup_linux_x86 (logger, name, settings, env):
         apt-get install ia32-libs
     '''
 
-    x86_dir = settings.alltargetdir + '/linux-x86'
-    x86_cross = (x86_dir
-                 + settings.root_dir
-                 + settings.prefix_dir
-                 + settings.cross_dir)
-    x86_bindir = x86_cross + '/bin'
     x86_cross_bin = x86_cross + '/i686-linux' + '/bin'
 
     compiler = x86_bindir + '/i686-linux-gcc'
@@ -226,7 +220,7 @@ def change_target_package_x86 (package, env={'PATH': os.environ['PATH']}):
         return env
     
     def patch (foo):
-        package.func (setup_linux_x86, package.__class__.__name__, package.settings, env)
+        package.func (setup_linux_x86, package.__class__.__name__, x86_bindir)
 
     # FIXME: we could also add [, build_environment ()] by default
     # to build.py's compile [and install?] functions
