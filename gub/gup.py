@@ -442,8 +442,6 @@ def get_source_packages (settings, const_todo):
             base, unused_parameters = misc.dissect_url (url)
             name = (os.path.basename (base)
                     .replace ('.git', ''))
-            ##DOCME or JUNKME
-            ##name = re.sub ('\..*', '', name)
             key = url
         else:
             name = get_base_package_name (url)
@@ -476,25 +474,39 @@ def get_source_packages (settings, const_todo):
             spec_dict[key] = spec
         return spec.get_platform_build_dependencies ()
 
+    cygwin_resolver = None
     def name_to_dependencies_via_cygwin (name):
+        if not cygwin_resolver:
+            from gub import cygwin
+            cygwin_resolver = cygwin.init_dependency_resolver (settings)
         return name_to_dependencies_via_distro (cygwin.get_packages (), name)
 
+    debian_resolver = None
     def name_to_dependencies_via_debian (name):
+        if not debian_resolver:
+            from gub import debian
+            debian_resolver = debian.init_dependency_resolver (settings)
         return name_to_dependencies_via_distro (debian.get_packages (), name)
 
-    name_to_deps = name_to_dependencies_via_gub
-    if settings.platform == 'cygwin':
-        from gub import cygwin
-        cygwin.init_dependency_resolver (settings)
-        name_to_deps = name_to_dependencies_via_cygwin
-    elif settings.platform.startswith ('debian'):
-        from gub import debian
-        debian.init_dependency_resolver (settings)
-        name_to_deps = name_to_dependencies_via_debian
+    name_to_dependencies = {
+        'cygwin': name_to_dependencies_via_cygwin,
+        'debian': name_to_dependencies_via_debian,
+        }
 
-    topologically_sorted (todo, {}, name_to_deps)
+    def name_to_dependencies_broker (url):
+        platform, x = split_platform (url)
+        return name_to_dependencies.get (platform,
+                                         name_to_dependencies_via_gub) (url)
+
+    topologically_sorted (todo, {}, name_to_dependencies_broker)
     todo += cross.set_cross_dependencies (spec_dict)
-    topologically_sorted (todo, {}, name_to_deps)
+    topologically_sorted (todo, {}, name_to_dependencies_broker)
+
+    # UGH.  try:
+    # bin/gub -p tools tar
+    # bin/gub -p tools make tar
+    todo += cross.set_cross_dependencies (spec_dict)
+    topologically_sorted (todo, {}, name_to_dependencies_broker)
 
     # Fixup for build from url: spec_dict key is full url, change to
     # base name.  Must use list(dict.keys()), since dict changes during
