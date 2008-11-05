@@ -116,9 +116,10 @@ def set_cross_dependencies (package_object_dict):
         p.get_build_dependencies = misc.MethodOverrider (old_callback,
                                                          lambda x,y: x+y, ([n for n in sdk_names if p.settings.platform in n],))
     for p in other_packs + cross_packs + tools_packs:
-        old_callback = p.get_build_dependencies
-        p.get_build_dependencies = misc.MethodOverrider (old_callback,
-                                                         lambda x,y: x+y, (bootstrap_names,))
+        if p.platform_name () not in bootstrap_names:
+            old_callback = p.get_build_dependencies
+            p.get_build_dependencies = misc.MethodOverrider (old_callback,
+                                                             lambda x,y: x+y, (bootstrap_names,))
     for p in tar_packs:
         old_callback = p.get_build_dependencies
         p.get_build_dependencies = misc.MethodOverrider (old_callback,
