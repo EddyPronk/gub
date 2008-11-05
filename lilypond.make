@@ -17,18 +17,23 @@
 
 default: all
 
-ALL_PLATFORMS=linux-x86 darwin-ppc darwin-x86 debian debian-arm freebsd-64 freebsd-x86 linux-64 mingw debian-mipsel linux-ppc
-##PLATFORMS=linux-x86 linux-64 linux-ppc freebsd-x86 freebsd-64
-## linux-ppc broken: binutils-2.18:
-##../sysdeps/unix/sysv/linux/bind.S: Assembler messages:
-##../sysdeps/unix/sysv/linux/bind.S:5: Error: symbol `__bind' is already defined
-PLATFORMS=linux-x86 linux-64 freebsd-x86 freebsd-64
+ALL_PLATFORMS=linux-x86 darwin-ppc darwin-x86 mingw linux-64 debian debian-arm freebsd-64 freebsd-x86 debian-mipsel linux-ppc
+PLATFORMS=linux-x86
 
 # odcctools do not build with 64 bit compiler
 PLATFORMS+=darwin-ppc darwin-x86
 
 # nsis does not build with 64 bit compiler
 PLATFORMS+=mingw
+
+PLATFORMS+=linux-64
+
+## linux-ppc broken: binutils-2.18:
+##../sysdeps/unix/sysv/linux/bind.S: Assembler messages:
+##../sysdeps/unix/sysv/linux/bind.S:5: Error: symbol `__bind' is already defined
+##PLATFORMS+=linux-ppc
+
+PLATFORMS+=freebsd-x86 freebsd-64
 
 ## want cygwin to be the last, because it is not a core lilypond platform. 
 ALL_PLATFORMS += cygwin
