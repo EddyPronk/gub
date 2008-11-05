@@ -240,6 +240,7 @@ def download_url (original_url, dest_dir,
         if url == original_url:
             candidate_urls.append (url)
         if not is_ball (os.path.basename (url)):
+            print 'adding:', url, rewrite_url (original_url, url)
             candidate_urls.append (rewrite_url (original_url, url))
 
     for url in candidate_urls:
@@ -252,32 +253,28 @@ def _download_url (url, dest_dir, progress=None):
     if not os.path.isdir (dest_dir):
         raise Exception ("not a dir", dest_dir)
 
-    bufsize = 1024 * 50
-    # what's this, just basename?
-    # filename = os.path.split (urllib.splithost (url)[1])[1]
-    size = 0
     try:
         url_stream = urllib2.urlopen (url)
     except OSError:
-        if url.startswith('file:'):
+        if url.startswith ('file:'):
             return 0
         raise
     except IOError:
-        if url.startswith('ftp:'):
+        if url.startswith ('ftp:') or url.startswith ('http:'):
             return 0
         raise
 
-    # open output after URL, otherwise we get 0-byte downloads everywhere.
-
-    # ugh - race condition if we have 2 gubs running
-    tmpfile = dest_dir + '/.downloadtmp'
-    
-    output = open (tmpfile, 'w')
+    size = 0
+    bufsize = 1024 * 50
+    output = None
+    tmpfile = dest_dir + '/.partial-download-' + str (os.getpid ())
     while True:
         contents = url_stream.read (bufsize)
         if not contents:
             break
         size += len (contents)
+        if not output:
+            output = open (tmpfile, 'w')
         output.write (contents)
         if progress:
             progress ('.')
