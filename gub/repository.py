@@ -568,8 +568,24 @@ class Git (Repository):
         
             return bool(result)
         return True
-    
+
+    def have_git (self):
+        # FIXME: make generic: have_CLIENT ()?
+        # this would even work for TAR, vs SimpleTar (without --strip-comp)
+        if self.settings:
+            tools_dir = (self.settings.alltargetdir + '/tools'
+                         + self.settings.root_dir)
+            tools_bin = (tools_dir
+                         + self.settings.prefix_dir
+                         + '/bin')
+            return os.path.exists (os.path.join (tools_bin, 'git'))
+        return False
+
     def download (self):
+        if not self.have_git ():
+            # sorry, no can do [yet]
+            return
+
         repo = self.dir
         source = self.source
         revision = self.revision
