@@ -6,7 +6,9 @@ from gub import repository
 from gub import target
 
 class Guile (target.AutoBuild):
-    source = 'git://git.sv.gnu.org/guile.git&branch=branch_release-1-8&revision=release_1-8-4'
+    # http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=494337
+    # source = 'git://git.sv.gnu.org/guile.git&branch=branch_release-1-8&revision=release_1-8-4'
+    source = 'git://git.sv.gnu.org/guile.git&branch=branch_release-1-8&revision=release_1-8-5'
     
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
@@ -332,7 +334,7 @@ class Guile__tools (tools.AutoBuild, Guile):
     def get_build_dependencies (self):
         return (tools.AutoBuild.get_build_dependencies (self)
                 + Guile.get_build_dependencies (self)
-                + ['autoconf', 'automake', 'gettext', 'libtool', 'git'])
+                + ['autoconf', 'automake', 'gettext', 'flex', 'libtool'])
 
     def patch (self):
         self.autogen_sh ()
