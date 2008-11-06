@@ -96,3 +96,10 @@ class Glibc (target.AutoBuild, cross.AutoBuild):
                 # as append to the symlink.list file.  Hopefully.
 ###                + ''' make-shlib-link='ln -sf $(<F) $@; echo $(<F) $@ >> $(symbolic-link-list)' ''')
                 + ''' make-shlib-link='ln -sf $(<F) $@; echo $(<F) $@ >> $(common-objpfx)elf/symlink.list' ''')
+
+class Glibc__linux__ppc (Glibc):
+    patches = ['glibc-2.3-powerpc-initfini.patch',
+               'glibc-2.3-powerpc-socket-weakalias.patch',
+               'glibc-2.3-powerpc-lround-weakalias.patch']
+    def patch (self):
+        target.AutoBuild.patch (self)

@@ -360,7 +360,7 @@ class TarBall (Repository):
         name = parameters.get ('name', [''])[0]
         version = parameters.get ('version', [''])[0]
         strip = parameters.get ('strip', [1])[0]
-        strip_components = parameters.get ('strip_components', [strip])[0]
+        strip = parameters.get ('strip_components', [strip])[0]
         return TarBall (dir, source, version, int (strip))
 
     @staticmethod

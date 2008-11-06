@@ -28,10 +28,7 @@ PLATFORMS+=mingw
 
 PLATFORMS+=linux-64
 
-## linux-ppc broken: binutils-2.18:
-##../sysdeps/unix/sysv/linux/bind.S: Assembler messages:
-##../sysdeps/unix/sysv/linux/bind.S:5: Error: symbol `__bind' is already defined
-##PLATFORMS+=linux-ppc
+PLATFORMS+=linux-ppc
 
 PLATFORMS+=freebsd-x86 freebsd-64
 
@@ -53,6 +50,12 @@ LILYPOND_REPO_URL=git://git.sv.gnu.org/lilypond.git
 # derived info
 LILYPOND_DIRRED_BRANCH=git.sv.gnu.org/lilypond.git/$(LILYPOND_BRANCH)
 LILYPOND_FLATTENED_BRANCH=git.sv.gnu.org--lilypond.git-$(LILYPOND_BRANCH)
+
+print:
+	echo LDB=$(LILYPOND_DIRRED_BRANCH)
+	echo AUTO=$(LILYPOND_REPO_URL:%://=)
+	echo LFB=$(LILYPOND_FLATTENED_BRANCH)
+	echo AUTO=$(LILYPOND_REPO_URL:%://=)
 
 BUILD_PACKAGE='$(LILYPOND_REPO_URL)?branch=$(LILYPOND_BRANCH)'
 INSTALL_PACKAGE = lilypond

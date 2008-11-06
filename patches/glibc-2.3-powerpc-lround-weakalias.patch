@@ -1,0 +1,70 @@
+--- glibc-core-2.3/sysdeps/powerpc/powerpc32/fpu/s_lround.S.orig	2008-11-06 22:05:59.000000000 +0100
++++ glibc-core-2.3/sysdeps/powerpc/powerpc32/fpu/s_lround.S	2008-11-06 22:09:54.000000000 +0100
+@@ -19,6 +19,14 @@
+ 
+ #include <sysdep.h>
+ 
++# if 0
++# ifndef NO_WEAK_ALIAS
++#  define __lround P(__,lround)
++# else
++#  define __lround lround
++# endif
++# endif
++
+ 	.section	.rodata
+ 	.align 3
+ 	.type	NEGZERO.0,@object
+@@ -88,8 +94,9 @@ ENTRY (__lround)
+ 	b	.L9
+ 	END (__lround)
+ 
+-strong_alias (__lround, __lround)
++#ifndef NO_WEAK_ALIAS
+ weak_alias (__lround, lround)
++#endif
+ 
+ strong_alias (__lround, __lroundf)
+ weak_alias (__lround, lroundf)
+@@ -98,3 +105,6 @@ weak_alias (__lround, lroundf)
+ weak_alias (__lround, lroundl)
+ strong_alias (__lround, __lroundl)
+ #endif
++#if 0 //LONG_DOUBLE_COMPAT(libm, GLIBC_2_1)
++compat_symbol (libm, __lround, lroundl, GLIBC_2_1)
++#endif
+--- glibc-core-2.3/sysdeps/powerpc/powerpc64/fpu/s_llround.S.orig	2008-11-06 22:03:50.000000000 +0100
++++ glibc-core-2.3/sysdeps/powerpc/powerpc64/fpu/s_llround.S	2008-11-06 22:08:40.000000000 +0100
+@@ -19,6 +19,14 @@
+ 
+ #include <sysdep.h>
+ 
++# if 0
++# ifndef NO_WEAK_ALIAS
++#  define __lround P(__,lround)
++# else
++#  define __lround lround
++# endif
++# endif
++
+ 	.section	".toc","aw"
+ .LC0:	/* -0.0 */
+ 	.tc FD_00000000_0[TC],0x0000000000000000
+@@ -58,7 +64,9 @@ ENTRY (__llround)
+ 
+ strong_alias (__llround, __lround)
+ weak_alias (__llround, llround)
++#ifndef NO_WEAK_ALIAS
+ weak_alias (__lround, lround)
++#endif
+ 
+ #ifdef NO_LONG_DOUBLE
+ weak_alias (__llround, llroundl)
+@@ -66,3 +74,7 @@ strong_alias (__llround, __llroundl)
+ weak_alias (__lround, lroundl)
+ strong_alias (__lround, __lroundl)
+ #endif
++#if 0 // LONG_DOUBLE_COMPAT(libm, GLIBC_2_1)
++compat_symbol (libm, __llround, llroundl, GLIBC_2_1)
++compat_symbol (libm, __lround, lroundl, GLIBC_2_1)
++#endif

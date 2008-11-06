@@ -1,0 +1,44 @@
+--- glibc-core-2.3/sysdeps/unix/sysv/linux/powerpc/powerpc32/socket.S.orig	2003-07-12 00:46:12.000000000 +0200
++++ glibc-core-2.3/sysdeps/unix/sysv/linux/powerpc/powerpc32/socket.S	2008-11-06 21:17:06.000000000 +0100
+@@ -42,7 +42,11 @@
+ #define stackblock 20
+ 
+ #ifndef __socket
+-#define __socket P(__,socket)
++# ifndef NO_WEAK_ALIAS
++#  define __socket P(__,socket)
++# else
++#  define __socket socket
++# endif
+ #endif
+ 
+ 	.text
+@@ -116,4 +120,6 @@ ENTRY(__socket)
+ 
+ PSEUDO_END (__socket)
+ 
++#ifndef NO_WEAK_ALIAS
+ weak_alias (__socket, socket)
++#endif
+--- glibc-core-2.3/sysdeps/unix/sysv/linux/powerpc/powerpc64/socket.S.orig	2004-12-14 22:24:08.000000000 +0100
++++ glibc-core-2.3/sysdeps/unix/sysv/linux/powerpc/powerpc64/socket.S	2008-11-06 21:17:06.000000000 +0100
+@@ -45,7 +45,11 @@
+ /* If this is just socket.S leave it alone! */
+ #else
+ #ifndef __socket
+-#define __socket P(__,socket)
++# ifndef NO_WEAK_ALIAS
++#  define __socket P(__,socket)
++# else
++#  define __socket socket
++# endif
+ #endif
+ #endif
+ 
+@@ -120,4 +124,6 @@ ENTRY(__socket)
+ 	cfi_endproc
+ PSEUDO_END (__socket)
+ 
++#ifndef NO_WEAK_ALIAS
+ weak_alias (__socket, socket)
++#endif

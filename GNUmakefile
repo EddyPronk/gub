@@ -4,7 +4,7 @@ sources = GNUmakefile $(filter-out %~, $(wildcard *.make bin/* gub/*.py gub/*/*.
 
 ifeq ($(PLATFORMS),)
 # linux-ppc broken
-PLATFORMS=linux-x86 darwin-ppc darwin-x86 mingw linux-64 freebsd-x86 freebsd-64
+PLATFORMS=linux-x86 darwin-ppc darwin-x86 mingw linux-64 linux-ppc freebsd-x86 freebsd-64
 endif
 
 default: compilers

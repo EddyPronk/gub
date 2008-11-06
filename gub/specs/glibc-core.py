@@ -27,8 +27,6 @@ class Glibc_core (glibc.Glibc):
         return (glibc.Glibc.compile_command (self)
                 + ' lib')
     def install_command (self):
-        return glibc.Glibc.install_command (self)
-    def install_command (self):
         return (glibc.Glibc.install_command (self)
                 .replace (' install ', ' install-lib-all install-headers ')
                 # avoid -lgcc_eh, which gcc-core does not have
@@ -42,3 +40,16 @@ cp %(srcdir)s/include/features.h %(install_prefix)s/include
 mkdir -p %(install_prefix)s/include/bits
 cp %(builddir)s/bits/stdio_lim.h %(install_prefix)s/include/bits
 ''')
+
+class Glibc_core__linux__ppc (Glibc_core):
+    patches = ['glibc-2.3-powerpc-initfini.patch',
+               'glibc-2.3-core-install.patch',
+               'glibc-2.3-powerpc-socket-weakalias.patch',
+               'glibc-2.3-powerpc-lround-weakalias.patch']
+    def patch (self):
+        target.AutoBuild.patch (self)
+    def install_command (self):
+        # ugh, but the gnulib=-lgcc hack does something else on ppc...
+        # it (huh?) drops *-lgcc* (instead of -lgcc_eh) from libc.so
+        # linkage, which then fails.
+        return Glibc_core.install_command (self).replace (' gnulib=-lgcc', '')
