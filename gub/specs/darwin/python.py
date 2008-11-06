@@ -15,6 +15,8 @@ from gub import build
 ## cross dependency for now...
 class Python__darwin (build.SdkBuild):
     source = 'url://host/python-2.3.tar.gz'
+    def get_build_dependencies (self):
+        return ['cross/gcc', 'odcctools', 'tools::python']
     def srcdir (self):
         return '%(allsrcdir)s/python-darwin'
     def package (self):
