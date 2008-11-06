@@ -111,7 +111,8 @@ class Package_rewirer:
         self.rewirer.rewire_root (self.package.install_root ())
 
 def get_cross_build_dependencies (settings):
-    return ['cross/gcc']
+    # FIXME: python to avoid gratuitous rebuilds.  See darwin/python.py
+    return ['cross/gcc', 'python']
 
 def strip_build_dep (old_val, what):
     deps = old_val

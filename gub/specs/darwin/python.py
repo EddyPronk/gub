@@ -1,6 +1,18 @@
 from gub import build
 
 ## change to sdk package
+
+## FIXME: having Python be an SDK package, will make cross.py add Python
+## as a build dependency to all cross and other packs.
+## *BUT* only *IF* Python is also built.  Which means that:
+##    bin/gub darwin-ppc::odcctools [PACKAGE]...
+##    bin/gub darwin-ppc::odcctools darwin-ppc::python [PACKAGE]...
+## will set different build dependencies for all packages, and
+## each will trigger a rebuild, depending upon the availability of Python
+## on the command line [or as a build dependency of any PACKAGE].
+
+## Please, un-make this an SDK package?  Adding python as a static
+## cross dependency for now...
 class Python__darwin (build.SdkBuild):
     source = 'url://host/python-2.3.tar.gz'
     def srcdir (self):
