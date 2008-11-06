@@ -40,19 +40,8 @@ class Python (target.AutoBuild):
     def force_autoupdate (self):
         return True
 
-    def compile_command (self):
-        ##
-        ## UGH.: darwin Python vs python (case insensitive FS)
-        c = target.AutoBuild.compile_command (self)
-        c += ' BUILDPYTHON=python-bin '
-        return c
-
-    def install_command (self):
-        ##
-        ## UGH.: darwin Python vs python (case insensitive FS)
-        c = target.AutoBuild.install_command (self)
-        c += ' BUILDPYTHON=python-bin '
-        return c
+    def makeflags (self):
+        return 'BUILDPYTHON=./python-bin'
 
     # FIXME: c&p linux.py:install ()
     def install (self):
