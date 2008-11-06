@@ -30,7 +30,7 @@ class Glibc_core (glibc.Glibc):
         return glibc.Glibc.install_command (self)
     def install_command (self):
         return (glibc.Glibc.install_command (self)
-                    .replace (' install ', ' install-lib-all install-headers ')
+                .replace (' install ', ' install-lib-all install-headers ')
                 # avoid -lgcc_eh, which gcc-core does not have
                 + ' gnulib=-lgcc')
     def install (self):
