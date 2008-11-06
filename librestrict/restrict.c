@@ -202,5 +202,6 @@ main ()
 
   printf ("strrstr %s %s: %s\n", h,n, strrstr (h,n));
   printf ("allowed for %s : %s\n", exe, get_allowed_prefix (exe));
+  return 0;
 }
 #endif

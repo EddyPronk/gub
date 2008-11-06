@@ -12,7 +12,10 @@ class Librestrict__tools (tools.MakeBuild):
 
 class Librestrict_nomake__tools (Librestrict__tools):
     def compile_command (self):
-        return 'gcc -W -Wall -shared -fPIC -o librestrict.so restrict.c'
+        # URG, must *not* have U __stack_chk_fail@@GLIBC_2.4
+        # because glibc-[core-]2.3 will not install with LD_PRELOAD
+        command = '-W -Wall -shared -fPIC -o librestrict.so restrict.c'
+        return '(gcc -fno-stack-protector %(command)s || gcc %(command)s)' % locals ()
     def install_command (self):
         return ('mkdir -p %(install_root)s/%(system_prefix)s/lib'
                 ' && cp -p librestrict.so %(install_root)s/%(system_prefix)s/lib')
