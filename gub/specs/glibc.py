@@ -84,4 +84,15 @@ class Glibc (target.AutoBuild, cross.AutoBuild):
                 + ' SHELL=/bin/bash')
     def install_command (self):
         return (target.AutoBuild.install_command (self)
-                + ' install_root=%(install_root)s')
+                + ' install_root=%(install_root)s'
+                # Ugh, ugh, glibc-2.3.6' Makerules file has a
+                # cross-compiling check that changes symlink install
+                # behaviour.  ONLY if $(cross_compiling)==no, an extra
+                # `install-symbolic-link' target is created upon with
+                # `install' is made to depend.  This means we do not
+                # get symlinks with install-lib-all when it so happens
+                # that build_architecture == target_architecture.
+                # Try to cater for both here: make the symlink as well
+                # as append to the symlink.list file.  Hopefully.
+###                + ''' make-shlib-link='ln -sf $(<F) $@; echo $(<F) $@ >> $(symbolic-link-list)' ''')
+                + ''' make-shlib-link='ln -sf $(<F) $@; echo $(<F) $@ >> $(common-objpfx)elf/symlink.list' ''')
