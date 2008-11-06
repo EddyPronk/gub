@@ -426,10 +426,17 @@ class LilyPond__darwin (LilyPond):
         return (LilyPond.configure_command (self)
                 + ' --enable-static-gxx')
 
+class LilyPond__darwin__ppc (LilyPond__darwin):
+    def configure (self):
+        LilyPond__darwin.configure (self)
+        self.dump ('CXXFLAGS += -DGUILE_ELLIPSIS=...',
+                   '%(builddir)s/local.make')
+
 #Hmm
 Lilypond = LilyPond
 Lilypond__cygwin = LilyPond__cygwin
 Lilypond__darwin = LilyPond__darwin
+Lilypond__darwin__ppc = LilyPond__darwin__ppc
 Lilypond__debian = LilyPond__debian
 Lilypond__mingw = LilyPond__mingw
 Lilypond__freebsd = LilyPond
