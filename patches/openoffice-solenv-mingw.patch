@@ -115,7 +115,7 @@
  RCFLAGS=-D__MINGW32__ -DWIN32 -D_WIN32_IE=0x400 -fo$@ $(RCFILES)
  RCLINK=
  RCLINKFLAGS=
-@@ -170,12 +200,20 @@ RCSETVERSION=
+@@ -170,12 +200,22 @@ RCSETVERSION=
  DLLPOSTFIX=gi
  PCHPOST=.gch
  
@@ -123,6 +123,8 @@
 +LINK_PSDK_LIB=$(PSDK_HOME)/lib/
 +PSDK_DOT_LIB=.lib
 +.ELSE # "$(CROSS_COMPILING)" == "yes"
++DISABLE_ACTIVEX=TRUE
++DISABLE_ATL=TRUE
 +LINK_PSDK_LIB=-l
 +PSDK_DOT_LIB=
 +.ENDIF # "$(CROSS_COMPILING)" == "yes"
@@ -180,6 +182,16 @@
  #define VERVARIANT		0
  
  // .0 + VER_CONCEPT
+@@ -140,7 +142,9 @@
+ 				value "LegalCopyright", 	S_CRIGHT " Sun Microsystems, Inc.\0"
+ 				ADDITIONAL_VERINFO1
+ 				ADDITIONAL_VERINFO2
++#ifndef CROSS_COMPILING
+ 				ADDITIONAL_VERINFO3
++#endif
+ 			}
+ #endif
+ 		}
 @@ -159,7 +161,11 @@ VS_VERSION_INFO versioninfo
  VS_VERSION_INFO rcdata
  {

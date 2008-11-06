@@ -1,5 +1,14 @@
 --- config_office/configure.in.orig	2008-10-19 22:03:22.000000000 +0200
 +++ config_office/configure.in	2008-10-19 22:17:08.000000000 +0200
+@@ -1059,7 +1079,7 @@
+ fi
+ AC_SUBST(ENABLE_CRASHDUMP)
+ 
+-if test "$_os" = "WINNT"; then
++if test "$_os" = "WINNT" -o "$t_os" = "MinGW"; then
+    BUILD_TYPE="$BUILD_TYPE TWAIN"
+ fi
+ 
 @@ -4265,7 +4262,7 @@ elif test "$_os" = "OS2" ; then
     echo "Do Nothing for _os = OS2. Don't check for X11."
     dnl OS/2 uses native graphics. Don't check for X11.

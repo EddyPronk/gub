@@ -93,6 +93,7 @@ Module 'readlicense_oo' delivered successfully. 0 files copied, 12 files unchang
 Module 'sccomp' delivered successfully. 1 files copied, 3 files unchanged
 Module 'scp2' delivered successfully. 9 files copied, 82 files unchanged
 Module 'testtools' delivered successfully. 0 files copied, 1 files unchanged
+Module 'twain' delivered successfully. 0 files copied, 2 files unchanged
 Module 'unodevtools' delivered successfully. 0 files copied, 4 files unchanged
 Module 'unoxml' delivered successfully. 0 files copied, 3 files unchanged
 Module 'ure' delivered successfully. 0 files copied, 9 files unchanged
@@ -116,7 +117,7 @@ Module 'framework' delivered successfully. 6 files copied, 35 files unchanged
 Module 'xmlhelp' delivered successfully. 0 files copied, 10 files unchanged
 Module 'accessibility' delivered successfully. 1 files copied, 5 files unchanged
 Module 'cppcanvas' delivered successfully. 2 files copied, 15 files unchanged
-Module 'embeddedobj' delivered successfully. 1 files copied, 4 files unchanged
+Module 'embeddedobj' delivered successfully. 0 files copied, 5 files unchanged
 Module 'helpcontent2' delivered successfully. 1 files copied, 12 files unchanged
 Module 'padmin' delivered successfully. 0 files copied, 4 files unchanged
 Module 'scaddins' delivered successfully. 2 files copied, 5 files unchanged
@@ -127,11 +128,15 @@ Module 'sfx2' delivered successfully. 4 files copied, 119 files unchanged
 Module 'avmedia' delivered successfully. 2 files copied, 9 files unchanged
 Module 'linguistic' delivered successfully. 2 files copied, 11 files unchanged
 Module 'svx' delivered successfully. 5 files copied, 637 files unchanged
-Module 'dbaccess' delivered successfully. 69 files copied, 1 files unchanged
-Module 'automation' delivered successfully. 18 files copied, 2 files unchanged
-Module 'basctl' delivered successfully. 17 files copied, 1 files unchanged
-Module 'chart2' delivered successfully. 12 files copied, 0 files unchanged
-124
+Module 'dbaccess' delivered successfully. 8 files copied, 62 files unchanged
+Module 'automation' delivered successfully. 8 files copied, 12 files unchanged
+Module 'basctl' delivered successfully. 1 files copied, 17 files unchanged
+Module 'chart2' delivered successfully. 4 files copied, 8 files unchanged
+Module 'desktop' delivered successfully. 15 files copied, 85 files unchanged
+Module 'extensions' delivered successfully. 39 files copied, 8 files unchanged
+Module 'filter' delivered successfully. 119 files copied, 0 files unchanged
+Module 'forms' delivered successfully. 5 files copied, 0 files unchanged
+129
 '''
 
 class Openoffice (target.AutoBuild):
@@ -141,7 +146,7 @@ class Openoffice (target.AutoBuild):
     # fresh try.  wait for mingw dupes
     source = 'svn://svn.gnome.org/svn/ooo-build&branch=trunk&revision=14412'
     patches = ['openoffice-srcdir-build.patch']
-    upstream_patches = ['openoffice-config_office-cross.patch', 'openoffice-config_office-gnu-make.patch', 'openoffice-solenv-cross.patch', 'openoffice-solenv.patch', 'openoffice-sal-cross.patch', 'openoffice-soltools-cross.patch', 'openoffice-icc-cross.patch', 'openoffice-i18npool-cross.patch']
+    upstream_patches = ['openoffice-config_office-cross.patch', 'openoffice-config_office-gnu-make.patch', 'openoffice-solenv-cross.patch', 'openoffice-solenv.patch', 'openoffice-sal-cross.patch', 'openoffice-soltools-cross.patch', 'openoffice-icc-cross.patch', 'openoffice-i18npool-cross.patch', 'openoffice-lingucomponent-mingw.patch']
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         # let's keep source tree around
