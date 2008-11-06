@@ -55,6 +55,11 @@ class Installer (context.RunnableContext):
         self.installer_checksum_file = self.installer_root + '.checksum'
         self.installer_db = self.installer_root + '-dbdir'
 
+# hmm?
+#    @context.subst_method
+    def installer_file (self):
+        return ''
+
     def building_root_image (self):
         # FIXME: why are we removing these, we need these in a root image.
         # How to make a better check here?
@@ -286,6 +291,9 @@ class DarwinBundle (DarwinRoot):
         DarwinRoot.__init__ (self, *args)
         self.darwin_bundle_dir = '%(targetdir)s/LilyPond.app'
         
+    def installer_file (self):
+        return self.expand ('%(uploads)s/lilypond-%(installer_version)s-%(installer_build)s.%(platform)s.tar.bz2')
+
     def create (self):
         DarwinRoot.create (self)
         
@@ -296,7 +304,7 @@ class DarwinBundle (DarwinRoot):
         installer_version = self.installer_version
         installer_build = self.installer_build
         
-        bundle_zip = self.expand ('%(uploads)s/lilypond-%(installer_version)s-%(installer_build)s.%(platform)s.tar.bz2', locals ())
+        bundle_zip = self.installer_file ()
         self.system ('''
 rm -f %(bundle_zip)s 
 rm -rf %(darwin_bundle_dir)s
@@ -344,6 +352,8 @@ class MingwRoot (Installer):
         self.strip_command += ' -g '
     
 class Nsis (MingwRoot):
+    def installer_file (self):
+        return self.expand ('%(installer_uploads)s/%(name)s-%(installer_version)s-%(installer_build)s.%(platform)s.exe')
     def create (self):
         MingwRoot.create (self)
         
@@ -383,8 +393,8 @@ cp %(nsisdir)s/*.sh.in %(ns_dir)s''', locals ())
         
         self.system ('cd %(targetdir)s && makensis -NOCD %(ns_dir)s/definitions.nsh %(ns_dir)s/%(name)s.nsi', locals ())
 
-        final = '%(name)s-%(installer_version)s-%(installer_build)s.%(platform)s.exe'
-        self.system ('mv %(ns_dir)s/setup.exe %(installer_uploads)s/%(final)s', locals ())
+        final = self.installer_file ()
+        self.system ('mv %(ns_dir)s/setup.exe %(final)s', locals ())
 
 
 class Linux_installer (Installer):
