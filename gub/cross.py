@@ -217,6 +217,10 @@ def change_target_package_x86 (package, env={'PATH': os.environ['PATH']}):
     env['LIBRESTRICT_ALLOW'] = package.settings.targetdir
     env['CC'] = x86_cross_bin + '/gcc'
     env['CXX'] = x86_cross_bin + '/g++'
+    # FIXME: should only remove any %(tools_prefix)s elements from these...
+    env['C_INCLUDE_PATH'] = ''
+    env['CPLUS_INCLUDE_PATH'] = ''
+    env['LIBRARY_PATH'] = ''
 
     def build_environment (e):
         return env
