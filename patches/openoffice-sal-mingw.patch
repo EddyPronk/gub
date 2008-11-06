@@ -87,3 +87,34 @@
  
  #include "path_helper.hxx"
  
+--- sal/inc/sal/mathconf.h.~1.6.~	2008-04-10 12:47:09.000000000 +0200
++++ sal/inc/sal/mathconf.h	2008-04-10 12:47:24.000000000 +0200
+@@ -53,7 +53,7 @@
+    problems, the SAL_MATH_FPEXCEPTIONS_OFF macro can be used to explicitly
+    switch off exceptions (on Windows).
+  */
+-#if defined WNT
++#if defined (WNT) && ! defined (__MINGW32__)
+ #define SAL_MATH_FPEXCEPTIONS_OFF() _control87( _MCW_EM, _MCW_EM )
+ #else /* WNT */
+ #define SAL_MATH_FPEXCEPTIONS_OFF()
+@@ -61,16 +61,16 @@
+ 
+ 
+ /* SAL_MATH_FINITE(d): test double d on INFINITY, NaN et al. */
+-#if defined( WNT)
++#if defined (WNT) && ! defined (__MINGW32__)
+ #define SAL_MATH_FINITE(d) _finite(d)
+ #elif defined OS2
+ #define SAL_MATH_FINITE(x) 				\
+     ((sizeof (x) == sizeof (float)) ? __isfinitef(x)	\
+     : (sizeof (x) == sizeof (double)) ? __isfinite(x)	\
+     : __isfinitel(x))
+-#elif defined LINUX || defined UNX
++#elif defined LINUX || defined UNX || defined __MINGW32__
+ #define SAL_MATH_FINITE(d) finite(d)
+-#else /* WNT, LINUX, UNX */
++#else /* WNT, LINUX, UNX, __MINGW32__ */
+ #error "SAL_MATH_FINITE not defined"
+ #endif /* WNT, LINUX, UNX */
+ 

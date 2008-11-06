@@ -133,10 +133,13 @@ Module 'automation' delivered successfully. 8 files copied, 12 files unchanged
 Module 'basctl' delivered successfully. 1 files copied, 17 files unchanged
 Module 'chart2' delivered successfully. 4 files copied, 8 files unchanged
 Module 'desktop' delivered successfully. 15 files copied, 85 files unchanged
-Module 'extensions' delivered successfully. 39 files copied, 8 files unchanged
-Module 'filter' delivered successfully. 119 files copied, 0 files unchanged
-Module 'forms' delivered successfully. 5 files copied, 0 files unchanged
-129
+Module 'extensions' delivered successfully. 12 files copied, 35 files unchanged
+Module 'filter' delivered successfully. 9 files copied, 110 files unchanged
+Module 'forms' delivered successfully. 1 files copied, 4 files unchanged
+Module 'lingucomponent' delivered successfully. 12 files copied, 1 files unchanged
+Module 'lotuswordpro' delivered successfully. 2 files copied, 0 files unchanged
+Module 'reportdesign' delivered successfully. 29 files copied, 2 files unchanged
+132
 '''
 
 class Openoffice (target.AutoBuild):
@@ -248,7 +251,6 @@ ac_cv_icu_version_minor=${ac_cv_icu_version_minor=3.81}
 --disable-scsolver
 --disable-systray
 --disable-vba
---disable-vba 
 --disable-xrender-link
 --disable-atl
 
@@ -385,7 +387,7 @@ LD_LIBRARY_PATH=%(LD_LIBRARY_PATH)s
 ##CPPFLAGS=
                 
 class Openoffice__mingw (Openoffice):
-    Openoffice.upstream_patches += ['openoffice-config_office-mingw.patch', 'openoffice-solenv-mingw.patch', 'openoffice-sal-mingw.patch', 'openoffice-external-mingwheaders.patch', 'openoffice-cppunit-mingw.patch', 'openoffice-i18npool-mingw.patch', 'openoffice-tools-mingw.patch', 'openoffice-setup_native-mingw.patch', 'openoffice-pyuno-mingw.patch', 'openoffice-sysui-mingw.patch', 'openoffice-dtrans-mingw.patch', 'openoffice-fpicker-mingw.patch', 'openoffice-sccomp-mingw.patch', 'openoffice-vcl-mingw.patch', 'openoffice-connectivity-mingw.patch', 'openoffice-unotools-mingw.patch', 'openoffice-embeddedobj-mingw.patch', 'openoffice-shell-mingw.patch', 'openoffice-svx-mingw.patch', 'openoffice-dbaccess-mingw.patch', 'openoffice-desktop-mingw.patch']
+    Openoffice.upstream_patches += ['openoffice-config_office-mingw.patch', 'openoffice-solenv-mingw.patch', 'openoffice-sal-mingw.patch', 'openoffice-external-mingwheaders.patch', 'openoffice-cppunit-mingw.patch', 'openoffice-i18npool-mingw.patch', 'openoffice-tools-mingw.patch', 'openoffice-setup_native-mingw.patch', 'openoffice-pyuno-mingw.patch', 'openoffice-sysui-mingw.patch', 'openoffice-dtrans-mingw.patch', 'openoffice-fpicker-mingw.patch', 'openoffice-sccomp-mingw.patch', 'openoffice-vcl-mingw.patch', 'openoffice-connectivity-mingw.patch', 'openoffice-unotools-mingw.patch', 'openoffice-embeddedobj-mingw.patch', 'openoffice-shell-mingw.patch', 'openoffice-svx-mingw.patch', 'openoffice-dbaccess-mingw.patch', 'openoffice-desktop-mingw.patch', 'openoffice-scripting-mingw.patch']
     # external/mingwheaders seems a badly misguided effort.  It
     # patches header files and is thus strictly tied to a gcc version;
     # that can never build.  How can patching header files ever work,
