@@ -193,9 +193,9 @@ def main ():
 
     if options.command == 'install':
         target_manager.read_package_headers (settings.packages,
-                                             settings.branches)
+                                             dict (options.branches))
         target_manager.read_package_headers (settings.cross_packages,
-                                             settings.branches)
+                                             dict (options.branches))
 
     commands = Command (target_manager, options)
     if options.command in Command.__dict__:
