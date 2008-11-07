@@ -40,10 +40,13 @@ class Build (context.RunnableContext):
         pass
     def stages (self):
         return list ()
-    def apply_patch (self, name, strip_component=1):
-        patch_strip_component = str (strip_component)
+    def apply_patch (self, patch, strip_components=1):
+        name, parameters = misc.dissect_url (patch)
+        strip = str (strip_components)
+        strip = parameters.get ('strip', [strip])[0]
+        strip = parameters.get ('strip_components', [strip])[0]
         self.system ('''
-cd %(srcdir)s && patch -p%(patch_strip_component)s < %(patchdir)s/%(name)s
+cd %(srcdir)s && patch -p%(strip)s < %(patchdir)s/%(name)s
 ''', locals ())
     def build (self):
         available = dict (inspect.getmembers (self, callable))
@@ -251,6 +254,9 @@ class AutoBuild (Build):
     def autodir (self):
         return '%(srcdir)s'
 
+    def aclocal_path (self):
+        return ['%(system_prefix)s/share/aclocal']
+
     @context.subst_method
     def configure_binary (self):
         return '%(autodir)s/configure'
@@ -313,8 +319,7 @@ class AutoBuild (Build):
         self.dump ('%(stage_number)d' % locals (), self.get_stamp_file (), 'w')
 
     def patch (self):
-        if self.__class__.__dict__.get ('patches'):
-            map (self.apply_patch, self.__class__.patches)
+        map (self.apply_patch, self.__class__.__dict__.get ('patches', []))
 
     def force_autoupdate (self):
         return False
@@ -374,6 +379,12 @@ prefix=%(install_prefix)s
 sysconfdir=%(install_prefix)s/etc
 tooldir=%(install_prefix)s
 ''')
+
+    def update_config_guess_config_sub (self):
+        guess = self.expand ('%(system_prefix)s/share/libtool/config.guess')
+        sub = self.expand ('%(system_prefix)s/share/libtool/config.sub')
+        for file in guess, sub:
+            self.system ('cp -pv %(file)s %(autodir)s',  locals ())
 
     @staticmethod
     def libtool_disable_install_not_into_dot_libs_test (logger, file):
@@ -482,6 +493,7 @@ cp %(file)s %(install_root)s/license/%(name)s
         return self.settings.platform
 
     def get_subpackage_definitions (self):
+	cross_dir = self.settings.cross_dir
 	prefix_dir = self.settings.prefix_dir
         d = {
             'base': [prefix_dir + '/share'],
@@ -489,11 +501,11 @@ cp %(file)s %(install_root)s/license/%(name)s
             'devel': [
             prefix_dir + '/bin/*-config',
             prefix_dir + '/include',
-            prefix_dir + '/cross/bin',
-            prefix_dir + '/cross/include',
-            prefix_dir + '/cross/lib',
-            prefix_dir + '/cross/libexec',
-            prefix_dir + '/cross/' + self.settings.target_architecture,
+            prefix_dir + cross_dir + '/bin',
+            prefix_dir + cross_dir + '/include',
+            prefix_dir + cross_dir + '/lib',
+            prefix_dir + cross_dir + '/libexec',
+            prefix_dir + cross_dir + '/' + self.settings.target_architecture,
             prefix_dir + '/share/aclocal',
             prefix_dir + '/lib/lib*.a',
             prefix_dir + '/lib/pkgconfig',
@@ -503,8 +515,8 @@ cp %(file)s %(install_root)s/license/%(name)s
             prefix_dir + '/share/gtk-doc',
             prefix_dir + '/share/info',
             prefix_dir + '/share/man',
-            prefix_dir + '/cross/info',
-            prefix_dir + '/cross/man',
+            prefix_dir + cross_dir + '/info',
+            prefix_dir + cross_dir + '/man',
             ],
             'runtime': ['/lib', prefix_dir + '/lib', prefix_dir + '/share'],
             'x11': [prefix_dir + '/X11', prefix_dir + '/X11R6'],

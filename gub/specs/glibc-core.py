@@ -6,15 +6,13 @@ from gub.specs import glibc
 
 class Glibc_core (glibc.Glibc):
     source = 'http://lilypond.org/download/gub-sources/glibc-2.3-20070416.tar.bz2'
+    patches = glibc.Glibc.patches + ['glibc-2.3-core-install.patch']
     def get_build_dependencies (self):
         return ['cross/gcc-core', 'linux-headers']
     def get_subpackage_names (self):
         return ['']
     def get_conflict_dict (self):
         return {'': ['glibc', 'glibc-devel', 'glibc-doc', 'glibc-runtime']}
-    def patch (self):
-        glibc.Glibc.patch (self)
-        self.apply_patch ('glibc-2.3-core-install.patch')
     def get_add_ons (self):
         return ('linuxthreads',)
     def configure_command (self):
@@ -42,12 +40,6 @@ cp %(builddir)s/bits/stdio_lim.h %(install_prefix)s/include/bits
 ''')
 
 class Glibc_core__linux__ppc (Glibc_core):
-    patches = ['glibc-2.3-powerpc-initfini.patch',
-               'glibc-2.3-core-install.patch',
-               'glibc-2.3-powerpc-socket-weakalias.patch',
-               'glibc-2.3-powerpc-lround-weakalias.patch']
-    def patch (self):
-        target.AutoBuild.patch (self)
     def install_command (self):
         # ugh, but the gnulib=-lgcc hack does something else on ppc...
         # it (huh?) drops *-lgcc* (instead of -lgcc_eh) from libc.so

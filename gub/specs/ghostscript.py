@@ -4,6 +4,7 @@ from gub import context
 from gub import misc
 from gub import repository
 from gub import target
+from gub import tools
 
 class Ghostscript (target.AutoBuild):
     '''The GPL Ghostscript PostScript interpreter
@@ -65,13 +66,13 @@ models.'''
     def ghostscript_version (self):
         return '.'.join (self.ball_version.split ('.')[0:2])
 
-    def patch (self):
+    def autoupdate (self):
+        # generate Makefile.in
+        self.system ('cd %(srcdir)s && sh ./autogen.sh --help')
         disable_re = ('(DEVICE_DEVS[0-9]+)=([^\n]+(%s))'
                       % '|'.join (['tiff', 'pcx', 'uniprint',
                                    'deskjet', 'djet500', 'bmp', 'pbm',
                                    'bjc200', 'cdeskjet', 'faxg3', 'cljet5']))
-        ## generate Makefile.in
-        self.system ('cd %(srcdir)s && sh ./autogen.sh --help')
         self.file_sub ([(disable_re, r'#\1= -DISABLED- \2 ')],
                        '%(srcdir)s/Makefile.in')
         
@@ -121,23 +122,12 @@ models.'''
               '#define ARCH_SIZEOF_PTR %(sizeof_ptr)d' % locals ()),
              ], '%(builddir)s/obj/arch.h')
 
-    def compile_command (self):
-        return (target.AutoBuild.compile_command (self)
-                + ' INCLUDE=%(system_prefix)s/include'
-                + ' PSDOCDIR=%(prefix_dir)s/share/doc'
-                + ' PSMANDIR=%(prefix_dir)s/share/man')
-        
-    def compile (self):
-        self.system ('''
-cd %(builddir)s && mkdir -p obj
-cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS= LIBRARY_PATH= obj/genconf obj/echogs obj/genarch obj/arch.h
-''')
-        self.fixup_arch ()
-        target.AutoBuild.compile (self)
-        
     def configure_command (self):
         return (target.AutoBuild.configure_command (self)
-            + misc.join_lines ('''
+                + self.configure_flags ())
+
+    def configure_flags (self):
+            return misc.join_lines ('''
 --enable-debug
 --with-drivers=FILES
 --without-x
@@ -146,7 +136,7 @@ cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS
 --without-omni
 --without-jasper
 --disable-compile-inits
-'''))
+''')
 
     def configure (self):
         target.AutoBuild.configure (self)
@@ -176,6 +166,22 @@ cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS
             ],
                file)
 
+    def compile_flags (self):
+        return (' INCLUDE=%(system_prefix)s/include'
+                + ' PSDOCDIR=%(prefix_dir)s/share/doc'
+                + ' PSMANDIR=%(prefix_dir)s/share/man')
+
+    def compile_command (self):
+        return target.AutoBuild.compile_command (self) + self.compile_flags ()
+
+    def compile (self):
+        self.system ('''
+cd %(builddir)s && mkdir -p obj
+cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS= LIBRARY_PATH= obj/genconf obj/echogs obj/genarch obj/arch.h
+''')
+        self.fixup_arch ()
+        target.AutoBuild.compile (self)
+
     def install_command (self):
         return (target.AutoBuild.install_command (self)
                 + ' install_prefix=%(install_root)s'
@@ -197,6 +203,12 @@ prependdir GS_LIB=$INSTALLER_PREFIX/share/ghostscript/%(version)s/lib
 ''', '%(install_prefix)s/etc/relocate/gs.reloc')
 
 class Ghostscript__mingw (Ghostscript):
+    # source = 'ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/ghostscript-8.60.tar.bz2'
+    patches = ['ghostscript-8.15-cygwin.patch'
+               'ghostscript-8.15-windows-wb.patch'
+               'ghostscript-8.50-make.patch'
+               'ghostscript-8.50-gs_dll.h.patch']
+
     def __init__ (self, settings, source):
         Ghostscript.__init__ (self, settings, source)
         # Configure (compile) without -mwindows for console
@@ -206,10 +218,6 @@ class Ghostscript__mingw (Ghostscript):
     def patch (self):
         Ghostscript.patch (self)
         #checkme, seems obsolete, is this still necessary?
-        self.apply_patch ('ghostscript-8.15-cygwin.patch')
-        self.apply_patch ('ghostscript-8.15-windows-wb.patch')        
-        self.apply_patch ('ghostscript-8.50-make.patch')
-        self.apply_patch ('ghostscript-8.50-gs_dll.h.patch')
         self.file_sub ([('unix__=$(GLOBJ)gp_getnv.$(OBJ) $(GLOBJ)gp_unix.$(OBJ) $(GLOBJ)gp_unifs.$(OBJ) $(GLOBJ)gp_unifn.$(OBJ) $(GLOBJ)gp_stdia.$(OBJ) $(GLOBJ)gp_unix_cache.$(OBJ)',
                          'unix__= $(GLOBJ)gp_mswin.$(OBJ) $(GLOBJ)gp_wgetv.$(OBJ) $(GLOBJ)gp_stdia.$(OBJ) $(GLOBJ)gsdll.$(OBJ) $(GLOBJ)gp_ntfs.$(OBJ) $(GLOBJ)gp_win32.$(OBJ)')],
                        '%(srcdir)s/src/unix-aux.mak',
@@ -251,9 +259,6 @@ include $(GLSRCDIR)/pcwin.mak
              '%(builddir)s/Makefile',
              mode='a')
 
-    def install (self):
-        Ghostscript.install (self)
-
 class Ghostscript__freebsd (Ghostscript):
     def get_dependency_dict (self):
         d = Ghostscript.get_dependency_dict (self)
@@ -264,6 +269,9 @@ url='http://mirror3.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/ghostscript-8.60.tar
 url='http://mirror3.cs.wisc.edu/pub/mirrors/ghost/GPL/gs850/ghostscript-8.50-gpl.tar.gz'
 #8250
 class Ghostscript__cygwin (Ghostscript):
+    patches = ['ghostscript-8.15-windows-wb.patch',
+               'ghostscript-8.57-cygwin-esp.patch']
+
     def __init__ (self, settings, source):
         Ghostscript.__init__ (self, settings, source)
         self.fonts_source = repository.get_repository_proxy (self.settings.downloads, 'http://mirror2.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/ghostscript-fonts-std-8.11.tar.gz')
@@ -275,19 +283,17 @@ class Ghostscript__cygwin (Ghostscript):
     def download (self):
         Ghostscript.download (self)
         self.fonts_source.download ()
-    def patch (self):
-        from gub import cygwin
-        cygwin.libpng12_fixup (self)
+    def autoupdate (self):
         self.system ('''
 cd %(srcdir)s && sh ./autogen.sh --help
 cd %(srcdir)s && cp Makefile.in Makefile-x11.in
 ''')
-        self.apply_patch ('ghostscript-8.15-windows-wb.patch')
-        self.apply_patch ('ghostscript-8.57-cygwin-esp.patch')
-        
+    def patch (self):
+        from gub import cygwin
+        cygwin.libpng12_fixup (self)
+        Ghostscript.patch (self)
     def category_dict (self):
         return {'': 'Graphics'}
-    
     def get_build_dependencies (self):
         return ['jpeg', 'libpng12-devel', 'xorg-x11-devel', 'zlib']
     def get_dependency_dict (self):
@@ -372,3 +378,35 @@ cd %(install_prefix)s && rm -rf usr/X11R6/share
     # REMOVE after first cygwin release.
     def description_dict (self):
         return {'base': 'The GPL Ghostscript PostScript interpreter - transitional package\nThis is an empty package to streamline the upgrade.'}
+
+class Ghostscript__tools (tools.AutoBuild, Ghostscript):
+    source = Ghostscript.source
+    def get_build_dependencies (self):
+        return ['libjpeg', 'libpng']
+    def force_sequential_build (self):
+        return True
+    def configure_flags (self):
+        return (tools.AutoBuild.configure_flags (self)
+                + Ghostscript.configure_flags (self))
+    def configure (self):
+        tools.AutoBuild.configure (self)
+        self.makefile_fixup ('%(builddir)s/Makefile')
+    def compile_command (self):
+        return tools.AutoBuild.compile_command (self) + self.compile_flags ()
+    def compile (self):
+        self.system ('''
+cd %(builddir)s && mkdir -p obj
+cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS= LIBRARY_PATH= obj/genconf obj/echogs obj/genarch obj/arch.h
+cd %(builddir)s && make INCLUDE=/usr/include gconfig__h=gconfig_-native.h gconfig_-native.h
+cd %(builddir)s && make INCLUDE=%(system_prefix)s/include gconfig__h=gconfig_-tools.h gconfig_-tools.h
+cd %(builddir)s && sort -u gconfig_-native.h gconfig_-tools.h > obj/gconfig_.h
+''')
+#        self.fixup_arch ()
+        tools.AutoBuild.compile (self)
+    def install_command (self):
+        return (tools.AutoBuild.install_command (self)
+                + ' install_prefix=%(install_root)s'
+                + ' mandir=%(prefix_dir)s/share/man/ '
+                + ' docdir=%(prefix_dir)s/share/doc/ghostscript/doc '
+                + ' exdir=%(prefix_dir)s/share/doc/ghostscript/examples '
+                )

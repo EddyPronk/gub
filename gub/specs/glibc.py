@@ -33,12 +33,13 @@ to *not* look in /.
 
 class Glibc (target.AutoBuild, cross.AutoBuild):
     source = 'http://lilypond.org/download/gub-sources/glibc-2.3-20070416.tar.bz2'
+    patches = ['glibc-2.3-powerpc-initfini.patch',
+               'glibc-2.3-powerpc-socket-weakalias.patch',
+               'glibc-2.3-powerpc-lround-weakalias.patch']
     def get_build_dependencies (self):
         return ['cross/gcc', 'glibc-core', 'linux-headers']
     def get_conflict_dict (self):
         return {'': ['glibc-core'], 'devel': ['glibc-core'], 'doc': ['glibc-core'], 'runtime': ['glibc-core']}
-    def patch (self):
-        self.apply_patch ('glibc-2.3-powerpc-initfini.patch')
     def get_add_ons (self):
         return ('linuxthreads', 'nptl')
     def configure_command (self):    
@@ -96,10 +97,3 @@ class Glibc (target.AutoBuild, cross.AutoBuild):
                 # as append to the symlink.list file.  Hopefully.
 ###                + ''' make-shlib-link='ln -sf $(<F) $@; echo $(<F) $@ >> $(symbolic-link-list)' ''')
                 + ''' make-shlib-link='ln -sf $(<F) $@; echo $(<F) $@ >> $(common-objpfx)elf/symlink.list' ''')
-
-class Glibc__linux__ppc (Glibc):
-    patches = ['glibc-2.3-powerpc-initfini.patch',
-               'glibc-2.3-powerpc-socket-weakalias.patch',
-               'glibc-2.3-powerpc-lround-weakalias.patch']
-    def patch (self):
-        target.AutoBuild.patch (self)

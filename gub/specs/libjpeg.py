@@ -37,16 +37,8 @@ cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh 
     def license_files (self):
         return ['%(sourcefiledir)s/jpeg.license']
 
-    # Fixme: move to build.py (expensive)
-    @staticmethod
-    def update_config_guess_config_sub (self):
-        guess = self.expand ('%(system_prefix)s/share/libtool/config.guess')
-        sub = self.expand ('%(system_prefix)s/share/libtool/config.sub')
-        for file in guess, sub:
-            self.system ('cp -pv %(file)s %(srcdir)s',  locals ())
-
     def configure (self):
-        Libjpeg.update_config_guess_config_sub (self)
+        self.update_config_guess_config_sub ()
         target.AutoBuild.configure (self)
         self.update_libtool ()
         self.file_sub (
@@ -91,7 +83,7 @@ class Libjpeg__tools (tools.AutoBuild):
         '''libtoolize: `configure.ac' does not exist'''
         return False
     def configure (self):
-        Libjpeg.update_config_guess_config_sub (self)
+        self.update_config_guess_config_sub ()
         tools.AutoBuild.configure (self)
         self.update_libtool ()
         self.file_sub (

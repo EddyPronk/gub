@@ -9,7 +9,8 @@ class Guile (target.AutoBuild):
     # http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=494337
     # source = 'git://git.sv.gnu.org/guile.git&branch=branch_release-1-8&revision=release_1-8-4'
     source = 'git://git.sv.gnu.org/guile.git&branch=branch_release-1-8&revision=release_1-8-5'
-    
+    patches = ['guile-reloc.patch',
+               'guile-cexp.patch']
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         if isinstance (source, repository.Repository):
@@ -43,9 +44,6 @@ class Guile (target.AutoBuild):
         return '.'.join (self.ball_version.split ('.')[0:2])
 
     def patch (self):
-        ## Don't apply patch twice.
-        self.apply_patch ('guile-reloc.patch')
-        self.apply_patch ('guile-cexp.patch')
         self.dump ('''#!/bin/sh
 exec %(tools_prefix)s/bin/guile "$@"
 ''', "%(srcdir)s/pre-inst-guile.in")
@@ -251,9 +249,6 @@ class Guile__darwin__x86 (Guile__darwin):
 class Guile__cygwin (Guile):
     def category_dict (self):
         return {'': 'Interpreters'}
-
-    def patch (self):
-        pass
 
     # Using gub dependencies only would be nice, but
     # we need to a lot of gup.gub_to_distro_deps ().

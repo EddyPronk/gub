@@ -1,5 +1,5 @@
 from gub import tools
 
+#ugh, use icecc/icecream, *much* less hassle
 class Distcc (tools.AutoBuild):
-    def patch (self):
-        self.apply_patch ('distcc-substitute.patch')
+    patches = ['distcc-substitute.patch']

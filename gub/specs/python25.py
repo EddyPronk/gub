@@ -8,6 +8,7 @@ from gub import target
 # WIP of python2.5 with 2.5 X-compile patches.
 class Python (target.AutoBuild):
     source = 'http://python.org/ftp/python/2.5/Python-2.5.tar.bz2'
+    patches = ['python-2.5.patch']
 
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
@@ -19,8 +20,7 @@ class Python (target.AutoBuild):
         return 'ac_cv_printf_zd_format=yes ' + target.AutoBuild.configure_command (self)
 
     def patch (self):
-        self.apply_patch ('python-2.5.patch')
-
+        target.AutoBuild.patch (self)
         self.file_sub ([(r"'/usr/include'",
                          r"'%(system_prefix)s/include'")],
                        "%(srcdir)s/setup.py", must_succeed=True)
@@ -71,17 +71,16 @@ class Python (target.AutoBuild):
         return '.'.join (self.ball_version.split ('.')[0:2])
 
 class Python__mingw (Python):
+    patches = Python.patches + [
+        # FIXME: first is cross compile + mingw patch, backported to
+        # 2.4.2 and combined in one patch; move to cross-Python?
+        #'python-2.4.2-winsock2.patch',
+        'python-2.4.2-setup.py-selectmodule.patch']
+
     def __init__ (self, settings, source):
         Python.__init__ (self, settings, source)
         self.target_gcc_flags = '-DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I%(system_prefix)s/include' % self.settings.__dict__
 
-    # FIXME: first is cross compile + mingw patch, backported to
-    # 2.4.2 and combined in one patch; move to cross-Python?
-    def patch (self):
-        Python.patch (self)
-        if 0:
-            self.apply_patch ('python-2.4.2-winsock2.patch')
-        self.apply_patch ('python-2.4.2-setup.py-selectmodule.patch')
     def compile (self):
         Python.compile (self)
 

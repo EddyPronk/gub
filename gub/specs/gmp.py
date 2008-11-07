@@ -69,17 +69,12 @@ class Gmp__cygwin (Gmp):
     patches = ['gmp-4.1.4-1.patch']
 
 class Gmp__mingw (Gmp):
+    patches = ['gmp-4.1.4-1.patch']
     def __init__ (self, settings, source):
         Gmp.__init__ (self, settings, source)
         # Configure (compile) without -mwindows for console
         self.target_gcc_flags = '-mms-bitfields'
         
-    def patch (self):
-        self.apply_patch ('gmp-4.1.4-1.patch')
-
-    def configure (self):
-        Gmp.configure (self)
-
     def install (self):
         Gmp.install (self)
         self.system ('''

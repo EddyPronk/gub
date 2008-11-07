@@ -373,10 +373,11 @@ class ForcedAutogenMagic (SerializedCommand):
                     libtoolize += ' --ltdl'
                 self.system ('rm -rf %(autodir)s/libltdl %(autodir)s/ltdl && cd %(autodir)s && %(libtoolize)s'
                              % locals (), logger)
-            aclocal_opt = ''
-            if os.path.exists (package.expand ('%(system_prefix)s/share/aclocal')):
-                aclocal_opt = package.expand ('-I %(system_prefix)s/share/aclocal')
-
+            aclocal_flags = ''
+            for dir in package.aclocal_path ():
+                d = package.expand (os.path.join (autodir, dir))
+                if os.path.exists (d):
+                    aclocal_flags += '-I%(d)s' % locals ()
             headcmd = ''
             configure = ''
             for c in ('configure.in','configure.ac'):
@@ -386,15 +387,15 @@ class ForcedAutogenMagic (SerializedCommand):
                     m = re.search ('A[CM]_CONFIG_HEADER', str)
                     str = 0   ## don't want to expand str
                     if m:
-                        headcmd = 'cd %(autodir)s && autoheader %(aclocal_opt)s' % locals ()
+                        headcmd = 'cd %(autodir)s && autoheader %(aclocal_flags)s' % locals ()
                         break
                 except IOError:
                     pass
             if configure:
                 self.system ('''
-cd %(autodir)s && aclocal %(aclocal_opt)s
+cd %(autodir)s && aclocal %(aclocal_flags)s
 %(headcmd)s
-cd %(autodir)s && autoconf %(aclocal_opt)s
+cd %(autodir)s && autoconf %(aclocal_flags)s
 ''' % locals (), logger)
             if os.path.exists ('%(autodir)s/Makefile.am' % locals ()):
                 self.system ('cd %(autodir)s && automake --add-missing --copy --foreign' % locals (), logger)

@@ -65,14 +65,11 @@ LDFLAGS:=$(LDFLAGS) -no-undefined
 
 class XFreetype__cygwin (Freetype):
     source = 'http://download.savannah.nongnu.org/releases/freetype/freetype-2.1.10.tar.gz&name=freetype'
+    patches = ['freetype-libtool-no-version.patch']
 
     def __init__ (self, settings, source):
         Freetype.__init__ (self, settings, source)
         self.so_version = '6'
-
-    def patch (self):
-        Freetype.patch (self)
-        self.apply_patch ('freetype-libtool-no-version.patch')
 
     def get_subpackage_definitions (self):
         d = dict (Freetype.get_subpackage_definitions (self))
@@ -110,8 +107,6 @@ class XFreetype__cygwin (Freetype):
 class Freetype__tools (tools.AutoBuild, Freetype):
     source = Freetype.source
     def get_build_dependencies (self):
-        # tools is not split
-        #return ['libtool-devel']
         return ['libtool']
     # FIXME, mi-urg?
     def license_files (self):

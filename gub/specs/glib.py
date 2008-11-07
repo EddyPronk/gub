@@ -33,9 +33,8 @@ class Glib__darwin (Glib):
         Glib.configure (self)
         self.file_sub ([('nmedit', '%(target_architecture)s-nmedit')],
                        '%(builddir)s/libtool')
+
 class Glib__darwin__x86 (Glib__darwin):
-    def patch (self):
-        Glib__darwin.patch (self)
     def compile (self):
         self.file_sub ([('(SUBDIRS = .*) tests', r'\1'),
                         (r'GTESTER = \$.*', ''),
@@ -49,11 +48,12 @@ class Glib__mingw (Glib):
         d = Glib.get_dependency_dict (self)
         d[''].append ('libiconv')
         return d
-    
     def get_build_dependencies (self):
         return Glib.get_build_dependencies (self) + ['libiconv-devel']
 
 class Glib__freebsd (Glib):
+    patches = ['glib-2.12.12-disable-threads.patch']
+
     def get_dependency_dict (self):
         d = Glib.get_dependency_dict (self)
         d[''].append ('libiconv')
@@ -62,9 +62,6 @@ class Glib__freebsd (Glib):
     def get_build_dependencies (self):
         return Glib.get_build_dependencies (self) + ['libiconv-devel']
 
-    def patch (self):
-        self.apply_patch ('glib-2.12.12-disable-threads.patch')
-    
     def configure_command (self):
         return Glib.configure_command (self) + ' --disable-threads'
         

@@ -112,8 +112,8 @@ set FONTCONFIG_PATH=$INSTALLER_PREFIX/etc/fonts
         
         
 class Fontconfig__mingw (Fontconfig):
+    patches = ['fontconfig-2.5.91-public_ft_files.patch']
     def patch (self):
-        self.apply_patch ('fontconfig-2.5.91-public_ft_files.patch')
         Fontconfig.patch (self)
         self.file_sub ([('<cachedir>@FC_CACHEDIR@</cachedir>', '')],
                        '%(srcdir)s/fonts.conf.in')
@@ -205,12 +205,8 @@ class Fontconfig__tools (tools.AutoBuild):
     source = 'git://anongit.freedesktop.org/git/fontconfig?revision=' + version
     
     def get_build_dependencies (self):
-        return ['libtool', 'freetype', 'expat']
+        return ['libtool', 'freetype', 'expat', 'pkg-config']
 
-    def compile_command (self):
-        return (tools.AutoBuild.compile_command (self)
-                + ' DOCSRC="" ')
-
-    def install_command (self):
-        return (tools.AutoBuild.install_command (self)
+    def makeflags (self):
+        return ('man_MANS=' # either this, or add something like tools::docbook-utils
                 + ' DOCSRC="" ')

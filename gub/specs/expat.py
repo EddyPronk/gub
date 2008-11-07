@@ -4,15 +4,16 @@ from gub import tools
 
 class Expat (target.AutoBuild):
     source = 'http://surfnet.dl.sourceforge.net/sourceforge/expat/expat-1.95.8.tar.gz'
+    patches = ['expat-1.95.8-mingw.patch']
 
     def get_build_dependencies (self):
         return ['libtool', 'tools::expat']
 
     def patch (self):
-        self.system ("rm %(srcdir)s/configure")
-        self.apply_patch ('expat-1.95.8-mingw.patch')
-        self.system ("touch %(srcdir)s/tests/xmltest.sh.in")
         target.AutoBuild.patch (self)
+        #FIXME: should have configure.ac/in vs configure timestamp test
+        self.system ("rm %(srcdir)s/configure")
+        self.system ("touch %(srcdir)s/tests/xmltest.sh.in")
 
     def configure (self):
         target.AutoBuild.configure (self)
@@ -40,6 +41,7 @@ class Expat__linux__arm__vfp (Expat):
         target.AutoBuild.patch (self)
 
 class Expat__tools (tools.AutoBuild):
-    patches = ['expat-1.95.8-mingw.patch']
+    source = Expat.source
+    patches = Expat.patches
     def get_build_dependencies (self):
         return ['libtool']

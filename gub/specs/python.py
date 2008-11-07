@@ -9,6 +9,14 @@ from gub import tools
 
 class Python (target.AutoBuild):
     source = 'http://python.org/ftp/python/2.4.2/Python-2.4.2.tar.bz2'
+    patches = [
+        'python-2.4.2-1.patch',
+        'python-configure.in-posix.patch&strip=0',
+        'python-configure.in-sysname.patch&strip=0',
+        'python-2.4.2-configure.in-sysrelease.patch',
+        'python-2.4.2-setup.py-import.patch&strip=0',
+        'python-2.4.2-setup.py-cross_root.patch&strip=0']
+
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         ## don't from gub import settings from build system.
@@ -28,12 +36,6 @@ class Python (target.AutoBuild):
 
     def patch (self):
         target.AutoBuild.patch (self)
-        self.apply_patch ('python-2.4.2-1.patch')
-        self.apply_patch ('python-configure.in-posix.patch', strip_component=0)
-        self.apply_patch ('python-configure.in-sysname.patch', strip_component=0)
-        self.apply_patch ('python-2.4.2-configure.in-sysrelease.patch')
-        self.apply_patch ('python-2.4.2-setup.py-import.patch', strip_component=0)
-        self.apply_patch ('python-2.4.2-setup.py-cross_root.patch', strip_component=0)
         self.file_sub ([('@CC@', '@CC@ -I$(shell pwd)')],
                         '%(srcdir)s/Makefile.pre.in')
 
@@ -75,7 +77,10 @@ class Python__mingw_binary (build.BinaryBuild):
 
 
 class Python__mingw (Python):
-
+    patches = Python.patches + [
+        'python-2.4.2-winsock2.patch'
+        'python-2.4.2-setup.py-selectmodule.patch'
+        ]
     def __init__ (self, settings, source):
         Python.__init__ (self, settings, source)
         self.target_gcc_flags = '-DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I%(system_prefix)s/include' % self.settings.__dict__
@@ -87,9 +92,6 @@ class Python__mingw (Python):
     # 2.4.2 and combined in one patch; move to cross-Python?
     def patch (self):
         Python.patch (self)
-        self.apply_patch ('python-2.4.2-winsock2.patch')
-        self.apply_patch ('python-2.4.2-setup.py-selectmodule.patch')
-
         ## to make subprocess.py work.
         self.file_sub ([
                 ("import fcntl", ""),

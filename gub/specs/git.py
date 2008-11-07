@@ -43,10 +43,8 @@ install:
         return flags
 
 class Git (target.AutoBuild):
-
-    # TODO: where should this go?
-    ## strip -mwindows.
-    #self.target_gcc_flags = ' -mms-bitfields '
+    patches = ['git-1.5.2-templatedir.patch',
+               'git-1.5-shell-anality.patch']
 
     def version (self):
         return '1.5.3.rc2'
@@ -73,19 +71,17 @@ class Git (target.AutoBuild):
                 ]
 
     def patch (self):
+        target.AutoBuild (patch)
         self.file_sub ([('GIT-CFLAGS','$(GIT_CFLAGS_FILE)'),
                         ('\t\\$\\(MAKE\\) -C perl[^\n]\n', '')
                         ],
                         '%(srcdir)s/Makefile')
         self.file_sub ([('\.\./GIT-CFLAGS Makefile', 'Makefile')],
                         '%(srcdir)s/perl/Makefile')
-
-        self.apply_patch('git-1.5.2-templatedir.patch')
         target.AutoBuild.patch (self)
         self.system ('rm -rf %(builddir)s')
         self.file_sub ([('git describe','true')],
                         '%(srcdir)s/GIT-VERSION-GEN')
-        self.apply_patch ('git-1.5-shell-anality.patch')
         
 class Git__mingw (Git):
     def __init__ (self, settings, source):
