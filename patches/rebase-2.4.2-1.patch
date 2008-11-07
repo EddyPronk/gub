@@ -1,0 +1,60 @@
+--- rebase-2.4.2.1.src/imagehelper/objectfile.cc~	2003-01-04 13:43:00.000000000 +0100
++++ rebase-2.4.2.1.src/imagehelper/objectfile.cc	2008-11-07 17:09:12.000000000 +0100
+@@ -29,6 +29,8 @@
+ 
+ #ifdef __CYGWIN__
+ #include <sys/cygwin.h>
++#else
++#include <windows.h>
+ #endif
+ 
+ #ifdef __CYGWIN__
+@@ -114,7 +116,7 @@ ObjectFile::ObjectFile(char *aFileName, 
+   // create shortcuts
+   PIMAGE_DOS_HEADER dosheader = (PIMAGE_DOS_HEADER)lpFileBase;
+ 
+-  ntheader = (PIMAGE_NT_HEADERS) ((char *)dosheader + dosheader->e_lfanew);
++  IMAGE_NT_HEADERS *ntheader = (PIMAGE_NT_HEADERS) ((char *)dosheader + dosheader->e_lfanew);
+ 
+   if (ntheader->Signature != 0x00004550)
+     {
+--- rebase-2.4.2.1.src/imagehelper/sections.cc~	2003-02-14 16:01:13.000000000 +0100
++++ rebase-2.4.2.1.src/imagehelper/sections.cc	2008-11-07 17:14:16.000000000 +0100
+@@ -285,7 +285,7 @@ bool Relocations::check(void)
+   if (debug)
+     std::cerr << "debug: checking relocations .... " << std::endl;
+ 
+-  for (; (char *)&relocp->SizeOfBlock < (char *)relocs + size && relocp->SizeOfBlock != 0; ((char *)relocp) += relocp->SizeOfBlock)
++  for (; (char *)&relocp->SizeOfBlock < (char *)relocs + size && relocp->SizeOfBlock != 0; relocp = (PIMAGE_BASE_RELOCATION) ((char*)relocp) + relocp->SizeOfBlock)
+     {
+       int NumOfRelocs = (relocp->SizeOfBlock - sizeof(IMAGE_BASE_RELOCATION)) / sizeof (WORD);
+       int va = relocp->VirtualAddress;
+@@ -328,7 +328,7 @@ bool Relocations::fix(void)
+   if (debug)
+     std::cerr << "warning: fixing bad relocations .... ";
+ 
+-  for (; (char *)&relocp->SizeOfBlock < (char *)relocs + size && relocp->SizeOfBlock != 0; ((char *)relocp) += relocp->SizeOfBlock)
++  for (; (char *)&relocp->SizeOfBlock < (char *)relocs + size && relocp->SizeOfBlock != 0; relocp = (PIMAGE_BASE_RELOCATION) ((char*)relocp) + relocp->SizeOfBlock)
+     {
+       int NumOfRelocs = (relocp->SizeOfBlock - sizeof(IMAGE_BASE_RELOCATION)) / sizeof (WORD);
+       int va = relocp->VirtualAddress;
+@@ -363,7 +363,7 @@ bool Relocations::relocate(int differenc
+   if (!relocs)
+     return false;
+ 
+-  for (; (char *)&relocp->SizeOfBlock < (char *)relocs + size && relocp->SizeOfBlock != 0; ((char *)relocp) += relocp->SizeOfBlock)
++  for (; (char *)&relocp->SizeOfBlock < (char *)relocs + size && relocp->SizeOfBlock != 0; relocp = (PIMAGE_BASE_RELOCATION) ((char*)relocp) + relocp->SizeOfBlock)
+     {
+       int NumOfRelocs = (relocp->SizeOfBlock - sizeof(IMAGE_BASE_RELOCATION)) / sizeof (WORD);
+       int va = relocp->VirtualAddress;
+--- rebase-2.4.2.1.src/imagehelper/Makefile.in~	2003-01-02 21:07:35.000000000 +0100
++++ rebase-2.4.2.1.src/imagehelper/Makefile.in	2008-11-07 17:15:12.000000000 +0100
+@@ -34,7 +34,7 @@ all: $(LIB_TARGET) $(TARGETS)
+ $(LIB_TARGET): $(LIB_TARGET_FILE)
+ 
+ $(LIB_TARGET_FILE): $(LIB_FILES) 
+-	ar -cru $@ $^
++	$(AR) -cru $@ $^
+ 
+ $(REBASE_TARGET): $(REBASE_FILES)
+ 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
