@@ -20,6 +20,8 @@ class AutoBuild (build.AutoBuild):
     def configure_flags (self):
         return misc.join_lines ('''
 --prefix=%(system_prefix)s
+--enable-shared
+--enable-static
 ''')
     # FIXME: promoteme to build.py?  Most Fragile operation...
     def configure_variables (self):

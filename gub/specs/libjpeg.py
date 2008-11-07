@@ -93,7 +93,6 @@ class Libjpeg__tools (tools.AutoBuild):
     def configure (self):
         Libjpeg.update_config_guess_config_sub (self)
         tools.AutoBuild.configure (self)
-        tools.AutoBuild.update_libtool (self)
         self.update_libtool ()
         self.file_sub (
             [
