@@ -1,12 +1,12 @@
 --- scripting/source/dlgprov/dlgevtatt.hxx.~1~	2008-11-06 23:36:39.000000000 +0100
 +++ scripting/source/dlgprov/dlgevtatt.hxx	2008-11-06 23:33:48.000000000 +0100
-@@ -46,2 +46,2 @@
+@@ -46,7 +46,9 @@
  
  #include <hash_map>
-
+ 
 +#ifndef __MINGW32__
-#define FAKE_VBA_EVENT_SUPPORT 1 
+ #define FAKE_VBA_EVENT_SUPPORT 1 
 +#endif
-
+ 
  //.........................................................................
  namespace dlgprov
