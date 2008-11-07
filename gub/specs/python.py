@@ -78,7 +78,7 @@ class Python__mingw_binary (build.BinaryBuild):
 
 class Python__mingw (Python):
     patches = Python.patches + [
-        'python-2.4.2-winsock2.patch'
+        'python-2.4.2-winsock2.patch',
         'python-2.4.2-setup.py-selectmodule.patch'
         ]
     def __init__ (self, settings, source):
@@ -138,5 +138,3 @@ class Python__tools (tools.AutoBuild, Python):
         return True
     def install (self):
         tools.AutoBuild.install (self)
-    def wrap_executables (self):
-        pass

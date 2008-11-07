@@ -123,5 +123,3 @@ class Python__tools (tools.AutoBuild, Python):
         return True
     def install (self):
         tools.AutoBuild.install (self)
-    def wrap_executables (self):
-        pass
