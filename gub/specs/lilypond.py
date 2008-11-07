@@ -72,6 +72,7 @@ class LilyPond (target.AutoBuild):
                 'tools::pkg-config', # nonstandard (MacOS)
                 'tools::netpbm', # website
                 'tools::gettext', # AM_GNU_GETTEXT
+                'tools::rsync', # ugh, we depend on *rsync* !?
                 'tools::t1utils',
                 'tools::texi2html',
                 #'tools::texlive', mpost ... *grin*
