@@ -8,19 +8,30 @@ from gub import target
 from gub import tools
 
 class Python (target.AutoBuild):
-    source = 'http://python.org/ftp/python/2.4.2/Python-2.4.2.tar.bz2'
-    patches = [
+    source = 'http://python.org/ftp/python/2.4.5/Python-2.4.5.tar.bz2'
+    #source = 'http://python.org/ftp/python/2.4.2/Python-2.4.2.tar.bz2'
+    patches_242 = [
         'python-2.4.2-1.patch',
         'python-configure.in-posix.patch&strip=0',
         'python-configure.in-sysname.patch&strip=0',
         'python-2.4.2-configure.in-sysrelease.patch',
         'python-2.4.2-setup.py-import.patch&strip=0',
-        'python-2.4.2-setup.py-cross_root.patch&strip=0']
+        'python-2.4.2-setup.py-cross_root.patch&strip=0',
+        'python-2.4.2-fno-stack-protector.patch',
+        ]
+
+    patches = [
+        'python-2.4.5-1.patch',
+        'python-configure.in-posix.patch&strip=0',
+        'python-2.4.5-configure.in-sysname.patch',
+        'python-2.4.2-configure.in-sysrelease.patch',
+        'python-2.4.2-setup.py-import.patch&strip=0',
+        'python-2.4.2-setup.py-cross_root.patch&strip=0',
+#        'python-2.4.2-fno-stack-protector.patch',
+        ]
 
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
-        ## don't from gub import settings from build system.
-	self.BASECFLAGS = ''
         self.CROSS_ROOT = '%(targetdir)s'
 
     def get_subpackage_names (self):
@@ -43,7 +54,11 @@ class Python (target.AutoBuild):
         return True
 
     def makeflags (self):
-        return 'BUILDPYTHON=./python-bin'
+#BUILDPYTHON=./python-bin
+#BASECFLAGS='-fno-strict-aliasing -fno-stack-protector'
+        return misc.join_lines (r'''
+BLDLIBRARY='-Wl,--rpath -Wl,\$$ORIGIN/../lib -L. -lpython$(VERSION)'
+''')
 
     # FIXME: c&p linux.py:install ()
     def install (self):
@@ -70,10 +85,11 @@ class Python__mingw_binary (build.BinaryBuild):
 
     def install (self):
         build.BinaryBuild.install (self)
-
-        self.system ("cd %(install_root)s/ && mkdir usr && mv Python24/include  usr/ ")
-        self.system ("cd %(install_root)s/ && mkdir -p usr/bin/ && mv Python24/* usr/bin/ ")
-        self.system ("rmdir %(install_root)s/Python24/")
+        self.system ('''
+cd %(install_root)s && mkdir usr && mv Python24/include usr
+cd %(install_root)s && mkdir -p usr/bin/ && mv Python24/* usr/bin
+rmdir %(install_root)s/Python24
+''')
 
 
 class Python__mingw (Python):
@@ -119,7 +135,7 @@ ac_cv_sizeof_pthread_t=12
             loggedos.rename (logger, fname, dll)
 
         self.map_locate (rename_so,
-                         self.expand ('%(install_prefix)s/lib/python%(python_version)s/lib-dynload/'),
+                         self.expand ('%(install_prefix)s/lib/python%(python_version)s/lib-dynload'),
                                       '*.so*')
         ## UGH.
         self.system ('''
@@ -131,10 +147,13 @@ chmod 755 %(install_prefix)s/bin/*
         self.generate_dll_a_and_la ('python2.4', '-lpthread')
 
 class Python__tools (tools.AutoBuild, Python):
-    source = 'http://python.org/ftp/python/2.4.5/Python-2.4.5.tar.bz2'
+    source = Python.source
+#    patches = ['python-2.4.2-fno-stack-protector.patch']
     def get_build_dependencies (self):
         return ['autoconf', 'libtool']
     def force_autoupdate (self):
         return True
-    def install (self):
-        tools.AutoBuild.install (self)
+    def makeflags (self):
+        return Python.makeflags (self)
+    def wrap_executables (self):
+        pass

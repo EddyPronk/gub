@@ -1,0 +1,15 @@
+--- python-2.4.2/Makefile.pre.in.orig	2008-11-08 14:17:49.000000000 +0100
++++ python-2.4.2/Makefile.pre.in	2008-11-08 14:18:08.000000000 +0100
+@@ -67,6 +67,12 @@ CFLAGSFORSHARED=@CFLAGSFORSHARED@
+ # C flags used for building the interpreter object files
+ PY_CFLAGS=	$(CFLAGS) $(CPPFLAGS) $(CFLAGSFORSHARED) -DPy_BUILD_CORE
+ 
++have_fno_stack_protector = $(strip $(shell echo 'int i;' | $(CC) -fno-stack-protector -c -xc -o /dev/null - 2> /dev/null && echo yes || echo no))
++
++ifeq ($(have_fno_stack_protector),yes)
++CFLAGS += -fno-stack-protector
++endif
++
+ # Machine-dependent subdirectories
+ MACHDEP=	@MACHDEP@
+ 

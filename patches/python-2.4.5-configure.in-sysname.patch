@@ -1,0 +1,53 @@
+--- python-2.4.5/configure.in.orig	2008-11-08 17:11:33.000000000 +0100
++++ python-2.4.5/configure.in	2008-11-08 17:13:22.000000000 +0100
+@@ -227,7 +227,7 @@ case $ac_sys_system/$ac_sys_release in
+   # it craps out if _XOPEN_EXTENDED_SOURCE is defined. Apparently,
+   # this is fixed in 10.3, which identifies itself as Darwin/7.*
+   # This should hopefully be fixed in FreeBSD 4.9
+-  FreeBSD/4.8* | Darwin/6* )
++  freebsd4* |  FreeBSD/4.8* | Darwin/6* )
+     define_xopen_source=no;;
+   # On AIX 4 and 5.1, mbstate_t is defined only when _XOPEN_SOURCE == 500 but
+   # used in wcsnrtombs() and mbsnrtowcs() even if _XOPEN_SOURCE is not defined
+@@ -671,12 +671,12 @@ if test $enable_shared = "yes"; then
+ 	  RUNSHARED=LD_LIBRARY_PATH=`pwd`:${LD_LIBRARY_PATH}
+ 	  INSTSONAME="$LDLIBRARY".$SOVERSION
+           ;;
+-    Linux*|GNU*|NetBSD*|FreeBSD*|DragonFly*)
++    linux*|Linux*|GNU*|NetBSD*|FreeBSD*|DragonFly*)
+ 	  LDLIBRARY='libpython$(VERSION).so'
+ 	  BLDLIBRARY='-L. -lpython$(VERSION)'
+ 	  RUNSHARED=LD_LIBRARY_PATH=`pwd`:${LD_LIBRARY_PATH}
+ 	  case $ac_sys_system in
+-	      FreeBSD*)
++	      FreeBSD*|freebsd*)
+ 		SOVERSION=`echo $SOVERSION|cut -d "." -f 1`
+ 		;;
+ 	  esac
+@@ -1487,7 +1487,7 @@ then
+ 			fi
+ 		fi
+ 		;;
+-	Linux*|GNU*) LDSHARED='$(CC) -shared';;
++	linux*|Linux*|GNU*) LDSHARED='$(CC) -shared';;
+ 	BSD/OS*/4*) LDSHARED="gcc -shared";;
+ 	FreeBSD*)
+ 		if [[ "`$CC -dM -E - </dev/null | grep __ELF__`" != "" ]]
+@@ -1541,7 +1541,7 @@ then
+ 		 then CCSHARED="-fPIC";
+ 		 else CCSHARED="+z";
+ 		 fi;;
+-	Linux*|GNU*) CCSHARED="-fPIC";;
++	linux*|Linux*|GNU*) CCSHARED="-fPIC";;
+ 	BSD/OS*/4*) CCSHARED="-fpic";;
+ 	FreeBSD*|NetBSD*|OpenBSD*|DragonFly*) CCSHARED="-fPIC";;
+ 	OpenUNIX*|UnixWare*)
+@@ -1574,7 +1574,7 @@ then
+ 	    LINKFORSHARED="-Wl,-E -Wl,+s";;
+ #	    LINKFORSHARED="-Wl,-E -Wl,+s -Wl,+b\$(BINLIBDEST)/lib-dynload";;
+ 	BSD/OS/4*) LINKFORSHARED="-Xlinker -export-dynamic";;
+-	Linux*|GNU*) LINKFORSHARED="-Xlinker -export-dynamic";;
++	linux*|Linux*|GNU*) LINKFORSHARED="-Xlinker -export-dynamic";;
+ 	# -u libsys_s pulls in all symbols in libsys
+ 	Darwin/*) 
+ 		# -u _PyMac_Error is needed to pull in the mac toolbox glue,
