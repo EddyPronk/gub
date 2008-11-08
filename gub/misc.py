@@ -240,7 +240,6 @@ def download_url (original_url, dest_dir,
         if url == original_url:
             candidate_urls.append (url)
         if not is_ball (os.path.basename (url)):
-            print 'adding:', url, rewrite_url (original_url, url)
             candidate_urls.append (rewrite_url (original_url, url))
 
     for url in candidate_urls:
