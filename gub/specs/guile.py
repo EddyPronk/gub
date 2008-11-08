@@ -4,6 +4,7 @@ from gub import misc
 from gub import loggedos
 from gub import repository
 from gub import target
+from gub import tools
 
 class Guile (target.AutoBuild):
     # http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=494337
@@ -67,6 +68,8 @@ exec %(tools_prefix)s/bin/guile "$@"
                 + target.AutoBuild.configure_command (self)
                 + self.configure_flags ())
 
+    def makeflags (self):
+        return r'''LDFLAGS='-Wl,-rpath -Wl,\$$ORIGIN/../lib' '''
     def compile_command (self):
         return ('preinstguile=%(tools_prefix)s/bin/guile ' +
                 target.AutoBuild.compile_command (self))
@@ -322,31 +325,24 @@ guile-tut').
 """,
     }
 
-from gub import tools
-from gub import build
 class Guile__tools (tools.AutoBuild, Guile):
     source = Guile.source
+    patches = ['guile-reloc.patch']
     def get_build_dependencies (self):
         return (tools.AutoBuild.get_build_dependencies (self)
                 + Guile.get_build_dependencies (self)
                 + ['autoconf', 'automake', 'gettext', 'flex', 'libtool'])
-
     def patch (self):
         self.autogen_sh ()
-
     def configure_command (self):
         return (tools.AutoBuild.configure_command (self)
-                + self.configure_flags ())
-
-    def configure (self):
-        tools.AutoBuild.configure (self)
-#        self.update_libtool ()
-
+                + Guile.configure_flags (self))
+    def makeflags (self):
+        return Guile.makeflags (self)
     def install (self):
-        ## guile runs fine without wrapper (if it doesn't, use the
-        ## relocation patch), while a sh wrapper breaks executable
-        ## scripts tools.AutoBuild.install (self)
-        build.AutoBuild.install (self)
-
-        ## don't want tools GUILE headers to interfere with compile.
+        tools.AutoBuild.install (self)
+        # Ugh: remove development stuff from tools
+        # Make sure no tool GUILE headers can interfere with compile.
         self.system ("rm -rf %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/include/ %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/bin/guile-config ")
+    def wrap_executables (self):
+        pass
