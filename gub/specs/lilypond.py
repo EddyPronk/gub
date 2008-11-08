@@ -90,17 +90,14 @@ class LilyPond (target.AutoBuild):
         target.AutoBuild.configure (self)
     
     def configure_command (self):
-        ## FIXME: pickup $target-guile-config
         return (target.AutoBuild.configure_command (self)
                 + misc.join_lines ('''
 --enable-relocation
+--enable-rpath
 --disable-documentation
 --enable-static-gxx
 --with-ncsb-dir=%(system_prefix)s/share/fonts/default/Type1
 '''))
-
-    def compile (self):
-        target.AutoBuild.compile (self)
 
     def name_version (self):
         return target.AutoBuild.name_version (self)

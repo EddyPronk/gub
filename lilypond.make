@@ -277,7 +277,7 @@ DOC_RELOCATION = \
     PATH=$(CWD)/target/tools/root/usr/bin:$(NATIVE_ROOT)/usr/bin:$$PATH \
     GS_LIB=$(wildcard $(NATIVE_ROOT)/usr/share/ghostscript/*/lib) \
     MALLOC_CHECK_=2 \
-    LD_LIBRARY_PATH=$(NATIVE_ROOT)/usr/lib:$(CWD)/target/tools/root/usr/lib:$(LD_LIBRARY_PATH)
+    LD_LIBRARY_PATH=$(CWD)/target/tools/root/usr/lib:$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH)
 
 SIGNATURE_FUNCTION=uploads/signatures/$(1).$(NATIVE_BUILD_COMMITTISH)
 
