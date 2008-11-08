@@ -170,7 +170,7 @@ models.'''
         return (' INCLUDE=%(system_prefix)s/include'
                 + ' PSDOCDIR=%(prefix_dir)s/share/doc'
                 + ' PSMANDIR=%(prefix_dir)s/share/man'
-                + '''XLDFLAGS='-Wl,-rpath -Wl,\$$ORIGIN/../lib' ''')
+                + ''' XLDFLAGS='-Wl,-rpath -Wl,\$$ORIGIN/../lib' ''')
 
     def compile_command (self):
         return target.AutoBuild.compile_command (self) + self.compile_flags ()
