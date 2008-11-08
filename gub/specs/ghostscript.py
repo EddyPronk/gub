@@ -169,7 +169,8 @@ models.'''
     def compile_flags (self):
         return (' INCLUDE=%(system_prefix)s/include'
                 + ' PSDOCDIR=%(prefix_dir)s/share/doc'
-                + ' PSMANDIR=%(prefix_dir)s/share/man')
+                + ' PSMANDIR=%(prefix_dir)s/share/man'
+                + '''XLDFLAGS='-Wl,-rpath -Wl,\$$ORIGIN/../lib' ''')
 
     def compile_command (self):
         return target.AutoBuild.compile_command (self) + self.compile_flags ()
@@ -410,3 +411,5 @@ cd %(builddir)s && sort -u gconfig_-native.h gconfig_-tools.h > obj/gconfig_.h
                 + ' docdir=%(prefix_dir)s/share/doc/ghostscript/doc '
                 + ' exdir=%(prefix_dir)s/share/doc/ghostscript/examples '
                 )
+    def wrap_executables (self):
+        pass

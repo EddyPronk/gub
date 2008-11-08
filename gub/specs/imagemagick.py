@@ -15,8 +15,10 @@ class ImageMagick__tools (tools.AutoBuild):
 --without-perl
 '''))
     def configure (self):
-        # do *not* update libtool, GUB's is too old :-(
+        # do *not* update libtool, GUB's 1.5.x is too old :-(
         build.AutoBuild.configure (self)
+    def wrap_executables (self):
+        pass
 
 class ImageMagick__tools__autoupdate (ImageMagick__tools):
     def XXforce_autoupdate (self):
