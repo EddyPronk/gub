@@ -87,7 +87,7 @@ class Glibc (target.AutoBuild, cross.AutoBuild):
                 + ' rootsbindir=%(prefix_dir)s/sbin'
                 + ' slibdir=%(prefix_dir)s/lib'
 ##                + ''' config-LDFLAGS='-Wl,-dynamic-linker=%(system_root)s$(slibdir)/$(rtld-installed-name)' ''')
-                + ''' config-LDFLAGS='-Wl,-dynamic-linker=/usr/lib/$(rtld-installed-name)' ''') # /usr: on target system
+                + ''' config-LDFLAGS='-Wl,-dynamic-linker=/lib/$(rtld-installed-name)' ''') # /usr: on target system
     def install_command (self):
         return (target.AutoBuild.install_command (self)
                 + ' install_root=%(install_root)s'
