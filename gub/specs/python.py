@@ -57,7 +57,7 @@ class Python (target.AutoBuild):
 #BUILDPYTHON=./python-bin
 #BASECFLAGS='-fno-strict-aliasing -fno-stack-protector'
         return misc.join_lines (r'''
-BLDLIBRARY='-Wl,--rpath -Wl,\$$ORIGIN/../lib -L. -lpython$(VERSION)'
+BLDLIBRARY='%(rpath)s -L. -lpython$(VERSION)'
 ''')
 
     # FIXME: c&p linux.py:install ()
@@ -70,7 +70,6 @@ BLDLIBRARY='-Wl,--rpath -Wl,\$$ORIGIN/../lib -L. -lpython$(VERSION)'
         self.dump (cfg, '%(install_prefix)s/cross/bin/python-config',
                    expand_string=False)
         self.system ('chmod +x %(install_prefix)s/cross/bin/python-config')
-
 
     ### Ugh.
     @context.subst_method
@@ -95,7 +94,8 @@ rmdir %(install_root)s/Python24
 class Python__mingw (Python):
     patches = Python.patches + [
         'python-2.4.2-winsock2.patch',
-        'python-2.4.2-setup.py-selectmodule.patch'
+        'python-2.4.2-setup.py-selectmodule.patch',
+        'python-2.4.5-disable-pwd-mingw.patch',
         ]
     def __init__ (self, settings, source):
         Python.__init__ (self, settings, source)

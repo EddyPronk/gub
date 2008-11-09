@@ -16,6 +16,13 @@ class Pango (target.AutoBuild):
         return ['freetype-devel', 'fontconfig-devel', 'glib-devel', 'libtool']
     def get_dependency_dict (self):
         return {'': ['freetype', 'fontconfig', 'glib', 'libtool-runtime']}
+    def patch (self):
+        target.AutoBuild.patch (self)
+        if self.settings.target_architecture == self.settings.build_architecture:
+            self.file_sub ([('\t\$\(LINK\) \$\(pango_querymodules_OBJECTS\)',
+                             '\t$(LINK_FOR_BUILD) $(pango_querymodules_OBJECTS)')],
+                           '%(srcdir)s/pango/Makefile.in')
+
     #FIXME: promoteme to build.py
     def configure_flags (self):
         return misc.join_lines ('''
@@ -56,6 +63,13 @@ ModuleFiles = $PANGO_PREFIX/etc/pango/pango.modules
 ModulesPath = $PANGO_PREFIX/lib/pango/%(pango_module_version)s/modules
 ''' % locals (), etc + '/pangorc')
         self.copy ('%(sourcefiledir)s/pango.modules', etc)
+
+    def makeflags (self):
+        if self.settings.target_architecture == self.settings.build_architecture:
+            # libtool fucks-up with it's own rpath settings when not
+            # cross-compiling
+            return ''' LINK_FOR_BUILD='$(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@' '''
+        return ''
 
     def install (self):
         target.AutoBuild.install (self)

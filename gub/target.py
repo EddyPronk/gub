@@ -116,6 +116,11 @@ cd %(builddir)s && chmod +x %(configure_binary)s && %(configure_command_native)s
         self.system ('cd %(builddir)s && %(compile_command_native)s')
         self.get_substitution_dict = save
 
+    @context.subst_method
+    def rpath (self):
+        return r'-Wl,-rpath -Wl,\$$ORIGIN/../lib'
+#        return r'-Wl,-rpath -Wl,\$$ORIGIN/../lib -Wl,-rpath -Wl,\$$ORIGIN/../../lib'
+
     ## FIXME: this should move elsewhere , as it's not
     ## package specific
     def get_substitution_dict (self, env={}):
@@ -125,32 +130,13 @@ cd %(builddir)s && chmod +x %(configure_binary)s && %(configure_command_native)s
             'CC': '%(toolchain_prefix)sgcc %(target_gcc_flags)s',
             'CC_FOR_BUILD': 'C_INCLUDE_PATH= CPATH= CPPFLAGS= LIBRARY_PATH= cc',
             'CCLD_FOR_BUILD': 'C_INCLUDE_PATH= CPATH= CPPFLAGS= LIBRARY_PATH= cc',
-#preliminary
-#            'LDFLAGS_FOR_BUILD': '',
-            
-
-            ## %(system_prefix)s/include is already done by
-            ## GCC --with-sysroot config, but we  have to be sure
-            ## note that overrides some headers in sysroot/usr/include,
-            ## which is why setting C_INCLUDE_PATH breaks on FreeBSD. 
-            ## 
-            ## no %(toolchain_prefix)s/usr/include, as this will interfere
-            ## with target headers.
-            ## The flex header has to be copied into the target compile manually.
-            ##
+            'LDFLAGS_FOR_BUILD': '',
             'C_INCLUDE_PATH': '',
             'CPATH': '',
             'CPLUS_INCLUDE_PATH': '',
             'CXX':'%(toolchain_prefix)sg++ %(target_gcc_flags)s',
-
-#--urg-broken-if-set-exec-prefix=%(system_prefix)s \
-## ugh, creeping -L/usr/lib problem
-## trying revert to LDFLAGS...
-##                        'LIBRARY_PATH': '%(system_prefix)s/lib:%(system_prefix)s/bin',
             'LIBRARY_PATH': '',
-# FIXME: usr/bin and w32api belongs to mingw/cygwin; but overriding is broken
-#            'LDFLAGS': '-L%(system_prefix)s/lib -L%(system_prefix)s/bin -L%(system_prefix)s/lib/w32api',
-            'LDFLAGS': '',
+            'LDFLAGS': '', #'%(rpath)s', # error-prone, better on a per-package basis.
             'LD': '%(toolchain_prefix)sld',
             'LD_LIBRARY_PATH': '%(tools_prefix)s/lib'
             + misc.append_path (os.environ.get ('LD_LIBRARY_PATH', '')),
@@ -171,7 +157,7 @@ cd %(builddir)s && chmod +x %(configure_binary)s && %(configure_command_native)s
         # Hmm, better to make wrappers for gcc/c++/g++ that add options;
         # see (gub-samco branch) linux-arm-vfp.py?
         if self.settings.platform in ('cygwin', 'mingw'):
-            dict['LDFLAGS'] = '-L%(system_prefix)s/lib -L%(system_prefix)s/bin -L%(system_prefix)s/lib/w32api'
+            dict['LDFLAGS'] += '-L%(system_prefix)s/lib -L%(system_prefix)s/bin -L%(system_prefix)s/lib/w32api'
 
         #FIXME: how to move this to arm.py?
         if self.settings.target_architecture == 'armv5te-softfloat-linux':

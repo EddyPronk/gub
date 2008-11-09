@@ -69,21 +69,26 @@ exec %(tools_prefix)s/bin/guile "$@"
                 + self.configure_flags ())
 
     def makeflags (self):
-        return r'''LDFLAGS='-Wl,-rpath -Wl,\$$ORIGIN/../lib' '''
+        return '''LDFLAGS='%(rpath)s' '''
+
     def compile_command (self):
         return ('preinstguile=%(tools_prefix)s/bin/guile ' +
                 target.AutoBuild.compile_command (self))
     
     def compile (self):
-
         ## Ugh : broken dependencies barf with make -jX
-        self.system ('cd %(builddir)s/libguile && make scmconfig.h')
+        flags = ''
+        # TODO: add to makeflags, see pango
+        if self.settings.target_architecture == self.settings.build_architecture:
+            # libtool fucks-up with it's own rpath settings when not
+            # cross-compiling
+            flags = ''' LINK='$(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@' '''
+        self.system ('cd %(builddir)s/libguile && make %(flags)s gen-scmconfig guile_filter_doc_snarfage',
+                     locals ())
         # No -L %(system_root)s in `guile-config link'
         self.system ('cd %(builddir)s/libguile && make libpath.h')
         self.file_sub ([('''-L *%(system_root)s''', '-L')],
                        '%(builddir)s/libguile/libpath.h')
-        if self.target_architecture == self.build_architecture:
-            self.system ('''cd %(builddir)s/libguile && make LINK='$(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@' ''')
         target.AutoBuild.compile (self)
 
     def configure (self):
