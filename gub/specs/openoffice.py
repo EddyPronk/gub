@@ -140,17 +140,19 @@ Module 'lingucomponent' delivered successfully. 8 files copied, 5 files unchange
 Module 'lotuswordpro' delivered successfully. 1 files copied, 1 files unchanged
 Module 'reportdesign' delivered successfully. 3 files copied, 28 files unchanged
 Module 'sc' delivered successfully. 4 files copied, 172 files unchanged
-Module 'scripting' delivered successfully. 18 files copied, 0 files unchanged
-Module 'sd' delivered successfully. 171 files copied, 7 files unchanged
-Module 'slideshow' delivered successfully. 3 files copied, 3 files unchanged
-Module 'starmath' delivered successfully. 15 files copied, 1 files unchanged
-Module 'writerfilter' delivered successfully. 6 files copied, 0 files unchanged
-Module 'writerperfect' delivered successfully. 4 files copied, 0 files unchanged
-Module 'sw' delivered successfully. 261 files copied, 2 files unchanged
-Module 'xmerge' delivered successfully. 2 files copied, 10 files unchanged
-Module 'xmlsecurity' delivered successfully. 1 files copied, 6 files unchanged
+Module 'scripting' delivered successfully. 5 files copied, 13 files unchanged
+Module 'sd' delivered successfully. 5 files copied, 173 files unchanged
+Module 'slideshow' delivered successfully. 2 files copied, 4 files unchanged
+Module 'starmath' delivered successfully. 2 files copied, 14 files unchanged
+Module 'writerfilter' delivered successfully. 1 files copied, 5 files unchanged
+Module 'writerperfect' delivered successfully. 3 files copied, 1 files unchanged
+Module 'sw' delivered successfully. 3 files copied, 260 files unchanged
+Module 'xmerge' delivered successfully. 0 files copied, 12 files unchanged
+Module 'xmlsecurity' delivered successfully. 0 files copied, 7 files unchanged
 checkdeliver.pl - checking delivered binaries
-143
+Module 'postprocess' delivered successfully. 2 files copied, 0 files unchanged
+Module 'packimages' delivered successfully. 8 files copied, 0 files unchanged
+145
 '''
 
 class Openoffice (target.AutoBuild):
@@ -398,7 +400,7 @@ LD_LIBRARY_PATH=%(LD_LIBRARY_PATH)s
 ##CPPFLAGS=
                 
 class Openoffice__mingw (Openoffice):
-    Openoffice.upstream_patches += ['openoffice-config_office-mingw.patch', 'openoffice-solenv-mingw.patch', 'openoffice-sal-mingw.patch', 'openoffice-external-mingwheaders.patch', 'openoffice-cppunit-mingw.patch', 'openoffice-i18npool-mingw.patch', 'openoffice-tools-mingw.patch', 'openoffice-setup_native-mingw.patch', 'openoffice-pyuno-mingw.patch', 'openoffice-sysui-mingw.patch', 'openoffice-dtrans-mingw.patch', 'openoffice-fpicker-mingw.patch', 'openoffice-sccomp-mingw.patch', 'openoffice-vcl-mingw.patch', 'openoffice-connectivity-mingw.patch', 'openoffice-unotools-mingw.patch', 'openoffice-embeddedobj-mingw.patch', 'openoffice-shell-mingw.patch', 'openoffice-svx-mingw.patch', 'openoffice-dbaccess-mingw.patch', 'openoffice-desktop-mingw.patch', 'openoffice-scripting-mingw.patch', 'openoffice-postprocess-mingw.patch']
+    Openoffice.upstream_patches += ['openoffice-config_office-mingw.patch', 'openoffice-solenv-mingw.patch', 'openoffice-sal-mingw.patch', 'openoffice-external-mingwheaders.patch', 'openoffice-cppunit-mingw.patch', 'openoffice-i18npool-mingw.patch', 'openoffice-tools-mingw.patch', 'openoffice-setup_native-mingw.patch', 'openoffice-pyuno-mingw.patch', 'openoffice-sysui-mingw.patch', 'openoffice-dtrans-mingw.patch', 'openoffice-fpicker-mingw.patch', 'openoffice-sccomp-mingw.patch', 'openoffice-vcl-mingw.patch', 'openoffice-connectivity-mingw.patch', 'openoffice-unotools-mingw.patch', 'openoffice-embeddedobj-mingw.patch', 'openoffice-shell-mingw.patch', 'openoffice-svx-mingw.patch', 'openoffice-dbaccess-mingw.patch', 'openoffice-desktop-mingw.patch', 'openoffice-scripting-mingw.patch', 'openoffice-postprocess-mingw.patch', 'openoffice-instsetoo_native-mingw.patch']
     # external/mingwheaders seems a badly misguided effort.  It
     # patches header files and is thus strictly tied to a gcc version;
     # that can never build.  How can patching header files ever work,
