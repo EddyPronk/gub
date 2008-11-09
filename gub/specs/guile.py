@@ -69,7 +69,7 @@ exec %(tools_prefix)s/bin/guile "$@"
                 + self.configure_flags ())
 
     def makeflags (self):
-        return r'''LDFLAGS='-Wl,-rpath -Wl,\$$ORIGIN/../lib' '''
+        return r'''LDFLAGS='-Wl,-rpath -Wl,\$$ORIGIN/../lib -Wl,-rpath -Wl,\$$ORIGIN/../../lib' '''
     def compile_command (self):
         return ('preinstguile=%(tools_prefix)s/bin/guile ' +
                 target.AutoBuild.compile_command (self))
@@ -82,6 +82,8 @@ exec %(tools_prefix)s/bin/guile "$@"
         self.system ('cd %(builddir)s/libguile && make libpath.h')
         self.file_sub ([('''-L *%(system_root)s''', '-L')],
                        '%(builddir)s/libguile/libpath.h')
+        if self.target_architecture == self.build_architecture:
+            self.system ('''cd %(builddir)s/libguile && make LINK='$(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@' ''')
         target.AutoBuild.compile (self)
 
     def configure (self):

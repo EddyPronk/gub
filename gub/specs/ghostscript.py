@@ -167,8 +167,8 @@ models.'''
                file)
 
     def compile_flags (self):
+        # FIXME: get glibc to grok SLIBDIR=/lib (iso lib)
         ld = r''' XLDFLAGS='-Wl,-rpath -Wl,\\\$$ORIGIN/../lib -Wl,-rpath -Wl,\\\$$ORIGIN/../../lib' '''
-        # FIXME: get glibc to grok SLIBDIR=/lib (iso lib64)
         if 'x86_64' in self.settings.target_architecture:
             ld = ld.replace ('/../../lib', '/../../lib64 ')
         return (' INCLUDE=%(system_prefix)s/include'

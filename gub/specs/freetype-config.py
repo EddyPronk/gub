@@ -11,7 +11,7 @@ class Freetype_config (build.SdkBuild):
         libdir = '%(prefix_dir)s/lib'
         enable_shared = 'yes'
         wl = '-Wl,'
-        hardcode_libdir_flag_spec='${wl}--rpath ${wl}$libdir'
+        hardcode_libdir_flag_spec='${wl}-rpath ${wl}$libdir'
         LIBZ = '-lz'
 
         regexes = [('@%s@' % nm, self.expand ('%(' + nm + ')s', locals ()))
