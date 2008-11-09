@@ -15,7 +15,7 @@ class Guile (target.AutoBuild):
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         if isinstance (source, repository.Repository):
-            source.version = lambda: '1.8.4'
+            source.version = lambda: '1.8.5'
         self.so_version = '17'
 
     def autogen_sh (self):
@@ -69,7 +69,7 @@ exec %(tools_prefix)s/bin/guile "$@"
                 + self.configure_flags ())
 
     def makeflags (self):
-        return r'''LDFLAGS='-Wl,-rpath -Wl,\$$ORIGIN/../lib -Wl,-rpath -Wl,\$$ORIGIN/../../lib' '''
+        return r'''LDFLAGS='-Wl,-rpath -Wl,\$$ORIGIN/../lib' '''
     def compile_command (self):
         return ('preinstguile=%(tools_prefix)s/bin/guile ' +
                 target.AutoBuild.compile_command (self))

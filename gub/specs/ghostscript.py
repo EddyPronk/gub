@@ -167,14 +167,10 @@ models.'''
                file)
 
     def compile_flags (self):
-        # FIXME: get glibc to grok SLIBDIR=/lib (iso lib)
-        ld = r''' XLDFLAGS='-Wl,-rpath -Wl,\\\$$ORIGIN/../lib -Wl,-rpath -Wl,\\\$$ORIGIN/../../lib' '''
-        if 'x86_64' in self.settings.target_architecture:
-            ld = ld.replace ('/../../lib', '/../../lib64 ')
         return (' INCLUDE=%(system_prefix)s/include'
                 + ' PSDOCDIR=%(prefix_dir)s/share/doc'
                 + ' PSMANDIR=%(prefix_dir)s/share/man'
-                + ld)
+                + r''' XLDFLAGS='-Wl,-rpath -Wl,\\\$$ORIGIN/../lib' ''')
 
     def compile_command (self):
         return target.AutoBuild.compile_command (self) + self.compile_flags ()

@@ -33,7 +33,7 @@ class AutoBuild (build.AutoBuild):
             + misc.join_lines ('''
 --program-prefix=%(target_architecture)s-
 --prefix=%(cross_prefix)s
---with-slibdir=/usr/lib
+--with-slibdir=%(prefix_dir)s/lib
 --target=%(target_architecture)s
 --with-sysroot=%(system_root)s
 --disable-multilib

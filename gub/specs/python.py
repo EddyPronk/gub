@@ -57,7 +57,7 @@ class Python (target.AutoBuild):
 #BUILDPYTHON=./python-bin
 #BASECFLAGS='-fno-strict-aliasing -fno-stack-protector'
         return misc.join_lines (r'''
-BLDLIBRARY='-Wl,--rpath -Wl,\$$ORIGIN/../lib -Wl,--rpath -Wl,\$$ORIGIN/../../lib -L. -lpython$(VERSION)'
+BLDLIBRARY='-Wl,--rpath -Wl,\$$ORIGIN/../lib -L. -lpython$(VERSION)'
 ''')
 
     # FIXME: c&p linux.py:install ()

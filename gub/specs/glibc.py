@@ -42,6 +42,8 @@ class Glibc (target.AutoBuild, cross.AutoBuild):
         return {'': ['glibc-core'], 'devel': ['glibc-core'], 'doc': ['glibc-core'], 'runtime': ['glibc-core']}
     def get_add_ons (self):
         return ('linuxthreads', 'nptl')
+    def config_cache_overrides (self, str):
+        return str + '\nlibc_cv_slibdir=%(prefix_dir)s/lib\n'
     def configure_command (self):    
         #FIXME: TODO, figure out which of --enable-add-ons=nptl,
         # --with-tls, --with-__thread fixes the ___tls_get_addr.
@@ -80,9 +82,9 @@ class Glibc (target.AutoBuild, cross.AutoBuild):
             self.system ('mv %(srcdir)s/urg-do-not-mkdir-or-rm-me/* %(srcdir)s')
     def configure (self):
         target.AutoBuild.configure (self)
-    def compile_command (self):
-        return (target.AutoBuild.compile_command (self)
-                + ' SHELL=/bin/bash')
+    def makeflags (self):
+        return (' SHELL=/bin/bash'
+                + ' slibdir=/usr/lib')
     def install_command (self):
         return (target.AutoBuild.install_command (self)
                 + ' install_root=%(install_root)s'
