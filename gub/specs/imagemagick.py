@@ -1,19 +1,22 @@
 from gub import build
+from gub import context
 from gub import misc
-from gub import target
 from gub import tools
 
 class ImageMagick__tools (tools.AutoBuild):
     source = 'http://ftp.surfnet.nl/pub/ImageMagick/ImageMagick-6.4.5-4.tar.gz'
 #    source = 'http://ftp.surfnet.nl/pub/ImageMagick/ImageMagick-6.3.7-9.tar.gz'
     def get_build_dependencies (self):
-        return ['automake', 'bzip2', 'fontconfig', 'ghostscript', 'libpng', 'libjpeg', 'libtiff', 'libtool', 'zlib']
+        return ['automake', 'bzip2', 'fontconfig', 'ghostscript', 'libpng', 'libjpeg', 'libtiff', 'libxml2', 'libtool', 'zlib']
     def configure_flags (self):
         return (tools.AutoBuild.configure_flags (self)
                 + misc.join_lines ('''
 --without-magick-plus-plus
 --without-perl
 '''))
+    @context.subst_method
+    def LDFLAGS (self):
+        return '%(rpath)'
     def configure (self):
         # do *not* update libtool, GUB's 1.5.x is too old :-(
         build.AutoBuild.configure (self)
