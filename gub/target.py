@@ -30,7 +30,7 @@ class AutoBuild (build.AutoBuild):
 --mandir=%(prefix_dir)s/share/man
 --libdir=%(prefix_dir)s/lib
 ''')
-
+# --with-slibdir=%(prefix)s/slib
     def install (self):
         self.pre_install_libtool_fixup ()
         build.AutoBuild.install (self)

@@ -66,6 +66,9 @@ no shared lib: gcc-4.2.1 says
 
 class Zlib__tools (tools.AutoBuild, Zlib):
     source = Zlib.source
+# FIXME: tools not the same as target: asking for trouble
+#    source = 'http://heanet.dl.sourceforge.net/sourceforge/libpng/zlib-1.2.3.3.tar.gz'
+# FIXME: where lives 1.2.3.3 with gzopen64?
     patches = Zlib.patches
     def get_build_dependencies (self):
         return ['autoconf']

@@ -47,8 +47,9 @@ class Glibc (target.AutoBuild, cross.AutoBuild):
     def get_add_ons (self):
         return ('linuxthreads', 'nptl')
     def config_cache_overrides (self, str):
+        # Use default value fol slibdir so that fallback into /lib* can be used
         return (str + '''
-libc_cv_slibdir=%(prefix_dir)s/slib
+use_default_libc_cv_slibdir=%(prefix_dir)s/slib
 libc_cv_rootsbindir=%(prefix_dir)s/sbin
 ''')
     def configure_command (self):    
@@ -77,9 +78,7 @@ libc_cv_rootsbindir=%(prefix_dir)s/sbin
             self.linuxthreads ().update_workdir (self.expand ('%(srcdir)s/urg-do-not-mkdir-or-rm-me'))
             self.system ('mv %(srcdir)s/urg-do-not-mkdir-or-rm-me/* %(srcdir)s')
     def makeflags (self):
-        return (' SHELL=/bin/bash'
-                + ' rootsbindir=%(prefix_dir)s/sbin'
-                + ' slibdir=%(prefix_dir)s/slib')
+        return ' SHELL=/bin/bash'
     def install_command (self):
         return (target.AutoBuild.install_command (self)
                 + ' install_root=%(install_root)s'

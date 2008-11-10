@@ -36,8 +36,8 @@ class AutoBuild (build.AutoBuild):
 --target=%(target_architecture)s
 --with-sysroot=%(system_root)s
 --disable-multilib
---with-slibdir=%(prefix_dir)s/slib
 '''))
+#--with-slibdir=%(prefix_dir)s/slib
     def compile_command (self):
         return self.native_compile_command ()
     def install_command (self):
