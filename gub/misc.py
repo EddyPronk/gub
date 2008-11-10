@@ -242,26 +242,28 @@ def download_url (original_url, dest_dir,
         if not is_ball (os.path.basename (url)):
             candidate_urls.append (rewrite_url (original_url, url))
 
+    result = 'no valid urls'
     for url in candidate_urls:
-        size = _download_url (url, dest_dir, progress)
-        if size:
+        result = _download_url (url, dest_dir, progress)
+        if type (result) == type (0):
             return
+    raise Exception ('Download failed', result)
 
 def _download_url (url, dest_dir, progress=None):
     progress ('downloading %(url)s -> %(dest_dir)s\n' % locals ())
     if not os.path.isdir (dest_dir):
-        raise Exception ("not a dir", dest_dir)
+        raise Exception ('not a dir', dest_dir)
 
     try:
         url_stream = urllib2.urlopen (url)
-    except OSError:
+    except OSError, e:
         if url.startswith ('file:'):
-            return 0
-        raise
-    except IOError:
+            return e
+        raise e
+    except IOError, e:
         if url.startswith ('ftp:') or url.startswith ('http:'):
-            return 0
-        raise
+            return e
+        raise e
 
     size = 0
     bufsize = 1024 * 50
