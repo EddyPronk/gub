@@ -17,6 +17,7 @@ class Glibc_core (glibc.Glibc):
         return ('linuxthreads',)
     def configure_command (self):
         return (glibc.Glibc.configure_command (self)
+#                .replace ('--disable-versioning', '--enable-versioning')
                 + misc.join_lines ('''
 --without-tls
 --without-__thread
@@ -24,6 +25,8 @@ class Glibc_core (glibc.Glibc):
     def compile_command (self):
         return (glibc.Glibc.compile_command (self)
                 + ' lib')
+    def compile (self):
+        target.AutoBuild.compile (self)
     def install_command (self):
         return (glibc.Glibc.install_command (self)
                 .replace (' install ', ' install-lib-all install-headers ')

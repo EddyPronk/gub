@@ -1,0 +1,12 @@
+--- glibc-2.3/nptl/pthread_kill_other_threads.c.~1.1.1.1.~	2002-11-26 23:49:48.000000000 +0100
++++ glibc-2.3/nptl/pthread_kill_other_threads.c	2008-11-10 10:17:27.000000000 +0100
+@@ -32,6 +32,9 @@ void
+ __pthread_kill_other_threads_np (void)
+ {
+ }
++#if SHLIB_COMPAT (libc, GLIBC_2_0, GLIBC_2_3)
++
+ compat_symbol (libpthread, __pthread_kill_other_threads_np,
+ 	       pthread_kill_other_threads_np, GLIBC_2_0);
+ #endif
++#endif

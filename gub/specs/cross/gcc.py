@@ -12,6 +12,14 @@ class Gcc (cross.AutoBuild):
     def get_build_dependencies (self):
         return ['cross/binutils']
 
+    def patch (self):
+        cross.AutoBuild.patch (self)
+        if self.settings.build_architecture == self.settings.target_architecture:
+            self.file_sub ([('DYNAMIC_LINKER "/lib', 'DYNAMIC_LINKER "%(system_prefix)s/lib')],
+                           '%(srcdir)s/gcc/config/i386/linux.h')
+            self.file_sub ([('-dynamic-linker /lib64', '-dynamic-linker %(system_prefix)s/lib')],
+                           '%(srcdir)s/gcc/config/i386/linux64.h')
+
     @context.subst_method
     def NM_FOR_TARGET (self):
          return '%(toolchain_prefix)snm'

@@ -33,16 +33,24 @@ class AutoBuild (build.AutoBuild):
             + misc.join_lines ('''
 --program-prefix=%(target_architecture)s-
 --prefix=%(cross_prefix)s
---with-slibdir=%(prefix_dir)s/lib
 --target=%(target_architecture)s
 --with-sysroot=%(system_root)s
 --disable-multilib
+--with-slibdir=%(prefix_dir)s/lib
 '''))
+
+#--with-slibdir=/lib
+
+# FIXME: see glibc.py.  Using just one libdir does not seem to work
+# for x86_64, when target_architecture == build_architecture
+# Get rid off stupid incompatible lib64 naming anyway, using /lib.
+
 # These should only be necessary for badly behaved packages
 # let's hope our cross packages play nice.
 #CFLAGS=-I%(tools_prefix)s/include
 #LDFLAGS=-L%(tools_prefix)s/lib
 #LD_LIBRARY_PATH=%(tools_prefix)s/lib
+
     def compile_command (self):
         return self.native_compile_command ()
     def install_command (self):

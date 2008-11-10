@@ -31,11 +31,34 @@ while --with-headers adds no new include path, it tells configure
 to *not* look in /.
 '''
 
+
+# FIXME: cannot for the life of me get glibc into a usable state or
+# compiled with slibdir==libdir.  That is, the x86_64 version *on*
+# x86_64.  Arg.  This means we need *two* freakin' -rpath defines.
+# *if* we can manage not to pick-up anything from /lib* at all...
+# ugh.
+
+# with versioning, when compiling guile or pango, libtool barfs
+# on building for-build executables:
+'''
+symbol _dl_out_of_memory, version GLIBC_PRIVATE not defined in file ld-linux-x86-64.so.2 with link time reference
+'''
+
+# without versioning:
+'''
+/home/janneke/vc/gub/target/linux-64/root/usr/cross/bin/x86_64-linux-ld: /home/janneke/vc/gub/target/linux-64/build/glibc-2.3/elf/librtld.os: relocation R_X86_64_PC32 against `_dl_fini' can not be used when making a shared object; recompile with -fPIC
+'''
+
+
 class Glibc (target.AutoBuild, cross.AutoBuild):
     source = 'http://lilypond.org/download/gub-sources/glibc-2.3-20070416.tar.bz2'
-    patches = ['glibc-2.3-powerpc-initfini.patch',
-               'glibc-2.3-powerpc-socket-weakalias.patch',
-               'glibc-2.3-powerpc-lround-weakalias.patch']
+    patches = [
+        'glibc-2.3-powerpc-initfini.patch',
+        'glibc-2.3-powerpc-socket-weakalias.patch',
+        'glibc-2.3-powerpc-lround-weakalias.patch',
+        'glibc-2.3-nptl-no-versioning.patch',
+        'glibc-2.3-slibdir.patch',
+        ]
     def get_build_dependencies (self):
         return ['cross/gcc', 'glibc-core', 'linux-headers']
     def get_conflict_dict (self):
@@ -43,7 +66,10 @@ class Glibc (target.AutoBuild, cross.AutoBuild):
     def get_add_ons (self):
         return ('linuxthreads', 'nptl')
     def config_cache_overrides (self, str):
-        return str + '\nlibc_cv_slibdir=%(prefix_dir)s/lib\n'
+        return (str + '''
+libc_cv_slibdir=%(prefix_dir)s/lib
+libc_cv_rootsbindir=%(prefix_dir)s/lib
+''')
     def configure_command (self):    
         #FIXME: TODO, figure out which of --enable-add-ons=nptl,
         # --with-tls, --with-__thread fixes the ___tls_get_addr.
@@ -61,13 +87,10 @@ class Glibc (target.AutoBuild, cross.AutoBuild):
 --without-gd
 --with-headers=%(system_prefix)s/include
 ''')
+#--disable-versioning
 #--without-tls
 #--without-__thread
                 + add_ons)
-    def FIXME_DOES_NOT_WORK_get_substitution_dict (self, env={}):
-        d = target.AutoBuild.get_substitution_dict (self, env)
-        d['SHELL'] = '/bin/bash'
-        return d
     def linuxthreads (self):
         return repository.get_repository_proxy (self.settings.downloads,
                                                 self.expand ('ftp://ftp.gnu.org/pub/gnu/glibc/glibc-linuxthreads-%(version)s.tar.bz2&strip_components=0'))
@@ -80,14 +103,18 @@ class Glibc (target.AutoBuild, cross.AutoBuild):
         if self.version () == '2.3.6':
             self.linuxthreads ().update_workdir (self.expand ('%(srcdir)s/urg-do-not-mkdir-or-rm-me'))
             self.system ('mv %(srcdir)s/urg-do-not-mkdir-or-rm-me/* %(srcdir)s')
-    def configure (self):
-        target.AutoBuild.configure (self)
     def makeflags (self):
         return (' SHELL=/bin/bash'
-                + ' rootsbindir=%(prefix_dir)s/sbin'
-                + ' slibdir=%(prefix_dir)s/lib'
-##                + ''' config-LDFLAGS='-Wl,-dynamic-linker=%(system_root)s$(slibdir)/$(rtld-installed-name)' ''')
-                + ''' config-LDFLAGS='-Wl,-dynamic-linker=/lib/$(rtld-installed-name)' ''') # /usr: on target system
+#                + ' rootsbindir=%(prefix_dir)s/sbin'
+# FIXME: cannot for the life of me get glibc compiled with slibdir==libdir
+# Arg.  This means we need *two* freakin' -rpath defines
+# *if* we can manage not to pick-up anything from /lib* at all...
+#                + ' slibdir=%(prefix_dir)s/lib'
+#                + ''' config-LDFLAGS='-Wl,-dynamic-linker=%(prefix_dir)s/lib/$(rtld-installed-name)' ''')
+#                + ' slibdir=/lib'
+#                + ''' config-LDFLAGS='-Wl,-dynamic-linker=%(prefix_dir)s/lib/$(rtld-installed-name)' ''')
+                + ''' config-LDFLAGS='-Wl,-dynamic-linker=%(system_root)s$(slibdir)/$(rtld-installed-name)' ''')
+                # + ''' config-LDFLAGS='-Wl,-dynamic-linker=/lib/$(rtld-installed-name)' ''')
     def install_command (self):
         return (target.AutoBuild.install_command (self)
                 + ' install_root=%(install_root)s'

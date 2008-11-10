@@ -1,0 +1,76 @@
+--- glibc-2.3/sysdeps/unix/sysv/linux/configure.in.orig	2008-11-10 11:09:53.000000000 +0100
++++ glibc-2.3/sysdeps/unix/sysv/linux/configure.in	2008-11-10 11:09:59.000000000 +0100
+@@ -163,7 +163,7 @@ case "$prefix" in
+   case $machine in
+   sparc/sparc64 | x86_64 | powerpc/powerpc64 | s390/s390-64 | \
+   mips/mips64/n64/* )
+-    libc_cv_slibdir="/lib64"
++    libc_cv_slibdir=${libc_cv_slibdir-"/lib64"}
+     if test "$libdir" = '${exec_prefix}/lib'; then
+       libdir='${exec_prefix}/lib64';
+       # Locale data can be shared between 32bit and 64bit libraries
+@@ -171,7 +171,7 @@ case "$prefix" in
+     fi
+     ;;
+   mips/mips64/n32/* )
+-    libc_cv_slibdir="/lib32"
++    libc_cv_slibdir=${libc_cv_slibdir-"/lib32"}
+     if test "$libdir" = '${exec_prefix}/lib'; then
+       libdir='${exec_prefix}/lib32';
+       # Locale data can be shared between 32bit and 64bit libraries
+@@ -179,7 +179,7 @@ case "$prefix" in
+     fi
+     ;;
+   *)
+-    libc_cv_slibdir="/lib"
++    libc_cv_slibdir=${libc_cv_slibdir-"/lib"}
+     ;;
+   esac
+   # Allow the user to override the path with --sysconfdir
+@@ -188,7 +188,7 @@ case "$prefix" in
+   else
+     libc_cv_sysconfdir=$sysconfdir
+    fi
+-  libc_cv_rootsbindir="/sbin"
++  libc_cv_rootsbindir=${libc_cv_rootsbindir-"/sbin"}
+   ;;
+ esac
+ 
+--- glibc-2.3/sysdeps/unix/sysv/linux/configure.orig	2008-11-10 11:09:53.000000000 +0100
++++ glibc-2.3/sysdeps/unix/sysv/linux/configure	2008-11-10 11:09:59.000000000 +0100
+@@ -228,7 +228,7 @@ case "$prefix" in
+   case $machine in
+   sparc/sparc64 | x86_64 | powerpc/powerpc64 | s390/s390-64 | \
+   mips/mips64/n64/* )
+-    libc_cv_slibdir="/lib64"
++    libc_cv_slibdir=${libc_cv_slibdir-"/lib64"}
+     if test "$libdir" = '${exec_prefix}/lib'; then
+       libdir='${exec_prefix}/lib64';
+       # Locale data can be shared between 32bit and 64bit libraries
+@@ -236,7 +236,7 @@ case "$prefix" in
+     fi
+     ;;
+   mips/mips64/n32/* )
+-    libc_cv_slibdir="/lib32"
++    libc_cv_slibdir=${libc_cv_slibdir-"/lib32"}
+     if test "$libdir" = '${exec_prefix}/lib'; then
+       libdir='${exec_prefix}/lib32';
+       # Locale data can be shared between 32bit and 64bit libraries
+@@ -244,7 +244,7 @@ case "$prefix" in
+     fi
+     ;;
+   *)
+-    libc_cv_slibdir="/lib"
++    libc_cv_slibdir=${libc_cv_slibdir-"/lib"}
+     ;;
+   esac
+   # Allow the user to override the path with --sysconfdir
+@@ -253,7 +253,7 @@ case "$prefix" in
+   else
+     libc_cv_sysconfdir=$sysconfdir
+    fi
+-  libc_cv_rootsbindir="/sbin"
++  libc_cv_rootsbindir=${libc_cv_rootsbindir-"/sbin"}
+   ;;
+ esac
+ 
