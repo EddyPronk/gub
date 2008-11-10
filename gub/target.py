@@ -29,7 +29,6 @@ class AutoBuild (build.AutoBuild):
 --infodir=%(prefix_dir)s/share/info
 --mandir=%(prefix_dir)s/share/man
 --libdir=%(prefix_dir)s/lib
---with-slibdir=%(prefix_dir)s/slib
 ''')
 
     def install (self):
@@ -116,11 +115,6 @@ cd %(builddir)s && chmod +x %(configure_binary)s && %(configure_command_native)s
         self.system ('cd %(builddir)s && %(compile_command_native)s')
         self.get_substitution_dict = save
 
-    @context.subst_method
-    def rpath (self):
-        return r'-Wl,-rpath -Wl,\$$ORIGIN/../lib'
-#        return r'-Wl,-rpath -Wl,\$$ORIGIN/../lib -Wl,-rpath -Wl,\$$ORIGIN/../../lib'
-
     ## FIXME: this should move elsewhere , as it's not
     ## package specific
     def get_substitution_dict (self, env={}):
@@ -136,7 +130,7 @@ cd %(builddir)s && chmod +x %(configure_binary)s && %(configure_command_native)s
             'CPLUS_INCLUDE_PATH': '',
             'CXX':'%(toolchain_prefix)sg++ %(target_gcc_flags)s',
             'LIBRARY_PATH': '',
-            'LDFLAGS': '', #'%(rpath)s', # error-prone, better on a per-package basis.
+            'LDFLAGS': '',
             'LD': '%(toolchain_prefix)sld',
             'LD_LIBRARY_PATH': '%(tools_prefix)s/lib'
             + misc.append_path (os.environ.get ('LD_LIBRARY_PATH', '')),

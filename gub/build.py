@@ -122,6 +122,11 @@ class AutoBuild (Build):
     def LD_PRELOAD (self):
         return '%(tools_prefix)s/lib/librestrict.so'
 
+    @context.subst_method
+    def rpath (self):
+#        return r'-Wl,-rpath -Wl,\$$ORIGIN/../lib -Wl,-rpath -Wl,\$$ORIGIN/../../lib'
+        return r'-Wl,-rpath -Wl,\$$ORIGIN/../lib'
+
     def get_substitution_dict (self, env={}):
         dict = {
             'CPATH': '',
