@@ -1,3 +1,4 @@
+from gub import context
 from gub import tools 
 
 class Fontforge__tools (tools.AutoBuild):
@@ -43,3 +44,8 @@ class Fontforge__tools (tools.AutoBuild):
         return tools.AutoBuild.srcdir (self).replace ('_full', '')
     def force_sequential_build (self):
         return True
+    @context.subst_method
+    def LDFLAGS (self):
+        return '%(rpath)'
+    def wrap_executables (self):
+        pass
