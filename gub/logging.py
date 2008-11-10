@@ -56,11 +56,13 @@ class CommandLogger (AbstractCommandLogger):
         self.threshold = threshold
         self.log_file = None
         self.log_file_name = log_file_name
+        self.relative_log_name = log_file_name
 
         if log_file_name:
+            self.relative_log_name = log_file_name.replace (os.getcwd () + '/', '')
             if default_logger_interface:
-                relative_log_name = log_file_name.replace (os.getcwd () + '/', '')
-                default_logger_interface.info ('Log file: %(relative_log_name)s\n' % locals ())
+                log_name = self.relative_log_name
+                default_logger_interface.info ('Log file: %(log_name)s\n' % locals ())
             
             directory = os.path.split (log_file_name)[0]
             if not os.path.isdir (directory):
@@ -78,8 +80,9 @@ class CommandLogger (AbstractCommandLogger):
             return '(no log)'
 
     def dump_tail (self, output):
-        output.write ('\n\nTail of %s:\n%s' % (self.log_file_name,
-                                               '\n'.join (self.read_tail ())))
+        tail = '\n'.join (self.read_tail ())
+        log_name = self.relative_log_name
+        output.write ('Tail of %(log_name)s >>>>>>>>\n%(tail)s\n<<<<<<<< Tail of %(log_name)s\n' % locals ())
 
     def write_multilevel_message (self, message_types):
         """Given a set of messages display the one fitting with our
