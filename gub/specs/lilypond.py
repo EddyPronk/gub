@@ -75,6 +75,7 @@ class LilyPond (target.AutoBuild):
                 'tools::rsync', # ugh, we depend on *rsync* !?
                 'tools::t1utils',
                 'tools::texi2html',
+                'tools::imagemagick',
                 #'tools::texlive', mpost ... *grin*
                 ]
 
