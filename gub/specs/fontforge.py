@@ -4,7 +4,7 @@ class Fontforge__tools (tools.AutoBuild):
     source = 'http://lilypond.org/download/gub-sources/fontforge_full-20080927.tar.bz2'
     patches = ['fontforge-20080927-noxml2.patch']
     def get_build_dependencies (self):
-        return ['freetype', 'libxml2']
+        return ['freetype', 'libpng', 'libjpeg', 'libxml2']
     def patch (self):
         tools.AutoBuild.patch (self)
         for name in ['%(srcdir)s/fontforge/Makefile.dynamic.in',
@@ -20,9 +20,14 @@ class Fontforge__tools (tools.AutoBuild):
                   ' -I$(top_srcdir)/inc -I$(top_builddir)/inc')],
                 name, use_re=False)
         # URG, fontforge uses no *-config or *.pc files, but
-        # looks in /usr/include :-)
+        # looks in /usr/include,
         self.file_sub ([('([I" \(])/usr/include',
                          r'\1%(system_prefix)s/include')],
+                       '%(srcdir)s/configure')
+        # and /*/lib :-)
+        # Just override /lib checks, picking-up of /usr/lib*
+        # for tools is allowed...
+        self.file_sub ([('"/lib/lib', '"%(system_prefix)s/lib/lib')],
                        '%(srcdir)s/configure')
     def configure_command (self):
         return (tools.AutoBuild.configure_command (self)
