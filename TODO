@@ -1,9 +1,5 @@
-* literal use of /usr (again?) in code, use *_prefix)
-  [if all fails: %(prefix_dir)s]
-* literal use of /cross (again?) in code, use %(cross_dir)s
-
-* python 3k compatibility
-  - junk print (replace by what?)
+* python 3k compatibility: (please add recipe)
+  - junk print replace by what?)
   - junk has_key (replace by what?)
   - move to new style classes: class Foo -> class Foo (object).
     This means that all sorts of
@@ -11,18 +7,24 @@
     constructions barf
   - junk ` ` constucts (replace by what?)
 
-*  we moeten env ook nog ergens losknippen. We zetten nu onze
-   eigen variabelen over de user zijn env heen, maar dan kan er dus (niet
-   gechecksumde) info uit de user environment lekken.
+* support for ccache and icecc (icecream)
+  icecc requires no setup/init effort other than picking the host
+  that runs the scheduler, and works automagically with cross compilers.
+  -junk distcc cruft [distcc pump?  find comparison with icecream)
 
-* add stage: autoupdate, move autoupdate kludges from patch stage
+* we moeten env ook nog ergens losknippen. We zetten nu onze
+  eigen variabelen over de user zijn env heen, maar dan kan er dus (niet
+  gechecksumde) info uit de user environment lekken.
 
-* add functions: must_autoupdate, must_configure that return TRUE.
-  and check for these before running autoupdate and configure.
-  remove specific code from lilypond.
+* automagical support for get_dependency_dict () if not set, from
+  get_build_dependencies ().
 
 * junk arbitrary SdkBuild class, handle any build dependencies
   through [module.py].build_dependencies.
+
+* junk use of /usr in code, use *_prefix) or %(prefix_dir)s
+
+* literal use of /cross in code, use %(cross_dir)s
 
 * use better names for freebsd-runtime, darwin-sdk, which probably
   are in fact kernel-headers and libc+headers
@@ -47,7 +49,7 @@
   in test-lily/* and *.make.  gub/settings should usable now from any
   .py, gub/settings.py --plaftorm '' prints layout for use in sh/make.
 
-* Document and make easier to add new platform
+* Document and make easier [plugin.., see gub/gup.py] to add new platform
 
     -3. gub/settings.py
     -2. gub/config_cache.py
@@ -56,30 +58,89 @@
      1. toevoegen aan platforms in makefile
      2. toevoegen aan platform lijst, die in test-lily/upload wordt gebruikt.
 
+* cron-builder: disable initial download:
+  --stage=download depends on tools to be built:
+   /usr/bin/python bin/gub --branch=lilypond=master:master-git.sv.gnu.org-lilypond.git --platform=linux-64 --stage=download lilypond
+  File "/home/janneke/vc/gub-test/gub/specs/fontconfig.py", line 33, in freetype_cflags
+    raise SystemFailed ('Pipe failed: %(cmd)s' % locals ())
+SystemFailed: Pipe failed: /home/janneke/vc/gub-test/target/tools/root/usr/bin/freetype-config --cflags
+
+
+* Get rid of (all?), *args and **kwarg constructions, at least where
+  they are now part of the user api.
+** done for (most important?) command.py:System, loggedos.system
+
+* Resurrect/add:
+  --keep [most annoying for debugging]
+  --force [partly fixed: force full rebuild]
+  --immediate? vs serialized
+
+* Printing/logging to console
+
+** oslog.verbose_flag for tar commands has been commented-out?  Old
+   behaviour is somewhat foo but better than no behaviour at all.  We
+   should *always* use -v but send that output to different pipe.  It
+   should *always* be in .log file, but printed to console only if
+   verbosity > 'command'.
+   
+* Smarter checksumming for functions: should add a dry-run to loggedos
+  so we can do dry-run on functions; then run dry-run on a dummy
+  argument.
+
+* investigate flavours of libtool_la fixups:
+   - gubb.libtool_installed_la_fixups ()
+   - gup.libtool_la_fixup ()
+   - targetpackage.pre_install_libtool_fixup ()
+
+* cron-builder: disable initial download:
+  --stage=download depends on tools to be built:
+   /usr/bin/python bin/gub --branch=lilypond=master:master-git.sv.gnu.org-lilypond.git --platform=linux-64 --stage=download lilypond
+  File "/home/janneke/vc/gub-test/gub/specs/fontconfig.py", line 33, in freetype_cflags
+    raise SystemFailed ('Pipe failed: %(cmd)s' % locals ())
+SystemFailed: Pipe failed: /home/janneke/vc/gub-test/target/tools/root/usr/bin/freetype-config --cflags
+
+
+* Get rid of (all?), *args and **kwarg constructions, at least where
+  they are now part of the user api.
+** done for (most important?) command.py:System, loggedos.system
+
+* Resurrect/add:
+  --keep [most annoying for debugging]
+  --force [partly fixed: force full rebuild]
+  --immediate? vs serialized
+
+* Printing/logging to console
+
+** oslog.verbose_flag for tar commands has been commented-out?  Old
+   behaviour is somewhat foo but better than no behaviour at all.  We
+   should *always* use -v but send that output to different pipe.  It
+   should *always* be in .log file, but printed to console only if
+   verbosity > 'command'.
+   
+* Smarter checksumming for functions: should add a dry-run to loggedos
+  so we can do dry-run on functions; then run dry-run on a dummy
+  argument.
+
+* investigate flavours of libtool_la fixups:
+   - gubb.libtool_installed_la_fixups ()
+   - gup.libtool_la_fixup ()
+   - targetpackage.pre_install_libtool_fixup ()
+
 RENAMES
 
 * repository -> source
 * ./gub -> gublib ?
 * ./gub/specs -> gub/builds?
 
-* Robustification against ^C, esp. in in repository.download ()
-
 * Use names of stage iso number in status/stamp file.
-
-* move Scons, Bjam recipes to gub lib.
 
 * code cygwin installer as alternative build spec.
 
-* code .deb installer as alternative build spec.
+* code .deb/ipkg installer as alternative build spec.
 
 * look at other installer-builders -> build spec?
 
-* Split build recipes into Basic (configure??; make; make install),
-  AutoTools
-
 * Automagically do:  # # FIXME libtool too olds for autotool packages.
-
-* move autotools patching to autogen/prepare_configure stage.
 
 * fix all instances of makeflags () and compile/install
 
@@ -134,20 +195,3 @@ LOWER PRIORITY
 - Bugfixes:
 
 - junk Makefile, create python based driver.
-
-- prerequisites: curl, gcc, libc-dev
-  + [lilypond: autoconf (for automake),
-    	       bison (for flex),
-	       g++ (for python),
-	       texinfo (for gettext),
-	       libncurses-dev (for texinfo),
-	       libcurl3-dev (for git),
-	       libexpat-dev (for git),
-	       libjpeg-dev (for netpbm),
-	       libtiff-dev (for netpbm),
-	       libx11-dev (for netpbm),
-	       svn (for ghostscript),
-	       python-gdbm (for gub: gub/gup.py) this means, btw, that gub
-	          does not run with python from local; it lacks gdbm,
-               inkscape (for lilypond doc)]
-
