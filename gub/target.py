@@ -29,7 +29,7 @@ class AutoBuild (build.AutoBuild):
 --infodir=%(prefix_dir)s/share/info
 --mandir=%(prefix_dir)s/share/man
 --libdir=%(prefix_dir)s/lib
---with-slibdir=%(prefix_dir)s/lib
+--with-slibdir=%(prefix_dir)s/slib
 ''')
 
     def install (self):

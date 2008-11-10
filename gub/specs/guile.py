@@ -76,16 +76,9 @@ exec %(tools_prefix)s/bin/guile "$@"
                 target.AutoBuild.compile_command (self))
     
     def compile (self):
-        ## Ugh : broken dependencies barf with make -jX
-        flags = ''
-        # TODO: add to makeflags, see pango
-        if self.settings.target_architecture == self.settings.build_architecture:
-            # libtool fucks-up with it's own rpath settings when not
-            # cross-compiling
-            flags = ''' LINK='$(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@' '''
-        self.system ('cd %(builddir)s/libguile && make %(flags)s gen-scmconfig guile_filter_doc_snarfage',
-                     locals ())
-        # No -L %(system_root)s in `guile-config link'
+        ## Ugh: broken dependencies break parallel build with make -jX
+        self.system ('cd %(builddir)s/libguile && make gen-scmconfig guile_filter_doc_snarfage')
+        # Remove -L %(system_root)s from `guile-config link'
         self.system ('cd %(builddir)s/libguile && make libpath.h')
         self.file_sub ([('''-L *%(system_root)s''', '-L')],
                        '%(builddir)s/libguile/libpath.h')

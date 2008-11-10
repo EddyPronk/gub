@@ -29,13 +29,9 @@ class Gcc_core (gcc.Gcc__from__source):
                 .replace ('enable-threads=posix', 'enable-threads=no'))
     def compile_command (self):
         return (gcc.Gcc.compile_command (self) + ' all-gcc')
-    def compile (self):
-        gcc.Gcc.compile (self)
     def install_command (self):
         return (gcc.Gcc.install_command (self)
-                .replace (' install', ' install-gcc')
-                #+ ' prefix=/usr/cross/core'
-                )
+                .replace (' install', ' install-gcc'))
     def install (self):
         # Gcc moves libs into system lib places, which will
         # make gcc-core conflict with gcc.

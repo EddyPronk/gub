@@ -14,7 +14,15 @@ class Gcc (cross.AutoBuild):
 
     def patch (self):
         cross.AutoBuild.patch (self)
-        if self.settings.build_architecture == self.settings.target_architecture:
+        if False and self.settings.build_architecture == self.settings.target_architecture:
+            # This makes the target build *not* use /lib* at all, but
+            # it produces executables that will only run within the
+            # build system, using something like
+            #
+            #    x86_64-linux-gcc -Wl,-rpath -Wl,\$ORIGIN/../lib -Wl,-rpath -Wl,/home/janneke/vc/gub/target/linux-64/root/usr/lib foo.c
+            #
+            # which means that we *must* distribute libc, which we
+            # probably don't want to do.
             self.file_sub ([('DYNAMIC_LINKER "/lib', 'DYNAMIC_LINKER "%(system_prefix)s/lib')],
                            '%(srcdir)s/gcc/config/i386/linux.h')
             self.file_sub ([('-dynamic-linker /lib64', '-dynamic-linker %(system_prefix)s/lib')],

@@ -31,25 +31,6 @@ while --with-headers adds no new include path, it tells configure
 to *not* look in /.
 '''
 
-
-# FIXME: cannot for the life of me get glibc into a usable state or
-# compiled with slibdir==libdir.  That is, the x86_64 version *on*
-# x86_64.  Arg.  This means we need *two* freakin' -rpath defines.
-# *if* we can manage not to pick-up anything from /lib* at all...
-# ugh.
-
-# with versioning, when compiling guile or pango, libtool barfs
-# on building for-build executables:
-'''
-symbol _dl_out_of_memory, version GLIBC_PRIVATE not defined in file ld-linux-x86-64.so.2 with link time reference
-'''
-
-# without versioning:
-'''
-/home/janneke/vc/gub/target/linux-64/root/usr/cross/bin/x86_64-linux-ld: /home/janneke/vc/gub/target/linux-64/build/glibc-2.3/elf/librtld.os: relocation R_X86_64_PC32 against `_dl_fini' can not be used when making a shared object; recompile with -fPIC
-'''
-
-
 class Glibc (target.AutoBuild, cross.AutoBuild):
     source = 'http://lilypond.org/download/gub-sources/glibc-2.3-20070416.tar.bz2'
     patches = [
@@ -67,18 +48,13 @@ class Glibc (target.AutoBuild, cross.AutoBuild):
         return ('linuxthreads', 'nptl')
     def config_cache_overrides (self, str):
         return (str + '''
-libc_cv_slibdir=%(prefix_dir)s/lib
-libc_cv_rootsbindir=%(prefix_dir)s/lib
+libc_cv_slibdir=%(prefix_dir)s/slib
+libc_cv_rootsbindir=%(prefix_dir)s/sbin
 ''')
     def configure_command (self):    
-        #FIXME: TODO, figure out which of --enable-add-ons=nptl,
-        # --with-tls, --with-__thread fixes the ___tls_get_addr.
         add_ons = ''
         for i in self.get_add_ons ():
-            # FIXME cannot expand in *_command ()
-            #if os.path.exists (self.expand ('%(srcdir)s/') + i):
-            if 1: #self.version () != '2.4':
-                add_ons += ' --enable-add-ons=' + i
+            add_ons += ' --enable-add-ons=' + i
         return ('BUILD_CC=gcc '
                 + misc.join_lines (target.AutoBuild.configure_command (self) + '''
 --disable-profile
@@ -87,9 +63,6 @@ libc_cv_rootsbindir=%(prefix_dir)s/lib
 --without-gd
 --with-headers=%(system_prefix)s/include
 ''')
-#--disable-versioning
-#--without-tls
-#--without-__thread
                 + add_ons)
     def linuxthreads (self):
         return repository.get_repository_proxy (self.settings.downloads,
@@ -105,27 +78,18 @@ libc_cv_rootsbindir=%(prefix_dir)s/lib
             self.system ('mv %(srcdir)s/urg-do-not-mkdir-or-rm-me/* %(srcdir)s')
     def makeflags (self):
         return (' SHELL=/bin/bash'
-#                + ' rootsbindir=%(prefix_dir)s/sbin'
-# FIXME: cannot for the life of me get glibc compiled with slibdir==libdir
-# Arg.  This means we need *two* freakin' -rpath defines
-# *if* we can manage not to pick-up anything from /lib* at all...
-#                + ' slibdir=%(prefix_dir)s/lib'
-#                + ''' config-LDFLAGS='-Wl,-dynamic-linker=%(prefix_dir)s/lib/$(rtld-installed-name)' ''')
-#                + ' slibdir=/lib'
-#                + ''' config-LDFLAGS='-Wl,-dynamic-linker=%(prefix_dir)s/lib/$(rtld-installed-name)' ''')
-                + ''' config-LDFLAGS='-Wl,-dynamic-linker=%(system_root)s$(slibdir)/$(rtld-installed-name)' ''')
-                # + ''' config-LDFLAGS='-Wl,-dynamic-linker=/lib/$(rtld-installed-name)' ''')
+                + ' rootsbindir=%(prefix_dir)s/sbin'
+                + ' slibdir=%(prefix_dir)s/slib')
     def install_command (self):
         return (target.AutoBuild.install_command (self)
                 + ' install_root=%(install_root)s'
-                # Ugh, ugh, glibc-2.3.6' Makerules file has a
-                # cross-compiling check that changes symlink install
-                # behaviour.  ONLY if $(cross_compiling)==no, an extra
+                # glibc-2.3.6' Makerules file has a cross-compiling
+                # check that changes symlink install behaviour.  ONLY
+                # if $(cross_compiling)==no, an extra
                 # `install-symbolic-link' target is created upon with
                 # `install' is made to depend.  This means we do not
                 # get symlinks with install-lib-all when it so happens
-                # that build_architecture == target_architecture.
-                # Try to cater for both here: make the symlink as well
-                # as append to the symlink.list file.  Hopefully.
-###                + ''' make-shlib-link='ln -sf $(<F) $@; echo $(<F) $@ >> $(symbolic-link-list)' ''')
+                # that build_architecture == target_architecture.  Try
+                # to cater for both here: make the symlink as well as
+                # append to the symlink.list file.
                 + ''' make-shlib-link='ln -sf $(<F) $@; echo $(<F) $@ >> $(common-objpfx)elf/symlink.list' ''')
