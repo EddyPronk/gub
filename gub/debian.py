@@ -2,7 +2,6 @@ import os
 import re
 import string
 from new import classobj
-from new import instancemethod
 #
 from gub import build
 from gub import cross
@@ -83,12 +82,12 @@ def get_debian_package (settings, description):
 
     def get_build_dependencies (self):
         return self.name_dependencies
-    package.get_build_dependencies = instancemethod (get_build_dependencies,
-                                                     package, package_class)
+    package.get_build_dependencies = misc.bind_method (get_build_dependencies,
+                                                       package)
     pkg_name = d['Package']
     def name (self):
         return pkg_name
-    package.name = instancemethod (name, package, package_class)
+    package.name = misc.bind_method (name, package)
     return package
 
 ## FIXME: c&p cygwin.py

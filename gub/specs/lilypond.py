@@ -1,6 +1,3 @@
-from new import instancemethod
-#
-from gub import build
 from gub import loggedos
 from gub import misc
 from gub import repository
@@ -32,7 +29,7 @@ class LilyPond (target.AutoBuild):
             return v
 
         if isinstance (source, repository.Repository):
-            source.version = instancemethod (version_from_VERSION, source, type (source))
+            source.version = misc.bind_method (version_from_VERSION, source)
 
     def get_dependency_dict (self):
         return {'': [

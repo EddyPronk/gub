@@ -3,7 +3,6 @@ import re
 import inspect
 #
 from new import classobj
-from new import instancemethod
 #
 from gub import build
 from gub import cross
@@ -199,12 +198,12 @@ def get_cygwin_package (settings, name, dict, skip):
 
     def get_build_dependencies (self):
         return self.name_dependencies
-    package.get_build_dependencies = instancemethod (get_build_dependencies,
-                                                     package, package_class)
+    package.get_build_dependencies = misc.bind_method (get_build_dependencies,
+                                                       package)
     pkg_name = name
     def name (self):
         return pkg_name
-    package.name = instancemethod (name, package, package_class)
+    package.name = misc.bind_method (name, package)
     return package
 
 ## UGH.   should split into parsing  package_file and generating gub specs.
