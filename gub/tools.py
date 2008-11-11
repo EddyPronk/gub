@@ -56,6 +56,8 @@ tooldir=%(install_root)s/%(system_prefix)s
 
     def install (self):
         build.AutoBuild.install (self)
+        # PRELIMINARY: if not self.rpath ():
+        # and junk most def wrap_executables (): pass
         self.wrap_executables ()
 
     def wrap_executables (self):
