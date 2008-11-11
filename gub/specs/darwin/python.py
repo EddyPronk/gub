@@ -13,14 +13,12 @@ from gub import build
 
 ## Please, un-make this an SDK package?  Adding python as a static
 ## cross dependency for now...
+
+# this is only a python-config placeholder
 class Python__darwin (build.SdkBuild):
     source = 'url://host/python-2.3.tar.gz'
-    def get_build_dependencies (self):
-        return ['cross/gcc', 'odcctools', 'tools::python']
     def srcdir (self):
         return '%(allsrcdir)s/python-darwin'
-    def package (self):
-        build.AutoBuild.package (self)
     def install (self):
         self.system ('mkdir -p %(install_prefix)s%(cross_dir)s/bin')
         self.dump ('''#! /bin/sh

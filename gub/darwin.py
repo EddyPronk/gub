@@ -112,7 +112,7 @@ class Package_rewirer:
 
 def get_cross_build_dependencies (settings):
     # FIXME: python to avoid gratuitous rebuilds.  See darwin/python.py
-    return ['cross/gcc', 'python']
+    return ['cross/gcc', 'odcctools', 'python']
 
 def strip_build_dep (old_val, what):
     deps = old_val
