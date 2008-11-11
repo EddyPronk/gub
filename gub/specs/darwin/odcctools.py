@@ -1,9 +1,10 @@
 import os
 #
+from gub import build
 from gub import cross
 from gub import misc
 
-class Odcctools (cross.AutoBuild):
+class Odcctools (cross.AutoBuild): #skews dependencies:, build.SdkBuild):
     source = ('svn:http://iphone-dev.googlecode.com/svn&branch=trunk'
               '&module=odcctools'
               '&revision=278')
@@ -13,6 +14,11 @@ class Odcctools (cross.AutoBuild):
         if 'x86_64-linux' in self.settings.build_architecture:
             # odcctools does not build with 64 bit compiler
             cross.change_target_package_x86 (self, self.add_linux_x86_env ())
+    def get_build_dependencies (self):
+        lst = ['darwin-sdk']
+        if 'x86_64-linux' in self.settings.build_architecture:
+            lst += ['linux-x86::glibc']
+        return lst
     def stages (self):
         return misc.list_insert_before (cross.AutoBuild.stages (self),
                                         'compile', ['patch_configure'])
@@ -36,11 +42,6 @@ class Odcctools (cross.AutoBuild):
                      + self.settings.prefix_dir
                      + '/bin')
         return {'PATH': linux_x86_bin + ':' + linux_x86_i686_linux_bin + ':' + tools_bin + ':' + os.environ['PATH'] }
-    def get_build_dependencies (self):
-        lst = ['darwin-sdk']
-        if 'x86_64-linux' in self.settings.build_architecture:
-            lst += ['linux-x86::glibc']
-        return lst
     def patch_configure (self):
         ## remove LD64 support.
         self.file_sub ([('ld64','')], self.builddir () + '/Makefile')
