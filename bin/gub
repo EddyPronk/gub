@@ -315,11 +315,6 @@ def main ():
     if not options.platform and len (files):
         options.platform, x = misc.split_platform (files[0])
 
-    if not options.platform:
-        logging.error ('errror: platform not specied\n')
-        cli_parser.print_help ()
-        sys.exit (2)
-
     settings = gub.settings.Settings (options.platform)
 
     if options.inspect_key:

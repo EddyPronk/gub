@@ -50,7 +50,7 @@ def get_platform_from_dir (settings, dir):
     return None
 
 class Settings (context.Context):
-    def __init__ (self, platform):
+    def __init__ (self, platform=None):
         context.Context.__init__ (self)
 
         # TODO: tools-prefix, target-prefix, cross-prefix?
@@ -58,10 +58,28 @@ class Settings (context.Context):
         self.root_dir = '/root'
         self.cross_dir = '/cross'
 
+        self.build_platform = build_platform.machine ().strip ()
+        if not self.build_platform:
+            build_platform.plain_machine ().strip ()
+        self.build_architecture = platforms[self.build_platform]
+        self.build_cpu = self.build_architecture.split ('-')[0]
+        self.build_os = re.sub ('[-0-9].*', '', self.build_platform)
+        
+        if not platform:
+            platform = self.build_platform
+        self.target_platform = platform
+        if self.target_platform not in platforms.keys ():
+            raise UnknownPlatform (self.target_platform)
 
-        self.platform = platform
-        if self.platform not in platforms.keys ():
-            raise UnknownPlatform (self.platform)
+        self.target_architecture = platforms[self.target_platform]
+        self.target_os = re.sub ('[-0-9].*', '', self.target_platform)
+        self.target_cpu = self.target_architecture.split ('-')[0]
+
+        # Hmm
+        self.platform = self.target_platform
+        self.architecture = self.target_architecture
+        self.cpu = self.target_cpu
+        self.os = self.target_os
 
         GUB_TOOLS_PREFIX = os.environ.get ('GUB_TOOLS_PREFIX')
         
@@ -125,22 +143,15 @@ class Settings (context.Context):
         self.core_prefix = self.cross_prefix + '/core'
         # end config dirs
 
-
-
         self.target_gcc_flags = '' 
         if self.platform == 'darwin-ppc':
             self.target_gcc_flags = '-D__ppc__'
         elif self.platform == 'mingw':
             self.target_gcc_flags = '-mwindows -mms-bitfields'
 
-        self.os = re.sub ('[-0-9].*', '', self.platform)
-
-        self.target_architecture = platforms[self.platform]
-        self.cpu = self.target_architecture.split ('-')[0]
-        self.build_source = False
+        self.build_source = False #URGURGURGRGU
         self.is_distro = (self.platform in distros
                           or self.platform.startswith ('debian'))
-
 
         self.gtk_version = '2.8'
         self.toolchain_prefix = self.target_architecture + '-'
@@ -161,8 +172,6 @@ class Settings (context.Context):
         self.fakeroot_cache = '' # %(builddir)s/fakeroot.save'
         self.fakeroot = 'fakeroot -i%(fakeroot_cache)s -s%(fakeroot_cache)s '
         self.create_dirs ()
-
-        self.build_architecture = platforms.get (build_platform.machine ().strip (), build_platform.plain_machine ())
 
         try:
             self.cpu_count_str = '%d' % os.sysconf ('SC_NPROCESSORS_ONLN')
