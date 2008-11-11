@@ -208,11 +208,10 @@ prependdir GS_LIB=$INSTALLER_PREFIX/share/ghostscript/%(version)s/lib
 
 class Ghostscript__mingw (Ghostscript):
     # source = 'ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/ghostscript-8.60.tar.bz2'
-    patches = ['ghostscript-8.15-cygwin.patch'
-               'ghostscript-8.15-windows-wb.patch'
-               'ghostscript-8.50-make.patch'
-               'ghostscript-8.50-gs_dll.h.patch']
-
+    patches = ['ghostscript-8.15-cygwin.patch',
+               'ghostscript-8.15-windows-wb.patch',
+               'ghostscript-8.50-make.patch',
+               'ghostscript-8.50-gs_dll.h.patch',]
     def __init__ (self, settings, source):
         Ghostscript.__init__ (self, settings, source)
         # Configure (compile) without -mwindows for console
