@@ -124,16 +124,13 @@ def name_from_url (url):
 def list_append (lists):
     return reduce (lambda x,y: x+y, lists, [])
 
-def uniq (list):
+def uniq (lst):
     u = []
     done = {}
-    for e in list:
-        if done.has_key (e):
-            continue
-
-        done[e] = 1
-        u.append (e)
-
+    for e in lst:
+        if not done.has_key (e):
+            done[e] = 1
+            u.append (e)
     return u
 
 def compression_flag (ball):
@@ -512,7 +509,6 @@ def locate_files (directory, pattern,
             relative_results += files
         results += [os.path.join (root, f)
                     for f in (fnmatch.filter (relative_results, pattern))]
-
     return results
 
 def shadow (src, target):
@@ -545,6 +541,13 @@ def append_path (elt):
     if elt:
         return ':' + elt
     return ''
+
+def intersect (a, b):
+    return [e for e in a + b if e in a and e in b]
+
+def list_in (sub, lst):
+    missing = [e for e in sub if e not in lst]
+    return not missing
 
 def test ():
     print forall (x for x in [1, 1])

@@ -71,6 +71,14 @@ def set_cross_dependencies (package_object_dict):
                                         and not isinstance (p, tools.AutoBuild)
                                         and not p.platform_name () in bootstrap_names)]
 
+    pack_names = [p.platform_name () for p in packs]
+    extra_cross_names = []
+    sets = dict ()
+    for p in packs:
+        sets[p.settings.platform] = p.settings
+    for p in sets.keys ():
+        extra_cross_names += [n for n in get_build_dependencies (sets[p]) if n not in pack_names]
+
     # Run something like lilypond/SConscript's configure
     # to figure-out if we need a new, Git, Make, Patch, Python, etc?
     # Building make & patch is cheap and dependable.
@@ -103,39 +111,55 @@ def set_cross_dependencies (package_object_dict):
     # bin/gub -p tools linux-x86::cross/gcc mingw::cross/gcc
     # bin/gub -p tools linux-x86::cross/gcc
     for p in other_packs:
-        old_callback = p.get_build_dependencies
-        p.get_build_dependencies = misc.MethodOverrider (old_callback,
-                                                         lambda x,y: x+y, ([n for n in cross_names if p.settings.platform in n],))
-    for p in other_packs + cross_packs:
-        old_callback = p.get_build_dependencies
-        p.get_build_dependencies = misc.MethodOverrider (old_callback,
-                                                         lambda x,y: x+y, ([n for n in sdk_names if p.settings.platform in n],))
-    for p in other_packs + cross_packs + tools_packs:
-        if p.platform_name () not in bootstrap_names:
+        add = [n for n in cross_names if p.settings.platform in n]
+        if not misc.list_in (add, p.get_platform_build_dependencies ()):
             old_callback = p.get_build_dependencies
             p.get_build_dependencies = misc.MethodOverrider (old_callback,
-                                                             lambda x,y: x+y, (bootstrap_names,))
+                                                             lambda x,y: x+y, (add,))
+    for p in other_packs + cross_packs:
+        add = [n for n in sdk_names if p.settings.platform in n]
+        if not misc.list_in (add, p.get_platform_build_dependencies ()):
+            old_callback = p.get_build_dependencies
+            p.get_build_dependencies = misc.MethodOverrider (old_callback,
+                                                             lambda x,y: x+y, (add,))
+    for p in other_packs + cross_packs + tools_packs:
+        add = bootstrap_names
+        if (p.platform_name () not in bootstrap_names
+            and not misc.list_in (add, p.get_platform_build_dependencies ())):
+            old_callback = p.get_build_dependencies
+            p.get_build_dependencies = misc.MethodOverrider (old_callback,
+                                                             lambda x,y: x+y, (add,))
     for p in tar_packs:
-        old_callback = p.get_build_dependencies
-        p.get_build_dependencies = misc.MethodOverrider (old_callback,
-                                                         lambda x,y: x+y, (['tools::tar'],))
+        add = ['tools::tar']
+        if not misc.list_in (add, p.get_platform_build_dependencies ()):
+            old_callback = p.get_build_dependencies
+            p.get_build_dependencies = misc.MethodOverrider (old_callback,
+                                                             lambda x,y: x+y, (add,))
     for p in git_packs:
-        old_callback = p.get_build_dependencies
-        p.get_build_dependencies = misc.MethodOverrider (old_callback,
-                                                         lambda x,y: x+y, (['tools::git'],))
+        add = ['tools::git']
+        if not misc.list_in (add, p.get_platform_build_dependencies ()):
+            old_callback = p.get_build_dependencies
+            p.get_build_dependencies = misc.MethodOverrider (old_callback,
+                                                             lambda x,y: x+y, (add,))
     for p in patch_packs:
-        old_callback = p.get_build_dependencies
-        p.get_build_dependencies = misc.MethodOverrider (old_callback,
-                                                         lambda x,y: x+y, (['tools::patch'],))
+        add = ['tools::patch']
+        if not misc.list_in (add, p.get_platform_build_dependencies ()):
+            old_callback = p.get_build_dependencies
+            p.get_build_dependencies = misc.MethodOverrider (old_callback,
+                                                             lambda x,y: x+y, (add,))
     for p in python_packs:
-        old_callback = p.get_build_dependencies
-        p.get_build_dependencies = misc.MethodOverrider (old_callback,
-                                                         lambda x,y: x+y, (['tools::python'],))
+        add = ['tools::python']
+        if not misc.list_in (add, p.get_platform_build_dependencies ()):
+            old_callback = p.get_build_dependencies
+            p.get_build_dependencies = misc.MethodOverrider (old_callback,
+                                                             lambda x,y: x+y, (add,))
     for p in scons_packs:
-        old_callback = p.get_build_dependencies
-        p.get_build_dependencies = misc.MethodOverrider (old_callback,
-                                                         lambda x,y: x+y, (['tools::scons'],))
-    return extra_names
+        add = ['tools::scons']
+        if not misc.list_in (add, p.get_platform_build_dependencies ()):
+            old_callback = p.get_build_dependencies
+            p.get_build_dependencies = misc.MethodOverrider (old_callback,
+                                                             lambda x,y: x+y, (add,))
+    return extra_cross_names + extra_names
 
 cross_module_checksums = {}
 cross_module_cache = {}

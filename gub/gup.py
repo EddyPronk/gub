@@ -391,7 +391,6 @@ def topologically_sorted (todo, done, dependency_getter,
     for t in todo:
         s += topologically_sorted_one (t, done, dependency_getter,
                                        recurse_stop_predicate)
-
     return s
 
 
@@ -430,7 +429,10 @@ def get_source_packages (settings, const_todo):
 
     # Do not confuse caller, do not modify caller's todo
     todo = const_todo[:]
-    todo += cross.get_build_dependencies (settings)
+    # FIXME: asymmetric, doing bin/gub darwin-ppc::libtool freebsd-64::libtool
+    # we miss out on freebsd-64's cross.get_build_dependencies ()
+    # also, doing bin/gub -p darwin-ppc freebsd-64::libtool we build too much
+    # todo += cross.get_build_dependencies (settings)
 
     spec_dict = dict ()
     sets = {settings.platform: settings}
@@ -506,15 +508,17 @@ def get_source_packages (settings, const_todo):
         return name_to_dependencies.get (platform,
                                          name_to_dependencies_via_gub) (url)
 
-    topologically_sorted (todo, {}, name_to_dependencies_broker)
-    todo += cross.set_cross_dependencies (spec_dict)
-    topologically_sorted (todo, {}, name_to_dependencies_broker)
-
-    # UGH.  try:
-    # bin/gub -p tools tar
-    # bin/gub -p tools make tar
-    todo += cross.set_cross_dependencies (spec_dict)
-    topologically_sorted (todo, {}, name_to_dependencies_broker)
+    # Must iterate, try:
+    #   bin/gub -p tools tar
+    #   bin/gub -p tools make tar
+    # or
+    #   bin/gub darwin-ppc::libtool freebsd-64::libtool
+    last_count = len (todo)
+    while last_count != len (spec_dict.keys ()):
+        add = cross.set_cross_dependencies (spec_dict)
+        todo += [a for a in add if a not in todo]
+        last_count = len (spec_dict.keys ())
+        topologically_sorted (todo, {}, name_to_dependencies_broker)
 
     # Fixup for build from url: spec_dict key is full url, change to
     # base name.  Must use list(dict.keys()), since dict changes during
