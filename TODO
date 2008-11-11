@@ -19,6 +19,11 @@
 * automagical support for get_dependency_dict () if not set, from
   get_build_dependencies ().
 
+* fix asymmetry of platform/settings.platorm in bin/gub,
+  buildrunner.py and gup.py; only packages have a specific platform,
+  until then, any platform will do...  Idea: use build-platform
+  for initial settings?
+
 * junk arbitrary SdkBuild class, handle any build dependencies
   through [module.py].build_dependencies.
 
