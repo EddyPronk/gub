@@ -61,8 +61,8 @@ class Rewirer (context.RunnableContext):
                 elif self.expand ('%(targetdir)s') in f:
                     must_skip = [s for s in self.skip if s in f]
                     if not must_skip:
-                        raise Exception ('found targetdir in linkage: %(f)s' % locals ())
-                    print 'FIXME: skipping: %(f)s, hope this is ok' % locals ()
+                        raise Exception ('found targetdir in linkage[%(name)s]: %(f)s' % locals ())
+                    print 'FIXME: skipping[%(name)s]: %(f)s, hope this is ok' % locals ()
 
         self.rewire_mach_o_object (name, subs)
 
