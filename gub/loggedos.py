@@ -1,12 +1,12 @@
-import misc
 import os
 import shutil
 import subprocess
 import sys
-import time
+#
+from gub import misc
 
 def system (logger, cmd, env=os.environ, ignore_errors=False):
-    logger.write_log ('invoking %s\n' % cmd, 'command')
+    logger.write_log ('invoking %(cmd)s\n' % locals (), 'command')
     proc = subprocess.Popen (cmd, bufsize=0, shell=True, env=env,
                              stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT,
