@@ -61,25 +61,19 @@ class Rewirer (context.RunnableContext):
                     newpath = re.sub (o, '@executable_path/../lib/', i);
                     subs.append ((i, newpath))
                 elif i.find (self.expand ('%(targetdir)s')) >= 0:
-                    print 'found targetdir in linkage', i
-                    raise 'abort'
+                    raise Exception ('found targetdir in linkage: %(i)s' % locals ())
 
         self.rewire_mach_o_object (name, subs)
 
     def rewire_binary_dir (self, dir):
         if not os.path.isdir (dir):
-            raise 'Not a directory', dir
-
+            raise Exception ('not a directory: %(dir)' % locals ())
         (root, dirs, files) = os.walk (dir).next ()
         files = [os.path.join (root, f) for f in files]
-
-        skip_libs = ['libgcc_s']
+        skip = ['libgcc_s']
         for f in files:
-            found_skips = [s for s in  skip_libs if f.find (s) >= 0]
-            if found_skips:
-                continue
-
-            if os.path.isfile (f):
+            must_skip = [s for s in skip if s in f]
+            if not must_skip and os.path.isfile (f):
                 self.rewire_mach_o_object_executable_path (f)
 
     def set_ignore_libs_from_tarball (self, tarball):
@@ -143,6 +137,7 @@ def change_target_package (package):
     
     def rpath (foo):
         # ld has no -rpath on darwin [at least not darwin-ppc]
+        # FIXME: some equivalent here?
         return ''
     package.rpath = misc.MethodOverrider (package.nop, rpath)
 
