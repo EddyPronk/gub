@@ -404,6 +404,9 @@ cd %(builddir)s && make -C scripts PYTHON=/usr/bin/python
 
 
 class LilyPond__darwin (LilyPond):
+    def get_build_dependencies (self):
+        return (LilyPond.get_build_dependencies (self)
+                + [ 'fondu', 'osx-lilypad'])
     def get_dependency_dict (self):
         d = LilyPond.get_dependency_dict (self)
         deps = d['']
@@ -412,17 +415,11 @@ class LilyPond__darwin (LilyPond):
         deps += [ 'fondu', 'osx-lilypad']
         d[''] = deps
         return d
-
-    def get_build_dependencies (self):
-        return (LilyPond.get_build_dependencies (self)
-                + [ 'fondu', 'osx-lilypad'])
-
-    def compile_command (self):
-        return (LilyPond.compile_command (self)
-                + ' TARGET_PYTHON=/usr/bin/python')
-    
+    def makeflags (self):
+        return ' TARGET_PYTHON=/usr/bin/python'
     def configure_command (self):
         return (LilyPond.configure_command (self)
+                .replace ('--enable-rpath', '--disable-rpath')
                 + ' --enable-static-gxx')
 
 class LilyPond__darwin__ppc (LilyPond__darwin):
