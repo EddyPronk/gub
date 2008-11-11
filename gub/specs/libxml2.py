@@ -7,7 +7,6 @@ class Libxml2 (target.AutoBuild):
     source = 'http://ftp.gnome.org/pub/GNOME/platform/2.18/2.18.1/sources/libxml2-2.6.27.tar.gz'
     def get_build_dependencies (self):
         return ['zlib']
-
     def configure_command (self):
         return (target.AutoBuild.configure_command (self)
                 + misc.join_lines ('''
