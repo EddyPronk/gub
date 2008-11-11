@@ -173,7 +173,7 @@ class BuildRunner:
         checksum_fail_reason = self.failed_checksums.get (spec_name, '')
         logger = logging.default_logger
         if checksum_fail_reason:
-            logger.write_log ('checksum failed: %(spec_name)s\n' % locals (), 'stage')
+            logger.write_log ('checksum failed: %(spec_name)s\n' % locals (), 'verbose')
         else:
             logger.write_log ('checksum ok: %(spec_name)s\n' % locals (), 'verbose')
 
@@ -218,7 +218,8 @@ class BuildRunner:
     def build_source_packages (self, names):
         deps = filter (self.specs.has_key, names)
         platform = self.settings.platform
-        fail_str = ' '.join (self.failed_checksums.keys ()).replace (misc.with_platform ('', platform), '')
+        # fail_str: keep ordering of names
+        fail_str = ' '.join ([s for s in deps if s in self.failed_checksums.keys ()]).replace (misc.with_platform ('', platform), '')
         logging.default_logger.write_log ('must rebuild[%(platform)s]: %(fail_str)s\n' % locals (), 'stage')
         self.uninstall_outdated_specs (deps)
         for spec_name in deps:
