@@ -54,17 +54,15 @@ class Rewirer (context.RunnableContext):
             if os.path.split (f)[1] == os.path.split (name)[1]:
                 continue
 
-            must_skip = [s for s in self.skip if s in f]
-            if must_skip:
-                print 'FIXME: skipping: %(f)s, hope this is ok' % locals ()
-                continue
-
             for o in orig_libs:
-                if re.search (o, f):
+                if o in f:
                     newpath = re.sub (o, '@executable_path/../lib/', f);
                     subs.append ((f, newpath))
                 elif self.expand ('%(targetdir)s') in f:
-                    raise Exception ('found targetdir in linkage: %(f)s' % locals ())
+                    must_skip = [s for s in self.skip if s in f]
+                    if not must_skip:
+                        raise Exception ('found targetdir in linkage: %(f)s' % locals ())
+                    print 'FIXME: skipping: %(f)s, hope this is ok' % locals ()
 
         self.rewire_mach_o_object (name, subs)
 
