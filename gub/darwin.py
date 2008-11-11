@@ -12,6 +12,7 @@ class Rewirer (context.RunnableContext):
     def __init__ (self, settings):
         context.RunnableContext.__init__ (self,settings)
         self.ignore_libs = None
+        self.skip = ['libgcc_s']
 
     def get_libaries (self, name):
         lib_str = loggedos.read_pipe (
@@ -27,9 +28,7 @@ class Rewirer (context.RunnableContext):
                 continue
             if self.ignore_libs.has_key (m.group (1)):
                 continue
-
             libs.append (m.group (1))
-
         return libs
 
     def rewire_mach_o_object (self, name, substitutions):
@@ -46,22 +45,26 @@ class Rewirer (context.RunnableContext):
 
         libs = self.get_libaries (name)
         subs = []
-        for i in libs:
-
+        for f in libs:
             # FIXME: I do not understand this comment
             ## ignore self.
-            self.runner.action (os.path.split (i)[1] + ' '
+            self.runner.action (os.path.split (f)[1] + ' '
                                 + os.path.split (name)[1] + '\n')
 
-            if os.path.split (i)[1] == os.path.split (name)[1]:
+            if os.path.split (f)[1] == os.path.split (name)[1]:
+                continue
+
+            must_skip = [s for s in self.skip if s in f]
+            if must_skip:
+                print 'FIXME: skipping: %(f)s, hope this is ok' % locals ()
                 continue
 
             for o in orig_libs:
-                if re.search (o, i):
-                    newpath = re.sub (o, '@executable_path/../lib/', i);
-                    subs.append ((i, newpath))
-                elif i.find (self.expand ('%(targetdir)s')) >= 0:
-                    raise Exception ('found targetdir in linkage: %(i)s' % locals ())
+                if re.search (o, f):
+                    newpath = re.sub (o, '@executable_path/../lib/', f);
+                    subs.append ((f, newpath))
+                elif self.expand ('%(targetdir)s') in f:
+                    raise Exception ('found targetdir in linkage: %(f)s' % locals ())
 
         self.rewire_mach_o_object (name, subs)
 
@@ -70,9 +73,8 @@ class Rewirer (context.RunnableContext):
             raise Exception ('not a directory: %(dir)' % locals ())
         (root, dirs, files) = os.walk (dir).next ()
         files = [os.path.join (root, f) for f in files]
-        skip = ['libgcc_s']
         for f in files:
-            must_skip = [s for s in skip if s in f]
+            must_skip = [s for s in self.skip if s in f]
             if not must_skip and os.path.isfile (f):
                 self.rewire_mach_o_object_executable_path (f)
 
@@ -83,18 +85,18 @@ class Rewirer (context.RunnableContext):
 
     def set_ignore_libs_from_files (self, files):
         self.ignore_libs = dict ((k.strip ()[1:], True)
-             for k in files
-             if re.match (r'^\./usr/lib/', k))
+                                 for k in files
+                                 if k.startswith ('./usr/lib/'))
 
     def rewire_root (self, root):
         if self.ignore_libs == None:
             raise 'error: should init with file_manager.'
 
-        self.rewire_binary_dir (root + '/usr/lib')
-        for d in glob.glob (root + '/usr/lib/pango/*/modules/'):
+        self.rewire_binary_dir (root + '/usr/lib') #FIXME: /usr or %(prefix_dir)s ?
+        for d in glob.glob (root + '/usr/lib/pango/*/modules/'): #FIXME: /usr or %(prefix_dir)s ?
             self.rewire_binary_dir (d)
 
-        self.rewire_binary_dir (root + '/usr/bin')
+        self.rewire_binary_dir (root + '/usr/bin') #FIXME: /usr or %(prefix_dir)s ?
 
 class Package_rewirer:
     def __init__ (self, rewirer, package):
@@ -187,4 +189,3 @@ if __name__== '__main__':
     import sys
     if len (sys.argv) > 1:
         get_darwin_sdk ()
-
