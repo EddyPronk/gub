@@ -129,18 +129,24 @@ def strip_dependency_dict (old_val, what):
              for (k, deps) in old_val.items ())
     return d
 
-def change_target_package (p):
+def change_target_package (package):
     from gub import misc
     from gub import cross
     from gub import build
-    cross.change_target_package (p)
-    p.get_build_dependencies = misc.MethodOverrider (p.get_build_dependencies,
+    cross.change_target_package (package)
+    package.get_build_dependencies = misc.MethodOverrider (package.get_build_dependencies,
                                                      strip_build_dep,
                                                      (['zlib', 'zlib-devel'],))
-    p.get_dependency_dict = misc.MethodOverrider (p.get_dependency_dict,
+    package.get_dependency_dict = misc.MethodOverrider (package.get_dependency_dict,
                                                   strip_dependency_dict,
                                                   (['zlib', 'zlib-devel'],))
-    target.change_target_dict (p, {
+    
+    def rpath (foo):
+        # ld has no -rpath on darwin [at least not darwin-ppc]
+        return ''
+    package.rpath = misc.MethodOverrider (package.nop, rpath)
+
+    target.change_target_dict (package, {
 
             ## We get a lot of /usr/lib/ -> @executable_path/../lib/
             ## we need enough space in the header to do these relocs.
