@@ -17,7 +17,6 @@ class Guile (target.AutoBuild):
         if isinstance (source, repository.Repository):
             source.version = lambda: '1.8.5'
         self.so_version = '17'
-
     def autogen_sh (self):
         self.file_sub ([(r'AC_CONFIG_SUBDIRS\(guile-readline\)', '')],
                        '%(srcdir)s/configure.in')
@@ -25,10 +24,8 @@ class Guile (target.AutoBuild):
                        '%(srcdir)s/Makefile.am')
         self.dump ('', '%(srcdir)s/doc/ref/version.texi')
         self.dump ('', '%(srcdir)s/doc/tutorial/version.texi')
-
     def get_subpackage_names (self):
         return ['doc', 'devel', 'runtime', '']
-
     def get_dependency_dict (self):
         return {
             '' : ['guile-runtime'],
@@ -36,14 +33,11 @@ class Guile (target.AutoBuild):
             'devel': ['guile-runtime'],
             'doc': ['texinfo'],
             }
-
     def get_build_dependencies (self):
         return ['gettext-devel', 'gmp-devel', 'libtool', 'tools::guile']
-        
-    # FIXME: C&P.
+    # FIXME: C&P.  -- from where?
     def guile_version (self):
         return '.'.join (self.ball_version.split ('.')[0:2])
-
     def patch (self):
         self.dump ('''#!/bin/sh
 exec %(tools_prefix)s/bin/guile "$@"
@@ -51,7 +45,6 @@ exec %(tools_prefix)s/bin/guile "$@"
             
         self.autogen_sh ()
         target.AutoBuild.patch (self)
-
     def configure_flags (self):
         return misc.join_lines ('''
 --without-threads
@@ -62,19 +55,32 @@ exec %(tools_prefix)s/bin/guile "$@"
 --enable-relocation
 --disable-rpath
 ''')
-        
+    def configure_variables (self):
+        return misc.join_lines ('''
+CC_FOR_BUILD="
+C_INCLUDE_PATH=
+CPPFLAGS=
+LIBRARY_PATH=
+PATH_SEPARATOR=':'
+cc
+-I%(builddir)s
+-I%(srcdir)s
+-I%(builddir)s/libguile
+-I.
+-I%(srcdir)s/libguile"
+''')
     def configure_command (self):
         return ('GUILE_FOR_BUILD=%(tools_prefix)s/bin/guile '
                 + target.AutoBuild.configure_command (self)
                 + self.configure_flags ())
-
+    def configure (self):
+        target.AutoBuild.configure (self)
+        self.update_libtool ()
     def makeflags (self):
         return '''LDFLAGS='%(rpath)s' '''
-
     def compile_command (self):
         return ('preinstguile=%(tools_prefix)s/bin/guile ' +
                 target.AutoBuild.compile_command (self))
-    
     def compile (self):
         ## Ugh: broken dependencies break parallel build with make -jX
         self.system ('cd %(builddir)s/libguile && make gen-scmconfig guile_filter_doc_snarfage')
@@ -83,11 +89,6 @@ exec %(tools_prefix)s/bin/guile "$@"
         self.file_sub ([('''-L *%(system_root)s''', '-L')],
                        '%(builddir)s/libguile/libpath.h')
         target.AutoBuild.compile (self)
-
-    def configure (self):
-        target.AutoBuild.configure (self)
-        self.update_libtool ()
-
     def install (self):
         target.AutoBuild.install (self)
         majmin_version = '.'.join (self.expand ('%(version)s').split ('.')[0:2])
@@ -95,7 +96,6 @@ exec %(tools_prefix)s/bin/guile "$@"
         self.dump ("prependdir GUILE_LOAD_PATH=$INSTALLER_PREFIX/share/guile/%(majmin_version)s\n",
                    '%(install_prefix)s/etc/relocate/guile.reloc',
                    env=locals ())
- 
         version = self.expand ('%(version)s')
 	#FIXME: c&p linux.py
         self.dump ('''\
@@ -113,79 +113,41 @@ exit 0
         self.chmod ('%(install_prefix)s/cross/bin/%(target_architecture)s-guile-config', 0755)
 
 class Guile__mingw (Guile):
-    source = 'git://git.sv.gnu.org/guile.git&branch=branch_release-1-8&revision=release_1-8-4'
-
+    source = Guile.source
     def __init__ (self, settings, source):
         Guile.__init__ (self, settings, source)
         # Configure (compile) without -mwindows for console
         self.target_gcc_flags = '-mms-bitfields'
-
     def get_build_dependencies (self):
         return Guile.get_build_dependencies (self) +  ['regex-devel']
-        
     def get_dependency_dict (self):
         d = Guile.get_dependency_dict (self)
         d['runtime'].append ('regex')
         return d
-
-# FIXME: ugh, C&P to Guile__freebsd, put in cross-Guile?
     def configure_command (self):
-        # watch out for whitespace
-        builddir = self.builddir ()
-        srcdir = self.srcdir ()
-
-
-# don't set PATH_SEPARATOR; it will fuckup tools searching for the
-# build platform.
-
         return (Guile.configure_command (self)
-           + misc.join_lines ('''
-LDFLAGS=-L%(system_prefix)s/lib
-CC_FOR_BUILD="
-C_INCLUDE_PATH=
-CPPFLAGS=
-LIBRARY_PATH=
-LDFLAGS=
-PATH_SEPARATOR=\\;
-cc
--I%(builddir)s
--I%(srcdir)s
--I%(builddir)s/libguile
--I.
--I%(srcdir)s/libguile"
-'''))
-
+                + Guile.configure_variables (self)
+                # Use PATH_SEPARATOR=; or it will breaks tools
+                # searching for the build platform.
+                .replace (':', ';'))
+                ###LDFLAGS=-L%(system_prefix)s/lib
     def config_cache_overrides (self, str):
         return str + '''
 guile_cv_func_usleep_declared=${guile_cv_func_usleep_declared=yes}
 guile_cv_exeext=${guile_cv_exeext=}
 libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_prefix)s/lib"}
 '''
-
     def configure (self):
-        if 0: # using patch
-            target.AutoBuild.autoupdate (self)
-
-        if 1:
-            self.file_sub ([('''^#(LIBOBJS=".*fileblocks.*)''',
-                    '\\1')],
-                   '%(srcdir)s/configure')
-
+        self.file_sub ([('''^#(LIBOBJS=".*fileblocks.*)''', r'\1')],
+                       '%(srcdir)s/configure')
         Guile.configure (self)
-        self.file_sub ([
-            #('^(allow_undefined_flag=.*)unsupported', '\\1'),
-            ('-mwindows', ''),
-            ],
-               '%(builddir)s/libtool')
-
-        if 0:
-            # we have patched out readline.
-            self.file_sub ([
-                #('^(allow_undefined_flag=.*)unsupported', '\\1'),
-                ('-mwindows', ''),
-                ],
-                           '%(builddir)s/guile-readline/libtool')
-
+        for libtool in ['%(builddir)s/libtool']: # readline patched-out: '%(builddir)s/guile-readline/libtool']:
+            self.file_sub ([('-mwindows', '')], libtool)
+    def compile (self):
+        ## Why the !?#@$ is .EXE only for guile_filter_doc_snarfage?
+        self.system ('''cd %(builddir)s/libguile && make CFLAGS='-DHAVE_CONFIG_H=1 -I%(builddir)s' gen-scmconfig guile_filter_doc_snarfage.exe''')
+        self.system ('cd %(builddir)s/libguile && cp guile_filter_doc_snarfage.exe guile_filter_doc_snarfage')
+        Guile.compile (self)
     def install (self):
         Guile.install (self)
         # dlopen-able .la files go in BIN dir, BIN OR LIB package
@@ -204,26 +166,15 @@ class Guile__linux__ppc (Guile__linux):
 
 class Guile__freebsd (Guile):
     def config_cache_settings (self):
-        return Guile.config_cache_settings (self) + '\nac_cv_type_socklen_t=yes'
+        return (Guile.config_cache_settings (self)
+                + '''
+ac_cv_type_socklen_t=yes
+guile_cv_use_csqrt="no"
+''')
     def configure_command (self):
-        # watch out for whitespace
-        builddir = self.builddir ()
-        srcdir = self.srcdir ()
-        return (
-            ''' guile_cv_use_csqrt="no" '''
-           + Guile.configure_command (self)
-           + misc.join_lines ('''\
-CC_FOR_BUILD="
-C_INCLUDE_PATH=
-CPPFLAGS=
-LIBRARY_PATH=
-cc
--I%(builddir)s
--I%(srcdir)s
--I%(builddir)s/libguile
--I.
--I%(srcdir)s/libguile"
-'''))
+        return (Guile.configure_command (self)
+                + Guile.configure_flags (self)
+                + Guile.configure_variables (self))
 
 class Guile__darwin (Guile):
     source = 'git://git.sv.gnu.org/guile.git&branch=branch_release-1-8&revision=release_1-8-4'
@@ -252,19 +203,16 @@ class Guile__darwin__x86 (Guile__darwin):
 class Guile__cygwin (Guile):
     def category_dict (self):
         return {'': 'Interpreters'}
-
     # Using gub dependencies only would be nice, but
     # we need to a lot of gup.gub_to_distro_deps ().
     def GUB_get_dependency_dict (self):
         d = Guile.get_dependency_dict (self)
         d['runtime'].append ('cygwin')
         return d
-
     # Using gub dependencies only would be nice, but
     # we need to a lot of gup.gub_to_distro_deps ().
     def GUB_get_build_dependencies (self):
         return Guile.get_build_dependencies (self) + ['libiconv-devel']
-
     # FIXME: uses mixed gub/distro dependencies
     def get_dependency_dict (self):
         d = Guile.get_dependency_dict (self)
@@ -272,11 +220,9 @@ class Guile__cygwin (Guile):
         d['devel'] += ['cygwin'] + ['bash']
         d['runtime'] += ['cygwin', 'crypt', 'libreadline6']
         return d
- 
     # FIXME: uses mixed gub/distro dependencies
     def get_build_dependencies (self):
         return ['crypt', 'libgmp-devel', 'gettext-devel', 'libiconv', 'libtool', 'readline']
-
     def config_cache_overrides (self, str):
         return str + '''
 guile_cv_func_usleep_declared=${guile_cv_func_usleep_declared=yes}
@@ -284,20 +230,16 @@ guile_cv_exeext=${guile_cv_exeext=}
 libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_prefix)s/lib"}
 '''
     def configure (self):
-        if 1:
-            self.file_sub ([('''^#(LIBOBJS=".*fileblocks.*)''', '\\1')],
-                           '%(srcdir)s/configure')
+        self.file_sub ([('''^#(LIBOBJS=".*fileblocks.*)''', r'\1')],
+                       '%(srcdir)s/configure')
         Guile.configure (self)
-
-        self.file_sub ([
-            ('^(allow_undefined_flag=.*)unsupported', '\\1'),
-            ],
-               '%(builddir)s/libtool')
-        self.file_sub ([
-            ('^(allow_undefined_flag=.*)unsupported', '\\1'),
-            ],
-               '%(builddir)s/guile-readline/libtool')
-
+        if 0:  # should be fixed in w32.py already
+            self.file_sub ([
+                    ('^(allow_undefined_flag=.*)unsupported', r'\1')],
+                           '%(builddir)s/libtool')
+            self.file_sub ([
+                    ('^(allow_undefined_flag=.*)unsupported', r'\1')],
+                           '%(builddir)s/guile-readline/libtool')
     def description_dict (self):
         return {
             '': """The GNU extension language and Scheme interpreter - executables
