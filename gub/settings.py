@@ -1,7 +1,7 @@
 import os
 import re
 import optparse
-
+#
 from gub import build
 from gub import build_platform
 from gub import context
@@ -95,8 +95,7 @@ class Settings (context.Context):
             self.gubdir = os.getcwd ()
 
         # workdir is top of writable build stuff
-        ##self.workdir = os.getcwd ()
-        self.workdir = self.gubdir
+        self.workdir = os.getcwd ()
         
         # gubdir based: fixed repository layout
         self.patchdir = self.gubdir + '/patches'
