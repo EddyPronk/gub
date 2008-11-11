@@ -66,6 +66,7 @@ class Glib__freebsd (Glib):
         return Glib.configure_command (self) + ' --disable-threads'
         
 class Glib__freebsd__64 (Glib__freebsd):
+    patches = Glib__freebsd.patches
     def configure_command (self):
         return Glib.configure_command (self) + ' --disable-threads --disable-timeloop'
 
