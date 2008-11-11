@@ -1,14 +1,22 @@
 #! /usr/bin/env python
 
+def argv0_relocation ():
+    import os, sys
+    bindir = os.path.dirname (sys.argv[0])
+    prefix = os.path.dirname (bindir)
+    if not prefix:
+        prefix = bindir + '/..'
+    sys.path.insert (0, prefix)
+
+argv0_relocation ()
+
 import os
 import re
 import sys
 import string
 import glob
 import optparse
-
-sys.path.insert (0, os.path.split (sys.argv[0])[0] + '/..')
-
+#
 from gub import versiondb
 
 ################

@@ -2,12 +2,20 @@
 
 # FIXME: replace `lilypond' with $package to make generic tester
 
+def argv0_relocation ():
+    import os, sys
+    bindir = os.path.dirname (sys.argv[0])
+    prefix = os.path.dirname (bindir)
+    if not prefix:
+        prefix = bindir + '/..'
+    sys.path.insert (0, prefix)
+
+argv0_relocation ()
+
 import os
 import optparse
 import sys
-
-sys.path.insert (0, os.path.split (sys.argv[0])[0] + '/..')
-
+#
 from gub import logging
 from gub import loggedos
 

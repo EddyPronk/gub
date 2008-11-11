@@ -2,6 +2,16 @@
 
 ## interaction with lp.org down/upload area.
 
+def argv0_relocation ():
+    import os, sys
+    bindir = os.path.dirname (sys.argv[0])
+    prefix = os.path.dirname (bindir)
+    if not prefix:
+        prefix = bindir + '/..'
+    sys.path.insert (0, prefix)
+
+argv0_relocation ()
+
 import os
 import urllib
 import re
@@ -9,15 +19,6 @@ import string
 import sys
 import optparse
 import pickle
-
-
-def argv0_relocation ():
-    import os, sys
-    bindir = os.path.abspath (os.path.dirname (sys.argv[0]))
-    prefix = os.path.dirname (bindir)
-    sys.path.insert (0, prefix)
-
-argv0_relocation ()
 
 from gub import versiondb
 from gub import misc
