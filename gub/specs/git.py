@@ -28,7 +28,7 @@ install:
                         ('SCRIPT_PERL = ', 'SCRIPT_PERL_X = ')],
                        '%(srcdir)s/Makefile')
     def makeflags (self):
-        flags = '''V=1 SCRIPT_PERL= LDFLAGS='%(rpath)' '''
+        flags = '''V=1 SCRIPT_PERL= LDFLAGS='%(rpath)s' '''
         if 'freebsd' in self.settings.build_architecture:
             flags += ' CFLAGS="-O2 -Duintmax_t=unsigned -Dstrtoumax=strtoul"'
         return flags
