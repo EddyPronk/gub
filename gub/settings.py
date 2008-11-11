@@ -89,8 +89,7 @@ class Settings (context.Context):
             self.prefix_dir = ''
 
         # gubdir is top of `installed' gub repository
-        ## self.gubdir = os.getcwd ()
-        self.gubdir = os.path.dirname (os.path.dirname (__file__))
+        self.gubdir = os.path.abspath (os.path.dirname (os.path.dirname (__file__)))
         if not self.gubdir:
             self.gubdir = os.getcwd ()
 
