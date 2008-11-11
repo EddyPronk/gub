@@ -6,6 +6,10 @@ class Fontforge__tools (tools.AutoBuild):
     patches = ['fontforge-20080927-noxml2.patch']
     def get_build_dependencies (self):
         return ['freetype', 'libpng', 'libjpeg', 'libxml2']
+    def force_sequential_build (self):
+        return True
+    def srcdir (self):
+        return tools.AutoBuild.srcdir (self).replace ('_full', '')
     def patch (self):
         tools.AutoBuild.patch (self)
         for name in ['%(srcdir)s/fontforge/Makefile.dynamic.in',
@@ -37,15 +41,12 @@ class Fontforge__tools (tools.AutoBuild):
                 # let's ignore python (and its dynamic link intracies
                 # for now).
                 + ' --without-python')
-    def configure (self):
-        self.shadow ()
-        tools.AutoBuild.configure (self)
-    def srcdir (self):
-        return tools.AutoBuild.srcdir (self).replace ('_full', '')
-    def force_sequential_build (self):
-        return True
     @context.subst_method
     def LDFLAGS (self):
         return '%(rpath)'
+    def configure (self):
+        self.shadow ()
+        tools.AutoBuild.configure (self)
     def wrap_executables (self):
+        # using rpath
         pass

@@ -12,4 +12,5 @@ class Patch__tools (tools.AutoBuild):
     def install_command (self):
         return self.broken_install_command ()
     def wrap_executables (self):
+        # no dynamic executables [other than /lib:libc]
         return

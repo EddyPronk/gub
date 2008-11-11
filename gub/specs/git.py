@@ -3,21 +3,17 @@ from gub import target
 
 class Git__tools (tools.AutoBuild):
     source = 'http://kernel.org/pub/software/scm/git/git-1.5.3.6.tar.bz2'
-
     def get_build_dependencies (self):
         return ['curl', 'expat', 'zlib']
-
     def get_dependency_dict (self):
         return {'': [
             'curl',
             'expat',
             'zlib',
             ]}
-
     def configure (self):
         self.shadow ()
         self.dump ('prefix=%(system_prefix)s', '%(builddir)s/config.mak')
-
     def patch (self):
         tools.AutoBuild.patch (self)
         self.file_sub ([('git describe','true')],
@@ -31,17 +27,16 @@ install:
         self.file_sub ([('\t\\$\\(QUIET_SUBDIR0\\)perl[^\n]+\n', ''),
                         ('SCRIPT_PERL = ', 'SCRIPT_PERL_X = ')],
                        '%(srcdir)s/Makefile')
-  
-    def wrap_executables (self):
-        # GIT executables use ancient unix style smart name-based
-        # functionality switching.  
-        pass
-
     def makeflags (self):
-        flags = 'V=1 SCRIPT_PERL='
+        flags = '''V=1 SCRIPT_PERL= LDFLAGS='%(rpath)' '''
         if 'freebsd' in self.settings.build_architecture:
             flags += ' CFLAGS="-O2 -Duintmax_t=unsigned -Dstrtoumax=strtoul"'
         return flags
+    def wrap_executables (self):
+        # using rpath
+        # Besides: GIT executables use ancient unix style smart
+        # name-based functionality switching.
+        pass
 
 class Git (target.AutoBuild):
     patches = ['git-1.5.2-templatedir.patch',

@@ -414,4 +414,5 @@ cd %(builddir)s && sort -u gconfig_-native.h gconfig_-tools.h > obj/gconfig_.h
                 + ' exdir=%(prefix_dir)s/share/doc/ghostscript/examples '
                 )
     def wrap_executables (self):
+        # using rpath
         pass

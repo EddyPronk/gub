@@ -8,6 +8,7 @@ class Make_make__tools (tools.AutoBuild):
     def get_build_dependencies (self):
         return ['librestrict']
     def wrap_executables (self):
+        # no dynamic executables [other than /lib:libc]
         return
 
 class Make_build_sh__tools (Make_make__tools):

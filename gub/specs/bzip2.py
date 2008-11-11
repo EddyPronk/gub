@@ -13,4 +13,5 @@ class Bzip2__tools (tools.MakeBuild):
         tools.MakeBuild.install (self)
         self.system ('cp -pv %(builddir)s/libbz2.so* %(install_root)s%(system_prefix)s/lib')
     def wrap_executables (self):
+        # no dynamic executables
         pass

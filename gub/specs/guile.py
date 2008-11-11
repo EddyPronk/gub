@@ -287,4 +287,5 @@ class Guile__tools (tools.AutoBuild, Guile):
         # Make sure no tool GUILE headers can interfere with compile.
         self.system ("rm -rf %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/include/ %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/bin/guile-config ")
     def wrap_executables (self):
+        # using rpath
         pass

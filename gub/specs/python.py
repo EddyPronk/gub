@@ -156,4 +156,5 @@ class Python__tools (tools.AutoBuild, Python):
     def makeflags (self):
         return Python.makeflags (self)
     def wrap_executables (self):
+        # using rpath
         pass

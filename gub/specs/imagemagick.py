@@ -21,6 +21,7 @@ class ImageMagick__tools (tools.AutoBuild):
         # do *not* update libtool, GUB's 1.5.x is too old :-(
         build.AutoBuild.configure (self)
     def wrap_executables (self):
+        # using rpath
         pass
 
 class ImageMagick__tools__autoupdate (ImageMagick__tools):
