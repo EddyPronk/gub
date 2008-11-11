@@ -36,8 +36,7 @@ models.'''
 
         if (isinstance (source, repository.Repository)
             and not isinstance (source, repository.TarBall)):
-            from new import instancemethod
-            source.version = instancemethod (version_from_VERSION, source, type (source))
+            source.version = misc.bind_method (version_from_VERSION, source)
 
     def force_sequential_build (self):
         return True
