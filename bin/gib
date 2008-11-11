@@ -54,7 +54,10 @@ def parse_command_line ():
     examples = '''
 Examples:
 
+  gib lilypond   # TODO: add --branch goo...
+
   gib -p mingw lilypond
+
 '''
 
     def format_examples (self):
@@ -104,12 +107,6 @@ Examples:
     p.add_option ('-v', '--verbose', action='count', dest='verbosity', default=0)
 
     (options, args) = p.parse_args ()
-    
-    if not options.platform:
-        raise Exception ('error: no platform specified')
-        cli_parser.print_help ()
-        sys.exit (2)
-
     
     return (options, args)
 
