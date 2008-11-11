@@ -116,6 +116,17 @@ download-cygwin:
 
 all: native dist-check test-output test-export doc-build doc-export $(OTHER_PLATFORMS) print-success
 
+gub3all: gub3-packages gub3-installers gub3-test gub3-doc print-success
+
+gub3-packages:
+	$(call INVOKE_GUB,$(BUILD_PLATFORM)) $(BUILD_PACKAGE) $(OTHER_PLATFORMS:%=%::$(BUILD_PACKAGE))
+gub3-installers:
+	$(foreach p,$(OTHER_PLATFORMS),$(call INVOKE_INSTALLER_BUILDER,$(p)) lilypond && ) :
+
+gub3-test: dist-check test-output test-export
+
+gub3-doc: doc-build doc-export
+
 platforms: $(PLATFORMS)
 
 print-success:
@@ -240,11 +251,6 @@ realclean:
 # compilers and tools
 
 tools := $(shell $(GUB) --dependencies $(foreach p, $(PLATFORMS), $(p)::lilypond) 2>&1 | grep ^dependencies | tr ' ' '\n' | grep 'tools::')
-
-#
-# TODO:
-# -imagemagick: for lilypond web site
-#x imagemagick \
 
 ################################################################
 # docs
