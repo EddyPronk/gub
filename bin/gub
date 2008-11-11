@@ -53,11 +53,13 @@ def get_cli_parser ():
     examples = '''
 Examples:
 
+  gub lilypond
+
   gub darwin-x86::lilypond
 
   gub freebsd-64::ftp://ftp.gnu.org/pub/gnu/bison/bison-2.3.tar.gz
 
-  gub mingw::openoffice [WIP]
+  gub mingw::openoffice
 '''
 
     def format_examples (self):

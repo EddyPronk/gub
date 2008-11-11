@@ -103,17 +103,34 @@ GUB home page
 
   make help
 
-* Prepare a cross build environment
+Examples
 
-  bin/gub darwin-x86::cross/gcc
+  * Prepare a cross build environment
 
-* Build all lilypond
+      bin/gub darwin-x86::cross/gcc
 
-  make lilypond
-this should leave installers and documentation in
-uploads/
+  * Build LilyPond master branch for your platform
+
+      bin/gub lilypond
+      bin/gib --branch=lilypond-git.sv.gnu.org--lilypond.git-master lilypond
+
+    this leaves an installer in uploads/
+
+  * Build all LilyPond installers
+
+      make lilypond
+ 
+    this should leave installers and documentation in uploads/
+
+  * Build OpenOffice for Windows:
+
+      # svn co svn://svn.gnome.org/svn/ooo-build/trunk
+      # ./configure ...; make
+      export OOO_TOOLS_DIR=/fresh/build/ooo300-m9/solver/300/unxlngx6.pro/bin
+      bin/gub mingw::openoffice
+
 </pre>
-see also <a href="lilypond.html">lilypond</a>
+see also <a href="lilypond.html">LilyPond</a>
 
 <h2>USAGE</h2>
 
