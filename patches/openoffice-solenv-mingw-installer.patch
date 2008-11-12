@@ -1,0 +1,15 @@
+--- solenv/bin/modules/installer/parameter.pm.pristine	2008-11-12 15:42:24.000000000 +0100
++++ solenv/bin/modules/installer/parameter.pm	2008-11-12 15:38:58.000000000 +0100
+@@ -307,8 +307,11 @@ sub setglobalvariables
+ 	
+ 	if ( $installer::globals::compiler =~ /unxso[lg]i/ ) { $installer::globals::issolarisx86build = 1; }
+ 
+-	if ($ENV{OS} eq 'LINUX')
++	if ($ENV{OS} eq 'LINUX'
++	    || ($ENV{BUILD_OS} == 'Linux' && $ENV{CROSS_COMPILING} eq 'yes'))
+ 	{
++		$installer::globals::installertypedir = "";
++		$installer::globals::iswindowsbuild = 0;
+ 		$installer::globals::islinuxbuild = 1;
+ 		if ( $installer::globals::packageformat eq "rpm" )
+ 		{

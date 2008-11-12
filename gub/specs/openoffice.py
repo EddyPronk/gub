@@ -157,6 +157,32 @@ Module 'packimages' delivered successfully. 6 files copied, 2 files unchanged
 Build succeeded ...!
 touch stamp/build
 
+
+... analyzing files ...
+ERROR: The following files could not be found: 
+ERROR: File not found: mingwm10.dll
+ERROR: File not found: unicows.dll
+ERROR: File not found: java_uno_accessbridge.dll
+ERROR: File not found: ado2.dll
+ERROR: File not found: libeay32.dll
+ERROR: File not found: emsergi.dll
+ERROR: File not found: gdiplus.dll
+ERROR: File not found: instooofiltmsi.dll
+ERROR: File not found: mingwm10.dll
+ERROR: File not found: mingwm10.dll
+ERROR: File not found: ooofilt.dll
+ERROR: File not found: oleautobridge.uno.dll
+ERROR: File not found: ssleay32.dll
+ERROR: File not found: qslnkmsi.dll
+ERROR: File not found: reg4allmsdoc.dll
+ERROR: File not found: sdqsmsi.dll
+ERROR: File not found: libstlport_gcc.dll
+ERROR: File not found: shlxtmsi.dll
+ERROR: File not found: relnotes.dll
+ERROR: File not found: sellangmsi.dll
+ERROR: File not found: sn_tools.dll
+... cleaning the output tree ...
+
 '''
 
 class Openoffice (target.AutoBuild):
@@ -404,7 +430,7 @@ LD_LIBRARY_PATH=%(LD_LIBRARY_PATH)s
 ##CPPFLAGS=
                 
 class Openoffice__mingw (Openoffice):
-    Openoffice.upstream_patches += ['openoffice-config_office-mingw.patch', 'openoffice-solenv-mingw.patch', 'openoffice-sal-mingw.patch', 'openoffice-external-mingwheaders.patch', 'openoffice-cppunit-mingw.patch', 'openoffice-i18npool-mingw.patch', 'openoffice-tools-mingw.patch', 'openoffice-setup_native-mingw.patch', 'openoffice-pyuno-mingw.patch', 'openoffice-sysui-mingw.patch', 'openoffice-dtrans-mingw.patch', 'openoffice-fpicker-mingw.patch', 'openoffice-sccomp-mingw.patch', 'openoffice-vcl-mingw.patch', 'openoffice-connectivity-mingw.patch', 'openoffice-unotools-mingw.patch', 'openoffice-embeddedobj-mingw.patch', 'openoffice-shell-mingw.patch', 'openoffice-svx-mingw.patch', 'openoffice-dbaccess-mingw.patch', 'openoffice-desktop-mingw.patch', 'openoffice-scripting-mingw.patch', 'openoffice-postprocess-mingw.patch', 'openoffice-instsetoo_native-mingw.patch']
+    Openoffice.upstream_patches += ['openoffice-config_office-mingw.patch', 'openoffice-solenv-mingw.patch', 'openoffice-sal-mingw.patch', 'openoffice-external-mingwheaders.patch', 'openoffice-cppunit-mingw.patch', 'openoffice-i18npool-mingw.patch', 'openoffice-tools-mingw.patch', 'openoffice-setup_native-mingw.patch', 'openoffice-pyuno-mingw.patch', 'openoffice-sysui-mingw.patch', 'openoffice-dtrans-mingw.patch', 'openoffice-fpicker-mingw.patch', 'openoffice-sccomp-mingw.patch', 'openoffice-vcl-mingw.patch', 'openoffice-connectivity-mingw.patch', 'openoffice-unotools-mingw.patch', 'openoffice-embeddedobj-mingw.patch', 'openoffice-shell-mingw.patch', 'openoffice-svx-mingw.patch', 'openoffice-dbaccess-mingw.patch', 'openoffice-desktop-mingw.patch', 'openoffice-scripting-mingw.patch', 'openoffice-postprocess-mingw.patch', 'openoffice-instsetoo_native-mingw.patch', 'openoffice-solenv-mingw-installer.patch']
     # external/mingwheaders seems a badly misguided effort.  It
     # patches header files and is thus strictly tied to a gcc version;
     # that can never build.  How can patching header files ever work,

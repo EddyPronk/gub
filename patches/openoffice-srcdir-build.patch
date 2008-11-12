@@ -114,7 +114,7 @@
 +	cd $(top_srcdir)/bin ; ./make-win32-iso
  else
 -	cd bin ; ./package-ooo
-+	cd $(top_srcdir)/bin ; ./package-ooo
++	cd $(top_srcdir)/bin ; TOP_BUILDDIR=$(TOP_BUILDDIR) ./package-ooo
  endif
 --- openoffice-./bin/unpack.orig	2008-10-16 15:47:43.000000000 +0200
 +++ openoffice-./bin/unpack	2008-10-16 20:05:31.000000000 +0200
@@ -252,3 +252,24 @@
  
  export LC_ALL='C';
  
+--- openoffice-trunk/desktop/Makefile.am.orig	2008-11-12 15:19:11.000000000 +0100
++++ openoffice-trunk/desktop/Makefile.am	2008-11-12 15:22:36.000000000 +0100
+@@ -1,6 +1,6 @@
+ SUBDIRS=16x16 22x22 24x24 32x32 48x48 scalable mimetypes
+ 
+-desktop_in_files = ${wildcard *.desktop.in.in}
++desktop_in_files = ${wildcard $(srcdir)/*.desktop.in.in}
+ 
+ old_gnome_files = \
+ 	openoffice.applications.in \
+--- openoffice-trunk/bin/ooinstall~	2008-10-27 15:55:11.000000000 +0100
++++ openoffice-trunk/bin/ooinstall	2008-11-12 15:30:46.000000000 +0100
+@@ -45,7 +45,7 @@ sub wanted {
+ 
+ ( $^O =~ /darwin/i ) || ( -f "/proc/meminfo" ) || die "The installer cannot work without javaldx running, which requires /proc to be mounted";
+ 
+-suck_setup ("./setup") || suck_setup ("bin/setup") || die "can't find bin/setup";
++suck_setup ("./setup") || suck_setup ("bin/setup") || suck_setup ("$ENV{'TOP_BUILDDIR'}/bin/setup") || die "can't find bin/setup";
+ 
+ print "Sucking env from build setup\n";
+ my $fname = `ls $setup_vars{'OOBUILDDIR'}/*.[sS]et.sh`;
