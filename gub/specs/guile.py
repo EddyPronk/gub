@@ -126,6 +126,14 @@ class Guile__mingw (Guile):
         return d
     def configure_command (self):
         return (Guile.configure_command (self)
+                # + ' --with-threads=pthread'
+                # checking whether pthread_attr_getstack works for the main thread... configure: error: cannot run test program while cross compiling
+                # also, gen-scmconfig.c has
+                #ifdef HAVE_STRUCT_TIMESPEC
+                # pf ("typedef struct timespec scm_t_timespec;\n");
+                # which breaks because __MINGW32__ needs #include <pthread.h>
+                # So, for now:
+                    + ' --without-threads'
                 + Guile.configure_variables (self)
                 # Use PATH_SEPARATOR=; or it will breaks tools
                 # searching for the build platform.
@@ -133,6 +141,7 @@ class Guile__mingw (Guile):
                 ###LDFLAGS=-L%(system_prefix)s/lib
     def config_cache_overrides (self, str):
         return str + '''
+scm_cv_struct_timespec=${scm_cv_struct_timespec=no}
 guile_cv_func_usleep_declared=${guile_cv_func_usleep_declared=yes}
 guile_cv_exeext=${guile_cv_exeext=}
 libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_prefix)s/lib"}
