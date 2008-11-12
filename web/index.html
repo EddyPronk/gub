@@ -12,10 +12,10 @@
 
 Grand Unified Builder
 (GUB, <a href="http://lilypond.org/gub">http://lilypond.org/gub</a>)
-is a mini packaging system originally developed for building LilyPond
-binaries.  It cross-compiles several packages and assembles them into
-a single package.  At the moment it supports the following target
-platforms
+is a mini source-based distribution and packaging system originally
+developed for building LilyPond binaries.  It cross-compiles several
+packages and assembles them into a single package.  At the moment it
+supports the following target platforms
 
 <pre>
 darwin-ppc
@@ -54,7 +54,7 @@ debian
 
 <h2>LICENSE</h2>
 
-Gub is distributed under the terms of the GNU General Public License,
+GUB is distributed under the terms of the GNU General Public License,
 version 2 or later.   Gub comes with NO WARRANTY.
 
 
@@ -144,6 +144,56 @@ Run these programs with --help argument for instructions
   			     Bazaar,CVS,Darcs,Git,SVN and gub
   bin/cygwin-packager   - roll cygwin package
 </pre>
+
+
+<h2>HISTORY</h2>
+
+The story starts with a
+<a href="http://www.sankey.ws/contact.html">crazy guy</a>with an itch
+to <a href="http://www.sankey.ws/gnunt.html">run LilyPond on
+Windows</a>.  Not long thereafter
+<a href="http://lilypond.org/~janneke/software/cygwin-cross">Cygwin
+cross</a>, our first cross build environment is created.
+
+<p>
+  Later, this is moved into
+  a <a href="http://sourceware.org/ml/cygwin-apps/2002-07/msg00572.html">patch
+  set for mknetrel</a>.  Spring 2005: In a bold move a
+  <a href="http://cvs.savannah.gnu.org/viewvc/lilypond/installers/windows">set
+  of patches for MinGW</a>are created to build LilyPond and all its
+  [17] dependencies.
+  <!--
+      expat fontconfig freetype gettext ghostscript glib gmp guile
+      jpeg libiconv libpng libtool lilypad lilypond mingw pango python
+      regex zlib
+      !-->
+  Simultaniously, a cross build environment and installer for
+  <a href="http://cvs.savannah.gnu.org/viewvc/lilypond/installers/macos/">MacOSX</a>is created.
+</p>
+
+<p>
+  Creating a cross build environment is not too difficult, esp. not if
+  you know how to use Google.  The problem is that they always break
+  and never work on other machines.  GUB starts as an effort to unify
+  the Windows and MacOS builders and to make the process somewhat
+  dependable and reproducible, i.e.: even more free time for the
+  developers (if there is such a thing) as the builds always succeed.
+</p>
+
+<p>
+  GUB2 adds serialization of all Python build code before execution
+  with checksumming.  Lots of packages are added in an effort to
+  replace the OpenEmbedded-based build system for the Samco 3G video
+  phone at SES, Philips Research Eindhoven.
+</p>
+
+<p>
+  In <a "http://news.opensuse.org/2008/08/07/announcing-hack-week-iii">Novell's
+  Hackweek-iii</a> GUB enters into its Third Life with
+  <a href="http://lilypond.org/gub">GUB3</a>, adding cross-platform
+  build dependencies and patches for an OpenOffice.org MinGW cross
+  build.
+</p>
 
 </div>
 </body>
