@@ -100,10 +100,12 @@ class Python__mingw (Python):
     def __init__ (self, settings, source):
         Python.__init__ (self, settings, source)
         self.target_gcc_flags = '-DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I%(system_prefix)s/include' % self.settings.__dict__
-
     def get_build_dependencies (self):
         return Python.get_build_dependencies (self) + ['pthreads-w32-devel']
-
+    def get_dependency_dict (self):
+        d = Python.get_dependency_dict (self)
+        d[''] += ['pthreads-w32']
+        return d
     # FIXME: first is cross compile + mingw patch, backported to
     # 2.4.2 and combined in one patch; move to cross-Python?
     def patch (self):
@@ -113,7 +115,6 @@ class Python__mingw (Python):
                 ("import fcntl", ""),
                 ], "%(srcdir)s/Lib/subprocess.py",
                must_succeed=True)
-
     def config_cache_overrides (self, str):
         # Ok, I give up.  The python build system wins.  Once
         # someone manages to get -lwsock32 on the
