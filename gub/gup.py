@@ -429,12 +429,7 @@ def get_source_packages (settings, const_todo):
 
     # Do not confuse caller, do not modify caller's todo
     todo = const_todo[:]
-    # FIXME: asymmetric, doing bin/gub darwin-ppc::libtool freebsd-64::libtool
-    # we miss out on freebsd-64's cross.get_build_dependencies ()
-    # also, doing bin/gub -p darwin-ppc freebsd-64::libtool we build too much
-    # todo += cross.get_build_dependencies (settings)
-
-    spec_dict = dict ()
+    specs = dict ()
     sets = {settings.platform: settings}
 
     def with_platform (s, platform=settings.platform):
@@ -456,21 +451,21 @@ def get_source_packages (settings, const_todo):
             key = name
             
         key = with_platform (key, platform)
-        if spec_dict.has_key (key):
-            spec = spec_dict[key]
+        if specs.has_key (key):
+            spec = specs[key]
         else:
             if not sets.has_key (platform):
                 sets[platform] = gub.settings.Settings (platform)
             spec = dependency.Dependency (sets[platform], name, url).build ()
-            spec_dict[key] = spec
+            specs[key] = spec
             
         return map (get_base_package_name, spec.get_platform_build_dependencies ())
 
     def name_to_dependencies_via_distro (distro_packages, name):
         platform, name = split_platform (name)
         key = with_platform (name, platform)
-        if spec_dict.has_key (key):
-            spec = spec_dict[key]
+        if specs.has_key (key):
+            spec = specs[key]
         else:
             if name in todo or name not in distro_packages.keys ():
                 if not sets.has_key (platform):
@@ -478,7 +473,7 @@ def get_source_packages (settings, const_todo):
                 spec = dependency.Dependency (sets[platform], name).build ()
             else:
                 spec = distro_packages[name]
-            spec_dict[key] = spec
+            specs[key] = spec
         return spec.get_platform_build_dependencies ()
 
     # FIXME: how to assign to outer var?
@@ -514,31 +509,31 @@ def get_source_packages (settings, const_todo):
     # or
     #   bin/gub darwin-ppc::libtool freebsd-64::libtool
     last_count = len (todo)
-    while last_count != len (spec_dict.keys ()):
-        add = cross.set_cross_dependencies (spec_dict)
+    while last_count != len (specs.keys ()):
+        add = cross.set_cross_dependencies (specs)
         todo += [a for a in add if a not in todo]
-        last_count = len (spec_dict.keys ())
+        last_count = len (specs.keys ())
         topologically_sorted (todo, {}, name_to_dependencies_broker)
 
-    # Fixup for build from url: spec_dict key is full url, change to
+    # Fixup for build from url: specs key is full url, change to
     # base name.  Must use list(dict.keys()), since dict changes during
     # iteration.
-    for name in list (spec_dict.keys ()):
-        spec = spec_dict[name]
+    for name in list (specs.keys ()):
+        spec = specs[name]
         if name != spec.platform_name ():
-            spec_dict[spec.platform_name ()] = spec
+            specs[spec.platform_name ()] = spec
 
     if settings.is_distro:
         def obj_to_dependency_objects (obj):
-            return [spec_dict[n] for n in obj.get_platform_build_dependencies ()]
+            return [specs[n] for n in obj.get_platform_build_dependencies ()]
     else:
         def obj_to_dependency_objects (obj):
-            return [spec_dict[get_base_package_name (n)]
+            return [specs[get_base_package_name (n)]
                     for n in obj.get_platform_build_dependencies ()]
 
-    sorted_specs = topologically_sorted (spec_dict.values (), {},
+    sorted_specs = topologically_sorted (specs.values (), {},
                                          obj_to_dependency_objects)
 
     # Make sure we build dependencies in order
     sorted_names = [o.platform_name () for o in sorted_specs]
-    return (sorted_names, spec_dict)
+    return (sorted_names, specs)
