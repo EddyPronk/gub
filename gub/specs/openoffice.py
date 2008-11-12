@@ -150,9 +150,13 @@ Module 'sw' delivered successfully. 3 files copied, 260 files unchanged
 Module 'xmerge' delivered successfully. 0 files copied, 12 files unchanged
 Module 'xmlsecurity' delivered successfully. 0 files copied, 7 files unchanged
 checkdeliver.pl - checking delivered binaries
-Module 'postprocess' delivered successfully. 2 files copied, 0 files unchanged
-Module 'packimages' delivered successfully. 8 files copied, 0 files unchanged
+Module 'postprocess' delivered successfully. 0 files copied, 2 files unchanged
+Module 'packimages' delivered successfully. 6 files copied, 2 files unchanged
 145
+
+Build succeeded ...!
+touch stamp/build
+
 '''
 
 class Openoffice (target.AutoBuild):
