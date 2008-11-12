@@ -106,6 +106,16 @@
  	touch $@
  
  all: build
+@@ -97,7 +97,7 @@ all: build
+ 
+ install: $(STAMP_DIR)/build
+ if BUILD_WIN32
+-	cd bin ; ./make-win32-iso
++	cd $(top_srcdir)/bin ; ./make-win32-iso
+ else
+-	cd bin ; ./package-ooo
++	cd $(top_srcdir)/bin ; ./package-ooo
+ endif
 --- openoffice-./bin/unpack.orig	2008-10-16 15:47:43.000000000 +0200
 +++ openoffice-./bin/unpack	2008-10-16 20:05:31.000000000 +0200
 @@ -3,7 +3,7 @@
@@ -228,3 +238,17 @@
  else
  
  # update localizations from external sources
+--- openoffice-trunk/bin/package-ooo.orig	2008-11-11 16:21:20.000000000 +0100
++++ openoffice-trunk/bin/package-ooo	2008-11-11 16:21:42.000000000 +0100
+@@ -5,9 +5,9 @@
+ #
+ # See setup for user tweakables.
+ #
+-. ./setup
++. $TOP_BUILDDIR/bin/setup
+ . $OOBUILDDIR/*.[sS]et.sh
+-. ./setup
++. $TOP_BUILDDIR/bin/setup
+ 
+ export LC_ALL='C';
+ 
