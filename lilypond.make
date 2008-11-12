@@ -124,8 +124,9 @@ gub3-rest: gub3-installers gub3-test gub3-doc print-success
 
 gub3-packages:
 	$(call INVOKE_GUB,$(BUILD_PLATFORM)) $(BUILD_PACKAGE) $(OTHER_PLATFORMS:%=%::$(BUILD_PACKAGE))
+
 gub3-installers:
-	$(foreach p,$(OTHER_PLATFORMS),$(call INVOKE_INSTALLER_BUILDER,$(p)) lilypond && ) :
+	$(foreach p,$(PLATFORMS),$(call INVOKE_INSTALLER_BUILDER,$(p)) lilypond && ) :
 
 gub3-test: dist-check test-output test-export
 
