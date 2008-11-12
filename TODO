@@ -24,7 +24,7 @@
 
 * junk use of /usr in code, use *_prefix) or %(prefix_dir)s
 
-* literal use of /cross in code, use %(cross_dir)s
+* junk use of /cross in code, use %(cross_dir)s
 
 * use better names for freebsd-runtime, darwin-sdk, which probably
   are in fact kernel-headers and libc+headers
