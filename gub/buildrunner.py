@@ -220,6 +220,8 @@ class BuildRunner:
         platform = self.settings.platform
         # fail_str: keep ordering of names
         fail_str = ' '.join ([s for s in deps if s in self.failed_checksums.keys ()]).replace (misc.with_platform ('', platform), '')
+        if not fail_str:
+            fail_str = '<nothing to be done>.'
         logging.default_logger.write_log ('must rebuild[%(platform)s]: %(fail_str)s\n' % locals (), 'stage')
         self.uninstall_outdated_specs (deps)
         for spec_name in deps:
