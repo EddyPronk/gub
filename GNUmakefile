@@ -26,6 +26,9 @@ help:
 $(MAKE_BASES):
 	$(MAKE) -f $@.make
 
+gub3%:
+	$(MAKE) -f lilypond.make $@
+
 test:
 	rm -rf target
 	make -f lilypond.make tools LOCAL_GUB_OPTIONS=-vvv

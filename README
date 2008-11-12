@@ -131,7 +131,6 @@ In addition to the requirements for GUB, you need
 
   • A TeX installation
   • A subversion client
-  • ImageMagick (the program 'convert')
   • perl-ExtUtils-MakeMaker (imagemagick dep.)
 
 Optional: Prepare build environment
@@ -140,7 +139,8 @@ Optional: Prepare build environment
 
 Build everything
 
-  make lilypond
+  make lilypond      # old gub2 style
+  make gub3-lilypond # new style
 
 this should leave an installer and documentation in
 

@@ -116,7 +116,11 @@ download-cygwin:
 
 all: native dist-check test-output test-export doc-build doc-export $(OTHER_PLATFORMS) print-success
 
-gub3all: gub3-packages gub3-installers gub3-test gub3-doc print-success
+gub3-all: gub3-packages gub3-rest
+
+gub3all: gub3-all
+
+gub3-rest: gub3-installers gub3-test gub3-doc print-success
 
 gub3-packages:
 	$(call INVOKE_GUB,$(BUILD_PLATFORM)) $(BUILD_PACKAGE) $(OTHER_PLATFORMS:%=%::$(BUILD_PACKAGE))
