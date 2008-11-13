@@ -416,8 +416,7 @@ class LilyPond__darwin (LilyPond):
         return ' TARGET_PYTHON=/usr/bin/python'
     def configure_command (self):
         return (LilyPond.configure_command (self)
-                .replace ('--enable-rpath', '--disable-rpath')
-                + ' --enable-static-gxx')
+                .replace ('--enable-rpath', '--disable-rpath'))
 
 class LilyPond__darwin__ppc (LilyPond__darwin):
     def configure (self):
@@ -432,6 +431,5 @@ Lilypond__darwin = LilyPond__darwin
 Lilypond__darwin__ppc = LilyPond__darwin__ppc
 Lilypond__debian = LilyPond__debian
 Lilypond__mingw = LilyPond__mingw
-Lilypond__freebsd = LilyPond
 Lilypond__debian_arm = LilyPond__debian
 Lilypond__mipsel = LilyPond__debian
