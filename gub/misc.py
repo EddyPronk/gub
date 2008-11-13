@@ -549,6 +549,23 @@ def list_in (sub, lst):
     missing = [e for e in sub if e not in lst]
     return not missing
 
+class Url:
+    def __init__ (self, url):
+        self.url, self.params = dissect_url (url)
+        m = re.match ('((([^+]+)[+])?([^:]+))://((([^/:]+):)?(([^/]+)@))?([^:/]*)(:([0-9]+))?:?(.+)?', self.url)
+        self.full_protocol = m.group (1)
+        self.protocol = m.group (3)
+        self.helper_protocol = m.group (4)
+        self.user = m.group (7)
+        self.password = m.group (9)
+        self.port = m.group (11)
+        self.host = m.group (10)
+        if not self.host:
+            self.host = 'localhost'
+        self.dir = m.group (13)
+    def __repr__ (self):
+        return '<Url:' + `self.__dict__` + '>'
+
 def test ():
     print forall (x for x in [1, 1])
     print dissect_url ('git://anongit.freedesktop.org/git/fontconfig?revision=1234')

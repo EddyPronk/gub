@@ -17,6 +17,12 @@
 
 default: all
 
+LILYPOND_BRANCH=master
+# LILYPOND_BRANCH=stable/2.10
+LILYPOND_REPO_URL=git://git.sv.gnu.org/lilypond.git
+
+
+
 ALL_PLATFORMS=linux-x86 darwin-ppc darwin-x86 mingw linux-64 debian debian-arm freebsd-64 freebsd-x86 debian-mipsel linux-ppc
 PLATFORMS=linux-x86
 
@@ -36,29 +42,34 @@ PLATFORMS+=freebsd-x86 freebsd-64
 ALL_PLATFORMS += cygwin
 ##PLATFORMS += cygwin
 
-
-LILYPOND_CVS_REPODIR=downloads/lilypond.cvs
-LILYPOND_GITDIR=downloads/lilypond.git
+# ugh?
 LILYPOND_REPODIR=downloads/lilypond
 
-# for GIT
-LILYPOND_BRANCH=master
-# LILYPOND_BRANCH=stable/2.10
-
-LILYPOND_REPO_URL=git://git.sv.gnu.org/lilypond.git
+ifeq ($(LILYPOND_BRANCH),stable/2.10)
+$(error backportme:\
+0d9ce36... When LINK_GXX_STATICALLY=yes, use CC (ie, [*-*-]gcc) for linking.  Fixes --enable-static-c++.\
+841ee1b... PYTHON-CONFIG: also strip -m* and =.  Thanks Werner!\
+f9e5179... Append /../lib to default rpath.\
+fc158e0... Add --enable-rpath feature, defaulting to $ORIGIN/../lib. Default off.\
+23e401a... Clean-out some junk flags from python-config.  Fixes stray g++ warnings.\
+)
+endif
 
 # derived info
-LILYPOND_DIRRED_BRANCH=git.sv.gnu.org/lilypond.git/$(LILYPOND_BRANCH)
-LILYPOND_FLATTENED_BRANCH=git.sv.gnu.org--lilypond.git-$(LILYPOND_BRANCH)
+LILYPOND_SOURCE_URL='$(LILYPOND_REPO_URL)?branch=$(LILYPOND_BRANCH)'
+LILYPOND_DIRRED_BRANCH=$(shell $(PYTHON) gub/repository.py --branch-dir '$(LILYPOND_SOURCE_URL)')
+LILYPOND_FLATTENED_BRANCH=$(shell $(PYTHON) gub/repository.py --full-branch-name '$(LILYPOND_SOURCE_URL)')
+BUILD_PACKAGE=$(LILYPOND_SOURCE_URL)
+INSTALL_PACKAGE = lilypond
+
 
 print:
-	echo LDB=$(LILYPOND_DIRRED_BRANCH)
-	echo AUTO=$(LILYPOND_REPO_URL:%://=)
-	echo LFB=$(LILYPOND_FLATTENED_BRANCH)
-	echo AUTO=$(LILYPOND_REPO_URL:%://=)
+	@echo LDB $(LILYPOND_DIRRED_BRANCH)
+	@echo AUTO 
+	@echo
+	@echo LFB  $(LILYPOND_FLATTENED_BRANCH)
+	@echo AUTO 
 
-BUILD_PACKAGE='$(LILYPOND_REPO_URL)?branch=$(LILYPOND_BRANCH)'
-INSTALL_PACKAGE = lilypond
 
 MAKE += -f lilypond.make
 

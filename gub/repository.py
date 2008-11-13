@@ -19,12 +19,23 @@
 """
 
 import md5
+import optparse
 import os
 import re
 import sys
 import time
 import urllib
 import xml.dom.minidom
+#
+def argv0_relocation ():
+    import os, sys
+    bindir = os.path.dirname (sys.argv[0])
+    prefix = os.path.dirname (bindir)
+    if not prefix:
+        prefix = bindir + '/..'
+    sys.path.insert (0, prefix)
+
+argv0_relocation ()
 #
 from gub.db import db
 from gub import misc
@@ -64,10 +75,10 @@ class RepositoryProxy:
                 return proxy.create (proxy, dir, url, branch, module, revision, parameters)
             
         if url and url.startswith ('file://'):
-            proto, rest = urllib.splittype (url)
-            host, url_dir = urllib.splithost (rest)
-            if host == '':
-                host = 'localhost'
+            u = misc.Url (url)
+            proto = u.protocol
+            host = u.host
+            url_dir = u.dir
             for proxy in RepositoryProxy.repositories:
                 if proxy.check_dir (proxy, url_dir):
                     return proxy.create (proxy, dir, url, branch, module, revision, parameters)
@@ -495,8 +506,10 @@ class Git (Repository):
         self.source = source
 
         if source:
-            source = re.sub ('.*:', '', source)
-            (self.url_host, self.url_path) = urllib.splithost (source)
+            # urlib is not good at splitting ssh urls
+            u = misc.Url (source)
+            self.url_host = u.host
+            self.url_dir = u.dir.replace ('~', '_')
         else:
             # repository proxy determined git vcs from dir
             print 'FIXME: get url from .git dir info'
@@ -509,7 +522,7 @@ class Git (Repository):
             self.branch = 'master'
 
         assert self.url_host
-        assert self.url_path
+        assert self.url_dir
         
     def version (self):
         return self.revision
@@ -517,11 +530,13 @@ class Git (Repository):
     def is_tracking (self):
         return self.revision == ''
 
+    def branch_dir (self):
+        # this return something like lp.org//dir/master
+        return '/'.join ([self.url_host, self.url_dir, self.branch])
+        
     def full_branch_name (self):
         if self.is_tracking ():
-            b = '%s/%s/%s' % (self.url_host, self.url_path, self.branch)
-            b = b.replace ('/', '-')
-            return b
+            return self.branch_dir ().replace ('/', '-')
         return ''
     
     def __repr__ (self):
@@ -563,10 +578,10 @@ class Git (Repository):
         if not os.path.isdir (self.dir):
             return False
         if self.revision:
-            result = self.git_pipe('cat-file commit %s' % self.revision,
-                                   ignore_errors=True)
+            result = self.git_pipe ('cat-file commit %s' % self.revision,
+                                    ignore_errors=True)
         
-            return bool(result)
+            return bool (result)
         return True
 
     def have_git (self):
@@ -585,28 +600,16 @@ class Git (Repository):
         if not self.have_git ():
             # sorry, no can do [yet]
             return
-
-        repo = self.dir
-        source = self.source
-        revision = self.revision
-        branch = self.branch
-        host = self.url_host
-        path = self.url_path
-
         if not os.path.isdir (self.dir):
-            self.git ('clone --bare %(source)s %(repo)s' % locals ())
-
-        if branch: 
-            if not (revision and self.is_downloaded()):
-                self.git ('fetch %(source)s %(branch)s:refs/heads/%(host)s/%(path)s/%(branch)s' % locals ())
-
+            self.git ('clone --bare %(source)s %(dir)s' % self.__dict__)
+        if self.branch and not (self.revision and self.is_downloaded ()):
+            self.git ('fetch %(source)s %(branch)s:refs/heads/%(url_host)s/%(url_dir)s/%(branch)s' % self.__dict__)
         self.checksums = {}
 
     def get_ref (self):
-        ref = self.revision
-        if not ref:
-            ref = self.url_host + self.url_path + '/' + self.branch
-        return ref
+        if not self.revision:
+            return self.branch_dir ().replace ('//', '/')
+        return self.revision
 
     def checksum (self):
         if self.revision:
@@ -1201,5 +1204,46 @@ def test ():
     suite = unittest.makeSuite (Test_get_repository_proxy)
     unittest.TextTestRunner (verbosity=2).run (suite)
 
+def get_cli_parser ():
+    p = optparse.OptionParser ()
+
+    p.usage = '''repository.py [OPTION]...
+
+Repository helper.
+
+'''
+    p.description = 'Grand Unified Builder.  Repository helper.'
+
+    p.add_option ('-t', '--test', action='store',
+                  action='store_true',
+                  dest='test',
+                  default=False,
+                  help='run repository tests')
+    p.add_option ('--full-branch-name',
+                  action='store_true',
+                  dest='full_branch_name',
+                  default=False,
+                  help='print full branch name')
+    p.add_option ('--branch-dir',
+                  action='store_true',
+                  dest='branch_dir',
+                  default=False,
+                  help='print branch dir')
+    return p
+
+def main ():
+    cli_parser = get_cli_parser ()
+    (options, files) = cli_parser.parse_args ()
+    if 0:
+        pass
+    elif options.test:
+        test ()
+    elif options.full_branch_name:
+        repo = get_repository_proxy ('.', files[0])
+        print repo.full_branch_name ()
+    elif options.branch_dir:
+        repo = get_repository_proxy ('.', files[0])
+        print repo.branch_dir ().replace ('//', '/')
+
 if __name__ == '__main__':
-    test ()
+    main ()
