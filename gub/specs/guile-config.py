@@ -16,7 +16,7 @@ test "$1" = "compile" && echo "-I$prefix/include"
 test "$1" = "link" && echo "-L$prefix/lib -lguile -lgmp"
 exit 0
 ''',
-             '%(install_prefix)s/cross/bin/guile-config',
+             '%(install_prefix)s%(cross_dir)s/bin/guile-config',
                    permissions=0755)
 
 class Guile_config__debian (build.SdkBuild):
@@ -35,5 +35,5 @@ test "$1" = "compile" && echo "-I$prefix/include"
 test "$1" = "link" && echo "-L$prefix/lib -lguile -ldl -lcrypt -lm"
 exit 0
 ''',
-             '%(install_prefix)s/cross/bin/guile-config',
+             '%(install_prefix)s%(cross_dir)s/bin/guile-config',
                    permissions=0755)

@@ -49,9 +49,9 @@ tools, and many other products as well.'''
         # we want /usr/bin/freetype-config must survive.
         # While cross building, we create an  <toolprefix>-freetype-config
         # and prefer that.
-        self.system ('mkdir -p %(install_prefix)s/cross/bin/')
-        self.system ('mv %(install_prefix)s/bin/freetype-config %(install_prefix)s/cross/bin/freetype-config')
-        self.munge_ft_config ('%(install_prefix)s/cross/bin/freetype-config')
+        self.system ('mkdir -p %(install_prefix)s%(cross_dir)s/bin/')
+        self.system ('mv %(install_prefix)s/bin/freetype-config %(install_prefix)s%(cross_dir)s/bin/freetype-config')
+        self.munge_ft_config ('%(install_prefix)s%(cross_dir)s/bin/freetype-config')
 
 class Freetype__mingw (Freetype):
     def xxconfigure (self):

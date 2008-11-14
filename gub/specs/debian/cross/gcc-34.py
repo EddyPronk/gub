@@ -24,11 +24,11 @@ class Gcc_34__debian__mipsel (gcc.Gcc):
         self.system ('''
 rm -f %(install_prefix)s/lib/libgcc_s.so
 rm -f %(install_prefix)s/lib/libgcc_s.so.1
-rm -f %(install_prefix)s/cross/lib/libiberty.a
-rm -rf %(install_prefix)s/cross/mipsel-linux/lib/libiberty.a
-rm -rf %(install_prefix)s/cross/info
-rm -rf %(install_prefix)s/cross/man
-rm -rf %(install_prefix)s/cross/share/locale
+rm -f %(install_prefix)s%(cross_dir)s/lib/libiberty.a
+rm -rf %(install_prefix)s%(cross_dir)s/mipsel-linux/lib/libiberty.a
+rm -rf %(install_prefix)s%(cross_dir)s/info
+rm -rf %(install_prefix)s%(cross_dir)s/man
+rm -rf %(install_prefix)s%(cross_dir)s/share/locale
 ''')
         if 'c++' in self.languages ():
             self.system ('''
@@ -36,8 +36,8 @@ rm -rf %(install_prefix)s/lib/libsupc++.la
 rm -rf %(install_prefix)s/lib/libstdc++.la
 rm -rf %(install_prefix)s/lib/libstdc++.so.6
 rm -rf %(install_prefix)s/lib/libstdc++.so
-rm -rf %(install_prefix)s/cross/mipsel-linux/lib/libsupc++.a
-rm -rf %(install_prefix)s/cross/mipsel-linux/lib/libstdc++.a
-rm -rf %(install_prefix)s/cross/mipsel-linux/lib/debug/libstdc++.a
+rm -rf %(install_prefix)s%(cross_dir)s/mipsel-linux/lib/libsupc++.a
+rm -rf %(install_prefix)s%(cross_dir)s/mipsel-linux/lib/libstdc++.a
+rm -rf %(install_prefix)s%(cross_dir)s/mipsel-linux/lib/debug/libstdc++.a
 ''')
 

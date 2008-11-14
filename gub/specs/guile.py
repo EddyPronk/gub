@@ -109,8 +109,8 @@ test "$1" = "compile" && echo "-I$prefix/include"
 test "$1" = "link" && echo "-L$prefix/lib -lguile -lgmp"
 exit 0
 ''',
-             '%(install_prefix)s/cross/bin/%(target_architecture)s-guile-config')
-        self.chmod ('%(install_prefix)s/cross/bin/%(target_architecture)s-guile-config', 0755)
+             '%(install_prefix)s%(cross_dir)s/bin/%(target_architecture)s-guile-config')
+        self.chmod ('%(install_prefix)s%(cross_dir)s/bin/%(target_architecture)s-guile-config', 0755)
 
 class Guile__mingw (Guile):
     source = Guile.source

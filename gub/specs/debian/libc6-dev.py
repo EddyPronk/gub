@@ -17,4 +17,4 @@ class Libc6_dev (build.BinaryBuild, build.SdkBuild):
                            '%(srcdir)s/usr/include/%(i)s',
                            env=locals ())
             
-        self.system ('rm -rf  %(srcdir)s/usr/include/asm/  %(srcdir)s/usr/include/linux ')
+        self.system ('rm -rf %(srcdir)s/usr/include/asm/ %(srcdir)s/usr/include/linux')

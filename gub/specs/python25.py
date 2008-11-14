@@ -60,9 +60,9 @@ class Python (target.AutoBuild):
         cfg = re.sub ('@PYTHON_VERSION@', self.expand ('%(version)s'), cfg)
         cfg = re.sub ('@PREFIX@', self.expand ('%(system_prefix)s/'), cfg)
         cfg = re.sub ('@PYTHON_FOR_BUILD@', sys.executable, cfg)
-        self.dump (cfg, '%(install_prefix)s/cross/bin/python-config',
+        self.dump (cfg, '%(install_prefix)s%(cross_dir)s/bin/python-config',
                    expand_string=False)
-        self.system ('chmod +x %(install_prefix)s/cross/bin/python-config')
+        self.system ('chmod +x %(install_prefix)s%(cross_dir)s/bin/python-config')
 
 
     ### Ugh.

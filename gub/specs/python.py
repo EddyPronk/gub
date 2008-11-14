@@ -67,9 +67,9 @@ BLDLIBRARY='%(rpath)s -L. -lpython$(VERSION)'
         cfg = re.sub ('@PYTHON_VERSION@', self.expand ('%(version)s'), cfg)
         cfg = re.sub ('@PREFIX@', self.expand ('%(system_prefix)s/'), cfg)
         cfg = re.sub ('@PYTHON_FOR_BUILD@', sys.executable, cfg)
-        self.dump (cfg, '%(install_prefix)s/cross/bin/python-config',
+        self.dump (cfg, '%(install_prefix)s%(cross_dir)s/bin/python-config',
                    expand_string=False)
-        self.system ('chmod +x %(install_prefix)s/cross/bin/python-config')
+        self.system ('chmod +x %(install_prefix)s%(cross_dir)s/bin/python-config')
 
     ### Ugh.
     @context.subst_method
@@ -129,7 +129,7 @@ ac_cv_sizeof_pthread_t=12
     def install (self):
         Python.install (self)
         self.file_sub ([('extra = ""', 'extra = "-lpython2.4 -lpthread"')],
-                       '%(install_prefix)s/cross/bin/python-config')
+                       '%(install_prefix)s%(cross_dir)s/bin/python-config')
 
         def rename_so (logger, fname):
             dll = re.sub ('\.so*', '.dll', fname)

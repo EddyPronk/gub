@@ -38,7 +38,7 @@ specified by applications.'''
         # yet.
         
         # return misc.read_pipe (cmd).strip ()
-        return '-I%(system_prefix)s/usr/include/freetype2'
+        return '-I%(system_prefix)s/include/freetype2'
 
     @context.subst_method
     def freetype_libs (self):
@@ -69,7 +69,7 @@ specified by applications.'''
         return (target.AutoBuild.configure_command (self) 
                 + misc.join_lines ('''
 --with-arch=%(target_architecture)s
---with-freetype-config="%(system_prefix)s/cross/bin/freetype-config
+--with-freetype-config="%(system_prefix)s%(cross_dir)s/bin/freetype-config
 --prefix=%(system_prefix)s
 "'''))
 

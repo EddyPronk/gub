@@ -73,8 +73,8 @@ TARGET_FLAGS_TO_PASS='$(BASE_FLAGS_TO_PASS) $(EXTRA_TARGET_FLAGS) $(GUB_FLAGS_TO
             self.map_locate (move_target_lib, libdir, 'lib*%(suf)s' % locals ())
     def install (self):
         cross.AutoBuild.install (self)
-        self.move_target_libs (self.expand ('%(install_root)s/%(cross_prefix)s/%(target_architecture)s'))
-        self.move_target_libs (self.expand ('%(install_root)s/%(cross_prefix)s/lib'))
+        self.move_target_libs (self.expand ('%(install_prefix)s%(cross_dir)s/%(target_architecture)s'))
+        self.move_target_libs (self.expand ('%(install_prefix)s%(cross_dir)s/lib'))
 
 class Gcc__from__source (Gcc):
     def get_build_dependencies (self):
@@ -99,7 +99,7 @@ class Gcc__from__source (Gcc):
     def XXX_WE_NOW_MOVE_ALL_A_LIBS_install (self):
         Gcc.install (self)
         self.system ('''
-mv %(install_prefix)s/cross/lib/gcc/%(target_architecture)s/%(version)s/libgcc_eh.a %(install_prefix)s/lib
+mv %(install_prefix)s%(cross_dir)s/lib/gcc/%(target_architecture)s/%(version)s/libgcc_eh.a %(install_prefix)s/lib
 ''')
 
 Gcc__linux = Gcc__from__source

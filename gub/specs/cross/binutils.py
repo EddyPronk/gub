@@ -21,7 +21,7 @@ class Binutils (cross.AutoBuild):
     def FIXME_breaks_on_some_linuxes_install (self):
         # please document why this should be removed?
         cross.AutoBuild.install (self)
-        self.system ('rm %(install_prefix)s/cross/lib/libiberty.a')
+        self.system ('rm %(install_prefix)s%(cross_dir)s/lib/libiberty.a')
 
 class Binutils__linux__ppc (Binutils):
     source = Binutils.source
