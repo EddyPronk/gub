@@ -108,6 +108,9 @@ class LilyPond (target.AutoBuild):
     def pretty_name (self):
         return 'LilyPond'
     
+    def makeflags (self):
+        return ' TARGET_PYTHON=/usr/bin/python'
+
     def install (self):
         target.AutoBuild.install (self)
         # FIXME: This should not be in generic package, for installers only.
@@ -408,8 +411,6 @@ class LilyPond__darwin (LilyPond):
         deps += [ 'fondu', 'osx-lilypad']
         d[''] = deps
         return d
-    def makeflags (self):
-        return ' TARGET_PYTHON=/usr/bin/python'
     def configure_command (self):
         return (LilyPond.configure_command (self)
                 .replace ('--enable-rpath', '--disable-rpath'))
