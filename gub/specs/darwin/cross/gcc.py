@@ -34,6 +34,8 @@ class Gcc__darwin (gcc.Gcc):
                          '*.dylib')
     def install (self):
         gcc.Gcc.install (self)
+        # conflicts with darwin-SDK
+        self.system ('mv %(install_prefix)s/lib/libsupc++.a %(install_prefix)s/lib/libsupc++.a-')
         self.rewire_gcc_libs ()
     
 class Gcc__darwin__x86 (Gcc__darwin):
