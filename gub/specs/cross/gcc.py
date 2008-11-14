@@ -54,7 +54,7 @@ class Gcc (cross.AutoBuild):
         if 'c++' in self.languages ():
             cmd +=  ' ' + cxx_opt
         return misc.join_lines (cmd)
-    def makeflags (self):
+    def FAILED_attempt_to_avoid_post_install_MOVE_TARGET_LIBS_makeflags (self):
         return misc.join_lines ('''
 toolexeclibdir=%(system_prefix)s
 GUB_FLAGS_TO_PASS='toolexeclibdir=$(toolexeclibdir)'
@@ -62,18 +62,16 @@ RECURSE_FLAGS_TO_PASS='$(BASE_FLAGS_TO_PASS) $(GUB_FLAGS_TO_PASS)'
 FLAGS_TO_PASS='$(BASE_FLAGS_TO_PASS) $(EXTRA_HOST_FLAGS) $(GUB_FLAGS_TO_PASS)'
 TARGET_FLAGS_TO_PASS='$(BASE_FLAGS_TO_PASS) $(EXTRA_TARGET_FLAGS) $(GUB_FLAGS_TO_PASS)'
 ''')
-    def UGH_TRY_SETTING_toolexeclibdir_in_MAKEFLAGS_move_target_libs (self, libdir):
+    def move_target_libs (self, libdir):
         self.system ('mkdir -p %(install_prefix)s/lib || true')
         def move_target_lib (logger, file_name):
             base = os.path.split (file_name)[1]
             loggedos.rename (logger, file_name, os.path.join (self.expand ('%(install_prefix)s/lib'), base))
-            #loggedos.system (logger, 'echo NOT mv %(file_name)s '% locals () + os.path.join (self.expand ('%(install_prefix)s/lib'), base))
 #        for suf in ['.la', '.so*', '.dylib']:
         # .so* because version numbers trail .so extension.
         for suf in ['.a', '.la', '.so*', '.dylib']:
             self.map_locate (move_target_lib, libdir, 'lib*%(suf)s' % locals ())
-    # URGME: what about toolexeclibdir?
-    def UGH_TRY_SETTING_toolexeclibdir_in_MAKEFLAGS_install (self):
+    def install (self):
         cross.AutoBuild.install (self)
         self.move_target_libs (self.expand ('%(install_root)s/%(cross_prefix)s/%(target_architecture)s'))
         self.move_target_libs (self.expand ('%(install_root)s/%(cross_prefix)s/lib'))
@@ -98,18 +96,13 @@ class Gcc__from__source (Gcc):
 --enable-clocale=gnu 
 --enable-long-long
 '''))
-    def install (self):
+    def XXX_WE_NOW_MOVE_ALL_A_LIBS_install (self):
         Gcc.install (self)
         self.system ('''
 mv %(install_prefix)s/cross/lib/gcc/%(target_architecture)s/%(version)s/libgcc_eh.a %(install_prefix)s/lib
 ''')
 
 Gcc__linux = Gcc__from__source
-
-class Gcc__linux__64 (Gcc__linux):
-    def install (self):
-        Gcc__linux.install (self)
-        self.system ('false')
 
 class Gcc__mingw (Gcc):
     source = 'ftp://ftp.gnu.org/pub/gnu/gcc/gcc-4.1.1/gcc-4.1.1.tar.bz2'
