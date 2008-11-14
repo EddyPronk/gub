@@ -1,6 +1,7 @@
 import os
 #
 from gub import cross
+from gub import cygwin
 from gub import misc
 from gub import context
 from gub import loggedos
@@ -8,10 +9,8 @@ from gub import loggedos
 #FIXME: merge fully with specs/gcc
 class Gcc (cross.AutoBuild):
     source = 'ftp://ftp.gnu.org/pub/gnu/gcc/gcc-4.1.2/gcc-4.1.2.tar.bz2'
-
     def get_build_dependencies (self):
         return ['cross/binutils']
-
     def patch (self):
         cross.AutoBuild.patch (self)
         if False and self.settings.build_architecture == self.settings.target_architecture:
@@ -27,25 +26,20 @@ class Gcc (cross.AutoBuild):
                            '%(srcdir)s/gcc/config/i386/linux.h')
             self.file_sub ([('-dynamic-linker /lib64', '-dynamic-linker %(system_prefix)s/lib')],
                            '%(srcdir)s/gcc/config/i386/linux64.h')
-
     @context.subst_method
     def NM_FOR_TARGET (self):
          return '%(toolchain_prefix)snm'
-
     def get_subpackage_names (self):
         # FIXME: why no -devel package?
         return ['doc', 'runtime', '']
-
     def languages (self):
         return ['c', 'c++']
-        
     def configure_command (self):
         cmd = cross.AutoBuild.configure_command (self)
         # FIXME: using --prefix=%(tooldir)s makes this
         # uninstallable as a normal system package in
         # /usr/i686-mingw/
         # Probably --prefix=/usr is fine too
-
         language_opt = (' --enable-languages=%s '
                         % ','.join (self.languages ()))
         cxx_opt = '--enable-libstdcxx-debug '
@@ -56,34 +50,33 @@ class Gcc (cross.AutoBuild):
 --with-nm=%(cross_prefix)s/bin/%(target_architecture)s-nm
 --enable-static
 --enable-shared '''
-
         cmd += language_opt
         if 'c++' in self.languages ():
             cmd +=  ' ' + cxx_opt
-
         return misc.join_lines (cmd)
-
-    def move_target_libs (self, libdir):
+    def makeflags (self):
+        return misc.join_lines ('''
+toolexeclibdir=%(system_prefix)s
+GUB_FLAGS_TO_PASS='toolexeclibdir=$(toolexeclibdir)'
+RECURSE_FLAGS_TO_PASS='$(BASE_FLAGS_TO_PASS) $(GUB_FLAGS_TO_PASS)'
+FLAGS_TO_PASS='$(BASE_FLAGS_TO_PASS) $(EXTRA_HOST_FLAGS) $(GUB_FLAGS_TO_PASS)'
+TARGET_FLAGS_TO_PASS='$(BASE_FLAGS_TO_PASS) $(EXTRA_TARGET_FLAGS) $(GUB_FLAGS_TO_PASS)'
+''')
+    def UGH_TRY_SETTING_toolexeclibdir_in_MAKEFLAGS_move_target_libs (self, libdir):
         self.system ('mkdir -p %(install_prefix)s/lib || true')
-        
-        def move_target_lib (logger, fname):
-            base = os.path.split (fname)[1]
-            loggedos.rename (logger, fname,
-                             os.path.join (
-                self.expand ('%(install_prefix)s/lib'), base))
-                             
-        ## .so* because version numbers trail .so extension.
-        for suf in ['.la', '.so*', '.dylib']:
-            self.map_locate (move_target_lib,
-                             libdir,
-                             'lib*%s' % suf)
-
-    def install (self):
+        def move_target_lib (logger, file_name):
+            base = os.path.split (file_name)[1]
+            loggedos.rename (logger, file_name, os.path.join (self.expand ('%(install_prefix)s/lib'), base))
+            #loggedos.system (logger, 'echo NOT mv %(file_name)s '% locals () + os.path.join (self.expand ('%(install_prefix)s/lib'), base))
+#        for suf in ['.la', '.so*', '.dylib']:
+        # .so* because version numbers trail .so extension.
+        for suf in ['.a', '.la', '.so*', '.dylib']:
+            self.map_locate (move_target_lib, libdir, 'lib*%(suf)s' % locals ())
+    # URGME: what about toolexeclibdir?
+    def UGH_TRY_SETTING_toolexeclibdir_in_MAKEFLAGS_install (self):
         cross.AutoBuild.install (self)
-        old_libs = self.expand ('%(install_prefix)s/cross/%(target_architecture)s')
-
-        self.move_target_libs (old_libs)
-        self.move_target_libs (self.expand ('%(install_prefix)s/cross/lib'))
+        self.move_target_libs (self.expand ('%(install_root)s/%(cross_prefix)s/%(target_architecture)s'))
+        self.move_target_libs (self.expand ('%(install_root)s/%(cross_prefix)s/lib'))
 
 class Gcc__from__source (Gcc):
     def get_build_dependencies (self):
@@ -108,10 +101,15 @@ class Gcc__from__source (Gcc):
     def install (self):
         Gcc.install (self)
         self.system ('''
-mv %(install_prefix)s/cross/lib/gcc/%(target_architecture)s/%(version)s/libgcc_eh.a %(install_prefix)s/lib
+mv %(install_root)s/%(cross_prefix)s/lib/gcc/%(target_architecture)s/%(version)s/libgcc_eh.a %(install_prefix)s/lib
 ''')
 
 Gcc__linux = Gcc__from__source
+
+class Gcc__linux__64 (Gcc__linux):
+    def install (self):
+        Gcc__linux.install (self)
+        self.system ('false')
 
 class Gcc__mingw (Gcc):
     source = 'ftp://ftp.gnu.org/pub/gnu/gcc/gcc-4.1.1/gcc-4.1.1.tar.bz2'
@@ -125,7 +123,8 @@ class Gcc__mingw (Gcc):
             self.file_sub ([('/mingw/include','%(prefix_dir)s/include'),
                             ('/mingw/lib','%(prefix_dir)s/lib'),
                             ], f)
-    def install (self):
+    # Possibly update libtool for mingw at least?  Try setting toolexeclibdir first...
+    def XXXinstall (self):
         Gcc.install (self)
         # libtool barfs: no libstdc++.dll.a file
         self.system ('''
@@ -154,8 +153,6 @@ gcc_tooldir="%(cross_prefix)s/%(target_architecture)s"
 --with-newlib
 --enable-threads
 '''))
-
-from gub import cygwin
 
 # Cygwin sources Gcc
 # Hmm, download is broken.  How is download of gcc-g++ supposed to work anyway?
