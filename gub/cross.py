@@ -39,9 +39,9 @@ class AutoBuild (build.AutoBuild):
 '''))
 #--with-slibdir=%(prefix_dir)s/slib
     def compile_command (self):
-        return self.native_compile_command ()
+        return self.native_compile_command () + ' %(makeflags)s'
     def install_command (self):
-        return '''make DESTDIR=%(install_root)s prefix=/usr/cross install'''
+        return '''make %(makeflags)s DESTDIR=%(install_root)s prefix=%(prefix_dir)s%(cross_dir)s install'''
     def get_subpackage_names (self):
         return ['doc', '']
     def install_license (self):
