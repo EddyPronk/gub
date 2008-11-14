@@ -291,16 +291,14 @@ install:
 ''', '%(builddir)s/python/GNUmakefile')
         
 class LilyPond__mingw (LilyPond):
+    def get_build_dependencies (self):
+        return LilyPond.get_build_dependencies (self) + ['lilypad', 'tools::icoutils', 'tools::nsis']
     def get_dependency_dict (self):
         d = LilyPond.get_dependency_dict (self)
         d[''].append ('lilypad')        
         return d
-
-    def get_build_dependencies (self):
-        return LilyPond.get_build_dependencies (self) + ['lilypad', 'tools::icoutils', 'tools::nsis']
-
     ## ugh c&p
-    def compile_command (self):
+    def XXcompile_command (self):
 
         ## UGH - * sucks.
         python_lib = '%(system_prefix)s/bin/libpython*.dll'
@@ -311,16 +309,19 @@ class LilyPond__mingw (LilyPond):
                 + misc.join_lines ('''
 LDFLAGS="%(LDFLAGS)s %(python_lib)s"
 '''% locals ()))
-    
+
+    def configure_command (self):
+        # Static on mingw: nogo
+        '''./out/../../flower/out/library.a(getopt-long.o):getopt-long.cc:(.text+0x3355): undefined reference to `std::basic_string<char, std::char_traits<char>, std::allocator<char> >::_Rep::_M_destroy(std::allocator<char> const&)'
+        '''
+        return (LilyPond.configure_command (self)
+                .replace ('--enable-static-gxx', '--disable-static-gxx'))
     def configure (self):
         LilyPond.configure (self)
-
         ## huh, why ? --hwn
-        self.config_cache ()
-
+        ## self.config_cache ()
         ## for console: no -mwindows
         self.file_sub ([(' -mwindows', ' '),
-
                 ## gdb doesn't work on windows anyway.
                 (' -g ', ' '),
                 ],
@@ -343,21 +344,16 @@ install -m755 %(builddir)s/lily/out/lilypond-console %(install_prefix)s/bin/lily
 cp %(install_prefix)s/lib/lilypond/*/python/* %(install_prefix)s/bin
 cp %(install_prefix)s/share/lilypond/*/python/* %(install_prefix)s/bin
 ''')
-
         def rename (logger, name):
             header = open (name).readline ().strip ()
             if header.endswith ('guile'):
                 loggedos.system (logger, 'mv %(name)s %(name)s.scm' % locals ())
             elif header.endswith ('python') and not name.endswith ('.py'):
                 loggedos.system (logger, 'mv %(name)s %(name)s.py' % locals ())
-
         def asciify (logger, name):
             loggedos.file_sub (logger, [('\r*\n', '\r\n')], name)
-            
         self.map_locate (rename, self.expand ('%(install_prefix)s/bin/'), '*')
         self.map_locate (asciify, self.expand ('%(install_root)s'), '*.ly')
-            
-
         bat = r'''@echo off
 "@INSTDIR@\usr\bin\lilypond-windows.exe" -dgui %1 %2 %3 %4 %5 %6 %7 %8 %9
 '''.replace ('%', '%%').replace ('\n', '\r\n')
