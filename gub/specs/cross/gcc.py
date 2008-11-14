@@ -101,7 +101,7 @@ class Gcc__from__source (Gcc):
     def install (self):
         Gcc.install (self)
         self.system ('''
-mv %(install_root)s/%(cross_prefix)s/lib/gcc/%(target_architecture)s/%(version)s/libgcc_eh.a %(install_prefix)s/lib
+mv %(install_prefix)s/cross/lib/gcc/%(target_architecture)s/%(version)s/libgcc_eh.a %(install_prefix)s/lib
 ''')
 
 Gcc__linux = Gcc__from__source
