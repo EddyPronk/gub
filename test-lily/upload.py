@@ -174,14 +174,18 @@ def upload_binaries (repo, version, version_db):
     description = repo.git_pipe ('describe --abbrev=39 %s' % repo.get_ref ()).strip ()
     
     git_tag = 'release/%(version_str)s-%(build)d' % locals () 
+    gub_tag = 'build/lilypond-gub/%(version_str)s-%(build)d' % locals ()
+    
     git_tag_cmd = 'git --git-dir downloads/lilypond tag -m "" -a %(git_tag)s %(dirred_branch)s' % locals ()
     git_push_cmd = 'git --git-dir downloads/lilypond push ssh+git://git.sv.gnu.org/srv/git/lilypond.git/ refs/tags/%(git_tag)s:refs/tags/%(git_tag)s' % locals ()
-    gub_tag_cmd = 'git tag -m "release of lilypond %(description)s (%(version_str)s-%(build)d)"  "gub-release-lilypond-%(version_str)s-%(build)d"' % locals ()
+    gub_tag_cmd = ('git tag -m "release of lilypond %(description)s (%(version_str)s-%(build)d)" %(gub_tag)s'
+                   % locals())
+    gub_push_tag_cmd = 'git push ssh+git://git@github.com:janneke/gub.git refs/tags/%(gub_tag)s:refs/tags/%(gub_tag)s' % locals ()
 
     cmds.append (git_tag_cmd)
     cmds.append (git_push_cmd)
-
     cmds.append (gub_tag_cmd)
+    cmds.append (gub_push_tag_cmd)
     cmds.append ('make -f lilypond.make update-versions')
 
     return cmds
