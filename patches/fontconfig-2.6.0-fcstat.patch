@@ -1,0 +1,122 @@
+From 7614170de5ce7199c54ed3c4e6dafd8d8b1787f5 Mon Sep 17 00:00:00 2001
+From: Han-Wen Nienhuys <hanwen@lilypond.org>
+Date: Sun, 16 Nov 2008 15:09:04 -0200
+Subject: [PATCH] Use FcStat() throughout src/*.c for retrieving stat information.
+
+stat() and FcStat() handle daylight saving time differently on
+Windows.  Mixing both will make the cache file always be out of date,
+depending on the DST settings.
+
+Conflicts:
+
+	src/fccfg.c
+---
+ src/fcatomic.c |    2 +-
+ src/fccache.c  |    9 ++-------
+ src/fccfg.c    |    2 +-
+ src/fcdir.c    |    4 ++--
+ src/fcint.h    |    6 ++++++
+ 5 files changed, 12 insertions(+), 11 deletions(-)
+
+diff --git a/src/fcatomic.c b/src/fcatomic.c
+index 8c04510..26aaf26 100644
+--- a/src/fcatomic.c
++++ b/src/fcatomic.c
+@@ -142,7 +142,7 @@ FcAtomicLock (FcAtomic *atomic)
+ 	 * machines sharing the same filesystem will have clocks
+ 	 * reasonably close to each other.
+ 	 */
+-	if (stat ((char *) atomic->lck, &lck_stat) >= 0)
++	if (FcStat ((char *) atomic->lck, &lck_stat) >= 0)
+ 	{
+ 	    time_t  now = time (0);
+ 	    if ((long int) (now - lck_stat.st_mtime) > 10 * 60)
+diff --git a/src/fccache.c b/src/fccache.c
+index 241ebd0..fe1e299 100644
+--- a/src/fccache.c
++++ b/src/fccache.c
+@@ -84,8 +84,7 @@ typedef __int64 INT64;
+  * We don't need any of that, FAT and Win9x are as good as dead. So
+  * just use the UTC timestamps from NTFS, converted to the Unix epoch.
+  */
+-
+-static int
++int
+ FcStat (const char *file, struct stat *statb)
+ {
+     WIN32_FILE_ATTRIBUTE_DATA wfad;
+@@ -132,10 +131,6 @@ FcStat (const char *file, struct stat *statb)
+     return 0;
+ }
+ 
+-#else
+-
+-#define FcStat stat
+-
+ #endif
+ 
+ static const char bin2hex[] = { '0', '1', '2', '3',
+@@ -520,7 +515,7 @@ FcCacheTimeValid (FcCache *cache, struct stat *dir_stat)
+ 
+     if (!dir_stat)
+     {
+-	if (stat ((const char *) FcCacheDir (cache), &dir_static) < 0)
++	if (FcStat ((const char *) FcCacheDir (cache), &dir_static) < 0)
+ 	    return FcFalse;
+ 	dir_stat = &dir_static;
+     }
+diff --git a/src/fccfg.c b/src/fccfg.c
+index acb0bb4..7ac3102 100644
+--- a/src/fccfg.c
++++ b/src/fccfg.c
+@@ -127,7 +127,7 @@ FcConfigNewestFile (FcStrSet *files)
+     if (list)
+     {
+ 	while ((file = FcStrListNext (list)))
+-	    if (stat ((char *) file, &statb) == 0)
++	    if (FcStat ((char *) file, &statb) == 0)
+ 		if (!newest.set || statb.st_mtime - newest.time > 0)
+ 		{
+ 		    newest.set = FcTrue;
+diff --git a/src/fcdir.c b/src/fcdir.c
+index 48755de..6640ce1 100644
+--- a/src/fcdir.c
++++ b/src/fcdir.c
+@@ -30,7 +30,7 @@ FcFileIsDir (const FcChar8 *file)
+ {
+     struct stat	    statb;
+ 
+-    if (stat ((const char *) file, &statb) != 0)
++    if (FcStat ((const char *) file, &statb) != 0)
+ 	return FcFalse;
+     return S_ISDIR(statb.st_mode);
+ }
+@@ -175,7 +175,7 @@ FcDirCacheScan (const FcChar8 *dir, FcConfig *config)
+ 	    ret = FcFalse;
+ 	goto bail_1;
+     }
+-    if (stat ((char *) dir, &dir_stat) < 0)
++    if (FcStat ((char *) dir, &dir_stat) < 0)
+     {
+ 	ret = FcFalse;
+ 	goto bail_1;
+diff --git a/src/fcint.h b/src/fcint.h
+index 8912d16..7452b19 100644
+--- a/src/fcint.h
++++ b/src/fcint.h
+@@ -500,6 +500,12 @@ typedef struct _FcCharMap FcCharMap;
+ /* fcblanks.c */
+ 
+ /* fccache.c */
++#ifdef _WIN32
++int
++FcStat (const char *file, struct stat *statb);
++#else
++#define FcStat stat
++#endif
+ 
+ FcPrivate FcCache *
+ FcDirCacheScan (const FcChar8 *dir, FcConfig *config);
+-- 
+1.5.6.5
+

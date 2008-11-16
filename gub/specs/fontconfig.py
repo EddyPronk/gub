@@ -7,11 +7,8 @@ from gub import repository
 from gub import context
 from gub import logging
 
-#"0596d7296c94b2bb9817338b8c1a76da91673fb9"
-
-# v2.5.91 - there was a late 2007 windows fix. Let's try to see if it
-# fixes caching problems on vista.
-version = '0dffe625d43c1165f8b84f97e8ba098793e2cf7b'
+# v2.6.0 plus one commit
+version = '0e21b5a4d5609a5dd0f332b412d878b6f1037d29'
 
 class Fontconfig (targetbuild.TargetBuild):
     '''Generic font configuration library 
@@ -21,10 +18,6 @@ fonts within the system and select them according to requirements
 specified by applications.'''
 
     source = 'git://anongit.freedesktop.org/git/fontconfig?branch=master&revision=' + version
-    def __init__ (self, settings, source):
-        targetbuild.TargetBuild.__init__ (self, settings, source)
-        #self.with_vc (repository.Git (self.get_repodir (), source="git://anongit.freedesktop.org/git/fontconfig", revision=fc_version))
-
 
     @context.subst_method
     def freetype_cflags (self):
@@ -105,7 +98,8 @@ set FONTCONFIG_PATH=$INSTALLER_PREFIX/etc/fonts
         
 class Fontconfig__mingw (Fontconfig):
     def patch (self):
-        self.apply_patch ('fontconfig-2.5.91-public_ft_files.patch')
+        self.apply_patch ('fontconfig-2.6.0-fcstat.patch')
+#        self.apply_patch ('fontconfig-2.5.91-public_ft_files.patch')
         Fontconfig.patch (self)
         self.file_sub ([('<cachedir>@FC_CACHEDIR@</cachedir>', '')],
                        '%(srcdir)s/fonts.conf.in')
