@@ -11,7 +11,7 @@ high-quality output (glyph images). It can be used in graphics
 libraries, display servers, font conversion tools, text image generation
 tools, and many other products as well.'''
 
-    source = mirrors.with_template (name='freetype', version='2.1.10', mirror=mirrors.nongnu_savannah)
+    source = mirrors.with_template (name='freetype', version='2.3.7', mirror=mirrors.nongnu_savannah)
 
     def license_files (self):
         return ['%(srcdir)s/docs/LICENSE.TXT']
