@@ -4,21 +4,19 @@ from gub import loggedos
 from gub import misc
 from gub import target
 
-def change_target_package (package):
+def libtool_fix_allow_undefined (logger, file):
+    '''libtool: link: warning: undefined symbols not allowed in i686-pc-mingw32 shared  libraries'''
+    loggedos.file_sub (logger, [('^(allow_undefined_flag=.*)unsupported', r'\1')], file)
 
-    def configure (whatsthis):
-        def libtool_fix_allow_undefined (logger, file):
-            '''libtool: link: warning: undefined symbols not allowed in i686-pc-mingw32 shared  libraries'''
-            loggedos.file_sub (logger, [('^(allow_undefined_flag=.*)unsupported', r'\1')], file)
+def change_target_package (package):
+    def configure (self):
         package.map_locate (libtool_fix_allow_undefined, '%(builddir)s', 'libtool')
         # already in build.py
-        # package.map_locate (build.AutoBuild.libtool_disable_install_not_into_dot_libs_test, '%(builddir)s', 'libtool')
-
+        # package.map_locate (build.libtool_disable_install_not_into_dot_libs_test, '%(builddir)s', 'libtool')
     package.configure = misc.MethodOverrider (package.configure, configure)
 
     def install (whatsthis):
         package.post_install_smurf_exe ()
-
     package.install = misc.MethodOverrider (package.install, install)
 
     # FIXME (cygwin): [why] do cross packages get here too?

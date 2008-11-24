@@ -1,10 +1,11 @@
 import os
 #
+from gub import build
+from gub import context
 from gub import cross
 from gub import cygwin
-from gub import misc
-from gub import context
 from gub import loggedos
+from gub import misc
 
 #FIXME: merge fully with specs/gcc
 class Gcc (cross.AutoBuild):
@@ -106,23 +107,37 @@ Gcc__linux = Gcc__from__source
 
 class Gcc__mingw (Gcc):
     source = 'ftp://ftp.gnu.org/pub/gnu/gcc/gcc-4.1.1/gcc-4.1.1.tar.bz2'
-
     def get_build_dependencies (self):
         return (Gcc.get_build_dependencies (self)
-                + ['mingw-runtime', 'w32api'])
+                + ['mingw-runtime', 'w32api']
+                + ['tools::libtool'])
     def patch (self):
+        Gcc.patch (self)
         for f in ['%(srcdir)s/gcc/config/i386/mingw32.h',
                   '%(srcdir)s/gcc/config/i386/t-mingw32']:
             self.file_sub ([('/mingw/include','%(prefix_dir)s/include'),
                             ('/mingw/lib','%(prefix_dir)s/lib'),
                             ], f)
-    # Possibly update libtool for mingw at least?  Try setting toolexeclibdir first...
-    def XXXinstall (self):
-        Gcc.install (self)
-        # libtool barfs: no libstdc++.dll.a file
-        self.system ('''
-mv %(install_prefix)s/lib/libstdc++.la %(install_prefix)s/lib/libstdc++.la-
-''')
+    def STATIC_GXX_WIP_REMOVE_THIS_PREFIX_configure (self):
+        # leave this for now.
+        # lots of undefined refs.
+        # possibly try static libstc++ with gcc > 4.1.1
+        '''.libs/bitmap_allocator.o: In function `__gthread_mutex_init_function':
+/home/janneke/vc/gub/target/mingw/build/cross/gcc-4.1.1/i686-mingw32/libstdc++-v3/include/i686-mingw32/bits/gthr-default.h:463: undefined reference to `___gthr_win32_mutex_init_function'
+.libs/bitmap_allocator.o: In function `_ZN9__gnu_cxx9free_list6_M_getEj':
+/home/janneke/vc/gub/target/mingw/src/cross/gcc-4.1.1/libstdc++-v3/src/bitmap_allocator.cc:53: undefined reference to `__Unwind_SjLj_Register'
+
+'''
+        Gcc.configure (self)
+        # Configure all subpackages, makes
+        # w32.libtool_fix_allow_undefined to find all libtool files
+        self.system ('cd %(builddir)s && make %(makeflags)s configure-host configure-target')
+        # Must ONLY do target stuff, otherwise cross executables cannot find their libraries
+        # self.map_locate (lambda logger,file: build.libtool_update (logger, self.expand ('%(tools_prefix)s/bin/libtool'), file), '%(builddir)s/', 'libtool')
+        #self.map_locate (lambda logger, file: build.libtool_update (logger, self.expand ('%(tools_prefix)s/bin/libtool'), file), '%(builddir)s/i686-mingw32', 'libtool')
+        vars = ['CC', 'CXX', 'LTCC', 'LD', 'sys_lib_search_path_spec', 'sys_lib_dlsearch_path_spec', 'predep_objects', 'postdep_objects', 'predeps', 'postdeps', 'old_striplib', 'striplib']
+        self.map_locate (lambda logger, file: build.libtool_update_preserve_vars (logger, self.expand ('%(tools_prefix)s/bin/libtool'), vars, file), '%(builddir)s/i686-mingw32', 'libtool')
+        self.map_locate (lambda logger, file: build.libtool_force_infer_tag (logger, 'CXX', file), '%(builddir)s/i686-mingw32', 'libtool')
 
 # http://gcc.gnu.org/PR24196            
 class this_works_but_has_string_exception_across_dll_bug_Gcc__cygwin (Gcc__mingw):

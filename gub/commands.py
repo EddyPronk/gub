@@ -177,13 +177,12 @@ class MapLocate (SerializedCommand):
         self.pattern = pattern
         self.must_happen = must_happen
         self.silent = silent
-
     def execute (self, logger):
         files = misc.locate_files (self.directory, self.pattern)
+        message = 'MapLocate[%(directory)s] no files matching pattern: %(pattern)s\n' % self.__dict__
+        logger.write_log (message, 'warning')
         if self.must_happen and files == []:
-            logger.write_log ('did not find files matching pattern')
-            raise 'MapLocate failed'
-
+            raise Exception ('MapLocate failed: ' + message)
         # huh, what is silent?
         func = self.func.__name__
         if self.silent:
@@ -191,12 +190,10 @@ class MapLocate (SerializedCommand):
             pattern = self.pattern
             count = len (files)
             logger.write_log ('Mapping %(func)s () over %(dir)s/%(pattern)s (%(count)d files)\n' % locals (), 'action')
-            
         for file_name in files:
             if not self.silent:
                 logger.write_log ('Applying %(func)s () to %(file_name)s\n' % locals (), 'action')
             self.func (logger, file_name)
-
     def checksum (self, hasher):
         hasher (self.__class__.__name__)
         hasher (inspect.getsource (self.func))

@@ -354,7 +354,7 @@ class AutoBuild (Build):
 mkdir -p %(builddir)s || true
 cd %(builddir)s && chmod +x %(configure_binary)s && %(configure_command)s
 ''')
-        self.map_locate (AutoBuild.libtool_disable_install_not_into_dot_libs_test, '%(builddir)s', 'libtool')
+        self.map_locate (libtool_disable_install_not_into_dot_libs_test, '%(builddir)s', 'libtool')
 
     def shadow (self):
         self.system ('rm -rf %(builddir)s')
@@ -391,23 +391,8 @@ tooldir=%(install_prefix)s
         for file in guess, sub:
             self.system ('cp -pv %(file)s %(autodir)s',  locals ())
 
-    @staticmethod
-    def libtool_disable_install_not_into_dot_libs_test (logger, file):
-        '''libtool: install: error: cannot install `libexslt.la' to a directory not ending in /home/janneke/vc/gub/target/mingw/build/libxslt-1.1.24/libexslt/.libs'''
-        loggedos.file_sub (logger, [(r'if test "\$inst_prefix_dir" = "\$destdir"; then',
-                                     'if false && test "$inst_prefix_dir" = "$destdir"; then')],
-                           file)
-
     def update_libtool (self):
-        def update (logger, file):
-            new = self.expand ('%(system_prefix)s/bin/libtool')
-            if not os.path.exists (new):
-                logger.write_log ('Cannot update libtool: no such file: %(new)s' % locals (), 'error')
-                raise Exception ('barf')
-            loggedos.system (logger, 'cp %(new)s %(file)s' % locals ())
-            AutoBuild.libtool_disable_install_not_into_dot_libs_test (logger, file)
-            loggedos.system (logger, 'chmod 755  %(file)s' %locals ())
-        self.map_locate (update, '%(builddir)s', 'libtool')
+        self.map_locate (lambda logger, file: libtool_update (logger, self.expand ('%(system_prefix)s/bin/libtool'), file), '%(builddir)s', 'libtool')
 
     def install (self):
         '''Install package into %(install_root).
@@ -602,28 +587,16 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"%(_v)s -zcf %(src_package_
     def untar (self):
         self.runner._execute (commands.UpdateSourceDir (self))
 
-    # used for cygwin. -- most probably broken due to deferred restructuring.
     def pre_install_smurf_exe (self):
-        def un_exe (logger_why_already_in_self, file):
+        def un_exe (logger, file):
             base = os.path.splitext (file)[0]
-# Hmm, cannot (yet) use our nice Runner/logged os interface (again)?
-# This should have been fixed already?
-# gur, Must manually expand and pass logger...
-#            self.runner.system ('mv %(file)s %(base)s', locals ())
-            loggedos.system (logger_why_already_in_self, self.expand ('mv %(file)s %(base)s', locals ()))
+            loggedos.system (logger, self.expand ('mv %(file)s %(base)s', locals ()))
         self.map_locate (un_exe, '%(builddir)s', '*.exe')
 
     def post_install_smurf_exe (self):
         def add_exe (logger_why_already_in_self, file):
             if (not os.path.islink (file)
                 and not os.path.splitext (file)[1]
-# Hmm, cannot (yet) use our nice Runner/logged os interface (again)?
-# This should have been fixed already?
-#                and self.runner.read_pipe ('file -b %(i)s', locals ()).startswith ('MS-DOS executable PE')):
-#                self.runner.system ('mv %(i)s %(file)s.exe', locals ())
-#    and self.runner.read_pipe ('file -b %(i)s', locals ()).startswith ('MS-DOS executable PE')):
-#AttributeError: 'NoneType' object has no attribute 'read_pipe'
-# gur, Must manually expand and pass logger...
                 and loggedos.read_pipe (logger_why_already_in_self, self.expand ('file -b %(file)s', locals ())).startswith ('MS-DOS executable PE')):
                 loggedos.system (logger_why_already_in_self, self.expand ('mv %(file)s %(file)s.exe', locals ()))
         self.map_locate (add_exe, '%(install_root)s/bin', '*')
@@ -633,17 +606,11 @@ tar -C %(allsrcdir)s --exclude "*~" --exclude "*.orig"%(_v)s -zcf %(src_package_
         cmd = self.system ('''
 mkdir -p %(install_prefix)s/share/doc/%(name)s
 ''')
-
-        def copy_readme (logger_why_already_in_self, file):
+        def copy_readme (logger, file):
             if (os.path.isfile (file)
                 and not os.path.basename (file).startswith ('Makefile')
                 and not os.path.basename (file).startswith ('GNUmakefile')):
-# Hmm, cannot (yet) use our nice Runner/logged os interface (again)?
-# This should have been fixed already?
-#                self.runner.system ('cp %(file)s %(install_prefix)s/share/doc/%(name)s', locals ())
-# gur, Must manually expand and pass logger...
-                loggedos.system (logger_why_already_in_self, self.expand ('cp %(file)s %(install_prefix)s/share/doc/%(name)s', locals ()))
-
+                loggedos.system (logger, self.expand ('cp %(file)s %(install_prefix)s/share/doc/%(name)s', locals ()))
         self.map_locate (copy_readme, '%(srcdir)s', '[A-Z]*')
 
     def build_version (self):
@@ -699,3 +666,70 @@ class SdkBuild (NullBuild):
         return ['untar', 'patch', 'install', 'package', 'clean']
     def install_root (self):
         return self.srcdir ()
+
+def libtool_disable_install_not_into_dot_libs_test (logger, file):
+    '''libtool: install: error: cannot install `libexslt.la' to a directory not ending in /home/janneke/vc/gub/target/mingw/build/libxslt-1.1.24/libexslt/.libs'''
+    loggedos.file_sub (logger, [(r'if test "\$inst_prefix_dir" = "\$destdir"; then',
+                                 'if false && test "$inst_prefix_dir" = "$destdir"; then')],
+                       file)
+
+def libtool_update (logger, libtool, file):
+    if not os.path.exists (libtool):
+        message = 'Cannot update libtool: no such file: %(libtool)s' % locals ()
+        logger.write_log (message, 'error')
+        raise Exception (message)
+    loggedos.system (logger, 'cp %(file)s %(file)s~' % locals ())
+    loggedos.system (logger, 'cp %(libtool)s %(file)s' % locals ())
+    libtool_disable_install_not_into_dot_libs_test (logger, file)
+    loggedos.system (logger, 'chmod 755  %(file)s' % locals ())
+
+def libtool_force_infer_tag (logger, tag, file):
+    ''' libtool: compile: unable to infer tagged configuration '''
+    loggedos.file_sub (logger, [('^func_infer_tag ', '''func_infer_tag ()
+{
+    tagname=%(tag)s
+}
+
+old_func_infer_tag ''' % locals ())], file)
+
+def libtool_force_infer_tag_CXX (logger, file):
+    ''' CXX seems the only valid tag name? '''
+    libtool_force_infer_tag (logger, 'CXX', file)
+
+def libtool_update_preserve_CC (logger, libtool, file):
+    CC_re = '^CC="([^"]*)"'
+    orig_CC = re.search ('(?m)' + CC_re, open (file).read ()).group (0)
+    libtool_update (logger, libtool, file)
+    loggedos.file_sub (logger, [(CC_re, orig_CC)], file)
+
+def libtool_update_preserve_vars (logger, libtool, vars, file):
+    print 'preserve: ', file
+    old = open (file).read ()
+    open (file + '.old', 'w').write (old)
+    libtool_update (logger, libtool, file)
+    new = open (file).read ()
+    open (file + '.new', 'w').write (new)
+    def subst_vars (o, n):
+        for v in vars:
+            v_re = '(?m)^%(v)s="([^"]*)"' % locals ()
+            orig_m = re.search (v_re, o)
+            if not orig_m:
+                # some generated libtool thingies only have the first part
+                # but vars in the second part must always be substituted
+                print 'from first part'
+                orig_m = re.search (v_re, old)
+            if orig_m:
+                b = n
+                n = re.sub (v_re, orig_m.group (0), n)
+                print 'replace:', orig_m.group (0)
+                if b == n:
+                    print 'NODIFF:', v_re
+            else:
+                print 'not found:', v_re
+        return n
+    # libtool comes in two parts which define the same/similar variables
+    marker = '\nexit '
+    n1 = subst_vars (old[:old.find (marker)], new[:new.find (marker)])
+    n2 = subst_vars (old[old.find (marker):], new[new.find (marker):])
+    open (file, 'w').write (n1 + n2)
+    loggedos.chmod (logger, file, 0755)

@@ -189,18 +189,18 @@ def find_only_files_or_dirs (dir, file_test, file_or_dir_test):
     def match (f):
         return test.search (f)
     if type (file_test) != type (match):
-        match = file_test
+        file_test = match
     def test (f):
         return file_test (f) and file_or_dir_test (f)
     return find (dir, test)
         
-def find_files (dir, file_test='.*'):
+def find_files (dir, test='.*'):
     ''' Return list of files under DIR matching the regex FILE_TEST
     or for which FILE_TEST (f) == TRUE
     '''
     return find_only_files_or_dirs (dir, test, lambda x: not os.path.isdir (x))
 
-def find_dirs (dir, file_test='.*'):
+def find_dirs (dir, test='.*'):
     ''' Return list of dirs under DIR matching the regex FILE_TEST
     or for which FILE_TEST (f) == TRUE
     '''

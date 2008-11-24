@@ -1,3 +1,4 @@
+from gub import build
 from gub import cross
 
 class Binutils (cross.AutoBuild):
@@ -26,3 +27,16 @@ class Binutils (cross.AutoBuild):
 class Binutils__linux__ppc (Binutils):
     source = Binutils.source
     patches = Binutils.patches + ['binutils-2.18-werror-ppc.patch']
+
+class Binutils__mingw (Binutils):
+    patches = Binutils.patches
+    def get_build_dependencies (self):
+        return Binutils.get_build_dependencies (self) + ['tools::libtool']
+    def configure (self):
+        Binutils.configure (self)
+        # Configure all subpackages, makes
+        # w32.libtool_fix_allow_undefined to find all libtool files
+        self.system ('cd %(builddir)s && make %(makeflags)s configure-host configure-target')
+        # Must ONLY do target stuff, otherwise cross executables cannot find their libraries
+#        self.map_locate (lambda logger,file: build.libtool_update (logger, self.expand ('%(tools_prefix)s/bin/libtool'), file), '%(builddir)s', 'libtool')
+        self.map_locate (lambda logger, file: build.libtool_update (logger, self.expand ('%(tools_prefix)s/bin/libtool'), file), '%(builddir)s/libiberty', 'libtool')
