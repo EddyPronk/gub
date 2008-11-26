@@ -312,13 +312,6 @@ class LilyPond__mingw (LilyPond):
                 + misc.join_lines ('''
 LDFLAGS="%(LDFLAGS)s %(python_lib)s"
 '''% locals ()))
-
-    def configure_command (self):
-        # Static on mingw: nogo/WIP: comment-out this func and, see gcc.py
-        '''./out/../../flower/out/library.a(getopt-long.o):getopt-long.cc:(.text+0x3355): undefined reference to `std::basic_string<char, std::char_traits<char>, std::allocator<char> >::_Rep::_M_destroy(std::allocator<char> const&)'
-        '''
-        return (LilyPond.configure_command (self)
-                .replace ('--enable-static-gxx', '--disable-static-gxx'))
     def configure (self):
         LilyPond.configure (self)
         ## huh, why ? --hwn
