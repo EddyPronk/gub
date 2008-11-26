@@ -15,6 +15,21 @@ def join_lines (str):
 
 modules = {}
 
+def preserve_cwd (function):
+   def decorator (*args, **kwargs):
+      cwd = os.getcwd ()
+      result = function (*args, **kwargs)
+      os.chdir (cwd)
+      return result
+   return decorator
+
+@preserve_cwd
+def symlink_in_dir (src, dest):
+    dir = os.path.dirname (src)
+    base = os.path.basename (src)
+    dest = os.path.basename (dest)
+    os.symlink (base, dest)
+
 def load_module (file_name, name=None):
     if not name:
         name = os.path.split (os.path.basename (file_name))[0]
