@@ -64,3 +64,6 @@ LDFLAGS=-lwsock32
         if 'libwsock32' in self.get_build_dependencies ():
             self.system ('cd %(install_prefix)s/bin && cp libdb-*.dll libdb.dll')
             self.system ('cd %(install_prefix)s/lib && cp libdb-*.dll.a libdb.dll.a')
+        else:
+            self.system ('cd %(install_prefix)s/lib && mv libdb.la libdb.la-')
+            self.system ('cd %(install_prefix)s/lib && mv libdb-4.7.la libdb-4.7.la-')
