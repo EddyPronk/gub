@@ -179,7 +179,7 @@ scp2/source/ooo/file_ooo.scp.~1.~
      Dir = gid_Dir_Program;
      
 -	#ifdef WNT
-+	#ifdef WNT && ! defined __CROSS__
++	#if defined WNT && ! defined __CROSS__
  	  Name = "libeay32.dll";
  	#endif
  End
