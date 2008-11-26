@@ -76,6 +76,7 @@ TARGET_FLAGS_TO_PASS='$(BASE_FLAGS_TO_PASS) $(EXTRA_TARGET_FLAGS) $(GUB_FLAGS_TO
         cross.AutoBuild.install (self)
         self.move_target_libs (self.expand ('%(install_prefix)s%(cross_dir)s/%(target_architecture)s'))
         self.move_target_libs (self.expand ('%(install_prefix)s%(cross_dir)s/lib'))
+        self.system ('mv %(install_prefix)s/lib/libstdc++.la %(install_prefix)s/lib/libstdc++.la-')
 
 class Gcc__from__source (Gcc):
     def get_build_dependencies (self):
