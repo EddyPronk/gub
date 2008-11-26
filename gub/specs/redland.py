@@ -44,3 +44,9 @@ Info: resolving _librdf_short_copyright_string by linking to __imp__librdf_short
                        '%(srcdir)s/Makefile.am')
         self.file_sub ([('^(SUBDIRS =.*) utils ', r'\1 ')],
                        '%(srcdir)s/Makefile.in')
+    def configure_command (self):
+        return (Redland.configure_command (self)
+                # without wsock32.dll, no libdb*.la/dll, no shared redland
+                + misc.join_lines ('''
+ --disable-shared
+'''))
