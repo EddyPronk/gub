@@ -21,7 +21,7 @@
  
  # architecture dependent flags for the C and C++ compiler that can be changed by
  # exporting the variable ARCH_FLAGS="..." in the shell, which is used to start build
-@@ -50,7 +54,12 @@ CXX*=gcc
+@@ -50,7 +54,13 @@ CXX*=gcc
  #CFLAGS=-c -Wall -I$(INCLUDE) $(OLE2DEF)
  # new:
  #CYGINC=$(INCLUDE:s/-I /-I/:+"  ":s/;/ -I/:s/-I  //:s/   / /)
@@ -31,6 +31,7 @@
 +CFLAGS += -nostdinc
 +.ELSE # "$(CROSS_COMPILING)" == "yes"
 +CFLAGS += -D__CROSS__
++SCPDEFS += -D__MINGW32__ -D__CROSS__ -DDISABLE_ATL
 +.ENDIF # "$(CROSS_COMPILING)" == "yes"
  ###
  CFLAGSCC=-pipe $(ARCH_FLAGS)
