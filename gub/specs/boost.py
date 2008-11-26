@@ -65,7 +65,7 @@ class Boost (BjamBuild):
         # Bjam `installs' header files by using symlinks to the source dir?
 
         def add_plain_lib_names (logger, file):
-            base = os.path.basename (file).replace ('-s.a', '')
+            base = os.path.basename (file).replace ('-s.a', '.a')
             misc.symlink_in_dir (file, base)
         self.map_locate (add_plain_lib_names, '%(install_prefix)s/lib', 'libboost_*-s.a')
 

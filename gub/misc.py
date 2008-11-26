@@ -28,6 +28,7 @@ def symlink_in_dir (src, dest):
     dir = os.path.dirname (src)
     base = os.path.basename (src)
     dest = os.path.basename (dest)
+    os.chdir (dir)
     os.symlink (base, dest)
 
 def load_module (file_name, name=None):
