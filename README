@@ -138,12 +138,15 @@ how to use Google. The problem is that they always break and never work on
 other machines. GUB starts as an effort to unify the Windows and MacOS builders
 and to make the process somewhat dependable and reproducible, i.e.: even more
 free time for the developers (if there is such a thing) as the builds always
-succeed.
+succeed. It uses Python instead of make and bash and adds checksums for the
+package build specs.
 
-GUB2 adds serialization of all Python build code before execution with
-checksumming. Lots of packages are added in an effort to replace the
-OpenEmbedded-based build system for the Samco 3G video phone at SES, Philips
-Research Eindhoven.
+GUB2 adds serialization of the Python build code before execution. This makes
+the build checksumming less coarse, ie, less gratuitous rebuilds and more
+reliable. Also, all Python code is executed before the build process starts,
+which means that there is less chance of silly run time errors. Lots of
+packages are added in an effort to replace the OpenEmbedded-based build system
+for the Samco 3G video phone at SES, Philips Research Eindhoven.
 
 In Novell's Hackweek-iii GUB enters into its Third Life with GUB3, adding
 cross-platform build dependencies and patches for an OpenOffice.org MinGW cross
