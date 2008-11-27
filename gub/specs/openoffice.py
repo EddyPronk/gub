@@ -160,28 +160,13 @@ touch stamp/build
 
 ... analyzing files ...
 ERROR: The following files could not be found: 
-ERROR: File not found: mingwm10.dll
-ERROR: File not found: unicows.dll
-ERROR: File not found: java_uno_accessbridge.dll
-ERROR: File not found: ado2.dll
-ERROR: File not found: libeay32.dll
-ERROR: File not found: emsergi.dll
-ERROR: File not found: gdiplus.dll
 ERROR: File not found: instooofiltmsi.dll
-ERROR: File not found: mingwm10.dll
-ERROR: File not found: mingwm10.dll
-ERROR: File not found: ooofilt.dll
-ERROR: File not found: oleautobridge.uno.dll
-ERROR: File not found: ssleay32.dll
-ERROR: File not found: qslnkmsi.dll
-ERROR: File not found: reg4allmsdoc.dll
-ERROR: File not found: sdqsmsi.dll
 ERROR: File not found: libstlport_gcc.dll
 ERROR: File not found: shlxtmsi.dll
-ERROR: File not found: relnotes.dll
-ERROR: File not found: sellangmsi.dll
-ERROR: File not found: sn_tools.dll
 ... cleaning the output tree ...
+Wed Nov 26 22:57:02 2008 (00:10 min.)
+Failed to install:  at ./ooinstall line 143.
+make: *** [install] Fout 1
 
 '''
 

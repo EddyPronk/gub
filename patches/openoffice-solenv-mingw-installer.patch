@@ -13,3 +13,21 @@
  		$installer::globals::islinuxbuild = 1;
  		if ( $installer::globals::packageformat eq "rpm" )
  		{
+--- solenv/bin/modules/installer/servicesfile.pm.pristine	2008-11-27 13:28:48.000000000 +0100
++++ solenv/bin/modules/installer/servicesfile.pm	2008-11-27 13:28:09.000000000 +0100
+@@ -942,13 +942,13 @@ sub create_services_rdb
+ 		
+ 				my $searchname;
+ 		
+-				if ($installer::globals::isunix) { $searchname = "regcomp"; }
++				if ($installer::globals::isunix && $ENV{CROSS_COMPILING} ne 'yes') { $searchname = "regcomp"; }
+ 				else { $searchname = "regcomp.exe"; } 
+ 	
+ 				$regcompfileref = get_source_path_cygwin_safe($searchname, $includepatharrayref, 1);
+ 				if ( $$regcompfileref eq "" ) { installer::exiter::exit_program("ERROR: Could not find file $searchname for registering uno components!", "create_services_rdb"); }
+ 
+-		if ($installer::globals::isunix) { $searchname = "regmerge"; }
++		if ($installer::globals::isunix && $ENV{CROSS_COMPILING} ne 'yes') { $searchname = "regmerge"; }
+ 		else { $searchname = "regmerge.exe"; } 
+ 	
+ 		$regmergefileref = installer::scriptitems::get_sourcepath_from_filename_and_includepath(\$searchname, $includepatharrayref, 1);
