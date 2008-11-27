@@ -128,7 +128,7 @@ ac_cv_sizeof_pthread_t=12
 ##$(eval echo $((echo $ac_cv_sizeof_int + $ac_cv_sizeof_void_p)))
     def install (self):
         Python.install (self)
-        self.file_sub ([('extra = ""', 'extra = "-lpython2.4 -lpthread"')],
+        self.file_sub ([('extra = ""', 'extra = "-L%(system_prefix)s/bin -L%(system_prefix)s/lib -lpython2.4 -lpthread"')],
                        '%(install_prefix)s%(cross_dir)s/bin/python-config')
 
         def rename_so (logger, fname):

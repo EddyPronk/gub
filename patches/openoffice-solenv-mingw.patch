@@ -56,7 +56,7 @@
 +.IF "$(CROSS_COMPILING)" == "no"
 +LINKFLAGS += -nostdlib
 +.ELSE # "$(CROSS_COMPILING)" == "yes"
-+LINKFLAGS += -L$(SOLARBINDIR) -L$(SOLARLIBDIR)
++LINKFLAGS += -L$(SOLARBINDIR) -L$(SOLARLIBDIR) -L$(COMPATH)/../../bin -L$(COMPATH)/../../lib
 +.ENDIF # "$(CROSS_COMPILING)" == "yes"
  .IF "$(USE_MINGW)"=="cygwin"
  MINGWLIBDIR=$(COMPATH)$/lib$/mingw
