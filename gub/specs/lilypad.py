@@ -12,6 +12,8 @@ class LilyPad (targetbuild.TargetBuild):
         self.file_sub ([('--nostdinc',' '),
                 (r'rc\.res:', r'rc.res.o:')],
                "%(srcdir)s/Make.rules.in")
+        self.apply_patch ('lilypad-spanish-rc.patch')
+
     def makeflags (self):
         # FIXME: better fix Makefile
         return misc.join_lines ('''

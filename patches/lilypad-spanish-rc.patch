@@ -1,0 +1,67 @@
+From 9ad268bda113677aa8a40249f653715462b55eaa Mon Sep 17 00:00:00 2001
+From: Paco Vila <paconet.org@gmail.com>
+Date: Fri, 24 Oct 2008 17:44:36 +0200
+Subject: [PATCH] Update Spanish resource file
+
+---
+ Es.rc |   13 +++++++------
+ 1 files changed, 7 insertions(+), 6 deletions(-)
+
+diff --git a/Es.rc b/Es.rc
+index 65c5fef..e8bc6f5 100644
+--- a/Es.rc
++++ b/Es.rc
+@@ -6,6 +6,7 @@
+  *  Proofread 1999 by Jose Marcos Lopez <jose.lopez@upcnet.upc.es>
+  *  Copyright 2002 Sylvain Petreolle <spetreolle@yahoo.fr>
+  *  Copyright 2003,2004 José Manuel Ferrer Ortiz
++ *  Copyright 2008 Francisco Vila <francisco.vila@hispalinux.es>
+  *
+  * This library is free software; you can redistribute it and/or
+  * modify it under the terms of the GNU Lesser General Public
+@@ -27,12 +28,12 @@ LANGUAGE LANG_SPANISH, SUBLANG_NEUTRAL
+ MAIN_MENU MENU
+ {
+  POPUP "&Archivo" {
+-  MENUITEM "&Nuevo...",                   CMD_NEW
++  MENUITEM "&Nuevo...\tCtrl+N",                   CMD_NEW
+   MENUITEM "&Abrir\tCtrl+O",              CMD_OPEN
+   MENUITEM "&Guardar\tCtrl+S",            CMD_SAVE
+   MENUITEM "Guardar &como...",            CMD_SAVE_AS
+   MENUITEM SEPARATOR
+-  MENUITEM "&Imprimir",                   CMD_PRINT
++  MENUITEM "&Imprimir\tCtrl+P",                   CMD_PRINT
+   MENUITEM "Configurar &página...",       CMD_PAGE_SETUP
+   MENUITEM "Configuración &impresora...", CMD_PRINTER_SETUP
+   MENUITEM SEPARATOR
+@@ -74,7 +75,7 @@ POPUP "A&yuda" {
+ DIALOG_PAGESETUP DIALOG 0, 0, 225, 95
+ STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
+ FONT 8, "MS Shell Dlg"
+-CAPTION "Ajuste de página"
++CAPTION "Diseño de página"
+ {
+ LTEXT    "&Cabecera:",  0x140,   10, 07, 40, 15
+ EDITTEXT                         0x141,       60, 05,110, 12, WS_BORDER | WS_TABSTOP
+@@ -113,15 +114,15 @@ STRING_INFO,                    "Informaci
+ STRING_UNTITLED,                "(sin título)"
+ 
+ STRING_ALL_FILES,               "Todos los archivos (*.*)"
+-STRING_LILYPOND_FILES_LY,          "Documentos de LilyPondo (*.ly)"
++STRING_LILYPOND_FILES_LY,          "Documentos de LilyPond (*.ly)"
+ 
+ STRING_TOOLARGE,                "El archivo '%s' es demasiado grande para el \
+-                                 bloc de notas.\n Use otro editor."
++                                 editor lilypad.\nUse otro editor."
+ STRING_NOTEXT,                  "No escribió nada. \nPor favor escriba algo e \
+                                  inténtelo de nuevo"
+ STRING_DOESNOTEXIST,            "El archivo '%s'\nno existe\n\n ¿Desea crear \
+                                  un nuevo archivo?"
+-STRING_NOTSAVED,                "El LilyPondo en el archivo '%s' ha cambiado\n\n \
++STRING_NOTSAVED,                "El archivo '%s'\nha cambiado\n\n \
+                                  ¿Desea guardar los cambios?"
+ STRING_NOTFOUND,                "No se encontró '%s'."
+ STRING_OUT_OF_MEMORY,           "No hay suficiente memoria para terminar esta \
+-- 
+1.5.4.3
+
