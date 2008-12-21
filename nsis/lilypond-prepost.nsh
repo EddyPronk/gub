@@ -14,9 +14,6 @@ Function create_shortcuts
 	CreateShortCut "$SMPROGRAMS\LilyPond\Music in Mutopia.lnk" \
 		"http://www.mutopiaproject.org" "" \
 		"$INSTDIR\usr\bin\lilypond-windows.exe" 1
-	CreateShortCut "$SMPROGRAMS\LilyPond\Examples.lnk" \
-		"$INSTDIR\usr\share\doc\lilypond-${INSTALLER_VERSION}-${INSTALLER_BUILD}\input" "" \
-		"$INSTDIR\usr\bin\lilypond-windows.exe" 1
 	CreateShortCut "$SMPROGRAMS\LilyPond\Uninstall.lnk" \
 		"$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
 
