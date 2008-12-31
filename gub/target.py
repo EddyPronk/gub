@@ -132,8 +132,6 @@ cd %(builddir)s && chmod +x %(configure_binary)s && %(configure_command_native)s
             'LIBRARY_PATH': '',
             'LDFLAGS': '',
             'LD': '%(toolchain_prefix)sld',
-            'LD_LIBRARY_PATH': '%(tools_prefix)s/lib'
-            + misc.append_path (os.environ.get ('LD_LIBRARY_PATH', '')),
             'NM': '%(toolchain_prefix)snm',
             'PKG_CONFIG_PATH': '%(system_prefix)s/lib/pkgconfig',
             'PATH': '%(cross_prefix)s/bin:%(tools_prefix)s/bin:' + os.environ['PATH'],

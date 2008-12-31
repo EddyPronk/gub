@@ -21,8 +21,6 @@ class AutoBuild (build.AutoBuild):
             + misc.append_path (os.environ.get ('LIBRARY_PATH', '')),
             'CPLUS_INCLUDE_PATH': '%(tools_prefix)s/include'
             + misc.append_path (os.environ.get ('CPLUS_INCLUDE_PATH', '')),
-            'LD_LIBRARY_PATH': '%(tools_prefix)s/lib'
-            + misc.append_path (os.environ.get ('LD_LIBRARY_PATH', '')),
             'PATH': '%(cross_prefix)s/bin:%(tools_prefix)s/bin:' + os.environ['PATH'],
         }
         dict.update (env)
