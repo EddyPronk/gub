@@ -28,7 +28,6 @@ class AutoBuild (build.AutoBuild):
         return misc.join_lines ('''
 CFLAGS=-I%(system_prefix)s/include
 LDFLAGS=-L%(system_prefix)s/lib
-LD_LIBRARY_PATH=%(system_prefix)s/lib
 ''')
 
     ## ugh: prefix= will trigger libtool relinks.
