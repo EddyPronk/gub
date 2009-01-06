@@ -84,6 +84,8 @@ class Cygwin_package (context.RunnableContext):
         version = version.replace ('-', '.')
         v = tuple (map (int, version.split ('.')))
         b = db.get_next_build_number (v)
+        if not b:
+            b = 1
         return ('%d' % b)
 
     def create (self):
