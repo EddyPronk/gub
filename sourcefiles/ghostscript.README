@@ -36,14 +36,12 @@ Language:
 Build Instructions:
 
   # Download GUB
-    mkdir gub
-    cd gub
-    git init
-    git pull git://git.sv.gnu.org/lilypond.git gub:
+    git clone git://github.com/janneke/gub.git
 
   # Build Ghostscript for Cygwin
 
-    bin/gub -p cygwin ghostscript
+    cd gub
+    bin/gub cygwin::ghostscript
 
   # Package Ghostscript for Cygwin
 
@@ -66,7 +64,7 @@ Port notes:
 %(changelog)s
 
   These packages were built on GNU/Linux using GUB, see
-    http://git.sv.gnu.org/gitweb/?p=lilypond.git;a=blob_plain;f=README;hb=gub
+    http://lilypond.org/gub
 
 Cygwin port maintained by: Jan Nieuwenhuizen  <janneke@gnu.org>
 Please address all questions to the Cygwin mailing list at <cygwin@cygwin.com>

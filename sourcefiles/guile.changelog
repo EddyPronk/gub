@@ -1,3 +1,10 @@
+guile (1.8.5-1) unstable; urgency=low
+
+  * New upstream release.
+  * Move to gub3.
+
+ -- Jan Nieuwenhuizen <janneke@gnu.org>  Tue,  6 Jan 20:17:50 2009 +0100
+
 guile (1.8.2-1) unstable; urgency=low
 
   * New upstream release.
