@@ -262,8 +262,8 @@ tar -C %(install_prefix)s/share/doc/lilypond -jxf %(docball)s
 tar -C %(install_root)s -jxf %(infomanball)s
 find %(install_prefix)s/share/doc/lilypond -name '*.signature' -exec rm '{}' ';'
 find %(install_prefix)s/share/doc/lilypond -name '*.ps' -exec rm '{}' ';'
-mkdir -p %(install_prefix)s/share/info/lilypond
-cd %(install_prefix)s/share/info/lilypond && ln -sf ../../doc/lilypond/Documentation/user/*png .
+mkdir -p %(install_prefix)s/share/info
+cd %(install_prefix)s/share/info && ln -sf ../../doc/lilypond/Documentation/user lilypond
 ''',
                   locals ())
 
