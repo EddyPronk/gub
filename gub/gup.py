@@ -461,9 +461,19 @@ def get_source_packages (settings, const_todo):
             
         return map (get_base_package_name, spec.get_platform_build_dependencies ())
 
-    def name_to_dependencies_via_distro (distro_packages, name):
-        platform, name = split_platform (name)
-        key = with_platform (name, platform)
+    def name_to_dependencies_via_distro (distro_packages, url):
+        platform, url = split_platform (url)
+        if ':' in url:
+            base, unused_parameters = misc.dissect_url (url)
+            name = (os.path.basename (base)
+                    .replace ('.git', ''))
+            key = url
+        else:
+            name = url #get_base_package_name (url)
+            url = None
+            key = name
+            
+        key = with_platform (key, platform)
         if specs.has_key (key):
             spec = specs[key]
         else:

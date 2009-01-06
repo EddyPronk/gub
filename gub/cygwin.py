@@ -175,6 +175,7 @@ def get_cygwin_package (settings, name, dict, skip):
         'x-startup-scripts',
         'xorg-x11-bin-lndir',
         'xorg-x11-etc',
+        'xorg-x11-devel',
         'xorg-x11-fnts',
         'xorg-x11-libs-data',
         ]
@@ -191,7 +192,12 @@ def get_cygwin_package (settings, name, dict, skip):
     package.name_dependencies = []
     if dict.has_key ('requires'):
         deps = re.sub ('\([^\)]*\)', '', dict['requires']).split ()
-        deps = [x.strip ().lower ().replace ('_', '-') for x in deps]
+        #deps = [x.strip ().lower ().replace ('_', '-') for x in deps]
+        deps = [x.strip () for x in deps]
+        # URG, x11 introduces upcase *and* underscore in package name
+        #deps = [x.replace ('libx11-6', 'libX11_6') for x in deps]
+        #deps = [x.replace ('libxt', 'libXt') for x in deps]
+        #deps = [x.replace ('libx11', 'libX11') for x in deps]
 
         deps = filter (lambda x: x not in blacklist, deps)
         package.name_dependencies = deps
@@ -215,7 +221,14 @@ def get_cygwin_packages (settings, package_file, skip=[]):
     for i in chunks[1:]:
         lines = i.split ('\n')
         name = lines[0].strip ()
-        name = name.lower ()
+        #name = name.lower ()
+        name = name[0].lower () + name[1:]
+        # URG, x11 introduces upcase *and* underscore in package name
+        #name = name.replace ('libx11-6', 'libX11_6')
+        #name = name.replace ('libx11_6', 'libX11_6')
+        #name = name.replace ('libx11', 'libX11')
+        #name = name.replace ('libxt', 'libXt')
+
         packages = dists['curr']
         records = {
             'sdesc': name,
@@ -292,7 +305,9 @@ class Dependency_resolver:
         self.settings = settings
         self.packages = {}
 #        self.source = fontconfig_source + freetype_source + guile_source + libtool_source
-        self.source = fontconfig_source + ghostscript_source + guile_source + libtool_source
+#        self.source = fontconfig_source + ghostscript_source + guile_source + libtool_source
+        # URG: get from command line!
+        self.source = ghostscript_source + guile_source + libtool_source + ['lilypond']
         self.load_packages ()
 
     def grok_setup_ini (self, file, skip=[]):
@@ -357,5 +372,6 @@ gub_to_distro_dict = {
     'python-devel': ['python'],
     'python-runtime': ['python'],
     'texlive-devel': ['libkpathsea-devel'],
-    'texlive-runtime': ['libkpathsea4']
+    'texlive-runtime': ['libkpathsea4'],
+#    'libx11-6': ['libX11_6'],
     }

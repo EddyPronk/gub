@@ -63,6 +63,11 @@ class Libtool__cygwin (Libtool):
         return d
     def category_dict (self):
         return {'': 'Devel'}
+    def install (self):
+        Libtool.install (self)
+        # configure nowadays (what m4?) has hardcoded /usr and /lib for Cygwin
+        # instead of asking gcc
+        self.file_sub ([('sys_lib_search_path_spec="/usr/lib /lib/w32api /lib /usr/local/lib"', 'sys_lib_search_path_spec="%(system_prefix)s/lib %(system_prefix)s/lib/w32api %(system_prefix)s/lib %(system_prefix)s/bin"')], '%(install_prefix)s/bin/libtool')
 
 class Libtool__tools (tools.AutoBuild):
     source = Libtool.source

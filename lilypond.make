@@ -212,7 +212,8 @@ cygwin-guile-installer:
 	$(CYGWIN_PACKAGER) guile
 
 cygwin-lilypond:
-	$(call INVOKE_GUB,cygwin) --build-source libtool guile fontconfig lilypond
+#	$(call INVOKE_GUB,cygwin) --build-source libtool guile fontconfig lilypond
+	$(call INVOKE_GUB,cygwin) --build-source libtool guile lilypond
 
 cygwin-lilypond-installer:
 	$(CYGWIN_PACKAGER) --branch=lilypond=$(LILYPOND_FLATTENED_BRANCH) lilypond

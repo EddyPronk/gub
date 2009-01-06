@@ -249,6 +249,12 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_prefix)s/lib"}
             self.file_sub ([
                     ('^(allow_undefined_flag=.*)unsupported', r'\1')],
                            '%(builddir)s/guile-readline/libtool')
+    # C&P from Guile__mingw
+    def compile (self):
+        ## Why the !?#@$ is .EXE only for guile_filter_doc_snarfage?
+        self.system ('''cd %(builddir)s/libguile && make CFLAGS='-DHAVE_CONFIG_H=1 -I%(builddir)s' gen-scmconfig guile_filter_doc_snarfage.exe''')
+        self.system ('cd %(builddir)s/libguile && cp guile_filter_doc_snarfage.exe guile_filter_doc_snarfage')
+        Guile.compile (self)
     def description_dict (self):
         return {
             '': """The GNU extension language and Scheme interpreter - executables

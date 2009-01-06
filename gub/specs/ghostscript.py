@@ -297,7 +297,8 @@ cd %(srcdir)s && cp Makefile.in Makefile-x11.in
     def category_dict (self):
         return {'': 'Graphics'}
     def get_build_dependencies (self):
-        return ['jpeg', 'libpng12-devel', 'xorg-x11-devel', 'zlib']
+#        return ['jpeg', 'libpng12-devel', 'xorg-x11-devel', 'zlib']
+        return ['jpeg', 'libpng12-devel', 'libXext-devel', 'libXt-devel', 'libX11-devel', 'zlib']
     def get_dependency_dict (self):
         return {'': [
                 # REMOVE after first cygwin release.
