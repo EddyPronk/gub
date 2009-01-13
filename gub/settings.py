@@ -176,6 +176,15 @@ class Settings (context.Context):
         except ValueError:
             self.cpu_count_str = '1'
 
+        if self.build_architecture == 'linux-x86':
+            try:
+                cpuinfo = file ('/proc/cpuinfo').read ()
+                if re.search ('(?m)^flags\s+:.*\slm(\s|$)', cpuinfo):
+                    self.ABI = '32'
+                    os.environ['ABI'] = '32'
+            except:
+                pass
+
         ## make sure we don't confuse build or target system.
         self.LD_LIBRARY_PATH = '%(system_root)s'
         
