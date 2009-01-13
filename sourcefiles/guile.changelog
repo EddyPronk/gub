@@ -1,7 +1,7 @@
 guile (1.8.5-1) unstable; urgency=low
 
   * New upstream release.
-  * Move to gub3.
+  * Move to gub3: http://lilypond.org/gub .
 
  -- Jan Nieuwenhuizen <janneke@gnu.org>  Tue,  6 Jan 20:17:50 2009 +0100
 
