@@ -135,17 +135,20 @@ gub3-all: gub3-packages gub3-rest
 
 gub3all: gub3-all
 
+gub3-native:
+	$(MAKE) PLATFORMS=$(BUILD_PLATFORM) gub3-packages gub3-installers
+
 gub3-rest: gub3-installers gub3-test gub3-doc print-success
 
 gub3-packages:
 	$(call INVOKE_GUB,$(BUILD_PLATFORM)) $(BUILD_PACKAGE) $(OTHER_PLATFORMS:%=%::$(BUILD_PACKAGE))
 
-gub3-installers:
+gub3-installers: #gub3-packages
 	$(foreach p,$(PLATFORMS),$(call INVOKE_INSTALLER_BUILDER,$(p)) lilypond && ) :
 
 gub3-test: dist-check test-output test-export
 
-gub3-doc: doc-build doc-export
+gub3-doc: gub3-native doc-build doc-export
 
 platforms: $(PLATFORMS)
 
