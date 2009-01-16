@@ -371,6 +371,8 @@ unlocked-updated-doc-build:
 	$(DOC_RELOCATION) make -C $(NATIVE_LILY_BUILD) \
 	    prefix= infodir=/share/info DESTDIR=$(NATIVE_DOC_ROOT) \
 	    web-install
+	cp -f sourcefiles/dir $(NATIVE_DOC_ROOT)/share/info/dir
+	cd $(NATIVE_DOC_ROOT)/share/info && $(DOC_RELOCATION) install-info --info-dir=. lilypond.info
 ## On darwin, all our libraries have the wrong names;
 ## overriding with DYLD_LIBRARY_PATH doesn't work,
 ## as the libs in system/ are stubs.
