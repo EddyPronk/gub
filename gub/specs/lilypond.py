@@ -254,16 +254,10 @@ LDFLAGS="%(LDFLAGS)s %(python_lib)s"
         installer_build = '1'
         installer_version = self.build_version ()
         docball = self.expand ('%(uploads)s/lilypond-%(installer_version)s-%(installer_build)s.documentation.tar.bz2', env=locals ())
-        infomanball = self.expand ('%(uploads)s/lilypond-%(installer_version)s-%(installer_build)s.info-man.tar.bz2', env=locals ())
 
         self.system ('''
 mkdir -p %(install_prefix)s/share/doc/lilypond
-tar -C %(install_prefix)s/share/doc/lilypond -jxf %(docball)s
-tar -C %(install_root)s -jxf %(infomanball)s
-find %(install_prefix)s/share/doc/lilypond -name '*.signature' -exec rm '{}' ';'
-find %(install_prefix)s/share/doc/lilypond -name '*.ps' -exec rm '{}' ';'
-mkdir -p %(install_prefix)s/share/info
-cd %(install_prefix)s/share/info && ln -sf ../../doc/lilypond/Documentation/user lilypond
+tar -C %(install_prefix)s -jxf %(docball)s
 ''',
                   locals ())
 
