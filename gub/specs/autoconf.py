@@ -19,5 +19,7 @@ configure.in:83: warning: AC_CACHE_VAL(lt_prog_compiler_pic_works, ...): suspici
 class Autoconf__tools (tools.AutoBuild):
     source = 'ftp://ftp.gnu.org/pub/gnu/autoconf/autoconf-2.61.tar.gz'
     #source = 'ftp://ftp.gnu.org/pub/gnu/autoconf/autoconf-2.63.tar.gz'
+    def get_build_dependencies (self):
+        return ['m4']
     def force_sequential_build (self):
         return True
