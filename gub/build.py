@@ -408,7 +408,15 @@ tooldir=%(install_prefix)s
         self.system ('''
 rm -rf %(install_root)s
 cd %(builddir)s && %(install_command)s
-rm -f %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/share/info/dir %(install_root)s%(packaging_suffix_dir)s/%(prefix_dir)s/%(cross_dir)s/info/dir %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/info/dir
+rm -f \
+    %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/info/dir \
+    %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/info/dir.old \
+    %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/share/info/dir \
+    %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/share/info/dir.old \
+    %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s%(cross_dir)s/info/dir \
+    %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s%(cross_dir)s/info/dir.old \
+    %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s%(cross_dir)s/share/info/dir \
+    %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s%(cross_dir)s/share/info/dir.old \
 ''')
         self.install_license ()
         self.libtool_installed_la_fixups ()
