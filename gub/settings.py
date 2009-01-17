@@ -176,7 +176,7 @@ class Settings (context.Context):
         except ValueError:
             self.cpu_count_str = '1'
 
-        if self.build_architecture == 'linux-x86':
+        if self.build_architecture == 'i686-linux':
             try:
                 cpuinfo = file ('/proc/cpuinfo').read ()
                 if re.search ('(?m)^flags\s+:.*\slm(\s|$)', cpuinfo):
