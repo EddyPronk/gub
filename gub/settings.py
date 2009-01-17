@@ -179,7 +179,20 @@ class Settings (context.Context):
         if self.build_architecture == 'i686-linux':
             try:
                 cpuinfo = file ('/proc/cpuinfo').read ()
-                if re.search ('(?m)^flags\s+:.*\slm(\s|$)', cpuinfo):
+                cpu_flags = re.search ('(?m)^flags\s+:(.*)',
+                                       cpuinfo).group (1).split ()
+                if 'lm' in cpu_flags:
+                    # 32 bit OS running on 64 bit hardware, help configure
+                    self.ABI = '32'
+                    os.environ['ABI'] = '32'
+            except:
+                pass
+
+        if self.build_architecture == 'i686-freebsd':
+            try:
+                cpu = misc.read_pipe ('sysctl -b hw.machine')
+                if cpu in ('amd64', 'ia64'):
+                    # 32 bit OS running on 64 bit hardware, help configure
                     self.ABI = '32'
                     os.environ['ABI'] = '32'
             except:
