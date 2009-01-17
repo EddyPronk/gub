@@ -129,7 +129,7 @@ The story starts with a crazy guywith an itch to run LilyPond on Windows. Not
 long thereafter Cygwin cross, our first cross build environment is created.
 
 Later, this is moved into a patch set for mknetrel. Spring 2005: In a bold move
-a set of patches for MinGWare created to build LilyPond and all its [17]
+a set of patches for MinGW are created to build LilyPond and all its [17]
 dependencies. Simultaniously, a cross build environment and installer for
 MacOSXis created.
 
