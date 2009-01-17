@@ -89,10 +89,11 @@ def set_cross_dependencies (package_object_dict):
     
     tar_packs = [p for p in packs if (isinstance (p.source, repository.TarBall)
                                       and p.platform_name () not in (bootstrap_names + ['tools::tar']))]
+    bzip2_packs = [p for p in tar_packs if p.source.source.endswith ('bz2')]
 
     extra_names = []
-    if tar_packs:
-        extra_names += ['tools::tar']
+    if bzip2_packs:
+        extra_names += ['tools::bzip2']
     if git_packs:
         extra_names += ['tools::git']
     if patch_packs:
@@ -101,6 +102,8 @@ def set_cross_dependencies (package_object_dict):
         extra_names += ['tools::python']
     if scons_packs:
         extra_names += ['tools::scons']
+    if tar_packs:
+        extra_names += ['tools::tar']
 
     sdk_names = [s.platform_name () for s in sdk_packs]
     cross_names = [s.platform_name () for s in cross_packs]
@@ -127,8 +130,8 @@ def set_cross_dependencies (package_object_dict):
             old_callback = p.get_build_dependencies
             p.get_build_dependencies = misc.MethodOverrider (old_callback,
                                                              lambda x,y: x+y, (add,))
-    for p in tar_packs:
-        add = ['tools::tar']
+    for p in bzip2_packs:
+        add = ['tools::bzip2']
         if not misc.list_in (add, p.get_platform_build_dependencies ()):
             old_callback = p.get_build_dependencies
             p.get_build_dependencies = misc.MethodOverrider (old_callback,
@@ -153,6 +156,12 @@ def set_cross_dependencies (package_object_dict):
                                                              lambda x,y: x+y, (add,))
     for p in scons_packs:
         add = ['tools::scons']
+        if not misc.list_in (add, p.get_platform_build_dependencies ()):
+            old_callback = p.get_build_dependencies
+            p.get_build_dependencies = misc.MethodOverrider (old_callback,
+                                                             lambda x,y: x+y, (add,))
+    for p in tar_packs:
+        add = ['tools::tar']
         if not misc.list_in (add, p.get_platform_build_dependencies ()):
             old_callback = p.get_build_dependencies
             p.get_build_dependencies = misc.MethodOverrider (old_callback,
