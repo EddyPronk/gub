@@ -20,7 +20,7 @@ def gcc_machine ():
     for os_name in lst[1:]:
         if os_name in ('linux', 'freebsd', 'darwin', 'cygwin'):
             return '%(os_name)s-%(cpu)s' % locals ()
-    raise 'UnknownOs'
+    raise Exception ('UnknownOs')
 
 def plain_uname_machine ():
     return '-'.join ([read_pipe ('uname -m'), read_pipe ('uname -s')])
@@ -32,7 +32,7 @@ def uname_machine ():
     os_name = os_name.lower ()
     if os_name in ('linux', 'freebsd', 'darwin', 'cygwin'):
         return '%(os_name)s-%(cpu)s' % locals ()
-    raise 'UnknownOs'
+    raise Exception ('UnknownOs')
 
 def plain_machine ():
     m = plain_gcc_machine ()
@@ -45,4 +45,4 @@ def machine ():
         return gcc_machine ()
     except:
         return uname_machine ()
-    raise 'UnknownOs'
+    raise Exception ('UnknownOs')
