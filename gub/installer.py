@@ -417,7 +417,7 @@ class Shar (Linux_installer):
     def create (self):
         Linux_installer.create (self)
         target_shar = self.installer_file ()
-        head = self.expand ('%(sourcefiledir)s/sharhead.sh')
+        head = self.expand ('%(sourcefiledir)s/lilypond-sharhead.sh')
         tarball = self.expand (self.bundle_tarball)
         hello = self.expand ("version %(installer_version)s release %(installer_build)s")
         self.runner._execute (commands.CreateShar (tarball, hello, head, target_shar))
