@@ -5,7 +5,7 @@ class Netpbm__tools (tools.AutoBuild):
     # source='svn:https://svn.sourceforge.net/svnroot/netpbm/stable&revision=172'
     source='http://lilypond.org/download/gub-sources/netpbm-patched-10.35.tar.bz2'
     def get_build_dependencies (self):
-        return ['libjpeg', 'libpng', 'libtiff', 'zlib'] #libxml2? libx11-dev
+        return ['flex', 'libjpeg', 'libpng', 'libtiff', 'zlib'] #libxml2? libx11-dev
     def configure (self):
         self.shadow ()
         self.dump ('\n'*3 + 'static\n' + '\n'*18, '%(builddir)s/answers')
