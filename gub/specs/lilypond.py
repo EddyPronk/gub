@@ -217,36 +217,25 @@ class LilyPond__cygwin (LilyPond):
             'findutils',
             'ghostscript',
             ]
-
     def configure_command (self):
         return (LilyPond.configure_command (self)
                 .replace ('--enable-relocation', '--disable-relocation'))
-
-    def compile (self):
-	# Because of relocation script, python must be built before scripts
-        # PYTHON= is replaces the detected python interpreter in tools.
-        self.system ('''
-cd %(builddir)s && make -C python LDFLAGS=%(system_prefix)s/bin/libpython*.dll
-cd %(builddir)s && make -C scripts PYTHON=/usr/bin/python
-cp -pv %(system_prefix)s/share/gettext/gettext.h %(system_prefix)s/include''')
-        LilyPond.compile (self)
-
-    def compile_command (self):
-        ## UGH - * sucks.
+    def makeflags (self):
         python_lib = '%(system_prefix)s/bin/libpython*.dll'
         LDFLAGS = '-L%(system_prefix)s/lib -L%(system_prefix)s/bin -L%(system_prefix)s/lib/w32api'
-
-        ## UGH. 
-        return (LilyPond.compile_command (self)
-                + misc.join_lines ('''
-LDFLAGS="%(LDFLAGS)s %(python_lib)s"
-'''% locals ()))
-
+        return (LilyPond.makeflags (self)
+                + 'LDFLAGS="%(LDFLAGS)s %(python_lib)s"')
+    def compile (self):
+	# Because of relocation script, python must be built before scripts
+        self.system ('''
+cd %(builddir)s && make -C python %(makeflags)s
+cd %(builddir)s && make -C scripts %(makeflags)s
+cp -pv %(system_prefix)s/share/gettext/gettext.h %(system_prefix)s/include''')
+        LilyPond.compile (self)
     def install (self):
         ##LilyPond.install (self)
         target.AutoBuild.install (self)
         self.install_doc ()
-
     def install_doc (self):
         # lilypond.make uses `python gub/versiondb.py --build-for=2.11.32'
         # which only looks at source ball build numbers, which are always `1'
@@ -295,18 +284,14 @@ class LilyPond__mingw (LilyPond):
         d = LilyPond.get_dependency_dict (self)
         d[''].append ('lilypad')        
         return d
-    ## ugh c&p
-    def compile_command (self):
-
-        ## UGH - * sucks.
-        python_lib = '%(system_prefix)s/bin/libpython*.dll'
-        LDFLAGS = '-L%(system_prefix)s/lib -L%(system_prefix)s/bin -L%(system_prefix)s/lib/w32api'
-
-        ## UGH. 
-        return (LilyPond.compile_command (self)
-                + misc.join_lines ('''
-LDFLAGS="%(LDFLAGS)s %(python_lib)s"
-'''% locals ()))
+    # ugh C&P Cygwin
+    def compile (self):
+	# Because of relocation script, python must be built before scripts
+        self.system ('''
+cd %(builddir)s && make -C python %(makeflags)s
+cd %(builddir)s && make -C scripts %(makeflags)s
+cp -pv %(system_prefix)s/share/gettext/gettext.h %(system_prefix)s/include''')
+        LilyPond.compile (self)
     def configure (self):
         LilyPond.configure (self)
         ## huh, why ? --hwn
@@ -364,8 +349,8 @@ class LilyPond__debian (LilyPond):
     def compile (self):
 	# Because of relocation script, python must be built before scripts
         self.system ('''
-cd %(builddir)s && make -C python
-cd %(builddir)s && make -C scripts PYTHON=/usr/bin/python
+cd %(builddir)s && make -C python %(makeflags)s
+cd %(builddir)s && make -C scripts %(makeflags)s
 ''')
         LilyPond.compile (self)
 
@@ -385,7 +370,6 @@ cd %(builddir)s && make -C scripts PYTHON=/usr/bin/python
             'zlib1g-dev',
             'urw-fonts',
             ] + ['gs']
-
 
 class LilyPond__darwin (LilyPond):
     def get_build_dependencies (self):
