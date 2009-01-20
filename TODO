@@ -1,11 +1,13 @@
-* python 3k compatibility: (please add recipe)
-  - junk print replace by what?)
-  - junk has_key (replace by what?)
+* python3
+  - Try it:
+       make python3  # auto-convert
+       python3 bin/gub libtool  # watch it barf
   - move to new style classes: class Foo -> class Foo (object).
-    This means that all sorts of
-      if type (foo) == type (bar)
-    constructions barf
-  - junk ` ` constucts (replace by what?)
+    This means
+      - all sorts of
+           if type (foo) == type (bar)
+        constructions barf
+      - `import new' is gone
 
 * support for ccache and icecc (icecream)
   icecc requires no setup/init effort other than picking the host

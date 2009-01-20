@@ -39,3 +39,16 @@ README: web/index.html web/lilypond.html
 
 web: README
 	scp -p web/*html lilypond.org:/var/www/lilypond/gub
+
+PYTHON_SOURCES = $$(git ls-files | grep -E '(^bin/|*.py$$)')
+python3:
+# a 2to3 crash fails to convert the remaining files
+#	2to3-3.0 -nw $(PYTHON_SOURCES) >/dev/null || :
+	for i in $(PYTHON_SOURCES); do\
+	    2to3-3.0 -nw $$i >/dev/null || :; \
+	done
+	sed -i -e 's@\t@        @g' \
+	    -e 's@\(list\|print\)(@\1 (@g' \
+	    -e 's@import md5@import hashlib@g' \
+	    -e 's@md5[.]md5@hashlib.md5@g' \
+	    -e 's@md5[.]new@hashlib.md5.new@g' $(PYTHON_SOURCES)

@@ -1215,7 +1215,7 @@ Repository helper.
 '''
     p.description = 'Grand Unified Builder.  Repository helper.'
 
-    p.add_option ('-t', '--test', action='store',
+    p.add_option ('-t', '--test',
                   action='store_true',
                   dest='test',
                   default=False,

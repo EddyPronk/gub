@@ -4,7 +4,7 @@ class Base_passwd (target.AutoBuild):
     source = 'ftp://ftp.nl.debian.org/debian/pool/main/b/base-passwd/base-passwd_3.5.11.tar.gz'
     def get_subpackage_names (self):
         return ['']
-    def def configure (self):
+    def configure (self):
         self.shadow ()
         target.AutoBuild.configure (self)
     def configure_command (self):
