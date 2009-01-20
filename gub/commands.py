@@ -54,7 +54,6 @@ class UpdateSourceDir (SerializedCommand):
         tracking = 'not tracking'
         if self.buildspec.source.is_tracking ():
             tracking  = 'tracking'
-
         hasher ('UpdateSourceDir(%(tracking)s)' % locals ())
         
 class System (SerializedCommand):
@@ -208,23 +207,20 @@ class Dump (SerializedCommand):
     def __repr__ (self):
         return 'Dump (%s)' % repr (self.args)
     def checksum (self, hasher):
-        str, name = self.args
+        string, name = self.args
         hasher (self.__class__.__name__)
         hasher (name)
 # this keeps builds log a lot smaller, but not handy for development.
-#        hasher (md5.md5 (str).hexdigest ())
-        hasher (str)
+#        hasher (md5.md5 (string).hexdigest ())
+        hasher (string)
     def execute (self, logger):
-        str, name = self.args
-
+        string, name = self.args
         kwargs = self.kwargs
         mode = 'w'
         if 'mode' in self.kwargs:
-          mode = kwargs['mode']
-          del kwargs['mode']
-          
-        loggedos.dump_file (logger, str, name, mode, **kwargs)
-
+            mode = kwargs['mode']
+            del kwargs['mode']
+        loggedos.dump_file (logger, string, name, mode, **kwargs)
 
 class Substitute (SerializedCommand):
     '''Substitute RE_PAIRS in file NAME.
@@ -347,7 +343,7 @@ class ForcedAutogenMagic (SerializedCommand):
         elif os.path.exists (os.path.join (autodir, 'bootstrap.sh')):
             self.system ('cd %(autodir)s && ./bootstrap.sh' % locals (), logger)
         elif os.path.exists (os.path.join (autodir, 'autogen.sh')):
-            s = file ('%(autodir)s/autogen.sh' % locals ()).read ()
+            s = open ('%(autodir)s/autogen.sh' % locals ()).read ()
             noconfigure = ' --help'
             if '--noconfigure' in s:
                 noconfigure = ' --noconfigure' + noconfigure
@@ -356,7 +352,7 @@ class ForcedAutogenMagic (SerializedCommand):
         else:
             libtoolize = misc.path_find (PATH, 'libtoolize')
             if libtoolize:
-                s = file (libtoolize).read ()
+                s = open (libtoolize).read ()
                 libtoolize = 'libtoolize --copy --force'
                 # --automake is mandatory for libtool-1.5.2x, but breaks with libtool-2.2.x
                 # --install is mandatory for libtool-2.2.x, but breaks with libtool-1.5.2x
@@ -379,10 +375,10 @@ class ForcedAutogenMagic (SerializedCommand):
             configure = ''
             for c in ('configure.in','configure.ac'):
                 try:
-                    str = file ('%(autodir)s/%(c)s' % locals ()).read ()
+                    string = open ('%(autodir)s/%(c)s' % locals ()).read ()
                     configure = c
-                    m = re.search ('A[CM]_CONFIG_HEADER', str)
-                    str = 0   ## don't want to expand str
+                    m = re.search ('A[CM]_CONFIG_HEADER', string)
+                    string = 0   ## don't want to expand string
                     if m:
                         headcmd = 'cd %(autodir)s && autoheader %(aclocal_flags)s' % locals ()
                         break

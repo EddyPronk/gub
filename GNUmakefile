@@ -51,6 +51,7 @@ python3:
 	    -e 's@\(list\|print\)(@\1 (@g' \
 	    -e 's@import md5@from gub import md53@g' \
 	    -e 's@md5[.]@md53.@g' \
-	    -e 's@import new@import gub.new3@g' \
+	    -e 's@import new@from gub import new3@g' \
 	    -e 's@new[.]@new3.@g' \
+	    -e 's@subprocess[.]\(AutogenMagic\|Chmod\|Conditional\|Copy\|CreateShar\|Dump\|ForcedAutogenMagic\|Func\|MapLocate\|Message\|Mkdir\|PackageGlobs\|Remove\|Rename\|Rmtree\|ShadowTree\|Substitute\|Symlink\|System\|UpdateSourceDir\)@commands.\1@g' \
 		$(PYTHON_SOURCES)
