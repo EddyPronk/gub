@@ -26,7 +26,7 @@ help:
 $(MAKE_BASES):
 	$(MAKE) -f $@.make
 
-gub3%:
+gub3% lily% cygwin%:
 	$(MAKE) -f lilypond.make $@
 
 test:
