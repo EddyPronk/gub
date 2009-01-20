@@ -339,7 +339,7 @@ class Darcs (Repository):
         patches = [p for p in patches if not re.match ('^TAG', self.xml_patch_name (p))]
 
         patches.sort ()
-        release_hash = md5.new ()
+        release_hash = md5.md5 ()
         for p in patches:
             release_hash.update (p.toxml ())
 

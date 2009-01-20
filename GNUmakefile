@@ -49,9 +49,8 @@ python3:
 	done
 	sed -i -e 's@^\( *\)\t@\1        @g' \
 	    -e 's@\(list\|print\)(@\1 (@g' \
-	    -e 's@import md5@import hashlib@g' \
-	    -e 's@md5[.]md5@hashlib.md5@g' \
-	    -e 's@md5[.]new@hashlib.md5.new@g' \
+	    -e 's@import md5@from gub import md53@g' \
+	    -e 's@md5[.]@md53.@g' \
 	    -e 's@import new@import gub.new3@g' \
 	    -e 's@new[.]@new3.@g' \
 		$(PYTHON_SOURCES)
