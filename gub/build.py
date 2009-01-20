@@ -49,7 +49,8 @@ class Build (context.RunnableContext):
 cd %(srcdir)s && patch -p%(strip)s < %(patchdir)s/%(name)s
 ''', locals ())
     def build (self):
-        available = dict (inspect.getmembers (self, callable))
+        available = dict (inspect.getmembers (self,
+                                              lambda x: hasattr (x, '__call__')))
         stages = self.stages ()
         tainted = False
         for stage in stages:

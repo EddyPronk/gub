@@ -85,7 +85,8 @@ def change_target_package (package):
     cross.change_target_package (package)
     w32.change_target_package (package)
 
-    available = dict (inspect.getmembers (package, callable))
+    available = dict (inspect.getmembers (package,
+                                          lambda x: hasattr (x, '__call__')))
 
     package.get_build_dependencies \
             = misc.MethodOverrider (package.get_build_dependencies,
