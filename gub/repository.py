@@ -510,6 +510,7 @@ class Git (Repository):
             u = misc.Url (source)
             self.url_host = u.host
             self.url_dir = u.dir.replace ('~', '_')
+            self.source = self.source.replace ('git+file://' + u.host, '')
         else:
             # repository proxy determined git vcs from dir
             print 'FIXME: get url from .git dir info'
