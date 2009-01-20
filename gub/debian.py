@@ -1,7 +1,7 @@
 import os
 import re
 import string
-from new import classobj
+import new
 #
 from gub import build
 from gub import cross
@@ -59,7 +59,7 @@ def get_debian_package (settings, description):
         ]
     if d['Package'] in blacklist:
         d['Package'] += '::blacklisted'
-    package_class = classobj (d['Package'], (build.BinaryBuild,), {})
+    package_class = new.classobj (d['Package'], (build.BinaryBuild,), {})
     from gub import repository
     source = repository.DebianPackage (settings.downloads + '/Debian/' + settings.debian_branch,
                                        os.path.join (mirror, d['Filename']),

@@ -25,8 +25,7 @@ packages.'''
         target.AutoBuild.__init__ (self, settings, source)
         def fixed_version (self):
             return '2006'
-        from new import instancemethod
-        source.version = instancemethod (fixed_version, source, type (source))
+        source.version = misc.bind_method (fixed_version, source, type (source))
 
         self.texmf_repo = repository.Subversion (
 # FIXME: module should be used in checkout dir name.            

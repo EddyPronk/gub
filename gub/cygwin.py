@@ -1,8 +1,7 @@
 import os
 import re
 import inspect
-#
-from new import classobj
+import new
 #
 from gub import build
 from gub import cross
@@ -182,7 +181,7 @@ def get_cygwin_package (settings, name, dict, skip):
     blacklist = cross + cycle + skip + unneeded
     if name in blacklist:
         name += '::blacklisted'
-    package_class = classobj (name, (build.BinaryBuild,), {})
+    package_class = new.classobj (name, (build.BinaryBuild,), {})
     source = repository.TarBall (settings.downloads,
                                  os.path.join (mirror,
                                                dict['install'].split ()[0]),
