@@ -1,10 +1,8 @@
-# misc utils
 import fnmatch
 import imp
 import os
 import re
 import stat
-import string
 import subprocess
 import sys
 import traceback
@@ -96,13 +94,12 @@ def grok_sh_variables (file):
     return grok_sh_variables_str (open (file).read ())
 
 def version_to_string (t):
-    return '%s-%s' % (string.join (map (string, t[:-1]), '.'), t[-1])
+    return '%s-%s' % ('.'.join (map (string, t[:-1])), t[-1])
 
 def split_version (s):
     m = re.match ('^(([0-9].*)-([0-9]+))$', s)
     if m:
         return m.group (2), m.group (3)
-    
     return (s, '0')
 
 def string_to_version (s):
@@ -113,7 +110,7 @@ def string_to_version (s):
         if re.match ('^[0-9]+$', x):
             return int (x)
         return x
-    return tuple (map (atoi, (string.split (s, ' '))))
+    return tuple (map (atoi, (s.split (' '))))
 
 def is_ball (s):
     # FIXME: do this properly, by identifying different flavours:
@@ -128,7 +125,7 @@ def split_ball (s):
     m = is_ball (s)
     if not m:
         return (s, (0, 0), '')
-    return (m.group (1), string_to_version (string.join (split_version (m.group (2)), '-')), m.group (6))
+    return (m.group (1), string_to_version ('-'.join (split_version (m.group (2)))), m.group (6))
 
 def name_from_url (url):
     url, params = dissect_url (url)

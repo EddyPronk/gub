@@ -1,6 +1,5 @@
 import os
 import re
-import string
 import new
 #
 from gub import build
@@ -37,7 +36,7 @@ def get_debian_packages (settings, package_file):
 def get_debian_package (settings, description):
     s = description[:description.find ('\nDescription')]
     d = dict (map (lambda line: line.split (': ', 1),
-           map (string.strip, s.split ('\n'))))
+           map (''.strip, s.split ('\n'))))
     # FIXME: should blacklist toplevel bin/gub argument iso lilypond
     blacklist = [
         'binutils',
@@ -67,7 +66,7 @@ def get_debian_package (settings, description):
     package = package_class (settings, source)
     package.name_dependencies = []
     if d.has_key ('Depends'):
-        deps = map (string.strip,
+        deps = map (''.strip,
                     re.sub ('\([^\)]*\)', '', d['Depends']).split (', '))
         # FIXME: BARF, ignore choices
         deps = filter (lambda x: x.find ('|') == -1, deps)
