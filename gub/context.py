@@ -2,25 +2,41 @@ import inspect
 import os
 import re
 import traceback
-
+import types
 
 def subst_method (func):
-    """Decorator to match Context.get_substitution_dict ()"""
-    
+    '''Decorator to match Context.get_substitution_dict ()'''
     func.substitute_me = True
     return func
 
-def is_subst_method_in_class (method_name, klass):
-    bs = [k for k in klass.__bases__
-          if is_subst_method_in_class (method_name, k)]
-    if bs:
-        return True
-    
-    if (klass.__dict__.has_key (method_name)
-      and callable (klass.__dict__[method_name])
-      and klass.__dict__[method_name].__dict__.has_key ('substitute_me')):
-        return True
+NAME = 0
+OBJECT = 1
+def is_method (member):
+    return type (member[OBJECT]) == types.MethodType
 
+def is_subst_method (member):
+    return (is_method (member)
+            and (hasattr (member[OBJECT], 'substitute_me')
+                 or base_is_class_subst_method (member[NAME],
+                                                member[OBJECT].im_class)))
+
+class _C (object):
+    pass
+
+def is_class_subst_method (name, cls):
+    if (cls.__dict__.has_key (name)
+        and classmethod (cls.__dict__[name])
+        and type (cls.__dict__[name]) != type (_C.__init__)
+        and cls.__dict__[name].__dict__.has_key ('substitute_me')):
+        return True
+    return False
+
+def base_is_class_subst_method (name, cls):
+    if is_class_subst_method (name, cls):
+        return True
+    for c in cls.__bases__:
+        if base_is_class_subst_method (name, c):
+            return True
     return False
 
 def typecheck_substitution_dict (d):
@@ -33,14 +49,12 @@ def recurse_substitutions (d):
         if type (v) != str:
             del d[k]
             continue
-
         try:
             while v.index ('%(') >= 0:
                 v = v % d
         except ValueError:
             pass
         d[k] = v
-
     return d
 
 class ConstantCall:
@@ -58,15 +72,9 @@ class ExpandInInit (Exception):
 class NonStringExpansion (Exception):
     pass
 
+# New style classes should now work
 #class Context (object):
-# FIXME: using new style classes breaks in several ways:
-#  File "gub/gup.py", line 377, in topologically_sorted_one
-#    assert type (d) == type (todo)
-#
-#   File "gub/context.py", line 21, in is_subst_method_in_class
-#    and klass.__dict__[method_name].__dict__.has_key ('substitute_me')):
-#AttributeError: 'wrapper_descriptor' object has no attribute '__dict__'
-class Context:
+class Context ():
     def __init__ (self, parent = None):
         self._substitution_dict = None
         self._parent = parent
@@ -89,33 +97,20 @@ class Context:
             d = self._parent.get_substitution_dict ()
             d = d.copy ()
             
-        ms = inspect.getmembers (self)
-        vars = dict ((k, v) for (k, v) in ms if type (v) == str)
-
+        members = inspect.getmembers (self)
         member_substs = {}
-        for (name, method) in ms:
-            try:
-                ccall = self.__dict__[name]
-                if isinstance (ccall, ConstantCall):
-                    method = ccall
-            except KeyError:
-                pass
-            
-            if (callable (method)
-                and is_subst_method_in_class (name, self.__class__)):
-                
-                val = method ()
-                self.__dict__[name] = ConstantCall (val)
+        for (name, method) in filter (is_subst_method, members):
+            val = method ()
+            self.__dict__[name] = ConstantCall (val)
+            member_substs[name] = val
+            if type (val) != str:
+                message = 'non string value ' + val + 'for subst_method' + name
+                print message
+                raise NonStringExpansion (message)
 
-                member_substs[name] = val
-
-                if type (val) != str:
-                    print 'non string value ', val, 'for subst_method', name
-                    raise NonStringExpansion
-        
-        d.update (vars)
+        string_vars = dict ((k, v) for (k, v) in members if type (v) == str)
+        d.update (string_vars)
         d.update (member_substs)
-
         d = recurse_substitutions (d)
         return d
 

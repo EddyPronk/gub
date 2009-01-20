@@ -27,7 +27,11 @@ class GupPackage:
         self._dict['sub_name'] = sub_name
         if sub_name:
             sub_name = '-' + sub_name
-        s = ('%(name)s' % dict) + sub_name
+        try:
+            s = ('%(name)s' % dict) + sub_name
+        except:
+            print 'NO NAME IN:', dict
+            raise 
         self._dict['split_name'] = s
         self._dict['split_ball'] = ('%(packages)s/%(split_name)s%(ball_suffix)s.%(platform)s.gup') % self._dict
         self._dict['split_hdr'] = ('%(packages)s/%(split_name)s%(vc_branch_suffix)s.%(platform)s.hdr') % self._dict

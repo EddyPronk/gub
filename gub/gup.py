@@ -5,6 +5,7 @@
 
 import fcntl
 import glob
+import inspect
 import os
 import pickle
 import re
@@ -363,25 +364,22 @@ def topologically_sorted_one (todo, done, dependency_getter,
 
     done[todo] = 1
 
+    def type_equal (a, b):
+        return ((type (a) == type (b))
+                or inspect.isclass (type (a)) == inspect.isclass (type (b)))
+
     deps = dependency_getter (todo)
     for d in deps:
         if recurse_stop_predicate and recurse_stop_predicate (d):
             continue
-
-        # 
-        if not type (d) == type (todo):
+        if not type_equal (d, todo):
             print type (d), '!=', type (todo)
-            assert type (d) == type (todo)
-        # New style class attempt...
-        if (not ((isinstance (d, build.AutoBuild)
-                  and isinstance (d, build.AutoBuild))
-                 or (type (d) == type (todo)))):
-            print type (d), '!=', type (todo)
-            assert type (d) == type (todo)
-
+            print d.__class__, todo.__class__
+            print d.__dict__, todo.__dict__
+            print inspect.isclass (type (d)), inspect.isclass (type (todo))
+            assert type_equal (a, b)
         sorted += topologically_sorted_one (d, done, dependency_getter,
                                             recurse_stop_predicate=recurse_stop_predicate)
-
     sorted.append (todo)
     return sorted
 
