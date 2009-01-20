@@ -17,13 +17,13 @@ if test -z "$sysheaders" &&
    test -d /lib/modules/`uname -r`/build/include; then
   sysheaders="/lib/modules/`uname -r`/build/include"
   ccheaders=`$CC -print-file-name=include`
-  dnl We don't have to use -nostdinc.  We just want one more directory
+  dnl We do not have to use -nostdinc.  We just want one more directory
   dnl to be used.
   SYSINCLUDES="-I $sysheaders"
 fi
 
-Which makes, that when we're not cross compiling, eg: target/linux-64
-on a x86_64, we'll try to include /lib/modules/.../build/include,
+Which makes, that when we are not cross compiling, eg: target/linux-64
+on a x86_64, we will try to include /lib/modules/.../build/include,
 and LD_PRELOAD will make us barf.
 
 We should be able to silence this using --with-headers.  So,
