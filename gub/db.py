@@ -7,7 +7,7 @@ except:
         import dbm as db
     except:
         try:
-	    import dbhash as db
-	except Exception, e:
-	    print 'No db module found'
-	    raise e
+            import dbhash as db
+        except Exception, e:
+            print 'No db module found'
+            raise e

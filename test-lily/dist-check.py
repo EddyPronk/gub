@@ -25,25 +25,25 @@ def parse_options ():
     p.usage = "dist-check.py BUILD-DIR"
 
     p.add_option ('--repository',
-		  action="store",
-		  dest="repository",
+        	  action="store",
+        	  dest="repository",
                   default="",
-		  help="Repository of lilypond.")
+        	  help="Repository of lilypond.")
     p.add_option ('--url', action='store',
                   dest='url',
                   default='file://localhost/git',
                   help='select hostname/path for git branch')
 
     p.add_option ('--branch',
-		  action="store",
-		  dest="branch",
+        	  action="store",
+        	  dest="branch",
                   default="",
-		  help="Branch of lilypond.")
+        	  help="Branch of lilypond.")
     
     (o,a) = p.parse_args ()
     if len (a) < 1:
-	p.print_help ()
-	sys.exit (2)
+        p.print_help ()
+        sys.exit (2)
 
     
     o.repository = os.path.abspath (o.repository)

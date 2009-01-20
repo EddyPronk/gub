@@ -36,15 +36,15 @@ class Gettext__freebsd (Gettext):
 
 '''
 mingw: 0.17
-	sed_extract_major='/^[0-9]/{'${nl}'s/^\([0-9]*\).*/\1/p'${nl}q${nl}'}'${nl}'c\'${nl}0${nl}q; \
-	sed_extract_minor='/^[0-9][0-9]*[.][0-9]/{'${nl}'s/^[0-9]*[.]\([0-9]*\).*/\1/p'${nl}q${nl}'}'${nl}'c\'${nl}0${nl}q; \
-	sed_extract_subminor='/^[0-9][0-9]*[.][0-9][0-9]*[.][0-9]/{'${nl}'s/^[0-9]*[.][0-9]*[.]\([0-9]*\).*/\1/p'${nl}q${nl}'}'${nl}'c\'${nl}0${nl}q; \
-	i686-mingw32-windres \
-	  "-DPACKAGE_VERSION_STRING=\\\"0.17\\\"" \
-	  "-DPACKAGE_VERSION_MAJOR="`echo '0.17' | sed -n -e "$sed_extract_major"` \
-	  "-DPACKAGE_VERSION_MINOR="`echo '0.17' | sed -n -e "$sed_extract_minor"` \
-	  "-DPACKAGE_VERSION_SUBMINOR="`echo '0.17' | sed -n -e "$sed_extract_subminor"` \
-	  -i /home/janneke/vc/gub/target/mingw/src/gettext-0.17/gettext-runtime/intl/libintl.rc -o libintl.res --output-format=coff
+        sed_extract_major='/^[0-9]/{'${nl}'s/^\([0-9]*\).*/\1/p'${nl}q${nl}'}'${nl}'c\'${nl}0${nl}q; \
+        sed_extract_minor='/^[0-9][0-9]*[.][0-9]/{'${nl}'s/^[0-9]*[.]\([0-9]*\).*/\1/p'${nl}q${nl}'}'${nl}'c\'${nl}0${nl}q; \
+        sed_extract_subminor='/^[0-9][0-9]*[.][0-9][0-9]*[.][0-9]/{'${nl}'s/^[0-9]*[.][0-9]*[.]\([0-9]*\).*/\1/p'${nl}q${nl}'}'${nl}'c\'${nl}0${nl}q; \
+        i686-mingw32-windres \
+          "-DPACKAGE_VERSION_STRING=\\\"0.17\\\"" \
+          "-DPACKAGE_VERSION_MAJOR="`echo '0.17' | sed -n -e "$sed_extract_major"` \
+          "-DPACKAGE_VERSION_MINOR="`echo '0.17' | sed -n -e "$sed_extract_minor"` \
+          "-DPACKAGE_VERSION_SUBMINOR="`echo '0.17' | sed -n -e "$sed_extract_subminor"` \
+          -i /home/janneke/vc/gub/target/mingw/src/gettext-0.17/gettext-runtime/intl/libintl.rc -o libintl.res --output-format=coff
 sed: expressie #1, teken 11: onbekende opdracht: '\'
 sed: expressie #1, teken 25: onbekende opdracht: '\'
 sed: expressie #1, teken 39: onbekende opdracht: '\'

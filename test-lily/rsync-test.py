@@ -24,13 +24,13 @@ def parse_options ():
 
     p = optparse.OptionParser ()
     p.add_option ('--upload',
-		  dest='destination',
-		  help='where to upload the result',
-		  default='')
+        	  dest='destination',
+        	  help='where to upload the result',
+        	  default='')
     p.add_option ('--dbfile',
-		  dest='dbfile',
-		  help='which version db to use',
-		  default='uploads/lilypond.versions')
+        	  dest='dbfile',
+        	  help='which version db to use',
+        	  default='uploads/lilypond.versions')
     p.add_option ('--output-distance',
                   dest='output_distance_script',
                   help='compute signature distances using script') 
@@ -44,18 +44,18 @@ def parse_options ():
                   dest='version_file',
                   help='where to get the version number')
     p.add_option ('--test-dir',
-		  dest='test_dir',
-		  default='uploads/webtest/',
-		  help='Where to put local versions of the test output')
+        	  dest='test_dir',
+        	  default='uploads/webtest/',
+        	  help='Where to put local versions of the test output')
     p.add_option ('--upload-dir',
-		  dest='upload_dir',
-		  default='uploads/',
-		  help='Where to find test-output tarballs')
+        	  dest='upload_dir',
+        	  default='uploads/',
+        	  help='Where to find test-output tarballs')
     p.add_option ('--keep',
-		  dest='keep',
+        	  dest='keep',
                   action='store_true',
-		  default=False,
-		  help='Do not remove unpack dir')
+        	  default=False,
+        	  help='Do not remove unpack dir')
  
     (options, args) = p.parse_args ()
 
@@ -69,7 +69,7 @@ def system (cmd):
     print cmd
     stat = os.system (cmd)
     if stat:
-    	raise 'fail'
+            raise 'fail'
 def read_version (source):
     s = open (source).read ()
     s = s.strip ()

@@ -14,15 +14,15 @@ def system (logger, cmd, env=os.environ, ignore_errors=False):
     
     line = proc.stdout.readline ()
     while line:
-	logger.write_log (line, 'output')
-	line = proc.stdout.readline ()
+        logger.write_log (line, 'output')
+        line = proc.stdout.readline ()
     proc.wait ()
 
     if proc.returncode:
-	m = 'Command barfed: %(cmd)s\n' % locals ()
-	logger.write_log (m, 'error')
-	if not ignore_errors:
-	    raise misc.SystemFailed (m)
+        m = 'Command barfed: %(cmd)s\n' % locals ()
+        logger.write_log (m, 'error')
+        if not ignore_errors:
+            raise misc.SystemFailed (m)
     return proc.returncode
 
 

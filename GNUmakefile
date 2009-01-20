@@ -47,7 +47,7 @@ python3:
 	for i in $(PYTHON_SOURCES); do\
 	    2to3-3.0 -nw $$i >/dev/null || :; \
 	done
-	sed -i -e 's@\t@        @g' \
+	sed -i -e 's@^\( *\)\t@\1        @g' \
 	    -e 's@\(list\|print\)(@\1 (@g' \
 	    -e 's@import md5@import hashlib@g' \
 	    -e 's@md5[.]md5@hashlib.md5@g' \

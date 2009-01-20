@@ -14,7 +14,7 @@ class Python (target.AutoBuild):
         target.AutoBuild.__init__ (self, settings, source)
         
         ## don't from gub import settings from build system.
-	self.BASECFLAGS=''
+        self.BASECFLAGS=''
 
     def configure_command (self):
         return 'ac_cv_printf_zd_format=yes ' + target.AutoBuild.configure_command (self)

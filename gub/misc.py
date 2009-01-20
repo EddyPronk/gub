@@ -68,14 +68,14 @@ def read_pipe (cmd, ignore_errors=False, env=os.environ, logger=sys.stderr):
     line = proc.stdout.readline ()
     result = line
     while line:
-	line = proc.stdout.readline ()
+        line = proc.stdout.readline ()
         result += line
 
     if proc.returncode:
-	m = 'read_pipe failed: %(cmd)s\n' % locals ()
+        m = 'read_pipe failed: %(cmd)s\n' % locals ()
         logger.write (m)
-	if not ignore_errors:
-	    raise misc.SystemFailed (m)
+        if not ignore_errors:
+            raise misc.SystemFailed (m)
     return result
 
 def read_file (file):

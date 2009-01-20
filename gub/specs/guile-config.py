@@ -6,7 +6,7 @@ class Guile_config (build.SdkBuild):
         build.SdkBuild.install (self)
         self.system ('mkdir -p %(cross_prefix)s%(prefix_dir)s/bin')
         version = self.version ()
-	#FIXME: c&p guile.py
+        #FIXME: c&p guile.py
         self.dump ('''\
 #! /bin/sh
 test "$1" = "--version" && echo "%(target_architecture)s-guile-config - Guile version %(version)s"
@@ -25,7 +25,7 @@ class Guile_config__debian (build.SdkBuild):
         build.SdkBuild.install (self)
         self.system ('mkdir -p %(cross_prefix)s%(prefix_dir)s/bin')
         version = self.version ()
-	#FIXME: c&p guile.py
+        #FIXME: c&p guile.py
         self.dump ('''\
 #! /bin/sh
 test "$1" = "--version" && echo "%(target_architecture)s-guile-config - Guile version %(version)s"

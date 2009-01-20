@@ -491,8 +491,8 @@ cp %(file)s %(install_root)s/license/%(name)s
         return self.settings.platform
 
     def get_subpackage_definitions (self):
-	cross_dir = self.settings.cross_dir
-	prefix_dir = self.settings.prefix_dir
+        cross_dir = self.settings.cross_dir
+        prefix_dir = self.settings.prefix_dir
         d = {
             'base': [prefix_dir + '/share'],
             'common': [prefix_dir + '/share'],
@@ -562,7 +562,7 @@ cp %(file)s %(install_root)s/license/%(name)s
                 dep_str = p._dict['dependencies_string'] + ';' + dep_str
             p._dict['dependencies_string'] = dep_str
 
-	    # FIXME make generic: use cross.get_subpackage_dict_methods () or similar.
+            # FIXME make generic: use cross.get_subpackage_dict_methods () or similar.
             desc_str = descr_dict.get (sub, '')
             p._dict['description'] = desc_str
 

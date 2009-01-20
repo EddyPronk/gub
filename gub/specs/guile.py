@@ -97,7 +97,7 @@ cc
                    '%(install_prefix)s/etc/relocate/guile.reloc',
                    env=locals ())
         version = self.expand ('%(version)s')
-	#FIXME: c&p linux.py
+        #FIXME: c&p linux.py
         self.dump ('''\
 #! /bin/sh
 test "$1" = "--version" && echo "%(target_architecture)s-guile-config - Guile version %(version)s"

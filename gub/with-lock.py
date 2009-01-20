@@ -34,18 +34,18 @@ def parse_options ():
     p = optparse.OptionParser ()
     p.usage = 'with-lock.py FILE COMMAND'
     p.add_option ('--skip',
-		  action="store_true",
-		  dest="skip",
-		  help="return 0 if couldn't get lock.")
+        	  action="store_true",
+        	  dest="skip",
+        	  help="return 0 if couldn't get lock.")
 
     p.disable_interspersed_args ()
 
 
     (o,a) = p.parse_args ()
     if len (a) < 2:
-	p.print_help ()
-	sys.exit (2)
-	
+        p.print_help ()
+        sys.exit (2)
+        
     return o,a
 
 def run_command_with_lock (lock_file_name, cmd, args):
@@ -67,11 +67,11 @@ def main ():
         stat = run_command_with_lock (lock_file_name, cmd, args)
         sys.exit (stat)
     except locker.LockedError:
-	print "Can't acquire lock %s" % lock_file_name
-	if opts.skip:
-	    sys.exit (0)
-	else:
-	    sys.exit (1)
+        print "Can't acquire lock %s" % lock_file_name
+        if opts.skip:
+            sys.exit (0)
+        else:
+            sys.exit (1)
 
 if __name__ == '__main__':
     main ()

@@ -121,7 +121,7 @@ class Dependency_resolver:
 #        arch = settings.platform
 #        if settings.platform == 'debian':
 #            arch = 'i386'
-	arch = self.settings.package_arch
+        arch = self.settings.package_arch
         branch = self.settings.debian_branch
         packages_path = '/dists/%(branch)s/main/binary-%(arch)s/Packages.gz' \
                         % locals ()

@@ -121,7 +121,7 @@ packages.'''
         return self.broken_install_command ()
 
     def install (self):
-    	target.AutoBuild.install (self)
+            target.AutoBuild.install (self)
         self.system ('''
 #rsync -v -a %(srcdir)s/texmf-dist/* %(install_prefix)s/share/texmf-dist
 rsync -v -a %(srcdir)s/texmf/* %(install_prefix)s/share/texmf/
@@ -196,7 +196,7 @@ CFLAGS="-O2 -g -DKPSE_DLL"
         return (Texlive.compile_command (self) + self.makeflags ())
 
     def install (self):
-    	self.pre_install_smurf_exe ()
+            self.pre_install_smurf_exe ()
         Texlive.install (self)
         
     # FIXME: we do most of this for all cygwin packages

@@ -273,7 +273,7 @@ def test_target (repo, options, target, last_patch):
 
     message = '''%(result)s for%(recheck)s:
 
-	%(target)s
+        %(target)s
 
 
 %(tail)s'''

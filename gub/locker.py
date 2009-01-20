@@ -47,6 +47,6 @@ class Locker:
             
         if self.lock_file:
             fcntl.flock (self.lock_file.fileno (), fcntl.LOCK_UN)
-	
+        
     def __del__ (self):
-	self.unlock ()
+        self.unlock ()

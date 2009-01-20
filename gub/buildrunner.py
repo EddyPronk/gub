@@ -100,7 +100,7 @@ class BuildRunner:
         except IOError:
             build_checksum_ondisk = '0000'
 
-	# fixme: spec.build_checksum () should be method.
+        # fixme: spec.build_checksum () should be method.
         reason = ''
         if spec.source_checksum () != pkg_dict['source_checksum']:
             reason = 'source %s -> %s (memory)' % (spec.source_checksum (), pkg_dict['source_checksum'])
@@ -202,14 +202,14 @@ class BuildRunner:
         logging.default_logger.write_log ('\n', 'stage')
 
     def uninstall_outdated_spec (self, spec_name):
-	spec = self.specs[spec_name]
+        spec = self.specs[spec_name]
         checksum_fail_reason = self.failed_checksums.get (spec_name, '')
-	checksum_ok = '' == checksum_fail_reason
-	for pkg in spec.get_packages ():
-	    if (self.manager (pkg.platform ()).is_installed (pkg.name ())
-		and (not self.manager (pkg.platform ()).is_installable (pkg.name ())
-		     or not checksum_ok)):
-		self.manager (pkg.platform ()).uninstall_package (pkg.name ())
+        checksum_ok = '' == checksum_fail_reason
+        for pkg in spec.get_packages ():
+            if (self.manager (pkg.platform ()).is_installed (pkg.name ())
+        	and (not self.manager (pkg.platform ()).is_installable (pkg.name ())
+        	     or not checksum_ok)):
+        	self.manager (pkg.platform ()).uninstall_package (pkg.name ())
 
     def uninstall_outdated_specs (self, deps):
         for spec_name in reversed (deps):

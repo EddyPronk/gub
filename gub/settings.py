@@ -154,10 +154,10 @@ class Settings (context.Context):
         self.gtk_version = '2.8'
         self.toolchain_prefix = self.target_architecture + '-'
         
-	if self.target_architecture.startswith ('x86_64'):
-	    self.package_arch = 'amd64'
+        if self.target_architecture.startswith ('x86_64'):
+            self.package_arch = 'amd64'
             self.debian_branch = 'unstable'
-	else:
+        else:
             self.package_arch = re.sub ('-.*', '', self.target_architecture)
             self.package_arch = re.sub ('i[0-9]86', 'i386', self.package_arch)
             self.package_arch = re.sub ('arm.*', 'arm', self.package_arch)

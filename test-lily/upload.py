@@ -37,8 +37,8 @@ platforms = ['linux-x86',
              ]
 
 build_platform = {
-	'darwin': 'darwin-ppc',
-	'linux2': 'linux-x86',
+        'darwin': 'darwin-ppc',
+        'linux2': 'linux-x86',
 }[sys.platform]
 
 host_spec = 'hanwen@lilypond.org:/var/www/lilypond'

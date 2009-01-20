@@ -182,7 +182,7 @@ class LilyPond__cygwin (LilyPond):
         # If get_dependency_dict () lists any packages not
         # part of build_dependencies, we get:
 
-	# Using version number 2.8.6 unknown package bash
+        # Using version number 2.8.6 unknown package bash
         # installing package: bash
         # Traceback (most recent call last):
         #   File "installer-builder.py", line 171, in ?
@@ -226,7 +226,7 @@ class LilyPond__cygwin (LilyPond):
         return (LilyPond.makeflags (self)
                 + 'LDFLAGS="%(LDFLAGS)s %(python_lib)s"')
     def compile (self):
-	# Because of relocation script, python must be built before scripts
+        # Because of relocation script, python must be built before scripts
         self.system ('''
 cd %(builddir)s && make -C python %(makeflags)s
 cd %(builddir)s && make -C scripts %(makeflags)s
@@ -271,10 +271,10 @@ class LilyPond__no_python (LilyPond):
         LilyPond.configure (self)
         self.dump ('''
 all:
-	true
+        true
 
 install:
-	-mkdir -p $(DESTDIR)%(prefix_dir)s/lib/lilypond/%(version)s
+        -mkdir -p $(DESTDIR)%(prefix_dir)s/lib/lilypond/%(version)s
 ''', '%(builddir)s/python/GNUmakefile')
         
 class LilyPond__mingw (LilyPond):
@@ -286,7 +286,7 @@ class LilyPond__mingw (LilyPond):
         return d
     # ugh C&P Cygwin
     def compile (self):
-	# Because of relocation script, python must be built before scripts
+        # Because of relocation script, python must be built before scripts
         self.system ('''
 cd %(builddir)s && make -C python %(makeflags)s
 cd %(builddir)s && make -C scripts %(makeflags)s
@@ -347,7 +347,7 @@ class LilyPond__debian (LilyPond):
                                             debian.gub_to_distro_dict)}
 
     def compile (self):
-	# Because of relocation script, python must be built before scripts
+        # Because of relocation script, python must be built before scripts
         self.system ('''
 cd %(builddir)s && make -C python %(makeflags)s
 cd %(builddir)s && make -C scripts %(makeflags)s

@@ -27,13 +27,13 @@ def parse_options ():
 
     p = optparse.OptionParser ()
     p.add_option ('--upload',
-		  dest='destination',
-		  help='where to upload the result',
-		  default='')
+        	  dest='destination',
+        	  help='where to upload the result',
+        	  default='')
     p.add_option ('--dbfile',
-		  dest='dbfile',
-		  help='which version db to use',
-		  default='uploads/lilypond.versions')
+        	  dest='dbfile',
+        	  help='which version db to use',
+        	  default='uploads/lilypond.versions')
     p.add_option ('--output-distance',
                   dest="output_distance_script",
                   help="compute signature distances using script") 
@@ -51,9 +51,9 @@ def parse_options ():
                   action="store_true",
                   help="rebuild webdirectory. Discards test-results.") 
     p.add_option ('--unpack-dir',
-		  dest='unpack_dir',
-		  default='uploads/webdoc/',
-		  help="Where to put local versions of the docs")
+        	  dest='unpack_dir',
+        	  default='uploads/webdoc/',
+        	  help="Where to put local versions of the docs")
 
     (opts, args) = p.parse_args ()
 
@@ -70,7 +70,7 @@ def parse_options ():
 def do_urchin (filename):
     s = open (filename).read ()
     if re.search ('UA-68969', s):
-    	return
+            return
     
     print filename
     urchin_track = """<script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
@@ -87,7 +87,7 @@ def system (cmd):
     print cmd
     stat = os.system (cmd)
     if stat:
-    	raise 'fail'
+            raise 'fail'
 
 def read_version (source):
     s = open (source).read ()
@@ -114,15 +114,15 @@ def create_local_web_dir (options, source):
     
     print 'Instrumenting for Google Analytics' 
     for f in ['Documentation/index.html',
-	      'Documentation/topdocs/NEWS.html',
-	      'Documentation/user/lilypond/index.html',
-	      'Documentation/user/lilypond-internals/index.html',
-	      'examples.html',
-	      'Documentation/user/music-glossary/index.html',
-	      'Documentation/topdocs/NEWS.html',
-	      'Documentation/user/lilypond-learning/Tutorial.html',
+              'Documentation/topdocs/NEWS.html',
+              'Documentation/user/lilypond/index.html',
+              'Documentation/user/lilypond-internals/index.html',
+              'examples.html',
+              'Documentation/user/music-glossary/index.html',
+              'Documentation/topdocs/NEWS.html',
+              'Documentation/user/lilypond-learning/Tutorial.html',
 #	      'input/test/collated-files.html',
-	      'input/regression/collated-files.html']:
+              'input/regression/collated-files.html']:
         do_urchin (f)
 
 # deprecated
@@ -217,7 +217,7 @@ def main ():
 
         if opts.recreate:
             create_local_web_dir (opts, a)
-	if opts.destination:	
+        if opts.destination:	
             upload (opts, a)
 
 
