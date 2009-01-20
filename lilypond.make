@@ -97,7 +97,9 @@ LILYPOND_VERSIONS = uploads/lilypond.versions
 ifneq ($(BUILD_PLATFORM),linux-64)
 DOC_LIMITS=ulimit -m 256000 && ulimit -d 256000 && ulimit -v 384000
 else
-DOC_LIMITS=ulimit -m 512000 && ulimit -d 512000 && ulimit -v 768000
+#Hmm?
+#DOC_LIMITS=ulimit -m 512000 && ulimit -d 512000 && ulimit -v 768000
+DOC_LIMITS=ulimit -m 512000 && ulimit -d 512000 && ulimit -v 1024000
 endif
 
 include compilers.make
@@ -266,6 +268,11 @@ linux-64:
 mingw:
 	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
 
+lily-clean:
+	rm -rf target/$(BUILD_PLATFORM)/*/lilypond-$(LILYPOND_FLATTENED_BRANCH)* target/$(BUILD_PLATFORM)/installer-lilypond-$(LILYPOND_FLATTENED_BRANCH) 
+
+lily-doc-clean:	doc-clean
+
 clean:
 	rm -rf $(foreach p, $(PLATFORMS), target/*$(p)* )
 
@@ -359,10 +366,12 @@ unlocked-updated-doc-build:
 	    && $(DOC_RELOCATION) \
 		make -C $(NATIVE_LILY_BUILD) \
 	    	    DOCUMENTATION=yes do-top-doc
+	$(DOC_RELOCATION) \
+	    make -C $(NATIVE_LILY_BUILD)/scripts \
+		TARGET_PYTHON=/usr/bin/python DOCUMENTATION=yes CROSS=no all
 	unset LILYPONDPREFIX LILYPOND_DATADIR \
 	    && $(DOC_LIMITS) \
 	    && $(DOC_RELOCATION) \
-	    && PYTHONPATH=$(NATIVE_LILY_BUILD)/python/out \
 		make -C $(NATIVE_LILY_BUILD) \
 	    	    DOCUMENTATION=yes \
 	    	    WEB_TARGETS="offline online" \
