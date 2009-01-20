@@ -373,7 +373,11 @@ def read_tail (file, size=10240, lines=100, marker=None):
     f = open (file)
     f.seek (0, 2)
     length = f.tell ()
-    f.seek (- min (length, size), 1)
+    if sys.version.startswith ('2'):
+        #PYTHON3 BUG?
+        f.seek (- min (length, size), 1)
+    else:
+        f.seek (max (length - size, 0), 0)
     s = f.read ()
     if marker:
         p = s.find (marker)

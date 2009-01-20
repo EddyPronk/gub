@@ -207,9 +207,9 @@ class BuildRunner:
         checksum_ok = '' == checksum_fail_reason
         for pkg in spec.get_packages ():
             if (self.manager (pkg.platform ()).is_installed (pkg.name ())
-        	and (not self.manager (pkg.platform ()).is_installable (pkg.name ())
-        	     or not checksum_ok)):
-        	self.manager (pkg.platform ()).uninstall_package (pkg.name ())
+                and (not self.manager (pkg.platform ()).is_installable (pkg.name ())
+                     or not checksum_ok)):
+                self.manager (pkg.platform ()).uninstall_package (pkg.name ())
 
     def uninstall_outdated_specs (self, deps):
         for spec_name in reversed (deps):

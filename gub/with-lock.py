@@ -34,9 +34,9 @@ def parse_options ():
     p = optparse.OptionParser ()
     p.usage = 'with-lock.py FILE COMMAND'
     p.add_option ('--skip',
-        	  action="store_true",
-        	  dest="skip",
-        	  help="return 0 if couldn't get lock.")
+                  action="store_true",
+                  dest="skip",
+                  help="return 0 if couldn't get lock.")
 
     p.disable_interspersed_args ()
 

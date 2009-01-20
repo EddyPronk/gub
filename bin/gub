@@ -286,7 +286,9 @@ def exceptional_build (settings, options, files, logger):
         sys.stderr.write ('\n')
         logger.dump_tail (sys.stderr)
         sys.stderr.write ('\n')
-        sys.stderr.write (misc.exception_string (exception))
+        if sys.version.startswith ('2'):
+            #PYTHON3 BUG?
+            sys.stderr.write (misc.exception_string (exception))
     else:
         logger.write_log ('done\n', 'stage')
         

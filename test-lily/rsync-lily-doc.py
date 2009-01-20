@@ -27,13 +27,13 @@ def parse_options ():
 
     p = optparse.OptionParser ()
     p.add_option ('--upload',
-        	  dest='destination',
-        	  help='where to upload the result',
-        	  default='')
+                  dest='destination',
+                  help='where to upload the result',
+                  default='')
     p.add_option ('--dbfile',
-        	  dest='dbfile',
-        	  help='which version db to use',
-        	  default='uploads/lilypond.versions')
+                  dest='dbfile',
+                  help='which version db to use',
+                  default='uploads/lilypond.versions')
     p.add_option ('--output-distance',
                   dest="output_distance_script",
                   help="compute signature distances using script") 
@@ -51,9 +51,9 @@ def parse_options ():
                   action="store_true",
                   help="rebuild webdirectory. Discards test-results.") 
     p.add_option ('--unpack-dir',
-        	  dest='unpack_dir',
-        	  default='uploads/webdoc/',
-        	  help="Where to put local versions of the docs")
+                  dest='unpack_dir',
+                  default='uploads/webdoc/',
+                  help="Where to put local versions of the docs")
 
     (opts, args) = p.parse_args ()
 
