@@ -263,6 +263,22 @@ def as_variables (settings):
         if type (v) == type (str ()):
             lst.append ('%(k)s=%(v)s' % locals ())
     return lst
+    
+def clean_environment ():
+    return dict ([(x, os.environ[x]) for x in 
+                  'EMAIL',
+                  'GUB_TOOLS_PREFIX',
+                  'HOME',
+                  'HOSTNAME',
+                  'PATH',
+                  'PKG_CONFIG_PATH',
+                  'PWD',
+                  'SHELL',
+                  'UID',
+                  'USER',
+                  'USERNAME',
+                  # 'IFS',
+                  if os.environ.get (x) != None])
 
 def main ():
     cli_parser = get_cli_parser ()
