@@ -77,11 +77,9 @@ libc_cv_rootsbindir=%(prefix_dir)s/sbin
         if self.version () == '2.3.6':
             self.linuxthreads ().update_workdir (self.expand ('%(srcdir)s/urg-do-not-mkdir-or-rm-me'))
             self.system ('mv %(srcdir)s/urg-do-not-mkdir-or-rm-me/* %(srcdir)s')
-
     # Disable librestrict.so, as it causes crashes on Fedora 9 and 10.
     def LD_PRELOAD (self):
         return ''
-    
     def makeflags (self):
         return ' SHELL=/bin/bash'
     def install_command (self):
