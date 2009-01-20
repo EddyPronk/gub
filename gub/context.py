@@ -72,9 +72,7 @@ class ExpandInInit (Exception):
 class NonStringExpansion (Exception):
     pass
 
-# New style classes should now work
-#class Context (object):
-class Context ():
+class Context (object):
     def __init__ (self, parent = None):
         self._substitution_dict = None
         self._parent = parent
