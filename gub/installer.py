@@ -48,9 +48,9 @@ class Installer (context.RunnableContext):
             (self.remote_package_branch,
              self.package_branch) = tuple (self.package_branch.split (':'))
 
-        self.installer_root = (settings.targetdir
-                               + '/installer-%s-%s' % (name,
-                                                       self.package_branch))
+        self.target_installer = settings.targetdir + '/installer'
+        self.installer_root = ('%(target_installer)s/%(name)s-%(package_branch)s'
+                               % self.__dict__)
         self.installer_prefix = self.installer_root + settings.prefix_dir
         self.installer_checksum_file = self.installer_root + '.checksum'
         self.installer_db = self.installer_root + '-dbdir'
@@ -71,6 +71,7 @@ class Installer (context.RunnableContext):
         return self.installer_version
 
     def build (self):
+        os.system ('mkdir -p ' + self.target_installer)
         install_manager = gup.DependencyManager (self.installer_root,
                                                  dbdir=self.installer_db,
                                                  clean=True)

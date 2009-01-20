@@ -269,7 +269,7 @@ mingw:
 	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
 
 lily-clean:
-	rm -rf target/$(BUILD_PLATFORM)/*/lilypond-$(LILYPOND_FLATTENED_BRANCH)* target/$(BUILD_PLATFORM)/installer-lilypond-$(LILYPOND_FLATTENED_BRANCH) 
+	rm -rf target/$(BUILD_PLATFORM)/*/lilypond-$(LILYPOND_FLATTENED_BRANCH)*
 
 lily-doc-clean:	doc-clean
 
@@ -287,8 +287,8 @@ tools := $(shell $(GUB) --dependencies $(foreach p, $(PLATFORMS), $(p)::lilypond
 ################################################################
 # docs
 
-NATIVE_ROOT=$(NATIVE_TARGET_DIR)/installer-lilypond-$(LILYPOND_FLATTENED_BRANCH)
-NATIVE_DOC_ROOT=$(NATIVE_TARGET_DIR)/installer-lilypond-$(LILYPOND_FLATTENED_BRANCH)-doc
+NATIVE_ROOT=$(NATIVE_TARGET_DIR)/installer/lilypond-$(LILYPOND_FLATTENED_BRANCH)
+NATIVE_DOC_ROOT=$(NATIVE_TARGET_DIR)/installer/lilypond-$(LILYPOND_FLATTENED_BRANCH)-doc
 DOC_LOCK=$(NATIVE_ROOT).lock
 TEST_LOCK=$(NATIVE_ROOT).lock
 

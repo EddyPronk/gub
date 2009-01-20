@@ -56,9 +56,9 @@ class Cygwin_package (context.RunnableContext):
         self.binary_debug_strip_extensions = ['.a', '.dll.a']
         self.no_binary_strip_extensions = ['.la', '.py', '.def',
                                            '.scm', '.pyc']
-        self.installer_root = settings.targetdir + '/installer-' + name
+        self.installer_root = settings.targetdir + '/installer/' + name
         self.installer_prefix = self.installer_root + settings.prefix_dir
-        self.installer_db = settings.targetdir + '/installer-' + name + '-dbdir'
+        self.installer_db = settings.targetdir + '/installer/' + name + '-dbdir'
         self.installer_uploads = settings.uploads
         self.cygwin_uploads = settings.platform_uploads + '/release'
 
