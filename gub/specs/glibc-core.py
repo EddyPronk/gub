@@ -22,23 +22,18 @@ class Glibc_core (glibc.Glibc):
 --without-tls
 --without-__thread
 '''))
-
-    # Disable librestrict.so, as it causes crashes on Fedora 9 and 10.
-    def LD_PRELOAD (self):
-        return ''
-    
+    def makeflags (self):
+        return (glibc.Glibc.makeflags (self)
+                # avoid -lgcc_eh, which gcc-core does not have
+                + ' gnulib=-lgcc')
     def compile_command (self):
         return (glibc.Glibc.compile_command (self)
                 + ' lib')
     def compile (self):
         target.AutoBuild.compile (self)
-
-    # TODO: docme: why does the compile not have gnulib=-lgcc ?
     def install_command (self):
         return (glibc.Glibc.install_command (self)
-                .replace (' install ', ' install-lib-all install-headers ')
-                # avoid -lgcc_eh, which gcc-core does not have
-                + ' gnulib=-lgcc')
+                .replace (' install ', ' install-lib-all install-headers '))
     def install (self):
         glibc.Glibc.install (self)
         self.system ('''
