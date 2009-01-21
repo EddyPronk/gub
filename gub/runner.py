@@ -22,7 +22,8 @@
 
 import os
 import re
-
+import sys
+#
 from gub import misc
 from gub import commands
 
@@ -174,7 +175,12 @@ class DeferredRunner (CommandRunner):
         # results for their children.
 
         result = []
-        map (lambda x: x.checksum (result.append), self._deferred_commands)
+        if sys.version.startswith ('3'):
+            def str_append (x):
+                result.append (str (x))
+            map (lambda x: x.checksum (str_append), self._deferred_commands)
+        else:
+            map (lambda x: x.checksum (result.append), self._deferred_commands)
         return '\n'.join (result)
 
     def _execute (self, command):

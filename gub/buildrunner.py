@@ -193,7 +193,7 @@ class BuildRunner:
             
             deferred_runner.execute_deferred_commands ()
 
-            file (spec.expand ('%(checksum_file)s'), 'w').write (self.checksums[spec_name])
+            open (spec.expand ('%(checksum_file)s'), 'w').write (self.checksums[spec_name])
 
         logger.write_log (' *** Stage: %s (%s, %s)\n'
                            % ('pkg_install', spec.name (),

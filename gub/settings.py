@@ -178,7 +178,7 @@ class Settings (context.Context):
 
         if self.build_architecture == 'i686-linux':
             try:
-                cpuinfo = file ('/proc/cpuinfo').read ()
+                cpuinfo = open ('/proc/cpuinfo').read ()
                 cpu_flags = re.search ('(?m)^flags\s+:(.*)',
                                        cpuinfo).group (1).split ()
                 if 'lm' in cpu_flags:
