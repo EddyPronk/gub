@@ -76,10 +76,16 @@ class FileManager:
                              'mkdir -p %s' % self.root)
         
     def installed_files (self, package):
-        return self._package_file_db[package].split ('\n')
+        return [str (name) for name in self._package_file_db[package].split ('\n')]
+
+    def installed_packages (self):
+        return [str (name) for name in self._package_file_db.keys ()]
 
     def is_installed (self, name):
         return name in self.installed_packages ()
+
+    def is_installed_file (self, name):
+        return name in self.installed_files ()
 
     def install_tarball (self, ball, name, prefix_dir):
         logging.action ('untarring: %(ball)s\n' % locals ())
@@ -92,7 +98,7 @@ class FileManager:
                                   % locals ()).split ('\n')
         conflicts = False
         for f in lst:
-            if (self._file_package_db.has_key (f)
+            if (self.is_installed_file (f)
                 and not os.path.isdir (self.root + '/' +  f)):
                 logging.error ('already have file %s: %s\n' % (f, self._file_package_db[f]))
                 conflicts = True
@@ -179,9 +185,6 @@ class FileManager:
             except:
                 print 'db delete failing for ', f
         del self._package_file_db[name]
-
-    def installed_packages (self):
-        return [str (name) for name in self._package_file_db.keys ()]
 
 class PackageDictManager:
     """
