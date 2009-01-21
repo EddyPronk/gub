@@ -98,7 +98,6 @@ class CommandRunner:
         '''Run os commands, and run multiple lines as multiple commands.'''
         call_env = os.environ.copy ()
         call_env.update (env)
-
         self.logger.log_env (env)
         for i in cmd.split ('\n'):
             if i:
