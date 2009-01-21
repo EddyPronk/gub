@@ -328,8 +328,10 @@ class ForcedAutogenMagic (SerializedCommand):
     def __init__ (self, package):
         self.package = package
         SerializedCommand.__init__ (self)
-    def system (self, cmd, logger):
-        return loggedos.system (logger, cmd)
+    def system (self, cmd, logger, env={}):
+        env = self.package.get_substitution_dict (env)
+        cmd = self.package.expand (cmd, env)
+        return loggedos.system (logger, cmd, env=env)
     def checksum (self, hasher):
         hasher (self.__class__.__name__)
         hasher (inspect.getsource (ForcedAutogenMagic.execute))
