@@ -7,12 +7,12 @@ from gub import target
 
 class Qtopia_core (target.AutoBuild):
     source = 'ftp://ftp.trolltech.com/qt/source/qtopia-core-opensource-src-4.2.2.tar.gz'
-        dict = {
-            'CC': 'gcc',
-            'CXX': 'g++',
-            #'LINK': '%(toolchain_prefix)sg++',
-            }
-        build.change_target_dict (self, dict)
+    dict = {
+        'CC': 'gcc',
+        'CXX': 'g++',
+        #'LINK': '%(toolchain_prefix)sg++',
+        }
+    build.change_target_dict (self, dict)
     def _get_build_dependencies (self):
         return ['freetype', 'tslib']
     def get_build_dependencies (self):
