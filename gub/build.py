@@ -741,4 +741,4 @@ def libtool_update_preserve_vars (logger, libtool, vars, file):
     n1 = subst_vars (old[:old.find (marker)], new[:new.find (marker)])
     n2 = subst_vars (old[old.find (marker):], new[new.find (marker):])
     open (file, 'w').write (n1 + n2)
-    loggedos.chmod (logger, file, 0755)
+    loggedos.chmod (logger, file, octal.o755)

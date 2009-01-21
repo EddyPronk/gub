@@ -7,6 +7,8 @@ import subprocess
 import sys
 import traceback
 import urllib2
+#
+from gub import octal
 
 def join_lines (str):
     return str.replace ('\n', ' ')
@@ -604,7 +606,7 @@ def dump_python_config (self):
          ('@EXTRA_LDFLAGS@', ''),],
          '%(sourcefiledir)s/python-config.py.in',
          to_name=python_config)
-    self.chmod (python_config, 0755)
+    self.chmod (python_config, octal.o755)
 
 def test ():
     print forall (x for x in [1, 1])
