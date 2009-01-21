@@ -172,7 +172,7 @@ cross_module_checksums = {}
 cross_module_cache = {}
 def get_cross_module (settings):
     platform = settings.platform
-    if cross_module_cache.has_key (platform):
+    if platform in cross_module_cache:
         return cross_module_cache[platform]
 
     base = re.sub ('[-0-9].*', '', platform)

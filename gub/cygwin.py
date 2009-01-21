@@ -94,7 +94,7 @@ def change_target_package (package):
 
     def cyg_defs (d):
         k = 'runtime'
-        if not d.has_key (k):
+        if k not in d:
             k = ''
         d[k].append ('/usr/bin/cyg*dll')
         d[k].append ('/etc/postinstall')
@@ -190,7 +190,7 @@ def get_cygwin_package (settings, name, dict, skip):
                                  strip_components=0)
     package = package_class (settings, source)
     package.name_dependencies = []
-    if dict.has_key ('requires'):
+    if 'requires' in dict:
         deps = re.sub ('\([^\)]*\)', '', dict['requires']).split ()
         #deps = [x.strip ().lower ().replace ('_', '-') for x in deps]
         deps = [x.strip () for x in deps]

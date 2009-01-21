@@ -66,7 +66,7 @@ class BuildRunner:
         self.add_packages_to_manager (self.specs)
 
     def manager (self, platform):
-        if not self.managers.has_key (platform):
+        if platform not in self.managers:
             settings = gub.settings.Settings (platform)
             self.managers[platform] = gup.DependencyManager (settings.system_root)
         return self.managers[platform]
@@ -150,7 +150,7 @@ class BuildRunner:
         if spec.name () != pkg_name:
             subname = pkg_name.split ('-')[-1]
         manager = self.manager (spec.platform ())
-        if spec.get_conflict_dict ().has_key (subname):
+        if subname in spec.get_conflict_dict ():
             for c in spec.get_conflict_dict ()[subname]:
                 if manager.is_installed (c):
                     print '%(c)s conflicts with %(pkg_name)s' % locals ()

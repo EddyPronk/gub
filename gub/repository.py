@@ -617,7 +617,7 @@ class Git (Repository):
             return self.revision
         
         branch = self.get_ref ()
-        if self.checksums.has_key (branch):
+        if branch in self.checksums:
             return self.checksums[branch]
 
         repo_dir = self.dir
@@ -730,7 +730,7 @@ class CVS (Repository):
             return ''
 
     def checksum (self):
-        if self.checksums.has_key (self.tag):
+        if self.tag in self.checksums:
             return self.checksums[self.tag]
         
         file = '%s/%s/.vc-checksum' % (self.dir, self.tag)

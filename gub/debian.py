@@ -65,7 +65,7 @@ def get_debian_package (settings, description):
                                        d['Version'])
     package = package_class (settings, source)
     package.name_dependencies = []
-    if d.has_key ('Depends'):
+    if 'Depends' in d:
         deps = map (''.strip,
                     re.sub ('\([^\)]*\)', '', d['Depends']).split (', '))
         # FIXME: BARF, ignore choices

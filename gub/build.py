@@ -53,7 +53,7 @@ cd %(srcdir)s && patch -p%(strip)s < %(patchdir)s/%(name)s
         stages = self.stages ()
         tainted = False
         for stage in stages:
-            if (not available.has_key (stage)):
+            if (stage not in available):
                 continue
 
             if self.is_done (stage, stages.index (stage)):
@@ -140,7 +140,7 @@ class AutoBuild (Build):
 
     def class_invoke_version (self, klas, name):
         name_version = name + '_' + self.version ().replace ('.', '_')
-        if klas.__dict__.has_key (name_version):
+        if name_version in klas.__dict__:
             klas.__dict__[name_version] (self)
 
     def download (self):
@@ -552,13 +552,13 @@ cp %(file)s %(install_root)s/license/%(name)s
             p.set_dict (self.get_substitution_dict (), sub)
 
             conflict_str = ';'.join (conflict_dict.get (sub, []))
-            if p._dict.has_key ('conflicts_string'):
+            if 'conflicts_string' in p._dict:
                 conflict_str = p._dict['conflicts_string'] + ';' + conflict_str
             p._dict['conflicts_string'] = conflict_str
 
             dep_str = ';'.join (map (self.with_platform, dep_dict.get (sub, [])))
             dep_str = ';'.join (dep_dict.get (sub, []))
-            if p._dict.has_key ('dependencies_string'):
+            if 'dependencies_string' in p._dict:
                 dep_str = p._dict['dependencies_string'] + ';' + dep_str
             p._dict['dependencies_string'] = dep_str
 

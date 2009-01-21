@@ -24,10 +24,10 @@ class _C (object):
     pass
 
 def is_class_subst_method (name, cls):
-    if (cls.__dict__.has_key (name)
+    if (name in cls.__dict__
         and classmethod (cls.__dict__[name])
         and type (cls.__dict__[name]) != type (_C.__init__)
-        and cls.__dict__[name].__dict__.has_key ('substitute_me')):
+        and 'substitute_me' in cls.__dict__[name].__dict__):
         return True
     return False
 
@@ -45,7 +45,8 @@ def typecheck_substitution_dict (d):
             raise Exception ('type', (k, v))
 
 def recurse_substitutions (d):
-    for (k, v) in d.items ():
+    lst = d.items ()
+    for (k, v) in lst:
         if type (v) != str:
             del d[k]
             continue

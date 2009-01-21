@@ -162,7 +162,7 @@ def main ():
     settings = gub.settings.Settings (options.platform)
     for s in options.settings:
         (k, v) = tuple (s.split ('='))
-        if settings.__dict__.has_key (k):
+        if k in settings.__dict__:
             logging.warn ('overwriting %s = %s with %s\n'
                                         % (k, settings.__dict__[k], v))
         settings.__dict__[k] = v

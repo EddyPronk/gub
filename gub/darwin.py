@@ -26,7 +26,7 @@ class Rewirer (context.RunnableContext):
             m = re.search (r'\s+(.*) \(.*\)', i)
             if not m:
                 continue
-            if self.ignore_libs.has_key (m.group (1)):
+            if m.group (1) in self.ignore_libs:
                 continue
             libs.append (m.group (1))
         return libs

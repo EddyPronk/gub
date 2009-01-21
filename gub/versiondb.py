@@ -114,7 +114,7 @@ class VersionDataBase:
         sub_db = {}
         for platform in self.platforms:
             sub_db[platform] = [0]
-            if self._db.has_key (platform):
+            if platform in self._db:
                 sub_db[platform] = [buildnum
                                     for (name, version, buildnum, url)
                                     in self._db[platform]

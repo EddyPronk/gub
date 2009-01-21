@@ -55,7 +55,7 @@ def result_message (parts, subject='') :
     return msg
 
 def opt_parser ():
-    if os.environ.has_key ('EMAIL'):
+    if 'EMAIL' in os.environ:
         address = os.environ['EMAIL']
     else:
         try:
@@ -222,7 +222,7 @@ def test_target (repo, options, target, last_patch):
     done_db = get_db (options, canonicalize)
     tag_db = repository.TagDb (options.result_dir)
     recheck = ''
-    if done_db.has_key (release_hash):
+    if release_hash in done_db:
         logging.info ('release %(release_hash)s has already been checked\n'
                       % locals ())
         if not options.force:

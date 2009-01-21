@@ -266,18 +266,18 @@ def as_variables (settings):
     
 def clean_environment ():
     return dict ([(x, os.environ[x]) for x in 
-                  'EMAIL',
-                  'GUB_TOOLS_PREFIX',
-                  'HOME',
-                  'HOSTNAME',
-                  'PATH',
-                  'PKG_CONFIG_PATH',
-                  'PWD',
-                  'SHELL',
-                  'UID',
-                  'USER',
-                  'USERNAME',
-                  # 'IFS',
+                  ('EMAIL',
+                   'GUB_TOOLS_PREFIX',
+                   'HOME',
+                   'HOSTNAME',
+                   #'IFS',
+                   'PATH',
+                   'PKG_CONFIG_PATH',
+                   'PWD',
+                   'SHELL',
+                   'UID',
+                   'USER',
+                   'USERNAME',)
                   if os.environ.get (x) != None])
 
 def main ():

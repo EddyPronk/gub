@@ -208,7 +208,7 @@ class Openoffice (target.AutoBuild):
         # Shortcut: use precompiled tools from user's system
 
         # There's possibly another shortcut: use wine, works for regcomp.
-        if not os.environ.has_key ('OOO_TOOLS_DIR'):
+        if 'OOO_TOOLS_DIR' not in os.environ:
             message = '''OOO_TOOLS_DIR not set
 Set OOO_TOOLS_DIR to a recent pre-compiled native solver, I do
 

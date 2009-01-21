@@ -33,7 +33,7 @@ def load_module (file_name, name=None):
     if not name:
         name = os.path.split (os.path.basename (file_name))[0]
     key = name + '::' + file_name
-    if not modules.has_key (key):
+    if key not in modules:
         file = open (file_name)
         desc = ('.py', 'U', 1)
         modules[key] = imp.load_module (name, file, file_name, desc)
@@ -144,7 +144,7 @@ def uniq (lst):
     u = []
     done = {}
     for e in lst:
-        if not done.has_key (e):
+        if e not in done:
             done[e] = 1
             u.append (e)
     return u
@@ -428,7 +428,7 @@ def most_significant_in_dict (d, name, sep):
     
     v = None
     while name:
-        if d.has_key (name):
+        if name in d:
             v = d[name]
             break
         name = name[:max (name.rfind (sep), 0)]

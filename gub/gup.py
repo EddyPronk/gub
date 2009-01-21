@@ -203,10 +203,10 @@ class PackageDictManager:
         
     def register_package_dict (self, d):
         nm = d['name']
-        if d.has_key ('split_name'):
+        if 'split_name' in d:
             nm = d['split_name']
         
-        if 0 and (self._packages.has_key (nm)):
+        if 0 and (nm in self._packages):
             if self._packages[nm]['spec_checksum'] != d['spec_checksum']:
                 logging.info ('******** checksum of %s changed!\n\n' % nm)
 
@@ -228,7 +228,7 @@ class PackageDictManager:
         name = d['basename']
         vc_branch = d.get ('vc_branch', '')
 
-        if branch_dict.has_key (name):
+        if name in branch_dict:
             branch = branch_dict[name]
             if ':' in branch:
                 (remote_branch, branch) = tuple (branch.split (':'))
@@ -245,7 +245,7 @@ class PackageDictManager:
         name = d['split_name']
         if 0:
           ## FIXME ?
-          if self._package_dict_db.has_key (name):
+          if name in self._package_dict_db:
               if str != self._package_dict_db[name]:
                   logging.info ("package header changed for %s\n" % name)
 
@@ -257,7 +257,7 @@ class PackageDictManager:
         del self._packages[name]
 
     def is_registered (self, name):
-        return self._packages.has_key (name)
+        return name in self._packages
 
     def package_dict (self, name):
         return self._packages.get (name, dict ())
@@ -363,7 +363,7 @@ class DependencyManager (PackageManager):
 def topologically_sorted_one (todo, done, dependency_getter,
                               recurse_stop_predicate=None):
     sorted = []
-    if done.has_key (todo):
+    if todo in done:
         return sorted
 
     done[todo] = 1
@@ -453,10 +453,10 @@ def get_source_packages (settings, const_todo):
             key = name
             
         key = with_platform (key, platform)
-        if specs.has_key (key):
+        if key in specs:
             spec = specs[key]
         else:
-            if not sets.has_key (platform):
+            if platform not in sets:
                 sets[platform] = gub.settings.Settings (platform)
             spec = dependency.Dependency (sets[platform], name, url).build ()
             specs[key] = spec
@@ -476,11 +476,11 @@ def get_source_packages (settings, const_todo):
             key = name
             
         key = with_platform (key, platform)
-        if specs.has_key (key):
+        if key in specs:
             spec = specs[key]
         else:
             if name in todo or name not in distro_packages.keys ():
-                if not sets.has_key (platform):
+                if platform not in sets:
                     sets[platform] = gub.settings.Settings (platform)
                 spec = dependency.Dependency (sets[platform], name).build ()
             else:
