@@ -18,10 +18,12 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 """
 
+import datetime
 import difflib
 import pickle
 import os
 import sys
+import time
 #
 from gub import cross
 from gub import build
@@ -32,9 +34,14 @@ from gub import runner
 import gub.settings   # otherwise naming conflict with settings local vars.
 
 
-def checksum_diff (b, a):
+def checksum_diff (a, b, fromfile='', tofile='',
+                   fromfiledate='', tofiledate=''):
     return '\n'.join (difflib.unified_diff (a.split ('\n'),
-                                            b.split ('\n')))
+                                            b.split ('\n'),
+                                            fromfile,
+                                            tofile,
+                                            fromfiledate,
+                                            tofiledate))
 
 # FIXME s/spec/build/, but we also have two definitions of package/pkg
 # here: sub packages and name of global package under build
@@ -95,25 +102,38 @@ class BuildRunner:
         name = pkg.name ()
         pkg_dict = self.manager (pkg.platform ()).package_dict (name)
 
+        checksum_file = pkg_dict['checksum_file']
         try:
             build_checksum_ondisk = open (pkg_dict['checksum_file']).read ()
+            checksum_time = time.ctime (os.stat (checksum_file).st_mtime)
         except IOError:
             build_checksum_ondisk = '0000'
+            checksum_time = '0000'
 
         # fixme: spec.build_checksum () should be method.
         reason = ''
+        hdr = pkg.expand ('%(split_hdr)s')
         if spec.source_checksum () != pkg_dict['source_checksum']:
             reason = 'source %s -> %s (memory)' % (spec.source_checksum (), pkg_dict['source_checksum'])
 
         if reason == '' and self.checksums[spec.platform_name ()] != build_checksum_ondisk:
-            reason = 'build diff %s' % checksum_diff (self.checksums[spec.platform_name ()], build_checksum_ondisk)
+            failure = 'diff'
+            spec_name = spec.name ()
+            spec_platform = spec.platform ()
+            diff = checksum_diff (build_checksum_ondisk,
+                                  self.checksums[spec.platform_name ()],
+                                  checksum_file,
+                                  'THIS BUILD',
+                                  checksum_time,
+                                  time.ctime (time.time ()))
+            message = '\n' + diff
+            reason = '\n *** Checksum mismatch: %(failure)s (%(spec_name)s, %(spec_platform)s)%(message)s\n' % locals ()
 
-        hdr = pkg.expand ('%(split_hdr)s')
         if reason == '' and not os.path.exists (hdr):
             reason = 'hdr missing'
             
         if reason == '':
-            hdr_dict = dict (pickle.load (open (hdr)))
+            hdr_dict = dict (pickle.load (open (hdr, 'rb')))
             if spec.source_checksum () != hdr_dict['source_checksum']:
                 reason = 'source %s -> %s (disk)' % (spec.source_checksum (), hdr_dict['source_checksum'])
 
