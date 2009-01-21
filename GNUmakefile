@@ -58,5 +58,8 @@ python3:
 # cleaning
 	sed -i \
 	     -e 's@\(for .* in\) list(\(.*[.]\(keys\|items\|values\)\) *()):@\1 \2 ():@' $(git ls-files | grep -E '(^bin/|*.py$)') \
-	    -e 's@\(list\|print\)(@\1 (@g' \
+	    -e 's@\(list\|next\|print\)(@\1 (@g' \
 		$(PYTHON_SOURCES)
+
+python3-stats:
+	git diff origin p3 | grep -E '^(\+|X-) '| sed -e 's@^\(.\) *@\1@g' -e 's@^\(.\).*\(dbhash\|dbm\|md5\|0o\|new\|list (\|__self__\)@\1\2@g'
