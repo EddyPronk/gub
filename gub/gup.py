@@ -76,16 +76,16 @@ class FileManager:
                              'mkdir -p %s' % self.root)
         
     def package_installed_files (self, name):
-        return [file_name.decode ('utf8') for file_name in self._package_file_db[name].split ('\n')]
+        return [file_name for file_name in self._package_file_db[name].decode ('utf8').split ('\n')]
 
     def installed_packages (self):
-        return [name.decode ('utf8') for name in list (self._package_file_db.keys ())]
+        return [name.decode ('utf8') for name in self._package_file_db.keys ()]
 
     def is_installed (self, name):
         return name in self.installed_packages ()
 
     def installed_files (self):
-        return [str (file_name) for file_name in self._file_package_db.keys ()]
+        return [file_name.decode ('utf8') for file_name in self._file_package_db.keys ()]
 
     def is_installed_file (self, name):
         return name in self.installed_files ()
