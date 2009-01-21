@@ -4,6 +4,8 @@ import sys
 from gub import context
 from gub import build
 from gub import target
+from gub import misc
+from gub import tools
 
 # WIP of python2.5 with 2.5 X-compile patches.
 class Python (target.AutoBuild):
@@ -53,17 +55,9 @@ class Python (target.AutoBuild):
         c += ' BUILDPYTHON=python-bin '
         return c
 
-    # FIXME: c&p linux.py:install ()
     def install (self):
         target.AutoBuild.install (self)
-        cfg = open (self.expand ('%(sourcefiledir)s/python-config.py.in')).read ()
-        cfg = re.sub ('@PYTHON_VERSION@', self.expand ('%(version)s'), cfg)
-        cfg = re.sub ('@PREFIX@', self.expand ('%(system_prefix)s/'), cfg)
-        cfg = re.sub ('@PYTHON_FOR_BUILD@', sys.executable, cfg)
-        self.dump (cfg, '%(install_prefix)s%(cross_dir)s/bin/python-config',
-                   expand_string=False)
-        self.system ('chmod +x %(install_prefix)s%(cross_dir)s/bin/python-config')
-
+        misc.dump_python_config (self)
 
     ### Ugh.
     @context.subst_method
@@ -114,7 +108,6 @@ cp %(install_prefix)s/lib/python%(python_version)s/lib-dynload/* %(install_prefi
 chmod 755 %(install_prefix)s/bin/*
 ''')
 
-from gub import tools
 class Python__tools (tools.AutoBuild, Python):
     source = Python.source
     def get_build_dependencies (self):

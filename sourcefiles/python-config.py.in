@@ -1,11 +1,12 @@
-#!@PYTHON_FOR_BUILD@
+#! @PYTHON_FOR_BUILD@
+
 import optparse
 import sys
 
 sys.version = '@PYTHON_VERSION@'
 
-p = optparse.OptionParser()
-p.description="Python compile time configuration"
+p = optparse.OptionParser ()
+p.description = 'Python compile time configuration'
 
 p.add_option ('', '--ldflags',
               default='',
@@ -54,22 +55,22 @@ if options.prefix:
     sysconfig.PREFIX = options.prefix
 
 if options.cflags:
-    print '-I%s' % sysconfig.get_python_inc ()
+    sys.stdout.write ('-I%s\n' % sysconfig.get_python_inc ())
 
 if options.ldflags:
-    extra = ""
+    extra = "@EXTRA_LDFLAGS@"
     if 0:
         mf = sysconfig.get_makefile_filename()
         d = sysconfig.parse_makefile (mf)
-        if verbose:
+        if options.verbose:
             sys.stderr.write (mf + '\n')
-
-
-        ## ugh, $${ORIGIN} fucks up.
+        # Using flags from native python build is asking for trouble,
+        # ie, arch or $$ORIGIN may break things.
         extra  = d['LDFLAGS']
         
-    print '-L%s -L%s %s' % (sysconfig.get_python_lib (),
-                            sysconfig.PREFIX + '/lib/',
-                            extra)
+    sys.stdout.write ('-L%s -L%s %s\n'
+                      % (sysconfig.get_python_lib (),
+                         sysconfig.PREFIX + '/lib/',
+                         extra))
 
 ## -*-Python-*-

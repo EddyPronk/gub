@@ -60,16 +60,9 @@ class Python (target.AutoBuild):
 BLDLIBRARY='%(rpath)s -L. -lpython$(VERSION)'
 ''')
 
-    # FIXME: c&p linux.py:install ()
     def install (self):
         target.AutoBuild.install (self)
-        cfg = open (self.expand ('%(sourcefiledir)s/python-config.py.in')).read ()
-        cfg = re.sub ('@PYTHON_VERSION@', self.expand ('%(version)s'), cfg)
-        cfg = re.sub ('@PREFIX@', self.expand ('%(system_prefix)s/'), cfg)
-        cfg = re.sub ('@PYTHON_FOR_BUILD@', sys.executable, cfg)
-        self.dump (cfg, '%(install_prefix)s%(cross_dir)s/bin/python-config',
-                   expand_string=False)
-        self.system ('chmod +x %(install_prefix)s%(cross_dir)s/bin/python-config')
+        misc.dump_python_config (self)
 
     ### Ugh.
     @context.subst_method

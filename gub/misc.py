@@ -589,6 +589,23 @@ class Url:
     def __repr__ (self):
         return '<Url:' + `self.__dict__` + '>'
 
+def dump_python_config (self):
+    dir = self.expand ('%(install_prefix)s%(cross_dir)s/bin')
+    self.system ('mkdir -p %(dir)s' % locals ())
+    python_config = '%(dir)s/python-config' % locals ()
+    self.file_sub ([
+         ('@PREFIX@', self.expand ('%(system_prefix)s')),
+         # FIXME: better use %(tools_prefix)s/bin/python?
+         # using GUB's python may mean using python3 to run
+         # python-config, while we are building python2.4.
+         ## ('@PYTHON_FOR_BUILD@', sys.executable),
+         ('@PYTHON_FOR_BUILD@', self.expand ('%(tools_prefix)s/bin/python')),
+         ('@PYTHON_VERSION@', self.expand ('%(version)s')),
+         ('@EXTRA_LDFLAGS@', ''),],
+         '%(sourcefiledir)s/python-config.py.in',
+         to_name=python_config)
+    self.chmod (python_config, 0755)
+
 def test ():
     print forall (x for x in [1, 1])
     print dissect_url ('git://anongit.freedesktop.org/git/fontconfig?revision=1234')
