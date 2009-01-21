@@ -1,6 +1,7 @@
 import os
 import pickle
-
+import sys
+#
 from gub import commands
 from gub import misc
 
@@ -48,7 +49,11 @@ class GupPackage:
         hdr = self.expand ('%(split_hdr)s')
         # For easier inspection: dump as sorted list
         lst = sorted (self._dict.items ())
-        self._runner.dump (str (pickle.dumps (lst)), hdr)
+        if sys.version.startswith ('2'):
+            # FIXME: using str () here strips version from package names?
+            self._runner.dump (pickle.dumps (lst), hdr)
+        else:
+            self._runner.dump (str (pickle.dumps (lst)), hdr)
         
     def clean (self):
         base = self.expand ('%(install_root)s')
