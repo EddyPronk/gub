@@ -1,12 +1,13 @@
 import glob
 import inspect
 import os
-import re
-import traceback
 import pickle
-
-from gub import misc
+import re
+import sys
+import traceback
+#
 from gub import loggedos
+from gub import misc
 
 class SerializedCommand:
     def __init__ (self):
@@ -221,7 +222,7 @@ class Dump (SerializedCommand):
         string, name = self.args
         kwargs = self.kwargs
         mode = 'w'
-        if type (string) == bytes:
+        if sys.version.startswith ('3') and type (string) == bytes:
             mode += 'b'
         if 'mode' in self.kwargs:
             mode = kwargs['mode']
