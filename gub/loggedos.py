@@ -14,7 +14,10 @@ def system (logger, cmd, env=os.environ, ignore_errors=False):
     
     line = proc.stdout.readline ()
     while line:
-        logger.write_log (line, 'output')
+        if sys.version.startswith ('2'):
+            logger.write_log (line, 'output')
+        else:
+            logger.write_log (line.decode (sys.stdout.encoding), 'output')
         line = proc.stdout.readline ()
     proc.wait ()
 

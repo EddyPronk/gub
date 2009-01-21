@@ -76,7 +76,10 @@ def read_pipe (cmd, ignore_errors=False, env=os.environ, logger=sys.stderr):
         logger.write (m)
         if not ignore_errors:
             raise misc.SystemFailed (m)
-    return str (result)
+    if sys.version.startswith ('2'):
+        return result
+    else:
+        return result.decode (sys.stdout.encoding)
 
 def read_file (file):
     return open (file).read ()

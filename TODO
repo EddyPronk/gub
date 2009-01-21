@@ -2,7 +2,7 @@
   - Convert
        make python3  # auto-convert
    - Run
-       python3 bin/gub tools::makelibtool
+       python3 bin/gub lilypond # tools::make now builds :-)
   - Fix it :-)
 
 * support for ccache and icecc (icecream)
