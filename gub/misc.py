@@ -285,7 +285,7 @@ def _download_url (url, dest_dir, progress=None):
             break
         size += len (contents)
         if not output:
-            output = open (tmpfile, 'w')
+            output = open (tmpfile, 'wb')
         output.write (contents)
         if progress:
             progress ('.')

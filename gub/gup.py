@@ -308,7 +308,7 @@ class PackageManager (FileManager, PackageDictManager):
         if self.is_installed (name):
             return
         logging.action ('installing package: %s\n' % name)
-        if self._package_file_db.has_key (name):
+        if self.is_installed (name):
             logging.error ('already have package: ' + name + '\n')
             raise Exception ('abort')
         d = self._packages[name]

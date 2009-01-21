@@ -101,8 +101,8 @@ class VersionDataBase:
                 continue
 
     def write (self):
-        open (self.file_name,'w').write (pickle.dumps ((self.platforms,
-                                                        self._db)))
+        open (self.file_name, 'w').write (pickle.dumps ((self.platforms,
+                                                         self._db)))
 
     def read (self):
         (self.platforms,
