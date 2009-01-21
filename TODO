@@ -1,7 +1,11 @@
 * python3
-  - Try it:
+  - Convert
        make python3  # auto-convert
-       python3 bin/gub libtool  # watch it barf/do nothing ...
+  - Move
+       bin/gub:271:     build (settings, options, files)
+    out of try block
+   - Run
+       python3 bin/gub libtool
   - Fix it :-)
 
 * support for ccache and icecc (icecream)
