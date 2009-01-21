@@ -75,14 +75,17 @@ class FileManager:
             loggedos.system (logging.default_logger,
                              'mkdir -p %s' % self.root)
         
-    def installed_files (self, package):
-        return [str (name) for name in self._package_file_db[package].split ('\n')]
+    def package_installed_files (self, name):
+        return [str (file_name) for file_name in self._package_file_db[name].split ('\n')]
 
     def installed_packages (self):
         return [str (name) for name in self._package_file_db.keys ()]
 
     def is_installed (self, name):
         return name in self.installed_packages ()
+
+    def installed_files (self):
+        return [str (file_name) for file_name in self._file_package_db.keys ()]
 
     def is_installed_file (self, name):
         return name in self.installed_files ()
@@ -151,7 +154,7 @@ class FileManager:
     def uninstall_package (self, name):
         logging.action ('uninstalling package: %s\n' % name)
 
-        lst = self.installed_files (name)
+        lst = self.package_installed_files (name)
 
         dirs = []
         files = []

@@ -1,11 +1,8 @@
 * python3
   - Convert
        make python3  # auto-convert
-  - Move
-       bin/gub:271:     build (settings, options, files)
-    out of try block
    - Run
-       python3 bin/gub libtool
+       python3 bin/gub tools::makelibtool
   - Fix it :-)
 
 * support for ccache and icecc (icecream)

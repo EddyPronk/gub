@@ -267,6 +267,9 @@ def build (settings, options, files):
 def exceptional_build (settings, options, files, logger):
     status = 1
     exception = None
+    if sys.version.startswith ('3'):
+        # PYTHON3: let's see all exceptions
+        build (settings, options, files)
     try:
         build (settings, options, files)
         status = 0
