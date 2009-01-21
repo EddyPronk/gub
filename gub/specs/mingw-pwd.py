@@ -1,4 +1,5 @@
 from gub import build
+from gub import octal
 
 ##class Mingw_pwd (build.SdkBuild): nicer as sdk, but triggers full rebuild
 class Mingw_pwd (build.NullBuild):
@@ -8,4 +9,4 @@ class Mingw_pwd (build.NullBuild):
 options=$(echo -n "$@" | tr -d W | sed 's/-\( \|$\)/\1/')
 builtin pwd $options
 ''',
-                   '%(install_prefix)s%(cross_dir)s/bin/pwd', mode='w', permissions=0755)
+                   '%(install_prefix)s%(cross_dir)s/bin/pwd', mode='w', permissions=octal.o755)

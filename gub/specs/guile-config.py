@@ -1,4 +1,5 @@
 from gub import build
+from gub import octal
 
 class Guile_config (build.SdkBuild):
     source = 'url://host/guile-config-1.8.0.tar.gz'
@@ -17,7 +18,7 @@ test "$1" = "link" && echo "-L$prefix/lib -lguile -lgmp"
 exit 0
 ''',
              '%(install_prefix)s%(cross_dir)s/bin/guile-config',
-                   permissions=0755)
+                   permissions=octal.o755)
 
 class Guile_config__debian (build.SdkBuild):
     source = 'url://host/guile-config-1.8.0.tar.gz'
@@ -36,4 +37,4 @@ test "$1" = "link" && echo "-L$prefix/lib -lguile -ldl -lcrypt -lm"
 exit 0
 ''',
              '%(install_prefix)s%(cross_dir)s/bin/guile-config',
-                   permissions=0755)
+                   permissions=octal.o755)

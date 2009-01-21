@@ -2,6 +2,7 @@ from gub import build
 from gub import context
 from gub import loggedos
 from gub import misc
+from gub import octal
 from gub import target
 
 class Libicu (target.AutoBuild):
@@ -66,4 +67,4 @@ fi
 $dir/$(basename $0).bin "$@" | sed -e 's/lib$(LIBNAME).so/$(LIBNAME).dll/g'
 ''',
              '%(builddir)s/bin-native/pkgdata',
-                   permissions=0755)
+                   permissions=octal.o755)

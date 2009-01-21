@@ -4,6 +4,7 @@ import re
 #
 from gub import context
 from gub import misc
+from gub import octal
 from gub import target
 
 '''
@@ -477,7 +478,7 @@ if test "$dir" != "." -a -e $(basename $in .rc).res; then
 fi
 ''',
              '%(upstream_dir)s/solenv/bin/wrc',
-                   permissions=0755)
+                   permissions=octal.o755)
 
         self.system ('mkdir -p %(upstream_dir)s/solver/300/wntgcci.pro/inc')
         self.system ('cp -pv %(sourcefiledir)s/mingw-headers/*.h %(upstream_dir)s/solver/300/wntgcci.pro/inc')

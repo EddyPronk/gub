@@ -9,6 +9,7 @@ from gub import guppackage
 from gub import loggedos
 from gub import logging
 from gub import misc
+from gub import octal
 
 class Build (context.RunnableContext):
     '''How to build a piece of software
@@ -346,7 +347,7 @@ class AutoBuild (Build):
         str = self.config_cache_settings ()
         if str:
             self.system ('mkdir -p %(builddir)s || true')
-            self.dump (str, self.cache_file (), permissions=0755)
+            self.dump (str, self.cache_file (), permissions=octal.o755)
 
     def configure (self):
         self.config_cache ()

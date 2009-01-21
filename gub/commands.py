@@ -8,6 +8,7 @@ import traceback
 #
 from gub import loggedos
 from gub import misc
+from gub import octal
 
 class SerializedCommand:
     def __init__ (self):
@@ -438,6 +439,6 @@ class CreateShar (SerializedCommand):
         used_in_sharhead % locals ()
         loggedos.dump_file (logger, script % locals (), shar)
         loggedos.system (logger, 'cat %(file)s >> %(shar)s' % locals ())
-        loggedos.chmod (logger, shar, 0755)
+        loggedos.chmod (logger, shar, octal.o755)
         loggedos.system (logger, 'rm %(file)s' % locals ())
 

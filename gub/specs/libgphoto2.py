@@ -1,4 +1,7 @@
+from gub import octal
 from gub import target
+
+
 sf = 'http://surfnet.dl.sourceforge.net/sourceforge/%(name)s/%(name)s-%(ball_version)s.tar.%(format)s'
 sf_gphoto = 'http://surfnet.dl.sourceforge.net/sourceforge/gphoto/%(name)s-%(ball_version)s.tar.%(format)s'
 
@@ -24,7 +27,7 @@ class Libgphoto2 (target.AutoBuild):
   "$@"
 ''',
                    '%(srcdir)s/pkg-config')
-        self.chmod ('%(srcdir)s/pkg-config', 0755)
+        self.chmod ('%(srcdir)s/pkg-config', octal.o755)
     def wrap_libusb_config (self):
         self.dump ('''#! /bin/sh
 /usr/bin/libusb-config\
@@ -32,7 +35,7 @@ class Libgphoto2 (target.AutoBuild):
   "$@"
 ''',
                    '%(srcdir)s/libusb-config')
-        self.chmod ('%(srcdir)s/libusb-config', 0755)
+        self.chmod ('%(srcdir)s/libusb-config', octal.o755)
     def patch (self):
         self.wrap_pkg_config ()
         self.wrap_libusb_config ()

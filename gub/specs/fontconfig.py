@@ -1,9 +1,10 @@
 from gub import build
-from gub import misc
-from gub import target
-from gub import tools
 from gub import context
 from gub import logging
+from gub import misc
+from gub import octal
+from gub import target
+from gub import tools
 
 #"0596d7296c94b2bb9817338b8c1a76da91673fb9"
 
@@ -21,7 +22,7 @@ specified by applications.'''
     source = 'git://anongit.freedesktop.org/git/fontconfig?branch=master&revision=' + version
 
     def patch (self):
-        self.dump ('\nAC_SUBST(LT_AGE)', '%(srcdir)s/configure.in', mode='a', permissions=0755)
+        self.dump ('\nAC_SUBST(LT_AGE)', '%(srcdir)s/configure.in', mode='a', permissions=octal.o755)
         target.AutoBuild.patch (self)
 
     @context.subst_method

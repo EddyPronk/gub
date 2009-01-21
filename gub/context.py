@@ -3,6 +3,8 @@ import os
 import re
 import traceback
 import types
+#
+from gub import octal
 
 def subst_method (func):
     '''Decorator to match Context.get_substitution_dict ()'''
@@ -206,7 +208,7 @@ class RunnableContext (Context):
         self.runner.shadow_tree (src, dest)
         
     def dump (self, str, name, mode='w', env={},
-              expand_string=True, expand_name=True, permissions=0644):
+              expand_string=True, expand_name=True, permissions=octal.o644):
         if expand_name:
             name = self.expand (name, env)
         if expand_string:

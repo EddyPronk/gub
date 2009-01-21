@@ -2,8 +2,9 @@ import os
 #
 from gub import build
 from gub import context
-from gub import misc
 from gub import loggedos
+from gub import misc
+from gub import octal
 
 def get_cross_build_dependencies (settings):
     return []
@@ -68,7 +69,7 @@ tooldir=%(install_root)s/%(system_prefix)s
 LD_LIBRARY_PATH=%(system_prefix)s/lib
 %(system_prefix)s/bin/.%(base)s "$@"
 ''', locals ()), file)
-            loggedos.chmod (logger, file, 0755)
+            loggedos.chmod (logger, file, octal.o755)
         self.map_locate (wrap, '%(install_prefix)s/bin', '*')
         self.map_locate (wrap, '%(install_root)s/%(tools_prefix)s/bin', '*')
 

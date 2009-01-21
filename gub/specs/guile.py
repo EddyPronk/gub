@@ -2,6 +2,7 @@ import os
 #
 from gub import misc
 from gub import loggedos
+from gub import octal
 from gub import repository
 from gub import target
 from gub import tools
@@ -110,7 +111,7 @@ test "$1" = "link" && echo "-L$prefix/lib -lguile -lgmp"
 exit 0
 ''',
              '%(install_prefix)s%(cross_dir)s/bin/%(target_architecture)s-guile-config')
-        self.chmod ('%(install_prefix)s%(cross_dir)s/bin/%(target_architecture)s-guile-config', 0755)
+        self.chmod ('%(install_prefix)s%(cross_dir)s/bin/%(target_architecture)s-guile-config', octal.o755)
 
 class Guile__mingw (Guile):
     source = Guile.source
