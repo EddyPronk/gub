@@ -49,7 +49,7 @@ class GupPackage:
         hdr = self.expand ('%(split_hdr)s')
         # For easier inspection: dump as sorted list
         lst = sorted (self._dict.items ())
-        self._runner.dump (pickle.dumps (lst), hdr)
+        self._runner.dump (pickle.dumps (lst, protocol=2), hdr)
         
     def clean (self):
         base = self.expand ('%(install_root)s')

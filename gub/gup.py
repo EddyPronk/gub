@@ -320,7 +320,7 @@ class PackageManager (FileManager, PackageDictManager):
         d = self._packages[name]
         ball = '%(split_ball)s' % d
         self.install_tarball (ball, name, d['prefix_dir'])
-        self._package_dict_db[name] = pickle.dumps (d)
+        self._package_dict_db[name] = pickle.dumps (d, protocol=2)
 
     def uninstall_package (self, name):
         FileManager.uninstall_package (self, name)

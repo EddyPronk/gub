@@ -121,7 +121,7 @@ class Installer (context.RunnableContext):
             checksum_list.append ((dict['name'],        
                                    dict['source_checksum'],
                                    package_checksum))
-        string = pickle.dumps (checksum_list)
+        string = pickle.dumps (checksum_list, protocol=2)
         # Take the hash to make sure that there are no random strings
         # (which may trigger substitutions) in the attributes of a
         # Context
