@@ -79,7 +79,7 @@ class FileManager:
         return self._package_file_db[package].split ('\n')
 
     def is_installed (self, name):
-        return self._package_file_db.has_key (name)
+        return name in self.installed_packages ()
 
     def install_tarball (self, ball, name, prefix_dir):
         logging.action ('untarring: %(ball)s\n' % locals ())
@@ -181,8 +181,7 @@ class FileManager:
         del self._package_file_db[name]
 
     def installed_packages (self):
-        names = self._package_file_db.keys ()
-        return names
+        return [str (name) for name in self._package_file_db.keys ()]
 
 class PackageDictManager:
     """
@@ -303,8 +302,7 @@ class PackageManager (FileManager, PackageDictManager):
             self.register_package_dict (pickle.loads (v))
 
     def installed_package_dicts (self):
-        names = self._package_file_db.keys ()
-        return [self._packages[p] for p in names]
+        return [self._packages[n] for n in self.installed_packages ()]
 
     def install_package (self, name):
         if self.is_installed (name):
