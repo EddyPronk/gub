@@ -501,7 +501,10 @@ def file_sub (re_pairs, name, must_succeed=False, use_re=True, to_name=None):
 
 def dump_file (content, name, mode='w', permissions=None):
     assert type (mode) == str
-    assert type (content) == str
+    if 'b' in mode:
+        assert type (content) == bytes
+    else:
+        assert type (content) == str
 
     dir = os.path.split (name)[0]
     if not os.path.exists (dir):

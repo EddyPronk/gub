@@ -3,7 +3,7 @@ import inspect
 import os
 import re
 import traceback
-# import md5
+import pickle
 
 from gub import misc
 from gub import loggedos
@@ -210,13 +210,19 @@ class Dump (SerializedCommand):
         string, name = self.args
         hasher (self.__class__.__name__)
         hasher (name)
-# this keeps builds log a lot smaller, but not handy for development.
-#        hasher (md5.md5 (string).hexdigest ())
-        hasher (string)
+        try:
+            # Aid development by using nicer string in checksum file
+            lst = pickle.loads (string)
+            human = '\n'.join (map ('='.join, lst))
+            hasher (human)
+        except:
+            hasher (string)
     def execute (self, logger):
         string, name = self.args
         kwargs = self.kwargs
         mode = 'w'
+        if type (string) == bytes:
+            mode += 'b'
         if 'mode' in self.kwargs:
             mode = kwargs['mode']
             del kwargs['mode']
