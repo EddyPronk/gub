@@ -198,8 +198,7 @@ def get_cygwin_package (settings, name, dict, skip):
         #deps = [x.replace ('libx11-6', 'libX11_6') for x in deps]
         #deps = [x.replace ('libxt', 'libXt') for x in deps]
         #deps = [x.replace ('libx11', 'libX11') for x in deps]
-
-        deps = filter (lambda x: x not in blacklist, deps)
+        deps = [x for x in deps if x not in blacklist]
         package.name_dependencies = deps
 
     def get_build_dependencies (self):

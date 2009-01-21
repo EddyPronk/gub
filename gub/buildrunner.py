@@ -236,7 +236,7 @@ class BuildRunner:
             self.uninstall_outdated_spec (spec_name)
 
     def build_source_packages (self, names):
-        deps = filter (self.specs.get, names)
+        deps = [d for d in names if d in self.specs]
         platform = self.settings.platform
         # fail_str: keep ordering of names
         fail_str = ' '.join ([s for s in deps if s in self.failed_checksums.keys ()]).replace (misc.with_platform ('', platform), '')

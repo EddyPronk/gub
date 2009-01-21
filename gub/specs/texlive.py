@@ -121,7 +121,7 @@ packages.'''
         return self.broken_install_command ()
 
     def install (self):
-            target.AutoBuild.install (self)
+        target.AutoBuild.install (self)
         self.system ('''
 #rsync -v -a %(srcdir)s/texmf-dist/* %(install_prefix)s/share/texmf-dist
 rsync -v -a %(srcdir)s/texmf/* %(install_prefix)s/share/texmf/

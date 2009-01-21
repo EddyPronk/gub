@@ -180,7 +180,7 @@ def inspect (settings, files):
     (names, specs) = gup.get_source_packages (settings, files)
     pm = gup.get_target_manager (settings)
     gup.add_packages_to_self.manager (pm, settings, specs)
-    deps = filter (specs.has_key, names)
+    deps = [d for d in names if d in specs]
 
     for f in files:
         v =  pm.package_dict (f)[settings.options.inspect_key]

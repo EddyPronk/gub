@@ -69,14 +69,14 @@ def get_debian_package (settings, description):
         deps = map (''.strip,
                     re.sub ('\([^\)]*\)', '', d['Depends']).split (', '))
         # FIXME: BARF, ignore choices
-        deps = filter (lambda x: x.find ('|') == -1, deps)
+        deps = [x for x in deps if x.find ('|') == -1]
         # FIXME: how to handle Provides: ?
         # FIXME: BARF, fixup libc Provides
         deps = map (lambda x: re.sub ('libc($|-)', 'libc6\\1', x), deps)
         deps = map (lambda x: re.sub ('liba52-dev', 'liba52-0.7.4-dev', x), deps)
         deps = map (lambda x: re.sub ('libpng12-0-dev', 'libpng12-dev', x), deps)
         # FIXME: ugh, skip some
-        deps = filter (lambda x: x not in blacklist, deps)
+        deps = [x for x in deps if x not in blacklist]
         package.name_dependencies = deps
 
     def get_build_dependencies (self):

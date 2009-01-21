@@ -258,8 +258,8 @@ class TagDb:
             date = tztime.format (stamp)
             self.db[name + '-' + date] = date
     def tag_list (self, name):
-        return map (lambda x: self.db[x], filter (lambda x: x.startswith (name),
-                                                  self.db.keys ()))
+        return [self.db[y] for y in
+                [x for x in self.db.keys () if x.startswith (name)]]
     def get_diff_from_tag_base (self, name, repo):
         tags = self.tag_list (name)
         if tags:
@@ -1028,7 +1028,7 @@ class Subversion (SimpleRepo):
         root = self._root ()
         lst = self.read_pipe ('LANG= svn ls %(root)s/tags' % locals ()).split (\
 '\n')
-        return filter (lambda x: x.startswith (tag), lst)
+        return [x for x in lst if x.startswith (tag)]
 
 RepositoryProxy.register (Subversion)
 
