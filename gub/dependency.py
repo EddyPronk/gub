@@ -109,7 +109,7 @@ class Dependency:
         if not self._url:
             self._url = self.settings.dependency_url (self.name ())
         if not self._url:
-            raise 'No URL for:' + self._name
+            raise Exception ('No URL for:' + self._name)
         if type (self._url) == str:
             try:
                 self._url = self._url % self.settings.__dict__

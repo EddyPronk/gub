@@ -252,7 +252,7 @@ def get_cygwin_packages (settings, package_file, skip=[]):
                 key, value = [x.strip () for x in lines[j].split (': ', 1)]
             except:
                 print lines[j], package_file
-                raise 'URG'
+                raise Exception ('URG')
             if (value.startswith ('"')
               and value.find ('"', 1) == -1):
                 while 1:

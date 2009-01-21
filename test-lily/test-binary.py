@@ -9,7 +9,7 @@ def system (c, ignore_error=False):
     print 'executing' , c
     s = os.system (c)
     if s and not ignore_error:
-        raise 'barf'
+        raise Exception ('barf')
 
 
 

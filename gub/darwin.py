@@ -88,7 +88,7 @@ class Rewirer (context.RunnableContext):
 
     def rewire_root (self, root):
         if self.ignore_libs == None:
-            raise 'error: should init with file_manager.'
+            raise Exception ('error: should init with file_manager.')
 
         self.rewire_binary_dir (root + '/usr/lib') #FIXME: /usr or %(prefix_dir)s ?
         for d in glob.glob (root + '/usr/lib/pango/*/modules/'): #FIXME: /usr or %(prefix_dir)s ?
@@ -154,13 +154,13 @@ def change_target_package (package):
 def system (c):
     s = os.system (c)
     if s:
-        raise 'barf'
+        raise Exception ('barf')
 
 def get_darwin_sdk ():
     def system (s):
         print s
         if os.system (s):
-            raise 'barf'
+            raise Exception ('barf')
 
     host = 'maagd'
     version = '0.4'

@@ -72,7 +72,7 @@ formats = {
 def system (c):
     print c
     if os.system (c):
-        raise 'barf'
+        raise Exception ('barf')
 
 def upload_binaries (repo, version, version_db):
     build = version_db.get_next_build_number (version)

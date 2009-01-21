@@ -337,7 +337,7 @@ def binary_strip_p (filter_out=[], extension_filter_out=[]):
 # Move to Os_commands?
 def map_command_dir (os_commands, dir, command, predicate):
     if not os.path.isdir (dir):
-        raise ('warning: no such dir: %(dir)s' % locals ())
+        raise Exception ('warning: no such dir: %(dir)s' % locals ())
     (root, dirs, files) = os.walk (dir).next ()
     for file in files:
         if predicate (os.path.join (root, file)):
@@ -346,7 +346,7 @@ def map_command_dir (os_commands, dir, command, predicate):
 
 def map_dir (func, dir):
     if not os.path.isdir (dir):
-        raise ('warning: no such dir: %(dir)s' % locals ())
+        raise Exception ('warning: no such dir: %(dir)s' % locals ())
     (root, dirs, files) = os.walk (dir).next ()
     for file in files:
         func (root, file)

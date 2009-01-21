@@ -104,7 +104,7 @@ class Python__mingw (Python):
         Python.install (self)
 
         # see python.py
-        raise 'FIXME'
+        raise Exception ('FIXME')
 
         ## UGH.
         self.system ('''

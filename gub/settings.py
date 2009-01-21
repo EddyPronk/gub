@@ -284,7 +284,7 @@ def main ():
     cli_parser = get_cli_parser ()
     (options, files) = cli_parser.parse_args ()
     if not options.platform or files:
-        raise 'barf'
+        raise Exception ('barf')
         sys.exit (2)
     settings = Settings (options.platform)
     print '\n'.join (as_variables (settings))

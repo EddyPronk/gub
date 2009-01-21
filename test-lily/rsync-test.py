@@ -69,7 +69,7 @@ def system (cmd):
     print cmd
     stat = os.system (cmd)
     if stat:
-            raise 'fail'
+            raise Exception ('fail')
 def read_version (source):
     s = open (source).read ()
     s = s.strip ()
