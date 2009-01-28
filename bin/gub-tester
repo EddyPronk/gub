@@ -19,10 +19,10 @@ import email.Message
 import email.MIMEMultipart
 import optparse
 import time
-import dbhash
 
 from gub import repository
 from gub import logging
+from gub.db import db.bsd
 
 def canonicalize_string (target):
     canonicalize = re.sub ('[ \t\n]', '_', target)
@@ -211,7 +211,7 @@ def get_db (options, name):
     name = options.result_dir + '/%s.db' % name
 
     db_file = os.path.join (options.result_dir, name)
-    db = dbhash.open (db_file, 'c')
+    db = db.bsd.open (db_file, 'c')
     return db
                         
 
