@@ -92,13 +92,15 @@ class VersionDataBase:
 
             try:
                 self._db[p] = get_url_versions (u)
-            except IOError, x:
-                print 'problem loading', u
-                sys.path.insert (0, 'gub')
-
-                # FIXME: do want to be inside gub framework or not?
-                print misc.exception_string (x)
-                continue
+            except:
+                t, v, b = sys.exc_info ()
+                if t == IOError:
+                    print 'problem loading', u
+                    sys.path.insert (0, 'gub')
+                    # FIXME: do want to be inside gub framework or not?
+                    print misc.exception_string (v)
+                    continue
+                raise
 
     def write (self):
         open (self.file_name, 'w').write (pickle.dumps ((self.platforms,

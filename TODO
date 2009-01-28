@@ -1,18 +1,33 @@
 * python3
-  - Convert
-       make python3  # auto-convert
-   - Run
-       python3 bin/gub lilypond # tools::*, linux-64::binutils builds :-)
-  - Fix it :-)
-  - It seems we have to make a big switch (or always run 2to3 :-).
+** compile time
+    make python3  # auto-convert
+    python3 bin/gub lilypond
+** runtime python2/python3 switching
+*** TODO
+**** print a vs print (a)
+   python2: print (x) == print tuple (x) (ie: NOT print x)
+   1. don't care, add parenthesis (ugly)
+   2. eradicate all PRINTs for sys.stdout.write ()
+   3. use gub (2/3).printf
+**** It seems we have to make a big switch (or always run 2to3 :-).
     Although most of python3 requirements/oddities are also valid
     python2, we have
-      - print a vs print (a)           # we could eradicate all PRINTs
-      - except E, e: vs except E as e: # showstopper
       - 0755 vs 0o755                  # showstopper/ugly?
       - deleted/renamed modules: new, md5, dbhash # can probably be
         hacked using python2/python3 compatibility switches,
 	but requires some work.
+
+*** DONE
+**** except E, e: vs except E as e: # SyntaxError ==> showstopper
+So, don't use :-), rather use if-else constructs
+    try:
+	barf
+    except:
+	t, v, b = sys.exc_info ()
+	if t == NameError:
+	   ...
+	else:
+ 	    raise # reraise exception
 
 * support for ccache and icecc (icecream)
   icecc requires no setup/init effort other than picking the host

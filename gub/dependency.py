@@ -113,9 +113,9 @@ class Dependency:
         if type (self._url) == str:
             try:
                 self._url = self._url % self.settings.__dict__
-            except Exception, e:
+            except:
                 print 'URL:', self._url
-                raise e
+                raise
             x, parameters = misc.dissect_url (self._url)
             if parameters.get ('patch'):
                 self._cls.patches = parameters['patch']

@@ -154,14 +154,12 @@ class Context (object):
         d = self.get_substitution_dict (env)
         try:
             e = s % d
-        except KeyError, v:
-            print 'format string: >>>' + s + '<<<'
-            print 'self:', self
-            raise v
-        except ValueError, v:
-            print 'format string: >>>' + s + '<<<'
-            print 'self:', self
-            raise v
+        except:
+            t, v, b = sys.exc_info ()
+            if t == KeyError or t == ValueError:
+                print 'format string: >>>' + s + '<<<'
+                print 'self:', self
+            raise
         return e
 
 class RunnableContext (Context):

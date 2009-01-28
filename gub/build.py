@@ -85,11 +85,13 @@ to skip this check.
                 sys.exit (1)
             try:
                 (available[stage]) ()
-            except misc.SystemFailed, e:
-                # A failed patch will leave system in unpredictable state.
-                if stage == 'patch':
-                    self.system ('rm %(stamp_file)s')
-                raise e
+            except:
+                t, v, b = sys.exc_info ()
+                if t == misc.SystemFailed:
+                    # A failed patch will leave system in unpredictable state.
+                    if stage == 'patch':
+                        self.system ('rm %(stamp_file)s')
+                raise
 
             if stage != 'clean':
                 self.set_done (stage, stages.index (stage))

@@ -262,39 +262,17 @@ def build (settings, options, files):
     b.build_source_packages (names)
 
 def exceptional_build (settings, options, files, logger):
-    status = 1
-    exception = None
-    if sys.version.startswith ('3'):
-        # PYTHON3: let's see all exceptions
-        global build
-        build (settings, options, files)
-        build = lambda x,y,z:True
     try:
         build (settings, options, files)
-        status = 0
-    except SystemExit, e:
-        exception = e
-        status = e.code
-        pass
-    except KeyboardInterrupt, e:
-        exception = e
-        pass
-    except Exception, e:
-        exception = e
-        status = 1
-        pass
-
-    if status:
-        sys.stderr.write ('\n')
-        logger.dump_tail (sys.stderr)
-        sys.stderr.write ('\n')
-        if sys.version.startswith ('2'):
-            #PYTHON3 BUG?
-            sys.stderr.write (misc.exception_string (exception))
-    else:
-        logger.write_log ('done\n', 'stage')
-        
-    return status
+    except:
+        t, v, b = sys.exc_info ()
+        if not (t == SystemExit and not v.code):
+            sys.stderr.write ('\n')
+            logger.dump_tail (sys.stderr)
+            sys.stderr.write ('\n')
+            raise
+    logger.write_log ('done\n', 'stage')
+    return 0
 
 def logged_build (settings, options, files):
     logger = logging.set_default_log (settings.expand ('%(logdir)s/build.log'),

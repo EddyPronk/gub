@@ -8,6 +8,6 @@ except:
     except:
         try:
             import dbhash as db
-        except Exception, e:
+        except:
             print 'No db module found'
-            raise e
+            raise
