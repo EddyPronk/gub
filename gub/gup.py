@@ -220,7 +220,7 @@ class PackageDictManager:
     def register_package_header (self, package_hdr, branch_dict):
         if self.verbose:
             logging.info ('reading package header: %s\n'
-                          % `package_hdr`)
+                          % package_hdr.__repr__ ())
 
         str = open (package_hdr).read ()
         header_name = os.path.basename (package_hdr)

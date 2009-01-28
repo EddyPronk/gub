@@ -592,7 +592,7 @@ class Url:
             self.host = 'localhost'
         self.dir = m.group (13)
     def __repr__ (self):
-        return '<Url:' + `self.__dict__` + '>'
+        return '<Url:' + self.__dict__.__repr__ () + '>'
 
 def dump_python_config (self):
     dir = self.expand ('%(install_prefix)s%(cross_dir)s/bin')

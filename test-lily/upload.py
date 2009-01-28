@@ -138,7 +138,7 @@ def upload_binaries (repo, version, version_db):
 
     if len (commitishes) > 1:
         print 'uploading multiple versions'
-        print '\n'.join (`x` for x in commitishes.items ())
+        print '\n'.join (x.__repr__ () for x in commitishes.items ())
         
     src_tarball = 'uploads/lilypond-%(version_str)s.tar.gz' % locals ()
     src_tarball = os.path.abspath (src_tarball)

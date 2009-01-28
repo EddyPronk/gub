@@ -23,7 +23,7 @@ complain about missing files.'''
     file_name = self.expand (file_name)
     unpackdir = os.path.dirname (self.expand (self.srcdir ()))
     t = misc.split_ball (file_name)
-    print 'split: ' + `t`
+    print 'split: ' + t.__repr__ ()
     no_src = re.sub ('-src', '', file_name)
     base = re.sub ('\.tar\..*', '', no_src)
     # FIXME: use split iso custom ball_re macramee
