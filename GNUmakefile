@@ -40,7 +40,7 @@ README: web/index.html web/lilypond.html
 web: README
 	scp -p web/*html lilypond.org:/var/www/lilypond/gub
 
-PYTHON_SOURCES = $$(git ls-files | grep -E '(^bin/|*.py$$)')
+PYTHON_SOURCES = $$(git ls-files | grep -E '(^bin/|*.py$$)' | grep -Ev 'gub/(2|3)/')
 python3:
 # a 2to3 crash fails to convert the remaining files
 #	2to3-3.0 -nw $(PYTHON_SOURCES) >/dev/null || :
