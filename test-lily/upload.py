@@ -260,7 +260,7 @@ def main ():
             system (cmd)
     else:
         printf ('\n\n')
-        printf ('\n'.join (cmds);)
+        printf ('\n'.join (cmds))
         printf ('\n\n')
 
 if __name__ == '__main__':
