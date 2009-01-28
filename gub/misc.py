@@ -8,7 +8,7 @@ import sys
 import traceback
 import urllib2
 #
-from gub.syntax import printf
+from gub.syntax import printf, function_get_class, function_set_class
 from gub import octal
 
 def join_lines (str):
@@ -414,7 +414,8 @@ class hierarchy.
         self.old_func = old_func
         self.args = extra_args
         self.dict = dict ()
-        self.im_class = old_func.im_class
+        self.__self__ = self
+        function_set_class (self, function_get_class (old_func))
     def __call__ (self):
         all_args = (self.old_func (),) + self.args  
         return apply (self.new_func, all_args)

@@ -4,7 +4,7 @@ import re
 import traceback
 import types
 #
-from gub.syntax import printf
+from gub.syntax import printf, function_class
 from gub import octal
 from gub import misc
 
@@ -23,7 +23,7 @@ def is_subst_method (member):
     return (is_method (member)
             and (hasattr (member[OBJECT], 'substitute_me')
                  or base_is_class_subst_method (member[NAME],
-                                                member[OBJECT].im_class)))
+                                                function_class (member[OBJECT]))))
 
 class _C (object):
     pass
