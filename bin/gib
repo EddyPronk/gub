@@ -103,7 +103,7 @@ Examples:
                   type='choice',
                   default=None,
                   help='select target platform',
-                  choices=gub.settings.platforms.keys ())
+                  choices=list (gub.settings.platforms.keys ()))
 
 
     p.add_option ('-v', '--verbose', action='count', dest='verbosity', default=0)

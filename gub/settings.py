@@ -69,7 +69,7 @@ class Settings (context.Context):
         if not platform:
             platform = self.build_platform
         self.target_platform = platform
-        if self.target_platform not in platforms.keys ():
+        if self.target_platform not in list (platforms.keys ()):
             raise UnknownPlatform (self.target_platform)
 
         self.target_architecture = platforms[self.target_platform]
@@ -249,7 +249,7 @@ Print settings and directory layout.
                   type='choice',
                   default=None,
                   help='select target platform',
-                  choices=platforms.keys ())
+                  choices=list (platforms.keys ()))
     p.add_option ('-B', '--branch', action='append',
                   dest='branches',
                   default=[],
@@ -259,7 +259,7 @@ Print settings and directory layout.
 
 def as_variables (settings):
     lst = []
-    for k in settings.__dict__.keys ():
+    for k in list (settings.__dict__.keys ()):
         v = settings.__dict__[k]
         if type (v) == type (str ()):
             lst.append ('%(k)s=%(v)s' % locals ())

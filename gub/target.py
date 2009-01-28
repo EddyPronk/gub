@@ -194,7 +194,7 @@ class Change_target_dict:
 
     def append_dict (self, env={}):
         d = self._target_dict_method ()
-        for (k, v) in self._add_dict.items ():
+        for (k, v) in list (self._add_dict.items ()):
             d[k] += v
         d.update (env)
         d = context.recurse_substitutions (d)
@@ -202,7 +202,7 @@ class Change_target_dict:
 
     def add_dict (self, env={}):
         d = self._target_dict_method ()
-        for (k, v) in self._add_dict.items ():
+        for (k, v) in list (self._add_dict.items ()):
             d[k] = v
         d.update (env)
         d = context.recurse_substitutions (d)

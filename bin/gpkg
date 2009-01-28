@@ -120,7 +120,7 @@ def get_cli_parser ():
 
     p.usage = '%prog [OPTION]... COMMAND\n\nCommands:\n'
     d = Command.__dict__
-    commands = [(k, d[k].__doc__) for k in d.keys ()
+    commands = [(k, d[k].__doc__) for k in list (d.keys ())
                 if d[k].__doc__ and type (d[k]) == type (lambda x: x)]
     commands.sort ()
 

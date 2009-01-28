@@ -204,7 +204,7 @@ def build (settings, options, files):
 
     if options.fresh:
         try:
-            for spec in specs.values():
+            for spec in list (specs.values()):
                 logging.action ('Removing status file')
                 os.unlink (spec.get_stamp_file ())
         except OSError:
@@ -244,7 +244,7 @@ def build (settings, options, files):
         raise
 
     if options.force_package:
-        for spec in specs.values ():
+        for spec in list (specs.values ()):
             status = spec.expand ('%(stamp_file)s')
             if os.path.exists (status):
                 os.unlink (status)

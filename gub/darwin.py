@@ -121,7 +121,7 @@ def strip_build_dep (old_val, what):
 
 def strip_dependency_dict (old_val, what):
     d = dict ((k,[p for p in deps if p not in what])
-             for (k, deps) in old_val.items ())
+             for (k, deps) in list (old_val.items ()))
     return d
 
 def change_target_package (package):

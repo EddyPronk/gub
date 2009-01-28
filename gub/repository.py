@@ -260,7 +260,7 @@ class TagDb:
             self.db[name + '-' + date] = date
     def tag_list (self, name):
         return [self.db[y] for y in
-                [x for x in self.db.keys () if x.startswith (name)]]
+                [x for x in list (self.db.keys ()) if x.startswith (name)]]
     def get_diff_from_tag_base (self, name, repo):
         tags = self.tag_list (name)
         if tags:

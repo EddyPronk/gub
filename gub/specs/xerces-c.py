@@ -34,7 +34,7 @@ class Xerces_c (target.AutoBuild):
                 .replace ('--config-cache', '--cache-file=%(builddir)s/config.cache'))
     def makeflags (self):
         s = ''
-        for i in self.compile_dict.keys ():
+        for i in list (self.compile_dict.keys ()):
             s += ' ' + i + '="' + self.compile_dict[i] + '"'
         return s
     def compile_command (self):

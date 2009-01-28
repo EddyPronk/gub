@@ -75,13 +75,13 @@ class BuildRunner:
     def add_packages_to_manager (self, package_object_dict):
         ## Ugh, this sucks: we now have to have all packages
         ## registered at the same time.
-        for spec in package_object_dict.values ():
+        for spec in list (package_object_dict.values ()):
             for package in spec.get_packages ():
                 self.manager (package.platform ()).register_package_dict (package.dict ())
 
     def calculate_checksums (self):
         logging.verbose ('calculating checksums\n')
-        for spec in self.specs.values ():
+        for spec in list (self.specs.values ()):
             name = spec.platform_name ()
             logger = logging.NullCommandLogger ()
 
@@ -240,7 +240,7 @@ class BuildRunner:
         deps = [d for d in names if d in self.specs]
         platform = self.settings.platform
         # fail_str: keep ordering of names
-        fail_str = ' '.join ([s for s in deps if s in self.failed_checksums.keys ()]).replace (misc.with_platform ('', platform), '')
+        fail_str = ' '.join ([s for s in deps if s in list (self.failed_checksums.keys ())]).replace (misc.with_platform ('', platform), '')
         if not fail_str:
             fail_str = '<nothing to be done>.'
         logging.default_logger.write_log ('must rebuild[%(platform)s]: %(fail_str)s\n' % locals (), 'stage')

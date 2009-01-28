@@ -59,7 +59,7 @@ def change_target_package (package):
 # SVN
 bootstrap_names = ['tools::librestrict', 'tools::make']
 def set_cross_dependencies (package_object_dict):
-    packs = package_object_dict.values ()
+    packs = list (package_object_dict.values ())
 
     cross_packs = [p for p in packs if isinstance (p, AutoBuild)]
     sdk_packs = [p for p in packs if isinstance (p, build.SdkBuild)]
@@ -75,7 +75,7 @@ def set_cross_dependencies (package_object_dict):
     sets = dict ()
     for p in packs:
         sets[p.settings.platform] = p.settings
-    for p in sets.keys ():
+    for p in list (sets.keys ()):
         extra_cross_names += [n for n in get_build_dependencies (sets[p]) if n not in pack_names]
 
     # Run something like lilypond/SConscript's configure

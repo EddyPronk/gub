@@ -80,13 +80,13 @@ class FileManager:
         return [file_name for file_name in self._package_file_db[name].decode ('utf8').split ('\n')]
 
     def installed_packages (self):
-        return [name.decode ('utf8') for name in self._package_file_db.keys ()]
+        return [name.decode ('utf8') for name in list (self._package_file_db.keys ())]
 
     def is_installed (self, name):
         return name in self.installed_packages ()
 
     def installed_files (self):
-        return [file_name.decode ('utf8') for file_name in self._file_package_db.keys ()]
+        return [file_name.decode ('utf8') for file_name in list (self._file_package_db.keys ())]
 
     def is_installed_file (self, name):
         return name in self.installed_files ()
@@ -264,10 +264,10 @@ class PackageDictManager:
         return self._packages.get (name, dict ())
 
     def available_packages (self):
-        return self._packages.keys ()
+        return list (self._packages.keys ())
 
     def get_all_packages (self):
-        return self._packages.values ()
+        return list (self._packages.values ())
 
     def is_installable (self, name):
         #d = self._packages[name]
@@ -304,7 +304,7 @@ class PackageManager (FileManager, PackageDictManager):
         
         dicts_db = self.config + '/dicts.db'
         self._package_dict_db = db.open (dicts_db, 'c')
-        for k in self._package_dict_db.keys ():
+        for k in list (self._package_dict_db.keys ()):
             v = self._package_dict_db[k]
             self.register_package_dict (pickle.loads (v))
 
@@ -404,7 +404,7 @@ def topologically_sorted (todo, done, dependency_getter,
 def gub_to_distro_deps (deps, gub_to_distro_dict):
     distro = []
     for i in deps:
-        if i in gub_to_distro_dict.keys ():
+        if i in list (gub_to_distro_dict.keys ()):
             distro += gub_to_distro_dict[i]
         else:
             distro += [i]
@@ -480,7 +480,7 @@ def get_source_packages (settings, const_todo):
         if key in specs:
             spec = specs[key]
         else:
-            if name in todo or name not in distro_packages.keys ():
+            if name in todo or name not in list (distro_packages.keys ()):
                 if platform not in sets:
                     sets[platform] = gub.settings.Settings (platform)
                 spec = dependency.Dependency (sets[platform], name).build ()
@@ -522,14 +522,14 @@ def get_source_packages (settings, const_todo):
     # or
     #   bin/gub darwin-ppc::libtool freebsd-64::libtool
     last_count = len (todo)
-    while last_count != len (specs.keys ()):
+    while last_count != len (list (specs.keys ())):
         add = cross.set_cross_dependencies (specs)
         todo += [a for a in add if a not in todo]
-        last_count = len (specs.keys ())
+        last_count = len (list (specs.keys ()))
         topologically_sorted (todo, {}, name_to_dependencies_broker)
 
     # Fixup for build from url: specs key is full url, change to
-    # base name.  Must use list(dict.keys()), since dict changes during
+    # base name.  Must use list (dict.keys()), since dict changes during
     # iteration.
     for name in list (specs.keys ()):
         spec = specs[name]
@@ -544,7 +544,7 @@ def get_source_packages (settings, const_todo):
             return [specs[get_base_package_name (n)]
                     for n in obj.get_platform_build_dependencies ()]
 
-    sorted_specs = topologically_sorted (specs.values (), {},
+    sorted_specs = topologically_sorted (list (specs.values ()), {},
                                          obj_to_dependency_objects)
 
     # Make sure we build dependencies in order

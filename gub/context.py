@@ -45,7 +45,7 @@ def base_is_class_subst_method (name, cls):
     return False
 
 def typecheck_substitution_dict (d):
-    for (k, v) in d.items ():
+    for (k, v) in list (d.items ()):
         if type (v) != str:
             raise Exception ('type', (k, v))
 
@@ -139,7 +139,7 @@ class Context (object):
         d = self._substitution_dict
         if env:
             d = d.copy ()
-            for (k, v) in env.items ():
+            for (k, v) in list (env.items ()):
                 try:
                     if type (v) == str:
                         d.update ({k: v % d})

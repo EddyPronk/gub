@@ -119,7 +119,7 @@ class CommandLogger (AbstractCommandLogger):
 
     def log_env (self, env):
         if self.threshold >= name_to_loglevel_mapping['debug']:
-            keys = env.keys ()
+            keys = list (env.keys ())
             keys.sort ()
             for k in keys:
                 self.write_log ('%s=%s\n' % (k, env[k]), 'debug')

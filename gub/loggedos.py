@@ -41,7 +41,7 @@ def logged_function (logger, function, *args, **kwargs):
     return function (*args, **kwargs)
 
 currentmodule = sys.modules[__name__] #ugh
-for name, func in {'read_file': misc.read_file,
+for name, func in list ({'read_file': misc.read_file,
                    'file_sub': misc.file_sub,
                    'download_url': misc.download_url,
                    'dump_file': misc.dump_file,
@@ -52,7 +52,7 @@ for name, func in {'read_file': misc.read_file,
                    'remove': os.remove,
                    'symlink': os.symlink,
                    'rename': os.rename,
-                   'read_pipe': misc.read_pipe}.items ():
+                   'read_pipe': misc.read_pipe}.items ()):
 
     def with_logging (func):
         def func_with_logging (logger, *args, **kwargs):

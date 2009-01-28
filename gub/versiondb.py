@@ -122,7 +122,7 @@ class VersionDataBase:
                                     for (name, version, buildnum, url)
                                     in self._db[platform]
                                     if version == version_tuple]
-        return max ([max (bs + [0]) for (p, bs) in sub_db.items ()] + [-1]) + 1
+        return max ([max (bs + [0]) for (p, bs) in list (sub_db.items ())] + [-1]) + 1
 
     def get_last_release (self, platform, version_tuple):
         candidates = [(v, b, url) for (name, v, b, url) in  self._db[platform]
