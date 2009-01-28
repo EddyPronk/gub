@@ -1,5 +1,7 @@
 import time
 import re
+#
+from gub.syntax import printf
 
 default_format = '%Y-%m-%d %H:%M:%S %z'
 

@@ -19,7 +19,8 @@ import string
 import sys
 import optparse
 import pickle
-
+#
+from gub.syntax import printf
 from gub import versiondb
 from gub import misc
 

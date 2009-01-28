@@ -25,10 +25,11 @@ import optparse
 import sys
 import os
 
-
 sys.path.insert (0, os.path.split (sys.argv[0])[0] + '/..')
 
 from gub import locker
+#
+from gub.syntax import printf
 
 def parse_options ():
     p = optparse.OptionParser ()

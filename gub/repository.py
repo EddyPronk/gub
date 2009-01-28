@@ -26,7 +26,7 @@ import sys
 import time
 import urllib
 import xml.dom.minidom
-#
+
 def argv0_relocation ():
     import os, sys
     bindir = os.path.dirname (sys.argv[0])
@@ -37,6 +37,7 @@ def argv0_relocation ():
 
 argv0_relocation ()
 #
+from gub.syntax import printf
 from gub.db import db
 from gub import misc
 from gub import locker

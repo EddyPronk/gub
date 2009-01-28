@@ -3,7 +3,8 @@ import re
 import time
 import md5
 import pickle
-
+#
+from gub.syntax import printf
 from gub import context
 from gub import darwin
 from gub import gup

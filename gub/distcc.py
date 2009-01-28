@@ -5,6 +5,8 @@ import re
 import socket
 import sys
 import telnetlib
+#
+from gub.syntax import printf
 
 def live_hosts (hosts, port = 3633):
     live = []

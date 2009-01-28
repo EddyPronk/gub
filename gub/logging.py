@@ -1,14 +1,13 @@
 import time
 import sys
 import os
-
+#
 from gub import misc
 
-"""
-
+'''
 TODO: if we need more granularity, it's better to look at the stack
 trace during a log call (), and have per .py file settings.
-"""
+'''
 
 default_logger = None
 default_logger_interface = None
@@ -52,7 +51,7 @@ class NullCommandLogger (AbstractCommandLogger):
 class CommandLogger (AbstractCommandLogger):
     def __init__ (self, log_file_name, threshold):
 
-        # only printf (message under THRESHOLD.)
+        # only print message under THRESHOLD.
         self.threshold = threshold
         self.log_file = None
         self.log_file_name = log_file_name

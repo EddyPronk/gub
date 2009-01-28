@@ -1,9 +1,22 @@
 #! /usr/bin/env python
+
 import sys
 import os
 import re
 import time
 
+def argv0_relocation ():
+    import os, sys
+    bindir = os.path.dirname (sys.argv[0])
+    prefix = os.path.dirname (bindir)
+    if not prefix:
+        prefix = bindir + '/..'
+    sys.path.insert (0, prefix)
+
+argv0_relocation ()
+
+#
+from gub.syntax import printf
 
 def system (c, ignore_error=False):
     printf ('executing' , c)

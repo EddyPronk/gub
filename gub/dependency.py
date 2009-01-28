@@ -1,6 +1,7 @@
 import new
 import os
-
+#
+from gub.syntax import printf
 from gub import cross
 from gub import logging
 from gub import misc

@@ -16,7 +16,8 @@ import os
 import re
 import sys
 import tempfile
-
+#
+from gub.syntax import printf
 from gub import repository
 from gub import misc
 
