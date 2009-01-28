@@ -1,40 +1,20 @@
-* python3
-** compile time
-    make python3  # auto-convert
-    python3 bin/gub lilypond
-** runtime python2/python3 switching
-*** TODO
-**** print a vs print (a)
-   python2: print (x) == print tuple (x) (ie: NOT print x)
-   1. don't care, add parenthesis (ugly)
-   2. eradicate all PRINTs for sys.stdout.write ()
-   3. use gub (2/3).printf
-**** It seems we have to make a big switch (or always run 2to3 :-).
-    Although most of python3 requirements/oddities are also valid
-    python2, we have
-      - 0755 vs 0o755                  # showstopper/ugly?
-      - deleted/renamed modules: new, md5, dbhash # can probably be
-        hacked using python2/python3 compatibility switches,
-	but requires some work.
-*** DONE
-**** test
-    bin/gub tools::test-23  # for quick testing
-**** runtime 2/3 library
-    gub/__init__.py switches __path__ between
-    gub/2/[syntax.py] and gub/3/[syntax.py]
-use
+* junk Makefile, create python based driver/s?
+
+* python3 - python2 compatibility
+** testing with python3
+** keep check on diff with `make python3'
+** remember to use
+    list (map (..))
+    list (DICT.keys, items, values)
+    octal.o755 iso 0755/0o755
+
     from gub.syntax import printf
     printf () rather than print/print ()
-**** except E, e: vs except E as e: # SyntaxError ==> showstopper
-So, don't use :-), rather use if-else constructs
-    try:
-	barf
+
     except:
 	t, v, b = sys.exc_info ()
 	if t == NameError:
-	   ...
-	else:
- 	    raise # reraise exception
+        ...
 
 * support for ccache and icecc (icecream)
   icecc requires no setup/init effort other than picking the host
@@ -221,6 +201,3 @@ LOWER PRIORITY
 
 - strip lily specific stuff from installer.py 
 
-- Bugfixes:
-
-- junk Makefile, create python based driver.
