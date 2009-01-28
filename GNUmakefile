@@ -63,3 +63,13 @@ python3:
 
 python3-stats:
 	git diff origin p3 | grep -E '^(\+|X-) '| sed -e 's@^\(.\) *@\1@g' -e 's@^\(.\).*\(dbhash\|dbm\|md5\|0o\|new\|list (\|__self__\)@\1\2@g' | sort
+
+python3-printf:
+	sed -i \
+	    -e 's@ print \([^(].*\)@ printf (\1)@g' \
+	    -e 's@ print @ printf @g' \
+		$(PYTHON_SOURCES)
+	sed -i \
+	    -e 's@#\nfrom gub import@#\nfrom gub.syntax import printf\nfrom gub import@' $$(grep -l printf $$(git diff --name-only))
+# sed 4.0.1 is broken, what t[ext]t[tool] do you use?
+	pytt '#\nfrom gub import' '#\nfrom gub.syntax import printf\nfrom gub import' $$(grep -l printf $$(git diff --name-only))
