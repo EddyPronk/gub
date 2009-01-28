@@ -122,3 +122,11 @@ class SConsBuild (AutoBuild):
                 ' PREFIX_DEST=%(install_root)s')
     def install_command (self):
         return self.compile_command () + ' install'
+
+class NullBuild (AutoBuild):
+    def stages (self):
+        return ['patch', 'install', 'package', 'clean']
+    def get_subpackage_names (self):
+        return ['']
+    def install (self):
+        self.system ('mkdir -p %(install_root)s%(system_prefix)s')
