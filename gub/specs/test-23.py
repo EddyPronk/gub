@@ -18,6 +18,12 @@ sys.stdout.write ('\n>>>')
 printf ((2,3))
 sys.stdout.write ('<<<\n')
 
+import md5
+printf ( md5.md5 ('foo'))
+
+import new
+new.classobj ('foo', (tools.NullBuild,), {})
+
 class Test_23 (tools.NullBuild):
     source = 'url://host/test-23-1.0.tar.gz'
     def untar (self):

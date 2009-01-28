@@ -82,7 +82,7 @@ Examples:
                   type='choice',
                   default=None,
                   help='select target platform',
-                  choices=gub.settings.platforms.keys ())
+                  choices=list (gub.settings.platforms.keys ()))
 
     p.add_option ('--inspect', action='store',
                   dest='inspect_key',
