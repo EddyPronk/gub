@@ -1,5 +1,5 @@
-"""
-    Copyright (c) 2005--2007
+'''
+    Copyright (c) 2005--2009
     Jan Nieuwenhuizen <janneke@gnu.org>
     Han-Wen Nienhuys <hanwen@xs4all.nl>
 
@@ -16,6 +16,6 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-"""
+'''
 
-"""gub lib"""
+'''gub lib'''
