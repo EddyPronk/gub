@@ -413,6 +413,8 @@ class hierarchy.
         self.new_func = new_func
         self.old_func = old_func
         self.args = extra_args
+        self.dict = dict ()
+        self.im_class = old_func.im_class
     def __call__ (self):
         all_args = (self.old_func (),) + self.args  
         return apply (self.new_func, all_args)

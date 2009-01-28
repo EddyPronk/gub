@@ -135,7 +135,7 @@ def change_target_package (package):
     package.get_dependency_dict = misc.MethodOverrider (package.get_dependency_dict,
                                                   strip_dependency_dict,
                                                   (['zlib', 'zlib-devel'],))
-    
+    @context.subst_method
     def rpath (foo):
         # ld has no -rpath on darwin [at least not darwin-ppc]
         # FIXME: some equivalent here?

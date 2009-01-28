@@ -6,6 +6,7 @@ import types
 #
 from gub.syntax import printf
 from gub import octal
+from gub import misc
 
 def subst_method (func):
     '''Decorator to match Context.get_substitution_dict ()'''
@@ -15,7 +16,8 @@ def subst_method (func):
 NAME = 0
 OBJECT = 1
 def is_method (member):
-    return type (member[OBJECT]) == types.MethodType
+    return (type (member[OBJECT]) == types.MethodType
+            or (member[OBJECT].__class__ == misc.MethodOverrider))
 
 def is_subst_method (member):
     return (is_method (member)
