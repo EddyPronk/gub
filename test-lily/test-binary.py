@@ -6,7 +6,7 @@ import time
 
 
 def system (c, ignore_error=False):
-    print 'executing' , c
+    printf ('executing' , c)
     s = os.system (c)
     if s and not ignore_error:
         raise Exception ('barf')
@@ -40,7 +40,7 @@ def test_build (bin):
     viewer = 'evince'
     
     if not platform:
-        print 'unknown platform for', bin
+        printf ('unknown platform for', bin)
         return
 
     ending_found = 0 
@@ -48,7 +48,7 @@ def test_build (bin):
         ending_found = ending_found or bin.endswith  (e)
 
     if not ending_found:
-        print 'unknown extension for', base
+        printf ('unknown extension for', base)
         return
     
     try:
@@ -56,7 +56,7 @@ def test_build (bin):
     except:
         pass
 
-    print 'testing platform %s' % platform
+    printf ('testing platform %s' % platform)
     logdir = "log/"
     try:
         (uid, host, dir, test_file) = test_settings[platform]

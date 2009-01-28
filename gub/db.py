@@ -9,5 +9,5 @@ except:
         try:
             import dbhash as db
         except:
-            print 'No db module found'
+            printf ('No db module found')
             raise

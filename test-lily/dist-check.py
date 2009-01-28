@@ -50,12 +50,12 @@ def parse_options ():
     return (o, a)
 
 def system (s):
-    print s
+    printf (s)
     if os.system (s):
         raise Exception ('failed')
 
 def popen (s):
-    print s
+    printf (s)
     return os.popen (s)
 
 def get_config_dict (dir):
@@ -89,8 +89,8 @@ def check_files (tarball, repo):
     
     no_version = popen (r"cd %(dir)s && grep '\\version' -L %(ly_file_str)s" % locals ()).readlines ()
     if no_version:
-        print 'Files without \\version: '
-        print '\n'.join (no_version)
+        printf ('Files without \\version: ')
+        printf ('\n'.join (no_version))
         error_found = True
 
 
@@ -108,7 +108,7 @@ def check_files (tarball, repo):
 
         filename = os.path.join (tarball_dirname, filename)
         if filename not in file_dict:
-            print ('file from VC not distributed: %s' % filename)
+            printf ('file from VC not distributed: %s' % filename)
             error_found = True
 
     system ('rm -rf %(dir)s' % locals ())

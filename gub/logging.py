@@ -52,7 +52,7 @@ class NullCommandLogger (AbstractCommandLogger):
 class CommandLogger (AbstractCommandLogger):
     def __init__ (self, log_file_name, threshold):
 
-        # only print message under THRESHOLD.
+        # only printf (message under THRESHOLD.)
         self.threshold = threshold
         self.log_file = None
         self.log_file_name = log_file_name

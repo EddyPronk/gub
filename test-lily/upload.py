@@ -70,7 +70,7 @@ formats = {
     }
 
 def system (c):
-    print c
+    printf (c)
     if os.system (c):
         raise Exception ('barf')
 
@@ -109,7 +109,7 @@ def upload_binaries (repo, version, version_db):
         if platform == 'cygwin':
             continue
         elif not os.path.exists (bin):
-            print 'binary does not exist', bin
+            printf ('binary does not exist', bin)
             barf = 1
         else:
             ## globals -> locals.
@@ -131,20 +131,20 @@ def upload_binaries (repo, version, version_db):
         
         if (platform not in ('documentation', 'test-output')
             and  not os.path.exists ('log/%s.test.pdf' % base)):
-            print 'test result does not exist for %s' % base
+            printf ('test result does not exist for %s' % base)
             cmds.append ('python test-lily/test-binary.py %s'
                          % os.path.abspath (bin))
             barf = 1
 
     if len (commitishes) > 1:
-        print 'uploading multiple versions'
-        print '\n'.join (x.__repr__ () for x in commitishes.items ())
+        printf ('uploading multiple versions')
+        printf ('\n'.join (x.__repr__ () for x in commitishes.items ()))
         
     src_tarball = 'uploads/lilypond-%(version_str)s.tar.gz' % locals ()
     src_tarball = os.path.abspath (src_tarball)
     
     if not os.path.exists (src_tarball):
-        print 'source tarball does not exist', src_tarball
+        printf ('source tarball does not exist', src_tarball)
         barf = True
     else:
         host = host_source_spec 
@@ -259,9 +259,9 @@ def main ():
         for cmd in cmds:
             system (cmd)
     else:
-        print '\n\n'
-        print '\n'.join (cmds);
-        print '\n\n'
+        printf ('\n\n')
+        printf ('\n'.join (cmds);)
+        printf ('\n\n')
 
 if __name__ == '__main__':
     main ()

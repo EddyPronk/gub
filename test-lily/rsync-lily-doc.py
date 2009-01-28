@@ -17,6 +17,7 @@ import string
 import glob
 import optparse
 #
+from gub.syntax import printf
 from gub import versiondb
 
 ################
@@ -72,7 +73,7 @@ def do_urchin (filename):
     if re.search ('UA-68969', s):
             return
     
-    print filename
+    printf (filename)
     urchin_track = """<script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
 </script>
 <script type="text/javascript">
@@ -84,7 +85,7 @@ urchinTracker();
     open (filename, 'w').write (s)
 
 def system (cmd):
-    print cmd
+    printf (cmd)
     stat = os.system (cmd)
     if stat:
             raise Exception ('fail')
@@ -98,7 +99,7 @@ def create_local_web_dir (options, source):
     if not os.path.isdir (options.unpack_dir):
         system ('mkdir -p '  + options.unpack_dir)
 
-    print 'creating web root in',  options.unpack_dir 
+    printf ('creating web root in',  options.unpack_dir )
     os.chdir (options.unpack_dir)
 
     dir = 'v%s' % '.'.join (options.version)
@@ -112,7 +113,7 @@ def create_local_web_dir (options, source):
     if options.dry_run:
         return
     
-    print 'Instrumenting for Google Analytics' 
+    printf ('Instrumenting for Google Analytics' )
     for f in ['Documentation/index.html',
               'Documentation/topdocs/NEWS.html',
               'Documentation/user/lilypond/index.html',
@@ -211,7 +212,7 @@ def main ():
 
         if opts.dry_run:
             def my_system (x):
-                print x
+                printf (x)
             global system
             system = my_system
 

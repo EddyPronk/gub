@@ -31,14 +31,15 @@ def argv0_relocation ():
 argv0_relocation ()
 
 from gub import build_platform
+from gub.syntax import printf
 
 def main ():
     #try:
     if 1:
-        print build_platform.machine ()
+        printf (build_platform.machine ())
     #except:
     if 1:
-        # On failure print empty line for use in makefile's $(shell ).
+        # On failure printf (empty line for use in makefile's $(shell ).)
         print
 
 if __name__ == '__main__':

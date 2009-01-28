@@ -16,6 +16,7 @@ import os
 import optparse
 import sys
 #
+from gub.syntax import printf
 from gub import logging
 from gub import loggedos
 
@@ -124,7 +125,7 @@ def main ():
     (options, args) = parse_options ()
 # FIXME: local/system; wow that's from two layout changes ago!
 #    os.environ['PATH']= os.getcwd () + '/target/local/system/usr/bin:' + os.environ['PATH']
-#    print os.environ['PATH']
+#    printf (os.environ['PATH'])
     
     os.system ('mkdir -p log')
     if options.dry_run:

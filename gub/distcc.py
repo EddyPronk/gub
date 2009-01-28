@@ -18,7 +18,7 @@ def live_hosts (hosts, port = 3633):
         live.append ('%s:%d' % (h,port))
 
     if live:
-        print 'DISTCC live hosts: ', live
+        printf ('DISTCC live hosts: ', live)
     return live
 
 

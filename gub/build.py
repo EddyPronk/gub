@@ -3,6 +3,7 @@ import os
 import re
 import sys
 #
+from gub.syntax import printf
 from gub import commands
 from gub import context
 from gub import guppackage
@@ -714,7 +715,7 @@ def libtool_update_preserve_CC (logger, libtool, file):
     loggedos.file_sub (logger, [(CC_re, orig_CC)], file)
 
 def libtool_update_preserve_vars (logger, libtool, vars, file):
-    print 'preserve: ', file
+    printf ('preserve: ', file)
     old = open (file).read ()
     open (file + '.old', 'w').write (old)
     libtool_update (logger, libtool, file)
@@ -727,16 +728,16 @@ def libtool_update_preserve_vars (logger, libtool, vars, file):
             if not orig_m:
                 # some generated libtool thingies only have the first part
                 # but vars in the second part must always be substituted
-                print 'from first part'
+                printf ('from first part')
                 orig_m = re.search (v_re, old)
             if orig_m:
                 b = n
                 n = re.sub (v_re, orig_m.group (0), n)
-                print 'replace:', orig_m.group (0)
+                printf ('replace:', orig_m.group (0))
                 if b == n:
-                    print 'NODIFF:', v_re
+                    printf ('NODIFF:', v_re)
             else:
-                print 'not found:', v_re
+                printf ('not found:', v_re)
         return n
     # libtool comes in two parts which define the same/similar variables
     marker = '\nexit '

@@ -13,6 +13,7 @@ import string
 import sys
 
 #
+from gub.syntax import printf
 from gub import build
 from gub import cross
 from gub.db import db
@@ -164,8 +165,8 @@ class FileManager:
                 files.append (f)
             elif (not os.path.exists (f)
                and not self.is_distro):
-                print 'FileManager: uninstall: %s' % name
-                print 'FileManager: no such file: %s' % f
+                printf ('FileManager: uninstall: %s' % name)
+                printf ('FileManager: no such file: %s' % f)
             elif os.path.isdir (f):
                 dirs.append (f)
             else:
@@ -186,7 +187,7 @@ class FileManager:
             try:
                 del self._file_package_db[f]
             except:
-                print 'db delete failing for ', f
+                printf ('db delete failing for ', f)
         del self._package_file_db[name]
 
 class PackageDictManager:
@@ -377,10 +378,10 @@ def topologically_sorted_one (todo, done, dependency_getter,
         if recurse_stop_predicate and recurse_stop_predicate (d):
             continue
         if not type_equal (d, todo):
-            print type (d), '!=', type (todo)
-            print d.__class__, todo.__class__
-            print d.__dict__, todo.__dict__
-            print inspect.isclass (type (d)), inspect.isclass (type (todo))
+            printf (type (d), '!=', type (todo))
+            printf (d.__class__, todo.__class__)
+            printf (d.__dict__, todo.__dict__)
+            printf (inspect.isclass (type (d)), inspect.isclass (type (todo)))
             assert type_equal (a, b)
         sorted += topologically_sorted_one (d, done, dependency_getter,
                                             recurse_stop_predicate=recurse_stop_predicate)

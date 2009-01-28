@@ -451,6 +451,6 @@ def get_installer (settings, *arguments):
     }
 
     ctor = installer_class[settings.platform]
-    print 'Installer:', ctor
+    printf ('Installer:', ctor)
     installer = ctor (settings, *arguments)
     return installer

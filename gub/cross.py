@@ -2,6 +2,7 @@ import md5
 import os
 import re
 #
+from gub.syntax import printf
 from gub import build
 from gub import context
 from gub import logging
@@ -208,10 +209,10 @@ def setup_linux_x86 (logger, name, x86_cross):
 
     compiler = x86_bindir + '/i686-linux-gcc'
     if not os.path.exists (compiler):
-        print 'error: cannot find 32 bit compiler: %(compiler)s\n' % locals ()
+        printf ('error: cannot find 32 bit compiler: %(compiler)s\n' % locals ())
         raise Exception ('Package %(name)s depends on target/linux-x86.' % locals ())
     if os.system ('''echo 'int main () { return 0; }' > 32bit.c && %(compiler)s -o 32bit 32bit.c && ./32bit''' % locals ()):
-        print 'error: cannot run 32 bit executable: 32bit\n'
+        printf ('error: cannot run 32 bit executable: 32bit\n')
         raise Exception ('Package %(name)s depends on 32 bit libraries''' % locals ())
     os.system ('rm -f 32bit 32bit.c')
 

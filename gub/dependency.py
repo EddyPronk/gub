@@ -114,7 +114,7 @@ class Dependency:
             try:
                 self._url = self._url % self.settings.__dict__
             except:
-                print 'URL:', self._url
+                printf ('URL:', self._url)
                 raise
             x, parameters = misc.dissect_url (self._url)
             if parameters.get ('patch'):

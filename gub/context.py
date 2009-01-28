@@ -4,6 +4,7 @@ import re
 import traceback
 import types
 #
+from gub.syntax import printf
 from gub import octal
 
 def subst_method (func):
@@ -106,7 +107,7 @@ class Context (object):
             member_substs[name] = val
             if type (val) != str:
                 message = 'non string value ' + val + 'for subst_method' + name
-                print message
+                printf (message)
                 raise NonStringExpansion (message)
 
         string_vars = dict ((k, v) for (k, v) in members if type (v) == str)
@@ -157,8 +158,8 @@ class Context (object):
         except:
             t, v, b = sys.exc_info ()
             if t == KeyError or t == ValueError:
-                print 'format string: >>>' + s + '<<<'
-                print 'self:', self
+                printf ('format string: >>>' + s + '<<<')
+                printf ('self:', self)
             raise
         return e
 
@@ -265,6 +266,6 @@ if __name__=='__main__':
     s = settings.Settings ('debian-arm')
     c = RunnableContext (s)
 
-    print c.locate_files ('/etc/', '*.conf')
+    printf (c.locate_files ('/etc/', '*.conf'))
     
-    print p.expand ('%(name)s %(bladir)s')
+    printf (p.expand ('%(name)s %(bladir)s'))

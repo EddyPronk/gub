@@ -30,7 +30,7 @@ import sys
 import misc
 
 def get_url_versions (url):
-    print url
+    printf (url)
     opener = urllib.URLopener ()
     index = opener.open (url).read ()
 
@@ -95,10 +95,10 @@ class VersionDataBase:
             except:
                 t, v, b = sys.exc_info ()
                 if t == IOError:
-                    print 'problem loading', u
+                    printf ('problem loading', u)
                     sys.path.insert (0, 'gub')
                     # FIXME: do want to be inside gub framework or not?
-                    print misc.exception_string (v)
+                    printf (misc.exception_string (v))
                     continue
                 raise
 
@@ -194,16 +194,16 @@ def main ():
     db.platforms = options.platforms.split (' ')
 
     if options.test:
-        print '2.9.28:', db.get_next_build_number ((2,9,28))
-        print '2.8.2:', db.get_next_build_number ((2,8,2))
-        print '2.9.28:', db.get_next_build_number ((2,9,28))
-        print '2.8.2:', db.get_next_build_number ((2,8,2))
-        print '2.10.0 next:', db.get_next_build_number ((2,10,0))
+        printf ('2.9.28:', db.get_next_build_number ((2,9,28)))
+        printf ('2.8.2:', db.get_next_build_number ((2,8,2)))
+        printf ('2.9.28:', db.get_next_build_number ((2,9,28)))
+        printf ('2.8.2:', db.get_next_build_number ((2,8,2)))
+        printf ('2.10.0 next:', db.get_next_build_number ((2,10,0)))
 
-        print 'last mingw 2.9.26:', db.get_last_release ('mingw', (2,9,26))
-        print 'last mingw 2.9:', db.get_last_release ('mingw', (2,9))
-        print 'last mingw 2.9:', db.get_last_release ('mingw', (2,))
-        print 'last source:', db.get_last_release ('source', ())
+        printf ('last mingw 2.9.26:', db.get_last_release ('mingw', (2,9,26)))
+        printf ('last mingw 2.9:', db.get_last_release ('mingw', (2,9)))
+        printf ('last mingw 2.9:', db.get_last_release ('mingw', (2,)))
+        printf ('last source:', db.get_last_release ('source', ()))
         return
 
     if options.download:
@@ -217,7 +217,7 @@ def main ():
 
     if options.version:
         v = tuple (map (int, options.version.split ('.')))
-        print db.get_next_build_number (v)
+        printf (db.get_next_build_number (v))
 
 
 if __name__ == '__main__':

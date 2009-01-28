@@ -2,6 +2,7 @@ import os
 import re
 import optparse
 #
+from gub.syntax import printf
 from gub import build
 from gub import build_platform
 from gub import context
@@ -287,7 +288,7 @@ def main ():
         raise Exception ('barf')
         sys.exit (2)
     settings = Settings (options.platform)
-    print '\n'.join (as_variables (settings))
+    printf ('\n'.join (as_variables (settings)))
 
 if __name__ == '__main__':
     main ()

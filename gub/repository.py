@@ -513,7 +513,7 @@ class Git (Repository):
             self.source = self.source.replace ('git+file://' + u.host, '')
         else:
             # repository proxy determined git vcs from dir
-            print 'FIXME: get url from .git dir info'
+            printf ('FIXME: get url from .git dir info')
             assert False
         self.branch = self.filter_branch_arg (branch)
         self.revision = revision
@@ -1090,7 +1090,7 @@ def test ():
     import unittest
 
     for proxy in RepositoryProxy.repositories:
-        print proxy, proxy.vc_system
+        printf (proxy, proxy.vc_system)
 
     # This is not a unittest, it only serves as a smoke test mainly as
     # an aid to get rid safely of the global non-oo repository_proxy
@@ -1241,10 +1241,10 @@ def main ():
         test ()
     elif options.full_branch_name:
         repo = get_repository_proxy ('.', files[0])
-        print repo.full_branch_name ()
+        printf (repo.full_branch_name ())
     elif options.branch_dir:
         repo = get_repository_proxy ('.', files[0])
-        print repo.branch_dir ().replace ('//', '/')
+        printf (repo.branch_dir ().replace ('//', '/'))
 
 if __name__ == '__main__':
     main ()

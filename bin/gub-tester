@@ -308,9 +308,9 @@ def send_result_by_mail (options, parts, subject='Autotester result'):
         print_results (options, parts, subject)
 
 def print_results (options, parts, subject='Autotester result'):
-    print '\n===\n\nSUBJECT: ', subject
-    print '\n---\n'.join (parts)
-    print 'END RESULT\n==='
+    printf ('\n===\n\nSUBJECT: ', subject)
+    printf ('\n---\n'.join (parts))
+    printf ('END RESULT\n===')
 
 def real_main (options, args, handle_result):
     log = os.path.join (options.result_dir, 'gub-tester.log')
@@ -385,7 +385,7 @@ Checksum of revision: %(release_hash)s
 
 def test_self (options, args):
     def system (c):
-        print c
+        printf (c)
         if os.system (c):
             raise Exception ('barf')
     self_test_dir = 'test-gub-test.darcs'

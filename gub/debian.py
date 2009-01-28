@@ -2,6 +2,7 @@ import os
 import re
 import new
 #
+from gub.syntax import printf
 from gub import build
 from gub import cross
 from gub import misc
@@ -29,7 +30,7 @@ def change_target_package (p):
     cross.change_target_package (p)
 
 def get_debian_packages (settings, package_file):
-    print ('parsing: %s...' % package_file)
+    printf ('parsing: %s...' % package_file)
     return map (lambda j: get_debian_package (settings, j),
           open (package_file).read ().split ('\n\n')[:-1])
 

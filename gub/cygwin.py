@@ -3,6 +3,7 @@ import re
 import inspect
 import new
 #
+from gub.syntax import printf
 from gub import build
 from gub import cross
 from gub import misc
@@ -23,7 +24,7 @@ complain about missing files.'''
     file_name = self.expand (file_name)
     unpackdir = os.path.dirname (self.expand (self.srcdir ()))
     t = misc.split_ball (file_name)
-    print 'split: ' + t.__repr__ ()
+    printf ('split: ' + t.__repr__ ())
     no_src = re.sub ('-src', '', file_name)
     base = re.sub ('\.tar\..*', '', no_src)
     # FIXME: use split iso custom ball_re macramee
@@ -33,12 +34,12 @@ complain about missing files.'''
         second_tarball = re.sub (ball_re, '\\1\\3\\4', base)
     else:
         second_tarball = re.sub (ball_re, '\\1\\4', base)
-    print 'second_tarball: ' + second_tarball
+    printf ('second_tarball: ' + second_tarball)
     if split and m.group (3):
         second_tarball_contents = re.sub (ball_re, '\\1\\3\\4', base)
     else:
         second_tarball_contents = re.sub (ball_re, '\\1\\4', base)
-    print 'second_tarball_contents: ' + second_tarball_contents
+    printf ('second_tarball_contents: ' + second_tarball_contents)
     flags = '-jxf'
     self.system ('''
 rm -rf %(unpackdir)s/%(base)s
@@ -63,8 +64,8 @@ tar -C %(unpackdir)s %(flags)s %(unpackdir)s/%(second_tarball)s.%(tgz)s
         patch = re.sub (ball_re, '\\1\\2\\4\\5.patch', base)
     else:
         patch = re.sub (ball_re, '\\1\\4\\5.patch', base)
-    print 'patch: ' + patch
-    print 'scrdir: ', self.expand ('%(srcdir)s')
+    printf ('patch: ' + patch)
+    printf ('scrdir: ', self.expand ('%(srcdir)s'))
     self.system ('''
 cd %(unpackdir)s && mv %(second_tarball_contents)s %(base)s
 cd %(srcdir)s && patch -p1 -f < %(unpackdir)s/%(patch)s || true
@@ -250,7 +251,7 @@ def get_cygwin_packages (settings, package_file, skip=[]):
             try:
                 key, value = [x.strip () for x in lines[j].split (': ', 1)]
             except:
-                print lines[j], package_file
+                printf (lines[j], package_file)
                 raise Exception ('URG')
             if (value.startswith ('"')
               and value.find ('"', 1) == -1):

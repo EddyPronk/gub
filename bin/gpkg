@@ -38,6 +38,7 @@ import re
 import string
 import sys
 #
+from gub.syntax import printf
 from gub import gup
 from gub import logging
 from gub import misc
@@ -50,15 +51,15 @@ class Command:
 
     def available (self):
         '''list available packages'''
-        print '\n'.join (sorted (self.pm._packages.keys ()))
+        printf ('\n'.join (sorted (self.pm._packages.keys ())))
 
     def files (self):
         '''list installed files'''
         for p in self.options.arguments:
             if not self.pm.is_installed (p):
-                print '%s not installed' % p
+                printf ('%s not installed' % p)
             else:
-                print '\n'.join (self.pm.installed_files (p))
+                printf ('\n'.join (self.pm.installed_files (p)))
 
     def find (self):
         '''package containing file'''
@@ -72,14 +73,14 @@ class Command:
             hits += ['%s: /%s' % (p, i)
                 for i in self.pm.installed_files (p)
                 if regexp.search ('/%s' % i)]
-        print (string.join (hits, '\n'))
+        printf (string.join (hits, '\n'))
 
     def install (self):
         '''download and install packages with dependencies'''
         packs=[]
         for p in self.options.arguments:
             if self.pm.is_installed (p):
-                print '%s already installed' % p
+                printf ('%s already installed' % p)
             else:
                 packs.append (p)
 
@@ -93,13 +94,13 @@ class Command:
     def list (self):
         '''installed packages'''
         if self.options.print_only_name:
-            print '\n'.join (sorted (self.pm.installed_packages ()))
+            printf ('\n'.join (sorted (self.pm.installed_packages ())))
         else:
-            print '\n'.join (sorted (['%(split_name)-20s%(version)s' % d for d in self.pm.installed_package_dicts()]))
+            printf ('\n'.join (sorted (['%(split_name)-20s%(version)s' % d for d in self.pm.installed_package_dicts()])))
 
     def remove_package (self, p):
         if not self.pm.is_installed (p):
-            print '%s not installed' % p
+            printf ('%s not installed' % p)
         else:
             self.pm.uninstall_package (p)
 

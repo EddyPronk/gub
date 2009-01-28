@@ -1,5 +1,6 @@
 import re
 #
+from gub.syntax import printf
 from gub import context
 from gub import misc
 from gub import repository
@@ -278,7 +279,7 @@ class Ghostscript__cygwin (Ghostscript):
         Ghostscript.__init__ (self, settings, source)
         self.fonts_source = repository.get_repository_proxy (self.settings.downloads, 'http://mirror2.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/ghostscript-fonts-std-8.11.tar.gz')
     def connect_command_runner (self, runner):
-        print 'FIXME: deferred workaround'
+        printf ('FIXME: deferred workaround')
         if (runner):
             self.fonts_source.connect_logger (runner.logger)
         return Ghostscript.connect_command_runner (self, runner)
@@ -367,7 +368,7 @@ cd %(builddir)s && %(install_command_x11)s
 cd %(install_prefix)s && rm -rf usr/X11R6/share
 ''')
     def install_fonts (self):
-        print 'FIXME: deferred workaround'
+        printf ('FIXME: deferred workaround')
 #        deferred_dump (self.font_source.update_workdir (fontdir))
         fontdir = self.expand ('%(install_prefix)s/share/ghostscript/fonts')
         def defer (logger):

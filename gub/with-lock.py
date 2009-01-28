@@ -67,7 +67,7 @@ def main ():
         stat = run_command_with_lock (lock_file_name, cmd, args)
         sys.exit (stat)
     except locker.LockedError:
-        print "Can't acquire lock %s" % lock_file_name
+        printf ("Can't acquire lock %s" % lock_file_name)
         if opts.skip:
             sys.exit (0)
         else:

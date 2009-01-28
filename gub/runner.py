@@ -24,6 +24,7 @@ import os
 import re
 import sys
 #
+from gub.syntax import printf
 from gub import misc
 from gub import commands
 
@@ -160,7 +161,7 @@ class DeferredRunner (CommandRunner):
             cmd.execute (self.logger)
 
         if self._deferred_commands:
-            print '*** deferred leftovers:', self._deferred_commands
+            printf ('*** deferred leftovers:', self._deferred_commands)
         assert self._deferred_commands == list ()
 
     def flush_deferred_commands (self):

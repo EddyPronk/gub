@@ -22,12 +22,12 @@ def format (tup, fmt=default_format):
 
 def test ():
     date = '2007-09-14 11:39:21 +0200'
-    print parse (date)
-    print format (parse (date))
+    printf (parse (date))
+    printf (format (parse (date)))
 
     date = '2007-09-14 11:39:21'
-    print parse (date)
-    print format (parse (date))
+    printf (parse (date))
+    printf (format (parse (date)))
     
 if __name__ == '__main__':
     test ()

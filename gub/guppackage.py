@@ -2,6 +2,7 @@ import os
 import pickle
 import sys
 #
+from gub.syntax import printf
 from gub import commands
 from gub import misc
 
@@ -31,7 +32,7 @@ class GupPackage:
         try:
             s = ('%(name)s' % dict) + sub_name
         except:
-            print 'NO NAME IN:', dict
+            printf ('NO NAME IN:', dict)
             raise 
         self._dict['split_name'] = s
         self._dict['split_ball'] = ('%(packages)s/%(split_name)s%(ball_suffix)s.%(platform)s.gup') % self._dict

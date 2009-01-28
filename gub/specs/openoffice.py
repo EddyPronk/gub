@@ -2,6 +2,7 @@ import operator
 import os
 import re
 #
+from gub.syntax import printf
 from gub import context
 from gub import misc
 from gub import octal
@@ -215,7 +216,7 @@ Set OOO_TOOLS_DIR to a recent pre-compiled native solver, I do
 
 export OOO_TOOLS_DIR=/suse/home/janneke/vc/ooo300-m7/build/ooo300-m7/solver/300/unxlngx6.pro/bin
 '''
-            print message
+            printf (message)
             raise Exception (message)
         return os.environ['OOO_TOOLS_DIR']
     @context.subst_method

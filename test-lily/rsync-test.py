@@ -17,6 +17,7 @@ import string
 import glob
 import optparse
 #
+from gub.syntax import printf
 from gub import versiondb
 
 def parse_options ():
@@ -66,7 +67,7 @@ def parse_options ():
 
 ## UGH C&P
 def system (cmd):
-    print cmd
+    printf (cmd)
     stat = os.system (cmd)
     if stat:
             raise Exception ('fail')
@@ -149,7 +150,7 @@ def compare_test_info (options):
     for f in outputs:
         m = re.search ('lilypond-([.0-9]+)-([0-9]+).test-output.tar.bz2', f)
         if not m:
-            print f
+            printf (f)
             assert 0
 
         version = map (int, m.group (1).split ('.'))
@@ -184,7 +185,7 @@ def main ():
     
     if options.dry_run:
         def my_system (x):
-            print x
+            printf (x)
         global system
         system = my_system
 

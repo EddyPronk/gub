@@ -2,6 +2,7 @@ import glob
 import re
 import os
 #
+from gub.syntax import printf
 from gub import context
 from gub import target
 from gub import loggedos
@@ -62,7 +63,7 @@ class Rewirer (context.RunnableContext):
                     must_skip = [s for s in self.skip if s in f]
                     if not must_skip:
                         raise Exception ('found targetdir in linkage[%(name)s]: %(f)s' % locals ())
-                    print 'FIXME: skipping[%(name)s]: %(f)s, hope this is ok' % locals ()
+                    printf ('FIXME: skipping[%(name)s]: %(f)s, hope this is ok' % locals ())
 
         self.rewire_mach_o_object (name, subs)
 
@@ -158,7 +159,7 @@ def system (c):
 
 def get_darwin_sdk ():
     def system (s):
-        print s
+        printf (s)
         if os.system (s):
             raise Exception ('barf')
 
