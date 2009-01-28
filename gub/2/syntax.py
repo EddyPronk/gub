@@ -5,7 +5,12 @@ def printf (*args):
     print
 
 def function_class (func):
-    return func.im_class
+    try:
+        return func.im_class
+    except:
+        class C:
+            pass
+        return C
 
 # ugh: function_class (foo) = bar
 # gives: SyntaxError: can't assign to function call
@@ -13,4 +18,7 @@ def function_class (func):
 function_get_class = function_class
 
 def function_set_class (func, cls):
-    func.im_class = cls
+    try:
+        func.im_class = cls
+    except:
+        pass

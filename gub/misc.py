@@ -414,11 +414,10 @@ class hierarchy.
         self.old_func = old_func
         self.args = extra_args
         self.dict = dict ()
-        self.__self__ = self
         function_set_class (self, function_get_class (old_func))
     def __call__ (self):
         all_args = (self.old_func (),) + self.args  
-        return apply (self.new_func, all_args)
+        return self.new_func (*all_args)
 
 def list_insert (lst, idx, a):
     if type (a) == type (list ()):
