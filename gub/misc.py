@@ -73,11 +73,15 @@ def read_pipe (cmd, ignore_errors=False, env=os.environ, logger=sys.stderr):
         line = proc.stdout.readline ()
         result += line
 
+    if proc.returncode == None:
+        # process has not terminated yet, but it's not producing output;
+        # this means it's failing, wait for that.
+        proc.poll ()
     if proc.returncode:
         m = 'read_pipe failed: %(cmd)s\n' % locals ()
         logger.write (m)
         if not ignore_errors:
-            raise misc.SystemFailed (m)
+            raise SystemFailed (m)
     if sys.version.startswith ('2'):
         return result
     else:
@@ -271,14 +275,13 @@ def _download_url (url, dest_dir, progress=None):
 
     try:
         url_stream = urllib2.urlopen (url)
-    except OSError, e:
-        if url.startswith ('file:'):
+    except:
+        t, v, b = sys.exc_info ()
+        if ((t == OSError and url.startswith ('file:'))
+            or (t == IOError
+                and (url.startswith ('ftp:') or url.startswith ('http:')))):
             return e
-        raise e
-    except IOError, e:
-        if url.startswith ('ftp:') or url.startswith ('http:'):
-            return e
-        raise e
+        raise
 
     size = 0
     bufsize = 1024 * 50
