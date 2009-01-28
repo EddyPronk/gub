@@ -16,8 +16,15 @@
       - deleted/renamed modules: new, md5, dbhash # can probably be
         hacked using python2/python3 compatibility switches,
 	but requires some work.
-
 *** DONE
+**** test
+    bin/gub tools::test-23  # for quick testing
+**** runtime 2/3 library
+    gub/__init__.py switches __path__ between
+    gub/2/[syntax.py] and gub/3/[syntax.py]
+use
+    from gub.syntax import printf
+    printf () rather than print/print ()
 **** except E, e: vs except E as e: # SyntaxError ==> showstopper
 So, don't use :-), rather use if-else constructs
     try:

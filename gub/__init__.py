@@ -19,3 +19,9 @@
 '''
 
 '''gub lib'''
+
+import os
+import sys
+
+# python2/3 runtime compatibility lib path initialization
+__path__.insert (0, os.path.join (__path__[0], str (sys.version_info[0])))
