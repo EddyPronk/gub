@@ -456,7 +456,7 @@ def dissect_url (url):
             d[k] = d.get (k, []) + [v]
         return d
     
-    return lst[0], dict (map (lambda x: x.split ('='), lst[1:]))
+    return lst[0], dict ([x.split ('=') for x in lst[1:]])
 
 def get_from_parents (cls, key):
     base = cls.__name__

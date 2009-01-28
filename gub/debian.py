@@ -31,13 +31,11 @@ def change_target_package (p):
 
 def get_debian_packages (settings, package_file):
     printf ('parsing: %s...' % package_file)
-    return map (lambda j: get_debian_package (settings, j),
-          open (package_file).read ().split ('\n\n')[:-1])
+    return [get_debian_package (settings, j) for j in open (package_file).read ().split ('\n\n')[:-1]]
 
 def get_debian_package (settings, description):
     s = description[:description.find ('\nDescription')]
-    d = dict (map (lambda line: line.split (': ', 1),
-           map (''.strip, s.split ('\n'))))
+    d = dict ([line.split (': ', 1) for line in list (map (''.strip, s.split ('\n')))])
     # FIXME: should blacklist toplevel bin/gub argument iso lilypond
     blacklist = [
         'binutils',
@@ -67,15 +65,15 @@ def get_debian_package (settings, description):
     package = package_class (settings, source)
     package.name_dependencies = []
     if 'Depends' in d:
-        deps = map (''.strip,
-                    re.sub ('\([^\)]*\)', '', d['Depends']).split (', '))
+        deps = list (map (''.strip,
+                    re.sub ('\([^\)]*\)', '', d['Depends']).split (', ')))
         # FIXME: BARF, ignore choices
         deps = [x for x in deps if x.find ('|') == -1]
         # FIXME: how to handle Provides: ?
         # FIXME: BARF, fixup libc Provides
-        deps = map (lambda x: re.sub ('libc($|-)', 'libc6\\1', x), deps)
-        deps = map (lambda x: re.sub ('liba52-dev', 'liba52-0.7.4-dev', x), deps)
-        deps = map (lambda x: re.sub ('libpng12-0-dev', 'libpng12-dev', x), deps)
+        deps = [re.sub ('libc($|-)', 'libc6\\1', x) for x in deps]
+        deps = [re.sub ('liba52-dev', 'liba52-0.7.4-dev', x) for x in deps]
+        deps = [re.sub ('libpng12-0-dev', 'libpng12-dev', x) for x in deps]
         # FIXME: ugh, skip some
         deps = [x for x in deps if x not in blacklist]
         package.name_dependencies = deps

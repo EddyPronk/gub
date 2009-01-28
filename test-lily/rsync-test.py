@@ -153,7 +153,7 @@ def compare_test_info (options):
             printf (f)
             assert 0
 
-        version = map (int, m.group (1).split ('.'))
+        version = list (map (int, m.group (1).split ('.')))
         build = int (m.group (2))
         tup = (version, build)
         

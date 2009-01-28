@@ -224,7 +224,7 @@ export OOO_TOOLS_DIR=/suse/home/janneke/vc/ooo300-m7/build/ooo300-m7/solver/300/
         return '%(OOO_TOOLS_DIR)s/../lib' + misc.append_path (os.environ.get ('LD_LIBRARY_PATH', ''))
     def autoupdate (self):
         # Why is build.py:Build:patch() not doing this?
-        map (self.apply_patch, self.__class__.patches)
+        list (map (self.apply_patch, self.__class__.patches))
         self.system ('cd %(srcdir)s && NOCONFIGURE=1 ./autogen.sh --noconfigure')
     def config_cache_overrides (self, str):
         return str + '''
@@ -346,8 +346,8 @@ cd %(builddir)s/build/%(cvs_tag)s && patch -p%(patch_strip_component)s < %(patch
                 if chunk.find ('\n+++ ') >= 0:
                     return re.search ('\n[+]{3}\s+([.]/)?([^\s]+)', chunk).group (2)
                 return ''
-            return map (file_name, ('\n' + string).split ('\n---')[1:])
-        files_with_patches = map (files_in_patch, self.upstream_patches)
+            return list (map (file_name, ('\n' + string).split ('\n---')[1:]))
+        files_with_patches = list (map (files_in_patch, self.upstream_patches))
         return reduce (operator.__add__, files_with_patches)
     def upstream_patch_reset (self):
         upstream_dir = self.upstream_dir ()
@@ -355,7 +355,7 @@ cd %(builddir)s/build/%(cvs_tag)s && patch -p%(patch_strip_component)s < %(patch
             self.system ('cp -p %(upstream_dir)s/%(f)s.pristine %(upstream_dir)s/%(f)s || cp -p %(upstream_dir)s/%(f)s %(upstream_dir)s/%(f)s.pristine' % locals ())
     def patch_upstream (self):
         self.upstream_patch_reset ()
-        map (self.apply_upstream_patch, self.__class__.upstream_patches)
+        list (map (self.apply_upstream_patch, self.__class__.upstream_patches))
 
         # FIXME: neutralize silly GNU make check
         # self.system ('''sed -i -e "s@' 3[.]81'@'gpuhleez, we are not even building mozilla'@" %(upstream_dir)s/config_office/configure.in')

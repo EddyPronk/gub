@@ -178,9 +178,9 @@ class DeferredRunner (CommandRunner):
         if sys.version.startswith ('3'):
             def str_append (x):
                 result.append (str (x))
-            map (lambda x: x.checksum (str_append), self._deferred_commands)
+            list (map (lambda x: x.checksum (str_append), self._deferred_commands))
         else:
-            map (lambda x: x.checksum (result.append), self._deferred_commands)
+            list (map (lambda x: x.checksum (result.append), self._deferred_commands))
         return '\n'.join (result)
 
     def _execute (self, command):

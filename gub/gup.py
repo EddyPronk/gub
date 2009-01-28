@@ -462,7 +462,7 @@ def get_source_packages (settings, const_todo):
             spec = dependency.Dependency (sets[platform], name, url).build ()
             specs[key] = spec
             
-        return map (get_base_package_name, spec.get_platform_build_dependencies ())
+        return list (map (get_base_package_name, spec.get_platform_build_dependencies ()))
 
     def name_to_dependencies_via_distro (distro_packages, url):
         platform, url = split_platform (url)

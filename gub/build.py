@@ -328,7 +328,7 @@ class AutoBuild (Build):
         self.dump ('%(stage_number)d' % locals (), self.get_stamp_file (), 'w')
 
     def patch (self):
-        map (self.apply_patch, self.__class__.__dict__.get ('patches', []))
+        list (map (self.apply_patch, self.__class__.__dict__.get ('patches', [])))
 
     def force_autoupdate (self):
         return False
@@ -435,7 +435,7 @@ cp %(file)s %(install_root)s/license/%(name)s
 ''', locals ())
                     loggedos.system (logger, cmd)
                     return
-        self.func (install, map (self.expand, self.license_files ()))
+        self.func (install, list (map (self.expand, self.license_files ())))
 
     def libtool_installed_la_fixups (self):
         def installed_la_fixup (logger, la):

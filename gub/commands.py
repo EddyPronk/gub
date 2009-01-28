@@ -295,7 +295,7 @@ class Chmod (SerializedCommand):
         loggedos.chmod (logger, *self.args)
     def checksum (self, hasher):
         hasher (self.__class__.__name__)
-        map (hasher, map (str, self.args))
+        list (map (hasher, list (map (str, self.args))))
 
 class PackageGlobs (SerializedCommand):
     def __init__ (self, root, suffix_dir, globs, dest):
