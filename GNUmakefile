@@ -42,11 +42,13 @@ web: README
 
 PYTHON_SOURCES = $$(git ls-files | grep -E '(^bin/|*.py$$)' | grep -Ev 'gub/(2|3)/')
 python3:
-# a 2to3 crash fails to convert the remaining files
-#	2to3-3.0 -nw $(PYTHON_SOURCES) >/dev/null || :
+ifeq (0,0) # a 2to3 crash fails to convert the remaining files
+	2to3-3.0 -nw $(PYTHON_SOURCES) >/dev/null || :
+else
 	for i in $(PYTHON_SOURCES); do\
 	    2to3-3.0 -nw $$i >/dev/null || :; \
 	done
+endif
 # fix breakages
 	sed -i -e 's@^\( *\)\t@\1        @g' \
 	    -e 's@import md5@from gub import md53@g' \
