@@ -40,7 +40,7 @@ def main ():
     #except:
     if 1:
         # On failure printf (empty line for use in makefile's $(shell ).)
-        print
+        printf ()
 
 if __name__ == '__main__':
     main ()
