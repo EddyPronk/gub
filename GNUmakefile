@@ -43,10 +43,10 @@ web: README
 PYTHON_SOURCES = $$(git ls-files | grep -E '(^bin/|*.py$$)' | grep -Ev 'gub/(2|3)/')
 python3:
 ifeq (0,0) # a 2to3 crash fails to convert the remaining files
-	2to3-3.0 -nw -x urllib $(PYTHON_SOURCES) >/dev/null
+	2to3-3.0 -nw -x urllib -x next $(PYTHON_SOURCES) >/dev/null
 else
 	for i in $(PYTHON_SOURCES); do\
-	    2to3-3.0 -nw -x urllib $$i >/dev/null || :; \
+	    2to3-3.0 -nw -x urllib -x next $$i >/dev/null || :; \
 	done
 endif
 # fix breakages

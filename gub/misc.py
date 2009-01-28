@@ -8,7 +8,7 @@ import sys
 import traceback
 import urllib2
 #
-from gub.syntax import printf, function_get_class, function_set_class
+from gub.syntax import printf, function_get_class, function_set_class, next
 from gub import octal
 
 def join_lines (str):
@@ -319,7 +319,7 @@ def forall (generator):
     v = True
     try:
         while v:
-            v = v and generator.next ()
+            v = v and next (generator)
     except StopIteration:
         pass
     return v
@@ -344,7 +344,7 @@ def binary_strip_p (filter_out=[], extension_filter_out=[]):
 def map_command_dir (os_commands, dir, command, predicate):
     if not os.path.isdir (dir):
         raise Exception ('warning: no such dir: %(dir)s' % locals ())
-    (root, dirs, files) = os.walk (dir).next ()
+    (root, dirs, files) = next (os.walk (dir))
     for file in files:
         if predicate (os.path.join (root, file)):
             os_commands.system ('%(command)s %(root)s/%(file)s' % locals (),
@@ -353,7 +353,7 @@ def map_command_dir (os_commands, dir, command, predicate):
 def map_dir (func, dir):
     if not os.path.isdir (dir):
         raise Exception ('warning: no such dir: %(dir)s' % locals ())
-    (root, dirs, files) = os.walk (dir).next ()
+    (root, dirs, files) = next (os.walk (dir))
     for file in files:
         func (root, file)
 
@@ -547,7 +547,7 @@ def shadow (src, target):
     target = os.path.abspath (target)
     src = os.path.abspath (src)
     os.makedirs (target)
-    (root, dirs, files) = os.walk (src).next ()
+    (root, dirs, files) = next (os.walk (src))
     for f in files:
         os.symlink (os.path.join (root, f), os.path.join (target, f))
     for d in dirs:

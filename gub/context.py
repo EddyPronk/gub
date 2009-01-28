@@ -50,8 +50,7 @@ def typecheck_substitution_dict (d):
             raise Exception ('type', (k, v))
 
 def recurse_substitutions (d):
-    lst = d.items ()
-    for (k, v) in lst:
+    for (k, v) in list (d.items ()):
         if type (v) != str:
             del d[k]
             continue

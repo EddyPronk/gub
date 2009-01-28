@@ -19,3 +19,5 @@ def function_set_class (func, cls):
         func.__self__.__class__ = cls
     except:
         pass
+
+next = next

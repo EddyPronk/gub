@@ -22,3 +22,6 @@ def function_set_class (func, cls):
         func.im_class = cls
     except:
         pass
+
+def next (generator):
+    return generator.next ()

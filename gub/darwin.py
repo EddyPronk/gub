@@ -2,7 +2,7 @@ import glob
 import re
 import os
 #
-from gub.syntax import printf
+from gub.syntax import printf, next
 from gub import context
 from gub import target
 from gub import loggedos
@@ -70,7 +70,7 @@ class Rewirer (context.RunnableContext):
     def rewire_binary_dir (self, dir):
         if not os.path.isdir (dir):
             raise Exception ('not a directory: %(dir)' % locals ())
-        (root, dirs, files) = os.walk (dir).next ()
+        (root, dirs, files) = next (os.walk (dir))
         files = [os.path.join (root, f) for f in files]
         for f in files:
             must_skip = [s for s in self.skip if s in f]
