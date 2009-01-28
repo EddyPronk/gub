@@ -615,8 +615,7 @@ def test ():
     print forall (x for x in [1, 1])
     print dissect_url ('git://anongit.freedesktop.org/git/fontconfig?revision=1234')
     print dissect_url ('http://lilypond.org/foo-123.tar.gz&patch=a&patch=b')
-    print rewrite_url ('ftp://foo.com/pub/foo/foo-123.tar.gz',
-                       'http://lilypond.org/downloads')
+    print rewrite_url ('ftp://foo.com/pub/foo/foo-123.tar.gz', 'http://lilypond.org/downloads')
 
 if __name__ =='__main__':
     test ()
