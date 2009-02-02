@@ -102,8 +102,7 @@ class Installer (context.RunnableContext):
             install_manager.install_package (a)
 
         version = install_manager.package_dict (self.name)['version']
-        version_tup = tuple (map (int, version.split ('.')))
-
+        version_tup = misc.string_to_version (version)
         buildnumber = '%d' % self.version_db.get_next_build_number (version_tup)
 
         self.installer_version = version
@@ -418,11 +417,16 @@ class Linux_installer (Installer):
 class Shar (Linux_installer):
     def create (self):
         Linux_installer.create (self)
-        target_shar = self.installer_file ()
-        head = self.expand ('%(sourcefiledir)s/lilypond-sharhead.sh')
+        name = self.name
+        pretty_name = self.pretty_name
+        release = self.expand ('%(installer_build)s')
+        shar_file = self.installer_file ()
+        shar_head = self.expand ('%(sourcefiledir)s/sharhead.sh')
+        if self.name == 'lilypond':
+            shar_head = self.expand ('%(sourcefiledir)s/lilypond-sharhead.sh')
         tarball = self.expand (self.bundle_tarball)
-        hello = self.expand ("version %(installer_version)s release %(installer_build)s")
-        self.runner._execute (commands.CreateShar (tarball, hello, head, target_shar))
+        version = self.expand ('%(installer_version)s')
+        self.runner._execute (commands.CreateShar (name=name, pretty_name=pretty_name, release=release, shar_file=shar_file, shar_head=shar_head, tarball=tarball, version=version))
 # hmm?
 #    @context.subst_method
     def installer_file (self):
