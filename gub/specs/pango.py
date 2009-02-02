@@ -6,7 +6,8 @@ from gub import target
 
 pango_module_version_regexes = [
     (r'^1\.14', '1.5.0'),
-    (r'^1\.20', '1.6.0')
+    (r'^1\.20', '1.6.0'),
+    (r'^1\.22', '1.6.0'),
     ]
 
 class Pango (target.AutoBuild):
