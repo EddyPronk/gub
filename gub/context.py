@@ -3,6 +3,7 @@ import os
 import re
 import traceback
 import types
+import sys
 #
 from gub.syntax import printf, function_class
 from gub import octal
