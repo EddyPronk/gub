@@ -9,6 +9,13 @@ class BjamBuild (target.MakeBuild):
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         target.append_target_dict (self, {'CFLAGS': ''})
+    def XXX_BROKEN_get_build_dependencies (self):
+# the separately available boost-jam is terribly broken wrt building boost
+# *** Stage: compile (boost, linux-64)
+#invoking cd /home/janneke/vc/gub/target/linux-64/build/boost-1.33.1 &&  bjam '-sTOOLS=gcc' '-sGCC=x86_64-linux-gcc -fPIC -DBOOST_PLATFORM_CONFIG=\"boost/config/platform/linux.hpp\"' '-sGXX=x86_64-linux-g++ -fPIC -DBOOST_PLATFORM_CONFIG=\"boost/config/platform/linux.hpp\"' '-sNO_BZIP2=1' '-sNO_ZLIB=1' '-sBUILD=release <optimization>space <inlining>on <debug-symbols>off <runtime-link>static' '-sPYTHON_VERSION=2.4' '-scxxflags=-fPIC' --without-python --without-test --with-python-root=/dev/null --layout=system --builddir=/home/janneke/vc/gub/target/linux-64/build/boost-1.33.1 --with-python-root=/dev/null --prefix=/usr --exec-prefix=/usr --libdir=/usr/lib --includedir=/usr/include 
+#Jamfile:114: in module scope
+#rule unless unknown in module 
+        return ['tools::boost-jam']
     def get_substitution_dict (self, env={}):
         # FIXME: how to add settings to dict?
         dict = target.AutoBuild.get_substitution_dict (self, env)
@@ -51,13 +58,24 @@ bjam
 
 class Boost (BjamBuild):
     source = 'http://surfnet.dl.sourceforge.net/sourceforge/boost/boost_1_33_1.tar.bz2'
+    #source = 'http://surfnet.dl.sourceforge.net/sourceforge/boost/boost_1_34_1.tar.bz2'
+    #source = 'http://surfnet.dl.sourceforge.net/sourceforge/boost/boost_1_34_1.tar.bz2'
     def __init__ (self, settings, source):
         BjamBuild.__init__ (self, settings, source)
         target.change_target_dict (self, {'CFLAGS': '-DBOOST_PLATFORM_CONFIG=\\"boost/config/platform/linux.hpp\\"'})
     def get_substitution_dict (self, env={}):
-        dict = BjamBuild.get_substitution_dict (self, env)
-        dict['CFLAGS'] = '-DBOOST_PLATFORM_CONFIG=\\"boost/config/platform/linux.hpp\\"'
-        return dict
+        d = BjamBuild.get_substitution_dict (self, env)
+        d['CFLAGS'] = '-DBOOST_PLATFORM_CONFIG=\\"boost/config/platform/linux.hpp\\"'
+        d['PATH'] = '%(builddir)s:' + d['PATH']
+        return d
+    def stages (self):
+        return misc.list_insert_before (BjamBuild.stages (self),
+                                        'compile',
+                                        ['build_bjam'])
+    def build_bjam (self):
+        # the separately available boost-jam is terribly broken wrt
+        # building boost: build included bjam
+        self.system ('cd %(builddir)s/tools/build/jam_src && sh build.sh gcc && mv bin.*/bjam %(builddir)s')
     def license_files (self):
         return ['%(srcdir)s/LICENSE_1_0.txt']
     def install (self):
