@@ -105,6 +105,15 @@ class MakeBuild (AutoBuild):
     def stages (self):
         return [s.replace ('configure', 'shadow') for s in AutoBuild.stages (self) if s not in ['autoupdate']]
 
+class ShBuild (AutoBuild):
+    def stages (self):
+        return [s.replace ('configure', 'shadow') for s in AutoBuild.stages (self) if s not in ['autoupdate']]
+    def compile_command (self):
+        return 'bash build.sh'
+    def install_command (self):
+        print ('Override me.')
+        assert False
+
 class PythonBuild (AutoBuild):
     def stages (self):
         return [s for s in AutoBuild.stages (self) if s not in ['autoupdate', 'configure']]
