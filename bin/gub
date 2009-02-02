@@ -271,6 +271,9 @@ def exceptional_build (settings, options, files, logger):
             sys.stderr.write ('\n')
             logger.dump_tail (sys.stderr)
             sys.stderr.write ('\n')
+            if buildrunner.target:
+                sys.stderr.write ('\n*** Failed target: %s\n' % buildrunner.target)
+            sys.stderr.write ('\n')
             raise
     logger.write_log ('done\n', 'stage')
     return 0

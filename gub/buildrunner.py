@@ -245,8 +245,13 @@ class BuildRunner:
             fail_str = '<nothing to be done>.'
         logging.default_logger.write_log ('must rebuild[%(platform)s]: %(fail_str)s\n' % locals (), 'stage')
         self.uninstall_outdated_specs (deps)
+        global target
         for spec_name in deps:
+            target = spec_name
             self.spec_build (spec_name)
+        target = None
+                
+target = None
 
 def main ():
     boe
