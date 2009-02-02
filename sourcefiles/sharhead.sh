@@ -1,5 +1,7 @@
 #! /bin/sh
 
+# FIXME: copy from lilypond-sharhead, lilypond stuff commented-out
+
 me="$0"
 root="$HOME"
 doc=no
@@ -128,45 +130,44 @@ chmod +x "$binwrapscript"
 #####################
 ### LilyPond wrappers
 
-wrapscript="${bindir}/%(name)s-wrapper"
+##lily##wrapscript="${bindir}/%(name)s-wrapper"
 
-for interp in python guile; do
-    echo "Creating script $wrapscript.$interp"
-
-    if test "$interp" = "guile"; then
-	callmain="-e main"
-    else
-	callmain=""
-    fi
-
-    rm -f "$wrapscript.$interp" > /dev/null 2>&1
-    cat<<EOF > "$wrapscript.$interp"
-#!/bin/sh
-export PYTHONPATH="${prefix}/usr/lib/lilypond/current/python:${prefix}/usr/share/lilypond/current/python:${dollar}PYTHONPATH"
-export GUILE_LOAD_PATH="${prefix}/usr/share/lilypond/current"
-export LD_LIBRARY_PATH="${prefix}/usr/lib:${dollar}LD_LIBRARY_PATH"
-me=${backquote}basename ${dollar}0${backquote}
-exec "${prefix}/usr/bin/$interp" ${callmain} "${prefix}/usr/bin/${dollar}me" $expandargs
-EOF
-    chmod +x "$wrapscript.$interp"
-done
-
+##lily##for interp in python guile; do
+##lily##    echo "Creating script $wrapscript.$interp"
+##lily##
+##lily##    if test "$interp" = "guile"; then
+##lily##	callmain="-e main"
+##lily##    else
+##lily##	callmain=""
+##lily##    fi
+##lily##
+##lily##    rm -f "$wrapscript.$interp" > /dev/null 2>&1
+##lily##    cat<<EOF > "$wrapscript.$interp"
+##lily###!/bin/sh
+##lily##export PYTHONPATH="${prefix}/usr/lib/lilypond/current/python:${prefix}/usr/share/lilypond/current/python:${dollar}PYTHONPATH"
+##lily##export GUILE_LOAD_PATH="${prefix}/usr/share/lilypond/current"
+##lily##export LD_LIBRARY_PATH="${prefix}/usr/lib:${dollar}LD_LIBRARY_PATH"
+##lily##me=${backquote}basename ${dollar}0${backquote}
+##lily##exec "${prefix}/usr/bin/$interp" ${callmain} "${prefix}/usr/bin/${dollar}me" $expandargs
+##lily##EOF
+##lily##    chmod +x "$wrapscript.$interp"
+##lily##done
+##lily##
 #######################
 ## symlinks to wrappers
 
-(cd ${bindir};
-    for a in abc2ly musicxml2ly convert-ly midi2ly etf2ly lilypond-book mup2ly; do
-	rm -f $a;
-	ln -s $wrapscript.python $a;
-	binaries="$binaries $a"
-    done
-    for a in lilypond-invoke-editor; do
-	rm -f $a;
-	ln -s $wrapscript.guile $a;
-	binaries="$binaries $a"
-    done
-)
-
+##lily##(cd ${bindir};
+##lily##    for a in abc2ly musicxml2ly convert-ly midi2ly etf2ly lilypond-book mup2ly; do
+##lily##	rm -f $a;
+##lily##	ln -s $wrapscript.python $a;
+##lily##	binaries="$binaries $a"
+##lily##    done
+##lily##    for a in lilypond-invoke-editor; do
+##lily##	rm -f $a;
+##lily##	ln -s $wrapscript.guile $a;
+##lily##	binaries="$binaries $a"
+##lily##    done
+##lily##)
 
 ###################
 ## uninstall script
@@ -213,22 +214,22 @@ tail -c+%(header_length)012d "$0" | tar -C "${prefix}" %(_z)s -xf -
 
 documentation="http://lilypond.org/doc"
 
-mirror="http://lilypond.org/download"
-doc_url_base="$mirror/binaries/documentation"
-if test "$doc" = yes; then
-    documentation="file://${prefix}/share/doc/lilypond/html/index.html
-    file://${prefix}/share/info/dir"
-    docball=`echo $me | sed -e 's/[.][^.]\+[.]sh/.documentation.tar.bz2/'`
-    doc_url="$doc_url_base/$docball"
-    if ! test -e $docball; then
-	echo "No ./$docball found, downloading."
-	wget $doc_url
-    fi
-    if test -e $docball; then
-	echo Untarring "$docball"
-	tar -C ${prefix} -xjf $docball
-    fi
-fi
+##lily##mirror="http://lilypond.org/download"
+##lily##doc_url_base="$mirror/binaries/documentation"
+##lily##if test "$doc" = yes; then
+##lily##    documentation="file://${prefix}/share/doc/lilypond/html/index.html
+##lily##    file://${prefix}/share/info/dir"
+##lily##    docball=`echo $me | sed -e 's/[.][^.]\+[.]sh/.documentation.tar.bz2/'`
+##lily##    doc_url="$doc_url_base/$docball"
+##lily##    if ! test -e $docball; then
+##lily##	echo "No ./$docball found, downloading."
+##lily##	wget $doc_url
+##lily##    fi
+##lily##    if test -e $docball; then
+##lily##	echo Untarring "$docball"
+##lily##	tar -C ${prefix} -xjf $docball
+##lily##    fi
+##lily##fi
 
 cat <<EOF
 To uninstall %(name)s, run

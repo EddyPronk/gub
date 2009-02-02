@@ -420,25 +420,29 @@ class AutogenMagic (ForcedAutogenMagic):
                 ForcedAutogenMagic.execute (self, logger)
 
 class CreateShar (SerializedCommand):
-    def __init__ (self, *args, **kwargs):
-        self.args = args
+    def __init__ (self, **kwargs):
         self.kwargs = kwargs
     def checksum (self, hasher):
-        hasher (repr (('CreateShar', self.args, self.kwargs)))
-        
+        hasher (repr (('CreateShar', self.kwargs)))
     def execute (self, logger):
-        (file, hello, head, shar) = self.args
-        logger.write_log ('Creating shar file from %s\n' % repr (self.args), 'info') 
-        length = os.stat (file)[6]
-        base_file = os.path.split (file)[1]
-        script = loggedos.read_file (logger, head)
-        header_length = 0
-        _z = misc.compression_flag (file)
-        header_length = len (script % locals ()) + 1
-        used_in_sharhead = '%(base_file)s %(hello)s %(header_length)s %(_z)s'
-        used_in_sharhead % locals ()
-        loggedos.dump_file (logger, script % locals (), shar)
-        loggedos.system (logger, 'cat %(file)s >> %(shar)s' % locals ())
-        loggedos.chmod (logger, shar, octal.o755)
-        loggedos.system (logger, 'rm %(file)s' % locals ())
+        logger.write_log ('Creating shar file from %s\n' % repr (self.kwargs), 'info') 
+        name = self.kwargs['name']
+        pretty_name = self.kwargs['pretty_name']
+        release = self.kwargs['release']
+        shar_file = self.kwargs['shar_file']
+        shar_head = self.kwargs['shar_head']
+        tarball = self.kwargs['tarball']
+        version = self.kwargs['version']
 
+        length = os.stat (tarball)[6]
+        base_file = os.path.split (tarball)[1]
+        script = loggedos.read_file (logger, shar_head)
+        header_length = 0
+        _z = misc.compression_flag (tarball)
+        header_length = len (script % locals ()) + 1
+        used_in_sharhead = '%(base_file)s %(name)s %(pretty_name)s %(version)s %(release)s %(header_length)s %(_z)s'
+        used_in_sharhead % locals ()
+        loggedos.dump_file (logger, script % locals (), shar_file)
+        loggedos.system (logger, 'cat %(tarball)s >> %(shar_file)s' % locals ())
+        loggedos.chmod (logger, shar_file, octal.o755)
+        loggedos.system (logger, 'rm %(tarball)s' % locals ())
