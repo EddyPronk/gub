@@ -153,7 +153,7 @@ def build_installer (installer_obj):
         t, v, b = sys.exc_info ()
         if t == installer.ChecksumShortCircuit:
             logger.write_log ('*** checksum matches: no rebuild necessary\n', 'stage')
-            checksum_file = c.file
+            checksum_file = v.file
             logger.write_log ('checksum file: %(checksum_file)s\n' % locals (), 'info')
         else:
             raise
