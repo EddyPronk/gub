@@ -935,6 +935,16 @@ class Subversion (SimpleRepo):
     def is_distributed (self):
         return False
 
+    def _checkout_dir (self):
+        # Support user-check-outs
+        if os.path.isdir (os.path.join (self.dir, self.vc_system)):
+            return self.dir
+        dir = self.dir
+        branch = self.branch
+        module = self.module
+        revision = self.revision
+        return '%(dir)s/%(module)s/%(branch)s/%(revision)s' % locals ()
+
     def _current_revision (self):
         return self.revision
         dir = self._checkout_dir ()
@@ -951,8 +961,9 @@ class Subversion (SimpleRepo):
         branch = self.branch
         module = self.module
         revision = self.revision
+        checkout_dir = self.checkout_dir ()
         rev_opt = '-r %(revision)s ' % locals ()
-        cmd = 'cd %(dir)s && svn co %(rev_opt)s %(source)s/%(branch)s/%(module)s %(branch)s/%(module)s/%(revision)s''' % locals ()
+        cmd = 'cd %(dir)s && svn co %(rev_opt)s %(source)s/%(module)s/%(branch)s %(checkout_dir)s''' % locals ()
         self.system (cmd)
         
     def _update (self, revision):
