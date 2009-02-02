@@ -59,7 +59,7 @@ class Command:
             if not self.pm.is_installed (p):
                 printf ('%s not installed' % p)
             else:
-                printf ('\n'.join (self.pm.installed_files (p)))
+                printf ('\n'.join (self.pm.package_installed_files (p)))
 
     def find (self):
         '''package containing file'''
@@ -71,8 +71,8 @@ class Command:
         hits = []
         for p in sorted (self.pm.installed_packages ()):
             hits += ['%s: /%s' % (p, i)
-                for i in self.pm.installed_files (p)
-                if regexp.search ('/%s' % i)]
+                     for i in self.pm.package_installed_files (p)
+                     if regexp.search ('/%s' % i)]
         printf (string.join (hits, '\n'))
 
     def install (self):
