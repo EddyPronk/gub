@@ -1,0 +1,15 @@
+    
+xproto.c:3056: error: conflicting types for 'xcb_get_atom_name_name'
+/home/janneke/vc/gub/target/linux-64/src/libxcb-1.1.93/src/xproto.h:6867: error: previous declaration of 'xcb_get_atom_name_name' was here
+
+--- libxcb-1.1.93/src/xproto.h~	2008-12-11 11:18:01.000000000 +0100
++++ libxcb-1.1.93/src/xproto.h	2009-01-30 19:55:58.000000000 +0100
+@@ -6863,7 +6863,7 @@ xcb_get_atom_name_unchecked (xcb_connect
+  **
+  *****************************************************************************/
+  
+-uint8_t *
++char *
+ xcb_get_atom_name_name (const xcb_get_atom_name_reply_t *R  /**< */);
+ 
+ 

@@ -1,5 +1,12 @@
 * junk Makefile, create python based driver/s?
 
+* try adding update_libtool () to target.py::configure (),
+  we do it in tools.py::configure; 18 packages need to call
+  update_libtool () explicitly.
+
+* Drop the -Wl,--as-needed flag?  Why do we have this, it breaks
+  quite some compiles.
+
 * python3 - python2 compatibility
 ** testing with python3
 ** keep check on diff with `make python3'
