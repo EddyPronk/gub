@@ -40,7 +40,8 @@ tools, and many other products as well.'''
 
     def munge_ft_config (self, file):
         self.file_sub ([('\nprefix=[^\n]+\n',
-                         '\nlocal_prefix=yes\nprefix=%(system_prefix)s\n')],
+                         '\nlocal_prefix=yes\nprefix=%(system_prefix)s\n'),
+                        ('\nhardcode_libdir_flag_spec=.*', '\nhardcode_libdir_flag_spec=')],
                        file, must_succeed=True)
 
     def install (self):
