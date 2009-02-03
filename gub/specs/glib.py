@@ -71,7 +71,7 @@ class Glib__freebsd__64 (Glib__freebsd):
         return Glib.configure_command (self) + ' --disable-threads --disable-timeloop'
 
 class Glib__tools (tools.AutoBuild):
-    source = 'http://ftp.gnome.org/pub/GNOME/platform/2.22/2.22.0/sources/glib-2.16.1.tar.bz2'
+    source = Glib.source
     def install (self):
         tools.AutoBuild.install (self)
         self.system ('rm %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/lib/charset.alias',

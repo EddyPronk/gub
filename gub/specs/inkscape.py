@@ -18,7 +18,7 @@ class Inkscape (target.AutoBuild):
                        '%(srcdir)s/configure.ac')
     def _get_build_dependencies (self):
         return ['tools::automake', 'tools::gettext', 'tools::intltool', 'tools::pkg-config',
-                'boost-devel', 'glibmm-devel', 'gtkmm-devel', 'gtk+-devel', 'gsl-devel', 'lcms-devel', 'popt-devel',
+                'boost-devel', 'glibmm-devel', 'gtkmm-devel', 'gtk+-devel', 'gsl-devel', 'lcms-devel', 'poppler-devel', 'popt-devel',
 #WARNING: aclocal's directory is /home/janneke/vc/gub/target/tools/root/usr/share/aclocal, but...
 #         no file /home/janneke/vc/gub/target/tools/root/usr/share/aclocal/glib-gettext.m4
 #         You may see fatal macro warnings below.
