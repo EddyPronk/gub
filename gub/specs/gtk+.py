@@ -1,8 +1,11 @@
 from gub import context
+from gub import loggedos
 from gub import target
 
 class Gtk_x_ (target.AutoBuild):
-    source = 'http://ftp.gnome.org/pub/GNOME/sources/gtk+/2.15/gtk+-2.15.2.tar.gz'
+    # crashes inkscape
+    #    source = 'http://ftp.gnome.org/pub/GNOME/sources/gtk+/2.15/gtk+-2.15.2.tar.gz'
+    source = 'http://ftp.gnome.org/pub/GNOME/sources/gtk+/2.15/gtk+-2.15.0.tar.gz'
 # Requested 'glib-2.0 >= 2.17.6' but version of GLib is 2.16.1
 # FIXME: should bump GNOME deps
 #    source = 'http://ftp.acc.umu.se/pub/GNOME/sources/gtk+/2.14/gtk+-2.14.7.tar.gz'
@@ -10,11 +13,14 @@ class Gtk_x_ (target.AutoBuild):
         return ['libtool', 'atk-devel', 'cairo-devel', 'libjpeg-devel', 'libpng-devel', 'libtiff-devel',
                 #'pango-devel',
                 'pangocairo-devel',
-                'libxext-devel'] #, 'libxinerama-devel']
+                'libxext-devel',
+                #, 'libxinerama-devel',
+                'libxfixes-devel',
+                ]
     @context.subst_method
     def LDFLAGS (self):
 #        return '-ldl ' + self.get_substitution_dict ()['LDFLAGS']
-        return '-ldl -Wl,--as-needed'
+        return '-ldl -Wl,--as-needed %(rpath)s'
     def configure_command (self):
         return ('''LDFLAGS='%(LDFLAGS)s' '''
                 + target.AutoBuild.configure_command (self)
@@ -27,10 +33,14 @@ libtool: install: error: cannot install `libgdk-x11-2.0.la' to a directory not e
 make[4]: *** [install-libLTLIBRARIES] Error 1
 '''
         self.update_libtool ()
-    #@context.subst_method
-    def urgLD_LIBRARY_PATH (self):
-        # UGH. configure runs program linked against libX11; so it
-        # needs LD_LIBRARY_PATH or a configure-time-only -Wl,-rpath,
-        # -Wl,%(system_prefix)s/lib
-###    /home/janneke/vc/gub/target/linux-64/root/usr/lib/libX11.so: undefined reference to `dlsym'
-        return '%(system_prefix)s/lib'
+        #FIXME: add to update_libtool ()
+        def libtool_disable_rpath (logger, libtool, file):
+            loggedos.file_sub (logger, [('^(hardcode_libdir_flag_spec)=.*', r'\1')],
+                               file)
+        self.map_locate (lambda logger, file: libtool_disable_rpath (logger, self.expand ('%(system_prefix)s/bin/libtool'), file), '%(builddir)s', 'libtool')
+
+class Gtk_x___mingw (Gtk_x_):
+    source = Gtk_x_.source
+    def get_build_dependencies (self):
+        return [x for x in Gtk_x_.get_build_dependencies (self)
+                if 'libx' not in x]
