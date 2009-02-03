@@ -103,13 +103,13 @@ class VersionDataBase:
                 raise
 
     def write (self):
-        open (self.file_name, 'w').write (pickle.dumps ((self.platforms,
-                                                         self._db),
-                                                        protocol=2))
+        open (self.file_name, 'wb').write (pickle.dumps ((self.platforms,
+                                                          self._db),
+                                                         protocol=2))
 
     def read (self):
         (self.platforms,
-         self._db) = pickle.loads (open (self.file_name).read ())
+         self._db) = pickle.loads (open (self.file_name, 'rb').read ())
 
     ## UI functions:
     def get_next_build_number (self, version_tuple):
