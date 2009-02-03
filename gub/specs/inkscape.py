@@ -18,7 +18,7 @@ class Inkscape (target.AutoBuild):
                        '%(srcdir)s/configure.ac')
     def _get_build_dependencies (self):
         return ['tools::automake', 'tools::gettext', 'tools::intltool', 'tools::pkg-config',
-                'boost-devel', 'glibmm-devel', 'gtkmm-devel', 'gtk+-devel', 'gsl-devel', 'popt-devel',
+                'boost-devel', 'glibmm-devel', 'gtkmm-devel', 'gtk+-devel', 'gsl-devel', 'lcms-devel', 'popt-devel',
 #WARNING: aclocal's directory is /home/janneke/vc/gub/target/tools/root/usr/share/aclocal, but...
 #         no file /home/janneke/vc/gub/target/tools/root/usr/share/aclocal/glib-gettext.m4
 #         You may see fatal macro warnings below.
@@ -37,16 +37,19 @@ class Inkscape (target.AutoBuild):
         return self._get_build_dependencies ()
     def get_dependency_dict (self):
         return {'': [x.replace ('-devel', '') for x in self._get_build_dependencies () if 'tools::' not in x and 'cross/' not in x]
-                + ['atk', 'libx11', 'libxcb', 'libxau', 'libxext', 'libxdmcp', 'libxrender', 'pixman']
+                + ['atk', 'libx11', 'libxcb', 'libxau', 'libxext', 'libxdmcp', 'libxfixes', 'libxrender', 'pixman']
                 }
     def aclocal_path (self):
         return ['%(system_prefix)s/share/aclocal']
+    def makeflags (self):
+        return ''' CXXLD='$(CC)' '''
     def configure_command (self):
         return (target.AutoBuild.configure_command (self)
-                + ' --disable-lcms'
-                + ' --disable-poppler-cairo'
-                + ' --enable-binreloc'
-                + ' LDFLAGS= '
-                + ' CXXFLAGS=-static-libgcc'
+#                + ' --disable-lcms'
+                + ' --enable-lcms'
+#                + ' --disable-poppler-cairo'
+                + ' --enable-binreloc=yes'
+                + ''' LDFLAGS='%(rpath)s' '''
+                + ''' CXXFLAGS='-static-libgcc -lstdc++' '''
+                + ''' CXXLD='$(CC)' '''
                 )
-
