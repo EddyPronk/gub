@@ -36,13 +36,17 @@ class Inkscape (target.AutoBuild):
     def get_build_dependencies (self):
         return self._get_build_dependencies ()
     def get_dependency_dict (self):
-        return {'': [x.replace ('-devel', '') for x in self._get_build_dependencies () if 'tools::' not in x and 'cross/' not in x]}
+        return {'': [x.replace ('-devel', '') for x in self._get_build_dependencies () if 'tools::' not in x and 'cross/' not in x]
+                + ['atk', 'libx11', 'libxcb', 'libxau', 'libxext', 'libxdmcp', 'libxrender', 'pixman']
+                }
     def aclocal_path (self):
         return ['%(system_prefix)s/share/aclocal']
     def configure_command (self):
         return (target.AutoBuild.configure_command (self)
                 + ' --disable-lcms'
                 + ' --disable-poppler-cairo'
+                + ' --enable-binreloc'
                 + ' LDFLAGS= '
+                + ' CXXFLAGS=-static-libgcc'
                 )
 
