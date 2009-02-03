@@ -128,6 +128,7 @@ chmod +x "$binwrapscript"
 ##gtk##cat <<EOF > "$binwrapscript"
 ##gtk###! /bin/sh
 ##gtk### relocate script for [gtk+ programs like] inkscape
+##gtk### See http://www.gtk.org/api/2.6/gtk/gtk-running.html
 ##gtk##
 ##gtk##INSTALLER_PREFIX=${prefix}/usr
 ##gtk##ENV=${dollar}HOME/.inkscape.env
@@ -137,6 +138,10 @@ chmod +x "$binwrapscript"
 ##gtk##if test -d ${dollar}INSTALLER_PREFIX/lib/gtk-2.0/2.10.0/loaders; then
 ##gtk##    export GDK_PIXBUF_MODULEDIR=${dollar}INSTALLER_PREFIX/lib/gtk-2.0/2.10.0/loaders
 ##gtk##    export GDK_PIXBUF_MODULE_FILE=${dollar}INSTALLER_PREFIX/etc/gtk-2.0/gdk-pixbuf.loaders
+##gtk##    export GTK_EXE_PREFIX=${dollar}INSTALLER_PREFIX
+##gtk##    export GTK_IM_MODULE_FILE=${dollar}INSTALLER_PREFIX/etc/gtk-2.0/gtk.immodules
+##gtk##    export GTK_PATH=${dollar}INSTALLER_PREFIX/lib/gtk-2.0
+##gtk##    export GTK_SYSCONFDIR=${dollar}INSTALLER_PREFIX/etc
 ##gtk##fi
 ##gtk##export LD_LIBRARY_PATH="${dollar}{INSTALLER_PREFIX}/lib"
 ##gtk##${dollar}EOF
@@ -152,6 +157,10 @@ chmod +x "$binwrapscript"
 ##gtk##
 ##gtk##if test -d "${dollar}GDK_PIXBUF_MODULEDIR" -a ! -f "${dollar}GDK_PIXBUF_MODULE_FILE"; then
 ##gtk##    ${dollar}INSTALLER_PREFIX/bin/gdk-pixbuf-query-loaders > ${dollar}GDK_PIXBUF_MODULE_FILE
+##gtk##fi
+##gtk##
+##gtk##if test -d "${dollar}GTK_PATH" -a ! -f "${dollar}GTK_IM_MODULE_FILE"; then
+##gtk##    ${dollar}INSTALLER_PREFIX/bin/gtk-query-immodules-2.0 > ${dollar}GTK_IM_MODULE_FILE
 ##gtk##fi
 ##gtk##
 ##gtk##me=${backquote}basename ${dollar}0${backquote}
