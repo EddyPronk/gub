@@ -8,3 +8,6 @@ class Pangocairo (pango.Pango):
         return pango.Pango.get_build_dependencies (self) + ['cairo-devel']
     def get_conflict_dict (self):
         return {'': ['pango', 'pango-devel', 'pango-doc'], 'devel': ['pango', 'pango-devel', 'pango-doc'], 'doc': ['pango', 'pango-devel', 'pango-doc'], 'runtime': ['pango', 'pango-devel', 'pango-doc']}
+    def configure_command (self):
+        return (pango.Pango.configure_command (self)
+                + ''' LDFLAGS='%(rpath)s' ''')
