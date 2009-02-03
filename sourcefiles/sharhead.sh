@@ -60,7 +60,7 @@ EOF
 done
 
 
-cat<<EOF
+cat <<EOF
 
 %(name)s installer for version %(version)s release %(release)s.
 Use --help for help
@@ -93,6 +93,7 @@ expandargs='"$@"'
 dollar='$'
 backquote='`'
 binaries=%(name)s
+EOF=EOF
 
 if test -d "${prefix}"; then
     echo "Directory ${prefix} already exists."
@@ -118,12 +119,47 @@ echo Creating script $binwrapscript
 
 ## LD_LIBRARY_PATH is necessary for ao. FreeBSD.
 rm -f "$binwrapscript" > /dev/null 2>&1
-cat<<EOF > "$binwrapscript"
-#!/bin/sh
+##lily##cat <<EOF > "$binwrapscript"
+##lily###! /bin/sh
+##lily##INSTALLER_PREFIX=${dollar}{prefix}/usr
+##lily##me=${backquote}basename ${dollar}0${backquote}
+##lily##export LD_LIBRARY_PATH="${dollar}{INSTALLER_PREFIX}/lib"
+##lily##exec "${dollar}{INSTALLER_PREFIX}/bin/${dollar}me" $expandargs
+##lily##EOF
+
+cat <<EOF > "$binwrapscript"
+#! /bin/sh
+# relocate script for [gtk+ programs like] inkscape
+
+INSTALLER_PREFIX=${prefix}/usr
+ENV=${dollar}HOME/.inkscape.env
+
+cat > ${dollar}ENV <<${dollar}EOF
+INSTALLER_PREFIX=${prefix}/usr
+if test -d ${dollar}INSTALLER_PREFIX/lib/gtk-2.0/2.10.0/loaders; then
+    export GDK_PIXBUF_MODULEDIR=${dollar}INSTALLER_PREFIX/lib/gtk-2.0/2.10.0/loaders
+    export GDK_PIXBUF_MODULE_FILE=${dollar}INSTALLER_PREFIX/etc/gtk-2.0/gdk-pixbuf.loaders
+fi
+export LD_LIBRARY_PATH="${dollar}{INSTALLER_PREFIX}/lib"
+${dollar}EOF
+
+for file in ${dollar}INSTALLER_PREFIX/etc/relocate/*.reloc; do
+    sed -e 's/^set\(\|file\|dir\) /export /' ${dollar}file \\
+	| while read line; do
+	echo ${dollar}line >> ${dollar}ENV
+    done
+done
+
+. ${dollar}ENV
+
+if test -d "${dollar}GDK_PIXBUF_MODULEDIR" -a ! -f "${dollar}GDK_PIXBUF_MODULE_FILE"; then
+    ${dollar}INSTALLER_PREFIX/bin/gdk-pixbuf-query-loaders > ${dollar}GDK_PIXBUF_MODULE_FILE
+fi
+
 me=${backquote}basename ${dollar}0${backquote}
-export LD_LIBRARY_PATH="${prefix}/usr/lib"
-exec "${prefix}/usr/bin/${dollar}me" $expandargs
+exec "${dollar}{INSTALLER_PREFIX}/bin/${dollar}me" $expandargs
 EOF
+
 chmod +x "$binwrapscript"
 
 
@@ -142,7 +178,7 @@ chmod +x "$binwrapscript"
 ##lily##    fi
 ##lily##
 ##lily##    rm -f "$wrapscript.$interp" > /dev/null 2>&1
-##lily##    cat<<EOF > "$wrapscript.$interp"
+##lily##    cat <<EOF > "$wrapscript.$interp"
 ##lily###!/bin/sh
 ##lily##export PYTHONPATH="${prefix}/usr/lib/lilypond/current/python:${prefix}/usr/share/lilypond/current/python:${dollar}PYTHONPATH"
 ##lily##export GUILE_LOAD_PATH="${prefix}/usr/share/lilypond/current"
@@ -212,13 +248,13 @@ chmod +x $uninstall_script
 echo Untarring "$me"
 tail -c+%(header_length)012d "$0" | tar -C "${prefix}" %(_z)s -xf -
 
-documentation="http://lilypond.org/doc"
+documentation="http://%(name)s.org/doc"
 
 ##lily##mirror="http://lilypond.org/download"
 ##lily##doc_url_base="$mirror/binaries/documentation"
 ##lily##if test "$doc" = yes; then
-##lily##    documentation="file://${prefix}/share/doc/lilypond/html/index.html
-##lily##    file://${prefix}/share/info/dir"
+##lily##    documentation="file://${prefix}/usr/share/doc/lilypond/html/index.html
+##lily##    file://${prefix}/usr/share/info/dir"
 ##lily##    docball=`echo $me | sed -e 's/[.][^.]\+[.]sh/.documentation.tar.bz2/'`
 ##lily##    doc_url="$doc_url_base/$docball"
 ##lily##    if ! test -e $docball; then
@@ -227,7 +263,7 @@ documentation="http://lilypond.org/doc"
 ##lily##    fi
 ##lily##    if test -e $docball; then
 ##lily##	echo Untarring "$docball"
-##lily##	tar -C ${prefix} -xjf $docball
+##lily##	tar -C ${prefix}/usr -xjf $docball
 ##lily##    fi
 ##lily##fi
 
