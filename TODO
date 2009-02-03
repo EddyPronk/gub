@@ -7,6 +7,9 @@
 * Drop the -Wl,--as-needed flag?  Why do we have this, it breaks
   quite some compiles.
 
+* FIX --keep option; debugging is next to impossible with all
+  sources gone from target/*/src
+
 * python3 - python2 compatibility
 ** testing with python3
 ** keep check on diff with `make python3'
