@@ -17,12 +17,6 @@ class Glib (target.AutoBuild):
         return str + '''
 glib_cv_stack_grows=${glib_cv_stack_grows=no}
 '''
-    def configure (self):
-        target.AutoBuild.configure (self)
-
-        ## FIXME: libtool too old for cross compile
-        self.update_libtool ()
-        
     def install (self):
         target.AutoBuild.install (self)
         self.system ('rm %(install_prefix)s/lib/charset.alias',

@@ -27,8 +27,6 @@ class Gmp (target.AutoBuild):
 
     def configure (self):
         target.AutoBuild.configure (self)
-        # # FIXME: libtool too old for cross compile
-        self.update_libtool ()
         # automake's Makefile.in's too old for new libtool,
         # but autoupdating breaks even more.  This nice
         # hack seems to work.

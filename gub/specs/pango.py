@@ -27,11 +27,6 @@ class Pango (target.AutoBuild):
     def configure_command (self):
         return (target.AutoBuild.configure_command (self)
                 + self.configure_flags ())
-
-    def configure (self):
-        target.AutoBuild.configure (self)                
-        self.update_libtool ()
-
     def module_version (self):
         result = None
         version = self.version()

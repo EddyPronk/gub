@@ -27,7 +27,6 @@ mkdir -p %(builddir)s/doc/include
 cd %(builddir)s && touch doc/Makefile.in doc/include/Makefile.in
 ''')
         target.AutoBuild.configure (self)
-        self.update_libtool ()
 
     def makeflags (self):
         return ' doc_DATA= html_DATA='

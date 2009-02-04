@@ -79,9 +79,6 @@ specified by applications.'''
 rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
 ''')
         target.AutoBuild.configure (self)
-
-        ## FIXME: libtool too old for cross compile
-        self.update_libtool ()
         self.file_sub ([('DOCSRC *=.*', 'DOCSRC=')],
                        '%(builddir)s/Makefile')
 

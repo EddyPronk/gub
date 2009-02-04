@@ -41,7 +41,6 @@ cd %(autodir)s && automake --add-missing --copy --foreign
 ''')
     def configure (self):
         tools.AutoBuild.configure (self)
-        self.update_libtool ()
         self.file_sub ([('(( *)install_libdir="\$2")',
                          r'''\1
 \2if test -z "$install_libdir"; then

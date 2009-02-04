@@ -42,10 +42,6 @@ class Libgphoto2 (target.AutoBuild):
     def configure_command (self):
         return ('PATH=%(srcdir)s:$PATH '
                 + target.AutoBuild.configure_command (self))
-    def configure (self):
-        target.AutoBuild.configure (self)
-        # # FIXME: libtool too old for cross compile
-        self.update_libtool ()
     def makeflags (self):
         return """ libgphoto2_port_la_DEPENDENCIES='$(top_srcdir)/gphoto2/gphoto2-port-version.h $(top_srcdir)/gphoto2/gphoto2-port-library.h $(srcdir)/libgphoto2_port.sym' libgphoto2_la_DEPENDENCIES='$(top_srcdir)/gphoto2/gphoto2-version.h $(srcdir)/libgphoto2.sym' LDFLAGS='-Wl,--rpath-link,%(system_prefix)s/lib'"""
 

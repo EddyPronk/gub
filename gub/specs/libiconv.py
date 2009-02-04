@@ -6,10 +6,6 @@ class Libiconv (target.AutoBuild):
         return True
     def get_build_dependencies (self):
         return ['gettext-devel', 'libtool']
-    def configure (self):
-        target.AutoBuild.configure (self)
-        # # FIXME: libtool too old for cross compile
-        self.update_libtool ()
     def install (self):
         target.AutoBuild.install (self)
         self.system ('rm %(install_prefix)s/lib/charset.alias')

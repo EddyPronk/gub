@@ -15,11 +15,6 @@ class Expat (target.AutoBuild):
         self.system ("rm %(srcdir)s/configure")
         self.system ("touch %(srcdir)s/tests/xmltest.sh.in")
 
-    def configure (self):
-        target.AutoBuild.configure (self)
-        # # FIXME: libtool too old for cross compile
-        self.update_libtool ()
-
     def makeflags (self):
         return misc.join_lines ('''
 CFLAGS="-O2 -DHAVE_EXPAT_CONFIG_H"

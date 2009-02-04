@@ -40,7 +40,6 @@ cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh 
     def configure (self):
         self.update_config_guess_config_sub ()
         target.AutoBuild.configure (self)
-        self.update_libtool ()
         self.file_sub (
             [
             (r'(\(INSTALL_[A-Z]+\).*) (\$[^ ]+)$',
@@ -85,7 +84,6 @@ class Libjpeg__tools (tools.AutoBuild):
     def configure (self):
         self.update_config_guess_config_sub ()
         tools.AutoBuild.configure (self)
-        self.update_libtool ()
         self.file_sub (
             [
                 (r'(\(INSTALL_[A-Z]+\).*) (\$[^ ]+)$',

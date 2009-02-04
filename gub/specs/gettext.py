@@ -14,9 +14,6 @@ class Gettext (target.AutoBuild):
 
     def configure (self):
         target.AutoBuild.configure (self)
-
-        ## FIXME: libtool too old for cross compile
-        self.update_libtool ()
         self.file_sub ([
                 ('(SUBDIRS *=.*)examples', r'\1 '),
                 ],

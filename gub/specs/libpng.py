@@ -22,11 +22,6 @@ class Libpng (target.AutoBuild):
                 r'\1${DESTDIR}@PKGCONFIGDIR@')],
                '%(srcdir)s/Makefile.am')
 
-    def configure (self):
-        target.AutoBuild.configure (self)
-        # # FIXME: libtool too old for cross compile
-        self.update_libtool ()
-
     def compile_command (self):
         c = target.AutoBuild.compile_command (self)
         ## need to call twice, first one triggers spurious Automake stuff.                

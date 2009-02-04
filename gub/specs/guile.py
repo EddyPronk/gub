@@ -74,9 +74,6 @@ cc
         return ('GUILE_FOR_BUILD=%(tools_prefix)s/bin/guile '
                 + target.AutoBuild.configure_command (self)
                 + self.configure_flags ())
-    def configure (self):
-        target.AutoBuild.configure (self)
-        self.update_libtool ()
     def makeflags (self):
         return '''LDFLAGS='%(rpath)s' '''
     def compile_command (self):

@@ -32,10 +32,6 @@ tools, and many other products as well.'''
         rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
 ''')
         target.AutoBuild.configure (self)
-
-        ## FIXME: libtool too old for cross compile
-        self.update_libtool ()
-
         self.file_sub ([('^LIBTOOL=.*', 'LIBTOOL=%(builddir)s/libtool --tag=CXX')], '%(builddir)s/Makefile')
 
     def munge_ft_config (self, file):
