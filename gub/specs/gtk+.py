@@ -1,5 +1,4 @@
 from gub import context
-from gub import loggedos
 from gub import target
 
 class Gtk_x_ (target.AutoBuild):
@@ -20,7 +19,8 @@ class Gtk_x_ (target.AutoBuild):
     @context.subst_method
     def LDFLAGS (self):
 #        return '-ldl ' + self.get_substitution_dict ()['LDFLAGS']
-        return '-ldl -Wl,--as-needed %(rpath)s'
+#        return '-ldl -Wl,--as-needed %(rpath)s'
+        return '-ldl -Wl,--as-needed'
     def configure_command (self):
         return ('''LDFLAGS='%(LDFLAGS)s' '''
                 + target.AutoBuild.configure_command (self)
@@ -35,7 +35,14 @@ make[4]: *** [install-libLTLIBRARIES] Error 1
         self.update_libtool ()
         #FIXME: add to update_libtool ()
         def libtool_disable_rpath (logger, libtool, file):
-            loggedos.file_sub (logger, [('^(hardcode_libdir_flag_spec)=.*', r'\1')],
+            from gub import loggedos
+            # Must also keep -rpath $libdir, because when
+            # build_arch==target_arch we may run build-time
+            # executables.  Either that, or set LD_LIBRARY_PATH
+            # somewhere.
+            loggedos.file_sub (logger, [('^(hardcode_libdir_flag_spec)=.*',
+                                         (r'hardcode_libdir_flag_spec="-Wl,-rpath -Wl,\$libdir'
+                                          + self.expand (' %(rpath)s"').replace ('\\$$', "'$'")))],
                                file)
         self.map_locate (lambda logger, file: libtool_disable_rpath (logger, self.expand ('%(system_prefix)s/bin/libtool'), file), '%(builddir)s', 'libtool')
 

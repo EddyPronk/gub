@@ -37,7 +37,7 @@ class Inkscape (target.AutoBuild):
         return self._get_build_dependencies ()
     def get_dependency_dict (self):
         return {'': [x.replace ('-devel', '') for x in self._get_build_dependencies () if 'tools::' not in x and 'cross/' not in x]
-                + ['atk', 'libx11', 'libxcb', 'libxau', 'libxext', 'libxdmcp', 'libxfixes', 'libxrender', 'pixman']
+                + ['atk', 'libtiff', 'libx11', 'libxcb', 'libxau', 'libxext', 'libxdmcp', 'libxfixes', 'libxrender', 'pixman']
                 }
     def aclocal_path (self):
         return ['%(system_prefix)s/share/aclocal']
@@ -53,3 +53,17 @@ class Inkscape (target.AutoBuild):
                 + ''' CXXFLAGS='-static-libgcc -lstdc++' '''
                 + ''' CXXLD='$(CC)' '''
                 )
+    def configure (self):
+        target.AutoBuild.configure (self)
+        #FIXME: add to update_libtool ()
+        def libtool_disable_rpath (logger, libtool, file):
+            from gub import loggedos
+            # Must also keep -rpath $libdir, because when
+            # build_arch==target_arch we may run build-time
+            # executables.  Either that, or set LD_LIBRARY_PATH
+            # somewhere.
+            loggedos.file_sub (logger, [('^(hardcode_libdir_flag_spec)=.*',
+                                         (r'hardcode_libdir_flag_spec="-Wl,-rpath -Wl,\$libdir'
+                                          + self.expand (' %(rpath)s"').replace ('\\$$', "'$'")))],
+                               file)
+        self.map_locate (lambda logger, file: libtool_disable_rpath (logger, self.expand ('%(system_prefix)s/bin/libtool'), file), '%(builddir)s', 'libtool')

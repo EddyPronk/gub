@@ -8,6 +8,16 @@ class Pangocairo (pango.Pango):
         return pango.Pango.get_build_dependencies (self) + ['cairo-devel']
     def get_conflict_dict (self):
         return {'': ['pango', 'pango-devel', 'pango-doc'], 'devel': ['pango', 'pango-devel', 'pango-doc'], 'doc': ['pango', 'pango-devel', 'pango-doc'], 'runtime': ['pango', 'pango-devel', 'pango-doc']}
-    def configure_command (self):
+    def XXXconfigure_command (self):
         return (pango.Pango.configure_command (self)
                 + ''' LDFLAGS='%(rpath)s' ''')
+    def configure (self):
+        pango.Pango.configure (self)
+        #FIXME: add to update_libtool ()
+        def libtool_disable_rpath (logger, libtool, file):
+            from gub import loggedos
+            loggedos.file_sub (logger, [('^(hardcode_libdir_flag_spec)=.*',
+                                         (r'hardcode_libdir_flag_spec="-Wl,-rpath -Wl,\$libdir'
+                                          + self.expand (' %(rpath)s"').replace ('\\$$', "'$'")))],
+                               file)
+        self.map_locate (lambda logger, file: libtool_disable_rpath (logger, self.expand ('%(system_prefix)s/bin/libtool'), file), '%(builddir)s', 'libtool')
