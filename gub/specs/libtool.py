@@ -45,6 +45,8 @@ class Libtool (target.AutoBuild):
         d['devel'].append (self.settings.prefix_dir + '/bin/libtool*')
         d['devel'].append (self.settings.prefix_dir + '/share/libltdl')
         return d
+    def update_libtool (self):
+        pass
 
 class Libtool__darwin (Libtool):
     def install (self):
@@ -74,8 +76,8 @@ class Libtool__tools (tools.AutoBuild):
     def __init__ (self, settings, source):
         tools.AutoBuild.__init__ (self, settings, source)
         Libtool.set_sover (self)
-    def configure (self):
-        build.AutoBuild.configure (self)
+    def update_libtool (self):
+        pass
     def install (self):
         tools.AutoBuild.install (self)
         # FIXME: urg.  Are we doing something wrong?  Why does libtool

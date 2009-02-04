@@ -166,14 +166,15 @@ models.'''
             ],
                file)
 
-    def rpath (self):
+    @context.subst_method
+    def shell_rpath (self):
         return target.AutoBuild.rpath (self).replace (r'\$', r'\\\$')
 
     def compile_flags (self):
         return (' INCLUDE=%(system_prefix)s/include'
                 + ' PSDOCDIR=%(prefix_dir)s/share/doc'
                 + ' PSMANDIR=%(prefix_dir)s/share/man'
-                + r''' XLDFLAGS='%(rpath)s' ''')
+                + r''' XLDFLAGS='%(shell_rpath)s' ''')
 
     def compile_command (self):
         return target.AutoBuild.compile_command (self) + self.compile_flags ()

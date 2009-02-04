@@ -31,6 +31,14 @@ class AutoBuild (build.AutoBuild):
 --libdir=%(prefix_dir)s/lib
 ''')
 # --with-slibdir=%(prefix)s/slib
+
+    def configure (self):
+        build.AutoBuild.configure (self)
+        self.update_libtool ()
+
+    def update_libtool (self):
+        self.map_locate (lambda logger, file: libtool_update (logger, self.expand ('%(system_prefix)s/bin/libtool'), self.expand ('%(rpath)s'), file), '%(builddir)s', 'libtool')
+
     def install (self):
         self.pre_install_libtool_fixup ()
         build.AutoBuild.install (self)
@@ -228,3 +236,22 @@ def append_target_dict (package, add_dict):
         package.get_substitution_dict = Change_target_dict (package, add_dict).append_dict
     except AttributeError:
         pass
+
+def libtool_disable_rpath (logger, libtool, rpath, file):
+    # Must also keep -rpath $libdir, because when build_arch ==
+    # target_arch we may run build-time executables.  Either that, or
+    # set LD_LIBRARY_PATH somewhere.
+    loggedos.file_sub (logger,
+                       [('^(hardcode_libdir_flag_spec)=.*',
+                         # r'\1'
+                         (r'hardcode_libdir_flag_spec="'
+                          + '-Wl,-rpath -Wl,\$libdir'
+                          + (' %(rpath)s' % locals ()).replace ('\\$$', "'$'")
+                          + '"')
+                          )],
+                       file)
+
+def libtool_update (logger, libtool, rpath, file):
+    build.libtool_update (logger, libtool, file)
+    libtool_disable_rpath (logger, libtool, rpath, file)
+    loggedos.system (logger, 'chmod 755  %(file)s' % locals ())

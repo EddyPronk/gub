@@ -1,14 +1,21 @@
 * junk Makefile, create python based driver/s?
 
-* try adding update_libtool () to target.py::configure (),
-  we do it in tools.py::configure; 18 packages need to call
-  update_libtool () explicitly.
-
 * Drop the -Wl,--as-needed flag?  Why do we have this, it breaks
   quite some compiles.
 
 * FIX --keep option; debugging is next to impossible with all
   sources gone from target/*/src
+
+* AUTOMATE
+
+    def _get_build_dependencies (self):
+        return ['glib-devel', 'libsig++-devel']
+    def get_build_dependencies (self):
+        return self._get_build_dependencies ()
+    def get_dependency_dict (self):
+       return {'': [x.replace ('-devel', '')
+                    for x in self._get_build_dependencies ()
+                    if 'tools::' not in x and 'cross/' not in x]}
 
 * python3 - python2 compatibility
 ** testing with python3

@@ -26,6 +26,9 @@ def is_subst_method (member):
                  or base_is_class_subst_method (member[NAME],
                                                 function_class (member[OBJECT]))))
 
+def object_get_methods (object):
+    return inspect.getmembers (object, is_method)
+
 class _C (object):
     pass
 

@@ -56,10 +56,10 @@ fc158e0... Add --enable-rpath feature, defaulting to $ORIGIN/../lib. Default off
 endif
 
 # derived info
-LILYPOND_SOURCE_URL='$(LILYPOND_REPO_URL)?branch=$(LILYPOND_BRANCH)'
+LILYPOND_SOURCE_URL=$(LILYPOND_REPO_URL)?branch=$(LILYPOND_BRANCH)
 LILYPOND_DIRRED_BRANCH=$(shell $(PYTHON) gub/repository.py --branch-dir '$(LILYPOND_SOURCE_URL)')
 LILYPOND_FLATTENED_BRANCH=$(shell $(PYTHON) gub/repository.py --full-branch-name '$(LILYPOND_SOURCE_URL)')
-BUILD_PACKAGE=$(LILYPOND_SOURCE_URL)
+BUILD_PACKAGE='$(LILYPOND_SOURCE_URL)'
 INSTALL_PACKAGE = lilypond
 
 
@@ -146,7 +146,7 @@ gub3-packages:
 	$(call INVOKE_GUB,$(BUILD_PLATFORM)) $(BUILD_PACKAGE) $(OTHER_PLATFORMS:%=%::$(BUILD_PACKAGE))
 
 gub3-installers: #gub3-packages
-	$(foreach p,$(PLATFORMS),$(call INVOKE_INSTALLER_BUILDER,$(p)) lilypond && ) :
+	$(foreach p,$(PLATFORMS),$(call INVOKE_INSTALLER_BUILDER,$(p)) $(INSTALL_PACKAGE) && ) :
 
 gub3-test: dist-check test-output test-export
 

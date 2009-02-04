@@ -4,11 +4,12 @@ from gub import target
 class Gtk_x_ (target.AutoBuild):
     # crashes inkscape
     #    source = 'http://ftp.gnome.org/pub/GNOME/sources/gtk+/2.15/gtk+-2.15.2.tar.gz'
-    source = 'http://ftp.gnome.org/pub/GNOME/sources/gtk+/2.15/gtk+-2.15.0.tar.gz'
+    #source = 'http://ftp.gnome.org/pub/GNOME/sources/gtk+/2.15/gtk+-2.15.0.tar.gz'
+    source = 'http://ftp.gnome.org/pub/GNOME/sources/gtk+/2.15/gtk+-2.15.3.tar.gz'
 # Requested 'glib-2.0 >= 2.17.6' but version of GLib is 2.16.1
 # FIXME: should bump GNOME deps
 #    source = 'http://ftp.acc.umu.se/pub/GNOME/sources/gtk+/2.14/gtk+-2.14.7.tar.gz'
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['libtool', 'atk-devel', 'cairo-devel', 'libjpeg-devel', 'libpng-devel', 'libtiff-devel',
                 #'pango-devel',
                 'pangocairo-devel',
@@ -16,35 +17,25 @@ class Gtk_x_ (target.AutoBuild):
                 #, 'libxinerama-devel',
                 'libxfixes-devel',
                 ]
+    def get_build_dependencies (self):
+        return self._get_build_dependencies ()
+    def get_dependency_dict (self):
+       return {'': [x.replace ('-devel', '')
+                    for x in self._get_build_dependencies ()
+                    if 'tools::' not in x and 'cross/' not in x]}
     @context.subst_method
     def LDFLAGS (self):
-#        return '-ldl ' + self.get_substitution_dict ()['LDFLAGS']
+#        return '-ldl -Wl,--as-needed'
+        # UGH. glib-2.0.m4's configure snippet compiles and runs a
+        # program linked against glib; so it needs LD_LIBRARY_PATH (or
+        # a configure-time-only -Wl,-rpath, -Wl,%(system_prefix)s/lib
 #        return '-ldl -Wl,--as-needed %(rpath)s'
-        return '-ldl -Wl,--as-needed'
+        return '-ldl -Wl,--as-needed -Wl,-rpath -Wl,%(system_prefix)s/lib %(rpath)s'
     def configure_command (self):
-        return ('''LDFLAGS='%(LDFLAGS)s' '''
-                + target.AutoBuild.configure_command (self)
+        return (target.AutoBuild.configure_command (self)
+                + ''' LDFLAGS='%(LDFLAGS)s' '''
                 + ' --without-libjasper'
                 + ' --disable-cups')
-    def configure (self):
-        target.AutoBuild.configure (self)
-        '''
-libtool: install: error: cannot install `libgdk-x11-2.0.la' to a directory not ending in /home/janneke/vc/gub/target/linux-64/build/gtk+-2.15.2/gdk/.libs
-make[4]: *** [install-libLTLIBRARIES] Error 1
-'''
-        self.update_libtool ()
-        #FIXME: add to update_libtool ()
-        def libtool_disable_rpath (logger, libtool, file):
-            from gub import loggedos
-            # Must also keep -rpath $libdir, because when
-            # build_arch==target_arch we may run build-time
-            # executables.  Either that, or set LD_LIBRARY_PATH
-            # somewhere.
-            loggedos.file_sub (logger, [('^(hardcode_libdir_flag_spec)=.*',
-                                         (r'hardcode_libdir_flag_spec="-Wl,-rpath -Wl,\$libdir'
-                                          + self.expand (' %(rpath)s"').replace ('\\$$', "'$'")))],
-                               file)
-        self.map_locate (lambda logger, file: libtool_disable_rpath (logger, self.expand ('%(system_prefix)s/bin/libtool'), file), '%(builddir)s', 'libtool')
 
 class Gtk_x___mingw (Gtk_x_):
     source = Gtk_x_.source

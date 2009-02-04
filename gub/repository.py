@@ -961,7 +961,7 @@ class Subversion (SimpleRepo):
         branch = self.branch
         module = self.module
         revision = self.revision
-        checkout_dir = self.checkout_dir ()
+        checkout_dir = self._checkout_dir ()
         rev_opt = '-r %(revision)s ' % locals ()
         cmd = 'cd %(dir)s && svn co %(rev_opt)s %(source)s/%(module)s/%(branch)s %(checkout_dir)s''' % locals ()
         self.system (cmd)
