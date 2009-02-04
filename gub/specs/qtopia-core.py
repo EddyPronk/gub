@@ -14,11 +14,7 @@ class Qtopia_core (target.AutoBuild):
         }
     build.change_target_dict (self, dict)
     def _get_build_dependencies (self):
-        return ['freetype', 'tslib']
-    def get_build_dependencies (self):
-        return self._get_build_dependencies ()
-    def get_dependency_dict (self):
-        return {'': self._get_build_dependencies ()}
+        return ['freetype-devel', 'tslib-devel']
     def patch (self):
         self.file_sub ([('pkg-config', '$PKG_CONFIG')],
                        '%(srcdir)s/configure')

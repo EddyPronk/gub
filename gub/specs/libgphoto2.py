@@ -13,11 +13,7 @@ class Libgphoto2 (target.AutoBuild):
 # Does not compile
 #    source = mirrors.with_template (name='libgphoto2', version='2.1.6', mirror=sf_gphoto)
     def _get_build_dependencies (self):
-        return ['libexif', 'libjpeg', 'libusb']
-    def get_build_dependencies (self):
-        return self._get_build_dependencies ()
-    def get_dependency_dict (self):
-        return {'': self._get_build_dependencies ()}
+        return ['libexif-devel', 'libjpeg-devel', 'libusb-devel']
     def wrap_pkg_config (self):
         self.dump ('''#! /bin/sh
 /usr/bin/pkg-config\

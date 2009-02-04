@@ -17,12 +17,6 @@ class Gtk_x_ (target.AutoBuild):
                 #, 'libxinerama-devel',
                 'libxfixes-devel',
                 ]
-    def get_build_dependencies (self):
-        return self._get_build_dependencies ()
-    def get_dependency_dict (self):
-       return {'': [x.replace ('-devel', '')
-                    for x in self._get_build_dependencies ()
-                    if 'tools::' not in x and 'cross/' not in x]}
     @context.subst_method
     def LDFLAGS (self):
 #        return '-ldl -Wl,--as-needed'

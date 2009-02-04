@@ -3,14 +3,8 @@ from gub import target
 
 class Libdbi_drivers_sqlite3 (target.AutoBuild):
     source = 'http://surfnet.dl.sourceforge.net/sourceforge/libdbi-drivers/libdbi-drivers-0.8.2.tar.gz'
-
     def _get_build_dependencies (self):
-        return ['sqlite', 'libdbi', 'libtool']
-    def get_build_dependencies (self):
-        return self._get_build_dependencies ()
-    def get_dependency_dict (self):
-        return {'': self._get_build_dependencies ()}
-
+        return ['sqlite-devel', 'libdbi-devel', 'libtool']
     def configure_command (self):
         return (target.AutoBuild.configure_command (self)
                 + misc.join_lines ('''

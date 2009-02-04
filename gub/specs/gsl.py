@@ -8,9 +8,5 @@ class Gsl (target.AutoBuild):
         target.change_target_dict (self, {'LD': '', 'LDFLAGS': '' })
     def _get_build_dependencies (self):
         return []
-    def get_build_dependencies (self):
-        return self._get_build_dependencies ()
-    def get_dependency_dict (self):
-        return {'': self._get_build_dependencies ()}
     def configure_command (self):
         return target.AutoBuild.configure_command (self) + ' LDFLAGS= '

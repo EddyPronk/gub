@@ -40,7 +40,6 @@ class Inkscape (target.AutoBuild):
         return {'': [x.replace ('-devel', '')
                      for x in self._get_build_dependencies ()
                      if 'tools::' not in x and 'cross/' not in x]
-#                + ['atk', 'cross/gcc-c++-runtime', 'libtiff', 'libx11', 'libxcb', 'libxau', 'libxext', 'libxdmcp', 'libxfixes', 'libxrender', 'pixman']
                 + ['cross/gcc-c++-runtime']
                 }
     def aclocal_path (self):

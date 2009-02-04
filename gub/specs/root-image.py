@@ -15,10 +15,6 @@ class Root_image (build.NullBuild):
             'dropbear',
             'sysvinit',
             ]
-    def get_build_dependencies (self):
-        return self._get_build_dependencies ()
-    def get_dependency_dict (self):
-        return {'': self._get_build_dependencies ()}
     def get_ipkg_dependencies (self):
         busybox = ['makedevs']
         return [
