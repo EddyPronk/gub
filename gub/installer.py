@@ -391,8 +391,14 @@ cp %(nsisdir)s/*.sh.in %(ns_dir)s''', locals ())
 
         PATH = os.environ['PATH']
         PATH = '%(tools_prefix)s/bin:' + PATH
-        
-        self.system ('cd %(targetdir)s && makensis -NOCD %(ns_dir)s/definitions.nsh %(ns_dir)s/%(name)s.nsi', locals ())
+
+        nsi = 'installer'
+        if os.path.exists (self.expand ('%(nsidir)s/%(name)s', env=locals ())):
+            nsi = self.name ()
+        if self.name () == 'mingit':
+            # urgme
+            nsi = 'git'
+        self.system ('cd %(targetdir)s && makensis -NOCD %(ns_dir)s/definitions.nsh %(ns_dir)s/%(nsi)s.nsi', locals ())
 
         final = self.installer_file ()
         self.system ('mv %(ns_dir)s/setup.exe %(final)s', locals ())

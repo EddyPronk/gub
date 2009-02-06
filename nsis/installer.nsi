@@ -17,9 +17,6 @@
 !define USER_SHELL_FOLDERS \
 	"Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders"
 
-Var "EDITOR"
-Var "UP_DESKTOP"
-
 !define UninstLog "files.txt"
 Var UninstLog
 
@@ -71,8 +68,7 @@ UninstPage uninstConfirm
 UninstPage instfiles
 
 Section "${PRETTY_NAME} (required)"
-	;; In silent mode (invoke as: setup.exe /S), generate an install log.
-	ifSilent 0 silent
+	;; always generate install log
 	Logset on
 
 silent:
@@ -94,80 +90,13 @@ fresh_install:
 	CreateDirectory "$INSTDIR\usr\bin"
 
 	Call registry_installer
-;;	Call registry_path
-
-	;; Use tested lilypad for now
-	StrCpy $EDITOR "$INSTDIR\usr\bin\lilypad.exe"
-
-	;; FIXME: what is UP_DESKTOP used for?
-	Call find_desktop
-
-	Call registry_guile
-	Call registry_lilypond
-
-	;; FIXME: these postinstall things should be part of their
-	;; respective packages once we have min-apt or Cygwin's
-	;; setup.exe in place.
-
-	Call postinstall_lilypond
-	Call postinstall_lilypad
+	Call registry_path
 SectionEnd
 
 Function registry_path
 	ReadRegStr $R0 HKLM "${ENVIRON}" "PATH"
 	WriteRegExpandStr HKLM "${ENVIRON}" "PATH" "$R0;$INSTDIR\usr\bin"
 FunctionEnd
-
-;; Optional section (can be disabled by the user)
-Section "Bundled Python"
-    ;; Only make bundled python interpreter the default
-    ;; if user wants it to be (i.e.  for the average windows
-    ;; user who only cares that software works just like that)
-    Call registry_python
-SectionEnd
-
-;; Optional section (can be disabled by the user)
-Section "Start Menu Shortcuts"
-	;; First install for all users, if anything fails, install
-	;; for current user only.
-	ClearErrors
-
-	;; The OutPath specifies the CWD of the command.  For desktop
-	;; shortcuts, set to a string that expands to the desktop folder
-	;; of the user who runs LilyPond.
-	ReadRegStr $R0 HKCU "${USER_SHELL_FOLDERS}" "Desktop"
-	SetOutPath '"$R0"'
-	SetShellVarContext all
-
-	;; Working directory: %USERPROFILE%\<locale's-desktop-folder-name>,
-	;; but that string is not expanded.
-
-	;; Let's see what happens when outputting to the shared desktop.
-	SetOutPath "$DESKTOP"
-	Call create_shortcuts
-
-	;; That also did not work, often the other users do no write access
-	;; there.
-
-	;; If no write access for all, delete common stuff and opt for
-	;; install for current user only.
-	IfErrors 0 exit
-	Delete "$DESKTOP\LilyPond.lnk"
-	Delete "$SMPROGRAMS\LilyPond\*.*"
-	RMDir "$SMPROGRAMS\LilyPond"
-
-	;; $DESKTOP should expand to the same location as the outpath above,
-	;; but nsis may handle anomalies better.
-
-current_user:
-	SetShellVarContext current
-	SetOutPath "$DESKTOP"
-	Call create_shortcuts
-
-exit:
-	SetShellVarContext current
-	SetOutPath $INSTDIR
-SectionEnd
 
 ;; copy & paste from the NSIS code examples
 Function un.install_installed_files
@@ -216,30 +145,17 @@ Function un.install_installed_files
 FunctionEnd
 ;; end copy & paste
 
+
 Section "Uninstall"
 	ifSilent 0 silent
 	Logset on
 
 silent:
 	DeleteRegKey HKLM SOFTWARE\${PRETTY_NAME}
-	DeleteRegKey HKLM "Applications\lilypond-windows.exe"
 	DeleteRegKey HKLM "${UNINSTALL}"
 
-	DeleteRegKey HKCR ".ly"
-	DeleteRegKey HKCR "ly_auto_file"
-	DeleteRegKey HKCR "${PRETTY_NAME}\shell\open\command" ""
-	DeleteRegKey HKCR "${PRETTY_NAME}\shell\generate\command" ""
-	DeleteRegKey HKCR "${PRETTY_NAME}\DefaultIcon" ""
 	DeleteRegKey HKCR "${PRETTY_NAME}" ""
 
-	DeleteRegKey HKCR "textedit" ""
-
-	DeleteRegKey HKCR ".scm"
-	DeleteRegKey HKCR "GUILE\shell\open\command" ""
-	DeleteRegKey HKCR "GUILE" ""
-
-	DeleteRegKey HKCU "Applications\lilypond-windows.exe"
-	DeleteRegKey HKCU ".ly"
 
 	ReadRegStr $R0 HKLM "${ENVIRON}" "PATH"
 	${UnStrLoc} $0 $R0 "$INSTDIR\usr\bin;" >
@@ -256,13 +172,6 @@ path_loop:
 	StrCmp $0 "" path_done path_loop
 
 path_done:
-	;; Remove files and uninstaller
-	;; Try only to delete ${PRETTY_NAME} (and not user) stuff
-
-	Delete "$INSTDIR\usr\bin\variables.sh.in"
-	Delete "$INSTDIR\usr\bin\variables.sh"
-	Delete "$INSTDIR\usr\bin\lilypond-windows.bat.in"
-
 	call un.install_installed_files
 
 	;; Remove shortcuts, if any
@@ -282,6 +191,7 @@ path_done:
 	RMDir "$INSTDIR\usr\"
 	Delete "$INSTDIR\uninstall.exe"
 	Delete "$INSTDIR\files.txt"
+
 	RMDir "$INSTDIR"
 SectionEnd
 
@@ -291,14 +201,4 @@ Function registry_installer
 	WriteRegStr HKLM "${UNINSTALL}" "UninstallString" '"$INSTDIR\uninstall.exe"'
 	WriteRegDWORD HKLM "${UNINSTALL}" "NoModify" 1
 	WriteRegDWORD HKLM "${UNINSTALL}" "NoRepair" 1
-FunctionEnd
-
-!include "lilypond-prepost.nsh"
-
-Function find_desktop
-	ReadRegStr $R0 HKCU "${USER_SHELL_FOLDERS}" "Desktop"
-	StrCpy $UP_DESKTOP "$R0"
-	StrCmp $UP_DESKTOP "" 0 exit
-	StrCpy $UP_DESKTOP "%USERPROFILE%\Desktop"
-exit:
 FunctionEnd

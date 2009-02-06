@@ -26,13 +26,12 @@ Var UninstLog
 ; Uninstall log file missing.
 LangString UninstLogMissing ${LANG_ENGLISH} "${UninstLog} not found.$\r$\nCannot uninstall."
 
-
 !include "substitute.nsh"
 ${StrLoc}
 ${UnStrLoc}
 
 ;;SetCompressor lzma  ; very slow
-;SetCompressor zlib
+;;SetCompressor zlib
 SetCompressor bzip2  ;;
 
 Name "${PRETTY_NAME}"
@@ -72,20 +71,16 @@ UninstPage uninstConfirm
 UninstPage instfiles
 
 Section "${PRETTY_NAME} (required)"
-
-
 	;; always generate install log
 	Logset on
-silent:
 
+silent:
 	IfFileExists $INSTDIR\usr\bin\${CANARY_EXE}.exe no_overwrite_error fresh_install
 no_overwrite_error:
 	MessageBox MB_OK "Previous version of ${PRETTY_NAME} found$\r$\nUninstall the old version first."
 	Abort "Previous version of ${PRETTY_NAME} found$\r$\nUninstall the old version first."
 
 fresh_install:
-
-
 	SetOverwrite on
 	AllowSkipFiles on
 	SetOutPath $INSTDIR
@@ -99,37 +94,35 @@ fresh_install:
 
 	Call registry_installer
 	Call registry_path
-	
+
 	StrCpy $0 "$INSTDIR\usr\bin\gitk.bat"
 	${SubstituteAtVariables} "$0.in" "$0"
-
 SectionEnd
-
 
 Function registry_path
 	ReadRegStr $R0 HKLM "${ENVIRON}" "PATH"
 	WriteRegExpandStr HKLM "${ENVIRON}" "PATH" "$R0;$INSTDIR\usr\bin"
 FunctionEnd
 
-;; copy & paste from the NSIS code examples 
+;; copy & paste from the NSIS code examples
 Function un.install_installed_files
  IfFileExists "$INSTDIR\${UninstLog}" +3
   MessageBox MB_OK|MB_ICONSTOP "$(UninstLogMissing)"
    Abort
- 
+
  Push $R0
  Push $R1
  Push $R2
  SetFileAttributes "$INSTDIR\${UninstLog}" NORMAL
  FileOpen $UninstLog "$INSTDIR\${UninstLog}" r
  StrCpy $R1 0
- 
+
  GetLineCount:
   ClearErrors
    FileRead $UninstLog $R0
    IntOp $R1 $R1 + 1
    IfErrors 0 GetLineCount
- 
+
  LoopRead:
   FileSeek $UninstLog 0 SET
   StrCpy $R2 0
@@ -137,14 +130,14 @@ Function un.install_installed_files
    FileRead $UninstLog $R0
    IntOp $R2 $R2 + 1
    StrCmp $R1 $R2 0 FindLine
- 
+
    StrCpy $R0 "$INSTDIR\$R0" -2
    IfFileExists "$R0\*.*" 0 +3
     RMDir $R0  #is dir
    Goto +3
    IfFileExists "$R0" 0 +2
     Delete "$R0" #is file
- 
+
   IntOp $R1 $R1 - 1
   StrCmp $R1 0 LoopDone
   Goto LoopRead
@@ -162,6 +155,7 @@ FunctionEnd
 Section "Uninstall"
 	ifSilent 0 silent
 	Logset on
+
 silent:
 	DeleteRegKey HKLM SOFTWARE\${PRETTY_NAME}
 	DeleteRegKey HKLM "${UNINSTALL}"
@@ -169,8 +163,9 @@ silent:
 	DeleteRegKey HKCR "${PRETTY_NAME}" ""
 
 
-    	ReadRegStr $R0 HKLM "${ENVIRON}" "PATH"
- 	${UnStrLoc} $0 $R0 "$INSTDIR\usr\bin;" >
+	ReadRegStr $R0 HKLM "${ENVIRON}" "PATH"
+	${UnStrLoc} $0 $R0 "$INSTDIR\usr\bin;" >
+
 path_loop:
 	StrCmp $0 "" path_done
 	StrLen $1 "$INSTDIR\usr\bin;"
@@ -186,7 +181,7 @@ path_done:
 	call un.install_installed_files
 
 	;; Remove shortcuts, if any
-        SetShellVarContext all
+	SetShellVarContext all
 	Delete "$SMPROGRAMS\${PRETTY_NAME}\*.*"
 	Delete "$DESKTOP\${PRETTY_NAME}.lnk"
 	RMDir "$SMPROGRAMS\${PRETTY_NAME}"
@@ -205,7 +200,7 @@ path_done:
 
 	Delete "$INSTDIR\usr\bin\gitk.bat"
 	Delete "$INSTDIR\usr\bin\gitk.bat.in"
-	
+
 	RMDir "$INSTDIR"
 SectionEnd
 
@@ -216,5 +211,3 @@ Function registry_installer
 	WriteRegDWORD HKLM "${UNINSTALL}" "NoModify" 1
 	WriteRegDWORD HKLM "${UNINSTALL}" "NoRepair" 1
 FunctionEnd
-
-
