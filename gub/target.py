@@ -189,6 +189,14 @@ class SConsBuild (AutoBuild):
     def install_command (self):
         return self.compile_command () + ' install'
 
+class NullBuild (AutoBuild):
+    def stages (self):
+        return ['patch', 'install', 'package', 'clean']
+    def get_subpackage_names (self):
+        return ['']
+    def install (self):
+        self.system ('mkdir -p %(install_prefix)s')
+
 class Change_target_dict:
     def __init__ (self, package, override):
         self._target_dict_method = package.get_substitution_dict

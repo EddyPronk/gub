@@ -11,48 +11,24 @@ class LilyPond (target.AutoBuild):
     LilyPond lets you create music notation.  It produces
     beautiful sheet music from a high-level description file.'''
 
+    @staticmethod
+    def version_from_VERSION (self):
+        s = self.read_file ('VERSION')
+        if 'MAJOR_VERSION' in s:
+            d = misc.grok_sh_variables_str (s)
+            return '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
+        return '0.0.0'
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
-
         # FIXME: should add to C_INCLUDE_PATH
         builddir = self.builddir ()
         self.target_gcc_flags = (settings.target_gcc_flags
                                  + ' -I%(builddir)s' % locals ())
-
-        # repository patched in method.
-        def version_from_VERSION (self):
-            s = self.read_file ('VERSION')
-            if not 'MAJOR_VERSION' in s:
-                return '0.0.0'
-            d = misc.grok_sh_variables_str (s)
-            v = '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
-            return v
-
-        if isinstance (source, repository.Repository):
-            source.version = misc.bind_method (version_from_VERSION, source)
-
-    def get_dependency_dict (self):
-        return {'': [
-            'fontconfig',
-            'gettext', 
-            'guile-runtime',
-
-            # we have some scripts that need GUILE.
-            'guile', 
-            'pango',
-
-            # libs
-            'python-runtime',
-
-            # interpreter.
-            'python',
-            'ghostscript'
-            ]}
-    
+        if isinstance (source, repository.Git):
+            source.version = misc.bind_method (LilyPond.version_from_VERSION, source)
     def get_subpackage_names (self):
         return ['']
-    
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['fontconfig-devel',
                 'freetype-devel',
                 'gettext-devel',
@@ -67,55 +43,49 @@ class LilyPond (target.AutoBuild):
                 'tools::texinfo', # nonstandard
                 'tools::fontforge',
                 'tools::pkg-config', # nonstandard (MacOS)
-                'tools::netpbm', # website
                 'tools::gettext', # AM_GNU_GETTEXT
-                'tools::rsync', # ugh, we depend on *rsync* !?
                 'tools::t1utils',
                 'tools::texi2html',
-                'tools::imagemagick',
-                #'tools::texlive', mpost ... *grin*
+                #'tools::mpost ', 
                 ]
-
+    def get_build_dependencies (self):
+        return self._get_build_dependencies ()
+    def get_dependency_dict (self):
+        return {'': [x.replace ('-devel', '')
+                     for x in self._get_build_dependencies ()
+                     if 'tools::' not in x and 'cross/' not in x]
+                + ['cross/gcc-c++-runtime']
+                }
     def autoupdate (self):
         self.system ('cd %(srcdir)s && ./smart-autogen.sh --noconfigure') 
-
     def configure_binary (self):
         return '%(srcdir)s/smart-configure.sh'
-
     def configure (self):
         self.system ('mkdir -p %(builddir)s || true')
         self.system ('cp %(tools_prefix)s/include/FlexLexer.h %(builddir)s/')
         target.AutoBuild.configure (self)
-    
     def configure_command (self):
         return (target.AutoBuild.configure_command (self)
                 + misc.join_lines ('''
 --enable-relocation
 --enable-rpath
 --disable-documentation
---enable-static-gxx
 --with-ncsb-dir=%(system_prefix)s/share/fonts/default/Type1
 '''))
-
     def name_version (self):
         return target.AutoBuild.name_version (self)
-
     def build_version (self):
         v = self.source.version ()
         self.runner.info ('LILYPOND-VERSION: %(v)s\n' % locals ())
         return v
-
     def pretty_name (self):
         return 'LilyPond'
-    
     def makeflags (self):
         return ' TARGET_PYTHON=/usr/bin/python'
-
     def install (self):
         target.AutoBuild.install (self)
         # FIXME: This should not be in generic package, for installers only.
         self.installer_install_stuff ()
-
     def installer_install_stuff (self):
         # FIXME: is it really the installer version that we need here,
         # or do we need the version of lilypond?
@@ -141,7 +111,6 @@ class LilyPond (target.AutoBuild):
 <cachedir>~/.lilypond-fonts.cache-2</cachedir>
 </fontconfig>
 ''', '%(install_prefix)s/etc/fonts/local.conf', 'w', locals ())
-
     def gub_name (self):
         nv = self.name_version ()
         p = self.settings.platform
@@ -216,6 +185,7 @@ class LilyPond__cygwin (LilyPond):
             'coreutils',
             'findutils',
             'ghostscript',
+            'lilypond-doc',
             ]
     def configure_command (self):
         return (LilyPond.configure_command (self)
@@ -345,7 +315,6 @@ class LilyPond__debian (LilyPond):
         from gub import debian, gup
         return {'': gup.gub_to_distro_deps (LilyPond.get_dependency_dict (self)[''],
                                             debian.gub_to_distro_dict)}
-
     def compile (self):
         # Because of relocation script, python must be built before scripts
         self.system ('''
@@ -353,10 +322,8 @@ cd %(builddir)s && make -C python %(makeflags)s
 cd %(builddir)s && make -C scripts %(makeflags)s
 ''')
         LilyPond.compile (self)
-
     def install (self):
         target.AutoBuild.install (self)
-
     def get_build_dependencies (self):
         #FIXME: aargh, MUST specify gs,  etc here too.
         return [
