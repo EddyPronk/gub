@@ -9,8 +9,7 @@ class Git__tools (tools.AutoBuild):
         return self._get_build_dependencies ()
     def get_dependency_dict (self):
         return {'': [x.replace ('-devel', '')
-                     for x in self._get_build_dependencies ()
-                     if 'tools::' not in x and 'cross/' not in x]}
+                     for x in self._get_build_dependencies ()]}
     def configure (self):
         self.shadow ()
         self.dump ('prefix=%(system_prefix)s', '%(builddir)s/config.mak')

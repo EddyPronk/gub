@@ -535,14 +535,13 @@ class Git (Repository):
         if os.path.isdir (os.path.join (self.dir, self.vc_system)):
             return self.dir
         return os.path.join (self.dir, os.path.dirname (self.branch_dir ()))
-    def git_command (self, workdir=None):
-        dir = self._checkout_dir ()
-        command = 'git --git-dir %(dir)s ' % locals ()
-        if workdir:
-            command= 'cd %(workdir)s && git ' % locals ()
-        return command
-    def git (self, command, workdir=None, ignore_errors=False):
-        self.system (self.git_command (workdir) + command, ignore_errors=ignore_errors, env=self.get_env ())
+    def git_command (self, dir=None):
+        if not dir:
+            dir = self._checkout_dir ()
+        return 'cd %(dir)s && git ' % locals ()
+    def git (self, command, dir=None, ignore_errors=False):
+        self.system (self.git_command (dir) + command,
+                     ignore_errors=ignore_errors, env=self.get_env ())
     def git_pipe (self, command, ignore_errors=False):
         return self.read_pipe (self.git_command () + command,
                                ignore_errors=ignore_errors,
@@ -573,7 +572,7 @@ class Git (Repository):
         if not os.path.isdir (os.path.join (self._checkout_dir (), 'refs')):
             source = self.source
             dir = self._checkout_dir ()
-            self.git ('clone --bare %(source)s %(dir)s' % locals (), workdir='.')
+            self.git ('clone --bare %(source)s %(dir)s' % locals (), dir='.')
         if self.branch and not (self.revision and self.is_downloaded ()):
             self.git ('fetch %(source)s %(branch)s:refs/heads/%(url_host)s/%(url_dir)s/%(branch)s' % self.__dict__)
         self.checksums = {}
@@ -604,17 +603,17 @@ class Git (Repository):
         branch = self.get_ref ()
         if os.path.isdir (os.path.join (destdir, self.vc_system)):
             if self.git_pipe ('diff'):
-                self.git ('reset --hard HEAD' % locals (), workdir=destdir)
-            self.git ('pull %(checkout_dir)s %(branch)s:' % locals (), workdir=destdir)
+                self.git ('reset --hard HEAD' % locals (), dir=destdir)
+            self.git ('pull %(checkout_dir)s %(branch)s:' % locals (), dir=destdir)
         else:
-            self.system ('git clone -l -s %(checkout_dir)s %(destdir)s' % locals ())
+            self.git ('clone -l -s %(checkout_dir)s %(destdir)s' % locals ())
             revision = self.revision
             if not self.revision:
                 revision = 'origin/' + self.get_ref ()
             self.git ('update-ref refs/heads/master %(revision)s' % locals (),
-                      workdir=destdir)
-            self.git ('checkout master', workdir=destdir)
-            self.git ('reset --hard', workdir=destdir)
+                      dir=destdir)
+            self.git ('checkout master', dir=destdir)
+            self.git ('reset --hard', dir=destdir)
     def get_diff_from_tag (self, tag):
         return self.git_pipe ('diff %(tag)s HEAD' % locals ())
     def last_patch_date (self):
