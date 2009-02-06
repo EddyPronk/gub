@@ -13,10 +13,13 @@ class LilyPond (target.AutoBuild):
 
     @staticmethod
     def version_from_VERSION (self):
-        s = self.read_file ('VERSION')
-        if 'MAJOR_VERSION' in s:
-            d = misc.grok_sh_variables_str (s)
-            return '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
+        try:
+            s = self.read_file ('VERSION')
+            if 'MAJOR_VERSION' in s:
+                d = misc.grok_sh_variables_str (s)
+                return '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
+        except:
+            pass
         return '0.0.0'
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
@@ -225,16 +228,10 @@ tar -C %(install_prefix)s -jxf %(docball)s
 
 ## shortcut: take python out of dependencies
 class LilyPond__no_python (LilyPond):
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         d = LilyPond.get_build_dependencies (self)
         d.remove ('python-devel')
         return d
-
-    def get_dependency_dict (self):
-        d = LilyPond.get_dependency_dict (self)
-        d[''].remove ('python-runtime')
-        return d
-
     def configure (self):
         self.system ('mkdir -p %(builddir)s || true') 
         self.system ('touch %(builddir)s/Python.h') 
@@ -345,7 +342,6 @@ class LilyPond__darwin (LilyPond):
     def get_dependency_dict (self):
         d = LilyPond.get_dependency_dict (self)
         deps = d['']
-        deps.remove ('python-runtime')
         deps.remove ('python')
         deps += [ 'fondu', 'osx-lilypad']
         d[''] = deps

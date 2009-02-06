@@ -21,24 +21,22 @@ models.'''
     # T42 fix for lilypond
     revision = '00789a94804e9bcc22205ef7ea3bba32942b4e79'
     source = 'git://git.infradead.org/ghostscript.git?branch=git-svn&revision=' + revision
-
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
-
-        ## ugh: nested, with self shadow?
-        def version_from_VERSION (self):
-            # ugh - self is a repository here
-            s = self.read_file ('src/version.mak')
-            if not 'GS_VERSION_MAJOR' in s:
-                return '0.0'
-            d = misc.grok_sh_variables_str (s)
-            v = '%(GS_VERSION_MAJOR)s.%(GS_VERSION_MINOR)s' % d
-            return v
-
         if (isinstance (source, repository.Repository)
             and not isinstance (source, repository.TarBall)):
-            source.version = misc.bind_method (version_from_VERSION, source)
-
+            source.version = misc.bind_method (Ghostscript.version_from_VERSION, source)
+    @staticmethod
+    def version_from_VERSION (self):
+        try:
+            s = self.read_file ('src/version.mak')
+            if not 'GS_VERSION_MAJOR' in s:
+                urg
+            d = misc.grok_sh_variables_str (s)
+            return '%(GS_VERSION_MAJOR)s.%(GS_VERSION_MINOR)s' % d
+        except:
+            pass
+        return '0.0'
     def force_sequential_build (self):
         return True
     
