@@ -502,10 +502,8 @@ class Git (Repository):
 
     def __init__ (self, dir, source='', branch='', module='', revision=''):
         Repository.__init__ (self, dir, source)
-
         self.checksums = {}
         self.source = source
-
         if source:
             # urlib is not good at splitting ssh urls
             u = misc.Url (source)
@@ -518,74 +516,61 @@ class Git (Repository):
             assert False
         self.branch = self.filter_branch_arg (branch)
         self.revision = revision
-
         if self.revision == '' and self.branch == '':
             # note that HEAD doesn't really exist as a branch name.
             self.branch = 'master'
-
         assert self.url_host
         assert self.url_dir
-        
     def version (self):
         return self.revision
-
     def is_tracking (self):
         return self.revision == ''
-
     def branch_dir (self):
         # this return something like lp.org//dir/master
         return '/'.join ([self.url_host, self.url_dir, self.branch])
-        
     def full_branch_name (self):
         if self.is_tracking ():
             return self.branch_dir ().replace ('/', '-')
         return ''
-    
     def __repr__ (self):
         b = self.branch
         return '#<GitRepository %s#%s>' % (self.dir, b)
-
     def get_revision_description (self):
-        return self.git_pipe ('log --max-count=1 %s' % self.branch)  
-
+        return self.git_pipe ('log --max-count=1 %(branch)s' % self.__dict__)  
     def read_file (self, file_name):
         ref = self.get_ref ()            
         contents = self.git_pipe ('show %(ref)s:%(file_name)s' % locals ())
         return contents
-
-    def git_command (self, dir, repo_dir):
-        if repo_dir:
-            repo_dir = '--git-dir %s' % repo_dir
-        c = 'git %(repo_dir)s' % locals ()
-        if dir:
-            c = 'cd %s && %s' % (dir, c)
-        return c
-        
-    def git (self, cmd, dir='', ignore_errors=False, repo_dir=''):
-        if repo_dir == '' and dir == '':
-            repo_dir = self.dir
-        gc = self.git_command (dir, repo_dir)
-        cmd = '%(gc)s %(cmd)s' % locals ()
-        self.system (cmd, ignore_errors=ignore_errors, env=self.get_env ())
-
-    def git_pipe (self, cmd, ignore_errors=False, dir='', repo_dir=''):
-        if repo_dir == '' and dir == '':
-            repo_dir = self.dir
-        gc = self.git_command (dir, repo_dir)
-        return self.read_pipe ('%(gc)s %(cmd)s' % locals (),
+    def _checkout_dir (self):
+        # Support user-check-outs
+        if os.path.isdir (os.path.join (self.dir, self.vc_system)):
+            return self.dir
+        return os.path.join (self.dir, os.path.dirname (self.branch_dir ()))
+    def git_command (self, workdir=None):
+        dir = self._checkout_dir ()
+#        command = 'git '
+#        if workdir:
+#            command += '--git-dir %(dir)s ' % locals ()
+#            dir = workdir
+#        return 'cd %(dir)s && %(command)s ' % locals ()
+        command = 'git --git-dir %(dir)s ' % locals ()
+        if workdir:
+            command= 'cd %(workdir)s && git ' % locals ()
+        return command
+    def git (self, command, workdir=None, ignore_errors=False):
+        self.system (self.git_command (workdir) + command, ignore_errors=ignore_errors, env=self.get_env ())
+    def git_pipe (self, command, ignore_errors=False):
+        return self.read_pipe (self.git_command () + command,
                                ignore_errors=ignore_errors,
                                env=self.get_env ())
-        
     def is_downloaded (self):
-        if not os.path.isdir (self.dir):
+        if not os.path.isdir (os.path.join (self._checkout_dir (), 'refs')):
             return False
         if self.revision:
             result = self.git_pipe ('cat-file commit %s' % self.revision,
                                     ignore_errors=True)
-        
             return bool (result)
         return True
-
     def have_git (self):
         # FIXME: make generic: have_CLIENT ()?
         # this would even work for TAR, vs SimpleTar (without --strip-comp)
@@ -597,32 +582,28 @@ class Git (Repository):
                          + '/bin')
             return os.path.exists (os.path.join (tools_bin, 'git'))
         return False
-
     def download (self):
         if not self.have_git ():
             # sorry, no can do [yet]
             return
-        if not os.path.isdir (self.dir):
-            self.git ('clone --bare %(source)s %(dir)s' % self.__dict__)
+        if not os.path.isdir (os.path.join (self._checkout_dir (), 'refs')):
+            source = self.source
+            dir = self._checkout_dir ()
+            self.git ('clone --bare %(source)s %(dir)s' % locals (), workdir='.')
         if self.branch and not (self.revision and self.is_downloaded ()):
             self.git ('fetch %(source)s %(branch)s:refs/heads/%(url_host)s/%(url_dir)s/%(branch)s' % self.__dict__)
         self.checksums = {}
-
     def get_ref (self):
         if not self.revision:
             return self.branch_dir ().replace ('//', '/')
         return self.revision
-
     def checksum (self):
         if self.revision:
             return self.revision
-        
         branch = self.get_ref ()
         if branch in self.checksums:
             return self.checksums[branch]
-
-        repo_dir = self.dir
-        if os.path.isdir (repo_dir):
+        if os.path.isdir (self._checkout_dir ()):
             ## can't use describe: fails in absence of tags.
             cs = self.git_pipe ('rev-list --max-count=1 %(branch)s' % locals ())
             cs = cs.strip ()
@@ -630,46 +611,38 @@ class Git (Repository):
             return cs
         else:
             return 'invalid'
-
     def all_files (self):
         branch = self.get_ref ()
         str = self.git_pipe ('ls-tree --name-only -r %(branch)s' % locals ())
         return str.split ('\n')
-
     def update_workdir (self, destdir):
-        repo_dir = self.dir
+        checkout_dir = self._checkout_dir ()
         branch = self.get_ref ()
         if os.path.isdir (os.path.join (destdir, self.vc_system)):
             if self.git_pipe ('diff'):
-                self.git ('reset --hard HEAD' % locals (), dir=destdir)
-            self.git ('pull %(repo_dir)s %(branch)s:' % locals (), dir=destdir)
+                self.git ('reset --hard HEAD' % locals (), workdir=destdir)
+            self.git ('pull %(checkout_dir)s %(branch)s:' % locals (), workdir=destdir)
         else:
-            self.system ('git clone -l -s %(repo_dir)s %(destdir)s' % locals ())
-
+            self.system ('git clone -l -s %(checkout_dir)s %(destdir)s' % locals ())
             revision = self.revision
             if not self.revision:
                 revision = 'origin/' + self.get_ref ()
-            
             self.git ('update-ref refs/heads/master %(revision)s' % locals (),
-                      dir=destdir)
-            self.git ('checkout master', dir=destdir)
-            self.git ('reset --hard', dir=destdir)
-
+                      workdir=destdir)
+            self.git ('checkout master', workdir=destdir)
+            self.git ('reset --hard', workdir=destdir)
     def get_diff_from_tag (self, tag):
         return self.git_pipe ('diff %(tag)s HEAD' % locals ())
-
     def last_patch_date (self):
         branch = self.branch
         s = self.git_pipe ('log --pretty=format:%ai -1 %(branch)s' % locals ())
         return tztime.parse (s, self.patch_dateformat)
-
     def tag (self, name):
         stamp = self.last_patch_date ()
         tag = name + '-' + tztime.format (stamp, self.tag_dateformat)
         branch = self.get_ref ()
         self.git ('tag %(tag)s %(branch)s' % locals ())
         return tag
-
     def tag_list (self, tag):
         return self.git_pipe ('tag -l %(tag)s*' % locals ()).split ('\n')
 
@@ -789,8 +762,8 @@ class CVS (Repository):
         if self.is_downloaded ():
             cmd += 'cd %(dir)s && cvs -q up -dCAP %(rev_opt)s' % locals ()
         else:
-            repo_dir = self.dir
-            cmd += 'cd %(repo_dir)s/ && cvs -d %(source)s -q co -d %(suffix)s %(rev_opt)s %(module)s''' % locals ()
+            checkout_dir = self.dir
+            cmd += 'cd %(checkout_dir)s/ && cvs -d %(source)s -q co -d %(suffix)s %(rev_opt)s %(module)s''' % locals ()
 
         self.system (cmd)
 
@@ -881,11 +854,7 @@ class SimpleRepo (Repository):
         # Support user-check-outs
         if os.path.isdir (os.path.join (self.dir, self.vc_system)):
             return self.dir
-        dir = self.dir
-        branch = self.branch
-        module = self.module
-        revision = self.revision
-        return '%(dir)s/%(branch)s/%(module)s/%(revision)s' % locals ()
+        return '%(dir)s/%(branch)s/%(module)s/%(revision)s' % self.__dict__
 
     def read_file (self, file_name):
         return self._read_file (self._checkout_dir () + '/' + file_name)
@@ -939,11 +908,7 @@ class Subversion (SimpleRepo):
         # Support user-check-outs
         if os.path.isdir (os.path.join (self.dir, self.vc_system)):
             return self.dir
-        dir = self.dir
-        branch = self.branch
-        module = self.module
-        revision = self.revision
-        return '%(dir)s/%(module)s/%(branch)s/%(revision)s' % locals ()
+        return '%(dir)s/%(module)s/%(branch)s/%(revision)s' % self.__dict__
 
     def _current_revision (self):
         return self.revision
