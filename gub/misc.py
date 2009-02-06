@@ -279,9 +279,9 @@ def _download_url (url, dest_dir, progress=None):
     except:
         t, v, b = sys.exc_info ()
         if ((t == OSError and url.startswith ('file:'))
-            or (t == IOError
+            or ((t == IOError or t == urllib2.HTTPError)
                 and (url.startswith ('ftp:') or url.startswith ('http:')))):
-            return e
+            return v
         raise
 
     size = 0
