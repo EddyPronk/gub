@@ -66,9 +66,15 @@ def package_auto_dependency_dict (package):
         package.get_build_dependencies \
                 = misc.MethodOverrider (package.nop, get_build_dependencies)
         def get_dependency_dict (foo):
-            return {'': [x.replace ('-devel', '')
+            d = {'': [x.replace ('-devel', '')
                          for x in package._get_build_dependencies ()
                          if 'tools::' not in x and 'cross/' not in x]}
+            if 'runtime' in package.get_subpackage_names ():
+                d[''] += [package.name () + '-runtime']
+            d['devel'] = ([x for x in package._get_build_dependencies ()
+                           if 'tools::' not in x and 'cross/' not in x]
+                          + [package.name ()])
+            return d
         package.get_dependency_dict \
                 = misc.MethodOverrider (package.nop, get_dependency_dict)
 
