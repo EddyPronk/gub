@@ -1,17 +1,19 @@
 #
 from gub import misc
 from gub import target
-from gub import LilyPond
+from gub.specs import lilypond
 
 class LilyPond_doc (target.NullBuild):
 #    source = 'url://host/lilypond-doc-1.0.tar.gz'
-    source = LilyPond.source
+    source = lilypond.LilyPond.source
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
-        source.version = misc.bind_method (LilyPond.version_from_VERSION, source)
-        source.is_tracking = misc.bind_method (lambda x: return True, source)
+        source.version = misc.bind_method (lilypond.LilyPond.version_from_VERSION, source)
+        source.is_tracking = misc.bind_method (lambda x: True, source)
+        source.is_downloaded = misc.bind_method (lambda x: True, source)
+        source.update_workdir = misc.bind_method (lambda x: True, source)
     def _get_build_dependencies (self):
-        return [settings.build_platform + '::lilypond',
+        return [self.settings.build_platform + '::lilypond',
                 'tools::netpbm',
                 'tools::imagemagick',
                 'tools::rsync', # ugh, we depend on *rsync* !?

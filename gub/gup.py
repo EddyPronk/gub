@@ -415,7 +415,8 @@ def get_base_package_name (name):
 
     # breaks mingw dep resolution, mingw-runtime
     ##name = re.sub ('-runtime$', '', name)
-    name = re.sub ('-doc$', '', name)
+    # breaks building of lilypond-doc package
+    ##name = re.sub ('-doc$', '', name)
     return name
 
 # FIXME: how to assign to outer var?
