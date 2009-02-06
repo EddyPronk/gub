@@ -163,7 +163,7 @@ models.'''
 
     @context.subst_method
     def shell_rpath (self):
-        return target.AutoBuild.rpath (self).replace (r'\$', r'\\\$')
+        return self.rpath ().replace (r'\$', r'\\\$')
 
     def compile_flags (self):
         return (' INCLUDE=%(system_prefix)s/include'
