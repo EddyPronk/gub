@@ -37,13 +37,8 @@ class Python (target.AutoBuild):
     def get_subpackage_names (self):
         return ['doc', 'devel', 'runtime', '']
 
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['expat-devel', 'zlib-devel', 'tools::python']
-
-    def get_dependency_dict (self):
-        return { '': ['expat', 'python-runtime', 'zlib'],
-                 'devel' : ['libtool', 'python-devel'],
-                 'runtime': [], }
 
     def patch (self):
         target.AutoBuild.patch (self)

@@ -1,0 +1,71 @@
+--- inkscape-trunk-20605/src/prefix.h~	2009-01-30 13:37:53.000000000 +0100
++++ inkscape-trunk-20605/src/prefix.h	2009-02-06 14:06:18.000000000 +0100
+@@ -17,6 +17,12 @@
+ #ifndef _PREFIX_H_
+ #define _PREFIX_H_
+ 
++#ifdef __MINGW32__
++#define DATADIR __mingw_DATADIR__
++#include <windows.h>
++#undef DATADIR
++#endif / * __MINGW32__ */
++
+ #ifdef __cplusplus
+ extern "C" {
+ #endif /* __cplusplus */
+--- inkscape-trunk-20605/src/main.cpp~	2009-01-30 13:37:53.000000000 +0100
++++ inkscape-trunk-20605/src/main.cpp	2009-02-06 16:06:36.000000000 +0100
+@@ -519,6 +519,9 @@ static int _win32_set_inkscape_env(const
+  * Add INKSCAPE_EXTENSIONDIR to PYTHONPATH so that extensions in users home
+  * can find inkex.py et al. (Bug #197475)
+  */
++#ifdef __MINGW32__
++#define DATADIR (br_thread_local_store (br_prepend_prefix ((void *) "", "/share")))
++#endif /* __MINGW32__ */
+ static int set_extensions_env()
+ {
+     char *oldenv = getenv("PYTHONPATH");
+--- inkscape-trunk-20605/src/ui/dialog/filedialogimpl-win32.cpp~	2009-01-30 13:37:43.000000000 +0100
++++ inkscape-trunk-20605/src/ui/dialog/filedialogimpl-win32.cpp	2009-02-06 16:34:10.000000000 +0100
+@@ -1321,10 +1321,10 @@ void FileOpenDialogImplWin32::render_pre
+     if(_preview_bitmap_image)    // Is the image a pixbuf?
+     {
+         // Set the transformation
+-        const Matrix matrix = {
++        const Matrix matrix (
+             scaleFactor, 0,
+             0, scaleFactor,
+-            svgX, svgY };
++            svgX, svgY );
+         context->set_matrix (matrix);
+ 
+         // Render the image
+--- inkscape-trunk-20605/src/ui/stock.h~	2009-01-30 13:37:43.000000000 +0100
++++ inkscape-trunk-20605/src/ui/stock.h	2009-02-06 17:23:50.000000000 +0100
+@@ -18,6 +18,13 @@ namespace Inkscape {
+ namespace UI {
+ namespace Stock {
+ 
++#ifdef __MINGW32__
++#undef DELETE
++#undef DIFFERENCE
++#undef DUPLICATE
++#undef UNION
++#endif /* __MINGW32__ */
++
+ // File menu
+ extern Gtk::StockID const OPEN_RECENT;
+ extern Gtk::StockID const IMPORT;
+--- inkscape-trunk-20605/src/extension/init.cpp~	2009-01-30 13:37:02.000000000 +0100
++++ inkscape-trunk-20605/src/extension/init.cpp	2009-02-06 17:28:25.000000000 +0100
+@@ -138,6 +138,10 @@ update_pref(Glib::ustring const &pref_pa
+     }
+ }
+ 
++#ifdef __MINGW32__
++#define DATADIR (br_thread_local_store (br_prepend_prefix ((void *) "", "/share")))
++#endif /* __MINGW32__ */
++
+ /**
+  * Invokes the init routines for internal modules.
+  *

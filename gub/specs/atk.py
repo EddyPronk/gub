@@ -18,3 +18,6 @@ class Atk (target.AutoBuild):
         return (target.AutoBuild.configure_command (self)
                 + ''' LDFLAGS='-Wl,-rpath -Wl,%(system_prefix)s/lib %(rpath)s %(rpath)s' ''')
 
+class Atk__mingw (Atk):
+    def patch (self):
+        self.file_sub ([('\$\(srcdir\)/atk.def', 'atk.def')], '%(srcdir)s/atk/Makefile.in', must_succeed=True)

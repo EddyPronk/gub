@@ -1,0 +1,14 @@
+ i686-mingw32-gcc -mwindows -mms-bitfields -DHAVE_CONFIG_H -I. -I/home/janneke/vc/gub/target/mingw/src/popt-1.14 -I. -I/home/janneke/vc/gub/target/mingw/src/popt-1.14 -Wall -W -D_GNU_SOURCE -D_REENTRANT -g -O2 -MT popthelp.lo -MD -MP -MF .deps/popthelp.Tpo -c /home/janneke/vc/gub/target/mingw/src/popt-1.14/popthelp.c  -DDLL_EXPORT -DPIC -o .libs/popthelp.o
+/home/janneke/vc/gub/target/mingw/src/popt-1.14/popthelp.c:15:23: error: sys/ioctl.h: No such file or directory
+
+--- popt-1.14/popthelp.c~	2008-03-27 18:33:08.000000000 +0100
++++ popt-1.14/popthelp.c	2009-02-05 10:04:11.000000000 +0100
+@@ -10,7 +10,7 @@
+ 
+ #include "system.h"
+ 
+-#define        POPT_USE_TIOCGWINSZ
++#undef POPT_USE_TIOCGWINSZ
+ #ifdef POPT_USE_TIOCGWINSZ
+ #include <sys/ioctl.h>
+ #endif

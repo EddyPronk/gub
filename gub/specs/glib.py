@@ -34,9 +34,6 @@ class Glib__darwin__x86 (Glib__darwin):
 class Glib__mingw (Glib):
     def _get_build_dependencies (self):
         return Glib._get_build_dependencies (self) + ['libiconv-devel']
-    def update_libtool (self):
-        Glib.update_libtool (self):
-        self.file_sub ([('need_relink=yes', 'need_relink=no')], '%(builddir)s/libtool', must_succeed=True)
 
 class Glib__freebsd (Glib):
     patches = ['glib-2.12.12-disable-threads.patch']

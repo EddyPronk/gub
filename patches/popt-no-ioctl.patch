@@ -1,0 +1,11 @@
+--- popt-1.14/popthelp.c~	2008-03-27 18:33:08.000000000 +0100
++++ popt-1.14/popthelp.c	2009-02-05 10:04:11.000000000 +0100
+@@ -10,7 +10,7 @@
+ 
+ #include "system.h"
+ 
+-#define        POPT_USE_TIOCGWINSZ
++#undef POPT_USE_TIOCGWINSZ
+ #ifdef POPT_USE_TIOCGWINSZ
+ #include <sys/ioctl.h>
+ #endif
