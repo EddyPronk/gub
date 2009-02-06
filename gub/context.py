@@ -111,7 +111,7 @@ class Context (object):
             self.__dict__[name] = ConstantCall (val)
             member_substs[name] = val
             if type (val) != str:
-                message = 'non string value ' + val + 'for subst_method' + name
+                message = '[' + self.name () + '] non string value: ' + str (val) + ' for subst_method: ' + name
                 printf (message)
                 raise NonStringExpansion (message)
 
