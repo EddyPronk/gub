@@ -5,8 +5,8 @@ from gub import cross
 from gub import misc
 
 class Odcctools (cross.AutoBuild): #skews dependencies:, build.SdkBuild):
-    source = ('svn:http://iphone-dev.googlecode.com/svn&branch=trunk'
-              '&module=odcctools'
+    source = ('svn:http://iphone-dev.googlecode.com/svn&module=trunk'
+              '&branch=odcctools'
               '&revision=278')
     patches = ['odcctools-r211-word.patch']
     def __init__ (self, settings, source):
