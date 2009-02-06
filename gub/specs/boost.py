@@ -75,7 +75,7 @@ class Boost (BjamBuild):
     def build_bjam (self):
         # the separately available boost-jam is terribly broken wrt
         # building boost: build included bjam
-        self.system ('cd %(builddir)s/tools/build/jam_src && sh build.sh gcc && mv bin.*/bjam %(builddir)s')
+        self.system ('cd %(builddir)s/tools/build/jam_src && CC=gcc sh build.sh gcc && mv bin.*/bjam %(builddir)s')
     def license_files (self):
         return ['%(srcdir)s/LICENSE_1_0.txt']
     def install (self):
