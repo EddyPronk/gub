@@ -548,11 +548,6 @@ class Git (Repository):
         return os.path.join (self.dir, os.path.dirname (self.branch_dir ()))
     def git_command (self, workdir=None):
         dir = self._checkout_dir ()
-#        command = 'git '
-#        if workdir:
-#            command += '--git-dir %(dir)s ' % locals ()
-#            dir = workdir
-#        return 'cd %(dir)s && %(command)s ' % locals ()
         command = 'git --git-dir %(dir)s ' % locals ()
         if workdir:
             command= 'cd %(workdir)s && git ' % locals ()
