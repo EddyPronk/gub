@@ -108,11 +108,9 @@ class RepositoryProxy:
 class Repository: 
     vc_system = None
     tag_dateformat = '%Y-%m-%d_%H-%M-%S%z'
-
     @staticmethod
     def check_dir (rety, dir):
         return os.path.isdir (os.path.join (dir, rety.vc_system))
-
     @staticmethod
     def check_url (rety, url):
         vcs = rety.vc_system.replace ('_', '',).replace ('.', '').lower ()
@@ -121,11 +119,9 @@ class Repository:
     @staticmethod
     def check_suffix (rety, url):
         return url and url.endswith (rety.vc_system)
-
     @staticmethod
     def create (rety, dir, source, branch='', module='', revision='', parameters=list ()):
         return rety (dir, source, branch, module, revision)
-
     def __init__ (self, dir, source):
         self.dir = os.path.normpath (dir)
         dir_vcs = self.dir + self.vc_system
@@ -134,7 +130,6 @@ class Repository:
             sys.stderr.write ('appending %s to checkout dir %s\n'
                               % (self.vc_system, self.dir))
             self.dir = dir_vcs
-
         if not dir or dir == '.':
             dir = os.getcwd ()
             if os.path.isdir (os.path.join (dir, self.vc_system)):
@@ -144,16 +139,13 @@ class Repository:
             else:
                 # Otherwise, check fresh repository out under .gub.VC_SYSTEM
                 self.dir = os.path.join (os.getcwd (), '.gub' + self.vc_system)
-                
         self.settings = None
         self.source = source
         self.logger = logging.default_logger
-
         self.system = self.logged_indirection (loggedos.system)
         self._read_file = self.logged_indirection (loggedos.read_file)
         self.download_url = self.logged_indirection (loggedos.download_url)
         self.read_pipe = self.logged_indirection (loggedos.read_pipe)
-
     def get_env (self):
         env = os.environ
         # Hmm, Repository.system and .read_pipe are used in
@@ -175,16 +167,13 @@ class Repository:
                 + misc.append_path (os.environ.get ('LD_LIBRARY_PATH', '')),
                 }
         return os.environ
-
     def logged_indirection (self, loggedos_func):
         def logged (*args, **kwargs):
             return loggedos_func (self.logger, *args, **kwargs)
         return logged
-    
     def connect_logger (self, logger):
         assert logger
         self.logger = logger
-        
     def info (self, message):
         self.logger.write_log (message + '\n', 'info')
     def filter_branch_arg (self, branch):
@@ -218,7 +207,7 @@ Typically a hash of all source files.'''
         return False
     def is_downloaded (self):
         '''Whether repository is available'''
-        return False
+        return True
     def update_workdir (self, destdir):
         '''Populate DESTDIR with sources of specified version/branch
 

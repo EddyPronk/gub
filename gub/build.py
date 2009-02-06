@@ -148,6 +148,12 @@ class AutoBuild (Build):
             klas.__dict__[name_version] (self)
 
     def download (self):
+        if not self.source.is_downloaded ():
+            stage = 'download'
+            logging.default_logger.write_log (' *** Stage: %s (%s, %s)\n'
+                                              % (stage, self.name (),
+                                                 self.settings.platform),
+                                              'stage')
         self.source.download ()
 
     def get_repodir (self):
