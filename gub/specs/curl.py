@@ -4,7 +4,7 @@ from gub import tools
 
 class Curl (target.AutoBuild):
     source = 'http://curl.haxx.se/download/curl-7.19.0.tar.gz'
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['tools::libtool']
     def install (self):
         target.AutoBuild.install (self)
@@ -18,5 +18,5 @@ class Curl (target.AutoBuild):
 
 class Curl__tools (tools.AutoBuild):
     source = Curl.source
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['libtool']
