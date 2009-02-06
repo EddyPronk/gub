@@ -5,14 +5,8 @@ class Glib (target.AutoBuild):
     ## 2.12.4 : see bug  http://bugzilla.gnome.org/show_bug.cgi?id=362918
     source = 'http://ftp.gnome.org/pub/GNOME/platform/2.22/2.22.0/sources/glib-2.16.1.tar.bz2'
     source = 'http://ftp.gnome.org/pub/GNOME/platform/2.25/2.25.5/sources/glib-2.19.5.tar.gz'
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['gettext-devel', 'libtool']
-
-    def get_dependency_dict (self):
-        d = target.AutoBuild.get_dependency_dict (self)
-        d[''].append ('gettext')
-        return d
-    
     def config_cache_overrides (self, str):
         return str + '''
 glib_cv_stack_grows=${glib_cv_stack_grows=no}
@@ -38,24 +32,16 @@ class Glib__darwin__x86 (Glib__darwin):
         Glib__darwin.compile (self)
         
 class Glib__mingw (Glib):
-    def get_dependency_dict (self):
-        d = Glib.get_dependency_dict (self)
-        d[''].append ('libiconv')
-        return d
-    def get_build_dependencies (self):
-        return Glib.get_build_dependencies (self) + ['libiconv-devel']
+    def _get_build_dependencies (self):
+        return Glib._get_build_dependencies (self) + ['libiconv-devel']
+    def update_libtool (self):
+        Glib.update_libtool (self):
+        self.file_sub ([('need_relink=yes', 'need_relink=no')], '%(builddir)s/libtool', must_succeed=True)
 
 class Glib__freebsd (Glib):
     patches = ['glib-2.12.12-disable-threads.patch']
-
-    def get_dependency_dict (self):
-        d = Glib.get_dependency_dict (self)
-        d[''].append ('libiconv')
-        return d
-    
-    def get_build_dependencies (self):
-        return Glib.get_build_dependencies (self) + ['libiconv-devel']
-
+    def _get_build_dependencies (self):
+        return Glib._get_build_dependencies (self) + ['libiconv-devel']
     def configure_command (self):
         return Glib.configure_command (self) + ' --disable-threads'
         

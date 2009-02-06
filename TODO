@@ -1,25 +1,18 @@
 * junk Makefile, create python based driver/s?
 
 * Drop the -Wl,--as-needed flag?  Why do we have this, it breaks
-  quite some compiles.
+  quite some compiles [ie: needs LDFLAGS juggling].
 
-* Use auto build_dependencies/dependency_dict:
-  move def get_build_dependencies ()' to _get_build_dependencies (),
-  junk get_dependency_dict () wherever possible.
+* Use auto build_dependencies/dependency_dict: move
+  def get_build_dependencies () --> def _get_build_dependencies ()
+  junk get_dependency_dict () wherever possible [only target packages].
 
 * FIX --keep option; debugging is next to impossible with all
   sources gone from target/*/src
 
-* AUTOMATE
-
-    def _get_build_dependencies (self):
-        return ['glib-devel', 'libsig++-devel']
-    def get_build_dependencies (self):
-        return self._get_build_dependencies ()
-    def get_dependency_dict (self):
-       return {'': [x.replace ('-devel', '')
-                    for x in self._get_build_dependencies ()
-                    if 'tools::' not in x and 'cross/' not in x]}
+* Try dropping LD_LIBRARY_PATH from wrapper scripts, check
+   ## LD_LIBRARY_PATH is necessary for ao. FreeBSD.
+  if this is still true after grand rpath hacking.
 
 * python3 - python2 compatibility
 ** testing with python3

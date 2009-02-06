@@ -3,14 +3,14 @@ from gub import target
 
 class Git__tools (tools.AutoBuild):
     source = 'http://kernel.org/pub/software/scm/git/git-1.5.3.6.tar.bz2'
+    def _get_build_dependencies (self):
+        return ['curl-devel', 'expat-devel', 'zlib-devel']
     def get_build_dependencies (self):
-        return ['curl', 'expat', 'zlib']
+        return self._get_build_dependencies ()
     def get_dependency_dict (self):
-        return {'': [
-            'curl',
-            'expat',
-            'zlib',
-            ]}
+        return {'': [x.replace ('-devel', '')
+                     for x in self._get_build_dependencies ()
+                     if 'tools::' not in x and 'cross/' not in x]}
     def configure (self):
         self.shadow ()
         self.dump ('prefix=%(system_prefix)s', '%(builddir)s/config.mak')
@@ -41,31 +41,15 @@ install:
 class Git (target.AutoBuild):
     patches = ['git-1.5.2-templatedir.patch',
                'git-1.5-shell-anality.patch']
-
     def version (self):
         return '1.5.3.rc2'
-
     def configure (self):
         self.shadow ()
         target.AutoBuild.configure (self)
-
-    def get_dependency_dict (self):
-        return {'': [
-            'zlib',
-            'regex',
-            'libiconv'
-            ]}
-
     def get_subpackage_names (self):
         return ['']
-
-    def get_build_dependencies (self):
-        return ['zlib-devel',
-                'regex-devel',
-                'libiconv-devel',
-                'tools::autoconf',
-                ]
-
+    def _get_build_dependencies (self):
+        return ['zlib-devel', 'regex-devel', 'libiconv-devel', 'tools::autoconf', ]
     def patch (self):
         target.AutoBuild (patch)
         self.file_sub ([('GIT-CFLAGS','$(GIT_CFLAGS_FILE)'),

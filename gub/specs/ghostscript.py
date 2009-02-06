@@ -42,11 +42,8 @@ models.'''
     def force_sequential_build (self):
         return True
     
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['libjpeg-devel', 'libpng-devel']
-
-    def get_dependency_dict (self):
-        return {'': ['libjpeg', 'libpng']}
 
     def get_subpackage_names (self):
         return ['doc', '']

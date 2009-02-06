@@ -48,13 +48,8 @@ specified by applications.'''
         logging.command ('pipe %s\n' % cmd)
         # return misc.read_pipe (cmd).strip ()
         return '-lfreetype -lz'
-
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['libtool', 'expat-devel', 'freetype-devel', 'tools::freetype', 'tools::pkg-config']
-
-    def get_dependency_dict (self):
-        return {'': ['expat', 'freetype', 'libtool']}
-
     def configure_command (self):
         # FIXME: system dir vs packaging install
 
@@ -170,8 +165,7 @@ class Fontconfig__cygwin (Fontconfig):
 
     def get_build_dependencies (self):
         return ['libtool', 'libfreetype2-devel', 'expat']
-        #return ['libtool', 'freetype2', 'expat']
-    
+
     def get_dependency_dict (self):
         return {
             '': ['libfontconfig1'],

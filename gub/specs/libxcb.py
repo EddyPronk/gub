@@ -14,5 +14,11 @@ xproto.c: In function 'xcb_configure_window_checked':
 xproto.c:2479: error: 'xcb_configure_window_request_t' has no member named 'pad1'
 '''
     patches = ['libxcb-1.1.93.patch']
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['tools::libtool', 'libpthread-stubs-devel', 'libxau-devel', 'xcb-proto-devel']
+
+class Libxcb__mingw (Libxcb):
+    source = Libxcb.source
+    def _get_build_dependencies (self):
+        return [x for x in Libxcb._get_build_dependencies (self)
+                if 'libpthread-stubs' not in x]

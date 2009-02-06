@@ -14,16 +14,10 @@ tools, and many other products as well.'''
 
     def license_files (self):
         return ['%(srcdir)s/docs/LICENSE.TXT']
-
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['libtool-devel', 'zlib-devel', 'tools::autoconf']
-
     def get_subpackage_names (self):
         return ['devel', '']
-
-    def get_dependency_dict (self):
-        return {'': ['zlib']}
-
     def configure (self):
 #                self.autoupdate (autodir=os.path.join (self.srcdir (),
 #                                                       'builds/unix'))
