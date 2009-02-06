@@ -1,8 +1,5 @@
 * junk Makefile, create python based driver/s?
 
-* Drop the -Wl,--as-needed flag?  Why do we have this, it breaks
-  quite some compiles [ie: needs LDFLAGS juggling].
-
 * Use auto build_dependencies/dependency_dict: move
   def get_build_dependencies () --> def _get_build_dependencies ()
   junk get_dependency_dict () wherever possible [only target packages].

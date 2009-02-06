@@ -19,15 +19,13 @@ class Gtk_x_ (target.AutoBuild):
                 ]
     @context.subst_method
     def LDFLAGS (self):
-#        return '-ldl -Wl,--as-needed'
         # UGH. glib-2.0.m4's configure snippet compiles and runs a
         # program linked against glib; so it needs LD_LIBRARY_PATH (or
         # a configure-time-only -Wl,-rpath, -Wl,%(system_prefix)s/lib
-#        return '-ldl -Wl,--as-needed %(rpath)s'
-        return '-ldl -Wl,--as-needed -Wl,-rpath -Wl,%(system_prefix)s/lib %(rpath)s'
+        return '-Wl,-rpath -Wl,%(system_prefix)s/lib %(rpath)s'
     def configure_command (self):
         return (target.AutoBuild.configure_command (self)
-                + ''' LDFLAGS='%(LDFLAGS)s' '''
+                + ''' LDFLAGS='%(rpath)s -Wl,-rpath -Wl,%(system_prefix)s/lib' '''
                 + ' --without-libjasper'
                 + ' --disable-cups')
 

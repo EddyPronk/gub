@@ -7,12 +7,7 @@ class Inkscape (target.AutoBuild):
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         target.add_target_dict (self,
-                                {'ACLOCAL_FLAGS':
-                                     ' -I '.join ([''] + self.aclocal_path ()),
-                                 # --as-needed breaks; ugh, this does not clean LDFLAGS
-                                 'LD': '',
-                                 'LDFLAGS': '',
-                                 })
+                                {'ACLOCAL_FLAGS': ' -I '.join ([''] + self.aclocal_path ()), })
     def patch (self):
         target.AutoBuild.patch (self)
         self.file_sub ([('AC_PATH_PROG\(PKG_CONFIG,',
@@ -21,19 +16,6 @@ class Inkscape (target.AutoBuild):
     def _get_build_dependencies (self):
         return ['tools::automake', 'tools::gettext', 'tools::intltool', 'tools::pkg-config',
                 'boost-devel', 'glibmm-devel', 'gtkmm-devel', 'gtk+-devel', 'gsl-devel', 'lcms-devel', 'poppler-devel', 'popt-devel',
-#WARNING: aclocal's directory is /home/janneke/vc/gub/target/tools/root/usr/share/aclocal, but...
-#         no file /home/janneke/vc/gub/target/tools/root/usr/share/aclocal/glib-gettext.m4
-#         You may see fatal macro warnings below.
-#         If these files are installed in /some/dir, set the ACLOCAL_FLAGS 
-#         environment variable to "-I /some/dir", or install
-#         /home/janneke/vc/gub/target/tools/root/usr/share/aclocal/glib-gettext.m                'tools::glib-devel',
-#WARNING: aclocal's directory is /home/janneke/vc/gub/target/tools/root/usr/share/aclocal, but...
-#         no file /home/janneke/vc/gub/target/tools/root/usr/share/aclocal/gtk-2.0.m4
-#         You may see fatal macro warnings below.
-#         If these files are installed in /some/dir, set the ACLOCAL_FLAGS 
-#         environment variable to "-I /some/dir", or install
-#         /home/janneke/vc/gub/target/tools/root/usr/share/aclocal/gtk-2.0.m4.
-#                'tools::gtk+-devel'
                 'libgc-devel', 'libpng-devel', 'libsig++-devel', 'libxml2-devel', 'libxslt-devel']
     def get_build_dependencies (self):
         return self._get_build_dependencies ()
@@ -47,7 +29,6 @@ class Inkscape (target.AutoBuild):
         return ['%(system_prefix)s/share/aclocal']
     def configure_command (self):
         return (target.AutoBuild.configure_command (self)
-#                + ' --disable-lcms'
                 + ' --enable-lcms'
 #                + ' --disable-poppler-cairo'
                 + ' --enable-binreloc=yes'
