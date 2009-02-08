@@ -206,13 +206,11 @@ class BuildRunner:
         is_installable = misc.forall (self.manager (p.platform ()).is_installable (p.name ())
                                       for p in spec.get_packages ())
         if (not is_installable or checksum_fail_reason):
-
             deferred_runner = runner.DeferredRunner (logger)
             spec.connect_command_runner (deferred_runner)
             spec.runner.stage ('building package: %s\n' % spec_name)
             spec.build ()
             spec.connect_command_runner (None)
-            
             deferred_runner.execute_deferred_commands ()
 
             open (spec.expand ('%(checksum_file)s'), 'w').write (self.checksums[spec_name])
