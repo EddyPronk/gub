@@ -10,13 +10,18 @@ from gub import tools
 class Guile (target.AutoBuild):
     # http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=494337
     # source = 'git://git.sv.gnu.org/guile.git&branch=branch_release-1-8&revision=release_1-8-4'
-    source = 'git://git.sv.gnu.org/guile.git&branch=branch_release-1-8&revision=release_1-8-5'
-    patches = ['guile-reloc.patch',
-               'guile-cexp.patch']
+    #source = 'git://git.sv.gnu.org/guile.git&branch=branch_release-1-8&revision=release_1-8-5'
+    # 1.8.5 breaks with autoconf >= 2.62
+    # source = 'git://git.sv.gnu.org/guile.git&branch=branch_release-1-8&revision=release_1-8-6'
+    # 1.8.6's ./autogen.sh barfs
+    source = 'git://git.sv.gnu.org/guile.git&branch=branch_release-1-8&revision=bba579611b3671c7e4c1515b100f01c048a07935'
+    patches = ['guile-reloc-1.8.6.patch',
+               'guile-cexp.patch',
+               'guile-1.8.6-test-use-srfi.patch']
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         if isinstance (source, repository.Repository):
-            source.version = lambda: '1.8.5'
+            source.version = lambda: '1.8.6'
         self.so_version = '17'
     def autogen_sh (self):
         self.file_sub ([(r'AC_CONFIG_SUBDIRS\(guile-readline\)', '')],
@@ -36,7 +41,6 @@ class Guile (target.AutoBuild):
         self.dump ('''#!/bin/sh
 exec %(tools_prefix)s/bin/guile "$@"
 ''', "%(srcdir)s/pre-inst-guile.in")
-            
         self.autogen_sh ()
         target.AutoBuild.patch (self)
     def configure_flags (self):
@@ -283,7 +287,7 @@ class Guile__tools (tools.AutoBuild, Guile):
         return (Guile._get_build_dependencies (self)
                 + ['autoconf', 'automake', 'gettext', 'flex', 'libtool'])
     def patch (self):
-        self.autogen_sh ()
+        tools.AutoBuild.patch (self)
     def configure_command (self):
         return (tools.AutoBuild.configure_command (self)
                 + Guile.configure_flags (self))

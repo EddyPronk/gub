@@ -1,0 +1,17 @@
+cd /home/janneke/tmp/gub/target/tools/src/guile-1.8.6/test-suite/standalone && chmod u+x test-system-cmds test-require-extension test-bad-identifiers test-asmobs test-use-srfi
+chmod: cannot access `test-use-srfi': No such file or directory
+make[4]: *** [all-local] Error 1
+
+diff --git a/test-suite/standalone/Makefile.am b/test-suite/standalone/Makefile.am
+index 44156ec..3c361ae 100644
+--- a/test-suite/standalone/Makefile.am
++++ b/test-suite/standalone/Makefile.am
+@@ -110,7 +110,7 @@ check_PROGRAMS += test-conversion
+ TESTS += test-conversion
+ 
+ # test-use-srfi
+-check_SCRIPTS += test-use-srfi
++check_PROGRAMS += test-use-srfi
+ TESTS += test-use-srfi
+ 
+ # test-scm-c-read

@@ -396,8 +396,8 @@ tooldir=%(install_prefix)s
 ''')
 
     def update_config_guess_config_sub (self):
-        guess = self.expand ('%(system_prefix)s/share/libtool/config.guess')
-        sub = self.expand ('%(system_prefix)s/share/libtool/config.sub')
+        guess = self.expand ('%(system_prefix)s/share/libtool/config/config.guess')
+        sub = self.expand ('%(system_prefix)s/share/libtool/config/config.sub')
         for file in guess, sub:
             self.system ('cp -pv %(file)s %(autodir)s',  locals ())
 
@@ -684,8 +684,11 @@ class SdkBuild (NullBuild):
 
 def libtool_disable_install_not_into_dot_libs_test (logger, file):
     '''libtool: install: error: cannot install `libexslt.la' to a directory not ending in /home/janneke/vc/gub/target/mingw/build/libxslt-1.1.24/libexslt/.libs'''
-    loggedos.file_sub (logger, [(r'if test "\$inst_prefix_dir" = "\$destdir"; then',
-                                 'if false && test "$inst_prefix_dir" = "$destdir"; then')],
+    loggedos.file_sub (logger, [
+            (r'if test "\$inst_prefix_dir" = "\$destdir"; then',
+             'if false && test "$inst_prefix_dir" = "$destdir"; then'),
+            (r'  test "\$inst_prefix_dir" = "\$destdir" &&',
+             '  false && test "$inst_prefix_dir" = "$destdir" &&')],
                        file)
 
 def libtool_update (logger, libtool, file):

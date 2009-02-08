@@ -1,23 +1,37 @@
+#
 from gub import build
+from gub import misc
+from gub import repository
 from gub import target
 from gub import tools
 
 class Libtool (target.AutoBuild):
-    source = 'ftp://ftp.gnu.org/pub/gnu/libtool/libtool-1.5.22.tar.gz'
+    #source = 'ftp://ftp.gnu.org/pub/gnu/libtool/libtool-1.5.22.tar.gz'
     #source = 'ftp://ftp.gnu.org/pub/gnu/libtool/libtool-1.5.26.tar.gz'
-    #source = 'ftp://ftp.gnu.org/pub/gnu/libtool/libtool-2.2.6a.tar.gz'
+    source = 'ftp://ftp.gnu.org/pub/gnu/libtool/libtool-2.2.6a.tar.gz'
+    #source = 'git://git.sv.gnu.org/libtool.git?branch=master&revision=77e114998457cb6170ad84b360cb5b9be90f2191'
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
+        # repository patched in method.
+        def version_from_VERSION (self):
+            return '2.2.7'
+        if isinstance (source, repository.Git):
+            source.version = misc.bind_method (version_from_VERSION, source)
+            source._version = '2.2.7'
         Libtool.set_sover (self)
     def _get_build_dependencies (self):
         if isinstance (self.source, repository.Git):
             return ['tools::libtool', 'tools::automake']
         return ['tools::libtool']
+    def autoupdate (self):
+        # automagic works, but takes forever
+        if isinstance (self.source, repository.Git):
+            self.system ('cd %(srcdir)s && reconfdirs=". libltdl" ./bootstrap')
     @staticmethod
     def set_sover (self):
         # FIXME: how to automate this?
         self.so_version = '3'
-        if self.source._version in ('2.2.4', '2.2.6.a'):
+        if self.source._version in ('2.2.4', '2.2.6.a', '2.2.7'):
             self.so_version = '7'
     def get_subpackage_names (self):
         return ['devel', 'doc', 'runtime', '']
@@ -54,6 +68,7 @@ class Libtool__cygwin (Libtool):
 
 class Libtool__tools (tools.AutoBuild):
     source = Libtool.source
+    source = 'ftp://ftp.gnu.org/pub/gnu/libtool/libtool-2.2.6a.tar.gz'
     def __init__ (self, settings, source):
         tools.AutoBuild.__init__ (self, settings, source)
         Libtool.set_sover (self)
