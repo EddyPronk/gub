@@ -73,23 +73,28 @@ class Command:
             hits += ['%s: /%s' % (p, i)
                      for i in self.pm.package_installed_files (p)
                      if regexp.search ('/%s' % i)]
-        printf (string.join (hits, '\n'))
+        printf ('\n'.join (hits))
 
+    def get_dependencies (self, packages):
+        return gup.topologically_sorted (packages, {}, self.pm.dependencies)
+
+    def dependencies (self):
+        '''print package dependencies'''
+        printf ('\n'.join (self.get_dependencies (self.options.arguments)))
+        
     def install (self):
         '''download and install packages with dependencies'''
-        packs=[]
-        for p in self.options.arguments:
-            if self.pm.is_installed (p):
-                printf ('%s already installed' % p)
-            else:
-                packs.append (p)
-
-        dependency_getter = self.pm.dependencies
-        if self.options.no_deps:
-            dependency_getter = lambda x: list ()
-        packs = gup.topologically_sorted (packs, {}, dependency_getter)
-        for p in packs:
-            self.pm.install_package (p)
+        packages = self.options.arguments
+        dependencies = packages
+        if not self.options.no_deps:
+            packages = self.get_dependencies (packages)
+        for p in dependencies:
+            platform, name = misc.split_platform (p)
+            if self.pm.is_installed (name):
+                if name in packages:
+                    printf ('%s already installed' % name)
+                continue
+            self.pm.install_package (name)
 
     def list (self):
         '''installed packages'''
@@ -106,7 +111,6 @@ class Command:
 
     def remove (self):
         '''uninstall packages'''
-
         packages = gup.topologically_sorted (self.options.arguments, {},
                                              self.pm.dependencies,
                                              recurse_stop_predicate=lambda p: p not in self.options.arguments)
@@ -190,15 +194,18 @@ def main ():
     logging.verbose ('root: ' + settings.system_root + '\n')
     logging.verbose ('platform: ' + settings.platform + '\n')
 
-    # TODO: hook log into target/PLAT/log/
+    # TODO: hook log into target/PLAT/log
     target_manager = gup.DependencyManager (options.root,
                                             dbdir=options.dbdir)
+    target_manager.verbose = options.verbosity
 
-    if options.command == 'install':
+    if options.command in ['install', 'dependencies']:
         target_manager.read_package_headers (settings.packages,
-                                             dict (options.branches))
+                                             dict ([x.split ('=')
+                                                    for x in options.branches]))
         target_manager.read_package_headers (settings.cross_packages,
-                                             dict (options.branches))
+                                             dict ([x.split ('=')
+                                                    for x in options.branches]))
 
     commands = Command (target_manager, options)
     if options.command in Command.__dict__:

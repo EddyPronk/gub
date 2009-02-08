@@ -270,7 +270,6 @@ class PackageDictManager:
         return list (self._packages.values ())
 
     def is_installable (self, name):
-        #d = self._packages[name]
         d = self.package_dict (name)
         ball = '%(split_ball)s' % d
         hdr = '%(split_hdr)s' % d
@@ -341,9 +340,10 @@ class DependencyManager (PackageManager):
         self.include_build_deps = True
 
     def dependencies (self, name):
-        assert type(name) == str
+        assert type (name) == str
         try:
-            return self.dict_dependencies (self._packages[name])
+            return [misc.strip_platform (x)
+                    for x in self.dict_dependencies (self._packages[name])]
         except KeyError:
             logging.error ('no such package: %(name)s\n' % locals ())
             return list ()
@@ -352,7 +352,6 @@ class DependencyManager (PackageManager):
         deps = dict['dependencies_string'].split (';')
         if self.include_build_deps:
             deps += dict['build_dependencies_string'].split (';')
-
         deps = [d for d in deps if d]
         return deps
 

@@ -563,10 +563,18 @@ def platform_adder (platform):
         return with_platform (name, platform)
     return f
 
-def split_platform (u, platform=None):
-    if '::' in u:
-        return u.split ('::')
-    return platform, u
+def split_platform (name, platform=None):
+    if '::' in name:
+        return name.split ('::')
+    return platform, name
+
+def strip_name (name, platform=None):
+    platform, name = split_platform (name, platform)
+    return platform
+
+def strip_platform (name, platform=None):
+    platform, name = split_platform (name, platform)
+    return name
 
 def append_path (elt):
     if elt:
