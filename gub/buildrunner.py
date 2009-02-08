@@ -154,17 +154,18 @@ class BuildRunner:
         if subname in spec.get_conflict_dict ():
             for c in spec.get_conflict_dict ()[subname]:
                 if manager.is_installed (c):
-                    printf ('%(c)s conflicts with %(pkg_name)s' % locals ())
+                    printf ('  %(c)s conflicts with %(pkg_name)s' % locals ())
                     conflict_source = manager.source_name (c)
                     # FIXME: implicit provides: foo-* provides foo-core,
                     # should implement explicit provides
                     if conflict_source + '-core' == pkg_name:
-                        printf ('  non-core %(conflict_source)s already installed'
+                        printf ('    non-core %(conflict_source)s already installed'
                                % locals ())
-                        printf ('    skipping request to install %(pkg_name)s'
+                        printf ('      skipping request to install %(pkg_name)s'
                                % locals ())
                         install_candidate = None
                         continue
+                    printf ('  removing %(c)s' % locals ())
                     manager.uninstall_package (c)
         return install_candidate
 
