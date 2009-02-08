@@ -28,7 +28,7 @@ class LilyPond_doc (target.NullBuild):
         return '%(allbuilddir)s/lilypond%(ball_suffix)s'
     def srcdir (self):
         #URWGSGSEWNG
-        return '%(allsrcdir)s/%(lilypond)s%(ball_suffix)s'
+        return '%(allsrcdir)s/lilypond%(ball_suffix)s'
     def makeflags (self):
         return misc.join_lines ('''
 CROSS=no
