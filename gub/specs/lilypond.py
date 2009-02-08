@@ -221,9 +221,8 @@ tar -C %(install_prefix)s -jxf %(docball)s
 ## shortcut: take python out of dependencies
 class LilyPond__no_python (LilyPond):
     def _get_build_dependencies (self):
-        d = LilyPond.get_build_dependencies (self)
-        d.remove ('python-devel')
-        return d
+        return [x for x in LilyPond.get_build_dependencies (self)
+                if x != 'python-devel']
     def configure (self):
         self.system ('mkdir -p %(builddir)s || true') 
         self.system ('touch %(builddir)s/Python.h') 
