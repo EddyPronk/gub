@@ -15,6 +15,8 @@ class Pango (target.AutoBuild):
     patches = ['pango-1.20-substitute-env.patch']
     def _get_build_dependencies (self):
         return ['freetype-devel', 'fontconfig-devel', 'glib-devel', 'libtool']
+    def get_conflict_dict (self):
+        return {'': ['pangocairo', 'pangocairo-devel', 'pangocairo-doc'], 'devel': ['pangocairo', 'pangocairo-devel', 'pangocairo-doc'], 'doc': ['pangocairo', 'pangocairo-devel', 'pangocairo-doc'], 'runtime': ['pangocairo', 'pangocairo-devel', 'pangocairo-doc']}
     #FIXME: promoteme to build.py
     def configure_flags (self):
         return misc.join_lines ('''
