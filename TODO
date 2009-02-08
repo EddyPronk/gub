@@ -1,11 +1,21 @@
 * junk Makefile, create python based driver/s?
-
-* Use auto build_dependencies/dependency_dict: move
-  def get_build_dependencies () --> def _get_build_dependencies ()
-  junk get_dependency_dict () wherever possible [only target packages].
+** done: package lilypond-doc replaces DOC* nightmare in lilypond.make
+** todo: doc-clean, test*, upload* in lilypond.make
 
 * FIX --keep option; debugging is next to impossible with all
   sources gone from target/*/src
+
+* It seems that the removal of LD_LIBRARY_PATH as per
+
+     http://lists.gnu.org/archive/html/lilypond-devel/2008-12/msg00501.html
+     http://lists.gnu.org/archive/html/lilypond-devel/2008-12/txteht27nyl4Q.txt
+
+  was a *bad* idea.  Rather, there seems to be something wrong
+  with some [Fedora?] systems.
+
+  Quite some packages run conftest binaries linked against
+  %(system_prefix)s/lib and for-build binaries created while building,
+  that link eg to libltdl.so or libglib.so.
 
 * Try dropping LD_LIBRARY_PATH from wrapper scripts, check
    ## LD_LIBRARY_PATH is necessary for ao. FreeBSD.
@@ -36,11 +46,25 @@
   eigen variabelen over de user zijn env heen, maar dan kan er dus (niet
   gechecksumde) info uit de user environment lekken.
 
-* automagical support for get_dependency_dict () if not set, from
-  get_build_dependencies ().
-
 * junk arbitrary SdkBuild class, handle any build dependencies
   through [module.py].build_dependencies.
+
+* use of member functions vs class variables/static functions:
+   - get_build_dependencies () -> class.build_dependencies = []
+   - def force_sequential_build () -> class.sequential_build = True
+   - def force_autoupdate () -> class.force_autoupdate = True
+** also, why are these functions ?
+   - def compile_command () -> class.compile_command
+   - def install_command () -> class.install_command
+     etc
+   - de ellende met klutserige taal als pieton is natuurlijk dat
+     je niet kunt
+       class.makeflags = if Foo.bar: 3 else: 4;
+       --> hah, kan in python2.5, maar we willen 2.4 supporten?
+     [nouja, je kunt met idiote list comprehension alles, maar clien is anders]
+       [x for x in [3, 4] if Foo.bar and x == 3 or not Foo.bar and x == 4][0]
+     dus we moeten wel uitkijken wat we doen...
+   - need_source_tree ?
 
 * junk use of /usr in code, use *_prefix) or %(prefix_dir)s
 
@@ -48,12 +72,6 @@
 
 * use better names for freebsd-runtime, darwin-sdk, which probably
   are in fact kernel-headers and libc+headers
-
-* use of member functions vs class variables/static functions:
-   - need_source_tree
-   - build_dependencies
-   - dependencies
-   - force_sequential_build
 
 * Fix --branch mess:
 
@@ -160,25 +178,12 @@ RENAMES
 
 * look at other installer-builders -> build spec?
 
-* Automagically do:  # # FIXME libtool too olds for autotool packages.
-
 * fix all instances of makeflags () and compile/install
 
 * move wrap_pkg_config from libgphoto2 to target/build spec (note
   configure: PATH setting?)
 
 * Bootstrap whole toolchain from source on more platforms (freebsd)?
-
-* Fix configure/make command env var settings (grep FIXME)
-
- @subst_method
- def CFLAGS(self):
-    return 'bla'
-
-or
-
- def init(self):
-   self.CFLAGS='bla'   ? see noweb, no go?
 
 * Packages file with download and update facility, like
   cyg-apt.
@@ -209,6 +214,3 @@ LOWER PRIORITY
 - update packages:
 
   * Gnome 2.16
-
-- strip lily specific stuff from installer.py 
-

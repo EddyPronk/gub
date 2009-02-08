@@ -7,7 +7,7 @@
 .PHONY: debian linux-ppc mingw mipsel clean realclean clean-distccd
 .PHONY: tools-distcc cross-compilers cross-distccd native-distccd
 .PHONY: bootstrap-git download-tools tools tools-cross-tools doc-clean
-.PHONY: unlocked-doc-clean unlocked-doc-build
+.PHONY: unlocked-doc-clean
 .PHONY: unlocked-doc-export doc-export unlocked-dist-check dist-check
 
 .PHONY: cygwin-libtool cygwin-libtool-installer cygwin-fontconfig
@@ -131,7 +131,7 @@ download-cygwin:
 ## should be last, to incorporate changed VERSION file.
 	$(MAKE) update-versions
 
-all: native dist-check test-output test-export doc-build doc-export $(OTHER_PLATFORMS) print-success
+all: native dist-check test-output test-export gub3-doc doc-export $(OTHER_PLATFORMS) print-success
 
 gub3-all: gub3-packages gub3-rest
 
@@ -140,7 +140,7 @@ gub3all: gub3-all
 gub3-native:
 	$(MAKE) PLATFORMS=$(BUILD_PLATFORM) gub3-packages gub3-installers
 
-gub3-rest: gub3-installers gub3-test gub3-doc print-success
+gub3-rest: gub3-installers gub3-test gub3-doc doc-export print-success
 
 gub3-packages:
 	$(call INVOKE_GUB,$(BUILD_PLATFORM)) $(BUILD_PACKAGE) $(OTHER_PLATFORMS:%=%::$(BUILD_PACKAGE))
@@ -150,7 +150,8 @@ gub3-installers: #gub3-packages
 
 gub3-test: dist-check test-output test-export
 
-gub3-doc: gub3-native doc-build doc-export
+gub3-doc:
+	$(call INVOKE_GUB,$(BUILD_PLATFORM)) lilypond-doc
 
 platforms: $(PLATFORMS)
 
@@ -171,6 +172,8 @@ docball = uploads/lilypond-$(DIST_VERSION)-$(DOC_BUILDNUMBER).documentation.tar.
 webball = uploads/lilypond-$(DIST_VERSION)-$(DOC_BUILDNUMBER).webdoc.tar.bz2
 
 $(docball):
+#keep this target and just move/repackage lilypond-doc.gup,
+#easier to handle versions.db?
 	$(MAKE) doc
 
 # Regular cygwin stuff
@@ -358,46 +361,6 @@ unlocked-test-output:
 		make CPU_COUNT=$(LILYPOND_WEB_CPU_COUNT)  test
 	tar -C $(NATIVE_LILY_BUILD)/ \
 	    -cjf $(CWD)/uploads/lilypond-$(DIST_VERSION)-$(DOC_BUILDNUMBER).test-output.tar.bz2 input/regression/out-test/
-
-unlocked-doc-build: unlocked-updated-doc-build
-
-unlocked-updated-doc-build:
-	unset LILYPONDPREFIX LILYPOND_DATADIR \
-	    && $(DOC_RELOCATION) \
-		make -C $(NATIVE_LILY_BUILD) \
-	    	    DOCUMENTATION=yes do-top-doc
-	$(DOC_RELOCATION) \
-	    make -C $(NATIVE_LILY_BUILD)/scripts \
-		TARGET_PYTHON=/usr/bin/python DOCUMENTATION=yes CROSS=no all
-	unset LILYPONDPREFIX LILYPOND_DATADIR \
-	    && $(DOC_LIMITS) \
-	    && $(DOC_RELOCATION) \
-		make -C $(NATIVE_LILY_BUILD) \
-	    	    DOCUMENTATION=yes \
-	    	    WEB_TARGETS="offline online" \
-	    	    CPU_COUNT=$(LILYPOND_WEB_CPU_COUNT) \
-		    CROSS=no \
-		    all doc web
-	$(if $(DOC_BUILDNUMBER),true,false)  ## check if we have a build number
-	$(if $(DIST_VERSION),true,false)  ## check if we have a version number
-	$(DOC_RELOCATION) make -C $(NATIVE_LILY_BUILD) \
-	    prefix= infodir=/share/info DESTDIR=$(NATIVE_DOC_ROOT) \
-	    web-install
-	cp -f sourcefiles/dir $(NATIVE_DOC_ROOT)/share/info/dir
-	cd $(NATIVE_DOC_ROOT)/share/info && $(DOC_RELOCATION) install-info --info-dir=. lilypond.info
-## On darwin, all our libraries have the wrong names;
-## overriding with DYLD_LIBRARY_PATH doesn't work,
-## as the libs in system/ are stubs.
-ifneq ($(BUILD_PLATFORM),darwin-ppc)
-	$(DOC_RELOCATION) make -C $(NATIVE_LILY_BUILD) \
-	    prefix= mandir=/share/man DESTDIR=$(NATIVE_DOC_ROOT) \
-	    DOCUMENTATION=yes CROSS=no \
-	    install-help2man
-endif
-	tar -C $(NATIVE_DOC_ROOT) -cjf $(docball) .
-# Build web ball separately?
-	tar --exclude '*.signature' -C $(NATIVE_LILY_BUILD)/out-www/online-root \
-	    -cjf $(webball) .
 
 unlocked-doc-export:
 	PYTHONPATH=$(NATIVE_LILY_BUILD)/python/out \

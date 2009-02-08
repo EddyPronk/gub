@@ -218,7 +218,9 @@ class BuildRunner:
         logger.write_log (' *** Stage: %s (%s, %s)\n'
                            % ('pkg_install', spec.name (),
                               spec.platform ()), 'stage')
-        self.spec_install (spec)
+        # Ugh, pkg_install should be stage
+        if not 'never_install' in spec.__class__.__dict__:
+            self.spec_install (spec)
         logging.default_logger.write_log ('\n', 'stage')
 
     def uninstall_outdated_spec (self, spec_name):
