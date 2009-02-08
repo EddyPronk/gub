@@ -250,7 +250,7 @@ def libtool_disable_rpath (logger, libtool, rpath, file):
     # target_arch we may run build-time executables.  Either that, or
     # set LD_LIBRARY_PATH somewhere.
     loggedos.file_sub (logger,
-                       [('^(hardcode_libdir_flag_spec)=.*',
+                       [('^(hardcode_libdir_flag_spec)=".+"',
                          # r'\1'
                          (r'hardcode_libdir_flag_spec="'
                           + '-Wl,-rpath -Wl,\$libdir'
