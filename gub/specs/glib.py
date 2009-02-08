@@ -1,5 +1,6 @@
 from gub import tools
 from gub import target
+from gub import w32
 
 class Glib (target.AutoBuild):
     ## 2.12.4 : see bug  http://bugzilla.gnome.org/show_bug.cgi?id=362918
@@ -47,7 +48,7 @@ class Glib__freebsd__64 (Glib__freebsd):
     def configure_command (self):
         return Glib.configure_command (self) + ' --disable-threads --disable-timeloop'
 
-class Glib__linux__ppc (Glib):
+class Glib__linux (Glib): # linux-x86, linux-ppc
     def update_libtool (self):
         Glib.update_libtool (self)
         #URGME
@@ -59,7 +60,6 @@ collect2: ld returned 1 exit status
 libtool: install: error: relink `libgio-2.0.la' with the above command before installing it
 make[5]: *** [install-libLTLIBRARIES] Error 1
 '''
-        from gub import w32
         self.map_locate (w32.libtool_disable_relink, '%(builddir)s', 'libtool')
 
 class Glib__tools (tools.AutoBuild):
