@@ -9,8 +9,38 @@ from gub import octal
 def get_cross_build_dependencies (settings):
     return []
 
-def change_target_package (bla):
-    pass
+def change_target_package (package):
+    package_auto_dependency_dict (package)
+
+def package_auto_dependency_dict (package):
+    '''Generate get_build_dependencies () and get_dependency_dict ({'':})
+    from _get_build_dependencies ().
+    
+    For most packages, this either removes the need of having both,
+    or adds the dict where it was missing.
+    '''
+    if (not package.get_build_dependencies ()
+        and not package.get_dependency_dict ().get ('', None)
+        and not package.get_dependency_dict ().get ('devel', None)
+        and ('_get_build_dependencies' in
+             dict (context.object_get_methods (package)).keys ())):
+        def get_build_dependencies (foo):
+            return package._get_build_dependencies ()
+        package.get_build_dependencies \
+                = misc.MethodOverrider (package.nop, get_build_dependencies)
+        def get_dependency_dict (foo):
+            d = {'': [x.replace ('-devel', '')
+                         for x in package._get_build_dependencies ()
+                         if 'tools::' not in x and 'cross/' not in x]}
+            if 'runtime' in package.get_subpackage_names ():
+                d[''] += [package.name () + '-runtime']
+            if package.platform_name () != 'tools':
+                d['devel'] = ([x for x in package._get_build_dependencies ()
+                               if 'tools::' not in x and 'cross/' not in x]
+                              + [package.name ()])
+            return d
+        package.get_dependency_dict \
+                = misc.MethodOverrider (package.nop, get_dependency_dict)
 
 class AutoBuild (build.AutoBuild):
     def configure_command (self):
