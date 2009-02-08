@@ -26,8 +26,8 @@ class Glib__darwin__x86 (Glib__darwin):
     def compile (self):
         self.file_sub ([('(SUBDIRS = .*) tests', r'\1'),
                         (r'GTESTER = \$.*', ''),
-                        ('am__EXEEXT_2 = gtester.*', ''),
-                        ('am__append_. *= *gtester', '')],
+                        ('(am__EXEEXT(_[0-9])? = )gtester.*', r'\1'),
+                        ('(am__append(_[0-9])? = )gtester', r'\1')],
                        '%(builddir)s/glib/Makefile', must_succeed=True)
         Glib__darwin.compile (self)
         
