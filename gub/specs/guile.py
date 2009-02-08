@@ -51,7 +51,7 @@ exec %(tools_prefix)s/bin/guile "$@"
 --enable-discouraged
 --disable-error-on-warning
 --enable-relocation
---disable-rpath
+--enable-rpath
 ''')
     def configure_variables (self):
         return misc.join_lines ('''
@@ -69,6 +69,7 @@ cc
 ''')
     def configure_command (self):
         return ('GUILE_FOR_BUILD=%(tools_prefix)s/bin/guile '
+                + 'LD_LIBRARY_PATH=%(system_prefix)s/lib:${LD_LIBRARY_PATH-/foe} '
                 + target.AutoBuild.configure_command (self)
                 + self.configure_flags ())
     def makeflags (self):
@@ -289,8 +290,16 @@ class Guile__tools (tools.AutoBuild, Guile):
     def patch (self):
         tools.AutoBuild.patch (self)
     def configure_command (self):
-        return (tools.AutoBuild.configure_command (self)
+        # FIXME: when configuring, guile runs binaries linked against
+        # libltdl.
+        return ('LD_LIBRARY_PATH=%(system_prefix)s/lib:${LD_LIBRARY_PATH-/foe} '
+                + tools.AutoBuild.configure_command (self)
                 + Guile.configure_flags (self))
+    def compile_command (self):
+        # FIXME: when not x-building, guile runs gen_scmconfig, guile without
+        # setting the proper LD_LIBRARY_PATH.
+        return ('export LD_LIBRARY_PATH=%(builddir)s/libguile/.libs:%(system_prefix)s/lib:${LD_LIBRARY_PATH-/foe};'
+                + Guile.compile_command (self))
     def makeflags (self):
         return Guile.makeflags (self)
     def install (self):
