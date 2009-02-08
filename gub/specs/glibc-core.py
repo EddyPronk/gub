@@ -46,8 +46,8 @@ cp %(builddir)s/bits/stdio_lim.h %(install_prefix)s/include/bits
 
 class Glibc_core__linux__ppc (Glibc_core):
     patches = Glibc_core.patches
-    def install_command (self):
+    def makeflags (self):
         # ugh, but the gnulib=-lgcc hack does something else on ppc...
         # it (huh?) drops *-lgcc* (instead of -lgcc_eh) from libc.so
         # linkage, which then fails.
-        return Glibc_core.install_command (self).replace (' gnulib=-lgcc', '')
+        return glibc.Glibc.makeflags (self)
