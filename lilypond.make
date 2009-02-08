@@ -148,10 +148,13 @@ gub3-packages:
 gub3-installers: #gub3-packages
 	$(foreach p,$(PLATFORMS),$(call INVOKE_INSTALLER_BUILDER,$(p)) $(INSTALL_PACKAGE) && ) :
 
-gub3-test: dist-check test-output test-export
+gub3-test: dist-check gub3-test test-export
 
 gub3-doc:
 	$(call INVOKE_GUB,$(BUILD_PLATFORM)) lilypond-doc
+
+gub3-test:
+	$(call INVOKE_GUB,$(BUILD_PLATFORM)) lilypond-test
 
 platforms: $(PLATFORMS)
 
@@ -305,35 +308,12 @@ NATIVE_BUILD_COMMITTISH=$(shell cat downloads/lilypond/refs/heads/$(LILYPOND_DIR
 DIST_VERSION=$(shell cat $(NATIVE_LILY_BUILD)/out/VERSION)
 DOC_BUILDNUMBER=$(shell $(PYTHON) gub/versiondb.py --platforms=$(PLATFORMS) --build-for=$(DIST_VERSION))
 
-# lilypond-invoke-editor: We are trying to run guile from tools using
-# guile from native, which fails: ERROR: In procedure dynamic-link:
-# ERROR: file: "libguile-srfi-srfi-1-v-4", message:
-# "libguile-srfi-srfi-1-v-4.so: cannot open shared object file: No
-# such file or directory"
-# Must use tools's lib prior to native's for ld-library-path and use
-# system's LD_LIBRARY_PATH, because that's what tools is being built with.
-# We cannot use a SH wrapper for guile, as that breaks using guile for
-# scripts.
-DOC_RELOCATION = \
-    LILYPOND_EXTERNAL_BINARY="$(NATIVE_ROOT)/usr/bin/lilypond" \
-    PATH=$(CWD)/target/tools/root/usr/bin:$(NATIVE_ROOT)/usr/bin:$$PATH \
-    GS_LIB=$(wildcard $(NATIVE_ROOT)/usr/share/ghostscript/*/lib) \
-    MALLOC_CHECK_=2 \
-    LD_LIBRARY_PATH=$(CWD)/target/tools/root/usr/lib:$(NATIVE_ROOT)/usr/lib:$(LD_LIBRARY_PATH)
-
 SIGNATURE_FUNCTION=uploads/signatures/$(1).$(NATIVE_BUILD_COMMITTISH)
-
 
 doc: native doc-build
 
 doc-clean:
 	$(PYTHON) gub/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-clean
-
-doc-build:
-	$(PYTHON) gub/with-lock.py --skip $(DOC_LOCK) $(MAKE) cached-doc-build
-
-test-output:
-	$(PYTHON) gub/with-lock.py --skip $(TEST_LOCK) $(MAKE) cached-test-output
 
 test-clean:
 	$(PYTHON) gub/with-lock.py --skip $(TEST_LOCK) $(MAKE) unlocked-test-clean
@@ -350,17 +330,11 @@ unlocked-test-clean:
 		DOCUMENTATION=yes test-clean
 	rm -f $(call SIGNATURE_FUNCTION,cached-test-output)
 
-cached-test-output cached-doc-build cached-dist-check cached-doc-export:
+cached-dist-check cached-doc-export:
 	-mkdir uploads/signatures
 	if test ! -f  $(call SIGNATURE_FUNCTION,$@) ; then \
 		$(MAKE) $(subst cached,unlocked,$@) \
 		&& touch $(call SIGNATURE_FUNCTION,$@) ; fi
-
-unlocked-test-output:
-	cd $(NATIVE_LILY_BUILD) && $(DOC_RELOCATION) \
-		make CPU_COUNT=$(LILYPOND_WEB_CPU_COUNT)  test
-	tar -C $(NATIVE_LILY_BUILD)/ \
-	    -cjf $(CWD)/uploads/lilypond-$(DIST_VERSION)-$(DOC_BUILDNUMBER).test-output.tar.bz2 input/regression/out-test/
 
 unlocked-doc-export:
 	PYTHONPATH=$(NATIVE_LILY_BUILD)/python/out \
