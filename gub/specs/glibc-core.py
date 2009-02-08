@@ -7,7 +7,7 @@ from gub.specs import glibc
 class Glibc_core (glibc.Glibc):
     source = 'http://lilypond.org/download/gub-sources/glibc-2.3-20070416.tar.bz2'
     patches = glibc.Glibc.patches + ['glibc-2.3-core-install.patch']
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['cross/gcc-core', 'linux-headers']
     def get_subpackage_names (self):
         return ['']

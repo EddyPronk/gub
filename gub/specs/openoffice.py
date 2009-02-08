@@ -186,7 +186,7 @@ class Openoffice (target.AutoBuild):
         def tracking (self):
             return True
         self.source.is_tracking = misc.bind_method (tracking, self.source)
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['tools::autoconf', 'tools::rebase', 'boost-devel', 'curl-devel', 'cppunit-devel', 'db-devel', 'expat-devel', 'fontconfig-devel', 'libicu-devel', 'libjpeg-devel', 'libpng-devel', 'liblpsolve-devel', 'python-devel', 'redland-devel', 'saxon-java', 'xerces-c', 'zlib-devel']
     def stages (self):
         return misc.list_insert_before (target.AutoBuild.stages (self),
@@ -432,8 +432,8 @@ class Openoffice__mingw (Openoffice):
     Openoffice.upstream_patches += ['openoffice-sal-mingw-c.patch']
     # Kendy's MinGW patches are already applied
     kendy = ['openoffice-transex3-mingw.patch', 'openoffice-soltools-mingw.patch']
-    def get_build_dependencies (self):
-        return Openoffice.get_build_dependencies (self) + ['libunicows-devel']
+    def _get_build_dependencies (self):
+        return Openoffice._get_build_dependencies (self) + ['libunicows-devel']
     def patch (self):
         Openoffice.patch (self)
         # disable Kendy's patch for Cygwin version of mingw

@@ -40,7 +40,7 @@ class Glibc (target.AutoBuild, cross.AutoBuild):
         'glibc-2.3-nptl-no-versioning.patch',
         'glibc-2.3-slibdir.patch',
         ]
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['cross/gcc', 'glibc-core', 'linux-headers']
     def get_conflict_dict (self):
         return {'': ['glibc-core'], 'devel': ['glibc-core'], 'doc': ['glibc-core'], 'runtime': ['glibc-core']}

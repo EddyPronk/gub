@@ -8,5 +8,5 @@ class Libtiff (target.AutoBuild):
 
 class Libtiff__tools (tools.AutoBuild):
     source = Libtiff.source
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['libtool', 'libjpeg-devel']

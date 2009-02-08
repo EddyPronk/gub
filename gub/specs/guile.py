@@ -27,14 +27,7 @@ class Guile (target.AutoBuild):
         self.dump ('', '%(srcdir)s/doc/tutorial/version.texi')
     def get_subpackage_names (self):
         return ['doc', 'devel', 'runtime', '']
-    def get_dependency_dict (self):
-        return {
-            '' : ['guile-runtime'],
-            'runtime': ['gmp', 'gettext', 'libtool-runtime'],
-            'devel': ['guile-runtime'],
-            'doc': ['texinfo'],
-            }
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['gettext-devel', 'gmp-devel', 'libtool', 'tools::guile']
     # FIXME: C&P.  -- from where?
     def guile_version (self):
@@ -116,8 +109,8 @@ class Guile__mingw (Guile):
         Guile.__init__ (self, settings, source)
         # Configure (compile) without -mwindows for console
         self.target_gcc_flags = '-mms-bitfields'
-    def get_build_dependencies (self):
-        return Guile.get_build_dependencies (self) +  ['regex-devel']
+    def _get_build_dependencies (self):
+        return Guile._get_build_dependencies (self) +  ['regex-devel']
     def get_dependency_dict (self):
         d = Guile.get_dependency_dict (self)
         d['runtime'].append ('regex')
@@ -228,7 +221,7 @@ class Guile__cygwin (Guile):
         d['runtime'] += ['cygwin', 'crypt', 'libreadline6']
         return d
     # FIXME: uses mixed gub/distro dependencies
-    def get_build_dependencies (self):
+    def get_build_dependencies (self): # cygwin
         return ['crypt', 'libgmp-devel', 'gettext-devel', 'libiconv', 'libtool', 'readline']
     def config_cache_overrides (self, str):
         return str + '''
@@ -282,10 +275,9 @@ guile-tut').
 
 class Guile__tools (tools.AutoBuild, Guile):
     source = Guile.source
-    patches = ['guile-reloc.patch']
-    def get_build_dependencies (self):
-        return (tools.AutoBuild.get_build_dependencies (self)
-                + Guile.get_build_dependencies (self)
+    patches = ['guile-reloc-1.8.6.patch', 'guile-1.8.6-test-use-srfi.patch']
+    def _get_build_dependencies (self):
+        return (Guile._get_build_dependencies (self)
                 + ['autoconf', 'automake', 'gettext', 'flex', 'libtool'])
     def patch (self):
         self.autogen_sh ()

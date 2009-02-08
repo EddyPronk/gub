@@ -18,7 +18,7 @@ packages.'''
 
     source = texlive_svn + '&branch=trunk&module=AutoBuild/source&revision=HEAD'
 
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['tools::autoconf', 'tools::automake', 'tools::libtool']
 
     def __init__ (self, settings, source):
@@ -158,7 +158,7 @@ class Texlive__cygwin (Texlive):
         return d
  
     # FIXME: uses mixed gub/distro dependencies
-    def get_build_dependencies (self):
+    def get_build_dependencies (self): # cygwin
         return ['jpeg', 'libfreetype2-devel', 'libgd-devel', 'libncurses-devel', 'libpng12-devel', 'libtool', 't1lib', 'xorg-x11-devel', 'xaw3d', 'zlib']
 
     def config_cache_overrides (self, str):

@@ -4,14 +4,11 @@ from gub import tools
 class Gettext (target.AutoBuild):
     # 0.16.1 makes gcc barf on ICE.
     source = 'ftp://ftp.gnu.org/pub/gnu/gettext/gettext-0.15.tar.gz'
-
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['libtool']
-
     def configure_command (self):
         return (target.AutoBuild.configure_command (self)
                 + ' --disable-threads --disable-csharp --disable-java ')
-
     def configure (self):
         target.AutoBuild.configure (self)
         self.file_sub ([
@@ -20,16 +17,10 @@ class Gettext (target.AutoBuild):
                        '%(builddir)s/gettext-tools/Makefile')
 
 class Gettext__freebsd (Gettext):
-    def get_dependency_dict (self):
-        d = Gettext.get_dependency_dict (self)
+    def _get_build_dependencies (self):
         if self.settings.target_architecture == 'i686-freebsd4':
-            d[''].append ('libgnugetopt')
-        return d
-
-    def get_build_dependencies (self):
-        if self.settings.target_architecture == 'i686-freebsd4':
-            return ['libgnugetopt'] + Gettext.get_build_dependencies (self)
-        return Gettext.get_build_dependencies (self)
+            return ['libgnugetopt'] + Gettext._get_build_dependencies (self)
+        return Gettext._get_build_dependencies (self)
 
 '''
 mingw: 0.17
@@ -75,7 +66,7 @@ jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
         Gettext.install (self)
 
 class Gettext__tools (tools.AutoBuild):
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['libtool']
     def configure (self):
         tools.AutoBuild.configure (self)

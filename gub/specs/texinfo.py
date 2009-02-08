@@ -5,5 +5,5 @@ class Texinfo__tools (tools.AutoBuild):
     def patch (self):
         # for 4.11
         self.system ('cd %(srcdir)s/build-aux && chmod +x install-sh config.sub config.guess missing')
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['ncurses']

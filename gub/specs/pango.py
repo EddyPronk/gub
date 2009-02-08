@@ -13,10 +13,8 @@ pango_module_version_regexes = [
 class Pango (target.AutoBuild):
     source = 'http://ftp.gnome.org/pub/GNOME/platform/2.22/2.22.0/sources/pango-1.20.0.tar.bz2'
     patches = ['pango-1.20-substitute-env.patch']
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['freetype-devel', 'fontconfig-devel', 'glib-devel', 'libtool']
-    def get_dependency_dict (self):
-        return {'': ['freetype', 'fontconfig', 'glib', 'libtool-runtime']}
     #FIXME: promoteme to build.py
     def configure_flags (self):
         return misc.join_lines ('''
@@ -77,8 +75,8 @@ class Pango__linux (Pango):
 class Pango__freebsd (Pango__linux):
     source = 'http://ftp.gnome.org/pub/GNOME/platform/2.22/2.22.0/sources/pango-1.20.0.tar.bz2'
     patches = ['pango-1.20-substitute-env.patch']
-    def get_build_dependencies (self):
-        return Pango__linux.get_build_dependencies (self) + ['libiconv-devel']
+    def _get_build_dependencies (self):
+        return Pango__linux._get_build_dependencies (self) + ['libiconv-devel']
 
 class Pango__darwin (Pango):
     source = 'http://ftp.gnome.org/pub/GNOME/platform/2.22/2.22.0/sources/pango-1.20.0.tar.bz2'

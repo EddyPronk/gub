@@ -7,7 +7,7 @@ class Libxslt (target.AutoBuild):
     source = 'http://xmlsoft.org/sources/libxslt-1.1.24.tar.gz'
     def patch (self):
         self.system ('rm -f %(srcdir)s/libxslt/xsltconfig.h')
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['libxml2-devel', 'zlib-devel']
     def configure_command (self):
         return (target.AutoBuild.configure_command (self)

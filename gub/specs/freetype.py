@@ -74,7 +74,7 @@ class XFreetype__cygwin (Freetype):
         #return ['devel', 'doc', '']
         return ['devel', 'runtime', '']
 
-    def get_build_dependencies (self):
+    def get_build_dependencies (self): # cygwin
         return ['libtool']
     
     def get_dependency_dict (self):
@@ -97,7 +97,7 @@ class XFreetype__cygwin (Freetype):
 
 class Freetype__tools (tools.AutoBuild, Freetype):
     source = Freetype.source
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['libtool']
     # FIXME, mi-urg?
     def license_files (self):

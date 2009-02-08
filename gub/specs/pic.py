@@ -12,7 +12,7 @@ class Pic (target.AutoBuild):
     def force_sequential_build (self):
         ## upnpAllegro is broken
         return True
-    def get_build_dependencies (self):
+    def get_build_dependencies (self): #debian
         neon_debian = ['comerr-dev',
                        'libcomerr2',
                        'libneon24-dev',

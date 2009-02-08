@@ -6,7 +6,7 @@ from gub import tools
 class Rebase__tools (tools.MakeBuild):
     source = 'http://www.tishler.net/jason/software/rebase/rebase-2.4.2-1-src.tar.bz2'
     patches = ['rebase-2.4.2-1.patch']
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['mingw::cross/gcc']
     def patch (self):
         self.system ('dos2unix %(srcdir)s/imagehelper/*')

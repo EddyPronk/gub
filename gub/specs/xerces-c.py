@@ -3,7 +3,7 @@ from gub import target
 
 class Xerces_c (target.AutoBuild):
     source = 'http://www.apache.org/dist/xerces/c/2/sources/xerces-c-src_2_8_0.tar.gz'
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['tools::autoconf']
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)

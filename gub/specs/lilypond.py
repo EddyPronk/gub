@@ -51,14 +51,6 @@ class LilyPond (target.AutoBuild):
                 'tools::texi2html',
                 #'tools::mpost ', 
                 ]
-    def get_build_dependencies (self):
-        return self._get_build_dependencies ()
-    def get_dependency_dict (self):
-        return {'': [x.replace ('-devel', '')
-                     for x in self._get_build_dependencies ()
-                     if 'tools::' not in x and 'cross/' not in x]
-                + ['cross/gcc-c++-runtime']
-                }
     def autoupdate (self):
         self.system ('cd %(srcdir)s && ./smart-autogen.sh --noconfigure') 
     def configure_binary (self):
@@ -148,7 +140,7 @@ class LilyPond__cygwin (LilyPond):
             'doc': ['texinfo'],
             }
 
-    def get_build_dependencies (self):
+    def get_build_dependencies (self): #cygwin
 
         #FIXME: aargh, MUST specify bash, coreutils etc here too.
         # If get_dependency_dict () lists any packages not
@@ -245,12 +237,9 @@ install:
 ''', '%(builddir)s/python/GNUmakefile')
         
 class LilyPond__mingw (LilyPond):
-    def get_build_dependencies (self):
-        return LilyPond.get_build_dependencies (self) + ['lilypad', 'tools::icoutils', 'tools::nsis']
-    def get_dependency_dict (self):
-        d = LilyPond.get_dependency_dict (self)
-        d[''].append ('lilypad')        
-        return d
+    def _get_build_dependencies (self):
+        return (LilyPond._get_build_dependencies (self)
+                + ['lilypad', 'tools::icoutils', 'tools::nsis'])
     # ugh C&P Cygwin
     def compile (self):
         # Because of relocation script, python must be built before scripts
@@ -321,7 +310,7 @@ cd %(builddir)s && make -C scripts %(makeflags)s
         LilyPond.compile (self)
     def install (self):
         target.AutoBuild.install (self)
-    def get_build_dependencies (self):
+    def get_build_dependencies (self): # debian
         #FIXME: aargh, MUST specify gs,  etc here too.
         return [
             'gettext',
@@ -337,15 +326,13 @@ cd %(builddir)s && make -C scripts %(makeflags)s
 
 class LilyPond__darwin (LilyPond):
     def get_build_dependencies (self):
-        return (LilyPond.get_build_dependencies (self)
+        return (LilyPond._get_build_dependencies (self)
                 + [ 'fondu', 'osx-lilypad'])
     def get_dependency_dict (self):
-        d = LilyPond.get_dependency_dict (self)
-        deps = d['']
-        deps.remove ('python')
-        deps += [ 'fondu', 'osx-lilypad']
-        d[''] = deps
-        return d
+        return {'' : ([x.replace ('-devel', '') for x in
+                       LilyPond._get_build_dependencies (self)
+                       if 'tools::' not in x and 'cross/' not in x and 'python' not in x]
+                      + [ 'fondu', 'osx-lilypad'])}
     def configure_command (self):
         return (LilyPond.configure_command (self)
                 .replace ('--enable-rpath', '--disable-rpath'))

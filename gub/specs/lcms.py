@@ -2,7 +2,7 @@ from gub import target
 
 class Lcms (target.AutoBuild):
     source = 'http://www.littlecms.com/lcms-1.17.tar.gz'
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['tools::libtool']
     def configure (self):
         target.AutoBuild.configure (self)

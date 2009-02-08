@@ -3,7 +3,7 @@ from gub import target
 
 class Redland (target.AutoBuild):
     source = 'http://download.librdf.org/source/redland-1.0.8.tar.gz'
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['rasqal-devel', 'sqlite-devel']
     def configure_command (self):
         return (target.AutoBuild.configure_command (self)

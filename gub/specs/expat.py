@@ -6,7 +6,7 @@ class Expat (target.AutoBuild):
     source = 'http://surfnet.dl.sourceforge.net/sourceforge/expat/expat-1.95.8.tar.gz'
     patches = ['expat-1.95.8-mingw.patch']
 
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['libtool', 'tools::expat']
 
     def patch (self):
@@ -38,5 +38,5 @@ class Expat__linux__arm__vfp (Expat):
 class Expat__tools (tools.AutoBuild):
     source = Expat.source
     patches = Expat.patches
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['libtool']

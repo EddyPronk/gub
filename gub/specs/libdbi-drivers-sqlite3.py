@@ -34,6 +34,6 @@ cd %(builddir)s && touch doc/Makefile.in doc/include/Makefile.in
                 + self.makeflags ())
 
 class Libdbi_drivers_sqlite3__debian__arm (Libdbi_drivers_sqlite3):
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['sqlite3-dev', 'libdbi', 'libtool']
 

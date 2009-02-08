@@ -5,7 +5,7 @@ from gub import tools
 
 class Libxml2 (target.AutoBuild):
     source = 'http://ftp.gnome.org/pub/GNOME/platform/2.18/2.18.1/sources/libxml2-2.6.27.tar.gz'
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['zlib']
     def configure_command (self):
         return (target.AutoBuild.configure_command (self)
@@ -29,7 +29,7 @@ class Libxml2__mingw (Libxml2):
 
 class Libxml2__tools (tools.AutoBuild, Libxml2):
     source = Libxml2.source
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return Libxml2.get_build_dependencies (self)
     def configure_command (self):
         return (tools.AutoBuild.configure_command (self)

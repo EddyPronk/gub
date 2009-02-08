@@ -3,7 +3,7 @@ from gub import target
 
 class Atk (target.AutoBuild):
     source = 'ftp://ftp.gnome.org/pub/GNOME/sources/atk/1.25/atk-1.25.2.tar.gz'
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['tools::libtool', 'glib-devel']
 #    @context.subst_method
 #    def LD_LIBRARY_PATH (self):

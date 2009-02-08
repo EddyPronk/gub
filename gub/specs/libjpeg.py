@@ -11,32 +11,24 @@ class Libjpeg (target.AutoBuild):
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         source._version = 'v6b'
-
     def name (self):
         return 'libjpeg'
-
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['libtool']
-
     def get_subpackage_names (self):
         return ['devel', '']
-    
     def srcdir (self):
         return re.sub (r'src\.v', '-', target.AutoBuild.srcdir (self))
-
     def configure_command (self):
         return (target.AutoBuild.configure_command (self)
                 .replace ('--config-cache', '--cache-file=config.cache'))
-    
     def update_libtool (self):
         self.system ('''
 cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh %(target_architecture)s'''
               , locals ())
         target.AutoBuild.update_libtool (self)
-
     def license_files (self):
         return ['%(sourcefiledir)s/jpeg.license']
-
     def configure (self):
         self.update_config_guess_config_sub ()
         target.AutoBuild.configure (self)
@@ -46,7 +38,6 @@ cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh 
             r'\1 $(DESTDIR)\2'),
             ],
             '%(builddir)s/Makefile')
-
     def install_command (self):
         return misc.join_lines ('''
 mkdir -p %(install_prefix)s/include %(install_prefix)s/lib
@@ -74,7 +65,7 @@ class Libjpeg__tools (tools.AutoBuild):
     def __init__ (self, settings, source):
         tools.AutoBuild.__init__ (self, settings, source)
         source._version = 'v6b'
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['libtool']
     def srcdir (self):
         return re.sub (r'src\.v', '-', tools.AutoBuild.srcdir (self))

@@ -88,8 +88,8 @@ class Python__mingw (Python):
     def __init__ (self, settings, source):
         Python.__init__ (self, settings, source)
         self.target_gcc_flags = '-DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I%(system_prefix)s/include' % self.settings.__dict__
-    def get_build_dependencies (self):
-        return Python.get_build_dependencies (self) + ['pthreads-w32-devel']
+    def _get_build_dependencies (self):
+        return Python._get_build_dependencies (self) + ['pthreads-w32-devel']
     def get_dependency_dict (self):
         d = Python.get_dependency_dict (self)
         d[''] += ['pthreads-w32']
@@ -138,7 +138,7 @@ chmod 755 %(install_prefix)s/bin/*
 class Python__tools (tools.AutoBuild, Python):
     source = Python.source
 #    patches = ['python-2.4.2-fno-stack-protector.patch']
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['autoconf', 'libtool']
     def force_autoupdate (self):
         return True

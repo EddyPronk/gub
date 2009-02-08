@@ -5,7 +5,7 @@ class Liblpsolve (target.AutoBuild):
     source = 'http://surfnet.dl.sourceforge.net/lpsolve/lp_solve_5.5.0.13_source.tar.gz'
     def force_sequential_build (self):
         return True
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['tools::automake']
     def autoupdate (self):
         # install install-sh

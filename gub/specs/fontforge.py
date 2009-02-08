@@ -4,7 +4,7 @@ from gub import tools
 class Fontforge__tools (tools.AutoBuild):
     source = 'http://lilypond.org/download/gub-sources/fontforge_full-20080927.tar.bz2'
     patches = ['fontforge-20080927-noxml2.patch']
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['freetype', 'libpng', 'libjpeg', 'libxml2']
     def force_sequential_build (self):
         return True

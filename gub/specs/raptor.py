@@ -5,7 +5,7 @@ from gub import target
 class Raptor (target.AutoBuild):
     source = 'http://download.librdf.org/source/raptor-1.4.18.tar.gz'
     patches = ['raptor-1.4.18-cross.patch']
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['curl-devel', 'expat-devel', 'libxml2-devel', 'libxslt-devel', 'tools::flex', 'tools::autoconf', 'tools::automake', 'tools::libtool', 'tools::gtk_doc']
     def autoupdate (self):
         self.file_sub ([('( |-I|-L)/usr', r'\1%(system_prefix)s')]

@@ -293,8 +293,7 @@ cd %(srcdir)s && cp Makefile.in Makefile-x11.in
         Ghostscript.patch (self)
     def category_dict (self):
         return {'': 'Graphics'}
-    def get_build_dependencies (self):
-#        return ['jpeg', 'libpng12-devel', 'xorg-x11-devel', 'zlib']
+    def get_build_dependencies (self): # cygwin
         return ['jpeg', 'libpng12-devel', 'libXext-devel', 'libXt-devel', 'libX11-devel', 'zlib']
     def get_dependency_dict (self):
         return {'': [
@@ -381,7 +380,7 @@ cd %(install_prefix)s && rm -rf usr/X11R6/share
 
 class Ghostscript__tools (tools.AutoBuild, Ghostscript):
     source = Ghostscript.source
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['libjpeg', 'libpng']
     def force_sequential_build (self):
         return True

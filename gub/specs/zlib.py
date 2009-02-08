@@ -7,7 +7,7 @@ from gub import tools
 class Zlib (target.AutoBuild):
     source = 'http://heanet.dl.sourceforge.net/sourceforge/libpng/zlib-1.2.3.tar.gz'
     patches = ['zlib-1.2.3.patch']
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['tools::autoconf']
     def configure (self):
         self.shadow ()
@@ -70,7 +70,7 @@ class Zlib__tools (tools.AutoBuild, Zlib):
 #    source = 'http://heanet.dl.sourceforge.net/sourceforge/libpng/zlib-1.2.3.3.tar.gz'
 # FIXME: where lives 1.2.3.3 with gzopen64?
     patches = Zlib.patches
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['autoconf']
     def configure (self):
         self.shadow ()

@@ -3,7 +3,7 @@ from gub import misc
 
 class Python_config (build.SdkBuild):
     source = 'url://host/python-config-2.4.1.tar.gz'
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['tools::python']
     def install (self):
         build.SdkBuild.install (self)

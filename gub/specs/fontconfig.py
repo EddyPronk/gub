@@ -163,7 +163,7 @@ class Fontconfig__cygwin (Fontconfig):
         #return ['devel', 'doc', '']
         return ['devel', 'runtime', '']
 
-    def get_build_dependencies (self):
+    def get_build_dependencies (self): #cygwin
         return ['libtool', 'libfreetype2-devel', 'expat']
 
     def get_dependency_dict (self):
@@ -195,10 +195,8 @@ rm -f /usr/X11R6/bin/fontconfig-config
 class Fontconfig__tools (tools.AutoBuild):
     # FIXME: use mi to get to source?
     source = 'git://anongit.freedesktop.org/git/fontconfig?revision=' + version
-    
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['libtool', 'freetype', 'expat', 'pkg-config']
-
     def makeflags (self):
         return ('man_MANS=' # either this, or add something like tools::docbook-utils
                 + ' DOCSRC="" ')

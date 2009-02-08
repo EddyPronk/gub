@@ -26,7 +26,7 @@ class Nsis (tools.SConsBuild):
                      + self.settings.prefix_dir
                      + '/bin')
         return {'PATH': mingw_bin + ':' + tools_bin + ':' + os.environ['PATH'] }
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         lst = ['mingw::cross/gcc']
         if 'x86_64-linux' in self.settings.build_architecture:
             lst += ['linux-x86::glibc']

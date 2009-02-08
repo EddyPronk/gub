@@ -53,5 +53,5 @@ class Glib__tools (tools.AutoBuild):
         tools.AutoBuild.install (self)
         self.system ('rm %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/lib/charset.alias',
                          ignore_errors=True)
-    def get_build_dependencies (self):
-        return ['gettext-devel', 'libtool']            
+    def _get_build_dependencies (self):
+        return ['gettext', 'libtool']            

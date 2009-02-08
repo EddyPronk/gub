@@ -5,7 +5,7 @@ from gub import tools
 
 class Jade__tools (tools.AutoBuild):
     source = 'ftp://ftp.jclark.com/pub/jade/jade-1.2.1.tar.gz'
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['tools::autoconf', 'tools::libtool']
     def autoupdate (self):
         self.system ('cd %(srcdir)s && cp -f config/configure.in .')
