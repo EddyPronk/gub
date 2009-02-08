@@ -195,6 +195,9 @@ rm -f /usr/X11R6/bin/fontconfig-config
 class Fontconfig__tools (tools.AutoBuild):
     # FIXME: use mi to get to source?
     source = 'git://anongit.freedesktop.org/git/fontconfig?revision=' + version
+    def patch (self):
+        self.dump ('\nAC_SUBST(LT_AGE)', '%(srcdir)s/configure.in', mode='a', permissions=octal.o755)
+        tools.AutoBuild.patch (self)
     def _get_build_dependencies (self):
         return ['libtool', 'freetype', 'expat', 'pkg-config']
     def makeflags (self):
