@@ -47,6 +47,21 @@ class Glib__freebsd__64 (Glib__freebsd):
     def configure_command (self):
         return Glib.configure_command (self) + ' --disable-threads --disable-timeloop'
 
+class Glib__linux__ppc (Glib):
+    def update_libtool (self):
+        Glib.update_libtool (self)
+        #URGME
+        '''root/usr/lib/usr/lib -L/usr/lib -lgobject-2.0 -L/home/janneke/vc/gub/target/linux-ppc/install/glib-2.19.5-root/usr/lib/home/janneke/vc/gub/target/linux-ppc/build/glib-2.19.5/gmodule/.libs -lgmodule-2.0 -ldl -lglib-2.0    -Wl,-soname -Wl,libgio-2.0.so.0 -Wl,-version-script -Wl,.libs/libgio-2.0.ver -o .libs/libgio-2.0.so.0.1905.0
+/home/janneke/vc/gub/target/linux-ppc/root/usr/cross/bin/powerpc-linux-ld: skipping incompatible /usr/lib/libgobject-2.0.so when searching for -lgobject-2.0
+/home/janneke/vc/gub/target/linux-ppc/root/usr/cross/bin/powerpc-linux-ld: skipping incompatible /usr/lib/libgobject-2.0.a when searching for -lgobject-2.0
+/home/janneke/vc/gub/target/linux-ppc/root/usr/cross/bin/powerpc-linux-ld: cannot find -lgobject-2.0
+collect2: ld returned 1 exit status
+libtool: install: error: relink `libgio-2.0.la' with the above command before installing it
+make[5]: *** [install-libLTLIBRARIES] Error 1
+'''
+        from gub import w32
+        self.map_locate (w32.libtool_disable_relink, '%(builddir)s', 'libtool')
+
 class Glib__tools (tools.AutoBuild):
     source = Glib.source
     def install (self):
