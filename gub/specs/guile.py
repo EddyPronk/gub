@@ -117,10 +117,6 @@ class Guile__mingw (Guile):
         self.target_gcc_flags = '-mms-bitfields'
     def _get_build_dependencies (self):
         return Guile._get_build_dependencies (self) +  ['regex-devel']
-    def get_dependency_dict (self):
-        d = Guile.get_dependency_dict (self)
-        d['runtime'].append ('regex')
-        return d
     def configure_command (self):
         return (Guile.configure_command (self)
                 # + ' --with-threads=pthread'
@@ -222,7 +218,7 @@ class Guile__cygwin (Guile):
     def GUB_get_build_dependencies (self):
         return Guile.get_build_dependencies (self) + ['libiconv-devel']
     # FIXME: uses mixed gub/distro dependencies
-    def get_dependency_dict (self):
+    def get_dependency_dict (self): #cygwin
         d = Guile.get_dependency_dict (self)
         d[''] += ['cygwin']
         d['devel'] += ['cygwin'] + ['bash']

@@ -120,7 +120,7 @@ class LilyPond__cygwin (LilyPond):
     def get_subpackage_names (self):
         return ['doc', '']
 
-    def get_dependency_dict (self):
+    def get_dependency_dict (self): #cygwin
         return {
             '' :
             [
@@ -303,7 +303,7 @@ cp %(install_prefix)s/share/lilypond/*/python/* %(install_prefix)s/bin
 #        '%(install_prefix)s/share/lilypond/current/scm/lily.scm')
 
 class LilyPond__debian (LilyPond):
-    def get_dependency_dict (self):
+    def get_dependency_dict (self): #debian
         from gub import debian, gup
         return {'': gup.gub_to_distro_deps (LilyPond.get_dependency_dict (self)[''],
                                             debian.gub_to_distro_dict)}
@@ -331,14 +331,9 @@ cd %(builddir)s && make -C scripts %(makeflags)s
             ] + ['gs']
 
 class LilyPond__darwin (LilyPond):
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return (LilyPond._get_build_dependencies (self)
                 + [ 'fondu', 'osx-lilypad'])
-    def get_dependency_dict (self):
-        return {'' : ([x.replace ('-devel', '') for x in
-                       LilyPond._get_build_dependencies (self)
-                       if 'tools::' not in x and 'cross/' not in x and 'python' not in x]
-                      + [ 'fondu', 'osx-lilypad'])}
     def configure_command (self):
         return (LilyPond.configure_command (self)
                 .replace ('--enable-rpath', '--disable-rpath'))

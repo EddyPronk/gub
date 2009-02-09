@@ -90,10 +90,6 @@ class Python__mingw (Python):
         self.target_gcc_flags = '-DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I%(system_prefix)s/include' % self.settings.__dict__
     def _get_build_dependencies (self):
         return Python._get_build_dependencies (self) + ['pthreads-w32-devel']
-    def get_dependency_dict (self):
-        d = Python.get_dependency_dict (self)
-        d[''] += ['pthreads-w32']
-        return d
     # FIXME: first is cross compile + mingw patch, backported to
     # 2.4.2 and combined in one patch; move to cross-Python?
     def patch (self):

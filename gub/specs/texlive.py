@@ -149,7 +149,7 @@ rsync -v -a %(srcdir)s/texmf/* %(install_prefix)s/share/texmf/
 class Texlive__cygwin (Texlive):
 
     # FIXME: uses mixed gub/distro dependencies
-    def get_dependency_dict (self):
+    def get_dependency_dict (self): #cygwin
         d = Texlive.get_dependency_dict (self)
         d[''] += ['cygwin']
 #        d['devel'] += ['cygwin'] + ['bash']

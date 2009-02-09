@@ -54,7 +54,7 @@ class Libtool__cygwin (Libtool):
     def only_for_cygwin_untar (self):
         cygwin.untar_cygwin_src_package_variant2 (self, self.file_name ())
     # FIXME: we do most of this for all cygwin packages
-    def get_dependency_dict (self):
+    def get_dependency_dict (self): #cygwin
         d = Libtool.get_dependency_dict (self)
         d[''].append ('cygwin')
         return d

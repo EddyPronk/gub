@@ -259,10 +259,8 @@ include $(GLSRCDIR)/pcwin.mak
              mode='a')
 
 class Ghostscript__freebsd (Ghostscript):
-    def get_dependency_dict (self):
-        d = Ghostscript.get_dependency_dict (self)
-        d[''].append ('libiconv')
-        return d
+    def _get_build_dependencies (self):
+        return Ghostscript._get_build_dependencies (self) + ['libiconv-devel']
 
 url='http://mirror3.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/ghostscript-8.60.tar.gz'
 url='http://mirror3.cs.wisc.edu/pub/mirrors/ghost/GPL/gs850/ghostscript-8.50-gpl.tar.gz'
@@ -293,9 +291,9 @@ cd %(srcdir)s && cp Makefile.in Makefile-x11.in
         Ghostscript.patch (self)
     def category_dict (self):
         return {'': 'Graphics'}
-    def get_build_dependencies (self): # cygwin
+    def get_build_dependencies (self): #cygwin
         return ['jpeg', 'libpng12-devel', 'libXext-devel', 'libXt-devel', 'libX11-devel', 'zlib']
-    def get_dependency_dict (self):
+    def get_dependency_dict (self): #cygwin
         return {'': [
                 # REMOVE after first cygwin release.
                 'ghostscript-base',

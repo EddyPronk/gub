@@ -64,8 +64,4 @@ class Root_image__linux__arm__vfp (Root_image):
         return (Root_image._get_build_dependencies (self)
                 + ['csl-toolchain-binary',
                    'phone'])
-    def get_dependency_dict (self):
-        d = Root_image.get_dependency_dict (self)
-        d[''] += ['csl-toolchain-binary-runtime']
-        return d
     

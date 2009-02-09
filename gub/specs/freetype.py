@@ -74,10 +74,10 @@ class XFreetype__cygwin (Freetype):
         #return ['devel', 'doc', '']
         return ['devel', 'runtime', '']
 
-    def get_build_dependencies (self): # cygwin
+    def get_build_dependencies (self): #cygwin
         return ['libtool']
     
-    def get_dependency_dict (self):
+    def get_dependency_dict (self): #cygwin
         return {
             '': ['libfreetype26'],
             'devel': ['libfreetype26'],

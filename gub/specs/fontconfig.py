@@ -166,7 +166,7 @@ class Fontconfig__cygwin (Fontconfig):
     def get_build_dependencies (self): #cygwin
         return ['libtool', 'libfreetype2-devel', 'expat']
 
-    def get_dependency_dict (self):
+    def get_dependency_dict (self): #cygwin
         return {
             '': ['libfontconfig1'],
             'devel': ['libfontconfig1', 'libfreetype2-devel'],
