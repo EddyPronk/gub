@@ -10,9 +10,8 @@ INKSCAPE_REPO_URL=svn:https://inkscape.svn.sourceforge.net/svnroot/inkscape?modu
 #source = 'svn:https://inkscape.svn.sourceforge.net/svnroot/inkscape&module=inkscape&branch=trunk&revision=20605'
 
 PLATFORMS=linux-x86
-# cocoa?
+# Cocoa/Carbon?
 # PLATFORMS+=darwin-ppc darwin-x86
-# nsis does not build with 64 bit compiler
 PLATFORMS+=mingw
 PLATFORMS+=linux-64
 PLATFORMS+=linux-ppc
@@ -31,16 +30,10 @@ INSTALL_PACKAGE = inkscape
 
 MAKE += -f lilypond.make
 
-gub3-packages:
-	$(call INVOKE_GUB,$(BUILD_PLATFORM)) $(BUILD_PACKAGE) $(OTHER_PLATFORMS:%=%::$(BUILD_PACKAGE))
+inkscape: packages
 
-gub3-installers: #gub3-packages
-	$(foreach p,$(PLATFORMS),$(call INVOKE_INSTALLER_BUILDER,$(p)) $(INSTALL_PACKAGE) && ) :
-
-inkscape: gub3-packages
-
-inkscape-installer: gub3-installers
-inkscape-installers: gub3-installers
+inkscape-installer: installers
+inkscape-installers: installers
 
 print-success:
 	@echo installer: uploads/inkscape*$(BUILD_PLATFORM).sh

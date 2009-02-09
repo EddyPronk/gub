@@ -11,7 +11,10 @@
 #  LOCAL_GUB_OPTIONS - esp.: --verbose, --keep [--force-package]
 #  LOCAL_GUB_BUILDER_OPTIONS - deprecated
 
-.PHONY: bootstrap bootstrap-git compilers cross-compilers download download-tools tools tools-cross-tools
+.PHONY: bootstrap bootstrap-git
+.PHONY: compilers cross-compilers
+.PHONY: download
+.PHONY: download-tools tools tools-cross-tools
 
 ifeq ($(CWD),)
 $(error Must set CWD)
@@ -37,44 +40,8 @@ ifeq ($(BUILD_PLATFORM),)
 $(error Must define BUILD_PLATFORM)
 endif
 
-distccd: clean-distccd cross-compilers cross-distccd native-distccd tools-distcc
-
-clean-distccd:
-	rm -rf $(DISTCC_DIRS)
-	mkdir -p $(DISTCC_DIRS)
-
-tools-distcc:
-	chmod +x gub/distcc.py
-	rm -rf target/native-distcc/bin/ target/cross-distcc/bin/
-	mkdir -p target/cross-distcc/bin/ target/native-distcc/bin/
-	$(foreach binary,$(foreach p,$(PLATFORMS), $(filter-out %/python-config,$(wildcard target/$(p)/system/usr/cross/bin/*))), \
-		ln -s $(CWD)/gub/distcc.py target/cross-distcc/bin/$(notdir $(binary)) && ) true
-	$(foreach binary, gcc g++, \
-		ln -s $(CWD)/gub/distcc.py target/native-distcc/bin/$(notdir $(binary)) && ) true
-
 cross-compilers:
 	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB,$(p)) $(call gcc_or_glibc,$(p)) && ) true
-
-cross-distccd:
-	-$(if $(wildcard log/$@.pid),kill `cat log/$@.pid`, true)
-	rm -rf target/cross-distccd/bin/
-	mkdir -p target/cross-distccd/bin/
-	ln -s $(foreach p,$(PLATFORMS),$(filter-out %/python-config,$(wildcard $(CWD)/target/$(p)/system/usr/cross/bin/*))) target/cross-distccd/bin
-
-	$(SET_LOCAL_PATH) \
-		DISTCCD_PATH=$(CWD)/target/cross-distccd/bin \
-		distccd --daemon \
-		$(addprefix --allow ,$(GUB_DISTCC_ALLOW_HOSTS)) \
-		--port 3633 --pid-file $(CWD)/log/$@.pid \
-		--log-file $(CWD)/log/cross-distccd.log  --log-level info
-
-native-distccd:
-	-$(if $(wildcard log/$@.pid),kill `cat log/$@.pid`, true)
-	$(SET_LOCAL_PATH) \
-		distccd --daemon \
-		$(addprefix --allow ,$(GUB_DISTCC_ALLOW_HOSTS)) \
-		--port 3634 --pid-file $(CWD)/log/$@.pid \
-		--log-file $(CWD)/log/$@.log  --log-level info
 
 bootstrap: bootstrap-git download-tools tools cross-compilers tools-cross-tools download
 

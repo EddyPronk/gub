@@ -3,7 +3,6 @@
 sources = GNUmakefile $(filter-out %~, $(wildcard *.make bin/* gub/*.py gub/*/*.py gub/*/*/*.py gub/*/*/*/*.py test-lily/*.py))
 
 ifeq ($(PLATFORMS),)
-# linux-ppc broken
 PLATFORMS=linux-x86 darwin-ppc darwin-x86 mingw linux-64 linux-ppc freebsd-x86 freebsd-64
 endif
 
@@ -26,8 +25,11 @@ help:
 $(MAKE_BASES):
 	$(MAKE) -f $@.make
 
-gub3% lily% cygwin%:
+lily% cygwin%:
 	$(MAKE) -f lilypond.make $@
+
+inkscape-%:
+	$(MAKE) -f inkscape.make $@
 
 test:
 	rm -rf target

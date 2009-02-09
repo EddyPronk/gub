@@ -45,3 +45,32 @@ BUILD=$(call INVOKE_GUB,$(1)) $(2)\
 
 BUILD_PLATFORM = $(shell $(PYTHON) bin/build-platform)
 OTHER_PLATFORMS=$(filter-out $(BUILD_PLATFORM), $(PLATFORMS))
+
+.PHONY: $(PLATFORMS)
+
+download:
+	$(call INVOKE_GUB,$(BUILD_PLATFORM)) --download-only $(BUILD_PACKAGE) $(OTHER_PLATFORMS:%=%::$(BUILD_PACKAGE))
+
+$(PLATFORMS):
+	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
+
+native:
+	$(MAKE) PLATFORMS=$(BUILD_PLATFORM) packages installers
+
+packages:
+	$(call INVOKE_GUB,$(BUILD_PLATFORM)) $(BUILD_PACKAGE) $(OTHER_PLATFORMS:%=%::$(BUILD_PACKAGE))
+
+installers: packages
+	$(foreach p,$(PLATFORMS),$(call INVOKE_INSTALLER_BUILDER,$(p)) $(INSTALL_PACKAGE) && ) :
+
+platforms: $(PLATFORMS)
+
+debian-%:
+	$(call BUILD,$@,$(BUILD_PACKAGE))
+
+cygwin-%:
+	rm -f uploads/cygwin/setup.ini
+	$(call INVOKE_GUB,cygwin) --build-source $(@:cygwin-%=%)
+
+cygwin-%-installer:
+	$(CYGWIN_PACKAGER) $(@:cygwin-%-installer=%)

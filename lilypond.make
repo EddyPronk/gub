@@ -1,19 +1,10 @@
 # -*-Makefile-*-
-.PHONY: all default distclean download TAGS
-.PHONY: cygwin debian debian-arm
-.PHONY: darwin-ppc darwin-x86 freebsd4-x86 freebsd6-x86 linux-x86 mingw
-.PHONY: bootstrap-download bootstrap
-.PHONY: unlocked-update-versions update-versions download print-success
-.PHONY: debian linux-ppc mingw mipsel clean realclean clean-distccd
-.PHONY: tools-distcc cross-compilers cross-distccd native-distccd
-.PHONY: bootstrap-git download-tools tools tools-cross-tools doc-clean
-.PHONY: unlocked-doc-clean
-.PHONY: unlocked-doc-export doc-export unlocked-dist-check dist-check
-
-.PHONY: cygwin-libtool cygwin-libtool-installer cygwin-fontconfig
-.PHONY: cygwin-freetype2 cygwin-freetype2-installer
-.PHONY: cygwin-fontconfig-installer cygwin-guile cygwin-guile-installer
-.PHONY: cygwin-lilypond cygwin-lilypond-installer upload-setup-ini darwin-ppc
+.PHONY: all default distclean rest print-success
+.PHONY: clean realclean
+.PHONY: test test-output test-clean
+.PHONY: update-versions unlocked-update-versions
+.PHONY: doc doc-clean doc-export unlocked-doc-clean unlocked-doc-export
+.PHONY: dist-check unlocked-dist-check
 
 default: all
 
@@ -21,29 +12,17 @@ LILYPOND_BRANCH=master
 # LILYPOND_BRANCH=stable/2.10
 LILYPOND_REPO_URL=git://git.sv.gnu.org/lilypond.git
 
-
-
 ALL_PLATFORMS=linux-x86 darwin-ppc darwin-x86 mingw linux-64 debian debian-arm freebsd-64 freebsd-x86 debian-mipsel linux-ppc
-PLATFORMS=linux-x86
-
-# odcctools do not build with 64 bit compiler
-PLATFORMS+=darwin-ppc darwin-x86
-
-# nsis does not build with 64 bit compiler
-PLATFORMS+=mingw
-
-PLATFORMS+=linux-64
-
-PLATFORMS+=linux-ppc
-
-PLATFORMS+=freebsd-x86 freebsd-64
-
-## want cygwin to be the last, because it is not a core lilypond platform. 
 ALL_PLATFORMS += cygwin
-##PLATFORMS += cygwin
 
-# ugh?
-LILYPOND_REPODIR=downloads/lilypond
+PLATFORMS=linux-x86
+PLATFORMS+=darwin-ppc darwin-x86
+PLATFORMS+=mingw
+PLATFORMS+=linux-64
+PLATFORMS+=linux-ppc
+PLATFORMS+=freebsd-x86 freebsd-64
+# Put cygwin last, because it is not a core lilypond platform. 
+#PLATFORMS += cygwin
 
 ifeq ($(LILYPOND_BRANCH),stable/2.10)
 $(error backportme:\
@@ -85,14 +64,6 @@ SET_LOCAL_PATH=PATH=$(CWD)/target/local/root/usr/bin:$(PATH)
 
 LILYPOND_VERSIONS = uploads/lilypond.versions
 
-ifneq ($(BUILD_PLATFORM),linux-64)
-DOC_LIMITS=ulimit -m 256000 && ulimit -d 256000 && ulimit -v 384000
-else
-#Hmm?
-#DOC_LIMITS=ulimit -m 512000 && ulimit -d 512000 && ulimit -v 768000
-DOC_LIMITS=ulimit -m 512000 && ulimit -d 512000 && ulimit -v 1024000
-endif
-
 include compilers.make
 
 ################
@@ -112,8 +83,6 @@ endif
 update-versions:
 	$(PYTHON) gub/with-lock.py --skip $(LILYPOND_VERSIONS).lock $(MAKE) unlocked-update-versions
 
-download: download-cygwin
-
 download-cygwin:
 	$(MAKE) downloads/genini
 	rm -f target/*/status/lilypond*
@@ -122,45 +91,25 @@ download-cygwin:
 ## should be last, to incorporate changed VERSION file.
 	$(MAKE) update-versions
 
-all: native dist-check test-output test-export gub3-doc doc-export $(OTHER_PLATFORMS) print-success
+all: packages rest
 
-gub3-all: gub3-packages gub3-rest
+rest: installers test doc doc-export print-success
 
-gub3all: gub3-all
+test: dist-check test-output test-export
 
-gub3-native:
-	$(MAKE) PLATFORMS=$(BUILD_PLATFORM) gub3-packages gub3-installers
+doc:
+	$(call INVOKE_GUB,--offline $(BUILD_PLATFORM)) lilypond-doc
 
-gub3-rest: gub3-installers gub3-test gub3-doc doc-export print-success
-
-gub3-packages:
-	$(call INVOKE_GUB,$(BUILD_PLATFORM)) $(BUILD_PACKAGE) $(OTHER_PLATFORMS:%=%::$(BUILD_PACKAGE))
-
-gub3-installers: #gub3-packages
-	$(foreach p,$(PLATFORMS),$(call INVOKE_INSTALLER_BUILDER,$(p)) $(INSTALL_PACKAGE) && ) :
-
-gub3-test: dist-check gub3-test test-export
-
-gub3-doc:
-	$(call INVOKE_GUB,$(BUILD_PLATFORM)) lilypond-doc
-
-gub3-test:
-	$(call INVOKE_GUB,$(BUILD_PLATFORM)) lilypond-test
-
-platforms: $(PLATFORMS)
+test-output:
+	$(call INVOKE_GUB,--offline $(BUILD_PLATFORM)) lilypond-test
 
 print-success:
-	python test-lily/upload.py --branch=$(LILYPOND_BRANCH) --url  $(LILYPOND_REPO_URL)
+	python test-lily/upload.py --branch=$(LILYPOND_BRANCH) --url $(LILYPOND_REPO_URL)
 	@echo ""
 	@echo "To upload, run "
 	@echo
 	@echo "        	python test-lily/upload.py --branch=$(LILYPOND_BRANCH) --url $(LILYPOND_REPO_URL) --execute "
 	@echo
-
-native: tools $(BUILD_PLATFORM)
-
-debian-arm:
-	$(call BUILD,$@,lilypond)
 
 docball = uploads/lilypond-$(DIST_VERSION)-$(DOC_BUILDNUMBER).documentation.tar.bz2
 webball = uploads/lilypond-$(DIST_VERSION)-$(DOC_BUILDNUMBER).webdoc.tar.bz2
@@ -170,100 +119,12 @@ $(docball):
 #easier to handle versions.db?
 	$(MAKE) doc
 
-# Regular cygwin stuff
-cygwin: cygwin-libtool cygwin-libtool-installer doc cygwin-lilypond cygwin-lilypond-installer
-
-cygwin-all: cygwin-libtool cygwin-libtool-installer cygwin-guile cygwin-guile-installer $(docball) cygwin-lilypond cygwin-lilypond-installer cygwin-fontconfig cygwin-fontconfig-installer
-
-cygwin-ghostscript:
-	rm -f uploads/cygwin/setup.ini
-	$(call INVOKE_GUB,cygwin) --build-source ghostscript
-
-cygwin-ghostscript-installer:
-	$(CYGWIN_PACKAGER) ghostscript
-
-cygwin-libtool:
-	rm -f uploads/cygwin/setup.ini
-	$(call INVOKE_GUB,cygwin) --build-source libtool
-
-cygwin-libtool-installer:
-	$(CYGWIN_PACKAGER) libtool
-
-cygwin-freetype2:
-	# when forcing a source build we remove everything,
-	# because freetype by default comes from cygwin as a binary
-	rm -f uploads/cygwin/setup.ini
-	rm -rf target/cygwin/
-	$(call INVOKE_GUP, cygwin) install cross/gcc
-#	$(call INVOKE_GUB,cygwin) freetype-config
-	$(call INVOKE_GUB,cygwin) --build-source freetype2
-
-cygwin-freetype2-installer:
-	$(CYGWIN_PACKAGER) freetype2
-
-cygwin-fontconfig:
-	# when forcing a source build we remove everything,
-	# because fontconfig by default comes from cygwin as a binary
-	rm -f uploads/cygwin/setup.ini
-	rm -rf target/cygwin/
-	$(call INVOKE_GUP, cygwin) install cross/gcc
-	$(call INVOKE_GUB,cygwin) --build-source fontconfig
-
-cygwin-fontconfig-installer:
-	$(CYGWIN_PACKAGER) fontconfig
-
-cygwin-guile:
-	$(call INVOKE_GUB,cygwin) --build-source libtool guile
-
-cygwin-guile-installer:
-	$(CYGWIN_PACKAGER) guile
-
-cygwin-lilypond:
-#	$(call INVOKE_GUB,cygwin) --build-source libtool guile fontconfig lilypond
-	$(call INVOKE_GUB,cygwin) --build-source libtool guile lilypond
-
-cygwin-lilypond-installer:
-	$(CYGWIN_PACKAGER) --branch=lilypond=$(LILYPOND_FLATTENED_BRANCH) lilypond
-
 upload-setup-ini:
 	cd uploads/cygwin && ../../downloads/genini $$(find release -mindepth 1 -maxdepth 2 -type d) > setup.ini
 
 downloads/genini:
 	wget --output-document $@ 'http://cygwin.com/cgi-bin/cvsweb.cgi/~checkout~/genini/genini?rev=1.2&content-type=text/plain&cvsroot=cygwin-apps&only_with_tag=HEAD'
 	chmod +x $@
-
-darwin-ppc:
-	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
-
-darwin-x86:
-	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
-
-debian:
-	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
-
-freebsd4-x86:
-	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
-
-freebsd6-x86:
-	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
-
-freebsd-x86:
-	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
-
-freebsd-64:
-	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
-
-linux-x86:
-	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
-
-linux-ppc:
-	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
-
-linux-64:
-	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
-
-mingw:
-	$(call BUILD,$@,$(BUILD_PACKAGE),$(INSTALL_PACKAGE))
 
 lily-clean:
 	rm -rf target/$(BUILD_PLATFORM)/*/lilypond-$(LILYPOND_FLATTENED_BRANCH)*
@@ -293,15 +154,17 @@ NATIVE_LILY_BUILD=$(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_FLATTENED_BRANC
 NATIVE_LILY_SRC=$(NATIVE_TARGET_DIR)/src/lilypond-$(LILYPOND_FLATTENED_BRANCH)
 # URG: try to guess at what repository will do.  should ask
 # repository.read_file(), I guess.
-NATIVE_BUILD_COMMITTISH=$(shell cat downloads/lilypond/refs/heads/$(LILYPOND_DIRRED_BRANCH))
+LILYPOND_REPO_DIR=downloads/lilypond/$(dir $(LILYPOND_DIRRED_BRANCH))
+NATIVE_BUILD_COMMITTISH=$(shell cat $(LILYPOND_REPO_DIR)/refs/heads/$(LILYPOND_DIRRED_BRANCH))
 
+print:
+	@echo LDB $(LILYPOND_DIRRED_BRANCH)
+	@echo LFB  $(LILYPOND_FLATTENED_BRANCH)
 
 DIST_VERSION=$(shell cat $(NATIVE_LILY_BUILD)/out/VERSION)
 DOC_BUILDNUMBER=$(shell $(PYTHON) gub/versiondb.py --platforms=$(PLATFORMS) --build-for=$(DIST_VERSION))
 
 SIGNATURE_FUNCTION=uploads/signatures/$(1).$(NATIVE_BUILD_COMMITTISH)
-
-doc: native doc-build
 
 doc-clean:
 	$(PYTHON) gub/with-lock.py --skip $(DOC_LOCK) $(MAKE) unlocked-doc-clean
@@ -355,7 +218,7 @@ unlocked-dist-check:
 		$(PYTHON) test-lily/dist-check.py\
 		--branch=$(LILYPOND_BRANCH) \
 		--url=$(LILYPOND_REPO_URL) \
-		--repository=$(LILYPOND_REPODIR) $(NATIVE_LILY_BUILD)
+		--repository=$(LILYPOND_REPO_DIR) $(NATIVE_LILY_BUILD)
 	cp $(NATIVE_LILY_BUILD)/out/lilypond-$(DIST_VERSION).tar.gz uploads
 
 dist-check:
