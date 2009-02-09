@@ -6,6 +6,9 @@ class Gtk_x_ (target.AutoBuild):
     #    source = 'http://ftp.gnome.org/pub/GNOME/sources/gtk+/2.15/gtk+-2.15.2.tar.gz'
     #source = 'http://ftp.gnome.org/pub/GNOME/sources/gtk+/2.15/gtk+-2.15.0.tar.gz'
     source = 'http://ftp.gnome.org/pub/GNOME/sources/gtk+/2.15/gtk+-2.15.3.tar.gz'
+    # patches = ['gtk+-2.15.3-configure.in-gio-can-sniff-png.patch']
+    # def config_cache_overrides (self, string):
+    #     return string + '\ngtk_cv_gio_can_sniff_png=yes\n'
 # Requested 'glib-2.0 >= 2.17.6' but version of GLib is 2.16.1
 # FIXME: should bump GNOME deps
 #    source = 'http://ftp.acc.umu.se/pub/GNOME/sources/gtk+/2.14/gtk+-2.14.7.tar.gz'
@@ -24,7 +27,8 @@ class Gtk_x_ (target.AutoBuild):
         # a configure-time-only -Wl,-rpath, -Wl,%(system_prefix)s/lib
         return '-Wl,-rpath -Wl,%(system_prefix)s/lib %(rpath)s'
     def configure_command (self):
-        return (target.AutoBuild.configure_command (self)
+        return (' export gio_can_sniff=yes; '
+                + target.AutoBuild.configure_command (self)
                 + ''' LDFLAGS='%(rpath)s -Wl,-rpath -Wl,%(system_prefix)s/lib' '''
                 + ' --without-libjasper'
                 + ' --disable-cups')

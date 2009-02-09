@@ -1,0 +1,46 @@
+--- gtk+-2.15.3/configure.in~	2009-02-09 19:49:38.000000000 +0100
++++ gtk+-2.15.3/configure.in	2009-02-09 19:50:47.000000000 +0100
+@@ -127,7 +127,7 @@ LIB_EXE_MACHINE_FLAG=X86
+ case "$host" in
+   *-*-mingw*)
+     os_win32=yes
+-    gio_can_sniff=no
++    gtk_cv_gio_can_sniff_png=${gtk_cv_gio_can_sniff_png-no}
+     MATH_LIB=
+     case "$host" in
+     x86_64-*-*)
+@@ -1025,10 +1025,10 @@ AM_CONDITIONAL(INCLUDE_JASPER, [test x"$
+ # check one of the variables here
+ AM_CONDITIONAL(INCLUDE_GDIPLUS, [test x"$INCLUDE_gdip_ico" = xyes])
+ 
+-if test x$gio_can_sniff = x; then
++gtk_save_LIBS="$LIBS"
++gtk_save_CFLAGS="$CFLAGS"
++AC_CACHE_VAL([gtk_cv_gio_can_sniff_png],
+   AC_MSG_CHECKING([if gio can sniff png])
+-  gtk_save_LIBS="$LIBS"
+-  gtk_save_CFLAGS="$CFLAGS"
+   LIBS="`$PKG_CONFIG --libs gio-2.0`"
+   CFLAGS="`$PKG_CONFIG --cflags gio-2.0`"
+   AC_RUN_IFELSE([AC_LANG_SOURCE([[
+@@ -1060,12 +1060,14 @@ if test x$gio_can_sniff = x; then
+     image_png = g_content_type_from_mime_type ("image/png");
+     return !!strcmp (content_type, image_png);
+   }]])],
+-    [gio_can_sniff=yes
+-     AC_DEFINE(GDK_PIXBUF_USE_GIO_MIME, 1, [Define if gio can sniff image data])],
+-    [gio_can_sniff=no])
+-  AC_MSG_RESULT($gio_can_sniff)
+-  LIBS="$gtk_save_LIBS"
+-  CFLAGS="$gtk_save_CFLAGS"
++    [gtk_cv_gio_can_sniff_png=yes]
++    [gtk_cv_gio_can_sniff_png=no],
++    [gio_can_sniff=${gtk_cv_gio_can_sniff_png-no}]))
++LIBS="$gtk_save_LIBS"
++CFLAGS="$gtk_save_CFLAGS"
++
++if test "$gtk_cv_gio_can_sniff_png" = "yes"; then
++   AC_DEFINE(GDK_PIXBUF_USE_GIO_MIME, 1, [Define if gio can sniff image data])
+ fi
+ 
+ #
