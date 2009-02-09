@@ -1,14 +1,12 @@
+import os
+#
+from gub import context
 from gub import loggedos
 from gub import misc
 from gub import target
-#
-import os
 
 # TODO: AutoToolSpec
 class BjamBuild (target.MakeBuild):
-    def __init__ (self, settings, source):
-        target.AutoBuild.__init__ (self, settings, source)
-        target.append_target_dict (self, {'CFLAGS': ''})
     def XXX_BROKEN_get_build_dependencies (self):
 # the separately available boost-jam is terribly broken wrt building boost
 # *** Stage: compile (boost, linux-64)
@@ -16,21 +14,10 @@ class BjamBuild (target.MakeBuild):
 #Jamfile:114: in module scope
 #rule unless unknown in module 
         return ['tools::boost-jam']
-    def get_substitution_dict (self, env={}):
-        # FIXME: how to add settings to dict?
-        dict = target.AutoBuild.get_substitution_dict (self, env)
-        dict['CFLAGS'] = ''
-        return dict
+    @context.subst_method
+    def CFLAGS (self):
+        return ''
     def compile_command (self):
-# FIXME: WTF, where has python_version gone?
-# only static because dynamic libs fail on linux-64..?
-#<runtime-link>static/dynamic
-# --without-test because is only available as shared lib
-
-# FIXME: how to add settings to dict?
-#'-sGCC=%(toolchain_prefix)sgcc %(CFLAGS)s
-#'-sGXX=%(toolchain_prefix)sg++ %(CFLAGS)s
-
         return misc.join_lines ('''
 bjam
 '-sTOOLS=gcc'
@@ -41,12 +28,10 @@ bjam
 '-sBUILD=release <optimization>space <inlining>on <debug-symbols>off <runtime-link>static'
 '-sPYTHON_VERSION=2.4'
 '-scxxflags=-fPIC'
---without-python
+--without-libraries=python
 --without-test
---with-python-root=/dev/null
 --layout=system
 --builddir=%(builddir)s
---with-python-root=/dev/null
 --prefix=%(prefix_dir)s
 --exec-prefix=%(prefix_dir)s
 --libdir=%(prefix_dir)s/lib
@@ -60,14 +45,6 @@ class Boost (BjamBuild):
     source = 'http://surfnet.dl.sourceforge.net/sourceforge/boost/boost_1_33_1.tar.bz2'
     #source = 'http://surfnet.dl.sourceforge.net/sourceforge/boost/boost_1_34_1.tar.bz2'
     #source = 'http://surfnet.dl.sourceforge.net/sourceforge/boost/boost_1_34_1.tar.bz2'
-    def __init__ (self, settings, source):
-        BjamBuild.__init__ (self, settings, source)
-        target.change_target_dict (self, {'CFLAGS': '-DBOOST_PLATFORM_CONFIG=\\"boost/config/platform/linux.hpp\\"'})
-    def get_substitution_dict (self, env={}):
-        d = BjamBuild.get_substitution_dict (self, env)
-        d['CFLAGS'] = '-DBOOST_PLATFORM_CONFIG=\\"boost/config/platform/linux.hpp\\"'
-        d['PATH'] = '%(builddir)s:' + d['PATH']
-        return d
     def stages (self):
         return misc.list_insert_before (BjamBuild.stages (self),
                                         'compile',
@@ -78,6 +55,8 @@ class Boost (BjamBuild):
         self.system ('cd %(builddir)s/tools/build/jam_src && CC=gcc sh build.sh gcc && mv bin.*/bjam %(builddir)s')
     def license_files (self):
         return ['%(srcdir)s/LICENSE_1_0.txt']
+    def compile_command (self):
+        return 'PATH=%(builddir)s:PATH ' + BjamBuild.compile_command (self)
     def install (self):
         BjamBuild.install (self)
         # Bjam `installs' header files by using symlinks to the source dir?
@@ -107,3 +86,27 @@ class Boost__mingw (Boost):
     def compile_command (self):
         return (Boost.compile_command (self)
                 .replace ('linux.hpp', 'win32.hpp'))
+    
+class Boost__freebsd__64 (Boost):
+    source = 'http://surfnet.dl.sourceforge.net/sourceforge/boost/boost_1_34_1.tar.bz2'
+    #source = 'http://surfnet.dl.sourceforge.net/sourceforge/boost/boost_1_38_0.tar.bz2'
+    def build_bjam (self):
+        # the separately available boost-jam is terribly broken wrt
+        # building boost: build included bjam
+        self.system ('cd %(builddir)s/tools/jam/src && CC=gcc sh build.sh gcc && mv bin.*/bjam %(builddir)s')
+    def compile_command (self):
+        return (Boost.configure_command (self)
+                .replace ('linux.hpp', 'bsd.hpp')
+                # yay, let's make a file called ./configure, but barf
+                # on common configure options. yes -- good idea!
+                # we'll make a real complicated 'make' command instead
+                # that hold all the parameters!
+                .replace ('--config-cache', '')
+                .replace ('--build=%(build_architecture)s', '')
+                .replace ('--host=%(target_architecture)s', '')
+                .replace ('--target=%(target_architecture)s', '')
+                .replace ('--disable-static', '')
+                .replace ('--enable-shared', '')
+                .replace ('--sysconfdir=%(prefix_dir)s/etc', '')
+                .replace ('--infodir=%(prefix_dir)s/share/info', '')
+                .replace ('--mandir=%(prefix_dir)s/share/man', ''))
