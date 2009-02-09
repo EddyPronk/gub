@@ -19,8 +19,6 @@ PLATFORMS+=linux-ppc
 PLATFORMS+=freebsd-x86 freebsd-64
 #PLATFORMS+=cygwin
 
-PLATFORMS=$(BUILD_PLATFORM)
-
 #derived info
 INKSCAPE_SOURCE_URL=$(INKSCAPE_REPO_URL)?branch=$(INKSCAPE_BRANCH)
 INKSCAPE_DIRRED_BRANCH=$(shell $(PYTHON) gub/repository.py --branch-dir '$(INKSCAPE_SOURCE_URL)')
@@ -29,7 +27,7 @@ INKSCAPE_FLATTENED_BRANCH=$(shell $(PYTHON) gub/repository.py --full-branch-name
 BUILD_PACKAGE='$(INKSCAPE_SOURCE_URL)'
 INSTALL_PACKAGE = inkscape
 
-MAKE += -f lilypond.make
+MAKE += -f inkscape.make
 
 inkscape: packages
 
