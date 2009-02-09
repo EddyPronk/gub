@@ -3,7 +3,7 @@ from gub import target
 class Libpthread_stubs (target.AutoBuild):
     source = 'http://xcb.freedesktop.org/dist/libpthread-stubs-0.1.tar.gz'
     def _get_build_dependencies (self):
-        return ['tools::libtool']
+        return ['libtool']
 
 class Libpthread_stubs__mingw (Libpthread_stubs):
     source = Libpthread_stubs.source
