@@ -14,6 +14,7 @@ class Guile (target.AutoBuild):
     # 1.8.5 breaks with autoconf >= 2.62
     # source = 'git://git.sv.gnu.org/guile.git&branch=branch_release-1-8&revision=release_1-8-6'
     # 1.8.6's ./autogen.sh barfs
+    # branch = 'branch_release-1-8'
     source = 'git://git.sv.gnu.org/guile.git&branch=branch_release-1-8&revision=bba579611b3671c7e4c1515b100f01c048a07935'
     patches = ['guile-reloc-1.8.6.patch',
                'guile-cexp.patch',

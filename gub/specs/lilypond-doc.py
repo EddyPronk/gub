@@ -6,7 +6,7 @@ from gub.specs import lilypond
 
 class LilyPond_doc (lilypond.LilyPond_base):
     def _get_build_dependencies (self):
-        return (lilypond.LilyPond_base
+        return (lilypond.LilyPond_base._get_build_dependencies ()
                 + [
                 'tools::netpbm',
                 'tools::imagemagick',
