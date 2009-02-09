@@ -18,6 +18,9 @@
   - *every* work-dir in target/*/src/ is a GIT checkout
   - in the work-dir, GIT can be used to create and maintain patches
   
+* Why don't we use tarfile.TarFile?  It seems that subprocess/read_pipe
+  in gub/gup.py on tar -tzf is real inefficient (set buffering?)
+
 * It seems that the removal of LD_LIBRARY_PATH as per
 
      http://lists.gnu.org/archive/html/lilypond-devel/2008-12/msg00501.html
