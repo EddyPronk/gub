@@ -105,7 +105,7 @@ GUB home page
 
 Examples
 
-  * Prepare a cross build environment
+  * Prepare a cross build environment for darwin-x86
 
       bin/gub darwin-x86::cross/gcc
 
@@ -120,7 +120,19 @@ Examples
 
       make lilypond
  
-    this leaves installers and documentation in uploads/
+    this leaves installers for GNU/Linux, MacOS-X and Windows,
+    and documentation in uploads/
+
+  * Build Inkscape for your platform
+
+      bin/gub inkscape
+      bin/gib inkscape --branch=inkscape=trunk inkscape
+
+  * Build all Inskape installers
+
+      make inkscape
+
+    this leaves installers for GNU/Linux and Windows in uploads/
 
   * Build OpenOffice for Windows:
 
