@@ -29,6 +29,8 @@ INKSCAPE_FLATTENED_BRANCH=$(shell $(PYTHON) gub/repository.py --full-branch-name
 BUILD_PACKAGE='$(INKSCAPE_SOURCE_URL)'
 INSTALL_PACKAGE = inkscape
 
+MAKE += -f lilypond.make
+
 gub3-packages:
 	$(call INVOKE_GUB,$(BUILD_PLATFORM)) $(BUILD_PACKAGE) $(OTHER_PLATFORMS:%=%::$(BUILD_PACKAGE))
 

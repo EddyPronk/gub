@@ -62,15 +62,6 @@ LILYPOND_FLATTENED_BRANCH=$(shell $(PYTHON) gub/repository.py --full-branch-name
 BUILD_PACKAGE='$(LILYPOND_SOURCE_URL)'
 INSTALL_PACKAGE = lilypond
 
-
-print:
-	@echo LDB $(LILYPOND_DIRRED_BRANCH)
-	@echo AUTO 
-	@echo
-	@echo LFB  $(LILYPOND_FLATTENED_BRANCH)
-	@echo AUTO 
-
-
 MAKE += -f lilypond.make
 
 # FIXME: this is duplicated and must match actual info in guile.py

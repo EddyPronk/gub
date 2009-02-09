@@ -193,7 +193,7 @@ class LilyPond__cygwin (LilyPond):
         python_lib = '%(system_prefix)s/bin/libpython*.dll'
         LDFLAGS = '-L%(system_prefix)s/lib -L%(system_prefix)s/bin -L%(system_prefix)s/lib/w32api'
         return (LilyPond.makeflags (self)
-                + 'LDFLAGS="%(LDFLAGS)s %(python_lib)s"')
+                + ' LDFLAGS="%(LDFLAGS)s %(python_lib)s"' % locals ())
     def compile (self):
         # Because of relocation script, python must be built before scripts
         self.system ('''
@@ -243,14 +243,25 @@ class LilyPond__mingw (LilyPond):
     def _get_build_dependencies (self):
         return (LilyPond._get_build_dependencies (self)
                 + ['lilypad', 'tools::icoutils', 'tools::nsis'])
-    # ugh C&P Cygwin
+    def makeflags (self):
+        python_lib = '%(system_prefix)s/bin/libpython*.dll'
+        return (LilyPond.makeflags (self)
+                + ' LDFLAGS="%(python_lib)s"'  % locals ())
+    # ugh Python hack: C&P Cygwin
     def compile (self):
         # Because of relocation script, python must be built before scripts
         self.system ('''
+cd %(builddir)s/lily && rm -f out/lilypond || :
 cd %(builddir)s && make -C python %(makeflags)s
 cd %(builddir)s && make -C scripts %(makeflags)s
-cp -pv %(system_prefix)s/share/gettext/gettext.h %(system_prefix)s/include''')
+#cp -pv %(system_prefix)s/share/gettext/gettext.h %(system_prefix)s/include
+''')
         LilyPond.compile (self)
+        self.system ('''
+cd %(builddir)s/lily && mv out/lilypond out/lilypond-console
+cd %(builddir)s/lily && make MODULE_LDFLAGS="-mwindows" && mv out/lilypond out/lilypond-windows
+cd %(builddir)s/lily && touch out/lilypond
+''')
     def configure (self):
         LilyPond.configure (self)
         ## huh, why ? --hwn
@@ -261,14 +272,6 @@ cp -pv %(system_prefix)s/share/gettext/gettext.h %(system_prefix)s/include''')
                 (' -g ', ' '),
                 ],
                '%(builddir)s/config.make')
-
-    def compile (self):
-        self.system ('cd %(builddir)s/lily && rm -f out/lilypond', ignore_errors=True)
-        LilyPond.compile (self)
-        self.system ('cd %(builddir)s/lily && mv out/lilypond out/lilypond-console')
-        self.system ('cd %(builddir)s/lily && make MODULE_LDFLAGS="-mwindows" && mv out/lilypond out/lilypond-windows')
-        self.system ('cd %(builddir)s/lily && touch out/lilypond')
-
     def install (self):
         LilyPond.install (self)
         self.system ('''
