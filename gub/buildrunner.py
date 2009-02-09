@@ -165,7 +165,7 @@ class BuildRunner:
                                % locals ())
                         install_candidate = None
                         continue
-                    printf ('  removing %(c)s' % locals ())
+                    printf ('    removing %(c)s' % locals ())
                     manager.uninstall_package (c)
         return install_candidate
 
