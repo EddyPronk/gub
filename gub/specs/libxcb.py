@@ -19,6 +19,14 @@ xproto.c:2479: error: 'xcb_configure_window_request_t' has no member named 'pad1
 
 class Libxcb__freebsd__x86 (Libxcb):
     patches = Libxcb.patches + ['libxcb-0.9.93-freebsd.patch']
+    def configure_command (self):
+        return (Libxcb.configure_command (self)
+                + ' LDFLAGS=-lc_r')
+    def install (self):
+        Libxcb.install (self)
+        # FIXME: why doesn't libtool pick this up?
+        self.file_sub ([("""(dependency_libs=.*)'""", r"""\1 -lc_r '""")],
+                       '%(install_prefix)s/lib/libxcb.la')
 
 class Libxcb__mingw (Libxcb):
     def _get_build_dependencies (self):
