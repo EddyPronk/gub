@@ -54,9 +54,7 @@ class Git__mingw (Git):
         ## want this setting to reach compile, but not install
         return Git.compile_command (self) + ' template_dir=../share/git-core/templates/ '
     def _get_build_dependencies (self):
-        d =  Git.get_build_dependencies (self)
-        d.append ('tcltk')
-        return d
+        return Git._get_build_dependencies (self) + ['tcltk']
     def install (self):
         Git.install (self)
         bat = r'''@echo off

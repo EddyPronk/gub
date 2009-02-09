@@ -30,7 +30,7 @@ class Libxml2__mingw (Libxml2):
 class Libxml2__tools (tools.AutoBuild, Libxml2):
     source = Libxml2.source
     def _get_build_dependencies (self):
-        return Libxml2.get_build_dependencies (self)
+        return Libxml2._get_build_dependencies (self)
     def configure_command (self):
         return (tools.AutoBuild.configure_command (self)
                 + misc.join_lines ('''

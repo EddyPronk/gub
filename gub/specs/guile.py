@@ -217,7 +217,7 @@ class Guile__cygwin (Guile):
     # Using gub dependencies only would be nice, but
     # we need to a lot of gup.gub_to_distro_deps ().
     def GUB_get_build_dependencies (self):
-        return Guile.get_build_dependencies (self) + ['libiconv-devel']
+        return Guile._get_build_dependencies (self) + ['libiconv-devel']
     # FIXME: uses mixed gub/distro dependencies
     def get_dependency_dict (self): #cygwin
         d = Guile.get_dependency_dict (self)
