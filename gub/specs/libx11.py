@@ -6,4 +6,8 @@ class Libx11 (target.AutoBuild):
         return ['libtool', 'inputproto-devel', 'kbproto-devel', 'libxcb-devel', 'xextproto-devel', 'xproto-devel', 'xtrans-devel']
     def configure_command (self):
         return (target.AutoBuild.configure_command (self)
-                + ' --disable-xf86bigfont')
+                + ' --disable-xf86bigfont'
+                + ' --disable-malloc0returnsnull')
+    def compile (self):
+        self.system ('cd %(builddir)s && make -C src/util makekeys CC=gcc CFLAGS= makekeys_CFLAGS= LDFLAGS=')
+        target.AutoBuild.compile (self)
