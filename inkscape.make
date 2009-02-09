@@ -1,9 +1,10 @@
 .PHONY: all gub3-packages gub3-installers
 .PHONY: inkscape inkscape-installer inkscape-installers print-success
 
+all: inkscape inkscape-installer print-success
+
 include gub.make
 
-all: inkscape inkscape-installer print-success
 
 INKSCAPE_BRANCH=trunk?revision=20605
 INKSCAPE_REPO_URL=svn:https://inkscape.svn.sourceforge.net/svnroot/inkscape?module=inkscape
