@@ -91,10 +91,14 @@ Examples
 
   * Build LilyPond master branch for your platform
 
-      bin/gub lilypond
-      bin/gib --branch=lilypond=git.sv.gnu.org--lilypond.git-master lilypond
+      bin/gub lilypond-installer
 
-    this leaves an installer in uploads/
+    OR (old style)
+
+      bin/gub lilypond  # package with dependencies
+      bin/gib --branch=lilypond=git.sv.gnu.org--lilypond.git-master lilypond #installer
+
+    this leaves the installer in uploads/
 
   * Build all LilyPond installers
 
@@ -104,6 +108,10 @@ Examples
     and documentation in uploads/
 
   * Build Inkscape for your platform
+
+      bin/gub inkscape-installer
+
+    OR (old style)
 
       bin/gub inkscape
       bin/gib inkscape --branch=inkscape=trunk inkscape
