@@ -192,6 +192,7 @@ def inspect (settings, files):
 
 #FIXME: move to BuildRunner?
 def build (settings, options, files):
+    logging.stage ('calculating dependencies\n')
     (names, specs) = gup.get_source_packages (settings, files)
 
     platform = settings.platform
