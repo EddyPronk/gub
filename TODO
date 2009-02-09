@@ -1,10 +1,23 @@
+* Fix Fedora glibc problem, remove workaround in gub/specs/glibc.py,
+  or add a build_platform == Fedora test.  [selinux?]
+    # Disable librestrict.so, as it causes crashes on Fedora 9 and 10.
+    def LD_PRELOAD (self):
+        return ''
+
 * junk Makefile, create python based driver/s?
 ** done: package lilypond-doc replaces DOC* nightmare in lilypond.make
-** todo: doc-clean, test*, upload* in lilypond.make
+** done: package lilypond-test replaces test-output in lilypond.make
+** done: packages lilypond-installer, inkscape-installer.
+** todo: doc-clean, test-clean, doc-export, test-export
+** todo: python driver that connects [gub, gib], uploads/export calls
 
 * FIX --keep option; debugging is next to impossible with all
   sources gone from target/*/src
 
+* after fixing --keep, go something smart with GIT, so that
+  - *every* work-dir in target/*/src/ is a GIT checkout
+  - in the work-dir, GIT can be used to create and maintain patches
+  
 * It seems that the removal of LD_LIBRARY_PATH as per
 
      http://lists.gnu.org/archive/html/lilypond-devel/2008-12/msg00501.html
@@ -37,10 +50,10 @@
 	if t == NameError:
         ...
 
-* support for ccache and icecc (icecream)
-  icecc requires no setup/init effort other than picking the host
-  that runs the scheduler, and works automagically with cross compilers.
-  -junk distcc cruft [distcc pump?  find comparison with icecream)
+* support for ccache and icecc (icecream) icecc requires no setup/init
+  effort other than picking the host that runs the scheduler, and
+  works -more-or-less- automagically with cross compilers.
+  [distcc pump?  find comparison with icecream
 
 * we moeten env ook nog ergens losknippen. We zetten nu onze
   eigen variabelen over de user zijn env heen, maar dan kan er dus (niet
