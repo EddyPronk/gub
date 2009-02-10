@@ -223,8 +223,8 @@ class BuildRunner:
             self.spec_install (spec)
         logging.default_logger.write_log ('\n', 'stage')
 
-    def is_outdated_spec (self, spec):
-        spec_name = spec.name ()
+    def is_outdated_spec (self, spec_name):
+        spec = self.specs[spec_name]
         checksum_fail_reason = self.failed_checksums.get (spec_name, '')
         checksum_ok = '' == checksum_fail_reason
         for pkg in spec.get_packages ():
@@ -241,7 +241,7 @@ class BuildRunner:
 
     def uninstall_outdated_specs (self, deps):
         outdated = list (reversed ([name for name in deps
-                                    if self.is_outdated_spec (self.specs[name])]))
+                                    if self.is_outdated_spec (name)]))
         if outdated:
             platform = self.settings.platform
             outdated_str = (' '.join (outdated)
