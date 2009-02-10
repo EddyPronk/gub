@@ -13,7 +13,7 @@ class Freebsd_runtime__freebsd__x86 (Freebsd_runtime):
         # FIXME: check if empty? (on freebsds4 it is...)
         # cpp -P ~/vc/gub/target/freebsd-x86/root/usr/include/wctype.h
         self.system ('''
-rm %(srcdir)s%(prefix_dir)s/include/wctype.h
+#breaks boost#rm %(srcdir)s%(prefix_dir)s/include/wctype.h
 cp %(sourcefiledir)s/stdint-32.h %(srcdir)s%(prefix_dir)s/include/stdint.h
 ''')
 
