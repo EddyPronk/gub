@@ -65,9 +65,9 @@ class Settings (context.Context):
         self.build_architecture = platforms[self.build_platform]
         self.build_cpu = self.build_architecture.split ('-')[0]
         self.build_os = re.sub ('[-0-9].*', '', self.build_platform)
-        self.build_bits = '32'
+        self_build_bits = '32'
         if self.build_platform.endswith ('64'):
-            self.build_bits = '64'
+            self_build_bits = '64'
         
         if not platform:
             platform = self.build_platform
@@ -78,16 +78,16 @@ class Settings (context.Context):
         self.target_architecture = platforms[self.target_platform]
         self.target_os = re.sub ('[-0-9].*', '', self.target_platform)
         self.target_cpu = self.target_architecture.split ('-')[0]
-        self.target_bits = '32'
+        self_target_bits = '32'
         if self.target_platform.endswith ('64'):
-            self.target_bits = '64'
+            self_target_bits = '64'
 
         # Hmm
         self.platform = self.target_platform
         self.architecture = self.target_architecture
         self.cpu = self.target_cpu
         self.os = self.target_os
-        self.bits = self.target_bits
+        self_bits = self_target_bits
 
         GUB_TOOLS_PREFIX = os.environ.get ('GUB_TOOLS_PREFIX')
         
@@ -184,26 +184,26 @@ class Settings (context.Context):
         except ValueError:
             self.cpu_count_str = '1'
 
-        self.build_hardware_bits = self.build_bits
+        self_build_hardware_bits = self_build_bits
         try:
             cpuinfo = open ('/proc/cpuinfo').read ()
             cpu_flags = re.search ('(?m)^flags\s+:(.*)',
                                    cpuinfo).group (1).split ()
             if 'lm' in cpu_flags:
-                self.build_hardware_bits = '64'
+                self_build_hardware_bits = '64'
         except:
             pass
         try:
             cpu = misc.read_pipe ('sysctl -b hw.machine')
             if cpu in ('amd64', 'ia64'):
-                self.build_hardware_bits = '64'
+                self_build_hardware_bits = '64'
         except:
             pass
 
-        if self.build_bits == '32' and self.build_hardware_bits == '64':
+        if self_build_bits == '32' and self_build_hardware_bits == '64':
             # 32 bit OS running on 64 bit hardware, help configure
-            self.ABI = self.target_bits
-            os.environ['ABI'] = self.target_bits
+            self.ABI = self_target_bits
+            os.environ['ABI'] = self_target_bits
 
         ## make sure we don't confuse build or target system.
         self.LD_LIBRARY_PATH = '%(system_root)s'
