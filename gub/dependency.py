@@ -68,9 +68,10 @@ def get_build_without_module (flavour, name):
 
 class Dependency:
     def __init__ (self, settings, name, url=None):
-
         # FIXME: document what is accepted here, and what not.
-        
+        if not name and not url:
+            raise Exception ('''Dependency without name or url: check for empty string in dependency list: ['']''')
+
         self.settings = settings
         self._name = name
 
