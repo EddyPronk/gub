@@ -1,0 +1,13 @@
+--- libgc-0/include/private/gcconfig.h~	2006-07-07 23:08:05.000000000 +0200
++++ libgc-0/include/private/gcconfig.h	2009-02-10 09:10:52.000000000 +0100
+@@ -334,6 +334,10 @@
+ #   define I386
+ #   define mach_type_known
+ # endif
++# if defined(FREEBSD) && defined(__x86_64__)
++#    define X86_64
++#    define mach_type_known
++# endif
+ # if defined(__NetBSD__) && (defined(i386) || defined(__i386__))
+ #   define I386
+ #   define mach_type_known
