@@ -36,8 +36,6 @@ class Expat__linux__arm__vfp (Expat):
         self.system ("touch %(srcdir)s/tests/xmltest.sh.in")
         target.AutoBuild.patch (self)
 
-class Expat__tools (tools.AutoBuild):
-    source = Expat.source
-    patches = Expat.patches
+class Expat__tools (tools.AutoBuild, Expat):
     def _get_build_dependencies (self):
         return ['libtool']

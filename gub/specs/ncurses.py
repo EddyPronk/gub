@@ -9,8 +9,7 @@ class Ncurses (target.AutoBuild):
     def license_files (self):
         return ['%(srcdir)s/README']
 
-class Ncurses__tools (tools.AutoBuild):
-    source = Ncurses.source
+class Ncurses__tools (tools.AutoBuild, Ncurses):
     def configure_command (self):
         return (tools.AutoBuild.configure_command (self)
                 + ' --with-normal --with-shared ')

@@ -117,6 +117,15 @@ LD_LIBRARY_PATH=%(system_prefix)s/lib
         build.AutoBuild.configure (self)
         self.update_libtool ()
 
+    # FIXME: make Multiple-Inheritance-safe, ie
+    #    class Foo__tools (tools.AutoBuild, Foo)
+    # must not set a config cache or target's rpath updating libtool
+    # Hmm.
+    def config_cache_settings (self):
+        return ''
+    def update_libtool (self):
+        build.AutoBuild.update_libtool (self)
+
     def get_substitution_dict (self, env={}):
         dict = {
             'C_INCLUDE_PATH': '%(system_prefix)s/include'

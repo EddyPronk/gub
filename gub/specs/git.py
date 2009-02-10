@@ -63,8 +63,7 @@ class Git__mingw (Git):
 '''.replace ('%','%%').replace ('\n','\r\n')
         self.dump (bat, '%(install_prefix)s/bin/gitk.bat.in')
 
-class Git__tools (tools.AutoBuild):
-    source = 'http://kernel.org/pub/software/scm/git/git-1.5.3.6.tar.bz2'
+class Git__tools (tools.AutoBuild, Git):
     def _get_build_dependencies (self):
         return ['curl', 'expat', 'zlib']
     def configure (self):

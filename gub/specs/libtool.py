@@ -6,8 +6,6 @@ from gub import target
 from gub import tools
 
 class Libtool (target.AutoBuild):
-    #source = 'ftp://ftp.gnu.org/pub/gnu/libtool/libtool-1.5.22.tar.gz'
-    #source = 'ftp://ftp.gnu.org/pub/gnu/libtool/libtool-1.5.26.tar.gz'
     source = 'ftp://ftp.gnu.org/pub/gnu/libtool/libtool-2.2.6a.tar.gz'
     #source = 'git://git.sv.gnu.org/libtool.git?branch=master&revision=77e114998457cb6170ad84b360cb5b9be90f2191'
     def __init__ (self, settings, source):
@@ -66,9 +64,7 @@ class Libtool__cygwin (Libtool):
         # instead of asking gcc
         self.file_sub ([('sys_lib_search_path_spec="/usr/lib /lib/w32api /lib /usr/local/lib"', 'sys_lib_search_path_spec="%(system_prefix)s/lib %(system_prefix)s/lib/w32api %(system_prefix)s/lib %(system_prefix)s/bin"')], '%(install_prefix)s/bin/libtool')
 
-class Libtool__tools (tools.AutoBuild):
-    source = Libtool.source
-    source = 'ftp://ftp.gnu.org/pub/gnu/libtool/libtool-2.2.6a.tar.gz'
+class Libtool__tools (tools.AutoBuild, Libtool):
     def __init__ (self, settings, source):
         tools.AutoBuild.__init__ (self, settings, source)
         Libtool.set_sover (self)

@@ -16,7 +16,6 @@ class Curl (target.AutoBuild):
     def config_script (self):
         return 'curl-config'
 
-class Curl__tools (tools.AutoBuild):
-    source = Curl.source
+class Curl__tools (tools.AutoBuild, Curl):
     def _get_build_dependencies (self):
         return ['libtool']

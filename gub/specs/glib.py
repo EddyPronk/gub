@@ -60,8 +60,7 @@ class Glib__freebsd__64 (Glib__freebsd):
     def configure_command (self):
         return Glib__freebsd.configure_command (self) + ' --disable-timeloop'
 
-class Glib__tools (tools.AutoBuild):
-    source = Glib.source
+class Glib__tools (tools.AutoBuild, Glib):
     def install (self):
         tools.AutoBuild.install (self)
         self.system ('rm %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/lib/charset.alias',
