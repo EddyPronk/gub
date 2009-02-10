@@ -30,6 +30,7 @@ RUN_FC_CACHE_TEST=false
                 + self.makeflags ())
 
 class Expat__linux__arm__vfp (Expat):
+    patches = []
     source = 'http://surfnet.dl.sourceforge.net/sourceforge/expat/expat-2.0.0.tar.gz'
     def patch (self):
         self.system ("touch %(srcdir)s/tests/xmltest.sh.in")

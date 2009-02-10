@@ -1,7 +1,6 @@
 from gub.specs.cross import binutils
 
 class Binutils__darwin (binutils.Binutils):
-    patches = binutils.Binutils.patches
     # what's the story with odcctools?
     # it seems that darwin-ppc's binutils build as an empty shell?
     # instead, odcctools have the linker, assembler, etc?

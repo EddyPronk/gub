@@ -68,6 +68,5 @@ class Gmp__freebsd (Gmp):
     source = 'ftp://ftp.gnu.org/pub/gnu/gmp/gmp-4.2.4.tar.gz'
 
 class Gmp__tools (tools.AutoBuild, Gmp):
-    source = Gmp.source
     def _get_build_dependencies (self):
         return ['libtool']            

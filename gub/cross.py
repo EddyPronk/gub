@@ -82,7 +82,7 @@ def set_cross_dependencies (package_object_dict):
     # to figure-out if we need a new, Git, Make, Patch, Python, etc?
     # Building make & patch is cheap and dependable.
     git_packs = [p for p in packs if isinstance (p.source, repository.Git)]
-    patch_packs = [p for p in packs if p.__class__.__dict__.get ('patches', None)]
+    patch_packs = [p for p in packs if p.patches]
     python_packs = [p for p in packs if (isinstance (p, tools.PythonBuild)
                                          or isinstance (p, target.PythonBuild))]
     scons_packs = [p for p in packs if (isinstance (p, tools.SConsBuild)

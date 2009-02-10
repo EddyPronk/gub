@@ -132,8 +132,8 @@ chmod 755 %(install_prefix)s/bin/*
         self.generate_dll_a_and_la ('python2.4', '-lpthread')
 
 class Python__tools (tools.AutoBuild, Python):
-    source = Python.source
 #    patches = ['python-2.4.2-fno-stack-protector.patch']
+    patches = []
     def _get_build_dependencies (self):
         return ['autoconf', 'libtool']
     def force_autoupdate (self):

@@ -6,7 +6,6 @@ class Libtiff (target.AutoBuild):
     def _get_build_dependencies (self):
         return ['tools::libtool', 'libjpeg-devel']
 
-class Libtiff__tools (tools.AutoBuild):
-    source = Libtiff.source
+class Libtiff__tools (tools.AutoBuild, Libtiff):
     def _get_build_dependencies (self):
         return ['libtool', 'libjpeg-devel']

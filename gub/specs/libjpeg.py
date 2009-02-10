@@ -60,8 +60,7 @@ class Libjpeg__linux (Libjpeg):
 #endif''')],
                '%(builddir)s/jconfig.h')
 
-class Libjpeg__tools (tools.AutoBuild):
-    source = Libjpeg.source
+class Libjpeg__tools (tools.AutoBuild, Libjpeg):
     def __init__ (self, settings, source):
         tools.AutoBuild.__init__ (self, settings, source)
         source._version = 'v6b'

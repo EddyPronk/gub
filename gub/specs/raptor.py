@@ -27,7 +27,6 @@ ac_cv_expat_initial_utf8_bom=yes
         return 'raptor-config'
 
 class Raptor__mingw (Raptor):
-    patches = Raptor.patches
     def makeflags (self):
 #        return '''CFLAGS='-Dstrtok_r\(s,d,p\)=strtok\(s,d\)' '''
         return '''CFLAGS="-D'strtok_r(s,d,p)=strtok(s,d)'" '''

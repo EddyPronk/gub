@@ -21,6 +21,7 @@ class Build (context.RunnableContext):
 
     source = ''
     branch = ''
+    patches = []
 
     def __init__ (self, settings, source):
         context.RunnableContext.__init__ (self, settings)
@@ -334,7 +335,7 @@ class AutoBuild (Build):
         self.dump ('%(stage_number)d' % locals (), self.get_stamp_file (), 'w')
 
     def patch (self):
-        list (map (self.apply_patch, self.__class__.__dict__.get ('patches', [])))
+        list (map (self.apply_patch, self.patches))
 
     def force_autoupdate (self):
         return False

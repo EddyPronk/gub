@@ -25,6 +25,7 @@ class Libxcb__freebsd (Libxcb):
         return True
 
 class Libxcb__mingw (Libxcb):
+    patches = []
     def _get_build_dependencies (self):
         return [x for x in Libxcb._get_build_dependencies (self)
                 if 'libpthread-stubs' not in x]

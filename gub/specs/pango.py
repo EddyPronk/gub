@@ -63,8 +63,6 @@ set PANGO_MODULE_VERSION=%(mod_version)s
         self.fix_modules ()
 
 class Pango__linux (Pango):
-    source = 'http://ftp.gnome.org/pub/GNOME/platform/2.22/2.22.0/sources/pango-1.20.0.tar.bz2'
-    patches = ['pango-1.20-substitute-env.patch']
     def untar (self):
         Pango.untar (self)
         # FIXME: --without-cairo switch is removed in 1.10.1,
@@ -75,19 +73,14 @@ class Pango__linux (Pango):
                        '%(srcdir)s/configure')
 
 class Pango__freebsd (Pango__linux):
-    source = 'http://ftp.gnome.org/pub/GNOME/platform/2.22/2.22.0/sources/pango-1.20.0.tar.bz2'
-    patches = ['pango-1.20-substitute-env.patch']
     def _get_build_dependencies (self):
         return Pango__linux._get_build_dependencies (self) + ['libiconv-devel']
 
 class Pango__darwin (Pango):
-    source = 'http://ftp.gnome.org/pub/GNOME/platform/2.22/2.22.0/sources/pango-1.20.0.tar.bz2'
-    patches = ['pango-1.20-substitute-env.patch']
     def configure (self):
         Pango.configure (self)
         self.file_sub ([('nmedit', '%(target_architecture)s-nmedit')],
                        '%(builddir)s/libtool')
-
     def install (self):
         Pango.install (self)                
         self.dump ("""

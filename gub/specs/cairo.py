@@ -9,7 +9,6 @@ class Cairo (target.AutoBuild):
         return ['tools::libtool', 'fontconfig-devel', 'libpng-devel', 'libx11-devel', 'libxrender-devel', 'pixman-devel']
 
 class Cairo__mingw (Cairo):
-    source = Cairo.source
     def configure_command (self):
         return (Cairo.configure_command (self)
                 + ' --enable-win32=yes'

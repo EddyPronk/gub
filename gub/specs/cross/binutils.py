@@ -25,11 +25,9 @@ class Binutils (cross.AutoBuild):
         self.system ('rm %(install_prefix)s%(cross_dir)s/lib/libiberty.a')
 
 class Binutils__linux__ppc (Binutils):
-    source = Binutils.source
     patches = Binutils.patches + ['binutils-2.18-werror-ppc.patch']
 
 class Binutils__mingw (Binutils):
-    patches = Binutils.patches
     def get_build_dependencies (self):
         return Binutils.get_build_dependencies (self) + ['tools::libtool']
     def configure (self):

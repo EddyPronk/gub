@@ -28,7 +28,6 @@ class Libxml2__mingw (Libxml2):
         self.copy ('%(install_prefix)s/lib/libxml2.dll.a', '%(install_prefix)s/lib/libxml2-2.dll.a')
 
 class Libxml2__tools (tools.AutoBuild, Libxml2):
-    source = Libxml2.source
     def _get_build_dependencies (self):
         return Libxml2._get_build_dependencies (self)
     def configure_command (self):

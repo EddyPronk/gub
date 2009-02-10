@@ -224,7 +224,7 @@ export OOO_TOOLS_DIR=/suse/home/janneke/vc/ooo300-m7/build/ooo300-m7/solver/300/
         return '%(OOO_TOOLS_DIR)s/../lib' + misc.append_path (os.environ.get ('LD_LIBRARY_PATH', ''))
     def autoupdate (self):
         # Why is build.py:Build:patch() not doing this?
-        list (map (self.apply_patch, self.__class__.patches))
+        list (map (self.apply_patch, self.patches))
         self.system ('cd %(srcdir)s && NOCONFIGURE=1 ./autogen.sh --noconfigure')
     def config_cache_overrides (self, str):
         return str + '''
@@ -355,7 +355,7 @@ cd %(builddir)s/build/%(cvs_tag)s && patch -p%(patch_strip_component)s < %(patch
             self.system ('cp -p %(upstream_dir)s/%(f)s.pristine %(upstream_dir)s/%(f)s || cp -p %(upstream_dir)s/%(f)s %(upstream_dir)s/%(f)s.pristine' % locals ())
     def patch_upstream (self):
         self.upstream_patch_reset ()
-        list (map (self.apply_upstream_patch, self.__class__.upstream_patches))
+        list (map (self.apply_upstream_patch, self.upstream_patches))
 
         # FIXME: neutralize silly GNU make check
         # self.system ('''sed -i -e "s@' 3[.]81'@'gpuhleez, we are not even building mozilla'@" %(upstream_dir)s/config_office/configure.in')
@@ -420,7 +420,7 @@ LD_LIBRARY_PATH=%(LD_LIBRARY_PATH)s
 ##CPPFLAGS=
                 
 class Openoffice__mingw (Openoffice):
-    Openoffice.upstream_patches += ['openoffice-config_office-mingw.patch', 'openoffice-solenv-mingw.patch', 'openoffice-sal-mingw.patch', 'openoffice-external-mingwheaders.patch', 'openoffice-cppunit-mingw.patch', 'openoffice-i18npool-mingw.patch', 'openoffice-tools-mingw.patch', 'openoffice-setup_native-mingw.patch', 'openoffice-pyuno-mingw.patch', 'openoffice-sysui-mingw.patch', 'openoffice-dtrans-mingw.patch', 'openoffice-fpicker-mingw.patch', 'openoffice-sccomp-mingw.patch', 'openoffice-vcl-mingw.patch', 'openoffice-connectivity-mingw.patch', 'openoffice-unotools-mingw.patch', 'openoffice-embeddedobj-mingw.patch', 'openoffice-shell-mingw.patch', 'openoffice-svx-mingw.patch', 'openoffice-dbaccess-mingw.patch', 'openoffice-desktop-mingw.patch', 'openoffice-scripting-mingw.patch', 'openoffice-postprocess-mingw.patch', 'openoffice-instsetoo_native-mingw.patch', 'openoffice-solenv-mingw-installer.patch', 'openoffice-scp2-mingw.patch']
+    upstream_patches = Openoffice.upstream_patches + ['openoffice-config_office-mingw.patch', 'openoffice-solenv-mingw.patch', 'openoffice-sal-mingw.patch', 'openoffice-external-mingwheaders.patch', 'openoffice-cppunit-mingw.patch', 'openoffice-i18npool-mingw.patch', 'openoffice-tools-mingw.patch', 'openoffice-setup_native-mingw.patch', 'openoffice-pyuno-mingw.patch', 'openoffice-sysui-mingw.patch', 'openoffice-dtrans-mingw.patch', 'openoffice-fpicker-mingw.patch', 'openoffice-sccomp-mingw.patch', 'openoffice-vcl-mingw.patch', 'openoffice-connectivity-mingw.patch', 'openoffice-unotools-mingw.patch', 'openoffice-embeddedobj-mingw.patch', 'openoffice-shell-mingw.patch', 'openoffice-svx-mingw.patch', 'openoffice-dbaccess-mingw.patch', 'openoffice-desktop-mingw.patch', 'openoffice-scripting-mingw.patch', 'openoffice-postprocess-mingw.patch', 'openoffice-instsetoo_native-mingw.patch', 'openoffice-solenv-mingw-installer.patch', 'openoffice-scp2-mingw.patch']
     # external/mingwheaders seems a badly misguided effort.  It
     # patches header files and is thus strictly tied to a gcc version;
     # that can never build.  How can patching header files ever work,
@@ -429,7 +429,7 @@ class Openoffice__mingw (Openoffice):
     # Other patches only affect OO.o client code already inside
     # __MINGW32__ defines.  Why not fix OO.o makefiles and client
     # code?
-    Openoffice.upstream_patches += ['openoffice-sal-mingw-c.patch']
+    upstream_patches += ['openoffice-sal-mingw-c.patch']
     # Kendy's MinGW patches are already applied
     kendy = ['openoffice-transex3-mingw.patch', 'openoffice-soltools-mingw.patch']
     def _get_build_dependencies (self):

@@ -48,6 +48,7 @@ class Glib__mingw (Glib):
     def _get_build_dependencies (self):
         return Glib._get_build_dependencies (self) + ['libiconv-devel']
 
+# what about CFLAGS=-pthread?
 class Glib__freebsd (Glib):
 #    patches = ['glib-2.12.12-disable-threads.patch']
     def _get_build_dependencies (self):
@@ -56,9 +57,8 @@ class Glib__freebsd (Glib):
         return Glib.configure_command (self) + ' --disable-threads'
         
 class Glib__freebsd__64 (Glib__freebsd):
-#    patches = Glib__freebsd.patches
     def configure_command (self):
-        return Glib.configure_command (self) + ' --disable-threads --disable-timeloop'
+        return Glib__freebsd.configure_command (self) + ' --disable-timeloop'
 
 class Glib__tools (tools.AutoBuild):
     source = Glib.source

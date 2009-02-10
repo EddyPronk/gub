@@ -39,10 +39,7 @@ sed: expressie #1, teken 39: onbekende opdracht: '\'
 '''
 
 class Gettext__mingw (Gettext):
-
-    source = Gettext.source
     patches = ['gettext-0.15-mingw.patch']
- 
     def config_cache_overrides (self, str):
         return (re.sub ('ac_cv_func_select=yes', 'ac_cv_func_select=no',
                str)
@@ -51,15 +48,12 @@ class Gettext__mingw (Gettext):
 gl_cv_func_mbrtowc=${gl_cv_func_mbrtowc=no}
 jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
 ''')
-
     def configure_command (self):
         return Gettext.configure_command (self) + ' --disable-libasprintf'
-
     def configure (self):
         Gettext.configure (self)
         self.file_sub ( [(' gettext-tools ', ' ')],
                         '%(builddir)s/Makefile')
-
     def install (self):
         ## compile of gettext triggers configure in between.  (hgwurgh.)
         self.update_libtool ()

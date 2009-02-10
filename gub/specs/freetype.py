@@ -96,7 +96,6 @@ class XFreetype__cygwin (Freetype):
         self.pre_install_smurf_exe ()
 
 class Freetype__tools (tools.AutoBuild, Freetype):
-    source = Freetype.source
     def _get_build_dependencies (self):
         return ['libtool']
     # FIXME, mi-urg?

@@ -27,6 +27,7 @@ class Git (target.AutoBuild):
                         '%(srcdir)s/GIT-VERSION-GEN')
         
 class Git__mingw (Git):
+    patches = []
     def __init__ (self, settings, source):
         Git.__init__ (self, settings, source)
         self.target_gcc_flags = ' -mms-bitfields '

@@ -213,7 +213,6 @@ class Ghostscript__mingw (Ghostscript):
         # Configure (compile) without -mwindows for console
         # FIXME: should add to CPPFLAGS...
         self.target_gcc_flags = '-mms-bitfields -D_Windows -D__WINDOWS__'
-
     def patch (self):
         Ghostscript.patch (self)
         #checkme, seems obsolete, is this still necessary?
@@ -221,13 +220,11 @@ class Ghostscript__mingw (Ghostscript):
                          'unix__= $(GLOBJ)gp_mswin.$(OBJ) $(GLOBJ)gp_wgetv.$(OBJ) $(GLOBJ)gp_stdia.$(OBJ) $(GLOBJ)gsdll.$(OBJ) $(GLOBJ)gp_ntfs.$(OBJ) $(GLOBJ)gp_win32.$(OBJ)')],
                        '%(srcdir)s/src/unix-aux.mak',
                        use_re=False, must_succeed=True)
-
     def configure (self):
         Ghostscript.configure (self)
         # FIXME: use makeflags: EXTRALIBS=... ?
         self.file_sub ([('^(EXTRALIBS *=.*)', '\\1 -lwinspool -lcomdlg32 -lz')],
                '%(builddir)s/Makefile')
-
         self.file_sub ([('^unix__=.*', misc.join_lines ('''unix__=
 $(GLOBJ)gp_mswin.$(OBJ)
 $(GLOBJ)gp_wgetv.$(OBJ)
@@ -246,7 +243,6 @@ $(GLOBJ)gp_ntfs.$(OBJ)
 $(GLOBJ)gp_win32.$(OBJ)
 '''))],
                '%(srcdir)s/src/lib.mak')
-
         self.dump ('''
 GLCCWIN=$(CC) $(CFLAGS) -I$(GLOBJDIR)
 PSCCWIN=$(CC) $(CFLAGS) -I$(GLOBJDIR)
@@ -268,7 +264,6 @@ url='http://mirror3.cs.wisc.edu/pub/mirrors/ghost/GPL/gs850/ghostscript-8.50-gpl
 class Ghostscript__cygwin (Ghostscript):
     patches = ['ghostscript-8.15-windows-wb.patch',
                'ghostscript-8.57-cygwin-esp.patch']
-
     def __init__ (self, settings, source):
         Ghostscript.__init__ (self, settings, source)
         self.fonts_source = repository.get_repository_proxy (self.settings.downloads, 'http://mirror2.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/ghostscript-fonts-std-8.11.tar.gz')
@@ -377,7 +372,6 @@ cd %(install_prefix)s && rm -rf usr/X11R6/share
         return {'base': 'The GPL Ghostscript PostScript interpreter - transitional package\nThis is an empty package to streamline the upgrade.'}
 
 class Ghostscript__tools (tools.AutoBuild, Ghostscript):
-    source = Ghostscript.source
     def _get_build_dependencies (self):
         return ['libjpeg', 'libpng']
     def force_sequential_build (self):

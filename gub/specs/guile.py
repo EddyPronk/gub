@@ -110,8 +110,6 @@ exit 0
         self.chmod ('%(install_prefix)s%(cross_dir)s/bin/%(target_architecture)s-guile-config', octal.o755)
 
 class Guile__mingw (Guile):
-    source = Guile.source
-    patches = Guile.patches
     def __init__ (self, settings, source):
         Guile.__init__ (self, settings, source)
         # Configure (compile) without -mwindows for console
@@ -157,7 +155,6 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_prefix)s/lib"}
         self.system ('''mv %(install_prefix)s/lib/lib*[0-9].la %(install_prefix)s/bin''')
 
 class Guile__linux (Guile):
-    patches = Guile.patches
     def compile_command (self):
         # FIXME: when not x-building, guile runs guile without
         # setting the proper LD_LIBRARY_PATH.
@@ -165,12 +162,10 @@ class Guile__linux (Guile):
                 + Guile.compile_command (self))
 
 class Guile__linux__ppc (Guile__linux):
-    patches = Guile.patches
     def config_cache_overrides (self, str):
         return str + "\nguile_cv_have_libc_stack_end=no\n"
 
 class Guile__freebsd (Guile):
-    patches = Guile.patches
     def config_cache_settings (self):
         return (Guile.config_cache_settings (self)
                 + '''
@@ -183,7 +178,6 @@ guile_cv_use_csqrt="no"
                 + Guile.configure_variables (self))
 
 class Guile__darwin (Guile):
-    patches = Guile.patches
     def install (self):
         Guile.install (self)
 
@@ -198,14 +192,12 @@ class Guile__darwin (Guile):
                          'libguile-srfi*.dylib')
  
 class Guile__darwin__x86 (Guile__darwin):
-    patches = Guile.patches
     def configure (self):
         Guile__darwin.configure (self)
         self.file_sub ([('guile-readline', '')],
                        '%(builddir)s/Makefile')
         
 class Guile__cygwin (Guile):
-    patches = Guile.patches
     def category_dict (self):
         return {'': 'Interpreters'}
     # Using gub dependencies only would be nice, but
@@ -279,8 +271,6 @@ guile-tut').
     }
 
 class Guile__tools (tools.AutoBuild, Guile):
-    source = Guile.source
-    patches = Guile.patches
     def _get_build_dependencies (self):
         return (Guile._get_build_dependencies (self)
                 + ['autoconf', 'automake', 'gettext', 'flex', 'libtool'])

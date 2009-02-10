@@ -22,8 +22,6 @@ class Libpng (target.AutoBuild):
         return '(%s) || (%s)' % (c,c)
     
 class Libpng__tools (tools.AutoBuild, Libpng):
-    source = Libpng.source
-    patches = Libpng.patches
     def _get_build_dependencies (self):
         return ['libtool']
     def patch (self):

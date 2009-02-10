@@ -28,7 +28,6 @@ class Zlib (target.AutoBuild):
         return ['%(sourcefiledir)s/zlib.license']
 
 class Zlib_plain__mingw (Zlib):
-    patches = Zlib.patches
     def patch (self):
         Zlib.patch (self)
         self.file_sub ([("='/bin/true'", "='true'"),
@@ -40,7 +39,6 @@ class Zlib_plain__mingw (Zlib):
         return zlib_is_broken + ' %(srcdir)s/configure --shared '
 
 class Zlib_minizip__mingw (Zlib_plain__mingw):
-    patches = Zlib_plain__mingw.patches
     def patch_include_minizip (self):
         self.file_sub ([('(inffast.o)$', r'\1 ioapi.o iowin32.o mztools.o unzip.o zip.o\nVPATH= contrib/minizip\n')],
                    '%(srcdir)s/Makefile.in')
@@ -58,18 +56,16 @@ class Zlib_minizip__mingw (Zlib_plain__mingw):
 Zlib__mingw = Zlib_minizip__mingw
 
 class Zlib__freebsd__64 (Zlib):
-    pass
+    patches = []
 '''
 no shared lib: gcc-4.2.1 says
 ./home/janneke/tmp/python-mingw/target/freebsd-64/root/usr/cross/bin/x86_64-freebsd6-ld: error in /home/janneke/tmp/python-mingw/target/freebsd-64/root/usr/cross/lib/gcc/x86_64-freebsd6/4.1.2/crtendS.o(.eh_frame); no .eh_frame_hdr table will be created..
 '''
 
 class Zlib__tools (tools.AutoBuild, Zlib):
-    source = Zlib.source
 # FIXME: tools not the same as target: asking for trouble
 #    source = 'http://heanet.dl.sourceforge.net/sourceforge/libpng/zlib-1.2.3.3.tar.gz'
 # FIXME: where lives 1.2.3.3 with gzopen64?
-    patches = Zlib.patches
     def _get_build_dependencies (self):
         return ['autoconf']
     def configure (self):

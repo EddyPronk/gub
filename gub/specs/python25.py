@@ -83,7 +83,7 @@ chmod 755 %(install_prefix)s/bin/*
 ''')
 
 class Python__tools (tools.AutoBuild, Python):
-    source = Python.source
+    patches = []
     def _get_build_dependencies (self):
         return ['autoconf', 'libtool']
     def force_autoupdate (self):
