@@ -33,7 +33,20 @@ class AbstractCommandLogger:
     messages when approppriate.
     """
     def __init__ (self):
-        pass
+        class Writer:
+            def __init__ (this, level):
+                this.level = level
+            def write (this, message):
+                self.write_log (message, this.level)
+        self.error = Writer ('error')
+        self.stage = Writer ('stage')
+        self.info = Writer ('info')
+        self.harmless = Writer ('harmless')
+        self.verbose = Writer ('verbose')
+        self.warning = Writer ('warning')
+        self.command = Writer ('command')
+        self.output = Writer ('output')
+        self.debug = Writer ('debug')
     def verbose_flag (self):
         return ''
     def read_tail (self):
@@ -50,7 +63,7 @@ class NullCommandLogger (AbstractCommandLogger):
 
 class CommandLogger (AbstractCommandLogger):
     def __init__ (self, log_file_name, threshold):
-
+        AbstractCommandLogger.__init__ (self)
         # only print message under THRESHOLD.
         self.threshold = threshold
         self.log_file = None
