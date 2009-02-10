@@ -194,7 +194,7 @@ class Settings (context.Context):
         except:
             pass
         try:
-            cpu = misc.read_pipe ('sysctl -b hw.machine')
+            cpu = misc.read_pipe ('sysctl -b hw.machine', logger=logging.default_logger.harmless)
             if cpu in ('amd64', 'ia64'):
                 self_build_hardware_bits = '64'
         except:
