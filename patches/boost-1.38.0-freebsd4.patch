@@ -1,0 +1,11 @@
+--- boost-1.38.0/libs/filesystem/src/operations.cpp~	2009-01-19 15:10:41.000000000 +0100
++++ boost-1.38.0/libs/filesystem/src/operations.cpp	2009-02-10 16:37:06.000000000 +0100
+@@ -65,7 +65,7 @@ using boost::system::system_category;
+ 
+ # else // BOOST_POSIX_API
+ #   include <sys/types.h>
+-#   if !defined(__APPLE__) && !defined(__OpenBSD__)
++#   if !defined(__APPLE__) && !defined(__OpenBSD__) && !(defined(__FreeBSD__) && __FreeBSD__ <= 4)
+ #     include <sys/statvfs.h>
+ #     define BOOST_STATVFS statvfs
+ #     define BOOST_STATVFS_F_FRSIZE vfs.f_frsize
