@@ -223,19 +223,32 @@ class BuildRunner:
             self.spec_install (spec)
         logging.default_logger.write_log ('\n', 'stage')
 
-    def uninstall_outdated_spec (self, spec_name):
-        spec = self.specs[spec_name]
+    def is_outdated_spec (self, spec):
+        spec_name = spec.name ()
         checksum_fail_reason = self.failed_checksums.get (spec_name, '')
         checksum_ok = '' == checksum_fail_reason
         for pkg in spec.get_packages ():
             if (self.manager (pkg.platform ()).is_installed (pkg.name ())
                 and (not self.manager (pkg.platform ()).is_installable (pkg.name ())
                      or not checksum_ok)):
+                return True
+        return False
+
+    def uninstall_spec (self, spec):
+        for pkg in spec.get_packages ():
+            if (self.manager (pkg.platform ()).is_installed (pkg.name ())):
                 self.manager (pkg.platform ()).uninstall_package (pkg.name ())
 
     def uninstall_outdated_specs (self, deps):
-        for spec_name in reversed (deps):
-            self.uninstall_outdated_spec (spec_name)
+        outdated = reversed ([name for name in deps
+                              if self.is_outdated_spec (self.specs[name])])
+        if outdated:
+            platform = self.settings.platform
+            outdated_str = (' '.join (outdated)
+                            .replace (misc.with_platform ('', platform), ''))
+            logging.default_logger.write_log ('removing outdated[%(platform)s]: %(outdated_str)s\n' % locals (), 'stage')
+            for name in outdated:
+                self.uninstall_spec (self.specs[name])
 
     def build_source_packages (self, names):
         deps = [d for d in names if d in self.specs]
