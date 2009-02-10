@@ -1,0 +1,27 @@
+--- gtk+-2.15.3/configure.in~	2009-02-03 00:30:18.000000000 +0100
++++ gtk+-2.15.3/configure.in	2009-02-10 14:35:38.000000000 +0100
+@@ -691,9 +691,7 @@ AC_TRY_LINK([#include <stdlib.h>],[
+ #      include <wchar.h>
+ #    endif
+ #  endif
+-#else
+-#  define iswalnum(c) ((wchar_t)(c) <= 0xFF && isalnum(c))
+ #endif
+-iswalnum((wchar_t) 0);
++int i = iswalnum((wchar_t) 0);
+ ], gdk_working_wctype=yes, gdk_working_wctype=no)
+ LIBS="$oLIBS"
+--- gtk+-2.15.3/configure~	2009-02-03 00:31:31.000000000 +0100
++++ gtk+-2.15.3/configure	2009-02-10 14:39:32.000000000 +0100
+@@ -27307,10 +27307,8 @@ main ()
+ #      include <wchar.h>
+ #    endif
+ #  endif
+-#else
+-#  define iswalnum(c) ((wchar_t)(c) <= 0xFF && isalnum(c))
+ #endif
+-iswalnum((wchar_t) 0);
++int i = iswalnum((wchar_t) 0);
+ 
+   ;
+   return 0;

@@ -34,9 +34,14 @@ class Gtk_x_ (target.AutoBuild):
                 + ' --disable-cups')
 
 class Gtk_x___freebsd (Gtk_x_):
+    #patches = Gtk_x_.patches
     def configure_command (self):
         return (Gtk_x_.configure_command (self)
                 + ' CFLAGS=-pthread')
+
+class Gtk_x___freebsd__x86 (Gtk_x___freebsd):
+    #patches = Gtk_x___freebsd.patches + ['gtk+-2.15.3-configure.in-have-iswalnum.patch']
+    patches = ['gtk+-2.15.3-configure.in-have-iswalnum.patch']
 
 class Gtk_x___mingw (Gtk_x_):
     source = 'http://ftp.acc.umu.se/pub/GNOME/sources/gtk+/2.14/gtk+-2.14.7.tar.gz'
