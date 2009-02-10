@@ -8,7 +8,7 @@ class Libpthread_stubs (target.AutoBuild):
 class Libpthread_stubs__freebsd__x86 (Libpthread_stubs):
     def configure_command (self):
         return (Libpthread_stubs.configure_command (self)
-                + ' LDFLAGS=-lc_r')
+                + ' CFLAGS=-pthread')
     
 class Libpthread_stubs__mingw (Libpthread_stubs):
     def _get_build_dependencies (self):

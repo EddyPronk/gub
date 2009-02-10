@@ -33,6 +33,11 @@ class Gtk_x_ (target.AutoBuild):
                 + ' --without-libjasper'
                 + ' --disable-cups')
 
+class Gtk_x___freebsd (Gtk_x_):
+    def configure_command (self):
+        return (Gtk_x_.configure_command (self)
+                + ' CFLAGS=-pthread')
+
 class Gtk_x___mingw (Gtk_x_):
     source = 'http://ftp.acc.umu.se/pub/GNOME/sources/gtk+/2.14/gtk+-2.14.7.tar.gz'
     def _get_build_dependencies (self):
