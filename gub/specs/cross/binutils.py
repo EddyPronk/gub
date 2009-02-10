@@ -4,7 +4,7 @@ from gub import cross
 class Binutils (cross.AutoBuild):
     source = 'ftp://ftp.gnu.org/pub/gnu/binutils/binutils-2.18.tar.bz2'
     patches = ['binutils-2.18-makeinfo-version.patch', 'binutils-2.18-werror.patch' ]
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['tools::texinfo']
     def xconfigure_command (self):
         # --werror is broken
@@ -28,8 +28,8 @@ class Binutils__linux__ppc (Binutils):
     patches = Binutils.patches + ['binutils-2.18-werror-ppc.patch']
 
 class Binutils__mingw (Binutils):
-    def get_build_dependencies (self):
-        return Binutils.get_build_dependencies (self) + ['tools::libtool']
+    def _get_build_dependencies (self):
+        return Binutils._get_build_dependencies (self) + ['tools::libtool']
     def configure (self):
         Binutils.configure (self)
         # Configure all subpackages, makes

@@ -14,7 +14,7 @@ class Odcctools (cross.AutoBuild): #skews dependencies:, build.SdkBuild):
         if 'x86_64-linux' in self.settings.build_architecture:
             # odcctools does not build with 64 bit compiler
             cross.change_target_package_x86 (self, self.add_linux_x86_env ())
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         lst = ['darwin-sdk']
         if 'x86_64-linux' in self.settings.build_architecture:
             lst += ['linux-x86::glibc']

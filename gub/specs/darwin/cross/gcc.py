@@ -5,8 +5,8 @@ from gub import loggedos
 
 class Gcc__darwin (gcc.Gcc):
     source = 'ftp://ftp.fu-berlin.de/unix/languages/gcc/releases/gcc-4.1.1/gcc-4.1.1.tar.bz2'
-    def get_build_dependencies (self):
-        return gcc.Gcc.get_build_dependencies (self) + ['odcctools']
+    def _get_build_dependencies (self):
+        return gcc.Gcc._get_build_dependencies (self) + ['odcctools']
     def patch (self):
         self.file_sub ([('/usr/bin/libtool', '%(cross_prefix)s/bin/%(target_architecture)s-libtool')],
                        '%(srcdir)s/gcc/config/darwin.h')
@@ -40,8 +40,8 @@ class Gcc__darwin (gcc.Gcc):
     
 class Gcc__darwin__x86 (Gcc__darwin):
     source = 'ftp://ftp.fu-berlin.de/unix/languages/gcc/releases/gcc-4.3.2/gcc-4.3.2.tar.bz2'
-    def get_build_dependencies (self):
-        return Gcc__darwin.get_build_dependencies (self) + ['tools::mpfr']
+    def _get_build_dependencies (self):
+        return Gcc__darwin._get_build_dependencies (self) + ['tools::mpfr']
 
 class Not_used__Gcc__darwin (Gcc__darwin):
     def configure (self):

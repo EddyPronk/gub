@@ -8,6 +8,6 @@ class Binutils__darwin (binutils.Binutils):
     # No, like this, that badly breaks dependencies.
     # Just *do not* build darwin-ppc::cross/binutils, that
     # triggers gcc to be built before odcctools?
-    def get_build_dependencies (self):
-        return (binutils.Binutils.get_build_dependencies (self)
+    def _get_build_dependencies (self):
+        return (binutils.Binutils._get_build_dependencies (self)
                 + ['odcctools'])

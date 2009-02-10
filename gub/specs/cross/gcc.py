@@ -10,7 +10,7 @@ from gub import misc
 #FIXME: merge fully with specs/gcc
 class Gcc (cross.AutoBuild):
     source = 'ftp://ftp.gnu.org/pub/gnu/gcc/gcc-4.1.2/gcc-4.1.2.tar.bz2'
-    def get_build_dependencies (self):
+    def _get_build_dependencies (self):
         return ['cross/binutils']
     def patch (self):
         cross.AutoBuild.patch (self)
@@ -84,8 +84,8 @@ TARGET_FLAGS_TO_PASS='$(BASE_FLAGS_TO_PASS) $(EXTRA_TARGET_FLAGS) $(GUB_FLAGS_TO
         self.system ('mv %(install_prefix)s/lib/libstdc++.la %(install_prefix)s/lib/libstdc++.la-')
 
 class Gcc__from__source (Gcc):
-    def get_build_dependencies (self):
-        return (Gcc.get_build_dependencies (self)
+    def _get_build_dependencies (self):
+        return (Gcc._get_build_dependencies (self)
                 + ['cross/gcc-core', 'glibc-core'])
     def get_conflict_dict (self):
         return {'': ['cross/gcc-core'], 'doc': ['cross/gcc-core'], 'runtime': ['cross/gcc-core']}
@@ -113,8 +113,8 @@ Gcc__linux = Gcc__from__source
 
 class Gcc__mingw (Gcc):
     source = 'ftp://ftp.gnu.org/pub/gnu/gcc/gcc-4.1.1/gcc-4.1.1.tar.bz2'
-    def get_build_dependencies (self):
-        return (Gcc.get_build_dependencies (self)
+    def _get_build_dependencies (self):
+        return (Gcc._get_build_dependencies (self)
                 + ['mingw-runtime', 'w32api']
                 + ['tools::libtool'])
     def patch (self):
@@ -147,8 +147,8 @@ class Gcc__mingw (Gcc):
 
 # http://gcc.gnu.org/PR24196            
 class this_works_but_has_string_exception_across_dll_bug_Gcc__cygwin (Gcc__mingw):
-    def get_build_dependencies (self):
-        return (Gcc__mingw.get_build_dependencies (self)
+    def _get_build_dependencies (self):
+        return (Gcc__mingw._get_build_dependencies (self)
                 + ['cygwin', 'w32api-in-usr-lib'])
     def makeflags (self):
         return misc.join_lines ('''
@@ -183,8 +183,8 @@ class Gcc__cygwin (Gcc):
         cygwin.untar_cygwin_src_package_variant2 (self, ball.replace ('-core', '-g++'),
                                                   split=True)
         cygwin.untar_cygwin_src_package_variant2 (self, ball)
-    def get_build_dependencies (self):
-        return (Gcc.get_build_dependencies (self)
+    def _get_build_dependencies (self):
+        return (Gcc._get_build_dependencies (self)
 #                + ['cygwin', 'w32api-in-usr-lib', 'cross/gcc-g++'])
                 + ['cygwin', 'w32api-in-usr-lib'])
     def makeflags (self):
