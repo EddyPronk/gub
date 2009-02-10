@@ -35,7 +35,7 @@ class Inkscape (target.AutoBuild):
 #                + ''' CXXFLAGS='-static-libgcc -lstdc++' '''
 #                + ''' CXXLD='$(CC)' '''
                 + ''' LDFLAGS='%(rpath)s' '''
-                + ' CXXFLAGS='
+                + ' CXXFLAGS=-fpermissive'
                 )
 
 class Inkscape__mingw (Inkscape):
