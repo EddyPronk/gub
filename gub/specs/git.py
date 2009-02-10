@@ -2,8 +2,11 @@ from gub import target
 from gub import tools
 
 class Git (target.AutoBuild):
-    patches = ['git-1.5.2-templatedir.patch',
-               'git-1.5-shell-anality.patch']
+    source = 'http://kernel.org/pub/software/scm/git/git-1.5.3.6.tar.bz2'
+    patches = [
+        'git-1.5.2-templatedir.patch',
+        #'git-1.5-shell-anality.patch'
+        ]
     def version (self):
         return '1.5.3.rc2'
     def configure (self):
