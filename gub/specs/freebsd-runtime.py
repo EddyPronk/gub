@@ -6,8 +6,10 @@ class Freebsd_runtime (build.BinaryBuild, build.SdkBuild):
         build.BinaryBuild.untar (self)
 
 class Freebsd_runtime__freebsd__x86 (Freebsd_runtime):
+    patches = ['freebsd4-runtime.patch']
     def untar (self):
         Freebsd_runtime.untar (self)
+        self.patch ()
         self.system ('''
 cp %(sourcefiledir)s/stdint-32.h %(srcdir)s%(prefix_dir)s/include/stdint.h
 ''')
