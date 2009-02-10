@@ -192,13 +192,12 @@ class Settings (context.Context):
             if 'lm' in cpu_flags:
                 self.build_hardware_bits = '64'
         except:
-            pass
-        try:
-            cpu = misc.read_pipe ('sysctl -b hw.machine', logger=logging.default_logger.harmless)
-            if cpu in ('amd64', 'ia64'):
-                self.build_hardware_bits = '64'
-        except:
-            pass
+            try:
+                cpu = misc.read_pipe ('sysctl -b hw.machine', logger=logging.default_logger.harmless)
+                if cpu in ('amd64', 'ia64'):
+                    self.build_hardware_bits = '64'
+            except:
+                pass
 
         if self.build_bits == '32' and self.build_hardware_bits == '64':
             # 32 bit OS running on 64 bit hardware, help configure
