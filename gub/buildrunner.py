@@ -240,8 +240,8 @@ class BuildRunner:
                 self.manager (pkg.platform ()).uninstall_package (pkg.name ())
 
     def uninstall_outdated_specs (self, deps):
-        outdated = reversed ([name for name in deps
-                              if self.is_outdated_spec (self.specs[name])])
+        outdated = list (reversed ([name for name in deps
+                                    if self.is_outdated_spec (self.specs[name])]))
         if outdated:
             platform = self.settings.platform
             outdated_str = (' '.join (outdated)
