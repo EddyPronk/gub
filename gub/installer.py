@@ -395,7 +395,7 @@ cp %(nsisdir)s/*.sh.in %(ns_dir)s''', locals ())
         nsi = 'installer'
         if os.path.exists (self.expand ('%(nsisdir)s/%(name)s', env=locals ())):
             nsi = self.name ()
-        if self.name () == 'mingit':
+        if self.name == 'mingit':
             # urgme
             nsi = 'git'
         self.system ('cd %(targetdir)s && makensis -NOCD %(ns_dir)s/definitions.nsh %(ns_dir)s/%(nsi)s.nsi', locals ())
