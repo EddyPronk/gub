@@ -67,6 +67,9 @@ class Inkscape__freebsd (Inkscape):
         return (Inkscape.configure_command (self)
                 + ' CFLAGS=-pthread'
                 + ' CXXFLAGS="-fpermissive -pthread"')
+    def get_dependency_dict (self):
+        return {'': (Inkscape.get_dependency_dict (self)['']
+                     + ['cross/gcc-runtime']) }
 
 class Inkscape__freebsd__x86 (Inkscape__freebsd):
     patches = ['inkscape-isfinite.patch', 'inkscape-wstring.patch',

@@ -123,11 +123,14 @@ class LilyPond (target.AutoBuild):
         p = self.settings.platform
         return '%(nv)s.%(p)s.gub' % locals ()
 
-class LilyPond__cygwin (LilyPond):
+class LilyPond__freebsd (LilyPond):
+    def get_dependency_dict (self):
+        return {'': (LilyPond.get_dependency_dict (self)['']
+                     + ['cross/gcc-runtime']) }
 
+class LilyPond__cygwin (LilyPond):
     def get_subpackage_names (self):
         return ['doc', '']
-
     def get_dependency_dict (self): #cygwin
         return {
             '' :
@@ -439,6 +442,7 @@ Lilypond__cygwin = LilyPond__cygwin
 Lilypond__darwin = LilyPond__darwin
 Lilypond__darwin__ppc = LilyPond__darwin__ppc
 Lilypond__debian = LilyPond__debian
-Lilypond__mingw = LilyPond__mingw
 Lilypond__debian_arm = LilyPond__debian
+Lilypond__freebsd = LilyPond__freebsd
+Lilypond__mingw = LilyPond__mingw
 Lilypond__mipsel = LilyPond__debian
