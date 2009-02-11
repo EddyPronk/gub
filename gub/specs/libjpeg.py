@@ -71,6 +71,8 @@ class Libjpeg__tools (tools.AutoBuild, Libjpeg):
     def force_autoupdate (self):
         '''libtoolize: `configure.ac' does not exist'''
         return False
+    def update_libtool (self):
+        pass
     def configure (self):
         self.update_config_guess_config_sub ()
         tools.AutoBuild.configure (self)
