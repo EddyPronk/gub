@@ -55,6 +55,14 @@ class LilyPond (target.AutoBuild):
                 'tools::texi2html',
                 #'tools::mpost ', 
                 ]
+    def get_build_dependencies (self):
+        return self._get_build_dependencies ()
+    def get_dependency_dict (self):
+        return {'': [x.replace ('-devel', '')
+                     for x in self._get_build_dependencies ()
+                     if 'tools::' not in x and 'cross/' not in x]
+                + ['cross/gcc-c++-runtime']
+                }
     def autoupdate (self):
         self.system ('cd %(srcdir)s && ./smart-autogen.sh --noconfigure') 
     def configure_binary (self):
