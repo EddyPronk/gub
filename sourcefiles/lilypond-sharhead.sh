@@ -133,7 +133,7 @@ chmod +x "$binwrapscript"
 ##gtk##INSTALLER_PREFIX=${prefix}/usr
 ##gtk##ENV=${dollar}HOME/.inkscape.env
 ##gtk##
-##gtk##cat > ${dollar}ENV <<${dollar}EOF
+##gtk##cat > ${dollar}ENV <<$EOF
 ##gtk##INSTALLER_PREFIX=${prefix}/usr
 ##gtk##if test -d ${dollar}INSTALLER_PREFIX/lib/gtk-2.0/2.10.0/loaders; then
 ##gtk##    export GDK_PIXBUF_MODULEDIR=${dollar}INSTALLER_PREFIX/lib/gtk-2.0/2.10.0/loaders
@@ -144,10 +144,10 @@ chmod +x "$binwrapscript"
 ##gtk##    export GTK_SYSCONFDIR=${dollar}INSTALLER_PREFIX/etc
 ##gtk##fi
 ##gtk##export LD_LIBRARY_PATH="${dollar}{INSTALLER_PREFIX}/lib"
-##gtk##${dollar}EOF
+##gtk##$EOF
 ##gtk##
 ##gtk##for file in ${dollar}INSTALLER_PREFIX/etc/relocate/*.reloc; do
-##gtk##    sed -e 's/^set\(\|file\|dir\) /export /' ${dollar}file \\
+##gtk##    sed -e 's/^[^ ]* /export /' ${dollar}file \\
 ##gtk##	| while read line; do
 ##gtk##	echo ${dollar}line >> ${dollar}ENV
 ##gtk##    done

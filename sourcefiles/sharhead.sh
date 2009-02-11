@@ -135,7 +135,7 @@ cat <<EOF > "$binwrapscript"
 INSTALLER_PREFIX=${prefix}/usr
 ENV=${dollar}HOME/.inkscape.env
 
-cat > ${dollar}ENV <<${dollar}EOF
+cat > ${dollar}ENV <<$EOF
 INSTALLER_PREFIX=${prefix}/usr
 if test -d ${dollar}INSTALLER_PREFIX/lib/gtk-2.0/2.10.0/loaders; then
     export GDK_PIXBUF_MODULEDIR=${dollar}INSTALLER_PREFIX/lib/gtk-2.0/2.10.0/loaders
@@ -147,10 +147,10 @@ if test -d ${dollar}INSTALLER_PREFIX/lib/gtk-2.0/2.10.0/loaders; then
     export GTK_SYSCONFDIR=${dollar}INSTALLER_PREFIX/etc
 fi
 export LD_LIBRARY_PATH="${dollar}{INSTALLER_PREFIX}/lib"
-${dollar}EOF
+$EOF
 
 for file in ${dollar}INSTALLER_PREFIX/etc/relocate/*.reloc; do
-    sed -e 's/^set\(\|file\|dir\) /export /' ${dollar}file \\
+    sed -e 's/^[^ ]* /export /' ${dollar}file \\
 	| while read line; do
 	echo ${dollar}line >> ${dollar}ENV
     done
