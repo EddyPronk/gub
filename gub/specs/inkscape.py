@@ -61,3 +61,54 @@ In file included from /home/janneke/vc/gub/target/mingw/root/usr/include/windows
 /home/janneke/vc/gub/target/mingw/root/usr/include/jmorecfg.h:227: error: conflicting declaration 'typedef int boolean'
 /home/janneke/vc/gub/target/mingw/root/usr/include/rpcndr.h:52: error: 'boolean' has a previous declaration as 'typedef unsigned char boolean'
 '''
+
+class Inkscape__freebsd (Inkscape):
+    def configure_command (self):
+        return (Inkscape.configure_command (self)
+                + ' CFLAGS=-pthread'
+                + ' CXXFLAGS="-fpermissive -pthread"')
+
+class Inkscape__freebsd__x86 (Inkscape__freebsd):
+    patches = ['inkscape-isfinite.patch', 'inkscape-wstring.patch',
+               #'inkscape-round.patch',
+               'inkscape-round-2.patch',
+               ]
+    def patch (self):
+        Inkscape__freebsd.patch (self)
+        self.file_sub ([
+                ('wchar_t', 'char'),
+                ('WCHAR_T', 'CHAR'),
+                ],
+                       '%(srcdir)s/src/util/ucompose.hpp')
+    def configure (self):
+        Inkscape__freebsd.configure (self)
+        self.file_sub ([
+                ('(/[*] config.h.  Generated)', r'''
+#ifndef C99_ROUND
+#define C99_ROUND
+#ifdef __cplusplus
+extern "C" {
+#endif
+double floor (double);
+int sscanf(const char *str, const char *format, ...);
+#ifdef __cplusplus
+}
+#endif
+static inline double
+round (double x)
+{
+  return (floor (x - 0.5) + 1.0);
+}
+static inline long long
+atoll (char const *s)
+{
+    long long _l = 0LL;
+    sscanf(s, "%%lld", &_l);
+    return _l;
+}
+#define fmin(x,y) (x<y? x : y)
+#define fmax(x,y) (x>y? x : y)
+#define INFINITY (__builtin_inff())
+#endif /* C99_ROUND */
+\1'''),],
+                       '%(builddir)s/config.h')

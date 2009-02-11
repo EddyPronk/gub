@@ -1,0 +1,11 @@
+--- inkscape-trunk-20605/src/2geom/isnan.h~	2009-02-09 11:54:31.000000000 +0100
++++ inkscape-trunk-20605/src/2geom/isnan.h	2009-02-11 11:08:32.000000000 +0100
+@@ -93,7 +93,7 @@
+ #include  <ieeefp.h>
+ #define IS_FINITE(_a) (finite(_a) && !IS_NAN(_a))
+ #else
+-# define IS_FINITE(_a) (std::isfinite(_a))
++# define IS_FINITE(_a) (!isinf(_a))
+ #endif
+ /* If the above doesn't work, then try (finite(_a) && !IS_NAN(_a)) or 
+  * (!IS_NAN((_a) - (_a))).

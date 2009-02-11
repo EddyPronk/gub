@@ -1,0 +1,20 @@
+--- inkscape-trunk-20605/src/util/ucompose.hpp~	2009-02-09 11:54:41.000000000 +0100
++++ inkscape-trunk-20605/src/util/ucompose.hpp	2009-02-11 11:35:59.000000000 +0100
+@@ -127,7 +127,7 @@ namespace UStringPrivate
+   {
+     os << obj;
+ 
+-    std::wstring str = os.str();
++    std::string str = os.str();
+     
+     return Glib::convert(std::string(reinterpret_cast<const char *>(str.data()),
+ 				     str.size() * sizeof(wchar_t)),
+@@ -171,7 +171,7 @@ namespace UStringPrivate
+ 	output.insert(pos, rep);
+       }
+     
+-      os.str(std::wstring());
++      os.str(std::string());
+       //os.clear();
+       ++arg_no;
+     }
