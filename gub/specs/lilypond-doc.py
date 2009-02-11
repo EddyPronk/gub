@@ -12,7 +12,7 @@ class LilyPond_doc (lilypond.LilyPond_base):
                 'tools::imagemagick',
                 'tools::rsync', # ugh, we depend on *rsync* !?
                 #'tools::texlive',
-                ]
+                ])
     def makeflags (self):
         return misc.join_lines ('''
 CROSS=no
