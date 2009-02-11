@@ -393,7 +393,7 @@ cp %(nsisdir)s/*.sh.in %(ns_dir)s''', locals ())
         PATH = '%(tools_prefix)s/bin:' + PATH
 
         nsi = 'installer'
-        if os.path.exists (self.expand ('%(nsidir)s/%(name)s', env=locals ())):
+        if os.path.exists (self.expand ('%(nsisdir)s/%(name)s', env=locals ())):
             nsi = self.name ()
         if self.name () == 'mingit':
             # urgme
