@@ -49,8 +49,8 @@ class Installer (context.RunnableContext):
             (self.remote_package_branch,
              self.package_branch) = tuple (self.package_branch.split (':'))
 
-        self.target_installer = settings.targetdir + '/installer'
-        self.installer_root = ('%(target_installer)s/%(name)s-%(package_branch)s'
+        self.installerdir = settings.targetdir + '/installer'
+        self.installer_root = ('%(installerdir)s/%(name)s-%(package_branch)s'
                                % self.__dict__)
         self.installer_prefix = self.installer_root + settings.prefix_dir
         self.installer_checksum_file = self.installer_root + '.checksum'
@@ -72,7 +72,7 @@ class Installer (context.RunnableContext):
         return self.installer_version
 
     def build (self):
-        os.system ('mkdir -p ' + self.target_installer)
+        os.system ('mkdir -p ' + self.installerdir)
         install_manager = gup.DependencyManager (self.installer_root,
                                                  dbdir=self.installer_db,
                                                  clean=True)
@@ -290,7 +290,7 @@ class DarwinRoot (Installer):
 class DarwinBundle (DarwinRoot):
     def __init__ (self, *args):
         DarwinRoot.__init__ (self, *args)
-        self.darwin_bundle_dir = '%(targetdir)s/LilyPond.app'
+        self.darwin_bundle_dir = '%(installerdir)s/LilyPond.app'
         
     def installer_file (self):
         return self.expand ('%(uploads)s/lilypond-%(installer_version)s-%(installer_build)s.%(platform)s.tar.bz2')
@@ -310,7 +310,7 @@ class DarwinBundle (DarwinRoot):
 rm -f %(bundle_zip)s 
 rm -rf %(darwin_bundle_dir)s
 # FIXME: ask TarBall where source lives
-tar -C %(targetdir)s -zxf %(downloads)s/osx-lilypad/osx-lilypad-ppc-%(osx_lilypad_version)s.tar.gz
+tar -C %(installerdir)s -zxf %(downloads)s/osx-lilypad/osx-lilypad-ppc-%(osx_lilypad_version)s.tar.gz
 cp -pR --link %(installer_prefix)s/* %(darwin_bundle_dir)s/Contents/Resources/
 mkdir -p %(darwin_bundle_dir)s/Contents/Resources/license
 cp -pR --link %(installer_root)s/license*/* %(darwin_bundle_dir)s/Contents/Resources/license/
@@ -392,13 +392,13 @@ cp %(nsisdir)s/*.sh.in %(ns_dir)s''', locals ())
         PATH = os.environ['PATH']
         PATH = '%(tools_prefix)s/bin:' + PATH
 
-        nsi = 'installer'
-        if os.path.exists (self.expand ('%(nsisdir)s/%(name)s', env=locals ())):
-            nsi = self.name ()
+        nsi = self.name
         if self.name == 'mingit':
             # urgme
             nsi = 'git'
-        self.system ('cd %(targetdir)s && makensis -NOCD %(ns_dir)s/definitions.nsh %(ns_dir)s/%(nsi)s.nsi', locals ())
+        if not os.path.exists (self.expand ('%(nsisdir)s/%(nsi)s.nsi', env=locals ())):
+            nsi = 'installer'
+        self.system ('cd %(installerdir)s && makensis -NOCD %(ns_dir)s/definitions.nsh %(ns_dir)s/%(nsi)s.nsi', locals ())
 
         final = self.installer_file ()
         self.system ('mv %(ns_dir)s/setup.exe %(final)s', locals ())
