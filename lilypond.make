@@ -98,10 +98,10 @@ rest: installers test doc doc-export print-success
 test: dist-check test-output test-export
 
 doc:
-	$(call INVOKE_GUB,--offline $(BUILD_PLATFORM)) lilypond-doc
+	$(call INVOKE_GUB,$(BUILD_PLATFORM) --offline) lilypond-doc
 
 test-output:
-	$(call INVOKE_GUB,--offline $(BUILD_PLATFORM)) lilypond-test
+	$(call INVOKE_GUB,$(BUILD_PLATFORM) --offline) lilypond-test
 
 print-success:
 	python test-lily/upload.py --branch=$(LILYPOND_BRANCH) --url $(LILYPOND_REPO_URL)
