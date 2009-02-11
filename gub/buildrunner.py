@@ -219,7 +219,7 @@ class BuildRunner:
                            % ('pkg_install', spec.name (),
                               spec.platform ()), 'stage')
         # Ugh, pkg_install should be stage
-        if not 'never_install' in spec.__class__.__dict__:
+        if spec.install_after_build:
             self.spec_install (spec)
         logging.default_logger.write_log ('\n', 'stage')
 
