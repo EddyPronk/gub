@@ -346,7 +346,7 @@ class LilyPond__darwin__ppc (LilyPond__darwin):
 
 class LilyPond_base (target.AutoBuild):
     source = LilyPond.source
-    never_install = 'True'
+    install_after_build = False
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         source.dir = os.path.join (self.settings.downloads, 'lilypond')

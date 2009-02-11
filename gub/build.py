@@ -22,7 +22,8 @@ class Build (context.RunnableContext):
     source = ''
     branch = ''
     patches = []
-
+    install_after_build = True
+    
     def __init__ (self, settings, source):
         context.RunnableContext.__init__ (self, settings)
         self.source = source
