@@ -48,22 +48,24 @@ class Glib__mingw (Glib):
     def _get_build_dependencies (self):
         return Glib._get_build_dependencies (self) + ['libiconv-devel']
 
-# what about CFLAGS=-pthread?
 class Glib__freebsd (Glib):
-#    patches = ['glib-2.12.12-disable-threads.patch']
     def _get_build_dependencies (self):
         return Glib._get_build_dependencies (self) + ['libiconv-devel']
     def configure_command (self):
-        return Glib.configure_command (self) + ' --disable-threads'
-        
-class Glib__freebsd__64 (Glib__freebsd):
-    def configure_command (self):
-        return Glib__freebsd.configure_command (self) + ' --disable-timeloop'
+        return Glib.configure_command (self) + ' CFLAGS=-pthread'
+
+class Glib__freebsd__x86 (Glib):
+    def makeflags (self):
+        # MUST include -pthread in lib flags, because our *most*
+        # *beloved* libtool (2.2.6a) thinks it knows best and strips
+        # -pthread if it thinks it's a compile flag.
+        # FIXME: should add fixup to update_libtool ()
+        return ' G_THREAD_LIBS=-pthread G_THREAD_LIBS_FOR_GTHREAD=-pthread '
 
 class Glib__tools (tools.AutoBuild, Glib):
     def install (self):
         tools.AutoBuild.install (self)
         self.system ('rm %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/lib/charset.alias',
-                         ignore_errors=True)
+                     ignore_errors=True)
     def _get_build_dependencies (self):
         return ['gettext', 'libtool']            
