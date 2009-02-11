@@ -89,10 +89,17 @@ class Settings (context.Context):
         self.os = self.target_os
         self.bits = self.target_bits
 
-        GUB_TOOLS_PREFIX = os.environ.get ('GUB_TOOLS_PREFIX')
-        
+        if self.target_architecture == 'tools':
+            self.target_architecture = self.build_architecture
+            self.target_os = self.build_os
+            self.target_cpu = self.build_cpu
+            self.target_bits = self.build_bits
+
         # config dirs
 
+        # Support GUB tools building directly in $HOME/{bin,lib,share},
+        # use GUB_TOOLS_PREFIX=$HOME
+        GUB_TOOLS_PREFIX = os.environ.get ('GUB_TOOLS_PREFIX')
         if self.platform == 'tools' and GUB_TOOLS_PREFIX:
             self.prefix_dir = ''
 
