@@ -33,10 +33,6 @@
   %(system_prefix)s/lib and for-build binaries created while building,
   that link eg to libltdl.so or libglib.so.
 
-* Try dropping LD_LIBRARY_PATH from wrapper scripts, check
-   ## LD_LIBRARY_PATH is necessary for ao. FreeBSD.
-  if this is still true after grand rpath hacking.
-
 * python3 - python2 compatibility
 ** testing with python3
 ** keep check on diff with `make python3'
