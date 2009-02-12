@@ -2,7 +2,7 @@ from gub import tools
 from gub import misc
 
 class Librestrict__tools (tools.MakeBuild):
-    source = 'url://host/librestrict-1.5.tar.gz'
+    source = 'url://host/librestrict-1.6.tar.gz'
     def shadow (self):
         self.system ('rm -rf %(builddir)s')
         self.shadow_tree ('%(gubdir)s/librestrict', '%(builddir)s')

@@ -4,10 +4,6 @@
 
 */
 
-#include <assert.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <regex.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,7 +30,7 @@ char const *SELF = "/proc/self/exe";
 #endif
 
 static void
-add_allowed (char const *p)
+add_allowed_file (char const *name)
 {
   if (allowed_count >= allowed_len)
     {
@@ -43,9 +39,22 @@ add_allowed (char const *p)
       allowed_len = newlen;
     }
 
-  allowed[allowed_count].prefix = strdup (p);
-  allowed[allowed_count].prefix_len = strlen (p);
+  allowed[allowed_count].prefix = strdup (name);
+  allowed[allowed_count].prefix_len = strlen (name);
   allowed_count ++;
+}
+
+static void
+add_allowed_path (char const *path)
+{
+  char *p = strchr (path, ':');
+  while (p)
+    {
+      add_allowed_file (strndup (path, p - path));
+      path = p + 1;
+      p = strchr (path, ':');
+    }
+  add_allowed_file (path);
 }
 
 /*
@@ -53,7 +62,7 @@ add_allowed (char const *p)
  */
 static
 char const *
-expand_path (char const *p)
+expand_file_name (char const *p)
 {
   if (*p == '/')
     return p;
@@ -67,7 +76,6 @@ expand_path (char const *p)
       strcat (s, p);
       return strdup (s);
     }
-
 }
 
 static int
@@ -79,13 +87,13 @@ is_allowed (char const *file_name, char const *call)
   if (allowed_count == 0)
     return 1;
 
-  abs_file_name = expand_path (file_name);
+  abs_file_name = expand_file_name (file_name);
   for (i = 0; i < allowed_count; i++)
     if (0 == strncmp (abs_file_name, allowed[i].prefix, allowed[i].prefix_len))
       return 1;
 
   fprintf (stderr, "%s: tried to %s () file %s\nallowed:\n",
-	   executable_name, call, abs_file_name);
+           executable_name, call, abs_file_name);
 
   for (i = 0; i < allowed_count; i++)
     fprintf (stderr, "  %s\n", allowed[i].prefix);
@@ -161,13 +169,11 @@ void initialize (void)
     {
       char *allow = getenv ("LIBRESTRICT_ALLOW");
 
-      add_allowed (restrict);
+      add_allowed_file (restrict);
       if (allow)
-	add_allowed (allow);
-      add_allowed ("/tmp");
-      add_allowed ("/dev/null");
-      /* URG, GUB's cross gcc's STAT here.  */
-      add_allowed ("/usr/lib/gcc");
+        add_allowed_path (allow);
+      add_allowed_file ("/tmp");
+      add_allowed_file ("/dev/null");
     }
 }
 
