@@ -8,6 +8,8 @@ class Make_make__tools (tools.AutoBuild):
     def patch (self):
         tools.AutoBuild.patch (self)
         self.file_sub ([('"/usr', '"%(system_prefix)s')], '%(srcdir)s/read.c')
+        self.file_sub ([('"/usr', '"%(system_prefix)s'),
+                        ('"/lib', '"%(system_root)s/lib')], '%(srcdir)s/remake.c')
     def _get_build_dependencies (self):
         return ['librestrict']
     def wrap_executables (self):
