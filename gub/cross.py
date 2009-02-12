@@ -18,10 +18,11 @@ class AutoBuild (build.AutoBuild):
         dict = {
             'C_INCLUDE_PATH': '%(tools_prefix)s/include'
             + misc.append_path (os.environ.get ('C_INCLUDE_PATH', '')),
-            'LIBRARY_PATH': '%(tools_prefix)s/lib'
-            + misc.append_path (os.environ.get ('LIBRARY_PATH', '')),
             'CPLUS_INCLUDE_PATH': '%(tools_prefix)s/include'
             + misc.append_path (os.environ.get ('CPLUS_INCLUDE_PATH', '')),
+            'LIBRARY_PATH': '%(tools_prefix)s/lib'
+            + misc.append_path (os.environ.get ('LIBRARY_PATH', '')),
+            'LIBRESTRICT_IGNORE': '%(system_prefix)s/bin/make',
             'PATH': '%(cross_prefix)s/bin:%(tools_prefix)s/bin:' + os.environ['PATH'],
         }
         dict.update (env)
@@ -241,7 +242,7 @@ def change_target_package_x86 (package, env={'PATH': os.environ['PATH']}):
     x86_bindir = x86_cross + '/bin'
     x86_cross_bin = x86_cross + '/i686-linux' + '/bin'
     env['PATH'] = x86_cross_bin + ':' + env['PATH']
-    env['LIBRESTRICT_ALLOW'] = package.settings.targetdir
+    env['LIBRESTRICT_ALLOW'] = package.settings.targetdir + misc.append_path (os.environ.get ('LIBRESTRICT_ALLOW', ''))
     env['CC'] = x86_cross_bin + '/gcc'
     env['CXX'] = x86_cross_bin + '/g++'
     # FIXME: should only remove any %(tools_prefix)s elements from these...

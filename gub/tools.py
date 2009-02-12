@@ -130,10 +130,11 @@ LD_LIBRARY_PATH=%(system_prefix)s/lib
         dict = {
             'C_INCLUDE_PATH': '%(system_prefix)s/include'
             + misc.append_path (os.environ.get ('C_INCLUDE_PATH', '')),
-            'LIBRARY_PATH': '%(system_prefix)s/lib'
-            + misc.append_path (os.environ.get ('LIBRARY_PATH', '')),
             'CPLUS_INCLUDE_PATH': '%(system_prefix)s/include'
             + misc.append_path (os.environ.get ('CPLUS_INCLUDE_PATH', '')),
+            'LIBRARY_PATH': '%(system_prefix)s/lib'
+            + misc.append_path (os.environ.get ('LIBRARY_PATH', '')),
+            'LIBRESTRICT_IGNORE': '%(system_prefix)s/bin/make',
             'PATH': '%(system_prefix)s/bin:' + os.environ['PATH'],
         }
         dict.update (env)
