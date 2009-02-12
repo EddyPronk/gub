@@ -169,7 +169,11 @@ get_allowed_prefix (char const *exe_name)
 
   char *ignore = getenv ("LIBRESTRICT_IGNORE");
   if (ignore && is_in_path (ignore, exe_name))
-    return NULL;
+    {
+      if (getenv ("LIBRESTRICT_VERBOSE"))
+	fprintf (stderr, "%s: lifting restrictions for %s\n", __PRETTY_FUNCTION__, exe_name);
+      return NULL;
+    }
 
   prefix_len = last_found - exe_name;
   allowed_prefix = malloc (sizeof (char) * (prefix_len + 1));

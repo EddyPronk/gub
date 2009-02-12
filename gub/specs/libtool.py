@@ -1,4 +1,5 @@
 #
+from gub import context
 from gub import misc
 from gub import repository
 from gub import target
@@ -67,6 +68,16 @@ class Libtool__tools (tools.AutoBuild, Libtool):
     def __init__ (self, settings, source):
         tools.AutoBuild.__init__ (self, settings, source)
         Libtool.set_sover (self)
+        target.add_target_dict (self, {'LIBRESTRICT_IGNORE': ''})
+        '''
+        /home/janneke/tmp/gub/target/tools/root/usr/bin/make: tried to xstat () file /usr/include/stdio.h
+allowed:
+  /home/janneke/tmp/gub/target
+  /usr/lib/gcc
+  /tmp
+  /dev/null
+/bin/bash: line 22: 25332 Aborted                 (core dumped) make "$target-am"
+'''
     def update_libtool (self):
         pass
     def install (self):
