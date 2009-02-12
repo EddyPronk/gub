@@ -1,8 +1,8 @@
 /*
-  restrict.c -- override open(2), so we can be sure the build system
-  doesn't leak into cross builds.
- */
+  restrict.c -- override open(2), stat(2), to make sure the build
+  system doesn't leak into cross builds.
 
+*/
 
 #include <assert.h>
 #include <errno.h>
@@ -12,14 +12,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <sys/syscall.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 static char *executable_name;
 
 static struct allow_path {
- char *prefix;
- int prefix_len;
+  char *prefix;
+  int prefix_len;
 } *allowed;
 static int allowed_len;
 static int allowed_count;
@@ -68,21 +70,21 @@ expand_path (char const *p)
 }
 
 static int
-is_allowed (char const *fn, char const *call)
+is_allowed (char const *file_name, char const *call)
 {
   int i;
-  char const *fullpath;
+  char const *abs_file_name;
 
   if (allowed_count == 0)
     return 1;
 
-  fullpath = expand_path (fn);
+  abs_file_name = expand_path (file_name);
   for (i = 0; i < allowed_count; i++)
-    if (0 == strncmp (fullpath, allowed[i].prefix, allowed[i].prefix_len))
+    if (0 == strncmp (abs_file_name, allowed[i].prefix, allowed[i].prefix_len))
       return 1;
 
-  fprintf (stderr, "%s: tried to %s() file %s\nallowed:\n",
-	   executable_name, call, fullpath);
+  fprintf (stderr, "%s: tried to %s () file %s\nallowed:\n",
+	   executable_name, call, abs_file_name);
 
   for (i = 0; i < allowed_count; i++)
     fprintf (stderr, "  %s\n", allowed[i].prefix);
@@ -167,24 +169,44 @@ void initialize (void)
 }
 
 static int
-sys_open (const char *fn, int flags, int mode)
+sys_open (char const *file_name, int flags, int mode)
 {
-  return syscall (SYS_open, fn, flags, mode);
+  return syscall (SYS_open, file_name, flags, mode);
 }
 
 int
-__open (const char *fn, int flags, ...)
+__open (char const *file_name, int flags, ...)
 {
   va_list p;
   va_start (p, flags);
 
-  if (!is_allowed (fn, "open"))
+  if (getenv ("LIBRESTRICT_VERBOSE"))
+    fprintf (stderr, "%s: %s\n", __PRETTY_FUNCTION__, file_name);
+  if (!is_allowed (file_name, "open"))
     abort ();
 
-  return sys_open (fn, flags, va_arg (p, int));
+  return sys_open (file_name, flags, va_arg (p, int));
 }
 
-int open (const char *fn, int flags, ...) __attribute__ ((alias ("__open")));
+int open (char const *file_name, int flags, ...) __attribute__ ((alias ("__open")));
+
+static int sys_stat (char const *file_name, struct stat *buf)
+{
+  return syscall (SYS_stat, file_name, buf);
+}
+
+int
+__stat (char const *file_name, struct stat *buf)
+{
+  if (getenv ("LIBRESTRICT_VERBOSE"))
+    fprintf (stderr, "%s: %s\n", __PRETTY_FUNCTION__, file_name);
+  if (!is_allowed (file_name, "stat"))
+    abort ();
+
+  return sys_stat (file_name, buf);
+}
+
+int stat (char const *file_name, struct stat *buf)  __attribute__ ((alias ("__stat")));
 
 #ifdef TEST_SELF
 int
