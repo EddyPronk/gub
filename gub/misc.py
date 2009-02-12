@@ -65,7 +65,7 @@ def xread_pipe (cmd, ignore_errors=False):
 def read_pipe (cmd, ignore_errors=False, env=os.environ, logger=sys.stderr):
     proc = subprocess.Popen (cmd, bufsize=0, shell=True, env=env,
                              stdout=subprocess.PIPE,
-                             stderr=subprocess.STDOUT,
+                             stderr=logger, #subprocess.STDOUT,
                              close_fds=True)
     
     line = proc.stdout.readline ()
