@@ -10,7 +10,7 @@ class Gmp (target.AutoBuild):
         if not self.settings.platform.startswith ('darwin'):
             self.target_architecture = re.sub ('i[0-9]86-', 'i386-', settings.target_architecture)
     def _get_build_dependencies (self):
-        return ['libtool', 'tools::autoconf', 'tools::automake', 'tools::libtool']
+        return ['libtool', 'tools::autoconf', 'tools::automake', 'tools::bison', 'tools::flex', 'tools::libtool']
     def configure_command (self):
         return (target.AutoBuild.configure_command (self)
                 + ' --disable-cxx ')
@@ -69,4 +69,4 @@ class Gmp__freebsd (Gmp):
 
 class Gmp__tools (tools.AutoBuild, Gmp):
     def _get_build_dependencies (self):
-        return ['libtool']            
+        return ['bison', 'flex', 'libtool']

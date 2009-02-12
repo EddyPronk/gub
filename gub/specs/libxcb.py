@@ -23,6 +23,14 @@ class Libxcb__freebsd (Libxcb):
     patches = Libxcb.patches + ['libxcb-0.9.93-freebsd.patch']
     def force_sequential_build (self):
         return True
+    def configure_command (self):
+        return (Libxcb.configure_command (self)
+                + ' LDFLAGS=-pthread')
+#    def install (self):
+#        Libxcb.install (self)
+# FIXME: why doesn't libtool pick this up?
+#        self.file_sub ([("""(dependency_libs=.*)'""", r"""\1 -pthread '""")],
+#                       '%(install_prefix)s/lib/libxcb-xlib.la')
 
 class Libxcb__mingw (Libxcb):
     patches = []
