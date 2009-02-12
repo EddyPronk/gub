@@ -1,7 +1,8 @@
 from gub import tools
+from gub import misc
 
 class Librestrict__tools (tools.MakeBuild):
-    source = 'url://host/librestrict-1.2.tar.gz'
+    source = 'url://host/librestrict-1.5.tar.gz'
     def shadow (self):
         self.system ('rm -rf %(builddir)s')
         self.shadow_tree ('%(gubdir)s/librestrict', '%(builddir)s')
@@ -17,7 +18,9 @@ class Librestrict_nomake__tools (Librestrict__tools):
         command = '-W -Wall -shared -fPIC -o librestrict.so restrict.c'
         return '(gcc -fno-stack-protector %(command)s || gcc %(command)s)' % locals ()
     def install_command (self):
-        return ('mkdir -p %(install_root)s/%(system_prefix)s/lib'
-                ' && cp -p librestrict.so %(install_root)s/%(system_prefix)s/lib')
+        return (misc.join_lines ('''
+mkdir -p %(install_root)s/%(system_prefix)s/lib
+&& cp -p librestrict*.so %(install_root)s/%(system_prefix)s/lib
+'''))
 
 Librestrict__tools = Librestrict_nomake__tools
