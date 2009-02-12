@@ -1,5 +1,4 @@
 #
-from gub import build
 from gub import misc
 from gub import repository
 from gub import target
