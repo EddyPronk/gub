@@ -81,7 +81,18 @@ TARGET_FLAGS_TO_PASS='$(BASE_FLAGS_TO_PASS) $(EXTRA_TARGET_FLAGS) $(GUB_FLAGS_TO
         cross.AutoBuild.install (self)
         self.move_target_libs (self.expand ('%(install_prefix)s%(cross_dir)s/%(target_architecture)s'))
         self.move_target_libs (self.expand ('%(install_prefix)s%(cross_dir)s/lib'))
-        self.system ('mv %(install_prefix)s/lib/libstdc++.la %(install_prefix)s/lib/libstdc++.la-')
+        self.system ('''
+mv %(install_prefix)s/lib/libstdc++.la %(install_prefix)s/lib/libstdc++.la-
+''')
+        self.install_librestrict_stat_helpers ()
+    def install_librestrict_stat_helpers (self):
+        # librestrict stats PATH to find gnm and gstrip
+        self.system ('''
+cd %(install_prefix)s%(cross_dir)s/bin && ln %(toolchain_prefix)s-nm ln %(toolchain_prefix)s-gnm
+cd %(install_prefix)s%(cross_dir)s/bin && ln %(toolchain_prefix)s-strip ln %(toolchain_prefix)s-gstrip
+cd %(install_prefix)s%(cross_dir)s/%(target_architecture)s/bin && ln nm gnm
+cd %(install_prefix)s%(cross_dir)s/%(target_architecture)s/bin && ln strip gstrip
+''')
 
 class Gcc__from__source (Gcc):
     def _get_build_dependencies (self):
@@ -103,11 +114,6 @@ class Gcc__from__source (Gcc):
 --enable-clocale=gnu 
 --enable-long-long
 '''))
-    def XXX_WE_NOW_MOVE_ALL_A_LIBS_install (self):
-        Gcc.install (self)
-        self.system ('''
-mv %(install_prefix)s%(cross_dir)s/lib/gcc/%(target_architecture)s/%(version)s/libgcc_eh.a %(install_prefix)s/lib
-''')
 
 Gcc__linux = Gcc__from__source
 

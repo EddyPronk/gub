@@ -36,6 +36,7 @@ class Gcc_core (gcc.Gcc__from__source):
         # Gcc moves libs into system lib places, which will
         # make gcc-core conflict with gcc.
         cross.AutoBuild.install (self)
+        self.install_librestrict_stat_helpers ()
     def languages (self):
         return  ['c']
 
