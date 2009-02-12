@@ -14,6 +14,7 @@
 #include <unistd.h>
 
 static char *executable_name;
+static int verbosity = 0;
 
 static struct allow_file_name
 {
@@ -160,6 +161,7 @@ get_allowed_prefix (char const *exe_name)
   // can't add bin/ due to libexec.
   char *cross_suffix = "/root/usr/cross/";
   char *tools_suffix = "/tools/root/usr/";
+  char *ignore = getenv ("LIBRESTRICT_IGNORE");
 
   char const *last_found = strrstr (exe_name, cross_suffix);
   if (last_found == NULL)
@@ -167,10 +169,9 @@ get_allowed_prefix (char const *exe_name)
   if (last_found == NULL)
     return NULL;
 
-  char *ignore = getenv ("LIBRESTRICT_IGNORE");
   if (ignore && is_in_path (ignore, exe_name))
     {
-      if (getenv ("LIBRESTRICT_VERBOSE"))
+      if (verbosity)
 	fprintf (stderr, "%s: lifting restrictions for %s\n", __PRETTY_FUNCTION__, exe_name);
       return NULL;
     }
@@ -190,12 +191,20 @@ static
 void initialize (void)
 {
   char *restrict;
-
+  char *verbosity_string = getenv ("LIBRESTRICT_VERBOSE");
+  
+  if (verbosity_string)
+    {
+      verbosity = atoi (verbosity_string);
+      if (!verbosity)
+	verbosity = 1;
+    }
   executable_name = get_executable_name ();
   restrict = get_allowed_prefix (executable_name);
   if (restrict)
     {
       char *allow = getenv ("LIBRESTRICT_ALLOW");
+      fprintf (stderr, "%s: allow: %s\n", __PRETTY_FUNCTION__, allow);
 
       add_allowed_file (restrict);
       if (allow)
@@ -221,7 +230,7 @@ sys_execve (char const *file_name, char *const argv[], char *const envp[])
 int
 __execve (char const *file_name, char *const argv[], char *const envp[])
 {
-  if (getenv ("LIBRESTRICT_VERBOSE"))
+  if (verbosity > 1)
     fprintf (stderr, "%s: %s\n", __PRETTY_FUNCTION__, file_name);
   if (!is_allowed (file_name, "execve"))
     abort ();
@@ -230,6 +239,7 @@ __execve (char const *file_name, char *const argv[], char *const envp[])
 
 int execve (char const *file_name, char *const argv[], char *const envp[])  __attribute__ ((alias ("__execve")));
 #endif
+
 static int
 sys_open (char const *file_name, int flags, int mode)
 {
@@ -242,7 +252,7 @@ __open (char const *file_name, int flags, ...)
   va_list p;
   va_start (p, flags);
 
-  if (getenv ("LIBRESTRICT_VERBOSE"))
+  if (verbosity > 1)
     fprintf (stderr, "%s: %s\n", __PRETTY_FUNCTION__, file_name);
   if (!is_allowed (file_name, "open"))
     abort ();
@@ -265,7 +275,7 @@ static int sys_lstat (char const *file_name, struct stat *buf)
 int
 __lstat (char const *file_name, struct stat *buf)
 {
-  if (getenv ("LIBRESTRICT_VERBOSE"))
+  if (verbosity > 1)
     fprintf (stderr, "%s: %s\n", __PRETTY_FUNCTION__, file_name);
   if (!is_allowed (file_name, "stat"))
     abort ();
@@ -283,7 +293,7 @@ static int sys_oldstat (char const *file_name, struct stat *buf)
 int
 __oldstat (char const *file_name, struct stat *buf)
 {
-  if (getenv ("LIBRESTRICT_VERBOSE"))
+  if (verbosity > 1)
     fprintf (stderr, "%s: %s\n", __PRETTY_FUNCTION__, file_name);
   if (!is_allowed (file_name, "stat"))
     abort ();
@@ -296,7 +306,7 @@ int oldstat (char const *file_name, struct stat *buf)  __attribute__ ((alias ("_
 int
 __stat (char const *file_name, struct stat *buf)
 {
-  if (getenv ("LIBRESTRICT_VERBOSE"))
+  if (verbosity > 1)
     fprintf (stderr, "%s: %s\n", __PRETTY_FUNCTION__, file_name);
   if (!is_allowed (file_name, "stat"))
     abort ();
@@ -306,6 +316,7 @@ __stat (char const *file_name, struct stat *buf)
 
 int stat (char const *file_name, struct stat *buf)  __attribute__ ((alias ("__stat")));
 
+#ifdef SYS_ustat
 static int sys_ustat (char const *file_name, struct stat *buf)
 {
   return syscall (SYS_ustat, file_name, buf);
@@ -314,7 +325,7 @@ static int sys_ustat (char const *file_name, struct stat *buf)
 int
 __ustat (char const *file_name, struct stat *buf)
 {
-  if (getenv ("LIBRESTRICT_VERBOSE"))
+  if (verbosity > 1)
     fprintf (stderr, "%s: %s\n", __PRETTY_FUNCTION__, file_name);
   if (!is_allowed (file_name, "stat"))
     abort ();
@@ -323,11 +334,12 @@ __ustat (char const *file_name, struct stat *buf)
 }
 
 int ustat (char const *file_name, struct stat *buf)  __attribute__ ((alias ("__ustat")));
+#endif /* SYS_ustat */
 
 int
 __xstat (int ver, char const *file_name, struct stat *buf)
 {
-  if (getenv ("LIBRESTRICT_VERBOSE"))
+  if (verbosity > 1)
     fprintf (stderr, "%s: %s\n", __PRETTY_FUNCTION__, file_name);
   if (!is_allowed (file_name, "xstat"))
     abort ();
@@ -341,14 +353,18 @@ int xstat (int ver, char const *file_name, struct stat *buf)  __attribute__ ((al
 int
 main ()
 {
-  char *exe = "/home/hanwen/vc/gub/target/mingw/usr/cross/bin/foo";
-  printf ("%s\n", get_executable_name ());
-
+  int i;
   char const *h = "aabbaabba";
   char const *n = "bb";
+  char *exe = "/home/hanwen/vc/gub/target/mingw/usr/cross/bin/foo";
 
+  printf ("%s\n", get_executable_name ());
   printf ("strrstr %s %s: %s\n", h,n, strrstr (h, n));
   printf ("allowed for %s : %s\n", exe, get_allowed_prefix (exe));
+
+  puts ("allowed:");
+  for (i = 0; i < allowed_count; i++)
+    fprintf (stderr, "  %s\n", allowed[i].prefix);
   return 0;
 }
 #endif
