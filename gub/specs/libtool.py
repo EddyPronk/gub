@@ -68,7 +68,8 @@ class Libtool__tools (tools.AutoBuild, Libtool):
     def __init__ (self, settings, source):
         tools.AutoBuild.__init__ (self, settings, source)
         Libtool.set_sover (self)
-        target.add_target_dict (self, {'LIBRESTRICT_IGNORE': ''})
+        # Uncommenting removes IGNORE lifting from make and breaks build.
+        # target.add_target_dict (self, {'LIBRESTRICT_IGNORE': ''})
         '''
         /home/janneke/tmp/gub/target/tools/root/usr/bin/make: tried to xstat () file /usr/include/stdio.h
 allowed:
