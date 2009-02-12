@@ -124,12 +124,15 @@ strrstr (char const *haystack, char const *needle)
 static char *
 get_allowed_prefix (char const *exe_name)
 {
-  // can't add bin/ due to libexec.
-  char *cross_suffix = "/root/usr/cross/";
-  char const *last_found = strrstr (exe_name, cross_suffix);
   int prefix_len;
   char *allowed_prefix;
+  // can't add bin/ due to libexec.
+  char *cross_suffix = "/root/usr/cross/";
+  char *tools_suffix = "/tools/root/usr/";
 
+  char const *last_found = strrstr (exe_name, cross_suffix);
+  if (last_found == NULL)
+    last_found = strrstr (exe_name, tools_suffix);
   if (last_found == NULL)
     return NULL;
 
@@ -164,28 +167,21 @@ void initialize (void)
 }
 
 static int
-real_open (const char *fn, int flags, int mode)
+sys_open (const char *fn, int flags, int mode)
 {
   return syscall (SYS_open, fn, flags, mode);
 }
 
-
 int
 __open (const char *fn, int flags, ...)
 {
-  int rv;
   va_list p;
-  va_start (p,flags);
+  va_start (p, flags);
 
   if (!is_allowed (fn, "open"))
-    {
-      abort ();
-      return -1;
-    }
+    abort ();
 
-  rv = real_open (fn, flags, va_arg (p, int));
-
-  return rv;
+  return sys_open (fn, flags, va_arg (p, int));
 }
 
 int open (const char *fn, int flags, ...) __attribute__ ((alias ("__open")));
