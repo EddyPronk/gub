@@ -57,6 +57,22 @@ add_allowed_path (char const *path)
   add_allowed_file (path);
 }
 
+static void
+is_in_path (char const *path, char *const *name)
+{
+  char *p = strchr (path, ':');
+  while (p)
+    {
+      if (!strcmp (strndup (path, p - path), name))
+	return 1;
+      path = p + 1;
+      p = strchr (path, ':');
+    }
+  if (!strcmp (path, name))
+    return 1;
+  return 0;
+}
+
 /*
   prepend cwd if necessary.  Leaks memory.
  */
@@ -145,6 +161,10 @@ get_allowed_prefix (char const *exe_name)
   if (last_found == NULL)
     last_found = strrstr (exe_name, tools_suffix);
   if (last_found == NULL)
+    return NULL;
+
+  char *ignore = getenv ("LIBRESTRICT_IGNORE");
+  if (ignore && is_in_path (ignore, exe_name))
     return NULL;
 
   prefix_len = last_found - exe_name;
@@ -288,12 +308,12 @@ int
 main ()
 {
   char *exe = "/home/hanwen/vc/gub/target/mingw/usr/cross/bin/foo";
-  printf ("%s\n", get_executable_name());
+  printf ("%s\n", get_executable_name ());
 
   char const *h = "aabbaabba";
   char const *n = "bb";
 
-  printf ("strrstr %s %s: %s\n", h,n, strrstr (h,n));
+  printf ("strrstr %s %s: %s\n", h,n, strrstr (h, n));
   printf ("allowed for %s : %s\n", exe, get_allowed_prefix (exe));
   return 0;
 }
