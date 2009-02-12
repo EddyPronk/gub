@@ -53,10 +53,10 @@ cd %(install_prefix)s%(cross_dir)s/bin && ln %(toolchain_prefix)sas %(toolchain_
 cd %(install_prefix)s%(cross_dir)s/bin && ln %(toolchain_prefix)snm %(toolchain_prefix)sgnm
 cd %(install_prefix)s%(cross_dir)s/bin && ln %(toolchain_prefix)sstrip %(toolchain_prefix)sgstrip
 mkdir -p %(install_prefix)s%(cross_dir)s/%(target_architecture)s/bin
-cd %(install_prefix)s%(cross_dir)s/bin && for i in ar as ld nm objcopy ranlib strip; do && ln %(toolchain_prefix)s$i ../%(target_architecture)s/bin/$i; done
+cd %(install_prefix)s%(cross_dir)s/bin && for i in ar as ld nm ranlib strip; do ln %(toolchain_prefix)s$i ../%(target_architecture)s/bin/$i; done
 cd %(install_prefix)s%(cross_dir)s/bin && ln %(toolchain_prefix)sas ../%(target_architecture)s/bin/gas
 cd %(install_prefix)s%(cross_dir)s/bin && ln %(toolchain_prefix)snm ../%(target_architecture)s/bin/gnm
-cd %(install_prefix)s%(cross_dir)s/bin && ln %(toolchain_prefix)sstrip %(toolchain_prefix)sgstrip
+cd %(install_prefix)s%(cross_dir)s/bin && ln %(toolchain_prefix)sstrip ../%(target_architecture)s/bin/gstrip
 ''')
     def install (self):
         cross.AutoBuild.install (self)
