@@ -50,20 +50,24 @@ add_allowed_path (char const *path)
   char *p = strchr (path, ':');
   while (p)
     {
-      add_allowed_file (strndup (path, p - path));
+      char c = *p;
+      *p = '\0';
+      add_allowed_file (strdup (path));
+      *p = c;
       path = p + 1;
       p = strchr (path, ':');
     }
   add_allowed_file (path);
 }
 
-static void
-is_in_path (char const *path, char *const *name)
+static int
+is_in_path (char const *path, char const *name)
 {
   char *p = strchr (path, ':');
+  int len = strlen (name);
   while (p)
     {
-      if (!strcmp (strndup (path, p - path), name))
+      if (p - path == len && !strncmp (p, name, len))
 	return 1;
       path = p + 1;
       p = strchr (path, ':');
@@ -291,6 +295,7 @@ __ustat (char const *file_name, struct stat *buf)
 
 int ustat (char const *file_name, struct stat *buf)  __attribute__ ((alias ("__ustat")));
 
+int
 __xstat (int ver, char const *file_name, struct stat *buf)
 {
   if (getenv ("LIBRESTRICT_VERBOSE"))
