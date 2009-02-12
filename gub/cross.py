@@ -246,7 +246,9 @@ def change_target_package_x86 (package, env={'PATH': os.environ['PATH']}):
     x86_bindir = x86_cross + '/bin'
     x86_cross_bin = x86_cross + '/i686-linux' + '/bin'
     env['PATH'] = x86_cross_bin + ':' + env['PATH']
-    env['LIBRESTRICT_ALLOW'] = package.settings.targetdir + misc.append_path (os.environ.get ('LIBRESTRICT_ALLOW', ''))
+    # FIXME: c&p, cannot access package's target dict.
+    # env['LIBRESTRICT_ALLOW'] = package.settings.targetdir + misc.append_path (package.get_substitution_dict ().get ('LIBRESTRICT_ALLOW', ''))
+    env['LIBRESTRICT_ALLOW'] = package.settings.targetdir + ':/usr/lib/gcc:/usr/libexec/gcc'
     env['CC'] = x86_cross_bin + '/gcc'
     env['CXX'] = x86_cross_bin + '/g++'
     # FIXME: should only remove any %(tools_prefix)s elements from these...

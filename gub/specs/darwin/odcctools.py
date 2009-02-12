@@ -1,6 +1,5 @@
 import os
 #
-from gub import build
 from gub import cross
 from gub import misc
 
