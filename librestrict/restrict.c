@@ -204,7 +204,8 @@ void initialize (void)
   if (restrict)
     {
       char *allow = getenv ("LIBRESTRICT_ALLOW");
-      fprintf (stderr, "%s: allow: %s\n", __PRETTY_FUNCTION__, allow);
+      if (verbosity > 1)
+	fprintf (stderr, "%s: allow: %s\n", __PRETTY_FUNCTION__, allow);
 
       add_allowed_file (restrict);
       if (allow)
