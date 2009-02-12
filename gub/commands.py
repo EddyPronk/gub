@@ -181,7 +181,7 @@ class MapLocate (SerializedCommand):
     def execute (self, logger):
         files = misc.locate_files (self.directory, self.pattern)
         message = 'MapLocate[%(directory)s] no files matching pattern: %(pattern)s\n' % self.__dict__
-        logger.write_log (message, 'warning')
+        logger.write_log (message, 'harmless')
         if self.must_happen and files == []:
             raise Exception ('MapLocate failed: ' + message)
         # huh, what is silent?
