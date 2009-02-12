@@ -5,6 +5,9 @@ class Make_make__tools (tools.AutoBuild):
     def __init__ (self, settings, source):
         tools.AutoBuild.__init__ (self, settings, source)
         self.source._unpack = self.source._unpack_promise_well_behaved
+    def patch (self):
+        tools.AutoBuild.patch (self)
+        self.file_sub ([('"/usr', '"%(system_prefix)s')], '%(srcdir)s/read.c')
     def _get_build_dependencies (self):
         return ['librestrict']
     def wrap_executables (self):
