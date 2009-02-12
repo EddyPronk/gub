@@ -213,11 +213,6 @@ class Settings (context.Context):
 
         ## make sure we don't confuse build or target system.
         self.LD_LIBRARY_PATH = '%(system_root)s'
-        
-        # URG, GUB's cross gcc's STAT here.  GUB may break in
-	# interesting ways if there are cross compilers installed
-	# here.
-        os.environ['LIBRESTRICT_ALLOW'] = '/usr/lib/gcc:/usr/libexec/gcc'
 
     def create_dirs (self): 
         for a in (

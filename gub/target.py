@@ -133,6 +133,10 @@ cd %(builddir)s && chmod +x %(configure_binary)s && %(configure_command_native)s
             'CC_FOR_BUILD': 'C_INCLUDE_PATH= CPATH= CPPFLAGS= LIBRARY_PATH= cc',
             'CCLD_FOR_BUILD': 'C_INCLUDE_PATH= CPATH= CPPFLAGS= LIBRARY_PATH= cc',
             'LDFLAGS_FOR_BUILD': '',
+            # URG, GUB's cross gcc's STAT here.  GUB may break in
+            # interesting ways if there are cross compilers installed
+            # here.
+            'LIBRESTRICT_ALLOW': '/usr/lib/gcc:/usr/libexec/gcc',
             'C_INCLUDE_PATH': '',
             'CPATH': '',
             'CPLUS_INCLUDE_PATH': '',
