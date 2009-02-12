@@ -84,15 +84,6 @@ TARGET_FLAGS_TO_PASS='$(BASE_FLAGS_TO_PASS) $(EXTRA_TARGET_FLAGS) $(GUB_FLAGS_TO
         self.system ('''
 mv %(install_prefix)s/lib/libstdc++.la %(install_prefix)s/lib/libstdc++.la-
 ''')
-        self.install_librestrict_stat_helpers ()
-    def install_librestrict_stat_helpers (self):
-        # librestrict stats PATH to find gnm and gstrip
-        self.system ('''
-cd %(install_prefix)s%(cross_dir)s/bin && ln %(toolchain_prefix)s-nm ln %(toolchain_prefix)s-gnm
-cd %(install_prefix)s%(cross_dir)s/bin && ln %(toolchain_prefix)s-strip ln %(toolchain_prefix)s-gstrip
-cd %(install_prefix)s%(cross_dir)s/%(target_architecture)s/bin && ln nm gnm
-cd %(install_prefix)s%(cross_dir)s/%(target_architecture)s/bin && ln strip gstrip
-''')
 
 class Gcc__from__source (Gcc):
     def _get_build_dependencies (self):

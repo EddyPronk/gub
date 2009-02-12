@@ -47,3 +47,18 @@ class Odcctools (cross.AutoBuild): #skews dependencies:, build.SdkBuild):
         self.file_sub ([('ld64','')], self.builddir () + '/Makefile')
     def build_environment (self):
         return self.add_linux_x86_env ()
+    def install_librestrict_stat_helpers (self):
+        # librestrict stats PATH to find gnm and gstrip
+        self.system ('''
+cd %(install_prefix)s%(cross_dir)s/bin && ln %(toolchain_prefix)sas %(toolchain_prefix)sgas
+cd %(install_prefix)s%(cross_dir)s/bin && ln %(toolchain_prefix)snm %(toolchain_prefix)sgnm
+cd %(install_prefix)s%(cross_dir)s/bin && ln %(toolchain_prefix)sstrip %(toolchain_prefix)sgstrip
+mkdir -p %(install_prefix)s%(cross_dir)s/%(target_architecture)s/bin
+cd %(install_prefix)s%(cross_dir)s/bin && for i in ar as ld nm objcopy ranlib strip; do && ln %(toolchain_prefix)s$i ../%(target_architecture)s/bin/$i; done
+cd %(install_prefix)s%(cross_dir)s/bin && ln %(toolchain_prefix)sas ../%(target_architecture)s/bin/gas
+cd %(install_prefix)s%(cross_dir)s/bin && ln %(toolchain_prefix)snm ../%(target_architecture)s/bin/gnm
+cd %(install_prefix)s%(cross_dir)s/bin && ln %(toolchain_prefix)sstrip %(toolchain_prefix)sgstrip
+''')
+    def install (self):
+        cross.AutoBuild.install (self)
+        self.install_librestrict_stat_helpers ()

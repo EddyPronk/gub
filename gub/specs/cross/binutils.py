@@ -23,7 +23,20 @@ class Binutils (cross.AutoBuild):
         # please document why this should be removed?
         cross.AutoBuild.install (self)
         self.system ('rm %(install_prefix)s%(cross_dir)s/lib/libiberty.a')
-
+    def install_librestrict_stat_helpers (self):
+        # librestrict stats PATH to find gnm and gstrip
+        self.system ('''
+cd %(install_prefix)s%(cross_dir)s/bin && ln %(toolchain_prefix)sas %(toolchain_prefix)sgas
+cd %(install_prefix)s%(cross_dir)s/bin && ln %(toolchain_prefix)snm %(toolchain_prefix)sgnm
+cd %(install_prefix)s%(cross_dir)s/bin && ln %(toolchain_prefix)sstrip %(toolchain_prefix)sgstrip
+cd %(install_prefix)s%(cross_dir)s/%(target_architecture)s/bin && ln as gas
+cd %(install_prefix)s%(cross_dir)s/%(target_architecture)s/bin && ln nm gnm
+cd %(install_prefix)s%(cross_dir)s/%(target_architecture)s/bin && ln strip gstrip
+''')
+    def install (self):
+        cross.AutoBuild.install (self)
+        self.install_librestrict_stat_helpers ()
+    
 class Binutils__linux__ppc (Binutils):
     patches = Binutils.patches + ['binutils-2.18-werror-ppc.patch']
 

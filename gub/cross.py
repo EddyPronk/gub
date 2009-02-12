@@ -22,7 +22,7 @@ class AutoBuild (build.AutoBuild):
             + misc.append_path (os.environ.get ('CPLUS_INCLUDE_PATH', '')),
             'LIBRARY_PATH': '%(tools_prefix)s/lib'
             + misc.append_path (os.environ.get ('LIBRARY_PATH', '')),
-            'LIBRESTRICT_IGNORE': '%(system_prefix)s/bin/make',
+            'LIBRESTRICT_IGNORE': '%(tools_prefix)s/bin/make',
             'PATH': '%(cross_prefix)s/bin:%(tools_prefix)s/bin:' + os.environ['PATH'],
         }
         dict.update (env)

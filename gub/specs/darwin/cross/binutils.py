@@ -1,3 +1,4 @@
+from gub import cross
 from gub.specs.cross import binutils
 
 class Binutils__darwin (binutils.Binutils):
@@ -8,6 +9,8 @@ class Binutils__darwin (binutils.Binutils):
     # No, like this, that badly breaks dependencies.
     # Just *do not* build darwin-ppc::cross/binutils, that
     # triggers gcc to be built before odcctools?
-    def _get_build_dependencies (self):
-        return (binutils.Binutils._get_build_dependencies (self)
-                + ['odcctools'])
+    #def _get_build_dependencies (self):
+    #    return (binutils.Binutils._get_build_dependencies (self)
+    #            + ['odcctools'])
+    def install (self):
+        cross.AutoBuild.install (self)
