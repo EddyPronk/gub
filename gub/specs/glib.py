@@ -58,7 +58,7 @@ class Glib__freebsd (Glib):
     def configure_command (self):
         return Glib.configure_command (self) + ' CFLAGS=-pthread'
 
-class Glib__freebsd__x86 (Glib):
+class Glib__freebsd__x86 (Glib__freebsd):
     def makeflags (self):
         # MUST include -pthread in lib flags, because our *most*
         # *beloved* libtool (2.2.6a) thinks it knows best and strips
