@@ -1,0 +1,22 @@
+--- rsync-3.0.4/popt/poptconfig.c~	2006-11-09 03:14:38.000000000 +0100
++++ rsync-3.0.4/popt/poptconfig.c	2009-02-13 20:09:30.000000000 +0100
+@@ -167,9 +167,10 @@ int poptReadDefaultConfig(poptContext co
+ 
+     if (con->appName == NULL) return 0;
+ 
+-    rc = poptReadConfigFile(con, "/etc/popt");
++    rc = poptReadConfigFile(con, PREFIX "/etc/popt");
+     if (rc) return rc;
+ 
++#ifdef POPT_HOME
+     if ((home = getenv("HOME"))) {
+ 	size_t bufsize = strlen(home) + 20;
+ 	fn = alloca(bufsize);
+@@ -178,6 +179,7 @@ int poptReadDefaultConfig(poptContext co
+ 	rc = poptReadConfigFile(con, fn);
+ 	if (rc) return rc;
+     }
++#endif
+ 
+     return 0;
+ }
