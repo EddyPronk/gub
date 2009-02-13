@@ -63,7 +63,7 @@ class Busybox__tools (tools.AutoBuild, Busybox):
                 ('^CONFIG_AR=y', '# CONFIG_AR is not set'),
                 ('^CONFIG_BUNZIP2=y', '# CONFIG_BUNZIP2 is not set'),
                 ('^CONFIG_BZ2=y', '# CONFIG_BZ2 is not set'),
-                ('^CONFIG_FEATURE_SEAMLESS_BZ2=y', '# CONFIG_FEATURE_SEAMLESS_BZ2 not set'),
+                ('^CONFIG_FEATURE_SEAMLESS_BZ2=y', '# CONFIG_FEATURE_SEAMLESS_BZ2 is not set'),
                 ('^CONFIG_BZIP2=y', '# CONFIG_BZIP2 is not set'),
                 ('^CONFIG_CLEAR=y', '# CONFIG_CLEAR is not set'),
                 ('^CONFIG_PATCH=y', '# CONFIG_PATCH is not set'),
@@ -71,11 +71,11 @@ class Busybox__tools (tools.AutoBuild, Busybox):
                 ],
                        '%(builddir)s/.config')
         self.system ('''rm -f %(builddir)s/include/%(autoconf_h)s
-cd %(builddir)s && make include/%(autoconf_h)s > /dev/null 2>&1''')
+cd %(builddir)s && make include/%(autoconf_h)s''')
     def makeflags (self):
-        return ' CONFIG_PREFIX=%(install_root)s%(system_root)s'
+        return ' CONFIG_PREFIX=%(install_root)s%(system_prefix)s'
     def install (self):
         tools.AutoBuild.install (self)
         self.system ('''
-cd %(install_root)s%(system_root)s && mv sbin/init sbin/init.busybox
+cd %(install_root)s%(system_prefix)s && mv sbin/init sbin/init.busybox
 ''')
