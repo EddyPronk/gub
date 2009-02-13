@@ -11,6 +11,12 @@
 ** todo: doc-clean, test-clean, doc-export, test-export
 ** todo: python driver that connects [gub, gib], uploads/export calls
 
+* Stat restriction
+** Extend Guile__mingw's tight LIBRESTRICT=open:stat restrictions to
+   other architectures/packages, eventually to target.py/build.py.
+** Swap the default from relaxed LIBRESTRICT=open to tighter
+   LIBRESTRICT=open:stat.
+   
 * FIX --keep option; debugging is next to impossible with all
   sources gone from target/*/src
 
