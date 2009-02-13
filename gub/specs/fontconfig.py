@@ -24,23 +24,18 @@ specified by applications.'''
     def patch (self):
         self.dump ('\nAC_SUBST(LT_AGE)', '%(srcdir)s/configure.in', mode='a', permissions=octal.o755)
         target.AutoBuild.patch (self)
-
     @context.subst_method
     def freetype_cflags (self):
         # this is shady: we're using the flags from the tools version
         # of freetype.
-
         base_config_cmd = self.settings.expand ('%(tools_prefix)s/bin/freetype-config')
         cmd =  base_config_cmd + ' --cflags'
         logging.command ('pipe %s\n' % cmd)
-
         # ugh, this is utterly broken.  we're reading from the
         # filesystem init time, when freetype-config does not exist
         # yet.
-        
         # return misc.read_pipe (cmd).strip ()
         return '-I%(system_prefix)s/include/freetype2'
-
     @context.subst_method
     def freetype_libs (self):
         base_config_cmd = self.settings.expand ('%(tools_prefix)s/bin/freetype-config')
@@ -52,16 +47,13 @@ specified by applications.'''
         return ['libtool', 'expat-devel', 'freetype-devel', 'tools::freetype', 'tools::pkg-config']
     def configure_command (self):
         # FIXME: system dir vs packaging install
-
         ## UGH  - this breaks  on Darwin!
         ## UGH2 - the added /cross/ breaks Cygwin; possibly need
         ## Freetype_config package (see Guile_config, Python_config)
-
         # FIXME: this is broken.  for a sane target development package,
         # we want /usr/bin/fontconfig-config must survive.
         # While cross building, we create an  <toolprefix>-fontconfig-config
         # and prefer that.
-
         return (target.AutoBuild.configure_command (self) 
                 + misc.join_lines ('''
 --with-arch=%(target_architecture)s
@@ -76,26 +68,23 @@ rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,
         target.AutoBuild.configure (self)
         self.file_sub ([('DOCSRC *=.*', 'DOCSRC=')],
                        '%(builddir)s/Makefile')
-
     def makeflags (self):
-        return 'man_MANS=' # either this, or add something like tools::docbook-utils
-
+        return ('man_MANS=' # either this, or add something like tools::docbook-utils
+                # librestrict: stuff in fc-case, fc-lang,
+                # fc-glyphname, fc-arch' is FOR-BUILD and has
+                # dependencies .deps/*.Po /usr/include/stdio.h: 
+                + ''' 'SUBDIRS=fontconfig src fc-cache fc-cat fc-list fc-match conf.d' ''')
     def compile (self):
-
         # help fontconfig cross compiling a bit, all CC/LD
         # flags are wrong, set to the target's root
-
         ## we want native freetype-config flags here. 
         cflags = '-I%(srcdir)s -I%(srcdir)s/src %(freetype_cflags)s' 
         libs = '%(freetype_libs)s'
-
         for i in ('fc-case', 'fc-lang', 'fc-glyphname', 'fc-arch'):
             self.system ('''
-cd %(builddir)s/%(i)s && make "CFLAGS=%(cflags)s" "LIBS=%(libs)s" CPPFLAGS= LDFLAGS= INCLUDES= 
+cd %(builddir)s/%(i)s && LIBRESTRICT_IGNORE=%(tools_prefix)s/bin/make make "CFLAGS=%(cflags)s" "LIBS=%(libs)s" CPPFLAGS= LDFLAGS= INCLUDES= 
 ''', locals ())
-
         target.AutoBuild.compile (self)
-        
     def install (self):
         target.AutoBuild.install (self)
         self.dump ('''set FONTCONFIG_FILE=$INSTALLER_PREFIX/etc/fonts/fonts.conf
