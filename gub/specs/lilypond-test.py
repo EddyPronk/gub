@@ -17,7 +17,7 @@ class LilyPond_test (lilypond.LilyPond_base):
     def install (self):
         target.AutoBuild.install (self) 
         self.system ('''
-tar -C %(builddir)s -cjf %(test_ball)s input/regression/out-test
+LD_PRELOAD= tar -C %(builddir)s -cjf %(test_ball)s input/regression/out-test
 ''')
 
 Lilypond_test = LilyPond_test
