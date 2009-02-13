@@ -19,10 +19,6 @@ class Binutils (cross.AutoBuild):
         ## which differs on each system.
         ## so we MUST set it.
         return 'MULTIOSDIR=../../lib'
-    def FIXME_breaks_on_some_linuxes_install (self):
-        # please document why this should be removed?
-        cross.AutoBuild.install (self)
-        self.system ('rm %(install_prefix)s%(cross_dir)s/lib/libiberty.a')
     def install_librestrict_stat_helpers (self):
         # librestrict stats PATH to find gnm and gstrip
         self.system ('''
@@ -36,7 +32,19 @@ cd %(install_prefix)s%(cross_dir)s/%(target_architecture)s/bin && ln strip gstri
     def install (self):
         cross.AutoBuild.install (self)
         self.install_librestrict_stat_helpers ()
-    
+        '''
+        On some systems [Fedora9], libiberty.a is provided by binutils
+        *and* by gcc
+
+        http://lists.gnu.org/archive/html/lilypond-devel/2008-11/msg00163.html
+        http://lists.gnu.org/archive/html/lilypond-devel/2009-02/msg00118.html
+        
+        Not all systems make binutils compile libiberty.a, so we
+        optionally remove it.
+        '''
+        self.system ('rm %(install_prefix)s%(cross_dir)s/lib/libiberty.a',
+                     ignore_errors=True)
+
 class Binutils__linux__ppc (Binutils):
     patches = Binutils.patches + ['binutils-2.18-werror-ppc.patch']
 
