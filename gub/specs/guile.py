@@ -24,6 +24,20 @@ class Guile (target.AutoBuild):
         if isinstance (source, repository.Repository):
             source.version = lambda: '1.8.6'
         self.so_version = '17'
+    def _get_build_dependencies (self):
+        return ['gettext-devel', 'gmp-devel', 'libtool', 'tools::guile']
+    def get_subpackage_names (self):
+        return ['doc', 'devel', 'runtime', '']
+    def patch (self):
+        self.dump ('''#!/bin/sh
+exec %(tools_prefix)s/bin/guile "$@"
+''', "%(srcdir)s/pre-inst-guile.in")
+        self.autogen_sh ()
+        # Guile [doc] does not compile with dash *and* not with
+        # librestrict-stat.so; patch out.
+        target.AutoBuild.patch (self)
+        if 'stat' in os.environ.get ('LIBRESTRICT', ''):
+            self.file_sub ([(' doc ', ' ')], '%(srcdir)s/Makefile.am')
     def autogen_sh (self):
         self.file_sub ([(r'AC_CONFIG_SUBDIRS\(guile-readline\)', '')],
                        '%(srcdir)s/configure.in')
@@ -31,19 +45,6 @@ class Guile (target.AutoBuild):
                        '%(srcdir)s/Makefile.am')
         self.dump ('', '%(srcdir)s/doc/ref/version.texi')
         self.dump ('', '%(srcdir)s/doc/tutorial/version.texi')
-    def get_subpackage_names (self):
-        return ['doc', 'devel', 'runtime', '']
-    def _get_build_dependencies (self):
-        return ['gettext-devel', 'gmp-devel', 'libtool', 'tools::guile']
-    # FIXME: C&P.  -- from where?
-    def guile_version (self):
-        return '.'.join (self.ball_version.split ('.')[0:2])
-    def patch (self):
-        self.dump ('''#!/bin/sh
-exec %(tools_prefix)s/bin/guile "$@"
-''', "%(srcdir)s/pre-inst-guile.in")
-        self.autogen_sh ()
-        target.AutoBuild.patch (self)
     def configure_flags (self):
         return misc.join_lines ('''
 --without-threads
@@ -114,11 +115,6 @@ class Guile__mingw (Guile):
         Guile.__init__ (self, settings, source)
         # Configure (compile) without -mwindows for console
         self.target_gcc_flags = '-mms-bitfields'
-    def patch (self):
-        # Guile [doc] does not compile with dash *and* not with
-        # librestrict-stat.so; patch out.
-        Guile.patch (self)
-        self.file_sub ([(' doc ', ' ')], '%(srcdir)s/Makefile.am')
     def Xmakeflags (self):
         # hack for (only) running libtool under dash-librestrict.
         return (Guile.makeflags (self)
@@ -292,7 +288,11 @@ class Guile__tools (tools.AutoBuild, Guile):
         return (Guile._get_build_dependencies (self)
                 + ['autoconf', 'automake', 'gettext', 'flex', 'libtool'])
     def patch (self):
+        # Guile [doc] does not compile with dash *and* not with
+        # librestrict-stat.so; patch out.
         tools.AutoBuild.patch (self)
+        if 'stat' in os.environ.get ('LIBRESTRICT', ''):
+            self.file_sub ([(' doc ', ' ')], '%(srcdir)s/Makefile.am')
     def configure_command (self):
         # FIXME: when configuring, guile runs binaries linked against
         # libltdl.
