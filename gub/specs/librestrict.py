@@ -13,6 +13,13 @@ class Librestrict__tools (tools.MakeBuild):
     def name (self):
         return 'librestrict-' + '-'.join (self.librestrict_flavours ())
     def get_conflict_dict (self):
+        # Ugly hack: if the user is not explicitly tightening the
+        # restrictions using LIBRESTRICT=open:stat, uninstall dash and
+        # coreutils.  This avoids triggering of any open(2)
+        # restrictions on common commands.
+        relax_restrictions = ['coreutils', 'dash']
+        if 'stat' in self.librestrict_flavours ():
+            relax_restrictions = []
         return {'': ['librestrict',
                      'librestrict-exec',
                      'librestrict-exec-open',
@@ -21,7 +28,9 @@ class Librestrict__tools (tools.MakeBuild):
                      'librestrict-open',
                      'librestrict-open-stat',
                      'librestrict-stat',
-                     ]}
+                     ]
+                + relax_restrictions
+                }
     def shadow (self):
         self.system ('rm -rf %(builddir)s')
         self.shadow_tree ('%(gubdir)s/librestrict', '%(builddir)s')
