@@ -11,7 +11,12 @@ libraries, display servers, font conversion tools, text image generation
 tools, and many other products as well.'''
 
     source = 'http://download.savannah.nongnu.org/releases/freetype/freetype-2.1.10.tar.gz&name=freetype'
-
+    def __init__ (self, settings, source):
+        target.AutoBuild.__init__ (self, settings, source)
+        # Freetype stats /sbin, /usr/sbin and /hurd to determine if
+        # build system is unix??
+        # target.append_target_dict (self, {'LIBRESTRICT_ALLOW': '/sbin:/usr/sbin:/hurd'})
+        target.add_target_dict (self, {'LIBRESTRICT_ALLOW': '/usr/lib/gcc:/usr/libexec/gcc:/sbin:/usr/sbin:/hurd'})
     def license_files (self):
         return ['%(srcdir)s/docs/LICENSE.TXT']
     def _get_build_dependencies (self):
@@ -21,13 +26,11 @@ tools, and many other products as well.'''
     def configure (self):
 #                self.autoupdate (autodir=os.path.join (self.srcdir (),
 #                                                       'builds/unix'))
-
         self.system ('''
         rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
 ''')
         target.AutoBuild.configure (self)
         self.file_sub ([('^LIBTOOL=.*', 'LIBTOOL=%(builddir)s/libtool --tag=CXX')], '%(builddir)s/Makefile')
-
     def munge_ft_config (self, file):
         self.file_sub ([('\nprefix=[^\n]+\n',
                          '\nlocal_prefix=yes\nprefix=%(system_prefix)s\n'),
