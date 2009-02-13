@@ -114,8 +114,11 @@ class Guile__mingw (Guile):
         Guile.__init__ (self, settings, source)
         # Configure (compile) without -mwindows for console
         self.target_gcc_flags = '-mms-bitfields'
+    def makeflags (self):
+        return (Guile.makeflags (self)
+                + ''' 'LIBTOOL=%(tools_prefix)s/bin/dash $(top_builddir)/libtool' ''')
     def _get_build_dependencies (self):
-        return Guile._get_build_dependencies (self) +  ['regex-devel']
+        return Guile._get_build_dependencies (self) +  ['regex-devel', 'tools::dash']
     def configure_command (self):
         return (Guile.configure_command (self)
                 # + ' --with-threads=pthread'
