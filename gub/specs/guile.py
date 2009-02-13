@@ -114,13 +114,27 @@ class Guile__mingw (Guile):
         Guile.__init__ (self, settings, source)
         # Configure (compile) without -mwindows for console
         self.target_gcc_flags = '-mms-bitfields'
-    def makeflags (self):
+    def patch (self):
+        # Guile [doc] does not compile with dash *and* not with
+        # librestrict-stat.so; patch out.
+        Guile.patch (self)
+        self.file_sub ([(' doc ', ' ')], '%(srcdir)s/Makefile.am')
+    def Xmakeflags (self):
+        # hack for (only) running libtool under dash-librestrict.
         return (Guile.makeflags (self)
                 + ''' 'LIBTOOL=%(tools_prefix)s/bin/dash $(top_builddir)/libtool' ''')
     def _get_build_dependencies (self):
-        return Guile._get_build_dependencies (self) +  ['regex-devel', 'tools::dash']
+        if 'stat' in os.environ.get ('LIBRESTRICT', ''):
+            return (Guile._get_build_dependencies (self)
+                    + ['tools::dash', 'tools::coreutils']
+                    + ['regex-devel'])
+        return Guile._get_build_dependencies (self) +  ['regex-devel']
     def configure_command (self):
+        SHELL = ''
+        if 'stat' in os.environ.get ('LIBRESTRICT', ''):
+            SHELL = ' SHELL=%(tools_prefix)s/bin/dash'
         return (Guile.configure_command (self)
+                + SHELL
                 # + ' --with-threads=pthread'
                 # checking whether pthread_attr_getstack works for the main thread... configure: error: cannot run test program while cross compiling
                 # also, gen-scmconfig.c has
