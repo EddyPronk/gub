@@ -284,6 +284,7 @@ def clean_environment ():
                    'HOME',
                    'HOSTNAME',
                    #'IFS',
+                   'LIBRESTRICT',
                    'PATH',
                    'PKG_CONFIG_PATH',
                    'PWD',
