@@ -1,3 +1,5 @@
+import os
+#
 from gub import tools
 from gub import target
 from gub import w32
@@ -7,6 +9,8 @@ class Glib (target.AutoBuild):
     source = 'http://ftp.gnome.org/pub/GNOME/platform/2.22/2.22.0/sources/glib-2.16.1.tar.bz2'
     source = 'http://ftp.gnome.org/pub/GNOME/platform/2.25/2.25.5/sources/glib-2.19.5.tar.gz'
     def _get_build_dependencies (self):
+        if 'stat' in os.environ.get ('LIBRESTRICT', ''):
+            return ['tools::glib', 'gettext-devel', 'libtool']
         return ['gettext-devel', 'libtool']
     def config_cache_overrides (self, str):
         return str + '''
