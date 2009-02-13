@@ -35,7 +35,7 @@ class Librestrict_nomake__tools (Librestrict__tools):
         # URG, must *not* have U __stack_chk_fail@@GLIBC_2.4
         # because glibc-[core-]2.3 will not install with LD_PRELOAD
         CFLAGS = '-fno-stack-protector'
-        compile = 'gcc -W -Wall %(CFLAGS)s -c -fPIC -o lib%(name)s.so %(name)s.c'
+        compile = 'gcc -W -Wall %(CFLAGS)s -fPIC -shared -o lib%(name)s.so %(name)s.c'
         sources = ' '.join (['restrict-%s.c' % name for name in self.librestrict_flavours ()])
         b = 'cd %(builddir)s && '
         command = b + 'cat %(sources)s > restrict-all.c\n' % locals ()
