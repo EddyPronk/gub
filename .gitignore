@@ -16,3 +16,4 @@ target
 test-settings.py
 uploads
 *pats
+/librestrict/librestrict-all.c

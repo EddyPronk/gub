@@ -1,17 +1,16 @@
 /*
-  restrict.c -- override open(2), stat(2), to make sure the build
-  system doesn't leak into cross builds.
+  restrict.c -- override open(2), stat(2), execve(2), etc.  to make
+  sure the build system doesn't leak into cross builds.
 
 */
 
-#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
-#include <sys/syscall.h>
-#include <sys/types.h>
 #include <unistd.h>
+
+#ifndef __RESTRICT_C__
+#define __RESTRICT_C__
 
 static char *executable_name;
 static int verbosity = 0;
@@ -215,141 +214,6 @@ void initialize (void)
     }
 }
 
-#if 0
-/*
-  Using execve restriction works beautifully, but this would mean that
-  we'd need a full build root, eg, tools::busybox *and* a plain
-  tools::gcc, tools::g++, etc.
-
-*/
-static int
-sys_execve (char const *file_name, char *const argv[], char *const envp[])
-{
-  return syscall (SYS_execve, file_name, argv, envp);
-}
-
-int
-__execve (char const *file_name, char *const argv[], char *const envp[])
-{
-  if (verbosity > 1)
-    fprintf (stderr, "%s: %s\n", __PRETTY_FUNCTION__, file_name);
-  if (!is_allowed (file_name, "execve"))
-    abort ();
-  return sys_execve (file_name, argv, envp);
-}
-
-int execve (char const *file_name, char *const argv[], char *const envp[])  __attribute__ ((alias ("__execve")));
-#endif
-
-static int
-sys_open (char const *file_name, int flags, int mode)
-{
-  return syscall (SYS_open, file_name, flags, mode);
-}
-
-int
-__open (char const *file_name, int flags, ...)
-{
-  va_list p;
-  va_start (p, flags);
-
-  if (verbosity > 1)
-    fprintf (stderr, "%s: %s\n", __PRETTY_FUNCTION__, file_name);
-  if (!is_allowed (file_name, "open"))
-    abort ();
-
-  return sys_open (file_name, flags, va_arg (p, int));
-}
-
-int open (char const *file_name, int flags, ...) __attribute__ ((alias ("__open")));
-
-static int sys_stat (char const *file_name, struct stat *buf)
-{
-  return syscall (SYS_stat, file_name, buf);
-}
-
-static int sys_lstat (char const *file_name, struct stat *buf)
-{
-  return syscall (SYS_lstat, file_name, buf);
-}
-
-int
-__lstat (char const *file_name, struct stat *buf)
-{
-  if (verbosity > 1)
-    fprintf (stderr, "%s: %s\n", __PRETTY_FUNCTION__, file_name);
-  if (!is_allowed (file_name, "stat"))
-    abort ();
-
-  return sys_lstat (file_name, buf);
-}
-
-int lstat (char const *file_name, struct stat *buf)  __attribute__ ((alias ("__lstat")));
-
-static int sys_oldstat (char const *file_name, struct stat *buf)
-{
-  return syscall (SYS_stat, file_name, buf);
-}
-
-int
-__oldstat (char const *file_name, struct stat *buf)
-{
-  if (verbosity > 1)
-    fprintf (stderr, "%s: %s\n", __PRETTY_FUNCTION__, file_name);
-  if (!is_allowed (file_name, "stat"))
-    abort ();
-
-  return sys_oldstat (file_name, buf);
-}
-
-int oldstat (char const *file_name, struct stat *buf)  __attribute__ ((alias ("__oldstat")));
-
-int
-__stat (char const *file_name, struct stat *buf)
-{
-  if (verbosity > 1)
-    fprintf (stderr, "%s: %s\n", __PRETTY_FUNCTION__, file_name);
-  if (!is_allowed (file_name, "stat"))
-    abort ();
-
-  return sys_stat (file_name, buf);
-}
-
-int stat (char const *file_name, struct stat *buf)  __attribute__ ((alias ("__stat")));
-
-#ifdef SYS_ustat
-static int sys_ustat (char const *file_name, struct stat *buf)
-{
-  return syscall (SYS_ustat, file_name, buf);
-}
-
-int
-__ustat (char const *file_name, struct stat *buf)
-{
-  if (verbosity > 1)
-    fprintf (stderr, "%s: %s\n", __PRETTY_FUNCTION__, file_name);
-  if (!is_allowed (file_name, "stat"))
-    abort ();
-
-  return sys_ustat (file_name, buf);
-}
-
-int ustat (char const *file_name, struct stat *buf)  __attribute__ ((alias ("__ustat")));
-#endif /* SYS_ustat */
-
-int
-__xstat (int ver, char const *file_name, struct stat *buf)
-{
-  if (verbosity > 1)
-    fprintf (stderr, "%s: %s\n", __PRETTY_FUNCTION__, file_name);
-  if (!is_allowed (file_name, "xstat"))
-    abort ();
-
-  return sys_stat (file_name, buf);
-}
-
-int xstat (int ver, char const *file_name, struct stat *buf)  __attribute__ ((alias ("__xstat")));
-
 #ifdef TEST_SELF
 int
 main ()
@@ -369,3 +233,5 @@ main ()
   return 0;
 }
 #endif
+
+#endif /* __RESTRICT_C__ */
