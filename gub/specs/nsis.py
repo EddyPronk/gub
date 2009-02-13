@@ -46,7 +46,11 @@ Export('defenv')
 ''')],
                        '%(srcdir)s/SConstruct')
     def compile_command (self):
-        return (tools.SConsBuild.compile_command (self)
+        relax = ''
+        if 'stat' in os.environ.get ('LIBRESTRICT', ''):
+            relax = 'LIBRESTRICT_IGNORE=%(tools_prefix)s/bin/python '
+        return (relax
+                + tools.SConsBuild.compile_command (self)
                 + misc.join_lines ('''
 DEBUG=yes
 NSIS_CONFIG_LOG=yes
