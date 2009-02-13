@@ -1,3 +1,5 @@
+import os
+#
 from gub import build
 from gub import context
 from gub import logging
@@ -80,9 +82,12 @@ rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,
         ## we want native freetype-config flags here. 
         cflags = '-I%(srcdir)s -I%(srcdir)s/src %(freetype_cflags)s' 
         libs = '%(freetype_libs)s'
+        relax = ''
+        if 'stat' in os.environ.get ('LIBRESTRICT', ''):
+            relax = 'LIBRESTRICT_IGNORE=%(tools_prefix)s/bin/make '
         for i in ('fc-case', 'fc-lang', 'fc-glyphname', 'fc-arch'):
             self.system ('''
-cd %(builddir)s/%(i)s && LIBRESTRICT_IGNORE=%(tools_prefix)s/bin/make make "CFLAGS=%(cflags)s" "LIBS=%(libs)s" CPPFLAGS= LDFLAGS= INCLUDES= 
+cd %(builddir)s/%(i)s && %(relax)s make "CFLAGS=%(cflags)s" "LIBS=%(libs)s" CPPFLAGS= LDFLAGS= INCLUDES= 
 ''', locals ())
         target.AutoBuild.compile (self)
     def install (self):
