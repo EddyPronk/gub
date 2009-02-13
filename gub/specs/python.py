@@ -54,7 +54,9 @@ class Python (target.AutoBuild):
         return misc.join_lines (r'''
 BLDLIBRARY='%(rpath)s -L. -lpython$(VERSION)'
 ''')
-
+    def install_command (self):
+        return ('LIBRESTRICT_ALLOW=/usr/lib/python2.4/lib-dynload:$LIBRESTRICT_ALLOW '
+                + target.AutoBuild.install_command (self))
     def install (self):
         target.AutoBuild.install (self)
         misc.dump_python_config (self)
@@ -140,6 +142,9 @@ class Python__tools (tools.AutoBuild, Python):
         return True
     def makeflags (self):
         return Python.makeflags (self)
+    def install_command (self):
+        return ('LIBRESTRICT_ALLOW=/usr/lib/python2.4/lib-dynload:$LIBRESTRICT_ALLOW '
+                + tools.AutoBuild.install_command (self))
     def wrap_executables (self):
         # using rpath
         pass
