@@ -68,10 +68,11 @@ class Busybox__tools (tools.AutoBuild, Busybox):
                 ('^CONFIG_CLEAR=y', '# CONFIG_CLEAR is not set'),
                 ('^CONFIG_PATCH=y', '# CONFIG_PATCH is not set'),
                 ('^CONFIG_RESET=y', '# CONFIG_RESET is not set'),
+                ('^CONFIG_TAR=y', '# CONFIG_TAR is not set'),
                 ],
                        '%(builddir)s/.config')
         self.system ('''rm -f %(builddir)s/include/%(autoconf_h)s
-cd %(builddir)s && make include/%(autoconf_h)s''')
+cd %(builddir)s && make include/%(autoconf_h)s > /dev/null 2>&1''')
     def makeflags (self):
         return ' CONFIG_PREFIX=%(install_root)s%(system_prefix)s'
     def install (self):
