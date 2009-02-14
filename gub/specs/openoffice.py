@@ -187,7 +187,7 @@ class Openoffice (target.AutoBuild):
             return True
         self.source.is_tracking = misc.bind_method (tracking, self.source)
     def _get_build_dependencies (self):
-        return ['tools::autoconf', 'tools::rebase', 'boost-devel', 'curl-devel', 'cppunit-devel', 'db-devel', 'expat-devel', 'fontconfig-devel', 'libicu-devel', 'libjpeg-devel', 'libpng-devel', 'liblpsolve-devel', 'python-devel', 'redland-devel', 'saxon-java', 'xerces-c', 'zlib-devel']
+        return ['tools::autoconf', 'tools::rebase', 'boost-devel', 'curl-devel', 'cppunit-devel', 'db-devel', 'expat-devel', 'fontconfig-devel', 'hunspell-devel', 'libicu-devel', 'libjpeg-devel', 'libpng-devel', 'liblpsolve-devel', 'python-devel', 'redland-devel', 'saxon-java', 'xerces-c', 'zlib-devel']
     def stages (self):
         return misc.list_insert_before (target.AutoBuild.stages (self),
                                         'compile',
@@ -223,8 +223,6 @@ export OOO_TOOLS_DIR=/suse/home/janneke/vc/ooo300-m7/build/ooo300-m7/solver/300/
     def LD_LIBRARY_PATH (self):
         return '%(OOO_TOOLS_DIR)s/../lib' + misc.append_path (os.environ.get ('LD_LIBRARY_PATH', ''))
     def autoupdate (self):
-        # Why is build.py:Build:patch() not doing this?
-        list (map (self.apply_patch, self.patches))
         self.system ('cd %(srcdir)s && NOCONFIGURE=1 ./autogen.sh --noconfigure')
     def config_cache_overrides (self, str):
         return str + '''
@@ -300,6 +298,7 @@ ac_cv_icu_version_minor=${ac_cv_icu_version_minor=3.81}
 --with-system-curl
 --with-system-db
 --with-system-expat
+--with-system-hunspell
 --with-system-icu
 --with-system-jpeg
 --with-system-libxslt
