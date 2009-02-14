@@ -25,6 +25,14 @@ def package_auto_dependency_dict (package):
         and ('_get_build_dependencies' in
              dict (context.object_get_methods (package)).keys ())):
         def get_build_dependencies (foo):
+            # If a package depends on tools::libtool, ie not on
+            # libltdl, we still also need <target-arch>::libtool,
+            # because of our update_libtool ().  We fix this here,
+            # because it's not a package's real dependency but rather
+            # a detail of our libtool breakage fixup.
+            if not 'cross' in package.name ():
+                return [name.replace ('tools::libtool', 'libtool')
+                        for name in package._get_build_dependencies ()]
             return package._get_build_dependencies ()
         package.get_build_dependencies \
                 = misc.MethodOverrider (package.nop, get_build_dependencies)
