@@ -285,6 +285,7 @@ def clean_environment ():
                    'HOSTNAME',
                    #'IFS',
                    'LIBRESTRICT',
+                   'OOO_TOOLS_DIR',
                    'PATH',
                    'PKG_CONFIG_PATH',
                    'PWD',
