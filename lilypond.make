@@ -9,6 +9,8 @@
 default: all
 
 LILYPOND_BRANCH=master
+BUILDSCRIPTS=scripts/build
+#BUILDSCRIPTS=buildscripts
 # LILYPOND_BRANCH=stable/2.10
 LILYPOND_REPO_URL=git://git.sv.gnu.org/lilypond.git
 
@@ -195,17 +197,17 @@ unlocked-doc-export:
 	PYTHONPATH=$(NATIVE_LILY_BUILD)/python/out \
 	$(PYTHON) test-lily/rsync-lily-doc.py --recreate \
 		--version-file=$(NATIVE_LILY_BUILD)/out/VERSION \
-		--output-distance=$(NATIVE_LILY_SRC)/buildscripts/output-distance.py $(NATIVE_LILY_BUILD)/out-www/online-root
+		--output-distance=$(NATIVE_LILY_SRC)/$(BUILDSCRIPTS)/output-distance.py $(NATIVE_LILY_BUILD)/out-www/online-root
 	$(PYTHON) test-lily/rsync-lily-doc.py --recreate \
 		--version-file=$(NATIVE_LILY_BUILD)/out/VERSION \
 		--unpack-dir=uploads/localdoc/ \
-		--output-distance=$(NATIVE_LILY_SRC)/buildscripts/output-distance.py $(NATIVE_LILY_BUILD)/out-www/offline-root
+		--output-distance=$(NATIVE_LILY_SRC)/$(BUILDSCRIPTS)/output-distance.py $(NATIVE_LILY_BUILD)/out-www/offline-root
 
 unlocked-test-export:
 	PYTHONPATH=$(NATIVE_LILY_BUILD)/python/out \
 	$(PYTHON) test-lily/rsync-test.py \
 		--version-file=$(NATIVE_LILY_BUILD)/out/VERSION \
-		--output-distance=$(NATIVE_LILY_SRC)/buildscripts/output-distance.py \
+		--output-distance=$(NATIVE_LILY_SRC)/$(BUILDSCRIPTS)/output-distance.py \
 		--test-dir=uploads/webtest
 
 doc-export:
