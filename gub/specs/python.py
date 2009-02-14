@@ -155,3 +155,8 @@ class Python__tools (tools.AutoBuild, Python):
     def wrap_executables (self):
         # using rpath
         pass
+    def patch (self):
+        tools.AutoBuild.patch (self)
+        Python.patch (self)
+        # Stop python from reading ~/.inputrc
+        self.apply_patch('python-2.4.5-readline.patch')
