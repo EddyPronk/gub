@@ -530,14 +530,9 @@ class Git (Repository):
         ref = self.get_ref ()            
         contents = self.git_pipe ('show %(ref)s:%(file_name)s' % locals ())
         return contents
-    def _checkout_dir (self):
-        # Support user-check-outs
-        if os.path.isdir (os.path.join (self.dir, self.vc_system)):
-            return self.dir
-        return os.path.join (self.dir, os.path.dirname (self.branch_dir ()))
     def git_command (self, dir=None):
         if not dir:
-            dir = self._checkout_dir ()
+            dir = self.dir
         return 'cd %(dir)s && git ' % locals ()
     def git (self, command, dir=None, ignore_errors=False):
         self.system (self.git_command (dir) + command,
@@ -547,7 +542,7 @@ class Git (Repository):
                                ignore_errors=ignore_errors,
                                env=self.get_env ())
     def is_downloaded (self):
-        if not os.path.isdir (os.path.join (self._checkout_dir (), 'refs')):
+        if not os.path.isdir (os.path.join (self.dir, 'refs')):
             return False
         if self.revision:
             result = self.git_pipe ('cat-file commit %s' % self.revision,
@@ -569,9 +564,9 @@ class Git (Repository):
         if not self.have_git ():
             # sorry, no can do [yet]
             return
-        if not os.path.isdir (os.path.join (self._checkout_dir (), 'refs')):
+        if not os.path.isdir (os.path.join (self.dir, 'refs')):
             source = self.source
-            dir = self._checkout_dir ()
+            dir = self.dir
             self.git ('clone --bare %(source)s %(dir)s' % locals (), dir='.')
         if self.branch and not (self.revision and self.is_downloaded ()):
             self.git ('fetch %(source)s %(branch)s:refs/heads/%(url_host)s/%(url_dir)s/%(branch)s' % self.__dict__)
@@ -586,7 +581,7 @@ class Git (Repository):
         branch = self.get_ref ()
         if branch in self.checksums:
             return self.checksums[branch]
-        if os.path.isdir (self._checkout_dir ()):
+        if os.path.isdir (self.dir):
             ## can't use describe: fails in absence of tags.
             cs = self.git_pipe ('rev-list --max-count=1 %(branch)s' % locals ())
             cs = cs.strip ()
@@ -599,7 +594,7 @@ class Git (Repository):
         str = self.git_pipe ('ls-tree --name-only -r %(branch)s' % locals ())
         return str.split ('\n')
     def update_workdir (self, destdir):
-        checkout_dir = self._checkout_dir ()
+        checkout_dir = self.dir
         branch = self.get_ref ()
         if os.path.isdir (os.path.join (destdir, self.vc_system)):
             if self.git_pipe ('diff'):
