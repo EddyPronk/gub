@@ -5,7 +5,7 @@ import os
 from gub import misc
 
 '''
-TODO: if we need more granularity, it's better to look at the stack
+TODO: if we need more granularity, it is better to look at the stack
 trace during a log call (), and have per .py file settings.
 '''
 
