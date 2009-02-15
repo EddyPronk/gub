@@ -198,7 +198,6 @@ class PackageDictManager:
     """
     def __init__ (self):
         self._packages = {}
-
         ## ugh mi 
         self.verbose = False
         
@@ -206,7 +205,6 @@ class PackageDictManager:
         nm = d['name']
         if 'split_name' in d:
             nm = d['split_name']
-        
         if 0 and (nm in self._packages):
             if self._packages[nm]['spec_checksum'] != d['spec_checksum']:
                 logging.info ('******** checksum of %s changed!\n\n' % nm)
@@ -214,9 +212,7 @@ class PackageDictManager:
             if self._packages[nm]['cross_checksum'] != d['cross_checksum']:
                 logging.info ('******** checksum of cross changed for %s\n' % nm)
             return
-
         self._packages[nm] = d
-   
         
     def register_package_header (self, package_hdr, branch_dict):
         if self.verbose:

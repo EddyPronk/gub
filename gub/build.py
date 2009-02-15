@@ -55,6 +55,9 @@ cd %(srcdir)s && patch -p%(strip)s < %(patchdir)s/%(name)s
         available = dict (inspect.getmembers (self,
                                               lambda x: hasattr (x, '__call__')))
         stages = self.stages ()
+        if True or not self.__options.offline:
+            # WIP: introduce __options, do not dump to hdr/checksum
+            stages = ['download'] + stages
         tainted = False
         for stage in stages:
             if (stage not in available):

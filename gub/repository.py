@@ -540,7 +540,8 @@ class Git (Repository):
     def git_pipe (self, command, ignore_errors=False):
         return self.read_pipe (self.git_command () + command,
                                ignore_errors=ignore_errors,
-                               env=self.get_env ())
+                               env=self.get_env (),
+                               logger=self.logger.harmless)
     def is_downloaded (self):
         if not os.path.isdir (os.path.join (self.dir, 'refs')):
             return False
