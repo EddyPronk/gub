@@ -3,7 +3,7 @@ import os
 from gub import tools
 from gub import misc
 
-class Librestrict__tools (tools.MakeBuild):
+class Librestrict_make__tools (tools.MakeBuild):
     source = 'url://host/librestrict-1.9a.tar.gz'
     def librestrict_flavours (self):
         return list (sorted (os.environ.get ('LIBRESTRICT',
@@ -39,7 +39,7 @@ class Librestrict__tools (tools.MakeBuild):
     def LD_PRELOAD (self):
         return ''
 
-class Librestrict_nomake__tools (Librestrict__tools):
+class Librestrict_nomake__tools (Librestrict_make__tools):
     def compile_command (self):
         # URG, must *not* have U __stack_chk_fail@@GLIBC_2.4
         # because glibc-[core-]2.3 will not install with LD_PRELOAD
