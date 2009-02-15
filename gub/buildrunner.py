@@ -49,9 +49,10 @@ def checksum_diff (a, b, fromfile='', tofile='',
 
 #FIXME: split spec_* into SpecBuiler?
 class BuildRunner:
-    def __init__ (self, manager, settings, specs):
+    def __init__ (self, manager, settings, options, specs):
         self.managers = {settings.platform : manager }
         self.settings = settings
+        self.options = options
         self.specs = specs
 
         # spec name -> string
@@ -209,6 +210,8 @@ class BuildRunner:
             deferred_runner = runner.DeferredRunner (logger)
             spec.connect_command_runner (deferred_runner)
             spec.runner.stage ('building package: %s\n' % spec_name)
+            if not self.options.offline:
+                spec.download ()
             spec.build ()
             spec.connect_command_runner (None)
             deferred_runner.execute_deferred_commands ()

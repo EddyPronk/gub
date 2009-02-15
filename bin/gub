@@ -250,7 +250,7 @@ def build (settings, options, files):
             if os.path.exists (status):
                 os.unlink (status)
 
-    b = buildrunner.BuildRunner (manager, settings, specs)
+    b = buildrunner.BuildRunner (manager, settings, options, specs)
 
     if options.dependencies:
         sys.exit (0)
