@@ -210,17 +210,20 @@ class BuildRunner:
             deferred_runner = runner.DeferredRunner (logger)
             spec.connect_command_runner (deferred_runner)
             spec.runner.stage ('building package: %s\n' % spec_name)
-            if not self.options.offline:
-                spec.download ()
-            spec.build ()
+            skip = []
+            if self.options.offline:
+                skip += ['download']
+            if not self.options.src_package:
+                skip += ['src_package']
+            if self.options.keep_build:
+                skip += ['clean']
+            skip += spec.get_done ()
+            skip = [x for x in skip if x != self.options.stage]
+            spec.build (self.options, skip)
             spec.connect_command_runner (None)
             deferred_runner.execute_deferred_commands ()
-
             open (spec.expand ('%(checksum_file)s'), 'w').write (self.checksums[spec_name])
-
-        logger.write_log (' *** Stage: %s (%s, %s)\n'
-                           % ('pkg_install', spec.name (),
-                              spec.platform ()), 'stage')
+        logger.write_log (spec.stage_message ('pkg_install'), 'stage')
         # Ugh, pkg_install should be stage
         if spec.install_after_build:
             self.spec_install (spec)

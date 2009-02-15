@@ -51,36 +51,35 @@ class Build (context.RunnableContext):
         self.system ('''
 cd %(srcdir)s && patch -p%(strip)s < %(patchdir)s/%(name)s
 ''', locals ())
-    def build (self):
+    def stage_message (self, stage):
+        return self.expand (' *** Stage: %(stage)s (%(name)s, %(platform)s)\n',
+                            env=locals ())
+    def build (self, options=None, skip=[]):
         available = dict (inspect.getmembers (self,
                                               lambda x: hasattr (x, '__call__')))
-        stages = self.stages ()
+        stages = ['download'] + self.stages ()
         tainted = False
         for stage in stages:
-            if (stage not in available):
+            if stage not in available or stage in skip:
                 continue
-
-            if self.is_done (stage, stages.index (stage)):
+            if self.is_done (stage):
                 tainted = True
                 continue
-
-            self.runner.stage (' *** Stage: %s (%s, %s)\n'
-                               % (stage, self.name (),
-                                  self.settings.platform))
-
-            if (stage == 'package' and tainted):
+            self.runner.stage (self.stage_message (stage))
+            if (stage == 'package' and tainted
+                and options and not options.force):
                 msg = self.expand ('''This compile has previously been interrupted.
 To ensure a repeatable build, this will not be packaged.
 
-Use
+Do
 
-rm %(stamp_file)s
+    rm %(stamp_file)s
 
-to force rebuild, or
+to force a full package rebuild, or
 
---force-package
+    --force-package
 
-to skip this check.
+to skip this check and risk a defective build.
 ''')
                 logging.error (msg)
                 #FIXME: throw exception.  this plays nice with
@@ -95,9 +94,8 @@ to skip this check.
                     if stage == 'patch':
                         self.system ('rm %(stamp_file)s')
                 raise
-
             if stage != 'clean':
-                self.set_done (stage, stages.index (stage))
+                self.set_done (stage)
 
 class AutoBuild (Build):
     '''Build a source package the traditional Unix way
@@ -113,13 +111,9 @@ class AutoBuild (Build):
         self.so_version = '1'
 
     def stages (self):
-        lst = ['untar', 'patch', 'autoupdate',
-               'configure', 'compile', 'install',
-               'src_package', 'package', 'clean']
-        # see bin/gub TODO 'src_package',
-        if self.settings.platform != 'cygwin':
-            lst = [s for s in lst if s != 'src_package']
-        return lst
+        return ['untar', 'patch', 'autoupdate',
+                'configure', 'compile', 'install',
+                'src_package', 'package', 'clean']
 
     def configure_prepares_builddir (self):
         return True
@@ -151,11 +145,8 @@ class AutoBuild (Build):
 
     def download (self):
         if not self.source.is_downloaded ():
-            stage = 'download'
-            logging.default_logger.write_log (' *** Stage: %s (%s, %s)\n'
-                                              % (stage, self.name (),
-                                                 self.settings.platform),
-                                              'stage')
+            logging.default_logger.write_log (self.stage_message ('download'),
+                                                                  'stage')
         self.source.download ()
 
     def get_repodir (self):
@@ -323,17 +314,25 @@ class AutoBuild (Build):
         return '%(builddir)s/config.cache'
 
     def get_stamp_file (self):
-        stamp = self.expand ('%(stamp_file)s')
-        return stamp
+        return self.expand ('%(stamp_file)s')
 
-    def is_done (self, stage, stage_number):
-        f = self.get_stamp_file ()
-        if os.path.exists (f):
-            return int (open (f).read ()) >= stage_number
-        return False
+    def get_done (self):
+        done = []
+        if os.path.exists (self.get_stamp_file ()):
+            last = open (self.get_stamp_file ()).read ().strip ()
+            for stage in self.stages ():
+                done += [stage]
+                if stage == last:
+                    break
+            if not last in done:
+                done = []
+        return done
 
-    def set_done (self, stage, stage_number):
-        self.dump ('%(stage_number)d' % locals (), self.get_stamp_file (), 'w')
+    def is_done (self, stage):
+        return stage in self.get_done ()
+
+    def set_done (self, stage):
+        self.dump (stage, self.get_stamp_file (), 'w')
 
     def patch (self):
         list (map (self.apply_patch, self.patches))
@@ -499,6 +498,7 @@ cp %(file)s %(install_root)s/license/%(name)s
     def platform_name (self):
         return self.with_platform (self.name ())
 
+    @context.subst_method
     def platform (self):
         return self.settings.platform
 

@@ -22,9 +22,6 @@
 with the execution path, which does not include ~/bin/ by default. Not
 perfect for a novice.
 
-* FIX --keep option; debugging is next to impossible with all
-  sources gone from target/*/src
-
 * after fixing --keep, go something smart with GIT, so that
   - *every* work-dir in target/*/src/ is a GIT checkout
   - in the work-dir, GIT can be used to create and maintain patches
