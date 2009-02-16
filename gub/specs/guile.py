@@ -120,10 +120,6 @@ class Guile__mingw (Guile):
         return (Guile.makeflags (self)
                 + ''' 'LIBTOOL=%(tools_prefix)s/bin/dash $(top_builddir)/libtool' ''')
     def _get_build_dependencies (self):
-        if 'stat' in misc.librestrict ():
-            return (Guile._get_build_dependencies (self)
-                    + ['tools::dash', 'tools::coreutils']
-                    + ['regex-devel'])
         return Guile._get_build_dependencies (self) +  ['regex-devel']
     def configure_command (self):
         SHELL = ''
