@@ -10,7 +10,7 @@ class Librestrict_make__tools (tools.MakeBuild):
                                              'open').replace (':', ' ').split (' ')))
     def flavours (self):
         return ['exec', 'open', 'stat']
-    def name (self):
+    def BARFS_WITH_2_5_1_name (self):
         return 'librestrict-' + '-'.join (self.librestrict_flavours ())
     def get_conflict_dict (self):
         # Ugly hack: if the user is not explicitly tightening the
@@ -68,3 +68,4 @@ mkdir -p %(install_root)s/%(system_prefix)s/lib
 '''))
 
 Librestrict__tools = Librestrict_nomake__tools
+Librestrict_open__tools = Librestrict__tools
