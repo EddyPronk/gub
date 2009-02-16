@@ -20,7 +20,9 @@ class Librestrict_make__tools (tools.MakeBuild):
         relax_restrictions = ['coreutils', 'dash']
         if 'stat' in self.librestrict_flavours ():
             relax_restrictions = []
-        return {'': ['librestrict',
+        return {'': ['coreutils',
+                     'dash',
+                     'librestrict',
                      'librestrict-exec',
                      'librestrict-exec-open',
                      'librestrict-exec-open-stat',
