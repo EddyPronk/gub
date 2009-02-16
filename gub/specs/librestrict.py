@@ -1,13 +1,10 @@
-import os
-#
 from gub import tools
 from gub import misc
 
 class Librestrict_make__tools (tools.MakeBuild):
     source = 'url://host/librestrict-1.9a.tar.gz'
     def librestrict_flavours (self):
-        return list (sorted (os.environ.get ('LIBRESTRICT',
-                                             'open').replace (':', ' ').split (' ')))
+        return misc.librestrict ()
     def flavours (self):
         return ['exec', 'open', 'stat']
     def BARFS_WITH_2_5_1_name (self):

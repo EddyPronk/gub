@@ -1,5 +1,4 @@
-import os
-#
+from gub import misc
 from gub import tools
 
 class Make_make__tools (tools.AutoBuild):
@@ -12,11 +11,8 @@ class Make_make__tools (tools.AutoBuild):
         self.file_sub ([('"/usr', '"%(system_prefix)s')], '%(srcdir)s/read.c')
         self.file_sub ([('"/usr', '"%(system_prefix)s'),
                         ('"/lib', '"%(system_root)s/lib')], '%(srcdir)s/remake.c')
-    def librestrict_flavours (self):
-        return list (sorted (os.environ.get ('LIBRESTRICT',
-                                             'open').replace (':', ' ').split (' ')))
     def librestrict_name (self):
-        return 'librestrict-' + '-'.join (self.librestrict_flavours ())
+        return 'librestrict-' + '-'.join (misc.librestrict ())
     def _get_build_dependencies (self):
         #return [self.librestrict_name ()]
         return ['librestrict']
