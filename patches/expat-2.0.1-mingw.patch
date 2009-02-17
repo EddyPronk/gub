@@ -1,0 +1,110 @@
+diff -urN expat-1.95.8/configure.in expat-1.95.8-1/configure.in
+--- expat-1.95.8/configure.in	2004-04-30 05:18:09.000000000 +0200
++++ expat-1.95.8-1/configure.in	2005-05-09 09:56:27.000000000 +0200
+@@ -119,7 +119,8 @@
+ AC_DEFINE([XML_CONTEXT_BYTES], 1024,
+           [Define to specify how much context to retain around the current parse point.])
+ 
+-AC_CONFIG_FILES(Makefile)
++AC_CONFIG_FILES(Makefile
++                tests/xmltest.sh)
+ AC_OUTPUT
+ 
+ abs_srcdir="`cd $srcdir && pwd`"
+--- expat-2.0.1/Makefile.in~	2009-02-17 10:33:26.000000000 +0100
++++ expat-2.0.1/Makefile.in	2009-02-17 10:29:15.000000000 +0100
+@@ -34,6 +34,7 @@ man1dir = @mandir@/man1
+ 
+ top_builddir = .
+ 
++EXEEXT=@EXEEXT@
+ 
+ INSTALL = @INSTALL@
+ INSTALL_PROGRAM = @INSTALL_PROGRAM@
+@@ -46,17 +47,17 @@ LIBRARY = libexpat.la
+ 
+ DESTDIR = $(INSTALL_ROOT)
+ 
+-default:  buildlib xmlwf/xmlwf
++default:  buildlib xmlwf/xmlwf$(EXEEXT)
+ 
+ buildlib: $(LIBRARY)
+ 
+-all: $(LIBRARY) xmlwf/xmlwf examples/elements examples/outline
++all: $(LIBRARY) xmlwf/xmlwf$(EXEEXT examples/elements$(EXEXT) examples/outline$(EXEEXT)
+ 
+ clean:
+ 	cd lib && rm -f $(LIBRARY) *.o *.lo && rm -rf .libs _libs
+-	cd xmlwf && rm -f xmlwf *.o *.lo && rm -rf .libs _libs
+-	cd examples && rm -f elements outline *.o *.lo && rm -rf .libs _libs
+-	cd tests && rm -rf .libs runtests runtests.o runtestspp runtestspp.o
++	cd xmlwf && rm -f xmlwf$(EXEEXT) *.o *.lo && rm -rf .libs _libs
++	cd examples && rm -f elements$(EXEEXT) outline$(EXEEXT) *.o *.lo && rm -rf .libs _libs
++	cd tests && rm -rf .libs runtests$(EXEEXT) runtests.o runtestspp$(EXEEXT) runtestspp.o
+ 	cd tests && rm -f chardata.o minicheck.o
+ 	rm -rf .libs libexpat.la
+ 	rm -f examples/core tests/core xmlwf/core
+@@ -71,11 +72,11 @@ extraclean: distclean
+ 	rm -f expat_config.h.in configure
+ 	rm -f conftools/ltconfig conftools/ltmain.sh conftools/libtool.m4
+ 
+-check: tests/runtests tests/runtestspp
+-	tests/runtests
+-	tests/runtestspp
++check: tests/runtests$(EXEEXT) tests/runtestspp$(EXEEXT)
++	tests/runtests$(EXEEXT)
++	tests/runtestspp$(EXEEXT)
+ 
+-install: xmlwf/xmlwf installlib
++install: xmlwf/xmlwf$(EXEEXT) installlib
+ 	$(mkinstalldirs) $(DESTDIR)$(bindir) $(DESTDIR)$(man1dir)
+ 	$(LIBTOOL) --mode=install $(INSTALL_PROGRAM) xmlwf/xmlwf $(DESTDIR)$(bindir)/xmlwf
+ 	$(INSTALL_DATA) $(MANFILE) $(DESTDIR)$(man1dir)
+@@ -86,7 +87,7 @@ installlib: $(LIBRARY) $(APIHEADER)
+ 	for FN in $(APIHEADER) ; do $(INSTALL_DATA) $$FN $(DESTDIR)$(includedir) ; done
+ 
+ uninstall: uninstalllib
+-	$(LIBTOOL) --mode=uninstall rm -f $(DESTDIR)$(bindir)/xmlwf
++	$(LIBTOOL) --mode=uninstall rm -f $(DESTDIR)$(bindir)/xmlwf$(EXEEXT)
+ 	rm -f $(DESTDIR)$(man1dir)/xmlwf.1
+ 
+ uninstalllib:
+@@ -142,24 +143,24 @@ xmlwf/xmlwf.o: xmlwf/xmlwf.c
+ xmlwf/xmlfile.o: xmlwf/xmlfile.c
+ xmlwf/codepage.o: xmlwf/codepage.c
+ xmlwf/@FILEMAP@.o: xmlwf/@FILEMAP@.c
+-xmlwf/xmlwf: $(XMLWF_OBJS) $(LIBRARY)
++xmlwf/xmlwf$(EXEEXT): $(XMLWF_OBJS) $(LIBRARY)
+ 	$(LINK_EXE) $(XMLWF_OBJS) $(LIBRARY)
+ 
+ examples/elements.o: examples/elements.c
+-examples/elements: examples/elements.o $(LIBRARY)
++examples/elements$(EXEEXT): examples/elements.o $(LIBRARY)
+ 	$(LINK_EXE) $< $(LIBRARY)
+ 
+ examples/outline.o: examples/outline.c
+-examples/outline: examples/outline.o $(LIBRARY)
++examples/outline$(EXEEXT): examples/outline.o $(LIBRARY)
+ 	$(LINK_EXE) $< $(LIBRARY)
+ 
+ tests/chardata.o: tests/chardata.c tests/chardata.h
+ tests/minicheck.o: tests/minicheck.c tests/minicheck.h
+ tests/runtests.o: tests/runtests.c tests/chardata.h
+-tests/runtests: tests/runtests.o tests/chardata.o tests/minicheck.o $(LIBRARY)
++tests/runtests$(EXEEXT): tests/runtests.o tests/chardata.o tests/minicheck.o $(LIBRARY)
+ 	$(LINK_EXE) tests/runtests.o tests/chardata.o tests/minicheck.o $(LIBRARY)
+ tests/runtestspp.o: tests/runtestspp.cpp tests/runtests.c tests/chardata.h
+-tests/runtestspp: tests/runtestspp.o tests/chardata.o tests/minicheck.o $(LIBRARY)
++tests/runtestspp$(EXEEXT): tests/runtestspp.o tests/chardata.o tests/minicheck.o $(LIBRARY)
+ 	$(LINK_CXX_EXE) tests/runtestspp.o tests/chardata.o tests/minicheck.o $(LIBRARY)
+ 
+ tests/xmlts.zip:
+@@ -169,7 +170,7 @@ tests/xmlts.zip:
+ tests/XML-Test-Suite: tests/xmlts.zip
+ 	cd tests && unzip -q xmlts.zip
+ 
+-run-xmltest: xmlwf/xmlwf tests/XML-Test-Suite
++run-xmltest: xmlwf/xmlwf$(EXEEXT) tests/XML-Test-Suite
+ 	tests/xmltest.sh
+ 
+ .SUFFIXES: .c .cpp .lo .o
