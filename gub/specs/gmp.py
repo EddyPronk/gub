@@ -40,6 +40,10 @@ class Gmp__darwin (Gmp):
                        '%(install_prefix)s/include/gmp.h')
 
 class Gmp__darwin__x86 (Gmp__darwin):
+    def patch (self):
+        Gmp__darwin.patch (self)
+        self.apply_patch ('gmp-4.2.1-x86fat.patch')
+        
     def configure_command (self):
 
         ## bypass oddball assembler errors. 
