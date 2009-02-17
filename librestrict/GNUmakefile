@@ -2,7 +2,7 @@ prefix = /usr
 
 CC = gcc
 NM = nm
-CFLAGS = -W -Wall
+CFLAGS = -W -Wall -I .
 
 ALL_CFLAGS = $(CFLAGS)
 INSTALL = install

@@ -64,6 +64,10 @@ def change_target_package (package):
 # SVN
 bootstrap_names = ['tools::librestrict', 'tools::make']
 def set_cross_dependencies (package_object_dict):
+    if 'stat' in misc.librestrict ():
+        global bootstrap_names
+        bootstrap_names += ['tools::dash', 'tools::coreutils']
+
     packs = list (package_object_dict.values ())
 
     cross_packs = [p for p in packs if isinstance (p, AutoBuild)]

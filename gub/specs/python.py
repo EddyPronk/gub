@@ -1,6 +1,4 @@
-import os
 import re
-import sys
 #
 from gub import build
 from gub import context
@@ -57,7 +55,7 @@ BLDLIBRARY='%(rpath)s -L. -lpython$(VERSION)'
 ''')
     def install_command (self):
         relax = ''
-        if 'stat' in os.environ.get ('LIBRESTRICT', ''):
+        if 'stat' in misc.librestrict ():
             relax = 'LIBRESTRICT_ALLOW=/usr/lib/python2.4/lib-dynload:$LIBRESTRICT_ALLOW '
         return (relax
                 + target.AutoBuild.install_command (self))
@@ -148,7 +146,7 @@ class Python__tools (tools.AutoBuild, Python):
         return Python.makeflags (self)
     def install_command (self):
         relax = ''
-        if 'stat' in os.environ.get ('LIBRESTRICT', ''):
+        if 'stat' in misc.librestrict ():
             relax = 'LIBRESTRICT_ALLOW=/usr/lib/python2.4/lib-dynload:$LIBRESTRICT_ALLOW '
         return (relax
                 + tools.AutoBuild.install_command (self))

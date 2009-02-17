@@ -1,6 +1,3 @@
-import os
-#
-from gub import build
 from gub import context
 from gub import logging
 from gub import misc
@@ -83,7 +80,7 @@ rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,
         cflags = '-I%(srcdir)s -I%(srcdir)s/src %(freetype_cflags)s' 
         libs = '%(freetype_libs)s'
         relax = ''
-        if 'stat' in os.environ.get ('LIBRESTRICT', ''):
+        if 'stat' in misc.librestrict ():
             relax = 'LIBRESTRICT_IGNORE=%(tools_prefix)s/bin/make '
         for i in ('fc-case', 'fc-lang', 'fc-glyphname', 'fc-arch'):
             self.system ('''

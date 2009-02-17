@@ -622,6 +622,10 @@ def dump_python_config (self):
          to_name=python_config)
     self.chmod (python_config, octal.o755)
 
+def librestrict ():
+    return list (sorted (os.environ.get ('LIBRESTRICT',
+                                         'open').replace (':', ' ').split (' ')))
+
 def test ():
     printf (forall (x for x in [1, 1]))
     printf (dissect_url ('git://anongit.freedesktop.org/git/fontconfig?revision=1234'))

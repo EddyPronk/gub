@@ -1,3 +1,4 @@
+from gub import misc
 from gub import tools
 
 class Make_make__tools (tools.AutoBuild):
@@ -10,7 +11,10 @@ class Make_make__tools (tools.AutoBuild):
         self.file_sub ([('"/usr', '"%(system_prefix)s')], '%(srcdir)s/read.c')
         self.file_sub ([('"/usr', '"%(system_prefix)s'),
                         ('"/lib', '"%(system_root)s/lib')], '%(srcdir)s/remake.c')
+    def librestrict_name (self):
+        return 'librestrict-' + '-'.join (misc.librestrict ())
     def _get_build_dependencies (self):
+        #return [self.librestrict_name ()]
         return ['librestrict']
     def wrap_executables (self):
         # no dynamic executables [other than /lib:libc]

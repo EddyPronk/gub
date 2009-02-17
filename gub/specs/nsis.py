@@ -47,7 +47,7 @@ Export('defenv')
                        '%(srcdir)s/SConstruct')
     def compile_command (self):
         relax = ''
-        if 'stat' in os.environ.get ('LIBRESTRICT', ''):
+        if 'stat' in misc.librestrict ():
             relax = 'LIBRESTRICT_IGNORE=%(tools_prefix)s/bin/python '
         return (relax
                 + tools.SConsBuild.compile_command (self)
