@@ -47,7 +47,6 @@ class Libtool (target.AutoBuild):
         if 'stat' in misc.librestrict ():
             SHELL = 'CONFIG_SHELL=%(tools_prefix)s/bin/dash '
         return (SHELL
-                + misc.librestrict_allow ()
                 + target.AutoBuild.configure_command (self)
                 .replace ('SHELL=', 'CONFIG_SHELL='))
 
