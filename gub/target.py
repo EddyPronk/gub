@@ -16,7 +16,10 @@ class AutoBuild (build.AutoBuild):
         return build.AutoBuild.configure_command (self)
 
     def configure_command (self):
-        return misc.join_lines ('''%(configure_binary)s
+        SHELL = ''
+        if 'stat' in misc.librestrict ():
+            SHELL = ' SHELL=%(tools_prefix)s/bin/dash'
+        return (misc.join_lines ('''%(configure_binary)s
 --config-cache
 --enable-shared
 --disable-static
@@ -31,6 +34,7 @@ class AutoBuild (build.AutoBuild):
 --libdir=%(prefix_dir)s/lib
 ''')
 # --with-slibdir=%(prefix)s/slib
+                + SHELL)
 
     def configure (self):
         build.AutoBuild.configure (self)

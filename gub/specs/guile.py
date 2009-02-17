@@ -122,11 +122,7 @@ class Guile__mingw (Guile):
     def _get_build_dependencies (self):
         return Guile._get_build_dependencies (self) +  ['regex-devel']
     def configure_command (self):
-        SHELL = ''
-        if 'stat' in misc.librestrict ():
-            SHELL = ' SHELL=%(tools_prefix)s/bin/dash'
         return (Guile.configure_command (self)
-                + SHELL
                 # + ' --with-threads=pthread'
                 # checking whether pthread_attr_getstack works for the main thread... configure: error: cannot run test program while cross compiling
                 # also, gen-scmconfig.c has
