@@ -30,6 +30,7 @@ from gub import cross
 from gub import build
 from gub import misc
 from gub import gup
+from gub import loggedos
 from gub import logging
 from gub import runner
 import gub.settings   # otherwise naming conflict with settings local vars.
@@ -222,7 +223,13 @@ class BuildRunner:
             spec.build (self.options, skip)
             spec.connect_command_runner (None)
             deferred_runner.execute_deferred_commands ()
+            if len (self.checksums[spec_name].split ('\n')) < 5:
+                # Sanity check.  This can't be right.  Do not
+                # overwrite precious [possibly correct] checksum.
+                raise Exception ('BROKEN CHECKSUM:' + self.checksums[spec_name])
             open (spec.expand ('%(checksum_file)s'), 'w').write (self.checksums[spec_name])
+            #spec.set_done ('')
+            loggedos.system (logging.default_logger, spec.expand ('rm -f %(stamp_file)s'))
         logger.write_log (spec.stage_message ('pkg_install'), 'stage')
         # Ugh, pkg_install should be stage
         if spec.install_after_build:
