@@ -626,6 +626,16 @@ def librestrict ():
     return list (sorted (os.environ.get ('LIBRESTRICT',
                                          'open').replace (':', ' ').split (' ')))
 
+def librestrict_allow ():
+    if not 'stat' in librestrict ():
+        return ''
+    bin = ['egrep', 'fgrep', 'grep', 'sed']
+    usr_bin = ['awk', 'mawk', 'nawk']
+    return (' LIBRESTRICT_ALLOW='
+            + ':'.join (['/bin/' + x for x in bin]
+                        + ['/usr/bin/' + x for x in usr_bin])
+            + ':${LIBRESTRICT_ALLOW-/foo} ')
+
 def test ():
     printf (forall (x for x in [1, 1]))
     printf (dissect_url ('git://anongit.freedesktop.org/git/fontconfig?revision=1234'))

@@ -56,7 +56,7 @@ BLDLIBRARY='%(rpath)s -L. -lpython$(VERSION)'
     def install_command (self):
         relax = ''
         if 'stat' in misc.librestrict ():
-            relax = 'LIBRESTRICT_ALLOW=/usr/lib/python2.4/lib-dynload:$LIBRESTRICT_ALLOW '
+            relax = 'LIBRESTRICT_ALLOW=/usr/lib/python2.4/lib-dynload:${LIBRESTRICT_ALLOW-/foo} '
         return (relax
                 + target.AutoBuild.install_command (self))
     def install (self):
@@ -147,7 +147,7 @@ class Python__tools (tools.AutoBuild, Python):
     def install_command (self):
         relax = ''
         if 'stat' in misc.librestrict ():
-            relax = 'LIBRESTRICT_ALLOW=/usr/lib/python2.4/lib-dynload:$LIBRESTRICT_ALLOW '
+            relax = 'LIBRESTRICT_ALLOW=/usr/lib/python2.4/lib-dynload:${LIBRESTRICT_ALLOW-/foo} '
         return (relax
                 + tools.AutoBuild.install_command (self))
     def wrap_executables (self):

@@ -16,7 +16,7 @@ class Rebase__tools (tools.MakeBuild):
 CC=i686-mingw32-gcc
 CXX=i686-mingw32-g++
 AR=i686-mingw32-ar
-LIBRESTRICT_ALLOW=%(targetdir)s
+LIBRESTRICT_ALLOW=%(targetdir)s:${LIBRESTRICT_ALLOW-/foo}
 PREFIX=%(system_prefix)s
 ''')
     # C&P from nsis.  Should move to mingw.
