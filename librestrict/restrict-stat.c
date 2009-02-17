@@ -10,11 +10,6 @@
 
 #include "restrict.c"
 
-static int sys_stat (char const *file_name, struct stat *buf)
-{
-  return syscall (SYS_stat, file_name, buf);
-}
-
 static int sys_lstat (char const *file_name, struct stat *buf)
 {
   return syscall (SYS_lstat, file_name, buf);
@@ -25,7 +20,7 @@ __lstat (char const *file_name, struct stat *buf)
 {
   if (verbosity > 1)
     fprintf (stderr, "%s: %s\n", __PRETTY_FUNCTION__, file_name);
-  if (!is_allowed (file_name, "stat"))
+  if (!is_allowed (file_name, "lstat"))
     abort ();
 
   return sys_lstat (file_name, buf);
@@ -43,13 +38,18 @@ __oldstat (char const *file_name, struct stat *buf)
 {
   if (verbosity > 1)
     fprintf (stderr, "%s: %s\n", __PRETTY_FUNCTION__, file_name);
-  if (!is_allowed (file_name, "stat"))
+  if (!is_allowed (file_name, "oldstat"))
     abort ();
 
   return sys_oldstat (file_name, buf);
 }
 
 int oldstat (char const *file_name, struct stat *buf)  __attribute__ ((alias ("__oldstat")));
+
+static int sys_stat (char const *file_name, struct stat *buf)
+{
+  return syscall (SYS_stat, file_name, buf);
+}
 
 int
 __stat (char const *file_name, struct stat *buf)
@@ -75,7 +75,7 @@ __ustat (char const *file_name, struct stat *buf)
 {
   if (verbosity > 1)
     fprintf (stderr, "%s: %s\n", __PRETTY_FUNCTION__, file_name);
-  if (!is_allowed (file_name, "stat"))
+  if (!is_allowed (file_name, "ustat"))
     abort ();
 
   return sys_ustat (file_name, buf);
