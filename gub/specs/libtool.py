@@ -40,6 +40,16 @@ class Libtool (target.AutoBuild):
         return d
     def update_libtool (self):
         pass
+    def configure_command (self):
+        # libtool's build breaks with SHELL=; CONFIG_SHELL works
+        # and adds dash to libtools' #! 
+        SHELL = ''
+        if 'stat' in misc.librestrict ():
+            SHELL = 'CONFIG_SHELL=%(tools_prefix)s/bin/dash '
+        return (SHELL
+                + misc.librestrict_allow ()
+                + target.AutoBuild.configure_command (self)
+                .replace ('SHELL=', 'CONFIG_SHELL='))
 
 class Libtool__darwin (Libtool):
     def install (self):
