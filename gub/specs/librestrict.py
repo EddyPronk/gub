@@ -1,16 +1,13 @@
-import os
-#
 from gub import tools
 from gub import misc
 
 class Librestrict_make__tools (tools.MakeBuild):
     source = 'url://host/librestrict-1.9a.tar.gz'
     def librestrict_flavours (self):
-        return list (sorted (os.environ.get ('LIBRESTRICT',
-                                             'open').replace (':', ' ').split (' ')))
+        return misc.librestrict ()
     def flavours (self):
         return ['exec', 'open', 'stat']
-    def name (self):
+    def BARFS_WITH_2_5_1_name (self):
         return 'librestrict-' + '-'.join (self.librestrict_flavours ())
     def get_conflict_dict (self):
         # Ugly hack: if the user is not explicitly tightening the
@@ -20,7 +17,9 @@ class Librestrict_make__tools (tools.MakeBuild):
         relax_restrictions = ['coreutils', 'dash']
         if 'stat' in self.librestrict_flavours ():
             relax_restrictions = []
-        return {'': ['librestrict',
+        return {'': ['coreutils',
+                     'dash',
+                     'librestrict',
                      'librestrict-exec',
                      'librestrict-exec-open',
                      'librestrict-exec-open-stat',
@@ -44,7 +43,7 @@ class Librestrict_nomake__tools (Librestrict_make__tools):
         # URG, must *not* have U __stack_chk_fail@@GLIBC_2.4
         # because glibc-[core-]2.3 will not install with LD_PRELOAD
         CFLAGS = '-fno-stack-protector'
-        compile = 'gcc -W -Wall %(CFLAGS)s -fPIC -shared -o lib%(name)s.so %(name)s.c'
+        compile = 'gcc -W -Wall %(CFLAGS)s -I. -fPIC -shared -o lib%(name)s.so %(name)s.c'
         sources = ' '.join (['restrict-%s.c' % name for name in self.librestrict_flavours ()])
         b = 'cd %(builddir)s && '
         command = b + 'cat %(sources)s > restrict-all.c\n' % locals ()
@@ -68,3 +67,4 @@ mkdir -p %(install_root)s/%(system_prefix)s/lib
 '''))
 
 Librestrict__tools = Librestrict_nomake__tools
+Librestrict_open__tools = Librestrict__tools

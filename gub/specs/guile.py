@@ -36,7 +36,7 @@ exec %(tools_prefix)s/bin/guile "$@"
         # Guile [doc] does not compile with dash *and* not with
         # librestrict-stat.so; patch out.
         target.AutoBuild.patch (self)
-        if 'stat' in os.environ.get ('LIBRESTRICT', ''):
+        if 'stat' in misc.librestrict ():
             self.file_sub ([(' doc ', ' ')], '%(srcdir)s/Makefile.am')
     def autogen_sh (self):
         self.file_sub ([(r'AC_CONFIG_SUBDIRS\(guile-readline\)', '')],
@@ -120,14 +120,10 @@ class Guile__mingw (Guile):
         return (Guile.makeflags (self)
                 + ''' 'LIBTOOL=%(tools_prefix)s/bin/dash $(top_builddir)/libtool' ''')
     def _get_build_dependencies (self):
-        if 'stat' in os.environ.get ('LIBRESTRICT', ''):
-            return (Guile._get_build_dependencies (self)
-                    + ['tools::dash', 'tools::coreutils']
-                    + ['regex-devel'])
         return Guile._get_build_dependencies (self) +  ['regex-devel']
     def configure_command (self):
         SHELL = ''
-        if 'stat' in os.environ.get ('LIBRESTRICT', ''):
+        if 'stat' in misc.librestrict ():
             SHELL = ' SHELL=%(tools_prefix)s/bin/dash'
         return (Guile.configure_command (self)
                 + SHELL
@@ -291,7 +287,7 @@ class Guile__tools (tools.AutoBuild, Guile):
         # Guile [doc] does not compile with dash *and* not with
         # librestrict-stat.so; patch out.
         tools.AutoBuild.patch (self)
-        if 'stat' in os.environ.get ('LIBRESTRICT', ''):
+        if 'stat' in misc.librestrict ():
             self.file_sub ([(' doc ', ' ')], '%(srcdir)s/Makefile.am')
     def configure_command (self):
         # FIXME: when configuring, guile runs binaries linked against
