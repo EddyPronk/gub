@@ -67,7 +67,7 @@ cd %(srcdir)s && patch -p%(strip)s < %(patchdir)s/%(name)s
                 continue
             self.runner.stage (self.stage_message (stage))
             if (stage == 'package' and tainted
-                and options and not options.force):
+                and options and not options.force_package):
                 msg = self.expand ('''This compile has previously been interrupted.
 To ensure a repeatable build, this will not be packaged.
 
@@ -82,9 +82,7 @@ to force a full package rebuild, or
 to skip this check and risk a defective build.
 ''')
                 logging.error (msg)
-                #FIXME: throw exception.  this plays nice with
-                # buildrunner and with bin/gub, so check that.
-                sys.exit (1)
+                self.system ('false')
             try:
                 (available[stage]) ()
             except:
