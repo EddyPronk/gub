@@ -13,4 +13,10 @@ class Binutils__darwin (binutils.Binutils):
     #    return (binutils.Binutils._get_build_dependencies (self)
     #            + ['odcctools'])
     def install (self):
+        '''
+        On some systems [Fedora9], libiberty.a is provided by binutils
+        *and* by gcc; see gub/specs/binutils.py for more details.
+        '''
         cross.AutoBuild.install (self)
+        self.system ('rm %(install_prefix)s%(cross_dir)s/lib64/libiberty.a',
+                     ignore_errors=True)
