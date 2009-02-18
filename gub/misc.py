@@ -633,18 +633,20 @@ ac_cv_path_EGREP=${ac_cv_path_EGREP='/bin/grep -E'}
 ac_cv_path_GREP=${ac_cv_path_GREP=/bin/grep}
     '''
     # Let's not change the dict between relaxed/restricted builds
-    if False and not 'stat' in librestrict ():
+    if not 'stat' in librestrict ():
         return ''
     bin = ['egrep', 'fgrep', 'grep', 'sed']
-    usr_bin = ['awk', 'mawk', 'nawk']
+    usr_bin = ['awk', 'gawk', 'mawk', 'nawk']
     # URG, GUB's cross gcc's STAT here.  GUB may break in
     # interesting ways if there are cross compilers installed
     # here.
     gcc = ['/usr/lib/gcc', '/usr/libexec/gcc']
-    return (' LIBRESTRICT_ALLOW='
-            + ':'.join (['/bin/' + x for x in bin]
-                        + ['/usr/bin/' + x for x in usr_bin]
-                        + gcc)
+    # Better install awk, grep, sed
+    bin = []
+    usr_bin = []
+    return (':'.join (['/bin/' + x for x in bin]
+                      + ['/usr/bin/' + x for x in usr_bin]
+                      + gcc)
             + ':${LIBRESTRICT_ALLOW-/foo} ')
 
 def test ():

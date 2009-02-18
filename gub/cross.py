@@ -65,7 +65,8 @@ bootstrap_names = ['tools::librestrict', 'tools::make']
 def set_cross_dependencies (package_object_dict):
     if 'stat' in misc.librestrict ():
         global bootstrap_names
-        bootstrap_names += ['tools::dash', 'tools::coreutils']
+        bootstrap_names += ['tools::coreutils', 'tools::dash', 'tools::gawk',
+                            'tools::grep', 'tools::sed']
 
     packs = list (package_object_dict.values ())
 
