@@ -1,0 +1,22 @@
+--- goodies/source/base3d/base3d.cxx.~1.17.~	2008-04-11 01:18:45.000000000 +0200
++++ goodies/source/base3d/base3d.cxx	2009-02-15 20:04:49.000000000 +0100
+@@ -219,7 +219,7 @@ Base3D::Base3D(OutputDevice* pOutDev)
+ #endif
+ 
+ 	// Fuer WIN95/NT die FP-Exceptions abschalten
+-#if defined(WNT) || defined(WIN)
++#if (defined(WNT) || defined(WIN)) && ! defined __MINGW32__
+ #define SC_FPEXCEPTIONS_ON()	_control87( _MCW_EM, 0 )
+ #define SC_FPEXCEPTIONS_OFF()	_control87( _MCW_EM, _MCW_EM )
+ 	SC_FPEXCEPTIONS_OFF();
+--- goodies/source/inv/makefile.mk.~1.21.~	2008-07-22 19:45:33.000000000 +0200
++++ goodies/source/inv/makefile.mk	2009-02-15 21:35:25.000000000 +0100
+@@ -114,7 +114,7 @@ $(BIN)$/applicat.rdb : makefile.mk $(SOL
+ 	rm -f $@
+ 	$(GNUCOPY) $(SOLARBINDIR)$/types.rdb $@
+ 	cd $(BIN) && \
+-		regcomp -register -r applicat.rdb \
++		$(REGCOMP) -register -r applicat.rdb \
+ 			-c i18npool.uno$(DLLPOST)
+ 
+ # --- Def-File ---

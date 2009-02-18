@@ -398,7 +398,7 @@ cd %(builddir)s/build/%(cvs_tag)s && patch -p%(patch_strip_component)s < %(patch
             self.file_sub ([('(^[^#].*[ \t](all|n|w|w,vc[0-9])[ \t])', r'#\1')], '%(upstream_dir)s/%(module)s/prj/build.lst', env=locals ())
 
         module = 'setup_native'
-        self.file_sub ([('([^#].*customactions.*)', r'#\1')], '%(upstream_dir)s/%(module)s/prj/build.lst', env=locals ())
+        self.file_sub ([('^(pk.*customactions.*)', r'#\1')], '%(upstream_dir)s/%(module)s/prj/build.lst', env=locals ())
 
         # uses oledb.h from psdk 
         module = 'connectivity'
