@@ -30,6 +30,7 @@ from gub import cross
 from gub import build
 from gub import misc
 from gub import gup
+from gub import loggedos
 from gub import logging
 from gub import runner
 import gub.settings   # otherwise naming conflict with settings local vars.
@@ -49,9 +50,10 @@ def checksum_diff (a, b, fromfile='', tofile='',
 
 #FIXME: split spec_* into SpecBuiler?
 class BuildRunner:
-    def __init__ (self, manager, settings, specs):
+    def __init__ (self, manager, settings, options, specs):
         self.managers = {settings.platform : manager }
         self.settings = settings
+        self.options = options
         self.specs = specs
 
         # spec name -> string
@@ -209,15 +211,26 @@ class BuildRunner:
             deferred_runner = runner.DeferredRunner (logger)
             spec.connect_command_runner (deferred_runner)
             spec.runner.stage ('building package: %s\n' % spec_name)
-            spec.build ()
+            skip = []
+            if self.options.offline:
+                skip += ['download']
+            if not self.options.src_package:
+                skip += ['src_package']
+            if self.options.keep_build:
+                skip += ['clean']
+            skip += spec.get_done ()
+            skip = [x for x in skip if x != self.options.stage]
+            spec.build (self.options, skip)
             spec.connect_command_runner (None)
             deferred_runner.execute_deferred_commands ()
-
+            if len (self.checksums[spec_name].split ('\n')) < 5:
+                # Sanity check.  This can't be right.  Do not
+                # overwrite precious [possibly correct] checksum.
+                raise Exception ('BROKEN CHECKSUM:' + self.checksums[spec_name])
             open (spec.expand ('%(checksum_file)s'), 'w').write (self.checksums[spec_name])
-
-        logger.write_log (' *** Stage: %s (%s, %s)\n'
-                           % ('pkg_install', spec.name (),
-                              spec.platform ()), 'stage')
+            #spec.set_done ('')
+            loggedos.system (logging.default_logger, spec.expand ('rm -f %(stamp_file)s'))
+        logger.write_log (spec.stage_message ('pkg_install'), 'stage')
         # Ugh, pkg_install should be stage
         if spec.install_after_build:
             self.spec_install (spec)

@@ -1,6 +1,4 @@
-import os
-#
-from gub import build
+from gub import misc
 from gub import target
 from gub import tools
 
@@ -18,8 +16,8 @@ tools, and many other products as well.'''
         # Freetype stats /sbin, /usr/sbin and /hurd to determine if
         # build system is unix??
         # target.append_target_dict (self, {'LIBRESTRICT_ALLOW': '/sbin:/usr/sbin:/hurd'})
-        if 'stat' in os.environ.get ('LIBRESTRICT', ''):
-            target.add_target_dict (self, {'LIBRESTRICT_ALLOW': '/usr/lib/gcc:/usr/libexec/gcc:/sbin:/usr/sbin:/hurd'})
+        if 'stat' in misc.librestrict ():
+            target.add_target_dict (self, {'LIBRESTRICT_ALLOW': '/sbin:/usr/sbin:/hurd:${LIBRESTRICT_ALLOW-/foo}'})
     def license_files (self):
         return ['%(srcdir)s/docs/LICENSE.TXT']
     def _get_build_dependencies (self):

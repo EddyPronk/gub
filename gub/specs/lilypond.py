@@ -251,9 +251,6 @@ install:
 ''', '%(builddir)s/python/GNUmakefile')
         
 class LilyPond__mingw (LilyPond):
-    def _get_build_dependencies (self):
-        return (LilyPond._get_build_dependencies (self)
-                + ['lilypad', 'tools::icoutils', 'tools::nsis'])
     def makeflags (self):
         python_lib = '%(system_prefix)s/bin/libpython*.dll'
         return (LilyPond.makeflags (self)
@@ -344,6 +341,7 @@ cd %(builddir)s && make -C scripts %(makeflags)s
 class LilyPond__darwin (LilyPond):
     def _get_build_dependencies (self):
         return (LilyPond._get_build_dependencies (self)
+                # FIXME: move to lilypond-installer.py, see __mingw.
                 + [ 'fondu', 'osx-lilypad'])
     def configure_command (self):
         return (LilyPond.configure_command (self)

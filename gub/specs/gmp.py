@@ -19,9 +19,8 @@ class Gmp (target.AutoBuild):
         # automake's Makefile.in's too old for new libtool,
         # but autoupdating breaks even more.  This nice
         # hack seems to work.
-        self.file_sub ([('#! /bin/sh', '#! /bin/sh\ntagname=CXX'),
-                        ('#! /bin/bash', '#! /bin/bash\ntagname=CXX')],
-               '%(builddir)s/libtool')
+        self.file_sub ([('(#! .*/bin/.*sh)', r'#! \1\ntagname=CXX')],
+                       '%(builddir)s/libtool')
         
 class Gmp__darwin (Gmp):
     def patch (self):
@@ -40,6 +39,10 @@ class Gmp__darwin (Gmp):
                        '%(install_prefix)s/include/gmp.h')
 
 class Gmp__darwin__x86 (Gmp__darwin):
+    def patch (self):
+        Gmp__darwin.patch (self)
+        self.apply_patch ('gmp-4.2.1-x86fat.patch')
+        
     def configure_command (self):
 
         ## bypass oddball assembler errors. 

@@ -75,7 +75,12 @@ Examples:
     p.add_option ('-k', '--keep', action='store_true',
                   dest='keep_build',
                   default=None,
-                  help='leave build and src dir for inspection')
+                  help='Leave build and src dir for inspection')
+
+    p.add_option ('-s', '--src-package', action='store_true',
+                  dest='src_package',
+                  default=None,
+                  help='Also roll source packages')
 
     p.add_option ('-p', '--platform', action='store',
                   dest='platform',
@@ -244,13 +249,7 @@ def build (settings, options, files):
             sys.exit (0)
         raise
 
-    if options.force_package:
-        for spec in list (specs.values ()):
-            status = spec.expand ('%(stamp_file)s')
-            if os.path.exists (status):
-                os.unlink (status)
-
-    b = buildrunner.BuildRunner (manager, settings, specs)
+    b = buildrunner.BuildRunner (manager, settings, options, specs)
 
     if options.dependencies:
         sys.exit (0)
@@ -299,6 +298,7 @@ def main ():
     cli_parser = get_cli_parser ()
     (options, files) = cli_parser.parse_args ()
     options.verbosity -= options.quiet
+    options.src_package = options.src_package or options.platform == 'cygwin'
 
     logging.default_logger.threshold = options.verbosity
 

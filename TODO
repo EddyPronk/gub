@@ -12,13 +12,18 @@
 ** todo: python driver that connects [gub, gib], uploads/export calls
 
 * Stat restriction
-** Extend Guile__mingw's tight LIBRESTRICT=open:stat restrictions to
-   other architectures/packages, eventually to target.py/build.py.
+** On my system, Jaunty-64 bit, the restricted
+   LIBRESTRICT=open:stat bin/gub mingw::lilypond
+now builds.
+** Test other archs, lilypond-installer, lilypond-doc, other
+   distributions [Han-Wen], and only then:
 ** Swap the default from relaxed LIBRESTRICT=open to tighter
    LIBRESTRICT=open:stat.
    
-* FIX --keep option; debugging is next to impossible with all
-  sources gone from target/*/src
+* sharhead suggest or add ~/bin to PATH/.bashrc?
+[On sh lily*.sh better as mortal user...]  But then you have to mess
+with the execution path, which does not include ~/bin/ by default. Not
+perfect for a novice.
 
 * after fixing --keep, go something smart with GIT, so that
   - *every* work-dir in target/*/src/ is a GIT checkout

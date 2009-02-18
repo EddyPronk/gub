@@ -14,6 +14,20 @@ class Gcc (cross.AutoBuild):
         return ['cross/binutils']
     def patch (self):
         cross.AutoBuild.patch (self)
+        # GUB cross compilers must NOT look in /usr.
+        # Fixes librestrict=stat:open and resulting ugliness.
+        for i in ['%(srcdir)s/configure', '%(srcdir)s/gcc/configure']:
+            self.file_sub ([('( *gcc_cv_tool_dirs=.*PATH_SEPARATOR/usr)', r'#\1'), # gcc-4.1.1 gcc/configure
+                            ('( *gcc_cv_tool_dirs=.*gcc_cv_tool_dirs/usr)', r'#\1')], # gcc-4.3.2 ./configure
+                           i)
+        # This seems to have been fixed in gcc-4.3.2, but only if
+        # *not* cross-compiling---a hardcoded lookup in /usr, without
+        # asking configure, still makes no sense to me.  Redirecting
+        # lookups survives gcc-4.1.1--4.3.2, which is more robust than
+        # patching them out.
+        self.file_sub ([('( standard_exec_prefix_.*= ")/usr', r'\1%(system_prefix)s')],
+                       '%(srcdir)s/gcc/gcc.c')
+
         if False and self.settings.build_architecture == self.settings.target_architecture:
             # This makes the target build *not* use /lib* at all, but
             # it produces executables that will only run within the
