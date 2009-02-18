@@ -206,8 +206,7 @@ class Settings (context.Context):
             except:
                 pass
 
-        if (self.build_bits == '32' and self.build_hardware_bits == '64'
-            and not 'darwin' in self.target_platform):
+        if self.build_bits == '32' and self.build_hardware_bits == '64':
             # 32 bit OS running on 64 bit hardware, help configure
             self.ABI = self.target_bits
             os.environ['ABI'] = self.target_bits
