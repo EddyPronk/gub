@@ -137,7 +137,6 @@ cd %(builddir)s && chmod +x %(configure_binary)s && %(configure_command_native)s
             'CC_FOR_BUILD': 'C_INCLUDE_PATH= CPATH= CPPFLAGS= LIBRARY_PATH= cc',
             'CCLD_FOR_BUILD': 'C_INCLUDE_PATH= CPATH= CPPFLAGS= LIBRARY_PATH= cc',
             'LDFLAGS_FOR_BUILD': '',
-            'LIBRESTRICT_ALLOW': misc.librestrict_allow (),
             'C_INCLUDE_PATH': '',
             'CPATH': '',
             'CPLUS_INCLUDE_PATH': '',

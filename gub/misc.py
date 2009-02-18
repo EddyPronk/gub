@@ -644,6 +644,8 @@ ac_cv_path_GREP=${ac_cv_path_GREP=/bin/grep}
     # Better install awk, grep, sed
     bin = []
     usr_bin = []
+    # Patched gcc
+    gcc = []
     return (':'.join (['/bin/' + x for x in bin]
                       + ['/usr/bin/' + x for x in usr_bin]
                       + gcc)

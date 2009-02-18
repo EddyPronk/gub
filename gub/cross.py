@@ -22,9 +22,6 @@ class AutoBuild (build.AutoBuild):
             + misc.append_path (os.environ.get ('CPLUS_INCLUDE_PATH', '')),
             'LIBRARY_PATH': '%(tools_prefix)s/lib'
             + misc.append_path (os.environ.get ('LIBRARY_PATH', '')),
-            'LIBRESTRICT_ALLOW': '/usr/lib/gcc:/usr/libexec/gcc',
-            # Not needed?
-            # 'LIBRESTRICT_ALLOW': misc.librestrict_allow (),
             'LIBRESTRICT_IGNORE': '%(tools_prefix)s/bin/make',
             'PATH': '%(cross_prefix)s/bin:%(tools_prefix)s/bin:' + os.environ['PATH'],
         }
@@ -250,9 +247,6 @@ def change_target_package_x86 (package, env={'PATH': os.environ['PATH']}):
     x86_bindir = x86_cross + '/bin'
     x86_cross_bin = x86_cross + '/i686-linux' + '/bin'
     env['PATH'] = x86_cross_bin + ':' + env['PATH']
-    # FIXME: c&p, cannot access package's target dict.
-    # env['LIBRESTRICT_ALLOW'] = package.settings.targetdir + misc.append_path (package.get_substitution_dict ().get ('LIBRESTRICT_ALLOW', ''))
-    env['LIBRESTRICT_ALLOW'] = package.settings.targetdir + ':/usr/lib/gcc:/usr/libexec/gcc'
     env['CC'] = x86_cross_bin + '/gcc'
     env['CXX'] = x86_cross_bin + '/g++'
     # FIXME: should only remove any %(tools_prefix)s elements from these...
