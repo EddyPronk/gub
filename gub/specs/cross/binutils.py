@@ -44,6 +44,8 @@ cd %(install_prefix)s%(cross_dir)s/%(target_architecture)s/bin && ln strip gstri
         '''
         self.system ('rm %(install_prefix)s%(cross_dir)s/lib/libiberty.a',
                      ignore_errors=True)
+        self.system ('rm %(install_prefix)s%(cross_dir)s/lib64/libiberty.a',
+                     ignore_errors=True)
 
 class Binutils__linux__ppc (Binutils):
     patches = Binutils.patches + ['binutils-2.18-werror-ppc.patch']
