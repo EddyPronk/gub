@@ -12,8 +12,11 @@
 ** todo: python driver that connects [gub, gib], uploads/export calls
 
 * Stat restriction
-** Extend Guile__mingw's tight LIBRESTRICT=open:stat restrictions to
-   other architectures/packages, eventually to target.py/build.py.
+** On my system, Jaunty-64 bit, the restricted
+   LIBRESTRICT=open:stat bin/gub mingw::lilypond
+now builds.
+** Test other archs, lilypond-installer, lilypond-doc, other
+   distributions [Han-Wen], and only then:
 ** Swap the default from relaxed LIBRESTRICT=open to tighter
    LIBRESTRICT=open:stat.
    
