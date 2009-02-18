@@ -31,4 +31,10 @@ lilypond
     def install_command (self):
         return 'true'
 
+class LilyPond_installer__mingw (LilyPond_installer):
+    def _get_build_dependencies (self):
+        return (LilyPond_installer._get_build_dependencies (self)
+                + ['lilypad', 'tools::icoutils', 'tools::nsis'])
+
 Lilypond_installer = LilyPond_installer
+Lilypond_installer__mingw = LilyPond_installer__mingw
