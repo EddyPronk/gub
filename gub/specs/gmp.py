@@ -39,17 +39,7 @@ class Gmp__darwin (Gmp):
                        '%(install_prefix)s/include/gmp.h')
 
 class Gmp__darwin__x86 (Gmp__darwin):
-    def patch (self):
-        Gmp__darwin.patch (self)
-        self.apply_patch ('gmp-4.2.1-x86fat.patch')
-        
-    def configure_command (self):
-
-        ## bypass oddball assembler errors. 
-        c = Gmp__darwin.configure_command (self)
-        c = re.sub ('host=[^ ]+', 'host=none-apple-darwin8', c)
-        c = re.sub ('--target=[^ ]+', ' ', c)
-        return c
+    source = 'ftp://ftp.gnu.org/pub/gnu/gmp/gmp-4.2.4.tar.gz'
 
 class Gmp__cygwin (Gmp):
     source = 'ftp://ftp.gnu.org/pub/gnu/gmp/gmp-4.1.4.tar.gz'
