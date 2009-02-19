@@ -40,6 +40,18 @@ class Libtool (target.AutoBuild):
         return d
     def update_libtool (self):
         pass
+    def config_cache_overrides (self, string):
+        # Workraound for bug in libtool-2.2.6a: it will use CC=$F77
+        # (==/usr/bin/gfortran) -print-search-dirs instead of
+        # <cross-toolchain-prefix>-gcc -print-search-dirs to determine
+        # sys_lib_search_path_spec; breaking all linkages.
+        # http://lists.gnu.org/archive/html/bug-libtool/2009-02/msg00017.html
+        return (string
+                + '''
+ac_cv_prog_F77=${ac_cv_prog_F77=no}
+ac_cv_prog_FC=${ac_cv_prog_FC=no}
+ac_cv_prog_GCJ=${ac_cv_prog_GCJ=no}
+''')
     def configure_command (self):
         # libtool's build breaks with SHELL=; CONFIG_SHELL works
         # and adds dash to libtools' #! 
