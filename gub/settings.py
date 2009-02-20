@@ -279,7 +279,8 @@ def as_variables (settings):
     
 def clean_environment ():
     return dict ([(x, os.environ[x]) for x in 
-                  ('EMAIL',
+                  ('DISPLAY', # Ugh, mingw::openoffice install complains about this...
+                   'EMAIL',
                    'GUB_TOOLS_PREFIX',
                    'HOME',
                    'HOSTNAME',
