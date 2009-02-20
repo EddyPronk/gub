@@ -159,16 +159,32 @@ Module 'packimages' delivered successfully. 6 files copied, 2 files unchanged
 Build succeeded ...!
 touch stamp/build
 
+... creating preregistered services.rdb ...
 
-... analyzing files ...
-ERROR: The following files could not be found: 
-ERROR: File not found: instooofiltmsi.dll
-ERROR: File not found: libstlport_gcc.dll
-ERROR: File not found: shlxtmsi.dll
+**************************************************
+ERROR: ERROR: Could not register all components for file services.rdb (gid_Starr
+egistry_Services_Rdb)!
+in function: create_services_rdb
+**************************************************
+
+**************************************************
+ERROR: Saved logfile: /home/janneke/vc/gub/target/mingw/build/openoffice-trunk/b
+uild/ooo300-m9/instsetoo_native/util/OpenOffice//logging/en-US/log_OOO300_en-US.
+log
+**************************************************
 ... cleaning the output tree ...
-Wed Nov 26 22:57:02 2008 (00:10 min.)
+... removing directory /home/janneke/vc/gub/target/mingw/build/openoffice-trunk/
+build/ooo300-m9/instsetoo_native/util/OpenOffice//zip/en-US ...
+... removing directory /home/janneke/vc/gub/target/mingw/build/openoffice-trunk/
+build/ooo300-m9/instsetoo_native/util/OpenOffice//gid_Starregistry_Services_Rdb_
+servicesrdb/en-US_witherror_1 ...
+Thu Feb 19 14:30:56 2009 (01:23 min.)
 Failed to install:  at ./ooinstall line 143.
-make: *** [install] Fout 1
+make: *** [install] Error 1
+
+Saved logs at:
+
+    http://lilypond.org/~janneke/software/ooo/gub-mingw/
 
 '''
 
@@ -417,6 +433,14 @@ LD_LIBRARY_PATH=%(LD_LIBRARY_PATH)s
 ''')
 ##main configure barfs
 ##CPPFLAGS=
+    def install (self):
+        self.system ('''
+cd %(upstream_dir)s/cppuhelper && rm -rf wntgcci.pro-
+cd %(upstream_dir)s/cppuhelper && mv wntgcci.pro wntgcci.pro-
+cd %(upstream_dir)s/cppuhelper && . ../Linux*.sh && perl $SOLARENV/bin/build.pl  && debug=true && perl $SOLARENV/bin/deliver.pl
+''')
+        target.AutoBuild.install (self)
+        
                 
 class Openoffice__mingw (Openoffice):
     upstream_patches = Openoffice.upstream_patches + ['openoffice-config_office-mingw.patch', 'openoffice-solenv-mingw.patch', 'openoffice-sal-mingw.patch', 'openoffice-external-mingwheaders.patch', 'openoffice-cppunit-mingw.patch', 'openoffice-i18npool-mingw.patch', 'openoffice-tools-mingw.patch', 'openoffice-setup_native-mingw.patch', 'openoffice-pyuno-mingw.patch', 'openoffice-sysui-mingw.patch', 'openoffice-dtrans-mingw.patch', 'openoffice-fpicker-mingw.patch', 'openoffice-sccomp-mingw.patch', 'openoffice-vcl-mingw.patch', 'openoffice-connectivity-mingw.patch', 'openoffice-unotools-mingw.patch', 'openoffice-embeddedobj-mingw.patch', 'openoffice-shell-mingw.patch', 'openoffice-svx-mingw.patch', 'openoffice-dbaccess-mingw.patch', 'openoffice-desktop-mingw.patch', 'openoffice-scripting-mingw.patch', 'openoffice-postprocess-mingw.patch', 'openoffice-instsetoo_native-mingw.patch', 'openoffice-solenv-mingw-installer.patch', 'openoffice-scp2-mingw.patch']
