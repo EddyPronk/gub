@@ -255,6 +255,10 @@ class LilyPond__mingw (LilyPond):
         python_lib = '%(system_prefix)s/bin/libpython*.dll'
         return (LilyPond.makeflags (self)
                 + ' LDFLAGS="%(python_lib)s"'  % locals ())
+
+    def _get_build_dependencies (self):
+        return LilyPond._get_build_dependencies (self) + ['tools::icoutils']
+
     # ugh Python hack: C&P Cygwin
     def compile (self):
         # Because of relocation script, python must be built before scripts
