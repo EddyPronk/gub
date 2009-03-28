@@ -7,7 +7,8 @@ class Odcctools (cross.AutoBuild): #skews dependencies:, build.SdkBuild):
     source = ('svn:http://iphone-dev.googlecode.com/svn&module=trunk'
               '&branch=odcctools'
               '&revision=278')
-    patches = ['odcctools-r211-word.patch']
+    patches = ['odcctools-r211-word.patch',
+               'odcctools-config-Wno-long-double.patch']
     def __init__ (self, settings, source):
         cross.AutoBuild.__init__ (self, settings, source)
         if 'x86_64-linux' in self.settings.build_architecture:
