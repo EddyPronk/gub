@@ -115,7 +115,9 @@ class Repository:
     def check_url (rety, url):
         vcs = rety.vc_system.replace ('_', '',).replace ('.', '').lower ()
         return url and (url.startswith (vcs + ':')
-                        or url.startswith (vcs + '+'))
+                        or url.startswith (vcs + '+')
+                        or url.startswith ('http' + '+' + vcs)
+                        or url.startswith ('ssh' + '+' + vcs))
     @staticmethod
     def check_suffix (rety, url):
         return url and url.endswith (rety.vc_system)
@@ -499,6 +501,9 @@ class Git (Repository):
             self.url_host = u.host
             self.url_dir = u.dir.replace ('~', '_')
             self.source = self.source.replace ('git+file://' + u.host, '')
+            # ``I don't handle protocol git+http/http+git''
+            self.source = self.source.replace ('git+http://', 'http://')
+            self.source = self.source.replace ('http+git://', 'http://')
         else:
             # repository proxy determined git vcs from dir
             printf ('FIXME: get url from .git dir info')
