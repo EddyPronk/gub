@@ -196,7 +196,13 @@ class Openoffice (target.AutoBuild):
 #    source = 'svn://svn.gnome.org/svn/ooo-build&branch=trunk'
 
     # fresh try.  wait for mingw dupes
-    source = 'svn://svn.gnome.org/svn/ooo-build&branch=trunk&revision=14412'
+    # source = 'svn://svn.gnome.org/svn/ooo-build&branch=trunk&revision=14412'
+
+    # fresh try2.  wait for mingw dupes
+#    source = 'git://anongit.freedesktop.org/git/ooo-build/ooo-build&revision=207309ec6d428c6a6698db061efb670b36d5df5a'
+
+    source = 'git+file://localhost/home/janneke/vc/ooo310-m8'
+
     patches = ['openoffice-srcdir-build.patch']
     upstream_patches = ['openoffice-config_office-cross.patch', 'openoffice-config_office-gnu-make.patch', 'openoffice-solenv-cross.patch', 'openoffice-solenv.patch', 'openoffice-sal-cross.patch', 'openoffice-soltools-cross.patch', 'openoffice-icc-cross.patch', 'openoffice-i18npool-cross.patch', 'openoffice-lingucomponent-mingw.patch']
     def __init__ (self, settings, source):
@@ -233,7 +239,7 @@ class Openoffice (target.AutoBuild):
             message = '''OOO_TOOLS_DIR not set
 Set OOO_TOOLS_DIR to a recent pre-compiled native solver, I do
 
-export OOO_TOOLS_DIR=/suse/home/janneke/vc/ooo300-m7/build/ooo300-m7/solver/300/unxlngx6.pro/bin
+export OOO_TOOLS_DIR=/home/janneke/vc/ooo310-m8/build/ooo310-m8/solver/310/unxlngx6.pro/bin
 '''
             printf (message)
             raise Exception (message)

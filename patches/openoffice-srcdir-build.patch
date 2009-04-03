@@ -1,48 +1,30 @@
---- openoffice-./configure.in.orig	2008-10-16 15:52:39.000000000 +0200
-+++ openoffice-./configure.in	2008-10-16 20:05:31.000000000 +0200
-@@ -405,8 +405,8 @@ AM_MAINTAINER_MODE
- dnl
- dnl Setup the misc. tweaks we need.
- dnl
--BASEDIR=`pwd`
--TOOLSDIR=$BASEDIR
-+TOP_BUILDDIR=`pwd`
-+TOOLSDIR=$(cd $srcdir && pwd)
- 
- # it will be modified by the --with-additional-sections but it might 
- # modified also by other options
-@@ -515,7 +515,7 @@ warn_use_download="	./download
- "
- AC_MSG_CHECKING( for directory where to download sources )
- if test "z$with_srcdir" = "z"; then
--    SRCDIR=$BASEDIR/src
-+    SRCDIR=$TOP_BUILDDIR/src
- elif (echo "${with_srcdir}" | $GREP -v -q "^/"); then
-     AC_MSG_ERROR([--with-srcdir= must be an absolute path]);
- else
-@@ -523,7 +523,7 @@ else
- fi
- AC_MSG_RESULT([$SRCDIR])
- 
--BUILDDIR=$BASEDIR/build
-+BUILDDIR=$TOP_BUILDDIR/build
- if test "z$with_ooo_builddir" = "z"; then
-    OOBUILDDIR=$BUILDDIR/$CVSTAG
- else
-@@ -541,9 +541,10 @@ if test "z`uname -s`" != "zSunOS" -a "z$
-     AC_MSG_RESULT([yes])
- fi
- 
--rm -f $BASEDIR/stamp/patch.apply
-+rm -f $TOP_BUILDDIR/stamp/patch.apply
- 
- AC_SUBST(SRCDIR)
-+AC_SUBST(TOP_BUILDDIR)
- AC_SUBST(BUILDDIR)
- AC_SUBST(TOOLSDIR)
- AC_SUBST(OOBUILDDIR)
---- openoffice-./Makefile.shared.orig	2008-10-16 15:46:41.000000000 +0200
-+++ openoffice-./Makefile.shared	2008-10-16 20:18:36.000000000 +0200
+From 1b9575e99a762d43789f1933bf23d6ecb5bb4a30 Mon Sep 17 00:00:00 2001
+From: Jan Nieuwenhuizen <janneke@gnu.org>
+Date: Fri, 3 Apr 2009 17:00:51 +0200
+Subject: [PATCH] GUB3-[mingw-]cross-build: apply openoffice-srcdir-build.patch.
+
+Update and apply patch from GUB3
+
+    http://github.com/janneke/gub/blob/e0a39ff58bf4cbda742391e8bf3c099f8ffdcd01/patches/openoffice-srcdir-build.patch
+
+fixes oot build, ie ./configure'ing of ooo-build with --srcdir.
+---
+ Makefile.shared     |   24 ++++++++++++------------
+ bin/build-ooo       |    4 ++--
+ bin/build-tools     |    2 +-
+ bin/localize-ooo    |    4 ++--
+ bin/ooinstall       |    2 +-
+ bin/package-ooo     |    4 ++--
+ bin/setup.in        |   33 +++++++++++++++++----------------
+ bin/unpack          |    2 +-
+ configure.in        |   11 ++++++-----
+ desktop/Makefile.am |    2 +-
+ 10 files changed, 45 insertions(+), 43 deletions(-)
+
+diff --git a/Makefile.shared b/Makefile.shared
+index 761e542..b81739c 100644
+--- a/Makefile.shared
++++ b/Makefile.shared
 @@ -13,10 +13,10 @@ $(OOBUILDDIR)/unpack :
  	$(TOOLSDIR)/bin/transform --revert $(TOOLSDIR) $(OOBUILDDIR)
  	test -n "$(OOO_GIT)" && $(TOOLSDIR)/bin/gob --build-dir=$(OOBUILDDIR) prepare || true
@@ -57,7 +39,7 @@
  	test -n "$(OOO_GIT)" && $(TOOLSDIR)/bin/gob --build-dir=$(OOBUILDDIR) postpare || true
  	rm -f $(STAMP_DIR)/build $(STAMP_DIR)/patch.apply \
  	      $(STAMP_DIR)/artwork.install
-@@ -31,7 +31,7 @@ $(STAMP_DIR)/artwork.install : $(OOBUILD
+@@ -31,7 +31,7 @@ $(STAMP_DIR)/artwork.install : $(OOBUILDDIR)/unpack \
  	touch $@
  
  patch.apply: $(OOBUILDDIR)/unpack $(STAMP_DIR)/patch.apply 
@@ -66,7 +48,7 @@
  			   $(top_srcdir)/patches/*/*.diff \
  			   $(APPLY_DIR)/apply
  	if test "z$(BUILD_WIN32)" != "z"; then \
-@@ -47,8 +47,8 @@ $(STAMP_DIR)/patch.apply : $(top_srcdir)
+@@ -47,8 +47,8 @@ $(STAMP_DIR)/patch.apply : $(top_srcdir)/patches/apply.pl \
  
  	$(TOOLSDIR)/bin/transform --revert $(TOOLSDIR) $(OOBUILDDIR)
  	test -n "$(OOO_GIT)" && $(TOOLSDIR)/bin/gob --build-dir=$(OOBUILDDIR) prepare || true
@@ -76,8 +58,8 @@
 +	chmod +x $(TOP_BUILDDIR)/patches/apply.pl && $(TOP_BUILDDIR)/patches/apply.pl $(APPLY_DIR) $(OOBUILDDIR) $$FLAGS --tag=$(CVSTAG) ;
  	test -n "$(OOO_GIT)" && $(TOOLSDIR)/bin/gob --build-dir=$(OOBUILDDIR) postpare || true
  	$(TOOLSDIR)/bin/transform --apply $(TOOLSDIR) $(OOBUILDDIR)
- 	test -n "$(OOO_GIT)" && cd $(OOBUILDDIR) && git-commit -am 'Font munging.' || true
-@@ -58,8 +58,8 @@ $(STAMP_DIR)/patch.apply : $(top_srcdir)
+ 	test -n "$(OOO_GIT)" && cd $(OOBUILDDIR) && git commit -am 'Font munging.' || true
+@@ -58,8 +58,8 @@ $(STAMP_DIR)/patch.apply : $(top_srcdir)/patches/apply.pl \
  
  patch.unapply:
  	$(TOOLSDIR)/bin/transform --revert $(TOOLSDIR) $(OOBUILDDIR)
@@ -87,8 +69,8 @@
 +	chmod +x $(TOP_BUILDDIR)/patches/apply.pl && $(TOP_BUILDDIR)/patches/apply.pl $(APPLY_DIR) $(OOBUILDDIR) $$FLAGS -R ;
  	rm -f $(STAMP_DIR)/patch.apply
  
- # Build bits:
-@@ -81,7 +81,7 @@ $(STAMP_DIR)/prebuild : $(OOBUILDDIR)/un
+ patch.list:
+@@ -85,7 +85,7 @@ $(STAMP_DIR)/prebuild : $(OOBUILDDIR)/unpack
  
  build.tools : $(STAMP_DIR)/build.tools
  $(STAMP_DIR)/build.tools : $(STAMP_DIR)/prebuild
@@ -97,7 +79,7 @@
  	touch $@
  
  build : $(STAMP_DIR)/build
-@@ -90,7 +90,7 @@ $(STAMP_DIR)/build : $(OOBUILDDIR)/unpac
+@@ -94,14 +94,14 @@ $(STAMP_DIR)/build : $(OOBUILDDIR)/unpack \
  		     $(STAMP_DIR)/artwork.install \
  		     $(STAMP_DIR)/build.tools \
  		     $(STAMP_DIR)/prebuild
@@ -106,7 +88,6 @@
  	touch $@
  
  all: build
-@@ -97,7 +97,7 @@ all: build
  
  install: $(STAMP_DIR)/build
  if BUILD_WIN32
@@ -116,8 +97,10 @@
 -	cd bin ; ./package-ooo
 +	cd $(top_srcdir)/bin ; TOP_BUILDDIR=$(TOP_BUILDDIR) ./package-ooo
  endif
---- openoffice-./bin/unpack.orig	2008-10-16 15:47:43.000000000 +0200
-+++ openoffice-./bin/unpack	2008-10-16 20:05:31.000000000 +0200
+diff --git a/bin/build-ooo b/bin/build-ooo
+index 445f80a..da225f0 100755
+--- a/bin/build-ooo
++++ b/bin/build-ooo
 @@ -3,7 +3,7 @@
  #
  # See setup for user tweakables.
@@ -125,11 +108,80 @@
 -. ./setup
 +. $TOP_BUILDDIR/bin/setup
  
- if (echo "testing\c"; echo 1,2,3) | grep c >/dev/null; then
-     if (echo -n testing; echo 1,2,3) | sed s/-n/xn/ | grep xn >/dev/null; then
---- openoffice-./bin/setup.in.orig	2008-10-16 16:12:25.000000000 +0200
-+++ openoffice-./bin/setup.in	2008-10-16 20:05:31.000000000 +0200
-@@ -35,6 +35,7 @@ SPLIT_APP_MODULES='@SPLIT_APP_MODULES@'
+ if test "z$BUILD_WIN32" = "z" -a "z`uname -s`" != "zSunOS" -a "z`uname -s`" != "zDarwin"; then
+     if ! test -f /proc/cpuinfo; then
+@@ -137,7 +137,7 @@ fi
+ 
+ if test "z$PIECE" != "z"; then
+ 	echo "Build $PIECE"
+-	. $TOOLSDIR/bin/piece/build-$PIECE
++	. $TOP_BUILDDIR/bin/piece/build-$PIECE
+ else
+ 
+ # update localizations from external sources
+diff --git a/bin/build-tools b/bin/build-tools
+index 525cde5..68d8806 100755
+--- a/bin/build-tools
++++ b/bin/build-tools
+@@ -3,7 +3,7 @@
+ #
+ # See setup for user tweakables.
+ #
+-. ./setup
++. $TOP_BUILDDIR/bin/setup
+ 
+ if test "z$SYSTEM_GCC" != "z"; then
+     echo "Not building gcc / binutils";
+diff --git a/bin/localize-ooo b/bin/localize-ooo
+index 78dc401..d24244c 100755
+--- a/bin/localize-ooo
++++ b/bin/localize-ooo
+@@ -15,9 +15,9 @@ if test -n "$OO_TOOLSDIR" ; then
+     ALL_LANGS=`sed -n -e "s|^[[:space:]]*completelangiso=\(.*\)\(en-US \)\(.*\)$|\2\1\3|p" $SOLARENV/inc/postset.mk`
+     split_build=yes
+ else
+-    . ./setup
++    . $TOP_BUILDDIR/bin/setup
+     . $OOBUILDDIR/*.[sS]et.sh
+-    . ./setup
++    . $TOP_BUILDDIR/bin/setup
+     SRCDIR_PIECE=
+     split_build=no
+ fi
+diff --git a/bin/ooinstall b/bin/ooinstall
+index e3e0a73..0b05e43 100755
+--- a/bin/ooinstall
++++ b/bin/ooinstall
+@@ -45,7 +45,7 @@ sub wanted {
+ 
+ ( $^O =~ /darwin/i ) || ( -f "/proc/meminfo" ) || die "The installer cannot work without javaldx running, which requires /proc to be mounted";
+ 
+-suck_setup ("./setup") || suck_setup ("bin/setup") || die "can't find bin/setup";
++suck_setup ("./setup") || suck_setup ("bin/setup") || suck_setup ("$ENV{'TOP_BUILDDIR'}/bin/setup") || die "can't find bin/setup";
+ 
+ print "Sucking env from build setup\n";
+ my $fname = `ls $setup_vars{'OOBUILDDIR'}/*.[sS]et.sh`;
+diff --git a/bin/package-ooo b/bin/package-ooo
+index 189ce35..9f803bf 100755
+--- a/bin/package-ooo
++++ b/bin/package-ooo
+@@ -5,9 +5,9 @@
+ #
+ # See setup for user tweakables.
+ #
+-. ./setup
++. $TOP_BUILDDIR/bin/setup
+ . $OOBUILDDIR/*.[sS]et.sh
+-. ./setup
++. $TOP_BUILDDIR/bin/setup
+ 
+ export LC_ALL='C';
+ 
+diff --git a/bin/setup.in b/bin/setup.in
+index 502054f..481c5fa 100644
+--- a/bin/setup.in
++++ b/bin/setup.in
+@@ -37,6 +37,7 @@ SPLIT_APP_MODULES='@SPLIT_APP_MODULES@'
  SPLIT_OPT_FEATURES='@SPLIT_OPT_FEATURES@'
  RUN_POST_INSTALL_SCRIPTS='@RUN_POST_INSTALL_SCRIPTS@'
  TOOLSDIR='@TOOLSDIR@'
@@ -137,7 +189,7 @@
  ENABLE_ODK='@ENABLE_ODK@'
  USE_PREBUILD_UNOWINREG_DLL='@USE_PREBUILD_UNOWINREG_DLL@'
  ENABLE_MONO='@ENABLE_MONO@'
-@@ -60,39 +61,39 @@ GNUPATCH=@GNUPATCH@
+@@ -67,39 +68,39 @@ GNUPATCH=@GNUPATCH@
  GNUTAR=@GNUTAR@
  DRINK="@DRINK@"
  
@@ -193,8 +245,10 @@
  fi
  
  # Misc. internal
---- openoffice-./bin/build-tools.orig	2008-10-16 19:53:55.000000000 +0200
-+++ openoffice-./bin/build-tools	2008-10-16 20:05:31.000000000 +0200
+diff --git a/bin/unpack b/bin/unpack
+index 453317c..d4b7d0d 100755
+--- a/bin/unpack
++++ b/bin/unpack
 @@ -3,7 +3,7 @@
  #
  # See setup for user tweakables.
@@ -202,58 +256,70 @@
 -. ./setup
 +. $TOP_BUILDDIR/bin/setup
  
- if test "z$SYSTEM_GCC" != "z"; then
-     echo "Not building gcc / binutils";
---- openoffice-./bin/localize-ooo.orig	2008-10-16 19:56:25.000000000 +0200
-+++ openoffice-./bin/localize-ooo	2008-10-16 20:05:31.000000000 +0200
-@@ -3,9 +3,9 @@
- #
- # See setup for user tweakables.
- #
--. ./setup
-+. $TOP_BUILDDIR/bin/setup
- . $OOBUILDDIR/*.[sS]et.sh
--. ./setup
-+. $TOP_BUILDDIR/bin/setup
+ if (echo "testing\c"; echo 1,2,3) | grep c >/dev/null; then
+     if (echo -n testing; echo 1,2,3) | sed s/-n/xn/ | grep xn >/dev/null; then
+@@ -57,7 +57,10 @@ if test "z$SPLIT" = "zyes" ; then
+ 	if test "z$PIECE" != "z"; then
+ 		CORE_PKGS=$PIECE
+ 	else
+-		CORE_PKGS="sdk ure base calc help extras writer impress artwork filters testing bootstrap libs-gui libs-core libs-extern libs-extern-sys components postprocess extensions"
++		CORE_PKGS="sdk ure base calc help extras writer impress artwork filters testing bootstrap libs-gui libs-core libs-extern libs-extern-sys components postprocess"
++		if test "$ENABLE_EXTENSIONS" = "yes"; then
++		    CORE_PKGS="$CORE_PKGS extensions"
++		fi
+ 	fi
+ 	for pkg in $CORE_PKGS; do
+ 		check_tarball "$OOO_SPLIT_PREFIX$pkg.tar.bz2"
+
+diff --git a/configure.in b/configure.in
+index 090951b..f62b161 100644
+--- a/configure.in
++++ b/configure.in
+@@ -418,8 +418,8 @@ AM_MAINTAINER_MODE
+ dnl
+ dnl Setup the misc. tweaks we need.
+ dnl
+-BASEDIR=`pwd`
+-TOOLSDIR=$BASEDIR
++TOP_BUILDDIR=`pwd`
++TOOLSDIR=$(cd $srcdir && pwd)
  
- export LC_ALL='C';
- 
---- openoffice-./bin/build-ooo.orig	2008-10-16 20:17:56.000000000 +0200
-+++ openoffice-./bin/build-ooo	2008-10-16 20:17:28.000000000 +0200
-@@ -3,7 +3,7 @@
- #
- # See setup for user tweakables.
- #
--. ./setup
-+. $TOP_BUILDDIR/bin/setup
- 
- if test "z$BUILD_WIN32" = "z" -a "z`uname -s`" != "zSunOS" -a "z`uname -s`" != "zDarwin"; then
-     if ! test -f /proc/cpuinfo; then
-@@ -133,7 +133,7 @@ fi
- 
- if test "z$PIECE" != "z"; then
- 	echo "Build $PIECE"
--	. $TOOLSDIR/bin/piece/build-$PIECE
-+	. $TOP_BUILDDIR/bin/piece/build-$PIECE
+ # it will be modified by the --with-additional-sections but it might 
+ # modified also by other options
+@@ -528,7 +528,7 @@ warn_use_download="	./download
+ "
+ AC_MSG_CHECKING( for directory where to download sources )
+ if test "z$with_srcdir" = "z"; then
+-    SRCDIR=$BASEDIR/src
++    SRCDIR=$TOP_BUILDDIR/src
+ elif (echo "${with_srcdir}" | $GREP -v -q "^/"); then
+     AC_MSG_ERROR([--with-srcdir= must be an absolute path]);
  else
+@@ -536,7 +536,7 @@ else
+ fi
+ AC_MSG_RESULT([$SRCDIR])
  
- # update localizations from external sources
---- openoffice-trunk/bin/package-ooo.orig	2008-11-11 16:21:20.000000000 +0100
-+++ openoffice-trunk/bin/package-ooo	2008-11-11 16:21:42.000000000 +0100
-@@ -5,9 +5,9 @@
- #
- # See setup for user tweakables.
- #
--. ./setup
-+. $TOP_BUILDDIR/bin/setup
- . $OOBUILDDIR/*.[sS]et.sh
--. ./setup
-+. $TOP_BUILDDIR/bin/setup
+-BUILDDIR=$BASEDIR/build
++BUILDDIR=$TOP_BUILDDIR/build
+ if test "z$with_ooo_builddir" = "z"; then
+    OOBUILDDIR=$BUILDDIR/$CVSTAG
+ else
+@@ -554,9 +554,10 @@ if test "z`uname -s`" != "zSunOS" -a "z$with_win32" != "z" -a "z`uname -o`" = "z
+     AC_MSG_RESULT([yes])
+ fi
  
- export LC_ALL='C';
+-rm -f $BASEDIR/stamp/patch.apply
++rm -f $TOP_BUILDDIR/stamp/patch.apply
  
---- openoffice-trunk/desktop/Makefile.am.orig	2008-11-12 15:19:11.000000000 +0100
-+++ openoffice-trunk/desktop/Makefile.am	2008-11-12 15:22:36.000000000 +0100
+ AC_SUBST(SRCDIR)
++AC_SUBST(TOP_BUILDDIR)
+ AC_SUBST(BUILDDIR)
+ AC_SUBST(TOOLSDIR)
+ AC_SUBST(OOBUILDDIR)
+diff --git a/desktop/Makefile.am b/desktop/Makefile.am
+index 1f5cd71..26fecc4 100644
+--- a/desktop/Makefile.am
++++ b/desktop/Makefile.am
 @@ -1,6 +1,6 @@
  SUBDIRS=16x16 22x22 24x24 32x32 48x48 scalable mimetypes
  
@@ -262,14 +328,6 @@
  
  old_gnome_files = \
  	openoffice.applications.in \
---- openoffice-trunk/bin/ooinstall~	2008-10-27 15:55:11.000000000 +0100
-+++ openoffice-trunk/bin/ooinstall	2008-11-12 15:30:46.000000000 +0100
-@@ -45,7 +45,7 @@ sub wanted {
- 
- ( $^O =~ /darwin/i ) || ( -f "/proc/meminfo" ) || die "The installer cannot work without javaldx running, which requires /proc to be mounted";
- 
--suck_setup ("./setup") || suck_setup ("bin/setup") || die "can't find bin/setup";
-+suck_setup ("./setup") || suck_setup ("bin/setup") || suck_setup ("$ENV{'TOP_BUILDDIR'}/bin/setup") || die "can't find bin/setup";
- 
- print "Sucking env from build setup\n";
- my $fname = `ls $setup_vars{'OOBUILDDIR'}/*.[sS]et.sh`;
+-- 
+1.6.0.rc1.49.g98a8
+
