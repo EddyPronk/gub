@@ -542,8 +542,8 @@ class Git (Repository):
     def git (self, command, dir=None, ignore_errors=False):
         self.system (self.git_command (dir) + command,
                      ignore_errors=ignore_errors, env=self.get_env ())
-    def git_pipe (self, command, ignore_errors=False):
-        return self.read_pipe (self.git_command () + command,
+    def git_pipe (self, command, dir=None, ignore_errors=False):
+        return self.read_pipe (self.git_command (dir) + command,
                                ignore_errors=ignore_errors,
                                env=self.get_env ())
                                # ugh: suffer errors for now,
@@ -606,8 +606,12 @@ class Git (Repository):
         checkout_dir = self.dir
         branch = self.get_ref ()
         if os.path.isdir (os.path.join (destdir, self.vc_system)):
-            if self.git_pipe ('diff'):
-                self.git ('reset --hard HEAD' % locals (), dir=destdir)
+            revision = 'HEAD'
+            if self.revision:
+                revision = self.revision
+                branch = self.branch
+            if self.git_pipe ('diff', dir=destdir):
+                self.git ('reset --hard %(revision)s' % locals (), dir=destdir)
             self.git ('pull %(checkout_dir)s %(branch)s:' % locals (), dir=destdir)
         else:
             self.git ('clone -l -s %(checkout_dir)s %(destdir)s' % locals ())
