@@ -877,17 +877,21 @@ class Subversion (SimpleRepo):
         if (not module or module == '.') and '/' in branch:
             module = branch[branch.rindex ('/')+1:]
             branch = branch[:branch.rindex ('/')]
+        branchmodule = parameters.get ('branchmodule', ['.'])[0]
         if not revision:
             revision = 'HEAD'
         return Subversion (dir, source=source, branch=branch,
-                           module=module, revision=revision)
+                           module=module, branchmodule=branchmodule,
+                           revision=revision, parameters=parameters)
 
-    def __init__ (self, dir, source=None, branch='', module='.', revision='HEAD'):
+    def __init__ (self, dir, source=None, branch='', module='.', branchmodule='.', revision='HEAD', parameters=list ()):
         if not branch and source:
             if source.endswith ('/'):
                 source = source[:-1]
             branch = source[source.rindex ('/')+1:]
             source = source[:source.rindex ('/')]
+        self.branchmodule = branchmodule
+        self.parameters = parameters
         if not revision:
             revision = 'HEAD'
         SimpleRepo.__init__ (self, dir, source, branch, module, revision)
@@ -899,7 +903,7 @@ class Subversion (SimpleRepo):
         # Support user-check-outs
         if os.path.isdir (os.path.join (self.dir, self.vc_system)):
             return self.dir
-        return '%(dir)s/%(module)s/%(branch)s/%(revision)s' % self.__dict__
+        return '%(dir)s/%(module)s/%(branch)s/%(branchmodule)s/%(revision)s' % self.__dict__
 
     def _current_revision (self):
         return self.revision
@@ -916,10 +920,14 @@ class Subversion (SimpleRepo):
         source = self.source
         branch = self.branch
         module = self.module
+        branchmodule = self.branchmodule
         revision = self.revision
         checkout_dir = self._checkout_dir ()
         rev_opt = '-r %(revision)s ' % locals ()
-        cmd = 'cd %(dir)s && svn co %(rev_opt)s %(source)s/%(module)s/%(branch)s %(checkout_dir)s''' % locals ()
+        options = ''
+        if 'depth' in self.parameters:
+            options = '--depth=' + self.parameters.get ('depth')[0]
+        cmd = 'cd %(dir)s && svn co %(options)s %(rev_opt)s %(source)s/%(module)s/%(branch)s/%(branchmodule)s %(checkout_dir)s''' % locals ()
         self.system (cmd)
         
     def _update (self, revision):
@@ -939,7 +947,7 @@ class Subversion (SimpleRepo):
         branch = self.branch
         module = self.module
         root = self._root ()
-        return self.read_pipe ('cd %(dir)s && LANG= svn diff %(root)s/tags/%(tag)s %(source)s/%(branch)s/%(module)s' % locals ())
+        return self.read_pipe ('cd %(dir)s && LANG= svn diff %(root)s/tags/%(tag)s %(source)s/%(branch)s/%(module)s/%(branchmodule)s' % locals ())
 
     # FIXME: use from_revision?  how to do play nicely with TagDb
     def get_diff_from_date (self, stamp):
@@ -984,12 +992,13 @@ class Subversion (SimpleRepo):
         source = self.source
         branch = self.branch
         module = self.module
+        branchmodule = self.branchmodule
         revision = self.revision
         rev_opt = '-r %(revision)s ' % locals ()
         stamp = self.last_patch_date ()
         tag = name + '-' + tztime.format (stamp, self.tag_dateformat)
         root = self._root ()
-        self.system ('svn cp -m "" %(rev_opt)s %(source)s/%(branch)s/%(module)s %(root)s/tags/%(tag)s''' % locals ())
+        self.system ('svn cp -m "" %(rev_opt)s %(source)s/%(branch)s/%(module)s/%(branchmodule)s %(root)s/tags/%(tag)s''' % locals ())
         return tag
 
     def tag_list (self, tag):
