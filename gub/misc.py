@@ -609,10 +609,11 @@ class Url:
     def __repr__ (self):
         return '<Url:' + self.__dict__.__repr__ () + '>'
 
-def dump_python_config (self):
-    dir = self.expand ('%(install_prefix)s%(cross_dir)s/bin')
+def dump_python_script (self, bindir, name):
+    dir = self.expand (bindir)
     self.system ('mkdir -p %(dir)s' % locals ())
-    python_config = '%(dir)s/python-config' % locals ()
+    script = '%(dir)s/%(name)s' % locals ()
+    source = '%(sourcefiledir)s/' + '%(name)s.py' % locals ()
     self.file_sub ([
          ('@PREFIX@', self.expand ('%(system_prefix)s')),
          # FIXME: better use %(tools_prefix)s/bin/python?
@@ -620,11 +621,16 @@ def dump_python_config (self):
          # python-config, while we are building python2.4.
          ## ('@PYTHON_FOR_BUILD@', sys.executable),
          ('@PYTHON_FOR_BUILD@', self.expand ('%(tools_prefix)s/bin/python')),
+         ('@PYTHON@', self.expand ('%(tools_prefix)s/bin/python')),
+         ('@TARGET_PYTHON@', self.expand ('%(system_prefix)s/bin/python')),
          ('@PYTHON_VERSION@', self.expand ('%(version)s')),
          ('@EXTRA_LDFLAGS@', ''),],
-         '%(sourcefiledir)s/python-config.py.in',
-         to_name=python_config)
-    self.chmod (python_config, octal.o755)
+         source,
+         to_name=script)
+    self.chmod (script, octal.o755)
+
+def dump_python_config (self):
+    dump_python_script (self, '%(install_prefix)s%(cross_dir)s/bin', 'python-config')
 
 def librestrict ():
     return list (sorted (os.environ.get ('LIBRESTRICT',
