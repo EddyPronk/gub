@@ -1,9 +1,9 @@
-from gub import build
 from gub import context
 from gub import loggedos
 from gub import misc
 from gub import octal
 from gub import target
+from gub import tools
 
 class Libicu (target.AutoBuild):
     source = 'http://download.icu-project.org/files/icu4c/3.8.1/icu4c-3_8_1-src.tgz'
@@ -68,3 +68,14 @@ $dir/$(basename $0).bin "$@" | sed -e 's/lib$(LIBNAME).so/$(LIBNAME).dll/g'
 ''',
              '%(builddir)s/bin-native/pkgdata',
                    permissions=octal.o755)
+
+class Libicu__tools (tools.AutoBuild, Libicu):
+    source = 'http://download.icu-project.org/files/icu4c/4.1/icu4c-4_1_3-src.tgz'
+    #source = 'http://download.icu-project.org/files/icu4c/4.0/icu4c-4_0-src.tgz'
+    patches = []
+    def __init__ (self, settings, source):
+        target.AutoBuild.__init__ (self, settings, source)
+        source._version = '4.1.3'
+        #source._version = '4.0'
+    def stages (self):
+        return tools.AutoBuild.stages (self)
