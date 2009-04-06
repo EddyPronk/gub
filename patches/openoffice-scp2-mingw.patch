@@ -56,9 +56,9 @@ scp2/source/ooo/file_library_ooo.scp.pristine
  
 -#if defined(WNT)
 +#if defined(WNT) && ! defined __CROSS__
+ STD_UNO_LIB_FILE( gid_File_Lib_Ado, ado)
+ #endif
  
- File gid_File_Lib_Ado_2
-     TXT_FILE_BODY;
 @@ -656,7 +656,7 @@
  
  STD_UNO_LIB_FILE( gid_File_Lib_Fwm , fwm)

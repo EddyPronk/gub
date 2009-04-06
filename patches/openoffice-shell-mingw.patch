@@ -247,11 +247,11 @@
  .INCLUDE :	target.mk
 --- shell/source/win32/shlxthandler/classfactory.cxx.~1.6.~	2008-04-11 10:15:02.000000000 +0200
 +++ shell/source/win32/shlxthandler/classfactory.cxx	2008-11-04 11:08:46.000000000 +0100
-@@ -35,7 +35,11 @@
- #include "internal/infotips.hxx"
- #include "internal/propsheets.hxx"
- #include "internal/columninfo.hxx"
-+#ifdef __MINGW32__
+@@ -39,8 +38,10 @@
+ #include <algorithm>
+ using ::std::max;
+ using ::std::min;
+-#endif
 +#define IID_IExtractImage 0
 +#else /* !__MINGW32__ */
  #include "internal/thumbviewer.hxx"
@@ -287,7 +287,7 @@
  .INCLUDE :	set_wntx64.mk
 --- shell/source/win32/shlxthandler/res/makefile.mk.~1.8.~	2008-04-11 10:23:02.000000000 +0200
 +++ shell/source/win32/shlxthandler/res/makefile.mk	2008-11-04 10:53:13.000000000 +0100
-@@ -63,4 +63,20 @@ ULFDIR:=.
+@@ -63,4 +63,22 @@ ULFDIR:=.
  
  $(RCFILES) : $(ULFDIR)$/shlxthdl.ulf makefile.mk rcfooter.txt rcheader.txt rctmpl.txt
      $(WRAPCMD) $(BIN)$/lngconvex.exe -ulf $(ULFDIR)$/shlxthdl.ulf -rc $(RES)$/shlxthdl.rc -rct rctmpl.txt -rch rcheader.txt -rcf rcfooter.txt
@@ -298,14 +298,16 @@
 +	sed -i -e 's@\\x\([0-9a-f][0-9a-f][0-9a-f]["\\]\)@\\x0\1@g' $@
 +	sed -i -e 's@\([ ,]\)"@\1L"@g' $@
 +	sed -i -e 's@include L"@include "@' $@
-+	sed -i -e 's@^LANGUAGE 0x211@LANGUAGE 0x21@' $@
-+	sed -i -e 's@^LANGUAGE 0x226@LANGUAGE 0x26@' $@
-+	sed -i -e 's@^LANGUAGE 0x22c@LANGUAGE 0x2c@' $@
-+	sed -i -e 's@^LANGUAGE 0x22b@LANGUAGE 0x2b@' $@
-+	sed -i -e 's@^LANGUAGE 0x30@LANGUAGE 0x2d@' $@
-+	sed -i -e 's@^LANGUAGE 0x73@LANGUAGE 0x2a@' $@
-+	sed -i -e 's@^LANGUAGE 0x31@LANGUAGE 0x2e@' $@
-+	sed -i -e 's@^LANGUAGE 0x33@LANGUAGE 0x01@' $@
++	pytt '\r\n' '\n' $@
++	pytt '^LANGUAGE 0x244(.|\n)*' '' $@
++#	sed -i -e 's@^LANGUAGE 0x211@LANGUAGE 0x21@' $@
++#	sed -i -e 's@^LANGUAGE 0x226@LANGUAGE 0x26@' $@
++#	sed -i -e 's@^LANGUAGE 0x22c@LANGUAGE 0x2c@' $@
++#	sed -i -e 's@^LANGUAGE 0x22b@LANGUAGE 0x2b@' $@
++#	sed -i -e 's@^LANGUAGE 0x30@LANGUAGE 0x2d@' $@
++#	sed -i -e 's@^LANGUAGE 0x73@LANGUAGE 0x2a@' $@
++#	sed -i -e 's@^LANGUAGE 0x31@LANGUAGE 0x2e@' $@
++#	sed -i -e 's@^LANGUAGE 0x33@LANGUAGE 0x01@' $@
 +.ENDIF #"$(CROSS_COMPILING)" == "yes"
      
 --- shell/inc/internal/infotips.hxx.~1.5.~	2008-04-11 09:43:15.000000000 +0200

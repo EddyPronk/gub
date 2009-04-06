@@ -9,9 +9,9 @@ Error: rebase failed with exit code 1!
 --- postprocess/rebase/makefile.mk.~1.10.~	2008-04-10 10:48:57.000000000 +0200
 +++ postprocess/rebase/makefile.mk	2008-11-07 17:46:19.000000000 +0100
 @@ -48,13 +48,13 @@ IMAGENAMES=$(SOLARBINDIR)$/*.dll $(SOLAR
- ALLTAR : $(BASEADDRESSES)
+ ALLTAR : REBASE
  
- $(BASEADDRESSES) .PHONY :
+ REBASE .PHONY : $(BASEADDRESSES)
 -.IF "$(GUI)"=="WNT"
 +.IF "$(GUI)"=="WNT" && "$(CROSS_COMPILING)" == "no"
  .IF "$(product)"=="full"

@@ -192,19 +192,23 @@ Saved logs at:
 '''
 
 class Openoffice (target.AutoBuild):
-#    source = 'svn://svn.gnome.org/svn/ooo-build&branch=trunk&revision=14327'
-#    source = 'svn://svn.gnome.org/svn/ooo-build&branch=trunk'
-
-    # fresh try.  wait for mingw dupes
     # source = 'svn://svn.gnome.org/svn/ooo-build&branch=trunk&revision=14412'
-
-    # fresh try2.  wait for mingw dupes
-#    source = 'git://anongit.freedesktop.org/git/ooo-build/ooo-build&revision=207309ec6d428c6a6698db061efb670b36d5df5a'
-
-    source = 'git+file://localhost/home/janneke/vc/ooo310-m8'
+    # source = 'git+file://localhost/home/janneke/vc/ooo310-m8'
+    source = 'git://anongit.freedesktop.org/git/ooo-build/ooo-build&revision=207309ec6d428c6a6698db061efb670b36d5df5a'
 
     patches = ['openoffice-srcdir-build.patch']
-    upstream_patches = ['openoffice-config_office-cross.patch', 'openoffice-config_office-gnu-make.patch', 'openoffice-solenv-cross.patch', 'openoffice-solenv.patch', 'openoffice-sal-cross.patch', 'openoffice-soltools-cross.patch', 'openoffice-icc-cross.patch', 'openoffice-i18npool-cross.patch', 'openoffice-lingucomponent-mingw.patch']
+    upstream_patches = [
+        'openoffice-config_office-cross.patch',
+        'openoffice-solenv-cross.patch',
+        'openoffice-solenv.patch',
+        'openoffice-sal-cross.patch',
+        'openoffice-soltools-cross.patch',
+        'openoffice-icc-cross.patch',
+        'openoffice-i18npool-cross.patch',
+        'openoffice-lingucomponent-mingw.patch',
+        'openoffice-accessibility-nojava.patch',
+        'openoffice-sw-disable-vba-consistency.patch'
+        ]
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         # let's keep source tree around
@@ -223,8 +227,17 @@ class Openoffice (target.AutoBuild):
         self.system ('cd %(builddir)s && ./download')
         self.system ('cd %(builddir)s && ln src/* %(downloads)s/openoffice-src || :')
     @context.subst_method
+    def bran (self):
+        return 'ooo'
+    @context.subst_method
+    def ver (self):
+        return '310'
+    @context.subst_method
+    def milestone (self):
+        return 'm8'
+    @context.subst_method
     def cvs_tag (self):
-        return 'ooo300-m9'
+        return '%(bran)s%(ver)s-%(milestone)s'
     @context.subst_method
     def upstream_dir (self):
         return '%(builddir)s/build/%(cvs_tag)s'
@@ -383,6 +396,9 @@ cd %(builddir)s/build/%(cvs_tag)s && patch -p%(patch_strip_component)s < %(patch
         for f in self.upstream_patched_files ():
             self.system ('cp -p %(upstream_dir)s/%(f)s.pristine %(upstream_dir)s/%(f)s || cp -p %(upstream_dir)s/%(f)s %(upstream_dir)s/%(f)s.pristine' % locals ())
     def patch_upstream (self):
+        # config_office is gone? but avoid rewriting everything for
+        # now -- how's upstream?
+        self.system ('cd %(upstream_dir)s && rm -f config_office && ln -s . config_office')
         self.upstream_patch_reset ()
         list (map (self.apply_upstream_patch, self.upstream_patches))
 
@@ -457,8 +473,37 @@ cd %(upstream_dir)s/cppuhelper && . ../*Env.Set.sh && perl $SOLARENV/bin/build.p
         
                 
 class Openoffice__mingw (Openoffice):
-    upstream_patches = Openoffice.upstream_patches + ['openoffice-config_office-mingw.patch', 'openoffice-solenv-mingw.patch', 'openoffice-sal-mingw.patch', 'openoffice-external-mingwheaders.patch', 'openoffice-cppunit-mingw.patch', 'openoffice-i18npool-mingw.patch', 'openoffice-tools-mingw.patch', 'openoffice-setup_native-mingw.patch', 'openoffice-pyuno-mingw.patch', 'openoffice-sysui-mingw.patch', 'openoffice-dtrans-mingw.patch', 'openoffice-fpicker-mingw.patch', 'openoffice-sccomp-mingw.patch', 'openoffice-vcl-mingw.patch', 'openoffice-connectivity-mingw.patch', 'openoffice-unotools-mingw.patch', 'openoffice-embeddedobj-mingw.patch', 'openoffice-shell-mingw.patch', 'openoffice-svx-mingw.patch', 'openoffice-dbaccess-mingw.patch', 'openoffice-desktop-mingw.patch', 'openoffice-scripting-mingw.patch', 'openoffice-postprocess-mingw.patch', 'openoffice-instsetoo_native-mingw.patch', 'openoffice-solenv-mingw-installer.patch', 'openoffice-scp2-mingw.patch']
-    # external/mingwheaders seems a badly misguided effort.  It
+    upstream_patches = Openoffice.upstream_patches + [
+        'openoffice-config_office-mingw.patch',
+        'openoffice-solenv-mingw.patch',
+        'openoffice-sal-mingw.patch',
+        'openoffice-external-mingwheaders.patch',
+        'openoffice-cppunit-mingw.patch',
+        'openoffice-i18npool-mingw.patch',
+        'openoffice-tools-mingw.patch',
+        'openoffice-setup_native-mingw.patch',
+        'openoffice-pyuno-mingw.patch',
+        'openoffice-sysui-mingw.patch',
+        'openoffice-dtrans-mingw.patch',
+        'openoffice-fpicker-mingw.patch',
+        'openoffice-sccomp-mingw.patch',
+        'openoffice-vcl-mingw.patch',
+        'openoffice-connectivity-mingw.patch',
+        'openoffice-unotools-mingw.patch',
+        'openoffice-goodies-mingw.patch',
+        'openoffice-embeddedobj-mingw.patch',
+        'openoffice-shell-mingw.patch',
+        'openoffice-svx-mingw.patch',
+        'openoffice-dbaccess-mingw.patch',
+        'openoffice-desktop-mingw.patch',
+        'openoffice-vbahelper-mingw.patch',
+        'openoffice-scripting-mingw.patch',
+        'openoffice-postprocess-mingw.patch',
+        'openoffice-instsetoo_native-mingw.patch',
+        'openoffice-solenv-mingw-installer.patch',
+        'openoffice-scp2-mingw.patch'
+        ]
+    # I do not understand anything about external/mingwheaders.  It
     # patches header files and is thus strictly tied to a gcc version;
     # that can never build.  How can patching header files ever work,
     # when not patching the corresponding libraries?  Some patches
@@ -468,23 +513,34 @@ class Openoffice__mingw (Openoffice):
     # code?
     upstream_patches += ['openoffice-sal-mingw-c.patch']
     # Kendy's MinGW patches are already applied
-    kendy = ['openoffice-transex3-mingw.patch', 'openoffice-soltools-mingw.patch']
+    kendy = [
+        'openoffice-transex3-mingw.patch',
+        'openoffice-soltools-mingw.patch'
+        ]
     def _get_build_dependencies (self):
-        return Openoffice._get_build_dependencies (self) + ['libunicows-devel']
+        return (Openoffice._get_build_dependencies (self)
+                + ['libunicows-devel', 'tools::pytt'])
     def patch (self):
         Openoffice.patch (self)
         # disable Kendy's patch for Cygwin version of mingw
-        self.file_sub ([('^(mingw-build-without-stlport-stlport.diff)', r'#\1')],
+        self.file_sub ([('^(mingw-build-without-stlport-stlport.diff)', r'#\1'),
+                        ('^(mingw-thread-wait-instead-of-sleep.diff)', r'#\1'),
+                        ('^(redirect-extensions.diff)', r'#\1'),
+                        ('^(slideshow-effect-rewind.diff)', r'#\1'),
+                        ('^(layout-simple-dialogs-svx).diff', r'\1-no-gtk.diff')],
                        '%(srcdir)s/patches/dev300/apply')
-        # setup wine hack
+        # setup wine hack -- TODO: CC_FOR_BUILD + SAL_DLL* for
+        # cpputools/source/registercomponent/registercomponent.cxx
         wine_userdef = os.path.join (os.environ['HOME'], '.wine/user.reg')
         s = file (wine_userdef).read ()
-        if not self.expand ('%(upstream_dir)s') in s:
+        if not self.expand ('%(upstream_dir)s/solver/%(ver)s') in s:
             self.dump ('''
 [Environment]
-"PATH"="%(upstream_dir)s/solver/300/wntgcci.pro/bin;%(system_prefix)s/bin;%(system_prefix)s/lib;"
+"PATH"="%(upstream_dir)s/solver/%(ver)s/wntgcci.pro/bin;%(system_prefix)s/bin;%(system_prefix)s/lib;"
 ''',
                    wine_userdef, mode='a')
+        # fixup gen_makefile disaster -- TODO: CC_FOR_BUILD
+        self.system ('''cp -pvf $OOO_TOOLS_DIR/../../../../sal/unx*/bin/gen_makefile $OOO_TOOLS_DIR/gen_makefile''')
     def configure_command (self):
         return (Openoffice.configure_command (self)
                 .replace ('--with-system-xrender-headers', '')
@@ -517,9 +573,8 @@ fi
 ''',
              '%(upstream_dir)s/solenv/bin/wrc',
                    permissions=octal.o755)
-
-        self.system ('mkdir -p %(upstream_dir)s/solver/300/wntgcci.pro/inc')
-        self.system ('cp -pv %(sourcefiledir)s/mingw-headers/*.h %(upstream_dir)s/solver/300/wntgcci.pro/inc')
+        self.system ('mkdir -p %(upstream_dir)s/solver/%(ver)s/wntgcci.pro/inc')
+        self.system ('cp -pv %(sourcefiledir)s/mingw-headers/*.h %(upstream_dir)s/solver/%(ver)s/wntgcci.pro/inc')
 
 
 # Attempt at building a tiny fraction of openoffice for the build
