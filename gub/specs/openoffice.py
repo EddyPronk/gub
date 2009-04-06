@@ -191,7 +191,7 @@ Saved logs at:
 
 '''
 
-class Openoffice (target.AutoBuild):
+class OpenOffice (target.AutoBuild):
     # source = 'svn://svn.gnome.org/svn/ooo-build&branch=trunk&revision=14412'
     # source = 'git+file://localhost/home/janneke/vc/ooo310-m8'
     source = 'git://anongit.freedesktop.org/git/ooo-build/ooo-build&revision=207309ec6d428c6a6698db061efb670b36d5df5a'
@@ -244,7 +244,7 @@ class Openoffice (target.AutoBuild):
     @context.subst_method
     def OOO_TOOLS_DIR (self):
         # TODO: either make all ooo-tools (soltools: makedepend..., transex3: transex3 ...)
-        # self-hosting or compile them as Openoffice__tools package...
+        # self-hosting or compile them as OpenOffice__tools package...
         # Shortcut: use precompiled tools from user's system
 
         # There's possibly another shortcut: use wine, works for regcomp.
@@ -472,8 +472,8 @@ cd %(upstream_dir)s/cppuhelper && . ../*Env.Set.sh && perl $SOLARENV/bin/build.p
         target.AutoBuild.install (self)
         
                 
-class Openoffice__mingw (Openoffice):
-    upstream_patches = Openoffice.upstream_patches + [
+class OpenOffice__mingw (OpenOffice):
+    upstream_patches = OpenOffice.upstream_patches + [
         'openoffice-config_office-mingw.patch',
         'openoffice-solenv-mingw.patch',
         'openoffice-sal-mingw.patch',
@@ -518,10 +518,10 @@ class Openoffice__mingw (Openoffice):
         'openoffice-soltools-mingw.patch'
         ]
     def _get_build_dependencies (self):
-        return (Openoffice._get_build_dependencies (self)
+        return (OpenOffice._get_build_dependencies (self)
                 + ['libunicows-devel', 'tools::pytt'])
     def patch (self):
-        Openoffice.patch (self)
+        OpenOffice.patch (self)
         # disable Kendy's patch for Cygwin version of mingw
         self.file_sub ([('^(mingw-build-without-stlport-stlport.diff)', r'#\1'),
                         ('^(mingw-thread-wait-instead-of-sleep.diff)', r'#\1'),
@@ -542,13 +542,13 @@ class Openoffice__mingw (Openoffice):
         # fixup gen_makefile disaster -- TODO: CC_FOR_BUILD
         self.system ('''cp -pvf $OOO_TOOLS_DIR/../../../../sal/unx*/bin/gen_makefile $OOO_TOOLS_DIR/gen_makefile''')
     def configure_command (self):
-        return (Openoffice.configure_command (self)
+        return (OpenOffice.configure_command (self)
                 .replace ('--with-system-xrender-headers', '')
                 + ' --disable-xrender-link'
                 + ' --with-distro=Win32')
     def patch_upstream (self):
         self.system ('chmod -R ugo+w %(upstream_dir)s/dtrans %(upstream_dir)s/fpicker %(upstream_dir)s/dbaccess')
-        Openoffice.patch_upstream (self)
+        OpenOffice.patch_upstream (self)
         # avoid juggling of names for windows-nt
         self.system ('sed -i -e "s@WINNT@WNT@" %(upstream_dir)s/config_office/configure.in')
         self.file_sub ([
@@ -616,7 +616,7 @@ def ooo_deps (deps):
         lst += ooo_deps (module_deps.get (d, []))
     return lst
 
-class Openoffice__tools (tools.AutoBuild, Openoffice):
+class OpenOffice__tools (tools.AutoBuild, OpenOffice):
 #    source = 'svn://svn@svn.services.openoffice.org/ooo/tags&branch=OOO310_m8&module=config_office'
     source = 'svn://svn@svn.services.openoffice.org/&module=ooo&branch=tags/OOO310_m8&depth=files'
     patches = ['openoffice-o3tl-no-cppunit.patch', 'openoffice-basegfx-no-cppunit.patch']
@@ -643,7 +643,7 @@ class Openoffice__tools (tools.AutoBuild, Openoffice):
         tools.AutoBuild.autoupdate (self)
     def module_repo (self, module):
         repo = repository.get_repository_proxy (self.settings.downloads + '/openoffice-tools',
-                                                Openoffice__tools.source.replace ('depth=files', 'branchmodule=' + module))
+                                                OpenOffice__tools.source.replace ('depth=files', 'branchmodule=' + module))
         def tracking (self):
             return True
         repo.is_tracking = misc.bind_method (tracking, repo)
@@ -662,7 +662,7 @@ class Openoffice__tools (tools.AutoBuild, Openoffice):
     def ver (self):
         return '310'
     def patch (self):
-        Openoffice.patch (self)
+        OpenOffice.patch (self)
         #self.file_sub ([('(postprocess packimages)', 'cpputools')],
         #               '%(srcdir)s/instsetoo_native/prj/build.lst',
         #               must_succeed=True)
@@ -686,7 +686,7 @@ install:
     def configure_command (self):
         return ('x_libraries=no_x_libraries x_includes=no_x_includes '
                 + tools.AutoBuild.configure_command (self)
-                + re.sub ('--with-system-[^ ]*', '', Openoffice.configure_options (self))
+                + re.sub ('--with-system-[^ ]*', '', OpenOffice.configure_options (self))
                 .replace ('--disable-crypt-link', '--enable-crypt-link')
                 + ' --with-system-expat '
                 + ' --with-system-icu '
@@ -709,6 +709,6 @@ install:
         # such as types.rdb.
         return
 
-#Openoffice = OpenOffice
-#Openoffice__mingw = OpenOffice__mingw
-#Openoffice__tools = OpenOffice__tools
+Openoffice = OpenOffice
+Openoffice__mingw = OpenOffice__mingw
+Openoffice__tools = OpenOffice__tools
