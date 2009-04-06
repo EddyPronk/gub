@@ -73,27 +73,36 @@
  
  #define elementsof(a) (sizeof(a)/sizeof((a)[0]))
  
---- sal/systools/win32/uwinapi/FindFirstVolumeA.cpp.pristine	2009-04-04 14:52:00.555999097 +0200
-+++ sal/systools/win32/uwinapi/FindFirstVolumeA.cpp	2009-04-04 14:52:48.552103971 +0200
+diff -purN sal/systools/win32/uwinapi/FindFirstVolumeA.cpp sal/systools/win32/uwinapi/FindFirstVolumeA.cpp
+--- sal/systools/win32/uwinapi/FindFirstVolumeA.cpp	2009-04-06 20:23:37.935495274 +0200
++++ sal/systools/win32/uwinapi/FindFirstVolumeA.cpp	2009-04-06 20:21:51.303494448 +0200
 @@ -30,4 +30,4 @@
  
  #include "macros.h"
  
 -DEFINE_DEFAULT_THUNK( kernel32, TRYLOAD, HANDLE, WINAPI, FindFirstVolumeA, (LPSTR lpszVolumeName, DWORD cchBufferLength) )
+\ Geen regeleindeteken (LF) aan einde van bestand
 +DEFINE_DEFAULT_THUNK( kernel32, TRYLOAD, HANDLE, WINAPI, FindFirstVolumeA, (LPCSTR lpszVolumeName, DWORD cchBufferLength) )
---- sal/systools/win32/uwinapi/FindFirstVolumeW.cpp.pristine	2009-04-04 14:54:12.396004697 +0200
-+++ sal/systools/win32/uwinapi/FindFirstVolumeW.cpp	2008-04-10 14:17:09.000000000 +0200
+\ Geen regeleindeteken (LF) aan einde van bestand
+diff -purN sal/systools/win32/uwinapi/FindFirstVolumeW.cpp sal/systools/win32/uwinapi/FindFirstVolumeW.cpp
+--- sal/systools/win32/uwinapi/FindFirstVolumeW.cpp	2009-04-06 20:23:37.935495274 +0200
++++ sal/systools/win32/uwinapi/FindFirstVolumeW.cpp	2009-04-06 20:21:51.303494448 +0200
 @@ -30,4 +30,4 @@
  
  #include "macros.h"
  
 -DEFINE_DEFAULT_THUNK( kernel32, TRYLOAD, HANDLE, WINAPI, FindFirstVolumeW, (LPWSTR lpszVolumeName, DWORD cchBufferLength) )
+\ Geen regeleindeteken (LF) aan einde van bestand
 +DEFINE_DEFAULT_THUNK( kernel32, TRYLOAD, HANDLE, WINAPI, FindFirstVolumeW, (LPCWSTR lpszVolumeName, DWORD cchBufferLength) )
---- sal/systools/win32/uwinapi/FindNextVolumeA.cpp.pristine	2009-04-04 14:57:51.380374861 +0200
-+++ sal/systools/win32/uwinapi/FindNextVolumeA.cpp	2009-04-04 14:57:58.987999943 +0200
+\ Geen regeleindeteken (LF) aan einde van bestand
+diff -purN sal/systools/win32/uwinapi/FindNextVolumeA.cpp sal/systools/win32/uwinapi/FindNextVolumeA.cpp
+--- sal/systools/win32/uwinapi/FindNextVolumeA.cpp	2009-04-06 20:23:37.935495274 +0200
++++ sal/systools/win32/uwinapi/FindNextVolumeA.cpp	2009-04-06 20:21:51.303494448 +0200
 @@ -30,4 +30,4 @@
  
  #include "macros.h"
  
 -DEFINE_DEFAULT_THUNK( kernel32, TRYLOAD, BOOL, WINAPI, FindNextVolumeA, (HANDLE hFindVolume, LPSTR lpszVolumeName, DWORD cchBufferLength) )
+\ Geen regeleindeteken (LF) aan einde van bestand
 +DEFINE_DEFAULT_THUNK( kernel32, TRYLOAD, BOOL, WINAPI, FindNextVolumeA, (HANDLE hFindVolume, LPCSTR lpszVolumeName, DWORD cchBufferLength) )
+\ Geen regeleindeteken (LF) aan einde van bestand

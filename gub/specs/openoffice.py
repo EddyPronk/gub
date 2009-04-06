@@ -358,7 +358,7 @@ ac_cv_icu_version_minor=${ac_cv_icu_version_minor=3.81}
 ''')
     def configure_command (self):
         return (target.AutoBuild.configure_command (self)
-                + configure_options (self)
+                + self.configure_options ()
                 + misc.join_lines ('''
 --with-additional-sections=MinGW
 
