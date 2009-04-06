@@ -542,14 +542,18 @@ def locate_files (directory, pattern,
                     for f in (fnmatch.filter (relative_results, pattern))]
     return results
 
-def shadow (src, target):
-    '''Symlink files from SRC in TARGET recursively'''
+def shadow (src, target, soft=False):
+    '''Symlink files from SRC in TARGET recursively.
+
+    If SOFT, do not overwrite any existing files in target.'''
     target = os.path.abspath (target)
     src = os.path.abspath (src)
     os.makedirs (target)
     (root, dirs, files) = next (os.walk (src))
     for f in files:
-        os.symlink (os.path.join (root, f), os.path.join (target, f))
+        t = os.path.join (target, f)
+        if not soft or not os.path.exists (t):
+            os.symlink (os.path.join (root, f), t)
     for d in dirs:
         shadow (os.path.join (root, d), os.path.join (target, d))
 
