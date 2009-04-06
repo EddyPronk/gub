@@ -4,9 +4,12 @@ import re
 #
 from gub.syntax import printf
 from gub import context
+from gub import loggedos
 from gub import misc
 from gub import octal
+from gub import repository
 from gub import target
+from gub import tools
 
 '''
 Module 'solenv' delivered successfully. 0 files copied, 1 files unchanged
@@ -250,10 +253,8 @@ ac_cv_icu_version_minor=${ac_cv_icu_version_minor=3.81}
 #    @context.subst_method
 #    def ANT (self):
 #        return 'ant'
-    def configure_command (self):
-        return (target.AutoBuild.configure_command (self)
-                + misc.join_lines ('''
---with-additional-sections=MinGW
+    def configure_options (self):
+        return misc.join_lines ('''
 --with-vendor=\"GUB -- http://lilypond.org/gub\"
 --disable-Xaw
 --disable-access
@@ -271,6 +272,7 @@ ac_cv_icu_version_minor=${ac_cv_icu_version_minor=3.81}
 --disable-evolution2
 --disable-extensions
 --disable-fontooo
+--disable-gconf
 --disable-gio
 --disable-gnome-vfs
 --disable-gstreamer
@@ -333,11 +335,17 @@ ac_cv_icu_version_minor=${ac_cv_icu_version_minor=3.81}
 --with-saxon-jar=%(system_prefix)s/share/java/saxon9.jar
 --without-system-mozilla
 
+--with-ant-home=/usr/share/ant
+''')
+    def configure_command (self):
+        return (target.AutoBuild.configure_command (self)
+                + configure_options (self)
+                + misc.join_lines ('''
+--with-additional-sections=MinGW
+
 --cache-file=%(builddir)s/config.cache
 
---with-ant-home=/usr/share/ant
 --with-tools-dir=%(OOO_TOOLS_DIR)s
-
 '''))
 
 # TODO:
@@ -437,7 +445,7 @@ LD_LIBRARY_PATH=%(LD_LIBRARY_PATH)s
         self.system ('''
 cd %(upstream_dir)s/cppuhelper && rm -rf wntgcci.pro-
 cd %(upstream_dir)s/cppuhelper && mv wntgcci.pro wntgcci.pro-
-cd %(upstream_dir)s/cppuhelper && . ../Linux*.sh && perl $SOLARENV/bin/build.pl  && debug=true && perl $SOLARENV/bin/deliver.pl
+cd %(upstream_dir)s/cppuhelper && . ../*Env.Set.sh && perl $SOLARENV/bin/build.pl  && debug=true && perl $SOLARENV/bin/deliver.pl
 ''')
         target.AutoBuild.install (self)
         
@@ -506,3 +514,140 @@ fi
 
         self.system ('mkdir -p %(upstream_dir)s/solver/300/wntgcci.pro/inc')
         self.system ('cp -pv %(sourcefiledir)s/mingw-headers/*.h %(upstream_dir)s/solver/300/wntgcci.pro/inc')
+
+
+# Attempt at building a tiny fraction of openoffice for the build
+# tools, aiming to remove $OOO_TOOLS_DIR.
+
+# FIXME: the dependencies for these build tools are rather crude,
+# whole module may depend on vcl, but langconvex [certainly] doesn't?
+
+# --> regcomp: cpputools
+# --> gen_makefile: sal
+# --> lngconvex: shell; but: huh, windows only?
+#     shell: offuh rdbmaker tools sal vcl EXPAT:expat transex3
+
+module_deps = {
+    'cpputools' : ['salhelper', 'cppuhelper', 'cppu'],
+    'salhelper' : ['sal'],
+    'cppuhelper' : ['codemaker', 'cppu', 'offuh'],
+    'codemaker' : ['udkapi'],
+    'offuh' : ['offapi'],
+    'generic_build' : ['solenv'],
+    'udkapi' : ['idlc'],
+    'idlc' : ['registry'],
+    'sal' : ['xml2cmp'],
+    'registry' : ['store'],
+    'xml2cmp' : ['soltools', 'stlport'],
+    'tools' : ['vos', 'basegfx', 'comphelper', 'i18npool'],
+    'transex3' : ['tools'],
+    'i18npool' : ['bridges', 'sax', 'stoc', 'comphelper', 'i18nutil', 'regexp'],
+    'basegfx' : ['o3tl', 'sal', 'offuh', 'cppuhelper', 'cppu'],
+    'comphelper' : ['cppuhelper', 'ucbhelper', 'offuh', 'vos', 'salhelper'],
+# we're not using java, try removing java cruft
+#    'stoc' : ['rdbmaker', 'cppuhelper', 'cppu', 'jvmaccess', 'sal', 'salhelper', 'jvmfwk']
+    'stoc' : ['rdbmaker', 'cppuhelper', 'cppu', 'sal', 'salhelper'],
+    }
+
+def ooo_deps (deps):
+    lst = deps[:]
+    for d in deps:
+        lst += ooo_deps (module_deps.get (d, []))
+    return lst
+
+class Openoffice__tools (tools.AutoBuild, Openoffice):
+#    source = 'svn://svn@svn.services.openoffice.org/ooo/tags&branch=OOO310_m8&module=config_office'
+    source = 'svn://svn@svn.services.openoffice.org/&module=ooo&branch=tags/OOO310_m8&depth=files'
+    patches = ['openoffice-o3tl-no-cppunit.patch', 'openoffice-basegfx-no-cppunit.patch']
+    regcomp = 'cpputools'
+    gen_makefile = 'sal'
+    generic_build = 'solenv'
+# ugh, building transex3 pulls in a whole slew more
+    transex3 = 'transex3'
+    modules = misc.uniq (ooo_deps ([generic_build, regcomp, gen_makefile, transex3]))
+    def __init__ (self, settings, source):
+        tools.AutoBuild.__init__ (self, settings, source)
+        # let's keep source tree around
+        def tracking (self):
+            return True
+        self.source.is_tracking = misc.bind_method (tracking, self.source)
+        self.source.dir = self.settings.downloads + '/openoffice-tools'
+        if not os.path.isdir (self.source.dir):
+            os.system ('mkdir -p ' + self.source.dir)
+    def _get_build_dependencies (self):
+        return ['expat-devel', 'libicu-devel', 'zlib-devel'] # ['boost-devel', 'libxslt-devel']
+    def stages (self):
+        return tools.AutoBuild.stages (self)
+    def autoupdate (self):
+        tools.AutoBuild.autoupdate (self)
+    def module_repo (self, module):
+        repo = repository.get_repository_proxy (self.settings.downloads + '/openoffice-tools',
+                                                Openoffice__tools.source.replace ('depth=files', 'branchmodule=' + module))
+        def tracking (self):
+            return True
+        repo.is_tracking = misc.bind_method (tracking, repo)
+        return repo
+    def download_module (self, module):
+        self.module_repo (module).download ()
+    def download (self):
+        tools.AutoBuild.download (self)
+        list (map (self.download_module, self.modules))
+    def untar_module (self, module):
+        self.module_repo (module).update_workdir (self.expand ('%(srcdir)s/' + module))
+    def untar (self):
+        tools.AutoBuild.untar (self)
+        list (map (self.untar_module, self.modules))
+    @context.subst_method
+    def ver (self):
+        return '310'
+    def patch (self):
+        Openoffice.patch (self)
+        #self.file_sub ([('(postprocess packimages)', 'cpputools')],
+        #               '%(srcdir)s/instsetoo_native/prj/build.lst',
+        #               must_succeed=True)
+        self.dump ('''
+DESTDIR=
+prefix=@prefix@
+bin=solver/%(ver)s/unxlngx*.pro/bin
+lib=solver/%(ver)s/unxlngx*.pro/lib
+out=unxlngx*.pro
+
+all:
+	. ./*Env.Set.sh && ./bootstrap && (cd cpputools && ../solenv/bin/build.pl --all) && (cd transex3 && ../solenv/bin/build.pl --all)
+install:
+	cp -pv sal/$(out)/bin/gen_makefile $(bin)
+	cp -pv cpputools/$(out)/bin/regcomp $(bin)
+	install -d $(DESTDIR)$(prefix)
+	rm -rf $(bin)/ure
+	cp -prv $(bin) $(DESTDIR)$(prefix)
+	cp -prv $(lib) $(DESTDIR)$(prefix)
+''', '%(srcdir)s/Makefile.in')
+    def configure_command (self):
+        return ('x_libraries=no_x_libraries x_includes=no_x_includes '
+                + tools.AutoBuild.configure_command (self)
+                + re.sub ('--with-system-[^ ]*', '', Openoffice.configure_options (self))
+                .replace ('--disable-crypt-link', '--enable-crypt-link')
+                + ' --with-system-expat '
+                + ' --with-system-icu '
+                + ' --with-system-zlib '
+                + ' --with-x=no')
+    def configure (self):
+        self.shadow_tree ('%(srcdir)s', '%(builddir)s', soft=True)
+        tools.AutoBuild.configure (self)
+        # Ugh, oo.o's configure script manages to ignore CFLAGS/LDFLAGS
+        # but will happily add -L/usr/lib nonsense.
+        def add_CFLAGS_LDFLAGS_already (logger, file):
+            loggedos.file_sub (logger, [
+                    ('-L(NONE|no_x_libraries|/usr/lib)', self.expand ('-L%(system_prefix)s/lib')),
+                    ('-I(NONE|no_x_includes|/usr/include)', self.expand ('-I%(system_prefix)s/include')),
+                    ('(LD_LIBRARY_PATH=.*)', self.expand (r'\1:%(system_prefix)s/lib'))
+                    ], file)
+        self.map_locate (add_CFLAGS_LDFLAGS_already, '%(builddir)s', '*Env.Set.sh')
+    def wrap_executables (self):
+        # using rpath, and also openoffice has data files in bin/,
+        # such as types.rdb.
+        return
+
+#Openoffice = OpenOffice
+#Openoffice__mingw = OpenOffice__mingw
+#Openoffice__tools = OpenOffice__tools
