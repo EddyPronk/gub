@@ -469,10 +469,6 @@ LD_LIBRARY_PATH=%(LD_LIBRARY_PATH)s
 ''')
 ##main configure barfs
 ##CPPFLAGS=
-    def install_command (self):
-        # FIXME: allowing install/register components failure to test
-        # installer
-        return target.AutoBuild.install_command (self) + ' || true'
     def install (self):
         # build cppuhelper with debug -- try to squeeze more info out
         # of the failing regcomp than
@@ -481,11 +477,22 @@ LD_LIBRARY_PATH=%(LD_LIBRARY_PATH)s
         self.system ('''
 cd %(upstream_dir)s/cppuhelper && rm -rf wntgcci.pro-
 cd %(upstream_dir)s/cppuhelper && mv wntgcci.pro wntgcci.pro-
-cd %(upstream_dir)s/cppuhelper && . ../*Env.Set.sh && perl $SOLARENV/bin/build.pl  && debug=true && perl $SOLARENV/bin/deliver.pl
+cd %(upstream_dir)s/cppuhelper && . ../*Env.Set.sh && perl $SOLARENV/bin/build.pl debug=true && perl $SOLARENV/bin/deliver.pl
 ''')
+        do_not_fail = False
+        if do_not_fail:
+            # Well, that does not help.  Make non-failing regcomp wrapper...
+            self.system ('cd %(upstream_dir)s/solver/%(ver)s/wntgcci.pro/bin && mv regcomp.exe regcomp-bin.exe')
+        self.dump ('''#! /bin/sh
+%(upstream_dir)s/solver/%(ver)s/wntgcci.pro/bin/regcomp-bin.exe "$@"
+exit 0
+''',
+                   '%(upstream_dir)s/solver/%(ver)s/wntgcci.pro/bin/regcomp.exe',
+                   permissions=octal.o755)
         target.AutoBuild.install (self)
-        # dangling symlink upon failure
-        self.system ('''rm -f %(install_prefix)s/bin/soffice3.1''')
+        self.system ('rm -f %(install_prefix)s/bin/soffice3.1')
+        if do_not_fail:
+            self.system ('cd %(upstream_dir)s/solver/%(ver)s/wntgcci.pro/bin && mv regcomp-bin.exe regcomp.exe')
                 
 class OpenOffice__mingw (OpenOffice):
     upstream_patches = OpenOffice.upstream_patches + [
@@ -536,6 +543,7 @@ class OpenOffice__mingw (OpenOffice):
         return (OpenOffice._get_build_dependencies (self)
                 + ['libunicows-devel', 'tools::pytt'])
     def patch (self):
+        self.system ('cd %(srcdir)s && git clean -f')
         OpenOffice.patch (self)
         # disable Kendy's patch for Cygwin version of mingw
         self.file_sub ([('^(mingw-build-without-stlport-stlport.diff)', r'#\1'),
@@ -552,6 +560,7 @@ class OpenOffice__mingw (OpenOffice):
             self.dump ('''
 [Environment]
 "PATH"="%(upstream_dir)s/solver/%(ver)s/wntgcci.pro/bin;%(system_prefix)s/bin;%(system_prefix)s/lib;"
+"CPLD_ACCESSPATH=".;/usr/bin;/usr/lib;/usr/lib/ooo-3.1/OpenOffice.org 3/Basis/program;/usr/lib/ooo-3.1/OpenOffice.org 3/Basis/program/shlxthdl;/usr/lib/ooo-3.1/OpenOffice.org 3/URE/bin;c:/Programma Bestanden/usr/bin;c:/Programma Bestanden/usr/lib;c:/Programma Bestanden/usr/lib/ooo-3.1/OpenOffice.org 3/Basis/program;c:/Programma Bestanden/usr/lib/ooo-3.1/OpenOffice.org 3/Basis/program/shlxthdl;c:/Programma Bestanden/usr/lib/ooo-3.1/OpenOffice.org 3/URE/bin;c:/Program Files/usr/bin;c:/Program Files/usr/lib;c:/Program Files/usr/lib/ooo-3.1/OpenOffice.org 3/Basis/program;c:/Program Files/usr/lib/ooo-3.1/OpenOffice.org 3/Basis/program/shlxthdl;c:/Program Files/usr/lib/ooo-3.1/OpenOffice.org 3/URE/bin;%(install_prefix)s/bin;%(install_prefix)s/lib;%(upstream_dir)s/solver/%(ver)s/wntgcci.pro/bin;%(system_prefix)s/bin;%(system_prefix)s/lib;"
 ''',
                    wine_userdef, mode='a')
         # fixup gen_makefile disaster -- TODO: CC_FOR_BUILD

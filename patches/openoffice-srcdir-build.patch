@@ -341,6 +341,39 @@ index 24bd678..e4f6e47 100755
      for my $stem (@search) {
  	push @paths, "$patch_dir/$stem";
      }
+--- a/bin/install-dictionaries.pristine	2009-04-07 20:00:14.727496399 +0200
++++ b/bin/install-dictionaries	2009-04-07 20:00:29.852582690 +0200
+@@ -3,7 +3,7 @@
+ #
+ # See setup for user tweakables.
+ #
+-. ./setup
++. $TOP_BUILDDIR/bin/setup
+ 
+ if test "z$1" != "z"; then
+     DICTDIR=$1;
+--- a/bin/build-galleries.pristine	2009-04-07 20:01:37.997754136 +0200
++++ b/bin/build-galleries	2009-04-07 20:01:28.843494950 +0200
+@@ -7,7 +7,7 @@
+ #
+ # See setup for user tweakables.
+ #
+-. ./setup
++. $TOP_BUILDDIR/bin/setup
+ 
+ # where to install the OOo-related files (thumbnails & points at the files, ...)
+ if test "z$1" != "z" ; then
+--- a/bin/install-mono.pristine	2009-04-07 20:54:06.207993943 +0200
++++ b/bin/install-mono	2009-04-07 20:54:28.233084561 +0200
+@@ -11,7 +11,7 @@ if test -n "$OO_TOOLSDIR" ; then
+     SRCDIR=$OO_TOOLSDIR/../src
+     split_build=yes
+ else
+-    . ./setup
++    . $TOP_BUILDDIR/bin/setup
+     split_build=
+ fi
+ 
 --- a/patches/dev300/layout-simple-dialogs-svx-no-gtk.diff~	1970-01-01 01:00:00.000000000 +0100
 +++ b/patches/dev300/layout-simple-dialogs-svx-no-gtk.diff	2009-04-03 21:40:22.076002174 +0200
 @@ -0,0 +1,578 @@

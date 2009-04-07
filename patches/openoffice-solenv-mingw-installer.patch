@@ -31,3 +31,35 @@
  		else { $searchname = "regmerge.exe"; } 
  	
  		$regmergefileref = installer::scriptitems::get_sourcepath_from_filename_and_includepath(\$searchname, $includepatharrayref, 1);
+--- solenv/bin/modules/installer/worker.pm.pristine	2009-04-06 18:25:00.471497381 +0200
++++ solenv/bin/modules/installer/worker.pm	2009-04-07 21:00:26.915994121 +0200
+@@ -32,7 +32,9 @@
+ package installer::worker;
+ 
+ use Cwd;
++use File::Basename;
+ use File::Copy;
++use File::Path;
+ use File::stat;
+ use File::Temp qw(tmpnam);
+ use installer::control;
+@@ -808,7 +810,8 @@ sub install_simple ($$$$$$)
+ 
+ 		push @lines, "$destination\n";
+ 		# printf "cp $sourcepath $destdir$destination\n";
+-		copy ("$sourcepath", "$destdir$destination") || die "Can't copy file: $!";
++		mkpath dirname $destdir.$destination;
++		copy ("$sourcepath", "$destdir$destination") || die "Can't copy file: $sourcepath -> $destdir$destination $!";
+ 		my $sourcestat = stat($sourcepath);
+ 		utime ($sourcestat->atime, $sourcestat->mtime, "$destdir$destination");
+ 		chmod (oct($unixrights), "$destdir$destination") || die "Can't change permissions: $!";
+@@ -822,7 +825,8 @@ sub install_simple ($$$$$$)
+ 		my $destinationfile = $onelink->{'destinationfile'};
+ 	
+ 		# print "link $destinationfile -> $destdir$destination\n";
+-		symlink ("$destinationfile", "$destdir$destination") || die "Can't create symlink: $!";
++		mkpath dirname $destdir.$destination;
++		symlink ("$destinationfile", "$destdir$destination") || die "Can't create symlink: $destinationfile -> $destdir$destination $!";
+ 		push @lines, "$destination\n";
+ 	}
+ 
