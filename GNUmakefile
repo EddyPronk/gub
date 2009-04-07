@@ -31,6 +31,9 @@ lily% cygwin%:
 inkscape-%:
 	$(MAKE) -f inkscape.make $@
 
+openoffice-%:
+	$(MAKE) -f openoffice.make $@
+
 test:
 	rm -rf target
 	make -f lilypond.make tools LOCAL_GUB_OPTIONS=-vvv
