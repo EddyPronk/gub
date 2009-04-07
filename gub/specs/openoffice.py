@@ -185,6 +185,11 @@ Thu Feb 19 14:30:56 2009 (01:23 min.)
 Failed to install:  at ./ooinstall line 143.
 make: *** [install] Error 1
 
+And the logs say
+
+    terminate called after throwing an instance of 'com::sun::star::registry::CannotRegisterImplementationException'
+    terminate called after throwing an instance of 'com::sun::star::uno::RuntimeException'
+
 Saved logs at:
 
     http://lilypond.org/~janneke/software/ooo/gub-mingw/
@@ -192,8 +197,6 @@ Saved logs at:
 '''
 
 class OpenOffice (target.AutoBuild):
-    # source = 'svn://svn.gnome.org/svn/ooo-build&branch=trunk&revision=14412'
-    # source = 'git+file://localhost/home/janneke/vc/ooo310-m8'
     source = 'git://anongit.freedesktop.org/git/ooo-build/ooo-build&revision=207309ec6d428c6a6698db061efb670b36d5df5a'
 
     patches = ['openoffice-srcdir-build.patch']
@@ -466,14 +469,23 @@ LD_LIBRARY_PATH=%(LD_LIBRARY_PATH)s
 ''')
 ##main configure barfs
 ##CPPFLAGS=
+    def install_command (self):
+        # FIXME: allowing install/register components failure to test
+        # installer
+        return target.AutoBuild.install_command (self) + ' || true'
     def install (self):
+        # build cppuhelper with debug -- try to squeeze more info out
+        # of the failing regcomp than
+        #    terminate called after throwing an instance of 'com::sun::star::registry::CannotRegisterImplementationException'
+        #    terminate called after throwing an instance of 'com::sun::star::uno::RuntimeException'
         self.system ('''
 cd %(upstream_dir)s/cppuhelper && rm -rf wntgcci.pro-
 cd %(upstream_dir)s/cppuhelper && mv wntgcci.pro wntgcci.pro-
 cd %(upstream_dir)s/cppuhelper && . ../*Env.Set.sh && perl $SOLARENV/bin/build.pl  && debug=true && perl $SOLARENV/bin/deliver.pl
 ''')
         target.AutoBuild.install (self)
-        
+        # dangling symlink upon failure
+        self.system ('''rm -f %(install_prefix)s/bin/soffice3.1''')
                 
 class OpenOffice__mingw (OpenOffice):
     upstream_patches = OpenOffice.upstream_patches + [
