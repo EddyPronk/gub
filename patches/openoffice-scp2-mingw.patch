@@ -86,6 +86,15 @@ scp2/source/ooo/file_library_ooo.scp.pristine
  
  File gid_File_Lib_relnotes
      BIN_FILE_BODY;
+@@ -957,7 +957,7 @@ File gid_File_Lib_Mozbootstrap
+   #ifdef UNX
+     Name = STRING(CONCAT2(libmozbootstrap,UNXSUFFIX));
+   #else
+-    Name = "libmozbootstrap.dll";
++    Name = "mozbootstrap.dll";
+   #endif
+ End
+ 
 @@ -967,7 +967,7 @@
  
  STD_UNO_LIB_FILE(gid_File_Lib_Writerfilter,writerfilter)
