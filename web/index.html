@@ -142,12 +142,19 @@ Examples
 
     this leaves installers for GNU/Linux and Windows in uploads/
 
-  * Build OpenOffice for Windows:
+  * Cross build OpenOffice for Windows:
 
-      # svn co svn://svn.gnome.org/svn/ooo-build/trunk
-      # ./configure ...; make
-      export OOO_TOOLS_DIR=/fresh/build/ooo300-m9/solver/300/unxlngx6.pro/bin
+      git://anongit.freedesktop.org/git/ooo-build/ooo-build && cd ooo-build
+      ./autogen.sh --help
+      ./configure --with-distro=Debian --with-lang=en-US --disable-mediawiki --disable-mono --without-java
+      ./download
+      make
+      cd ..
+      export OOO_TOOLS_DIR=$(pwd)/ooo-build/build/ooo310-m8/solver/310/unxlngx6.pro/bin
       bin/gub mingw::openoffice
+      bin/gib mingw::openoffice
+
+   this leaves an installer for Windows in uploads/
 
 </pre>
 see also <a href="lilypond.html">LilyPond</a>
