@@ -394,16 +394,19 @@ cd %(builddir)s/build/%(cvs_tag)s && patch -p%(patch_strip_component)s < %(patch
     def upstream_patch_reset (self):
         upstream_dir = self.upstream_dir ()
         for f in self.upstream_patched_files ():
+            self.system ('cp -p %(upstream_dir)s/%(f)s %(upstream_dir)s/%(f)s.patched' % locals ())
             self.system ('cp -p %(upstream_dir)s/%(f)s.pristine %(upstream_dir)s/%(f)s || cp -p %(upstream_dir)s/%(f)s %(upstream_dir)s/%(f)s.pristine' % locals ())
+    def upstream_patched_unchanged_preserve_mtime (self):
+        upstream_dir = self.upstream_dir ()
+        for f in self.upstream_patched_files ():
+            self.system ('cmp %(upstream_dir)s/%(f)s.patched %(upstream_dir)s/%(f)s && cp -p %(upstream_dir)s/%(f)s.patched %(upstream_dir)s/%(f)s || true' % locals ())
     def patch_upstream (self):
         # config_office is gone? but avoid rewriting everything for
         # now -- how's upstream?
         self.system ('cd %(upstream_dir)s && rm -f config_office && ln -s . config_office')
         self.upstream_patch_reset ()
         list (map (self.apply_upstream_patch, self.upstream_patches))
-
-        # FIXME: neutralize silly GNU make check
-        # self.system ('''sed -i -e "s@' 3[.]81'@'gpuhleez, we are not even building mozilla'@" %(upstream_dir)s/config_office/configure.in')
+        self.upstream_patched_unchanged_preserve_mtime ()
 
         # configure blindly adds /usr includes, even when not necessary
         self.system ('sed -i -e "s@=/usr/include@=%(system_prefix)s/include@" %(upstream_dir)s/config_office/configure.in')
