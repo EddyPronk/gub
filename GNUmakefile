@@ -39,7 +39,7 @@ test:
 	make -f lilypond.make tools LOCAL_GUB_OPTIONS=-vvv
 	bin/gub -p $(BUILD_PLATFORM) --branch=lilypond=master:master lilypond -vvv
 
-README: web/index.html web/lilypond.html
+README: web/index.html web/lilypond.html web/inkscape.html web/oo.o.html
 	w3m -dump $^ > $@
 
 web: README

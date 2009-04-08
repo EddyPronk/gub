@@ -12,10 +12,16 @@
 
 Grand Unified Builder
 (GUB, <a href="http://lilypond.org/gub">http://lilypond.org/gub</a>)
-is a mini source-based distribution and packaging system originally
-developed for building LilyPond binaries.  It cross-compiles several
-packages and assembles them into a single package.  At the moment it
-supports the following target platforms
+is a mini source-based distribution and packaging system.  It
+cross-compiles several packages with their dependencies and assembles
+them into a single installation package.
+
+<p></p>
+
+GUB aims at correctness ie, be dependable and reproducible, while
+avoiding gratituous rebuilds.  It was originally developed for turnkey
+building of all LilyPond binary installers.  Currently it supports the
+following target platforms.
 
 <pre>
 darwin-ppc
@@ -102,62 +108,36 @@ GUB home page
   bin/gub --help
 
   make help
+</pre>
 
-Examples
+<h3>Examples</h3>
 
+<pre>
   * Prepare a cross build environment for darwin-x86
 
       bin/gub darwin-x86::cross/gcc
 
-  * Build LilyPond master branch for your platform
+  * Cross build bison for FreeBSD x86_64
+
+      bin/gub freebsd-64::ftp://ftp.gnu.org/pub/gnu/bison/bison-2.3.tar.gz
+
+  * Make a LilyPond installer for your platform
 
       bin/gub lilypond-installer
 
-    OR (old style)
-
-      bin/gub lilypond  # package with dependencies
-      bin/gib --branch=lilypond=git.sv.gnu.org--lilypond.git-master lilypond #installer
-
     this leaves the installer in uploads/
-
-  * Build all LilyPond installers
-
-      make lilypond
- 
-    this leaves installers for GNU/Linux, MacOS-X and Windows,
-    and documentation in uploads/
 
   * Build Inkscape for your platform
 
       bin/gub inkscape-installer
 
-    OR (old style)
-
-      bin/gub inkscape
-      bin/gib inkscape --branch=inkscape=trunk inkscape
-
-  * Build all Inskape installers
-
-      make inkscape
-
-    this leaves installers for GNU/Linux and Windows in uploads/
-
-  * Cross build OpenOffice for Windows:
-
-      git://anongit.freedesktop.org/git/ooo-build/ooo-build && cd ooo-build
-      ./autogen.sh --help
-      ./configure --with-distro=Debian --with-lang=en-US --disable-mediawiki --disable-mono --without-java
-      ./download
-      make
-      cd ..
-      export OOO_TOOLS_DIR=$(pwd)/ooo-build/build/ooo310-m8/solver/310/unxlngx6.pro/bin
-      bin/gub mingw::openoffice
-      bin/gib mingw::openoffice
-
-   this leaves an installer for Windows in uploads/
-
+    this leaves the installer in uploads/
 </pre>
-see also <a href="lilypond.html">LilyPond</a>
+
+See also
+<a href="lilypond">lilypond</a>,
+<a href="inkscape">inkscape</a>
+and <a href="oo.o">OpenOffice.org</a>.
 
 <h2>USAGE</h2>
 
@@ -176,7 +156,7 @@ Run these programs with --help argument for instructions
 <h2>HISTORY</h2>
 
 The story starts with a
-<a href="http://www.sankey.ws/contact.html">crazy guy</a>with an itch
+<a href="http://www.sankey.ws/contact.html">crazy guy</a> with an itch
 to <a href="http://www.sankey.ws/gnunt.html">run LilyPond on
 Windows</a>.  Not long thereafter
 <a href="http://lilypond.org/~janneke/software/cygwin-cross">Cygwin
@@ -195,7 +175,8 @@ cross</a>, our first cross build environment is created.
       regex zlib
       !-->
   Simultaniously, a cross build environment and installer for
-  <a href="http://cvs.savannah.gnu.org/viewvc/lilypond/installers/macos/">MacOSX</a>is created.
+  <a href="http://cvs.savannah.gnu.org/viewvc/lilypond/installers/macos/">MacOSX</a>
+  is created.
 </p>
 
 <p>

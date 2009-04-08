@@ -3,9 +3,13 @@ GUB -- Grand Unified Builder
 WHAT IS GUB
 
 Grand Unified Builder (GUB, http://lilypond.org/gub) is a mini source-based
-distribution and packaging system originally developed for building LilyPond
-binaries. It cross-compiles several packages and assembles them into a single
-package. At the moment it supports the following target platforms
+distribution and packaging system. It cross-compiles several packages with
+their dependencies and assembles them into a single installation package.
+
+GUB aims at correctness ie, be dependable and reproducible, while avoiding
+gratituous rebuilds. It was originally developed for turnkey building of all
+LilyPond binary installers. Currently it supports the following target
+platforms.
 
 darwin-ppc
    tar.bz2 file for Darwin 7 (MacOS 10.3)/PowerPC
@@ -89,55 +93,23 @@ Examples
 
       bin/gub darwin-x86::cross/gcc
 
-  * Build LilyPond master branch for your platform
+  * Cross build bison for FreeBSD x86_64
+
+      bin/gub freebsd-64::ftp://ftp.gnu.org/pub/gnu/bison/bison-2.3.tar.gz
+
+  * Make a LilyPond installer for your platform
 
       bin/gub lilypond-installer
 
-    OR (old style)
-
-      bin/gub lilypond  # package with dependencies
-      bin/gib --branch=lilypond=git.sv.gnu.org--lilypond.git-master lilypond #installer
-
     this leaves the installer in uploads/
-
-  * Build all LilyPond installers
-
-      make lilypond
-
-    this leaves installers for GNU/Linux, MacOS-X and Windows,
-    and documentation in uploads/
 
   * Build Inkscape for your platform
 
       bin/gub inkscape-installer
 
-    OR (old style)
+    this leaves the installer in uploads/
 
-      bin/gub inkscape
-      bin/gib inkscape --branch=inkscape=trunk inkscape
-
-  * Build all Inskape installers
-
-      make inkscape
-
-    this leaves installers for GNU/Linux and Windows in uploads/
-
-  * Cross build OpenOffice for Windows:
-
-      git://anongit.freedesktop.org/git/ooo-build/ooo-build && cd ooo-build
-      ./autogen.sh --help
-      ./configure --with-distro=Debian --with-lang=en-US --disable-mediawiki --disable-mono --without-java
-      ./download
-      make
-      cd ..
-      export OOO_TOOLS_DIR=$(pwd)/ooo-build/build/ooo310-m8/solver/310/unxlngx6.pro/bin
-      bin/gub mingw::openoffice
-      bin/gib mingw::openoffice
-
-   this leaves an installer for Windows in uploads/
-
-
-see also LilyPond
+See also lilypond, inkscape and OpenOffice.org.
 
 USAGE
 
@@ -152,13 +124,13 @@ Run these programs with --help argument for instructions
 
 HISTORY
 
-The story starts with a crazy guywith an itch to run LilyPond on Windows. Not
+The story starts with a crazy guy with an itch to run LilyPond on Windows. Not
 long thereafter Cygwin cross, our first cross build environment is created.
 
 Later, this is moved into a patch set for mknetrel. Spring 2005: In a bold move
 a set of patches for MinGW are created to build LilyPond and all its [17]
 dependencies. Simultaniously, a cross build environment and installer for
-MacOSXis created.
+MacOSX is created.
 
 Creating a cross build environment is not too difficult, esp. not if you know
 how to use Google. The problem is that they always break and never work on
@@ -199,9 +171,40 @@ Build everything
 
 this leaves installers and documentation in
 
-  uploads/PACKAGE-VERSION-RELEASE.linux-x86.shar.sh
-  uploads/PACKAGE-VERSION-RELEASE.documentation.tar.bz2
+  uploads/lilypond-VERSION-RELEASE.darwin-ppc.tar.bz2
+  uploads/lilypond-VERSION-RELEASE.darwin-x86.tar.bz2
+  uploads/lilypond-VERSION-RELEASE.freebsd-64.shar.sh
+  uploads/lilypond-VERSION-RELEASE.freebsd-x86.shar.sh
+  uploads/lilypond-VERSION-RELEASE.linux-64.shar.sh
+  uploads/lilypond-VERSION-RELEASE.linux-ppc.shar.sh
+  uploads/lilypond-VERSION-RELEASE.linux-x86.shar.sh
+  uploads/lilypond-VERSION-RELEASE.mingw.exe
+
+  uploads/lilypond-VERSION-RELEASE.documentation.tar.bz2
+  uploads/lilypond-VERSION-RELEASE.webdoc.tar.bz2
   uploads/webdoc/VERSION
+
+  uploads/lilypond-VERSION-RELEASE.test-output.tar.bz2
+  uploads/wbtest/VERSION
+
+More examples
+
+  * Make a LilyPond installer for your platform
+
+      bin/gub lilypond-installer
+
+    OR (old style)
+
+      bin/gub lilypond  # package with dependencies
+      bin/gib --branch=lilypond=git.sv.gnu.org--lilypond.git-master lilypond #installer
+
+  * Build all LilyPond installers
+
+      make lilypond
+
+    this leaves installers for GNU/Linux (x86, x86_64, powerpc),
+    Windows, MacOSX (x86 and powerpc), FreeBSD (x86, x86_64) and
+    documentation in uploads/
 
 TESTING
 
@@ -247,3 +250,90 @@ I have the following in my crontab
                       --smtp smtp.xs4all.nl --repository downloads/lilypond.git"\
       darwin-x86 freebsd-x86 freebsd-64 mingw linux-x86 linux-64 darwin-ppc
 
+GUB -- Inkscape
+
+INSTALLING
+
+Optional: Prepare build environment
+
+  make -f inkscape.make bootstrap
+
+Build everything
+
+  make inkscape
+
+this leaves installers in uploads/
+
+More examples
+
+  * Build all Inkscape installers
+
+      make inkscape
+
+    this leaves installers for GNU/Linux (x86, x86_64, powerpc),
+    FreeBSD (x86, x86_64) and Windows, and documentation in uploads/
+
+    OR (old style)
+
+      bin/gub inkscape
+      bin/gib inkscape --branch=inkscape=trunk inkscape
+
+GUB -- OpenOffice
+
+INSTALLING
+
+In addition to the requirements for GUB, you need
+
+  • a matching fresh native build of OpenOffice: the current build does not yet
+    know the concept of CC_FOR_BUILD and procuding for-build tools
+  • wine: to run regcomp.exe and lngconvex.exe and possibly other cross-build
+    ignorant build tools that are compile-time tied to the build platform
+  • wrc: eg from wine
+
+NOTE: This is still a work in progress (WIP). The build will succeeed and an
+installer can be created, but services.rdb may not build correctly.
+
+Optional: Prepare build environment
+
+  make -f openoffice.make bootstrap
+
+Build everything
+
+  make openoffice
+
+this produces a windows installer in
+
+  uploads/openoffice-COMMITTISH.mingw.exe
+
+More examples
+
+  * Build a native version of OpenOffice -- outside of GUB
+
+      cd $HOME/vc
+      git://anongit.freedesktop.org/git/ooo-build/ooo-build && cd ooo-build
+      ./autogen.sh --help
+      ./configure --with-distro=Debian --with-lang=en-US --disable-mediawiki --disable-mono --without-java
+      ./download
+      make
+
+  * Cross build OpenOffice for Windows:
+
+      export OOO_TOOLS_DIR=$HOME/vc/ooo310-m8/build/ooo310-m8/solver/310/unxlngx6.pro/bin  # check unxlngx6.pro if you're not on x86_64
+      bin/gub mingw::openoffice
+
+  * Make the nsis installer
+
+      bin/gib mingw::openoffice
+
+The package
+
+  bin/gub tools::openoffice
+
+is a work in progress and attempts to build a tiny fraction of openoffice for
+the build tools, aiming to remove the need for a full native build to provide
+$OOO_TOOLS_DIR.
+
+See also
+
+github.com/janneke/gub/tree/master/patches
+lilypond.org/blog/janneke/gub3-ooo-mingw-cross-build

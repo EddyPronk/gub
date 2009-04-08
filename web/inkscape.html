@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <!-- link rel="stylesheet" type="text/css" href="blog.css" !-->
+    <title>GUB -- Inkscape</title>
+  </head>
+  <body>
+<h1>GUB -- Inkscape</h1>
+
+<h2>INSTALLING</h2>
+
+<h3>Optional: Prepare build environment</h3>
+
+<pre>
+  make -f inkscape.make bootstrap
+</pre>
+
+<h3>Build everything</h3>
+
+<pre>
+  make inkscape
+</pre>
+
+this leaves installers in uploads/
+
+<h3>More examples</h3>
+
+<pre>
+  * Build all Inkscape installers
+
+      make inkscape
+ 
+    this leaves installers for GNU/Linux (x86, x86_64, powerpc),
+    FreeBSD (x86, x86_64) and Windows, and documentation in uploads/
+
+    OR (old style)
+
+      bin/gub inkscape
+      bin/gib inkscape --branch=inkscape=trunk inkscape
+</pre>
+
+</div>
+</body>
+</html>

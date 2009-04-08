@@ -33,11 +33,43 @@ In addition to the requirements for GUB, you need
 this leaves installers and documentation in
 
 <pre>
-  uploads/PACKAGE-VERSION-RELEASE.linux-x86.shar.sh
-  uploads/PACKAGE-VERSION-RELEASE.documentation.tar.bz2
+  uploads/lilypond-VERSION-RELEASE.darwin-ppc.tar.bz2
+  uploads/lilypond-VERSION-RELEASE.darwin-x86.tar.bz2
+  uploads/lilypond-VERSION-RELEASE.freebsd-64.shar.sh
+  uploads/lilypond-VERSION-RELEASE.freebsd-x86.shar.sh
+  uploads/lilypond-VERSION-RELEASE.linux-64.shar.sh
+  uploads/lilypond-VERSION-RELEASE.linux-ppc.shar.sh
+  uploads/lilypond-VERSION-RELEASE.linux-x86.shar.sh
+  uploads/lilypond-VERSION-RELEASE.mingw.exe
+
+  uploads/lilypond-VERSION-RELEASE.documentation.tar.bz2
+  uploads/lilypond-VERSION-RELEASE.webdoc.tar.bz2
   uploads/webdoc/VERSION
+
+  uploads/lilypond-VERSION-RELEASE.test-output.tar.bz2
+  uploads/wbtest/VERSION
 </pre>
 
+<h3>More examples</h3>
+
+<pre>
+  * Make a LilyPond installer for your platform
+
+      bin/gub lilypond-installer
+
+    OR (old style)
+
+      bin/gub lilypond  # package with dependencies
+      bin/gib --branch=lilypond=git.sv.gnu.org--lilypond.git-master lilypond #installer
+
+  * Build all LilyPond installers
+
+      make lilypond
+ 
+    this leaves installers for GNU/Linux (x86, x86_64, powerpc),
+    Windows, MacOSX (x86 and powerpc), FreeBSD (x86, x86_64) and
+    documentation in uploads/
+</pre>
 
 <h2>TESTING</h2>
 
