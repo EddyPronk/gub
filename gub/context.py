@@ -206,10 +206,10 @@ class RunnableContext (Context):
         cmd = self.expand (cmd, env)
         self.runner.system (cmd, env=dict, ignore_errors=ignore_errors)
 
-    def shadow_tree (self, src, dest, env={}):
+    def shadow_tree (self, src, dest, env={}, soft=False):
         src = self.expand (src, env=env)
         dest = self.expand (dest, env=env)
-        self.runner.shadow_tree (src, dest)
+        self.runner.shadow_tree (src, dest, soft)
         
     def dump (self, str, name, mode='w', env={},
               expand_string=True, expand_name=True, permissions=octal.o644):
