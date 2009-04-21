@@ -548,14 +548,15 @@ def shadow (src, target, soft=False):
     If SOFT, do not overwrite any existing files in target.'''
     target = os.path.abspath (target)
     src = os.path.abspath (src)
-    os.makedirs (target)
+    if not soft or not os.path.exists (target):
+        os.makedirs (target)
     (root, dirs, files) = next (os.walk (src))
     for f in files:
         t = os.path.join (target, f)
         if not soft or not os.path.exists (t):
             os.symlink (os.path.join (root, f), t)
     for d in dirs:
-        shadow (os.path.join (root, d), os.path.join (target, d))
+        shadow (os.path.join (root, d), os.path.join (target, d), soft)
 
 def with_platform (s, platform):
     if '::' in s:
