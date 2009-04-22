@@ -4,54 +4,25 @@ from gub import context
 from gub import loggedos
 from gub import misc
 from gub import target
+from gub import tools
 
-# TODO: AutoToolSpec
-# FIXME: is this bjam or boost specific?
-class BjamBuild_v2 (target.MakeBuild):
-    def _get_build_dependencies (self):
-        return ['tools::boost-jam']
-    def patch (self):
-        target.MakeBuild.patch (self)
-        '''http://goodliffe.blogspot.com/2008/05/cross-compiling-boost.html
+def add_plain_lib_names (logger, file):
+    base = (os.path.basename (file)
+            .replace ('-mt.a', '.a')
+            .replace ('-s.a', '.a')
+            .replace ('-mt.so', '.so')
+            .replace ('-s.so', '.so'))
+    misc.symlink_in_dir (file, base)
 
-Now, here's the magic. Brace yourself. This is how you use a custom
-gcc compiler, you write some odd rule into some very well hidden
-config file:
+def replace_links (logger, file):
+    if os.path.islink (file):
+        link = os.readlink (file)
+        loggedos.system (logger, '''
+rm %(file)s
+cp %(link)s %(file)s
+''' % locals ())
 
-echo "using gcc : 4.2.2 : PATH_TO_DIR/arm-softfloat-linux-gnu-g++ ; "
-> tools/build/v2/user-config.jam
-'''
-        gcc_version = '' #don't care
-        self.dump ('''
-using gcc : %(gcc_version)s : %(system_prefix)s%(cross_dir)s/bin/%(CXX)s ;
-''',
-                   '%(srcdir)s/tools/build/v2/user-config.jam',
-                   env=locals ())
-    def compile_command (self):
-        return misc.join_lines ('''
-bjam
--q
---layout=system
---builddir=%(builddir)s
---prefix=%(prefix_dir)s
---exec-prefix=%(prefix_dir)s
---libdir=%(prefix_dir)s/lib
---includedir=%(prefix_dir)s/include
---verbose
-cxxflags=-fPIC
-toolset=gcc
-target-os=%(target_os)s
-debug-symbols=off
-link=shared
-runtime-link=shared
-threading=multi
-release
-''')
-    def install_command (self):
-        return (self.compile_command ()
-                + ' install').replace ('=%(prefix_dir)s', '=%(install_prefix)s')
-
-class Boost (BjamBuild_v2):
+class Boost (target.BjamBuild_v2):
     source = 'http://surfnet.dl.sourceforge.net/sourceforge/boost/boost_1_38_0.tar.bz2'
     def _get_build_dependencies (self):
 # the separately available boost-jam is terribly broken wrt building boost
@@ -61,14 +32,13 @@ class Boost (BjamBuild_v2):
 #rule unless unknown in module 
         return []
     def stages (self):
-        return misc.list_insert_before (BjamBuild_v2.stages (self),
+        return misc.list_insert_before (target.BjamBuild_v2.stages (self),
                                         'compile',
                                         ['build_bjam'])
     def build_bjam (self):
         self.system ('cd %(builddir)s/tools/jam/src && CC=gcc sh build.sh gcc && mv bin.*/bjam %(builddir)s')
-    def compile_command (self):
-        #without = ['python', 'test']
-        w_i_th = [
+    def boost_modules (self):
+        return [
             'date_time',
             'filesystem',
             'function_types',
@@ -85,37 +55,21 @@ class Boost (BjamBuild_v2):
             'thread',
             #'wave'
             ]
-        #w_i_th = ['filesystem']
-        return (BjamBuild_v2.compile_command (self)
+    def compile_command (self):
+        return (target.BjamBuild_v2.compile_command (self)
                 .replace ('bjam ', '%(builddir)s/bjam ')
                 + ' -sNO_BZIP2=1'
                 + ' -sNO_ZLIB=1'
-                + ' --with-'.join ([''] + w_i_th))
+                + ' --with-'.join ([''] + self.boost_modules ()))
     def license_files (self):
         return ['%(srcdir)s/LICENSE_1_0.txt']
     def install (self):
-        BjamBuild_v2.install (self)
+        target.BjamBuild_v2.install (self)
         # Bjam `installs' header files by using symlinks to the source dir?
-
-        def add_plain_lib_names (logger, file):
-            base = (os.path.basename (file)
-                    .replace ('-mt.a', '.a')
-                    .replace ('-s.a', '.a')
-                    .replace ('-mt.so', '.so')
-                    .replace ('-s.so', '.so'))
-            misc.symlink_in_dir (file, base)
         self.map_locate (add_plain_lib_names, '%(install_prefix)s/lib', 'libboost_*-mt.a')
         self.map_locate (add_plain_lib_names, '%(install_prefix)s/lib', 'libboost_*-mt.so')
         self.map_locate (add_plain_lib_names, '%(install_prefix)s/lib', 'libboost_*-s.a')
         self.map_locate (add_plain_lib_names, '%(install_prefix)s/lib', 'libboost_*-s.so')
-
-        def replace_links (logger, file):
-            if os.path.islink (file):
-                link = os.readlink (file)
-                loggedos.system (logger, '''
-rm %(file)s
-cp %(link)s %(file)s
-''' % locals ())
         self.map_locate (replace_links, '%(install_prefix)s/include/boost', '*')
         
 class Boost__freebsd__x86 (Boost):
@@ -196,9 +150,8 @@ class Boost_v1 (BjamBuild_v1):
         self.system ('cd %(builddir)s/tools/build/jam_src && CC=gcc sh build.sh gcc && mv bin.*/bjam %(builddir)s')
     def license_files (self):
         return ['%(srcdir)s/LICENSE_1_0.txt']
-    def compile_command (self):
-        #without = ['python', 'test']
-        w_i_th = [
+    def boost_modules (self):
+        return [
             'date_time',
             'filesystem',
             'function_types',
@@ -215,38 +168,47 @@ class Boost_v1 (BjamBuild_v1):
             'thread',
             #'wave'
             ]
-        #w_i_th = ['filesystem']
+    def compile_command (self):
         return (BjamBuild_v1.compile_command (self)
                 .replace ('bjam ', '%(builddir)s/bjam ')
                 + ' -sNO_BZIP2=1'
                 + ' -sNO_ZLIB=1'
-                + ' --with-'.join ([''] + w_i_th))
+                + ' --with-'.join ([''] + self.boost_modules ()))
     def install (self):
         BjamBuild_v1.install (self)
         # Bjam `installs' header files by using symlinks to the source dir?
-
-        def add_plain_lib_names (logger, file):
-            base = (os.path.basename (file)
-                    .replace ('-mt.a', '.a')
-                    .replace ('-s.a', '.a')
-                    .replace ('-mt.so', '.so')
-                    .replace ('-s.so', '.so'))
-            misc.symlink_in_dir (file, base)
         self.map_locate (add_plain_lib_names, '%(install_prefix)s/lib', 'libboost_*-mt.a')
         self.map_locate (add_plain_lib_names, '%(install_prefix)s/lib', 'libboost_*-mt.so')
         self.map_locate (add_plain_lib_names, '%(install_prefix)s/lib', 'libboost_*-s.a')
         self.map_locate (add_plain_lib_names, '%(install_prefix)s/lib', 'libboost_*-s.so')
-
-        def replace_links (logger, file):
-            if os.path.islink (file):
-                link = os.readlink (file)
-                loggedos.system (logger, '''
-rm %(file)s
-cp %(link)s %(file)s
-''' % locals ())
         self.map_locate (replace_links, '%(install_prefix)s/include/boost', '*')
 
 class Boost__mingw (Boost_v1):
     def compile_command (self):
         return (Boost_v1.compile_command (self)
                 .replace ('linux.hpp', 'win32.hpp'))
+
+class Boost__tools (tools.BjamBuild_v2, Boost):
+    @context.subst_method
+    def CXX (self):
+        return 'g++'
+    def stages (self):
+        return Boost.stages (self)
+    def build_bjam (self):
+        # the separately available boost-jam is terribly broken wrt
+        # building boost: build included bjam
+        self.system ('cd %(builddir)s/tools/jam/src && CC=gcc sh build.sh gcc && mv bin.*/bjam %(builddir)s')
+    def compile_command (self):
+        return (tools.BjamBuild_v2.compile_command (self)
+                .replace ('bjam ', '%(builddir)s/bjam ')
+                + ' -sNO_BZIP2=1'
+                + ' -sNO_ZLIB=1'
+                + ' --with-'.join ([''] + Boost.boost_modules (self)))
+    def install (self):
+        tools.BjamBuild_v2.install (self)
+        # Bjam `installs' header files by using symlinks to the source dir?
+        self.map_locate (add_plain_lib_names, '%(install_root)s%(system_prefix)s/lib', 'libboost_*-mt.a')
+        self.map_locate (add_plain_lib_names, '%(install_root)s%(system_prefix)s/lib', 'libboost_*-mt.so')
+        self.map_locate (add_plain_lib_names, '%(install_root)s%(system_prefix)s/lib', 'libboost_*-s.a')
+        self.map_locate (add_plain_lib_names, '%(install_root)s%(system_prefix)s/lib', 'libboost_*-s.so')
+        self.map_locate (replace_links, '%(install_root)s%(system_prefix)s/include/boost', '*')

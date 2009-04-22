@@ -180,6 +180,34 @@ class SConsBuild (AutoBuild):
     def install_command (self):
         return self.compile_command () + ' install'
 
+class BjamBuild_v2 (MakeBuild):
+    def _get_build_dependencies (self):
+        return ['boost-jam']
+    def patch (self):
+        MakeBuild.patch (self)
+    def compile_command (self):
+        return misc.join_lines ('''
+bjam
+-q
+--layout=system
+--builddir=%(builddir)s
+--prefix=%(system_prefix)s
+--exec-prefix=%(system_prefix)s
+--libdir=%(system_prefix)s/lib
+--includedir=%(system_prefix)s/include
+--verbose
+cxxflags=-fPIC
+toolset=gcc
+debug-symbols=off
+link=shared
+runtime-link=shared
+threading=multi
+release
+''')
+    def install_command (self):
+        return (self.compile_command ()
+                + ' install').replace ('=%(system_prefix)s', '=%(install_root)s%(system_prefix)s')
+
 class NullBuild (AutoBuild):
     def stages (self):
         return ['patch', 'install', 'package', 'clean']
