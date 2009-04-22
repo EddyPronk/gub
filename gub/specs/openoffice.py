@@ -706,13 +706,13 @@ class OpenOffice__tools (tools.AutoBuild, OpenOffice):
         'openoffice-funit-char-line.patch',
 #        'openoffice-svtools-minimal.patch',
         ]
-    generic_build = ['dmake', 'solenv']
+    generic_build = ['dmake', 'solenv', 'pyuno']
     regcomp = 'cpputools'
     gen_makefile = 'sal'
     svidl = 'idl'
     ulfconv = 'setup_native'
     gendict = 'i18npool'
-    tool_modules = ['icc', regcomp, gen_makefile, 'transex3', 'pyuno', 'rsc', ulfconv, 'idl']
+    tool_modules = ['icc', regcomp, gen_makefile, 'transex3', 'rsc', ulfconv, 'idl']
     toplevel_modules = generic_build + tool_modules
     modules = misc.uniq (ooo_deps (toplevel_modules))
     def __init__ (self, settings, source):
@@ -725,7 +725,7 @@ class OpenOffice__tools (tools.AutoBuild, OpenOffice):
         if not os.path.isdir (self.source.dir):
             os.system ('mkdir -p ' + self.source.dir)
     def _get_build_dependencies (self):
-        return ['db-devel', 'expat-devel', 'libicu-devel', 'libxslt-devel', 'zlib-devel'] # ['boost-devel']
+        return ['db-devel', 'expat-devel', 'libicu-devel', 'libxslt-devel', 'zlib-devel', 'python-devel'] # ['boost-devel']
     def stages (self):
         return tools.AutoBuild.stages (self)
     def autoupdate (self):
