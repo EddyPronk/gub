@@ -161,6 +161,12 @@ GUB -- LilyPond
 
 INSTALLING
 
+Get GUB
+
+    git clone git://github.com/janneke/gub.git
+or
+    wget http://github.com/janneke/gub/tarball/master
+
 In addition to the requirements for GUB, you need
 
   • A TeX installation
@@ -288,11 +294,16 @@ GUB -- OpenOffice
 
 INSTALLING
 
+Get GUB
+
+    git clone git://github.com/janneke/gub.git
+or
+    wget http://github.com/janneke/gub/tarball/master
+
 In addition to the requirements for GUB, you need
 
   • wine: to run regcomp.exe and lngconvex.exe and possibly other cross-build
     ignorant build tools that are compile-time tied to the build platform
-  • wrc: eg from wine
 
 NOTE: This is still a work in progress (WIP). The build will succeeed and an
 installer can be created, but services.rdb may not build correctly.
@@ -324,8 +335,7 @@ The package
   bin/gub tools::openoffice
 
 is a work in progress and attempts to build a tiny fraction of openoffice for
-the build tools, aiming to remove the need for a full native build to provide
-$OOO_TOOLS_DIR.
+the build tools.
 
 See also
 
