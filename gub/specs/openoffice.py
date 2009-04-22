@@ -762,7 +762,7 @@ all:
 install:
 	$(foreach m,$(tool_modules),cp -pv $(m)/$(out)/bin/* $(bin) &&) true
 	install -d $(DESTDIR)$(prefix)
-	rm -rf $(bin)/ure
+	rm -rf $(bin)/ure $(bin)/install $(bin)/uninstall
 	cp -prv $(bin) $(DESTDIR)$(prefix)
 	cp -prv $(lib) $(DESTDIR)$(prefix)
 ''', '%(srcdir)s/Makefile.in', env=locals ())
