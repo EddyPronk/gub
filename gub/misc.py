@@ -633,6 +633,17 @@ def dump_python_script (self, bindir, name):
 def dump_python_config (self):
     dump_python_script (self, '%(install_prefix)s%(cross_dir)s/bin', 'python-config')
 
+def wrap_executable (system_prefix, file):
+    dir = os.path.dirname (file)
+    base = os.path.basename (file)
+    cmd = 'mv %(file)s %(dir)s/.%(base)s' % locals ()
+    os.system (cmd)
+    dump_file ('''#!/bin/sh
+LD_LIBRARY_PATH=%(system_prefix)s/lib
+%(system_prefix)s/bin/.%(base)s "$@"
+''' % locals (), file)
+    os.chmod (file, octal.o755)
+
 def librestrict ():
     return list (sorted (os.environ.get ('LIBRESTRICT',
                                          'open').replace (':', ' ').split (' ')))
