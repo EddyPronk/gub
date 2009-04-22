@@ -712,7 +712,7 @@ class OpenOffice__tools (tools.AutoBuild, OpenOffice):
     svidl = 'idl'
     ulfconv = 'setup_native'
     gendict = 'i18npool'
-    tool_modules = ['icc', regcomp, gen_makefile, 'transex3', 'rsc', ulfconv, 'idl']
+    tool_modules = ['icc', regcomp, gen_makefile, 'transex3', 'rsc', ulfconv, 'idl', gendict]
     toplevel_modules = generic_build + tool_modules
     modules = misc.uniq (ooo_deps (toplevel_modules))
     def __init__ (self, settings, source):
