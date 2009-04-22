@@ -226,6 +226,16 @@ class OpenOffice (target.AutoBuild):
             os.environ['OOO_TOOLS_DIR'] = self.settings.tools_prefix + '/bin'
     def _get_build_dependencies (self):
         return ['tools::autoconf', 'tools::rebase', 'tools::openoffice', 'boost-devel', 'curl-devel', 'cppunit-devel', 'db-devel', 'expat-devel', 'fontconfig-devel', 'hunspell-devel', 'libicu-devel', 'libjpeg-devel', 'libpng-devel', 'liblpsolve-devel', 'python-devel', 'redland-devel', 'saxon-java', 'xerces-c', 'zlib-devel']
+    def get_build_dependencies (self):
+        return self._get_build_dependencies ()
+    def get_dependency_dict (self):
+        return {'': [x.replace ('-devel', '')
+                     for x in self._get_build_dependencies ()
+                     if 'tools::' not in x and 'cross/' not in x]
+                + ['cross/gcc-c++-runtime']
+                }
+    def get_subpackage_names (self):
+        return ['']
     def stages (self):
         return misc.list_insert_before (target.AutoBuild.stages (self),
                                         'compile',
@@ -673,11 +683,11 @@ module_deps = {
     # all of office for getting at a HelpLinker tool?
     'xmlhelp': ['ucbhelper', 'unoil', 'svtools', 'unotools',
                 #'javaunohelper'
-                ]
+                ],
     'svtools': ['vcl'], # try minimal...
     'unotools': ['comphelper', 'cppuhelper', 'offuh', 'tools', 'ucbhelper'],
     'vcl': ['psprint', 'rsc', 'sot', 'ucbhelper', 'unotools', 'i18npool', 'i18nutil', 'unoil', 'ridljar', 'offuh', 'basegfx', 'tools', 'transex3', 'icc'],
-    'idl': ['tools']
+    'idl': ['tools'],
     }
 
 def ooo_deps (deps):
@@ -746,8 +756,9 @@ class OpenOffice__tools (tools.AutoBuild, OpenOffice):
         OpenOffice.patch (self)
         # Make a handy fake toplevel GUB module to build everything.
         self.system ('''mkdir -p %(srcdir)s/gub/prj''')
-        tool_modules_str = ' '.join (tool_modules)
-        self.dump ('''gub	gub	:	%(dependencies)s NULL''', '%(srcdir)s/gub/prj/build.lst', env=locals ())
+        tool_modules_str = ' '.join (self.tool_modules)
+        toplevel_modules_str = ' '.join (self.toplevel_modules)
+        self.dump ('''gub	gub	:	%(toplevel_modules_str)s NULL''', '%(srcdir)s/gub/prj/build.lst', env=locals ())
         self.dump ('''
 .PHONY: all install
 DESTDIR=
