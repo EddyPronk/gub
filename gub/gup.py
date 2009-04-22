@@ -111,7 +111,9 @@ class FileManager:
             raise Exception ('abort')
 
         loggedos.system (logging.default_logger,
-                         'tar -C %(root)s -p -x%(_z)s%(_v)s -f %(ball)s'
+                         # cd %(root)s to avoid open(2) of cwd, see
+                         # http://lists.gnu.org/archive/html/lilypond-devel/2009-03/msg00304.html
+                         'cd %(root)s && tar -C %(root)s -p -x%(_z)s%(_v)s -f %(ball)s'
                          % locals ())
 
         self._package_file_db[name] = '\n'.join (lst)
