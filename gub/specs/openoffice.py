@@ -11,6 +11,10 @@ from gub import repository
 from gub import target
 from gub import tools
 
+# If TRUE: do not build tools::OpenOffice, rather use user-prebuilt
+# tools from $OOO_TOOLS_DIR.  Obsolete.
+out_of_gub_OOO_TOOLS_DIR = False
+
 '''
 Module 'solenv' delivered successfully. 0 files copied, 1 files unchanged
 Module 'stlport' delivered successfully. 0 files copied, 8 files unchanged
@@ -218,8 +222,10 @@ class OpenOffice (target.AutoBuild):
         def tracking (self):
             return True
         self.source.is_tracking = misc.bind_method (tracking, self.source)
+        if not out_of_gub_OOO_TOOLS_DIR:
+            os.environ['OOO_TOOLS_DIR'] = self.settings.tools_prefix + '/bin'
     def _get_build_dependencies (self):
-        return ['tools::autoconf', 'tools::rebase', 'boost-devel', 'curl-devel', 'cppunit-devel', 'db-devel', 'expat-devel', 'fontconfig-devel', 'hunspell-devel', 'libicu-devel', 'libjpeg-devel', 'libpng-devel', 'liblpsolve-devel', 'python-devel', 'redland-devel', 'saxon-java', 'xerces-c', 'zlib-devel']
+        return ['tools::autoconf', 'tools::rebase', 'tools::openoffice', 'boost-devel', 'curl-devel', 'cppunit-devel', 'db-devel', 'expat-devel', 'fontconfig-devel', 'hunspell-devel', 'libicu-devel', 'libjpeg-devel', 'libpng-devel', 'liblpsolve-devel', 'python-devel', 'redland-devel', 'saxon-java', 'xerces-c', 'zlib-devel']
     def stages (self):
         return misc.list_insert_before (target.AutoBuild.stages (self),
                                         'compile',
@@ -246,11 +252,6 @@ class OpenOffice (target.AutoBuild):
         return '%(builddir)s/build/%(cvs_tag)s'
     @context.subst_method
     def OOO_TOOLS_DIR (self):
-        # TODO: either make all ooo-tools (soltools: makedepend..., transex3: transex3 ...)
-        # self-hosting or compile them as OpenOffice__tools package...
-        # Shortcut: use precompiled tools from user's system
-
-        # There's possibly another shortcut: use wine, works for regcomp.
         if 'OOO_TOOLS_DIR' not in os.environ:
             message = '''OOO_TOOLS_DIR not set
 Set OOO_TOOLS_DIR to a recent pre-compiled native solver, I do
@@ -378,6 +379,7 @@ ac_cv_icu_version_minor=${ac_cv_icu_version_minor=3.81}
     def make_unpack (self):
         # FIXME: python detection is utterly broken, should use python-config
         self.system ('cd %(builddir)s && make unpack')
+        self.system ('cd %(srcdir)s && rm -f patches/dev300/layout-simple-dialogs-svx-no-gtk.diff')
         self.system ('cd %(builddir)s && make patch.apply')
     def apply_upstream_patch (self, name, strip_component=0):
         patch_strip_component = str (strip_component)
@@ -436,7 +438,8 @@ cd %(builddir)s/build/%(cvs_tag)s && patch -p%(patch_strip_component)s < %(patch
             'bean', # com_sun_star_comp_beans_LocalOfficeWindow.c:39:18: error: jawt.h: No such file or directory
             'embedserv', # uses ATL http://article.gmane.org/gmane.comp.gnu.mingw.user/18483
             ]
-
+        if not out_of_gub_OOO_TOOLS_DIR:
+            disable_modules += ['testtools']
         # ~/.wine/system.reg
         # "PATH"=str(2):"C:/windows/system32;C:/windows;z:/home/janneke/vc/gub/target/mingw/build/openoffice-trunk/build/ooo300-m9/solver/300/bin/wntgcci.pro/bin;z:/home/janneke/vc/gub/target/mingw/root/usr/bin;z:/home/janneke/vc/gub/target/mingw/root/usr/lib;"
         wine_modules = [
@@ -479,11 +482,11 @@ cd %(upstream_dir)s/cppuhelper && rm -rf wntgcci.pro-
 cd %(upstream_dir)s/cppuhelper && mv wntgcci.pro wntgcci.pro-
 cd %(upstream_dir)s/cppuhelper && . ../*Env.Set.sh && perl $SOLARENV/bin/build.pl debug=true && perl $SOLARENV/bin/deliver.pl
 ''')
-        do_not_fail = False
-        if do_not_fail:
+        regcomp_just_do_not_fail = True
+        if regcomp_just_do_not_fail:
             # Well, that does not help.  Make non-failing regcomp wrapper...
             self.system ('cd %(upstream_dir)s/solver/%(ver)s/wntgcci.pro/bin && mv regcomp.exe regcomp-bin.exe')
-        self.dump ('''#! /bin/sh
+            self.dump ('''#! /bin/sh
 %(upstream_dir)s/solver/%(ver)s/wntgcci.pro/bin/regcomp-bin.exe "$@"
 exit 0
 ''',
@@ -491,9 +494,10 @@ exit 0
                    permissions=octal.o755)
         target.AutoBuild.install (self)
         self.system ('rm -f %(install_prefix)s/bin/soffice3.1')
-        if do_not_fail:
+        if regcomp_just_do_not_fail:
             self.system ('cd %(upstream_dir)s/solver/%(ver)s/wntgcci.pro/bin && mv regcomp-bin.exe regcomp.exe')
-                
+            self.system ('cd "%(install_prefix)s/lib/ooo-3.1/OpenOffice.org 3" && /bin/tar -xzvf %(downloads)s/rdb/rdb.tar.gz || true')
+
 class OpenOffice__mingw (OpenOffice):
     upstream_patches = OpenOffice.upstream_patches + [
         'openoffice-config_office-mingw.patch',
@@ -501,6 +505,7 @@ class OpenOffice__mingw (OpenOffice):
         'openoffice-sal-mingw.patch',
         'openoffice-external-mingwheaders.patch',
         'openoffice-cppunit-mingw.patch',
+        'openoffice-cppuhelper-mingw.patch',
         'openoffice-i18npool-mingw.patch',
         'openoffice-tools-mingw.patch',
         'openoffice-setup_native-mingw.patch',
@@ -523,16 +528,16 @@ class OpenOffice__mingw (OpenOffice):
         'openoffice-postprocess-mingw.patch',
         'openoffice-instsetoo_native-mingw.patch',
         'openoffice-solenv-mingw-installer.patch',
-        'openoffice-scp2-mingw.patch'
-        ]
-    # I do not understand anything about external/mingwheaders.  It
-    # patches header files and is thus strictly tied to a gcc version;
-    # that can never build.  How can patching header files ever work,
-    # when not patching the corresponding libraries?  Some patches
-    # remove #ifdef checks that can be enabled by setting a #define.
-    # Other patches only affect OO.o client code already inside
-    # __MINGW32__ defines.  Why not fix OO.o makefiles and client
-    # code?
+        'openoffice-scp2-mingw.patch',
+        'openoffice-helpcontent2-mingw.patch', 
+       ]
+    # I do not understand external/mingwheaders.  It patches header
+    # files and is thus strictly tied to a gcc version; that can never
+    # build.  How can patching header files ever work, when not
+    # patching the corresponding libraries?  Some patches remove
+    # #ifdef checks that can be enabled by setting a #define.  Other
+    # patches only affect OO.o client code already inside __MINGW32__
+    # defines.  Why not fix OO.o makefiles and client code?
     upstream_patches += ['openoffice-sal-mingw-c.patch']
     # Kendy's MinGW patches are already applied
     kendy = [
@@ -556,15 +561,24 @@ class OpenOffice__mingw (OpenOffice):
         # cpputools/source/registercomponent/registercomponent.cxx
         wine_userdef = os.path.join (os.environ['HOME'], '.wine/user.reg')
         s = file (wine_userdef).read ()
-        if not self.expand ('%(upstream_dir)s/solver/%(ver)s') in s:
+#        if not self.expand ('%(upstream_dir)s/solver/%(ver)s') in s:
+        if not 'CPLD_ACCESSPATH' in s:
+            # Huh? > taking path: "file:///home/janneke/vc/gub/target/mingw/build/openoffice-anongit.freedesktop.org--git-ooo-build-ooo-build-/build/ooo310-m8/solver/310/wntgcci.pro/bin/canvasfactory.uno.dll" ...does not match given path "/home/janneke/vc/gub/target/mingw/build/openoffice-anongit.freedesktop.org--git-ooo-build-ooo-build-/build/ooo310-m8/solver/310/wntgcci.pro/bin/".
+            # Even more strange: someone's eaten the space, but the directories
+            # are the same!? > taking path: "file:///C:/ProgrammaBestanden/openoffice/usr/lib/ooo-3.1/OpenOffice.org/URE/bin/bootstrap.uno.dll" ...does not match given path "file:///C:/ProgrammaBestanden/openoffice/usr/lib/ooo-3.1/OpenOffice.org/URE/bin/".
+            #(14:06:06) erAck: janneke: 'jsc' or 'sb' may know details. Not in irc though. I suggest dev@udk mailing list.
             self.dump ('''
 [Environment]
-"PATH"="%(upstream_dir)s/solver/%(ver)s/wntgcci.pro/bin;%(system_prefix)s/bin;%(system_prefix)s/lib;"
-"CPLD_ACCESSPATH=".;/usr/bin;/usr/lib;/usr/lib/ooo-3.1/OpenOffice.org 3/Basis/program;/usr/lib/ooo-3.1/OpenOffice.org 3/Basis/program/shlxthdl;/usr/lib/ooo-3.1/OpenOffice.org 3/URE/bin;c:/Programma Bestanden/usr/bin;c:/Programma Bestanden/usr/lib;c:/Programma Bestanden/usr/lib/ooo-3.1/OpenOffice.org 3/Basis/program;c:/Programma Bestanden/usr/lib/ooo-3.1/OpenOffice.org 3/Basis/program/shlxthdl;c:/Programma Bestanden/usr/lib/ooo-3.1/OpenOffice.org 3/URE/bin;c:/Program Files/usr/bin;c:/Program Files/usr/lib;c:/Program Files/usr/lib/ooo-3.1/OpenOffice.org 3/Basis/program;c:/Program Files/usr/lib/ooo-3.1/OpenOffice.org 3/Basis/program/shlxthdl;c:/Program Files/usr/lib/ooo-3.1/OpenOffice.org 3/URE/bin;%(install_prefix)s/bin;%(install_prefix)s/lib;%(upstream_dir)s/solver/%(ver)s/wntgcci.pro/bin;%(system_prefix)s/bin;%(system_prefix)s/lib;"
+"DISPLAY"="localhost:0.0"
+"PATH"="%(upstream_dir)s/solver/%(ver)s/wntgcci.pro/bin;%(upstream_dir)s/solver/%(ver)s/wntgcci.pro/lib;%(system_prefix)s/bin;%(system_prefix)s/lib;Z:%(upstream_dir)s/solver/%(ver)s/wntgcci.pro/bin;%(upstream_dir)s/solver/%(ver)s/wntgcci.pro/lib;Z:%(system_prefix)s/bin;Z:%(system_prefix)s/lib;"
+"CPLD_ACCESSPATH"="Z:%(upstream_dir)s/solver/%(ver)s/wntgcci.pro/bin/;%(upstream_dir)s/solver/%(ver)s/wntgcci.pro/bin/;.;C:/Programma Bestanden/openoffice/usr/lib/ooo-3.1/OpenOffice.org 3/Basis/program/;C:/Programma Bestanden/openoffice/usr/lib/ooo-3.1/OpenOffice.org 3/URE/bin;C:/Program Files/openoffice/usr/lib/ooo-3.1/OpenOffice.org 3/Basis/program/;C:/Program Files/openoffice/usr/lib/ooo-3.1/OpenOffice.org 3/URE/bin;%(install_prefix)s/bin/;%(install_prefix)s/lib/;%(system_prefix)s/bin/;%(system_prefix)s/lib/;Z:%(install_prefix)s/bin/;Z:%(install_prefix)s/lib/;Z:%(upstream_dir)s/solver/%(ver)s/wntgcci.pro/bin/;Z:%(upstream_dir)s/solver/%(ver)s/wntgcci.pro/lib/;Z:%(system_prefix)s/lib/;Z:%(system_prefix)s/lib/"
 ''',
                    wine_userdef, mode='a')
         # fixup gen_makefile disaster -- TODO: CC_FOR_BUILD
-        self.system ('''cp -pvf $OOO_TOOLS_DIR/../../../../sal/unx*/bin/gen_makefile $OOO_TOOLS_DIR/gen_makefile''')
+        if out_of_gub_OOO_TOOLS_DIR:
+            self.system ('''cp -pvf $OOO_TOOLS_DIR/../../../../sal/unx*/bin/gen_makefile $OOO_TOOLS_DIR/gen_makefile''')
+            self.system ('''cp -pvf $OOO_TOOLS_DIR/../../../../icc/unx*/bin/create_sRGB_profile $OOO_TOOLS_DIR/create_sRGB_profile''')
+            self.system ('''cp -pvf $OOO_TOOLS_DIR/../../../../i18npool/unx*/bin/* $OOO_TOOLS_DIR''')
     def configure_command (self):
         return (OpenOffice.configure_command (self)
                 .replace ('--with-system-xrender-headers', '')
@@ -601,16 +615,33 @@ fi
         self.system ('cp -pv %(sourcefiledir)s/mingw-headers/*.h %(upstream_dir)s/solver/%(ver)s/wntgcci.pro/inc')
 
 
-# Attempt at building a tiny fraction of openoffice for the build
-# tools, aiming to remove $OOO_TOOLS_DIR.
+# Attempt at building a `tiny fraction' of openoffice for essential
+# native binary build tools, aiming to remove out_of_gub_OOO_TOOLS_DIR
 
-# FIXME: the dependencies for these build tools are rather crude,
-# whole module may depend on vcl, but langconvex [certainly] doesn't?
+# The dependencies for some OO.o build tools are rather crude, the
+# whole module (eg: shell, svtools) the tool is built in may depend on
+# toolkit/vcl, but tool itself (eg: langconvex.EXE, HelpLinker) really
+# doesn't?  I may hope...
 
-# --> regcomp: cpputools
-# --> gen_makefile: sal
-# --> lngconvex: shell; but: huh, windows only?
-#     shell: offuh rdbmaker tools sal vcl EXPAT:expat transex3
+# Build tools provided by OpenOffice__tools
+
+# MODULE       --> BINARY TOOL:   TOOL's MODULE[, DEPENDENCIES]
+# */pyuno      --> regcomp:       cpputools
+# *            --> gen_makefile:  sal
+# sccomp       --> rsc:           rsc
+# sfx2         --> svidl:         idl
+# udkapi       --> idlc:          idlc, registry
+# udkapi       --> regmerge:      cpputools
+# officecfg    --> cfgex:         transex3
+# scp2         --> ulfconv:       setup_native
+# i18npool     --> gendict:       i18npool
+
+# Build tools not yet provided by OpenOffice__tools [expensive]
+
+# MODULE       --> BINARY TOOL:   TOOL's MODULE[, DEPENDENCIES]
+# regcomp --windows: a cross unix regcomp that registers .DLLs
+# shell        --> lngconvex.EXE: shell (but: huh, windows only?), VCL
+# helpcontent2 --> HelpLinker:    svtools, VCL
 
 module_deps = {
     'cpputools' : ['salhelper', 'cppuhelper', 'cppu'],
@@ -618,7 +649,7 @@ module_deps = {
     'cppuhelper' : ['codemaker', 'cppu', 'offuh'],
     'codemaker' : ['udkapi'],
     'offuh' : ['offapi'],
-    'generic_build' : ['solenv'],
+    'generic_build' : ['dmake', 'solenv'],
     'udkapi' : ['idlc'],
     'idlc' : ['registry'],
     'sal' : ['xml2cmp'],
@@ -629,9 +660,24 @@ module_deps = {
     'i18npool' : ['bridges', 'sax', 'stoc', 'comphelper', 'i18nutil', 'regexp'],
     'basegfx' : ['o3tl', 'sal', 'offuh', 'cppuhelper', 'cppu'],
     'comphelper' : ['cppuhelper', 'ucbhelper', 'offuh', 'vos', 'salhelper'],
-# we're not using java, try removing java cruft
-#    'stoc' : ['rdbmaker', 'cppuhelper', 'cppu', 'jvmaccess', 'sal', 'salhelper', 'jvmfwk']
-    'stoc' : ['rdbmaker', 'cppuhelper', 'cppu', 'sal', 'salhelper'],
+    'stoc' : ['rdbmaker', 'cppuhelper', 'cppu',
+              #'jvmaccess',
+              'sal', 'salhelper'],
+    'icc' : ['solenv'],
+    'pyuno': ['stoc', 'cpputools', 'cppuhelper', 'bridges', 'tools'],
+    'rsc': ['tools'],
+    'setup_native': ['soltools', 'xml2cmp', 'sal', 'officecfg', 'unoil'],
+    'unoil': ['offapi', 'ridljar', 'solenv', 'cli_ure'],
+
+    # This is getting ridiculous, we need a graphical toolkit, almost
+    # all of office for getting at a HelpLinker tool?
+    'xmlhelp': ['ucbhelper', 'unoil', 'svtools', 'unotools',
+                #'javaunohelper'
+                ]
+    'svtools': ['vcl'], # try minimal...
+    'unotools': ['comphelper', 'cppuhelper', 'offuh', 'tools', 'ucbhelper'],
+    'vcl': ['psprint', 'rsc', 'sot', 'ucbhelper', 'unotools', 'i18npool', 'i18nutil', 'unoil', 'ridljar', 'offuh', 'basegfx', 'tools', 'transex3', 'icc'],
+    'idl': ['tools']
     }
 
 def ooo_deps (deps):
@@ -641,18 +687,27 @@ def ooo_deps (deps):
     return lst
 
 class OpenOffice__tools (tools.AutoBuild, OpenOffice):
-#    source = 'svn://svn@svn.services.openoffice.org/ooo/tags&branch=OOO310_m8&module=config_office'
     source = 'svn://svn@svn.services.openoffice.org/&module=ooo&branch=tags/OOO310_m8&depth=files'
-    patches = ['openoffice-o3tl-no-cppunit.patch', 'openoffice-basegfx-no-cppunit.patch']
+    patches = [
+        'openoffice-o3tl-no-cppunit.patch',
+        'openoffice-basegfx-no-cppunit.patch',
+        'openoffice-store-core.patch',
+        'openoffice-store-registry.patch',
+        'openoffice-funit-char-line.patch',
+#        'openoffice-svtools-minimal.patch',
+        ]
+    generic_build = ['dmake', 'solenv']
     regcomp = 'cpputools'
     gen_makefile = 'sal'
-    generic_build = 'solenv'
-# ugh, building transex3 pulls in a whole slew more
-    transex3 = 'transex3'
-    modules = misc.uniq (ooo_deps ([generic_build, regcomp, gen_makefile, transex3]))
+    svidl = 'idl'
+    ulfconv = 'setup_native'
+    gendict = 'i18npool'
+    tool_modules = ['icc', regcomp, gen_makefile, 'transex3', 'pyuno', 'rsc', ulfconv, 'idl']
+    toplevel_modules = generic_build + tool_modules
+    modules = misc.uniq (ooo_deps (toplevel_modules))
     def __init__ (self, settings, source):
         tools.AutoBuild.__init__ (self, settings, source)
-        # let's keep source tree around
+        # Let's keep source tree around
         def tracking (self):
             return True
         self.source.is_tracking = misc.bind_method (tracking, self.source)
@@ -660,7 +715,7 @@ class OpenOffice__tools (tools.AutoBuild, OpenOffice):
         if not os.path.isdir (self.source.dir):
             os.system ('mkdir -p ' + self.source.dir)
     def _get_build_dependencies (self):
-        return ['expat-devel', 'libicu-devel', 'zlib-devel'] # ['boost-devel', 'libxslt-devel']
+        return ['db-devel', 'expat-devel', 'libicu-devel', 'libxslt-devel', 'zlib-devel'] # ['boost-devel']
     def stages (self):
         return tools.AutoBuild.stages (self)
     def autoupdate (self):
@@ -678,7 +733,9 @@ class OpenOffice__tools (tools.AutoBuild, OpenOffice):
         tools.AutoBuild.download (self)
         list (map (self.download_module, self.modules))
     def untar_module (self, module):
-        self.module_repo (module).update_workdir (self.expand ('%(srcdir)s/' + module))
+        def defer (logger):
+            self.module_repo (module).update_workdir (self.expand ('%(srcdir)s/' + module))
+        self.func (defer)
     def untar (self):
         tools.AutoBuild.untar (self)
         list (map (self.untar_module, self.modules))
@@ -687,40 +744,45 @@ class OpenOffice__tools (tools.AutoBuild, OpenOffice):
         return '310'
     def patch (self):
         OpenOffice.patch (self)
-        #self.file_sub ([('(postprocess packimages)', 'cpputools')],
-        #               '%(srcdir)s/instsetoo_native/prj/build.lst',
-        #               must_succeed=True)
+        # Make a handy fake toplevel GUB module to build everything.
+        self.system ('''mkdir -p %(srcdir)s/gub/prj''')
+        tool_modules_str = ' '.join (tool_modules)
+        self.dump ('''gub	gub	:	%(dependencies)s NULL''', '%(srcdir)s/gub/prj/build.lst', env=locals ())
         self.dump ('''
+.PHONY: all install
 DESTDIR=
 prefix=@prefix@
 bin=solver/%(ver)s/unxlngx*.pro/bin
 lib=solver/%(ver)s/unxlngx*.pro/lib
 out=unxlngx*.pro
+tool_modules = %(tool_modules_str)s
 
 all:
-	. ./*Env.Set.sh && ./bootstrap && (cd cpputools && ../solenv/bin/build.pl --all) && (cd transex3 && ../solenv/bin/build.pl --all)
+	. ./*Env.Set.sh && ./bootstrap && (cd gub && ../solenv/bin/build.pl --all)
 install:
-	cp -pv sal/$(out)/bin/gen_makefile $(bin)
-	cp -pv cpputools/$(out)/bin/regcomp $(bin)
+	$(foreach m,$(tool_modules),cp -pv $(m)/$(out)/bin/* $(bin) &&) true
 	install -d $(DESTDIR)$(prefix)
 	rm -rf $(bin)/ure
 	cp -prv $(bin) $(DESTDIR)$(prefix)
 	cp -prv $(lib) $(DESTDIR)$(prefix)
-''', '%(srcdir)s/Makefile.in')
+''', '%(srcdir)s/Makefile.in', env=locals ())
     def configure_command (self):
         return ('x_libraries=no_x_libraries x_includes=no_x_includes '
                 + tools.AutoBuild.configure_command (self)
                 + re.sub ('--with-system-[^ ]*', '', OpenOffice.configure_options (self))
                 .replace ('--disable-crypt-link', '--enable-crypt-link')
+                + ' --with-system-db '
                 + ' --with-system-expat '
                 + ' --with-system-icu '
+                + ' --with-system-libxml '
+                + ' --with-system-python '
                 + ' --with-system-zlib '
                 + ' --with-x=no')
     def configure (self):
         self.shadow_tree ('%(srcdir)s', '%(builddir)s', soft=True)
         tools.AutoBuild.configure (self)
-        # Ugh, oo.o's configure script manages to ignore CFLAGS/LDFLAGS
-        # but will happily add -L/usr/lib nonsense.
+        # OO.o's configure script manages to ignore CFLAGS/LDFLAGS but
+        # will happily add -L/usr/lib nonsense.
         def add_CFLAGS_LDFLAGS_already (logger, file):
             loggedos.file_sub (logger, [
                     ('-L(NONE|no_x_libraries|/usr/lib)', self.expand ('-L%(system_prefix)s/lib')),
