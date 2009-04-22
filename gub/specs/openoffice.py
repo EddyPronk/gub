@@ -389,7 +389,6 @@ ac_cv_icu_version_minor=${ac_cv_icu_version_minor=3.81}
     def make_unpack (self):
         # FIXME: python detection is utterly broken, should use python-config
         self.system ('cd %(builddir)s && make unpack')
-        self.system ('cd %(srcdir)s && rm -f patches/dev300/layout-simple-dialogs-svx-no-gtk.diff')
         self.system ('cd %(builddir)s && make patch.apply')
     def apply_upstream_patch (self, name, strip_component=0):
         patch_strip_component = str (strip_component)
@@ -559,6 +558,7 @@ class OpenOffice__mingw (OpenOffice):
                 + ['libunicows-devel', 'tools::pytt'])
     def patch (self):
         self.system ('cd %(srcdir)s && git clean -f')
+        self.system ('cd %(srcdir)s && rm -f patches/dev300/layout-simple-dialogs-svx-no-gtk.diff')
         OpenOffice.patch (self)
         # disable Kendy's patch for Cygwin version of mingw
         self.file_sub ([('^(mingw-build-without-stlport-stlport.diff)', r'#\1'),
@@ -725,7 +725,8 @@ class OpenOffice__tools (tools.AutoBuild, OpenOffice):
         if not os.path.isdir (self.source.dir):
             os.system ('mkdir -p ' + self.source.dir)
     def _get_build_dependencies (self):
-        return ['db-devel', 'expat-devel', 'libicu-devel', 'libxslt-devel', 'zlib-devel', 'python-devel'] # ['boost-devel']
+        #return ['boost', 'db', 'expat', 'libicu', 'libxslt', 'python', 'zlib']
+        return ['db', 'expat', 'libicu', 'libxslt', 'python', 'zlib']
     def stages (self):
         return tools.AutoBuild.stages (self)
     def autoupdate (self):
