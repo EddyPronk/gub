@@ -13,9 +13,6 @@
 In addition to the requirements for GUB, you need
 
 <ul>
-    <li>a matching fresh native build of OpenOffice: the current build
-      does not yet know the concept of CC_FOR_BUILD and procuding
-      for-build tools</li>
     <li>wine: to run regcomp.exe and lngconvex.exe and possibly other
       cross-build ignorant build tools that are compile-time tied
       to the build platform</a>
@@ -46,18 +43,8 @@ this produces a windows installer in
 
 <h3>More examples</h3>
 <pre>
-  * Build a native version of OpenOffice -- outside of GUB
-
-      cd $HOME/vc
-      git://anongit.freedesktop.org/git/ooo-build/ooo-build && cd ooo-build
-      ./autogen.sh --help
-      ./configure --with-distro=Debian --with-lang=en-US --disable-mediawiki --disable-mono --without-java
-      ./download
-      make
-
   * Cross build OpenOffice for Windows:
 
-      export OOO_TOOLS_DIR=$HOME/vc/ooo310-m8/build/ooo310-m8/solver/310/unxlngx6.pro/bin  # check unxlngx6.pro if you're not on x86_64
       bin/gub mingw::openoffice
 
   * Make the nsis installer
