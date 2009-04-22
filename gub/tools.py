@@ -57,11 +57,14 @@ class AutoBuild (build.AutoBuild):
                 + self.configure_variables ())
     # FIXME: promoteme to build.py?  Most Fragile operation...
     def configure_flags (self):
+        config_cache = ''
+        if self.config_cache_settings ():
+            config_cache = '\n--config-cache'
         return misc.join_lines ('''
 --prefix=%(system_prefix)s
 --enable-shared
 --enable-static
-''')
+''' + config_cache)
     # FIXME: promoteme to build.py?  Most Fragile operation...
     def configure_variables (self):
         return misc.join_lines ('''
@@ -122,6 +125,7 @@ LD_LIBRARY_PATH=%(system_prefix)s/lib
         return ['']
 
     def configure (self):
+        self.config_cache ()
         build.AutoBuild.configure (self)
         self.update_libtool ()
 
