@@ -725,8 +725,7 @@ class OpenOffice__tools (tools.AutoBuild, OpenOffice):
         if not os.path.isdir (self.source.dir):
             os.system ('mkdir -p ' + self.source.dir)
     def _get_build_dependencies (self):
-        #return ['boost', 'db', 'expat', 'libicu', 'libxslt', 'python', 'zlib']
-        return ['db', 'expat', 'libicu', 'libxslt', 'python', 'zlib']
+        return ['boost', 'db', 'expat', 'libicu', 'libxslt', 'python', 'zlib']
     def stages (self):
         return tools.AutoBuild.stages (self)
     def autoupdate (self):
