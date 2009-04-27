@@ -92,8 +92,8 @@
        else
          return 0;
  }
--      ], [AC_MSG_RESULT(OK)], [AC_MSG_ERROR([not suitable, only >= 3.6 supported currently])])
-+      ], [AC_MSG_RESULT(OK)], [AC_MSG_ERROR([not suitable, only >= 3.6 supported currently])], [AC_MSG_RESULT($ac_cv_icu_version)])
+-      ], [AC_MSG_RESULT(OK)], [AC_MSG_ERROR([not suitable, only >= 4.0 supported currently])])
++      ], [AC_MSG_RESULT(OK)], [AC_MSG_ERROR([not suitable, only >= 4.0 supported currently])], [AC_MSG_RESULT($ac_cv_icu_version)])
        AC_LANG_POP([C++])
  else
      AC_MSG_RESULT([internal])

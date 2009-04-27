@@ -110,8 +110,8 @@ class CommandRunner:
     def file_sub (self, *args, **kwargs):
         return self._execute (commands.Substitute (*args, **kwargs))
 
-    def shadow_tree (self, src, target):
-        return self._execute (commands.ShadowTree (src, target))
+    def shadow_tree (self, src, target, soft=False):
+        return self._execute (commands.ShadowTree (src, target, soft))
 
     def map_locate (self, func, directory, pattern, **kwargs):
         return self._execute (commands.MapLocate (func, directory, pattern, **kwargs))

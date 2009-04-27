@@ -24,9 +24,9 @@
  #ifdef __MINGW32__
  		atexit(do_cleanup);
  }
---- sal/systools/win32/uwinapi/ResolveUnicows.cpp.~1.4.~	2008-06-06 19:02:43.000000000 +0200
-+++ sal/systools/win32/uwinapi/ResolveUnicows.cpp	2008-10-21 21:53:19.000000000 +0200
-@@ -227,8 +226,8 @@
+--- sal/systools/win32/uwinapi/ResolveUnicows.cpp.pristine	2008-10-01 10:05:18.000000000 +0200
++++ sal/systools/win32/uwinapi/ResolveUnicows.cpp	2009-04-04 14:43:41.198056996 +0200
+@@ -227,8 +226,8 @@ DEFINE_UNICOWS_THUNK( kernel32, DWORD, W
  DEFINE_UNICOWS_THUNK( kernel32, BOOL, WINAPI, GetFileAttributesExW, (LPCWSTR,GET_FILEEX_INFO_LEVELS,PVOID) )
  DEFINE_UNICOWS_THUNK( kernel32, DWORD, WINAPI, GetFileAttributesW, (LPCWSTR) )
  DEFINE_UNICOWS_THUNK( comdlg32, short, WINAPI, GetFileTitleW, (LPCWSTR,LPWSTR,WORD) )
@@ -37,7 +37,21 @@
  DEFINE_UNICOWS_THUNK( kernel32, DWORD, WINAPI, GetFullPathNameW, (LPCWSTR,DWORD,LPWSTR,LPWSTR*) )
  DEFINE_UNICOWS_THUNK( gdi32, DWORD, WINAPI, GetGlyphOutlineW, (HDC,UINT,UINT,LPGLYPHMETRICS,DWORD,PVOID,const MAT2*) )
  DEFINE_UNICOWS_THUNK( gdi32, BOOL, WINAPI, GetICMProfileW, (HDC,LPDWORD,LPWSTR) )
-@@ -456,7 +455,7 @@
+@@ -273,7 +272,7 @@ DEFINE_UNICOWS_THUNK( kernel32, BOOL, WI
+ DEFINE_UNICOWS_THUNK( kernel32, BOOL, WINAPI, GetStringTypeW, (DWORD,LPCWSTR,int,LPWORD) )
+ DEFINE_UNICOWS_THUNK( kernel32, UINT, WINAPI, GetSystemDirectoryW, (LPWSTR,UINT) )
+ DEFINE_UNICOWS_THUNK( kernel32, UINT, WINAPI, GetSystemWindowsDirectoryW, (LPWSTR,UINT) )
+-DEFINE_UNICOWS_THUNK( user32, DWORD, WINAPI, GetTabbedTextExtentW, (HDC,LPCWSTR,int,int,CONST INT*) )
++DEFINE_UNICOWS_THUNK( user32, DWORD, WINAPI, GetTabbedTextExtentW, (HDC,LPCWSTR,int,int,int*) )
+ DEFINE_UNICOWS_THUNK( kernel32, UINT, WINAPI, GetTempFileNameW, (LPCWSTR,LPCWSTR,UINT,LPWSTR) )
+ DEFINE_UNICOWS_THUNK( kernel32, DWORD, WINAPI, GetTempPathW, (DWORD,LPWSTR) )
+ DEFINE_UNICOWS_THUNK( gdi32, BOOL, WINAPI, GetTextExtentExPointW, ( HDC,LPCWSTR,int,int,LPINT,LPINT,LPSIZE ) )
+@@ -452,11 +451,11 @@ DEFINE_UNICOWS_THUNK( shell32, BOOL, WIN
+ DEFINE_UNICOWS_THUNK( winspool, DWORD, WINAPI, StartDocPrinterW, (HANDLE,DWORD,PBYTE) )
+ DEFINE_UNICOWS_THUNK( gdi32, int, WINAPI, StartDocW, (HDC,const DOCINFOW*) )
+ DEFINE_UNICOWS_THUNK( user32, BOOL, WINAPI, SystemParametersInfoW, (UINT,UINT,PVOID,UINT) )
+-DEFINE_UNICOWS_THUNK( user32, LONG, WINAPI, TabbedTextOutW, (HDC,int,int,LPCWSTR,int,int,CONST INT*,int) )
++DEFINE_UNICOWS_THUNK( user32, LONG, WINAPI, TabbedTextOutW, (HDC,int,int,LPCWSTR,int,int,int*,int) )
  DEFINE_UNICOWS_THUNK( gdi32, BOOL, WINAPI, TextOutW, (HDC,int,int,LPCWSTR,int) )
  DEFINE_UNICOWS_THUNK( user32, int, WINAPI, TranslateAcceleratorW, (HWND,HACCEL,LPMSG) )
  DEFINE_UNICOWS_THUNK( user32, BOOL, WINAPI, UnregisterClassW, (LPCWSTR,HINSTANCE) )
@@ -59,3 +73,36 @@
  
  #define elementsof(a) (sizeof(a)/sizeof((a)[0]))
  
+diff -purN sal/systools/win32/uwinapi/FindFirstVolumeA.cpp sal/systools/win32/uwinapi/FindFirstVolumeA.cpp
+--- sal/systools/win32/uwinapi/FindFirstVolumeA.cpp	2009-04-06 20:23:37.935495274 +0200
++++ sal/systools/win32/uwinapi/FindFirstVolumeA.cpp	2009-04-06 20:21:51.303494448 +0200
+@@ -30,4 +30,4 @@
+ 
+ #include "macros.h"
+ 
+-DEFINE_DEFAULT_THUNK( kernel32, TRYLOAD, HANDLE, WINAPI, FindFirstVolumeA, (LPSTR lpszVolumeName, DWORD cchBufferLength) )
+\ Geen regeleindeteken (LF) aan einde van bestand
++DEFINE_DEFAULT_THUNK( kernel32, TRYLOAD, HANDLE, WINAPI, FindFirstVolumeA, (LPCSTR lpszVolumeName, DWORD cchBufferLength) )
+\ Geen regeleindeteken (LF) aan einde van bestand
+diff -purN sal/systools/win32/uwinapi/FindFirstVolumeW.cpp sal/systools/win32/uwinapi/FindFirstVolumeW.cpp
+--- sal/systools/win32/uwinapi/FindFirstVolumeW.cpp	2009-04-06 20:23:37.935495274 +0200
++++ sal/systools/win32/uwinapi/FindFirstVolumeW.cpp	2009-04-06 20:21:51.303494448 +0200
+@@ -30,4 +30,4 @@
+ 
+ #include "macros.h"
+ 
+-DEFINE_DEFAULT_THUNK( kernel32, TRYLOAD, HANDLE, WINAPI, FindFirstVolumeW, (LPWSTR lpszVolumeName, DWORD cchBufferLength) )
+\ Geen regeleindeteken (LF) aan einde van bestand
++DEFINE_DEFAULT_THUNK( kernel32, TRYLOAD, HANDLE, WINAPI, FindFirstVolumeW, (LPCWSTR lpszVolumeName, DWORD cchBufferLength) )
+\ Geen regeleindeteken (LF) aan einde van bestand
+diff -purN sal/systools/win32/uwinapi/FindNextVolumeA.cpp sal/systools/win32/uwinapi/FindNextVolumeA.cpp
+--- sal/systools/win32/uwinapi/FindNextVolumeA.cpp	2009-04-06 20:23:37.935495274 +0200
++++ sal/systools/win32/uwinapi/FindNextVolumeA.cpp	2009-04-06 20:21:51.303494448 +0200
+@@ -30,4 +30,4 @@
+ 
+ #include "macros.h"
+ 
+-DEFINE_DEFAULT_THUNK( kernel32, TRYLOAD, BOOL, WINAPI, FindNextVolumeA, (HANDLE hFindVolume, LPSTR lpszVolumeName, DWORD cchBufferLength) )
+\ Geen regeleindeteken (LF) aan einde van bestand
++DEFINE_DEFAULT_THUNK( kernel32, TRYLOAD, BOOL, WINAPI, FindNextVolumeA, (HANDLE hFindVolume, LPCSTR lpszVolumeName, DWORD cchBufferLength) )
+\ Geen regeleindeteken (LF) aan einde van bestand

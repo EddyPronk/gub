@@ -1,0 +1,17 @@
+--- sw/util/makefile.mk.pristine	2009-04-06 16:16:26.727997047 +0200
++++ sw/util/makefile.mk	2009-04-06 16:16:02.788069269 +0200
+@@ -348,6 +348,7 @@ SHL4STDLIBS= \
+     $(BASICLIB)     \
+ 	$(I18NUTILLIB)
+ 
++.IF "$(ENABLE_VBA)"=="YES" # correspond with source/ui/vba/makefile.mk
+ #target vba
+ TARGET_VBA=vbaswobj
+ SHL5TARGET=$(TARGET_VBA)$(DLLPOSTFIX).uno
+@@ -376,5 +377,6 @@ SHL5STDLIBS= \
+ 
+ SHL5DEPN=$(SHL1TARGETN)
+ SHL5LIBS=$(SLB)$/$(TARGET_VBA).lib
++.ENDIF #"$(ENABLE_VBA)"!="YES"
+ 
+ .INCLUDE :  target.mk

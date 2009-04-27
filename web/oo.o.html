@@ -1,0 +1,77 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <!-- link rel="stylesheet" type="text/css" href="blog.css" !-->
+    <title>GUB -- OpenOffice</title>
+  </head>
+  <body>
+<h1>GUB -- OpenOffice</h1>
+
+<h2>INSTALLING</h2>
+
+Get GUB
+<pre>
+    git clone git://github.com/janneke/gub.git
+or
+    wget http://github.com/janneke/gub/tarball/master
+</pre>
+
+In addition to the requirements for GUB, you need
+<ul>
+    <li>wine: to run regcomp.exe and lngconvex.exe and possibly other
+      cross-build ignorant build tools that are compile-time tied
+      to the build platform</a>
+</ul>
+
+NOTE: This is still a work in progress (WIP).  The build will succeeed
+and an installer can be created, but services.rdb may not build
+correctly.
+
+<h3>Optional: Prepare build environment</h3>
+
+<pre>
+  make -f openoffice.make bootstrap
+</pre>
+
+<h3>Build everything</h3>
+
+<pre>
+  make openoffice
+</pre>
+
+this produces a windows installer in
+
+<pre>
+  uploads/openoffice-COMMITTISH.mingw.exe
+</pre>
+
+<h3>More examples</h3>
+<pre>
+  * Cross build OpenOffice for Windows:
+
+      bin/gub mingw::openoffice
+
+  * Make the nsis installer
+
+      bin/gib mingw::openoffice
+</pre>
+
+The package
+<pre>
+  bin/gub tools::openoffice
+</pre>
+
+is a work in progress and attempts to build a tiny fraction of
+openoffice for the build tools.
+
+<h3>See also</h3>
+
+<a href="http://github.com/janneke/gub/tree/master/patches">github.com/janneke/gub/tree/master/patches</a>
+<br>
+<a href="http://lilypond.org/blog/janneke/gub3-ooo-mingw-cross-build">lilypond.org/blog/janneke/gub3-ooo-mingw-cross-build</a>
+<br>
+
+</div>
+</body>
+</html>

@@ -277,12 +277,13 @@ class Conditional (SerializedCommand):
             return self.false_command.execute (logger)
 
 class ShadowTree (SerializedCommand):
-    def __init__ (self, src, dest):
+    def __init__ (self, src, dest, soft=False):
         self.src = src
         self.dest = dest
+        self.soft = soft
     def execute (self, logger):
         '''Symlink files from SRC in TARGET recursively'''
-        loggedos.shadow (logger, self.src, self.dest)
+        loggedos.shadow (logger, self.src, self.dest, self.soft)
     def checksum (self, hasher):
         hasher (self.__class__.__name__)
         hasher (self.src)

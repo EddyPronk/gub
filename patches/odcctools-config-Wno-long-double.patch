@@ -1,0 +1,55 @@
+From a1c653b18ae4d769b314b3317077aaba2cc13713 Mon Sep 17 00:00:00 2001
+From: Patrick McCarty <pnorcks@gmail.com>
+Date: Sat, 28 Mar 2009 14:58:10 -0700
+Subject: [PATCH] Fix odcctools compile
+
+* Remove -Wno-long-double from odcctools configure
+  and configure.ac
+---
+ configure    |    4 ++--
+ configure.ac |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/configure b/configure
+index 66851df..2c4835f 100755
+--- a/configure
++++ b/configure
+@@ -4460,7 +4460,7 @@ rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+ CFLAGS=$ORIGCFLAGS
+
+ ORIGCFLAGS=$CFLAGS
+-CFLAGS="$CFLAGS -Wno-long-double"
++CFLAGS=$CFLAGS
+ echo "$as_me:$LINENO: checking if -Wno-long-double is supported" >&5
+ echo $ECHO_N "checking if -Wno-long-double is supported... $ECHO_C" >&6
+ cat >conftest.$ac_ext <<_ACEOF
+@@ -4493,7 +4493,7 @@ if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+   ac_status=$?
+   echo "$as_me:$LINENO: \$? = $ac_status" >&5
+   (exit $ac_status); }; }; then
+-  WARNINGS="$WARNINGS -Wno-long-double"
++  WARNINGS=$WARNINGS
+     echo "$as_me:$LINENO: result: yes" >&5
+ echo "${ECHO_T}yes" >&6
+ else
+diff --git a/configure.ac b/configure.ac
+index 965cc97..08370cd 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -183,11 +183,11 @@ AC_COMPILE_IFELSE(
+ CFLAGS=$ORIGCFLAGS
+
+ ORIGCFLAGS=$CFLAGS
+-CFLAGS="$CFLAGS -Wno-long-double"
++CFLAGS=$CFLAGS
+ AC_MSG_CHECKING([if -Wno-long-double is supported])
+ AC_COMPILE_IFELSE(
+    [AC_LANG_SOURCE([[const char hw[] = "Hello, World\n";]])],
+-   [WARNINGS="$WARNINGS -Wno-long-double"
++   [WARNINGS=$WARNINGS
+     AC_MSG_RESULT([yes])],
+    [AC_MSG_RESULT([no])]
+ )
+--
+1.6.2.1
+

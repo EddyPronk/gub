@@ -542,16 +542,21 @@ def locate_files (directory, pattern,
                     for f in (fnmatch.filter (relative_results, pattern))]
     return results
 
-def shadow (src, target):
-    '''Symlink files from SRC in TARGET recursively'''
+def shadow (src, target, soft=False):
+    '''Symlink files from SRC in TARGET recursively.
+
+    If SOFT, do not overwrite any existing files in target.'''
     target = os.path.abspath (target)
     src = os.path.abspath (src)
-    os.makedirs (target)
+    if not soft or not os.path.exists (target):
+        os.makedirs (target)
     (root, dirs, files) = next (os.walk (src))
     for f in files:
-        os.symlink (os.path.join (root, f), os.path.join (target, f))
+        t = os.path.join (target, f)
+        if not soft or not os.path.exists (t):
+            os.symlink (os.path.join (root, f), t)
     for d in dirs:
-        shadow (os.path.join (root, d), os.path.join (target, d))
+        shadow (os.path.join (root, d), os.path.join (target, d), soft)
 
 def with_platform (s, platform):
     if '::' in s:
@@ -605,10 +610,11 @@ class Url:
     def __repr__ (self):
         return '<Url:' + self.__dict__.__repr__ () + '>'
 
-def dump_python_config (self):
-    dir = self.expand ('%(install_prefix)s%(cross_dir)s/bin')
+def dump_python_script (self, bindir, name):
+    dir = self.expand (bindir)
     self.system ('mkdir -p %(dir)s' % locals ())
-    python_config = '%(dir)s/python-config' % locals ()
+    script = '%(dir)s/%(name)s' % locals ()
+    source = '%(sourcefiledir)s/' + '%(name)s.py' % locals ()
     self.file_sub ([
          ('@PREFIX@', self.expand ('%(system_prefix)s')),
          # FIXME: better use %(tools_prefix)s/bin/python?
@@ -616,11 +622,27 @@ def dump_python_config (self):
          # python-config, while we are building python2.4.
          ## ('@PYTHON_FOR_BUILD@', sys.executable),
          ('@PYTHON_FOR_BUILD@', self.expand ('%(tools_prefix)s/bin/python')),
+         ('@PYTHON@', self.expand ('%(tools_prefix)s/bin/python')),
+         ('@TARGET_PYTHON@', self.expand ('%(system_prefix)s/bin/python')),
          ('@PYTHON_VERSION@', self.expand ('%(version)s')),
          ('@EXTRA_LDFLAGS@', ''),],
-         '%(sourcefiledir)s/python-config.py.in',
-         to_name=python_config)
-    self.chmod (python_config, octal.o755)
+         source,
+         to_name=script)
+    self.chmod (script, octal.o755)
+
+def dump_python_config (self):
+    dump_python_script (self, '%(install_prefix)s%(cross_dir)s/bin', 'python-config')
+
+def wrap_executable (system_prefix, file):
+    dir = os.path.dirname (file)
+    base = os.path.basename (file)
+    cmd = 'mv %(file)s %(dir)s/.%(base)s' % locals ()
+    os.system (cmd)
+    dump_file ('''#!/bin/sh
+LD_LIBRARY_PATH=%(system_prefix)s/lib
+%(system_prefix)s/bin/.%(base)s "$@"
+''' % locals (), file)
+    os.chmod (file, octal.o755)
 
 def librestrict ():
     return list (sorted (os.environ.get ('LIBRESTRICT',

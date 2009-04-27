@@ -9,8 +9,8 @@
  #endif
  #include <saldata.hxx>
  #include <saltimer.h>
---- vcl/win/source/app/salinst.cxx.pristine	2008-10-30 13:15:44.000000000 +0100
-+++ vcl/win/source/app/salinst.cxx	2008-10-30 13:13:24.000000000 +0100
+--- vcl/win/source/app/salinst.cxx.pristine	2009-02-18 16:18:51.000000000 +0100
++++ vcl/win/source/app/salinst.cxx	2009-04-04 16:28:58.940770892 +0200
 @@ -37,7 +37,7 @@
  #include <process.h>
  #endif
@@ -20,6 +20,45 @@
  #endif
  
  #include <vos/mutex.hxx>
+@@ -67,9 +67,11 @@
+ #pragma warning(push, 1)
+ #endif
+ 
++#ifndef __MINGW32__
+ #include <GdiPlus.h>
+ #include <GdiPlusEnums.h>
+ #include <GdiPlusColor.h>
++#endif /* __MINGW32__ */
+ 
+ #if defined _MSC_VER
+ #pragma warning(pop)
+@@ -456,10 +458,12 @@ void InitSalData()
+ {
+ 	SalData* pSalData = new SalData;
+ 	CoInitialize(0);
+ 
++#ifndef __MINGW32__
+     // init GDIPlus
+     static Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+     Gdiplus::GdiplusStartup(&pSalData->gdiplusToken, &gdiplusStartupInput, NULL);
++#endif /* __MINGW32__ */
+ }
+ 
+ 
+@@ -468,11 +471,13 @@ void DeInitSalData()
+ 	CoUninitialize();
+ 	SalData* pSalData = GetSalData();
+ 
++#ifndef __MINGW32__
+     // deinit GDIPlus
+     if(pSalData)
+     {
+         Gdiplus::GdiplusShutdown(pSalData->gdiplusToken);
+     }
++#endif /* __MINGW32__ */
+ 
+     delete pSalData;
+ }
 --- vcl/win/source/src/salsrc.rc.pristine	2008-10-30 13:51:23.000000000 +0100
 +++ vcl/win/source/src/salsrc.rc	2008-10-30 13:53:31.000000000 +0100
 @@ -35,90 +35,90 @@
@@ -276,18 +315,23 @@
  #include <string.h>
  #include <malloc.h>
  #include <tools/svwin.h>
---- vcl/win/source/window/salframe.cxx.pristine	2008-10-30 13:58:42.000000000 +0100
-+++ vcl/win/source/window/salframe.cxx	2008-10-30 14:01:46.000000000 +0100
-@@ -45,7 +45,7 @@
+--- vcl/win/source/window/salframe.cxx.pristine	2009-04-03 21:43:22.740500000 +0200
++++ vcl/win/source/window/salframe.cxx	2009-04-04 19:52:21.487998727 +0200
+@@ -52,7 +52,12 @@
  #include <tools/svwin.h>
  #endif
  #ifdef __MINGW32__
 -#include <excpt.h>
 +#include <sehandler.h>
++typedef struct tagRECONVERTSTRING FAR *LPRECONVERTSTRING;
++#define SCS_CAP_SETRECONVERTSTRING 0x00000004
++#define SCS_QUERYRECONVERTSTRING 0x00020000
++#define SCS_SETRECONVERTSTRING 0x00010000
++#define IMR_CONFIRMRECONVERTSTRING 0x0005
  #endif
  #include <rtl/string.h>
  #include <rtl/ustring.h>
-@@ -86,8 +86,10 @@
+@@ -93,8 +98,10 @@
  #ifndef _VCL_IMPDEL_HXX
  #include <impdel.hxx>
  #endif
@@ -296,9 +340,9 @@
  #include <multimon.h>
 +#endif /* __MINGW32__ */
  #include <vector>
- 
- #include <com/sun/star/uno/Exception.hdl>
-@@ -873,6 +875,7 @@ static void ImplSalCalcFullScreenSize( c
+ #ifdef __MINGW32__
+ #include <algorithm>
+@@ -884,6 +891,7 @@ static void ImplSalCalcFullScreenSize( c
      else
          nCaptionY = 0;
  
@@ -306,7 +350,7 @@
  	try
  	{
          Reference< XMultiServiceFactory > xFactory( ::comphelper::getProcessServiceFactory(), UNO_QUERY_THROW );
-@@ -900,7 +903,7 @@ static void ImplSalCalcFullScreenSize( c
+@@ -911,7 +919,7 @@ static void ImplSalCalcFullScreenSize( c
  	catch( Exception& )
  	{
  	}
@@ -315,47 +359,66 @@
  	if( !nScreenDX || !nScreenDY )
  	{
  	    nScreenDX   = GetSystemMetrics( SM_CXSCREEN );
-@@ -5592,6 +5630,7 @@ static BOOL ImplHandleIMEEndComposition(
- static void ImplHandleAppCommand( HWND hWnd, LPARAM lParam )
+@@ -5640,6 +5648,7 @@ static BOOL ImplHandleIMEEndComposition(
+ static boolean ImplHandleAppCommand( HWND hWnd, LPARAM lParam )
  {
  	sal_Int16 nCommand = 0;
 +#ifndef __MINGW32__
  	switch( GET_APPCOMMAND_LPARAM(lParam) )
  	{
  	case APPCOMMAND_MEDIA_CHANNEL_DOWN:			nCommand = MEDIA_COMMAND_CHANNEL_DOWN; break;
-@@ -5615,7 +5654,7 @@ static void ImplHandleAppCommand( HWND h
+@@ -5663,7 +5672,7 @@ static boolean ImplHandleAppCommand( HWN
  	default:
- 		return;
+ 		return false;
  	}
 -
 +#endif /* __MINGW32__ */
      WinSalFrame* pFrame = GetWindowPtr( hWnd );
  	Window *pWindow = pFrame ? pFrame->GetWindow() : NULL;
  
-@@ -6100,10 +6139,11 @@ LRESULT CALLBACK SalFrameWndProc( HWND h
-         case WM_IME_NOTIFY:
-             ImplHandleIMENotify( hWnd, wParam );
-             break;
--
-+#ifndef __MINGW32__
- 		case WM_APPCOMMAND:
- 			ImplHandleAppCommand( hWnd, lParam );
- 			break;
-+#endif /* __MINGW32__ */
-     }
+--- vcl/util/makefile.mk.pristine	2009-04-04 19:55:53.764002766 +0200
++++ vcl/util/makefile.mk	2009-04-04 19:55:42.260224623 +0200
+@@ -229,13 +229,16 @@ SHL1STDLIBS += $(PSPLIB)
  
-     // WheelMouse-Message abfangen
---- vcl/source/gdi/sallayout.cxx.pristine	2008-10-30 13:15:44.000000000 +0100
-+++ vcl/source/gdi/sallayout.cxx	2008-10-30 13:30:19.000000000 +0100
-@@ -35,7 +35,10 @@
+ SHL1STDLIBS += $(UWINAPILIB)      \
+                $(GDI32LIB)        \
+-			   $(GDIPLUSLIB)	  \
+                $(MSIMG32LIB)      \
+                $(WINSPOOLLIB)     \
+                $(OLE32LIB)        \
+                $(SHELL32LIB)      \
+                $(ADVAPI32LIB)
  
- #define _USE_MATH_DEFINES
- #include <math.h>
--#include <sal/alloca.h>
++.IF "$(CROSS_COMPILING)" != "yes"
++SHL1STDLIBS += $(GDIPLUSLIB)
++.ENDIF # "$(CROSS_COMPILING)" != "yes"
++
+ .IF "$(COM)" == "GCC"
+ SHL1STDLIBS += $(IMM32LIB)
+ .ELSE
+--- vcl/win/source/gdi/salgdi_gdiplus.cxx.pristine	2009-04-04 20:44:51.940500589 +0200
++++ vcl/win/source/gdi/salgdi_gdiplus.cxx	2009-04-04 20:46:19.256479562 +0200
+@@ -39,6 +39,18 @@
+ #include <salgdi.h>
+ #include <tools/debug.hxx>
+ 
 +#ifdef __MINGW32__
-+#include <malloc.h>
-+#endif /* __MINGW32__ */
-+#include <sal/types.h>
++bool WinSalGraphics::drawPolyPolygon( const ::basegfx::B2DPolyPolygon&, double)
++{
++  return false;
++}
++
++bool WinSalGraphics::drawPolyLine(const basegfx::B2DPolygon&, const basegfx::B2DVector&, basegfx::B2DLineJoin)
++{
++  return false;
++}
++#else /* !__MINGW32__ */
++
+ #ifndef min
+ #define min(a,b)	(((a) < (b)) ? (a) : (b))
+ #endif
+@@ -193,3 +205,4 @@ bool WinSalGraphics::drawPolyLine(const 
+ }
  
- #ifndef _SV_SVSYS_HXX
- #include <svsys.h>
+ // -----------------------------------------------------------------------
++#endif /* !__MINGW32__ */

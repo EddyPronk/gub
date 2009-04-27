@@ -62,6 +62,10 @@ Page license
 Page directory
 
 Page components
+
+;; Put a note to look at the Help page of the website on the
+;; window when the install is completed
+CompletedText "Install completed.  Lilypond is not a GUI application.  Please visit http://lilypond.org/web/help/ for help in getting started with LilyPond."
 Page instfiles
 
 UninstPage uninstConfirm

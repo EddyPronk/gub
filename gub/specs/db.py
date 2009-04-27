@@ -1,5 +1,6 @@
 from gub import misc
 from gub import target
+from gub import tools
 
 class Db (target.AutoBuild):
     source = "http://download.oracle.com/berkeley-db/db-4.7.25.tar.gz"
@@ -67,3 +68,23 @@ LDFLAGS=-lwsock32
         else:
             self.system ('cd %(install_prefix)s/lib && mv libdb.la libdb.la-')
             self.system ('cd %(install_prefix)s/lib && mv libdb-4.7.la libdb-4.7.la-')
+
+class Db__tools (tools.AutoBuild, Db):
+    def _get_build_dependencies (self):
+        return ['libtool']
+    def configure_command (self):
+        return 'cd build_unix && ../' + tools.AutoBuild.configure_command (self)
+    def configure (self):
+        self.shadow ()
+        self.system ('mkdir -p %(builddir)s/build_unix')
+        tools.AutoBuild.configure (self)
+        self.file_sub ([('\(prefix\)docs', '\(prefix\)/share/doc/db'),
+                        ('^	@', '	')],
+                        '%(builddir)s/build_unix/Makefile')
+    def update_libtool (self):
+        pass
+    def install (self):
+        tools.AutoBuild.install (self)
+        self.system ('cd %(install_root)s%(system_prefix)s/lib && ln -s libdb-*.la libdb.la')
+    def wrap_executables (self):
+        pass

@@ -1,0 +1,13 @@
+--- vbahelper/source/msforms/makefile.mk.pristine	2009-04-06 10:21:06.076111395 +0200
++++ vbahelper/source/msforms/makefile.mk	2009-04-06 10:22:08.329279423 +0200
+@@ -61,6 +61,10 @@ SLOFILES=\
+     $(SLO)$/vbauserform.obj \
+     $(SLO)$/service.obj \
+ 
++.IF "$(CROSS_COMPILING)" == "yes"
++SLOFILES += $(SLO)$/vbapropvalue.obj
++.ENDIF #"$(CROSS_COMPILING)" == "yes"
++
+ # #FIXME vbapropvalue needs to move to vbahelper
+ 
+ # --- Targets -------------------------------------------------------

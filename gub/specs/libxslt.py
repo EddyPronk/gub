@@ -2,6 +2,7 @@ from gub import context
 from gub import loggedos
 from gub import misc
 from gub import target
+from gub import tools
 
 class Libxslt (target.AutoBuild):
     source = 'http://xmlsoft.org/sources/libxslt-1.1.24.tar.gz'
@@ -25,3 +26,7 @@ class Libxslt__mingw (Libxslt):
                 + misc.join_lines ('''
 --without-plugins
 '''))
+
+class Libxslt__tools (tools.AutoBuild, Libxslt):
+    def _get_build_dependencies (self):
+        return Libxslt._get_build_dependencies (self) + ['libtool']

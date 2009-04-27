@@ -92,7 +92,7 @@ to skip this check and risk a defective build.
                     if stage == 'patch':
                         self.system ('rm %(stamp_file)s')
                 raise
-            if stage != 'clean':
+            if stage not in ['clean', 'download']:
                 self.set_done (stage)
 
 class AutoBuild (Build):
