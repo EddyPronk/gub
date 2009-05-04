@@ -28,7 +28,7 @@ TARGET_PYTHON=/usr/bin/python
         return '%(uploads)s/lilypond-%(version)s-%(build_number)s.webdoc.tar.bz2'
     def compile_command (self):
         return (lilypond.LilyPond_base.compile_command (self)
-                + ' do-top-doc all doc web')
+                + ' top-doc all doc')
     def install_flags (self):
         return (self.makeflags ()
                 + 'prefix= '
@@ -37,7 +37,7 @@ TARGET_PYTHON=/usr/bin/python
                 + 'mandir=/share/man ')
     def install_command (self):
         return (lilypond.LilyPond_base.install_command (self)
-                .replace (' install', ' web-install install-help2man')
+                .replace (' install', ' install-doc install-help2man')
                 + self.install_flags ())
     def install (self):
         target.AutoBuild.install (self) 

@@ -186,7 +186,7 @@ test-clean:
 
 unlocked-doc-clean:
 	make -C $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_FLATTENED_BRANCH) \
-		DOCUMENTATION=yes web-clean
+		DOCUMENTATION=yes doc-clean
 	rm -rf $(NATIVE_TARGET_DIR)/build/lilypond-$(LILYPOND_FLATTENED_BRANCH)/out/lybook-db
 	rm -f $(call SIGNATURE_FUNCTION,cached-doc-build)
 	rm -f $(call SIGNATURE_FUNCTION,cached-doc-export)
