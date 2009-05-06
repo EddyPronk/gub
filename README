@@ -130,11 +130,13 @@ Run these programs with --help argument for instructions
 
 HISTORY
 
-The story starts with a crazy guy with an itch to run LilyPond on Windows. Not
-long thereafter Cygwin cross, our first cross build environment is created.
+The story starts June 1999 with a crazy guy with an itch to run LilyPond on
+Windows. To get a feel for the times, this was LilyPond-1.1.47, requiring Egcs
+1.1, Python 1.5, Guile 1.3, discussing on help-gnu-music@gnu.org. Two years
+later Cygwin cross, our first cross build environment is released.
 
-Later, this is moved into a patch set for mknetrel. Spring 2005: In a bold move
-a set of patches for MinGW are created to build LilyPond and all its [17]
+This is evolved into a patch set for mknetrel. Spring 2005: In a bold move a
+set of patches for MinGW are created to build LilyPond and all its [17]
 dependencies. Simultaniously, a cross build environment and installer for
 MacOSX is created.
 
@@ -144,7 +146,9 @@ other machines. GUB starts as an effort to unify the Windows and MacOS builders
 and to make the process somewhat dependable and reproducible, i.e.: even more
 free time for the developers (if there is such a thing) as the builds always
 succeed. It uses Python instead of make and bash and adds checksums for the
-package build specs.
+package build specs. The unification of cross builds greatly facilitates adding
+of new architectures and before long GUB supports cross building lilypond
+binaries for 9 different platforms.
 
 GUB2 adds serialization of the Python build code before execution. This makes
 the build checksumming less coarse, ie, less gratuitous rebuilds and more
@@ -155,7 +159,8 @@ for the Samco 3G video phone at SES, Philips Research Eindhoven.
 
 In Novell's Hackweek-iii GUB enters into its Third Life with GUB3, adding
 cross-platform build dependencies and patches for an OpenOffice.org MinGW cross
-build.
+build, including all essential libraries. Later, Inkscape is added, exploring
+and implementing x.org dependencies.
 
 GUB -- LilyPond
 
