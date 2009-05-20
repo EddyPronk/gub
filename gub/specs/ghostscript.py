@@ -19,8 +19,11 @@ models.'''
 
     ## We prefer git: downloading is faster and atomic.
     # T42 fix for lilypond
-    revision = '00789a94804e9bcc22205ef7ea3bba32942b4e79'
-    source = 'git://git.infradead.org/ghostscript.git?branch=git-svn&revision=' + revision
+    #revision = '00789a94804e9bcc22205ef7ea3bba32942b4e79'
+
+    # HEAD - need to load TTF fonts on fedora without crashing.
+    revision = 'b35333cf3579e85725bd7d8d39eacc9640515eb8'
+    source = 'git://git.infradead.org/ghostscript.git?branch=refs/remotes/git-svn&revision=' + revision
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         if (isinstance (source, repository.Repository)
@@ -29,7 +32,7 @@ models.'''
     @staticmethod
     def version_from_VERSION (self):
         try:
-            s = self.read_file ('src/version.mak')
+            s = self.read_file ('base/version.mak')
             if not 'GS_VERSION_MAJOR' in s:
                 urg
             d = misc.grok_sh_variables_str (s)
@@ -134,6 +137,7 @@ models.'''
 ''')
 
     def configure (self):
+        self.shadow ()
         target.AutoBuild.configure (self)
         self.makefile_fixup ('%(builddir)s/Makefile')
 
@@ -199,6 +203,7 @@ prependdir GS_FONTPATH=$INSTALLER_PREFIX/share/ghostscript/%(version)s/fonts
 prependdir GS_FONTPATH=$INSTALLER_PREFIX/share/gs/fonts
 prependdir GS_LIB=$INSTALLER_PREFIX/share/ghostscript/%(version)s/Resource
 prependdir GS_LIB=$INSTALLER_PREFIX/share/ghostscript/%(version)s/lib
+prependdir GS_LIB=$INSTALLER_PREFIX/share/ghostscript/%(version)s/Resource/Init
 
 ''', '%(install_prefix)s/etc/relocate/gs.reloc')
 
@@ -218,7 +223,7 @@ class Ghostscript__mingw (Ghostscript):
         #checkme, seems obsolete, is this still necessary?
         self.file_sub ([('unix__=$(GLOBJ)gp_getnv.$(OBJ) $(GLOBJ)gp_unix.$(OBJ) $(GLOBJ)gp_unifs.$(OBJ) $(GLOBJ)gp_unifn.$(OBJ) $(GLOBJ)gp_stdia.$(OBJ) $(GLOBJ)gp_unix_cache.$(OBJ)',
                          'unix__= $(GLOBJ)gp_mswin.$(OBJ) $(GLOBJ)gp_wgetv.$(OBJ) $(GLOBJ)gp_stdia.$(OBJ) $(GLOBJ)gsdll.$(OBJ) $(GLOBJ)gp_ntfs.$(OBJ) $(GLOBJ)gp_win32.$(OBJ)')],
-                       '%(srcdir)s/src/unix-aux.mak',
+                       '%(srcdir)s/base/unix-aux.mak',
                        use_re=False, must_succeed=True)
     def configure (self):
         Ghostscript.configure (self)
@@ -233,7 +238,7 @@ $(GLOBJ)gsdll.$(OBJ)
 $(GLOBJ)gp_ntfs.$(OBJ)
 $(GLOBJ)gp_win32.$(OBJ)
 '''))],
-               '%(srcdir)s/src/unix-aux.mak')
+               '%(srcdir)s/base/unix-aux.mak')
         self.file_sub ([('^(LIB0s=.*)', misc.join_lines ('''\\1
 $(GLOBJ)gp_mswin.$(OBJ)
 $(GLOBJ)gp_wgetv.$(OBJ)
@@ -242,7 +247,7 @@ $(GLOBJ)gsdll.$(OBJ)
 $(GLOBJ)gp_ntfs.$(OBJ)
 $(GLOBJ)gp_win32.$(OBJ)
 '''))],
-               '%(srcdir)s/src/lib.mak')
+               '%(srcdir)s/base/lib.mak')
         self.dump ('''
 GLCCWIN=$(CC) $(CFLAGS) -I$(GLOBJDIR)
 PSCCWIN=$(CC) $(CFLAGS) -I$(GLOBJDIR)
@@ -260,6 +265,7 @@ class Ghostscript__freebsd (Ghostscript):
 
 url='http://mirror3.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/ghostscript-8.60.tar.gz'
 url='http://mirror3.cs.wisc.edu/pub/mirrors/ghost/GPL/gs850/ghostscript-8.50-gpl.tar.gz'
+
 #8250
 class Ghostscript__cygwin (Ghostscript):
     patches = ['ghostscript-8.15-windows-wb.patch',
@@ -380,10 +386,13 @@ class Ghostscript__tools (tools.AutoBuild, Ghostscript):
         return (tools.AutoBuild.configure_flags (self)
                 + Ghostscript.configure_flags (self))
     def configure (self):
+        self.shadow ()
         tools.AutoBuild.configure (self)
         self.makefile_fixup ('%(builddir)s/Makefile')
+        
     def compile_command (self):
         return tools.AutoBuild.compile_command (self) + self.compile_flags ()
+    
     def compile (self):
         self.system ('''
 cd %(builddir)s && mkdir -p obj
