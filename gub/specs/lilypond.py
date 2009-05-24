@@ -379,13 +379,7 @@ class LilyPond_base (target.AutoBuild):
     def srcdir (self):
         #URWGSGSEWNG
         return '%(allsrcdir)s/lilypond%(ball_suffix)s'
-    @context.subst_method
-    def build_number (self):
-        vdb = versiondb.VersionDataBase (os.path.join (self.settings.uploads,
-                                                       'lilypond.versions'))
-        vdb.get_binaries_from_url ('http://lilypond.org/download/')
-        vdb.write ()
-        return str (vdb.get_next_build_number (misc.string_to_version (self.version ())))
+
     @context.subst_method
     def doc_limits (self):
         if '64' in self.settings.build_platform:

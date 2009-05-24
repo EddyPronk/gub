@@ -21,14 +21,20 @@ WEB_TARGETS="offline online"
 TARGET_PYTHON=/usr/bin/python
 ''')
     @context.subst_method
+    def build_number (self):
+        print 'FIXME Buildnum'
+        return '0'
+    
+    @context.subst_method
     def doc_ball (self):
-        return '%(uploads)s/lilypond-%(version)s-%(build_number)s.documentation.tar.bz2'
+        return '%(uploads)s/lilypond-%(version)s-HEAD.documentation.tar.bz2'
     @context.subst_method
     def web_ball (self):
-        return '%(uploads)s/lilypond-%(version)s-%(build_number)s.webdoc.tar.bz2'
+        return '%(uploads)s/lilypond-%(version)s-HEAD.webdoc.tar.bz2'
     def compile_command (self):
         return (lilypond.LilyPond_base.compile_command (self)
                 + ' top-doc all doc')
+
     def install_flags (self):
         return (self.makeflags ()
                 + 'prefix= '
