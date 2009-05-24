@@ -1,0 +1,166 @@
+diff --git a/base/gp_mswin.c b/base/gp_mswin.c
+index 6f7c399..bd3aab8 100644
+--- a/base/gp_mswin.c
++++ b/base/gp_mswin.c
+@@ -716,6 +716,8 @@ int gp_fseek_64(FILE *strm, int64_t offset, int origin)
+ #endif
+ }
+ 
++#if 0
++/* defined in /usr/lib/libmingwex.a */
+ /* -------------------------  _snprintf -----------------------------*/
+ 
+ /* Microsoft Visual C++ 2005  doesn't properly define snprintf,
+@@ -735,3 +737,5 @@ int snprintf(char *buffer, size_t count, const char *format, ...)
+     } else
+ 	return 0;
+ }
++
++#endif
+diff --git a/base/gp_unifn.c b/base/gp_unifn.c
+index dc12035..35bd9d6 100644
+--- a/base/gp_unifn.c
++++ b/base/gp_unifn.c
+@@ -26,8 +26,8 @@ const char gp_file_name_list_separator = ':';
+ const char gp_fmode_binary_suffix[] = "";
+ 
+ /* Define the file modes for binary reading or writing. */
+-const char gp_fmode_rb[] = "r";
+-const char gp_fmode_wb[] = "w";
++const char gp_fmode_rb[] = "rb";
++const char gp_fmode_wb[] = "wb";
+ 
+ /* -------------- Helpers for gp_file_name_combine_generic ------------- */
+ 
+diff --git a/base/gs_dll_call.h b/base/gs_dll_call.h
+index b968d72..761f173 100644
+--- a/base/gs_dll_call.h
++++ b/base/gs_dll_call.h
+@@ -19,8 +19,10 @@
+ 
+ 
+ #ifdef __WINDOWS__
++#ifndef _Windows
+ # define _Windows
+ #endif
++#endif
+ 
+ #ifdef _Windows
+ # ifndef GSDLLEXPORT
+diff --git a/base/unix-gcc.mak b/base/unix-gcc.mak
+index dee180c..915a482 100644
+--- a/base/unix-gcc.mak
++++ b/base/unix-gcc.mak
+@@ -52,13 +52,13 @@ INSTALL = $(GLSRCDIR)/instcopy -c
+ INSTALL_PROGRAM = $(INSTALL) -m 755
+ INSTALL_DATA = $(INSTALL) -m 644
+ 
+-prefix = /usr/local
++prefix = /usr
+ exec_prefix = $(prefix)
+ bindir = $(exec_prefix)/bin
+ scriptdir = $(bindir)
+ includedir = $(prefix)/include
+ libdir = $(exec_prefix)/lib
+-mandir = $(prefix)/man
++mandir = $(prefix)/share/man
+ man1ext = 1
+ datadir = $(prefix)/share
+ gsdir = $(datadir)/ghostscript
+@@ -66,7 +66,7 @@ gsdatadir = $(gsdir)/$(GS_DOT_VERSION)
+ gssharedir = $(libdir)/ghostscript/$(GS_DOT_VERSION)
+ gsincludedir = $(includedir)/ghostscript/
+ 
+-docdir=$(gsdatadir)/doc
++docdir=$(datadir)/doc/ghostscript-$(GS_DOT_VERSION)
+ exdir=$(gsdatadir)/examples
+ GS_DOCDIR=$(docdir)
+ 
+@@ -145,7 +145,7 @@ PNGSRCDIR=libpng
+ # what its name is.
+ # See gs.mak and Make.htm for more information.
+ 
+-SHARE_LIBPNG=0
++SHARE_LIBPNG=1
+ LIBPNG_NAME=png
+ 
+ # Define the directory where the zlib sources are stored.
+@@ -157,7 +157,7 @@ ZSRCDIR=zlib
+ # what its name is (usually libz, but sometimes libgz).
+ # See gs.mak and Make.htm for more information.
+ 
+-SHARE_ZLIB=0
++SHARE_ZLIB=1
+ #ZLIB_NAME=gz
+ ZLIB_NAME=z
+ 
+@@ -214,7 +214,7 @@ GCFLAGS=-Wall -Wstrict-prototypes -Wmissing-declarations -Wmissing-prototypes -f
+ CFLAGS_STANDARD=-O2
+ CFLAGS_DEBUG=-g -O0
+ CFLAGS_PROFILE=-pg -O2
+-CFLAGS_SO=-fPIC -shared
++# CFLAGS_SO=-fPIC -shared
+ 
+ # Define the other compilation flags.  Add at most one of the following:
+ #	-DBSD4_2 for 4.2bsd systems.
+@@ -238,7 +238,7 @@ CFLAGS=$(CFLAGS_STANDARD) $(GCFLAGS) $(XCFLAGS)
+ #	-R /usr/local/xxx/lib:/usr/local/lib
+ # giving the full path names of the shared library directories.
+ # XLDFLAGS can be set from the command line.
+-XLDFLAGS=
++XLDFLAGS=-DUSE_DL_IMPORT
+ 
+ LDFLAGS=$(XLDFLAGS)
+ 
+@@ -271,7 +271,7 @@ STDLIBS=-lm
+ # Note that x_.h expects to find the header files in $(XINCLUDE)/X11,
+ # not in $(XINCLUDE).
+ 
+-XINCLUDE=-I/usr/X11R6/include
++#XINCLUDE=-I/usr/X11R6/include
+ 
+ # Define the directory/ies and library names for the X11 library files.
+ # XLIBDIRS is for ld and should include -L; XLIBDIR is for LD_RUN_PATH
+@@ -286,9 +286,11 @@ XINCLUDE=-I/usr/X11R6/include
+ #XLIBS=Xt SM ICE Xext X11
+ 
+ #XLIBDIRS=-L/usr/local/X/lib
+-XLIBDIRS=-L/usr/X11R6/lib
++#XLIBDIRS=-L/usr/X11R6/lib
++XLIBDIRS=
+ XLIBDIR=
+-XLIBS=Xt Xext X11
++#XLIBS=Xt Xext X11
++XLIBS=
+ 
+ # Define the .dev module that implements thread and synchronization
+ # primitives for this platform.
+@@ -342,7 +344,8 @@ DISPLAY_DEV=
+ # Choose the device(s) to include.  See devs.mak for details,
+ # devs.mak and contrib.mak for the list of available devices.
+ 
+-DEVICE_DEVS=$(DISPLAY_DEV) $(DD)x11.dev $(DD)x11alpha.dev $(DD)x11cmyk.dev $(DD)x11gray2.dev $(DD)x11gray4.dev $(DD)x11mono.dev
++#DEVICE_DEVS=$(DISPLAY_DEV) $(DD)x11.dev $(DD)x11alpha.dev $(DD)x11cmyk.dev $(DD)x11gray2.dev $(DD)x11gray4.dev $(DD)x11mono.dev
++DEVICE_DEVS=
+ 
+ #DEVICE_DEVS1=
+ #DEVICE_DEVS2=
+diff --git a/base/winplat.mak b/base/winplat.mak
+index 57cdb6f..51f5e14 100644
+--- a/base/winplat.mak
++++ b/base/winplat.mak
+@@ -44,3 +44,14 @@ $(GLOBJ)gp_wsync.$(OBJ): $(GLSRC)gp_wsync.c $(AK)\
+  $(dos__h) $(malloc__h) $(stdio__h) $(string__h) $(windows__h)\
+  $(gp_h) $(gsmemory_h) $(gstypes_h)
+ 	$(GLCCWIN) $(GLO_)gp_wsync.$(OBJ) $(C_) $(GLSRC)gp_wsync.c
++
++
++$(GLOBJ)gp_mswin.$(OBJ): $(GLSRC)gp_mswin.c $(AK) $(gp_mswin_h) \
++ $(ctype__h) $(dos__h) $(malloc__h) $(memory__h) $(pipe__h) \
++ $(stdio__h) $(string__h) $(windows__h) \
++ $(gx_h) $(gp_h) $(gpcheck_h) $(gpmisc_h) $(gserrors_h) $(gsexit_h)
++	$(GLCC) $(GLO_)gp_mswin.$(OBJ) $(C_) $(GLSRC)gp_mswin.c
++
++$(GLOBJ)gp_wgetv.$(OBJ): $(GLSRC)gp_wgetv.c $(AK) $(gscdefs_h)
++	$(GLCCWIN) $(GLO_)gp_wgetv.$(OBJ) $(C_) $(GLSRC)gp_wgetv.c
++

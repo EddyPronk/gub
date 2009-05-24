@@ -128,12 +128,16 @@ models.'''
             return misc.join_lines ('''
 --enable-debug
 --with-drivers=FILES
+--without-pdftoraster
+--disable-fontconfig 
+--disable-gtk
+--disable-cairo
 --without-x
 --disable-cups
 --without-ijs
 --without-omni
 --without-jasper
---disable-compile-inits
+--enable-compile-inits
 ''')
 
     def configure (self):
@@ -209,52 +213,39 @@ prependdir GS_LIB=$INSTALLER_PREFIX/share/ghostscript/%(version)s/Resource/Init
 
 class Ghostscript__mingw (Ghostscript):
     # source = 'ftp://mirror.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/ghostscript-8.60.tar.bz2'
-    patches = ['ghostscript-8.15-cygwin.patch',
-               'ghostscript-8.15-windows-wb.patch',
-               'ghostscript-8.50-make.patch',
-               'ghostscript-8.50-gs_dll.h.patch',]
+    patches = ['ghostscript-8.65-mingw.patch']
     def __init__ (self, settings, source):
         Ghostscript.__init__ (self, settings, source)
         # Configure (compile) without -mwindows for console
         # FIXME: should add to CPPFLAGS...
         self.target_gcc_flags = '-mms-bitfields -D_Windows -D__WINDOWS__'
+    def config_cache_overrides (self, s):
+        return s + '''
+ac_cv_lib_pthread_pthread_create=no
+'''
+    
     def patch (self):
+        self.symlink('base', self.expand('%(srcdir)s/src'))
         Ghostscript.patch (self)
-        #checkme, seems obsolete, is this still necessary?
-        self.file_sub ([('unix__=$(GLOBJ)gp_getnv.$(OBJ) $(GLOBJ)gp_unix.$(OBJ) $(GLOBJ)gp_unifs.$(OBJ) $(GLOBJ)gp_unifn.$(OBJ) $(GLOBJ)gp_stdia.$(OBJ) $(GLOBJ)gp_unix_cache.$(OBJ)',
-                         'unix__= $(GLOBJ)gp_mswin.$(OBJ) $(GLOBJ)gp_wgetv.$(OBJ) $(GLOBJ)gp_stdia.$(OBJ) $(GLOBJ)gsdll.$(OBJ) $(GLOBJ)gp_ntfs.$(OBJ) $(GLOBJ)gp_win32.$(OBJ)')],
-                       '%(srcdir)s/base/unix-aux.mak',
-                       use_re=False, must_succeed=True)
     def configure (self):
+        self.shadow ()
         Ghostscript.configure (self)
-        # FIXME: use makeflags: EXTRALIBS=... ?
         self.file_sub ([('^(EXTRALIBS *=.*)', '\\1 -lwinspool -lcomdlg32 -lz')],
-               '%(builddir)s/Makefile')
+                       '%(builddir)s/Makefile')        
         self.file_sub ([('^unix__=.*', misc.join_lines ('''unix__=
 $(GLOBJ)gp_mswin.$(OBJ)
 $(GLOBJ)gp_wgetv.$(OBJ)
 $(GLOBJ)gp_stdia.$(OBJ)
-$(GLOBJ)gsdll.$(OBJ)
 $(GLOBJ)gp_ntfs.$(OBJ)
 $(GLOBJ)gp_win32.$(OBJ)
+$(GLOBJ)gp_upapr.$(OBJ) 
 '''))],
-               '%(srcdir)s/base/unix-aux.mak')
-        self.file_sub ([('^(LIB0s=.*)', misc.join_lines ('''\\1
-$(GLOBJ)gp_mswin.$(OBJ)
-$(GLOBJ)gp_wgetv.$(OBJ)
-$(GLOBJ)gp_stdia.$(OBJ)
-$(GLOBJ)gsdll.$(OBJ)
-$(GLOBJ)gp_ntfs.$(OBJ)
-$(GLOBJ)gp_win32.$(OBJ)
-'''))],
-               '%(srcdir)s/base/lib.mak')
+               '%(srcdir)s/base/unix-aux.mak')        
         self.dump ('''
 GLCCWIN=$(CC) $(CFLAGS) -I$(GLOBJDIR)
 PSCCWIN=$(CC) $(CFLAGS) -I$(GLOBJDIR)
-include $(GLSRCDIR)/win32.mak
-include $(GLSRCDIR)/gsdll.mak
+
 include $(GLSRCDIR)/winplat.mak
-include $(GLSRCDIR)/pcwin.mak
 ''',
              '%(builddir)s/Makefile',
              mode='a')
