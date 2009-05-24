@@ -125,7 +125,8 @@ models.'''
                 + self.configure_flags ())
 
     def configure_flags (self):
-            return misc.join_lines ('''
+        # For --enable-compile-inits, see comment in compile()
+        return misc.join_lines ('''
 --enable-debug
 --with-drivers=FILES
 --without-pdftoraster
@@ -137,7 +138,7 @@ models.'''
 --without-ijs
 --without-omni
 --without-jasper
---enable-compile-inits
+--disable-compile-inits
 ''')
 
     def configure (self):
@@ -183,9 +184,10 @@ models.'''
         return target.AutoBuild.compile_command (self) + self.compile_flags ()
 
     def compile (self):
+        # obj/mkromfs is needed for --enable-compile-inits but depends on native -liconv.
         self.system ('''
 cd %(builddir)s && mkdir -p obj
-cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS= LIBRARY_PATH= obj/genconf obj/echogs obj/genarch obj/arch.h
+cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS= LIBRARY_PATH= OBJ=build-o obj/genconf obj/echogs obj/genarch obj/arch.h 
 ''')
         self.fixup_arch ()
         target.AutoBuild.compile (self)
@@ -195,8 +197,7 @@ cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS
                 + ' install_prefix=%(install_root)s'
                 + ' mandir=%(prefix_dir)s/share/man/ '
                 + ' docdir=%(prefix_dir)s/share/doc/ghostscript/doc '
-                + ' exdir=%(prefix_dir)s/share/doc/ghostscript/examples '
-                )
+                + ' exdir=%(prefix_dir)s/share/doc/ghostscript/examples ')
 
     def install (self):
         target.AutoBuild.install (self)
