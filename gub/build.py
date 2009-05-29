@@ -55,9 +55,9 @@ cd %(srcdir)s && patch -p%(strip)s < %(patchdir)s/%(name)s
         return self.expand (' *** Stage: %(stage)s (%(name)s, %(platform)s)\n',
                             env=locals ())
     def build (self, options=None, skip=[]):
-        available = dict (inspect.getmembers (self,
-                                              lambda x: hasattr (x, '__call__')))
-        stages = ['download'] + self.stages ()
+        available = dict (inspect.getmembers (
+            self, lambda x: hasattr (x, '__call__')))
+        stages = self.stages ()
         tainted = False
         for stage in stages:
             if stage not in available or stage in skip:
