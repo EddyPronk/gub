@@ -184,6 +184,20 @@ class BuildRunner:
         for pkg in spec.get_packages ():
             self.pkg_install (spec, pkg)
 
+    def get_skip_stages (self):
+        """Returns list of stages (strings) to be skipped.
+
+        Uses command line options as input.
+        """
+        skip = []
+        if self.options.offline:
+            skip += ['download']
+        if not self.options.src_package:
+            skip += ['src_package']
+        if self.options.keep_build:
+            skip += ['clean']
+        return skip
+    
     def spec_build (self, spec_name):
         spec = self.specs[spec_name]
         
@@ -211,15 +225,9 @@ class BuildRunner:
             deferred_runner = runner.DeferredRunner (logger)
             spec.connect_command_runner (deferred_runner)
             spec.runner.stage ('building package: %s\n' % spec_name)
-            skip = []
-            if self.options.offline:
-                skip += ['download']
-            if not self.options.src_package:
-                skip += ['src_package']
-            if self.options.keep_build:
-                skip += ['clean']
-            skip += spec.get_done ()
+            skip = self.get_skip_stages () + spec.get_done ()
             skip = [x for x in skip if x != self.options.stage]
+            
             spec.build (self.options, skip)
             spec.connect_command_runner (None)
             deferred_runner.execute_deferred_commands ()
