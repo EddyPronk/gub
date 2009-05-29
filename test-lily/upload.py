@@ -101,7 +101,6 @@ def upload_binaries (repo, version, version_db):
     commitishes = {}
     barf = False
     for platform in platforms:
-
         format = formats[platform]
         base = ('lilypond-%(version_str)s-%(build)d.%(platform)s.%(format)s'
                 % locals ())
@@ -131,7 +130,7 @@ def upload_binaries (repo, version, version_db):
             commitishes[key] = lst
         
         if (platform not in ('documentation', 'test-output')
-            and  not os.path.exists ('log/%s.test.pdf' % base)):
+            and not os.path.exists ('log/%s.test.pdf' % base)):
             printf ('test result does not exist for %s' % base)
             cmds.append ('python test-lily/test-binary.py %s'
                          % os.path.abspath (bin))
@@ -144,14 +143,14 @@ def upload_binaries (repo, version, version_db):
     src_tarball = 'uploads/lilypond-%(version_str)s.tar.gz' % locals ()
     src_tarball = os.path.abspath (src_tarball)
     
-    if not os.path.exists (src_tarball):
-        printf ('source tarball does not exist', src_tarball)
-        barf = True
-    else:
+    if os.path.exists (src_tarball):
         host = host_source_spec 
         majmin = '.'.join (['%d' % v for v in version[:2]])
         src_dests.append ((src_tarball, '%(host)s/sources/v%(majmin)s' % locals ()))
-        
+    elif 0:
+        printf ('source tarball does not exist', src_tarball)
+        barf = True
+
     test_cmd = r'''python %(cwd)s/test-lily/rsync-lily-doc.py \
   --upload %(host_doc_spec)s \
   --version-file %(lilybuild)s/out/VERSION \
@@ -168,10 +167,8 @@ def upload_binaries (repo, version, version_db):
     cmds += ['rsync --delay-updates --progress %s %s'
              % tup for tup in src_dests]
 
-
     ## don't do cygwin .
     ##    cmds.append ('rsync -v --recursive --delay-updates --progress uploads/cygwin/release/ %(host_binaries_spec)s/cygwin/release/' % globals ())
-
     
     description = repo.git_pipe ('describe --abbrev=39 %s' % repo.get_ref ()).strip ()
     
