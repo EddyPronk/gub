@@ -222,7 +222,6 @@ class Installer (context.RunnableContext):
             ## 2.6 installer: leave c059*
             'share/gs/fonts/[a-bd-z]*',
             'share/gs/fonts/c[^0][^5][^9]*',
-            'share/gs/Resource',                        
 # Urg: prune qt fonts, keep helvetica, fontdir
             'lib/fonts/[^hf]*',
             'share/mkspecs',
