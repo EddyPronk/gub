@@ -62,3 +62,10 @@ cd %(install_prefix)s%(cross_dir)s/bin && ln %(toolchain_prefix)sstrip ../%(targ
     def install (self):
         cross.AutoBuild.install (self)
         self.install_librestrict_stat_helpers ()
+
+class Odcctools__darwin__ppc (Odcctools):
+    def configure_command (self):
+        if self.build_bits == '32' and self.build_hardware_bits == '64':
+            return (Odcctools.configure_command (self)
+                    + ' CFLAGS=-D_FORTIFY_SOURCE=0')
+        return Odcctools.configure_command (self)
