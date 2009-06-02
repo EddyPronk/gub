@@ -8,10 +8,11 @@ pango_module_version_regexes = [
     (r'^1\.14', '1.5.0'),
     (r'^1\.20', '1.6.0'),
     (r'^1\.22', '1.6.0'),
+    (r'^1\.24', '1.6.0'),
     ]
 
 class Pango (target.AutoBuild):
-    source = 'http://ftp.gnome.org/pub/GNOME/platform/2.22/2.22.0/sources/pango-1.20.0.tar.bz2'
+    source = 'http://ftp.gnome.org/pub/GNOME/sources/pango/1.24/pango-1.24.2.tar.bz2'
     patches = ['pango-1.20-substitute-env.patch']
     def _get_build_dependencies (self):
         return ['freetype-devel', 'fontconfig-devel', 'glib-devel', 'libtool']
