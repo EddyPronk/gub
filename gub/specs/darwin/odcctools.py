@@ -47,6 +47,12 @@ class Odcctools (cross.AutoBuild): #skews dependencies:, build.SdkBuild):
         self.file_sub ([('ld64','')], self.builddir () + '/Makefile')
     def build_environment (self):
         return self.add_linux_x86_env ()
+    def configure_command (self):
+        if (self.settings.build_bits == '32'
+            and self.settings.build_hardware_bits == '64'):
+            return (cross.AutoBuild.configure_command (self)
+                    + ' CFLAGS=-D_FORTIFY_SOURCE=0')
+        return cross.AutoBuild.configure_command (self)
     def install_librestrict_stat_helpers (self):
         # librestrict stats PATH to find gnm and gstrip
         self.system ('''
@@ -62,10 +68,3 @@ cd %(install_prefix)s%(cross_dir)s/bin && ln %(toolchain_prefix)sstrip ../%(targ
     def install (self):
         cross.AutoBuild.install (self)
         self.install_librestrict_stat_helpers ()
-
-class Odcctools__darwin__ppc (Odcctools):
-    def configure_command (self):
-        if self.build_bits == '32' and self.build_hardware_bits == '64':
-            return (Odcctools.configure_command (self)
-                    + ' CFLAGS=-D_FORTIFY_SOURCE=0')
-        return Odcctools.configure_command (self)
