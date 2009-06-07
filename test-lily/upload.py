@@ -106,7 +106,12 @@ def upload_binaries (repo, version, version_db):
                 % locals ())
         bin = 'uploads/%(base)s' % locals ()
 
-        if platform == 'cygwin':
+        head_path = 'uploads/lilypond-%(version_str)s-HEAD.%(platform)s.%(format)s' % locals ()
+        if os.path.exists (head_path):
+            cmds.append('mv %s %s' % (head_path, bin))
+            src_dests.append ((os.path.abspath (bin),
+                               '%(host)s/%(platform)s' % locals ()))
+        elif platform == 'cygwin':
             continue
         elif not os.path.exists (bin):
             printf ('binary does not exist', bin)
@@ -116,7 +121,7 @@ def upload_binaries (repo, version, version_db):
             host = host_binaries_spec 
             src_dests.append ((os.path.abspath (bin),
                                '%(host)s/%(platform)s' % locals ()))
-            
+
         if (platform not in ('documentation', 'test-output')
              and os.path.exists (bin)):
             branch = repo.full_branch_name ()
