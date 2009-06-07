@@ -95,16 +95,7 @@ download-cygwin:
 
 all: packages rest
 
-rest: lilypond-installers test doc doc-export print-success
-
-# Go all the way through bin/gub.  If we build 'lilypond' and then
-# call bin/gib, we lack the dependencies built by
-# lilypond-installer.spec.
-# Ugh, additionally we need $(LILYPOND_REPO_URL) to indirectly set
-# lilypond-installer's repo
-INSTALLER_PACKAGE=lilypond-installer
-lilypond-installers:
-	$(call INVOKE_GUB,$(BUILD_PLATFORM)) $(LILYPOND_REPO_URL) $(INSTALLER_PACKAGE) $(OTHER_PLATFORMS:%=%::$(INSTALLER_PACKAGE))
+rest: installers test doc doc-export print-success
 
 test: dist-check test-output test-export
 
