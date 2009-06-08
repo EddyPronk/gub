@@ -142,7 +142,7 @@ realclean:
 ################################################################
 # compilers and tools
 
-tools := $(shell $(GUB) --dependencies $(foreach p, $(PLATFORMS), $(p)::lilypond) 2>&1 | grep ^dependencies | tr ' ' '\n' | grep 'tools::')
+tools := $(shell $(GUB) --dependencies $(foreach p, $(PLATFORMS), $(p)::lilypond $(p)::lilypond-doc $(p)::lilypond-installer) 2>&1 | grep ^dependencies | tr ' ' '\n' | grep 'tools::')
 
 ################################################################
 # docs
