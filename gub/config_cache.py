@@ -40,7 +40,6 @@ ac_cv_sizeof_unsigned_long=${ac_cv_sizeof_unsigned_long=4}
 ac_cv_sizeof_unsigned_long_long=${ac_cv_sizeof_unsigned_long_long=8}
 ac_cv_sizeof_unsigned_short=${ac_cv_sizeof_unsigned_short=2}
 ac_cv_sizeof_void_p=${ac_cv_sizeof_void_p=4}
-ac_cv_sizeof_wchar_t=4
 ''',
     '64': '''
 ac_16bit_type=${ac_16bit_type=short}
@@ -217,7 +216,8 @@ config_cache['freebsd-x86'] += config_cache['32']
 config_cache['linux-64'] += config_cache['64']
 config_cache['linux-x86'] += config_cache['32']
 config_cache['linux-ppc'] += config_cache['32']
-config_cache['mingw'] += config_cache['32']
+config_cache['mingw'] += config_cache['32'].replace ('ac_cv_sizeof_wchar_t=4',
+                                                     'ac_cv_sizeof_wchar_t=2')
 config_cache['mipsel'] += config_cache['32']
 
 config_cache['debian'] = config_cache['linux-x86']
