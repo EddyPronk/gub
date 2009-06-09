@@ -136,7 +136,8 @@ def build_installer (installer_obj):
     # CommandRunner-ify PackageManager too. - that does not seem worth
     # the effort.
     command_runner = runner.CommandRunner (logger)
-    available = dict (inspect.getmembers (installer_obj, callable))
+    available = dict (inspect.getmembers (installer_obj,
+                                          lambda x: hasattr (x, '__call__')))
     
     installer_obj.connect_command_runner (command_runner)
     try:
