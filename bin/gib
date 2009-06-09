@@ -31,7 +31,6 @@ def argv0_relocation ():
 argv0_relocation ()
 
 import inspect
-import md5
 import optparse
 import os
 import sys
