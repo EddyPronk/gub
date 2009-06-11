@@ -188,7 +188,7 @@ unlocked-test-clean:
 	rm -f $(call SIGNATURE_FUNCTION,cached-test-output)
 
 cached-dist-check cached-doc-export cached-test-export:
-	-mkdir uploads/signatures
+	-mkdir -p uploads/signatures
 	if test ! -f  $(call SIGNATURE_FUNCTION,$@) ; then \
 		$(MAKE) $(subst cached,unlocked,$@) \
 		&& touch $(call SIGNATURE_FUNCTION,$@) ; fi
