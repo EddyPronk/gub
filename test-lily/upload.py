@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+maintainer = "graham"
+
 ## interaction with lp.org down/upload area.
 
 def argv0_relocation ():
@@ -42,7 +44,7 @@ build_platform = {
         'linux2': 'linux-x86',
 }[sys.platform]
 
-host_spec = 'hanwen@lilypond.org:/var/www/lilypond'
+host_spec = maintainer + '@lilypond.org:/var/www/lilypond'
 host_source_spec = host_spec + '/download'
 host_binaries_spec = host_spec + '/download/binaries'
 host_doc_spec = host_spec + '/doc'
