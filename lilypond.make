@@ -204,6 +204,7 @@ unlocked-doc-export:
 		--output-distance=$(NATIVE_LILY_SRC)/$(BUILDSCRIPTS)/output-distance.py $(NATIVE_LILY_BUILD)/out-www/offline-root
 
 unlocked-test-export:
+	mkdir -p uploads/webtest
 	PYTHONPATH=$(NATIVE_LILY_BUILD)/python/out \
 	$(PYTHON) test-lily/rsync-test.py \
 		--version-file=$(NATIVE_LILY_BUILD)/out/VERSION \
