@@ -329,7 +329,7 @@ MY_PATCH_LEVEL=
 
         majmin = '.'.join (installer_version.split ('.')[:2])
         self.file_sub (
-            [('doc/v2.6/',
+            [('doc/v2.12/',
              'doc/v%(majmin)s/'),
             ],
             '%(darwin_bundle_dir)s/Contents/Resources/Credits.html',
@@ -337,7 +337,7 @@ MY_PATCH_LEVEL=
             must_succeed=True)
         
         self.file_sub (
-            [('2.6.0', installer_version),
+            [('2.12.0', installer_version),
             ],
             '%(darwin_bundle_dir)s/Contents/Resources/Welcome-to-LilyPond-MacOS.ly',
             env=locals ())
