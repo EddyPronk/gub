@@ -309,7 +309,7 @@ class DarwinBundle (DarwinRoot):
 rm -f %(bundle_zip)s 
 rm -rf %(darwin_bundle_dir)s
 # FIXME: ask TarBall where source lives
-tar -C %(installerdir)s -zxf %(downloads)s/osx-lilypad/osx-lilypad-ppc-%(osx_lilypad_version)s.tar.gz
+tar -C %(installerdir)s -zxf %(downloads)s/osx-lilypad/osx-lilypad-universal-%(osx_lilypad_version)s.tar.gz
 cp -pR --link %(installer_prefix)s/* %(darwin_bundle_dir)s/Contents/Resources/
 mkdir -p %(darwin_bundle_dir)s/Contents/Resources/license
 cp -pR --link %(installer_root)s/license*/* %(darwin_bundle_dir)s/Contents/Resources/license/
