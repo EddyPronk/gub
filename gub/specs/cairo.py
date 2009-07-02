@@ -13,7 +13,7 @@ class Cairo__mingw (Cairo):
         return (Cairo.configure_command (self)
                 + ' --enable-win32=yes'
                 + ' --enable-win32-font=yes'
-                + ' --disable-ft'
+                + ' --enable-ft'
                 + ' --disable-xlib'
                 + ' --disable-xlib-xrender'
                 + ' --disable-xcb'
