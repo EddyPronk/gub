@@ -160,11 +160,13 @@ class Installer (context.RunnableContext):
             'bin/[cd]jpeg',
             'bin/envsubst*',
             'bin/glib-genmarshal*',
-            'bin/gobject-query*',
+# small, most helpful to have if config file is broken
+#            'bin/gobject-query*',
             'bin/gspawn-win32-helper*',
             'bin/gspawn-win32-helper-console*',
             'bin/msg*',
-            'bin/pango-querymodules*',
+# small, most helpful to have if config file is broken
+#            'bin/pango-querymodules*',
             'bin/xmlwf',
             'cross',
             'doc',
