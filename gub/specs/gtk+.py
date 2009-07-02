@@ -32,6 +32,17 @@ class Gtk_x_ (target.AutoBuild):
                 + ''' LDFLAGS='%(rpath)s -Wl,-rpath -Wl,%(system_prefix)s/lib' '''
                 + ' --without-libjasper'
                 + ' --disable-cups')
+    def create_config_files (self, prefix='/usr'):
+        gtk_module_version = '2.10.0' #FIXME!
+        etc = self.expand ('%(install_root)s/%(prefix)s/etc/gtk-2.0', locals ())
+        self.dump ('''
+setdir GTK_PREFIX=$INSTALLER_PREFIX/
+set GTK_MODULE_VERSION=%(gtk_module_version)s
+''', '%(install_prefix)s/etc/relocate/gtk+.reloc', env=locals ())
+        self.copy ('%(sourcefiledir)s/gdk-pixbuf.loaders', etc)
+    def install (self):
+        target.AutoBuild.install (self)
+        self.create_config_files ()
 
 class Gtk_x___freebsd (Gtk_x_):
     def configure_command (self):

@@ -1,0 +1,128 @@
+# GdkPixbuf Image Loader Modules file
+# Automatically generated file, do not edit
+# Created by gdk-pixbuf-query-loaders from gtk+-2.14.7
+#
+# LoaderDir = ${GTK_PREFIX}/lib/gtk-2.0/${GTK_MODULE_VERSION}/loaders
+#
+"${GTK_PREFIX}/lib/gtk-2.0/${GTK_MODULE_VERSION}/loaders/libpixbufloader-gdip-gif${GTK_SO_EXTENSION}"
+"gif" 5 "gtk20" "The GIF image format" "LGPL"
+"image/gif" ""
+"gif" ""
+"GIF8" "" 100
+
+"${GTK_PREFIX}/lib/gtk-2.0/${GTK_MODULE_VERSION}/loaders/libpixbufloader-icns${GTK_SO_EXTENSION}"
+"icns" 4 "gtk20" "The ICNS image format" "GPL"
+"image/x-icns" ""
+"icns" ""
+"icns" "" 100
+
+"${GTK_PREFIX}/lib/gtk-2.0/${GTK_MODULE_VERSION}/loaders/libpixbufloader-xbm${GTK_SO_EXTENSION}"
+"xbm" 4 "gtk20" "The XBM image format" "LGPL"
+"image/x-xbitmap" ""
+"xbm" ""
+"#define " "" 100
+"/*" "" 50
+
+"${GTK_PREFIX}/lib/gtk-2.0/${GTK_MODULE_VERSION}/loaders/libpixbufloader-ani${GTK_SO_EXTENSION}"
+"ani" 4 "gtk20" "The ANI image format" "LGPL"
+"application/x-navi-animation" ""
+"ani" ""
+"RIFF    ACON" "    xxxx    " 100
+
+"${GTK_PREFIX}/lib/gtk-2.0/${GTK_MODULE_VERSION}/loaders/libpixbufloader-pcx${GTK_SO_EXTENSION}"
+"pcx" 4 "gtk20" "The PCX image format" "LGPL"
+"image/x-pcx" ""
+"pcx" ""
+"\n \001" "" 100
+"\n\002\001" "" 100
+"\n\003\001" "" 100
+"\n\004\001" "" 100
+"\n\005\001" "" 100
+
+"${GTK_PREFIX}/lib/gtk-2.0/${GTK_MODULE_VERSION}/loaders/libpixbufloader-gdip-emf${GTK_SO_EXTENSION}"
+"emf" 4 "gtk20" "The EMF image format" "LGPL"
+"application/emf" "application/x-emf" "image/x-emf" "image/x-mgx-emf" ""
+"emf" ""
+"\001" "" 100
+
+"${GTK_PREFIX}/lib/gtk-2.0/${GTK_MODULE_VERSION}/loaders/libpixbufloader-tga${GTK_SO_EXTENSION}"
+"tga" 4 "gtk20" "The Targa image format" "LGPL"
+"image/x-tga" ""
+"tga" "targa" ""
+" \001\001" "x  " 100
+" \001\t" "x  " 100
+"  \002" "xz " 99
+"  \003" "xz " 100
+"  \n" "xz " 100
+"  \013" "xz " 100
+
+"${GTK_PREFIX}/lib/gtk-2.0/${GTK_MODULE_VERSION}/loaders/libpixbufloader-pnm${GTK_SO_EXTENSION}"
+"pnm" 4 "gtk20" "The PNM/PBM/PGM/PPM image format family" "LGPL"
+"image/x-portable-anymap" "image/x-portable-bitmap" "image/x-portable-graymap" "image/x-portable-pixmap" ""
+"pnm" "pbm" "pgm" "ppm" ""
+"P1" "" 100
+"P2" "" 100
+"P3" "" 100
+"P4" "" 100
+"P5" "" 100
+"P6" "" 100
+
+"${GTK_PREFIX}/lib/gtk-2.0/${GTK_MODULE_VERSION}/loaders/libpixbufloader-xpm${GTK_SO_EXTENSION}"
+"xpm" 4 "gtk20" "The XPM image format" "LGPL"
+"image/x-xpixmap" ""
+"xpm" ""
+"/* XPM */" "" 100
+
+"${GTK_PREFIX}/lib/gtk-2.0/${GTK_MODULE_VERSION}/loaders/libpixbufloader-ras${GTK_SO_EXTENSION}"
+"ras" 4 "gtk20" "The Sun raster image format" "LGPL"
+"image/x-cmu-raster" "image/x-sun-raster" ""
+"ras" ""
+"Y\246j\225" "" 100
+
+"${GTK_PREFIX}/lib/gtk-2.0/${GTK_MODULE_VERSION}/loaders/libpixbufloader-wbmp${GTK_SO_EXTENSION}"
+"wbmp" 4 "gtk20" "The WBMP image format" "LGPL"
+"image/vnd.wap.wbmp" ""
+"wbmp" ""
+"  " "zz" 1
+" `" "z " 1
+" @" "z " 1
+"  " "z " 1
+
+"${GTK_PREFIX}/lib/gtk-2.0/${GTK_MODULE_VERSION}/loaders/libpixbufloader-gdip-bmp${GTK_SO_EXTENSION}"
+"bmp" 5 "gtk20" "The BMP image format" "LGPL"
+"image/bmp" "image/x-bmp" "image/x-MS-bmp" ""
+"bmp" ""
+"BM" "" 100
+
+"${GTK_PREFIX}/lib/gtk-2.0/${GTK_MODULE_VERSION}/loaders/libpixbufloader-gdip-jpeg${GTK_SO_EXTENSION}"
+"jpeg" 5 "gtk20" "The JPEG image format" "LGPL"
+"image/jpeg" ""
+"jpeg" "jpe" "jpg" ""
+"\377\330" "" 100
+
+"${GTK_PREFIX}/lib/gtk-2.0/${GTK_MODULE_VERSION}/loaders/libpixbufloader-gdip-ico${GTK_SO_EXTENSION}"
+"ico" 4 "gtk20" "The ICO image format" "LGPL"
+"image/x-icon" "image/x-ico" ""
+"ico" "cur" ""
+"  \001   " "zz znz" 100
+"  \002   " "zz znz" 100
+
+"${GTK_PREFIX}/lib/gtk-2.0/${GTK_MODULE_VERSION}/loaders/libpixbufloader-gdip-tiff${GTK_SO_EXTENSION}"
+"tiff" 5 "gtk20" "The TIFF image format" "LGPL"
+"image/tiff" ""
+"tiff" "tif" ""
+"MM *" "  z " 100
+"II* " "   z" 100
+
+"${GTK_PREFIX}/lib/gtk-2.0/${GTK_MODULE_VERSION}/loaders/libpixbufloader-png${GTK_SO_EXTENSION}"
+"png" 5 "gtk20" "The PNG image format" "LGPL"
+"image/png" ""
+"png" ""
+"\211PNG\r\n\032\n" "" 100
+
+"${GTK_PREFIX}/lib/gtk-2.0/${GTK_MODULE_VERSION}/loaders/libpixbufloader-gdip-wmf${GTK_SO_EXTENSION}"
+"wmf" 4 "gtk20" "The WMF image format" "LGPL"
+"image/x-wmf" ""
+"wmf" "apm" ""
+"\327\315\306\232" "" 100
+"\001" "" 100
