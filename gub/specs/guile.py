@@ -109,6 +109,7 @@ exit 0
 ''',
              '%(install_prefix)s%(cross_dir)s/bin/%(target_architecture)s-guile-config')
         self.chmod ('%(install_prefix)s%(cross_dir)s/bin/%(target_architecture)s-guile-config', octal.o755)
+        self.system ('cd %(install_prefix)s%(cross_dir)s/bin && cp -pv %(target_architecture)s-guile-config guile-config')
 
 class Guile__mingw (Guile):
     def __init__ (self, settings, source):

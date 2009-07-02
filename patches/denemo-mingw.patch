@@ -1,0 +1,71 @@
+--- denemo-0.8.6/libsmf/smf.c~	2009-07-01 16:17:15.000000000 +0200
++++ denemo-0.8.6/libsmf/smf.c	2009-07-02 15:52:53.932799844 +0200
+@@ -39,7 +39,11 @@
+ #include <assert.h>
+ #include <math.h>
+ #include <errno.h>
++#ifdef __MINGW32__
++#include <windows.h>
++#else /* ! __MINGW32__ */
+ #include <arpa/inet.h>
++#endif /* ! __MINGW32__ */
+ #include "smf.h"
+ #include "smf_private.h"
+ 
+--- denemo-0.8.6/libsmf/smf_decode.c~	2009-07-01 16:17:15.000000000 +0200
++++ denemo-0.8.6/libsmf/smf_decode.c	2009-07-02 15:58:13.808802685 +0200
+@@ -37,7 +37,11 @@
+ #include <assert.h>
+ #include <math.h>
+ #include <errno.h>
++#ifdef __MINGW32__
++#include <windows.h>
++#else /* ! __MINGW32__ */
+ #include <arpa/inet.h>
++#endif /* ! __MINGW32__ */
+ #include <stdint.h>
+ #include "smf.h"
+ #include "smf_private.h"
+--- denemo-0.8.6/libsmf/smf_load.c~	2009-07-01 16:17:15.000000000 +0200
++++ denemo-0.8.6/libsmf/smf_load.c	2009-07-02 15:58:54.084800699 +0200
+@@ -40,7 +40,11 @@
+ #include <math.h>
+ #include <errno.h>
+ #include <ctype.h>
++#ifdef __MINGW32__
++#include <windows.h>
++#else /* ! __MINGW32__ */
+ #include <arpa/inet.h>
++#endif /* ! __MINGW32__ */
+ #include "smf.h"
+ #include "smf_private.h"
+ 
+--- denemo-0.8.6/libsmf/smf_save.c~	2009-07-01 16:17:15.000000000 +0200
++++ denemo-0.8.6/libsmf/smf_save.c	2009-07-02 15:59:02.672802563 +0200
+@@ -39,7 +39,11 @@
+ #include <assert.h>
+ #include <math.h>
+ #include <errno.h>
++#ifdef __MINGW32__
++#include <windows.h>
++#else /* ! __MINGW32__ */
+ #include <arpa/inet.h>
++#endif /* ! __MINGW32__ */
+ #include "smf.h"
+ #include "smf_private.h"
+ 
+--- denemo-0.8.6/libsmf/smfsh.c~	2009-07-01 16:17:15.000000000 +0200
++++ denemo-0.8.6/libsmf/smfsh.c	2009-07-02 16:05:25.168802911 +0200
+@@ -34,7 +34,12 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <unistd.h>
++#ifdef __MINGW32__
++#define EX_OK 0
++#define EX_USAGE 64
++#else /* ! __MINGW32__ */
+ #include <sysexits.h>
++#endif /* ! __MINGW32__ */
+ #include <string.h>
+ #include <ctype.h>
+ #include <assert.h>

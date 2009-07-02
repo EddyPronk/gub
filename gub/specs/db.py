@@ -3,7 +3,7 @@ from gub import target
 from gub import tools
 
 class Db (target.AutoBuild):
-    source = "http://download.oracle.com/berkeley-db/db-4.7.25.tar.gz"
+    source = 'http://download.oracle.com/berkeley-db/db-4.7.25.tar.gz'
     def cache_file (self):
         return '%(builddir)s/build_unix/config.cache'
     def configure_command (self):

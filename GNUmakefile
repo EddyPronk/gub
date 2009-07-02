@@ -28,6 +28,9 @@ $(MAKE_BASES):
 lily% cygwin%:
 	$(MAKE) -f lilypond.make $@
 
+denemo-%:
+	$(MAKE) -f inkscape.make $@
+
 inkscape-%:
 	$(MAKE) -f inkscape.make $@
 
