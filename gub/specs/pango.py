@@ -37,31 +37,30 @@ class Pango (target.AutoBuild):
                 break
         assert result
         return result
-    
-    def fix_modules (self, prefix='/usr'):
+    def install (self):
+        target.AutoBuild.install (self)
+        self.create_config_files ()
+        self.fix_config_files ()
+    def create_config_files (self, prefix='/usr'):
+        pango_module_version = self.module_version ()
         etc = self.expand ('%(install_root)s/%(prefix)s/etc/pango', locals ())
-        self.system ('mkdir -p %(etc)s' , locals ())
-
-        def fix_prefix (logger, fname):
-            loggedos.file_sub (logger, [(self.expand ('/%(prefix)s/'),
-                                         '$PANGO_PREFIX/')], fname)
-        pango_module_version = self.module_version()
-            
-        self.map_locate (fix_prefix, etc, '*')
         self.dump ('''[Pango]
 ModuleFiles = $PANGO_PREFIX/etc/pango/pango.modules
 ModulesPath = $PANGO_PREFIX/lib/pango/%(pango_module_version)s/modules
 ''' % locals (), etc + '/pangorc')
-        self.copy ('%(sourcefiledir)s/pango.modules', etc)
-    def install (self):
-        target.AutoBuild.install (self)
-        mod_version = self.module_version ()
-        self.dump ("""
+        self.dump ('''
 setfile PANGO_RC_FILE=$INSTALLER_PREFIX/etc/pango/pangorc
 setdir PANGO_PREFIX=$INSTALLER_PREFIX/
-set PANGO_MODULE_VERSION=%(mod_version)s
-""", '%(install_prefix)s/etc/relocate/pango.reloc', env=locals ())
-        self.fix_modules ()
+set PANGO_MODULE_VERSION=%(pango_module_version)s
+''', '%(install_prefix)s/etc/relocate/pango.reloc', env=locals ())
+        self.copy ('%(sourcefiledir)s/pango.modules', etc)
+    def fix_config_files (self, prefix='/usr'):
+        etc = self.expand ('%(install_root)s/%(prefix)s/etc/pango', locals ())
+        self.system ('mkdir -p %(etc)s' , locals ())
+        def fix_prefix (logger, file_name):
+            loggedos.file_sub (logger, [('/' + prefix + '/', '$PANGO_PREFIX/')],
+                               file_name)
+        self.map_locate (fix_prefix, etc, '*')
 
 class Pango__linux (Pango):
     def untar (self):
@@ -84,6 +83,15 @@ class Pango__darwin (Pango):
                        '%(builddir)s/libtool')
     def install (self):
         Pango.install (self)                
-        self.dump ("""
+        self.dump ('''
 set PANGO_SO_EXTENSION=.so
-""", '%(install_prefix)s/etc/relocate/pango.reloc', env=locals (), mode="a")
+''', '%(install_prefix)s/etc/relocate/pango.reloc', env=locals (), mode='a')
+
+class Pango__mingw (Pango):
+    def create_config_files (self, prefix='/usr'):
+        Pango.create_config_files (self, prefix)
+        etc = self.expand ('%(install_root)s/%(prefix)s/etc/pango', locals ())
+        self.dump ('''
+${PANGO_PREFIX}/lib/pango/${PANGO_MODULE_VERSIOn}/modules/pango-basic-win32${PANGO_SO_EXTENSION} BasicScriptEngineWin32 PangoEngineShape PangoRenderWin32 common:
+''', '%(etc)s/pango.modules', env=locals (), mode='a')
+        Pango.fix_config_files (self, prefix)
