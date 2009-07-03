@@ -1,0 +1,24 @@
+--- denemo-0.8.6/src/prefops.c~	2009-07-01 16:17:15.000000000 +0200
++++ denemo-0.8.6/src/prefops.c	2009-07-03 11:46:35.661920448 +0200
+@@ -77,13 +77,18 @@ initprefs ()
+   ret->csoundcommand = g_string_new ("csound -dm6");
+   ret->browser = g_string_new ("firefox");
+   ret->csoundorcfile = g_string_new ("");
++#ifdef G_OS_WIN32
++  ret->pdfviewer = g_string_new ("AdobeRd32");
++  ret->imageviewer = g_string_new ("paint");
++  ret->texteditor = g_string_new ("wordpad");
++#else /* !G_OS_WIN32 */
+   ret->pdfviewer = g_string_new ("xpdf");
++  ret->imageviewer = g_string_new ("eog");
++  ret->texteditor = g_string_new ("xedit");
++#endif /* !G_OS_WIN32 */
+   ret->sequencer = g_string_new ("/dev/sequencer");
+   ret->midi_in = g_string_new ("/dev/midi");
+ 
+-
+-  ret->imageviewer = g_string_new ("eog");
+-  ret->texteditor = g_string_new ("xedit");
+   ret->denemopath = g_string_new (g_get_home_dir());
+   ret->lilyversion = g_string_new (LILYPOND_VERSION);
+   ret->temperament = g_string_new("Equal");

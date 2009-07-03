@@ -3,6 +3,10 @@ TODO:
   * figure out solution pango/pangocairo, lilypond/lilypondcairo mess
   * build denemo from GIT, use lilypondcairo from tarball?
   * denemo for linux, all audio and X dependencies?
+  * upstream patches
+  * external commands: lilypond, adoberd32 not working
+  * prefopts: move initial values into config file, instead of
+    patching C code?
 '''
 
 from gub import misc
@@ -68,11 +72,15 @@ class Denemo (target.AutoBuild):
                 + ' --program-prefix=')
 
 class Denemo__mingw (Denemo):
-    patches = ['denemo-mingw.patch', 'denemo-relocate-mingw.patch']
+    patches = ['denemo-mingw.patch', 'denemo-prefops-mingw.patch', 'denemo-relocate-mingw.patch']
     def __init__ (self, settings, source):
         Denemo.__init__ (self, settings, source)
-        # Configure (compile) without -mwindows for console
-        # so that we see the g_print debug messages for now.
+        # Configure (compile) without -mwindows for console so that we
+        # see the g_print debug messages for now.
+
+        # Should we make two binaries, a console denemo.exe for debug
+        # messages and a denemo-windows.exe one, like we do for
+        # LilyPond?
         self.target_gcc_flags = '-mms-bitfields'
     def _get_build_dependencies (self):
         return [x for x in Denemo._get_build_dependencies (self)

@@ -1,9 +1,10 @@
-;;;; lilypond.nsi -- LilyPond installer script for Microsoft Windows
-;;;; (c) 2005--2007
+;;;; denemo.nsi -- Denemo installer script for Microsoft Windows
+;;;; (c) 2005--2009
 ;;;; Jan Nieuwenhuizen <janneke@gnu.org>
 ;;;; Han-Wen Nienhuys <janneke@gnu.org>
 ;;;; licence: GNU GPL
 
+;;;; FIXME: mostly cut-and paste from lilypond.nsi [installer.nsi]
 ;; For quick [wine] test runs
 ;; !define TEST "1"
 
@@ -95,6 +96,12 @@ fresh_install:
 
 	Call registry_installer
 	Call registry_path
+
+	;; FIXME: these postinstall things should be part of their
+	;; respective packages once we have min-apt or Cygwin's
+	;; setup.exe in place.
+
+	Call postinstall_lilypond
 SectionEnd
 
 Function registry_path
@@ -205,4 +212,109 @@ Function registry_installer
 	WriteRegStr HKLM "${UNINSTALL}" "UninstallString" '"$INSTDIR\uninstall.exe"'
 	WriteRegDWORD HKLM "${UNINSTALL}" "NoModify" 1
 	WriteRegDWORD HKLM "${UNINSTALL}" "NoRepair" 1
+FunctionEnd
+
+;; Optional section (can be disabled by the user)
+Section "Start Menu Shortcuts"
+	;; First install for all users, if anything fails, install
+	;; for current user only.
+	ClearErrors
+
+	;; The OutPath specifies the CWD of the command.  For desktop
+	;; shortcuts, set to a string that expands to the desktop folder
+	;; of the user who runs LilyPond.
+	ReadRegStr $R0 HKCU "${USER_SHELL_FOLDERS}" "Desktop"
+	SetOutPath '"$R0"'
+	SetShellVarContext all
+
+	;; Working directory: %USERPROFILE%\<locale's-desktop-folder-name>,
+	;; but that string is not expanded.
+
+	;; Let's see what happens when outputting to the shared desktop.
+	SetOutPath "$DESKTOP"
+	Call create_shortcuts
+
+	;; That also did not work, often the other users do no write access
+	;; there.
+
+	;; If no write access for all, delete common stuff and opt for
+	;; install for current user only.
+	IfErrors 0 exit
+	Delete "$DESKTOP\Denemo.lnk"
+	Delete "$SMPROGRAMS\Denemo\*.*"
+	RMDir "$SMPROGRAMS\Denemo"
+
+	;; $DESKTOP should expand to the same location as the outpath above,
+	;; but nsis may handle anomalies better.
+
+current_user:
+	SetShellVarContext current
+	SetOutPath "$DESKTOP"
+	Call create_shortcuts
+
+exit:
+	SetShellVarContext current
+	SetOutPath $INSTDIR
+SectionEnd
+
+Function create_shortcuts
+	;; Start menu
+	CreateDirectory "$SMPROGRAMS\Denemo"
+	CreateShortCut "$SMPROGRAMS\Denemo\Denemo.lnk" \
+		"$INSTDIR\usr\bin\denemo.exe" "" \
+		"$INSTDIR\usr\bin\denemo.exe" 0 SW_SHOWMINIMIZED
+	CreateShortCut "$SMPROGRAMS\Denemo\Denemo Website.lnk" \
+		"http://denemo.org/" "" \
+		"firefox.exe" 0
+	CreateShortCut "$SMPROGRAMS\Denemo\LilyPond Website.lnk" \
+		"http://lilypond.org/" "" \
+		"firefox.exe" 0
+	CreateShortCut "$SMPROGRAMS\Denemo\Music in Mutopia.lnk" \
+		"http://www.mutopiaproject.org" "" \
+		"$INSTDIR\usr\bin\lilypond-windows.exe" 1
+	CreateShortCut "$SMPROGRAMS\Denemo\Examples.lnk" \
+		"$INSTDIR\usr\share\doc\lilypond-${INSTALLER_VERSION}-${INSTALLER_BUILD}\input" "" \
+		"$INSTDIR\usr\bin\lilypond-windows.exe" 1
+	CreateShortCut "$SMPROGRAMS\Denemo\Uninstall.lnk" \
+		"$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
+
+
+	;; Desktop
+	ClearErrors
+	ReadRegStr $R0 HKLM \
+		"SOFTWARE\Microsoft\Windows NT\CurrentVersion" CurrentVersion
+	IfErrors dos windows
+dos:
+	CreateShortCut "$DESKTOP\Denemo.lnk" "" \
+		"$INSTDIR\usr\bin\denemo.bat" \
+		"$INSTDIR\usr\bin\denemo.exe" 0 SW_SHOWMINIMIZED
+	Goto exit
+windows:
+	CreateShortCut "$DESKTOP\Denemo.lnk" \
+		"$INSTDIR\usr\bin\denemo.exe" "-dgui" \
+		"$INSTDIR\usr\bin\denemo.exe" 0 SW_SHOWMINIMIZED
+	CreateShortCut "$DESKTOP\LilyPond.lnk" \
+		"$INSTDIR\usr\bin\lilypond-windows.exe" "-dgui" \
+		"$INSTDIR\usr\bin\lilypond-windows.exe" 0 SW_SHOWMINIMIZED
+		
+exit:
+FunctionEnd
+
+Function postinstall_lilypond
+	StrCpy $0 "$INSTDIR\usr\bin\variables.sh"
+	${SubstituteAtVariables} "$0.in" "$0"
+
+	# use console version for gui too
+	StrCpy $0 "$INSTDIR\usr\bin\lilypond"
+	ClearErrors
+	ReadRegStr $R0 HKLM \
+		"SOFTWARE\Microsoft\Windows NT\CurrentVersion" CurrentVersion
+	IfErrors dos exit
+dos:
+	CopyFiles /silent "$0-windows.exe" "$0-windows-orig.exe"
+	CopyFiles /silent "$0.exe" "$0-windows.exe"
+	StrCpy $0 "$INSTDIR\usr\bin\lilypond-windows.bat"
+	${SubstituteAtVariables} "$0.in" "$0"
+
+exit:	
 FunctionEnd
