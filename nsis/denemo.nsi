@@ -18,6 +18,9 @@
 !define USER_SHELL_FOLDERS \
 	"Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders"
 
+Var "EDITOR"
+Var "UP_DESKTOP"
+
 !define UninstLog "files.txt"
 Var UninstLog
 
@@ -94,14 +97,18 @@ fresh_install:
 	WriteUninstaller "uninstall.exe"
 	CreateDirectory "$INSTDIR\usr\bin"
 
+	;; Use tested lilypad for now
+	StrCpy $EDITOR "$INSTDIR\usr\bin\lilypad.exe"
 	Call registry_installer
 	Call registry_path
+	Call registry_lilypond
 
 	;; FIXME: these postinstall things should be part of their
 	;; respective packages once we have min-apt or Cygwin's
 	;; setup.exe in place.
 
 	Call postinstall_lilypond
+	Call postinstall_lilypad
 SectionEnd
 
 Function registry_path
@@ -232,7 +239,7 @@ Section "Start Menu Shortcuts"
 
 	;; Let's see what happens when outputting to the shared desktop.
 	SetOutPath "$DESKTOP"
-	Call create_shortcuts
+	Call denemo_create_shortcuts
 
 	;; That also did not work, often the other users do no write access
 	;; there.
@@ -250,14 +257,16 @@ Section "Start Menu Shortcuts"
 current_user:
 	SetShellVarContext current
 	SetOutPath "$DESKTOP"
-	Call create_shortcuts
+	Call denemo_create_shortcuts
 
 exit:
 	SetShellVarContext current
 	SetOutPath $INSTDIR
 SectionEnd
 
-Function create_shortcuts
+!include "lilypond-prepost.nsh"
+
+Function denemo_create_shortcuts
 	;; Start menu
 	CreateDirectory "$SMPROGRAMS\Denemo"
 	CreateShortCut "$SMPROGRAMS\Denemo\Denemo.lnk" \
@@ -298,23 +307,4 @@ windows:
 		"$INSTDIR\usr\bin\lilypond-windows.exe" 0 SW_SHOWMINIMIZED
 		
 exit:
-FunctionEnd
-
-Function postinstall_lilypond
-	StrCpy $0 "$INSTDIR\usr\bin\variables.sh"
-	${SubstituteAtVariables} "$0.in" "$0"
-
-	# use console version for gui too
-	StrCpy $0 "$INSTDIR\usr\bin\lilypond"
-	ClearErrors
-	ReadRegStr $R0 HKLM \
-		"SOFTWARE\Microsoft\Windows NT\CurrentVersion" CurrentVersion
-	IfErrors dos exit
-dos:
-	CopyFiles /silent "$0-windows.exe" "$0-windows-orig.exe"
-	CopyFiles /silent "$0.exe" "$0-windows.exe"
-	StrCpy $0 "$INSTDIR\usr\bin\lilypond-windows.bat"
-	${SubstituteAtVariables} "$0.in" "$0"
-
-exit:	
 FunctionEnd

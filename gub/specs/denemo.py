@@ -87,4 +87,4 @@ class Denemo__mingw (Denemo):
                 if x.replace ('-devel', '') not in [
                 'jack',
                 'lash',
-                ]]
+                ]] + ['lilypad']
