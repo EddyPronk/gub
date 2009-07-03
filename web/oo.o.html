@@ -3,10 +3,10 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
     <!-- link rel="stylesheet" type="text/css" href="blog.css" !-->
-    <title>GUB -- OpenOffice</title>
+    <title>GUB -- OpenOffice.org</title>
   </head>
   <body>
-<h1>GUB -- OpenOffice</h1>
+<h1>GUB -- OpenOffice.org</h1>
 
 <h2>INSTALLING</h2>
 
@@ -24,9 +24,39 @@ In addition to the requirements for GUB, you need
       to the build platform</a>
 </ul>
 
-NOTE: This is still a work in progress (WIP).  The build will succeeed
-and an installer can be created, but services.rdb may not build
-correctly.
+<h4>Ongoing work</h4>
+
+The cross building of OpenOffice.org for mingw32 is still a work in
+progress (WIP).  The build in GUB will succeeed and an installer can
+be created, but services.rdb may not build correctly.
+
+<h5><a href="http://code.google.com/soc/">GSoC 2009</a></h5>
+<!-- google, no soc/2009 permalink? !-->
+
+<p>
+Luckily, <a href="http://www.corrius.org">Jesús Corrius</a> has
+<a href="http://socghop.appspot.com/student_project/show/google/gsoc2009/mejmeeks/t124022682076">accepted
+the challenge</a> to make this
+mingw32 <a href="http://go-oo.org">Go-Oo</a> OpenOffice.org
+almost-prove-concept hack into a real port, provide clean solutions
+for all the hackweek mess leftovers, make it work as expected, in
+other words: actually usable and run on Windows.
+</p>
+<p>
+Jesús is working together with Fridrich Strba to clean up and update
+some of
+the <a href="http://github.com/janneke/gub/tree/master/patches">cross
+build and mingw32 patches</a>, while implementing and porting the
+missing bits of the mingw32 cross build
+to <a href="http://en.opensuse.org/Build_Service">openSUSE's osc build
+system</a>.
+</p>
+<p>
+When
+<a href="http://wiki.services.openoffice.org/wiki/Ooo-build/mingw32soc#Project_Status">jcorrius
+  announces it works<a/>, his fixes will be incorporated in GUB to
+  provide turnkey OpenOffice.org Windows binaries and installers.
+</p>
 
 <h3>Optional: Prepare build environment</h3>
 

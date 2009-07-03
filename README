@@ -301,7 +301,7 @@ More examples
       bin/gub inkscape
       bin/gib inkscape --branch=inkscape=trunk inkscape
 
-GUB -- OpenOffice
+GUB -- OpenOffice.org
 
 INSTALLING
 
@@ -316,8 +316,25 @@ In addition to the requirements for GUB, you need
   • wine: to run regcomp.exe and lngconvex.exe and possibly other cross-build
     ignorant build tools that are compile-time tied to the build platform
 
-NOTE: This is still a work in progress (WIP). The build will succeeed and an
-installer can be created, but services.rdb may not build correctly.
+Ongoing work
+
+The cross building of OpenOffice.org for mingw32 is still a work in progress
+(WIP). The build in GUB will succeeed and an installer can be created, but
+services.rdb may not build correctly.
+
+GSoC 2009
+
+Luckily, Jesús Corrius has accepted the challenge to make this mingw32 Go-Oo
+OpenOffice.org almost-prove-concept hack into a real port, provide clean
+solutions for all the hackweek mess leftovers, make it work as expected, in
+other words: actually usable and run on Windows.
+
+Jesús is working together with Fridrich Strba to clean up and update some of
+the cross build and mingw32 patches, while implementing and porting the missing
+bits of the mingw32 cross build to openSUSE's osc build system.
+
+When jcorrius announces it works, his fixes will be incorporated in GUB to
+provide turnkey OpenOffice.org Windows binaries and installers.
 
 Optional: Prepare build environment
 
