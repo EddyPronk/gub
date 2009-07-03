@@ -178,7 +178,7 @@ def main ():
     installer_obj = installer.get_installer (settings, args, db, branch_dict)
     try:
         build_installer (installer_obj)
-    except LockedError, locked:
+    except locker.LockedError, locked:
         if options.skip_if_locked:
             logging.error ('skipping build; install_root is locked\n')
             sys.exit (0)
