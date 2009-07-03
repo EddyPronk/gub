@@ -75,12 +75,7 @@ class Denemo__mingw (Denemo):
     patches = ['denemo-mingw.patch', 'denemo-prefops-mingw.patch', 'denemo-relocate-mingw.patch']
     def __init__ (self, settings, source):
         Denemo.__init__ (self, settings, source)
-        # Configure (compile) without -mwindows for console so that we
-        # see the g_print debug messages for now.
-
-        # Should we make two binaries, a console denemo.exe for debug
-        # messages and a denemo-windows.exe one, like we do for
-        # LilyPond?
+        # Configure (link) without -mwindows for denemo-console.exe
         self.target_gcc_flags = '-mms-bitfields'
     def _get_build_dependencies (self):
         return [x for x in Denemo._get_build_dependencies (self)
@@ -88,3 +83,15 @@ class Denemo__mingw (Denemo):
                 'jack',
                 'lash',
                 ]] + ['lilypad']
+    def compile (self):
+        Denemo.compile (self)
+        self.system ('''
+cd %(builddir)s/src && mv .libs/denemo.exe denemo-console.exe
+cd %(builddir)s/src && make AM_LDFLAGS="-mwindows" && cp -p .libs/denemo.exe denemo-windows.exe
+''')
+    def install (self):
+        Denemo.install (self)
+        self.system ('''
+install -m755 %(builddir)s/src/denemo-windows.exe %(install_prefix)s/bin/denemo.exe
+install -m755 %(builddir)s/src/denemo-console.exe %(install_prefix)s/bin/denemo-console.exe
+''')
