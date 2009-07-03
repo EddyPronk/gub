@@ -1,5 +1,5 @@
 # -*-Makefile-*-
-.PHONY: all default rest print-success
+.PHONY: all default rest update-versions print-success print-branches
 .PHONY: nsis denemo denemo-installers
 default: all
 
@@ -29,6 +29,7 @@ LILYPOND_FLATTENED_BRANCH=$(shell $(PYTHON) gub/repository.py --full-branch-name
 
 # FOR BUILDING from GIT
 INSTALLER_BUILDER_OPTIONS =\
+ --version-db=uploads/denemo.versions\
  $(if $(DENEMO_BRANCH), --branch=denemo=$(DENEMO_FLATTENED_BRANCH),)\
  $(if $(LILYPOND_BRANCH), --branch=lilypond=$(LILYPOND_FLATTENED_BRANCH),)\
 #
@@ -50,6 +51,14 @@ denemo-installers:
 nsis:
 	bin/gub tools::nsis
 
+update-versions:
+	python gub/versiondb.py --no-sources --version-db=uploads/denemo.versions --download --platforms="mingw" --url=http://lilypond.org/blog/janneke/software/denemo
+
 print-success:
 	@echo "success!!"
 	@echo Denemo installer in uploads/denemo*.mingw.exe
+
+print-branches:
+	@echo "--branch=guile=$(GUILE_FLATTENED_BRANCH)"
+	@echo "--branch=lilypond=$(LILYPOND_FLATTENED_BRANCH)"
+	@echo "--branch=denemo=$(DENEMO_FLATTENED_BRANCH)"

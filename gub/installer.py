@@ -11,7 +11,6 @@ from gub import gup
 from gub import target
 from gub import context
 from gub import misc
-from gub import versiondb
 from gub import commands
 
 # UGH -  we don't have the package dicts yet.

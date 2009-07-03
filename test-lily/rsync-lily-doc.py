@@ -31,8 +31,8 @@ def parse_options ():
                   dest='destination',
                   help='where to upload the result',
                   default='')
-    p.add_option ('--dbfile',
-                  dest='dbfile',
+    p.add_option ('--version-db',
+                  dest='version_db',
                   help='which version db to use',
                   default='uploads/lilypond.versions')
     p.add_option ('--output-distance',

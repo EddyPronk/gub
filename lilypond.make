@@ -1,5 +1,5 @@
 # -*-Makefile-*-
-.PHONY: all default distclean rest print-success
+.PHONY: all default distclean rest print-success print-branches
 .PHONY: clean realclean
 .PHONY: test test-output test-clean
 .PHONY: update-versions unlocked-update-versions
@@ -71,15 +71,15 @@ include compilers.make
 ################
 
 unlocked-update-versions:
-	python gub/versiondb.py --dbfile=$(LILYPOND_VERSIONS) --download --platforms="$(PLATFORMS)"
+	python gub/versiondb.py --version-db=$(LILYPOND_VERSIONS) --download --platforms="$(PLATFORMS)"
 
 ifneq ($(findstring cygwin,$(PLATFORMS)),)
 # this is downloading the same info 5 times. Can we do this more efficiently?
-	python gub/versiondb.py --no-sources  --dbfile=uploads/freetype2.versions --download  --platforms="cygwin"
-	python gub/versiondb.py --no-sources --dbfile=uploads/fontconfig.versions --download  --platforms="cygwin"
-	python gub/versiondb.py --no-sources  --dbfile=uploads/guile.versions --download --platforms="cygwin"
-	python gub/versiondb.py --no-sources  --dbfile=uploads/libtool.versions --download --platforms="cygwin"
-	python gub/versiondb.py --no-sources  --dbfile=uploads/noweb.versions --download --platforms="cygwin"
+	python gub/versiondb.py --no-sources --version-db=uploads/freetype2.versions --download  --platforms="cygwin"
+	python gub/versiondb.py --no-sources --version-db=uploads/fontconfig.versions --download  --platforms="cygwin"
+	python gub/versiondb.py --no-sources --version-db=uploads/guile.versions --download --platforms="cygwin"
+	python gub/versiondb.py --no-sources --version-db=uploads/libtool.versions --download --platforms="cygwin"
+	python gub/versiondb.py --no-sources --version-db=uploads/noweb.versions --download --platforms="cygwin"
 endif
 
 update-versions:
@@ -228,3 +228,8 @@ unlocked-dist-check:
 dist-check:
 	$(PYTHON) gub/with-lock.py --skip $(NATIVE_LILY_BUILD).lock \
 		$(MAKE) cached-dist-check
+
+print-branches:
+	@echo "--branch=guile=$(GUILE_FLATTENED_BRANCH)"
+	@echo "--branch=lilypond=$(LILYPOND_FLATTENED_BRANCH)"
+	@echo "--branch=denemo=$(DENEMO_FLATTENED_BRANCH)"

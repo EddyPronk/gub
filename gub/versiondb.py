@@ -144,8 +144,8 @@ Inspect lilypond.org download area, and write pickle of all version numbers.
 '''
     p.description='Grand Unified Builder.  Specify --package-version to set build version'
 
-    p.add_option ('--dbfile', action='store',
-                  dest='dbfile',
+    p.add_option ('--version-db', action='store',
+                  dest='version_db',
                   help='Pickle of version dict',
                   default='uploads/lilypond.versions')
 
@@ -193,7 +193,7 @@ def main ():
         sys.stderr.write ("need --platforms definition")
         sys.exit (1)
 
-    db = VersionDataBase (options.dbfile)
+    db = VersionDataBase (options.version_db)
     db.platforms = options.platforms.split (' ')
 
     if options.test:
