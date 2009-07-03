@@ -86,7 +86,7 @@ class Denemo__mingw (Denemo):
     def compile (self):
         Denemo.compile (self)
         self.system ('''
-cd %(builddir)s/src && mv .libs/denemo.exe denemo-console.exe
+cd %(builddir)s/src && mv .libs/denemo.exe denemo-console.exe && rm -f denemo.exe
 cd %(builddir)s/src && make AM_LDFLAGS="-mwindows" && cp -p .libs/denemo.exe denemo-windows.exe
 ''')
     def install (self):
