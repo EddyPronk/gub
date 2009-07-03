@@ -3,7 +3,7 @@
 .PHONY: nsis denemo denemo-installers
 default: all
 
-DENEMO_BRANCH="master"
+#DENEMO_BRANCH="master"
 DENEMO_REPO_URL=git://git.savannah.gnu.org/denemo.git
 
 PLATFORMS=mingw
@@ -19,9 +19,19 @@ INSTALL_PACKAGE = denemo
 
 MAKE += -f denemo.make
 
+# urg, from lilypond.make -- should share lilypond info
+LILYPOND_BRANCH=master
+LILYPOND_REPO_URL=git://git.sv.gnu.org/lilypond.git
+# derived info
+LILYPOND_SOURCE_URL=$(LILYPOND_REPO_URL)?branch=$(LILYPOND_BRANCH)
+LILYPOND_DIRRED_BRANCH=$(shell $(PYTHON) gub/repository.py --branch-dir '$(LILYPOND_SOURCE_URL)')
+LILYPOND_FLATTENED_BRANCH=$(shell $(PYTHON) gub/repository.py --full-branch-name '$(LILYPOND_SOURCE_URL)')
+
 # FOR BUILDING from GIT
-#INSTALLER_BUILDER_OPTIONS =\
-# --branch=denemo=$(DENEMO_FLATTENED_BRANCH)
+INSTALLER_BUILDER_OPTIONS =\
+ $(if $(DENEMO_BRANCH), --branch=denemo=$(DENEMO_FLATTENED_BRANCH),)\
+ $(if $(LILYPOND_BRANCH), --branch=lilypond=$(LILYPOND_FLATTENED_BRANCH),)\
+#
 
 include gub.make
 include compilers.make
