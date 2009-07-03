@@ -16,8 +16,11 @@ from gub import commands
 # UGH -  we don't have the package dicts yet.
 # barf, this should be in config file, not in code
 pretty_names = {
-    'lilypond': 'LilyPond',
+    'denemo': 'GNU_Denemo',
     'git': 'Git',
+    'lilypond': 'GNU_LilyPond',
+    'openoffice': 'Go-Oo_OpenOffice.org',
+    'ooo-build': 'Go-Oo_OpenOffice.org',
     }
 
 class ChecksumShortCircuit (Exception):
