@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <!-- link rel="stylesheet" type="text/css" href="blog.css" !-->
+    <title>GUB -- GNU Denemo</title>
+  </head>
+  <body>
+<h1>GUB -- GNU Denemo</h1>
+
+<h2>INSTALLING</h2>
+
+<h3>Optional: Prepare build environment</h3>
+
+Get GUB
+<pre>
+    git clone git://github.com/janneke/gub.git
+or
+    wget http://github.com/janneke/gub/tarball/master
+</pre>
+
+<pre>
+  make -f denemo.make bootstrap
+</pre>
+
+<h3>Build everything</h3>
+
+<pre>
+  make denemo
+</pre>
+
+this produces a windows installer in
+
+<pre>
+  uploads/denemo-x.y.z-b.mingw.exe
+</pre>
+
+<h3>More examples</h3>
+
+<pre>
+  * Build all Denemo installers
+
+      make 'PLATFORMS=mingw linux-x86 linux-64 linux-ppc darwin-ppc darwin-x86 freebsd-x86 freebsd-64' denemo
+ 
+    this leaves installers for GNU/Linux (x86, x86_64, powerpc),
+    FreeBSD (x86, x86_64) and Windows, and documentation in uploads/
+
+    OR (old style)
+
+      bin/gub denemo
+      bin/gib denemo --branch=lilypond=git.sv.gnu.org--lilypond.git-master --branch=denemo=git.savannah.gnu.org--denemo.git-master
+</pre>
+
+</div>
+</body>
+</html>

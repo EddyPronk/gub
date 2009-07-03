@@ -115,7 +115,13 @@ Examples
 
     this leaves the Windows installer in uploads/
 
-See also lilypond, inkscape and OpenOffice.org.
+  * Cross build Denemo (http://denemo.org) for Windows (mingw32)
+
+      make denemo
+
+    this leaves the Windows installer in uploads/
+
+See also GNU LilyPond, Inkscape, OpenOffice.org, and GNU Denemo.
 
 USAGE
 
