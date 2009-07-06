@@ -158,17 +158,9 @@ class Installer (context.RunnableContext):
             'bin/font2c',
             'bin/fixmswrd.pl',
             'bin/dumphint',
-            
             'bin/[cd]jpeg',
             'bin/envsubst*',
-            'bin/glib-genmarshal*',
-# small, most helpful to have if config file is broken
-#            'bin/gobject-query*',
-            'bin/gspawn-win32-helper*',
-            'bin/gspawn-win32-helper-console*',
             'bin/msg*',
-# small, most helpful to have if config file is broken
-#            'bin/pango-querymodules*',
             'bin/xmlwf',
             'cross',
             'doc',
