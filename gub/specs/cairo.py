@@ -6,7 +6,7 @@ class Cairo (target.AutoBuild):
         target.AutoBuild.patch (self)
         self.system ('rm -f %(srcdir)s/src/cairo-features.h')
     def _get_build_dependencies (self):
-        return ['tools::libtool', 'fontconfig-devel', 'libpng-devel', 'libx11-devel', 'libxrender-devel', 'pixman-devel']
+        return ['tools::libtool', 'fontconfig-devel', 'ghostscript-devel', 'libpng-devel', 'librsvg-devel', 'libx11-devel', 'libxrender-devel', 'pixman-devel', 'poppler-devel', 'zlib-devel']
 
 class Cairo__mingw (Cairo):
     def configure_command (self):
@@ -21,5 +21,6 @@ class Cairo__mingw (Cairo):
                 )
     def _get_build_dependencies (self):
         return ([x for x in Cairo._get_build_dependencies (self)
-                 if 'libx' not in x]
+                 if 'libx' not in x
+                 and 'poppler' not in x] # poppler does not build for mingw
                 + ['pthreads-w32-devel'])
