@@ -1,6 +1,6 @@
---- denemo-0.8.6/src/main.c~	2009-07-01 16:17:15.000000000 +0200
-+++ denemo-0.8.6/src/main.c	2009-07-03 08:54:26.125846002 +0200
-@@ -427,11 +427,25 @@ main (int argc, char *argv[])
+--- denemo-0.8.6/src/main.c.orig	2009-07-06 16:51:25.613300954 +0200
++++ denemo-0.8.6/src/main.c	2009-07-06 17:13:31.044798892 +0200
+@@ -427,11 +427,34 @@ main (int argc, char *argv[])
    /* initialization of directory relocatability */
    initdir();
  #ifdef G_OS_WIN32
@@ -24,10 +24,19 @@
 +  g_setenv ("PANGO_MODULE_VERSION", "1.6.0", TRUE);
 +  g_setenv ("PANGO_SO_EXTENSION", ".dll", TRUE);
 +  g_print ("Setting PANGO_PREFIX=%s\n", prefix);
-+  g_setenv ("GTK_PREFIX", prefix, TRUE);
-+  g_print ("Setting GTK_PREFIX=%s\n", prefix);
++
 +  g_setenv ("GTK_MODULE_VERSION", "2.10.0", TRUE);
 +  g_setenv ("GTK_SO_EXTENSION", ".dll", TRUE);
++  g_setenv ("GTK_PREFIX", prefix, TRUE);
++  g_print ("Setting GTK_PREFIX=%s\n", prefix);
++
++  gchar *fc_path = g_strconcat (prefix, "/etc/fonts", NULL);
++  g_setenv ("FONTCONFIG_PATH", fc_path, TRUE);
++  g_print ("Setting FONTCONFIG_PATH=%s\n", fc_path);
++  gchar *fc_file = g_strconcat (fc_path, "/fonts.conf", NULL);
++  g_setenv ("FONTCONFIG_FILE", fc_file, TRUE);
++  g_print ("Setting FONTCONFIG_FILE=%s\n", fc_file);
++
  #endif
    /* locale initialization */
    //setlocale (LC_CTYPE, "");

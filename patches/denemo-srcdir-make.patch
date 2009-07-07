@@ -1,0 +1,66 @@
+--- denemo-0.8.6/Makefile.am~	2009-07-01 16:17:15.000000000 +0200
++++ denemo-0.8.6/Makefile.am	2009-07-06 13:06:42.473301148 +0200
+@@ -16,7 +16,7 @@ MAINTAINERCLEANFILES =  Makefile.in aclo
+ 	depcomp
+ 
+ install-data-hook:
+-	cp -r actions ${DESTDIR}/$(datadir)/${PACKAGE}/
++	cp -r $(srcdir)/actions ${DESTDIR}/$(datadir)/${PACKAGE}/
+ 	find $(DESTDIR)$(datadir)/${PACKAGE}/actions -type d -exec chmod 755 '{}' \;
+ dist-hook: @PACKAGE@.spec
+ 	cp $(srcdir)/@PACKAGE@.spec $(distdir)
+--- denemo-0.8.6/Makefile.in~	2009-07-01 16:19:20.000000000 +0200
++++ denemo-0.8.6/Makefile.in	2009-07-06 13:07:00.381300299 +0200
+@@ -746,7 +746,7 @@ uninstall-am: uninstall-dist_sysconfDATA
+ 
+ 
+ install-data-hook:
+-	cp -r actions ${DESTDIR}/$(datadir)/${PACKAGE}/
++	cp -r $(srcdir)/actions ${DESTDIR}/$(datadir)/${PACKAGE}/
+ 	find $(DESTDIR)$(datadir)/${PACKAGE}/actions -type d -exec chmod 755 '{}' \;
+ dist-hook: @PACKAGE@.spec
+ 	cp $(srcdir)/@PACKAGE@.spec $(distdir)
+--- denemo-0.8.6/fonts/Makefile.am~	2009-07-01 16:17:15.000000000 +0200
++++ denemo-0.8.6/fonts/Makefile.am	2009-07-06 13:08:37.953300890 +0200
+@@ -3,7 +3,7 @@
+ 
+ fontsdir = $(datadir)/fonts/truetype/denemo
+ 
+-fonts_DATA = Denemo.ttf LICENSE_OFL.txt
++fonts_DATA = $(srcdir)/Denemo.ttf $(srcdir)/LICENSE_OFL.txt
+ 
+ EXTRA_DIST = $(fonts_DATA) 
+ CLEANFILES = *~ #*#
+--- denemo-0.8.6/fonts/Makefile.in~	2009-07-01 16:19:19.000000000 +0200
++++ denemo-0.8.6/fonts/Makefile.in	2009-07-06 13:08:58.736801898 +0200
+@@ -224,7 +224,7 @@ top_build_prefix = @top_build_prefix@
+ top_builddir = @top_builddir@
+ top_srcdir = @top_srcdir@
+ fontsdir = $(datadir)/fonts/truetype/denemo
+-fonts_DATA = Denemo.ttf LICENSE_OFL.txt
++fonts_DATA = $(srcdir)/Denemo.ttf $(srcdir)/LICENSE_OFL.txt
+ EXTRA_DIST = $(fonts_DATA) 
+ CLEANFILES = *~ #*#
+ all: all-am
+--- denemo-0.8.6/pixmaps/Makefile.am~	2009-07-01 16:17:15.000000000 +0200
++++ denemo-0.8.6/pixmaps/Makefile.am	2009-07-06 13:53:05.592798574 +0200
+@@ -135,7 +135,7 @@ icon-rest-4.svg \
+ icon-rest-5.svg 
+ 
+ icondir=$(datadir)/pixmaps
+-icon_DATA=denemo.png
++icon_DATA=$(srcdir)/denemo.png
+ 
+ desktopdir = $(datadir)/applications
+ desktop_DATA = denemo.desktop
+--- denemo-0.8.6/pixmaps/Makefile.in~	2009-07-01 16:19:19.000000000 +0200
++++ denemo-0.8.6/pixmaps/Makefile.in	2009-07-06 13:53:18.748801041 +0200
+@@ -361,7 +361,7 @@ icon-rest-4.svg \
+ icon-rest-5.svg 
+ 
+ icondir = $(datadir)/pixmaps
+-icon_DATA = denemo.png
++icon_DATA = $(srcdir)/denemo.png
+ desktopdir = $(datadir)/applications
+ desktop_DATA = denemo.desktop
+ EXTRA_DIST = $(pixmaps_DATA) $(icon_DATA) $(desktop_DATA)

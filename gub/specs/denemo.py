@@ -1,12 +1,15 @@
 '''
 TODO:
   * figure out solution pango/pangocairo, lilypond/lilypondcairo mess
-  * build denemo from GIT, use lilypondcairo from tarball?
-  * denemo for linux, all audio and X dependencies?
-  * upstream patches
-  * external commands: lilypond, adoberd32 not working
-  * prefopts: move initial values into config file, instead of
-    patching C code?
+  * build denemo from GIT, use lilypond[cairo] from tarball 2.12.3/2.13.3?
+  * try: denemo for linux, all audio and X dependencies?
+  * try: adding jack on windows
+  * what about timidity?
+  * upstream all denemo patches
+  * prefopts: move initial values into config file, instead of patching C code?
+  * relocation: non-windows dynamic relocation in main.c
+  * relocation: fix locale dir
+  * font: Denemo.ttf?
 '''
 
 from gub import misc
@@ -16,6 +19,7 @@ from gub import target
 class Denemo (target.AutoBuild):
     source = 'git://git.savannah.gnu.org/denemo.git'
     source = 'http://download.savannah.gnu.org/releases/denemo/denemo-0.8.6.tar.gz'
+    patches = ['denemo-srcdir-make.patch']
     @staticmethod
     def version_from_configure (self):
         try:
@@ -54,6 +58,7 @@ class Denemo (target.AutoBuild):
                 'jack-devel',
                 'lash-devel',
                 'libaubio-devel',
+                'librsvg-devel', 
                 'libxml2-devel',
                 'lilypondcairo',
                 'portaudio-devel',
@@ -72,7 +77,7 @@ class Denemo (target.AutoBuild):
                 + ' --program-prefix=')
 
 class Denemo__mingw (Denemo):
-    patches = ['denemo-mingw.patch', 'denemo-prefops-mingw.patch', 'denemo-relocate-mingw.patch']
+    patches = Denemo.patches + ['denemo-mingw.patch', 'denemo-prefops-mingw.patch', 'denemo-relocate-mingw.patch']
     def __init__ (self, settings, source):
         Denemo.__init__ (self, settings, source)
         # Configure (link) without -mwindows for denemo-console.exe
