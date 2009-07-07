@@ -77,7 +77,7 @@ class Denemo (target.AutoBuild):
                 + ' --program-prefix=')
 
 class Denemo__mingw (Denemo):
-    patches = Denemo.patches + ['denemo-mingw.patch', 'denemo-prefops-mingw.patch', 'denemo-relocate-mingw.patch']
+    patches = Denemo.patches + ['denemo-mingw.patch', 'denemo-prefops-mingw.patch', 'denemo-relocate-mingw.patch', 'denemo-relocate-locale-mingw.patch']
     def __init__ (self, settings, source):
         Denemo.__init__ (self, settings, source)
         # Configure (link) without -mwindows for denemo-console.exe

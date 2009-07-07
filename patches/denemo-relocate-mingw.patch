@@ -1,6 +1,17 @@
 --- denemo-0.8.6/src/main.c.orig	2009-07-06 16:51:25.613300954 +0200
-+++ denemo-0.8.6/src/main.c	2009-07-06 17:13:31.044798892 +0200
-@@ -427,11 +427,34 @@ main (int argc, char *argv[])
++++ denemo-0.8.6/src/main.c	2009-07-07 15:04:06.200799491 +0200
+@@ -410,10 +410,6 @@ int
+ main (int argc, char *argv[])
+ {
+ 
+-  GError *error = NULL;
+-  /* gtk initialization */
+-  gtk_init (&argc, &argv);
+-
+ //#ifdef G_OS_WIN32
+ //  /* workaround necessary for compilation on Cygwin */
+ //  g_set_print_handler ((GPrintFunc)printf);
+@@ -427,12 +423,39 @@ main (int argc, char *argv[])
    /* initialization of directory relocatability */
    initdir();
  #ifdef G_OS_WIN32
@@ -38,5 +49,10 @@
 +  g_print ("Setting FONTCONFIG_FILE=%s\n", fc_file);
 +
  #endif
++  GError *error = NULL;
++  /* gtk initialization */
++  gtk_init (&argc, &argv);
++
    /* locale initialization */
    //setlocale (LC_CTYPE, "");
+   //setlocale (LC_MESSAGES, "");
