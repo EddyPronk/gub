@@ -1,8 +1,10 @@
 # GdkPixbuf Image Loader Modules file
 # Automatically generated file, do not edit
-# Created by gdk-pixbuf-query-loaders from gtk+-2.14.7
+# wine .wine/drive_c/Programma\ Bestanden/GNU_Denemo/usr/bin/gdk-pixbuf-query-loaders.exe  | pytt 'Z:/home/janneke/.wine/drive_c/Programma Bestanden/GNU_Denemo/usr' '${GTK_PREFIX}' | pytt 2.10.0 '${GTK_MODULE_VERSION}' | pytt '\.dll' '${GTK_SO_EXTENSION}' | tr -d '\r'
 #
-# LoaderDir = ${GTK_PREFIX}/lib/gtk-2.0/${GTK_MODULE_VERSION}/loaders
+# Created by gdk-pixbuf-query-loaders.exe from gtk+-2.14.7
+#
+# LoaderDir = "${GTK_PREFIX}/lib/gtk-2.0/${GTK_MODULE_VERSION}/loaders
 #
 "${GTK_PREFIX}/lib/gtk-2.0/${GTK_MODULE_VERSION}/loaders/libpixbufloader-gdip-gif${GTK_SO_EXTENSION}"
 "gif" 5 "gtk20" "The GIF image format" "LGPL"
@@ -106,6 +108,13 @@
 "ico" "cur" ""
 "  \001   " "zz znz" 100
 "  \002   " "zz znz" 100
+
+"${GTK_PREFIX}/lib/gtk-2.0/${GTK_MODULE_VERSION}/loaders/svg_loader${GTK_SO_EXTENSION}"
+"svg" 2 "gtk20" "Scalable Vector Graphics" "LGPL"
+"image/svg+xml" "image/svg" "image/svg-xml" "image/vnd.adobe.svg+xml" "text/xml-svg" ""
+"svg" ""
+" <svg" "*    " 100
+" <!DOCTYPE svg" "*             " 100
 
 "${GTK_PREFIX}/lib/gtk-2.0/${GTK_MODULE_VERSION}/loaders/libpixbufloader-gdip-tiff${GTK_SO_EXTENSION}"
 "tiff" 5 "gtk20" "The TIFF image format" "LGPL"
