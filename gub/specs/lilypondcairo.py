@@ -6,7 +6,7 @@ from gub.specs import lilypond
 # in.  Hmm.
 
 class Lilypondcairo (lilypond.Lilypond):
-    source = 'http://ftp.acc.umu.se/pub/GNOME/platform/2.25/2.25.5/sources/lilypond-1.22.4.tar.gz'
+    #source = 'http://lilypond.org/download/source/v2.13/2.13.3.tar.gz'
     def _get_build_dependencies (self):
         return [x.replace ('pango', 'pangocairo')
                 for x in lilypond.Lilypond._get_build_dependencies (self)]
