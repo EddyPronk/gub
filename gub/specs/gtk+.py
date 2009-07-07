@@ -6,6 +6,7 @@ class Gtk_x_ (target.AutoBuild):
     #    source = 'http://ftp.gnome.org/pub/GNOME/sources/gtk+/2.15/gtk+-2.15.2.tar.gz'
     #source = 'http://ftp.gnome.org/pub/GNOME/sources/gtk+/2.15/gtk+-2.15.0.tar.gz'
     source = 'http://ftp.gnome.org/pub/GNOME/sources/gtk+/2.15/gtk+-2.15.3.tar.gz'
+    patches = ['gtk+-2.15.3-substitute-env.patch']
     # patches = ['gtk+-2.15.3-configure.in-gio-can-sniff-png.patch']
     # def config_cache_overrides (self, string):
     #     return string + '\ngtk_cv_gio_can_sniff_png=yes\n'
@@ -13,7 +14,12 @@ class Gtk_x_ (target.AutoBuild):
 # FIXME: should bump GNOME deps
 #    source = 'http://ftp.acc.umu.se/pub/GNOME/sources/gtk+/2.14/gtk+-2.14.7.tar.gz'
     def _get_build_dependencies (self):
-        return ['libtool', 'atk-devel', 'cairo-devel', 'libjpeg-devel', 'libpng-devel', 'libtiff-devel',
+        return ['libtool',
+                'atk-devel',
+                'cairo-devel',
+                'libjpeg-devel',
+                'libpng-devel',
+                'libtiff-devel',
                 #'pango-devel',
                 'pangocairo-devel',
                 'libxext-devel',
@@ -60,6 +66,7 @@ class Gtk_x___mingw (Gtk_x_):
     def LDFLAGS (self):
         return '-Wl,-rpath -Wl,%(system_prefix)s/lib %(rpath)s'
     def patch (self):
+        Gtk_x_.patch (self)
         self.file_sub ([('gailutil.def', '$(srcdir)/gailutil.def')], '%(srcdir)s/modules/other/gail/libgail-util/Makefile.in', must_succeed=True)
     
 ''' 2.15.3 does not build for mingw

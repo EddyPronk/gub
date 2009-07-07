@@ -1,0 +1,178 @@
+--- gtk+-2.15.3/gdk-pixbuf/gdk-pixbuf-io.c~	2009-02-03 00:29:58.000000000 +0100
++++ gtk+-2.15.3/gdk-pixbuf/gdk-pixbuf-io.c	2009-07-06 11:11:46.952800671 +0200
+@@ -24,6 +24,7 @@
+ 
+ #include "config.h"
+ 
++#include <ctype.h>
+ #include <stdlib.h>
+ #include <stdio.h>
+ #include <string.h>
+@@ -226,6 +227,22 @@
+ 	return !(*p == '\0');
+ }
+   
++static char const*
++slashify (char const *pos)
++{
++#ifdef G_OS_WIN32
++	char *p = (char*)pos;
++	
++	while (*p)
++	{
++		if (*p == '\\')
++			*p = '/';
++		p++;
++	}
++#endif /* G_OS_WIN32 */
++	return pos;
++}
++
+ #ifdef G_OS_WIN32
+ 
+ /* DllMain function needed to tuck away the gdk-pixbuf DLL handle */
+@@ -271,26 +288,88 @@
+ #undef GTK_SYSCONFDIR
+ #define GTK_SYSCONFDIR get_sysconfdir()
+ 
+-static void
+-correct_prefix (gchar **path)
++#endif  /* G_OS_WIN32 */
++
++
++/** 
++  g_string_substitute_environment()
++  @orig: a string
++
++  Replaces environment variables of the form ${FOO} or $FOO.
++
++  Return value: A newly-allocated string, that must be freed with
++  g_string_free()
++ */
++GString *
++g_string_substitute_environment (GString *orig)
+ {
+-  if (strncmp (*path, GTK_PREFIX "/", strlen (GTK_PREFIX "/")) == 0 ||
+-      strncmp (*path, GTK_PREFIX "\\", strlen (GTK_PREFIX "\\")) == 0)
++  GString * out = g_string_new ("");
++  char *ptr = NULL;
++  
++  ptr = orig->str;
++  while (ptr  < orig->str + orig->len)
+     {
+-      /* This is an entry put there by gdk-pixbuf-query-loaders on the
+-       * packager's system. On Windows a prebuilt GTK+ package can be
+-       * installed in a random location. The gdk-pixbuf.loaders file
+-       * distributed in such a package contains paths from the package
+-       * builder's machine. Replace the build-time prefix with the
+-       * installation prefix on this machine.
+-       */
+-      gchar *tem = *path;
+-      *path = g_strconcat (get_toplevel (), tem + strlen (GTK_PREFIX), NULL);
+-      g_free (tem);
++      char *dollar = strchr (ptr, '$');
++      
++      if (dollar != NULL)
++	{
++	  char *start_var = dollar + 1;
++	  char *end_var = start_var;
++	  char *start_next = end_var;
++	  
++	  g_string_append_len (out, ptr, dollar - ptr);
++	  ptr = dollar;
++
++	  if (*start_var == '{')
++	    {
++	      start_var ++;
++	      
++	      end_var = strchr (start_var, '}');
++	      
++	      if (end_var == NULL)
++		{
++		  end_var = orig->str + orig->len;
++		  start_next = end_var;
++		}
++	      else
++		{
++		  start_next = end_var + 1; 
++		}
++	    }
++	  else 
++	    {
++	      /*
++		Hmm. what to do for $1 , $~ etc.?
++	       */
++	      do
++		{
++		  end_var ++;
++		}
++	      while (isalnum (*end_var) || *end_var == '_');
++	      start_next = end_var;
++	    }
++
++	  if (start_var < end_var)
++	    {
++	      GString *var_name = g_string_new_len (start_var, end_var - start_var);
++	      const char *value = g_getenv (var_name->str);
++	      if (value != NULL)
++	        g_string_append (out, slashify (value));
++	      g_string_free (var_name, TRUE);
++
++
++	      ptr = start_next;
++	    }
++	}
++      else
++	break;
++
+     }
+-}
+ 
+-#endif  /* G_OS_WIN32 */
++  g_string_append (out, ptr);
++
++  return out;
++}
+ 
+ static gchar *
+ gdk_pixbuf_get_module_file (void)
+@@ -318,6 +397,7 @@
+ 	gchar *line_buf;
+ 	gsize term;
+ 	GString *tmp_buf = g_string_new (NULL);
++	GString *substitute = g_string_new (NULL);
+ 	gboolean have_error = FALSE;
+ 	GdkPixbufModule *module = NULL;
+ 	gchar *filename = gdk_pixbuf_get_module_file ();
+@@ -422,18 +502,18 @@
+ 	
+ 	while (!have_error && g_io_channel_read_line (channel, &line_buf, NULL, &term, NULL) == G_IO_STATUS_NORMAL) {
+ 		const char *p;
+-		
+-		p = line_buf;
+ 
+ 		line_buf[term] = 0;
+ 
++		tmp_buf = g_string_new (line_buf);
++		substitute = g_string_substitute_environment (tmp_buf);
++		line_buf = substitute->str;
++		p = line_buf;
++
+ 		if (!skip_space (&p)) {
+ 				/* Blank line marking the end of a module
+ 				 */
+ 			if (module && *p != '#') {
+-#ifdef G_OS_WIN32
+-				correct_prefix (&module->module_path);
+-#endif
+ 				file_formats = g_slist_prepend (file_formats, module);
+ 				module = NULL;
+ 			}
+@@ -556,6 +636,7 @@
+ 		g_free (line_buf);
+ 	}
+ 	g_string_free (tmp_buf, TRUE);
++	g_string_free (substitute, TRUE);
+ 	g_io_channel_unref (channel);
+ 	g_free (filename);
+ #endif
