@@ -48,6 +48,7 @@ class Glib__darwin__x86 (Glib__darwin):
         Glib__darwin.compile (self)
         
 class Glib__mingw (Glib):
+    source = 'http://ftp.gnome.org/pub/GNOME/platform/2.26/2.26.3/sources/glib-2.20.4.tar.gz'
     def _get_build_dependencies (self):
         return Glib._get_build_dependencies (self) + ['libiconv-devel']
 

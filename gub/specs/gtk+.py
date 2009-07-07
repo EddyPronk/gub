@@ -59,7 +59,8 @@ class Gtk_x___freebsd__x86 (Gtk_x___freebsd):
     patches = Gtk_x___freebsd.patches + ['gtk+-2.15.3-configure.in-have-iswalnum.patch']
 
 class Gtk_x___mingw (Gtk_x_):
-    source = 'http://ftp.acc.umu.se/pub/GNOME/sources/gtk+/2.14/gtk+-2.14.7.tar.gz'
+    #source = 'http://ftp.acc.umu.se/pub/GNOME/sources/gtk+/2.14/gtk+-2.14.7.tar.gz'
+    source = 'http://ftp.gnome.org/pub/GNOME/platform/2.26/2.26.3/sources/gtk+-2.16.4.tar.gz'
     def _get_build_dependencies (self):
         return [x for x in Gtk_x_._get_build_dependencies (self)
                 if 'libx' not in x]
@@ -67,7 +68,7 @@ class Gtk_x___mingw (Gtk_x_):
         return '-Wl,-rpath -Wl,%(system_prefix)s/lib %(rpath)s'
     def patch (self):
         Gtk_x_.patch (self)
-        self.file_sub ([('gailutil.def', '$(srcdir)/gailutil.def')], '%(srcdir)s/modules/other/gail/libgail-util/Makefile.in', must_succeed=True)
+        ###self.file_sub ([('gailutil.def', '$(srcdir)/gailutil.def')], '%(srcdir)s/modules/other/gail/libgail-util/Makefile.in', must_succeed=True)
     
 ''' 2.15.3 does not build for mingw
 if /bin/bash ../libtool --mode=compile i686-mingw32-gcc -mwindows -mms-bitfields -DHAVE_CONFIG_H -I. -I/home/janneke/vc/gub/target/mingw/src/gtk+-2.15.3/gtk -I.. -DG_LOG_DOMAIN=\"Gtk\" -DGTK_LIBDIR=\"/usr/lib\" -DGTK_DATADIR=\"/usr/share\" -DGTK_DATA_PREFIX=\"/usr\" -DGTK_SYSCONFDIR=\"/usr/etc\" -DGTK_VERSION=\"2.15.3\" -DGTK_BINARY_VERSION=\"2.10.0\" -DGTK_HOST=\"i686-pc-mingw32\" -DGTK_COMPILATION -DGTK_PRINT_BACKENDS=\"file,lpr\" -DGTK_PRINT_PREVIEW_COMMAND=\""evince --unlink-tempfile --preview --print-settings %s %f"\" -I.. -I../gtk -I/home/janneke/vc/gub/target/mingw/src/gtk+-2.15.3 -I../gdk -I/home/janneke/vc/gub/target/mingw/src/gtk+-2.15.3/gdk -I/home/janneke/vc/gub/target/mingw/src/gtk+-2.15.3/gdk-pixbuf -I../gdk-pixbuf -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED -DGTK_FILE_SYSTEM_ENABLE_UNSUPPORTED -DGTK_PRINT_BACKEND_ENABLE_UNSUPPORTED -DG_ENABLE_DEBUG -DG_ERRORCHECK_MUTEXES -mms-bitfields -I/home/janneke/vc/gub/target/mingw/root/usr/include/glib-2.0 -I/home/janneke/vc/gub/target/mingw/root/usr/lib/glib-2.0/include -I/home/janneke/vc/gub/target/mingw/root/usr/include/pango-1.0 -I/home/janneke/vc/gub/target/mingw/root/usr/include/cairo -I/home/janneke/vc/gub/target/mingw/root/usr/include/freetype2 -I/home/janneke/vc/gub/target/mingw/root/usr/include -I/home/janneke/vc/gub/target/mingw/root/usr/include/atk-1.0         -DG_DISABLE_SINGLE_INCLUDES -DATK_DISABLE_SINGLE_INCLUDES -DGDK_PIXBUF_DISABLE_SINGLE_INCLUDES -DGTK_DISABLE_SINGLE_INCLUDES  -DGDK_PIXBUF_DISABLE_DEPRECATED -g -O2 -g -Wall -mms-bitfields -MT gtkstock.lo -MD -MP -MF ".deps/gtkstock.Tpo" \
