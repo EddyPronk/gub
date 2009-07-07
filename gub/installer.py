@@ -184,7 +184,9 @@ class Installer (context.RunnableContext):
             'share/gs/*/{doc,examples}/',
             'share/gtk-doc',
             'share/info',
-            'share/fonts/',
+# Ugh, ugh.  At least, keep Denemo.ttf
+#            'share/fonts/',
+            'share/fonts/default',
             'share/man',
             'share/omf',
             'share/libtool/',
