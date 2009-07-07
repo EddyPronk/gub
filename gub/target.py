@@ -193,6 +193,19 @@ class SConsBuild (AutoBuild):
     def install_command (self):
         return self.compile_command () + ' install'
 
+class WafBuild (AutoBuild):
+    def stages (self):
+        #return [s for s in AutoBuild.stages (self) if s not in ['autoupdate']]
+        return [s.replace ('autoupdate', 'shadow') for s in AutoBuild.stages (self)]
+    def configure_binary (self):
+        return '%(autodir)s/waf'
+    def configure_command (self):
+        return '%(configure_binary)s configure --prefix=%(install_prefix)s'
+    def compile_command (self):
+        return '%(configure_binary)s build'
+    def install_command (self):
+        return '%(configure_binary)s install'
+
 class BjamBuild_v2 (MakeBuild):
     def _get_build_dependencies (self):
         return ['tools::boost-jam']
