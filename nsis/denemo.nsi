@@ -191,6 +191,7 @@ path_loop:
 	StrCmp $0 "" path_done path_loop
 
 path_done:
+	call un.install_denemo_ttf
 	call un.install_installed_files
 
 	;; Remove shortcuts, if any
@@ -313,7 +314,21 @@ windows:
 exit:
 FunctionEnd
 
+!include "FontName.nsh"
+!include "FontReg.nsh"
+
 Function postinstall_denemo
 	CopyFiles /silent "$INSTDIR\usr\share\fonts\truetype\denemo\Denemo.ttf" "$WINDIR\Fonts\Denemo.ttf"
+	StrCpy $FONT_DIR "$WINDIR\Fonts"
+	!insertmacro InstallTTFFont "${ROOT}\usr\share\fonts\truetype\denemo\Denemo.ttf"
 	ClearErrors
+FunctionEnd
+
+Function un.install_denemo_ttf
+; Call must be used with function names starting with "un." in the uninstall section.
+; Usage: Call function_name | [:label_name]
+; Error in macro GetFileNameCall on macroline 2
+; Error in macro RemoveTTFFont on macroline 9
+; Error in script "/home/janneke/vc/gub/target/mingw/installer/denemo--dbdir/denemo.nsi" on line 331 -- aborting creation process
+;	!insertmacro RemoveTTFFont "Denemo.ttf"
 FunctionEnd
