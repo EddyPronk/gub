@@ -5,7 +5,7 @@ from gub import misc
 from gub import tools
 
 class Nsis (tools.SConsBuild):
-    source = 'http://surfnet.dl.sourceforge.net/sourceforge/nsis/nsis-2.37-src.tar.bz2'
+    source = 'http://surfnet.dl.sourceforge.net/sourceforge/nsis/nsis-2.45-src.tar.bz2'
     #source = ':pserver:anonymous@nsis.cvs.sourceforge.net:/cvsroot/nsis&module=NSIS&tag=HEAD'
     def __init__ (self, settings, source):
         tools.AutoBuild.__init__ (self, settings, source)
@@ -55,7 +55,6 @@ Export('defenv')
 DEBUG=yes
 NSIS_CONFIG_LOG=yes
 SKIPUTILS="NSIS Menu"
-SKIPPLUGINS=System
 '''))
 
     # this method is overwritten for x86-64_linux
@@ -67,3 +66,4 @@ SKIPPLUGINS=System
     def install (self):
         self.system ('cd %(builddir)s && %(install_command)s ',
                      self.build_environment ())
+        self.system ('cp -p %(nsisdir)s/FontName.dll %(install_root)s%(system_prefix)s/share/nsis/Plugins')
