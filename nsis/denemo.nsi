@@ -109,6 +109,7 @@ fresh_install:
 
 	Call postinstall_lilypond
 	Call postinstall_lilypad
+	Call postinstall_denemo
 SectionEnd
 
 Function registry_path
@@ -310,4 +311,9 @@ windows:
 		"$INSTDIR\usr\bin\lilypond-windows.exe" 0 SW_SHOWMINIMIZED
 		
 exit:
+FunctionEnd
+
+Function postinstall_denemo
+	CopyFiles /silent "$INSTDIR\usr\share\fonts\truetype\denemo\Denemo.ttf" "$WINDIR\Fonts\Denemo.ttf"
+	ClearErrors
 FunctionEnd
