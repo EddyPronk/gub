@@ -56,3 +56,14 @@
    /* locale initialization */
    //setlocale (LC_CTYPE, "");
    //setlocale (LC_MESSAGES, "");
+--- denemo-0.8.6/src/utils.c~	2009-07-07 14:44:35.176798844 +0200
++++ denemo-0.8.6/src/utils.c	2009-07-07 16:47:50.428799860 +0200
+@@ -627,6 +627,8 @@ get_data_dir ()
+ #ifdef G_OS_WIN32
+     gchar *rootdir = g_win32_get_package_installation_directory (NULL, NULL);
+     datadir = g_build_filename (rootdir, "share", "denemo", NULL);
++    g_print ("rootdir=%s\n", rootdir);
++    g_print ("datadir=%s\n", datadir);
+     g_free (rootdir);
+ #else /* not G_OS_WIN32 */
+   datadir = gbr_find_data_dir (PKGDATADIR);

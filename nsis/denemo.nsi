@@ -331,4 +331,6 @@ Function un.install_denemo_ttf
 ; Error in macro RemoveTTFFont on macroline 9
 ; Error in script "/home/janneke/vc/gub/target/mingw/installer/denemo--dbdir/denemo.nsi" on line 331 -- aborting creation process
 ;	!insertmacro RemoveTTFFont "Denemo.ttf"
+	Delete "$WINDIR\Fonts\Denemo.ttf"
+	ClearErrors
 FunctionEnd

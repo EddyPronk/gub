@@ -1,14 +1,22 @@
---- denemo-0.8.6/src/prefops.c~	2009-07-01 16:17:15.000000000 +0200
-+++ denemo-0.8.6/src/prefops.c	2009-07-03 11:46:35.661920448 +0200
-@@ -77,13 +77,18 @@ initprefs ()
+--- denemo-0.8.6/src/prefops.c.orig	2009-07-01 16:17:15.000000000 +0200
++++ denemo-0.8.6/src/prefops.c	2009-07-07 17:08:41.533006132 +0200
+@@ -71,19 +71,25 @@ initprefs ()
+ 
+   /* Reasonable default values */
+ 
+-  ret->lilypath = g_string_new ("lilypond");
+   ret->midiplayer = g_string_new ("playmidi");
+   ret->audioplayer = g_string_new ("play");
    ret->csoundcommand = g_string_new ("csound -dm6");
    ret->browser = g_string_new ("firefox");
    ret->csoundorcfile = g_string_new ("");
 +#ifdef G_OS_WIN32
++  ret->lilypath = g_string_new ("lilypond-windows");
 +  ret->pdfviewer = g_string_new ("acrord32");
 +  ret->imageviewer = g_string_new ("mspaint");
 +  ret->texteditor = g_string_new ("wordpad");
 +#else /* !G_OS_WIN32 */
++  ret->lilypath = g_string_new ("lilypond");
    ret->pdfviewer = g_string_new ("xpdf");
 +  ret->imageviewer = g_string_new ("eog");
 +  ret->texteditor = g_string_new ("xedit");
