@@ -1,0 +1,10 @@
+--- guile-1.8.6/configure.in.orig	2009-07-08 10:57:29.964803830 +0200
++++ guile-1.8.6/configure.in	2009-07-08 11:12:55.748799858 +0200
+@@ -1365,7 +1367,7 @@ int main ()
+ [works=yes
+ AC_DEFINE(PTHREAD_ATTR_GETSTACK_WORKS, [1], [Define when pthread_att_get_stack works for the main thread])],
+ [works=no],
+-[])
++[works=$ac_cv_pthread_attr_getstack_works])
+ CFLAGS="$old_CFLAGS"
+ AC_MSG_RESULT($works)

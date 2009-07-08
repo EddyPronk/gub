@@ -19,10 +19,18 @@ class Guile (target.AutoBuild):
     patches = ['guile-reloc-1.8.6.patch',
                'guile-cexp.patch',
                'guile-1.8.6-test-use-srfi.patch']
+    @staticmethod
+    def version_from_VERSION (self):
+        return self.version_from_shell_script ('GUILE-VERSION',
+                                               'GUILE_MAJOR_VERSION',
+                                               '%(GUILE_MAJOR_VERSION)s.%(GUILE_MINOR_VERSION)s.%(GUILE_MICRO_VERSION)s',
+                                               '1.8.6')
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
-        if isinstance (source, repository.Repository):
-            source.version = lambda: '1.8.6'
+        if isinstance (source, repository.Git):
+            ##source.version = lambda: '1.8.6'
+            source.version = misc.bind_method (Guile.version_from_VERSION,
+                                               source)
         self.so_version = '17'
     def _get_build_dependencies (self):
         return ['gettext-devel', 'gmp-devel', 'libtool', 'tools::guile']
@@ -275,6 +283,34 @@ a reference manual (via `info guile'), and a tutorial (via `info
 guile-tut').
 """,
     }
+
+class Guile__linux__x86 (Guile):
+    source = 'http://ftp.gnu.org/pub/gnu/guile/guile-1.8.7.tar.gz'
+    patches = Guile.patches + ['guile-1.8.6-pthreads-cross.patch']
+    def FIXED_in_1_8_7_configure_command (self):
+        return (Guile.configure_command (self)
+                .replace ('--without-threads', '--with-threads=pthread'))
+    # all of a sudden, with linux-x86 guile I get this, so let's try using
+    # threads?
+    '''
+/home/janneke/vc/gub/target/linux-x86/build/guile-1.8.6/pre-inst-guile -s /home/janneke/vc/gub/target/linux-x86/src/guile-1.8.6/ice-9/compile-psyntax.scm \
+                /home/janneke/vc/gub/target/linux-x86/src/guile-1.8.6/ice-9/psyntax.ss /home/janneke/vc/gub/target/linux-x86/src/guile-1.8.6/ice-9/psyntax.pp
+ERROR: Stack overflow
+make[3]: *** [psyntax.pp] Error 1
+'''
+    def FIXED_in_1_8_7_config_cache_overrides (self, string):
+        return string + '''
+ac_cv_pthread_attr_getstack_works=${ac_cv_pthread_attr_getstack_works=no}
+ac_cv_func_pthread_attr_getstack=${ac_cv_func_pthread_attr_getstack=yes}
+ac_cv_func_pthread_get_stackaddr_np=${ac_cv_func_pthread_get_stackaddr_np=no}
+ac_cv_func_pthread_getattr_np=${ac_cv_func_pthread_getattr_np=yes}
+ac_cv_func_pthread_sigmask=${ac_cv_func_pthread_sigmask=yes}
+'''
+    def install (self):
+        # with 1.8.7: libtool: cannot install directory not ending in...
+        # after config.status is being re-run for building of libpath.h
+        self.update_libtool ()
+        Guile.install (self)
 
 class Guile__tools (tools.AutoBuild, Guile):
     def _get_build_dependencies (self):
