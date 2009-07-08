@@ -1,0 +1,10 @@
+--- lash-0.6.0.~rc.2/lashd/server.h~	2008-09-23 01:54:38.000000000 +0200
++++ lash-0.6.0.~rc.2/lashd/server.h	2009-07-08 16:18:38.105777092 +0200
+@@ -26,6 +26,7 @@
+ #include <stdbool.h>
+ #include <sys/types.h>
+ #include <dbus/dbus.h>
++#include <uuid/uuid.h>
+ 
+ #include "types.h"
+ #include "dbus/service.h"
