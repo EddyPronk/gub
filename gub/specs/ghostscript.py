@@ -142,16 +142,16 @@ models.'''
 ''')
 
     def configure (self):
-        self.shadow ()
         target.AutoBuild.configure (self)
         self.makefile_fixup ('%(builddir)s/Makefile')
 
     def makefile_fixup (self, file):
         self.file_sub ([
             ('-Dmalloc=rpl_malloc', ''),
-            ('GLSRCDIR=./src', 'GLSRCDIR=%(srcdir)s/src'),
-            ('PSSRCDIR=./src', 'PSSRCDIR=%(srcdir)s/src'),
+            ('GLSRCDIR=./base', 'GLSRCDIR=%(srcdir)s/base'),
+            ('PSSRCDIR=./psi', 'PSSRCDIR=%(srcdir)s/psi'),
             ('PSLIBDIR=./lib', 'PSLIBDIR=%(srcdir)s/lib'),
+            ('PSRESDIR=./Resource', 'PSRESDIR=%(srcdir)s/Resource'),
             ('ICCSRCDIR=icclib', 'ICCSRCDIR=%(srcdir)s/icclib'),
             ('IJSSRCDIR=src', 'IJSSRCDIR=%(srcdir)s/src'),
             ('IMDISRCDIR=imdi', 'IMDISRCDIR=%(srcdir)s/imdi'),
@@ -229,7 +229,6 @@ ac_cv_lib_pthread_pthread_create=no
         self.symlink('base', self.expand('%(srcdir)s/src'))
         Ghostscript.patch (self)
     def configure (self):
-        self.shadow ()
         Ghostscript.configure (self)
         self.file_sub ([('^(EXTRALIBS *=.*)', '\\1 -lwinspool -lcomdlg32 -lz')],
                        '%(builddir)s/Makefile')        
@@ -378,7 +377,6 @@ class Ghostscript__tools (tools.AutoBuild, Ghostscript):
         return (tools.AutoBuild.configure_flags (self)
                 + Ghostscript.configure_flags (self))
     def configure (self):
-        self.shadow ()
         tools.AutoBuild.configure (self)
         self.makefile_fixup ('%(builddir)s/Makefile')
         
