@@ -108,6 +108,9 @@ class RepositoryProxy:
 class Repository: 
     vc_system = None
     tag_dateformat = '%Y-%m-%d_%H-%M-%S%z'
+    def version_from_shell_script (self, file_name, canary, version_string, default_version='0.0.0'):
+        return misc.version_from_shell_script (self.read_file (file_name),
+                                               canary, version_string ,default_version)
     @staticmethod
     def check_dir (rety, dir):
         return os.path.isdir (os.path.join (dir, rety.vc_system))

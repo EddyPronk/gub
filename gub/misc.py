@@ -103,6 +103,14 @@ def grok_sh_variables_str (str):
 def grok_sh_variables (file):
     return grok_sh_variables_str (open (file).read ())
 
+def version_from_shell_script (script, canary, version_string, default_version='0.0.0'):
+    try:
+        if canary in script:
+            return version_string % grok_sh_variables_str (script)
+    except:
+        pass
+    return default_version
+
 def version_to_string (t):
     return '%s-%s' % ('.'.join (map (string, t[:-1])), t[-1])
 
