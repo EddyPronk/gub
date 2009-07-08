@@ -17,14 +17,9 @@ class LilyPond (target.AutoBuild):
 
     @staticmethod
     def version_from_VERSION (self):
-        try:
-            s = self.read_file ('VERSION')
-            if 'MAJOR_VERSION' in s:
-                d = misc.grok_sh_variables_str (s)
-                return '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s' % d
-        except:
-            pass
-        return '0.0.0'
+        return self.version_from_shell_script ('VERSION',
+                                               'MAJOR_VERSION',
+                                               '%(MAJOR_VERSION)s.%(MINOR_VERSION)s.%(PATCH_LEVEL)s')
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         # FIXME: should add to C_INCLUDE_PATH
