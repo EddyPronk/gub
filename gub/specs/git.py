@@ -69,9 +69,6 @@ class Git__mingw (Git):
 class Git__tools (tools.AutoBuild, Git):
     def _get_build_dependencies (self):
         return ['curl', 'expat', 'zlib']
-    def configure (self):
-        self.shadow ()
-        self.dump ('prefix=%(system_prefix)s', '%(builddir)s/config.mak')
     def patch (self):
         tools.AutoBuild.patch (self)
         self.file_sub ([('git describe','true')],
@@ -85,6 +82,12 @@ install:
         self.file_sub ([('\t\\$\\(QUIET_SUBDIR0\\)perl[^\n]+\n', ''),
                         ('SCRIPT_PERL = ', 'SCRIPT_PERL_X = ')],
                        '%(srcdir)s/Makefile')
+    def configure (self):
+        self.shadow ()
+        self.dump ('prefix=%(system_prefix)s', '%(builddir)s/config.mak')
+    def configure_command (self):
+        return (tools.AutoBuild.configure_command (self)
+                + ' --without-openssl')
     def makeflags (self):
         flags = '''V=1 SCRIPT_PERL= LDFLAGS='%(rpath)s' '''
         if 'freebsd' in self.settings.build_architecture:
