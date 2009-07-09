@@ -38,12 +38,16 @@ class Gtk_x_ (target.AutoBuild):
                 + ''' LDFLAGS='%(rpath)s -Wl,-rpath -Wl,%(system_prefix)s/lib' '''
                 + ' --without-libjasper'
                 + ' --disable-cups')
+    @context.subst_method
+    def gtk_so_extension (self):
+        return '.so' #FIXME!
     def create_config_files (self, prefix='/usr'):
         gtk_module_version = '2.10.0' #FIXME!
         etc = self.expand ('%(install_root)s/%(prefix)s/etc/gtk-2.0', locals ())
         self.dump ('''
-setdir GTK_PREFIX=$INSTALLER_PREFIX/
+setdir GTK_PREFIX=$INSTALLER_PREFIX
 set GTK_MODULE_VERSION=%(gtk_module_version)s
+set GTK_SO_EXTENSION=%(gtk_so_extension)s
 ''', '%(install_prefix)s/etc/relocate/gtk+.reloc', env=locals ())
         self.copy ('%(sourcefiledir)s/gdk-pixbuf.loaders', etc)
     def install (self):
@@ -66,6 +70,8 @@ class Gtk_x___mingw (Gtk_x_):
                 if 'libx' not in x]
     def LDFLAGS (self):
         return '-Wl,-rpath -Wl,%(system_prefix)s/lib %(rpath)s'
+    def gtk_so_extension (self):
+        return '.dll' #FIXME!
     def patch (self):
         Gtk_x_.patch (self)
         ###self.file_sub ([('gailutil.def', '$(srcdir)/gailutil.def')], '%(srcdir)s/modules/other/gail/libgail-util/Makefile.in', must_succeed=True)
