@@ -83,3 +83,14 @@ if /bin/bash ../libtool --mode=compile i686-mingw32-gcc -mwindows -mms-bitfields
 /home/janneke/vc/gub/target/mingw/src/gtk+-2.15.3/gtk/gtkstatusicon.c:711: error: 'XBUTTON1' undeclared (first use in this function)
 /home/janneke/vc/gub/target/mingw/src/gtk+-2.15.3/gtk/gtkstatusicon.c:736: error: 'WM_XBUTTONUP' undeclared (first use in this function)
 '''
+
+class Gtk_x___linux__64 (Gtk_x_):
+    source = 'http://ftp.gnome.org/pub/GNOME/platform/2.26/2.26.3/sources/gtk+-2.16.4.tar.gz'
+    def patch (self):
+        Gtk_x_.patch (self)
+        self.file_sub ([('cross_compiling=(maybe|no)', 'cross_compiling=yes')],
+                       '%(srcdir)s/configure')
+    def configure_command (self):
+        return (Gtk_x_.configure_command (self)
+                + ' --disable-glibtest'
+                + ' --disable-test-print-backend')

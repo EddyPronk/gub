@@ -66,6 +66,9 @@ class Glib__freebsd__x86 (Glib__freebsd):
         # FIXME: should add fixup to update_libtool ()
         return ' G_THREAD_LIBS=-pthread G_THREAD_LIBS_FOR_GTHREAD=-pthread '
 
+class Glib__linux__64 (Glib):
+    source = 'http://ftp.gnome.org/pub/GNOME/platform/2.26/2.26.3/sources/glib-2.20.4.tar.gz'
+
 class Glib__tools (tools.AutoBuild, Glib):
     def install (self):
         tools.AutoBuild.install (self)
