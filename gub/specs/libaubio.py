@@ -5,6 +5,7 @@ from gub import target
 
 class Libaubio (target.AutoBuild):
     source = 'http://aubio.org/pub/aubio-0.3.2.tar.gz'
+    patches = ['libaubio-pkg-config-override.patch']
     def _get_build_dependencies (self):
         return ['tools::automake', 'tools::pkg-config',
                 'libfftw-devel',
@@ -12,7 +13,8 @@ class Libaubio (target.AutoBuild):
                 'libsndfile-devel',
                 'python-devel',
                 ]
-    
+    def force_autoupdate (self):
+        return True
     # FIXME: libaubio blindly includes /usr/include, /usr/include/python2.4, ..
     def XXpatch (self):
         target.AutoBuild.patch (self)
