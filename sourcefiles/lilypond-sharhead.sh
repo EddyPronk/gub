@@ -127,11 +127,11 @@ chmod +x "$binwrapscript"
 
 ##gtk##cat <<EOF > "$binwrapscript"
 ##gtk###! /bin/sh
-##gtk### relocate script for [gtk+ programs like] inkscape
+##gtk### relocate script for [gtk+ programs like] denemo, inkscape
 ##gtk### See http://www.gtk.org/api/2.6/gtk/gtk-running.html
 ##gtk##
 ##gtk##INSTALLER_PREFIX=${prefix}/usr
-##gtk##ENV=${dollar}HOME/.inkscape.env
+##gtk##ENV=${dollar}HOME/.%(name)s.env
 ##gtk##
 ##gtk##cat > ${dollar}ENV <<$EOF
 ##gtk##INSTALLER_PREFIX=${prefix}/usr

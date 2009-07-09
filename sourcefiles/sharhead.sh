@@ -129,11 +129,11 @@ rm -f "$binwrapscript" > /dev/null 2>&1
 
 cat <<EOF > "$binwrapscript"
 #! /bin/sh
-# relocate script for [gtk+ programs like] inkscape
+# relocate script for [gtk+ programs like] denemo, inkscape
 # See http://www.gtk.org/api/2.6/gtk/gtk-running.html
 
 INSTALLER_PREFIX=${prefix}/usr
-ENV=${dollar}HOME/.inkscape.env
+ENV=${dollar}HOME/.%(name)s.env
 
 cat > ${dollar}ENV <<$EOF
 INSTALLER_PREFIX=${prefix}/usr
