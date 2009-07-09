@@ -24,8 +24,11 @@ class LilyPond (target.AutoBuild):
         target.AutoBuild.__init__ (self, settings, source)
         # FIXME: should add to C_INCLUDE_PATH
         builddir = self.builddir ()
+        # FIXME: remove after both 2.12.3, 2.13.4 (or 2.14.0) are released.
+        srcdir = self.srcdir ()
         self.target_gcc_flags = (settings.target_gcc_flags
-                                 + ' -I%(builddir)s' % locals ())
+                                 + ' -I%(builddir)s' % locals ()
+                                 + ' -I%(srcdir)s/lily/out' % locals ())
         if isinstance (source, repository.Git):
             source.version = misc.bind_method (LilyPond.version_from_VERSION, source)
     def get_subpackage_names (self):
