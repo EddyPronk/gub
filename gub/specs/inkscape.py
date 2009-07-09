@@ -16,9 +16,26 @@ class Inkscape (target.AutoBuild):
                          'AC_PATH_PROG(ARE_YOU_FREAKING_MAD__OVERRIDING_PKG_CONFIG,')],
                        '%(srcdir)s/configure.ac')
     def _get_build_dependencies (self):
-        return ['tools::automake', 'tools::gettext', 'tools::intltool', 'tools::pkg-config',
-                'boost-devel', 'glibmm-devel', 'gtkmm-devel', 'gtk+-devel', 'gsl-devel', 'lcms-devel', 'poppler-devel', 'popt-devel',
-                'libgc-devel', 'libpng-devel', 'libsig++-devel', 'libxml2-devel', 'libxslt-devel']
+        return [
+            'tools::automake',
+            'tools::gettext',
+            'tools::intltool',
+            'tools::pkg-config',
+            'boost-devel',
+            'glibmm-devel',
+            'gtkmm-devel',
+            'gtk+-devel',
+            'gsl-devel',
+            'lcms-devel',
+            'poppler-devel',
+            'popt-devel',
+            'libgc-devel',
+            'libpng-devel',
+            'librsvg-devel',
+            'libsig++-devel',
+            'libxml2-devel',
+            'libxslt-devel',
+            ]
     def get_build_dependencies (self):
         return self._get_build_dependencies ()
     def get_dependency_dict (self):

@@ -6,9 +6,10 @@ class Poppler (target.AutoBuild):
         return ['tools::libtool', 'tools::glib',
                 'zlib-devel',
                 'fontconfig-devel',
-                'gtk+-devel'
+                'gtk+-devel',
                 'libjpeg-devel',
-                'libxml2-devel']
+                'libxml2-devel',
+                ]
     def configure_command (self):
         return (target.AutoBuild.configure_command (self)
                 + ' --disable-poppler-qt'
