@@ -101,10 +101,10 @@ class FileManager:
                                   % locals ()).split ('\n')
         conflicts = False
         installed_files = self.installed_files ()
-        installed_files_string = ' '.join (installed_files)
+        installed_files_string = ':'.join ([''] + installed_files + [''])
         misc.timing ()
         for f in lst:
-            if (f in installed_files_string
+            if (':' + f + ':' in installed_files_string
                 and not os.path.isdir (os.path.join (self.root, f))):
                 package = self._file_package_db[f]
                 logging.error ('already have file %(f)s: %(package)\n'
