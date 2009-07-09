@@ -43,7 +43,7 @@ rest: nsis denemo-installers print-success
 
 #avoid building native BUILD_PLATFORM
 denemo:
-	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB,$(p)) denemo && ) true#
+	$(foreach p, $(PLATFORMS), $(call INVOKE_GUB,$(p)) denemo && ) true #
 
 denemo-installers:
 	$(call INVOKE_INSTALLER_BUILDER,$(PLATFORMS)) $(INSTALL_PACKAGE)
