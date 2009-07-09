@@ -96,26 +96,28 @@ class FileManager:
 
         _z = misc.compression_flag (ball)
         _v = '' # self.os_interface.verbose_flag ()
-        root = self.root
         lst = loggedos.read_pipe (logging.default_logger,
                                   'tar -t%(_z)s -f "%(ball)s"'
                                   % locals ()).split ('\n')
         conflicts = False
+        installed_files = self.installed_files ()
+        misc.timing ()
         for f in lst:
-            if (self.is_installed_file (f)
-                and not os.path.isdir (self.root + '/' +  f)):
-                logging.error ('already have file %s: %s\n' % (f, self._file_package_db[f]))
+            if (f in installed_files
+                and not os.path.isdir (os.path.join (self.root, f))):
+                package = self._file_package_db[f]
+                logging.error ('already have file %(f)s: %(package)\n'
+                               % locals ())
                 conflicts = True
-
+        logging.warning ('GUP: for f in lst:' + misc.timing ())
         if conflicts and not self.is_distro:
             raise Exception ('abort')
-
+        root = self.root
         loggedos.system (logging.default_logger,
                          # cd %(root)s to avoid open(2) of cwd, see
                          # http://lists.gnu.org/archive/html/lilypond-devel/2009-03/msg00304.html
                          'cd %(root)s && tar -C %(root)s -p -x%(_z)s%(_v)s -f %(ball)s'
                          % locals ())
-
         self._package_file_db[name] = '\n'.join (lst)
         for f in lst:
             # ignore directories.

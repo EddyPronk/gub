@@ -5,6 +5,7 @@ import re
 import stat
 import subprocess
 import sys
+import time
 import traceback
 import urllib2
 #
@@ -107,6 +108,25 @@ def version_from_shell_script (script, canary, version_string, default_version='
     try:
         if canary in script:
             return version_string % grok_sh_variables_str (script)
+    except:
+        pass
+    return default_version
+
+def version_from_configure (configure, default_version='0.0.0'):
+    try:
+        m = re.search (r'\b(VERSION=[0-9.]+)', configure)
+        if m:
+            return '%(VERSION)s' % misc.grok_sh_variables_str (m.group (1))
+    except:
+        pass
+    return default_version
+
+def version_from_configure_in (configure_in, name, default_version='0.0.0'):
+    try:
+        m = re.search (r'AM_INIT_AUTOMAKE\(%(name)s, ([0-9.]+)\)' % locals (),
+                       configure_in)
+        if m:
+            return m.group (1)
     except:
         pass
     return default_version
@@ -655,6 +675,16 @@ LD_LIBRARY_PATH=%(system_prefix)s/lib
 def librestrict ():
     return list (sorted (os.environ.get ('LIBRESTRICT',
                                          'open').replace (':', ' ').split (' ')))
+
+start = 0
+def timing ():
+    global start
+    now = time.time ()
+    if start:
+        elapsed = now - start
+        return 'elapsed: %(elapsed)0.2f' % locals ()
+    start = now
+    return ''
 
 def test ():
     printf (forall (x for x in [1, 1]))
