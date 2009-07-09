@@ -27,6 +27,12 @@ INKSCAPE_FLATTENED_BRANCH=$(shell $(PYTHON) gub/repository.py --full-branch-name
 BUILD_PACKAGE='$(INKSCAPE_SOURCE_URL)'
 INSTALL_PACKAGE = inkscape
 
+INSTALLER_BUILDER_OPTIONS =\
+ --version-db=uploads/inkscape.versions\
+ $(if $(INKSCAPE_BRANCH), --branch=blinkscape=$(INKSCAPE_FLATTENED_BRANCH),)\
+ $(if $(INKSCAPE_BRANCH), --branch=inkscape=trunk,)\
+#
+
 MAKE += -f inkscape.make
 
 inkscape: packages
@@ -34,5 +40,11 @@ inkscape: packages
 inkscape-installer: installers
 inkscape-installers: installers
 
+update-versions:
+	python gub/versiondb.py --no-sources --version-db=uploads/inkscape.versions --download --platforms="mingw" --url=http://lilypond.org/blog/janneke/software/inkscape
+
 print-success:
 	@echo installer: uploads/inkscape*$(BUILD_PLATFORM).sh
+
+print-branches:
+	@echo "--branch=inkscape=$(INKSCAPE_FLATTENED_BRANCH)"
