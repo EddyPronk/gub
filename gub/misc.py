@@ -280,7 +280,7 @@ def download_url (original_url, dest_dir,
     assert type (fallback) == list
 
     candidate_urls = []
-    for url in local + cache + [original_url] + fallback:
+    for url in local + cache + [cache[0] + '/cross', cache[0] + '/' + os.path.basename (dest_dir)] + [original_url] + fallback:
         if not url:
             continue
         if os.path.exists (url):
@@ -306,7 +306,8 @@ def _download_url (url, dest_dir, progress=None):
         url_stream = urllib2.urlopen (url)
     except:
         t, v, b = sys.exc_info ()
-        if ((t == OSError and url.startswith ('file:'))
+        if (((t == OSError or t == urllib2.URLError)
+             and url.startswith ('file:'))
             or ((t == IOError or t == urllib2.HTTPError)
                 and (url.startswith ('ftp:') or url.startswith ('http:')))):
             return v
