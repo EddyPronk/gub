@@ -280,7 +280,10 @@ def download_url (original_url, dest_dir,
     assert type (fallback) == list
 
     candidate_urls = []
-    for url in local + cache + [cache[0] + '/cross', cache[0] + '/' + os.path.basename (dest_dir)] + [original_url] + fallback:
+    if cache and cache[0]:
+        cache += [cache[0] + '/cross']
+        cache += [cache[0] + '/' + os.path.basename (dest_dir)]
+    for url in local + cache + [original_url] + fallback:
         if not url:
             continue
         if os.path.exists (url):
