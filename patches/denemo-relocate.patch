@@ -26,6 +26,15 @@
  
  /** Locate the application's localization folder.
   *
+@@ -599,7 +618,7 @@ gbr_find_locale_dir (const gchar * defau
+ {
+   gchar *data_dir, *dir;
+ 
+-  data_dir = gbr_find_data_dir (NULL);
++  data_dir = gbr_find_data_dir (DATAROOTDIR);
+   if (data_dir == NULL)
+     {
+       /* BinReloc not initialized. */
 --- denemo-0.8.6/src/utils.c~	2009-07-01 16:17:15.000000000 +0200
 +++ denemo-0.8.6/src/utils.c	2009-07-09 10:11:59.253601453 +0200
 @@ -629,7 +629,7 @@ get_data_dir ()
@@ -37,6 +46,17 @@
  #endif /* not G_OS_WIN32 */
    }
    return datadir;
+@@ -692,9 +692,7 @@ get_locale_dir ()
+      * --enable-binreloc... So, searhing falls back to
+      *  $LOCALEDIR/denemo/$LANG which is not a valid path
+      */
+-    gchar *localedir2 = gbr_find_locale_dir (LOCALEDIR);
+-    localedir = g_build_filename (localedir2, "denemo", NULL);
+-    g_free (localedir2);
++    localedir = gbr_find_locale_dir (LOCALEDIR);
+ # endif /* ENABLE_BINRELOC */
+ #endif /* not G_OS_WIN32 */
+   }
 --- denemo-0.8.6/src/Makefile.am~	2009-07-01 16:17:15.000000000 +0200
 +++ denemo-0.8.6/src/Makefile.am	2009-07-09 10:08:20.032345382 +0200
 @@ -55,7 +55,10 @@ INCLUDES = -I../intl -I$(top_srcdir)/int
@@ -45,7 +65,7 @@
  -DSYSCONFDIR=\"$(sysconfdir)/\" \
 --DPKGDATADIR=\"$(pkgdatadir)/\"
 +-DPKGDATADIR=\"$(pkgdatadir)/\" \
-+-DDATADIR=\"$(datarootdir)/\" \
++-DDATAROOTDIR=\"$(datarootdir)/\" \
 +-DPKGNAME=\"denemo\" \
 +#
  
@@ -59,7 +79,7 @@
  -DSYSCONFDIR=\"$(sysconfdir)/\" \
 --DPKGDATADIR=\"$(pkgdatadir)/\"
 +-DPKGDATADIR=\"$(pkgdatadir)/\" \
-+-DDATADIR=\"$(datarootdir)/\" \
++-DDATAROOTDIR=\"$(datarootdir)/\" \
 +-DPKGNAME=\"denemo\" \
 +#
  

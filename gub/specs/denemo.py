@@ -19,7 +19,10 @@ from gub import target
 class Denemo (target.AutoBuild):
     source = 'git://git.savannah.gnu.org/denemo.git'
     source = 'http://download.savannah.gnu.org/releases/denemo/denemo-0.8.6.tar.gz'
-    patches = ['denemo-srcdir-make.patch', 'denemo-relocate.patch']
+    patches = [
+        'denemo-srcdir-make.patch',
+        'denemo-relocate.patch'
+        ]
     @staticmethod
     def version_from_configure_in (self):
         return self.version_from_configure_in ()
@@ -62,7 +65,11 @@ class Denemo (target.AutoBuild):
         return 'BINRELOC_CFLAGS=-DENABLE_BINRELOC=1'
 
 class Denemo__mingw (Denemo):
-    patches = Denemo.patches + ['denemo-mingw.patch', 'denemo-prefops-mingw.patch', 'denemo-relocate-mingw.patch', 'denemo-relocate-locale-mingw.patch']
+    patches = Denemo.patches + [
+        'denemo-mingw.patch',
+        'denemo-prefops-mingw.patch',
+        'denemo-relocate-mingw.patch',
+        ]
     def __init__ (self, settings, source):
         Denemo.__init__ (self, settings, source)
         # Configure (link) without -mwindows for denemo-console.exe
@@ -73,6 +80,8 @@ class Denemo__mingw (Denemo):
                 'jack',
                 'lash',
                 ]] + ['lilypad']
+    def makeflags (self):
+        return ''
     def compile (self):
         Denemo.compile (self)
         self.system ('''
