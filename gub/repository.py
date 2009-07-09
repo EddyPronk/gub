@@ -111,6 +111,9 @@ class Repository:
     def version_from_shell_script (self, file_name, canary, version_string, default_version='0.0.0'):
         return misc.version_from_shell_script (self.read_file (file_name),
                                                canary, version_string ,default_version)
+    def version_from_configure_in (self, file_name='configure.in', default_version='0.0.0'):
+        return misc.version_from_configure_in (self.read_file (file_name),
+                                               default_version)
     @staticmethod
     def check_dir (rety, dir):
         return os.path.isdir (os.path.join (dir, rety.vc_system))

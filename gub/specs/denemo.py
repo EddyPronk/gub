@@ -19,28 +19,10 @@ from gub import target
 class Denemo (target.AutoBuild):
     source = 'git://git.savannah.gnu.org/denemo.git'
     source = 'http://download.savannah.gnu.org/releases/denemo/denemo-0.8.6.tar.gz'
-    patches = ['denemo-srcdir-make.patch']
-    @staticmethod
-    def version_from_configure (self):
-        try:
-            s = self.read_file ('configure')
-            m = re.search (r'\b(VERSION=[0-9.]+)', s)
-            if m:
-                d = misc.grok_sh_variables_str (m.group (1))
-                return '%(VERSION)s' % d
-        except:
-            pass
-        return '0.0.0'
+    patches = ['denemo-srcdir-make.patch', 'denemo-relocate.patch']
     @staticmethod
     def version_from_configure_in (self):
-        try:
-            s = self.read_file ('configure.in')
-            m = re.search (r'AM_INIT_AUTOMAKE\(denemo, ([0-9.]+)\)', s)
-            if m:
-                return m.group (1)
-        except:
-            pass
-        return '0.0.0'
+        return self.version_from_configure_in ()
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         if isinstance (source, repository.Git):
@@ -73,8 +55,11 @@ class Denemo (target.AutoBuild):
                 }
     def configure_command (self):
         return (target.AutoBuild.configure_command (self)
+                + ' --enable-binreloc'
                 + ' --with-jack'
                 + ' --program-prefix=')
+    def makeflags (self):
+        return 'BINRELOC_CFLAGS=-DENABLE_BINRELOC=1'
 
 class Denemo__mingw (Denemo):
     patches = Denemo.patches + ['denemo-mingw.patch', 'denemo-prefops-mingw.patch', 'denemo-relocate-mingw.patch', 'denemo-relocate-locale-mingw.patch']

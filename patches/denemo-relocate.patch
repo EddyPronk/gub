@@ -1,0 +1,67 @@
+--- denemo-0.8.6/src/binreloc.c~	2009-07-01 16:17:15.000000000 +0200
++++ denemo-0.8.6/src/binreloc.c	2009-07-09 10:11:56.332343874 +0200
+@@ -580,6 +580,25 @@ gbr_find_data_dir (const gchar * default
+   return dir;
+ }
+ 
++gchar *
++gbr_find_pkg_data_dir (const gchar * default_pkg_data_dir, const gchar * pkg_name)
++{
++  gchar *prefix, *dir;
++
++  prefix = gbr_find_prefix (NULL);
++  if (prefix == NULL)
++    {
++      /* BinReloc not initialized. */
++      if (default_pkg_data_dir != NULL)
++	return g_strdup (default_pkg_data_dir);
++      else
++	return NULL;
++    }
++
++  dir = g_build_filename (prefix, "share", pkg_name, NULL);
++  g_free (prefix);
++  return dir;
++}
+ 
+ /** Locate the application's localization folder.
+  *
+--- denemo-0.8.6/src/utils.c~	2009-07-01 16:17:15.000000000 +0200
++++ denemo-0.8.6/src/utils.c	2009-07-09 10:11:59.253601453 +0200
+@@ -629,7 +629,7 @@ get_data_dir ()
+     datadir = g_build_filename (rootdir, "share", "denemo", NULL);
+     g_free (rootdir);
+ #else /* not G_OS_WIN32 */
+-  datadir = gbr_find_data_dir (PKGDATADIR);
++    datadir = gbr_find_pkg_data_dir (PKGDATADIR, PKGNAME);
+ #endif /* not G_OS_WIN32 */
+   }
+   return datadir;
+--- denemo-0.8.6/src/Makefile.am~	2009-07-01 16:17:15.000000000 +0200
++++ denemo-0.8.6/src/Makefile.am	2009-07-09 10:08:20.032345382 +0200
+@@ -55,7 +55,10 @@ INCLUDES = -I../intl -I$(top_srcdir)/int
+ -I$(top_srcdir)/pixmaps \
+ -DLOCALEDIR=\"$(localedir)\" \
+ -DSYSCONFDIR=\"$(sysconfdir)/\" \
+--DPKGDATADIR=\"$(pkgdatadir)/\"
++-DPKGDATADIR=\"$(pkgdatadir)/\" \
++-DDATADIR=\"$(datarootdir)/\" \
++-DPKGNAME=\"denemo\" \
++#
+ 
+ denemo_LDADD = $(INTLLIBS) ../libsmf/libsmf.a 
+ AM_CPPFLAGS = $(BINRELOC_CFLAGS)
+--- denemo-0.8.6/src/Makefile.in~	2009-07-01 16:19:19.000000000 +0200
++++ denemo-0.8.6/src/Makefile.in	2009-07-09 10:08:40.504951578 +0200
+@@ -336,7 +336,10 @@ INCLUDES = -I../intl -I$(top_srcdir)/int
+ -I$(top_srcdir)/pixmaps \
+ -DLOCALEDIR=\"$(localedir)\" \
+ -DSYSCONFDIR=\"$(sysconfdir)/\" \
+--DPKGDATADIR=\"$(pkgdatadir)/\"
++-DPKGDATADIR=\"$(pkgdatadir)/\" \
++-DDATADIR=\"$(datarootdir)/\" \
++-DPKGNAME=\"denemo\" \
++#
+ 
+ denemo_LDADD = $(INTLLIBS) ../libsmf/libsmf.a 
+ AM_CPPFLAGS = $(BINRELOC_CFLAGS)

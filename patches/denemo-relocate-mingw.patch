@@ -74,4 +74,4 @@
 +    g_print ("datadir=%s\n", datadir);
      g_free (rootdir);
  #else /* not G_OS_WIN32 */
-   datadir = gbr_find_data_dir (PKGDATADIR);
+     datadir = gbr_find_pkg_data_dir (PKGDATADIR, PKGNAME);
