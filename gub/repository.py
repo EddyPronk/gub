@@ -109,11 +109,17 @@ class Repository:
     vc_system = None
     tag_dateformat = '%Y-%m-%d_%H-%M-%S%z'
     def version_from_shell_script (self, file_name, canary, version_string, default_version='0.0.0'):
-        return misc.version_from_shell_script (self.read_file (file_name),
-                                               canary, version_string ,default_version)
+        try:
+            return misc.version_from_shell_script (self.read_file (file_name),
+                                                   canary, version_string ,default_version)
+        except:
+            return default_version
     def version_from_configure_in (self, file_name='configure.in', default_version='0.0.0'):
-        return misc.version_from_configure_in (self.read_file (file_name),
-                                               default_version)
+        try:
+            return misc.version_from_configure_in (self.read_file (file_name),
+                                                   default_version)
+        except:
+            return default_version
     @staticmethod
     def check_dir (rety, dir):
         return os.path.isdir (os.path.join (dir, rety.vc_system))
@@ -582,7 +588,7 @@ class Git (Repository):
         if not os.path.isdir (os.path.join (self.dir, 'refs')):
             source = self.source
             dir = self.dir
-            self.git ('clone --bare %(source)s %(dir)s' % locals (), dir='.')
+            self.git ('clone --depth 10 --bare %(source)s %(dir)s' % locals (), dir='.')
         if self.branch and not (self.revision and self.is_downloaded ()):
             self.git ('fetch %(source)s %(branch)s:refs/heads/%(url_host)s/%(url_dir)s/%(branch)s' % self.__dict__)
         self.checksums = {}
@@ -620,7 +626,7 @@ class Git (Repository):
                 self.git ('reset --hard %(revision)s' % locals (), dir=destdir)
             self.git ('pull %(checkout_dir)s %(branch)s:' % locals (), dir=destdir)
         else:
-            self.git ('clone -l -s %(checkout_dir)s %(destdir)s' % locals ())
+            self.git ('clone --depth 10 -l -s %(checkout_dir)s %(destdir)s' % locals ())
             revision = self.revision
             if not self.revision:
                 revision = 'origin/' + self.get_ref ()
