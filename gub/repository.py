@@ -443,23 +443,7 @@ class TarBall (Repository):
         #if self.oslog:  #urg, will be fixed when .source is mandatory
         #    _v = self.oslog.verbose_flag ()
         _z = misc.compression_flag (tarball)
-        #self.system ('tar -C %(destdir)s/.. %(_v)s%(_z)s -xf %(tarball)s' % locals ())
-        # quite weird error on Karmic:
-        '''tar-1.20/tests/testsuite
-tar-1.20/tests/package.m4
-
-gzip: stdout: Broken pipe
-tar: Child returned status 1
-tar: Exiting with failure status due to previous errors
-Command barfed: tar -C /home/janneke/vc/gub/target/tools/src/tar-1.20/.. -v -z -xf /home/janneke/vc/gub/downloads/tar/tar-1.20.tar.gz
-'''
-        # all seems ok (package.m4 is last file).
-        # untar in SHELL, setting all env variables that GUB sets, is ok!?
-        if 0:
-            self.system ('gzip -dc %(tarball)s | tar -C %(destdir)s/.. %(_v)s -xf-' % locals ())
-        else:
-            unzip = misc.unzip_command (tarball)
-            self.system ('%(unzip)s %(tarball)s | tar -C %(destdir)s/.. %(_v)s -xf-' % locals ())
+        self.system ('tar -C %(destdir)s/.. %(_v)s%(_z)s -xf %(tarball)s' % locals ())
 
     def version (self):
         return self._version
