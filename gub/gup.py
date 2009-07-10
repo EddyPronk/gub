@@ -107,7 +107,7 @@ class FileManager:
             if (':' + f + ':' in installed_files_string
                 and not os.path.isdir (os.path.join (self.root, f))):
                 package = self._file_package_db[f]
-                logging.error ('already have file %(f)s: %(package)\n'
+                logging.error ('already have file %(f)s: %(package)s\n'
                                % locals ())
                 conflicts = True
         logging.warning ('GUP: for f in lst:' + misc.timing () + '\n')
