@@ -194,6 +194,13 @@ def compression_flag (ball):
         return ' -j'
     return ''
 
+def unzip_command (ball):
+    return {
+        '-z' : 'gzip -dc',
+        '-j' : 'bzip2 -dc',
+        '': 'cat'
+        }[compression_flag (ball).strip ()]
+        
 def first_is_newer (f1, f2):
     return (not os.path.exists (f2)
         or os.stat (f1).st_mtime > os.stat (f2).st_mtime)
