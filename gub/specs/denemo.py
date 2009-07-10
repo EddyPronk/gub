@@ -37,17 +37,21 @@ class Denemo (target.AutoBuild):
             # let's keep srdir around for now
             self.source.is_tracking = misc.bind_method (tracking, self.source)
     def _get_build_dependencies (self):
-        return ['tools::automake', 'tools::gettext', 'tools::intltool', 'tools::pkg-config',
-                'guile-devel',
-                'gtk+-devel',
-                'jack-devel',
-                'lash-devel',
-                'libaubio-devel',
-                'librsvg-devel', 
-                'libxml2-devel',
-                'lilypondcairo',
-                'portaudio-devel',
-                ]
+        return [
+            'tools::automake',
+            'tools::gettext',
+            'tools::libtool',
+            'tools::pkg-config',
+            'guile-devel',
+            'gtk+-devel',
+            'jack-devel',
+            'lash-devel',
+            'libaubio-devel',
+            'librsvg-devel', 
+            'libxml2-devel',
+            'lilypondcairo',
+            'portaudio-devel',
+            ]
     def get_build_dependencies (self):
         return self._get_build_dependencies ()
     def get_dependency_dict (self):
