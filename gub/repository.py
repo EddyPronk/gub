@@ -588,7 +588,15 @@ class Git (Repository):
         if not os.path.isdir (os.path.join (self.dir, 'refs')):
             source = self.source
             dir = self.dir
-            self.git ('clone --depth 10 --bare %(source)s %(dir)s' % locals (), dir='.')
+            ### AARGH, GIT forces us to download the full history? WTF?
+            '''invoking cd /home/janneke/vc/gub/downloads/ghostscript && git clone --depth 10 -l -s /home/janneke/vc/gub/downloads/ghostscript /home/janneke/vc/gub/target/mingw/src/ghostscript-0.0
+Initialized empty Git repository in /home/janneke/vc/gub/target/mingw/src/ghostscript-0.0/.git/
+fatal: attempt to fetch/clone from a shallow repository
+fatal: The remote end hung up unexpectedly
+'''
+            printf ('GIT: FIXME: shallow branching broken? -- getting *whole* history...')
+            ###self.git ('clone --depth 10 --bare %(source)s %(dir)s' % locals (), dir='.')
+            self.git ('clone --bare %(source)s %(dir)s' % locals (), dir='.')
         if self.branch and not (self.revision and self.is_downloaded ()):
             self.git ('fetch %(source)s %(branch)s:refs/heads/%(url_host)s/%(url_dir)s/%(branch)s' % self.__dict__)
         self.checksums = {}
