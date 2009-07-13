@@ -16,8 +16,12 @@ class Ncurses__tools (tools.AutoBuild, Ncurses):
         return (tools.AutoBuild.configure_command (self)
                 + ' --with-normal'
                 + ' --with-shared'
+                + ' --without-cxx'
+                + ' --without--cxx-binding'
                 )
     def _get_build_dependencies (self):
-        return ['system::g++']
+        return [
+#            'system::g++'
+            ]
     def license_files (self):
         return ['%(srcdir)s/README']
