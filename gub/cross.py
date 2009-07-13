@@ -101,23 +101,6 @@ def set_cross_dependencies (package_object_dict):
                                       and p.platform_name () not in (bootstrap_names + ['tools::tar']))]
     bzip2_packs = [p for p in tar_packs if p.source.source.endswith ('bz2')]
 
-    extra_names = []
-    rsync_packs = bazaar_packs or cvs_packs or subversion_packs
-    if bzip2_packs:
-        extra_names += ['tools::bzip2']
-    if git_packs:
-        extra_names += ['tools::git']
-    if patch_packs:
-        extra_names += ['tools::patch']
-    if python_packs or scons_packs:
-        extra_names += ['tools::python']
-    if rsync_packs:
-        extra_names += ['tools::rsync']
-    if scons_packs:
-        extra_names += ['tools::scons']
-    if tar_packs:
-        extra_names += ['tools::tar']
-
     sdk_names = [s.platform_name () for s in sdk_packs]
     cross_names = [s.platform_name () for s in cross_packs]
     # No implicit dependencies on other platform's cross_names or sdk_names
@@ -136,13 +119,24 @@ def set_cross_dependencies (package_object_dict):
     update_packs (other_packs + cross_packs,
                   [n for n in sdk_names if p.settings.platform in n])    
     update_packs (other_packs + cross_packs + tools_packs, bootstrap_names)
-    update_packs (bzip2_packs, ['tools::bzip2'])
-    update_packs (git_packs, ['tools::git'])
-    update_packs (patch_packs, ['tools::patch'])
-    update_packs (python_packs, ['tools::python'])
-    update_packs (rsync_packs, ['tools::rsync'])
-    update_packs (scons_packs, ['tools::scons'])
-    update_packs (tar_packs, ['tools::tar'])
+
+    extra_names = []
+    rsync_packs = bazaar_packs or cvs_packs or subversion_packs
+    for packs, names in (
+        (bzip2_packs, ['tools::bzip2']),
+        (git_packs, ['tools::git']),
+        (patch_packs, ['tools::patch']),
+        (rsync_packs, ['tools::rsync']),
+        (scons_packs, ['tools::scons']),
+        (tar_packs, ['tools::tar']),
+        ):
+        if packs:
+            extra_names += names
+            update_packs (packs, names)
+
+    if python_packs or scons_packs:
+        extra_names += ['tools::python']
+        update_packs (python_packs, ['tools::python'])
 
     return extra_cross_names + extra_names
 
