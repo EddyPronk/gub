@@ -89,7 +89,7 @@ class BuildRunner:
 
             command_runner = runner.DeferredRunner (logger)
             spec.connect_command_runner (command_runner)
-            spec.build ()
+            spec.build (skip=['download'])
             spec.connect_command_runner (None)
 
             self.checksums[name] = command_runner.checksum ()

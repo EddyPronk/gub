@@ -63,7 +63,10 @@ cd %(srcdir)s && patch -p%(strip)s < %(patchdir)s/%(name)s
             if stage not in available or stage in skip:
                 continue
             if self.is_done (stage):
-                tainted = True
+                if stage not in ['download']:
+                    # optimization: excuse download cache from
+                    # tainting the build
+                    tainted = True
                 continue
             self.runner.stage (self.stage_message (stage))
             if (stage == 'package' and tainted
