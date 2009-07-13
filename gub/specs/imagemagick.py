@@ -7,7 +7,19 @@ class ImageMagick__tools (tools.AutoBuild):
     source = 'http://ftp.surfnet.nl/pub/ImageMagick/ImageMagick-6.4.5-4.tar.gz'
 #    source = 'http://ftp.surfnet.nl/pub/ImageMagick/ImageMagick-6.3.7-9.tar.gz'
     def _get_build_dependencies (self):
-        return ['automake', 'bzip2', 'fontconfig', 'ghostscript', 'libpng', 'libjpeg', 'libtiff', 'libxml2', 'libtool', 'zlib']
+        return [
+#            'system::g++',
+            'automake',
+            'bzip2',
+            'fontconfig',
+            'ghostscript',
+            'libpng',
+            'libjpeg',
+            'libtiff',
+            'libxml2',
+            'libtool',
+            'zlib',
+            ]
     def configure_flags (self):
         return (tools.AutoBuild.configure_flags (self)
                 + misc.join_lines ('''
@@ -25,6 +37,8 @@ class ImageMagick__tools (tools.AutoBuild):
         pass
 
 class ImageMagick__tools__autoupdate (ImageMagick__tools):
+    def _get_build_dependencies (self):
+        return ['system::g++']
     def XXforce_autoupdate (self):
         # this does not work, ImageMagick adds cruft of its own in ./ltdl
         # and somehow *needs* ./ltdl (1.5.22 will make ./libltdl)
