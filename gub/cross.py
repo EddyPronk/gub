@@ -87,6 +87,8 @@ def set_cross_dependencies (package_object_dict):
     # Run something like lilypond/SConscript's configure
     # to figure-out if we need a new, Git, Make, Patch, Python, etc?
     # Building make & patch is cheap and dependable.
+    bazaar_packs = [p for p in packs if isinstance (p.source, repository.Bazaar)]
+    cvs_packs = [p for p in packs if isinstance (p.source, repository.CVS)]
     git_packs = [p for p in packs if isinstance (p.source, repository.Git)]
     patch_packs = [p for p in packs if p.patches]
     python_packs = [p for p in packs if (isinstance (p, tools.PythonBuild)
@@ -94,11 +96,13 @@ def set_cross_dependencies (package_object_dict):
     scons_packs = [p for p in packs if (isinstance (p, tools.SConsBuild)
                                         or isinstance (p, target.SConsBuild))]
     
+    subversion_packs = [p for p in packs if isinstance (p.source, repository.Subversion)]
     tar_packs = [p for p in packs if (isinstance (p.source, repository.TarBall)
                                       and p.platform_name () not in (bootstrap_names + ['tools::tar']))]
     bzip2_packs = [p for p in tar_packs if p.source.source.endswith ('bz2')]
 
     extra_names = []
+    rsync_packs = bazaar_packs or cvs_packs or subversion_packs
     if bzip2_packs:
         extra_names += ['tools::bzip2']
     if git_packs:
@@ -107,6 +111,8 @@ def set_cross_dependencies (package_object_dict):
         extra_names += ['tools::patch']
     if python_packs or scons_packs:
         extra_names += ['tools::python']
+    if rsync_packs:
+        extra_names += ['tools::rsync']
     if scons_packs:
         extra_names += ['tools::scons']
     if tar_packs:
@@ -157,6 +163,12 @@ def set_cross_dependencies (package_object_dict):
                                                              lambda x,y: x+y, (add,))
     for p in python_packs:
         add = ['tools::python']
+        if not misc.list_in (add, p.get_platform_build_dependencies ()):
+            old_callback = p.get_build_dependencies
+            p.get_build_dependencies = misc.MethodOverrider (old_callback,
+                                                             lambda x,y: x+y, (add,))
+    for p in rsync_packs:
+        add = ['tools::rsync']
         if not misc.list_in (add, p.get_platform_build_dependencies ()):
             old_callback = p.get_build_dependencies
             p.get_build_dependencies = misc.MethodOverrider (old_callback,
