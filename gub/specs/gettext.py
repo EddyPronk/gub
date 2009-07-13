@@ -61,7 +61,10 @@ jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
 
 class Gettext__tools (tools.AutoBuild):
     def _get_build_dependencies (self):
-        return ['libtool']
+        return [
+            'system::g++',
+            'libtool',
+            ]
     def configure (self):
         tools.AutoBuild.configure (self)
         self.file_sub ([
