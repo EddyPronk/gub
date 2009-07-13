@@ -124,67 +124,26 @@ def set_cross_dependencies (package_object_dict):
     # try:
     # bin/gub -p tools linux-x86::cross/gcc mingw::cross/gcc
     # bin/gub -p tools linux-x86::cross/gcc
-    for p in other_packs:
-        add = [n for n in cross_names if p.settings.platform in n]
-        if not misc.list_in (add, p.get_platform_build_dependencies ()):
-            old_callback = p.get_build_dependencies
-            p.get_build_dependencies = misc.MethodOverrider (old_callback,
-                                                             lambda x,y: x+y, (add,))
-    for p in other_packs + cross_packs:
-        add = [n for n in sdk_names if p.settings.platform in n]
-        if not misc.list_in (add, p.get_platform_build_dependencies ()):
-            old_callback = p.get_build_dependencies
-            p.get_build_dependencies = misc.MethodOverrider (old_callback,
-                                                             lambda x,y: x+y, (add,))
-    for p in other_packs + cross_packs + tools_packs:
-        add = bootstrap_names
-        if (p.platform_name () not in bootstrap_names
-            and not misc.list_in (add, p.get_platform_build_dependencies ())):
-            old_callback = p.get_build_dependencies
-            p.get_build_dependencies = misc.MethodOverrider (old_callback,
-                                                             lambda x,y: x+y, (add,))
-    for p in bzip2_packs:
-        add = ['tools::bzip2']
-        if not misc.list_in (add, p.get_platform_build_dependencies ()):
-            old_callback = p.get_build_dependencies
-            p.get_build_dependencies = misc.MethodOverrider (old_callback,
-                                                             lambda x,y: x+y, (add,))
-    for p in git_packs:
-        add = ['tools::git']
-        if not misc.list_in (add, p.get_platform_build_dependencies ()):
-            old_callback = p.get_build_dependencies
-            p.get_build_dependencies = misc.MethodOverrider (old_callback,
-                                                             lambda x,y: x+y, (add,))
-    for p in patch_packs:
-        add = ['tools::patch']
-        if not misc.list_in (add, p.get_platform_build_dependencies ()):
-            old_callback = p.get_build_dependencies
-            p.get_build_dependencies = misc.MethodOverrider (old_callback,
-                                                             lambda x,y: x+y, (add,))
-    for p in python_packs:
-        add = ['tools::python']
-        if not misc.list_in (add, p.get_platform_build_dependencies ()):
-            old_callback = p.get_build_dependencies
-            p.get_build_dependencies = misc.MethodOverrider (old_callback,
-                                                             lambda x,y: x+y, (add,))
-    for p in rsync_packs:
-        add = ['tools::rsync']
-        if not misc.list_in (add, p.get_platform_build_dependencies ()):
-            old_callback = p.get_build_dependencies
-            p.get_build_dependencies = misc.MethodOverrider (old_callback,
-                                                             lambda x,y: x+y, (add,))
-    for p in scons_packs:
-        add = ['tools::scons']
-        if not misc.list_in (add, p.get_platform_build_dependencies ()):
-            old_callback = p.get_build_dependencies
-            p.get_build_dependencies = misc.MethodOverrider (old_callback,
-                                                             lambda x,y: x+y, (add,))
-    for p in tar_packs:
-        add = ['tools::tar']
-        if not misc.list_in (add, p.get_platform_build_dependencies ()):
-            old_callback = p.get_build_dependencies
-            p.get_build_dependencies = misc.MethodOverrider (old_callback,
-                                                             lambda x,y: x+y, (add,))
+    def update_packs (packs=[], add=[]):
+        for p in packs:
+            if not misc.list_in (add, p.get_platform_build_dependencies ()):
+                old_callback = p.get_build_dependencies
+                p.get_build_dependencies = misc.MethodOverrider (old_callback,
+                                                                 lambda x,y: x+y, (add,))
+
+    update_packs (other_packs,
+                  [n for n in cross_names if p.settings.platform in n])
+    update_packs (other_packs + cross_packs,
+                  [n for n in sdk_names if p.settings.platform in n])    
+    update_packs (other_packs + cross_packs + tools_packs, bootstrap_names)
+    update_packs (bzip2_packs, ['tools::bzip2'])
+    update_packs (git_packs, ['tools::git'])
+    update_packs (patch_packs, ['tools::patch'])
+    update_packs (python_packs, ['tools::python'])
+    update_packs (rsync_packs, ['tools::rsync'])
+    update_packs (scons_packs, ['tools::scons'])
+    update_packs (tar_packs, ['tools::tar'])
+
     return extra_cross_names + extra_names
 
 cross_module_checksums = {}
