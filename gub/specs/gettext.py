@@ -62,7 +62,7 @@ jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
 class Gettext__tools (tools.AutoBuild):
     def _get_build_dependencies (self):
         return [
-            'system::g++',
+#            'system::g++',
             'libtool',
             ]
     def configure (self):
@@ -71,3 +71,6 @@ class Gettext__tools (tools.AutoBuild):
                 ('(SUBDIRS *=.*)examples', r'\1 '),
                 ],
                        '%(builddir)s/gettext-tools/Makefile')
+    def configure_command (self):
+        return (tools.AutoBuild.configure_command (self)
+                + ' --disable-libasprintf')
