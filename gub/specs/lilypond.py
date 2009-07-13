@@ -255,7 +255,10 @@ class LilyPond__mingw (LilyPond):
                 + ' LDFLAGS="%(python_lib)s"'  % locals ())
 
     def _get_build_dependencies (self):
-        return LilyPond._get_build_dependencies (self) + ['tools::icoutils']
+        return LilyPond._get_build_dependencies (self) + [
+            'tools::imagemagick',
+            'tools::icoutils',
+            ]
 
     # ugh Python hack: C&P Cygwin
     def compile (self):
