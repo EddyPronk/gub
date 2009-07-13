@@ -35,6 +35,8 @@ import os
 import sys
 #
 from gub import buildrunner
+from gub import configure
+from gub import cross
 from gub import gup
 from gub import locker
 from gub import logging
@@ -260,6 +262,8 @@ def build (settings, options, files):
             printf (b.checksums[name])
         sys.exit (0)
         
+    configure.test_required (logging.default_logger.error)
+
     b.build_source_packages (names)
 
 def exceptional_build (settings, options, files, logger):

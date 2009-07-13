@@ -6,6 +6,7 @@ from gub import cross
 from gub import logging
 from gub import misc
 from gub import repository
+from gub import system
 from gub import target
 from gub import tools
 
@@ -34,6 +35,8 @@ def get_build_class (settings, flavour, name):
     if not cls:
         logging.verbose ('making spec:  %(name)s\n' % locals ())
         cls = get_build_without_module (flavour, name)
+    if cls:
+        cls._created_name = name
     return cls
 
 def get_build_from_module (settings, name):
@@ -99,7 +102,9 @@ class Dependency:
     def flavour (self):
         if not self._flavour:
             self._flavour = target.AutoBuild
-            if self.settings.platform == 'tools':
+            if self.settings.platform == 'system':
+                self._flavour = system.Configure
+            elif self.settings.platform == 'tools':
                 self._flavour = tools.AutoBuild
         return self._flavour
     

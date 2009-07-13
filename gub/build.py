@@ -38,11 +38,21 @@ class Build (context.RunnableContext):
     @context.subst_method
     def checksum_file (self):
         return '%(packages)s/%(name)s%(vc_branch_suffix)s.checksum'
-
     def nop (self):
+        pass
+    def get_conflict_dict (self):
+        return {}
+    def get_done (self):
+        return list ()
+    def is_done (self, stage):
+        return stage in self.get_done ()
+    def set_done (self, stage):
         pass
     def stages (self):
         return list ()
+    @context.subst_method
+    def stamp_file (self):
+        return '%(statusdir)s/%(name)s-%(version)s-%(source_checksum)s'
     def apply_patch (self, patch, strip_components=1):
         name, parameters = misc.dissect_url (patch)
         strip = str (strip_components)
@@ -97,6 +107,39 @@ to skip this check and risk a defective build.
                 raise
             if stage not in ['clean', 'download']:
                 self.set_done (stage)
+
+    def get_build_dependencies (self):
+        return []
+
+    def with_platform (self, name):
+        return misc.with_platform (name, self.settings.platform)
+
+    def get_platform_build_dependencies (self):
+        return [self.with_platform (n) for n in self.get_build_dependencies ()]
+
+    def platform_name (self):
+        return self.with_platform (self.name ())
+
+    @context.subst_method
+    def platform (self):
+        return self.settings.platform
+
+    @context.subst_method
+    def name (self):
+        file = self.__class__.__module__
+        file = re.sub ('_xx_', '++', file)
+        file = re.sub ('_x_', '+', file)
+        return file
+
+    @context.subst_method
+    def pretty_name (self):
+        name = self.__class__.__name__
+        name = re.sub ('__.*', '', name)
+        return name
+
+    @context.subst_method
+    def file_name (self):
+        return self.source.file_name ()
 
 class AutoBuild (Build):
     '''Build a source package the traditional Unix way
@@ -165,23 +208,6 @@ class AutoBuild (Build):
     def force_sequential_build (self):
         """Set to true if package can't handle make -jX """
         return False
-
-    @context.subst_method
-    def name (self):
-        file = self.__class__.__module__
-        file = re.sub ('_xx_', '++', file)
-        file = re.sub ('_x_', '+', file)
-        return file
-
-    @context.subst_method
-    def pretty_name (self):
-        name = self.__class__.__name__
-        name = re.sub ('__.*', '', name)
-        return name
-
-    @context.subst_method
-    def file_name (self):
-        return self.source.file_name ()
 
     @context.subst_method
     def source_checksum (self):
@@ -303,10 +329,6 @@ class AutoBuild (Build):
         return '%(packages)s'
 
     @context.subst_method
-    def stamp_file (self):
-        return '%(statusdir)s/%(name)s-%(version)s-%(source_checksum)s'
-
-    @context.subst_method
     def makeflags (self):
         return ''
 
@@ -328,9 +350,6 @@ class AutoBuild (Build):
             if not last in done:
                 done = []
         return done
-
-    def is_done (self, stage):
-        return stage in self.get_done ()
 
     def set_done (self, stage):
         self.dump (stage, self.get_stamp_file (), 'w')
@@ -486,22 +505,6 @@ cp %(file)s %(install_root)s/license/%(name)s
             p.dump_header_file ()
             p.clean ()
         self.system ('rm -rf %(install_root)s')
-
-    def get_build_dependencies (self):
-        return []
-
-    def with_platform (self, name):
-        return misc.with_platform (name, self.settings.platform)
-
-    def get_platform_build_dependencies (self):
-        return [self.with_platform (n) for n in self.get_build_dependencies ()]
-
-    def platform_name (self):
-        return self.with_platform (self.name ())
-
-    @context.subst_method
-    def platform (self):
-        return self.settings.platform
 
     def get_subpackage_definitions (self):
         cross_dir = self.settings.cross_dir

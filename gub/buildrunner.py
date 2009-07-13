@@ -116,8 +116,9 @@ class BuildRunner:
         # fixme: spec.build_checksum () should be method.
         reason = ''
         hdr = pkg.expand ('%(split_hdr)s')
-        if spec.source_checksum () != pkg_dict['source_checksum']:
-            reason = 'source %s -> %s (memory)' % (spec.source_checksum (), pkg_dict['source_checksum'])
+        if spec.install_after_build:
+            if spec.source_checksum () != pkg_dict['source_checksum']:
+                reason = 'source %s -> %s (memory)' % (spec.source_checksum (), pkg_dict['source_checksum'])
 
         if reason == '' and self.checksums[spec.platform_name ()] != build_checksum_ondisk:
             failure = 'diff'
@@ -132,13 +133,13 @@ class BuildRunner:
             message = '\n' + diff
             reason = '\n *** Checksum mismatch: %(failure)s (%(spec_name)s, %(spec_platform)s)%(message)s\n' % locals ()
 
-        if reason == '' and not os.path.exists (hdr):
-            reason = 'hdr missing'
-            
-        if reason == '':
-            hdr_dict = dict (pickle.load (open (hdr, 'rb')))
-            if spec.source_checksum () != hdr_dict['source_checksum']:
-                reason = 'source %s -> %s (disk)' % (spec.source_checksum (), hdr_dict['source_checksum'])
+        if spec.install_after_build:
+            if not reason and not os.path.exists (hdr):
+                reason = 'no such file: header: %(hdr)s' % locals ()
+            elif not reason:
+                hdr_dict = dict (pickle.load (open (hdr, 'rb')))
+                if spec.source_checksum () != hdr_dict['source_checksum']:
+                    reason = 'source %s -> %s (disk)' % (spec.source_checksum (), hdr_dict['source_checksum'])
 
         # we don't use cross package checksums, otherwise we have to
         # rebuild everything for every cross package change.
@@ -207,8 +208,9 @@ class BuildRunner:
                              and self.manager (p.platform ()).is_installed (p.name ()))
         if all_installed:
             return
-
         checksum_fail_reason = self.failed_checksums.get (spec_name, '')
+        if not checksum_fail_reason and not spec.install_after_build:
+            return
         logger = logging.default_logger
         if checksum_fail_reason:
             logger.write_log ('must rebuild: %(spec_name)s\n' % locals (), 'verbose')
@@ -231,16 +233,18 @@ class BuildRunner:
             spec.build (self.options, skip)
             spec.connect_command_runner (None)
             deferred_runner.execute_deferred_commands ()
-            if len (self.checksums[spec_name].split ('\n')) < 5:
-                # Sanity check.  This can't be right.  Do not
-                # overwrite precious [possibly correct] checksum.
-                raise Exception ('BROKEN CHECKSUM:' + self.checksums[spec_name])
-            open (spec.expand ('%(checksum_file)s'), 'w').write (self.checksums[spec_name])
+            checksum_file = spec.expand ('%(checksum_file)s')
+            if checksum_file:
+                if len (self.checksums[spec_name].split ('\n')) < 5:
+                    # Sanity check.  This can't be right.  Do not
+                    # overwrite precious [possibly correct] checksum.
+                    raise Exception ('BROKEN CHECKSUM:' + self.checksums[spec_name])
+                open (checksum_file, 'w').write (self.checksums[spec_name])
             #spec.set_done ('')
             loggedos.system (logging.default_logger, spec.expand ('rm -f %(stamp_file)s'))
-        logger.write_log (spec.stage_message ('pkg_install'), 'stage')
         # Ugh, pkg_install should be stage
         if spec.install_after_build:
+            logger.write_log (spec.stage_message ('pkg_install'), 'stage')
             self.spec_install (spec)
         logging.default_logger.write_log ('\n', 'stage')
 

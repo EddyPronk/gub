@@ -35,6 +35,7 @@ platforms = {
     'linux-x86': 'i686-linux',
     'linux-64': 'x86_64-linux',
     'linux-ppc': 'powerpc-linux',
+    'system': 'system',
     'tools': 'tools',
     'mingw': 'i686-mingw32',
 }

@@ -30,7 +30,8 @@ def package_auto_dependency_dict (package):
             # because of our update_libtool ().  We fix this here,
             # because it's not a package's real dependency but rather
             # a detail of our libtool breakage fixup.
-            if not 'cross' in package.name ():
+            if (not 'cross/' in package.name ()
+                and not 'system::' in package.platform_name ()):
                 return [name.replace ('tools::libtool', 'libtool')
                         for name in package._get_build_dependencies ()]
             return package._get_build_dependencies ()
@@ -39,12 +40,16 @@ def package_auto_dependency_dict (package):
         def get_dependency_dict (foo):
             d = {'': [x.replace ('-devel', '')
                          for x in package._get_build_dependencies ()
-                         if 'tools::' not in x and 'cross/' not in x]}
+                         if ('system::' not in x
+                             and 'tools::' not in x
+                             and 'cross/' not in x)]}
             if 'runtime' in package.get_subpackage_names ():
                 d[''] += [package.name () + '-runtime']
-            if package.platform_name () != 'tools':
+            if package.platform_name () not in ['system', 'tools']:
                 d['devel'] = ([x for x in package._get_build_dependencies ()
-                               if 'tools::' not in x and 'cross/' not in x]
+                               if ('system::' not in x
+                                   and 'tools::' not in x
+                                   and 'cross/' not in x)]
                               + [package.name ()])
             return d
         package.get_dependency_dict \

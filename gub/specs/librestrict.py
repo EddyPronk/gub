@@ -9,6 +9,8 @@ class Librestrict_make__tools (tools.MakeBuild):
         return ['exec', 'open', 'stat']
     def BARFS_WITH_2_5_1_name (self):
         return 'librestrict-' + '-'.join (self.librestrict_flavours ())
+    def _get_build_dependencies (self):
+        return ['system::gcc']
     def get_conflict_dict (self):
         # Ugly hack: if the user is not explicitly tightening the
         # restrictions using LIBRESTRICT=open:stat, uninstall dash and
