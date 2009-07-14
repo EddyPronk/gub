@@ -110,7 +110,7 @@ class FileManager:
                 logging.error ('already have file %(f)s: %(package)s\n'
                                % locals ())
                 conflicts = True
-        logging.warning ('GUP: for f in lst:' + misc.timing () + '\n')
+        logging.command ('GUP: for f in lst:' + misc.timing () + '\n')
         if conflicts and not self.is_distro:
             raise Exception ('abort')
         root = self.root

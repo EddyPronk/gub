@@ -691,11 +691,12 @@ start = 0
 def timing ():
     global start
     now = time.time ()
+    result = ''
     if start:
         elapsed = now - start
-        return 'elapsed: %(elapsed)0.2f' % locals ()
+        result = 'elapsed: %(elapsed)0.2f' % locals ()
     start = now
-    return ''
+    return result
 
 def test ():
     printf (forall (x for x in [1, 1]))
