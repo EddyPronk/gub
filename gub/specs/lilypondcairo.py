@@ -11,7 +11,7 @@ class Lilypondcairo (lilypond.Lilypond):
         return [x.replace ('pango', 'pangocairo')
                 for x in lilypond.Lilypond._get_build_dependencies (self)]
     def get_conflict_dict (self):
-        return {'': ['lilypond', 'lilypond-devel', 'lilypond-doc'], 'devel': ['lilypond', 'lilypond-devel', 'lilypond-doc'], 'doc': ['lilypond', 'lilypond-devel', 'lilypond-doc'], 'runtime': ['lilypond', 'lilypond-devel', 'lilypond-doc']}
+        return {'': ['lilypond']}
 
 class Lilypondcairo__mingw (lilypond.Lilypond__mingw):
     source = Lilypondcairo.source
@@ -19,4 +19,4 @@ class Lilypondcairo__mingw (lilypond.Lilypond__mingw):
         return [x.replace ('pango', 'pangocairo')
                 for x in lilypond.Lilypond__mingw._get_build_dependencies (self)]
     def get_conflict_dict (self):
-        return {'': ['lilypond', 'lilypond-devel', 'lilypond-doc'], 'devel': ['lilypond', 'lilypond-devel', 'lilypond-doc'], 'doc': ['lilypond', 'lilypond-devel', 'lilypond-doc'], 'runtime': ['lilypond', 'lilypond-devel', 'lilypond-doc']}
+        return {'': ['lilypond']}

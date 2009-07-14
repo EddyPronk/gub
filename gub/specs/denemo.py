@@ -36,6 +36,8 @@ class Denemo (target.AutoBuild):
                 return True
             # let's keep srdir around for now
             self.source.is_tracking = misc.bind_method (tracking, self.source)
+    def get_subpackage_names (self):
+        return ['']
     def _get_build_dependencies (self):
         return [
             'tools::automake',

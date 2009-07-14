@@ -33,6 +33,8 @@ class LilyPond (target.AutoBuild):
             source.version = misc.bind_method (LilyPond.version_from_VERSION, source)
     def get_subpackage_names (self):
         return ['']
+    def get_conflict_dict (self):
+        return {'': ['lilypondcairo']}
     def _get_build_dependencies (self):
         return ['fontconfig-devel',
                 'freetype-devel',
