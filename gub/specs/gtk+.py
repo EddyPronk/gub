@@ -62,12 +62,14 @@ class Gtk_x___freebsd (Gtk_x_):
 class Gtk_x___freebsd__x86 (Gtk_x___freebsd):
     patches = Gtk_x___freebsd.patches + ['gtk+-2.15.3-configure.in-have-iswalnum.patch']
 
-class Gtk_x___mingw (Gtk_x_):
+class Gtk_x_without_X11 (Gtk_x_):
     #source = 'http://ftp.acc.umu.se/pub/GNOME/sources/gtk+/2.14/gtk+-2.14.7.tar.gz'
     source = 'http://ftp.gnome.org/pub/GNOME/platform/2.26/2.26.3/sources/gtk+-2.16.4.tar.gz'
     def _get_build_dependencies (self):
         return [x for x in Gtk_x_._get_build_dependencies (self)
                 if 'libx' not in x]
+
+class Gtk_x___mingw (Gtk_x_without_X11):
     def LDFLAGS (self):
         return '-Wl,-rpath -Wl,%(system_prefix)s/lib %(rpath)s'
     def gtk_so_extension (self):
@@ -100,3 +102,6 @@ class Gtk_x___linux__64 (Gtk_x_):
         return (Gtk_x_.configure_command (self)
                 + ' --disable-glibtest'
                 + ' --disable-test-print-backend')
+
+class Gtk_x___darwin (Gtk_x_without_X11):
+    pass
