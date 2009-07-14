@@ -114,11 +114,31 @@ def set_cross_dependencies (package_object_dict):
                 p.get_build_dependencies = misc.MethodOverrider (old_callback,
                                                                  lambda x,y: x+y, (add,))
 
-    update_packs (other_packs,
-                  [n for n in cross_names if p.settings.platform in n])
-    update_packs (other_packs + cross_packs,
-                  [n for n in sdk_names if p.settings.platform in n])    
-    update_packs (other_packs + cross_packs + tools_packs, bootstrap_names)
+# OOPS
+#    update_packs (other_packs,
+#                  [n for n in cross_names if p.settings.platform in n])
+#    update_packs (other_packs + cross_packs,
+#                  [n for n in sdk_names if p.settings.platform in n])    
+#    update_packs (other_packs + cross_packs + tools_packs, bootstrap_names)
+    for p in other_packs:
+        add = [n for n in cross_names if p.settings.platform in n]
+        if not misc.list_in (add, p.get_platform_build_dependencies ()):
+            old_callback = p.get_build_dependencies
+            p.get_build_dependencies = misc.MethodOverrider (old_callback,
+                                                             lambda x,y: x+y, (add,))
+    for p in other_packs + cross_packs:
+        add = [n for n in sdk_names if p.settings.platform in n]
+        if not misc.list_in (add, p.get_platform_build_dependencies ()):
+            old_callback = p.get_build_dependencies
+            p.get_build_dependencies = misc.MethodOverrider (old_callback,
+                                                             lambda x,y: x+y, (add,))
+    for p in other_packs + cross_packs + tools_packs:
+        add = bootstrap_names
+        if (p.platform_name () not in bootstrap_names
+            and not misc.list_in (add, p.get_platform_build_dependencies ())):
+            old_callback = p.get_build_dependencies
+            p.get_build_dependencies = misc.MethodOverrider (old_callback,
+                                                             lambda x,y: x+y, (add,))
 
     extra_names = []
     rsync_packs = bazaar_packs or cvs_packs or subversion_packs
