@@ -525,6 +525,10 @@ class Git (Repository):
         if self.revision == '' and self.branch == '':
             # note that HEAD doesn't really exist as a branch name.
             self.branch = 'master'
+        # We cannot do a shallow download if we're not tracking
+        # we have to get at least enough history to include the
+        # fixed committish ... :-)
+        self.shallow = self.is_tracking ()
         assert self.url_host
         assert self.url_dir
     def version (self):
@@ -594,9 +598,11 @@ Initialized empty Git repository in /home/janneke/vc/gub/target/mingw/src/ghosts
 fatal: attempt to fetch/clone from a shallow repository
 fatal: The remote end hung up unexpectedly
 '''
-            printf ('GIT: FIXME: shallow branching broken? -- getting *whole* history...')
-            ###self.git ('clone --depth 10 --bare %(source)s %(dir)s' % locals (), dir='.')
-            self.git ('clone --bare %(source)s %(dir)s' % locals (), dir='.')
+            if self.shallow:
+                self.git ('clone --depth 10 --bare %(source)s %(dir)s' % locals (), dir='.')
+            else:
+                printf ('GIT: FIXME: shallow branching broken? -- getting *whole* history...')
+                self.git ('clone --bare %(source)s %(dir)s' % locals (), dir='.')
         if self.branch and not (self.revision and self.is_downloaded ()):
             self.git ('fetch %(source)s %(branch)s:refs/heads/%(url_host)s/%(url_dir)s/%(branch)s' % self.__dict__)
         self.checksums = {}
@@ -623,6 +629,24 @@ fatal: The remote end hung up unexpectedly
         str = self.git_pipe ('ls-tree --name-only -r %(branch)s' % locals ())
         return str.split ('\n')
     def update_workdir (self, destdir):
+        if self.shallow:
+            self._update_workdir_shallow (destdir)
+        else:
+            self._update_workdir (destdir)
+    def _update_workdir_shallow (self, destdir):
+        branch = self.branch # branch is empty?
+        branch = 'master'
+        if not os.path.isdir (os.path.join (destdir, self.vc_system)):
+            self.system ('mkdir -p %(destdir)s' % locals ())
+            self.system ('cd %(destdir)s && git init' % locals ())
+        open ('%(destdir)s/.git/objects/info/alternates' % locals (), 'w').write (os.path.join (self.dir, 'objects'))
+        if 0: # no-go
+            open ('%(destdir)s/.git/HEAD' % locals (), 'w').write (self.checksum ())
+            HEAD = 'HEAD'
+        HEAD = self.checksum ()
+        self.system ('cd %(destdir)s && (git checkout -f %(branch)s || git branch %(branch)s)' % locals ())
+        self.system ('cd %(destdir)s && git reset --hard %(HEAD)s' % locals ())
+    def _update_workdir (self, destdir):
         checkout_dir = self.dir
         branch = self.get_ref ()
         if os.path.isdir (os.path.join (destdir, self.vc_system)):
