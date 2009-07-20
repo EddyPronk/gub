@@ -12,6 +12,7 @@ class Linux_headers (build.BinaryBuild, build.SdkBuild):
         return ['']
     def patch (self):
         self.system ('''
+cd %(srcdir)s && patch -p1 < %(patchdir)s/linux-headers-2.4.34-posix-fix.patch
 cd %(srcdir)s && yes yes | make ARCH=%(package_arch)s oldconfig symlinks include/linux/version.h
 #cd %(srcdir)s && yes yes | make ARCH=i386 oldconfig
 #cd %(srcdir)s && make ARCH=%(package_arch)s symlinks include/linux/version.h
