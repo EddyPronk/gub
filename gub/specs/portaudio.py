@@ -13,3 +13,129 @@ class Portaudio__mingw (Portaudio):
             self.file_sub ([('((src/os/win)/pa_win_util.o)',
                              r'\1 \2/pa_win_waveformat.o',)],
                            i)
+
+'''
+
+libtool: link: i686-apple-darwin8-gcc  -dynamiclib  -o lib/.libs/libportaudio.2.dylib  src/common/.libs/pa_allocation.o src/common/.libs/pa_converters.o src/common/.libs/pa_cpuload.o src/common/.libs/pa_dither.o src/common/.libs/pa_debugprint.o src/common/.libs/pa_front.o src/common/.libs/pa_process.o src/common/.libs/pa_skeleton.o src/common/.libs/pa_stream.o src/common/.libs/pa_trace.o src/os/mac_osx/.libs/pa_mac_hostapis.o src/os/unix/.libs/pa_unix_util.o src/hostapi/coreaudio/.libs/pa_mac_core.o src/hostapi/coreaudio/.libs/pa_mac_core_utilities.o src/hostapi/coreaudio/.libs/pa_mac_core_blocking.o src/common/.libs/pa_ringbuffer.o   -framework CoreAudio -framework AudioToolbox -framework AudioUnit -framework Carbon  -Wl,-headerpad_max_install_names -isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.3   -framework CoreAudio -framework AudioToolbox -framework AudioUnit -framework Carbon -install_name  /usr/lib/libportaudio.2.dylib -compatibility_version 3 -current_version 3.0 -Wl,-exported_symbols_list,lib/.libs/libportaudio-symbols.expsym
+/home/janneke/vc/gub/target/darwin-x86/root/usr/cross/bin/i686-apple-darwin8-ld: can't locate framework for: -framework CoreAudio
+
+
+or
+
+/home/janneke/vc/gub/target/darwin-x86/root/usr/cross/bin/i686-apple-darwin8-ld: Undefined symbols:
+_AudioConverterDispose
+_AudioConverterFillBuffer
+_AudioConverterNew
+_AudioConverterReset
+_AudioConverterSetProperty
+_AudioDeviceAddPropertyListener
+_AudioDeviceGetCurrentTime
+_AudioDeviceGetProperty
+_AudioDeviceGetPropertyInfo
+_AudioDeviceRemovePropertyListener
+_AudioHardwareGetProperty
+_AudioHardwareGetPropertyInfo
+_AudioOutputUnitStart
+_AudioOutputUnitStop
+_AudioUnitAddPropertyListener
+_AudioUnitGetProperty
+_AudioUnitInitialize
+_AudioUnitRender
+_AudioUnitReset
+_AudioUnitSetProperty
+_AudioUnitUninitialize
+_CFRelease
+_CFStringCreateWithFormat
+_CFStringGetCString
+_CFStringGetLength
+_CloseComponent
+_FindNextComponent
+_OpenAComponent
+___CFStringMakeConstantString
+_AudioDeviceSetProperty
+collect2: ld returned 1 exit status
+
+'''
+
+class Portaudio__darwin (Portaudio):
+    def patch (self):
+        Portaudio.patch (self)
+        # FIXME: this can't be right.  Move to darwin-sdk?
+        self.system ('mkdir -p %(builddir)s/include')
+        self.dump ('''
+typedef int decform;
+typedef int decimal;
+typedef int CGEventFilterMask;
+typedef int CGEventSuppressionState;
+''', '%(builddir)s/include/ansi_fp.h')
+        for framework in [
+            'AE',
+            'DiskArbitration',
+            'IOKit',
+#            'OSServices',
+            ]:
+            self.system ('''
+#ln -sf ../../System/Library/Frameworks/Kernel.framework/Headers/%(framework)s %(srcdir)s/usr/include/%(framework)s
+mkdir -p %(builddir)s/include/kernel
+ln -sf %(system_root)s/System/Library/Frameworks/Kernel.framework/Headers/%(framework)s %(builddir)s/include/kernel/%(framework)s
+''', locals ())
+        for framework in [
+            'AE',
+            'ATS',
+            'CFNetwork',
+            'CarbonCore',
+            'CarbonSound',
+            'ColorSync',
+            'CommonPanels',
+            'CoreGraphics',
+            'FindByContent',
+            'HIServices',
+            'HIToolbox',
+            'HTMLRendering',
+            'Help',
+            'IOKit',
+            'ImageCapture',
+            'ImageIO',
+            'Ink',
+            'LangAnalysis',
+            'LaunchServices',
+            'Metadata',
+            'NavigationServices',
+            'OpenScripting',
+            'OSServices',
+            'Print',
+            'PrintCore',
+            'QD',
+            'SearchKit',
+            'SecurityHI',
+            'SpeechRecognition',
+            'SpeechSynthesis',
+            'WebServicesCore',
+            ]:
+            self.system ('''
+#ln -sf ../../Developer/Headers/CFMCarbon/%(framework)s %(srcdir)s/usr/include/%(framework)s
+mkdir -p %(builddir)s/include
+ln -sf %(system_root)s/Developer/Headers/CFMCarbon/%(framework)s %(builddir)s/include/%(framework)s
+''', locals ())
+        for framework in [
+            'ApplicationServices',
+            'AudioToolbox',
+            'AudioUnit',
+            'Carbon',
+            'CoreAudio',
+            'CoreFoundation',
+            'CoreMIDI',
+            'CoreServices',
+            'DiskArbitration',
+            ]:
+            self.system ('''
+#ln -sf ../../System/Library/Frameworks/%(framework)s.framework/Headers %(srcdir)s/usr/include/%(framework)s
+mkdir -p %(builddir)s/include
+ln -sf %(system_root)s/System/Library/Frameworks/%(framework)s.framework/Headers %(builddir)s/include/%(framework)s
+''', locals ())
+        for i in ['%(srcdir)s/configure.in',
+                  '%(srcdir)s/configure']:
+            self.file_sub ([('-arch i386 -arch ppc', '-I%(system_prefix)s/include -I%(builddir)s/include -I%(builddir)s/include/kernel'),], i)
+    def configure_command (self):
+        return (Portaudio.configure_command (self)
+                + ''' CFLAGS='-DMACH_KERNEL=1 -Wno-multichar' ''')
