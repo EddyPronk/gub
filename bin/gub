@@ -170,6 +170,11 @@ Examples:
                   default=False,
                   help='Print action, do not run.')
 
+    p.add_option ('-x', '--no-dependencies',
+                  action='store_true',
+                  default=False,
+                  help='Print action, do not run.')
+
     p.add_option ('-l', '--skip-if-locked',
                   default=False,
                   dest="skip_if_locked",
@@ -201,7 +206,14 @@ def inspect (settings, files):
 def build (settings, options, files):
     logging.stage ('calculating dependencies\n')
     (names, specs) = gup.get_source_packages (settings, files)
-
+    if options.no_dependencies:
+        names = list ()
+        for spec in list (specs.values ()):
+            if spec.name () in files or spec.platform_name () in files:
+                if not names:
+                    specs = dict ()
+                names += [spec.platform_name ()]
+                specs[spec.platform_name ()] = spec
     platform = settings.platform
     dep_str = ' '.join (names)
     if options.dependencies:
