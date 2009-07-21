@@ -17,7 +17,7 @@ class Pangocairo__mingw (Pangocairo):
 ''', '%(etc)s/pango.modules', env=locals (), mode='a')
         Pangocairo.fix_config_files (self, prefix)
 
-class Pangocairo__darwin (Pangocairo):
+class Pangocairo__darwin__no_quartz_objective_c (Pangocairo):
     def config_cache_overrides (self, string):
         # compiling with Carbon requires -xobjective-c flag,
         # which GUB currently not has
