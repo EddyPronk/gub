@@ -8,4 +8,11 @@ class Libtiff (target.AutoBuild):
 
 class Libtiff__tools (tools.AutoBuild, Libtiff):
     def _get_build_dependencies (self):
-        return ['libtool', 'libjpeg-devel']
+        return [
+            'libtool',
+            'libjpeg-devel',
+#            'system::g++',
+            ]
+    def configure_command (self):
+        return (tools.AutoBuild.configure_command (self)
+                + ' --disable-cxx')
