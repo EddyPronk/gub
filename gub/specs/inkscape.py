@@ -134,3 +134,10 @@ atoll (char const *s)
 #endif /* C99_ROUND */
 \1'''),],
                        '%(builddir)s/config.h')
+
+class Inkscape__darwin (Inkscape):
+    def _get_build_dependencies (self):
+        return [x for x in Inkscape._get_build_dependencies (self)
+                if x.replace ('-devel', '') not in [
+                'libxml2', # Included in darwin-sdk, hmm?
+                ]]

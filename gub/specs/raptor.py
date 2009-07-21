@@ -37,3 +37,10 @@ class Raptor__mingw (Raptor):
 --enable-parsers="grddl rdfxml ntriples turtle trig guess rss-tag-soup rdfa n3"
 '''))
 #--enable-parsers="grddl rdfxml ntriples turtle trig guess rss-tag-soup rdfa n3"
+
+class Raptor__darwin (Raptor):
+    def _get_build_dependencies (self):
+        return [x for x in Raptor._get_build_dependencies (self)
+                if x.replace ('-devel', '') not in [
+                'libxml2', # Included in darwin-sdk, hmm?
+                ]]

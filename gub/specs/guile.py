@@ -46,11 +46,17 @@ exec %(tools_prefix)s/bin/guile "$@"
         target.AutoBuild.patch (self)
         if 'stat' in misc.librestrict ():
             self.file_sub ([(' doc ', ' ')], '%(srcdir)s/Makefile.am')
+            if not isinstance (self.source, repository.Git):
+                self.file_sub ([(' doc ', ' ')], '%(srcdir)s/Makefile.in')
     def autogen_sh (self):
         self.file_sub ([(r'AC_CONFIG_SUBDIRS\(guile-readline\)', '')],
                        '%(srcdir)s/configure.in')
         self.file_sub ([(r'guile-readline', '')],
                        '%(srcdir)s/Makefile.am')
+        if not isinstance (self.source, repository.Git):
+            self.file_sub ([(' doc ', ' ')], '%(srcdir)s/Makefile.in')
+            self.file_sub ([('guile-readline', '')],
+                           '%(srcdir)s/Makefile.in')
         self.dump ('', '%(srcdir)s/doc/ref/version.texi')
         self.dump ('', '%(srcdir)s/doc/tutorial/version.texi')
     def configure_flags (self):
@@ -120,6 +126,7 @@ exit 0
         self.system ('cd %(install_prefix)s%(cross_dir)s/bin && cp -pv %(target_architecture)s-guile-config guile-config')
 
 class Guile__mingw (Guile):
+    source = 'http://ftp.gnu.org/pub/gnu/guile/guile-1.8.7.tar.gz'
     def __init__ (self, settings, source):
         Guile.__init__ (self, settings, source)
         # Configure (compile) without -mwindows for console
@@ -140,11 +147,16 @@ class Guile__mingw (Guile):
                 # which breaks because __MINGW32__ needs #include <pthread.h>
                 # So, for now:
                     + ' --without-threads'
-                + Guile.configure_variables (self)
+                + self.configure_variables ()
                 # Use PATH_SEPARATOR=; or it will breaks tools
                 # searching for the build platform.
                 .replace (':', ';'))
                 ###LDFLAGS=-L%(system_prefix)s/lib
+    def configure_variables (self):
+        return (Guile.configure_variables (self)
+                + misc.join_lines ('''
+CFLAGS='-DHAVE_CONFIG_H=1 -I%(builddir)s'
+'''))
     def config_cache_overrides (self, str):
         return str + '''
 scm_cv_struct_timespec=${scm_cv_struct_timespec=no}
@@ -160,7 +172,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_prefix)s/lib"}
             self.file_sub ([('-mwindows', '')], libtool)
     def compile (self):
         ## Why the !?#@$ is .EXE only for guile_filter_doc_snarfage?
-        self.system ('''cd %(builddir)s/libguile && make CFLAGS='-DHAVE_CONFIG_H=1 -I%(builddir)s' gen-scmconfig guile_filter_doc_snarfage.exe''')
+        self.system ('''cd %(builddir)s/libguile && make gen-scmconfig guile_filter_doc_snarfage.exe''')
         self.system ('cd %(builddir)s/libguile && cp guile_filter_doc_snarfage.exe guile_filter_doc_snarfage')
         Guile.compile (self)
     def install (self):
@@ -192,24 +204,24 @@ guile_cv_use_csqrt="no"
                 + Guile.configure_variables (self))
 
 class Guile__darwin (Guile):
+    source = 'http://ftp.gnu.org/pub/gnu/guile/guile-1.8.7.tar.gz'
+    patches = Guile.patches + ['guile-1.8.6-pthreads-cross.patch']
     def install (self):
         Guile.install (self)
-
         def dylib_link (logger, fname):
             directory = os.path.split (fname)[0]
             src = os.path.basename (fname)
             dst = os.path.splitext (os.path.basename (fname))[0] + '.so'
             loggedos.symlink (logger, src, os.path.join (directory, dst))
-                              
         self.map_locate (dylib_link,
                          self.expand ('%(install_prefix)s/lib/'),
                          'libguile-srfi*.dylib')
  
 class Guile__darwin__x86 (Guile__darwin):
     def configure (self):
-        Guile__darwin.configure (self)
         self.file_sub ([('guile-readline', '')],
-                       '%(builddir)s/Makefile')
+                       '%(srcdir)s/Makefile.in')
+        Guile__darwin.configure (self)
         
 class Guile__cygwin (Guile):
     def category_dict (self):

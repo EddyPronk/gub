@@ -27,6 +27,13 @@ class Libxslt__mingw (Libxslt):
 --without-plugins
 '''))
 
+class Libxslt__darwin (Libxslt):
+    def _get_build_dependencies (self):
+        return [x for x in Libxslt._get_build_dependencies (self)
+                if x.replace ('-devel', '') not in [
+                'libxml2', # Included in darwin-sdk, hmm?
+                ]]
+
 class Libxslt__tools (tools.AutoBuild, Libxslt):
     def _get_build_dependencies (self):
         return Libxslt._get_build_dependencies (self) + ['libtool']

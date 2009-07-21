@@ -16,3 +16,13 @@ class Pangocairo__mingw (Pangocairo):
         self.dump ('''${PANGO_PREFIX}/lib/pango/${PANGO_MODULE_VERSION}/modules/pango-basic-win32${PANGO_SO_EXTENSION} BasicScriptEngineWin32 PangoEngineShape PangoRenderWin32 common:
 ''', '%(etc)s/pango.modules', env=locals (), mode='a')
         Pangocairo.fix_config_files (self, prefix)
+
+class Pangocairo__darwin (Pangocairo):
+    def config_cache_overrides (self, string):
+        # compiling with Carbon requires -xobjective-c flag,
+        # which GUB currently not has
+        #    i686-apple-darwin8-gcc: language objective-c not recognized
+        # So, try without Carbon before changing GCC.
+        return string + '''
+ac_cv_header_Carbon_Carbon_h=${ac_cv_header_Carbon_Carbon_h=no}
+'''

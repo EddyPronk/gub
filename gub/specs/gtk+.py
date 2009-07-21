@@ -28,6 +28,7 @@ class Gtk_x_ (target.AutoBuild):
                 ]
     @context.subst_method
     def LDFLAGS (self):
+        # FIXME: See what happens when using the cross_compiling=yes
         # UGH. glib-2.0.m4's configure snippet compiles and runs a
         # program linked against glib; so it needs LD_LIBRARY_PATH (or
         # a configure-time-only -Wl,-rpath, -Wl,%(system_prefix)s/lib
@@ -96,6 +97,7 @@ class Gtk_x___linux__64 (Gtk_x_):
     source = 'http://ftp.gnome.org/pub/GNOME/platform/2.26/2.26.3/sources/gtk+-2.16.4.tar.gz'
     def patch (self):
         Gtk_x_.patch (self)
+        # FIXME: PROMOTEME to target.py?
         self.file_sub ([('cross_compiling=(maybe|no)', 'cross_compiling=yes')],
                        '%(srcdir)s/configure')
     def configure_command (self):
@@ -104,4 +106,11 @@ class Gtk_x___linux__64 (Gtk_x_):
                 + ' --disable-test-print-backend')
 
 class Gtk_x___darwin (Gtk_x_without_X11):
-    pass
+    def LDFLAGS (self):
+        return ''
+    def configure_command (self):
+        return (Gtk_x_without_X11.configure_command (self)
+                .replace (''' LDFLAGS='%(rpath)s -Wl,-rpath -Wl,%(system_prefix)s/lib' ''', '')
+                + ' --with-gdktarget=quartz'
+                )
+                

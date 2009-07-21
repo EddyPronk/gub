@@ -100,3 +100,15 @@ cd %(builddir)s/src && make AM_LDFLAGS="-mwindows" && cp -p .libs/denemo.exe den
 install -m755 %(builddir)s/src/denemo-windows.exe %(install_prefix)s/bin/denemo.exe
 install -m755 %(builddir)s/src/denemo-console.exe %(install_prefix)s/bin/denemo-console.exe
 ''')
+
+class Denemo__darwin (Denemo):
+    def _get_build_dependencies (self):
+        return [x for x in Denemo._get_build_dependencies (self)
+                if x.replace ('-devel', '') not in [
+                'jack',
+                'lash',
+                'libxml2', # Included in darwin-sdk, hmm?
+                ]] + [
+            'fondu',
+            'osx-lilypad',
+            ]

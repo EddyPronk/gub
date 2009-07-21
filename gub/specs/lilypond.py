@@ -349,7 +349,10 @@ class LilyPond__darwin (LilyPond):
     def _get_build_dependencies (self):
         return (LilyPond._get_build_dependencies (self)
                 # FIXME: move to lilypond-installer.py, see __mingw.
-                + [ 'fondu', 'osx-lilypad'])
+                + [
+                'fondu',
+                'osx-lilypad',
+                ])
     def configure_command (self):
         return (LilyPond.configure_command (self)
                 .replace ('--enable-rpath', '--disable-rpath'))

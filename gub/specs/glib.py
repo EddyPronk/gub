@@ -39,6 +39,7 @@ class Glib__darwin (Glib):
                        '%(builddir)s/libtool')
 
 class Glib__darwin__x86 (Glib__darwin):
+    source = 'http://ftp.gnome.org/pub/GNOME/platform/2.26/2.26.3/sources/glib-2.20.4.tar.gz'
     def compile (self):
         self.file_sub ([('(SUBDIRS = .*) tests', r'\1'),
                         (r'GTESTER = \$.*', ''),

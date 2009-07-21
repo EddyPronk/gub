@@ -10,3 +10,10 @@ class Librsvg (target.AutoBuild):
                 'gtk+-devel',
                 'pangocairo-devel',
                 'libxml2-devel']
+
+class Librsvg__darwin (Librsvg):
+    def _get_build_dependencies (self):
+        return [x for x in Librsvg._get_build_dependencies (self)
+                if x.replace ('-devel', '') not in [
+                'libxml2', # Included in darwin-sdk, hmm?
+                ]]

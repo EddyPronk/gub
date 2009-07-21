@@ -23,3 +23,10 @@ class Poppler (target.AutoBuild):
                 #+ ' --disable-gdk'
                 #+ ' --disable-splash-output'
                 #+ ' --disable-cairo' ? 
+
+class Poppler__darwin (Poppler):
+    def _get_build_dependencies (self):
+        return [x for x in Poppler._get_build_dependencies (self)
+                if x.replace ('-devel', '') not in [
+                'libxml2', # Included in darwin-sdk, hmm?
+                ]]
