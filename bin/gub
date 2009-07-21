@@ -80,12 +80,10 @@ Examples:
                   help='Leave build and src dir for inspection')
 
     p.add_option ('-s', '--src-package', action='store_true',
-                  dest='src_package',
                   default=None,
                   help='Also roll source packages')
 
     p.add_option ('-p', '--platform', action='store',
-                  dest='platform',
                   type='choice',
                   default=None,
                   help='select target platform',
@@ -97,12 +95,10 @@ Examples:
                   help='Key of package to inspect')
 
     p.add_option ('--inspect-output', action='store',
-                  dest='inspect_output',
                   default=None,
                   help='Where to write result of inspection')
 
     p.add_option ('--download-only', action='store_true',
-                  dest='download_only',
                   default=False,
                   help='Exit after downloading.')
 
@@ -160,7 +156,7 @@ Examples:
                   dest='lax_checksums',
                   help="do not rebuild packages with failing checksums")
 
-    p.add_option ('--dry-run',
+    p.add_option ('-n', '--dry-run',
                   action='store_true',
                   default=False,
                   help='Print action, do not run.')
