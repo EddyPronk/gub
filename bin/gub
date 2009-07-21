@@ -287,7 +287,7 @@ def exceptional_build (settings, options, files, logger):
             logger.write_log (misc.exception_string (), 'warning')
             sys.stderr.write ('\n')
             if buildrunner.target:
-                sys.stderr.write ('\n*** Failed target: %s\n' % buildrunner.target)
+                sys.stderr.write ('*** Failed target: %s\n' % buildrunner.target)
             sys.stderr.write ('\n')
             # Using "raise" here has this exception's stack trace at
             # the tail of GUB's output.  Most of the time, it's more

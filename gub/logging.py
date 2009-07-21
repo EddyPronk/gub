@@ -49,8 +49,8 @@ class AbstractCommandLogger:
         self.debug = Writer ('debug')
     def verbose_flag (self):
         return ''
-    def read_tail (self):
-        return 'tail'
+    def read_tail (self, size=0, lines=0):
+        return ['tail']
     def write_log (self, message, message_level):
         pass
     def log_env (self, env):
@@ -84,15 +84,21 @@ class CommandLogger (AbstractCommandLogger):
         self.write_log_file ('\n\n' + self.start_marker)
 
     # ugh: the following should not be in the base class.
-    def read_tail (self, size=10240, lines=100):
+    def read_tail (self, size=0, lines=0):
+        if not size or not lines:
+            lines = 5 + 10 * self.threshold
+            size = 200 * lines
         if self.log_file:
             return misc.read_tail (self.log_file_name, size, lines,
                                    self.start_marker)
         else:
-            return '(no log)'
+            return ['(no log)']
 
     def dump_tail (self, output):
-        tail = '\n'.join (self.read_tail ())
+        indent = '    '
+        tail = ('%(indent)s' % locals ()
+                + ('\n%(indent)s' % locals ()).join (self.read_tail ())
+                .rstrip ())
         log_name = self.relative_log_name
         output.write ('Tail of %(log_name)s >>>>>>>>\n%(tail)s\n<<<<<<<< Tail of %(log_name)s\n' % locals ())
 
