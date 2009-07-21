@@ -14,20 +14,22 @@ class LilyPond_installer (lilypond.LilyPond_base):
     def _get_build_dependencies (self):
         return [self.settings.target_platform + '::lilypond']
     def compile (self):
+        self.system (self.compile_command ())
+    def compile_command (self):
         # FIXME: ugh, no branches anymore in self.settings.branches['guile'],
         # let's hope/assume the user did not override guile source or branch...
         dir = os.path.join (self.settings.downloads, 'guile')
         guile_branch = repository.get_repository_proxy (dir, guile.Guile.source, guile.Guile.branch).full_branch_name ()
         #guile_branch = guile.Guile (self.settings, guile.Guile.source).source.full_branch_name ()
         lilypond_branch = self.source.full_branch_name ()
-        self.system (sys.executable
-                     + misc.join_lines ('''
+        return (sys.executable
+                + misc.join_lines ('''
 bin/gib
---platform=%(target_platform)s
+--platform=%%(target_platform)s
 --branch=guile=%(guile_branch)s
 --branch=lilypond=%(lilypond_branch)s
 lilypond
-'''), locals ())
+''' % locals ()))
     def install_command (self):
         return 'true'
 
@@ -35,6 +37,9 @@ class LilyPond_installer__mingw (LilyPond_installer):
     def _get_build_dependencies (self):
         return (LilyPond_installer._get_build_dependencies (self)
                 + ['lilypad', 'tools::icoutils', 'tools::nsis'])
+    def compile_command (self):
+        return (LilyPond_installer.compile_command (self)
+                + ' lilypad')
 
 Lilypond_installer = LilyPond_installer
 Lilypond_installer__mingw = LilyPond_installer__mingw
