@@ -644,6 +644,7 @@ fatal: The remote end hung up unexpectedly
             open ('%(destdir)s/.git/HEAD' % locals (), 'w').write (self.checksum ())
             HEAD = 'HEAD'
         HEAD = self.checksum ()
+        self.system ('cd %(destdir)s && git reset --hard %(HEAD)s' % locals ())
         self.system ('cd %(destdir)s && (git checkout -f %(branch)s || git branch %(branch)s)' % locals ())
         self.system ('cd %(destdir)s && git reset --hard %(HEAD)s' % locals ())
     def _update_workdir (self, destdir):
