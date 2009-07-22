@@ -55,10 +55,8 @@ class Settings (context.Context):
     def __init__ (self, platform=None):
         context.Context.__init__ (self)
 
-        # TODO: tools-prefix, target-prefix, cross-prefix?
-        self.prefix_dir = '/usr'
         self.root_dir = '/root'
-        self.cross_dir = '/cross'
+        self.prefix_dir = '/usr'
 
         self.build_platform = build_platform.machine ().strip ()
         if not self.build_platform:
@@ -96,6 +94,7 @@ class Settings (context.Context):
             self.target_cpu = self.build_cpu
             self.target_bits = self.build_bits
 
+        self.cross_dir = '/cross'
         # config dirs
 
         # Support GUB tools building directly in $HOME/{bin,lib,share},
