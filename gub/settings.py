@@ -55,8 +55,8 @@ class Settings (context.Context):
     def __init__ (self, platform=None):
         context.Context.__init__ (self)
 
-        self.root_dir = '/root'
-        self.prefix_dir = '/usr'
+        self.root_dir = '' # '/GUB'
+        self.prefix_dir = '' # '/usr'
 
         self.build_platform = build_platform.machine ().strip ()
         if not self.build_platform:
@@ -94,7 +94,7 @@ class Settings (context.Context):
             self.target_cpu = self.build_cpu
             self.target_bits = self.build_bits
 
-        self.cross_dir = '/cross'
+        self.cross_dir = '/' + self.target_architecture
         # config dirs
 
         # Support GUB tools building directly in $HOME/{bin,lib,share},
@@ -119,8 +119,8 @@ class Settings (context.Context):
 
         # workdir based; may be changed
         self.downloads = self.workdir + '/downloads'
-        self.alltargetdir = self.workdir + '/target'
-        self.targetdir = self.alltargetdir + '/' + self.platform
+        self.alltargetdir = '/GUB'
+        self.targetdir = self.alltargetdir + '/' + self.cross_dir
         self.logdir = self.targetdir + '/log'
 
         self.system_root = self.targetdir + self.root_dir
@@ -141,7 +141,7 @@ class Settings (context.Context):
 
         # FIXME: rename to cross_root?
         ##self.cross_prefix = self.system_prefix + self.cross_dir
-        self.cross_prefix = self.targetdir + self.root_dir + self.prefix_dir + self.cross_dir
+        self.cross_prefix = self.targetdir
         self.installdir = self.targetdir + '/install'
         self.tools_root = self.alltargetdir + '/tools' + self.root_dir
         self.tools_prefix = self.tools_root + self.prefix_dir
@@ -237,6 +237,8 @@ class Settings (context.Context):
             dir = self.__dict__[a]
             if not os.path.isdir (dir):
                 loggedos.makedirs (logging.default_logger, dir)
+            if not os.path.exists (self.alltargetdir + self.alltargetdir):
+                loggedos.system (logging.default_logger, 'cd %(alltargetdir)s && ln -s . ./%(alltargetdir)s' % self.__dict__)
         
     def dependency_url (self, string):
         # FIXME: read from settings.rc, take platform into account
