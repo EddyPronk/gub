@@ -314,6 +314,11 @@ def logged_build (settings, options, files):
     sys.exit (exceptional_build (settings, options, files, logger))
 
 def main ():
+    if not 'stat' in misc.librestrict ():
+        printf ('non-stat restriction is obsolete, use')
+        printf ('export LIBRESTRICT=open:stat')
+        sys.exit (2)
+
     os.environ = gub.settings.clean_environment ()
     # FIXME: pydb hack.  TODO: make gub run not from srcdir
     bindir = os.path.dirname (sys.argv[0])
