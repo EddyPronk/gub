@@ -45,7 +45,9 @@ class FileManager:
         self.is_distro = False
 
         ## lock must be outside of root, otherwise we can't rm -rf root
-        self.lock_file = self.root + '.lock'
+        ## self.lock_file = self.root + '.lock'
+        ## Well, stuff it: /GUB.lock: permission denied
+        self.lock_file = self.root + '/.lock2'
         if self.root == os.environ['HOME']:
             self.lock_file = self.root + '/.gub.lock'
         self.lock = locker.Locker (self.lock_file)
@@ -444,6 +446,8 @@ def get_source_packages (settings, const_todo):
 
     def name_to_dependencies_via_gub (url):
         platform, url = split_platform (url)
+        if platform == 'tools':
+            platform = settings.build_platform
         if ':' in url:
             base, unused_parameters = misc.dissect_url (url)
             name = (os.path.basename (base)

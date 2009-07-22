@@ -36,7 +36,8 @@ class Locker:
             fcntl.flock (lock_file.fileno (),
                          fcntl.LOCK_EX | fcntl.LOCK_NB)
         except IOError:
-            raise LockedError ("Can't acquire lock: " + lock_file_name)
+            os.system ('ls -ltrF ' + os.path.dirname (lock_file_name) + '/')
+            raise LockedError ('''Can't acquire lock: ''' + lock_file_name)
 
         self.lock_file_name = lock_file_name
         self.lock_file = lock_file
