@@ -112,6 +112,9 @@ to skip this check and risk a defective build.
         return []
 
     def with_platform (self, name):
+        if 'tools::' in name:
+            return misc.with_platform (name.replace ('tools::', ''),
+                                       self.settings.platform)
         return misc.with_platform (name, self.settings.platform)
 
     def get_platform_build_dependencies (self):

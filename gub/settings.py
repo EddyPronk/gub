@@ -71,6 +71,8 @@ class Settings (context.Context):
         if not platform:
             platform = self.build_platform
         self.target_platform = platform
+        if platform == 'tools':
+            self.target_platform = self.build_platform
         if self.target_platform not in list (platforms.keys ()):
             raise UnknownPlatform (self.target_platform)
 
@@ -120,13 +122,13 @@ class Settings (context.Context):
         # workdir based; may be changed
         self.downloads = self.workdir + '/downloads'
         self.alltargetdir = '/GUB'
-        self.targetdir = self.alltargetdir + '/' + self.cross_dir
+        self.targetdir = self.alltargetdir + self.cross_dir
         self.logdir = self.targetdir + '/log'
 
-        self.system_root = self.targetdir + self.root_dir
+        self.system_root = self.alltargetdir #self.targetdir + self.root_dir
         if self.platform == 'tools' and GUB_TOOLS_PREFIX:
             self.system_root = GUB_TOOLS_PREFIX
-        self.system_prefix = self.system_root + self.prefix_dir
+        self.system_prefix = self.targetdir + self.root_dir #self.system_root + self.prefix_dir
 
         ## Patches are architecture dependent, 
         ## so to ensure reproducibility, we unpack for each
@@ -143,15 +145,15 @@ class Settings (context.Context):
         ##self.cross_prefix = self.system_prefix + self.cross_dir
         self.cross_prefix = self.targetdir
         self.installdir = self.targetdir + '/install'
-        self.tools_root = self.alltargetdir + '/tools' + self.root_dir
+        self.tools_root = self.targetdir # self.alltargetdir + '/tools' + self.root_dir
         self.tools_prefix = self.tools_root + self.prefix_dir
         if GUB_TOOLS_PREFIX:
             self.tools_root = GUB_TOOLS_PREFIX
             self.tools_prefix = GUB_TOOLS_PREFIX
 
-        self.cross_packages = self.packages + self.cross_dir
-        self.cross_allsrcdir = self.allsrcdir + self.cross_dir
-        self.cross_statusdir = self.statusdir + self.cross_dir
+        self.cross_packages = self.packages + '/cross'
+        self.cross_allsrcdir = self.allsrcdir + '/cross'
+        self.cross_statusdir = self.statusdir + '/cross'
 
         self.core_prefix = self.cross_prefix + '/core'
         # end config dirs

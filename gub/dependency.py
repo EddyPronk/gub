@@ -42,7 +42,10 @@ def get_build_class (settings, flavour, name):
 def get_build_from_module (settings, name):
     file = get_build_module (settings, name)
     if file:
-        return get_build_from_file (settings.platform, file, name)
+        cls = get_build_from_file (settings.platform, file, name)
+        if not cls and settings.platform == settings.build_platform:
+            cls = get_build_from_file ('tools', file, name)
+        return cls
     return None
 
 def get_build_module (settings, name):
