@@ -1,4 +1,5 @@
 from gub import build
+from gub import context
 
 class Linux_headers (build.BinaryBuild, build.SdkBuild):
     source = 'http://www.nl.kernel.org/pub/linux/kernel/v2.4/linux-2.4.34.tar.bz2&name=linux-headers'
@@ -8,23 +9,30 @@ class Linux_headers (build.BinaryBuild, build.SdkBuild):
     def stages (self):
         return misc.list_insert_before (build.BinaryBuild.stages (self),
                                         'install', 'patch')
+    @context.subst_method
+    def linux_arch (self):
+        return '%(package_arch)s'
     def get_subpackage_names (self):
         return ['']
     def patch (self):
         self.system ('''
 cd %(srcdir)s && patch -p1 < %(patchdir)s/linux-headers-2.4.34-posix-fix.patch
-cd %(srcdir)s && yes yes | make ARCH=%(package_arch)s oldconfig symlinks include/linux/version.h
-#cd %(srcdir)s && yes yes | make ARCH=i386 oldconfig
-#cd %(srcdir)s && make ARCH=%(package_arch)s symlinks include/linux/version.h
+cd %(srcdir)s && yes yes | make ARCH=%(linux_arch)s oldconfig symlinks include/linux/version.h
+cd %(srcdir)s && rm -f include/asm
+cd %(srcdir)s && mv include/asm-%(linux_arch)s include/asm
+cd %(srcdir)s && rm -rfv include/asm-*
 cd %(srcdir)s && mv include .include
 cd %(srcdir)s && rm -rf *
-cd %(srcdir)s && mkdir usr
-cd %(srcdir)s && mv .include usr/include
+cd %(srcdir)s && mkdir -p ./%(system_prefix)s
+cd %(srcdir)s && mv .include ./%(system_prefix)s/include
+''')
+        # Duplicated in libc, remove here.
+        self.system ('''
 cd %(srcdir)s && rm -f\
- usr/include/scsi/sg.h\
- usr/include/scsi/scsi.h\
- usr/include/scsi/scsi_ioctl.h\
- usr/include/net/route.h
+ ./%(system_prefix)s/include/scsi/sg.h\
+ ./%(system_prefix)s/include/scsi/scsi.h\
+ ./%(system_prefix)s/include/scsi/scsi_ioctl.h\
+ ./%(system_prefix)s/include/net/route.h
 ''')
 
 from gub import misc
@@ -42,6 +50,11 @@ Linux_headers__linux__arm__softfloat = Linux_headers__debian
 Linux_headers__linux__arm__vfp = Linux_headers__debian
 Linux_headers__linux__mipsel = Linux_headers__debian
 
-class Linux_headers__linux__64 (Linux_headers__debian):
+class Linux_headers__linux__64 (Linux_headers):
+    @context.subst_method
+    def linux_arch (self):
+        return 'x86_64'
+    
+class xLinux_headers__linux__64 (Linux_headers__debian):
 # FIXME: we do not mirror all 12 debian arch's,
     source = 'http://ftp.debian.org/debian/pool/main/l/linux-kernel-headers/linux-kernel-headers_2.6.18-7_%(package_arch)s.deb&strip=0' 
