@@ -16,6 +16,9 @@ class Pangocairo__mingw (Pangocairo):
         self.dump ('''${PANGO_PREFIX}/lib/pango/${PANGO_MODULE_VERSION}/modules/pango-basic-win32${PANGO_SO_EXTENSION} BasicScriptEngineWin32 PangoEngineShape PangoRenderWin32 common:
 ''', '%(etc)s/pango.modules', env=locals (), mode='a')
         Pangocairo.fix_config_files (self, prefix)
+    def configure_command (self):
+        return (Pangocairo.configure_command (self)
+                + ' --disable-rebuilds')
 
 class Pangocairo__darwin__no_quartz_objective_c (Pangocairo):
     def config_cache_overrides (self, string):
