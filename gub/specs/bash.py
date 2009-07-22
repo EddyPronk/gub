@@ -1,4 +1,6 @@
+from gub import context
 from gub import target
+from gub import tools
 
 class Bash (target.AutoBuild):
     source = 'ftp://ftp.cwru.edu/pub/bash/bash-3.2.tar.gz'
@@ -15,3 +17,10 @@ class Bash__mingw (Bash):
         str += 'bash_cv_have_mbstate_t=yes\n'
         return str
  
+class Bash__tools (tools.AutoBuild, Bash):
+    @context.subst_method
+    def LDFLAGS (self):
+        return '%(rpath)'
+    def wrap_executables (self):
+        # using rpath
+        pass
