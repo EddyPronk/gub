@@ -282,13 +282,17 @@ def exceptional_build (settings, options, files, logger):
         if not (t == SystemExit and not v.code):
             sys.stderr.write ('\n')
             logger.dump_tail (sys.stderr)
-            # Log this exception, and only print cluttering output when
-            # using -v.
-            logger.write_log (misc.exception_string (), 'warning')
             sys.stderr.write ('\n')
+            if t == misc.SystemFailed:
+                # Log the python exception, and only print cluttering
+                # output when using -v; what we want to see is the
+                # command error.
+                logger.write_log (misc.exception_string (), 'warning')
+            else:
+                # We have a python exception, print that.
+                logger.write_log (misc.exception_string (), 'error')
             if buildrunner.target:
                 sys.stderr.write ('*** Failed target: %s\n' % buildrunner.target)
-            sys.stderr.write ('\n')
             # Using "raise" here has this exception's stack trace at
             # the tail of GUB's output.  Most of the time, it's more
             # helpful [for users] to see the actual error, rather
