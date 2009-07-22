@@ -41,6 +41,8 @@ class Gcc (cross.AutoBuild):
                            '%(srcdir)s/gcc/config/i386/linux.h')
             self.file_sub ([('-dynamic-linker /lib64', '-dynamic-linker %(system_prefix)s/lib')],
                            '%(srcdir)s/gcc/config/i386/linux64.h')
+        self.file_sub ([('(NATIVE_SYSTEM_HEADER_DIR = )/usr/include', r'\1%(system_prefix)s/include')],
+                       '%(srcdir)s/gcc/Makefile.in')
     @context.subst_method
     def NM_FOR_TARGET (self):
          return '%(toolchain_prefix)snm'
