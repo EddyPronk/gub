@@ -6,6 +6,11 @@ class Gcc_core (gcc.Gcc__from__source):
     source = 'ftp://ftp.gnu.org/pub/gnu/gcc/gcc-4.1.1/gcc-4.1.1.tar.bz2'
     def _get_build_dependencies (self):
         return gcc.Gcc._get_build_dependencies (self)
+    # Ugh, hope to keep checksum
+    def patch (self):
+        gcc.Gcc__from__source.patch (self)
+        self.file_sub ([('(NATIVE_SYSTEM_HEADER_DIR = )/usr/include', r'\1%(system_prefix)s/include')],
+                       '%(srcdir)s/gcc/Makefile.in')
     def get_subpackage_names (self):
         return ['']
     def name (self):
@@ -15,10 +20,10 @@ class Gcc_core (gcc.Gcc__from__source):
     def get_conflict_dict (self):
         return {'': ['cross/gcc', 'cross/gcc-devel', 'cross/gcc-doc', 'cross/gcc-runtime']}
     def configure_command (self):
+#--prefix=%(cross_prefix)s
+#--prefix=%(prefix_dir)s
         return (misc.join_lines (gcc.Gcc__from__source.configure_command (self)
                                  + '''
---prefix=%(cross_prefix)s
---prefix=%(prefix_dir)s
 --with-newlib
 --enable-threads=no
 --without-headers

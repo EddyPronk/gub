@@ -55,9 +55,6 @@ class Settings (context.Context):
     def __init__ (self, platform=None):
         context.Context.__init__ (self)
 
-        self.root_dir = '' # '/GUB'
-        self.prefix_dir = '' # '/usr'
-
         self.build_platform = build_platform.machine ().strip ()
         if not self.build_platform:
             build_platform.plain_machine ().strip ()
@@ -96,8 +93,10 @@ class Settings (context.Context):
             self.target_cpu = self.build_cpu
             self.target_bits = self.build_bits
 
-        self.cross_dir = '/' + self.target_architecture
         # config dirs
+        self.root_dir = '/' + self.target_architecture
+        self.prefix_dir = '/usr'
+        self.cross_dir = ''
 
         # Support GUB tools building directly in $HOME/{bin,lib,share},
         # use GUB_TOOLS_PREFIX=$HOME
@@ -122,13 +121,14 @@ class Settings (context.Context):
         # workdir based; may be changed
         self.downloads = self.workdir + '/downloads'
         self.alltargetdir = '/GUB'
-        self.targetdir = self.alltargetdir + self.cross_dir
-        self.logdir = self.targetdir + '/log'
 
-        self.system_root = self.alltargetdir #self.targetdir + self.root_dir
+        self.system_root = self.alltargetdir + self.root_dir
         if self.platform == 'tools' and GUB_TOOLS_PREFIX:
             self.system_root = GUB_TOOLS_PREFIX
-        self.system_prefix = self.targetdir + self.root_dir #self.system_root + self.prefix_dir
+        self.system_prefix = self.system_root + self.prefix_dir
+
+        self.targetdir = self.system_root
+        self.logdir = self.targetdir + '/log'
 
         ## Patches are architecture dependent, 
         ## so to ensure reproducibility, we unpack for each
@@ -142,11 +142,15 @@ class Settings (context.Context):
         self.platform_uploads = self.uploads + '/' + self.platform
 
         # FIXME: rename to cross_root?
-        ##self.cross_prefix = self.system_prefix + self.cross_dir
-        self.cross_prefix = self.targetdir
+        self.cross_prefix = self.system_prefix
         self.installdir = self.targetdir + '/install'
-        self.tools_root = self.targetdir # self.alltargetdir + '/tools' + self.root_dir
-        self.tools_prefix = self.tools_root + self.prefix_dir
+        self.tools_root = self.alltargetdir
+        self.tools_prefix = self.system_prefix
+
+        print 'SYSTEM_ROOT', self.system_root
+        print 'CROSS_PREFIX', self.cross_prefix
+        print 'SYSTEM_PREFIX', self.system_prefix
+
         if GUB_TOOLS_PREFIX:
             self.tools_root = GUB_TOOLS_PREFIX
             self.tools_prefix = GUB_TOOLS_PREFIX

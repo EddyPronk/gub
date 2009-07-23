@@ -23,16 +23,16 @@ cd %(srcdir)s && mv include/asm-%(linux_arch)s include/asm
 cd %(srcdir)s && rm -rfv include/asm-*
 cd %(srcdir)s && mv include .include
 cd %(srcdir)s && rm -rf *
-cd %(srcdir)s && mkdir -p ./%(system_prefix)s
-cd %(srcdir)s && mv .include ./%(system_prefix)s/include
+cd %(srcdir)s && mkdir -p ./%(prefix_dir)s
+cd %(srcdir)s && mv .include ./%(prefix_dir)s/include
 ''')
         # Duplicated in libc, remove here.
         self.system ('''
 cd %(srcdir)s && rm -f\
- ./%(system_prefix)s/include/scsi/sg.h\
- ./%(system_prefix)s/include/scsi/scsi.h\
- ./%(system_prefix)s/include/scsi/scsi_ioctl.h\
- ./%(system_prefix)s/include/net/route.h
+ ./%(prefix_dir)s/include/scsi/sg.h\
+ ./%(prefix_dir)s/include/scsi/scsi.h\
+ ./%(prefix_dir)s/include/scsi/scsi_ioctl.h\
+ ./%(prefix_dir)s/include/net/route.h
 ''')
 
 from gub import misc

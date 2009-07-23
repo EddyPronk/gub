@@ -55,6 +55,9 @@ def package_auto_dependency_dict (package):
         package.get_dependency_dict \
                 = misc.MethodOverrider (package.nop, get_dependency_dict)
 
+#from gub import target
+#AutoBuild = target.AutoBuild
+
 class AutoBuild (build.AutoBuild):
     def configure_command (self):
         return (build.AutoBuild.configure_command (self)
@@ -74,7 +77,7 @@ class AutoBuild (build.AutoBuild):
     def configure_variables (self):
         return misc.join_lines ('''
 CFLAGS=-I%(system_prefix)s/include
-LDFLAGS=-L%(system_prefix)s/lib
+LDFLAGS='-L%(system_prefix)s/lib -Wl,--as-needed'
 ''')
 
     ## ugh: prefix= will trigger libtool relinks.
@@ -103,7 +106,8 @@ tooldir=%(install_root)s/%(system_prefix)s
     def install (self):
         build.AutoBuild.install (self)
         # conditional on use of rpath, depending on shared libs?
-        self.wrap_executables ()
+        if 0:
+            self.wrap_executables ()
 
     def wrap_executables (self):
         def wrap (logger, file):

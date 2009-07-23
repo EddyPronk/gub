@@ -1,4 +1,4 @@
-from gub import tools
+from gub import target as tools
 
 '''
 Build shared libcoreutils.so without using libtool
@@ -18,7 +18,7 @@ cd %(srcdir)s && autoreconf
         return (tools.AutoBuild.configure_command (self)
                 + ' CFLAGS=-fPIC')
     def makeflags (self):
-        return ''' LDFLAGS='%(rpath)s' LIBS='$(cp_LDADD) $(ls_LDADD)' RANLIB='function mvaso () { mv $$1 $$(dirname $$1)/$$(basename $$1 .a).so; }; mvaso ' libcoreutils_a_AR='gcc -shared -o' '''
+        return ''' LDFLAGS='%(rpath)s' LIBS='$(cp_LDADD) $(ls_LDADD)' RANLIB='mvaso () { mv $$1 $$(dirname $$1)/$$(basename $$1 .a).so; }; mvaso ' libcoreutils_a_AR='gcc -shared -o' '''
     def wrap_executables (self):
         return False
     def install (self):

@@ -45,9 +45,8 @@ class FileManager:
         self.is_distro = False
 
         ## lock must be outside of root, otherwise we can't rm -rf root
-        ## self.lock_file = self.root + '.lock'
-        ## Well, stuff it: /GUB.lock: permission denied
-        self.lock_file = self.root + '/.lock2'
+        # UGH, /GUB
+        self.lock_file = self.root + '.lock'
         if self.root == os.environ['HOME']:
             self.lock_file = self.root + '/.gub.lock'
         self.lock = locker.Locker (self.lock_file)
