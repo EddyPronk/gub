@@ -244,8 +244,25 @@ class Settings (context.Context):
             if not os.path.isdir (dir):
                 loggedos.makedirs (logging.default_logger, dir)
             if not os.path.exists (self.alltargetdir + self.alltargetdir):
-                loggedos.system (logging.default_logger, 'cd %(alltargetdir)s && ln -s . ./%(alltargetdir)s' % self.__dict__)
-        
+                self.lib = 'lib'
+                if self.build_bits == '64':
+                    self.lib = 'lib64'
+                loggedos.system (logging.default_logger, '''
+cd %(alltargetdir)s && ln -sf . ./%(alltargetdir)s
+cd %(alltargetdir)s && ln -sf %(system_prefix)s .
+cd %(alltargetdir)s && ln -sf %(system_prefix)s/bin .
+cd %(alltargetdir)s && ln -sf %(system_prefix)s/dev .
+cd %(alltargetdir)s && ln -sf %(system_prefix)s/etc .
+cd %(alltargetdir)s && ln -sf %(system_prefix)s/%(lib)s lib
+cd %(alltargetdir)s && mkdir -p lib
+cd %(alltargetdir)s && ln -sf %(system_prefix)s/bin/true lib/ld-linux.so.2      
+''' % self.__dict__)
+                loggedos.dump_file ('''
+PATH="/usr/sbin:/usr/bin:/sbin:/bin:/usr/%(build_architecture)s/bin"
+alias l='ls -ltrF'
+alias p='less -nMiX'
+''', '%(alltargetdir)s/etc/profile' % self.__dict__)
+                                    
     def dependency_url (self, string):
         # FIXME: read from settings.rc, take platform into account
         name = string.replace ('-', '_')

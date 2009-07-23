@@ -77,6 +77,11 @@ class Gcc (cross.AutoBuild):
         if 'c++' in self.languages ():
             cmd +=  ' ' + cxx_opt
         return misc.join_lines (cmd)
+    def makeflags (self):
+        return misc.join_lines ('''
+tooldir="%(cross_prefix)s/%(target_architecture)s"
+gcc_tooldir="%(prefix_dir)s/%(target_architecture)s"
+''')
     def FAILED_attempt_to_avoid_post_install_MOVE_TARGET_LIBS_makeflags (self):
         return misc.join_lines ('''
 toolexeclibdir=%(system_prefix)s
@@ -94,6 +99,12 @@ TARGET_FLAGS_TO_PASS='$(BASE_FLAGS_TO_PASS) $(EXTRA_TARGET_FLAGS) $(GUB_FLAGS_TO
         # .so* because version numbers trail .so extension.
         for suf in ['.a', '.la', '.so*', '.dylib']:
             self.map_locate (move_target_lib, libdir, 'lib*%(suf)s' % locals ())
+    def pre_install (self):
+        cross.AutoBuild.pre_install (self)
+        # Only id <PREFIX>/<TARGET-ARCH>/bin exists, gcc's install installs
+        # the plain gcc drivers without <TOOLCHAIN-PREFIX>gcc
+#        self.system ('mkdir -p %(install_root)s%(cross_prefix)s/%(target_architecture)s/bin')
+        self.system ('mkdir -p %(install_root)s%(prefix_dir)s/%(target_architecture)s/bin')
     def install (self):
         cross.AutoBuild.install (self)
         self.move_target_libs (self.expand ('%(install_prefix)s%(cross_dir)s/%(target_architecture)s'))
