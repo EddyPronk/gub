@@ -1,0 +1,15 @@
+--- fakeroot-ng-0.16.orig/arch/linux/Makefile.template.in~	2008-08-20 11:19:40.000000000 +0200
++++ fakeroot-ng-0.16.orig/arch/linux/Makefile.template.in	2009-07-23 10:25:30.595354639 +0200
+@@ -19,10 +19,8 @@ RANLIB = @RANLIB@
+ target_cpu = @target_cpu@
+ target_os = @target_os@
+ 
+-# Because we are extracted by configure one directory above the one from which we are included,
+-# manually add a "directory up"
+-top_builddir = ../@top_builddir@
+-top_srcdir = ../@top_srcdir@
++top_builddir = @top_builddir@
++top_srcdir = @top_srcdir@
+ 
+ %.lo: %.c $(DEPDIR)/stamp
+ 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(CPPFLAGS) $(CFLAGS) \

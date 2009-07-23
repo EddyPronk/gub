@@ -142,7 +142,8 @@ class FileManager:
                              ),],
                            '%(root)s/%(file)s' % locals (),
                            must_succeed=('tools/root' not in self.root
-                                         and 'cross' not in dir))
+                                         and 'cross' not in dir
+                                         and '/GUB' not in self.root))
         
     def pkgconfig_pc_fixup (self, root, file, prefix_dir):
         # avoid using libs from build platform, by adding

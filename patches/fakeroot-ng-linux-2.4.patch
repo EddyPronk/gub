@@ -1,0 +1,367 @@
+--- fakeroot-ng-0.16.orig/arch/linux/x86_64/platform.c.orig	2009-07-23 11:02:30.418385068 +0200
++++ fakeroot-ng-0.16.orig/arch/linux/x86_64/platform.c	2009-07-23 11:06:33.586021194 +0200
+@@ -224,8 +224,16 @@ static int syscall_32_to_64[]={
+     __NR_rt_sigtimedwait,	/* 177 */
+     __NR_rt_sigqueueinfo,	/* 178 */
+     __NR_rt_sigsuspend,		/* 179 */
++#ifdef LINUX_2_5
+     __NR_pread64,		/* 180 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_pwrite64,		/* 181 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
+     __NR_chown,		        /* 182 */
+     __NR_getcwd,		/* 183 */
+     __NR_capget,		/* 184 */
+@@ -294,74 +302,302 @@ static int syscall_32_to_64[]={
+     __NR_io_getevents,		/* 247 */
+     __NR_io_submit,		/* 248 */
+     __NR_io_cancel,		/* 249 */
++#ifdef LINUX_2_5
+     __NR_fadvise64,		/* 250 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
+     -1,                         /* 251 is available for reuse (was briefly sys_set_zone_reclaim) */
++#ifdef LINUX_2_5
+     __NR_exit_group,		/* 252 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
+     __NR_lookup_dcookie,	/* 253 */
+     __NR_epoll_create,		/* 254 */
+     __NR_epoll_ctl,		/* 255 */
+     __NR_epoll_wait,		/* 256 */
+     __NR_remap_file_pages,	/* 257 */
++#ifdef LINUX_2_5
+     __NR_set_tid_address,	/* 258 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_timer_create,		/* 259 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_timer_settime,		/* 260 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_timer_gettime,		/* 261 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_timer_getoverrun,	/* 262 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_timer_delete,		/* 263 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_clock_settime,		/* 264 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_clock_gettime,		/* 265 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_clock_getres,		/* 266 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_clock_nanosleep,	/* 267 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
+     -1, /* statfs64,		 268 */
+     -1, /* fstatfs64,		269 */
++#ifdef LINUX_2_5
+     __NR_tgkill,		/* 270 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_utimes,		/* 271 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
+     -1, /* fadvise64_64,		 272 */
++#ifdef LINUX_2_5
+     __NR_vserver,		/* 273 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_mbind,	        	/* 274 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_get_mempolicy,		/* 275 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_set_mempolicy,		/* 276 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_mq_open,		/* 277 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_mq_unlink,		/* 278 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_mq_timedsend,		/* 279 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_mq_timedreceive,	/* 280 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_mq_notify,		/* 281 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_mq_getsetattr,		/* 282 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_kexec_load,		/* 283 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_waitid,		/* 284 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
+     -1,                         /* __NR_sys_setaltroot	285 */
++#ifdef LINUX_2_5
+     __NR_add_key,		/* 286 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_request_key,		/* 287 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_keyctl,		/* 288 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_ioprio_set,		/* 289 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_ioprio_get,		/* 290 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_inotify_init,		/* 291 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_inotify_add_watch,	/* 292 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_inotify_rm_watch,	/* 293 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_migrate_pages,		/* 294 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_openat,		/* 295 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_mkdirat,		/* 296 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_mknodat,		/* 297 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_fchownat,		/* 298 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_futimesat,		/* 299 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
+     SYS_fstatat64,		/* 300 */
++#ifdef LINUX_2_5
+     __NR_unlinkat,		/* 301 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_renameat,		/* 302 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_linkat,		/* 303 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_symlinkat,		/* 304 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_readlinkat,		/* 305 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_fchmodat,		/* 306 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_faccessat,		/* 307 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_pselect6,		/* 308 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_ppoll,	        	/* 309 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_unshare,		/* 310 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_set_robust_list,	/* 311 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_get_robust_list,	/* 312 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_splice,		/* 313 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_sync_file_range,	/* 314 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_tee,		        /* 315 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_vmsplice,		/* 316 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
++#ifdef LINUX_2_5
+     __NR_move_pages,		/* 317 */
++#else /* !LINUX_2_5 */
++    -1,
++#endif /* !LINUX_2_5 */
+     -1, /* getcpu,		 318 */
+     -1, /* epoll_pwait,		 319 */
+     -1, /* utimensat,		320 */
+--- fakeroot-ng-0.16.orig/arch/linux/os.c~	2009-06-23 19:25:42.000000000 +0200
++++ fakeroot-ng-0.16.orig/arch/linux/os.c	2009-07-23 11:15:26.034467872 +0200
+@@ -36,6 +36,30 @@
+ #include "../platform.h"
+ #include "os.h"
+ 
++#ifndef PTRACE_GETEVENTMSG
++#define PTRACE_GETEVENTMSG 0x4201
++#endif
++
++#ifndef PTRACE_GETSIGINFO
++#define PTRACE_GETSIGINFO 0x4202
++#endif
++
++#ifndef PTRACE_SETSIGINFO
++#define PTRACE_SETSIGINFO 0x4203
++#endif
++
++#ifndef PTRACE_EVENT_FORK
++#define PTRACE_EVENT_FORK 1
++#endif
++
++#ifndef PTRACE_EVENT_VFORK
++#define PTRACE_EVENT_VFORK 2
++#endif
++
++#ifndef PTRACE_EVENT_CLONE
++#define PTRACE_EVENT_CLONE 3
++#endif
++
+ int ptlib_linux_continue( int request, pid_t pid, int signal )
+ {
+     return ptrace( request, pid, 0, signal );
+--- fakeroot-ng-0.16.orig/parent.cpp~	2009-06-23 19:25:42.000000000 +0200
++++ fakeroot-ng-0.16.orig/parent.cpp	2009-07-23 11:17:09.759327981 +0200
+@@ -205,7 +205,9 @@ static void init_handlers()
+     syscalls[SYS_faccessat]=syscall_hook(sys_generic_chroot_at_link4, "faccessat");
+ #endif
+     syscalls[SYS_utime]=syscall_hook(sys_generic_chroot_support_param1, "utime");
++#if defined(SYS_utimes)
+     syscalls[SYS_utimes]=syscall_hook(sys_generic_chroot_support_param1, "utimes");
++#endif
+ #ifdef SYS_setxattr
+     syscalls[SYS_setxattr]=syscall_hook(sys_generic_chroot_support_param1, "setxattr");
+     syscalls[SYS_getxattr]=syscall_hook(sys_generic_chroot_support_param1, "getxattr");

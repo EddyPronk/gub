@@ -1,5 +1,6 @@
 from gub import misc
-from gub import tools
+#from gub import tools
+from gub import target as tools
 
 class Make_make__tools (tools.AutoBuild):
     source = 'ftp://ftp.gnu.org/pub/gnu/make/make-3.81.tar.gz'
