@@ -428,20 +428,27 @@ tooldir=%(install_prefix)s
     def update_libtool (self):
         self.map_locate (lambda logger, file: libtool_update (logger, self.expand ('%(system_prefix)s/bin/libtool'), file), '%(builddir)s', 'libtool')
 
+    def pre_install (self):
+        pass
     def install (self):
         '''Install package into %(install_root).
 
         Any overrides should follow this command, since it will erase the old
         install_root first.
 
-        FIXME: this is partly totally broken, some overrides need to
-        be done BEFORE the rest of the install stage.  We need to
-        figure out some clean way to plug something in between the
-        automatic cleaning, and the rest of the install.'''
-
+        '''
         self.system ('''
 rm -rf %(install_root)s
+''')
+        self.pre_install ()
+        self.system ('''
 cd %(builddir)s && %(install_command)s
+''')
+        self.post_install ()
+    def post_install (self):
+        self.install_license ()
+        self.libtool_installed_la_fixups ()
+        self.system ('''
 rm -f \
     %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/info/dir \
     %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/info/dir.old \
@@ -452,8 +459,6 @@ rm -f \
     %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s%(cross_dir)s/share/info/dir \
     %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s%(cross_dir)s/share/info/dir.old \
 ''')
-        self.install_license ()
-        self.libtool_installed_la_fixups ()
 
     def install_license (self):
         def install (logger, lst):
