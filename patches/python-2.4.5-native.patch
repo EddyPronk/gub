@@ -1,0 +1,11 @@
+--- python-2.4.5/configure.in.orig	2009-07-24 11:55:06.282520298 +0200
++++ python-2.4.5/configure.in	2009-07-24 12:00:08.022019995 +0200
+@@ -674,7 +674,7 @@ if test $enable_shared = "yes"; then
+     linux*|Linux*|GNU*|NetBSD*|FreeBSD*|DragonFly*)
+ 	  LDLIBRARY='libpython$(VERSION).so'
+ 	  BLDLIBRARY='-L. -lpython$(VERSION)'
+-	  RUNSHARED=LD_LIBRARY_PATH=`pwd`:${LD_LIBRARY_PATH}
++	  RUNSHARED="LD_LIBRARY_PATH=`pwd`:${LD_LIBRARY_PATH} PYTHONPATH=`pwd`/build/lib.linux-$host_cpu-$VERSION:${PYTHONPATH}"
+ 	  case $ac_sys_system in
+ 	      FreeBSD*|freebsd*)
+ 		SOVERSION=`echo $SOVERSION|cut -d "." -f 1`

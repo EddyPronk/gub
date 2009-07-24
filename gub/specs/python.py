@@ -27,6 +27,8 @@ class Python (target.AutoBuild):
         'python-2.4.2-setup.py-import.patch&strip=0',
         'python-2.4.2-setup.py-cross_root.patch&strip=0',
 #        'python-2.4.2-fno-stack-protector.patch',
+        'python-2.4.5-python-2.6.patch',
+        'python-2.4.5-native.patch',
         ]
 
     def __init__ (self, settings, source):
@@ -37,7 +39,7 @@ class Python (target.AutoBuild):
         return ['doc', 'devel', 'runtime', '']
 
     def _get_build_dependencies (self):
-        return ['expat-devel', 'zlib-devel', 'tools::python']
+        return ['db-devel', 'expat-devel', 'zlib-devel', 'tools::python']
 
     def patch (self):
         target.AutoBuild.patch (self)
@@ -47,10 +49,15 @@ class Python (target.AutoBuild):
     def force_autoupdate (self):
         return True
 
+    def autoupdate (self):
+        target.AutoBuild.autoupdate (self)
+        # FIXME: PROMOTEME to target.py?
+        if self.settings.build_platform == self.settings.target_platform:
+            self.file_sub ([('cross_compiling=(maybe|yes)', 'cross_compiling=no')],
+                           '%(srcdir)s/configure')
+
     def makeflags (self):
-#BUILDPYTHON=./python-bin
-#BASECFLAGS='-fno-strict-aliasing -fno-stack-protector'
-        return misc.join_lines (r'''
+       return misc.join_lines (r'''
 BLDLIBRARY='%(rpath)s -L. -lpython$(VERSION)'
 ''')
     def install_command (self):
@@ -62,7 +69,16 @@ BLDLIBRARY='%(rpath)s -L. -lpython$(VERSION)'
     def install (self):
         target.AutoBuild.install (self)
         misc.dump_python_config (self)
-
+        def assert_fine (logger):
+            dynload_dir = self.expand ('%(install_prefix)s/lib/python%(python_version)s/lib-dynload')
+            all = [x.replace (dynload_dir + '/', '') for x in misc.find_files (dynload_dir, '.*.so')]
+            failed = [x.replace (dynload_dir + '/', '') for x in misc.find_files (dynload_dir, '.*failed.so')]
+            if failed:
+                logger.write_log ('failed python modules:' + ', '.join (failed), 'error')
+            if not 'struct.so' in all or not 'itertools.so' in all:
+                logger.write_log ('all python modules:' + ', '.join (all), 'error')
+                raise Exception ('Python struct or itertools module failed')
+        self.func (assert_fine)
     ### Ugh.
     @context.subst_method
     def python_version (self):

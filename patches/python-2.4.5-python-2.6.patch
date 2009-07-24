@@ -1,0 +1,97 @@
+--- python-2.4.5/Lib/test/test_array.py~	2009-07-23 16:29:11.042519000 +0200
++++ python-2.4.5/Lib/test/test_array.py	2009-07-23 16:30:44.018019000 +0200
+@@ -193,7 +193,7 @@ class BaseTest(unittest.TestCase):
+         self.assert_((a > a) is False)
+         self.assert_((a >= a) is True)
+ 
+-        as = array.array(self.typecode, self.smallerexample)
++        a_s = array.array(self.typecode, self.smallerexample)
+         ab = array.array(self.typecode, self.biggerexample)
+ 
+         self.assert_((a == 2*a) is False)
+@@ -203,12 +203,12 @@ class BaseTest(unittest.TestCase):
+         self.assert_((a > 2*a) is False)
+         self.assert_((a >= 2*a) is False)
+ 
+-        self.assert_((a == as) is False)
+-        self.assert_((a != as) is True)
+-        self.assert_((a < as) is False)
+-        self.assert_((a <= as) is False)
+-        self.assert_((a > as) is True)
+-        self.assert_((a >= as) is True)
++        self.assert_((a == a_s) is False)
++        self.assert_((a != a_s) is True)
++        self.assert_((a < a_s) is False)
++        self.assert_((a <= a_s) is False)
++        self.assert_((a > a_s) is True)
++        self.assert_((a >= a_s) is True)
+ 
+         self.assert_((a == ab) is False)
+         self.assert_((a != ab) is True)
+--- python-2.4.5/Lib/lib-old/Para.py~	2009-07-23 16:38:02.646519000 +0200
++++ python-2.4.5/Lib/lib-old/Para.py	2009-07-23 16:39:40.738020000 +0200
+@@ -60,15 +60,15 @@ class Para:
+     # don't add any new space (but still remove the stretch)
+     def tabto(self, tab):
+         total = 0
+-        as, de = 1, 0
++        a_s, de = 1, 0
+         for i in range(len(self.words)):
+             word = self.words[i]
+             if type(word) is Int: continue
+-            (fo, te, wi, sp, st, as, de) = word
+-            self.words[i] = (fo, te, wi, sp, 0, as, de)
++            (fo, te, wi, sp, st, a_s, de) = word
++            self.words[i] = (fo, te, wi, sp, 0, a_s, de)
+             total = total + wi + sp
+         if total < tab:
+-            self.words.append((None, '', 0, tab-total, 0, as, de))
++            self.words.append((None, '', 0, tab-total, 0, a_s, de))
+     #
+     # Make a hanging tag: tab to hang, increment indent_left by hang,
+     # and reset indent_hang to -hang
+@@ -104,7 +104,7 @@ class Para:
+                         break
+                     i = i+1
+                     continue
+-                fo, te, wi, sp, st, as, de = word
++                fo, te, wi, sp, st, a_s, de = word
+                 if width + wi > avail and width > 0 and wi > 0:
+                     break
+                 if fo is not None:
+@@ -116,7 +116,7 @@ class Para:
+                 lsp = sp
+                 stretch = stretch + st
+                 lst = st
+-                ascent = max(ascent, as)
++                ascent = max(ascent, a_s)
+                 descent = max(descent, de)
+                 i = i+1
+             while i > j and type(words[i-1]) is Int and \
+@@ -157,7 +157,7 @@ class Para:
+                                     h, v)
+                     if ok is not None: return ok
+                     continue
+-                fo, te, wi, sp, st, as, de = word
++                fo, te, wi, sp, st, a_s, de = word
+                 if extra > 0 and stretch > 0:
+                     ex = extra * st / stretch
+                     extra = extra - ex
+@@ -253,7 +253,7 @@ class Para:
+             self.d = None
+     #
+     def _whereisword(self, tuple, word, h1, v1, h2, v2, isfirst, islast):
+-        fo, te, wi, sp, st, as, de = word
++        fo, te, wi, sp, st, a_s, de = word
+         if fo is not None: self.lastfont = fo
+         h = h1
+         if isfirst: h1 = 0
+@@ -302,7 +302,7 @@ class Para:
+         return ok
+     #
+     def _screenposword(self, tuple, word, h1, v1, h2, v2, isfirst, islast):
+-        fo, te, wi, sp, st, as, de = word
++        fo, te, wi, sp, st, a_s, de = word
+         if fo is not None: self.lastfont = fo
+         cc = len(te) + (sp > 0)
+         if self.pos > cc:
