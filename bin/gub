@@ -169,7 +169,7 @@ Examples:
                   help='Print dependencies.')
 
     p.add_option ('-x', '--no-dependencies',
-                  action='store_false',
+                  action='store_true',
                   default=False,
                   help='Ignore dependencies.')
 
@@ -333,6 +333,7 @@ def main ():
     options.src_package = options.src_package or options.platform == 'cygwin'
 
     logging.default_logger.threshold = options.verbosity
+    logging.info ('files: %(files)s\n' % locals ())
 
     if not options.platform and len (files):
         options.platform, x = misc.split_platform (files[0])
