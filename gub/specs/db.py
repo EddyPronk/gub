@@ -26,7 +26,7 @@ class Db (target.AutoBuild):
         self.system ('rm -f %(install_prefix)s/lib/libdb.{a,so{,.a},la}')
         self.system ('cd %(install_prefix)s/lib && ln -s libdb-*.a libdb.a')
         self.system ('cd %(install_prefix)s/lib && ln -s libdb-*.la libdb.la')
-        self.system ('cd %(install_prefix)s/lib && ln -s libdb-*.so libdb.so')
+        self.system ('cd %(install_prefix)s/lib && ln -s libdb-*.so libdb.so || :')
 
 class Db__mingw (Db):
     patches = ['db-4.7.25-mingw.patch']
