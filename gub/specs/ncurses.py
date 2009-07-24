@@ -3,6 +3,11 @@ from gub import tools
 
 class Ncurses (target.AutoBuild):
     source = 'ftp://ftp.gnu.org/pub/gnu/ncurses/ncurses-5.5.tar.gz'
+    def _get_build_dependencies (self):
+        return [
+#            'system::g++'
+            'tools::gawk',
+            ]
     def configure_command (self):
         return (target.AutoBuild.configure_command (self)
                 + ' --without-normal'
@@ -17,11 +22,12 @@ class Ncurses__tools (tools.AutoBuild, Ncurses):
                 + ' --with-normal'
                 + ' --with-shared'
                 + ' --without-cxx'
-                + ' --without--cxx-binding'
+                + ' --without-cxx-binding'
                 )
     def _get_build_dependencies (self):
         return [
 #            'system::g++'
+            'gawk',
             ]
     def license_files (self):
         return ['%(srcdir)s/README']
