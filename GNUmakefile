@@ -162,12 +162,12 @@ root:
 	$(FAKEROOT) $(FAKECHROOT) /bin/bash -l -c 'cd /dev && ./MAKEDEV standard'
 #	$(FAKEROOT) $(FAKECHROOT) /bin/bash -l -c '($UNTAR)'
 	mv $(ROOT)/dev/urandom $(ROOT)/dev/urandom-
-	$(FAKECHROOT) bash -l -c 'gbin/gub cross/gcc'
+	BOOTSTRAP=TRUE $(FAKECHROOT) bash -l -c 'gbin/gub cross/gcc'
 
 # run test build in root
 run:
-	$(FAKECHROOT) bash -l -c 'gbin/gub --lax-checksums cross/gcc'
+	BOOTSTRAP=TRUE $(FAKECHROOT) bash -l -c 'gbin/gub --lax-checksums cross/gcc'
 
 # enter into root
 chroot:
-	$(FAKEROOT) $(FAKECHROOT) bash -l
+	BOOTSTRAP=TRUE $(FAKEROOT) $(FAKECHROOT) bash -l

@@ -121,7 +121,10 @@ class Settings (context.Context):
 
         # workdir based; may be changed
         self.downloads = self.workdir + '/downloads'
-        self.alltargetdir = '/GUB'
+        self.alltargetdir = self.workdir + '/target'
+        if 'BOOTSTRAP' in os.environ.keys () or True:
+            # this is for: BOOTSTRAP *and* for running in [fake]chroot
+            self.alltargetdir = '/GUB'
 
         self.system_root = self.alltargetdir + self.root_dir
         if self.platform == 'tools' and GUB_TOOLS_PREFIX:
