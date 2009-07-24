@@ -40,6 +40,9 @@ def plain_machine ():
         m = plain_uname_machine ()
     return m
 
+def architecture ():
+    return plain_machine ().replace ('-gnu', '')
+
 def machine ():
     try:
         return gcc_machine ()
