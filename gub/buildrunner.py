@@ -203,14 +203,20 @@ class BuildRunner:
             skip += ['clean']
         return skip
     
-    def spec_build (self, spec_name):
-        spec = self.specs[spec_name]
-        
+    def spec_is_installable (self, spec):
+        return misc.forall (self.manager (p.platform ()).is_installable (p.name ())
+                            for p in spec.get_packages ())
+
+    def spec_all_installed (self, spec):
         all_installed = True
         for p in spec.get_packages ():
             all_installed = (all_installed
                              and self.manager (p.platform ()).is_installed (p.name ()))
-        if all_installed:
+        return all_installed
+
+    def spec_build (self, spec_name):
+        spec = self.specs[spec_name]
+        if self.spec_all_installed (spec):
             return
         checksum_fail_reason = self.failed_checksums.get (spec_name, '')
         if ((not checksum_fail_reason or self.options.lax_checksums)
@@ -221,8 +227,6 @@ class BuildRunner:
             rebuild = 'must'
             if self.options.lax_checksums:
                 rebuild = 'should'
-            else:
-                boo
             logger.write_log ('%(rebuild)s rebuild: %(spec_name)s\n' % locals (), 'verbose')
         else:
             logger.write_log ('checksum ok: %(spec_name)s\n' % locals (), 'verbose')
@@ -231,9 +235,9 @@ class BuildRunner:
             logger.write_log ('\n'.join (checksum_fail_reason.split ('\n')[:10]), 'verbose')
         logger.write_log (checksum_fail_reason, 'output')
 
-        is_installable = misc.forall (self.manager (p.platform ()).is_installable (p.name ())
-                                      for p in spec.get_packages ())
-        if (not is_installable or checksum_fail_reason):
+        if ((checksum_fail_reason and not self.options.lax_checksums)
+            or not self.spec_is_installable (spec)):
+            print 'NOT INSTALLABLE', spec_name
             deferred_runner = runner.DeferredRunner (logger)
             spec.connect_command_runner (deferred_runner)
             spec.runner.stage ('building package: %s\n' % spec_name)
@@ -253,7 +257,7 @@ class BuildRunner:
             #spec.set_done ('')
             loggedos.system (logging.default_logger, spec.expand ('rm -f %(stamp_file)s'))
         # Ugh, pkg_install should be stage
-        if spec.install_after_build:
+        if spec.install_after_build and not self.spec_all_installed (spec):
             logger.write_log (spec.stage_message ('pkg_install'), 'stage')
             self.spec_install (spec)
         logging.default_logger.write_log ('\n', 'stage')
@@ -274,33 +278,41 @@ class BuildRunner:
             if (self.manager (pkg.platform ()).is_installed (pkg.name ())):
                 self.manager (pkg.platform ()).uninstall_package (pkg.name ())
 
-    def uninstall_outdated_specs (self, deps):
-        outdated = list (reversed ([name for name in deps
-                                    if self.is_outdated_spec (name)]))
+    def outdated_names (self, deps):
+        return list (reversed ([name for name in deps
+                                    if (self.is_outdated_spec (name)
+                                        and not (self.options.lax_checksums
+                                                 and self.spec_is_installable (self.specs[name])))]))
+
+    def uninstall_specs (self, lst):
+        for name in lst:
+            self.uninstall_spec (self.specs[name])
+
+    def build_source_packages (self, names):
+        deps = [d for d in names if d in self.specs]
+        platform = self.settings.platform
+        outdated = self.outdated_names (deps)
+        # fail_str: keep ordering of names
+        fail_str = (' '.join ([s for s in deps
+#                               if (s in list (self.failed_checksums.keys ())
+                               if s in outdated
+                               ])
+                    .replace (misc.with_platform ('', platform), ''))
+        if not fail_str:
+            fail_str = '<nothing to be done>.'
+        logging.default_logger.write_log ('must rebuild[%(platform)s]: %(fail_str)s\n' % locals (), 'stage')
         if outdated:
             platform = self.settings.platform
             outdated_str = (' '.join (outdated)
                             .replace (misc.with_platform ('', platform), ''))
             logging.default_logger.write_log ('removing outdated[%(platform)s]: %(outdated_str)s\n' % locals (), 'stage')
-            for name in outdated:
-                print 'uninstalling:', spec.name
-                self.uninstall_spec (self.specs[name])
-
-    def build_source_packages (self, names):
-        deps = [d for d in names if d in self.specs]
-        platform = self.settings.platform
-        # fail_str: keep ordering of names
-        fail_str = ' '.join ([s for s in deps if s in list (self.failed_checksums.keys ())]).replace (misc.with_platform ('', platform), '')
-        if not fail_str:
-            fail_str = '<nothing to be done>.'
-        logging.default_logger.write_log ('must rebuild[%(platform)s]: %(fail_str)s\n' % locals (), 'stage')
-        self.uninstall_outdated_specs (deps)
+            self.uninstall_specs (outdated)
         global target
         for spec_name in deps:
             target = spec_name
             self.spec_build (spec_name)
         target = None
-                
+
 target = None
 
 def main ():
