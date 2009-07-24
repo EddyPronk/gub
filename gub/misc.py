@@ -244,8 +244,13 @@ def find (dir, test):
 def find_only_files_or_dirs (dir, file_test, file_or_dir_test):
     if type (file_test) == type (''):
         file_test = re.compile (file_test)
+# Hmm, file_test mutates into the later assigned function
+#    def match (f):
+#        return file_test.search (f)
+#    match = lambda f: file_test.search (f)
+    file_test_re = file_test
     def match (f):
-        return test.search (f)
+        return file_test_re.search (f)
     if type (file_test) != type (match):
         file_test = match
     def test (f):
