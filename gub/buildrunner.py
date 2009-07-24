@@ -51,6 +51,8 @@ def checksum_diff (a, b, fromfile='', tofile='',
 #FIXME: split spec_* into SpecBuiler?
 class BuildRunner:
     def __init__ (self, manager, settings, options, specs):
+        info = logging.default_logger.harmless
+        info.write ('MANAGER:' + settings.platform)
         self.managers = {settings.platform : manager }
         self.settings = settings
         self.options = options
@@ -70,6 +72,8 @@ class BuildRunner:
 
     def manager (self, platform):
         if platform not in self.managers:
+            info = logging.default_logger.harmless
+            info.write ('MANAGER for platform' + platform)
             settings = gub.settings.Settings (platform)
             self.managers[platform] = gup.DependencyManager (settings.system_root)
         return self.managers[platform]
@@ -209,11 +213,17 @@ class BuildRunner:
         if all_installed:
             return
         checksum_fail_reason = self.failed_checksums.get (spec_name, '')
-        if not checksum_fail_reason and not spec.install_after_build:
+        if ((not checksum_fail_reason or self.options.lax_checksums)
+            and not spec.install_after_build):
             return
         logger = logging.default_logger
         if checksum_fail_reason:
-            logger.write_log ('must rebuild: %(spec_name)s\n' % locals (), 'verbose')
+            rebuild = 'must'
+            if self.options.lax_checksums:
+                rebuild = 'should'
+            else:
+                boo
+            logger.write_log ('%(rebuild)s rebuild: %(spec_name)s\n' % locals (), 'verbose')
         else:
             logger.write_log ('checksum ok: %(spec_name)s\n' % locals (), 'verbose')
 
@@ -273,6 +283,7 @@ class BuildRunner:
                             .replace (misc.with_platform ('', platform), ''))
             logging.default_logger.write_log ('removing outdated[%(platform)s]: %(outdated_str)s\n' % locals (), 'stage')
             for name in outdated:
+                print 'uninstalling:', spec.name
                 self.uninstall_spec (self.specs[name])
 
     def build_source_packages (self, names):

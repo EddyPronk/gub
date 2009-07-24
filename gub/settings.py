@@ -95,6 +95,7 @@ class Settings (context.Context):
 
         # config dirs
         self.root_dir = '/' + self.target_architecture
+        self.tools_root_dir = '/' + self.build_architecture
         self.prefix_dir = '/usr'
         self.cross_dir = ''
 
@@ -126,6 +127,11 @@ class Settings (context.Context):
         if self.platform == 'tools' and GUB_TOOLS_PREFIX:
             self.system_root = GUB_TOOLS_PREFIX
         self.system_prefix = self.system_root + self.prefix_dir
+        self.system_cross_prefix = self.system_prefix + '/' + self.target_architecture
+
+        self.tools_root = self.alltargetdir + self.tools_root_dir
+        self.tools_prefix = self.tools_root + self.prefix_dir
+        self.tools_cross_prefix = self.tools_prefix + '/' + self.build_architecture
 
         self.targetdir = self.system_root
         self.logdir = self.targetdir + '/log'
@@ -137,19 +143,23 @@ class Settings (context.Context):
         self.allbuilddir = self.targetdir + '/build'
         self.statusdir = self.targetdir + '/status'
         self.packages = self.targetdir + '/packages'
+        self.installdir = self.targetdir + '/install'
 
         self.uploads = self.workdir + '/uploads'
         self.platform_uploads = self.uploads + '/' + self.platform
 
-        # FIXME: rename to cross_root?
+        # Hmm, cross now == system, isn't that is silly?
         self.cross_prefix = self.system_prefix
-        self.installdir = self.targetdir + '/install'
-        self.tools_root = self.alltargetdir
-        self.tools_prefix = self.system_prefix
 
-        print 'SYSTEM_ROOT', self.system_root
-        print 'CROSS_PREFIX', self.cross_prefix
-        print 'SYSTEM_PREFIX', self.system_prefix
+        info = logging.default_logger.harmless
+        info.write ('\n')
+        info.write ('SYSTEM_ROOT=%(system_root)s\n' % self.__dict__)
+        info.write ('SYSTEM_PREFIX=%(system_prefix)s\n' % self.__dict__)
+        info.write ('CROSS_PREFIX=%(cross_prefix)s\n' % self.__dict__)
+        info.write ('ROOT_DIR=%(root_dir)s\n' % self.__dict__)
+        info.write ('PREFIX_DIR=%(prefix_dir)s\n' % self.__dict__)
+        info.write ('CROSS_DIR=%(cross_dir)s\n' % self.__dict__)
+        info.write ('\n')
 
         if GUB_TOOLS_PREFIX:
             self.tools_root = GUB_TOOLS_PREFIX
@@ -251,18 +261,22 @@ class Settings (context.Context):
 cd %(alltargetdir)s && ln -sf . ./%(alltargetdir)s
 cd %(alltargetdir)s && ln -sf %(system_prefix)s .
 cd %(alltargetdir)s && ln -sf %(system_prefix)s/bin .
-cd %(alltargetdir)s && ln -sf %(system_prefix)s/dev .
-cd %(alltargetdir)s && ln -sf %(system_prefix)s/etc .
-cd %(alltargetdir)s && ln -sf %(system_prefix)s/%(lib)s lib
+cd %(alltargetdir)s && ln -sf %(system_root)s/dev .
+cd %(alltargetdir)s && ln -sf %(system_root)s/etc .
+cd %(alltargetdir)s && ln -sf %(system_root)s/%(lib)s .
 cd %(alltargetdir)s && mkdir -p lib
 cd %(alltargetdir)s && ln -sf %(system_prefix)s/bin/true lib/ld-linux.so.2      
+cd %(alltargetdir)s && mkdir -p %(system_prefix)s/bin
+cd %(alltargetdir)s && ln -sf %(system_prefix)s/bin/bash %(system_prefix)s/bin/sh
+#cd %(alltargetdir)s && mkdir -p proc
+cd %(alltargetdir)s && mkdir %(system_root)s/etc
 ''' % self.__dict__)
                 loggedos.dump_file ('''
-PATH="/usr/sbin:/usr/bin:/sbin:/bin:/usr/%(build_architecture)s/bin"
+PATH="/usr/sbin:/usr/bin:/sbin:/bin:/usr/%(build_architecture)s/bin:/gbin"
 alias l='ls -ltrF'
 alias p='less -nMiX'
 ''', '%(alltargetdir)s/etc/profile' % self.__dict__)
-                                    
+
     def dependency_url (self, string):
         # FIXME: read from settings.rc, take platform into account
         name = string.replace ('-', '_')

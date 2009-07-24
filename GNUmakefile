@@ -79,3 +79,93 @@ python3-printf:
 	    -e 's@#\nfrom gub import@#\nfrom gub.syntax import printf\nfrom gub import@' $$(grep -l printf $$(git diff --name-only))
 # sed 4.0.1 is broken, what t[ext]t[tool] do you use?
 	pytt '#\nfrom gub import' '#\nfrom gub.syntax import printf\nfrom gub import' $$(grep -l printf $$(git diff --name-only))
+
+
+ROOT = ./GUB
+FAKEROOT = $(ROOT)/usr/bin/fakeroot -s fakeroot.save
+FAKECHROOT = $(ROOT)/usr/bin/fakechroot chroot $(ROOT)
+BUILD_ARCHITECTURE = $(shell $(PYTHON) bin/build-architecture)
+UNTAR = cd $(ROOT)/$(BUILD_ARCHITECTURE) && for i in $$(find packages -name "*.gup"); do tar xzf $$i; done
+
+boot_packs =\
+ librestrict\
+ gawk\
+ ncurses\
+ texinfo\
+ cross/binutils\
+ dash\
+ cross/gcc-core\
+ linux-headers\
+ glibc-core\
+ cross/gcc\
+ glibc\
+ bash\
+ coreutils\
+ tar\
+ make\
+ sed\
+ findutils\
+ libtool\
+ fakeroot\
+ fakechroot\
+ makedev\
+ expat\
+ zlib\
+ db\
+ python\
+
+#
+
+root_packs =\
+ bash\
+ coreutils\
+ cross/binutils\
+ cross/gcc-core\
+ dash\
+ db\
+ expat\
+ fakechroot\
+ fakeroot\
+ glibc-core\
+ make\
+ makedev\
+ python\
+ tar\
+ zlib\
+
+#
+
+# build GUB packages to populate root [eventually for distribution]
+boot:
+	mkdir -p $(ROOT)
+	sudo ln -sf $(PWD)/GUB /
+	$(foreach i,$(boot_packs),bin/gub -x --fresh --keep --lax-checksums $(i) &&) :
+	mkdir -p BOOTSTRAP/$(BUILD_ARCHITECTURE)/packages
+	rsync -az $(ROOT)/$(BUILD_ARCHITECTURE)/packages/ BOOTSTRAP/$(BUILD_ARCHITECTURE)/packages
+	rm -f $$(find BOOTSTRAP/$(BUILD_ARCHITECTURE)/packages -name 'glibc' -o -name 'gcc' -o -name 'librestrict' -o -name 'linux-headers' -o -name 'sed' -o -name 'libtool' -o -name 'findutils' | grep -v core)
+
+# populate root with [minimal set of] binary packs
+root:
+	rm -rf $(ROOT)
+	mkdir -p $(ROOT)
+	# Symlink setup
+	bin/gub > /dev/null || bin/gub > /dev/null || true
+	rsync -az ./BOOTSTRAP/ $(ROOT)
+	mkdir -p $(ROOT)/downloads/cross/gcc-core
+	rsync -az downloads/cross/gcc-core/ $(ROOT)/downloads/cross/gcc-core
+	# let's not clutter /bin
+	rsync -az bin/ $(ROOT)/gbin
+	rsync -az gub librestrict nsis patches sourcefiles $(ROOT)
+	$(UNTAR)
+	$(FAKEROOT) $(FAKECHROOT) /bin/bash -l -c 'cd /dev && ./MAKEDEV standard'
+#	$(FAKEROOT) $(FAKECHROOT) /bin/bash -l -c '($UNTAR)'
+	mv $(ROOT)/dev/urandom $(ROOT)/dev/urandom-
+	$(FAKECHROOT) bash -l -c 'gbin/gub cross/gcc'
+
+# run test build in root
+run:
+	$(FAKECHROOT) bash -l -c 'gbin/gub --lax-checksums cross/gcc'
+
+# enter into root
+chroot:
+	$(FAKEROOT) $(FAKECHROOT) bash -l

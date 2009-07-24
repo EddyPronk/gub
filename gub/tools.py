@@ -156,7 +156,7 @@ LD_LIBRARY_PATH=%(system_prefix)s/lib
             'LIBRARY_PATH': '%(system_prefix)s/lib'
             + misc.append_path (os.environ.get ('LIBRARY_PATH', '')),
             'LIBRESTRICT_IGNORE': '%(system_prefix)s/bin/make',
-            'PATH': '%(system_prefix)s/bin:' + os.environ['PATH'],
+            'PATH': '%(system_prefix)s/bin:%(system_cross_prefix)s/bin:' + os.environ['PATH'],
         }
         dict.update (env)
         d = build.AutoBuild.get_substitution_dict (self, dict).copy ()
