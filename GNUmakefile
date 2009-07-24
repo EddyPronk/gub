@@ -87,13 +87,15 @@ FAKECHROOT = $(ROOT)/usr/bin/fakechroot chroot $(ROOT)
 BUILD_ARCHITECTURE = $(shell $(PYTHON) bin/build-architecture)
 UNTAR = cd $(ROOT)/$(BUILD_ARCHITECTURE) && for i in $$(find packages -name "*.gup"); do tar xzf $$i; done
 
+# unbuildable, almost
+# ncurses\
+
 boot_packs =\
  librestrict\
+ dash\
  gawk\
- ncurses\
  texinfo\
  cross/binutils\
- dash\
  cross/gcc-core\
  linux-headers\
  glibc-core\
@@ -139,7 +141,7 @@ root_packs =\
 boot:
 	mkdir -p $(ROOT)
 	sudo ln -sf $(PWD)/GUB /
-	$(foreach i,$(boot_packs),bin/gub -x --fresh --keep --lax-checksums $(i) &&) :
+	set -x; $(foreach i,$(boot_packs),BOOTSTRAP=TRUE bin/gub -x --fresh --keep --lax-checksums $(i) &&) :
 	mkdir -p BOOTSTRAP/$(BUILD_ARCHITECTURE)/packages
 	rsync -az $(ROOT)/$(BUILD_ARCHITECTURE)/packages/ BOOTSTRAP/$(BUILD_ARCHITECTURE)/packages
 	rm -f $$(find BOOTSTRAP/$(BUILD_ARCHITECTURE)/packages -name 'glibc' -o -name 'gcc' -o -name 'librestrict' -o -name 'linux-headers' -o -name 'sed' -o -name 'libtool' -o -name 'findutils' | grep -v core)
