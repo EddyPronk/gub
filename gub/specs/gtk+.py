@@ -97,7 +97,7 @@ class Gtk_x___linux__64 (Gtk_x_):
     source = 'http://ftp.gnome.org/pub/GNOME/platform/2.26/2.26.3/sources/gtk+-2.16.4.tar.gz'
     def patch (self):
         Gtk_x_.patch (self)
-        # FIXME: PROMOTEME to target.py?
+        # FIXME: PROMOTEME to target.py? -- yes, but in/after autoupdate stage
         self.file_sub ([('cross_compiling=(maybe|no)', 'cross_compiling=yes')],
                        '%(srcdir)s/configure')
     def configure_command (self):
