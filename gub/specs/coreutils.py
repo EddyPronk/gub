@@ -1,4 +1,4 @@
-from gub import target as tools
+from gub import tools
 
 '''
 Build shared libcoreutils.so without using libtool

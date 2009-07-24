@@ -63,13 +63,18 @@ class AutoBuild (build.AutoBuild):
         return (build.AutoBuild.configure_command (self)
                 + self.configure_flags ()
                 + self.configure_variables ())
+    @context.subst_method
+    def configure_prefix (self):
+        if 'BOOTSTRAP' in os.environ.keys ():
+            return '%(prefix_dir)s'
+        return '%(system_prefix)s'
     # FIXME: promoteme to build.py?  Most Fragile operation...
     def configure_flags (self):
         config_cache = ''
         if self.config_cache_settings ():
             config_cache = '\n--config-cache'
         return misc.join_lines ('''
---prefix=%(system_prefix)s
+--prefix=%(configure_prefix)s
 --enable-shared
 --enable-static
 ''' + config_cache)
@@ -88,19 +93,19 @@ LDFLAGS='-L%(system_prefix)s/lib -Wl,--as-needed'
         # FIXME: use sysconfdir=%(install_PREFIX)s/etc?  If
         # so, must also ./configure that way
         return misc.join_lines ('''make %(makeflags)s install
-bindir=%(install_root)s/%(system_prefix)s/bin
-aclocaldir=%(install_root)s/%(system_prefix)s/share/aclocal
-datadir=%(install_root)s/%(system_prefix)s/share
-exec_prefix=%(install_root)s/%(system_prefix)s
-gcc_tooldir=%(install_root)s/%(system_prefix)s
-includedir=%(install_root)s/%(system_prefix)s/include
-infodir=%(install_root)s/%(system_prefix)s/share/info
-libdir=%(install_root)s/%(system_prefix)s/lib
-libexecdir=%(install_root)s/%(system_prefix)s/lib
-mandir=%(install_root)s/%(system_prefix)s/share/man
-prefix=%(install_root)s/%(system_prefix)s
-sysconfdir=%(install_root)s/%(system_prefix)s/etc
-tooldir=%(install_root)s/%(system_prefix)s
+bindir=%(install_prefix)s/bin
+aclocaldir=%(install_prefix)s/share/aclocal
+datadir=%(install_prefix)s/share
+exec_prefix=%(install_prefix)s
+gcc_tooldir=%(install_prefix)s
+includedir=%(install_prefix)s/include
+infodir=%(install_prefix)s/share/info
+libdir=%(install_prefix)s/lib
+libexecdir=%(install_prefix)s/lib
+mandir=%(install_prefix)s/share/man
+prefix=%(install_prefix)s
+sysconfdir=%(install_prefix)s/etc
+tooldir=%(install_prefix)s
 ''')
 
     def install (self):
@@ -108,6 +113,12 @@ tooldir=%(install_root)s/%(system_prefix)s
         # conditional on use of rpath, depending on shared libs?
         if 0:
             self.wrap_executables ()
+
+    @context.subst_method
+    def install_prefix (self):
+        if 'BOOTSTRAP' in os.environ.keys ():
+            return '%(install_root)s%(prefix_dir)s'
+        return '%(install_prefix)s'
 
     def wrap_executables (self):
         def wrap (logger, file):
@@ -128,6 +139,8 @@ LD_LIBRARY_PATH=%(system_prefix)s/lib
 
     ## we need to tar up %(install_root)/%(prefix)
     def packaging_suffix_dir (self):
+        if 'BOOTSTRAP' in os.environ.keys ():
+            return ''
         return '%(system_root)s'
 
     def get_subpackage_names (self):
@@ -219,7 +232,7 @@ release
 ''')
     def install_command (self):
         return (self.compile_command ()
-                + ' install').replace ('=%(system_prefix)s', '=%(install_root)s%(system_prefix)s')
+                + ' install').replace ('=%(system_prefix)s', '=%(install_prefix)s')
 
 class NullBuild (AutoBuild):
     def stages (self):
@@ -227,4 +240,4 @@ class NullBuild (AutoBuild):
     def get_subpackage_names (self):
         return ['']
     def install (self):
-        self.system ('mkdir -p %(install_root)s%(system_prefix)s')
+        self.system ('mkdir -p %(install_prefix)s')

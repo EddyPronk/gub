@@ -74,9 +74,9 @@ class Busybox__tools (tools.AutoBuild, Busybox):
         self.system ('''rm -f %(builddir)s/include/%(autoconf_h)s
 cd %(builddir)s && make include/%(autoconf_h)s > /dev/null 2>&1''')
     def makeflags (self):
-        return ' CONFIG_PREFIX=%(install_root)s%(system_prefix)s'
+        return ' CONFIG_PREFIX=%(install_prefix)s'
     def install (self):
         tools.AutoBuild.install (self)
         self.system ('''
-cd %(install_root)s%(system_prefix)s && mv sbin/init sbin/init.busybox
+cd %(install_prefix)s && mv sbin/init sbin/init.busybox
 ''')

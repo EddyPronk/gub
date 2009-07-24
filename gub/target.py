@@ -133,6 +133,7 @@ cd %(builddir)s && chmod +x %(configure_binary)s && %(configure_command_native)s
         dict = {
             'AR': '%(toolchain_prefix)sar',
             'AS': '%(toolchain_prefix)sas',
+            'BUILD_CC': 'C_INCLUDE_PATH= CPATH= CPPFLAGS= LIBRARY_PATH= cc',
             'CC': '%(toolchain_prefix)sgcc %(target_gcc_flags)s',
             'CC_FOR_BUILD': 'C_INCLUDE_PATH= CPATH= CPPFLAGS= LIBRARY_PATH= cc',
             'CCLD_FOR_BUILD': 'C_INCLUDE_PATH= CPATH= CPPFLAGS= LIBRARY_PATH= cc',
@@ -146,7 +147,7 @@ cd %(builddir)s && chmod +x %(configure_binary)s && %(configure_command_native)s
             'LD': '%(toolchain_prefix)sld',
             'NM': '%(toolchain_prefix)snm',
             'PKG_CONFIG_PATH': '%(system_prefix)s/lib/pkgconfig',
-            'PATH': '%(cross_prefix)s/bin:%(tools_prefix)s/bin:' + os.environ['PATH'],
+            'PATH': '%(cross_prefix)s/bin:%(tools_prefix)s/bin:%(tools_cross_prefix)s/bin:' + os.environ['PATH'],
             'PKG_CONFIG': '''pkg-config \
 --define-variable prefix=%(system_prefix)s \
 --define-variable includedir=%(system_prefix)s/include \

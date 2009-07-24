@@ -23,7 +23,7 @@ class AutoBuild (build.AutoBuild):
             'LIBRARY_PATH': '%(tools_prefix)s/lib'
             + misc.append_path (os.environ.get ('LIBRARY_PATH', '')),
             'LIBRESTRICT_IGNORE': '%(tools_prefix)s/bin/make',
-            'PATH': '%(cross_prefix)s/bin:%(tools_prefix)s/bin:' + os.environ['PATH'],
+            'PATH': '%(cross_prefix)s/bin:%(tools_prefix)s/bin:%(tools_cross_prefix)s/bin:' + os.environ['PATH'],
         }
         dict.update (env)
         d = build.AutoBuild.get_substitution_dict (self, dict).copy ()

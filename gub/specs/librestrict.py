@@ -19,8 +19,7 @@ class Librestrict_make__tools (tools.MakeBuild):
         relax_restrictions = ['coreutils', 'dash']
         if 'stat' in self.librestrict_flavours ():
             relax_restrictions = []
-        return {'': ['coreutils',
-                     'dash',
+        return {'': [
                      'librestrict',
                      'librestrict-exec',
                      'librestrict-exec-open',
@@ -64,8 +63,8 @@ class Librestrict_nomake__tools (Librestrict_make__tools):
         return command
     def install_command (self):
         return (misc.join_lines ('''
-mkdir -p %(install_root)s/%(system_prefix)s/lib
-&& cp -p librestrict*.so %(install_root)s/%(system_prefix)s/lib
+mkdir -p %(install_prefix)s/lib
+&& cp -p librestrict*.so %(install_prefix)s/lib
 '''))
 
 Librestrict__tools = Librestrict_nomake__tools

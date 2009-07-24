@@ -1,6 +1,7 @@
 from gub import misc
-#from gub import tools
-from gub import target as tools
+from gub import tools
+import os
+if 'BOOTSTRAP' in os.environ.keys (): from gub import target as tools
 
 class Make_make__tools (tools.AutoBuild):
     source = 'ftp://ftp.gnu.org/pub/gnu/make/make-3.81.tar.gz'
@@ -25,8 +26,8 @@ class Make_build_sh__tools (Make_make__tools):
     def compile_command (self):
         return 'sh build.sh'
     def install_command (self):
-        return ('mkdir -p %(install_root)s/%(system_prefix)s/bin'
-                ' && cp -p make %(install_root)s/%(system_prefix)s/bin')
+        return ('mkdir -p %(install_prefix)s/bin'
+                ' && cp -p make %(install_prefix)s/bin')
 
 class Make_build_sh_newmake__tools (Make_make__tools):
     def compile_command (self):

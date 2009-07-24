@@ -66,4 +66,4 @@ SKIPUTILS="NSIS Menu"
     def install (self):
         self.system ('cd %(builddir)s && %(install_command)s ',
                      self.build_environment ())
-        self.system ('cp -p %(nsisdir)s/FontName.dll %(install_root)s%(system_prefix)s/share/nsis/Plugins')
+        self.system ('cp -p %(nsisdir)s/FontName.dll %(install_prefix)s/share/nsis/Plugins')

@@ -108,7 +108,7 @@ allowed:
         # ignore [have /usr prevail over] --prefix ?
         self.file_sub ([(' (/usr/lib/*[" ])', r' %(system_prefix)s/lib \1'),
                         ('((-L| )/usr/lib/../lib/* )', r'\2%(system_prefix)s/lib \1')],
-                       '%(install_root)s/%(system_prefix)s/bin/libtool')
+                       '%(install_prefix)s/bin/libtool')
     def wrap_executables (self):
         # The libtool script calls the cross compilers, and moreover,
         # it is copied.  Two reasons why it cannot be wrapped.

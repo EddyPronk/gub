@@ -22,7 +22,7 @@ class Ncurses__tools (tools.AutoBuild, Ncurses):
                 + ' --with-normal'
                 + ' --with-shared'
                 + ' --without-cxx'
-                + ' --without-cxx-binding'
+                + ' --without--cxx-binding'
                 )
     def _get_build_dependencies (self):
         return [

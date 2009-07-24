@@ -112,9 +112,15 @@ to skip this check and risk a defective build.
         return []
 
     def with_platform (self, name):
-        if 'tools::' in name:
-            return misc.with_platform (name.replace ('tools::', ''),
-                                       self.settings.platform)
+        if 'BOOTSTRAP' in os.environ.keys ():
+            if 'tools::' in name:
+                return misc.with_platform (name.replace ('tools::', ''),
+                                           self.settings.platform)
+        elif 0:
+            print 'NEEM:', name
+            if not 'tools::' in name and not 'cross' in name and name not in ['bintuils', 'gcc']:
+                return misc.with_platform (name.replace (self.settings.platform, ''),
+                                           'tools')
         return misc.with_platform (name, self.settings.platform)
 
     def get_platform_build_dependencies (self):

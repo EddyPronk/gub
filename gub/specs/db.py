@@ -1,6 +1,8 @@
 from gub import misc
 from gub import target
 from gub import tools
+import os
+if 'BOOTSTRAP' in os.environ.keys (): from gub import target as tools
 
 class Db (target.AutoBuild):
     source = 'http://download.oracle.com/berkeley-db/db-4.7.25.tar.gz'
@@ -85,6 +87,6 @@ class Db__tools (tools.AutoBuild, Db):
         pass
     def install (self):
         tools.AutoBuild.install (self)
-        self.system ('cd %(install_root)s%(system_prefix)s/lib && ln -s libdb-*.la libdb.la')
+        self.system ('cd %(install_prefix)s/lib && ln -s libdb-*.la libdb.la')
     def wrap_executables (self):
         pass

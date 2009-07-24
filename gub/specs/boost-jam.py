@@ -9,6 +9,6 @@ class Boost_jam (tools.ShBuild):
         return tools.ShBuild.compile_command (self) + ' gcc --symbols'
     def install_command (self):
         return misc.join_lines ('''
-install -d %(install_root)s/%(system_prefix)s/bin
-&& install -m755 bin.*/bjam  %(install_root)s/%(system_prefix)s/bin
+install -d %(install_prefix)s/bin
+&& install -m755 bin.*/bjam  %(install_prefix)s/bin
 ''')

@@ -30,21 +30,21 @@ X11LIB=NONE
 ''')
     def install (self):
         # Great.  netpmb's install will not create any parent directories
-        self.system ('mkdir -p %(install_root)s%(system_prefix)s')
+        self.system ('mkdir -p %(install_prefix)s')
         # but demands that the toplevel install directory does not yet exist.
         # It's a feature! :-)
-        self.system ('rmdir %(install_root)s%(system_prefix)s')
+        self.system ('rmdir %(install_prefix)s')
 
-        self.system ('cd %(builddir)s && make package pkgdir=%(install_root)s%(system_prefix)s %(makeflags)s')
+        self.system ('cd %(builddir)s && make package pkgdir=%(install_prefix)s %(makeflags)s')
         # Huh, we strip stuff in installer.py, no?  Hmm.
         self.system ('''rm -rf %(install_prefix)s/misc 
-rm -rf %(install_root)s%(system_prefix)s/README
-rm -rf %(install_root)s%(system_prefix)s/VERSION
-rm -rf %(install_root)s%(system_prefix)s/link
-rm -rf %(install_root)s%(system_prefix)s/misc
-rm -rf %(install_root)s%(system_prefix)s/man
-rm -rf %(install_root)s%(system_prefix)s/pkginfo
-rm -rf %(install_root)s%(system_prefix)s/config_template
+rm -rf %(install_prefix)s/README
+rm -rf %(install_prefix)s/VERSION
+rm -rf %(install_prefix)s/link
+rm -rf %(install_prefix)s/misc
+rm -rf %(install_prefix)s/man
+rm -rf %(install_prefix)s/pkginfo
+rm -rf %(install_prefix)s/config_template
 ''')
     def license_files (self):
         return '%(srcdir)s/README'

@@ -271,8 +271,8 @@ cd %(alltargetdir)s && ln -sf %(system_prefix)s/bin/bash %(system_prefix)s/bin/s
 #cd %(alltargetdir)s && mkdir -p proc
 cd %(alltargetdir)s && mkdir %(system_root)s/etc
 ''' % self.__dict__)
-                loggedos.dump_file ('''
-PATH="/usr/sbin:/usr/bin:/sbin:/bin:/usr/%(build_architecture)s/bin:/gbin"
+                loggedos.dump_file (logging.default_logger, '''
+PATH="/usr/sbin:/usr/bin:/sbin:/bin:/usr/%(build_architecture)s/bin:/usr/%(build_architecture)s/%(build_architecture)s/bin:/gbin"
 alias l='ls -ltrF'
 alias p='less -nMiX'
 ''', '%(alltargetdir)s/etc/profile' % self.__dict__)
@@ -318,21 +318,24 @@ def as_variables (settings):
     
 def clean_environment ():
     return dict ([(x, os.environ[x]) for x in 
-                  ('DISPLAY', # Ugh, mingw::openoffice install complains about this...
-                   'EMAIL',
-                   'GUB_TOOLS_PREFIX',
-                   'HOME',
-                   'HOSTNAME',
-                   #'IFS',
-                   'LIBRESTRICT',
-                   'OOO_TOOLS_DIR',
-                   'PATH',
-                   'PKG_CONFIG_PATH',
-                   'PWD',
-                   'SHELL',
-                   'UID',
-                   'USER',
-                   'USERNAME',)
+                  (
+                'BOOTSTRAP',
+                'DISPLAY', # Ugh, mingw::openoffice install complains about this...
+                # 'EMAIL',
+                'GUB_TOOLS_PREFIX',
+                'HOME',
+                # 'HOSTNAME',
+                # 'IFS',
+                'LIBRESTRICT',
+                'OOO_TOOLS_DIR',
+                'PATH',
+                # 'PKG_CONFIG_PATH',
+                # 'PWD',
+                # 'SHELL',
+                # 'UID',
+                # 'USER',
+                # 'USERNAME',
+                )
                   if os.environ.get (x) != None])
 
 def main ():

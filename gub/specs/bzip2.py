@@ -8,10 +8,10 @@ class Bzip2__tools (tools.MakeBuild):
         return tools.MakeBuild.compile_command (self) + self.compile_flags ()
     def install_command (self):
         return (tools.MakeBuild.install_command (self)
-                + ' PREFIX=%(install_root)s%(system_prefix)s')
+                + ' PREFIX=%(install_prefix)s')
     def install (self):
         tools.MakeBuild.install (self)
-        self.system ('cp -pv %(builddir)s/libbz2.so* %(install_root)s%(system_prefix)s/lib')
+        self.system ('cp -pv %(builddir)s/libbz2.so* %(install_prefix)s/lib')
     def wrap_executables (self):
         # no dynamic executables
         pass

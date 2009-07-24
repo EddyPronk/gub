@@ -207,8 +207,8 @@ class Boost__tools (tools.BjamBuild_v2, Boost):
     def install (self):
         tools.BjamBuild_v2.install (self)
         # Bjam `installs' header files by using symlinks to the source dir?
-        self.map_locate (add_plain_lib_names, '%(install_root)s%(system_prefix)s/lib', 'libboost_*-mt.a')
-        self.map_locate (add_plain_lib_names, '%(install_root)s%(system_prefix)s/lib', 'libboost_*-mt.so')
-        self.map_locate (add_plain_lib_names, '%(install_root)s%(system_prefix)s/lib', 'libboost_*-s.a')
-        self.map_locate (add_plain_lib_names, '%(install_root)s%(system_prefix)s/lib', 'libboost_*-s.so')
-        self.map_locate (replace_links, '%(install_root)s%(system_prefix)s/include/boost', '*')
+        self.map_locate (add_plain_lib_names, '%(install_prefix)s/lib', 'libboost_*-mt.a')
+        self.map_locate (add_plain_lib_names, '%(install_prefix)s/lib', 'libboost_*-mt.so')
+        self.map_locate (add_plain_lib_names, '%(install_prefix)s/lib', 'libboost_*-s.a')
+        self.map_locate (add_plain_lib_names, '%(install_prefix)s/lib', 'libboost_*-s.so')
+        self.map_locate (replace_links, '%(install_prefix)s/include/boost', '*')

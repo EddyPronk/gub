@@ -29,7 +29,7 @@ class Test_23 (tools.NullBuild):
     def untar (self):
         pass
     def install (self):
-        self.system ('mkdir -p %(install_root)s%(system_prefix)s')
+        self.system ('mkdir -p %(install_prefix)s')
 
 sys.stdout.write ('''\nEXPECT: <class 'test-23.Test_23'>''')
 sys.stdout.write ('\n>>>')

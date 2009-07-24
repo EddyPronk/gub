@@ -1,4 +1,6 @@
-from gub import target as tools
+from gub import tools
+import os
+if 'BOOTSTRAP' in os.environ.keys (): from gub import target as tools
 
 class Tar__tools (tools.AutoBuild):
     source = 'ftp://ftp.gnu.org/pub/gnu/tar/tar-1.20.tar.gz'
