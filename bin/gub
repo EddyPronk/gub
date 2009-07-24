@@ -27,6 +27,9 @@ def argv0_relocation ():
     if not prefix:
         prefix = bindir + '/..'
     sys.path.insert (0, prefix)
+    if sys.path[0] == 'gbin/..':
+        sys.path[0] = '/'
+        os.getcwd = lambda: '/'
 
 argv0_relocation ()
 
@@ -104,10 +107,12 @@ Examples:
 
     p.add_option ('--offline', action='store_true',
                   dest='offline',
+                  default='False',
                   help='Do not attempt to download anything')
 
     p.add_option ('--online', action='store_false',
                   dest='offline',
+                  default='False',
                   help='Download as part of the build')
 
     def set_stage (option, opt_str, value, parser):
@@ -142,18 +147,15 @@ Examples:
 
     p.add_option ('--force-package', action='store_true',
                   default=False,
-                  dest='force_package',
                   help='allow packaging of tainted compiles' )
 
     p.add_option ('--build-source', action='store_true',
                   default=False,
-                  dest='build_source',
                   help='build source packages')
 
     p.add_option ('--lax-checksums',
                   action='store_true',
                   default=False,
-                  dest='lax_checksums',
                   help="do not rebuild packages with failing checksums")
 
     p.add_option ('-n', '--dry-run',
@@ -161,25 +163,23 @@ Examples:
                   default=False,
                   help='Print action, do not run.')
 
-    p.add_option ('--dependencies',
+    p.add_option ('--show-dependencies',
                   action='store_true',
                   default=False,
-                  help='Print action, do not run.')
+                  help='Print dependencies.')
 
     p.add_option ('-x', '--no-dependencies',
-                  action='store_true',
+                  action='store_false',
                   default=False,
-                  help='Print action, do not run.')
+                  help='Ignore dependencies.')
 
     p.add_option ('-l', '--skip-if-locked',
                   default=False,
-                  dest="skip_if_locked",
                   action="store_true",
                   help="Return successfully if another build is already running")
 
     p.add_option ('-j', '--jobs',
                   default="1", action='store',
-                  dest='cpu_count',
                   help='set number of simultaneous jobs')
 
     return p
@@ -212,7 +212,7 @@ def build (settings, options, files):
                 specs[spec.platform_name ()] = spec
     platform = settings.platform
     dep_str = ' '.join (names)
-    if options.dependencies:
+    if options.show_dependencies:
         logging.stage ('dependencies[%(platform)s]: %(dep_str)s\n' % locals ())
         sys.exit (0)
     dep_str.replace (misc.with_platform ('', platform), '')
@@ -261,7 +261,7 @@ def build (settings, options, files):
 
     b = buildrunner.BuildRunner (manager, settings, options, specs)
 
-    if options.dependencies:
+    if options.show_dependencies:
         sys.exit (0)
 
     b.calculate_checksums ()
@@ -315,9 +315,10 @@ def logged_build (settings, options, files):
 
 def main ():
     if not 'stat' in misc.librestrict ():
+        os.environ['LIBRESTRICT'] = 'open:stat'
         printf ('non-stat restriction is obsolete, use')
         printf ('export LIBRESTRICT=open:stat')
-        sys.exit (2)
+#        sys.exit (2)
 
     os.environ = gub.settings.clean_environment ()
     # FIXME: pydb hack.  TODO: make gub run not from srcdir

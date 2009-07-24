@@ -29,6 +29,9 @@ def argv0_relocation ():
     if not prefix:
         prefix = bindir + '/..'
     sys.path.insert (0, prefix)
+    if sys.path[0] == 'gbin/..':
+        sys.path[0] = '/'
+        os.getcwd = lambda: '/'
 
 argv0_relocation ()
 
