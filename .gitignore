@@ -16,8 +16,6 @@ target
 test-settings.py
 uploads
 *pats
-/librestrict/librestrict-all.c
-/ooo-build
 /GUB
-/x86_64-linux
-/etc
+/BOOTSTRAP
+/PRECIOUS
