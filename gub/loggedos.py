@@ -3,6 +3,7 @@ import shutil
 import subprocess
 import sys
 #
+from gub import logging
 from gub import misc
 
 def system (logger, cmd, env=os.environ, ignore_errors=False):
@@ -32,12 +33,13 @@ def system (logger, cmd, env=os.environ, ignore_errors=False):
 ########
 # logged aliases to misc.py
 def logged_function (logger, function, *args, **kwargs):
+    if not isinstance (logger, logging.AbstractCommandLogger):
+        raise Exception ('NOT a logger:' + str (logger))
     logger.write_multilevel_message (
         [('Running %s\n' % function.__name__, 'action'),
-        ('Running %s: %s\n' % (function.__name__, repr (args)), 'command'),
-        ('Running %s\n  %s\n  %s\n'
-         % (function.__name__, repr (args), repr (kwargs)), 'debug')])
-
+         ('Running %s: %s\n' % (function.__name__, repr (args)), 'command'),
+         ('Running %s\n  %s\n  %s\n'
+          % (function.__name__, repr (args), repr (kwargs)), 'debug')])
     return function (*args, **kwargs)
 
 currentmodule = sys.modules[__name__] #ugh
