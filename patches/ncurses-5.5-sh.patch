@@ -1,0 +1,24 @@
+--- ncurses-5.5/include/Makefile.in~	2001-12-08 19:50:06.000000000 +0100
++++ ncurses-5.5/include/Makefile.in	2009-07-24 19:03:21.946018599 +0200
+@@ -87,7 +87,7 @@ curses.h : $(TERMINFO_CAPS) \
+ 		$(srcdir)/curses.tail \
+ 		$(srcdir)/MKkey_defs.sh
+ 	cat curses.head >$@
+-	AWK=$(AWK) sh $(srcdir)/MKkey_defs.sh $(TERMINFO_CAPS) >>$@
++	AWK=$(AWK) $(SCRIPT_SHELL) $(srcdir)/MKkey_defs.sh $(TERMINFO_CAPS) >>$@
+ 	sh -c 'if test "@NCURSES_CH_T@" = "cchar_t" ; then cat $(srcdir)/curses.wide >>$@ ; fi'
+ 	cat $(srcdir)/curses.tail >>$@
+ 
+@@ -99,10 +99,10 @@ hashsize.h: $(TERMINFO_CAPS) $(srcdir)/M
+ 	sh $(srcdir)/MKhashsize.sh $(TERMINFO_CAPS) >$@
+ 
+ ncurses_def.h: $(srcdir)/ncurses_defs $(srcdir)/MKncurses_def.sh
+-	AWK=$(AWK) sh $(srcdir)/MKncurses_def.sh $(srcdir)/ncurses_defs >$@
++	AWK=$(AWK) $(SCRIPT_SHELL) $(srcdir)/MKncurses_def.sh $(srcdir)/ncurses_defs >$@
+ 
+ parametrized.h: $(TERMINFO_CAPS) $(srcdir)/MKparametrized.sh
+-	AWK=$(AWK) sh $(srcdir)/MKparametrized.sh $(TERMINFO_CAPS) >$@
++	AWK=$(AWK) $(SCRIPT_SHELL) $(srcdir)/MKparametrized.sh $(TERMINFO_CAPS) >$@
+ 
+ tags:
+ 	ctags *.[ch]
