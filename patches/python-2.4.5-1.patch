@@ -382,7 +382,7 @@
 +    AC_MSG_CHECKING(python for build)
 +    PYTHON_FOR_BUILD="${PYTHON_FOR_BUILD-python}"
 +else
-+    PYTHON_FOR_BUILD='$(BUILDPYTHON)'
++    PYTHON_FOR_BUILD='./$(BUILDPYTHON)'
 +fi   
 +
 +if test "$cross_compiling" = "yes"; then
@@ -1021,6 +1021,15 @@
  test:		all platform
  		-find $(srcdir)/Lib -name '*.py[co]' -print | xargs rm -f
  		-$(TESTPYTHON) $(TESTPROG) $(TESTOPTS)
+@@ -602,7 +602,7 @@ testuniversal:	all platform
+ 		-find $(srcdir)/Lib -name '*.py[co]' -print | xargs rm -f
+ 		-$(TESTPYTHON) $(TESTPROG) $(TESTOPTS) -uall
+ 		$(TESTPYTHON) $(TESTPROG) $(TESTOPTS) -uall
+-		$(RUNSHARED) /usr/libexec/oah/translate ./$(BUILDPYTHON) -E -tt $(TESTPROG) $(TESTOPTS) -uall
++		$(RUNSHARED) /usr/libexec/oah/translate $(PYTHON_FOR_BUILD) -E -tt $(TESTPROG) $(TESTOPTS) -uall
+ 
+ 
+ # Like testall, but with a single pass only
 @@ -630,7 +663,7 @@ bininstall:	altbininstall
  
  # Install the interpreter with $(VERSION) affixed
