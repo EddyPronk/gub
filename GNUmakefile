@@ -87,13 +87,14 @@ FAKECHROOT = $(ROOT)/usr/bin/fakechroot chroot $(ROOT)
 BUILD_ARCHITECTURE = $(shell $(PYTHON) bin/build-architecture)
 UNTAR = cd $(ROOT)/$(BUILD_ARCHITECTURE) && for i in $$(find packages -name "*.gup"); do tar xzf $$i; done
 
-# unbuildable, almost
-# ncurses\
 
 boot_packs =\
  librestrict\
  dash\
  gawk\
+ grep\
+ coreutils\
+ ncurses\
  texinfo\
  cross/binutils\
  cross/gcc-core\
@@ -102,7 +103,6 @@ boot_packs =\
  cross/gcc\
  glibc\
  bash\
- coreutils\
  tar\
  make\
  sed\
@@ -110,11 +110,12 @@ boot_packs =\
  libtool\
  fakeroot\
  fakechroot\
- makedev\
  expat\
  zlib\
  db\
+ gdbm\
  python\
+ makedev\
 
 #
 
@@ -125,6 +126,7 @@ root_packs =\
  cross/gcc-core\
  dash\
  db\
+ gdbm\
  expat\
  fakechroot\
  fakeroot\
