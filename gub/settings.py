@@ -275,10 +275,13 @@ cd %(alltargetdir)s && ln -sf %(system_prefix)s/bin/bash %(system_prefix)s/bin/s
 cd %(alltargetdir)s && mkdir %(system_root)s/etc
 ''' % self.__dict__)
                 loggedos.dump_file (logging.default_logger, '''
+HOME=/
+LOGNAME=gub
+USER=gub
 PATH="/usr/sbin:/usr/bin:/sbin:/bin:/usr/%(build_architecture)s/bin:/usr/%(build_architecture)s/%(build_architecture)s/bin:/gbin"
 alias l='ls -ltrF'
 alias p='less -nMiX'
-''', '%(alltargetdir)s/etc/profile' % self.__dict__)
+''' % self.__dict__, '%(alltargetdir)s/etc/profile' % self.__dict__)
 
     def dependency_url (self, string):
         # FIXME: read from settings.rc, take platform into account
