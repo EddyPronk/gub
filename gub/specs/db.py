@@ -1,8 +1,6 @@
 from gub import misc
 from gub import target
 from gub import tools
-import os
-if 'BOOTSTRAP' in os.environ.keys (): from gub import target as tools
 
 class Db (target.AutoBuild):
     source = 'http://download.oracle.com/berkeley-db/db-4.7.25.tar.gz'
