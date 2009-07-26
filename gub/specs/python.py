@@ -29,6 +29,7 @@ class Python (target.AutoBuild):
 #        'python-2.4.2-fno-stack-protector.patch',
         'python-2.4.5-python-2.6.patch',
         'python-2.4.5-native.patch',
+        'python-2.4.5-db4.7.patch',
         ]
 
     def __init__ (self, settings, source):
