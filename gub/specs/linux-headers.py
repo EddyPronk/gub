@@ -15,8 +15,11 @@ class Linux_headers (build.BinaryBuild, build.SdkBuild):
     def get_subpackage_names (self):
         return ['']
     def patch (self):
+        self.file_sub ([('[.] [.]config-is-not', '. ./.config-is-not'),],
+                       '%(srcdirs)/scripts/Configure')
         self.system ('''
-cd %(srcdir)s && patch -p1 < %(patchdir)s/linux-headers-2.4.34-posix-fix.patch
+#let's not use patch, and certainly not circumventing patch mechanism
+#cd %(srcdir)s && patch -p1 < %(patchdir)s/linux-headers-2.4.34-posix-fix.patch
 cd %(srcdir)s && yes yes | make ARCH=%(linux_arch)s oldconfig symlinks include/linux/version.h
 cd %(srcdir)s && rm -f include/asm
 cd %(srcdir)s && mv include/asm-%(linux_arch)s include/asm
