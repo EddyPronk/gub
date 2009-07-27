@@ -1,16 +1,23 @@
---- ncurses-5.5/include/Makefile.in~	2001-12-08 19:50:06.000000000 +0100
-+++ ncurses-5.5/include/Makefile.in	2009-07-24 19:03:21.946018599 +0200
-@@ -87,7 +87,7 @@ curses.h : $(TERMINFO_CAPS) \
+--- ncurses-5.5/include/Makefile.in.orig	2009-07-27 21:47:09.479370666 +0200
++++ ncurses-5.5/include/Makefile.in	2009-07-27 21:47:36.502869343 +0200
+@@ -87,22 +87,22 @@ curses.h : $(TERMINFO_CAPS) \
  		$(srcdir)/curses.tail \
  		$(srcdir)/MKkey_defs.sh
  	cat curses.head >$@
 -	AWK=$(AWK) sh $(srcdir)/MKkey_defs.sh $(TERMINFO_CAPS) >>$@
+-	sh -c 'if test "@NCURSES_CH_T@" = "cchar_t" ; then cat $(srcdir)/curses.wide >>$@ ; fi'
 +	AWK=$(AWK) $(SCRIPT_SHELL) $(srcdir)/MKkey_defs.sh $(TERMINFO_CAPS) >>$@
- 	sh -c 'if test "@NCURSES_CH_T@" = "cchar_t" ; then cat $(srcdir)/curses.wide >>$@ ; fi'
++	$(SCRIPT_SHELL) -c 'if test "@NCURSES_CH_T@" = "cchar_t" ; then cat $(srcdir)/curses.wide >>$@ ; fi'
  	cat $(srcdir)/curses.tail >>$@
  
-@@ -99,10 +99,10 @@ hashsize.h: $(TERMINFO_CAPS) $(srcdir)/M
- 	sh $(srcdir)/MKhashsize.sh $(TERMINFO_CAPS) >$@
+ term.h: $(TERMINFO_CAPS) MKterm.h.awk
+ 	$(AWK) -f MKterm.h.awk $(TERMINFO_CAPS) > $@
+-	sh $(srcdir)/edit_cfg.sh ../include/ncurses_cfg.h $@
++	$(SCRIPT_SHELL) $(srcdir)/edit_cfg.sh ../include/ncurses_cfg.h $@
+ 
+ hashsize.h: $(TERMINFO_CAPS) $(srcdir)/MKhashsize.sh
+-	sh $(srcdir)/MKhashsize.sh $(TERMINFO_CAPS) >$@
++	$(SCRIPT_SHELL) $(srcdir)/MKhashsize.sh $(TERMINFO_CAPS) >$@
  
  ncurses_def.h: $(srcdir)/ncurses_defs $(srcdir)/MKncurses_def.sh
 -	AWK=$(AWK) sh $(srcdir)/MKncurses_def.sh $(srcdir)/ncurses_defs >$@
@@ -22,3 +29,33 @@
  
  tags:
  	ctags *.[ch]
+--- ncurses-5.5/tack/Makefile.in.orig	2009-07-27 21:48:22.015371745 +0200
++++ ncurses-5.5/tack/Makefile.in	2009-07-27 21:48:37.027415794 +0200
+@@ -102,15 +102,15 @@ install.tack: $(PROGS) \
+ 	$(DESTDIR)$(bindir) \
+ 	$(DESTDIR)$(mandir)
+ 	$(LIBTOOL_INSTALL) $(INSTALL_PROGRAM) tack$x $(DESTDIR)$(bindir)/tack$x
+-	sh ../edit_man.sh normal installing $(EDITARGS)
++	$(SCRIPT_SHELL) ../edit_man.sh normal installing $(EDITARGS)
+ 
+ uninstall.tack:
+ 	-@$(LIBTOOL_UNINSTALL) rm -f $(DESTDIR)$(bindir)/tack$x
+-	-sh ../edit_man.sh normal removing $(EDITARGS)
++	-$(SCRIPT_SHELL) ../edit_man.sh normal removing $(EDITARGS)
+ 
+ $(DESTDIR)$(bindir) \
+ $(DESTDIR)$(mandir) :
+-	sh $(srcdir)/../mkinstalldirs $@
++	$(SCRIPT_SHELL) $(srcdir)/../mkinstalldirs $@
+ 
+ #
+ # Rules for building tack
+@@ -151,7 +151,7 @@ mostlyclean ::
+ 	-rm -f core tags TAGS *~ *.bak *.i *.atac trace
+ 
+ clean :: mostlyclean
+-	-sh -c "if test -n '$x' ; then $(MAKE) clean x=''; fi"
++	-$(SCRIPT_SHELL) -c "if test -n '$x' ; then $(MAKE) clean x=''; fi"
+ 	-rm -f $(PROGS)
+ 	-rm -rf .libs
+ 
