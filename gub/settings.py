@@ -109,6 +109,7 @@ class Settings (context.Context):
         self.gubdir = os.path.abspath (os.path.dirname (os.path.dirname (__file__)))
         if not self.gubdir:
             self.gubdir = os.getcwd ()
+        self.gubdir_prefix = self.gubdir
         if self.gubdir_prefix.endswith ('/'):
             self.gubdir_prefix = self.gubdir_prefix[:-1]
 
