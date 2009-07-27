@@ -85,7 +85,7 @@ ROOT = GUB
 FAKEROOT = $(ROOT)/usr/bin/fakeroot -s fakeroot.save
 FAKECHROOT = $(ROOT)/usr/bin/fakechroot chroot $(ROOT)
 BUILD_ARCHITECTURE = $(shell $(PYTHON) bin/build-architecture)
-UNTAR = cd $(ROOT)/$(BUILD_ARCHITECTURE) && for i in $$(find packages -name "*.gup"); do tar xzf $$i; done
+UNTAR = cd $(ROOT)/$(BUILD_ARCHITECTURE) && set -x && for i in $$(find packages -name "*.gup"); do tar xzf $$i; done
 
 
 boot_packs =\
@@ -115,15 +115,26 @@ boot_packs =\
  fakechroot\
  expat\
  zlib\
+ gzip\
+ bzip2\
  db\
  gdbm\
  python\
+ perl\
+ m4\
+ autoconf\
+ automake\
  makedev\
-
 #
 
+# Hmm.  Some of these are not needed in the final root per se
+# but are needed to rebuild the root to get context-free checksums
+# Such as: bzip2, gzip, m4, autoconf, patch?
 root_packs =\
+ autoconf\
+ automake\
  bash\
+ bzip2\
  coreutils\
  cross/binutils\
  cross/gcc-core\
@@ -135,9 +146,11 @@ root_packs =\
  fakechroot\
  fakeroot\
  glibc-core\
+ gzip\
  make\
  makedev\
  patch\
+ perl\
  python\
  tar\
  util-linux\
@@ -157,6 +170,10 @@ boot:
 # populate root with [minimal set of] binary packs
 root:
 	rm -rf $(ROOT)
+	$(MAKE) setup-root
+	BOOTSTRAP=TRUE $(FAKECHROOT) bash -l -c 'gbin/gub cross/gcc'
+
+setup-root:
 	mkdir -p $(ROOT)
 	# Symlink setup
 	bin/gub > /dev/null || bin/gub > /dev/null || true
@@ -170,20 +187,17 @@ root:
 	$(FAKEROOT) $(FAKECHROOT) /bin/bash -l -c 'cd /dev && ./MAKEDEV standard'
 #	$(FAKEROOT) $(FAKECHROOT) /bin/bash -l -c '($UNTAR)'
 	mv $(ROOT)/dev/urandom $(ROOT)/dev/urandom-
-	BOOTSTRAP=TRUE $(FAKECHROOT) bash -l -c 'gbin/gub cross/gcc'
 
 # run test build in root
 run:
 	BOOTSTRAP=TRUE $(FAKECHROOT) bash -l -c 'gbin/gub --lax-checksums cross/gcc'
 
 # run test build in root
-rebuildrun:
-	rsync -az bin/ $(ROOT)/gbin
-	rsync -az gub librestrict nsis patches sourcefiles $(ROOT)
+rebuildrun: setup-root
 	rm -f $(ROOT)/$(BUILD_ARCHITECTURE)/etc/gup/*
-	rsync -az ./BOOTSTRAP/ $(ROOT)
+	rsync -az ./BINARIES/ $(ROOT)
 	$(UNTAR)
-	BOOTSTRAP=TRUE $(FAKECHROOT) bash -l -c 'gbin/gub --fresh cross/gcc'
+	BOOTSTRAP=TRUE $(FAKECHROOT) bash -l -c 'gbin/gub --keep --fresh perl cross/gcc'
 	rsync -az $(ROOT)/$(BUILD_ARCHITECTURE)/packages/ BINARIES/$(BUILD_ARCHITECTURE)/packages
 
 # enter into root
