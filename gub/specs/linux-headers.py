@@ -16,7 +16,7 @@ class Linux_headers (build.BinaryBuild, build.SdkBuild):
         return ['']
     def patch (self):
         self.file_sub ([('[.] [.]config-is-not', '. ./.config-is-not'),],
-                       '%(srcdirs)/scripts/Configure')
+                       '%(srcdir)s/scripts/Configure')
         self.system ('''
 #let's not use patch, and certainly not circumventing patch mechanism
 #cd %(srcdir)s && patch -p1 < %(patchdir)s/linux-headers-2.4.34-posix-fix.patch
