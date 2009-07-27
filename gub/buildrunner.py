@@ -284,10 +284,10 @@ class BuildRunner:
                 self.manager (pkg.platform ()).uninstall_package (pkg.name ())
 
     def outdated_names (self, deps):
-        return list (reversed ([name for name in deps
-                                    if (self.is_outdated_spec (name)
-                                        and not (self.options.lax_checksums
-                                                 and self.spec_is_installable (self.specs[name])))]))
+        return [name for name in deps
+                if (self.is_outdated_spec (name)
+                    and not (self.options.lax_checksums
+                             and self.spec_is_installable (self.specs[name])))]
 
     def uninstall_specs (self, lst):
         for name in lst:
@@ -303,7 +303,8 @@ class BuildRunner:
         if not fail_str:
             fail_str = '<nothing to be done>.'
         logging.default_logger.write_log ('must rebuild[%(platform)s]: %(fail_str)s\n' % locals (), 'stage')
-        outdated_installed = [x for x in outdated if self.is_installed_spec (x)]
+        outdated_installed = [x for x in list (reversed (outdated))
+                              if self.is_installed_spec (x)]
         if outdated_installed:
             platform = self.settings.platform
             outdated_str = (' '.join (outdated_installed)
