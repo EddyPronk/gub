@@ -109,6 +109,8 @@ class Settings (context.Context):
         self.gubdir = os.path.abspath (os.path.dirname (os.path.dirname (__file__)))
         if not self.gubdir:
             self.gubdir = os.getcwd ()
+        if self.gubkdir_prefix.endswith ('/'):
+            self.gubdir_prefix = self.gubdir_prefix[:-1]
 
         # workdir is top of writable build stuff
         self.workdir = os.getcwd ()
@@ -117,10 +119,10 @@ class Settings (context.Context):
             self.workdir_prefix = self.workdir_prefix[:-1]
         
         # gubdir based: fixed repository layout
-        self.patchdir = self.gubdir + '/patches'
-        self.sourcefiledir = self.gubdir + '/sourcefiles'
-        self.specdir = self.gubdir + '/gub/specs'
-        self.nsisdir = self.gubdir + '/nsis'
+        self.patchdir = self.gubdir_prefix + '/patches'
+        self.sourcefiledir = self.gubdir_prefix + '/sourcefiles'
+        self.specdir = self.gubdir_prefix + '/gub/specs'
+        self.nsisdir = self.gubdir_prefix + '/nsis'
 
         # workdir based; may be changed
         self.downloads = self.workdir_prefix + '/downloads'
