@@ -109,7 +109,7 @@ class Settings (context.Context):
         self.gubdir = os.path.abspath (os.path.dirname (os.path.dirname (__file__)))
         if not self.gubdir:
             self.gubdir = os.getcwd ()
-        if self.gubkdir_prefix.endswith ('/'):
+        if self.gubdir_prefix.endswith ('/'):
             self.gubdir_prefix = self.gubdir_prefix[:-1]
 
         # workdir is top of writable build stuff
