@@ -1,3 +1,5 @@
+import os
+#
 from gub import cross
 from gub import misc
 from gub import repository
@@ -41,9 +43,15 @@ class Glibc (target.AutoBuild, cross.AutoBuild):
         'glibc-2.3-slibdir.patch',
         ]
     def _get_build_dependencies (self):
-        return ['cross/gcc', 'glibc-core', 'linux-headers']
+        return ['cross/gcc', 'glibc-core', 'tools::gzip', 'tools::perl', 'linux-headers']
     def get_conflict_dict (self):
         return {'': ['glibc-core'], 'devel': ['glibc-core'], 'doc': ['glibc-core'], 'runtime': ['glibc-core']}
+    def patch (self):
+        cross.AutoBuild.patch (self)
+        if 'BOOTSTRAP' in os.environ.keys ():
+            # running in chroot: chmod: memory exhausted...
+            self.file_sub ([('chmod a-w,a\+x', 'chmod +x',)],
+                           '%(srcdir)s/Makefile')
     def get_add_ons (self):
         return ('linuxthreads', 'nptl')
     def config_cache_overrides (self, str):
