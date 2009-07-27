@@ -81,7 +81,7 @@ python3-printf:
 	pytt '#\nfrom gub import' '#\nfrom gub.syntax import printf\nfrom gub import' $$(grep -l printf $$(git diff --name-only))
 
 
-ROOT = ./GUB
+ROOT = GUB
 FAKEROOT = $(ROOT)/usr/bin/fakeroot -s fakeroot.save
 FAKECHROOT = $(ROOT)/usr/bin/fakechroot chroot $(ROOT)
 BUILD_ARCHITECTURE = $(shell $(PYTHON) bin/build-architecture)
@@ -89,6 +89,7 @@ UNTAR = cd $(ROOT)/$(BUILD_ARCHITECTURE) && for i in $$(find packages -name "*.g
 
 
 boot_packs =\
+ gub-utils\
  librestrict\
  dash\
  gawk\
@@ -105,9 +106,11 @@ boot_packs =\
  bash\
  tar\
  make\
+ patch\
  sed\
  findutils\
  libtool\
+ util-linux\
  fakeroot\
  fakechroot\
  expat\
@@ -126,15 +129,18 @@ root_packs =\
  cross/gcc-core\
  dash\
  db\
- gdbm\
  expat\
+ gdbm\
+ gub-utils\
  fakechroot\
  fakeroot\
  glibc-core\
  make\
  makedev\
+ patch\
  python\
  tar\
+ util-linux\
  zlib\
 
 #
@@ -169,6 +175,16 @@ root:
 # run test build in root
 run:
 	BOOTSTRAP=TRUE $(FAKECHROOT) bash -l -c 'gbin/gub --lax-checksums cross/gcc'
+
+# run test build in root
+rebuildrun:
+	rsync -az bin/ $(ROOT)/gbin
+	rsync -az gub librestrict nsis patches sourcefiles $(ROOT)
+	rm -f $(ROOT)/$(BUILD_ARCHITECTURE)/etc/gup/*
+	rsync -az ./BOOTSTRAP/ $(ROOT)
+	$(UNTAR)
+	BOOTSTRAP=TRUE $(FAKECHROOT) bash -l -c 'gbin/gub --fresh cross/gcc'
+#	BOOTSTRAP=TRUE $(FAKECHROOT) bash -l -c 'gbin/gub cross/gcc'
 
 # enter into root
 chroot:
