@@ -61,7 +61,7 @@ def change_target_package (package):
 # GNU tar --strip-component
 # /usr/bin/install: coreutils
 # SVN
-bootstrap_names = ['system::gcc', 'tools::librestrict', 'tools::make']
+bootstrap_names = ['system::gcc', 'tools::gub-utils', 'tools::librestrict', 'tools::make']
 def set_cross_dependencies (package_object_dict):
     if 'stat' in misc.librestrict ():
         global bootstrap_names
