@@ -262,14 +262,20 @@ class BuildRunner:
             self.spec_install (spec)
         logging.default_logger.write_log ('\n', 'stage')
 
+    def is_installed_spec (self, spec_name):
+        spec = self.specs[spec_name]
+        for pkg in spec.get_packages ():
+            if self.manager (pkg.platform ()).is_installed (pkg.name ()):
+                return True
+        return False
+
     def is_outdated_spec (self, spec_name):
         spec = self.specs[spec_name]
         checksum_fail_reason = self.failed_checksums.get (spec_name, '')
         checksum_ok = '' == checksum_fail_reason
         for pkg in spec.get_packages ():
-            if (self.manager (pkg.platform ()).is_installed (pkg.name ())
-                and (not self.manager (pkg.platform ()).is_installable (pkg.name ())
-                     or not checksum_ok)):
+            if (not self.manager (pkg.platform ()).is_installable (pkg.name ())
+                or not checksum_ok):
                 return True
         return False
 
@@ -293,22 +299,20 @@ class BuildRunner:
         platform = self.settings.platform
         outdated = self.outdated_names (deps)
         # fail_str: keep ordering of names
-        fail_str = (' '.join ([s for s in deps
-#                               if (s in list (self.failed_checksums.keys ())
-                               if s in outdated
-                               ])
+        fail_str = (' '.join ([s for s in deps if s in outdated ])
                     .replace (misc.with_platform ('', platform), ''))
         if not fail_str:
             fail_str = '<nothing to be done>.'
         logging.default_logger.write_log ('must rebuild[%(platform)s]: %(fail_str)s\n' % locals (), 'stage')
-        if outdated:
+        outdated_installed = [x for x in outdated if self.is_installed_spec (x)]
+        if outdated_installed:
             platform = self.settings.platform
-            outdated_str = (' '.join (outdated)
+            outdated_str = (' '.join (outdated_installed)
                             .replace (misc.with_platform ('', platform), ''))
             logging.default_logger.write_log ('removing outdated[%(platform)s]: %(outdated_str)s\n' % locals (), 'stage')
-            self.uninstall_specs (outdated)
+            self.uninstall_specs (outdated_installed)
         global target
-        for spec_name in deps:
+        for spec_name in outdated:
             target = spec_name
             self.spec_build (spec_name)
         target = None
