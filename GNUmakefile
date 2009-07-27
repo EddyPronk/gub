@@ -82,7 +82,7 @@ python3-printf:
 
 
 ROOT = GUB
-FAKEROOT = $(ROOT)/usr/bin/fakeroot -s fakeroot.save
+FAKEROOT = $(ROOT)/usr/bin/fakeroot -i fakeroot.save -s fakeroot.save
 FAKECHROOT = $(ROOT)/usr/bin/fakechroot chroot $(ROOT)
 BUILD_ARCHITECTURE = $(shell $(PYTHON) bin/build-architecture)
 UNTAR = cd $(ROOT)/$(BUILD_ARCHITECTURE) && set -x && for i in $$(find packages -name "*.gup"); do tar xzf $$i; done
