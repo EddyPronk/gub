@@ -8,6 +8,8 @@ for GUB's librestrict(2) to kick-in.
 class Coreutils__tools (tools.AutoBuild):
     source = 'ftp://ftp.gnu.org/pub/gnu/coreutils/coreutils-6.12.tar.gz'
     patches = ['coreutils-6.12-shared.patch']
+    def _get_build_dependencies (self):
+        return ['tools::autoconf', 'tools::automake']
     def force_autoupdate (self):
         return True
     def autoupdate (self):
