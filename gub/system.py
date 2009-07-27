@@ -20,6 +20,8 @@ class Configure (build.Build):
         self._name, self._version = (self._created_name + '-').split ('-')[:2]
     def download (self):
         pass
+    def get_stamp_file (self):
+        return self.expand ('%(stamp_file)s')
     def stages (self):
         return ['configure']
     def required (self):

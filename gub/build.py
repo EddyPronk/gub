@@ -53,6 +53,8 @@ class Build (context.RunnableContext):
     @context.subst_method
     def stamp_file (self):
         return '%(statusdir)s/%(name)s-%(version)s-%(source_checksum)s'
+    def get_stamp_file (self):
+        return self.expand ('%(stamp_file)s')
     def apply_patch (self, patch, strip_components=1):
         name, parameters = misc.dissect_url (patch)
         strip = str (strip_components)
@@ -339,9 +341,6 @@ class AutoBuild (Build):
     @context.subst_method
     def cache_file (self):
         return '%(builddir)s/config.cache'
-
-    def get_stamp_file (self):
-        return self.expand ('%(stamp_file)s')
 
     def get_done (self):
         done = []

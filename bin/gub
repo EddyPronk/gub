@@ -219,12 +219,11 @@ def build (settings, options, files):
     logging.info ('dependencies[%(platform)s]: %(dep_str)s\n' % locals ())
 
     if options.fresh:
-        try:
-            for spec in list (specs.values()):
-                logging.action ('Removing status file')
-                os.unlink (spec.get_stamp_file ())
-        except OSError:
-            pass
+        for spec in list (specs.values()):
+            status = spec.get_stamp_file ()
+            if os.path.exists (status):
+                logging.info ('Removing status file: %(status)')
+                os.unlink (status)
 
     # TODO: figure out how to patch src_package from
     # stages. Simpleminded solution does not work
