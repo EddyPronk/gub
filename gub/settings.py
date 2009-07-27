@@ -112,6 +112,9 @@ class Settings (context.Context):
 
         # workdir is top of writable build stuff
         self.workdir = os.getcwd ()
+        self.workdir_prefix = self.workdir
+        if self.workdir_prefix.endswith ('/'):
+            self.workdir_prefix = self.workdir_prefix[:-1]
         
         # gubdir based: fixed repository layout
         self.patchdir = self.gubdir + '/patches'
@@ -120,8 +123,8 @@ class Settings (context.Context):
         self.nsisdir = self.gubdir + '/nsis'
 
         # workdir based; may be changed
-        self.downloads = self.workdir + '/downloads'
-        self.alltargetdir = self.workdir + '/target'
+        self.downloads = self.workdir_prefix + '/downloads'
+        self.alltargetdir = self.workdir_prefix + '/target'
         if 'BOOTSTRAP' in os.environ.keys () or True:
             # this is for: BOOTSTRAP *and* for running in [fake]chroot
             self.alltargetdir = '/GUB'
@@ -148,7 +151,7 @@ class Settings (context.Context):
         self.packages = self.targetdir + '/packages'
         self.installdir = self.targetdir + '/install'
 
-        self.uploads = self.workdir + '/uploads'
+        self.uploads = self.workdir_prefix + '/uploads'
         self.platform_uploads = self.uploads + '/' + self.platform
 
         # Hmm, cross now == system, isn't that is silly?
@@ -271,14 +274,19 @@ cd %(alltargetdir)s && mkdir -p lib
 cd %(alltargetdir)s && ln -sf %(system_prefix)s/bin/true lib/ld-linux.so.2      
 cd %(alltargetdir)s && mkdir -p %(system_prefix)s/bin
 cd %(alltargetdir)s && ln -sf %(system_prefix)s/bin/bash %(system_prefix)s/bin/sh
-#cd %(alltargetdir)s && mkdir -p proc
 cd %(alltargetdir)s && mkdir %(system_root)s/etc
+#cd %(alltargetdir)s && mkdir -p proc
+cd %(alltargetdir)s && mkdir -p tmp
 ''' % self.__dict__)
                 loggedos.dump_file (logging.default_logger, '''
+DISPLAY=gub-build:0.0
 HOME=/
+HOSTNAME=gub-build
 LOGNAME=gub
 USER=gub
 PATH="/usr/sbin:/usr/bin:/sbin:/bin:/usr/%(build_architecture)s/bin:/usr/%(build_architecture)s/%(build_architecture)s/bin:/gbin"
+cd # set current directory
+cd # junk OLDPWD too
 alias l='ls -ltrF'
 alias p='less -nMiX'
 ''' % self.__dict__, '%(alltargetdir)s/etc/profile' % self.__dict__)
@@ -328,6 +336,14 @@ def clean_environment ():
                 'BOOTSTRAP',
                 'DISPLAY', # Ugh, mingw::openoffice install complains about this...
                 # 'EMAIL',
+
+                # How to ever be clean, with this?  Hmm, not needed?
+                # 'FAKECHROOT',
+                # 'FAKECHROOT_BASE',
+                # 'FAKECHROOT_VERSION',
+                # 'FAKED_MODE',
+                # 'FAKEROOTKEY',
+
                 'GUB_TOOLS_PREFIX',
                 'HOME',
                 # 'HOSTNAME',
