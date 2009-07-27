@@ -184,7 +184,7 @@ rebuildrun:
 	rsync -az ./BOOTSTRAP/ $(ROOT)
 	$(UNTAR)
 	BOOTSTRAP=TRUE $(FAKECHROOT) bash -l -c 'gbin/gub --fresh cross/gcc'
-#	BOOTSTRAP=TRUE $(FAKECHROOT) bash -l -c 'gbin/gub cross/gcc'
+	rsync -az $(ROOT)/$(BUILD_ARCHITECTURE)/packages/ BINARIES/$(BUILD_ARCHITECTURE)/packages
 
 # enter into root
 chroot:
