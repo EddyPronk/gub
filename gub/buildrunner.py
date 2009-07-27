@@ -237,7 +237,6 @@ class BuildRunner:
 
         if ((checksum_fail_reason and not self.options.lax_checksums)
             or not self.spec_is_installable (spec)):
-            print 'NOT INSTALLABLE', spec_name
             deferred_runner = runner.DeferredRunner (logger)
             spec.connect_command_runner (deferred_runner)
             spec.runner.stage ('building package: %s\n' % spec_name)
