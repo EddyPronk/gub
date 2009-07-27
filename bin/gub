@@ -333,6 +333,7 @@ def main ():
 
     logging.default_logger.threshold = options.verbosity
     logging.info ('files: %(files)s\n' % locals ())
+    logging.info ('CLEANED env: ' + str (os.environ))
 
     if not options.platform and len (files):
         options.platform, x = misc.split_platform (files[0])
