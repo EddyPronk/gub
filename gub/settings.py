@@ -277,6 +277,7 @@ cd %(alltargetdir)s && mkdir -p lib
 cd %(alltargetdir)s && ln -sf %(system_prefix)s/bin/true lib/ld-linux.so.2      
 cd %(alltargetdir)s && mkdir -p %(system_prefix)s/bin
 cd %(alltargetdir)s && ln -sf %(system_prefix)s/bin/bash %(system_prefix)s/bin/sh
+cd %(alltargetdir)s && ln -sf %(cross_prefix)s/bin/gcc %(system_prefix)s/bin/cc
 cd %(alltargetdir)s && mkdir %(system_root)s/etc
 #cd %(alltargetdir)s && mkdir -p proc
 cd %(alltargetdir)s && mkdir -p tmp
