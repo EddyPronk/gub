@@ -16,7 +16,7 @@ class Pango (target.AutoBuild):
     patches = ['pango-1.20-substitute-env.patch']
     def _get_build_dependencies (self):
         return [
-            'tools::glib',
+            'tools::glib', 
             'freetype-devel',
             'fontconfig-devel',
             'glib-devel',
