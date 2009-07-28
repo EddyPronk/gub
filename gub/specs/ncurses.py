@@ -3,7 +3,7 @@ from gub import tools
 
 class Ncurses (target.AutoBuild):
     source = 'ftp://ftp.gnu.org/pub/gnu/ncurses/ncurses-5.5.tar.gz'
-    patches = ['ncurses-5.5-sh.patch']
+    patches = ['ncurses-5.5-mkhashsize.sh.patch']
     def _get_build_dependencies (self):
         return [
 #            'system::g++'
@@ -14,8 +14,6 @@ class Ncurses (target.AutoBuild):
                 + ' --without-normal'
                 + ' --with-shared'
                 )
-    def makeflags (self):
-        return 'SCRIPT_SHELL=/bin/bash'
     def license_files (self):
         return ['%(srcdir)s/README']
 
