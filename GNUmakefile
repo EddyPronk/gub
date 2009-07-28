@@ -95,7 +95,6 @@ boot_packs =\
  gawk\
  grep\
  coreutils\
- ncurses\
  texinfo\
  cross/binutils\
  cross/gcc-core\
@@ -108,6 +107,7 @@ boot_packs =\
  make\
  patch\
  sed\
+ ncurses\
  findutils\
  libtool\
  util-linux\
@@ -184,6 +184,7 @@ setup-root:
 	rsync -az bin/ $(ROOT)/gbin
 	rsync -az gub librestrict nsis patches sourcefiles $(ROOT)
 	$(UNTAR)
+	rm -f fakeroot.save
 	$(FAKEROOT) $(FAKECHROOT) /bin/bash -l -c 'cd /dev && ./MAKEDEV standard'
 #	$(FAKEROOT) $(FAKECHROOT) /bin/bash -l -c '($UNTAR)'
 	mv $(ROOT)/dev/urandom $(ROOT)/dev/urandom-
