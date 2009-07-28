@@ -15,7 +15,13 @@ class Pango (target.AutoBuild):
     source = 'http://ftp.gnome.org/pub/GNOME/sources/pango/1.24/pango-1.24.2.tar.bz2'
     patches = ['pango-1.20-substitute-env.patch']
     def _get_build_dependencies (self):
-        return ['freetype-devel', 'fontconfig-devel', 'glib-devel', 'libtool']
+        return [
+            'tools::glib',
+            'freetype-devel',
+            'fontconfig-devel',
+            'glib-devel',
+            'libtool'
+            ]
     def get_conflict_dict (self):
         return {'': ['pangocairo', 'pangocairo-devel', 'pangocairo-doc'], 'devel': ['pangocairo', 'pangocairo-devel', 'pangocairo-doc'], 'doc': ['pangocairo', 'pangocairo-devel', 'pangocairo-doc'], 'runtime': ['pangocairo', 'pangocairo-devel', 'pangocairo-doc']}
     #FIXME: promoteme to build.py
