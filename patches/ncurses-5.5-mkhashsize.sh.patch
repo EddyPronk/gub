@@ -1,0 +1,11 @@
+--- ncurses-5.5/include/MKhashsize.sh.orig	2009-07-27 22:15:55.290871772 +0200
++++ ncurses-5.5/include/MKhashsize.sh	2009-07-27 22:15:58.866868386 +0200
+@@ -7,7 +7,7 @@ echo " * hashsize.h -- hash and token ta
+ echo " */"
+ 
+ CAPS="${1-Caps}"
+-TABSIZE=`grep -v '^[ #]' $CAPS | grep -v "^$" | grep -v "^capalias"| grep -v "^infoalias" | wc -l`
++TABSIZE=`grep -v '^[ \#]' $CAPS | grep -v "^$" | grep -v "^capalias"| grep -v "^infoalias" | wc -l`
+ 
+ echo ""
+ echo "#define CAPTABSIZE	${TABSIZE}"
