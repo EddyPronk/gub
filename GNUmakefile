@@ -82,7 +82,8 @@ python3-printf:
 
 
 ROOT = GUB
-FAKEROOT = $(ROOT)/usr/bin/fakeroot -i fakeroot.save -s fakeroot.save
+FAKEROOT_CACHE = $(ROOT)/fakeroot.save
+FAKEROOT = $(ROOT)/usr/bin/fakeroot -i $(FAKEROOT_CACHE) -s $(FAKEROOT_CACHE)
 FAKECHROOT = $(ROOT)/usr/bin/fakechroot chroot $(ROOT)
 BUILD_ARCHITECTURE = $(shell $(PYTHON) bin/build-architecture)
 UNTAR = cd $(ROOT)/$(BUILD_ARCHITECTURE) && set -x && for i in $$(find packages -name "*.gup"); do tar xzf $$i; done
@@ -166,17 +167,16 @@ boot:
 	mkdir -p BOOTSTRAP/$(BUILD_ARCHITECTURE)/packages
 	rsync -az $(ROOT)/$(BUILD_ARCHITECTURE)/packages/ BOOTSTRAP/$(BUILD_ARCHITECTURE)/packages
 	rm -f $$(find BOOTSTRAP/$(BUILD_ARCHITECTURE)/packages -name 'glibc' -o -name 'gcc' -o -name 'librestrict' -o -name 'linux-headers' -o -name 'sed' -o -name 'libtool' -o -name 'findutils' | grep -v core)
+	mv --backup=t $(ROOT) BOOT || mkdir $(ROOT)
 
-# populate root with [minimal set of] binary packs
 root:
-	rm -rf $(ROOT)
 	$(MAKE) setup-root
 	BOOTSTRAP=TRUE $(FAKECHROOT) bash -l -c 'gbin/gub cross/gcc'
 
 setup-root:
 	mkdir -p $(ROOT)
 	# Symlink setup
-	bin/gub > /dev/null || bin/gub > /dev/null || true
+	BOOTSTRAP=$(ROOT) bin/gub > /dev/null || :
 	rsync -az ./BOOTSTRAP/ $(ROOT)
 	mkdir -p $(ROOT)/downloads/cross/gcc-core
 	rsync -az downloads/cross/gcc-core/ $(ROOT)/downloads/cross/gcc-core
@@ -184,14 +184,15 @@ setup-root:
 	rsync -az bin/ $(ROOT)/gbin
 	rsync -az gub librestrict nsis patches sourcefiles $(ROOT)
 	$(UNTAR)
-	rm -f fakeroot.save
+	rm -f $(FAKEROOT_CACHE)
+	touch $(FAKEROOT_CACHE)
 	$(FAKEROOT) $(FAKECHROOT) /bin/bash -l -c 'cd /dev && ./MAKEDEV standard'
 #	$(FAKEROOT) $(FAKECHROOT) /bin/bash -l -c '($UNTAR)'
 	mv $(ROOT)/dev/urandom $(ROOT)/dev/urandom-
 
 # run test build in root
 run:
-	BOOTSTRAP=TRUE $(FAKECHROOT) bash -l -c 'gbin/gub --lax-checksums cross/gcc'
+	BOOTSTRAP=TRUE $(FAKECHROOT) bash -l -c 'gbin/gub cross/gcc'
 
 # run test build in root
 rebuildrun: setup-root
