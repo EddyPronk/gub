@@ -312,7 +312,7 @@ class BuildRunner:
             logging.default_logger.write_log ('removing outdated[%(platform)s]: %(outdated_str)s\n' % locals (), 'stage')
             self.uninstall_specs (outdated_installed)
         global target
-        for spec_name in outdated:
+        for spec_name in deps:
             target = spec_name
             self.spec_build (spec_name)
         target = None
