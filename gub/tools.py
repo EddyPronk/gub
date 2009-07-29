@@ -118,7 +118,7 @@ tooldir=%(install_prefix)s
     def install_prefix (self):
         if 'BOOTSTRAP' in os.environ.keys ():
             return '%(install_root)s%(prefix_dir)s'
-        return '%(install_prefix)s'
+        return '%(install_root)s/%(system_prefix)s'
 
     def wrap_executables (self):
         def wrap (logger, file):
