@@ -83,8 +83,10 @@ python3-printf:
 
 ROOT = GUB
 FAKEROOT_CACHE = $(ROOT)/fakeroot.save
-FAKEROOT = $(ROOT)/usr/bin/fakeroot -i $(FAKEROOT_CACHE) -s $(FAKEROOT_CACHE)
-FAKECHROOT = $(ROOT)/usr/bin/fakechroot chroot $(ROOT)
+#FAKEROOT = $(ROOT)/usr/bin/fakeroot -i $(FAKEROOT_CACHE) -s $(FAKEROOT_CACHE)
+#FAKECHROOT = $(ROOT)/usr/bin/fakechroot chroot $(ROOT)
+FAKEROOT = $(ROOT)/usr/bin/fakeroot-ng -p $(FAKEROOT_CACHE)
+FAKECHROOT = chroot $(ROOT)
 BUILD_ARCHITECTURE = $(shell $(PYTHON) bin/build-architecture)
 UNTAR = cd $(ROOT)/$(BUILD_ARCHITECTURE) && set -x && for i in $$(find packages -name "*.gup"); do tar xzf $$i; done
 
@@ -112,8 +114,7 @@ boot_packs =\
  findutils\
  libtool\
  util-linux\
- fakeroot\
- fakechroot\
+ fakeroot-ng\
  expat\
  zlib\
  gzip\
@@ -144,8 +145,7 @@ root_packs =\
  expat\
  gdbm\
  gub-utils\
- fakechroot\
- fakeroot\
+ fakeroot-ng\
  glibc-core\
  gzip\
  make\
@@ -172,6 +172,7 @@ boot:
 root:
 	$(MAKE) setup-root
 	BOOTSTRAP=TRUE $(FAKECHROOT) bash -l -c 'gbin/gub cross/gcc'
+#	BOOTSTRAP=TRUE $(FAKECHROOT) bash -l -c 'gbin/gub -x fakeroot-ng'
 
 setup-root:
 	mkdir -p $(ROOT)
@@ -192,7 +193,7 @@ setup-root:
 
 # run test build in root
 run:
-	BOOTSTRAP=TRUE $(FAKECHROOT) bash -l -c 'gbin/gub cross/gcc'
+	BOOTSTRAP=TRUE $(FAKEROOT) $(FAKECHROOT) bash -l -c 'gbin/gub cross/gcc'
 
 # run test build in root
 rebuildrun: setup-root

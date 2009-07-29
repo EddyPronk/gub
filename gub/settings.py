@@ -341,7 +341,7 @@ def clean_environment ():
                 'DISPLAY', # Ugh, mingw::openoffice install complains about this...
                 # 'EMAIL',
 
-                # How to ever be clean, with this?  Hmm, not needed?
+                # How to ever be clean, with this?  Try fakeroot-ng?
                 # 'FAKECHROOT',
                 # 'FAKECHROOT_BASE',
                 # 'FAKECHROOT_VERSION',
