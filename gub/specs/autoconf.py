@@ -1,3 +1,6 @@
+import os
+#
+from gub import misc
 from gub import tools
 
 class Autoconf__tools (tools.AutoBuild):
@@ -6,3 +9,6 @@ class Autoconf__tools (tools.AutoBuild):
         return ['m4']
     def force_sequential_build (self):
         return True
+    def makeflags (self):
+        return ('PERL5LIB=%(tools_prefix)s/lib/perl5/5.10.0'
+                + misc.append_path (os.environ.get ('PERL5LIB', '')))

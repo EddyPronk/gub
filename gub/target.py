@@ -148,6 +148,8 @@ cd %(builddir)s && chmod +x %(configure_binary)s && %(configure_command_native)s
             'NM': '%(toolchain_prefix)snm',
             'PKG_CONFIG_PATH': '%(system_prefix)s/lib/pkgconfig',
             'PATH': '%(cross_prefix)s/bin:%(tools_prefix)s/bin:%(tools_cross_prefix)s/bin:' + os.environ['PATH'],
+            'PERL5LIB': '%(tools_prefix)s/lib/perl5/5.10.0'
+            + misc.append_path (os.environ.get ('PERL5LIB', '')),
             'PKG_CONFIG': '''pkg-config \
 --define-variable prefix=%(system_prefix)s \
 --define-variable includedir=%(system_prefix)s/include \
