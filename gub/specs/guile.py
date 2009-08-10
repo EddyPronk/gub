@@ -8,14 +8,8 @@ from gub import target
 from gub import tools
 
 class Guile (target.AutoBuild):
-    # http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=494337
-    # source = 'git://git.sv.gnu.org/guile.git&branch=branch_release-1-8&revision=release_1-8-4'
-    #source = 'git://git.sv.gnu.org/guile.git&branch=branch_release-1-8&revision=release_1-8-5'
-    # 1.8.5 breaks with autoconf >= 2.62
-    # source = 'git://git.sv.gnu.org/guile.git&branch=branch_release-1-8&revision=release_1-8-6'
-    # 1.8.6's ./autogen.sh barfs
-    # branch = 'branch_release-1-8'
-    source = 'git://git.sv.gnu.org/guile.git&branch=branch_release-1-8&revision=bba579611b3671c7e4c1515b100f01c048a07935'
+    # source = 'git://git.sv.gnu.org/guile.git&branch=branch_release-1-8&revision=bba579611b3671c7e4c1515b100f01c048a07935'
+    source = 'http://ftp.gnu.org/pub/gnu/guile/guile-1.8.7.tar.gz'
     patches = ['guile-reloc-1.8.6.patch',
                'guile-cexp.patch',
                'guile-1.8.6-test-use-srfi.patch']
@@ -126,7 +120,6 @@ exit 0
         self.system ('cd %(install_prefix)s%(cross_dir)s/bin && cp -pv %(target_architecture)s-guile-config guile-config')
 
 class Guile__mingw (Guile):
-    source = 'http://ftp.gnu.org/pub/gnu/guile/guile-1.8.7.tar.gz'
     def __init__ (self, settings, source):
         Guile.__init__ (self, settings, source)
         # Configure (compile) without -mwindows for console
@@ -204,7 +197,6 @@ guile_cv_use_csqrt="no"
                 + Guile.configure_variables (self))
 
 class Guile__darwin (Guile):
-    source = 'http://ftp.gnu.org/pub/gnu/guile/guile-1.8.7.tar.gz'
     patches = Guile.patches + ['guile-1.8.6-pthreads-cross.patch']
     def install (self):
         Guile.install (self)
@@ -297,7 +289,6 @@ guile-tut').
     }
 
 class Guile__linux__x86 (Guile):
-    source = 'http://ftp.gnu.org/pub/gnu/guile/guile-1.8.7.tar.gz'
     patches = Guile.patches + ['guile-1.8.6-pthreads-cross.patch']
     def FIXED_in_1_8_7_configure_command (self):
         return (Guile.configure_command (self)
