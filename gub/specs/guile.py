@@ -96,6 +96,9 @@ cc
                        '%(builddir)s/libguile/libpath.h')
         target.AutoBuild.compile (self)
     def install (self):
+        # with 1.8.7: libtool: cannot install directory not ending in...
+        # after config.status is being re-run for building of libpath.h
+        self.update_libtool ()
         target.AutoBuild.install (self)
         majmin_version = '.'.join (self.expand ('%(version)s').split ('.')[0:2])
         
@@ -309,11 +312,6 @@ ac_cv_func_pthread_get_stackaddr_np=${ac_cv_func_pthread_get_stackaddr_np=no}
 ac_cv_func_pthread_getattr_np=${ac_cv_func_pthread_getattr_np=yes}
 ac_cv_func_pthread_sigmask=${ac_cv_func_pthread_sigmask=yes}
 '''
-    def install (self):
-        # with 1.8.7: libtool: cannot install directory not ending in...
-        # after config.status is being re-run for building of libpath.h
-        self.update_libtool ()
-        Guile.install (self)
 
 class Guile__tools (tools.AutoBuild, Guile):
     def _get_build_dependencies (self):
