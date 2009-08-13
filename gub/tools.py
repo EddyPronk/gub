@@ -170,6 +170,9 @@ LD_LIBRARY_PATH=%(system_prefix)s/lib
             + misc.append_path (os.environ.get ('LIBRARY_PATH', '')),
             'LIBRESTRICT_IGNORE': '%(system_prefix)s/bin/make',
             'PATH': '%(system_prefix)s/bin:%(system_cross_prefix)s/bin:' + os.environ['PATH'],
+            'PERL5LIB': 'foo:%(tools_prefix)s/lib/perl5/5.10.0'
+            + ':%(tools_prefix)s/share/autoconf'
+            + misc.append_path (os.environ.get ('PERL5LIB', '')),
         }
         dict.update (env)
         d = build.AutoBuild.get_substitution_dict (self, dict).copy ()

@@ -85,8 +85,11 @@ ROOT = GUB
 FAKEROOT_CACHE = $(ROOT)/fakeroot.save
 #FAKEROOT = $(ROOT)/usr/bin/fakeroot -i $(FAKEROOT_CACHE) -s $(FAKEROOT_CACHE)
 #FAKECHROOT = $(ROOT)/usr/bin/fakechroot chroot $(ROOT)
+ID=$(shell id -u)
+ifneq ($(ID),0)
 FAKEROOT = $(ROOT)/usr/bin/fakeroot-ng -p $(FAKEROOT_CACHE)
-FAKECHROOT = chroot $(ROOT)
+endif
+FAKECHROOT = GUB/bin/chroot $(ROOT)
 BUILD_ARCHITECTURE = $(shell $(PYTHON) bin/build-architecture)
 UNTAR = cd $(ROOT)/$(BUILD_ARCHITECTURE) && set -x && for i in $$(find packages -name "*.gup"); do tar xzf $$i; done
 
@@ -97,6 +100,7 @@ boot_packs =\
  dash\
  gawk\
  grep\
+ patch\
  coreutils\
  texinfo\
  cross/binutils\
@@ -108,7 +112,6 @@ boot_packs =\
  bash\
  tar\
  make\
- patch\
  sed\
  ncurses\
  findutils\
@@ -162,8 +165,8 @@ root_packs =\
 # build GUB packages to populate root [eventually for distribution]
 boot:
 	mkdir -p $(ROOT)
-	sudo ln -sf $(PWD)/GUB /
-	set -x; $(foreach i,$(boot_packs),BOOTSTRAP=TRUE bin/gub -x --fresh --keep --lax-checksums $(i) &&) :
+	#sudo ln -sf $(PWD)/GUB /
+	set -x; $(foreach i,$(boot_packs),BOOTSTRAP=TRUE bin/gub -x --keep --lax-checksums $(i) &&) :
 	mkdir -p BOOTSTRAP/$(BUILD_ARCHITECTURE)/packages
 	rsync -az $(ROOT)/$(BUILD_ARCHITECTURE)/packages/ BOOTSTRAP/$(BUILD_ARCHITECTURE)/packages
 	rm -f $$(find BOOTSTRAP/$(BUILD_ARCHITECTURE)/packages -name 'glibc' -o -name 'gcc' -o -name 'librestrict' -o -name 'linux-headers' -o -name 'sed' -o -name 'libtool' -o -name 'findutils' | grep -v core)
@@ -171,8 +174,10 @@ boot:
 
 root:
 	$(MAKE) setup-root
-	BOOTSTRAP=TRUE $(FAKECHROOT) bash -l -c 'gbin/gub cross/gcc'
-#	BOOTSTRAP=TRUE $(FAKECHROOT) bash -l -c 'gbin/gub -x fakeroot-ng'
+	BOOTSTRAP=TRUE $(FAKECHROOT) bash -l -c 'gbin/gub --keep cross/gcc'
+	rsync -az $(ROOT)/$(BUILD_ARCHITECTURE)/packages/ BOOTSTRAP/$(BUILD_ARCHITECTURE)/packages
+	BOOTSTRAP=TRUE $(FAKECHROOT) bash -l -c 'gbin/gub --keep fakeroot-ng'
+	rsync -az $(ROOT)/$(BUILD_ARCHITECTURE)/packages/ BOOTSTRAP/$(BUILD_ARCHITECTURE)/packages
 
 setup-root:
 	mkdir -p $(ROOT)
@@ -189,11 +194,11 @@ setup-root:
 	touch $(FAKEROOT_CACHE)
 	$(FAKEROOT) $(FAKECHROOT) /bin/bash -l -c 'cd /dev && ./MAKEDEV standard'
 #	$(FAKEROOT) $(FAKECHROOT) /bin/bash -l -c '($UNTAR)'
-	mv $(ROOT)/dev/urandom $(ROOT)/dev/urandom-
+#	mv $(ROOT)/dev/urandom $(ROOT)/dev/urandom- || :
 
 # run test build in root
 run:
-	BOOTSTRAP=TRUE $(FAKEROOT) $(FAKECHROOT) bash -l -c 'gbin/gub cross/gcc'
+	BOOTSTRAP=TRUE $(FAKEROOT) $(FAKECHROOT) 'gbin/gub cross/gcc'
 
 # run test build in root
 rebuildrun: setup-root

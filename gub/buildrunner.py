@@ -248,7 +248,7 @@ class BuildRunner:
             deferred_runner.execute_deferred_commands ()
             checksum_file = spec.expand ('%(checksum_file)s')
             if checksum_file:
-                if len (self.checksums[spec_name].split ('\n')) < 5:
+                if 0: #len (self.checksums[spec_name].split ('\n')) < 5:
                     # Sanity check.  This can't be right.  Do not
                     # overwrite precious [possibly correct] checksum.
                     raise Exception ('BROKEN CHECKSUM:' + self.checksums[spec_name])
@@ -310,7 +310,8 @@ class BuildRunner:
             outdated_str = (' '.join (outdated_installed)
                             .replace (misc.with_platform ('', platform), ''))
             logging.default_logger.write_log ('removing outdated[%(platform)s]: %(outdated_str)s\n' % locals (), 'stage')
-            self.uninstall_specs (outdated_installed)
+            if not 'BOOTSTRAP' in os.environ.keys ():
+                self.uninstall_specs (outdated_installed)
         global target
         for spec_name in deps:
             target = spec_name

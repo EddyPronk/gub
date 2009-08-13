@@ -1,0 +1,574 @@
+Build shared libcoreutils.so without using libtool
+for GUB's librestrict(2) to kick-in.
+
+--- coreutils-6.12/src/base64.c~	2008-05-26 08:40:33.000000000 +0200
++++ coreutils-6.12/src/base64.c	2009-02-13 10:10:20.000000000 +0100
+@@ -50,7 +50,7 @@ static const struct option long_options[
+   {NULL, 0, NULL, 0}
+ };
+ 
+-static void
++void
+ usage (int status)
+ {
+   if (status != EXIT_SUCCESS)
+--- coreutils-6.12/lib/gnulib.mk~	2008-05-26 14:38:40.000000000 +0200
++++ coreutils-6.12/lib/gnulib.mk	2009-02-13 10:17:34.000000000 +0100
+@@ -27,7 +27,7 @@ MAINTAINERCLEANFILES =
+ 
+ AM_CPPFLAGS =
+ 
+-noinst_LIBRARIES += libcoreutils.a
++lib_LIBRARIES = libcoreutils.a
+ 
+ libcoreutils_a_SOURCES =
+ libcoreutils_a_LIBADD = $(gl_LIBOBJS)
++++ coreutils-6.12/src/Makefile.in	2009-07-29 19:20:24.350869290 +0000
+@@ -235,24 +235,24 @@ PROGRAMS = $(bin_PROGRAMS) $(noinst_PROG
+ am___OBJECTS = lbracket.$(OBJEXT)
+ __OBJECTS = $(am___OBJECTS)
+ am__DEPENDENCIES_1 =
+-am__DEPENDENCIES_2 = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++am__DEPENDENCIES_2 = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ __DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+ am_arch_OBJECTS = uname.$(OBJEXT) uname-arch.$(OBJEXT)
+ arch_OBJECTS = $(am_arch_OBJECTS)
+ arch_LDADD = $(LDADD)
+-arch_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++arch_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ base64_SOURCES = base64.c
+ base64_OBJECTS = base64.$(OBJEXT)
+ base64_LDADD = $(LDADD)
+-base64_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++base64_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ basename_SOURCES = basename.c
+ basename_OBJECTS = basename.$(OBJEXT)
+ basename_LDADD = $(LDADD)
+-basename_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++basename_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ cat_SOURCES = cat.c
+ cat_OBJECTS = cat.$(OBJEXT)
+ cat_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+@@ -262,33 +262,33 @@ chcon_DEPENDENCIES = $(am__DEPENDENCIES_
+ am_chgrp_OBJECTS = chgrp.$(OBJEXT) chown-core.$(OBJEXT)
+ chgrp_OBJECTS = $(am_chgrp_OBJECTS)
+ chgrp_LDADD = $(LDADD)
+-chgrp_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++chgrp_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ chmod_SOURCES = chmod.c
+ chmod_OBJECTS = chmod.$(OBJEXT)
+ chmod_LDADD = $(LDADD)
+-chmod_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++chmod_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ am_chown_OBJECTS = chown.$(OBJEXT) chown-core.$(OBJEXT)
+ chown_OBJECTS = $(am_chown_OBJECTS)
+ chown_LDADD = $(LDADD)
+-chown_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++chown_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ chroot_SOURCES = chroot.c
+ chroot_OBJECTS = chroot.$(OBJEXT)
+ chroot_LDADD = $(LDADD)
+-chroot_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++chroot_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ cksum_SOURCES = cksum.c
+ cksum_OBJECTS = cksum.$(OBJEXT)
+ cksum_LDADD = $(LDADD)
+-cksum_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++cksum_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ comm_SOURCES = comm.c
+ comm_OBJECTS = comm.$(OBJEXT)
+ comm_LDADD = $(LDADD)
+-comm_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++comm_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ am__objects_1 = copy.$(OBJEXT) cp-hash.$(OBJEXT)
+ am_cp_OBJECTS = cp.$(OBJEXT) $(am__objects_1)
+ cp_OBJECTS = $(am_cp_OBJECTS)
+@@ -298,13 +298,13 @@ cp_DEPENDENCIES = $(am__DEPENDENCIES_2) 
+ csplit_SOURCES = csplit.c
+ csplit_OBJECTS = csplit.$(OBJEXT)
+ csplit_LDADD = $(LDADD)
+-csplit_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++csplit_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ cut_SOURCES = cut.c
+ cut_OBJECTS = cut.$(OBJEXT)
+ cut_LDADD = $(LDADD)
+-cut_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++cut_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ date_SOURCES = date.c
+ date_OBJECTS = date.$(OBJEXT)
+ date_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+@@ -322,56 +322,56 @@ dir_DEPENDENCIES = $(am__DEPENDENCIES_2)
+ dircolors_SOURCES = dircolors.c
+ dircolors_OBJECTS = dircolors.$(OBJEXT)
+ dircolors_LDADD = $(LDADD)
+-dircolors_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++dircolors_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ dirname_SOURCES = dirname.c
+ dirname_OBJECTS = dirname.$(OBJEXT)
+ dirname_LDADD = $(LDADD)
+-dirname_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++dirname_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ du_SOURCES = du.c
+ du_OBJECTS = du.$(OBJEXT)
+ du_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+ echo_SOURCES = echo.c
+ echo_OBJECTS = echo.$(OBJEXT)
+ echo_LDADD = $(LDADD)
+-echo_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++echo_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ env_SOURCES = env.c
+ env_OBJECTS = env.$(OBJEXT)
+ env_LDADD = $(LDADD)
+-env_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++env_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ expand_SOURCES = expand.c
+ expand_OBJECTS = expand.$(OBJEXT)
+ expand_LDADD = $(LDADD)
+-expand_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++expand_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ expr_SOURCES = expr.c
+ expr_OBJECTS = expr.$(OBJEXT)
+ expr_LDADD = $(LDADD)
+-expr_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++expr_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ factor_SOURCES = factor.c
+ factor_OBJECTS = factor.$(OBJEXT)
+ factor_LDADD = $(LDADD)
+-factor_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++factor_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ false_SOURCES = false.c
+ false_OBJECTS = false.$(OBJEXT)
+ false_LDADD = $(LDADD)
+-false_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++false_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ fmt_SOURCES = fmt.c
+ fmt_OBJECTS = fmt.$(OBJEXT)
+ fmt_LDADD = $(LDADD)
+-fmt_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++fmt_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ fold_SOURCES = fold.c
+ fold_OBJECTS = fold.$(OBJEXT)
+ fold_LDADD = $(LDADD)
+-fold_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++fold_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ am__objects_2 = ginstall-copy.$(OBJEXT) ginstall-cp-hash.$(OBJEXT)
+ am_ginstall_OBJECTS = ginstall-install.$(OBJEXT) \
+ 	ginstall-prog-fprintf.$(OBJEXT) $(am__objects_2)
+@@ -381,51 +381,51 @@ ginstall_DEPENDENCIES = $(am__DEPENDENCI
+ am_groups_OBJECTS = groups.$(OBJEXT) group-list.$(OBJEXT)
+ groups_OBJECTS = $(am_groups_OBJECTS)
+ groups_LDADD = $(LDADD)
+-groups_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++groups_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ head_SOURCES = head.c
+ head_OBJECTS = head.$(OBJEXT)
+ head_LDADD = $(LDADD)
+-head_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++head_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ hostid_SOURCES = hostid.c
+ hostid_OBJECTS = hostid.$(OBJEXT)
+ hostid_LDADD = $(LDADD)
+-hostid_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++hostid_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ hostname_SOURCES = hostname.c
+ hostname_OBJECTS = hostname.$(OBJEXT)
+ hostname_LDADD = $(LDADD)
+-hostname_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++hostname_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ am_id_OBJECTS = id.$(OBJEXT) group-list.$(OBJEXT)
+ id_OBJECTS = $(am_id_OBJECTS)
+ id_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+ join_SOURCES = join.c
+ join_OBJECTS = join.$(OBJEXT)
+ join_LDADD = $(LDADD)
+-join_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++join_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ kill_SOURCES = kill.c
+ kill_OBJECTS = kill.$(OBJEXT)
+ kill_LDADD = $(LDADD)
+-kill_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++kill_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ link_SOURCES = link.c
+ link_OBJECTS = link.$(OBJEXT)
+ link_LDADD = $(LDADD)
+-link_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++link_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ am_ln_OBJECTS = ln.$(OBJEXT)
+ ln_OBJECTS = $(am_ln_OBJECTS)
+ ln_LDADD = $(LDADD)
+-ln_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++ln_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ logname_SOURCES = logname.c
+ logname_OBJECTS = logname.$(OBJEXT)
+ logname_LDADD = $(LDADD)
+-logname_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++logname_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ am_ls_OBJECTS = ls.$(OBJEXT) ls-ls.$(OBJEXT)
+ ls_OBJECTS = $(am_ls_OBJECTS)
+ ls_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1) \
+@@ -433,8 +433,8 @@ ls_DEPENDENCIES = $(am__DEPENDENCIES_2) 
+ am_md5sum_OBJECTS = md5sum-md5sum.$(OBJEXT)
+ md5sum_OBJECTS = $(am_md5sum_OBJECTS)
+ md5sum_LDADD = $(LDADD)
+-md5sum_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++md5sum_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ am_mkdir_OBJECTS = mkdir.$(OBJEXT) prog-fprintf.$(OBJEXT)
+ mkdir_OBJECTS = $(am_mkdir_OBJECTS)
+ mkdir_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+@@ -454,44 +454,44 @@ mv_DEPENDENCIES = $(am__DEPENDENCIES_2) 
+ nice_SOURCES = nice.c
+ nice_OBJECTS = nice.$(OBJEXT)
+ nice_LDADD = $(LDADD)
+-nice_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++nice_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ nl_SOURCES = nl.c
+ nl_OBJECTS = nl.$(OBJEXT)
+ nl_LDADD = $(LDADD)
+-nl_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++nl_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ nohup_SOURCES = nohup.c
+ nohup_OBJECTS = nohup.$(OBJEXT)
+ nohup_LDADD = $(LDADD)
+-nohup_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++nohup_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ od_SOURCES = od.c
+ od_OBJECTS = od.$(OBJEXT)
+ od_LDADD = $(LDADD)
+-od_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++od_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ paste_SOURCES = paste.c
+ paste_OBJECTS = paste.$(OBJEXT)
+ paste_LDADD = $(LDADD)
+-paste_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++paste_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ pathchk_SOURCES = pathchk.c
+ pathchk_OBJECTS = pathchk.$(OBJEXT)
+ pathchk_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+ pinky_SOURCES = pinky.c
+ pinky_OBJECTS = pinky.$(OBJEXT)
+ pinky_LDADD = $(LDADD)
+-pinky_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++pinky_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ pr_SOURCES = pr.c
+ pr_OBJECTS = pr.$(OBJEXT)
+ pr_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+ printenv_SOURCES = printenv.c
+ printenv_OBJECTS = printenv.$(OBJEXT)
+ printenv_LDADD = $(LDADD)
+-printenv_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++printenv_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ printf_SOURCES = printf.c
+ printf_OBJECTS = printf.$(OBJEXT)
+ printf_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1) \
+@@ -502,21 +502,21 @@ ptx_DEPENDENCIES = $(am__DEPENDENCIES_2)
+ pwd_SOURCES = pwd.c
+ pwd_OBJECTS = pwd.$(OBJEXT)
+ pwd_LDADD = $(LDADD)
+-pwd_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++pwd_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ readlink_SOURCES = readlink.c
+ readlink_OBJECTS = readlink.$(OBJEXT)
+ readlink_LDADD = $(LDADD)
+-readlink_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++readlink_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ am_rm_OBJECTS = rm.$(OBJEXT) remove.$(OBJEXT)
+ rm_OBJECTS = $(am_rm_OBJECTS)
+ rm_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+ am_rmdir_OBJECTS = rmdir.$(OBJEXT) prog-fprintf.$(OBJEXT)
+ rmdir_OBJECTS = $(am_rmdir_OBJECTS)
+ rmdir_LDADD = $(LDADD)
+-rmdir_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++rmdir_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ runcon_SOURCES = runcon.c
+ runcon_OBJECTS = runcon.$(OBJEXT)
+ runcon_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+@@ -526,33 +526,33 @@ seq_DEPENDENCIES = $(am__DEPENDENCIES_2)
+ setuidgid_SOURCES = setuidgid.c
+ setuidgid_OBJECTS = setuidgid.$(OBJEXT)
+ setuidgid_LDADD = $(LDADD)
+-setuidgid_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++setuidgid_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ am_sha1sum_OBJECTS = sha1sum-md5sum.$(OBJEXT)
+ sha1sum_OBJECTS = $(am_sha1sum_OBJECTS)
+ sha1sum_LDADD = $(LDADD)
+-sha1sum_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++sha1sum_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ am_sha224sum_OBJECTS = sha224sum-md5sum.$(OBJEXT)
+ sha224sum_OBJECTS = $(am_sha224sum_OBJECTS)
+ sha224sum_LDADD = $(LDADD)
+-sha224sum_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++sha224sum_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ am_sha256sum_OBJECTS = sha256sum-md5sum.$(OBJEXT)
+ sha256sum_OBJECTS = $(am_sha256sum_OBJECTS)
+ sha256sum_LDADD = $(LDADD)
+-sha256sum_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++sha256sum_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ am_sha384sum_OBJECTS = sha384sum-md5sum.$(OBJEXT)
+ sha384sum_OBJECTS = $(am_sha384sum_OBJECTS)
+ sha384sum_LDADD = $(LDADD)
+-sha384sum_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++sha384sum_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ am_sha512sum_OBJECTS = sha512sum-md5sum.$(OBJEXT)
+ sha512sum_OBJECTS = $(am_sha512sum_OBJECTS)
+ sha512sum_LDADD = $(LDADD)
+-sha512sum_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++sha512sum_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ shred_SOURCES = shred.c
+ shred_OBJECTS = shred.$(OBJEXT)
+ shred_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1) \
+@@ -578,21 +578,21 @@ stat_DEPENDENCIES = $(am__DEPENDENCIES_2
+ stty_SOURCES = stty.c
+ stty_OBJECTS = stty.$(OBJEXT)
+ stty_LDADD = $(LDADD)
+-stty_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++stty_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ su_SOURCES = su.c
+ su_OBJECTS = su.$(OBJEXT)
+ su_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+ sum_SOURCES = sum.c
+ sum_OBJECTS = sum.$(OBJEXT)
+ sum_LDADD = $(LDADD)
+-sum_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++sum_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ sync_SOURCES = sync.c
+ sync_OBJECTS = sync.$(OBJEXT)
+ sync_LDADD = $(LDADD)
+-sync_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++sync_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ tac_SOURCES = tac.c
+ tac_OBJECTS = tac.$(OBJEXT)
+ tac_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+@@ -602,8 +602,8 @@ tail_DEPENDENCIES = $(am__DEPENDENCIES_3
+ tee_SOURCES = tee.c
+ tee_OBJECTS = tee.$(OBJEXT)
+ tee_LDADD = $(LDADD)
+-tee_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++tee_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ test_SOURCES = test.c
+ test_OBJECTS = test.$(OBJEXT)
+ test_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1)
+@@ -613,43 +613,43 @@ touch_DEPENDENCIES = $(am__DEPENDENCIES_
+ tr_SOURCES = tr.c
+ tr_OBJECTS = tr.$(OBJEXT)
+ tr_LDADD = $(LDADD)
+-tr_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++tr_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ true_SOURCES = true.c
+ true_OBJECTS = true.$(OBJEXT)
+ true_LDADD = $(LDADD)
+-true_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++true_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ tsort_SOURCES = tsort.c
+ tsort_OBJECTS = tsort.$(OBJEXT)
+ tsort_LDADD = $(LDADD)
+-tsort_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++tsort_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ tty_SOURCES = tty.c
+ tty_OBJECTS = tty.$(OBJEXT)
+ tty_LDADD = $(LDADD)
+-tty_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++tty_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ am_uname_OBJECTS = uname.$(OBJEXT) uname-uname.$(OBJEXT)
+ uname_OBJECTS = $(am_uname_OBJECTS)
+ uname_LDADD = $(LDADD)
+-uname_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++uname_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ unexpand_SOURCES = unexpand.c
+ unexpand_OBJECTS = unexpand.$(OBJEXT)
+ unexpand_LDADD = $(LDADD)
+-unexpand_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++unexpand_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ uniq_SOURCES = uniq.c
+ uniq_OBJECTS = uniq.$(OBJEXT)
+ uniq_LDADD = $(LDADD)
+-uniq_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++uniq_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ unlink_SOURCES = unlink.c
+ unlink_OBJECTS = unlink.$(OBJEXT)
+ unlink_LDADD = $(LDADD)
+-unlink_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++unlink_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ uptime_SOURCES = uptime.c
+ uptime_OBJECTS = uptime.$(OBJEXT)
+ uptime_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1) \
+@@ -657,8 +657,8 @@ uptime_DEPENDENCIES = $(am__DEPENDENCIES
+ users_SOURCES = users.c
+ users_OBJECTS = users.$(OBJEXT)
+ users_LDADD = $(LDADD)
+-users_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++users_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ am_vdir_OBJECTS = ls.$(OBJEXT) ls-vdir.$(OBJEXT)
+ vdir_OBJECTS = $(am_vdir_OBJECTS)
+ vdir_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1) \
+@@ -666,23 +666,23 @@ vdir_DEPENDENCIES = $(am__DEPENDENCIES_2
+ wc_SOURCES = wc.c
+ wc_OBJECTS = wc.$(OBJEXT)
+ wc_LDADD = $(LDADD)
+-wc_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++wc_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ who_SOURCES = who.c
+ who_OBJECTS = who.$(OBJEXT)
+ who_LDADD = $(LDADD)
+-who_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++who_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ whoami_SOURCES = whoami.c
+ whoami_OBJECTS = whoami.$(OBJEXT)
+ whoami_LDADD = $(LDADD)
+-whoami_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++whoami_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ yes_SOURCES = yes.c
+ yes_OBJECTS = yes.$(OBJEXT)
+ yes_LDADD = $(LDADD)
+-yes_DEPENDENCIES = ../lib/libcoreutils.a $(am__DEPENDENCIES_1) \
+-	../lib/libcoreutils.a
++yes_DEPENDENCIES = ../lib/libcoreutils.so $(am__DEPENDENCIES_1) \
++	../lib/libcoreutils.so
+ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/lib
+ depcomp = $(SHELL) $(top_srcdir)/build-aux/depcomp
+ am__depfiles_maybe = depfiles
+@@ -1228,7 +1228,7 @@ AM_CPPFLAGS = -I$(top_srcdir)/lib
+ # must precede $(LIBINTL) in order to ensure we use GNU getopt.
+ # But libcoreutils.a must also follow $(LIBINTL), since libintl uses
+ # replacement functions defined in libcoreutils.a.
+-LDADD = ../lib/libcoreutils.a $(LIBINTL) ../lib/libcoreutils.a
++LDADD = -L../lib -lcoreutils $(LIBINTL)
+ 
+ # Append $(LIBICONV) to each program that uses proper_name_utf8.
+ cat_LDADD = $(LDADD) $(LIBICONV)
+@@ -2211,7 +2211,7 @@ uninstall-am: uninstall-binPROGRAMS unin
+ 	uninstall-am uninstall-binPROGRAMS uninstall-local
+ 
+ 
+-$(PROGRAMS): ../lib/libcoreutils.a
++$(PROGRAMS): ../lib/libcoreutils.so
+ 
+ all-local: su$(EXEEXT)
+ 

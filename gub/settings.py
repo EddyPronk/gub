@@ -275,6 +275,9 @@ cd %(alltargetdir)s && ln -sf %(system_root)s/etc .
 cd %(alltargetdir)s && ln -sf %(system_root)s/%(lib)s .
 cd %(alltargetdir)s && mkdir -p lib
 cd %(alltargetdir)s && ln -sf %(system_prefix)s/bin/true lib/ld-linux.so.2      
+cd %(alltargetdir)s && ln -sf %(system_root)s/%(lib)s/libdl.so.2 lib/libdl.so.2
+#cd %(alltargetdir)s && ln -sf %(system_prefix)s/lib/libdl.so lib/libdl.so
+cd %(alltargetdir)s && ln -sf %(system_root)s/%(lib)s/libc.so.6 lib/libc.so.6
 cd %(alltargetdir)s && mkdir -p %(system_prefix)s/bin
 cd %(alltargetdir)s && ln -sf %(system_prefix)s/bin/bash %(system_prefix)s/bin/sh
 cd %(alltargetdir)s && ln -sf %(cross_prefix)s/bin/gcc %(system_prefix)s/bin/cc
@@ -283,6 +286,7 @@ cd %(alltargetdir)s && mkdir %(system_root)s/etc
 cd %(alltargetdir)s && mkdir -p tmp
 ''' % self.__dict__)
                 loggedos.dump_file (logging.default_logger, '''
+BOOTSTRAP=TRUE
 DISPLAY=gub-build:0.0
 HOME=/
 HOSTNAME=gub-build

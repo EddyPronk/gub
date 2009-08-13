@@ -2,7 +2,7 @@ from gub import build
 from gub import cross
 
 class Binutils (cross.AutoBuild):
-    source = 'ftp://ftp.gnu.org/pub/gnu/binutils/binutils-2.18.tar.bz2'
+    source = 'ftp://ftp.gnu.org/pub/gnu/binutils/binutils-2.18.tar.gz'
     patches = ['binutils-2.18-makeinfo-version.patch', 'binutils-2.18-werror.patch' ]
     def _get_build_dependencies (self):
         return ['tools::texinfo']

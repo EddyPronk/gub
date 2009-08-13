@@ -43,3 +43,5 @@ class Perl__tools (tools.AutoBuild):
         for i in ['%(builddir)s/makefile', '%(builddir)s/x2p/makefile']:
             # Ugh, missing some command?
             self.file_sub ([('^0$','')], i)
+#    def install_command (self):
+        

@@ -10,4 +10,5 @@ class Util_linux__tools (tools.AutoBuild):
         return (tools.AutoBuild.configure_command (self)
                 + ' --disable-tls'
                 + ' --disable-makeinstall-chown'
+                + ' SHELL=%(tools_prefix)s/bin/bash'
                 + ''' CFLAGS='-DLINE_MAX=1024' ''')

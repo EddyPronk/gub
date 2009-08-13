@@ -14,6 +14,7 @@ class Expat (target.AutoBuild):
         self.system ("touch %(srcdir)s/tests/xmltest.sh.in")
     def makeflags (self):
         return misc.join_lines ('''
+SHELL=%(tools_prefix)s/bin/bash
 CFLAGS="-O2 -DHAVE_EXPAT_CONFIG_H"
 EXEEXT=
 RUN_FC_CACHE_TEST=false
