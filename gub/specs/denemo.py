@@ -18,8 +18,9 @@ from gub import target
 
 class Denemo (target.AutoBuild):
     source = 'git://git.savannah.gnu.org/denemo.git'
-    source = 'http://download.savannah.gnu.org/releases/denemo/denemo-0.8.6.tar.gz'
-    patches = [
+    #source = 'http://download.savannah.gnu.org/releases/denemo/denemo-0.8.6.tar.gz'
+    # in denemo GIT now
+    patches_0_8_6 = [
         'denemo-srcdir-make.patch',
         'denemo-relocate.patch'
         ]
@@ -44,6 +45,7 @@ class Denemo (target.AutoBuild):
             'tools::gettext',
             'tools::libtool',
             'tools::pkg-config',
+            'epdfview', # Hmm
             'guile-devel',
             'gtk+-devel',
             'jack-devel',
@@ -60,7 +62,9 @@ class Denemo (target.AutoBuild):
         return {'': [x.replace ('-devel', '')
                      for x in self._get_build_dependencies ()
                      if 'tools::' not in x and 'cross/' not in x]
-                + ['cross/gcc-c++-runtime']
+                + [
+                'cross/gcc-c++-runtime',
+                ]
                 }
     def configure_command (self):
         return (target.AutoBuild.configure_command (self)
@@ -71,7 +75,7 @@ class Denemo (target.AutoBuild):
         return 'BINRELOC_CFLAGS=-DENABLE_BINRELOC=1'
 
 class Denemo__mingw (Denemo):
-    patches = Denemo.patches + [
+    patches_0_8_6 = Denemo.patches_0_8_6 + [
         'denemo-mingw.patch',
         'denemo-prefops-mingw.patch',
         'denemo-relocate-mingw.patch',
