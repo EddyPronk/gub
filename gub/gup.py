@@ -177,8 +177,10 @@ class FileManager:
             else:
                 files.append (f)
 
-        for f in files:
-            os.unlink (f)
+        if not 'BOOTSTRAP' in os.environ.keys ():
+            # let's not remove everything from below ourselves...
+            for f in files:
+                os.unlink (f)
 
         for d in reversed (dirs):
             try:
