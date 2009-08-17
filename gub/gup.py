@@ -446,7 +446,7 @@ def get_source_packages (settings, const_todo):
 
     def name_to_dependencies_via_gub (url):
         platform, url = split_platform (url)
-        if platform == 'tools':
+        if 'BOOTSTRAP' in os.environ.keys () and platform == 'tools':
             platform = settings.build_platform
         if ':' in url:
             base, unused_parameters = misc.dissect_url (url)

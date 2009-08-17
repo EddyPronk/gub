@@ -68,7 +68,7 @@ class Settings (context.Context):
         if not platform:
             platform = self.build_platform
         self.target_platform = platform
-        if platform == 'tools':
+        if 'BOOTSTRAP' in os.environ.keys () and platform == 'tools':
             self.target_platform = self.build_platform
         if self.target_platform not in list (platforms.keys ()):
             raise UnknownPlatform (self.target_platform)
@@ -94,10 +94,10 @@ class Settings (context.Context):
             self.target_bits = self.build_bits
 
         # config dirs
-        self.root_dir = '/' + self.target_architecture
-        self.tools_root_dir = '/' + self.build_architecture
+        self.root_dir = '/root'
+        self.tools_root_dir = '/tools/root'
         self.prefix_dir = '/usr'
-        self.cross_dir = ''
+        self.cross_dir = '/cross'
 
         # Support GUB tools building directly in $HOME/{bin,lib,share},
         # use GUB_TOOLS_PREFIX=$HOME
@@ -128,21 +128,33 @@ class Settings (context.Context):
         # workdir based; may be changed
         self.downloads = self.workdir_prefix + '/downloads'
         self.alltargetdir = self.workdir_prefix + '/target'
-        if 'BOOTSTRAP' in os.environ.keys () or True:
+        self.targetdir = self.alltargetdir + '/' + self.target_platform
+        self.system_root = self.targetdir + self.root_dir
+        if 'BOOTSTRAP' in os.environ.keys ():
             # this is for: BOOTSTRAP *and* for running in [fake]chroot
+            self.root_dir = '/' + self.target_architecture
+            self.tools_root_dir = '/' + self.build_architecture
             self.alltargetdir = '/GUB'
+            self.system_root = self.alltargetdir + self.root_dir
+            self.cross_dir = ''
 
-        self.system_root = self.alltargetdir + self.root_dir
         if self.platform == 'tools' and GUB_TOOLS_PREFIX:
             self.system_root = GUB_TOOLS_PREFIX
         self.system_prefix = self.system_root + self.prefix_dir
         self.system_cross_prefix = self.system_prefix + '/' + self.target_architecture
 
+        self.cross_prefix = self.system_prefix + self.cross_dir
+        if 'BOOTSTRAP' in os.environ.keys ():
+            self.targetdir = self.system_root
+            # Hmm, cross now == system, isn't that is silly?
+            self.cross_prefix = self.system_prefix
+
         self.tools_root = self.alltargetdir + self.tools_root_dir
         self.tools_prefix = self.tools_root + self.prefix_dir
-        self.tools_cross_prefix = self.tools_prefix + '/' + self.build_architecture
+        self.tools_cross_prefix = self.tools_prefix + self.cross_dir
+        if 'BOOTSTRAP' in os.environ.keys ():
+            self.tools_cross_prefix = self.tools_prefix + '/' + self.build_architecture
 
-        self.targetdir = self.system_root
         self.logdir = self.targetdir + '/log'
 
         ## Patches are architecture dependent, 
@@ -156,9 +168,6 @@ class Settings (context.Context):
 
         self.uploads = self.workdir_prefix + '/uploads'
         self.platform_uploads = self.uploads + '/' + self.platform
-
-        # Hmm, cross now == system, isn't that is silly?
-        self.cross_prefix = self.system_prefix
 
         info = logging.default_logger.harmless
         info.write ('\n')
@@ -262,7 +271,8 @@ class Settings (context.Context):
             dir = self.__dict__[a]
             if not os.path.isdir (dir):
                 loggedos.makedirs (logging.default_logger, dir)
-            if not os.path.exists (self.alltargetdir + self.alltargetdir):
+            if ('BOOTSTRAP' in os.environ.keys ()
+                and not os.path.exists (self.alltargetdir + self.alltargetdir)):
                 self.lib = 'lib'
                 if self.build_bits == '64':
                     self.lib = 'lib64'

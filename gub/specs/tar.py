@@ -9,4 +9,4 @@ class Tar__tools (tools.AutoBuild):
         self.source._unpack = self.source._unpack_promise_well_behaved
     def wrap_executables (self):
         # no dynamic executables [other than /lib:libc]
-        return
+        pass

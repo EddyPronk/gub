@@ -10,4 +10,4 @@ class M4__tools (tools.AutoBuild):
         return string + '\ngl_cv_lib_sigsegv=${gl_cv_lib_sigsegv=no}\n'
     def wrap_executables (self):
         # no dynamic executables [other than /lib:libc]
-        return
+        pass

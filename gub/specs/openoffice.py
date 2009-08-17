@@ -804,7 +804,7 @@ install:
     def wrap_executables (self):
         # using rpath, and also openoffice has data files in bin/,
         # such as types.rdb.
-        return
+        pass
 
 Openoffice = OpenOffice
 Openoffice__mingw = OpenOffice__mingw

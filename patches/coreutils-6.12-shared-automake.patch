@@ -23,8 +23,8 @@ for GUB's librestrict(2) to kick-in.
  
  libcoreutils_a_SOURCES =
  libcoreutils_a_LIBADD = $(gl_LIBOBJS)
---- coreutils-6.12/src/Makefile.im~	2007-03-20 08:24:27.000000000 +0100
-+++ coreutils-6.12/src/Makefile.im	2009-02-13 10:35:04.000000000 +0100
+--- coreutils-6.12/src/Makefile.am~	2007-03-20 08:24:27.000000000 +0100
++++ coreutils-6.12/src/Makefile.am	2009-02-13 10:35:04.000000000 +0100
 @@ -57,7 +57,7 @@ AM_CPPFLAGS = -I$(top_srcdir)/lib
  # must precede $(LIBINTL) in order to ensure we use GNU getopt.
  # But libcoreutils.a must also follow $(LIBINTL), since libintl uses

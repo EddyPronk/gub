@@ -107,4 +107,5 @@ class Freetype__tools (tools.AutoBuild, Freetype):
         return Freetype.license_files (self)
     def install (self):
         tools.AutoBuild.install (self)
-        self.munge_ft_config ('%(install_root)s/%(tools_prefix)s/bin/.freetype-config')
+        #self.munge_ft_config ('%(install_root)s/%(tools_prefix)s/bin/.freetype-config')
+        self.munge_ft_config ('%(install_root)s/%(tools_prefix)s/bin/freetype-config')

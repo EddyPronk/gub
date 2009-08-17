@@ -30,7 +30,9 @@ class AutoBuild (build.AutoBuild):
         return d
     def configure_command (self):
         return (
-            '''LDFLAGS='-L%(system_prefix)s/lib -Wl,--as-needed' '''
+            # BOOTSTRAP -- do we need this?
+            #'''LDFLAGS='-L%(system_prefix)s/lib -Wl,--as-needed' '''
+            '''LDFLAGS=-L%(system_prefix)s/lib '''
             + build.AutoBuild.configure_command (self)
             + misc.join_lines ('''
 --program-prefix=%(target_architecture)s-
@@ -61,12 +63,15 @@ def change_target_package (package):
 # GNU tar --strip-component
 # /usr/bin/install: coreutils
 # SVN
-bootstrap_names = ['system::gcc', 'tools::gub-utils', 'tools::librestrict', 'tools::make']
+bootstrap_names = ['system::gcc', 'tools::librestrict', 'tools::make']
 def set_cross_dependencies (package_object_dict):
+    global bootstrap_names
     if 'stat' in misc.librestrict ():
-        global bootstrap_names
         bootstrap_names += ['tools::coreutils', 'tools::dash', 'tools::gawk',
                             'tools::grep', 'tools::sed']
+
+    if 'BOOTSTRAP' in os.environ.keys ():
+        bootstrap_names += ['tools::gub-utils']
 
     packs = list (package_object_dict.values ())
 

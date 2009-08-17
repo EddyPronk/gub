@@ -114,7 +114,7 @@ to skip this check and risk a defective build.
         return []
 
     def with_platform (self, name):
-        if 'BOOTSTRAP' in os.environ.keys () or True:
+        if 'BOOTSTRAP' in os.environ.keys ():
             if 'tools::' in name:
                 return misc.with_platform (name.replace ('tools::', ''),
                                            self.settings.build_platform)

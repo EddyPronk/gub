@@ -79,10 +79,12 @@ class AutoBuild (build.AutoBuild):
 --enable-static
 ''' + config_cache)
     # FIXME: promoteme to build.py?  Most Fragile operation...
+    # BOOTSTRAP -- do we need this?
+    # LDFLAGS='-L%(system_prefix)s/lib -Wl,--as-needed'
     def configure_variables (self):
         return misc.join_lines ('''
 CFLAGS=-I%(system_prefix)s/include
-LDFLAGS='-L%(system_prefix)s/lib -Wl,--as-needed'
+LDFLAGS=-L%(system_prefix)s/lib
 ''')
 
     ## ugh: prefix= will trigger libtool relinks.

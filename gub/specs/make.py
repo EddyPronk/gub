@@ -20,7 +20,7 @@ class Make_make__tools (tools.AutoBuild):
         return ['librestrict']
     def wrap_executables (self):
         # no dynamic executables [other than /lib:libc]
-        return
+        pass
 
 class Make_build_sh__tools (Make_make__tools):
     def compile_command (self):

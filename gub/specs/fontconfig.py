@@ -20,9 +20,16 @@ specified by applications.'''
 
     source = 'git://anongit.freedesktop.org/git/fontconfig?branch=master&revision=' + version
 
+    def __init__ (self, settings, source):
+        target.AutoBuild.__init__ (self, settings, source)
+        if 'stat' in misc.librestrict ():
+            target.add_target_dict (self, {'LIBRESTRICT_IGNORE': '%(tools_prefix)s/bin/bash:%(tools_prefix)s/bin/make'})
+            #target.add_target_dict (self, {'LIBRESTRICT_VERBOSE': '1'})
     def patch (self):
         self.dump ('\nAC_SUBST(LT_AGE)', '%(srcdir)s/configure.in', mode='a', permissions=octal.o755)
         target.AutoBuild.patch (self)
+    def autoupdate (self):
+        self.system ('cd %(autodir)s && NOCONFIGURE=1 LIBRESTRICT_VERBOSE=1 LIBRESTRICT_IGNORE=%(tools_prefix)s/bin/bash bash autogen.sh --noconfigure')
     @context.subst_method
     def freetype_cflags (self):
         # this is shady: we're using the flags from the tools version

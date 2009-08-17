@@ -1,3 +1,5 @@
+import os
+#
 from gub import misc
 from gub import target
 from gub import tools
@@ -13,8 +15,10 @@ class Expat (target.AutoBuild):
         self.system ("rm %(srcdir)s/configure")
         self.system ("touch %(srcdir)s/tests/xmltest.sh.in")
     def makeflags (self):
-        return misc.join_lines ('''
-SHELL=%(tools_prefix)s/bin/bash
+        SHELL = ''
+        if 'BOOTSTRAP' in os.environ.keys ():
+            SHELL = '%(tools_prefix)s/bin/bash'
+        return SHELL + misc.join_lines ('''
 CFLAGS="-O2 -DHAVE_EXPAT_CONFIG_H"
 EXEEXT=
 RUN_FC_CACHE_TEST=false
