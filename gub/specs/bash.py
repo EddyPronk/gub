@@ -18,6 +18,8 @@ class Bash__mingw (Bash):
         return str
  
 class Bash__tools (tools.AutoBuild, Bash):
+    def force_sequential_build (self):
+        return True
     @context.subst_method
     def LDFLAGS (self):
         return '%(rpath)'
