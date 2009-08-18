@@ -8,7 +8,9 @@ class Gettext (target.AutoBuild):
         return ['libtool']
     def configure_command (self):
         return (target.AutoBuild.configure_command (self)
-                + ' --disable-threads --disable-csharp --disable-java ')
+                + ' --disable-threads --disable-csharp --disable-java '
+                + ''' LDFLAGS='%(rpath)s' '''
+                )
     def configure (self):
         target.AutoBuild.configure (self)
         self.file_sub ([
@@ -73,4 +75,5 @@ class Gettext__tools (tools.AutoBuild):
                        '%(builddir)s/gettext-tools/Makefile')
     def configure_command (self):
         return (tools.AutoBuild.configure_command (self)
-                + ' --disable-libasprintf')
+                + ' --disable-libasprintf'
+                + ''' LDFLAGS='%(rpath)s' ''')
