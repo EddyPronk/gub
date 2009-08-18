@@ -34,23 +34,19 @@ class Guile (target.AutoBuild):
         self.dump ('''#!/bin/sh
 exec %(tools_prefix)s/bin/guile "$@"
 ''', "%(srcdir)s/pre-inst-guile.in")
-        self.autogen_sh ()
-        # Guile [doc] does not compile with dash *and* not with
-        # librestrict-stat.so; patch out.
+        self.autopatch ()
         target.AutoBuild.patch (self)
-        if 'stat' in misc.librestrict ():
-            self.file_sub ([(' doc ', ' ')], '%(srcdir)s/Makefile.am')
-            if not isinstance (self.source, repository.Git):
-                self.file_sub ([(' doc ', ' ')], '%(srcdir)s/Makefile.in')
-    def autogen_sh (self):
+    def autopatch (self):
         self.file_sub ([(r'AC_CONFIG_SUBDIRS\(guile-readline\)', '')],
                        '%(srcdir)s/configure.in')
         self.file_sub ([(r'guile-readline', '')],
                        '%(srcdir)s/Makefile.am')
+        # Guile [doc] does not compile with dash *and* not with
+        # librestrict-stat.so; patch out.
+        self.file_sub ([(' doc ', ' ')], '%(srcdir)s/Makefile.am')
         if not isinstance (self.source, repository.Git):
             self.file_sub ([(' doc ', ' ')], '%(srcdir)s/Makefile.in')
-            self.file_sub ([('guile-readline', '')],
-                           '%(srcdir)s/Makefile.in')
+            self.file_sub ([('guile-readline', '')], '%(srcdir)s/Makefile.in')
         self.dump ('', '%(srcdir)s/doc/ref/version.texi')
         self.dump ('', '%(srcdir)s/doc/tutorial/version.texi')
     def configure_flags (self):
@@ -318,11 +314,8 @@ class Guile__tools (tools.AutoBuild, Guile):
         return (Guile._get_build_dependencies (self)
                 + ['autoconf', 'automake', 'gettext', 'flex', 'libtool'])
     def patch (self):
-        # Guile [doc] does not compile with dash *and* not with
-        # librestrict-stat.so; patch out.
         tools.AutoBuild.patch (self)
-        if 'stat' in misc.librestrict ():
-            self.file_sub ([(' doc ', ' ')], '%(srcdir)s/Makefile.am')
+        Guile.autopatch (self)
     def configure_command (self):
         # FIXME: when configuring, guile runs binaries linked against
         # libltdl.
