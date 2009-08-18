@@ -141,13 +141,14 @@ class Settings (context.Context):
         if self.platform == 'tools' and GUB_TOOLS_PREFIX:
             self.system_root = GUB_TOOLS_PREFIX
         self.system_prefix = self.system_root + self.prefix_dir
-        self.system_cross_prefix = self.system_prefix + '/' + self.target_architecture
 
-        self.cross_prefix = self.system_prefix + self.cross_dir
+        self.system_cross_prefix = self.system_prefix + self.cross_dir
+        self.cross_prefix = self.system_cross_prefix
         if 'BOOTSTRAP' in os.environ.keys ():
             self.targetdir = self.system_root
             # Hmm, cross now == system, isn't that is silly?
             self.cross_prefix = self.system_prefix
+            self.system_cross_prefix = self.system_prefix + '/' + self.target_architecture
 
         self.tools_root = self.alltargetdir + self.tools_root_dir
         self.tools_prefix = self.tools_root + self.prefix_dir
