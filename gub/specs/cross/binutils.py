@@ -42,10 +42,8 @@ cd %(install_prefix)s%(cross_dir)s/%(target_architecture)s/bin && ln strip gstri
         Not all systems make binutils compile libiberty.a, so we
         optionally remove it.
         '''
-        self.system ('rm %(install_prefix)s%(cross_dir)s/lib/libiberty.a',
-                     ignore_errors=True)
-        self.system ('rm %(install_prefix)s%(cross_dir)s/lib64/libiberty.a',
-                     ignore_errors=True)
+        self.system ('rm -f %(install_prefix)s%(cross_dir)s/lib/libiberty.a')
+        self.system ('rm -f %(install_prefix)s%(cross_dir)s/lib64/libiberty.a')
 
 class Binutils__linux__ppc (Binutils):
     patches = Binutils.patches + ['binutils-2.18-werror-ppc.patch']
