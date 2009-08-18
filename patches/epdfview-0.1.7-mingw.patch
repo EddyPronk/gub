@@ -1,0 +1,24 @@
+--- epdfview-0.1.7/src/IJob.cxx~	2009-02-28 22:00:35.000000000 +0100
++++ epdfview-0.1.7/src/IJob.cxx	2009-08-18 20:19:06.210253230 +0200
+@@ -17,6 +17,10 @@
+ 
+ #include "epdfview.h"
+ #include <unistd.h>
++#include <stdlib.h>
++#ifdef __MINGW32__
++#define sleep(x) _sleep (x)
++#endif /* __MINGW32__ */
+ 
+ using namespace ePDFView;
+ 
+--- epdfview-0.1.7/src/Makefile.in~	2009-02-28 22:01:03.000000000 +0100
++++ epdfview-0.1.7/src/Makefile.in	2009-08-18 20:35:29.992355420 +0200
+@@ -315,7 +315,7 @@ epdfview_SOURCES = \
+ 	main.cxx
+ 
+ libshell_cxxflags = -I$(top_srcdir)/src/gtk $(GTK2_CFLAGS)
+-libshell_ldadd = $(GTK2_LIBS) $(top_builddir)/src/gtk/libshell-gtk.a
++libshell_ldadd = $(GTK2_LIBS) $(top_builddir)/src/gtk/libshell-gtk.a -lgtk-win32-2.0
+ epdfview_CXXFLAGS = \
+ 	-DLOCALEDIR='"$(datadir)/locale"'	\
+ 	$(GLIB_CFLAGS)	\
