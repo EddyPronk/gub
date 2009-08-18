@@ -1,7 +1,9 @@
 from gub import target
 
 class Poppler (target.AutoBuild):
-    source = 'http://poppler.freedesktop.org/poppler-0.10.3.tar.gz'
+    #source = 'http://poppler.freedesktop.org/poppler-0.10.3.tar.gz'
+    #source= 'http://poppler.freedesktop.org/poppler-0.10.7.tar.gz'
+    source = 'http://poppler.freedesktop.org/poppler-0.11.2.tar.gz'
     def _get_build_dependencies (self):
         return ['tools::libtool', 'tools::glib',
                 'zlib-devel',
@@ -23,6 +25,9 @@ class Poppler (target.AutoBuild):
                 #+ ' --disable-gdk'
                 #+ ' --disable-splash-output'
                 #+ ' --disable-cairo' ? 
+
+class Poppler__mingw (Poppler):
+    patches = ['poppler-0.11.2-mingw.patch']
 
 class Poppler__darwin (Poppler):
     def _get_build_dependencies (self):
