@@ -28,8 +28,6 @@ specified by applications.'''
     def patch (self):
         self.dump ('\nAC_SUBST(LT_AGE)', '%(srcdir)s/configure.in', mode='a', permissions=octal.o755)
         target.AutoBuild.patch (self)
-    def autoupdate (self):
-        self.system ('cd %(autodir)s && NOCONFIGURE=1 LIBRESTRICT_VERBOSE=1 LIBRESTRICT_IGNORE=%(tools_prefix)s/bin/bash dash autogen.sh --noconfigure')
     @context.subst_method
     def freetype_cflags (self):
         # this is shady: we're using the flags from the tools version
@@ -198,8 +196,6 @@ class Fontconfig__tools (tools.AutoBuild):
         tools.AutoBuild.patch (self)
     def _get_build_dependencies (self):
         return ['libtool', 'freetype', 'expat', 'pkg-config']
-    def autoupdate (self):
-        self.system ('cd %(autodir)s && NOCONFIGURE=1 LIBRESTRICT_VERBOSE=1 LIBRESTRICT_IGNORE=%(tools_prefix)s/bin/bash dash autogen.sh --noconfigure')
     def makeflags (self):
         return ('man_MANS=' # either this, or add something like tools::docbook-utils
                 + ' DOCSRC="" ')

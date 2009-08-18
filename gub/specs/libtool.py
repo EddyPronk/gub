@@ -54,7 +54,7 @@ ac_cv_prog_GCJ=${ac_cv_prog_GCJ=no}
 ''')
     def configure_command (self):
         # libtool's build breaks with SHELL=; CONFIG_SHELL works
-        # and adds dash to libtools' #! 
+        # and adds bash to libtools' #! 
         SHELL = ''
         if 'stat' in misc.librestrict ():
             SHELL = 'CONFIG_SHELL=%(tools_prefix)s/bin/dash '

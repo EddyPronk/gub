@@ -24,8 +24,6 @@ class Denemo (target.AutoBuild):
         'denemo-srcdir-make.patch',
         'denemo-relocate.patch'
         ]
-    def autoupdate (self):
-        self.system ('cd %(autodir)s && NOCONFIGURE=1 LIBRESTRICT_VERBOSE=1 LIBRESTRICT_IGNORE=%(tools_prefix)s/bin/bash dash autogen.sh --noconfigure')
     @staticmethod
     def version_from_configure_in (self):
         return self.version_from_configure_in ()

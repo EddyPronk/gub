@@ -358,7 +358,7 @@ class ForcedAutogenMagic (SerializedCommand):
             noconfigure = ' --help'
             if '--noconfigure' in s:
                 noconfigure = ' --noconfigure' + noconfigure
-            self.system ('cd %(autodir)s && NOCONFIGURE=1 bash autogen.sh %(noconfigure)s' % locals (),
+            self.system ('cd %(autodir)s && NOCONFIGURE=1 dash autogen.sh %(noconfigure)s' % locals (),
                          logger)
         else:
             libtoolize = misc.path_find (PATH, 'libtoolize')

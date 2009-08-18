@@ -16,7 +16,7 @@ class Librestrict_make__tools (tools.MakeBuild):
         # restrictions using LIBRESTRICT=open:stat, uninstall dash and
         # coreutils.  This avoids triggering of any open(2)
         # restrictions on common commands.
-        relax_restrictions = ['coreutils', 'dash']
+        relax_restrictions = ['coreutils', 'bash']
         if 'stat' in self.librestrict_flavours ():
             relax_restrictions = []
         return {'': [

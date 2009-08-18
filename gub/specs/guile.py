@@ -123,10 +123,6 @@ class Guile__mingw (Guile):
         Guile.__init__ (self, settings, source)
         # Configure (compile) without -mwindows for console
         self.target_gcc_flags = '-mms-bitfields'
-    def Xmakeflags (self):
-        # hack for (only) running libtool under dash-librestrict.
-        return (Guile.makeflags (self)
-                + ''' 'LIBTOOL=%(tools_prefix)s/bin/dash $(top_builddir)/libtool' ''')
     def _get_build_dependencies (self):
         return Guile._get_build_dependencies (self) +  ['regex-devel']
     def configure_command (self):
