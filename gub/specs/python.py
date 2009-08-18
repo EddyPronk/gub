@@ -67,16 +67,20 @@ BLDLIBRARY='%(rpath)s -L. -lpython$(VERSION)'
             relax = 'LIBRESTRICT_ALLOW=/usr/lib/python2.4/lib-dynload:${LIBRESTRICT_ALLOW-/foo} '
         return (relax
                 + target.AutoBuild.install_command (self))
+    @context.subst_method
+    def SO_EXTENSION (self):
+        return '.so' #FIXME!
     def install (self):
         target.AutoBuild.install (self)
         misc.dump_python_config (self)
         def assert_fine (logger):
             dynload_dir = self.expand ('%(install_prefix)s/lib/python%(python_version)s/lib-dynload')
-            all = [x.replace (dynload_dir + '/', '') for x in misc.find_files (dynload_dir, '.*.so')]
-            failed = [x.replace (dynload_dir + '/', '') for x in misc.find_files (dynload_dir, '.*failed.so')]
+            so = self.SO_EXTENSION ()
+            all = [x.replace (dynload_dir + '/', '') for x in misc.find_files (dynload_dir, '.*' + so)]
+            failed = [x.replace (dynload_dir + '/', '') for x in misc.find_files (dynload_dir, '.*failed' + so)]
             if failed:
                 logger.write_log ('failed python modules:' + ', '.join (failed), 'error')
-            if not 'struct.so' in all or not 'itertools.so' in all:
+            if not 'struct' + so in all or not 'itertools' + so in all:
                 logger.write_log ('all python modules:' + ', '.join (all), 'error')
                 raise Exception ('Python struct or itertools module failed')
         self.func (assert_fine)
@@ -131,6 +135,9 @@ ac_cv_pthread_system_supported=yes,
 ac_cv_sizeof_pthread_t=12
 ''')
 ##$(eval echo $((echo $ac_cv_sizeof_int + $ac_cv_sizeof_void_p)))
+    @context.subst_method
+    def SO_EXTENSION (self):
+        return '.dll' #FIXME!
     def install (self):
         Python.install (self)
         self.file_sub ([('extra = ""', 'extra = "-L%(system_prefix)s/bin -L%(system_prefix)s/lib -lpython2.4 -lpthread"')],

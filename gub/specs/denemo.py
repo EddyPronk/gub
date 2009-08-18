@@ -24,6 +24,8 @@ class Denemo (target.AutoBuild):
         'denemo-srcdir-make.patch',
         'denemo-relocate.patch'
         ]
+    def autoupdate (self):
+        self.system ('cd %(autodir)s && NOCONFIGURE=1 LIBRESTRICT_VERBOSE=1 LIBRESTRICT_IGNORE=%(tools_prefix)s/bin/bash dash autogen.sh --noconfigure')
     @staticmethod
     def version_from_configure_in (self):
         return self.version_from_configure_in ()
@@ -71,6 +73,11 @@ class Denemo (target.AutoBuild):
                 + ' --enable-binreloc'
                 + ' --with-jack'
                 + ' --program-prefix=')
+    def compile (self):
+        if isinstance (self.source, repository.Git):
+            # FIXME: missing dependency
+            self.system ('cd %(builddir)s/src && make lylexer.c')
+        target.AutoBuild.compile (self)
     def makeflags (self):
         return 'BINRELOC_CFLAGS=-DENABLE_BINRELOC=1'
 
