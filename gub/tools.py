@@ -90,6 +90,8 @@ LDFLAGS=-L%(system_prefix)s/lib
     ## ugh: prefix= will trigger libtool relinks.
     def install_command (self):
         return '''make %(makeflags)s DESTDIR=%(install_root)s install'''
+# Hmm, weird, this breaks?
+#        return self.compile_command () + ' DESTDIR=%(install_root)s install '
 
     def broken_install_command (self):
         # FIXME: use sysconfdir=%(install_PREFIX)s/etc?  If
@@ -246,3 +248,21 @@ class NullBuild (AutoBuild):
         return ['']
     def install (self):
         self.system ('mkdir -p %(install_prefix)s')
+
+class BinaryBuild (AutoBuild):
+    def stages (self):
+        return ['untar', 'install', 'package', 'clean']
+    def install (self):
+        self.system ('mkdir -p %(install_root)s')
+        _v = '' #self.os_interface.verbose_flag ()
+        self.system ('tar -C %(srcdir)s -cf- . | tar -C %(install_root)s%(_v)s -p -xf-', env=locals ())
+        self.libtool_installed_la_fixups ()
+    def get_subpackage_names (self):
+        return ['']
+        
+class CpanBuild (AutoBuild):
+    def stages (self):
+        return [s for s in AutoBuild.stages (self) if s not in ['autoupdate']]
+    def configure (self):
+        self.shadow ()
+        self.system ('cd %(builddir)s && perl Makefile.PL PREFIX=%(system_prefix)s')
