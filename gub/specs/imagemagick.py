@@ -18,6 +18,7 @@ class ImageMagick__tools (tools.AutoBuild):
             'libtiff',
             'libxml2',
             'libtool',
+            'perl-extutils-makemaker',
             'zlib',
             ]
     def configure_flags (self):
