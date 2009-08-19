@@ -1,3 +1,4 @@
+from gub import build
 from gub import context
 from gub import misc
 from gub import target
@@ -12,7 +13,7 @@ class Qtopia_core (target.AutoBuild):
         'CXX': 'g++',
         #'LINK': '%(toolchain_prefix)sg++',
         }
-    build.change_target_dict (self, dict)
+    build.change_dict (self, dict)
     def _get_build_dependencies (self):
         return ['freetype-devel', 'tslib-devel']
     def patch (self):

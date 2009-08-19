@@ -1,3 +1,4 @@
+from gub import build
 from gub import context
 from gub import logging
 from gub import misc
@@ -23,8 +24,8 @@ specified by applications.'''
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         if 'stat' in misc.librestrict ():
-            target.add_target_dict (self, {'LIBRESTRICT_IGNORE': '%(tools_prefix)s/bin/bash:%(tools_prefix)s/bin/make'})
-            #target.add_target_dict (self, {'LIBRESTRICT_VERBOSE': '1'})
+            build.add_dict (self, {'LIBRESTRICT_IGNORE': '%(tools_prefix)s/bin/bash:%(tools_prefix)s/bin/make'})
+            #build.add_dict (self, {'LIBRESTRICT_VERBOSE': '1'})
     def patch (self):
         self.dump ('\nAC_SUBST(LT_AGE)', '%(srcdir)s/configure.in', mode='a', permissions=octal.o755)
         target.AutoBuild.patch (self)

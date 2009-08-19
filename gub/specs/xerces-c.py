@@ -1,3 +1,4 @@
+from gub import build
 from gub import misc
 from gub import target
 
@@ -19,7 +20,7 @@ class Xerces_c (target.AutoBuild):
             'CFLAGS': ' -DPROJ_XMLPARSER -DPROJ_XMLUTIL -DPROJ_PARSERS -DPROJ_SAX4C -DPROJ_SAX2 -DPROJ_DOM -DPROJ_DEPRECATED_DOM -DPROJ_VALIDATORS -DXML_USE_NATIVE_TRANSCODER -DXML_USE_INMEM_MESSAGELOADER -DXML_USE_PTHREADS -DXML_USE_NETACCESSOR_SOCKET ',
             'CXXFLAGS': ' -DPROJ_XMLPARSER -DPROJ_XMLUTIL -DPROJ_PARSERS -DPROJ_SAX4C -DPROJ_SAX2 -DPROJ_DOM -DPROJ_DEPRECATED_DOM -DPROJ_VALIDATORS -DXML_USE_NATIVE_TRANSCODER -DXML_USE_INMEM_MESSAGELOADER -DXML_USE_PTHREADS -DXML_USE_NETACCESSOR_SOCKET ',
             }
-        target.change_target_dict (self, self.compile_dict)
+        build.change_dict (self, self.compile_dict)
     def force_sequential_build (self):
         return True
     def autodir (self):
@@ -63,4 +64,4 @@ class Xerces_c__mingw (Xerces_c):
             'THREADS' : 'mthreads',
             'LIBS': '',
             })
-        target.change_target_dict (self, self.compile_dict)
+        build.change_dict (self, self.compile_dict)

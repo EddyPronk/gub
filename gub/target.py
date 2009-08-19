@@ -262,53 +262,23 @@ class NullBuild (AutoBuild):
     def install (self):
         self.system ('mkdir -p %(install_prefix)s')
 
-class Change_target_dict:
-    def __init__ (self, package, override):
-        self._target_dict_method = package.get_substitution_dict
-        self._add_dict = override
-
-    def target_dict (self, env={}):
-        env_copy = env.copy ()
-        env_copy.update (self._add_dict)
-        d = self._target_dict_method (env_copy)
-        return d
-
-    def append_dict (self, env={}):
-        d = self._target_dict_method ()
-        for (k, v) in list (self._add_dict.items ()):
-            d[k] += v
-        d.update (env)
-        d = context.recurse_substitutions (d)
-        return d
-
-    def add_dict (self, env={}):
-        d = self._target_dict_method ()
-        for (k, v) in list (self._add_dict.items ()):
-            d[k] = v
-        d.update (env)
-        d = context.recurse_substitutions (d)
-        return d
-
-def change_target_dict (package, add_dict):
-    """Override the get_substitution_dict () method of PACKAGE."""
-    try:
-        package.get_substitution_dict = Change_target_dict (package, add_dict).target_dict
-    except AttributeError:
-        pass
-
-def add_target_dict (package, add_dict):
-    """Override the get_substitution_dict () method of PACKAGE."""
-    try:
-        package.get_substitution_dict = Change_target_dict (package, add_dict).add_dict
-    except AttributeError:
-        pass
-
-def append_target_dict (package, add_dict):
-    """Override the get_substitution_dict () method of PACKAGE."""
-    try:
-        package.get_substitution_dict = Change_target_dict (package, add_dict).append_dict
-    except AttributeError:
-        pass
+class BinaryBuild (AutoBuild):
+    def stages (self):
+        return ['untar', 'install', 'package', 'clean']
+    def install (self):
+        self.system ('mkdir -p %(install_root)s')
+        _v = '' #self.os_interface.verbose_flag ()
+        self.system ('tar -C %(srcdir)s -cf- . | tar -C %(install_root)s%(_v)s -p -xf-', env=locals ())
+        self.libtool_installed_la_fixups ()
+    def get_subpackage_names (self):
+        return ['']
+        
+class CpanBuild (AutoBuild):
+    def stages (self):
+        return [s for s in AutoBuild.stages (self) if s not in ['autoupdate']]
+    def configure (self):
+        self.shadow ()
+        self.system ('cd %(builddir)s && perl Makefile.PL PREFIX=%(system_prefix)s')
 
 def libtool_disable_rpath (logger, libtool, rpath, file):
     # Must also keep -rpath $libdir, because when build_arch ==

@@ -1,3 +1,4 @@
+from gub import build
 from gub import context
 from gub import misc
 from gub import target
@@ -7,8 +8,8 @@ class Inkscape (target.AutoBuild):
     branch = 'trunk'
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
-        target.add_target_dict (self,
-                                {'ACLOCAL_FLAGS': ' -I '.join ([''] + self.aclocal_path ()), })
+        build.add_dict (self,
+                        {'ACLOCAL_FLAGS': ' -I '.join ([''] + self.aclocal_path ()), })
         source.is_tracking = misc.bind_method (lambda x: True, source)
     def patch (self):
         target.AutoBuild.patch (self)

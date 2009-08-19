@@ -765,3 +765,52 @@ def libtool_update_preserve_vars (logger, libtool, vars, file):
     n2 = subst_vars (old[old.find (marker):], new[new.find (marker):])
     open (file, 'w').write (n1 + n2)
     loggedos.chmod (logger, file, octal.o755)
+
+class Change_dict:
+    def __init__ (self, package, override):
+        self._dict_method = package.get_substitution_dict
+        self._add_dict = override
+
+    def get_dict (self, env={}):
+        env_copy = env.copy ()
+        env_copy.update (self._add_dict)
+        d = self._dict_method (env_copy)
+        return d
+
+    def append_dict (self, env={}):
+        d = self._dict_method ()
+        for (k, v) in list (self._add_dict.items ()):
+            d[k] += v
+        d.update (env)
+        d = context.recurse_substitutions (d)
+        return d
+
+    def add_dict (self, env={}):
+        d = self._dict_method ()
+        for (k, v) in list (self._add_dict.items ()):
+            d[k] = v
+        d.update (env)
+        d = context.recurse_substitutions (d)
+        return d
+
+def change_dict (package, add_dict):
+    """Override the get_substitution_dict () method of PACKAGE."""
+    try:
+        package.get_substitution_dict = Change_dict (package, add_dict).get_dict
+    except AttributeError:
+        pass
+
+def add_dict (package, add_dict):
+    """Override the get_substitution_dict () method of PACKAGE."""
+    try:
+        package.get_substitution_dict = Change_dict (package, add_dict).add_dict
+    except AttributeError:
+        pass
+
+def append_dict (package, add_dict):
+    """Override the get_substitution_dict () method of PACKAGE."""
+    try:
+        package.get_substitution_dict = Change_dict (package, add_dict).append_dict
+    except AttributeError:
+        pass
+

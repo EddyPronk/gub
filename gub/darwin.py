@@ -4,6 +4,7 @@ import os
 #
 from gub.syntax import printf, next
 from gub import context
+from gub import build
 from gub import target
 from gub import loggedos
 
@@ -142,7 +143,7 @@ def change_target_package (package):
         return ''
     package.rpath = misc.MethodOverrider (package.nop, rpath)
 
-    target.change_target_dict (package, {
+    build.change_dict (package, {
 
             ## We get a lot of /usr/lib/ -> @executable_path/../lib/
             ## we need enough space in the header to do these relocs.

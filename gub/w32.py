@@ -25,7 +25,7 @@ def change_target_package (package):
     if isinstance (package, cross.AutoBuild):
         return
 
-    target.change_target_dict (package, {
+    build.change_dict (package, {
             'DLLTOOL': '%(toolchain_prefix)sdlltool',
             'DLLWRAP': '%(toolchain_prefix)sdllwrap',
             # note: this was cygwin only: ...
