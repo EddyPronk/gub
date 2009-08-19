@@ -203,7 +203,9 @@ class Settings (context.Context):
 
         self.gtk_version = '2.8'
         self.toolchain_prefix = self.target_architecture + '-'
-        
+        if self.target_platform == 'tools':
+            self.toolchain_prefix = ''
+
         if self.target_architecture.startswith ('x86_64'):
             self.package_arch = 'amd64'
             self.debian_branch = 'unstable'

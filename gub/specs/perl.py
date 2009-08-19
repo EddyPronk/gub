@@ -27,15 +27,16 @@ class Perl__tools (tools.AutoBuild):
                 + command)
     def configure_command (self):
 # -Dcc=%(CC)s
+# -Dprefix=%(prefix_dir)s -- BOOTSTRAP
         return misc.join_lines ('''%(configure_binary)s
- -Dprefix=%(prefix_dir)s
+ -Dprefix=%(system_prefix)s
  -Dcc='%(toolchain_prefix)sgcc %(target_gcc_flags)s'
  -Dtargetarch=%(target_architecture)s
  -Dusrinc=%(system_prefix)s/include
  -Dincpth=/
  -Dlibpth=%(system_prefix)s/lib
  -Dlocallibpth=/
- -Aldflags='%(rpath)s'
+ -Aldflags='%(rpath)s -lm -lrt'
 ''')
     def configure (self):
         self.shadow ()
