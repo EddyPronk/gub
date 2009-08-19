@@ -29,8 +29,7 @@ make[5]: *** [install-libLTLIBRARIES] Error 1
         self.map_locate (w32.libtool_disable_relink, '%(builddir)s', 'libtool')
     def install (self):
         target.AutoBuild.install (self)
-        self.system ('rm %(install_prefix)s/lib/charset.alias',
-                     ignore_errors=True)
+        self.system ('rm -f %(install_prefix)s/lib/charset.alias')
         
 class Glib__darwin (Glib):
     def configure (self):
@@ -73,7 +72,6 @@ class Glib__linux__64 (Glib):
 class Glib__tools (tools.AutoBuild, Glib):
     def install (self):
         tools.AutoBuild.install (self)
-        self.system ('rm %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/lib/charset.alias',
-                     ignore_errors=True)
+        self.system ('rm -f %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/lib/charset.alias')
     def _get_build_dependencies (self):
         return ['gettext', 'libtool']            
