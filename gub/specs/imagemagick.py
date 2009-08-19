@@ -18,7 +18,8 @@ class ImageMagick__tools (tools.AutoBuild):
             'libtiff',
             'libxml2',
             'libtool',
-            'perl-extutils-makemaker',
+#            'perl-extutils-makemaker',
+            'perl', # WTF, extutils-makemaker is now in perl-5.10.0?  Weird.
             'zlib',
             ]
     def configure_flags (self):
