@@ -313,7 +313,9 @@ def logged_build (settings, options, files):
     sys.exit (exceptional_build (settings, options, files, logger))
 
 def main ():
-    if not 'stat' in misc.librestrict ():
+    # stat restriction has become much more real using BASH
+    # lots of specs do not compile atm
+    if False and not 'stat' in misc.librestrict ():
         os.environ['LIBRESTRICT'] = 'open:stat'
         printf ('non-stat restriction is obsolete, use')
         printf ('export LIBRESTRICT=open:stat')
