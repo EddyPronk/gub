@@ -48,11 +48,10 @@ class Gcc (cross.AutoBuild):
                 + ' --with-nm=%(cross_prefix)s/bin/%(target_architecture)s-nm'
                 )
     def makeflags (self):
-        return (
-            ' tooldir="%(cross_prefix)s/%(target_architecture)s"'
-            + ' gcc_tooldir="%(prefix_dir)s/%(target_architecture)s"'
-            + ' LIBRESTRICT_ALLOW=/proc/self/fd:${LIBRESTRICT_ALLOW:/foe}'
-            )
+        return misc.join_lines ('''
+tooldir='%(cross_prefix)s/%(target_architecture)s
+gcc_tooldir='%(prefix_dir)s/%(target_architecture)s'
+''')
     def FAILED_attempt_to_avoid_post_install_MOVE_TARGET_LIBS_makeflags (self):
         return misc.join_lines ('''
 toolexeclibdir=%(system_prefix)s
