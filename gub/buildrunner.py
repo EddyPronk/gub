@@ -248,7 +248,7 @@ class BuildRunner:
             deferred_runner.execute_deferred_commands ()
             checksum_file = spec.expand ('%(checksum_file)s')
             if checksum_file:
-                if 0: #len (self.checksums[spec_name].split ('\n')) < 5:
+                if len (self.checksums[spec_name].split ('\n')) < 5 and not 'BOOTSTRAP' in os.environ.keys ():
                     # Sanity check.  This can't be right.  Do not
                     # overwrite precious [possibly correct] checksum.
                     raise Exception ('BROKEN CHECKSUM:' + self.checksums[spec_name])
