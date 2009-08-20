@@ -27,6 +27,13 @@ class AutoBuild (build.AutoBuild):
         dict.update (env)
         d = build.AutoBuild.get_substitution_dict (self, dict).copy ()
         return d
+    def LD_PRELOAD (self):
+        # Makes no sense for cross.  Be it /usr/bin/gcc or tools::gcc,
+        # it needs to read /usr/include/stdlib.h etc.  How to, or why
+        # restrict reading other files from /?
+        # See LIBRESTRICT_IGNORE below, it would need to include every
+        # binary in system_prefix :-)
+        return ''
     def configure_command (self):
         return (
             # BOOTSTRAP -- do we need this?
