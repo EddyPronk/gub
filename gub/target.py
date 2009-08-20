@@ -23,6 +23,7 @@ class AutoBuild (build.AutoBuild):
 --config-cache
 --enable-shared
 --disable-static
+--disable-silent-rules
 --build=%(build_architecture)s
 --host=%(target_architecture)s
 --target=%(target_architecture)s

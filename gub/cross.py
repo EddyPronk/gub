@@ -39,6 +39,7 @@ class AutoBuild (build.AutoBuild):
 --target=%(target_architecture)s
 --with-sysroot=%(system_root)s
 --disable-multilib
+--disable-silent-rules
 '''))
 #--with-slibdir=%(prefix_dir)s/slib
     def compile_command (self):

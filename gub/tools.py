@@ -84,6 +84,7 @@ class AutoBuild (build.AutoBuild):
 --prefix=%(configure_prefix)s
 --enable-shared
 --enable-static
+--disable-silent-rules
 ''' + config_cache)
     # FIXME: promoteme to build.py?  Most Fragile operation...
     # BOOTSTRAP -- do we need this?
