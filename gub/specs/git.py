@@ -7,8 +7,6 @@ class Git (target.AutoBuild):
         'git-1.5.2-templatedir.patch',
         #'git-1.5-shell-anality.patch'
         ]
-    def version (self):
-        return '1.5.3.rc2'
     def configure (self):
         self.shadow ()
         target.AutoBuild.configure (self)
@@ -84,7 +82,8 @@ install:
                        '%(srcdir)s/Makefile')
     def configure (self):
         self.shadow ()
-        self.dump ('prefix=%(system_prefix)s', '%(builddir)s/config.mak')
+#        self.dump ('prefix=%(system_prefix)s', '%(builddir)s/config.mak')
+        tools.AutoBuild.configure (self)
     def configure_command (self):
         return (tools.AutoBuild.configure_command (self)
                 + ' --without-openssl')
