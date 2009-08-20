@@ -38,4 +38,4 @@ def install_librestrict_stat_helpers (self):
         '%(install_prefix)s%(cross_dir)s/bin',
         '%(install_prefix)s%(cross_dir)s/%(target_architecture)s/bin',
         ]:
-        self.map_find_files (add_g_file_names, d, '(^|.*/)([^/g][^-/]*|.*-[^/g][^-/]*$)')
+        self.map_find_files (add_g_file_names, d, '(^|.*/)([^/g][^-/]*|.*-[^/g][^-/]*)$')
