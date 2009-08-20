@@ -115,11 +115,14 @@ class Dependency:
         if not self._url:
             self._url = self.build_class ().source
         if not self._url:
-            logging.warning ('no source specified in class:' + self.build_class ().__name__ + '\n')
+            logging.warning ('no source specified in class: '
+                             + self.build_class ().__name__ + '\n')
         if not self._url:
             self._url = self.settings.dependency_url (self.name ())
         if not self._url:
-            raise Exception ('No URL for:' + self._name)
+            raise Exception ('No URL for: '
+                             + misc.with_platform (self._name,
+                                                   self.settings.platform))
         if type (self._url) == str:
             try:
                 self._url = self._url % self.settings.__dict__

@@ -52,7 +52,7 @@ def checksum_diff (a, b, fromfile='', tofile='',
 class BuildRunner:
     def __init__ (self, manager, settings, options, specs):
         info = logging.default_logger.harmless
-        info.write ('MANAGER:' + settings.platform)
+        info.write ('MANAGER: ' + settings.platform + '\n')
         self.managers = {settings.platform : manager }
         self.settings = settings
         self.options = options
@@ -73,7 +73,7 @@ class BuildRunner:
     def manager (self, platform):
         if platform not in self.managers:
             info = logging.default_logger.harmless
-            info.write ('MANAGER for platform' + platform)
+            info.write ('MANAGER for platform: ' + platform + '\n')
             settings = gub.settings.Settings (platform)
             self.managers[platform] = gup.DependencyManager (settings.system_root)
         return self.managers[platform]

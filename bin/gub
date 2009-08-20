@@ -222,7 +222,7 @@ def build (settings, options, files):
         for spec in list (specs.values()):
             status = spec.get_stamp_file ()
             if os.path.exists (status):
-                logging.info ('Removing status file: %(status)')
+                logging.info ('Removing status file: %(status)s\n' % locals ())
                 os.unlink (status)
 
     # TODO: figure out how to patch src_package from
@@ -333,7 +333,7 @@ def main ():
 
     logging.default_logger.threshold = options.verbosity
     logging.info ('files: %(files)s\n' % locals ())
-    logging.info ('CLEANED env: ' + str (os.environ))
+    logging.info ('CLEANED env: ' + str (os.environ) + '\n')
 
     if not options.platform and len (files):
         options.platform, x = misc.split_platform (files[0])
