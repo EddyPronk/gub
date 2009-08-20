@@ -240,7 +240,7 @@ class BuildRunner:
             deferred_runner = runner.DeferredRunner (logger)
             spec.connect_command_runner (deferred_runner)
             spec.runner.stage ('building package: %s\n' % spec_name)
-            skip = self.get_skip_stages () + spec.get_done ()
+            skip = self.get_skip_stages () ### + spec.get_done ()
             skip = [x for x in skip if x != self.options.stage]
             
             spec.build (self.options, skip)
