@@ -159,7 +159,7 @@ class Repository:
         dir_slash_vcs = os.path.join (self.dir, self.vc_system[1:])
         if os.path.isdir (self.dir) and not os.path.isdir (dir_slash_vcs):
             self.migrate (self.dir, dir_slash_vcs)
-        if os.path.isdir (dir_slash_vcs):
+        if self.vc_system == '.git' and not os.path.isdir (os.path.join (self.dir, 'objects')):
             self.dir = dir_slash_vcs
         if not dir or dir == '.':
             dir = os.getcwd ()
