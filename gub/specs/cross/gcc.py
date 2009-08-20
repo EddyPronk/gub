@@ -6,44 +6,15 @@ from gub import cross
 from gub import cygwin
 from gub import loggedos
 from gub import misc
+from gub.specs import gcc
 
-#FIXME: merge fully with specs/gcc
 class Gcc (cross.AutoBuild):
-    source = 'ftp://ftp.gnu.org/pub/gnu/gcc/gcc-4.1.2/gcc-4.1.2.tar.bz2'
+    source = 'http://ftp.gnu.org/pub/gnu/gcc/gcc-4.1.2/gcc-4.1.2.tar.bz2'
     def _get_build_dependencies (self):
         return ['cross/binutils']
     def patch (self):
         cross.AutoBuild.patch (self)
-        # GUB cross compilers must NOT look in /usr.
-        # Fixes librestrict=stat:open and resulting ugliness.
-        for i in ['%(srcdir)s/configure', '%(srcdir)s/gcc/configure']:
-            self.file_sub ([('( *gcc_cv_tool_dirs=.*PATH_SEPARATOR/usr)', r'#\1'), # gcc-4.1.1 gcc/configure
-                            ('( *gcc_cv_tool_dirs=.*gcc_cv_tool_dirs/usr)', r'#\1')], # gcc-4.3.2 ./configure
-                           i)
-        # This seems to have been fixed in gcc-4.3.2, but only if
-        # *not* cross-compiling---a hardcoded lookup in /usr, without
-        # asking configure, still makes no sense to me.  Redirecting
-        # lookups survives gcc-4.1.1--4.3.2, which is more robust than
-        # patching them out.
-        self.file_sub ([('( standard_exec_prefix_.*= ")/usr', r'\1%(system_prefix)s')],
-                       '%(srcdir)s/gcc/gcc.c')
-
-        if False and self.settings.build_architecture == self.settings.target_architecture:
-            # This makes the target build *not* use /lib* at all, but
-            # it produces executables that will only run within the
-            # build system, using something like
-            #
-            #    x86_64-linux-gcc -Wl,-rpath -Wl,\$ORIGIN/../lib -Wl,-rpath -Wl,/home/janneke/vc/gub/target/linux-64/root/usr/lib foo.c
-            #
-            # which means that we *must* distribute libc, which we
-            # probably don't want to do.
-            self.file_sub ([('DYNAMIC_LINKER "/lib', 'DYNAMIC_LINKER "%(system_prefix)s/lib')],
-                           '%(srcdir)s/gcc/config/i386/linux.h')
-            self.file_sub ([('-dynamic-linker /lib64', '-dynamic-linker %(system_prefix)s/lib')],
-                           '%(srcdir)s/gcc/config/i386/linux64.h')
-    if 0:
-        self.file_sub ([('(NATIVE_SYSTEM_HEADER_DIR = )/usr/include', r'\1%(system_prefix)s/include')],
-                       '%(srcdir)s/gcc/Makefile.in')
+        gcc.do_not_look_in_slash_usr (self)
     @context.subst_method
     def NM_FOR_TARGET (self):
          return '%(toolchain_prefix)snm'
@@ -58,30 +29,29 @@ class Gcc (cross.AutoBuild):
     def languages (self):
         return ['c', 'c++']
     def configure_command (self):
-        cmd = cross.AutoBuild.configure_command (self)
         # FIXME: using --prefix=%(tooldir)s makes this
         # uninstallable as a normal system package in
         # /usr/i686-mingw/
         # Probably --prefix=/usr is fine too
-        language_opt = (' --enable-languages=%s '
-                        % ','.join (self.languages ()))
-        cxx_opt = '--enable-libstdcxx-debug '
-
-        cmd += '''
---with-as=%(cross_prefix)s/bin/%(target_architecture)s-as
---with-ld=%(cross_prefix)s/bin/%(target_architecture)s-ld
---with-nm=%(cross_prefix)s/bin/%(target_architecture)s-nm
---enable-static
---enable-shared '''
-        cmd += language_opt
+        enable_libstdcxx_debug = ''
         if 'c++' in self.languages ():
-            cmd +=  ' ' + cxx_opt
-        return misc.join_lines (cmd)
+            enable_libstdcxx_debug = ' --enable-libstdcxx-debug'
+        return (cross.AutoBuild.configure_command (self)
+                + ' --enable-languages=' + ','.join (self.languages ())
+# python2.5-ism
+#                + ' --enable-libstdcxx-debug' if 'c++' in self.languages () else ''
+                + enable_libstdcxx_debug
+                + ' --enable-static'
+                + ' --enable-shared'
+                + ' --with-as=%(cross_prefix)s/bin/%(target_architecture)s-as'
+                + ' --with-ld=%(cross_prefix)s/bin/%(target_architecture)s-ld'
+                + ' --with-nm=%(cross_prefix)s/bin/%(target_architecture)s-nm'
+                )
     def makeflags (self):
-        return misc.join_lines ('''
-tooldir="%(cross_prefix)s/%(target_architecture)s"
-gcc_tooldir="%(prefix_dir)s/%(target_architecture)s"
-''')
+        return (
+            ' tooldir="%(cross_prefix)s/%(target_architecture)s"'
+            + ' gcc_tooldir="%(prefix_dir)s/%(target_architecture)s"'
+            )
     def FAILED_attempt_to_avoid_post_install_MOVE_TARGET_LIBS_makeflags (self):
         return misc.join_lines ('''
 toolexeclibdir=%(system_prefix)s
@@ -90,15 +60,6 @@ RECURSE_FLAGS_TO_PASS='$(BASE_FLAGS_TO_PASS) $(GUB_FLAGS_TO_PASS)'
 FLAGS_TO_PASS='$(BASE_FLAGS_TO_PASS) $(EXTRA_HOST_FLAGS) $(GUB_FLAGS_TO_PASS)'
 TARGET_FLAGS_TO_PASS='$(BASE_FLAGS_TO_PASS) $(EXTRA_TARGET_FLAGS) $(GUB_FLAGS_TO_PASS)'
 ''')
-    def move_target_libs (self, libdir):
-        self.system ('mkdir -p %(install_prefix)s/lib || true')
-        def move_target_lib (logger, file_name):
-            base = os.path.split (file_name)[1]
-            loggedos.rename (logger, file_name, os.path.join (self.expand ('%(install_prefix)s/lib'), base))
-#        for suf in ['.la', '.so*', '.dylib']:
-        # .so* because version numbers trail .so extension.
-        for suf in ['.a', '.la', '.so*', '.dylib']:
-            self.map_locate (move_target_lib, libdir, 'lib*%(suf)s' % locals ())
     def pre_install (self):
         cross.AutoBuild.pre_install (self)
         # Only id <PREFIX>/<TARGET-ARCH>/bin exists, gcc's install installs
@@ -107,11 +68,9 @@ TARGET_FLAGS_TO_PASS='$(BASE_FLAGS_TO_PASS) $(EXTRA_TARGET_FLAGS) $(GUB_FLAGS_TO
         self.system ('mkdir -p %(install_root)s%(prefix_dir)s/%(target_architecture)s/bin')
     def install (self):
         cross.AutoBuild.install (self)
-        self.move_target_libs (self.expand ('%(install_prefix)s%(cross_dir)s/%(target_architecture)s'))
-        self.move_target_libs (self.expand ('%(install_prefix)s%(cross_dir)s/lib'))
-        self.system ('''
-mv %(install_prefix)s/lib/libstdc++.la %(install_prefix)s/lib/libstdc++.la-
-''')
+        gcc.move_target_libs (self, '%(install_prefix)s%(cross_dir)s/%(target_architecture)s')
+        gcc.move_target_libs (self, '%(install_prefix)s%(cross_dir)s/lib')
+        self.disable_libtool_la_files ('libstdc[+][+]')
 
 class Gcc__from__source (Gcc):
     def _get_build_dependencies (self):
