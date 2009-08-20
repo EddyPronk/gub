@@ -1,3 +1,5 @@
+import os
+#
 from gub import loggedos
 from gub import system
 from gub import tools
