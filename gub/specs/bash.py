@@ -18,12 +18,17 @@ class Bash__mingw (Bash):
         return str
  
 class Bash__tools (tools.AutoBuild, Bash):
-    patches = ['bash-3.2-librestrict.patch']
+# let's not use patch in a bootstrap package
+#    patches = ['bash-3.2-librestrict.patch']
     def force_sequential_build (self):
         return True
     @context.subst_method
     def LDFLAGS (self):
         return '%(rpath)'
+    def patch (self):
+        tools.AutoBuild.patch (self)
+        self.file_sub ([('^  (check_dev_tty [(][)];)', r'  /* \1 */')],
+                       '%(srcdir)s/shell.c')
     def install (self):
         tools.AutoBuild.install (self)
         self.system ('cd %(install_prefix)s/bin && ln -s bash sh')
