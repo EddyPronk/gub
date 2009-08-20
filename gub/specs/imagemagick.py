@@ -19,7 +19,7 @@ class ImageMagick__tools (tools.AutoBuild):
             'libxml2',
             'libtool',
 #            'perl-extutils-makemaker',
-            'perl', # WTF, extutils-makemaker is now in perl-5.10.0?  Weird.
+            'perl', # extutils-makemaker is now in perl-5.10.0?  Weird.
             'zlib',
             ]
     def configure_flags (self):
@@ -39,8 +39,6 @@ class ImageMagick__tools (tools.AutoBuild):
         pass
 
 class ImageMagick__tools__autoupdate (ImageMagick__tools):
-    def _get_build_dependencies (self):
-        return ['system::g++']
     def XXforce_autoupdate (self):
         # this does not work, ImageMagick adds cruft of its own in ./ltdl
         # and somehow *needs* ./ltdl (1.5.22 will make ./libltdl)
