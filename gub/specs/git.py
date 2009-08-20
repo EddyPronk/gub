@@ -82,7 +82,6 @@ install:
                        '%(srcdir)s/Makefile')
     def configure (self):
         self.shadow ()
-#        self.dump ('prefix=%(system_prefix)s', '%(builddir)s/config.mak')
         tools.AutoBuild.configure (self)
     def configure_command (self):
         return (tools.AutoBuild.configure_command (self)
