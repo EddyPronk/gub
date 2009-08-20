@@ -1,5 +1,6 @@
 import os
 #
+from gub import misc
 from gub import loggedos
 from gub import system
 from gub import tools
@@ -42,10 +43,10 @@ class Gcc__tools (tools.AutoBuild):
                 + ' --with-nm=%(tools_prefix)s/bin/nm'
                 )
     def makeflags (self):
-        return (
-            ' tooldir="%(cross_prefix)s/%(target_architecture)s"'
-            + ' gcc_tooldir="%(prefix_dir)s/%(target_architecture)s"'
-            )
+        return misc.join_lines ('''
+tooldir='%(cross_prefix)s/%(target_architecture)s'
+gcc_tooldir='%(prefix_dir)s/%(target_architecture)s'
+''')
     def install (self):
         tools.AutoBuild.install (self)
         move_target_libs (self, '%(install_prefix)s/%(target_architecture)s')

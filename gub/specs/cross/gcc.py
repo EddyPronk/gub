@@ -49,7 +49,7 @@ class Gcc (cross.AutoBuild):
                 )
     def makeflags (self):
         return misc.join_lines ('''
-tooldir='%(cross_prefix)s/%(target_architecture)s
+tooldir='%(cross_prefix)s/%(target_architecture)s'
 gcc_tooldir='%(prefix_dir)s/%(target_architecture)s'
 ''')
     def FAILED_attempt_to_avoid_post_install_MOVE_TARGET_LIBS_makeflags (self):
