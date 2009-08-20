@@ -1,0 +1,12 @@
+--- bash-3.2/shell.c~	2006-05-17 14:46:54.000000000 +0200
++++ bash-3.2/shell.c	2009-08-20 09:01:16.766766827 +0200
+@@ -361,7 +361,9 @@ main (argc, argv, env)
+ #  endif
+ #endif
+ 
++#ifdef CHECK_DEV_TTY /* No good reason.  Hampers librestrict.  */
+   check_dev_tty ();
++#endif
+ 
+ #ifdef __CYGWIN__
+   _cygwin32_check_tmp ();
