@@ -67,7 +67,7 @@ is_in_path (char const *path, char const *name)
   int len = strlen (name);
   while (p)
     {
-      if (p - path == len && !strncmp (p, name, len))
+      if (p - path == len && !strncmp (path, name, len))
 	return 1;
       path = p + 1;
       p = strchr (path, ':');
