@@ -27,8 +27,7 @@ specified by applications.'''
         target.AutoBuild.__init__ (self, settings, source)
         if 'stat' in misc.librestrict ():
             build.add_dict (self, {'LIBRESTRICT_IGNORE': '%(tools_prefix)s/bin/bash:%(tools_prefix)s/bin/make'})
-            build.add_dict (self, {'LIBRESTRICT_ALLOW': os.environ.get ('HOME', '')})
-            #build.add_dict (self, {'LIBRESTRICT_VERBOSE': '1'})
+            # build.add_dict (self, {'LIBRESTRICT_VERBOSE': '1'})
     def patch (self):
         self.dump ('\nAC_SUBST(LT_AGE)', '%(srcdir)s/configure.in', mode='a', permissions=octal.o755)
         target.AutoBuild.patch (self)
@@ -90,10 +89,10 @@ rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,
         libs = '%(freetype_libs)s'
         relax = ''
         if 'stat' in misc.librestrict ():
-            relax = 'LIBRESTRICT_IGNORE=%(tools_prefix)s/bin/make '
+            relax = 'LIBRESTRICT_IGNORE=%(tools_prefix)s/bin/bash:%(tools_prefix)s/bin/make '
         for i in ('fc-case', 'fc-lang', 'fc-glyphname', 'fc-arch'):
             self.system ('''
-cd %(builddir)s/%(i)s && %(relax)s make "CFLAGS=%(cflags)s" "LIBS=%(libs)s" CPPFLAGS= LDFLAGS= INCLUDES= 
+cd %(builddir)s/%(i)s && %(relax)s make "CFLAGS=%(cflags)s" "LIBS=%(libs)s" CPPFLAGS= LD_LIBRARY_PATH=%(tools_prefix)s/lib LDFLAGS=-L%(tools_prefix)s/lib INCLUDES=
 ''', locals ())
         target.AutoBuild.compile (self)
     def install (self):

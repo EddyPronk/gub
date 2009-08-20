@@ -7,3 +7,4 @@ class File__tools (tools.AutoBuild):
     def configure_command (self):
         return (tools.AutoBuild.configure_command (self)
                 + ''' LDFLAGS='-L%(system_prefix)s/lib %(rpath)s' ''')
+    

@@ -1,5 +1,7 @@
 import re
 #
+from gub import build
+from gub import misc
 from gub import target
 from gub import tools
 
@@ -9,6 +11,8 @@ class Gmp (target.AutoBuild):
         target.AutoBuild.__init__ (self, settings, source)
         if not self.settings.platform.startswith ('darwin'):
             self.target_architecture = re.sub ('i[0-9]86-', 'i386-', settings.target_architecture)
+        if 'stat' in misc.librestrict ():
+            build.add_dict (self, {'LIBRESTRICT_IGNORE': '%(tools_prefix)s/bin/bash'})
     def _get_build_dependencies (self):
         return ['libtool', 'tools::autoconf', 'tools::automake', 'tools::bison', 'tools::flex', 'tools::libtool']
     def configure_command (self):
