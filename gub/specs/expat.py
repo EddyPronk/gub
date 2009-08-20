@@ -39,4 +39,7 @@ class Expat__linux__arm__vfp (Expat):
 
 class Expat__tools (tools.AutoBuild, Expat):
     def _get_build_dependencies (self):
-        return ['libtool']
+        return [
+            'automake',
+            'libtool',
+            ]
