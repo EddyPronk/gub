@@ -7,6 +7,6 @@ class W32api_in_usr_lib (build.BinaryBuild, build.SdkBuild):
     def install (self):
         self.system ('mkdir -p %(install_prefix)s/lib')
         self.system ('''
-tar -C %(system_prefix)s/lib/w32api -cf- . | tar -C %(install_prefix)s/lib -xf-
+cd %(system_prefix)s && tar -C %(system_prefix)s/lib/w32api -cf- . | tar -C %(install_prefix)s/lib -xf-
 ''')
 

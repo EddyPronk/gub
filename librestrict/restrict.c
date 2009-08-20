@@ -211,7 +211,7 @@ void initialize (void)
         add_allowed_path (allow);
       add_allowed_file ("/tmp");
       add_allowed_file ("/dev/null");
-      add_allowed_file ("/proc/self/fd");
+      add_allowed_file ("/proc/self");
     }
 }
 

@@ -679,7 +679,7 @@ class BinaryBuild (AutoBuild):
     def install (self):
         self.system ('mkdir -p %(install_root)s')
         _v = '' #self.os_interface.verbose_flag ()
-        self.system ('tar -C %(srcdir)s -cf- . | tar -C %(install_root)s%(_v)s -p -xf-', env=locals ())
+        self.system ('cd %(srcdir)s && tar -C %(srcdir)s -cf- . | tar -C %(install_root)s%(_v)s -p -xf-', env=locals ())
         self.libtool_installed_la_fixups ()
     def get_subpackage_names (self):
         # FIXME: splitting makes that cygwin's gettext + -devel subpackage

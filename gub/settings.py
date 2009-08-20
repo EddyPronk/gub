@@ -253,7 +253,7 @@ class Settings (context.Context):
 
         # Without physical, bash [X]STATs /every/single/dir when doing
         # cd /x/y/z.  This terribly breaks stat restriction.
-        os.environ['SHELLOPTS'] = 'nohistory:physical'
+        os.environ['SHELLOPTS'] = 'physical'
 
         if not '%(tools_prefix)s/bin' in os.environ['PATH']:
             os.environ['PATH'] = '%(tools_prefix)s/bin:' + os.environ['PATH']

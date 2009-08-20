@@ -5,6 +5,6 @@ class Mingw_runtime (build.BinaryBuild, build.SdkBuild):
     def install (self):
         self.system ('''
 mkdir -p %(install_prefix)s/share
-tar -C %(srcdir)s/ -cf - . | tar -C %(install_prefix)s -xf -
+cd %(srcdir)s && tar -C %(srcdir)s/ -cf - . | tar -C %(install_prefix)s -xf -
 mv %(install_prefix)s/doc %(install_root)s/share
 ''', locals ())
