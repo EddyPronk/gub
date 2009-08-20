@@ -69,13 +69,14 @@ bootstrap_names = [
 #    'tools::gcc',
     'tools::make',
     ]
-if 'stat' in misc.librestrict ():
-    bootstrap_names += ['tools::coreutils', 'tools::bash', 'tools::gawk',
-                        'tools::grep', 'tools::sed']
-if 'BOOTSTRAP' in os.environ.keys ():
-    bootstrap_names += ['tools::gub-utils']
 
 def set_cross_dependencies (package_object_dict):
+    global bootstrap_names
+    if 'stat' in misc.librestrict ():
+        bootstrap_names += ['tools::coreutils', 'tools::bash', 'tools::gawk',
+                            'tools::grep', 'tools::sed']
+    if 'BOOTSTRAP' in os.environ.keys ():
+        bootstrap_names += ['tools::gub-utils']
     packs = list (package_object_dict.values ())
 
     cross_packs = [p for p in packs if isinstance (p, AutoBuild)]
