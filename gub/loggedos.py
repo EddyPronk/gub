@@ -7,6 +7,13 @@ from gub import logging
 from gub import misc
 
 def system (logger, cmd, env=os.environ, ignore_errors=False):
+    # UGH, FIXME:
+    # There is loggedos usage that defies any PATH settings
+    tools_bin_dir = os.path.join (os.getcwd (), 'target/tools/root/usr/bin')
+    if not tools_bin_dir in env.get ('PATH', ''):
+        env['PATH'] = tools_bin_dir + misc.append_path (env.get ('PATH', ''))
+        logger.write_log ('COMMAND defies PATH:' + cmd + '\n', 'warning')
+
     logger.write_log ('invoking %(cmd)s\n' % locals (), 'command')
     proc = subprocess.Popen (cmd, bufsize=0, shell=True, env=env,
                              stdout=subprocess.PIPE,

@@ -255,6 +255,9 @@ class Settings (context.Context):
         # cd /x/y/z.  This terribly breaks stat restriction.
         os.environ['SHELLOPTS'] = 'nohistory:physical'
 
+        if not '%(tools_prefix)s/bin' in os.environ['PATH']:
+            os.environ['PATH'] = '%(tools_prefix)s/bin:' + os.environ['PATH']
+        
     def create_dirs (self): 
         for a in (
             'allsrcdir',
