@@ -136,7 +136,16 @@ class Repository:
     @staticmethod
     def create (rety, dir, source, branch='', module='', revision='', parameters=list ()):
         return rety (dir, source, branch, module, revision)
+    def migrate (self, dir, dir_slash_vcs):
+        self.info ('migrate not implemented for: ' + self.vc_system + '\n')
     def __init__ (self, dir, source):
+        self.settings = None
+        self.source = source
+        self.logger = logging.default_logger
+        self.system = self.logged_indirection (loggedos.system)
+        self._read_file = self.logged_indirection (loggedos.read_file)
+        self.download_url = self.logged_indirection (loggedos.download_url)
+        self.read_pipe = self.logged_indirection (loggedos.read_pipe)
         self.dir = os.path.normpath (dir)
         dir_vcs = self.dir + self.vc_system
         if not os.path.isdir (dir) and os.path.isdir (dir_vcs):
@@ -144,6 +153,14 @@ class Repository:
             sys.stderr.write ('appending %s to checkout dir %s\n'
                               % (self.vc_system, self.dir))
             self.dir = dir_vcs
+        # cloning/creating --git-dir == downloads/lilypond
+        # fails if we already have downloads/lilypond/lily-1.2.3.tar.gz
+        # there; migrate to downloads/lilypond/git/
+        dir_slash_vcs = os.path.join (self.dir, self.vc_system[1:])
+        if os.path.isdir (self.dir) and not os.path.isdir (dir_slash_vcs):
+            self.migrate (self.dir, dir_slash_vcs)
+        if os.path.isdir (dir_slash_vcs):
+            self.dir = dir_slash_vcs
         if not dir or dir == '.':
             dir = os.getcwd ()
             if os.path.isdir (os.path.join (dir, self.vc_system)):
@@ -153,13 +170,6 @@ class Repository:
             else:
                 # Otherwise, check fresh repository out under .gub.VC_SYSTEM
                 self.dir = os.path.join (os.getcwd (), '.gub' + self.vc_system)
-        self.settings = None
-        self.source = source
-        self.logger = logging.default_logger
-        self.system = self.logged_indirection (loggedos.system)
-        self._read_file = self.logged_indirection (loggedos.read_file)
-        self.download_url = self.logged_indirection (loggedos.download_url)
-        self.read_pipe = self.logged_indirection (loggedos.read_pipe)
     def get_env (self):
         env = os.environ
         # Hmm, Repository.system and .read_pipe are used in
@@ -385,6 +395,9 @@ class TarBall (Repository):
                          or url.endswith ('.tgz')
                          or url.endswith (rety.vc_system + '.bz2'))
 
+    def migrate (self, dir, dir_slash_vcs):
+        pass
+
     # TODO: s/url/source
     def __init__ (self, dir, url, version=None, strip_components=1):
         Repository.__init__ (self, dir, url)
@@ -502,6 +515,15 @@ RepositoryProxy.register (ZipFile)
 
 class Git (Repository):
     vc_system = '.git'
+
+    def migrate (self, dir, dir_slash_vcs):
+        if os.path.isdir (os.path.join (dir, 'objects')):
+            self.info ('migrating %(dir)s --> %(dir_slash_vcs)s\n' % locals ())
+            self.system ('''
+mkdir -p %(dir_slash_vcs)s
+mv %(dir)s/* %(dir_slash_vcs)s
+cd %(dir_slash_vcs)s && mv *bz2 *deb *gz *zip .. || :
+''' % locals ())
 
     def __init__ (self, dir, source='', branch='', module='', revision=''):
         Repository.__init__ (self, dir, source)
@@ -765,7 +787,7 @@ class CVS (Repository):
                 checksum.update (name + ':' + version)
 
                 if date == 'Result of merge':
-                    raise Exception ("repository has been altered")
+                    raise Exception ('repository has been altered')
                 
                 stamp = time.mktime (time.strptime (date))
                 latest_stamp = max (stamp, latest_stamp)
@@ -909,6 +931,9 @@ class Subversion (SimpleRepo):
     patch_dateformat = '%Y-%m-%d %H:%M:%S %z'
     diff_xmldateformat = '%Y-%m-%d %H:%M:%S.999999'
     patch_xmldateformat = '%Y-%m-%dT%H:%M:%S'
+
+    def migrate (self, dir, dir_slash_vcs):
+        pass
 
     @staticmethod
     def create (rety, dir, source, branch, module='.', revision='HEAD', parameters=list ()):
