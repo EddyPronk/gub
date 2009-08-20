@@ -18,7 +18,7 @@ class AutoBuild (build.AutoBuild):
     def configure_command (self):
         SHELL = ''
         if 'stat' in misc.librestrict ():
-            SHELL = ' SHELL=%(tools_prefix)s/bin/dash'
+            SHELL = ' SHELL=%(tools_prefix)s/bin/sh'
         return (misc.join_lines ('''%(configure_binary)s
 --config-cache
 --enable-shared
