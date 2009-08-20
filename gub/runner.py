@@ -113,11 +113,17 @@ class CommandRunner:
     def shadow_tree (self, src, target, soft=False):
         return self._execute (commands.ShadowTree (src, target, soft))
 
-    def map_locate (self, func, directory, pattern, **kwargs):
-        return self._execute (commands.MapLocate (func, directory, pattern, **kwargs))
+    def map_find_files (self, func, directory, pattern, must_happen=False, silent=False, find_func=misc.find_files):
+        return self._execute (commands.MapLocate (func, directory, pattern, must_happen, silent, find_func))
+
+    def map_locate (self, func, directory, pattern, must_happen=False, silent=False, find_func=misc.locate_files):
+        return self._execute (commands.MapLocate (func, directory, pattern, must_happen, silent, find_func))
 
     def copy (self, src, dest):
         return self._execute (commands.Copy (src, dest))
+
+    def link (self, src, dest):
+        return self._execute (commands.Link (src, dest))
 
     def symlink (self, src, dest):
         return self._execute (commands.Symlink (src, dest))

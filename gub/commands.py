@@ -85,6 +85,17 @@ class Copy (SerializedCommand):
     def execute (self, logger):
         loggedos.copy2 (logger, self.src, self.dest)
 
+class Link (SerializedCommand):
+    def __init__ (self, src, dest):
+        self.src = src
+        self.dest = dest
+    def checksum (self, hasher):
+        hasher (self.__class__.__name__)
+        hasher (self.src)
+        hasher (self.dest)
+    def execute (self, logger):
+        loggedos.link (logger, self.src, self.dest)
+
 class Symlink (SerializedCommand):
     def __init__ (self, src, dest):
         self.src = src
@@ -172,14 +183,16 @@ class Message (SerializedCommand):
 
 class MapLocate (SerializedCommand):
     def __init__ (self, func, directory, pattern,
-                  must_happen=False, silent=False):
+                  must_happen=False, silent=False,
+                  find_func=misc.locate_files):
         self.func = func
+        self.find_func = find_func
         self.directory = directory
         self.pattern = pattern
         self.must_happen = must_happen
         self.silent = silent
     def execute (self, logger):
-        files = misc.locate_files (self.directory, self.pattern)
+        files = self.find_func (self.directory, self.pattern)
         message = 'MapLocate[%(directory)s] no files matching pattern: %(pattern)s\n' % self.__dict__
         logger.write_log (message, 'harmless')
         if self.must_happen and files == []:
@@ -358,7 +371,7 @@ class ForcedAutogenMagic (SerializedCommand):
             noconfigure = ' --help'
             if '--noconfigure' in s:
                 noconfigure = ' --noconfigure' + noconfigure
-            self.system ('cd %(autodir)s && NOCONFIGURE=1 dash autogen.sh %(noconfigure)s' % locals (),
+            self.system ('cd %(autodir)s && NOCONFIGURE=1 sh autogen.sh %(noconfigure)s' % locals (),
                          logger)
         else:
             libtoolize = misc.path_find (PATH, 'libtoolize')

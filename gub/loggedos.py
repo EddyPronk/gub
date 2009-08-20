@@ -52,6 +52,7 @@ for name, func in list ({'read_file': misc.read_file,
                    'makedirs': os.makedirs,
                    'copy2': shutil.copy2,
                    'remove': os.remove,
+                   'link': os.link,
                    'symlink': os.symlink,
                    'rename': os.rename,
                    'read_pipe': misc.read_pipe}.items ()):

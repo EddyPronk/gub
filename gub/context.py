@@ -219,9 +219,11 @@ class RunnableContext (Context):
             str = self.expand (str, env)
         return self.runner.dump (str, name, mode=mode, permissions=permissions)
     
-    def map_locate (self, func, directory, pattern, **kwargs):
-        return self.runner.map_locate (func, self.expand (directory),
-                                       pattern, **kwargs)
+    def map_find_files (self, func, directory, pattern, must_happen=False, silent=False, find_func=misc.find_files):
+        return self.runner.map_find_files (func, self.expand (directory), pattern, must_happen, silent, find_func)
+
+    def map_locate (self, func, directory, pattern, must_happen=False, silent=False, find_func=misc.locate_files):
+        return self.runner.map_locate (func, self.expand (directory), pattern, must_happen, silent, find_func)
 
     def copy (self, src, dest, env={}):
         return self.runner.copy (self.expand (src, env=env), self.expand (dest, env=env))
@@ -232,8 +234,11 @@ class RunnableContext (Context):
     def chmod (self, file, mode, env={}):
         return self.runner.chmod (self.expand (file, env=env), mode)
 
-    def symlink (self, src, dest, env={}):
-        return self.runner.symlink (self.expand (src, env=env), self.expand (dest, env=env))
+    def link (self, src, dest, env={}): 
+       return self.runner.link (self.expand (src, env=env), self.expand (dest, env=env))
+
+    def symlink (self, src, dest, env={}): 
+       return self.runner.symlink (self.expand (src, env=env), self.expand (dest, env=env))
 
     def rename (self, src, dest, env={}):
         return self.runner.rename (self.expand (src, env=env), self.expand (dest, env=env))
