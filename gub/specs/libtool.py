@@ -58,7 +58,7 @@ ac_cv_prog_GCJ=${ac_cv_prog_GCJ=no}
         # and adds bash to libtools' #! 
         SHELL = ''
         if 'stat' in misc.librestrict ():
-            SHELL = 'CONFIG_SHELL=%(tools_prefix)s/bin/dash '
+            SHELL = 'CONFIG_SHELL=%(tools_prefix)s/bin/sh '
         return (SHELL
                 + target.AutoBuild.configure_command (self)
                 .replace ('SHELL=', 'CONFIG_SHELL='))
@@ -90,17 +90,6 @@ class Libtool__tools (tools.AutoBuild, Libtool):
     def __init__ (self, settings, source):
         tools.AutoBuild.__init__ (self, settings, source)
         Libtool.set_sover (self)
-        # Uncommenting removes IGNORE lifting from make and breaks build.
-        # build.add_dict (self, {'LIBRESTRICT_IGNORE': ''})
-        '''
-        /home/janneke/tmp/gub/target/tools/root/usr/bin/make: tried to xstat () file /usr/include/stdio.h
-allowed:
-  /home/janneke/tmp/gub/target
-  /usr/lib/gcc
-  /tmp
-  /dev/null
-/bin/bash: line 22: 25332 Aborted                 (core dumped) make "$target-am"
-'''
     def update_libtool (self):
         pass
     def install (self):

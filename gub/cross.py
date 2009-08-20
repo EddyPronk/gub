@@ -22,7 +22,6 @@ class AutoBuild (build.AutoBuild):
             + misc.append_path (os.environ.get ('CPLUS_INCLUDE_PATH', '')),
             'LIBRARY_PATH': '%(tools_prefix)s/lib'
             + misc.append_path (os.environ.get ('LIBRARY_PATH', '')),
-            'LIBRESTRICT_IGNORE': '%(tools_prefix)s/bin/make',
             'PATH': '%(cross_prefix)s/bin:%(tools_prefix)s/bin:%(tools_cross_prefix)s/bin:' + os.environ['PATH'],
         }
         dict.update (env)
@@ -63,16 +62,20 @@ def change_target_package (package):
 # GNU tar --strip-component
 # /usr/bin/install: coreutils
 # SVN
-bootstrap_names = ['system::gcc', 'tools::librestrict', 'tools::make']
+bootstrap_names = [
+    'system::gcc',
+    'tools::librestrict',
+#    'tools::binutils',
+#    'tools::gcc',
+    'tools::make',
+    ]
+if 'stat' in misc.librestrict ():
+    bootstrap_names += ['tools::coreutils', 'tools::bash', 'tools::gawk',
+                        'tools::grep', 'tools::sed']
+if 'BOOTSTRAP' in os.environ.keys ():
+    bootstrap_names += ['tools::gub-utils']
+
 def set_cross_dependencies (package_object_dict):
-    global bootstrap_names
-    if 'stat' in misc.librestrict ():
-        bootstrap_names += ['tools::coreutils', 'tools::dash', 'tools::gawk',
-                            'tools::grep', 'tools::sed']
-
-    if 'BOOTSTRAP' in os.environ.keys ():
-        bootstrap_names += ['tools::gub-utils']
-
     packs = list (package_object_dict.values ())
 
     cross_packs = [p for p in packs if isinstance (p, AutoBuild)]

@@ -68,6 +68,13 @@ class AutoBuild (build.AutoBuild):
         if 'BOOTSTRAP' in os.environ.keys ():
             return '%(prefix_dir)s'
         return '%(system_prefix)s'
+    def LD_PRELOAD (self):
+        # Makes no sense for tools.  Be it /usr/bin/gcc or tools::gcc,
+        # it needs to read /usr/include/stdlib.h etc.  How to, or why
+        # restrict reading other files from /?
+        # See LIBRESTRICT_IGNORE below, it would need to include every
+        # binary in system_prefix :-)
+        return ''
     # FIXME: promoteme to build.py?  Most Fragile operation...
     def configure_flags (self):
         config_cache = ''
@@ -171,8 +178,8 @@ LD_LIBRARY_PATH=%(system_prefix)s/lib
             'CPLUS_INCLUDE_PATH': '%(system_prefix)s/include'
             + misc.append_path (os.environ.get ('CPLUS_INCLUDE_PATH', '')),
             'LIBRARY_PATH': '%(system_prefix)s/lib'
+#            'LIBRESTRICT_IGNORE': '%(system_prefix)s/bin/make:%(system_prefix)s/gcc:%(system_prefix)s/g++:%(system_prefix)s/ld', #etc.
             + misc.append_path (os.environ.get ('LIBRARY_PATH', '')),
-            'LIBRESTRICT_IGNORE': '%(system_prefix)s/bin/make',
             'PATH': '%(system_prefix)s/bin:%(system_cross_prefix)s/bin:' + os.environ['PATH'],
             'PERL5LIB': 'foo:%(tools_prefix)s/lib/perl5/5.10.0'
             + ':%(tools_prefix)s/share/autoconf'

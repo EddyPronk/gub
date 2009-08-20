@@ -304,7 +304,7 @@ class AutoBuild (Build):
 
     @context.subst_method
     def configure_command (self):
-        return '%(configure_binary)s --prefix=%(install_prefix)s'
+        return ' sh %(configure_binary)s --prefix=%(install_prefix)s'
 
     @context.subst_method
     def compile_command (self):
@@ -649,6 +649,11 @@ mkdir -p %(install_prefix)s/share/doc/%(name)s
         "the version in the shipped package."
         # FIXME: ugly workaround needed for lilypond package...
         return '%(version)s'
+
+    def disable_libtool_la_files (self, pattern):
+        def disable_la (logger, file_name):
+            loggedos.move (file_name, file_name + '-')
+        self.map_find_files (disable_la, '%(install_prefix)s/lib[.]la', pattern)
 
     # Used in mingw python and liblpsolve.  Better replace this by
     # fixing the gcc linking command?

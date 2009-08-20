@@ -251,6 +251,10 @@ class Settings (context.Context):
         ## make sure we don't confuse build or target system.
         self.LD_LIBRARY_PATH = '%(system_root)s'
 
+        # Without physical, bash [X]STATs /every/single/dir when doing
+        # cd /x/y/z.  This terribly breaks stat restriction.
+        os.environ['SHELLOPTS'] = 'nohistory:physical'
+
     def create_dirs (self): 
         for a in (
             'allsrcdir',
