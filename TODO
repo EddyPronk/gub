@@ -3,7 +3,8 @@
   cd /var/tmp
   debootstrap etch etch http://ftp.nl.debian.org/debian
   chroot etch apt-get --force-yes -y install python gcc libc6-dev # minimal
-  chroot etch apt-get --force-yes -y install g++                  # pkg-config
+  chroot etch apt-get --force-yes -y install g++ # pkg-config
+  chroot etch apt-get --force-yes -y install file # ugh, configure 2.63 hardcodes: /usr/bin/file
   wget -O gub.tar.gz http://github.com/janneke/gub/tarball/master
 #  (cd /home/janneke/vc/gub && git tar-tree HEAD | gzip -c - > gub.tar.gz)
 #  cp -pv /home/janneke/vc/gub/gub.tar.gz .
@@ -12,6 +13,19 @@
   mount -t proc /proc etch/proc # for librestrict
   chroot etch bash -c 'cd root/gub && bin/gub mingw::lilypond'
   exit 0
+   
+* add tools::texlive
+  Note: the debootstrap above fails when configuring lilypond,
+  texlive-metapost [and then some] is needed, but this pulls
+  in so many dependencies...
+
+* Promote specific solutions into general ones [PROMOTEME]
+   this cleans up existing packages, and increases chances of
+   adding new packages without any changes.
+** config_variables, makeflags_for_build, cross_compiling
+** rpath_for_build () instead of %(rpath)s -Wl,-rpath -Wl,%(system_prefix)s
+** enabling LDFLAGS=..%(rpath)s... configure automagically for tools and target
+** enable wrap_executables () for eg compiling on FreeBSD/MacOS ?
 
 * Fix Fedora glibc problem, remove workaround in gub/specs/glibc.py,
   or add a build_platform == Fedora test.  [selinux?]
@@ -27,11 +41,11 @@
 ** todo: python driver that connects [gub, gib], uploads/export calls
 
 * Stat restriction
-** On my system, Jaunty-64 bit, the restricted
+** Has become much more strict and useful: so in progress again.  Try
    LIBRESTRICT=open:stat bin/gub mingw::lilypond
-now builds.
-** Test other archs, lilypond-installer, lilypond-doc, other
-   distributions [Han-Wen], and only then:
+   and fix any problems.
+** Test other archs, test mingw::denemo, lilypond-installer,
+   lilypond-doc, other distributions [Han-Wen], and only then:
 ** Swap the default from relaxed LIBRESTRICT=open to tighter
    LIBRESTRICT=open:stat.
    
