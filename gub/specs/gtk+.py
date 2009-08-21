@@ -33,6 +33,12 @@ class Gtk_x_ (target.AutoBuild):
         # program linked against glib; so it needs LD_LIBRARY_PATH (or
         # a configure-time-only -Wl,-rpath, -Wl,%(system_prefix)s/lib
         return '-Wl,-rpath -Wl,%(system_prefix)s/lib %(rpath)s'
+    def patch (self):
+        target.AutoBuild.patch (self)
+        self.file_sub ([
+                (' demos ', ' '), # actually, we'd need tools::gtk+
+                (' tests ', ' '),
+                ], '%(srcdir)s/Makefile.in')
     def configure_command (self):
         return (' export gio_can_sniff=yes; '
                 + target.AutoBuild.configure_command (self)
