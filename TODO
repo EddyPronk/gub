@@ -43,7 +43,16 @@
 * Stat restriction
 ** Has become much more strict and useful: so in progress again.  Try
    LIBRESTRICT=open:stat bin/gub mingw::lilypond
-   and fix any problems.
+   and fix any problems.  Common problems are
+*** configure looks for fortran [java etc..] that are not even used,
+   and STATs the whole PATH, ie /usr/local/bin/f77
+   Current approach is to add package-specific ac_prog_F77_PATH=no
+   overrides; but this is quite a bit of work.
+*** missing tools
+*** terribly broken build systems that "just want to" stat /,
+   resulting in the need to open up the whole file system :-(
+   some packages' build systems are just broken and there seems
+   to be no way to guarantee a clean cross build.
 ** Test other archs, test mingw::denemo, lilypond-installer,
    lilypond-doc, other distributions [Han-Wen], and only then:
 ** Swap the default from relaxed LIBRESTRICT=open to tighter
