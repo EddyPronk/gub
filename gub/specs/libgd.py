@@ -6,22 +6,36 @@ class Libgd (target.AutoBuild):
     def _get_build_dependencies (self):
         return [
             'tools::libtool',
-            'libjpeg-devel'
+            'fontconfig',
+            'freetype',
+            'libjpeg',
+            'libpng',
+            'zlib',
             ]
     def configure_command (self):
         return (target.AutoBuild.configure_command (self)
-                + ' --disable-xpm'
+                + ' --with-fontconfig'
+                + ' --with-freetype'
+                + ' --with-jpeg'
+                + ' --with-png'
                 + ' --without-xpm'
                 )
 
 class Libgd__tools (tools.AutoBuild, Libgd):
     def _get_build_dependencies (self):
         return [
+            'fontconfig',
+            'freetype',
+            'libjpeg',
+            'libpng',
             'libtool',
-            'libjpeg-devel',
+            'zlib',
             ]
     def configure_command (self):
         return (tools.AutoBuild.configure_command (self)
-                + ' --disable-xpm'
+                + ' --with-fontconfig'
+                + ' --with-freetype'
+                + ' --with-jpeg'
+                + ' --with-png'
                 + ' --without-xpm'
                 )
