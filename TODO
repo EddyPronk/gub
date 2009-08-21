@@ -15,6 +15,9 @@
   exit 0
    
 * add tools::texlive
+** see texlive.py: the binary builds.
+** test and use/resurrect texmf-tiny from previous build system, see
+      http://cvs.savannah.gnu.org/viewvc/*checkout*/lilypond/installers/windows/patch/tetex-texmf-3.0.0-3.patch?content-type=text%2Fplain
   Note: the debootstrap above fails when configuring lilypond,
   texlive-metapost [and then some] is needed, but this pulls
   in so many dependencies...

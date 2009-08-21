@@ -88,14 +88,15 @@ packages.'''
         if texmf_dist:
             self.texmf_dist_repo.download ()
         # ugh.
-        loggedos.download_url (logging.default_logger,
-                               license_url,  self.source._checkout_dir ())
+        if self.source.have_client ():
+            loggedos.download_url (logging.default_logger,
+                                   license_url,  self.source._checkout_dir ())
     def untar (self):
         target.AutoBuild.untar (self)
         def defer (logger):
             self.texmf_repo.update_workdir (self.expand ('%(srcdir)s/texmf'))
-        if texmf_dist:
-            self.texmf_dist_repo.update_workdir (self.expand ('%(srcdir)s/texmf-dist'))
+            if texmf_dist:
+                self.texmf_dist_repo.update_workdir (self.expand ('%(srcdir)s/texmf-dist'))
         self.func (defer)
     def common_configure_flags (self):
 ##--with-system-kpathsea

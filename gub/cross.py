@@ -180,6 +180,7 @@ def set_cross_dependencies (package_object_dict):
         (perl_packs, ['tools::perl']),
         (rsync_packs, ['tools::rsync']),
         (scons_packs, ['tools::scons']),
+        (subversion_packs, ['tools::subversion']),
         (tar_packs, ['tools::tar']),
         ):
         if packs:
