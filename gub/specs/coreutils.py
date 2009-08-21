@@ -14,20 +14,22 @@ no_patch = True
 class Coreutils__tools (tools.AutoBuild):
 #    source = 'ftp://ftp.gnu.org/pub/gnu/coreutils/coreutils-6.12.tar.gz'
     source = 'http://ftp.gnu.org/pub/gnu/coreutils/coreutils-7.4.tar.gz'
-    if 'BOOTSTRAP' in os.environ.keys () or no_patch:
-        # patches = ['coreutils-6.12-shared-autoconf.patch']
-        pass
+    if 'BOOTSTRAP' in os.environ.keys ():
+        patches = ['coreutils-6.12-shared-autoconf.patch']
     else:
         patches = ['coreutils-6.12-shared-automake.patch']
+    if no_patch:
+        patches = []
     def patch (self):
-        tools.AutoBuild.patch (self)
-        if not self.patches:
+        if no_patch:
             self.file_sub ([('noinst_LIBRARIES', 'lib_LIBRARIES')],
                            '%(srcdir)s/lib/gnulib.mk')
             self.file_sub ([
                     (r'libcoreutils[.]a', 'libcoreutils.so'),
                     ('[.][.]/lib/libcoreutils.so ([$][(]LIBINTL[)]) [.][.]/lib/libcoreutils.so', r'-L../lib -lcoreutils \1'),
                     ], '%(srcdir)s/src/Makefile.in')
+        else:
+            tools.AutoBuild.patch (self)
     def _get_build_dependencies (self):
         if 'BOOTSTRAP' in os.environ.keys () or no_patch:
             return []
