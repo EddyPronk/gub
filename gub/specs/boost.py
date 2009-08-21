@@ -96,7 +96,7 @@ class UGLYFIXBoost__mingw (Boost):
         Boost.__init__ (self, settings, source)
         self.function_source = repository.get_repository_proxy (self.settings.downloads, 'http://lilypond.org/download/gub-sources/boost-function/boost-function-1.34.1.tar.gz?strip=0')
     def connect_command_runner (self, runner):
-        printf ('FIXME: deferred workaround')
+        printf ('FIXME: deferred workaround: should support multiple sources')
         if (runner):
             self.function_source.connect_logger (runner.logger)
         return Boost.connect_command_runner (self, runner)

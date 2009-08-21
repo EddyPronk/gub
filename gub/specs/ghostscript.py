@@ -265,7 +265,7 @@ class Ghostscript__cygwin (Ghostscript):
         Ghostscript.__init__ (self, settings, source)
         self.fonts_source = repository.get_repository_proxy (self.settings.downloads, 'http://mirror2.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/ghostscript-fonts-std-8.11.tar.gz')
     def connect_command_runner (self, runner):
-        printf ('FIXME: deferred workaround')
+        printf ('FIXME: deferred workaround: should support multiple sources')
         if (runner):
             self.fonts_source.connect_logger (runner.logger)
         return Ghostscript.connect_command_runner (self, runner)
@@ -379,10 +379,8 @@ class Ghostscript__tools (tools.AutoBuild, Ghostscript):
     def configure (self):
         tools.AutoBuild.configure (self)
         self.makefile_fixup ('%(builddir)s/Makefile')
-        
     def compile_command (self):
         return tools.AutoBuild.compile_command (self) + self.compile_flags ()
-    
     def compile (self):
         self.system ('''
 cd %(builddir)s && mkdir -p obj
