@@ -7,4 +7,5 @@ class Subversion__tools (tools.AutoBuild):
     def _get_build_dependencies (self):
         return [
             'libapr-util-devel',
-                ]
+            'sqlite',
+            ]
