@@ -136,6 +136,17 @@ class Repository:
     @staticmethod
     def create (rety, dir, source, branch='', module='', revision='', parameters=list ()):
         return rety (dir, source, branch, module, revision)
+    def have_client (self):
+        # FIXME: make generic: have_CLIENT ()?
+        # this would even work for TAR, vs SimpleTar (without --strip-comp)
+        if self.settings:
+            tools_dir = (self.settings.alltargetdir + '/tools'
+                         + self.settings.root_dir)
+            tools_bin = (tools_dir
+                         + self.settings.prefix_dir
+                         + '/bin')
+            return os.path.exists (os.path.join (tools_bin, self.vc_system[1:]))
+        return False
     def migrate (self, dir, dir_slash_vcs):
         self.info ('migrate not implemented for: ' + self.vc_system + '\n')
     def __init__ (self, dir, source):
@@ -596,19 +607,8 @@ cd %(dir_slash_vcs)s && mv *bz2 *deb *gz *zip .. || :
                                     ignore_errors=True)
             return bool (result)
         return True
-    def have_git (self):
-        # FIXME: make generic: have_CLIENT ()?
-        # this would even work for TAR, vs SimpleTar (without --strip-comp)
-        if self.settings:
-            tools_dir = (self.settings.alltargetdir + '/tools'
-                         + self.settings.root_dir)
-            tools_bin = (tools_dir
-                         + self.settings.prefix_dir
-                         + '/bin')
-            return os.path.exists (os.path.join (tools_bin, 'git'))
-        return False
     def download (self):
-        if not self.have_git ():
+        if not self.have_client ():
             # sorry, no can do [yet]
             return
         if not os.path.isdir (os.path.join (self.dir, 'refs')):
@@ -965,6 +965,12 @@ class Subversion (SimpleRepo):
         if not revision:
             revision = 'HEAD'
         SimpleRepo.__init__ (self, dir, source, branch, module, revision)
+
+    def download (self):
+        if not self.have_client ():
+            # sorry, no can do [yet]
+            return
+        SimpleRepo.download (self)
 
     def is_distributed (self):
         return False
