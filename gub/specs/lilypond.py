@@ -31,6 +31,21 @@ class LilyPond (target.AutoBuild):
                                  + ' -I%(srcdir)s/lily/out' % locals ())
         if isinstance (source, repository.Git):
             source.version = misc.bind_method (LilyPond.version_from_VERSION, source)
+    def patch (self):
+        target.AutoBuild.patch (self)
+        # How weird is this?  In debootstrap etch [see TODO]
+        # environment, the set -eux carry over into autoconf and
+        # configure runs.  Needless to say that those shell scripts
+        # barf hard with those settings.  They need to be
+        # posix-portable so probably even cannot set strict checking
+        # by design.  When are we going to smarten-up, and replace
+        # /bin/sh by python or guile?
+        for i in ('smart-autogen.sh', 'smart-configure.sh'):
+            self.file_sub ([
+#                    ('set -ux', '# set -ux'),
+#                    ('set -e', '# set -e'),
+                    ('^([$][{]?srcdir[}]?/.*$)', r'(set +eux; \1) || exit 1'),
+                    ], '%(srcdir)s/' + i)
     def get_subpackage_names (self):
         return ['']
     def get_conflict_dict (self):
