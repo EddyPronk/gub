@@ -17,18 +17,22 @@ class Bash__mingw (Bash):
         str += 'bash_cv_have_mbstate_t=yes\n'
         return str
  
+no_patch = True # let's not use patch in a bootstrap package
 class Bash__tools (tools.AutoBuild, Bash):
-# let's not use patch in a bootstrap package
-#    patches = ['bash-3.2-librestrict.patch']
+    patches = ['bash-3.2-librestrict.patch']
+    if no_patch:
+        patches = []
     def force_sequential_build (self):
         return True
     @context.subst_method
     def LDFLAGS (self):
         return '%(rpath)'
     def patch (self):
-        tools.AutoBuild.patch (self)
-        self.file_sub ([('^  (check_dev_tty [(][)];)', r'  /* \1 */')],
-                       '%(srcdir)s/shell.c')
+        if no_patch:
+            self.file_sub ([('^  (check_dev_tty [(][)];)', r'  /* \1 */')],
+                           '%(srcdir)s/shell.c')
+        else:
+            tools.AutoBuild.patch (self)
     def install (self):
         tools.AutoBuild.install (self)
         self.system ('cd %(install_prefix)s/bin && ln -s bash sh')

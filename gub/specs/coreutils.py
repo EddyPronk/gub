@@ -8,9 +8,7 @@ Build shared libcoreutils.so without using libtool
 for GUB's librestrict(2) to kick-in.
 '''
 
-# Let's not use patch now we're a bootstrap package
-no_patch = True
-
+no_patch = True # let's not use patch in a bootstrap package
 class Coreutils__tools (tools.AutoBuild):
 #    source = 'ftp://ftp.gnu.org/pub/gnu/coreutils/coreutils-6.12.tar.gz'
     source = 'http://ftp.gnu.org/pub/gnu/coreutils/coreutils-7.4.tar.gz'
