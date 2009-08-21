@@ -76,6 +76,7 @@ bootstrap_names = [
 #    'tools::binutils',
 #    'tools::gcc',
     'tools::make',
+    'tools::file',
     ]
 
 def set_cross_dependencies (package_object_dict):
@@ -86,7 +87,6 @@ def set_cross_dependencies (package_object_dict):
             'tools::coreutils',
             'tools::diff',
             'tools::findutils',
-            'tools::file',
             'tools::gawk',
             'tools::grep',
             'tools::sed',
