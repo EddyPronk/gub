@@ -73,5 +73,11 @@ class Glib__tools (tools.AutoBuild, Glib):
     def install (self):
         tools.AutoBuild.install (self)
         self.system ('rm -f %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/lib/charset.alias')
+    def configure_command (self):
+        return (tools.AutoBuild.configure_command (self)
+                + ''' LDFLAGS='-L%(system_prefix)s/lib %(rpath)s -Wl,-rpath -Wl,%(system_prefix)s/lib' ''')
     def _get_build_dependencies (self):
-        return ['gettext', 'libtool']            
+        return [
+            'gettext',
+            'libtool',
+            ]            
