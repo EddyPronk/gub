@@ -905,7 +905,7 @@ class SimpleRepo (Repository):
 
 #        if self.oslog and self.oslog.verbose >= oslog.level['command']:
 #            verbose = 'v'
-        self.system ('rsync -a%(verbose)s --exclude %(vc_system)s %(dir)s/ %(copy)s'
+        self.system ('rsync -a%(verbose)s --exclude=%(vc_system)s %(dir)s/ %(copy)s'
                      % locals ())
 
     def _checkout_dir (self):
@@ -936,7 +936,7 @@ class Subversion (SimpleRepo):
         pass
 
     @staticmethod
-    def create (rety, dir, source, branch, module='.', revision='HEAD', parameters=list ()):
+    def create (rety, dir, source, branch, module='.', revision='HEAD', parameters=list (), branchmodule=''):
         source = source.replace ('svn:http://', 'http://')
         source = source.replace ('svn:https://', 'https://')
         if not branch and source:
@@ -947,7 +947,7 @@ class Subversion (SimpleRepo):
         if (not module or module == '.') and '/' in branch:
             module = branch[branch.rindex ('/')+1:]
             branch = branch[:branch.rindex ('/')]
-        branchmodule = parameters.get ('branchmodule', ['.'])[0]
+        branchmodule = parameters.get ('branchmodule', [branchmodule])[0]
         if not revision:
             revision = 'HEAD'
         return Subversion (dir, source=source, branch=branch,
