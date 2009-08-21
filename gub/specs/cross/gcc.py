@@ -70,7 +70,7 @@ TARGET_FLAGS_TO_PASS='$(BASE_FLAGS_TO_PASS) $(EXTRA_TARGET_FLAGS) $(GUB_FLAGS_TO
         cross.AutoBuild.install (self)
         gcc.move_target_libs (self, '%(install_prefix)s%(cross_dir)s/%(target_architecture)s')
         gcc.move_target_libs (self, '%(install_prefix)s%(cross_dir)s/lib')
-        self.disable_libtool_la_files ('libstdc[+][+]')
+        self.disable_libtool_la_files ('stdc[+][+]')
 
 class Gcc__from__source (Gcc):
     def _get_build_dependencies (self):

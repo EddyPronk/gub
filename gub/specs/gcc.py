@@ -51,7 +51,7 @@ gcc_tooldir='%(prefix_dir)s/%(target_architecture)s'
         tools.AutoBuild.install (self)
         move_target_libs (self, '%(install_prefix)s/%(target_architecture)s')
 #        move_target_libs ('%(install_prefix)s%/lib')
-        self.disable_libtool_la_files ('libstdc[+][+]')
+        self.disable_libtool_la_files ('stdc[+][+]')
 
 def do_not_look_in_slash_usr (self):
     # GUB [cross] compilers must NOT look in /usr.

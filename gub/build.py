@@ -652,8 +652,8 @@ mkdir -p %(install_prefix)s/share/doc/%(name)s
 
     def disable_libtool_la_files (self, pattern):
         def disable_la (logger, file_name):
-            loggedos.move (file_name, file_name + '-')
-        self.map_find_files (disable_la, '%(install_prefix)s/lib[.]la', pattern)
+            loggedos.rename (logger, file_name, file_name + '-')
+        self.map_find_files (disable_la, '%(install_prefix)s', 'lib' + pattern + '.la')
 
     # Used in mingw python and liblpsolve.  Better replace this by
     # fixing the gcc linking command?
