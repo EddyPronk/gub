@@ -41,7 +41,8 @@ class Glibc (target.AutoBuild, cross.AutoBuild):
         'glibc-2.3-powerpc-lround-weakalias.patch',
         'glibc-2.3-nptl-no-versioning.patch',
         'glibc-2.3-slibdir.patch',
-        'glibc-2.3-assert-dl_next_tls_modid.patch',        
+        'glibc-2.3-assert-dl_next_tls_modid.patch',
+        'glibc-2.3-binutils-2.19-i386.patch,
         ]
     def _get_build_dependencies (self):
         return ['cross/gcc', 'glibc-core', 'tools::gzip', 'tools::perl', 'linux-headers']

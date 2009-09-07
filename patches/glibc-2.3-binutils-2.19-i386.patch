@@ -1,0 +1,43 @@
+Build fixes for i386 with binutils-2.19.
+
+See
+    http://sourceware.org/ml/libc-alpha/2008-01/msg00017.html
+
+/math/ftestexcept.os
+/tmp/ccEG1ZTl.s: Assembler messages:
+/tmp/ccEG1ZTl.s:30: Error: suffix or operands invalid for `fnstsw'
+make[2]: *** [/mnt/sda3/gub/target/linux-x86/build/glibc-core-2.3/math/ftestexcept.os] Error 1
+
+--- glibc-core-2.3/math/libm-test.inc.~1.64.2.1.~	2005-02-16 11:07:17.000000000 +0100
++++ glibc-core-2.3/math/libm-test.inc	2009-09-07 14:39:04.378767258 +0200
+@@ -306,8 +306,8 @@ static void
+ fpstack_test (const char *test_name)
+ {
+ #ifdef i386
+-  static int old_stack;
+-  int sw;
++  static short old_stack;
++  short sw;
+ 
+   asm ("fnstsw" : "=a" (sw));
+   sw >>= 11;
+@@ -315,7 +315,7 @@ fpstack_test (const char *test_name)
+ 
+   if (sw != old_stack)
+     {
+-      printf ("FP-Stack wrong after test %s (%d, should be %d)\n",
++      printf ("FP-Stack wrong after test %s (%hd, should be %hd)\n",
+ 	      test_name, sw, old_stack);
+       ++noErrors;
+       old_stack = sw;
+--- glibc-core-2.3/sysdeps/i386/fpu/ftestexcept.c.~1.5.~	2004-03-05 11:14:48.000000000 +0100
++++ glibc-core-2.3/sysdeps/i386/fpu/ftestexcept.c	2009-09-07 14:37:55.998766408 +0200
+@@ -26,7 +26,7 @@
+ int
+ fetestexcept (int excepts)
+ {
+-  int temp;
++  short temp;
+   int xtemp = 0;
+ 
+   /* Get current exceptions.  */
