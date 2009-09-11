@@ -274,4 +274,4 @@ class CpanBuild (AutoBuild):
         return [s for s in AutoBuild.stages (self) if s not in ['autoupdate']]
     def configure (self):
         self.shadow ()
-        self.system ('cd %(builddir)s && perl Makefile.PL PREFIX=%(system_prefix)s')
+        self.system ('cd %(builddir)s && perl Makefile.PL PREFIX=%(system_prefix)s LINKTYPE=dynamic')
