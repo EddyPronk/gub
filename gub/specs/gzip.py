@@ -10,7 +10,7 @@ class Gzip__tools (tools.AutoBuild):
         patches = []
     def patch (self):
         if no_patch:
-            for i in ('gzip.c', 'utimens.c', 'utimens.h'):
+            for i in ('gzip.c', 'lib/utimens.c', 'lib/utimens.h'):
                 self.file_sub ([('(futimens)', r'gz_\1')], '%(srcdir)s/' + i)
         else:
             tools.AutoBuild.patch (self)
