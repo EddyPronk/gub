@@ -102,7 +102,7 @@ class XFreetype__cygwin (Freetype):
 
 class Freetype__tools (tools.AutoBuild, Freetype):
     def _get_build_dependencies (self):
-        return ['libtool']
+        return ['libtool', 'zlib']
     # FIXME, mi-urg?
     def license_files (self):
         return Freetype.license_files (self)
