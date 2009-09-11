@@ -35,8 +35,14 @@ class Perl__tools (tools.AutoBuild):
  -Dusrinc=%(system_prefix)s/include
  -Dincpth=/
  -Dlibpth=%(system_prefix)s/lib
+ -Dsitelib=%(system_prefix)s/lib/perl5/5.10.0
+ -Dsitearch=%(system_prefix)s/lib/perl5/5.10.0
+ -Dusedl
+ -Duseshrplib
+ -Dlibperl=libperl.so
+ -Dcccdlflags=-fPIC
  -Dlocallibpth=/
- -Aldflags='%(rpath)s -lm -lrt'
+ -Aldflags='%(rpath)s -lm -lrt -ldl'
 ''')
     def configure (self):
         self.shadow ()
@@ -45,4 +51,3 @@ class Perl__tools (tools.AutoBuild):
             # Ugh, missing some command?
             self.file_sub ([('^0$','')], i)
 #    def install_command (self):
-        
