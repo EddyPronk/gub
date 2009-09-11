@@ -1,0 +1,32 @@
+--- wget-1.11.4/configure.in~	2008-04-27 06:48:19.000000000 +0200
++++ wget-1.11.4/configure.in	2009-09-11 13:32:07.869172196 +0200
+@@ -207,7 +207,17 @@ AC_DEFINE([HAVE_STRCASECMP], 1, [Define 
+ AC_DEFINE([HAVE_STRNCASECMP], 1, [Define to 1 if you have the `strncasecmp' function.])
+ AC_DEFINE([HAVE_STRDUP], 1, [Define to 1 if you have the `strdup' function.])
+ AC_DEFINE([HAVE_ISATTY], 1, [Define to 1 if you have the `isatty' function.])
+-AC_DEFINE([HAVE_SYMLINK], 1, [Define to 1 if you have the `symlink' function.])
++dnl ... and they most probably are available on the build system that
++dnl configure runs on, but possibly not on the host system
++dnl FIXME: replace stupid guesswork by checks
++UNIX=1
++case $host in
++  *-*-mingw*) UNIX=0 CFLAGS="-DWINDOWS $CFLAGS" LIBS="-lwsock32 $LIBS";;
++esac
++dnl AC_DEFINE_UNQUOTED([HAVE_SYMLINK], [$UNIX], [Define to 1 if you have the `symlink' function.])
++if test "$UNIX" = "1"; then
++    AC_DEFINE([HAVE_SYMLINK], [1], [Define to 1 if you have the `symlink' function.])
++fi
+ 
+ dnl
+ dnl Call Wget-specific macros defined in aclocal.
+--- wget-1.11.4/src/Makefile.in~	2008-04-27 06:48:21.000000000 +0200
++++ wget-1.11.4/src/Makefile.in	2009-09-11 13:23:17.533172370 +0200
+@@ -78,7 +78,7 @@ OBJ = $(ALLOCA) cmpt.o connect.o convert
+       host.o html-parse.o html-url.o http.o $(NTLM_OBJ) init.o    \
+       log.o main.o $(MD5_OBJ) netrc.o progress.o ptimer.o recur.o \
+       res.o retr.o safe-ctype.o snprintf.o spider.o $(SSL_OBJ)    \
+-      url.o utils.o version.o xmalloc.o
++      url.o utils.o version.o xmalloc.o mswindows.o
+ 
+ .SUFFIXES:
+ .SUFFIXES: .c .o
