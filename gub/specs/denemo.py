@@ -51,6 +51,7 @@ class Denemo (target.AutoBuild):
             'jack-devel',
             'lash-devel',
             'libaubio-devel',
+            'libgtksourceview-devel',
             'librsvg-devel', 
             'libxml2-devel',
             'lilypondcairo',
@@ -80,7 +81,7 @@ class Denemo (target.AutoBuild):
         return 'BINRELOC_CFLAGS=-DENABLE_BINRELOC=1'
 
 class Denemo__mingw (Denemo):
-    patches_0_8_6 = Denemo.patches_0_8_6 + [
+    patches_0_8_6 = Denemo.patches + [
         'denemo-mingw.patch',
         'denemo-prefops-mingw.patch',
         'denemo-relocate-mingw.patch',
