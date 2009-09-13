@@ -4,6 +4,7 @@ from gub import tools
 class Netpbm__tools (tools.AutoBuild):
     # source='svn:https://svn.sourceforge.net/svnroot/netpbm/stable&revision=172'
     source='http://lilypond.org/download/gub-sources/netpbm-patched-10.35.tar.bz2'
+    patches = ['netpbm-10.35-glibc-2.10.1-name-conflict.patch']
     def _get_build_dependencies (self):
         return ['flex', 'libjpeg', 'libpng', 'libtiff', 'zlib'] #libxml2? libx11-dev
     def configure (self):
@@ -29,7 +30,7 @@ XML2_CFLAGS=NONE
 X11LIB=NONE
 ''')
     def install (self):
-        # Great.  netpmb's install will not create any parent directories
+        # Great.  netpbm's install will not create any parent directories
         self.system ('mkdir -p %(install_prefix)s')
         # but demands that the toplevel install directory does not yet exist.
         # It's a feature! :-)
