@@ -32,7 +32,7 @@ DISTCC_DIRS=target/cross-distcc/bin target/cross-distccd/bin target/native-distc
 #gcc_or_glibc = $(shell $(GUB) -p $(1) --inspect=version glibc > /dev/null 2>/dev/null && echo glibc || echo cross/gcc)
 gcc_or_glibc = $(shell if echo $(1) | grep linux > /dev/null 2>/dev/null; then echo glibc; else echo cross/gcc; fi)
 
-tools = $(shell $(GUB) --dependencies $(foreach p, $(PLATFORMS), $(p)::$(call gcc_or_glibc,$(p))) 2>&1 | grep ^dependencies | tr ' ' '\n' | grep 'tools::')
+tools = $(shell $(GUB) --show-dependencies $(foreach p, $(PLATFORMS), $(p)::$(call gcc_or_glibc,$(p))) 2>&1 | grep ^dependencies | tr ' ' '\n' | grep 'tools::')
 
 compilers: cross-compilers
 
