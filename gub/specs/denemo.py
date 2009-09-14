@@ -70,7 +70,7 @@ class Denemo (target.AutoBuild):
     def configure_command (self):
         return (target.AutoBuild.configure_command (self)
                 + ' --enable-binreloc'
-                + ' --with-jack'
+                + ' --enable-jack'
                 + ' --program-prefix=')
     def compile (self):
         if isinstance (self.source, repository.Git):
@@ -96,6 +96,9 @@ class Denemo__mingw (Denemo):
                 'jack',
                 'lash',
                 ]] + ['lilypad']
+    def configure_command (self):
+        return (Denemo.configure_command (self)
+                .replace ('--enable-jack', '--disable-jack'))
     def makeflags (self):
         return ''
     def compile (self):
@@ -122,3 +125,6 @@ class Denemo__darwin (Denemo):
             'fondu',
             'osx-lilypad',
             ]
+    def configure_command (self):
+        return (Denemo.configure_command (self)
+                .replace ('--enable-jack', '--disable-jack'))
