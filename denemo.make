@@ -3,7 +3,7 @@
 .PHONY: nsis denemo denemo-installers
 default: all
 
-#DENEMO_BRANCH="master"
+DENEMO_BRANCH="master"
 DENEMO_REPO_URL=git://git.savannah.gnu.org/denemo.git
 
 PLATFORMS=mingw
@@ -20,7 +20,7 @@ INSTALL_PACKAGE = denemo
 MAKE += -f denemo.make
 
 # urg, from lilypond.make -- should share lilypond info
-LILYPOND_BRANCH=master
+#LILYPOND_BRANCH=master
 LILYPOND_REPO_URL=git://git.sv.gnu.org/lilypond.git
 # derived info
 LILYPOND_SOURCE_URL=$(LILYPOND_REPO_URL)?branch=$(LILYPOND_BRANCH)
