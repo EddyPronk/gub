@@ -3,6 +3,7 @@ import os
 from gub import cross
 from gub import misc
 
+# FIMXE: weird, we should be cross/odcctools
 class Odcctools (cross.AutoBuild): #skews dependencies:, build.SdkBuild):
     source = ('svn:http://iphone-dev.googlecode.com/svn&module=trunk'
               '&branch=odcctools'

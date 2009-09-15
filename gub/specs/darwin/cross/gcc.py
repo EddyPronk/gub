@@ -1,12 +1,14 @@
 import os
 #
-from gub.specs.cross import gcc
+from gub.specs.cross import gcc as cross_gcc
 from gub import loggedos
 
-class Gcc__darwin (gcc.Gcc):
+class Gcc__darwin (cross_gcc.Gcc):
     source = 'ftp://ftp.fu-berlin.de/unix/languages/gcc/releases/gcc-4.1.1/gcc-4.1.1.tar.bz2'
     def _get_build_dependencies (self):
-        return gcc.Gcc._get_build_dependencies (self) + ['odcctools']
+        return ([x for x in cross_gcc.Gcc._get_build_dependencies (self)
+                 if 'cross/binutils' not in x]
+                + ['odcctools'])
     def patch (self):
         self.file_sub ([('/usr/bin/libtool', '%(cross_prefix)s/bin/%(target_architecture)s-libtool')],
                        '%(srcdir)s/gcc/config/darwin.h')
@@ -15,7 +17,7 @@ class Gcc__darwin (gcc.Gcc):
                        '%(srcdir)s/libstdc++-v3/scripts/make_exports.pl')
     def languages (self):
         # objective-c is used for quartz's Carbon/Carbon.h in pango, gtk+
-        return gcc.Gcc.languages (self) + ['objc', 'obj-c++']
+        return cross_gcc.Gcc.languages (self) + ['objc', 'obj-c++']
     def rewire_gcc_libs (self):
         # FIXME: why do we skip, please document?
         # I get
@@ -42,7 +44,7 @@ class Gcc__darwin (gcc.Gcc):
                          self.expand ('%(install_prefix)s/lib/'),
                          '*.dylib')
     def install (self):
-        gcc.Gcc.install (self)
+        cross_gcc.Gcc.install (self)
         # conflicts with darwin-SDK
         self.system ('mv %(install_prefix)s/lib/libsupc++.a %(install_prefix)s/lib/libsupc++.a-')
         self.rewire_gcc_libs ()
@@ -54,7 +56,7 @@ class Gcc__darwin__x86 (Gcc__darwin):
 
 class Not_used__Gcc__darwin (Gcc__darwin):
     def configure (self):
-        gcc.Gcc.configure (self)
+        cross_gcc.Gcc.configure (self)
     def install (self):
-        gcc.Gcc.install (self)
+        cross_gcc.Gcc.install (self)
         self.rewire_gcc_libs ()
