@@ -8,4 +8,5 @@ class Subversion__tools (tools.AutoBuild):
         return [
             'libapr-util-devel',
             'sqlite',
+            'libxml2'
             ]
