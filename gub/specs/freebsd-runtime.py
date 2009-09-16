@@ -4,6 +4,10 @@ class Freebsd_runtime (build.BinaryBuild, build.SdkBuild):
     source = 'http://lilypond.org/download/gub-sources/freebsd-runtime-4.11-1.%(package_arch)s.tar.gz&strip=0'
     def untar (self):
         build.BinaryBuild.untar (self)
+        self.system ('''
+# blocks installing db, and runtime lacks binary libdb.*
+rm -f %(srcdir)s%(prefix_dir)s/include/db.h
+''')
 
 class Freebsd_runtime__freebsd__x86 (Freebsd_runtime):
     patches = ['freebsd4-runtime.patch']
