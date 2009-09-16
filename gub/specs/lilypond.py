@@ -385,7 +385,7 @@ class LilyPond_base (target.AutoBuild):
     install_after_build = False
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
-        source.dir = os.path.join (self.settings.downloads, 'lilypond')
+        source.dir = source.dir.replace ('lilypond-installer', 'lilypond')
         source.version = misc.bind_method (LilyPond.version_from_VERSION, source)
         source.is_tracking = misc.bind_method (lambda x: True, source)
         source.is_downloaded = misc.bind_method (lambda x: True, source)
