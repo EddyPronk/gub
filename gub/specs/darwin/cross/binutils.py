@@ -1,7 +1,7 @@
 from gub import cross
-from gub.specs.cross import binutils
+from gub.specs.cross import binutils as cross_binutils
 
-class Binutils__darwin (binutils.Binutils):
+class Binutils__darwin (cross_binutils.Binutils):
     # what's the story with odcctools?
     # it seems that darwin-ppc's binutils build as an empty shell?
     # instead, odcctools have the linker, assembler, etc?
@@ -10,7 +10,7 @@ class Binutils__darwin (binutils.Binutils):
     # Just *do not* build darwin-ppc::cross/binutils, that
     # triggers gcc to be built before odcctools?
     #def _get_build_dependencies (self):
-    #    return (binutils.Binutils._get_build_dependencies (self)
+    #    return (cross_binutils.Binutils._get_build_dependencies (self)
     #            + ['odcctools'])
     def install (self):
         '''
