@@ -176,6 +176,7 @@ class Guile__linux (Guile):
     def compile_command (self):
         # FIXME: when not x-building, guile runs guile without
         # setting the proper LD_LIBRARY_PATH.
+        # FIXME: try removing this and using cross_compiling=yes fix
         return ('export LD_LIBRARY_PATH=%(builddir)s/libguile/.libs:$LD_LIBRARY_PATH;'
                 + Guile.compile_command (self))
 
@@ -192,6 +193,8 @@ guile_cv_use_csqrt="no"
 ''')
     def configure_command (self):
         return (Guile.configure_command (self)
+                # FIXME: eradicate LD_LIBRARY_PATH from guile.py
+                .replace ('LD_LIBRARY_PATH=%(system_prefix)s/lib:${LD_LIBRARY_PATH-/foe} ', '')
                 + Guile.configure_flags (self)
                 + Guile.configure_variables (self))
 
