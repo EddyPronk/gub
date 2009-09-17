@@ -103,6 +103,13 @@ cd %(install_root)s && mkdir -p usr/bin/ && mv Python24/* usr/bin
 rmdir %(install_root)s/Python24
 ''')
 
+class Python__freebsd (Python):
+    def configure (self):
+        Python.configure (self)
+        self.file_sub ([
+                ('^LDSHARED=.*', 'LDSHARED = $(CC) -shared'),
+                ('BLDSHARED=.*', 'BLDSHARED = $(CC) -shared'),
+                ], '%(builddir)s/Makefile')
 
 class Python__mingw (Python):
     patches = Python.patches + [
