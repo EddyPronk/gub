@@ -9,7 +9,9 @@ class Icoutils__tools (tools.AutoBuild):
                 + misc.join_lines ('''
 --with-libintl-prefix=%(system_prefix)s
 --disable-nls
-'''))
+''')
+                # PROMOTEME: rpath
+                + ''' LDFLAGS='-L%(system_prefix)s/lib %(rpath)s -Wl,-rpath -Wl,%(system_prefix)s/lib' ''')
 
 class Icoutils__darwin (tools.AutoBuild):
     def patch (self):
