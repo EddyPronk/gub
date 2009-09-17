@@ -28,6 +28,10 @@ class Db (target.AutoBuild):
         self.system ('cd %(install_prefix)s/lib && ln -s libdb-*.la libdb.la')
         self.system ('cd %(install_prefix)s/lib && ln -s libdb-*.so libdb.so || :')
 
+class Db__linux_64 (Db):
+    def _get_build_dependencies (self):
+        return ['libtool']
+ 
 class Db__mingw (Db):
     patches = ['db-4.7.25-mingw.patch']
     # no libdb.dll without libwsock.dll
