@@ -59,6 +59,14 @@ def package_auto_dependency_dict (package):
 #AutoBuild = target.AutoBuild
 
 class AutoBuild (build.AutoBuild):
+    # FIXME: MI-hacks
+    # must not set cross-compiling, a config cache or update libtool
+    def autoupdate (self):
+        build.AutoBuild.autoupdate (self)
+    def config_cache_settings (self):
+        return ''
+    def update_libtool (self):
+        build.AutoBuild.update_libtool (self)
     def configure_prefix (self):
         if 'BOOTSTRAP' in os.environ.keys ():
             return '%(prefix_dir)s'
@@ -144,15 +152,6 @@ LD_LIBRARY_PATH=%(system_prefix)s/lib
         self.config_cache ()
         build.AutoBuild.configure (self)
         self.update_libtool ()
-
-    # FIXME: make Multiple-Inheritance-safe, ie
-    #    class Foo__tools (tools.AutoBuild, Foo)
-    # must not set a config cache or target's rpath updating libtool
-    # Hmm.
-    def config_cache_settings (self):
-        return ''
-    def update_libtool (self):
-        build.AutoBuild.update_libtool (self)
 
     def get_substitution_dict (self, env={}):
         dict = {
