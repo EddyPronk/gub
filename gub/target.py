@@ -20,10 +20,15 @@ class AutoBuild (build.AutoBuild):
         build.AutoBuild.autoupdate (self)
         self.file_sub ([('cross_compiling=(maybe|no|yes)',
                          'cross_compiling=yes')], '%(configure_binary)s')
+    @context.subst_method
+    def config_cache_flag (self):
+        if True or self.config_cache_flag_broken:
+            return ' --cache-file=config.cache'
+        return ' --config-cache'
     def configure_flags (self):
         return (build.AutoBuild.configure_flags (self)
                 + misc.join_lines ('''
---config-cache
+--cache-file=config.cache
 --enable-shared
 --disable-static
 --disable-silent-rules

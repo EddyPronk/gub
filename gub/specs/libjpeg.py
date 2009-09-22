@@ -8,6 +8,7 @@ from gub import tools
 
 class Libjpeg (target.AutoBuild):
     source = 'ftp://ftp.uu.net/graphics/jpeg/jpegsrc.v6b.tar.gz'
+    config_cache_flag_broken = True
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         source._version = 'v6b'
@@ -19,9 +20,6 @@ class Libjpeg (target.AutoBuild):
         return ['devel', '']
     def srcdir (self):
         return re.sub (r'src\.v', '-', target.AutoBuild.srcdir (self))
-    def configure_command (self):
-        return (target.AutoBuild.configure_command (self)
-                .replace ('--config-cache', '--cache-file=config.cache'))
     def update_libtool (self):
         self.system ('''
 cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh %(target_architecture)s'''

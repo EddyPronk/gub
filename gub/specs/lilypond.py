@@ -213,8 +213,8 @@ class LilyPond__cygwin (LilyPond):
             'ghostscript',
             'lilypond-doc',
             ]
-    def configure_command (self):
-        return (LilyPond.configure_command (self)
+    def configure_flags (self):
+        return (LilyPond.configure_flags (self)
                 .replace ('--enable-relocation', '--disable-relocation'))
     def makeflags (self):
         python_lib = '%(system_prefix)s/bin/libpython*.dll'
@@ -369,8 +369,8 @@ class LilyPond__darwin (LilyPond):
                 'fondu',
                 'osx-lilypad',
                 ])
-    def configure_command (self):
-        return (LilyPond.configure_command (self)
+    def configure_flags (self):
+        return (LilyPond.configure_flags (self)
                 .replace ('--enable-rpath', '--disable-rpath'))
     def makeflags (self):
         return ' TARGET_PYTHON="/usr/bin/env python"'

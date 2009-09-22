@@ -125,12 +125,12 @@ class Python__mingw (Python):
                 ("import fcntl", ""),
                 ], "%(srcdir)s/Lib/subprocess.py",
                must_succeed=True)
-    def config_cache_overrides (self, str):
+    def config_cache_overrides (self, string):
         # Ok, I give up.  The python build system wins.  Once
         # someone manages to get -lwsock32 on the
         # sharedmodules link command line, *after*
         # timesmodule.o, this can go away.
-        return (str.replace ('ac_cv_func_select=yes', 'ac_cv_func_select=no')
+        return (string.replace ('ac_cv_func_select=yes', 'ac_cv_func_select=no')
                 + '''
 ac_cv_pthread_system_supported=yes,
 ac_cv_sizeof_pthread_t=12

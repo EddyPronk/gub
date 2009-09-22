@@ -15,9 +15,8 @@ class Glibc_core (glibc.Glibc):
         return {'': ['glibc', 'glibc-devel', 'glibc-doc', 'glibc-runtime']}
     def get_add_ons (self):
         return ('linuxthreads',)
-    def configure_command (self):
-        return (glibc.Glibc.configure_command (self)
-#                .replace ('--disable-versioning', '--enable-versioning')
+    def configure_flags (self):
+        return (glibc.Glibc.configure_flags (self)
                 + misc.join_lines ('''
 --without-tls
 --without-__thread

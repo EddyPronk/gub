@@ -5,6 +5,3 @@ class Base_passwd (target.AutoBuild):
     srcdir_build_broken = True
     def get_subpackage_names (self):
         return ['']
-    def configure_command (self):
-        return (target.AutoBuild.configure_command (self)
-                .replace ('--config-cache', '--cache-file=%(builddir)s/config.cache'))

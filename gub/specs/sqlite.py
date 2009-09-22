@@ -3,8 +3,8 @@ from gub import target
 
 class Sqlite (target.AutoBuild):
     source = 'http://www.sqlite.org/sqlite-3.6.4.tar.gz' # 3.3.16
-    def configure_command (self):
-        return (target.AutoBuild.configure_command (self)
+    def configure_flags (self):
+        return (target.AutoBuild.configure_flags (self)
                 + misc.join_lines ('''
 --disable-tcl
 --enable-threadsafe
@@ -21,4 +21,5 @@ See http://www.sqlite.org/copyright.html .
 class Sqlite__mingw (Sqlite):
     def configure_command (self):
         return ('config_TARGET_EXEEXT=.exe '
-                + Sqlite.configure_command (self).replace ('--enable-threadsafe', '--disable-threadsafe'))
+                + Sqlite.configure_command (self)
+                .replace ('--enable-threadsafe', '--disable-threadsafe'))

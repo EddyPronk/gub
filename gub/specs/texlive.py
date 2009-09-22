@@ -29,6 +29,7 @@ TeX, as well as the documentation accompanying the included software
 packages.'''
 
     source = texlive_svn + '&branch=trunk&branchmodule=Build/source&revision=HEAD'
+    config_cache_flag_broken = True
     def _get_build_dependencies (self):
         return [
             'tools::automake',
@@ -145,7 +146,6 @@ packages.'''
         if 'stat' in misc.librestrict ():
             SHELL = ' SHELL=%(tools_prefix)s/bin/bash'
         return ('export TEXMFMAIN=%(srcdir)s/texmf;'
-                + target.AutoBuild.configure_command (self).replace ('--config-cache', '--cache-file=config.cache')
                 + self.common_configure_flags ()
                 + misc.join_lines ('''
 --with-x
@@ -274,7 +274,6 @@ class Texlive__tools (tools.AutoBuild, Texlive):
         if 'stat' in misc.librestrict ():
             SHELL = ' SHELL=%(tools_prefix)s/bin/bash'
         return ('export TEXMFMAIN=%(srcdir)s/texmf;'
-                + tools.AutoBuild.configure_command (self).replace ('--config-cache', '--cache-file=config.cache')
                 + Texlive.common_configure_flags (self)
                 + misc.join_lines ('''
 --without-x

@@ -287,25 +287,6 @@ guile-tut').
 
 class Guile__linux__x86 (Guile):
     patches = Guile.patches + ['guile-1.8.6-pthreads-cross.patch']
-    def FIXED_in_1_8_7_configure_command (self):
-        return (Guile.configure_command (self)
-                .replace ('--without-threads', '--with-threads=pthread'))
-    # all of a sudden, with linux-x86 guile I get this, so let's try using
-    # threads?
-    '''
-/home/janneke/vc/gub/target/linux-x86/build/guile-1.8.6/pre-inst-guile -s /home/janneke/vc/gub/target/linux-x86/src/guile-1.8.6/ice-9/compile-psyntax.scm \
-                /home/janneke/vc/gub/target/linux-x86/src/guile-1.8.6/ice-9/psyntax.ss /home/janneke/vc/gub/target/linux-x86/src/guile-1.8.6/ice-9/psyntax.pp
-ERROR: Stack overflow
-make[3]: *** [psyntax.pp] Error 1
-'''
-    def FIXED_in_1_8_7_config_cache_overrides (self, string):
-        return string + '''
-ac_cv_pthread_attr_getstack_works=${ac_cv_pthread_attr_getstack_works=no}
-ac_cv_func_pthread_attr_getstack=${ac_cv_func_pthread_attr_getstack=yes}
-ac_cv_func_pthread_get_stackaddr_np=${ac_cv_func_pthread_get_stackaddr_np=no}
-ac_cv_func_pthread_getattr_np=${ac_cv_func_pthread_getattr_np=yes}
-ac_cv_func_pthread_sigmask=${ac_cv_func_pthread_sigmask=yes}
-'''
 
 class Guile__tools (tools.AutoBuild, Guile):
     def _get_build_dependencies (self):

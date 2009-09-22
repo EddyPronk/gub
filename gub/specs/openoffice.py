@@ -589,8 +589,8 @@ class OpenOffice__mingw (OpenOffice):
             self.system ('''cp -pvf $OOO_TOOLS_DIR/../../../../sal/unx*/bin/gen_makefile $OOO_TOOLS_DIR/gen_makefile''')
             self.system ('''cp -pvf $OOO_TOOLS_DIR/../../../../icc/unx*/bin/create_sRGB_profile $OOO_TOOLS_DIR/create_sRGB_profile''')
             self.system ('''cp -pvf $OOO_TOOLS_DIR/../../../../i18npool/unx*/bin/* $OOO_TOOLS_DIR''')
-    def configure_command (self):
-        return (OpenOffice.configure_command (self)
+    def configure_flags (self):
+        return (OpenOffice.configure_flags (self)
                 .replace ('--with-system-xrender-headers', '')
                 + ' --disable-xrender-link'
                 + ' --with-distro=Win32')
@@ -779,7 +779,9 @@ install:
 ''', '%(srcdir)s/Makefile.in', env=locals ())
     def configure_command (self):
         return ('x_libraries=no_x_libraries x_includes=no_x_includes '
-                + tools.AutoBuild.configure_command (self)
+                + tools.AutoBuild.configure_command (self))
+    def configure_flags (self):
+        return (tools.AutoBuild.configure_flags (self)
                 + re.sub ('--with-system-[^ ]*', '', OpenOffice.configure_options (self))
                 .replace ('--disable-crypt-link', '--enable-crypt-link')
                 + ' --with-system-db '

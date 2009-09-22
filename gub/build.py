@@ -23,6 +23,7 @@ class Build (context.RunnableContext):
     branch = ''
     patches = []
     build_dependencies = []
+    config_cache_flag_broken = True
     install_after_build = True
     parallel_build_broken = False
     srcdir_build_broken = False
@@ -328,7 +329,10 @@ class AutoBuild (Build):
 
     @context.subst_method
     def configure_command (self):
-        return ' sh %(configure_binary)s %(configure_flags)s %(configure_variables)s'
+        return (' sh '
+                + self.configure_binary ()
+                + self.configure_flags ()
+                + self.configure_variables ())
 
     @context.subst_method
     def configure_flags (self):
@@ -396,17 +400,17 @@ class AutoBuild (Build):
         else:
             self.runner._execute (commands.AutogenMagic (self))
 
-    def config_cache_overrides (self, str):
-        return str
+    def config_cache_overrides (self, string):
+        return string
 
     def config_cache_settings (self):
         return self.config_cache_overrides ('')
 
     def config_cache (self):
-        str = self.config_cache_settings ()
-        if str:
+        string = self.config_cache_settings ()
+        if string:
             self.system ('mkdir -p %(builddir)s || true')
-            self.dump (str, self.cache_file (), permissions=octal.o755)
+            self.dump (string, self.cache_file (), permissions=octal.o755)
 
     def configure (self):
         if self.srcdir_build_broken:

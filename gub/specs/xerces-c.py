@@ -5,6 +5,7 @@ from gub import target
 class Xerces_c (target.AutoBuild):
     source = 'http://www.apache.org/dist/xerces/c/2/sources/xerces-c-src_2_8_0.tar.gz'
     parallel_build_broken = True
+    config_cache_flag_broken = True
     def _get_build_dependencies (self):
         return ['tools::autoconf']
     def __init__ (self, settings, source):
@@ -30,8 +31,7 @@ class Xerces_c (target.AutoBuild):
         # cool, it can serve the INSTALL file!  Let's remove it from
         # the tarball!
         return (self.makeflags () + ' '
-                + target.AutoBuild.configure_command (self)
-                .replace ('--config-cache', '--cache-file=%(builddir)s/config.cache'))
+                + target.AutoBuild.configure_command (self))
     def makeflags (self):
         s = ''
         for i in list (self.compile_dict.keys ()):

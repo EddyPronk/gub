@@ -15,17 +15,6 @@ class Perl__tools (tools.AutoBuild):
         self.file_sub ([('-c (/dev/null)', r'-e \1')], '%(srcdir)s/Configure')
     def configure_binary (self):
         return '%(autodir)s/configure.gnu'
-    def GNU_NOT_HAHA_configure_command (self):
-        # Handy, a GNU configure frontend...  Not.
-        command = (tools.AutoBuild.configure_command (self)
-                   .replace ('--config-cache', '')
-                   .replace ('--enable-shared', '')
-                   .replace ('--disable-static', ''))
-        command = re.sub ('--(build|host|target)=[^ ]* ', '', command)
-        command = re.sub ('--(includedir|infodir|libdir|mandir|sysconfdir|)=[^ ]* ', '', command)
-        
-        return ('''CC=%(CC)s'''
-                + command)
     def configure_command (self):
 # -Dcc=%(CC)s
 # -Dprefix=%(prefix_dir)s -- BOOTSTRAP

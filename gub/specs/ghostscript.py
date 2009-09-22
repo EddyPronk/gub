@@ -291,8 +291,8 @@ cd %(srcdir)s && cp Makefile.in Makefile-x11.in
         d = Ghostscript.get_subpackage_definitions (self)
         d['base'] = []
         return d
-    def configure_command (self):
-        return (Ghostscript.configure_command (self)
+    def configure_flags (self):
+        return (Ghostscript.configure_flags (self)
                 .replace (' --with-drivers=FILES', ' --with-drivers=ALL'))
     def compile (self):
         self.system ('''
@@ -310,15 +310,19 @@ cd %(builddir)s && rm -f obj/*.tr
         Ghostscript.config_cache (self)
         self.system ('cd %(builddir)s && cp -p config.cache config-x11.cache')
     @context.subst_method
-    def configure_command_x11 (self):
+    def configure_variables_x11 (self):
         return ('CONFIG_FILES=Makefile-x11'
-                + ' CONFIG_STATUS=config-x11.status'
-                + ' ' + self.configure_command ()
+                + ' CONFIG_STATUS=config-x11.status')
+    @context.subst_method
+    def configure_command_x11 (self):
+        return ' sh %(configure_binary)s %(configure_flags_x11)s %(configure_variables_x11)s Makefile'
+    @context.subst_method
+    def configure_flags_x11 (self):
+        return (self.configure_flags ()
                 .replace ('--without-x', '--with-x')
-                .replace ('--config-cache', '--cache-file=config-x11.cache')
+                .replace ('config.cache', 'config-x11.cache')
                 + ' --x-includes=%(system_prefix)s/X11R6/include'
-                + ' --x-libraries=%(system_prefix)s/X11R6/lib'
-                + ' Makefile')
+                + ' --x-libraries=%(system_prefix)s/X11R6/lib')
     def configure_x11 (self):
         self.system ('''
 mkdir -p %(builddir)s
