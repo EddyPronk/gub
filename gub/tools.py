@@ -59,47 +59,30 @@ def package_auto_dependency_dict (package):
 #AutoBuild = target.AutoBuild
 
 class AutoBuild (build.AutoBuild):
-    def configure_command (self):
-        return (build.AutoBuild.configure_command (self)
-                + self.configure_flags ()
-                + self.configure_variables ())
-    @context.subst_method
     def configure_prefix (self):
         if 'BOOTSTRAP' in os.environ.keys ():
             return '%(prefix_dir)s'
         return '%(system_prefix)s'
-    def LD_PRELOAD (self):
-        # Makes no sense for tools.  Be it /usr/bin/gcc or tools::gcc,
-        # it needs to read /usr/include/stdlib.h etc.  How to, or why
-        # restrict reading other files from /?
-        # See LIBRESTRICT_IGNORE below, it would need to include every
-        # binary in system_prefix :-)
-        return ''
-    # FIXME: promoteme to build.py?  Most Fragile operation...
     def configure_flags (self):
         config_cache = ''
         if self.config_cache_settings ():
-            config_cache = '\n--config-cache'
-        return misc.join_lines ('''
---prefix=%(configure_prefix)s
+            config_cache = ' --config-cache'
+        return (build.AutoBuild.configure_flags (self)
+                + misc.join_lines ('''
 --enable-shared
 --enable-static
 --disable-silent-rules
-''' + config_cache)
-    # FIXME: promoteme to build.py?  Most Fragile operation...
-    # BOOTSTRAP -- do we need this?
-    # LDFLAGS='-L%(system_prefix)s/lib -Wl,--as-needed'
-    def configure_variables (self):
-        return misc.join_lines ('''
-CFLAGS=-I%(system_prefix)s/include
-LDFLAGS=-L%(system_prefix)s/lib
 ''')
-
+                + config_cache)
+    def configure_variables (self):
+       return (build.AutoBuild.configure_variables (self)
+               + misc.join_lines ('''
+CFLAGS=-I%(system_prefix)s/include
+LDFLAGS='-L%(system_prefix)s/lib %(rpath)s %(libs)s'
+'''))
     ## ugh: prefix= will trigger libtool relinks.
     def install_command (self):
         return '''make %(makeflags)s DESTDIR=%(install_root)s install'''
-# Hmm, weird, this breaks?
-#        return self.compile_command () + ' DESTDIR=%(install_root)s install '
 
     def broken_install_command (self):
         # FIXME: use sysconfdir=%(install_PREFIX)s/etc?  If
@@ -119,11 +102,10 @@ prefix=%(install_prefix)s
 sysconfdir=%(install_prefix)s/etc
 tooldir=%(install_prefix)s
 ''')
-
-    def install (self):
-        build.AutoBuild.install (self)
-        # conditional on use of rpath, depending on shared libs?
-        if 0:
+    def post_install (self):
+        build.AutoBuild.post_install (self)
+        if not self.expand ('rpath'):
+            # and not if no shared libs?
             self.wrap_executables ()
 
     @context.subst_method

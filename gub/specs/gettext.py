@@ -3,7 +3,7 @@ from gub import tools
 
 class Gettext (target.AutoBuild):
     # 0.16.1 makes gcc barf on ICE.
-    source = 'ftp://ftp.gnu.org/pub/gnu/gettext/gettext-0.15.tar.gz'
+    source = 'http://ftp.gnu.org/pub/gnu/gettext/gettext-0.15.tar.gz'
     def _get_build_dependencies (self):
         return ['libtool']
     def LD_PRELOAD (self):
@@ -23,8 +23,9 @@ ac_cv_prog_HAVE_JIKES_IN_PATH=${ac_cv_prog_HAVE_JIKES_IN_PATH=no}
 ''')
     def configure_command (self):
         return (target.AutoBuild.configure_command (self)
-                + ' --disable-threads --disable-csharp --disable-java '
-                + ''' LDFLAGS='%(rpath)s' '''
+                + ' --disable-threads'
+                + ' --disable-csharp'
+                + ' --disable-java'
                 )
     def configure (self):
         target.AutoBuild.configure (self)
@@ -91,5 +92,4 @@ class Gettext__tools (tools.AutoBuild):
                        '%(builddir)s/gettext-tools/Makefile')
     def configure_command (self):
         return (tools.AutoBuild.configure_command (self)
-                + ' --disable-libasprintf'
-                + ''' LDFLAGS='%(rpath)s' ''')
+                + ' --disable-libasprintf')

@@ -7,6 +7,7 @@ from gub import target
 
 class Busybox (target.AutoBuild):
     source = 'http://busybox.net/downloads/busybox-1.5.1.tar.bz2'
+    srcdir_build_broken = True
     def get_subpackage_names (self):
         return ['']
     def configure_command (self):
@@ -15,7 +16,6 @@ class Busybox (target.AutoBuild):
     def autoconf_h (self):
         return 'autoconf.h'
     def configure (self):
-        self.shadow ()
         target.AutoBuild.configure (self)
         self.file_sub ([('^# CONFIG_FEATURE_SH_IS_ASH is not set', 'CONFIG_FEATURE_SH_IS_ASH=y'),
                         ('^CONFIG_FEATURE_SH_IS_NONE=y', '# CONFIG_FEATURE_SH_IS_NONE is not set'),
@@ -47,13 +47,13 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/busybox-mkconfigs.patch
 
 class Busybox__tools (tools.AutoBuild, Busybox):
     source = 'http://busybox.net/downloads/busybox-1.13.2.tar.gz'
+    srcdir_build_broken = True
     def configure_command (self):
         return 'make -f %(srcdir)s/Makefile defconfig'
     @context.subst_method
     def autoconf_h (self):
         return 'autoconf.h'
     def configure (self):
-        self.shadow ()
 #        tools.AutoBuild.configure (self)
         self.system ('cd %(builddir)s && %(configure_command)s')
         self.file_sub ([

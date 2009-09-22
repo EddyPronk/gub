@@ -7,7 +7,7 @@ from gub import target
 from gub import tools
 
 class Libtool (target.AutoBuild):
-    source = 'ftp://ftp.gnu.org/pub/gnu/libtool/libtool-2.2.6a.tar.gz'
+    source = 'http://ftp.gnu.org/pub/gnu/libtool/libtool-2.2.6a.tar.gz'
     #source = 'git://git.sv.gnu.org/libtool.git?branch=master&revision=77e114998457cb6170ad84b360cb5b9be90f2191'
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
@@ -90,8 +90,7 @@ class Libtool__tools (tools.AutoBuild, Libtool):
     def __init__ (self, settings, source):
         tools.AutoBuild.__init__ (self, settings, source)
         Libtool.set_sover (self)
-    def update_libtool (self):
-        pass
+    update_libtool = tools.AutoBuild.nop
     def install (self):
         tools.AutoBuild.install (self)
         # FIXME: urg.  Are we doing something wrong?  Why does libtool
@@ -99,7 +98,3 @@ class Libtool__tools (tools.AutoBuild, Libtool):
         self.file_sub ([(' (/usr/lib/*[" ])', r' %(system_prefix)s/lib \1'),
                         ('((-L| )/usr/lib/../lib/* )', r'\2%(system_prefix)s/lib \1')],
                        '%(install_prefix)s/bin/libtool')
-    def wrap_executables (self):
-        # The libtool script calls the cross compilers, and moreover,
-        # it is copied.  Two reasons why it cannot be wrapped.
-        pass

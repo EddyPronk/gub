@@ -1,4 +1,5 @@
 from gub import build
+from gub import context
 from gub import cross
 from gub import loggedos
 from gub import misc
@@ -20,6 +21,11 @@ def change_target_package (package):
     def install (whatsthis):
         package.post_install_smurf_exe ()
     package.install = misc.MethodOverrider (package.install, install)
+
+    @context.subst_method
+    def so_extension (foo):
+        return '.dll'
+    package.so_extension = misc.MethodOverrider (package.nop, so_extension)
 
     # FIXME (cygwin): [why] do cross packages get here too?
     if isinstance (package, cross.AutoBuild):

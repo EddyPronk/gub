@@ -132,7 +132,9 @@ def version_from_configure_in (configure_in, name, default_version='0.0.0'):
     return default_version
 
 def version_to_string (t):
-    return '%s-%s' % ('.'.join (map (string, t[:-1])), t[-1])
+    if t[-1]:
+        return '%s-%s' % ('.'.join (map (str, t[:-1])), t[-1])
+    return '.'.join (map (str, t[:-1]))
 
 def split_version (s):
     m = re.match ('^(([0-9].*)-([0-9]+))$', s)
@@ -164,6 +166,9 @@ def split_ball (s):
     if not m:
         return (s, (0, 0), '')
     return (m.group (1), string_to_version ('-'.join (split_version (m.group (2)))), m.group (6))
+
+def assemble_ball (t):
+    return t[0] + '-' + version_to_string (t[1]) + '.tar.' + t[2]
 
 def name_from_url (url):
     url, params = dissect_url (url)
@@ -283,6 +288,7 @@ def rewrite_url (url, mirror):
 
 # FIXME: read settings.rc, local, fallback should be a user-definable list
 def download_url (original_url, dest_dir,
+                  dest_name='',
                   local=[],
                   cache=[os.environ.get ('GUB_DOWNLOAD_CACHE', '')],
                   fallback=['http://lilypond.org/download/gub-sources'],
@@ -307,13 +313,13 @@ def download_url (original_url, dest_dir,
 
     result = 'no valid urls'
     for url in candidate_urls:
-        result = _download_url (url, dest_dir, progress)
+        result = _download_url (url, dest_dir, dest_name, progress)
         if type (result) == type (0):
             return
     raise Exception ('Download failed', result)
 
-def _download_url (url, dest_dir, progress=None):
-    progress ('downloading %(url)s -> %(dest_dir)s\n' % locals ())
+def _download_url (url, dest_dir, dest_name='', progress=None):
+    progress ('downloading %(url)s -> %(dest_dir)s/%(dest_name)s\n' % locals ())
     if not os.path.isdir (dest_dir):
         raise Exception ('not a dir', dest_dir)
 
@@ -347,9 +353,11 @@ def _download_url (url, dest_dir, progress=None):
     if progress:
         progress ('\n')
 
-    file_name = os.path.basename (url)
+    if not dest_name:
+        dest_name = os.path.basename (url)
     if size:
-        os.rename (tmpfile, os.path.join (dest_dir, file_name))
+        print 'renaming:', tmpfile, os.path.join (dest_dir, dest_name)
+        os.rename (tmpfile, os.path.join (dest_dir, dest_name))
         if progress:
             progress ('done (%(size)s)\n' % locals ())
     else:
@@ -694,6 +702,18 @@ LD_LIBRARY_PATH=%(system_prefix)s/lib
 def librestrict ():
     return list (sorted (os.environ.get ('LIBRESTRICT',
                                          'open').replace (':', ' ').split (' ')))
+
+def latest_url (url, name, raw_version_file=None):
+    if not raw_version_file:
+        raw_version_file = 'downloads/%(name)s.index' % locals ()
+    if not os.path.isfile (raw_version_file):
+        download_url (url, 'downloads', os.path.basename (raw_version_file))
+    s = open (raw_version_file).read ()
+    inert_name = name.replace ('+', '[+]')
+    m = re.findall ('(%(inert_name)s-[.0-9]+tar.gz)' % locals (), s)
+    if len (m) == 1:
+        return m[0]
+    return url + assemble_ball (sorted (map (split_ball, m))[-1])
 
 start = 0
 def timing ():

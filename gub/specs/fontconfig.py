@@ -31,11 +31,6 @@ specified by applications.'''
     def patch (self):
         self.dump ('\nAC_SUBST(LT_AGE)', '%(srcdir)s/configure.in', mode='a', permissions=octal.o755)
         target.AutoBuild.patch (self)
-    def autoupdate (self):
-        target.AutoBuild.autoupdate (self)
-        # FIXME: PROMOTEME to target.py? -- yes, but in/after autoupdate stage
-        self.file_sub ([('cross_compiling=(maybe|no)', 'cross_compiling=yes')],
-                       '%(srcdir)s/configure')
     @context.subst_method
     def freetype_cflags (self):
         # this is shady: we're using the flags from the tools version

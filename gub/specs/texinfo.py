@@ -1,7 +1,7 @@
 from gub import tools
 
 class Texinfo__tools (tools.AutoBuild):
-    source = 'ftp://ftp.gnu.org/pub/gnu/texinfo/texinfo-4.13a.tar.gz'
+    source = 'http://ftp.gnu.org/pub/gnu/texinfo/texinfo-4.13a.tar.gz'
     def patch (self):
         tools.AutoBuild.patch (self)
         # Drop ncurses dependency

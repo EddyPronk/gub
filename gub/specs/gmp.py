@@ -6,7 +6,7 @@ from gub import target
 from gub import tools
 
 class Gmp (target.AutoBuild):
-    source = 'ftp://ftp.gnu.org/pub/gnu/gmp/gmp-4.2.1.tar.gz'
+    source = 'http://ftp.gnu.org/pub/gnu/gmp/gmp-4.2.1.tar.gz'
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         if not self.settings.platform.startswith ('darwin'):
@@ -43,10 +43,10 @@ class Gmp__darwin (Gmp):
                        '%(install_prefix)s/include/gmp.h')
 
 class Gmp__darwin__x86 (Gmp__darwin):
-    source = 'ftp://ftp.gnu.org/pub/gnu/gmp/gmp-4.2.4.tar.gz'
+    source = 'http://ftp.gnu.org/pub/gnu/gmp/gmp-4.2.4.tar.gz'
 
 class Gmp__cygwin (Gmp):
-    source = 'ftp://ftp.gnu.org/pub/gnu/gmp/gmp-4.1.4.tar.gz'
+    source = 'http://ftp.gnu.org/pub/gnu/gmp/gmp-4.1.4.tar.gz'
     patches = ['gmp-4.1.4-1.patch']
 
 class Gmp__mingw (Gmp):
@@ -62,7 +62,7 @@ mv %(install_prefix)s/lib/*dll %(install_prefix)s/bin || true
 ''')
 
 class Gmp__freebsd (Gmp):
-    source = 'ftp://ftp.gnu.org/pub/gnu/gmp/gmp-4.2.4.tar.gz'
+    source = 'http://ftp.gnu.org/pub/gnu/gmp/gmp-4.2.4.tar.gz'
 
 class Gmp__tools (tools.AutoBuild, Gmp):
     def _get_build_dependencies (self):

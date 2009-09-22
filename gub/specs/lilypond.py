@@ -10,6 +10,7 @@ from gub import versiondb
 class LilyPond (target.AutoBuild):
     source = 'git://git.sv.gnu.org/lilypond.git'
     branch = 'master'
+    parallel_build_broken = True
 
     '''A program for printing sheet music
     LilyPond lets you create music notation.  It produces
@@ -417,33 +418,6 @@ GS_LIB=%(system_prefix)s/share/ghostscript/*/lib
 MALLOC_CHECK_=2
 LD_LIBRARY_PATH=%(tools_prefix)s/lib:%(system_prefix)s/lib:${LD_LIBRARY_PATH-/foe}
 ''')
-    def force_sequential_build (self):
-        '''
-Writing snippets...
-All snippets are up to date...lilypond-book.py (GNU LilyPond) 2.12.3
-Traceback (most recent call last):
-  File "/home/janneke/vc/gub/target/linux-64/src/lilypond-git.sv.gnu.org--lilypo
-nd.git-master/scripts/lilypond-book.py", line 2107, in ?
-    main ()
-  File "/home/janneke/vc/gub/target/linux-64/src/lilypond-git.sv.gnu.org--lilypo
-nd.git-master/scripts/lilypond-book.py", line 2089, in main
-    chunks = do_file (files[0])
-  File "/home/janneke/vc/gub/target/linux-64/src/lilypond-git.sv.gnu.org--lilypo
-nd.git-master/scripts/lilypond-book.py", line 1993, in do_file
-    do_process_cmd (chunks, input_fullname, global_options)
-  File "/home/janneke/vc/gub/target/linux-64/src/lilypond-git.sv.gnu.org--lilypo
-nd.git-master/scripts/lilypond-book.py", line 1844, in do_process_cmd
-    options.output_dir)
-  File "/home/janneke/vc/gub/target/linux-64/src/lilypond-git.sv.gnu.org--lilypo
-nd.git-master/scripts/lilypond-book.py", line 1278, in link_all_output_files
-    os.makedirs (dst_path)
-  File "/home/janneke/vc/gub/target/tools/root/usr/lib/python2.4/os.py", line 15
-9, in makedirs
-    mkdir(name, mode)
-OSError: [Errno 17] File exists: '/home/janneke/vc/gub/target/linux-64/build/lil
-ypond-git.sv.gnu.org--lilypond.git-master/Documentation/user/out/6a'
-'''
-        return True
     def compile_command (self):
         return ('%(doc_limits)s '
                 '&& %(doc_relocation)s '
@@ -465,3 +439,9 @@ Lilypond__debian_arm = LilyPond__debian
 Lilypond__freebsd = LilyPond__freebsd
 Lilypond__mingw = LilyPond__mingw
 Lilypond__mipsel = LilyPond__debian
+
+VERSION='v2.13'
+def url (version=VERSION):
+    url = 'http://lilypond.org/download/source/%(version)s/' % locals ()
+    raw_version_file = 'downloads/lilypond-%(version)s.index' % locals ()
+    return misc.latest_url (url, 'lilypond', raw_version_file)

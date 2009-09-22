@@ -10,7 +10,7 @@ for GUB's librestrict(2) to kick-in.
 
 no_patch = True # let's not use patch in a bootstrap package
 class Coreutils__tools (tools.AutoBuild):
-#    source = 'ftp://ftp.gnu.org/pub/gnu/coreutils/coreutils-6.12.tar.gz'
+#    source = 'http://ftp.gnu.org/pub/gnu/coreutils/coreutils-6.12.tar.gz'
     source = 'http://ftp.gnu.org/pub/gnu/coreutils/coreutils-7.4.tar.gz'
     if 'BOOTSTRAP' in os.environ.keys ():
         patches = ['coreutils-6.12-shared-autoconf.patch']
@@ -59,6 +59,3 @@ libcoreutils_a_AR='gcc -shared -o'
         if 'BOOTSTRAP' in os.environ.keys () or no_patch:
             self.system ('mkdir -p %(install_prefix)s/lib')
             self.system ('cp -pv %(builddir)s/lib/libcoreutils* %(install_prefix)s/lib')
-    def wrap_executables (self):
-        # using rpath
-        pass

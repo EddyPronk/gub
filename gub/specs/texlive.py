@@ -90,7 +90,7 @@ packages.'''
         # ugh.
         if self.source.have_client ():
             loggedos.download_url (logging.default_logger,
-                                   license_url,  self.source._checkout_dir ())
+                                   license_url, self.source._checkout_dir ())
     def untar (self):
         target.AutoBuild.untar (self)
         def defer (logger):
@@ -269,9 +269,6 @@ class Texlive__tools (tools.AutoBuild, Texlive):
             't1utils',
             'zlib',
             ]
-    @context.subst_method
-    def LDFLAGS (self):
-        return '%(rpath)'
     def configure_command (self):
         SHELL = ' SHELL=/bin/bash'
         if 'stat' in misc.librestrict ():
@@ -282,7 +279,6 @@ class Texlive__tools (tools.AutoBuild, Texlive):
                 + misc.join_lines ('''
 --without-x
 ''')
-                + ''' LDFLAGS='-L%(system_prefix)s/lib %(rpath)s -Wl,-rpath -Wl,%(system_prefix)s/lib' '''
                 + SHELL)
     def install (self):
         tools.AutoBuild.install (self)

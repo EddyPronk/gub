@@ -9,6 +9,3 @@ class File__tools (tools.AutoBuild):
             'libtool',
             'zlib',
             ]
-    def configure_command (self):
-        return (tools.AutoBuild.configure_command (self)
-                + ''' LDFLAGS='-L%(system_prefix)s/lib %(rpath)s -Wl,-rpath -Wl,%(system_prefix)s/lib' ''')

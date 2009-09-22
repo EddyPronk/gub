@@ -1,8 +1,8 @@
+from gub import gnome
 from gub.specs import pango
 
 class Pangocairo (pango.Pango):
-    #source = 'http://ftp.acc.umu.se/pub/GNOME/platform/2.25/2.25.5/sources/pango-1.22.4.tar.gz'
-    source = 'http://ftp.gnome.org/pub/GNOME/platform/2.26/2.26.3/sources/pango-1.24.4.tar.gz'
+    source = gnome.platform_url ('pango')
     def _get_build_dependencies (self):
         return pango.Pango._get_build_dependencies (self) + ['cairo-devel']
     def get_conflict_dict (self):

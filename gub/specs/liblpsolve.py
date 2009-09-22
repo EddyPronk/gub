@@ -3,14 +3,13 @@ from gub import target
 
 class Liblpsolve (target.AutoBuild):
     source = 'http://surfnet.dl.sourceforge.net/lpsolve/lp_solve_5.5.0.13_source.tar.gz'
-    def force_sequential_build (self):
-        return True
+    parallel_build_broken = True
+    srcdir_build_broken = True
     def _get_build_dependencies (self):
         return ['tools::automake']
     def autoupdate (self):
         # install install-sh
         self.system ('cd %(srcdir)s && automake --add-missing --copy --force --foreign || :')
-        self.shadow ()
     def makeflags (self):
         return misc.join_lines ('''
 AR=%(toolchain_prefix)sar

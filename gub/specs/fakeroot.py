@@ -7,13 +7,13 @@ class Fakeroot__tools (tools.AutoBuild):
             'libtool',
             'util-linux', # fakeroot script uses /usr/bin/getopt
             ]
-    def configure_command (self):
-        return (tools.AutoBuild.configure_command (self)
-                + ''' LDFLAGS='-L%(system_prefix)s/lib %(rpath)s -ldl' '''
+    def libs (self):
+        return '-ldl'
+    def configure_variables (self):
+        return (tools.AutoBuild.configure_variables (self)
                 + ' CC=%(system_prefix)s/bin/%(toolchain_prefix)sgcc'
                 + ' CCLD=%(system_prefix)s/bin/%(toolchain_prefix)sgcc'
-                + ' CXX=%(system_prefix)s/bin/%(toolchain_prefix)sg++'
-                )
+                + ' CXX=%(system_prefix)s/bin/%(toolchain_prefix)sg++')
     def compile (self):
         tools.AutoBuild.compile (self)
         self.file_sub ([('BINDIR=.*', 'BINDIR=%(system_prefix)s/bin'),

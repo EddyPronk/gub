@@ -10,16 +10,19 @@ from gub import loggedos
 class AutoBuild (build.AutoBuild):
     def __init__ (self, settings, source):
         build.AutoBuild.__init__ (self, settings, source)
-
     @context.subst_method
     def configure_command_native (self):
         return build.AutoBuild.configure_command (self)
-
-    def configure_command (self):
-        SHELL = ''
-        if 'stat' in misc.librestrict ():
-            SHELL = ' SHELL=%(tools_prefix)s/bin/sh'
-        return (misc.join_lines ('''%(configure_binary)s
+    @context.subst_method
+    def LD_PRELOAD (self):
+        return '%(tools_prefix)s/lib/librestrict.so'
+    def autoupdate (self):
+        build.AutoBuild.autoupdate (self)
+        self.file_sub ([('cross_compiling=(maybe|no|yes)',
+                         'cross_compiling=yes')], '%(configure_binary)s')
+    def configure_flags (self):
+        return (build.AutoBuild.configure_flags (self)
+                + misc.join_lines ('''
 --config-cache
 --enable-shared
 --disable-static
@@ -33,9 +36,12 @@ class AutoBuild (build.AutoBuild):
 --infodir=%(prefix_dir)s/share/info
 --mandir=%(prefix_dir)s/share/man
 --libdir=%(prefix_dir)s/lib
-''')
-# --with-slibdir=%(prefix)s/slib
-                + SHELL)
+'''))
+    def configure_variables (self):
+        if 'stat' in misc.librestrict ():
+            return (build.AutoBuild.configure_variables (self)
+                    + ' SHELL=%(tools_prefix)s/bin/sh')
+        return build.AutoBuild.configure_variables (self)
 
     def configure (self):
         build.AutoBuild.configure (self)
@@ -63,7 +69,7 @@ class AutoBuild (build.AutoBuild):
                         ('^includedir=/usr/include/*\s*$', 'includedir=%(system_prefix)s/include'),
                         ('^libdir=/usr/lib/*\s*$', 'libdir=%(system_prefix)s/lib'),],
                        '%(install_prefix)s%(cross_dir)s/bin/%(config_script)s',
-                       must_succeed=1)
+                       must_succeed=self.settings.target_platform != 'tools')
 
     def pre_install_libtool_fixup (self):
         ## Workaround for libtool bug.  libtool inserts -L/usr/lib
@@ -94,18 +100,11 @@ class AutoBuild (build.AutoBuild):
 
     @context.subst_method
     def compile_command_native (self):
-        return 'make %(makeflags_native)s '
+        return 'make %(job_spec)s %(makeflags_native)s '
 
     @context.subst_method
     def makeflags_native (self):
         return ''
-
-    def compile_command (self):
-        c = build.AutoBuild.compile_command (self)
-        if (not self.force_sequential_build () and self.settings.cpu_count_str):
-            c = re.sub (r'\bmake\b',
-                        'make -j%s '% self.settings.cpu_count_str, c)
-        return c
             
     def get_substitution_dict_native (self):
         return build.AutoBuild.get_substitution_dict

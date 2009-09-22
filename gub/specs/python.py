@@ -46,17 +46,14 @@ class Python (target.AutoBuild):
         target.AutoBuild.patch (self)
         self.file_sub ([('@CC@', '@CC@ -I$(shell pwd)')],
                         '%(srcdir)s/Makefile.pre.in')
-
     def force_autoupdate (self):
         return True
-
     def autoupdate (self):
         target.AutoBuild.autoupdate (self)
-        # FIXME: PROMOTEME to target.py?
+        # FIXME: REMOVEME/PROMOTEME to target.py?
         if self.settings.build_platform == self.settings.target_platform:
-            self.file_sub ([('cross_compiling=(maybe|yes)', 'cross_compiling=no')],
-                           '%(srcdir)s/configure')
-
+            self.file_sub ([('cross_compiling=(maybe|no|yes)',
+                             'cross_compiling=no')], '%(srcdir)s/configure')
     def makeflags (self):
        return misc.join_lines (r'''
 BLDLIBRARY='%(rpath)s -L. -lpython$(VERSION)'
@@ -67,15 +64,12 @@ BLDLIBRARY='%(rpath)s -L. -lpython$(VERSION)'
             relax = 'LIBRESTRICT_ALLOW=/usr/lib/python2.4/lib-dynload:${LIBRESTRICT_ALLOW-/foo} '
         return (relax
                 + target.AutoBuild.install_command (self))
-    @context.subst_method
-    def SO_EXTENSION (self):
-        return '.so' #FIXME!
     def install (self):
         target.AutoBuild.install (self)
         misc.dump_python_config (self)
         def assert_fine (logger):
             dynload_dir = self.expand ('%(install_prefix)s/lib/python%(python_version)s/lib-dynload')
-            so = self.SO_EXTENSION ()
+            so = self.expand ('%(so_extension)s')
             all = [x.replace (dynload_dir + '/', '') for x in misc.find_files (dynload_dir, '.*' + so)]
             failed = [x.replace (dynload_dir + '/', '') for x in misc.find_files (dynload_dir, '.*failed' + so)]
             if failed:
@@ -142,9 +136,6 @@ ac_cv_pthread_system_supported=yes,
 ac_cv_sizeof_pthread_t=12
 ''')
 ##$(eval echo $((echo $ac_cv_sizeof_int + $ac_cv_sizeof_void_p)))
-    @context.subst_method
-    def SO_EXTENSION (self):
-        return '.dll' #FIXME!
     def install (self):
         Python.install (self)
         self.file_sub ([('extra = ""', 'extra = "-L%(system_prefix)s/bin -L%(system_prefix)s/lib -lpython2.4 -lpthread"')],
@@ -181,9 +172,6 @@ class Python__tools (tools.AutoBuild, Python):
             relax = 'LIBRESTRICT_ALLOW=/usr/lib/python2.4/lib-dynload:${LIBRESTRICT_ALLOW-/foo} '
         return (relax
                 + tools.AutoBuild.install_command (self))
-    def wrap_executables (self):
-        # using rpath
-        pass
     def patch (self):
         tools.AutoBuild.patch (self)
         Python.patch (self)

@@ -2,7 +2,7 @@ from gub import misc
 gcc = misc.load_spec ('cross/gcc-core')
 
 class Gcc_core (gcc.Gcc_core):
-    source = 'ftp://ftp.gnu.org/pub/gnu/gcc/gcc-3.4.6/gcc-3.4.6.tar.bz2'
+    source = 'http://ftp.gnu.org/pub/gnu/gcc/gcc-3.4.6/gcc-3.4.6.tar.bz2'
     def patch (self):
         gcc.Gcc_core.patch (self)
         self.system ('''

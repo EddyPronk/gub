@@ -20,13 +20,9 @@ class Bash__mingw (Bash):
 no_patch = True # let's not use patch in a bootstrap package
 class Bash__tools (tools.AutoBuild, Bash):
     patches = ['bash-3.2-librestrict.patch']
+    parallel_build_broken = True
     if no_patch:
         patches = []
-    def force_sequential_build (self):
-        return True
-    @context.subst_method
-    def LDFLAGS (self):
-        return '%(rpath)'
     def patch (self):
         if no_patch:
             self.file_sub ([('^  (check_dev_tty [(][)];)', r'  /* \1 */')],
@@ -36,6 +32,3 @@ class Bash__tools (tools.AutoBuild, Bash):
     def install (self):
         tools.AutoBuild.install (self)
         self.system ('cd %(install_prefix)s/bin && ln -s bash sh')
-    def wrap_executables (self):
-        # using rpath
-        pass

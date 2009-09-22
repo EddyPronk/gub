@@ -24,6 +24,7 @@ models.'''
     # HEAD - need to load TTF fonts on fedora without crashing.
     revision = 'b35333cf3579e85725bd7d8d39eacc9640515eb8'
     source = 'git://git.infradead.org/ghostscript.git?branch=refs/remotes/git-svn&revision=' + revision
+    parallel_build_broken = True
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         if (isinstance (source, repository.Repository)
@@ -40,30 +41,21 @@ models.'''
         except:
             pass
         return '0.0'
-    def force_sequential_build (self):
-        return True
-    
     def _get_build_dependencies (self):
         return ['libjpeg-devel', 'libpng-devel']
-
     def get_subpackage_names (self):
         return ['doc', '']
-    
     def srcdir (self):
         return re.sub ('-source', '',
                        target.AutoBuild.srcdir (self))
-
     def builddir (self):
         return re.sub ('-source', '',
                        target.AutoBuild.builddir (self))
-
     def name (self):
         return 'ghostscript'
-
     # FIXME: C&P.
     def ghostscript_version (self):
         return '.'.join (self.ball_version.split ('.')[0:2])
-
     def autoupdate (self):
         # generate Makefile.in
         self.system ('cd %(srcdir)s && sh ./autogen.sh --help')
@@ -73,7 +65,6 @@ models.'''
                                    'bjc200', 'cdeskjet', 'faxg3', 'cljet5']))
         self.file_sub ([(disable_re, r'#\1= -DISABLED- \2 ')],
                        '%(srcdir)s/Makefile.in')
-        
     def fixup_arch (self):
         # FIXME: wow, this is broken, cross-compile-wise.  Use a compiled
         # c program to determine the size of basic types *after* an
@@ -369,10 +360,9 @@ cd %(install_prefix)s && rm -rf usr/X11R6/share
         return {'base': 'The GPL Ghostscript PostScript interpreter - transitional package\nThis is an empty package to streamline the upgrade.'}
 
 class Ghostscript__tools (tools.AutoBuild, Ghostscript):
+    parallel_build_broken = True
     def _get_build_dependencies (self):
         return ['libjpeg', 'libpng']
-    def force_sequential_build (self):
-        return True
     def configure_flags (self):
         return (tools.AutoBuild.configure_flags (self)
                 + Ghostscript.configure_flags (self))
@@ -398,6 +388,3 @@ cd %(builddir)s && sort -u gconfig_-native.h gconfig_-tools.h > obj/gconfig_.h
                 + ' docdir=%(prefix_dir)s/share/doc/ghostscript/doc '
                 + ' exdir=%(prefix_dir)s/share/doc/ghostscript/examples '
                 )
-    def wrap_executables (self):
-        # using rpath
-        pass

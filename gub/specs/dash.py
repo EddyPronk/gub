@@ -12,5 +12,3 @@ class Dash__tools (tools.AutoBuild):
         return (tools.AutoBuild.configure_command (self)
                 # dash takes --enable-static to mean: --disable-shared
                 .replace ('--enable-static', ''))
-    def wrap_executables (self):
-        pass

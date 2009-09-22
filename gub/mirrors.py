@@ -9,7 +9,7 @@ gnome_218 ='http://ftp.gnome.org/pub/GNOME/platform/2.18/2.18.1/sources/%(name)s
 
 gnome_222 ='http://ftp.gnome.org/pub/GNOME/platform/2.22/2.22.0/sources/%(name)s-%(version)s.tar.%(format)s'
 
-gnubase = 'ftp://ftp.gnu.org/pub/gnu'
+gnubase = 'http://ftp.gnu.org/pub/gnu'
     # FIXME: find complete GNU mirror
     # base = 'ftp://dl.xs4all.nl/pub/mirror/gnu'
     # base = 'ftp://sunsite.dk/pub/gnu'
@@ -21,7 +21,7 @@ alphabase = 'ftp://alpha.gnu.org/pub/gnu'
 alpha = alphabase + '/%(name)s/%(name)s-%(version)s.tar.%(format)s'
 
 nongnu_savannah = 'http://download.savannah.nongnu.org/releases/%(name)s/%(name)s-%(version)s.tar.%(format)s'
-nongnu          = 'ftp://ftp.gnu.org/pub/gnu/non-gnu/%(name)s/%(name)s-%(version)s.tar.%(format)s'
+nongnu          = 'http://ftp.gnu.org/pub/gnu/non-gnu/%(name)s/%(name)s-%(version)s.tar.%(format)s'
 
 freetype = 'http://download.savannah.gnu.org/releases/freetype/%(name)s-%(version)s.tar.%(format)s'
 

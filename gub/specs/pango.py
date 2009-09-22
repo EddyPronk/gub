@@ -1,5 +1,6 @@
 import re
 #
+from gub import gnome
 from gub import misc
 from gub import loggedos
 from gub import target
@@ -12,7 +13,7 @@ pango_module_version_regexes = [
     ]
 
 class Pango (target.AutoBuild):
-    source = 'http://ftp.gnome.org/pub/GNOME/sources/pango/1.24/pango-1.24.2.tar.bz2'
+    source = gnome.platform_url ('pango')
     patches = ['pango-1.20-substitute-env.patch']
     def _get_build_dependencies (self):
         return [
@@ -90,7 +91,7 @@ class Pango__darwin (Pango):
     def install (self):
         Pango.install (self)                
         self.dump ('''
-set PANGO_SO_EXTENSION=.so
+set PANGO_SO_EXTENSION=%(so_extension)s
 ''', '%(install_prefix)s/etc/relocate/pango.reloc', env=locals (), mode='a')
 
 class Pango__mingw (Pango):

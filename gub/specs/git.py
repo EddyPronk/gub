@@ -7,9 +7,7 @@ class Git (target.AutoBuild):
         'git-1.5.2-templatedir.patch',
         #'git-1.5-shell-anality.patch'
         ]
-    def configure (self):
-        self.shadow ()
-        target.AutoBuild.configure (self)
+    srcdir_build_broken = True
     def get_subpackage_names (self):
         return ['']
     def _get_build_dependencies (self):
@@ -29,6 +27,7 @@ class Git (target.AutoBuild):
         
 class Git__mingw (Git):
     patches = []
+    srcdir_build_broken = True
     def __init__ (self, settings, source):
         Git.__init__ (self, settings, source)
         self.target_gcc_flags = ' -mms-bitfields '
@@ -80,9 +79,6 @@ install:
         self.file_sub ([('\t\\$\\(QUIET_SUBDIR0\\)perl[^\n]+\n', ''),
                         ('SCRIPT_PERL = ', 'SCRIPT_PERL_X = ')],
                        '%(srcdir)s/Makefile')
-    def configure (self):
-        self.shadow ()
-        tools.AutoBuild.configure (self)
     def configure_command (self):
         return (tools.AutoBuild.configure_command (self)
                 + ' --without-openssl')
@@ -91,8 +87,3 @@ install:
         if 'freebsd' in self.settings.build_architecture:
             flags += ' CFLAGS="-O2 -Duintmax_t=unsigned -Dstrtoumax=strtoul"'
         return flags
-    def wrap_executables (self):
-        # using rpath
-        # Besides: GIT executables use ancient unix style smart
-        # name-based functionality switching.
-        pass

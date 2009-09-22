@@ -7,11 +7,9 @@ from gub import tools
 class Zlib (target.AutoBuild):
     source = 'http://heanet.dl.sourceforge.net/sourceforge/libpng/zlib-1.2.3.tar.gz'
     patches = ['zlib-1.2.3.patch']
+    srcdir_build_broken = True
     def _get_build_dependencies (self):
         return ['tools::autoconf']
-    def configure (self):
-        self.shadow ()
-        target.AutoBuild.configure (self)
     def compile_command (self):
         return target.AutoBuild.compile_command (self) + ' ARFLAGS=r '
     def configure_command (self):
@@ -63,14 +61,9 @@ no shared lib: gcc-4.2.1 says
 '''
 
 class Zlib__tools (tools.AutoBuild, Zlib):
-# FIXME: tools not the same as target: asking for trouble
-#    source = 'http://heanet.dl.sourceforge.net/sourceforge/libpng/zlib-1.2.3.3.tar.gz'
-# FIXME: where lives 1.2.3.3 with gzopen64?
+    srcdir_build_broken = True
     def _get_build_dependencies (self):
         return ['autoconf']
-    def configure (self):
-        self.shadow ()
-        tools.AutoBuild.configure (self)
     def install_command (self):
         return tools.AutoBuild.broken_install_command (self)
     def configure_command (self):

@@ -1,10 +1,11 @@
 from gub import context
+from gub import gnome
 from gub import misc
 from gub import target
 from gub import tools
 
 class Libxml2 (target.AutoBuild):
-    source = 'http://ftp.gnome.org/pub/GNOME/platform/2.18/2.18.1/sources/libxml2-2.6.27.tar.gz'
+    source = gnome.platform_url ('libxml2', '2.18.1')
     def _get_build_dependencies (self):
         return ['zlib']
     def configure_command (self):

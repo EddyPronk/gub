@@ -77,7 +77,7 @@ libc_cv_rootsbindir=%(prefix_dir)s/sbin
                 + add_ons)
     def linuxthreads (self):
         return repository.get_repository_proxy (self.settings.downloads,
-                                                self.expand ('ftp://ftp.gnu.org/pub/gnu/glibc/glibc-linuxthreads-%(version)s.tar.bz2&strip_components=0'))
+                                                self.expand ('http://ftp.gnu.org/pub/gnu/glibc/glibc-linuxthreads-%(version)s.tar.bz2&strip_components=0'))
     def download (self):
         target.AutoBuild.download (self)
         if self.version () == '2.3.6':

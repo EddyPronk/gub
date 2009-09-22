@@ -9,9 +9,6 @@ pic_cvs = ':pserver:anonymous@gforge.natlab.research.philips.com:/cvsroot/pfgpsc
 class Pic (target.AutoBuild):
     def get_subpackage_names (self):
         return ['']
-    def force_sequential_build (self):
-        ## upnpAllegro is broken
-        return True
     def get_build_dependencies (self): #debian
         neon_debian = ['comerr-dev',
                        'libcomerr2',

@@ -9,6 +9,7 @@ if 'BOOTSTRAP' in os.environ.keys (): from gub import target as tools
 # So why doesn't anyone fix configuring/compiling it?  Shees.
 class Perl__tools (tools.AutoBuild):
     source = 'http://www.cpan.org/src/perl-5.10.0.tar.gz'
+    srcdir_build_broken = True
     def patch (self):
         tools.AutoBuild.patch (self)
         self.file_sub ([('-c (/dev/null)', r'-e \1')], '%(srcdir)s/Configure')
@@ -45,7 +46,6 @@ class Perl__tools (tools.AutoBuild):
  -Aldflags='%(rpath)s -lm -lrt -ldl'
 ''')
     def configure (self):
-        self.shadow ()
         tools.AutoBuild.configure (self)
         for i in ['%(builddir)s/makefile', '%(builddir)s/x2p/makefile']:
             # Ugh, missing some command?

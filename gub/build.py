@@ -22,7 +22,10 @@ class Build (context.RunnableContext):
     source = ''
     branch = ''
     patches = []
+    build_dependencies = []
     install_after_build = True
+    parallel_build_broken = False
+    srcdir_build_broken = False
     
     def __init__ (self, settings, source):
         context.RunnableContext.__init__ (self, settings)
@@ -34,6 +37,19 @@ class Build (context.RunnableContext):
         if runner:
             self.source.connect_logger (runner.logger)
         return context.RunnableContext.connect_command_runner (self, runner)
+
+    @staticmethod
+    def gnome_platform (name, version='2.25.5'):
+        major, minor, micro = '.'.split (version)
+        url = 'http://ftp.gnome.org/pub/GNOME/platform/%(major)s.%(minor)s/%(version)s/sources/' % locals ()
+        raw_version_file = 'gnome-%(version)s' % locals
+        if not os.path.isfile (raw_version_file):
+            misc.download_url (url, 'downloads', raw_version_file)
+        s = open (raw_version_file).read ()
+        m = re.search ('(%(name)s-[.0-9]+tar.gz)' % locals (), s)
+        if not m:
+            raise 'barf'
+        return url + m.group (1)
 
     @context.subst_method
     def checksum_file (self):
@@ -86,9 +102,10 @@ cd %(srcdir)s && patch -p%(strip)s < %(patchdir)s/%(name)s
                 msg = self.expand ('''This compile has previously been interrupted.
 To ensure a repeatable build, this will not be packaged.
 
-Do
+Run with
 
-    rm %(stamp_file)s
+    --fresh # or issue
+              rm %(stamp_file)s
 
 to force a full package rebuild, or
 
@@ -111,7 +128,7 @@ to skip this check and risk a defective build.
                 self.set_done (stage)
 
     def get_build_dependencies (self):
-        return []
+        return self.build_dependencies
 
     def with_platform (self, name):
         if 'BOOTSTRAP' in os.environ.keys ():
@@ -170,12 +187,19 @@ class AutoBuild (Build):
 
     @context.subst_method
     def LD_PRELOAD (self):
-        return '%(tools_prefix)s/lib/librestrict.so'
+        return ''
+
+    @context.subst_method
+    def libs (self):
+        return ''
+
+    @context.subst_method
+    def so_extension (self):
+        return '.so'
 
     @context.subst_method
     def rpath (self):
-#        return r'-Wl,-rpath -Wl,\$$ORIGIN/../lib -Wl,-rpath -Wl,\$$ORIGIN/../../lib'
-        return r'-Wl,-rpath -Wl,\$$ORIGIN/../lib'
+        return r'-Wl,-rpath -Wl,\$$ORIGIN/../lib -Wl,-rpath -Wl,%(system_prefix)s/lib'
 
     def get_substitution_dict (self, env={}):
         dict = {
@@ -210,10 +234,6 @@ class AutoBuild (Build):
         """subpackage -> list of dependency dict."""
         # FIMXE: '' always depends on runtime?
         return {'': [], 'devel': [], 'doc': [], 'runtime': [], 'x11': []}
-
-    def force_sequential_build (self):
-        """Set to true if package can't handle make -jX """
-        return False
 
     @context.subst_method
     def source_checksum (self):
@@ -284,6 +304,10 @@ class AutoBuild (Build):
         return '%(installdir)s/%(name)s-%(version)s-root'
 
     @context.subst_method
+    def configure_prefix (self):
+        return '%(prefix_dir)s'
+
+    @context.subst_method
     def install_prefix (self):
         return '%(install_root)s%(prefix_dir)s'
 
@@ -304,27 +328,29 @@ class AutoBuild (Build):
 
     @context.subst_method
     def configure_command (self):
-        return ' sh %(configure_binary)s --prefix=%(install_prefix)s'
+        return ' sh %(configure_binary)s %(configure_flags)s %(configure_variables)s'
+
+    @context.subst_method
+    def configure_flags (self):
+        return ' --prefix=%(configure_prefix)s'
+
+    @context.subst_method
+    def configure_variables (self):
+        return ''
 
     @context.subst_method
     def compile_command (self):
-        return 'make %(makeflags)s '
+        return 'make %(job_spec)s %(makeflags)s '
 
-    # what the heck is this?  Why would we not want to use
-    # -j x with multiple cpu's (compiling is often io bound)
-    # and why not when cross compiling (think icecc?).
     @context.subst_method
     def native_compile_command (self):
-        c = 'make'
+        return 'make %(job_spec)s %(makeflags)s '
 
-        job_spec = ' '
-        if (not self.force_sequential_build ()
-            and self.settings.cpu_count_str != '1'):
-
-            job_spec += ' -j%s ' % self.settings.cpu_count_str
-
-        c += job_spec
-        return c
+    @context.subst_method
+    def job_spec (self):
+        if not self.parallel_build_broken:
+            return '-j' + str (2 * int (self.settings.cpu_count_str))
+        return ''
 
     @context.subst_method
     def src_package_ball (self):
@@ -383,6 +409,8 @@ class AutoBuild (Build):
             self.dump (str, self.cache_file (), permissions=octal.o755)
 
     def configure (self):
+        if self.srcdir_build_broken:
+            self.shadow ()
         self.config_cache ()
         self.system ('''
 mkdir -p %(builddir)s || true
@@ -424,10 +452,8 @@ tooldir=%(install_prefix)s
         sub = self.expand ('%(system_prefix)s/share/libtool/config/config.sub')
         for file in guess, sub:
             self.system ('cp -pv %(file)s %(autodir)s',  locals ())
-
     def update_libtool (self):
         self.map_locate (lambda logger, file: libtool_update (logger, self.expand ('%(system_prefix)s/bin/libtool'), file), '%(builddir)s', 'libtool')
-
     def pre_install (self):
         pass
     def install (self):

@@ -1,17 +1,12 @@
+from gub import tools
 
-## untested.
-if 0:
-    Alien (settings).with_template (version="8.60",
-           mirror="http://www.kitenet.net/programs/alien/alien_8.60.tar.gz",
-           format="gz"),
-
-
-class Alien (AutoBuild):
+class Alien (tools.AutoBuild):
+    source = "http://www.kitenet.net/programs/alien/alien_8.60.tar.gz",
+    srcdir_build_broken = True
     def srcdir (self):
         return '%(allsrcdir)s/alien'
     def configure (self):
-        self.shadow ()
-        AutoBuild.configure (self)
+        tools.AutoBuild.configure (self)
         self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/alien.patch')
     def configure_command (self):
         return 'perl Makefile.PL'

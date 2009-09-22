@@ -96,7 +96,7 @@ class Gcc__from__source (Gcc):
 Gcc__linux = Gcc__from__source
 
 class Gcc__mingw (Gcc):
-    source = 'ftp://ftp.gnu.org/pub/gnu/gcc/gcc-4.1.1/gcc-4.1.1.tar.bz2'
+    source = 'http://ftp.gnu.org/pub/gnu/gcc/gcc-4.1.1/gcc-4.1.1.tar.bz2'
     def _get_build_dependencies (self):
         return (Gcc._get_build_dependencies (self)
                 + ['mingw-runtime', 'w32api']
@@ -160,7 +160,7 @@ gcc_tooldir="%(cross_prefix)s/%(target_architecture)s"
 # Untar stage is gone, use plain gcc + cygwin patch
 #class Gcc__cygwin (Gcc):
 class Gcc__cygwin (Gcc):
-    source = 'ftp://ftp.gnu.org/pub/gnu/gcc/gcc-3.4.4/gcc-3.4.4.tar.bz2'
+    source = 'http://ftp.gnu.org/pub/gnu/gcc/gcc-3.4.4/gcc-3.4.4.tar.bz2'
     patches = ['gcc-3.4.4-cygwin-3.patch']
     def xuntar (self):
         ball = self.source._file_name ()

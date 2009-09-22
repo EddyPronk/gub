@@ -1,12 +1,12 @@
+from gub import gnome
 from gub import misc
 from gub import tools
 from gub import target
 from gub import w32
 
 class Glib (target.AutoBuild):
-    ## 2.12.4 : see bug  http://bugzilla.gnome.org/show_bug.cgi?id=362918
-    source = 'http://ftp.gnome.org/pub/GNOME/platform/2.22/2.22.0/sources/glib-2.16.1.tar.bz2'
-    source = 'http://ftp.gnome.org/pub/GNOME/platform/2.25/2.25.5/sources/glib-2.19.5.tar.gz'
+    #source = 'http://ftp.gnome.org/pub/GNOME/platform/2.25/2.25.5/sources/glib-2.19.5.tar.gz'
+    source = gnome.platform_url ('glib')
     def _get_build_dependencies (self):
         if 'stat' in misc.librestrict ():
             return ['tools::glib', 'gettext-devel', 'libtool']
@@ -38,7 +38,6 @@ class Glib__darwin (Glib):
                        '%(builddir)s/libtool')
 
 class Glib__darwin__x86 (Glib__darwin):
-    source = 'http://ftp.gnome.org/pub/GNOME/platform/2.26/2.26.3/sources/glib-2.20.4.tar.gz'
     def compile (self):
         self.file_sub ([('(SUBDIRS = .*) tests', r'\1'),
                         (r'GTESTER = \$.*', ''),
@@ -48,7 +47,6 @@ class Glib__darwin__x86 (Glib__darwin):
         Glib__darwin.compile (self)
         
 class Glib__mingw (Glib):
-    source = 'http://ftp.gnome.org/pub/GNOME/platform/2.26/2.26.3/sources/glib-2.20.4.tar.gz'
     def _get_build_dependencies (self):
         return Glib._get_build_dependencies (self) + ['libiconv-devel']
 
@@ -66,16 +64,10 @@ class Glib__freebsd__x86 (Glib__freebsd):
         # FIXME: should add fixup to update_libtool ()
         return ' G_THREAD_LIBS=-pthread G_THREAD_LIBS_FOR_GTHREAD=-pthread '
 
-class Glib__linux__64 (Glib):
-    source = 'http://ftp.gnome.org/pub/GNOME/platform/2.26/2.26.3/sources/glib-2.20.4.tar.gz'
-
 class Glib__tools (tools.AutoBuild, Glib):
     def install (self):
         tools.AutoBuild.install (self)
         self.system ('rm -f %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/lib/charset.alias')
-    def configure_command (self):
-        return (tools.AutoBuild.configure_command (self)
-                + ''' LDFLAGS='-L%(system_prefix)s/lib %(rpath)s -Wl,-rpath -Wl,%(system_prefix)s/lib' ''')
     def _get_build_dependencies (self):
         return [
             'gettext',

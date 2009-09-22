@@ -4,7 +4,7 @@ import os
 if 'BOOTSTRAP' in os.environ.keys (): from gub import target as tools
 
 class Make_make__tools (tools.AutoBuild):
-    source = 'ftp://ftp.gnu.org/pub/gnu/make/make-3.81.tar.gz'
+    source = 'http://ftp.gnu.org/pub/gnu/make/make-3.81.tar.gz'
     def __init__ (self, settings, source):
         tools.AutoBuild.__init__ (self, settings, source)
         self.source._unpack = self.source._unpack_promise_well_behaved
@@ -18,9 +18,6 @@ class Make_make__tools (tools.AutoBuild):
     def _get_build_dependencies (self):
         #return [self.librestrict_name ()]
         return ['librestrict']
-    def wrap_executables (self):
-        # no dynamic executables [other than /lib:libc]
-        pass
 
 class Make_build_sh__tools (Make_make__tools):
     def compile_command (self):

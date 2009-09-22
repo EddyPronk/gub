@@ -25,10 +25,16 @@
 * Promote specific solutions into general ones [PROMOTEME]
    this cleans up existing packages, and increases chances of
    adding new packages without any changes.
-** config_variables, makeflags_for_build, cross_compiling
-** rpath_for_build () instead of %(rpath)s -Wl,-rpath -Wl,%(system_prefix)s
-** enabling LDFLAGS=..%(rpath)s... configure automagically for tools and target
-** enable wrap_executables () for eg compiling on FreeBSD/MacOS ?
+
+* Auto-detection
+** If we'd use Source/Repository for the first two build stages
+      download
+      untar
+   and only *then* instantiate the build class, we could use the
+   actual source tree to automatically/generically
+      determine the package version
+      determine the build class
+      determine the dependencies
 
 * Fix Fedora glibc problem, remove workaround in gub/specs/glibc.py,
   or add a build_platform == Fedora test.  [selinux?]
@@ -80,8 +86,9 @@ on the state of the file system.  For example:
   - *every* work-dir in target/*/src/ is a GIT checkout
   - in the work-dir, GIT can be used to create and maintain patches
   
-* Why don't we use tarfile.TarFile?  It seems that subprocess/read_pipe
-  in gub/gup.py on tar -tzf is real inefficient (set buffering?)
+* Why don't we use tarfile.TarFile?
+   It seems that subprocess/read_pipe in gub/gup.py on tar -tzf is
+   real inefficient (set buffering?)  FIXED.
 
 * It seems that the removal of LD_LIBRARY_PATH as per
 
@@ -125,20 +132,12 @@ on the state of the file system.  For example:
 
 * use of member functions vs class variables/static functions:
    - get_build_dependencies () -> class.build_dependencies = []
-   - def force_sequential_build () -> class.sequential_build = True
+   DONE def force_sequential_build () -> class.parallel_build_broken
    - def force_autoupdate () -> class.force_autoupdate = True
 ** also, why are these functions ?
    - def compile_command () -> class.compile_command
    - def install_command () -> class.install_command
      etc
-   - de ellende met klutserige taal als pieton is natuurlijk dat
-     je niet kunt
-       class.makeflags = if Foo.bar: 3 else: 4;
-       --> hah, kan in python2.5, maar we willen 2.4 supporten?
-     [nouja, je kunt met idiote list comprehension alles, maar clien is anders]
-       [x for x in [3, 4] if Foo.bar and x == 3 or not Foo.bar and x == 4][0]
-     dus we moeten wel uitkijken wat we doen...
-   - need_source_tree ?
 
 * junk use of /usr in code, use *_prefix) or %(prefix_dir)s
 

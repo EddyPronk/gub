@@ -61,7 +61,8 @@ exec %(tools_prefix)s/bin/guile "$@"
 --enable-rpath
 ''')
     def configure_variables (self):
-        return misc.join_lines ('''
+        return (target.AutoBuild.configure_variables (self)
+                + misc.join_lines ('''
 CC_FOR_BUILD="
 C_INCLUDE_PATH=
 CPPFLAGS=
@@ -73,14 +74,11 @@ cc
 -I%(builddir)s/libguile
 -I.
 -I%(srcdir)s/libguile"
-''')
+'''))
     def configure_command (self):
         return ('GUILE_FOR_BUILD=%(tools_prefix)s/bin/guile '
-                + 'LD_LIBRARY_PATH=%(system_prefix)s/lib:${LD_LIBRARY_PATH-/foe} '
                 + target.AutoBuild.configure_command (self)
                 + self.configure_flags ())
-    def makeflags (self):
-        return '''LDFLAGS='%(rpath)s' '''
     def compile_command (self):
         return ('preinstguile=%(tools_prefix)s/bin/guile ' +
                 target.AutoBuild.compile_command (self))
@@ -174,9 +172,6 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_prefix)s/lib"}
 
 class Guile__linux (Guile):
     def compile_command (self):
-        # FIXME: when not x-building, guile runs guile without
-        # setting the proper LD_LIBRARY_PATH.
-        # FIXME: try removing this and using cross_compiling=yes fix
         return ('export LD_LIBRARY_PATH=%(builddir)s/libguile/.libs:$LD_LIBRARY_PATH;'
                 + Guile.compile_command (self))
 
@@ -349,6 +344,3 @@ LDFLAGS='-L%(system_prefix)s/lib %(rpath)s'
         # Ugh: remove development stuff from tools
         # Make sure no tool GUILE headers can interfere with compile.
         self.system ("rm -rf %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/include/ %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/bin/guile-config ")
-    def wrap_executables (self):
-        # using rpath
-        pass

@@ -7,13 +7,11 @@ class Fakeroot_ng__tools (tools.AutoBuild):
         'fakeroot-ng-srcdir.patch',
         'fakeroot-ng-linux-2.4.patch'
         ]
-    def configure_command (self):
-        return (tools.AutoBuild.configure_command (self)
-                + ''' LDFLAGS='-L%(system_prefix)s/lib64 -L%(system_prefix)s/lib %(rpath)s %(rpath)s64 -ldl' '''
-                + ' CFLAGS=-I%(builddir)s'
+    srcdir_build_broken = True
+    def libs (self):
+        return '-ldl'
+    def configure_variables (self):
+        return (tools.AutoBuild.configure_variables (self)
                 + ' CC=%(system_prefix)s/bin/%(toolchain_prefix)sgcc'
-                + ' CXX=%(system_prefix)s/bin/%(toolchain_prefix)sg++'
-                )
-    def configure (self):
-        self.shadow ()
-        tools.AutoBuild.configure (self)
+                + ' CCLD=%(system_prefix)s/bin/%(toolchain_prefix)sgcc'
+                + ' CXX=%(system_prefix)s/bin/%(toolchain_prefix)sg++')

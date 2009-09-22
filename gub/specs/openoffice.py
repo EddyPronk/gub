@@ -801,10 +801,6 @@ install:
                     ('(LD_LIBRARY_PATH=.*)', self.expand (r'\1:%(system_prefix)s/lib'))
                     ], file)
         self.map_locate (add_CFLAGS_LDFLAGS_already, '%(builddir)s', '*Env.Set.sh')
-    def wrap_executables (self):
-        # using rpath, and also openoffice has data files in bin/,
-        # such as types.rdb.
-        pass
 
 Openoffice = OpenOffice
 Openoffice__mingw = OpenOffice__mingw

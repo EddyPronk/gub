@@ -318,7 +318,6 @@ class Dependency_resolver:
         if not os.path.exists (file):
             misc.download_url (url, self.settings.downloads,
                                local=['file://%s' % self.settings.downloads],
-
                                )
             # arg
             # self.file_sub ([('\':"', "':'")], file)

@@ -4,6 +4,7 @@ from gub import tools
 
 class Db (target.AutoBuild):
     source = 'http://download.oracle.com/berkeley-db/db-4.7.25.tar.gz'
+    srcdir_build_broken = True
     def cache_file (self):
         return '%(builddir)s/build_unix/config.cache'
     def configure_command (self):
@@ -15,7 +16,6 @@ class Db (target.AutoBuild):
     def makeflags (self):
         return '-C build_unix'
     def configure (self):
-        self.shadow ()
         self.system ('mkdir -p %(builddir)s/build_unix')
         target.AutoBuild.configure (self)
         self.file_sub ([('\(prefix\)docs', '\(prefix\)/share/doc/db'),
@@ -74,12 +74,12 @@ LDFLAGS=-lwsock32
             self.system ('cd %(install_prefix)s/lib && mv libdb-4.7.la libdb-4.7.la-')
 
 class Db__tools (tools.AutoBuild, Db):
+    srcdir_build_broken = True
     def _get_build_dependencies (self):
         return ['libtool']
     def configure_command (self):
         return 'cd build_unix && ../' + tools.AutoBuild.configure_command (self)
     def configure (self):
-        self.shadow ()
         self.system ('mkdir -p %(builddir)s/build_unix')
         tools.AutoBuild.configure (self)
         self.file_sub ([('\(prefix\)docs', '\(prefix\)/share/doc/db'),
@@ -90,5 +90,3 @@ class Db__tools (tools.AutoBuild, Db):
     def install (self):
         tools.AutoBuild.install (self)
         self.system ('cd %(install_prefix)s/lib && ln -s libdb-*.la libdb.la')
-    def wrap_executables (self):
-        pass
