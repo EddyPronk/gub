@@ -12,3 +12,5 @@ class Bzip2__tools (tools.MakeBuild):
     def install (self):
         tools.MakeBuild.install (self)
         self.system ('cp -pv %(builddir)s/libbz2.so* %(install_prefix)s/lib')
+        # junk broken symlinks
+        self.system ('cd %(install_prefix)s/bin && rm -f bzless bzfgrep bzegrep bzcmp')
