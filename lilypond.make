@@ -1,5 +1,5 @@
 # -*-Makefile-*-
-.PHONY: all default distclean rest print-success print-branches
+.PHONY: all default distclean packages rest print-success print-branches
 .PHONY: clean realclean
 .PHONY: test test-output test-clean
 .PHONY: update-versions unlocked-update-versions

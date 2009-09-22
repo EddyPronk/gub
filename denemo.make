@@ -1,5 +1,5 @@
 # -*-Makefile-*-
-.PHONY: all default rest update-versions print-success print-branches
+.PHONY: all default packages rest update-versions print-success print-branches
 .PHONY: nsis denemo denemo-installers
 default: all
 
