@@ -81,35 +81,28 @@ Examples:
                   dest='keep_build',
                   default=None,
                   help='Leave build and src dir for inspection')
-
     p.add_option ('-s', '--src-package', action='store_true',
                   default=None,
                   help='Also roll source packages')
-
     p.add_option ('-p', '--platform', action='store',
                   type='choice',
                   default=None,
                   help='select target platform',
                   choices=list (gub.settings.platforms.keys ()))
-
     p.add_option ('--inspect', action='store',
                   dest='inspect_key',
                   default=None,
                   help='Key of package to inspect')
-
     p.add_option ('--inspect-output', action='store',
                   default=None,
                   help='Where to write result of inspection')
-
     p.add_option ('--download-only', action='store_true',
                   default=False,
                   help='Exit after downloading.')
-
     p.add_option ('--offline', action='store_true',
                   dest='offline',
                   default=False,
                   help='Do not attempt to download anything')
-
     p.add_option ('--online', action='store_false',
                   dest='offline',
                   default=False,
@@ -124,64 +117,40 @@ Examples:
     p.add_option ('--stage', action='callback', callback=set_stage,
                   dest='stage', type='string', default=None,
                   help='Force rebuild of stage')
-
     p.add_option ('--fresh', action='store_true',
                   dest='fresh', default=False,
                   help='Restart all builds')
-
-    p.add_option ('--cross-distcc-host', action='append',
-                  dest='cross_distcc_hosts', default=[],
-                  help='Add another cross compiling distcc host')
-
-    p.add_option ('--native-distcc-host', action='append',
-                  dest='native_distcc_hosts', default=[],
-                  help='Add another native distcc host')
-
     p.add_option ('-v', '--verbose', action='count', dest='verbosity', default=0)
-
     p.add_option ('-q', '--quiet', action='count', dest='quiet', default=0)
-
     p.add_option ('--lilypond-versions', action='store',
                   default='uploads/lilypond.versions',
                   dest='lilypond_versions')
-
     p.add_option ('--force-package', action='store_true',
                   default=False,
                   help='allow packaging of tainted compiles' )
-
     p.add_option ('--build-source', action='store_true',
                   default=False,
                   help='build source packages')
-
     p.add_option ('--lax-checksums',
                   action='store_true',
                   default=False,
                   help="do not rebuild packages with failing checksums")
-
     p.add_option ('-n', '--dry-run',
                   action='store_true',
                   default=False,
                   help='Print action, do not run.')
-
     p.add_option ('--show-dependencies',
                   action='store_true',
                   default=False,
                   help='Print dependencies.')
-
     p.add_option ('-x', '--no-dependencies',
                   action='store_true',
                   default=False,
                   help='Ignore dependencies.')
-
     p.add_option ('-l', '--skip-if-locked',
                   default=False,
                   action="store_true",
                   help="Return successfully if another build is already running")
-
-    p.add_option ('-j', '--jobs',
-                  default="1", action='store',
-                  help='set number of simultaneous jobs')
-
     return p
 
 #FIXME: move to BuildRunner?
