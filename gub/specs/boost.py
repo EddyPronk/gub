@@ -25,11 +25,6 @@ cp %(link)s %(file)s
 class Boost (target.BjamBuild_v2):
     source = 'http://surfnet.dl.sourceforge.net/sourceforge/boost/boost_1_38_0.tar.bz2'
     def _get_build_dependencies (self):
-# the separately available boost-jam is terribly broken wrt building boost
-# *** Stage: compile (boost, linux-64)
-#invoking cd /home/janneke/vc/gub/target/linux-64/build/boost-1.33.1 &&  bjam '-sTOOLS=gcc' '-sGCC=x86_64-linux-gcc -fPIC -DBOOST_PLATFORM_CONFIG=\"boost/config/platform/%(target_os)s.hpp\"' '-sGXX=x86_64-linux-g++ -fPIC -DBOOST_PLATFORM_CONFIG=\"boost/config/platform/%(target_os)s.hpp\"' '-sNO_BZIP2=1' '-sNO_ZLIB=1' '-sBUILD=release <optimization>space <inlining>on <debug-symbols>off <runtime-link>static' '-sPYTHON_VERSION=2.4' '-scxxflags=-fPIC' --without-python --without-test --with-python-root=/dev/null --layout=system --builddir=/home/janneke/vc/gub/target/linux-64/build/boost-1.33.1 --with-python-root=/dev/null --prefix=/usr --exec-prefix=/usr --libdir=/usr/lib --includedir=/usr/include 
-#Jamfile:114: in module scope
-#rule unless unknown in module 
         return []
     def stages (self):
         return misc.list_insert_before (target.BjamBuild_v2.stages (self),
