@@ -111,13 +111,10 @@ models.'''
               '#define ARCH_SIZEOF_PTR %(sizeof_ptr)d' % locals ()),
              ], '%(builddir)s/obj/arch.h')
 
-    def configure_command (self):
-        return (target.AutoBuild.configure_command (self)
-                + self.configure_flags ())
-
     def configure_flags (self):
         # For --enable-compile-inits, see comment in compile()
-        return misc.join_lines ('''
+        return (target.AutoBuild.configure_flags (self)
+                + misc.join_lines ('''
 --enable-debug
 --with-drivers=FILES
 --without-pdftoraster
@@ -130,7 +127,7 @@ models.'''
 --without-omni
 --without-jasper
 --disable-compile-inits
-''')
+'''))
 
     def configure (self):
         target.AutoBuild.configure (self)
