@@ -19,8 +19,9 @@ class AutoBuild (build.AutoBuild):
     def autoupdate (self):
         build.AutoBuild.autoupdate (self)
         if self.expand ('%(configure_binary)s').startswith ('/'):
+            # FIXME: add deferred check for configure_ existance
             self.file_sub ([('cross_compiling=(maybe|no|yes)',
-                             'cross_compiling=yes')], file)
+                             'cross_compiling=yes')], '%(configure_binary)s')
     @context.subst_method
     def config_cache_flag (self):
         if True or self.config_cache_flag_broken:
