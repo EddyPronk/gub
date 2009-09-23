@@ -396,7 +396,7 @@ class ForcedAutogenMagic (SerializedCommand):
             for dir in package.aclocal_path ():
                 d = package.expand (dir)
                 if os.path.exists (d):
-                    aclocal_flags += '-I%(d)s' % locals ()
+                    aclocal_flags += ' -I%(d)s' % locals ()
             headcmd = ''
             configure_ac = ''
             for c in ('configure.in','configure.ac'):
