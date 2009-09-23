@@ -18,8 +18,9 @@ class AutoBuild (build.AutoBuild):
         return '%(tools_prefix)s/lib/librestrict.so'
     def autoupdate (self):
         build.AutoBuild.autoupdate (self)
-        self.file_sub ([('cross_compiling=(maybe|no|yes)',
-                         'cross_compiling=yes')], '%(configure_binary)s')
+        if self.expand ('%(configure_binary)s').startswith ('/'):
+            self.file_sub ([('cross_compiling=(maybe|no|yes)',
+                             'cross_compiling=yes')], file)
     @context.subst_method
     def config_cache_flag (self):
         if True or self.config_cache_flag_broken:
