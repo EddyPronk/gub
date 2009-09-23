@@ -118,15 +118,17 @@ class FileManager:
                          # http://lists.gnu.org/archive/html/lilypond-devel/2009-03/msg00304.html
                          'cd %(root)s && tar -C %(root)s -p -x%(_z)s%(_v)s -f %(ball)s'
                          % locals ())
+        for f in lst:
+            if f.endswith ('.la'):
+                self.libtool_la_fixup (root, f)
+            if f.endswith ('.pc'):
+                self.pkgconfig_pc_fixup (root, f, prefix_dir)
+
         self._package_file_db[name] = '\n'.join (lst)
         for f in lst:
             # ignore directories.
             if not f.endswith ('/'):
                 self._file_package_db[f] = name
-            if f.endswith ('.la'):
-                self.libtool_la_fixup (root, f)
-            if f.endswith ('.pc'):
-                self.pkgconfig_pc_fixup (root, f, prefix_dir)
 
     def libtool_la_fixup (self, root, file):
         # avoid using libs from build platform, by adding
