@@ -1,0 +1,131 @@
+/* -*-css-*- http://www.w3.org/TR/REC-CSS2 */
+
+/*
+  ff4400
+  fe5411
+  ff8029
+  feab3f
+  fbb84f
+  fed07a
+  ffe080
+  ffe0bd;
+
+255 165   0             orange1  #ffa500
+238 154   0             orange2  #ee9a00
+205 133   0             orange3  #cd85
+139  90   0             orange4  #8b5a
+255 127   0             DarkOrange1 #ff7f00;
+238 118   0             DarkOrange2 #ee7600;
+205 102   0             DarkOrange3 #cd6600;
+139  69   0             DarkOrange4
+
+*/
+
+body
+{
+    background: #ffe880;
+    border-style: none;
+    padding-left: 5%;
+    padding-right: 5%;
+    /*font-family: "new century schoolbook";*/
+    font-family: sans-serif;
+}
+
+#tabmenuContents
+{
+    border: #fc6 dotted;
+    padding: 1em;
+}
+
+#tabmenu
+{
+    background-color: #f59000;
+    max-width: 70em;
+    -moz-border-radius: 15px;
+    background-image: url("images/head.svg");
+    background-repeat: repeat;
+}
+
+#tabmenu p.homeurl
+{
+    padding-left: 1em;
+    padding-right: 1em;
+    /* text-align: center; */
+    text-align: left;
+    font-size: 200%;
+    font-weight: bold;
+    color: #ee3500;
+}
+
+#tabmenu span.subtitle
+{
+    font-size: 50%;
+    color: #ffe880;
+}
+
+#tabmenu a.homeurl
+{
+    background: #a0a0ff;
+    width: auto;
+    height: auto;
+    display: block;
+}
+
+#tabmenu a
+{
+    text-decoration: none;
+    display: inline;
+    background: #e86000;
+    color: #ffe080;
+    margin: 0px 0.1em 0px 0.1em;
+    padding: 0em 1.0em 0em 1.2em;
+    border-left: 0px solid blue;
+    border-right: 0px solid blue;
+    border-top: 0px solid blue;
+    -moz-border-radius-topleft: 15px;
+    -moz-border-radius-topright: 15px;
+    background-image: url("images/tab.svg");
+    background-repeat: repeat-x;
+}
+
+#tabmenu a.active
+{
+    background: #ff7600;
+    color: #fff8a0;
+}
+
+#tabmenu a:hover
+{
+    background: #ffd850;
+    color: #ee3500;
+}
+
+#tabmenu a.active:hover
+{
+    background: #ffd850;
+    color: #ee3500;
+}
+
+#tabmenu ul
+{
+    text-align: right;
+    margin-right: 0px;
+    padding-right: 1em;
+}
+
+#tabmenu li
+{
+    display: inline;
+}
+
+#tabmenu img.logo
+{
+    width: auto;
+    display: block; 
+}
+
+#footer
+{
+    padding-top: 1em;
+    font-size: 80%;
+}

@@ -18,9 +18,9 @@ MAKE_FILES = $(filter-out compilers.make gub.make local.make,$(wildcard *.make))
 MAKE_BASES = $(MAKE_FILES:%.make=%)
 
 help:
-	@echo Usage: make TAGS$(foreach a,$(MAKE_BASES),"|$a")
+	@echo Usage: make [TAGS $(foreach a,$(MAKE_BASES),"| $(strip $(a))")]
 	@echo
-	@echo For more elaborate use, see READMEs
+	@echo For more elaborate use, see README and bin/gub --help
 
 $(MAKE_BASES):
 	$(MAKE) -f $@.make
@@ -42,11 +42,11 @@ test:
 	make -f lilypond.make tools LOCAL_GUB_OPTIONS=-vvv
 	bin/gub -p $(BUILD_PLATFORM) --branch=lilypond=master:master lilypond -vvv
 
-README: web/index.html web/lilypond.html web/inkscape.html web/oo.o.html
+README: web/index.html web/basics.html web/lilypond.html web/denemo.html web/inkscape.html web/oo.o.html web/history.html web/links.html
 	w3m -dump $^ > $@
 
 web: README
-	scp -p web/*html lilypond.org:/var/www/lilypond/gub
+	scp -p web/*.html web/*.css lilypond.org:/var/www/lilypond/gub
 
 PYTHON_SOURCES = $$(git ls-files | grep -E '(^bin/|*.py$$)' | grep -Ev 'gub/(2|3)/')
 python3:

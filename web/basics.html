@@ -1,0 +1,203 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <link rel="stylesheet" type="text/css" href="tab-menu.css">
+    <title>GUB -- Grand Unified Builder -- BASICS</title>
+  </head>
+  <body>
+
+    <div id="tabmenuContainer">
+      <div id="tabmenu">
+	<p class="homeurl">GUB
+	<span class="subtitle">the Grand Unified Builder</span>
+	</p>
+	
+	<ul>
+	  <li><a class="" href=".">Home</a></li>
+	  <li><a class="active" href="basics">Basics</a></li>
+	  <li><a class="" href="applications">Applications</a></li>
+	  <li><a class="" href="history">History</a></li>
+	  <li><a class="" href="links">Links</a></li>
+	</ul>
+      </div>
+    </div>
+    <div id="tabmenuContents">
+
+    <h1>GUB BASICS</h1>
+
+    <h2>ROADMAP</h2>
+
+    <table>
+      <tr>
+        <th><strong>directory</strong></th>
+        <th><strong>contents and use</strong></th>
+      </tr>
+      <tr>
+        <td>. (GNUmakefile, *.make)</td>
+        <td>make drivers (try: make help)</td>
+      </tr>
+      <tr>
+        <td>bin/</td>
+        <td>programs (gub, gpkg, gib, ...; try: bin/gub --help)</td>
+      </tr>
+      <tr>
+        <td>gub/</td>
+        <td>python library</td>
+      </tr>
+      <tr>
+        <td>gub/specs/</td>
+        <td>build specifications (gub/specs/hello.py,bison.py,denemo.py,lilypond.py...)</td>
+      </tr>
+      <tr>
+        <td>patches/</td>
+        <td>patch files used in build specifications</td>
+      </tr>
+      <tr>
+        <td>target/</td>
+        <td>build trees</td>
+      </tr>
+      <tr>
+        <td>uploads/</td>
+        <td>installers</td>
+      </tr>
+      <tr>
+        <td>target/&lt;platform&gt;/</td>
+        <td>working tree for &lt;platform&gt;</td>
+      </tr>
+      <tr>
+        <td>target/linux-x86/src/</td>
+        <td>linux-x86 unpacked sources</td>
+      </tr>
+      <tr>
+        <td>target/linux-64/build/</td>
+        <td>linux-64 build output</td>
+      </tr>
+      <tr>
+        <td>target/darwin-x86/log/build.log</td>
+        <td>darwin-x86 build logs</td>
+      </tr>
+      <tr>
+        <td>target/mingw/packages/</td>
+        <td>.gup packages for mingw</td>
+      </tr>
+      <tr>
+        <td>target/darwin-ppc/log/status/</td>
+        <td>status of partial darwin-ppc builds</td>
+      </tr>
+      <tr>
+        <td>target/freebsd-x86/root/</td>
+        <td>freebsd-x86 build and install root</td>
+      </tr>
+      <tr>
+        <td>target/tools/root/usr/bin/</td>
+        <td>native tools used for build</td>
+      </tr>
+      <tr>
+        <td>sourcefiles/</td>
+        <td>non-patch files used in build specifications</td>
+      </tr>
+      <tr>
+        <td>nsis/</td>
+        <td>nsis windows installer scripts/</td>
+      </tr>
+    </table>
+
+    <h2>BASIC USAGE</h2>
+
+    Build package foo for platform bar
+    <pre><blockquote>bin/gub bar::foo
+</blockquote></pre>
+
+    Force a rebuild of package foo for all platforms
+    <pre><blockquote>rm -rf target/*/*/foo-*
+</blockquote></pre>
+    search from end back to `mismatch:' [F?mismatch:RET]
+
+    Examine why package foo wants to rebuild
+    <pre><blockquote>less target/bar/log/build.log
+</blockquote></pre>
+    search from end back to `mismatch:' [F?mismatch:RET]
+
+    Prepare to rebuild entire platform bar
+    <pre><blockquote>rm -rf target/bar
+</blockquote></pre>
+
+    Remove all build output
+    <pre><blockquote>rm -rf target
+</blockquote></pre>
+
+    <h2>SPEC FILES</h2>
+
+    <h3>Plain url builds</h3>
+    <file><strong>&lt;--no spec--&gt;</strong></file>
+    <p></p>
+    Well behaved packages can be built without spec file, straight from an
+    url.  For example, to build bison-2.2 as a build tool, do
+
+    <blockquote><pre>bin/gub tools::http://ftp.gnu.org/pub/gnu/bison/bison-2.2.tar.gz
+    </pre></blockquote>
+
+    This produces <blockquote><pre>target/tools/packages/bison-2.2.tools.gup
+target/tools/packages/bison.tools.hdr
+target/tools/packages/bison.checksum
+    </pre></blockquote>
+
+    Check files installed under target/tools/root/ by doing
+    <blockquote><pre>bin/gpkg -p tools files bison
+    </pre></blockquote>
+
+    To build the very latest findutils for your architecture, do
+    <blockquote><pre>bin/gub git://git.savannah.gnu.org/findutils.git
+    </pre></blockquote>
+
+    <h3>Simple spec</h3>
+    <file><strong>gub/specs/hello.py</strong></file>
+    <blockquote><pre>from gub import target
+
+class Hello (target.AutoBuild):
+    source = 'http://lilypond.org/download/gub-sources/hello-1.0.tar.gz'
+    </pre></blockquote>
+
+    build it for mingw by doing
+    <blockquote><pre>bin/gub mingw::hello
+    </pre></blockquote>
+
+    <h3>__TOOLS package with dependencies</h3>
+
+    <file><strong>gub/specs/autoconf.py</strong></file>
+    <blockquote><pre>from gub import tools
+
+class Autoconf__tools (tools.AutoBuild):
+    source = 'http://ftp.gnu.org/pub/gnu/autoconf/autoconf-2.63.tar.gz'
+    parallel_build_broken = True
+    dependencies = [
+	'm4',
+	'perl',
+	]
+    </pre></blockquote>
+    build it by doing
+    <blockquote><pre>bin/gub tools::autoconf
+    </pre></blockquote>
+
+    <h3>__LINUX__PPC specific patches</h3>
+
+    <file><strong>gub/specs/pixman.py</strong></file>
+    <pre><blockquote>from gub import target
+
+class Pixman (target.AutoBuild):
+    source = 'http://www.cairographics.org/releases/pixman-0.13.2.tar.gz'
+    dependencies = ['tools::libtool']
+
+class Pixman__linux__ppc (Pixman):
+    patches = ['pixman-0.13.2-auxvec.patch']
+    </pre></blockquote>
+
+    <h3>More examples</h3>
+    See 
+    <file><strong>gub/specs/*.py</strong></file> for some
+    real world examples.
+
+    </div>
+  </body>
+</html>
