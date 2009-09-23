@@ -28,11 +28,7 @@ class AutoBuild (build.AutoBuild):
         d = build.AutoBuild.get_substitution_dict (self, dict).copy ()
         return d
     def configure_command (self):
-        return (
-            # BOOTSTRAP -- do we need this?
-            #'''LDFLAGS='-L%(system_prefix)s/lib -Wl,--as-needed' '''
-            '''LDFLAGS=-L%(system_prefix)s/lib '''
-            + build.AutoBuild.configure_command (self)
+        return (build.AutoBuild.configure_command (self)
             + misc.join_lines ('''
 --program-prefix=%(target_architecture)s-
 --prefix=%(cross_prefix)s
