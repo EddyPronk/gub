@@ -10,17 +10,11 @@
 
 <h2>INSTALLING</h2>
 
-<h3>Optional: Prepare build environment</h3>
-
 Get GUB
 <pre>
     git clone git://github.com/janneke/gub.git
 or
     wget http://github.com/janneke/gub/tarball/master
-</pre>
-
-<pre>
-  make -f denemo.make bootstrap
 </pre>
 
 <h3>Build everything</h3>
@@ -53,6 +47,10 @@ this produces a windows installer in
 
       bin/gub denemo
       bin/gib denemo --branch=lilypond=git.sv.gnu.org--lilypond.git-master --branch=denemo=git.savannah.gnu.org--denemo.git-master
+
+  * Optional: Prepare build environment
+
+      make -f lilypond.make bootstrap
 </pre>
 
 </div>
