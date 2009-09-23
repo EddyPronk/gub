@@ -574,7 +574,8 @@ for the Samco 3G video phone at SES, Philips Research Eindhoven.
 In Novell's Hackweek-iii GUB enters into its Third Life with GUB3, adding
 cross-platform build dependencies and patches for an OpenOffice.org MinGW cross
 build, including all essential libraries. Later, Inkscape is added, exploring
-and implementing x.org dependencies.
+and implementing x.org dependencies. After that, building a windows installer
+for GNU Denemo took only one day, including all dependencies.
 
 GUB the Grand Unified Builder
 
