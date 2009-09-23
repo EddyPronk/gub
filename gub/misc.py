@@ -715,6 +715,9 @@ def latest_url (url, name, raw_version_file=None):
         return m[0]
     return url + assemble_ball (sorted (map (split_ball, m))[-1])
 
+def double_quote (string):
+    return re.sub ('''(='[^']+')''', r'"\1"', string)
+
 start = 0
 def timing ():
     global start
