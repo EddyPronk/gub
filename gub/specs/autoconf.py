@@ -1,6 +1,3 @@
-import os
-#
-from gub import misc
 from gub import tools
 
 class Autoconf__tools (tools.AutoBuild):
