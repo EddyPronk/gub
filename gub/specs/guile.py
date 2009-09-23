@@ -50,7 +50,7 @@ exec %(tools_prefix)s/bin/guile "$@"
             self.file_sub ([('guile-readline', '')], '%(srcdir)s/Makefile.in')
         self.dump ('', '%(srcdir)s/doc/ref/version.texi')
         self.dump ('', '%(srcdir)s/doc/tutorial/version.texi')
-    def configure_flags (self):
+    def common_configure_flags (self):
         return misc.join_lines ('''
 --without-threads
 --with-gnu-ld
@@ -60,6 +60,9 @@ exec %(tools_prefix)s/bin/guile "$@"
 --enable-relocation
 --enable-rpath
 ''')
+    def configure_flags (self):
+        return (target.AutoBuild.configure_flags (self)
+                + self.common_configure_flags ())
     def configure_variables (self):
         return (target.AutoBuild.configure_variables (self)
                 + misc.join_lines ('''
@@ -147,8 +150,8 @@ class Guile__mingw (Guile):
                 + misc.join_lines ('''
 CFLAGS='-DHAVE_CONFIG_H=1 -I%(builddir)s'
 '''))
-    def config_cache_overrides (self, str):
-        return str + '''
+    def config_cache_overrides (self, string):
+        return string + '''
 scm_cv_struct_timespec=${scm_cv_struct_timespec=no}
 guile_cv_func_usleep_declared=${guile_cv_func_usleep_declared=yes}
 guile_cv_exeext=${guile_cv_exeext=}
@@ -176,8 +179,10 @@ class Guile__linux (Guile):
                 + Guile.compile_command (self))
 
 class Guile__linux__ppc (Guile__linux):
-    def config_cache_overrides (self, str):
-        return str + "\nguile_cv_have_libc_stack_end=no\n"
+    def config_cache_overrides (self, string):
+        return string + '''
+guile_cv_have_libc_stack_end=no
+'''
 
 class Guile__freebsd (Guile):
     def config_cache_settings (self):
@@ -186,12 +191,6 @@ class Guile__freebsd (Guile):
 ac_cv_type_socklen_t=yes
 guile_cv_use_csqrt="no"
 ''')
-    def configure_command (self):
-        return (Guile.configure_command (self)
-                # FIXME: eradicate LD_LIBRARY_PATH from guile.py
-                .replace ('LD_LIBRARY_PATH=%(system_prefix)s/lib:${LD_LIBRARY_PATH-/foe} ', '')
-                + Guile.configure_flags (self)
-                + Guile.configure_variables (self))
 
 class Guile__darwin (Guile):
     patches = Guile.patches + ['guile-1.8.6-pthreads-cross.patch']
@@ -300,7 +299,7 @@ class Guile__tools (tools.AutoBuild, Guile):
         # libltdl.
         return ('LD_LIBRARY_PATH=%(system_prefix)s/lib:${LD_LIBRARY_PATH-/foe} '
                 + tools.AutoBuild.configure_command (self)
-                + Guile.configure_flags (self))
+                + Guile.common_configure_flags (self))
     def compile_command (self):
         # FIXME: when not x-building, guile runs gen_scmconfig, guile without
         # setting the proper LD_LIBRARY_PATH.
