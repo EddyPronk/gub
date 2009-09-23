@@ -18,10 +18,12 @@ class AutoBuild (build.AutoBuild):
         return '%(tools_prefix)s/lib/librestrict.so'
     def autoupdate (self):
         build.AutoBuild.autoupdate (self)
-        if self.expand ('%(configure_binary)s').startswith ('/'):
-            # FIXME: add deferred check for configure_ existance
-            self.file_sub ([('cross_compiling=(maybe|no|yes)',
-                             'cross_compiling=yes')], '%(configure_binary)s')
+        def defer (logger):
+            if os.path.exists (self.expand ('%(configure_binary)s')):
+                loggedos.file_sub (logger, [('cross_compiling=(maybe|no|yes)',
+                                 'cross_compiling=yes')],
+                                   self.expand ('%(configure_binary)s'))
+        self.func (defer)
     @context.subst_method
     def config_cache_flag (self):
         if True or self.config_cache_flag_broken:
