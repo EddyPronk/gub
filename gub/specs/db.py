@@ -5,14 +5,19 @@ from gub import tools
 class Db (target.AutoBuild):
     source = 'http://download.oracle.com/berkeley-db/db-4.7.25.tar.gz'
     srcdir_build_broken = True
+    def _get_build_dependencies (self):
+        return ['tools::libtool']
     def cache_file (self):
         return '%(builddir)s/build_unix/config.cache'
-    def configure_command (self):
-        return 'cd build_unix && ../' + target.AutoBuild.configure_command (self)
+    def autoupdate (self):
+        # FIXME: PROMOTEME: add deferred check for configure_ existance
+        pass
     def autodir (self):
         return '%(srcdir)s/dist'
+    def configure_command (self):
+        return 'cd build_unix && ' + target.AutoBuild.configure_command (self)
     def configure_binary (self):
-        return 'dist/configure'
+        return '%(builddir)s/dist/configure'
     def makeflags (self):
         return '-C build_unix'
     def configure (self):
@@ -25,19 +30,20 @@ class Db (target.AutoBuild):
         target.AutoBuild.install (self)
         self.system ('rm -f %(install_prefix)s/lib/libdb.{a,so{,.a},la}')
         self.system ('cd %(install_prefix)s/lib && ln -s libdb-*.a libdb.a')
-        self.system ('cd %(install_prefix)s/lib && ln -s libdb-*.la libdb.la')
+        self.system ('cd %(install_prefix)s/lib && cp libdb-*.la libdb.la')
         self.system ('cd %(install_prefix)s/lib && ln -s libdb-*.so libdb.so || :')
 
-class Db__linux_64 (Db):
-    def _get_build_dependencies (self):
-        return ['libtool']
- 
 class Db__mingw (Db):
     patches = ['db-4.7.25-mingw.patch']
     # no libdb.dll without libwsock.dll
     # cannot find a free and functional libwsock.dll, though
     def xxget_build_dependencies (self):
         return ['libwsock32']
+    def patch (self):
+        Db.patch (self)
+        self.file_sub ([('HAVE_VXWORKS', '__MINGW32__')],
+                       '%(srcdir)s/os/os_mkdir.c')
+        self.file_sub ([('dbenv', 'env')], '%(srcdir)s/os/os_yield.c')
     def configure (self):
         Db.configure (self)
         self.system ('echo "#undef fsync" >> %(builddir)s/build_unix/db_config.h')
@@ -50,9 +56,6 @@ touch %(builddir)s/build_unix/netinet/in.h
 touch %(builddir)s/build_unix/netdb.h
 touch %(builddir)s/build_unix/arpa/inet.h
 ''')
-        self.file_sub ([('HAVE_VXWORKS', '__MINGW32__')],
-                       '%(builddir)s/build_unix/../os/os_mkdir.c')
-        self.file_sub ([('dbenv', 'env')], '%(builddir)s/os/os_yield.c')
     def configure_command (self):
         return (Db.configure_command (self)
                 + misc.join_lines ('''
