@@ -321,7 +321,10 @@ class AutoBuild (Build):
         return '%(srcdir)s'
 
     def aclocal_path (self):
-        return ['%(system_prefix)s/share/aclocal']
+        return [
+            '%(tools_prefix)s/share/aclocal',
+            '%(system_prefix)s/share/aclocal',
+            ]
 
     @context.subst_method
     def configure_binary (self):
