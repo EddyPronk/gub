@@ -45,8 +45,6 @@ class Inkscape (target.AutoBuild):
                      if 'tools::' not in x and 'cross/' not in x]
                 + ['cross/gcc-c++-runtime']
                 }
-    def aclocal_path (self):
-        return ['%(system_prefix)s/share/aclocal']
     def configure_command (self):
         return (target.AutoBuild.configure_command (self)
                 + ' --enable-lcms'
