@@ -9,9 +9,6 @@ class Db (target.AutoBuild):
         return ['tools::libtool']
     def cache_file (self):
         return '%(builddir)s/build_unix/config.cache'
-    def autoupdate (self):
-        # FIXME: PROMOTEME: add deferred check for configure_ existance
-        pass
     def autodir (self):
         return '%(srcdir)s/dist'
     def configure_command (self):
