@@ -274,7 +274,7 @@ def logged_build (settings, options, files):
     #log_dir = settings.expand ('%(alllogdir)s')
     log_dir = settings.expand ('%(workdir)s/log')
     if not os.path.isdir (log_dir):
-        os.makedir (log_dir)
+        os.makedirs (log_dir)
     log = os.path.join (log_dir, 'gub.log')
     if os.path.isfile (log):
         misc.rename_append_time (log)
