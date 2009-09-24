@@ -87,8 +87,8 @@ class LilyPond (target.AutoBuild):
         self.system ('mkdir -p %(builddir)s || true')
         self.system ('cp %(tools_prefix)s/include/FlexLexer.h %(builddir)s/')
         target.AutoBuild.configure (self)
-    def configure_command (self):
-        return (target.AutoBuild.configure_command (self)
+    def configure_flags (self):
+        return (target.AutoBuild.configure_flags (self)
                 + misc.join_lines ('''
 --enable-relocation
 --enable-rpath
