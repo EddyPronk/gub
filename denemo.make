@@ -39,7 +39,10 @@ include compilers.make
 
 #all: packages rest
 all: denemo rest
-rest: nsis denemo-installers print-success
+ifeq ($(findstring mingw, $(PLATFORMS)),mingw)
+rest: nsis
+endif
+rest: denemo-installers print-success
 
 #avoid building native BUILD_PLATFORM
 denemo:
