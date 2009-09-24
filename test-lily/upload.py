@@ -183,9 +183,8 @@ def upload_binaries (repo, version, version_db):
     git_tag = 'release/%(version_str)s-%(build)d' % locals () 
     git_dir = repo.dir
     git_tag_cmd = 'git --git-dir %(git_dir)s tag -m "" -a %(git_tag)s %(dirred_branch)s' % locals ()
-    # Oops, ugh, does this work with shallow clone?  better set
-    # self.source.shallow = False in lilypond.py...
-    git_push_cmd = 'git --git-dir %(git_dir)s push ssh+git://'+maintainer_git_username+'@git.sv.gnu.org/srv/git/lilypond.git/ refs/tags/%(git_tag)s:refs/tags/%(git_tag)s' % locals ()
+    my_maintainer_git_username = maintainer_git_username
+    git_push_cmd = 'git --git-dir %(git_dir)s push ssh+git://%(my_maintainer_git_username)s@git.sv.gnu.org/srv/git/lilypond.git/ refs/tags/%(git_tag)s:refs/tags/%(git_tag)s' % locals ()
     gub_tag_cmd = 'git tag -m "release of lilypond %(description)s (%(version_str)s-%(build)d)"  "gub-release-lilypond-%(version_str)s-%(build)d"' % locals ()
 
     cmds.append (git_tag_cmd)
