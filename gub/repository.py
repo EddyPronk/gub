@@ -665,17 +665,16 @@ fatal: The remote end hung up unexpectedly
     def _update_workdir_shallow (self, destdir):
         branch = self.branch # branch is empty?
         branch = 'master'
+        HEAD = self.checksum ()
         if not os.path.isdir (os.path.join (destdir, self.vc_system)):
             self.system ('mkdir -p %(destdir)s' % locals ())
             self.system ('cd %(destdir)s && git init' % locals ())
-        open ('%(destdir)s/.git/objects/info/alternates' % locals (), 'w').write (os.path.join (self.dir, 'objects'))
-        if 0: # no-go
-            open ('%(destdir)s/.git/HEAD' % locals (), 'w').write (self.checksum ())
-            HEAD = 'HEAD'
-        HEAD = self.checksum ()
-        self.system ('cd %(destdir)s && git reset --hard %(HEAD)s' % locals ())
-        self.system ('cd %(destdir)s && (git checkout -f %(branch)s || git branch %(branch)s)' % locals ())
-        self.system ('cd %(destdir)s && git reset --hard %(HEAD)s' % locals ())
+            open ('%(destdir)s/.git/objects/info/alternates' % locals (), 'w').write (os.path.join (self.dir, 'objects'))
+#            self.system ('cd %(destdir)s && git reset --hard %(HEAD)s' % locals ())
+        if self.git_pipe ('diff' % locals (), dir=destdir):
+            self.system ('cd %(destdir)s && git reset --hard %(HEAD)s' % locals ())
+        self.system ('cd %(destdir)s && git checkout %(HEAD)s' % locals ())
+        self.system ('cd %(destdir)s && (git checkout %(branch)s || git checkout -b %(branch)s)' % locals ())
     def _update_workdir (self, destdir):
         checkout_dir = self.dir
         branch = self.get_ref ()
