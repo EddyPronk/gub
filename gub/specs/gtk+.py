@@ -5,8 +5,7 @@ class Gtk_x_ (target.AutoBuild):
     #source = 'http://ftp.gnome.org/pub/GNOME/sources/gtk+/2.15/gtk+-2.15.3.tar.gz'
     source = gnome.platform ('gtk+')
     patches = ['gtk+-2.15.3-substitute-env.patch']
-    def _get_build_dependencies (self):
-        return ['libtool',
+    dependencies = ['libtool',
                 'atk-devel',
                 'cairo-devel',
                 'libjpeg-devel',
@@ -51,8 +50,7 @@ class Gtk_x___freebsd__x86 (Gtk_x___freebsd):
     patches = Gtk_x___freebsd.patches + ['gtk+-2.15.3-configure.in-have-iswalnum.patch']
 
 class Gtk_x_without_X11 (Gtk_x_):
-    def _get_build_dependencies (self):
-        return [x for x in Gtk_x_._get_build_dependencies (self)
+    dependencies = [x for x in Gtk_x_.dependencies
                 if 'libx' not in x]
 
 class Gtk_x___mingw (Gtk_x_without_X11):

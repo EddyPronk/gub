@@ -22,7 +22,7 @@ class Build (context.RunnableContext):
     source = ''
     branch = ''
     patches = []
-    build_dependencies = []
+    dependencies = []
     config_cache_flag_broken = True
     install_after_build = True
     parallel_build_broken = False
@@ -129,7 +129,7 @@ to skip this check and risk a defective build.
                 self.set_done (stage)
 
     def get_build_dependencies (self):
-        return self.build_dependencies
+        return self.dependencies
 
     def with_platform (self, name):
         if 'BOOTSTRAP' in os.environ.keys ():

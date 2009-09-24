@@ -4,8 +4,7 @@ class Dropbear (target.AutoBuild):
     source = 'http://matt.ucc.asn.au/dropbear/releases/dropbear-0.49.tar.gz'
     def get_subpackage_names (self):
         return ['']
-    def _get_build_dependencies (self):
-        return ['zlib']
+    dependencies = ['zlib']
     def configure (self):
         target.AutoBuild.configure (self)
         self.system ('''

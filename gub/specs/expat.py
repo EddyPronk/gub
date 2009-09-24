@@ -7,8 +7,7 @@ from gub import tools
 class Expat (target.AutoBuild):
     source = 'http://surfnet.dl.sourceforge.net/sourceforge/expat/expat-2.0.1.tar.gz'
     patches = ['expat-2.0.1-mingw.patch']
-    def _get_build_dependencies (self):
-        return ['libtool', 'tools::expat']
+    dependencies = ['libtool', 'tools::expat']
     def patch (self):
         target.AutoBuild.patch (self)
         #FIXME: should have configure.ac/in vs configure timestamp test
@@ -38,8 +37,7 @@ class Expat__linux__arm__vfp (Expat):
         target.AutoBuild.patch (self)
 
 class Expat__tools (tools.AutoBuild, Expat):
-    def _get_build_dependencies (self):
-        return [
+    dependencies = [
             'automake',
             'libtool',
             ]

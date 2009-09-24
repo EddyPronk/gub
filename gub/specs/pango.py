@@ -15,8 +15,7 @@ pango_module_version_regexes = [
 class Pango (target.AutoBuild):
     source = gnome.platform_url ('pango')
     patches = ['pango-1.20-substitute-env.patch']
-    def _get_build_dependencies (self):
-        return [
+    dependencies = [
             'tools::glib', 
             'freetype-devel',
             'fontconfig-devel',
@@ -76,8 +75,7 @@ class Pango__linux (Pango):
                        '%(srcdir)s/configure')
 
 class Pango__freebsd (Pango__linux):
-    def _get_build_dependencies (self):
-        return Pango__linux._get_build_dependencies (self) + ['libiconv-devel']
+    dependencies = Pango__linux.dependencies + ['libiconv-devel']
 
 class Pango__darwin (Pango):
     def configure (self):
@@ -91,10 +89,9 @@ set PANGO_SO_EXTENSION=%(so_extension)s
 ''', '%(install_prefix)s/etc/relocate/pango.reloc', env=locals (), mode='a')
 
 class Pango__mingw (Pango):
-    def _get_build_dependencies (self):
         # FIXME: need -lpthread now?
         # /home/janneke/vc/gub/target/mingw/root/usr/cross/bin/i686-mingw32-ld: cannot find -lpthread
-        return (Pango._get_build_dependencies (self)
+    dependencies = (Pango.dependencies
                 + ['pthreads-w32-devel'])
     def create_config_files (self, prefix='/usr'):
         Pango.create_config_files (self, prefix)

@@ -41,8 +41,7 @@ models.'''
         except:
             pass
         return '0.0'
-    def _get_build_dependencies (self):
-        return ['libjpeg-devel', 'libpng-devel']
+    dependencies = ['libjpeg-devel', 'libpng-devel']
     def get_subpackage_names (self):
         return ['doc', '']
     def srcdir (self):
@@ -239,8 +238,7 @@ include $(GLSRCDIR)/winplat.mak
              mode='a')
 
 class Ghostscript__freebsd (Ghostscript):
-    def _get_build_dependencies (self):
-        return Ghostscript._get_build_dependencies (self) + ['libiconv-devel']
+    dependencies = Ghostscript.dependencies + ['libiconv-devel']
 
 url='http://mirror3.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/ghostscript-8.60.tar.gz'
 url='http://mirror3.cs.wisc.edu/pub/mirrors/ghost/GPL/gs850/ghostscript-8.50-gpl.tar.gz'
@@ -362,8 +360,7 @@ cd %(install_prefix)s && rm -rf usr/X11R6/share
 
 class Ghostscript__tools (tools.AutoBuild, Ghostscript):
     parallel_build_broken = True
-    def _get_build_dependencies (self):
-        return ['libjpeg', 'libpng']
+    dependencies = ['libjpeg', 'libpng']
     def configure_flags (self):
         return (tools.AutoBuild.configure_flags (self)
                 + Ghostscript.configure_flags (self))

@@ -9,6 +9,7 @@ from gub import tools
 class Libtool (target.AutoBuild):
     source = 'http://ftp.gnu.org/pub/gnu/libtool/libtool-2.2.6a.tar.gz'
     #source = 'git://git.sv.gnu.org/libtool.git?branch=master&revision=77e114998457cb6170ad84b360cb5b9be90f2191'
+    dependencies = ['tools::libtool']
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         # repository patched in method.
@@ -18,10 +19,8 @@ class Libtool (target.AutoBuild):
             source.version = misc.bind_method (version_from_VERSION, source)
             source._version = '2.2.7'
         Libtool.set_sover (self)
-    def _get_build_dependencies (self):
         if isinstance (self.source, repository.Git):
-            return ['tools::libtool', 'tools::automake']
-        return ['tools::libtool']
+            self.dependencies += ['tools::libtool', 'tools::automake']
     def autoupdate (self):
         # automagic works, but takes forever
         if isinstance (self.source, repository.Git):

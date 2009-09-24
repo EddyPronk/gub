@@ -5,8 +5,7 @@ from gub import target
 class Raptor (target.AutoBuild):
     source = 'http://download.librdf.org/source/raptor-1.4.18.tar.gz'
     patches = ['raptor-1.4.18-cross.patch']
-    def _get_build_dependencies (self):
-        return ['curl-devel', 'expat-devel', 'libxml2-devel', 'libxslt-devel', 'tools::flex', 'tools::autoconf', 'tools::automake', 'tools::libtool', 'tools::gtk_doc']
+    dependencies = ['curl-devel', 'expat-devel', 'libxml2-devel', 'libxslt-devel', 'tools::flex', 'tools::autoconf', 'tools::automake', 'tools::libtool', 'tools::gtk_doc']
     def autoupdate (self):
         self.file_sub ([('( |-I|-L)/usr', r'\1%(system_prefix)s')]
                        , '%(srcdir)s/configure.ac')
@@ -39,8 +38,7 @@ class Raptor__mingw (Raptor):
 #--enable-parsers="grddl rdfxml ntriples turtle trig guess rss-tag-soup rdfa n3"
 
 class Raptor__darwin (Raptor):
-    def _get_build_dependencies (self):
-        return [x for x in Raptor._get_build_dependencies (self)
+    dependencies = [x for x in Raptor.dependencies
                 if x.replace ('-devel', '') not in [
                 'libxml2', # Included in darwin-sdk, hmm?
                 ]]

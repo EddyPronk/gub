@@ -5,8 +5,7 @@ class Cairo (target.AutoBuild):
     def patch (self):
         target.AutoBuild.patch (self)
         self.system ('rm -f %(srcdir)s/src/cairo-features.h')
-    def _get_build_dependencies (self):
-        return ['tools::libtool',
+    dependencies = ['tools::libtool',
                 'fontconfig-devel',
                 'ghostscript-devel',
                 'libpng-devel',
@@ -27,8 +26,7 @@ class Cairo_without_X11 (Cairo):
                 + ' --disable-xlib-xrender'
                 + ' --disable-xcb'
                 )
-    def _get_build_dependencies (self):
-        return ([x for x in Cairo._get_build_dependencies (self)
+    dependencies = ([x for x in Cairo.dependencies
                  if 'libx' not in x
                  and 'poppler' not in x] # poppler does not build for mingw
                 )
@@ -41,8 +39,7 @@ class Cairo__mingw (Cairo_without_X11):
                 + ' --enable-ft'
                 + ' LDFLAGS=-lpthread'
                 )
-    def _get_build_dependencies (self):
-        return (Cairo_without_X11._get_build_dependencies (self)
+    dependencies = (Cairo_without_X11.dependencies
                 + ['pthreads-w32-devel'])
 
 class Cairo__darwin (Cairo_without_X11):

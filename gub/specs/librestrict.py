@@ -9,8 +9,7 @@ class Librestrict_make__tools (tools.MakeBuild):
         return ['exec', 'open', 'stat']
     def BARFS_WITH_2_5_1_name (self):
         return 'librestrict-' + '-'.join (self.librestrict_flavours ())
-    def _get_build_dependencies (self):
-        return [
+    dependencies = [
 #            'tools::gcc'
             'system::gcc'
             ]

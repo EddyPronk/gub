@@ -51,8 +51,7 @@ class LilyPond (target.AutoBuild):
         return ['']
     def get_conflict_dict (self):
         return {'': ['lilypondcairo']}
-    def _get_build_dependencies (self):
-        return ['fontconfig-devel',
+    dependencies = ['fontconfig-devel',
                 'freetype-devel',
                 'gettext-devel',
                 'ghostscript',
@@ -72,10 +71,10 @@ class LilyPond (target.AutoBuild):
                 #'tools::mpost ', 
                 ]
     def get_build_dependencies (self):
-        return self._get_build_dependencies ()
+        return self.dependencies
     def get_dependency_dict (self):
         return {'': [x.replace ('-devel', '')
-                     for x in self._get_build_dependencies ()
+                     for x in self.dependencies
                      if 'tools::' not in x and 'cross/' not in x]
                 + ['cross/gcc-c++-runtime']
                 }
@@ -251,8 +250,7 @@ tar -C %(install_prefix)s -jxf %(docball)s
 
 ## shortcut: take python out of dependencies
 class LilyPond__no_python (LilyPond):
-    def _get_build_dependencies (self):
-        return [x for x in LilyPond._get_build_dependencies (self)
+    dependencies = [x for x in LilyPond.dependencies
                 if x != 'python-devel']
     def configure (self):
         self.system ('mkdir -p %(builddir)s || true') 
@@ -272,8 +270,7 @@ class LilyPond__mingw (LilyPond):
         return (LilyPond.makeflags (self)
                 + ' LDFLAGS="%(python_lib)s"'  % locals ())
 
-    def _get_build_dependencies (self):
-        return LilyPond._get_build_dependencies (self) + [
+    dependencies = LilyPond.dependencies + [
             'tools::imagemagick',
             'tools::icoutils',
             ]
@@ -362,8 +359,7 @@ cd %(builddir)s && make -C scripts %(makeflags)s
             ] + ['gs']
 
 class LilyPond__darwin (LilyPond):
-    def _get_build_dependencies (self):
-        return (LilyPond._get_build_dependencies (self)
+    dependencies = (LilyPond.dependencies
                 # FIXME: move to lilypond-installer.py, see __mingw.
                 + [
                 'fondu',
@@ -391,8 +387,7 @@ class LilyPond_base (target.AutoBuild):
         source.is_tracking = misc.bind_method (lambda x: True, source)
         source.is_downloaded = misc.bind_method (lambda x: True, source)
         source.update_workdir = misc.bind_method (lambda x: True, source)
-    def _get_build_dependencies (self):
-        return [self.settings.build_platform + '::lilypond']
+        self.dependencies = [self.settings.build_platform + '::lilypond']
     def get_subpackage_names (self):
         return ['']
     def stages (self):

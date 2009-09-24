@@ -14,8 +14,7 @@ class Libjpeg (target.AutoBuild):
         source._version = 'v6b'
     def name (self):
         return 'libjpeg'
-    def _get_build_dependencies (self):
-        return ['libtool']
+    dependencies = ['libtool']
     def get_subpackage_names (self):
         return ['devel', '']
     def srcdir (self):
@@ -62,8 +61,7 @@ class Libjpeg__tools (tools.AutoBuild, Libjpeg):
     def __init__ (self, settings, source):
         tools.AutoBuild.__init__ (self, settings, source)
         source._version = 'v6b'
-    def _get_build_dependencies (self):
-        return ['libtool']
+    dependencies = ['libtool']
     def srcdir (self):
         return re.sub (r'src\.v', '-', tools.AutoBuild.srcdir (self))
     def force_autoupdate (self):

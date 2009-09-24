@@ -39,8 +39,7 @@ class Python (target.AutoBuild):
     def get_subpackage_names (self):
         return ['doc', 'devel', 'runtime', '']
 
-    def _get_build_dependencies (self):
-        return ['db-devel', 'expat-devel', 'zlib-devel', 'tools::python']
+    dependencies = ['db-devel', 'expat-devel', 'zlib-devel', 'tools::python']
 
     def patch (self):
         target.AutoBuild.patch (self)
@@ -114,8 +113,7 @@ class Python__mingw (Python):
     def __init__ (self, settings, source):
         Python.__init__ (self, settings, source)
         self.target_gcc_flags = '-DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I%(system_prefix)s/include' % self.settings.__dict__
-    def _get_build_dependencies (self):
-        return Python._get_build_dependencies (self) + ['pthreads-w32-devel']
+    dependencies = Python.dependencies + ['pthreads-w32-devel']
     # FIXME: first is cross compile + mingw patch, backported to
     # 2.4.2 and combined in one patch; move to cross-Python?
     def patch (self):
@@ -160,8 +158,7 @@ chmod 755 %(install_prefix)s/bin/*
 class Python__tools (tools.AutoBuild, Python):
 #    patches = ['python-2.4.2-fno-stack-protector.patch']
     patches = []
-    def _get_build_dependencies (self):
-        return ['autoconf', 'libtool']
+    dependencies = ['autoconf', 'libtool']
     def force_autoupdate (self):
         return True
     def makeflags (self):

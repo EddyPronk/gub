@@ -5,8 +5,7 @@ from gub import tools
 
 class ImageMagick__tools (tools.AutoBuild):
     source = 'http://ftp.surfnet.nl/pub/ImageMagick/ImageMagick-6.4.5-4.tar.gz'
-    def _get_build_dependencies (self):
-        return [
+    dependencies = [
             'automake',
             'bzip2',
             'fontconfig',

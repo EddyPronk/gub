@@ -24,8 +24,7 @@ cp %(link)s %(file)s
 
 class Boost (target.BjamBuild_v2):
     source = 'http://surfnet.dl.sourceforge.net/sourceforge/boost/boost_1_38_0.tar.bz2'
-    def _get_build_dependencies (self):
-        return []
+    dependencies = []
     def stages (self):
         return misc.list_insert_before (target.BjamBuild_v2.stages (self),
                                         'compile',

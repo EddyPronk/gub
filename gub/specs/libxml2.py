@@ -6,8 +6,7 @@ from gub import tools
 
 class Libxml2 (target.AutoBuild):
     source = gnome.platform_url ('libxml2', '2.18.1')
-    def _get_build_dependencies (self):
-        return ['zlib']
+    dependencies = ['zlib']
     def configure_command (self):
         return (target.AutoBuild.configure_command (self)
                 + misc.join_lines ('''
@@ -29,8 +28,7 @@ class Libxml2__mingw (Libxml2):
         self.copy ('%(install_prefix)s/lib/libxml2.dll.a', '%(install_prefix)s/lib/libxml2-2.dll.a')
 
 class Libxml2__tools (tools.AutoBuild, Libxml2):
-    def _get_build_dependencies (self):
-        return Libxml2._get_build_dependencies (self) + ['libtool']
+    dependencies = Libxml2.dependencies + ['libtool']
     def configure_command (self):
         return (tools.AutoBuild.configure_command (self)
                 + misc.join_lines ('''

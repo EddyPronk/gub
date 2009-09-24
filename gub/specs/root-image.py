@@ -2,13 +2,12 @@ from gub import build
 
 class Root_image (build.NullBuild):
     source = 'url://host/root-image-1.0.tar.gz'
-    def _get_build_dependencies (self):
         busybox = [
             'dhcp',
             'psmisc',
             'tinylogin',
             ]
-        return [
+    dependencies = [
             'base-files',
             'base-passwd',
             'busybox',
@@ -60,8 +59,7 @@ cd %(install_root)s && ar p %(fname)s data.tar.gz | tar%(_v)s -zxf -
             self.install_ipkg (i)
 
 class Root_image__linux__arm__vfp (Root_image):
-    def _get_build_dependencies (self):
-        return (Root_image._get_build_dependencies (self)
+    dependencies = (Root_image.dependencies
                 + ['csl-toolchain-binary',
                    'phone'])
     

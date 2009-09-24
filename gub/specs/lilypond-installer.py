@@ -11,8 +11,7 @@ from gub.specs import lilypond
 #   bin/gib --platform= --branch=PACKAGE=BRANCH PACKAGE
 # not really a 'python driver'.
 class LilyPond_installer (lilypond.LilyPond_base):
-    def _get_build_dependencies (self):
-        return [self.settings.target_platform + '::lilypond']
+    dependencies = [self.settings.target_platform + '::lilypond']
     def compile (self):
         self.system (self.compile_command ())
     def compile_command (self):
@@ -34,8 +33,7 @@ lilypond
         return 'true'
 
 class LilyPond_installer__mingw (LilyPond_installer):
-    def _get_build_dependencies (self):
-        return (LilyPond_installer._get_build_dependencies (self)
+    dependencies = (LilyPond_installer.dependencies
                 + ['lilypad', 'tools::icoutils', 'tools::nsis'])
     def compile_command (self):
         return (LilyPond_installer.compile_command (self)

@@ -44,8 +44,7 @@ class Glibc (target.AutoBuild, cross.AutoBuild):
         'glibc-2.3-assert-dl_next_tls_modid.patch',
         'glibc-2.3-binutils-2.19-i386.patch',
         ]
-    def _get_build_dependencies (self):
-        return ['cross/gcc', 'glibc-core', 'tools::gzip', 'tools::perl', 'linux-headers']
+    dependencies = ['cross/gcc', 'glibc-core', 'tools::gzip', 'tools::perl', 'linux-headers']
     def get_conflict_dict (self):
         return {'': ['glibc-core'], 'devel': ['glibc-core'], 'doc': ['glibc-core'], 'runtime': ['glibc-core']}
     def patch (self):

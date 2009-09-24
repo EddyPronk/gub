@@ -10,7 +10,7 @@ class Binutils__darwin (cross_binutils.Binutils):
     # Just *do not* build darwin-ppc::cross/binutils, that
     # triggers gcc to be built before odcctools?
     #def _get_build_dependencies (self):
-    #    return (cross_binutils.Binutils._get_build_dependencies (self)
+    #    return (cross_binutils.Binutils.dependencies
     #            + ['odcctools'])
     def install (self):
         '''

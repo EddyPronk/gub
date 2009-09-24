@@ -19,11 +19,8 @@ def package_auto_dependency_dict (package):
     For most packages, this either removes the need of having both,
     or adds the dict where it was missing.
     '''
-    if (not package.get_build_dependencies ()
-        and not package.get_dependency_dict ().get ('', None)
-        and not package.get_dependency_dict ().get ('devel', None)
-        and ('_get_build_dependencies' in
-             dict (context.object_get_methods (package)).keys ())):
+    if (not package.get_dependency_dict ().get ('', None)
+        and not package.get_dependency_dict ().get ('devel', None)):
         def get_build_dependencies (foo):
             # If a package depends on tools::libtool, ie not on
             # libltdl, we still also need <target-arch>::libtool,
@@ -33,20 +30,20 @@ def package_auto_dependency_dict (package):
             if (not 'cross/' in package.name ()
                 and not 'system::' in package.platform_name ()):
                 return [name.replace ('tools::libtool', 'libtool')
-                        for name in package._get_build_dependencies ()]
-            return package._get_build_dependencies ()
+                        for name in package.dependencies]
+            return package.dependencies
         package.get_build_dependencies \
                 = misc.MethodOverrider (package.nop, get_build_dependencies)
         def get_dependency_dict (foo):
             d = {'': [x.replace ('-devel', '')
-                         for x in package._get_build_dependencies ()
+                         for x in package.dependencies
                          if ('system::' not in x
                              and 'tools::' not in x
                              and 'cross/' not in x)]}
             if 'runtime' in package.get_subpackage_names ():
                 d[''] += [package.name () + '-runtime']
             if package.platform_name () not in ['system', 'tools']:
-                d['devel'] = ([x for x in package._get_build_dependencies ()
+                d['devel'] = ([x for x in package.dependencies
                                if ('system::' not in x
                                    and 'tools::' not in x
                                    and 'cross/' not in x)]
@@ -204,8 +201,7 @@ class SConsBuild (AutoBuild):
         return self.compile_command () + ' install'
 
 class BjamBuild_v2 (MakeBuild):
-    def _get_build_dependencies (self):
-        return ['boost-jam']
+    dependencies = ['boost-jam']
     def patch (self):
         MakeBuild.patch (self)
     def compile_command (self):

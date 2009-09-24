@@ -30,8 +30,7 @@ packages.'''
 
     source = texlive_svn + '&branch=trunk&branchmodule=Build/source&revision=HEAD'
     config_cache_flag_broken = True
-    def _get_build_dependencies (self):
-        return [
+    dependencies = [
             'tools::automake',
             'libtool',
 #            'fontconfig',
@@ -256,8 +255,7 @@ CFLAGS='-O2 -g -DKPSE_DLL'
                 % locals ())
 
 class Texlive__tools (tools.AutoBuild, Texlive):
-    def _get_build_dependencies (self):
-        return [
+    dependencies = [
             'automake',
             'libtool',
 #            'fontconfig',

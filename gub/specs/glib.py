@@ -7,10 +7,11 @@ from gub import w32
 class Glib (target.AutoBuild):
     #source = 'http://ftp.gnome.org/pub/GNOME/platform/2.25/2.25.5/sources/glib-2.19.5.tar.gz'
     source = gnome.platform_url ('glib')
-    def _get_build_dependencies (self):
+    dependencies = ['tools::glib', 'gettext-devel', 'libtool']
+    def __init__ (self, settings, source):
+        target.AutoBuild.__init__ (self, settings, source)
         if 'stat' in misc.librestrict ():
-            return ['tools::glib', 'gettext-devel', 'libtool']
-        return ['gettext-devel', 'libtool']
+            self.dependencies += ['gettext-devel', 'libtool']
     def config_cache_overrides (self, str):
         return str + '''
 glib_cv_stack_grows=${glib_cv_stack_grows=no}
@@ -47,12 +48,10 @@ class Glib__darwin__x86 (Glib__darwin):
         Glib__darwin.compile (self)
         
 class Glib__mingw (Glib):
-    def _get_build_dependencies (self):
-        return Glib._get_build_dependencies (self) + ['libiconv-devel']
+    dependencies = Glib.dependencies + ['libiconv-devel']
 
 class Glib__freebsd (Glib):
-    def _get_build_dependencies (self):
-        return Glib._get_build_dependencies (self) + ['libiconv-devel']
+    dependencies = Glib.dependencies + ['libiconv-devel']
     def configure_command (self):
         return Glib.configure_command (self) + ' CFLAGS=-pthread'
 
@@ -68,8 +67,7 @@ class Glib__tools (tools.AutoBuild, Glib):
     def install (self):
         tools.AutoBuild.install (self)
         self.system ('rm -f %(install_root)s%(packaging_suffix_dir)s%(prefix_dir)s/lib/charset.alias')
-    def _get_build_dependencies (self):
-        return [
+    dependencies = [
             'gettext',
             'libtool',
             ]            

@@ -12,20 +12,18 @@ class Odcctools (cross.AutoBuild): #skews dependencies:, build.SdkBuild):
     source = 'http://lilypond.org/download/gub-sources/odcctools-iphone-dev-278.tar.gz'
     patches = ['odcctools-r211-word.patch',
                'odcctools-config-Wno-long-double.patch']
+    dependencies = ['darwin-sdk', 'tools::flex']
     def __init__ (self, settings, source):
         cross.AutoBuild.__init__ (self, settings, source)
         if 'x86_64-linux' in self.settings.build_architecture:
             # odcctools does not build with 64 bit compiler
             cross.change_target_package_x86 (self, self.add_linux_x86_env ())
+        if 'x86_64-linux' in self.settings.build_architecture:
+            self.dependencies += ['linux-x86::glibc']
     def autoupdate (self):
         # PROMOTEME: run aclocal if ^AM_ macros inside configure.*
         self.system ('cd %(srcdir)s && aclocal')
         cross.AutoBuild.autoupdate (self)
-    def _get_build_dependencies (self):
-        lst = ['darwin-sdk', 'tools::flex']
-        if 'x86_64-linux' in self.settings.build_architecture:
-            lst += ['linux-x86::glibc']
-        return lst
     def stages (self):
         return misc.list_insert_before (cross.AutoBuild.stages (self),
                                         'compile', ['patch_configure'])

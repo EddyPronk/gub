@@ -8,5 +8,4 @@ class Xulrunner__mingw (Xulrunner):
     def patch (self):
         self.file_sub ([('#! /bin/sh', '#! /bin/bash\nenable -n pwd')],
                        '%(srcdir)s/configure')
-    def _get_build_dependencies (self):
-        return ['mingw-pwd']
+    dependencies = ['mingw-pwd']

@@ -4,8 +4,7 @@ from gub import tools
 
 class Bash (target.AutoBuild):
     source = 'ftp://ftp.cwru.edu/pub/bash/bash-3.2.tar.gz'
-    def _get_build_dependencies (self):
-        return ['libtool', 'gettext-devel']
+    dependencies = ['libtool', 'gettext-devel']
 
 class Bash__mingw (Bash):
     source = 'http://ufpr.dl.sourceforge.net/sourceforge/mingw/bash-2.05b-MSYS-src.tar.bz2&strip=2'

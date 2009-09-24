@@ -4,8 +4,7 @@ from gub import tools
 class Ncurses (target.AutoBuild):
     source = 'http://ftp.gnu.org/pub/gnu/ncurses/ncurses-5.5.tar.gz'
     patches = ['ncurses-5.5-mkhashsize.sh.patch']
-    def _get_build_dependencies (self):
-        return [
+    dependencies = [
 #            'system::g++'
             'tools::gawk',
             ]
@@ -26,8 +25,7 @@ class Ncurses__tools (tools.AutoBuild, Ncurses):
                 + ' --without-cxx'
                 + ' --without--cxx-binding'
                 )
-    def _get_build_dependencies (self):
-        return [
+    dependencies = [
 #            'system::g++'
             'gawk',
             ]

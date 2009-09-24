@@ -4,8 +4,7 @@ from gub import tools
 class Gettext (target.AutoBuild):
     # 0.16.1 makes gcc barf on ICE.
     source = 'http://ftp.gnu.org/pub/gnu/gettext/gettext-0.15.tar.gz'
-    def _get_build_dependencies (self):
-        return ['libtool']
+    dependencies = ['libtool']
     def LD_PRELOAD (self):
         return '' # give up
     def config_cache_overrides (self, string):
@@ -35,8 +34,7 @@ ac_cv_prog_HAVE_JIKES_IN_PATH=${ac_cv_prog_HAVE_JIKES_IN_PATH=no}
                        '%(builddir)s/gettext-tools/Makefile')
 
 class Gettext__freebsd__x86 (Gettext):
-    def _get_build_dependencies (self):
-        return (Gettext._get_build_dependencies (self) + ['libgnugetopt'])
+    dependencies = (Gettext.dependencies + ['libgnugetopt'])
 
 class Gettext__mingw (Gettext):
     patches = ['gettext-0.15-mingw.patch']
@@ -61,8 +59,7 @@ jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
         Gettext.install (self)
 
 class Gettext__tools (tools.AutoBuild):
-    def _get_build_dependencies (self):
-        return [
+    dependencies = [
 #            'system::g++',
             'libtool',
             ]

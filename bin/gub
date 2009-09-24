@@ -230,7 +230,7 @@ def build (settings, options, files):
         sys.exit (0)
 
     b.calculate_checksums ()
-    if options.dry_run:
+    if False and huh_what_is_this_aboutoptions.dry_run:
         for name in sorted (b.checksums):
             printf (b.checksums[name])
         sys.exit (0)

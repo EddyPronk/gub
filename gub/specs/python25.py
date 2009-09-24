@@ -25,8 +25,7 @@ class Python (target.AutoBuild):
                        "%(srcdir)s/setup.py", must_succeed=True)
     def get_subpackage_names (self):
         return ['doc', 'devel', 'runtime', '']
-    def _get_build_dependencies (self):
-        return ['expat-devel', 'zlib-devel', 'tools::python2.5']
+    dependencies = ['expat-devel', 'zlib-devel', 'tools::python2.5']
     def force_autoupdate (self):
         return True
     def compile_command (self):
@@ -84,8 +83,7 @@ chmod 755 %(install_prefix)s/bin/*
 
 class Python__tools (tools.AutoBuild, Python):
     patches = []
-    def _get_build_dependencies (self):
-        return ['autoconf', 'libtool']
+    dependencies = ['autoconf', 'libtool']
     def force_autoupdate (self):
         return True
     def install (self):

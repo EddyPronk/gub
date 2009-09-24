@@ -16,8 +16,7 @@ class Inkscape (target.AutoBuild):
         self.file_sub ([('AC_PATH_PROG\(PKG_CONFIG,',
                          'AC_PATH_PROG(ARE_YOU_FREAKING_MAD__OVERRIDING_PKG_CONFIG,')],
                        '%(srcdir)s/configure.ac')
-    def _get_build_dependencies (self):
-        return [
+    dependencies = [
             'tools::automake',
             'tools::gettext',
             'tools::intltool',
@@ -38,10 +37,10 @@ class Inkscape (target.AutoBuild):
             'libxslt-devel',
             ]
     def get_build_dependencies (self):
-        return self._get_build_dependencies ()
+        return self.dependencies
     def get_dependency_dict (self):
         return {'': [x.replace ('-devel', '')
-                     for x in self._get_build_dependencies ()
+                     for x in self.dependencies
                      if 'tools::' not in x and 'cross/' not in x]
                 + ['cross/gcc-c++-runtime']
                 }
@@ -54,8 +53,7 @@ class Inkscape (target.AutoBuild):
 
 class Inkscape__mingw (Inkscape):
     patches = ['inkscape-mingw-DATADIR.h.patch']
-    def _get_build_dependencies (self):
-        return [x for x in Inkscape._get_build_dependencies (self)
+    dependencies = [x for x in Inkscape.dependencies
                 if 'poppler' not in x]
     def configure_command (self):
         return (Inkscape.configure_command (self)
@@ -116,8 +114,7 @@ atoll (char const *s)
                        '%(builddir)s/config.h')
 
 class Inkscape__darwin (Inkscape):
-    def _get_build_dependencies (self):
-        return [x for x in Inkscape._get_build_dependencies (self)
+    dependencies = [x for x in Inkscape.dependencies
                 if x.replace ('-devel', '') not in [
                 'libxml2', # Included in darwin-sdk, hmm?
                 ]]

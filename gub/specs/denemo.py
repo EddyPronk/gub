@@ -39,8 +39,7 @@ class Denemo (target.AutoBuild):
             self.source.is_tracking = misc.bind_method (tracking, self.source)
     def get_subpackage_names (self):
         return ['']
-    def _get_build_dependencies (self):
-        return [
+    dependencies = [
             'tools::automake',
             'tools::gettext',
             'tools::libtool',
@@ -58,10 +57,10 @@ class Denemo (target.AutoBuild):
             'portaudio-devel',
             ]
     def get_build_dependencies (self):
-        return self._get_build_dependencies ()
+        return self.dependencies
     def get_dependency_dict (self):
         return {'': [x.replace ('-devel', '')
-                     for x in self._get_build_dependencies ()
+                     for x in self.dependencies
                      if 'tools::' not in x and 'cross/' not in x]
                 + [
                 'cross/gcc-c++-runtime',
@@ -90,8 +89,7 @@ class Denemo__mingw (Denemo):
         Denemo.__init__ (self, settings, source)
         # Configure (link) without -mwindows for denemo-console.exe
         self.target_gcc_flags = '-mms-bitfields'
-    def _get_build_dependencies (self):
-        return [x for x in Denemo._get_build_dependencies (self)
+    dependencies = [x for x in Denemo.dependencies
                 if x.replace ('-devel', '') not in [
                 'jack',
                 'lash',
@@ -115,8 +113,7 @@ install -m755 %(builddir)s/src/denemo-console.exe %(install_prefix)s/bin/denemo-
 ''')
 
 class Denemo__darwin (Denemo):
-    def _get_build_dependencies (self):
-        return [x for x in Denemo._get_build_dependencies (self)
+    dependencies = [x for x in Denemo.dependencies
                 if x.replace ('-devel', '') not in [
                 'jack',
                 'lash',

@@ -11,8 +11,7 @@ class Gcc__system (system.Configure):
 
 class Gcc__tools (tools.AutoBuild):
     source = 'http://ftp.gnu.org/pub/gnu/gcc/gcc-4.1.2/gcc-4.1.2.tar.bz2'
-    def _get_build_dependencies (self):
-        return [
+    dependencies = [
             'binutils',
             ]
     def patch (self):

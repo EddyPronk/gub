@@ -7,9 +7,11 @@ from gub import tools
 class Nsis (tools.SConsBuild):
     source = 'http://surfnet.dl.sourceforge.net/sourceforge/nsis/nsis-2.45-src.tar.bz2'
     #source = ':pserver:anonymous@nsis.cvs.sourceforge.net:/cvsroot/nsis&module=NSIS&tag=HEAD'
+    dependencies = ['mingw::cross/gcc']
     def __init__ (self, settings, source):
         tools.AutoBuild.__init__ (self, settings, source)
         if 'x86_64-linux' in self.settings.build_architecture:
+            self.dependencies += ['linux-x86::glibc']
             cross.change_target_package_x86 (self, self.add_mingw_env ())
     def add_mingw_env (self):
         # Do not use 'root', 'usr', 'cross', rather use from settings,
@@ -26,11 +28,6 @@ class Nsis (tools.SConsBuild):
                      + self.settings.prefix_dir
                      + '/bin')
         return {'PATH': mingw_bin + ':' + tools_bin + ':' + os.environ['PATH'] }
-    def _get_build_dependencies (self):
-        lst = ['mingw::cross/gcc']
-        if 'x86_64-linux' in self.settings.build_architecture:
-            lst += ['linux-x86::glibc']
-        return lst
     def patch (self):
         self.system ('mkdir -p %(allbuilddir)s', ignore_errors=True)
         self.system ('ln -s %(srcdir)s %(builddir)s')

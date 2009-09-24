@@ -13,8 +13,7 @@ class Gmp (target.AutoBuild):
             self.target_architecture = re.sub ('i[0-9]86-', 'i386-', settings.target_architecture)
         if 'stat' in misc.librestrict ():
             build.add_dict (self, {'LIBRESTRICT_IGNORE': '%(tools_prefix)s/bin/bash'})
-    def _get_build_dependencies (self):
-        return ['libtool', 'tools::autoconf', 'tools::automake', 'tools::bison', 'tools::flex', 'tools::libtool']
+    dependencies = ['libtool', 'tools::autoconf', 'tools::automake', 'tools::bison', 'tools::flex', 'tools::libtool']
     def configure_command (self):
         return (target.AutoBuild.configure_command (self)
                 + ' --disable-cxx ')
@@ -65,5 +64,4 @@ class Gmp__freebsd (Gmp):
     source = 'http://ftp.gnu.org/pub/gnu/gmp/gmp-4.2.4.tar.gz'
 
 class Gmp__tools (tools.AutoBuild, Gmp):
-    def _get_build_dependencies (self):
-        return ['bison', 'flex', 'libtool']
+    dependencies = ['bison', 'flex', 'libtool']

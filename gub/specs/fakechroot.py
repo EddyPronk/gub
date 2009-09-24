@@ -2,8 +2,7 @@ from gub import tools
 
 class Fakechroot__tools (tools.AutoBuild):
     source = 'http://ftp.debian.nl/debian/pool/main/f/fakechroot/fakechroot_2.9.orig.tar.gz'
-    def _get_build_dependencies (self):
-        return [
+    dependencies = [
             'libtool',
             'util-linux', # fakeroot script uses /usr/bin/getopt
             ]

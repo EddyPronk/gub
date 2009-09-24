@@ -2,8 +2,7 @@ from gub import misc
 from gub import tools
 
 class Icoutils__tools (tools.AutoBuild):
-    def _get_build_dependencies (self):
-        return ['libpng-devel']
+    dependencies = ['libpng-devel']
     def configure_command (self):
         return (tools.AutoBuild.configure_command (self)
                 + misc.join_lines ('''

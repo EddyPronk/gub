@@ -221,8 +221,7 @@ class WafBuild (AutoBuild):
         return '%(configure_binary)s install'
 
 class BjamBuild_v2 (MakeBuild):
-    def _get_build_dependencies (self):
-        return ['tools::boost-jam']
+    dependencies = ['tools::boost-jam']
     def patch (self):
         MakeBuild.patch (self)
         '''http://goodliffe.blogspot.com/2008/05/cross-compiling-boost.html

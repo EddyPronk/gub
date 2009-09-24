@@ -5,8 +5,7 @@ from gub.specs import binutils
 class Binutils (cross.AutoBuild):
     source = 'http://ftp.gnu.org/pub/gnu/binutils/binutils-2.19.1.tar.gz'
     patches = []
-    def _get_build_dependencies (self):
-        return [
+    dependencies = [
             ]
     def configure_command (self):
         return (cross.AutoBuild.configure_command (self)
@@ -28,8 +27,7 @@ class Binutils__linux__ppc (Binutils):
         ]
 
 class Binutils__mingw (Binutils):
-    def _get_build_dependencies (self):
-        return Binutils._get_build_dependencies (self) + [
+    dependencies = Binutils.dependencies + [
             'tools::libtool',
             ]
     def configure (self):

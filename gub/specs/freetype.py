@@ -21,8 +21,7 @@ tools, and many other products as well.'''
             build.add_dict (self, {'LIBRESTRICT_ALLOW': '/sbin:/usr/sbin:/hurd:${LIBRESTRICT_ALLOW-/foo}'})
     def license_files (self):
         return ['%(srcdir)s/docs/LICENSE.TXT']
-    def _get_build_dependencies (self):
-        return ['libtool-devel', 'zlib-devel', 'tools::autoconf']
+    dependencies = ['libtool-devel', 'zlib-devel', 'tools::autoconf']
     def get_subpackage_names (self):
         return ['devel', '']
     def configure (self):
@@ -101,8 +100,7 @@ class XFreetype__cygwin (Freetype):
         self.pre_install_smurf_exe ()
 
 class Freetype__tools (tools.AutoBuild, Freetype):
-    def _get_build_dependencies (self):
-        return ['libtool', 'zlib']
+    dependencies = ['libtool', 'zlib']
     def configure_variables (self):
         return misc.double_quote (tools.AutoBuild.configure_variables (self))
     # FIXME, mi-urg?

@@ -224,13 +224,12 @@ class OpenOffice (target.AutoBuild):
         self.source.is_tracking = misc.bind_method (tracking, self.source)
         if not out_of_gub_OOO_TOOLS_DIR:
             os.environ['OOO_TOOLS_DIR'] = self.settings.tools_prefix + '/bin'
-    def _get_build_dependencies (self):
-        return ['tools::autoconf', 'tools::rebase', 'tools::openoffice', 'boost-devel', 'curl-devel', 'cppunit-devel', 'db-devel', 'expat-devel', 'fontconfig-devel', 'hunspell-devel', 'libicu-devel', 'libjpeg-devel', 'libpng-devel', 'liblpsolve-devel', 'python-devel', 'redland-devel', 'saxon-java', 'xerces-c', 'zlib-devel']
+    dependencies = ['tools::autoconf', 'tools::rebase', 'tools::openoffice', 'boost-devel', 'curl-devel', 'cppunit-devel', 'db-devel', 'expat-devel', 'fontconfig-devel', 'hunspell-devel', 'libicu-devel', 'libjpeg-devel', 'libpng-devel', 'liblpsolve-devel', 'python-devel', 'redland-devel', 'saxon-java', 'xerces-c', 'zlib-devel']
     def get_build_dependencies (self):
-        return self._get_build_dependencies ()
+        return self.dependencies
     def get_dependency_dict (self):
         return {'': [x.replace ('-devel', '')
-                     for x in self._get_build_dependencies ()
+                     for x in self.dependencies
                      if 'tools::' not in x and 'cross/' not in x]
                 + ['cross/gcc-c++-runtime']
                 }
@@ -553,8 +552,7 @@ class OpenOffice__mingw (OpenOffice):
         'openoffice-transex3-mingw.patch',
         'openoffice-soltools-mingw.patch'
         ]
-    def _get_build_dependencies (self):
-        return (OpenOffice._get_build_dependencies (self)
+    dependencies = (OpenOffice.dependencies
                 + ['libunicows-devel', 'tools::pytt'])
     def patch (self):
         self.system ('cd %(srcdir)s && git clean -f')
@@ -724,8 +722,7 @@ class OpenOffice__tools (tools.AutoBuild, OpenOffice):
         self.source.dir = self.settings.downloads + '/openoffice-tools'
         if not os.path.isdir (self.source.dir):
             os.system ('mkdir -p ' + self.source.dir)
-    def _get_build_dependencies (self):
-        return ['boost', 'db', 'expat', 'libicu', 'libxslt', 'python', 'zlib']
+    dependencies = ['boost', 'db', 'expat', 'libicu', 'libxslt', 'python', 'zlib']
     def stages (self):
         return tools.AutoBuild.stages (self)
     def autoupdate (self):

@@ -10,8 +10,7 @@ from gub.specs import gcc
 
 class Gcc (cross.AutoBuild):
     source = 'http://ftp.gnu.org/pub/gnu/gcc/gcc-4.1.2/gcc-4.1.2.tar.bz2'
-    def _get_build_dependencies (self):
-        return ['cross/binutils']
+    dependencies = ['cross/binutils']
     def patch (self):
         cross.AutoBuild.patch (self)
         gcc.do_not_look_in_slash_usr (self)
@@ -73,8 +72,7 @@ TARGET_FLAGS_TO_PASS='$(BASE_FLAGS_TO_PASS) $(EXTRA_TARGET_FLAGS) $(GUB_FLAGS_TO
         self.disable_libtool_la_files ('stdc[+][+]')
 
 class Gcc__from__source (Gcc):
-    def _get_build_dependencies (self):
-        return (Gcc._get_build_dependencies (self)
+    dependencies = (Gcc.dependencies
                 + ['cross/gcc-core', 'glibc-core'])
     def get_conflict_dict (self):
         return {'': ['cross/gcc-core'], 'doc': ['cross/gcc-core'], 'runtime': ['cross/gcc-core']}
@@ -97,8 +95,7 @@ Gcc__linux = Gcc__from__source
 
 class Gcc__mingw (Gcc):
     source = 'http://ftp.gnu.org/pub/gnu/gcc/gcc-4.1.1/gcc-4.1.1.tar.bz2'
-    def _get_build_dependencies (self):
-        return (Gcc._get_build_dependencies (self)
+    dependencies = (Gcc.dependencies
                 + ['mingw-runtime', 'w32api']
                 + ['tools::libtool'])
     def patch (self):
@@ -131,8 +128,7 @@ class Gcc__mingw (Gcc):
 
 # http://gcc.gnu.org/PR24196            
 class this_works_but_has_string_exception_across_dll_bug_Gcc__cygwin (Gcc__mingw):
-    def _get_build_dependencies (self):
-        return (Gcc__mingw._get_build_dependencies (self)
+    dependencies = (Gcc__mingw.dependencies
                 + ['cygwin', 'w32api-in-usr-lib'])
     def makeflags (self):
         return misc.join_lines ('''
@@ -167,8 +163,7 @@ class Gcc__cygwin (Gcc):
         cygwin.untar_cygwin_src_package_variant2 (self, ball.replace ('-core', '-g++'),
                                                   split=True)
         cygwin.untar_cygwin_src_package_variant2 (self, ball)
-    def _get_build_dependencies (self):
-        return (Gcc._get_build_dependencies (self)
+    dependencies = (Gcc.dependencies
 #                + ['cygwin', 'w32api-in-usr-lib', 'cross/gcc-g++'])
                 + ['cygwin', 'w32api-in-usr-lib'])
     def makeflags (self):

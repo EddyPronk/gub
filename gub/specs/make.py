@@ -15,9 +15,8 @@ class Make_make__tools (tools.AutoBuild):
                         ('"/lib', '"%(system_root)s/lib')], '%(srcdir)s/remake.c')
     def librestrict_name (self):
         return 'librestrict-' + '-'.join (misc.librestrict ())
-    def _get_build_dependencies (self):
         #return [self.librestrict_name ()]
-        return ['librestrict']
+    dependencies = ['librestrict']
 
 class Make_build_sh__tools (Make_make__tools):
     def compile_command (self):

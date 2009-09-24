@@ -5,8 +5,7 @@ class Liblpsolve (target.AutoBuild):
     source = 'http://surfnet.dl.sourceforge.net/lpsolve/lp_solve_5.5.0.13_source.tar.gz'
     parallel_build_broken = True
     srcdir_build_broken = True
-    def _get_build_dependencies (self):
-        return ['tools::automake']
+    dependencies = ['tools::automake']
     def autoupdate (self):
         # install install-sh
         self.system ('cd %(srcdir)s && automake --add-missing --copy --force --foreign || :')

@@ -4,8 +4,7 @@ from gub.specs import pango
 
 class Pangocairo (pango.Pango):
     source = gnome.platform_url ('pango')
-    def _get_build_dependencies (self):
-        return pango.Pango._get_build_dependencies (self) + ['cairo-devel']
+    dependencies = pango.Pango.dependencies + ['cairo-devel']
     def get_conflict_dict (self):
         return {'': ['pango', 'pango-devel', 'pango-doc'], 'devel': ['pango', 'pango-devel', 'pango-doc'], 'doc': ['pango', 'pango-devel', 'pango-doc'], 'runtime': ['pango', 'pango-devel', 'pango-doc']}
 

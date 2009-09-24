@@ -5,8 +5,7 @@ from gub import tools
 class Db (target.AutoBuild):
     source = 'http://download.oracle.com/berkeley-db/db-4.7.25.tar.gz'
     srcdir_build_broken = True
-    def _get_build_dependencies (self):
-        return ['tools::libtool']
+    dependencies = ['tools::libtool']
     def cache_file (self):
         return '%(builddir)s/build_unix/config.cache'
     def autodir (self):
@@ -75,8 +74,7 @@ LDFLAGS=-lwsock32
 
 class Db__tools (tools.AutoBuild, Db):
     srcdir_build_broken = True
-    def _get_build_dependencies (self):
-        return ['libtool']
+    dependencies = ['libtool']
     def configure_command (self):
         return 'cd build_unix && ../' + tools.AutoBuild.configure_command (self)
     def configure (self):

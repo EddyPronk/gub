@@ -50,8 +50,7 @@ specified by applications.'''
         logging.command ('pipe %s\n' % cmd)
         # return misc.read_pipe (cmd).strip ()
         return '-lfreetype -lz'
-    def _get_build_dependencies (self):
-        return ['libtool', 'expat-devel', 'freetype-devel', 'tools::freetype', 'tools::pkg-config']
+    dependencies = ['libtool', 'expat-devel', 'freetype-devel', 'tools::freetype', 'tools::pkg-config']
     def configure_command (self):
         # FIXME: system dir vs packaging install
         ## UGH  - this breaks  on Darwin!
@@ -197,8 +196,7 @@ class Fontconfig__tools (tools.AutoBuild):
     def patch (self):
         self.dump ('\nAC_SUBST(LT_AGE)', '%(srcdir)s/configure.in', mode='a', permissions=octal.o755)
         tools.AutoBuild.patch (self)
-    def _get_build_dependencies (self):
-        return ['libtool', 'freetype', 'expat', 'pkg-config']
+    dependencies = ['libtool', 'freetype', 'expat', 'pkg-config']
     def makeflags (self):
         return ('man_MANS=' # either this, or add something like tools::docbook-utils
                 + ' DOCSRC="" ')

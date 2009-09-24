@@ -8,8 +8,7 @@ class Libxslt (target.AutoBuild):
     source = 'http://xmlsoft.org/sources/libxslt-1.1.24.tar.gz'
     def patch (self):
         self.system ('rm -f %(srcdir)s/libxslt/xsltconfig.h')
-    def _get_build_dependencies (self):
-        return ['libxml2-devel', 'zlib-devel']
+    dependencies = ['libxml2-devel', 'zlib-devel']
     def configure_command (self):
         return (target.AutoBuild.configure_command (self)
                 + misc.join_lines ('''
@@ -28,12 +27,10 @@ class Libxslt__mingw (Libxslt):
 '''))
 
 class Libxslt__darwin (Libxslt):
-    def _get_build_dependencies (self):
-        return [x for x in Libxslt._get_build_dependencies (self)
+    dependencies = [x for x in Libxslt.dependencies
                 if x.replace ('-devel', '') not in [
                 'libxml2', # Included in darwin-sdk, hmm?
                 ]]
 
 class Libxslt__tools (tools.AutoBuild, Libxslt):
-    def _get_build_dependencies (self):
-        return Libxslt._get_build_dependencies (self) + ['libtool']
+    dependencies = Libxslt.dependencies + ['libtool']

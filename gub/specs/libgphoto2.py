@@ -12,8 +12,7 @@ class Libgphoto2 (target.AutoBuild):
     source = 'http://surfnet.dl.sourceforge.net/sourceforge/gphoto/libgphoto2-2.3.1.tar.gz'
 # Does not compile
 #    source = mirrors.with_template (name='libgphoto2', version='2.1.6', mirror=sf_gphoto)
-    def _get_build_dependencies (self):
-        return ['libexif-devel', 'libjpeg-devel', 'libusb-devel']
+    dependencies = ['libexif-devel', 'libjpeg-devel', 'libusb-devel']
     def wrap_pkg_config (self):
         self.dump ('''#! /bin/sh
 /usr/bin/pkg-config\

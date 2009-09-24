@@ -6,8 +6,7 @@ from gub import target
 class Libaubio (target.AutoBuild):
     source = 'http://aubio.org/pub/aubio-0.3.2.tar.gz'
     patches = ['libaubio-pkg-config-override.patch']
-    def _get_build_dependencies (self):
-        return ['tools::automake', 'tools::pkg-config',
+    dependencies = ['tools::automake', 'tools::pkg-config',
                 'libfftw-devel',
                 'libsamplerate-devel',
                 'libsndfile-devel',

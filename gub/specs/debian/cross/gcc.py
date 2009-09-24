@@ -3,8 +3,7 @@ from gub import debian
 
 class Gcc__debian (gcc.Gcc):
     source = 'http://ftp.gnu.org/pub/gnu/gcc/gcc-' + debian.gcc_version + '/gcc-' + debian.gcc_version + '.tar.bz2'
-    def _get_build_dependencies (self):
-        return ['cross/binutils', 'libc6', 'libc6-dev', 'linux-kernel-headers']
+    dependencies = ['cross/binutils', 'libc6', 'libc6-dev', 'linux-kernel-headers']
     ## TODO: should detect whether libc supports TLS 
     def configure_command (self):
         return gcc.Gcc.configure_command (self) + ' --disable-tls '

@@ -6,8 +6,7 @@ class Fontforge__tools (tools.AutoBuild):
     patches = ['fontforge-20080927-noxml2.patch']
     parallel_build_broken = True
     srcdir_build_broken = True
-    def _get_build_dependencies (self):
-        return ['freetype', 'libpng', 'libjpeg', 'libxml2']
+    dependencies = ['freetype', 'libpng', 'libjpeg', 'libxml2']
     def srcdir (self):
         return tools.AutoBuild.srcdir (self).replace ('_full', '')
     def patch (self):

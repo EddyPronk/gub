@@ -28,9 +28,8 @@ class Coreutils__tools (tools.AutoBuild):
                     ], '%(srcdir)s/src/Makefile.in')
         else:
             tools.AutoBuild.patch (self)
-    def _get_build_dependencies (self):
         if 'BOOTSTRAP' in os.environ.keys () or no_patch:
-            return []
+    dependencies = []
         return ['tools::autoconf', 'tools::automake']
     def force_autoupdate (self):
         return 'BOOTSTRAP' not in os.environ.keys () or no_patch

@@ -6,8 +6,7 @@ class Git (target.AutoBuild):
     srcdir_build_broken = True
     def get_subpackage_names (self):
         return ['']
-    def _get_build_dependencies (self):
-        return ['zlib-devel']
+    dependencies = ['zlib-devel']
     def config_cache_overrides (self, string):
         # PROMOTEME: at least defines
         return string + '''\n
@@ -22,8 +21,7 @@ ac_cv_snprintf_returns_bongus=yes
         return '''V=1 NO_PERL=NoThanks'''
 
 class Git__freebsd (Git):
-    def _get_build_dependencies (self):
-        return Git._get_build_dependencies (self) + ['libiconv-devel', 'regex-devel']
+    dependencies = Git.dependencies + ['libiconv-devel', 'regex-devel']
     def makeflags (self):
         return (Git.makeflags (self)
                 + ' CFLAGS="-O2 -Duintmax_t=unsigned -Dstrtoumax=strtoul"')
@@ -32,8 +30,7 @@ class Git__mingw (Git):
     def __init__ (self, settings, source):
         Git.__init__ (self, settings, source)
         self.target_gcc_flags = ' -mms-bitfields '
-    def _get_build_dependencies (self):
-        return Git._get_build_dependencies (self) + ['libiconv-devel', 'regex-devel']
+    dependencies = Git.dependencies + ['libiconv-devel', 'regex-devel']
     def configure (self):
         target.AutoBuild.configure (self)
         self.file_sub ([('CFLAGS = -g',
@@ -57,8 +54,7 @@ class Git__mingw (Git):
     def compile_command (self):
         ## want this setting to reach compile, but not install
         return Git.compile_command (self) + ' template_dir=../share/git-core/templates/ '
-    def _get_build_dependencies (self):
-        return Git._get_build_dependencies (self) + ['tcltk']
+    dependencies = Git.dependencies + ['tcltk']
     def install (self):
         Git.install (self)
         bat = r'''@echo off
@@ -67,8 +63,7 @@ class Git__mingw (Git):
         self.dump (bat, '%(install_prefix)s/bin/gitk.bat.in')
 
 class Git__tools (tools.AutoBuild, Git):
-    def _get_build_dependencies (self):
-        return ['curl', 'expat', 'zlib']
+    dependencies = ['curl', 'expat', 'zlib']
     def configure_command (self):
         return (tools.AutoBuild.configure_command (self)
                 + ' --without-openssl')

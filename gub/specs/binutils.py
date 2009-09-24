@@ -6,8 +6,7 @@ from gub import loggedos
 
 class Binutils__tools (tools.AutoBuild):
     source = 'http://ftp.gnu.org/pub/gnu/binutils/binutils-2.19.1.tar.gz'
-    def _get_build_dependencies (self):
-        return ['system::gcc']
+    dependencies = ['system::gcc']
     def makeflags (self):
         # binutils' makefile uses:
         #     MULTIOSDIR = `$(CC) $(LIBCFLAGS) -print-multi-os-directory`

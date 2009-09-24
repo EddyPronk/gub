@@ -27,8 +27,7 @@ class Guile (target.AutoBuild):
             source.version = misc.bind_method (Guile.version_from_VERSION,
                                                source)
         self.so_version = '17'
-    def _get_build_dependencies (self):
-        return ['gettext-devel', 'gmp-devel', 'libtool', 'tools::guile']
+    dependencies = ['gettext-devel', 'gmp-devel', 'libtool', 'tools::guile']
     def get_subpackage_names (self):
         return ['doc', 'devel', 'runtime', '']
     def patch (self):
@@ -128,8 +127,7 @@ class Guile__mingw (Guile):
         Guile.__init__ (self, settings, source)
         # Configure (compile) without -mwindows for console
         self.target_gcc_flags = '-mms-bitfields'
-    def _get_build_dependencies (self):
-        return Guile._get_build_dependencies (self) +  ['regex-devel']
+    dependencies = Guile.dependencies +  ['regex-devel']
     def configure_command (self):
         return (Guile.configure_command (self)
                 # + ' --with-threads=pthread'
@@ -223,7 +221,7 @@ class Guile__cygwin (Guile):
     # Using gub dependencies only would be nice, but
     # we need to a lot of gup.gub_to_distro_deps ().
     def GUB_get_build_dependencies (self):
-        return Guile._get_build_dependencies (self) + ['libiconv-devel']
+        return Guile.dependencies + ['libiconv-devel']
     # FIXME: uses mixed gub/distro dependencies
     def get_dependency_dict (self): #cygwin
         d = Guile.get_dependency_dict (self)
@@ -288,8 +286,7 @@ class Guile__linux__x86 (Guile):
     patches = Guile.patches + ['guile-1.8.6-pthreads-cross.patch']
 
 class Guile__tools (tools.AutoBuild, Guile):
-    def _get_build_dependencies (self):
-        return (Guile._get_build_dependencies (self)
+    dependencies = (Guile.dependencies
                 + ['autoconf', 'automake', 'gettext', 'flex', 'libtool'])
     def patch (self):
         tools.AutoBuild.patch (self)

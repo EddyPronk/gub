@@ -4,8 +4,7 @@ from gub import misc
         
 class Gcc_core (gcc.Gcc__from__source):
     source = 'http://ftp.gnu.org/pub/gnu/gcc/gcc-4.1.1/gcc-4.1.1.tar.bz2'
-    def _get_build_dependencies (self):
-        return gcc.Gcc._get_build_dependencies (self)
+    dependencies = gcc.Gcc.dependencies
     def get_subpackage_names (self):
         return ['']
     def name (self):

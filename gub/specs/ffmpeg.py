@@ -5,8 +5,7 @@ class Ffmpeg (target.AutoBuild):
     source='svn://svn.mplayerhq.hu/ffmpeg&branch=trunk&revision=6017'
     def version (self):
         return self.source.revision
-    def _get_build_dependencies (self):
-        return ['faac-devel', 'faad2-devel', 'a52dec-devel']
+    dependencies = ['faac-devel', 'faad2-devel', 'a52dec-devel']
     def configure_command (self):
         #FIXME: this is autoconf
         #target.AutoBuild.configure_command (self)

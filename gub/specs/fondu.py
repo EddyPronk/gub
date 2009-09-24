@@ -15,4 +15,3 @@ class Fondu__darwin (Fondu):
         self.file_sub ([('/System/Library/',
                 '%(system_root)s/System/Library/')],
                '%(srcdir)s/Makefile.in')
-        

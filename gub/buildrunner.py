@@ -316,6 +316,8 @@ class BuildRunner:
         if not fail_str:
             fail_str = '<nothing to be done>.'
         logging.default_logger.write_log ('must rebuild[%(platform)s]: %(fail_str)s\n' % locals (), 'stage')
+        if self.options.dry_run:
+            sys.exit (0)
         outdated_installed = [x for x in list (reversed (outdated))
                               if self.is_installed_spec (x)]
         if outdated_installed:
