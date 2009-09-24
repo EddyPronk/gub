@@ -385,8 +385,9 @@ class SystemFailed (Exception):
 def file_mod_time (file_name):
     return os.stat (file_name)[stat.ST_MTIME]
 
-def file_mod_time_str (file_name):
-    return time.ctime (file_mod_time (file_name))
+ctime_format = '%a %b %d %H:%M:%S %Y'
+def file_mod_time_str (file_name, format=ctime_format):
+    return time.strftime (format, time.localtime (file_mod_time (file_name)))
 
 def binary_strip_p (filter_out=[], extension_filter_out=[]):
     def predicate (file):
@@ -711,6 +712,8 @@ def latest_url (url, name, raw_version_file=None):
     s = open (raw_version_file).read ()
     inert_name = name.replace ('+', '[+]')
     m = re.findall ('(%(inert_name)s-[.0-9]+tar.gz)' % locals (), s)
+    if not m:
+        return None
     if len (m) == 1:
         return m[0]
     return url + assemble_ball (sorted (map (split_ball, m))[-1])
@@ -727,6 +730,11 @@ def optparse_epilog (parser, string):
     else:
         parser.formatter.format_description = format_plain
         parser.description = string
+
+def rename_append_time (file_name):
+    os.rename (file_name, file_name
+               + '.'
+               + file_mod_time_str (file_name, format='%Y%M%d-%H%M%S'))
 
 start = 0
 def timing ():

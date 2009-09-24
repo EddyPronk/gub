@@ -157,6 +157,8 @@ class Settings (context.Context):
             self.tools_cross_prefix = self.tools_prefix + '/' + self.build_architecture
 
         self.logdir = self.targetdir + '/log'
+        # EXPENSIVE, see bin/gub
+        # self.alllogdir = self.workdir + '/log'
 
         ## Patches are architecture dependent, 
         ## so to ensure reproducibility, we unpack for each

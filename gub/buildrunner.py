@@ -222,7 +222,18 @@ class BuildRunner:
         if ((not checksum_fail_reason or self.options.lax_checksums)
             and not spec.install_after_build):
             return
-        logger = logging.default_logger
+        if False and self.options.log == 'build':
+            # This is expecially broken with multi-platform builds...
+            logger = logging.default_logger
+        else:
+            if False and self.options.log == 'platform':
+                log = os.path.join (spec.settings.logdir, 'build.log')
+            else:
+                log = os.path.join (spec.settings.logdir,
+                                    misc.strip_platform (spec_name)) + '.log'
+            if os.path.isfile (log):
+                misc.rename_append_time (log)
+            logger = logging.CommandLogger (log, logging.default_logger.threshold)
         if checksum_fail_reason:
             rebuild = 'must'
             if self.options.lax_checksums:
@@ -252,6 +263,8 @@ class BuildRunner:
                     # Sanity check.  This can't be right.  Do not
                     # overwrite precious [possibly correct] checksum.
                     raise Exception ('BROKEN CHECKSUM:' + self.checksums[spec_name])
+                if os.path.isfile (checksum_file):
+                    misc.rename_append_time (checksum_file)
                 open (checksum_file, 'w').write (self.checksums[spec_name])
             #spec.set_done ('')
             loggedos.system (logging.default_logger, spec.expand ('rm -f %(stamp_file)s'))

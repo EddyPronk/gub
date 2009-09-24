@@ -74,6 +74,10 @@ Examples:
                   dest='keep_build',
                   default=None,
                   help='Leave build and src dir for inspection')
+    p.add_option ('-l', '--log',
+                  default='package',
+                  help='select log file granularity',
+                  choices=['build','package','platform'])
     p.add_option ('-s', '--src-package', action='store_true',
                   default=None,
                   help='Also roll source packages')
@@ -140,7 +144,7 @@ Examples:
                   action='store_true',
                   default=False,
                   help='Ignore dependencies.')
-    p.add_option ('-l', '--skip-if-locked',
+    p.add_option ('--skip-if-locked',
                   default=False,
                   action="store_true",
                   help="Return successfully if another build is already running")
@@ -266,12 +270,17 @@ def exceptional_build (settings, options, files, logger):
     return 0
 
 def logged_build (settings, options, files):
-    logger = logging.set_default_log (settings.expand ('%(logdir)s/build.log'),
-                                      options.verbosity)
-    
+    # EXPENSIVE: 
+    #log_dir = settings.expand ('%(alllogdir)s')
+    log_dir = settings.expand ('%(workdir)s/log')
+    if not os.path.isdir (log_dir):
+        os.makedir (log_dir)
+    log = os.path.join (log_dir, 'gub.log')
+    if os.path.isfile (log):
+        misc.rename_append_time (log)
+    logger = logging.set_default_log (log, options.verbosity)
     logger.write_log ('root: %s\n' % settings.system_root, 'verbose')
     logger.write_log ('platform: %s\n' % settings.platform, 'verbose')
-
     sys.exit (exceptional_build (settings, options, files, logger))
 
 def main ():

@@ -165,29 +165,29 @@ GUB BASICS
 
 ROADMAP
 
-       directory                           contents and use
-. (GNUmakefile, *.make) make drivers (try: make help)
-bin/                    programs (gub, gpkg, gib, ...; try: bin/gub --help)
-gub/                    python library
-gub/specs/              build specifications (gub/specs/
-                        hello.py,bison.py,denemo.py,lilypond.py...)
-patches/                patch files used in build specifications
-target/                 build trees
-uploads/                installers
-target/<platform>/      working tree for <platform>
-target/linux-x86/src/   linux-x86 unpacked sources
-target/linux-64/build/  linux-64 build output
-target/darwin-x86/log/  darwin-x86 build logs
-build.log
-target/mingw/packages/  .gup packages for mingw
-target/darwin-ppc/log/  status of partial darwin-ppc builds
+       directory                            contents and use
+. (GNUmakefile, *.make)  make drivers (try: make help)
+bin/                     programs (gub, gpkg, gib, ...; try: bin/gub --help)
+gub/                     python library
+gub/specs/               build specifications (gub/specs/
+                         hello.py,bison.py,denemo.py,lilypond.py...)
+patches/                 patch files used in build specifications
+target/                  build trees
+log/ (gub.log, ...)      (build) log files
+uploads/                 installers
+target/<platform>/       working tree for <platform>
+target/linux-x86/src/    linux-x86 unpacked sources
+target/linux-64/build/   linux-64 build output
+target/darwin-x86/log/   darwin-x86 most recent lilypond build log
+lilypond.log
+target/mingw/packages/   .gup packages for mingw
+target/darwin-ppc/log/   status of partial darwin-ppc builds
 status/
-target/freebsd-x86/root freebsd-x86 build and install root
-/
-target/tools/root/usr/  native tools used for build
+target/freebsd-x86/root/ freebsd-x86 build and install root
+target/tools/root/usr/   native tools used for build
 bin/
-sourcefiles/            non-patch files used in build specifications
-nsis/                   nsis windows installer scripts/
+sourcefiles/             non-patch files used in build specifications
+nsis/                    nsis windows installer scripts/
 
 BASIC USAGE
 
