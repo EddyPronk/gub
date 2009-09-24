@@ -13,9 +13,10 @@ class Bash__mingw (Bash):
         self.file_sub ([(r'test \$ac_cv_sys_tiocgwinsz_in_termios_h != yes',
                          r'test "$ac_cv_sys_tiocgwinsz_in_termios_h" != yes'),
                         ], '%(srcdir)s/configure')
-    def config_cache_overrides (self, str):
-        str += 'bash_cv_have_mbstate_t=yes\n'
-        return str
+    def config_cache_overrides (self, string):
+        return string + '''\n
+bash_cv_have_mbstate_t=yes
+'''
  
 no_patch = True # let's not use patch in a bootstrap package
 class Bash__tools (tools.AutoBuild, Bash):
