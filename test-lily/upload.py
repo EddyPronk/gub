@@ -178,7 +178,7 @@ def upload_binaries (repo, version, version_db):
     ## don't do cygwin .
     ##    cmds.append ('rsync -v --recursive --delay-updates --progress uploads/cygwin/release/ %(host_binaries_spec)s/cygwin/release/' % globals ())
     
-    description = repo.git_pipe ('describe --abbrev=39 %s' % repo.get_ref ()).strip ()
+    description = repo.git_pipe ('describe --always --abbrev=39 %s' % repo.get_ref ()).strip ()
     
     git_tag = 'release/%(version_str)s-%(build)d' % locals () 
     git_dir = repo.dir
