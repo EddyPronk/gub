@@ -68,14 +68,7 @@ Examples:
   gub mingw::openoffice
 '''
 
-    def format_examples (self):
-        return examples
-    if 'epilog'  in  p.__dict__:
-        p.formatter.format_epilog = format_examples
-        p.epilog = examples
-    else:
-        p.formatter.format_description = format_examples
-        p.description = examples
+    misc.optparse_epilog (p, examples)
 
     p.add_option ('-k', '--keep', action='store_true',
                   dest='keep_build',

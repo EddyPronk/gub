@@ -718,6 +718,16 @@ def latest_url (url, name, raw_version_file=None):
 def double_quote (string):
     return re.sub ('''(='[^']+')''', r'"\1"', string)
 
+def optparse_epilog (parser, string):
+    def format_plain (self):
+        return string
+    if 'epilog'  in  parser.__dict__:
+        parser.formatter.format_epilog = format_plain
+        parser.epilog = string
+    else:
+        parser.formatter.format_description = format_plain
+        parser.description = string
+
 start = 0
 def timing ():
     global start
