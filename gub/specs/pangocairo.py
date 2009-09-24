@@ -1,4 +1,5 @@
 from gub import gnome
+from gub import target
 from gub.specs import pango
 
 class Pangocairo (pango.Pango):
@@ -16,8 +17,8 @@ class Pangocairo__mingw (Pangocairo):
         self.dump ('''${PANGO_PREFIX}/lib/pango/${PANGO_MODULE_VERSION}/modules/pango-basic-win32${PANGO_SO_EXTENSION} BasicScriptEngineWin32 PangoEngineShape PangoRenderWin32 common:
 ''', '%(etc)s/pango.modules', env=locals (), mode='a')
         Pangocairo.fix_config_files (self, prefix)
-    def configure_command (self):
-        return (Pangocairo.configure_command (self)
+    def configure_flags (self):
+        return (target.AutoBuild.configure_flags (self)
                 + ' --disable-rebuilds')
 
 class Pangocairo__darwin__no_quartz_objective_c (Pangocairo):

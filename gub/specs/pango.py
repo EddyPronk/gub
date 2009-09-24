@@ -25,16 +25,12 @@ class Pango (target.AutoBuild):
             ]
     def get_conflict_dict (self):
         return {'': ['pangocairo', 'pangocairo-devel', 'pangocairo-doc'], 'devel': ['pangocairo', 'pangocairo-devel', 'pangocairo-doc'], 'doc': ['pangocairo', 'pangocairo-devel', 'pangocairo-doc'], 'runtime': ['pangocairo', 'pangocairo-devel', 'pangocairo-doc']}
-    #FIXME: promoteme to build.py
     def configure_flags (self):
-        return misc.join_lines ('''
+        return (target.AutoBuild.configure_flags (self)
+                + misc.join_lines ('''
 --without-x
 --without-cairo
-''')
-    #FIXME: promoteme to build.py
-    def configure_command (self):
-        return (target.AutoBuild.configure_command (self)
-                + self.configure_flags ())
+'''))
     def module_version (self):
         result = None
         version = self.version()
