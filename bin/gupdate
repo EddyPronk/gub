@@ -30,6 +30,7 @@ def argv0_relocation ():
 argv0_relocation ()
 
 import optparse
+import os
 import re
 import sys
 #
@@ -45,7 +46,7 @@ def parse_command_line ():
 Examples:
 
   gupdate gub/specs/git.py
-  gupdate --replace $(git ls-files gub)
+  gupdate $(gub --show-dependencies lilypond 2>/dev/null | sed -e 's/(gcc|glibc)//g')
 
 '''
     misc.optparse_epilog (p, examples)
@@ -64,15 +65,34 @@ def do_spec (file_name, options):
     name, version_tuple, format = misc.split_ball (url)
     url_dir = url[:url.rfind ('/')+1]
     latest = misc.latest_url (url_dir, name)
-    if url != latest:
+    if not latest:
+        sys.stderr.write ('cannot find upstream for: %(url)s\n' % locals ())
+    elif latest != url:
         if options.replace:
             printf ('%(file_name)s: updating to: %(latest)s' % locals ())
             misc.file_sub ([(url, latest)], file_name)
         else:
             printf ('%(file_name)s: new ball: %(latest)s' % locals ())
 
+def arg_to_file (arg):
+    if os.path.isfile (arg):
+        return arg
+    name = arg
+    if '::' in arg:
+        name = misc.strip_platform (arg)
+    if os.path.isfile (name):
+        return name
+    file_name = os.path.join ('gub/specs', name)
+    if not file_name.endswith ('.py'):
+        file_name += '.py'
+    if os.path.isfile (file_name):
+        return file_name
+    sys.stderr.write ('cannot find file for: %(arg)s: skipping\n' % locals ())
+    return None
+
 def main ():
-    (options, files) = parse_command_line ()
+    (options, args) = parse_command_line ()
+    files = [x for x in map (arg_to_file, args) if x]
     for f in files:
         do_spec (f, options)
 

@@ -175,7 +175,7 @@ def build (settings, options, files):
     platform = settings.platform
     dep_str = ' '.join (names)
     if options.show_dependencies:
-        logging.stage ('dependencies[%(platform)s]: %(dep_str)s\n' % locals ())
+        printf ('dependencies[%(platform)s]: %(dep_str)s' % locals ())
         sys.exit (0)
     dep_str.replace (misc.with_platform ('', platform), '')
     logging.info ('dependencies[%(platform)s]: %(dep_str)s\n' % locals ())
