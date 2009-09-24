@@ -332,10 +332,7 @@ class AutoBuild (Build):
 
     @context.subst_method
     def configure_command (self):
-        return (' sh '
-                + self.configure_binary ()
-                + self.configure_flags ()
-                + self.configure_variables ())
+        return (' sh %(configure_binary)s%(configure_flags)s%(configure_variables)s')
 
     @context.subst_method
     def configure_flags (self):
