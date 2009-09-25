@@ -18,6 +18,10 @@ class Coreutils__tools (tools.AutoBuild):
         patches = ['coreutils-6.12-shared-automake.patch']
     if no_patch:
         patches = []
+    dependencies = []
+    if 'BOOTSTRAP' in os.environ.keys () or no_patch:
+        dependencies = ['tools::autoconf', 'tools::automake']
+    force_autoupdate = 'BOOTSTRAP' not in os.environ.keys () or no_patch
     def patch (self):
         if no_patch:
             self.file_sub ([('noinst_LIBRARIES', 'lib_LIBRARIES')],
@@ -28,11 +32,6 @@ class Coreutils__tools (tools.AutoBuild):
                     ], '%(srcdir)s/src/Makefile.in')
         else:
             tools.AutoBuild.patch (self)
-        if 'BOOTSTRAP' in os.environ.keys () or no_patch:
-    dependencies = []
-        return ['tools::autoconf', 'tools::automake']
-    def force_autoupdate (self):
-        return 'BOOTSTRAP' not in os.environ.keys () or no_patch
     def autoupdate (self):
         if 'BOOTSTRAP' in os.environ.keys () or no_patch:
             return

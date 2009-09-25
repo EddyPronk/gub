@@ -31,6 +31,8 @@ class Python (target.AutoBuild):
         'python-2.4.5-native.patch',
         'python-2.4.5-db4.7.patch',
         ]
+    dependencies = ['db-devel', 'expat-devel', 'zlib-devel', 'tools::python']
+    force_autoupdate = True
 
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
@@ -39,14 +41,11 @@ class Python (target.AutoBuild):
     def get_subpackage_names (self):
         return ['doc', 'devel', 'runtime', '']
 
-    dependencies = ['db-devel', 'expat-devel', 'zlib-devel', 'tools::python']
 
     def patch (self):
         target.AutoBuild.patch (self)
         self.file_sub ([('@CC@', '@CC@ -I$(shell pwd)')],
                         '%(srcdir)s/Makefile.pre.in')
-    def force_autoupdate (self):
-        return True
     def autoupdate (self):
         target.AutoBuild.autoupdate (self)
         # FIXME: REMOVEME/PROMOTEME to target.py?
@@ -159,8 +158,7 @@ class Python__tools (tools.AutoBuild, Python):
 #    patches = ['python-2.4.2-fno-stack-protector.patch']
     patches = []
     dependencies = ['autoconf', 'libtool']
-    def force_autoupdate (self):
-        return True
+    force_autoupdate = True
     def makeflags (self):
         return Python.makeflags (self)
     def install_command (self):

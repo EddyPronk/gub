@@ -11,6 +11,8 @@ from gub import tools
 class Python (target.AutoBuild):
     source = 'http://python.org/ftp/python/2.5/Python-2.5.tar.bz2'
     patches = ['python-2.5.patch']
+    dependencies = ['expat-devel', 'zlib-devel', 'tools::python2.5']
+    force_autoupdate = True
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         
@@ -26,9 +28,6 @@ class Python (target.AutoBuild):
                        "%(srcdir)s/setup.py", must_succeed=True)
     def get_subpackage_names (self):
         return ['doc', 'devel', 'runtime', '']
-    dependencies = ['expat-devel', 'zlib-devel', 'tools::python2.5']
-    def force_autoupdate (self):
-        return True
     def compile_command (self):
         ## UGH.: darwin Python vs python (case insensitive FS)
         return (target.AutoBuild.compile_command (self)
@@ -85,7 +84,6 @@ chmod 755 %(install_prefix)s/bin/*
 class Python__tools (tools.AutoBuild, Python):
     patches = []
     dependencies = ['autoconf', 'libtool']
-    def force_autoupdate (self):
-        return True
+    force_autoupdate = True
     def install (self):
         tools.AutoBuild.install (self)

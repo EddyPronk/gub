@@ -24,6 +24,7 @@ class Build (context.RunnableContext):
     patches = []
     dependencies = []
     config_cache_flag_broken = True
+    force_autoupdate = False
     install_after_build = True
     parallel_build_broken = False
     srcdir_build_broken = False
@@ -369,12 +370,9 @@ class AutoBuild (Build):
     def patch (self):
         list (map (self.apply_patch, self.patches))
 
-    def force_autoupdate (self):
-        return False
-
     def autoupdate (self):
         # FIMXE: can we do this smarter?
-        if self.force_autoupdate ():
+        if self.force_autoupdate:
             self.runner._execute (commands.ForcedAutogenMagic (self))
         else:
             self.runner._execute (commands.AutogenMagic (self))

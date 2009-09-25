@@ -62,11 +62,10 @@ class Libjpeg__tools (tools.AutoBuild, Libjpeg):
         tools.AutoBuild.__init__ (self, settings, source)
         source._version = 'v6b'
     dependencies = ['libtool']
+    force_autoupdate = False
     def srcdir (self):
         return re.sub (r'src\.v', '-', tools.AutoBuild.srcdir (self))
-    def force_autoupdate (self):
         '''libtoolize: `configure.ac' does not exist'''
-        return False
     def update_libtool (self):
         pass
     def configure (self):

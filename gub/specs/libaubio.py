@@ -12,8 +12,7 @@ class Libaubio (target.AutoBuild):
                 'libsndfile-devel',
                 'python-devel',
                 ]
-    def force_autoupdate (self):
-        return True
+    force_autoupdate = True
     def config_cache_overrides (self, string):
         return (string + '''
 ac_cv_path_PYTHON=${ac_cv_path_PYTHON=no}
