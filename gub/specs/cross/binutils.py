@@ -10,11 +10,10 @@ class Binutils (cross.AutoBuild):
     configure_flags = (cross.AutoBuild.configure_flags
                 + ' --disable-werror'
                 )
-    def makeflags (self):
         # binutils' makefile uses:
         #     MULTIOSDIR = `$(CC) $(LIBCFLAGS) -print-multi-os-directory`
         # which differs on each system.  Setting it avoids inconsistencies.
-        return 'MULTIOSDIR=../../lib'
+    makeflags = 'MULTIOSDIR=../../lib'
     def install (self):
         cross.AutoBuild.install (self)
         binutils.install_librestrict_stat_helpers (self)

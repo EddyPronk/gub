@@ -16,13 +16,11 @@ ac_cv_snprintf_returns_bongus=yes
 '''
     configure_flags = (tools.AutoBuild.configure_flags
                 + ' --without-openssl')
-    def makeflags (self):
-        return '''V=1 NO_PERL=NoThanks'''
+    makeflags = '''V=1 NO_PERL=NoThanks'''
 
 class Git__freebsd (Git):
     dependencies = Git.dependencies + ['libiconv-devel', 'regex-devel']
-    def makeflags (self):
-        return (Git.makeflags (self)
+    makeflags = (Git.makeflags
                 + ' CFLAGS="-O2 -Duintmax_t=unsigned -Dstrtoumax=strtoul"')
 
 class Git__mingw (Git):
@@ -40,8 +38,7 @@ class Git__mingw (Git):
                         ],
                        '%(builddir)s/Makefile')
         self.dump ('%(version)s-GUB', '%(builddir)s/version')
-    def makeflags (self):
-        return (' uname_S=MINGW'
+    makeflags = (' uname_S=MINGW'
                 + ' V=1 '
 
                 ## we'll consider it if they clean up their act
@@ -65,5 +62,4 @@ class Git__tools (tools.AutoBuild, Git):
     dependencies = ['curl', 'expat', 'zlib']
     configure_flags = (tools.AutoBuild.configure_flags
                        + ' --without-openssl')
-    def makeflags (self):
-        return Git.makeflags (self)
+    makeflags = Git.makeflags

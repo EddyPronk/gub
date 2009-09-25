@@ -277,18 +277,40 @@ build it by doing
     bin/gub tools::autoconf
 
 
-__LINUX__PPC specific patches
+configure flags
 
-gub/specs/pixman.py
+gub/specs/icoutils.py
+
+    from gub import tools
+
+    class Icoutils__tools (tools.AutoBuild):
+        dependencies = ['libpng-devel']
+        configure_flags = (tools.AutoBuild.configure_flags
+                           + ' --with-libintl-prefix=%(system_prefix)s'
+                           + ' --disable-nls')
+
+
+__<platform>__<arch>-specific patches
+
+For platform specific instructions, append "__<platform>" to the class name.
+For platform+architecture-specific instructions, "__<platform>__<arch>" to the
+class name. gub/specs/pixman.py
 
     from gub import target
 
-    class Pixman (target.AutoBuild):
-        source = 'http://www.cairographics.org/releases/pixman-0.13.2.tar.gz'
-        dependencies = ['tools::libtool']
+    class Glib (target.AutoBuild):
+        ...
 
-    class Pixman__linux__ppc (Pixman):
-        patches = ['pixman-0.13.2-auxvec.patch']
+    class Glib__freebsd (Glib):
+        dependencies = Glib.dependencies + ['libiconv-devel']
+        configure_variables = Glib.configure_variables + ' CFLAGS=-pthread'
+
+    class Glib__freebsd__x86 (Glib__freebsd):
+        # Must include -pthread in lib flags, because our most beloved
+        # libtool (2.2.6a) thinks it knows best and blondly strips -pthread
+        # if it thinks it's a compile flag.
+        # FIXME: should add fixup to update_libtool ()
+        compile_flags = ' G_THREAD_LIBS=-pthread G_THREAD_LIBS_FOR_GTHREAD=-pthread '
 
 
 More examples

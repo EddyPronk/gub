@@ -11,12 +11,11 @@ class Netpbm__tools (tools.AutoBuild):
         self.shadow ()
         self.dump ('\n'*3 + 'static\n' + '\n'*18, '%(builddir)s/answers')
         self.system ('cd %(builddir)s && sh %(srcdir)s/configure < answers')
-    def makeflags (self):
         '''
 libpbm3.c:116: note: use -flax-vector-conversions to permit conversions between vectors with differing element types or numbers of subparts
 libpbm3.c:116: fout: incompatible type for argument 1 of __builtin_ia32_pcmpeqb
 '''
-        return misc.join_lines ('''
+    makeflags = misc.join_lines ('''
 CC=gcc
 CFLAGS='-O2 -fPIC -flax-vector-conversions'
 LDFLAGS='%(rpath)s -L%(builddir)s/pbm -L%(builddir)s/pgm -L%(builddir)s/pnm -L%(builddir)s/ppm'

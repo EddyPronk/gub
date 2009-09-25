@@ -7,11 +7,10 @@ from gub import loggedos
 class Binutils__tools (tools.AutoBuild):
     source = 'http://ftp.gnu.org/pub/gnu/binutils/binutils-2.19.1.tar.gz'
     dependencies = ['system::gcc']
-    def makeflags (self):
         # binutils' makefile uses:
         #     MULTIOSDIR = `$(CC) $(LIBCFLAGS) -print-multi-os-directory`
         # which differs on each system.  Setting it avoids inconsistencies.
-        return 'MULTIOSDIR=../../lib'
+    makeflags = 'MULTIOSDIR=../../lib'
     def install (self):
         tools.AutoBuild.install (self)
         install_librestrict_stat_helpers (self)

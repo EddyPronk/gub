@@ -12,8 +12,7 @@ class LilyPond_doc (lilypond.LilyPond_base):
                 'tools::rsync', # ugh, we depend on *rsync* !?
                 #'tools::texlive',
                 ])
-    def makeflags (self):
-        return misc.join_lines ('''
+    makeflags = misc.join_lines ('''
 CROSS=no
 DOCUMENTATION=yes
 WEB_TARGETS="offline online"
@@ -35,7 +34,7 @@ TARGET_PYTHON=/usr/bin/python
                 + ' top-doc all doc')
 
     def install_flags (self):
-        return (self.makeflags ()
+        return (self.makeflags
                 + 'prefix= '
                 + 'infodir=/share/info '
                 + 'DESTDIR=%(install_root)s '

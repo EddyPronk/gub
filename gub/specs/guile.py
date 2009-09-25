@@ -284,8 +284,7 @@ class Guile__tools (tools.AutoBuild, Guile):
         # setting the proper LD_LIBRARY_PATH.
         return ('export LD_LIBRARY_PATH=%(builddir)s/libguile/.libs:%(system_prefix)s/lib:${LD_LIBRARY_PATH-/foe};'
                 + Guile.compile_command (self))
-    def makeflags (self):
-        return Guile.makeflags (self)
+    makeflags = Guile.makeflags
     def makeflags_for_build (self):
         # Doing make gen-scmconfig, guile starts a configure recheck:
         #    cd .. && make  am--refresh

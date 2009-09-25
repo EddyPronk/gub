@@ -3,8 +3,7 @@ from gub import target
 
 class Pthreads_w32 (target.MakeBuild):
     source = 'ftp://sourceware.org/pub/pthreads-win32/pthreads-w32-2-8-0-release.tar.gz'
-    def makeflags (self):
-        return 'GC CROSS=%(toolchain_prefix)s'
+    makeflags = 'GC CROSS=%(toolchain_prefix)s'
     def install_command (self):
         return misc.join_lines ('''
 install -d %(install_prefix)s/bin

@@ -345,11 +345,10 @@ cd %(install_prefix)s && rm -rf usr/X11R6/share
         def defer (logger):
             self.fonts_source.update_workdir (fontdir)
         self.func (defer)
-    def makeflags (self):
         # Link to binmode to fix text mode mount problem
         # http://cygwin.com/ml/cygwin/2002-07/msg02302.html
         # although text mode mounts are considered evil...
-        return ' CFLAGS_STANDARD="-g -O2" EXTRALIBS=-lbinmode'
+    makeflags = ' CFLAGS_STANDARD="-g -O2" EXTRALIBS=-lbinmode'
     # REMOVE after first cygwin release.
     def description_dict (self):
         return {'base': 'The GPL Ghostscript PostScript interpreter - transitional package\nThis is an empty package to streamline the upgrade.'}

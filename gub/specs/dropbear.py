@@ -14,8 +14,7 @@ mkdir -p %(builddir)s/libtomcrypt/src/math/fp
 mkdir -p %(builddir)s/libtomcrypt/src/modes/f8
 mkdir -p %(builddir)s/libtomcrypt/src/modes/lrw
 ''')
-    def makeflags (self):
-        return 'PROGRAMS="dropbear dbclient dropbearkey dropbearconvert ssh scp"'
+    makeflags = 'PROGRAMS="dropbear dbclient dropbearkey dropbearconvert ssh scp"'
     def compile_command (self):
         return (target.AutoBuild.compile_command (self)
             + ' SCPPROGRESS=1 MULTI=1')

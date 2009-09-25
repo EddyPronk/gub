@@ -9,8 +9,7 @@ class Liblpsolve (target.AutoBuild):
     def autoupdate (self):
         # install install-sh
         self.system ('cd %(srcdir)s && automake --add-missing --copy --force --foreign || :')
-    def makeflags (self):
-        return misc.join_lines ('''
+    makeflags = misc.join_lines ('''
 AR=%(toolchain_prefix)sar
 LIBS=
 RANLIB=%(toolchain_prefix)sranlib

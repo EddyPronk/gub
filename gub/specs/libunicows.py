@@ -10,8 +10,7 @@ class Libunicows (target.MakeBuild):
         self.shadow ()
 
 class Libunicows__mingw (Libunicows):
-    def makeflags (self):
-        return misc.join_lines ('''-C src -f makefile.mingw32
+    makeflags = misc.join_lines ('''-C src -f makefile.mingw32
 AR=%(toolchain_prefix)sar
 CC=%(toolchain_prefix)sgcc
 LD=%(toolchain_prefix)sld

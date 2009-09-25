@@ -93,8 +93,7 @@ libc_cv_rootsbindir=%(prefix_dir)s/sbin
     # Disable librestrict.so, as it causes crashes on Fedora 9 and 10.
     def LD_PRELOAD (self):
         return ''
-    def makeflags (self):
-        return ' SHELL=/bin/bash'
+    makeflags = ' SHELL=/bin/bash'
     def install_command (self):
         return (target.AutoBuild.install_command (self)
                 + ' install_root=%(install_root)s'

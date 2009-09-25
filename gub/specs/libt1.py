@@ -8,8 +8,7 @@ class Libt1 (target.AutoBuild):
     dependencies = [
             'tools::libtool',
             ]
-    def makeflags (self):
-        return ''' without_doc 'VPATH:=$(srcdir)' '''
+    makeflags = ''' without_doc 'VPATH:=$(srcdir)' '''
 
 class Libt1__tools (tools.AutoBuild, Libt1):
     parallel_build_broken = True

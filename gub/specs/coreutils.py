@@ -40,8 +40,7 @@ cd %(srcdir)s && autoreconf
 ''')
     configure_variables = (tools.AutoBuild.configure_variables
                            + ' CFLAGS=-fPIC')
-    def makeflags (self):
-        return misc.join_lines ('''
+    makeflags = misc.join_lines ('''
 V=1
 LDFLAGS='%(rpath)s'
 LIBS='$(cp_LDADD) $(ls_LDADD) -lm'

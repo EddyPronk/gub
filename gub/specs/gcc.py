@@ -35,8 +35,7 @@ class Gcc__tools (tools.AutoBuild):
         if 'c++' in self.languages ():
             flags += ' --enable-libstdcxx-debug'
         return flags
-    def makeflags (self):
-        return misc.join_lines ('''
+    makeflags = misc.join_lines ('''
 tooldir='%(cross_prefix)s/%(target_architecture)s'
 gcc_tooldir='%(prefix_dir)s/%(target_architecture)s'
 ''')

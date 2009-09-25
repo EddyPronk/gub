@@ -100,8 +100,7 @@ class LilyPond (target.AutoBuild):
         return v
     def pretty_name (self):
         return 'LilyPond'
-    def makeflags (self):
-        return ' TARGET_PYTHON=/usr/bin/python'
+    makeflags = ' TARGET_PYTHON=/usr/bin/python'
     def install (self):
         target.AutoBuild.install (self)
         # FIXME: This should not be in generic package, for installers only.
@@ -212,10 +211,9 @@ class LilyPond__cygwin (LilyPond):
             ]
     configure_flags = (LilyPond.configure_flags
                 .replace ('--enable-relocation', '--disable-relocation'))
-    def makeflags (self):
         python_lib = '%(system_prefix)s/bin/libpython*.dll'
         LDFLAGS = '-L%(system_prefix)s/lib -L%(system_prefix)s/bin -L%(system_prefix)s/lib/w32api'
-        return (LilyPond.makeflags (self)
+    makeflags = (LilyPond.makeflags
                 + ' LDFLAGS="%(LDFLAGS)s %(python_lib)s"' % locals ())
     def compile (self):
         # Because of relocation script, python must be built before scripts
@@ -262,9 +260,8 @@ install:
 ''', '%(builddir)s/python/GNUmakefile')
         
 class LilyPond__mingw (LilyPond):
-    def makeflags (self):
         python_lib = '%(system_prefix)s/bin/libpython*.dll'
-        return (LilyPond.makeflags (self)
+    makeflags = (LilyPond.makeflags
                 + ' LDFLAGS="%(python_lib)s"'  % locals ())
 
     dependencies = LilyPond.dependencies + [
@@ -364,8 +361,7 @@ class LilyPond__darwin (LilyPond):
                 ])
     configure_flags = (LilyPond.configure_flags
                 .replace ('--enable-rpath', '--disable-rpath'))
-    def makeflags (self):
-        return ' TARGET_PYTHON="/usr/bin/env python"'
+    makeflags = ' TARGET_PYTHON="/usr/bin/env python"'
 
 class LilyPond__darwin__ppc (LilyPond__darwin):
     def configure (self):

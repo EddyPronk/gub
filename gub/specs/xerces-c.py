@@ -29,20 +29,19 @@ class Xerces_c (target.AutoBuild):
         # cool, it can serve the INSTALL file!  Let's remove it from
         # the tarball!
     def configure_command (self):
-        return (self.makeflags ()
+        return (self.makeflags
                 + ' '
                 + target.AutoBuild.configure_command (self))
-    def makeflags (self):
         s = ''
         for i in list (self.compile_dict.keys ()):
             s += ' ' + i + '="' + self.compile_dict[i] + '"'
-        return s
+    makeflags = s
     def compile_command (self):
         return (target.AutoBuild.compile_command (self)
-                + self.makeflags ())
+                + self.makeflags)
     def install_command (self):
         return (target.AutoBuild.install_command (self)
-                + self.makeflags ())
+                + self.makeflags)
     def configure (self):
         self.shadow ()
         self.config_cache ()

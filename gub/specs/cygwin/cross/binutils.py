@@ -5,9 +5,8 @@ from gub import cygwin
 # -luser32 (ie -L .../w32api/) problem without having to set LDFLAGS.
 class Binutils__cygwin (cross_binutils.Binutils):
     source = 'http://ftp.gnu.org/pub/gnu/binutils/binutils-2.17.tar.bz2'
-    def makeflags (self):
         from gub import misc
-        return misc.join_lines ('''
+    makeflags = misc.join_lines ('''
 tooldir="%(cross_prefix)s/%(target_architecture)s"
 ''')
     configure_flags = (cross_binutils.Binutils.configure_flags

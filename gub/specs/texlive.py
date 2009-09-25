@@ -176,11 +176,10 @@ rsync -v -a %(srcdir)s/texmf-dist %(install_prefix)s/share/ || :
             d = misc.grok_sh_variables (self.expand ('%(srcdir)s/VERSION'))
             return 'texlive-%(VERSION)s' % d
         return 'texlive-3.0'
-    def makeflags (self):
         SHELL = ' SHELL=/bin/bash'
         if 'stat' in misc.librestrict ():
             SHELL = ' SHELL=%(tools_prefix)s/bin/bash'
-        return target.AutoBuild.makeflags (self) + SHELL
+    makeflags = target.AutoBuild.makeflags + SHELL
 
 class Texlive__cygwin (Texlive):
     # FIXME: uses mixed gub/distro dependencies
@@ -218,13 +217,12 @@ lt_cv_cc_dll_switch=${lt_cv_cc_dll_switch="-Wl,--dll -nostartfiles"}
                     ], i)
         self.file_sub ([('^(/\* kpsewhich --)', '#undef KPSE_DLL\n\\1')],
                        '%(srcdir)s/texk/kpathsea/kpsewhich.c')
-    def makeflags (self):
-        return (Texlive.makeflags (self)
+    makeflags = (Texlive.makeflags
                 + misc.join_lines ('''
 CFLAGS='-O2 -g -DKPSE_DLL'
 '''))
     def compile_command (self):
-        return (Texlive.compile_command (self) + self.makeflags ())
+        return (Texlive.compile_command (self) + self.makeflags)
     def install (self):
         self.pre_install_smurf_exe ()
         Texlive.install (self)

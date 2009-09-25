@@ -20,16 +20,15 @@ cd %(builddir)s && touch doc/Makefile.in doc/include/Makefile.in
 ''')
         target.AutoBuild.configure (self)
 
-    def makeflags (self):
-        return ' doc_DATA= html_DATA='
+    makeflags = ' doc_DATA= html_DATA='
 
     def compile_command (self):
         return (target.AutoBuild.compile_command (self)
-                + self.makeflags ())
+                + self.makeflags)
 
     def install_command (self):
         return (target.AutoBuild.install_command (self)
-                + self.makeflags ())
+                + self.makeflags)
 
 class Libdbi_drivers_sqlite3__debian__arm (Libdbi_drivers_sqlite3):
     dependencies = ['sqlite3-dev', 'libdbi', 'libtool']

@@ -8,9 +8,8 @@ class Dhcp (target.AutoBuild):
         return ['']
     def configure_command (self):
         return '%(srcdir)s/configure linux-2.2'
-    def makeflags (self):
         from gub import misc
-        return misc.join_lines ('''
+    makeflags = misc.join_lines ('''
 CC=%(toolchain_prefix)sgcc
 AR=%(toolchain_prefix)sar
 AS=%(toolchain_prefix)sas

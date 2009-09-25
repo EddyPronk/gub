@@ -71,8 +71,7 @@ rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,
         target.AutoBuild.configure (self)
         self.file_sub ([('DOCSRC *=.*', 'DOCSRC=')],
                        '%(builddir)s/Makefile')
-    def makeflags (self):
-        return ('man_MANS=' # either this, or add something like tools::docbook-utils
+    makeflags = ('man_MANS=' # either this, or add something like tools::docbook-utils
                 # librestrict: stuff in fc-case, fc-lang,
                 # fc-glyphname, fc-arch' is FOR-BUILD and has
                 # dependencies .deps/*.Po /usr/include/stdio.h: 
@@ -189,6 +188,5 @@ class Fontconfig__tools (tools.AutoBuild):
         self.dump ('\nAC_SUBST(LT_AGE)', '%(srcdir)s/configure.in', mode='a', permissions=octal.o755)
         tools.AutoBuild.patch (self)
     dependencies = ['libtool', 'freetype', 'expat', 'pkg-config']
-    def makeflags (self):
-        return ('man_MANS=' # either this, or add something like tools::docbook-utils
+    makeflags = ('man_MANS=' # either this, or add something like tools::docbook-utils
                 + ' DOCSRC="" ')

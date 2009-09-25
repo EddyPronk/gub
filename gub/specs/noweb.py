@@ -15,8 +15,7 @@ simplicity, extensibility, and language-independence.
         self.TEXINPUTS='%(install_prefix)s/share/tex/inputs'
     def category_dict (self):
         return {'': 'Text Science'}
-    def makeflags (self):
-        return 'BIN=%(install_prefix)s/bin LIB=%(install_prefix)s/lib MAN=%(install_prefix)s/share/man TEXINPUTS=%(install_prefix)s/share/tex/inputs'
+    makeflags = 'BIN=%(install_prefix)s/bin LIB=%(install_prefix)s/lib MAN=%(install_prefix)s/share/man TEXINPUTS=%(install_prefix)s/share/tex/inputs'
     def configure (self):
         self.shadow_tree ('%(srcdir)s/src', '%(builddir)s')
     def get_subpackage_names (self):

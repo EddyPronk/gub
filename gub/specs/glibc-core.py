@@ -19,8 +19,7 @@ class Glibc_core (glibc.Glibc):
 --without-tls
 --without-__thread
 '''))
-    def makeflags (self):
-        return (glibc.Glibc.makeflags (self)
+    makeflags = (glibc.Glibc.makeflags
                 # avoid -lgcc_eh, which gcc-core does not have
                 + ' gnulib=-lgcc')
     def compile_command (self):
@@ -42,8 +41,7 @@ cp %(builddir)s/bits/stdio_lim.h %(install_prefix)s/include/bits
 ''')
 
 class Glibc_core__linux__ppc (Glibc_core):
-    def makeflags (self):
         # ugh, but the gnulib=-lgcc hack does something else on ppc...
         # it (huh?) drops *-lgcc* (instead of -lgcc_eh) from libc.so
         # linkage, which then fails.
-        return glibc.Glibc.makeflags (self)
+    makeflags = glibc.Glibc.makeflags

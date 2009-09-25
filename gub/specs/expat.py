@@ -13,11 +13,10 @@ class Expat (target.AutoBuild):
         #FIXME: should have configure.ac/in vs configure timestamp test
         self.system ("rm %(srcdir)s/configure")
         self.system ("touch %(srcdir)s/tests/xmltest.sh.in")
-    def makeflags (self):
         SHELL = ''
         if 'BOOTSTRAP' in os.environ.keys ():
             SHELL = '%(tools_prefix)s/bin/bash'
-        return SHELL + misc.join_lines ('''
+    makeflags = SHELL + misc.join_lines ('''
 CFLAGS="-O2 -DHAVE_EXPAT_CONFIG_H"
 EXEEXT=
 RUN_FC_CACHE_TEST=false

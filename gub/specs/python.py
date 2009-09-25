@@ -52,8 +52,7 @@ class Python (target.AutoBuild):
         if self.settings.build_platform == self.settings.target_platform:
             self.file_sub ([('cross_compiling=(maybe|no|yes)',
                              'cross_compiling=no')], '%(srcdir)s/configure')
-    def makeflags (self):
-       return misc.join_lines (r'''
+    makeflags = misc.join_lines (r'''
 BLDLIBRARY='%(rpath)s -L. -lpython$(VERSION)'
 ''')
     def install_command (self):
@@ -159,8 +158,7 @@ class Python__tools (tools.AutoBuild, Python):
     patches = []
     dependencies = ['autoconf', 'libtool']
     force_autoupdate = True
-    def makeflags (self):
-        return Python.makeflags (self)
+    makeflags = Python.makeflags
     def install_command (self):
         relax = ''
         if 'stat' in misc.librestrict ():

@@ -28,6 +28,9 @@ class Build (context.RunnableContext):
     install_after_build = True
     parallel_build_broken = False
     srcdir_build_broken = False
+    configure_flags = ' --prefix=%(configure_prefix)s'
+    configure_variables = ''
+    makeflags = ''
 
     @context.subst_method
     def autodir (self):
@@ -38,8 +41,6 @@ class Build (context.RunnableContext):
     @context.subst_method
     def configure_command (self):
         return ' sh %(configure_binary)s%(configure_flags)s%(configure_variables)s'
-    configure_flags = ' --prefix=%(configure_prefix)s'
-    configure_variables = ''
 
     def __init__ (self, settings, source):
         context.RunnableContext.__init__ (self, settings)
@@ -343,10 +344,6 @@ class AutoBuild (Build):
     @context.subst_method
     def src_package_uploads (self):
         return '%(packages)s'
-
-    @context.subst_method
-    def makeflags (self):
-        return ''
 
     @context.subst_method
     def cache_file (self):

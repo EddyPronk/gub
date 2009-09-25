@@ -8,9 +8,8 @@ class LilyPad (target.AutoBuild):
         self.file_sub ([('--nostdinc',' '),
                 (r'rc\.res:', r'rc.res.o:')],
                "%(srcdir)s/Make.rules.in")
-    def makeflags (self):
         # FIXME: better fix Makefile
-        return misc.join_lines ('''
+    makeflags = misc.join_lines ('''
 ALL_OBJS='$(OBJS)'
 WRC=%(cross_prefix)s/bin/%(target_architecture)s-windres
 CPPFLAGS=-I%(system_prefix)s/include

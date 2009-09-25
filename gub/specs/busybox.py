@@ -23,8 +23,7 @@ class Busybox (target.AutoBuild):
                        '%(builddir)s/.config')
         self.system ('''rm -f %(builddir)s/include/%(autoconf_h)s
 cd %(builddir)s && make include/%(autoconf_h)s > /dev/null 2>&1''')
-    def makeflags (self):
-        return ' CROSS_COMPILE=%(toolchain_prefix)s CONFIG_PREFIX=%(install_root)s'
+    makeflags = ' CROSS_COMPILE=%(toolchain_prefix)s CONFIG_PREFIX=%(install_root)s'
     def install (self):
         target.AutoBuild.install (self)
         self.system ('''
@@ -39,8 +38,7 @@ class Busybox__linux__arm__vfp (Busybox):
 cd %(srcdir)s && patch -p1 < %(patchdir)s/busybox-mkconfigs.patch
 ''')
         Busybox.patch (self)
-    def makeflags (self):
-        return ' CROSS=%(toolchain_prefix)s PREFIX=%(install_root)s'
+    makeflags = ' CROSS=%(toolchain_prefix)s PREFIX=%(install_root)s'
     @context.subst_method
     def autoconf_h (self):
         return 'bb_config.h'
@@ -72,8 +70,7 @@ class Busybox__tools (tools.AutoBuild, Busybox):
                        '%(builddir)s/.config')
         self.system ('''rm -f %(builddir)s/include/%(autoconf_h)s
 cd %(builddir)s && make include/%(autoconf_h)s > /dev/null 2>&1''')
-    def makeflags (self):
-        return ' CONFIG_PREFIX=%(install_prefix)s'
+    makeflags = ' CONFIG_PREFIX=%(install_prefix)s'
     def install (self):
         tools.AutoBuild.install (self)
         self.system ('''

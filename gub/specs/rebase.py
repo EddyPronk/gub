@@ -10,8 +10,7 @@ class Rebase__tools (tools.MakeBuild):
     def patch (self):
         self.system ('dos2unix %(srcdir)s/imagehelper/*')
         tools.MakeBuild.patch (self)
-    def makeflags (self):
-        return misc.join_lines ('''
+    makeflags = misc.join_lines ('''
 CC=i686-mingw32-gcc
 CXX=i686-mingw32-g++
 AR=i686-mingw32-ar

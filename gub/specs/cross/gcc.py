@@ -41,8 +41,7 @@ class Gcc (cross.AutoBuild):
         if 'c++' in self.languages ():
             flags += ' --enable-libstdcxx-debug'
         return flags
-    def makeflags (self):
-        return misc.join_lines ('''
+    makeflags = misc.join_lines ('''
 tooldir='%(cross_prefix)s/%(target_architecture)s'
 gcc_tooldir='%(prefix_dir)s/%(target_architecture)s'
 ''')
@@ -129,14 +128,13 @@ class this_works_but_has_string_exception_across_dll_bug_Gcc__cygwin (Gcc__mingw
 --with-newlib
 --enable-threads
 '''))
-    def makeflags (self):
-        return misc.join_lines ('''
+    makeflags = misc.join_lines ('''
 tooldir="%(cross_prefix)s/%(target_architecture)s"
 gcc_tooldir="%(cross_prefix)s/%(target_architecture)s"
 ''')
     def compile_command (self):
         return (Gcc__mingw.compile_command (self)
-                + self.makeflags ())
+                + self.makeflags)
         # We must use --with-newlib, otherwise configure fails:
         # No support for this host/target combination.
         # [configure-target-libstdc++-v3]
@@ -180,8 +178,7 @@ class Gcc__cygwin (Gcc):
         cygwin.untar_cygwin_src_package_variant2 (self, ball.replace ('-core', '-g++'),
                                                   split=True)
         cygwin.untar_cygwin_src_package_variant2 (self, ball)
-    def makeflags (self):
-        return misc.join_lines ('''
+    makeflags = misc.join_lines ('''
 tooldir="%(cross_prefix)s/%(target_architecture)s"
 gcc_tooldir="%(cross_prefix)s/%(target_architecture)s"
 ''')
