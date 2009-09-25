@@ -22,14 +22,15 @@ class Xerces_c (target.AutoBuild):
             'CXXFLAGS': ' -DPROJ_XMLPARSER -DPROJ_XMLUTIL -DPROJ_PARSERS -DPROJ_SAX4C -DPROJ_SAX2 -DPROJ_DOM -DPROJ_DEPRECATED_DOM -DPROJ_VALIDATORS -DXML_USE_NATIVE_TRANSCODER -DXML_USE_INMEM_MESSAGELOADER -DXML_USE_PTHREADS -DXML_USE_NETACCESSOR_SOCKET ',
             }
         build.change_dict (self, self.compile_dict)
-    def autodir (self):
-        return '%(srcdir)s/src/xercesc'
-    def configure_command (self):
+#    def autodir (self):
+#        return '%(srcdir)s/src/xercesc'
         # We really did not understand autotools, so we cd and ENV
         # around it until it breaks.  And see, our webserver is soo
         # cool, it can serve the INSTALL file!  Let's remove it from
         # the tarball!
-        return (self.makeflags () + ' '
+    def configure_command (self):
+        return (self.makeflags ()
+                + ' '
                 + target.AutoBuild.configure_command (self))
     def makeflags (self):
         s = ''

@@ -9,8 +9,7 @@ class Libxslt (target.AutoBuild):
     def patch (self):
         self.system ('rm -f %(srcdir)s/libxslt/xsltconfig.h')
     dependencies = ['libxml2-devel', 'zlib-devel']
-    def configure_command (self):
-        return (target.AutoBuild.configure_command (self)
+    configure_flags = (target.AutoBuild.configure_flags
                 + misc.join_lines ('''
 --without-python
 --without-crypto
@@ -20,8 +19,7 @@ class Libxslt (target.AutoBuild):
         return 'xslt-config'
 
 class Libxslt__mingw (Libxslt):
-    def configure_command (self):
-        return (Libxslt.configure_command (self)
+    configure_flags = (Libxslt.configure_flags
                 + misc.join_lines ('''
 --without-plugins
 '''))

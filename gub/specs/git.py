@@ -14,8 +14,7 @@ ac_cv_c_c99_format=no
 ac_cv_fread_reads_directories=no
 ac_cv_snprintf_returns_bongus=yes
 '''
-    def configure_command (self):
-        return (tools.AutoBuild.configure_command (self)
+    configure_flags = (tools.AutoBuild.configure_flags
                 + ' --without-openssl')
     def makeflags (self):
         return '''V=1 NO_PERL=NoThanks'''
@@ -64,8 +63,7 @@ class Git__mingw (Git):
 
 class Git__tools (tools.AutoBuild, Git):
     dependencies = ['curl', 'expat', 'zlib']
-    def configure_command (self):
-        return (tools.AutoBuild.configure_command (self)
-                + ' --without-openssl')
+    configure_flags = (tools.AutoBuild.configure_flags
+                       + ' --without-openssl')
     def makeflags (self):
         return Git.makeflags (self)

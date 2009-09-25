@@ -10,8 +10,7 @@ class Binutils__cygwin (cross_binutils.Binutils):
         return misc.join_lines ('''
 tooldir="%(cross_prefix)s/%(target_architecture)s"
 ''')
-    def configure_command (self):
-        return (cross_binutils.Binutils.configure_command (self)
+    configure_flags = (cross_binutils.Binutils.configure_flags
                  + ' --disable-werror ')
 
 class use_cygwin_sources_Binutils (cross_binutils.Binutils):

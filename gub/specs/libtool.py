@@ -10,6 +10,8 @@ class Libtool (target.AutoBuild):
     source = 'http://ftp.gnu.org/pub/gnu/libtool/libtool-2.2.6a.tar.gz'
     #source = 'git://git.sv.gnu.org/libtool.git?branch=master&revision=77e114998457cb6170ad84b360cb5b9be90f2191'
     dependencies = ['tools::libtool']
+    configure_variables = (target.AutoBuild.configure_variables
+                           .replace ('SHELL=', 'CONFIG_SHELL='))
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         # repository patched in method.
@@ -21,6 +23,11 @@ class Libtool (target.AutoBuild):
         Libtool.set_sover (self)
         if isinstance (self.source, repository.Git):
             self.dependencies += ['tools::libtool', 'tools::automake']
+    def configure_command (self):
+        if 'stat' in misc.librestrict ():
+            return ('CONFIG_SHELL=%(tools_prefix)s/bin/sh '
+                    + target.AutoBuild.configure_command (self))
+        return target.AutoBuild.configure_command (self)
     def autoupdate (self):
         # automagic works, but takes forever
         if isinstance (self.source, repository.Git):
@@ -52,15 +59,6 @@ ac_cv_prog_F77=${ac_cv_prog_F77=no}
 ac_cv_prog_FC=${ac_cv_prog_FC=no}
 ac_cv_prog_GCJ=${ac_cv_prog_GCJ=no}
 ''')
-    def configure_command (self):
-        # libtool's build breaks with SHELL=; CONFIG_SHELL works
-        # and adds bash to libtools' #! 
-        SHELL = ''
-        if 'stat' in misc.librestrict ():
-            SHELL = 'CONFIG_SHELL=%(tools_prefix)s/bin/sh '
-        return (SHELL
-                + target.AutoBuild.configure_command (self)
-                .replace ('SHELL=', 'CONFIG_SHELL='))
 
 class Libtool__darwin (Libtool):
     def install (self):

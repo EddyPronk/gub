@@ -8,8 +8,7 @@ class Fakeroot__tools (tools.AutoBuild):
             ]
     def libs (self):
         return '-ldl'
-    def configure_variables (self):
-        return (tools.AutoBuild.configure_variables (self)
+    configure_variables = (tools.AutoBuild.configure_variables
                 + ' CC=%(system_prefix)s/bin/%(toolchain_prefix)sgcc'
                 + ' CCLD=%(system_prefix)s/bin/%(toolchain_prefix)sgcc'
                 + ' CXX=%(system_prefix)s/bin/%(toolchain_prefix)sg++')

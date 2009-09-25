@@ -5,7 +5,6 @@ class Rsync__tools (tools.AutoBuild):
     patches = ['rsync-popt-add-prefix.patch']
     # adding libpopt build depependency not really necessary, as rsync
     # bundles it.
-    def configure_command (self):
-        return (tools.AutoBuild.configure_command (self)
+    configure_flags = (tools.AutoBuild.configure_flags
                 + ' --with-included-popt'
                 + r''' 'CFLAGS=-DPREFIX=\"%(system_prefix)s\"' ''')

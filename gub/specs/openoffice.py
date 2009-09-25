@@ -282,10 +282,10 @@ ac_cv_file__usr_share_java_saxon_jar=${ac_cv_file__usr_share_java_saxon_jar=yes}
 ac_cv_db_version_minor=${ac_cv_db_version_minor=7}
 ac_cv_icu_version_minor=${ac_cv_icu_version_minor=3.81}
 '''
-#    @context.subst_method
-#    def ANT (self):
-#        return 'ant'
-    def configure_options (self):
+    def configure_command (self):
+        return (target.AutoBuild.configure_command (self)
+                + self.openoffice_configure_flags ())
+    def openoffice_configure_flags (self):
         return misc.join_lines ('''
 --with-vendor=\"GUB -- http://lilypond.org/gub\"
 --disable-Xaw
@@ -364,22 +364,14 @@ ac_cv_icu_version_minor=${ac_cv_icu_version_minor=3.81}
 --with-system-xerces
 --with-system-xml-apis
 --with-system-xrender-headers
---with-saxon-jar=%(system_prefix)s/share/java/saxon9.jar
 --without-system-mozilla
-
 --with-ant-home=/usr/share/ant
-''')
-    def configure_command (self):
-        return (target.AutoBuild.configure_command (self)
-                + self.configure_options ()
-                + misc.join_lines ('''
---with-additional-sections=MinGW
-
+                       
+--with-saxon-jar=%(system_prefix)s/share/java/saxon9.jar
 --cache-file=%(builddir)s/config.cache
-
 --with-tools-dir=%(OOO_TOOLS_DIR)s
-'''))
-
+--with-additional-sections=MinGW
+''')
 # TODO:
 # --with-system-libwpd
 # --with-system-libwps
@@ -587,8 +579,8 @@ class OpenOffice__mingw (OpenOffice):
             self.system ('''cp -pvf $OOO_TOOLS_DIR/../../../../sal/unx*/bin/gen_makefile $OOO_TOOLS_DIR/gen_makefile''')
             self.system ('''cp -pvf $OOO_TOOLS_DIR/../../../../icc/unx*/bin/create_sRGB_profile $OOO_TOOLS_DIR/create_sRGB_profile''')
             self.system ('''cp -pvf $OOO_TOOLS_DIR/../../../../i18npool/unx*/bin/* $OOO_TOOLS_DIR''')
-    def configure_flags (self):
-        return (OpenOffice.configure_flags (self)
+    def openoffice_configure_flags (self):
+        return (OpenOffice.openoffice_configure_flags (self)
                 .replace ('--with-system-xrender-headers', '')
                 + ' --disable-xrender-link'
                 + ' --with-distro=Win32')
@@ -776,10 +768,10 @@ install:
 ''', '%(srcdir)s/Makefile.in', env=locals ())
     def configure_command (self):
         return ('x_libraries=no_x_libraries x_includes=no_x_includes '
-                + tools.AutoBuild.configure_command (self))
-    def configure_flags (self):
-        return (tools.AutoBuild.configure_flags (self)
-                + re.sub ('--with-system-[^ ]*', '', OpenOffice.configure_options (self))
+                + OpenOffice.configure_command (self))
+    def openoffice_configure_flags (self):
+        return (re.sub ('--with-system-[^ ]*', '',
+                        OpenOffice.openoffice_configure_flags (self))
                 .replace ('--disable-crypt-link', '--enable-crypt-link')
                 + ' --with-system-db '
                 + ' --with-system-expat '

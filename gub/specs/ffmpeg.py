@@ -6,9 +6,9 @@ class Ffmpeg (target.AutoBuild):
     def version (self):
         return self.source.revision
     dependencies = ['faac-devel', 'faad2-devel', 'a52dec-devel']
-    def configure_command (self):
         #FIXME: this is autoconf
-        #target.AutoBuild.configure_command (self)
+        #target.AutoBuild.configure_command
+    def configure_command (self):
         return misc.join_lines ('''
 CC=%(toolchain_prefix)sgcc CFLAGS=-fPIC %(srcdir)s/configure
 --prefix=%(prefix_dir)s

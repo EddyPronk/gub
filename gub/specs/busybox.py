@@ -48,8 +48,7 @@ cd %(srcdir)s && patch -p1 < %(patchdir)s/busybox-mkconfigs.patch
 class Busybox__tools (tools.AutoBuild, Busybox):
     source = 'http://busybox.net/downloads/busybox-1.13.2.tar.gz'
     srcdir_build_broken = True
-    def configure_command (self):
-        return 'make -f %(srcdir)s/Makefile defconfig'
+    configure_command = 'make -f %(srcdir)s/Makefile defconfig'
     @context.subst_method
     def autoconf_h (self):
         return 'autoconf.h'

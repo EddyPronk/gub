@@ -22,7 +22,21 @@ fonts within the system and select them according to requirements
 specified by applications.'''
 
     source = 'git://anongit.freedesktop.org/git/fontconfig?branch=master&revision=' + version
-
+    dependencies = ['libtool', 'expat-devel', 'freetype-devel', 'tools::freetype', 'tools::pkg-config']
+        # FIXME: system dir vs packaging install
+        ## UGH  - this breaks  on Darwin!
+        ## UGH2 - the added /cross/ breaks Cygwin; possibly need
+        ## Freetype_config package (see Guile_config, Python_config)
+        # FIXME: this is broken.  for a sane target development package,
+        # we want /usr/bin/fontconfig-config must survive.
+        # While cross building, we create an  <toolprefix>-fontconfig-config
+        # and prefer that.
+    configure_flags = (target.AutoBuild.configure_flags
+                + misc.join_lines ('''
+--with-arch=%(target_architecture)s
+--with-freetype-config="%(system_prefix)s%(cross_dir)s/bin/freetype-config
+--prefix=%(system_prefix)s
+"'''))
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         if 'stat' in misc.librestrict ():
@@ -50,23 +64,6 @@ specified by applications.'''
         logging.command ('pipe %s\n' % cmd)
         # return misc.read_pipe (cmd).strip ()
         return '-lfreetype -lz'
-    dependencies = ['libtool', 'expat-devel', 'freetype-devel', 'tools::freetype', 'tools::pkg-config']
-    def configure_command (self):
-        # FIXME: system dir vs packaging install
-        ## UGH  - this breaks  on Darwin!
-        ## UGH2 - the added /cross/ breaks Cygwin; possibly need
-        ## Freetype_config package (see Guile_config, Python_config)
-        # FIXME: this is broken.  for a sane target development package,
-        # we want /usr/bin/fontconfig-config must survive.
-        # While cross building, we create an  <toolprefix>-fontconfig-config
-        # and prefer that.
-        return (target.AutoBuild.configure_command (self) 
-                + misc.join_lines ('''
---with-arch=%(target_architecture)s
---with-freetype-config="%(system_prefix)s%(cross_dir)s/bin/freetype-config
---prefix=%(system_prefix)s
-"'''))
-
     def configure (self):
         self.system ('''
 rm -f %(srcdir)s/builds/unix/{unix-def.mk,unix-cc.mk,ftconfig.h,freetype-config,freetype2.pc,config.status,config.log}
@@ -118,11 +115,8 @@ class Fontconfig__mingw (Fontconfig):
                    mode='a')
 
 class Fontconfig__darwin (Fontconfig):
-    def configure_command (self):
-        cmd = Fontconfig.configure_command (self)
-        cmd += ' --with-add-fonts=/Library/Fonts,/System/Library/Fonts '
-        return cmd
-
+    configure_flags = (Fontconfig.configure_flags
+                         + ' --with-add-fonts=/Library/Fonts,/System/Library/Fonts ')
     def configure (self):
         Fontconfig.configure (self)
         self.file_sub ([('-Wl,[^ ]+ ', '')],
@@ -146,6 +140,8 @@ class Fontconfig__freebsd (Fontconfig__linux):
 
 class Fontconfig__cygwin (Fontconfig):
     source = 'http://www.fontconfig.org/release/fontconfig-2.4.1.tar.gz'
+    configure_flags = (Fontconfig.configure_flags
+                + ' --sysconfdir=/etc --localstatedir=/var')
     def __init__ (self, settings, source):
         Fontconfig.__init__ (self, settings, source)
         self.so_version = '1'
@@ -173,10 +169,6 @@ class Fontconfig__cygwin (Fontconfig):
 
     def category_dict (self):
         return {'': 'Libs'}
-
-    def configure_command (self):
-        return (Fontconfig.configure_command (self)
-                + ' --sysconfdir=/etc --localstatedir=/var')
 
     def install (self):
         self.pre_install_smurf_exe ()

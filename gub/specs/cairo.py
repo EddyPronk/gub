@@ -20,8 +20,7 @@ class Cairo (target.AutoBuild):
                 'zlib-devel']
 
 class Cairo_without_X11 (Cairo):
-    def configure_command (self):
-        return (Cairo.configure_command (self)
+    configure_flags = (Cairo.configure_flags
                 + ' --disable-xlib'
                 + ' --disable-xlib-xrender'
                 + ' --disable-xcb'
@@ -32,15 +31,14 @@ class Cairo_without_X11 (Cairo):
                 )
 
 class Cairo__mingw (Cairo_without_X11):
-    def configure_command (self):
-        return (Cairo_without_X11.configure_command (self)
+    configure_flags = (Cairo_without_X11.configure_flags
                 + ' --enable-win32=yes'
                 + ' --enable-win32-font=yes'
                 + ' --enable-ft'
                 + ' LDFLAGS=-lpthread'
                 )
     dependencies = (Cairo_without_X11.dependencies
-                + ['pthreads-w32-devel'])
+                    + ['pthreads-w32-devel'])
 
 class Cairo__darwin (Cairo_without_X11):
     pass

@@ -3,8 +3,7 @@ from gub import tools
 
 class Icoutils__tools (tools.AutoBuild):
     dependencies = ['libpng-devel']
-    def configure_command (self):
-        return (tools.AutoBuild.configure_command (self)
+    configure_flags = (tools.AutoBuild.configure_flags
                 + misc.join_lines ('''
 --with-libintl-prefix=%(system_prefix)s
 --disable-nls

@@ -6,16 +6,6 @@ from gub import target
 class Inkscape (target.AutoBuild):
     source = 'svn:https://inkscape.svn.sourceforge.net/svnroot/inkscape&module=inkscape&branch=trunk&revision=20605'
     branch = 'trunk'
-    def __init__ (self, settings, source):
-        target.AutoBuild.__init__ (self, settings, source)
-        build.add_dict (self,
-                        {'ACLOCAL_FLAGS': ' -I '.join ([''] + self.aclocal_path ()), })
-        source.is_tracking = misc.bind_method (lambda x: True, source)
-    def patch (self):
-        target.AutoBuild.patch (self)
-        self.file_sub ([('AC_PATH_PROG\(PKG_CONFIG,',
-                         'AC_PATH_PROG(ARE_YOU_FREAKING_MAD__OVERRIDING_PKG_CONFIG,')],
-                       '%(srcdir)s/configure.ac')
     dependencies = [
             'tools::automake',
             'tools::gettext',
@@ -36,6 +26,16 @@ class Inkscape (target.AutoBuild):
             'libxml2-devel',
             'libxslt-devel',
             ]
+    def __init__ (self, settings, source):
+        target.AutoBuild.__init__ (self, settings, source)
+        build.add_dict (self,
+                        {'ACLOCAL_FLAGS': ' -I '.join ([''] + self.aclocal_path ()), })
+        source.is_tracking = misc.bind_method (lambda x: True, source)
+    def patch (self):
+        target.AutoBuild.patch (self)
+        self.file_sub ([('AC_PATH_PROG\(PKG_CONFIG,',
+                         'AC_PATH_PROG(ARE_YOU_FREAKING_MAD__OVERRIDING_PKG_CONFIG,')],
+                       '%(srcdir)s/configure.ac')
     def get_build_dependencies (self):
         return self.dependencies
     def get_dependency_dict (self):
@@ -44,24 +44,23 @@ class Inkscape (target.AutoBuild):
                      if 'tools::' not in x and 'cross/' not in x]
                 + ['cross/gcc-c++-runtime']
                 }
-    def configure_command (self):
-        return (target.AutoBuild.configure_command (self)
-                + ' --enable-lcms'
-                + ' --enable-binreloc=yes'
-                + ' CXXFLAGS=-fpermissive'
-                )
+    configure_flags = (target.AutoBuild.configure_flags
+                       + ' --enable-lcms'
+                       + ' --enable-binreloc=yes'
+                       )
+    configure_variables = (target.AutoBuild.configure_variables
+                           + ' CXXFLAGS=-fpermissive'
+                           )
 
 class Inkscape__mingw (Inkscape):
     patches = ['inkscape-mingw-DATADIR.h.patch']
     dependencies = [x for x in Inkscape.dependencies
-                if 'poppler' not in x]
-    def configure_command (self):
-        return (Inkscape.configure_command (self)
-                + ' --disable-poppler-cairo')
+                    if 'poppler' not in x]
+    configure_flags = (Inkscape.configure_flags
+                       + ' --disable-poppler-cairo')
 
 class Inkscape__freebsd (Inkscape):
-    def configure_command (self):
-        return (Inkscape.configure_command (self)
+    configure_variables = (Inkscape.configure_variables
                 + ' CFLAGS=-pthread'
                 + ' CXXFLAGS="-fpermissive -pthread"')
     def get_dependency_dict (self):

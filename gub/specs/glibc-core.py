@@ -14,8 +14,7 @@ class Glibc_core (glibc.Glibc):
         return {'': ['glibc', 'glibc-devel', 'glibc-doc', 'glibc-runtime']}
     def get_add_ons (self):
         return ('linuxthreads',)
-    def configure_flags (self):
-        return (glibc.Glibc.configure_flags (self)
+    configure_flags = (glibc.Glibc.configure_flags
                 + misc.join_lines ('''
 --without-tls
 --without-__thread

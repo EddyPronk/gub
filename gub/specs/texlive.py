@@ -140,11 +140,10 @@ packages.'''
 --without-xdvipdfmx
 --without-xetex
 ''')
-    def configure_command (self):
         SHELL = ' SHELL=/bin/bash'
         if 'stat' in misc.librestrict ():
             SHELL = ' SHELL=%(tools_prefix)s/bin/bash'
-        return ('export TEXMFMAIN=%(srcdir)s/texmf;'
+    configure_command = ('export TEXMFMAIN=%(srcdir)s/texmf;'
                 + self.common_configure_flags ()
                 + misc.join_lines ('''
 --with-x
@@ -267,11 +266,10 @@ class Texlive__tools (tools.AutoBuild, Texlive):
             't1utils',
             'zlib',
             ]
-    def configure_command (self):
         SHELL = ' SHELL=/bin/bash'
         if 'stat' in misc.librestrict ():
             SHELL = ' SHELL=%(tools_prefix)s/bin/bash'
-        return ('export TEXMFMAIN=%(srcdir)s/texmf;'
+    configure_command = ('export TEXMFMAIN=%(srcdir)s/texmf;'
                 + Texlive.common_configure_flags (self)
                 + misc.join_lines ('''
 --without-x

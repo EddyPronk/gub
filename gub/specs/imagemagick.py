@@ -18,8 +18,7 @@ class ImageMagick__tools (tools.AutoBuild):
             'perl',
             'zlib',
             ]
-    def configure_flags (self):
-        return (tools.AutoBuild.configure_flags (self)
+    configure_flags = (tools.AutoBuild.configure_flags
                 + misc.join_lines ('''
 --without-magick-plus-plus
 --without-perl

@@ -13,6 +13,9 @@ class Portaudio__mingw (Portaudio):
                              r'\1 \2/pa_win_waveformat.o',)],
                            i)
 
+
+
+
 '''
 
 libtool: link: i686-apple-darwin8-gcc  -dynamiclib  -o lib/.libs/libportaudio.2.dylib  src/common/.libs/pa_allocation.o src/common/.libs/pa_converters.o src/common/.libs/pa_cpuload.o src/common/.libs/pa_dither.o src/common/.libs/pa_debugprint.o src/common/.libs/pa_front.o src/common/.libs/pa_process.o src/common/.libs/pa_skeleton.o src/common/.libs/pa_stream.o src/common/.libs/pa_trace.o src/os/mac_osx/.libs/pa_mac_hostapis.o src/os/unix/.libs/pa_unix_util.o src/hostapi/coreaudio/.libs/pa_mac_core.o src/hostapi/coreaudio/.libs/pa_mac_core_utilities.o src/hostapi/coreaudio/.libs/pa_mac_core_blocking.o src/common/.libs/pa_ringbuffer.o   -framework CoreAudio -framework AudioToolbox -framework AudioUnit -framework Carbon  -Wl,-headerpad_max_install_names -isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.3   -framework CoreAudio -framework AudioToolbox -framework AudioUnit -framework Carbon -install_name  /usr/lib/libportaudio.2.dylib -compatibility_version 3 -current_version 3.0 -Wl,-exported_symbols_list,lib/.libs/libportaudio-symbols.expsym
@@ -57,6 +60,8 @@ collect2: ld returned 1 exit status
 '''
 
 class Portaudio__darwin (Portaudio):
+    configure_variables = (Portaudio.configure_variables
+                           + ''' CFLAGS='-DMACH_KERNEL=1 -Wno-multichar' ''')
     def patch (self):
         Portaudio.patch (self)
         # FIXME: this can't be right.  Move to darwin-sdk?
@@ -135,6 +140,3 @@ ln -sf %(system_root)s/System/Library/Frameworks/%(framework)s.framework/Headers
         for i in ['%(srcdir)s/configure.in',
                   '%(srcdir)s/configure']:
             self.file_sub ([('-arch i386 -arch ppc', '-I%(system_prefix)s/include -I%(builddir)s/include -I%(builddir)s/include/kernel'),], i)
-    def configure_command (self):
-        return (Portaudio.configure_command (self)
-                + ''' CFLAGS='-DMACH_KERNEL=1 -Wno-multichar' ''')

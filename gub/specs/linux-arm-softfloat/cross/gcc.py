@@ -10,10 +10,8 @@ class Gcc (cross_gcc.Gcc_from_source):
 cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-3.4.0-arm-lib1asm.patch
 cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-3.4.0-arm-nolibfloat.patch
 ''')
-    def configure_command (self):
-        return (cross_gcc.Gcc_from_source.configure_command (self)
+    configure_flags = (cross_gcc.Gcc_from_source.configure_flags
                 + misc.join_lines ('''
 --with-float=soft
 #--with-fpu=vfp
 '''))
-

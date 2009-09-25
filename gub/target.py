@@ -8,29 +8,8 @@ from gub import misc
 from gub import loggedos
 
 class AutoBuild (build.AutoBuild):
-    def __init__ (self, settings, source):
-        build.AutoBuild.__init__ (self, settings, source)
-    @context.subst_method
-    def configure_command_native (self):
-        return build.AutoBuild.configure_command (self)
-    @context.subst_method
-    def LD_PRELOAD (self):
-        return '%(tools_prefix)s/lib/librestrict.so'
-    def autoupdate (self):
-        build.AutoBuild.autoupdate (self)
-        def defer (logger):
-            if os.path.exists (self.expand ('%(configure_binary)s')):
-                loggedos.file_sub (logger, [('cross_compiling=(maybe|no|yes)',
-                                 'cross_compiling=yes')],
-                                   self.expand ('%(configure_binary)s'))
-        self.func (defer)
-    @context.subst_method
-    def config_cache_flag (self):
-        if True or self.config_cache_flag_broken:
-            return ' --cache-file=config.cache'
-        return ' --config-cache'
-    def configure_flags (self):
-        return (build.AutoBuild.configure_flags (self)
+    config_cache_flag = ' --cache-file=config.cache' # EXPENSIVE, JUNKME
+    configure_flags = (build.AutoBuild.configure_flags
                 + misc.join_lines ('''
 --cache-file=config.cache
 --enable-shared
@@ -46,11 +25,24 @@ class AutoBuild (build.AutoBuild):
 --mandir=%(prefix_dir)s/share/man
 --libdir=%(prefix_dir)s/lib
 '''))
-    def configure_variables (self):
+    def __init__ (self, settings, source):
+        build.AutoBuild.__init__ (self, settings, source)
         if 'stat' in misc.librestrict ():
-            return (build.AutoBuild.configure_variables (self)
-                    + ' SHELL=%(tools_prefix)s/bin/sh')
-        return build.AutoBuild.configure_variables (self)
+            self.configure_variables += ' SHELL=%(tools_prefix)s/bin/sh'
+    @context.subst_method
+    def configure_command_native (self):
+        return build.AutoBuild.configure_command (self)
+    @context.subst_method
+    def LD_PRELOAD (self):
+        return '%(tools_prefix)s/lib/librestrict.so'
+    def autoupdate (self):
+        build.AutoBuild.autoupdate (self)
+        def defer (logger):
+            if os.path.exists (self.expand ('%(configure_binary)s')):
+                loggedos.file_sub (logger, [('cross_compiling=(maybe|no|yes)',
+                                 'cross_compiling=yes')],
+                                   self.expand ('%(configure_binary)s'))
+        self.func (defer)
 
     def configure (self):
         build.AutoBuild.configure (self)

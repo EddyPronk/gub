@@ -11,8 +11,7 @@ class Jade__tools (tools.AutoBuild):
         self.system ('cd %(srcdir)s && cp -f config/configure.in .')
         self.system ('cd %(srcdir)s && libtoolize --force --copy || :')
         self.runner._execute (commands.ForcedAutogenMagic (self))
-    def configure_command (self):
-        return (build.AutoBuild.configure_command (self)
+    configure_variables = (build.AutoBuild.configure_variables
                 + misc.join_lines ('''
 CFLAGS=-I%(system_prefix)s/include
 LDFLAGS=-L%(system_prefix)s/lib

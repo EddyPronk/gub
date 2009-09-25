@@ -1,4 +1,3 @@
-from gub import build
 from gub import tools
 
 class M4__tools (tools.AutoBuild):

@@ -8,8 +8,7 @@ class Lash (target.AutoBuild):
                 'dbus-devel',
                 'jack-devel',
                 ]
-    def configure_command (self):
-        return (target.AutoBuild.configure_command (self)
+    configure_flags = (target.AutoBuild.configure_flags
                 + '--without-python')
         # either that, or
         # + 'CPPFLAGS="-I%(system_prefix)s/include `python-config --cflags`"'

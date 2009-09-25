@@ -1,5 +1,6 @@
 import os
 #
+from gub import context
 from gub import cross
 from gub import misc
 from gub import repository
@@ -45,6 +46,16 @@ class Glibc (target.AutoBuild, cross.AutoBuild):
         'glibc-2.3-binutils-2.19-i386.patch',
         ]
     dependencies = ['cross/gcc', 'glibc-core', 'tools::gzip', 'tools::perl', 'linux-headers']
+    def configure_command (self):
+        return 'BUILD_CC=gcc ' + target.AutoBuild.configure_command (self)
+    configure_flags = (target.AutoBuild.configure_flags + misc.join_lines ('''
+--disable-profile
+--disable-debug
+--without-cvs
+--without-gd
+--with-headers=%(system_prefix)s/include
+''')
+                + '%(enable_add_ons)s')
     def get_conflict_dict (self):
         return {'': ['glibc-core'], 'devel': ['glibc-core'], 'doc': ['glibc-core'], 'runtime': ['glibc-core']}
     def patch (self):
@@ -61,19 +72,12 @@ class Glibc (target.AutoBuild, cross.AutoBuild):
 use_default_libc_cv_slibdir=%(prefix_dir)s/slib
 libc_cv_rootsbindir=%(prefix_dir)s/sbin
 ''')
-    def configure_command (self):    
+    @context.subst_method
+    def enable_add_ons (self):
         add_ons = ''
         for i in self.get_add_ons ():
             add_ons += ' --enable-add-ons=' + i
-        return ('BUILD_CC=gcc '
-                + misc.join_lines (target.AutoBuild.configure_command (self) + '''
---disable-profile
---disable-debug
---without-cvs
---without-gd
---with-headers=%(system_prefix)s/include
-''')
-                + add_ons)
+        return add_ons
     def linuxthreads (self):
         return repository.get_repository_proxy (self.settings.downloads,
                                                 self.expand ('http://ftp.gnu.org/pub/gnu/glibc/glibc-linuxthreads-%(version)s.tar.bz2&strip_components=0'))

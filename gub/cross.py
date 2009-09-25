@@ -27,9 +27,8 @@ class AutoBuild (build.AutoBuild):
         dict.update (env)
         d = build.AutoBuild.get_substitution_dict (self, dict).copy ()
         return d
-    def configure_command (self):
-        return (build.AutoBuild.configure_command (self)
-            + misc.join_lines ('''
+    configure_flags = (build.AutoBuild.configure_flags
+                       + misc.join_lines ('''
 --program-prefix=%(target_architecture)s-
 --prefix=%(cross_prefix)s
 --target=%(target_architecture)s

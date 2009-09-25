@@ -1,8 +1,6 @@
 from gub import target
 
 class Poppler (target.AutoBuild):
-    #source = 'http://poppler.freedesktop.org/poppler-0.10.3.tar.gz'
-    #source= 'http://poppler.freedesktop.org/poppler-0.10.7.tar.gz'
     source = 'http://poppler.freedesktop.org/poppler-0.11.2.tar.gz'
     dependencies = ['tools::libtool', 'tools::glib',
                 'zlib-devel',
@@ -11,8 +9,7 @@ class Poppler (target.AutoBuild):
                 'libjpeg-devel',
                 'libxml2-devel',
                 ]
-    def configure_command (self):
-        return (target.AutoBuild.configure_command (self)
+    configure_flags = (target.AutoBuild.configure_flags
                 + ' --disable-poppler-qt'
                 + ' --disable-poppler-qt4'
                 + ' --enable-xpdf-headers'

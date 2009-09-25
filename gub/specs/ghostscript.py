@@ -25,6 +25,22 @@ models.'''
     revision = 'b35333cf3579e85725bd7d8d39eacc9640515eb8'
     source = 'git://git.infradead.org/ghostscript.git?branch=refs/remotes/git-svn&revision=' + revision
     parallel_build_broken = True
+    # For --enable-compile-inits, see comment in compile()
+    configure_flags = (target.AutoBuild.configure_flags
+                   + misc.join_lines ('''
+--enable-debug
+--with-drivers=FILES
+--without-pdftoraster
+--disable-fontconfig 
+--disable-gtk
+--disable-cairo
+--without-x
+--disable-cups
+--without-ijs
+--without-omni
+--without-jasper
+--disable-compile-inits
+'''))
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         if (isinstance (source, repository.Repository)
@@ -109,25 +125,6 @@ models.'''
              ('#define ARCH_SIZEOF_PTR [0-9]',
               '#define ARCH_SIZEOF_PTR %(sizeof_ptr)d' % locals ()),
              ], '%(builddir)s/obj/arch.h')
-
-    def configure_flags (self):
-        # For --enable-compile-inits, see comment in compile()
-        return (target.AutoBuild.configure_flags (self)
-                + misc.join_lines ('''
---enable-debug
---with-drivers=FILES
---without-pdftoraster
---disable-fontconfig 
---disable-gtk
---disable-cairo
---without-x
---disable-cups
---without-ijs
---without-omni
---without-jasper
---disable-compile-inits
-'''))
-
     def configure (self):
         target.AutoBuild.configure (self)
         self.makefile_fixup ('%(builddir)s/Makefile')
@@ -286,8 +283,7 @@ cd %(srcdir)s && cp Makefile.in Makefile-x11.in
         d = Ghostscript.get_subpackage_definitions (self)
         d['base'] = []
         return d
-    def configure_flags (self):
-        return (Ghostscript.configure_flags (self)
+    configure_flags = (Ghostscript.configure_flags
                 .replace (' --with-drivers=FILES', ' --with-drivers=ALL'))
     def compile (self):
         self.system ('''
@@ -313,7 +309,7 @@ cd %(builddir)s && rm -f obj/*.tr
         return ' sh %(configure_binary)s %(configure_flags_x11)s %(configure_variables_x11)s Makefile'
     @context.subst_method
     def configure_flags_x11 (self):
-        return (self.configure_flags ()
+        return (self.configure_flags
                 .replace ('--without-x', '--with-x')
                 .replace ('config.cache', 'config-x11.cache')
                 + ' --x-includes=%(system_prefix)s/X11R6/include'
@@ -361,9 +357,8 @@ cd %(install_prefix)s && rm -rf usr/X11R6/share
 class Ghostscript__tools (tools.AutoBuild, Ghostscript):
     parallel_build_broken = True
     dependencies = ['libjpeg', 'libpng']
-    def configure_flags (self):
-        return (tools.AutoBuild.configure_flags (self)
-                + Ghostscript.configure_flags (self))
+    configure_flags = (tools.AutoBuild.configure_flags
+                + Ghostscript.configure_flags)
     def configure (self):
         tools.AutoBuild.configure (self)
         self.makefile_fixup ('%(builddir)s/Makefile')

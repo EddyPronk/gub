@@ -1,9 +1,10 @@
 from gub import context
+from gub import gnome
 from gub import target
 
 class Gtk_x_ (target.AutoBuild):
     #source = 'http://ftp.gnome.org/pub/GNOME/sources/gtk+/2.15/gtk+-2.15.3.tar.gz'
-    source = gnome.platform ('gtk+')
+    source = gnome.platform_url ('gtk+')
     patches = ['gtk+-2.15.3-substitute-env.patch']
     dependencies = ['libtool',
                 'atk-devel',
@@ -17,6 +18,9 @@ class Gtk_x_ (target.AutoBuild):
                 #, 'libxinerama-devel',
                 'libxfixes-devel',
                 ]
+    configure_flags = (target.AutoBuild.configure_flags
+                + ' --without-libjasper'
+                + ' --disable-cups')
     def patch (self):
         target.AutoBuild.patch (self)
         self.file_sub ([
@@ -25,9 +29,7 @@ class Gtk_x_ (target.AutoBuild):
                 ], '%(srcdir)s/Makefile.in')
     def configure_command (self):
         return (' export gio_can_sniff=yes; '
-                + target.AutoBuild.configure_command (self)
-                + ' --without-libjasper'
-                + ' --disable-cups')
+                + target.AutoBuild.configure_command (self))
     def create_config_files (self, prefix='/usr'):
         gtk_module_version = '2.10.0' #FIXME!
         etc = self.expand ('%(install_root)s/%(prefix)s/etc/gtk-2.0', locals ())
@@ -42,8 +44,7 @@ set GTK_SO_EXTENSION=%(so_extension)s
         self.create_config_files ()
 
 class Gtk_x___freebsd (Gtk_x_):
-    def configure_command (self):
-        return (Gtk_x_.configure_command (self)
+    configure_variables = (Gtk_x_.configure_variables
                 + ' CFLAGS=-pthread')
 
 class Gtk_x___freebsd__x86 (Gtk_x___freebsd):
@@ -58,7 +59,6 @@ class Gtk_x___mingw (Gtk_x_without_X11):
         Gtk_x_.patch (self)
 
 class Gtk_x___darwin (Gtk_x_without_X11):
-    def configure_command (self):
-        return (Gtk_x_without_X11.configure_command (self)
+    configure_flags = (Gtk_x_without_X11.configure_flags
                 + ' --with-gdktarget=quartz'
                 )

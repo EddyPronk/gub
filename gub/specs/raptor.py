@@ -17,8 +17,7 @@ ac_cv_libxmlparse_xml_parsercreate=no
 ac_cv_expat_xml_parsercreate=yes
 ac_cv_expat_initial_utf8_bom=yes
 '''
-    def configure_command (self):
-        return (target.AutoBuild.configure_command (self)
+    configure_flags = (target.AutoBuild.configure_flags
                 + misc.join_lines ('''
 --enable-maintainer-mode
 '''))
@@ -29,8 +28,7 @@ class Raptor__mingw (Raptor):
     def makeflags (self):
 #        return '''CFLAGS='-Dstrtok_r\(s,d,p\)=strtok\(s,d\)' '''
         return '''CFLAGS="-D'strtok_r(s,d,p)=strtok(s,d)'" '''
-    def configure_command (self):
-        return (target.AutoBuild.configure_command (self)
+    configure_flags = (target.AutoBuild.configure_flags
                 + misc.join_lines ('''
 --enable-maintainer-mode
 --enable-parsers="grddl rdfxml ntriples turtle trig guess rss-tag-soup rdfa n3"

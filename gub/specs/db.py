@@ -8,12 +8,11 @@ class Db (target.AutoBuild):
     dependencies = ['tools::libtool']
     def cache_file (self):
         return '%(builddir)s/build_unix/config.cache'
-    def autodir (self):
-        return '%(srcdir)s/dist'
+#    def autodir (self):
+#        return '%(srcdir)s/dist'
     def configure_command (self):
         return 'cd build_unix && ' + target.AutoBuild.configure_command (self)
-    def configure_binary (self):
-        return '%(builddir)s/dist/configure'
+    configure_binary = '%(builddir)s/dist/configure'
     def makeflags (self):
         return '-C build_unix'
     def configure (self):
@@ -52,8 +51,7 @@ touch %(builddir)s/build_unix/netinet/in.h
 touch %(builddir)s/build_unix/netdb.h
 touch %(builddir)s/build_unix/arpa/inet.h
 ''')
-    def configure_command (self):
-        return (Db.configure_command (self)
+    configure_flags = (Db.configure_flags
                 + misc.join_lines ('''
 --disable-posixmutexes
 --disable-mutexsupport
@@ -76,7 +74,7 @@ class Db__tools (tools.AutoBuild, Db):
     srcdir_build_broken = True
     dependencies = ['libtool']
     def configure_command (self):
-        return 'cd build_unix && ../' + tools.AutoBuild.configure_command (self)
+        return 'cd build_unix && ' + tools.AutoBuild.configure_command (self)
     def configure (self):
         self.system ('mkdir -p %(builddir)s/build_unix')
         tools.AutoBuild.configure (self)

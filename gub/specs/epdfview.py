@@ -11,10 +11,9 @@ class Epdfview (target.AutoBuild):
             'lilypondcairo',
             'poppler-devel',
             ]
-    def configure_command (self):
-        return (target.AutoBuild.configure_command (self)
-                + ' --without-cups'
-                )
+    configure_flags = (target.AutoBuild.configure_flags
+                       + ' --without-cups'
+                       )
 
 class Epdfview__mingw (Epdfview):
     patches = ['epdfview-0.1.7-mingw.patch']

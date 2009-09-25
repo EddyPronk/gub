@@ -27,7 +27,19 @@ class Build (context.RunnableContext):
     install_after_build = True
     parallel_build_broken = False
     srcdir_build_broken = False
-    
+
+    @context.subst_method
+    def autodir (self):
+        return '%(srcdir)s'
+    @context.subst_method
+    def configure_binary (self):
+        return '%(autodir)s/configure'
+    @context.subst_method
+    def configure_command (self):
+        return ' sh %(configure_binary)s%(configure_flags)s%(configure_variables)s'
+    configure_flags = ' --prefix=%(configure_prefix)s'
+    configure_variables = ''
+
     def __init__ (self, settings, source):
         context.RunnableContext.__init__ (self, settings)
         self.source = source
@@ -38,19 +50,6 @@ class Build (context.RunnableContext):
         if runner:
             self.source.connect_logger (runner.logger)
         return context.RunnableContext.connect_command_runner (self, runner)
-
-    @staticmethod
-    def gnome_platform (name, version='2.25.5'):
-        major, minor, micro = '.'.split (version)
-        url = 'http://ftp.gnome.org/pub/GNOME/platform/%(major)s.%(minor)s/%(version)s/sources/' % locals ()
-        raw_version_file = 'gnome-%(version)s' % locals
-        if not os.path.isfile (raw_version_file):
-            misc.download_url (url, 'downloads', raw_version_file)
-        s = open (raw_version_file).read ()
-        m = re.search ('(%(name)s-[.0-9]+tar.gz)' % locals (), s)
-        if not m:
-            raise 'barf'
-        return url + m.group (1)
 
     @context.subst_method
     def checksum_file (self):
@@ -316,31 +315,11 @@ class AutoBuild (Build):
     def install_command (self):
         return '''make %(makeflags)s DESTDIR=%(install_root)s install'''
 
-    @context.subst_method
-    def autodir (self):
-        return '%(srcdir)s'
-
     def aclocal_path (self):
         return [
             '%(tools_prefix)s/share/aclocal',
             '%(system_prefix)s/share/aclocal',
             ]
-
-    @context.subst_method
-    def configure_binary (self):
-        return '%(autodir)s/configure'
-
-    @context.subst_method
-    def configure_command (self):
-        return (' sh %(configure_binary)s%(configure_flags)s%(configure_variables)s')
-
-    @context.subst_method
-    def configure_flags (self):
-        return ' --prefix=%(configure_prefix)s'
-
-    @context.subst_method
-    def configure_variables (self):
-        return ''
 
     @context.subst_method
     def compile_command (self):

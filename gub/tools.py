@@ -56,6 +56,21 @@ def package_auto_dependency_dict (package):
 #AutoBuild = target.AutoBuild
 
 class AutoBuild (build.AutoBuild):
+    configure_flags = (build.AutoBuild.configure_flags
+                + misc.join_lines ('''
+--enable-shared
+--enable-static
+--disable-silent-rules
+'''))
+    configure_variables = (build.AutoBuild.configure_variables
+               + misc.join_lines ('''
+CFLAGS=-I%(system_prefix)s/include
+LDFLAGS='-L%(system_prefix)s/lib %(rpath)s %(libs)s'
+'''))
+    def __init__ (self, settings, source):
+        build.AutoBuild.__init__ (self, settings, source)
+        if self.config_cache_settings ():
+            self.configure_flags += ' --cache-file=config.cache'
     # FIXME: MI-hacks
     # must not set cross-compiling, a config cache or update libtool
     def autoupdate (self):
@@ -68,23 +83,6 @@ class AutoBuild (build.AutoBuild):
         if 'BOOTSTRAP' in os.environ.keys ():
             return '%(prefix_dir)s'
         return '%(system_prefix)s'
-    def configure_flags (self):
-        config_cache = ''
-        if self.config_cache_settings ():
-            config_cache = ' --config-cache'
-        return (build.AutoBuild.configure_flags (self)
-                + misc.join_lines ('''
---enable-shared
---enable-static
---disable-silent-rules
-''')
-                + config_cache)
-    def configure_variables (self):
-       return (build.AutoBuild.configure_variables (self)
-               + misc.join_lines ('''
-CFLAGS=-I%(system_prefix)s/include
-LDFLAGS='-L%(system_prefix)s/lib %(rpath)s %(libs)s'
-'''))
     ## ugh: prefix= will trigger libtool relinks.
     def install_command (self):
         return '''make %(makeflags)s DESTDIR=%(install_root)s install'''

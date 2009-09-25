@@ -4,8 +4,7 @@ from gub import target
 class Libdbi_drivers_sqlite3 (target.AutoBuild):
     source = 'http://surfnet.dl.sourceforge.net/sourceforge/libdbi-drivers/libdbi-drivers-0.8.2.tar.gz'
     dependencies = ['sqlite-devel', 'libdbi-devel', 'libtool']
-    def configure_command (self):
-        return (target.AutoBuild.configure_command (self)
+    configure_flags = (target.AutoBuild.configure_flags
                 + misc.join_lines ('''
 --disable-docs
 --with-dbi-incdir=%(system_prefix)s/include

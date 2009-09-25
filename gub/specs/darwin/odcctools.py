@@ -20,6 +20,10 @@ class Odcctools (cross.AutoBuild): #skews dependencies:, build.SdkBuild):
             cross.change_target_package_x86 (self, self.add_linux_x86_env ())
         if 'x86_64-linux' in self.settings.build_architecture:
             self.dependencies += ['linux-x86::glibc']
+        if (self.settings.build_bits == '32'
+            and self.settings.build_hardware_bits == '64'):
+            self.configure_variables = (cross.AutoBuild.configure_variables
+                                        + ' CFLAGS=-D_FORTIFY_SOURCE=0')
     def autoupdate (self):
         # PROMOTEME: run aclocal if ^AM_ macros inside configure.*
         self.system ('cd %(srcdir)s && aclocal')
@@ -52,12 +56,6 @@ class Odcctools (cross.AutoBuild): #skews dependencies:, build.SdkBuild):
         self.file_sub ([('ld64','')], self.builddir () + '/Makefile')
     def build_environment (self):
         return self.add_linux_x86_env ()
-    def configure_command (self):
-        if (self.settings.build_bits == '32'
-            and self.settings.build_hardware_bits == '64'):
-            return (cross.AutoBuild.configure_command (self)
-                    + ' CFLAGS=-D_FORTIFY_SOURCE=0')
-        return cross.AutoBuild.configure_command (self)
     def install_librestrict_stat_helpers (self):
         # librestrict stats PATH to find gnm and gstrip
         self.system ('''

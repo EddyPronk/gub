@@ -24,8 +24,7 @@ class Pango (target.AutoBuild):
             ]
     def get_conflict_dict (self):
         return {'': ['pangocairo', 'pangocairo-devel', 'pangocairo-doc'], 'devel': ['pangocairo', 'pangocairo-devel', 'pangocairo-doc'], 'doc': ['pangocairo', 'pangocairo-devel', 'pangocairo-doc'], 'runtime': ['pangocairo', 'pangocairo-devel', 'pangocairo-doc']}
-    def configure_flags (self):
-        return (target.AutoBuild.configure_flags (self)
+    configure_flags = (target.AutoBuild.configure_flags
                 + misc.join_lines ('''
 --without-x
 --without-cairo

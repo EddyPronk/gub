@@ -74,8 +74,7 @@ class Pic (target.AutoBuild):
                     + ' -I%(builddir)s' % locals ())
         self._downloader = self.cvs
 
-    def configure_command (self):
-        return (target.AutoBuild.configure_command (self)
+    configure_command = (target.AutoBuild.configure_command
                 + misc.join_lines ('''
 --enable-media-server
 --disable-decui

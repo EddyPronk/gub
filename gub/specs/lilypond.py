@@ -80,14 +80,12 @@ class LilyPond (target.AutoBuild):
                 }
     def autoupdate (self):
         self.system ('cd %(srcdir)s && ./smart-autogen.sh --noconfigure') 
-    def configure_binary (self):
-        return '%(srcdir)s/smart-configure.sh'
+    configure_binary = '%(srcdir)s/smart-configure.sh'
     def configure (self):
         self.system ('mkdir -p %(builddir)s || true')
         self.system ('cp %(tools_prefix)s/include/FlexLexer.h %(builddir)s/')
         target.AutoBuild.configure (self)
-    def configure_flags (self):
-        return (target.AutoBuild.configure_flags (self)
+    configure_flags = (target.AutoBuild.configure_flags
                 + misc.join_lines ('''
 --enable-relocation
 --enable-rpath
@@ -212,8 +210,7 @@ class LilyPond__cygwin (LilyPond):
             'ghostscript',
             'lilypond-doc',
             ]
-    def configure_flags (self):
-        return (LilyPond.configure_flags (self)
+    configure_flags = (LilyPond.configure_flags
                 .replace ('--enable-relocation', '--disable-relocation'))
     def makeflags (self):
         python_lib = '%(system_prefix)s/bin/libpython*.dll'
@@ -365,8 +362,7 @@ class LilyPond__darwin (LilyPond):
                 'fondu',
                 'osx-lilypad',
                 ])
-    def configure_flags (self):
-        return (LilyPond.configure_flags (self)
+    configure_flags = (LilyPond.configure_flags
                 .replace ('--enable-rpath', '--disable-rpath'))
     def makeflags (self):
         return ' TARGET_PYTHON="/usr/bin/env python"'

@@ -7,8 +7,7 @@ class Patch__tools (tools.AutoBuild):
 # additional [SUSE] patches to not barf on all CRLF problems.
 # Taken from the Ibex: apt-get --download source patch
     source = 'http://lilypond.org/download/gub-sources/patch-2.5.9-5.tar.gz'
-    def configure_variables (self):
-        return ''
+    configure_variables = ''
     def configure (self):
         tools.AutoBuild.configure (self)
         if 'freebsd' in self.settings.build_architecture:

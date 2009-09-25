@@ -11,8 +11,7 @@ class Libgd (target.AutoBuild):
             'libpng',
             'zlib',
             ]
-    def configure_command (self):
-        return (target.AutoBuild.configure_command (self)
+    configure_flags = (target.AutoBuild.configure_flags
                 + ' --with-fontconfig'
                 + ' --with-freetype'
                 + ' --with-jpeg'
@@ -29,8 +28,7 @@ class Libgd__tools (tools.AutoBuild, Libgd):
             'libtool',
             'zlib',
             ]
-    def configure_command (self):
-        return (tools.AutoBuild.configure_command (self)
+    configure_flags = (tools.AutoBuild.configure_flags
                 + ' --with-fontconfig'
                 + ' --with-freetype'
                 + ' --with-jpeg'

@@ -9,8 +9,7 @@ class Gcc_core (gcc.Gcc_core):
 cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-3.4.0-arm-lib1asm.patch
 cd %(srcdir)s && patch -p1 < %(patchdir)s/gcc-3.4.0-arm-nolibfloat.patch
 ''')
-    def configure_command (self):
-        return (gcc.Gcc_core.configure_command (self)
+    configure_flags = (gcc.Gcc_core.configure_flags
                 + misc.join_lines ('''
 --with-float=soft
 #--with-fpu=vfp

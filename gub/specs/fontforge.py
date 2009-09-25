@@ -33,8 +33,7 @@ class Fontforge__tools (tools.AutoBuild):
         # for tools is allowed...
         self.file_sub ([('"/lib/lib', '"%(system_prefix)s/lib/lib')],
                        '%(srcdir)s/configure')
-    def configure_command (self):
-        return (tools.AutoBuild.configure_command (self)
+    configure_flags = (tools.AutoBuild.configure_flags
                 + ' --without-freetype-src'
                 + ' --disable-libff '
                 # let's ignore python (and its dynamic link intracies

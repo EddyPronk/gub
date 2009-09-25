@@ -7,8 +7,7 @@ class Binutils (cross.AutoBuild):
     patches = []
     dependencies = [
             ]
-    def configure_command (self):
-        return (cross.AutoBuild.configure_command (self)
+    configure_flags = (cross.AutoBuild.configure_flags
                 + ' --disable-werror'
                 )
     def makeflags (self):

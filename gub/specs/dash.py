@@ -8,7 +8,6 @@ class Dash__tools (tools.AutoBuild):
                         ('echocmd		echo', '')],
                        '%(srcdir)s/src/builtins.def.in',
                        must_succeed=True)
-    def configure_command (self):
-        return (tools.AutoBuild.configure_command (self)
+    configure_flags = (tools.AutoBuild.configure_flags
                 # dash takes --enable-static to mean: --disable-shared
                 .replace ('--enable-static', ''))

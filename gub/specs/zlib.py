@@ -1,6 +1,6 @@
 import re
 #
-from gub import build
+from gub import context
 from gub import target
 from gub import tools
 
@@ -9,16 +9,18 @@ class Zlib (target.AutoBuild):
     patches = ['zlib-1.2.3.patch']
     srcdir_build_broken = True
     dependencies = ['tools::autoconf']
-    def compile_command (self):
-        return target.AutoBuild.compile_command (self) + ' ARFLAGS=r '
-    def configure_command (self):
+    def __init__ (self, settings, source):
+        target.AutoBuild.__init__ (self, settings, source)
+    @context.subst_method
+    def zlib_target (self):
         stripped_platform = self.settings.expand ('%(platform)s')
         stripped_platform = re.sub ('-.*', '', stripped_platform)
         stripped_platform = stripped_platform.replace ('darwin', 'Darwin')
-        
-        zlib_is_broken = 'SHAREDTARGET=libz.so.1.2.3 target=' + stripped_platform
-        ## doesn't use autoconf configure.
-        return zlib_is_broken + ' %(srcdir)s/configure --shared '
+        return 'SHAREDTARGET=libz.so.1.2.3 target=' + stripped_platform
+    def configure_command (self):
+        return '%(zlib_target)s %(srcdir)s/configure --shared '
+    def compile_command (self):
+        return target.AutoBuild.compile_command (self) + ' ARFLAGS=r '
     def install_command (self):
         return target.AutoBuild.broken_install_command (self)
     def license_files (self):
@@ -32,10 +34,14 @@ class Zlib_plain__mingw (Zlib):
                         ],
                        '%(srcdir)s/configure')
     def configure_command (self):
-        zlib_is_broken = 'target=mingw'
-        return zlib_is_broken + ' %(srcdir)s/configure --shared '
+        return '%(zlib_target)s %(srcdir)s/configure --shared '
+    def zlib_target (self):
+        return 'target=mingw'
 
 class Zlib_minizip__mingw (Zlib_plain__mingw):
+    def configure_command (self):
+        return (''' CFLAGS='-I. -O3' '''
+                + Zlib_plain__mingw.configure_command (self))
     def patch_include_minizip (self):
         self.file_sub ([('(inffast.o)$', r'\1 ioapi.o iowin32.o mztools.o unzip.o zip.o\nVPATH= contrib/minizip\n')],
                    '%(srcdir)s/Makefile.in')
@@ -44,8 +50,6 @@ class Zlib_minizip__mingw (Zlib_plain__mingw):
     def patch (self):
         Zlib_plain__mingw.patch (self)
         self.patch_include_minizip ()
-    def configure_command (self):
-        return ''' CFLAGS='-I. -O3' ''' + Zlib_plain__mingw.configure_command (self)
     def install (self):
         Zlib_plain__mingw.install (self)
         self.install_include_minizip ()
@@ -62,9 +66,8 @@ no shared lib: gcc-4.2.1 says
 class Zlib__tools (tools.AutoBuild, Zlib):
     srcdir_build_broken = True
     dependencies = ['autoconf']
+    configure_command = Zlib.configure_command
     def install_command (self):
         return tools.AutoBuild.broken_install_command (self)
-    def configure_command (self):
-        return Zlib.configure_command (self)
     def license_files (self):
         return ['%(sourcefiledir)s/zlib.license']

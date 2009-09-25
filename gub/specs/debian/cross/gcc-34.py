@@ -4,8 +4,7 @@ class Gcc_34__debian__mipsel (cross_gcc.Gcc):
     def languages (self):
         return  ['c']
         
-    def configure_command (self):
-        return misc.join_lines (cross_gcc.Gcc.configure_command (self)
+    configure_flags = misc.join_lines (cross_gcc.Gcc.configure_flags
                                + '''
 --program-suffix=-3.4
 --with-ar=%(cross_prefix)s/bin/%(target_architecture)s-ar

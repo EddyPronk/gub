@@ -8,8 +8,7 @@ class Ncurses (target.AutoBuild):
 #            'system::g++'
             'tools::gawk',
             ]
-    def configure_command (self):
-        return (target.AutoBuild.configure_command (self)
+    configure_flags = (target.AutoBuild.configure_flags
                 + ' --without-normal'
                 + ' --with-shared'
                 )
@@ -18,8 +17,7 @@ class Ncurses (target.AutoBuild):
 
 class Ncurses__tools (tools.AutoBuild, Ncurses):
     patches = Ncurses.patches
-    def configure_command (self):
-        return (tools.AutoBuild.configure_command (self)
+    configure_flags = (tools.AutoBuild.configure_flags
                 + ' --with-normal'
                 + ' --with-shared'
                 + ' --without-cxx'

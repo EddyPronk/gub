@@ -7,8 +7,7 @@ class Libapr_util__tools (tools.AutoBuild):
     dependencies = [
             'libapr-devel',
             ]
-    def configure_command (self):
-        return (tools.AutoBuild.configure_command (self)
+    configure_flags = (tools.AutoBuild.configure_flags
                 + ' --with-apr=%(system_prefix)s'
                 )
 

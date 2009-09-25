@@ -39,9 +39,8 @@ class Coreutils__tools (tools.AutoBuild):
         self.system ('''
 cd %(srcdir)s && autoreconf
 ''')
-    def configure_command (self):
-        return (tools.AutoBuild.configure_command (self)
-                + ' CFLAGS=-fPIC')
+    configure_variables = (tools.AutoBuild.configure_variables
+                           + ' CFLAGS=-fPIC')
     def makeflags (self):
         return misc.join_lines ('''
 V=1

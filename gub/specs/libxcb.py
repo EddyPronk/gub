@@ -21,8 +21,7 @@ xproto.c:2479: error: 'xcb_configure_window_request_t' has no member named 'pad1
 class Libxcb__freebsd (Libxcb):
     patches = Libxcb.patches + ['libxcb-0.9.93-freebsd.patch']
     parallel_build_broken = True
-    def configure_command (self):
-        return (Libxcb.configure_command (self)
+    configure_variables = (Libxcb.configure_variables
                 + ' LDFLAGS=-pthread')
 
 class Libxcb__mingw (Libxcb):

@@ -5,9 +5,8 @@ class Hunspell (target.AutoBuild):
 
 class Hunspell__mingw (Hunspell):
     dependencies = ['libiconv-devel']
-    def configure_command (self):
-        return (Hunspell.configure_command (self)
-                + ' --disable-nls')
+    configure_flags = (Hunspell.configure_flags
+                       + ' --disable-nls')
     def patch (self):
         Hunspell.patch (self)
         self.file_sub ([('(chmorph_LDADD.*)',

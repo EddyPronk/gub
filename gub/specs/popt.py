@@ -11,6 +11,5 @@ class Popt__freebsd__x86 (Popt):
 
 class Popt__mingw (Popt):
     patches = ['popt-no-sys-ioctl.patch']
-    def configure_command (self):
-        return (Popt.configure_command (self)
-                + ' CFLAGS="-Drandom=rand -Dsrandom=srand"')
+    configure_variables = (Popt.configure_variables
+                           + ' CFLAGS="-Drandom=rand -Dsrandom=srand"')

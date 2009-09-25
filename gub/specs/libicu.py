@@ -16,8 +16,8 @@ class Libicu (target.AutoBuild):
         return misc.list_insert_before (target.AutoBuild.stages (self),
                                         'configure',
                                         ['configure_native', 'compile_native'])
-    def autodir (self):
-        return '%(srcdir)s/source'
+#    def autodir (self):
+#        return '%(srcdir)s/source'
     def makeflags (self):
         return misc.join_lines ('''
 BINDIR_FOR_BUILD='$(BINDIR)-native'
@@ -43,8 +43,7 @@ PKGDATA_INVOKE_OPTS="BINDIR='\$\$(top_builddir)/bin-native' LIBDIR='\$\$(top_bui
 
 class Libicu__mingw (Libicu):
     patches = Libicu.patches + ['libicu-3.8.1-uintptr-t.patch', 'libicu-3.8.1-cross-mingw.patch', 'libicu-3.8.1-mingw.patch']
-    def configure_command (self):
-        return (Libicu.configure_command (self)
+    configure_flags = (Libicu.configure_flags
                 + misc.join_lines ('''
 --disable-threads
 '''))

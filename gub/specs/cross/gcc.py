@@ -11,6 +11,14 @@ from gub.specs import gcc
 class Gcc (cross.AutoBuild):
     source = 'http://ftp.gnu.org/pub/gnu/gcc/gcc-4.1.2/gcc-4.1.2.tar.bz2'
     dependencies = ['cross/binutils']
+    configure_flags = (cross.AutoBuild.configure_flags
+                + '%(enable_languages)s'
+                + ' --enable-static'
+                + ' --enable-shared'
+                + ' --with-as=%(cross_prefix)s/bin/%(target_architecture)s-as'
+                + ' --with-ld=%(cross_prefix)s/bin/%(target_architecture)s-ld'
+                + ' --with-nm=%(cross_prefix)s/bin/%(target_architecture)s-nm'
+                )
     def patch (self):
         cross.AutoBuild.patch (self)
         gcc.do_not_look_in_slash_usr (self)
@@ -27,25 +35,12 @@ class Gcc (cross.AutoBuild):
         return d
     def languages (self):
         return ['c', 'c++']
-    def configure_command (self):
-        # FIXME: using --prefix=%(tooldir)s makes this
-        # uninstallable as a normal system package in
-        # /usr/i686-mingw/
-        # Probably --prefix=/usr is fine too
-        enable_libstdcxx_debug = ''
+    @context.subst_method
+    def enable_languages (self):
+        flags = ' --enable-languages=' + ','.join (self.languages ()) 
         if 'c++' in self.languages ():
-            enable_libstdcxx_debug = ' --enable-libstdcxx-debug'
-        return (cross.AutoBuild.configure_command (self)
-                + ' --enable-languages=' + ','.join (self.languages ())
-# python2.5-ism
-#                + ' --enable-libstdcxx-debug' if 'c++' in self.languages () else ''
-                + enable_libstdcxx_debug
-                + ' --enable-static'
-                + ' --enable-shared'
-                + ' --with-as=%(cross_prefix)s/bin/%(target_architecture)s-as'
-                + ' --with-ld=%(cross_prefix)s/bin/%(target_architecture)s-ld'
-                + ' --with-nm=%(cross_prefix)s/bin/%(target_architecture)s-nm'
-                )
+            flags += ' --enable-libstdcxx-debug'
+        return flags
     def makeflags (self):
         return misc.join_lines ('''
 tooldir='%(cross_prefix)s/%(target_architecture)s'
@@ -77,8 +72,7 @@ class Gcc__from__source (Gcc):
     def get_conflict_dict (self):
         return {'': ['cross/gcc-core'], 'doc': ['cross/gcc-core'], 'runtime': ['cross/gcc-core']}
     #FIXME: merge all configure_command settings with Gcc
-    def configure_command (self):
-        return (Gcc.configure_command (self)
+    configure_flags = (Gcc.configure_flags
                 + misc.join_lines ('''
 --with-local-prefix=%(system_prefix)s
 --disable-multilib
@@ -130,6 +124,11 @@ class Gcc__mingw (Gcc):
 class this_works_but_has_string_exception_across_dll_bug_Gcc__cygwin (Gcc__mingw):
     dependencies = (Gcc__mingw.dependencies
                 + ['cygwin', 'w32api-in-usr-lib'])
+    configure_flags = (Gcc__mingw.configure_flags
+                + misc.join_lines ('''
+--with-newlib
+--enable-threads
+'''))
     def makeflags (self):
         return misc.join_lines ('''
 tooldir="%(cross_prefix)s/%(target_architecture)s"
@@ -138,15 +137,9 @@ gcc_tooldir="%(cross_prefix)s/%(target_architecture)s"
     def compile_command (self):
         return (Gcc__mingw.compile_command (self)
                 + self.makeflags ())
-    def configure_command (self):
         # We must use --with-newlib, otherwise configure fails:
         # No support for this host/target combination.
         # [configure-target-libstdc++-v3]
-        return (Gcc__mingw.configure_command (self)
-                + misc.join_lines ('''
---with-newlib
---enable-threads
-'''))
 
 # Cygwin sources Gcc
 # Hmm, download is broken.  How is download of gcc-g++ supposed to work anyway?
@@ -158,24 +151,13 @@ gcc_tooldir="%(cross_prefix)s/%(target_architecture)s"
 class Gcc__cygwin (Gcc):
     source = 'http://ftp.gnu.org/pub/gnu/gcc/gcc-3.4.4/gcc-3.4.4.tar.bz2'
     patches = ['gcc-3.4.4-cygwin-3.patch']
-    def xuntar (self):
-        ball = self.source._file_name ()
-        cygwin.untar_cygwin_src_package_variant2 (self, ball.replace ('-core', '-g++'),
-                                                  split=True)
-        cygwin.untar_cygwin_src_package_variant2 (self, ball)
     dependencies = (Gcc.dependencies
 #                + ['cygwin', 'w32api-in-usr-lib', 'cross/gcc-g++'])
                 + ['cygwin', 'w32api-in-usr-lib'])
-    def makeflags (self):
-        return misc.join_lines ('''
-tooldir="%(cross_prefix)s/%(target_architecture)s"
-gcc_tooldir="%(cross_prefix)s/%(target_architecture)s"
-''')
-    def configure_command (self):
-        # We must use --with-newlib, otherwise configure fails:
-        # No support for this host/target combination.
-        # [configure-target-libstdc++-v3]
-        return (Gcc.configure_command (self)
+    # We must use --with-newlib, otherwise configure fails:
+    # No support for this host/target combination.
+    # [configure-target-libstdc++-v3]
+    configure_flags = (Gcc.configure_flags
                 + misc.join_lines ('''
 --with-newlib
 --verbose
@@ -193,3 +175,13 @@ gcc_tooldir="%(cross_prefix)s/%(target_architecture)s"
 --enable-hash-synchronization
 --enable-libstdcxx-debug
 '''))
+    def xuntar (self):
+        ball = self.source._file_name ()
+        cygwin.untar_cygwin_src_package_variant2 (self, ball.replace ('-core', '-g++'),
+                                                  split=True)
+        cygwin.untar_cygwin_src_package_variant2 (self, ball)
+    def makeflags (self):
+        return misc.join_lines ('''
+tooldir="%(cross_prefix)s/%(target_architecture)s"
+gcc_tooldir="%(cross_prefix)s/%(target_architecture)s"
+''')

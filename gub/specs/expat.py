@@ -24,9 +24,8 @@ RUN_FC_CACHE_TEST=false
 ''')
 
 class Expat__mingw (Expat):
-    def configure_variables (self):
         # mingw's expat libtool build breaks with DASH
-        return (Expat.configure_variables (self)
+    configure_variables = (Expat.configure_variables
                 .replace ('SHELL=', 'XSHELL='))
 
 class Expat__linux__arm__vfp (Expat):

@@ -61,8 +61,14 @@ def recurse_substitutions (d):
         try:
             while v.index ('%(') >= 0:
                 v = v % d
-        except ValueError:
-            pass
+        except:
+            t, vv, b = sys.exc_info ()
+            if t == ValueError:
+                pass
+            elif t == KeyError or t == ValueError:
+                printf ('variable: >>>' + k + '<<<')
+                printf ('format string: >>>' + v + '<<<')
+                raise
         d[k] = v
     return d
 
@@ -118,7 +124,11 @@ class Context (object):
         string_vars = dict ((k, v) for (k, v) in members if type (v) == str)
         d.update (string_vars)
         d.update (member_substs)
-        d = recurse_substitutions (d)
+        try:
+            d = recurse_substitutions (d)
+        except KeyError:
+            printf ('self:', self)
+            raise
         return d
 
     def get_substitution_dict (self, env={}):

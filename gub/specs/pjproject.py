@@ -6,11 +6,9 @@ class Pjproject (target.AutoBuild):
     srcdir_build_broken = True
     def patch (self):
         self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/pjproject-install.patch')
-    def configure_flags (self):
-        return (target.AutoBuild.configure_flags (self)
+    configure_flags = (target.AutoBuild.configure_flags
                 + ' --disable-sound')
-    def configure_binary (self):
-        return './aconfigure'
+    configure_binary = './aconfigure'
     def install_command (self):
         return (target.AutoBuild.install_command (self)
                 + ' prefix=%(prefix_dir)s')

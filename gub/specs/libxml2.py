@@ -7,8 +7,7 @@ from gub import tools
 class Libxml2 (target.AutoBuild):
     source = gnome.platform_url ('libxml2', '2.18.1')
     dependencies = ['zlib']
-    def configure_command (self):
-        return (target.AutoBuild.configure_command (self)
+    configure_flags = (target.AutoBuild.configure_flags
                 + misc.join_lines ('''
 --without-python
 '''))
@@ -17,8 +16,7 @@ class Libxml2 (target.AutoBuild):
         return 'xml2-config'
 
 class Libxml2__mingw (Libxml2):
-    def configure_command (self):
-        return (Libxml2.configure_command (self)
+    configure_flags = (Libxml2.configure_flags
                 + misc.join_lines ('''
 --without-threads
 '''))
@@ -29,8 +27,7 @@ class Libxml2__mingw (Libxml2):
 
 class Libxml2__tools (tools.AutoBuild, Libxml2):
     dependencies = Libxml2.dependencies + ['libtool']
-    def configure_command (self):
-        return (tools.AutoBuild.configure_command (self)
+    configure_flags = (tools.AutoBuild.configure_flags
                 + misc.join_lines ('''
 --without-python
 '''))

@@ -66,8 +66,7 @@ class Denemo (target.AutoBuild):
                 'cross/gcc-c++-runtime',
                 ]
                 }
-    def configure_flags (self):
-        return (target.AutoBuild.configure_flags (self)
+    configure_flags = (target.AutoBuild.configure_flags
                 + ' --enable-binreloc'
                 + ' --enable-jack'
                 + ' --program-prefix=')
@@ -94,9 +93,8 @@ class Denemo__mingw (Denemo):
                 'jack',
                 'lash',
                 ]] + ['lilypad']
-    def configure_flags (self):
-        return (Denemo.configure_flags (self)
-                .replace ('--enable-jack', '--disable-jack'))
+    configure_flags = (Denemo.configure_flags
+                       .replace ('--enable-jack', '--disable-jack'))
     def makeflags (self):
         return ''
     def compile (self):
@@ -122,6 +120,5 @@ class Denemo__darwin (Denemo):
             'fondu',
             'osx-lilypad',
             ]
-    def configure_flags (self):
-        return (Denemo.configure_flags (self)
-                .replace ('--enable-jack', '--disable-jack'))
+    configure_flags = (Denemo.configure_flags
+                       .replace ('--enable-jack', '--disable-jack'))

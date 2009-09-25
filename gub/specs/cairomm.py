@@ -5,6 +5,5 @@ class Cairomm (target.AutoBuild):
     dependencies = ['cairo-devel', 'libsig++-devel']
 
 class Cairomm__freebsd (Cairomm):
-    def configure_variables (self):
-        return (Cairomm.configure_command (self)
-                + ' CFLAGS=-pthread CXXFLAGS=-pthread')
+    configure_variables = (Cairomm.configure_variables
+                           + ' CFLAGS=-pthread CXXFLAGS=-pthread')

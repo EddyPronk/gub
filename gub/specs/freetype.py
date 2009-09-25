@@ -61,7 +61,8 @@ LDFLAGS:=$(LDFLAGS) -no-undefined
 class XFreetype__cygwin (Freetype):
     source = 'http://download.savannah.nongnu.org/releases/freetype/freetype-2.1.10.tar.gz&name=freetype'
     patches = ['freetype-libtool-no-version.patch']
-
+    configure_flags = (Freetype.configure_flags
+                + ' --sysconfdir=/etc --localstatedir=/var')
     def __init__ (self, settings, source):
         Freetype.__init__ (self, settings, source)
         self.so_version = '6'
@@ -91,18 +92,13 @@ class XFreetype__cygwin (Freetype):
     def category_dict (self):
         return {'': 'Libs'}
 
-    def configure_command (self):
-        return (Freetype.configure_command (self)
-                + ' --sysconfdir=/etc --localstatedir=/var')
-
     def install (self):
         target.AutoBuild.install (self)
         self.pre_install_smurf_exe ()
 
 class Freetype__tools (tools.AutoBuild, Freetype):
     dependencies = ['libtool', 'zlib']
-    def configure_variables (self):
-        return misc.double_quote (tools.AutoBuild.configure_variables (self))
+    configure_variables = misc.double_quote (tools.AutoBuild.configure_variables)
     # FIXME, mi-urg?
     def license_files (self):
         return Freetype.license_files (self)

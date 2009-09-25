@@ -13,10 +13,9 @@ class Gcc_core (gcc.Gcc__from__source):
         return 'gcc-core'
     def get_conflict_dict (self):
         return {'': ['cross/gcc', 'cross/gcc-devel', 'cross/gcc-doc', 'cross/gcc-runtime']}
-    def configure_command (self):
 #--prefix=%(cross_prefix)s
 #--prefix=%(prefix_dir)s
-        return (misc.join_lines (gcc.Gcc__from__source.configure_command (self)
+    configure_flags = (misc.join_lines (gcc.Gcc__from__source.configure_flags
                                  + '''
 --with-newlib
 --enable-threads=no

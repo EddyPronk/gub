@@ -52,8 +52,7 @@ class Glib__mingw (Glib):
 
 class Glib__freebsd (Glib):
     dependencies = Glib.dependencies + ['libiconv-devel']
-    def configure_command (self):
-        return Glib.configure_command (self) + ' CFLAGS=-pthread'
+    configure_variables = Glib.configure_variables + ' CFLAGS=-pthread'
 
 class Glib__freebsd__x86 (Glib__freebsd):
     def makeflags (self):

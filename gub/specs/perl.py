@@ -15,9 +15,9 @@ class Perl__tools (tools.AutoBuild):
         self.file_sub ([('-c (/dev/null)', r'-e \1')], '%(srcdir)s/Configure')
     def configure_binary (self):
         return '%(autodir)s/configure.gnu'
-    def configure_command (self):
 # -Dcc=%(CC)s
 # -Dprefix=%(prefix_dir)s -- BOOTSTRAP
+    def configure_command (self):
         return misc.join_lines ('''%(configure_binary)s
  -Dprefix=%(system_prefix)s
  -Dcc='%(toolchain_prefix)sgcc %(target_gcc_flags)s'

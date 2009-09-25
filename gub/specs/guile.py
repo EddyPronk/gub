@@ -14,6 +14,34 @@ class Guile (target.AutoBuild):
     patches = ['guile-reloc-1.8.6.patch',
                'guile-cexp.patch',
                'guile-1.8.6-test-use-srfi.patch']
+    dependencies = ['gettext-devel', 'gmp-devel', 'libtool', 'tools::guile']
+    guile_configure_flags = misc.join_lines ('''
+--without-threads
+--with-gnu-ld
+--enable-deprecated
+--enable-discouraged
+--disable-error-on-warning
+--enable-relocation
+--enable-rpath
+''')
+    configure_variables = (target.AutoBuild.configure_variables
+                           + misc.join_lines ('''
+CC_FOR_BUILD="
+C_INCLUDE_PATH=
+CPPFLAGS=
+LIBRARY_PATH=
+PATH_SEPARATOR=':'
+cc
+-I%(builddir)s
+-I%(srcdir)s
+-I%(builddir)s/libguile
+-I.
+-I%(srcdir)s/libguile"
+'''))
+    def configure_command (self):
+        return ('GUILE_FOR_BUILD=%(tools_prefix)s/bin/guile '
+               + target.AutoBuild.configure_command (self)
+               + self.guile_configure_flags)
     @staticmethod
     def version_from_VERSION (self):
         return self.version_from_shell_script ('GUILE-VERSION',
@@ -27,7 +55,6 @@ class Guile (target.AutoBuild):
             source.version = misc.bind_method (Guile.version_from_VERSION,
                                                source)
         self.so_version = '17'
-    dependencies = ['gettext-devel', 'gmp-devel', 'libtool', 'tools::guile']
     def get_subpackage_names (self):
         return ['doc', 'devel', 'runtime', '']
     def patch (self):
@@ -49,38 +76,6 @@ exec %(tools_prefix)s/bin/guile "$@"
             self.file_sub ([('guile-readline', '')], '%(srcdir)s/Makefile.in')
         self.dump ('', '%(srcdir)s/doc/ref/version.texi')
         self.dump ('', '%(srcdir)s/doc/tutorial/version.texi')
-    def common_configure_flags (self):
-        return misc.join_lines ('''
---without-threads
---with-gnu-ld
---enable-deprecated
---enable-discouraged
---disable-error-on-warning
---enable-relocation
---enable-rpath
-''')
-    def configure_flags (self):
-        return (target.AutoBuild.configure_flags (self)
-                + self.common_configure_flags ())
-    def configure_variables (self):
-        return (target.AutoBuild.configure_variables (self)
-                + misc.join_lines ('''
-CC_FOR_BUILD="
-C_INCLUDE_PATH=
-CPPFLAGS=
-LIBRARY_PATH=
-PATH_SEPARATOR=':'
-cc
--I%(builddir)s
--I%(srcdir)s
--I%(builddir)s/libguile
--I.
--I%(srcdir)s/libguile"
-'''))
-    def configure_command (self):
-        return ('GUILE_FOR_BUILD=%(tools_prefix)s/bin/guile '
-                + target.AutoBuild.configure_command (self)
-                + self.configure_flags ())
     def compile_command (self):
         return ('preinstguile=%(tools_prefix)s/bin/guile ' +
                 target.AutoBuild.compile_command (self))
@@ -128,23 +123,10 @@ class Guile__mingw (Guile):
         # Configure (compile) without -mwindows for console
         self.target_gcc_flags = '-mms-bitfields'
     dependencies = Guile.dependencies +  ['regex-devel']
-    def configure_command (self):
-        return (Guile.configure_command (self)
-                # + ' --with-threads=pthread'
-                # checking whether pthread_attr_getstack works for the main thread... configure: error: cannot run test program while cross compiling
-                # also, gen-scmconfig.c has
-                #ifdef HAVE_STRUCT_TIMESPEC
-                # pf ("typedef struct timespec scm_t_timespec;\n");
-                # which breaks because __MINGW32__ needs #include <pthread.h>
-                # So, for now:
-                    + ' --without-threads'
-                + self.configure_variables ()
-                # Use PATH_SEPARATOR=; or it will breaks tools
-                # searching for the build platform.
-                .replace (':', ';'))
-                ###LDFLAGS=-L%(system_prefix)s/lib
-    def configure_variables (self):
-        return (Guile.configure_variables (self)
+    configure_flags = (Guile.configure_flags
+                       + ' --without-threads')
+    configure_variables = (Guile.configure_variables
+                           .replace (':', ';')
                 + misc.join_lines ('''
 CFLAGS='-DHAVE_CONFIG_H=1 -I%(builddir)s'
 '''))
@@ -288,15 +270,15 @@ class Guile__linux__x86 (Guile):
 class Guile__tools (tools.AutoBuild, Guile):
     dependencies = (Guile.dependencies
                 + ['autoconf', 'automake', 'gettext', 'flex', 'libtool'])
+    def configure_command (self):
+        return ('LD_LIBRARY_PATH=%(system_prefix)s/lib:${LD_LIBRARY_PATH-/foe} '
+                + tools.AutoBuild.configure_command (self)
+                + self.guile_configure_flags)
     def patch (self):
         tools.AutoBuild.patch (self)
         Guile.autopatch (self)
-    def configure_command (self):
         # FIXME: when configuring, guile runs binaries linked against
         # libltdl.
-        return ('LD_LIBRARY_PATH=%(system_prefix)s/lib:${LD_LIBRARY_PATH-/foe} '
-                + tools.AutoBuild.configure_command (self)
-                + Guile.common_configure_flags (self))
     def compile_command (self):
         # FIXME: when not x-building, guile runs gen_scmconfig, guile without
         # setting the proper LD_LIBRARY_PATH.

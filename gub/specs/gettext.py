@@ -20,8 +20,7 @@ ac_cv_prog_HAVE_GCJ_IN_PATH=${ac_cv_prog_HAVE_GCJ_IN_PATH=no}
 ac_cv_prog_HAVE_JAVAC_IN_PATH=${ac_cv_prog_HAVE_JAVAC_IN_PATH=no}
 ac_cv_prog_HAVE_JIKES_IN_PATH=${ac_cv_prog_HAVE_JIKES_IN_PATH=no}
 ''')
-    def configure_command (self):
-        return (target.AutoBuild.configure_command (self)
+    configure_flags = (target.AutoBuild.configure_flags
                 + ' --disable-threads'
                 + ' --disable-csharp'
                 + ' --disable-java'
@@ -47,8 +46,7 @@ class Gettext__mingw (Gettext):
 gl_cv_func_mbrtowc=${gl_cv_func_mbrtowc=no}
 jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
 ''')
-    def configure_command (self):
-        return Gettext.configure_command (self) + ' --disable-libasprintf'
+    configure_flags = Gettext.configure_flags + ' --disable-libasprintf'
     def configure (self):
         Gettext.configure (self)
         self.file_sub ( [(' gettext-tools ', ' ')],
@@ -69,6 +67,5 @@ class Gettext__tools (tools.AutoBuild):
                 ('(SUBDIRS *=.*)examples', r'\1 '),
                 ],
                        '%(builddir)s/gettext-tools/Makefile')
-    def configure_command (self):
-        return (tools.AutoBuild.configure_command (self)
+    configure_flags = (tools.AutoBuild.configure_flags
                 + ' --disable-libasprintf')
