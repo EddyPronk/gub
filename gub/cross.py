@@ -42,8 +42,7 @@ class AutoBuild (build.AutoBuild):
         return self.compile_command_native ()
     def install_command (self):
         return '''make %(make_flags)s %(install_flags)s'''
-    def get_subpackage_names (self):
-        return ['doc', '']
+    subpackage_names = ['doc', '']
     def install_license (self):
         self.runner.harmless ('not installing license file for cross package: %(name)s' % self.get_substitution_dict ())
 

@@ -19,8 +19,7 @@ class Glibc_core (glibc.Glibc):
     compile_flags = glibc.Glibc.compile_flags + ' lib'
     install_flags = (glibc.Glibc.install_flags
                      .replace (' install ', ' install-lib-all install-headers '))
-    def get_subpackage_names (self):
-        return ['']
+    subpackage_names = ['']
     def get_conflict_dict (self):
         return {'': ['glibc', 'glibc-devel', 'glibc-doc', 'glibc-runtime']}
     def get_add_ons (self):

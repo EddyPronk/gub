@@ -151,10 +151,9 @@ class Fontconfig__cygwin (Fontconfig):
         # runtime iso '' otherwise gets all docs.
         d['runtime'] = [self.settings.prefix_dir + '/lib']
         return d
-
-    def get_subpackage_names (self):
         #return ['devel', 'doc', '']
-        return ['devel', 'runtime', '']
+
+    subpackage_names = ['devel', 'runtime', '']
 
     def get_build_dependencies (self): #cygwin
         return ['libtool', 'libfreetype2-devel', 'expat']

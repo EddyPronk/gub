@@ -5,8 +5,7 @@ from gub import misc
 class Gcc_core (gcc.Gcc__from__source):
     source = 'http://ftp.gnu.org/pub/gnu/gcc/gcc-4.1.1/gcc-4.1.1.tar.bz2'
     dependencies = gcc.Gcc.dependencies
-    def get_subpackage_names (self):
-        return ['']
+    subpackage_names = ['']
     def name (self):
         return 'cross/gcc-core'
     def file_name (self):

@@ -144,7 +144,7 @@ on the state of the file system.  For example:
 ***   - def compile_command () -> class.compile_command
 ***   - def install_command () -> class.install_command
 **** CHECKME: --> we need to construct this from instance functions?
-*** get_subpackage_names ()
+*** done get_subpackage_names () -> subpackage_names
      etc
 
 * junk use of /usr in code, use *_prefix) or %(prefix_dir)s

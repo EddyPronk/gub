@@ -15,8 +15,7 @@ class Libjpeg (target.AutoBuild):
     def name (self):
         return 'libjpeg'
     dependencies = ['libtool']
-    def get_subpackage_names (self):
-        return ['devel', '']
+    subpackage_names = ['devel', '']
     def srcdir (self):
         return re.sub (r'src\.v', '-', target.AutoBuild.srcdir (self))
     def update_libtool (self):

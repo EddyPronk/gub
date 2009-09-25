@@ -552,8 +552,7 @@ cp %(file)s %(install_root)s/license/%(name)s
             }
         return d
 
-    def get_subpackage_names (self):
-        return ['devel', 'doc', '']
+    subpackage_names = ['devel', 'doc', '']
 
     # FIXME: when only patched in via MethodOverride, the real descr_dict,
     # category_dict are not pickled and cygwin packaging fails
@@ -572,7 +571,7 @@ cp %(file)s %(install_root)s/license/%(name)s
         descr_dict = self.description_dict ()
         category_dict = self.category_dict ()
 
-        for sub in self.get_subpackage_names ():
+        for sub in self.subpackage_names:
             filespecs = defs[sub]
 
             p = guppackage.GupPackage (self.runner)
@@ -687,17 +686,15 @@ class BinaryBuild (AutoBuild):
         _v = '' #self.os_interface.verbose_flag ()
         self.system ('cd %(srcdir)s && tar -C %(srcdir)s -cf- . | tar -C %(install_root)s%(_v)s -p -xf-', env=locals ())
         self.libtool_installed_la_fixups ()
-    def get_subpackage_names (self):
         # FIXME: splitting makes that cygwin's gettext + -devel subpackage
         # gets overwritten by cygwin's gettext-devel + '' base package
-        return ['']
+    subpackage_names = ['']
 
 class NullBuild (AutoBuild):
     """Placeholder for downloads """
     def stages (self):
         return ['patch', 'install', 'package', 'clean']
-    def get_subpackage_names (self):
-        return ['']
+    subpackage_names = ['']
     def install (self):
         self.system ('mkdir -p %(install_root)s')
 

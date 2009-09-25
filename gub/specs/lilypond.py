@@ -47,8 +47,7 @@ class LilyPond (target.AutoBuild):
 #                    ('set -e', '# set -e'),
                     ('^([$][{]?srcdir[}]?/.*$)', r'(set +eux; \1) || exit 1'),
                     ], '%(srcdir)s/' + i)
-    def get_subpackage_names (self):
-        return ['']
+    subpackage_names = ['']
     def get_conflict_dict (self):
         return {'': ['lilypondcairo']}
     dependencies = ['fontconfig-devel',
@@ -141,8 +140,7 @@ class LilyPond__freebsd (LilyPond):
                      + ['cross/gcc-runtime']) }
 
 class LilyPond__cygwin (LilyPond):
-    def get_subpackage_names (self):
-        return ['doc', '']
+    subpackage_names = ['doc', '']
     def get_dependency_dict (self): #cygwin
         return {
             '' :
@@ -378,8 +376,7 @@ class LilyPond_base (target.AutoBuild):
         source.is_downloaded = misc.bind_method (lambda x: True, source)
         source.update_workdir = misc.bind_method (lambda x: True, source)
         self.dependencies = [self.settings.build_platform + '::lilypond']
-    def get_subpackage_names (self):
-        return ['']
+    subpackage_names = ['']
     def stages (self):
         return ['compile', 'install', 'package']
     def builddir (self):

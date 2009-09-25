@@ -62,8 +62,7 @@ models.'''
             pass
         return '0.0'
     dependencies = ['libjpeg-devel', 'libpng-devel']
-    def get_subpackage_names (self):
-        return ['doc', '']
+    subpackage_names = ['doc', '']
     def srcdir (self):
         return re.sub ('-source', '',
                        target.AutoBuild.srcdir (self))
@@ -269,8 +268,7 @@ cd %(srcdir)s && cp Makefile.in Makefile-x11.in
                 'ghostscript-base',
                 'libjpeg62', 'libpng12', 'zlib'],
                 'x11': ['ghostscript', 'xorg-x11-base']}
-    def get_subpackage_names (self):
-        return ['doc', 'x11', '',
+    subpackage_names = ['doc', 'x11', '',
                 # REMOVE after first cygwin release.
                 'base']
     # REMOVE after first cygwin release.

@@ -40,7 +40,7 @@ def package_auto_dependency_dict (package):
                          if ('system::' not in x
                              and 'tools::' not in x
                              and 'cross/' not in x)]}
-            if 'runtime' in package.get_subpackage_names ():
+            if 'runtime' in package.subpackage_names:
                 d[''] += [package.name () + '-runtime']
             if package.platform_name () not in ['system', 'tools']:
                 d['devel'] = ([x for x in package.dependencies
@@ -116,8 +116,7 @@ LD_LIBRARY_PATH=%(system_prefix)s/lib
             return ''
         return '%(system_root)s'
 
-    def get_subpackage_names (self):
-        return ['']
+    subpackage_names = ['']
 
     def configure (self):
         self.config_cache ()
@@ -207,8 +206,7 @@ release
 class NullBuild (AutoBuild):
     def stages (self):
         return ['patch', 'install', 'package', 'clean']
-    def get_subpackage_names (self):
-        return ['']
+    subpackage_names = ['']
     def install (self):
         self.system ('mkdir -p %(install_prefix)s')
 
@@ -220,8 +218,7 @@ class BinaryBuild (AutoBuild):
         _v = '' #self.os_interface.verbose_flag ()
         self.system ('tar -C %(srcdir)s -cf- . | tar -C %(install_root)s%(_v)s -p -xf-', env=locals ())
         self.libtool_installed_la_fixups ()
-    def get_subpackage_names (self):
-        return ['']
+    subpackage_names = ['']
         
 class CpanBuild (AutoBuild):
     def stages (self):

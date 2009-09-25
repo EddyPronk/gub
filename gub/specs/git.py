@@ -4,8 +4,7 @@ from gub import tools
 class Git (target.AutoBuild):
     source = 'http://kernel.org/pub/software/scm/git/git-1.6.4.4.tar.gz'
     srcdir_build_broken = True
-    def get_subpackage_names (self):
-        return ['']
+    subpackage_names = ['']
     dependencies = ['zlib-devel']
     def config_cache_overrides (self, string):
         # PROMOTEME: at least defines

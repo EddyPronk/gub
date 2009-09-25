@@ -233,8 +233,7 @@ class OpenOffice (target.AutoBuild):
                      if 'tools::' not in x and 'cross/' not in x]
                 + ['cross/gcc-c++-runtime']
                 }
-    def get_subpackage_names (self):
-        return ['']
+    subpackage_names = ['']
     def stages (self):
         return misc.list_insert_before (target.AutoBuild.stages (self),
                                         'compile',

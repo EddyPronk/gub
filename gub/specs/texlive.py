@@ -67,8 +67,7 @@ packages.'''
             revision='HEAD')
     def version (self):
         return '2009'
-    def get_subpackage_names (self):
-        return ['doc', 'devel', 'base', 'runtime', 'bin', '']
+    subpackage_names = ['doc', 'devel', 'base', 'runtime', 'bin', '']
     def get_subpackage_definitions (self):
         d = target.AutoBuild.get_subpackage_definitions (self)
         d['doc'] += [self.settings.prefix_dir + '/share/texmf/doc']
@@ -227,7 +226,7 @@ CFLAGS='-O2 -g -DKPSE_DLL'
         # FIXME: fairly uninformative description for packages,
         # unlike, eg, guile-devel.  This is easier, though.
         d = {}
-        for i in self.get_subpackage_names ():
+        for i in self.subpackage_names:
             d[i] = self.get_subpackage_doc (i)
         return d
     def get_subpackage_doc (self, split):

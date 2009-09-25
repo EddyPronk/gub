@@ -56,8 +56,7 @@ cc
             source.version = misc.bind_method (Guile.version_from_VERSION,
                                                source)
         self.so_version = '17'
-    def get_subpackage_names (self):
-        return ['doc', 'devel', 'runtime', '']
+    subpackage_names = ['doc', 'devel', 'runtime', '']
     def patch (self):
         self.dump ('''#!/bin/sh
 exec %(tools_prefix)s/bin/guile "$@"

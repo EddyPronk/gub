@@ -3,8 +3,7 @@ from gub import target
 class Dropbear (target.AutoBuild):
     source = 'http://matt.ucc.asn.au/dropbear/releases/dropbear-0.49.tar.gz'
     dependencies = ['zlib']
-    def get_subpackage_names (self):
-        return ['']
+    subpackage_names = ['']
     def configure (self):
         target.AutoBuild.configure (self)
         self.system ('''

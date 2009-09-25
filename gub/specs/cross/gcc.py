@@ -29,9 +29,8 @@ gcc_tooldir='%(prefix_dir)s/%(target_architecture)s'
     @context.subst_method
     def NM_FOR_TARGET (self):
          return '%(toolchain_prefix)snm'
-    def get_subpackage_names (self):
         # FIXME: why no -devel package?
-        return ['doc', 'c++-runtime', 'runtime', '']
+    subpackage_names = ['doc', 'c++-runtime', 'runtime', '']
     def get_subpackage_definitions (self):
         d = cross.AutoBuild.get_subpackage_definitions (self)
         prefix_dir = self.settings.prefix_dir

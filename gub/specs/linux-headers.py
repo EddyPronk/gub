@@ -12,8 +12,7 @@ class Linux_headers (build.BinaryBuild, build.SdkBuild):
     @context.subst_method
     def linux_arch (self):
         return '%(package_arch)s'
-    def get_subpackage_names (self):
-        return ['']
+    subpackage_names = ['']
     def patch (self):
         self.file_sub ([('[.] [.]config-is-not', '. ./.config-is-not'),],
                        '%(srcdir)s/scripts/Configure')

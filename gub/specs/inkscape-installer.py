@@ -18,8 +18,7 @@ class Inkscape_installer (target.AutoBuild):
         source.is_downloaded = misc.bind_method (lambda x: True, source)
         source.update_workdir = misc.bind_method (lambda x: True, source)
     dependencies = [self.settings.target_platform + '::inkscape']
-    def get_subpackage_names (self):
-        return ['']
+    subpackage_names = ['']
     def stages (self):
         return ['compile', 'install', 'package']
     def compile (self):

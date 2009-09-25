@@ -258,8 +258,7 @@ release
 class NullBuild (AutoBuild):
     def stages (self):
         return ['patch', 'install', 'package', 'clean']
-    def get_subpackage_names (self):
-        return ['']
+    subpackage_names = ['']
     def install (self):
         self.system ('mkdir -p %(install_prefix)s')
 
@@ -271,8 +270,7 @@ class BinaryBuild (AutoBuild):
         _v = '' #self.os_interface.verbose_flag ()
         self.system ('tar -C %(srcdir)s -cf- . | tar -C %(install_root)s%(_v)s -p -xf-', env=locals ())
         self.libtool_installed_la_fixups ()
-    def get_subpackage_names (self):
-        return ['']
+    subpackage_names = ['']
         
 class CpanBuild (AutoBuild):
     def stages (self):

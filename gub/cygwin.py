@@ -122,7 +122,7 @@ def change_target_package (package):
             }
         full = default.copy ()
         full.update (d)
-        for i in package.get_subpackage_names ():
+        for i in package.subpackage_names:
             if not full.get (i):
                 full[i] = full['']
         return full
@@ -142,7 +142,7 @@ def change_target_package (package):
                 doc = '\n'
             return (doc.replace ('\n', ' - %(flavor)s\n', 1) % locals ())
 
-        for i in package.get_subpackage_names ():
+        for i in package.subpackage_names:
             if not d.get (i):
                 d[i] = get_subpackage_doc (i)
         return d

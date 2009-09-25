@@ -27,8 +27,7 @@ class Python (target.AutoBuild):
         self.file_sub ([(r"'/usr/include'",
                          r"'%(system_prefix)s/include'")],
                        "%(srcdir)s/setup.py", must_succeed=True)
-    def get_subpackage_names (self):
-        return ['doc', 'devel', 'runtime', '']
+    subpackage_names = ['doc', 'devel', 'runtime', '']
     def install (self):
         target.AutoBuild.install (self)
         misc.dump_python_config (self)

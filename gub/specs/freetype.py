@@ -22,8 +22,7 @@ tools, and many other products as well.'''
     def license_files (self):
         return ['%(srcdir)s/docs/LICENSE.TXT']
     dependencies = ['libtool-devel', 'zlib-devel', 'tools::autoconf']
-    def get_subpackage_names (self):
-        return ['devel', '']
+    subpackage_names = ['devel', '']
     def configure (self):
 #                self.autoupdate (autodir=os.path.join (self.srcdir (),
 #                                                       'builds/unix'))
@@ -74,10 +73,9 @@ class XFreetype__cygwin (Freetype):
         d['runtime'] = [self.settings.prefix_dir + '/bin/*dll',
                         self.settings.prefix_dir + '/lib/*.la']
         return d
-
-    def get_subpackage_names (self):
         #return ['devel', 'doc', '']
-        return ['devel', 'runtime', '']
+
+    subpackage_names = ['devel', 'runtime', '']
 
     def get_build_dependencies (self): #cygwin
         return ['libtool']

@@ -8,8 +8,7 @@ from gub import target
 class Busybox (target.AutoBuild):
     source = 'http://busybox.net/downloads/busybox-1.5.1.tar.bz2'
     srcdir_build_broken = True
-    def get_subpackage_names (self):
-        return ['']
+    subpackage_names = ['']
     def configure_command (self):
         return 'make -f %(srcdir)s/Makefile defconfig'
     @context.subst_method

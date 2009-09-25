@@ -39,8 +39,7 @@ class Root_image (build.NullBuild):
             'tslib-conf',
             'update-rc.d',
             ]
-    def get_subpackage_names (self):
-        return ['']
+    subpackage_names = ['']
     def install_ipkg (self, i):
         fakeroot_cache = self.builddir () + '/fakeroot.cache'
         self.fakeroot (self.expand (self.settings.fakeroot, locals ()))

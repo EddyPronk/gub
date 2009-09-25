@@ -38,8 +38,7 @@ class Python (target.AutoBuild):
         target.AutoBuild.__init__ (self, settings, source)
         self.CROSS_ROOT = '%(targetdir)s'
 
-    def get_subpackage_names (self):
-        return ['doc', 'devel', 'runtime', '']
+    subpackage_names = ['doc', 'devel', 'runtime', '']
 
 
     def patch (self):

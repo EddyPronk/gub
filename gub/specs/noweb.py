@@ -18,8 +18,7 @@ simplicity, extensibility, and language-independence.
     make_flags = 'BIN=%(install_prefix)s/bin LIB=%(install_prefix)s/lib MAN=%(install_prefix)s/share/man TEXINPUTS=%(install_prefix)s/share/tex/inputs'
     def configure (self):
         self.shadow_tree ('%(srcdir)s/src', '%(builddir)s')
-    def get_subpackage_names (self):
-        return ['']
+    subpackage_names = ['']
     def install_command (self):
         from gub import misc
         return misc.join_lines ('''

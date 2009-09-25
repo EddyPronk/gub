@@ -38,8 +38,7 @@ class Libtool (target.AutoBuild):
         self.so_version = '3'
         if self.source._version in ('2.2.4', '2.2.6.a', '2.2.7'):
             self.so_version = '7'
-    def get_subpackage_names (self):
-        return ['devel', 'doc', 'runtime', '']
+    subpackage_names = ['devel', 'doc', 'runtime', '']
     def get_subpackage_definitions (self):
         d = target.AutoBuild.get_subpackage_definitions (self)
         d['devel'].append (self.settings.prefix_dir + '/bin/libtool*')
