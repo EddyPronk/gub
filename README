@@ -290,7 +290,7 @@ gub/specs/icoutils.py
                            + ' --disable-nls')
 
 
-__<platform>__<arch>-specific patches
+__<platform>__<arch>-specific instructions
 
 For platform specific instructions, append "__<platform>" to the class name.
 For platform+architecture-specific instructions, "__<platform>__<arch>" to the
@@ -315,7 +315,7 @@ class name. gub/specs/pixman.py
 
 More examples
 
-See gub/specs/*.py for some real world examples.
+See gub/specs/*.py for some more examples.
 GUB -- LilyPond
 
 INSTALLING
