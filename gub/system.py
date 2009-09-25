@@ -18,6 +18,8 @@ class Configure (build.Build):
     srcdir = 'foo'
     configure_prefix = ''
     configure_command = ''
+    install_prefix = ''
+    install_root = ''
     def __init__ (self, settings, source):
         build.Build.__init__ (self, settings, source)
         self._name, self._version = (self._created_name + '-').split ('-')[:2]

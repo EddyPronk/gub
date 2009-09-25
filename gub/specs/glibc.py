@@ -56,6 +56,19 @@ class Glibc (target.AutoBuild, cross.AutoBuild):
 --with-headers=%(system_prefix)s/include
 ''')
                 + '%(enable_add_ons)s')
+    make_flags = ' SHELL=/bin/bash'
+    install_flags = (target.AutoBuild.install_flags
+                     + ' install_root=%(install_root)s'
+                     # glibc-2.3.6' Makerules file has a cross-compiling
+                     # check that changes symlink install behaviour.  ONLY
+                     # if $(cross_compiling)==no, an extra
+                     # `install-symbolic-link' target is created upon with
+                     # `install' is made to depend.  This means we do not
+                     # get symlinks with install-lib-all when it so happens
+                     # that build_architecture == target_architecture.  Try
+                     # to cater for both here: make the symlink as well as
+                     # append to the symlink.list file.
+                     + ''' make-shlib-link='ln -sf $(<F) $@; echo $(<F) $@ >> $(common-objpfx)elf/symlink.list' ''')
     def get_conflict_dict (self):
         return {'': ['glibc-core'], 'devel': ['glibc-core'], 'doc': ['glibc-core'], 'runtime': ['glibc-core']}
     def patch (self):
@@ -93,17 +106,3 @@ libc_cv_rootsbindir=%(prefix_dir)s/sbin
     # Disable librestrict.so, as it causes crashes on Fedora 9 and 10.
     def LD_PRELOAD (self):
         return ''
-    makeflags = ' SHELL=/bin/bash'
-    def install_command (self):
-        return (target.AutoBuild.install_command (self)
-                + ' install_root=%(install_root)s'
-                # glibc-2.3.6' Makerules file has a cross-compiling
-                # check that changes symlink install behaviour.  ONLY
-                # if $(cross_compiling)==no, an extra
-                # `install-symbolic-link' target is created upon with
-                # `install' is made to depend.  This means we do not
-                # get symlinks with install-lib-all when it so happens
-                # that build_architecture == target_architecture.  Try
-                # to cater for both here: make the symlink as well as
-                # append to the symlink.list file.
-                + ''' make-shlib-link='ln -sf $(<F) $@; echo $(<F) $@ >> $(common-objpfx)elf/symlink.list' ''')

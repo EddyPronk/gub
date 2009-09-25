@@ -6,16 +6,17 @@ class Liblpsolve (target.AutoBuild):
     parallel_build_broken = True
     srcdir_build_broken = True
     dependencies = ['tools::automake']
-    def autoupdate (self):
-        # install install-sh
-        self.system ('cd %(srcdir)s && automake --add-missing --copy --force --foreign || :')
-    makeflags = misc.join_lines ('''
+    make_flags = misc.join_lines ('''
 AR=%(toolchain_prefix)sar
 LIBS=
 RANLIB=%(toolchain_prefix)sranlib
 ''')
-    def install_command (self):
-        return self.broken_install_command ().replace ('includedir=%(install_prefix)s/include', 'includedir=%(install_prefix)s/include/lpsolve') 
+    destdir_install_broken = True
+    install_flags_destdir_broken = (target.AutoBuild.install_flags_destdir_broken
+                                    .replace ('includedir=%(install_prefix)s/include', 'includedir=%(install_prefix)s/include/lpsolve'))
+    def autoupdate (self):
+        # install install-sh
+        self.system ('cd %(srcdir)s && automake --add-missing --copy --force --foreign || :')
 
 class Liblpsolve__mingw (Liblpsolve):
     patches = ['lpsolve-5.5.0.13-mingw.patch']

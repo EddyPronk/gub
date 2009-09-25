@@ -13,6 +13,7 @@ class Python (target.AutoBuild):
     patches = ['python-2.5.patch']
     dependencies = ['expat-devel', 'zlib-devel', 'tools::python2.5']
     force_autoupdate = True
+    make_flags = ' BUILDPYTHON=python-bin '
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         
@@ -28,14 +29,6 @@ class Python (target.AutoBuild):
                        "%(srcdir)s/setup.py", must_succeed=True)
     def get_subpackage_names (self):
         return ['doc', 'devel', 'runtime', '']
-    def compile_command (self):
-        ## UGH.: darwin Python vs python (case insensitive FS)
-        return (target.AutoBuild.compile_command (self)
-                + ' BUILDPYTHON=python-bin ')
-    def install_command (self):
-        ## UGH.: darwin Python vs python (case insensitive FS)
-        return (target.AutoBuild.install_command (self)
-                + ' BUILDPYTHON=python-bin ')
     def install (self):
         target.AutoBuild.install (self)
         misc.dump_python_config (self)

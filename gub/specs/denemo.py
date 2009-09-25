@@ -75,7 +75,7 @@ class Denemo (target.AutoBuild):
             # FIXME: missing dependency
             self.system ('cd %(builddir)s/src && make lylexer.c')
         target.AutoBuild.compile (self)
-    makeflags = 'BINRELOC_CFLAGS=-DENABLE_BINRELOC=1'
+    make_flags = 'BINRELOC_CFLAGS=-DENABLE_BINRELOC=1'
 
 class Denemo__mingw (Denemo):
     patches_0_8_6 = Denemo.patches + [
@@ -94,7 +94,7 @@ class Denemo__mingw (Denemo):
                 ]] + ['lilypad']
     configure_flags = (Denemo.configure_flags
                        .replace ('--enable-jack', '--disable-jack'))
-    makeflags = ''
+    make_flags = ''
     def compile (self):
         Denemo.compile (self)
         self.system ('''

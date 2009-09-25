@@ -83,28 +83,7 @@ LDFLAGS='-L%(system_prefix)s/lib %(rpath)s %(libs)s'
         if 'BOOTSTRAP' in os.environ.keys ():
             return '%(prefix_dir)s'
         return '%(system_prefix)s'
-    ## ugh: prefix= will trigger libtool relinks.
-    def install_command (self):
-        return '''make %(makeflags)s DESTDIR=%(install_root)s install'''
 
-    def broken_install_command (self):
-        # FIXME: use sysconfdir=%(install_PREFIX)s/etc?  If
-        # so, must also ./configure that way
-        return misc.join_lines ('''make %(makeflags)s install
-bindir=%(install_prefix)s/bin
-aclocaldir=%(install_prefix)s/share/aclocal
-datadir=%(install_prefix)s/share
-exec_prefix=%(install_prefix)s
-gcc_tooldir=%(install_prefix)s
-includedir=%(install_prefix)s/include
-infodir=%(install_prefix)s/share/info
-libdir=%(install_prefix)s/lib
-libexecdir=%(install_prefix)s/lib
-mandir=%(install_prefix)s/share/man
-prefix=%(install_prefix)s
-sysconfdir=%(install_prefix)s/etc
-tooldir=%(install_prefix)s
-''')
     def post_install (self):
         build.AutoBuild.post_install (self)
         if not self.expand ('rpath'):
@@ -130,9 +109,6 @@ LD_LIBRARY_PATH=%(system_prefix)s/lib
             loggedos.chmod (logger, file, octal.o755)
         self.map_locate (wrap, '%(install_prefix)s/bin', '*')
         self.map_locate (wrap, '%(install_root)s/%(tools_prefix)s/bin', '*')
-
-    def compile_command (self):
-        return self.native_compile_command () + ' %(makeflags)s'
 
     ## we need to tar up %(install_root)/%(prefix)
     def packaging_suffix_dir (self):
@@ -175,7 +151,7 @@ class ShBuild (AutoBuild):
     def stages (self):
         return [s.replace ('configure', 'shadow') for s in AutoBuild.stages (self) if s not in ['autoupdate']]
     def compile_command (self):
-        return 'bash build.sh'
+        return 'bash build.sh %(make_flags)s %(compile_flags)s'
     def install_command (self):
         print ('Override me.')
         assert False
@@ -189,14 +165,17 @@ class PythonBuild (AutoBuild):
         return 'python %(srcdir)s/setup.py install --prefix=%(tools_prefix)s --root=%(install_root)s'
 
 class SConsBuild (AutoBuild):
+    scons_flags = ''
     def stages (self):
         return [s for s in AutoBuild.stages (self) if s not in ['autoupdate', 'configure']]
     def compile_command (self):
         # SCons barfs on trailing / on directory names
         return ('scons PREFIX=%(system_prefix)s'
-                ' PREFIX_DEST=%(install_root)s')
+                ' PREFIX_DEST=%(install_root)s'
+                ' %(compile_flags)s'
+                ' %(scons_flags)s')
     def install_command (self):
-        return self.compile_command () + ' install'
+        return self.compile_command () + ' %(install_flags)s'
 
 class BjamBuild_v2 (MakeBuild):
     dependencies = ['boost-jam']

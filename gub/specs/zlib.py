@@ -9,8 +9,9 @@ class Zlib (target.AutoBuild):
     patches = ['zlib-1.2.3.patch']
     srcdir_build_broken = True
     dependencies = ['tools::autoconf']
-    def __init__ (self, settings, source):
-        target.AutoBuild.__init__ (self, settings, source)
+    make_flags = ' ARFLAGS=r'
+    destdir_install_broken = True
+    install_flags = ' install'
     @context.subst_method
     def zlib_target (self):
         stripped_platform = self.settings.expand ('%(platform)s')
@@ -19,10 +20,6 @@ class Zlib (target.AutoBuild):
         return 'SHAREDTARGET=libz.so.1.2.3 target=' + stripped_platform
     def configure_command (self):
         return '%(zlib_target)s %(srcdir)s/configure --shared '
-    def compile_command (self):
-        return target.AutoBuild.compile_command (self) + ' ARFLAGS=r '
-    def install_command (self):
-        return target.AutoBuild.broken_install_command (self)
     def license_files (self):
         return ['%(sourcefiledir)s/zlib.license']
 
@@ -67,7 +64,6 @@ class Zlib__tools (tools.AutoBuild, Zlib):
     srcdir_build_broken = True
     dependencies = ['autoconf']
     configure_command = Zlib.configure_command
-    def install_command (self):
-        return tools.AutoBuild.broken_install_command (self)
-    def license_files (self):
-        return ['%(sourcefiledir)s/zlib.license']
+    destdir_install_broken = True
+    install_flags = ' install'
+    license_files = Zlib.license_files

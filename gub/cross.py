@@ -37,11 +37,11 @@ class AutoBuild (build.AutoBuild):
 --disable-silent-rules
 '''))
 #--with-slibdir=%(prefix_dir)s/slib
+    install_flags = ''' DESTDIR=%(install_root)s prefix=%(prefix_dir)s%(cross_dir)s install'''
     def compile_command (self):
-        return self.native_compile_command () + ' %(makeflags)s'
+        return self.compile_command_native ()
     def install_command (self):
-        return '''make %(makeflags)s DESTDIR=%(install_root)s prefix=%(prefix_dir)s%(cross_dir)s install'''
-#        return '''make %(makeflags)s DESTDIR=%(install_root)s install'''
+        return '''make %(make_flags)s %(install_flags)s'''
     def get_subpackage_names (self):
         return ['doc', '']
     def install_license (self):

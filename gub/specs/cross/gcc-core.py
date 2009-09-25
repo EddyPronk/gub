@@ -15,24 +15,21 @@ class Gcc_core (gcc.Gcc__from__source):
         return {'': ['cross/gcc', 'cross/gcc-devel', 'cross/gcc-doc', 'cross/gcc-runtime']}
 #--prefix=%(cross_prefix)s
 #--prefix=%(prefix_dir)s
-    configure_flags = (misc.join_lines (gcc.Gcc__from__source.configure_flags
-                                 + '''
+    configure_flags = (gcc.Gcc__from__source.configure_flags
+                       .replace ('enable-shared', 'disable-shared')
+                       .replace ('disable-static', 'enable-static')
+                       .replace ('enable-threads=posix', 'enable-threads=no')
+                       + misc.join_lines ('''
 --with-newlib
 --enable-threads=no
 --without-headers
 --disable-shared
-''')
-                .replace ('enable-shared', 'disable-shared')
-                .replace ('disable-static', 'enable-static')
-                .replace ('enable-threads=posix', 'enable-threads=no'))
-    def compile_command (self):
-        return (gcc.Gcc.compile_command (self) + ' all-gcc')
-    def install_command (self):
-        return (gcc.Gcc.install_command (self)
-                .replace (' install', ' install-gcc'))
-    def install (self):
-        # Gcc moves libs into system lib places, which will
-        # make gcc-core conflict with gcc.
-        cross.AutoBuild.install (self)
+'''))
+    make_flags = gcc.Gcc.make_flags + ' all-gcc'
+    install_flags = (gcc.Gcc.install_flags
+                     .replace (' install', ' install-gcc'))
+    # Gcc moves libs into system lib places, which will
+    # make gcc-core conflict with gcc.
+    install = cross.AutoBuild.install
     def languages (self):
         return  ['c']

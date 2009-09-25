@@ -140,21 +140,19 @@ packages.'''
 --without-xdvipdfmx
 --without-xetex
 ''')
-        SHELL = ' SHELL=/bin/bash'
-        if 'stat' in misc.librestrict ():
-            SHELL = ' SHELL=%(tools_prefix)s/bin/bash'
-    configure_command = ('export TEXMFMAIN=%(srcdir)s/texmf;'
-                + self.common_configure_flags ()
-                + misc.join_lines ('''
+    def configure_command (self):
+        return ('export TEXMFMAIN=%(srcdir)s/texmf;'
+                target.AutoBuild.configure_command (self))
+    configure_flags = (target.AutoBuild.configure_flags
+                       + '%(common_configure_flags)s'
+                       + misc.join_lines ('''
 --with-x
 --with-mf-x-toolkit=xaw
 --with-xdvi-x-toolkit=xaw
 --x-includes=%(system_prefix)s/X11R6/include
 --x-libraries=%(system_prefix)s/X11R6/lib
-''')
-                + SHELL)
-    def install_command (self):
-        return self.broken_install_command ()
+'''))
+    destdir_install_broken = True
     def install (self):
         target.AutoBuild.install (self)
         self.system ('''
@@ -176,10 +174,6 @@ rsync -v -a %(srcdir)s/texmf-dist %(install_prefix)s/share/ || :
             d = misc.grok_sh_variables (self.expand ('%(srcdir)s/VERSION'))
             return 'texlive-%(VERSION)s' % d
         return 'texlive-3.0'
-        SHELL = ' SHELL=/bin/bash'
-        if 'stat' in misc.librestrict ():
-            SHELL = ' SHELL=%(tools_prefix)s/bin/bash'
-    makeflags = target.AutoBuild.makeflags + SHELL
 
 class Texlive__cygwin (Texlive):
     # FIXME: uses mixed gub/distro dependencies
@@ -217,12 +211,10 @@ lt_cv_cc_dll_switch=${lt_cv_cc_dll_switch="-Wl,--dll -nostartfiles"}
                     ], i)
         self.file_sub ([('^(/\* kpsewhich --)', '#undef KPSE_DLL\n\\1')],
                        '%(srcdir)s/texk/kpathsea/kpsewhich.c')
-    makeflags = (Texlive.makeflags
+    make_flags = (Texlive.make_flags
                 + misc.join_lines ('''
 CFLAGS='-O2 -g -DKPSE_DLL'
 '''))
-    def compile_command (self):
-        return (Texlive.compile_command (self) + self.makeflags)
     def install (self):
         self.pre_install_smurf_exe ()
         Texlive.install (self)
@@ -264,15 +256,9 @@ class Texlive__tools (tools.AutoBuild, Texlive):
             't1utils',
             'zlib',
             ]
-        SHELL = ' SHELL=/bin/bash'
-        if 'stat' in misc.librestrict ():
-            SHELL = ' SHELL=%(tools_prefix)s/bin/bash'
-    configure_command = ('export TEXMFMAIN=%(srcdir)s/texmf;'
-                + Texlive.common_configure_flags (self)
-                + misc.join_lines ('''
---without-x
-''')
-                + SHELL)
+    configure_flags = (tools.AutoBuild.configure_flags
+                       + Texlive.common_configure_flags
+                       + ' --without-x')
     def install (self):
         tools.AutoBuild.install (self)
         self.system ('''

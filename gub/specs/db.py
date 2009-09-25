@@ -13,7 +13,7 @@ class Db (target.AutoBuild):
     def configure_command (self):
         return 'cd build_unix && ' + target.AutoBuild.configure_command (self)
     configure_binary = '%(builddir)s/dist/configure'
-    makeflags = '-C build_unix'
+    make_flags = '-C build_unix'
     def configure (self):
         self.system ('mkdir -p %(builddir)s/build_unix')
         target.AutoBuild.configure (self)

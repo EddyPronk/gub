@@ -459,7 +459,7 @@ cd %(builddir)s/build/%(cvs_tag)s && patch -p%(patch_strip_component)s < %(patch
         module = 'connectivity'
         self.file_sub ([(r'^([^#].*drivers.ado.*[ \t]w[ \t])', r'#\1')], '%(upstream_dir)s/%(module)s/prj/build.lst', env=locals ())
 
-    makeflags = misc.join_lines ('''
+    make_flags = misc.join_lines ('''
 NASM=nasm
 CC_FOR_BUILD=cc
 CXX_FOR_BUILD=c++

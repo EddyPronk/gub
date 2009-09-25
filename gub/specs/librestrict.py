@@ -36,7 +36,7 @@ class Librestrict_make__tools (tools.MakeBuild):
     def shadow (self):
         self.system ('rm -rf %(builddir)s')
         self.shadow_tree ('%(gubdir)s/librestrict', '%(builddir)s')
-    makeflags = 'prefix=%(system_prefix)s'
+    make_flags = 'prefix=%(system_prefix)s'
     def LD_PRELOAD (self):
         return ''
 

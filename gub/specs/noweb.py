@@ -15,7 +15,7 @@ simplicity, extensibility, and language-independence.
         self.TEXINPUTS='%(install_prefix)s/share/tex/inputs'
     def category_dict (self):
         return {'': 'Text Science'}
-    makeflags = 'BIN=%(install_prefix)s/bin LIB=%(install_prefix)s/lib MAN=%(install_prefix)s/share/man TEXINPUTS=%(install_prefix)s/share/tex/inputs'
+    make_flags = 'BIN=%(install_prefix)s/bin LIB=%(install_prefix)s/lib MAN=%(install_prefix)s/share/man TEXINPUTS=%(install_prefix)s/share/tex/inputs'
     def configure (self):
         self.shadow_tree ('%(srcdir)s/src', '%(builddir)s')
     def get_subpackage_names (self):
@@ -24,7 +24,7 @@ simplicity, extensibility, and language-independence.
         from gub import misc
         return misc.join_lines ('''
 mkdir -p %(install_prefix)s/bin %(install_prefix)s/lib %(install_prefix)s/share/man/man1 %(install_prefix)s/share/tex/inputs
-&& make %(makeflags)s DESTDIR=%(install_root)s install
+&& make %(compile_flags)s DESTDIR=%(install_root)s install
 ''')
     def license_files (self):
         return ['%(srcdir)s/src/COPYRIGHT']

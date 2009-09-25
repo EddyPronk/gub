@@ -19,6 +19,10 @@ class Gcc (cross.AutoBuild):
                 + ' --with-ld=%(cross_prefix)s/bin/%(target_architecture)s-ld'
                 + ' --with-nm=%(cross_prefix)s/bin/%(target_architecture)s-nm'
                 )
+    make_flags = misc.join_lines ('''
+tooldir='%(cross_prefix)s/%(target_architecture)s'
+gcc_tooldir='%(prefix_dir)s/%(target_architecture)s'
+''')
     def patch (self):
         cross.AutoBuild.patch (self)
         gcc.do_not_look_in_slash_usr (self)
@@ -41,18 +45,6 @@ class Gcc (cross.AutoBuild):
         if 'c++' in self.languages ():
             flags += ' --enable-libstdcxx-debug'
         return flags
-    makeflags = misc.join_lines ('''
-tooldir='%(cross_prefix)s/%(target_architecture)s'
-gcc_tooldir='%(prefix_dir)s/%(target_architecture)s'
-''')
-    def FAILED_attempt_to_avoid_post_install_MOVE_TARGET_LIBS_makeflags (self):
-        return misc.join_lines ('''
-toolexeclibdir=%(system_prefix)s
-GUB_FLAGS_TO_PASS='toolexeclibdir=$(toolexeclibdir)'
-RECURSE_FLAGS_TO_PASS='$(BASE_FLAGS_TO_PASS) $(GUB_FLAGS_TO_PASS)'
-FLAGS_TO_PASS='$(BASE_FLAGS_TO_PASS) $(EXTRA_HOST_FLAGS) $(GUB_FLAGS_TO_PASS)'
-TARGET_FLAGS_TO_PASS='$(BASE_FLAGS_TO_PASS) $(EXTRA_TARGET_FLAGS) $(GUB_FLAGS_TO_PASS)'
-''')
     def pre_install (self):
         cross.AutoBuild.pre_install (self)
         # Only id <PREFIX>/<TARGET-ARCH>/bin exists, gcc's install installs
@@ -68,8 +60,6 @@ TARGET_FLAGS_TO_PASS='$(BASE_FLAGS_TO_PASS) $(EXTRA_TARGET_FLAGS) $(GUB_FLAGS_TO
 class Gcc__from__source (Gcc):
     dependencies = (Gcc.dependencies
                 + ['cross/gcc-core', 'glibc-core'])
-    def get_conflict_dict (self):
-        return {'': ['cross/gcc-core'], 'doc': ['cross/gcc-core'], 'runtime': ['cross/gcc-core']}
     #FIXME: merge all configure_command settings with Gcc
     configure_flags = (Gcc.configure_flags
                 + misc.join_lines ('''
@@ -83,6 +73,8 @@ class Gcc__from__source (Gcc):
 --enable-clocale=gnu 
 --enable-long-long
 '''))
+    def get_conflict_dict (self):
+        return {'': ['cross/gcc-core'], 'doc': ['cross/gcc-core'], 'runtime': ['cross/gcc-core']}
 
 Gcc__linux = Gcc__from__source
 
@@ -111,7 +103,7 @@ class Gcc__mingw (Gcc):
         Gcc.configure (self)
         # Configure all subpackages, makes
         # w32.libtool_fix_allow_undefined to find all libtool files
-        self.system ('cd %(builddir)s && make %(makeflags)s configure-host configure-target')
+        self.system ('cd %(builddir)s && make %(compile_flags)s configure-host configure-target')
         # Must ONLY do target stuff, otherwise cross executables cannot find their libraries
         # self.map_locate (lambda logger,file: build.libtool_update (logger, self.expand ('%(tools_prefix)s/bin/libtool'), file), '%(builddir)s/', 'libtool')
         #self.map_locate (lambda logger, file: build.libtool_update (logger, self.expand ('%(tools_prefix)s/bin/libtool'), file), '%(builddir)s/i686-mingw32', 'libtool')
@@ -128,17 +120,10 @@ class this_works_but_has_string_exception_across_dll_bug_Gcc__cygwin (Gcc__mingw
 --with-newlib
 --enable-threads
 '''))
-    makeflags = misc.join_lines ('''
+    make_flags = misc.join_lines ('''
 tooldir="%(cross_prefix)s/%(target_architecture)s"
 gcc_tooldir="%(cross_prefix)s/%(target_architecture)s"
 ''')
-    def compile_command (self):
-        return (Gcc__mingw.compile_command (self)
-                + self.makeflags)
-        # We must use --with-newlib, otherwise configure fails:
-        # No support for this host/target combination.
-        # [configure-target-libstdc++-v3]
-
 # Cygwin sources Gcc
 # Hmm, download is broken.  How is download of gcc-g++ supposed to work anyway?
 # wget http://mirrors.kernel.org/sourceware/cygwin/release/gcc/gcc-core/gcc-core-3.4.4-3-src.tar.bz2 
@@ -178,7 +163,7 @@ class Gcc__cygwin (Gcc):
         cygwin.untar_cygwin_src_package_variant2 (self, ball.replace ('-core', '-g++'),
                                                   split=True)
         cygwin.untar_cygwin_src_package_variant2 (self, ball)
-    makeflags = misc.join_lines ('''
+    make_flags = misc.join_lines ('''
 tooldir="%(cross_prefix)s/%(target_architecture)s"
 gcc_tooldir="%(cross_prefix)s/%(target_architecture)s"
 ''')

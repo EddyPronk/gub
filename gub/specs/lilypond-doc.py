@@ -12,37 +12,28 @@ class LilyPond_doc (lilypond.LilyPond_base):
                 'tools::rsync', # ugh, we depend on *rsync* !?
                 #'tools::texlive',
                 ])
-    makeflags = misc.join_lines ('''
+    make_flags = misc.join_lines ('''
 CROSS=no
 DOCUMENTATION=yes
 WEB_TARGETS="offline online"
 TARGET_PYTHON=/usr/bin/python
 ''')
+    compile_flags = lilypond.LilyPond_base.compile_flags + ' top-doc all doc'
+    install_flags = (' install-doc install-help2man'
+                     ' prefix='
+                     ' infodir=/share/info'
+                     ' DESTDIR=%(install_root)s'
+                     ' mandir=/share/man')
     @context.subst_method
     def build_number (self):
         print 'FIXME Buildnum'
         return '0'
-    
     @context.subst_method
     def doc_ball (self):
         return '%(uploads)s/lilypond-%(version)s-HEAD.documentation.tar.bz2'
     @context.subst_method
     def web_ball (self):
         return '%(uploads)s/lilypond-%(version)s-HEAD.webdoc.tar.bz2'
-    def compile_command (self):
-        return (lilypond.LilyPond_base.compile_command (self)
-                + ' top-doc all doc')
-
-    def install_flags (self):
-        return (self.makeflags
-                + 'prefix= '
-                + 'infodir=/share/info '
-                + 'DESTDIR=%(install_root)s '
-                + 'mandir=/share/man ')
-    def install_command (self):
-        return (lilypond.LilyPond_base.install_command (self)
-                .replace (' install', ' install-doc install-help2man')
-                + self.install_flags ())
     def install (self):
         target.AutoBuild.install (self) 
         self.system ('''

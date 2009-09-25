@@ -38,6 +38,7 @@ cc
 -I.
 -I%(srcdir)s/libguile"
 '''))
+    compile_flags_native = ''
     def configure_command (self):
         return ('GUILE_FOR_BUILD=%(tools_prefix)s/bin/guile '
                + target.AutoBuild.configure_command (self)
@@ -77,16 +78,13 @@ exec %(tools_prefix)s/bin/guile "$@"
         self.dump ('', '%(srcdir)s/doc/ref/version.texi')
         self.dump ('', '%(srcdir)s/doc/tutorial/version.texi')
     def compile_command (self):
-        return ('preinstguile=%(tools_prefix)s/bin/guile ' +
-                target.AutoBuild.compile_command (self))
-    @context.subst_method
-    def makeflags_for_build (self):
-        return ''
+        return ('preinstguile=%(tools_prefix)s/bin/guile '
+                + target.AutoBuild.compile_command (self))
     def compile (self):
         ## Ugh: broken dependencies break parallel build with make -jX
-        self.system ('cd %(builddir)s/libguile && make %(makeflags_for_build)s gen-scmconfig guile_filter_doc_snarfage')
+        self.system ('cd %(builddir)s/libguile && make %(compile_flags_native)s gen-scmconfig guile_filter_doc_snarfage')
         # Remove -L %(system_root)s from `guile-config link'
-        self.system ('cd %(builddir)s/libguile &&make %(makeflags_for_build)slibpath.h')
+        self.system ('cd %(builddir)s/libguile && make %(compile_flags_native)slibpath.h')
         self.file_sub ([('''-L *%(system_root)s''', '-L')],
                        '%(builddir)s/libguile/libpath.h')
         target.AutoBuild.compile (self)
@@ -145,7 +143,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_prefix)s/lib"}
             self.file_sub ([('-mwindows', '')], libtool)
     def compile (self):
         ## Why the !?#@$ is .EXE only for guile_filter_doc_snarfage?
-        self.system ('''cd %(builddir)s/libguile &&make %(makeflags_for_build)sgen-scmconfig guile_filter_doc_snarfage.exe''')
+        self.system ('''cd %(builddir)s/libguile &&make %(compile_flags_native)sgen-scmconfig guile_filter_doc_snarfage.exe''')
         self.system ('cd %(builddir)s/libguile && cp guile_filter_doc_snarfage.exe guile_filter_doc_snarfage')
         Guile.compile (self)
     def install (self):
@@ -234,7 +232,7 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_prefix)s/lib"}
     # C&P from Guile__mingw
     def compile (self):
         ## Why the !?#@$ is .EXE only for guile_filter_doc_snarfage?
-        self.system ('''cd %(builddir)s/libguile &&make %(makeflags_for_build)sCFLAGS='-DHAVE_CONFIG_H=1 -I%(builddir)s' gen-scmconfig guile_filter_doc_snarfage.exe''')
+        self.system ('''cd %(builddir)s/libguile && make %(compile_flags_native)sCFLAGS='-DHAVE_CONFIG_H=1 -I%(builddir)s' gen-scmconfig guile_filter_doc_snarfage.exe''')
         self.system ('cd %(builddir)s/libguile && cp guile_filter_doc_snarfage.exe guile_filter_doc_snarfage')
         Guile.compile (self)
     def description_dict (self):
@@ -270,6 +268,18 @@ class Guile__linux__x86 (Guile):
 class Guile__tools (tools.AutoBuild, Guile):
     dependencies = (Guile.dependencies
                 + ['autoconf', 'automake', 'gettext', 'flex', 'libtool'])
+    make_flags = Guile.make_flags
+    # Doing make gen-scmconfig, guile starts a configure recheck:
+    #    cd .. && make  am--refresh
+    #    /bin/sh ./config.status --recheck
+    # leading to
+    #    checking size of char... 0
+    # Great idea, let's re-check!  You never know... :-)
+    compile_flags_native = misc.join_lines ('''
+LD_LIBRARY_PATH=%(system_prefix)s/lib
+CFLAGS='-I%(system_prefix)s/include'
+LDFLAGS='-L%(system_prefix)s/lib %(rpath)s'
+''')
     def configure_command (self):
         return ('LD_LIBRARY_PATH=%(system_prefix)s/lib:${LD_LIBRARY_PATH-/foe} '
                 + tools.AutoBuild.configure_command (self)
@@ -284,19 +294,6 @@ class Guile__tools (tools.AutoBuild, Guile):
         # setting the proper LD_LIBRARY_PATH.
         return ('export LD_LIBRARY_PATH=%(builddir)s/libguile/.libs:%(system_prefix)s/lib:${LD_LIBRARY_PATH-/foe};'
                 + Guile.compile_command (self))
-    makeflags = Guile.makeflags
-    def makeflags_for_build (self):
-        # Doing make gen-scmconfig, guile starts a configure recheck:
-        #    cd .. && make  am--refresh
-        #    /bin/sh ./config.status --recheck
-        # leading to
-        #    checking size of char... 0
-        # Great idea, let's re-check!  You never know... :-)
-        return misc.join_lines ('''
-LD_LIBRARY_PATH=%(system_prefix)s/lib
-CFLAGS='-I%(system_prefix)s/include'
-LDFLAGS='-L%(system_prefix)s/lib %(rpath)s'
-''')
     def install (self):
         tools.AutoBuild.install (self)
         # Ugh: remove development stuff from tools

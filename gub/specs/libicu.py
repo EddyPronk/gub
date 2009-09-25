@@ -18,14 +18,12 @@ class Libicu (target.AutoBuild):
                                         ['configure_native', 'compile_native'])
 #    def autodir (self):
 #        return '%(srcdir)s/source'
-    makeflags = misc.join_lines ('''
+    make_flags = misc.join_lines ('''
 BINDIR_FOR_BUILD='$(BINDIR)-native'
 LIBDIR_FOR_BUILD='$(LIBDIR)-native'
 PKGDATA_INVOKE_OPTS="TARGET='lib\$\$(LIBNAME).so' BINDIR_FOR_BUILD='\$\$(BINDIR)-native' LIBDIR_FOR_BUILD='\$\$(LIBDIR)-native'"
 ''')
-    @context.subst_method
-    def makeflags_native (self):
-        return misc.join_lines ('''
+    compile_flags_native = misc.join_lines ('''
 BINDIR='$(top_builddir)/bin-native'
 LIBDIR='$(top_builddir)/lib-native'
 PKGDATA_INVOKE_OPTS="BINDIR='\$\$(top_builddir)/bin-native' LIBDIR='\$\$(top_builddir)/lib-native'"

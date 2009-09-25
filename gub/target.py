@@ -10,7 +10,7 @@ from gub import loggedos
 class AutoBuild (build.AutoBuild):
     config_cache_flag = ' --cache-file=config.cache' # EXPENSIVE, JUNKME
     configure_flags = (build.AutoBuild.configure_flags
-                + misc.join_lines ('''
+                       + misc.join_lines ('''
 --cache-file=config.cache
 --enable-shared
 --disable-static
@@ -25,6 +25,7 @@ class AutoBuild (build.AutoBuild):
 --mandir=%(prefix_dir)s/share/man
 --libdir=%(prefix_dir)s/lib
 '''))
+    compile_flags_native = ''
     def __init__ (self, settings, source):
         build.AutoBuild.__init__ (self, settings, source)
         if 'stat' in misc.librestrict ():
@@ -101,12 +102,8 @@ class AutoBuild (build.AutoBuild):
 
     @context.subst_method
     def compile_command_native (self):
-        return 'make %(job_spec)s %(makeflags_native)s '
+        return 'make %(job_spec)s %(compile_flags_native)s '
 
-    @context.subst_method
-    def makeflags_native (self):
-        return ''
-            
     def get_substitution_dict_native (self):
         return build.AutoBuild.get_substitution_dict
 
@@ -190,14 +187,17 @@ class PythonBuild (AutoBuild):
         return 'python %(srcdir)s/setup.py install --prefix=%(tools_prefix)s --root=%(install_root)s'
 
 class SConsBuild (AutoBuild):
+    scons_flags = ''
     def stages (self):
         return [s for s in AutoBuild.stages (self) if s not in ['autoupdate', 'configure']]
     def compile_command (self):
         # SCons barfs on trailing / on directory names
         return ('scons PREFIX=%(system_prefix)s'
-                ' PREFIX_DEST=%(install_root)s')
+                ' PREFIX_DEST=%(install_root)s'
+                ' %(compile_flags)s'
+                ' %(scons_flags)s')
     def install_command (self):
-        return self.compile_command () + ' install'
+        return self.compile_command () + ' %(install_flags)s'
 
 class WafBuild (AutoBuild):
     def stages (self):

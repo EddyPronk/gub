@@ -100,7 +100,7 @@ class LilyPond (target.AutoBuild):
         return v
     def pretty_name (self):
         return 'LilyPond'
-    makeflags = ' TARGET_PYTHON=/usr/bin/python'
+    make_flags = ' TARGET_PYTHON=/usr/bin/python'
     def install (self):
         target.AutoBuild.install (self)
         # FIXME: This should not be in generic package, for installers only.
@@ -210,16 +210,16 @@ class LilyPond__cygwin (LilyPond):
             'lilypond-doc',
             ]
     configure_flags = (LilyPond.configure_flags
-                .replace ('--enable-relocation', '--disable-relocation'))
-        python_lib = '%(system_prefix)s/bin/libpython*.dll'
-        LDFLAGS = '-L%(system_prefix)s/lib -L%(system_prefix)s/bin -L%(system_prefix)s/lib/w32api'
-    makeflags = (LilyPond.makeflags
-                + ' LDFLAGS="%(LDFLAGS)s %(python_lib)s"' % locals ())
+                       .replace ('--enable-relocation', '--disable-relocation'))
+    python_lib = '%(system_prefix)s/bin/libpython*.dll'
+    LDFLAGS = '-L%(system_prefix)s/lib -L%(system_prefix)s/bin -L%(system_prefix)s/lib/w32api'
+    make_flags = (LilyPond.make_flags
+                     + ' LDFLAGS="%(LDFLAGS)s %(python_lib)s"')
     def compile (self):
         # Because of relocation script, python must be built before scripts
         self.system ('''
-cd %(builddir)s && make -C python %(makeflags)s
-cd %(builddir)s && make -C scripts %(makeflags)s
+cd %(builddir)s && make -C python %(compile_flags)s
+cd %(builddir)s && make -C scripts %(compile_flags)s
 cp -pv %(system_prefix)s/share/gettext/gettext.h %(system_prefix)s/include''')
         LilyPond.compile (self)
     def install (self):
@@ -260,22 +260,20 @@ install:
 ''', '%(builddir)s/python/GNUmakefile')
         
 class LilyPond__mingw (LilyPond):
-        python_lib = '%(system_prefix)s/bin/libpython*.dll'
-    makeflags = (LilyPond.makeflags
-                + ' LDFLAGS="%(python_lib)s"'  % locals ())
-
     dependencies = LilyPond.dependencies + [
             'tools::imagemagick',
             'tools::icoutils',
             ]
-
+    python_lib = '%(system_prefix)s/bin/libpython*.dll'
+    make_flags = (LilyPond.make_flags
+                     + ' LDFLAGS="%(python_lib)s"'  % locals ())
     # ugh Python hack: C&P Cygwin
     def compile (self):
         # Because of relocation script, python must be built before scripts
         self.system ('''
 cd %(builddir)s/lily && rm -f out/lilypond || :
-cd %(builddir)s && make -C python %(makeflags)s
-cd %(builddir)s && make -C scripts %(makeflags)s
+cd %(builddir)s && make -C python %(compile_flags)s
+cd %(builddir)s && make -C scripts %(compile_flags)s
 #cp -pv %(system_prefix)s/share/gettext/gettext.h %(system_prefix)s/include
 ''')
         LilyPond.compile (self)
@@ -332,8 +330,8 @@ class LilyPond__debian (LilyPond):
     def compile (self):
         # Because of relocation script, python must be built before scripts
         self.system ('''
-cd %(builddir)s && make -C python %(makeflags)s
-cd %(builddir)s && make -C scripts %(makeflags)s
+cd %(builddir)s && make -C python %(compile_flags)s
+cd %(builddir)s && make -C scripts %(compile_flags)s
 ''')
         LilyPond.compile (self)
     def install (self):
@@ -361,7 +359,7 @@ class LilyPond__darwin (LilyPond):
                 ])
     configure_flags = (LilyPond.configure_flags
                 .replace ('--enable-rpath', '--disable-rpath'))
-    makeflags = ' TARGET_PYTHON="/usr/bin/env python"'
+    make_flags = ' TARGET_PYTHON="/usr/bin/env python"'
 
 class LilyPond__darwin__ppc (LilyPond__darwin):
     def configure (self):

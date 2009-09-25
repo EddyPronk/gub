@@ -6,7 +6,7 @@ from gub import cygwin
 class Binutils__cygwin (cross_binutils.Binutils):
     source = 'http://ftp.gnu.org/pub/gnu/binutils/binutils-2.17.tar.bz2'
         from gub import misc
-    makeflags = misc.join_lines ('''
+    make_flags = misc.join_lines ('''
 tooldir="%(cross_prefix)s/%(target_architecture)s"
 ''')
     configure_flags = (cross_binutils.Binutils.configure_flags

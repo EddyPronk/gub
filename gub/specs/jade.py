@@ -22,4 +22,4 @@ LD_LIBRARY_PATH=%(system_prefix)s/lib
     def configure (self):
         tools.AutoBuild.configure (self)
         self.system ('cd %(builddir)s; for i in $(ls -1dF * |grep /); do make -C $i -f ../Makefile.lib Makefile.lt; done || :')
-    makeflags = 'top_builddir=%(builddir)s'
+    make_flags = 'top_builddir=%(builddir)s'

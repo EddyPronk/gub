@@ -6,4 +6,4 @@ class Pangomm (target.AutoBuild):
     configure_variables = (target.AutoBuild.configure_variables
                            + ' CFLAGS=-I%(system_prefix)s/include/freetype2'
                            + ''' LDFLAGS='-lfreetype -lz' ''')
-    makeflags = ''' 'sublib_cflags=$(PANGOMM_CFLAGS) $(CFLAGS)' '''
+    make_flags = ''' 'sublib_cflags=$(PANGOMM_CFLAGS) $(CFLAGS)' '''

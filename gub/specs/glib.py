@@ -46,7 +46,7 @@ class Glib__freebsd__x86 (Glib__freebsd):
     # libtool (2.2.6a) thinks it knows best and blondly strips -pthread
     # if it thinks it's a compile flag.
     # FIXME: should add fixup to update_libtool ()
-    makeflags = ' G_THREAD_LIBS=-pthread G_THREAD_LIBS_FOR_GTHREAD=-pthread '
+    make_flags = ' G_THREAD_LIBS=-pthread G_THREAD_LIBS_FOR_GTHREAD=-pthread '
 
 class Glib__tools (tools.AutoBuild, Glib):
     dependencies = [

@@ -33,11 +33,14 @@ class _C (object):
     pass
 
 def is_class_subst_method (name, cls):
-    if (name in cls.__dict__
-        and classmethod (cls.__dict__[name])
-        and type (cls.__dict__[name]) != type (_C.__init__)
-        and 'substitute_me' in cls.__dict__[name].__dict__):
-        return True
+    try:
+        if (name in cls.__dict__
+            and classmethod (cls.__dict__[name])
+            and type (cls.__dict__[name]) != type (_C.__init__)
+            and 'substitute_me' in cls.__dict__[name].__dict__):
+            return True
+    except:
+        print 'barfage:', cls
     return False
 
 def base_is_class_subst_method (name, cls):

@@ -8,6 +8,11 @@ class Nsis (tools.SConsBuild):
     source = 'http://surfnet.dl.sourceforge.net/sourceforge/nsis/nsis-2.45-src.tar.bz2'
     #source = ':pserver:anonymous@nsis.cvs.sourceforge.net:/cvsroot/nsis&module=NSIS&tag=HEAD'
     dependencies = ['mingw::cross/gcc']
+    make_flags = misc.join_lines ('''
+DEBUG=yes
+NSIS_CONFIG_LOG=yes
+SKIPUTILS="NSIS Menu"
+''')
     def __init__ (self, settings, source):
         tools.AutoBuild.__init__ (self, settings, source)
         if 'x86_64-linux' in self.settings.build_architecture:
@@ -43,17 +48,10 @@ Export('defenv')
 ''')],
                        '%(srcdir)s/SConstruct')
     def compile_command (self):
-        relax = ''
         if 'stat' in misc.librestrict ():
-            relax = 'LIBRESTRICT_IGNORE=%(tools_prefix)s/bin/python '
-        return (relax
-                + tools.SConsBuild.compile_command (self)
-                + misc.join_lines ('''
-DEBUG=yes
-NSIS_CONFIG_LOG=yes
-SKIPUTILS="NSIS Menu"
-'''))
-
+            return ('LIBRESTRICT_IGNORE=%(tools_prefix)s/bin/python '
+                    + tools.SConsBuild.compile_command (self))
+        return tools.SConsBuild.compile_command (self)
     # this method is overwritten for x86-64_linux
     def build_environment (self):
         return self.add_mingw_env ()

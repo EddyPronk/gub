@@ -30,17 +30,25 @@ class Build (context.RunnableContext):
     srcdir_build_broken = False
     configure_flags = ' --prefix=%(configure_prefix)s'
     configure_variables = ''
-    makeflags = ''
-
-    @context.subst_method
-    def autodir (self):
-        return '%(srcdir)s'
-    @context.subst_method
-    def configure_binary (self):
-        return '%(autodir)s/configure'
-    @context.subst_method
-    def configure_command (self):
-        return ' sh %(configure_binary)s%(configure_flags)s%(configure_variables)s'
+    compile_flags = ''
+    make_flags = ''
+    install_flags = ''' DESTDIR=%(install_root)s install'''
+    destdir_install_broken = False
+    install_flags_destdir_broken = misc.join_lines ('''
+bindir=%(install_prefix)s/bin
+aclocaldir=%(install_prefix)s/share/aclocal
+datadir=%(install_prefix)s/share
+exec_prefix=%(install_prefix)s
+gcc_tooldir=%(install_prefix)s
+includedir=%(install_prefix)s/include
+infodir=%(install_prefix)s/share/info
+libdir=%(install_prefix)s/lib
+libexecdir=%(install_prefix)s/lib
+mandir=%(install_prefix)s/share/man
+prefix=%(install_prefix)s
+sysconfdir=%(install_prefix)s/etc
+tooldir=%(install_prefix)s
+''')
 
     def __init__ (self, settings, source):
         context.RunnableContext.__init__ (self, settings)
@@ -314,23 +322,36 @@ class AutoBuild (Build):
         return '%(install_root)s%(prefix_dir)s'
 
     @context.subst_method
+    def autodir (self):
+        return '%(srcdir)s'
+
+    @context.subst_method
+    def configure_binary (self):
+        return '%(autodir)s/configure'
+
+    @context.subst_method
+    def configure_command (self):
+        return ' sh %(configure_binary)s%(configure_flags)s%(configure_variables)s'
+
+    @context.subst_method
+    def compile_command (self):
+        return 'make %(job_spec)s %(make_flags)s %(compile_flags)s'
+
+    @context.subst_method
+    def compile_command_native (self):
+        return 'make %(job_spec)s %(make_flags)s %(compile_flags)s'
+
+    @context.subst_method
     def install_command (self):
-        return '''make %(makeflags)s DESTDIR=%(install_root)s install'''
+        if self.destdir_install_broken:
+            return '''make %(make_flags)s %(install_flags_destdir_broken)s %(install_flags)s'''
+        return '''make %(make_flags)s %(install_flags)s '''
 
     def aclocal_path (self):
         return [
             '%(tools_prefix)s/share/aclocal',
             '%(system_prefix)s/share/aclocal',
             ]
-
-    @context.subst_method
-    def compile_command (self):
-        return 'make %(job_spec)s %(makeflags)s '
-
-    @context.subst_method
-    def native_compile_command (self):
-        return 'make %(job_spec)s %(makeflags)s '
-
     @context.subst_method
     def job_spec (self):
         if not self.parallel_build_broken:
@@ -396,44 +417,25 @@ cd %(builddir)s && chmod +x %(configure_binary)s && %(configure_command)s
 ''')
         self.map_locate (libtool_disable_install_not_into_dot_libs_test, '%(builddir)s', 'libtool')
 
-    def shadow (self):
-        self.system ('rm -rf %(builddir)s')
-        self.shadow_tree ('%(srcdir)s', '%(builddir)s')
-
     def compile (self):
         self.system ('cd %(builddir)s && %(compile_command)s')
 
-    def broken_install_command (self):
-        """For packages that do not honor DESTDIR.
-        """
-
-        # FIXME: use sysconfdir=%(install_PREFIX)s/etc?  If
-        # so, must also ./configure that way
-        return misc.join_lines ('''make %(makeflags)s install
-bindir=%(install_prefix)s/bin
-aclocaldir=%(install_prefix)s/share/aclocal
-datadir=%(install_prefix)s/share
-exec_prefix=%(install_prefix)s
-gcc_tooldir=%(install_prefix)s
-includedir=%(install_prefix)s/include
-infodir=%(install_prefix)s/share/info
-libdir=%(install_prefix)s/lib
-libexecdir=%(install_prefix)s/lib
-mandir=%(install_prefix)s/share/man
-prefix=%(install_prefix)s
-sysconfdir=%(install_prefix)s/etc
-tooldir=%(install_prefix)s
-''')
+    def shadow (self):
+        self.system ('rm -rf %(builddir)s')
+        self.shadow_tree ('%(srcdir)s', '%(builddir)s')
 
     def update_config_guess_config_sub (self):
         guess = self.expand ('%(system_prefix)s/share/libtool/config/config.guess')
         sub = self.expand ('%(system_prefix)s/share/libtool/config/config.sub')
         for file in guess, sub:
             self.system ('cp -pv %(file)s %(autodir)s',  locals ())
+
     def update_libtool (self):
         self.map_locate (lambda logger, file: libtool_update (logger, self.expand ('%(system_prefix)s/bin/libtool'), file), '%(builddir)s', 'libtool')
+
     def pre_install (self):
         pass
+
     def install (self):
         '''Install package into %(install_root).
 

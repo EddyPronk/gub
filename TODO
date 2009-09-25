@@ -133,16 +133,18 @@ on the state of the file system.  For example:
 * use of member functions vs class variables/static functions:
 *** done - get_build_dependencies () -> class.dependencies = []
 *** done - def force_sequential_build () -> class.parallel_build_broken
-*** - def force_autoupdate () -> class.force_autoupdate = True
+*** done - force_autoupdate () -> class.force_autoupdate = True
+*** done - configure_variables, configure_flags
+   + TODO: configure_env_variables
+*** done make_flags
+*** done compile_flags
+*** done install_flags
 ** also, why are these functions ?
 ***   - def configure_command () -> class.configure_command
-**** --> we need to construct this from instance functions.
-**** done - configure_variables, configure_flags
-   + TODO: configure_env_variables
 ***   - def compile_command () -> class.compile_command
-    --> + compile_flags [makeflags ()-> compile_flags
 ***   - def install_command () -> class.install_command
-    --> + install_flags
+**** CHECKME: --> we need to construct this from instance functions?
+*** get_subpackage_names ()
      etc
 
 * junk use of /usr in code, use *_prefix) or %(prefix_dir)s

@@ -16,18 +16,18 @@ ac_cv_snprintf_returns_bongus=yes
 '''
     configure_flags = (tools.AutoBuild.configure_flags
                 + ' --without-openssl')
-    makeflags = '''V=1 NO_PERL=NoThanks'''
+    make_flags = '''V=1 NO_PERL=NoThanks'''
 
 class Git__freebsd (Git):
     dependencies = Git.dependencies + ['libiconv-devel', 'regex-devel']
-    makeflags = (Git.makeflags
-                + ' CFLAGS="-O2 -Duintmax_t=unsigned -Dstrtoumax=strtoul"')
+    make_flags = (Git.make_flags
+                  + ' CFLAGS="-O2 -Duintmax_t=unsigned -Dstrtoumax=strtoul"')
 
 class Git__mingw (Git):
     def __init__ (self, settings, source):
         Git.__init__ (self, settings, source)
         self.target_gcc_flags = ' -mms-bitfields '
-    dependencies = Git.dependencies + ['libiconv-devel', 'regex-devel']
+    dependencies = Git.dependencies + ['libiconv-devel', 'regex-devel', 'tcltk']
     def configure (self):
         target.AutoBuild.configure (self)
         self.file_sub ([('CFLAGS = -g',
@@ -38,19 +38,14 @@ class Git__mingw (Git):
                         ],
                        '%(builddir)s/Makefile')
         self.dump ('%(version)s-GUB', '%(builddir)s/version')
-    makeflags = (' uname_S=MINGW'
+    make_flags = (' uname_S=MINGW'
                 + ' V=1 '
-
                 ## we'll consider it if they clean up their act
                 + ' SCRIPT_PERL= '
                 + ' instdir_SQ=%(install_prefix)s/lib/ '
                 + ' SHELL_PATH=/bin/sh'
                 + ' PERL_PATH=/bin/perl')
-
-    def compile_command (self):
-        ## want this setting to reach compile, but not install
-        return Git.compile_command (self) + ' template_dir=../share/git-core/templates/ '
-    dependencies = Git.dependencies + ['tcltk']
+    compile_flags = ' template_dir=../share/git-core/templates/'
     def install (self):
         Git.install (self)
         bat = r'''@echo off
@@ -62,4 +57,4 @@ class Git__tools (tools.AutoBuild, Git):
     dependencies = ['curl', 'expat', 'zlib']
     configure_flags = (tools.AutoBuild.configure_flags
                        + ' --without-openssl')
-    makeflags = Git.makeflags
+    make_flags = Git.make_flags

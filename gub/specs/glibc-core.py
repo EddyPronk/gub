@@ -8,28 +8,23 @@ class Glibc_core (glibc.Glibc):
     source = 'http://lilypond.org/download/gub-sources/glibc-2.3-20070416.tar.bz2'
     patches = glibc.Glibc.patches + ['glibc-2.3-core-install.patch']
     dependencies = ['cross/gcc-core', 'linux-headers']
+    configure_flags = (glibc.Glibc.configure_flags
+                + misc.join_lines ('''
+--without-tls
+--without-__thread
+'''))
+    make_flags = (glibc.Glibc.make_flags
+                  # avoid -lgcc_eh, which gcc-core does not have
+                  + ' gnulib=-lgcc')
+    compile_flags = glibc.Glibc.compile_flags + ' lib'
+    install_flags = (glibc.Glibc.install_flags
+                     .replace (' install ', ' install-lib-all install-headers '))
     def get_subpackage_names (self):
         return ['']
     def get_conflict_dict (self):
         return {'': ['glibc', 'glibc-devel', 'glibc-doc', 'glibc-runtime']}
     def get_add_ons (self):
         return ('linuxthreads',)
-    configure_flags = (glibc.Glibc.configure_flags
-                + misc.join_lines ('''
---without-tls
---without-__thread
-'''))
-    makeflags = (glibc.Glibc.makeflags
-                # avoid -lgcc_eh, which gcc-core does not have
-                + ' gnulib=-lgcc')
-    def compile_command (self):
-        return (glibc.Glibc.compile_command (self)
-                + ' lib')
-    def compile (self):
-        target.AutoBuild.compile (self)
-    def install_command (self):
-        return (glibc.Glibc.install_command (self)
-                .replace (' install ', ' install-lib-all install-headers '))
     def install (self):
         glibc.Glibc.install (self)
         self.system ('''
@@ -44,4 +39,4 @@ class Glibc_core__linux__ppc (Glibc_core):
         # ugh, but the gnulib=-lgcc hack does something else on ppc...
         # it (huh?) drops *-lgcc* (instead of -lgcc_eh) from libc.so
         # linkage, which then fails.
-    makeflags = glibc.Glibc.makeflags
+    make_flags = glibc.Glibc.make_flags

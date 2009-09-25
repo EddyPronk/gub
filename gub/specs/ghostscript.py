@@ -27,7 +27,7 @@ models.'''
     parallel_build_broken = True
     # For --enable-compile-inits, see comment in compile()
     configure_flags = (target.AutoBuild.configure_flags
-                   + misc.join_lines ('''
+                       + misc.join_lines ('''
 --enable-debug
 --with-drivers=FILES
 --without-pdftoraster
@@ -41,6 +41,10 @@ models.'''
 --without-jasper
 --disable-compile-inits
 '''))
+    make_flags = (' INCLUDE=%(system_prefix)s/include'
+                     + ' PSDOCDIR=%(prefix_dir)s/share/doc'
+                     + ' PSMANDIR=%(prefix_dir)s/share/man'
+                     + r''' XLDFLAGS='%(shell_rpath)s' ''')
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         if (isinstance (source, repository.Repository)
@@ -157,15 +161,6 @@ models.'''
     @context.subst_method
     def shell_rpath (self):
         return self.rpath ().replace (r'\$', r'\\\$')
-
-    def compile_flags (self):
-        return (' INCLUDE=%(system_prefix)s/include'
-                + ' PSDOCDIR=%(prefix_dir)s/share/doc'
-                + ' PSMANDIR=%(prefix_dir)s/share/man'
-                + r''' XLDFLAGS='%(shell_rpath)s' ''')
-
-    def compile_command (self):
-        return target.AutoBuild.compile_command (self) + self.compile_flags ()
 
     def compile (self):
         # obj/mkromfs is needed for --enable-compile-inits but depends on native -liconv.
@@ -348,7 +343,7 @@ cd %(install_prefix)s && rm -rf usr/X11R6/share
         # Link to binmode to fix text mode mount problem
         # http://cygwin.com/ml/cygwin/2002-07/msg02302.html
         # although text mode mounts are considered evil...
-    makeflags = ' CFLAGS_STANDARD="-g -O2" EXTRALIBS=-lbinmode'
+    make_flags = ' CFLAGS_STANDARD="-g -O2" EXTRALIBS=-lbinmode'
     # REMOVE after first cygwin release.
     def description_dict (self):
         return {'base': 'The GPL Ghostscript PostScript interpreter - transitional package\nThis is an empty package to streamline the upgrade.'}
@@ -357,12 +352,11 @@ class Ghostscript__tools (tools.AutoBuild, Ghostscript):
     parallel_build_broken = True
     dependencies = ['libjpeg', 'libpng']
     configure_flags = (tools.AutoBuild.configure_flags
-                + Ghostscript.configure_flags)
+                       + Ghostscript.configure_flags)
+    make_flags = Ghostscript.make_flags
     def configure (self):
         tools.AutoBuild.configure (self)
         self.makefile_fixup ('%(builddir)s/Makefile')
-    def compile_command (self):
-        return tools.AutoBuild.compile_command (self) + self.compile_flags ()
     def compile (self):
         self.system ('''
 cd %(builddir)s && mkdir -p obj

@@ -26,7 +26,7 @@ ac_cv_expat_initial_utf8_bom=yes
 
 class Raptor__mingw (Raptor):
 #        return '''CFLAGS='-Dstrtok_r\(s,d,p\)=strtok\(s,d\)' '''
-    makeflags = '''CFLAGS="-D'strtok_r(s,d,p)=strtok(s,d)'" '''
+    make_flags = '''CFLAGS="-D'strtok_r(s,d,p)=strtok(s,d)'" '''
     configure_flags = (target.AutoBuild.configure_flags
                 + misc.join_lines ('''
 --enable-maintainer-mode

@@ -8,10 +8,9 @@ class Patch__tools (tools.AutoBuild):
 # Taken from the Ibex: apt-get --download source patch
     source = 'http://lilypond.org/download/gub-sources/patch-2.5.9-5.tar.gz'
     configure_variables = ''
+    destdir_install_broken = True
     def configure (self):
         tools.AutoBuild.configure (self)
         if 'freebsd' in self.settings.build_architecture:
             self.file_sub ([('^#define HAVE_SETMODE 1', '/* #undef HAVE_SETMODE */')],
                            '%(builddir)s/config.h')
-    def install_command (self):
-        return self.broken_install_command ()

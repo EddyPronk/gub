@@ -10,7 +10,7 @@ class Binutils__tools (tools.AutoBuild):
         # binutils' makefile uses:
         #     MULTIOSDIR = `$(CC) $(LIBCFLAGS) -print-multi-os-directory`
         # which differs on each system.  Setting it avoids inconsistencies.
-    makeflags = 'MULTIOSDIR=../../lib'
+    make_flags = 'MULTIOSDIR=../../lib'
     def install (self):
         tools.AutoBuild.install (self)
         install_librestrict_stat_helpers (self)

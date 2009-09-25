@@ -4,9 +4,9 @@ class Sysvinit (target.MakeBuild):
     source = 'ftp://ftp.cistron.nl/pub/people/miquels/sysvinit/sysvinit-2.86.tar.gz'
     def get_subpackage_names (self):
         return ['']
-    makeflags = 'CC=%(toolchain_prefix)sgcc ROOT=%(install_root)s'
+    make_flags = 'CC=%(toolchain_prefix)sgcc ROOT=%(install_root)s'
     def compile_command (self):
-        return 'cd %(builddir)s/src && make %(makeflags)s'
+        return 'cd %(builddir)s/src && make %(make_flags)s'
     def install (self):
         fakeroot_cache = self.builddir () + '/fakeroot.cache'
         self.fakeroot (self.expand (self.settings.fakeroot, locals ()))
@@ -24,7 +24,7 @@ mkdir -p %(install_prefix)s/include &&
 mkdir -p %(install_prefix)s/share/man/man1 &&
 mkdir -p %(install_prefix)s/share/man/man5 &&
 mkdir -p %(install_prefix)s/share/man/man8 &&
-cd %(builddir)s/src && fakeroot make install %(makeflags)s &&
+cd %(builddir)s/src && fakeroot make install %(make_flags)s &&
 find %(install_root)s/bin %(install_root)s/sbin %(install_prefix)s/bin -type f -o -type l | grep -Ev 'sbin/(tel|)init$' | xargs -I'{}' mv '{}' '{}'.sysvinit
 ''')
     def license_files (self):

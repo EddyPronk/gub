@@ -27,6 +27,6 @@ class Ncurses__tools (tools.AutoBuild, Ncurses):
 #            'system::g++'
             'gawk',
             ]
-    makeflags = 'SCRIPT_SHELL=/bin/bash'
+    make_flags = 'SCRIPT_SHELL=/bin/bash'
     def license_files (self):
         return ['%(srcdir)s/README']
