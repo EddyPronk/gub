@@ -734,7 +734,7 @@ def optparse_epilog (parser, string):
 def rename_append_time (file_name):
     os.rename (file_name, file_name
                + '.'
-               + file_mod_time_str (file_name, format='%Y%M%d-%H%M%S'))
+               + file_mod_time_str (file_name, format='%Y%m%d-%H%M%S'))
 
 start = 0
 def timing ():
