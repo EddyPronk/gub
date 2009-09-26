@@ -55,17 +55,32 @@ Examples:
         p.print_help ()
     return (options, files)
 
-def do_spec (file_name, options):
-    s = open (file_name).read ()
-    m = re.search ('''source = ['"](http://[^'"]+[.]tar.(?:gz|bz2))([?&][^'"]+)?['"]''', s)
-    if not m:
-        printf ('%(file_name)s: cannot find ball' % locals ())
-        return
-    url = m.group (1)
-    params = m.group (2)
+def string_get_url (string):    
+    m = re.search ('''source = ['"](http://[^'"]+[.]tar.(?:gz|bz2))([?&][^'"]+)?['"]''', string)
+    if m:
+        return m.group (1)
+    return ''
+
+def url_get_latest (url):
     name, version_tuple, format = misc.split_ball (url)
     url_dir = url[:url.rfind ('/')+1]
-    latest = misc.latest_url (url_dir, name)
+    if 'lilypond-' in url:
+        printf ('lilypond-url:', url)
+        from gub.specs import lilypond
+        return lilypond.url ()
+    elif '/gnome/PLATFORM/' in url:
+        printf( 'gnome-platform-url:', url)
+        from gub import gnome
+        return gnome.platform_url ()
+    return misc.latest_url (url_dir, name)
+
+def do_spec (file_name, options):
+    s = open (file_name).read ()
+    url = string_get_url (s)
+    if not url:
+        printf ('%(file_name)s: cannot find ball' % locals ())
+        return
+    latest = url_get_latest (url)
     if not latest:
         sys.stderr.write ('cannot find upstream for: %(url)s\n' % locals ())
     elif latest != url:
