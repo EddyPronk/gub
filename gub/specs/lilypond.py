@@ -67,8 +67,7 @@ class LilyPond (target.AutoBuild):
         return {'': ['lilypondcairo']}
     def autoupdate (self):
         self.system ('cd %(srcdir)s && ./smart-autogen.sh --noconfigure') 
-    def configure_binary (self):
-        return '%(srcdir)s/smart-configure.sh'
+    configure_binary = '%(srcdir)s/smart-configure.sh'
     def configure (self):
         self.system ('mkdir -p %(builddir)s || true')
         self.system ('cp %(tools_prefix)s/include/FlexLexer.h %(builddir)s/')

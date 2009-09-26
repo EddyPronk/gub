@@ -13,8 +13,7 @@ class Perl__tools (tools.AutoBuild):
     def patch (self):
         tools.AutoBuild.patch (self)
         self.file_sub ([('-c (/dev/null)', r'-e \1')], '%(srcdir)s/Configure')
-    def configure_binary (self):
-        return '%(autodir)s/configure.gnu'
+    configure_binary = '%(autodir)s/configure.gnu'
 # -Dcc=%(CC)s
 # -Dprefix=%(prefix_dir)s -- BOOTSTRAP
     configure_command = misc.join_lines ('''%(configure_binary)s

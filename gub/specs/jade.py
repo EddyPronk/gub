@@ -17,8 +17,7 @@ CFLAGS=-I%(system_prefix)s/include
 LDFLAGS=-L%(system_prefix)s/lib
 LD_LIBRARY_PATH=%(system_prefix)s/lib
 '''))
-    def configure_binary (self):
-        return '%(builddir)s/configure'
+    configure_binary = '%(builddir)s/configure'
     def configure (self):
         tools.AutoBuild.configure (self)
         self.system ('cd %(builddir)s; for i in $(ls -1dF * |grep /); do make -C $i -f ../Makefile.lib Makefile.lt; done || :')

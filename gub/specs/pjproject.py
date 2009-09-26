@@ -8,7 +8,6 @@ class Pjproject (target.AutoBuild):
         self.system ('cd %(srcdir)s && patch -p0 < %(patchdir)s/pjproject-install.patch')
     configure_flags = (target.AutoBuild.configure_flags
                 + ' --disable-sound')
-    def configure_binary (self):
-        return './aconfigure'
+    configure_binary = './aconfigure'
     install_command = (target.AutoBuild.install_command
                 + ' prefix=%(prefix_dir)s')

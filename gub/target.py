@@ -24,14 +24,13 @@ class AutoBuild (build.AutoBuild):
 --mandir=%(prefix_dir)s/share/man
 --libdir=%(prefix_dir)s/lib
 '''))
+    configure_command_native = build.AutoBuild.configure_command
     compile_flags_native = ''
+    compile_command_native = 'make %(job_spec)s %(compile_flags_native)s '
     def __init__ (self, settings, source):
         build.AutoBuild.__init__ (self, settings, source)
         if 'stat' in misc.librestrict ():
             self.configure_variables += ' SHELL=%(tools_prefix)s/bin/sh'
-    @context.subst_method
-    def configure_command_native (self):
-        return build.AutoBuild.configure_command
     @context.subst_method
     def LD_PRELOAD (self):
         return '%(tools_prefix)s/lib/librestrict.so'
@@ -98,10 +97,6 @@ class AutoBuild (build.AutoBuild):
     def config_cache_settings (self):
         return self.config_cache_overrides (config_cache.config_cache['all']
                                             + config_cache.config_cache[self.settings.platform])
-
-    @context.subst_method
-    def compile_command_native (self):
-        return 'make %(job_spec)s %(compile_flags_native)s '
 
     def get_substitution_dict_native (self):
         return build.AutoBuild.get_substitution_dict
@@ -199,8 +194,7 @@ class WafBuild (AutoBuild):
     def stages (self):
         #return [s for s in AutoBuild.stages (self) if s not in ['autoupdate']]
         return [s.replace ('autoupdate', 'shadow') for s in AutoBuild.stages (self)]
-    def configure_binary (self):
-        return '%(autodir)s/waf'
+    configure_binary = '%(autodir)s/waf'
     configure_command = '%(configure_binary)s configure --prefix=%(install_prefix)s'
     compile_command = '%(configure_binary)s build'
     install_command = '%(configure_binary)s install'

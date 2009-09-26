@@ -28,6 +28,8 @@ class Build (context.RunnableContext):
     install_after_build = True
     parallel_build_broken = False
     srcdir_build_broken = False
+    autodir = '%(srcdir)s'
+    configure_binary = '%(autodir)s/configure'
     configure_flags = ' --prefix=%(configure_prefix)s'
     configure_variables = ''
     compile_flags = ''
@@ -51,6 +53,7 @@ tooldir=%(install_prefix)s
 ''')
     configure_command = ' sh %(configure_binary)s%(configure_flags)s%(configure_variables)s'
     compile_command = 'make %(job_spec)s %(make_flags)s %(compile_flags)s'
+    compile_command_native = 'make %(job_spec)s %(make_flags)s %(compile_flags)s'
     install_command = 'make %(make_flags)s %(install_flags_destdir_broken)s %(install_flags)s'
 
     def __init__ (self, settings, source):
@@ -325,18 +328,6 @@ class AutoBuild (Build):
     @context.subst_method
     def install_prefix (self):
         return '%(install_root)s%(prefix_dir)s'
-
-    @context.subst_method
-    def autodir (self):
-        return '%(srcdir)s'
-
-    @context.subst_method
-    def configure_binary (self):
-        return '%(autodir)s/configure'
-
-    @context.subst_method
-    def compile_command_native (self):
-        return 'make %(job_spec)s %(make_flags)s %(compile_flags)s'
 
     def aclocal_path (self):
         return [

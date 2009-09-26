@@ -67,6 +67,7 @@ class AutoBuild (build.AutoBuild):
 CFLAGS=-I%(system_prefix)s/include
 LDFLAGS='-L%(system_prefix)s/lib %(rpath)s %(libs)s'
 '''))
+    subpackage_names = ['']
     def __init__ (self, settings, source):
         build.AutoBuild.__init__ (self, settings, source)
         if self.config_cache_settings ():
@@ -115,8 +116,6 @@ LD_LIBRARY_PATH=%(system_prefix)s/lib
         if 'BOOTSTRAP' in os.environ.keys ():
             return ''
         return '%(system_root)s'
-
-    subpackage_names = ['']
 
     def configure (self):
         self.config_cache ()
