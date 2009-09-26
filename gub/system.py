@@ -15,6 +15,7 @@ class Configure (build.Build):
     install_after_build = False
     source = 'foo.tar.gz'
     vc_branch_suffix = ''
+    builddir = 'bar'
     srcdir = 'foo'
     configure_prefix = ''
     configure_command = ''

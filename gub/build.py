@@ -30,6 +30,7 @@ class Build (context.RunnableContext):
     srcdir_build_broken = False
     autodir = '%(srcdir)s'
     config_cache_overrides = ''
+    config_cache_file = '%(builddir)s/config.cache'
     configure_binary = '%(autodir)s/configure'
     configure_flags = ' --prefix=%(configure_prefix)s'
     configure_variables = ''
@@ -347,10 +348,6 @@ class AutoBuild (Build):
     def src_package_uploads (self):
         return '%(packages)s'
 
-    @context.subst_method
-    def cache_file (self):
-        return '%(builddir)s/config.cache'
-
     def get_done (self):
         done = []
         if os.path.exists (self.get_stamp_file ()):
@@ -383,7 +380,7 @@ class AutoBuild (Build):
         string = self.config_cache_settings ()
         if string:
             self.system ('mkdir -p %(builddir)s || true')
-            self.dump (string, self.cache_file (), permissions=octal.o755)
+            self.dump (string, self.cache_file, permissions=octal.o755)
 
     def configure (self):
         if self.srcdir_build_broken:
