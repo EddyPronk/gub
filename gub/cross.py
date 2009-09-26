@@ -39,10 +39,6 @@ class AutoBuild (build.AutoBuild):
         dict.update (env)
         d = build.AutoBuild.get_substitution_dict (self, dict).copy ()
         return d
-    def compile_command (self):
-        return '''make %(make_flags)s %(compile_flags)s'''
-    def install_command (self):
-        return '''make %(make_flags)s %(install_flags)s'''
     def install_license (self):
         self.runner.harmless ('not installing license file for cross package: %(name)s' % self.get_substitution_dict ())
 

@@ -8,7 +8,6 @@ from gub import misc
 from gub import loggedos
 
 class AutoBuild (build.AutoBuild):
-    config_cache_flag = ' --cache-file=config.cache' # EXPENSIVE, JUNKME
     configure_flags = (build.AutoBuild.configure_flags
                        + misc.join_lines ('''
 --cache-file=config.cache
