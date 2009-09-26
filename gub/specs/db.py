@@ -6,13 +6,12 @@ class Db (target.AutoBuild):
     source = 'http://download.oracle.com/berkeley-db/db-4.7.25.tar.gz'
     srcdir_build_broken = True
     dependencies = ['tools::libtool']
-    def cache_file (self):
-        return '%(builddir)s/build_unix/config.cache'
-#    def autodir (self):
-#        return '%(srcdir)s/dist'
+    autodir = '%(srcdir)s/dist'
     configure_command = 'cd build_unix && ' + target.AutoBuild.configure_command
     configure_binary = '%(builddir)s/dist/configure'
     make_flags = '-C build_unix'
+    def cache_file (self):
+        return '%(builddir)s/build_unix/config.cache'
     def configure (self):
         self.system ('mkdir -p %(builddir)s/build_unix')
         target.AutoBuild.configure (self)

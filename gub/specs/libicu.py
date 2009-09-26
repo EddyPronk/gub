@@ -9,15 +9,7 @@ class Libicu (target.AutoBuild):
     source = 'http://download.icu-project.org/files/icu4c/3.8.1/icu4c-3_8_1-src.tgz'
     #http://download.icu-project.org/files/icu4c/4.0/icu4c-4_0-src.tgz
     patches = ['libicu-3.8.1-cross.patch']
-    def __init__ (self, settings, source):
-        target.AutoBuild.__init__ (self, settings, source)
-        source._version = '3.8.1'
-    def stages (self):
-        return misc.list_insert_before (target.AutoBuild.stages (self),
-                                        'configure',
-                                        ['configure_native', 'compile_native'])
-#    def autodir (self):
-#        return '%(srcdir)s/source'
+    autodir = '%(srcdir)s/source'
     make_flags = misc.join_lines ('''
 BINDIR_FOR_BUILD='$(BINDIR)-native'
 LIBDIR_FOR_BUILD='$(LIBDIR)-native'
@@ -28,6 +20,13 @@ BINDIR='$(top_builddir)/bin-native'
 LIBDIR='$(top_builddir)/lib-native'
 PKGDATA_INVOKE_OPTS="BINDIR='\$\$(top_builddir)/bin-native' LIBDIR='\$\$(top_builddir)/lib-native'"
 ''')
+    def __init__ (self, settings, source):
+        target.AutoBuild.__init__ (self, settings, source)
+        source._version = '3.8.1'
+    def stages (self):
+        return misc.list_insert_before (target.AutoBuild.stages (self),
+                                        'configure',
+                                        ['configure_native', 'compile_native'])
     def compile_native (self):
         target.AutoBuild.compile_native (self)
         def rm (logger, file):
