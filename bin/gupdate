@@ -57,11 +57,12 @@ Examples:
 
 def do_spec (file_name, options):
     s = open (file_name).read ()
-    m = re.search ('''source = ['"](http://[^'"]+[.]tar.(?:gz|bz2))['"]''', s)
+    m = re.search ('''source = ['"](http://[^'"]+[.]tar.(?:gz|bz2))([?&][^'"]+)?['"]''', s)
     if not m:
         printf ('%(file_name)s: cannot find ball' % locals ())
         return
     url = m.group (1)
+    params = m.group (2)
     name, version_tuple, format = misc.split_ball (url)
     url_dir = url[:url.rfind ('/')+1]
     latest = misc.latest_url (url_dir, name)

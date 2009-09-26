@@ -706,7 +706,7 @@ def librestrict ():
 
 def latest_url (url, name, raw_version_file=None):
     if not raw_version_file:
-        raw_version_file = 'downloads/%(name)s.index' % locals ()
+        raw_version_file = 'downloads/indexes/%(name)s.index' % locals ()
     if not os.path.isfile (raw_version_file):
         download_url (url, 'downloads', os.path.basename (raw_version_file))
     s = open (raw_version_file).read ()
