@@ -20,11 +20,6 @@ class Pangocairo__mingw (Pangocairo):
                 + ' --disable-rebuilds')
 
 class Pangocairo__darwin__no_quartz_objective_c (Pangocairo):
-    def config_cache_overrides (self, string):
-        # compiling with Carbon requires -xobjective-c flag,
-        # which GUB currently not has
-        #    i686-apple-darwin8-gcc: language objective-c not recognized
-        # So, try without Carbon before changing GCC.
-        return string + '''
+    config_cache_overrides = Pangocairo.config_cache_overrides + '''
 ac_cv_header_Carbon_Carbon_h=${ac_cv_header_Carbon_Carbon_h=no}
 '''

@@ -53,57 +53,7 @@ class OpenOffice (target.AutoBuild):
         'saxon-java',
         'xerces-c',
         'zlib-devel']
-    subpackage_names = ['']
-    def __init__ (self, settings, source):
-        target.AutoBuild.__init__ (self, settings, source)
-        # let's keep source tree around
-        def tracking (self):
-            return True
-        self.source.is_tracking = misc.bind_method (tracking, self.source)
-        if not out_of_gub_OOO_TOOLS_DIR:
-            os.environ['OOO_TOOLS_DIR'] = self.settings.tools_prefix + '/bin'
-    def stages (self):
-        return misc.list_insert_before (target.AutoBuild.stages (self),
-                                        'compile',
-                                        ['dotslash_download', 'make_unpack', 'patch_upstream'])
-    def dotslash_download (self):
-        self.system ('mkdir -p %(downloads)s/openoffice-src')
-        self.system ('cd %(builddir)s && ln %(downloads)s/openoffice-src/* src || :')
-        self.system ('cd %(builddir)s && ./download')
-        self.system ('cd %(builddir)s && ln src/* %(downloads)s/openoffice-src || :')
-    @context.subst_method
-    def bran (self):
-        return 'ooo'
-    @context.subst_method
-    def ver (self):
-        return '310'
-    @context.subst_method
-    def milestone (self):
-        return 'm8'
-    @context.subst_method
-    def cvs_tag (self):
-        return '%(bran)s%(ver)s-%(milestone)s'
-    @context.subst_method
-    def upstream_dir (self):
-        return '%(builddir)s/build/%(cvs_tag)s'
-    @context.subst_method
-    def OOO_TOOLS_DIR (self):
-        if 'OOO_TOOLS_DIR' not in os.environ:
-            message = '''OOO_TOOLS_DIR not set
-Set OOO_TOOLS_DIR to a recent pre-compiled native solver, I do
-
-export OOO_TOOLS_DIR=/home/janneke/vc/ooo310-m8/build/ooo310-m8/solver/310/unxlngx6.pro/bin
-'''
-            printf (message)
-            raise Exception (message)
-        return os.environ['OOO_TOOLS_DIR']
-    @context.subst_method
-    def LD_LIBRARY_PATH (self):
-        return '%(OOO_TOOLS_DIR)s/../lib' + misc.append_path (os.environ.get ('LD_LIBRARY_PATH', ''))
-    def autoupdate (self):
-        self.system ('cd %(srcdir)s && NOCONFIGURE=1 ./autogen.sh --noconfigure')
-    def config_cache_overrides (self, str):
-        return str + '''
+    config_cache_overrides = target.AutoBuild.config_cache_overrides + '''
 ac_cv_file__usr_share_java_saxon9_jar=${ac_cv_file__usr_share_java_saxon9_jar=yes}
 ac_cv_file__usr_share_java_saxon_jar=${ac_cv_file__usr_share_java_saxon_jar=yes}
 ac_cv_db_version_minor=${ac_cv_db_version_minor=7}
@@ -201,6 +151,55 @@ ac_cv_icu_version_minor=${ac_cv_icu_version_minor=3.81}
 # --with-system-libwpg
     configure_command = (target.AutoBuild.configure_command
                          + openoffice_configure_flags)
+    subpackage_names = ['']
+    def __init__ (self, settings, source):
+        target.AutoBuild.__init__ (self, settings, source)
+        # let's keep source tree around
+        def tracking (self):
+            return True
+        self.source.is_tracking = misc.bind_method (tracking, self.source)
+        if not out_of_gub_OOO_TOOLS_DIR:
+            os.environ['OOO_TOOLS_DIR'] = self.settings.tools_prefix + '/bin'
+    def stages (self):
+        return misc.list_insert_before (target.AutoBuild.stages (self),
+                                        'compile',
+                                        ['dotslash_download', 'make_unpack', 'patch_upstream'])
+    def dotslash_download (self):
+        self.system ('mkdir -p %(downloads)s/openoffice-src')
+        self.system ('cd %(builddir)s && ln %(downloads)s/openoffice-src/* src || :')
+        self.system ('cd %(builddir)s && ./download')
+        self.system ('cd %(builddir)s && ln src/* %(downloads)s/openoffice-src || :')
+    @context.subst_method
+    def bran (self):
+        return 'ooo'
+    @context.subst_method
+    def ver (self):
+        return '310'
+    @context.subst_method
+    def milestone (self):
+        return 'm8'
+    @context.subst_method
+    def cvs_tag (self):
+        return '%(bran)s%(ver)s-%(milestone)s'
+    @context.subst_method
+    def upstream_dir (self):
+        return '%(builddir)s/build/%(cvs_tag)s'
+    @context.subst_method
+    def OOO_TOOLS_DIR (self):
+        if 'OOO_TOOLS_DIR' not in os.environ:
+            message = '''OOO_TOOLS_DIR not set
+Set OOO_TOOLS_DIR to a recent pre-compiled native solver, I do
+
+export OOO_TOOLS_DIR=/home/janneke/vc/ooo310-m8/build/ooo310-m8/solver/310/unxlngx6.pro/bin
+'''
+            printf (message)
+            raise Exception (message)
+        return os.environ['OOO_TOOLS_DIR']
+    @context.subst_method
+    def LD_LIBRARY_PATH (self):
+        return '%(OOO_TOOLS_DIR)s/../lib' + misc.append_path (os.environ.get ('LD_LIBRARY_PATH', ''))
+    def autoupdate (self):
+        self.system ('cd %(srcdir)s && NOCONFIGURE=1 ./autogen.sh --noconfigure')
     def make_unpack (self):
         # FIXME: python detection is utterly broken, should use python-config
         self.system ('cd %(builddir)s && make unpack')

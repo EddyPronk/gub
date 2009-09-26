@@ -6,15 +6,13 @@ class Git (target.AutoBuild):
     srcdir_build_broken = True
     subpackage_names = ['']
     dependencies = ['zlib-devel']
-    def config_cache_overrides (self, string):
-        # PROMOTEME: at least defines
-        return string + '''\n
+    config_cache_overrides = target.AutoBuild.config_cache_overrides + '''
 ac_cv_c_c99_format=no
 ac_cv_fread_reads_directories=no
 ac_cv_snprintf_returns_bongus=yes
 '''
     configure_flags = (tools.AutoBuild.configure_flags
-                + ' --without-openssl')
+                       + ' --without-openssl')
     make_flags = '''V=1 NO_PERL=NoThanks'''
 
 class Git__freebsd (Git):
@@ -23,10 +21,18 @@ class Git__freebsd (Git):
                   + ' CFLAGS="-O2 -Duintmax_t=unsigned -Dstrtoumax=strtoul"')
 
 class Git__mingw (Git):
+    dependencies = Git.dependencies + ['libiconv-devel', 'regex-devel', 'tcltk']
+    make_flags = (' uname_S=MINGW'
+                + ' V=1 '
+                ## we'll consider it if they clean up their act
+                + ' SCRIPT_PERL= '
+                + ' instdir_SQ=%(install_prefix)s/lib/ '
+                + ' SHELL_PATH=/bin/sh'
+                + ' PERL_PATH=/bin/perl')
+    compile_flags = ' template_dir=../share/git-core/templates/'
     def __init__ (self, settings, source):
         Git.__init__ (self, settings, source)
         self.target_gcc_flags = ' -mms-bitfields '
-    dependencies = Git.dependencies + ['libiconv-devel', 'regex-devel', 'tcltk']
     def configure (self):
         target.AutoBuild.configure (self)
         self.file_sub ([('CFLAGS = -g',
@@ -37,14 +43,6 @@ class Git__mingw (Git):
                         ],
                        '%(builddir)s/Makefile')
         self.dump ('%(version)s-GUB', '%(builddir)s/version')
-    make_flags = (' uname_S=MINGW'
-                + ' V=1 '
-                ## we'll consider it if they clean up their act
-                + ' SCRIPT_PERL= '
-                + ' instdir_SQ=%(install_prefix)s/lib/ '
-                + ' SHELL_PATH=/bin/sh'
-                + ' PERL_PATH=/bin/perl')
-    compile_flags = ' template_dir=../share/git-core/templates/'
     def install (self):
         Git.install (self)
         bat = r'''@echo off

@@ -13,8 +13,7 @@ class Libaubio (target.AutoBuild):
                 'python-devel',
                 ]
     force_autoupdate = True
-    def config_cache_overrides (self, string):
-        return (string + '''
+    config_cache_overrides = (target.AutoBuild.config_cache_overrides + '''
 ac_cv_path_PYTHON=${ac_cv_path_PYTHON=no}
 ac_cv_path_SWIG=${ac_cv_path_SWIG=no}
 ''')

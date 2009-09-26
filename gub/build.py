@@ -29,6 +29,7 @@ class Build (context.RunnableContext):
     parallel_build_broken = False
     srcdir_build_broken = False
     autodir = '%(srcdir)s'
+    config_cache_overrides = ''
     configure_binary = '%(autodir)s/configure'
     configure_flags = ' --prefix=%(configure_prefix)s'
     configure_variables = ''
@@ -375,11 +376,8 @@ class AutoBuild (Build):
         else:
             self.runner._execute (commands.AutogenMagic (self))
 
-    def config_cache_overrides (self, string):
-        return string
-
     def config_cache_settings (self):
-        return self.config_cache_overrides ('')
+        return self.config_cache_overrides
 
     def config_cache (self):
         string = self.config_cache_settings ()

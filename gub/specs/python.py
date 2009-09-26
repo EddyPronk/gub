@@ -102,6 +102,14 @@ class Python__mingw (Python):
         'python-2.4.2-setup.py-selectmodule.patch',
         'python-2.4.5-disable-pwd-mingw.patch',
         ]
+    config_cache_overrides = (Python.config_cache_overrides
+                              #FIXME: promoteme? see Gettext/Python
+                              .replace ('ac_cv_func_select=yes',
+                                        'ac_cv_func_select=no')
+                              + '''
+ac_cv_pthread_system_supported=yes,
+ac_cv_sizeof_pthread_t=12
+''')
     def __init__ (self, settings, source):
         Python.__init__ (self, settings, source)
         self.target_gcc_flags = '-DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I%(system_prefix)s/include' % self.settings.__dict__
@@ -115,16 +123,6 @@ class Python__mingw (Python):
                 ("import fcntl", ""),
                 ], "%(srcdir)s/Lib/subprocess.py",
                must_succeed=True)
-    def config_cache_overrides (self, string):
-        # Ok, I give up.  The python build system wins.  Once
-        # someone manages to get -lwsock32 on the
-        # sharedmodules link command line, *after*
-        # timesmodule.o, this can go away.
-        return (string.replace ('ac_cv_func_select=yes', 'ac_cv_func_select=no')
-                + '''
-ac_cv_pthread_system_supported=yes,
-ac_cv_sizeof_pthread_t=12
-''')
 ##$(eval echo $((echo $ac_cv_sizeof_int + $ac_cv_sizeof_void_p)))
     def install (self):
         Python.install (self)

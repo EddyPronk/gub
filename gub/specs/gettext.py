@@ -7,9 +7,7 @@ class Gettext (target.AutoBuild):
     dependencies = ['libtool']
     def LD_PRELOAD (self):
         return '' # give up
-    def config_cache_overrides (self, string):
-        return (string
-                + '''
+    config_cache_overrides = (target.AutoBuild.config_cache_overrides + '''
 ac_cv_prog_YACC=${ac_cv_prog_YACC=no}
 ac_cv_prog_INTLBISON=${ac_cv_prog_INTLBISON=no}
 ac_cv_prog_F77=${ac_cv_prog_F77=no}
@@ -37,11 +35,11 @@ class Gettext__freebsd__x86 (Gettext):
 
 class Gettext__mingw (Gettext):
     patches = ['gettext-0.15-mingw.patch']
-    def config_cache_overrides (self, string):
-        return (Gettext.config_cache_overrides (self, string)
-                + re.sub ('ac_cv_func_select=yes', 'ac_cv_func_select=no',
-                          string)
-                + '''
+    config_cache_overrides = (Gettext.config_cache_overrides
+                              #FIXME: promoteme? see Gettext/Python
+                              .replace ('ac_cv_func_select=yes',
+                                        'ac_cv_func_select=no')
+                              + '''
 # only in additional library -- do not feel like patching right now
 gl_cv_func_mbrtowc=${gl_cv_func_mbrtowc=no}
 jm_cv_func_mbrtowc=${jm_cv_func_mbrtowc=no}
@@ -61,11 +59,11 @@ class Gettext__tools (tools.AutoBuild):
 #            'system::g++',
             'libtool',
             ]
+    configure_flags = (tools.AutoBuild.configure_flags
+                + ' --disable-libasprintf')
     def configure (self):
         tools.AutoBuild.configure (self)
         self.file_sub ([
                 ('(SUBDIRS *=.*)examples', r'\1 '),
                 ],
                        '%(builddir)s/gettext-tools/Makefile')
-    configure_flags = (tools.AutoBuild.configure_flags
-                + ' --disable-libasprintf')

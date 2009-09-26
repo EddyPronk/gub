@@ -125,8 +125,7 @@ class Guile__mingw (Guile):
                 + misc.join_lines ('''
 CFLAGS='-DHAVE_CONFIG_H=1 -I%(builddir)s'
 '''))
-    def config_cache_overrides (self, string):
-        return string + '''
+    config_cache_overrides = Guile.config_cache_overrides + '''
 scm_cv_struct_timespec=${scm_cv_struct_timespec=no}
 guile_cv_func_usleep_declared=${guile_cv_func_usleep_declared=yes}
 guile_cv_exeext=${guile_cv_exeext=}
@@ -153,18 +152,15 @@ class Guile__linux (Guile):
                 + Guile.compile_command)
 
 class Guile__linux__ppc (Guile__linux):
-    def config_cache_overrides (self, string):
-        return string + '''
+    config_cache_overrides = Guile__linux.config_cache_overrides + '''
 guile_cv_have_libc_stack_end=no
 '''
 
 class Guile__freebsd (Guile):
-    def config_cache_settings (self):
-        return (Guile.config_cache_settings (self)
-                + '''
+    config_cache_overrides = Guile.config_cache_overrides + '''
 ac_cv_type_socklen_t=yes
 guile_cv_use_csqrt="no"
-''')
+'''
 
 class Guile__darwin (Guile):
     patches = Guile.patches + ['guile-1.8.6-pthreads-cross.patch']

@@ -1,6 +1,11 @@
 from gub.specs import guile
 
 class Guile (guile.Guile):
+    config_cache_overrides = guile.Guile.config_cache_overrides + '''
+guile_cv_func_usleep_declared=${guile_cv_func_usleep_declared=yes}
+guile_cv_exeext=${guile_cv_exeext=}
+libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_prefix)s/lib"}
+'''
     def category_dict (self):
         return {'': 'Interpreters'}
     # Using gub dependencies only would be nice, but
@@ -23,12 +28,6 @@ class Guile (guile.Guile):
     # FIXME: uses mixed gub/distro dependencies
     def get_build_dependencies (self): # cygwin
         return ['crypt', 'libgmp-devel', 'gettext-devel', 'libiconv', 'libtool', 'readline']
-    def config_cache_overrides (self, str):
-        return str + '''
-guile_cv_func_usleep_declared=${guile_cv_func_usleep_declared=yes}
-guile_cv_exeext=${guile_cv_exeext=}
-libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_prefix)s/lib"}
-'''
     def configure (self):
         self.file_sub ([('''^#(LIBOBJS=".*fileblocks.*)''', r'\1')],
                        '%(srcdir)s/configure')

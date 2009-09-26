@@ -6,8 +6,7 @@ class Flex (target.AutoBuild):
     def patch (self):
         target.AutoBuild.patch (self)
         self.file_sub ([('-I@includedir@', '')], '%(srcdir)s/Makefile.in')
-    def config_cache_overrides (self, string):
-        return string + '''
+    config_cache_overrides = target.AutoBuild.config_cache_overrides + '''
 ac_cv_func_realloc_0_nonnull=yes
 '''
 

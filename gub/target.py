@@ -95,8 +95,9 @@ class AutoBuild (build.AutoBuild):
         self.map_locate (fixup, '%(builddir)s', '*.la')
 
     def config_cache_settings (self):
-        return self.config_cache_overrides (config_cache.config_cache['all']
-                                            + config_cache.config_cache[self.settings.platform])
+        return (config_cache.config_cache['all']
+                + config_cache.config_cache[self.settings.platform]
+                + self.config_cache_overrides)
 
     def get_substitution_dict_native (self):
         return build.AutoBuild.get_substitution_dict

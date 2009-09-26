@@ -34,7 +34,7 @@ while --with-headers adds no new include path, it tells configure
 to *not* look in /.
 '''
 
-class Glibc (target.AutoBuild): # WTF, cross?, cross.AutoBuild):
+class Glibc (target.AutoBuild):
     source = 'http://lilypond.org/download/gub-sources/glibc-2.3-20070416.tar.bz2'
     patches = [
         'glibc-2.3-powerpc-initfini.patch',
@@ -68,6 +68,10 @@ class Glibc (target.AutoBuild): # WTF, cross?, cross.AutoBuild):
                      # append to the symlink.list file.
                      + ''' make-shlib-link='ln -sf $(<F) $@; echo $(<F) $@ >> $(common-objpfx)elf/symlink.list' ''')
     configure_command = 'BUILD_CC=gcc ' + target.AutoBuild.configure_command
+    config_cache_overrides = (target.AutoBuild.config_cache_overrides + '''
+use_default_libc_cv_slibdir=%(prefix_dir)s/slib
+libc_cv_rootsbindir=%(prefix_dir)s/sbin
+''')
     def get_conflict_dict (self):
         return {'': ['glibc-core'], 'devel': ['glibc-core'], 'doc': ['glibc-core'], 'runtime': ['glibc-core']}
     def patch (self):
@@ -79,12 +83,6 @@ class Glibc (target.AutoBuild): # WTF, cross?, cross.AutoBuild):
                            '%(srcdir)s/Makefile')
     def get_add_ons (self):
         return ('linuxthreads', 'nptl')
-    def config_cache_overrides (self, str):
-        # Use default value fol slibdir so that fallback into /lib* can be used
-        return (str + '''
-use_default_libc_cv_slibdir=%(prefix_dir)s/slib
-libc_cv_rootsbindir=%(prefix_dir)s/sbin
-''')
     @context.subst_method
     def enable_add_ons (self):
         add_ons = ''

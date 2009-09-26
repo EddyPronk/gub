@@ -12,8 +12,7 @@ class Bash__mingw (Bash):
         self.file_sub ([(r'test \$ac_cv_sys_tiocgwinsz_in_termios_h != yes',
                          r'test "$ac_cv_sys_tiocgwinsz_in_termios_h" != yes'),
                         ], '%(srcdir)s/configure')
-    def config_cache_overrides (self, string):
-        return string + '''\n
+    config_cache_overrides = Bash.config_cache_overrides + '''
 bash_cv_have_mbstate_t=yes
 '''
  

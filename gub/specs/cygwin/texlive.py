@@ -3,20 +3,7 @@ from gub import misc
 from gub.specs import texlive
 
 class Texlive (texlive.Texlive):
-    # FIXME: uses mixed gub/distro dependencies
-    def get_dependency_dict (self): #cygwin
-        d = texlive.Texlive.get_dependency_dict (self) # cygwin
-        d[''] += ['cygwin']
-#        d['devel'] += ['cygwin'] + ['bash']
-#        d['runtime'] += ['libjpeg62', 'libpng12', 't1lib', 'zlib']
-        d[''] += ['libfreetype26', 'libgd2', 'libjpeg62', 'libncurses7', 'libpng12', 't1lib', 'xorg-x11-bin-dlls', 'xaw3d', 'zlib']
-        return d
-    # FIXME: uses mixed gub/distro dependencies
-    def get_build_dependencies (self): # cygwin
-        return ['jpeg', 'libfreetype2-devel', 'libgd-devel', 'libncurses-devel', 'libpng12-devel', 'libtool', 't1lib', 'xorg-x11-devel', 'xaw3d', 'zlib']
-    def config_cache_overrides (self, str):
-        # split part to texlive.Texlive ?
-        return (str + '''
+    config_cache_overrides = texlive.Texlive.config_cache_overrides + '''
 xdvi_cv_bitmap_type=${xdvi_cv_bitmap_type='BMTYPE=int BMBYTES=4'}
 xdvi_cv_func_poll=${xdvi_cv_func_poll=yes}
 xdvi_cv_sys_streams=${xdvi_cv_sys_streams=no}
@@ -28,6 +15,17 @@ ac_cv_func_vfork_works=${ac_cv_func_vfork_works=yes}
 xdvi_cv_setsid_in_vfork=${xdvi_cv_setsid_in_vfork=yes}
 lt_cv_cc_dll_switch=${lt_cv_cc_dll_switch="-Wl,--dll -nostartfiles"}
 ''')
+    # FIXME: uses mixed gub/distro dependencies
+    def get_dependency_dict (self): #cygwin
+        d = texlive.Texlive.get_dependency_dict (self) # cygwin
+        d[''] += ['cygwin']
+#        d['devel'] += ['cygwin'] + ['bash']
+#        d['runtime'] += ['libjpeg62', 'libpng12', 't1lib', 'zlib']
+        d[''] += ['libfreetype26', 'libgd2', 'libjpeg62', 'libncurses7', 'libpng12', 't1lib', 'xorg-x11-bin-dlls', 'xaw3d', 'zlib']
+        return d
+    # FIXME: uses mixed gub/distro dependencies
+    def get_build_dependencies (self): # cygwin
+        return ['jpeg', 'libfreetype2-devel', 'libgd-devel', 'libncurses-devel', 'libpng12-devel', 'libtool', 't1lib', 'xorg-x11-devel', 'xaw3d', 'zlib']
     def patch (self):
         # FIXME: duh: cross-compile auto-enables t1lib
         for i in self.locate_files ('%(srcdir)s', 'configure'):

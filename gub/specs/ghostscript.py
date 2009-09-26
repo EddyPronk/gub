@@ -196,8 +196,7 @@ class Ghostscript__mingw (Ghostscript):
         # Configure (compile) without -mwindows for console
         # FIXME: should add to CPPFLAGS...
         self.target_gcc_flags = '-mms-bitfields -D_Windows -D__WINDOWS__'
-    def config_cache_overrides (self, s):
-        return s + '''
+    config_cache_overrides = Ghostscript.config_cache_overrides + '''
 ac_cv_lib_pthread_pthread_create=no
 '''
     def patch (self):

@@ -14,13 +14,13 @@ class Python (target.AutoBuild):
     dependencies = ['expat-devel', 'zlib-devel', 'tools::python2.5']
     force_autoupdate = True
     make_flags = ' BUILDPYTHON=python-bin '
+    configure_command = ('ac_cv_printf_zd_format=yes '
+                + target.AutoBuild.configure_command)
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         
         ## don't from gub import settings from build system.
         self.BASECFLAGS=''
-    configure_command = ('ac_cv_printf_zd_format=yes '
-                + target.AutoBuild.configure_command)
     def patch (self):
         target.AutoBuild.patch (self)
         self.file_sub ([(r"'/usr/include'",
@@ -41,6 +41,13 @@ class Python__mingw (Python):
         # 2.4.2 and combined in one patch; move to cross-Python?
         #'python-2.4.2-winsock2.patch',
         'python-2.4.2-setup.py-selectmodule.patch']
+    config_cache_overrides = (Python.config_cache_overrides
+                              .replace ('ac_cv_func_select=yes',
+                                        'ac_cv_func_select=no')
+                              + '''
+ac_cv_pthread_system_supported=yes,
+ac_cv_sizeof_pthread_t=12
+''')
     def __init__ (self, settings, source):
         Python.__init__ (self, settings, source)
         self.target_gcc_flags = '-DMS_WINDOWS -DPy_WIN_WIDE_FILENAMES -I%(system_prefix)s/include' % self.settings.__dict__
@@ -53,13 +60,6 @@ class Python__mingw (Python):
         self.file_sub ([(' Modules/pwdmodule.o ', ' ')],
                        '%(builddir)s/Makefile')
         self.system ("cp %(srcdir)s/PC/errmap.h %(builddir)s/")
-    def config_cache_overrides (self, str):
-        # Ok, I give up.  The python build system wins.  Once
-        # someone manages to get -lwsock32 on the
-        # sharedmodules link command line, *after*
-        # timesmodule.o, this can go away.
-        return re.sub ('ac_cv_func_select=yes', 'ac_cv_func_select=no',
-                       str)
     def install (self):
         Python.install (self)
         # see python.py
