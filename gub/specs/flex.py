@@ -13,9 +13,7 @@ ac_cv_func_realloc_0_nonnull=yes
 
 class Flex__mingw (Flex):
     dependencies = ['regex']
-    configure_flags = '''
-LIBS=-lregex
-'''
+    configure_variables = Flex.configure_variables + ' LIBS=-lregex'
     def patch (self):
         self.system ('''
 mkdir -p %(srcdir)s/sys
