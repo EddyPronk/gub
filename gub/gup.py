@@ -415,12 +415,17 @@ def gub_to_distro_deps (deps, gub_to_distro_dict):
     return distro
 
 def get_base_package_name (name):
+    # FIXME: rename packages, fragile
+    if [True for x in [
+            'freebsd-runtime',
+            'mingw-runtime',
+            'lilypond-doc',
+            ] if x in name]:
+        return name
+    name = re.sub ('gcc-c[+][+]-runtime', 'gcc', name)
     name = re.sub ('-devel$', '', name)
-
-    # breaks mingw dep resolution, mingw-runtime
-    ##name = re.sub ('-runtime$', '', name)
-    # breaks building of lilypond-doc package
-    ##name = re.sub ('-doc$', '', name)
+    name = re.sub ('-runtime$', '', name)
+    name = re.sub ('-doc$', '', name)
     return name
 
 # FIXME: how to assign to outer var?

@@ -43,10 +43,6 @@ class Gmp__darwin (Gmp):
 class Gmp__darwin__x86 (Gmp__darwin):
     source = 'http://ftp.gnu.org/pub/gnu/gmp/gmp-4.2.4.tar.gz'
 
-class Gmp__cygwin (Gmp):
-    source = 'http://ftp.gnu.org/pub/gnu/gmp/gmp-4.1.4.tar.gz'
-    patches = ['gmp-4.1.4-1.patch']
-
 class Gmp__mingw (Gmp):
     patches = ['gmp-4.1.4-1.patch']
     def __init__ (self, settings, source):

@@ -39,21 +39,20 @@ def package_auto_dependency_dict (package):
                          for x in package.dependencies
                          if ('system::' not in x
                              and 'tools::' not in x
-                             and 'cross/' not in x)]}
+                             and ('cross/' not in x
+                                  or 'runtime' in x))]}
             if 'runtime' in package.subpackage_names:
                 d[''] += [package.name () + '-runtime']
             if package.platform_name () not in ['system', 'tools']:
                 d['devel'] = ([x for x in package.dependencies
                                if ('system::' not in x
                                    and 'tools::' not in x
-                                   and 'cross/' not in x)]
+                                   and ('cross/' not in x
+                                        or 'runtime' in x))]
                               + [package.name ()])
             return d
         package.get_dependency_dict \
                 = misc.MethodOverrider (package.nop, get_dependency_dict)
-
-#from gub import target
-#AutoBuild = target.AutoBuild
 
 class AutoBuild (build.AutoBuild):
     configure_flags = (build.AutoBuild.configure_flags

@@ -34,7 +34,7 @@ while --with-headers adds no new include path, it tells configure
 to *not* look in /.
 '''
 
-class Glibc (target.AutoBuild, cross.AutoBuild):
+class Glibc (target.AutoBuild): # WTF, cross?, cross.AutoBuild):
     source = 'http://lilypond.org/download/gub-sources/glibc-2.3-20070416.tar.bz2'
     patches = [
         'glibc-2.3-powerpc-initfini.patch',
@@ -46,8 +46,6 @@ class Glibc (target.AutoBuild, cross.AutoBuild):
         'glibc-2.3-binutils-2.19-i386.patch',
         ]
     dependencies = ['cross/gcc', 'glibc-core', 'tools::gzip', 'tools::perl', 'linux-headers']
-    def configure_command (self):
-        return 'BUILD_CC=gcc ' + target.AutoBuild.configure_command (self)
     configure_flags = (target.AutoBuild.configure_flags + misc.join_lines ('''
 --disable-profile
 --disable-debug
@@ -69,10 +67,13 @@ class Glibc (target.AutoBuild, cross.AutoBuild):
                      # to cater for both here: make the symlink as well as
                      # append to the symlink.list file.
                      + ''' make-shlib-link='ln -sf $(<F) $@; echo $(<F) $@ >> $(common-objpfx)elf/symlink.list' ''')
+    def configure_command (self):
+        return 'BUILD_CC=gcc ' + target.AutoBuild.configure_command (self)
     def get_conflict_dict (self):
         return {'': ['glibc-core'], 'devel': ['glibc-core'], 'doc': ['glibc-core'], 'runtime': ['glibc-core']}
     def patch (self):
-        cross.AutoBuild.patch (self)
+        #cross.AutoBuild.patch (self)
+        target.AutoBuild.patch (self)
         if 'BOOTSTRAP' in os.environ.keys ():
             # running in chroot: chmod: memory exhausted...
             self.file_sub ([('chmod a-w,a\+x', 'chmod +x',)],

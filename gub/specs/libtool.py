@@ -66,22 +66,6 @@ class Libtool__darwin (Libtool):
         self.dump ("prependdir DYLD_LIBRARY_PATH=$INSTALLER_PREFIX/lib",
                    '%(install_prefix)s/etc/relocate/libtool.reloc')
 
-class Libtool__cygwin (Libtool):
-    def only_for_cygwin_untar (self):
-        cygwin.untar_cygwin_src_package_variant2 (self, self.file_name ())
-    # FIXME: we do most of this for all cygwin packages
-    def get_dependency_dict (self): #cygwin
-        d = Libtool.get_dependency_dict (self)
-        d[''].append ('cygwin')
-        return d
-    def category_dict (self):
-        return {'': 'Devel'}
-    def install (self):
-        Libtool.install (self)
-        # configure nowadays (what m4?) has hardcoded /usr and /lib for Cygwin
-        # instead of asking gcc
-        self.file_sub ([('sys_lib_search_path_spec="/usr/lib /lib/w32api /lib /usr/local/lib"', 'sys_lib_search_path_spec="%(system_prefix)s/lib %(system_prefix)s/lib/w32api %(system_prefix)s/lib %(system_prefix)s/bin"')], '%(install_prefix)s/bin/libtool')
-
 class Libtool__tools (tools.AutoBuild, Libtool):
     def __init__ (self, settings, source):
         tools.AutoBuild.__init__ (self, settings, source)

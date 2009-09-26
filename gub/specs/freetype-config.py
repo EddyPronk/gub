@@ -27,6 +27,3 @@ class Freetype_config (build.SdkBuild):
                        use_re=False)
         self.system ('find %(install_prefix)s')
         self.chmod (freetype_config, octal.o755)
-        
-class Freetype_config__cygwin (Freetype_config):
-    source = 'url://host/freetype-config-2.3.4.tar.gz'

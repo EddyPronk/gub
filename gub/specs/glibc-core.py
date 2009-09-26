@@ -9,7 +9,7 @@ class Glibc_core (glibc.Glibc):
     patches = glibc.Glibc.patches + ['glibc-2.3-core-install.patch']
     dependencies = ['cross/gcc-core', 'linux-headers']
     configure_flags = (glibc.Glibc.configure_flags
-                + misc.join_lines ('''
+                       + misc.join_lines ('''
 --without-tls
 --without-__thread
 '''))

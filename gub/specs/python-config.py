@@ -7,6 +7,3 @@ class Python_config (build.SdkBuild):
     def install (self):
         build.SdkBuild.install (self)
         misc.dump_python_config (self)
-
-class Python_config__cygwin (Python_config):
-    source = 'url://host/python-config-2.5.tar.gz'

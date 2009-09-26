@@ -3,7 +3,6 @@ import os
 from gub import build
 from gub import context
 from gub import cross
-from gub import cygwin
 from gub import loggedos
 from gub import misc
 from gub.specs import gcc
@@ -110,59 +109,3 @@ class Gcc__mingw (Gcc):
         self.map_locate (lambda logger, file: build.libtool_update_preserve_vars (logger, self.expand ('%(tools_prefix)s/bin/libtool'), vars, file), '%(builddir)s/i686-mingw32', 'libtool')
         self.map_locate (lambda logger, file: build.libtool_force_infer_tag (logger, 'CXX', file), '%(builddir)s/i686-mingw32', 'libtool')
 
-# http://gcc.gnu.org/PR24196            
-class this_works_but_has_string_exception_across_dll_bug_Gcc__cygwin (Gcc__mingw):
-    dependencies = (Gcc__mingw.dependencies
-                + ['cygwin', 'w32api-in-usr-lib'])
-    configure_flags = (Gcc__mingw.configure_flags
-                + misc.join_lines ('''
---with-newlib
---enable-threads
-'''))
-    make_flags = misc.join_lines ('''
-tooldir="%(cross_prefix)s/%(target_architecture)s"
-gcc_tooldir="%(cross_prefix)s/%(target_architecture)s"
-''')
-# Cygwin sources Gcc
-# Hmm, download is broken.  How is download of gcc-g++ supposed to work anyway?
-# wget http://mirrors.kernel.org/sourceware/cygwin/release/gcc/gcc-core/gcc-core-3.4.4-3-src.tar.bz2 
-# wget http://mirrors.kernel.org/sourceware/cygwin/release/gcc/gcc-g++/gcc-g++-3.4.4-3-src.tar.bz2
-
-# Untar stage is gone, use plain gcc + cygwin patch
-#class Gcc__cygwin (Gcc):
-class Gcc__cygwin (Gcc):
-    source = 'http://ftp.gnu.org/pub/gnu/gcc/gcc-3.4.4/gcc-3.4.4.tar.bz2'
-    patches = ['gcc-3.4.4-cygwin-3.patch']
-    dependencies = (Gcc.dependencies
-#                + ['cygwin', 'w32api-in-usr-lib', 'cross/gcc-g++'])
-                + ['cygwin', 'w32api-in-usr-lib'])
-    # We must use --with-newlib, otherwise configure fails:
-    # No support for this host/target combination.
-    # [configure-target-libstdc++-v3]
-    configure_flags = (Gcc.configure_flags
-                + misc.join_lines ('''
---with-newlib
---verbose
---enable-nls
---without-included-gettext
---enable-version-specific-runtime-libs
---without-x
---enable-libgcj
---with-system-zlib
---enable-interpreter
---disable-libgcj-debug
---enable-threads=posix
---disable-win32-registry
---enable-sjlj-exceptions
---enable-hash-synchronization
---enable-libstdcxx-debug
-'''))
-    def xuntar (self):
-        ball = self.source._file_name ()
-        cygwin.untar_cygwin_src_package_variant2 (self, ball.replace ('-core', '-g++'),
-                                                  split=True)
-        cygwin.untar_cygwin_src_package_variant2 (self, ball)
-    make_flags = misc.join_lines ('''
-tooldir="%(cross_prefix)s/%(target_architecture)s"
-gcc_tooldir="%(cross_prefix)s/%(target_architecture)s"
-''')

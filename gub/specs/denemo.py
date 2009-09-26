@@ -39,36 +39,28 @@ class Denemo (target.AutoBuild):
             self.source.is_tracking = misc.bind_method (tracking, self.source)
     subpackage_names = ['']
     dependencies = [
-            'tools::automake',
-            'tools::gettext',
-            'tools::libtool',
-            'tools::pkg-config',
-            'epdfview', # Hmm
-            'guile-devel',
-            'gtk+-devel',
-            'jack-devel',
-            'lash-devel',
-            'libaubio-devel',
-            'libgtksourceview-devel',
-            'librsvg-devel', 
-            'libxml2-devel',
-            'lilypondcairo',
-            'portaudio-devel',
-            ]
-    def get_build_dependencies (self):
-        return self.dependencies
-    def get_dependency_dict (self):
-        return {'': [x.replace ('-devel', '')
-                     for x in self.dependencies
-                     if 'tools::' not in x and 'cross/' not in x]
-                + [
-                'cross/gcc-c++-runtime',
-                ]
-                }
+        'cross/gcc-c++-runtime',
+        'tools::automake',
+        'tools::gettext',
+        'tools::libtool',
+        'tools::pkg-config',
+        'epdfview', # Hmm
+        'guile-devel',
+        'gtk+-devel',
+        'jack-devel',
+        'lash-devel',
+        'libaubio-devel',
+        'libgtksourceview-devel',
+        'librsvg-devel', 
+        'libxml2-devel',
+        'lilypondcairo',
+        'portaudio-devel',
+        ]
     configure_flags = (target.AutoBuild.configure_flags
-                + ' --enable-binreloc'
-                + ' --enable-jack'
-                + ' --program-prefix=')
+                       + ' --enable-binreloc'
+                       + ' --enable-jack'
+                       + ' --program-prefix='
+                       )
     def compile (self):
         if isinstance (self.source, repository.Git):
             # FIXME: missing dependency

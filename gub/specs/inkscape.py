@@ -7,25 +7,33 @@ class Inkscape (target.AutoBuild):
     source = 'svn:https://inkscape.svn.sourceforge.net/svnroot/inkscape&module=inkscape&branch=trunk&revision=20605'
     branch = 'trunk'
     dependencies = [
-            'tools::automake',
-            'tools::gettext',
-            'tools::intltool',
-            'tools::pkg-config',
-            'boost-devel',
-            'glibmm-devel',
-            'gtkmm-devel',
-            'gtk+-devel',
-            'gsl-devel',
-            'lcms-devel',
-            'poppler-devel',
-            'popt-devel',
-            'libgc-devel',
-            'libpng-devel',
-            'librsvg-devel',
-            'libsig++-devel',
-            'libxml2-devel',
-            'libxslt-devel',
-            ]
+        'cross/gcc-c++-runtime',
+        'tools::automake',
+        'tools::gettext',
+        'tools::intltool',
+        'tools::pkg-config',
+        'boost-devel',
+        'glibmm-devel',
+        'gtkmm-devel',
+        'gtk+-devel',
+        'gsl-devel',
+        'lcms-devel',
+        'poppler-devel',
+        'popt-devel',
+        'libgc-devel',
+        'libpng-devel',
+        'librsvg-devel',
+        'libsig++-devel',
+        'libxml2-devel',
+        'libxslt-devel',
+        ]
+    configure_flags = (target.AutoBuild.configure_flags
+                       + ' --enable-lcms'
+                       + ' --enable-binreloc=yes'
+                       )
+    configure_variables = (target.AutoBuild.configure_variables
+                           + ' CXXFLAGS=-fpermissive'
+                           )
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         build.add_dict (self,
@@ -36,21 +44,6 @@ class Inkscape (target.AutoBuild):
         self.file_sub ([('AC_PATH_PROG\(PKG_CONFIG,',
                          'AC_PATH_PROG(ARE_YOU_FREAKING_MAD__OVERRIDING_PKG_CONFIG,')],
                        '%(srcdir)s/configure.ac')
-    def get_build_dependencies (self):
-        return self.dependencies
-    def get_dependency_dict (self):
-        return {'': [x.replace ('-devel', '')
-                     for x in self.dependencies
-                     if 'tools::' not in x and 'cross/' not in x]
-                + ['cross/gcc-c++-runtime']
-                }
-    configure_flags = (target.AutoBuild.configure_flags
-                       + ' --enable-lcms'
-                       + ' --enable-binreloc=yes'
-                       )
-    configure_variables = (target.AutoBuild.configure_variables
-                           + ' CXXFLAGS=-fpermissive'
-                           )
 
 class Inkscape__mingw (Inkscape):
     patches = ['inkscape-mingw-DATADIR.h.patch']
@@ -61,11 +54,9 @@ class Inkscape__mingw (Inkscape):
 
 class Inkscape__freebsd (Inkscape):
     configure_variables = (Inkscape.configure_variables
-                + ' CFLAGS=-pthread'
-                + ' CXXFLAGS="-fpermissive -pthread"')
-    def get_dependency_dict (self):
-        return {'': (Inkscape.get_dependency_dict (self)['']
-                     + ['cross/gcc-runtime']) }
+                           + ' CFLAGS=-pthread'
+                           + ' CXXFLAGS="-fpermissive -pthread"')
+    dependencies = Inkscape.dependencies + + ['cross/gcc-runtime']
 
 class Inkscape__freebsd__x86 (Inkscape__freebsd):
     patches = ['inkscape-isfinite.patch', 'inkscape-wstring.patch',
@@ -114,6 +105,6 @@ atoll (char const *s)
 
 class Inkscape__darwin (Inkscape):
     dependencies = [x for x in Inkscape.dependencies
-                if x.replace ('-devel', '') not in [
-                'libxml2', # Included in darwin-sdk, hmm?
-                ]]
+                    if x.replace ('-devel', '') not in [
+            'libxml2', # Included in darwin-sdk, hmm?
+            ]]

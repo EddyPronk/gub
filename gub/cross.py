@@ -14,6 +14,18 @@ from gub import tools
 class AutoBuild (build.AutoBuild):
     """Package for cross compilers/linkers etc.
     """
+    configure_flags = (build.AutoBuild.configure_flags
+                       + misc.join_lines ('''
+--program-prefix=%(target_architecture)s-
+--prefix=%(cross_prefix)s
+--target=%(target_architecture)s
+--with-sysroot=%(system_root)s
+--disable-multilib
+--disable-silent-rules
+'''))
+#--with-slibdir=%(prefix_dir)s/slib
+    install_flags = ''' DESTDIR=%(install_root)s prefix=%(prefix_dir)s%(cross_dir)s install'''
+    subpackage_names = ['doc', '']
     def get_substitution_dict (self, env={}):
         dict = {
             'C_INCLUDE_PATH': '%(tools_prefix)s/include'
@@ -27,22 +39,10 @@ class AutoBuild (build.AutoBuild):
         dict.update (env)
         d = build.AutoBuild.get_substitution_dict (self, dict).copy ()
         return d
-    configure_flags = (build.AutoBuild.configure_flags
-                       + misc.join_lines ('''
---program-prefix=%(target_architecture)s-
---prefix=%(cross_prefix)s
---target=%(target_architecture)s
---with-sysroot=%(system_root)s
---disable-multilib
---disable-silent-rules
-'''))
-#--with-slibdir=%(prefix_dir)s/slib
-    install_flags = ''' DESTDIR=%(install_root)s prefix=%(prefix_dir)s%(cross_dir)s install'''
     def compile_command (self):
-        return self.compile_command_native ()
+        return '''make %(make_flags)s %(compile_flags)s'''
     def install_command (self):
         return '''make %(make_flags)s %(install_flags)s'''
-    subpackage_names = ['doc', '']
     def install_license (self):
         self.runner.harmless ('not installing license file for cross package: %(name)s' % self.get_substitution_dict ())
 

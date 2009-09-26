@@ -1,4 +1,26 @@
+from gub import target
 from gub import tools
 
+class Flex (target.AutoBuild):
+    source = 'http://surfnet.dl.sourceforge.net/sourceforge/flex/flex-2.5.35.tar.gz'
+    def patch (self):
+        target.AutoBuild.patch (self)
+        self.file_sub ([('-I@includedir@', '')], '%(srcdir)s/Makefile.in')
+    def config_cache_overrides (self, string):
+        return string + '''
+ac_cv_func_realloc_0_nonnull=yes
+'''
+
+class Flex__mingw (Flex):
+    dependencies = ['regex']
+    configure_flags = '''
+LIBS=-lregex
+'''
+    def patch (self):
+        self.system ('''
+mkdir -p %(srcdir)s/sys
+cp %(sourcefiledir)s/mingw-headers/wait.h %(srcdir)s/sys
+''')
+
 class Flex__tools (tools.AutoBuild):
-    source = 'http://surfnet.dl.sourceforge.net/sourceforge/flex/flex-2.5.33.tar.gz'
+    source = Flex.source
