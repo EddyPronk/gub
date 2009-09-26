@@ -704,11 +704,16 @@ def librestrict ():
     return list (sorted (os.environ.get ('LIBRESTRICT',
                                          'open').replace (':', ' ').split (' ')))
 
-def latest_url (url, name, raw_version_file=None):
-    if not raw_version_file:
-        raw_version_file = 'downloads/indexes/%(name)s.index' % locals ()
+def latest_url (url, name, raw_version_name=None):
+    indexdir = 'downloads/indexes'
+    if not os.path.isdir (indexdir):
+        os.makedirs (indexdir)
+    if not raw_version_name:
+        raw_version_name = os.path.join (indexdir, '%(name)s.index' % locals ())
+    raw_version_name = os.path.basename (raw_version_name)
+    raw_version_file = os.path.join (indexdir, raw_version_name)
     if not os.path.isfile (raw_version_file):
-        download_url (url, 'downloads', os.path.basename (raw_version_file))
+        download_url (url, indexdir, raw_version_name)
     s = open (raw_version_file).read ()
     inert_name = name.replace ('+', '[+]')
     m = re.findall ('(%(inert_name)s-[.0-9]+tar.gz)' % locals (), s)
