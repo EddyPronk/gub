@@ -329,9 +329,7 @@ class AutoBuild (Build):
     def configure_binary (self):
         return '%(autodir)s/configure'
 
-    @context.subst_method
-    def configure_command (self):
-        return ' sh %(configure_binary)s%(configure_flags)s%(configure_variables)s'
+    configure_command = ' sh %(configure_binary)s%(configure_flags)s%(configure_variables)s'
 
     @context.subst_method
     def compile_command (self):

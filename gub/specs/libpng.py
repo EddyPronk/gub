@@ -15,9 +15,8 @@ class Libpng (target.AutoBuild):
         self.file_sub ([('(@INSTALL.*)@PKGCONFIGDIR@',
                 r'\1${DESTDIR}@PKGCONFIGDIR@')],
                '%(srcdir)s/Makefile.am')
-    def configure_command (self):
-        return  ('LIBRESTRICT_ALLOW=/var/mail '
-                 + target.AutoBuild.configure_command (self))
+    configure_command =  ('LIBRESTRICT_ALLOW=/var/mail '
+                 + target.AutoBuild.configure_command)
     def compile_command (self):
         c = target.AutoBuild.compile_command (self)
         ## need to call twice, first one triggers spurious Automake stuff.

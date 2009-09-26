@@ -19,8 +19,7 @@ class Qtopia_core (target.AutoBuild):
         self.file_sub ([('pkg-config', '$PKG_CONFIG')],
                        '%(srcdir)s/configure')
 #unset CC CXX; bash -x %(srcdir)s/configure
-    def configure_command (self):
-        return misc.join_lines ('''
+    configure_command = misc.join_lines ('''
 unset CC CXX; bash %(srcdir)s/configure
 -prefix %(prefix_dir)s
 -bindir %(prefix_dir)s/bin

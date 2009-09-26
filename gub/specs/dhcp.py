@@ -5,8 +5,7 @@ class Dhcp (target.AutoBuild):
     source = 'http://ftp.isc.org/isc/dhcp/dhcp-3.0.7.tar.gz&strip=2'
     srcdir_build_broken = True
     subpackage_names = ['']
-    def configure_command (self):
-        return '%(srcdir)s/configure linux-2.2'
+    configure_command = '%(srcdir)s/configure linux-2.2'
         from gub import misc
     make_flags = misc.join_lines ('''
 CC=%(toolchain_prefix)sgcc

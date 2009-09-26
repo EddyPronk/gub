@@ -27,9 +27,8 @@ class Gtk_x_ (target.AutoBuild):
                 (' demos ', ' '), # actually, we'd need tools::gtk+
                 (' tests ', ' '),
                 ], '%(srcdir)s/Makefile.in')
-    def configure_command (self):
-        return (' export gio_can_sniff=yes; '
-                + target.AutoBuild.configure_command (self))
+    configure_command = (' export gio_can_sniff=yes; '
+                + target.AutoBuild.configure_command)
     def create_config_files (self, prefix='/usr'):
         gtk_module_version = '2.10.0' #FIXME!
         etc = self.expand ('%(install_root)s/%(prefix)s/etc/gtk-2.0', locals ())

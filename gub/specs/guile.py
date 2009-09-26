@@ -39,10 +39,9 @@ cc
 -I%(srcdir)s/libguile"
 '''))
     compile_flags_native = ''
-    def configure_command (self):
-        return ('GUILE_FOR_BUILD=%(tools_prefix)s/bin/guile '
-               + target.AutoBuild.configure_command (self)
-               + self.guile_configure_flags)
+    configure_command = ('GUILE_FOR_BUILD=%(tools_prefix)s/bin/guile '
+                         + target.AutoBuild.configure_command
+                         + guile_configure_flags)
     @staticmethod
     def version_from_VERSION (self):
         return self.version_from_shell_script ('GUILE-VERSION',
@@ -206,10 +205,9 @@ LD_LIBRARY_PATH=%(system_prefix)s/lib
 CFLAGS='-I%(system_prefix)s/include'
 LDFLAGS='-L%(system_prefix)s/lib %(rpath)s'
 ''')
-    def configure_command (self):
-        return ('LD_LIBRARY_PATH=%(system_prefix)s/lib:${LD_LIBRARY_PATH-/foe} '
-                + tools.AutoBuild.configure_command (self)
-                + self.guile_configure_flags)
+    configure_command = ('LD_LIBRARY_PATH=%(system_prefix)s/lib:${LD_LIBRARY_PATH-/foe} '
+                         + tools.AutoBuild.configure_command
+                         + Guile.guile_configure_flags)
     def patch (self):
         tools.AutoBuild.patch (self)
         Guile.autopatch (self)

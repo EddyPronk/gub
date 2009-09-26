@@ -109,11 +109,7 @@ ac_cv_file__usr_share_java_saxon_jar=${ac_cv_file__usr_share_java_saxon_jar=yes}
 ac_cv_db_version_minor=${ac_cv_db_version_minor=7}
 ac_cv_icu_version_minor=${ac_cv_icu_version_minor=3.81}
 '''
-    def configure_command (self):
-        return (target.AutoBuild.configure_command (self)
-                + self.openoffice_configure_flags ())
-    def openoffice_configure_flags (self):
-        return misc.join_lines ('''
+    openoffice_configure_flags = misc.join_lines ('''
 --with-vendor=\"GUB -- http://lilypond.org/gub\"
 --disable-Xaw
 --disable-access
@@ -203,7 +199,8 @@ ac_cv_icu_version_minor=${ac_cv_icu_version_minor=3.81}
 # --with-system-libwpd
 # --with-system-libwps
 # --with-system-libwpg
-
+    configure_command = (target.AutoBuild.configure_command
+                         + openoffice_configure_flags)
     def make_unpack (self):
         # FIXME: python detection is utterly broken, should use python-config
         self.system ('cd %(builddir)s && make unpack')
@@ -408,11 +405,10 @@ class OpenOffice__mingw (OpenOffice):
             self.system ('''cp -pvf $OOO_TOOLS_DIR/../../../../sal/unx*/bin/gen_makefile $OOO_TOOLS_DIR/gen_makefile''')
             self.system ('''cp -pvf $OOO_TOOLS_DIR/../../../../icc/unx*/bin/create_sRGB_profile $OOO_TOOLS_DIR/create_sRGB_profile''')
             self.system ('''cp -pvf $OOO_TOOLS_DIR/../../../../i18npool/unx*/bin/* $OOO_TOOLS_DIR''')
-    def openoffice_configure_flags (self):
-        return (OpenOffice.openoffice_configure_flags (self)
+    openoffice_configure_flags = (OpenOffice.openoffice_configure_flags
                 .replace ('--with-system-xrender-headers', '')
-                + ' --disable-xrender-link'
-                + ' --with-distro=Win32')
+                                  + ' --disable-xrender-link'
+                                  + ' --with-distro=Win32')
     def patch_upstream (self):
         self.system ('chmod -R ugo+w %(upstream_dir)s/dtrans %(upstream_dir)s/fpicker %(upstream_dir)s/dbaccess')
         OpenOffice.patch_upstream (self)
@@ -603,20 +599,19 @@ install:
 	cp -prv $(bin) $(DESTDIR)$(prefix)
 	cp -prv $(lib) $(DESTDIR)$(prefix)
 ''', '%(srcdir)s/Makefile.in', env=locals ())
-    def configure_command (self):
-        return ('x_libraries=no_x_libraries x_includes=no_x_includes '
-                + OpenOffice.configure_command (self))
-    def openoffice_configure_flags (self):
-        return (re.sub ('--with-system-[^ ]*', '',
-                        OpenOffice.openoffice_configure_flags (self))
-                .replace ('--disable-crypt-link', '--enable-crypt-link')
-                + ' --with-system-db '
-                + ' --with-system-expat '
-                + ' --with-system-icu '
-                + ' --with-system-libxml '
-                + ' --with-system-python '
-                + ' --with-system-zlib '
-                + ' --with-x=no')
+    configure_command = ('x_libraries=no_x_libraries x_includes=no_x_includes '
+                + OpenOffice.configure_command)
+    openoffice_configure_flags = (
+        re.sub ('--with-system-[^ ]*', '',
+                OpenOffice.openoffice_configure_flags)
+        .replace ('--disable-crypt-link', '--enable-crypt-link')
+        + ' --with-system-db '
+        + ' --with-system-expat '
+        + ' --with-system-icu '
+        + ' --with-system-libxml '
+        + ' --with-system-python '
+        + ' --with-system-zlib '
+        + ' --with-x=no')
     def configure (self):
         self.shadow_tree ('%(srcdir)s', '%(builddir)s', soft=True)
         tools.AutoBuild.configure (self)

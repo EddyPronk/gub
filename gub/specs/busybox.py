@@ -9,8 +9,7 @@ class Busybox (target.AutoBuild):
     source = 'http://busybox.net/downloads/busybox-1.5.1.tar.bz2'
     srcdir_build_broken = True
     subpackage_names = ['']
-    def configure_command (self):
-        return 'make -f %(srcdir)s/Makefile defconfig'
+    configure_command = 'make -f %(srcdir)s/Makefile defconfig'
     @context.subst_method
     def autoconf_h (self):
         return 'autoconf.h'

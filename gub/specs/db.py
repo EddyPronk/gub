@@ -10,8 +10,7 @@ class Db (target.AutoBuild):
         return '%(builddir)s/build_unix/config.cache'
 #    def autodir (self):
 #        return '%(srcdir)s/dist'
-    def configure_command (self):
-        return 'cd build_unix && ' + target.AutoBuild.configure_command (self)
+    configure_command = 'cd build_unix && ' + target.AutoBuild.configure_command
     def configure_binary (self):
         return '%(builddir)s/dist/configure'
     make_flags = '-C build_unix'
@@ -73,8 +72,7 @@ LDFLAGS=-lwsock32
 class Db__tools (tools.AutoBuild, Db):
     srcdir_build_broken = True
     dependencies = ['libtool']
-    def configure_command (self):
-        return 'cd build_unix && ' + tools.AutoBuild.configure_command (self)
+    configure_command = 'cd build_unix && ' + tools.AutoBuild.configure_command
     def configure (self):
         self.system ('mkdir -p %(builddir)s/build_unix')
         tools.AutoBuild.configure (self)

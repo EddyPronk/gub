@@ -31,7 +31,7 @@ class AutoBuild (build.AutoBuild):
             self.configure_variables += ' SHELL=%(tools_prefix)s/bin/sh'
     @context.subst_method
     def configure_command_native (self):
-        return build.AutoBuild.configure_command (self)
+        return build.AutoBuild.configure_command
     @context.subst_method
     def LD_PRELOAD (self):
         return '%(tools_prefix)s/lib/librestrict.so'
@@ -204,8 +204,7 @@ class WafBuild (AutoBuild):
         return [s.replace ('autoupdate', 'shadow') for s in AutoBuild.stages (self)]
     def configure_binary (self):
         return '%(autodir)s/waf'
-    def configure_command (self):
-        return '%(configure_binary)s configure --prefix=%(install_prefix)s'
+    configure_command = '%(configure_binary)s configure --prefix=%(install_prefix)s'
     def compile_command (self):
         return '%(configure_binary)s build'
     def install_command (self):

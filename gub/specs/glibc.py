@@ -67,8 +67,7 @@ class Glibc (target.AutoBuild): # WTF, cross?, cross.AutoBuild):
                      # to cater for both here: make the symlink as well as
                      # append to the symlink.list file.
                      + ''' make-shlib-link='ln -sf $(<F) $@; echo $(<F) $@ >> $(common-objpfx)elf/symlink.list' ''')
-    def configure_command (self):
-        return 'BUILD_CC=gcc ' + target.AutoBuild.configure_command (self)
+    configure_command = 'BUILD_CC=gcc ' + target.AutoBuild.configure_command
     def get_conflict_dict (self):
         return {'': ['glibc-core'], 'devel': ['glibc-core'], 'doc': ['glibc-core'], 'runtime': ['glibc-core']}
     def patch (self):

@@ -23,11 +23,9 @@ class Libtool (target.AutoBuild):
         Libtool.set_sover (self)
         if isinstance (self.source, repository.Git):
             self.dependencies += ['tools::libtool', 'tools::automake']
-    def configure_command (self):
         if 'stat' in misc.librestrict ():
-            return ('CONFIG_SHELL=%(tools_prefix)s/bin/sh '
-                    + target.AutoBuild.configure_command (self))
-        return target.AutoBuild.configure_command (self)
+            self.configure_command = ('CONFIG_SHELL=%(tools_prefix)s/bin/sh '
+                                      + target.AutoBuild.configure_command)
     def autoupdate (self):
         # automagic works, but takes forever
         if isinstance (self.source, repository.Git):

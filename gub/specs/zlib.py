@@ -18,8 +18,7 @@ class Zlib (target.AutoBuild):
         stripped_platform = re.sub ('-.*', '', stripped_platform)
         stripped_platform = stripped_platform.replace ('darwin', 'Darwin')
         return 'SHAREDTARGET=libz.so.1.2.3 target=' + stripped_platform
-    def configure_command (self):
-        return '%(zlib_target)s %(srcdir)s/configure --shared '
+    configure_command = '%(zlib_target)s %(srcdir)s/configure --shared '
     def license_files (self):
         return ['%(sourcefiledir)s/zlib.license']
 
@@ -30,15 +29,13 @@ class Zlib_plain__mingw (Zlib):
                         ('mgwz','libz'),
                         ],
                        '%(srcdir)s/configure')
-    def configure_command (self):
-        return '%(zlib_target)s %(srcdir)s/configure --shared '
+    configure_command = '%(zlib_target)s %(srcdir)s/configure --shared '
     def zlib_target (self):
         return 'target=mingw'
 
 class Zlib_minizip__mingw (Zlib_plain__mingw):
-    def configure_command (self):
-        return (''' CFLAGS='-I. -O3' '''
-                + Zlib_plain__mingw.configure_command (self))
+    configure_command = (''' CFLAGS='-I. -O3' '''
+                + Zlib_plain__mingw.configure_command)
     def patch_include_minizip (self):
         self.file_sub ([('(inffast.o)$', r'\1 ioapi.o iowin32.o mztools.o unzip.o zip.o\nVPATH= contrib/minizip\n')],
                    '%(srcdir)s/Makefile.in')

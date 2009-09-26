@@ -32,10 +32,9 @@ class Xerces_c (target.AutoBuild):
         for i in list (self.compile_dict.keys ()):
             s += ' ' + i + '="' + self.compile_dict[i] + '"'
         self.make_flags = s
-    def configure_command (self):
-        return (self.make_flags
-                + ' '
-                + target.AutoBuild.configure_command (self))
+        self.configure_command = (self.make_flags
+                                  + ' '
+                                  + target.AutoBuild.configure_command)
     def configure (self):
         self.shadow ()
         self.config_cache ()

@@ -140,9 +140,8 @@ packages.'''
 --without-xdvipdfmx
 --without-xetex
 ''')
-    def configure_command (self):
-        return ('export TEXMFMAIN=%(srcdir)s/texmf;'
-                target.AutoBuild.configure_command (self))
+    configure_command = ('export TEXMFMAIN=%(srcdir)s/texmf;'
+                target.AutoBuild.configure_command)
     configure_flags = (target.AutoBuild.configure_flags
                        + '%(common_configure_flags)s'
                        + misc.join_lines ('''
