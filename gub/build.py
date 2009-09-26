@@ -55,6 +55,10 @@ tooldir=%(install_prefix)s
     compile_command = 'make %(job_spec)s %(make_flags)s %(compile_flags)s'
     compile_command_native = 'make %(job_spec)s %(make_flags)s %(compile_flags)s'
     install_command = 'make %(make_flags)s %(install_flags_destdir_broken)s %(install_flags)s'
+    license_files = ['%(srcdir)s/COPYING',
+                     '%(srcdir)s/COPYING.LIB',
+                     '%(srcdir)s/LICENSE',
+                     '%(srcdir)s/LICENCE',]
 
     def __init__ (self, settings, source):
         context.RunnableContext.__init__ (self, settings)
@@ -257,12 +261,6 @@ class AutoBuild (Build):
     def source_checksum (self):
         return self.source.checksum ()
 
-    def license_files (self):
-        return ['%(srcdir)s/COPYING',
-                '%(srcdir)s/COPYING.LIB',
-                '%(srcdir)s/LICENSE',
-                '%(srcdir)s/LICENCE',]
-
     @context.subst_method
     def basename (self):
         return misc.ball_basename (self.file_name ())
@@ -458,7 +456,7 @@ cp %(file)s %(install_root)s/license/%(name)s
 ''', locals ())
                     loggedos.system (logger, cmd)
                     return
-        self.func (install, list (map (self.expand, self.license_files ())))
+        self.func (install, list (map (self.expand, self.license_files)))
 
     def libtool_installed_la_fixups (self):
         def installed_la_fixup (logger, la):

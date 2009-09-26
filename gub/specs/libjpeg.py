@@ -23,8 +23,7 @@ class Libjpeg (target.AutoBuild):
 cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh %(target_architecture)s'''
               , locals ())
         target.AutoBuild.update_libtool (self)
-    def license_files (self):
-        return ['%(sourcefiledir)s/jpeg.license']
+    license_files = ['%(sourcefiledir)s/jpeg.license']
     def configure (self):
         self.update_config_guess_config_sub ()
         target.AutoBuild.configure (self)

@@ -158,8 +158,7 @@ packages.'''
 rsync -v -a %(srcdir)s/texmf %(install_prefix)s/share/
 rsync -v -a %(srcdir)s/texmf-dist %(install_prefix)s/share/ || :
 ''')
-    def license_files (self):
-        return ['%(srcdir)s/LICENSE.TL']
+    license_files = ['%(srcdir)s/LICENSE.TL']
     # FIXME: shared for all vc packages
     def srcdir (self):
         return '%(allsrcdir)s/%(name)s-%(version)s'

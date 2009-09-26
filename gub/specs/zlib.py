@@ -19,8 +19,7 @@ class Zlib (target.AutoBuild):
         stripped_platform = stripped_platform.replace ('darwin', 'Darwin')
         return 'SHAREDTARGET=libz.so.1.2.3 target=' + stripped_platform
     configure_command = '%(zlib_target)s %(srcdir)s/configure --shared '
-    def license_files (self):
-        return ['%(sourcefiledir)s/zlib.license']
+    license_files = ['%(sourcefiledir)s/zlib.license']
 
 class Zlib_plain__mingw (Zlib):
     def patch (self):

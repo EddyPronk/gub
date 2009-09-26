@@ -19,8 +19,7 @@ tools, and many other products as well.'''
         # build.append_dict (self, {'LIBRESTRICT_ALLOW': '/sbin:/usr/sbin:/hurd'})
         if 'stat' in misc.librestrict ():
             build.add_dict (self, {'LIBRESTRICT_ALLOW': '/sbin:/usr/sbin:/hurd:${LIBRESTRICT_ALLOW-/foo}'})
-    def license_files (self):
-        return ['%(srcdir)s/docs/LICENSE.TXT']
+    license_files = ['%(srcdir)s/docs/LICENSE.TXT']
     dependencies = ['libtool-devel', 'zlib-devel', 'tools::autoconf']
     subpackage_names = ['devel', '']
     def configure (self):
@@ -60,8 +59,7 @@ class Freetype__tools (tools.AutoBuild, Freetype):
     dependencies = ['libtool', 'zlib']
     configure_variables = misc.double_quote (tools.AutoBuild.configure_variables)
     # FIXME, mi-urg?
-    def license_files (self):
-        return Freetype.license_files (self)
+    license_files = Freetype.license_files
     def install (self):
         tools.AutoBuild.install (self)
         #self.munge_ft_config ('%(install_root)s/%(tools_prefix)s/bin/.freetype-config')

@@ -14,6 +14,5 @@ install: all
 \tinstall -m 644 getopt.h $(DESTDIR)/$(includedir)/
 ''',
              '%(srcdir)s/Makefile', mode='a')
-    def license_files (self):
         ## is (L)GPL, but doesn't distribute license file.
-        return ['']
+    license_files = ['']

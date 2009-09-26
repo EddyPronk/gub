@@ -53,8 +53,7 @@ class Boost (target.BjamBuild_v2):
                 + ' -sNO_BZIP2=1'
                 + ' -sNO_ZLIB=1'
                 + ' --with-'.join ([''] + boost_modules))
-    def license_files (self):
-        return ['%(srcdir)s/LICENSE_1_0.txt']
+    license_files = ['%(srcdir)s/LICENSE_1_0.txt']
     def install (self):
         target.BjamBuild_v2.install (self)
         # Bjam `installs' header files by using symlinks to the source dir?
@@ -138,8 +137,7 @@ class Boost_v1 (BjamBuild_v1):
         # the separately available boost-jam is terribly broken wrt
         # building boost: build included bjam
         self.system ('cd %(builddir)s/tools/build/jam_src && CC=gcc sh build.sh gcc && mv bin.*/bjam %(builddir)s')
-    def license_files (self):
-        return ['%(srcdir)s/LICENSE_1_0.txt']
+    license_files = ['%(srcdir)s/LICENSE_1_0.txt']
     boost_modules = [
             'date_time',
             'filesystem',

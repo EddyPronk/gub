@@ -12,8 +12,7 @@ class Ncurses (target.AutoBuild):
                 + ' --without-normal'
                 + ' --with-shared'
                 )
-    def license_files (self):
-        return ['%(srcdir)s/README']
+    license_files = ['%(srcdir)s/README']
 
 class Ncurses__tools (tools.AutoBuild, Ncurses):
     patches = Ncurses.patches
@@ -28,5 +27,4 @@ class Ncurses__tools (tools.AutoBuild, Ncurses):
             'gawk',
             ]
     make_flags = 'SCRIPT_SHELL=/bin/bash'
-    def license_files (self):
-        return ['%(srcdir)s/README']
+    license_files = ['%(srcdir)s/README']

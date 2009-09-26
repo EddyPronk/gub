@@ -62,8 +62,7 @@ unset CC CXX; bash %(srcdir)s/configure
         self.map_locate (dosub, self.expand ('%(install_root)s'), 'Makefile')
     install_command = (target.AutoBuild.install_command
                 + ' INSTALL_ROOT=%(install_root)s')
-    def license_files (self):
-        return ['%(srcdir)s/LICENSE.GPL']
+    license_files = ['%(srcdir)s/LICENSE.GPL']
     def install (self):
         target.AutoBuild.install (self)
         self.system ('mkdir -p %(install_prefix)s/lib/pkgconfig')

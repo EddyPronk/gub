@@ -44,5 +44,4 @@ rm -rf %(install_prefix)s/man
 rm -rf %(install_prefix)s/pkginfo
 rm -rf %(install_prefix)s/config_template
 ''')
-    def license_files (self):
-        return '%(srcdir)s/README'
+    license_files = '%(srcdir)s/README'

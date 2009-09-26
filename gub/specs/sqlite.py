@@ -14,8 +14,7 @@ Sqlite has no license, it is in the public domain.
 See http://www.sqlite.org/copyright.html .
 ''',
             '%(srcdir)s/PUBLIC-DOMAIN')
-    def license_files (self):
-        return ['%(srcdir)s/PUBLIC-DOMAIN']
+    license_files = ['%(srcdir)s/PUBLIC-DOMAIN']
 
 class Sqlite__mingw (Sqlite):
     configure_flags = ('config_TARGET_EXEEXT=.exe '

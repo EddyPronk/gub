@@ -20,7 +20,6 @@ INSTALL_PROGRAM=%(srcdir)s/install-sh
         self.file_sub ([('--nostdinc',' '),
                 (r'rc\.res:', r'rc.res.o:')],
                "%(srcdir)s/Make.rules.in")
-    def license_files (self):
-        return ['']
+    license_files = ['']
 
 Lilypad = LilyPad

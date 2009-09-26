@@ -4,8 +4,7 @@ from gub import target
 class Tcltk (target.AutoBuild):
     source = 'http://lilypond.org/download/gub-sources/tcltk-8.4.14.tar.gz'
     parallel_build_broken = True
-    def license_files (self):
-        return ['%(srcdir)s/tcl/license.terms']
+    license_files = ['%(srcdir)s/tcl/license.terms']
     def configure (self):
         self.system ('''cd %(srcdir)s/tcl &&  ./unix/configure --prefix=%(install_prefix)s
 cd %(srcdir)s/tk/ && ./unix/configure --prefix=%(install_prefix)s
