@@ -19,16 +19,14 @@ class Make_make__tools (tools.AutoBuild):
     dependencies = ['librestrict']
 
 class Make_build_sh__tools (Make_make__tools):
-    def compile_command (self):
-        return 'sh build.sh'
+    compile_command = 'sh build.sh'
     def install_command (self):
         return ('mkdir -p %(install_prefix)s/bin'
                 ' && cp -p make %(install_prefix)s/bin')
 
 class Make_build_sh_newmake__tools (Make_make__tools):
-    def compile_command (self):
-        return ('sh build.sh && PATH=$(pwd):$PATH '
-                + Make_make__tools.compile_command (self))
+    compile_command = ('sh build.sh && PATH=$(pwd):$PATH '
+                + Make_make__tools.compile_command)
     def install_command (self):
         return 'PATH=$(pwd):$PATH ' + Make_make__tools.install_command (self)
 

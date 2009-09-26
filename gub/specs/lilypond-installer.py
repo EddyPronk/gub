@@ -13,15 +13,14 @@ from gub.specs import lilypond
 class LilyPond_installer (lilypond.LilyPond_base):
     dependencies = [self.settings.target_platform + '::lilypond']
     def compile (self):
-        self.system (self.compile_command ())
-    def compile_command (self):
+        self.system (self.compile_command)
         # FIXME: ugh, no branches anymore in self.settings.branches['guile'],
         # let's hope/assume the user did not override guile source or branch...
         dir = os.path.join (self.settings.downloads, 'guile')
         guile_branch = repository.get_repository_proxy (dir, guile.Guile.source, guile.Guile.branch).full_branch_name ()
         #guile_branch = guile.Guile (self.settings, guile.Guile.source).source.full_branch_name ()
         lilypond_branch = self.source.full_branch_name ()
-        return (sys.executable
+    compile_command = (sys.executable
                 + misc.join_lines ('''
 bin/gib
 --platform=%%(target_platform)s

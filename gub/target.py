@@ -189,14 +189,13 @@ class SConsBuild (AutoBuild):
     scons_flags = ''
     def stages (self):
         return [s for s in AutoBuild.stages (self) if s not in ['autoupdate', 'configure']]
-    def compile_command (self):
         # SCons barfs on trailing / on directory names
-        return ('scons PREFIX=%(system_prefix)s'
+    compile_command = ('scons PREFIX=%(system_prefix)s'
                 ' PREFIX_DEST=%(install_root)s'
                 ' %(compile_flags)s'
                 ' %(scons_flags)s')
     def install_command (self):
-        return self.compile_command () + ' %(install_flags)s'
+        return self.compile_command + ' %(install_flags)s'
 
 class WafBuild (AutoBuild):
     def stages (self):
@@ -205,8 +204,7 @@ class WafBuild (AutoBuild):
     def configure_binary (self):
         return '%(autodir)s/waf'
     configure_command = '%(configure_binary)s configure --prefix=%(install_prefix)s'
-    def compile_command (self):
-        return '%(configure_binary)s build'
+    compile_command = '%(configure_binary)s build'
     def install_command (self):
         return '%(configure_binary)s install'
 
@@ -229,8 +227,7 @@ using gcc : %(gcc_version)s : %(system_prefix)s%(cross_dir)s/bin/%(CXX)s ;
 ''',
                    '%(srcdir)s/tools/build/v2/user-config.jam',
                    env=locals ())
-    def compile_command (self):
-        return misc.join_lines ('''
+    compile_command = misc.join_lines ('''
 bjam
 -q
 --layout=system
@@ -250,7 +247,7 @@ threading=multi
 release
 ''')
     def install_command (self):
-        return (self.compile_command ()
+        return (self.compile_command
                 + ' install').replace ('=%(prefix_dir)s', '=%(install_prefix)s')
 
 class NullBuild (AutoBuild):

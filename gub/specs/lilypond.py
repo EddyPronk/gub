@@ -256,10 +256,9 @@ GS_LIB=%(system_prefix)s/share/ghostscript/*/lib
 MALLOC_CHECK_=2
 LD_LIBRARY_PATH=%(tools_prefix)s/lib:%(system_prefix)s/lib:${LD_LIBRARY_PATH-/foe}
 ''')
-    def compile_command (self):
-        return ('%(doc_limits)s '
+    compile_command = ('%(doc_limits)s '
                 '&& %(doc_relocation)s '
-                + target.AutoBuild.compile_command (self))
+                + target.AutoBuild.compile_command)
     def install_command (self):
         return ('%(doc_limits)s '
                 '&& %(doc_relocation)s '

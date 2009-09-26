@@ -1,3 +1,4 @@
+from gub import context
 from gub import tools
 from gub import misc
 
@@ -41,6 +42,7 @@ class Librestrict_make__tools (tools.MakeBuild):
         return ''
 
 class Librestrict_nomake__tools (Librestrict_make__tools):
+    @context.subst_method
     def compile_command (self):
         # URG, must *not* have U __stack_chk_fail@@GLIBC_2.4
         # because glibc-[core-]2.3 will not install with LD_PRELOAD

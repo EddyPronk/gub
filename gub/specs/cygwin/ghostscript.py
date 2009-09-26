@@ -84,7 +84,7 @@ cd %(builddir)s && %(configure_command_x11)s
         self.makefile_fixup ('%(builddir)s/Makefile-x11')
     @context.subst_method
     def compile_command_x11 (self):
-        return ghostscript.Ghostscript.compile_command (self) + ' -f Makefile-x11 GS=gs-x11.exe'
+        return ghostscript.Ghostscript.compile_command + ' -f Makefile-x11 GS=gs-x11.exe'
     def compile_x11 (self):
         self.system ('''
 cd %(builddir)s && rm -f obj/*.tr

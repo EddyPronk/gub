@@ -18,6 +18,10 @@ SKIPUTILS="NSIS Menu"
         if 'x86_64-linux' in self.settings.build_architecture:
             self.dependencies += ['linux-x86::glibc']
             cross.change_target_package_x86 (self, self.add_mingw_env ())
+        if 'stat' in misc.librestrict ():
+            self.compile_command = ('LIBRESTRICT_IGNORE=%(tools_prefix)s/bin/python '
+                               + tools.SConsBuild.compile_command)
+        return tools.SConsBuild.compile_command
     def add_mingw_env (self):
         # Do not use 'root', 'usr', 'cross', rather use from settings,
         # that enables changing system root, prefix, etc.
@@ -47,11 +51,6 @@ defenv['CFLAGS'] = ''
 Export('defenv')
 ''')],
                        '%(srcdir)s/SConstruct')
-    def compile_command (self):
-        if 'stat' in misc.librestrict ():
-            return ('LIBRESTRICT_IGNORE=%(tools_prefix)s/bin/python '
-                    + tools.SConsBuild.compile_command (self))
-        return tools.SConsBuild.compile_command (self)
     # this method is overwritten for x86-64_linux
     def build_environment (self):
         return self.add_mingw_env ()

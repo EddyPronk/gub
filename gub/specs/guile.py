@@ -75,9 +75,8 @@ exec %(tools_prefix)s/bin/guile "$@"
             self.file_sub ([('guile-readline', '')], '%(srcdir)s/Makefile.in')
         self.dump ('', '%(srcdir)s/doc/ref/version.texi')
         self.dump ('', '%(srcdir)s/doc/tutorial/version.texi')
-    def compile_command (self):
-        return ('preinstguile=%(tools_prefix)s/bin/guile '
-                + target.AutoBuild.compile_command (self))
+    compile_command = ('preinstguile=%(tools_prefix)s/bin/guile '
+                + target.AutoBuild.compile_command)
     def compile (self):
         ## Ugh: broken dependencies break parallel build with make -jX
         self.system ('cd %(builddir)s/libguile && make %(compile_flags_native)s gen-scmconfig guile_filter_doc_snarfage')
@@ -150,9 +149,8 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_prefix)s/lib"}
         self.system ('''mv %(install_prefix)s/lib/lib*[0-9].la %(install_prefix)s/bin''')
 
 class Guile__linux (Guile):
-    def compile_command (self):
-        return ('export LD_LIBRARY_PATH=%(builddir)s/libguile/.libs:$LD_LIBRARY_PATH;'
-                + Guile.compile_command (self))
+    compile_command = ('export LD_LIBRARY_PATH=%(builddir)s/libguile/.libs:$LD_LIBRARY_PATH;'
+                + Guile.compile_command)
 
 class Guile__linux__ppc (Guile__linux):
     def config_cache_overrides (self, string):
@@ -213,11 +211,10 @@ LDFLAGS='-L%(system_prefix)s/lib %(rpath)s'
         Guile.autopatch (self)
         # FIXME: when configuring, guile runs binaries linked against
         # libltdl.
-    def compile_command (self):
         # FIXME: when not x-building, guile runs gen_scmconfig, guile without
         # setting the proper LD_LIBRARY_PATH.
-        return ('export LD_LIBRARY_PATH=%(builddir)s/libguile/.libs:%(system_prefix)s/lib:${LD_LIBRARY_PATH-/foe};'
-                + Guile.compile_command (self))
+    compile_command = ('export LD_LIBRARY_PATH=%(builddir)s/libguile/.libs:%(system_prefix)s/lib:${LD_LIBRARY_PATH-/foe};'
+                + Guile.compile_command)
     def install (self):
         tools.AutoBuild.install (self)
         # Ugh: remove development stuff from tools

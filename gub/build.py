@@ -331,9 +331,7 @@ class AutoBuild (Build):
 
     configure_command = ' sh %(configure_binary)s%(configure_flags)s%(configure_variables)s'
 
-    @context.subst_method
-    def compile_command (self):
-        return 'make %(job_spec)s %(make_flags)s %(compile_flags)s'
+    compile_command = 'make %(job_spec)s %(make_flags)s %(compile_flags)s'
 
     @context.subst_method
     def compile_command_native (self):

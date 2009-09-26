@@ -148,8 +148,7 @@ class MakeBuild (AutoBuild):
 class ShBuild (AutoBuild):
     def stages (self):
         return [s.replace ('configure', 'shadow') for s in AutoBuild.stages (self) if s not in ['autoupdate']]
-    def compile_command (self):
-        return 'bash build.sh %(make_flags)s %(compile_flags)s'
+    compile_command = 'bash build.sh %(make_flags)s %(compile_flags)s'
     def install_command (self):
         print ('Override me.')
         assert False
@@ -166,21 +165,19 @@ class SConsBuild (AutoBuild):
     scons_flags = ''
     def stages (self):
         return [s for s in AutoBuild.stages (self) if s not in ['autoupdate', 'configure']]
-    def compile_command (self):
         # SCons barfs on trailing / on directory names
-        return ('scons PREFIX=%(system_prefix)s'
+    compile_command = ('scons PREFIX=%(system_prefix)s'
                 ' PREFIX_DEST=%(install_root)s'
                 ' %(compile_flags)s'
                 ' %(scons_flags)s')
     def install_command (self):
-        return self.compile_command () + ' %(install_flags)s'
+        return self.compile_command + ' %(install_flags)s'
 
 class BjamBuild_v2 (MakeBuild):
     dependencies = ['boost-jam']
     def patch (self):
         MakeBuild.patch (self)
-    def compile_command (self):
-        return misc.join_lines ('''
+    compile_command = misc.join_lines ('''
 bjam
 -q
 --layout=system
@@ -199,7 +196,7 @@ threading=multi
 release
 ''')
     def install_command (self):
-        return (self.compile_command ()
+        return (self.compile_command
                 + ' install').replace ('=%(system_prefix)s', '=%(install_prefix)s')
 
 class NullBuild (AutoBuild):
