@@ -130,20 +130,18 @@ on the state of the file system.  For example:
 * junk arbitrary SdkBuild class, handle any build dependencies
   through [module.py].build_dependencies.
 
-* use of member functions vs class variables/static functions:
+* DONE use of member functions vs class variables/static functions 
 *** done - get_build_dependencies () -> class.dependencies = []
 *** done - def force_sequential_build () -> class.parallel_build_broken
 *** done - force_autoupdate () -> class.force_autoupdate = True
 *** done - configure_variables, configure_flags
-   + TODO: configure_env_variables
+?   + TODO: configure_env_variables
 *** done make_flags
 *** done compile_flags
 *** done install_flags
-** also, why are these functions ?
-***   - def configure_command () -> class.configure_command
-***   - def compile_command () -> class.compile_command
-***   - def install_command () -> class.install_command
-**** CHECKME: --> we need to construct this from instance functions?
+*** done def configure_command () -> class.configure_command
+*** done def compile_command () -> class.compile_command
+*** done def install_command () -> class.install_command
 *** done get_subpackage_names () -> subpackage_names
      etc
 
