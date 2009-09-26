@@ -65,13 +65,15 @@ def url_get_latest (url):
     name, version_tuple, format = misc.split_ball (url)
     url_dir = url[:url.rfind ('/')+1]
     if 'lilypond-' in url:
-        printf ('lilypond-url:', url)
+        #sys.stderr.write ('lilypond-url: %(url)s\n' % locals ())
         from gub.specs import lilypond
         return lilypond.url ()
-    elif '/gnome/PLATFORM/' in url:
-        printf( 'gnome-platform-url:', url)
+    elif '/GNOME/platform/' in url:
+        #sys.stderr.write ('gnome-platform-url: %(url)s\n' % locals ())
         from gub import gnome
-        return gnome.platform_url ()
+        latest = gnome.platform_url (name)
+        if latest:
+            return latest
     return misc.latest_url (url_dir, name)
 
 def do_spec (file_name, options):
@@ -86,7 +88,8 @@ def do_spec (file_name, options):
     elif latest != url:
         if options.replace:
             printf ('%(file_name)s: updating to: %(latest)s' % locals ())
-            misc.file_sub ([(url, latest)], file_name)
+            inert_url = url.replace ('+', '[+]')
+            misc.file_sub ([(inert_url, latest)], file_name, must_succeed=True)
         else:
             printf ('%(file_name)s: new ball: %(latest)s' % locals ())
 

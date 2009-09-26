@@ -5,7 +5,7 @@ from gub import target
 from gub import tools
 
 class Libxml2 (target.AutoBuild):
-    source = gnome.platform_url ('libxml2', '2.18.1')
+    source = 'http://ftp.gnome.org/pub/GNOME/platform/2.18/2.18.1/sources/libxml2-2.6.27.tar.gz'
     dependencies = ['zlib']
     configure_flags = (target.AutoBuild.configure_flags
                 + misc.join_lines ('''

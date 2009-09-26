@@ -3,7 +3,7 @@ from gub import target
 from gub.specs import pango
 
 class Pangocairo (pango.Pango):
-    source = gnome.platform_url ('pango')
+    source = 'http://ftp.gnome.org/pub/GNOME/platform/2.26/2.26.3/sources/pango-1.24.4.tar.gz'
     dependencies = pango.Pango.dependencies + ['cairo-devel']
     def get_conflict_dict (self):
         return {'': ['pango', 'pango-devel', 'pango-doc'], 'devel': ['pango', 'pango-devel', 'pango-doc'], 'doc': ['pango', 'pango-devel', 'pango-doc'], 'runtime': ['pango', 'pango-devel', 'pango-doc']}

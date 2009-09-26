@@ -13,7 +13,7 @@ pango_module_version_regexes = [
     ]
 
 class Pango (target.AutoBuild):
-    source = gnome.platform_url ('pango')
+    source = 'http://ftp.gnome.org/pub/GNOME/platform/2.26/2.26.3/sources/pango-1.24.4.tar.gz'
     patches = ['pango-1.20-substitute-env.patch']
     dependencies = [
             'tools::glib', 

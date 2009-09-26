@@ -3,8 +3,7 @@ from gub import gnome
 from gub import target
 
 class Gtk_x_ (target.AutoBuild):
-    #source = 'http://ftp.gnome.org/pub/GNOME/sources/gtk+/2.15/gtk+-2.15.3.tar.gz'
-    source = gnome.platform_url ('gtk+')
+    source = 'http://ftp.gnome.org/pub/GNOME/platform/2.26/2.26.3/sources/gtk+-2.16.4.tar.gz'
     patches = ['gtk+-2.15.3-substitute-env.patch']
     dependencies = ['libtool',
                 'atk-devel',
