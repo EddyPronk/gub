@@ -56,7 +56,7 @@ class Inkscape__freebsd (Inkscape):
     configure_variables = (Inkscape.configure_variables
                            + ' CFLAGS=-pthread'
                            + ' CXXFLAGS="-fpermissive -pthread"')
-    dependencies = Inkscape.dependencies + + ['cross/gcc-runtime']
+    dependencies = Inkscape.dependencies + ['cross/gcc-runtime']
 
 class Inkscape__freebsd__x86 (Inkscape__freebsd):
     patches = ['inkscape-isfinite.patch', 'inkscape-wstring.patch',
