@@ -182,8 +182,7 @@ class PythonBuild (AutoBuild):
         return [s for s in AutoBuild.stages (self) if s not in ['autoupdate', 'configure']]
     def compile (self):
         self.system ('mkdir -p %(builddir)s')
-    def install_command (self):
-        return 'python %(srcdir)s/setup.py install --prefix=%(tools_prefix)s --root=%(install_root)s'
+    install_command = 'python %(srcdir)s/setup.py install --prefix=%(tools_prefix)s --root=%(install_root)s'
 
 class SConsBuild (AutoBuild):
     scons_flags = ''
@@ -194,8 +193,7 @@ class SConsBuild (AutoBuild):
                 ' PREFIX_DEST=%(install_root)s'
                 ' %(compile_flags)s'
                 ' %(scons_flags)s')
-    def install_command (self):
-        return self.compile_command + ' %(install_flags)s'
+    install_command = compile_command + ' %(install_flags)s'
 
 class WafBuild (AutoBuild):
     def stages (self):
@@ -205,8 +203,7 @@ class WafBuild (AutoBuild):
         return '%(autodir)s/waf'
     configure_command = '%(configure_binary)s configure --prefix=%(install_prefix)s'
     compile_command = '%(configure_binary)s build'
-    def install_command (self):
-        return '%(configure_binary)s install'
+    install_command = '%(configure_binary)s install'
 
 class BjamBuild_v2 (MakeBuild):
     dependencies = ['tools::boost-jam']
@@ -246,9 +243,9 @@ runtime-link=shared
 threading=multi
 release
 ''')
-    def install_command (self):
-        return (self.compile_command
-                + ' install').replace ('=%(prefix_dir)s', '=%(install_prefix)s')
+    install_command = (compile_command
+                       .replace ('=%(prefix_dir)s', '=%(install_prefix)s')
+                       + ' install')
 
 class NullBuild (AutoBuild):
     def stages (self):

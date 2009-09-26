@@ -9,9 +9,8 @@ class LilyPond_test (lilypond.LilyPond_base):
     def test_ball (self):
         return '%(uploads)s/lilypond-%(version)s-HEAD.test-output.tar.bz2'
     compile_flags = lilypond.LilyPond_base.compile_flags + ' test'
-    def install_command (self):
-        #return (lilypond.LilyPond_base.install_command (self)
-        return 'true'
+        #return (lilypond.LilyPond_base.install_command
+    install_command = 'true'
     def install (self):
         target.AutoBuild.install (self) 
         self.system ('''

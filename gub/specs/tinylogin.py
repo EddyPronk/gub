@@ -7,5 +7,4 @@ class Tinylogin (target.MakeBuild):
         fakeroot_cache = self.builddir () + '/fakeroot.cache'
         self.fakeroot (self.expand (self.settings.fakeroot, locals ()))
         target.AutoBuild.install (self)
-    def install_command (self):
-        return 'fakeroot make install %(compile_flags)s'
+    install_command = 'fakeroot make install %(compile_flags)s'

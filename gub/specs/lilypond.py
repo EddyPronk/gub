@@ -259,10 +259,9 @@ LD_LIBRARY_PATH=%(tools_prefix)s/lib:%(system_prefix)s/lib:${LD_LIBRARY_PATH-/fo
     compile_command = ('%(doc_limits)s '
                 '&& %(doc_relocation)s '
                 + target.AutoBuild.compile_command)
-    def install_command (self):
-        return ('%(doc_limits)s '
+    install_command = ('%(doc_limits)s '
                 '&& %(doc_relocation)s '
-                + target.AutoBuild.install_command (self))
+                + target.AutoBuild.install_command)
 
 Lilypond_base = LilyPond_base
 

@@ -49,12 +49,17 @@ prefix=%(install_prefix)s
 sysconfdir=%(install_prefix)s/etc
 tooldir=%(install_prefix)s
 ''')
+    configure_command = ' sh %(configure_binary)s%(configure_flags)s%(configure_variables)s'
+    compile_command = 'make %(job_spec)s %(make_flags)s %(compile_flags)s'
+    install_command = 'make %(make_flags)s %(install_flags_destdir_broken)s %(install_flags)s'
 
     def __init__ (self, settings, source):
         context.RunnableContext.__init__ (self, settings)
         self.source = source
         self.settings = settings
         self.source.connect_logger (logging.default_logger)
+        if self.destdir_install_broken:
+            self.install_command = 'make %(make_flags)s %(install_flags)s '
 
     def connect_command_runner (self, runner):
         if runner:
@@ -329,19 +334,9 @@ class AutoBuild (Build):
     def configure_binary (self):
         return '%(autodir)s/configure'
 
-    configure_command = ' sh %(configure_binary)s%(configure_flags)s%(configure_variables)s'
-
-    compile_command = 'make %(job_spec)s %(make_flags)s %(compile_flags)s'
-
     @context.subst_method
     def compile_command_native (self):
         return 'make %(job_spec)s %(make_flags)s %(compile_flags)s'
-
-    @context.subst_method
-    def install_command (self):
-        if self.destdir_install_broken:
-            return '''make %(make_flags)s %(install_flags_destdir_broken)s %(install_flags)s'''
-        return '''make %(make_flags)s %(install_flags)s '''
 
     def aclocal_path (self):
         return [

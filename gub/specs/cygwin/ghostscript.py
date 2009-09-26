@@ -92,7 +92,7 @@ cd %(builddir)s && %(compile_command_x11)s
 ''')
     @context.subst_method
     def install_command_x11 (self):
-        return (ghostscript.Ghostscript.install_command (self)
+        return (ghostscript.Ghostscript.install_command
                 .replace (' install ', ' install-exec ')
                 + ' -f Makefile-x11 GS=gs-x11.exe prefix=/usr/X11R6')
     def install_x11 (self):

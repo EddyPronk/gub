@@ -20,6 +20,7 @@ class Configure (build.Build):
     configure_command = ''
     install_prefix = ''
     install_root = ''
+    job_spec = ''
     def __init__ (self, settings, source):
         build.Build.__init__ (self, settings, source)
         self._name, self._version = (self._created_name + '-').split ('-')[:2]

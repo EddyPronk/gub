@@ -28,6 +28,5 @@ CC=%(toolchain_prefix)sgcc CFLAGS=-fPIC %(srcdir)s/configure
 --disable-debug
 --disable-opts
 ''')
-    def install_command (self):
-        return (target.AutoBuild.install_command (self)
+    install_command = (target.AutoBuild.install_command
                 + ' INSTALLSTRIP=')

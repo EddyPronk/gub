@@ -60,8 +60,7 @@ unset CC CXX; bash %(srcdir)s/configure
                                [('-I/usr', self.expand ('-I%(system_prefix)s'))],
                                fname)
         self.map_locate (dosub, self.expand ('%(install_root)s'), 'Makefile')
-    def install_command (self):
-        return (target.AutoBuild.install_command (self)
+    install_command = (target.AutoBuild.install_command
                 + ' INSTALL_ROOT=%(install_root)s')
     def license_files (self):
         return ['%(srcdir)s/LICENSE.GPL']

@@ -64,8 +64,7 @@ class Librestrict_nomake__tools (Librestrict_make__tools):
                         + '\n')
         command += b + 'mv librestrict-all.so librestrict.so'
         return command
-    def install_command (self):
-        return (misc.join_lines ('''
+    install_command = (misc.join_lines ('''
 mkdir -p %(install_prefix)s/lib
 && cp -p librestrict*.so %(install_prefix)s/lib
 '''))

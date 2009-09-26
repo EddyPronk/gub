@@ -124,9 +124,9 @@ bjam
 --includedir=%(prefix_dir)s/include
 --verbose
 ''')
-    def install_command (self):
-        return (self.compile_command
-                + ' install').replace ('=%(prefix_dir)s', '=%(install_prefix)s')
+    install_command = (compile_command
+                       .replace ('=%(prefix_dir)s', '=%(install_prefix)s')
+                       + ' install')
 
 class Boost_v1 (BjamBuild_v1):
     source = 'http://surfnet.dl.sourceforge.net/sourceforge/boost/boost_1_33_1.tar.bz2'

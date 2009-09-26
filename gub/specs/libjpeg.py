@@ -34,8 +34,7 @@ cd %(builddir)s && %(srcdir)s/ltconfig --srcdir %(srcdir)s %(srcdir)s/ltmain.sh 
             r'\1 $(DESTDIR)\2'),
             ],
             '%(builddir)s/Makefile')
-    def install_command (self):
-        return misc.join_lines ('''
+    install_command = misc.join_lines ('''
 mkdir -p %(install_prefix)s/include %(install_prefix)s/lib
 && make DESTDIR=%(install_root)s install-headers install-lib
 ''')
@@ -76,8 +75,7 @@ class Libjpeg__tools (tools.AutoBuild, Libjpeg):
                  r'\1 $(DESTDIR)\2'),
                 ],
             '%(builddir)s/Makefile')
-    def install_command (self):
-        return misc.join_lines ('''
+    install_command = misc.join_lines ('''
 mkdir -p %(install_prefix)s/bin %(install_prefix)s/include %(install_prefix)s/lib 
 && make DESTDIR=%(install_root)s install-headers install-lib
 ''')

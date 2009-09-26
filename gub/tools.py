@@ -1,4 +1,5 @@
 import os
+import sys
 #
 from gub import build
 from gub import context
@@ -149,17 +150,14 @@ class ShBuild (AutoBuild):
     def stages (self):
         return [s.replace ('configure', 'shadow') for s in AutoBuild.stages (self) if s not in ['autoupdate']]
     compile_command = 'bash build.sh %(make_flags)s %(compile_flags)s'
-    def install_command (self):
-        print ('Override me.')
-        assert False
+    install_command = '%%%override-me'
 
 class PythonBuild (AutoBuild):
     def stages (self):
         return [s for s in AutoBuild.stages (self) if s not in ['autoupdate', 'configure']]
     def compile (self):
         self.system ('mkdir -p %(builddir)s')
-    def install_command (self):
-        return 'python %(srcdir)s/setup.py install --prefix=%(tools_prefix)s --root=%(install_root)s'
+    install_command = sys.executable + ' %(srcdir)s/setup.py install --prefix=%(tools_prefix)s --root=%(install_root)s'
 
 class SConsBuild (AutoBuild):
     scons_flags = ''
@@ -170,8 +168,7 @@ class SConsBuild (AutoBuild):
                 ' PREFIX_DEST=%(install_root)s'
                 ' %(compile_flags)s'
                 ' %(scons_flags)s')
-    def install_command (self):
-        return self.compile_command + ' %(install_flags)s'
+    install_command = compile_command + ' %(install_flags)s'
 
 class BjamBuild_v2 (MakeBuild):
     dependencies = ['boost-jam']
@@ -195,9 +192,9 @@ runtime-link=shared
 threading=multi
 release
 ''')
-    def install_command (self):
-        return (self.compile_command
-                + ' install').replace ('=%(system_prefix)s', '=%(install_prefix)s')
+    install_command = (compile_command
+                       .replace ('=%(system_prefix)s', '=%(install_prefix)s')
+                       + ' install')
 
 class NullBuild (AutoBuild):
     def stages (self):

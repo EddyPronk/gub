@@ -28,8 +28,7 @@ bin/gib
 --branch=lilypond=%(lilypond_branch)s
 lilypond
 ''' % locals ()))
-    def install_command (self):
-        return 'true'
+    install_command = 'true'
 
 class LilyPond_installer__mingw (LilyPond_installer):
     dependencies = (LilyPond_installer.dependencies

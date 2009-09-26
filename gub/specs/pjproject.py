@@ -10,6 +10,5 @@ class Pjproject (target.AutoBuild):
                 + ' --disable-sound')
     def configure_binary (self):
         return './aconfigure'
-    def install_command (self):
-        return (target.AutoBuild.install_command (self)
+    install_command = (target.AutoBuild.install_command
                 + ' prefix=%(prefix_dir)s')

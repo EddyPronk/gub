@@ -19,9 +19,8 @@ simplicity, extensibility, and language-independence.
     def configure (self):
         self.shadow_tree ('%(srcdir)s/src', '%(builddir)s')
     subpackage_names = ['']
-    def install_command (self):
         from gub import misc
-        return misc.join_lines ('''
+    install_command = misc.join_lines ('''
 mkdir -p %(install_prefix)s/bin %(install_prefix)s/lib %(install_prefix)s/share/man/man1 %(install_prefix)s/share/tex/inputs
 && make %(compile_flags)s DESTDIR=%(install_root)s install
 ''')

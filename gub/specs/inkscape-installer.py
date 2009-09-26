@@ -30,5 +30,4 @@ bin/gib
 --branch=inkscape=%(inkscape_branch)s
 lilypond
 '''), locals ())
-    def install_command (self):
-        return 'true'
+    install_command = 'true'

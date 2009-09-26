@@ -33,13 +33,14 @@ class Python (target.AutoBuild):
         ]
     dependencies = ['db-devel', 'expat-devel', 'zlib-devel', 'tools::python']
     force_autoupdate = True
+    subpackage_names = ['doc', 'devel', 'runtime', '']
 
     def __init__ (self, settings, source):
         target.AutoBuild.__init__ (self, settings, source)
         self.CROSS_ROOT = '%(targetdir)s'
-
-    subpackage_names = ['doc', 'devel', 'runtime', '']
-
+        if 'stat' in misc.librestrict ():
+            self.install_command = ('LIBRESTRICT_ALLOW=/usr/lib/python2.4/lib-dynload:${LIBRESTRICT_ALLOW-/foo} '
+                + target.AutoBuild.install_command)
 
     def patch (self):
         target.AutoBuild.patch (self)
@@ -54,12 +55,6 @@ class Python (target.AutoBuild):
     make_flags = misc.join_lines (r'''
 BLDLIBRARY='%(rpath)s -L. -lpython$(VERSION)'
 ''')
-    def install_command (self):
-        relax = ''
-        if 'stat' in misc.librestrict ():
-            relax = 'LIBRESTRICT_ALLOW=/usr/lib/python2.4/lib-dynload:${LIBRESTRICT_ALLOW-/foo} '
-        return (relax
-                + target.AutoBuild.install_command (self))
     def install (self):
         target.AutoBuild.install (self)
         misc.dump_python_config (self)
@@ -158,12 +153,11 @@ class Python__tools (tools.AutoBuild, Python):
     dependencies = ['autoconf', 'libtool']
     force_autoupdate = True
     make_flags = Python.make_flags
-    def install_command (self):
-        relax = ''
+    def __init__ (self, settings, source):
+        Python.__init__ (self, settings, source)
         if 'stat' in misc.librestrict ():
-            relax = 'LIBRESTRICT_ALLOW=/usr/lib/python2.4/lib-dynload:${LIBRESTRICT_ALLOW-/foo} '
-        return (relax
-                + tools.AutoBuild.install_command (self))
+            self.install_command = ('LIBRESTRICT_ALLOW=/usr/lib/python2.4/lib-dynload:${LIBRESTRICT_ALLOW-/foo} '
+                                    + tools.AutoBuild.install_command)
     def patch (self):
         tools.AutoBuild.patch (self)
         Python.patch (self)

@@ -9,12 +9,11 @@ class Sysvinit (target.MakeBuild):
         fakeroot_cache = self.builddir () + '/fakeroot.cache'
         self.fakeroot (self.expand (self.settings.fakeroot, locals ()))
         target.AutoBuild.install (self)
-    def install_command (self):
         from gub import misc
         # FIXME: cannot do these as self.system () in install () as
         # install will rm -rf %(install_root)s as first command
         # install_clean/install_install?
-        return misc.join_lines ('''
+    install_command = misc.join_lines ('''
 mkdir -p %(install_root)s/bin &&
 mkdir -p %(install_root)s/sbin &&
 mkdir -p %(install_prefix)s/bin &&

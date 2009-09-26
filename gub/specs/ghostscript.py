@@ -169,8 +169,7 @@ cd %(builddir)s && make CC=cc CCAUX=cc C_INCLUDE_PATH= CFLAGS= CPPFLAGS= GCFLAGS
         self.fixup_arch ()
         target.AutoBuild.compile (self)
 
-    def install_command (self):
-        return (target.AutoBuild.install_command (self)
+    install_command = (target.AutoBuild.install_command
                 + ' install_prefix=%(install_root)s'
                 + ' mandir=%(prefix_dir)s/share/man/ '
                 + ' docdir=%(prefix_dir)s/share/doc/ghostscript/doc '
@@ -248,8 +247,7 @@ cd %(builddir)s && sort -u gconfig_-native.h gconfig_-tools.h > obj/gconfig_.h
 ''')
 #        self.fixup_arch ()
         tools.AutoBuild.compile (self)
-    def install_command (self):
-        return (tools.AutoBuild.install_command (self)
+    install_command = (tools.AutoBuild.install_command
                 + ' install_prefix=%(install_root)s'
                 + ' mandir=%(prefix_dir)s/share/man/ '
                 + ' docdir=%(prefix_dir)s/share/doc/ghostscript/doc '

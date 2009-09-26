@@ -20,14 +20,12 @@ class Make_make__tools (tools.AutoBuild):
 
 class Make_build_sh__tools (Make_make__tools):
     compile_command = 'sh build.sh'
-    def install_command (self):
-        return ('mkdir -p %(install_prefix)s/bin'
+    install_command = ('mkdir -p %(install_prefix)s/bin'
                 ' && cp -p make %(install_prefix)s/bin')
 
 class Make_build_sh_newmake__tools (Make_make__tools):
     compile_command = ('sh build.sh && PATH=$(pwd):$PATH '
                 + Make_make__tools.compile_command)
-    def install_command (self):
-        return 'PATH=$(pwd):$PATH ' + Make_make__tools.install_command (self)
+    install_command = 'PATH=$(pwd):$PATH ' + Make_make__tools.install_command
 
 Make__tools = Make_build_sh_newmake__tools

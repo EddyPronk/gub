@@ -6,6 +6,5 @@ class E2fsprogs (target.AutoBuild):
     source = 'http://surfnet.dl.sourceforge.net/sourceforge/e2fsprogs/e2fsprogs-1.38.tar.gz'
     configure_flags = (target.AutoBuild.configure_flags
                        + '  --enable-elf-shlibs')
-    def install_command (self):
-        return (target.AutoBuild.install_command (self)
+    install_command = (target.AutoBuild.install_command
                 + ' install-libs')
