@@ -7,7 +7,7 @@ class Db (target.AutoBuild):
     srcdir_build_broken = True
     dependencies = ['tools::libtool']
     autodir = '%(srcdir)s/dist'
-    cache_file = '%(builddir)s/build_unix/config.cache'
+    config_cache_file = '%(builddir)s/build_unix/config.cache'
     configure_command = 'cd build_unix && ' + target.AutoBuild.configure_command
     configure_binary = '%(builddir)s/dist/configure'
     make_flags = '-C build_unix'
