@@ -25,7 +25,7 @@ class LilyPond (target.AutoBuild):
                     'python-devel',
                     'urw-fonts',
                     'tools::autoconf',
-#                    'flex',
+                    'flex',
                     'tools::flex',
                     'tools::bison',
                     'tools::texinfo',
@@ -38,6 +38,7 @@ class LilyPond (target.AutoBuild):
                     #'system::mf', 
                     #'system::mpost', 
                     ]
+    configure_binary = '%(srcdir)s/smart-configure.sh'
     configure_flags = (target.AutoBuild.configure_flags
                        + ' --enable-relocation'
                        + ' --enable-rpath'
@@ -67,11 +68,6 @@ class LilyPond (target.AutoBuild):
         return {'': ['lilypondcairo']}
     def autoupdate (self):
         self.system ('cd %(srcdir)s && ./smart-autogen.sh --noconfigure') 
-    configure_binary = '%(srcdir)s/smart-configure.sh'
-    def configure (self):
-        self.system ('mkdir -p %(builddir)s || true')
-        self.system ('cp %(tools_prefix)s/include/FlexLexer.h %(builddir)s/')
-        target.AutoBuild.configure (self)
     def build_version (self):
         v = self.source.version ()
         self.runner.info ('LILYPOND-VERSION: %(v)s\n' % locals ())
