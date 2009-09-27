@@ -56,7 +56,7 @@ tooldir=%(install_prefix)s
     configure_command = ' sh %(configure_binary)s%(configure_flags)s%(configure_variables)s'
     compile_command = 'make %(job_spec)s %(make_flags)s %(compile_flags)s'
     compile_command_native = 'make %(job_spec)s %(make_flags)s %(compile_flags)s'
-    install_command = 'make %(make_flags)s %(install_flags_destdir_broken)s %(install_flags)s'
+    install_command = 'make %(make_flags)s %(install_flags)s '
     license_files = ['%(srcdir)s/COPYING',
                      '%(srcdir)s/COPYING.LIB',
                      '%(srcdir)s/LICENSE',
@@ -68,7 +68,7 @@ tooldir=%(install_prefix)s
         self.settings = settings
         self.source.connect_logger (logging.default_logger)
         if self.destdir_install_broken:
-            self.install_command = 'make %(make_flags)s %(install_flags)s '
+            self.install_command = 'make %(make_flags)s %(install_flags_destdir_broken)s %(install_flags)s'
 
     def connect_command_runner (self, runner):
         if runner:
@@ -380,7 +380,7 @@ class AutoBuild (Build):
         string = self.config_cache_settings ()
         if string:
             self.system ('mkdir -p %(builddir)s || true')
-            self.dump (string, self.cache_file, permissions=octal.o755)
+            self.dump (string, self.config_cache_file, permissions=octal.o755)
 
     def configure (self):
         if self.srcdir_build_broken:
