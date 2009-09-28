@@ -45,6 +45,8 @@ def checksum_diff (a, b, fromfile='', tofile='',
                                             fromfiledate,
                                             tofiledate))
 
+logger = logging.default_logger
+
 # FIXME s/spec/build/, but we also have two definitions of package/pkg
 # here: sub packages and name of global package under build
 
@@ -222,11 +224,12 @@ class BuildRunner:
         if ((not checksum_fail_reason or self.options.lax_checksums)
             and not spec.install_after_build):
             return
-        if False and self.options.log == 'build':
+        global logger
+        if self.options.log == 'build':
             # This is expecially broken with multi-platform builds...
             logger = logging.default_logger
         else:
-            if False and self.options.log == 'platform':
+            if self.options.log == 'platform':
                 log = os.path.join (spec.settings.logdir, 'build.log')
             else:
                 log = os.path.join (spec.settings.logdir,
@@ -266,7 +269,6 @@ class BuildRunner:
                 if os.path.isfile (checksum_file):
                     misc.rename_append_time (checksum_file)
                 open (checksum_file, 'w').write (self.checksums[spec_name])
-            #spec.set_done ('')
             loggedos.system (logging.default_logger, spec.expand ('rm -f %(stamp_file)s'))
         # Ugh, pkg_install should be stage
         if spec.install_after_build and not self.spec_all_installed (spec):
