@@ -176,13 +176,6 @@ class LilyPond__debian (LilyPond):
         from gub import debian, gup
         return {'': gup.gub_to_distro_deps (LilyPond.get_dependency_dict (self)[''],
                                             debian.gub_to_distro_dict)}
-    def compile (self):
-        # Because of relocation script, python must be built before scripts
-        self.system ('''
-cd %(builddir)s && make -C python %(make_flags)s
-cd %(builddir)s && make -C scripts %(make_flags)s
-''')
-        LilyPond.compile (self)
     def install (self):
         target.AutoBuild.install (self)
     def get_build_dependencies (self): # debian

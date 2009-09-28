@@ -85,14 +85,7 @@ class LilyPond (lilypond.LilyPond):
     python_lib = '%(system_prefix)s/bin/libpython*.dll'
     LDFLAGS = '-L%(system_prefix)s/lib -L%(system_prefix)s/bin -L%(system_prefix)s/lib/w32api'
     make_flags = (lilypond.LilyPond.make_flags
-                     + ' LDFLAGS="%(LDFLAGS)s %(python_lib)s"')
-    def compile (self):
-        # Because of relocation script, python must be built before scripts
-        self.system ('''
-cd %(builddir)s && make -C python %(compile_flags)s
-cd %(builddir)s && make -C scripts %(compile_flags)s
-cp -pv %(system_prefix)s/share/gettext/gettext.h %(system_prefix)s/include''')
-        lilypond.LilyPond.compile (self)
+                  + ' LDFLAGS="%(LDFLAGS)s %(python_lib)s"')
     def install (self):
         ##lilypond.LilyPond.install (self)
         target.AutoBuild.install (self)
