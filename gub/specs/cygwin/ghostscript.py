@@ -9,8 +9,8 @@ url='http://mirror3.cs.wisc.edu/pub/mirrors/ghost/GPL/gs850/ghostscript-8.50-gpl
 
 #8250
 class Ghostscript (ghostscript.Ghostscript):
-    patches = ['ghostscript-8.15-windows-wb.patch',
-               'ghostscript-8.57-cygwin-esp.patch']
+    patches = ['ghostscript-8.65-windows-wb.patch',
+               'ghostscript-8.65-cygwin-esp.patch']
     def __init__ (self, settings, source):
         ghostscript.Ghostscript.__init__ (self, settings, source)
         self.fonts_source = repository.get_repository_proxy (self.settings.downloads, 'http://mirror2.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/ghostscript-fonts-std-8.11.tar.gz')
@@ -34,21 +34,11 @@ cd %(srcdir)s && cp Makefile.in Makefile-x11.in
     def category_dict (self):
         return {'': 'Graphics'}
     def get_build_dependencies (self): #cygwin
-        return ['jpeg', 'libpng12-devel', 'libXext-devel', 'libXt-devel', 'libX11-devel', 'zlib']
+        return ['libjpeg-devel', 'libpng12-devel', 'libXext-devel', 'libXt-devel', 'libX11-devel', 'zlib-devel']
     def get_dependency_dict (self): #cygwin
-        return {'': [
-                # REMOVE after first cygwin release.
-                'ghostscript-base',
-                'libjpeg62', 'libpng12', 'zlib'],
+        return {'': ['libjpeg62', 'libpng12', 'zlib'],
                 'x11': ['ghostscript', 'xorg-x11-base']}
-    subpackage_names = ['doc', 'x11', '',
-                # REMOVE after first cygwin release.
-                'base']
-    # REMOVE after first cygwin release.
-    def get_subpackage_definitions (self):
-        d = ghostscript.Ghostscript.get_subpackage_definitions (self)
-        d['base'] = []
-        return d
+    subpackage_names = ['doc', 'x11', '']
     configure_flags = (ghostscript.Ghostscript.configure_flags
                 .replace (' --with-drivers=FILES', ' --with-drivers=ALL'))
     def compile (self):
