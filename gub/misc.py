@@ -123,7 +123,8 @@ def version_from_configure (configure, default_version='0.0.0'):
 
 def version_from_configure_in (configure_in, name, default_version='0.0.0'):
     try:
-        m = re.search (r'AM_INIT_AUTOMAKE\(%(name)s, ([0-9.]+)\)' % locals (),
+        #m = re.search (r'AM_INIT_AUTOMAKE\(%(name)s, ([0-9.]+)\)' % locals (),
+        m = re.search (r'AM_INIT_AUTOMAKE\([^,]+, ([0-9.]+)\)',
                        configure_in)
         if m:
             return m.group (1)
