@@ -374,8 +374,11 @@ def exception_string (exception=Exception ('no message')):
 class SystemFailed (Exception):
     pass
 
-def file_mod_time (path):
-    return os.stat (path)[stat.ST_MTIME]
+def file_mod_time (file_name):
+    return os.stat (file_name)[stat.ST_MTIME]
+
+def file_mod_time_str (file_name):
+    return time.ctime (file_mod_time (file_name))
 
 def binary_strip_p (filter_out=[], extension_filter_out=[]):
     def predicate (file):
