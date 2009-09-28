@@ -23,5 +23,8 @@ cp %(sourcefiledir)s/mingw-headers/wait.h %(srcdir)s/sys
 ''')
         Flex.configure (self)
 
+class Flex__darwin__ppc (Flex):
+    patches = ['flex-2.5.35-iostream-inside-extern-c++.patch']
+
 class Flex__tools (tools.AutoBuild):
     source = Flex.source
