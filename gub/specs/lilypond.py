@@ -16,6 +16,7 @@ class LilyPond (target.AutoBuild):
     parallel_build_broken = True
     subpackage_names = ['']
     dependencies = ['cross/gcc-c++-runtime',
+                    'flex',
                     'fontconfig-devel',
                     'freetype-devel',
                     'gettext-devel',
@@ -25,7 +26,6 @@ class LilyPond (target.AutoBuild):
                     'python-devel',
                     'urw-fonts',
                     'tools::autoconf',
-                    'flex',
                     'tools::flex',
                     'tools::bison',
                     'tools::texinfo',
@@ -35,8 +35,8 @@ class LilyPond (target.AutoBuild):
                     'tools::t1utils',
                     'tools::texi2html',
                     #'tools::texlive',
-                    #'system::mf', 
-                    #'system::mpost', 
+                    'system::mf', 
+                    'system::mpost', 
                     ]
     configure_binary = '%(srcdir)s/smart-configure.sh'
     configure_flags = (target.AutoBuild.configure_flags
