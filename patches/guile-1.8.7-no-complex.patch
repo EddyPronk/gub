@@ -1,0 +1,29 @@
+--- guile-1.8.7/libguile/numbers.c~	2009-09-28 14:29:22.000000000 +0200
++++ guile-1.8.7/libguile/numbers.c	2009-09-28 14:38:43.000000000 +0200
+@@ -6028,7 +6028,7 @@ scm_is_number (SCM z)
+   return scm_is_true (scm_number_p (z));
+ }
+ 
+-#if !HAVE_CLOG
++#if !HAVE_CLOG && defined (HAVE_COMPLEX_DOUBLE)
+ complex double clog (complex double z);
+ complex double
+ clog (complex double z)
+@@ -6037,7 +6037,7 @@ clog (complex double z)
+ }
+ #endif
+ 
+-#if !HAVE_CEXP
++#if !HAVE_CEXP && defined (HAVE_COMPLEX_DOUBLE)
+ complex double cexp (complex double z);
+ complex double
+ cexp (complex double z)
+@@ -6046,7 +6046,7 @@ cexp (complex double z)
+ }
+ #endif
+ 
+-#if !HAVE_CARG
++#if !HAVE_CARG && defined (HAVE_COMPLEX_DOUBLE)
+ double carg (complex double z);
+ double
+ carg (complex double z)

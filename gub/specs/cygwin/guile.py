@@ -1,11 +1,18 @@
+from gub import misc
 from gub.specs import guile
 
 class Guile (guile.Guile):
+    patches = guile.Guile.patches + ['guile-1.8.7-no-complex.patch']
     config_cache_overrides = guile.Guile.config_cache_overrides + '''
 guile_cv_func_usleep_declared=${guile_cv_func_usleep_declared=yes}
 guile_cv_exeext=${guile_cv_exeext=}
 libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_prefix)s/lib"}
 '''
+    configure_variables = (guile.Guile.configure_variables
+                + misc.join_lines ('''
+CFLAGS='-DHAVE_CONFIG_H=1 -I%(builddir)s'
+'''))
+    EXE = '.exe'
     def category_dict (self):
         return {'': 'Interpreters'}
     # Using gub dependencies only would be nice, but
@@ -27,22 +34,15 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_prefix)s/lib"}
         return d
     # FIXME: uses mixed gub/distro dependencies
     def get_build_dependencies (self): # cygwin
-        return ['crypt', 'libgmp-devel', 'gettext-devel', 'libiconv', 'libtool', 'readline']
+        return ['tools::guile', 'crypt', 'libgmp-devel', 'gettext-devel', 'libiconv', 'libtool', 'readline']
     def configure (self):
         self.file_sub ([('''^#(LIBOBJS=".*fileblocks.*)''', r'\1')],
                        '%(srcdir)s/configure')
         guile.Guile.configure (self)
-        if 0:  # should be fixed in w32.py already
-            self.file_sub ([
-                    ('^(allow_undefined_flag=.*)unsupported', r'\1')],
-                           '%(builddir)s/libtool')
-            self.file_sub ([
-                    ('^(allow_undefined_flag=.*)unsupported', r'\1')],
-                           '%(builddir)s/guile-readline/libtool')
     # C&P from guile.Guile__mingw
     def compile (self):
         ## Why the !?#@$ is .EXE only for guile_filter_doc_snarfage?
-        self.system ('''cd %(builddir)s/libguile && make %(compile_flags_native)sCFLAGS='-DHAVE_CONFIG_H=1 -I%(builddir)s' gen-scmconfig guile_filter_doc_snarfage.exe''')
+        self.system ('''cd %(builddir)s/libguile &&make %(compile_flags_native)sgen-scmconfig guile_filter_doc_snarfage.exe''')
         self.system ('cd %(builddir)s/libguile && cp guile_filter_doc_snarfage.exe guile_filter_doc_snarfage')
         guile.Guile.compile (self)
     def description_dict (self):

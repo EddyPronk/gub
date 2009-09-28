@@ -202,15 +202,15 @@ LDFLAGS='-L%(system_prefix)s/lib %(rpath)s'
     configure_command = ('LD_LIBRARY_PATH=%(system_prefix)s/lib:${LD_LIBRARY_PATH-/foe} '
                          + tools.AutoBuild.configure_command
                          + Guile.guile_configure_flags)
+    # FIXME: when configuring, guile runs binaries linked against
+    # libltdl.
+    # FIXME: when not x-building, guile runs gen_scmconfig, guile without
+    # setting the proper LD_LIBRARY_PATH.
+    compile_command = ('export LD_LIBRARY_PATH=%(builddir)s/libguile/.libs:%(system_prefix)s/lib:${LD_LIBRARY_PATH-/foe};'
+                + Guile.compile_command)
     def patch (self):
         tools.AutoBuild.patch (self)
         Guile.autopatch (self)
-        # FIXME: when configuring, guile runs binaries linked against
-        # libltdl.
-        # FIXME: when not x-building, guile runs gen_scmconfig, guile without
-        # setting the proper LD_LIBRARY_PATH.
-    compile_command = ('export LD_LIBRARY_PATH=%(builddir)s/libguile/.libs:%(system_prefix)s/lib:${LD_LIBRARY_PATH-/foe};'
-                + Guile.compile_command)
     def install (self):
         tools.AutoBuild.install (self)
         # Ugh: remove development stuff from tools
