@@ -276,7 +276,7 @@ category: %(local_category)s%(requires_line)s%(external_source_line)s
         self.system ('''
 rm -rf %(dir)s
 mkdir -p %(dir)s
-tar -C %(dir)s%(_v)s -zxf %(ball)s''', e)
+cd %(dir)s && tar -C %(dir)s%(_v)s -zxf %(ball)s''', e)
 
     def _tar (self, dir, ball, content, env={}):
         ball_dir = os.path.dirname (ball)
@@ -352,11 +352,11 @@ def parse_command_line ():
                   action='append',
                   help='set branch for package')
 
-    p.add_option ('-v', '--verbose', action='count', dest='verbose', default=1)
+    p.add_option ('-v', '--verbose', action='count', dest='verbosity', default=1)
     p.add_option ('-q', '--quiet', action='count', dest='quiet', default=0)
 
     (options, args) = p.parse_args ()
-    options.verbose -= options.quiet
+    options.verbosity -= options.quiet
     if len (args) != 1:
         p.print_help ()
         import sys
@@ -386,6 +386,7 @@ def main ():
     c = Cygwin_package (settings, commands[0],
                         branches.get (commands[0], 'HEAD'))
     
+    logging.default_logger.threshold = options.verbosity
     c.connect_command_runner (runner.CommandRunner (logging.default_logger))
     c.create ()
     
