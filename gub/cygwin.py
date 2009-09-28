@@ -5,6 +5,7 @@ import new
 #
 from gub.syntax import printf
 from gub import build
+from gub import context
 from gub import cross
 from gub import misc
 from gub import repository
@@ -101,11 +102,8 @@ def change_target_package (package):
     package.get_subpackage_definitions \
         = misc.MethodOverrider (package.get_subpackage_definitions, cyg_defs)
 
-    def enable_static (d):
-        return d.replace ('--disable-static', '--enable-static')
-
-    package.configure_command \
-        = misc.MethodOverrider (package.configure_command, enable_static)
+    package.configure_command = (package.configure_command
+                                 .replace ('--disable-static', '--enable-static'))
 
     def install (whatsthis):
         package.install_readmes ()
@@ -150,7 +148,29 @@ def change_target_package (package):
     package.description_dict = misc.MethodOverrider (package.description_dict,
                                                      description_dict)
 
-def get_cygwin_package (settings, name, dict, skip):
+def package_class (name, cygwin_spec, blacklist):
+    cls = new.classobj (name, (build.BinaryBuild,), {})
+    deps = []
+    if 'requires' in cygwin_spec:
+        deps = re.sub ('\([^\)]*\)', '', cygwin_spec['requires']).split ()
+        #deps = [x.strip ().lower ().replace ('_', '-') for x in deps]
+        deps = [x.strip () for x in deps]
+        # URG, x11 introduces upcase *and* underscore in package name
+        #deps = [x.replace ('libx11-6', 'libX11_6') for x in deps]
+        #deps = [x.replace ('libxt', 'libXt') for x in deps]
+        #deps = [x.replace ('libx11', 'libX11') for x in deps]
+        deps = [x for x in deps if x not in blacklist]
+    cls.name_dependencies = deps
+    def get_build_dependencies (self):
+        return self.name_dependencies
+    cls.get_build_dependencies = get_build_dependencies
+    @context.subst_method
+    def name_func (self):
+        return name
+    cls.name = name_func
+    return cls
+
+def get_cygwin_package (settings, name, cygwin_spec, skip):
     cross = [
         'base-passwd', 'bintutils',
         'gcc', 'gcc-core', 'gcc-g++',
@@ -180,34 +200,13 @@ def get_cygwin_package (settings, name, dict, skip):
     blacklist = cross + cycle + skip + unneeded
     if name in blacklist:
         name += '::blacklisted'
-    package_class = new.classobj (name, (build.BinaryBuild,), {})
+    cls = package_class (name, cygwin_spec, blacklist)
     source = repository.TarBall (settings.downloads,
                                  os.path.join (mirror,
-                                               dict['install'].split ()[0]),
-                                 dict['version'],
+                                               cygwin_spec['install'].split ()[0]),
+                                 cygwin_spec['version'],
                                  strip_components=0)
-    package = package_class (settings, source)
-    package.name_dependencies = []
-    if 'requires' in dict:
-        deps = re.sub ('\([^\)]*\)', '', dict['requires']).split ()
-        #deps = [x.strip ().lower ().replace ('_', '-') for x in deps]
-        deps = [x.strip () for x in deps]
-        # URG, x11 introduces upcase *and* underscore in package name
-        #deps = [x.replace ('libx11-6', 'libX11_6') for x in deps]
-        #deps = [x.replace ('libxt', 'libXt') for x in deps]
-        #deps = [x.replace ('libx11', 'libX11') for x in deps]
-        deps = [x for x in deps if x not in blacklist]
-        package.name_dependencies = deps
-
-    def get_build_dependencies (self):
-        return self.name_dependencies
-    package.get_build_dependencies = misc.bind_method (get_build_dependencies,
-                                                       package)
-    pkg_name = name
-    def name (self):
-        return pkg_name
-    package.name = misc.bind_method (name, package)
-    return package
+    return cls (settings, source)
 
 ## UGH.   should split into parsing  package_file and generating gub specs.
 def get_cygwin_packages (settings, package_file, skip=[]):
@@ -304,7 +303,8 @@ class Dependency_resolver:
 #        self.source = fontconfig_source + freetype_source + guile_source + libtool_source
 #        self.source = fontconfig_source + ghostscript_source + guile_source + libtool_source
         # URG: get from command line!
-        self.source = ghostscript_source + guile_source + libtool_source + ['lilypond']
+        source = ghostscript_source + guile_source + libtool_source + ['lilypond']
+        self.source = [misc.with_platform (x, 'cygwin') for x in source]
         self.load_packages ()
 
     def grok_setup_ini (self, file, skip=[]):

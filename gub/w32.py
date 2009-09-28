@@ -5,6 +5,12 @@ from gub import loggedos
 from gub import misc
 from gub import target
 
+configure_no_threads = (''
+    + ' --disable-threads' # libicu
+    + ' --without-threads' # libxml2
+    + ' --disable-posixmutexes --disable-mutexsupport --disable-pthread_api' # db
+)
+
 def libtool_fix_allow_undefined (logger, file):
     '''libtool: link: warning: undefined symbols not allowed in i686-pc-mingw32 shared  libraries'''
     loggedos.file_sub (logger, [('^(allow_undefined_flag=.*)unsupported', r'\1')], file)

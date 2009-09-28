@@ -15,11 +15,5 @@ def change_target_package (package):
     # but db breaks with threads (although uses its own
     # interesting --disable-* naming), but libicu breaks,
     # libxml2 breaks...
-    def no_threads (d):
-        return (d
-                + ' --disable-threads' # libicu
-                + ' --without-threads' # libxml2
-                + '--disable-posixmutexes --disable-mutexsupport --disable-pthread_api' # db
-                )
-    package.configure_command \
-        = misc.MethodOverrider (package.configure_command, no_threads)
+    package.configure_command = (package.configure_command
+                                 + w32.configure_no_threads)

@@ -420,6 +420,7 @@ def get_base_package_name (name):
             'freebsd-runtime',
             'mingw-runtime',
             'lilypond-doc',
+            'cygwin::',
             ] if x in name]:
         return name
     name = re.sub ('gcc-c[+][+]-runtime', 'gcc', name)
@@ -499,7 +500,7 @@ def get_source_packages (settings, const_todo):
             else:
                 spec = distro_packages[name]
             specs[key] = spec
-        return spec.get_platform_build_dependencies ()
+        return list (map (get_base_package_name, spec.get_platform_build_dependencies ()))
 
     # FIXME: how to assign to outer var?
     # cygwin_resolver = None

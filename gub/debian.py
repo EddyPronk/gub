@@ -4,6 +4,7 @@ import new
 #
 from gub.syntax import printf
 from gub import build
+from gub import context
 from gub import cross
 from gub import misc
 
@@ -83,9 +84,14 @@ def get_debian_package (settings, description):
     package.get_build_dependencies = misc.bind_method (get_build_dependencies,
                                                        package)
     pkg_name = d['Package']
+    @context.subst_method
     def name (self):
         return pkg_name
+    message = 'FIXME: enter .name into package_class; see cygwin.py'
+    print message
+    raise Exception (message)
     package.name = misc.bind_method (name, package)
+    context.subst_method (package.name)
     return package
 
 ## FIXME: c&p cygwin.py

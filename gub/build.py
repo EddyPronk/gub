@@ -796,4 +796,3 @@ def append_dict (package, add_dict):
         package.get_substitution_dict = Change_dict (package, add_dict).append_dict
     except AttributeError:
         pass
-

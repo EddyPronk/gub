@@ -1,3 +1,7 @@
+from gub.syntax import printf
+from gub import context
+from gub import misc
+from gub import repository
 from gub.specs import ghostscript
 
 url='http://mirror3.cs.wisc.edu/pub/mirrors/ghost/GPL/gs860/ghostscript-8.60.tar.gz'
