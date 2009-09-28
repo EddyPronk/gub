@@ -187,7 +187,7 @@ target/freebsd-x86/root/ freebsd-x86 build and install root
 target/tools/root/usr/   native tools used for build
 bin/
 sourcefiles/             non-patch files used in build specifications
-nsis/                    nsis windows installer scripts/
+nsis/                    nsis windows installer scripts
 
 BASIC USAGE
 
