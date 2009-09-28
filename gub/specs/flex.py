@@ -13,12 +13,15 @@ ac_cv_func_realloc_0_nonnull=yes
 
 class Flex__mingw (Flex):
     dependencies = ['regex']
-    configure_variables = Flex.configure_variables + ' LIBS=-lregex'
+    configure_variables = (Flex.configure_variables
+                           + ' CPPFLAGS=-I%(srcdir)s'
+                           + ' LIBS=-lregex')
     def patch (self):
         self.system ('''
 mkdir -p %(srcdir)s/sys
 cp %(sourcefiledir)s/mingw-headers/wait.h %(srcdir)s/sys
 ''')
+        Flex.configure (self)
 
 class Flex__tools (tools.AutoBuild):
     source = Flex.source
