@@ -303,8 +303,8 @@ class Dependency_resolver:
 #        self.source = fontconfig_source + freetype_source + guile_source + libtool_source
 #        self.source = fontconfig_source + ghostscript_source + guile_source + libtool_source
         # URG: get from command line!
-        source = ghostscript_source + guile_source + libtool_source + ['lilypond']
-        self.source = [misc.with_platform (x, 'cygwin') for x in source]
+        #self.source = ghostscript_source + guile_source + libtool_source + ['lilypond']
+        self.source = guile_source + libtool_source + ['lilypond']
         self.load_packages ()
 
     def grok_setup_ini (self, file, skip=[]):

@@ -549,13 +549,9 @@ def get_source_packages (settings, const_todo):
         if name != spec.platform_name ():
             specs[spec.platform_name ()] = spec
 
-    if settings.is_distro:
-        def obj_to_dependency_objects (obj):
-            return [specs[n] for n in obj.get_platform_build_dependencies ()]
-    else:
-        def obj_to_dependency_objects (obj):
-            return [specs[get_base_package_name (n)]
-                    for n in obj.get_platform_build_dependencies ()]
+    def obj_to_dependency_objects (obj):
+        return [specs[get_base_package_name (n)]
+                for n in obj.get_platform_build_dependencies ()]
 
     sorted_specs = topologically_sorted (list (specs.values ()), {},
                                          obj_to_dependency_objects)
