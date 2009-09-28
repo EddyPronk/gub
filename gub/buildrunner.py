@@ -199,7 +199,7 @@ class BuildRunner:
         skip = []
         if self.options.offline:
             skip += ['download']
-        if not self.options.src_package:
+        if not self.options.build_source:
             skip += ['src_package']
         if self.options.keep_build:
             skip += ['clean']
