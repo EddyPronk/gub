@@ -1,15 +1,10 @@
 '''
 TODO:
   * figure out solution pango/pangocairo, lilypond/lilypondcairo mess
-  * build denemo from GIT, use lilypond[cairo] from tarball 2.12.3/2.13.3?
-  * try: denemo for linux, all audio and X dependencies?
-  * try: adding jack on windows
+  * add jack for windows?
   * what about timidity?
-  * upstream all denemo patches
-  * prefopts: move initial values into config file, instead of patching C code?
   * relocation: non-windows dynamic relocation in main.c
   * relocation: fix locale dir
-  * font: Denemo.ttf?
 '''
 
 from gub import misc
@@ -18,25 +13,6 @@ from gub import target
 
 class Denemo (target.AutoBuild):
     source = 'git://git.savannah.gnu.org/denemo.git'
-    #source = 'http://download.savannah.gnu.org/releases/denemo/denemo-0.8.6.tar.gz'
-    # in denemo GIT now
-    patches_0_8_6 = [
-        'denemo-srcdir-make.patch',
-        'denemo-relocate.patch'
-        ]
-    @staticmethod
-    def version_from_configure_in (self):
-        return self.version_from_configure_in ()
-    def __init__ (self, settings, source):
-        target.AutoBuild.__init__ (self, settings, source)
-        if isinstance (source, repository.Git):
-            source.version = misc.bind_method (Denemo.version_from_configure_in, source)
-        else:
-            return
-            def tracking (self):
-                return True
-            # let's keep srdir around for now
-            self.source.is_tracking = misc.bind_method (tracking, self.source)
     subpackage_names = ['']
     dependencies = [
         'cross/gcc-c++-runtime',
@@ -44,7 +20,7 @@ class Denemo (target.AutoBuild):
         'tools::gettext',
         'tools::libtool',
         'tools::pkg-config',
-        'epdfview', # Hmm
+        'epdfview', # Builds, but needs dynamic relocation patches.
         'guile-devel',
         'gtk+-devel',
         'jack-devel',
@@ -61,53 +37,58 @@ class Denemo (target.AutoBuild):
                        + ' --enable-jack'
                        + ' --program-prefix='
                        )
+    # FIXME: --enable-binreloc has been neutralized.
+    make_flags = 'BINRELOC_CFLAGS=-DENABLE_BINRELOC=1'
+
+    def __init__ (self, settings, source):
+        target.AutoBuild.__init__ (self, settings, source)
+        if isinstance (source, repository.Git):
+            source.version = misc.bind_method (repository.Repository.version_from_configure_in, source)
     def compile (self):
         if isinstance (self.source, repository.Git):
             # FIXME: missing dependency
             self.system ('cd %(builddir)s/src && make lylexer.c')
         target.AutoBuild.compile (self)
-    make_flags = 'BINRELOC_CFLAGS=-DENABLE_BINRELOC=1'
 
-class Denemo__mingw (Denemo):
-    patches_0_8_6 = Denemo.patches + [
-        'denemo-mingw.patch',
-        'denemo-prefops-mingw.patch',
-        'denemo-relocate-mingw.patch',
-        ]
-    def __init__ (self, settings, source):
-        Denemo.__init__ (self, settings, source)
-        # Configure (link) without -mwindows for denemo-console.exe
-        self.target_gcc_flags = '-mms-bitfields'
+class Denemo__mingw__windows (Denemo):
     dependencies = [x for x in Denemo.dependencies
-                if x.replace ('-devel', '') not in [
-                'jack',
-                'lash',
-                ]] + ['lilypad']
+                    if x.replace ('-devel', '') not in [
+            'jack',
+            'lash',
+            ]] + ['lilypad']
     configure_flags = (Denemo.configure_flags
                        .replace ('--enable-jack', '--disable-jack'))
     make_flags = ''
+
+class Denemo__mingw__console (Denemo__mingw__windows):
+    def __init__ (self, settings, source):
+        Denemo__mingw__windows.__init__ (self, settings, source)
+        # Configure (link) without -mwindows for denemo-console.exe
+        self.target_gcc_flags = '-mms-bitfields'
     def compile (self):
-        Denemo.compile (self)
+        Denemo__mingw__windows.compile (self)
         self.system ('''
 cd %(builddir)s/src && mv .libs/denemo.exe denemo-console.exe && rm -f denemo.exe
 cd %(builddir)s/src && make AM_LDFLAGS="-mwindows" && cp -p .libs/denemo.exe denemo-windows.exe
 ''')
     def install (self):
-        Denemo.install (self)
+        Denemo__mingw__windows.install (self)
         self.system ('''
 install -m755 %(builddir)s/src/denemo-windows.exe %(install_prefix)s/bin/denemo.exe
 install -m755 %(builddir)s/src/denemo-console.exe %(install_prefix)s/bin/denemo-console.exe
 ''')
 
+Denemo__mingw = Denemo__mingw__windows
+
 class Denemo__darwin (Denemo):
     dependencies = [x for x in Denemo.dependencies
-                if x.replace ('-devel', '') not in [
-                'jack',
-                'lash',
-                'libxml2', # Included in darwin-sdk, hmm?
-                ]] + [
-            'fondu',
-            'osx-lilypad',
-            ]
+                    if x.replace ('-devel', '') not in [
+            'jack',
+            'lash',
+            'libxml2', # Included in darwin-sdk, hmm?
+            ]] + [
+        'fondu',
+        'osx-lilypad',
+        ]
     configure_flags = (Denemo.configure_flags
                        .replace ('--enable-jack', '--disable-jack'))
