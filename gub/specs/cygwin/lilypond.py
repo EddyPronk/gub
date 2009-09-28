@@ -46,10 +46,24 @@ class LilyPond (lilypond.LilyPond):
         #     d = self._packages[name]
         # KeyError: 'bash'
         return [
-            'gettext-devel',
             ## FIXME: for distro we don't use get_base_package_name,
             ## so we cannot use split-package names for gub/source
             ## build dependencies
+
+            ##'gettext-devel',
+            'flex',
+            'tools::autoconf',
+            'tools::flex',
+            'tools::bison',
+            'tools::texinfo',
+            'tools::fontforge',
+            'tools::pkg-config',
+            'tools::gettext', # AM_GNU_GETTEXT
+            'tools::t1utils',
+            'tools::texi2html',
+            #'tools::texlive',
+            'system::mf', 
+            'system::mpost', 
             ##'guile-devel',
             'guile',
             'python',
