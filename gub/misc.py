@@ -533,24 +533,25 @@ def get_from_parents (cls, key):
 def file_sub (re_pairs, name, must_succeed=False, use_re=True, to_name=None):
     s = open (name).read ()
     t = s
+    unchanged = []
     for frm, to in re_pairs:
         new_text = ''
         if use_re:
             new_text = re.sub (re.compile (frm, re.MULTILINE), to, t)
         else:
             new_text = t.replace (frm, to)
-
-        if (t == new_text and must_succeed):
-            raise Exception ('nothing changed!')
-        else:
-            if must_succeed and type (must_succeed) == type (0):
-                must_succeed -= 1
+        if (t == new_text):
+            unchanged += [frm]
         t = new_text
-
+    if must_succeed:
+        changed = len (re_pairs) - len (unchanged)
+        if (must_succeed and not changed
+            or (type (must_succeed) == type (0)
+                and must_succeed < changed)):
+            raise Exception ('Unmatched expressions: ' + str (unchanged))
     if s != t or (to_name and name != to_name):
         stat_info = os.stat (name)
         mode = stat.S_IMODE (stat_info[stat.ST_MODE])
-
         if not to_name:
             try:
                 os.unlink (name + '~')
