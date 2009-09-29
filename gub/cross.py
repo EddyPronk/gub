@@ -75,8 +75,6 @@ def set_cross_dependencies (package_object_dict):
             'tools::grep',
             'tools::sed',
             ]
-    if 'BOOTSTRAP' in os.environ.keys ():
-        bootstrap_names += ['tools::gub-utils']
     packs = list (package_object_dict.values ())
 
     cross_packs = [p for p in packs if isinstance (p, AutoBuild)]

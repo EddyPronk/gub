@@ -12,16 +12,13 @@ no_patch = True # let's not use patch in a bootstrap package
 class Coreutils__tools (tools.AutoBuild):
 #    source = 'http://ftp.gnu.org/pub/gnu/coreutils/coreutils-6.12.tar.gz'
     source = 'http://ftp.gnu.org/pub/gnu/coreutils/coreutils-7.4.tar.gz'
-    if 'BOOTSTRAP' in os.environ.keys ():
-        patches = ['coreutils-6.12-shared-autoconf.patch']
-    else:
-        patches = ['coreutils-6.12-shared-automake.patch']
+    patches = ['coreutils-6.12-shared-automake.patch']
+    dependencies = ['tools::autoconf', 'tools::automake']
+    force_autoupdate = True
     if no_patch:
         patches = []
-    dependencies = []
-    if 'BOOTSTRAP' in os.environ.keys () or no_patch:
-        dependencies = ['tools::autoconf', 'tools::automake']
-    force_autoupdate = 'BOOTSTRAP' not in os.environ.keys () or no_patch
+        dependencies = []
+        force_autoupdate = False
     def patch (self):
         if no_patch:
             self.file_sub ([('noinst_LIBRARIES', 'lib_LIBRARIES')],
@@ -33,7 +30,7 @@ class Coreutils__tools (tools.AutoBuild):
         else:
             tools.AutoBuild.patch (self)
     def autoupdate (self):
-        if 'BOOTSTRAP' in os.environ.keys () or no_patch:
+        if no_patch:
             return
         self.system ('''
 cd %(srcdir)s && autoreconf
@@ -52,6 +49,6 @@ libcoreutils_a_AR='gcc -shared -o'
         self.system ('cd %(builddir)s/lib && ln -f libcoreutils.so libcoreutils.a')
         tools.AutoBuild.install (self)
         self.system ('cd %(builddir)s/lib && rm -f libcoreutils.a')
-        if 'BOOTSTRAP' in os.environ.keys () or no_patch:
+        if no_patch:
             self.system ('mkdir -p %(install_prefix)s/lib')
             self.system ('cp -pv %(builddir)s/lib/libcoreutils* %(install_prefix)s/lib')

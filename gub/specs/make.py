@@ -1,7 +1,6 @@
+#
 from gub import misc
 from gub import tools
-import os
-if 'BOOTSTRAP' in os.environ.keys (): from gub import target as tools
 
 class Make_make__tools (tools.AutoBuild):
     source = 'http://ftp.gnu.org/pub/gnu/make/make-3.81.tar.gz'

@@ -81,10 +81,7 @@ LDFLAGS='-L%(system_prefix)s/lib %(rpath)s %(libs)s'
     def update_libtool (self):
         build.AutoBuild.update_libtool (self)
     def configure_prefix (self):
-        if 'BOOTSTRAP' in os.environ.keys ():
-            return '%(prefix_dir)s'
         return '%(system_prefix)s'
-
     def post_install (self):
         build.AutoBuild.post_install (self)
         if not self.expand ('rpath'):
@@ -93,8 +90,6 @@ LDFLAGS='-L%(system_prefix)s/lib %(rpath)s %(libs)s'
 
     @context.subst_method
     def install_prefix (self):
-        if 'BOOTSTRAP' in os.environ.keys ():
-            return '%(install_root)s%(prefix_dir)s'
         return '%(install_root)s/%(system_prefix)s'
 
     def wrap_executables (self):
@@ -113,8 +108,6 @@ LD_LIBRARY_PATH=%(system_prefix)s/lib
 
     ## we need to tar up %(install_root)/%(prefix)
     def packaging_suffix_dir (self):
-        if 'BOOTSTRAP' in os.environ.keys ():
-            return ''
         return '%(system_root)s'
 
     def configure (self):

@@ -2,8 +2,6 @@ import re
 #
 from gub import misc
 from gub import tools
-import os
-if 'BOOTSTRAP' in os.environ.keys (): from gub import target as tools
 
 # And this is supposed to be one of the most compiled packages?
 # So why doesn't anyone fix configuring/compiling it?  Shees.

@@ -68,8 +68,6 @@ class Settings (context.Context):
         if not platform:
             platform = self.build_platform
         self.target_platform = platform
-        if 'BOOTSTRAP' in os.environ.keys () and platform == 'tools':
-            self.target_platform = self.build_platform
         if self.target_platform not in list (platforms.keys ()):
             raise UnknownPlatform (self.target_platform)
 
@@ -130,13 +128,6 @@ class Settings (context.Context):
         self.alltargetdir = self.workdir_prefix + '/target'
         self.targetdir = self.alltargetdir + '/' + self.target_platform
         self.system_root = self.targetdir + self.root_dir
-        if 'BOOTSTRAP' in os.environ.keys ():
-            # this is for: BOOTSTRAP *and* for running in [fake]chroot
-            self.root_dir = '/' + self.target_architecture
-            self.tools_root_dir = '/' + self.build_architecture
-            self.alltargetdir = '/GUB'
-            self.system_root = self.alltargetdir + self.root_dir
-            self.cross_dir = ''
 
         if self.platform == 'tools' and GUB_TOOLS_PREFIX:
             self.system_root = GUB_TOOLS_PREFIX
@@ -144,17 +135,9 @@ class Settings (context.Context):
 
         self.system_cross_prefix = self.system_prefix + self.cross_dir
         self.cross_prefix = self.system_cross_prefix
-        if 'BOOTSTRAP' in os.environ.keys ():
-            self.targetdir = self.system_root
-            # Hmm, cross now == system, isn't that is silly?
-            self.cross_prefix = self.system_prefix
-            self.system_cross_prefix = self.system_prefix + '/' + self.target_architecture
-
         self.tools_root = self.alltargetdir + self.tools_root_dir
         self.tools_prefix = self.tools_root + self.prefix_dir
         self.tools_cross_prefix = self.tools_prefix + self.cross_dir
-        if 'BOOTSTRAP' in os.environ.keys ():
-            self.tools_cross_prefix = self.tools_prefix + '/' + self.build_architecture
 
         self.logdir = self.targetdir + '/log'
         self.alllogdir = self.workdir + '/log'
@@ -283,43 +266,6 @@ class Settings (context.Context):
             dir = self.__dict__[a]
             if not os.path.isdir (dir):
                 loggedos.makedirs (logging.default_logger, dir)
-            if ('BOOTSTRAP' in os.environ.keys ()
-                and not os.path.exists (self.alltargetdir + self.alltargetdir)):
-                self.lib = 'lib'
-                if self.build_bits == '64':
-                    self.lib = 'lib64'
-                loggedos.system (logging.default_logger, '''
-cd %(alltargetdir)s && ln -sf . ./%(alltargetdir)s
-cd %(alltargetdir)s && ln -sf %(system_prefix)s .
-cd %(alltargetdir)s && ln -sf %(system_prefix)s/bin .
-cd %(alltargetdir)s && ln -sf %(system_root)s/dev .
-cd %(alltargetdir)s && ln -sf %(system_root)s/etc .
-cd %(alltargetdir)s && ln -sf %(system_root)s/%(lib)s .
-cd %(alltargetdir)s && mkdir -p lib
-cd %(alltargetdir)s && ln -sf %(system_prefix)s/bin/true lib/ld-linux.so.2      
-cd %(alltargetdir)s && ln -sf %(system_root)s/%(lib)s/libdl.so.2 lib/libdl.so.2
-#cd %(alltargetdir)s && ln -sf %(system_prefix)s/lib/libdl.so lib/libdl.so
-cd %(alltargetdir)s && ln -sf %(system_root)s/%(lib)s/libc.so.6 lib/libc.so.6
-cd %(alltargetdir)s && mkdir -p %(system_prefix)s/bin
-cd %(alltargetdir)s && ln -sf %(system_prefix)s/bin/bash %(system_prefix)s/bin/sh
-cd %(alltargetdir)s && ln -sf %(cross_prefix)s/bin/gcc %(system_prefix)s/bin/cc
-cd %(alltargetdir)s && mkdir %(system_root)s/etc
-#cd %(alltargetdir)s && mkdir -p proc
-cd %(alltargetdir)s && mkdir -p tmp
-''' % self.__dict__)
-                loggedos.dump_file (logging.default_logger, '''
-BOOTSTRAP=TRUE
-DISPLAY=gub-build:0.0
-HOME=/
-HOSTNAME=gub-build
-LOGNAME=gub
-USER=gub
-PATH="/usr/sbin:/usr/bin:/sbin:/bin:/usr/%(build_architecture)s/bin:/usr/%(build_architecture)s/%(build_architecture)s/bin:/gbin"
-cd # set current directory
-cd # junk OLDPWD too
-alias l='ls -ltrF'
-alias p='less -nMiX'
-''' % self.__dict__, '%(alltargetdir)s/etc/profile' % self.__dict__)
 
     def dependency_url (self, string):
         # FIXME: read from settings.rc, take platform into account
@@ -363,30 +309,11 @@ def as_variables (settings):
 def clean_environment ():
     return dict ([(x, os.environ[x]) for x in 
                   (
-                'BOOTSTRAP',
                 'DISPLAY', # Ugh, mingw::openoffice install complains about this...
-                # 'EMAIL',
-
-                # How to ever be clean, with this?  Try fakeroot-ng?
-                # 'FAKECHROOT',
-                # 'FAKECHROOT_BASE',
-                # 'FAKECHROOT_VERSION',
-                # 'FAKED_MODE',
-                # 'FAKEROOTKEY',
-
                 'GUB_TOOLS_PREFIX',
                 'HOME',
-                # 'HOSTNAME',
-                # 'IFS',
                 'LIBRESTRICT',
-                'OOO_TOOLS_DIR',
                 'PATH',
-                # 'PKG_CONFIG_PATH',
-                # 'PWD',
-                # 'SHELL',
-                # 'UID',
-                # 'USER',
-                # 'USERNAME',
                 )
                   if os.environ.get (x) != None])
 

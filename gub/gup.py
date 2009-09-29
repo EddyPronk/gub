@@ -181,10 +181,8 @@ class FileManager:
             else:
                 files.append (f)
 
-        if not 'BOOTSTRAP' in os.environ.keys ():
-            # let's not remove everything from below ourselves...
-            for f in files:
-                os.unlink (f)
+        for f in files:
+            os.unlink (f)
 
         for d in reversed (dirs):
             try:
@@ -451,8 +449,6 @@ def get_source_packages (settings, const_todo):
 
     def name_to_dependencies_via_gub (url):
         platform, url = split_platform (url)
-        if 'BOOTSTRAP' in os.environ.keys () and platform == 'tools':
-            platform = settings.build_platform
         if ':' in url:
             base, unused_parameters = misc.dissect_url (url)
             name = (os.path.basename (base)

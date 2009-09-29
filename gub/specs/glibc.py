@@ -75,12 +75,7 @@ libc_cv_rootsbindir=%(prefix_dir)s/sbin
     def get_conflict_dict (self):
         return {'': ['glibc-core'], 'devel': ['glibc-core'], 'doc': ['glibc-core'], 'runtime': ['glibc-core']}
     def patch (self):
-        #cross.AutoBuild.patch (self)
         target.AutoBuild.patch (self)
-        if 'BOOTSTRAP' in os.environ.keys ():
-            # running in chroot: chmod: memory exhausted...
-            self.file_sub ([('chmod a-w,a\+x', 'chmod +x',)],
-                           '%(srcdir)s/Makefile')
     def get_add_ons (self):
         return ('linuxthreads', 'nptl')
     @context.subst_method

@@ -155,10 +155,6 @@ to skip this check and risk a defective build.
         return self.dependencies
 
     def with_platform (self, name):
-        if 'BOOTSTRAP' in os.environ.keys ():
-            if 'tools::' in name:
-                return misc.with_platform (name.replace ('tools::', ''),
-                                           self.settings.build_platform)
         return misc.with_platform (name, self.settings.platform)
 
     def get_platform_build_dependencies (self):

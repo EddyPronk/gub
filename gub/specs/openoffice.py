@@ -11,11 +11,6 @@ from gub import repository
 from gub import target
 from gub import tools
 
-# If TRUE: do not build tools::OpenOffice, rather use user-prebuilt
-# tools from $OOO_TOOLS_DIR.  Obsolete.
-out_of_gub_OOO_TOOLS_DIR = False
-
-
 class OpenOffice (target.AutoBuild):
     source = 'git://anongit.freedesktop.org/git/ooo-build/ooo-build&revision=207309ec6d428c6a6698db061efb670b36d5df5a'
 
@@ -142,7 +137,7 @@ ac_cv_icu_version_minor=${ac_cv_icu_version_minor=3.81}
                        
 --with-saxon-jar=%(system_prefix)s/share/java/saxon9.jar
 --cache-file=%(builddir)s/config.cache
---with-tools-dir=%(OOO_TOOLS_DIR)s
+--with-tools-dir=%(tools_prefix)s/bin
 --with-additional-sections=MinGW
 ''')
 # TODO:
@@ -158,8 +153,6 @@ ac_cv_icu_version_minor=${ac_cv_icu_version_minor=3.81}
         def tracking (self):
             return True
         self.source.is_tracking = misc.bind_method (tracking, self.source)
-        if not out_of_gub_OOO_TOOLS_DIR:
-            os.environ['OOO_TOOLS_DIR'] = self.settings.tools_prefix + '/bin'
     def stages (self):
         return misc.list_insert_before (target.AutoBuild.stages (self),
                                         'compile',
@@ -185,19 +178,8 @@ ac_cv_icu_version_minor=${ac_cv_icu_version_minor=3.81}
     def upstream_dir (self):
         return '%(builddir)s/build/%(cvs_tag)s'
     @context.subst_method
-    def OOO_TOOLS_DIR (self):
-        if 'OOO_TOOLS_DIR' not in os.environ:
-            message = '''OOO_TOOLS_DIR not set
-Set OOO_TOOLS_DIR to a recent pre-compiled native solver, I do
-
-export OOO_TOOLS_DIR=/home/janneke/vc/ooo310-m8/build/ooo310-m8/solver/310/unxlngx6.pro/bin
-'''
-            printf (message)
-            raise Exception (message)
-        return os.environ['OOO_TOOLS_DIR']
-    @context.subst_method
     def LD_LIBRARY_PATH (self):
-        return '%(OOO_TOOLS_DIR)s/../lib' + misc.append_path (os.environ.get ('LD_LIBRARY_PATH', ''))
+        return '%(tools_prefix)s/lib' + misc.append_path (os.environ.get ('LD_LIBRARY_PATH', ''))
     def autoupdate (self):
         self.system ('cd %(srcdir)s && NOCONFIGURE=1 ./autogen.sh --noconfigure')
     def make_unpack (self):
@@ -261,8 +243,7 @@ cd %(builddir)s/build/%(cvs_tag)s && patch -p%(patch_strip_component)s < %(patch
             'bean', # com_sun_star_comp_beans_LocalOfficeWindow.c:39:18: error: jawt.h: No such file or directory
             'embedserv', # uses ATL http://article.gmane.org/gmane.comp.gnu.mingw.user/18483
             ]
-        if not out_of_gub_OOO_TOOLS_DIR:
-            disable_modules += ['testtools']
+        disable_modules += ['testtools']
         # ~/.wine/system.reg
         # "PATH"=str(2):"C:/windows/system32;C:/windows;z:/home/janneke/vc/gub/target/mingw/build/openoffice-trunk/build/ooo300-m9/solver/300/bin/wntgcci.pro/bin;z:/home/janneke/vc/gub/target/mingw/root/usr/bin;z:/home/janneke/vc/gub/target/mingw/root/usr/lib;"
         wine_modules = [
@@ -399,11 +380,6 @@ class OpenOffice__mingw (OpenOffice):
 "CPLD_ACCESSPATH"="Z:%(upstream_dir)s/solver/%(ver)s/wntgcci.pro/bin/;%(upstream_dir)s/solver/%(ver)s/wntgcci.pro/bin/;.;C:/Programma Bestanden/openoffice/usr/lib/ooo-3.1/OpenOffice.org 3/Basis/program/;C:/Programma Bestanden/openoffice/usr/lib/ooo-3.1/OpenOffice.org 3/URE/bin;C:/Program Files/openoffice/usr/lib/ooo-3.1/OpenOffice.org 3/Basis/program/;C:/Program Files/openoffice/usr/lib/ooo-3.1/OpenOffice.org 3/URE/bin;%(install_prefix)s/bin/;%(install_prefix)s/lib/;%(system_prefix)s/bin/;%(system_prefix)s/lib/;Z:%(install_prefix)s/bin/;Z:%(install_prefix)s/lib/;Z:%(upstream_dir)s/solver/%(ver)s/wntgcci.pro/bin/;Z:%(upstream_dir)s/solver/%(ver)s/wntgcci.pro/lib/;Z:%(system_prefix)s/lib/;Z:%(system_prefix)s/lib/"
 ''',
                    wine_userdef, mode='a')
-        # fixup gen_makefile disaster -- TODO: CC_FOR_BUILD
-        if out_of_gub_OOO_TOOLS_DIR:
-            self.system ('''cp -pvf $OOO_TOOLS_DIR/../../../../sal/unx*/bin/gen_makefile $OOO_TOOLS_DIR/gen_makefile''')
-            self.system ('''cp -pvf $OOO_TOOLS_DIR/../../../../icc/unx*/bin/create_sRGB_profile $OOO_TOOLS_DIR/create_sRGB_profile''')
-            self.system ('''cp -pvf $OOO_TOOLS_DIR/../../../../i18npool/unx*/bin/* $OOO_TOOLS_DIR''')
     openoffice_configure_flags = (OpenOffice.openoffice_configure_flags
                 .replace ('--with-system-xrender-headers', '')
                                   + ' --disable-xrender-link'
@@ -439,8 +415,8 @@ fi
         self.system ('cp -pv %(sourcefiledir)s/mingw-headers/*.h %(upstream_dir)s/solver/%(ver)s/wntgcci.pro/inc')
 
 
-# Attempt at building a `tiny fraction' of openoffice for essential
-# native binary build tools, aiming to remove out_of_gub_OOO_TOOLS_DIR
+# Build a `tiny fraction' of openoffice for essential native binary
+# build tools.
 
 # The dependencies for some OO.o build tools are rather crude, the
 # whole module (eg: shell, svtools) the tool is built in may depend on
