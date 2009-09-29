@@ -142,8 +142,8 @@ def build_installer (installer_obj):
         installer_file = installer_obj.installer_file ().replace (os.getcwd () + '/', '')
         logger.write_log ('installer left in: %(installer_file)s\n' % locals (), 'info')
     except:
-	t, v, b = sys.exc_info ()
-	if t == installer.ChecksumShortCircuit:
+        t, v, b = sys.exc_info ()
+        if t == installer.ChecksumShortCircuit:
             logger.write_log ('*** checksum matches: no rebuild necessary\n', 'stage')
             checksum_file = v.file
             logger.write_log ('checksum file: %(checksum_file)s\n' % locals (), 'info')

@@ -27,8 +27,8 @@ import pickle
 import optparse
 import os
 import sys
-import misc
 #
+from gub import misc
 from gub.syntax import printf
 
 def get_url_versions (url):

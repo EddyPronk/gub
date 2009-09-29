@@ -114,8 +114,8 @@ on the state of the file system.  For example:
     printf () rather than print/print ()
 
     except:
-	t, v, b = sys.exc_info ()
-	if t == NameError:
+        t, v, b = sys.exc_info ()
+        if t == NameError:
         ...
 
 * support for ccache and icecc (icecream) icecc requires no setup/init

@@ -27,7 +27,7 @@ def is_subst_method (member):
                                                 function_class (member[OBJECT]))))
 
 def object_get_methods (object):
-    return filter (is_method, inspect.getmembers (object))
+    return list (filter (is_method, inspect.getmembers (object)))
 
 class _C (object):
     pass
