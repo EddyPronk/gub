@@ -11,16 +11,18 @@ from gub.specs import lilypond
 #   bin/gib --platform= --branch=PACKAGE=BRANCH PACKAGE
 # not really a 'python driver'.
 class LilyPond_installer (lilypond.LilyPond_base):
-    dependencies = [self.settings.target_platform + '::lilypond']
+    install_command = 'true'
+    def __init__ (self, settings, source):
+        lilypond.LilyPond_base.__init__ (self, settings, source)
+        self.dependencies = [self.settings.target_platform + '::lilypond']
     def compile (self):
-        self.system (self.compile_command)
         # FIXME: ugh, no branches anymore in self.settings.branches['guile'],
         # let's hope/assume the user did not override guile source or branch...
+        #guile_branch = guile.Guile (self.settings, guile.Guile.source).source.full_branch_name ()
         dir = os.path.join (self.settings.downloads, 'guile')
         guile_branch = repository.get_repository_proxy (dir, guile.Guile.source, guile.Guile.branch).full_branch_name ()
-        #guile_branch = guile.Guile (self.settings, guile.Guile.source).source.full_branch_name ()
         lilypond_branch = self.source.full_branch_name ()
-    compile_command = (sys.executable
+        compile_command = (sys.executable
                 + misc.join_lines ('''
 bin/gib
 --platform=%%(target_platform)s
@@ -28,7 +30,7 @@ bin/gib
 --branch=lilypond=%(lilypond_branch)s
 lilypond
 ''' % locals ()))
-    install_command = 'true'
+        self.system (compile_command)
 
 class LilyPond_installer__mingw (LilyPond_installer):
     dependencies = (LilyPond_installer.dependencies
