@@ -94,7 +94,7 @@ class Dependency:
         source = self.url ()
         if not isinstance (source, repository.Repository):
             source = repository.get_repository_proxy (dir, source, branch)
-        logging.default_logger.write_log ('cls:' + str (self.build_class () + '\n'), 'output')
+        logging.default_logger.write_log ('cls:' + str (self.build_class ()) + '\n', 'output')
         return self.build_class () (self.settings, source)
 
     def build_class (self):
