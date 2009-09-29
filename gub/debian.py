@@ -96,9 +96,10 @@ def get_debian_package (settings, description):
 
 ## FIXME: c&p cygwin.py
 class Dependency_resolver:
-    def __init__ (self, settings):
+    def __init__ (self, settings, todo):
         self.settings = settings
         self.packages = {}
+        self.source = todo
         self.load_packages ()
 
     def grok_packages_file (self, file):
@@ -139,7 +140,7 @@ class Dependency_resolver:
         # FIXME: download/offline update
         if not os.path.exists (file):
             misc.download_url (url, dir,
-                               local=['file://%s' % self.settings.downloads],
+                               local=['file://' + self.settings.downloads + '/Debian'],
                                )
             os.system ('gunzip  %(base)s.gz' % locals ())
             os.system ('mv %(base)s %(file)s' % locals ())
@@ -150,9 +151,9 @@ class Dependency_resolver:
         
 dependency_resolver = None
 
-def init_dependency_resolver (settings):
+def init_dependency_resolver (settings, todo):
     global dependency_resolver
-    dependency_resolver = Dependency_resolver (settings)
+    dependency_resolver = Dependency_resolver (settings, todo)
 
 def debian_name_to_dependency_names (name):
     return dependency_resolver.get_dependencies (name)
