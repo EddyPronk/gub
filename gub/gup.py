@@ -24,6 +24,8 @@ from gub import loggedos
 from gub import misc
 import gub.settings
 from gub import target
+from gub import cygwin
+from gub import debian
 
 class GupException (Exception):
     pass
@@ -429,11 +431,6 @@ def get_base_package_name (name):
     name = re.sub ('-doc$', '', name)
     return name
 
-# FIXME: how to assign to outer var?
-# FIXME: make this more plugin-ish
-cygwin_resolver = None
-debian_resolver = None
-
 def get_source_packages (settings, const_todo):
     """TODO is a list of (source) builds.
 
@@ -502,21 +499,14 @@ def get_source_packages (settings, const_todo):
             specs[key] = spec
         return list (map (get_base_package_name, spec.get_platform_build_dependencies ()))
 
-    # FIXME: how to assign to outer var?
-    # cygwin_resolver = None
     def name_to_dependencies_via_cygwin (name):
-        global cygwin_resolver #ugh
-        if not cygwin_resolver:
-            from gub import cygwin
-            cygwin_resolver = cygwin.init_dependency_resolver (settings)
+        if not cygwin.dependency_resolver:
+            cygwin.init_dependency_resolver (settings, const_todo[:])
         return name_to_dependencies_via_distro (cygwin.get_packages (), name)
 
-    #debian_resolver = None
     def name_to_dependencies_via_debian (name):
-        global debian_resolver #ugh
-        if not debian_resolver:
-            from gub import debian
-            debian_resolver = debian.init_dependency_resolver (settings)
+        if not debian.dependency_resolver:
+            debian.init_dependency_resolver (settings, const_todo[:])
         return name_to_dependencies_via_distro (debian.get_packages (), name)
 
     name_to_dependencies = {
