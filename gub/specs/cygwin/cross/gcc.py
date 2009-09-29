@@ -43,12 +43,3 @@ class Gcc__cygwin (cross_gcc.Gcc):
 --enable-hash-synchronization
 --enable-libstdcxx-debug
 '''))
-    def xuntar (self):
-        ball = self.source._file_name ()
-        cygwin.untar_cygwin_src_package_variant2 (self, ball.replace ('-core', '-g++'),
-                                                  split=True)
-        cygwin.untar_cygwin_src_package_variant2 (self, ball)
-    make_flags = misc.join_lines ('''
-tooldir="%(cross_prefix)s/%(target_architecture)s"
-gcc_tooldir="%(cross_prefix)s/%(target_architecture)s"
-''')

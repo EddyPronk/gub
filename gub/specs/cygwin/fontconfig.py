@@ -1,3 +1,6 @@
+#
+from gub import cygwin
+from gub import gup
 from gub.specs import fontconfig
 
 class Fontconfig (fontconfig.Fontconfig):
@@ -5,24 +8,11 @@ class Fontconfig (fontconfig.Fontconfig):
     configure_flags = (fontconfig.Fontconfig.configure_flags
                 + ' --sysconfdir=/etc --localstatedir=/var')
     subpackage_names = ['devel', 'runtime', '']
+    dependencies = gup.gub_to_distro_deps (fontconfig.Fontconfig.dependencies,
+                                           cygwin.gub_to_distro_dict)
     def __init__ (self, settings, source):
         fontconfig.Fontconfig.__init__ (self, settings, source)
         self.so_version = '1'
-    def get_subpackage_definitions (self):
-        d = dict (fontconfig.Fontconfig.get_subpackage_definitions (self))
-        # urg, must remove usr/share. Because there is no doc package,
-        # runtime iso '' otherwise gets all docs.
-        d['runtime'] = [self.settings.prefix_dir + '/lib']
-        return d
-        #return ['devel', 'doc', '']
-    def get_build_dependencies (self): #cygwin
-        return ['libtool', 'libfreetype2-devel', 'expat']
-    def get_dependency_dict (self): #cygwin
-        return {
-            '': ['libfontconfig1'],
-            'devel': ['libfontconfig1', 'libfreetype2-devel'],
-            'runtime': ['expat', 'libfreetype26', 'zlib'],
-            }
     def category_dict (self):
         return {'': 'Libs'}
     def install (self):

@@ -1,4 +1,6 @@
 #
+from gub import cygwin
+from gub import gup
 from gub import misc
 from gub.specs import texlive
 
@@ -15,17 +17,8 @@ ac_cv_func_vfork_works=${ac_cv_func_vfork_works=yes}
 xdvi_cv_setsid_in_vfork=${xdvi_cv_setsid_in_vfork=yes}
 lt_cv_cc_dll_switch=${lt_cv_cc_dll_switch="-Wl,--dll -nostartfiles"}
 ''')
-    # FIXME: uses mixed gub/distro dependencies
-    def get_dependency_dict (self): #cygwin
-        d = texlive.Texlive.get_dependency_dict (self) # cygwin
-        d[''] += ['cygwin']
-#        d['devel'] += ['cygwin'] + ['bash']
-#        d['runtime'] += ['libjpeg62', 'libpng12', 't1lib', 'zlib']
-        d[''] += ['libfreetype26', 'libgd2', 'libjpeg62', 'libncurses7', 'libpng12', 't1lib', 'xorg-x11-bin-dlls', 'xaw3d', 'zlib']
-        return d
-    # FIXME: uses mixed gub/distro dependencies
-    def get_build_dependencies (self): # cygwin
-        return ['jpeg', 'libfreetype2-devel', 'libgd-devel', 'libncurses-devel', 'libpng12-devel', 'libtool', 't1lib', 'xorg-x11-devel', 'xaw3d', 'zlib']
+    dependencies = gup.gub_to_distro_deps (lilypond.LilyPond.dependencies,
+                                           cygwin.gub_to_distro_dict)
     def patch (self):
         # FIXME: duh: cross-compile auto-enables t1lib
         for i in self.locate_files ('%(srcdir)s', 'configure'):

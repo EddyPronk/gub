@@ -1,3 +1,5 @@
+from gub import cygwin
+from gub import gup
 from gub import misc
 from gub.specs import guile
 
@@ -12,30 +14,12 @@ libltdl_cv_sys_search_path=${libltdl_cv_sys_search_path="%(system_prefix)s/lib"}
                 + misc.join_lines ('''
 CFLAGS='-DHAVE_CONFIG_H=1 -I%(builddir)s'
 '''))
+    dependencies = gup.gub_to_distro_deps (lilypond.LilyPond.dependencies,
+                                           cygwin.gub_to_distro_dict)
     EXE = '.exe'
     def category_dict (self):
         return {'': 'Interpreters'}
-    # Using gub dependencies only would be nice, but
-    # we need to a lot of gup.gub_to_distro_deps ().
-    def GUB_get_dependency_dict (self): # cygwin
-        d = guile.Guile.get_dependency_dict (self)
-        d['runtime'].append ('cygwin')
-        return d
-    # Using gub dependencies only would be nice, but
-    # we need to a lot of gup.gub_to_distro_deps ().
-    def GUB_get_build_dependencies (self):
-        return guile.Guile.dependencies + ['libiconv-devel']
-    # FIXME: uses mixed gub/distro dependencies
-    def get_dependency_dict (self): #cygwin
-        d = guile.Guile.get_dependency_dict (self)
-        d[''] += ['cygwin']
-        d['devel'] += ['cygwin'] + ['bash']
-        d['runtime'] += ['cygwin', 'crypt', 'libreadline6']
-        return d
-    # FIXME: uses mixed gub/distro dependencies
-    def get_build_dependencies (self): # cygwin
-        return ['tools::guile', 'crypt', 'libgmp-devel', 'gettext-devel', 'libiconv', 'libtool', 'readline']
-    def configure (self):
+    def XXXconfigure (self):
         self.file_sub ([('''^#(LIBOBJS=".*fileblocks.*)''', r'\1')],
                        '%(srcdir)s/configure')
         guile.Guile.configure (self)

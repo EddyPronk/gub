@@ -1,15 +1,11 @@
 #
 from gub import cygwin
+from gub import gup
 from gub.specs import libtool
 
 class Libtool (libtool.Libtool):
-    def only_for_cygwin_untar (self):
-        cygwin.untar_cygwin_src_package_variant2 (self, self.file_name ())
-    # FIXME: we do most of this for all cygwin packages
-    def get_dependency_dict (self): #cygwin
-        d = libtool.Libtool.get_dependency_dict (self) # cygwin
-        d[''].append ('cygwin')
-        return d
+    dependencies = gup.gub_to_distro_deps (libtool.Libtool.dependencies,
+                                           cygwin.gub_to_distro_dict)
     def category_dict (self):
         return {'': 'Devel'}
     def install (self):
