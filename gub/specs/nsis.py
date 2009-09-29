@@ -20,8 +20,7 @@ SKIPUTILS="NSIS Menu"
             cross.change_target_package_x86 (self, self.add_mingw_env ())
         if 'stat' in misc.librestrict ():
             self.compile_command = ('LIBRESTRICT_IGNORE=%(tools_prefix)s/bin/python '
-                               + tools.SConsBuild.compile_command)
-        return tools.SConsBuild.compile_command
+                                    + tools.SConsBuild.compile_command)
     def add_mingw_env (self):
         # Do not use 'root', 'usr', 'cross', rather use from settings,
         # that enables changing system root, prefix, etc.
