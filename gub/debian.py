@@ -88,7 +88,7 @@ def get_debian_package (settings, description):
     def name (self):
         return pkg_name
     message = 'FIXME: enter .name into package_class; see cygwin.py'
-    print message
+    printf (message)
     raise Exception (message)
     package.name = misc.bind_method (name, package)
     context.subst_method (package.name)

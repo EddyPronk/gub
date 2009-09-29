@@ -423,7 +423,6 @@ class TarBall (Repository):
 
         self._version = version
         if not version:
-            #print misc.split_ball (url)
             x, v, f = misc.split_ball (url)
             self._version = '.'.join (map (str, v[:-1]))
 

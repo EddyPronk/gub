@@ -3,6 +3,7 @@ from gub import context
 from gub import misc
 from gub import target
 from gub.specs import lilypond
+from gub.syntax import printf
 
 class LilyPond_doc (lilypond.LilyPond_base):
     dependencies = (lilypond.LilyPond_base.dependencies
@@ -26,7 +27,7 @@ TARGET_PYTHON=/usr/bin/python
                      ' mandir=/share/man')
     @context.subst_method
     def build_number (self):
-        print 'FIXME Buildnum'
+        printf ('FIXME Buildnum')
         return '0'
     @context.subst_method
     def doc_ball (self):
