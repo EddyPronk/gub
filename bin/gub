@@ -242,7 +242,7 @@ def exceptional_build (settings, options, files, logger):
                 # output when using -v; what we want to see is the
                 # command error.
                 exception_verbosity = 'warning'
-            log.write_log (misc.exception_string (), 'warning')
+            log.write_log (misc.exception_string (), exception_verbosity)
             if buildrunner.target:
                 logger.write_log ('*** Failed target: %s\n' % buildrunner.target, 'stage')
             # Using "raise" here has this exception's stack trace at
@@ -266,6 +266,7 @@ def logged_build (settings, options, files):
     if os.path.isfile (log):
         misc.rename_append_time (log)
     logger = logging.set_default_log (log, options.verbosity)
+    buildrunner.logger = logger
     logger.write_log ('root: %s\n' % settings.system_root, 'verbose')
     logger.write_log ('platform: %s\n' % settings.platform, 'verbose')
     sys.exit (exceptional_build (settings, options, files, logger))
