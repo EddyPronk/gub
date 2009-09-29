@@ -333,6 +333,7 @@ class BuildRunner:
         for spec_name in deps:
             target = spec_name
             self.spec_build (spec_name)
+            logger = logging.default_logger
         target = None
 
 target = None

@@ -232,9 +232,10 @@ def exceptional_build (settings, options, files, logger):
         t, v, b = sys.exc_info ()
         if not (t == SystemExit and not v.code):
             log = buildrunner.logger
-            sys.stderr.write ('\n')
-            log.dump_tail (sys.stderr)
-            sys.stderr.write ('\n')
+            if os.path.exists (log.log_file_name):
+                sys.stderr.write ('\n')
+                log.dump_tail (sys.stderr)
+                sys.stderr.write ('\n')
             exception_verbosity = 'stage'
             if t == misc.SystemFailed:
                 # Log the python exception, and only print cluttering
