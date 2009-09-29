@@ -310,8 +310,10 @@ def clean_environment ():
     return dict ([(x, os.environ[x]) for x in 
                   (
                 'DISPLAY', # Ugh, mingw::openoffice install complains about this...
+                'FTP_PROXY',
                 'GUB_TOOLS_PREFIX',
                 'HOME',
+                'HTTP_PROXY',
                 'LIBRESTRICT',
                 'PATH',
                 )
